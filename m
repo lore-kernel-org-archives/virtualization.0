@@ -1,15 +1,14 @@
-From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: RE: [PATCH 1/6] virtio: wrap find_vqs
-Date: Thu, 30 Mar 2017 00:50:50 +0000
-Message-ID: <33183CC9F5247A488A2544077AF19020DA216907__8927.33002915538$1490835115$gmane$org@DGGEMA505-MBS.china.huawei.com>
-References: <1490820507-8005-1-git-send-email-mst@redhat.com>
-	<1490820507-8005-2-git-send-email-mst@redhat.com>
+From: kbuild test robot <fengguang.wu@intel.com>
+Subject: [vhost:linux-next 6/19]
+	drivers/remoteproc/remoteproc_virtio.c:106:33: sparse: not enough
+	arguments for function vring_new_virtqueue
+Date: Thu, 30 Mar 2017 10:08:10 +0800
+Message-ID: <201703301006.UmKjTRhG%fengguang.wu__964.833147782151$1490839705$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1490820507-8005-2-git-send-email-mst@redhat.com>
-Content-Language: zh-CN
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,226 +18,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, David Airlie <airlied@linux.ie>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, "James E.J.
-	Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, John Fastabend <john.fastabend@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, netdev@vger.kernel.o
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, kbuild-all@01.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-> -----Original Message-----
-> From: Michael S. Tsirkin [mailto:mst@redhat.com]
-> Sent: Thursday, March 30, 2017 4:49 AM
-> Subject: [PATCH 1/6] virtio: wrap find_vqs
-> 
-> We are going to add more parameters to find_vqs, let's wrap the call so
-> we don't need to tweak all drivers every time.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/block/virtio_blk.c                 | 3 +--
->  drivers/char/virtio_console.c              | 6 +++---
->  drivers/crypto/virtio/virtio_crypto_core.c | 3 +--
->  drivers/gpu/drm/virtio/virtgpu_kms.c       | 3 +--
->  drivers/net/caif/caif_virtio.c             | 3 +--
->  drivers/net/virtio_net.c                   | 3 +--
->  drivers/rpmsg/virtio_rpmsg_bus.c           | 2 +-
->  drivers/scsi/virtio_scsi.c                 | 3 +--
->  drivers/virtio/virtio_balloon.c            | 3 +--
->  drivers/virtio/virtio_input.c              | 3 +--
->  include/linux/virtio_config.h              | 9 +++++++++
->  net/vmw_vsock/virtio_transport.c           | 6 +++---
->  12 files changed, 24 insertions(+), 23 deletions(-)
-> 
-
-Acked-by: Gonglei <arei.gonglei@huawei.com>
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
+head:   8ab881d0e8136390da79aa0902fe03d2f6c65e32
+commit: 281310d52c1d63630f54b1ac5cca6e9eb8715b3a [6/19] virtio: add context flag to find vqs
+reproduce:
+        # apt-get install sparse
+        git checkout 281310d52c1d63630f54b1ac5cca6e9eb8715b3a
+        make ARCH=x86_64 allmodconfig
+        make C=1 CF=-D__CHECK_ENDIAN__
 
 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 1d4c9f8..c08c30c 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -455,8 +455,7 @@ static int init_vq(struct virtio_blk *vblk)
->  	}
-> 
->  	/* Discover virtqueues and write information to configuration.  */
-> -	err = vdev->config->find_vqs(vdev, num_vqs, vqs, callbacks, names,
-> -			&desc);
-> +	err = virtio_find_vqs(vdev, num_vqs, vqs, callbacks, names, &desc);
->  	if (err)
->  		goto out;
-> 
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index e9b7e0b..5da4c8e 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -1945,9 +1945,9 @@ static int init_vqs(struct ports_device *portdev)
->  		}
->  	}
->  	/* Find the queues. */
-> -	err = portdev->vdev->config->find_vqs(portdev->vdev, nr_queues, vqs,
-> -					      io_callbacks,
-> -					      (const char **)io_names, NULL);
-> +	err = virtio_find_vqs(portdev->vdev, nr_queues, vqs,
-> +			      io_callbacks,
-> +			      (const char **)io_names, NULL);
->  	if (err)
->  		goto free;
-> 
-> diff --git a/drivers/crypto/virtio/virtio_crypto_core.c
-> b/drivers/crypto/virtio/virtio_crypto_core.c
-> index 21472e4..a111cd72 100644
-> --- a/drivers/crypto/virtio/virtio_crypto_core.c
-> +++ b/drivers/crypto/virtio/virtio_crypto_core.c
-> @@ -119,8 +119,7 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
->  		names[i] = vi->data_vq[i].name;
->  	}
-> 
-> -	ret = vi->vdev->config->find_vqs(vi->vdev, total_vqs, vqs, callbacks,
-> -					 names, NULL);
-> +	ret = virtio_find_vqs(vi->vdev, total_vqs, vqs, callbacks, names, NULL);
->  	if (ret)
->  		goto err_find;
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c
-> b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> index 4918668..1e1c90b 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> @@ -175,8 +175,7 @@ int virtio_gpu_driver_load(struct drm_device *dev,
-> unsigned long flags)
->  	DRM_INFO("virgl 3d acceleration not supported by guest\n");
->  #endif
-> 
-> -	ret = vgdev->vdev->config->find_vqs(vgdev->vdev, 2, vqs,
-> -					    callbacks, names, NULL);
-> +	ret = virtio_find_vqs(vgdev->vdev, 2, vqs, callbacks, names, NULL);
->  	if (ret) {
->  		DRM_ERROR("failed to find virt queues\n");
->  		goto err_vqs;
-> diff --git a/drivers/net/caif/caif_virtio.c b/drivers/net/caif/caif_virtio.c
-> index bc0eb47..6122768 100644
-> --- a/drivers/net/caif/caif_virtio.c
-> +++ b/drivers/net/caif/caif_virtio.c
-> @@ -679,8 +679,7 @@ static int cfv_probe(struct virtio_device *vdev)
->  		goto err;
-> 
->  	/* Get the TX virtio ring. This is a "guest side vring". */
-> -	err = vdev->config->find_vqs(vdev, 1, &cfv->vq_tx, &vq_cbs, &names,
-> -			NULL);
-> +	err = virtio_find_vqs(vdev, 1, &cfv->vq_tx, &vq_cbs, &names, NULL);
->  	if (err)
->  		goto err;
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index ea9890d..6802169 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2079,8 +2079,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
->  		names[txq2vq(i)] = vi->sq[i].name;
->  	}
-> 
-> -	ret = vi->vdev->config->find_vqs(vi->vdev, total_vqs, vqs, callbacks,
-> -					 names, NULL);
-> +	ret = virtio_find_vqs(vi->vdev, total_vqs, vqs, callbacks, names, NULL);
->  	if (ret)
->  		goto err_find;
-> 
-> diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c
-> b/drivers/rpmsg/virtio_rpmsg_bus.c
-> index 5e66e08..f7cade0 100644
-> --- a/drivers/rpmsg/virtio_rpmsg_bus.c
-> +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-> @@ -869,7 +869,7 @@ static int rpmsg_probe(struct virtio_device *vdev)
->  	init_waitqueue_head(&vrp->sendq);
-> 
->  	/* We expect two virtqueues, rx and tx (and in this order) */
-> -	err = vdev->config->find_vqs(vdev, 2, vqs, vq_cbs, names, NULL);
-> +	err = virtio_find_vqs(vdev, 2, vqs, vq_cbs, names, NULL);
->  	if (err)
->  		goto free_vrp;
-> 
-> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-> index 939c47d..e9222dc 100644
-> --- a/drivers/scsi/virtio_scsi.c
-> +++ b/drivers/scsi/virtio_scsi.c
-> @@ -870,8 +870,7 @@ static int virtscsi_init(struct virtio_device *vdev,
->  	}
-> 
->  	/* Discover virtqueues and write information to configuration.  */
-> -	err = vdev->config->find_vqs(vdev, num_vqs, vqs, callbacks, names,
-> -			&desc);
-> +	err = virtio_find_vqs(vdev, num_vqs, vqs, callbacks, names, &desc);
->  	if (err)
->  		goto out;
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 34adf9b..408c174 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -418,8 +418,7 @@ static int init_vqs(struct virtio_balloon *vb)
->  	 * optionally stat.
->  	 */
->  	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 :
-> 2;
-> -	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks, names,
-> -			NULL);
-> +	err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
->  	if (err)
->  		return err;
-> 
-> diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
-> index 79f1293..3a0468f 100644
-> --- a/drivers/virtio/virtio_input.c
-> +++ b/drivers/virtio/virtio_input.c
-> @@ -173,8 +173,7 @@ static int virtinput_init_vqs(struct virtio_input *vi)
->  	static const char * const names[] = { "events", "status" };
->  	int err;
-> 
-> -	err = vi->vdev->config->find_vqs(vi->vdev, 2, vqs, cbs, names,
-> -			NULL);
-> +	err = virtio_find_vqs(vi->vdev, 2, vqs, cbs, names, NULL);
->  	if (err)
->  		return err;
->  	vi->evt = vqs[0];
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 8355bab..47f3d80 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -179,6 +179,15 @@ struct virtqueue *virtio_find_single_vq(struct
-> virtio_device *vdev,
->  	return vq;
->  }
-> 
-> +static inline
-> +int virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-> +			struct virtqueue *vqs[], vq_callback_t *callbacks[],
-> +			const char * const names[],
-> +			struct irq_affinity *desc)
-> +{
-> +	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, desc);
-> +}
-> +
->  /**
->   * virtio_device_ready - enable vq use in probe function
->   * @vdev: the device
-> diff --git a/net/vmw_vsock/virtio_transport.c
-> b/net/vmw_vsock/virtio_transport.c
-> index 68675a1..97e26e2 100644
-> --- a/net/vmw_vsock/virtio_transport.c
-> +++ b/net/vmw_vsock/virtio_transport.c
-> @@ -573,9 +573,9 @@ static int virtio_vsock_probe(struct virtio_device
-> *vdev)
-> 
->  	vsock->vdev = vdev;
-> 
-> -	ret = vsock->vdev->config->find_vqs(vsock->vdev, VSOCK_VQ_MAX,
-> -					    vsock->vqs, callbacks, names,
-> -					    NULL);
-> +	ret = virtio_find_vqs(vsock->vdev, VSOCK_VQ_MAX,
-> +			      vsock->vqs, callbacks, names,
-> +			      NULL);
->  	if (ret < 0)
->  		goto out;
-> 
-> --
-> MST
+sparse warnings: (new ones prefixed by >>)
+
+   include/linux/compiler.h:264:8: sparse: attribute 'no_sanitize_address': unknown attribute
+>> drivers/remoteproc/remoteproc_virtio.c:106:33: sparse: not enough arguments for function vring_new_virtqueue
+   drivers/remoteproc/remoteproc_virtio.c: In function 'rp_find_vq':
+   drivers/remoteproc/remoteproc_virtio.c:107:27: error: passing argument 8 of 'vring_new_virtqueue' from incompatible pointer type [-Werror=incompatible-pointer-types]
+         rproc_virtio_notify, callback, name);
+                              ^~~~~~~~
+   In file included from drivers/remoteproc/remoteproc_virtio.c:25:0:
+   include/linux/virtio_ring.h:93:19: note: expected 'bool (*)(struct virtqueue *) {aka _Bool (*)(struct virtqueue *)}' but argument is of type 'void (*)(struct virtqueue *)'
+    struct virtqueue *vring_new_virtqueue(unsigned int index,
+                      ^~~~~~~~~~~~~~~~~~~
+   drivers/remoteproc/remoteproc_virtio.c:107:37: error: passing argument 9 of 'vring_new_virtqueue' from incompatible pointer type [-Werror=incompatible-pointer-types]
+         rproc_virtio_notify, callback, name);
+                                        ^~~~
+   In file included from drivers/remoteproc/remoteproc_virtio.c:25:0:
+   include/linux/virtio_ring.h:93:19: note: expected 'void (*)(struct virtqueue *)' but argument is of type 'const char *'
+    struct virtqueue *vring_new_virtqueue(unsigned int index,
+                      ^~~~~~~~~~~~~~~~~~~
+   drivers/remoteproc/remoteproc_virtio.c:106:7: error: too few arguments to function 'vring_new_virtqueue'
+     vq = vring_new_virtqueue(id, len, rvring->align, vdev, false, addr,
+          ^~~~~~~~~~~~~~~~~~~
+   In file included from drivers/remoteproc/remoteproc_virtio.c:25:0:
+   include/linux/virtio_ring.h:93:19: note: declared here
+    struct virtqueue *vring_new_virtqueue(unsigned int index,
+                      ^~~~~~~~~~~~~~~~~~~
+   drivers/remoteproc/remoteproc_virtio.c: At top level:
+   drivers/remoteproc/remoteproc_virtio.c:264:14: error: initialization from incompatible pointer type [-Werror=incompatible-pointer-types]
+     .find_vqs = rproc_virtio_find_vqs,
+                 ^~~~~~~~~~~~~~~~~~~~~
+   drivers/remoteproc/remoteproc_virtio.c:264:14: note: (near initialization for 'rproc_virtio_config_ops.find_vqs')
+   cc1: some warnings being treated as errors
+
+vim +106 drivers/remoteproc/remoteproc_virtio.c
+
+6457f126c drivers/remoteproc/remoteproc_virtio.c Michael S. Tsirkin 2012-09-05   90  
+6db20ea8d drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-05-17   91  	rvring = &rvdev->vring[id];
+7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13   92  	addr = rvring->va;
+7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13   93  	len = rvring->len;
+ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20   94  
+7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13   95  	/* zero vring */
+7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13   96  	size = vring_size(len, rvring->align);
+7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13   97  	memset(addr, 0, size);
+ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20   98  
+b5ab5e24e drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-05-30   99  	dev_dbg(dev, "vring%d: va %p qsz %d notifyid %d\n",
+7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13  100  		id, addr, len, rvring->notifyid);
+ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20  101  
+dd6da1c5e drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2012-01-12  102  	/*
+dd6da1c5e drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2012-01-12  103  	 * Create the new vq, and tell virtio we're not interested in
+dd6da1c5e drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2012-01-12  104  	 * the 'weak' smp barriers, since we're talking with a real device.
+dd6da1c5e drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2012-01-12  105  	 */
+17bb6d408 drivers/remoteproc/remoteproc_virtio.c Jason Wang         2012-08-28 @106  	vq = vring_new_virtqueue(id, len, rvring->align, vdev, false, addr,
+ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20  107  				 rproc_virtio_notify, callback, name);
+ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20  108  	if (!vq) {
+b5ab5e24e drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-05-30  109  		dev_err(dev, "vring_new_virtqueue %s failed\n", name);
+6db20ea8d drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-05-17  110  		rproc_free_vring(rvring);
+7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13  111  		return ERR_PTR(-ENOMEM);
+ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20  112  	}
+ac8954a41 drivers/remoteproc/remoteproc_rpmsg.c  Ohad Ben-Cohen     2011-10-20  113  
+7a1869416 drivers/remoteproc/remoteproc_virtio.c Ohad Ben-Cohen     2012-02-13  114  	rvring->vq = vq;
+
+:::::: The code at line 106 was first introduced by commit
+:::::: 17bb6d40880d4178f5f8a75900ed8c9ff47d3fb2 virtio-ring: move queue_index to vring_virtqueue
+
+:::::: TO: Jason Wang <jasowang@redhat.com>
+:::::: CC: Rusty Russell <rusty@rustcorp.com.au>
+
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
