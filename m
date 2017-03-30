@@ -1,14 +1,14 @@
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH 3/6] virtio: allow extra context per descriptor
-Date: Thu, 30 Mar 2017 09:23:16 +0200
-Message-ID: <20170330092316.2a25e4f1.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 4/6] virtio_net: allow specifying context for rx
+Date: Thu, 30 Mar 2017 09:26:51 +0200
+Message-ID: <20170330092651.7767dfac.cornelia.huck__6204.73125386543$1490858841$gmane$org@de.ibm.com>
 References: <1490820507-8005-1-git-send-email-mst@redhat.com>
-	<1490820507-8005-4-git-send-email-mst@redhat.com>
+	<1490820507-8005-5-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1490820507-8005-4-git-send-email-mst@redhat.com>
+In-Reply-To: <1490820507-8005-5-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,46 +19,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: John Fastabend <john.fastabend@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 29 Mar 2017 23:48:53 +0300
+On Wed, 29 Mar 2017 23:48:54 +0300
 "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> Allow extra context per descriptor. To avoid slow down for data path,
-> this disables use of indirect descriptors for this vq.
+> With mergeable buffers we never use s/g for rx,
+> so allow specifying context in that case.
 > 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  drivers/virtio/virtio_ring.c | 70 ++++++++++++++++++++++++++++++++++++--------
->  include/linux/virtio.h       |  9 ++++++
->  2 files changed, 66 insertions(+), 13 deletions(-)
+>  drivers/net/virtio_net.c | 15 ++++++++++++++-
+>  1 file changed, 14 insertions(+), 1 deletion(-)
 > 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 6802169..340f737 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2044,6 +2044,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+>  	int ret = -ENOMEM;
+>  	int i, total_vqs;
+>  	const char **names;
+> +	const bool *ctx;
+>  
+>  	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
+>  	 * possible N-1 RX/TX queue pairs used in multiqueue mode, followed by
+> @@ -2062,6 +2063,13 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+>  	names = kmalloc(total_vqs * sizeof(*names), GFP_KERNEL);
+>  	if (!names)
+>  		goto err_names;
+> +	if (vi->mergeable_rx_bufs) {
+> +		ctx = kzalloc(total_vqs * sizeof(*ctx), GFP_KERNEL);
+> +		if (!ctx)
+> +			goto err_ctx;
+> +	} else {
+> +		ctx = NULL;
+> +	}
+>  
+>  	/* Parameters for control virtqueue, if any */
+>  	if (vi->has_cvq) {
+> @@ -2077,9 +2085,12 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+>  		sprintf(vi->sq[i].name, "output.%d", i);
+>  		names[rxq2vq(i)] = vi->rq[i].name;
+>  		names[txq2vq(i)] = vi->sq[i].name;
+> +		if (ctx)
+> +			ctx[rxq2vq(i)] = true;
+>  	}
+>  
+> -	ret = virtio_find_vqs(vi->vdev, total_vqs, vqs, callbacks, names, NULL);
+> +	ret = vi->vdev->config->find_vqs(vi->vdev, total_vqs, vqs, callbacks,
+> +					 names, ctx, NULL);
 
->  /**
-> + * virtqueue_add_inbuf_ctx - expose input buffers to other end
-> + * @vq: the struct virtqueue we're talking about.
-> + * @sg: scatterlist (must be well-formed and terminated!)
-> + * @num: the number of entries in @sg writable by other side
-> + * @data: the token identifying the buffer.
-> + * @ctx: extra context for the token
+virtio_find_vqs_ctx()? (Needs to be exported, obviously.)
 
-I think that needs do that ctx != NULL collides with indirect
-descriptors.
-
-> + * @gfp: how to do memory allocations (if necessary).
-> + *
-> + * Caller must ensure we don't call this with other virtqueue operations
-> + * at the same time (except where noted).
-> + *
-> + * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
-> + */
-> +int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
-> +			struct scatterlist *sg, unsigned int num,
-> +			void *data,
-> +			void *ctx,
-> +			gfp_t gfp)
-> +{
-> +	return virtqueue_add(vq, &sg, num, 0, 1, data, ctx, gfp);
-> +}
-> +EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
+>  	if (ret)
+>  		goto err_find;
+>  
+> @@ -2101,6 +2112,8 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+>  	return 0;
+>  
+>  err_find:
+> +	kfree(ctx);
+> +err_ctx:
+>  	kfree(names);
+>  err_names:
+>  	kfree(callbacks);
