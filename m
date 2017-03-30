@@ -1,13 +1,14 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next] virtio_net: don't reset twice on XDP on/off
-Date: Thu, 30 Mar 2017 13:39:49 +0800
-Message-ID: <8949b5e9-602d-eef0-acdb-9f0f9a5a6f54@redhat.com>
-References: <1490818456-6861-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH 1/6] virtio: wrap find_vqs
+Date: Thu, 30 Mar 2017 14:00:08 +0800
+Message-ID: <72f533a2-482d-1956-b0fe-254e273e1818__3255.09079634703$1490853645$gmane$org@redhat.com>
+References: <1490820507-8005-1-git-send-email-mst@redhat.com>
+	<1490820507-8005-2-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1490818456-6861-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1490820507-8005-2-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +19,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux-foundation.org
+Cc: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>, kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, "Martin K. Petersen" <martin.petersen@oracle.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDPmnIgzMOaXpSAwNDoxNCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IFdlIGFscmVhZHkgZG8gYSByZXNldCBvbmNlIGluIHJlbW92ZV92cV9jb21tb24gLQo+IHRoZXJl
-IGFwcGVhcnMgdG8gYmUgbm8gcG9pbnQgaW4gZG9pbmcgYW5vdGhlciBvbmUKPiB3aGVuIHdlIGFk
-ZC9yZW1vdmUgWERQLgo+Cj4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RA
-cmVkaGF0LmNvbT4KPiAtLS0KPiAgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDEgLQo+ICAg
-MSBmaWxlIGNoYW5nZWQsIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25l
-dC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBpbmRleCBkZTQyZTlh
-Li5lZDhmNTQ4IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ICsrKyBi
-L2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+IEBAIC0xODEwLDcgKzE4MTAsNiBAQCBzdGF0aWMg
-aW50IHZpcnRuZXRfcmVzZXQoc3RydWN0IHZpcnRuZXRfaW5mbyAqdmksIGludCBjdXJyX3FwLCBp
-bnQgeGRwX3FwKQo+ICAgCXZpcnRuZXRfZnJlZXplX2Rvd24oZGV2KTsKPiAgIAlfcmVtb3ZlX3Zx
-X2NvbW1vbih2aSk7Cj4gICAKPiAtCWRldi0+Y29uZmlnLT5yZXNldChkZXYpOwo+ICAgCXZpcnRp
-b19hZGRfc3RhdHVzKGRldiwgVklSVElPX0NPTkZJR19TX0FDS05PV0xFREdFKTsKPiAgIAl2aXJ0
-aW9fYWRkX3N0YXR1cyhkZXYsIFZJUlRJT19DT05GSUdfU19EUklWRVIpOwo+ICAgCgpBY2tlZC1i
-eTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+CgpPbiAyMDE35bm0MDPmnIgzMOaXpSAwNDo0OCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IFdlIGFyZSBnb2luZyB0byBhZGQgbW9yZSBwYXJhbWV0ZXJzIHRvIGZpbmRfdnFzLCBsZXQncyB3
+cmFwIHRoZSBjYWxsIHNvCj4gd2UgZG9uJ3QgbmVlZCB0byB0d2VhayBhbGwgZHJpdmVycyBldmVy
+eSB0aW1lLgo+Cj4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luPG1zdEByZWRoYXQu
+Y29tPgo+IC0tLQoKQSBxdWljayBnbGFuY2UgYW5kIGl0IGxvb2tzIG9rLCBidXQgd2hhdCB0aGUg
+YmVuZWZpdCBvZiB0aGlzIHNlcmllcywgaXMgCml0IHJlcXVpcmVkIGJ5IG90aGVyIGNoYW5nZXM/
+CgpUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
