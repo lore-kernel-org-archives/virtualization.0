@@ -1,16 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/6] virtio: wrap find_vqs
-Date: Thu, 30 Mar 2017 17:32:19 +0300
-Message-ID: <20170330173146-mutt-send-email-mst__19771.3622976609$1490884360$gmane$org@kernel.org>
+Subject: Re: [PATCH 3/6] virtio: allow extra context per descriptor
+Date: Thu, 30 Mar 2017 17:34:17 +0300
+Message-ID: <20170330173243-mutt-send-email-mst@kernel.org>
 References: <1490820507-8005-1-git-send-email-mst@redhat.com>
-	<1490820507-8005-2-git-send-email-mst@redhat.com>
-	<72f533a2-482d-1956-b0fe-254e273e1818@redhat.com>
+	<1490820507-8005-4-git-send-email-mst@redhat.com>
+	<20170330092316.2a25e4f1.cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <72f533a2-482d-1956-b0fe-254e273e1818@redhat.com>
+In-Reply-To: <20170330092316.2a25e4f1.cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,20 +20,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>, kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, "Martin K. Petersen" <martin.petersen@oracle.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: John Fastabend <john.fastabend@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBNYXIgMzAsIDIwMTcgYXQgMDI6MDA6MDhQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE35bm0MDPmnIgzMOaXpSAwNDo0OCwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gV2UgYXJlIGdvaW5nIHRvIGFkZCBtb3JlIHBhcmFtZXRlcnMgdG8gZmluZF92
-cXMsIGxldCdzIHdyYXAgdGhlIGNhbGwgc28KPiA+IHdlIGRvbid0IG5lZWQgdG8gdHdlYWsgYWxs
-IGRyaXZlcnMgZXZlcnkgdGltZS4KPiA+IAo+ID4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBU
-c2lya2luPG1zdEByZWRoYXQuY29tPgo+ID4gLS0tCj4gCj4gQSBxdWljayBnbGFuY2UgYW5kIGl0
-IGxvb2tzIG9rLCBidXQgd2hhdCB0aGUgYmVuZWZpdCBvZiB0aGlzIHNlcmllcywgaXMgaXQKPiBy
-ZXF1aXJlZCBieSBvdGhlciBjaGFuZ2VzPwo+IAo+IFRoYW5rcwoKWWVzIC0gdG8gYXZvaWQgdG91
-Y2hpbmcgYWxsIGRldmljZXMgd2hlbiBkb2luZyB0aGUgcmVzdCBvZgp0aGUgcGF0Y2hzZXQuCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On Thu, Mar 30, 2017 at 09:23:16AM +0200, Cornelia Huck wrote:
+> On Wed, 29 Mar 2017 23:48:53 +0300
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > Allow extra context per descriptor. To avoid slow down for data path,
+> > this disables use of indirect descriptors for this vq.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  drivers/virtio/virtio_ring.c | 70 ++++++++++++++++++++++++++++++++++++--------
+> >  include/linux/virtio.h       |  9 ++++++
+> >  2 files changed, 66 insertions(+), 13 deletions(-)
+> > 
+> 
+> >  /**
+> > + * virtqueue_add_inbuf_ctx - expose input buffers to other end
+> > + * @vq: the struct virtqueue we're talking about.
+> > + * @sg: scatterlist (must be well-formed and terminated!)
+> > + * @num: the number of entries in @sg writable by other side
+> > + * @data: the token identifying the buffer.
+> > + * @ctx: extra context for the token
+> 
+> I think that needs do that ctx != NULL collides with indirect
+> descriptors.
+
+At the API level what happens is that ctx needs to be enabled
+at find_vqs time. Doing that will disable indirect descriptors
+but this is not visible in the API.
+
+> > + * @gfp: how to do memory allocations (if necessary).
+> > + *
+> > + * Caller must ensure we don't call this with other virtqueue operations
+> > + * at the same time (except where noted).
+> > + *
+> > + * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
+> > + */
+> > +int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
+> > +			struct scatterlist *sg, unsigned int num,
+> > +			void *data,
+> > +			void *ctx,
+> > +			gfp_t gfp)
+> > +{
+> > +	return virtqueue_add(vq, &sg, num, 0, 1, data, ctx, gfp);
+> > +}
+> > +EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
