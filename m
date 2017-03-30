@@ -1,13 +1,13 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] virtio_net: fix mergeable bufs error handling
-Date: Thu, 30 Mar 2017 10:57:06 -0700 (PDT)
-Message-ID: <20170330.105706.320793115840611639.davem@davemloft.net>
-References: <1490791050-22046-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH 1/2] virtio: allow drivers to validate features
+Date: Thu, 30 Mar 2017 12:39:31 -0700 (PDT)
+Message-ID: <20170330.123931.210255819001973026.davem@davemloft.net>
+References: <1490807652-27889-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1490791050-22046-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1490807652-27889-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +18,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com
-Cc: netdev@vger.kernel.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Wed, 29 Mar 2017 15:37:37 +0300
+Date: Wed, 29 Mar 2017 20:14:44 +0300
 
-> @@ -570,7 +570,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->  	u16 num_buf;
->  	struct page *page;
->  	int offset;
-> -	struct sk_buff *head_skb, *curr_skb;
-> +	struct sk_buff *head_skb = NULL, *curr_skb;
->  	struct bpf_prog *xdp_prog;
->  	unsigned int truesize;
->  
+> Some drivers can't support all features in all configurations.  At the
+> moment we blindly set FEATURES_OK and later FAILED.  Support this better
+> by adding a callback drivers can use to do some early checks.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Like Jason, I see the very next line is:
+Michael do you want me to take these virtio networking fixes into my
+tree directly or are you going to send me a pull request or something
+after it all settles down?
 
-	head_skb = NULL;
-
-so I don't think this is necessary.
+Thanks.
