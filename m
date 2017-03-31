@@ -1,16 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 1/6] virtio: wrap find_vqs
-Date: Fri, 31 Mar 2017 12:04:55 +0800
-Message-ID: <c388e4fd-2956-8894-31ec-31fe8b01e49f__41485.2547496141$1490933142$gmane$org@redhat.com>
-References: <1490820507-8005-1-git-send-email-mst@redhat.com>
-	<1490820507-8005-2-git-send-email-mst@redhat.com>
-	<72f533a2-482d-1956-b0fe-254e273e1818@redhat.com>
-	<20170330173146-mutt-send-email-mst@kernel.org>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH kernel v8 3/4] mm: add inerface to offer info about unused
+	pages
+Date: Fri, 31 Mar 2017 17:53:00 +0800
+Message-ID: <58DE26FC.7090403__37020.0545447462$1490953905$gmane$org@intel.com>
+References: <1489648127-37282-1-git-send-email-wei.w.wang@intel.com>
+	<1489648127-37282-4-git-send-email-wei.w.wang@intel.com>
+	<20170316142842.69770813b98df70277431b1e@linux-foundation.org>
+	<58CB8865.5030707@intel.com>
+	<20170329204418-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170330173146-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170329204418-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,24 +23,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>, kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, "Martin K. Petersen" <martin.petersen@oracle.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, Andrew Morton <akpm@linux-foundation.org>, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDPmnIgzMOaXpSAyMjozMiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFRodSwgTWFyIDMwLCAyMDE3IGF0IDAyOjAwOjA4UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Cj4+IE9uIDIwMTflubQwM+aciDMw5pelIDA0OjQ4LCBNaWNoYWVsIFMuIFRzaXJraW4g
-d3JvdGU6Cj4+PiBXZSBhcmUgZ29pbmcgdG8gYWRkIG1vcmUgcGFyYW1ldGVycyB0byBmaW5kX3Zx
-cywgbGV0J3Mgd3JhcCB0aGUgY2FsbCBzbwo+Pj4gd2UgZG9uJ3QgbmVlZCB0byB0d2VhayBhbGwg
-ZHJpdmVycyBldmVyeSB0aW1lLgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNp
-cmtpbjxtc3RAcmVkaGF0LmNvbT4KPj4+IC0tLQo+PiBBIHF1aWNrIGdsYW5jZSBhbmQgaXQgbG9v
-a3Mgb2ssIGJ1dCB3aGF0IHRoZSBiZW5lZml0IG9mIHRoaXMgc2VyaWVzLCBpcyBpdAo+PiByZXF1
-aXJlZCBieSBvdGhlciBjaGFuZ2VzPwo+Pgo+PiBUaGFua3MKPiBZZXMgLSB0byBhdm9pZCB0b3Vj
-aGluZyBhbGwgZGV2aWNlcyB3aGVuIGRvaW5nIHRoZSByZXN0IG9mCj4gdGhlIHBhdGNoc2V0LgoK
-TWF5YmUgSSdtIG5vdCBjbGVhci4gSSBtZWFuIHRoZSBiZW5lZml0IG9mIHRoaXMgc2VyaWVzIG5v
-dCB0aGlzIHNpbmdsZSAKcGF0Y2guIEkgZ3Vlc3MgaXQgbWF5IGJlIHVzZWQgYnkgeW91IHByb3Bv
-c2FsIHRoYXQgYXZvaWQgcmVzZXQgd2hlbiBzZXQgClhEUD8gSWYgeWVzLCBkbyB3ZSByZWFsbHkg
-d2FudCB0byBkcm9wIHNvbWUgcGFja2V0cyBhZnRlciBYRFAgaXMgc2V0PwoKVGhhbmtzCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
-aXphdGlvbg==
+On 03/30/2017 01:48 AM, Michael S. Tsirkin wrote:
+> On Fri, Mar 17, 2017 at 02:55:33PM +0800, Wei Wang wrote:
+>> On 03/17/2017 05:28 AM, Andrew Morton wrote:
+>>> On Thu, 16 Mar 2017 15:08:46 +0800 Wei Wang <wei.w.wang@intel.com> wrote:
+>>>
+>>>> From: Liang Li <liang.z.li@intel.com>
+>>>>
+>>>> This patch adds a function to provides a snapshot of the present system
+>>>> unused pages. An important usage of this function is to provide the
+>>>> unsused pages to the Live migration thread, which skips the transfer of
+>>>> thoses unused pages. Newly used pages can be re-tracked by the dirty
+>>>> page logging mechanisms.
+>>> I don't think this will be useful for anything other than
+>>> virtio-balloon.  I guess it would be better to keep this code in the
+>>> virtio-balloon driver if possible, even though that's rather a layering
+>>> violation :( What would have to be done to make that possible?  Perhaps
+>>> we can put some *small* helpers into page_alloc.c to prevent things
+>>> from becoming too ugly.
+>> The patch description was too narrowed and may have caused some
+>> confusion, sorry about that. This function is aimed to be generic. I
+>> agree with the description suggested by Michael.
+>>
+>> Since the main body of the function is related to operating on the
+>> free_list. I think it is better to have them located here.
+>> Small helpers may be less efficient and thereby causing some
+>> performance loss as well.
+>> I think one improvement we can make is to remove the "chunk format"
+>> related things from this function. The function can generally offer the
+>> base pfn to the caller's recording buffer. Then it will be the caller's
+>> responsibility to format the pfn if they need.
+> Sounds good at a high level, but we'd have to see the implementation
+> to judge it properly.
+>
+>>>> --- a/mm/page_alloc.c
+>>>> +++ b/mm/page_alloc.c
+>>>> @@ -4498,6 +4498,120 @@ void show_free_areas(unsigned int filter)
+>>>>    	show_swap_cache_info();
+>>>>    }
+>>>> +static int __record_unused_pages(struct zone *zone, int order,
+>>>> +				 __le64 *buf, unsigned int size,
+>>>> +				 unsigned int *offset, bool part_fill)
+>>>> +{
+>>>> +	unsigned long pfn, flags;
+>>>> +	int t, ret = 0;
+>>>> +	struct list_head *curr;
+>>>> +	__le64 *chunk;
+>>>> +
+>>>> +	if (zone_is_empty(zone))
+>>>> +		return 0;
+>>>> +
+>>>> +	spin_lock_irqsave(&zone->lock, flags);
+>>>> +
+>>>> +	if (*offset + zone->free_area[order].nr_free > size && !part_fill) {
+>>>> +		ret = -ENOSPC;
+>>>> +		goto out;
+>>>> +	}
+>>>> +	for (t = 0; t < MIGRATE_TYPES; t++) {
+>>>> +		list_for_each(curr, &zone->free_area[order].free_list[t]) {
+>>>> +			pfn = page_to_pfn(list_entry(curr, struct page, lru));
+>>>> +			chunk = buf + *offset;
+>>>> +			if (*offset + 2 > size) {
+>>>> +				ret = -ENOSPC;
+>>>> +				goto out;
+>>>> +			}
+>>>> +			/* Align to the chunk format used in virtio-balloon */
+>>>> +			*chunk = cpu_to_le64(pfn << 12);
+>>>> +			*(chunk + 1) = cpu_to_le64((1 << order) << 12);
+>>>> +			*offset += 2;
+>>>> +		}
+>>>> +	}
+>>>> +
+>>>> +out:
+>>>> +	spin_unlock_irqrestore(&zone->lock, flags);
+>>>> +
+>>>> +	return ret;
+>>>> +}
+>>> This looks like it could disable interrupts for a long time.  Too long?
+>> What do you think if we give "budgets" to the above function?
+>> For example, budget=1000, and there are 2000 nodes on the list.
+>> record() returns with "incomplete" status in the first round, along with the
+>> status info, "*continue_node".
+>>
+>> *continue_node: pointer to the starting node of the leftover. If
+>> *continue_node
+>> has been used at the time of the second call (i.e. continue_node->next ==
+>> NULL),
+>> which implies that the previous 1000 nodes have been used, then the record()
+>> function can simply start from the head of the list.
+>>
+>> It is up to the caller whether it needs to continue the second round
+>> when getting "incomplete".
+> It might be cleaner to add APIs to
+> 	- start iteration
+> 	- do one step
+> 	- end iteration
+>
+> caller can then iterate without too many issues
+>
+
+OK. I will re-implement it with this simple one - get only one node(page 
+block) from the list in each call, and check if the time would increase 
+a lot in comparison to v8.
+
+Best,
+Wei
