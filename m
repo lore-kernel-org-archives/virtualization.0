@@ -1,20 +1,15 @@
-From: Yuanhan Liu <yuanhan.liu@linux.intel.com>
-Subject: Re: [virtio-dev] packed ring layout proposal - todo list
-Date: Sat, 1 Apr 2017 15:30:11 +0800
-Message-ID: <20170401073011.GT18844__22494.53319605$1491031968$gmane$org@yliu-dev.sh.intel.com>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<20170222054336-mutt-send-email-mst@kernel.org>
-	<20170228042943.GH18844@yliu-dev.sh.intel.com>
-	<20170301030235-mutt-send-email-mst@kernel.org>
-	<20170308070948.GC18844@yliu-dev.sh.intel.com>
-	<20170308075624.GF18844@yliu-dev.sh.intel.com>
-	<20170329123920.GA21803@redhat.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: Re: [PATCH 1/6] virtio: wrap find_vqs
+Date: Sat, 1 Apr 2017 09:13:44 -0700
+Message-ID: <20170401161344.GR20094@minitux>
+References: <1490820507-8005-1-git-send-email-mst@redhat.com>
+	<1490820507-8005-2-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170329123920.GA21803@redhat.com>
+In-Reply-To: <1490820507-8005-2-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,62 +20,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, Maxime Coquelin <maxime.coquelin@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>, kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 29, 2017 at 03:39:20PM +0300, Michael S. Tsirkin wrote:
-> On Wed, Mar 08, 2017 at 03:56:24PM +0800, Yuanhan Liu wrote:
-> > On Wed, Mar 08, 2017 at 03:09:48PM +0800, Yuanhan Liu wrote:
-> > > On Wed, Mar 01, 2017 at 03:07:29AM +0200, Michael S. Tsirkin wrote:
-> > > > On Tue, Feb 28, 2017 at 12:29:43PM +0800, Yuanhan Liu wrote:
-> > > > > Hi Michael,
-> > > > > 
-> > > > > Again, as usual, sorry for being late :/
-> > > > > 
-> > > > > On Wed, Feb 22, 2017 at 06:27:11AM +0200, Michael S. Tsirkin wrote:
-> > > > > > Stage 2: prototype guest/host drivers
-> > > > > > 
-> > > > > > At this stage we need real guest and host drivers
-> > > > > > to be able to test real life performance.
-> > > > > > I suggest dpdk drivers + munimal hack in qemu to
-> > > > > > pass features around.
-> > > > > > 
-> > > > > 
-> > > > > I have already done that in last Nov. I made a very rough (yet hacky)
-> > > > > version (only with Tx path) in one day while companying my wife in
-> > > > > hospital.
-> > > > 
-> > > > Any performance data?
-> > > 
-> > > A straightfoward implementation only brings 10% performance boost in a
-> > > txonly micro benchmarking. But I'm sure there are still plenty of room
-> > > for improvement.
-> > > 
-> > > > > If someone are interested in, I could share the code soon. I could
-> > > > > even cleanup the code a bit if necessary.
-> > > > 
-> > > > Especially if you don't have time to benchmark, I think sharing it
-> > > > might help.
-> > > 
-> > > Here it is (check the README-virtio-1.1 for howto):
-> > > 
-> > >     git://fridaybit.com/git/dpdk.git  virtio-1.1-v0.1
-> > 
-> > Well, I was told it maybe not proper to share code like this way. So
-> > this channel is closed. I will check how to find a proper way. Sorry
-> > for the inconvenience!
-> > 
-> > 	--yliu
+On Wed 29 Mar 13:48 PDT 2017, Michael S. Tsirkin wrote:
+
+> We are going to add more parameters to find_vqs, let's wrap the call so
+> we don't need to tweak all drivers every time.
 > 
-> Where you going to re-post it?
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-It's at
+Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-    git://dpdk.org/next/dpdk-next-virtio    for-testing
-
-> I don't see what the issue could be frankly.
-> Care to elaborate?
-
-Honestly, I don't know, neither.
-
-	--yliu
+Regards,
+Bjorn
