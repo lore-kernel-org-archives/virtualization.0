@@ -1,15 +1,11 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH 1/6] virtio: wrap find_vqs
-Date: Sat, 1 Apr 2017 09:13:44 -0700
-Message-ID: <20170401161344.GR20094@minitux>
-References: <1490820507-8005-1-git-send-email-mst@redhat.com>
-	<1490820507-8005-2-git-send-email-mst@redhat.com>
+From: "ML" <marialemos72@gmail.com>
+Subject: Call for papers - CISTI'2017 Workshops, Lisbon, Portugal - Deadline:
+	April 15
+Date: Sun, 2 Apr 2017 20:23:57 +0100
+Message-ID: <20170402192401.686AB899@mail.linuxfoundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5014731232392732296=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1490820507-8005-2-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,18 +15,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>, kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed 29 Mar 13:48 PDT 2017, Michael S. Tsirkin wrote:
+--===============5014731232392732296==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> We are going to add more parameters to find_vqs, let's wrap the call so
-> we don't need to tweak all drivers every time.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Papers submitted to the main conference: 508
 
-Regards,
-Bjorn
+Workshops deadline: April 15, 2017
+
+Submission to the workshops: https://easychair.org/conferences/?conf=3Dcist=
+iworkshops2017
+
+
+------------------------------------------------------------------
+                   Workshops of CISTI'2017
+12th Iberian Conference on Information Systems and Technologies
+    21th and 24th of June 2017, ISCTE-IUL, Lisbon, Portugal
+            http://cisti.eu/index.php/en/workshops
+------------------------------------------------------------------------
+
+List of CISTI'2017 workshops with call open:
+
+-> WASDACS 2017 =96 4th Applied Statistics and Data Analysis using Computer=
+ Science
+http://cisti.eu/index.php/en/workshops/wasdacs
+
+-> WCBIPA 2017 - 4th Workshop on Computational Biomedical Image Processing =
+and Analysis
+http://cisti.eu/index.php/en/workshops/wcbipa
+
+-> WCEECPPSC 2017 - 1st Workshop on Citizen Engagement and Evaluation of Cu=
+rrent Participatory Platforms in Smart City
+http://cisti.eu/index.php/en/workshops/wceecppsc
+
+-> WESG 2017 - 3rd Workshop on Educational and Serious Games
+http://cisti.eu/index.php/en/workshops/wesg
+
+-> WGECRSD 2017 - II Workshop en Gesti=F3n de Empresa, Comunicaci=F3n y Red=
+es Sociales Digitales
+http://cisti.eu/index.php/en/workshops/wgecrsd
+
+-> WICTA 2017 - The 4th International Workshop on ICT for Auditing
+http://cisti.eu/index.php/en/workshops/wicta
+
+-> WISA 2017 - 9th Workshop on Intelligent Systems and Applications
+http://cisti.eu/index.php/en/workshops/wisa
+
+-> WSCUACIS 2017 - 1st Workshop on Smart Cities - Urban Analytic Challenges=
+ to Information Systems
+http://cisti.eu/index.php/en/workshops/wscuacis
+
+-> WTCISSC 2017- 1st Workshop on Trends on Critical Information Systems for=
+ Smart Cities
+http://cisti.eu/index.php/en/workshops/wtcissc
+
+
+CISTI'2017 website: http://www.cisti.eu/
+
+
+Kind regards,
+
+AISTI
+http://www.aisti.eu/
+
+
+
+
+
+---
+This email has been checked for viruses by AVG.
+http://www.avg.com
+
+
+--===============5014731232392732296==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5014731232392732296==--
