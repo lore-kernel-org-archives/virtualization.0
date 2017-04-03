@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 3/3] virtio-net: clean tx descriptors from rx napi
-Date: Mon, 3 Apr 2017 05:47:51 +0300
-Message-ID: <20170403024751.GA21883__5143.63239422$1491187692$gmane$org@redhat.com>
-References: <20170402201012.76473-1-willemdebruijn.kernel@gmail.com>
-	<20170402201012.76473-4-willemdebruijn.kernel@gmail.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 1/2] drm: virtio: add virtio_gpu_translate_format
+Date: Mon,  3 Apr 2017 09:08:44 +0200
+Message-ID: <20170403070845.10793-2-kraxel@redhat.com>
+References: <20170403070845.10793-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170402201012.76473-4-willemdebruijn.kernel@gmail.com>
+In-Reply-To: <20170403070845.10793-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,83 +17,179 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org, davem@davemloft.net, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: lvivier@redhat.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Apr 02, 2017 at 04:10:12PM -0400, Willem de Bruijn wrote:
-> From: Willem de Bruijn <willemb@google.com>
-> 
-> Amortize the cost of virtual interrupts by doing both rx and tx work
-> on reception of a receive interrupt if tx napi is enabled. With
-> VIRTIO_F_EVENT_IDX, this suppresses most explicit tx completion
-> interrupts for bidirectional workloads.
-> 
-> Signed-off-by: Willem de Bruijn <willemb@google.com>
-> ---
->  drivers/net/virtio_net.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 95d938e82080..af830eb212bf 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1030,12 +1030,34 @@ static int virtnet_receive(struct receive_queue *rq, int budget)
->  	return received;
->  }
->  
-> +static void free_old_xmit_skbs(struct send_queue *sq);
-> +
+Factors out code, no functional change.
 
-Could you pls re-arrange code to avoid forward declarations?
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  1 +
+ drivers/gpu/drm/virtio/virtgpu_fb.c    | 58 +----------------------------
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 68 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 71 insertions(+), 56 deletions(-)
 
-> +static void virtnet_poll_cleantx(struct receive_queue *rq)
-> +{
-> +	struct virtnet_info *vi = rq->vq->vdev->priv;
-> +	unsigned int index = vq2rxq(rq->vq);
-> +	struct send_queue *sq = &vi->sq[index];
-> +	struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, index);
-> +
-> +	if (!sq->napi.weight)
-> +		return;
-> +
-> +	__netif_tx_lock(txq, smp_processor_id());
-> +	free_old_xmit_skbs(sq);
-> +	__netif_tx_unlock(txq);
-> +
-> +	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-> +		netif_wake_subqueue(vi->dev, vq2txq(sq->vq));
-> +}
-> +
-
-Looks very similar to virtnet_poll_tx.
-
-
-I think this might be waking the tx queue too early, so
-it will tend to stay almost full for long periods of time.
-Why not defer wakeup until queue is at least half empty?
-
-I wonder whether it's worth it to handle very short queues
-correctly - they previously made very slow progress,
-not they are never woken up.
-
-I'm a bit concerned about the cost of these wakeups
-and locking. I note that this wake is called basically
-every time queue is not full.
-
-Would it make sense to limit the amount of tx polling?
-Maybe use trylock to reduce the conflict with xmit?
-
->  static int virtnet_poll(struct napi_struct *napi, int budget)
->  {
->  	struct receive_queue *rq =
->  		container_of(napi, struct receive_queue, napi);
->  	unsigned int received;
->  
-> +	virtnet_poll_cleantx(rq);
-> +
->  	received = virtnet_receive(rq, budget);
->  
->  	/* Out of packets? */
-> -- 
-> 2.12.2.564.g063fe858b8-goog
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 93900a8..1328185 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -334,6 +334,7 @@ int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev);
+ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev);
+ 
+ /* virtio_gpu_plane.c */
++uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc);
+ struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
+ 					enum drm_plane_type type,
+ 					int index);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
+index 9bfaef3..33df067 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_fb.c
++++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
+@@ -231,63 +231,9 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
+ 	mode_cmd.pitches[0] = mode_cmd.width * 4;
+ 	mode_cmd.pixel_format = drm_mode_legacy_fb_format(32, 24);
+ 
+-	switch (mode_cmd.pixel_format) {
+-#ifdef __BIG_ENDIAN
+-	case DRM_FORMAT_XRGB8888:
+-		format = VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM;
+-		break;
+-	case DRM_FORMAT_ARGB8888:
+-		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
+-		break;
+-	case DRM_FORMAT_BGRX8888:
+-		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
+-		break;
+-	case DRM_FORMAT_BGRA8888:
+-		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
+-		break;
+-	case DRM_FORMAT_RGBX8888:
+-		format = VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM;
+-		break;
+-	case DRM_FORMAT_RGBA8888:
+-		format = VIRTIO_GPU_FORMAT_R8G8B8A8_UNORM;
+-		break;
+-	case DRM_FORMAT_XBGR8888:
+-		format = VIRTIO_GPU_FORMAT_X8B8G8R8_UNORM;
+-		break;
+-	case DRM_FORMAT_ABGR8888:
+-		format = VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM;
+-		break;
+-#else
+-	case DRM_FORMAT_XRGB8888:
+-		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
+-		break;
+-	case DRM_FORMAT_ARGB8888:
+-		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
+-		break;
+-	case DRM_FORMAT_BGRX8888:
+-		format = VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM;
+-		break;
+-	case DRM_FORMAT_BGRA8888:
+-		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
+-		break;
+-	case DRM_FORMAT_RGBX8888:
+-		format = VIRTIO_GPU_FORMAT_X8B8G8R8_UNORM;
+-		break;
+-	case DRM_FORMAT_RGBA8888:
+-		format = VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM;
+-		break;
+-	case DRM_FORMAT_XBGR8888:
+-		format = VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM;
+-		break;
+-	case DRM_FORMAT_ABGR8888:
+-		format = VIRTIO_GPU_FORMAT_R8G8B8A8_UNORM;
+-		break;
+-#endif
+-	default:
+-		DRM_ERROR("failed to find virtio gpu format for %d\n",
+-			  mode_cmd.pixel_format);
++	format = virtio_gpu_translate_format(mode_cmd.pixel_format);
++	if (format == 0)
+ 		return -EINVAL;
+-	}
+ 
+ 	size = mode_cmd.pitches[0] * mode_cmd.height;
+ 	obj = virtio_gpu_alloc_object(dev, size, false, true);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 1ff9c64..372c91c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -42,6 +42,74 @@ static const uint32_t virtio_gpu_cursor_formats[] = {
+ 	DRM_FORMAT_ARGB8888,
+ };
+ 
++uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
++{
++	uint32_t format;
++
++	switch (drm_fourcc) {
++#ifdef __BIG_ENDIAN
++	case DRM_FORMAT_XRGB8888:
++		format = VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM;
++		break;
++	case DRM_FORMAT_ARGB8888:
++		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
++		break;
++	case DRM_FORMAT_BGRX8888:
++		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
++		break;
++	case DRM_FORMAT_BGRA8888:
++		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
++		break;
++	case DRM_FORMAT_RGBX8888:
++		format = VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM;
++		break;
++	case DRM_FORMAT_RGBA8888:
++		format = VIRTIO_GPU_FORMAT_R8G8B8A8_UNORM;
++		break;
++	case DRM_FORMAT_XBGR8888:
++		format = VIRTIO_GPU_FORMAT_X8B8G8R8_UNORM;
++		break;
++	case DRM_FORMAT_ABGR8888:
++		format = VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM;
++		break;
++#else
++	case DRM_FORMAT_XRGB8888:
++		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
++		break;
++	case DRM_FORMAT_ARGB8888:
++		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
++		break;
++	case DRM_FORMAT_BGRX8888:
++		format = VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM;
++		break;
++	case DRM_FORMAT_BGRA8888:
++		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
++		break;
++	case DRM_FORMAT_RGBX8888:
++		format = VIRTIO_GPU_FORMAT_X8B8G8R8_UNORM;
++		break;
++	case DRM_FORMAT_RGBA8888:
++		format = VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM;
++		break;
++	case DRM_FORMAT_XBGR8888:
++		format = VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM;
++		break;
++	case DRM_FORMAT_ABGR8888:
++		format = VIRTIO_GPU_FORMAT_R8G8B8A8_UNORM;
++		break;
++#endif
++	default:
++		/*
++		 * This should not happen, we handle everything listed
++		 * in virtio_gpu_formats[].
++		 */
++		format = 0;
++		break;
++	}
++	WARN_ON(format == 0);
++	return format;
++}
++
+ static void virtio_gpu_plane_destroy(struct drm_plane *plane)
+ {
+ 	drm_plane_cleanup(plane);
+-- 
+2.9.3
