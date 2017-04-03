@@ -1,15 +1,15 @@
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH net-next 3/3] virtio-net: clean tx descriptors from rx napi
-Date: Mon, 3 Apr 2017 01:02:13 -0400
-Message-ID: <CAF=yD-+tJxqvwvLU81=H7nwqDtiSWfAv8UdfncjPQiuNteJ6jQ__14662.9899078564$1493076929$gmane$org@mail.gmail.com>
+Subject: Re: [PATCH net-next 2/3] virtio-net: transmit napi
+Date: Mon, 3 Apr 2017 01:07:49 -0400
+Message-ID: <CAF=yD-+5+X6UBYaX=Dh3M3caty0fJ7cjamTfX0=_+Lwx6r_VQw__3252.08293875239$1493076941$gmane$org@mail.gmail.com>
 References: <20170402201012.76473-1-willemdebruijn.kernel@gmail.com>
-	<20170402201012.76473-4-willemdebruijn.kernel@gmail.com>
-	<20170403024751.GA21883@redhat.com>
+	<20170402201012.76473-3-willemdebruijn.kernel@gmail.com>
+	<20170403052938-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170403024751.GA21883@redhat.com>
+In-Reply-To: <20170403052938-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,75 +23,50 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Willem de Bruijn <willemb@google.com>, Network Development <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Apr 2, 2017 at 10:47 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Sun, Apr 02, 2017 at 04:10:12PM -0400, Willem de Bruijn wrote:
+On Sun, Apr 2, 2017 at 10:30 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Sun, Apr 02, 2017 at 04:10:11PM -0400, Willem de Bruijn wrote:
 >> From: Willem de Bruijn <willemb@google.com>
 >>
->> Amortize the cost of virtual interrupts by doing both rx and tx work
->> on reception of a receive interrupt if tx napi is enabled. With
->> VIRTIO_F_EVENT_IDX, this suppresses most explicit tx completion
->> interrupts for bidirectional workloads.
+>> Convert virtio-net to a standard napi tx completion path. This enables
+>> better TCP pacing using TCP small queues and increases single stream
+>> throughput.
+>>
+>> The virtio-net driver currently cleans tx descriptors on transmission
+>> of new packets in ndo_start_xmit. Latency depends on new traffic, so
+>> is unbounded. To avoid deadlock when a socket reaches its snd limit,
+>> packets are orphaned on tranmission. This breaks socket backpressure,
+>> including TSQ.
+>>
+>> Napi increases the number of interrupts generated compared to the
+>> current model, which keeps interrupts disabled as long as the ring
+>> has enough free descriptors. Keep tx napi optional for now. Follow-on
+>> patches will reduce the interrupt cost.
 >>
 >> Signed-off-by: Willem de Bruijn <willemb@google.com>
+>> Signed-off-by: Jason Wang <jasowang@redhat.com>
 >> ---
->>  drivers/net/virtio_net.c | 22 ++++++++++++++++++++++
->>  1 file changed, 22 insertions(+)
+>>  drivers/net/virtio_net.c | 63 ++++++++++++++++++++++++++++++++++++++++--------
+>>  1 file changed, 53 insertions(+), 10 deletions(-)
 >>
 >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index 95d938e82080..af830eb212bf 100644
+>> index 6aac0ad0d9b2..95d938e82080 100644
 >> --- a/drivers/net/virtio_net.c
 >> +++ b/drivers/net/virtio_net.c
->> @@ -1030,12 +1030,34 @@ static int virtnet_receive(struct receive_queue *rq, int budget)
->>       return received;
->>  }
+>> @@ -33,9 +33,10 @@
+>>  static int napi_weight = NAPI_POLL_WEIGHT;
+>>  module_param(napi_weight, int, 0444);
 >>
->> +static void free_old_xmit_skbs(struct send_queue *sq);
->> +
+>> -static bool csum = true, gso = true;
+>> +static bool csum = true, gso = true, napi_tx = true;
+>>  module_param(csum, bool, 0444);
+>>  module_param(gso, bool, 0444);
+>> +module_param(napi_tx, bool, 0644);
+>>
+>>  /* FIXME: MTU in config. */
+>>  #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
 >
-> Could you pls re-arrange code to avoid forward declarations?
+> Off by default seems safer until we can find better ways
+> to reduce the overhead, esp for UDP.
 
-Okay. I'll do the move in a separate patch to simplify review.
-
->> +static void virtnet_poll_cleantx(struct receive_queue *rq)
->> +{
->> +     struct virtnet_info *vi = rq->vq->vdev->priv;
->> +     unsigned int index = vq2rxq(rq->vq);
->> +     struct send_queue *sq = &vi->sq[index];
->> +     struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, index);
->> +
->> +     if (!sq->napi.weight)
->> +             return;
->> +
->> +     __netif_tx_lock(txq, smp_processor_id());
->> +     free_old_xmit_skbs(sq);
->> +     __netif_tx_unlock(txq);
->> +
->> +     if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
->> +             netif_wake_subqueue(vi->dev, vq2txq(sq->vq));
->> +}
->> +
->
-> Looks very similar to virtnet_poll_tx.
->
-> I think this might be waking the tx queue too early, so
-> it will tend to stay almost full for long periods of time.
-> Why not defer wakeup until queue is at least half empty?
-
-I'll test that. Delaying wake-up longer than necessary can cause
-queue build up at the qdisc and higher tail latency, I imagine. But
-it may reduce the number of __netif_schedule calls.
-
-> I wonder whether it's worth it to handle very short queues
-> correctly - they previously made very slow progress,
-> not they are never woken up.
->
-> I'm a bit concerned about the cost of these wakeups
-> and locking. I note that this wake is called basically
-> every time queue is not full.
->
-> Would it make sense to limit the amount of tx polling?
-> Maybe use trylock to reduce the conflict with xmit?
-
-Yes, that sounds good. I did test that previously and saw no
-difference then. But when multiple cpus contend for a single
-txq it should help.
+Okay, I'll change that. I don't have an immediate idea for that
+unidirectional case.
