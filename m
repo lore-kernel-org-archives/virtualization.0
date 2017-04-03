@@ -1,13 +1,15 @@
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: [PATCH net-next 3/3] virtio-net: clean tx descriptors from rx napi
-Date: Sun,  2 Apr 2017 16:10:12 -0400
-Message-ID: <20170402201012.76473-4-willemdebruijn.kernel__41456.0242127211$1493076920$gmane$org@gmail.com>
+Subject: Re: [PATCH net-next 3/3] virtio-net: clean tx descriptors from rx napi
+Date: Mon, 3 Apr 2017 01:02:13 -0400
+Message-ID: <CAF=yD-+tJxqvwvLU81=H7nwqDtiSWfAv8UdfncjPQiuNteJ6jQ__14662.9899078564$1493076929$gmane$org@mail.gmail.com>
 References: <20170402201012.76473-1-willemdebruijn.kernel@gmail.com>
+	<20170402201012.76473-4-willemdebruijn.kernel@gmail.com>
+	<20170403024751.GA21883@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170402201012.76473-1-willemdebruijn.kernel@gmail.com>
+In-Reply-To: <20170403024751.GA21883@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,60 +19,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org, davem@davemloft.net, mst@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Willem de Bruijn <willemb@google.com>, Network Development <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Willem de Bruijn <willemb@google.com>
+On Sun, Apr 2, 2017 at 10:47 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Sun, Apr 02, 2017 at 04:10:12PM -0400, Willem de Bruijn wrote:
+>> From: Willem de Bruijn <willemb@google.com>
+>>
+>> Amortize the cost of virtual interrupts by doing both rx and tx work
+>> on reception of a receive interrupt if tx napi is enabled. With
+>> VIRTIO_F_EVENT_IDX, this suppresses most explicit tx completion
+>> interrupts for bidirectional workloads.
+>>
+>> Signed-off-by: Willem de Bruijn <willemb@google.com>
+>> ---
+>>  drivers/net/virtio_net.c | 22 ++++++++++++++++++++++
+>>  1 file changed, 22 insertions(+)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 95d938e82080..af830eb212bf 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -1030,12 +1030,34 @@ static int virtnet_receive(struct receive_queue *rq, int budget)
+>>       return received;
+>>  }
+>>
+>> +static void free_old_xmit_skbs(struct send_queue *sq);
+>> +
+>
+> Could you pls re-arrange code to avoid forward declarations?
 
-Amortize the cost of virtual interrupts by doing both rx and tx work
-on reception of a receive interrupt if tx napi is enabled. With
-VIRTIO_F_EVENT_IDX, this suppresses most explicit tx completion
-interrupts for bidirectional workloads.
+Okay. I'll do the move in a separate patch to simplify review.
 
-Signed-off-by: Willem de Bruijn <willemb@google.com>
----
- drivers/net/virtio_net.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+>> +static void virtnet_poll_cleantx(struct receive_queue *rq)
+>> +{
+>> +     struct virtnet_info *vi = rq->vq->vdev->priv;
+>> +     unsigned int index = vq2rxq(rq->vq);
+>> +     struct send_queue *sq = &vi->sq[index];
+>> +     struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, index);
+>> +
+>> +     if (!sq->napi.weight)
+>> +             return;
+>> +
+>> +     __netif_tx_lock(txq, smp_processor_id());
+>> +     free_old_xmit_skbs(sq);
+>> +     __netif_tx_unlock(txq);
+>> +
+>> +     if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+>> +             netif_wake_subqueue(vi->dev, vq2txq(sq->vq));
+>> +}
+>> +
+>
+> Looks very similar to virtnet_poll_tx.
+>
+> I think this might be waking the tx queue too early, so
+> it will tend to stay almost full for long periods of time.
+> Why not defer wakeup until queue is at least half empty?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 95d938e82080..af830eb212bf 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1030,12 +1030,34 @@ static int virtnet_receive(struct receive_queue *rq, int budget)
- 	return received;
- }
- 
-+static void free_old_xmit_skbs(struct send_queue *sq);
-+
-+static void virtnet_poll_cleantx(struct receive_queue *rq)
-+{
-+	struct virtnet_info *vi = rq->vq->vdev->priv;
-+	unsigned int index = vq2rxq(rq->vq);
-+	struct send_queue *sq = &vi->sq[index];
-+	struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, index);
-+
-+	if (!sq->napi.weight)
-+		return;
-+
-+	__netif_tx_lock(txq, smp_processor_id());
-+	free_old_xmit_skbs(sq);
-+	__netif_tx_unlock(txq);
-+
-+	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-+		netif_wake_subqueue(vi->dev, vq2txq(sq->vq));
-+}
-+
- static int virtnet_poll(struct napi_struct *napi, int budget)
- {
- 	struct receive_queue *rq =
- 		container_of(napi, struct receive_queue, napi);
- 	unsigned int received;
- 
-+	virtnet_poll_cleantx(rq);
-+
- 	received = virtnet_receive(rq, budget);
- 
- 	/* Out of packets? */
--- 
-2.12.2.564.g063fe858b8-goog
+I'll test that. Delaying wake-up longer than necessary can cause
+queue build up at the qdisc and higher tail latency, I imagine. But
+it may reduce the number of __netif_schedule calls.
+
+> I wonder whether it's worth it to handle very short queues
+> correctly - they previously made very slow progress,
+> not they are never woken up.
+>
+> I'm a bit concerned about the cost of these wakeups
+> and locking. I note that this wake is called basically
+> every time queue is not full.
+>
+> Would it make sense to limit the amount of tx polling?
+> Maybe use trylock to reduce the conflict with xmit?
+
+Yes, that sounds good. I did test that previously and saw no
+difference then. But when multiple cpus contend for a single
+txq it should help.
