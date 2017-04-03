@@ -1,15 +1,15 @@
 From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 1/2] drm: virtio: add virtio_gpu_translate_format
-Date: Mon, 3 Apr 2017 09:51:10 +0200
-Message-ID: <20170403075110.besn4qv53nhwlrhu__4339.36838894642$1491205891$gmane$org@phenom.ffwll.local>
+Subject: Re: [PATCH 2/2] drm: virtio: fix virtio_gpu_mode_dumb_create
+Date: Mon, 3 Apr 2017 09:53:53 +0200
+Message-ID: <20170403075353.jqxrqshygfidn4f3__42215.0555569262$1491206055$gmane$org@phenom.ffwll.local>
 References: <20170403070845.10793-1-kraxel@redhat.com>
-	<20170403070845.10793-2-kraxel@redhat.com>
+	<20170403070845.10793-3-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170403070845.10793-2-kraxel@redhat.com>
+In-Reply-To: <20170403070845.10793-3-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,185 +23,57 @@ To: Gerd Hoffmann <kraxel@redhat.com>
 Cc: lvivier@redhat.com, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 03, 2017 at 09:08:44AM +0200, Gerd Hoffmann wrote:
-> Factors out code, no functional change.
+On Mon, Apr 03, 2017 at 09:08:45AM +0200, Gerd Hoffmann wrote:
+> Lookup format using virtio_gpu_translate_format()
+> instead of hardcoding it.  Fixes xorg display on
+> bigendian guests (i.e. ppc64).
 > 
 > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 
-Ugh on the big endian define, I guess we'll never managed to figure this
-aspect of drm pixel formats out correctly - they're supposed to encode
-endinaness.
+ow ... :(
 
-But the copy-paste looks correct :-)
+With what kind of client have you tested this? fbdev? kms native?
+
+Should we patch drm_fourcc.h and essentially state that _all_ drm_fourcc
+are in native endian, don't dare mixing things up? Would be good to send
+out an rfc and discuss it with radeon/amd maintainers. Afaik they are the
+only ones who also care about some big endian platforms.
+
+On the patch itself, once you've added more details about what/how it
+falls over:
 
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+-Daniel
+
 > ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h   |  1 +
->  drivers/gpu/drm/virtio/virtgpu_fb.c    | 58 +----------------------------
->  drivers/gpu/drm/virtio/virtgpu_plane.c | 68 ++++++++++++++++++++++++++++++++++
->  3 files changed, 71 insertions(+), 56 deletions(-)
+>  drivers/gpu/drm/virtio/virtgpu_gem.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index 93900a8..1328185 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -334,6 +334,7 @@ int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev);
->  void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev);
->  
->  /* virtio_gpu_plane.c */
-> +uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc);
->  struct drm_plane *virtio_gpu_plane_init(struct virtio_gpu_device *vgdev,
->  					enum drm_plane_type type,
->  					int index);
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
-> index 9bfaef3..33df067 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_fb.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
-> @@ -231,63 +231,9 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
->  	mode_cmd.pitches[0] = mode_cmd.width * 4;
->  	mode_cmd.pixel_format = drm_mode_legacy_fb_format(32, 24);
->  
-> -	switch (mode_cmd.pixel_format) {
-> -#ifdef __BIG_ENDIAN
-> -	case DRM_FORMAT_XRGB8888:
-> -		format = VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_ARGB8888:
-> -		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_BGRX8888:
-> -		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_BGRA8888:
-> -		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_RGBX8888:
-> -		format = VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_RGBA8888:
-> -		format = VIRTIO_GPU_FORMAT_R8G8B8A8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_XBGR8888:
-> -		format = VIRTIO_GPU_FORMAT_X8B8G8R8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_ABGR8888:
-> -		format = VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM;
-> -		break;
-> -#else
-> -	case DRM_FORMAT_XRGB8888:
-> -		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_ARGB8888:
-> -		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_BGRX8888:
-> -		format = VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_BGRA8888:
-> -		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_RGBX8888:
-> -		format = VIRTIO_GPU_FORMAT_X8B8G8R8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_RGBA8888:
-> -		format = VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_XBGR8888:
-> -		format = VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM;
-> -		break;
-> -	case DRM_FORMAT_ABGR8888:
-> -		format = VIRTIO_GPU_FORMAT_R8G8B8A8_UNORM;
-> -		break;
-> -#endif
-> -	default:
-> -		DRM_ERROR("failed to find virtio gpu format for %d\n",
-> -			  mode_cmd.pixel_format);
-> +	format = virtio_gpu_translate_format(mode_cmd.pixel_format);
-> +	if (format == 0)
->  		return -EINVAL;
-> -	}
->  
->  	size = mode_cmd.pitches[0] * mode_cmd.height;
->  	obj = virtio_gpu_alloc_object(dev, size, false, true);
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> index 1ff9c64..372c91c 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> @@ -42,6 +42,74 @@ static const uint32_t virtio_gpu_cursor_formats[] = {
->  	DRM_FORMAT_ARGB8888,
->  };
->  
-> +uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
-> +{
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+> index 336a57f..cc025d8 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+> @@ -88,6 +88,7 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+>  	int ret;
+>  	uint32_t pitch;
+>  	uint32_t resid;
 > +	uint32_t format;
-> +
-> +	switch (drm_fourcc) {
-> +#ifdef __BIG_ENDIAN
-> +	case DRM_FORMAT_XRGB8888:
-> +		format = VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_ARGB8888:
-> +		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_BGRX8888:
-> +		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_BGRA8888:
-> +		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_RGBX8888:
-> +		format = VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_RGBA8888:
-> +		format = VIRTIO_GPU_FORMAT_R8G8B8A8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_XBGR8888:
-> +		format = VIRTIO_GPU_FORMAT_X8B8G8R8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_ABGR8888:
-> +		format = VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM;
-> +		break;
-> +#else
-> +	case DRM_FORMAT_XRGB8888:
-> +		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_ARGB8888:
-> +		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_BGRX8888:
-> +		format = VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_BGRA8888:
-> +		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_RGBX8888:
-> +		format = VIRTIO_GPU_FORMAT_X8B8G8R8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_RGBA8888:
-> +		format = VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_XBGR8888:
-> +		format = VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM;
-> +		break;
-> +	case DRM_FORMAT_ABGR8888:
-> +		format = VIRTIO_GPU_FORMAT_R8G8B8A8_UNORM;
-> +		break;
-> +#endif
-> +	default:
-> +		/*
-> +		 * This should not happen, we handle everything listed
-> +		 * in virtio_gpu_formats[].
-> +		 */
-> +		format = 0;
-> +		break;
-> +	}
-> +	WARN_ON(format == 0);
-> +	return format;
-> +}
-> +
->  static void virtio_gpu_plane_destroy(struct drm_plane *plane)
->  {
->  	drm_plane_cleanup(plane);
+>  
+>  	pitch = args->width * ((args->bpp + 1) / 8);
+>  	args->size = pitch * args->height;
+> @@ -98,9 +99,10 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+>  	if (ret)
+>  		goto fail;
+>  
+> +	format = virtio_gpu_translate_format(DRM_FORMAT_XRGB8888);
+>  	virtio_gpu_resource_id_get(vgdev, &resid);
+> -	virtio_gpu_cmd_create_resource(vgdev, resid,
+> -				       2, args->width, args->height);
+> +	virtio_gpu_cmd_create_resource(vgdev, resid, format,
+> +				       args->width, args->height);
+>  
+>  	/* attach the object to the resource */
+>  	obj = gem_to_virtio_gpu_obj(gobj);
 > -- 
 > 2.9.3
 > 
