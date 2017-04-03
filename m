@@ -1,15 +1,12 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 1/2] drm: virtio: add virtio_gpu_translate_format
-Date: Mon, 03 Apr 2017 11:05:28 +0200
-Message-ID: <1491210328.17505.34.camel__34391.74909513$1491210346$gmane$org@redhat.com>
-References: <20170403070845.10793-1-kraxel@redhat.com>
-	<20170403070845.10793-2-kraxel@redhat.com>
-	<20170403075110.besn4qv53nhwlrhu@phenom.ffwll.local>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio_pci: request irq error handling
+Date: Mon, 3 Apr 2017 21:09:23 +0300
+Message-ID: <1491242932-29700-1-git-send-email-mst__15168.7756566846$1491242973$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170403075110.besn4qv53nhwlrhu@phenom.ffwll.local>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +16,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: lvivier@redhat.com, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: virtio-dev@lists.oasis-open.org, Mike Galbraith <efault@gmx.de>, Thorsten Leemhuis <linux@leemhuis.info>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mo, 2017-04-03 at 09:51 +0200, Daniel Vetter wrote:
-> On Mon, Apr 03, 2017 at 09:08:44AM +0200, Gerd Hoffmann wrote:
-> > Factors out code, no functional change.
-> > 
-> > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> 
-> Ugh on the big endian define, I guess we'll never managed to figure this
-> aspect of drm pixel formats out correctly - they're supposed to encode
-> endinaness.
+On failure to request msix vectors virtio frees the vector map but fails
+to reset it.  It will then attempt to use that map in vp_remove_vqs on
+device removal and hybernation, resulting in memory corruption
+manifesting as warnings in PCI core, hangs etc.
 
-Oh, ok.  (reading your patch replies out-of-order).
+Reported-by: Mike Galbraith <efault@gmx.de>
+Fixes: 07ec51480b5e ("virtio_pci: use shared interrupts for virtqueues")
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_pci_common.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Yep, in that case it maybe is a good idea to discuss fourcc
-semantics ...
-
-cheers,
-  Gerd
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 2a353ab..2b1ea9b 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -266,6 +266,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
+ out_remove_vqs:
+ 	vp_remove_vqs(vdev);
+ 	kfree(vp_dev->msix_vector_map);
++	vp_dev->msix_vector_map = NULL;
+ out_disable_config_irq:
+ 	vp_dev->config_vector(vp_dev, VIRTIO_MSI_NO_VECTOR);
+ out_free_config_irq:
+-- 
+MST
