@@ -1,12 +1,14 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [bug report] virtio_net: rework mergeable buffer handling
-Date: Thu, 6 Apr 2017 08:29:49 +0300
-Message-ID: <20170406052949.GA26854@mwanda>
+From: Laurent Vivier <lvivier@redhat.com>
+Subject: Re: [PATCH] drm: virtio: fix virtio_gpu_cursor_formats
+Date: Thu, 6 Apr 2017 09:20:29 +0200
+Message-ID: <f5c68491-7ff8-da43-e1a7-d7952dbe7869@redhat.com>
+References: <20170405080915.823-1-lvivier@redhat.com>
+	<20170405171125.GT30290@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20170405171125.GT30290@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,57 +18,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: virtualization@lists.linux-foundation.org
+To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello Michael S. Tsirkin,
-
-The patch 6c8e5f3c41c8: "virtio_net: rework mergeable buffer
-handling" from Mar 6, 2017, leads to the following static checker
-warning:
-
-	drivers/net/virtio_net.c:1042 virtnet_receive()
-	error: uninitialized symbol 'ctx'.
-
-drivers/net/virtio_net.c
-  1030  static int virtnet_receive(struct receive_queue *rq, int budget)
-  1031  {
-  1032          struct virtnet_info *vi = rq->vq->vdev->priv;
-  1033          unsigned int len, received = 0, bytes = 0;
-  1034          void *buf;
-  1035          struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
-  1036  
-  1037          if (vi->mergeable_rx_bufs) {
-  1038                  void *ctx;
-                              ^^^
-  1039  
-  1040                  while (received < budget &&
-  1041                         (buf = virtqueue_get_buf_ctx(rq->vq, &len, &ctx))) {
-                                                                           ^^^^
-  1042                          bytes += receive_buf(vi, rq, buf, len, ctx);
-                                                                       ^^^
-
-It's possible that this code is correct, but I looked at it and wasn't
-immediately convinced.  Returning non-NULL buf is not sufficient to
-show that "ctx" is initialized, because if it's vq->indirect then "buf"
-is still unintialized.  Also it's possible that receive_buf() checks
-vq->indirect through some side effect way that I didn't see so it
-doesn't use the uninitialized value...
-
-I feel like if this is a false positive, that means the rules are too
-subtle...  :/
-
-  1043                          received++;
-  1044                  }
-  1045          } else {
-  1046                  while (received < budget &&
-  1047                         (buf = virtqueue_get_buf(rq->vq, &len)) != NULL) {
-  1048                          bytes += receive_buf(vi, rq, buf, len, NULL);
-  1049                          received++;
-  1050                  }
-  1051          }
-  1052  
-
-regards,
-dan carpenter
+T24gMDUvMDQvMjAxNyAxOToxMSwgVmlsbGUgU3lyasOkbMOkIHdyb3RlOgo+IE9uIFdlZCwgQXBy
+IDA1LCAyMDE3IGF0IDEwOjA5OjE1QU0gKzAyMDAsIExhdXJlbnQgVml2aWVyIHdyb3RlOgo+PiBX
+aGVuIHdlIHVzZSB2aXJ0aW8tdmdhIHdpdGggYSBiaWctZW5kaWFuIGd1ZXN0LAo+PiB0aGUgbW91
+c2UgcG9pbnRlciBkaXNhcHBlYXJzLgo+Pgo+PiBUbyBmaXggdGhhdCwgb24gYmlnLWVuZGlhbiB1
+c2UgRFJNX0ZPUk1BVF9CR1JBODg4OAo+PiBpbnN0ZWFkIG9mIERSTV9GT1JNQVRfQVJHQjg4ODgu
+Cj4+Cj4+IFNpZ25lZC1vZmYtYnk6IExhdXJlbnQgVml2aWVyIDxsdml2aWVyQHJlZGhhdC5jb20+
+Cj4+IC0tLQo+PiAgZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3BsYW5lLmMgfCA0ICsr
+KysKPj4gIDEgZmlsZSBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKykKPj4KPj4gZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wbGFuZS5jIGIvZHJpdmVycy9ncHUvZHJt
+L3ZpcnRpby92aXJ0Z3B1X3BsYW5lLmMKPj4gaW5kZXggMTEyODhmZi4uM2VkNzE3NCAxMDA2NDQK
+Pj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3BsYW5lLmMKPj4gKysrIGIv
+ZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3BsYW5lLmMKPj4gQEAgLTM5LDcgKzM5LDEx
+IEBAIHN0YXRpYyBjb25zdCB1aW50MzJfdCB2aXJ0aW9fZ3B1X2Zvcm1hdHNbXSA9IHsKPj4gIH07
+Cj4+ICAKPj4gIHN0YXRpYyBjb25zdCB1aW50MzJfdCB2aXJ0aW9fZ3B1X2N1cnNvcl9mb3JtYXRz
+W10gPSB7Cj4+ICsjaWZkZWYgX19CSUdfRU5ESUFOCj4+ICsJRFJNX0ZPUk1BVF9CR1JBODg4OCwK
+Pj4gKyNlbHNlCj4+ICAJRFJNX0ZPUk1BVF9BUkdCODg4OCwKPj4gKyNlbmRpZgo+IAo+IERSTSBm
+b3JtYXRzIGFyZSBzdXBwb3NlZCB0byBiZSBsaXR0bGUgZW5kaWFuLCBzbyB0aGlzIGlzbid0IHJl
+YWxseQo+IGNvcnJlY3QuCgpJbiBhIGJpZyBlbmRpYW4ga2VybmVsLCB3ZSBuZWVkIHRvIHN3YXAg
+dGhlIGJ5dGVzIG9yZGVyLCB3aGVyZSBkbyB5b3UKdGhpbmsgaXMgdGhlIGJlc3QgcGxhY2UgdG8g
+ZG8gdGhhdD8KClRoYW5rcywKTGF1cmVudApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
