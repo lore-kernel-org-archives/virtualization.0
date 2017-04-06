@@ -1,12 +1,17 @@
-From: "icete@insticc.info" <icete@insticc.info>
-Subject: CFP SECRYPT 2017 - 14th Int.l Conf. on Security and Cryptography
-	(Madrid/Spain)
-Date: 6 Apr 2017 17:06:47 +0100
-Message-ID: <20170406160707.87988.13362.E0DAC7D1@insticc.info>
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Subject: Re: DRM_FORMAT_* byte order (was: Re: [PATCH] drm: virtio: fix
+	virtio_gpu_cursor_formats)
+Date: Thu, 6 Apr 2017 20:27:47 +0300
+Message-ID: <20170406172747.GB30290@intel.com>
+References: <20170405080915.823-1-lvivier@redhat.com>
+	<20170405171125.GT30290@intel.com>
+	<1491467383.12607.37.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1491467383.12607.37.camel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,30 +21,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Laurent Vivier <lvivier@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, David Airlie <airlied@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U1VCTUlTU0lPTiBERUFETElORSAKCjE0dGggSW50ZXJuYXRpb25hbCBDb25mZXJlbmNlIG9uIFNl
-Y3VyaXR5IGFuZCBDcnlwdG9ncmFwaHkKClN1Ym1pc3Npb24gRGVhZGxpbmU6IEFwcmlsIDE4LCAy
-MDE3CgpodHRwOi8vd3d3LnNlY3J5cHQuaWNldGUub3JnLwoKSnVseSAyNCAtIDI2LCAyMDE3Ck1h
-ZHJpZCwgU3BhaW4uCgogCgpUZWNobmljYWxseSBDby1zcG9uc29yZWQgYnkgSUVFRSBTeXN0ZW1z
-IENvdW5jaWwuIAoKSW4gQ29vcGVyYXRpb24gd2l0aCBJVEcsIElBQ1IuCiAKV2l0aCB0aGUgcHJl
-c2VuY2Ugb2YgaW50ZXJuYXRpb25hbGx5IGRpc3Rpbmd1aXNoZWQga2V5bm90ZSBzcGVha2VyczoK
-Q2hhcmFsYWJvcyBTa2lhbmlzLCBVbml2ZXJzaXR5IG9mIHRoZSBBZWdlYW4sIEdyZWVjZQpDYXJs
-byBSZWdhenpvbmksIFVuaXZlcnNpdHkgb2YgR2Vub3ZhLCBJdGFseQpKYW4gQ2FtZW5pc2NoLCBJ
-Qk0gUmVzZWFyY2ggLSBadXJpY2gsIFN3aXR6ZXJsYW5kCkpvc2UgRHVhdG8sIFVQViwgU3BhaW4K
-QW5kcmVhcyBIb2x6aW5nZXIsIE1lZGljYWwgVW5pdmVyc2l0eSBHcmF6LCBBdXN0cmlhCgoKQSBz
-aG9ydCBsaXN0IG9mIHByZXNlbnRlZCBwYXBlcnMgd2lsbCBiZSBzZWxlY3RlZCBzbyB0aGF0IHJl
-dmlzZWQgYW5kIGV4dGVuZGVkIHZlcnNpb25zIG9mIHRoZXNlIHBhcGVycyB3aWxsIGJlIHB1Ymxp
-c2hlZCBieSBTcHJpbmdlci4KIApBbGwgcGFwZXJzIHByZXNlbnRlZCBhdCB0aGUgY29uZ3Jlc3Mg
-dmVudWUgd2lsbCBhbHNvIGJlIGF2YWlsYWJsZSBhdCB0aGUgU0NJVEVQUkVTUyBEaWdpdGFsIExp
-YnJhcnkgKGh0dHA6Ly93d3cuc2NpdGVwcmVzcy5vcmcvRGlnaXRhbExpYnJhcnkvKS4KICAKU2hv
-dWxkIHlvdSBoYXZlIGFueSBxdWVzdGlvbiBwbGVhc2UgZG9u4oCZdCBoZXNpdGF0ZSBjb250YWN0
-aW5nIG1lLgogCgpLaW5kIHJlZ2FyZHMsClNFQ1JZUFQgU2VjcmV0YXJpYXQKCkFkZHJlc3M6IEF2
-LiBELiBNYW51ZWwgSSwgMjdBLCAywrogZXNxLgoyOTEwLTU5NSBTZXR1YmFsLCBQb3J0dWdhbApU
-ZWw6ICszNTEgMjY1IDUyMCAxODUKRmF4OiArMzUxIDI2NSA1MjAgMTg2CldlYjogaHR0cDovL3d3
-dy5zZWNyeXB0LmljZXRlLm9yZy8KZS1tYWlsOiBzZWNyeXB0LnNlY3JldGFyaWF0QGluc3RpY2Mu
-b3JnCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+On Thu, Apr 06, 2017 at 10:29:43AM +0200, Gerd Hoffmann wrote:
+>   Hi,
+> =
+
+> > >  static const uint32_t virtio_gpu_cursor_formats[] =3D {
+> > > +#ifdef __BIG_ENDIAN
+> > > +	DRM_FORMAT_BGRA8888,
+> > > +#else
+> > >  	DRM_FORMAT_ARGB8888,
+> > > +#endif
+> > =
+
+> > DRM formats are supposed to be little endian, so this isn't really
+> > correct.
+> =
+
+> Well, maybe they where *intended* to be little endian at some point in
+> the past.  The actual code appears to interpret them as native endian
+> though.
+> =
+
+> Lets take a simple example, the bochs driver (qemu sdvga).  It supports
+> 32 bpp with depth 24 (DRM_FORMAT_XRGB8888) as the one and only
+> framebuffer format (see bochs_user_framebuffer_create).  We still had to
+> add a special register to the virtual hardware so the guest can signal
+> to the host whenever the framebuffer is big endian or little endian (see
+> bochs_hw_init), so both ppc64 and ppc64le guests work properly with the
+> qemu stdvga.
+> =
+
+> So, bigendian guests assume that DRM_FORMAT_XRGB8888 is big endian not
+> little endian.  And given that the fourcc codes are used in the
+> userspace/kernel API too (see DRM_IOCTL_MODE_ADDFB2) I think we can't
+> change that any more ...
+
+Sigh. That makes mixed endian systems pretty much hopeless :(
+It's a shame people didn't read the docuemntation.
+
+It's also doubly disappointing because eg. the more standardized YUV
+formats are definitely little endian as far the official fourccs are
+concerned. So if we now make everything follow the host endianness
+these things become a huge mess for anyone wanting to do video
+playback etc.
+
+Oh well, at least I tried to make it sane from the start. I'll just
+go back to my blissful little endian world now.
+
+-- =
+
+Ville Syrj=E4l=E4
+Intel OTC
