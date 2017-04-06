@@ -1,15 +1,12 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: DRM_FORMAT_* byte order (was: Re: [PATCH] drm: virtio: fix
-	virtio_gpu_cursor_formats)
-Date: Thu, 06 Apr 2017 10:29:43 +0200
-Message-ID: <1491467383.12607.37.camel@redhat.com>
-References: <20170405080915.823-1-lvivier@redhat.com>
-	<20170405171125.GT30290@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH] virtio_net: tidy a couple debug statements
+Date: Thu, 6 Apr 2017 12:04:47 +0300
+Message-ID: <20170406090446.GA29939@mwanda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170405171125.GT30290@intel.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +16,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc: Laurent Vivier <lvivier@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, David Airlie <airlied@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+We are printing a decimal value for truesize so we shouldn't use an "0x"
+prefix.
 
-> >  static const uint32_t virtio_gpu_cursor_formats[] = {
-> > +#ifdef __BIG_ENDIAN
-> > +	DRM_FORMAT_BGRA8888,
-> > +#else
-> >  	DRM_FORMAT_ARGB8888,
-> > +#endif
-> 
-> DRM formats are supposed to be little endian, so this isn't really
-> correct.
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Well, maybe they where *intended* to be little endian at some point in
-the past.  The actual code appears to interpret them as native endian
-though.
-
-Lets take a simple example, the bochs driver (qemu sdvga).  It supports
-32 bpp with depth 24 (DRM_FORMAT_XRGB8888) as the one and only
-framebuffer format (see bochs_user_framebuffer_create).  We still had to
-add a special register to the virtual hardware so the guest can signal
-to the host whenever the framebuffer is big endian or little endian (see
-bochs_hw_init), so both ppc64 and ppc64le guests work properly with the
-qemu stdvga.
-
-So, bigendian guests assume that DRM_FORMAT_XRGB8888 is big endian not
-little endian.  And given that the fourcc codes are used in the
-userspace/kernel API too (see DRM_IOCTL_MODE_ADDFB2) I think we can't
-change that any more ...
-
-cheers,
-  Gerd
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 0e6e3acf6ff1..2b5e8069d9e5 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -668,7 +668,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 	rcu_read_unlock();
+ 
+ 	if (unlikely(len > (unsigned long)ctx)) {
+-		pr_debug("%s: rx error: len %u exceeds truesize 0x%lu\n",
++		pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
+ 			 dev->name, len, (unsigned long)ctx);
+ 		dev->stats.rx_length_errors++;
+ 		goto err_skb;
+@@ -694,7 +694,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 
+ 		page = virt_to_head_page(buf);
+ 		if (unlikely(len > (unsigned long)ctx)) {
+-			pr_debug("%s: rx error: len %u exceeds truesize 0x%lu\n",
++			pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
+ 				 dev->name, len, (unsigned long)ctx);
+ 			dev->stats.rx_length_errors++;
+ 			goto err_skb;
