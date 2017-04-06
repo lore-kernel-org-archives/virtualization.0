@@ -1,14 +1,14 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm: virtio: fix virtio_gpu_cursor_formats
-Date: Thu, 6 Apr 2017 10:25:08 +0200
-Message-ID: <20170406082508.6l4w3kjevk3noowh@phenom.ffwll.local>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: DRM_FORMAT_* byte order (was: Re: [PATCH] drm: virtio: fix
+	virtio_gpu_cursor_formats)
+Date: Thu, 06 Apr 2017 10:29:43 +0200
+Message-ID: <1491467383.12607.37.camel@redhat.com>
 References: <20170405080915.823-1-lvivier@redhat.com>
 	<20170405171125.GT30290@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <20170405171125.GT30290@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,79 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc: Laurent Vivier <lvivier@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Cc: Laurent Vivier <lvivier@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, David Airlie <airlied@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 05, 2017 at 08:11:25PM +0300, Ville Syrj=E4l=E4 wrote:
-> On Wed, Apr 05, 2017 at 10:09:15AM +0200, Laurent Vivier wrote:
-> > When we use virtio-vga with a big-endian guest,
-> > the mouse pointer disappears.
-> > =
+  Hi,
 
-> > To fix that, on big-endian use DRM_FORMAT_BGRA8888
-> > instead of DRM_FORMAT_ARGB8888.
-> > =
-
-> > Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-> > ---
-> >  drivers/gpu/drm/virtio/virtgpu_plane.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> > =
-
-> > diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/v=
-irtio/virtgpu_plane.c
-> > index 11288ff..3ed7174 100644
-> > --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-> > +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> > @@ -39,7 +39,11 @@ static const uint32_t virtio_gpu_formats[] =3D {
-> >  };
-> >  =
-
-> >  static const uint32_t virtio_gpu_cursor_formats[] =3D {
+> >  static const uint32_t virtio_gpu_cursor_formats[] = {
 > > +#ifdef __BIG_ENDIAN
 > > +	DRM_FORMAT_BGRA8888,
 > > +#else
 > >  	DRM_FORMAT_ARGB8888,
 > > +#endif
-> =
-
+> 
 > DRM formats are supposed to be little endian, so this isn't really
 > correct.
 
-Reality says they're native endian, and I asked Gerd Hoffman to do a
-documentation update and get that reviewed by amd folks (the only other
-ones who care).
--Daniel
+Well, maybe they where *intended* to be little endian at some point in
+the past.  The actual code appears to interpret them as native endian
+though.
 
-> =
+Lets take a simple example, the bochs driver (qemu sdvga).  It supports
+32 bpp with depth 24 (DRM_FORMAT_XRGB8888) as the one and only
+framebuffer format (see bochs_user_framebuffer_create).  We still had to
+add a special register to the virtual hardware so the guest can signal
+to the host whenever the framebuffer is big endian or little endian (see
+bochs_hw_init), so both ppc64 and ppc64le guests work properly with the
+qemu stdvga.
 
-> >  };
-> >  =
+So, bigendian guests assume that DRM_FORMAT_XRGB8888 is big endian not
+little endian.  And given that the fourcc codes are used in the
+userspace/kernel API too (see DRM_IOCTL_MODE_ADDFB2) I think we can't
+change that any more ...
 
-> >  static void virtio_gpu_plane_destroy(struct drm_plane *plane)
-> > -- =
-
-> > 2.9.3
-> > =
-
-> > _______________________________________________
-> > dri-devel mailing list
-> > dri-devel@lists.freedesktop.org
-> > https://lists.freedesktop.org/mailman/listinfo/dri-devel
-> =
-
-> -- =
-
-> Ville Syrj=E4l=E4
-> Intel OTC
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
--- =
-
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+cheers,
+  Gerd
