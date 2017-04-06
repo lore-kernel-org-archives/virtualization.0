@@ -1,14 +1,12 @@
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Subject: Re: [PATCH] drm: virtio: fix virtio_gpu_cursor_formats
-Date: Wed, 5 Apr 2017 20:11:25 +0300
-Message-ID: <20170405171125.GT30290__20867.7604831339$1491412360$gmane$org@intel.com>
-References: <20170405080915.823-1-lvivier@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [bug report] virtio_net: rework mergeable buffer handling
+Date: Thu, 6 Apr 2017 08:29:49 +0300
+Message-ID: <20170406052949.GA26854@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170405080915.823-1-lvivier@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,59 +16,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Laurent Vivier <lvivier@redhat.com>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 05, 2017 at 10:09:15AM +0200, Laurent Vivier wrote:
-> When we use virtio-vga with a big-endian guest,
-> the mouse pointer disappears.
-> =
+Hello Michael S. Tsirkin,
 
-> To fix that, on big-endian use DRM_FORMAT_BGRA8888
-> instead of DRM_FORMAT_ARGB8888.
-> =
+The patch 6c8e5f3c41c8: "virtio_net: rework mergeable buffer
+handling" from Mar 6, 2017, leads to the following static checker
+warning:
 
-> Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_plane.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> =
+	drivers/net/virtio_net.c:1042 virtnet_receive()
+	error: uninitialized symbol 'ctx'.
 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/vir=
-tio/virtgpu_plane.c
-> index 11288ff..3ed7174 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> @@ -39,7 +39,11 @@ static const uint32_t virtio_gpu_formats[] =3D {
->  };
->  =
+drivers/net/virtio_net.c
+  1030  static int virtnet_receive(struct receive_queue *rq, int budget)
+  1031  {
+  1032          struct virtnet_info *vi = rq->vq->vdev->priv;
+  1033          unsigned int len, received = 0, bytes = 0;
+  1034          void *buf;
+  1035          struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
+  1036  
+  1037          if (vi->mergeable_rx_bufs) {
+  1038                  void *ctx;
+                              ^^^
+  1039  
+  1040                  while (received < budget &&
+  1041                         (buf = virtqueue_get_buf_ctx(rq->vq, &len, &ctx))) {
+                                                                           ^^^^
+  1042                          bytes += receive_buf(vi, rq, buf, len, ctx);
+                                                                       ^^^
 
->  static const uint32_t virtio_gpu_cursor_formats[] =3D {
-> +#ifdef __BIG_ENDIAN
-> +	DRM_FORMAT_BGRA8888,
-> +#else
->  	DRM_FORMAT_ARGB8888,
-> +#endif
+It's possible that this code is correct, but I looked at it and wasn't
+immediately convinced.  Returning non-NULL buf is not sufficient to
+show that "ctx" is initialized, because if it's vq->indirect then "buf"
+is still unintialized.  Also it's possible that receive_buf() checks
+vq->indirect through some side effect way that I didn't see so it
+doesn't use the uninitialized value...
 
-DRM formats are supposed to be little endian, so this isn't really
-correct.
+I feel like if this is a false positive, that means the rules are too
+subtle...  :/
 
->  };
->  =
+  1043                          received++;
+  1044                  }
+  1045          } else {
+  1046                  while (received < budget &&
+  1047                         (buf = virtqueue_get_buf(rq->vq, &len)) != NULL) {
+  1048                          bytes += receive_buf(vi, rq, buf, len, NULL);
+  1049                          received++;
+  1050                  }
+  1051          }
+  1052  
 
->  static void virtio_gpu_plane_destroy(struct drm_plane *plane)
-> -- =
-
-> 2.9.3
-> =
-
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
--- =
-
-Ville Syrj=E4l=E4
-Intel OTC
+regards,
+dan carpenter
