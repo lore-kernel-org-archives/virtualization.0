@@ -1,13 +1,14 @@
-From: Laurent Vivier <lvivier@redhat.com>
+From: Daniel Vetter <daniel@ffwll.ch>
 Subject: Re: [PATCH] drm: virtio: fix virtio_gpu_cursor_formats
-Date: Thu, 6 Apr 2017 09:20:29 +0200
-Message-ID: <f5c68491-7ff8-da43-e1a7-d7952dbe7869@redhat.com>
+Date: Thu, 6 Apr 2017 10:25:08 +0200
+Message-ID: <20170406082508.6l4w3kjevk3noowh@phenom.ffwll.local>
 References: <20170405080915.823-1-lvivier@redhat.com>
 	<20170405171125.GT30290@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20170405171125.GT30290@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,30 +19,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Cc: Laurent Vivier <lvivier@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDUvMDQvMjAxNyAxOToxMSwgVmlsbGUgU3lyasOkbMOkIHdyb3RlOgo+IE9uIFdlZCwgQXBy
-IDA1LCAyMDE3IGF0IDEwOjA5OjE1QU0gKzAyMDAsIExhdXJlbnQgVml2aWVyIHdyb3RlOgo+PiBX
-aGVuIHdlIHVzZSB2aXJ0aW8tdmdhIHdpdGggYSBiaWctZW5kaWFuIGd1ZXN0LAo+PiB0aGUgbW91
-c2UgcG9pbnRlciBkaXNhcHBlYXJzLgo+Pgo+PiBUbyBmaXggdGhhdCwgb24gYmlnLWVuZGlhbiB1
-c2UgRFJNX0ZPUk1BVF9CR1JBODg4OAo+PiBpbnN0ZWFkIG9mIERSTV9GT1JNQVRfQVJHQjg4ODgu
-Cj4+Cj4+IFNpZ25lZC1vZmYtYnk6IExhdXJlbnQgVml2aWVyIDxsdml2aWVyQHJlZGhhdC5jb20+
-Cj4+IC0tLQo+PiAgZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3BsYW5lLmMgfCA0ICsr
-KysKPj4gIDEgZmlsZSBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKykKPj4KPj4gZGlmZiAtLWdpdCBh
-L2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wbGFuZS5jIGIvZHJpdmVycy9ncHUvZHJt
-L3ZpcnRpby92aXJ0Z3B1X3BsYW5lLmMKPj4gaW5kZXggMTEyODhmZi4uM2VkNzE3NCAxMDA2NDQK
-Pj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3BsYW5lLmMKPj4gKysrIGIv
-ZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3BsYW5lLmMKPj4gQEAgLTM5LDcgKzM5LDEx
-IEBAIHN0YXRpYyBjb25zdCB1aW50MzJfdCB2aXJ0aW9fZ3B1X2Zvcm1hdHNbXSA9IHsKPj4gIH07
-Cj4+ICAKPj4gIHN0YXRpYyBjb25zdCB1aW50MzJfdCB2aXJ0aW9fZ3B1X2N1cnNvcl9mb3JtYXRz
-W10gPSB7Cj4+ICsjaWZkZWYgX19CSUdfRU5ESUFOCj4+ICsJRFJNX0ZPUk1BVF9CR1JBODg4OCwK
-Pj4gKyNlbHNlCj4+ICAJRFJNX0ZPUk1BVF9BUkdCODg4OCwKPj4gKyNlbmRpZgo+IAo+IERSTSBm
-b3JtYXRzIGFyZSBzdXBwb3NlZCB0byBiZSBsaXR0bGUgZW5kaWFuLCBzbyB0aGlzIGlzbid0IHJl
-YWxseQo+IGNvcnJlY3QuCgpJbiBhIGJpZyBlbmRpYW4ga2VybmVsLCB3ZSBuZWVkIHRvIHN3YXAg
-dGhlIGJ5dGVzIG9yZGVyLCB3aGVyZSBkbyB5b3UKdGhpbmsgaXMgdGhlIGJlc3QgcGxhY2UgdG8g
-ZG8gdGhhdD8KClRoYW5rcywKTGF1cmVudApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, Apr 05, 2017 at 08:11:25PM +0300, Ville Syrj=E4l=E4 wrote:
+> On Wed, Apr 05, 2017 at 10:09:15AM +0200, Laurent Vivier wrote:
+> > When we use virtio-vga with a big-endian guest,
+> > the mouse pointer disappears.
+> > =
+
+> > To fix that, on big-endian use DRM_FORMAT_BGRA8888
+> > instead of DRM_FORMAT_ARGB8888.
+> > =
+
+> > Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+> > ---
+> >  drivers/gpu/drm/virtio/virtgpu_plane.c | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> > =
+
+> > diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/v=
+irtio/virtgpu_plane.c
+> > index 11288ff..3ed7174 100644
+> > --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
+> > +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> > @@ -39,7 +39,11 @@ static const uint32_t virtio_gpu_formats[] =3D {
+> >  };
+> >  =
+
+> >  static const uint32_t virtio_gpu_cursor_formats[] =3D {
+> > +#ifdef __BIG_ENDIAN
+> > +	DRM_FORMAT_BGRA8888,
+> > +#else
+> >  	DRM_FORMAT_ARGB8888,
+> > +#endif
+> =
+
+> DRM formats are supposed to be little endian, so this isn't really
+> correct.
+
+Reality says they're native endian, and I asked Gerd Hoffman to do a
+documentation update and get that reviewed by amd folks (the only other
+ones who care).
+-Daniel
+
+> =
+
+> >  };
+> >  =
+
+> >  static void virtio_gpu_plane_destroy(struct drm_plane *plane)
+> > -- =
+
+> > 2.9.3
+> > =
+
+> > _______________________________________________
+> > dri-devel mailing list
+> > dri-devel@lists.freedesktop.org
+> > https://lists.freedesktop.org/mailman/listinfo/dri-devel
+> =
+
+> -- =
+
+> Ville Syrj=E4l=E4
+> Intel OTC
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+
+-- =
+
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
