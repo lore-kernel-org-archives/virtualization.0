@@ -1,8 +1,8 @@
 From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: [RFC PATCH kvmtool 01/15] virtio: synchronize virtio-iommu headers
-	with Linux
-Date: Fri,  7 Apr 2017 20:24:41 +0100
-Message-ID: <20170407192455.26814-2-jean-philippe.brucker__931.530915159051$1491593056$gmane$org@arm.com>
+Subject: [RFC PATCH kvmtool 02/15] FDT: (re)introduce a dynamic phandle
+	allocator
+Date: Fri,  7 Apr 2017 20:24:42 +0100
+Message-ID: <20170407192455.26814-3-jean-philippe.brucker__30939.9940925234$1491593094$gmane$org@arm.com>
 References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
 	<20170407192455.26814-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
@@ -23,261 +23,125 @@ To: iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.
 Cc: cdall@linaro.org, lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Pull virtio-iommu header (initial proposal) from Linux. Also add
-virtio_config.h because it defines VIRTIO_F_IOMMU_PLATFORM, which I'm
-going to need soon, and it's not provided by my toolchain.
+The phandle allocator was removed because static values were sufficient
+for creating a common irqchip. With adding multiple virtual IOMMUs to the
+device-tree, there is a need for a dynamic allocation of phandles. Add a
+simple allocator that returns values above the static ones.
 
 Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 ---
- include/linux/virtio_config.h |  74 ++++++++++++++++++++++
- include/linux/virtio_ids.h    |   4 ++
- include/linux/virtio_iommu.h  | 142 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 220 insertions(+)
- create mode 100644 include/linux/virtio_config.h
- create mode 100644 include/linux/virtio_iommu.h
+ Makefile                          |  1 +
+ arm/include/arm-common/fdt-arch.h |  2 +-
+ fdt.c                             | 15 +++++++++++++++
+ include/kvm/fdt.h                 | 13 +++++++++++++
+ mips/include/kvm/fdt-arch.h       |  2 +-
+ powerpc/include/kvm/fdt-arch.h    |  2 +-
+ x86/include/kvm/fdt-arch.h        |  2 +-
+ 7 files changed, 33 insertions(+), 4 deletions(-)
+ create mode 100644 fdt.c
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-new file mode 100644
-index 00000000..648b688f
---- /dev/null
-+++ b/include/linux/virtio_config.h
-@@ -0,0 +1,74 @@
-+#ifndef _LINUX_VIRTIO_CONFIG_H
-+#define _LINUX_VIRTIO_CONFIG_H
-+/* This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
-+ * anyone can use the definitions to implement compatible drivers/servers.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions
-+ * are met:
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ * 3. Neither the name of IBM nor the names of its contributors
-+ *    may be used to endorse or promote products derived from this software
-+ *    without specific prior written permission.
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND
-+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR CONTRIBUTORS BE LIABLE
-+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-+ * SUCH DAMAGE. */
-+
-+/* Virtio devices use a standardized configuration space to define their
-+ * features and pass configuration information, but each implementation can
-+ * store and access that space differently. */
-+#include <linux/types.h>
-+
-+/* Status byte for guest to report progress, and synchronize features. */
-+/* We have seen device and processed generic fields (VIRTIO_CONFIG_F_VIRTIO) */
-+#define VIRTIO_CONFIG_S_ACKNOWLEDGE	1
-+/* We have found a driver for the device. */
-+#define VIRTIO_CONFIG_S_DRIVER		2
-+/* Driver has used its parts of the config, and is happy */
-+#define VIRTIO_CONFIG_S_DRIVER_OK	4
-+/* Driver has finished configuring features */
-+#define VIRTIO_CONFIG_S_FEATURES_OK	8
-+/* Device entered invalid state, driver must reset it */
-+#define VIRTIO_CONFIG_S_NEEDS_RESET	0x40
-+/* We've given up on this device. */
-+#define VIRTIO_CONFIG_S_FAILED		0x80
-+
-+/* Some virtio feature bits (currently bits 28 through 32) are reserved for the
-+ * transport being used (eg. virtio_ring), the rest are per-device feature
-+ * bits. */
-+#define VIRTIO_TRANSPORT_F_START	28
-+#define VIRTIO_TRANSPORT_F_END		34
-+
-+#ifndef VIRTIO_CONFIG_NO_LEGACY
-+/* Do we get callbacks when the ring is completely used, even if we've
-+ * suppressed them? */
-+#define VIRTIO_F_NOTIFY_ON_EMPTY	24
-+
-+/* Can the device handle any descriptor layout? */
-+#define VIRTIO_F_ANY_LAYOUT		27
-+#endif /* VIRTIO_CONFIG_NO_LEGACY */
-+
-+/* v1.0 compliant. */
-+#define VIRTIO_F_VERSION_1		32
-+
-+/*
-+ * If clear - device has the IOMMU bypass quirk feature.
-+ * If set - use platform tools to detect the IOMMU.
-+ *
-+ * Note the reverse polarity (compared to most other features),
-+ * this is for compatibility with legacy systems.
-+ */
-+#define VIRTIO_F_IOMMU_PLATFORM		33
-+#endif /* _LINUX_VIRTIO_CONFIG_H */
-diff --git a/include/linux/virtio_ids.h b/include/linux/virtio_ids.h
-index 5f60aa4b..934ed3d3 100644
---- a/include/linux/virtio_ids.h
-+++ b/include/linux/virtio_ids.h
-@@ -39,6 +39,10 @@
- #define VIRTIO_ID_9P		9 /* 9p virtio console */
- #define VIRTIO_ID_RPROC_SERIAL 11 /* virtio remoteproc serial link */
- #define VIRTIO_ID_CAIF	       12 /* Virtio caif */
-+#define VIRTIO_ID_GPU          16 /* virtio GPU */
- #define VIRTIO_ID_INPUT        18 /* virtio input */
-+#define VIRTIO_ID_VSOCK        19 /* virtio vsock transport */
-+#define VIRTIO_ID_CRYPTO       20 /* virtio crypto */
-+#define VIRTIO_ID_IOMMU	    61216 /* virtio IOMMU (temporary) */
+diff --git a/Makefile b/Makefile
+index 6d5f5d9d..3e21c597 100644
+--- a/Makefile
++++ b/Makefile
+@@ -303,6 +303,7 @@ ifeq (y,$(ARCH_WANT_LIBFDT))
+ 		CFLAGS_STATOPT	+= -DCONFIG_HAS_LIBFDT
+ 		LIBS_DYNOPT	+= -lfdt
+ 		LIBS_STATOPT	+= -lfdt
++		OBJS		+= fdt.o
+ 	endif
+ endif
  
- #endif /* _LINUX_VIRTIO_IDS_H */
-diff --git a/include/linux/virtio_iommu.h b/include/linux/virtio_iommu.h
+diff --git a/arm/include/arm-common/fdt-arch.h b/arm/include/arm-common/fdt-arch.h
+index 60c2d406..ed4ff3d4 100644
+--- a/arm/include/arm-common/fdt-arch.h
++++ b/arm/include/arm-common/fdt-arch.h
+@@ -1,6 +1,6 @@
+ #ifndef ARM__FDT_H
+ #define ARM__FDT_H
+ 
+-enum phandles {PHANDLE_RESERVED = 0, PHANDLE_GIC, PHANDLE_MSI, PHANDLES_MAX};
++enum phandles {PHANDLE_RESERVED = 0, PHANDLE_GIC, PHANDLE_MSI, ARCH_PHANDLES_MAX};
+ 
+ #endif /* ARM__FDT_H */
+diff --git a/fdt.c b/fdt.c
 new file mode 100644
-index 00000000..beb21d44
+index 00000000..6db03d4e
 --- /dev/null
-+++ b/include/linux/virtio_iommu.h
-@@ -0,0 +1,142 @@
++++ b/fdt.c
+@@ -0,0 +1,15 @@
 +/*
-+ * Copyright (C) 2017 ARM Ltd.
-+ *
-+ * This header is BSD licensed so anyone can use the definitions
-+ * to implement compatible drivers/servers:
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions
-+ * are met:
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ * 3. Neither the name of ARM Ltd. nor the names of its contributors
-+ *    may be used to endorse or promote products derived from this software
-+ *    without specific prior written permission.
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR
-+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-+ * SUCH DAMAGE.
++ * Commonly used FDT functions.
 + */
-+#ifndef _LINUX_VIRTIO_IOMMU_H
-+#define _LINUX_VIRTIO_IOMMU_H
 +
-+/* Feature bits */
-+#define VIRTIO_IOMMU_F_INPUT_RANGE		0
-+#define VIRTIO_IOMMU_F_IOASID_BITS		1
-+#define VIRTIO_IOMMU_F_MAP_UNMAP		2
-+#define VIRTIO_IOMMU_F_BYPASS			3
++#include "kvm/fdt.h"
 +
-+__attribute__((packed))
-+struct virtio_iommu_config {
-+	/* Supported page sizes */
-+	__u64					page_sizes;
-+	struct virtio_iommu_range {
-+		__u64				start;
-+		__u64				end;
-+	} input_range;
-+	__u8 					ioasid_bits;
-+};
++static u32 next_phandle = PHANDLE_RESERVED;
 +
-+/* Request types */
-+#define VIRTIO_IOMMU_T_ATTACH			0x01
-+#define VIRTIO_IOMMU_T_DETACH			0x02
-+#define VIRTIO_IOMMU_T_MAP			0x03
-+#define VIRTIO_IOMMU_T_UNMAP			0x04
++u32 fdt_alloc_phandle(void)
++{
++	if (next_phandle == PHANDLE_RESERVED)
++		next_phandle = ARCH_PHANDLES_MAX;
 +
-+/* Status types */
-+#define VIRTIO_IOMMU_S_OK			0x00
-+#define VIRTIO_IOMMU_S_IOERR			0x01
-+#define VIRTIO_IOMMU_S_UNSUPP			0x02
-+#define VIRTIO_IOMMU_S_DEVERR			0x03
-+#define VIRTIO_IOMMU_S_INVAL			0x04
-+#define VIRTIO_IOMMU_S_RANGE			0x05
-+#define VIRTIO_IOMMU_S_NOENT			0x06
-+#define VIRTIO_IOMMU_S_FAULT			0x07
++	return next_phandle++;
++}
+diff --git a/include/kvm/fdt.h b/include/kvm/fdt.h
+index beadc7f3..503887f9 100644
+--- a/include/kvm/fdt.h
++++ b/include/kvm/fdt.h
+@@ -35,4 +35,17 @@ enum irq_type {
+ 		}							\
+ 	} while (0)
+ 
++#ifdef CONFIG_HAS_LIBFDT
 +
-+__attribute__((packed))
-+struct virtio_iommu_req_head {
-+	__u8					type;
-+	__u8					reserved[3];
-+};
++u32 fdt_alloc_phandle(void);
 +
-+__attribute__((packed))
-+struct virtio_iommu_req_tail {
-+	__u8					status;
-+	__u8					reserved[3];
-+};
++#else
 +
-+__attribute__((packed))
-+struct virtio_iommu_req_attach {
-+	struct virtio_iommu_req_head		head;
++static inline u32 fdt_alloc_phandle(void)
++{
++	return PHANDLE_RESERVED;
++}
 +
-+	__le32					address_space;
-+	__le32					device;
-+	__le32					reserved;
++#endif /* CONFIG_HAS_LIBFDT */
 +
-+	struct virtio_iommu_req_tail		tail;
-+};
-+
-+__attribute__((packed))
-+struct virtio_iommu_req_detach {
-+	struct virtio_iommu_req_head		head;
-+
-+	__le32					device;
-+	__le32					reserved;
-+
-+	struct virtio_iommu_req_tail		tail;
-+};
-+
-+#define VIRTIO_IOMMU_MAP_F_READ			(1 << 0)
-+#define VIRTIO_IOMMU_MAP_F_WRITE		(1 << 1)
-+#define VIRTIO_IOMMU_MAP_F_EXEC			(1 << 2)
-+
-+#define VIRTIO_IOMMU_MAP_F_MASK			(VIRTIO_IOMMU_MAP_F_READ |	\
-+						 VIRTIO_IOMMU_MAP_F_WRITE |	\
-+						 VIRTIO_IOMMU_MAP_F_EXEC)
-+
-+__attribute__((packed))
-+struct virtio_iommu_req_map {
-+	struct virtio_iommu_req_head		head;
-+
-+	__le32					address_space;
-+	__le32					flags;
-+	__le64					virt_addr;
-+	__le64					phys_addr;
-+	__le64					size;
-+
-+	struct virtio_iommu_req_tail		tail;
-+};
-+
-+__attribute__((packed))
-+struct virtio_iommu_req_unmap {
-+	struct virtio_iommu_req_head		head;
-+
-+	__le32					address_space;
-+	__le32					flags;
-+	__le64					virt_addr;
-+	__le64					size;
-+
-+	struct virtio_iommu_req_tail		tail;
-+};
-+
-+union virtio_iommu_req {
-+	struct virtio_iommu_req_head		head;
-+
-+	struct virtio_iommu_req_attach		attach;
-+	struct virtio_iommu_req_detach		detach;
-+	struct virtio_iommu_req_map		map;
-+	struct virtio_iommu_req_unmap		unmap;
-+};
-+
-+#endif
+ #endif /* KVM__FDT_H */
+diff --git a/mips/include/kvm/fdt-arch.h b/mips/include/kvm/fdt-arch.h
+index b0302457..3d004117 100644
+--- a/mips/include/kvm/fdt-arch.h
++++ b/mips/include/kvm/fdt-arch.h
+@@ -1,6 +1,6 @@
+ #ifndef KVM__KVM_FDT_H
+ #define KVM__KVM_FDT_H
+ 
+-enum phandles {PHANDLE_RESERVED = 0, PHANDLES_MAX};
++enum phandles {PHANDLE_RESERVED = 0, ARCH_PHANDLES_MAX};
+ 
+ #endif /* KVM__KVM_FDT_H */
+diff --git a/powerpc/include/kvm/fdt-arch.h b/powerpc/include/kvm/fdt-arch.h
+index d48c0554..4ae4d3a0 100644
+--- a/powerpc/include/kvm/fdt-arch.h
++++ b/powerpc/include/kvm/fdt-arch.h
+@@ -1,6 +1,6 @@
+ #ifndef KVM__KVM_FDT_H
+ #define KVM__KVM_FDT_H
+ 
+-enum phandles {PHANDLE_RESERVED = 0, PHANDLE_XICP, PHANDLES_MAX};
++enum phandles {PHANDLE_RESERVED = 0, PHANDLE_XICP, ARCH_PHANDLES_MAX};
+ 
+ #endif /* KVM__KVM_FDT_H */
+diff --git a/x86/include/kvm/fdt-arch.h b/x86/include/kvm/fdt-arch.h
+index eebd73f9..aba06ad8 100644
+--- a/x86/include/kvm/fdt-arch.h
++++ b/x86/include/kvm/fdt-arch.h
+@@ -1,6 +1,6 @@
+ #ifndef X86__FDT_ARCH_H
+ #define X86__FDT_ARCH_H
+ 
+-enum phandles {PHANDLE_RESERVED = 0, PHANDLES_MAX};
++enum phandles {PHANDLE_RESERVED = 0, ARCH_PHANDLES_MAX};
+ 
+ #endif /* KVM__KVM_FDT_H */
 -- 
 2.12.1
