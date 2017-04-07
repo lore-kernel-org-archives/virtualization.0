@@ -1,11 +1,13 @@
 From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: [RFC 0/3] virtio-iommu: a paravirtualized IOMMU
-Date: Fri,  7 Apr 2017 20:17:44 +0100
-Message-ID: <20170407191747.26618-1-jean-philippe.brucker__33550.5639938221$1491592770$gmane$org@arm.com>
+Subject: [RFC 1/3] virtio-iommu: firmware description of the virtual topology
+Date: Fri,  7 Apr 2017 20:17:45 +0100
+Message-ID: <20170407191747.26618-2-jean-philippe.brucker__38031.8755437203$1491592803$gmane$org@arm.com>
+References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,118 +21,116 @@ To: iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.
 Cc: cdall@linaro.org, lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is the initial proposal for a paravirtualized IOMMU device using
-virtio transport. It contains a description of the device, a Linux driver,
-and a toy implementation in kvmtool. With this prototype, you can
-translate DMA to guest memory from emulated (virtio), or passed-through
-(VFIO) devices.
+Unlike other virtio devices, the virtio-iommu doesn't work independently,
+it is linked to other virtual or assigned devices. So before jumping into
+device operations, we need to define a way for the guest to discover the
+virtual IOMMU and the devices it translates.
 
-In its simplest form, implemented here, the device handles map/unmap
-requests from the guest. Future extensions proposed in "RFC 3/3" should
-allow to bind page tables to devices.
+The host must describe the relation between IOMMU and devices to the guest
+using either device-tree or ACPI. The virtual IOMMU identifies each
+virtual device with a 32-bit ID, that we will call "Device ID" in this
+document. Device IDs are not necessarily unique system-wide, but they may
+not overlap within a single virtual IOMMU. Device ID of passed-through
+devices do not need to match IDs seen by the physical IOMMU.
 
-There are a number of advantages in a paravirtualized IOMMU over a full
-emulation. It is portable and could be reused on different architectures.
-It is easier to implement than a full emulation, with less state tracking.
-It might be more efficient in some cases, with less context switches to
-the host and the possibility of in-kernel emulation.
+The virtual IOMMU uses virtio-mmio transport exclusively, not virtio-pci,
+because with PCI the IOMMU interface would itself be an endpoint, and
+existing firmware interfaces don't allow to describe IOMMU<->master
+relations between PCI endpoints.
 
-When designing it and writing the kvmtool device, I considered two main
-scenarios, illustrated below.
+The following diagram describes a situation where two virtual IOMMUs
+translate traffic from devices in the system. vIOMMU 1 translates two PCI
+domains, in which each function has a 16-bits requester ID. In order for
+the vIOMMU to differentiate guest requests targeted at devices in each
+domain, their Device ID ranges cannot overlap. vIOMMU 2 translates two PCI
+domains and a collection of platform devices.
 
-Scenario 1: a hardware device passed through twice via VFIO
+                       Device ID    Requester ID
+                  /       0x0           0x0      \
+                 /         |             |        PCI domain 1
+                /      0xffff           0xffff   /
+        vIOMMU 1
+                \     0x10000           0x0      \
+                 \         |             |        PCI domain 2
+                  \   0x1ffff           0xffff   /
 
-   MEM____pIOMMU________PCI device________________________       HARDWARE
-            |     (2b)                                    \
-  ----------|-------------+-------------+------------------\-------------
-            |             :     KVM     :                   \
-            |             :             :                    \
-       pIOMMU drv         :         _______virtio-iommu drv   \    KERNEL
-            |             :        |    :          |           \
-          VFIO            :        |    :        VFIO           \
-            |             :        |    :          |             \
-            |             :        |    :          |             /
-  ----------|-------------+--------|----+----------|------------/--------
-            |                      |    :          |           /
-            | (1c)            (1b) |    :     (1a) |          / (2a)
-            |                      |    :          |         /
-            |                      |    :          |        /   USERSPACE
-            |___virtio-iommu dev___|    :        net drv___/
-                                        :
-  --------------------------------------+--------------------------------
-                 HOST                   :             GUEST
+                  /       0x0                    \
+                 /         |                      platform devices
+                /      0x1fff                    /
+        vIOMMU 2
+                \      0x2000           0x0      \
+                 \         |             |        PCI domain 3
+                  \   0x11fff           0xffff   /
 
-(1) a. Guest userspace is running a net driver (e.g. DPDK). It allocates a
-       buffer with mmap, obtaining virtual address VA. It then send a
-       VFIO_IOMMU_MAP_DMA request to map VA to an IOVA (possibly VA=IOVA).
-    b. The maping request is relayed to the host through virtio
-       (VIRTIO_IOMMU_T_MAP).
-    c. The mapping request is relayed to the physical IOMMU through VFIO.
+Device-tree already offers a way to describe the topology. Here's an
+example description of vIOMMU 2 with its devices:
 
-(2) a. The guest userspace driver can now instruct the device to directly
-       access the buffer at IOVA
-    b. IOVA accesses from the device are translated into physical
-       addresses by the IOMMU.
+	/* The virtual IOMMU is described with a virtio-mmio node */
+	viommu2: virtio@10000 {
+		compatible = "virtio,mmio";
+		reg = <0x10000 0x200>;
+		dma-coherent;
+		interrupts = <0x0 0x5 0x1>;
+		
+		#iommu-cells = <1>
+	};
+	
+	/* Some platform device has Device ID 0x5 */
+	somedevice@20000 {
+		...
+		
+		iommus = <&viommu2 0x5>;
+	};
+	
+	/*
+	 * PCI domain 3 is described by its host controller node, along
+	 * with the complete relation to the IOMMU
+	 */
+	pci {
+		...
+		/* Linear map between RIDs and Device IDs for the whole bus */
+		iommu-map = <0x0 &viommu2 0x10000 0x10000>;
+	};
 
-Scenario 2: a virtual net device behind a virtual IOMMU.
+For more details, please refer to [DT-IOMMU].
 
-  MEM__pIOMMU___PCI device                                     HARDWARE
-         |         |
-  -------|---------|------+-------------+-------------------------------
-         |         |      :     KVM     :
-         |         |      :             :
-    pIOMMU drv     |      :             :
-             \     |      :      _____________virtio-net drv      KERNEL
-              \_net drv   :     |       :          / (1a)
-                   |      :     |       :         /
-                  tap     :     |    ________virtio-iommu drv
-                   |      :     |   |   : (1b)
-  -----------------|------+-----|---|---+-------------------------------
-                   |            |   |   :
-                   |_virtio-net_|   |   :
-                         / (2)      |   :
-                        /           |   :                      USERSPACE
-              virtio-iommu dev______|   :
-                                        :
-  --------------------------------------+-------------------------------
-                 HOST                   :             GUEST
+For ACPI, we expect to add a new node type to the IO Remapping Table
+specification [IORT], providing a similar mechanism for describing
+translations via ACPI tables. The following is *not* a specification,
+simply an example of what the node could be.
 
-(1) a. Guest virtio-net driver maps the virtio ring and a buffer
-    b. The mapping requests are relayed to the host through virtio.
-(2) The virtio-net device now needs to access any guest memory via the
-    IOMMU.
+         Field      | Len.  | Off.  | Description
+    ----------------|-------|-------|---------------------------------
+     Type           | 1     | 0     | 5: paravirtualized IOMMU
+     Length         | 2     | 1     | The length of the node.
+     Revision       | 1     | 3     | 0
+     Reserved       | 4     | 4     | Must be zero.
+     Number of ID   | 4     | 8     |
+       mappings     |       |       |
+     Reference to   | 4     | 12    | Offset from the start of the
+       ID Array     |       |       | IORT node to the start of its
+                    |       |       | Array ID mappings.
+                    |       |       |
+     Model          | 4     | 16    | 0: virtio-iommu
+     Device object  | --    | 20    | ASCII Null terminated string
+       name         |       |       | with the full path to the entry
+                    |       |       | in the namespace for this IOMMU.
+     Padding        | --    | --    | To keep 32-bit alignment and
+                    |       |       | leave space for future models.
+                    |       |       |
+     Array of ID    |       |       |
+       mappings     | 20xN  | --    | ID Array.
 
-Physical and virtual IOMMUs are completely dissociated. The net driver is
-mapping its own buffers via DMA/IOMMU API, and buffers are copied between
-virtio-net and tap.
+The OS parses the IORT table to build a map of ID relations between IOMMU
+and devices. ID Array is used to find correspondence between IOMMU IDs and
+PCI or platform devices. Later on, the virtio-iommu driver finds the
+associated LNRO0005 descriptor via the "Device object name" field, and
+probes the virtio device to find out more about its capabilities. Since
+all properties of the IOMMU will be obtained during virtio probing, the
+IORT node can stay simple.
 
+[DT-IOMMU] https://www.kernel.org/doc/Documentation/devicetree/bindings/iommu/iommu.txt
+           https://www.kernel.org/doc/Documentation/devicetree/bindings/pci/pci-iommu.txt
 
-The description itself seemed too long for a single email, so I split it
-into three documents, and will attach Linux and kvmtool patches to this
-email.
-
-	1. Firmware note,
-	2. device operations (draft for the virtio specification),
-	3. future work/possible improvements.
-
-Just to be clear on the terms I'm using:
-
-pIOMMU	physical IOMMU, controlling DMA accesses from physical devices
-vIOMMU	virtual IOMMU (virtio-iommu), controlling DMA accesses from
-	physical and virtual devices to guest memory.
-GVA, GPA, HVA, HPA
-	Guest/Host Virtual/Physical Address
-IOVA	I/O Virtual Address, the address accessed by a device doing DMA
-	through an IOMMU. In the context of a guest OS, IOVA is GVA.
-
-Note: kvmtool is GPLv2. Linux patches are GPLv2, except for UAPI
-virtio-iommu.h header, which is BSD 3-clause. For the time being, the
-specification draft in RFC 2/3 is also BSD 3-clause.
-
-
-This proposal may be involuntarily centered around ARM architectures at
-times. Any feedback would be appreciated, especially regarding other IOMMU
-architectures.
-
-Thanks,
-Jean-Philippe
+[IORT] IO Remapping Table, DEN0049B
+       http://infocenter.arm.com/help/topic/com.arm.doc.den0049b/DEN0049B_IO_Remapping_Table.pdf
