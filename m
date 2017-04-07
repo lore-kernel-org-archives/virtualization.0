@@ -1,8 +1,8 @@
 From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: [RFC PATCH kvmtool 10/15] virtio-pci: translate MSIs with the virtual
-	IOMMU
-Date: Fri,  7 Apr 2017 20:24:50 +0100
-Message-ID: <20170407192455.26814-11-jean-philippe.brucker__3232.61567759818$1491593226$gmane$org@arm.com>
+Subject: [RFC PATCH kvmtool 11/15] virtio: set VIRTIO_F_IOMMU_PLATFORM when
+	necessary
+Date: Fri,  7 Apr 2017 20:24:51 +0100
+Message-ID: <20170407192455.26814-12-jean-philippe.brucker__17817.6208785318$1491593245$gmane$org@arm.com>
 References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
 	<20170407192455.26814-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
@@ -23,161 +23,91 @@ To: iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.
 Cc: cdall@linaro.org, lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-When the virtio device is behind a virtual IOMMU, the doorbell address
-written into the MSI-X table by the guest is an IOVA, not a physical one.
-When injecting an MSI, KVM needs a physical address to recognize the
-doorbell and the associated IRQ chip. Translate the address given by the
-guest into a physical one, and store it in a secondary table for easy
-access.
+Pass the VIRTIO_F_IOMMU_PLATFORM to tell the guest when a device is behind
+an IOMMU.
+
+Other feature bits in virtio do not depend on the device type and could be
+factored the same way. For instance our vring implementation always
+supports indirect descriptors (VIRTIO_RING_F_INDIRECT_DESC), so we could
+advertise it for all devices at once (only net, scsi and blk at the
+moment). However, this might modify guest behaviour: in Linux whenever the
+driver attempts to add a chain of descriptors, it will allocate an
+indirect table and use a single ring descriptor, which might slightly
+reduce performance. Cowardly ignore this.
+
+VIRTIO_RING_F_EVENT_IDX is another feature of the vring, but that one
+needs the device to call virtio_queue__should_signal before signaling to
+the guest. Arguably we could factor all calls to signal_vq, but let's keep
+this patch simple.
 
 Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 ---
- include/kvm/iommu.h      |  4 ++++
- include/kvm/virtio-pci.h |  1 +
- iommu.c                  | 23 +++++++++++++++++++++++
- virtio/pci.c             | 33 ++++++++++++++++++++++++---------
- 4 files changed, 52 insertions(+), 9 deletions(-)
+ include/kvm/virtio.h | 2 ++
+ virtio/core.c        | 6 ++++++
+ virtio/mmio.c        | 4 +++-
+ virtio/pci.c         | 1 +
+ 4 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/include/kvm/iommu.h b/include/kvm/iommu.h
-index 4164ba20..8f87ce5a 100644
---- a/include/kvm/iommu.h
-+++ b/include/kvm/iommu.h
-@@ -70,4 +70,8 @@ int iommu_unmap(void *address_space, u64 virt_addr, u64 size, int flags);
- u64 iommu_access(void *address_space, u64 addr, size_t size, size_t *out_size,
- 		 int prot);
+diff --git a/include/kvm/virtio.h b/include/kvm/virtio.h
+index cdc960cd..97bd5bdb 100644
+--- a/include/kvm/virtio.h
++++ b/include/kvm/virtio.h
+@@ -293,4 +293,6 @@ virtio__iommu_get_properties(struct device_header *dev);
+ int virtio__iommu_attach(void *, struct virtio_device *vdev, int flags);
+ int virtio__iommu_detach(void *, struct virtio_device *vdev);
  
-+struct msi_msg;
++u32 virtio_get_common_features(struct kvm *kvm, struct virtio_device *vdev);
 +
-+int iommu_translate_msi(void *address_space, struct msi_msg *msi);
-+
- #endif /* KVM_IOMMU_H */
-diff --git a/include/kvm/virtio-pci.h b/include/kvm/virtio-pci.h
-index 26772f74..cb5225d6 100644
---- a/include/kvm/virtio-pci.h
-+++ b/include/kvm/virtio-pci.h
-@@ -47,6 +47,7 @@ struct virtio_pci {
- 	u32			msix_io_block;
- 	u64			msix_pba;
- 	struct msix_table	msix_table[VIRTIO_PCI_MAX_VQ + VIRTIO_PCI_MAX_CONFIG];
-+	struct msi_msg		msix_msgs[VIRTIO_PCI_MAX_VQ + VIRTIO_PCI_MAX_CONFIG];
- 
- 	/* virtio queue */
- 	u16			queue_selector;
-diff --git a/iommu.c b/iommu.c
-index 0a662404..c10a3f0b 100644
---- a/iommu.c
-+++ b/iommu.c
-@@ -5,6 +5,7 @@
- 
- #include "kvm/iommu.h"
- #include "kvm/kvm.h"
-+#include "kvm/msi.h"
- #include "kvm/mutex.h"
- #include "kvm/rbtree-interval.h"
- 
-@@ -160,3 +161,25 @@ out_unlock:
- 
- 	return out_addr;
+ #endif /* KVM__VIRTIO_H */
+diff --git a/virtio/core.c b/virtio/core.c
+index ba35e5f1..66e0cecb 100644
+--- a/virtio/core.c
++++ b/virtio/core.c
+@@ -1,3 +1,4 @@
++#include <linux/virtio_config.h>
+ #include <linux/virtio_ring.h>
+ #include <linux/types.h>
+ #include <sys/uio.h>
+@@ -266,6 +267,11 @@ bool virtio_queue__should_signal(struct virt_queue *vq)
+ 	return false;
  }
-+
-+int iommu_translate_msi(void *address_space, struct msi_msg *msg)
+ 
++u32 virtio_get_common_features(struct kvm *kvm, struct virtio_device *vdev)
 +{
-+	size_t size = 4, out_size;
-+	u64 addr = ((u64)msg->address_hi << 32) | msg->address_lo;
-+
-+	if (!address_space)
-+		return 0;
-+
-+	addr = iommu_access(address_space, addr, size, &out_size,
-+			    IOMMU_PROT_WRITE);
-+
-+	if (!addr || out_size != size) {
-+		pr_err("could not translate MSI doorbell");
-+		return -EFAULT;
-+	}
-+
-+	msg->address_lo = addr & 0xffffffff;
-+	msg->address_hi = addr >> 32;
-+
-+	return 0;
++	return vdev->use_iommu ? VIRTIO_F_IOMMU_PLATFORM : 0;
 +}
++
+ const struct iommu_properties *
+ virtio__iommu_get_properties(struct device_header *dev)
+ {
+diff --git a/virtio/mmio.c b/virtio/mmio.c
+index 24a14a71..699d4403 100644
+--- a/virtio/mmio.c
++++ b/virtio/mmio.c
+@@ -127,9 +127,11 @@ static void virtio_mmio_config_in(struct kvm_cpu *vcpu,
+ 		ioport__write32(data, *(u32 *)(((void *)&vmmio->hdr) + addr));
+ 		break;
+ 	case VIRTIO_MMIO_HOST_FEATURES:
+-		if (vmmio->hdr.host_features_sel == 0)
++		if (vmmio->hdr.host_features_sel == 0) {
+ 			val = vdev->ops->get_host_features(vmmio->kvm,
+ 							   vmmio->dev);
++			val |= virtio_get_common_features(vmmio->kvm, vdev);
++		}
+ 		ioport__write32(data, val);
+ 		break;
+ 	case VIRTIO_MMIO_QUEUE_PFN:
 diff --git a/virtio/pci.c b/virtio/pci.c
-index 674d5143..88b1a129 100644
+index 88b1a129..c9f0e558 100644
 --- a/virtio/pci.c
 +++ b/virtio/pci.c
-@@ -156,6 +156,7 @@ static void update_msix_map(struct virtio_pci *vpci,
- 			    struct msix_table *msix_entry, u32 vecnum)
- {
- 	u32 gsi, i;
-+	struct msi_msg *msg;
- 
- 	/* Find the GSI number used for that vector */
- 	if (vecnum == vpci->config_vector) {
-@@ -172,14 +173,20 @@ static void update_msix_map(struct virtio_pci *vpci,
- 	if (gsi == 0)
- 		return;
- 
--	msix_entry = &msix_entry[vecnum];
--	irq__update_msix_route(vpci->kvm, gsi, &msix_entry->msg);
-+	msg = &vpci->msix_msgs[vecnum];
-+	*msg = msix_entry[vecnum].msg;
-+
-+	if (iommu_translate_msi(vpci->vdev->iotlb, msg))
-+		return;
-+
-+	irq__update_msix_route(vpci->kvm, gsi, msg);
- }
- 
- static bool virtio_pci__specific_io_out(struct kvm *kvm, struct virtio_device *vdev, u16 port,
- 					void *data, int size, int offset)
- {
- 	struct virtio_pci *vpci = vdev->virtio;
-+	struct msi_msg *msg;
- 	u32 config_offset, vec;
- 	int gsi;
- 	int type = virtio__get_dev_specific_field(offset - 20, virtio_pci__msix_enabled(vpci),
-@@ -191,8 +198,12 @@ static bool virtio_pci__specific_io_out(struct kvm *kvm, struct virtio_device *v
- 			if (vec == VIRTIO_MSI_NO_VECTOR)
- 				break;
- 
--			gsi = irq__add_msix_route(kvm,
--						  &vpci->msix_table[vec].msg,
-+			msg = &vpci->msix_msgs[vec];
-+			*msg = vpci->msix_table[vec].msg;
-+			if (iommu_translate_msi(vdev->iotlb, msg))
-+				break;
-+
-+			gsi = irq__add_msix_route(kvm, msg,
- 						  vpci->dev_hdr.dev_num << 3);
- 			if (gsi >= 0) {
- 				vpci->config_gsi = gsi;
-@@ -210,8 +221,12 @@ static bool virtio_pci__specific_io_out(struct kvm *kvm, struct virtio_device *v
- 			if (vec == VIRTIO_MSI_NO_VECTOR)
- 				break;
- 
--			gsi = irq__add_msix_route(kvm,
--						  &vpci->msix_table[vec].msg,
-+			msg = &vpci->msix_msgs[vec];
-+			*msg = vpci->msix_table[vec].msg;
-+			if (iommu_translate_msi(vdev->iotlb, msg))
-+				break;
-+
-+			gsi = irq__add_msix_route(kvm, msg,
- 						  vpci->dev_hdr.dev_num << 3);
- 			if (gsi < 0) {
- 				if (gsi == -ENXIO &&
-@@ -328,9 +343,9 @@ static void virtio_pci__signal_msi(struct kvm *kvm, struct virtio_pci *vpci,
- {
- 	static int needs_devid = 0;
- 	struct kvm_msi msi = {
--		.address_lo = vpci->msix_table[vec].msg.address_lo,
--		.address_hi = vpci->msix_table[vec].msg.address_hi,
--		.data = vpci->msix_table[vec].msg.data,
-+		.address_lo = vpci->msix_msgs[vec].address_lo,
-+		.address_hi = vpci->msix_msgs[vec].address_hi,
-+		.data = vpci->msix_msgs[vec].data,
- 	};
- 
- 	if (needs_devid == 0) {
+@@ -126,6 +126,7 @@ static bool virtio_pci__io_in(struct ioport *ioport, struct kvm_cpu *vcpu, u16 p
+ 	switch (offset) {
+ 	case VIRTIO_PCI_HOST_FEATURES:
+ 		val = vdev->ops->get_host_features(kvm, vpci->dev);
++		val |= virtio_get_common_features(kvm, vdev);
+ 		ioport__write32(data, val);
+ 		break;
+ 	case VIRTIO_PCI_QUEUE_PFN:
 -- 
 2.12.1
