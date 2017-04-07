@@ -1,7 +1,7 @@
 From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: [RFC 3/3] virtio-iommu: future work
-Date: Fri,  7 Apr 2017 20:17:47 +0100
-Message-ID: <20170407191747.26618-4-jean-philippe.brucker__29710.1273121827$1491592825$gmane$org@arm.com>
+Subject: [RFC PATCH linux] iommu: Add virtio-iommu driver
+Date: Fri,  7 Apr 2017 20:23:14 +0100
+Message-ID: <20170407192314.26720-1-jean-philippe.brucker@arm.com>
 References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,659 +21,1226 @@ To: iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.
 Cc: cdall@linaro.org, lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Here I propose a few ideas for extensions and optimizations. This is all
-very exploratory, feel free to correct mistakes and suggest more things.
-
-	I.   Linux host
-	     1. vhost-iommu
-	     2. VFIO nested translation
-	II.  Page table sharing
-	     1. Sharing IOMMU page tables
-	     2. Sharing MMU page tables (SVM)
-	     3. Fault reporting
-	     4. Host implementation with VFIO
-	III. Relaxed operations
-	IV.  Misc
-
-
-  I. Linux host
-  =============
-
-  1. vhost-iommu
-  --------------
-
-An advantage of virtualizing an IOMMU using virtio is that it allows to
-hoist a lot of the emulation code into the kernel using vhost, and avoid
-returning to userspace for each request. The mainline kernel already
-implements vhost-net, vhost-scsi and vhost-vsock, and a lot of core code
-could be reused.
-
-Introducing vhost in a simplified scenario 1 (removed guest userspace
-pass-through, irrelevant to this example) gives us the following:
-
-  MEM____pIOMMU________PCI device____________                    HARDWARE
-            |                                \
-  ----------|-------------+-------------+-----\--------------------------
-            |             :     KVM     :      \
-       pIOMMU drv         :             :       \                  KERNEL
-            |             :             :     net drv
-          VFIO            :             :       /
-            |             :             :      /
-       vhost-iommu_________________________virtio-iommu-drv
-                          :             :
-  --------------------------------------+-------------------------------
-                 HOST                   :             GUEST
-
-
-Introducing vhost in scenario 2, userspace now only handles the device
-initialisation part, and most runtime communication is handled in kernel:
-
-  MEM__pIOMMU___PCI device                                     HARDWARE
-         |         |
-  -------|---------|------+-------------+-------------------------------
-         |         |      :     KVM     :
-    pIOMMU drv     |      :             :                         KERNEL
-             \__net drv   :             :
-                   |      :             :
-                  tap     :             :
-                   |      :             :
-              _vhost-net________________________virtio-net drv
-         (2) /            :             :           / (1a)
-            /             :             :          /
-   vhost-iommu________________________________virtio-iommu drv
-                          :             : (1b)
-  ------------------------+-------------+-------------------------------
-                 HOST                   :             GUEST
-
-(1) a. Guest virtio driver maps ring and buffers
-    b. Map requests are relayed to the host the same way.
-(2) To access any guest memory, vhost-net must query the IOMMU. We can
-    reuse the existing TLB protocol for this. TLB commands are written to
-    and read from the vhost-net fd.
-
-As defined in Linux/include/uapi/linux/vhost.h, the vhost msg structure
-has everything needed for map/unmap operations:
-
-	struct vhost_iotlb_msg {
-		__u64	iova;
-		__u64	size;
-		__u64	uaddr;
-		__u8	perm; /* R/W */
-		__u8	type;
-	#define VHOST_IOTLB_MISS
-	#define VHOST_IOTLB_UPDATE	/* MAP */
-	#define VHOST_IOTLB_INVALIDATE	/* UNMAP */
-	#define VHOST_IOTLB_ACCESS_FAIL
-	};
-
-	struct vhost_msg {
-		int type;
-		union {
-			struct vhost_iotlb_msg iotlb;
-			__u8 padding[64];
-		};
-	};
-
-The vhost-iommu device associates a virtual device ID to a TLB fd. We
-should be able to use the same commands for [vhost-net <-> virtio-iommu]
-and [virtio-net <-> vhost-iommu] communication. A virtio-net device
-would open a socketpair and hand one side to vhost-iommu.
-
-If vhost_msg is ever used for another purpose than TLB, we'll have some
-trouble, as there will be multiple clients that want to read/write the
-vhost fd. A multicast transport method will be needed. Until then, this
-can work.
-
-Details of operations would be:
-
-(1) Userspace sets up vhost-iommu as with other vhost devices, by using
-standard vhost ioctls. Userspace starts by describing the system topology
-via ioctl:
-
-	ioctl(iommu_fd, VHOST_IOMMU_ADD_DEVICE, struct
-	      vhost_iommu_add_device)
-
-	#define VHOST_IOMMU_DEVICE_TYPE_VFIO
-	#define VHOST_IOMMU_DEVICE_TYPE_TLB
-
-	struct vhost_iommu_add_device {
-		__u8 type;
-		__u32 devid;
-		union {
-			struct vhost_iommu_device_vfio {
-				int vfio_group_fd;
-			};
-			struct vhost_iommu_device_tlb {
-				int fd;
-			};
-		};
-	};
-
-(2) VIRTIO_IOMMU_T_ATTACH(address space, devid)
-
-vhost-iommu creates an address space if necessary, finds the device along
-with the relevant operations. If type is VFIO, operations are done on a
-container, otherwise they are done on single devices.
-
-(3) VIRTIO_IOMMU_T_MAP(address space, virt, phys, size, flags)
-
-Turn phys into an hva using the vhost mem table.
-
-- If type is TLB, either preload with VHOST_IOTLB_UPDATE or store the
-  mapping locally and wait for the TLB to ask for it with a
-  VHOST_IOTLB_MISS.
-- If type is VFIO, turn it into a VFIO_IOMMU_MAP_DMA (might need to
-  introduce a shortcut in the external user API of VFIO).
-
-(4) VIRTIO_IOMMU_T_UNMAP(address space, virt, phys, size, flags)
-
-- If type is TLB, send a VHOST_IOTLB_INVALIDATE.
-- If type is VFIO, turn it into VFIO_IOMMU_UNMAP_DMA.
-
-(5) VIRTIO_IOMMU_T_DETACH(address space, devid)
-
-Undo whatever was done in (2).
-
-
-  2. VFIO nested translation
-  --------------------------
-
-For my current kvmtool implementation, I am putting each VFIO group in a
-different container during initialization. We cannot detach a group from a
-container at runtime without first resetting all devices in that group. So
-the best way to provide dynamic address spaces right now is one container
-per group. The drawback is that we need to maintain multiple sets of page
-tables even if the guest wants to put all devices in the same address
-space. Another disadvantage is when implementing bypass mode, we need to
-map the whole address space at the beginning, then unmap everything on
-attach. Adding nested support would be a nice way to provide dynamic
-address spaces while keeping groups tied to a container at all times.
-
-A physical IOMMU may offer nested translation. In this case, address
-spaces are managed by two page directories instead of one. A guest-
-virtual address is translated into a guest-physical one using what we'll
-call here "stage-1" (s1) page tables, and the guest-physical address is
-translated into a host-physical one using "stage-2" (s2) page tables.
-
-                             s1      s2
-                         GVA --> GPA --> HPA
-
-There isn't a lot of support in Linux for nesting IOMMU page directories
-at the moment (though SVM support is coming, see II). VFIO does have a
-"nesting" IOMMU type, which doesn't mean much at the moment. The ARM SMMU
-code uses this to decide whether to manage the container with s2 page
-tables instead of s1, but even then we still only have a single stage and
-it is assumed that IOVA=GPA.
-
-Another model that would help with dynamically changing address spaces is
-nesting VFIO containers:
-
-                           Parent  <---------- map/unmap
-                          container
-                         /   |     \
-                        /   group   \
-                     Child         Child  <--- map/unmap
-                   container     container
-                    |   |             |
-                 group group        group
-
-At the beginning all groups are attached to the parent container, and
-there is no child container. Doing map/unmap on the parent container maps
-stage-2 page tables (map GPA -> HVA and pin the page -> HPA). User should
-be able to choose whether they want all devices attached to this container
-to be able to access GPAs (bypass mode, as it currently is) or simply
-block all DMA (in which case there is no need to pin pages here).
-
-At some point the guest wants to create an address space and attaches
-children to it. Using an ioctl (to be defined), we can derive a child
-container from the parent container, and move groups from parent to child.
-
-This returns a child fd. When the guest maps something in this new address
-space, we can do a map ioctl on the child container, which maps stage-1
-page tables (map GVA -> GPA).
-
-A page table walk may access multiple levels of tables (pgd, p4d, pud,
-pmd, pt). With nested translation, each access to a table during the
-stage-1 walk requires a stage-2 walk. This makes a full translation costly
-so it is preferable to use a single stage of translation when possible.
-Folding two stages into one is simple with a single container, as shown in
-the kvmtool example. The host keeps track of GPA->HVA mappings, so it can
-fold the full GVA->HVA mapping before sending the VFIO request. With
-nested containers however, the IOMMU driver would have to do the folding
-work itself. Keeping a copy of stage-2 mapping created on the parent
-container, it would fold them into the actual stage-2 page tables when
-receiving a map request on the child container (note that software folding
-is not possible when stage-1 pgd is managed by the guest, as described in
-next section).
-
-I don't know if nested VFIO containers are a desirable feature at all. I
-find the concept cute on paper, and it would make it easier for userspace
-to juggle with address spaces, but it might require some invasive changes
-in VFIO, and people have been able to use the current API for IOMMU
-virtualization so far.
-
-
-  II. Page table sharing
-  ======================
-
-  1. Sharing IOMMU page tables
-  ----------------------------
-
-VIRTIO_IOMMU_F_PT_SHARING
-
-This is independent of the nested mode described in I.2, but relies on a
-similar feature in the physical IOMMU: having two stages of page tables,
-one for the host and one for the guest.
-
-When this is supported, the guest can manage its own s1 page directory, to
-avoid sending MAP/UNMAP requests. Feature VIRTIO_IOMMU_F_PT_SHARING allows
-a driver to give a page directory pointer (pgd) to the host and send
-invalidations when removing or changing a mapping. In this mode, three
-requests are used: probe, attach and invalidate. An address space cannot
-be using the MAP/UNMAP interface and PT_SHARING at the same time.
-
-Device and driver first need to negotiate which page table format they
-will be using. This depends on the physical IOMMU, so the request contains
-a negotiation part to probe the device capabilities.
-
-(1) Driver attaches devices to address spaces as usual, but a flag
-    VIRTIO_IOMMU_ATTACH_F_PRIVATE (working title) tells the device not to
-    create page tables for use with the MAP/UNMAP API. The driver intends
-    to manage the address space itself.
-
-(2) Driver sends a PROBE_TABLE request. It sets len > 0 with the size of
-    pg_format array.
-
-	VIRTIO_IOMMU_T_PROBE_TABLE
-
-	struct virtio_iommu_req_probe_table {
-		le32	address_space;
-		le32	flags;
-		le32	len;
-	
-		le32	nr_contexts;
-		struct {
-			le32	model;
-			u8	format[64];
-		} pg_format[len];
-	};
-
-Introducing a probe request is more flexible than advertising those
-features in virtio config, because capabilities are dynamic, and depend on
-which devices are attached to an address space. Within a single address
-space, devices may support different numbers of contexts (PASIDs), and
-some may not support recoverable faults.
-
-(3) Device responds success with all page table formats implemented by the
-    physical IOMMU in pg_format. 'model' 0 is invalid, so driver can
-    initialize the array to 0 and deduce from there which entries have
-    been filled by the device.
-
-Using a probe method seems preferable over trying to attach every possible
-format until one sticks. For instance, with an ARM guest running on an x86
-host, PROBE_TABLE would return the Intel IOMMU page table format, and the
-guest could use that page table code to handle its mappings, hidden behind
-the IOMMU API. This requires that the page-table code is reasonably
-abstracted from the architecture, as is done with drivers/iommu/io-pgtable
-(an x86 guest could use any format implement by io-pgtable for example.)
-
-(4) If the driver is able to use this format, it sends the ATTACH_TABLE
-    request.
-
-	VIRTIO_IOMMU_T_ATTACH_TABLE
-
-	struct virtio_iommu_req_attach_table {
-		le32	address_space;
-		le32	flags;
-		le64	table;
-	
-		le32	nr_contexts;
-		/* Page-table format description */
-	
-		le32	model;
-		u8	config[64]
-	};
-
-
-    'table' is a pointer to the page directory. 'nr_contexts' isn't used
-    here.
-
-    For both ATTACH and PROBE, 'flags' are the following (and will be
-    explained later):
-
-	VIRTIO_IOMMU_ATTACH_TABLE_F_INDIRECT	(1 << 0)
-	VIRTIO_IOMMU_ATTACH_TABLE_F_NATIVE	(1 << 1)
-	VIRTIO_IOMMU_ATTACH_TABLE_F_FAULT	(1 << 2)
-
-Now 'model' is a bit tricky. We need to specify all possible page table
-formats and their parameters. I'm not well-versed in x86, s390 or other
-IOMMUs, so I'll just focus on the ARM world for this example. We basically
-have two page table models, with a multitude of configuration bits:
-
-	* ARM LPAE
-	* ARM short descriptor
-
-We could define a high-level identifier per page-table model, such as:
-
-	#define PG_TABLE_ARM	0x1
-	#define PG_TABLE_X86	0x2
-	...
-
-And each model would define its own structure. On ARM 'format' could be a
-simple u32 defining a variant, LPAE 32/64 or short descriptor. It could
-also contain additional capabilities. Then depending on the variant,
-'config' would be:
-
-	struct pg_config_v7s {
-		le32	tcr;
-		le32	prrr;
-		le32	nmrr;
-		le32	asid;
-	};
-	
-	struct pg_config_lpae {
-		le64	tcr;
-		le64	mair;
-		le32	asid;
-	
-		/* And maybe TTB1? */
-	};
-
-	struct pg_config_arm {
-		le32	variant;
-		union ...;
-	};
-
-I am really uneasy with describing all those nasty architectural details
-in the virtio-iommu specification. We certainly won't start describing the
-content bit-by-bit of tcr or mair here, but just declaring these fields
-might be sufficient.
-
-(5) Once the table is attached, the driver can simply write the page
-    tables and expect the physical IOMMU to observe the mappings without
-    any additional request. When changing or removing a mapping, however,
-    the driver must send an invalidate request.
-
-	VIRTIO_IOMMU_T_INVALIDATE
-
-	struct virtio_iommu_req_invalidate {
-		le32	address_space;
-		le32	context;
-		le32	flags;
-		le64	virt_addr;
-		le64	range_size;
-	
-		u8	opaque[64];
-	};
-
-    'flags' may be:
-
-    VIRTIO_IOMMU_INVALIDATE_T_VADDR: invalidate a single VA range
-      from 'context' (context is 0 when !F_INDIRECT).
-
-    And with context tables only (explained below):
-
-    VIRTIO_IOMMU_INVALIDATE_T_SINGLE: invalidate all mappings from
-      'context' (context is 0 when !F_INDIRECT). virt_addr and range_size
-      are ignored.
-
-    VIRTIO_IOMMU_INVALIDATE_T_TABLE: with F_INDIRECT, invalidate entries
-      in the table that changed. Device reads the table again, compares it
-      to previous values, and invalidate all mappings for contexts that
-      changed. context, virt_addr and range_size are ignored.
-
-IOMMUs may offer hints and quirks in their invalidation packets. The
-opaque structure in invalidate would allow to transport those. This
-depends on the page table format and as with architectural page-table
-definitions, I really don't want to have those details in the spec itself.
-
-
-  2. Sharing MMU page tables
-  --------------------------
-
-The guest can share process page-tables with the physical IOMMU. To do
-that, it sends PROBE_TABLE with (F_INDIRECT | F_NATIVE | F_FAULT). The
-page table format is implicit, so the pg_format array can be empty (unless
-the guest wants to query some specific property, e.g. number of levels
-supported by the pIOMMU?). If the host answers with success, guest can
-send its MMU page table details with ATTACH_TABLE and (F_NATIVE |
-F_INDIRECT | F_FAULT) flags.
-
-F_FAULT means that the host communicates page requests from device to the
-guest, and the guest can handle them by mapping virtual address in the
-fault to pages. It is only available with VIRTIO_IOMMU_F_FAULT_QUEUE (see
-below.)
-
-F_NATIVE means that the pIOMMU pgtable format is the same as guest MMU
-pgtable format.
-
-F_INDIRECT means that 'table' pointer is a context table, instead of a
-page directory. Each slot in the context table points to a page directory:
-
-                       64              2 1 0
-          table ----> +---------------------+
-                      |       pgd       |0|1|<--- context 0
-                      |       ---       |0|0|<--- context 1
-                      |       pgd       |0|1|
-                      |       ---       |0|0|
-                      |       ---       |0|0|
-                      +---------------------+
-                                         | \___Entry is valid
-                                         |______reserved
-
-Question: do we want per-context page table format, or can it stay global
-for the whole indirect table?
-
-Having a context table allows to provide multiple address spaces for a
-single device. In the simplest form, without F_INDIRECT we have a single
-address space per device, but some devices may implement more, for
-instance devices with the PCI PASID extension.
-
-A slot's position in the context table gives an ID, between 0 and
-nr_contexts. The guest can use this ID to have the device target a
-specific address space with DMA. The mechanism to do that is
-device-specific. For a PCI device, the ID is a PASID, and PCI doesn't
-define a specific way of using them for DMA, it's the device driver's
-concern.
-
-
-  3. Fault reporting
-  ------------------
-
-VIRTIO_IOMMU_F_EVENT_QUEUE
-
-With this feature, an event virtqueue (1) is available. For now it will
-only be used for fault handling, but I'm calling it eventq so that other
-asynchronous features can piggy-back on it. Device may report faults and
-page requests by sending buffers via the used ring.
-
-	#define VIRTIO_IOMMU_T_FAULT	0x05
-
-	struct virtio_iommu_evt_fault {
-		struct virtio_iommu_evt_head {
-			u8 type;
-			u8 reserved[3];
-		};
-	
-		u32 address_space;
-		u32 context;
-	
-		u64 vaddr;
-		u32 flags;	/* Access details: R/W/X */
-	
-		/* In the reply: */
-		u32 reply;	/* Fault handled, or failure */
-		u64 paddr;
-	};
-
-Driver must send the reply via the request queue, with the fault status
-in 'reply', and the mapped page in 'paddr' on success.
-
-Existing fault handling interfaces such as PRI have a tag (PRG) allowing
-to identify a page request (or group thereof) when sending a reply. I
-wonder if this would be useful to us, but it seems like the
-(address_space, context, vaddr) tuple is sufficient to identify a page
-fault, provided the device doesn't send duplicate faults. Duplicate faults
-could be required if they have a side effect, for instance implementing a
-poor man's doorbell. If this is desirable, we could add a fault_id field.
-
-
-  4. Host implementation with VFIO
-  --------------------------------
-
-The VFIO interface for sharing page tables is being worked on at the
-moment by Intel. Other virtual IOMMU implementation will most likely let
-guest manage full context tables (PASID tables) themselves, giving the
-context table pointer to the pIOMMU via a VFIO ioctl.
-
-For the architecture-agnostic virtio-iommu however, we shouldn't have to
-implement all possible formats of context table (they are at least
-different between ARM SMMU and Intel IOMMU, and will certainly be extended
-in future physical IOMMU architectures.) In addition, most users might
-only care about having one page directory per device, as SVM is a luxury
-at the moment and few devices support it. For these reasons, we should
-allow to pass single page directories via VFIO, using very similar
-structures as described above, whilst reusing the VFIO channel developed
-for Intel vIOMMU.
-
-	* VFIO_SVM_INFO: probe page table formats
-	* VFIO_SVM_BIND: set pgd and arch-specific configuration
-
-There is an inconvenient with letting the pIOMMU driver manage the guest's
-context table. During a page table walk, the pIOMMU translates the context
-table pointer using the stage-2 page tables. The context table must
-therefore be mapped in guest-physical space by the pIOMMU driver. One
-solution is to let the pIOMMU driver reserve some GPA space upfront using
-the iommu and sysfs resv API [1]. The host would then carve that region
-out of the guest-physical space using a firmware mechanism (for example DT
-reserved-memory node).
-
-
-  III. Relaxed operations
-  =======================
-
-VIRTIO_IOMMU_F_RELAXED
-
-Adding an IOMMU dramatically reduces performance of a device, because
-map/unmap operations are costly and produce a lot of TLB traffic. For
-significant performance improvements, device might allow the driver to
-sacrifice safety for speed. In this mode, the driver does not need to send
-UNMAP requests. The semantics of MAP change and are more complex to
-implement. Given a MAP([start:end] -> phys, flags) request:
-
-(1) If [start:end] isn't mapped, request succeeds as usual.
-(2) If [start:end] overlaps an existing mapping [old_start:old_end], we
-    unmap [max(start, old_start):min(end, old_end)] and replace it with
-    [start:end].
-(3) If [start:end] overlaps an existing mapping that matches the new map
-    request exactly (same flags, same phys address), the old mapping is
-    kept.
-
-This squashing could be performed by the guest. The driver can catch unmap
-requests from the DMA layer, and only relay map requests for (1) and (2).
-A MAP request is therefore able to split and partially override an
-existing mapping, which isn't allowed in non-relaxed mode. UNMAP requests
-are unnecessary, but are now allowed to split or carve holes in mappings.
-
-In this model, a MAP request may take longer, but we may have a net gain
-by removing a lot of redundant requests. Squashing series of map/unmap
-performed by the guest for the same mapping improves temporal reuse of
-IOVA mappings, which I can observe by simply dumping IOMMU activity of a
-virtio device. It reduce the number of TLB invalidations to the strict
-minimum while keeping correctness of DMA operations (provided the device
-obeys its driver). There is a good read on the subject of optimistic
-teardown in paper [2].
-
-This model is completely unsafe. A stale DMA transaction might access a
-page long after the device driver in the guest unmapped it and
-decommissioned the page. The DMA transaction might hit into a completely
-different part of the system that is now reusing the page. Existing
-relaxed implementations attempt to mitigate the risk by setting a timeout
-on the teardown. Unmap requests from device drivers are not discarded
-entirely, but buffered and sent at a later time. Paper [2] reports good
-results with a 10ms delay.
-
-We could add a way for device and driver to negotiate a vulnerability
-window to mitigate the risk of DMA attacks. Driver might not accept a
-window at all, since it requires more infrastructure to keep delayed
-mappings. In my opinion, it should be made clear that regardless of the
-duration of this window, any driver accepting F_RELAXED feature makes the
-guest completely vulnerable, and the choice boils down to either isolation
-or speed, not a bit of both.
-
-
-  IV. Misc
-  ========
-
-I think we have enough to go on for a while. To improve MAP throughput, I
-considered adding a MAP_SG request depending on a feature bit, with
-variable size:
-
-	struct virtio_iommu_req_map_sg {
-		struct virtio_iommu_req_head;
-		u32	address_space;
-		u32	nr_elems;
-		u64	virt_addr;
-		u64	size;
-		u64	phys_addr[nr_elems];
-	};
-
-Would create the following mappings:
-
-	virt_addr		-> phys_addr[0]
-	virt_addr + size	-> phys_addr[1]
-	virt_addr + 2 * size	-> phys_addr[2]
-	...
-
-This would avoid the overhead of multiple map commands. We could try to
-find a more cunning format to compress virtually-contiguous mappings with
-different (phys, size) pairs as well. But Linux drivers rarely prefer
-map_sg() functions over regular map(), so I don't know if the whole map_sg
-feature is worth the effort. All we would gain is a few bytes anyway.
-
-My current map_sg implementation in the virtio-iommu driver adds a batch
-of map requests to the queue and kick the host once. That might be enough
-of an optimization.
-
-
-Another invasive optimization would be adding grouped requests. By adding
-two flags in the header, L and G, we can group sequences of requests
-together, and have one status at the end, either 0 if all requests in the
-group succeeded, or the status of the first request that failed. This is
-all in-order. Requests in a group follow each others, there is no sequence
-identifier.
-
-	                       ___ L: request is last in the group
-	                      /  _ G: request is part of a group
-	                     |  /
-	                     v v
-	31                   9 8 7      0
-	+--------------------------------+ <------- RO descriptor
-	|        res0       |0|1|  type  |
-	+--------------------------------+
-	|            payload             |
-	+--------------------------------+
-	|        res0       |0|1|  type  |
-	+--------------------------------+
-	|            payload             |
-	+--------------------------------+
-	|        res0       |0|1|  type  |
-	+--------------------------------+
-	|            payload             |
-	+--------------------------------+
-	|        res0       |1|1|  type  |
-	+--------------------------------+
-	|            payload             |
-	+--------------------------------+ <------- WO descriptor
-	|        res0           | status |
-	+--------------------------------+
-
-This adds some complexity on the device, since it must unroll whatever was
-done by successful requests in a group as soon as one fails, and reject
-all subsequent ones. A group of requests is an atomic operation. As with
-map_sg, this change mostly allows to save space and virtio descriptors.
-
-
-[1] https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-kernel-iommu_groups
-[2] vIOMMU: Efficient IOMMU Emulation
-    N. Amit, M. Ben-Yehuda, D. Tsafrir, A. Schuster
+The virtio IOMMU is a para-virtualized device, allowing to send IOMMU
+requests such as map/unmap over virtio-mmio transport. This driver should
+illustrate the initial proposal for virtio-iommu, that you hopefully
+received with it. It handle attach, detach, map and unmap requests.
+
+The bulk of the code is to create requests and send them through virtio.
+Implementing the IOMMU API is fairly straightforward since the
+virtio-iommu MAP/UNMAP interface is almost identical. I threw in a custom
+map_sg() function which takes up some space, but is optional. The core
+function would send a sequence of map requests, waiting for a reply
+between each mapping. This optimization avoids yielding to the host after
+each map, and instead prepares a batch of requests in the virtio ring and
+kicks the host once.
+
+It must be applied on top of the probe deferral work for IOMMU, currently
+under discussion. This allows to dissociate early driver detection and
+device probing: device-tree or ACPI is parsed early to find which devices
+are translated by the IOMMU, but the IOMMU itself cannot be probed until
+the core virtio module is loaded.
+
+Enabling DEBUG makes it extremely verbose at the moment, but it should be
+calmer in next versions.
+
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+---
+ drivers/iommu/Kconfig             |  11 +
+ drivers/iommu/Makefile            |   1 +
+ drivers/iommu/virtio-iommu.c      | 980 ++++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/Kbuild         |   1 +
+ include/uapi/linux/virtio_ids.h   |   1 +
+ include/uapi/linux/virtio_iommu.h | 142 ++++++
+ 6 files changed, 1136 insertions(+)
+ create mode 100644 drivers/iommu/virtio-iommu.c
+ create mode 100644 include/uapi/linux/virtio_iommu.h
+
+diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+index 37e204f3d9be..8cd56ee9a93a 100644
+--- a/drivers/iommu/Kconfig
++++ b/drivers/iommu/Kconfig
+@@ -359,4 +359,15 @@ config MTK_IOMMU_V1
+ 
+ 	  if unsure, say N here.
+ 
++config VIRTIO_IOMMU
++	tristate "Virtio IOMMU driver"
++	depends on VIRTIO_MMIO
++	select IOMMU_API
++	select INTERVAL_TREE
++	select ARM_DMA_USE_IOMMU if ARM
++	help
++	  Para-virtualised IOMMU driver with virtio.
++
++	  Say Y here if you intend to run this kernel as a guest.
++
+ endif # IOMMU_SUPPORT
+diff --git a/drivers/iommu/Makefile b/drivers/iommu/Makefile
+index 195f7b997d8e..1199d8475802 100644
+--- a/drivers/iommu/Makefile
++++ b/drivers/iommu/Makefile
+@@ -27,3 +27,4 @@ obj-$(CONFIG_TEGRA_IOMMU_SMMU) += tegra-smmu.o
+ obj-$(CONFIG_EXYNOS_IOMMU) += exynos-iommu.o
+ obj-$(CONFIG_FSL_PAMU) += fsl_pamu.o fsl_pamu_domain.o
+ obj-$(CONFIG_S390_IOMMU) += s390-iommu.o
++obj-$(CONFIG_VIRTIO_IOMMU) += virtio-iommu.o
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+new file mode 100644
+index 000000000000..1cf4f57b7817
+--- /dev/null
++++ b/drivers/iommu/virtio-iommu.c
+@@ -0,0 +1,980 @@
++/*
++ * Virtio driver for the paravirtualized IOMMU
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++ *
++ * Copyright (C) 2017 ARM Limited
++ *
++ * Author: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
++ */
++
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
++#include <linux/amba/bus.h>
++#include <linux/delay.h>
++#include <linux/dma-iommu.h>
++#include <linux/freezer.h>
++#include <linux/interval_tree.h>
++#include <linux/iommu.h>
++#include <linux/module.h>
++#include <linux/of_iommu.h>
++#include <linux/of_platform.h>
++#include <linux/platform_device.h>
++#include <linux/virtio.h>
++#include <linux/virtio_config.h>
++#include <linux/virtio_ids.h>
++#include <linux/wait.h>
++
++#include <uapi/linux/virtio_iommu.h>
++
++struct viommu_dev {
++	struct iommu_device		iommu;
++	struct device			*dev;
++	struct virtio_device		*vdev;
++
++	struct virtqueue		*vq;
++	struct list_head		pending_requests;
++	/* Serialize anything touching the vq and the request list */
++	spinlock_t			vq_lock;
++
++	struct list_head		list;
++
++	/* Device configuration */
++	u64				pgsize_bitmap;
++	u64				aperture_start;
++	u64				aperture_end;
++};
++
++struct viommu_mapping {
++	phys_addr_t			paddr;
++	struct interval_tree_node	iova;
++};
++
++struct viommu_domain {
++	struct iommu_domain		domain;
++	struct viommu_dev		*viommu;
++	struct mutex			mutex;
++	u64				id;
++
++	spinlock_t			mappings_lock;
++	struct rb_root			mappings;
++
++	/* Number of devices attached to this domain */
++	unsigned long			attached;
++};
++
++struct viommu_endpoint {
++	struct viommu_dev		*viommu;
++	struct viommu_domain		*vdomain;
++};
++
++struct viommu_request {
++	struct scatterlist		head;
++	struct scatterlist		tail;
++
++	int				written;
++	struct list_head		list;
++};
++
++/* TODO: use an IDA */
++static atomic64_t viommu_domain_ids_gen;
++
++#define to_viommu_domain(domain) container_of(domain, struct viommu_domain, domain)
++
++/* Virtio transport */
++
++static int viommu_status_to_errno(u8 status)
++{
++	switch (status) {
++	case VIRTIO_IOMMU_S_OK:
++		return 0;
++	case VIRTIO_IOMMU_S_UNSUPP:
++		return -ENOSYS;
++	case VIRTIO_IOMMU_S_INVAL:
++		return -EINVAL;
++	case VIRTIO_IOMMU_S_RANGE:
++		return -ERANGE;
++	case VIRTIO_IOMMU_S_NOENT:
++		return -ENOENT;
++	case VIRTIO_IOMMU_S_FAULT:
++		return -EFAULT;
++	case VIRTIO_IOMMU_S_IOERR:
++	case VIRTIO_IOMMU_S_DEVERR:
++	default:
++		return -EIO;
++	}
++}
++
++static int viommu_get_req_size(struct virtio_iommu_req_head *req, size_t *head,
++			       size_t *tail)
++{
++	size_t size;
++	union virtio_iommu_req r;
++
++	*tail = sizeof(struct virtio_iommu_req_tail);
++
++	switch (req->type) {
++	case VIRTIO_IOMMU_T_ATTACH:
++		size = sizeof(r.attach);
++		break;
++	case VIRTIO_IOMMU_T_DETACH:
++		size = sizeof(r.detach);
++		break;
++	case VIRTIO_IOMMU_T_MAP:
++		size = sizeof(r.map);
++		break;
++	case VIRTIO_IOMMU_T_UNMAP:
++		size = sizeof(r.unmap);
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	*head = size - *tail;
++	return 0;
++}
++
++static int viommu_receive_resp(struct viommu_dev *viommu, int nr_expected)
++{
++
++	unsigned int len;
++	int nr_received = 0;
++	struct viommu_request *req, *pending, *next;
++
++	pending = list_first_entry_or_null(&viommu->pending_requests,
++					   struct viommu_request, list);
++	if (WARN_ON(!pending))
++		return 0;
++
++	while ((req = virtqueue_get_buf(viommu->vq, &len)) != NULL) {
++		if (req != pending) {
++			dev_warn(viommu->dev, "discarding stale request\n");
++			continue;
++		}
++
++		pending->written = len;
++
++		if (++nr_received == nr_expected) {
++			list_del(&pending->list);
++			/*
++			 * In an ideal world, we'd wake up the waiter for this
++			 * group of requests here. But everything is painfully
++			 * synchronous, so waiter is the caller.
++			 */
++			break;
++		}
++
++		next = list_next_entry(pending, list);
++		list_del(&pending->list);
++
++		if (WARN_ON(list_empty(&viommu->pending_requests)))
++			return 0;
++
++		pending = next;
++	}
++
++	return nr_received;
++}
++
++/* Must be called with vq_lock held */
++static int _viommu_send_reqs_sync(struct viommu_dev *viommu,
++				  struct viommu_request *req, int nr,
++				  int *nr_sent)
++{
++	int i, ret;
++	ktime_t timeout;
++	int nr_received = 0;
++	struct scatterlist *sg[2];
++	/*
++	 * FIXME: as it stands, 1s timeout per request. This is a voluntary
++	 * exaggeration because I have no idea how real our ktime is. Are we
++	 * using a RTC? Are we aware of steal time? I don't know much about
++	 * this, need to do some digging.
++	 */
++	unsigned long timeout_ms = 1000;
++
++	*nr_sent = 0;
++
++	for (i = 0; i < nr; i++, req++) {
++		/*
++		 * The backend will allocate one indirect descriptor for each
++		 * request, which allows to double the ring consumption, but
++		 * might be slower.
++		 */
++		req->written = 0;
++
++		sg[0] = &req->head;
++		sg[1] = &req->tail;
++
++		ret = virtqueue_add_sgs(viommu->vq, sg, 1, 1, req,
++					GFP_ATOMIC);
++		if (ret)
++			break;
++
++		list_add_tail(&req->list, &viommu->pending_requests);
++	}
++
++	if (i && !virtqueue_kick(viommu->vq))
++		return -EPIPE;
++
++	/*
++	 * Absolutely no wiggle room here. We're not allowed to sleep as callers
++	 * might be holding spinlocks, so we have to poll like savages until
++	 * something appears. Hopefully the host already handled the request
++	 * during the above kick and returned it to us.
++	 *
++	 * A nice improvement would be for the caller to tell us if we can sleep
++	 * whilst mapping, but this has to go through the IOMMU/DMA API.
++	 */
++	timeout = ktime_add_ms(ktime_get(), timeout_ms * i);
++	while (nr_received < i && ktime_before(ktime_get(), timeout)) {
++		nr_received += viommu_receive_resp(viommu, i - nr_received);
++		if (nr_received < i) {
++			/*
++			 * FIXME: what's a good way to yield to host? A second
++			 * virtqueue_kick won't have any effect since we haven't
++			 * added any descriptor.
++			 */
++			udelay(10);
++		}
++	}
++	dev_dbg(viommu->dev, "request took %lld us\n",
++		ktime_us_delta(ktime_get(), ktime_sub_ms(timeout, timeout_ms * i)));
++
++	if (nr_received != i)
++		ret = -ETIMEDOUT;
++
++	if (ret == -ENOSPC && nr_received)
++		/*
++		 * We've freed some space since virtio told us that the ring is
++		 * full, tell the caller to come back later (after releasing the
++		 * lock first, to be fair to other threads)
++		 */
++		ret = -EAGAIN;
++
++	*nr_sent = nr_received;
++
++	return ret;
++}
++
++/**
++ * viommu_send_reqs_sync - add a batch of requests, kick the host and wait for
++ *                         them to return
++ *
++ * @req: array of requests
++ * @nr: size of the array
++ * @nr_sent: contains the number of requests actually sent after this function
++ *           returns
++ *
++ * Return 0 on success, or an error if we failed to send some of the requests.
++ */
++static int viommu_send_reqs_sync(struct viommu_dev *viommu,
++				 struct viommu_request *req, int nr,
++				 int *nr_sent)
++{
++	int ret;
++	int sent = 0;
++	unsigned long flags;
++
++	*nr_sent = 0;
++	do {
++		spin_lock_irqsave(&viommu->vq_lock, flags);
++		ret = _viommu_send_reqs_sync(viommu, req, nr, &sent);
++		spin_unlock_irqrestore(&viommu->vq_lock, flags);
++
++		*nr_sent += sent;
++		req += sent;
++		nr -= sent;
++	} while (ret == -EAGAIN);
++
++	return ret;
++}
++
++/**
++ * viommu_send_req_sync - send one request and wait for reply
++ *
++ * @head_ptr: pointer to a virtio_iommu_req_* structure
++ *
++ * Returns 0 if the request was successful, or an error number otherwise. No
++ * distinction is done between transport and request errors.
++ */
++static int viommu_send_req_sync(struct viommu_dev *viommu, void *head_ptr)
++{
++	int ret;
++	int nr_sent;
++	struct viommu_request req;
++	size_t head_size, tail_size;
++	struct virtio_iommu_req_tail *tail;
++	struct virtio_iommu_req_head *head = head_ptr;
++
++	ret = viommu_get_req_size(head, &head_size, &tail_size);
++	if (ret)
++		return ret;
++
++	dev_dbg(viommu->dev, "Sending request 0x%x, %zu bytes\n", head->type,
++		head_size + tail_size);
++
++	tail = head_ptr + head_size;
++
++	sg_init_one(&req.head, head, head_size);
++	sg_init_one(&req.tail, tail, tail_size);
++
++	ret = viommu_send_reqs_sync(viommu, &req, 1, &nr_sent);
++	if (ret || !req.written || nr_sent != 1) {
++		dev_err(viommu->dev, "failed to send command\n");
++		return -EIO;
++	}
++
++	ret = -viommu_status_to_errno(tail->status);
++
++	if (ret)
++		dev_dbg(viommu->dev, " completed with %d\n", ret);
++
++	return ret;
++}
++
++static int viommu_tlb_map(struct viommu_domain *vdomain, unsigned long iova,
++			  phys_addr_t paddr, size_t size)
++{
++	unsigned long flags;
++	struct viommu_mapping *mapping;
++
++	mapping = kzalloc(sizeof(*mapping), GFP_ATOMIC);
++	if (!mapping)
++		return -ENOMEM;
++
++	mapping->paddr = paddr;
++	mapping->iova.start = iova;
++	mapping->iova.last = iova + size - 1;
++
++	spin_lock_irqsave(&vdomain->mappings_lock, flags);
++	interval_tree_insert(&mapping->iova, &vdomain->mappings);
++	spin_unlock_irqrestore(&vdomain->mappings_lock, flags);
++
++	return 0;
++}
++
++static size_t viommu_tlb_unmap(struct viommu_domain *vdomain,
++			       unsigned long iova, size_t size)
++{
++	size_t unmapped = 0;
++	unsigned long flags;
++	unsigned long last = iova + size - 1;
++	struct viommu_mapping *mapping = NULL;
++	struct interval_tree_node *node, *next;
++
++	spin_lock_irqsave(&vdomain->mappings_lock, flags);
++	next = interval_tree_iter_first(&vdomain->mappings, iova, last);
++	while (next) {
++		node = next;
++		mapping = container_of(node, struct viommu_mapping, iova);
++
++		next = interval_tree_iter_next(node, iova, last);
++
++		/*
++		 * Note that for a partial range, this will return the full
++		 * mapping so we avoid sending split requests to the device.
++		 */
++		unmapped += mapping->iova.last - mapping->iova.start + 1;
++
++		interval_tree_remove(node, &vdomain->mappings);
++		kfree(mapping);
++	}
++	spin_unlock_irqrestore(&vdomain->mappings_lock, flags);
++
++	return unmapped;
++}
++
++/* IOMMU API */
++
++static bool viommu_capable(enum iommu_cap cap)
++{
++	return false; /* :( */
++}
++
++static struct iommu_domain *viommu_domain_alloc(unsigned type)
++{
++	struct viommu_domain *vdomain;
++
++	if (type != IOMMU_DOMAIN_UNMANAGED && type != IOMMU_DOMAIN_DMA)
++		return NULL;
++
++	vdomain = kzalloc(sizeof(struct viommu_domain), GFP_KERNEL);
++	if (!vdomain)
++		return NULL;
++
++	vdomain->id = atomic64_inc_return_relaxed(&viommu_domain_ids_gen);
++
++	mutex_init(&vdomain->mutex);
++	spin_lock_init(&vdomain->mappings_lock);
++	vdomain->mappings = RB_ROOT;
++
++	pr_debug("alloc domain of type %d -> %llu\n", type, vdomain->id);
++
++	if (type == IOMMU_DOMAIN_DMA &&
++	    iommu_get_dma_cookie(&vdomain->domain)) {
++		kfree(vdomain);
++		return NULL;
++	}
++
++	return &vdomain->domain;
++}
++
++static void viommu_domain_free(struct iommu_domain *domain)
++{
++	struct viommu_domain *vdomain = to_viommu_domain(domain);
++
++	pr_debug("free domain %llu\n", vdomain->id);
++
++	iommu_put_dma_cookie(domain);
++
++	/* Free all remaining mappings (size 2^64) */
++	viommu_tlb_unmap(vdomain, 0, 0);
++
++	kfree(vdomain);
++}
++
++static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
++{
++	int i;
++	int ret = 0;
++	struct iommu_fwspec *fwspec = dev->iommu_fwspec;
++	struct viommu_endpoint *vdev = fwspec->iommu_priv;
++	struct viommu_domain *vdomain = to_viommu_domain(domain);
++	struct virtio_iommu_req_attach req = {
++		.head.type	= VIRTIO_IOMMU_T_ATTACH,
++		.address_space	= cpu_to_le32(vdomain->id),
++	};
++
++	mutex_lock(&vdomain->mutex);
++	if (!vdomain->viommu) {
++		struct viommu_dev *viommu = vdev->viommu;
++
++		vdomain->viommu = viommu;
++
++		domain->pgsize_bitmap		= viommu->pgsize_bitmap;
++		domain->geometry.aperture_start	= viommu->aperture_start;
++		domain->geometry.aperture_end	= viommu->aperture_end;
++		domain->geometry.force_aperture	= true;
++
++	} else if (vdomain->viommu != vdev->viommu) {
++		dev_err(dev, "cannot attach to foreign VIOMMU\n");
++		ret = -EXDEV;
++	}
++	mutex_unlock(&vdomain->mutex);
++
++	if (ret)
++		return ret;
++
++	/*
++	 * When attaching the device to a new domain, it will be detached from
++	 * the old one and, if as as a result the old domain isn't attached to
++	 * any device, all mappings are removed from the old domain and it is
++	 * freed. (Note that we can't use get_domain_for_dev here, it returns
++	 * the default domain during initial attach.)
++	 *
++	 * Take note of the device disappearing, so we can ignore unmap request
++	 * on stale domains (that is, between this detach and the upcoming
++	 * free.)
++	 *
++	 * vdev->vdomain is protected by group->mutex
++	 */
++	if (vdev->vdomain) {
++		dev_dbg(dev, "detach from domain %llu\n", vdev->vdomain->id);
++		vdev->vdomain->attached--;
++	}
++
++	dev_dbg(dev, "attach to domain %llu\n", vdomain->id);
++
++	for (i = 0; i < fwspec->num_ids; i++) {
++		req.device = cpu_to_le32(fwspec->ids[i]);
++
++		ret = viommu_send_req_sync(vdomain->viommu, &req);
++		if (ret)
++			break;
++	}
++
++	vdomain->attached++;
++	vdev->vdomain = vdomain;
++
++	return ret;
++}
++
++static int viommu_map(struct iommu_domain *domain, unsigned long iova,
++		      phys_addr_t paddr, size_t size, int prot)
++{
++	int ret;
++	struct viommu_domain *vdomain = to_viommu_domain(domain);
++	struct virtio_iommu_req_map req = {
++		.head.type	= VIRTIO_IOMMU_T_MAP,
++		.address_space	= cpu_to_le32(vdomain->id),
++		.virt_addr	= cpu_to_le64(iova),
++		.phys_addr	= cpu_to_le64(paddr),
++		.size		= cpu_to_le64(size),
++	};
++
++	pr_debug("map %llu 0x%lx -> 0x%llx (%zu)\n", vdomain->id, iova,
++		 paddr, size);
++
++	if (!vdomain->attached)
++		return -ENODEV;
++
++	if (prot & IOMMU_READ)
++		req.flags |= cpu_to_le32(VIRTIO_IOMMU_MAP_F_READ);
++
++	if (prot & IOMMU_WRITE)
++		req.flags |= cpu_to_le32(VIRTIO_IOMMU_MAP_F_WRITE);
++
++	ret = viommu_tlb_map(vdomain, iova, paddr, size);
++	if (ret)
++		return ret;
++
++	ret = viommu_send_req_sync(vdomain->viommu, &req);
++	if (ret)
++		viommu_tlb_unmap(vdomain, iova, size);
++
++	return ret;
++}
++
++static size_t viommu_unmap(struct iommu_domain *domain, unsigned long iova,
++			   size_t size)
++{
++	int ret;
++	size_t unmapped;
++	struct viommu_domain *vdomain = to_viommu_domain(domain);
++	struct virtio_iommu_req_unmap req = {
++		.head.type	= VIRTIO_IOMMU_T_UNMAP,
++		.address_space	= cpu_to_le32(vdomain->id),
++		.virt_addr	= cpu_to_le64(iova),
++	};
++
++	pr_debug("unmap %llu 0x%lx (%zu)\n", vdomain->id, iova, size);
++
++	/* Callers may unmap after detach, but device already took care of it. */
++	if (!vdomain->attached)
++		return size;
++
++	unmapped = viommu_tlb_unmap(vdomain, iova, size);
++	if (unmapped < size)
++		return 0;
++
++	req.size = cpu_to_le64(unmapped);
++
++	ret = viommu_send_req_sync(vdomain->viommu, &req);
++	if (ret)
++		return 0;
++
++	return unmapped;
++}
++
++static size_t viommu_map_sg(struct iommu_domain *domain, unsigned long iova,
++			    struct scatterlist *sg, unsigned int nents, int prot)
++{
++	int i, ret;
++	int nr_sent;
++	size_t mapped;
++	size_t min_pagesz;
++	size_t total_size;
++	struct scatterlist *s;
++	unsigned int flags = 0;
++	unsigned long cur_iova;
++	unsigned long mapped_iova;
++	size_t head_size, tail_size;
++	struct viommu_request reqs[nents];
++	struct virtio_iommu_req_map map_reqs[nents];
++	struct viommu_domain *vdomain = to_viommu_domain(domain);
++
++	if (!vdomain->attached)
++		return 0;
++
++	pr_debug("map_sg %llu %u 0x%lx\n", vdomain->id, nents, iova);
++
++	if (prot & IOMMU_READ)
++		flags |= VIRTIO_IOMMU_MAP_F_READ;
++
++	if (prot & IOMMU_WRITE)
++		flags |= VIRTIO_IOMMU_MAP_F_WRITE;
++
++	min_pagesz = 1 << __ffs(domain->pgsize_bitmap);
++	tail_size = sizeof(struct virtio_iommu_req_tail);
++	head_size = sizeof(*map_reqs) - tail_size;
++
++	cur_iova = iova;
++
++	for_each_sg(sg, s, nents, i) {
++		size_t size = s->length;
++		phys_addr_t paddr = sg_phys(s);
++		void *tail = (void *)&map_reqs[i] + head_size;
++
++		if (!IS_ALIGNED(paddr | size, min_pagesz)) {
++			ret = -EFAULT;
++			break;
++		}
++
++		/* TODO: merge physically-contiguous mappings if any */
++		map_reqs[i] = (struct virtio_iommu_req_map) {
++			.head.type	= VIRTIO_IOMMU_T_MAP,
++			.address_space	= cpu_to_le32(vdomain->id),
++			.flags		= cpu_to_le32(flags),
++			.virt_addr	= cpu_to_le64(cur_iova),
++			.phys_addr	= cpu_to_le64(paddr),
++			.size		= cpu_to_le64(size),
++		};
++
++		ret = viommu_tlb_map(vdomain, cur_iova, paddr, size);
++		if (ret)
++			break;
++
++		sg_init_one(&reqs[i].head, &map_reqs[i], head_size);
++		sg_init_one(&reqs[i].tail, tail, tail_size);
++
++		cur_iova += size;
++	}
++
++	total_size = cur_iova - iova;
++
++	if (ret) {
++		viommu_tlb_unmap(vdomain, iova, total_size);
++		return 0;
++	}
++
++	ret = viommu_send_reqs_sync(vdomain->viommu, reqs, i, &nr_sent);
++
++	if (nr_sent != nents)
++		goto err_rollback;
++
++	for (i = 0; i < nents; i++) {
++		if (!reqs[i].written || map_reqs[i].tail.status)
++			goto err_rollback;
++	}
++
++	return total_size;
++
++err_rollback:
++	/*
++	 * Any request in the range might have failed. Unmap what was
++	 * successful.
++	 */
++	cur_iova = iova;
++	mapped_iova = iova;
++	mapped = 0;
++	for_each_sg(sg, s, nents, i) {
++		size_t size = s->length;
++
++		cur_iova += size;
++
++		if (!reqs[i].written || map_reqs[i].tail.status) {
++			if (mapped)
++				viommu_unmap(domain, mapped_iova, mapped);
++
++			mapped_iova = cur_iova;
++			mapped = 0;
++		} else {
++			mapped += size;
++		}
++	}
++
++	viommu_tlb_unmap(vdomain, iova, total_size);
++
++	return 0;
++}
++
++static phys_addr_t viommu_iova_to_phys(struct iommu_domain *domain,
++				       dma_addr_t iova)
++{
++	u64 paddr = 0;
++	unsigned long flags;
++	struct viommu_mapping *mapping;
++	struct interval_tree_node *node;
++	struct viommu_domain *vdomain = to_viommu_domain(domain);
++
++	spin_lock_irqsave(&vdomain->mappings_lock, flags);
++	node = interval_tree_iter_first(&vdomain->mappings, iova, iova);
++	if (node) {
++		mapping = container_of(node, struct viommu_mapping, iova);
++		paddr = mapping->paddr + (iova - mapping->iova.start);
++	}
++	spin_unlock_irqrestore(&vdomain->mappings_lock, flags);
++
++	pr_debug("iova_to_phys %llu 0x%llx->0x%llx\n", vdomain->id, iova,
++		 paddr);
++
++	return paddr;
++}
++
++static struct iommu_ops viommu_ops;
++static struct virtio_driver virtio_iommu_drv;
++
++static int viommu_match_node(struct device *dev, void *data)
++{
++	return dev->parent->fwnode == data;
++}
++
++static struct viommu_dev *viommu_get_by_fwnode(struct fwnode_handle *fwnode)
++{
++	struct device *dev = driver_find_device(&virtio_iommu_drv.driver, NULL,
++						fwnode, viommu_match_node);
++	put_device(dev);
++
++	return dev ? dev_to_virtio(dev)->priv : NULL;
++}
++
++static int viommu_add_device(struct device *dev)
++{
++	struct iommu_group *group;
++	struct viommu_endpoint *vdev;
++	struct viommu_dev *viommu = NULL;
++	struct iommu_fwspec *fwspec = dev->iommu_fwspec;
++
++	if (!fwspec || fwspec->ops != &viommu_ops)
++		return -ENODEV;
++
++	viommu = viommu_get_by_fwnode(fwspec->iommu_fwnode);
++	if (!viommu)
++		return -ENODEV;
++
++	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
++	if (!vdev)
++		return -ENOMEM;
++
++	vdev->viommu = viommu;
++	fwspec->iommu_priv = vdev;
++
++	/*
++	 * Last step creates a default domain and attaches to it. Everything
++	 * must be ready.
++	 */
++	group = iommu_group_get_for_dev(dev);
++
++	return PTR_ERR_OR_ZERO(group);
++}
++
++static void viommu_remove_device(struct device *dev)
++{
++	kfree(dev->iommu_fwspec->iommu_priv);
++}
++
++static struct iommu_group *
++viommu_device_group(struct device *dev)
++{
++	if (dev_is_pci(dev))
++		return pci_device_group(dev);
++	else
++		return generic_device_group(dev);
++}
++
++static int viommu_of_xlate(struct device *dev, struct of_phandle_args *args)
++{
++	u32 *id = args->args;
++
++	dev_dbg(dev, "of_xlate 0x%x\n", *id);
++	return iommu_fwspec_add_ids(dev, args->args, 1);
++}
++
++/*
++ * (Maybe) temporary hack for device pass-through into guest userspace. On ARM
++ * with an ITS, VFIO will look for a region where to map the doorbell, even
++ * though the virtual doorbell is never written to by the device, and instead
++ * the host injects interrupts directly. TODO: sort this out in VFIO.
++ */
++#define MSI_IOVA_BASE			0x8000000
++#define MSI_IOVA_LENGTH			0x100000
++
++static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
++{
++	struct iommu_resv_region *region;
++	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
++
++	region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH, prot,
++					 IOMMU_RESV_MSI);
++	if (!region)
++		return;
++
++	list_add_tail(&region->list, head);
++}
++
++static void viommu_put_resv_regions(struct device *dev, struct list_head *head)
++{
++	struct iommu_resv_region *entry, *next;
++
++	list_for_each_entry_safe(entry, next, head, list)
++		kfree(entry);
++}
++
++static struct iommu_ops viommu_ops = {
++	.capable		= viommu_capable,
++	.domain_alloc		= viommu_domain_alloc,
++	.domain_free		= viommu_domain_free,
++	.attach_dev		= viommu_attach_dev,
++	.map			= viommu_map,
++	.unmap			= viommu_unmap,
++	.map_sg			= viommu_map_sg,
++	.iova_to_phys		= viommu_iova_to_phys,
++	.add_device		= viommu_add_device,
++	.remove_device		= viommu_remove_device,
++	.device_group		= viommu_device_group,
++	.of_xlate		= viommu_of_xlate,
++	.get_resv_regions	= viommu_get_resv_regions,
++	.put_resv_regions	= viommu_put_resv_regions,
++};
++
++static int viommu_init_vq(struct viommu_dev *viommu)
++{
++	struct virtio_device *vdev = dev_to_virtio(viommu->dev);
++	vq_callback_t *callback = NULL;
++	const char *name = "request";
++	int ret;
++
++	ret = vdev->config->find_vqs(vdev, 1, &viommu->vq, &callback,
++				     &name, NULL);
++	if (ret)
++		dev_err(viommu->dev, "cannot find VQ\n");
++
++	return ret;
++}
++
++static int viommu_probe(struct virtio_device *vdev)
++{
++	struct device *parent_dev = vdev->dev.parent;
++	struct viommu_dev *viommu = NULL;
++	struct device *dev = &vdev->dev;
++	int ret;
++
++	viommu = kzalloc(sizeof(*viommu), GFP_KERNEL);
++	if (!viommu)
++		return -ENOMEM;
++
++	spin_lock_init(&viommu->vq_lock);
++	INIT_LIST_HEAD(&viommu->pending_requests);
++	viommu->dev = dev;
++	viommu->vdev = vdev;
++
++	ret = viommu_init_vq(viommu);
++	if (ret)
++		goto err_free_viommu;
++
++	virtio_cread(vdev, struct virtio_iommu_config, page_sizes,
++		     &viommu->pgsize_bitmap);
++
++	viommu->aperture_end = -1UL;
++
++	virtio_cread_feature(vdev, VIRTIO_IOMMU_F_INPUT_RANGE,
++			     struct virtio_iommu_config, input_range.start,
++			     &viommu->aperture_start);
++
++	virtio_cread_feature(vdev, VIRTIO_IOMMU_F_INPUT_RANGE,
++			     struct virtio_iommu_config, input_range.end,
++			     &viommu->aperture_end);
++
++	if (!viommu->pgsize_bitmap) {
++		ret = -EINVAL;
++		goto err_free_viommu;
++	}
++
++	viommu_ops.pgsize_bitmap = viommu->pgsize_bitmap;
++
++	/*
++	 * Not strictly necessary, virtio would enable it later. This allows to
++	 * start using the request queue early.
++	 */
++	virtio_device_ready(vdev);
++
++	ret = iommu_device_sysfs_add(&viommu->iommu, dev, NULL, "%s",
++				     virtio_bus_name(vdev));
++	if (ret)
++		goto err_free_viommu;
++
++	iommu_device_set_ops(&viommu->iommu, &viommu_ops);
++	iommu_device_set_fwnode(&viommu->iommu, parent_dev->fwnode);
++
++	iommu_device_register(&viommu->iommu);
++
++#ifdef CONFIG_PCI
++	if (pci_bus_type.iommu_ops != &viommu_ops) {
++		pci_request_acs();
++		ret = bus_set_iommu(&pci_bus_type, &viommu_ops);
++		if (ret)
++			goto err_unregister;
++	}
++#endif
++#ifdef CONFIG_ARM_AMBA
++	if (amba_bustype.iommu_ops != &viommu_ops) {
++		ret = bus_set_iommu(&amba_bustype, &viommu_ops);
++		if (ret)
++			goto err_unregister;
++	}
++#endif
++	if (platform_bus_type.iommu_ops != &viommu_ops) {
++		ret = bus_set_iommu(&platform_bus_type, &viommu_ops);
++		if (ret)
++			goto err_unregister;
++	}
++
++	vdev->priv = viommu;
++
++	dev_info(viommu->dev, "probe successful\n");
++
++	return 0;
++
++err_unregister:
++	iommu_device_unregister(&viommu->iommu);
++
++err_free_viommu:
++	kfree(viommu);
++
++	return ret;
++}
++
++static void viommu_remove(struct virtio_device *vdev)
++{
++	struct viommu_dev *viommu = vdev->priv;
++
++	iommu_device_unregister(&viommu->iommu);
++	kfree(viommu);
++
++	dev_info(&vdev->dev, "device removed\n");
++}
++
++static void viommu_config_changed(struct virtio_device *vdev)
++{
++	dev_warn(&vdev->dev, "config changed\n");
++}
++
++static unsigned int features[] = {
++	VIRTIO_IOMMU_F_INPUT_RANGE,
++};
++
++static struct virtio_device_id id_table[] = {
++	{ VIRTIO_ID_IOMMU, VIRTIO_DEV_ANY_ID },
++	{ 0 },
++};
++
++static struct virtio_driver virtio_iommu_drv = {
++	.driver.name		= KBUILD_MODNAME,
++	.driver.owner		= THIS_MODULE,
++	.id_table		= id_table,
++	.feature_table		= features,
++	.feature_table_size	= ARRAY_SIZE(features),
++	.probe			= viommu_probe,
++	.remove			= viommu_remove,
++	.config_changed		= viommu_config_changed,
++};
++
++module_virtio_driver(virtio_iommu_drv);
++
++IOMMU_OF_DECLARE(viommu, "virtio,mmio", NULL);
++
++MODULE_DESCRIPTION("virtio-iommu driver");
++MODULE_AUTHOR("Jean-Philippe Brucker <jean-philippe.brucker@arm.com>");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/uapi/linux/Kbuild b/include/uapi/linux/Kbuild
+index 1f25c86374ad..c0cb0f173258 100644
+--- a/include/uapi/linux/Kbuild
++++ b/include/uapi/linux/Kbuild
+@@ -467,6 +467,7 @@ header-y += virtio_console.h
+ header-y += virtio_gpu.h
+ header-y += virtio_ids.h
+ header-y += virtio_input.h
++header-y += virtio_iommu.h
+ header-y += virtio_mmio.h
+ header-y += virtio_net.h
+ header-y += virtio_pci.h
+diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
+index 6d5c3b2d4f4d..934ed3d3cd3f 100644
+--- a/include/uapi/linux/virtio_ids.h
++++ b/include/uapi/linux/virtio_ids.h
+@@ -43,5 +43,6 @@
+ #define VIRTIO_ID_INPUT        18 /* virtio input */
+ #define VIRTIO_ID_VSOCK        19 /* virtio vsock transport */
+ #define VIRTIO_ID_CRYPTO       20 /* virtio crypto */
++#define VIRTIO_ID_IOMMU	    61216 /* virtio IOMMU (temporary) */
+ 
+ #endif /* _LINUX_VIRTIO_IDS_H */
+diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
+new file mode 100644
+index 000000000000..ec74c9a727d4
+--- /dev/null
++++ b/include/uapi/linux/virtio_iommu.h
+@@ -0,0 +1,142 @@
++/*
++ * Copyright (C) 2017 ARM Ltd.
++ *
++ * This header is BSD licensed so anyone can use the definitions
++ * to implement compatible drivers/servers:
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ * 3. Neither the name of ARM Ltd. nor the names of its contributors
++ *    may be used to endorse or promote products derived from this software
++ *    without specific prior written permission.
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
++ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR
++ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
++ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
++ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
++ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ */
++#ifndef _UAPI_LINUX_VIRTIO_IOMMU_H
++#define _UAPI_LINUX_VIRTIO_IOMMU_H
++
++/* Feature bits */
++#define VIRTIO_IOMMU_F_INPUT_RANGE		0
++#define VIRTIO_IOMMU_F_IOASID_BITS		1
++#define VIRTIO_IOMMU_F_MAP_UNMAP		2
++#define VIRTIO_IOMMU_F_BYPASS			3
++
++__packed
++struct virtio_iommu_config {
++	/* Supported page sizes */
++	__u64					page_sizes;
++	struct virtio_iommu_range {
++		__u64				start;
++		__u64				end;
++	} input_range;
++	__u8 					ioasid_bits;
++};
++
++/* Request types */
++#define VIRTIO_IOMMU_T_ATTACH			0x01
++#define VIRTIO_IOMMU_T_DETACH			0x02
++#define VIRTIO_IOMMU_T_MAP			0x03
++#define VIRTIO_IOMMU_T_UNMAP			0x04
++
++/* Status types */
++#define VIRTIO_IOMMU_S_OK			0x00
++#define VIRTIO_IOMMU_S_IOERR			0x01
++#define VIRTIO_IOMMU_S_UNSUPP			0x02
++#define VIRTIO_IOMMU_S_DEVERR			0x03
++#define VIRTIO_IOMMU_S_INVAL			0x04
++#define VIRTIO_IOMMU_S_RANGE			0x05
++#define VIRTIO_IOMMU_S_NOENT			0x06
++#define VIRTIO_IOMMU_S_FAULT			0x07
++
++__packed
++struct virtio_iommu_req_head {
++	__u8					type;
++	__u8					reserved[3];
++};
++
++__packed
++struct virtio_iommu_req_tail {
++	__u8					status;
++	__u8					reserved[3];
++};
++
++__packed
++struct virtio_iommu_req_attach {
++	struct virtio_iommu_req_head		head;
++
++	__le32					address_space;
++	__le32					device;
++	__le32					reserved;
++
++	struct virtio_iommu_req_tail		tail;
++};
++
++__packed
++struct virtio_iommu_req_detach {
++	struct virtio_iommu_req_head		head;
++
++	__le32					device;
++	__le32					reserved;
++
++	struct virtio_iommu_req_tail		tail;
++};
++
++#define VIRTIO_IOMMU_MAP_F_READ			(1 << 0)
++#define VIRTIO_IOMMU_MAP_F_WRITE		(1 << 1)
++#define VIRTIO_IOMMU_MAP_F_EXEC			(1 << 2)
++
++#define VIRTIO_IOMMU_MAP_F_MASK			(VIRTIO_IOMMU_MAP_F_READ |	\
++						 VIRTIO_IOMMU_MAP_F_WRITE |	\
++						 VIRTIO_IOMMU_MAP_F_EXEC)
++
++__packed
++struct virtio_iommu_req_map {
++	struct virtio_iommu_req_head		head;
++
++	__le32					address_space;
++	__le32					flags;
++	__le64					virt_addr;
++	__le64					phys_addr;
++	__le64					size;
++
++	struct virtio_iommu_req_tail		tail;
++};
++
++__packed
++struct virtio_iommu_req_unmap {
++	struct virtio_iommu_req_head		head;
++
++	__le32					address_space;
++	__le32					flags;
++	__le64					virt_addr;
++	__le64					size;
++
++	struct virtio_iommu_req_tail		tail;
++};
++
++union virtio_iommu_req {
++	struct virtio_iommu_req_head		head;
++
++	struct virtio_iommu_req_attach		attach;
++	struct virtio_iommu_req_detach		detach;
++	struct virtio_iommu_req_map		map;
++	struct virtio_iommu_req_unmap		unmap;
++};
++
++#endif
+-- 
+2.12.1
