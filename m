@@ -1,14 +1,17 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: [RFC PATCH kvmtool 15/15] virtio: use virtio-iommu when available
-Date: Fri,  7 Apr 2017 20:24:55 +0100
-Message-ID: <20170407192455.26814-16-jean-philippe.brucker__37521.8972484165$1491593309$gmane$org@arm.com>
-References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
-	<20170407192455.26814-1-jean-philippe.brucker@arm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next 3/3] virtio-net: clean tx descriptors from rx napi
+Date: Fri, 7 Apr 2017 22:28:47 +0300
+Message-ID: <20170407222616-mutt-send-email-mst__8035.85789767585$1491593333$gmane$org@kernel.org>
+References: <20170402201012.76473-1-willemdebruijn.kernel@gmail.com>
+	<20170402201012.76473-4-willemdebruijn.kernel@gmail.com>
+	<20170403024751.GA21883@redhat.com>
+	<CAF=yD-+tJxqvwvLU81=H7nwqDtiSWfAv8UdfncjPQiuNteJ6jQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170407192455.26814-1-jean-philippe.brucker@arm.com>
+Content-Disposition: inline
+In-Reply-To: <CAF=yD-+tJxqvwvLU81=H7nwqDtiSWfAv8UdfncjPQiuNteJ6jQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,37 +21,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
-Cc: cdall@linaro.org, lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Willem de Bruijn <willemb@google.com>, Network Development <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is for development only. Virtual devices might blow up unexpectedly.
-In general it seems to work (slowing devices down by a factor of two of
-course). virtio-scsi, virtio-rng and virtio-balloon are still untested.
+On Mon, Apr 03, 2017 at 01:02:13AM -0400, Willem de Bruijn wrote:
+> On Sun, Apr 2, 2017 at 10:47 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > On Sun, Apr 02, 2017 at 04:10:12PM -0400, Willem de Bruijn wrote:
+> >> From: Willem de Bruijn <willemb@google.com>
+> >>
+> >> Amortize the cost of virtual interrupts by doing both rx and tx work
+> >> on reception of a receive interrupt if tx napi is enabled. With
+> >> VIRTIO_F_EVENT_IDX, this suppresses most explicit tx completion
+> >> interrupts for bidirectional workloads.
+> >>
+> >> Signed-off-by: Willem de Bruijn <willemb@google.com>
 
-Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
----
- virtio/core.c | 3 +++
- 1 file changed, 3 insertions(+)
+This is a popular approach, but I think this will only work well if tx
+and rx interrupts are processed on the same CPU and if tx queue is per
+cpu.  If they target different CPUs or if tx queue is used from multiple
+CPUs they will conflict on the shared locks.
 
-diff --git a/virtio/core.c b/virtio/core.c
-index 66e0cecb..4ca632f9 100644
---- a/virtio/core.c
-+++ b/virtio/core.c
-@@ -1,4 +1,5 @@
- #include <linux/virtio_config.h>
-+#include <linux/virtio_ids.h>
- #include <linux/virtio_ring.h>
- #include <linux/types.h>
- #include <sys/uio.h>
-@@ -369,6 +370,8 @@ int virtio_init(struct kvm *kvm, void *dev, struct virtio_device *vdev,
- {
- 	void *virtio;
- 
-+	vdev->use_iommu = kvm->cfg.viommu && subsys_id != VIRTIO_ID_IOMMU;
-+
- 	switch (trans) {
- 	case VIRTIO_PCI:
- 		virtio = calloc(sizeof(struct virtio_pci), 1);
+This can even change dynamically as CPUs/queues are reconfigured.
+How about adding a flag and skipping the tx poll if there's no match?
+
 -- 
-2.12.1
+MST
