@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 2/3] ringtest: support test specific parameters
-Date: Fri, 7 Apr 2017 08:50:00 +0300
-Message-ID: <1491544049-19108-2-git-send-email-mst@redhat.com>
+Subject: [PATCH 3/3] ptr_ring: support testing different batching sizes
+Date: Fri, 7 Apr 2017 08:50:02 +0300
+Message-ID: <1491544049-19108-3-git-send-email-mst@redhat.com>
 References: <1491544049-19108-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,71 +22,26 @@ To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.linux-foundation.org, brouer@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new flag for passing test-specific parameters.
+Use the param flag for that.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- tools/virtio/ringtest/main.c | 13 +++++++++++++
- tools/virtio/ringtest/main.h |  2 ++
- 2 files changed, 15 insertions(+)
+ tools/virtio/ringtest/ptr_ring.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/virtio/ringtest/main.c b/tools/virtio/ringtest/main.c
-index f31353f..022ae95 100644
---- a/tools/virtio/ringtest/main.c
-+++ b/tools/virtio/ringtest/main.c
-@@ -20,6 +20,7 @@
- int runcycles = 10000000;
- int max_outstanding = INT_MAX;
- int batch = 1;
-+int param = 0;
+diff --git a/tools/virtio/ringtest/ptr_ring.c b/tools/virtio/ringtest/ptr_ring.c
+index 635b07b..7b22f1b 100644
+--- a/tools/virtio/ringtest/ptr_ring.c
++++ b/tools/virtio/ringtest/ptr_ring.c
+@@ -97,6 +97,9 @@ void alloc_ring(void)
+ {
+ 	int ret = ptr_ring_init(&array, ring_size, 0);
+ 	assert(!ret);
++	/* Hacky way to poke at ring internals. Useful for testing though. */
++	if (param)
++		array.batch = param;
+ }
  
- bool do_sleep = false;
- bool do_relax = false;
-@@ -247,6 +248,11 @@ static const struct option longopts[] = {
- 		.val = 'b',
- 	},
- 	{
-+		.name = "param",
-+		.has_arg = required_argument,
-+		.val = 'p',
-+	},
-+	{
- 		.name = "sleep",
- 		.has_arg = no_argument,
- 		.val = 's',
-@@ -274,6 +280,7 @@ static void help(void)
- 		" [--run-cycles C (default: %d)]"
- 		" [--batch b]"
- 		" [--outstanding o]"
-+		" [--param p]"
- 		" [--sleep]"
- 		" [--relax]"
- 		" [--exit]"
-@@ -328,6 +335,12 @@ int main(int argc, char **argv)
- 			assert(c > 0 && c < INT_MAX);
- 			max_outstanding = c;
- 			break;
-+		case 'p':
-+			c = strtol(optarg, &endptr, 0);
-+			assert(!*endptr);
-+			assert(c > 0 && c < INT_MAX);
-+			param = c;
-+			break;
- 		case 'b':
- 			c = strtol(optarg, &endptr, 0);
- 			assert(!*endptr);
-diff --git a/tools/virtio/ringtest/main.h b/tools/virtio/ringtest/main.h
-index 14142fa..90b0133 100644
---- a/tools/virtio/ringtest/main.h
-+++ b/tools/virtio/ringtest/main.h
-@@ -10,6 +10,8 @@
- 
- #include <stdbool.h>
- 
-+extern int param;
-+
- extern bool do_exit;
- 
- #if defined(__x86_64__) || defined(__i386__)
+ /* guest side */
 -- 
 MST
