@@ -1,7 +1,8 @@
 From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: [RFC PATCH kvmtool 07/15] virtio: factor virtqueue initialization
-Date: Fri,  7 Apr 2017 20:24:47 +0100
-Message-ID: <20170407192455.26814-8-jean-philippe.brucker__22241.3118034185$1491593170$gmane$org@arm.com>
+Subject: [RFC PATCH kvmtool 08/15] virtio: add vIOMMU instance for virtio
+	devices
+Date: Fri,  7 Apr 2017 20:24:48 +0100
+Message-ID: <20170407192455.26814-9-jean-philippe.brucker__43813.5041892112$1491593183$gmane$org@arm.com>
 References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
 	<20170407192455.26814-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
@@ -22,247 +23,273 @@ To: iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.
 Cc: cdall@linaro.org, lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-All virtio devices are doing the same few operations when initializing
-their virtqueues. Move these operations to virtio core, as we'll have to
-complexify vring initialization when implementing a virtual IOMMU.
+Virtio devices can now opt-in to use an IOMMU, by setting the use_iommu
+field. None of this will work in the current state, since virtio devices
+still access memory linearly. A subsequent patch implements sg accesses.
 
 Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 ---
- include/kvm/virtio.h | 16 +++++++++-------
- virtio/9p.c          |  7 ++-----
- virtio/balloon.c     |  7 +++----
- virtio/blk.c         | 10 ++--------
- virtio/console.c     |  7 ++-----
- virtio/iommu.c       | 10 ++--------
- virtio/net.c         |  8 ++------
- virtio/rng.c         |  6 ++----
- virtio/scsi.c        |  6 ++----
- 9 files changed, 26 insertions(+), 51 deletions(-)
+ include/kvm/virtio-mmio.h |  1 +
+ include/kvm/virtio-pci.h  |  1 +
+ include/kvm/virtio.h      | 13 ++++++++++++
+ virtio/core.c             | 52 +++++++++++++++++++++++++++++++++++++++++++++++
+ virtio/mmio.c             | 27 ++++++++++++++++++++++++
+ virtio/pci.c              | 26 ++++++++++++++++++++++++
+ 6 files changed, 120 insertions(+)
 
+diff --git a/include/kvm/virtio-mmio.h b/include/kvm/virtio-mmio.h
+index 835f421b..c25a4fd7 100644
+--- a/include/kvm/virtio-mmio.h
++++ b/include/kvm/virtio-mmio.h
+@@ -44,6 +44,7 @@ struct virtio_mmio_hdr {
+ struct virtio_mmio {
+ 	u32			addr;
+ 	void			*dev;
++	struct virtio_device	*vdev;
+ 	struct kvm		*kvm;
+ 	u8			irq;
+ 	struct virtio_mmio_hdr	hdr;
+diff --git a/include/kvm/virtio-pci.h b/include/kvm/virtio-pci.h
+index b70cadd8..26772f74 100644
+--- a/include/kvm/virtio-pci.h
++++ b/include/kvm/virtio-pci.h
+@@ -22,6 +22,7 @@ struct virtio_pci {
+ 	struct pci_device_header pci_hdr;
+ 	struct device_header	dev_hdr;
+ 	void			*dev;
++	struct virtio_device	*vdev;
+ 	struct kvm		*kvm;
+ 
+ 	u16			port_addr;
 diff --git a/include/kvm/virtio.h b/include/kvm/virtio.h
-index 00a791ac..24c0c487 100644
+index 24c0c487..9f2ff237 100644
 --- a/include/kvm/virtio.h
 +++ b/include/kvm/virtio.h
-@@ -169,15 +169,17 @@ int virtio_init(struct kvm *kvm, void *dev, struct virtio_device *vdev,
- int virtio_compat_add_message(const char *device, const char *config);
- const char* virtio_trans_name(enum virtio_trans trans);
+@@ -9,6 +9,7 @@
+ #include <linux/types.h>
+ #include <sys/uio.h>
  
--static inline void *virtio_get_vq(struct kvm *kvm, u32 pfn, u32 page_size)
-+static inline void virtio_init_device_vq(struct kvm *kvm,
-+					 struct virtio_device *vdev,
-+					 struct virt_queue *vq, size_t nr_descs,
-+					 u32 page_size, u32 align, u32 pfn)
- {
--	return guest_flat_to_host(kvm, (u64)pfn * page_size);
--}
-+	void *p		= guest_flat_to_host(kvm, (u64)pfn * page_size);
++#include "kvm/iommu.h"
+ #include "kvm/kvm.h"
  
--static inline void virtio_init_device_vq(struct virtio_device *vdev,
--					 struct virt_queue *vq)
--{
--	vq->endian = vdev->endian;
-+	vq->endian	= vdev->endian;
-+	vq->pfn		= pfn;
-+
-+	vring_init(&vq->vring, nr_descs, p, align);
+ #define VIRTIO_IRQ_LOW		0
+@@ -137,10 +138,12 @@ enum virtio_trans {
+ };
+ 
+ struct virtio_device {
++	bool			use_iommu;
+ 	bool			use_vhost;
+ 	void			*virtio;
+ 	struct virtio_ops	*ops;
+ 	u16			endian;
++	void			*iotlb;
+ };
+ 
+ struct virtio_ops {
+@@ -182,4 +185,14 @@ static inline void virtio_init_device_vq(struct kvm *kvm,
+ 	vring_init(&vq->vring, nr_descs, p, align);
  }
  
++/*
++ * These are callbacks for IOMMU operations on virtio devices. They are not
++ * operations on the virtio-iommu device. Confusing, I know.
++ */
++const struct iommu_properties *
++virtio__iommu_get_properties(struct device_header *dev);
++
++int virtio__iommu_attach(void *, struct virtio_device *vdev, int flags);
++int virtio__iommu_detach(void *, struct virtio_device *vdev);
++
  #endif /* KVM__VIRTIO_H */
-diff --git a/virtio/9p.c b/virtio/9p.c
-index 69fdc4be..acd09bdd 100644
---- a/virtio/9p.c
-+++ b/virtio/9p.c
-@@ -1388,17 +1388,14 @@ static int init_vq(struct kvm *kvm, void *dev, u32 vq, u32 page_size, u32 align,
- 	struct p9_dev *p9dev = dev;
- 	struct p9_dev_job *job;
- 	struct virt_queue *queue;
--	void *p;
+diff --git a/virtio/core.c b/virtio/core.c
+index d6ac289d..32bd4ebc 100644
+--- a/virtio/core.c
++++ b/virtio/core.c
+@@ -6,11 +6,16 @@
+ #include "kvm/guest_compat.h"
+ #include "kvm/barrier.h"
+ #include "kvm/virtio.h"
++#include "kvm/virtio-iommu.h"
+ #include "kvm/virtio-pci.h"
+ #include "kvm/virtio-mmio.h"
+ #include "kvm/util.h"
+ #include "kvm/kvm.h"
  
- 	compat__remove_message(compat_id);
++static void *iommu = NULL;
++static struct iommu_properties iommu_props = {
++	.name		= "viommu-virtio",
++};
  
- 	queue		= &p9dev->vqs[vq];
--	queue->pfn	= pfn;
--	p		= virtio_get_vq(kvm, queue->pfn, page_size);
- 	job		= &p9dev->jobs[vq];
- 
--	vring_init(&queue->vring, VIRTQUEUE_NUM, p, align);
--	virtio_init_device_vq(&p9dev->vdev, queue);
-+	virtio_init_device_vq(kvm, &p9dev->vdev, queue, VIRTQUEUE_NUM,
-+			      page_size, align, pfn);
- 
- 	*job		= (struct p9_dev_job) {
- 		.vq		= queue,
-diff --git a/virtio/balloon.c b/virtio/balloon.c
-index 9564aa39..9182cae6 100644
---- a/virtio/balloon.c
-+++ b/virtio/balloon.c
-@@ -198,16 +198,15 @@ static int init_vq(struct kvm *kvm, void *dev, u32 vq, u32 page_size, u32 align,
+ const char* virtio_trans_name(enum virtio_trans trans)
  {
- 	struct bln_dev *bdev = dev;
- 	struct virt_queue *queue;
--	void *p;
+@@ -198,6 +203,41 @@ bool virtio_queue__should_signal(struct virt_queue *vq)
+ 	return false;
+ }
  
- 	compat__remove_message(compat_id);
- 
- 	queue		= &bdev->vqs[vq];
--	queue->pfn	= pfn;
--	p		= virtio_get_vq(kvm, queue->pfn, page_size);
++const struct iommu_properties *
++virtio__iommu_get_properties(struct device_header *dev)
++{
++	return &iommu_props;
++}
 +
-+	virtio_init_device_vq(kvm, &bdev->vdev, queue, VIRTIO_BLN_QUEUE_SIZE,
-+			      page_size, align, pfn);
++int virtio__iommu_attach(void *priv, struct virtio_device *vdev, int flags)
++{
++	struct virtio_tlb *iotlb = priv;
++
++	if (!iotlb)
++		return -ENOMEM;
++
++	if (vdev->iotlb) {
++		pr_err("device already attached");
++		return -EINVAL;
++	}
++
++	vdev->iotlb = iotlb;
++
++	return 0;
++}
++
++int virtio__iommu_detach(void *priv, struct virtio_device *vdev)
++{
++	if (vdev->iotlb != priv) {
++		pr_err("wrong iotlb"); /* bug */
++		return -EINVAL;
++	}
++
++	vdev->iotlb = NULL;
++
++	return 0;
++}
++
+ int virtio_init(struct kvm *kvm, void *dev, struct virtio_device *vdev,
+ 		struct virtio_ops *ops, enum virtio_trans trans,
+ 		int device_id, int subsys_id, int class)
+@@ -233,6 +273,18 @@ int virtio_init(struct kvm *kvm, void *dev, struct virtio_device *vdev,
+ 		return -1;
+ 	};
  
- 	thread_pool__init_job(&bdev->jobs[vq], kvm, virtio_bln_do_io, queue);
--	vring_init(&queue->vring, VIRTIO_BLN_QUEUE_SIZE, p, align);
- 
++	if (!iommu && vdev->use_iommu) {
++		iommu_props.pgsize_mask = ~(PAGE_SIZE - 1);
++		/*
++		 * With legacy MMIO, we only have 32-bit to hold the vring PFN.
++		 * This limits the IOVA size to (32 + 12) = 44 bits, when using
++		 * 4k pages.
++		 */
++		iommu_props.input_addr_size = 44;
++		iommu = viommu_register(kvm, &iommu_props);
++	}
++
++
  	return 0;
  }
-diff --git a/virtio/blk.c b/virtio/blk.c
-index c485e4fc..8c6e59ba 100644
---- a/virtio/blk.c
-+++ b/virtio/blk.c
-@@ -178,17 +178,11 @@ static int init_vq(struct kvm *kvm, void *dev, u32 vq, u32 page_size, u32 align,
- 		   u32 pfn)
- {
- 	struct blk_dev *bdev = dev;
--	struct virt_queue *queue;
--	void *p;
  
- 	compat__remove_message(compat_id);
- 
--	queue		= &bdev->vqs[vq];
--	queue->pfn	= pfn;
--	p		= virtio_get_vq(kvm, queue->pfn, page_size);
--
--	vring_init(&queue->vring, VIRTIO_BLK_QUEUE_SIZE, p, align);
--	virtio_init_device_vq(&bdev->vdev, queue);
-+	virtio_init_device_vq(kvm, &bdev->vdev, &bdev->vqs[vq],
-+			      VIRTIO_BLK_QUEUE_SIZE, page_size, align, pfn);
- 
- 	return 0;
+diff --git a/virtio/mmio.c b/virtio/mmio.c
+index 16b44fbb..24a14a71 100644
+--- a/virtio/mmio.c
++++ b/virtio/mmio.c
+@@ -1,4 +1,5 @@
+ #include "kvm/devices.h"
++#include "kvm/virtio-iommu.h"
+ #include "kvm/virtio-mmio.h"
+ #include "kvm/ioeventfd.h"
+ #include "kvm/iommu.h"
+@@ -286,6 +287,30 @@ void virtio_mmio_assign_irq(struct device_header *dev_hdr)
+ 	vmmio->irq = irq__alloc_line();
  }
-diff --git a/virtio/console.c b/virtio/console.c
-index f1c0a190..610962c4 100644
---- a/virtio/console.c
-+++ b/virtio/console.c
-@@ -143,18 +143,15 @@ static int init_vq(struct kvm *kvm, void *dev, u32 vq, u32 page_size, u32 align,
- 		   u32 pfn)
+ 
++#define mmio_dev_to_virtio(dev_hdr)					\
++	container_of(dev_hdr, struct virtio_mmio, dev_hdr)->vdev
++
++static int virtio_mmio_iommu_attach(void *priv, struct device_header *dev_hdr,
++				    int flags)
++{
++	return virtio__iommu_attach(priv, mmio_dev_to_virtio(dev_hdr), flags);
++}
++
++static int virtio_mmio_iommu_detach(void *priv, struct device_header *dev_hdr)
++{
++	return virtio__iommu_detach(priv, mmio_dev_to_virtio(dev_hdr));
++}
++
++static struct iommu_ops virtio_mmio_iommu_ops = {
++	.get_properties		= virtio__iommu_get_properties,
++	.alloc_address_space	= iommu_alloc_address_space,
++	.free_address_space	= iommu_free_address_space,
++	.attach			= virtio_mmio_iommu_attach,
++	.detach			= virtio_mmio_iommu_detach,
++	.map			= iommu_map,
++	.unmap			= iommu_unmap,
++};
++
+ int virtio_mmio_init(struct kvm *kvm, void *dev, struct virtio_device *vdev,
+ 		     int device_id, int subsys_id, int class)
  {
- 	struct virt_queue *queue;
--	void *p;
+@@ -294,6 +319,7 @@ int virtio_mmio_init(struct kvm *kvm, void *dev, struct virtio_device *vdev,
+ 	vmmio->addr	= virtio_mmio_get_io_space_block(VIRTIO_MMIO_IO_SIZE);
+ 	vmmio->kvm	= kvm;
+ 	vmmio->dev	= dev;
++	vmmio->vdev	= vdev;
  
- 	BUG_ON(vq >= VIRTIO_CONSOLE_NUM_QUEUES);
+ 	kvm__register_mmio(kvm, vmmio->addr, VIRTIO_MMIO_IO_SIZE,
+ 			   false, virtio_mmio_mmio_callback, vdev);
+@@ -309,6 +335,7 @@ int virtio_mmio_init(struct kvm *kvm, void *dev, struct virtio_device *vdev,
+ 	vmmio->dev_hdr = (struct device_header) {
+ 		.bus_type	= DEVICE_BUS_MMIO,
+ 		.data		= generate_virtio_mmio_fdt_node,
++		.iommu_ops	= vdev->use_iommu ? &virtio_mmio_iommu_ops : NULL,
+ 	};
  
- 	compat__remove_message(compat_id);
+ 	device__register(&vmmio->dev_hdr);
+diff --git a/virtio/pci.c b/virtio/pci.c
+index b6ef389e..674d5143 100644
+--- a/virtio/pci.c
++++ b/virtio/pci.c
+@@ -408,6 +408,30 @@ static void virtio_pci__io_mmio_callback(struct kvm_cpu *vcpu,
+ 	kvm__emulate_io(vcpu, port, data, direction, len, 1);
+ }
  
- 	queue		= &cdev.vqs[vq];
--	queue->pfn	= pfn;
--	p		= virtio_get_vq(kvm, queue->pfn, page_size);
- 
--	vring_init(&queue->vring, VIRTIO_CONSOLE_QUEUE_SIZE, p, align);
--	virtio_init_device_vq(&cdev.vdev, queue);
-+	virtio_init_device_vq(kvm, &cdev.vdev, queue, VIRTIO_CONSOLE_QUEUE_SIZE,
-+			      page_size, align, pfn);
- 
- 	if (vq == VIRTIO_CONSOLE_TX_QUEUE) {
- 		thread_pool__init_job(&cdev.jobs[vq], kvm, virtio_console_handle_callback, queue);
-diff --git a/virtio/iommu.c b/virtio/iommu.c
-index c72e7322..2e5a23ee 100644
---- a/virtio/iommu.c
-+++ b/virtio/iommu.c
-@@ -497,8 +497,6 @@ static void viommu_set_guest_features(struct kvm *kvm, void *dev, u32 features)
- static int viommu_init_vq(struct kvm *kvm, void *dev, u32 vq, u32 page_size,
- 			  u32 align, u32 pfn)
++#define pci_dev_to_virtio(dev_hdr)				\
++	(container_of(dev_hdr, struct virtio_pci, dev_hdr)->vdev)
++
++static int virtio_pci_iommu_attach(void *priv, struct device_header *dev_hdr,
++				   int flags)
++{
++	return virtio__iommu_attach(priv, pci_dev_to_virtio(dev_hdr), flags);
++}
++
++static int virtio_pci_iommu_detach(void *priv, struct device_header *dev_hdr)
++{
++	return virtio__iommu_detach(priv, pci_dev_to_virtio(dev_hdr));
++}
++
++static struct iommu_ops virtio_pci_iommu_ops = {
++	.get_properties		= virtio__iommu_get_properties,
++	.alloc_address_space	= iommu_alloc_address_space,
++	.free_address_space	= iommu_free_address_space,
++	.attach			= virtio_pci_iommu_attach,
++	.detach			= virtio_pci_iommu_detach,
++	.map			= iommu_map,
++	.unmap			= iommu_unmap,
++};
++
+ int virtio_pci__init(struct kvm *kvm, void *dev, struct virtio_device *vdev,
+ 		     int device_id, int subsys_id, int class)
  {
--	void *ptr;
--	struct virt_queue *queue;
- 	struct viommu_dev *viommu = dev;
+@@ -416,6 +440,7 @@ int virtio_pci__init(struct kvm *kvm, void *dev, struct virtio_device *vdev,
  
- 	if (vq != 0)
-@@ -506,12 +504,8 @@ static int viommu_init_vq(struct kvm *kvm, void *dev, u32 vq, u32 page_size,
+ 	vpci->kvm = kvm;
+ 	vpci->dev = dev;
++	vpci->vdev = vdev;
  
- 	compat__remove_message(compat_id);
+ 	r = ioport__register(kvm, IOPORT_EMPTY, &virtio_pci__io_ops, IOPORT_SIZE, vdev);
+ 	if (r < 0)
+@@ -461,6 +486,7 @@ int virtio_pci__init(struct kvm *kvm, void *dev, struct virtio_device *vdev,
+ 	vpci->dev_hdr = (struct device_header) {
+ 		.bus_type		= DEVICE_BUS_PCI,
+ 		.data			= &vpci->pci_hdr,
++		.iommu_ops		= vdev->use_iommu ? &virtio_pci_iommu_ops : NULL,
+ 	};
  
--	queue = &viommu->vq;
--	queue->pfn = pfn;
--	ptr = virtio_get_vq(kvm, queue->pfn, page_size);
--
--	vring_init(&queue->vring, viommu->queue_size, ptr, align);
--	virtio_init_device_vq(&viommu->vdev, queue);
-+	virtio_init_device_vq(kvm, &viommu->vdev, &viommu->vq,
-+			      viommu->queue_size, page_size, align, pfn);
- 
- 	thread_pool__init_job(&viommu->job, kvm, viommu_command, viommu);
- 
-diff --git a/virtio/net.c b/virtio/net.c
-index 529b4111..957cca09 100644
---- a/virtio/net.c
-+++ b/virtio/net.c
-@@ -505,17 +505,13 @@ static int init_vq(struct kvm *kvm, void *dev, u32 vq, u32 page_size, u32 align,
- 	struct vhost_vring_addr addr;
- 	struct net_dev *ndev = dev;
- 	struct virt_queue *queue;
--	void *p;
- 	int r;
- 
- 	compat__remove_message(compat_id);
- 
- 	queue		= &ndev->vqs[vq];
--	queue->pfn	= pfn;
--	p		= virtio_get_vq(kvm, queue->pfn, page_size);
--
--	vring_init(&queue->vring, VIRTIO_NET_QUEUE_SIZE, p, align);
--	virtio_init_device_vq(&ndev->vdev, queue);
-+	virtio_init_device_vq(kvm, &ndev->vdev, queue, VIRTIO_NET_QUEUE_SIZE,
-+			      page_size, align, pfn);
- 
- 	mutex_init(&ndev->io_lock[vq]);
- 	pthread_cond_init(&ndev->io_cond[vq], NULL);
-diff --git a/virtio/rng.c b/virtio/rng.c
-index 9b9e1283..5f525540 100644
---- a/virtio/rng.c
-+++ b/virtio/rng.c
-@@ -92,17 +92,15 @@ static int init_vq(struct kvm *kvm, void *dev, u32 vq, u32 page_size, u32 align,
- 	struct rng_dev *rdev = dev;
- 	struct virt_queue *queue;
- 	struct rng_dev_job *job;
--	void *p;
- 
- 	compat__remove_message(compat_id);
- 
- 	queue		= &rdev->vqs[vq];
--	queue->pfn	= pfn;
--	p		= virtio_get_vq(kvm, queue->pfn, page_size);
- 
- 	job = &rdev->jobs[vq];
- 
--	vring_init(&queue->vring, VIRTIO_RNG_QUEUE_SIZE, p, align);
-+	virtio_init_device_vq(kvm, &rdev->vdev, queue, VIRTIO_RNG_QUEUE_SIZE,
-+			      page_size, align, pfn);
- 
- 	*job = (struct rng_dev_job) {
- 		.vq	= queue,
-diff --git a/virtio/scsi.c b/virtio/scsi.c
-index a429ac85..e0fd85f6 100644
---- a/virtio/scsi.c
-+++ b/virtio/scsi.c
-@@ -57,16 +57,14 @@ static int init_vq(struct kvm *kvm, void *dev, u32 vq, u32 page_size, u32 align,
- 	struct vhost_vring_addr addr;
- 	struct scsi_dev *sdev = dev;
- 	struct virt_queue *queue;
--	void *p;
- 	int r;
- 
- 	compat__remove_message(compat_id);
- 
- 	queue		= &sdev->vqs[vq];
--	queue->pfn	= pfn;
--	p		= virtio_get_vq(kvm, queue->pfn, page_size);
- 
--	vring_init(&queue->vring, VIRTIO_SCSI_QUEUE_SIZE, p, align);
-+	virtio_init_device_vq(kvm, &sdev->vdev, queue, VIRTIO_SCSI_QUEUE_SIZE,
-+			      page_size, align, pfn);
- 
- 	if (sdev->vhost_fd == 0)
- 		return 0;
+ 	vpci->pci_hdr.msix.cap = PCI_CAP_ID_MSIX;
 -- 
 2.12.1
