@@ -1,7 +1,8 @@
 From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: [RFC PATCH kvmtool 04/15] Add a simple IOMMU
-Date: Fri,  7 Apr 2017 20:24:44 +0100
-Message-ID: <20170407192455.26814-5-jean-philippe.brucker__9429.53584385595$1491593132$gmane$org@arm.com>
+Subject: [RFC PATCH kvmtool 05/15] iommu: describe IOMMU topology in
+	device-trees
+Date: Fri,  7 Apr 2017 20:24:45 +0100
+Message-ID: <20170407192455.26814-6-jean-philippe.brucker__22252.5292927914$1491593142$gmane$org@arm.com>
 References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
 	<20170407192455.26814-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
@@ -22,215 +23,186 @@ To: iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.
 Cc: cdall@linaro.org, lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a rb-tree based IOMMU with support for map, unmap and access
-operations. It will be used to store mappings for virtio devices and MSI
-doorbells. If needed, it could also be extended with a TLB implementation.
+Add an "iommu-map" property to the PCI host controller, describing which
+iommus translate which devices. We describe individual devices in
+iommu-map, not ranges. This patch is incompatible with current mainline
+Linux, which requires *all* devices under a host controller to be
+described by the iommu-map property when present. Unfortunately all PCI
+devices in kvmtool are under the same root complex, and we have to omit
+RIDs of devices that aren't behind the virtual IOMMU in iommu-map. Fixing
+this either requires a simple patch in Linux, or to implement multiple
+host controllers in kvmtool.
+
+Add an "iommus" property to plaform devices that are behind an iommu.
 
 Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 ---
- Makefile            |   1 +
- include/kvm/iommu.h |   9 +++
- iommu.c             | 162 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 172 insertions(+)
- create mode 100644 iommu.c
+ arm/pci.c         | 49 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ fdt.c             | 20 ++++++++++++++++++++
+ include/kvm/fdt.h |  7 +++++++
+ virtio/mmio.c     |  1 +
+ 4 files changed, 76 insertions(+), 1 deletion(-)
 
-diff --git a/Makefile b/Makefile
-index 67953870..0c369206 100644
---- a/Makefile
-+++ b/Makefile
-@@ -73,6 +73,7 @@ OBJS	+= disk/blk.o
- OBJS	+= disk/qcow.o
- OBJS	+= disk/raw.o
- OBJS	+= ioeventfd.o
-+OBJS	+= iommu.o
- OBJS	+= net/uip/core.o
- OBJS	+= net/uip/arp.o
- OBJS	+= net/uip/icmp.o
-diff --git a/include/kvm/iommu.h b/include/kvm/iommu.h
-index 925e1993..4164ba20 100644
---- a/include/kvm/iommu.h
-+++ b/include/kvm/iommu.h
-@@ -61,4 +61,13 @@ static inline struct device_header *iommu_get_device(u32 device_id)
- 	return device__find_dev(bus, dev_num);
- }
- 
-+void *iommu_alloc_address_space(struct device_header *dev);
-+void iommu_free_address_space(void *address_space);
-+
-+int iommu_map(void *address_space, u64 virt_addr, u64 phys_addr, u64 size,
-+	      int prot);
-+int iommu_unmap(void *address_space, u64 virt_addr, u64 size, int flags);
-+u64 iommu_access(void *address_space, u64 addr, size_t size, size_t *out_size,
-+		 int prot);
-+
- #endif /* KVM_IOMMU_H */
-diff --git a/iommu.c b/iommu.c
-new file mode 100644
-index 00000000..0a662404
---- /dev/null
-+++ b/iommu.c
-@@ -0,0 +1,162 @@
-+/*
-+ * Implement basic IOMMU operations - map, unmap and translate
-+ */
-+#include <errno.h>
-+
+diff --git a/arm/pci.c b/arm/pci.c
+index 557cfa98..968cbf5b 100644
+--- a/arm/pci.c
++++ b/arm/pci.c
+@@ -1,9 +1,11 @@
+ #include "kvm/devices.h"
+ #include "kvm/fdt.h"
 +#include "kvm/iommu.h"
-+#include "kvm/kvm.h"
-+#include "kvm/mutex.h"
-+#include "kvm/rbtree-interval.h"
+ #include "kvm/kvm.h"
+ #include "kvm/of_pci.h"
+ #include "kvm/pci.h"
+ #include "kvm/util.h"
++#include "kvm/virtio-iommu.h"
+ 
+ #include "arm-common/pci.h"
+ 
+@@ -24,11 +26,20 @@ struct of_interrupt_map_entry {
+ 	struct of_gic_irq		gic_irq;
+ } __attribute__((packed));
+ 
++struct of_iommu_map_entry {
++	u32				rid_base;
++	u32				iommu_phandle;
++	u32				iommu_base;
++	u32				length;
++} __attribute__((packed));
 +
-+struct iommu_mapping {
-+	struct rb_int_node	iova_range;
-+	u64			phys;
-+	int			prot;
-+};
+ void pci__generate_fdt_nodes(void *fdt)
+ {
+ 	struct device_header *dev_hdr;
+ 	struct of_interrupt_map_entry irq_map[OF_PCI_IRQ_MAP_MAX];
+-	unsigned nentries = 0;
++	struct of_iommu_map_entry *iommu_map;
++	unsigned nentries = 0, ntranslated = 0;
++	unsigned i;
+ 	/* Bus range */
+ 	u32 bus_range[] = { cpu_to_fdt32(0), cpu_to_fdt32(1), };
+ 	/* Configuration Space */
+@@ -99,6 +110,9 @@ void pci__generate_fdt_nodes(void *fdt)
+ 			},
+ 		};
+ 
++		if (dev_hdr->iommu_ops)
++			ntranslated++;
 +
-+struct iommu_ioas {
-+	struct rb_root		mappings;
-+	struct mutex		mutex;
-+};
+ 		nentries++;
+ 		dev_hdr = device__next_dev(dev_hdr);
+ 	}
+@@ -121,5 +135,38 @@ void pci__generate_fdt_nodes(void *fdt)
+ 				  sizeof(irq_mask)));
+ 	}
+ 
++	if (ntranslated) {
++		const struct iommu_properties *props;
 +
-+void *iommu_alloc_address_space(struct device_header *unused)
-+{
-+	struct iommu_ioas *ioas = calloc(1, sizeof(*ioas));
-+
-+	if (!ioas)
-+		return NULL;
-+
-+	ioas->mappings = (struct rb_root)RB_ROOT;
-+	mutex_init(&ioas->mutex);
-+
-+	return ioas;
-+}
-+
-+void iommu_free_address_space(void *address_space)
-+{
-+	struct iommu_ioas *ioas = address_space;
-+	struct rb_int_node *int_node;
-+	struct rb_node *node, *next;
-+	struct iommu_mapping *map;
-+
-+        /* Postorder allows to free leaves first. */
-+	node = rb_first_postorder(&ioas->mappings);
-+	while (node) {
-+		next = rb_next_postorder(node);
-+
-+		int_node = rb_int(node);
-+		map = container_of(int_node, struct iommu_mapping, iova_range);
-+		free(map);
-+
-+		node = next;
-+	}
-+
-+	free(ioas);
-+}
-+
-+int iommu_map(void *address_space, u64 virt_addr, u64 phys_addr,
-+	      u64 size, int prot)
-+{
-+	struct iommu_ioas *ioas = address_space;
-+	struct iommu_mapping *map;
-+
-+	if (!ioas)
-+		return -ENODEV;
-+
-+	map = malloc(sizeof(struct iommu_mapping));
-+	if (!map)
-+		return -ENOMEM;
-+
-+	map->phys = phys_addr;
-+	map->iova_range = RB_INT_INIT(virt_addr, virt_addr + size - 1);
-+	map->prot = prot;
-+
-+	mutex_lock(&ioas->mutex);
-+	rb_int_insert(&ioas->mappings, &map->iova_range);
-+	mutex_unlock(&ioas->mutex);
-+
-+	return 0;
-+}
-+
-+int iommu_unmap(void *address_space, u64 virt_addr, u64 size, int flags)
-+{
-+	int ret = 0;
-+	struct rb_int_node *node;
-+	struct iommu_mapping *map;
-+	struct iommu_ioas *ioas = address_space;
-+
-+	if (!ioas)
-+		return -ENODEV;
-+
-+	mutex_lock(&ioas->mutex);
-+	node = rb_int_search_single(&ioas->mappings, virt_addr);
-+	while (node && size) {
-+		struct rb_node *next = rb_next(&node->node);
-+		size_t node_size = node->high - node->low + 1;
-+		map = container_of(node, struct iommu_mapping, iova_range);
-+
-+		if (node_size > size) {
-+			pr_debug("cannot split mapping");
-+			ret = -EINVAL;
-+			break;
++		iommu_map = malloc(ntranslated * sizeof(struct of_iommu_map_entry));
++		if (!iommu_map) {
++			pr_err("cannot allocate iommu_map.");
++			return;
 +		}
 +
-+		size -= node_size;
-+		virt_addr += node_size;
++		dev_hdr = device__first_dev(DEVICE_BUS_PCI);
++		for (i = 0; i < ntranslated; dev_hdr = device__next_dev(dev_hdr)) {
++			struct of_iommu_map_entry *entry = &iommu_map[i];
 +
-+		rb_erase(&node->node, &ioas->mappings);
-+		free(map);
-+		node = next ? container_of(next, struct rb_int_node, node) : NULL;
++			if (!dev_hdr->iommu_ops)
++				continue;
++
++			props = dev_hdr->iommu_ops->get_properties(dev_hdr);
++
++			*entry = (struct of_iommu_map_entry) {
++				.rid_base	= cpu_to_fdt32(dev_hdr->dev_num << 3),
++				.iommu_phandle	= cpu_to_fdt32(props->phandle),
++				.iommu_base	= cpu_to_fdt32(device_to_iommu_id(dev_hdr)),
++				.length		= cpu_to_fdt32(1 << 3),
++			};
++
++			i++;
++		}
++
++		_FDT(fdt_property(fdt, "iommu-map", iommu_map,
++				  ntranslated * sizeof(struct of_iommu_map_entry)));
++		free(iommu_map);
 +	}
 +
-+	if (size && !ret) {
-+		pr_debug("mapping not found");
-+		ret = -ENXIO;
-+	}
-+	mutex_unlock(&ioas->mutex);
+ 	_FDT(fdt_end_node(fdt));
+ }
+diff --git a/fdt.c b/fdt.c
+index 6db03d4e..15d7bb29 100644
+--- a/fdt.c
++++ b/fdt.c
+@@ -2,7 +2,10 @@
+  * Commonly used FDT functions.
+  */
+ 
++#include "kvm/devices.h"
+ #include "kvm/fdt.h"
++#include "kvm/iommu.h"
++#include "kvm/util.h"
+ 
+ static u32 next_phandle = PHANDLE_RESERVED;
+ 
+@@ -13,3 +16,20 @@ u32 fdt_alloc_phandle(void)
+ 
+ 	return next_phandle++;
+ }
 +
-+	return ret;
-+}
-+
-+/*
-+ * Translate a virtual address into a physical one. Perform an access of @size
-+ * bytes with protection @prot. If @addr isn't mapped in @address_space, return
-+ * 0. If the permissions of the mapping don't match, return 0. If the access
-+ * range specified by (addr, size) spans over multiple mappings, only access the
-+ * first mapping and return the accessed size in @out_size. It is up to the
-+ * caller to complete the access by calling the function again on the remaining
-+ * range. Subsequent accesses are not guaranteed to succeed.
-+ */
-+u64 iommu_access(void *address_space, u64 addr, size_t size, size_t *out_size,
-+		 int prot)
++void fdt_generate_iommus_prop(void *fdt, struct device_header *dev_hdr)
 +{
-+	struct iommu_ioas *ioas = address_space;
-+	struct iommu_mapping *map;
-+	struct rb_int_node *node;
-+	u64 out_addr = 0;
++	const struct iommu_properties *props;
 +
-+	mutex_lock(&ioas->mutex);
-+	node = rb_int_search_single(&ioas->mappings, addr);
-+	if (!node) {
-+		pr_err("fault at IOVA %#llx %zu", addr, size);
-+		errno = EFAULT;
-+		goto out_unlock; /* Segv incomming */
-+	}
++	if (!dev_hdr->iommu_ops)
++		return;
 +
-+	map = container_of(node, struct iommu_mapping, iova_range);
-+	if (prot & ~map->prot) {
-+		pr_err("permission fault at IOVA %#llx", addr);
-+		errno = EPERM;
-+		goto out_unlock;
-+	}
++	props = dev_hdr->iommu_ops->get_properties(dev_hdr);
 +
-+	out_addr = map->phys + (addr - node->low);
-+	*out_size = min_t(size_t, node->high - addr + 1, size);
++	u32 iommus[] = {
++		cpu_to_fdt32(props->phandle),
++		cpu_to_fdt32(device_to_iommu_id(dev_hdr)),
++	};
 +
-+	pr_debug("access %llx %zu/%zu %x -> %#llx", addr, *out_size, size,
-+		 prot, out_addr);
-+out_unlock:
-+	mutex_unlock(&ioas->mutex);
-+
-+	return out_addr;
++	_FDT(fdt_property(fdt, "iommus", iommus, sizeof(iommus)));
 +}
+diff --git a/include/kvm/fdt.h b/include/kvm/fdt.h
+index 503887f9..c64fe8a3 100644
+--- a/include/kvm/fdt.h
++++ b/include/kvm/fdt.h
+@@ -37,7 +37,10 @@ enum irq_type {
+ 
+ #ifdef CONFIG_HAS_LIBFDT
+ 
++struct device_header;
++
+ u32 fdt_alloc_phandle(void);
++void fdt_generate_iommus_prop(void *fdt, struct device_header *dev);
+ 
+ #else
+ 
+@@ -46,6 +49,10 @@ static inline u32 fdt_alloc_phandle(void)
+ 	return PHANDLE_RESERVED;
+ }
+ 
++static inline void fdt_generate_iommus_prop(void *fdt, struct device_header *dev)
++{
++}
++
+ #endif /* CONFIG_HAS_LIBFDT */
+ 
+ #endif /* KVM__FDT_H */
+diff --git a/virtio/mmio.c b/virtio/mmio.c
+index b3dea51a..16b44fbb 100644
+--- a/virtio/mmio.c
++++ b/virtio/mmio.c
+@@ -258,6 +258,7 @@ void generate_virtio_mmio_fdt_node(void *fdt,
+ 	_FDT(fdt_property(fdt, "reg", reg_prop, sizeof(reg_prop)));
+ 	_FDT(fdt_property(fdt, "dma-coherent", NULL, 0));
+ 	generate_irq_prop(fdt, vmmio->irq, IRQ_TYPE_EDGE_RISING);
++	fdt_generate_iommus_prop(fdt, dev_hdr);
+ 
+ 	if (vmmio->hdr.device_id == VIRTIO_ID_IOMMU) {
+ 		props = viommu_get_properties(vmmio->dev);
 -- 
 2.12.1
