@@ -1,19 +1,22 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
 Subject: Re: DRM_FORMAT_* byte order (was: Re: [PATCH] drm: virtio: fix
 	virtio_gpu_cursor_formats)
-Date: Fri, 07 Apr 2017 12:06:26 +0200
-Message-ID: <1491559586.26308.39.camel__48764.730388257$1491559600$gmane$org@redhat.com>
+Date: Fri, 7 Apr 2017 15:49:54 +0300
+Message-ID: <20170407124954.GF30290__37751.6383691274$1491569427$gmane$org@intel.com>
 References: <20170405080915.823-1-lvivier@redhat.com>
 	<20170405171125.GT30290@intel.com>
 	<1491467383.12607.37.camel@redhat.com>
-	<20170406172747.GB30290@intel.com> <20170406173514.GC30290@intel.com>
+	<20170406172747.GB30290@intel.com>
+	<20170406173514.GC30290@intel.com>
 	<1491553740.26308.26.camel@redhat.com>
 	<20170407084502.GE30290@intel.com>
+	<1491559586.26308.39.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170407084502.GE30290@intel.com>
+Content-Disposition: inline
+In-Reply-To: <1491559586.26308.39.camel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,41 +26,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
 Cc: Laurent Vivier <lvivier@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, David Airlie <airlied@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnIsIDIwMTctMDQtMDcgYXQgMTE6NDUgKzAzMDAsIFZpbGxlIFN5cmrDpGzDpCB3cm90ZToK
-PiBPbiBGcmksIEFwciAwNywgMjAxNyBhdCAxMDoyOTowMEFNICswMjAwLCBHZXJkIEhvZmZtYW5u
-IHdyb3RlOgo+ID4gICBIaSwKPiA+IAo+ID4gPiBIbW0uIE1heWJlIGl0J3Mgc3RpbGwgcG9zc2li
-bGUgdG8gc2FsdmFnZSBzb21ldGhpbmcgYnkgcmVkZWZpbmluZyB0aGUKPiA+ID4gQklHX0VORElB
-TiBmb3JtYXQgYml0IHRvIG1lYW4gdGhlICJ0aGUgb3RoZXIgZW5kaWFubmVzcyIuIFVnbHkgYnV0
-IGl0Cj4gPiA+IG1pZ2h0IHN0aWxsIHJlc3VsdCBpbiBzb21ldGhpbmcgdXNhYmxlLgo+ID4gCj4g
-PiBBbHNvIGF0IGxlYXN0IGZvciB0aGUgdmlydHVhbCBtYWNoaW5lIHVzZSBjYXNlIHRoaXMgZG9l
-c24ndCBidXkgdXMgbXVjaC4KPiA+IFRoZSBkcm0gZHJpdmVycyAoYXQgbGVhc3QgdGhlIG9uZXMg
-dXNlZCBvbiBib3RoIGJpZyBhbmQgbGl0dGxlIGVuZGlhbgo+ID4gZ3Vlc3RzKSBzdXBwb3J0IG9u
-bHkgMzIgYnBwICsgZGVwdGggMjQgZm9ybWF0cy4gIEFuZCBmb3IgdGhlc2Ugd2UgZG9uJ3QKPiA+
-IG5lZWQgYSAib3RoZXIgZW5kaWFuIiBmbGFnIGJlY2F1c2Ugd2UgaGF2ZSBmb3VyY2MgY29kZXMg
-Zm9yIGFsbCBzb3J0cyBvZgo+ID4gYnl0ZSBvcmRlcnMgKGkuZS4gRFJNX0ZPUk1BVF9YUkdCODg4
-OCBsaXR0bGUgZW5kaWFuID09Cj4gPiBEUk1fRk9STUFUX0JHUlg4ODg4IGJpZyBlbmRpYW4pLgo+
-IAo+IFllYWgsIHRob3NlIGNvdWxkIGJlIGhhbmRsZWQgd2l0aG91dCB0aGUgZmxhZy4gQnV0IHdo
-ZW4gbWl4ZWQgd2l0aCBhbnkKPiBvdGhlciBmb3JtYXQgdGhlIGNvZGUgd291bGQgbG9vayBhIGJp
-dCB3ZWlyZCBJTU8uCgpXZWxsLCB0aGVyZSBpcyBhIHJlYXNvbiBvbmx5IHRoZSAzMmJwcCBmb3Jt
-YXRzIGFyZSBzdXBwb3J0ZWQuICBXaXRoCnRob3NlIHlvdSBqdXN0IGFkanVzdCB5b3VyIGNvbG9y
-IHNoaWZ0cyBhbmQgeW91IGFyZSBkb25lLiAgTm8gbmVlZCB0bwphY3R1YWxseSBieXRlLXN3YXAu
-ICBJbiBjb250cmFzdCBoYW5kbGluZyAxNmJwcCBmb3JtYXRzICg1OjY6NSBvciA1OjU6NSkKd2l0
-aCB0aGUgbm9uLW5hdGl2ZSBieXRlIG9yZGVyIGlzIGEgUElUQS4KClRoZSBvdGhlciByZWFzb24g
-b2YgY291cnNlIGlzIHRoYXQgdGhpcyBpcyB0aGUgZGVmYXVsdCBmb3JtYXQgdGhlc2UKZGF5cy4K
-ClNvLCBkbyBhbnkgIm90aGVyIGZvcm1hdHMiIGV4aXN0IHdoZXJlIHRoZSBieXRlc3dhcHBlZCB2
-YXJpYW50IGlzIHVzZWQKaW4gcHJhY3RpY2U/ICBPciBjYW4gd2UganVzdCBkcm9wIERSTV9GT1JN
-QVRfQklHX0VORElBTj8KCj4gU28gbXkgaWRlYSB3aXRoIHRoZQo+IGZsYWcgd2FzIHRoYXQgaWYg
-eW91IGRpc3BsYXkgaXMgYmlnIGVuZGlhbiB5b3UgYWx3YXlzIGhhdmUgdGhlIGZsYWcsIGFuZAo+
-IHRoZW4geW91IGRvbid0IGhhdmUgdG8gdGhpbmsgc28gbXVjaCB3aGljaCB3YXkgdGhlIGJ5dGVz
-IGdvIGZvciBlYWNoCj4gZm9ybWF0LiBMZXNzIHNwZWNpYWwgY2FzaW5nIGlzIGdvb2QgSU1PLgoK
-SGF2aW5nIHR3byB2YWxpZCBmb3VyY2MgKERSTV9GT1JNQVRfWFJHQjg4ODggKyAoRFJNX0ZPUk1B
-VF9CR1JYODg4OCB8CkRSTV9GT1JNQVRfQklHX0VORElBTikpIGZvciB0aGUgc2FtZSBmb3JtYXQg
-aXMgY29uZnVzaW5nIElNTy4gIEFuZCBJCmRvdWJ0IHRoYXQgaXQnbGwgYmUgcHJvcGVybHkgaW1w
-bGVtZW50ZWQgZXZlcnl3aGVyZS4KCmNoZWVycywKICBHZXJkCgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, Apr 07, 2017 at 12:06:26PM +0200, Gerd Hoffmann wrote:
+> On Fr, 2017-04-07 at 11:45 +0300, Ville Syrj=E4l=E4 wrote:
+> > On Fri, Apr 07, 2017 at 10:29:00AM +0200, Gerd Hoffmann wrote:
+> > >   Hi,
+> > > =
+
+> > > > Hmm. Maybe it's still possible to salvage something by redefining t=
+he
+> > > > BIG_ENDIAN format bit to mean the "the other endianness". Ugly but =
+it
+> > > > might still result in something usable.
+> > > =
+
+> > > Also at least for the virtual machine use case this doesn't buy us mu=
+ch.
+> > > The drm drivers (at least the ones used on both big and little endian
+> > > guests) support only 32 bpp + depth 24 formats.  And for these we don=
+'t
+> > > need a "other endian" flag because we have fourcc codes for all sorts=
+ of
+> > > byte orders (i.e. DRM_FORMAT_XRGB8888 little endian =3D=3D
+> > > DRM_FORMAT_BGRX8888 big endian).
+> > =
+
+> > Yeah, those could be handled without the flag. But when mixed with any
+> > other format the code would look a bit weird IMO.
+> =
+
+> Well, there is a reason only the 32bpp formats are supported.  With
+> those you just adjust your color shifts and you are done.  No need to
+> actually byte-swap.  In contrast handling 16bpp formats (5:6:5 or 5:5:5)
+> with the non-native byte order is a PITA.
+
+Yes, which is why I wanted to make the format endianness explicit from
+the start so that you wouldn't have to guess whether you need to byte
+swap or not.
+
+> =
+
+> The other reason of course is that this is the default format these
+> days.
+> =
+
+> So, do any "other formats" exist where the byteswapped variant is used
+> in practice?
+
+I'm expecting people to move past 8bpc at some point. It's definitely
+not enough for HDR stuff and whatnot. Even video content is already
+moving to 10bpc.
+
+So I think the question is better phrased as do mixed endian systems
+exist? Or even if they do, does anyone care about them?
+
+Also if someone goes and changes the DRM_FORMATs to follow host
+endianness, they definitely have to figure out how to handle all
+the YCbCr formats as well.
+
+> Or can we just drop DRM_FORMAT_BIG_ENDIAN?
+> =
+
+> > So my idea with the
+> > flag was that if you display is big endian you always have the flag, and
+> > then you don't have to think so much which way the bytes go for each
+> > format. Less special casing is good IMO.
+> =
+
+> Having two valid fourcc (DRM_FORMAT_XRGB8888 + (DRM_FORMAT_BGRX8888 |
+> DRM_FORMAT_BIG_ENDIAN)) for the same format is confusing IMO.  And I
+> doubt that it'll be properly implemented everywhere.
+
+I think it would be if people actually handled any of the other formats.
+It's a real shame these 8:8:8:8 formats were invented in the first place.
+They allow people to be overly lazy and ignore endianness issues until
+it's too late to fix things.
+
+-- =
+
+Ville Syrj=E4l=E4
+Intel OTC
