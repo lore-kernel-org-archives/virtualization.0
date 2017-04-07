@@ -1,20 +1,19 @@
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
 Subject: Re: DRM_FORMAT_* byte order (was: Re: [PATCH] drm: virtio: fix
 	virtio_gpu_cursor_formats)
-Date: Fri, 7 Apr 2017 11:45:02 +0300
-Message-ID: <20170407084502.GE30290@intel.com>
+Date: Fri, 07 Apr 2017 12:06:26 +0200
+Message-ID: <1491559586.26308.39.camel__48764.730388257$1491559600$gmane$org@redhat.com>
 References: <20170405080915.823-1-lvivier@redhat.com>
 	<20170405171125.GT30290@intel.com>
 	<1491467383.12607.37.camel@redhat.com>
-	<20170406172747.GB30290@intel.com>
-	<20170406173514.GC30290@intel.com>
+	<20170406172747.GB30290@intel.com> <20170406173514.GC30290@intel.com>
 	<1491553740.26308.26.camel@redhat.com>
+	<20170407084502.GE30290@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1491553740.26308.26.camel@redhat.com>
+In-Reply-To: <20170407084502.GE30290@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,42 +23,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
+To: Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
 Cc: Laurent Vivier <lvivier@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, David Airlie <airlied@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 07, 2017 at 10:29:00AM +0200, Gerd Hoffmann wrote:
->   Hi,
-> =
-
-> > Hmm. Maybe it's still possible to salvage something by redefining the
-> > BIG_ENDIAN format bit to mean the "the other endianness". Ugly but it
-> > might still result in something usable.
-> =
-
-> Also at least for the virtual machine use case this doesn't buy us much.
-> The drm drivers (at least the ones used on both big and little endian
-> guests) support only 32 bpp + depth 24 formats.  And for these we don't
-> need a "other endian" flag because we have fourcc codes for all sorts of
-> byte orders (i.e. DRM_FORMAT_XRGB8888 little endian =3D=3D
-> DRM_FORMAT_BGRX8888 big endian).
-
-Yeah, those could be handled without the flag. But when mixed with any
-other format the code would look a bit weird IMO. So my idea with the
-flag was that if you display is big endian you always have the flag, and
-then you don't have to think so much which way the bytes go for each
-format. Less special casing is good IMO.
-
-> =
-
-> The DRM_FORMAT_BIG_ENDIAN flags also seems not be used anywhere in the
-> code base (except in some format printing debug code ...).
-
-That's because either no one has big endian display hardware or they
-do but just didn't read the docs and cargo culted the format handling
-from some driver for little endian display.
-
--- =
-
-Ville Syrj=E4l=E4
-Intel OTC
+T24gRnIsIDIwMTctMDQtMDcgYXQgMTE6NDUgKzAzMDAsIFZpbGxlIFN5cmrDpGzDpCB3cm90ZToK
+PiBPbiBGcmksIEFwciAwNywgMjAxNyBhdCAxMDoyOTowMEFNICswMjAwLCBHZXJkIEhvZmZtYW5u
+IHdyb3RlOgo+ID4gICBIaSwKPiA+IAo+ID4gPiBIbW0uIE1heWJlIGl0J3Mgc3RpbGwgcG9zc2li
+bGUgdG8gc2FsdmFnZSBzb21ldGhpbmcgYnkgcmVkZWZpbmluZyB0aGUKPiA+ID4gQklHX0VORElB
+TiBmb3JtYXQgYml0IHRvIG1lYW4gdGhlICJ0aGUgb3RoZXIgZW5kaWFubmVzcyIuIFVnbHkgYnV0
+IGl0Cj4gPiA+IG1pZ2h0IHN0aWxsIHJlc3VsdCBpbiBzb21ldGhpbmcgdXNhYmxlLgo+ID4gCj4g
+PiBBbHNvIGF0IGxlYXN0IGZvciB0aGUgdmlydHVhbCBtYWNoaW5lIHVzZSBjYXNlIHRoaXMgZG9l
+c24ndCBidXkgdXMgbXVjaC4KPiA+IFRoZSBkcm0gZHJpdmVycyAoYXQgbGVhc3QgdGhlIG9uZXMg
+dXNlZCBvbiBib3RoIGJpZyBhbmQgbGl0dGxlIGVuZGlhbgo+ID4gZ3Vlc3RzKSBzdXBwb3J0IG9u
+bHkgMzIgYnBwICsgZGVwdGggMjQgZm9ybWF0cy4gIEFuZCBmb3IgdGhlc2Ugd2UgZG9uJ3QKPiA+
+IG5lZWQgYSAib3RoZXIgZW5kaWFuIiBmbGFnIGJlY2F1c2Ugd2UgaGF2ZSBmb3VyY2MgY29kZXMg
+Zm9yIGFsbCBzb3J0cyBvZgo+ID4gYnl0ZSBvcmRlcnMgKGkuZS4gRFJNX0ZPUk1BVF9YUkdCODg4
+OCBsaXR0bGUgZW5kaWFuID09Cj4gPiBEUk1fRk9STUFUX0JHUlg4ODg4IGJpZyBlbmRpYW4pLgo+
+IAo+IFllYWgsIHRob3NlIGNvdWxkIGJlIGhhbmRsZWQgd2l0aG91dCB0aGUgZmxhZy4gQnV0IHdo
+ZW4gbWl4ZWQgd2l0aCBhbnkKPiBvdGhlciBmb3JtYXQgdGhlIGNvZGUgd291bGQgbG9vayBhIGJp
+dCB3ZWlyZCBJTU8uCgpXZWxsLCB0aGVyZSBpcyBhIHJlYXNvbiBvbmx5IHRoZSAzMmJwcCBmb3Jt
+YXRzIGFyZSBzdXBwb3J0ZWQuICBXaXRoCnRob3NlIHlvdSBqdXN0IGFkanVzdCB5b3VyIGNvbG9y
+IHNoaWZ0cyBhbmQgeW91IGFyZSBkb25lLiAgTm8gbmVlZCB0bwphY3R1YWxseSBieXRlLXN3YXAu
+ICBJbiBjb250cmFzdCBoYW5kbGluZyAxNmJwcCBmb3JtYXRzICg1OjY6NSBvciA1OjU6NSkKd2l0
+aCB0aGUgbm9uLW5hdGl2ZSBieXRlIG9yZGVyIGlzIGEgUElUQS4KClRoZSBvdGhlciByZWFzb24g
+b2YgY291cnNlIGlzIHRoYXQgdGhpcyBpcyB0aGUgZGVmYXVsdCBmb3JtYXQgdGhlc2UKZGF5cy4K
+ClNvLCBkbyBhbnkgIm90aGVyIGZvcm1hdHMiIGV4aXN0IHdoZXJlIHRoZSBieXRlc3dhcHBlZCB2
+YXJpYW50IGlzIHVzZWQKaW4gcHJhY3RpY2U/ICBPciBjYW4gd2UganVzdCBkcm9wIERSTV9GT1JN
+QVRfQklHX0VORElBTj8KCj4gU28gbXkgaWRlYSB3aXRoIHRoZQo+IGZsYWcgd2FzIHRoYXQgaWYg
+eW91IGRpc3BsYXkgaXMgYmlnIGVuZGlhbiB5b3UgYWx3YXlzIGhhdmUgdGhlIGZsYWcsIGFuZAo+
+IHRoZW4geW91IGRvbid0IGhhdmUgdG8gdGhpbmsgc28gbXVjaCB3aGljaCB3YXkgdGhlIGJ5dGVz
+IGdvIGZvciBlYWNoCj4gZm9ybWF0LiBMZXNzIHNwZWNpYWwgY2FzaW5nIGlzIGdvb2QgSU1PLgoK
+SGF2aW5nIHR3byB2YWxpZCBmb3VyY2MgKERSTV9GT1JNQVRfWFJHQjg4ODggKyAoRFJNX0ZPUk1B
+VF9CR1JYODg4OCB8CkRSTV9GT1JNQVRfQklHX0VORElBTikpIGZvciB0aGUgc2FtZSBmb3JtYXQg
+aXMgY29uZnVzaW5nIElNTy4gIEFuZCBJCmRvdWJ0IHRoYXQgaXQnbGwgYmUgcHJvcGVybHkgaW1w
+bGVtZW50ZWQgZXZlcnl3aGVyZS4KCmNoZWVycywKICBHZXJkCgpfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
+VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
+aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
