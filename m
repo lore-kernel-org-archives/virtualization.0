@@ -1,7 +1,7 @@
 From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: [RFC PATCH kvmtool 12/15] vfio: add support for virtual IOMMU
-Date: Fri,  7 Apr 2017 20:24:52 +0100
-Message-ID: <20170407192455.26814-13-jean-philippe.brucker__47834.3455739834$1491593262$gmane$org@arm.com>
+Subject: [RFC PATCH kvmtool 13/15] virtio-iommu: debug via IPC
+Date: Fri,  7 Apr 2017 20:24:53 +0100
+Message-ID: <20170407192455.26814-14-jean-philippe.brucker__6578.6775820472$1491593274$gmane$org@arm.com>
 References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
 	<20170407192455.26814-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
@@ -22,570 +22,216 @@ To: iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.
 Cc: cdall@linaro.org, lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently all passed-through devices must access the same guest-physical
-address space. Register an IOMMU to offer individual address spaces to
-devices. The way we do it is allocate one container per group, and add
-mappings on demand.
-
-Since guest cannot access devices unless it is attached to a container,
-and we cannot change container at runtime without resetting the device,
-this implementation is limited. To implement bypass mode, we'd need to map
-the whole guest physical memory first, and unmap everything when attaching
-to a new address space. It is also not possible for devices to be attached
-to the same address space, they all have different page tables.
+Add a new parameter to lkvm debug, '-i' or '--iommu'. Commands will be
+added later. For the moment, rework the debug builtin to share dump
+facilities with the '-d'/'--dump' parameter.
 
 Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 ---
- include/kvm/iommu.h |   6 ++
- include/kvm/vfio.h  |   2 +
- iommu.c             |   7 +-
- vfio.c              | 281 ++++++++++++++++++++++++++++++++++++++++++++++++----
- 4 files changed, 273 insertions(+), 23 deletions(-)
+ builtin-debug.c             |  8 +++++++-
+ include/kvm/builtin-debug.h |  6 ++++++
+ include/kvm/iommu.h         |  5 +++++
+ include/kvm/virtio-iommu.h  |  5 +++++
+ kvm-ipc.c                   | 43 ++++++++++++++++++++++++-------------------
+ virtio/iommu.c              | 14 ++++++++++++++
+ 6 files changed, 61 insertions(+), 20 deletions(-)
 
+diff --git a/builtin-debug.c b/builtin-debug.c
+index 4ae51d20..e39e2d09 100644
+--- a/builtin-debug.c
++++ b/builtin-debug.c
+@@ -5,6 +5,7 @@
+ #include <kvm/parse-options.h>
+ #include <kvm/kvm-ipc.h>
+ #include <kvm/read-write.h>
++#include <kvm/virtio-iommu.h>
+ 
+ #include <stdio.h>
+ #include <string.h>
+@@ -17,6 +18,7 @@ static int nmi = -1;
+ static bool dump;
+ static const char *instance_name;
+ static const char *sysrq;
++static const char *iommu;
+ 
+ static const char * const debug_usage[] = {
+ 	"lkvm debug [--all] [-n name] [-d] [-m vcpu]",
+@@ -28,6 +30,7 @@ static const struct option debug_options[] = {
+ 	OPT_BOOLEAN('d', "dump", &dump, "Generate a debug dump from guest"),
+ 	OPT_INTEGER('m', "nmi", &nmi, "Generate NMI on VCPU"),
+ 	OPT_STRING('s', "sysrq", &sysrq, "sysrq", "Inject a sysrq"),
++	OPT_STRING('i', "iommu", &iommu, "params", "Debug virtual IOMMU"),
+ 	OPT_GROUP("Instance options:"),
+ 	OPT_BOOLEAN('a', "all", &all, "Debug all instances"),
+ 	OPT_STRING('n', "name", &instance_name, "name", "Instance name"),
+@@ -68,11 +71,14 @@ static int do_debug(const char *name, int sock)
+ 		cmd.sysrq = sysrq[0];
+ 	}
+ 
++	if (iommu && !viommu_parse_debug_string(iommu, &cmd.iommu))
++		cmd.dbg_type |= KVM_DEBUG_CMD_TYPE_IOMMU;
++
+ 	r = kvm_ipc__send_msg(sock, KVM_IPC_DEBUG, sizeof(cmd), (u8 *)&cmd);
+ 	if (r < 0)
+ 		return r;
+ 
+-	if (!dump)
++	if (!(cmd.dbg_type & KVM_DEBUG_CMD_DUMP_MASK))
+ 		return 0;
+ 
+ 	do {
+diff --git a/include/kvm/builtin-debug.h b/include/kvm/builtin-debug.h
+index efa02684..cd2155ae 100644
+--- a/include/kvm/builtin-debug.h
++++ b/include/kvm/builtin-debug.h
+@@ -2,16 +2,22 @@
+ #define KVM__DEBUG_H
+ 
+ #include <kvm/util.h>
++#include <kvm/iommu.h>
+ #include <linux/types.h>
+ 
+ #define KVM_DEBUG_CMD_TYPE_DUMP	(1 << 0)
+ #define KVM_DEBUG_CMD_TYPE_NMI	(1 << 1)
+ #define KVM_DEBUG_CMD_TYPE_SYSRQ (1 << 2)
++#define KVM_DEBUG_CMD_TYPE_IOMMU (1 << 3)
++
++#define KVM_DEBUG_CMD_DUMP_MASK \
++	(KVM_DEBUG_CMD_TYPE_IOMMU | KVM_DEBUG_CMD_TYPE_DUMP)
+ 
+ struct debug_cmd_params {
+ 	u32 dbg_type;
+ 	u32 cpu;
+ 	char sysrq;
++	struct iommu_debug_params iommu;
+ };
+ 
+ int kvm_cmd_debug(int argc, const char **argv, const char *prefix);
 diff --git a/include/kvm/iommu.h b/include/kvm/iommu.h
-index 8f87ce5a..45a20f3b 100644
+index 45a20f3b..60857fa5 100644
 --- a/include/kvm/iommu.h
 +++ b/include/kvm/iommu.h
-@@ -10,6 +10,12 @@
+@@ -1,6 +1,7 @@
+ #ifndef KVM_IOMMU_H
+ #define KVM_IOMMU_H
+ 
++#include <stdbool.h>
+ #include <stdlib.h>
+ 
+ #include "devices.h"
+@@ -10,6 +11,10 @@
  #define IOMMU_PROT_WRITE	0x2
  #define IOMMU_PROT_EXEC		0x4
  
-+/*
-+ * Test if mapping is present. If not, return an error but do not report it to
-+ * stderr
-+ */
-+#define IOMMU_UNMAP_SILENT	0x1
++struct iommu_debug_params {
++	bool				print_enabled;
++};
 +
- struct iommu_ops {
- 	const struct iommu_properties *(*get_properties)(struct device_header *);
+ /*
+  * Test if mapping is present. If not, return an error but do not report it to
+  * stderr
+diff --git a/include/kvm/virtio-iommu.h b/include/kvm/virtio-iommu.h
+index 5532c82b..c9e36fb6 100644
+--- a/include/kvm/virtio-iommu.h
++++ b/include/kvm/virtio-iommu.h
+@@ -7,4 +7,9 @@ const struct iommu_properties *viommu_get_properties(void *dev);
+ void *viommu_register(struct kvm *kvm, struct iommu_properties *props);
+ void viommu_unregister(struct kvm *kvm, void *cookie);
  
-diff --git a/include/kvm/vfio.h b/include/kvm/vfio.h
-index 71dfa8f7..84126eb9 100644
---- a/include/kvm/vfio.h
-+++ b/include/kvm/vfio.h
-@@ -55,6 +55,7 @@ struct vfio_device {
- 	struct device_header		dev_hdr;
- 
- 	int				fd;
-+	struct vfio_group		*group;
- 	struct vfio_device_info		info;
- 	struct vfio_irq_info		irq_info;
- 	struct vfio_region		*regions;
-@@ -65,6 +66,7 @@ struct vfio_device {
- struct vfio_group {
- 	unsigned long			id; /* iommu_group number in sysfs */
- 	int				fd;
-+	struct vfio_guest_container	*container;
- };
- 
- int vfio_group_parser(const struct option *opt, const char *arg, int unset);
-diff --git a/iommu.c b/iommu.c
-index c10a3f0b..2220e4b2 100644
---- a/iommu.c
-+++ b/iommu.c
-@@ -85,6 +85,7 @@ int iommu_unmap(void *address_space, u64 virt_addr, u64 size, int flags)
- 	struct rb_int_node *node;
- 	struct iommu_mapping *map;
- 	struct iommu_ioas *ioas = address_space;
-+	bool silent = flags & IOMMU_UNMAP_SILENT;
- 
- 	if (!ioas)
- 		return -ENODEV;
-@@ -97,7 +98,8 @@ int iommu_unmap(void *address_space, u64 virt_addr, u64 size, int flags)
- 		map = container_of(node, struct iommu_mapping, iova_range);
- 
- 		if (node_size > size) {
--			pr_debug("cannot split mapping");
-+			if (!silent)
-+				pr_debug("cannot split mapping");
- 			ret = -EINVAL;
- 			break;
- 		}
-@@ -111,7 +113,8 @@ int iommu_unmap(void *address_space, u64 virt_addr, u64 size, int flags)
- 	}
- 
- 	if (size && !ret) {
--		pr_debug("mapping not found");
-+		if (!silent)
-+			pr_debug("mapping not found");
- 		ret = -ENXIO;
- 	}
- 	mutex_unlock(&ioas->mutex);
-diff --git a/vfio.c b/vfio.c
-index f4fd4090..406d0781 100644
---- a/vfio.c
-+++ b/vfio.c
-@@ -1,10 +1,13 @@
-+#include "kvm/iommu.h"
- #include "kvm/irq.h"
- #include "kvm/kvm.h"
++struct iommu_debug_params;
++
++int viommu_parse_debug_string(const char *options, struct iommu_debug_params *);
++int viommu_debug(int fd, struct iommu_debug_params *);
++
+ #endif
+diff --git a/kvm-ipc.c b/kvm-ipc.c
+index e07ad105..a8b56543 100644
+--- a/kvm-ipc.c
++++ b/kvm-ipc.c
+@@ -14,6 +14,7 @@
+ #include "kvm/strbuf.h"
  #include "kvm/kvm-cpu.h"
- #include "kvm/pci.h"
- #include "kvm/util.h"
- #include "kvm/vfio.h"
+ #include "kvm/8250-serial.h"
 +#include "kvm/virtio-iommu.h"
  
-+#include <linux/bitops.h>
- #include <linux/kvm.h>
- #include <linux/pci_regs.h>
- 
-@@ -25,7 +28,16 @@ struct vfio_irq_eventfd {
- 	int			fd;
- };
- 
--static int vfio_container;
-+struct vfio_guest_container {
-+	struct kvm		*kvm;
-+	int			fd;
-+
-+	void			*msi_doorbells;
-+};
-+
-+static void *viommu = NULL;
-+
-+static int vfio_host_container;
- 
- int vfio_group_parser(const struct option *opt, const char *arg, int unset)
- {
-@@ -43,6 +55,7 @@ int vfio_group_parser(const struct option *opt, const char *arg, int unset)
- 
- 	cur = strtok(buf, ",");
- 	group->id = strtoul(cur, NULL, 0);
-+	group->container = NULL;
- 
- 	kvm->cfg.num_vfio_groups = ++idx;
- 	free(buf);
-@@ -68,11 +81,13 @@ static void vfio_pci_msix_pba_access(struct kvm_cpu *vcpu, u64 addr, u8 *data,
- static void vfio_pci_msix_table_access(struct kvm_cpu *vcpu, u64 addr, u8 *data,
- 				       u32 len, u8 is_write, void *ptr)
- {
-+	struct msi_msg msg;
- 	struct kvm *kvm = vcpu->kvm;
- 	struct vfio_pci_device *pdev = ptr;
- 	struct vfio_pci_msix_entry *entry;
- 	struct vfio_pci_msix_table *table = &pdev->msix_table;
- 	struct vfio_device *device = container_of(pdev, struct vfio_device, pci);
-+	struct vfio_guest_container *container = device->group->container;
- 
- 	u64 offset = addr - table->guest_phys_addr;
- 
-@@ -88,11 +103,16 @@ static void vfio_pci_msix_table_access(struct kvm_cpu *vcpu, u64 addr, u8 *data,
- 
- 	memcpy((void *)&entry->config + field, data, len);
- 
--	if (field != PCI_MSIX_ENTRY_VECTOR_CTRL)
-+	if (field != PCI_MSIX_ENTRY_VECTOR_CTRL || entry->config.ctrl & 1)
-+		return;
-+
-+	msg = entry->config.msg;
-+
-+	if (container && iommu_translate_msi(container->msi_doorbells, &msg))
- 		return;
- 
- 	if (entry->gsi < 0) {
--		int ret = irq__add_msix_route(kvm, &entry->config.msg,
-+		int ret = irq__add_msix_route(kvm, &msg,
- 					      device->dev_hdr.dev_num << 3);
- 		if (ret < 0) {
- 			pr_err("cannot create MSI-X route");
-@@ -111,7 +131,7 @@ static void vfio_pci_msix_table_access(struct kvm_cpu *vcpu, u64 addr, u8 *data,
- 		return;
+ struct kvm_ipc_head {
+ 	u32 type;
+@@ -424,31 +425,35 @@ static void handle_debug(struct kvm *kvm, int fd, u32 type, u32 len, u8 *msg)
+ 		pthread_kill(kvm->cpus[vcpu]->thread, SIGUSR1);
  	}
  
--	irq__update_msix_route(kvm, entry->gsi, &entry->config.msg);
-+	irq__update_msix_route(kvm, entry->gsi, &msg);
- }
+-	if (!(dbg_type & KVM_DEBUG_CMD_TYPE_DUMP))
+-		return;
++	if (dbg_type & KVM_DEBUG_CMD_TYPE_IOMMU)
++		viommu_debug(fd, &params->iommu);
  
- static void vfio_pci_msi_write(struct kvm *kvm, struct vfio_device *device,
-@@ -122,6 +142,7 @@ static void vfio_pci_msi_write(struct kvm *kvm, struct vfio_device *device,
- 	struct msi_msg msi;
- 	struct vfio_pci_msix_entry *entry;
- 	struct vfio_pci_device *pdev = &device->pci;
-+	struct vfio_guest_container *container = device->group->container;
- 	struct msi_cap_64 *msi_cap_64 = (void *)&pdev->hdr + pdev->msi.pos;
+-	for (i = 0; i < kvm->nrcpus; i++) {
+-		struct kvm_cpu *cpu = kvm->cpus[i];
++	if (dbg_type & KVM_DEBUG_CMD_TYPE_DUMP) {
++		for (i = 0; i < kvm->nrcpus; i++) {
++			struct kvm_cpu *cpu = kvm->cpus[i];
  
- 	/* Only modify routes when guest sets the enable bit */
-@@ -144,6 +165,9 @@ static void vfio_pci_msi_write(struct kvm *kvm, struct vfio_device *device,
- 		msi.data = msi_cap_32->data;
- 	}
+-		if (!cpu)
+-			continue;
++			if (!cpu)
++				continue;
  
-+	if (container && iommu_translate_msi(container->msi_doorbells, &msi))
-+		return;
+-		printout_done = 0;
++			printout_done = 0;
 +
- 	for (i = 0; i < nr_vectors; i++) {
- 		u32 devid = device->dev_hdr.dev_num << 3;
- 
-@@ -870,6 +894,154 @@ static int vfio_configure_dev_irqs(struct kvm *kvm, struct vfio_device *device)
- 	return ret;
- }
- 
-+static struct iommu_properties vfio_viommu_props = {
-+	.name				= "viommu-vfio",
-+
-+	.input_addr_size		= 64,
-+};
-+
-+static const struct iommu_properties *
-+vfio_viommu_get_properties(struct device_header *dev)
-+{
-+	return &vfio_viommu_props;
-+}
-+
-+static void *vfio_viommu_alloc(struct device_header *dev_hdr)
-+{
-+	struct vfio_device *vdev = container_of(dev_hdr, struct vfio_device,
-+						dev_hdr);
-+	struct vfio_guest_container *container = vdev->group->container;
-+
-+	container->msi_doorbells = iommu_alloc_address_space(NULL);
-+	if (!container->msi_doorbells) {
-+		pr_err("Failed to create MSI address space");
-+		return NULL;
-+	}
-+
-+	return container;
-+}
-+
-+static void vfio_viommu_free(void *priv)
-+{
-+	struct vfio_guest_container *container = priv;
-+
-+	/* Half the address space */
-+	size_t size = 1UL << (BITS_PER_LONG - 1);
-+	unsigned long virt_addr = 0;
-+	int i;
-+
-+	/*
-+	 * Remove all mappings in two times, since 2^64 doesn't fit in
-+	 * unmap.size
-+	 */
-+	for (i = 0; i < 2; i++, virt_addr += size) {
-+		struct vfio_iommu_type1_dma_unmap unmap = {
-+			.argsz	= sizeof(unmap),
-+			.iova	= virt_addr,
-+			.size	= size,
-+		};
-+	}
-+
-+	iommu_free_address_space(container->msi_doorbells);
-+	container->msi_doorbells = NULL;
-+}
-+
-+static int vfio_viommu_attach(void *priv, struct device_header *dev_hdr, int flags)
-+{
-+	struct vfio_guest_container *container = priv;
-+	struct vfio_device *vdev = container_of(dev_hdr, struct vfio_device,
-+						dev_hdr);
-+
-+	if (!container)
-+		return -ENODEV;
-+
-+	if (container->fd != vdev->group->container->fd)
-+		/*
-+		 * TODO: We don't support multiple devices in the same address
-+		 * space at the moment. It should be easy to implement, just
-+		 * create an address space structure that holds multiple
-+		 * container fds and multiplex map/unmap requests.
-+		 */
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+static int vfio_viommu_detach(void *priv, struct device_header *dev_hdr)
-+{
-+	return 0;
-+}
-+
-+static int vfio_viommu_map(void *priv, u64 virt_addr, u64 phys_addr, u64 size,
-+			   int prot)
-+{
-+	int ret;
-+	struct vfio_guest_container *container = priv;
-+	struct vfio_iommu_type1_dma_map map = {
-+		.argsz	= sizeof(map),
-+		.iova	= virt_addr,
-+		.size	= size,
-+	};
-+
-+	map.vaddr = (u64)guest_flat_to_host(container->kvm, phys_addr);
-+	if (!map.vaddr) {
-+		if (irq__addr_is_msi_doorbell(container->kvm, phys_addr)) {
-+			ret = iommu_map(container->msi_doorbells, virt_addr,
-+					phys_addr, size, prot);
-+			if (ret) {
-+				pr_err("could not map MSI");
-+				return ret;
-+			}
-+
-+			// TODO: silence guest_flat_to_host
-+			pr_info("Nevermind, all is well. Mapped MSI %llx->%llx",
-+				virt_addr, phys_addr);
-+			return 0;
-+		} else {
-+			return -ERANGE;
++			kvm_cpu__set_debug_fd(fd);
++			pthread_kill(cpu->thread, SIGUSR1);
++			/*
++			 * Wait for the vCPU to dump state before signalling
++			 * the next thread. Since this is debug code it does
++			 * not matter that we are burning CPU time a bit:
++			 */
++			while (!printout_done)
++				sleep(0);
 +		}
-+	}
+ 
+-		kvm_cpu__set_debug_fd(fd);
+-		pthread_kill(cpu->thread, SIGUSR1);
+-		/*
+-		 * Wait for the vCPU to dump state before signalling
+-		 * the next thread. Since this is debug code it does
+-		 * not matter that we are burning CPU time a bit:
+-		 */
+-		while (!printout_done)
+-			sleep(0);
++		serial8250__inject_sysrq(kvm, 'p');
+ 	}
+ 
+-	close(fd);
+-
+-	serial8250__inject_sysrq(kvm, 'p');
++	if (dbg_type & KVM_DEBUG_CMD_DUMP_MASK)
++		/* builtin-debug is reading, signal EOT */
++		close(fd);
+ }
+ 
+ int kvm_ipc__init(struct kvm *kvm)
+diff --git a/virtio/iommu.c b/virtio/iommu.c
+index 2e5a23ee..5973cef1 100644
+--- a/virtio/iommu.c
++++ b/virtio/iommu.c
+@@ -620,3 +620,17 @@ void viommu_unregister(struct kvm *kvm, void *viommu)
+ {
+ 	free(viommu);
+ }
 +
-+	if (prot & IOMMU_PROT_READ)
-+		map.flags |= VFIO_DMA_MAP_FLAG_READ;
-+
-+	if (prot & IOMMU_PROT_WRITE)
-+		map.flags |= VFIO_DMA_MAP_FLAG_WRITE;
-+
-+	if (prot & IOMMU_PROT_EXEC) {
-+		pr_err("VFIO does not support PROT_EXEC");
-+		return -ENOSYS;
-+	}
-+
-+	return ioctl(container->fd, VFIO_IOMMU_MAP_DMA, &map);
-+}
-+
-+static int vfio_viommu_unmap(void *priv, u64 virt_addr, u64 size, int flags)
++int viommu_parse_debug_string(const char *cmdline, struct iommu_debug_params *params)
 +{
-+	struct vfio_guest_container *container = priv;
-+	struct vfio_iommu_type1_dma_unmap unmap = {
-+		.argsz	= sizeof(unmap),
-+		.iova	= virt_addr,
-+		.size	= size,
-+	};
-+
-+	if (!iommu_unmap(container->msi_doorbells, virt_addr, size,
-+			 flags | IOMMU_UNMAP_SILENT))
-+		return 0;
-+
-+	return ioctl(container->fd, VFIO_IOMMU_UNMAP_DMA, &unmap);
++	/* show instances numbers */
++	/* send command to instance */
++	/* - dump mappings */
++	/* - statistics */
++	return -ENOSYS;
 +}
 +
-+static struct iommu_ops vfio_iommu_ops = {
-+	.get_properties		= vfio_viommu_get_properties,
-+	.alloc_address_space	= vfio_viommu_alloc,
-+	.free_address_space	= vfio_viommu_free,
-+	.attach			= vfio_viommu_attach,
-+	.detach			= vfio_viommu_detach,
-+	.map			= vfio_viommu_map,
-+	.unmap			= vfio_viommu_unmap,
-+};
-+
- static int vfio_configure_reserved_regions(struct kvm *kvm,
- 					   struct vfio_group *group)
- {
-@@ -912,6 +1084,8 @@ static int vfio_configure_device(struct kvm *kvm, struct vfio_group *group,
- 		return -ENOMEM;
- 	}
- 
-+	device->group = group;
-+
- 	device->fd = ioctl(group->fd, VFIO_GROUP_GET_DEVICE_FD, dirent->d_name);
- 	if (device->fd < 0) {
- 		pr_err("Failed to get FD for device %s in group %lu",
-@@ -945,6 +1119,7 @@ static int vfio_configure_device(struct kvm *kvm, struct vfio_group *group,
- 	device->dev_hdr = (struct device_header) {
- 		.bus_type	= DEVICE_BUS_PCI,
- 		.data		= &device->pci.hdr,
-+		.iommu_ops	= viommu ? &vfio_iommu_ops : NULL,
- 	};
- 
- 	ret = device__register(&device->dev_hdr);
-@@ -1009,13 +1184,13 @@ static int vfio_configure_iommu_groups(struct kvm *kvm)
- /* TODO: this should be an arch callback, so arm can return HYP only if vsmmu */
- static int vfio_get_iommu_type(void)
- {
--	if (ioctl(vfio_container, VFIO_CHECK_EXTENSION, VFIO_TYPE1_NESTING_IOMMU))
-+	if (ioctl(vfio_host_container, VFIO_CHECK_EXTENSION, VFIO_TYPE1_NESTING_IOMMU))
- 		return VFIO_TYPE1_NESTING_IOMMU;
- 
--	if (ioctl(vfio_container, VFIO_CHECK_EXTENSION, VFIO_TYPE1v2_IOMMU))
-+	if (ioctl(vfio_host_container, VFIO_CHECK_EXTENSION, VFIO_TYPE1v2_IOMMU))
- 		return VFIO_TYPE1v2_IOMMU;
- 
--	if (ioctl(vfio_container, VFIO_CHECK_EXTENSION, VFIO_TYPE1_IOMMU))
-+	if (ioctl(vfio_host_container, VFIO_CHECK_EXTENSION, VFIO_TYPE1_IOMMU))
- 		return VFIO_TYPE1_IOMMU;
- 
- 	return -ENODEV;
-@@ -1033,7 +1208,7 @@ static int vfio_map_mem_bank(struct kvm *kvm, struct kvm_mem_bank *bank, void *d
- 	};
- 
- 	/* Map the guest memory for DMA (i.e. provide isolation) */
--	if (ioctl(vfio_container, VFIO_IOMMU_MAP_DMA, &dma_map)) {
-+	if (ioctl(vfio_host_container, VFIO_IOMMU_MAP_DMA, &dma_map)) {
- 		ret = -errno;
- 		pr_err("Failed to map 0x%llx -> 0x%llx (%llu) for DMA",
- 		       dma_map.iova, dma_map.vaddr, dma_map.size);
-@@ -1050,14 +1225,15 @@ static int vfio_unmap_mem_bank(struct kvm *kvm, struct kvm_mem_bank *bank, void
- 		.iova = bank->guest_phys_addr,
- 	};
- 
--	ioctl(vfio_container, VFIO_IOMMU_UNMAP_DMA, &dma_unmap);
-+	ioctl(vfio_host_container, VFIO_IOMMU_UNMAP_DMA, &dma_unmap);
- 
- 	return 0;
- }
- 
- static int vfio_group_init(struct kvm *kvm, struct vfio_group *group)
- {
--	int ret;
-+	int ret = 0;
-+	int container;
- 	char group_node[VFIO_PATH_MAX_LEN];
- 	struct vfio_group_status group_status = {
- 		.argsz = sizeof(group_status),
-@@ -1066,6 +1242,25 @@ static int vfio_group_init(struct kvm *kvm, struct vfio_group *group)
- 	snprintf(group_node, VFIO_PATH_MAX_LEN, VFIO_DEV_DIR "/%lu",
- 		 group->id);
- 
-+	if (kvm->cfg.viommu) {
-+		container = open(VFIO_DEV_NODE, O_RDWR);
-+		if (container < 0) {
-+			ret = -errno;
-+			pr_err("cannot initialize private container\n");
-+			return ret;
-+		}
-+
-+		group->container = malloc(sizeof(struct vfio_guest_container));
-+		if (!group->container)
-+			return -ENOMEM;
-+
-+		group->container->fd = container;
-+		group->container->kvm = kvm;
-+		group->container->msi_doorbells = NULL;
-+	} else {
-+		container = vfio_host_container;
-+	}
-+
- 	group->fd = open(group_node, O_RDWR);
- 	if (group->fd == -1) {
- 		ret = -errno;
-@@ -1085,29 +1280,52 @@ static int vfio_group_init(struct kvm *kvm, struct vfio_group *group)
- 		return -EINVAL;
- 	}
- 
--	if (ioctl(group->fd, VFIO_GROUP_SET_CONTAINER, &vfio_container)) {
-+	if (ioctl(group->fd, VFIO_GROUP_SET_CONTAINER, &container)) {
- 		ret = -errno;
- 		pr_err("Failed to add IOMMU group %s to VFIO container",
- 		       group_node);
- 		return ret;
- 	}
- 
--	return 0;
-+	if (container != vfio_host_container) {
-+		struct vfio_iommu_type1_info info = {
-+			.argsz = sizeof(info),
-+		};
-+
-+		/* We really need v2 semantics for unmap-all */
-+		ret = ioctl(container, VFIO_SET_IOMMU, VFIO_TYPE1v2_IOMMU);
-+		if (ret) {
-+			ret = -errno;
-+			pr_err("Failed to set IOMMU");
-+			return ret;
-+		}
-+
-+		ret = ioctl(container, VFIO_IOMMU_GET_INFO, &info);
-+		if (ret)
-+			pr_err("Failed to get IOMMU info");
-+		else if (info.flags & VFIO_IOMMU_INFO_PGSIZES)
-+			vfio_viommu_props.pgsize_mask = info.iova_pgsizes;
-+	}
-+
-+	return ret;
- }
- 
--static int vfio_container_init(struct kvm *kvm)
-+static int vfio_groups_init(struct kvm *kvm)
- {
- 	int api, i, ret, iommu_type;;
- 
--	/* Create a container for our IOMMU groups */
--	vfio_container = open(VFIO_DEV_NODE, O_RDWR);
--	if (vfio_container == -1) {
-+	/*
-+	 * Create a container for our IOMMU groups. Even when using a viommu, we
-+	 * still use this one for probing capabilities.
-+	 */
-+	vfio_host_container = open(VFIO_DEV_NODE, O_RDWR);
-+	if (vfio_host_container == -1) {
- 		ret = errno;
- 		pr_err("Failed to open %s", VFIO_DEV_NODE);
- 		return ret;
- 	}
- 
--	api = ioctl(vfio_container, VFIO_GET_API_VERSION);
-+	api = ioctl(vfio_host_container, VFIO_GET_API_VERSION);
- 	if (api != VFIO_API_VERSION) {
- 		pr_err("Unknown VFIO API version %d", api);
- 		return -ENODEV;
-@@ -1119,15 +1337,20 @@ static int vfio_container_init(struct kvm *kvm)
- 		return iommu_type;
- 	}
- 
--	/* Sanity check our groups and add them to the container */
- 	for (i = 0; i < kvm->cfg.num_vfio_groups; ++i) {
- 		ret = vfio_group_init(kvm, &kvm->cfg.vfio_group[i]);
- 		if (ret)
- 			return ret;
- 	}
- 
-+	if (kvm->cfg.viommu) {
-+		close(vfio_host_container);
-+		vfio_host_container = -1;
-+		return 0;
-+	}
-+
- 	/* Finalise the container */
--	if (ioctl(vfio_container, VFIO_SET_IOMMU, iommu_type)) {
-+	if (ioctl(vfio_host_container, VFIO_SET_IOMMU, iommu_type)) {
- 		ret = -errno;
- 		pr_err("Failed to set IOMMU type %d for VFIO container",
- 		       iommu_type);
-@@ -1147,10 +1370,16 @@ static int vfio__init(struct kvm *kvm)
- 	if (!kvm->cfg.num_vfio_groups)
- 		return 0;
- 
--	ret = vfio_container_init(kvm);
-+	ret = vfio_groups_init(kvm);
- 	if (ret)
- 		return ret;
- 
-+	if (kvm->cfg.viommu) {
-+		viommu = viommu_register(kvm, &vfio_viommu_props);
-+		if (!viommu)
-+			pr_err("could not register viommu");
-+	}
-+
- 	ret = vfio_configure_iommu_groups(kvm);
- 	if (ret)
- 		return ret;
-@@ -1162,17 +1391,27 @@ dev_base_init(vfio__init);
- static int vfio__exit(struct kvm *kvm)
- {
- 	int i, fd;
-+	struct vfio_guest_container *container;
- 
- 	if (!kvm->cfg.num_vfio_groups)
- 		return 0;
- 
- 	for (i = 0; i < kvm->cfg.num_vfio_groups; ++i) {
-+		container = kvm->cfg.vfio_group[i].container;
- 		fd = kvm->cfg.vfio_group[i].fd;
- 		ioctl(fd, VFIO_GROUP_UNSET_CONTAINER);
- 		close(fd);
-+
-+		if (container != NULL) {
-+			close(container->fd);
-+			free(container);
-+		}
- 	}
- 
-+	if (vfio_host_container == -1)
-+		return 0;
-+
- 	kvm__for_each_mem_bank(kvm, KVM_MEM_TYPE_RAM, vfio_unmap_mem_bank, NULL);
--	return close(vfio_container);
-+	return close(vfio_host_container);
- }
- dev_base_exit(vfio__exit);
++int viommu_debug(int sock, struct iommu_debug_params *params)
++{
++	return -ENOSYS;
++}
 -- 
 2.12.1
