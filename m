@@ -1,15 +1,17 @@
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH net-next 2/3] virtio-net: transmit napi
-Date: Mon, 3 Apr 2017 01:07:49 -0400
-Message-ID: <CAF=yD-+5+X6UBYaX=Dh3M3caty0fJ7cjamTfX0=_+Lwx6r_VQw__3252.08293875239$1493076941$gmane$org@mail.gmail.com>
+Subject: Re: [PATCH net-next 3/3] virtio-net: clean tx descriptors from rx napi
+Date: Fri, 7 Apr 2017 16:59:58 -0400
+Message-ID: <CAF=yD-JmO7XVng74BubyDLyP5Yf7wSCdXJdza+hx-NkrhDoxrw__650.722781620239$1493076953$gmane$org@mail.gmail.com>
 References: <20170402201012.76473-1-willemdebruijn.kernel@gmail.com>
-	<20170402201012.76473-3-willemdebruijn.kernel@gmail.com>
-	<20170403052938-mutt-send-email-mst@kernel.org>
+	<20170402201012.76473-4-willemdebruijn.kernel@gmail.com>
+	<20170403024751.GA21883@redhat.com>
+	<CAF=yD-+tJxqvwvLU81=H7nwqDtiSWfAv8UdfncjPQiuNteJ6jQ@mail.gmail.com>
+	<20170407222616-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170403052938-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170407222616-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,50 +25,67 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Willem de Bruijn <willemb@google.com>, Network Development <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Apr 2, 2017 at 10:30 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Sun, Apr 02, 2017 at 04:10:11PM -0400, Willem de Bruijn wrote:
->> From: Willem de Bruijn <willemb@google.com>
->>
->> Convert virtio-net to a standard napi tx completion path. This enables
->> better TCP pacing using TCP small queues and increases single stream
->> throughput.
->>
->> The virtio-net driver currently cleans tx descriptors on transmission
->> of new packets in ndo_start_xmit. Latency depends on new traffic, so
->> is unbounded. To avoid deadlock when a socket reaches its snd limit,
->> packets are orphaned on tranmission. This breaks socket backpressure,
->> including TSQ.
->>
->> Napi increases the number of interrupts generated compared to the
->> current model, which keeps interrupts disabled as long as the ring
->> has enough free descriptors. Keep tx napi optional for now. Follow-on
->> patches will reduce the interrupt cost.
->>
->> Signed-off-by: Willem de Bruijn <willemb@google.com>
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
->> ---
->>  drivers/net/virtio_net.c | 63 ++++++++++++++++++++++++++++++++++++++++--------
->>  1 file changed, 53 insertions(+), 10 deletions(-)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index 6aac0ad0d9b2..95d938e82080 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -33,9 +33,10 @@
->>  static int napi_weight = NAPI_POLL_WEIGHT;
->>  module_param(napi_weight, int, 0444);
->>
->> -static bool csum = true, gso = true;
->> +static bool csum = true, gso = true, napi_tx = true;
->>  module_param(csum, bool, 0444);
->>  module_param(gso, bool, 0444);
->> +module_param(napi_tx, bool, 0644);
->>
->>  /* FIXME: MTU in config. */
->>  #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
+On Fri, Apr 7, 2017 at 3:28 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Mon, Apr 03, 2017 at 01:02:13AM -0400, Willem de Bruijn wrote:
+>> On Sun, Apr 2, 2017 at 10:47 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>> > On Sun, Apr 02, 2017 at 04:10:12PM -0400, Willem de Bruijn wrote:
+>> >> From: Willem de Bruijn <willemb@google.com>
+>> >>
+>> >> Amortize the cost of virtual interrupts by doing both rx and tx work
+>> >> on reception of a receive interrupt if tx napi is enabled. With
+>> >> VIRTIO_F_EVENT_IDX, this suppresses most explicit tx completion
+>> >> interrupts for bidirectional workloads.
+>> >>
+>> >> Signed-off-by: Willem de Bruijn <willemb@google.com>
 >
-> Off by default seems safer until we can find better ways
-> to reduce the overhead, esp for UDP.
+> This is a popular approach, but I think this will only work well if tx
+> and rx interrupts are processed on the same CPU and if tx queue is per
+> cpu.  If they target different CPUs or if tx queue is used from multiple
+> CPUs they will conflict on the shared locks.
 
-Okay, I'll change that. I don't have an immediate idea for that
-unidirectional case.
+Yes. As a result of this discussion I started running a few vcpu affinity tests.
+
+The data is not complete. In particular, I don't have the data yet to
+compare having tx and rx irq on the same cpu (0,0) vs on different
+(0,2) for this patchset. Which is the relevant data to your point.
+
+Initial results for unmodified upstream driver at {1, 10, 100}x
+TCP_STREAM, for irq cpu affinity (rx,tx). Process is always pinned to cpu
+1. This is a 4 vcpu system pinned by the host to 4 cores on the same
+socket. The previously reported results were obtained with txq, rtx
+and process on different vcpus (0,2). Running all on the same vcpu
+lower cycle count considerably:
+
+irq 0,0
+1    throughput_Mbps=29767.14  391,488,924,526      cycles
+10  throughput_Mbps=40808.64  424,530,251,896      cycles
+100 throughput_Mbps=33475.13  414,622,071,167      cycles
+
+irq 0,2
+1   throughput_Mbps=30176.05  395,673,200,747      cycles
+10 throughput_Mbps=40729.26  433,948,374,991      cycles
+100 throughput_Mbps=33758.68 436,291,949,393      cycles
+
+irq 1,1
+1    throughput_Mbps=26635.20 269,071,002,844      cycles
+10  throughput_Mbps=42385.05 299,945,944,516      cycles
+100 throughput_Mbps=33580.98 283,272,895,507      cycles
+
+With this patch set applied, cpu (1,1)
+
+1     throughput_Mbps=34980.76  276,504,805,414      cycles
+10   throughput_Mbps=42519.92 298,105,889,785      cycles
+100 throughput_Mbps=35268.86 296,670,598,712      cycles
+
+I will need to get data for (0,2) vs (0,0).
+
+> This can even change dynamically as CPUs/queues are reconfigured.
+> How about adding a flag and skipping the tx poll if there's no match?
+
+I suspect that even with the cache invalidations this optimization
+will be an improvement over handling all tx interrupts in the tx napi
+handler. I will get the datapoint for that.
+
+That said, we can make this conditional. What flag exactly do you
+propose? Compare raw_smp_processor_id() in the rx softint with one
+previously stored in the napi tx callback?
