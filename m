@@ -1,12 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: cleanups and fixes
-Date: Tue, 11 Apr 2017 00:36:54 +0300
-Message-ID: <20170411003654-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC 0/3] virtio-iommu: a paravirtualized IOMMU
+Date: Wed, 12 Apr 2017 17:06:43 +0800
+Message-ID: <a0920e37-a11e-784c-7d90-be6617ea7686__17357.5667235584$1491988027$gmane$org@redhat.com>
+References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,67 +17,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, marc.zyngier@arm.com, netdev@vger.kernel.org, efault@gmx.de, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, cornelia.huck@de.ibm.com
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
+Cc: cdall@linaro.org, lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-These changes were as in linux-next as e1c287efcd4cf688564ed1112d032b5dac29b159 -
-I tweaked the commit log slightly.
-
-Too many people were complaining of warnings and errors in virtio
-so I decided revert is the safest path forward right now.
-
-The following changes since commit a71c9a1c779f2499fb2afc0553e543f18aff6edf:
-
-  Linux 4.11-rc5 (2017-04-02 17:23:54 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to 2f8dc3a01f1cf8ed17b1e295812ad12b688be5d3:
-
-  virtio-pci: Remove affinity hint before freeing the interrupt (2017-04-11 00:30:20 +0300)
-
-----------------------------------------------------------------
-virtio: oops fixes
-
-virtio pci rework using shared interrupts caused a lot of issues. We
-tried to fix them but run out of time. Revert for now, and revisit the
-issue for the next kernel.
-
-Luckily we are able to do this without loosing automatic
-interrupt NUMA affinity which was the main motivator for the
-rework.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Cornelia Huck (1):
-      MAINTAINERS: fix virtio file pattern
-
-Marc Zyngier (1):
-      virtio-pci: Remove affinity hint before freeing the interrupt
-
-Michael S. Tsirkin (9):
-      virtio_net: enable big packets for large MTU values
-      virtio: allow drivers to validate features
-      virtio_net: clear MTU when out of range
-      virtio_console: fix uninitialized variable use
-      Revert "virtio_pci: fix out of bound access for msix_names"
-      Revert "virtio_pci: simplify MSI-X setup"
-      Revert "virtio_pci: don't duplicate the msix_enable flag in struct pci_dev"
-      Revert "virtio_pci: use shared interrupts for virtqueues"
-      Revert "virtio_pci: remove struct virtio_pci_vq_info"
-
- MAINTAINERS                        |   2 +-
- drivers/char/virtio_console.c      |   6 +-
- drivers/net/virtio_net.c           |  45 +++--
- drivers/virtio/virtio.c            |   6 +
- drivers/virtio/virtio_pci_common.c | 375 ++++++++++++++++++++++---------------
- drivers/virtio/virtio_pci_common.h |  43 ++++-
- drivers/virtio/virtio_pci_legacy.c |   8 +-
- drivers/virtio/virtio_pci_modern.c |   8 +-
- include/linux/virtio.h             |   1 +
- include/uapi/linux/virtio_pci.h    |   2 +-
- 10 files changed, 323 insertions(+), 173 deletions(-)
+CgpPbiAyMDE35bm0MDTmnIgwOOaXpSAwMzoxNywgSmVhbi1QaGlsaXBwZSBCcnVja2VyIHdyb3Rl
+Ogo+IFRoaXMgaXMgdGhlIGluaXRpYWwgcHJvcG9zYWwgZm9yIGEgcGFyYXZpcnR1YWxpemVkIElP
+TU1VIGRldmljZSB1c2luZwo+IHZpcnRpbyB0cmFuc3BvcnQuIEl0IGNvbnRhaW5zIGEgZGVzY3Jp
+cHRpb24gb2YgdGhlIGRldmljZSwgYSBMaW51eCBkcml2ZXIsCj4gYW5kIGEgdG95IGltcGxlbWVu
+dGF0aW9uIGluIGt2bXRvb2wuIFdpdGggdGhpcyBwcm90b3R5cGUsIHlvdSBjYW4KPiB0cmFuc2xh
+dGUgRE1BIHRvIGd1ZXN0IG1lbW9yeSBmcm9tIGVtdWxhdGVkICh2aXJ0aW8pLCBvciBwYXNzZWQt
+dGhyb3VnaAo+IChWRklPKSBkZXZpY2VzLgo+Cj4gSW4gaXRzIHNpbXBsZXN0IGZvcm0sIGltcGxl
+bWVudGVkIGhlcmUsIHRoZSBkZXZpY2UgaGFuZGxlcyBtYXAvdW5tYXAKPiByZXF1ZXN0cyBmcm9t
+IHRoZSBndWVzdC4gRnV0dXJlIGV4dGVuc2lvbnMgcHJvcG9zZWQgaW4gIlJGQyAzLzMiIHNob3Vs
+ZAo+IGFsbG93IHRvIGJpbmQgcGFnZSB0YWJsZXMgdG8gZGV2aWNlcy4KPgo+IFRoZXJlIGFyZSBh
+IG51bWJlciBvZiBhZHZhbnRhZ2VzIGluIGEgcGFyYXZpcnR1YWxpemVkIElPTU1VIG92ZXIgYSBm
+dWxsCj4gZW11bGF0aW9uLiBJdCBpcyBwb3J0YWJsZSBhbmQgY291bGQgYmUgcmV1c2VkIG9uIGRp
+ZmZlcmVudCBhcmNoaXRlY3R1cmVzLgo+IEl0IGlzIGVhc2llciB0byBpbXBsZW1lbnQgdGhhbiBh
+IGZ1bGwgZW11bGF0aW9uLCB3aXRoIGxlc3Mgc3RhdGUgdHJhY2tpbmcuCj4gSXQgbWlnaHQgYmUg
+bW9yZSBlZmZpY2llbnQgaW4gc29tZSBjYXNlcywgd2l0aCBsZXNzIGNvbnRleHQgc3dpdGNoZXMg
+dG8KPiB0aGUgaG9zdCBhbmQgdGhlIHBvc3NpYmlsaXR5IG9mIGluLWtlcm5lbCBlbXVsYXRpb24u
+CgpJIGxpa2UgdGhlIGlkZWEuIENvbnNpZGVyIHRoZSBjb21wbGV4aXR5IG9mIElPTU1VIGhhcmR3
+YXJlLiBJIGJlbGlldmUgd2UgCmRvbid0IHdhbnQgdG8gaGF2ZSBhbmQgZmlnaHQgIGZvciBidWdz
+IG9mIHRocmVlIG9yIG1vcmUgZGlmZmVyZW50IElPTU1VIAppbXBsZW1lbnRhdGlvbnMgaW4gZWl0
+aGVyIHVzZXJzcGFjZSBvciBrZXJuZWwuCgpUaGFua3MKCj4KPiBXaGVuIGRlc2lnbmluZyBpdCBh
+bmQgd3JpdGluZyB0aGUga3ZtdG9vbCBkZXZpY2UsIEkgY29uc2lkZXJlZCB0d28gbWFpbgo+IHNj
+ZW5hcmlvcywgaWxsdXN0cmF0ZWQgYmVsb3cuCj4KPiBTY2VuYXJpbyAxOiBhIGhhcmR3YXJlIGRl
+dmljZSBwYXNzZWQgdGhyb3VnaCB0d2ljZSB2aWEgVkZJTwo+Cj4gICAgIE1FTV9fX19wSU9NTVVf
+X19fX19fX1BDSSBkZXZpY2VfX19fX19fX19fX19fX19fX19fX19fX18gICAgICAgSEFSRFdBUkUK
+PiAgICAgICAgICAgICAgfCAgICAgKDJiKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIFwKPiAgICAtLS0tLS0tLS0tfC0tLS0tLS0tLS0tLS0rLS0tLS0tLS0tLS0tLSstLS0tLS0t
+LS0tLS0tLS0tLS1cLS0tLS0tLS0tLS0tLQo+ICAgICAgICAgICAgICB8ICAgICAgICAgICAgIDog
+ICAgIEtWTSAgICAgOiAgICAgICAgICAgICAgICAgICBcCj4gICAgICAgICAgICAgIHwgICAgICAg
+ICAgICAgOiAgICAgICAgICAgICA6ICAgICAgICAgICAgICAgICAgICBcCj4gICAgICAgICBwSU9N
+TVUgZHJ2ICAgICAgICAgOiAgICAgICAgIF9fX19fX192aXJ0aW8taW9tbXUgZHJ2ICAgXCAgICBL
+RVJORUwKPiAgICAgICAgICAgICAgfCAgICAgICAgICAgICA6ICAgICAgICB8ICAgIDogICAgICAg
+ICAgfCAgICAgICAgICAgXAo+ICAgICAgICAgICAgVkZJTyAgICAgICAgICAgIDogICAgICAgIHwg
+ICAgOiAgICAgICAgVkZJTyAgICAgICAgICAgXAo+ICAgICAgICAgICAgICB8ICAgICAgICAgICAg
+IDogICAgICAgIHwgICAgOiAgICAgICAgICB8ICAgICAgICAgICAgIFwKPiAgICAgICAgICAgICAg
+fCAgICAgICAgICAgICA6ICAgICAgICB8ICAgIDogICAgICAgICAgfCAgICAgICAgICAgICAvCj4g
+ICAgLS0tLS0tLS0tLXwtLS0tLS0tLS0tLS0tKy0tLS0tLS0tfC0tLS0rLS0tLS0tLS0tLXwtLS0t
+LS0tLS0tLS0vLS0tLS0tLS0KPiAgICAgICAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICB8
+ICAgIDogICAgICAgICAgfCAgICAgICAgICAgLwo+ICAgICAgICAgICAgICB8ICgxYykgICAgICAg
+ICAgICAoMWIpIHwgICAgOiAgICAgKDFhKSB8ICAgICAgICAgIC8gKDJhKQo+ICAgICAgICAgICAg
+ICB8ICAgICAgICAgICAgICAgICAgICAgIHwgICAgOiAgICAgICAgICB8ICAgICAgICAgLwo+ICAg
+ICAgICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgIHwgICAgOiAgICAgICAgICB8ICAgICAg
+ICAvICAgVVNFUlNQQUNFCj4gICAgICAgICAgICAgIHxfX192aXJ0aW8taW9tbXUgZGV2X19ffCAg
+ICA6ICAgICAgICBuZXQgZHJ2X19fLwo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgOgo+ICAgIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tKy0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gICAgICAgICAgICAgICAgICAgSE9TVCAg
+ICAgICAgICAgICAgICAgICA6ICAgICAgICAgICAgIEdVRVNUCj4KPiAoMSkgYS4gR3Vlc3QgdXNl
+cnNwYWNlIGlzIHJ1bm5pbmcgYSBuZXQgZHJpdmVyIChlLmcuIERQREspLiBJdCBhbGxvY2F0ZXMg
+YQo+ICAgICAgICAgYnVmZmVyIHdpdGggbW1hcCwgb2J0YWluaW5nIHZpcnR1YWwgYWRkcmVzcyBW
+QS4gSXQgdGhlbiBzZW5kIGEKPiAgICAgICAgIFZGSU9fSU9NTVVfTUFQX0RNQSByZXF1ZXN0IHRv
+IG1hcCBWQSB0byBhbiBJT1ZBIChwb3NzaWJseSBWQT1JT1ZBKS4KPiAgICAgIGIuIFRoZSBtYXBp
+bmcgcmVxdWVzdCBpcyByZWxheWVkIHRvIHRoZSBob3N0IHRocm91Z2ggdmlydGlvCj4gICAgICAg
+ICAoVklSVElPX0lPTU1VX1RfTUFQKS4KPiAgICAgIGMuIFRoZSBtYXBwaW5nIHJlcXVlc3QgaXMg
+cmVsYXllZCB0byB0aGUgcGh5c2ljYWwgSU9NTVUgdGhyb3VnaCBWRklPLgo+Cj4gKDIpIGEuIFRo
+ZSBndWVzdCB1c2Vyc3BhY2UgZHJpdmVyIGNhbiBub3cgaW5zdHJ1Y3QgdGhlIGRldmljZSB0byBk
+aXJlY3RseQo+ICAgICAgICAgYWNjZXNzIHRoZSBidWZmZXIgYXQgSU9WQQo+ICAgICAgYi4gSU9W
+QSBhY2Nlc3NlcyBmcm9tIHRoZSBkZXZpY2UgYXJlIHRyYW5zbGF0ZWQgaW50byBwaHlzaWNhbAo+
+ICAgICAgICAgYWRkcmVzc2VzIGJ5IHRoZSBJT01NVS4KPgo+IFNjZW5hcmlvIDI6IGEgdmlydHVh
+bCBuZXQgZGV2aWNlIGJlaGluZCBhIHZpcnR1YWwgSU9NTVUuCj4KPiAgICBNRU1fX3BJT01NVV9f
+X1BDSSBkZXZpY2UgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgSEFSRFdBUkUK
+PiAgICAgICAgICAgfCAgICAgICAgIHwKPiAgICAtLS0tLS0tfC0tLS0tLS0tLXwtLS0tLS0rLS0t
+LS0tLS0tLS0tLSstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gICAgICAgICAgIHwg
+ICAgICAgICB8ICAgICAgOiAgICAgS1ZNICAgICA6Cj4gICAgICAgICAgIHwgICAgICAgICB8ICAg
+ICAgOiAgICAgICAgICAgICA6Cj4gICAgICBwSU9NTVUgZHJ2ICAgICB8ICAgICAgOiAgICAgICAg
+ICAgICA6Cj4gICAgICAgICAgICAgICBcICAgICB8ICAgICAgOiAgICAgIF9fX19fX19fX19fX192
+aXJ0aW8tbmV0IGRydiAgICAgIEtFUk5FTAo+ICAgICAgICAgICAgICAgIFxfbmV0IGRydiAgIDog
+ICAgIHwgICAgICAgOiAgICAgICAgICAvICgxYSkKPiAgICAgICAgICAgICAgICAgICAgIHwgICAg
+ICA6ICAgICB8ICAgICAgIDogICAgICAgICAvCj4gICAgICAgICAgICAgICAgICAgIHRhcCAgICAg
+OiAgICAgfCAgICBfX19fX19fX3ZpcnRpby1pb21tdSBkcnYKPiAgICAgICAgICAgICAgICAgICAg
+IHwgICAgICA6ICAgICB8ICAgfCAgIDogKDFiKQo+ICAgIC0tLS0tLS0tLS0tLS0tLS0tfC0tLS0t
+LSstLS0tLXwtLS18LS0tKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPiAgICAgICAg
+ICAgICAgICAgICAgIHwgICAgICAgICAgICB8ICAgfCAgIDoKPiAgICAgICAgICAgICAgICAgICAg
+IHxfdmlydGlvLW5ldF98ICAgfCAgIDoKPiAgICAgICAgICAgICAgICAgICAgICAgICAgIC8gKDIp
+ICAgICAgfCAgIDoKPiAgICAgICAgICAgICAgICAgICAgICAgICAgLyAgICAgICAgICAgfCAgIDog
+ICAgICAgICAgICAgICAgICAgICAgVVNFUlNQQUNFCj4gICAgICAgICAgICAgICAgdmlydGlvLWlv
+bW11IGRldl9fX19fX3wgICA6Cj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICA6Cj4gICAgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0rLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+ICAgICAgICAgICAgICAgICAgIEhPU1QgICAgICAg
+ICAgICAgICAgICAgOiAgICAgICAgICAgICBHVUVTVAo+Cj4gKDEpIGEuIEd1ZXN0IHZpcnRpby1u
+ZXQgZHJpdmVyIG1hcHMgdGhlIHZpcnRpbyByaW5nIGFuZCBhIGJ1ZmZlcgo+ICAgICAgYi4gVGhl
+IG1hcHBpbmcgcmVxdWVzdHMgYXJlIHJlbGF5ZWQgdG8gdGhlIGhvc3QgdGhyb3VnaCB2aXJ0aW8u
+Cj4gKDIpIFRoZSB2aXJ0aW8tbmV0IGRldmljZSBub3cgbmVlZHMgdG8gYWNjZXNzIGFueSBndWVz
+dCBtZW1vcnkgdmlhIHRoZQo+ICAgICAgSU9NTVUuCj4KPiBQaHlzaWNhbCBhbmQgdmlydHVhbCBJ
+T01NVXMgYXJlIGNvbXBsZXRlbHkgZGlzc29jaWF0ZWQuIFRoZSBuZXQgZHJpdmVyIGlzCj4gbWFw
+cGluZyBpdHMgb3duIGJ1ZmZlcnMgdmlhIERNQS9JT01NVSBBUEksIGFuZCBidWZmZXJzIGFyZSBj
+b3BpZWQgYmV0d2Vlbgo+IHZpcnRpby1uZXQgYW5kIHRhcC4KPgo+Cj4gVGhlIGRlc2NyaXB0aW9u
+IGl0c2VsZiBzZWVtZWQgdG9vIGxvbmcgZm9yIGEgc2luZ2xlIGVtYWlsLCBzbyBJIHNwbGl0IGl0
+Cj4gaW50byB0aHJlZSBkb2N1bWVudHMsIGFuZCB3aWxsIGF0dGFjaCBMaW51eCBhbmQga3ZtdG9v
+bCBwYXRjaGVzIHRvIHRoaXMKPiBlbWFpbC4KPgo+IAkxLiBGaXJtd2FyZSBub3RlLAo+IAkyLiBk
+ZXZpY2Ugb3BlcmF0aW9ucyAoZHJhZnQgZm9yIHRoZSB2aXJ0aW8gc3BlY2lmaWNhdGlvbiksCj4g
+CTMuIGZ1dHVyZSB3b3JrL3Bvc3NpYmxlIGltcHJvdmVtZW50cy4KPgo+IEp1c3QgdG8gYmUgY2xl
+YXIgb24gdGhlIHRlcm1zIEknbSB1c2luZzoKPgo+IHBJT01NVQlwaHlzaWNhbCBJT01NVSwgY29u
+dHJvbGxpbmcgRE1BIGFjY2Vzc2VzIGZyb20gcGh5c2ljYWwgZGV2aWNlcwo+IHZJT01NVQl2aXJ0
+dWFsIElPTU1VICh2aXJ0aW8taW9tbXUpLCBjb250cm9sbGluZyBETUEgYWNjZXNzZXMgZnJvbQo+
+IAlwaHlzaWNhbCBhbmQgdmlydHVhbCBkZXZpY2VzIHRvIGd1ZXN0IG1lbW9yeS4KPiBHVkEsIEdQ
+QSwgSFZBLCBIUEEKPiAJR3Vlc3QvSG9zdCBWaXJ0dWFsL1BoeXNpY2FsIEFkZHJlc3MKPiBJT1ZB
+CUkvTyBWaXJ0dWFsIEFkZHJlc3MsIHRoZSBhZGRyZXNzIGFjY2Vzc2VkIGJ5IGEgZGV2aWNlIGRv
+aW5nIERNQQo+IAl0aHJvdWdoIGFuIElPTU1VLiBJbiB0aGUgY29udGV4dCBvZiBhIGd1ZXN0IE9T
+LCBJT1ZBIGlzIEdWQS4KPgo+IE5vdGU6IGt2bXRvb2wgaXMgR1BMdjIuIExpbnV4IHBhdGNoZXMg
+YXJlIEdQTHYyLCBleGNlcHQgZm9yIFVBUEkKPiB2aXJ0aW8taW9tbXUuaCBoZWFkZXIsIHdoaWNo
+IGlzIEJTRCAzLWNsYXVzZS4gRm9yIHRoZSB0aW1lIGJlaW5nLCB0aGUKPiBzcGVjaWZpY2F0aW9u
+IGRyYWZ0IGluIFJGQyAyLzMgaXMgYWxzbyBCU0QgMy1jbGF1c2UuCj4KPgo+IFRoaXMgcHJvcG9z
+YWwgbWF5IGJlIGludm9sdW50YXJpbHkgY2VudGVyZWQgYXJvdW5kIEFSTSBhcmNoaXRlY3R1cmVz
+IGF0Cj4gdGltZXMuIEFueSBmZWVkYmFjayB3b3VsZCBiZSBhcHByZWNpYXRlZCwgZXNwZWNpYWxs
+eSByZWdhcmRpbmcgb3RoZXIgSU9NTVUKPiBhcmNoaXRlY3R1cmVzLgo+Cj4gVGhhbmtzLAo+IEpl
+YW4tUGhpbGlwcGUKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
+bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
