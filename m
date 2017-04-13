@@ -1,15 +1,14 @@
 From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 Subject: Re: [RFC 0/3] virtio-iommu: a paravirtualized IOMMU
-Date: Thu, 13 Apr 2017 14:12:19 +0100
-Message-ID: <1c07db27-4b5e-6712-b0bb-e2d9176c6607__40572.499347809$1492089042$gmane$org@arm.com>
+Date: Thu, 13 Apr 2017 14:12:59 +0100
+Message-ID: <c2221f1d-0f8c-0361-95e5-217e7d28409d__18019.1623316661$1492089071$gmane$org@arm.com>
 References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
-	<a0920e37-a11e-784c-7d90-be6617ea7686@redhat.com>
-	<AADFC41AFE54684AB9EE6CBC0274A5D190CA990E@SHSMSX101.ccr.corp.intel.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D190CA999C@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D190CA990E@SHSMSX101.ccr.corp.intel.com>
+In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D190CA999C@SHSMSX101.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,59 +18,167 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Tian, Kevin" <kevin.tian@intel.com>, Jason Wang <jasowang@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+To: "Tian, Kevin" <kevin.tian@intel.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
 Cc: "cdall@linaro.org" <cdall@linaro.org>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "will.deacon@arm.com" <will.deacon@arm.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTMvMDQvMTcgMDk6MTYsIFRpYW4sIEtldmluIHdyb3RlOgo+PiBGcm9tOiBKYXNvbiBXYW5n
-Cj4+IFNlbnQ6IFdlZG5lc2RheSwgQXByaWwgMTIsIDIwMTcgNTowNyBQTQo+Pgo+PiBPbiAyMDE3
-5bm0MDTmnIgwOOaXpSAwMzoxNywgSmVhbi1QaGlsaXBwZSBCcnVja2VyIHdyb3RlOgo+Pj4gVGhp
-cyBpcyB0aGUgaW5pdGlhbCBwcm9wb3NhbCBmb3IgYSBwYXJhdmlydHVhbGl6ZWQgSU9NTVUgZGV2
-aWNlIHVzaW5nCj4+PiB2aXJ0aW8gdHJhbnNwb3J0LiBJdCBjb250YWlucyBhIGRlc2NyaXB0aW9u
-IG9mIHRoZSBkZXZpY2UsIGEgTGludXggZHJpdmVyLAo+Pj4gYW5kIGEgdG95IGltcGxlbWVudGF0
-aW9uIGluIGt2bXRvb2wuIFdpdGggdGhpcyBwcm90b3R5cGUsIHlvdSBjYW4KPj4+IHRyYW5zbGF0
-ZSBETUEgdG8gZ3Vlc3QgbWVtb3J5IGZyb20gZW11bGF0ZWQgKHZpcnRpbyksIG9yIHBhc3NlZC10
-aHJvdWdoCj4+PiAoVkZJTykgZGV2aWNlcy4KPj4+Cj4+PiBJbiBpdHMgc2ltcGxlc3QgZm9ybSwg
-aW1wbGVtZW50ZWQgaGVyZSwgdGhlIGRldmljZSBoYW5kbGVzIG1hcC91bm1hcAo+Pj4gcmVxdWVz
-dHMgZnJvbSB0aGUgZ3Vlc3QuIEZ1dHVyZSBleHRlbnNpb25zIHByb3Bvc2VkIGluICJSRkMgMy8z
-IiBzaG91bGQKPj4+IGFsbG93IHRvIGJpbmQgcGFnZSB0YWJsZXMgdG8gZGV2aWNlcy4KPj4+Cj4+
-PiBUaGVyZSBhcmUgYSBudW1iZXIgb2YgYWR2YW50YWdlcyBpbiBhIHBhcmF2aXJ0dWFsaXplZCBJ
-T01NVSBvdmVyIGEgZnVsbAo+Pj4gZW11bGF0aW9uLiBJdCBpcyBwb3J0YWJsZSBhbmQgY291bGQg
-YmUgcmV1c2VkIG9uIGRpZmZlcmVudCBhcmNoaXRlY3R1cmVzLgo+Pj4gSXQgaXMgZWFzaWVyIHRv
-IGltcGxlbWVudCB0aGFuIGEgZnVsbCBlbXVsYXRpb24sIHdpdGggbGVzcyBzdGF0ZSB0cmFja2lu
-Zy4KPj4+IEl0IG1pZ2h0IGJlIG1vcmUgZWZmaWNpZW50IGluIHNvbWUgY2FzZXMsIHdpdGggbGVz
-cyBjb250ZXh0IHN3aXRjaGVzIHRvCj4+PiB0aGUgaG9zdCBhbmQgdGhlIHBvc3NpYmlsaXR5IG9m
-IGluLWtlcm5lbCBlbXVsYXRpb24uCj4+Cj4+IEkgbGlrZSB0aGUgaWRlYS4gQ29uc2lkZXIgdGhl
-IGNvbXBsZXhpdHkgb2YgSU9NTVUgaGFyZHdhcmUuIEkgYmVsaWV2ZSB3ZQo+PiBkb24ndCB3YW50
-IHRvIGhhdmUgYW5kIGZpZ2h0ICBmb3IgYnVncyBvZiB0aHJlZSBvciBtb3JlIGRpZmZlcmVudCBJ
-T01NVQo+PiBpbXBsZW1lbnRhdGlvbnMgaW4gZWl0aGVyIHVzZXJzcGFjZSBvciBrZXJuZWwuCj4+
-Cj4gCj4gVGhvdWdoIHRoZXJlIGFyZSBkZWZpbml0ZWx5IHBvc2l0aXZlIHRoaW5ncyBhcm91bmQg
-cHZJT01NVSBhcHByb2FjaCwKPiBpdCBhbHNvIGhhcyBzb21lIGxpbWl0YXRpb25zOgo+IAo+IC0g
-RXhpc3RpbmcgSU9NTVUgaW1wbGVtZW50YXRpb25zIGhhdmUgYmVlbiBpbiBvbGQgZGlzdHJvcyBm
-b3IgcXVpdGUgc29tZQo+IHRpbWUsIHdoaWxlIHB2SU9NTVUgZHJpdmVyIHdpbGwgb25seSBsYW5k
-IGluIGZ1dHVyZSBkaXN0cm9zLiBEb2luZyBwdklPTU1VCj4gb25seSBtZWFucyB3ZSBjb21wbGV0
-ZWx5IGRyb3Agc3VwcG9ydCBvZiBvbGQgZGlzdHJvcyBpbiBWTTsKPiAKPiAtIFNpbWlsYXIgc2l0
-dWF0aW9uIG9uIHN1cHBvcnRpbmcgb3RoZXIgZ3Vlc3QgT1NlcyBlLmcuIFdpbmRvd3MuIElPTU1V
-IGlzCj4gYSBrZXkga2VybmVsIGNvbXBvbmVudCB3aGljaCBJJ20gbm90IHN1cmUgcHZJT01NVSB0
-aHJvdWdoIHZpcnRpbyBjYW4gYmUKPiByZWNvZ25pemVkIGluIHRob3NlIE9TZXMgKG5vdCBsaWtl
-IGEgdmlydGlvIGRldmljZSBkcml2ZXIpOwoKSSBjYW4ndCB0YWxrIGFib3V0IG90aGVyIE9TZXMs
-IGJ1dCBvbiBMaW51eCB2aXJ0aW8taW9tbXUgaXMgaW1wbGVtZW50ZWQKdGhlIHNhbWUgd2F5IGFz
-IG90aGVyIElPTU1VIGRyaXZlcnMgYW5kIGRvZXNuJ3QgcmVxdWlyZSBjb3JlIG1vZGlmaWNhdGlv
-bnMuCgo+IEkgd291bGQgaW1hZ2UgYm90aCBmdWxsLWVtdWxhdGVkIElPTU1VcyBhbmQgcHZJT01N
-VSB3b3VsZCBjby1leGlzdAo+IGZvciBzb21lIHRpbWUgZHVlIHRvIGFib3ZlIHJlYXNvbnMuIFNv
-bWVkYXkgd2hlbiBwdklPTU1VIGlzIG1hdHVyZS8KPiBzcHJlYWQgZW5vdWdoIGluIHRoZSBlY28t
-c3lzdGVtIChhbmQgZmVhdHVyZS13aXNlIGNvbXBhcmFibGUgdG8gZnVsbC1lbXVsYXRlZAo+IElP
-TU1VcyBmb3IgYWxsIHZlbmRvcnMpLCB0aGVuIHdlIG1heSBtYWtlIGEgY2FsbC4KCkFncmVlZC4g
-VGhlIG1haW4gaW5jb252ZW5pZW50IG9mIGFueSBwYXJhdmlydHVhbGl6ZWQgZGV2aWNlIGlzIHRo
-YXQgdGhleQpuZWVkIGFkZGl0aW9uYWwgc3VwcG9ydCBpbiB0aGUgZ3Vlc3QuIEl0IGlzIG5vdCBv
-dXIgaW50ZW50aW9uIHRvIGRpc3J1cHQKYWxsIHRoZSB3b3JrIGRvbmUgb24gSU9NTVUgdmlydHVh
-bGl6YXRpb24gZm9yIHg4NiBhbmQgb3RoZXIgYXJjaGl0ZWN0dXJlcy4KRXZlbiBmb3IgQVJNLCBw
-ZW9wbGUgbWlnaHQgd2FudCB0byBwcm92aWRlIFNNTVUgZW11bGF0aW9ucyB0byB1bm1vZGlmaWVk
-Cmd1ZXN0cywgaW1wbGVtZW50ZWQgaW4gdXNlcnNwYWNlLiBXaGF0IHdlIGludGVuZCB0byBhdm9p
-ZCwgYXMgZGV0YWlsZWQgaW4KbXkgb3RoZXIgcmVwbHksIGlzIGluLWtlcm5lbCBlbXVsYXRpb24g
-b2YgYWxsIHBvc3NpYmxlIEFSTS1iYXNlZCBJT01NVQp2YXJpYXRpb25zIGZvciBMaW51eC4gU28g
-d2UgcHJvcG9zZSBhIGdlbmVyaWMgYWx0ZXJuYXRpdmUgZnJvbSB0aGUgc3RhcnQsCnRoYXQgb3Ro
-ZXJzIGNhbiByZXVzZSBsYXRlci4KClRoYW5rcywKSmVhbi1QaGlsaXBwZQoKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
-ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
-bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 13/04/17 09:41, Tian, Kevin wrote:
+>> From: Jean-Philippe Brucker
+>> Sent: Saturday, April 8, 2017 3:18 AM
+>>
+>> This is the initial proposal for a paravirtualized IOMMU device using
+>> virtio transport. It contains a description of the device, a Linux driver,
+>> and a toy implementation in kvmtool. With this prototype, you can
+>> translate DMA to guest memory from emulated (virtio), or passed-through
+>> (VFIO) devices.
+>>
+>> In its simplest form, implemented here, the device handles map/unmap
+>> requests from the guest. Future extensions proposed in "RFC 3/3" should
+>> allow to bind page tables to devices.
+>>
+>> There are a number of advantages in a paravirtualized IOMMU over a full
+>> emulation. It is portable and could be reused on different architectures.
+>> It is easier to implement than a full emulation, with less state tracking.
+>> It might be more efficient in some cases, with less context switches to
+>> the host and the possibility of in-kernel emulation.
+>>
+>> When designing it and writing the kvmtool device, I considered two main
+>> scenarios, illustrated below.
+>>
+>> Scenario 1: a hardware device passed through twice via VFIO
+>>
+>>    MEM____pIOMMU________PCI device________________________
+>> HARDWARE
+>>             |     (2b)                                    \
+>>   ----------|-------------+-------------+------------------\-------------
+>>             |             :     KVM     :                   \
+>>             |             :             :                    \
+>>        pIOMMU drv         :         _______virtio-iommu drv   \    KERNEL
+>>             |             :        |    :          |           \
+>>           VFIO            :        |    :        VFIO           \
+>>             |             :        |    :          |             \
+>>             |             :        |    :          |             /
+>>   ----------|-------------+--------|----+----------|------------/--------
+>>             |                      |    :          |           /
+>>             | (1c)            (1b) |    :     (1a) |          / (2a)
+>>             |                      |    :          |         /
+>>             |                      |    :          |        /   USERSPACE
+>>             |___virtio-iommu dev___|    :        net drv___/
+>>                                         :
+>>   --------------------------------------+--------------------------------
+>>                  HOST                   :             GUEST
+>>
+> 
+> Usually people draw such layers in reverse order, e.g. hw in the
+> bottom then kernel in the middle then user in the top. :-)
+
+Alright, I'll keep that in mind.
+
+>> (1) a. Guest userspace is running a net driver (e.g. DPDK). It allocates a
+>>        buffer with mmap, obtaining virtual address VA. It then send a
+>>        VFIO_IOMMU_MAP_DMA request to map VA to an IOVA (possibly
+>> VA=IOVA).
+>>     b. The maping request is relayed to the host through virtio
+>>        (VIRTIO_IOMMU_T_MAP).
+>>     c. The mapping request is relayed to the physical IOMMU through VFIO.
+>>
+>> (2) a. The guest userspace driver can now instruct the device to directly
+>>        access the buffer at IOVA
+>>     b. IOVA accesses from the device are translated into physical
+>>        addresses by the IOMMU.
+>>
+>> Scenario 2: a virtual net device behind a virtual IOMMU.
+>>
+>>   MEM__pIOMMU___PCI device                                     HARDWARE
+>>          |         |
+>>   -------|---------|------+-------------+-------------------------------
+>>          |         |      :     KVM     :
+>>          |         |      :             :
+>>     pIOMMU drv     |      :             :
+>>              \     |      :      _____________virtio-net drv      KERNEL
+>>               \_net drv   :     |       :          / (1a)
+>>                    |      :     |       :         /
+>>                   tap     :     |    ________virtio-iommu drv
+>>                    |      :     |   |   : (1b)
+>>   -----------------|------+-----|---|---+-------------------------------
+>>                    |            |   |   :
+>>                    |_virtio-net_|   |   :
+>>                          / (2)      |   :
+>>                         /           |   :                      USERSPACE
+>>               virtio-iommu dev______|   :
+>>                                         :
+>>   --------------------------------------+-------------------------------
+>>                  HOST                   :             GUEST
+>>
+>> (1) a. Guest virtio-net driver maps the virtio ring and a buffer
+>>     b. The mapping requests are relayed to the host through virtio.
+>> (2) The virtio-net device now needs to access any guest memory via the
+>>     IOMMU.
+>>
+>> Physical and virtual IOMMUs are completely dissociated. The net driver is
+>> mapping its own buffers via DMA/IOMMU API, and buffers are copied
+>> between
+>> virtio-net and tap.
+>>
+>>
+>> The description itself seemed too long for a single email, so I split it
+>> into three documents, and will attach Linux and kvmtool patches to this
+>> email.
+>>
+>> 	1. Firmware note,
+>> 	2. device operations (draft for the virtio specification),
+>> 	3. future work/possible improvements.
+>>
+>> Just to be clear on the terms I'm using:
+>>
+>> pIOMMU	physical IOMMU, controlling DMA accesses from physical
+>> devices
+>> vIOMMU	virtual IOMMU (virtio-iommu), controlling DMA accesses
+>> from
+>> 	physical and virtual devices to guest memory.
+> 
+> maybe clearer to call controlling 'virtual' DMA access since we're
+> essentially doing DMA virtualization here. Otherwise I read it
+> a bit confusing since DMA accesses from physical device should
+> be controlled by pIOMMU.
+> 
+>> GVA, GPA, HVA, HPA
+>> 	Guest/Host Virtual/Physical Address
+>> IOVA	I/O Virtual Address, the address accessed by a device doing DMA
+>> 	through an IOMMU. In the context of a guest OS, IOVA is GVA.
+> 
+> This statement is not accurate. For kernel DMA protection, it is 
+> per-device standalone address space (definitely nothing to do 
+> with GVA). For user DMA protection, user space driver decides 
+> how it wants to construct IOVA address space. could be a 
+> standalone one, or reuse GVA. In virtualization case it is either
+> GPA (w/o vIOMMU) or guest IOVA (w/ IOMMU and guest creates
+> IOVA space).
+> 
+> anyway IOVA concept is clear. possibly just removing the example
+> is still clear. :-)
+
+Ok, I dropped most IOVA references from the RFC to avoid ambiguity anyway.
+I'll tidy up my so-called clarifications next time :)
+
+Thanks,
+Jean-Philippe
+
+>>
+>> Note: kvmtool is GPLv2. Linux patches are GPLv2, except for UAPI
+>> virtio-iommu.h header, which is BSD 3-clause. For the time being, the
+>> specification draft in RFC 2/3 is also BSD 3-clause.
+>>
+>>
+>> This proposal may be involuntarily centered around ARM architectures at
+>> times. Any feedback would be appreciated, especially regarding other
+>> IOMMU
+>> architectures.
+>>
+> 
+> thanks for doing this. will definitely look them in detail and feedback.
+> 
+> Thanks
+> Kevin
+> 
+> 
