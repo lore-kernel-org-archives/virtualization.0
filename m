@@ -1,12 +1,15 @@
-From: "icete@insticc.info" <icete@insticc.info>
-Subject: CFP ICETE 2017 - 14th Int.l Joint Conf. on e-Business and
-	Telecommunications (Madrid/Spain)
-Date: 13 Apr 2017 11:54:32 +0100
-Message-ID: <20170413105438.15407.38505.DD1ED2D3@insticc.info>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH kernel v8 3/4] mm: add inerface to offer info about unused
+	pages
+Date: Thu, 13 Apr 2017 19:07:57 +0800
+Message-ID: <58EF5C0D.60603__17197.1840238713$1492081585$gmane$org@intel.com>
+References: <1489648127-37282-1-git-send-email-wei.w.wang@intel.com>	<1489648127-37282-4-git-send-email-wei.w.wang@intel.com>
+	<20170316142842.69770813b98df70277431b1e@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20170316142842.69770813b98df70277431b1e@linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,30 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-U1VCTUlTU0lPTiBERUFETElORSAKCjE0dGggSW50ZXJuYXRpb25hbCBKb2ludCBDb25mZXJlbmNl
-IG9uIGUtQnVzaW5lc3MgYW5kIFRlbGVjb21tdW5pY2F0aW9ucwoKU3VibWlzc2lvbiBEZWFkbGlu
-ZTogQXByaWwgMTgsIDIwMTcKCmh0dHA6Ly93d3cuaWNldGUub3JnLwoKSnVseSAyNCAtIDI2LCAy
-MDE3Ck1hZHJpZCwgU3BhaW4uCgogCgpUZWNobmljYWxseSBDby1zcG9uc29yZWQgYnkgSUVFRSBT
-eXN0ZW1zIENvdW5jaWwuIAoKSW4gQ29vcGVyYXRpb24gd2l0aCBJVEcsIEFDTSBTSUdNTSwgQUNN
-IFNJR01JUywgSUFDUiwgRU9TLCBFVVJBU0lQLgogCldpdGggdGhlIHByZXNlbmNlIG9mIGludGVy
-bmF0aW9uYWxseSBkaXN0aW5ndWlzaGVkIGtleW5vdGUgc3BlYWtlcnM6CkNoYXJhbGFib3MgU2tp
-YW5pcywgVW5pdmVyc2l0eSBvZiB0aGUgQWVnZWFuLCBHcmVlY2UKQ2FybG8gUmVnYXp6b25pLCBV
-bml2ZXJzaXR5IG9mIEdlbm92YSwgSXRhbHkKSmFuIENhbWVuaXNjaCwgSUJNIFJlc2VhcmNoIC0g
-WnVyaWNoLCBTd2l0emVybGFuZApKb3NlIER1YXRvLCBVUFYsIFNwYWluCkFuZHJlYXMgSG9semlu
-Z2VyLCBNZWRpY2FsIFVuaXZlcnNpdHkgR3JheiwgQXVzdHJpYQoKCkEgc2hvcnQgbGlzdCBvZiBw
-cmVzZW50ZWQgcGFwZXJzIHdpbGwgYmUgc2VsZWN0ZWQgc28gdGhhdCByZXZpc2VkIGFuZCBleHRl
-bmRlZCB2ZXJzaW9ucyBvZiB0aGVzZSBwYXBlcnMgd2lsbCBiZSBwdWJsaXNoZWQgYnkgU3ByaW5n
-ZXIuCiAKQWxsIHBhcGVycyBwcmVzZW50ZWQgYXQgdGhlIGNvbmdyZXNzIHZlbnVlIHdpbGwgYWxz
-byBiZSBhdmFpbGFibGUgYXQgdGhlIFNDSVRFUFJFU1MgRGlnaXRhbCBMaWJyYXJ5IChodHRwOi8v
-d3d3LnNjaXRlcHJlc3Mub3JnL0RpZ2l0YWxMaWJyYXJ5LykuCiAgClNob3VsZCB5b3UgaGF2ZSBh
-bnkgcXVlc3Rpb24gcGxlYXNlIGRvbuKAmXQgaGVzaXRhdGUgY29udGFjdGluZyBtZS4KIAoKS2lu
-ZCByZWdhcmRzLApJQ0VURSBTZWNyZXRhcmlhdAoKQWRkcmVzczogQXYuIEQuIE1hbnVlbCBJLCAy
-N0EsIDLCuiBlc3EuCjI5MTAtNTk1IFNldHViYWwsIFBvcnR1Z2FsClRlbDogKzM1MSAyNjUgNTIw
-IDE4NQpGYXg6ICszNTEgMjY1IDUyMCAxODYKV2ViOiBodHRwOi8vd3d3LmljZXRlLm9yZy8KZS1t
-YWlsOiBpY2V0ZS5zZWNyZXRhcmlhdEBpbnN0aWNjLm9yZwoKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 03/17/2017 05:28 AM, Andrew Morton wrote:
+> On Thu, 16 Mar 2017 15:08:46 +0800 Wei Wang <wei.w.wang@intel.com> wrote:
+>
+>> From: Liang Li <liang.z.li@intel.com>
+>>
+>> This patch adds a function to provides a snapshot of the present system
+>> unused pages. An important usage of this function is to provide the
+>> unsused pages to the Live migration thread, which skips the transfer of
+>> thoses unused pages. Newly used pages can be re-tracked by the dirty
+>> page logging mechanisms.
+> I don't think this will be useful for anything other than
+> virtio-balloon.  I guess it would be better to keep this code in the
+> virtio-balloon driver if possible, even though that's rather a layering
+> violation :( What would have to be done to make that possible?  Perhaps
+> we can put some *small* helpers into page_alloc.c to prevent things
+> from becoming too ugly.
+>
+>
+Thanks for the suggestion. Small helpers do look more elegant. The nice 
+thing is that I also didn't see any performance loss.
+To make that possible, we need to enable for_each_polulated_zone() to be 
+callable by a kernel module. Please have a check the v9 patches that I 
+just posted out.
+
+Best,
+Wei
