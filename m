@@ -1,8 +1,8 @@
 From: Vladislav Yasevich <vyasevich@gmail.com>
-Subject: [PATCH RFC (resend) net-next 1/6] virtio-net: Remove the use the
-	padded vnet_header structure
-Date: Sat, 15 Apr 2017 12:38:13 -0400
-Message-ID: <1492274298-17362-2-git-send-email-vyasevic@redhat.com>
+Subject: [PATCH RFC (resend) net-next 2/6] virtio-net: make header length
+	handling uniform
+Date: Sat, 15 Apr 2017 12:38:14 -0400
+Message-ID: <1492274298-17362-3-git-send-email-vyasevic__40477.430568035$1492274339$gmane$org@redhat.com>
 References: <1492274298-17362-1-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,74 +22,49 @@ To: netdev@vger.kernel.org
 Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-We can replace the structure with a properly aligned size instead.
-The current structure attempts to align on a 16 byte boundary, so
-preserve it.
+Consistently use hdr_len stored in virtnet_info
+structure instead of direclty using specific sizes.
+This will be required as the size of the virtio net
+header grows due to future extensions.
 
-Signed-off-by: Vlad Yaseivch <vyasevic@redhat.com>
+Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
 ---
- drivers/net/virtio_net.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/net/virtio_net.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index b0d241d..2937a98 100644
+index 2937a98..5ad6ee6 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -174,15 +174,20 @@ struct virtnet_info {
- 	u32 speed;
- };
+@@ -855,9 +855,9 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
+ 	return err;
+ }
  
--struct padded_vnet_hdr {
--	struct virtio_net_hdr_mrg_rxbuf hdr;
-+static inline u8 padded_vnet_hdr(struct virtnet_info *vi)
-+{
-+	u8 hdr_len = vi->hdr_len;
-+
- 	/*
- 	 * hdr is in a separate sg buffer, and data sg buffer shares same page
- 	 * with this header sg. This padding makes next sg 16 byte aligned
- 	 * after the header.
- 	 */
--	char padding[4];
--};
-+	if (!vi->mergeable_rx_bufs)
-+		hdr_len = __ALIGN_KERNEL_MASK(hdr_len, 15);
-+
-+	return hdr_len;
-+}
- 
- /* Converting between virtqueue no. and kernel tx/rx queue no.
-  * 0:rx0 1:tx0 2:rx1 3:tx1 ... 2N:rxN 2N+1:txN 2N+2:cvq
-@@ -289,10 +294,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	hdr = skb_vnet_hdr(skb);
- 
- 	hdr_len = vi->hdr_len;
--	if (vi->mergeable_rx_bufs)
--		hdr_padded_len = sizeof *hdr;
--	else
--		hdr_padded_len = sizeof(struct padded_vnet_hdr);
-+	hdr_padded_len = padded_vnet_hdr(vi);
- 
- 	memcpy(hdr, p, hdr_len);
- 
-@@ -840,7 +842,7 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
- 	sg_set_buf(&rq->sg[0], p, vi->hdr_len);
- 
- 	/* rq->sg[1] for data packet, from offset */
--	offset = sizeof(struct padded_vnet_hdr);
-+	offset = padded_vnet_hdr(vi);
- 	sg_set_buf(&rq->sg[1], p + offset, PAGE_SIZE - offset);
- 
- 	/* chain first in list head */
-@@ -1790,8 +1792,8 @@ static int virtnet_reset(struct virtnet_info *vi, int curr_qp, int xdp_qp)
- 
- static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog)
+-static unsigned int get_mergeable_buf_len(struct ewma_pkt_len *avg_pkt_len)
++static unsigned int get_mergeable_buf_len(struct ewma_pkt_len *avg_pkt_len,
++					  u8 hdr_len)
  {
--	unsigned long int max_sz = PAGE_SIZE - sizeof(struct padded_vnet_hdr);
- 	struct virtnet_info *vi = netdev_priv(dev);
-+	unsigned long int max_sz = PAGE_SIZE - padded_vnet_hdr(vi);
- 	struct bpf_prog *old_prog;
- 	u16 xdp_qp = 0, curr_qp;
- 	int i, err;
+-	const size_t hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
+ 	unsigned int len;
+ 
+ 	len = hdr_len + clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
+@@ -875,7 +875,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+ 	int err;
+ 	unsigned int len, hole;
+ 
+-	len = get_mergeable_buf_len(&rq->mrg_avg_pkt_len);
++	len = get_mergeable_buf_len(&rq->mrg_avg_pkt_len, vi->hdr_len);
+ 	if (unlikely(!skb_page_frag_refill(len + headroom, alloc_frag, gfp)))
+ 		return -ENOMEM;
+ 
+@@ -2188,7 +2188,7 @@ static ssize_t mergeable_rx_buffer_size_show(struct netdev_rx_queue *queue,
+ 
+ 	BUG_ON(queue_index >= vi->max_queue_pairs);
+ 	avg = &vi->rq[queue_index].mrg_avg_pkt_len;
+-	return sprintf(buf, "%u\n", get_mergeable_buf_len(avg));
++	return sprintf(buf, "%u\n", get_mergeable_buf_len(avg, vi->hdr_len));
+ }
+ 
+ static struct rx_queue_attribute mergeable_rx_buffer_size_attribute =
 -- 
 2.7.4
