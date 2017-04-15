@@ -1,8 +1,8 @@
 From: Vladislav Yasevich <vyasevich@gmail.com>
-Subject: [PATCH RFC (resend) net-next 3/6] virtio_net: Add basic skeleton for
-	handling vnet header extensions.
-Date: Sat, 15 Apr 2017 12:38:15 -0400
-Message-ID: <1492274298-17362-4-git-send-email-vyasevic__39899.3852235892$1492274350$gmane$org@redhat.com>
+Subject: [PATCH RFC (resend) net-next 4/6] virtio-net: Add support for IPv6
+	fragment id vnet header extension.
+Date: Sat, 15 Apr 2017 12:38:16 -0400
+Message-ID: <1492274298-17362-5-git-send-email-vyasevic__13479.402793064$1492274366$gmane$org@redhat.com>
 References: <1492274298-17362-1-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,121 +22,133 @@ To: netdev@vger.kernel.org
 Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is the basic sceleton which will be fleshed out by individiual
-extensions.
+This adds the ability to pass a guest generated IPv6 fragment id to the
+host hypervisor.  The id is passed as big endian to eliminate unnecessary
+conversions.  The host will be able to directly use this id instead of
+attempting to generate its own.  This makes the IPv6 framgnet id sligtly
+harder to predict.
 
 Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
 ---
- drivers/net/virtio_net.c        | 21 +++++++++++++++++++++
- include/linux/virtio_net.h      | 12 ++++++++++++
- include/uapi/linux/virtio_net.h | 11 +++++++++++
- 3 files changed, 44 insertions(+)
+ drivers/net/virtio_net.c        | 27 +++++++++++++++++++++++++--
+ include/linux/virtio_net.h      | 20 ++++++++++++++++++++
+ include/uapi/linux/virtio_net.h |  7 +++++++
+ 3 files changed, 52 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 5ad6ee6..08e2709 100644
+index 08e2709..18eb0dd 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -145,6 +145,10 @@ struct virtnet_info {
- 	/* Packet virtio header size */
- 	u8 hdr_len;
- 
-+	/* Header extensions were negotiated */
-+	bool hdr_ext;
-+	u32 ext_mask;
-+
- 	/* Active statistics */
- 	struct virtnet_stats __percpu *stats;
- 
-@@ -174,6 +178,11 @@ struct virtnet_info {
- 	u32 speed;
+@@ -181,6 +181,7 @@ struct virtnet_info {
+ struct virtio_net_hdr_max {
+ 	struct virtio_net_hdr_mrg_rxbuf hdr;
+ 	struct virtio_net_ext_hdr ext_hdr;
++	struct virtio_net_ext_ip6frag ip6f_ext;
  };
  
-+struct virtio_net_hdr_max {
-+	struct virtio_net_hdr_mrg_rxbuf hdr;
-+	struct virtio_net_ext_hdr ext_hdr;
-+};
-+
  static inline u8 padded_vnet_hdr(struct virtnet_info *vi)
- {
- 	u8 hdr_len = vi->hdr_len;
-@@ -214,6 +223,7 @@ static int rxq2vq(int rxq)
- 
- static inline struct virtio_net_hdr_mrg_rxbuf *skb_vnet_hdr(struct sk_buff *skb)
- {
-+	BUILD_BUG_ON(sizeof(struct virtio_net_hdr_max) > sizeof(skb->cb));
- 	return (struct virtio_net_hdr_mrg_rxbuf *)skb->cb;
+@@ -2260,6 +2261,23 @@ static bool virtnet_validate_features(struct virtio_device *vdev)
+ 	return true;
  }
  
-@@ -767,6 +777,12 @@ static int receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
- 		goto frame_err;
- 	}
- 
-+	if (vi->hdr_ext &&
-+	    virtio_net_ext_to_skb(skb,
-+				  (struct virtio_net_ext_hdr *)(hdr + 1))) {
-+		goto frame_err;
++static void virtnet_init_extensions(struct virtio_device *vdev)
++{
++	struct virtnet_info *vi = vdev->priv;
++
++	/* Start with V1 header size plus the extension header */
++	vi->hdr_len = sizeof(struct virtio_net_hdr_v1) +
++		      sizeof(struct virtio_net_ext_hdr);
++
++	/* now check all the negotiated extensions and add up
++	 * the sizes
++	 */
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_IP6_FRAGID)) {
++		vi->hdr_len += sizeof(u32);
++		vi->ext_mask |= VIRTIO_NET_EXT_F_IP6FRAG;
 +	}
++}
 +
- 	skb->protocol = eth_type_trans(skb, dev);
- 	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
- 		 ntohs(skb->protocol), skb->len, skb->pkt_type);
-@@ -1106,6 +1122,11 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
- 	if (vi->mergeable_rx_bufs)
- 		hdr->num_buffers = 0;
+ #define MIN_MTU ETH_MIN_MTU
+ #define MAX_MTU ETH_MAX_MTU
  
-+	if (vi->hdr_ext &&
-+	    virtio_net_ext_from_skb(skb, (struct virtio_net_ext_hdr *)(hdr + 1),
-+				    vi->ext_mask))
-+		BUG();
+@@ -2377,8 +2395,13 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+ 		vi->mergeable_rx_bufs = true;
+ 
+-	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF) ||
+-	    virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_IP6_FRAGID))
++		vi->hdr_ext = true;
 +
- 	sg_init_table(sq->sg, skb_shinfo(skb)->nr_frags + (can_push ? 1 : 2));
- 	if (can_push) {
- 		__skb_push(skb, hdr_len);
++	if (vi->hdr_ext)
++		virtnet_init_extensions(vdev);
++	else if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF) ||
++		 virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+ 		vi->hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
+ 	else
+ 		vi->hdr_len = sizeof(struct virtio_net_hdr);
 diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 5209b5e..eaa524f 100644
+index eaa524f..3b259dc 100644
 --- a/include/linux/virtio_net.h
 +++ b/include/linux/virtio_net.h
-@@ -100,4 +100,16 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+@@ -103,6 +103,16 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+ static inline int virtio_net_ext_to_skb(struct sk_buff *skb,
+ 					struct virtio_net_ext_hdr *ext)
+ {
++	__u8 *ptr = ext->extensions;
++
++	if (ext->flags & VIRTIO_NET_EXT_F_IP6FRAG) {
++		struct virtio_net_ext_ip6frag *fhdr =
++					(struct virtio_net_ext_ip6frag *)ptr;
++
++		skb_shinfo(skb)->ip6_frag_id = fhdr->frag_id;
++		ptr += sizeof(struct virtio_net_ext_ip6frag);
++	}
++
  	return 0;
  }
  
-+static inline int virtio_net_ext_to_skb(struct sk_buff *skb,
-+					struct virtio_net_ext_hdr *ext)
-+{
-+	return 0;
-+}
+@@ -110,6 +120,16 @@ static inline int virtio_net_ext_from_skb(const struct sk_buff *skb,
+ 					  struct virtio_net_ext_hdr *ext,
+ 					  __u32 ext_mask)
+ {
++	__u8 *ptr = ext->extensions;
 +
-+static inline int virtio_net_ext_from_skb(const struct sk_buff *skb,
-+					  struct virtio_net_ext_hdr *ext,
-+					  __u32 ext_mask)
-+{
-+	return 0;
-+}
++	if ((ext_mask & VIRTIO_NET_EXT_F_IP6FRAG) &&
++	    skb_shinfo(skb)->ip6_frag_id) {
++		struct virtio_net_ext_ip6frag *fhdr =
++					(struct virtio_net_ext_ip6frag *)ptr;
++		fhdr->frag_id = skb_shinfo(skb)->ip6_frag_id;
++		ext->flags |= VIRTIO_NET_EXT_F_IP6FRAG;
++	}
++
+ 	return 0;
+ }
  #endif /* _LINUX_VIRTIO_NET_H */
 diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-index fc353b5..0039b72 100644
+index 0039b72..eac8d94 100644
 --- a/include/uapi/linux/virtio_net.h
 +++ b/include/uapi/linux/virtio_net.h
-@@ -88,6 +88,7 @@ struct virtio_net_config {
- struct virtio_net_hdr_v1 {
- #define VIRTIO_NET_HDR_F_NEEDS_CSUM	1	/* Use csum_start, csum_offset */
- #define VIRTIO_NET_HDR_F_DATA_VALID	2	/* Csum is valid */
-+#define VIRTIO_NET_HDR_F_VNET_EXT	4	/* Vnet extensions present */
- 	__u8 flags;
- #define VIRTIO_NET_HDR_GSO_NONE		0	/* Not a GSO frame */
- #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
-@@ -102,6 +103,16 @@ struct virtio_net_hdr_v1 {
- 	__virtio16 num_buffers;	/* Number of merged rx buffers */
+@@ -56,6 +56,7 @@
+ #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+ 					 * Steering */
+ #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
++#define VIRTIO_NET_F_IP6_FRAGID    24	/* Host supports VLAN accleration */
+ 
+ #ifndef VIRTIO_NET_NO_LEGACY
+ #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
+@@ -109,10 +110,16 @@ struct virtio_net_hdr_v1 {
+  * this header.
+  */
+ struct virtio_net_ext_hdr {
++#define VIRTIO_NET_EXT_F_IP6FRAG	(1<<0)
+ 	__u32 flags;
+ 	__u8 extensions[];
  };
  
-+/* If IRTIO_NET_HDR_F_VNET_EXT flags is set, this header immediately
-+ * follows the virtio_net_hdr.  The flags in this header will indicate
-+ * which extension will follow.  The extnsion data will immidiately follow
-+ * this header.
-+ */
-+struct virtio_net_ext_hdr {
-+	__u32 flags;
-+	__u8 extensions[];
++/* Same as vlan_hdr */
++struct virtio_net_ext_ip6frag {
++	__be32 frag_id;
 +};
 +
  #ifndef VIRTIO_NET_NO_LEGACY
