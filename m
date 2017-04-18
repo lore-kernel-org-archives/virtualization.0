@@ -1,18 +1,15 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [virtio-dev] Re: [PATCH v9 2/5] virtio-balloon:
-	VIRTIO_BALLOON_F_BALLOON_CHUNKS
-Date: Mon, 17 Apr 2017 11:35:29 +0800
-Message-ID: <58F43801.7060004__3351.29069067097$1492400035$gmane$org@intel.com>
-References: <1492076108-117229-1-git-send-email-wei.w.wang@intel.com>
-	<1492076108-117229-3-git-send-email-wei.w.wang@intel.com>
-	<20170413184040-mutt-send-email-mst@kernel.org>
-	<58F08A60.2020407@intel.com>
-	<20170415000934-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH RFC (resend) net-next 3/6] virtio_net: Add basic skeleton
+	for handling vnet header extensions.
+Date: Tue, 18 Apr 2017 10:52:42 +0800
+Message-ID: <67fb89d0-d7f9-33c3-0224-ae14ad4fc4a0__18937.0017884814$1492483985$gmane$org@redhat.com>
+References: <1492274298-17362-1-git-send-email-vyasevic@redhat.com>
+	<1492274298-17362-4-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170415000934-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1492274298-17362-4-git-send-email-vyasevic@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,278 +19,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: Vladislav Yasevich <vyasevich@gmail.com>, netdev@vger.kernel.org
+Cc: virtio-dev@lists.oasis-open.org, maxime.coquelin@redhat.com, mst@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/15/2017 05:38 AM, Michael S. Tsirkin wrote:
-> On Fri, Apr 14, 2017 at 04:37:52PM +0800, Wei Wang wrote:
->> On 04/14/2017 12:34 AM, Michael S. Tsirkin wrote:
->>> On Thu, Apr 13, 2017 at 05:35:05PM +0800, Wei Wang wrote:
->>>
->>> So we don't need the bitmap to talk to host, it is just
->>> a data structure we chose to maintain lists of pages, right?
->> Right. bitmap is the way to gather pages to chunk.
->> It's only needed in the balloon page case.
->> For the unused page case, we don't need it, since the free
->> page blocks are already chunks.
->>
->>> OK as far as it goes but you need much better isolation for it.
->>> Build a data structure with APIs such as _init, _cleanup, _add, _clear,
->>> _find_first, _find_next.
->>> Completely unrelated to pages, it just maintains bits.
->>> Then use it here.
->>>
->>>
->>>>    static int oom_pages = OOM_VBALLOON_DEFAULT_PAGES;
->>>>    module_param(oom_pages, int, S_IRUSR | S_IWUSR);
->>>>    MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
->>>> @@ -50,6 +54,10 @@ MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
->>>>    static struct vfsmount *balloon_mnt;
->>>>    #endif
->>>> +/* Types of pages to chunk */
->>>> +#define PAGE_CHUNK_TYPE_BALLOON 0
->>>> +
->>> Doesn't look like you are ever adding more types in this
->>> patchset.  Pls keep code simple, generalize it later.
->>>
->> "#define PAGE_CHUNK_TYPE_UNUSED 1" is added in another patch.
-> I would say add the extra code there too. Or maybe we can avoid
-> adding it altogether.
-
-I'm trying to have the two features( i.e. "balloon pages" and
-"unused pages") decoupled while trying to use common functions
-to deal with the commonalities. That's the reason to define
-the above macro.
-Without the macro, we will need to have separate functions,
-for example, instead of one "add_one_chunk()", we need to
-have add_one_balloon_page_chunk() and
-add_one_unused_page_chunk(),
-and some of the implementations will be kind of duplicate in the
-two functions.
-Probably we can add it when the second feature comes to
-the code.
-
->
->> Types of page to chunk are treated differently. Different types of page
->> chunks are sent to the host via different protocols.
->>
->> 1) PAGE_CHUNK_TYPE_BALLOON: Ballooned (i.e. inflated/deflated) pages
->> to chunk.  For the ballooned type, it uses the basic chunk msg format:
->>
->> virtio_balloon_page_chunk_hdr +
->> virtio_balloon_page_chunk * MAX_PAGE_CHUNKS
->>
->> 2) PAGE_CHUNK_TYPE_UNUSED: unused pages to chunk. It uses this miscq msg
->> format:
->> miscq_hdr +
->> virtio_balloon_page_chunk_hdr +
->> virtio_balloon_page_chunk * MAX_PAGE_CHUNKS
->>
->> The chunk msg is actually the payload of the miscq msg.
->>
->>
-> So just combine the two message formats and then it'll all be easier?
->
-
-Yes, it'll be simple with only one msg format. But the problem I see
-here is that miscq hdr is something necessary for the "unused page"
-usage, but not needed by the "balloon page" usage. To be more
-precise,
-struct virtio_balloon_miscq_hdr {
-  __le16 cmd;
-  __le16 flags;
-};
-'cmd' specifies  the command from the miscq (I envision that
-miscq will be further used to handle other possible miscellaneous
-requests either from the host or to the host), so 'cmd' is necessary
-for the miscq. But the inflateq is exclusively used for inflating
-pages, so adding a command to it would be redundant and look a little
-bewildered there.
-'flags': We currently use bit 0 of flags to indicate the completion
-ofa command, this is also useful in the "unused page" usage, and not
-needed by the "balloon page" usage.
->>>> +#define MAX_PAGE_CHUNKS 4096
->>> This is an order-4 allocation. I'd make it 4095 and then it's
->>> an order-3 one.
->> Sounds good, thanks.
->> I think it would be better to make it 4090. Leave some space for the hdr
->> as well.
-> And miscq hdr. In fact just let compiler do the math - something like:
-> (8 * PAGE_SIZE - sizeof(hdr)) / sizeof(chunk)
-Agree, thanks.
-
->
-> I skimmed explanation of algorithms below but please make sure
-> code speaks for itself and add comments inline to document it.
-> Whenever you answered me inline this is where you want to
-> try to make code clearer and add comments.
->
-> Also, pls find ways to abstract the data structure so we don't
-> need to deal with its internals all over the code.
->
->
-> ....
->
->>>>    {
->>>>    	struct scatterlist sg;
->>>> +	struct virtio_balloon_page_chunk_hdr *hdr;
->>>> +	void *buf;
->>>>    	unsigned int len;
->>>> -	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
->>>> +	switch (type) {
->>>> +	case PAGE_CHUNK_TYPE_BALLOON:
->>>> +		hdr = vb->balloon_page_chunk_hdr;
->>>> +		len = 0;
->>>> +		break;
->>>> +	default:
->>>> +		dev_warn(&vb->vdev->dev, "%s: chunk %d of unknown pages\n",
->>>> +			 __func__, type);
->>>> +		return;
->>>> +	}
->>>> -	/* We should always be able to add one buffer to an empty queue. */
->>>> -	virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
->>>> -	virtqueue_kick(vq);
->>>> +	buf = (void *)hdr - len;
->>> Moving back to before the header? How can this make sense?
->>> It works fine since len is 0, so just buf = hdr.
->>>
->> For the unused page chunk case, it follows its own protocol:
->> miscq_hdr + payload(chunk msg).
->>   "buf = (void *)hdr - len" moves the buf pointer to the miscq_hdr, to send
->> the entire miscq msg.
-> Well just pass the correct pointer in.
->
-OK. The miscq msg is
-{
-miscq_hdr;
-chunk_msg;
-}
-
-We can probably change the code like this:
-
-#define CHUNK_TO_MISCQ_MSG(chunk) (chunk - sizeof(struct 
-virtio_balloon_miscq_hdr))
-
-switch (type) {
-         case PAGE_CHUNK_TYPE_BALLOON:
-                 msg_buf = vb->balloon_page_chunk_hdr;
-                 msg_len = sizeof(struct virtio_balloon_page_chunk_hdr) +
-                     nr_chunks * sizeof(struct 
-virtio_balloon_page_chunk_entry);
-                 break;
-         case PAGE_CHUNK_TYPE_UNUSED:
-                 msg_buf = CHUNK_TO_MISCQ_MSG(vb->unused_page_chunk_hdr);
-                 msg_len = sizeof(struct virtio_balloon_miscq_hdr) +
-sizeof(struct virtio_balloon_page_chunk_hdr) +
-                     nr_chunks * sizeof(struct 
-virtio_balloon_page_chunk_entry);
-                 break;
-         default:
-                 dev_warn(&vb->vdev->dev, "%s: chunk %d of unknown pages\n",
-                          __func__, type);
-                 return;
-         }
-
-
-
->> Please check the patch for implementing the unused page chunk,
->> it will be clear. If necessary, I can put "buf = (void *)hdr - len" from
->> that patch.
-> Exactly. And all this pointer math is very messy. Please look for ways
-> to clean it. It's generally easy to fill structures:
->
-> struct foo *foo = kmalloc(..., sizeof(*foo) + n * sizeof(foo->a[0]));
-> for (i = 0; i < n; ++i)
-> 	foo->a[i] = b;
->
-> this is the kind of code that's easy to understand and it's
-> obvious there are no overflows and no info leaks here.
->
-OK, will take your suggestion:
-
-struct virtio_balloon_page_chunk {
-	struct virtio_balloon_page_chunk_hdr hdr;
-	struct virtio_balloon_page_chunk_entry entries[];
-};
-
-
->>>> +	len += sizeof(struct virtio_balloon_page_chunk_hdr);
->>>> +	len += hdr->chunks * sizeof(struct virtio_balloon_page_chunk);
->>>> +	sg_init_table(&sg, 1);
->>>> +	sg_set_buf(&sg, buf, len);
->>>> +	if (!virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL)) {
->>>> +		virtqueue_kick(vq);
->>>> +		if (busy_wait)
->>>> +			while (!virtqueue_get_buf(vq, &len) &&
->>>> +			       !virtqueue_is_broken(vq))
->>>> +				cpu_relax();
->>>> +		else
->>>> +			wait_event(vb->acked, virtqueue_get_buf(vq, &len));
->>>> +		hdr->chunks = 0;
->>> Why zero it here after device used it? Better to zero before use.
->> hdr->chunks tells the host how many chunks are there in the payload.
->> After the device use it, it is ready to zero it.
-> It's rather confusing. Try to pass # of chunks around
-> in some other way.
-
-Not sure if this was explained clearly - we just let the chunk msg hdr
-indicates the # of chunks in the payload. I think this should be a pretty
-normal usage, like the network UDP hdr, which uses a length field to 
-indicate
-the packet length.
-
->>>> +	}
->>>> +}
->>>> +
->>>> +static void add_one_chunk(struct virtio_balloon *vb, struct virtqueue *vq,
->>>> +			  int type, u64 base, u64 size)
->>> what are the units here? Looks like it's in 4kbyte units?
->> what is the "unit" you referred to?
->> This is the function to add one chunk, base pfn and size of the chunk are
->> supplied to the function.
->>
-> Are both size and base in bytes then?
-> But you do not send them to host as is, you shift them for some reason
-> before sending them to host.
->
-Not in bytes actually. base is a base pfn, which is the starting address
-of the continuous pfns. Size is the chunk size, which is the number of
-continuous pfns.
-
-They are shifted based on the chunk format we agreed before:
-
---------------------------------------------------------
-|                 Base (52 bit)        | Rsvd (12 bit) |
---------------------------------------------------------
---------------------------------------------------------
-|                 Size (52 bit)        | Rsvd (12 bit) |
---------------------------------------------------------
-
-
-Here, the pfn will be the balloon page pfn (4KB).In this way, the host
-doesn't need to know PAGE_SIZE of the guest.
-
-
-
->>>> +			if (zero >= end)
->>>> +				chunk_size = end - one;
->>>> +			else
->>>> +				chunk_size = zero - one;
->>>> +
->>>> +			if (chunk_size)
->>>> +				add_one_chunk(vb, vq, PAGE_CHUNK_TYPE_BALLOON,
->>>> +					      pfn_start + one, chunk_size);
->>> Still not so what does a bit refer to? page or 4kbytes?
->>> I think it should be a page.
->> A bit in the bitmap corresponds to a pfn of a balloon page(4KB).
-> That's a waste on systems with large page sizes, and it does not
-> look like you handle that case correctly.
-
-OK, I will change the bitmap to be PAGE_SIZE based here, instead of
-BALLOON_PAGE_SIZE based. When convert them into chunks, making it based
-on BALLOON_PAGE_SIZE.
-
-
-Best,
-Wei
+CgpPbiAyMDE35bm0MDTmnIgxNuaXpSAwMDozOCwgVmxhZGlzbGF2IFlhc2V2aWNoIHdyb3RlOgo+
+IFRoaXMgaXMgdGhlIGJhc2ljIHNjZWxldG9uIHdoaWNoIHdpbGwgYmUgZmxlc2hlZCBvdXQgYnkg
+aW5kaXZpZGl1YWwKPiBleHRlbnNpb25zLgo+Cj4gU2lnbmVkLW9mZi1ieTogVmxhZGlzbGF2IFlh
+c2V2aWNoIDx2eWFzZXZpY0ByZWRoYXQuY29tPgo+IC0tLQo+ICAgZHJpdmVycy9uZXQvdmlydGlv
+X25ldC5jICAgICAgICB8IDIxICsrKysrKysrKysrKysrKysrKysrKwo+ICAgaW5jbHVkZS9saW51
+eC92aXJ0aW9fbmV0LmggICAgICB8IDEyICsrKysrKysrKysrKwo+ICAgaW5jbHVkZS91YXBpL2xp
+bnV4L3ZpcnRpb19uZXQuaCB8IDExICsrKysrKysrKysrCj4gICAzIGZpbGVzIGNoYW5nZWQsIDQ0
+IGluc2VydGlvbnMoKykKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMg
+Yi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBpbmRleCA1YWQ2ZWU2Li4wOGUyNzA5IDEwMDY0
+NAo+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ICsrKyBiL2RyaXZlcnMvbmV0L3Zp
+cnRpb19uZXQuYwo+IEBAIC0xNDUsNiArMTQ1LDEwIEBAIHN0cnVjdCB2aXJ0bmV0X2luZm8gewo+
+ICAgCS8qIFBhY2tldCB2aXJ0aW8gaGVhZGVyIHNpemUgKi8KPiAgIAl1OCBoZHJfbGVuOwo+ICAg
+Cj4gKwkvKiBIZWFkZXIgZXh0ZW5zaW9ucyB3ZXJlIG5lZ290aWF0ZWQgKi8KPiArCWJvb2wgaGRy
+X2V4dDsKPiArCXUzMiBleHRfbWFzazsKPiArCj4gICAJLyogQWN0aXZlIHN0YXRpc3RpY3MgKi8K
+PiAgIAlzdHJ1Y3QgdmlydG5ldF9zdGF0cyBfX3BlcmNwdSAqc3RhdHM7Cj4gICAKPiBAQCAtMTc0
+LDYgKzE3OCwxMSBAQCBzdHJ1Y3QgdmlydG5ldF9pbmZvIHsKPiAgIAl1MzIgc3BlZWQ7Cj4gICB9
+Owo+ICAgCj4gK3N0cnVjdCB2aXJ0aW9fbmV0X2hkcl9tYXggewo+ICsJc3RydWN0IHZpcnRpb19u
+ZXRfaGRyX21yZ19yeGJ1ZiBoZHI7Cj4gKwlzdHJ1Y3QgdmlydGlvX25ldF9leHRfaGRyIGV4dF9o
+ZHI7Cj4gK307Cj4gKwo+ICAgc3RhdGljIGlubGluZSB1OCBwYWRkZWRfdm5ldF9oZHIoc3RydWN0
+IHZpcnRuZXRfaW5mbyAqdmkpCj4gICB7Cj4gICAJdTggaGRyX2xlbiA9IHZpLT5oZHJfbGVuOwo+
+IEBAIC0yMTQsNiArMjIzLDcgQEAgc3RhdGljIGludCByeHEydnEoaW50IHJ4cSkKPiAgIAo+ICAg
+c3RhdGljIGlubGluZSBzdHJ1Y3QgdmlydGlvX25ldF9oZHJfbXJnX3J4YnVmICpza2Jfdm5ldF9o
+ZHIoc3RydWN0IHNrX2J1ZmYgKnNrYikKPiAgIHsKPiArCUJVSUxEX0JVR19PTihzaXplb2Yoc3Ry
+dWN0IHZpcnRpb19uZXRfaGRyX21heCkgPiBzaXplb2Yoc2tiLT5jYikpOwo+ICAgCXJldHVybiAo
+c3RydWN0IHZpcnRpb19uZXRfaGRyX21yZ19yeGJ1ZiAqKXNrYi0+Y2I7Cj4gICB9Cj4gICAKPiBA
+QCAtNzY3LDYgKzc3NywxMiBAQCBzdGF0aWMgaW50IHJlY2VpdmVfYnVmKHN0cnVjdCB2aXJ0bmV0
+X2luZm8gKnZpLCBzdHJ1Y3QgcmVjZWl2ZV9xdWV1ZSAqcnEsCj4gICAJCWdvdG8gZnJhbWVfZXJy
+Owo+ICAgCX0KPiAgIAo+ICsJaWYgKHZpLT5oZHJfZXh0ICYmCj4gKwkgICAgdmlydGlvX25ldF9l
+eHRfdG9fc2tiKHNrYiwKPiArCQkJCSAgKHN0cnVjdCB2aXJ0aW9fbmV0X2V4dF9oZHIgKikoaGRy
+ICsgMSkpKSB7Cj4gKwkJZ290byBmcmFtZV9lcnI7Cj4gKwl9Cj4gKwo+ICAgCXNrYi0+cHJvdG9j
+b2wgPSBldGhfdHlwZV90cmFucyhza2IsIGRldik7Cj4gICAJcHJfZGVidWcoIlJlY2VpdmluZyBz
+a2IgcHJvdG8gMHglMDR4IGxlbiAlaSB0eXBlICVpXG4iLAo+ICAgCQkgbnRvaHMoc2tiLT5wcm90
+b2NvbCksIHNrYi0+bGVuLCBza2ItPnBrdF90eXBlKTsKPiBAQCAtMTEwNiw2ICsxMTIyLDExIEBA
+IHN0YXRpYyBpbnQgeG1pdF9za2Ioc3RydWN0IHNlbmRfcXVldWUgKnNxLCBzdHJ1Y3Qgc2tfYnVm
+ZiAqc2tiKQo+ICAgCWlmICh2aS0+bWVyZ2VhYmxlX3J4X2J1ZnMpCj4gICAJCWhkci0+bnVtX2J1
+ZmZlcnMgPSAwOwo+ICAgCj4gKwlpZiAodmktPmhkcl9leHQgJiYKPiArCSAgICB2aXJ0aW9fbmV0
+X2V4dF9mcm9tX3NrYihza2IsIChzdHJ1Y3QgdmlydGlvX25ldF9leHRfaGRyICopKGhkciArIDEp
+LAo+ICsJCQkJICAgIHZpLT5leHRfbWFzaykpCj4gKwkJQlVHKCk7Cj4gKwo+ICAgCXNnX2luaXRf
+dGFibGUoc3EtPnNnLCBza2Jfc2hpbmZvKHNrYiktPm5yX2ZyYWdzICsgKGNhbl9wdXNoID8gMSA6
+IDIpKTsKPiAgIAlpZiAoY2FuX3B1c2gpIHsKPiAgIAkJX19za2JfcHVzaChza2IsIGhkcl9sZW4p
+Owo+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L3ZpcnRpb19uZXQuaCBiL2luY2x1ZGUvbGlu
+dXgvdmlydGlvX25ldC5oCj4gaW5kZXggNTIwOWI1ZS4uZWFhNTI0ZiAxMDA2NDQKPiAtLS0gYS9p
+bmNsdWRlL2xpbnV4L3ZpcnRpb19uZXQuaAo+ICsrKyBiL2luY2x1ZGUvbGludXgvdmlydGlvX25l
+dC5oCj4gQEAgLTEwMCw0ICsxMDAsMTYgQEAgc3RhdGljIGlubGluZSBpbnQgdmlydGlvX25ldF9o
+ZHJfZnJvbV9za2IoY29uc3Qgc3RydWN0IHNrX2J1ZmYgKnNrYiwKPiAgIAlyZXR1cm4gMDsKPiAg
+IH0KPiAgIAo+ICtzdGF0aWMgaW5saW5lIGludCB2aXJ0aW9fbmV0X2V4dF90b19za2Ioc3RydWN0
+IHNrX2J1ZmYgKnNrYiwKPiArCQkJCQlzdHJ1Y3QgdmlydGlvX25ldF9leHRfaGRyICpleHQpCj4g
+K3sKPiArCXJldHVybiAwOwo+ICt9Cj4gKwo+ICtzdGF0aWMgaW5saW5lIGludCB2aXJ0aW9fbmV0
+X2V4dF9mcm9tX3NrYihjb25zdCBzdHJ1Y3Qgc2tfYnVmZiAqc2tiLAo+ICsJCQkJCSAgc3RydWN0
+IHZpcnRpb19uZXRfZXh0X2hkciAqZXh0LAo+ICsJCQkJCSAgX191MzIgZXh0X21hc2spCj4gK3sK
+PiArCXJldHVybiAwOwo+ICt9Cj4gICAjZW5kaWYgLyogX0xJTlVYX1ZJUlRJT19ORVRfSCAqLwo+
+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX25ldC5oIGIvaW5jbHVkZS91
+YXBpL2xpbnV4L3ZpcnRpb19uZXQuaAo+IGluZGV4IGZjMzUzYjUuLjAwMzliNzIgMTAwNjQ0Cj4g
+LS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19uZXQuaAo+ICsrKyBiL2luY2x1ZGUvdWFw
+aS9saW51eC92aXJ0aW9fbmV0LmgKPiBAQCAtODgsNiArODgsNyBAQCBzdHJ1Y3QgdmlydGlvX25l
+dF9jb25maWcgewo+ICAgc3RydWN0IHZpcnRpb19uZXRfaGRyX3YxIHsKPiAgICNkZWZpbmUgVklS
+VElPX05FVF9IRFJfRl9ORUVEU19DU1VNCTEJLyogVXNlIGNzdW1fc3RhcnQsIGNzdW1fb2Zmc2V0
+ICovCj4gICAjZGVmaW5lIFZJUlRJT19ORVRfSERSX0ZfREFUQV9WQUxJRAkyCS8qIENzdW0gaXMg
+dmFsaWQgKi8KPiArI2RlZmluZSBWSVJUSU9fTkVUX0hEUl9GX1ZORVRfRVhUCTQJLyogVm5ldCBl
+eHRlbnNpb25zIHByZXNlbnQgKi8KPiAgIAlfX3U4IGZsYWdzOwo+ICAgI2RlZmluZSBWSVJUSU9f
+TkVUX0hEUl9HU09fTk9ORQkJMAkvKiBOb3QgYSBHU08gZnJhbWUgKi8KPiAgICNkZWZpbmUgVklS
+VElPX05FVF9IRFJfR1NPX1RDUFY0CTEJLyogR1NPIGZyYW1lLCBJUHY0IFRDUCAoVFNPKSAqLwo+
+IEBAIC0xMDIsNiArMTAzLDE2IEBAIHN0cnVjdCB2aXJ0aW9fbmV0X2hkcl92MSB7Cj4gICAJX192
+aXJ0aW8xNiBudW1fYnVmZmVyczsJLyogTnVtYmVyIG9mIG1lcmdlZCByeCBidWZmZXJzICovCj4g
+ICB9Owo+ICAgCj4gKy8qIElmIElSVElPX05FVF9IRFJfRl9WTkVUX0VYVCBmbGFncyBpcyBzZXQs
+IHRoaXMgaGVhZGVyIGltbWVkaWF0ZWx5Cj4gKyAqIGZvbGxvd3MgdGhlIHZpcnRpb19uZXRfaGRy
+LiAgVGhlIGZsYWdzIGluIHRoaXMgaGVhZGVyIHdpbGwgaW5kaWNhdGUKPiArICogd2hpY2ggZXh0
+ZW5zaW9uIHdpbGwgZm9sbG93LiAgVGhlIGV4dG5zaW9uIGRhdGEgd2lsbCBpbW1pZGlhdGVseSBm
+b2xsb3cKCnMvZXh0bnNpb24vZXh0ZW5zaW9uLwoKPiArICogdGhpcyBoZWFkZXIuCj4gKyAqLwo+
+ICtzdHJ1Y3QgdmlydGlvX25ldF9leHRfaGRyIHsKPiArCV9fdTMyIGZsYWdzOwo+ICsJX191OCBl
+eHRlbnNpb25zW107Cj4gK307Cj4gKwo+ICAgI2lmbmRlZiBWSVJUSU9fTkVUX05PX0xFR0FDWQo+
+ICAgLyogVGhpcyBoZWFkZXIgY29tZXMgZmlyc3QgaW4gdGhlIHNjYXR0ZXItZ2F0aGVyIGxpc3Qu
+Cj4gICAgKiBGb3IgbGVnYWN5IHZpcnRpbywgaWYgVklSVElPX0ZfQU5ZX0xBWU9VVCBpcyBub3Qg
+bmVnb3RpYXRlZCwgaXQgbXVzdAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
