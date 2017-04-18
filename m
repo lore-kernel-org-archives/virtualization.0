@@ -1,7 +1,7 @@
-From: Sekhar Nori <nsekhar@ti.com>
-Subject: [PATCH] tools/virtio: fix build breakage
-Date: Mon, 17 Apr 2017 16:42:15 +0530
-Message-ID: <1c53d16c7a8689c19ea9cab9d8741ff1968e8785.1492427289.git.nsekhar__45186.0697976828$1493076987$gmane$org@ti.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: [PATCH net-next v2 0/5] virtio-net tx napi
+Date: Tue, 18 Apr 2017 16:21:03 -0400
+Message-ID: <20170418202108.61920-1-willemdebruijn.kernel__2468.64975565604$1493076999$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,93 +15,203 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Sekhar Nori <nsekhar@ti.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org, davem@davemloft.net, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Commit db932ced55cf ("virtio: add context flag to find vqs")
-added a new 'context' flag to vring_new_virtqueue(), but the
-corresponding API in tools/virtio/ is not updated causing
-build errors due to conflicting declarations.
+From: Willem de Bruijn <willemb@google.com>
 
-Bring code in tools/virtio in sync with that in kernel.
+Add napi for virtio-net transmit completion processing.
 
-I have used 'false' for the value of the new boolean 'context'
-flag as that seems to be the best way to preserve existing
-behavior.
+Changes:
+  v1 -> v2:
+    - disable by default
+    - disable unless affinity_hint_set
+          because cache misses add up to a third higher cycle cost,
+	  e.g., in TCP_RR tests. This is not limited to the patch
+	  that enables tx completion cleaning in rx napi.
+    - use trylock to avoid contention between tx and rx napi
+    - keep interrupts masked during xmit_more (new patch 5/5)
+          this improves cycles especially for multi UDP_STREAM, which
+	  does not benefit from cleaning tx completions on rx napi.
+    - move free_old_xmit_skbs (new patch 3/5)
+          to avoid forward declaration
 
-Tested with:
+    not changed:
+    - deduplicate virnet_poll_tx and virtnet_poll_txclean
+          they look similar, but have differ too much to make it
+	  worthwhile.
+    - delay netif_wake_subqueue for more than 2 + MAX_SKB_FRAGS
+          evaluated, but made no difference
+    - patch 1/5
 
-$ make -C tools/virtio clean all ARCH=x86
+  RFC -> v1:
+    - dropped vhost interrupt moderation patch:
+          not needed and likely expensive at light load
+    - remove tx napi weight
+        - always clean all tx completions
+        - use boolean to toggle tx-napi, instead
+    - only clean tx in rx if tx-napi is enabled
+        - then clean tx before rx
+    - fix: add missing braces in virtnet_freeze_down
+    - testing: add 4KB TCP_RR + UDP test results
 
-Fixes: db932ced55cf ("virtio: add context flag to find vqs")
-Signed-off-by: Sekhar Nori <nsekhar@ti.com>
----
-I am not really a virtio user so I have not tested
-these apart from the build test. Applies on linux-next
-of April 11 2017
+Based on previous patchsets by Jason Wang:
 
- tools/virtio/linux/virtio.h | 1 +
- tools/virtio/virtio_test.c  | 2 +-
- tools/virtio/vringh_test.c  | 7 ++++---
- 3 files changed, 6 insertions(+), 4 deletions(-)
+  [RFC V7 PATCH 0/7] enable tx interrupts for virtio-net
+  http://lkml.iu.edu/hypermail/linux/kernel/1505.3/00245.html
 
-diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
-index 9377c8b4ac16..d8f534025b7f 100644
---- a/tools/virtio/linux/virtio.h
-+++ b/tools/virtio/linux/virtio.h
-@@ -57,6 +57,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 				      unsigned int vring_align,
- 				      struct virtio_device *vdev,
- 				      bool weak_barriers,
-+				      bool ctx,
- 				      void *pages,
- 				      bool (*notify)(struct virtqueue *vq),
- 				      void (*callback)(struct virtqueue *vq),
-diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-index e0445898f08f..76d6f583c249 100644
---- a/tools/virtio/virtio_test.c
-+++ b/tools/virtio/virtio_test.c
-@@ -100,7 +100,7 @@ static void vq_info_add(struct vdev_info *dev, int num)
- 	vring_init(&info->vring, num, info->ring, 4096);
- 	info->vq = vring_new_virtqueue(info->idx,
- 				       info->vring.num, 4096, &dev->vdev,
--				       true, info->ring,
-+				       true, false, info->ring,
- 				       vq_notify, vq_callback, "test");
- 	assert(info->vq);
- 	info->vq->priv = info;
-diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
-index 5f94f5105678..9476c616d064 100644
---- a/tools/virtio/vringh_test.c
-+++ b/tools/virtio/vringh_test.c
-@@ -314,7 +314,8 @@ static int parallel_test(u64 features,
- 			err(1, "Could not set affinity to cpu %u", first_cpu);
- 
- 		vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &gvdev.vdev, true,
--					 guest_map, fast_vringh ? no_notify_host
-+					 false, guest_map,
-+					 fast_vringh ? no_notify_host
- 					 : parallel_notify_host,
- 					 never_callback_guest, "guest vq");
- 
-@@ -479,7 +480,7 @@ int main(int argc, char *argv[])
- 	memset(__user_addr_min, 0, vring_size(RINGSIZE, ALIGN));
- 
- 	/* Set up guest side. */
--	vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &vdev, true,
-+	vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &vdev, true, false,
- 				 __user_addr_min,
- 				 never_notify_host, never_callback_guest,
- 				 "guest vq");
-@@ -663,7 +664,7 @@ int main(int argc, char *argv[])
- 		/* Force creation of direct, which we modify. */
- 		__virtio_clear_bit(&vdev, VIRTIO_RING_F_INDIRECT_DESC);
- 		vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &vdev, true,
--					 __user_addr_min,
-+					 false, __user_addr_min,
- 					 never_notify_host,
- 					 never_callback_guest,
- 					 "guest vq");
+
+Before commit b0c39dbdc204 ("virtio_net: don't free buffers in xmit
+ring") the virtio-net driver would free transmitted packets on
+transmission of new packets in ndo_start_xmit and, to catch the edge
+case when no new packet is sent, also in a timer at 10HZ.
+
+A timer can cause long stalls. VIRTIO_F_NOTIFY_ON_EMPTY avoids stalls
+due to low free descriptor count. It does not address a stalls due to
+low socket SO_SNDBUF. Increasing timer frequency decreases that stall
+time, but increases interrupt rate and, thus, cycle count.
+
+Currently, with no timer, packets are freed only at ndo_start_xmit.
+Latency of consume_skb is now unbounded. To avoid a deadlock if a sock
+reaches SO_SNDBUF, packets are orphaned on tx. This breaks TCP small
+queues.
+
+Reenable TCP small queues by removing the orphan. Instead of using a
+timer, convert the driver to regular tx napi. This does not have the
+unresolved stall issue and does not have any frequency to tune.
+
+By keeping interrupts enabled by default, napi increases tx
+interrupt rate. VIRTIO_F_EVENT_IDX avoids sending an interrupt if
+one is already unacknowledged, so makes this more feasible today.
+Combine that with an optimization that brings interrupt rate
+back in line with the existing version for most workloads:
+
+Tx completion cleaning on rx interrupts elides most explicit tx
+interrupts by relying on the fact that many rx interrupts fire.
+
+Tested by running {1, 10, 100} {TCP, UDP} STREAM, RR, 4K_RR benchmarks
+from a guest to a server on the host, on an x86_64 Haswell. The guest
+runs 4 vCPUs pinned to 4 cores. vhost and the test server are
+pinned to a core each.
+
+All results are the median of 5 runs, with variance well < 10%.
+Used neper (github.com/google/neper) as test process.
+
+Napi increases single stream throughput, but increases cycle cost.
+The optimizations bring this down. The previous patchset saw a
+regression with UDP_STREAM, which does not benefit from cleaning tx
+interrupts in rx napi. This regression is now gone for 10x, 100x.
+Remaining difference is higher 1x TCP_STREAM, lower 1x UDP_STREAM.
+
+
+The latest results are with process, rx napi and tx napi affine to
+the same core. All numbers are lower than the previous patchset.
+
+
+             upstream     napi
+TCP_STREAM:
+1x:
+  Mbps          28985    34492
+  Gcycles         278      269
+
+10x:
+  Mbps          42267    42420
+  Gcycles         301      303
+
+100x:
+  Mbps          29710    31131
+  Gcycles         286      282
+
+TCP_RR Latency (us):
+1x:
+  p50              22       21
+  p99              27       26
+  Gcycles         176      171
+
+10x:
+  p50              40       40
+  p99              51       51
+  Gcycles         215      211
+
+100x:
+  p50             272      235
+  p99             414      360
+  Gcycles         228      233
+
+TCP_RR 4K:
+1x:
+  p50              27       29
+  p99              34       36
+  Gcycles         184      170
+
+10x:
+  p50              67       66
+  p99              82       82
+  Gcycles         217      218
+
+100x:
+  p50             435      485
+  p99             813      626
+  Gcycles         242      226
+
+UDP_STREAM:
+1x:
+  Mbps          29802    25600
+  Gcycles         305      295
+
+10x:
+  Mbps          29901    29684
+  Gcycles         287      295
+
+100x:
+  Mbps          29952    29863
+  Gcycles         336      325
+
+UDP_RR:
+1x:
+  p50              18       18
+  p99              23       22
+  Gcycles         183      181
+
+10x:
+  p50              35       38
+  p99              54       62
+  Gcycles         252      236
+
+100x:
+  p50             240      279
+  p99             462      519
+  Gcycles         228      219
+
+Note that GSO is enabled, so 4K RR still translates to one packet
+per request.
+
+Lower throughput at 100x vs 10x can be (at least in part)
+explained by looking at bytes per packet sent (nstat). It likely
+also explains the lower throughput of 1x for some variants.
+
+upstream:
+
+ N=1   bytes/pkt=16581
+ N=10  bytes/pkt=61513
+ N=100 bytes/pkt=51558
+
+at_rx:
+
+ N=1   bytes/pkt=65204
+ N=10  bytes/pkt=65148
+ N=100 bytes/pkt=56840
+
+Willem de Bruijn (5):
+  virtio-net: napi helper functions
+  virtio-net: transmit napi
+  virtio-net: move free_old_xmit_skbs
+  virtio-net: clean tx descriptors from rx napi
+  virtio-net: keep tx interrupts disabled unless kick
+
+ drivers/net/virtio_net.c | 211 +++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 150 insertions(+), 61 deletions(-)
+
 -- 
-2.9.0
+2.12.2.816.g2cccc81164-goog
