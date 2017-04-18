@@ -1,14 +1,16 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v3 10/11] vmware: set cpu capabilities during platform
-	initialization
-Date: Tue, 18 Apr 2017 08:31:18 +0200
-Message-ID: <20170418063119.11654-11-jgross@suse.com>
-References: <20170418063119.11654-1-jgross@suse.com>
+From: "Tian, Kevin" <kevin.tian@intel.com>
+Subject: RE: [RFC 1/3] virtio-iommu: firmware description of the virtual
+	topology
+Date: Tue, 18 Apr 2017 09:51:23 +0000
+Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D190CADDD2__39853.3469917767$1492509093$gmane$org@SHSMSX101.ccr.corp.intel.com>
+References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
+	<20170407191747.26618-2-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170418063119.11654-1-jgross@suse.com>
+In-Reply-To: <20170407191747.26618-2-jean-philippe.brucker@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,96 +20,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org
-Cc: Juergen Gross <jgross@suse.com>, x86@kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, boris.ostrovsky@oracle.com, Thomas Gleixner <tglx@linutronix.de>
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: "cdall@linaro.org" <cdall@linaro.org>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "will.deacon@arm.com" <will.deacon@arm.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There is no need to set the same capabilities for each cpu
-individually. This can be done for all cpus in platform initialization.
+> From: Jean-Philippe Brucker
+> Sent: Saturday, April 8, 2017 3:18 AM
+> 
+> Unlike other virtio devices, the virtio-iommu doesn't work independently,
+> it is linked to other virtual or assigned devices. So before jumping into
+> device operations, we need to define a way for the guest to discover the
+> virtual IOMMU and the devices it translates.
+> 
+> The host must describe the relation between IOMMU and devices to the
+> guest
+> using either device-tree or ACPI. The virtual IOMMU identifies each
 
-Cc: Alok Kataria <akataria@vmware.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: x86@kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Acked-by: Alok Kataria <akataria@vmware.com>
----
- arch/x86/kernel/cpu/vmware.c | 39 ++++++++++++++++++++-------------------
- 1 file changed, 20 insertions(+), 19 deletions(-)
+Do you plan to support both device tree and ACPI?
 
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 22403a28caf5..40ed26852ebd 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -113,6 +113,24 @@ static void __init vmware_paravirt_ops_setup(void)
- #define vmware_paravirt_ops_setup() do {} while (0)
- #endif
- 
-+/*
-+ * VMware hypervisor takes care of exporting a reliable TSC to the guest.
-+ * Still, due to timing difference when running on virtual cpus, the TSC can
-+ * be marked as unstable in some cases. For example, the TSC sync check at
-+ * bootup can fail due to a marginal offset between vcpus' TSCs (though the
-+ * TSCs do not drift from each other).  Also, the ACPI PM timer clocksource
-+ * is not suitable as a watchdog when running on a hypervisor because the
-+ * kernel may miss a wrap of the counter if the vcpu is descheduled for a
-+ * long time. To skip these checks at runtime we set these capability bits,
-+ * so that the kernel could just trust the hypervisor with providing a
-+ * reliable virtual TSC that is suitable for timekeeping.
-+ */
-+static void __init vmware_set_capabilities(void)
-+{
-+	setup_force_cpu_cap(X86_FEATURE_CONSTANT_TSC);
-+	setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE);
-+}
-+
- static void __init vmware_platform_setup(void)
- {
- 	uint32_t eax, ebx, ecx, edx;
-@@ -152,6 +170,8 @@ static void __init vmware_platform_setup(void)
- #ifdef CONFIG_X86_IO_APIC
- 	no_timer_check = 1;
- #endif
-+
-+	vmware_set_capabilities();
- }
- 
- /*
-@@ -176,24 +196,6 @@ static uint32_t __init vmware_platform(void)
- 	return 0;
- }
- 
--/*
-- * VMware hypervisor takes care of exporting a reliable TSC to the guest.
-- * Still, due to timing difference when running on virtual cpus, the TSC can
-- * be marked as unstable in some cases. For example, the TSC sync check at
-- * bootup can fail due to a marginal offset between vcpus' TSCs (though the
-- * TSCs do not drift from each other).  Also, the ACPI PM timer clocksource
-- * is not suitable as a watchdog when running on a hypervisor because the
-- * kernel may miss a wrap of the counter if the vcpu is descheduled for a
-- * long time. To skip these checks at runtime we set these capability bits,
-- * so that the kernel could just trust the hypervisor with providing a
-- * reliable virtual TSC that is suitable for timekeeping.
-- */
--static void vmware_set_cpu_features(struct cpuinfo_x86 *c)
--{
--	set_cpu_cap(c, X86_FEATURE_CONSTANT_TSC);
--	set_cpu_cap(c, X86_FEATURE_TSC_RELIABLE);
--}
--
- /* Checks if hypervisor supports x2apic without VT-D interrupt remapping. */
- static bool __init vmware_legacy_x2apic_available(void)
- {
-@@ -206,7 +208,6 @@ static bool __init vmware_legacy_x2apic_available(void)
- const __refconst struct hypervisor_x86 x86_hyper_vmware = {
- 	.name			= "VMware",
- 	.detect			= vmware_platform,
--	.set_cpu_features	= vmware_set_cpu_features,
- 	.init_platform		= vmware_platform_setup,
- 	.x2apic_available	= vmware_legacy_x2apic_available,
- };
--- 
-2.12.0
+> virtual device with a 32-bit ID, that we will call "Device ID" in this
+> document. Device IDs are not necessarily unique system-wide, but they may
+> not overlap within a single virtual IOMMU. Device ID of passed-through
+> devices do not need to match IDs seen by the physical IOMMU.
+> 
+> The virtual IOMMU uses virtio-mmio transport exclusively, not virtio-pci,
+> because with PCI the IOMMU interface would itself be an endpoint, and
+> existing firmware interfaces don't allow to describe IOMMU<->master
+> relations between PCI endpoints.
+
+I'm not familiar with virtio-mmio mechanism. Curious how devices in
+virtio-mmio are enumerated today? Could we use that mechanism to
+identify vIOMMUs and then invent a purely para-virtualized method to
+enumerate devices behind each vIOMMU? 
+
+Asking this is because each vendor has its own enumeration methods.
+ARM has device tree and ACPI IORT. AMR has ACPI IVRS and device
+tree (same format as ARM?). Intel has APCI DMAR and sub-tables. Your 
+current proposal looks following ARM definitions which I'm not sure 
+extensible enough to cover features defined only in other vendors' 
+structures.
+
+Since the purpose of this series is to go para-virtualize, why not also
+para-virtualize and simplify the enumeration method? For example, 
+we may define a query interface through vIOMMU registers to allow 
+guest query whether a device belonging to that vIOMMU. Then we 
+can even remove use of any enumeration structure completely... 
+Just a quick example which I may not think through all the pros and 
+cons. :-)
+
+> 
+> The following diagram describes a situation where two virtual IOMMUs
+> translate traffic from devices in the system. vIOMMU 1 translates two PCI
+> domains, in which each function has a 16-bits requester ID. In order for
+> the vIOMMU to differentiate guest requests targeted at devices in each
+> domain, their Device ID ranges cannot overlap. vIOMMU 2 translates two PCI
+> domains and a collection of platform devices.
+> 
+>                        Device ID    Requester ID
+>                   /       0x0           0x0      \
+>                  /         |             |        PCI domain 1
+>                 /      0xffff           0xffff   /
+>         vIOMMU 1
+>                 \     0x10000           0x0      \
+>                  \         |             |        PCI domain 2
+>                   \   0x1ffff           0xffff   /
+> 
+>                   /       0x0                    \
+>                  /         |                      platform devices
+>                 /      0x1fff                    /
+>         vIOMMU 2
+>                 \      0x2000           0x0      \
+>                  \         |             |        PCI domain 3
+>                   \   0x11fff           0xffff   /
+> 
+
+isn't above be (0x30000, 3ffff) for PCI domain 3 giving device ID is 16bit?
+
+Thanks
+Kevin
