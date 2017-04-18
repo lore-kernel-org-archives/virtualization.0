@@ -1,7 +1,8 @@
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: [PATCH net-next v2 4/5] virtio-net: clean tx descriptors from rx napi
-Date: Tue, 18 Apr 2017 16:21:07 -0400
-Message-ID: <20170418202108.61920-5-willemdebruijn.kernel__12185.3419965648$1493077045$gmane$org@gmail.com>
+Subject: [PATCH net-next v2 5/5] virtio-net: keep tx interrupts disabled
+	unless kick
+Date: Tue, 18 Apr 2017 16:21:08 -0400
+Message-ID: <20170418202108.61920-6-willemdebruijn.kernel__14287.5849771828$1493077053$gmane$org@gmail.com>
 References: <20170418202108.61920-1-willemdebruijn.kernel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,53 +24,38 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Willem de Bruijn <willemb@google.com>
 
-Amortize the cost of virtual interrupts by doing both rx and tx work
-on reception of a receive interrupt if tx napi is enabled. With
-VIRTIO_F_EVENT_IDX, this suppresses most explicit tx completion
-interrupts for bidirectional workloads.
+Tx napi mode increases the rate of transmit interrupts. Suppress some
+by masking interrupts while more packets are expected. The interrupts
+will be reenabled before the last packet is sent.
+
+This optimization reduces the througput drop with tx napi for
+unidirectional flows such as UDP_STREAM that do not benefit from
+cleaning tx completions in the the receive napi handler.
 
 Signed-off-by: Willem de Bruijn <willemb@google.com>
 ---
- drivers/net/virtio_net.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/net/virtio_net.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 81a98de864e6..b14c82ce0032 100644
+index b14c82ce0032..b107ae011632 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -1072,12 +1072,33 @@ static void free_old_xmit_skbs(struct send_queue *sq)
- 	u64_stats_update_end(&stats->tx_syncp);
- }
+@@ -1196,8 +1196,14 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	bool use_napi = sq->napi.weight;
  
-+static void virtnet_poll_cleantx(struct receive_queue *rq)
-+{
-+	struct virtnet_info *vi = rq->vq->vdev->priv;
-+	unsigned int index = vq2rxq(rq->vq);
-+	struct send_queue *sq = &vi->sq[index];
-+	struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, index);
-+
-+	if (!sq->napi.weight)
-+		return;
-+
-+	if (__netif_tx_trylock(txq)) {
-+		free_old_xmit_skbs(sq);
-+		__netif_tx_unlock(txq);
+ 	/* Free up any pending old buffers before queueing new ones. */
+-	if (!use_napi)
++	if (use_napi) {
++		if (kick)
++			virtqueue_enable_cb_delayed(sq->vq);
++		else
++			virtqueue_disable_cb(sq->vq);
++	} else {
+ 		free_old_xmit_skbs(sq);
 +	}
-+
-+	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-+		netif_tx_wake_queue(txq);
-+}
-+
- static int virtnet_poll(struct napi_struct *napi, int budget)
- {
- 	struct receive_queue *rq =
- 		container_of(napi, struct receive_queue, napi);
- 	unsigned int received;
  
-+	virtnet_poll_cleantx(rq);
-+
- 	received = virtnet_receive(rq, budget);
- 
- 	/* Out of packets? */
+ 	/* timestamp packet in software */
+ 	skb_tx_timestamp(skb);
 -- 
 2.12.2.816.g2cccc81164-goog
