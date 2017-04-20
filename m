@@ -1,15 +1,16 @@
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH net-next v2 2/5] virtio-net: transmit napi
-Date: Thu, 20 Apr 2017 09:58:06 -0400
-Message-ID: <CAF=yD-K0Cwwcob+0nWXWTY_07_zwcae1GRHwdagF2pGrv8HwtA__15186.3881540068$1493077064$gmane$org@mail.gmail.com>
+Subject: Re: [PATCH net-next v2 5/5] virtio-net: keep tx interrupts disabled
+	unless kick
+Date: Thu, 20 Apr 2017 10:03:26 -0400
+Message-ID: <CAF=yD-KVwRkkGr=pGDmTTXtrrTuAuD7SmTPVtQuwu9aufoBeEQ__46234.3234838501$1493077073$gmane$org@mail.gmail.com>
 References: <20170418202108.61920-1-willemdebruijn.kernel@gmail.com>
-	<20170418202108.61920-3-willemdebruijn.kernel@gmail.com>
-	<2ae5889b-69d4-3041-d7fd-a7ea38e8c4e2@redhat.com>
+	<20170418202108.61920-6-willemdebruijn.kernel@gmail.com>
+	<72551dd3-ba91-812e-9065-d153bf8a7024@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2ae5889b-69d4-3041-d7fd-a7ea38e8c4e2@redhat.com>
+In-Reply-To: <72551dd3-ba91-812e-9065-d153bf8a7024@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,45 +24,26 @@ To: Jason Wang <jasowang@redhat.com>
 Cc: Network Development <netdev@vger.kernel.org>, Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBBcHIgMjAsIDIwMTcgYXQgMjoyNyBBTSwgSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT4gd3JvdGU6Cj4KPgo+IE9uIDIwMTflubQwNOaciDE55pelIDA0OjIxLCBXaWxsZW0g
-ZGUgQnJ1aWpuIHdyb3RlOgo+Pgo+PiArc3RhdGljIHZvaWQgdmlydG5ldF9uYXBpX3R4X2VuYWJs
-ZShzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwKPj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICBzdHJ1Y3QgdmlydHF1ZXVlICp2cSwKPj4gKyAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICBzdHJ1Y3QgbmFwaV9zdHJ1Y3QgKm5hcGkpCj4+ICt7Cj4+ICsgICAgICAgaWYg
-KCFuYXBpLT53ZWlnaHQpCj4+ICsgICAgICAgICAgICAgICByZXR1cm47Cj4+ICsKPj4gKyAgICAg
-ICBpZiAoIXZpLT5hZmZpbml0eV9oaW50X3NldCkgewo+PiArICAgICAgICAgICAgICAgbmFwaS0+
-d2VpZ2h0ID0gMDsKPj4gKyAgICAgICAgICAgICAgIHJldHVybjsKPj4gKyAgICAgICB9Cj4+ICsK
-Pj4gKyAgICAgICByZXR1cm4gdmlydG5ldF9uYXBpX2VuYWJsZSh2cSwgbmFwaSk7Cj4+ICt9Cj4+
-ICsKPj4gICBzdGF0aWMgdm9pZCByZWZpbGxfd29yayhzdHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmsp
-Cj4KPgo+IE1heWJlIEkgd2FzIHdyb25nLCBidXQgYWNjb3JkaW5nIHRvIE1pY2hhZWwncyBjb21t
-ZW50IGl0IGxvb2tzIGxpa2UgaGUgd2FudAo+IGNoZWNrIGFmZmluaXR5X2hpbnRfc2V0IGp1c3Qg
-Zm9yIHNwZWN1bGF0aXZlIHR4IHBvbGxpbmcgb24gcnggbmFwaSBpbnN0ZWFkCj4gb2YgZGlzYWJs
-aW5nIGl0IGF0IGFsbC4KPgo+IEFuZCBJJ20gbm90IGNvbnZpbmNlZCB0aGlzIGlzIHJlYWxseSBu
-ZWVkZWQsIGRyaXZlciBvbmx5IHByb3ZpZGUgYWZmaW5pdHkKPiBoaW50IGluc3RlYWQgb2YgYWZm
-aW5pdHksIHNvIGl0J3Mgbm90IGd1YXJhbnRlZWQgdGhhdCB0eCBhbmQgcnggaW50ZXJydXB0Cj4g
-YXJlIGluIHRoZSBzYW1lIHZjcHVzLgoKWW91J3JlIHJpZ2h0LiBJIG1hZGUgdGhlIHJlc3RyaWN0
-aW9uIGJyb2FkZXIgdGhhbiB0aGUgcmVxdWVzdCwgdG8gcmVhbGx5IGVycgpvbiB0aGUgc2lkZSBv
-ZiBjYXV0aW9uIGZvciB0aGUgaW5pdGlhbCBtZXJnZSBvZiBuYXBpIHR4LiBBbmQgZW5hYmxpbmcK
-dGhlIG9wdGltaXphdGlvbiBpcyBhbHdheXMgYSB3aW4gb3ZlciBrZWVwaW5nIGl0IG9mZiwgZXZl
-biB3aXRob3V0IGlycQphZmZpbml0eS4KClRoZSBjeWNsZSBjb3N0IGlzIHNpZ25pZmljYW50IHdp
-dGhvdXQgYWZmaW5pdHkgcmVnYXJkbGVzcyBvZiB3aGV0aGVyIHRoZQpvcHRpbWl6YXRpb24gaXMg
-dXNlZC4gVGhvdWdoIHRoaXMgaXMgbm90IGxpbWl0ZWQgdG8gbmFwaS10eCwgaXQgaXMgbW9yZQpw
-cm9ub3VuY2VkIGluIHRoYXQgbW9kZSB0aGFuIHdpdGhvdXQgbmFwaS4KCjF4IFRDUF9SUiBmb3Ig
-YWZmaW5pdHkgY29uZmlndXJhdGlvbiB7cHJvY2VzcywgcnhfaXJxLCB0eF9pcnF9OgoKdXBzdHJl
-YW06CgoxLDEsMTogMjg5ODUgTWJwcywgMjc4IEdjeWMKMSwwLDI6IDMwMDY3IE1icHMsIDQwMiBH
-Y3ljCgpuYXBpIHR4OgoKMSwxLDE6IDM0NDkyIE1icHMsIDI2OSBHY3ljCjEsMCwyOiAzNjUyNyBN
-YnBzLCA1MzcgR2N5YyAoISkKMSwwLDE6IDM2MjY5IE1icHMsIDM5NCBHY3ljCjEsMCwwOiAzNDY3
-NCBNYnBzLCA0MDIgR2N5YwoKVGhpcyBpcyBhIHBhcnRpY3VsYXJseSBzdHJvbmcgZXhhbXBsZS4g
-SXQgaXMgYWxzbyByZXByZXNlbnRhdGl2ZQpvZiBtb3N0IFJSIHRlc3RzLiBJdCBpcyBsZXNzIHBy
-b25vdW5jZWQgaW4gb3RoZXIgc3RyZWFtaW5nIHRlc3RzLgoxMHggVENQX1JSLCBmb3IgaW5zdGFu
-Y2U6Cgp1cHN0cmVhbToKCjEsMSwxOiA0MjI2NyBNYnBzLCAzMDEgR2N5YwoxLDAsMjogNDA2NjMg
-TWJwcywgNDQ1IEdjeWMKCm5hcGkgdHg6CgoxLDEsMTogNDI0MjAgTWJwcywgMzAzIEdjeWMKMSww
-LDI6ICA0MjI2NyBNYnBzLCA0MzEgR2N5YwoKVGhlc2UgbnVtYmVycyB3ZXJlIG9idGFpbmVkIHdp
-dGggdGhlIHZpcnRxdWV1ZV9lbmFibGVfY2JfZGVsYXllZApvcHRpbWl6YXRpb24gYWZ0ZXIgeG1p
-dF9za2IsIGJ0dy4gSXQgdHVybnMgb3V0IHRoYXQgbW92aW5nIHRoYXQgYmVmb3JlCmluY3JlYXNl
-cyAxeCBUQ1BfUlIgZnVydGhlciB0byB+MzkgR2JwcywgYXQgdGhlIGNvc3Qgb2YgcmVkdWNpbmcK
-MTAweCBUQ1BfUlIgYSBiaXQuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+>> -       if (!use_napi)
+>> +       if (use_napi) {
+>> +               if (kick)
+>> +                       virtqueue_enable_cb_delayed(sq->vq);
+>> +               else
+>> +                       virtqueue_disable_cb(sq->vq);
+>
+>
+> Since virtqueue_disable_cb() do nothing for event idx. I wonder whether or
+> not just calling enable_cb_dealyed() is ok here.
+
+Good point.
+
+> Btw, it does not disable interrupt at all, I propose a patch in the past
+> which can do more than this:
+>
+> https://patchwork.kernel.org/patch/6472601/
+
+Interesting. Yes, let me evaluate that variant.
+
+Thanks for reviewing,
+
+  Willem
