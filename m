@@ -1,15 +1,14 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [RFC 2/3] virtio-iommu: device probing and operations
-Date: Tue, 18 Apr 2017 19:45:54 +0100
-Message-ID: <34166633-f4d5-21d5-20db-9091243ccd84__43964.8392530673$1492541036$gmane$org@arm.com>
-References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
-	<20170407191747.26618-3-jean-philippe.brucker@arm.com>
-	<AADFC41AFE54684AB9EE6CBC0274A5D190CADECE@SHSMSX101.ccr.corp.intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next v2 2/5] virtio-net: transmit napi
+Date: Thu, 20 Apr 2017 14:12:42 +0800
+Message-ID: <9f57a790-9157-db4d-621d-cf359c8f0718__22176.0460328825$1492668777$gmane$org@redhat.com>
+References: <20170418202108.61920-1-willemdebruijn.kernel@gmail.com>
+	<20170418202108.61920-3-willemdebruijn.kernel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D190CADECE@SHSMSX101.ccr.corp.intel.com>
+In-Reply-To: <20170418202108.61920-3-willemdebruijn.kernel@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,91 +18,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Tian, Kevin" <kevin.tian@intel.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
-Cc: "cdall@linaro.org" <cdall@linaro.org>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "will.deacon@arm.com" <will.deacon@arm.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, netdev@vger.kernel.org
+Cc: Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org, davem@davemloft.net, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 18/04/17 11:26, Tian, Kevin wrote:
->> From: Jean-Philippe Brucker
->> Sent: Saturday, April 8, 2017 3:18 AM
->>
-> [...]
->>   II. Feature bits
->>   ================
->>
->> VIRTIO_IOMMU_F_INPUT_RANGE (0)
->>  Available range of virtual addresses is described in input_range
-> 
-> Usually only the maximum supported address bits are important. 
-> Curious do you see such situation where low end of the address 
-> space is not usable (since you have both start/end defined later)?
-
-A start address would allow to provide something resembling a GART to the
-guest: an IOMMU with one address space (ioasid_bits=0) and a small IOVA
-aperture. I'm not sure how useful that would be in practice.
-
-On a related note, the virtio-iommu itself doesn't provide a
-per-address-space aperture as it stands. For example, attaching a device
-to an address space might restrict the available IOVA range for the whole
-AS if that device cannot write to high memory (above 32-bit). If the guest
-attempts to map an IOVA outside this window into the device's address
-space, it should expect the MAP request to fail. And when attaching, if
-the address space already has mappings outside this window, then ATTACH
-should fail.
-
-This too seems to be something that ought to be communicated by firmware,
-but bits are missing (I can't find anything equivalent to DT's dma-ranges
-for PCI root bridges in ACPI tables, for example). In addition VFIO
-doesn't communicate any DMA mask for devices, and doesn't check them
-itself. I guess that the host could find out the DMA mask of devices one
-way or another, but it is tricky to enforce, so I didn't make this a hard
-requirement. Although I should probably add a few words about it.
-
-> [...]
->>   1. Attach device
->>   ----------------
->>
->> struct virtio_iommu_req_attach {
->> 	le32	address_space;
->> 	le32	device;
->> 	le32	flags/reserved;
->> };
->>
->> Attach a device to an address space. 'address_space' is an identifier
->> unique to the guest. If the address space doesn't exist in the IOMMU
-> 
-> Based on your description this address space ID is per operation right?
-> MAP/UNMAP and page-table sharing should have different ID spaces...
-
-I think it's simpler if we keep a single IOASID space per virtio-iommu
-device, because the maximum number of address spaces (described by
-ioasid_bits) might be a restriction of the pIOMMU. For page-table sharing
-you still need to define which devices will share a page directory using
-ATTACH requests, though that interface is not set in stone.
-
->> device, it is created. 'device' is an identifier unique to the IOMMU. The
->> host communicates unique device ID to the guest during boot. The method
->> used to communicate this ID is outside the scope of this specification,
->> but the following rules must apply:
->>
->> * The device ID is unique from the IOMMU point of view. Multiple devices
->>   whose DMA transactions are not translated by the same IOMMU may have
->> the
->>   same device ID. Devices whose DMA transactions may be translated by the
->>   same IOMMU must have different device IDs.
->>
->> * Sometimes the host cannot completely isolate two devices from each
->>   others. For example on a legacy PCI bus, devices can snoop DMA
->>   transactions from their neighbours. In this case, the host must
->>   communicate to the guest that it cannot isolate these devices from each
->>   others. The method used to communicate this is outside the scope of this
->>   specification. The IOMMU device must ensure that devices that cannot be
-> 
-> "IOMMU device" -> "IOMMU driver"
-
-Indeed
-
-Thanks!
-Jean-Philippe
-
->>   isolated by the host have the same address spaces.
+CgpPbiAyMDE35bm0MDTmnIgxOeaXpSAwNDoyMSwgV2lsbGVtIGRlIEJydWlqbiB3cm90ZToKPiBG
+cm9tOiBXaWxsZW0gZGUgQnJ1aWpuIDx3aWxsZW1iQGdvb2dsZS5jb20+Cj4KPiBDb252ZXJ0IHZp
+cnRpby1uZXQgdG8gYSBzdGFuZGFyZCBuYXBpIHR4IGNvbXBsZXRpb24gcGF0aC4gVGhpcyBlbmFi
+bGVzCj4gYmV0dGVyIFRDUCBwYWNpbmcgdXNpbmcgVENQIHNtYWxsIHF1ZXVlcyBhbmQgaW5jcmVh
+c2VzIHNpbmdsZSBzdHJlYW0KPiB0aHJvdWdocHV0Lgo+Cj4gVGhlIHZpcnRpby1uZXQgZHJpdmVy
+IGN1cnJlbnRseSBjbGVhbnMgdHggZGVzY3JpcHRvcnMgb24gdHJhbnNtaXNzaW9uCj4gb2YgbmV3
+IHBhY2tldHMgaW4gbmRvX3N0YXJ0X3htaXQuIExhdGVuY3kgZGVwZW5kcyBvbiBuZXcgdHJhZmZp
+Yywgc28KPiBpcyB1bmJvdW5kZWQuIFRvIGF2b2lkIGRlYWRsb2NrIHdoZW4gYSBzb2NrZXQgcmVh
+Y2hlcyBpdHMgc25kIGxpbWl0LAo+IHBhY2tldHMgYXJlIG9ycGhhbmVkIG9uIHRyYW5taXNzaW9u
+LiBUaGlzIGJyZWFrcyBzb2NrZXQgYmFja3ByZXNzdXJlLAo+IGluY2x1ZGluZyBUU1EuCj4KPiBO
+YXBpIGluY3JlYXNlcyB0aGUgbnVtYmVyIG9mIGludGVycnVwdHMgZ2VuZXJhdGVkIGNvbXBhcmVk
+IHRvIHRoZQo+IGN1cnJlbnQgbW9kZWwsIHdoaWNoIGtlZXBzIGludGVycnVwdHMgZGlzYWJsZWQg
+YXMgbG9uZyBhcyB0aGUgcmluZwo+IGhhcyBlbm91Z2ggZnJlZSBkZXNjcmlwdG9ycy4gS2VlcCB0
+eCBuYXBpIG9wdGlvbmFsIGFuZCBkaXNhYmxlZCBmb3IKPiBub3cuIEZvbGxvdy1vbiBwYXRjaGVz
+IHdpbGwgcmVkdWNlIHRoZSBpbnRlcnJ1cHQgY29zdC4KPgo+IFNpZ25lZC1vZmYtYnk6IFdpbGxl
+bSBkZSBCcnVpam4gPHdpbGxlbWJAZ29vZ2xlLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBX
+YW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+IC0tLQo+ICAgZHJpdmVycy9uZXQvdmlydGlvX25l
+dC5jIHwgNzcgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0t
+Cj4gICAxIGZpbGUgY2hhbmdlZCwgNjcgaW5zZXJ0aW9ucygrKSwgMTAgZGVsZXRpb25zKC0pCj4K
+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmly
+dGlvX25ldC5jCj4gaW5kZXggYjljMWRmMjk4OTJjLi5jMTczZTg1ZGM3YjggMTAwNjQ0Cj4gLS0t
+IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25l
+dC5jCj4gQEAgLTMzLDkgKzMzLDEwIEBACj4gICBzdGF0aWMgaW50IG5hcGlfd2VpZ2h0ID0gTkFQ
+SV9QT0xMX1dFSUdIVDsKPiAgIG1vZHVsZV9wYXJhbShuYXBpX3dlaWdodCwgaW50LCAwNDQ0KTsK
+PiAgIAo+IC1zdGF0aWMgYm9vbCBjc3VtID0gdHJ1ZSwgZ3NvID0gdHJ1ZTsKPiArc3RhdGljIGJv
+b2wgY3N1bSA9IHRydWUsIGdzbyA9IHRydWUsIG5hcGlfdHg7Cj4gICBtb2R1bGVfcGFyYW0oY3N1
+bSwgYm9vbCwgMDQ0NCk7Cj4gICBtb2R1bGVfcGFyYW0oZ3NvLCBib29sLCAwNDQ0KTsKPiArbW9k
+dWxlX3BhcmFtKG5hcGlfdHgsIGJvb2wsIDA2NDQpOwo+ICAgCj4gICAvKiBGSVhNRTogTVRVIGlu
+IGNvbmZpZy4gKi8KPiAgICNkZWZpbmUgR09PRF9QQUNLRVRfTEVOIChFVEhfSExFTiArIFZMQU5f
+SExFTiArIEVUSF9EQVRBX0xFTikKPiBAQCAtODYsNiArODcsOCBAQCBzdHJ1Y3Qgc2VuZF9xdWV1
+ZSB7Cj4gICAKPiAgIAkvKiBOYW1lIG9mIHRoZSBzZW5kIHF1ZXVlOiBvdXRwdXQuJGluZGV4ICov
+Cj4gICAJY2hhciBuYW1lWzQwXTsKPiArCj4gKwlzdHJ1Y3QgbmFwaV9zdHJ1Y3QgbmFwaTsKPiAg
+IH07Cj4gICAKPiAgIC8qIEludGVybmFsIHJlcHJlc2VudGF0aW9uIG9mIGEgcmVjZWl2ZSB2aXJ0
+cXVldWUgKi8KPiBAQCAtMjYyLDEyICsyNjUsMTYgQEAgc3RhdGljIHZvaWQgdmlydHF1ZXVlX25h
+cGlfY29tcGxldGUoc3RydWN0IG5hcGlfc3RydWN0ICpuYXBpLAo+ICAgc3RhdGljIHZvaWQgc2ti
+X3htaXRfZG9uZShzdHJ1Y3QgdmlydHF1ZXVlICp2cSkKPiAgIHsKPiAgIAlzdHJ1Y3QgdmlydG5l
+dF9pbmZvICp2aSA9IHZxLT52ZGV2LT5wcml2Owo+ICsJc3RydWN0IG5hcGlfc3RydWN0ICpuYXBp
+ID0gJnZpLT5zcVt2cTJ0eHEodnEpXS5uYXBpOwo+ICAgCj4gICAJLyogU3VwcHJlc3MgZnVydGhl
+ciBpbnRlcnJ1cHRzLiAqLwo+ICAgCXZpcnRxdWV1ZV9kaXNhYmxlX2NiKHZxKTsKPiAgIAo+IC0J
+LyogV2Ugd2VyZSBwcm9iYWJseSB3YWl0aW5nIGZvciBtb3JlIG91dHB1dCBidWZmZXJzLiAqLwo+
+IC0JbmV0aWZfd2FrZV9zdWJxdWV1ZSh2aS0+ZGV2LCB2cTJ0eHEodnEpKTsKPiArCWlmIChuYXBp
+LT53ZWlnaHQpCj4gKwkJdmlydHF1ZXVlX25hcGlfc2NoZWR1bGUobmFwaSwgdnEpOwo+ICsJZWxz
+ZQo+ICsJCS8qIFdlIHdlcmUgcHJvYmFibHkgd2FpdGluZyBmb3IgbW9yZSBvdXRwdXQgYnVmZmVy
+cy4gKi8KPiArCQluZXRpZl93YWtlX3N1YnF1ZXVlKHZpLT5kZXYsIHZxMnR4cSh2cSkpOwo+ICAg
+fQo+ICAgCj4gICBzdGF0aWMgdW5zaWduZWQgaW50IG1lcmdlYWJsZV9jdHhfdG9fYnVmX3RydWVz
+aXplKHVuc2lnbmVkIGxvbmcgbXJnX2N0eCkKPiBAQCAtOTcyLDYgKzk3OSwyMSBAQCBzdGF0aWMg
+dm9pZCB2aXJ0bmV0X25hcGlfZW5hYmxlKHN0cnVjdCB2aXJ0cXVldWUgKnZxLCBzdHJ1Y3QgbmFw
+aV9zdHJ1Y3QgKm5hcGkpCj4gICAJbG9jYWxfYmhfZW5hYmxlKCk7Cj4gICB9Cj4gICAKPiArc3Rh
+dGljIHZvaWQgdmlydG5ldF9uYXBpX3R4X2VuYWJsZShzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwK
+PiArCQkJCSAgIHN0cnVjdCB2aXJ0cXVldWUgKnZxLAo+ICsJCQkJICAgc3RydWN0IG5hcGlfc3Ry
+dWN0ICpuYXBpKQo+ICt7Cj4gKwlpZiAoIW5hcGktPndlaWdodCkKPiArCQlyZXR1cm47Cj4gKwo+
+ICsJaWYgKCF2aS0+YWZmaW5pdHlfaGludF9zZXQpIHsKPiArCQluYXBpLT53ZWlnaHQgPSAwOwo+
+ICsJCXJldHVybjsKPiArCX0KPiArCj4gKwlyZXR1cm4gdmlydG5ldF9uYXBpX2VuYWJsZSh2cSwg
+bmFwaSk7Cj4gK30KPiArCj4gICBzdGF0aWMgdm9pZCByZWZpbGxfd29yayhzdHJ1Y3Qgd29ya19z
+dHJ1Y3QgKndvcmspCj4gICB7Cj4gICAJc3RydWN0IHZpcnRuZXRfaW5mbyAqdmkgPQo+IEBAIC0x
+MDQ2LDYgKzEwNjgsNyBAQCBzdGF0aWMgaW50IHZpcnRuZXRfb3BlbihzdHJ1Y3QgbmV0X2Rldmlj
+ZSAqZGV2KQo+ICAgCQkJaWYgKCF0cnlfZmlsbF9yZWN2KHZpLCAmdmktPnJxW2ldLCBHRlBfS0VS
+TkVMKSkKPiAgIAkJCQlzY2hlZHVsZV9kZWxheWVkX3dvcmsoJnZpLT5yZWZpbGwsIDApOwo+ICAg
+CQl2aXJ0bmV0X25hcGlfZW5hYmxlKHZpLT5ycVtpXS52cSwgJnZpLT5ycVtpXS5uYXBpKTsKPiAr
+CQl2aXJ0bmV0X25hcGlfdHhfZW5hYmxlKHZpLCB2aS0+c3FbaV0udnEsICZ2aS0+c3FbaV0ubmFw
+aSk7Cj4gICAJfQo+ICAgCj4gICAJcmV0dXJuIDA7Cj4gQEAgLTEwODEsNiArMTEwNCwyNSBAQCBz
+dGF0aWMgdm9pZCBmcmVlX29sZF94bWl0X3NrYnMoc3RydWN0IHNlbmRfcXVldWUgKnNxKQo+ICAg
+CXU2NF9zdGF0c191cGRhdGVfZW5kKCZzdGF0cy0+dHhfc3luY3ApOwo+ICAgfQo+ICAgCj4gK3N0
+YXRpYyBpbnQgdmlydG5ldF9wb2xsX3R4KHN0cnVjdCBuYXBpX3N0cnVjdCAqbmFwaSwgaW50IGJ1
+ZGdldCkKPiArewo+ICsJc3RydWN0IHNlbmRfcXVldWUgKnNxID0gY29udGFpbmVyX29mKG5hcGks
+IHN0cnVjdCBzZW5kX3F1ZXVlLCBuYXBpKTsKPiArCXN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpID0g
+c3EtPnZxLT52ZGV2LT5wcml2Owo+ICsJc3RydWN0IG5ldGRldl9xdWV1ZSAqdHhxID0gbmV0ZGV2
+X2dldF90eF9xdWV1ZSh2aS0+ZGV2LCB2cTJ0eHEoc3EtPnZxKSk7Cj4gKwo+ICsJaWYgKF9fbmV0
+aWZfdHhfdHJ5bG9jayh0eHEpKSB7Cj4gKwkJZnJlZV9vbGRfeG1pdF9za2JzKHNxKTsKPiArCQlf
+X25ldGlmX3R4X3VubG9jayh0eHEpOwo+ICsJfQo+ICsKPiArCXZpcnRxdWV1ZV9uYXBpX2NvbXBs
+ZXRlKG5hcGksIHNxLT52cSwgMCk7Cj4gKwo+ICsJaWYgKHNxLT52cS0+bnVtX2ZyZWUgPj0gMiAr
+IE1BWF9TS0JfRlJBR1MpCj4gKwkJbmV0aWZfdHhfd2FrZV9xdWV1ZSh0eHEpOwo+ICsKPiArCXJl
+dHVybiAwOwo+ICt9Cj4gKwo+ICAgc3RhdGljIGludCB4bWl0X3NrYihzdHJ1Y3Qgc2VuZF9xdWV1
+ZSAqc3EsIHN0cnVjdCBza19idWZmICpza2IpCj4gICB7Cj4gICAJc3RydWN0IHZpcnRpb19uZXRf
+aGRyX21yZ19yeGJ1ZiAqaGRyOwo+IEBAIC0xMTMwLDkgKzExNzIsMTEgQEAgc3RhdGljIG5ldGRl
+dl90eF90IHN0YXJ0X3htaXQoc3RydWN0IHNrX2J1ZmYgKnNrYiwgc3RydWN0IG5ldF9kZXZpY2Ug
+KmRldikKPiAgIAlpbnQgZXJyOwo+ICAgCXN0cnVjdCBuZXRkZXZfcXVldWUgKnR4cSA9IG5ldGRl
+dl9nZXRfdHhfcXVldWUoZGV2LCBxbnVtKTsKPiAgIAlib29sIGtpY2sgPSAhc2tiLT54bWl0X21v
+cmU7Cj4gKwlib29sIHVzZV9uYXBpID0gc3EtPm5hcGkud2VpZ2h0Owo+ICAgCj4gICAJLyogRnJl
+ZSB1cCBhbnkgcGVuZGluZyBvbGQgYnVmZmVycyBiZWZvcmUgcXVldWVpbmcgbmV3IG9uZXMuICov
+Cj4gLQlmcmVlX29sZF94bWl0X3NrYnMoc3EpOwo+ICsJaWYgKCF1c2VfbmFwaSkKPiArCQlmcmVl
+X29sZF94bWl0X3NrYnMoc3EpOwoKSSdtIG5vdCBzdXJlIHRoaXMgaXMgYmVzdCBvciBldmVuIGNv
+cnJlY3QuIENvbnNpZGVyIHdlIGNsZWFuIHhtaXQgCnBhY2tldHMgc3BlY3VsYXRpdmVseSBpbiB2
+aXJ0bmV0X3BvbGxfdHgoKSwgd2UgbmVlZCBjYWxsIApmcmVlX29sZF94bWl0X3NrYnMoKSB1bmNv
+bmRpdGlvbmFsbHkuIFRoaXMgY2FuIGFsc28gaGVscCB0byByZWR1Y2UgdGhlIApwb3NzaWJsZSBv
+ZiBuYXBpIHJlc2NoZWR1bGluZyBpbiB2aXJ0bmV0X3BvbGxfdHgoKS4KClRoYW5rcwpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
