@@ -1,15 +1,17 @@
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 Subject: Re: [PATCH net-next v2 2/5] virtio-net: transmit napi
-Date: Thu, 20 Apr 2017 12:02:45 -0400
-Message-ID: <CAF=yD-KzHo1jVugrZKq_CmyrsqCR1zmM4Jo12OjacreKm74P8w__35832.2072578177$1493077087$gmane$org@mail.gmail.com>
+Date: Fri, 21 Apr 2017 10:50:12 -0400
+Message-ID: <CAF=yD-KdtvXV+=ZROcLPHJxB55wbnJOmV0MJn2AJPHugoofR0g__46495.0497415431$1493077097$gmane$org@mail.gmail.com>
 References: <20170418202108.61920-1-willemdebruijn.kernel@gmail.com>
 	<20170418202108.61920-3-willemdebruijn.kernel@gmail.com>
-	<9f57a790-9157-db4d-621d-cf359c8f0718@redhat.com>
+	<2ae5889b-69d4-3041-d7fd-a7ea38e8c4e2@redhat.com>
+	<CAF=yD-K0Cwwcob+0nWXWTY_07_zwcae1GRHwdagF2pGrv8HwtA@mail.gmail.com>
+	<118c5f96-6151-c012-7a31-16d24a835878@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <9f57a790-9157-db4d-621d-cf359c8f0718@redhat.com>
+In-Reply-To: <118c5f96-6151-c012-7a31-16d24a835878@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,35 +25,70 @@ To: Jason Wang <jasowang@redhat.com>
 Cc: Network Development <netdev@vger.kernel.org>, Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>   static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
->>   {
->>         struct virtio_net_hdr_mrg_rxbuf *hdr;
->> @@ -1130,9 +1172,11 @@ static netdev_tx_t start_xmit(struct sk_buff *skb,
->> struct net_device *dev)
->>         int err;
->>         struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
->>         bool kick = !skb->xmit_more;
->> +       bool use_napi = sq->napi.weight;
->>         /* Free up any pending old buffers before queueing new ones. */
->> -       free_old_xmit_skbs(sq);
->> +       if (!use_napi)
->> +               free_old_xmit_skbs(sq);
+>>> Maybe I was wrong, but according to Michael's comment it looks like he
+>>> want
+>>> check affinity_hint_set just for speculative tx polling on rx napi
+>>> instead
+>>> of disabling it at all.
+>>>
+>>> And I'm not convinced this is really needed, driver only provide affinity
+>>> hint instead of affinity, so it's not guaranteed that tx and rx interrupt
+>>> are in the same vcpus.
+>>
+>> You're right. I made the restriction broader than the request, to really
+>> err
+>> on the side of caution for the initial merge of napi tx. And enabling
+>> the optimization is always a win over keeping it off, even without irq
+>> affinity.
+>>
+>> The cycle cost is significant without affinity regardless of whether the
+>> optimization is used.
 >
 >
-> I'm not sure this is best or even correct. Consider we clean xmit packets
-> speculatively in virtnet_poll_tx(), we need call free_old_xmit_skbs()
-> unconditionally. This can also help to reduce the possible of napi
-> rescheduling in virtnet_poll_tx().
+> Yes, I noticed this in the past too.
+>
+>> Though this is not limited to napi-tx, it is more
+>> pronounced in that mode than without napi.
+>>
+>> 1x TCP_RR for affinity configuration {process, rx_irq, tx_irq}:
+>>
+>> upstream:
+>>
+>> 1,1,1: 28985 Mbps, 278 Gcyc
+>> 1,0,2: 30067 Mbps, 402 Gcyc
+>>
+>> napi tx:
+>>
+>> 1,1,1: 34492 Mbps, 269 Gcyc
+>> 1,0,2: 36527 Mbps, 537 Gcyc (!)
+>> 1,0,1: 36269 Mbps, 394 Gcyc
+>> 1,0,0: 34674 Mbps, 402 Gcyc
+>>
+>> This is a particularly strong example. It is also representative
+>> of most RR tests. It is less pronounced in other streaming tests.
+>> 10x TCP_RR, for instance:
+>>
+>> upstream:
+>>
+>> 1,1,1: 42267 Mbps, 301 Gcyc
+>> 1,0,2: 40663 Mbps, 445 Gcyc
+>>
+>> napi tx:
+>>
+>> 1,1,1: 42420 Mbps, 303 Gcyc
+>> 1,0,2:  42267 Mbps, 431 Gcyc
+>>
+>> These numbers were obtained with the virtqueue_enable_cb_delayed
+>> optimization after xmit_skb, btw. It turns out that moving that before
+>> increases 1x TCP_RR further to ~39 Gbps, at the cost of reducing
+>> 100x TCP_RR a bit.
+>
+>
+> I see, so I think we can leave the affinity hint optimization/check for
+> future investigation:
+>
+> - to avoid endless optimization (e.g we may want to share a single
+> vector/napi for tx/rx queue pairs in the future) for this series.
+> - tx napi is disabled by default which means we can do optimization on top.
 
-Because of the use of trylock there. Absolutely, thanks! Perhaps I should
-only use trylock in the opportunistic clean path from the rx softirq and
-full locking in the tx softirq.
-
-I previously observed that cleaning here would, counterintuitively,
-reduce efficiency. It reverted the improvements of cleaning transmit
-completions from the receive softirq. Going through my data, I did
-not observe this regression anymore on the latest patchset.
-
-Let me test again, with and without the new
-virtqueue_enable_cb_delayed patch. Perhaps that made a
-difference.
+Okay. I'll drop the vi->affinity_hint_set from the patch set for now.
