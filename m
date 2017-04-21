@@ -1,14 +1,17 @@
 From: "Tian, Kevin" <kevin.tian@intel.com>
-Subject: RE: [RFC 3/3] virtio-iommu: future work
-Date: Fri, 21 Apr 2017 08:31:15 +0000
-Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D190CB249E__1243.02943372658$1492763491$gmane$org@SHSMSX101.ccr.corp.intel.com>
+Subject: RE: [RFC 1/3] virtio-iommu: firmware description of the virtual
+	topology
+Date: Fri, 21 Apr 2017 08:43:43 +0000
+Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D190CB2570@SHSMSX101.ccr.corp.intel.com>
 References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
-	<20170407191747.26618-4-jean-philippe.brucker@arm.com>
+	<20170407191747.26618-2-jean-philippe.brucker@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D190CADDD2@SHSMSX101.ccr.corp.intel.com>
+	<2b070038-c229-a5c7-9bec-2d0a2fc2f01d@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170407191747.26618-4-jean-philippe.brucker@arm.com>
+In-Reply-To: <2b070038-c229-a5c7-9bec-2d0a2fc2f01d@arm.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,249 +26,136 @@ To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-fo
 Cc: "cdall@linaro.org" <cdall@linaro.org>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "will.deacon@arm.com" <will.deacon@arm.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Jean-Philippe Brucker
-> Sent: Saturday, April 8, 2017 3:18 AM
+> From: Jean-Philippe Brucker [mailto:jean-philippe.brucker@arm.com]
+> Sent: Wednesday, April 19, 2017 2:41 AM
 > 
-> Here I propose a few ideas for extensions and optimizations. This is all
-> very exploratory, feel free to correct mistakes and suggest more things.
+> On 18/04/17 10:51, Tian, Kevin wrote:
+> >> From: Jean-Philippe Brucker
+> >> Sent: Saturday, April 8, 2017 3:18 AM
+> >>
+> >> Unlike other virtio devices, the virtio-iommu doesn't work independently,
+> >> it is linked to other virtual or assigned devices. So before jumping into
+> >> device operations, we need to define a way for the guest to discover the
+> >> virtual IOMMU and the devices it translates.
+> >>
+> >> The host must describe the relation between IOMMU and devices to the
+> >> guest
+> >> using either device-tree or ACPI. The virtual IOMMU identifies each
+> >
+> > Do you plan to support both device tree and ACPI?
+> 
+> Yes, with ACPI the topology would be described using IORT nodes. I didn't
+> include an example in my driver because DT is sufficient for a prototype
+> and is readily available (both in Linux and kvmtool), whereas IORT would
+> be quite easy to reuse in Linux, but isn't present in kvmtool at the
+> moment. However, both interfaces have to be supported for the virtio-
+> iommu
+> to be portable.
 
-[...]
-> 
->   II. Page table sharing
->   ======================
-> 
->   1. Sharing IOMMU page tables
->   ----------------------------
-> 
-> VIRTIO_IOMMU_F_PT_SHARING
-> 
-> This is independent of the nested mode described in I.2, but relies on a
-> similar feature in the physical IOMMU: having two stages of page tables,
-> one for the host and one for the guest.
-> 
-> When this is supported, the guest can manage its own s1 page directory, to
-> avoid sending MAP/UNMAP requests. Feature
-> VIRTIO_IOMMU_F_PT_SHARING allows
-> a driver to give a page directory pointer (pgd) to the host and send
-> invalidations when removing or changing a mapping. In this mode, three
-> requests are used: probe, attach and invalidate. An address space cannot
-> be using the MAP/UNMAP interface and PT_SHARING at the same time.
-> 
-> Device and driver first need to negotiate which page table format they
-> will be using. This depends on the physical IOMMU, so the request contains
-> a negotiation part to probe the device capabilities.
-> 
-> (1) Driver attaches devices to address spaces as usual, but a flag
->     VIRTIO_IOMMU_ATTACH_F_PRIVATE (working title) tells the device not to
->     create page tables for use with the MAP/UNMAP API. The driver intends
->     to manage the address space itself.
-> 
-> (2) Driver sends a PROBE_TABLE request. It sets len > 0 with the size of
->     pg_format array.
-> 
-> 	VIRTIO_IOMMU_T_PROBE_TABLE
-> 
-> 	struct virtio_iommu_req_probe_table {
-> 		le32	address_space;
-> 		le32	flags;
-> 		le32	len;
-> 
-> 		le32	nr_contexts;
-> 		struct {
-> 			le32	model;
-> 			u8	format[64];
-> 		} pg_format[len];
-> 	};
-> 
-> Introducing a probe request is more flexible than advertising those
-> features in virtio config, because capabilities are dynamic, and depend on
-> which devices are attached to an address space. Within a single address
-> space, devices may support different numbers of contexts (PASIDs), and
-> some may not support recoverable faults.
-> 
-> (3) Device responds success with all page table formats implemented by the
->     physical IOMMU in pg_format. 'model' 0 is invalid, so driver can
->     initialize the array to 0 and deduce from there which entries have
->     been filled by the device.
-> 
-> Using a probe method seems preferable over trying to attach every possible
-> format until one sticks. For instance, with an ARM guest running on an x86
-> host, PROBE_TABLE would return the Intel IOMMU page table format, and
-> the
-> guest could use that page table code to handle its mappings, hidden behind
-> the IOMMU API. This requires that the page-table code is reasonably
-> abstracted from the architecture, as is done with drivers/iommu/io-pgtable
-> (an x86 guest could use any format implement by io-pgtable for example.)
-
-So essentially you need modify all existing IOMMU drivers to support page 
-table sharing in pvIOMMU. After abstraction is done the core pvIOMMU files 
-can be kept vendor agnostic. But if we talk about the whole pvIOMMU 
-module, it actually includes vendor specific logic thus unlike typical 
-para-virtualized virtio drivers being completely vendor agnostic. Is this 
-understanding accurate?
-
-It also means in the host-side pIOMMU driver needs to propagate all
-supported formats through VFIO to Qemu vIOMMU, meaning
-such format definitions need be consistently agreed across all those 
-components.
-
-[...]
+'portable' means whether guest enables ACPI?
 
 > 
->   2. Sharing MMU page tables
->   --------------------------
+> >> virtual device with a 32-bit ID, that we will call "Device ID" in this
+> >> document. Device IDs are not necessarily unique system-wide, but they
+> may
+> >> not overlap within a single virtual IOMMU. Device ID of passed-through
+> >> devices do not need to match IDs seen by the physical IOMMU.
+> >>
+> >> The virtual IOMMU uses virtio-mmio transport exclusively, not virtio-pci,
+> >> because with PCI the IOMMU interface would itself be an endpoint, and
+> >> existing firmware interfaces don't allow to describe IOMMU<->master
+> >> relations between PCI endpoints.
+> >
+> > I'm not familiar with virtio-mmio mechanism. Curious how devices in
+> > virtio-mmio are enumerated today? Could we use that mechanism to
+> > identify vIOMMUs and then invent a purely para-virtualized method to
+> > enumerate devices behind each vIOMMU?
 > 
-> The guest can share process page-tables with the physical IOMMU. To do
-> that, it sends PROBE_TABLE with (F_INDIRECT | F_NATIVE | F_FAULT). The
-> page table format is implicit, so the pg_format array can be empty (unless
-> the guest wants to query some specific property, e.g. number of levels
-> supported by the pIOMMU?). If the host answers with success, guest can
-> send its MMU page table details with ATTACH_TABLE and (F_NATIVE |
-> F_INDIRECT | F_FAULT) flags.
-> 
-> F_FAULT means that the host communicates page requests from device to
-> the
-> guest, and the guest can handle them by mapping virtual address in the
-> fault to pages. It is only available with VIRTIO_IOMMU_F_FAULT_QUEUE (see
-> below.)
-> 
-> F_NATIVE means that the pIOMMU pgtable format is the same as guest
-> MMU
-> pgtable format.
-> 
-> F_INDIRECT means that 'table' pointer is a context table, instead of a
-> page directory. Each slot in the context table points to a page directory:
-> 
->                        64              2 1 0
->           table ----> +---------------------+
->                       |       pgd       |0|1|<--- context 0
->                       |       ---       |0|0|<--- context 1
->                       |       pgd       |0|1|
->                       |       ---       |0|0|
->                       |       ---       |0|0|
->                       +---------------------+
->                                          | \___Entry is valid
->                                          |______reserved
-> 
-> Question: do we want per-context page table format, or can it stay global
-> for the whole indirect table?
+> Using DT, virtio-mmio devices are described with "virtio-mmio" compatible
+> node, and with ACPI they use _HID LNRO0005. Since the host already
+> describes available devices to a guest using a firmware interface, I think
+> we should reuse the tools provided by that interface for describing
+> relations between DMA masters and IOMMU.
 
-Are you defining this context table format in software, or following
-hardware definition? At least for VT-d there is a strict hardware-defined
-structure (PASID table) which must be used here.
-
-[...]
-> 
->   4. Host implementation with VFIO
->   --------------------------------
-> 
-> The VFIO interface for sharing page tables is being worked on at the
-> moment by Intel. Other virtual IOMMU implementation will most likely let
-> guest manage full context tables (PASID tables) themselves, giving the
-> context table pointer to the pIOMMU via a VFIO ioctl.
-> 
-> For the architecture-agnostic virtio-iommu however, we shouldn't have to
-> implement all possible formats of context table (they are at least
-> different between ARM SMMU and Intel IOMMU, and will certainly be
-> extended
-
-Since anyway you'll finally require vendor specific page table logic,
-why not also abstracting this context table too which then doesn't
-require below host-side changes?
-
-> in future physical IOMMU architectures.) In addition, most users might
-> only care about having one page directory per device, as SVM is a luxury
-> at the moment and few devices support it. For these reasons, we should
-> allow to pass single page directories via VFIO, using very similar
-> structures as described above, whilst reusing the VFIO channel developed
-> for Intel vIOMMU.
-> 
-> 	* VFIO_SVM_INFO: probe page table formats
-> 	* VFIO_SVM_BIND: set pgd and arch-specific configuration
-> 
-> There is an inconvenient with letting the pIOMMU driver manage the guest's
-> context table. During a page table walk, the pIOMMU translates the context
-> table pointer using the stage-2 page tables. The context table must
-> therefore be mapped in guest-physical space by the pIOMMU driver. One
-> solution is to let the pIOMMU driver reserve some GPA space upfront using
-> the iommu and sysfs resv API [1]. The host would then carve that region
-> out of the guest-physical space using a firmware mechanism (for example DT
-> reserved-memory node).
-
-Can you elaborate this flow? pIOMMU driver doesn't directly manage GPA
-address space thus it's not reasonable for it to randomly specify a reserved
-range. It might make more sense for GPA owner (e.g. Qemu) to decide and
-then pass information to pIOMMU driver.
+OK, I didn't realize virtio-mmio is defined to rely on DT for enumeration.
 
 > 
+> > Asking this is because each vendor has its own enumeration methods.
+> > ARM has device tree and ACPI IORT. AMR has ACPI IVRS and device
+> > tree (same format as ARM?). Intel has APCI DMAR and sub-tables. Your
+> > current proposal looks following ARM definitions which I'm not sure
+> > extensible enough to cover features defined only in other vendors'
+> > structures.
 > 
->   III. Relaxed operations
->   =======================
-> 
-> VIRTIO_IOMMU_F_RELAXED
-> 
-> Adding an IOMMU dramatically reduces performance of a device, because
-> map/unmap operations are costly and produce a lot of TLB traffic. For
-> significant performance improvements, device might allow the driver to
-> sacrifice safety for speed. In this mode, the driver does not need to send
-> UNMAP requests. The semantics of MAP change and are more complex to
-> implement. Given a MAP([start:end] -> phys, flags) request:
-> 
-> (1) If [start:end] isn't mapped, request succeeds as usual.
-> (2) If [start:end] overlaps an existing mapping [old_start:old_end], we
->     unmap [max(start, old_start):min(end, old_end)] and replace it with
->     [start:end].
-> (3) If [start:end] overlaps an existing mapping that matches the new map
->     request exactly (same flags, same phys address), the old mapping is
->     kept.
-> 
-> This squashing could be performed by the guest. The driver can catch unmap
-> requests from the DMA layer, and only relay map requests for (1) and (2).
-> A MAP request is therefore able to split and partially override an
-> existing mapping, which isn't allowed in non-relaxed mode. UNMAP requests
-> are unnecessary, but are now allowed to split or carve holes in mappings.
-> 
-> In this model, a MAP request may take longer, but we may have a net gain
-> by removing a lot of redundant requests. Squashing series of map/unmap
-> performed by the guest for the same mapping improves temporal reuse of
-> IOVA mappings, which I can observe by simply dumping IOMMU activity of a
-> virtio device. It reduce the number of TLB invalidations to the strict
-> minimum while keeping correctness of DMA operations (provided the device
-> obeys its driver). There is a good read on the subject of optimistic
-> teardown in paper [2].
-> 
-> This model is completely unsafe. A stale DMA transaction might access a
-> page long after the device driver in the guest unmapped it and
-> decommissioned the page. The DMA transaction might hit into a completely
-> different part of the system that is now reusing the page. Existing
-> relaxed implementations attempt to mitigate the risk by setting a timeout
-> on the teardown. Unmap requests from device drivers are not discarded
-> entirely, but buffered and sent at a later time. Paper [2] reports good
-> results with a 10ms delay.
-> 
-> We could add a way for device and driver to negotiate a vulnerability
-> window to mitigate the risk of DMA attacks. Driver might not accept a
-> window at all, since it requires more infrastructure to keep delayed
-> mappings. In my opinion, it should be made clear that regardless of the
-> duration of this window, any driver accepting F_RELAXED feature makes the
-> guest completely vulnerable, and the choice boils down to either isolation
-> or speed, not a bit of both.
+> ACPI IORT can be extended to incorporate para-virtualized IOMMUs,
+> regardless of the underlying architecture. It isn't defined solely for the
+> ARM SMMU, but serves a more general purpose of describing a map of
+> device
+> identifiers communicated from one components to another. Both DMAR and
+> IVRS have such description (respectively DRHD and IVHD), but they are
+> designed for a specific IOMMU, whereas IORT could host other kinds.
 
-Even with above optimization I'd image the performance drop is still
-significant for kernel map/unmap usages, not to say when such 
-optimization is not possible if safety is required (actually I don't
-know why IOMMU is still required if safety can be compromised. Aren't
-we using IOMMU for security purpose?). I think we'd better focus on
-higher-value usages, e.g. user space DMA protection (DPDK) and 
-SVM, while leaving kernel protection with a lower priority (most for 
-functionality verification). Is this strategy aligned with your thought?
+I'll take a look at IORT definition. DRHD includes information more
+than device mapping.
 
-btw what about interrupt remapping/posting? Are they also in your
-plan for pvIOMMU?
+> 
+> It seems that all we really need is an interface that says "there is a
+> virtio-iommu at address X, here are the devices it translates and their
+> corresponding IDs", and both DT and ACPI IORT are able to fulfill this role.
+> 
+> > Since the purpose of this series is to go para-virtualize, why not also
+> > para-virtualize and simplify the enumeration method? For example,
+> > we may define a query interface through vIOMMU registers to allow
+> > guest query whether a device belonging to that vIOMMU. Then we
+> > can even remove use of any enumeration structure completely...
+> > Just a quick example which I may not think through all the pros and
+> > cons. :-)
+> 
+> I don't think adding a brand new topology description mechanism is worth
+> the effort, we're better off reusing what already exists and is
+> implemented by operating systems. Adding a query interface inside the
+> vIOMMU may work (though might be very painful to integrate with fwspec in
+> Linux), but would be redundant since the host has to provide a firmware
+> description of the system anyway.
+> 
+> >> The following diagram describes a situation where two virtual IOMMUs
+> >> translate traffic from devices in the system. vIOMMU 1 translates two PCI
+> >> domains, in which each function has a 16-bits requester ID. In order for
+> >> the vIOMMU to differentiate guest requests targeted at devices in each
+> >> domain, their Device ID ranges cannot overlap. vIOMMU 2 translates two
+> PCI
+> >> domains and a collection of platform devices.
+> >>
+> >>                        Device ID    Requester ID
+> >>                   /       0x0           0x0      \
+> >>                  /         |             |        PCI domain 1
+> >>                 /      0xffff           0xffff   /
+> >>         vIOMMU 1
+> >>                 \     0x10000           0x0      \
+> >>                  \         |             |        PCI domain 2
+> >>                   \   0x1ffff           0xffff   /
+> >>
+> >>                   /       0x0                    \
+> >>                  /         |                      platform devices
+> >>                 /      0x1fff                    /
+> >>         vIOMMU 2
+> >>                 \      0x2000           0x0      \
+> >>                  \         |             |        PCI domain 3
+> >>                   \   0x11fff           0xffff   /
+> >>
+> >
+> > isn't above be (0x30000, 3ffff) for PCI domain 3 giving device ID is 16bit?
+> 
+> Unlike Requester IDs in PCI, there is no architected rule for IDs of
+> platform devices, it's an integration choice. The ID of platform device is
+> used exclusively for interfacing with an IOMMU (or MSI controller), it
+> doesn't mean anything outside this context. Here the host allocates 13
+> bits to platform device IDs, which is legal.
+> 
 
-Last, thanks for very informative write-! Looks a long enabling path is 
-required get pvIOMMU feature on-par with a real IOMMU. Starting 
-with a minimal set is relatively easier. :-)
+Please add such explanation to your next version. In earlier text
+"16-bits request ID" is mentioned for vIOMMU1, which gave me
+the illusion that same 16bit applies to vIOMMU2 too.
 
 Thanks
 Kevin
