@@ -1,16 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC (resend) net-next 0/6] virtio-net: Add support for
-	virtio-net header extensions
-Date: Fri, 21 Apr 2017 12:05:15 +0800
-Message-ID: <2b70ab98-c5cc-25c7-dd42-4bb570b6aec6__12860.5915968821$1492747532$gmane$org@redhat.com>
-References: <1492274298-17362-1-git-send-email-vyasevic@redhat.com>
-	<0d9216af-e3db-e06b-f70d-d77f519c3fd4@redhat.com>
-	<f52fa31e-5ca2-34dc-d48b-417a34061359@redhat.com>
+From: "Tian, Kevin" <kevin.tian@intel.com>
+Subject: RE: [RFC 3/3] virtio-iommu: future work
+Date: Fri, 21 Apr 2017 08:31:15 +0000
+Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D190CB249E__1243.02943372658$1492763491$gmane$org@SHSMSX101.ccr.corp.intel.com>
+References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
+	<20170407191747.26618-4-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f52fa31e-5ca2-34dc-d48b-417a34061359@redhat.com>
+In-Reply-To: <20170407191747.26618-4-jean-philippe.brucker@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,112 +19,253 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: vyasevic@redhat.com, Vladislav Yasevich <vyasevich@gmail.com>, netdev@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, maxime.coquelin@redhat.com, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: "cdall@linaro.org" <cdall@linaro.org>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "will.deacon@arm.com" <will.deacon@arm.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDTmnIgyMOaXpSAyMzozNCwgVmxhZCBZYXNldmljaCB3cm90ZToKPiBPbiAw
-NC8xNy8yMDE3IDExOjAxIFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pgo+PiBPbiAyMDE35bm0MDTm
-nIgxNuaXpSAwMDozOCwgVmxhZGlzbGF2IFlhc2V2aWNoIHdyb3RlOgo+Pj4gQ3VycmVjbHR5IHZp
-cnRpb24gbmV0IGhlYWRlciBpcyBmaXhlZCBzaXplIGFuZCBhZGRpbmcgdGhpbmdzIHRvIGl0IGlz
-IHJhdGhlcgo+Pj4gZGlmZmljdWx0IHRvIGRvLiAgVGhpcyBzZXJpZXMgYXR0ZW1wdCB0byBhZGQg
-dGhlIGluZnJhc3RydWN0dXJlIGFzIHdlbGwgYXMgc29tZQo+Pj4gZXh0ZW5zaW9ucyB0aGF0IHRy
-eSB0byByZXNvbHZlIHNvbWUgZGVmaWNpZW5jaWVzIHdlIGN1cnJlbnRseSBoYXZlLgo+Pj4KPj4+
-IEZpcnN0LCB2bmV0IGhlYWRlciBvbmx5IGhhcyBzcGFjZSBmb3IgMTYgZmxhZ3MuICBUaGlzIG1h
-eSBub3QgYmUgZW5vdWdoCj4+PiBpbiB0aGUgZnV0dXJlLiAgVGhlIGV4dGVuc2lvbnMgd2lsbCBw
-cm92aWRlIHNwYWNlIGZvciAzMiBwb3NzYmlsZSBleHRlbnNpb24KPj4+IGZsYWdzIGFuZCAzMiBw
-b3NzaWJsZSBleHRlbnNpb25zLiAgIFRoZXNlIGZsYWdzIHdpbGwgYmUgY2FycmllZCBpbiB0aGUK
-Pj4+IGZpcnN0IHBzZXVkbyBleHRlbnNpb24gaGVhZGVyLCB0aGUgcHJlc2Vuc2Ugb2Ygd2hpY2gg
-d2lsbCBiZSBkZXRlcm1pbmVkIGJ5Cj4+PiB0aGUgZmxhZyBpbiB0aGUgdmlydGlvIG5ldCBoZWFk
-ZXIuCj4+Pgo+Pj4gVGhlIGV4dGVuc2lvbnMgdGhlbXNlbHZlcyB3aWxsIGltbWlkaWF0ZWx5IGZv
-bGxvdyB0aGUgZXh0ZW5zaW9uIGhlYWRlciBpdHNlbGYuCj4+PiBUaGV5IHdpbGwgYmUgYWRkZWQg
-dG8gdGhlIHBhY2tldCBpbiB0aGUgc2FtZSBvcmRlciBhcyB0aGV5IGFwcGVhciBpbiB0aGUKPj4+
-IGV4dGVuc2lvbiBmbGFncy4gIE5vIHBhZGRpbmcgaXMgcGxhY2VkIGJldHdlZW4gdGhlIGV4dGVu
-c2lvbnMgYW5kIGFueQo+Pj4gZXh0ZW5zaW9ucyBuZWdvdGlhdGVkLCBidXQgbm90IHVzZWQgbmVl
-ZCBieSBhIGdpdmVuIHBhY2tldCB3aWxsIGNvbnZlcnQgdG8KPj4+IHRyYWlsaW5nIHBhZGRpbmcu
-Cj4+IERvIHdlIG5lZWQgYSBleHBsaWNpdCBwYWRkaW5nIChlLmcgYW4gZXh0ZW5zaW9uKSB3aGlj
-aCBjb3VsZCBiZSBjb250cm9sbGVkIGJ5IGVhY2ggc2lkZT8KPiBJIGRvbid0IHRoaW5rIHNvLiAg
-VGhlIHNpemUgb2YgdGhlIHZuZXQgaGVhZGVyIGlzIHNldCBiYXNlZCBvbiB0aGUgZXh0ZW5zaW9u
-cyBuZWdvdGlhdGVkLgo+IFRoZSBvbmUgcGFydCBJIGFtIG5vdCBjcmF6eSBhYm91dCBpcyB0aGF0
-IGluIHRoZSBjYXNlIG9mIHBhY2tldCBub3QgdXNpbmcgYW55IGV4dGVuc2lvbnMsCj4gdGhlIGRh
-dGEgaXMgc3RpbGwgcGxhY2VkIGFmdGVyIHRoZSBlbnRpcmUgdm5ldCBoZWFkZXIsIHdoaWNoIGVz
-c2VudGlhbGx5IGFkZHMgYSBsb3QKPiBvZiBwYWRkaW5nLiAgSG93ZXZlciwgdGhhdCdzIHJlYWxs
-eSBubyBkaWZmZXJlbnQgdGhlbiBpZiB3ZSBzaW1wbHkgZ3JldyB0aGUgdm5ldCBoZWFkZXIuCj4K
-PiBUaGUgb3RoZXIgdGhpbmcgSSd2ZSB0cmllZCBiZWZvcmUgaXMgcHV0dGluZyBleHRlbnNpb25z
-IGludG8gdGhlaXIgb3duIHNnIGJ1ZmZlciwgYnV0IHRoYXQKPiBtYWRlIGl0IHNsb3dlci5oCgpZ
-ZXMuCgo+Cj4+PiBGb3IgZXhhbXBsZToKPj4+ICAgIHwgdm5ldCBtcmcgaGRyIHwgZXh0IGhkciB8
-IGV4dCAxIHwgZXh0IDIgfCBleHQgNSB8IC4uIHBhZCAuLiB8IHBhY2tldCBkYXRhIHwKPj4gSnVz
-dCBzb21lIHJvdWdoIHRob3VnaHRzOgo+Pgo+PiAtIElzIHRoaXMgYmV0dGVyIHRvIHVzZSBUTFYg
-aW5zdGVhZCBvZiBiaXRtYXAgaGVyZT8gT25lIGFkdmFudGFnZSBvZiBUTFYgaXMgdGhhdCB0aGUK
-Pj4gbGVuZ3RoIGlzIG5vdCBsaW1pdGVkIGJ5IHRoZSBsZW5ndGggb2YgYml0bWFwLgo+IGJ1dCB0
-aGUgZGlzYWR2YW50YWdlIGlzIHRoYXQgd2UgYWRkIGF0IGxlYXN0IDQgYnl0ZXMgcGVyIGV4dGVu
-c2lvbiBvZiBqdXN0IFRMIGRhdGEuICBUaGF0Cj4gbWFrZXMgdGhpcyB0aGluZyBldmVuIGxvbmdl
-ci4KClllcywgYW5kIGl0IGxvb2tzIGxpa2UgdGhlIGxlbmd0aCBpcyBzdGlsbCBsaW1pdGVkIGJ5
-IGUuZyB0aGUgbGVuZ3RoIG9mIFQuCgo+Cj4+IC0gRm9yIDEuMSwgZG8gd2UgcmVhbGx5IHdhbnQg
-c29tZXRoaW5nIGxpa2Ugdm5ldCBoZWFkZXI/IEFGQUlLLCBpdCB3YXMgbm90IHVzZWQgYnkgbW9k
-ZXJuCj4+IE5JQ3MsIGlzIHRoaXMgYmV0dGVyIHRvIHBhY2sgYWxsIG1ldGEtZGF0YSBpbnRvIGRl
-c2NyaXB0b3IgaXRzZWxmPyBUaGlzIG1heSBuZWVkIGEgc29tZQo+PiBjaGFuZ2VzIGluIHR1bi9t
-YWN2dGFwLCBidXQgbG9va3MgbW9yZSBQQ0lFIGZyaWVuZGx5Lgo+IFRoYXQgd291bGQgcmVhbGx5
-IGJlIGlkZWFsIGFuZCBJJ3ZlIGxvb2tlZCBhdCB0aGlzLiAgVGhlcmUgYXJlIHNtYWxsIGlzc3Vl
-cyBvZiBleHBvc2luZwo+IHRoZSAnbmV0IG1ldGFkYXRhJyBvZiB0aGUgZGVzY3JpcHRvciB0byB0
-YXBzIHNvIHRoZXkgY2FuIGJlIGZpbGxlZCBpbi4gIFRoZSBhbHRlcm5hdGl2ZQo+IGlzIHRvIHVz
-ZSBhIGRpZmZlcmVudCBjb250cm9sIHN0cnVjdHVyZSBmb3IgdGFwLT5xZW11fHZob3N0IGNoYW5u
-ZWwgKHRoYXQgY2FuIGJlCj4gaW1wbGVtZW50YXRpb24gc3BlY2lmaWMpIGFuZCBoYXZlIHFlbXV8
-dmhvc3QgcG9wdWxhdGUgdGhlICduZXQgbWV0YWRhdGEnIG9mIHRoZSBkZXNjcmlwdG9yLgoKWWVz
-LCB0aGlzIG5lZWRzIHNvbWUgdGhvdWdodC4gRm9yIHZob3N0LCB0aGluZ3MgbG9va3MgYSBsaXR0
-bGUgYml0IAplYXNpZXIsIHdlIGNhbiBwcm9iYWJseSB1c2UgbXNnX2NvbnRyb2wuCgpUaGFua3MK
-Cj4gVGhhbmtzCj4gLXZsYWQKPgo+PiBUaGFua3MKPj4KPj4+IEV4dGVuc2lvbnMgcHJvcG9zZWQg
-aW4gdGhpcyBzZXJpZXMgYXJlOgo+Pj4gICAgLSBJUHY2IGZyYWdtZW50IGlkIGV4dGVuc2lvbgo+
-Pj4gICAgICAqIEN1cnJlbnRseSwgdGhlIGd1ZXN0IGdlbmVyYXRlZCBmcmFnbWVudCBpZCBpcyBk
-aXNjYXJkZWQgYW5kIHRoZSBob3N0Cj4+PiAgICAgICAgZ2VuZXJhdGVzIGFuIElQdjYgZnJhZ21l
-bnQgaWQgaWYgdGhlIHBhY2tldCBoYXMgdG8gYmUgZnJhZ21lbnRlZC4gIFRoZQo+Pj4gICAgICAg
-IGNvZGUgYXR0ZW1wdHMgdG8gYWRkIHRpbWUgYmFzZWQgcGVydHVyYmF0aW9uIHRvIGlkIGdlbmVy
-YXRpb24gdG8gbWFrZQo+Pj4gICAgICAgIGl0IGhhcmRlciB0byBndWVzcyB0aGUgbmV4dCBmcmFn
-bWVudCBpZCB0byBiZSB1c2VkLiAgSG93ZXZlciwgZG9pbmcgdGhpcwo+Pj4gICAgICAgIG9uIHRo
-ZSBob3N0IG1heSByZXN1bHQgaXMgbGVzcyBwZXJ0dXJiYXRpb24gKGR1ZSB0byBkaWZmZXJuZXQg
-dGltaW5nKQo+Pj4gICAgICAgIGFuZCBtaWdodCBtYWtlIGlkIGd1ZXNzaW5nIGVhc2llci4gIElk
-ZWFsbHksIHRoZSBpZHMgZ2VuZXJhdGVkIGJ5IHRoZQo+Pj4gICAgICAgIGd1ZXN0IHNob3VsZCBi
-ZSB1c2VkLiAgT25lIGNvdWxkIGFsc28gYXJndWUgdGhhdCB3ZSBhICJ2aW9sYXRpbmciIHRoZQo+
-Pj4gICAgICAgIElQdjYgcHJvdG9jb2wgaW4gdGhlIGlmIHRoZSBfc3RyaWN0XyBpbnRlcnByZXRh
-dGlvbiBvZiB0aGUgc3BlYy4KPj4+Cj4+PiAgICAtIFZMQU4gaGVhZGVyIGFjY2VsZXJhdGlvbgo+
-Pj4gICAgICAqIEN1cnJlbnRseSB2aXJ0aW8gZG9lc24ndCBub3QgZG8gdmxhbiBoZWFkZXIgYWNj
-ZWxlcmF0aW9uIGFuZCBpbnN0ZWFkCj4+PiAgICAgICAgdXNlcyBzb2Z0d2FyZSB0YWdnaW5nLiAg
-T25lIG9mIHRoZSBmaXJzdCB0aGluZ3MgdGhhdCB0aGUgaG9zdCB3aWxsIGRvIGlzCj4+PiAgICAg
-ICAgc3RyaXAgdGhlIHZsYW4gaGVhZGVyIG91dC4gIFdoZW4gcGFzc2luZyB0aGUgcGFja2V0IHRo
-ZSBhIGd1ZXN0IHRoZQo+Pj4gICAgICAgIHZsYW4gaGVhZGVyIGlzIHJlLWluc2VydGVkIGluIHRv
-IHRoZSBwYWNrZXQuICBXZSBjYW4gc2tpcCBhbGwgdGhhdCB3b3JrCj4+PiAgICAgICAgaWYgd2Ug
-Y2FuIHBhc3MgdGhlIHZsYW4gZGF0YSBpbiBhY2NlbGVhcnRlZCBmb3JtYXQuICBUaGVuIHRoZSBo
-b3N0IHdpbGwKPj4+ICAgICAgICBub3QgZG8gYW55IGV4dHJhIHdvcmsuICBIb3dldmVyLCBzbyBm
-YXIsIHRoaXMgeWVpbGRlZCBhIHZlcnkgc21hbGwKPj4+ICAgICAgICBwZXJmIGJ1bXAgKG9ubHkg
-fjElKS4gIEkgYW0gc3RpbGwgbG9va2luZyBpbnRvIHRoaXMuCj4+Pgo+Pj4gICAgLSBVRFAgdHVu
-bmVsIG9mZmxvYWQKPj4+ICAgICAgKiBTaW1pbGFyIHRvIHZsYW4gYWNjZWxlcmF0aW9uLCB3aXRo
-IHRoaXMgZXh0ZW5zaW9uIHdlIGNhbiBwYXNzIGFkZGl0aW9uYWwKPj4+ICAgICAgICBkYXRhIHRv
-IGhvc3QgZm9yIHN1cHBvcnQgR1NPIHdpdGggdWRwIHR1bm5lbCBhbmQgcG9zc2libGUgb3RoZXIK
-Pj4+ICAgICAgICBlbmNhcHN1bGF0aW9ucy4gIFRoaXMgeWVpbGRzIGEgc2lnbmlmaWNhbnQgcGVy
-ZnJvbWFuY2UgaW1wcm92ZW1lbnQKPj4+ICAgICAgIChzdGlsbCB0ZXN0aW5nIHJlbW90ZSBjaGVj
-a3N1bSBjb2RlKS4KPj4+Cj4+PiBBbiBhZGRpdGlvbiBleHRlbnNpb24gdGhhdCBpcyB1bmZpbmlz
-aGVkIChkdWUgdG8gc3RpbGwgdGVzdGluZyBmb3IgYW55Cj4+PiBzaWRlLWVmZmVjdHMpIGlzIGNo
-ZWNrc3VtIHBhc3N0aHJvdWdoIHRvIHN1cHBvcnQgZHJpdmVycyB0aGF0IHNldAo+Pj4gQ0hFQ0tT
-VU1fQ09NUExFVEUuICBUaGlzIHdvdWxkIGVsaW1pbmF0ZSB0aGUgbmVlZCBmb3IgZ3Vlc3RzIHRv
-IGNvbXB1dGUKPj4+IHRoZSBzb2Z0d2FyZSBjaGVja3N1bS4KPj4+Cj4+PiBUaGlzIHNlcmllcyBv
-bmx5IHRha2VzIGNhcmUgb2YgdmlydGlvIG5ldC4gIEkgaGF2ZSBhZGRpdGlvbiBwYXRjaGVzIGZv
-ciB0aGUKPj4+IGhvc3Qgc2lkZSAodmhvc3QgYW5kIHRhcC9tYWN2dGFwIGFzIHdlbGwgYXMgcWVt
-dSksIGJ1dCB3YW50ZWQgdG8gZ2V0IGZlZWRiYWNrCj4+PiBvbiB0aGUgZ2VuZXJhbCBhcHByb2Fj
-aCBmaXJzdC4KPj4+Cj4+PiBWbGFkaXNsYXYgWWFzZXZpY2ggKDYpOgo+Pj4gICAgIHZpcnRpby1u
-ZXQ6IFJlbW92ZSB0aGUgdXNlIHRoZSBwYWRkZWQgdm5ldF9oZWFkZXIgc3RydWN0dXJlCj4+PiAg
-ICAgdmlydGlvLW5ldDogbWFrZSBoZWFkZXIgbGVuZ3RoIGhhbmRsaW5nIHVuaWZvcm0KPj4+ICAg
-ICB2aXJ0aW9fbmV0OiBBZGQgYmFzaWMgc2tlbGV0b24gZm9yIGhhbmRsaW5nIHZuZXQgaGVhZGVy
-IGV4dGVuc2lvbnMuCj4+PiAgICAgdmlydGlvLW5ldDogQWRkIHN1cHBvcnQgZm9yIElQdjYgZnJh
-Z21lbnQgaWQgdm5ldCBoZWFkZXIgZXh0ZW5zaW9uLgo+Pj4gICAgIHZpcnRpby1uZXQ6IEFkZCBz
-dXBwb3J0IGZvciB2bGFuIGFjY2VsZXJhdGlvbiB2bmV0IGhlYWRlciBleHRlbnNpb24uCj4+PiAg
-ICAgdmlydGlvLW5ldDogQWRkIHN1cHBvcnQgZm9yIFVEUCB0dW5uZWwgb2ZmbG9hZCBhbmQgZXh0
-ZW5zaW9uLgo+Pj4KPj4+ICAgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyAgICAgICAgfCAxMzIg
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLQo+Pj4gICAgaW5jbHVkZS9s
-aW51eC9za2J1ZmYuaCAgICAgICAgICB8ICAgNSArKwo+Pj4gICAgaW5jbHVkZS9saW51eC92aXJ0
-aW9fbmV0LmggICAgICB8ICA5MSArKysrKysrKysrKysrKysrKysrKysrKysrKy0KPj4+ICAgIGlu
-Y2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fbmV0LmggfCAgMzggKysrKysrKysrKysrCj4+PiAgICA0
-IGZpbGVzIGNoYW5nZWQsIDI0MiBpbnNlcnRpb25zKCspLCAyNCBkZWxldGlvbnMoLSkKPj4+Cgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+> From: Jean-Philippe Brucker
+> Sent: Saturday, April 8, 2017 3:18 AM
+> 
+> Here I propose a few ideas for extensions and optimizations. This is all
+> very exploratory, feel free to correct mistakes and suggest more things.
+
+[...]
+> 
+>   II. Page table sharing
+>   ======================
+> 
+>   1. Sharing IOMMU page tables
+>   ----------------------------
+> 
+> VIRTIO_IOMMU_F_PT_SHARING
+> 
+> This is independent of the nested mode described in I.2, but relies on a
+> similar feature in the physical IOMMU: having two stages of page tables,
+> one for the host and one for the guest.
+> 
+> When this is supported, the guest can manage its own s1 page directory, to
+> avoid sending MAP/UNMAP requests. Feature
+> VIRTIO_IOMMU_F_PT_SHARING allows
+> a driver to give a page directory pointer (pgd) to the host and send
+> invalidations when removing or changing a mapping. In this mode, three
+> requests are used: probe, attach and invalidate. An address space cannot
+> be using the MAP/UNMAP interface and PT_SHARING at the same time.
+> 
+> Device and driver first need to negotiate which page table format they
+> will be using. This depends on the physical IOMMU, so the request contains
+> a negotiation part to probe the device capabilities.
+> 
+> (1) Driver attaches devices to address spaces as usual, but a flag
+>     VIRTIO_IOMMU_ATTACH_F_PRIVATE (working title) tells the device not to
+>     create page tables for use with the MAP/UNMAP API. The driver intends
+>     to manage the address space itself.
+> 
+> (2) Driver sends a PROBE_TABLE request. It sets len > 0 with the size of
+>     pg_format array.
+> 
+> 	VIRTIO_IOMMU_T_PROBE_TABLE
+> 
+> 	struct virtio_iommu_req_probe_table {
+> 		le32	address_space;
+> 		le32	flags;
+> 		le32	len;
+> 
+> 		le32	nr_contexts;
+> 		struct {
+> 			le32	model;
+> 			u8	format[64];
+> 		} pg_format[len];
+> 	};
+> 
+> Introducing a probe request is more flexible than advertising those
+> features in virtio config, because capabilities are dynamic, and depend on
+> which devices are attached to an address space. Within a single address
+> space, devices may support different numbers of contexts (PASIDs), and
+> some may not support recoverable faults.
+> 
+> (3) Device responds success with all page table formats implemented by the
+>     physical IOMMU in pg_format. 'model' 0 is invalid, so driver can
+>     initialize the array to 0 and deduce from there which entries have
+>     been filled by the device.
+> 
+> Using a probe method seems preferable over trying to attach every possible
+> format until one sticks. For instance, with an ARM guest running on an x86
+> host, PROBE_TABLE would return the Intel IOMMU page table format, and
+> the
+> guest could use that page table code to handle its mappings, hidden behind
+> the IOMMU API. This requires that the page-table code is reasonably
+> abstracted from the architecture, as is done with drivers/iommu/io-pgtable
+> (an x86 guest could use any format implement by io-pgtable for example.)
+
+So essentially you need modify all existing IOMMU drivers to support page 
+table sharing in pvIOMMU. After abstraction is done the core pvIOMMU files 
+can be kept vendor agnostic. But if we talk about the whole pvIOMMU 
+module, it actually includes vendor specific logic thus unlike typical 
+para-virtualized virtio drivers being completely vendor agnostic. Is this 
+understanding accurate?
+
+It also means in the host-side pIOMMU driver needs to propagate all
+supported formats through VFIO to Qemu vIOMMU, meaning
+such format definitions need be consistently agreed across all those 
+components.
+
+[...]
+
+> 
+>   2. Sharing MMU page tables
+>   --------------------------
+> 
+> The guest can share process page-tables with the physical IOMMU. To do
+> that, it sends PROBE_TABLE with (F_INDIRECT | F_NATIVE | F_FAULT). The
+> page table format is implicit, so the pg_format array can be empty (unless
+> the guest wants to query some specific property, e.g. number of levels
+> supported by the pIOMMU?). If the host answers with success, guest can
+> send its MMU page table details with ATTACH_TABLE and (F_NATIVE |
+> F_INDIRECT | F_FAULT) flags.
+> 
+> F_FAULT means that the host communicates page requests from device to
+> the
+> guest, and the guest can handle them by mapping virtual address in the
+> fault to pages. It is only available with VIRTIO_IOMMU_F_FAULT_QUEUE (see
+> below.)
+> 
+> F_NATIVE means that the pIOMMU pgtable format is the same as guest
+> MMU
+> pgtable format.
+> 
+> F_INDIRECT means that 'table' pointer is a context table, instead of a
+> page directory. Each slot in the context table points to a page directory:
+> 
+>                        64              2 1 0
+>           table ----> +---------------------+
+>                       |       pgd       |0|1|<--- context 0
+>                       |       ---       |0|0|<--- context 1
+>                       |       pgd       |0|1|
+>                       |       ---       |0|0|
+>                       |       ---       |0|0|
+>                       +---------------------+
+>                                          | \___Entry is valid
+>                                          |______reserved
+> 
+> Question: do we want per-context page table format, or can it stay global
+> for the whole indirect table?
+
+Are you defining this context table format in software, or following
+hardware definition? At least for VT-d there is a strict hardware-defined
+structure (PASID table) which must be used here.
+
+[...]
+> 
+>   4. Host implementation with VFIO
+>   --------------------------------
+> 
+> The VFIO interface for sharing page tables is being worked on at the
+> moment by Intel. Other virtual IOMMU implementation will most likely let
+> guest manage full context tables (PASID tables) themselves, giving the
+> context table pointer to the pIOMMU via a VFIO ioctl.
+> 
+> For the architecture-agnostic virtio-iommu however, we shouldn't have to
+> implement all possible formats of context table (they are at least
+> different between ARM SMMU and Intel IOMMU, and will certainly be
+> extended
+
+Since anyway you'll finally require vendor specific page table logic,
+why not also abstracting this context table too which then doesn't
+require below host-side changes?
+
+> in future physical IOMMU architectures.) In addition, most users might
+> only care about having one page directory per device, as SVM is a luxury
+> at the moment and few devices support it. For these reasons, we should
+> allow to pass single page directories via VFIO, using very similar
+> structures as described above, whilst reusing the VFIO channel developed
+> for Intel vIOMMU.
+> 
+> 	* VFIO_SVM_INFO: probe page table formats
+> 	* VFIO_SVM_BIND: set pgd and arch-specific configuration
+> 
+> There is an inconvenient with letting the pIOMMU driver manage the guest's
+> context table. During a page table walk, the pIOMMU translates the context
+> table pointer using the stage-2 page tables. The context table must
+> therefore be mapped in guest-physical space by the pIOMMU driver. One
+> solution is to let the pIOMMU driver reserve some GPA space upfront using
+> the iommu and sysfs resv API [1]. The host would then carve that region
+> out of the guest-physical space using a firmware mechanism (for example DT
+> reserved-memory node).
+
+Can you elaborate this flow? pIOMMU driver doesn't directly manage GPA
+address space thus it's not reasonable for it to randomly specify a reserved
+range. It might make more sense for GPA owner (e.g. Qemu) to decide and
+then pass information to pIOMMU driver.
+
+> 
+> 
+>   III. Relaxed operations
+>   =======================
+> 
+> VIRTIO_IOMMU_F_RELAXED
+> 
+> Adding an IOMMU dramatically reduces performance of a device, because
+> map/unmap operations are costly and produce a lot of TLB traffic. For
+> significant performance improvements, device might allow the driver to
+> sacrifice safety for speed. In this mode, the driver does not need to send
+> UNMAP requests. The semantics of MAP change and are more complex to
+> implement. Given a MAP([start:end] -> phys, flags) request:
+> 
+> (1) If [start:end] isn't mapped, request succeeds as usual.
+> (2) If [start:end] overlaps an existing mapping [old_start:old_end], we
+>     unmap [max(start, old_start):min(end, old_end)] and replace it with
+>     [start:end].
+> (3) If [start:end] overlaps an existing mapping that matches the new map
+>     request exactly (same flags, same phys address), the old mapping is
+>     kept.
+> 
+> This squashing could be performed by the guest. The driver can catch unmap
+> requests from the DMA layer, and only relay map requests for (1) and (2).
+> A MAP request is therefore able to split and partially override an
+> existing mapping, which isn't allowed in non-relaxed mode. UNMAP requests
+> are unnecessary, but are now allowed to split or carve holes in mappings.
+> 
+> In this model, a MAP request may take longer, but we may have a net gain
+> by removing a lot of redundant requests. Squashing series of map/unmap
+> performed by the guest for the same mapping improves temporal reuse of
+> IOVA mappings, which I can observe by simply dumping IOMMU activity of a
+> virtio device. It reduce the number of TLB invalidations to the strict
+> minimum while keeping correctness of DMA operations (provided the device
+> obeys its driver). There is a good read on the subject of optimistic
+> teardown in paper [2].
+> 
+> This model is completely unsafe. A stale DMA transaction might access a
+> page long after the device driver in the guest unmapped it and
+> decommissioned the page. The DMA transaction might hit into a completely
+> different part of the system that is now reusing the page. Existing
+> relaxed implementations attempt to mitigate the risk by setting a timeout
+> on the teardown. Unmap requests from device drivers are not discarded
+> entirely, but buffered and sent at a later time. Paper [2] reports good
+> results with a 10ms delay.
+> 
+> We could add a way for device and driver to negotiate a vulnerability
+> window to mitigate the risk of DMA attacks. Driver might not accept a
+> window at all, since it requires more infrastructure to keep delayed
+> mappings. In my opinion, it should be made clear that regardless of the
+> duration of this window, any driver accepting F_RELAXED feature makes the
+> guest completely vulnerable, and the choice boils down to either isolation
+> or speed, not a bit of both.
+
+Even with above optimization I'd image the performance drop is still
+significant for kernel map/unmap usages, not to say when such 
+optimization is not possible if safety is required (actually I don't
+know why IOMMU is still required if safety can be compromised. Aren't
+we using IOMMU for security purpose?). I think we'd better focus on
+higher-value usages, e.g. user space DMA protection (DPDK) and 
+SVM, while leaving kernel protection with a lower priority (most for 
+functionality verification). Is this strategy aligned with your thought?
+
+btw what about interrupt remapping/posting? Are they also in your
+plan for pvIOMMU?
+
+Last, thanks for very informative write-! Looks a long enabling path is 
+required get pvIOMMU feature on-par with a real IOMMU. Starting 
+with a minimal set is relatively easier. :-)
+
+Thanks
+Kevin
