@@ -1,17 +1,16 @@
 From: "Tian, Kevin" <kevin.tian@intel.com>
-Subject: RE: [RFC 1/3] virtio-iommu: firmware description of the virtual
-	topology
-Date: Fri, 21 Apr 2017 08:43:43 +0000
-Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D190CB2570@SHSMSX101.ccr.corp.intel.com>
+Subject: RE: [RFC 2/3] virtio-iommu: device probing and operations
+Date: Fri, 21 Apr 2017 09:02:35 +0000
+Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D190CB262D@SHSMSX101.ccr.corp.intel.com>
 References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
-	<20170407191747.26618-2-jean-philippe.brucker@arm.com>
-	<AADFC41AFE54684AB9EE6CBC0274A5D190CADDD2@SHSMSX101.ccr.corp.intel.com>
-	<2b070038-c229-a5c7-9bec-2d0a2fc2f01d@arm.com>
+	<20170407191747.26618-3-jean-philippe.brucker@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D190CADECE@SHSMSX101.ccr.corp.intel.com>
+	<34166633-f4d5-21d5-20db-9091243ccd84@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2b070038-c229-a5c7-9bec-2d0a2fc2f01d@arm.com>
+In-Reply-To: <34166633-f4d5-21d5-20db-9091243ccd84@arm.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,136 +25,64 @@ To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-fo
 Cc: "cdall@linaro.org" <cdall@linaro.org>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "will.deacon@arm.com" <will.deacon@arm.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Jean-Philippe Brucker [mailto:jean-philippe.brucker@arm.com]
-> Sent: Wednesday, April 19, 2017 2:41 AM
-> 
-> On 18/04/17 10:51, Tian, Kevin wrote:
-> >> From: Jean-Philippe Brucker
-> >> Sent: Saturday, April 8, 2017 3:18 AM
-> >>
-> >> Unlike other virtio devices, the virtio-iommu doesn't work independently,
-> >> it is linked to other virtual or assigned devices. So before jumping into
-> >> device operations, we need to define a way for the guest to discover the
-> >> virtual IOMMU and the devices it translates.
-> >>
-> >> The host must describe the relation between IOMMU and devices to the
-> >> guest
-> >> using either device-tree or ACPI. The virtual IOMMU identifies each
-> >
-> > Do you plan to support both device tree and ACPI?
-> 
-> Yes, with ACPI the topology would be described using IORT nodes. I didn't
-> include an example in my driver because DT is sufficient for a prototype
-> and is readily available (both in Linux and kvmtool), whereas IORT would
-> be quite easy to reuse in Linux, but isn't present in kvmtool at the
-> moment. However, both interfaces have to be supported for the virtio-
-> iommu
-> to be portable.
-
-'portable' means whether guest enables ACPI?
-
-> 
-> >> virtual device with a 32-bit ID, that we will call "Device ID" in this
-> >> document. Device IDs are not necessarily unique system-wide, but they
-> may
-> >> not overlap within a single virtual IOMMU. Device ID of passed-through
-> >> devices do not need to match IDs seen by the physical IOMMU.
-> >>
-> >> The virtual IOMMU uses virtio-mmio transport exclusively, not virtio-pci,
-> >> because with PCI the IOMMU interface would itself be an endpoint, and
-> >> existing firmware interfaces don't allow to describe IOMMU<->master
-> >> relations between PCI endpoints.
-> >
-> > I'm not familiar with virtio-mmio mechanism. Curious how devices in
-> > virtio-mmio are enumerated today? Could we use that mechanism to
-> > identify vIOMMUs and then invent a purely para-virtualized method to
-> > enumerate devices behind each vIOMMU?
-> 
-> Using DT, virtio-mmio devices are described with "virtio-mmio" compatible
-> node, and with ACPI they use _HID LNRO0005. Since the host already
-> describes available devices to a guest using a firmware interface, I think
-> we should reuse the tools provided by that interface for describing
-> relations between DMA masters and IOMMU.
-
-OK, I didn't realize virtio-mmio is defined to rely on DT for enumeration.
-
-> 
-> > Asking this is because each vendor has its own enumeration methods.
-> > ARM has device tree and ACPI IORT. AMR has ACPI IVRS and device
-> > tree (same format as ARM?). Intel has APCI DMAR and sub-tables. Your
-> > current proposal looks following ARM definitions which I'm not sure
-> > extensible enough to cover features defined only in other vendors'
-> > structures.
-> 
-> ACPI IORT can be extended to incorporate para-virtualized IOMMUs,
-> regardless of the underlying architecture. It isn't defined solely for the
-> ARM SMMU, but serves a more general purpose of describing a map of
-> device
-> identifiers communicated from one components to another. Both DMAR and
-> IVRS have such description (respectively DRHD and IVHD), but they are
-> designed for a specific IOMMU, whereas IORT could host other kinds.
-
-I'll take a look at IORT definition. DRHD includes information more
-than device mapping.
-
-> 
-> It seems that all we really need is an interface that says "there is a
-> virtio-iommu at address X, here are the devices it translates and their
-> corresponding IDs", and both DT and ACPI IORT are able to fulfill this role.
-> 
-> > Since the purpose of this series is to go para-virtualize, why not also
-> > para-virtualize and simplify the enumeration method? For example,
-> > we may define a query interface through vIOMMU registers to allow
-> > guest query whether a device belonging to that vIOMMU. Then we
-> > can even remove use of any enumeration structure completely...
-> > Just a quick example which I may not think through all the pros and
-> > cons. :-)
-> 
-> I don't think adding a brand new topology description mechanism is worth
-> the effort, we're better off reusing what already exists and is
-> implemented by operating systems. Adding a query interface inside the
-> vIOMMU may work (though might be very painful to integrate with fwspec in
-> Linux), but would be redundant since the host has to provide a firmware
-> description of the system anyway.
-> 
-> >> The following diagram describes a situation where two virtual IOMMUs
-> >> translate traffic from devices in the system. vIOMMU 1 translates two PCI
-> >> domains, in which each function has a 16-bits requester ID. In order for
-> >> the vIOMMU to differentiate guest requests targeted at devices in each
-> >> domain, their Device ID ranges cannot overlap. vIOMMU 2 translates two
-> PCI
-> >> domains and a collection of platform devices.
-> >>
-> >>                        Device ID    Requester ID
-> >>                   /       0x0           0x0      \
-> >>                  /         |             |        PCI domain 1
-> >>                 /      0xffff           0xffff   /
-> >>         vIOMMU 1
-> >>                 \     0x10000           0x0      \
-> >>                  \         |             |        PCI domain 2
-> >>                   \   0x1ffff           0xffff   /
-> >>
-> >>                   /       0x0                    \
-> >>                  /         |                      platform devices
-> >>                 /      0x1fff                    /
-> >>         vIOMMU 2
-> >>                 \      0x2000           0x0      \
-> >>                  \         |             |        PCI domain 3
-> >>                   \   0x11fff           0xffff   /
-> >>
-> >
-> > isn't above be (0x30000, 3ffff) for PCI domain 3 giving device ID is 16bit?
-> 
-> Unlike Requester IDs in PCI, there is no architected rule for IDs of
-> platform devices, it's an integration choice. The ID of platform device is
-> used exclusively for interfacing with an IOMMU (or MSI controller), it
-> doesn't mean anything outside this context. Here the host allocates 13
-> bits to platform device IDs, which is legal.
-> 
-
-Please add such explanation to your next version. In earlier text
-"16-bits request ID" is mentioned for vIOMMU1, which gave me
-the illusion that same 16bit applies to vIOMMU2 too.
-
-Thanks
-Kevin
+PiBGcm9tOiBKZWFuLVBoaWxpcHBlIEJydWNrZXIgW21haWx0bzpqZWFuLXBoaWxpcHBlLmJydWNr
+ZXJAYXJtLmNvbV0NCj4gU2VudDogV2VkbmVzZGF5LCBBcHJpbCAxOSwgMjAxNyAyOjQ2IEFNDQo+
+IA0KPiBPbiAxOC8wNC8xNyAxMToyNiwgVGlhbiwgS2V2aW4gd3JvdGU6DQo+ID4+IEZyb206IEpl
+YW4tUGhpbGlwcGUgQnJ1Y2tlcg0KPiA+PiBTZW50OiBTYXR1cmRheSwgQXByaWwgOCwgMjAxNyAz
+OjE4IEFNDQo+ID4+DQo+ID4gWy4uLl0NCj4gPj4gICBJSS4gRmVhdHVyZSBiaXRzDQo+ID4+ICAg
+PT09PT09PT09PT09PT09PQ0KPiA+Pg0KPiA+PiBWSVJUSU9fSU9NTVVfRl9JTlBVVF9SQU5HRSAo
+MCkNCj4gPj4gIEF2YWlsYWJsZSByYW5nZSBvZiB2aXJ0dWFsIGFkZHJlc3NlcyBpcyBkZXNjcmli
+ZWQgaW4gaW5wdXRfcmFuZ2UNCj4gPg0KPiA+IFVzdWFsbHkgb25seSB0aGUgbWF4aW11bSBzdXBw
+b3J0ZWQgYWRkcmVzcyBiaXRzIGFyZSBpbXBvcnRhbnQuDQo+ID4gQ3VyaW91cyBkbyB5b3Ugc2Vl
+IHN1Y2ggc2l0dWF0aW9uIHdoZXJlIGxvdyBlbmQgb2YgdGhlIGFkZHJlc3MNCj4gPiBzcGFjZSBp
+cyBub3QgdXNhYmxlIChzaW5jZSB5b3UgaGF2ZSBib3RoIHN0YXJ0L2VuZCBkZWZpbmVkIGxhdGVy
+KT8NCj4gDQo+IEEgc3RhcnQgYWRkcmVzcyB3b3VsZCBhbGxvdyB0byBwcm92aWRlIHNvbWV0aGlu
+ZyByZXNlbWJsaW5nIGEgR0FSVCB0byB0aGUNCj4gZ3Vlc3Q6IGFuIElPTU1VIHdpdGggb25lIGFk
+ZHJlc3Mgc3BhY2UgKGlvYXNpZF9iaXRzPTApIGFuZCBhIHNtYWxsIElPVkENCj4gYXBlcnR1cmUu
+IEknbSBub3Qgc3VyZSBob3cgdXNlZnVsIHRoYXQgd291bGQgYmUgaW4gcHJhY3RpY2UuDQoNCklu
+dGVsIFZULWQgaGFzIG5vIHN1Y2ggbGltaXRhdGlvbiwgd2hpY2ggSSBjYW4gdGVsbC4gOi0pDQoN
+Cj4gDQo+IE9uIGEgcmVsYXRlZCBub3RlLCB0aGUgdmlydGlvLWlvbW11IGl0c2VsZiBkb2Vzbid0
+IHByb3ZpZGUgYQ0KPiBwZXItYWRkcmVzcy1zcGFjZSBhcGVydHVyZSBhcyBpdCBzdGFuZHMuIEZv
+ciBleGFtcGxlLCBhdHRhY2hpbmcgYSBkZXZpY2UNCj4gdG8gYW4gYWRkcmVzcyBzcGFjZSBtaWdo
+dCByZXN0cmljdCB0aGUgYXZhaWxhYmxlIElPVkEgcmFuZ2UgZm9yIHRoZSB3aG9sZQ0KPiBBUyBp
+ZiB0aGF0IGRldmljZSBjYW5ub3Qgd3JpdGUgdG8gaGlnaCBtZW1vcnkgKGFib3ZlIDMyLWJpdCku
+IElmIHRoZSBndWVzdA0KPiBhdHRlbXB0cyB0byBtYXAgYW4gSU9WQSBvdXRzaWRlIHRoaXMgd2lu
+ZG93IGludG8gdGhlIGRldmljZSdzIGFkZHJlc3MNCj4gc3BhY2UsIGl0IHNob3VsZCBleHBlY3Qg
+dGhlIE1BUCByZXF1ZXN0IHRvIGZhaWwuIEFuZCB3aGVuIGF0dGFjaGluZywgaWYNCj4gdGhlIGFk
+ZHJlc3Mgc3BhY2UgYWxyZWFkeSBoYXMgbWFwcGluZ3Mgb3V0c2lkZSB0aGlzIHdpbmRvdywgdGhl
+biBBVFRBQ0gNCj4gc2hvdWxkIGZhaWwuDQo+IA0KPiBUaGlzIHRvbyBzZWVtcyB0byBiZSBzb21l
+dGhpbmcgdGhhdCBvdWdodCB0byBiZSBjb21tdW5pY2F0ZWQgYnkgZmlybXdhcmUsDQo+IGJ1dCBi
+aXRzIGFyZSBtaXNzaW5nIChJIGNhbid0IGZpbmQgYW55dGhpbmcgZXF1aXZhbGVudCB0byBEVCdz
+IGRtYS1yYW5nZXMNCj4gZm9yIFBDSSByb290IGJyaWRnZXMgaW4gQUNQSSB0YWJsZXMsIGZvciBl
+eGFtcGxlKS4gSW4gYWRkaXRpb24gVkZJTw0KPiBkb2Vzbid0IGNvbW11bmljYXRlIGFueSBETUEg
+bWFzayBmb3IgZGV2aWNlcywgYW5kIGRvZXNuJ3QgY2hlY2sgdGhlbQ0KPiBpdHNlbGYuIEkgZ3Vl
+c3MgdGhhdCB0aGUgaG9zdCBjb3VsZCBmaW5kIG91dCB0aGUgRE1BIG1hc2sgb2YgZGV2aWNlcyBv
+bmUNCj4gd2F5IG9yIGFub3RoZXIsIGJ1dCBpdCBpcyB0cmlja3kgdG8gZW5mb3JjZSwgc28gSSBk
+aWRuJ3QgbWFrZSB0aGlzIGEgaGFyZA0KPiByZXF1aXJlbWVudC4gQWx0aG91Z2ggSSBzaG91bGQg
+cHJvYmFibHkgYWRkIGEgZmV3IHdvcmRzIGFib3V0IGl0Lg0KDQpJZiB0aGVyZSBpcyBubyBzdWNo
+IGNvbW11bmljYXRpb24gb24gYmFyZSBtZXRhbCwgdGhlbiBzYW1lIGZvciBwdklPTU1VLg0KDQo+
+IA0KPiA+IFsuLi5dDQo+ID4+ICAgMS4gQXR0YWNoIGRldmljZQ0KPiA+PiAgIC0tLS0tLS0tLS0t
+LS0tLS0NCj4gPj4NCj4gPj4gc3RydWN0IHZpcnRpb19pb21tdV9yZXFfYXR0YWNoIHsNCj4gPj4g
+CWxlMzIJYWRkcmVzc19zcGFjZTsNCj4gPj4gCWxlMzIJZGV2aWNlOw0KPiA+PiAJbGUzMglmbGFn
+cy9yZXNlcnZlZDsNCj4gPj4gfTsNCj4gPj4NCj4gPj4gQXR0YWNoIGEgZGV2aWNlIHRvIGFuIGFk
+ZHJlc3Mgc3BhY2UuICdhZGRyZXNzX3NwYWNlJyBpcyBhbiBpZGVudGlmaWVyDQo+ID4+IHVuaXF1
+ZSB0byB0aGUgZ3Vlc3QuIElmIHRoZSBhZGRyZXNzIHNwYWNlIGRvZXNuJ3QgZXhpc3QgaW4gdGhl
+IElPTU1VDQo+ID4NCj4gPiBCYXNlZCBvbiB5b3VyIGRlc2NyaXB0aW9uIHRoaXMgYWRkcmVzcyBz
+cGFjZSBJRCBpcyBwZXIgb3BlcmF0aW9uIHJpZ2h0Pw0KPiA+IE1BUC9VTk1BUCBhbmQgcGFnZS10
+YWJsZSBzaGFyaW5nIHNob3VsZCBoYXZlIGRpZmZlcmVudCBJRCBzcGFjZXMuLi4NCj4gDQo+IEkg
+dGhpbmsgaXQncyBzaW1wbGVyIGlmIHdlIGtlZXAgYSBzaW5nbGUgSU9BU0lEIHNwYWNlIHBlciB2
+aXJ0aW8taW9tbXUNCj4gZGV2aWNlLCBiZWNhdXNlIHRoZSBtYXhpbXVtIG51bWJlciBvZiBhZGRy
+ZXNzIHNwYWNlcyAoZGVzY3JpYmVkIGJ5DQo+IGlvYXNpZF9iaXRzKSBtaWdodCBiZSBhIHJlc3Ry
+aWN0aW9uIG9mIHRoZSBwSU9NTVUuIEZvciBwYWdlLXRhYmxlIHNoYXJpbmcNCj4geW91IHN0aWxs
+IG5lZWQgdG8gZGVmaW5lIHdoaWNoIGRldmljZXMgd2lsbCBzaGFyZSBhIHBhZ2UgZGlyZWN0b3J5
+IHVzaW5nDQo+IEFUVEFDSCByZXF1ZXN0cywgdGhvdWdoIHRoYXQgaW50ZXJmYWNlIGlzIG5vdCBz
+ZXQgaW4gc3RvbmUuDQoNCmdvdCB5b3UuIHllcyBWTSBpcyBzdXBwb3NlZCB0byBjb25zdW1lIGxl
+c3MgSU9BU0lEcyB0aGFuIHBoeXNpY2FsbHkNCmF2YWlsYWJsZS4gSXQgZG9lc27igJl0IGh1cnQg
+dG8gaGF2ZSBvbmUgSU9BU0lEIHNwYWNlIGZvciBib3RoIElPVkENCm1hcC91bm1hcCB1c2FnZXMg
+KG9uZSBJT0FTSUQgcGVyIGRldmljZSkgYW5kIFNWTSB1c2FnZXMgKG11bHRpcGxlDQpJT0FTSURz
+IHBlciBkZXZpY2UpLiBUaGUgZm9ybWVyIGlzIGRpZ2VzdGVkIGJ5IHNvZnR3YXJlIGFuZCB0aGUg
+bGF0dGVyDQp3aWxsIGJlIGJvdW5kIHRvIGhhcmR3YXJlLg0KDQpUaGFua3MNCktldmluDQoNCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
