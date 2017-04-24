@@ -1,18 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC (resend) net-next 0/6] virtio-net: Add support for
-	virtio-net header extensions
-Date: Mon, 24 Apr 2017 11:22:35 +0800
-Message-ID: <951e021c-fa8e-f7d4-f058-92d28681379c__36455.7991888889$1493004184$gmane$org@redhat.com>
-References: <1492274298-17362-1-git-send-email-vyasevic@redhat.com>
-	<0d9216af-e3db-e06b-f70d-d77f519c3fd4@redhat.com>
-	<f52fa31e-5ca2-34dc-d48b-417a34061359@redhat.com>
-	<2b70ab98-c5cc-25c7-dd42-4bb570b6aec6@redhat.com>
-	<022c8af3-e7e7-5d35-5152-cb12e90359ef@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 4/6] drm: fourcc byteorder: adapt bochs-drm to
+	drm_mode_legacy_fb_format update
+Date: Mon, 24 Apr 2017 08:25:30 +0200
+Message-ID: <20170424062532.26722-5-kraxel__42604.8987581909$1493015156$gmane$org@redhat.com>
+References: <20170424062532.26722-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <022c8af3-e7e7-5d35-5152-cb12e90359ef@redhat.com>
+In-Reply-To: <20170424062532.26722-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,77 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: vyasevic@redhat.com, Vladislav Yasevich <vyasevich@gmail.com>, netdev@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, maxime.coquelin@redhat.com, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: dri-devel@lists.freedesktop.org
+Cc: Jani Nikula <jani.nikula@linux.intel.com>, David Airlie <airlied@linux.ie>, =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel@daenzer.net>, open list <linux-kernel@vger.kernel.org>, amd-gfx@lists.freedesktop.org, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Pekka Paalanen <ppaalanen@gmail.com>, Sean Paul <seanpaul@chromium.org>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Alex Deucher <alexdeucher@gmail.com>, Daniel Vetter <daniel.vetter@intel.com>, Ilia Mirkin <imirkin@alum.mit.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDTmnIgyMeaXpSAyMTowOCwgVmxhZCBZYXNldmljaCB3cm90ZToKPiBPbiAw
-NC8yMS8yMDE3IDEyOjA1IEFNLCBKYXNvbiBXYW5nIHdyb3RlOgo+PiBPbiAyMDE35bm0MDTmnIgy
-MOaXpSAyMzozNCwgVmxhZCBZYXNldmljaCB3cm90ZToKPj4+IE9uIDA0LzE3LzIwMTcgMTE6MDEg
-UE0sIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4gT24gMjAxN+W5tDA05pyIMTbml6UgMDA6MzgsIFZs
-YWRpc2xhdiBZYXNldmljaCB3cm90ZToKPj4+Pj4gQ3VycmVjbHR5IHZpcnRpb24gbmV0IGhlYWRl
-ciBpcyBmaXhlZCBzaXplIGFuZCBhZGRpbmcgdGhpbmdzIHRvIGl0IGlzIHJhdGhlcgo+Pj4+PiBk
-aWZmaWN1bHQgdG8gZG8uICBUaGlzIHNlcmllcyBhdHRlbXB0IHRvIGFkZCB0aGUgaW5mcmFzdHJ1
-Y3R1cmUgYXMgd2VsbCBhcyBzb21lCj4+Pj4+IGV4dGVuc2lvbnMgdGhhdCB0cnkgdG8gcmVzb2x2
-ZSBzb21lIGRlZmljaWVuY2llcyB3ZSBjdXJyZW50bHkgaGF2ZS4KPj4+Pj4KPj4+Pj4gRmlyc3Qs
-IHZuZXQgaGVhZGVyIG9ubHkgaGFzIHNwYWNlIGZvciAxNiBmbGFncy4gIFRoaXMgbWF5IG5vdCBi
-ZSBlbm91Z2gKPj4+Pj4gaW4gdGhlIGZ1dHVyZS4gIFRoZSBleHRlbnNpb25zIHdpbGwgcHJvdmlk
-ZSBzcGFjZSBmb3IgMzIgcG9zc2JpbGUgZXh0ZW5zaW9uCj4+Pj4+IGZsYWdzIGFuZCAzMiBwb3Nz
-aWJsZSBleHRlbnNpb25zLiAgIFRoZXNlIGZsYWdzIHdpbGwgYmUgY2FycmllZCBpbiB0aGUKPj4+
-Pj4gZmlyc3QgcHNldWRvIGV4dGVuc2lvbiBoZWFkZXIsIHRoZSBwcmVzZW5zZSBvZiB3aGljaCB3
-aWxsIGJlIGRldGVybWluZWQgYnkKPj4+Pj4gdGhlIGZsYWcgaW4gdGhlIHZpcnRpbyBuZXQgaGVh
-ZGVyLgo+Pj4+Pgo+Pj4+PiBUaGUgZXh0ZW5zaW9ucyB0aGVtc2VsdmVzIHdpbGwgaW1taWRpYXRl
-bHkgZm9sbG93IHRoZSBleHRlbnNpb24gaGVhZGVyIGl0c2VsZi4KPj4+Pj4gVGhleSB3aWxsIGJl
-IGFkZGVkIHRvIHRoZSBwYWNrZXQgaW4gdGhlIHNhbWUgb3JkZXIgYXMgdGhleSBhcHBlYXIgaW4g
-dGhlCj4+Pj4+IGV4dGVuc2lvbiBmbGFncy4gIE5vIHBhZGRpbmcgaXMgcGxhY2VkIGJldHdlZW4g
-dGhlIGV4dGVuc2lvbnMgYW5kIGFueQo+Pj4+PiBleHRlbnNpb25zIG5lZ290aWF0ZWQsIGJ1dCBu
-b3QgdXNlZCBuZWVkIGJ5IGEgZ2l2ZW4gcGFja2V0IHdpbGwgY29udmVydCB0bwo+Pj4+PiB0cmFp
-bGluZyBwYWRkaW5nLgo+Pj4+IERvIHdlIG5lZWQgYSBleHBsaWNpdCBwYWRkaW5nIChlLmcgYW4g
-ZXh0ZW5zaW9uKSB3aGljaCBjb3VsZCBiZSBjb250cm9sbGVkIGJ5IGVhY2ggc2lkZT8KPj4+IEkg
-ZG9uJ3QgdGhpbmsgc28uICBUaGUgc2l6ZSBvZiB0aGUgdm5ldCBoZWFkZXIgaXMgc2V0IGJhc2Vk
-IG9uIHRoZSBleHRlbnNpb25zIG5lZ290aWF0ZWQuCj4+PiBUaGUgb25lIHBhcnQgSSBhbSBub3Qg
-Y3JhenkgYWJvdXQgaXMgdGhhdCBpbiB0aGUgY2FzZSBvZiBwYWNrZXQgbm90IHVzaW5nIGFueSBl
-eHRlbnNpb25zLAo+Pj4gdGhlIGRhdGEgaXMgc3RpbGwgcGxhY2VkIGFmdGVyIHRoZSBlbnRpcmUg
-dm5ldCBoZWFkZXIsIHdoaWNoIGVzc2VudGlhbGx5IGFkZHMgYSBsb3QKPj4+IG9mIHBhZGRpbmcu
-ICBIb3dldmVyLCB0aGF0J3MgcmVhbGx5IG5vIGRpZmZlcmVudCB0aGVuIGlmIHdlIHNpbXBseSBn
-cmV3IHRoZSB2bmV0IGhlYWRlci4KPj4+Cj4+PiBUaGUgb3RoZXIgdGhpbmcgSSd2ZSB0cmllZCBi
-ZWZvcmUgaXMgcHV0dGluZyBleHRlbnNpb25zIGludG8gdGhlaXIgb3duIHNnIGJ1ZmZlciwgYnV0
-IHRoYXQKPj4+IG1hZGUgaXQgc2xvd2VyLmgKPj4gWWVzLgo+Pgo+Pj4+PiBGb3IgZXhhbXBsZToK
-Pj4+Pj4gICAgIHwgdm5ldCBtcmcgaGRyIHwgZXh0IGhkciB8IGV4dCAxIHwgZXh0IDIgfCBleHQg
-NSB8IC4uIHBhZCAuLiB8IHBhY2tldCBkYXRhIHwKPj4+PiBKdXN0IHNvbWUgcm91Z2ggdGhvdWdo
-dHM6Cj4+Pj4KPj4+PiAtIElzIHRoaXMgYmV0dGVyIHRvIHVzZSBUTFYgaW5zdGVhZCBvZiBiaXRt
-YXAgaGVyZT8gT25lIGFkdmFudGFnZSBvZiBUTFYgaXMgdGhhdCB0aGUKPj4+PiBsZW5ndGggaXMg
-bm90IGxpbWl0ZWQgYnkgdGhlIGxlbmd0aCBvZiBiaXRtYXAuCj4+PiBidXQgdGhlIGRpc2FkdmFu
-dGFnZSBpcyB0aGF0IHdlIGFkZCBhdCBsZWFzdCA0IGJ5dGVzIHBlciBleHRlbnNpb24gb2YganVz
-dCBUTCBkYXRhLiAgVGhhdAo+Pj4gbWFrZXMgdGhpcyB0aGluZyBldmVuIGxvbmdlci4KPj4gWWVz
-LCBhbmQgaXQgbG9va3MgbGlrZSB0aGUgbGVuZ3RoIGlzIHN0aWxsIGxpbWl0ZWQgYnkgZS5nIHRo
-ZSBsZW5ndGggb2YgVC4KPiBOb3Qgb25seSB0aGF0LCBidXQgaXQgaXMgYWxzbyBsaW1pdGVkIGJ5
-IHRoZSBza2ItPmNiIGFzIGEgd2hvbGUuICBTbyBhZGRpbmcgcHV0dGluZwo+IGV4dGVuc2lvbnMg
-aW50byBhIFRMViBzdHlsZSBtZWFucyB3ZSBoYXZlIGxlc3MgZXh0ZW5zaW9ucyBmb3Igbm93LCB1
-bnRpbCB3ZSBnZXQgcmlkIG9mCj4gc2tiLT5jYiB1c2FnZS4KPgo+Pj4+IC0gRm9yIDEuMSwgZG8g
-d2UgcmVhbGx5IHdhbnQgc29tZXRoaW5nIGxpa2Ugdm5ldCBoZWFkZXI/IEFGQUlLLCBpdCB3YXMg
-bm90IHVzZWQgYnkgbW9kZXJuCj4+Pj4gTklDcywgaXMgdGhpcyBiZXR0ZXIgdG8gcGFjayBhbGwg
-bWV0YS1kYXRhIGludG8gZGVzY3JpcHRvciBpdHNlbGY/IFRoaXMgbWF5IG5lZWQgYSBzb21lCj4+
-Pj4gY2hhbmdlcyBpbiB0dW4vbWFjdnRhcCwgYnV0IGxvb2tzIG1vcmUgUENJRSBmcmllbmRseS4K
-Pj4+IFRoYXQgd291bGQgcmVhbGx5IGJlIGlkZWFsIGFuZCBJJ3ZlIGxvb2tlZCBhdCB0aGlzLiAg
-VGhlcmUgYXJlIHNtYWxsIGlzc3VlcyBvZiBleHBvc2luZwo+Pj4gdGhlICduZXQgbWV0YWRhdGEn
-IG9mIHRoZSBkZXNjcmlwdG9yIHRvIHRhcHMgc28gdGhleSBjYW4gYmUgZmlsbGVkIGluLiAgVGhl
-IGFsdGVybmF0aXZlCj4+PiBpcyB0byB1c2UgYSBkaWZmZXJlbnQgY29udHJvbCBzdHJ1Y3R1cmUg
-Zm9yIHRhcC0+cWVtdXx2aG9zdCBjaGFubmVsICh0aGF0IGNhbiBiZQo+Pj4gaW1wbGVtZW50YXRp
-b24gc3BlY2lmaWMpIGFuZCBoYXZlIHFlbXV8dmhvc3QgcG9wdWxhdGUgdGhlICduZXQgbWV0YWRh
-dGEnIG9mIHRoZSBkZXNjcmlwdG9yLgo+PiBZZXMsIHRoaXMgbmVlZHMgc29tZSB0aG91Z2h0LiBG
-b3Igdmhvc3QsIHRoaW5ncyBsb29rcyBhIGxpdHRsZSBiaXQgZWFzaWVyLCB3ZSBjYW4gcHJvYmFi
-bHkKPj4gdXNlIG1zZ19jb250cm9sLgo+Pgo+IFdlIGNhbiB1c2UgbXNnX2NvbnRyb2wgaW4gcWVt
-dSBhcyB3ZWxsLCBjYW4ndCB3ZT8KCkFGQUlLLCBpdCBuZWVkcyBzb21lIGNoYW5nZXMgc2luY2Ug
-d2UgZG9uJ3QgZXhwb3J0IHNvY2tldCB0byB1c2Vyc3BhY2UuCgo+ICAgSXQgcmVhbGx5IGlzIGEg
-cXVlc3Rpb24gb2Ygd2hvIGlzIGRvaW5nCj4gdGhlIHdvcmsgYW5kIHRoZSBudW1iZXIgb2YgY29w
-aWVzLgo+Cj4gSSBjYW4gdGFrZSBhIGNsb3NlciBsb29rIG9mIGhvdyBpdCB3b3VsZCBsb29rIGlm
-IHdlIGV4dGVuZCB0aGUgZGVzY3JpcHRvciB3aXRoIHR5cGUKPiBzcGVjaWZpYyBkYXRhLiAgSSBk
-b24ndCBrbm93IGlmIG90aGVyIHVzZXJzIG9mIHZpcnRpbyB3b3VsZCBiZW5lZml0IGZyb20gaXQ/
-CgpOb3Qgc3VyZSwgYnV0IHdlIGNhbiBoYXZlIGEgY29tbW9uIGRlc2NyaXB0b3IgaGVhZGVyIGZv
-bGxvd2VkIGJ5IGRldmljZSAKc3BlY2lmaWMgbWV0YSBkYXRhLiBUaGlzIHByb2JhYmx5IG5lZWQg
-c29tZSBwcm90b3R5cGUgYmVuY2htYXJraW5nIHRvIApzZWUgdGhlIGJlbmVmaXRzIGZpcnN0LgoK
-VGhhbmtzCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
-cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
-aW5mby92aXJ0dWFsaXphdGlvbg==
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/bochs/bochs_mm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
+index 857755ac2d..781d35bdff 100644
+--- a/drivers/gpu/drm/bochs/bochs_mm.c
++++ b/drivers/gpu/drm/bochs/bochs_mm.c
+@@ -508,7 +508,7 @@ bochs_user_framebuffer_create(struct drm_device *dev,
+ 	       (mode_cmd->pixel_format >> 16) & 0xff,
+ 	       (mode_cmd->pixel_format >> 24) & 0xff);
+ 
+-	if (mode_cmd->pixel_format != DRM_FORMAT_XRGB8888)
++	if (mode_cmd->pixel_format != DRM_FORMAT_CPU_XRGB8888)
+ 		return ERR_PTR(-ENOENT);
+ 
+ 	obj = drm_gem_object_lookup(filp, mode_cmd->handles[0]);
+-- 
+2.9.3
