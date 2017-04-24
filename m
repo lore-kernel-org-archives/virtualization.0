@@ -1,8 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 4/6] drm: fourcc byteorder: adapt bochs-drm to
-	drm_mode_legacy_fb_format update
-Date: Mon, 24 Apr 2017 08:25:30 +0200
-Message-ID: <20170424062532.26722-5-kraxel__42604.8987581909$1493015156$gmane$org@redhat.com>
+Subject: [PATCH 6/6] drm: fourcc byteorder: virtio restrict to XRGB8888
+Date: Mon, 24 Apr 2017 08:25:32 +0200
+Message-ID: <20170424062532.26722-7-kraxel@redhat.com>
 References: <20170424062532.26722-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,26 +18,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org
-Cc: Jani Nikula <jani.nikula@linux.intel.com>, David Airlie <airlied@linux.ie>, =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel@daenzer.net>, open list <linux-kernel@vger.kernel.org>, amd-gfx@lists.freedesktop.org, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Pekka Paalanen <ppaalanen@gmail.com>, Sean Paul <seanpaul@chromium.org>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Alex Deucher <alexdeucher@gmail.com>, Daniel Vetter <daniel.vetter@intel.com>, Ilia Mirkin <imirkin@alum.mit.edu>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>, David Airlie <airlied@linux.ie>, =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel@daenzer.net>, open list <linux-kernel@vger.kernel.org>, amd-gfx@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Pekka Paalanen <ppaalanen@gmail.com>, Sean Paul <seanpaul@chromium.org>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Alex Deucher <alexdeucher@gmail.com>, Daniel Vetter <daniel.vetter@intel.com>, Ilia Mirkin <imirkin@alum.mit.edu>
 List-Id: virtualization@lists.linuxfoundation.org
+
+While wading through the code I've noticed we have a little issue in
+virtio:  We attach a format to the bo when it is created
+(DRM_IOCTL_MODE_CREATE_DUMB), not when we map it as framebuffer
+(DRM_IOCTL_MODE_ADDFB).
+
+Easy way out:  support a single format only.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/bochs/bochs_mm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_gem.c   | 5 ++++-
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 9 +--------
+ 2 files changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
-index 857755ac2d..781d35bdff 100644
---- a/drivers/gpu/drm/bochs/bochs_mm.c
-+++ b/drivers/gpu/drm/bochs/bochs_mm.c
-@@ -508,7 +508,7 @@ bochs_user_framebuffer_create(struct drm_device *dev,
- 	       (mode_cmd->pixel_format >> 16) & 0xff,
- 	       (mode_cmd->pixel_format >> 24) & 0xff);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index 4f2c2dc731..b09e5e5ae4 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -90,7 +90,10 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+ 	uint32_t resid;
+ 	uint32_t format;
  
--	if (mode_cmd->pixel_format != DRM_FORMAT_XRGB8888)
-+	if (mode_cmd->pixel_format != DRM_FORMAT_CPU_XRGB8888)
- 		return ERR_PTR(-ENOENT);
+-	pitch = args->width * ((args->bpp + 1) / 8);
++	if (args->bpp != 32)
++		return -EINVAL;
++
++	pitch = args->width * 4;
+ 	args->size = pitch * args->height;
+ 	args->size = ALIGN(args->size, PAGE_SIZE);
  
- 	obj = drm_gem_object_lookup(filp, mode_cmd->handles[0]);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index f40ffc9a70..3a4498a223 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -28,14 +28,7 @@
+ #include <drm/drm_atomic_helper.h>
+ 
+ static const uint32_t virtio_gpu_formats[] = {
+-	DRM_FORMAT_XRGB8888,
+-	DRM_FORMAT_ARGB8888,
+-	DRM_FORMAT_BGRX8888,
+-	DRM_FORMAT_BGRA8888,
+-	DRM_FORMAT_RGBX8888,
+-	DRM_FORMAT_RGBA8888,
+-	DRM_FORMAT_XBGR8888,
+-	DRM_FORMAT_ABGR8888,
++	DRM_FORMAT_CPU_XRGB8888,
+ };
+ 
+ static const uint32_t virtio_gpu_cursor_formats[] = {
 -- 
 2.9.3
