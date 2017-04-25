@@ -1,19 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next v2 2/5] virtio-net: transmit napi
-Date: Tue, 25 Apr 2017 16:39:03 +0800
-Message-ID: <a23e1f04-7f2a-9b9f-3d8d-8d5d2fb8e18d@redhat.com>
-References: <20170418202108.61920-1-willemdebruijn.kernel@gmail.com>
-	<20170418202108.61920-3-willemdebruijn.kernel@gmail.com>
-	<2ae5889b-69d4-3041-d7fd-a7ea38e8c4e2@redhat.com>
-	<CAF=yD-K0Cwwcob+0nWXWTY_07_zwcae1GRHwdagF2pGrv8HwtA@mail.gmail.com>
-	<118c5f96-6151-c012-7a31-16d24a835878@redhat.com>
-	<CAF=yD-KdtvXV+=ZROcLPHJxB55wbnJOmV0MJn2AJPHugoofR0g@mail.gmail.com>
-	<20170424194015-mutt-send-email-mst@kernel.org>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next v3 0/5] virtio-net tx napi
+Date: Tue, 25 Apr 2017 09:09:21 -0400 (EDT)
+Message-ID: <20170425.090921.1026662318875490652.davem@davemloft.net>
+References: <20170424174930.82623-1-willemdebruijn.kernel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170424194015-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170424174930.82623-1-willemdebruijn.kernel@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,57 +17,13 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Network Development <netdev@vger.kernel.org>, Willem de Bruijn <willemb@google.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: willemdebruijn.kernel@gmail.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, willemb@google.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDTmnIgyNeaXpSAwMDo0MCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIEZyaSwgQXByIDIxLCAyMDE3IGF0IDEwOjUwOjEyQU0gLTA0MDAsIFdpbGxlbSBkZSBCcnVp
-am4gd3JvdGU6Cj4+Pj4+IE1heWJlIEkgd2FzIHdyb25nLCBidXQgYWNjb3JkaW5nIHRvIE1pY2hh
-ZWwncyBjb21tZW50IGl0IGxvb2tzIGxpa2UgaGUKPj4+Pj4gd2FudAo+Pj4+PiBjaGVjayBhZmZp
-bml0eV9oaW50X3NldCBqdXN0IGZvciBzcGVjdWxhdGl2ZSB0eCBwb2xsaW5nIG9uIHJ4IG5hcGkK
-Pj4+Pj4gaW5zdGVhZAo+Pj4+PiBvZiBkaXNhYmxpbmcgaXQgYXQgYWxsLgo+Pj4+Pgo+Pj4+PiBB
-bmQgSSdtIG5vdCBjb252aW5jZWQgdGhpcyBpcyByZWFsbHkgbmVlZGVkLCBkcml2ZXIgb25seSBw
-cm92aWRlIGFmZmluaXR5Cj4+Pj4+IGhpbnQgaW5zdGVhZCBvZiBhZmZpbml0eSwgc28gaXQncyBu
-b3QgZ3VhcmFudGVlZCB0aGF0IHR4IGFuZCByeCBpbnRlcnJ1cHQKPj4+Pj4gYXJlIGluIHRoZSBz
-YW1lIHZjcHVzLgo+Pj4+IFlvdSdyZSByaWdodC4gSSBtYWRlIHRoZSByZXN0cmljdGlvbiBicm9h
-ZGVyIHRoYW4gdGhlIHJlcXVlc3QsIHRvIHJlYWxseQo+Pj4+IGVycgo+Pj4+IG9uIHRoZSBzaWRl
-IG9mIGNhdXRpb24gZm9yIHRoZSBpbml0aWFsIG1lcmdlIG9mIG5hcGkgdHguIEFuZCBlbmFibGlu
-Zwo+Pj4+IHRoZSBvcHRpbWl6YXRpb24gaXMgYWx3YXlzIGEgd2luIG92ZXIga2VlcGluZyBpdCBv
-ZmYsIGV2ZW4gd2l0aG91dCBpcnEKPj4+PiBhZmZpbml0eS4KPj4+Pgo+Pj4+IFRoZSBjeWNsZSBj
-b3N0IGlzIHNpZ25pZmljYW50IHdpdGhvdXQgYWZmaW5pdHkgcmVnYXJkbGVzcyBvZiB3aGV0aGVy
-IHRoZQo+Pj4+IG9wdGltaXphdGlvbiBpcyB1c2VkLgo+Pj4KPj4+IFllcywgSSBub3RpY2VkIHRo
-aXMgaW4gdGhlIHBhc3QgdG9vLgo+Pj4KPj4+PiBUaG91Z2ggdGhpcyBpcyBub3QgbGltaXRlZCB0
-byBuYXBpLXR4LCBpdCBpcyBtb3JlCj4+Pj4gcHJvbm91bmNlZCBpbiB0aGF0IG1vZGUgdGhhbiB3
-aXRob3V0IG5hcGkuCj4+Pj4KPj4+PiAxeCBUQ1BfUlIgZm9yIGFmZmluaXR5IGNvbmZpZ3VyYXRp
-b24ge3Byb2Nlc3MsIHJ4X2lycSwgdHhfaXJxfToKPj4+Pgo+Pj4+IHVwc3RyZWFtOgo+Pj4+Cj4+
-Pj4gMSwxLDE6IDI4OTg1IE1icHMsIDI3OCBHY3ljCj4+Pj4gMSwwLDI6IDMwMDY3IE1icHMsIDQw
-MiBHY3ljCj4+Pj4KPj4+PiBuYXBpIHR4Ogo+Pj4+Cj4+Pj4gMSwxLDE6IDM0NDkyIE1icHMsIDI2
-OSBHY3ljCj4+Pj4gMSwwLDI6IDM2NTI3IE1icHMsIDUzNyBHY3ljICghKQo+Pj4+IDEsMCwxOiAz
-NjI2OSBNYnBzLCAzOTQgR2N5Ywo+Pj4+IDEsMCwwOiAzNDY3NCBNYnBzLCA0MDIgR2N5Ywo+Pj4+
-Cj4+Pj4gVGhpcyBpcyBhIHBhcnRpY3VsYXJseSBzdHJvbmcgZXhhbXBsZS4gSXQgaXMgYWxzbyBy
-ZXByZXNlbnRhdGl2ZQo+Pj4+IG9mIG1vc3QgUlIgdGVzdHMuIEl0IGlzIGxlc3MgcHJvbm91bmNl
-ZCBpbiBvdGhlciBzdHJlYW1pbmcgdGVzdHMuCj4+Pj4gMTB4IFRDUF9SUiwgZm9yIGluc3RhbmNl
-Ogo+Pj4+Cj4+Pj4gdXBzdHJlYW06Cj4+Pj4KPj4+PiAxLDEsMTogNDIyNjcgTWJwcywgMzAxIEdj
-eWMKPj4+PiAxLDAsMjogNDA2NjMgTWJwcywgNDQ1IEdjeWMKPj4+Pgo+Pj4+IG5hcGkgdHg6Cj4+
-Pj4KPj4+PiAxLDEsMTogNDI0MjAgTWJwcywgMzAzIEdjeWMKPj4+PiAxLDAsMjogIDQyMjY3IE1i
-cHMsIDQzMSBHY3ljCj4+Pj4KPj4+PiBUaGVzZSBudW1iZXJzIHdlcmUgb2J0YWluZWQgd2l0aCB0
-aGUgdmlydHF1ZXVlX2VuYWJsZV9jYl9kZWxheWVkCj4+Pj4gb3B0aW1pemF0aW9uIGFmdGVyIHht
-aXRfc2tiLCBidHcuIEl0IHR1cm5zIG91dCB0aGF0IG1vdmluZyB0aGF0IGJlZm9yZQo+Pj4+IGlu
-Y3JlYXNlcyAxeCBUQ1BfUlIgZnVydGhlciB0byB+MzkgR2JwcywgYXQgdGhlIGNvc3Qgb2YgcmVk
-dWNpbmcKPj4+PiAxMDB4IFRDUF9SUiBhIGJpdC4KPj4+Cj4+PiBJIHNlZSwgc28gSSB0aGluayB3
-ZSBjYW4gbGVhdmUgdGhlIGFmZmluaXR5IGhpbnQgb3B0aW1pemF0aW9uL2NoZWNrIGZvcgo+Pj4g
-ZnV0dXJlIGludmVzdGlnYXRpb246Cj4+Pgo+Pj4gLSB0byBhdm9pZCBlbmRsZXNzIG9wdGltaXph
-dGlvbiAoZS5nIHdlIG1heSB3YW50IHRvIHNoYXJlIGEgc2luZ2xlCj4+PiB2ZWN0b3IvbmFwaSBm
-b3IgdHgvcnggcXVldWUgcGFpcnMgaW4gdGhlIGZ1dHVyZSkgZm9yIHRoaXMgc2VyaWVzLgo+Pj4g
-LSB0eCBuYXBpIGlzIGRpc2FibGVkIGJ5IGRlZmF1bHQgd2hpY2ggbWVhbnMgd2UgY2FuIGRvIG9w
-dGltaXphdGlvbiBvbiB0b3AuCj4+IE9rYXkuIEknbGwgZHJvcCB0aGUgdmktPmFmZmluaXR5X2hp
-bnRfc2V0IGZyb20gdGhlIHBhdGNoIHNldCBmb3Igbm93Lgo+IEkga2luZCBvZiBsaWtlIGl0LCBs
-ZXQncyBiZSBjb25zZXJ2YXRpdmUuIEJ1dCBJJ2QgcHJlZmVyIGEgY29tbWVudAo+IG5lYXIgaXQg
-ZXhwbGFpbmluZyB3aHkgaXQncyB0aGVyZS4KPgoKQW5vdGhlciBpc3N1ZSBmb3IgYWZmaW5pdHlf
-aGludF9zZXQgaXMgdGhhdCBpdCBjb3VsZCBiZSBjaGFuZ2VkIHdoZW4gCnNldHRpbmcgY2hhbm5l
-bHMuIEkgdGhpbmsgd2UndmUgYWxyZWFkeSBjb25zZXJ2YXRpdmUgZW5vdWdoIChlLmcgaXQgd2Fz
-IApkaXNhYmxlZCBieSBkZWZhdWx0KS4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Mon, 24 Apr 2017 13:49:25 -0400
+
+> Add napi for virtio-net transmit completion processing.
+
+Series applied, thanks.
