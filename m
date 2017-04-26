@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net-next] virtio-net: on tx, only call napi_disable if tx
 	napi is on
-Date: Tue, 25 Apr 2017 23:44:42 +0300
-Message-ID: <20170425234434-mutt-send-email-mst@kernel.org>
+Date: Wed, 26 Apr 2017 08:17:49 +0800
+Message-ID: <e63dd996-7b8e-b41b-7eb2-0044338be350@redhat.com>
 References: <20170425195917.54209-1-willemdebruijn.kernel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <20170425195917.54209-1-willemdebruijn.kernel@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,65 +18,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org, davem@davemloft.net, virtualization@lists.linux-foundation.org
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, netdev@vger.kernel.org
+Cc: Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org, davem@davemloft.net, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 25, 2017 at 03:59:17PM -0400, Willem de Bruijn wrote:
-> From: Willem de Bruijn <willemb@google.com>
-> 
-> As of tx napi, device down (`ip link set dev $dev down`) hangs unless
-> tx napi is enabled. Else napi_enable is not called, so napi_disable
-> will spin on test_and_set_bit NAPI_STATE_SCHED.
-> 
-> Only call napi_disable if tx napi is enabled.
-> 
-> Fixes: 5a719c2552ca ("virtio-net: transmit napi")
-> Reported-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Willem de Bruijn <willemb@google.com>
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-
-
-> ---
->  drivers/net/virtio_net.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 003143835766..82f1c3a73345 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -997,6 +997,12 @@ static void virtnet_napi_tx_enable(struct virtnet_info *vi,
->  	return virtnet_napi_enable(vq, napi);
->  }
->  
-> +static void virtnet_napi_tx_disable(struct napi_struct *napi)
-> +{
-> +	if (napi->weight)
-> +		napi_disable(napi);
-> +}
-> +
->  static void refill_work(struct work_struct *work)
->  {
->  	struct virtnet_info *vi =
-> @@ -1445,7 +1451,7 @@ static int virtnet_close(struct net_device *dev)
->  
->  	for (i = 0; i < vi->max_queue_pairs; i++) {
->  		napi_disable(&vi->rq[i].napi);
-> -		napi_disable(&vi->sq[i].napi);
-> +		virtnet_napi_tx_disable(&vi->sq[i].napi);
->  	}
->  
->  	return 0;
-> @@ -1803,7 +1809,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
->  	if (netif_running(vi->dev)) {
->  		for (i = 0; i < vi->max_queue_pairs; i++) {
->  			napi_disable(&vi->rq[i].napi);
-> -			napi_disable(&vi->sq[i].napi);
-> +			virtnet_napi_tx_disable(&vi->sq[i].napi);
->  		}
->  	}
->  }
-> -- 
-> 2.13.0.rc0.306.g87b477812d-goog
+CgpPbiAyMDE35bm0MDTmnIgyNuaXpSAwMzo1OSwgV2lsbGVtIGRlIEJydWlqbiB3cm90ZToKPiBG
+cm9tOiBXaWxsZW0gZGUgQnJ1aWpuIDx3aWxsZW1iQGdvb2dsZS5jb20+Cj4KPiBBcyBvZiB0eCBu
+YXBpLCBkZXZpY2UgZG93biAoYGlwIGxpbmsgc2V0IGRldiAkZGV2IGRvd25gKSBoYW5ncyB1bmxl
+c3MKPiB0eCBuYXBpIGlzIGVuYWJsZWQuIEVsc2UgbmFwaV9lbmFibGUgaXMgbm90IGNhbGxlZCwg
+c28gbmFwaV9kaXNhYmxlCj4gd2lsbCBzcGluIG9uIHRlc3RfYW5kX3NldF9iaXQgTkFQSV9TVEFU
+RV9TQ0hFRC4KPgo+IE9ubHkgY2FsbCBuYXBpX2Rpc2FibGUgaWYgdHggbmFwaSBpcyBlbmFibGVk
+Lgo+Cj4gRml4ZXM6IDVhNzE5YzI1NTJjYSAoInZpcnRpby1uZXQ6IHRyYW5zbWl0IG5hcGkiKQo+
+IFJlcG9ydGVkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+IFNpZ25lZC1v
+ZmYtYnk6IFdpbGxlbSBkZSBCcnVpam4gPHdpbGxlbWJAZ29vZ2xlLmNvbT4KPiAtLS0KPiAgIGRy
+aXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDEwICsrKysrKysrLS0KPiAgIDEgZmlsZSBjaGFuZ2Vk
+LCA4IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gaW5kZXggMDAz
+MTQzODM1NzY2Li44MmYxYzNhNzMzNDUgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlv
+X25ldC5jCj4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gQEAgLTk5Nyw2ICs5OTcs
+MTIgQEAgc3RhdGljIHZvaWQgdmlydG5ldF9uYXBpX3R4X2VuYWJsZShzdHJ1Y3QgdmlydG5ldF9p
+bmZvICp2aSwKPiAgIAlyZXR1cm4gdmlydG5ldF9uYXBpX2VuYWJsZSh2cSwgbmFwaSk7Cj4gICB9
+Cj4gICAKPiArc3RhdGljIHZvaWQgdmlydG5ldF9uYXBpX3R4X2Rpc2FibGUoc3RydWN0IG5hcGlf
+c3RydWN0ICpuYXBpKQo+ICt7Cj4gKwlpZiAobmFwaS0+d2VpZ2h0KQo+ICsJCW5hcGlfZGlzYWJs
+ZShuYXBpKTsKPiArfQo+ICsKPiAgIHN0YXRpYyB2b2lkIHJlZmlsbF93b3JrKHN0cnVjdCB3b3Jr
+X3N0cnVjdCAqd29yaykKPiAgIHsKPiAgIAlzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSA9Cj4gQEAg
+LTE0NDUsNyArMTQ1MSw3IEBAIHN0YXRpYyBpbnQgdmlydG5ldF9jbG9zZShzdHJ1Y3QgbmV0X2Rl
+dmljZSAqZGV2KQo+ICAgCj4gICAJZm9yIChpID0gMDsgaSA8IHZpLT5tYXhfcXVldWVfcGFpcnM7
+IGkrKykgewo+ICAgCQluYXBpX2Rpc2FibGUoJnZpLT5ycVtpXS5uYXBpKTsKPiAtCQluYXBpX2Rp
+c2FibGUoJnZpLT5zcVtpXS5uYXBpKTsKPiArCQl2aXJ0bmV0X25hcGlfdHhfZGlzYWJsZSgmdmkt
+PnNxW2ldLm5hcGkpOwo+ICAgCX0KPiAgIAo+ICAgCXJldHVybiAwOwo+IEBAIC0xODAzLDcgKzE4
+MDksNyBAQCBzdGF0aWMgdm9pZCB2aXJ0bmV0X2ZyZWV6ZV9kb3duKHN0cnVjdCB2aXJ0aW9fZGV2
+aWNlICp2ZGV2KQo+ICAgCWlmIChuZXRpZl9ydW5uaW5nKHZpLT5kZXYpKSB7Cj4gICAJCWZvciAo
+aSA9IDA7IGkgPCB2aS0+bWF4X3F1ZXVlX3BhaXJzOyBpKyspIHsKPiAgIAkJCW5hcGlfZGlzYWJs
+ZSgmdmktPnJxW2ldLm5hcGkpOwo+IC0JCQluYXBpX2Rpc2FibGUoJnZpLT5zcVtpXS5uYXBpKTsK
+PiArCQkJdmlydG5ldF9uYXBpX3R4X2Rpc2FibGUoJnZpLT5zcVtpXS5uYXBpKTsKPiAgIAkJfQo+
+ICAgCX0KPiAgIH0KCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoK
+VGhhbmtzCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
