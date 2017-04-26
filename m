@@ -1,14 +1,21 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next] virtio-net: on tx, only call napi_disable if
-	tx napi is on
-Date: Wed, 26 Apr 2017 14:50:23 -0400 (EDT)
-Message-ID: <20170426.145023.520426501343191968.davem__4552.95843207768$1493232631$gmane$org@davemloft.net>
-References: <20170425195917.54209-1-willemdebruijn.kernel@gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH v9 2/5] virtio-balloon:
+	VIRTIO_BALLOON_F_BALLOON_CHUNKS
+Date: Thu, 27 Apr 2017 02:20:28 +0300
+Message-ID: <20170426192753-mutt-send-email-mst__34738.1110572771$1493248852$gmane$org@kernel.org>
+References: <1492076108-117229-1-git-send-email-wei.w.wang@intel.com>
+	<1492076108-117229-3-git-send-email-wei.w.wang@intel.com>
+	<20170413184040-mutt-send-email-mst@kernel.org>
+	<58F08A60.2020407@intel.com>
+	<20170415000934-mutt-send-email-mst@kernel.org>
+	<58F43801.7060004@intel.com>
+	<286AC319A985734F985F78AFA26841F7391F6DCD@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170425195917.54209-1-willemdebruijn.kernel@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <286AC319A985734F985F78AFA26841F7391F6DCD@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,23 +25,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: willemdebruijn.kernel@gmail.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, willemb@google.com, mst@redhat.com
+To: "Wang, Wei W" <wei.w.wang@intel.com>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "Hansen, Dave" <dave.hansen@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Tue, 25 Apr 2017 15:59:17 -0400
+On Wed, Apr 26, 2017 at 11:03:34AM +0000, Wang, Wei W wrote:
+> Hi Michael, could you please give some feedback?
 
-> From: Willem de Bruijn <willemb@google.com>
-> 
-> As of tx napi, device down (`ip link set dev $dev down`) hangs unless
-> tx napi is enabled. Else napi_enable is not called, so napi_disable
-> will spin on test_and_set_bit NAPI_STATE_SCHED.
-> 
-> Only call napi_disable if tx napi is enabled.
-> 
-> Fixes: 5a719c2552ca ("virtio-net: transmit napi")
-> Reported-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Willem de Bruijn <willemb@google.com>
+I'm sorry, I'm not sure feedback on what you are requesting.
 
-Applied, thanks.
+The interface looks reasonable now, even though there's
+a way to make it even simpler if we can limit chunk size
+to 2G (in fact 4G - 1). Do you think we can live with this
+limitation?
+
+But the code still needs some cleanup.
+
+-- 
+MST
