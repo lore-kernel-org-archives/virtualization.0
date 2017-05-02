@@ -1,13 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] tools/virtio: fix spelling mistake: "wakeus" -> "wakeups"
-Date: Tue, 2 May 2017 14:01:28 +0800
-Message-ID: <2466cdcc-04b8-a476-b0af-5d86adbc1916@redhat.com>
-References: <20170429221421.12238-1-colin.king@canonical.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: CFP: KVM Forum 2017
+Date: Tue, 2 May 2017 12:41:47 +0200
+Message-ID: <fd522779-e417-8372-5ab1-d097c61eaa2d@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170429221421.12238-1-colin.king@canonical.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,26 +15,158 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Colin King <colin.king@canonical.com>, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org
+To: KVM list <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDTmnIgzMOaXpSAwNjoxNCwgQ29saW4gS2luZyB3cm90ZToKPiBGcm9tOiBD
-b2xpbiBJYW4gS2luZyA8Y29saW4ua2luZ0BjYW5vbmljYWwuY29tPgo+Cj4gdHJpdmlhbCBmaXgg
-dG8gc3BlbGxpbmcgbWlzdGFrZSBpbiBhbiBlcnJvciBtZXNzYWdlLgo+Cj4gU2lnbmVkLW9mZi1i
-eTogQ29saW4gSWFuIEtpbmcgPGNvbGluLmtpbmdAY2Fub25pY2FsLmNvbT4KPiAtLS0KPiAgIHRv
-b2xzL3ZpcnRpby92aXJ0aW9fdGVzdC5jIHwgMiArLQo+ICAgMSBmaWxlIGNoYW5nZWQsIDEgaW5z
-ZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pCj4KPiBkaWZmIC0tZ2l0IGEvdG9vbHMvdmlydGlvL3Zp
-cnRpb190ZXN0LmMgYi90b29scy92aXJ0aW8vdmlydGlvX3Rlc3QuYwo+IGluZGV4IDc2ZDZmNTgz
-YzI0OS4uMGZlY2FlYzkwZDBkIDEwMDY0NAo+IC0tLSBhL3Rvb2xzL3ZpcnRpby92aXJ0aW9fdGVz
-dC5jCj4gKysrIGIvdG9vbHMvdmlydGlvL3ZpcnRpb190ZXN0LmMKPiBAQCAtMjAyLDcgKzIwMiw3
-IEBAIHN0YXRpYyB2b2lkIHJ1bl90ZXN0KHN0cnVjdCB2ZGV2X2luZm8gKmRldiwgc3RydWN0IHZx
-X2luZm8gKnZxLAo+ICAgCXRlc3QgPSAwOwo+ICAgCXIgPSBpb2N0bChkZXYtPmNvbnRyb2wsIFZI
-T1NUX1RFU1RfUlVOLCAmdGVzdCk7Cj4gICAJYXNzZXJ0KHIgPj0gMCk7Cj4gLQlmcHJpbnRmKHN0
-ZGVyciwgInNwdXJpb3VzIHdha2V1czogMHglbGx4XG4iLCBzcHVyaW91cyk7Cj4gKwlmcHJpbnRm
-KHN0ZGVyciwgInNwdXJpb3VzIHdha2V1cHM6IDB4JWxseFxuIiwgc3B1cmlvdXMpOwo+ICAgfQo+
-ICAgCj4gICBjb25zdCBjaGFyIG9wdHN0cmluZ1tdID0gImgiOwoKQWNrZWQtYnk6IEphc29uIFdh
-bmcgPGphc293YW5nQHJlZGhhdC5jb20+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+================================================================
+KVM Forum 2017: Call For Participation
+October 25-27, 2017 - Hilton Prague - Prague, Czech Republic
+
+(All submissions must be received before midnight June 15, 2017)
+=================================================================
+
+KVM Forum is an annual event that presents a rare opportunity
+for developers and users to meet, discuss the state of Linux
+virtualization technology, and plan for the challenges ahead. 
+We invite you to lead part of the discussion by submitting a speaking
+proposal for KVM Forum 2017.
+
+At this highly technical conference, developers driving innovation
+in the KVM virtualization stack (Linux, KVM, QEMU, libvirt) can
+meet users who depend on KVM as part of their offerings, or to
+power their data centers and clouds.
+
+KVM Forum will include sessions on the state of the KVM
+virtualization stack, planning for the future, and many
+opportunities for attendees to collaborate. As we celebrate ten years
+of KVM development in the Linux kernel, KVM continues to be a
+critical part of the FOSS cloud infrastructure.
+
+This year, KVM Forum is joining Open Source Summit in Prague, 
+Czech Republic. Selected talks from KVM Forum will be presented on
+Wednesday October 25 to the full audience of the Open Source Summit.
+Also, attendees of KVM Forum will have access to all of the talks from
+Open Source Summit on Wednesday.
+
+http://events.linuxfoundation.org/cfp
+
+Suggested topics:
+* Scaling, latency optimizations, performance tuning, real-time guests
+* Hardening and security
+* New features
+* Testing
+
+KVM and the Linux kernel:
+* Nested virtualization
+* Resource management (CPU, I/O, memory) and scheduling
+* VFIO: IOMMU, SR-IOV, virtual GPU, etc.
+* Networking: Open vSwitch, XDP, etc.
+* virtio and vhost
+* Architecture ports and new processor features
+
+QEMU:
+* Management interfaces: QOM and QMP
+* New devices, new boards, new architectures
+* Graphics, desktop virtualization and virtual GPU
+* New storage features
+* High availability, live migration and fault tolerance
+* Emulation and TCG
+* Firmware: ACPI, UEFI, coreboot, U-Boot, etc.
+
+Management and infrastructure
+* Managing KVM: Libvirt, OpenStack, oVirt, etc.
+* Storage: Ceph, Gluster, SPDK, etc.r
+* Network Function Virtualization: DPDK, OPNFV, OVN, etc.
+* Provisioning
+
+
+===============
+SUBMITTING YOUR PROPOSAL
+===============
+Abstracts due: June 15, 2017
+
+Please submit a short abstract (~150 words) describing your presentation
+proposal. Slots vary in length up to 45 minutes. Also include the proposal
+type -- one of:
+- technical talk
+- end-user talk
+
+Submit your proposal here:
+http://events.linuxfoundation.org/cfp
+Please only use the categories "presentation" and "panel discussion"
+
+You will receive a notification whether or not your presentation proposal
+was accepted by August 10, 2017.
+
+Speakers will receive a complimentary pass for the event. In the instance
+that case your submission has multiple presenters, only the primary speaker for a
+proposal will receive a complimentary event pass. For panel discussions, all
+panelists will receive a complimentary event pass.
+
+TECHNICAL TALKS
+
+A good technical talk should not just report on what has happened over
+the last year; it should present a concrete problem and how it impacts
+the user and/or developer community. Whenever applicable, focus on
+work that needs to be done, difficulties that haven't yet been solved,
+and on decisions that other developers should be aware of. Summarizing
+recent developments is okay but it should not be more than a small
+portion of the overall talk.
+
+END-USER TALKS
+
+One of the big challenges as developers is to know what, where and how
+people actually use our software. We will reserve a few slots for end
+users talking about their deployment challenges and achievements.
+
+If you are using KVM in production you are encouraged submit a speaking
+proposal. Simply mark it as an end-user talk. As an end user, this is a
+unique opportunity to get your input to developers.
+
+HANDS-ON / BOF SESSIONS
+
+We will reserve some time for people to get together and discuss
+strategic decisions as well as other topics that are best solved within
+smaller groups.
+
+These sessions will be announced during the event. If you are interested
+in organizing such a session, please add it to the list at
+
+  http://www.linux-kvm.org/page/KVM_Forum_2017_BOF
+
+Let people you think who might be interested know about your BOF, and encourage
+them to add their names to the wiki page as well. Please try to
+add your ideas to the list before KVM Forum starts.
+
+
+PANEL DISCUSSIONS
+
+If you are proposing a panel discussion, please make sure that you list
+all of your potential panelists in your the abstract. We will request full
+biographies if a panel is accepted.
+
+
+===============
+HOTEL / TRAVEL
+===============
+
+This year's event will take place at the Hilton Prague.
+For information on discounted room rates for conference attendees
+and on other hotels close to the conference, please visit
+http://events.linuxfoundation.org/events/kvm-forum/attend/hotel-travel.
+
+===============
+IMPORTANT DATES
+===============
+Submission deadline: June 15, 2017
+Notification: August 10, 2017
+Schedule announced: August 17, 2017
+Event dates: October 25-27, 2017
+
+Thank you for your interest in KVM. We're looking forward to your
+submissions and seeing you at the KVM Forum 2017 in October!
+
+-your KVM Forum 2017 Program Committee
+
+Please contact us with any questions or comments at
+kvm-forum-2017-pc@redhat.com
