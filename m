@@ -1,7 +1,8 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: CFP: KVM Forum 2017
-Date: Tue, 2 May 2017 12:41:47 +0200
-Message-ID: <fd522779-e417-8372-5ab1-d097c61eaa2d@redhat.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: [PATCH v10 0/6] Extend virtio-balloon for fast (de)inflating & fast
+	live migration
+Date: Thu,  4 May 2017 16:50:09 +0800
+Message-ID: <1493887815-6070-1-git-send-email-wei.w.wang__48951.1530301117$1493888166$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,158 +16,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: KVM list <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, david@redhat.com, dave.hansen@intel.com, cornelia.huck@de.ibm.com, akpm@linux-foundation.org, mgorman@techsingularity.net, aarcange@redhat.com, amit.shah@redhat.com, pbonzini@redhat.com, wei.w.wang@intel.com, liliang.opensource@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-================================================================
-KVM Forum 2017: Call For Participation
-October 25-27, 2017 - Hilton Prague - Prague, Czech Republic
+This patch series implements the follow two things:
+1) Optimization of balloon page transfer: instead of transferring balloon pages
+to host one by one, the new mechanism transfers them in chunks.
+2) A mechanism to report info of guest unused pages: the pages have been unused
+at some time between when host sent command and when guest reported them.  Host
+uses that by tracking memory changes and then discarding changes made to the
+pages that it gets from guest before it sent the command.
 
-(All submissions must be received before midnight June 15, 2017)
-=================================================================
+Changes:
+v9->v10:
+1) mm: put report_unused_page_block() under CONFIG_VIRTIO_BALLOON;
+2) virtio-balloon: add virtballoon_validate();
+3) virtio-balloon: msg format change;
+4) virtio-balloon: move miscq handling to a task on system_freezable_wq;
+5) virtio-balloon: code cleanup.
 
-KVM Forum is an annual event that presents a rare opportunity
-for developers and users to meet, discuss the state of Linux
-virtualization technology, and plan for the challenges ahead. 
-We invite you to lead part of the discussion by submitting a speaking
-proposal for KVM Forum 2017.
+v8->v9:
+1) Split the two new features, VIRTIO_BALLOON_F_BALLOON_CHUNKS and
+VIRTIO_BALLOON_F_MISC_VQ, which were mixed together in the previous
+implementation;
+2) Simpler function to get the free page block.
 
-At this highly technical conference, developers driving innovation
-in the KVM virtualization stack (Linux, KVM, QEMU, libvirt) can
-meet users who depend on KVM as part of their offerings, or to
-power their data centers and clouds.
+v7->v8:
+1) Use only one chunk format, instead of two.
+2) re-write the virtio-balloon implementation patch.
+3) commit changes
+4) patch re-org
 
-KVM Forum will include sessions on the state of the KVM
-virtualization stack, planning for the future, and many
-opportunities for attendees to collaborate. As we celebrate ten years
-of KVM development in the Linux kernel, KVM continues to be a
-critical part of the FOSS cloud infrastructure.
+Liang Li (1):
+  virtio-balloon: deflate via a page list
 
-This year, KVM Forum is joining Open Source Summit in Prague, 
-Czech Republic. Selected talks from KVM Forum will be presented on
-Wednesday October 25 to the full audience of the Open Source Summit.
-Also, attendees of KVM Forum will have access to all of the talks from
-Open Source Summit on Wednesday.
+Wei Wang (5):
+  virtio-balloon: coding format cleanup
+  virtio-balloon: VIRTIO_BALLOON_F_PAGE_CHUNKS
+  mm: function to offer a page block on the free list
+  mm: export symbol of next_zone and first_online_pgdat
+  virtio-balloon: VIRTIO_BALLOON_F_MISC_VQ
 
-http://events.linuxfoundation.org/cfp
+ drivers/virtio/virtio_balloon.c     | 696 +++++++++++++++++++++++++++++++++---
+ include/linux/mm.h                  |   5 +
+ include/uapi/linux/virtio_balloon.h |  26 ++
+ mm/mmzone.c                         |   2 +
+ mm/page_alloc.c                     |  91 +++++
+ 5 files changed, 761 insertions(+), 59 deletions(-)
 
-Suggested topics:
-* Scaling, latency optimizations, performance tuning, real-time guests
-* Hardening and security
-* New features
-* Testing
-
-KVM and the Linux kernel:
-* Nested virtualization
-* Resource management (CPU, I/O, memory) and scheduling
-* VFIO: IOMMU, SR-IOV, virtual GPU, etc.
-* Networking: Open vSwitch, XDP, etc.
-* virtio and vhost
-* Architecture ports and new processor features
-
-QEMU:
-* Management interfaces: QOM and QMP
-* New devices, new boards, new architectures
-* Graphics, desktop virtualization and virtual GPU
-* New storage features
-* High availability, live migration and fault tolerance
-* Emulation and TCG
-* Firmware: ACPI, UEFI, coreboot, U-Boot, etc.
-
-Management and infrastructure
-* Managing KVM: Libvirt, OpenStack, oVirt, etc.
-* Storage: Ceph, Gluster, SPDK, etc.r
-* Network Function Virtualization: DPDK, OPNFV, OVN, etc.
-* Provisioning
-
-
-===============
-SUBMITTING YOUR PROPOSAL
-===============
-Abstracts due: June 15, 2017
-
-Please submit a short abstract (~150 words) describing your presentation
-proposal. Slots vary in length up to 45 minutes. Also include the proposal
-type -- one of:
-- technical talk
-- end-user talk
-
-Submit your proposal here:
-http://events.linuxfoundation.org/cfp
-Please only use the categories "presentation" and "panel discussion"
-
-You will receive a notification whether or not your presentation proposal
-was accepted by August 10, 2017.
-
-Speakers will receive a complimentary pass for the event. In the instance
-that case your submission has multiple presenters, only the primary speaker for a
-proposal will receive a complimentary event pass. For panel discussions, all
-panelists will receive a complimentary event pass.
-
-TECHNICAL TALKS
-
-A good technical talk should not just report on what has happened over
-the last year; it should present a concrete problem and how it impacts
-the user and/or developer community. Whenever applicable, focus on
-work that needs to be done, difficulties that haven't yet been solved,
-and on decisions that other developers should be aware of. Summarizing
-recent developments is okay but it should not be more than a small
-portion of the overall talk.
-
-END-USER TALKS
-
-One of the big challenges as developers is to know what, where and how
-people actually use our software. We will reserve a few slots for end
-users talking about their deployment challenges and achievements.
-
-If you are using KVM in production you are encouraged submit a speaking
-proposal. Simply mark it as an end-user talk. As an end user, this is a
-unique opportunity to get your input to developers.
-
-HANDS-ON / BOF SESSIONS
-
-We will reserve some time for people to get together and discuss
-strategic decisions as well as other topics that are best solved within
-smaller groups.
-
-These sessions will be announced during the event. If you are interested
-in organizing such a session, please add it to the list at
-
-  http://www.linux-kvm.org/page/KVM_Forum_2017_BOF
-
-Let people you think who might be interested know about your BOF, and encourage
-them to add their names to the wiki page as well. Please try to
-add your ideas to the list before KVM Forum starts.
-
-
-PANEL DISCUSSIONS
-
-If you are proposing a panel discussion, please make sure that you list
-all of your potential panelists in your the abstract. We will request full
-biographies if a panel is accepted.
-
-
-===============
-HOTEL / TRAVEL
-===============
-
-This year's event will take place at the Hilton Prague.
-For information on discounted room rates for conference attendees
-and on other hotels close to the conference, please visit
-http://events.linuxfoundation.org/events/kvm-forum/attend/hotel-travel.
-
-===============
-IMPORTANT DATES
-===============
-Submission deadline: June 15, 2017
-Notification: August 10, 2017
-Schedule announced: August 17, 2017
-Event dates: October 25-27, 2017
-
-Thank you for your interest in KVM. We're looking forward to your
-submissions and seeing you at the KVM Forum 2017 in October!
-
--your KVM Forum 2017 Program Committee
-
-Please contact us with any questions or comments at
-kvm-forum-2017-pc@redhat.com
+-- 
+2.7.4
