@@ -1,13 +1,14 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v10 6/6] virtio-balloon: VIRTIO_BALLOON_F_MISC_VQ
-Date: Thu,  4 May 2017 16:50:15 +0800
-Message-ID: <1493887815-6070-7-git-send-email-wei.w.wang__23199.9653195546$1493888239$gmane$org@intel.com>
-References: <1493887815-6070-1-git-send-email-wei.w.wang@intel.com>
+From: kbuild test robot <lkp@intel.com>
+Subject: Re: [PATCH v10 4/6] mm: function to offer a page block on the free
+	list
+Date: Fri, 5 May 2017 08:21:34 +0800
+Message-ID: <201705050851.KJdDIPUA%fengguang.wu__42773.3580967926$1493943722$gmane$org@intel.com>
+References: <1493887815-6070-5-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="yrj/dFKFPuw6o+aM"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1493887815-6070-1-git-send-email-wei.w.wang@intel.com>
+Content-Disposition: inline
+In-Reply-To: <1493887815-6070-5-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,487 +18,301 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, david@redhat.com, dave.hansen@intel.com, cornelia.huck@de.ibm.com, akpm@linux-foundation.org, mgorman@techsingularity.net, aarcange@redhat.com, amit.shah@redhat.com, pbonzini@redhat.com, wei.w.wang@intel.com, liliang.opensource@gmail.com
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, amit.shah@redhat.com, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, liliang.opensource@gmail.com, dave.hansen@intel.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, kbuild-all@01.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new vq, miscq, to handle miscellaneous requests between the device
-and the driver. Only one request is handled in-flight each time.
 
-This patch implements the VIRTIO_BALLOON_MISCQ_CMD_REPORT_UNUSED_PAGES
-request sent from the device. Upon receiving the request from the
-miscq, the driver offers to the device the guest unused pages.
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Tests have shown that skipping the transfer of unused pages of a 32G
-idle guest can get the live migration time reduced to 1/8.
+Hi Wei,
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Signed-off-by: Liang Li <liang.z.li@intel.com>
+[auto build test WARNING on linus/master]
+[also build test WARNING on v4.11 next-20170504]
+[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+
+url:    https://github.com/0day-ci/linux/commits/Wei-Wang/Extend-virtio-balloon-for-fast-de-inflating-fast-live-migration/20170505-052958
+reproduce: make htmldocs
+
+All warnings (new ones prefixed by >>):
+
+   WARNING: convert(1) not found, for SVG to PDF conversion install ImageMagick (https://www.imagemagick.org)
+   arch/x86/include/asm/uaccess_32.h:1: warning: no structured comments found
+>> mm/page_alloc.c:4663: warning: No description found for parameter 'zone'
+>> mm/page_alloc.c:4663: warning: No description found for parameter 'order'
+>> mm/page_alloc.c:4663: warning: No description found for parameter 'migratetype'
+>> mm/page_alloc.c:4663: warning: No description found for parameter 'page'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+   include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+   include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+
+vim +/zone +4663 mm/page_alloc.c
+
+  4647	 * Heuristically get a page block in the system that is unused.
+  4648	 * It is possible that pages from the page block are used immediately after
+  4649	 * report_unused_page_block() returns. It is the caller's responsibility
+  4650	 * to either detect or prevent the use of such pages.
+  4651	 *
+  4652	 * The free list to check: zone->free_area[order].free_list[migratetype].
+  4653	 *
+  4654	 * If the caller supplied page block (i.e. **page) is on the free list, offer
+  4655	 * the next page block on the list to the caller. Otherwise, offer the first
+  4656	 * page block on the list.
+  4657	 *
+  4658	 * Return 0 when a page block is found on the caller specified free list.
+  4659	 */
+  4660	int report_unused_page_block(struct zone *zone, unsigned int order,
+  4661				     unsigned int migratetype, struct page **page)
+  4662	{
+> 4663		struct zone *this_zone;
+  4664		struct list_head *this_list;
+  4665		int ret = 0;
+  4666		unsigned long flags;
+  4667	
+  4668		/* Sanity check */
+  4669		if (zone == NULL || page == NULL || order >= MAX_ORDER ||
+  4670		    migratetype >= MIGRATE_TYPES)
+  4671			return -EINVAL;
+
 ---
- drivers/virtio/virtio_balloon.c     | 299 +++++++++++++++++++++++++++++++-----
- include/uapi/linux/virtio_balloon.h |  12 ++
- 2 files changed, 274 insertions(+), 37 deletions(-)
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index df16912..4dcee2c 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -57,6 +57,10 @@
- /* The maximum number of page_bmap that can be allocated. */
- #define VIRTIO_BALLOON_PAGE_BMAP_MAX_NUM	32
- 
-+/* Types of pages to chunk */
-+#define PAGE_CHUNK_TYPE_BALLOON	0	/* Chunk of inflate/deflate pages */
-+#define PAGE_CHUNK_TYPE_UNUSED	1	/* Chunk of unused pages */
-+
- static int oom_pages = OOM_VBALLOON_DEFAULT_PAGES;
- module_param(oom_pages, int, S_IRUSR | S_IWUSR);
- MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
-@@ -67,16 +71,17 @@ static struct vfsmount *balloon_mnt;
- 
- /* Maximum number of page chunks */
- #define VIRTIO_BALLOON_MAX_PAGE_CHUNKS ((8 * PAGE_SIZE - \
--			sizeof(struct virtio_balloon_page_chunk)) / \
--			sizeof(struct virtio_balloon_page_chunk_entry))
-+				sizeof(struct virtio_balloon_miscq_msg)) / \
-+				sizeof(struct virtio_balloon_page_chunk_entry))
- 
- struct virtio_balloon {
- 	struct virtio_device *vdev;
--	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
-+	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *miscq;
- 
- 	/* The balloon servicing is delegated to a freezable workqueue. */
- 	struct work_struct update_balloon_stats_work;
- 	struct work_struct update_balloon_size_work;
-+	struct work_struct miscq_handle_work;
- 
- 	/* Prevent updating balloon when it is being canceled. */
- 	spinlock_t stop_update_lock;
-@@ -98,6 +103,9 @@ struct virtio_balloon {
- 	/* Synchronize access/update to this struct virtio_balloon elements */
- 	struct mutex balloon_lock;
- 
-+	/* Miscq msg buffer for the REPORT_UNUSED_PAGES cmd */
-+	struct virtio_balloon_miscq_msg *miscq_msg_rup;
-+
- 	/* Buffer for chunks of ballooned pages. */
- 	struct virtio_balloon_page_chunk *balloon_page_chunk;
- 
-@@ -200,38 +208,85 @@ static void clear_page_bmap(struct virtio_balloon *vb,
- 		memset(vb->page_bmap[i], 0, VIRTIO_BALLOON_PAGE_BMAP_SIZE);
- }
- 
--static void send_page_chunks(struct virtio_balloon *vb, struct virtqueue *vq)
-+static void send_page_chunks(struct virtio_balloon *vb, struct virtqueue *vq,
-+			     int type, bool busy_wait)
- {
- 	struct scatterlist sg;
- 	struct virtio_balloon_page_chunk *chunk;
--	unsigned int len;
-+	void *msg_buf;
-+	unsigned int msg_len;
-+	uint64_t chunk_num = 0;
-+
-+	switch (type) {
-+	case PAGE_CHUNK_TYPE_BALLOON:
-+		chunk = vb->balloon_page_chunk;
-+		chunk_num = le64_to_cpu(chunk->chunk_num);
-+		msg_buf = vb->balloon_page_chunk;
-+		msg_len = sizeof(struct virtio_balloon_page_chunk) +
-+			  sizeof(struct virtio_balloon_page_chunk_entry) *
-+			  chunk_num;
-+		break;
-+	case PAGE_CHUNK_TYPE_UNUSED:
-+		chunk = &vb->miscq_msg_rup->payload.chunk;
-+		chunk_num = le64_to_cpu(chunk->chunk_num);
-+		msg_buf = vb->miscq_msg_rup;
-+		msg_len = sizeof(struct virtio_balloon_miscq_msg) +
-+			  sizeof(struct virtio_balloon_page_chunk_entry) *
-+			  chunk_num;
-+		break;
-+	default:
-+		dev_warn(&vb->vdev->dev, "%s: chunk %d of unknown pages\n",
-+			 __func__, type);
-+		return;
-+	}
- 
--	chunk = vb->balloon_page_chunk;
--	len = sizeof(__le64) +
--	      le64_to_cpu(chunk->chunk_num) *
--	      sizeof(struct virtio_balloon_page_chunk_entry);
--	sg_init_one(&sg, chunk, len);
-+	sg_init_one(&sg, msg_buf, msg_len);
- 	if (!virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL)) {
- 		virtqueue_kick(vq);
--		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
-+		if (busy_wait)
-+			while (!virtqueue_get_buf(vq, &msg_len) &&
-+			       !virtqueue_is_broken(vq))
-+				cpu_relax();
-+		else
-+			wait_event(vb->acked, virtqueue_get_buf(vq, &msg_len));
-+		/*
-+		 * Now, the chunks have been delivered to the host.
-+		 * Reset the filed in the structure that records the number of
-+		 * added chunks, so that new added chunks can be re-counted.
-+		 */
- 		chunk->chunk_num = 0;
- 	}
- }
- 
- /* Add a chunk entry to the buffer. */
- static void add_one_chunk(struct virtio_balloon *vb, struct virtqueue *vq,
--			  u64 base, u64 size)
-+			  int type, u64 base, u64 size)
- {
--	struct virtio_balloon_page_chunk *chunk = vb->balloon_page_chunk;
-+	struct virtio_balloon_page_chunk *chunk;
- 	struct virtio_balloon_page_chunk_entry *entry;
--	uint64_t chunk_num = le64_to_cpu(chunk->chunk_num);
--
-+	uint64_t chunk_num;
-+
-+	switch (type) {
-+	case PAGE_CHUNK_TYPE_BALLOON:
-+		chunk = vb->balloon_page_chunk;
-+		chunk_num = le64_to_cpu(vb->balloon_page_chunk->chunk_num);
-+		break;
-+	case PAGE_CHUNK_TYPE_UNUSED:
-+		chunk = &vb->miscq_msg_rup->payload.chunk;
-+		chunk_num =
-+		le64_to_cpu(vb->miscq_msg_rup->payload.chunk.chunk_num);
-+		break;
-+	default:
-+		dev_warn(&vb->vdev->dev, "%s: chunk %d of unknown pages\n",
-+			 __func__, type);
-+		return;
-+	}
- 	entry = &chunk->entry[chunk_num];
- 	entry->base = cpu_to_le64(base << VIRTIO_BALLOON_CHUNK_BASE_SHIFT);
- 	entry->size = cpu_to_le64(size << VIRTIO_BALLOON_CHUNK_SIZE_SHIFT);
- 	chunk->chunk_num = cpu_to_le64(++chunk_num);
- 	if (chunk_num == VIRTIO_BALLOON_MAX_PAGE_CHUNKS)
--		send_page_chunks(vb, vq);
-+		send_page_chunks(vb, vq, type, 0);
- }
- 
- static void convert_bmap_to_chunks(struct virtio_balloon *vb,
-@@ -259,8 +314,8 @@ static void convert_bmap_to_chunks(struct virtio_balloon *vb,
- 		chunk_size = (next_zero - next_one) *
- 			     VIRTIO_BALLOON_PAGES_PER_PAGE;
- 		if (chunk_size) {
--			add_one_chunk(vb, vq, pfn_start + next_one,
--				      chunk_size);
-+			add_one_chunk(vb, vq, PAGE_CHUNK_TYPE_BALLOON,
-+				      pfn_start + next_one, chunk_size);
- 			pos += next_zero + 1;
- 		}
- 	}
-@@ -305,7 +360,7 @@ static void tell_host_from_page_bmap(struct virtio_balloon *vb,
- 				       pfn_num);
- 	}
- 	if (le64_to_cpu(vb->balloon_page_chunk->chunk_num) > 0)
--		send_page_chunks(vb, vq);
-+		send_page_chunks(vb, vq, PAGE_CHUNK_TYPE_BALLOON, 0);
- }
- 
- static void set_page_pfns(struct virtio_balloon *vb,
-@@ -679,43 +734,186 @@ static void update_balloon_size_func(struct work_struct *work)
- 		queue_work(system_freezable_wq, work);
- }
- 
-+/* Add a message buffer for the host to fill in a request */
-+static void miscq_msg_inbuf_add(struct virtio_balloon *vb,
-+			      struct virtio_balloon_miscq_msg *req_buf)
-+{
-+	struct scatterlist sg_in;
-+
-+	sg_init_one(&sg_in, req_buf, sizeof(struct virtio_balloon_miscq_msg));
-+	if (virtqueue_add_inbuf(vb->miscq, &sg_in, 1, req_buf, GFP_KERNEL)
-+	    < 0) {
-+		__virtio_clear_bit(vb->vdev,
-+				   VIRTIO_BALLOON_F_MISC_VQ);
-+		dev_warn(&vb->vdev->dev, "%s: add miscq msg buf err\n",
-+			 __func__);
-+		return;
-+	}
-+	virtqueue_kick(vb->miscq);
-+}
-+
-+static void miscq_report_unused_pages(struct virtio_balloon *vb)
-+{
-+	struct virtio_balloon_miscq_msg *msg = vb->miscq_msg_rup;
-+	struct virtqueue *vq = vb->miscq;
-+	int ret = 0;
-+	unsigned int order = 0, migratetype = 0;
-+	struct zone *zone = NULL;
-+	struct page *page = NULL;
-+	u64 pfn;
-+
-+	msg->cmd = cpu_to_le32(VIRTIO_BALLOON_MISCQ_CMD_REPORT_UNUSED_PAGES);
-+	msg->flags = 0;
-+
-+	for_each_populated_zone(zone) {
-+		for (order = MAX_ORDER - 1; order > 0; order--) {
-+			for (migratetype = 0; migratetype < MIGRATE_TYPES;
-+			     migratetype++) {
-+				do {
-+					ret = report_unused_page_block(zone,
-+						order, migratetype, &page);
-+					if (!ret) {
-+						pfn = (u64)page_to_pfn(page);
-+						add_one_chunk(vb, vq,
-+							PAGE_CHUNK_TYPE_UNUSED,
-+							pfn,
-+							(u64)(1 << order) *
-+						VIRTIO_BALLOON_PAGES_PER_PAGE);
-+					}
-+				} while (!ret);
-+			}
-+		}
-+	}
-+	/* Set the cmd completion flag */
-+	msg->flags |= cpu_to_le32(VIRTIO_BALLOON_MISCQ_F_COMPLETION);
-+	send_page_chunks(vb, vq, PAGE_CHUNK_TYPE_UNUSED, true);
-+}
-+
-+static void miscq_handle_func(struct work_struct *work)
-+{
-+	struct virtio_balloon *vb;
-+	struct virtio_balloon_miscq_msg *msg;
-+	unsigned int len;
-+
-+	vb = container_of(work, struct virtio_balloon,
-+			  miscq_handle_work);
-+	msg = virtqueue_get_buf(vb->miscq, &len);
-+	if (!msg || len != sizeof(struct virtio_balloon_miscq_msg)) {
-+		dev_warn(&vb->vdev->dev, "%s: invalid miscq msg len\n",
-+			 __func__);
-+		miscq_msg_inbuf_add(vb, vb->miscq_msg_rup);
-+		return;
-+	}
-+	switch (msg->cmd) {
-+	case VIRTIO_BALLOON_MISCQ_CMD_REPORT_UNUSED_PAGES:
-+		miscq_report_unused_pages(vb);
-+		break;
-+	default:
-+		dev_warn(&vb->vdev->dev, "%s: miscq cmd %d not supported\n",
-+			 __func__, msg->cmd);
-+	}
-+	miscq_msg_inbuf_add(vb, vb->miscq_msg_rup);
-+}
-+
-+static void miscq_request(struct virtqueue *vq)
-+{
-+	struct virtio_balloon *vb = vq->vdev->priv;
-+
-+	queue_work(system_freezable_wq, &vb->miscq_handle_work);
-+}
-+
- static int init_vqs(struct virtio_balloon *vb)
- {
--	struct virtqueue *vqs[3];
--	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
--	static const char * const names[] = { "inflate", "deflate", "stats" };
--	int err, nvqs;
-+	struct virtqueue **vqs;
-+	vq_callback_t **callbacks;
-+	const char **names;
-+	int err = -ENOMEM;
-+	int i, nvqs;
-+
-+	 /* Inflateq and deflateq are used unconditionally */
-+	nvqs = 2;
-+
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ))
-+		nvqs++;
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_MISC_VQ))
-+		nvqs++;
-+
-+	/* Allocate space for find_vqs parameters */
-+	vqs = kcalloc(nvqs, sizeof(*vqs), GFP_KERNEL);
-+	if (!vqs)
-+		goto err_vq;
-+	callbacks = kmalloc_array(nvqs, sizeof(*callbacks), GFP_KERNEL);
-+	if (!callbacks)
-+		goto err_callback;
-+	names = kmalloc_array(nvqs, sizeof(*names), GFP_KERNEL);
-+	if (!names)
-+		goto err_names;
-+
-+	callbacks[0] = balloon_ack;
-+	names[0] = "inflate";
-+	callbacks[1] = balloon_ack;
-+	names[1] = "deflate";
-+
-+	i = 2;
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-+		callbacks[i] = stats_request;
-+		names[i] = "stats";
-+		i++;
-+	}
- 
--	/*
--	 * We expect two virtqueues: inflate and deflate, and
--	 * optionally stat.
--	 */
--	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
--	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks, names,
--			NULL);
-+	if (virtio_has_feature(vb->vdev,
-+				      VIRTIO_BALLOON_F_MISC_VQ)) {
-+		callbacks[i] = miscq_request;
-+		names[i] = "miscq";
-+	}
-+
-+	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks,
-+					 names, NULL);
- 	if (err)
--		return err;
-+		goto err_find;
- 
- 	vb->inflate_vq = vqs[0];
- 	vb->deflate_vq = vqs[1];
-+	i = 2;
- 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
- 		struct scatterlist sg;
--		unsigned int num_stats;
--		vb->stats_vq = vqs[2];
- 
-+		vb->stats_vq = vqs[i++];
- 		/*
- 		 * Prime this virtqueue with one buffer so the hypervisor can
- 		 * use it to signal us later (it can't be broken yet!).
- 		 */
--		num_stats = update_balloon_stats(vb);
--
--		sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
-+		sg_init_one(&sg, vb->stats, sizeof(vb->stats));
- 		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
- 		    < 0)
- 			BUG();
- 		virtqueue_kick(vb->stats_vq);
- 	}
-+
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_MISC_VQ)) {
-+		vb->miscq = vqs[i];
-+		/*
-+		 * Add the msg buf for the REPORT_UNUSED_PAGES request.
-+		 * The request is handled one in-flight each time. So, just
-+		 * use the response buffer, msicq_msg_rup, for the host to
-+		 * fill in a request.
-+		 */
-+		miscq_msg_inbuf_add(vb, vb->miscq_msg_rup);
-+	}
-+
-+	kfree(names);
-+	kfree(callbacks);
-+	kfree(vqs);
- 	return 0;
-+
-+err_find:
-+	kfree(names);
-+err_names:
-+	kfree(callbacks);
-+err_callback:
-+	kfree(vqs);
-+err_vq:
-+	return err;
- }
- 
- #ifdef CONFIG_BALLOON_COMPACTION
-@@ -723,7 +921,7 @@ static int init_vqs(struct virtio_balloon *vb)
- static void tell_host_one_page(struct virtio_balloon *vb,
- 			       struct virtqueue *vq, struct page *page)
- {
--	add_one_chunk(vb, vq, page_to_pfn(page),
-+	add_one_chunk(vb, vq, PAGE_CHUNK_TYPE_BALLOON, page_to_pfn(page),
- 		      VIRTIO_BALLOON_PAGES_PER_PAGE);
- }
- 
-@@ -857,6 +1055,22 @@ static int balloon_page_chunk_init(struct virtio_balloon *vb)
- 	return -ENOMEM;
- }
- 
-+static int miscq_init(struct virtio_balloon *vb)
-+{
-+	vb->miscq_msg_rup = kmalloc(sizeof(struct virtio_balloon_miscq_msg) +
-+			     sizeof(struct virtio_balloon_page_chunk_entry) *
-+			     VIRTIO_BALLOON_MAX_PAGE_CHUNKS, GFP_KERNEL);
-+	if (!vb->miscq_msg_rup) {
-+		__virtio_clear_bit(vb->vdev, VIRTIO_BALLOON_F_MISC_VQ);
-+		dev_warn(&vb->vdev->dev, "%s: failed\n", __func__);
-+		return -ENOMEM;
-+	}
-+
-+	INIT_WORK(&vb->miscq_handle_work, miscq_handle_func);
-+
-+	return 0;
-+}
-+
- static int virtballoon_validate(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb = NULL;
-@@ -874,7 +1088,16 @@ static int virtballoon_validate(struct virtio_device *vdev)
- 			goto err_page_chunk;
- 	}
- 
-+	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_MISC_VQ)) {
-+		err = miscq_init(vb);
-+		if (err < 0)
-+			goto err_miscq_rup;
-+	}
-+
- 	return 0;
-+err_miscq_rup:
-+	free_page_bmap(vb);
-+	kfree(vb->balloon_page_chunk);
- err_page_chunk:
- 	kfree(vb);
- err_vb:
-@@ -971,6 +1194,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
- 	spin_unlock_irq(&vb->stop_update_lock);
- 	cancel_work_sync(&vb->update_balloon_size_work);
- 	cancel_work_sync(&vb->update_balloon_stats_work);
-+	cancel_work_sync(&vb->miscq_handle_work);
- 
- 	remove_common(vb);
- 	free_page_bmap(vb);
-@@ -1020,6 +1244,7 @@ static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_STATS_VQ,
- 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
- 	VIRTIO_BALLOON_F_PAGE_CHUNKS,
-+	VIRTIO_BALLOON_F_MISC_VQ,
- };
- 
- static struct virtio_driver virtio_balloon_driver = {
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index d532ed16..ea83b74 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -35,6 +35,7 @@
- #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
- #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
- #define VIRTIO_BALLOON_F_PAGE_CHUNKS	3 /* Inflate/Deflate pages in chunks */
-+#define VIRTIO_BALLOON_F_MISC_VQ	4 /* Virtqueue for misc. requests */
- 
- /* Size of a PFN in the balloon interface. */
- #define VIRTIO_BALLOON_PFN_SHIFT 12
-@@ -96,4 +97,15 @@ struct virtio_balloon_page_chunk {
- 	struct virtio_balloon_page_chunk_entry entry[];
- };
- 
-+struct virtio_balloon_miscq_msg {
-+#define VIRTIO_BALLOON_MISCQ_CMD_REPORT_UNUSED_PAGES 0
-+	__le32 cmd;
-+/* Flag to indicate the completion of handling a command */
-+#define VIRTIO_BALLOON_MISCQ_F_COMPLETION	1
-+	__le32 flags;
-+	union {
-+		struct virtio_balloon_page_chunk chunk;
-+	} payload;
-+};
-+
- #endif /* _LINUX_VIRTIO_BALLOON_H */
--- 
-2.7.4
+--yrj/dFKFPuw6o+aM
+Content-Type: application/gzip
+Content-Disposition: attachment; filename=".config.gz"
+Content-Transfer-Encoding: base64
+
+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
+
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--yrj/dFKFPuw6o+aM--
