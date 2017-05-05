@@ -1,17 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/1] s390/virtio: change maintainership
-Date: Fri, 5 May 2017 23:37:56 +0300
-Message-ID: <20170505233745-mutt-send-email-mst__37177.4028208621$1494016681$gmane$org@kernel.org>
-References: <1488470903-16358-1-git-send-email-borntraeger@de.ibm.com>
-	<1488470903-16358-2-git-send-email-borntraeger@de.ibm.com>
-	<00940a05-e752-a6bb-8ba3-a9e50732daf6@de.ibm.com>
-	<20170505154452.1c04d328.cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v10 4/6] mm: function to offer a page block on the free
+	list
+Date: Sat, 6 May 2017 01:12:35 +0300
+Message-ID: <20170506011012-mutt-send-email-mst__41034.6935190775$1494022368$gmane$org@kernel.org>
+References: <1493887815-6070-5-git-send-email-wei.w.wang@intel.com>
+	<201705050851.KJdDIPUA%fengguang.wu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170505154452.1c04d328.cornelia.huck@de.ibm.com>
+In-Reply-To: <201705050851.KJdDIPUA%fengguang.wu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,43 +20,167 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: kbuild test robot <lkp@intel.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, amit.shah@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, liliang.opensource@gmail.com, dave.hansen@intel.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, kbuild-all@01.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 05, 2017 at 03:44:52PM +0200, Cornelia Huck wrote:
-> On Thu, 20 Apr 2017 09:51:29 +0200
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On Fri, May 05, 2017 at 08:21:34AM +0800, kbuild test robot wrote:
+> Hi Wei,
 > 
-> > On 03/02/2017 05:08 PM, Christian Borntraeger wrote:
-> > > Halil is doing a lot more work in the virtio area on s390 than I
-> > > do. Let's reflect the reality in the maintainers file.
-> > > 
-> > > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> > > Acked-by: Halil Pasic <pasic@linux.vnet.ibm.com>
-> > > Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > ---
-> > >  MAINTAINERS | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > 
-> > > diff --git a/MAINTAINERS b/MAINTAINERS
-> > > index ca6f5f7..52780b8 100644
-> > > --- a/MAINTAINERS
-> > > +++ b/MAINTAINERS
-> > > @@ -13203,8 +13203,8 @@ F:	include/uapi/linux/virtio_*.h
-> > >  F:	drivers/crypto/virtio/
-> > > 
-> > >  VIRTIO DRIVERS FOR S390
-> > > -M:	Christian Borntraeger <borntraeger@de.ibm.com>
-> > >  M:	Cornelia Huck <cornelia.huck@de.ibm.com>
-> > > +M:	Halil Pasic <pasic@linux.vnet.ibm.com>
-> > >  L:	linux-s390@vger.kernel.org
-> > >  L:	virtualization@lists.linux-foundation.org
-> > >  L:	kvm@vger.kernel.org
-> > > 
-> > 
-> > ping?
+> [auto build test WARNING on linus/master]
+> [also build test WARNING on v4.11 next-20170504]
+> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
 > 
-> ping^2
+> url:    https://github.com/0day-ci/linux/commits/Wei-Wang/Extend-virtio-balloon-for-fast-de-inflating-fast-live-migration/20170505-052958
+> reproduce: make htmldocs
+> 
+> All warnings (new ones prefixed by >>):
+> 
+>    WARNING: convert(1) not found, for SVG to PDF conversion install ImageMagick (https://www.imagemagick.org)
+>    arch/x86/include/asm/uaccess_32.h:1: warning: no structured comments found
+> >> mm/page_alloc.c:4663: warning: No description found for parameter 'zone'
+> >> mm/page_alloc.c:4663: warning: No description found for parameter 'order'
+> >> mm/page_alloc.c:4663: warning: No description found for parameter 'migratetype'
+> >> mm/page_alloc.c:4663: warning: No description found for parameter 'page'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+>    include/net/cfg80211.h:1738: warning: No description found for parameter 'report_results'
+>    include/net/cfg80211.h:1738: warning: Excess struct/union/enum/typedef member 'results_wk' description in 'cfg80211_sched_scan_request'
+> 
+> vim +/zone +4663 mm/page_alloc.c
 
-Will apply, thanks.
+the issue is actually aboe this line: it is:
+
+/**
+
+which is reserved for kernel-doc.
+
+Either format properly for kernel-doc, or use simple /*
+to start comments.
+
+
+>   4647	 * Heuristically get a page block in the system that is unused.
+>   4648	 * It is possible that pages from the page block are used immediately after
+>   4649	 * report_unused_page_block() returns. It is the caller's responsibility
+>   4650	 * to either detect or prevent the use of such pages.
+>   4651	 *
+>   4652	 * The free list to check: zone->free_area[order].free_list[migratetype].
+>   4653	 *
+>   4654	 * If the caller supplied page block (i.e. **page) is on the free list, offer
+>   4655	 * the next page block on the list to the caller. Otherwise, offer the first
+>   4656	 * page block on the list.
+>   4657	 *
+>   4658	 * Return 0 when a page block is found on the caller specified free list.
+>   4659	 */
+>   4660	int report_unused_page_block(struct zone *zone, unsigned int order,
+>   4661				     unsigned int migratetype, struct page **page)
+>   4662	{
+> > 4663		struct zone *this_zone;
+>   4664		struct list_head *this_list;
+>   4665		int ret = 0;
+>   4666		unsigned long flags;
+>   4667	
+>   4668		/* Sanity check */
+>   4669		if (zone == NULL || page == NULL || order >= MAX_ORDER ||
+>   4670		    migratetype >= MIGRATE_TYPES)
+>   4671			return -EINVAL;
+> 
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
