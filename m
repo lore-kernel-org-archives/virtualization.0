@@ -1,16 +1,24 @@
-From: "Wang, Wei W" <wei.w.wang@intel.com>
-Subject: RE: [PATCH v10 3/6] virtio-balloon: VIRTIO_BALLOON_F_PAGE_CHUNKS
-Date: Sun, 7 May 2017 04:22:46 +0000
-Message-ID: <286AC319A985734F985F78AFA26841F7391FFBE8__12561.7141290151$1494130976$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1493887815-6070-1-git-send-email-wei.w.wang@intel.com>
-	<1493887815-6070-4-git-send-email-wei.w.wang@intel.com>
-	<20170506012146-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH v9 2/5] virtio-balloon:
+	VIRTIO_BALLOON_F_BALLOON_CHUNKS
+Date: Mon, 8 May 2017 20:40:33 +0300
+Message-ID: <20170508203533-mutt-send-email-mst__46912.7383236357$1494265245$gmane$org@kernel.org>
+References: <1492076108-117229-3-git-send-email-wei.w.wang@intel.com>
+	<20170413184040-mutt-send-email-mst@kernel.org>
+	<58F08A60.2020407@intel.com>
+	<20170415000934-mutt-send-email-mst@kernel.org>
+	<58F43801.7060004@intel.com>
+	<286AC319A985734F985F78AFA26841F7391F6DCD@shsmsx102.ccr.corp.intel.com>
+	<20170426192753-mutt-send-email-mst@kernel.org>
+	<59019055.3040708@intel.com>
+	<20170506012322-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7391FFBB0@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170506012146-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <286AC319A985734F985F78AFA26841F7391FFBB0@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,69 +28,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: "Wang, Wei W" <wei.w.wang@intel.com>
 Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "Hansen, Dave" <dave.hansen@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/06/2017 06:29 AM, Michael S. Tsirkin wrote:
-> On Thu, May 04, 2017 at 04:50:12PM +0800, Wei Wang wrote:
-> > Add a new feature, VIRTIO_BALLOON_F_PAGE_CHUNKS, which enables the
-> > transfer of the ballooned (i.e. inflated/deflated) pages in chunks to
-> > the host.
-> >
-> > The implementation of the previous virtio-balloon is not very
-> > efficient, because the ballooned pages are transferred to the host one
-> > by one. Here is the breakdown of the time in percentage spent on each
-> > step of the balloon inflating process (inflating 7GB of an 8GB idle
-> > guest).
-> >
-> > 1) allocating pages (6.5%)
-> > 2) sending PFNs to host (68.3%)
-> > 3) address translation (6.1%)
-> > 4) madvise (19%)
-> >
-> > It takes about 4126ms for the inflating process to complete.
-> > The above profiling shows that the bottlenecks are stage 2) and stage
-> > 4).
-> >
-> > This patch optimizes step 2) by transferring pages to the host in
-> > chunks. A chunk consists of guest physically continuous pages.
-> > When the pages are packed into a chunk, they are converted into
-> > balloon page size (4KB) pages. A chunk is offered to the host via a
-> > base PFN (i.e. the start PFN of those physically continuous
-> > pages) and the size (i.e. the total number of the 4KB balloon size
-> > pages). A chunk is formatted as below:
-> > --------------------------------------------------------
-> > |                 Base (52 bit)        | Rsvd (12 bit) |
-> > --------------------------------------------------------
-> > --------------------------------------------------------
-> > |                 Size (52 bit)        | Rsvd (12 bit) |
-> > --------------------------------------------------------
-> >
-> > By doing so, step 4) can also be optimized by doing address
-> > translation and madvise() in chunks rather than page by page.
-> >
-> > With this new feature, the above ballooning process takes ~590ms
-> > resulting in an improvement of ~85%.
-> >
-> > TODO: optimize stage 1) by allocating/freeing a chunk of pages instead
-> > of a single page each time.
-> >
-> > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> > Signed-off-by: Liang Li <liang.z.li@intel.com>
-> > Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+On Sun, May 07, 2017 at 04:19:28AM +0000, Wang, Wei W wrote:
+> On 05/06/2017 06:26 AM, Michael S. Tsirkin wrote:
+> > On Thu, Apr 27, 2017 at 02:31:49PM +0800, Wei Wang wrote:
+> > > On 04/27/2017 07:20 AM, Michael S. Tsirkin wrote:
+> > > > On Wed, Apr 26, 2017 at 11:03:34AM +0000, Wang, Wei W wrote:
+> > > > > Hi Michael, could you please give some feedback?
+> > > > I'm sorry, I'm not sure feedback on what you are requesting.
+> > > Oh, just some trivial things (e.g. use a field in the header,
+> > > hdr->chunks to indicate the number of chunks in the payload) that
+> > > wasn't confirmed.
+> > >
+> > > I will prepare the new version with fixing the agreed issues, and we
+> > > can continue to discuss those parts if you still find them improper.
+> > >
+> > >
+> > > >
+> > > > The interface looks reasonable now, even though there's a way to
+> > > > make it even simpler if we can limit chunk size to 2G (in fact 4G -
+> > > > 1). Do you think we can live with this limitation?
+> > > Yes, I think we can. So, is it good to change to use the previous
+> > > 64-bit chunk format (52-bit base + 12-bit size)?
+> > 
+> > This isn't what I meant. virtio ring has descriptors with a 64 bit address and 32 bit
+> > size.
+> > 
+> > If size < 4g is not a significant limitation, why not just use that to pass
+> > address/size in a standard s/g list, possibly using INDIRECT?
 > 
+> OK, I see your point, thanks. Post the two options here for an analysis:
+> Option1 (what we have now):
+> struct virtio_balloon_page_chunk {
+>         __le64 chunk_num;
+>         struct virtio_balloon_page_chunk_entry entry[];
+> };
+> Option2:
+> struct virtio_balloon_page_chunk {
+>         __le64 chunk_num;
+>         struct scatterlist entry[];
+> };
+
+This isn't what I meant really :) I meant vring_desc.
+
+> I don't have an issue to change it to Option2, but I would prefer Option1,
+> because I think there is no be obvious difference between the two options,
+> while Option1 appears to have little advantages here:
+> 1) "struct virtio_balloon_page_chunk_entry" has smaller size than
+> "struct scatterlist", so the same size of allocated page chunk buffer
+> can hold more entry[] using Option1;
+> 2) INDIRECT needs on demand kmalloc();
+
+Within alloc_indirect?  We can fix that with a separate patch.
+
+
+> 3) no 4G size limit;
+
+Do you see lots of >=4g chunks in practice?
+
+> What do you think?
 > 
-> This is much cleaner, thanks. It might be even better to have wrappers that put
-> array and its size in a struct and manage that struct, but I won't require this for
-> submission.
+> Best,
+> Wei
+> 
+>
 
-OK, thanks. Would this be your suggestion:
+OTOH using existing vring APIs handles things like DMA transparently.
 
-struct virtio_balloon_page_struct { 
-	unsigned int page_bmap_num;
-	unsigned long *page_bmap[VIRTIO_BALLOON_PAGE_BMAP_MAX_NUM];
-}
 
-Best,
-Wei
+-- 
+MST
