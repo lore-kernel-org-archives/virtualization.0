@@ -1,16 +1,13 @@
-From: David Laight <David.Laight@ACULAB.COM>
-Subject: RE: [PATCH 1/3] Fix ERROR: trailing statements should be on next line
-Date: Mon, 15 May 2017 14:25:40 +0000
-Message-ID: <063D6719AE5E284EB5DD2968C1650D6DCFFF5B0B__41290.6196587302$1494858687$gmane$org@AcuExch.aculab.com>
-References: <20170514175130.18664-1-macfij7@wp.pl>
-	<20170515055700-mutt-send-email-mst@kernel.org>
-	<20170514212048.24ee7667@t450s.home>
+From: Jon Masters <jcm@jonmasters.org>
+Subject: Re: CFP: KVM Forum 2017
+Date: Tue, 9 May 2017 01:42:48 -0400
+Message-ID: <bb4cc51f-440f-caf7-409d-9b99d8966a44__11586.7064022043$1494947281$gmane$org@jonmasters.org>
+References: <fd522779-e417-8372-5ab1-d097c61eaa2d@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170514212048.24ee7667@t450s.home>
-Content-Language: en-US
+In-Reply-To: <fd522779-e417-8372-5ab1-d097c61eaa2d@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,30 +17,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 'Alex Williamson' <alex.williamson@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Maciek Fijalkowski <macfij7@wp.pl>
+To: Paolo Bonzini <pbonzini@redhat.com>, KVM list <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Alex Williamson
-> Sent: 15 May 2017 04:21
-...
-> > >  	/* Find end of list, sew whole thing into vi->rq.pages. */
-> > > -	for (end = page; end->private; end = (struct page *)end->private);
-> > > +	for (end = page; end->private; end = (struct page *)end->private)
-> > > +		;
+On 05/02/2017 06:41 AM, Paolo Bonzini wrote:
+> ================================================================
+> KVM Forum 2017: Call For Participation
+> October 25-27, 2017 - Hilton Prague - Prague, Czech Republic
 > 
-> FWIW, I generally like to put a comment on the next line to make it
-> abundantly clear that there's nothing in the body of the loop, it's
-> also more aesthetically pleasing than a semi-colon on the line by
-> itself, ex. /* Nothing */;  It's just too easy to misinterpret the
-> loop otherwise, especially without gratuitous white space.  Thanks,
+> (All submissions must be received before midnight June 15, 2017)
+> =================================================================
 
-My preference is to put 'continue;' on a line by itself.
-Or even move the termination condition into the loop:
-	for (end = page;; end = (struct page *)end->private)
-		if (!end->private)
-			break;
-
-(oh, is that cast needed??)
-
-	David
+(please provide a timezone for the deadline - not including one in the
+podcast, just saying "midnight", but it would be nice next time)
