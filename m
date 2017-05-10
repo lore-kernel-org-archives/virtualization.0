@@ -1,14 +1,12 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: CFP: KVM Forum 2017
-Date: Tue, 9 May 2017 03:06:01 -0400 (EDT)
-Message-ID: <2014178131.5134261.1494313561934.JavaMail.zimbra__38842.1571617529$1494313569$gmane$org@redhat.com>
-References: <fd522779-e417-8372-5ab1-d097c61eaa2d@redhat.com>
-	<bb4cc51f-440f-caf7-409d-9b99d8966a44@jonmasters.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] virtio: fixes, cleanups, performance
+Date: Wed, 10 May 2017 15:24:07 +0300
+Message-ID: <20170510152407-mutt-send-email-mst__49748.6973683864$1494419064$gmane$org@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <bb4cc51f-440f-caf7-409d-9b99d8966a44@jonmasters.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,32 +16,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jon Masters <jcm@jonmasters.org>
-Cc: linux-kernel@vger.kernel.org, KVM list <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, nsekhar@ti.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, cornelia.huck@de.ibm.com, colin.king@canonical.com, dan.carpenter@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+The following changes since commit a351e9b9fc24e982ec2f0e76379a49826036da12:
 
+  Linux 4.11 (2017-04-30 19:47:48 -0700)
 
------ Original Message -----
-> From: "Jon Masters" <jcm@jonmasters.org>
-> To: "Paolo Bonzini" <pbonzini@redhat.com>, "KVM list" <kvm@vger.kernel.org>, linux-kernel@vger.kernel.org, "Linux
-> Virtualization" <virtualization@lists.linux-foundation.org>
-> Sent: Tuesday, May 9, 2017 7:42:48 AM
-> Subject: Re: CFP: KVM Forum 2017
-> 
-> On 05/02/2017 06:41 AM, Paolo Bonzini wrote:
-> > ================================================================
-> > KVM Forum 2017: Call For Participation
-> > October 25-27, 2017 - Hilton Prague - Prague, Czech Republic
-> > 
-> > (All submissions must be received before midnight June 15, 2017)
-> > =================================================================
-> 
-> (please provide a timezone for the deadline - not including one in the
-> podcast, just saying "midnight", but it would be nice next time)
+are available in the git repository at:
 
-Thanks for mentioning KVM Forum in the podcast!  The deadline is usually
-extended unofficially by 24-36 hours, since we always get one or two people
-who mess up. :)  This makes the timezone less important.
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-Paolo
+for you to fetch changes up to c8b0d7290657996a29f318b948d2397d30e70c36:
+
+  s390/virtio: change maintainership (2017-05-09 16:43:25 +0300)
+
+----------------------------------------------------------------
+virtio: fixes, cleanups, performance
+
+A bunch of changes to virtio, most affecting virtio net.
+ptr_ring batched zeroing - first of batching enhancements
+that seems ready.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Christian Borntraeger (1):
+      s390/virtio: change maintainership
+
+Colin Ian King (1):
+      tools/virtio: fix spelling mistake: "wakeus" -> "wakeups"
+
+Cornelia Huck (1):
+      virtio: virtio_driver doc
+
+Dan Carpenter (2):
+      ringtest: fix an assert statement
+      virtio_net: tidy a couple debug statements
+
+Michael S. Tsirkin (11):
+      virtio: wrap find_vqs
+      virtio: add context flag to find vqs
+      virtio: allow extra context per descriptor
+      virtio_net: allow specifying context for rx
+      virtio_net: rework mergeable buffer handling
+      virtio_net: reduce alignment for buffers
+      virtio_net: fix support for small rings
+      virtio_net: don't reset twice on XDP on/off
+      ptr_ring: batch ring zeroing
+      ringtest: support test specific parameters
+      ptr_ring: support testing different batching sizes
+
+Sekhar Nori (1):
+      tools/virtio: fix build breakage
+
+ MAINTAINERS                                |   2 +-
+ drivers/block/virtio_blk.c                 |   3 +-
+ drivers/char/virtio_console.c              |   6 +-
+ drivers/crypto/virtio/virtio_crypto_core.c |   3 +-
+ drivers/gpu/drm/virtio/virtgpu_kms.c       |   3 +-
+ drivers/misc/mic/vop/vop_main.c            |   9 +-
+ drivers/net/caif/caif_virtio.c             |   3 +-
+ drivers/net/virtio_net.c                   | 147 ++++++++++++++++-------------
+ drivers/remoteproc/remoteproc_virtio.c     |  10 +-
+ drivers/rpmsg/virtio_rpmsg_bus.c           |   2 +-
+ drivers/s390/virtio/kvm_virtio.c           |   8 +-
+ drivers/s390/virtio/virtio_ccw.c           |   7 +-
+ drivers/scsi/virtio_scsi.c                 |   3 +-
+ drivers/virtio/virtio_balloon.c            |   3 +-
+ drivers/virtio/virtio_input.c              |   3 +-
+ drivers/virtio/virtio_mmio.c               |   8 +-
+ drivers/virtio/virtio_pci_common.c         |  17 ++--
+ drivers/virtio/virtio_pci_common.h         |   4 +-
+ drivers/virtio/virtio_pci_legacy.c         |   4 +-
+ drivers/virtio/virtio_pci_modern.c         |  12 ++-
+ drivers/virtio/virtio_ring.c               |  77 ++++++++++++---
+ include/linux/ptr_ring.h                   |  63 +++++++++++--
+ include/linux/virtio.h                     |  13 +++
+ include/linux/virtio_config.h              |  25 ++++-
+ include/linux/virtio_ring.h                |   3 +
+ net/vmw_vsock/virtio_transport.c           |   6 +-
+ tools/virtio/linux/virtio.h                |   1 +
+ tools/virtio/ringtest/main.c               |  15 ++-
+ tools/virtio/ringtest/main.h               |   2 +
+ tools/virtio/ringtest/ptr_ring.c           |   3 +
+ tools/virtio/virtio_test.c                 |   4 +-
+ tools/virtio/vringh_test.c                 |   7 +-
+ 32 files changed, 330 insertions(+), 146 deletions(-)
