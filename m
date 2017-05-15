@@ -1,13 +1,16 @@
-From: Maciek Fijalkowski <macfij7@wp.pl>
-Subject: [PATCH 3/3] Fix ERROR: code indent should use tabs where possible
-Date: Sun, 14 May 2017 19:51:30 +0200
-Message-ID: <20170514175130.18664-3-macfij7__7597.27398767627$1494947333$gmane$org@wp.pl>
+From: Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH 2/3] Fix ERROR: Macros with complex values should be
+	enclosed in parentheses
+Date: Mon, 15 May 2017 02:25:31 +0200
+Message-ID: <20170515002531.GG14058__47693.0007258945$1494947347$gmane$org@lunn.ch>
 References: <20170514175130.18664-1-macfij7@wp.pl>
+	<20170514175130.18664-2-macfij7@wp.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170514175130.18664-1-macfij7@wp.pl>
+Content-Disposition: inline
+In-Reply-To: <20170514175130.18664-2-macfij7@wp.pl>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,29 +20,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: Maciej Fijalkowski <macfij7@wp.pl>, jasonwang@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Maciek Fijalkowski <macfij7@wp.pl>
+Cc: jasonwang@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Maciej Fijalkowski <macfij7@wp.pl>
+On Sun, May 14, 2017 at 07:51:29PM +0200, Maciek Fijalkowski wrote:
+> From: Maciej Fijalkowski <macfij7@wp.pl>
 
-Signed-off-by: Maciej Fijalkowski <macfij7@wp.pl>
----
- drivers/net/virtio_net.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi Maciek
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 6c8170c..5d71e9f 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2717,7 +2717,7 @@ static __init int virtio_net_driver_init(void)
- 	if (ret)
- 		goto err_dead;
- 
--        ret = register_virtio_driver(&virtio_net_driver);
-+	ret = register_virtio_driver(&virtio_net_driver);
- 	if (ret)
- 		goto err_virtio;
- 	return 0;
--- 
-2.4.11
+Please include some commit message, even if it is just the checkpatch
+error you are fixing.
+
+Please include the subsystem/driver you are patch in the subject line.
+Also, your subject of Fix ERROR: makes it sound a lot worse than it
+is. 
+
+net: virtio: Fix checkpatch error Complex macros should use ()
+
+Also, you should at least compile test your change. It is clearly
+wrong, as shown by 0-day.
+
+       Andrew
