@@ -1,8 +1,8 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 1/3] s390: virtio: Delete error messages for failed memory
-	allocations in two functions
-Date: Tue, 16 May 2017 17:51:57 +0200
-Message-ID: <78b6667b-69c4-39c5-7e1b-1b69ae983695__37081.4838716344$1494950243$gmane$org@users.sourceforge.net>
+Subject: [PATCH 2/3] s390: virtio: Improve a size determination in
+	virtio_ccw_setup_vq()
+Date: Tue, 16 May 2017 17:52:46 +0200
+Message-ID: <20b190c9-6ca9-4536-645a-10f7753fb53e__5908.76199207759$1494950286$gmane$org@users.sourceforge.net>
 References: <d02fd34c-da59-0c33-d859-e49ecb4eb1c5@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,46 +20,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, Cornelia Huck <cornelia.huck@de.ibm.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Tue, 16 May 2017 16:50:17 +0200
+Date: Tue, 16 May 2017 17:05:01 +0200
 
-Omit three extra messages for memory allocation failures in these functions.
+Replace the specification of a data structure by a pointer dereference
+as the parameter for the operator "sizeof" to make the corresponding size
+determination a bit safer according to the Linux coding style convention.
 
-This issue was detected by using the Coccinelle software.
-
-Link: http://events.linuxfoundation.org/sites/events/files/slides/LCJ16-Refactor_Strings-WSang_0.pdf
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/s390/virtio/virtio_ccw.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/s390/virtio/virtio_ccw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 2a76ea78a0bf..447fe718c0ab 100644
+index 447fe718c0ab..bfb845d7faa7 100644
 --- a/drivers/s390/virtio/virtio_ccw.c
 +++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -499,12 +499,10 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 	if (!info) {
--		dev_warn(&vcdev->cdev->dev, "no info\n");
- 		err = -ENOMEM;
- 		goto out_err;
- 	}
- 	info->info_block = kzalloc(sizeof(*info->info_block),
- 				   GFP_DMA | GFP_KERNEL);
- 	if (!info->info_block) {
--		dev_warn(&vcdev->cdev->dev, "no info block\n");
- 		err = -ENOMEM;
- 		goto out_err;
- 	}
-@@ -1225,7 +1223,6 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+@@ -495,5 +495,5 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+ 	unsigned long flags;
  
- 	vcdev = kzalloc(sizeof(*vcdev), GFP_KERNEL);
- 	if (!vcdev) {
--		dev_warn(&cdev->dev, "Could not get memory for virtio\n");
- 		ret = -ENOMEM;
- 		goto out_free;
- 	}
+ 	/* Allocate queue. */
+-	info = kzalloc(sizeof(struct virtio_ccw_vq_info), GFP_KERNEL);
++	info = kzalloc(sizeof(*info), GFP_KERNEL);
+ 	if (!info) {
 -- 
 2.13.0
