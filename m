@@ -1,12 +1,11 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/3] s390: virtio: Improve a size determination in
-	virtio_ccw_setup_vq()
-Date: Tue, 16 May 2017 17:52:46 +0200
-Message-ID: <20b190c9-6ca9-4536-645a-10f7753fb53e__5908.76199207759$1494950286$gmane$org@users.sourceforge.net>
+Subject: [PATCH 3/3] s390: virtio: Adjust a null pointer check in two functions
+Date: Tue, 16 May 2017 17:53:55 +0200
+Message-ID: <078ad841-544f-b989-4fdc-5f33acc220e7__48600.2471101985$1494950383$gmane$org@users.sourceforge.net>
 References: <d02fd34c-da59-0c33-d859-e49ecb4eb1c5@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <d02fd34c-da59-0c33-d859-e49ecb4eb1c5@users.sourceforge.net>
 Content-Language: en-US
@@ -23,28 +22,30 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-
 Cc: kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Tue, 16 May 2017 17:05:01 +0200
-
-Replace the specification of a data structure by a pointer dereference
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer according to the Linux coding style convention.
-
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/s390/virtio/virtio_ccw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 447fe718c0ab..bfb845d7faa7 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -495,5 +495,5 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 	unsigned long flags;
- 
- 	/* Allocate queue. */
--	info = kzalloc(sizeof(struct virtio_ccw_vq_info), GFP_KERNEL);
-+	info = kzalloc(sizeof(*info), GFP_KERNEL);
- 	if (!info) {
--- 
-2.13.0
+RnJvbTogTWFya3VzIEVsZnJpbmcgPGVsZnJpbmdAdXNlcnMuc291cmNlZm9yZ2UubmV0PgpEYXRl
+OiBUdWUsIDE2IE1heSAyMDE3IDE3OjE0OjI2ICswMjAwCk1JTUUtVmVyc2lvbjogMS4wCkNvbnRl
+bnQtVHlwZTogdGV4dC9wbGFpbjsgY2hhcnNldD1VVEYtOApDb250ZW50LVRyYW5zZmVyLUVuY29k
+aW5nOiA4Yml0CgpUaGUgc2NyaXB0IOKAnGNoZWNrcGF0Y2gucGzigJ0gcG9pbnRlZCBpbmZvcm1h
+dGlvbiBvdXQgbGlrZSB0aGUgZm9sbG93aW5nLgoKQ29tcGFyaXNvbiB0byBOVUxMIGNvdWxkIGJl
+IHdyaXR0ZW4g4oCmCgpUaHVzIGZpeCB0aGUgYWZmZWN0ZWQgc291cmNlIGNvZGUgcGxhY2VzLgoK
+U2lnbmVkLW9mZi1ieTogTWFya3VzIEVsZnJpbmcgPGVsZnJpbmdAdXNlcnMuc291cmNlZm9yZ2Uu
+bmV0PgotLS0KIGRyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jIHwgNCArKy0tCiAxIGZp
+bGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jIGIvZHJpdmVycy9zMzkwL3ZpcnRpby92
+aXJ0aW9fY2N3LmMKaW5kZXggYmZiODQ1ZDdmYWE3Li4yN2FiMGYwYjU5Y2QgMTAwNjQ0Ci0tLSBh
+L2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jCisrKyBiL2RyaXZlcnMvczM5MC92aXJ0
+aW8vdmlydGlvX2Njdy5jCkBAIC01MTMsNyArNTEzLDcgQEAgc3RhdGljIHN0cnVjdCB2aXJ0cXVl
+dWUgKnZpcnRpb19jY3dfc2V0dXBfdnEoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYsCiAJfQog
+CXNpemUgPSBQQUdFX0FMSUdOKHZyaW5nX3NpemUoaW5mby0+bnVtLCBLVk1fVklSVElPX0NDV19S
+SU5HX0FMSUdOKSk7CiAJaW5mby0+cXVldWUgPSBhbGxvY19wYWdlc19leGFjdChzaXplLCBHRlBf
+S0VSTkVMIHwgX19HRlBfWkVSTyk7Ci0JaWYgKGluZm8tPnF1ZXVlID09IE5VTEwpIHsKKwlpZiAo
+IWluZm8tPnF1ZXVlKSB7CiAJCWRldl93YXJuKCZ2Y2Rldi0+Y2Rldi0+ZGV2LCAibm8gcXVldWVc
+biIpOwogCQllcnIgPSAtRU5PTUVNOwogCQlnb3RvIG91dF9lcnI7CkBAIC0xMzg4LDcgKzEzODgs
+NyBAQCBzdGF0aWMgdm9pZCBfX2luaXQgbm9fYXV0b19wYXJzZSh2b2lkKQogCQkJCSAmZnJvbV9z
+c2lkLCAmZnJvbSk7CiAJCWlmIChyYykKIAkJCWNvbnRpbnVlOwotCQlpZiAocGFybSAhPSBOVUxM
+KSB7CisJCWlmIChwYXJtKSB7CiAJCQlyYyA9IHBhcnNlX2J1c2lkKHBhcm0sICZ0b19jc3NpZCwK
+IAkJCQkJICZ0b19zc2lkLCAmdG8pOwogCQkJaWYgKChmcm9tX3NzaWQgPiB0b19zc2lkKSB8fAot
+LSAKMi4xMy4wCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
+Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
+bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
