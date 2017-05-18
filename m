@@ -1,14 +1,12 @@
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH v3 02/16] drm/virtio: fix include notation and remove
-	-Iinclude/drm flag
-Date: Thu, 18 May 2017 13:29:39 +0900
-Message-ID: <1495081793-9707-3-git-send-email-yamada.masahiro__25033.6854871877$1495082360$gmane$org@socionext.com>
-References: <1495081793-9707-1-git-send-email-yamada.masahiro@socionext.com>
+Subject: [PATCH v3 00/16] gpu/drm: remove -Iinclude/drm compiler flags from
+	Makefile
+Date: Thu, 18 May 2017 13:29:37 +0900
+Message-ID: <1495081793-9707-1-git-send-email-yamada.masahiro__45277.4624842734$1495082630$gmane$org@socionext.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1495081793-9707-1-git-send-email-yamada.masahiro@socionext.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,123 +17,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@intel.com>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Sean Paul <seanpaul@chromium.org>
+Cc: Archit Taneja <architt@codeaurora.org>, VMware Graphics <linux-graphics-maintainer@vmware.com>, Eric Anholt <eric@anholt.net>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, Thomas Hellstrom <thellstrom@vmware.com>, Sinclair Yeh <syeh@vmware.com>, linux-kernel@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Philippe Cornu <philippe.cornu@st.com>, Yannick Fertre <yannick.fertre@st.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Sean Paul <seanpaul@chromium.org>, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Dave Airlie <airlied@redhat.com>, Zach Reizner <zachr@google.com>, Chris Wilson <chris@chris-wilson.co.uk>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Include <drm/*.h> instead of relative path from include/drm, then
-remove the -Iinclude/drm compiler flag.
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
+Many Makefiles needed to add -Iinclude/drm as an include path,
+but the right thing to do is to include headers in the form
+  #include <drm/.../*.h>
 
-Changes in v3: None
+This series fixes the source files, then rip off -Iinclude/drm flags.
 
+V3: rebased on commit bb2af9bda33 (drm-misc-next)
+
+
+Masahiro Yamada (16):
+  drm/vc4: fix include notation and remove -Iinclude/drm flag
+  drm/virtio: fix include notation and remove -Iinclude/drm flag
+  drm/vmwgfx: fix include notation and remove -Iinclude/drm flag
+  drm/gma500: remove unneeded -Iinclude/drm compiler flag
+  drm/i810: remove unneeded -Iinclude/drm compiler flag
+  drm/i2c: remove unneeded -Iinclude/drm compiler flag
+  drm/mga: remove unneeded -Iinclude/drm compiler flag
+  drm/omap: remove unneeded -Iinclude/drm compiler flag
+  drm/r128: remove unneeded -Iinclude/drm compiler flag
+  drm/savage: remove unneeded -Iinclude/drm compiler flag
+  drm/sis: remove unneeded -Iinclude/drm compiler flag
+  drm/stm: remove unneeded -Iinclude/drm compiler flag
+  drm/tdfx: remove unneeded -Iinclude/drm compiler flag
+  drm/udl: remove unneeded -Iinclude/drm compiler flag
+  drm/vgem: remove unneeded -Iinclude/drm compiler flag
+  drm/via: remove unneeded -Iinclude/drm compiler flag
+
+ drivers/gpu/drm/gma500/Makefile          |  1 -
+ drivers/gpu/drm/i2c/Makefile             |  2 --
+ drivers/gpu/drm/i810/Makefile            |  1 -
+ drivers/gpu/drm/mga/Makefile             |  1 -
+ drivers/gpu/drm/omapdrm/Makefile         |  1 -
+ drivers/gpu/drm/r128/Makefile            |  1 -
+ drivers/gpu/drm/savage/Makefile          |  1 -
+ drivers/gpu/drm/sis/Makefile             |  1 -
+ drivers/gpu/drm/stm/Makefile             |  2 --
+ drivers/gpu/drm/tdfx/Makefile            |  1 -
+ drivers/gpu/drm/udl/Makefile             |  3 ---
+ drivers/gpu/drm/vc4/Makefile             |  2 --
+ drivers/gpu/drm/vc4/vc4_crtc.c           | 14 +++++++-------
+ drivers/gpu/drm/vc4/vc4_dpi.c            | 16 ++++++++--------
+ drivers/gpu/drm/vc4/vc4_drv.c            |  2 +-
+ drivers/gpu/drm/vc4/vc4_drv.h            |  6 ++----
+ drivers/gpu/drm/vc4/vc4_dsi.c            | 28 ++++++++++++++--------------
+ drivers/gpu/drm/vc4/vc4_hdmi.c           | 30 +++++++++++++++---------------
+ drivers/gpu/drm/vc4/vc4_hvs.c            |  2 +-
+ drivers/gpu/drm/vc4/vc4_kms.c            | 12 ++++++------
+ drivers/gpu/drm/vc4/vc4_plane.c          |  9 +++++----
+ drivers/gpu/drm/vc4/vc4_v3d.c            |  6 +++---
+ drivers/gpu/drm/vgem/Makefile            |  1 -
+ drivers/gpu/drm/via/Makefile             |  1 -
  drivers/gpu/drm/virtio/Makefile          |  2 --
  drivers/gpu/drm/virtio/virtgpu_debugfs.c |  2 +-
  drivers/gpu/drm/virtio/virtgpu_drv.c     |  4 ++--
  drivers/gpu/drm/virtio/virtgpu_drv.h     |  8 ++++----
  drivers/gpu/drm/virtio/virtgpu_ioctl.c   |  5 +++--
  drivers/gpu/drm/virtio/virtgpu_ttm.c     | 10 +++++-----
- 6 files changed, 15 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/vmwgfx/Makefile          |  3 ---
+ drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c   |  3 ++-
+ drivers/gpu/drm/vmwgfx/vmwgfx_context.c  |  3 ++-
+ drivers/gpu/drm/vmwgfx/vmwgfx_cotable.c  |  3 ++-
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c      |  2 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_shader.c   |  3 ++-
+ drivers/gpu/drm/vmwgfx/vmwgfx_surface.c  |  3 ++-
+ 37 files changed, 88 insertions(+), 107 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/Makefile b/drivers/gpu/drm/virtio/Makefile
-index 3fb8eac..7684f61 100644
---- a/drivers/gpu/drm/virtio/Makefile
-+++ b/drivers/gpu/drm/virtio/Makefile
-@@ -2,8 +2,6 @@
- # Makefile for the drm device driver.  This driver provides support for the
- # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
- 
--ccflags-y := -Iinclude/drm
--
- virtio-gpu-y := virtgpu_drv.o virtgpu_kms.o virtgpu_drm_bus.o virtgpu_gem.o \
- 	virtgpu_fb.o virtgpu_display.o virtgpu_vq.o virtgpu_ttm.o \
- 	virtgpu_fence.o virtgpu_object.o virtgpu_debugfs.o virtgpu_plane.o \
-diff --git a/drivers/gpu/drm/virtio/virtgpu_debugfs.c b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
-index f51240a..73dc990 100644
---- a/drivers/gpu/drm/virtio/virtgpu_debugfs.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
-@@ -24,8 +24,8 @@
-  */
- 
- #include <linux/debugfs.h>
-+#include <drm/drmP.h>
- 
--#include "drmP.h"
- #include "virtgpu_drv.h"
- 
- static int
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index 2d29b01..63d35c7 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -29,8 +29,8 @@
- #include <linux/module.h>
- #include <linux/console.h>
- #include <linux/pci.h>
--#include "drmP.h"
--#include "drm/drm.h"
-+#include <drm/drmP.h>
-+#include <drm/drm.h>
- 
- #include "virtgpu_drv.h"
- static struct drm_driver driver;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 1328185..3a66abb 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -36,10 +36,10 @@
- #include <drm/drm_atomic.h>
- #include <drm/drm_crtc_helper.h>
- #include <drm/drm_encoder.h>
--#include <ttm/ttm_bo_api.h>
--#include <ttm/ttm_bo_driver.h>
--#include <ttm/ttm_placement.h>
--#include <ttm/ttm_module.h>
-+#include <drm/ttm/ttm_bo_api.h>
-+#include <drm/ttm/ttm_bo_driver.h>
-+#include <drm/ttm/ttm_placement.h>
-+#include <drm/ttm/ttm_module.h>
- 
- #define DRIVER_NAME "virtio_gpu"
- #define DRIVER_DESC "virtio GPU"
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 61f3a96..06cb16d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -26,9 +26,10 @@
-  */
- 
- #include <drm/drmP.h>
--#include "virtgpu_drv.h"
- #include <drm/virtgpu_drm.h>
--#include "ttm/ttm_execbuf_util.h"
-+#include <drm/ttm/ttm_execbuf_util.h>
-+
-+#include "virtgpu_drv.h"
- 
- static void convert_to_hw_box(struct virtio_gpu_box *dst,
- 			      const struct drm_virtgpu_3d_box *src)
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ttm.c b/drivers/gpu/drm/virtio/virtgpu_ttm.c
-index 4e8e27d..c1f2af4 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ttm.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ttm.c
-@@ -25,11 +25,11 @@
-  * OTHER DEALINGS IN THE SOFTWARE.
-  */
- 
--#include <ttm/ttm_bo_api.h>
--#include <ttm/ttm_bo_driver.h>
--#include <ttm/ttm_placement.h>
--#include <ttm/ttm_page_alloc.h>
--#include <ttm/ttm_module.h>
-+#include <drm/ttm/ttm_bo_api.h>
-+#include <drm/ttm/ttm_bo_driver.h>
-+#include <drm/ttm/ttm_placement.h>
-+#include <drm/ttm/ttm_page_alloc.h>
-+#include <drm/ttm/ttm_module.h>
- #include <drm/drmP.h>
- #include <drm/drm.h>
- #include <drm/virtgpu_drm.h>
 -- 
 2.7.4
