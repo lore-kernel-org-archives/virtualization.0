@@ -1,15 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net 3/3] virtio-net: enable TSO/checksum offloads for
-	Q-in-Q vlans
-Date: Fri, 19 May 2017 22:18:20 +0800
-Message-ID: <033399db-90b5-af13-5201-151008afef2a__45976.2274906554$1495203525$gmane$org@redhat.com>
-References: <1495114265-23368-1-git-send-email-vyasevic@redhat.com>
-	<1495114265-23368-4-git-send-email-vyasevic@redhat.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: [PATCH 01/10] x86: remove stale prototype from
+	arch/x86/include/asm/pgalloc.h
+Date: Fri, 19 May 2017 17:47:37 +0200
+Message-ID: <20170519154746.29389-2-jgross__16024.6498453946$1495208888$gmane$org@suse.com>
+References: <20170519154746.29389-1-jgross@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1495114265-23368-4-git-send-email-vyasevic@redhat.com>
+In-Reply-To: <20170519154746.29389-1-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,30 +18,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vladislav Yasevich <vyasevich@gmail.com>, netdev@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, chrisw@sous-sol.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, akataria@vmware.com, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDXmnIgxOOaXpSAyMTozMSwgVmxhZGlzbGF2IFlhc2V2aWNoIHdyb3RlOgo+
-IFNpbmNlIHZpcnRpbyBkb2VzIG5vdCBwcm92aWRlIGl0J3Mgb3duIG5kb19mZWF0dXJlc19jaGVj
-ayBoYW5kbGVyLAo+IFRTTywgYW5kIG5vdyBjaGVja3N1bSBvZmZsb2FkLCBhcmUgZGlzYWJsZWQg
-Zm9yIHN0YWNrZWQgdmxhbnMuCj4gUmUtZW5hYmxlIHRoZSBzdXBwb3J0IGFuZCBsZXQgdGhlIGhv
-c3QgdGFrZSBjYXJlIG9mIGl0LiAgVGhpcwo+IHJlc3RvcmVzL2ltcHJvdmVzIEd1ZXN0LXRvLUd1
-ZXN0IHBlcmZvcm1hbmNlIG92ZXIgUS1pbi1RIHZsYW5zLgo+Cj4gQ0M6ICJNaWNoYWVsIFMuIFRz
-aXJraW4iIDxtc3RAcmVkaGF0LmNvbT4KPiBDQzogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0
-LmNvbT4KPiBDQzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKPiBT
-aWduZWQtb2ZmLWJ5OiBWbGFkaXNsYXYgWWFzZXZpY2ggPHZ5YXNldmljQHJlZGhhdC5jb20+Cj4g
-LS0tCj4gICBkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgfCAxICsKPiAgIDEgZmlsZSBjaGFuZ2Vk
-LCAxIGluc2VydGlvbigrKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQu
-YyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+IGluZGV4IDgzMjRhNWUuLjM0MWZiOTYgMTAw
-NjQ0Cj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gKysrIGIvZHJpdmVycy9uZXQv
-dmlydGlvX25ldC5jCj4gQEAgLTIwMjgsNiArMjAyOCw3IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3Qg
-bmV0X2RldmljZV9vcHMgdmlydG5ldF9uZXRkZXYgPSB7Cj4gICAJLm5kb19wb2xsX2NvbnRyb2xs
-ZXIgPSB2aXJ0bmV0X25ldHBvbGwsCj4gICAjZW5kaWYKPiAgIAkubmRvX3hkcAkJPSB2aXJ0bmV0
-X3hkcCwKPiArCS5uZG9fZmVhdHVyZXNfY2hlY2sJPSBwYXNzdGhydV9mZWF0dXJlc19jaGVjaywK
-PiAgIH07Cj4gICAKPiAgIHN0YXRpYyB2b2lkIHZpcnRuZXRfY29uZmlnX2NoYW5nZWRfd29yayhz
-dHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdA
-cmVkaGF0LmNvbT4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+paravirt_alloc_pmd_clone() doesn't exist anywhere. Remove its
+prototype.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ arch/x86/include/asm/pgalloc.h | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/arch/x86/include/asm/pgalloc.h b/arch/x86/include/asm/pgalloc.h
+index b2d0cd8288aa..71de65bb1791 100644
+--- a/arch/x86/include/asm/pgalloc.h
++++ b/arch/x86/include/asm/pgalloc.h
+@@ -14,8 +14,6 @@ static inline int  __paravirt_pgd_alloc(struct mm_struct *mm) { return 0; }
+ static inline void paravirt_pgd_free(struct mm_struct *mm, pgd_t *pgd) {}
+ static inline void paravirt_alloc_pte(struct mm_struct *mm, unsigned long pfn)	{}
+ static inline void paravirt_alloc_pmd(struct mm_struct *mm, unsigned long pfn)	{}
+-static inline void paravirt_alloc_pmd_clone(unsigned long pfn, unsigned long clonepfn,
+-					    unsigned long start, unsigned long count) {}
+ static inline void paravirt_alloc_pud(struct mm_struct *mm, unsigned long pfn)	{}
+ static inline void paravirt_alloc_p4d(struct mm_struct *mm, unsigned long pfn)	{}
+ static inline void paravirt_release_pte(unsigned long pfn) {}
+-- 
+2.12.0
