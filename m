@@ -1,15 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net 3/3] virtio-net: enable TSO/checksum offloads for
 	Q-in-Q vlans
-Date: Thu, 18 May 2017 18:06:35 +0300
-Message-ID: <20170518180630-mutt-send-email-mst__3473.08590212396$1495120004$gmane$org@kernel.org>
+Date: Fri, 19 May 2017 22:18:20 +0800
+Message-ID: <033399db-90b5-af13-5201-151008afef2a__45976.2274906554$1495203525$gmane$org@redhat.com>
 References: <1495114265-23368-1-git-send-email-vyasevic@redhat.com>
 	<1495114265-23368-4-git-send-email-vyasevic@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <1495114265-23368-4-git-send-email-vyasevic@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,38 +19,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vladislav Yasevich <vyasevich@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Vladislav Yasevich <vyasevich@gmail.com>, netdev@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 18, 2017 at 09:31:05AM -0400, Vladislav Yasevich wrote:
-> Since virtio does not provide it's own ndo_features_check handler,
-> TSO, and now checksum offload, are disabled for stacked vlans.
-> Re-enable the support and let the host take care of it.  This
-> restores/improves Guest-to-Guest performance over Q-in-Q vlans.
-> 
-> CC: "Michael S. Tsirkin" <mst@redhat.com>
-> CC: Jason Wang <jasowang@redhat.com>
-> CC: virtualization@lists.linux-foundation.org
-> Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-> ---
->  drivers/net/virtio_net.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 8324a5e..341fb96 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2028,6 +2028,7 @@ static const struct net_device_ops virtnet_netdev = {
->  	.ndo_poll_controller = virtnet_netpoll,
->  #endif
->  	.ndo_xdp		= virtnet_xdp,
-> +	.ndo_features_check	= passthru_features_check,
->  };
->  
->  static void virtnet_config_changed_work(struct work_struct *work)
-> -- 
-> 2.7.4
+CgpPbiAyMDE35bm0MDXmnIgxOOaXpSAyMTozMSwgVmxhZGlzbGF2IFlhc2V2aWNoIHdyb3RlOgo+
+IFNpbmNlIHZpcnRpbyBkb2VzIG5vdCBwcm92aWRlIGl0J3Mgb3duIG5kb19mZWF0dXJlc19jaGVj
+ayBoYW5kbGVyLAo+IFRTTywgYW5kIG5vdyBjaGVja3N1bSBvZmZsb2FkLCBhcmUgZGlzYWJsZWQg
+Zm9yIHN0YWNrZWQgdmxhbnMuCj4gUmUtZW5hYmxlIHRoZSBzdXBwb3J0IGFuZCBsZXQgdGhlIGhv
+c3QgdGFrZSBjYXJlIG9mIGl0LiAgVGhpcwo+IHJlc3RvcmVzL2ltcHJvdmVzIEd1ZXN0LXRvLUd1
+ZXN0IHBlcmZvcm1hbmNlIG92ZXIgUS1pbi1RIHZsYW5zLgo+Cj4gQ0M6ICJNaWNoYWVsIFMuIFRz
+aXJraW4iIDxtc3RAcmVkaGF0LmNvbT4KPiBDQzogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0
+LmNvbT4KPiBDQzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKPiBT
+aWduZWQtb2ZmLWJ5OiBWbGFkaXNsYXYgWWFzZXZpY2ggPHZ5YXNldmljQHJlZGhhdC5jb20+Cj4g
+LS0tCj4gICBkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgfCAxICsKPiAgIDEgZmlsZSBjaGFuZ2Vk
+LCAxIGluc2VydGlvbigrKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQu
+YyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+IGluZGV4IDgzMjRhNWUuLjM0MWZiOTYgMTAw
+NjQ0Cj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gKysrIGIvZHJpdmVycy9uZXQv
+dmlydGlvX25ldC5jCj4gQEAgLTIwMjgsNiArMjAyOCw3IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3Qg
+bmV0X2RldmljZV9vcHMgdmlydG5ldF9uZXRkZXYgPSB7Cj4gICAJLm5kb19wb2xsX2NvbnRyb2xs
+ZXIgPSB2aXJ0bmV0X25ldHBvbGwsCj4gICAjZW5kaWYKPiAgIAkubmRvX3hkcAkJPSB2aXJ0bmV0
+X3hkcCwKPiArCS5uZG9fZmVhdHVyZXNfY2hlY2sJPSBwYXNzdGhydV9mZWF0dXJlc19jaGVjaywK
+PiAgIH07Cj4gICAKPiAgIHN0YXRpYyB2b2lkIHZpcnRuZXRfY29uZmlnX2NoYW5nZWRfd29yayhz
+dHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdA
+cmVkaGF0LmNvbT4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
+bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
