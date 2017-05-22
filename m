@@ -1,8 +1,8 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: Re: vhost/scsi: Delete error messages for failed memory allocations
-	in five functions
-Date: Mon, 22 May 2017 13:34:34 +0200
-Message-ID: <e6658e56-a2b0-4ecc-0a95-0ba193ff2c97__24359.9851419733$1495452891$gmane$org@users.sourceforge.net>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH 2/2] vhost/scsi: Delete error messages for failed memory
+	allocations in five functions
+Date: Mon, 22 May 2017 15:38:33 +0300
+Message-ID: <20170522123833.asx2biaw4xaz4qpv@mwanda>
 References: <bafa65e4-08fe-efdb-d836-7657e8a64749@users.sourceforge.net>
 	<babc429d-6440-92aa-e1d0-eee2636a8d0f@users.sourceforge.net>
 	<20170522094320.GE12205@stefanha-x1.localdomain>
@@ -12,8 +12,8 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20170522112320.GA22806@stefanha-x1.localdomain>
-Content-Language: en-GB
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,23 +24,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, SF Markus Elfring <elfring@users.sourceforge.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
->> Do you find information from a Linux allocation failure report sufficient
->> for any function implementations here?
-> 
-> If kmalloc() and friends guarantee to print a warning and backtrace on
-> every allocation failure, then there's no need for error messages in
-> callers.
-> 
-> That seems like good justification that can go in the commit
-> description, but I'm not sure if kmalloc() and friends guarantee to show
+On Mon, May 22, 2017 at 12:23:20PM +0100, Stefan Hajnoczi wrote:
+> I'm not sure if kmalloc() and friends guarantee to show
 > a message (not just the first time, but for every failed allocation)?
+>
 
-I am also looking for a more complete and easier accessible documentation
-for this aspect of the desired exception handling.
-How would we like to resolve any remaining open issues there?
+It prints multiple times, but it's ratelimited.  It can also be disabled
+using a config option.
 
-Regards,
-Markus
+See slab_out_of_memory().
+
+regards,
+dan carpenter
