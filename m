@@ -1,15 +1,14 @@
-From: Bharat Bhushan <bharat.bhushan@nxp.com>
-Subject: RE: [RFC PATCH kvmtool 00/15] Add virtio-iommu
-Date: Mon, 22 May 2017 08:26:12 +0000
-Message-ID: <AM5PR0401MB2545FADDF2A7649DF0DB68309AF80__38659.3223353431$1495441592$gmane$org@AM5PR0401MB2545.eurprd04.prod.outlook.com>
-References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
-	<20170407192455.26814-1-jean-philippe.brucker@arm.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH 1/2] vhost/scsi: Improve a size determination in four
+	functions
+Date: Mon, 22 May 2017 10:37:02 +0100
+Message-ID: <20170522093702.GD12205@stefanha-x1.localdomain>
+References: <bafa65e4-08fe-efdb-d836-7657e8a64749@users.sourceforge.net>
+	<68e78c4b-9b18-7607-f8c8-327fdd51f20b@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8189218433752946298=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170407192455.26814-1-jean-philippe.brucker@arm.com>
-Content-Language: en-US
+In-Reply-To: <68e78c4b-9b18-7607-f8c8-327fdd51f20b@users.sourceforge.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,151 +18,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
-Cc: "cdall@linaro.org" <cdall@linaro.org>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "will.deacon@arm.com" <will.deacon@arm.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jean,
 
-I am trying to run and review on my side but I see Linux patches are not with latest kernel version.
-Will it be possible for you to share your Linux and kvmtool git repository reference?
+--===============8189218433752946298==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sgneBHv3152wZ8jf"
+Content-Disposition: inline
 
-Thanks
--Bharat
 
-> -----Original Message-----
-> From: virtualization-bounces@lists.linux-foundation.org
-> [mailto:virtualization-bounces@lists.linux-foundation.org] On Behalf Of Jean-
-> Philippe Brucker
-> Sent: Saturday, April 08, 2017 12:55 AM
-> To: iommu@lists.linux-foundation.org; kvm@vger.kernel.org;
-> virtualization@lists.linux-foundation.org; virtio-dev@lists.oasis-open.org
-> Cc: cdall@linaro.org; lorenzo.pieralisi@arm.com; mst@redhat.com;
-> marc.zyngier@arm.com; joro@8bytes.org; will.deacon@arm.com;
-> robin.murphy@arm.com
-> Subject: [RFC PATCH kvmtool 00/15] Add virtio-iommu
-> 
-> Implement a virtio-iommu device and translate DMA traffic from vfio and
-> virtio devices. Virtio needed some rework to support scatter-gather accesses
-> to vring and buffers at page granularity. Patch 3 implements the actual virtio-
-> iommu device.
-> 
-> Adding --viommu on the command-line now inserts a virtual IOMMU in front
-> of all virtio and vfio devices:
-> 
-> 	$ lkvm run -k Image --console virtio -p console=hvc0 \
-> 	           --viommu --vfio 0 --vfio 4 --irqchip gicv3-its
-> 	...
-> 	[    2.998949] virtio_iommu virtio0: probe successful
-> 	[    3.007739] virtio_iommu virtio1: probe successful
-> 	...
-> 	[    3.165023] iommu: Adding device 0000:00:00.0 to group 0
-> 	[    3.536480] iommu: Adding device 10200.virtio to group 1
-> 	[    3.553643] iommu: Adding device 10600.virtio to group 2
-> 	[    3.570687] iommu: Adding device 10800.virtio to group 3
-> 	[    3.627425] iommu: Adding device 10a00.virtio to group 4
-> 	[    7.823689] iommu: Adding device 0000:00:01.0 to group 5
-> 	...
-> 
-> Patches 13 and 14 add debug facilities. Some statistics are gathered for each
-> address space and can be queried via the debug builtin:
-> 
-> 	$ lkvm debug -n guest-1210 --iommu stats
-> 	iommu 0 "viommu-vfio"
-> 	  kicks                 1255
-> 	  requests              1256
-> 	  ioas 1
-> 	    maps                7
-> 	    unmaps              4
-> 	    resident            2101248
-> 	  ioas 6
-> 	    maps                623
-> 	    unmaps              620
-> 	    resident            16384
-> 	iommu 1 "viommu-virtio"
-> 	  kicks                 11426
-> 	  requests              11431
-> 	  ioas 2
-> 	    maps                2836
-> 	    unmaps              2835
-> 	    resident            8192
-> 	    accesses            2836
-> 	...
-> 
-> This is based on the VFIO patchset[1], itself based on Andre's ITS work.
-> The VFIO bits have only been tested on a software model and are unlikely to
-> work on actual hardware, but I also tested virtio on an ARM Juno.
-> 
-> [1] http://www.spinics.net/lists/kvm/msg147624.html
-> 
-> Jean-Philippe Brucker (15):
->   virtio: synchronize virtio-iommu headers with Linux
->   FDT: (re)introduce a dynamic phandle allocator
->   virtio: add virtio-iommu
->   Add a simple IOMMU
->   iommu: describe IOMMU topology in device-trees
->   irq: register MSI doorbell addresses
->   virtio: factor virtqueue initialization
->   virtio: add vIOMMU instance for virtio devices
->   virtio: access vring and buffers through IOMMU mappings
->   virtio-pci: translate MSIs with the virtual IOMMU
->   virtio: set VIRTIO_F_IOMMU_PLATFORM when necessary
->   vfio: add support for virtual IOMMU
->   virtio-iommu: debug via IPC
->   virtio-iommu: implement basic debug commands
->   virtio: use virtio-iommu when available
-> 
->  Makefile                          |   3 +
->  arm/gic.c                         |   4 +
->  arm/include/arm-common/fdt-arch.h |   2 +-
->  arm/pci.c                         |  49 ++-
->  builtin-debug.c                   |   8 +-
->  builtin-run.c                     |   2 +
->  fdt.c                             |  35 ++
->  include/kvm/builtin-debug.h       |   6 +
->  include/kvm/devices.h             |   4 +
->  include/kvm/fdt.h                 |  20 +
->  include/kvm/iommu.h               | 105 +++++
->  include/kvm/irq.h                 |   3 +
->  include/kvm/kvm-config.h          |   1 +
->  include/kvm/vfio.h                |   2 +
->  include/kvm/virtio-iommu.h        |  15 +
->  include/kvm/virtio-mmio.h         |   1 +
->  include/kvm/virtio-pci.h          |   2 +
->  include/kvm/virtio.h              | 137 +++++-
->  include/linux/virtio_config.h     |  74 ++++
->  include/linux/virtio_ids.h        |   4 +
->  include/linux/virtio_iommu.h      | 142 ++++++
->  iommu.c                           | 240 ++++++++++
->  irq.c                             |  35 ++
->  kvm-ipc.c                         |  43 +-
->  mips/include/kvm/fdt-arch.h       |   2 +-
->  powerpc/include/kvm/fdt-arch.h    |   2 +-
->  vfio.c                            | 281 +++++++++++-
->  virtio/9p.c                       |   7 +-
->  virtio/balloon.c                  |   7 +-
->  virtio/blk.c                      |  10 +-
->  virtio/console.c                  |   7 +-
->  virtio/core.c                     | 240 ++++++++--
->  virtio/iommu.c                    | 902
-> ++++++++++++++++++++++++++++++++++++++
->  virtio/mmio.c                     |  44 +-
->  virtio/net.c                      |   8 +-
->  virtio/pci.c                      |  61 ++-
->  virtio/rng.c                      |   6 +-
->  virtio/scsi.c                     |   6 +-
->  x86/include/kvm/fdt-arch.h        |   2 +-
->  39 files changed, 2389 insertions(+), 133 deletions(-)  create mode 100644
-> fdt.c  create mode 100644 include/kvm/iommu.h  create mode 100644
-> include/kvm/virtio-iommu.h  create mode 100644
-> include/linux/virtio_config.h  create mode 100644
-> include/linux/virtio_iommu.h  create mode 100644 iommu.c  create mode
-> 100644 virtio/iommu.c
-> 
-> --
-> 2.12.1
-> 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--sgneBHv3152wZ8jf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, May 20, 2017 at 04:31:13PM +0200, SF Markus Elfring wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Sat, 20 May 2017 13:48:44 +0200
+>=20
+> Replace the specification of four data structures by pointer dereferences
+> as the parameter for the operator "sizeof" to make the corresponding size
+> determination a bit safer according to the Linux coding style convention.
+>=20
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> ---
+>  drivers/vhost/scsi.c | 9 ++++-----
+>  1 file changed, 4 insertions(+), 5 deletions(-)
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--sgneBHv3152wZ8jf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJZIrE+AAoJEJykq7OBq3PI7NUIAJRqk4L9pEmGl/h4UnMMo4sv
+oWi8DRxeI/X0z18VfHeIitB90AIHiH0nkhIYcjoIbA+BX+vI5iDHGeOg5oFkYoBs
+Jz7BMyA0PMD2ej2K4eQgvfK+hfieZMRUpLGcFwIzZnhJKZNUDwh1BLTnH7IyejgN
+x07PCKkWhiNXXzV9/lnXd62h1M0fTPEjvVZVC3wqtj+nMiUosqD26fSSNj4b6xnX
+QDhxIU/lvyPAXRx95FtjqzdbRe9apoT6r0T3/Y3QyZY+WmlCgBB4quascvWxKAq1
+LYf48MteIT30aZg0sHzj3avOmlnxyLmfdNSfQ2ip2F586bIAnYro8gBl+dBBkM0=
+=NEHr
+-----END PGP SIGNATURE-----
+
+--sgneBHv3152wZ8jf--
+
+--===============8189218433752946298==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8189218433752946298==--
