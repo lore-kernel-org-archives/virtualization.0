@@ -1,13 +1,21 @@
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 02/37] drm: Remove drm_device->virtdev
-Date: Wed, 24 May 2017 16:51:37 +0200
-Message-ID: <20170524145212.27837-3-daniel.vetter__28422.8929820985$1497319580$gmane$org@ffwll.ch>
-References: <20170524145212.27837-1-daniel.vetter@ffwll.ch>
+From: "bfields@fieldses.org" <bfields@fieldses.org>
+Subject: Re: remove function pointer casts and constify function tables
+Date: Fri, 26 May 2017 11:09:56 -0400
+Message-ID: <20170526150956.GB4593__8310.01282572306$1497319588$gmane$org@fieldses.org>
+References: <20170512161701.22468-1-hch@lst.de>
+	<1494620040.19467.1.camel@primarydata.com>
+	<20170513072557.GA14602@lst.de>
+	<1494691819.31377.1.camel@primarydata.com>
+	<20170515152134.GC24547@fieldses.org>
+	<20170515154450.GA18630@lst.de> <20170523081159.GA19216@lst.de>
+	<20170523122334.GA4298@fieldses.org>
+	<20170526150839.GA4593@fieldses.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170524145212.27837-1-daniel.vetter@ffwll.ch>
+Content-Disposition: inline
+In-Reply-To: <20170526150839.GA4593@fieldses.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,72 +25,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: DRI Development <dri-devel@lists.freedesktop.org>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel.vetter@intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>, virtualization@lists.linux-foundation.org, "anna.schumaker@netapp.com" <anna.schumaker@netapp.com>, Trond Myklebust <trondmy@primarydata.com>, "jlayton@poochiereds.net" <jlayton@poochiereds.net>, hch <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a leftover from the drm_bus days, where we've had a
-bus-specific device type for every bus type in drm_device. Except for
-pci (which we can't remove because dri1 drivers) this is all gone. And
-the virt driver also doesn't really need it, dev_to_virtio works
-perfectly fine.
+Probably should have cc'd virtualization@lists.linux-foundation.org too.
 
-Cc: David Airlie <airlied@linux.ie>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
----
- drivers/gpu/drm/virtio/virtgpu_drm_bus.c | 1 -
- drivers/gpu/drm/virtio/virtgpu_kms.c     | 4 ++--
- include/drm/drmP.h                       | 2 --
- 3 files changed, 2 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drm_bus.c b/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
-index 43e1d5916c6c..7df8d0c9026a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drm_bus.c
-@@ -56,7 +56,6 @@ int drm_virtio_init(struct drm_driver *driver, struct virtio_device *vdev)
- 	dev = drm_dev_alloc(driver, &vdev->dev);
- 	if (IS_ERR(dev))
- 		return PTR_ERR(dev);
--	dev->virtdev = vdev;
- 	vdev->priv = dev;
- 
- 	if (strcmp(vdev->dev.parent->bus->name, "pci") == 0) {
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 1e1c90b30d4a..6400506a06b0 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -138,7 +138,7 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
- 	u32 num_scanouts, num_capsets;
- 	int ret;
- 
--	if (!virtio_has_feature(dev->virtdev, VIRTIO_F_VERSION_1))
-+	if (!virtio_has_feature(dev_to_virtio(dev->dev), VIRTIO_F_VERSION_1))
- 		return -ENODEV;
- 
- 	vgdev = kzalloc(sizeof(struct virtio_gpu_device), GFP_KERNEL);
-@@ -147,7 +147,7 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
- 
- 	vgdev->ddev = dev;
- 	dev->dev_private = vgdev;
--	vgdev->vdev = dev->virtdev;
-+	vgdev->vdev = dev_to_virtio(dev->dev);
- 	vgdev->dev = dev->dev;
- 
- 	spin_lock_init(&vgdev->display_info_lock);
-diff --git a/include/drm/drmP.h b/include/drm/drmP.h
-index 575b29b47811..c363f2fdff31 100644
---- a/include/drm/drmP.h
-+++ b/include/drm/drmP.h
-@@ -412,8 +412,6 @@ struct drm_device {
- 	struct pci_controller *hose;
- #endif
- 
--	struct virtio_device *virtdev;
--
- 	struct drm_sg_mem *sg;	/**< Scatter gather memory */
- 	unsigned int num_crtcs;                  /**< Number of CRTCs on this device */
- 
--- 
-2.11.0
+On Fri, May 26, 2017 at 11:08:39AM -0400, bfields@fieldses.org wrote:
+> On Tue, May 23, 2017 at 08:23:34AM -0400, bfields@fieldses.org wrote:
+> > Unfortunately I can't get anything through testing.  It's not your
+> > patches, it's something in -rc1.  My server VM stops responding to
+> > any network traffic randomly in the middle of a run.  If I log in from a
+> > serial console, I see the interface is up and everything looks OK.  I
+> > haven't had the chance to do much more, and I'm not sure where to
+> > start....  I started a git-bisect attempt, but there are several
+> > unrelated problems, and I'm not sure this one is 100% reproduceable.
+> 
+> It looks like it may be due to something pulled in with virtio updates.
+> I've reproduced the problem on c8b0d7290657 "s390/virtio: change
+> maintainership" but not on v4.11.  Are there any known issues with those
+> commits?
+> 
+> I've just been doing this long-running bisect while working on other
+> stuff.  My reproducer (basically just running a bunch of NFS
+> connectathon tests over a variety of protocol versions and security
+> flavors) doesn't hit the bug reliably, and I've had to restart a couple
+> times probably due to false negatives.  But this looks pretty promising,
+> and there's only 17 commits in that range, so I'll keep bisecting.
+> 
+> --b.
