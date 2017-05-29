@@ -1,14 +1,12 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 02/37] drm: Remove drm_device->virtdev
-Date: Mon, 29 May 2017 08:52:44 +0200
-Message-ID: <1496040764.21582.0.camel__25082.4851253585$1496040774$gmane$org@redhat.com>
-References: <20170524145212.27837-1-daniel.vetter@ffwll.ch>
-	<20170524145212.27837-3-daniel.vetter@ffwll.ch>
+From: "sensornets@insticc.info" <sensornets@insticc.info>
+Subject: CFP SENSORNETS 2018 - 6th Int.l Conf. on Sensor Networks (Funchal,
+	Madeira/Portugal)
+Date: 29 May 2017 18:55:39 +0100
+Message-ID: <20170529175541.53804.6FF515549CA0B203@insticc.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170524145212.27837-3-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,16 +16,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel.vetter@ffwll.ch>, DRI Development <dri-devel@lists.freedesktop.org>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@intel.com>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2017-05-24 at 16:51 +0200, Daniel Vetter wrote:
-> This is a leftover from the drm_bus days, where we've had a
-> bus-specific device type for every bus type in drm_device. Except for
-> pci (which we can't remove because dri1 drivers) this is all gone.
-> And
-> the virt driver also doesn't really need it, dev_to_virtio works
-> perfectly fine.
-
-Reviewed-by: Gerd Hoffmann <kraxel@redhat.com>
+U1VCTUlTU0lPTiBERUFETElORSAKCjZ0aCBJbnRlcm5hdGlvbmFsIENvbmZlcmVuY2Ugb24gU2Vu
+c29yIE5ldHdvcmtzCgpTdWJtaXNzaW9uIERlYWRsaW5lOiBKdWx5IDMxLCAyMDE3CgpodHRwOi8v
+d3d3LnNlbnNvcm5ldHMub3JnLwoKSmFudWFyeSAyMiAtIDI0LCAyMDE4CkZ1bmNoYWwsIE1hZGVp
+cmEsIFBvcnR1Z2FsLgoKIFNFTlNPUk5FVFMgaXMgb3JnYW5pemVkIGluIDUgbWFqb3IgdHJhY2tz
+OgoKIC0gU2Vuc29yIE5ldHdvcmtzIFNvZnR3YXJlLCBBcmNoaXRlY3R1cmVzIGFuZCBBcHBsaWNh
+dGlvbnMKIC0gV2lyZWxlc3MgU2Vuc29yIE5ldHdvcmtzCiAtIEVuZXJneSBhbmQgRW52aXJvbm1l
+bnQKIC0gSW50ZWxsaWdlbnQgRGF0YSBBbmFseXNpcyBhbmQgUHJvY2Vzc2luZwogLSBTZWN1cml0
+eSBhbmQgUHJpdmFjeSBpbiBTZW5zb3IgTmV0d29ya3MKCkluIENvb3BlcmF0aW9uIHdpdGggSUZT
+QS4KIApXaXRoIHRoZSBwcmVzZW5jZSBvZiBpbnRlcm5hdGlvbmFsbHkgZGlzdGluZ3Vpc2hlZCBr
+ZXlub3RlIHNwZWFrZXJzOgogCgpBIHNob3J0IGxpc3Qgb2YgcHJlc2VudGVkIHBhcGVycyB3aWxs
+IGJlIHNlbGVjdGVkIHNvIHRoYXQgcmV2aXNlZCBhbmQgZXh0ZW5kZWQgdmVyc2lvbnMgb2YgdGhl
+c2UgcGFwZXJzIHdpbGwgYmUgcHVibGlzaGVkIGJ5IFNwcmluZ2VyLgogCkFsbCBwYXBlcnMgcHJl
+c2VudGVkIGF0IHRoZSBjb25ncmVzcyB2ZW51ZSB3aWxsIGFsc28gYmUgYXZhaWxhYmxlIGF0IHRo
+ZSBTQ0lURVBSRVNTIERpZ2l0YWwgTGlicmFyeSAoaHR0cDovL3d3dy5zY2l0ZXByZXNzLm9yZy9E
+aWdpdGFsTGlicmFyeS8pLgogIApTaG91bGQgeW91IGhhdmUgYW55IHF1ZXN0aW9uIHBsZWFzZSBk
+b27igJl0IGhlc2l0YXRlIGNvbnRhY3RpbmcgbWUuCiAKCktpbmQgcmVnYXJkcywKU0VOU09STkVU
+UyBTZWNyZXRhcmlhdAoKQWRkcmVzczogQXYuIEQuIE1hbnVlbCBJLCAyN0EsIDLCuiBlc3EuCjI5
+MTAtNTk1IFNldHViYWwsIFBvcnR1Z2FsClRlbDogKzM1MSAyNjUgNTIwIDE4NApGYXg6ICszNTEg
+MjY1IDUyMCAxODYKV2ViOiBodHRwOi8vd3d3LnNlbnNvcm5ldHMub3JnLwplLW1haWw6IHNlbnNv
+cm5ldHMuc2VjcmV0YXJpYXRAaW5zdGljYy5vcmcKCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
