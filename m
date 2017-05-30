@@ -1,12 +1,22 @@
-From: "sensornets@insticc.info" <sensornets@insticc.info>
-Subject: CFP SENSORNETS 2018 - 6th Int.l Conf. on Sensor Networks (Funchal,
-	Madeira/Portugal)
-Date: 29 May 2017 18:55:39 +0100
-Message-ID: <20170529175541.53804.6FF515549CA0B203@insticc.info>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: remove function pointer casts and constify function tables
+Date: Tue, 30 May 2017 19:26:37 +0300
+Message-ID: <20170530192544-mutt-send-email-mst@kernel.org>
+References: <1494620040.19467.1.camel@primarydata.com>
+	<20170513072557.GA14602@lst.de>
+	<1494691819.31377.1.camel@primarydata.com>
+	<20170515152134.GC24547@fieldses.org>
+	<20170515154450.GA18630@lst.de> <20170523081159.GA19216@lst.de>
+	<20170523122334.GA4298@fieldses.org>
+	<20170526150839.GA4593@fieldses.org>
+	<20170526150956.GB4593@fieldses.org>
+	<20170526193133.GA9874@fieldses.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20170526193133.GA9874@fieldses.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,29 +26,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "bfields@fieldses.org" <bfields@fieldses.org>
+Cc: "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>, virtualization@lists.linux-foundation.org, "anna.schumaker@netapp.com" <anna.schumaker@netapp.com>, Trond Myklebust <trondmy@primarydata.com>, "jlayton@poochiereds.net" <jlayton@poochiereds.net>, hch <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-U1VCTUlTU0lPTiBERUFETElORSAKCjZ0aCBJbnRlcm5hdGlvbmFsIENvbmZlcmVuY2Ugb24gU2Vu
-c29yIE5ldHdvcmtzCgpTdWJtaXNzaW9uIERlYWRsaW5lOiBKdWx5IDMxLCAyMDE3CgpodHRwOi8v
-d3d3LnNlbnNvcm5ldHMub3JnLwoKSmFudWFyeSAyMiAtIDI0LCAyMDE4CkZ1bmNoYWwsIE1hZGVp
-cmEsIFBvcnR1Z2FsLgoKIFNFTlNPUk5FVFMgaXMgb3JnYW5pemVkIGluIDUgbWFqb3IgdHJhY2tz
-OgoKIC0gU2Vuc29yIE5ldHdvcmtzIFNvZnR3YXJlLCBBcmNoaXRlY3R1cmVzIGFuZCBBcHBsaWNh
-dGlvbnMKIC0gV2lyZWxlc3MgU2Vuc29yIE5ldHdvcmtzCiAtIEVuZXJneSBhbmQgRW52aXJvbm1l
-bnQKIC0gSW50ZWxsaWdlbnQgRGF0YSBBbmFseXNpcyBhbmQgUHJvY2Vzc2luZwogLSBTZWN1cml0
-eSBhbmQgUHJpdmFjeSBpbiBTZW5zb3IgTmV0d29ya3MKCkluIENvb3BlcmF0aW9uIHdpdGggSUZT
-QS4KIApXaXRoIHRoZSBwcmVzZW5jZSBvZiBpbnRlcm5hdGlvbmFsbHkgZGlzdGluZ3Vpc2hlZCBr
-ZXlub3RlIHNwZWFrZXJzOgogCgpBIHNob3J0IGxpc3Qgb2YgcHJlc2VudGVkIHBhcGVycyB3aWxs
-IGJlIHNlbGVjdGVkIHNvIHRoYXQgcmV2aXNlZCBhbmQgZXh0ZW5kZWQgdmVyc2lvbnMgb2YgdGhl
-c2UgcGFwZXJzIHdpbGwgYmUgcHVibGlzaGVkIGJ5IFNwcmluZ2VyLgogCkFsbCBwYXBlcnMgcHJl
-c2VudGVkIGF0IHRoZSBjb25ncmVzcyB2ZW51ZSB3aWxsIGFsc28gYmUgYXZhaWxhYmxlIGF0IHRo
-ZSBTQ0lURVBSRVNTIERpZ2l0YWwgTGlicmFyeSAoaHR0cDovL3d3dy5zY2l0ZXByZXNzLm9yZy9E
-aWdpdGFsTGlicmFyeS8pLgogIApTaG91bGQgeW91IGhhdmUgYW55IHF1ZXN0aW9uIHBsZWFzZSBk
-b27igJl0IGhlc2l0YXRlIGNvbnRhY3RpbmcgbWUuCiAKCktpbmQgcmVnYXJkcywKU0VOU09STkVU
-UyBTZWNyZXRhcmlhdAoKQWRkcmVzczogQXYuIEQuIE1hbnVlbCBJLCAyN0EsIDLCuiBlc3EuCjI5
-MTAtNTk1IFNldHViYWwsIFBvcnR1Z2FsClRlbDogKzM1MSAyNjUgNTIwIDE4NApGYXg6ICszNTEg
-MjY1IDUyMCAxODYKV2ViOiBodHRwOi8vd3d3LnNlbnNvcm5ldHMub3JnLwplLW1haWw6IHNlbnNv
-cm5ldHMuc2VjcmV0YXJpYXRAaW5zdGljYy5vcmcKCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Fri, May 26, 2017 at 03:31:33PM -0400, bfields@fieldses.org wrote:
+> Looks like the culprit is very likely d85b758f72b0 "virtio_net: fix
+> support for small rings".
+> 
+> After that patch, my NFS server VM stops responding to packets after a
+> few minutes of testing.  Before that patch, my server keeps working.
+> 
+> --b.
+
+Others complained about that too.
+I'm still trying to reproduce though.
+
+Meanwhile, could you please locate this line of code:
++               vi->rq[i].min_buf_len = mergeable_min_buf_len(vi, vi->rq[i].vq);
+
+and add something like
+        printk(KERN_ERR, "min buf = 0x%x expected 0x%x size 0x%x big %d\n",
+               vi->rq[i].min_buf_len, GOOD_PACKET_LEN,
+               virtqueue_get_vring_size(vi->rq[i].vq),
+               (int)vi->big_packets);
+
+after it?
+Then boot and capture the output.
+
+Thanks!
+
+
+-- 
+MST
