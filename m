@@ -1,22 +1,14 @@
-From: "bfields@fieldses.org" <bfields@fieldses.org>
-Subject: Re: remove function pointer casts and constify function tables
-Date: Wed, 31 May 2017 17:15:37 -0400
-Message-ID: <20170531211537.GG23526__16930.9416240596$1497319647$gmane$org@fieldses.org>
-References: <1494691819.31377.1.camel@primarydata.com>
-	<20170515152134.GC24547@fieldses.org>
-	<20170515154450.GA18630@lst.de> <20170523081159.GA19216@lst.de>
-	<20170523122334.GA4298@fieldses.org>
-	<20170526150839.GA4593@fieldses.org>
-	<20170526150956.GB4593@fieldses.org>
-	<20170526193133.GA9874@fieldses.org>
-	<20170530192544-mutt-send-email-mst@kernel.org>
-	<20170531210923.GF23526@fieldses.org>
+From: "J. Bruce Fields" <bfields@fieldses.org>
+Subject: Re: [PATCH] virtio_net: lower limit on buffer size
+Date: Thu, 1 Jun 2017 21:57:13 -0400
+Message-ID: <20170602015713.GA14874__8086.22526606104$1497319657$gmane$org@fieldses.org>
+References: <1496361148-4603-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170531210923.GF23526@fieldses.org>
+In-Reply-To: <1496361148-4603-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,39 +19,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>, virtualization@lists.linux-foundation.org, "anna.schumaker@netapp.com" <anna.schumaker@netapp.com>, Trond Myklebust <trondmy@primarydata.com>, "jlayton@poochiereds.net" <jlayton@poochiereds.net>, hch <hch@lst.de>
+Cc: netdev@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 31, 2017 at 05:09:23PM -0400, bfields@fieldses.org wrote:
-> On Tue, May 30, 2017 at 07:26:37PM +0300, Michael S. Tsirkin wrote:
-> > On Fri, May 26, 2017 at 03:31:33PM -0400, bfields@fieldses.org wrote:
-> > > Looks like the culprit is very likely d85b758f72b0 "virtio_net: fix
-> > > support for small rings".
-> > > 
-> > > After that patch, my NFS server VM stops responding to packets after a
-> > > few minutes of testing.  Before that patch, my server keeps working.
-> > > 
-> > > --b.
-> > 
-> > Others complained about that too.
-> > I'm still trying to reproduce though.
-> > 
-> > Meanwhile, could you please locate this line of code:
-> > +               vi->rq[i].min_buf_len = mergeable_min_buf_len(vi, vi->rq[i].vq);
-> > 
-> > and add something like
-> >         printk(KERN_ERR, "min buf = 0x%x expected 0x%x size 0x%x big %d\n",
-> >                vi->rq[i].min_buf_len, GOOD_PACKET_LEN,
-> >                virtqueue_get_vring_size(vi->rq[i].vq),
-> >                (int)vi->big_packets);
-> > 
-> > after it?
-> > Then boot and capture the output.
+On Fri, Jun 02, 2017 at 02:56:04AM +0300, Michael S. Tsirkin wrote:
+> commit d85b758f72b0 "virtio_net: fix support for small rings"
+> was supposed to increase the buffer size for small rings
+> but had an unintentional side effect of decreasing
+> it for large rings. This seems to break some setups -
+> it's not yet clear why, but increasing buffer size
+> back to what it was before helps.
 > 
-> Doesn't look like that code's run on boot; apply the below, boot, and:
+> Fixes: d85b758f72b0 "virtio_net: fix support for small rings"
+> Reported-by: Mikulas Patocka <mpatocka@redhat.com>
+> Reported-by: "J. Bruce Fields" <bfields@fieldses.org>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+> 
+> Can reporters please confirm whether the following helps?
 
-Whoops, no, just a typo in the printk.  Here you go:
-
-	min buf = 0x101 expected 0x5ee size 0x100 big 1
+Works for me.
 
 --b.
+
+> If it does I think we should queue it even though I expect I'll need to
+> investigate the exact reasons for the failure down the road - probably
+> a hypervisor bug.
+> 
+>  drivers/net/virtio_net.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 87b5c20..60abb5d 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -842,7 +842,7 @@ static unsigned int get_mergeable_buf_len(struct receive_queue *rq,
+>  	unsigned int len;
+>  
+>  	len = hdr_len + clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
+> -				rq->min_buf_len - hdr_len, PAGE_SIZE - hdr_len);
+> +				rq->min_buf_len, PAGE_SIZE - hdr_len);
+>  	return ALIGN(len, L1_CACHE_BYTES);
+>  }
+>  
+> @@ -2039,7 +2039,8 @@ static unsigned int mergeable_min_buf_len(struct virtnet_info *vi, struct virtqu
+>  	unsigned int buf_len = hdr_len + ETH_HLEN + VLAN_HLEN + packet_len;
+>  	unsigned int min_buf_len = DIV_ROUND_UP(buf_len, rq_size);
+>  
+> -	return max(min_buf_len, hdr_len);
+> +	return max(max(min_buf_len, hdr_len) - hdr_len,
+> +		   (unsigned int)GOOD_PACKET_LEN);
+>  }
+>  
+>  static int virtnet_find_vqs(struct virtnet_info *vi)
+> -- 
+> MST
