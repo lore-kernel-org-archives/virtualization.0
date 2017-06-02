@@ -1,14 +1,15 @@
 From: "J. Bruce Fields" <bfields@fieldses.org>
 Subject: Re: [PATCH] virtio_net: lower limit on buffer size
-Date: Thu, 1 Jun 2017 21:57:13 -0400
-Message-ID: <20170602015713.GA14874__8086.22526606104$1497319657$gmane$org@fieldses.org>
+Date: Fri, 2 Jun 2017 16:25:36 -0400
+Message-ID: <20170602202536.GA24411__128.074774011289$1497319666$gmane$org@fieldses.org>
 References: <1496361148-4603-1-git-send-email-mst@redhat.com>
+	<3dd90d56-7110-bb9e-0b7f-4c8a8003a57f@cogentembedded.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1496361148-4603-1-git-send-email-mst@redhat.com>
+In-Reply-To: <3dd90d56-7110-bb9e-0b7f-4c8a8003a57f@cogentembedded.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,59 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Mikulas Patocka <mpatocka@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 02, 2017 at 02:56:04AM +0300, Michael S. Tsirkin wrote:
-> commit d85b758f72b0 "virtio_net: fix support for small rings"
-> was supposed to increase the buffer size for small rings
-> but had an unintentional side effect of decreasing
-> it for large rings. This seems to break some setups -
-> it's not yet clear why, but increasing buffer size
-> back to what it was before helps.
+On Fri, Jun 02, 2017 at 12:34:57PM +0300, Sergei Shtylyov wrote:
+> Hello!
 > 
-> Fixes: d85b758f72b0 "virtio_net: fix support for small rings"
-> Reported-by: Mikulas Patocka <mpatocka@redhat.com>
-> Reported-by: "J. Bruce Fields" <bfields@fieldses.org>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
+> On 6/2/2017 2:56 AM, Michael S. Tsirkin wrote:
 > 
-> Can reporters please confirm whether the following helps?
+> >commit d85b758f72b0 "virtio_net: fix support for small rings"
+> 
+>    Commit d85b758f72b0 ("virtio_net: fix support for small rings")
+> 
+> >was supposed to increase the buffer size for small rings
+> >but had an unintentional side effect of decreasing
+> >it for large rings. This seems to break some setups -
+> >it's not yet clear why, but increasing buffer size
+> >back to what it was before helps.
+> >
+> >Fixes: d85b758f72b0 "virtio_net: fix support for small rings"
+> 
+> Fixes: d85b758f72b0 ("virtio_net: fix support for small rings")
 
-Works for me.
+I may be bikeshedding, but, personally I never do the parens--they're
+redundant given the quotes, and space is often tight.
 
 --b.
 
-> If it does I think we should queue it even though I expect I'll need to
-> investigate the exact reasons for the failure down the road - probably
-> a hypervisor bug.
 > 
->  drivers/net/virtio_net.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
+> >Reported-by: Mikulas Patocka <mpatocka@redhat.com>
+> >Reported-by: "J. Bruce Fields" <bfields@fieldses.org>
+> >Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> [...]
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 87b5c20..60abb5d 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -842,7 +842,7 @@ static unsigned int get_mergeable_buf_len(struct receive_queue *rq,
->  	unsigned int len;
->  
->  	len = hdr_len + clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
-> -				rq->min_buf_len - hdr_len, PAGE_SIZE - hdr_len);
-> +				rq->min_buf_len, PAGE_SIZE - hdr_len);
->  	return ALIGN(len, L1_CACHE_BYTES);
->  }
->  
-> @@ -2039,7 +2039,8 @@ static unsigned int mergeable_min_buf_len(struct virtnet_info *vi, struct virtqu
->  	unsigned int buf_len = hdr_len + ETH_HLEN + VLAN_HLEN + packet_len;
->  	unsigned int min_buf_len = DIV_ROUND_UP(buf_len, rq_size);
->  
-> -	return max(min_buf_len, hdr_len);
-> +	return max(max(min_buf_len, hdr_len) - hdr_len,
-> +		   (unsigned int)GOOD_PACKET_LEN);
->  }
->  
->  static int virtnet_find_vqs(struct virtnet_info *vi)
-> -- 
-> MST
+> MBR, Sergei
