@@ -1,11 +1,16 @@
-From: "Marle" <marialemos72@gmail.com>
-Subject: Call for papers =?ISO-8859-1?Q?=1F---?= ICITS'18 --- Ecuador
-Date: Wed, 14 Jun 2017 15:36:51 +0100
-Message-ID: <20170614144258.AE21BB68@mail.linuxfoundation.org>
-Reply-To: intercits@gmail.com
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [virtio-dev] Re: [PATCH v11 3/6] virtio-balloon:
+	VIRTIO_BALLOON_F_PAGE_CHUNKS
+Date: Thu, 15 Jun 2017 16:10:17 +0800
+Message-ID: <594240E9.2070705__42838.046004954$1497514112$gmane$org@intel.com>
+References: <1497004901-30593-1-git-send-email-wei.w.wang@intel.com>
+	<1497004901-30593-4-git-send-email-wei.w.wang@intel.com>
+	<20170613200049-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5653600960772808876=="
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20170613200049-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,166 +20,169 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============5653600960772808876==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On 06/14/2017 01:56 AM, Michael S. Tsirkin wrote:
+> On Fri, Jun 09, 2017 at 06:41:38PM +0800, Wei Wang wrote:
+>> Add a new feature, VIRTIO_BALLOON_F_PAGE_CHUNKS, which enables
+>> the transfer of the ballooned (i.e. inflated/deflated) pages in
+>> chunks to the host.
+> so now these chunks are just s/g list entry.
+> So let's rename this VIRTIO_BALLOON_F_SG with a comment:
+> * Use standard virtio s/g instead of PFN lists *
 
----------------------------------------------------------------------------=
-------------------------
-ICITS'18 - The 2018 International Conference on Information Technology & Sy=
-stems
-           Peninsula de Santa Elena, Ecuador, 10 - 12 January 2018
-                             http://www.icits.me/
----------------------------------------------------------------------------=
-----------------------
+Actually, it's not using the standard s/g list in the implementation,
+because:
+using the standard s/g will need kmalloc() the indirect table on
+demand (i.e. when virtqueue_add() converts s/g to indirect table);
 
-
-SCOPE
-
-ICITS'18 - The 2018 International Conference on Information Technology & Sy=
-stems (http://www.icits.me/), to be held at Pen=EDnsula de Santa Elena, Ecu=
-ador, 10 - 12 January 2018, is an international forum for researchers and p=
-ractitioners to present and discuss the most recent innovations, trends, re=
-sults, experiences and concerns in the several perspectives of Information =
-Technology & Systems.
-
-We are pleased to invite you to submit your papers to ICITS'18. They can be=
- written in English, Spanish or Portuguese. All submissions will be reviewe=
-d on the basis of relevance, originality, importance and clarity.
-
- 
-
-TOPICS
-
-Submitted papers should be related with one or more of the main themes prop=
-osed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-
-B) Organizational Models and Information Systems (OMIS);
-
-C) Software and Systems Modeling (SSM);
-
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-
-E) Multimedia Systems and Applications (MSA);
-
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-
-G) Intelligent and Decision Support Systems (IDSS);
-
-H) Big Data Analytics and Applications (BDAA);
-
-I) Human-Computer Interaction (HCI);
-
-J) Ethics, Computers and Security (ECS)
-
-K) Health Informatics (HIS);
-
-L) Information Technologies in Education (ITE);
-
- 
-
-SUBMISSION AND DECISION
-
-Submitted papers (until 10-page limit) must comply with the format of Advan=
-ces in Intelligent Systems and Computing series (see Instructions for Autho=
-rs at Springer Website or download a DOC example) be written in English, Sp=
-anish or Portuguese, must not have been published before, not be under revi=
-ew for any other conference or publication and not include any information =
-leading to the authors=92 identification. Therefore, the authors=92 names, =
-affiliations and bibliographic references should not be included in the ver=
-sion for evaluation by the Scientific Committee. This information should on=
-ly be included in the camera-ready version, saved in Word or Latex format a=
-nd also in PDF format. These files must be accompanied by the Consent to Pu=
-blication form filled out, in a ZIP file, and uploaded at the conference ma=
-nagement system.
-
-All papers will be subjected to a =93double-blind review=94 by at least two=
- members of the Scientific Committee.
-
-Based on Scientific Committee evaluation, a paper can be rejected or accept=
-ed by the Conference Chairs. In the later case, it can be accepted as paper=
- or poster.
-
-The authors of papers accepted as posters must build and print a poster to =
-be exhibited during the Conference. This poster must follow an A1 or A2 ver=
-tical format. The Conference can includes Work Sessions where these posters=
- are presented and orally discussed, with a 7 minute limit per poster.
-
-The authors of accepted papers will have 15 minutes to present their work i=
-n a Conference Work Session; approximately 5 minutes of discussion will fol=
-low each presentation.
-
- 
-
-PUBLICATION AND INDEXING
-
-To ensure that an accepted paper is published, at least one of the authors =
-must be fully registered by the 20th of October 2017, and the paper must co=
-mply with the suggested layout and page-limit (until 10 pages). Additionall=
-y, all recommended changes must be addressed by the authors before they sub=
-mit the camera-ready version.
-
-No more than one paper per registration will be published. An extra fee mus=
-t be paid for publication of additional papers, with a maximum of one addit=
-ional paper per registration. One registration permits only the participati=
-on of one author in the conference.
-
-Papers written in English and accepted and registered will be published in =
-Proceedings by Springer, in a book of the Advances in Intelligent Systems a=
-nd Computing series, will  be submitted for indexation by ISI, EI-Compendex=
-, SCOPUS and DBLP, among others, and will be available in the SpringerLink =
-Digital Library.
-
-Papers written in Spanish or Portuguese and accepted and registered will be=
- published in Proceedings by AISTI and will be submitted for evaluation and=
- possible indexation by ISI, EI-Compendex and SCOPUS.
-
-The authors of the best selected papers will be invited to extend them for =
-publication in international journals indexed by ISI, SCOPUS, EI-Compendex =
-and DBLP, among others.
-
- 
-
-IMPORTANT DATES
-
-Paper Submission: September 6, 2017
-
-Notification of Acceptance: October 13, 2017
-
-Payment of Registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: October 20, 2017.
-
-Camera-ready Submission: October 20, 2017
+The implementation directly pre-allocates an indirect desc table,
+and uses a entry (i.e. vring_desc) to describe a chunk. This
+avoids the overhead of kmalloc() the indirect table.
 
 
----------
+>> +/*
+>> + * Callulates how many pfns can a page_bmap record. A bit corresponds to a
+>> + * page of PAGE_SIZE.
+>> + */
+>> +#define VIRTIO_BALLOON_PFNS_PER_PAGE_BMAP \
+>> +	(VIRTIO_BALLOON_PAGE_BMAP_SIZE * BITS_PER_BYTE)
+>> +
+>> +/* The number of page_bmap to allocate by default. */
+>> +#define VIRTIO_BALLOON_PAGE_BMAP_DEFAULT_NUM	1
+> It's not by default, it's at probe time, right?
+It is the number of page bitmap being kept throughout the whole
+lifecycle of the driver. The page bmap will be temporarily extended
+due to insufficiency during a ballooning process, but when that
+ballooning finishes, the extended part will be freed.
+>> +/* The maximum number of page_bmap that can be allocated. */
+> Not really, this is the size of the array we use to keep them.
 
-ICITS'18 website: http://www.icits.me/
+This is the max number of the page bmap that can be
+extended temporarily.
 
----------
+>> +#define VIRTIO_BALLOON_PAGE_BMAP_MAX_NUM	32
+>> +
+> So you still have a home-grown bitmap. I'd like to know why
+> isn't xbitmap suggested for this purpose by Matthew Wilcox
+> appropriate. Please add a comment explaining the requirements
+> from the data structure.
+
+I didn't find his xbitmap being upstreamed, did you?
+
+>> +/*
+>> + * QEMU virtio implementation requires the desc table size less than
+>> + * VIRTQUEUE_MAX_SIZE, so minus 1 here.
+> I think it doesn't, the issue is probably that you add a header
+> as a separate s/g. In any case see below.
+>
+>> + */
+>> +#define VIRTIO_BALLOON_MAX_PAGE_CHUNKS (VIRTQUEUE_MAX_SIZE - 1)
+> This is wrong, virtio spec says s/g size should not exceed VQ size.
+> If you want to support huge VQ sizes, you can add a fallback to
+> smaller sizes until it fits in 1 page.
+
+Probably no need for huge VQ size, 1024 queue size should be
+enough. And we can have 1024 descriptors in the indirect
+table, so the above size doesn't exceed the vq size, right?
 
 
-----------------------------------------------
+> +static unsigned int extend_page_bmap_size(struct virtio_balloon *vb,
+> +					  unsigned long pfn_num)
+> what's this API doing?  Pls add comments. this seems to assume
+> it will only be called once.
+OK, I will add some comments here. This is the function to extend
+the number of page bitmap when the original 1 page bmap is
+not sufficient during a ballooning process. As mentioned above,
+at the end of this ballooning process, the extended part will be freed.
+
+> it would be better to avoid making
+> this assumption, just look at what has been allocated
+> and extend it.
+Actually it's not an assumption. The rule here is that we always keep
+"1" page bmap. "1" is defined by the
+VIRTIO_BALLOON_PAGE_BMAP_DEFAULT_NUM. So when freeing, it also
+references VIRTIO_BALLOON_PAGE_BMAP_DEFAULT_NUM (not assuming
+any number)
+
+> +}
+> +
+> +/* Add a chunk to the buffer. */
+> +static void add_one_chunk(struct virtio_balloon *vb, struct virtqueue *vq,
+> +			  u64 base_addr, u32 size)
+> +{
+> +	unsigned int *num = &vb->balloon_page_chunk.chunk_num;
+> +	struct vring_desc *desc = &vb->balloon_page_chunk.desc_table[*num];
+> +
+> +	desc->addr = cpu_to_virtio64(vb->vdev, base_addr);
+> +	desc->len = cpu_to_virtio32(vb->vdev, size);
+> +	*num += 1;
+> +	if (*num == VIRTIO_BALLOON_MAX_PAGE_CHUNKS)
+> +		send_page_chunks(vb, vq);
+> +}
+> +
+> Poking at virtio internals like this is not nice. Pls move to virtio
+> code.  Also, pages must be read descriptors as host might modify them.
+>
+> This also lacks viommu support but this is not mandatory as
+> that is borken atm anyway. I'll send a patch to at least fail cleanly.
+OK, thanks.
+
+>> +static void convert_bmap_to_chunks(struct virtio_balloon *vb,
+>> +				   struct virtqueue *vq,
+>> +				   unsigned long *bmap,
+>> +				   unsigned long pfn_start,
+>> +				   unsigned long size)
+>> +{
+>> +	unsigned long next_one, next_zero, pos = 0;
+>> +	u64 chunk_base_addr;
+>> +	u32 chunk_size;
+>> +
+>> +	while (pos < size) {
+>> +		next_one = find_next_bit(bmap, size, pos);
+>> +		/*
+>> +		 * No "1" bit found, which means that there is no pfn
+>> +		 * recorded in the rest of this bmap.
+>> +		 */
+>> +		if (next_one == size)
+>> +			break;
+>> +		next_zero = find_next_zero_bit(bmap, size, next_one + 1);
+>> +		/*
+>> +		 * A bit in page_bmap corresponds to a page of PAGE_SIZE.
+>> +		 * Convert it to be pages of 4KB balloon page size when
+>> +		 * adding it to a chunk.
+> This looks wrong. add_one_chunk assumes size in bytes. So should be just
+> PAGE_SIZE.
+
+It's intended to be "chunk size", which is the number of pfns. The 
+benefit is
+that the 32-bit desc->len won't be overflow, as you mentioned below.
 
 
----
-This email has been checked for viruses by AVG.
-http://www.avg.com
+>
+>> +		 */
+>> +		chunk_size = (next_zero - next_one) *
+>> +			     VIRTIO_BALLOON_PAGES_PER_PAGE;
+> How do you know this won't overflow a 32 bit integer? Needs a comment.
 
+If it stores size in bytes, it has the possibility to overflow.
+If storing number of pfns, the 32-bit value can support 2^32*4KB=8TB
+memory, unlikely to overflow.
+> +
+> +static int balloon_page_chunk_init(struct virtio_balloon *vb)
+> +{
+> +	int i;
+> +
+> +	vb->balloon_page_chunk.desc_table = alloc_indirect(vb->vdev,
+> +						VIRTIO_BALLOON_MAX_PAGE_CHUNKS,
+> +						GFP_KERNEL);
+> This one's problematic, you aren't supposed to use APIs when device
+> is not inited yet. Seems to work by luck here. I suggest moving
+> this to probe, that's where we do a bunch of inits.
+> And then you can move private init back to allocate too.
 
---===============5653600960772808876==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5653600960772808876==--
+This is just to allocate an indirect desc table. If allocation fails, we 
+need to clear
+the related feature bit in ->validate(), right?
