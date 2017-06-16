@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: [RFC] virtio-mem: paravirtualized memory
-Date: Fri, 16 Jun 2017 18:04:06 +0300
-Message-ID: <20170616175748-mutt-send-email-mst__36947.4776475274$1497625459$gmane$org@kernel.org>
+Date: Fri, 16 Jun 2017 17:59:07 +0200
+Message-ID: <4cdf547c-079b-6b44-484f-e1132e960364__36527.2318399095$1497628769$gmane$org@redhat.com>
 References: <547865a9-d6c2-7140-47e2-5af01e7d761d@redhat.com>
+	<20170616175748-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <547865a9-d6c2-7140-47e2-5af01e7d761d@redhat.com>
+In-Reply-To: <20170616175748-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,55 +19,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Hildenbrand <david@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Andrea Arcangeli <aarcange@redhat.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, KVM <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 16, 2017 at 04:20:02PM +0200, David Hildenbrand wrote:
-> Hi,
+On 16.06.2017 17:04, Michael S. Tsirkin wrote:
+> On Fri, Jun 16, 2017 at 04:20:02PM +0200, David Hildenbrand wrote:
+>> Hi,
+>>
+>> this is an idea that is based on Andrea Arcangeli's original idea to
+>> host enforce guest access to memory given up using virtio-balloon using
+>> userfaultfd in the hypervisor. While looking into the details, I
+>> realized that host-enforcing virtio-balloon would result in way too many
+>> problems (mainly backwards compatibility) and would also have some
+>> conceptual restrictions that I want to avoid. So I developed the idea of
+>> virtio-mem - "paravirtualized memory".
 > 
-> this is an idea that is based on Andrea Arcangeli's original idea to
-> host enforce guest access to memory given up using virtio-balloon using
-> userfaultfd in the hypervisor. While looking into the details, I
-> realized that host-enforcing virtio-balloon would result in way too many
-> problems (mainly backwards compatibility) and would also have some
-> conceptual restrictions that I want to avoid. So I developed the idea of
-> virtio-mem - "paravirtualized memory".
+> Thanks! I went over this quickly, will read some more in the
+> coming days. I would like to ask for some clarifications
+> on one part meanwhile:
 
-Thanks! I went over this quickly, will read some more in the
-coming days. I would like to ask for some clarifications
-on one part meanwhile:
+Thanks for looking into it that fast! :)
 
-> Q: Why not reuse virtio-balloon?
+In general, what this section is all about: Why to not simply host
+enforce virtio-balloon.
+
 > 
-> A: virtio-balloon is for cooperative memory management. It has a fixed
->    page size
+>> Q: Why not reuse virtio-balloon?
+>>
+>> A: virtio-balloon is for cooperative memory management. It has a fixed
+>>    page size
+> 
+> We are fixing that with VIRTIO_BALLOON_F_PAGE_CHUNKS btw.
+> I would appreciate you looking into that patchset.
 
-We are fixing that with VIRTIO_BALLOON_F_PAGE_CHUNKS btw.
-I would appreciate you looking into that patchset.
+Will do, thanks. Problem is that there is no "enforcement" on the page
+size. VIRTIO_BALLOON_F_PAGE_CHUNKS simply allows to send bigger chunks.
+Nobody hinders the guest (especially legacy virtio-balloon drivers) from
+sending 4k pages.
 
-> and will deflate in certain situations.
+So this doesn't really fix the issue (we have here), it just allows to
+speed up transfer. Which is a good thing, but does not help for
+enforcement at all. So, yes support for page sizes > 4k, but no way to
+enforce it.
 
-What does this refer to?
+> 
+>> and will deflate in certain situations.
+> 
+> What does this refer to?
 
-> Any change we
->    introduce will break backwards compatibility.
+A Linux guest will deflate the balloon (all or some pages) in the
+following scenarios:
+a) page migration
+b) unload virtio-balloon kernel module
+c) hibernate/suspension
+d) (DEFLATE_ON_OOM)
 
-Why does this have to be the case?
+A Linux guest will touch memory without deflating:
+a) During a kexec() dump
+d) On reboots (regular, after kexec(), system_reset)
 
-> virtio-balloon was not
->    designed to give guarantees. Nobody can hinder the guest from
->    deflating/reusing inflated memory.
+> 
+>> Any change we
+>>    introduce will break backwards compatibility.
+> 
+> Why does this have to be the case
+If we suddenly enforce the existing virtio-balloon, we will break legacy
+guests.
 
-Reusing without deflate is forbidden with TELL_HOST, right?
+Simple example:
+Guest with inflated virtio-balloon reboots. Touches inflated memory.
+Gets killed at some random point.
 
->    In addition, it might make perfect
->    sense to have both, virtio-balloon and virtio-mem at the same time,
->    especially looking at the DEFLATE_ON_OOM or STATS features of
->    virtio-balloon. While virtio-mem is all about guarantees, virtio-
->    balloon is about cooperation.
+Of course, another discussion would be "can't we move virtio-mem
+functionality into virtio-balloon instead of changing virtio-balloon".
+With the current concept this is also not possible (one region per
+device vs. one virtio-balloon device). And I think while similar, these
+are two different concepts.
 
-Thanks, and I intend to look more into this next week.
+> 
+>> virtio-balloon was not
+>>    designed to give guarantees. Nobody can hinder the guest from
+>>    deflating/reusing inflated memory.
+> 
+> Reusing without deflate is forbidden with TELL_HOST, right?
+
+TELL_HOST just means "please inform me". There is no way to NACK a
+request. It is not a permission to do so, just a "friendly
+notification". And this is exactly not what we want when host enforcing
+memory access.
+
+
+> 
+>>    In addition, it might make perfect
+>>    sense to have both, virtio-balloon and virtio-mem at the same time,
+>>    especially looking at the DEFLATE_ON_OOM or STATS features of
+>>    virtio-balloon. While virtio-mem is all about guarantees, virtio-
+>>    balloon is about cooperation.
+> 
+> Thanks, and I intend to look more into this next week.
+> 
+
+I know that it is tempting to force this concept into virtio-balloon. I
+spent quite some time thinking about this (and possible other techniques
+like implicit memory deflation on reboots) and decided not to do it. We
+just end up trying to hack around all possible things that could go
+wrong, while still not being able to handle all requirements properly.
 
 -- 
-MST
+
+Thanks,
+
+David
