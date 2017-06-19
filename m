@@ -1,12 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio: a last minute bugfix
-Date: Sun, 18 Jun 2017 23:16:14 +0300
-Message-ID: <20170618231614-mutt-send-email-mst@kernel.org>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [RFC] virtio-mem: paravirtualized memory
+Date: Mon, 19 Jun 2017 11:08:13 +0100
+Message-ID: <20170619100813.GB17304__29695.1073142283$1497866901$gmane$org@stefanha-x1.localdomain>
+References: <547865a9-d6c2-7140-47e2-5af01e7d761d@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4825570497037666074=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <547865a9-d6c2-7140-47e2-5af01e7d761d@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,34 +16,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: David Hildenbrand <david@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 32c1431eea4881a6b17bd7c639315010aeefa452:
 
-  Linux 4.12-rc5 (2017-06-11 16:48:20 -0700)
+--===============4825570497037666074==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ADZbWkCsHQ7r3kzd"
+Content-Disposition: inline
 
-are available in the git repository at:
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+--ADZbWkCsHQ7r3kzd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-for you to fetch changes up to e41b1355508debe45fda33ef8c03ff3ba5d206b9:
+On Fri, Jun 16, 2017 at 04:20:02PM +0200, David Hildenbrand wrote:
+> Important restrictions of this concept:
+> - Guests without a virtio-mem guest driver can't see that memory.
+> - We will always require some boot memory that cannot get unplugged.
+>   Also, virtio-mem memory (as all other hotplugged memory) cannot become
+>   DMA memory under Linux. So the boot memory also defines the amount of
+>   DMA memory.
 
-  virtio_balloon: disable VIOMMU support (2017-06-18 23:13:35 +0300)
+I didn't know that hotplug memory cannot become DMA memory.
 
-----------------------------------------------------------------
-virtio: bugfix
+Ouch.  Zero-copy disk I/O with O_DIRECT and network I/O with virtio-net
+won't be possible.
 
-It turns out balloon does not handle IOMMUs correctly.
-We should fix that at some point, for now let's just
-disable this configuration.
+When running an application that uses O_DIRECT file I/O this probably
+means we now have 2 copies of pages in memory: 1. in the application and
+2. in the kernel page cache.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+So this increases pressure on the page cache and reduces performance :(.
 
-----------------------------------------------------------------
-Michael S. Tsirkin (1):
-      virtio_balloon: disable VIOMMU support
+Stefan
 
- drivers/virtio/virtio_balloon.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+--ADZbWkCsHQ7r3kzd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJZR6KNAAoJEJykq7OBq3PIQqMH/0S2AZbkzrqnJOKdCz8yKg9X
+qBbZG8McVs38XBZtkkzU4J4JKQMsS7b+boDjJ8N5LmjuHrNFfnJrwScVVc8aQ++E
+muHRRed4s556aSBAcSvk/OT7CtxYdwrraFuvzp2O1Rt84m9RPrMv719xZxeWsbzo
+69e7xRq3NIAgv2zLbPIWV/RiqXJIYWJatGP95n0PvKIeRwxl8jK68BUdEchWGjAQ
+mcjgcM8gch/facSMSd0OcRR4IgCLKuEV3RqKXJ2WKy//xWIjQc95m0sQEFWdwBtB
+Eri7GCsR0SDsOfGtoMmBvuQOePISkS1YiqNNLcSVKY2WJ5agzszR/rnFl6vvAF0=
+=zROB
+-----END PGP SIGNATURE-----
+
+--ADZbWkCsHQ7r3kzd--
+
+--===============4825570497037666074==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4825570497037666074==--
