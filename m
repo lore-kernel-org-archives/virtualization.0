@@ -1,7 +1,7 @@
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH] virtio: virtio_mmio: make of_device_ids const.
-Date: Mon, 19 Jun 2017 11:44:41 +0530
-Message-ID: <f31acbc59cd01a42749c31b6558eefbce508e730.1497852750.git.arvind.yadav.cs__45490.5152357698$1509078053$gmane$org@gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH 00/11] improve the fb_setcmap helper
+Date: Tue, 20 Jun 2017 21:25:24 +0200
+Message-ID: <1497986735-14418-1-git-send-email-peda__43084.6862764612$1509078057$gmane$org@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,39 +15,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, amd-gfx@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, David Airlie <airlied@linux.ie>, nouveau@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Philippe Cornu <philippe.cornu@st.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>, Yannick Fertre <yannick.fertre@st.com>, Sean Paul <seanpaul@chromium.org>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Alex Deucher <alexander.deucher@amd.com>, Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org, Vincent Abriou <vincent.abriou@st.com>, Peter Rosin <peda@axentia.se>, Ben Skeggs <bskeggs@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-of_device_ids are not supposed to change at runtime. All functions
-working with of_device_ids provided by <linux/of.h> work with const
-of_device_ids. So mark the non-const structs as const.
+Hi!
 
-File size before:
-   text	   data	    bss	    dec	    hex	filename
-   3647	    608	      0	   4255	   109f	drivers/virtio/virtio_mmio.o
+While trying to get CLUT support for the atmel_hlcdc driver, and
+specifically for the emulated fbdev interface, I received some
+push-back that my feeble in-driver attempts should be solved
+by the core. This is my attempt to do it right.
 
-File size after constify virtio_mmio_match.
-   text	   data	    bss	    dec	    hex	filename
-   4063	    192	      0	   4255	   109f	drivers/virtio/virtio_mmio.o
+Boris and Daniel, was this approximately what you had in mind?
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
----
- drivers/virtio/virtio_mmio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I have obviously not tested all of this with more than a compile,
+but the first patch is enough to make the atmel-hlcdc driver
+do what I need. The rest is just lots of removals and cleanup
+made possible by the improved core.
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 74dc717..badf61d 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -713,7 +713,7 @@ static void vm_unregister_cmdline_devices(void)
- 
- /* Platform driver */
- 
--static struct of_device_id virtio_mmio_match[] = {
-+static const struct of_device_id virtio_mmio_match[] = {
- 	{ .compatible = "virtio,mmio", },
- 	{},
- };
+Please test, I would not be surprised if I have fouled up some
+bit-manipulation somewhere in this mostly mechanical change...
+
+Cheers,
+peda
+
+Peter Rosin (11):
+  drm/fb-helper: do a generic fb_setcmap helper in terms of crtc
+    .gamma_set
+  drm: amd: remove dead code and pointless local lut storage
+  drm: ast: remove dead code and pointless local lut storage
+  drm: cirrus: remove dead code and pointless local lut storage
+  dmr: gma500: remove dead code and pointless local lut storage
+  drm: i915: remove dead code and pointless local lut storage
+  drm: mgag200: remove dead code and pointless local lut storage
+  drm: nouveau: remove dead code and pointless local lut storage
+  drm: radeon: remove dead code and pointless local lut storage
+  drm: stm: remove dead code and pointless local lut storage
+  drm: remove unused and redundant callbacks
+
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c      |  24 -----
+ drivers/gpu/drm/amd/amdgpu/amdgpu_mode.h    |   1 -
+ drivers/gpu/drm/amd/amdgpu/dce_v10_0.c      |  27 ++----
+ drivers/gpu/drm/amd/amdgpu/dce_v11_0.c      |  27 ++----
+ drivers/gpu/drm/amd/amdgpu/dce_v6_0.c       |  27 ++----
+ drivers/gpu/drm/amd/amdgpu/dce_v8_0.c       |  27 ++----
+ drivers/gpu/drm/amd/amdgpu/dce_virtual.c    |  23 -----
+ drivers/gpu/drm/ast/ast_drv.h               |   1 -
+ drivers/gpu/drm/ast/ast_fb.c                |  20 -----
+ drivers/gpu/drm/ast/ast_mode.c              |  26 ++----
+ drivers/gpu/drm/cirrus/cirrus_drv.h         |   8 --
+ drivers/gpu/drm/cirrus/cirrus_fbdev.c       |   2 -
+ drivers/gpu/drm/cirrus/cirrus_mode.c        |  71 ++++-----------
+ drivers/gpu/drm/drm_fb_helper.c             | 131 +++++++++-------------------
+ drivers/gpu/drm/gma500/framebuffer.c        |  22 -----
+ drivers/gpu/drm/gma500/gma_display.c        |  32 +++----
+ drivers/gpu/drm/gma500/psb_intel_display.c  |   7 +-
+ drivers/gpu/drm/gma500/psb_intel_drv.h      |   1 -
+ drivers/gpu/drm/i915/intel_drv.h            |   1 -
+ drivers/gpu/drm/i915/intel_fbdev.c          |  31 -------
+ drivers/gpu/drm/mgag200/mgag200_drv.h       |   5 --
+ drivers/gpu/drm/mgag200/mgag200_fb.c        |   2 -
+ drivers/gpu/drm/mgag200/mgag200_mode.c      |  62 ++++---------
+ drivers/gpu/drm/nouveau/dispnv04/crtc.c     |  26 ++----
+ drivers/gpu/drm/nouveau/nouveau_crtc.h      |   3 -
+ drivers/gpu/drm/nouveau/nouveau_fbcon.c     |  22 -----
+ drivers/gpu/drm/nouveau/nv50_display.c      |  39 +++------
+ drivers/gpu/drm/radeon/atombios_crtc.c      |   1 -
+ drivers/gpu/drm/radeon/radeon_connectors.c  |   7 +-
+ drivers/gpu/drm/radeon/radeon_display.c     |  71 ++++++---------
+ drivers/gpu/drm/radeon/radeon_fb.c          |   2 -
+ drivers/gpu/drm/radeon/radeon_legacy_crtc.c |   1 -
+ drivers/gpu/drm/stm/ltdc.c                  |  12 ---
+ drivers/gpu/drm/stm/ltdc.h                  |   1 -
+ include/drm/drm_fb_helper.h                 |  32 -------
+ include/drm/drm_modeset_helper_vtables.h    |  16 ----
+ 36 files changed, 171 insertions(+), 640 deletions(-)
+
 -- 
-1.9.1
+2.1.4
