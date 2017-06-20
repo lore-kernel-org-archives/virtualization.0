@@ -1,12 +1,15 @@
-From: "iceis@insticc.info" <iceis@insticc.info>
-Subject: CFP ICEIS 2018 - 20th Int.l Conf. on Enterprise Information Systems
-	(Funchal, Madeira/Portugal)
-Date: 20 Jun 2017 15:10:44 +0100
-Message-ID: <20170620141047.117316.CB729F30A845FFCB@insticc.info>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v11 6/6] virtio-balloon: VIRTIO_BALLOON_F_CMD_VQ
+Date: Tue, 20 Jun 2017 19:18:46 +0300
+Message-ID: <20170620190343-mutt-send-email-mst__18897.6531419486$1497975564$gmane$org@kernel.org>
+References: <1497004901-30593-1-git-send-email-wei.w.wang@intel.com>
+	<1497004901-30593-7-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1497004901-30593-7-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,31 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-U1VCTUlTU0lPTiBERUFETElORSAKCjIwdGggSW50ZXJuYXRpb25hbCBDb25mZXJlbmNlIG9uIEVu
-dGVycHJpc2UgSW5mb3JtYXRpb24gU3lzdGVtcwoKU3VibWlzc2lvbiBEZWFkbGluZTogT2N0b2Jl
-ciAxOCwgMjAxNwoKaHR0cDovL3d3dy5pY2Vpcy5vcmcvCgpNYXJjaCAyMSAtIDI0LCAyMDE4CkZ1
-bmNoYWwsIE1hZGVpcmEsIFBvcnR1Z2FsLgoKIElDRUlTIGlzIG9yZ2FuaXplZCBpbiA2IG1ham9y
-IHRyYWNrczoKCiAtIERhdGFiYXNlcyBhbmQgSW5mb3JtYXRpb24gU3lzdGVtcyBJbnRlZ3JhdGlv
-bgogLSBBcnRpZmljaWFsIEludGVsbGlnZW5jZSBhbmQgRGVjaXNpb24gU3VwcG9ydCBTeXN0ZW1z
-CiAtIEluZm9ybWF0aW9uIFN5c3RlbXMgQW5hbHlzaXMgYW5kIFNwZWNpZmljYXRpb24KIC0gU29m
-dHdhcmUgQWdlbnRzIGFuZCBJbnRlcm5ldCBDb21wdXRpbmcKIC0gSHVtYW4tQ29tcHV0ZXIgSW50
-ZXJhY3Rpb24KIC0gRW50ZXJwcmlzZSBBcmNoaXRlY3R1cmUKCkluIENvb3BlcmF0aW9uIHdpdGgg
-U1dJTSwgQUFBSS4KIApXaXRoIHRoZSBwcmVzZW5jZSBvZiBpbnRlcm5hdGlvbmFsbHkgZGlzdGlu
-Z3Vpc2hlZCBrZXlub3RlIHNwZWFrZXJzOgpBbGV4YW5kZXIgIEJyb2Rza3ksIEdlb3JnZSBNYXNv
-biBVbml2ZXJzaXR5LCBVbml0ZWQgU3RhdGVzCgpBIHNob3J0IGxpc3Qgb2YgcHJlc2VudGVkIHBh
-cGVycyB3aWxsIGJlIHNlbGVjdGVkIHNvIHRoYXQgcmV2aXNlZCBhbmQgZXh0ZW5kZWQgdmVyc2lv
-bnMgb2YgdGhlc2UgcGFwZXJzIHdpbGwgYmUgcHVibGlzaGVkIGJ5IFNwcmluZ2VyLgogCkFsbCBw
-YXBlcnMgcHJlc2VudGVkIGF0IHRoZSBjb25ncmVzcyB2ZW51ZSB3aWxsIGFsc28gYmUgYXZhaWxh
-YmxlIGF0IHRoZSBTQ0lURVBSRVNTIERpZ2l0YWwgTGlicmFyeSAoaHR0cDovL3d3dy5zY2l0ZXBy
-ZXNzLm9yZy9EaWdpdGFsTGlicmFyeS8pLgogIApTaG91bGQgeW91IGhhdmUgYW55IHF1ZXN0aW9u
-IHBsZWFzZSBkb27igJl0IGhlc2l0YXRlIGNvbnRhY3RpbmcgbWUuCiAKCktpbmQgcmVnYXJkcywK
-SUNFSVMgU2VjcmV0YXJpYXQKCkFkZHJlc3M6IEF2LiBELiBNYW51ZWwgSSwgMjdBLCAywrogZXNx
-LgoyOTEwLTU5NSBTZXR1YmFsLCBQb3J0dWdhbApUZWw6ICszNTEgMjY1IDUyMCAxODQKRmF4OiAr
-MzUxIDI2NSA1MjAgMTg2CldlYjogaHR0cDovL3d3dy5pY2Vpcy5vcmcvCmUtbWFpbDogaWNlaXMu
-c2VjcmV0YXJpYXRAaW5zdGljYy5vcmcKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Fri, Jun 09, 2017 at 06:41:41PM +0800, Wei Wang wrote:
+> -	if (!virtqueue_indirect_desc_table_add(vq, desc, num)) {
+> +	if (!virtqueue_indirect_desc_table_add(vq, desc, *num)) {
+>  		virtqueue_kick(vq);
+> -		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+> -		vb->balloon_page_chunk.chunk_num = 0;
+> +		if (busy_wait)
+> +			while (!virtqueue_get_buf(vq, &len) &&
+> +			       !virtqueue_is_broken(vq))
+> +				cpu_relax();
+> +		else
+> +			wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+
+
+This is something I didn't previously notice.
+As you always keep a single buffer in flight, you do not
+really need indirect at all. Just add all descriptors
+in the ring directly, then kick.
+
+E.g.
+	virtqueue_add_first
+	virtqueue_add_next
+	virtqueue_add_last
+
+?
+
+You also want a flag to avoid allocations but there's no need to do it
+per descriptor, set it on vq.
+
+-- 
+MST
