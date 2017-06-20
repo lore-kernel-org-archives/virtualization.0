@@ -1,15 +1,12 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [RFC] virtio-mem: paravirtualized memory
-Date: Mon, 19 Jun 2017 12:26:52 +0200
-Message-ID: <4cec825b-d92e-832e-3a76-103767032528__34972.1825951294$1497868032$gmane$org@redhat.com>
-References: <547865a9-d6c2-7140-47e2-5af01e7d761d@redhat.com>
-	<20170619100813.GB17304@stefanha-x1.localdomain>
+From: "smartgreens@insticc.info" <smartgreens@insticc.info>
+Subject: CFP SMARTGREENS 2018 - 7th Int.l Conf. on Smart Cities and Green
+	ICT Systems (Funchal, Madeira/Portugal)
+Date: 20 Jun 2017 15:10:26 +0100
+Message-ID: <20170620141029.117316.4BF2080554E05627@insticc.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170619100813.GB17304@stefanha-x1.localdomain>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,47 +16,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 19.06.2017 12:08, Stefan Hajnoczi wrote:
-> On Fri, Jun 16, 2017 at 04:20:02PM +0200, David Hildenbrand wrote:
->> Important restrictions of this concept:
->> - Guests without a virtio-mem guest driver can't see that memory.
->> - We will always require some boot memory that cannot get unplugged.
->>   Also, virtio-mem memory (as all other hotplugged memory) cannot become
->>   DMA memory under Linux. So the boot memory also defines the amount of
->>   DMA memory.
-> 
-> I didn't know that hotplug memory cannot become DMA memory.
-> 
-> Ouch.  Zero-copy disk I/O with O_DIRECT and network I/O with virtio-net
-> won't be possible.
-> 
-> When running an application that uses O_DIRECT file I/O this probably
-> means we now have 2 copies of pages in memory: 1. in the application and
-> 2. in the kernel page cache.
-> 
-> So this increases pressure on the page cache and reduces performance :(.
-> 
-> Stefan
-> 
-
-arch/x86/mm/init_64.c:
-
-/*
- * Memory is added always to NORMAL zone. This means you will never get
- * additional DMA/DMA32 memory.
- */
-int arch_add_memory(int nid, u64 start, u64 size, bool for_device)
-{
-
-The is for sure something to work on in the future. Until then, base
-memory of 3.X GB should be sufficient, right?
-
--- 
-
-Thanks,
-
-David
+U1VCTUlTU0lPTiBERUFETElORSAKCjd0aCBJbnRlcm5hdGlvbmFsIENvbmZlcmVuY2Ugb24gU21h
+cnQgQ2l0aWVzIGFuZCBHcmVlbiBJQ1QgU3lzdGVtcwoKU3VibWlzc2lvbiBEZWFkbGluZTogT2N0
+b2JlciAxNiwgMjAxNwoKaHR0cDovL3d3dy5zbWFydGdyZWVucy5vcmcvCgpNYXJjaCAxNiAtIDE4
+LCAyMDE4CkZ1bmNoYWwsIE1hZGVpcmEsIFBvcnR1Z2FsLgoKIFNNQVJUR1JFRU5TIGlzIG9yZ2Fu
+aXplZCBpbiA0IG1ham9yIHRyYWNrczoKCiAtIEVuZXJneS1Bd2FyZSBTeXN0ZW1zIGFuZCBUZWNo
+bm9sb2dpZXMKIC0gU3VzdGFpbmFibGUgQ29tcHV0aW5nIGFuZCBTeXN0ZW1zCiAtIFNtYXJ0IENp
+dGllcyBhbmQgU21hcnQgQnVpbGRpbmdzCiAtIERlbW9zIGFuZCBVc2UtQ2FzZXMKCkluIENvb3Bl
+cmF0aW9uIHdpdGggSUVFRSBUZWNobmljYWwgQXJlYSBpbiBHcmVlbiBDb21wdXRpbmcsIFNpZW1l
+bnMsIEVEU08sIEFQRUEuCiAKV2l0aCB0aGUgcHJlc2VuY2Ugb2YgaW50ZXJuYXRpb25hbGx5IGRp
+c3Rpbmd1aXNoZWQga2V5bm90ZSBzcGVha2VyczoKIAoKQSBzaG9ydCBsaXN0IG9mIHByZXNlbnRl
+ZCBwYXBlcnMgd2lsbCBiZSBzZWxlY3RlZCBzbyB0aGF0IHJldmlzZWQgYW5kIGV4dGVuZGVkIHZl
+cnNpb25zIG9mIHRoZXNlIHBhcGVycyB3aWxsIGJlIHB1Ymxpc2hlZCBieSBTcHJpbmdlci4KIApB
+bGwgcGFwZXJzIHByZXNlbnRlZCBhdCB0aGUgY29uZ3Jlc3MgdmVudWUgd2lsbCBhbHNvIGJlIGF2
+YWlsYWJsZSBhdCB0aGUgU0NJVEVQUkVTUyBEaWdpdGFsIExpYnJhcnkgKGh0dHA6Ly93d3cuc2Np
+dGVwcmVzcy5vcmcvRGlnaXRhbExpYnJhcnkvKS4KICAKU2hvdWxkIHlvdSBoYXZlIGFueSBxdWVz
+dGlvbiBwbGVhc2UgZG9u4oCZdCBoZXNpdGF0ZSBjb250YWN0aW5nIG1lLgogCgpLaW5kIHJlZ2Fy
+ZHMsClNNQVJUR1JFRU5TIFNlY3JldGFyaWF0CgpBZGRyZXNzOiBBdi4gRC4gTWFudWVsIEksIDI3
+QSwgMsK6IGVzcS4KMjkxMC01OTUgU2V0dWJhbCwgUG9ydHVnYWwKVGVsOiArMzUxIDI2NSA1MjAg
+MTg1CkZheDogKzM1MSAyNjUgNTIwIDE4NgpXZWI6IGh0dHA6Ly93d3cuc21hcnRncmVlbnMub3Jn
+LwplLW1haWw6IHNtYXJ0Z3JlZW5zLnNlY3JldGFyaWF0QGluc3RpY2Mub3JnCgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
