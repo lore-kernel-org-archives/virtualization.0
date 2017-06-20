@@ -1,13 +1,14 @@
-From: Damian Tometzki <damian.tometzki@icloud.com>
-Subject: Re: [PATCH v16 0/5] Virtio-balloon Enhancement
-Date: Sun, 01 Oct 2017 15:16:51 +0200
-Message-ID: <1506863811.1916.1.camel__47084.2230519795$1509078203$gmane$org@icloud.com>
-References: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH 05/11] dmr: gma500: remove dead code and pointless local lut
+	storage
+Date: Tue, 20 Jun 2017 21:25:29 +0200
+Message-ID: <1497986735-14418-6-git-send-email-peda__24700.7074220621$1509078213$gmane$org@axentia.se>
+References: <1497986735-14418-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <1497986735-14418-1-git-send-email-peda@axentia.se>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,131 +18,162 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, mawilcox@microsoft.com
-Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, mgorman@techsingularity.net
+To: linux-kernel@vger.kernel.org
+Cc: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, amd-gfx@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, David Airlie <airlied@linux.ie>, nouveau@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Philippe Cornu <philippe.cornu@st.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>, Yannick Fertre <yannick.fertre@st.com>, Sean Paul <seanpaul@chromium.org>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Alex Deucher <alexander.deucher@amd.com>, Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org, Vincent Abriou <vincent.abriou@st.com>, Peter Rosin <peda@axentia.se>, Ben Skeggs <bskeggs@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGVsbG8sCgp3aGVyZSBpIGNhbiBmb3VuZCB0aGUgcGF0Y2ggaW4gZ2l0Lmtlcm5lbC5vcmcgPwoK
-CkFtIFNhbXN0YWcsIGRlbiAzMC4wOS4yMDE3LCAxMjowNSArMDgwMCBzY2hyaWViIFdlaSBXYW5n
-Ogo+IFRoaXMgcGF0Y2ggc2VyaWVzIGVuaGFuY2VzIHRoZSBleGlzdGluZyB2aXJ0aW8tYmFsbG9v
-biB3aXRoIHRoZQo+IGZvbGxvd2luZwo+IG5ldyBmZWF0dXJlczoKPiAxKSBmYXN0IGJhbGxvb25p
-bmc6IHRyYW5zZmVyIGJhbGxvb25lZCBwYWdlcyBiZXR3ZWVuIHRoZSBndWVzdCBhbmQKPiBob3N0
-IGluCj4gY2h1bmtzIHVzaW5nIHNncywgaW5zdGVhZCBvZiBvbmUgYXJyYXkgZWFjaCB0aW1lOyBh
-bmQKPiAyKSBmcmVlIHBhZ2UgYmxvY2sgcmVwb3J0aW5nOiBhIG5ldyB2aXJ0cXVldWUgdG8gcmVw
-b3J0IGd1ZXN0IGZyZWUKPiBwYWdlcwo+IHRvIHRoZSBob3N0Lgo+IAo+IFRoZSBzZWNvbmQgZmVh
-dHVyZSBjYW4gYmUgdXNlZCB0byBhY2NlbGVyYXRlIGxpdmUgbWlncmF0aW9uIG9mIFZNcy4KPiBI
-ZXJlCj4gYXJlIHNvbWUgZGV0YWlsczoKPiAKPiBMaXZlIG1pZ3JhdGlvbiBuZWVkcyB0byB0cmFu
-c2ZlciB0aGUgVk0ncyBtZW1vcnkgZnJvbSB0aGUgc291cmNlCj4gbWFjaGluZQo+IHRvIHRoZSBk
-ZXN0aW5hdGlvbiByb3VuZCBieSByb3VuZC4gRm9yIHRoZSAxc3Qgcm91bmQsIGFsbCB0aGUgVk0n
-cwo+IG1lbW9yeQo+IGlzIHRyYW5zZmVycmVkLiBGcm9tIHRoZSAybmQgcm91bmQsIG9ubHkgdGhl
-IHBpZWNlcyBvZiBtZW1vcnkgdGhhdAo+IHdlcmUKPiB3cml0dGVuIGJ5IHRoZSBndWVzdCAoYWZ0
-ZXIgdGhlIDFzdCByb3VuZCkgYXJlIHRyYW5zZmVycmVkLiBPbmUKPiBtZXRob2QKPiB0aGF0IGlz
-IHBvcHVsYXJseSB1c2VkIGJ5IHRoZSBoeXBlcnZpc29yIHRvIHRyYWNrIHdoaWNoIHBhcnQgb2YK
-PiBtZW1vcnkgaXMKPiB3cml0dGVuIGlzIHRvIHdyaXRlLXByb3RlY3QgYWxsIHRoZSBndWVzdCBt
-ZW1vcnkuCj4gCj4gVGhlIHNlY29uZCBmZWF0dXJlIGVuYWJsZXMgdGhlIG9wdGltaXphdGlvbiBv
-ZiB0aGUgMXN0IHJvdW5kIG1lbW9yeQo+IHRyYW5zZmVyIC0gdGhlIGh5cGVydmlzb3IgY2FuIHNr
-aXAgdGhlIHRyYW5zZmVyIG9mIGd1ZXN0IGZyZWUgcGFnZXMKPiBpbiB0aGUKPiAxc3Qgcm91bmQu
-IEl0IGlzIG5vdCBjb25jZXJuZWQgdGhhdCB0aGUgbWVtb3J5IHBhZ2VzIGFyZSB1c2VkIGFmdGVy
-Cj4gdGhleQo+IGFyZSBnaXZlbiB0byB0aGUgaHlwZXJ2aXNvciBhcyBhIGhpbnQgb2YgdGhlIGZy
-ZWUgcGFnZXMsIGJlY2F1c2UgdGhleQo+IHdpbGwKPiBiZSB0cmFja2VkIGJ5IHRoZSBoeXBlcnZp
-c29yIGFuZCB0cmFuc2ZlcnJlZCBpbiB0aGUgbmV4dCByb3VuZCBpZgo+IHRoZXkgYXJlCj4gdXNl
-ZCBhbmQgd3JpdHRlbi4KPiAKPiBDaGFuZ2UgTG9nOgo+IHYxNS0+djE2Ogo+IDEpIG1tOiBzdG9w
-IHJlcG9ydGluZyB0aGUgZnJlZSBwZm4gcmFuZ2UgaWYgdGhlIGNhbGxiYWNrIHJldHVybnMKPiBm
-YWxzZTsKPiAyKSBtbTogbW92ZSBzb21lIGltcGxlbWVudGFpb24gb2Ygd2Fsa19mcmVlX21lbV9i
-bG9jayBpbnRvIGEgZnVuY3Rpb24KPiB0bwo+IG1ha2UgdGhlIGNvZGUgbGF5b3V0IGxvb2tzIGJl
-dHRlcjsKPiAzKSB4Yml0bWFwOiBhZGRlZCBzb21lIG9wdGltaXphdGlvbnMgc3VnZ2VzdGVkIGJ5
-IE1hdHRoZXcsIHBsZWFzZQo+IHJlZmVyIHRvCj4gdGhlIENoYW5nTG9nIGluIHRoZSB4Yml0bWFw
-IHBhdGNoIGZvciBkZXRhaWxzLgo+IDQpIHhiaXRtYXA6IGFkZGVkIGEgdGVzdCBzdWl0ZQo+IDUp
-IHZpcnRpby1iYWxsb29uOiBiYWlsIG91dCB3aXRoIGEgd2FybmluZyB3aGVuIHZpcnRxdWV1ZV9h
-ZGRfaW5idWYKPiByZXR1cm5zCj4gYW4gZXJyb3IKPiA2KSB2aXJ0aW8tYmFsbG9vbjogc29tZSBz
-bWFsbCBjb2RlIHJlLWFycmFuZ2VtZW50LCBlLmcuIGRldGFjaGluZgo+IHVzZWQgYnVmCj4gZnJv
-bSB0aGUgdnEgYmVmb3JlIGFkZGluZyBhIG5ldyBidWYKPiAKPiB2MTQtPnYxNToKPiAxKSBtbTog
-bWFrZSB0aGUgcmVwb3J0IGNhbGxiYWNrIHJldHVybiBhIGJvb2wgdmFsdWUgLSByZXR1cm5pbmcg
-MSB0bwo+IHN0b3AKPiB3YWxraW5nIHRocm91Z2ggdGhlIGZyZWUgcGFnZSBsaXN0Lgo+IDIpIHZp
-cnRpby1iYWxsb29uOiBiYXRjaGluZyBzZ3Mgb2YgYmFsbG9vbiBwYWdlcyB0aWxsIHRoZSB2cSBp
-cyBmdWxsCj4gMykgdmlydGlvLWJhbGxvb246IGNyZWF0ZSBhIG5ldyB3b3JrcXVldWUsIHJhdGhl
-ciB0aGFuIHVzaW5nIHRoZQo+IGRlZmF1bHQKPiBzeXN0ZW1fd3EsIHRvIHF1ZXVlIHRoZSBmcmVl
-IHBhZ2UgcmVwb3J0aW5nIHdvcmsgaXRlbS4KPiA0KSB2aXJ0aW8tYmFsbG9vbjogYWRkIGEgY3Ry
-bF92cSB0byBiZSBhIGNlbnRyYWwgY29udHJvbCBwbGFuZSB3aGljaAo+IHdpbGwKPiBoYW5kbGUg
-YWxsIHRoZSBmdXR1cmUgY29udHJvbCByZWxhdGVkIGNvbW1hbmRzIGJldHdlZW4gdGhlIGhvc3Qg
-YW5kCj4gZ3Vlc3QuCj4gQWRkIGZyZWUgcGFnZSByZXBvcnQgYXMgdGhlIGZpcnN0IGZlYXR1cmUg
-Y29udHJvbGxlZCB1bmRlciBjdHJsX3ZxLAo+IGFuZAo+IHRoZSBmcmVlX3BhZ2VfdnEgaXMgYSBk
-YXRhIHBsYW5lIHZxIGRlZGljYXRlZCB0byB0aGUgdHJhbnNtaXNzaW9uIG9mCj4gZnJlZQo+IHBh
-Z2UgYmxvY2tzLgo+IAo+IHYxMy0+djE0Ogo+IDEpIHhiaXRtYXA6IG1vdmUgdGhlIGNvZGUgZnJv
-bSBsaWIvcmFkaXgtdHJlZS5jIHRvIGxpYi94Yml0bWFwLmMuCj4gMikgeGJpdG1hcDogY29uc29s
-aWRhdGUgdGhlIGltcGxlbWVudGF0aW9uIG9mIHhiX2JpdF9zZXQvY2xlYXIvdGVzdAo+IGludG8K
-PiBvbmUgeGJfYml0X29wcy4KPiAzKSB4Yml0bWFwOiBhZGQgZG9jdW1lbnRzIGZvciB0aGUgZXhw
-b3J0ZWQgQVBJcy4KPiA0KSBtbTogcmV3cml0ZSB0aGUgZnVuY3Rpb24gdG8gd2FsayB0aHJvdWdo
-IGZyZWUgcGFnZSBibG9ja3MuCj4gNSkgdmlydGlvLWJhbGxvb246IHdoZW4gcmVwb3J0aW5nIGEg
-ZnJlZSBwYWdlIGJsY29rIHRvIHRoZSBkZXZpY2UsIGlmCj4gdGhlCj4gdnEgaXMgZnVsbCAobGVz
-cyBsaWtleSB0byBoYXBwZW4gaW4gcHJhY3RpY2UpLCBqdXN0IHNraXAgcmVwb3J0aW5nCj4gdGhp
-cwo+IGJsb2NrLCBpbnN0ZWFkIG9mIGJ1c3l3YWl0aW5nIHRpbGwgYW4gZW50cnkgZ2V0cyByZWxl
-YXNlZC4KPiA2KSB2aXJ0aW8tYmFsbG9vbjogZmFpbCB0aGUgcHJvYmUgZnVuY3Rpb24gaWYgYWRk
-aW5nIHRoZSBzaWduYWwgYnVmCj4gaW4KPiBpbml0X3ZxcyBmYWlscy4KPiAKPiB2MTItPnYxMzoK
-PiAxKSBtbTogdXNlIGEgY2FsbGJhY2sgZnVuY3Rpb24gdG8gaGFuZGxlIHRoZSB0aGUgZnJlZSBw
-YWdlIGJsb2Nrcwo+IGZyb20gdGhlCj4gcmVwb3J0IGZ1bmN0aW9uLiBUaGlzIGF2b2lkcyBleHBv
-c2luZyB0aGUgem9uZSBpbnRlcm5hbCB0byBhIGtlcm5lbAo+IG1vZHVsZS4KPiAyKSB2aXJ0aW8t
-YmFsbG9vbjogc2VuZCBiYWxsb29uIHBhZ2VzIG9yIGEgZnJlZSBwYWdlIGJsb2NrIHVzaW5nIGEK
-PiBzaW5nbGUKPiBzZyBlYWNoIHRpbWUuIFRoaXMgaGFzIHRoZSBiZW5lZml0cyBvZiBzaW1wbGVy
-IGltcGxlbWVudGF0aW9uIHdpdGggbm8KPiBuZXcKPiBBUElzLgo+IDMpIHZpcnRpby1iYWxsb29u
-OiB0aGUgZnJlZV9wYWdlX3ZxIGlzIHVzZWQgdG8gcmVwb3J0IGZyZWUgcGFnZXMgb25seQo+IChu
-bwo+IG11bHRpcGxlIHVzYWdlcyBpbnRlcmxlYXZpbmcpCj4gNCkgdmlydGlvLWJhbGxvb246IEJh
-bGxvb24gcGFnZXMgYW5kIGZyZWUgcGFnZSBibG9ja3MgYXJlIHNlbnQgdmlhCj4gaW5wdXQKPiBz
-Z3MsIGFuZCB0aGUgY29tcGxldGlvbiBzaWduYWwgdG8gdGhlIGhvc3QgaXMgc2VudCB2aWEgYW4g
-b3V0cHV0IHNnLgo+IAo+IHYxMS0+djEyOgo+IDEpIHhiaXRtYXA6IHVzZSB0aGUgeGJpdG1hcCBm
-cm9tIE1hdHRoZXcgV2lsY294IHRvIHJlY29yZCBiYWxsb29uZWQKPiBwYWdlcy4KPiAyKSB2aXJ0
-aW8tcmluZzogZW5hYmxlIHRoZSBkcml2ZXIgdG8gYnVpbGQgdXAgYSBkZXNjIGNoYWluIHVzaW5n
-Cj4gdnJpbmcKPiBkZXNjLgo+IDMpIHZpcnRpby1yaW5nOiBBZGQgbG9ja2luZyB0byB0aGUgZXhp
-c3RpbmcgU1RBUlRfVVNFKCkgYW5kIEVORF9VU0UoKQo+IG1hY3JvIHRvIGxvY2svdW5sb2NrIHRo
-ZSB2cSB3aGVuIGEgdnEgb3BlcmF0aW9uIHN0YXJ0cy9lbmRzLgo+IDQpIHZpcnRpby1yaW5nOiBh
-ZGQgdmlydHF1ZXVlX2tpY2tfc3luYygpIGFuZCB2aXJ0cXVldWVfa2lja19hc3luYygpCj4gNSkg
-dmlydGlvLWJhbGxvb246IGRlc2NyaWJlIGNodW5rcyBvZiBiYWxsb29uZWQgcGFnZXMgYW5kIGZy
-ZWUgcGFnZXMKPiBibG9ja3MgZGlyZWN0bHkgdXNpbmcgb25lIG9yIG1vcmUgY2hhaW5zIG9mIGRl
-c2MgZnJvbSB0aGUgdnEuCj4gCj4gdjEwLT52MTE6Cj4gMSkgdmlydGlvX2JhbGxvb246IHVzZSB2
-cmluZ19kZXNjIHRvIGRlc2NyaWJlIGEgY2h1bms7Cj4gMikgdmlydGlvX3Jpbmc6IHN1cHBvcnQg
-dG8gYWRkIGFuIGluZGlyZWN0IGRlc2MgdGFibGUgdG8gdmlydHF1ZXVlOwo+IDMpwqDCoHZpcnRp
-b19iYWxsb29uOiB1c2UgY21kcSB0byByZXBvcnQgZ3Vlc3QgbWVtb3J5IHN0YXRpc3RpY3MuCj4g
-Cj4gdjktPnYxMDoKPiAxKSBtbTogcHV0IHJlcG9ydF91bnVzZWRfcGFnZV9ibG9jaygpIHVuZGVy
-IENPTkZJR19WSVJUSU9fQkFMTE9PTjsKPiAyKSB2aXJ0aW8tYmFsbG9vbjogYWRkIHZpcnRiYWxs
-b29uX3ZhbGlkYXRlKCk7Cj4gMykgdmlydGlvLWJhbGxvb246IG1zZyBmb3JtYXQgY2hhbmdlOwo+
-IDQpIHZpcnRpby1iYWxsb29uOiBtb3ZlIG1pc2NxIGhhbmRsaW5nIHRvIGEgdGFzayBvbgo+IHN5
-c3RlbV9mcmVlemFibGVfd3E7Cj4gNSkgdmlydGlvLWJhbGxvb246IGNvZGUgY2xlYW51cC4KPiAK
-PiB2OC0+djk6Cj4gMSkgU3BsaXQgdGhlIHR3byBuZXcgZmVhdHVyZXMsIFZJUlRJT19CQUxMT09O
-X0ZfQkFMTE9PTl9DSFVOS1MgYW5kCj4gVklSVElPX0JBTExPT05fRl9NSVNDX1ZRLCB3aGljaCB3
-ZXJlIG1peGVkIHRvZ2V0aGVyIGluIHRoZSBwcmV2aW91cwo+IGltcGxlbWVudGF0aW9uOwo+IDIp
-IFNpbXBsZXIgZnVuY3Rpb24gdG8gZ2V0IHRoZSBmcmVlIHBhZ2UgYmxvY2suCj4gCj4gdjctPnY4
-Ogo+IDEpIFVzZSBvbmx5IG9uZSBjaHVuayBmb3JtYXQsIGluc3RlYWQgb2YgdHdvLgo+IDIpIHJl
-LXdyaXRlIHRoZSB2aXJ0aW8tYmFsbG9vbiBpbXBsZW1lbnRhdGlvbiBwYXRjaC4KPiAzKSBjb21t
-aXQgY2hhbmdlcwo+IDQpIHBhdGNoIHJlLW9yZwo+IAo+IE1hdHRoZXcgV2lsY294ICgyKToKPiDC
-oCBsaWIveGJpdG1hcDogSW50cm9kdWNlIHhiaXRtYXAKPiDCoCByYWRpeCB0cmVlIHRlc3Qgc3Vp
-dGU6IGFkZCB0ZXN0cyBmb3IgeGJpdG1hcAo+IAo+IFdlaSBXYW5nICgzKToKPiDCoCB2aXJ0aW8t
-YmFsbG9vbjogVklSVElPX0JBTExPT05fRl9TRwo+IMKgIG1tOiBzdXBwb3J0IHJlcG9ydGluZyBm
-cmVlIHBhZ2UgYmxvY2tzCj4gwqAgdmlydGlvLWJhbGxvb246IFZJUlRJT19CQUxMT09OX0ZfQ1RS
-TF9WUQo+IAo+IMKgZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uY8KgwqDCoMKgwqDCoMKg
-wqDCoHwgNDM3Cj4gKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0KPiDCoGluY2x1ZGUv
-bGludXgvbW0uaMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfMKg
-wqDCoDYgKwo+IMKgaW5jbHVkZS9saW51eC9yYWRpeC10cmVlLmjCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgfMKgwqDCoDIgKwo+IMKgaW5jbHVkZS9saW51eC94Yml0bWFwLmjCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfMKgwqA2NiArKysrKwo+IMKgaW5jbHVkZS91YXBpL2xp
-bnV4L3ZpcnRpb19iYWxsb29uLmjCoMKgwqDCoMKgfMKgwqAxNiArKwo+IMKgbGliL01ha2VmaWxl
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB8
-wqDCoMKgMiArLQo+IMKgbGliL3JhZGl4LXRyZWUuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoHzCoMKgNDIgKystCj4gwqBsaWIveGJpdG1hcC5jwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfCAyNjQgKysr
-KysrKysrKysrKysrKysrKwo+IMKgbW0vcGFnZV9hbGxvYy5jwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB8wqDCoDkxICsrKysrKysKPiDCoHRvb2xzL2lu
-Y2x1ZGUvbGludXgvYml0bWFwLmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB8wqDCoDM0ICsrKwo+
-IMKgdG9vbHMvaW5jbHVkZS9saW51eC9rZXJuZWwuaMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHzC
-oMKgwqAyICsKPiDCoHRvb2xzL3Rlc3RpbmcvcmFkaXgtdHJlZS9NYWtlZmlsZcKgwqDCoMKgwqDC
-oMKgfMKgwqDCoDcgKy0KPiDCoHRvb2xzL3Rlc3RpbmcvcmFkaXgtdHJlZS9saW51eC9rZXJuZWwu
-aCB8wqDCoMKgMiAtCj4gwqB0b29scy90ZXN0aW5nL3JhZGl4LXRyZWUvbWFpbi5jwqDCoMKgwqDC
-oMKgwqDCoMKgfMKgwqDCoDUgKwo+IMKgdG9vbHMvdGVzdGluZy9yYWRpeC10cmVlL3Rlc3QuaMKg
-wqDCoMKgwqDCoMKgwqDCoHzCoMKgwqAxICsKPiDCoHRvb2xzL3Rlc3RpbmcvcmFkaXgtdHJlZS94
-Yml0bWFwLmPCoMKgwqDCoMKgwqB8IDI2OSArKysrKysrKysrKysrKysrKysrKwo+IMKgMTYgZmls
-ZXMgY2hhbmdlZCwgMTIwMyBpbnNlcnRpb25zKCspLCA0MyBkZWxldGlvbnMoLSkKPiDCoGNyZWF0
-ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2xpbnV4L3hiaXRtYXAuaAo+IMKgY3JlYXRlIG1vZGUgMTAw
-NjQ0IGxpYi94Yml0bWFwLmMKPiDCoGNyZWF0ZSBtb2RlIDEwMDY0NCB0b29scy90ZXN0aW5nL3Jh
-ZGl4LXRyZWUveGJpdG1hcC5jCj4gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+The redundant fb helpers .gamma_set and .gamma_get are no longer
+used. Remove the dead code and hook up the crtc .gamma_set
+to use the crtc gamma_store directly instead of duplicating that
+info locally.
+
+It is a bit strange that the fb helper .load_lut was not hooked
+up, so this change may well make the driver work for the C8 mode
+from the fbdev interface. But that is untested.
+
+Signed-off-by: Peter Rosin <peda@axentia.se>
+---
+ drivers/gpu/drm/gma500/framebuffer.c       | 22 --------------------
+ drivers/gpu/drm/gma500/gma_display.c       | 32 ++++++++++--------------------
+ drivers/gpu/drm/gma500/psb_intel_display.c |  7 +------
+ drivers/gpu/drm/gma500/psb_intel_drv.h     |  1 -
+ 4 files changed, 12 insertions(+), 50 deletions(-)
+
+diff --git a/drivers/gpu/drm/gma500/framebuffer.c b/drivers/gpu/drm/gma500/framebuffer.c
+index 7da70b6..2570c7f 100644
+--- a/drivers/gpu/drm/gma500/framebuffer.c
++++ b/drivers/gpu/drm/gma500/framebuffer.c
+@@ -479,26 +479,6 @@ static struct drm_framebuffer *psb_user_framebuffer_create
+ 	return psb_framebuffer_create(dev, cmd, r);
+ }
+ 
+-static void psbfb_gamma_set(struct drm_crtc *crtc, u16 red, u16 green,
+-							u16 blue, int regno)
+-{
+-	struct gma_crtc *gma_crtc = to_gma_crtc(crtc);
+-
+-	gma_crtc->lut_r[regno] = red >> 8;
+-	gma_crtc->lut_g[regno] = green >> 8;
+-	gma_crtc->lut_b[regno] = blue >> 8;
+-}
+-
+-static void psbfb_gamma_get(struct drm_crtc *crtc, u16 *red,
+-					u16 *green, u16 *blue, int regno)
+-{
+-	struct gma_crtc *gma_crtc = to_gma_crtc(crtc);
+-
+-	*red = gma_crtc->lut_r[regno] << 8;
+-	*green = gma_crtc->lut_g[regno] << 8;
+-	*blue = gma_crtc->lut_b[regno] << 8;
+-}
+-
+ static int psbfb_probe(struct drm_fb_helper *helper,
+ 				struct drm_fb_helper_surface_size *sizes)
+ {
+@@ -525,8 +505,6 @@ static int psbfb_probe(struct drm_fb_helper *helper,
+ }
+ 
+ static const struct drm_fb_helper_funcs psb_fb_helper_funcs = {
+-	.gamma_set = psbfb_gamma_set,
+-	.gamma_get = psbfb_gamma_get,
+ 	.fb_probe = psbfb_probe,
+ };
+ 
+diff --git a/drivers/gpu/drm/gma500/gma_display.c b/drivers/gpu/drm/gma500/gma_display.c
+index e7fd356..f3c48a2 100644
+--- a/drivers/gpu/drm/gma500/gma_display.c
++++ b/drivers/gpu/drm/gma500/gma_display.c
+@@ -144,33 +144,32 @@ void gma_crtc_load_lut(struct drm_crtc *crtc)
+ 	struct gma_crtc *gma_crtc = to_gma_crtc(crtc);
+ 	const struct psb_offset *map = &dev_priv->regmap[gma_crtc->pipe];
+ 	int palreg = map->palette;
++	u16 *r, *g, *b;
+ 	int i;
+ 
+ 	/* The clocks have to be on to load the palette. */
+ 	if (!crtc->enabled)
+ 		return;
+ 
++	r = crtc->gamma_store;
++	g = r + crtc->gamma_size;
++	b = g + crtc->gamma_size;
++
+ 	if (gma_power_begin(dev, false)) {
+ 		for (i = 0; i < 256; i++) {
+ 			REG_WRITE(palreg + 4 * i,
+-				  ((gma_crtc->lut_r[i] +
+-				  gma_crtc->lut_adj[i]) << 16) |
+-				  ((gma_crtc->lut_g[i] +
+-				  gma_crtc->lut_adj[i]) << 8) |
+-				  (gma_crtc->lut_b[i] +
+-				  gma_crtc->lut_adj[i]));
++				  (((*r++ >> 8) + gma_crtc->lut_adj[i]) << 16) |
++				  (((*g++ >> 8) + gma_crtc->lut_adj[i]) << 8) |
++				  ((*b++ >> 8) + gma_crtc->lut_adj[i]));
+ 		}
+ 		gma_power_end(dev);
+ 	} else {
+ 		for (i = 0; i < 256; i++) {
+ 			/* FIXME: Why pipe[0] and not pipe[..._crtc->pipe]? */
+ 			dev_priv->regs.pipe[0].palette[i] =
+-				  ((gma_crtc->lut_r[i] +
+-				  gma_crtc->lut_adj[i]) << 16) |
+-				  ((gma_crtc->lut_g[i] +
+-				  gma_crtc->lut_adj[i]) << 8) |
+-				  (gma_crtc->lut_b[i] +
+-				  gma_crtc->lut_adj[i]);
++				(((*r++ >> 8) + gma_crtc->lut_adj[i]) << 16) |
++				(((*g++ >> 8) + gma_crtc->lut_adj[i]) << 8) |
++				((*b++ >> 8) + gma_crtc->lut_adj[i]);
+ 		}
+ 
+ 	}
+@@ -180,15 +179,6 @@ int gma_crtc_gamma_set(struct drm_crtc *crtc, u16 *red, u16 *green, u16 *blue,
+ 		       u32 size,
+ 		       struct drm_modeset_acquire_ctx *ctx)
+ {
+-	struct gma_crtc *gma_crtc = to_gma_crtc(crtc);
+-	int i;
+-
+-	for (i = 0; i < size; i++) {
+-		gma_crtc->lut_r[i] = red[i] >> 8;
+-		gma_crtc->lut_g[i] = green[i] >> 8;
+-		gma_crtc->lut_b[i] = blue[i] >> 8;
+-	}
+-
+ 	gma_crtc_load_lut(crtc);
+ 
+ 	return 0;
+diff --git a/drivers/gpu/drm/gma500/psb_intel_display.c b/drivers/gpu/drm/gma500/psb_intel_display.c
+index 7b6c849..8762efa 100644
+--- a/drivers/gpu/drm/gma500/psb_intel_display.c
++++ b/drivers/gpu/drm/gma500/psb_intel_display.c
+@@ -518,13 +518,8 @@ void psb_intel_crtc_init(struct drm_device *dev, int pipe,
+ 	gma_crtc->pipe = pipe;
+ 	gma_crtc->plane = pipe;
+ 
+-	for (i = 0; i < 256; i++) {
+-		gma_crtc->lut_r[i] = i;
+-		gma_crtc->lut_g[i] = i;
+-		gma_crtc->lut_b[i] = i;
+-
++	for (i = 0; i < 256; i++)
+ 		gma_crtc->lut_adj[i] = 0;
+-	}
+ 
+ 	gma_crtc->mode_dev = mode_dev;
+ 	gma_crtc->cursor_addr = 0;
+diff --git a/drivers/gpu/drm/gma500/psb_intel_drv.h b/drivers/gpu/drm/gma500/psb_intel_drv.h
+index 6a10215..e8e4ea1 100644
+--- a/drivers/gpu/drm/gma500/psb_intel_drv.h
++++ b/drivers/gpu/drm/gma500/psb_intel_drv.h
+@@ -172,7 +172,6 @@ struct gma_crtc {
+ 	int plane;
+ 	uint32_t cursor_addr;
+ 	struct gtt_range *cursor_gt;
+-	u8 lut_r[256], lut_g[256], lut_b[256];
+ 	u8 lut_adj[256];
+ 	struct psb_intel_framebuffer *fbdev_fb;
+ 	/* a mode_set for fbdev users on this crtc */
+-- 
+2.1.4
