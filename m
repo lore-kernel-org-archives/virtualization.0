@@ -1,8 +1,8 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 03/11] drm: ast: remove dead code and pointless local lut
+Subject: [PATCH 04/11] drm: cirrus: remove dead code and pointless local lut
 	storage
-Date: Tue, 20 Jun 2017 21:25:27 +0200
-Message-ID: <1497986735-14418-4-git-send-email-peda__24112.6125948087$1509078085$gmane$org@axentia.se>
+Date: Tue, 20 Jun 2017 21:25:28 +0200
+Message-ID: <1497986735-14418-5-git-send-email-peda__46779.9103972085$1509078103$gmane$org@axentia.se>
 References: <1497986735-14418-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -29,125 +29,165 @@ info locally.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/gpu/drm/ast/ast_drv.h  |  1 -
- drivers/gpu/drm/ast/ast_fb.c   | 20 --------------------
- drivers/gpu/drm/ast/ast_mode.c | 26 ++++++--------------------
- 3 files changed, 6 insertions(+), 41 deletions(-)
+ drivers/gpu/drm/cirrus/cirrus_drv.h   |  8 ----
+ drivers/gpu/drm/cirrus/cirrus_fbdev.c |  2 -
+ drivers/gpu/drm/cirrus/cirrus_mode.c  | 71 ++++++++---------------------------
+ 3 files changed, 16 insertions(+), 65 deletions(-)
 
-diff --git a/drivers/gpu/drm/ast/ast_drv.h b/drivers/gpu/drm/ast/ast_drv.h
-index 8880f0b..569a148 100644
---- a/drivers/gpu/drm/ast/ast_drv.h
-+++ b/drivers/gpu/drm/ast/ast_drv.h
-@@ -245,7 +245,6 @@ struct ast_connector {
+diff --git a/drivers/gpu/drm/cirrus/cirrus_drv.h b/drivers/gpu/drm/cirrus/cirrus_drv.h
+index 8690352..be2d7e48 100644
+--- a/drivers/gpu/drm/cirrus/cirrus_drv.h
++++ b/drivers/gpu/drm/cirrus/cirrus_drv.h
+@@ -96,7 +96,6 @@
  
- struct ast_crtc {
- 	struct drm_crtc base;
--	u8 lut_r[256], lut_g[256], lut_b[256];
- 	struct drm_gem_object *cursor_bo;
- 	uint64_t cursor_addr;
- 	int cursor_width, cursor_height;
-diff --git a/drivers/gpu/drm/ast/ast_fb.c b/drivers/gpu/drm/ast/ast_fb.c
-index 4ad4acd..dbabcac 100644
---- a/drivers/gpu/drm/ast/ast_fb.c
-+++ b/drivers/gpu/drm/ast/ast_fb.c
-@@ -255,27 +255,7 @@ static int astfb_create(struct drm_fb_helper *helper,
- 	return ret;
+ struct cirrus_crtc {
+ 	struct drm_crtc			base;
+-	u8				lut_r[256], lut_g[256], lut_b[256];
+ 	int				last_dpms;
+ 	bool				enabled;
+ };
+@@ -180,13 +179,6 @@ cirrus_bo(struct ttm_buffer_object *bo)
+ #define to_cirrus_obj(x) container_of(x, struct cirrus_gem_object, base)
+ #define DRM_FILE_PAGE_OFFSET (0x100000000ULL >> PAGE_SHIFT)
+ 
+-				/* cirrus_mode.c */
+-void cirrus_crtc_fb_gamma_set(struct drm_crtc *crtc, u16 red, u16 green,
+-			     u16 blue, int regno);
+-void cirrus_crtc_fb_gamma_get(struct drm_crtc *crtc, u16 *red, u16 *green,
+-			     u16 *blue, int regno);
+-
+-
+ 				/* cirrus_main.c */
+ int cirrus_device_init(struct cirrus_device *cdev,
+ 		      struct drm_device *ddev,
+diff --git a/drivers/gpu/drm/cirrus/cirrus_fbdev.c b/drivers/gpu/drm/cirrus/cirrus_fbdev.c
+index 7fa58ee..1fedab0 100644
+--- a/drivers/gpu/drm/cirrus/cirrus_fbdev.c
++++ b/drivers/gpu/drm/cirrus/cirrus_fbdev.c
+@@ -265,8 +265,6 @@ static int cirrus_fbdev_destroy(struct drm_device *dev,
  }
  
--static void ast_fb_gamma_set(struct drm_crtc *crtc, u16 red, u16 green,
--			       u16 blue, int regno)
--{
--	struct ast_crtc *ast_crtc = to_ast_crtc(crtc);
--	ast_crtc->lut_r[regno] = red >> 8;
--	ast_crtc->lut_g[regno] = green >> 8;
--	ast_crtc->lut_b[regno] = blue >> 8;
--}
--
--static void ast_fb_gamma_get(struct drm_crtc *crtc, u16 *red, u16 *green,
--			       u16 *blue, int regno)
--{
--	struct ast_crtc *ast_crtc = to_ast_crtc(crtc);
--	*red = ast_crtc->lut_r[regno] << 8;
--	*green = ast_crtc->lut_g[regno] << 8;
--	*blue = ast_crtc->lut_b[regno] << 8;
--}
--
- static const struct drm_fb_helper_funcs ast_fb_helper_funcs = {
--	.gamma_set = ast_fb_gamma_set,
--	.gamma_get = ast_fb_gamma_get,
- 	.fb_probe = astfb_create,
+ static const struct drm_fb_helper_funcs cirrus_fb_helper_funcs = {
+-	.gamma_set = cirrus_crtc_fb_gamma_set,
+-	.gamma_get = cirrus_crtc_fb_gamma_get,
+ 	.fb_probe = cirrusfb_create,
  };
  
-diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
-index aaef0a6..724c16b 100644
---- a/drivers/gpu/drm/ast/ast_mode.c
-+++ b/drivers/gpu/drm/ast/ast_mode.c
-@@ -63,15 +63,18 @@ static inline void ast_load_palette_index(struct ast_private *ast,
- static void ast_crtc_load_lut(struct drm_crtc *crtc)
+diff --git a/drivers/gpu/drm/cirrus/cirrus_mode.c b/drivers/gpu/drm/cirrus/cirrus_mode.c
+index 53f6f0f..a4c4a46 100644
+--- a/drivers/gpu/drm/cirrus/cirrus_mode.c
++++ b/drivers/gpu/drm/cirrus/cirrus_mode.c
+@@ -31,25 +31,6 @@
+  * This file contains setup code for the CRTC.
+  */
+ 
+-static void cirrus_crtc_load_lut(struct drm_crtc *crtc)
+-{
+-	struct cirrus_crtc *cirrus_crtc = to_cirrus_crtc(crtc);
+-	struct drm_device *dev = crtc->dev;
+-	struct cirrus_device *cdev = dev->dev_private;
+-	int i;
+-
+-	if (!crtc->enabled)
+-		return;
+-
+-	for (i = 0; i < CIRRUS_LUT_SIZE; i++) {
+-		/* VGA registers */
+-		WREG8(PALETTE_INDEX, i);
+-		WREG8(PALETTE_DATA, cirrus_crtc->lut_r[i]);
+-		WREG8(PALETTE_DATA, cirrus_crtc->lut_g[i]);
+-		WREG8(PALETTE_DATA, cirrus_crtc->lut_b[i]);
+-	}
+-}
+-
+ /*
+  * The DRM core requires DPMS functions, but they make little sense in our
+  * case and so are just stubs
+@@ -330,15 +311,25 @@ static int cirrus_crtc_gamma_set(struct drm_crtc *crtc, u16 *red, u16 *green,
+ 				 u16 *blue, uint32_t size,
+ 				 struct drm_modeset_acquire_ctx *ctx)
  {
- 	struct ast_private *ast = crtc->dev->dev_private;
--	struct ast_crtc *ast_crtc = to_ast_crtc(crtc);
+-	struct cirrus_crtc *cirrus_crtc = to_cirrus_crtc(crtc);
++	struct drm_device *dev = crtc->dev;
++	struct cirrus_device *cdev = dev->dev_private;
 +	u16 *r, *g, *b;
  	int i;
  
- 	if (!crtc->enabled)
- 		return;
- 
+-	for (i = 0; i < size; i++) {
+-		cirrus_crtc->lut_r[i] = red[i];
+-		cirrus_crtc->lut_g[i] = green[i];
+-		cirrus_crtc->lut_b[i] = blue[i];
++	if (!crtc->enabled)
++		return 0;
++
 +	r = crtc->gamma_store;
 +	g = r + crtc->gamma_size;
 +	b = g + crtc->gamma_size;
 +
- 	for (i = 0; i < 256; i++)
--		ast_load_palette_index(ast, i, ast_crtc->lut_r[i],
--				       ast_crtc->lut_g[i], ast_crtc->lut_b[i]);
-+		ast_load_palette_index(ast, i, *r++ >> 8, *g++ >> 8, *b++ >> 8);
- }
- 
- static bool ast_get_vbios_mode_info(struct drm_crtc *crtc, struct drm_display_mode *mode,
-@@ -633,7 +636,6 @@ static const struct drm_crtc_helper_funcs ast_crtc_helper_funcs = {
- 	.mode_set = ast_crtc_mode_set,
- 	.mode_set_base = ast_crtc_mode_set_base,
- 	.disable = ast_crtc_disable,
--	.load_lut = ast_crtc_load_lut,
- 	.prepare = ast_crtc_prepare,
- 	.commit = ast_crtc_commit,
- 
-@@ -648,15 +650,6 @@ static int ast_crtc_gamma_set(struct drm_crtc *crtc, u16 *red, u16 *green,
- 			      u16 *blue, uint32_t size,
- 			      struct drm_modeset_acquire_ctx *ctx)
- {
--	struct ast_crtc *ast_crtc = to_ast_crtc(crtc);
--	int i;
--
--	/* userspace palettes are always correct as is */
--	for (i = 0; i < size; i++) {
--		ast_crtc->lut_r[i] = red[i] >> 8;
--		ast_crtc->lut_g[i] = green[i] >> 8;
--		ast_crtc->lut_b[i] = blue[i] >> 8;
--	}
- 	ast_crtc_load_lut(crtc);
++	for (i = 0; i < CIRRUS_LUT_SIZE; i++) {
++		/* VGA registers */
++		WREG8(PALETTE_INDEX, i);
++		WREG8(PALETTE_DATA, *r++ >> 8);
++		WREG8(PALETTE_DATA, *g++ >> 8);
++		WREG8(PALETTE_DATA, *b++ >> 8);
+ 	}
+-	cirrus_crtc_load_lut(crtc);
  
  	return 0;
-@@ -681,7 +674,6 @@ static const struct drm_crtc_funcs ast_crtc_funcs = {
- static int ast_crtc_init(struct drm_device *dev)
+ }
+@@ -365,7 +356,6 @@ static const struct drm_crtc_helper_funcs cirrus_helper_funcs = {
+ 	.mode_set_base = cirrus_crtc_mode_set_base,
+ 	.prepare = cirrus_crtc_prepare,
+ 	.commit = cirrus_crtc_commit,
+-	.load_lut = cirrus_crtc_load_lut,
+ };
+ 
+ /* CRTC setup */
+@@ -373,7 +363,6 @@ static void cirrus_crtc_init(struct drm_device *dev)
  {
- 	struct ast_crtc *crtc;
+ 	struct cirrus_device *cdev = dev->dev_private;
+ 	struct cirrus_crtc *cirrus_crtc;
 -	int i;
  
- 	crtc = kzalloc(sizeof(struct ast_crtc), GFP_KERNEL);
- 	if (!crtc)
-@@ -690,12 +682,6 @@ static int ast_crtc_init(struct drm_device *dev)
- 	drm_crtc_init(dev, &crtc->base, &ast_crtc_funcs);
- 	drm_mode_crtc_set_gamma_size(&crtc->base, 256);
- 	drm_crtc_helper_add(&crtc->base, &ast_crtc_helper_funcs);
--
--	for (i = 0; i < 256; i++) {
--		crtc->lut_r[i] = i;
--		crtc->lut_g[i] = i;
--		crtc->lut_b[i] = i;
+ 	cirrus_crtc = kzalloc(sizeof(struct cirrus_crtc) +
+ 			      (CIRRUSFB_CONN_LIMIT * sizeof(struct drm_connector *)),
+@@ -387,37 +376,9 @@ static void cirrus_crtc_init(struct drm_device *dev)
+ 	drm_mode_crtc_set_gamma_size(&cirrus_crtc->base, CIRRUS_LUT_SIZE);
+ 	cdev->mode_info.crtc = cirrus_crtc;
+ 
+-	for (i = 0; i < CIRRUS_LUT_SIZE; i++) {
+-		cirrus_crtc->lut_r[i] = i;
+-		cirrus_crtc->lut_g[i] = i;
+-		cirrus_crtc->lut_b[i] = i;
 -	}
- 	return 0;
+-
+ 	drm_crtc_helper_add(&cirrus_crtc->base, &cirrus_helper_funcs);
  }
  
+-/** Sets the color ramps on behalf of fbcon */
+-void cirrus_crtc_fb_gamma_set(struct drm_crtc *crtc, u16 red, u16 green,
+-			      u16 blue, int regno)
+-{
+-	struct cirrus_crtc *cirrus_crtc = to_cirrus_crtc(crtc);
+-
+-	cirrus_crtc->lut_r[regno] = red;
+-	cirrus_crtc->lut_g[regno] = green;
+-	cirrus_crtc->lut_b[regno] = blue;
+-}
+-
+-/** Gets the color ramps on behalf of fbcon */
+-void cirrus_crtc_fb_gamma_get(struct drm_crtc *crtc, u16 *red, u16 *green,
+-			      u16 *blue, int regno)
+-{
+-	struct cirrus_crtc *cirrus_crtc = to_cirrus_crtc(crtc);
+-
+-	*red = cirrus_crtc->lut_r[regno];
+-	*green = cirrus_crtc->lut_g[regno];
+-	*blue = cirrus_crtc->lut_b[regno];
+-}
+-
+ static void cirrus_encoder_mode_set(struct drm_encoder *encoder,
+ 				struct drm_display_mode *mode,
+ 				struct drm_display_mode *adjusted_mode)
 -- 
 2.1.4
