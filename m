@@ -1,13 +1,19 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 11/11] drm: remove unused and redundant callbacks
-Date: Tue, 20 Jun 2017 21:25:35 +0200
-Message-ID: <1497986735-14418-12-git-send-email-peda__18874.5627682239$1509078292$gmane$org@axentia.se>
+From: =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel@daenzer.net>
+Subject: Re: [Nouveau] [PATCH 01/11] drm/fb-helper: do a generic fb_setcmap
+	helper in terms of crtc .gamma_set
+Date: Wed, 21 Jun 2017 17:36:08 +0900
+Message-ID: <517b7144-9612-2249-cff6-cdebcb628f7b__47956.6191359938$1509078311$gmane$org@daenzer.net>
 References: <1497986735-14418-1-git-send-email-peda@axentia.se>
+	<1497986735-14418-2-git-send-email-peda@axentia.se>
+	<20170621073804.akyg4rxvoavjjt2v@phenom.ffwll.local>
+	<dfd961c1-2ca9-d85e-fc28-d873666b9bf3@daenzer.net>
+	<20170621081454.ymykfka5peelkqxp@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1497986735-14418-1-git-send-email-peda@axentia.se>
+In-Reply-To: <20170621081454.ymykfka5peelkqxp@phenom.ffwll.local>
+Content-Language: en-CA
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,88 +23,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, amd-gfx@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, David Airlie <airlied@linux.ie>, nouveau@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Philippe Cornu <philippe.cornu@st.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>, Yannick Fertre <yannick.fertre@st.com>, Sean Paul <seanpaul@chromium.org>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Alex Deucher <alexander.deucher@amd.com>, Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org, Vincent Abriou <vincent.abriou@st.com>, Peter Rosin <peda@axentia.se>, Ben Skeggs <bskeggs@redhat.com>
+To: Peter Rosin <peda@axentia.se>, Philippe Cornu <philippe.cornu@st.com>, =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>, Yannick Fertre <yannick.fertre@st.com>, Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Alex Deucher <alexander.deucher@amd.com>, Dave Airlie <airlied@redhat.com>, Vincent Abriou <vincent.abriou@st.com>, Ben Skeggs <bskeggs@redhat.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: linux-fbdev@vger.kernel.org, nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Drivers no longer have any need for these callbacks, and there are no
-users. Zap. Zap-zap-zzzap-p-pp-p.
-
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- include/drm/drm_fb_helper.h              | 32 --------------------------------
- include/drm/drm_modeset_helper_vtables.h | 16 ----------------
- 2 files changed, 48 deletions(-)
-
-diff --git a/include/drm/drm_fb_helper.h b/include/drm/drm_fb_helper.h
-index 119e5e4..80d9853 100644
---- a/include/drm/drm_fb_helper.h
-+++ b/include/drm/drm_fb_helper.h
-@@ -85,38 +85,6 @@ struct drm_fb_helper_surface_size {
-  */
- struct drm_fb_helper_funcs {
- 	/**
--	 * @gamma_set:
--	 *
--	 * Set the given gamma LUT register on the given CRTC.
--	 *
--	 * This callback is optional.
--	 *
--	 * FIXME:
--	 *
--	 * This callback is functionally redundant with the core gamma table
--	 * support and simply exists because the fbdev hasn't yet been
--	 * refactored to use the core gamma table interfaces.
--	 */
--	void (*gamma_set)(struct drm_crtc *crtc, u16 red, u16 green,
--			  u16 blue, int regno);
--	/**
--	 * @gamma_get:
--	 *
--	 * Read the given gamma LUT register on the given CRTC, used to save the
--	 * current LUT when force-restoring the fbdev for e.g. kdbg.
--	 *
--	 * This callback is optional.
--	 *
--	 * FIXME:
--	 *
--	 * This callback is functionally redundant with the core gamma table
--	 * support and simply exists because the fbdev hasn't yet been
--	 * refactored to use the core gamma table interfaces.
--	 */
--	void (*gamma_get)(struct drm_crtc *crtc, u16 *red, u16 *green,
--			  u16 *blue, int regno);
--
--	/**
- 	 * @fb_probe:
- 	 *
- 	 * Driver callback to allocate and initialize the fbdev info structure.
-diff --git a/include/drm/drm_modeset_helper_vtables.h b/include/drm/drm_modeset_helper_vtables.h
-index 85984b2..0773db9 100644
---- a/include/drm/drm_modeset_helper_vtables.h
-+++ b/include/drm/drm_modeset_helper_vtables.h
-@@ -267,22 +267,6 @@ struct drm_crtc_helper_funcs {
- 				    enum mode_set_atomic);
- 
- 	/**
--	 * @load_lut:
--	 *
--	 * Load a LUT prepared with the &drm_fb_helper_funcs.gamma_set vfunc.
--	 *
--	 * This callback is optional and is only used by the fbdev emulation
--	 * helpers.
--	 *
--	 * FIXME:
--	 *
--	 * This callback is functionally redundant with the core gamma table
--	 * support and simply exists because the fbdev hasn't yet been
--	 * refactored to use the core gamma table interfaces.
--	 */
--	void (*load_lut)(struct drm_crtc *crtc);
--
--	/**
- 	 * @disable:
- 	 *
- 	 * This callback should be used to disable the CRTC. With the atomic
--- 
-2.1.4
+T24gMjEvMDYvMTcgMDU6MTQgUE0sIERhbmllbCBWZXR0ZXIgd3JvdGU6Cj4gT24gV2VkLCBKdW4g
+MjEsIDIwMTcgYXQgMDQ6NTk6MzFQTSArMDkwMCwgTWljaGVsIETDpG56ZXIgd3JvdGU6Cj4+IE9u
+IDIxLzA2LzE3IDA0OjM4IFBNLCBEYW5pZWwgVmV0dGVyIHdyb3RlOgo+Pj4gT24gVHVlLCBKdW4g
+MjAsIDIwMTcgYXQgMDk6MjU6MjVQTSArMDIwMCwgUGV0ZXIgUm9zaW4gd3JvdGU6Cj4+Pj4gVGhp
+cyBtYWtlcyB0aGUgcmVkdW5kYW50IGZiIGhlbHBlcnMgLmxvYWRfbHV0LCAuZ2FtbWFfc2V0IGFu
+ZCAuZ2FtbWFfZ2V0Cj4+Pj4gdG90YWxseSBvYnNvbGV0ZS4KPj4+Pgo+Pj4+IEkgdGhpbmsgdGhl
+IGdhbW1hX3N0b3JlIGNhbiBlbmQgdXAgaW52YWxpZCBvbiBlcnJvci4gQnV0IHRoZSB3YXkgSSBy
+ZWFkCj4+Pj4gaXQsIHRoYXQgY2FuIGhhcHBlbiBpbiBkcm1fbW9kZV9nYW1tYV9zZXRfaW9jdGwg
+YXMgd2VsbCwgc28gd2h5IHNob3VsZAo+Pj4+IHRoaXMgcGVza3kgbGVnYWN5IGZiZGV2IHN0dWZm
+IGJlIGFueSBiZXR0ZXI/Cj4+Pj4KPj4+PiBkcm1fZmJfaGVscGVyX3NhdmVfbHV0X2F0b21pYyBq
+dXN0cyBzYXZlcyB0aGUgZ2FtbWEgbHV0IGZvciBsYXRlci4gSG93ZXZlciwKPj4+PiBpdCBzYXZl
+cyBpdCB0byB0aGUgZ2FtbWFfc3RvcmUgd2hpY2ggc2hvdWxkIGFscmVhZHkgYmUgdXAgdG8gZGF0
+ZSB3aXRoIHdoYXQKPj4+PiAuZ2FtbWFfZ2V0IHdvdWxkIHJldHVybiBhbmQgaXMgdGh1cyBhIG5v
+cC4gU28sIHphcCBpdC4KPj4+Cj4+PiBSZW1vdmluZyBkcm1fZmJfaGVscGVyX3NhdmVfbHV0X2F0
+b21pYyBzaG91bGQgYmUgYSBzZXBhcmF0ZSBwYXRjaCBJCj4+PiB0aGluay4KPj4+ICAKPj4+PiBT
+aWduZWQtb2ZmLWJ5OiBQZXRlciBSb3NpbiA8cGVkYUBheGVudGlhLnNlPgo+Pgo+PiBbLi4uXQo+
+Pgo+Pj4+IEBAIC0xMTY3LDUwICsxMTUwLDYgQEAgdm9pZCBkcm1fZmJfaGVscGVyX3NldF9zdXNw
+ZW5kX3VubG9ja2VkKHN0cnVjdCBkcm1fZmJfaGVscGVyICpmYl9oZWxwZXIsCj4+Pj4gIH0KPj4+
+PiAgRVhQT1JUX1NZTUJPTChkcm1fZmJfaGVscGVyX3NldF9zdXNwZW5kX3VubG9ja2VkKTsKPj4+
+PiAgCj4+Pj4gLXN0YXRpYyBpbnQgc2V0Y29scmVnKHN0cnVjdCBkcm1fY3J0YyAqY3J0YywgdTE2
+IHJlZCwgdTE2IGdyZWVuLAo+Pj4+IC0JCSAgICAgdTE2IGJsdWUsIHUxNiByZWdubywgc3RydWN0
+IGZiX2luZm8gKmluZm8pCj4+Pj4gLXsKPj4+PiAtCXN0cnVjdCBkcm1fZmJfaGVscGVyICpmYl9o
+ZWxwZXIgPSBpbmZvLT5wYXI7Cj4+Pj4gLQlzdHJ1Y3QgZHJtX2ZyYW1lYnVmZmVyICpmYiA9IGZi
+X2hlbHBlci0+ZmI7Cj4+Pj4gLQo+Pj4+IC0JaWYgKGluZm8tPmZpeC52aXN1YWwgPT0gRkJfVklT
+VUFMX1RSVUVDT0xPUikgewo+Pj4KPj4+IFRoaXMgY2FzZSBoZXJlIHNlZW1zIGdvbmUsIGFuZCBp
+dCB3YXMgYWxzbyB0aGUgcGnDqGNlIGRlIHLDqXNpc3RhbmNlIHdoZW4gSQo+Pj4gdHJpZWQgdGFj
+a2xpbmcgZmJkZXYgbHV0IHN1cHBvcnQuIEFzIGZhciBhcyBJIHVuZGVyc3RhbmQgdGhpcyBzdHVm
+ZiB3ZSBkbwo+Pj4gbm90IHN1cHBvcnQgRkJfVklTVUFMX1RSVUVDT0xPUiBwYWxldHRlLCBhbmQg
+YWxsIHRoYXQgYml0c2hpZnRpbmcgaGVyZSBpcwo+Pj4gcG9pbnRsZXNzLiBCdXQgSSdtIGhvbmVz
+dGx5IG5vdCByZWFsbHkgY2xlYXIuCj4+Pgo+Pj4gSSB0aGluayByZW1vdmluZyB0aGlzIGNhc2Ug
+c2hvdWxkIGFsc28gYmUgYSBzZXBhcmF0ZSBwYXRjaCwgYW5kIEknZCB2ZXJ5Cj4+PiBtdWNoIHBy
+ZWZlciB0aGF0IHNvbWVvbmUgd2l0aCBzb21lIGZiZGV2LWNsdWUgd291bGQgYWNrIGl0Lgo+Pgo+
+PiBObyBuZWVkIGZvciBhbnlvbmUgd2l0aCBmYmRldi1jbHVlLCBqdXN0IHJ1biBmYnNldCAtaS4g
+OikKCkFkZGluZyBCYXJ0bG9taWVqIGFuZCB0aGUgbGludXgtZmJkZXYgbGlzdCwganVzdCBpbiBj
+YXNlIEknbSB3cm9uZyBiZWxvdy4KCgo+PiBmYmNvbiB1c2VzIGEgVFJVRUNPTE9SIHZpc3VhbCBh
+dCBkZXB0aHMgPiA4Lgo+IAo+IFRoZW4gSSB1bmRlcnN0YW5kIGV2ZW4gbGVzcyB3aGF0IGV4YWN0
+bHkgdGhpcyBjb2RlIGRvZXMgLi4uIFNob3VsZCB3ZSBrZWVwCj4gaXQ/CgpJIHRoaW5rIHdlIG5l
+ZWQgaXQuIEl0IHVwZGF0ZXMgdGhlIGVudHJpZXMgb2YgaW5mby0+cHNldWRvX3BhbGV0dGUsCndo
+aWNoIGlzIGtpbmQgb2YgYSBwc2V1ZG9jb2xvciBwYWxldHRlIG1hcHBpbmcgMTYgaW5kaWNlcyB0
+byBwaXhlbAp2YWx1ZXMgdG8gd3JpdGUgdG8gdGhlIGZyYW1lYnVmZmVyLgoKSWYgdGhlIHNldGNv
+bHJlZyBob29rIGlzIHJlbW92ZWQsIHRoZSBzZXRjbWFwIGhvb2sgbmVlZHMgdG8gZG8gdGhpcyBp
+bnN0ZWFkLgoKCi0tIApFYXJ0aGxpbmcgTWljaGVsIETDpG56ZXIgICAgICAgICAgICAgICB8ICAg
+ICAgICAgICAgICAgaHR0cDovL3d3dy5hbWQuY29tCkxpYnJlIHNvZnR3YXJlIGVudGh1c2lhc3Qg
+ICAgICAgICAgICAgfCAgICAgICAgICAgICBNZXNhIGFuZCBYIGRldmVsb3BlcgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
