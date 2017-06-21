@@ -1,18 +1,15 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [Nouveau] [PATCH 01/11] drm/fb-helper: do a generic fb_setcmap
-	helper in terms of crtc .gamma_set
-Date: Wed, 21 Jun 2017 10:14:54 +0200
-Message-ID: <20170621081454.ymykfka5peelkqxp__17327.2339314737$1498032910$gmane$org@phenom.ffwll.local>
-References: <1497986735-14418-1-git-send-email-peda@axentia.se>
-	<1497986735-14418-2-git-send-email-peda@axentia.se>
-	<20170621073804.akyg4rxvoavjjt2v@phenom.ffwll.local>
-	<dfd961c1-2ca9-d85e-fc28-d873666b9bf3@daenzer.net>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [Qemu-devel] [PATCH v11 4/6] mm: function to offer a page block
+	on the free list
+Date: Wed, 21 Jun 2017 16:38:23 +0800
+Message-ID: <594A307F.1090108__15698.902300983$1498034178$gmane$org@intel.com>
+References: <1497004901-30593-1-git-send-email-wei.w.wang@intel.com>	<1497004901-30593-5-git-send-email-wei.w.wang@intel.com>	<b92af473-f00e-b956-ea97-eb4626601789@intel.com>	<1497977049.20270.100.camel@redhat.com>	<7b626551-6d1b-c8d5-4ef7-e357399e78dc@redhat.com>
+	<1497979740.20270.102.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <dfd961c1-2ca9-d85e-fc28-d873666b9bf3@daenzer.net>
+In-Reply-To: <1497979740.20270.102.camel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,112 +19,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michel =?iso-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-Cc: amd-gfx@lists.freedesktop.org, nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, Philippe Cornu <philippe.cornu@st.com>, dri-devel@lists.freedesktop.org, Peter Rosin <peda@axentia.se>, Yannick Fertre <yannick.fertre@st.com>, Dave Airlie <airlied@redhat.com>, Alex Deucher <alexander.deucher@amd.com>, Daniel Vetter <daniel.vetter@intel.com>, virtualization@lists.linux-foundation.org, Vincent Abriou <vincent.abriou@st.com>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>, linux-kernel@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>
+To: Rik van Riel <riel@redhat.com>, David Hildenbrand <david@redhat.com>, Dave Hansen <dave.hansen@intel.com>, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, cornelia.huck@de.ibm.com, akpm@linux-foundation.org, mgorman@techsingularity.net, aarcange@redhat.com, amit.shah@redhat.com, pbonzini@redhat.com, liliang.opensource@gmail.com
+Cc: Nitesh Narayan Lal <nilal@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 21, 2017 at 04:59:31PM +0900, Michel D=E4nzer wrote:
-> On 21/06/17 04:38 PM, Daniel Vetter wrote:
-> > On Tue, Jun 20, 2017 at 09:25:25PM +0200, Peter Rosin wrote:
-> >> This makes the redundant fb helpers .load_lut, .gamma_set and .gamma_g=
-et
-> >> totally obsolete.
-> >>
-> >> I think the gamma_store can end up invalid on error. But the way I read
-> >> it, that can happen in drm_mode_gamma_set_ioctl as well, so why should
-> >> this pesky legacy fbdev stuff be any better?
-> >>
-> >> drm_fb_helper_save_lut_atomic justs saves the gamma lut for later. How=
-ever,
-> >> it saves it to the gamma_store which should already be up to date with=
- what
-> >> .gamma_get would return and is thus a nop. So, zap it.
-> > =
+On 06/21/2017 01:29 AM, Rik van Riel wrote:
+> On Tue, 2017-06-20 at 18:49 +0200, David Hildenbrand wrote:
+>> On 20.06.2017 18:44, Rik van Riel wrote:
+>>> Nitesh Lal (on the CC list) is working on a way
+>>> to efficiently batch recently freed pages for
+>>> free page hinting to the hypervisor.
+>>>
+>>> If that is done efficiently enough (eg. with
+>>> MADV_FREE on the hypervisor side for lazy freeing,
+>>> and lazy later re-use of the pages), do we still
+>>> need the harder to use batch interface from this
+>>> patch?
+>>>
+>> David's opinion incoming:
+>>
+>> No, I think proper free page hinting would be the optimum solution,
+>> if
+>> done right. This would avoid the batch interface and even turn
+>> virtio-balloon in some sense useless.
+> I agree with that.  Let me go into some more detail of
+> what Nitesh is implementing:
+>
+> 1) In arch_free_page, the being-freed page is added
+>     to a per-cpu set of freed pages.
 
-> > Removing drm_fb_helper_save_lut_atomic should be a separate patch I
-> > think.
-> >  =
+I got some questions here:
 
-> >> Signed-off-by: Peter Rosin <peda@axentia.se>
-> =
+1. Are the pages managed one by one on the per-CPU set?
+For example, when there are 2 adjacent pages, are they still
+put as two nodes on the per-CPU list? or the buddy algorithm
+will be re-implemented on the per-CPU list as well?
 
-> [...]
-> =
+2. Looks like this will be added to the common free function.
+Normally, people may not need the free page hint, do they
+need to carry the added burden?
 
-> >> @@ -1167,50 +1150,6 @@ void drm_fb_helper_set_suspend_unlocked(struct =
-drm_fb_helper *fb_helper,
-> >>  }
-> >>  EXPORT_SYMBOL(drm_fb_helper_set_suspend_unlocked);
-> >>  =
 
-> >> -static int setcolreg(struct drm_crtc *crtc, u16 red, u16 green,
-> >> -		     u16 blue, u16 regno, struct fb_info *info)
-> >> -{
-> >> -	struct drm_fb_helper *fb_helper =3D info->par;
-> >> -	struct drm_framebuffer *fb =3D fb_helper->fb;
-> >> -
-> >> -	if (info->fix.visual =3D=3D FB_VISUAL_TRUECOLOR) {
-> > =
+> 2) Once that set is full, arch_free_pages goes into a
+>     slow path, which:
+>     2a) Iterates over the set of freed pages, and
+>     2b) Checks whether they are still free, and
 
-> > This case here seems gone, and it was also the pi=E8ce de r=E9sistance =
-when I
-> > tried tackling fbdev lut support. As far as I understand this stuff we =
-do
-> > not support FB_VISUAL_TRUECOLOR palette, and all that bitshifting here =
-is
-> > pointless. But I'm honestly not really clear.
-> > =
+The pages that have been double checked as "free"
+pages here and added to the list for the hypervisor can
+also be immediately used.
 
-> > I think removing this case should also be a separate patch, and I'd very
-> > much prefer that someone with some fbdev-clue would ack it.
-> =
 
-> No need for anyone with fbdev-clue, just run fbset -i. :) fbcon uses a
-> TRUECOLOR visual at depths > 8.
+>     2c) Adds the still free pages to a list that is
+>         to be passed to the hypervisor, to be MADV_FREEd.
+>     2d) Makes that hypercall.
+>
+> Meanwhile all arch_alloc_pages has to do is make sure it
+> does not allocate a page while it is currently being
+> MADV_FREEd on the hypervisor side.
 
-Then I understand even less what exactly this code does ... Should we keep
-it? Is it just pure cargo-cult? Only needed when we'd change the color
-depth of the fbdev buffer, which we never do at runtime?
+Is this proposed to replace the balloon driver?
 
-> > It's a pre-existing bug, but should we also try to restore the fbdev lut
-> > in drm_fb_helper_restore_fbdev_mode_unlocked()? Would be yet another bu=
-g,
-> > but might be relevant for your use-case. Just try to run both an fbdev
-> > application and some kms-native thing, and then SIGKILL the native kms
-> > app.
-> > =
+>
+> The code Wei is working on looks like it could be
+> suitable for steps (2c) and (2d) above. Nitesh already
+> has code for steps 1 through 2b.
+>
 
-> > But since pre-existing not really required, and probably too much effor=
-t.
-> =
+May I know the advantages of the added steps? Thanks.
 
-> I suspect something like that indeed needs to be done though. E.g.
-> killing Xorg results in fbcon continuing to use the LUT set by Xorg.
-
-Ok, the only trouble with that is atomic kms locking, which requires that
-we can only do 1 commit per lock-holding time, and also
-drm_modeset_lock_all is an evil hack and needs to be phased out. Two
-solutions:
-
-- We just update the lut after we've dropped the locks again in
-  restore_fbdev_mode.
-- We need both a legacy path, in restore_fbdev_mode_legacy, and an atomic
-  path in restore_fbdev_mode_atomic. The latter cannot use the gamme_set
-  callback, since that would call drm_atomic_helper_legacy_gamma_set for
-  atomic drivers, which would result in two calls to drm_atomic_commit in
-  one critical sections. Instead that needs to open-code the logic in
-  drm_atomic_helper_legacy_gamma_set and integrate it into the overall
-  fbdev restore commit.
-
-The 2nd option is a bit more typing, but much cleaner. It also fits better
-into some of the refactoring plans I have (I want to get rid of
-drm_modeset_lock_all in the fbdev emulation). And has the benefit of
-giving drivers a bit more complex fbdev emulation atomic commits, which
-would be good for testing I think.
-
-Cheers, Daniel
--- =
-
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Best,
+Wei
