@@ -1,14 +1,18 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC] virtio-mem: paravirtualized memory
-Date: Wed, 21 Jun 2017 12:08:17 +0100
-Message-ID: <20170621110817.GF16183__2749.25313792682$1498043304$gmane$org@stefanha-x1.localdomain>
-References: <547865a9-d6c2-7140-47e2-5af01e7d761d@redhat.com>
-	<20170619100813.GB17304@stefanha-x1.localdomain>
-	<4cec825b-d92e-832e-3a76-103767032528@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH v11 6/6] virtio-balloon:
+	VIRTIO_BALLOON_F_CMD_VQ
+Date: Wed, 21 Jun 2017 15:28:56 +0300
+Message-ID: <20170621151922-mutt-send-email-mst@kernel.org>
+References: <1497004901-30593-1-git-send-email-wei.w.wang@intel.com>
+	<1497004901-30593-7-git-send-email-wei.w.wang@intel.com>
+	<20170620190343-mutt-send-email-mst@kernel.org>
+	<5949E7C0.3050106@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5262756952581844332=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4cec825b-d92e-832e-3a76-103767032528@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <5949E7C0.3050106@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,88 +22,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Hildenbrand <david@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, nilal@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Jun 21, 2017 at 11:28:00AM +0800, Wei Wang wrote:
+> On 06/21/2017 12:18 AM, Michael S. Tsirkin wrote:
+> > On Fri, Jun 09, 2017 at 06:41:41PM +0800, Wei Wang wrote:
+> > > -	if (!virtqueue_indirect_desc_table_add(vq, desc, num)) {
+> > > +	if (!virtqueue_indirect_desc_table_add(vq, desc, *num)) {
+> > >   		virtqueue_kick(vq);
+> > > -		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+> > > -		vb->balloon_page_chunk.chunk_num = 0;
+> > > +		if (busy_wait)
+> > > +			while (!virtqueue_get_buf(vq, &len) &&
+> > > +			       !virtqueue_is_broken(vq))
+> > > +				cpu_relax();
+> > > +		else
+> > > +			wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+> > 
+> > This is something I didn't previously notice.
+> > As you always keep a single buffer in flight, you do not
+> > really need indirect at all. Just add all descriptors
+> > in the ring directly, then kick.
+> > 
+> > E.g.
+> > 	virtqueue_add_first
+> > 	virtqueue_add_next
+> > 	virtqueue_add_last
+> > 
+> > ?
+> > 
+> > You also want a flag to avoid allocations but there's no need to do it
+> > per descriptor, set it on vq.
+> > 
+> 
+> Without using the indirect table, I'm thinking about changing to use
+> the standard sg (i.e. struct scatterlist), instead of vring_desc, so that
+> we don't need to modify or add any new functions of virtqueue_add().
+> 
+> In this case, we will kmalloc an array of sgs in probe(), and we can add
+> the sgs one by one to the vq, which won't trigger the allocation of an
+> indirect table inside virtqueue_add(), and then kick when all are added.
+> 
+> Best,
+> Wei
 
---===============5262756952581844332==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Il7n/DHsA0sMLmDu"
-Content-Disposition: inline
+And allocate headers too? This can work. API extensions aren't
+necessarily a bad idea though. The API I suggest above is preferable
+for the simple reason that it can work without INDIRECT flag
+support in hypervisor.
 
+I wonder which APIs would Nitesh find useful.
 
---Il7n/DHsA0sMLmDu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jun 19, 2017 at 12:26:52PM +0200, David Hildenbrand wrote:
-> On 19.06.2017 12:08, Stefan Hajnoczi wrote:
-> > On Fri, Jun 16, 2017 at 04:20:02PM +0200, David Hildenbrand wrote:
-> >> Important restrictions of this concept:
-> >> - Guests without a virtio-mem guest driver can't see that memory.
-> >> - We will always require some boot memory that cannot get unplugged.
-> >>   Also, virtio-mem memory (as all other hotplugged memory) cannot beco=
-me
-> >>   DMA memory under Linux. So the boot memory also defines the amount of
-> >>   DMA memory.
-> >=20
-> > I didn't know that hotplug memory cannot become DMA memory.
-> >=20
-> > Ouch.  Zero-copy disk I/O with O_DIRECT and network I/O with virtio-net
-> > won't be possible.
-> >=20
-> > When running an application that uses O_DIRECT file I/O this probably
-> > means we now have 2 copies of pages in memory: 1. in the application and
-> > 2. in the kernel page cache.
-> >=20
-> > So this increases pressure on the page cache and reduces performance :(.
-> >=20
-> > Stefan
-> >=20
->=20
-> arch/x86/mm/init_64.c:
->=20
-> /*
->  * Memory is added always to NORMAL zone. This means you will never get
->  * additional DMA/DMA32 memory.
->  */
-> int arch_add_memory(int nid, u64 start, u64 size, bool for_device)
-> {
->=20
-> The is for sure something to work on in the future. Until then, base
-> memory of 3.X GB should be sufficient, right?
-
-I'm not sure that helps because applications typically don't control
-where their buffers are located?
-
-Stefan
-
---Il7n/DHsA0sMLmDu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJZSlOhAAoJEJykq7OBq3PIvj8IAIYB7fWhiMFR7qGpHgnD6tM3
-6RMqMgAoTe7NBIeh3tFbsGjp/XjzeCT7iiEhbrO7MtFrP7IxXylQFRmzBMNb6WlU
-EyhwQ4Ajyj3TP8Rey+xApJe8ZQkieWHq8ovTI/ozXXMJ+9k/XwiwVaXzPkThy1v2
-Ne6vfF/nONpRi55kOst8zGw6MzmAHK3hnoIR9KAqWXfm6jrw71m3NyL/1K9n/QH9
-YnUi6WC98xgk9CJlCnuUR6am2sr5Xly+lN9jrKQ8DJZn3KjjcvwTJTNEYrJpK2gh
-CZ+UGkmWbdWftyIB0uHnJAtyO+eDobaldJ6gD89T7ysDpuh8CdpPGpKEyzxP40w=
-=SMQf
------END PGP SIGNATURE-----
-
---Il7n/DHsA0sMLmDu--
-
---===============5262756952581844332==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5262756952581844332==--
+-- 
+MST
