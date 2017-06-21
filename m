@@ -1,14 +1,18 @@
 From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 00/11] improve the fb_setcmap helper
-Date: Wed, 21 Jun 2017 09:40:17 +0200
-Message-ID: <20170621074017.owckvjsejf63wpju__28647.0420346179$1498030832$gmane$org@phenom.ffwll.local>
+Subject: Re: [Nouveau] [PATCH 01/11] drm/fb-helper: do a generic fb_setcmap
+	helper in terms of crtc .gamma_set
+Date: Wed, 21 Jun 2017 10:14:54 +0200
+Message-ID: <20170621081454.ymykfka5peelkqxp__17327.2339314737$1498032910$gmane$org@phenom.ffwll.local>
 References: <1497986735-14418-1-git-send-email-peda@axentia.se>
+	<1497986735-14418-2-git-send-email-peda@axentia.se>
+	<20170621073804.akyg4rxvoavjjt2v@phenom.ffwll.local>
+	<dfd961c1-2ca9-d85e-fc28-d873666b9bf3@daenzer.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1497986735-14418-1-git-send-email-peda@axentia.se>
+In-Reply-To: <dfd961c1-2ca9-d85e-fc28-d873666b9bf3@daenzer.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,104 +22,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Rosin <peda@axentia.se>
-Cc: nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Philippe Cornu <philippe.cornu@st.com>, Yannick Fertre <yannick.fertre@st.com>, Ben Skeggs <bskeggs@redhat.com>, amd-gfx@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>, Alex Deucher <alexander.deucher@amd.com>, Daniel Vetter <daniel.vetter@intel.com>, virtualization@lists.linux-foundation.org, Vincent Abriou <vincent.abriou@st.com>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+To: Michel =?iso-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+Cc: amd-gfx@lists.freedesktop.org, nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, Philippe Cornu <philippe.cornu@st.com>, dri-devel@lists.freedesktop.org, Peter Rosin <peda@axentia.se>, Yannick Fertre <yannick.fertre@st.com>, Dave Airlie <airlied@redhat.com>, Alex Deucher <alexander.deucher@amd.com>, Daniel Vetter <daniel.vetter@intel.com>, virtualization@lists.linux-foundation.org, Vincent Abriou <vincent.abriou@st.com>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>, linux-kernel@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 20, 2017 at 09:25:24PM +0200, Peter Rosin wrote:
-> Hi!
-> 
-> While trying to get CLUT support for the atmel_hlcdc driver, and
-> specifically for the emulated fbdev interface, I received some
-> push-back that my feeble in-driver attempts should be solved
-> by the core. This is my attempt to do it right.
-> 
-> Boris and Daniel, was this approximately what you had in mind?
+On Wed, Jun 21, 2017 at 04:59:31PM +0900, Michel D=E4nzer wrote:
+> On 21/06/17 04:38 PM, Daniel Vetter wrote:
+> > On Tue, Jun 20, 2017 at 09:25:25PM +0200, Peter Rosin wrote:
+> >> This makes the redundant fb helpers .load_lut, .gamma_set and .gamma_g=
+et
+> >> totally obsolete.
+> >>
+> >> I think the gamma_store can end up invalid on error. But the way I read
+> >> it, that can happen in drm_mode_gamma_set_ioctl as well, so why should
+> >> this pesky legacy fbdev stuff be any better?
+> >>
+> >> drm_fb_helper_save_lut_atomic justs saves the gamma lut for later. How=
+ever,
+> >> it saves it to the gamma_store which should already be up to date with=
+ what
+> >> .gamma_get would return and is thus a nop. So, zap it.
+> > =
 
-Yeah, this is awesome. I tried to do it a few times myself, but always
-failed (also due to lack of real use-case on my side).
+> > Removing drm_fb_helper_save_lut_atomic should be a separate patch I
+> > think.
+> >  =
 
-> I have obviously not tested all of this with more than a compile,
-> but the first patch is enough to make the atmel-hlcdc driver
-> do what I need. The rest is just lots of removals and cleanup
-> made possible by the improved core.
+> >> Signed-off-by: Peter Rosin <peda@axentia.se>
+> =
 
-If it works for you it's imo good enough. Not sure anyone else really
-cares about fbdev lut support at all. I have a few comments on the first
-patch, but once that's sorted, and once we have given driver maintainers
-enough time to ack I think I'll merge the entire pile into drm-misc.
+> [...]
+> =
 
-Nice work, thanks for doing it.
+> >> @@ -1167,50 +1150,6 @@ void drm_fb_helper_set_suspend_unlocked(struct =
+drm_fb_helper *fb_helper,
+> >>  }
+> >>  EXPORT_SYMBOL(drm_fb_helper_set_suspend_unlocked);
+> >>  =
+
+> >> -static int setcolreg(struct drm_crtc *crtc, u16 red, u16 green,
+> >> -		     u16 blue, u16 regno, struct fb_info *info)
+> >> -{
+> >> -	struct drm_fb_helper *fb_helper =3D info->par;
+> >> -	struct drm_framebuffer *fb =3D fb_helper->fb;
+> >> -
+> >> -	if (info->fix.visual =3D=3D FB_VISUAL_TRUECOLOR) {
+> > =
+
+> > This case here seems gone, and it was also the pi=E8ce de r=E9sistance =
+when I
+> > tried tackling fbdev lut support. As far as I understand this stuff we =
+do
+> > not support FB_VISUAL_TRUECOLOR palette, and all that bitshifting here =
+is
+> > pointless. But I'm honestly not really clear.
+> > =
+
+> > I think removing this case should also be a separate patch, and I'd very
+> > much prefer that someone with some fbdev-clue would ack it.
+> =
+
+> No need for anyone with fbdev-clue, just run fbset -i. :) fbcon uses a
+> TRUECOLOR visual at depths > 8.
+
+Then I understand even less what exactly this code does ... Should we keep
+it? Is it just pure cargo-cult? Only needed when we'd change the color
+depth of the fbdev buffer, which we never do at runtime?
+
+> > It's a pre-existing bug, but should we also try to restore the fbdev lut
+> > in drm_fb_helper_restore_fbdev_mode_unlocked()? Would be yet another bu=
+g,
+> > but might be relevant for your use-case. Just try to run both an fbdev
+> > application and some kms-native thing, and then SIGKILL the native kms
+> > app.
+> > =
+
+> > But since pre-existing not really required, and probably too much effor=
+t.
+> =
+
+> I suspect something like that indeed needs to be done though. E.g.
+> killing Xorg results in fbcon continuing to use the LUT set by Xorg.
+
+Ok, the only trouble with that is atomic kms locking, which requires that
+we can only do 1 commit per lock-holding time, and also
+drm_modeset_lock_all is an evil hack and needs to be phased out. Two
+solutions:
+
+- We just update the lut after we've dropped the locks again in
+  restore_fbdev_mode.
+- We need both a legacy path, in restore_fbdev_mode_legacy, and an atomic
+  path in restore_fbdev_mode_atomic. The latter cannot use the gamme_set
+  callback, since that would call drm_atomic_helper_legacy_gamma_set for
+  atomic drivers, which would result in two calls to drm_atomic_commit in
+  one critical sections. Instead that needs to open-code the logic in
+  drm_atomic_helper_legacy_gamma_set and integrate it into the overall
+  fbdev restore commit.
+
+The 2nd option is a bit more typing, but much cleaner. It also fits better
+into some of the refactoring plans I have (I want to get rid of
+drm_modeset_lock_all in the fbdev emulation). And has the benefit of
+giving drivers a bit more complex fbdev emulation atomic commits, which
+would be good for testing I think.
 
 Cheers, Daniel
+-- =
 
-> Please test, I would not be surprised if I have fouled up some
-> bit-manipulation somewhere in this mostly mechanical change...
-> 
-> Cheers,
-> peda
-> 
-> Peter Rosin (11):
->   drm/fb-helper: do a generic fb_setcmap helper in terms of crtc
->     .gamma_set
->   drm: amd: remove dead code and pointless local lut storage
->   drm: ast: remove dead code and pointless local lut storage
->   drm: cirrus: remove dead code and pointless local lut storage
->   dmr: gma500: remove dead code and pointless local lut storage
->   drm: i915: remove dead code and pointless local lut storage
->   drm: mgag200: remove dead code and pointless local lut storage
->   drm: nouveau: remove dead code and pointless local lut storage
->   drm: radeon: remove dead code and pointless local lut storage
->   drm: stm: remove dead code and pointless local lut storage
->   drm: remove unused and redundant callbacks
-> 
->  drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c      |  24 -----
->  drivers/gpu/drm/amd/amdgpu/amdgpu_mode.h    |   1 -
->  drivers/gpu/drm/amd/amdgpu/dce_v10_0.c      |  27 ++----
->  drivers/gpu/drm/amd/amdgpu/dce_v11_0.c      |  27 ++----
->  drivers/gpu/drm/amd/amdgpu/dce_v6_0.c       |  27 ++----
->  drivers/gpu/drm/amd/amdgpu/dce_v8_0.c       |  27 ++----
->  drivers/gpu/drm/amd/amdgpu/dce_virtual.c    |  23 -----
->  drivers/gpu/drm/ast/ast_drv.h               |   1 -
->  drivers/gpu/drm/ast/ast_fb.c                |  20 -----
->  drivers/gpu/drm/ast/ast_mode.c              |  26 ++----
->  drivers/gpu/drm/cirrus/cirrus_drv.h         |   8 --
->  drivers/gpu/drm/cirrus/cirrus_fbdev.c       |   2 -
->  drivers/gpu/drm/cirrus/cirrus_mode.c        |  71 ++++-----------
->  drivers/gpu/drm/drm_fb_helper.c             | 131 +++++++++-------------------
->  drivers/gpu/drm/gma500/framebuffer.c        |  22 -----
->  drivers/gpu/drm/gma500/gma_display.c        |  32 +++----
->  drivers/gpu/drm/gma500/psb_intel_display.c  |   7 +-
->  drivers/gpu/drm/gma500/psb_intel_drv.h      |   1 -
->  drivers/gpu/drm/i915/intel_drv.h            |   1 -
->  drivers/gpu/drm/i915/intel_fbdev.c          |  31 -------
->  drivers/gpu/drm/mgag200/mgag200_drv.h       |   5 --
->  drivers/gpu/drm/mgag200/mgag200_fb.c        |   2 -
->  drivers/gpu/drm/mgag200/mgag200_mode.c      |  62 ++++---------
->  drivers/gpu/drm/nouveau/dispnv04/crtc.c     |  26 ++----
->  drivers/gpu/drm/nouveau/nouveau_crtc.h      |   3 -
->  drivers/gpu/drm/nouveau/nouveau_fbcon.c     |  22 -----
->  drivers/gpu/drm/nouveau/nv50_display.c      |  39 +++------
->  drivers/gpu/drm/radeon/atombios_crtc.c      |   1 -
->  drivers/gpu/drm/radeon/radeon_connectors.c  |   7 +-
->  drivers/gpu/drm/radeon/radeon_display.c     |  71 ++++++---------
->  drivers/gpu/drm/radeon/radeon_fb.c          |   2 -
->  drivers/gpu/drm/radeon/radeon_legacy_crtc.c |   1 -
->  drivers/gpu/drm/stm/ltdc.c                  |  12 ---
->  drivers/gpu/drm/stm/ltdc.h                  |   1 -
->  include/drm/drm_fb_helper.h                 |  32 -------
->  include/drm/drm_modeset_helper_vtables.h    |  16 ----
->  36 files changed, 171 insertions(+), 640 deletions(-)
-> 
-> -- 
-> 2.1.4
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
--- 
 Daniel Vetter
 Software Engineer, Intel Corporation
 http://blog.ffwll.ch
