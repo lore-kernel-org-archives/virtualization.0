@@ -1,19 +1,16 @@
-From: Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH v11 4/6] mm: function to offer a page block on the free
-	list
-Date: Tue, 20 Jun 2017 15:51:00 -0400
-Message-ID: <1497988260.20270.109.camel__30606.2574185946$1497988278$gmane$org@redhat.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [virtio-dev] Re: [PATCH v11 6/6] virtio-balloon:
+	VIRTIO_BALLOON_F_CMD_VQ
+Date: Wed, 21 Jun 2017 11:28:00 +0800
+Message-ID: <5949E7C0.3050106__14925.7169141949$1498015556$gmane$org@intel.com>
 References: <1497004901-30593-1-git-send-email-wei.w.wang@intel.com>
-	<1497004901-30593-5-git-send-email-wei.w.wang@intel.com>
-	<b92af473-f00e-b956-ea97-eb4626601789@intel.com>
-	<1497977049.20270.100.camel@redhat.com>
-	<7b626551-6d1b-c8d5-4ef7-e357399e78dc@redhat.com>
-	<1497979740.20270.102.camel@redhat.com>
-	<20170620212107-mutt-send-email-mst@kernel.org>
+	<1497004901-30593-7-git-send-email-wei.w.wang@intel.com>
+	<20170620190343-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0965947465023077605=="
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170620212107-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170620190343-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,94 +21,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: aarcange@redhat.com, amit.shah@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Dave Hansen <dave.hansen@intel.com>, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, Nitesh Narayan Lal <nilal@redhat.com>, mgorman@techsingularity.net
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 06/21/2017 12:18 AM, Michael S. Tsirkin wrote:
+> On Fri, Jun 09, 2017 at 06:41:41PM +0800, Wei Wang wrote:
+>> -	if (!virtqueue_indirect_desc_table_add(vq, desc, num)) {
+>> +	if (!virtqueue_indirect_desc_table_add(vq, desc, *num)) {
+>>   		virtqueue_kick(vq);
+>> -		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+>> -		vb->balloon_page_chunk.chunk_num = 0;
+>> +		if (busy_wait)
+>> +			while (!virtqueue_get_buf(vq, &len) &&
+>> +			       !virtqueue_is_broken(vq))
+>> +				cpu_relax();
+>> +		else
+>> +			wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+>
+> This is something I didn't previously notice.
+> As you always keep a single buffer in flight, you do not
+> really need indirect at all. Just add all descriptors
+> in the ring directly, then kick.
+>
+> E.g.
+> 	virtqueue_add_first
+> 	virtqueue_add_next
+> 	virtqueue_add_last
+>
+> ?
+>
+> You also want a flag to avoid allocations but there's no need to do it
+> per descriptor, set it on vq.
+>
 
---===============0965947465023077605==
-Content-Type: multipart/signed; micalg="pgp-sha256";
-	protocol="application/pgp-signature"; boundary="=-/CdBXLQWUXqNPsXR1B2X"
+Without using the indirect table, I'm thinking about changing to use
+the standard sg (i.e. struct scatterlist), instead of vring_desc, so that
+we don't need to modify or add any new functions of virtqueue_add().
 
+In this case, we will kmalloc an array of sgs in probe(), and we can add
+the sgs one by one to the vq, which won't trigger the allocation of an
+indirect table inside virtqueue_add(), and then kick when all are added.
 
---=-/CdBXLQWUXqNPsXR1B2X
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2017-06-20 at 21:26 +0300, Michael S. Tsirkin wrote:
-> On Tue, Jun 20, 2017 at 01:29:00PM -0400, Rik van Riel wrote:
-> > I agree with that.=C2=A0=C2=A0Let me go into some more detail of
-> > what Nitesh is implementing:
-> >=20
-> > 1) In arch_free_page, the being-freed page is added
-> > =C2=A0=C2=A0=C2=A0to a per-cpu set of freed pages.
-> > 2) Once that set is full, arch_free_pages goes into a
-> > =C2=A0=C2=A0=C2=A0slow path, which:
-> > =C2=A0=C2=A0=C2=A02a) Iterates over the set of freed pages, and
-> > =C2=A0=C2=A0=C2=A02b) Checks whether they are still free, and
-> > =C2=A0=C2=A0=C2=A02c) Adds the still free pages to a list that is
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0to be passed to the hyperviso=
-r, to be MADV_FREEd.
-> > =C2=A0=C2=A0=C2=A02d) Makes that hypercall.
-> >=20
-> > Meanwhile all arch_alloc_pages has to do is make sure it
-> > does not allocate a page while it is currently being
-> > MADV_FREEd on the hypervisor side.
-> >=20
-> > The code Wei is working on looks like it could be=C2=A0
-> > suitable for steps (2c) and (2d) above. Nitesh already
-> > has code for steps 1 through 2b.
->=20
-> So my question is this: Wei posted these numbers for balloon
-> inflation times:
-> inflating 7GB of an 8GB idle guest:
->=20
-> 	1) allocating pages (6.5%)
-> 	2) sending PFNs to host (68.3%)
-> 	3) address translation (6.1%)
-> 	4) madvise (19%)
->=20
-> 	It takes about 4126ms for the inflating process to complete.
->=20
-> It seems that this is an excessive amount of time to stay
-> under a lock. What are your estimates for Nitesh's work?
-
-That depends on the batch size used for step
-(2c), and is something that we should be able
-to tune for decent performance.
-
-What seems to matter is that things are batched.
-There are many ways to achieve that.
-
---=20
-All rights reversed
---=-/CdBXLQWUXqNPsXR1B2X
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAABCAAGBQJZSXykAAoJEM553pKExN6DC2QH/1E5nvrRR1z6XeXLr/emhHbH
-E20L0/z3rCW/tIsMGlRNV3kkcsblKiS2KlWYNqNwQqSDnLvHLAC5e8fh/zme7k2m
-hjvCl+Icj5aatmo+JdncpkygC89MnC6DETFrkrs2wobgoXigMUgwONH6PF0Yhx0a
-EjDSYwPbyjZJAa1VSDT146xPLSrapQ3jrNUhWCVrxGzl4d6TiNinLhjG61fECxMR
-sJ4qXDGrr1z/jWNrkJT2IZOZrD/V5t4O2a/16LeHzMai1xv3opRkbmffnz9YLiWJ
-kLjjO64QlgrtL1oOcpFpyktTGbjLG3QPiq1lDJ6YEsvoLjkr1H0hcpaWLB3I2FI=
-=6M0R
------END PGP SIGNATURE-----
-
---=-/CdBXLQWUXqNPsXR1B2X--
-
-
---===============0965947465023077605==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0965947465023077605==--
+Best,
+Wei
