@@ -1,15 +1,14 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [Qemu-devel] [PATCH v11 4/6] mm: function to offer a page block
-	on the free list
-Date: Wed, 21 Jun 2017 16:38:23 +0800
-Message-ID: <594A307F.1090108__15698.902300983$1498034178$gmane$org@intel.com>
-References: <1497004901-30593-1-git-send-email-wei.w.wang@intel.com>	<1497004901-30593-5-git-send-email-wei.w.wang@intel.com>	<b92af473-f00e-b956-ea97-eb4626601789@intel.com>	<1497977049.20270.100.camel@redhat.com>	<7b626551-6d1b-c8d5-4ef7-e357399e78dc@redhat.com>
-	<1497979740.20270.102.camel@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [RFC] virtio-mem: paravirtualized memory
+Date: Wed, 21 Jun 2017 12:08:17 +0100
+Message-ID: <20170621110817.GF16183__2749.25313792682$1498043304$gmane$org@stefanha-x1.localdomain>
+References: <547865a9-d6c2-7140-47e2-5af01e7d761d@redhat.com>
+	<20170619100813.GB17304@stefanha-x1.localdomain>
+	<4cec825b-d92e-832e-3a76-103767032528@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5262756952581844332=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1497979740.20270.102.camel@redhat.com>
+In-Reply-To: <4cec825b-d92e-832e-3a76-103767032528@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,74 +18,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rik van Riel <riel@redhat.com>, David Hildenbrand <david@redhat.com>, Dave Hansen <dave.hansen@intel.com>, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, cornelia.huck@de.ibm.com, akpm@linux-foundation.org, mgorman@techsingularity.net, aarcange@redhat.com, amit.shah@redhat.com, pbonzini@redhat.com, liliang.opensource@gmail.com
-Cc: Nitesh Narayan Lal <nilal@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/21/2017 01:29 AM, Rik van Riel wrote:
-> On Tue, 2017-06-20 at 18:49 +0200, David Hildenbrand wrote:
->> On 20.06.2017 18:44, Rik van Riel wrote:
->>> Nitesh Lal (on the CC list) is working on a way
->>> to efficiently batch recently freed pages for
->>> free page hinting to the hypervisor.
->>>
->>> If that is done efficiently enough (eg. with
->>> MADV_FREE on the hypervisor side for lazy freeing,
->>> and lazy later re-use of the pages), do we still
->>> need the harder to use batch interface from this
->>> patch?
->>>
->> David's opinion incoming:
->>
->> No, I think proper free page hinting would be the optimum solution,
->> if
->> done right. This would avoid the batch interface and even turn
->> virtio-balloon in some sense useless.
-> I agree with that.  Let me go into some more detail of
-> what Nitesh is implementing:
->
-> 1) In arch_free_page, the being-freed page is added
->     to a per-cpu set of freed pages.
 
-I got some questions here:
-
-1. Are the pages managed one by one on the per-CPU set?
-For example, when there are 2 adjacent pages, are they still
-put as two nodes on the per-CPU list? or the buddy algorithm
-will be re-implemented on the per-CPU list as well?
-
-2. Looks like this will be added to the common free function.
-Normally, people may not need the free page hint, do they
-need to carry the added burden?
+--===============5262756952581844332==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Il7n/DHsA0sMLmDu"
+Content-Disposition: inline
 
 
-> 2) Once that set is full, arch_free_pages goes into a
->     slow path, which:
->     2a) Iterates over the set of freed pages, and
->     2b) Checks whether they are still free, and
+--Il7n/DHsA0sMLmDu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The pages that have been double checked as "free"
-pages here and added to the list for the hypervisor can
-also be immediately used.
+On Mon, Jun 19, 2017 at 12:26:52PM +0200, David Hildenbrand wrote:
+> On 19.06.2017 12:08, Stefan Hajnoczi wrote:
+> > On Fri, Jun 16, 2017 at 04:20:02PM +0200, David Hildenbrand wrote:
+> >> Important restrictions of this concept:
+> >> - Guests without a virtio-mem guest driver can't see that memory.
+> >> - We will always require some boot memory that cannot get unplugged.
+> >>   Also, virtio-mem memory (as all other hotplugged memory) cannot beco=
+me
+> >>   DMA memory under Linux. So the boot memory also defines the amount of
+> >>   DMA memory.
+> >=20
+> > I didn't know that hotplug memory cannot become DMA memory.
+> >=20
+> > Ouch.  Zero-copy disk I/O with O_DIRECT and network I/O with virtio-net
+> > won't be possible.
+> >=20
+> > When running an application that uses O_DIRECT file I/O this probably
+> > means we now have 2 copies of pages in memory: 1. in the application and
+> > 2. in the kernel page cache.
+> >=20
+> > So this increases pressure on the page cache and reduces performance :(.
+> >=20
+> > Stefan
+> >=20
+>=20
+> arch/x86/mm/init_64.c:
+>=20
+> /*
+>  * Memory is added always to NORMAL zone. This means you will never get
+>  * additional DMA/DMA32 memory.
+>  */
+> int arch_add_memory(int nid, u64 start, u64 size, bool for_device)
+> {
+>=20
+> The is for sure something to work on in the future. Until then, base
+> memory of 3.X GB should be sufficient, right?
 
+I'm not sure that helps because applications typically don't control
+where their buffers are located?
 
->     2c) Adds the still free pages to a list that is
->         to be passed to the hypervisor, to be MADV_FREEd.
->     2d) Makes that hypercall.
->
-> Meanwhile all arch_alloc_pages has to do is make sure it
-> does not allocate a page while it is currently being
-> MADV_FREEd on the hypervisor side.
+Stefan
 
-Is this proposed to replace the balloon driver?
+--Il7n/DHsA0sMLmDu
+Content-Type: application/pgp-signature; name="signature.asc"
 
->
-> The code Wei is working on looks like it could be
-> suitable for steps (2c) and (2d) above. Nitesh already
-> has code for steps 1 through 2b.
->
+-----BEGIN PGP SIGNATURE-----
 
-May I know the advantages of the added steps? Thanks.
+iQEcBAEBAgAGBQJZSlOhAAoJEJykq7OBq3PIvj8IAIYB7fWhiMFR7qGpHgnD6tM3
+6RMqMgAoTe7NBIeh3tFbsGjp/XjzeCT7iiEhbrO7MtFrP7IxXylQFRmzBMNb6WlU
+EyhwQ4Ajyj3TP8Rey+xApJe8ZQkieWHq8ovTI/ozXXMJ+9k/XwiwVaXzPkThy1v2
+Ne6vfF/nONpRi55kOst8zGw6MzmAHK3hnoIR9KAqWXfm6jrw71m3NyL/1K9n/QH9
+YnUi6WC98xgk9CJlCnuUR6am2sr5Xly+lN9jrKQ8DJZn3KjjcvwTJTNEYrJpK2gh
+CZ+UGkmWbdWftyIB0uHnJAtyO+eDobaldJ6gD89T7ysDpuh8CdpPGpKEyzxP40w=
+=SMQf
+-----END PGP SIGNATURE-----
 
-Best,
-Wei
+--Il7n/DHsA0sMLmDu--
+
+--===============5262756952581844332==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5262756952581844332==--
