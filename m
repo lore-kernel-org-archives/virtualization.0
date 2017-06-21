@@ -1,20 +1,11 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v11 4/6] mm: function to offer a page block on the free
-	list
-Date: Wed, 21 Jun 2017 15:47:15 +0200
-Message-ID: <a4f68630-c143-2579-8999-b1506bc6e272__33528.6338501193$1498052895$gmane$org@redhat.com>
-References: <1497004901-30593-1-git-send-email-wei.w.wang@intel.com>
-	<1497004901-30593-5-git-send-email-wei.w.wang@intel.com>
-	<b92af473-f00e-b956-ea97-eb4626601789@intel.com>
-	<1497977049.20270.100.camel@redhat.com>
-	<7b626551-6d1b-c8d5-4ef7-e357399e78dc@redhat.com>
-	<c5f8cf53-c30b-a7ec-a8e8-9a2c120bdff6@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH] virtio_scsi: let host do exception handling
+Date: Wed, 21 Jun 2017 16:35:46 +0200
+Message-ID: <20170621143546.5826-1-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c5f8cf53-c30b-a7ec-a8e8-9a2c120bdff6@de.ibm.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,63 +15,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Rik van Riel <riel@redhat.com>, Dave Hansen <dave.hansen@intel.com>, Wei Wang <wei.w.wang@intel.com>, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, cornelia.huck@de.ibm.com, akpm@linux-foundation.org, mgorman@techsingularity.net, aarcange@redhat.com, amit.shah@redhat.com, pbonzini@redhat.com, liliang.opensource@gmail.com
-Cc: Nitesh Narayan Lal <nilal@redhat.com>
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org, stable@vger.kernel.org, Douglas Miller <dougmill@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 21.06.2017 14:56, Christian Borntraeger wrote:
-> On 06/20/2017 06:49 PM, David Hildenbrand wrote:
->> On 20.06.2017 18:44, Rik van Riel wrote:
->>> On Mon, 2017-06-12 at 07:10 -0700, Dave Hansen wrote:
->>>
->>>> The hypervisor is going to throw away the contents of these pages,
->>>> right?  As soon as the spinlock is released, someone can allocate a
->>>> page, and put good data in it.  What keeps the hypervisor from
->>>> throwing
->>>> away good data?
->>>
->>> That looks like it may be the wrong API, then?
->>>
->>> We already have hooks called arch_free_page and
->>> arch_alloc_page in the VM, which are called when
->>> pages are freed, and allocated, respectively.
->>>
->>> Nitesh Lal (on the CC list) is working on a way
->>> to efficiently batch recently freed pages for
->>> free page hinting to the hypervisor.
->>>
->>> If that is done efficiently enough (eg. with
->>> MADV_FREE on the hypervisor side for lazy freeing,
->>> and lazy later re-use of the pages), do we still
->>> need the harder to use batch interface from this
->>> patch?
->>>
->> David's opinion incoming:
->>
->> No, I think proper free page hinting would be the optimum solution, if
->> done right. This would avoid the batch interface and even turn
->> virtio-balloon in some sense useless.
->>
+virtio_scsi tries to do exception handling after the default
+30 seconds timeout expires.  However, it's better to let the host
+control the timeout, otherwise with a heavy I/O load it is
+likely that an abort will also timeout.  This leads to fatal
+errors like filesystems going offline.
 
-I said "some sense" for a reason. Mainly because other techniques are
-being worked on that are to fill the holes.
+Disable the 'sd' timeout and allow the host to do exception
+handling, following the precedent of the storvsc driver.
 
-> Two reasons why I disagree:
-> - virtio-balloon is often used as memory hotplug. (e.g. libvirts current/max memory
-> uses virtio ballon)
+Hannes has a proposal to introduce timeouts in virtio, but
+this provides an immediate solution for stable kernels too.
 
-I know, while one can argue if this real unplug as there are basically
-no guarantees (see virtio-mem RFC) it is used by people because there is
-simply no alternative. Still, for now some people use it for that.
+Reported-by: Douglas Miller <dougmill@linux.vnet.ibm.com>
+Cc: "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: linux-scsi@vger.kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ drivers/scsi/virtio_scsi.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-> - free page hinting will not allow to shrink the page cache of guests (like a ballooner does)
-
-There are currently some projects ongoing that try to avoid the page
-cache in the guest completely.
-
-
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index f8dbfeee6c63..55d344ea6869 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -796,6 +796,16 @@ static int virtscsi_map_queues(struct Scsi_Host *shost)
+ 	return blk_mq_virtio_map_queues(&shost->tag_set, vscsi->vdev, 2);
+ }
+ 
++/*
++ * The host guarantees to respond to each command, although I/O latencies might
++ * be higher than on bare meta.  Reset the timer unconditionally to give the
++ * host a chance to perform EH.
++ */
++static enum blk_eh_timer_return virtscsi_eh_timed_out(struct scsi_cmnd *scmnd)
++{
++	return BLK_EH_RESET_TIMER;
++}
++
+ static struct scsi_host_template virtscsi_host_template_single = {
+ 	.module = THIS_MODULE,
+ 	.name = "Virtio SCSI HBA",
+@@ -806,6 +816,7 @@ static struct scsi_host_template virtscsi_host_template_single = {
+ 	.change_queue_depth = virtscsi_change_queue_depth,
+ 	.eh_abort_handler = virtscsi_abort,
+ 	.eh_device_reset_handler = virtscsi_device_reset,
++	.eh_timed_out = virtscsi_eh_timed_out,
+ 	.slave_alloc = virtscsi_device_alloc,
+ 
+ 	.can_queue = 1024,
+@@ -826,6 +837,7 @@ static struct scsi_host_template virtscsi_host_template_multi = {
+ 	.change_queue_depth = virtscsi_change_queue_depth,
+ 	.eh_abort_handler = virtscsi_abort,
+ 	.eh_device_reset_handler = virtscsi_device_reset,
++	.eh_timed_out = virtscsi_eh_timed_out,
+ 
+ 	.can_queue = 1024,
+ 	.dma_boundary = UINT_MAX,
 -- 
-
-Thanks,
-
-David
+2.13.0
