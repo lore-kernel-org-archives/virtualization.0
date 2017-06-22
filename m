@@ -1,8 +1,8 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v2 10/14] drm: mgag200: remove dead code and pointless local
+Subject: [PATCH v2 11/14] drm: nouveau: remove dead code and pointless local
 	lut storage
-Date: Thu, 22 Jun 2017 08:06:33 +0200
-Message-ID: <1498111597-10714-11-git-send-email-peda__37876.37233404$1509078453$gmane$org@axentia.se>
+Date: Thu, 22 Jun 2017 08:06:34 +0200
+Message-ID: <1498111597-10714-12-git-send-email-peda__44015.7803976492$1509078472$gmane$org@axentia.se>
 References: <1498111597-10714-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -29,168 +29,214 @@ info locally.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/gpu/drm/mgag200/mgag200_drv.h  |  5 ---
- drivers/gpu/drm/mgag200/mgag200_fb.c   |  2 --
- drivers/gpu/drm/mgag200/mgag200_mode.c | 62 ++++++++--------------------------
- 3 files changed, 15 insertions(+), 54 deletions(-)
+ drivers/gpu/drm/nouveau/dispnv04/crtc.c | 26 ++++++++-------------
+ drivers/gpu/drm/nouveau/nouveau_crtc.h  |  3 ---
+ drivers/gpu/drm/nouveau/nouveau_fbcon.c | 22 ------------------
+ drivers/gpu/drm/nouveau/nv50_display.c  | 40 +++++++++++----------------------
+ 4 files changed, 22 insertions(+), 69 deletions(-)
 
-diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.h b/drivers/gpu/drm/mgag200/mgag200_drv.h
-index c88b6ec..04f1dfb 100644
---- a/drivers/gpu/drm/mgag200/mgag200_drv.h
-+++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
-@@ -237,11 +237,6 @@ mgag200_bo(struct ttm_buffer_object *bo)
- {
- 	return container_of(bo, struct mgag200_bo, bo);
- }
--				/* mgag200_crtc.c */
--void mga_crtc_fb_gamma_set(struct drm_crtc *crtc, u16 red, u16 green,
--			     u16 blue, int regno);
--void mga_crtc_fb_gamma_get(struct drm_crtc *crtc, u16 *red, u16 *green,
--			     u16 *blue, int regno);
- 
- 				/* mgag200_mode.c */
- int mgag200_modeset_init(struct mga_device *mdev);
-diff --git a/drivers/gpu/drm/mgag200/mgag200_fb.c b/drivers/gpu/drm/mgag200/mgag200_fb.c
-index 5d3b1fa..5cf980a 100644
---- a/drivers/gpu/drm/mgag200/mgag200_fb.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_fb.c
-@@ -258,8 +258,6 @@ static int mga_fbdev_destroy(struct drm_device *dev,
- }
- 
- static const struct drm_fb_helper_funcs mga_fb_helper_funcs = {
--	.gamma_set = mga_crtc_fb_gamma_set,
--	.gamma_get = mga_crtc_fb_gamma_get,
- 	.fb_probe = mgag200fb_create,
- };
- 
-diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
-index f4b5358..5e9cd4c 100644
---- a/drivers/gpu/drm/mgag200/mgag200_mode.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
-@@ -27,15 +27,19 @@
- 
- static void mga_crtc_load_lut(struct drm_crtc *crtc)
- {
--	struct mga_crtc *mga_crtc = to_mga_crtc(crtc);
- 	struct drm_device *dev = crtc->dev;
- 	struct mga_device *mdev = dev->dev_private;
- 	struct drm_framebuffer *fb = crtc->primary->fb;
-+	u16 *r_ptr, *g_ptr, *b_ptr;
+diff --git a/drivers/gpu/drm/nouveau/dispnv04/crtc.c b/drivers/gpu/drm/nouveau/dispnv04/crtc.c
+index 4b4b0b4..8f689f1 100644
+--- a/drivers/gpu/drm/nouveau/dispnv04/crtc.c
++++ b/drivers/gpu/drm/nouveau/dispnv04/crtc.c
+@@ -764,13 +764,18 @@ nv_crtc_gamma_load(struct drm_crtc *crtc)
+ 	struct nouveau_crtc *nv_crtc = nouveau_crtc(crtc);
+ 	struct drm_device *dev = nv_crtc->base.dev;
+ 	struct rgb { uint8_t r, g, b; } __attribute__((packed)) *rgbs;
++	u16 *r, *g, *b;
  	int i;
  
- 	if (!crtc->enabled)
- 		return;
- 
-+	r_ptr = crtc->gamma_store;
-+	g_ptr = r_ptr + crtc->gamma_size;
-+	b_ptr = g_ptr + crtc->gamma_size;
+ 	rgbs = (struct rgb *)nv04_display(dev)->mode_reg.crtc_reg[nv_crtc->index].DAC;
++	r = crtc->gamma_store;
++	g = r + crtc->gamma_size;
++	b = g + crtc->gamma_size;
 +
- 	WREG8(DAC_INDEX + MGA1064_INDEX, 0);
- 
- 	if (fb && fb->format->cpp[0] * 8 == 16) {
-@@ -46,25 +50,27 @@ static void mga_crtc_load_lut(struct drm_crtc *crtc)
- 				if (i > (MGAG200_LUT_SIZE >> 1)) {
- 					r = b = 0;
- 				} else {
--					r = mga_crtc->lut_r[i << 1];
--					b = mga_crtc->lut_b[i << 1];
-+					r = *r_ptr++ >> 8;
-+					b = *b_ptr++ >> 8;
-+					r_ptr++;
-+					b_ptr++;
- 				}
- 			} else {
--				r = mga_crtc->lut_r[i];
--				b = mga_crtc->lut_b[i];
-+				r = *r_ptr++ >> 8;
-+				b = *b_ptr++ >> 8;
- 			}
- 			/* VGA registers */
- 			WREG8(DAC_INDEX + MGA1064_COL_PAL, r);
--			WREG8(DAC_INDEX + MGA1064_COL_PAL, mga_crtc->lut_g[i]);
-+			WREG8(DAC_INDEX + MGA1064_COL_PAL, *g_ptr++ >> 8);
- 			WREG8(DAC_INDEX + MGA1064_COL_PAL, b);
- 		}
- 		return;
+ 	for (i = 0; i < 256; i++) {
+-		rgbs[i].r = nv_crtc->lut.r[i] >> 8;
+-		rgbs[i].g = nv_crtc->lut.g[i] >> 8;
+-		rgbs[i].b = nv_crtc->lut.b[i] >> 8;
++		rgbs[i].r = *r++ >> 8;
++		rgbs[i].g = *g++ >> 8;
++		rgbs[i].b = *b++ >> 8;
  	}
- 	for (i = 0; i < MGAG200_LUT_SIZE; i++) {
- 		/* VGA registers */
--		WREG8(DAC_INDEX + MGA1064_COL_PAL, mga_crtc->lut_r[i]);
--		WREG8(DAC_INDEX + MGA1064_COL_PAL, mga_crtc->lut_g[i]);
--		WREG8(DAC_INDEX + MGA1064_COL_PAL, mga_crtc->lut_b[i]);
-+		WREG8(DAC_INDEX + MGA1064_COL_PAL, *r_ptr++ >> 8);
-+		WREG8(DAC_INDEX + MGA1064_COL_PAL, *g_ptr++ >> 8);
-+		WREG8(DAC_INDEX + MGA1064_COL_PAL, *b_ptr++ >> 8);
- 	}
- }
  
-@@ -1399,14 +1405,6 @@ static int mga_crtc_gamma_set(struct drm_crtc *crtc, u16 *red, u16 *green,
- 			      u16 *blue, uint32_t size,
- 			      struct drm_modeset_acquire_ctx *ctx)
+ 	nouveau_hw_load_state_palette(dev, nv_crtc->index, &nv04_display(dev)->mode_reg);
+@@ -792,13 +797,6 @@ nv_crtc_gamma_set(struct drm_crtc *crtc, u16 *r, u16 *g, u16 *b,
+ 		  struct drm_modeset_acquire_ctx *ctx)
  {
--	struct mga_crtc *mga_crtc = to_mga_crtc(crtc);
+ 	struct nouveau_crtc *nv_crtc = nouveau_crtc(crtc);
 -	int i;
 -
 -	for (i = 0; i < size; i++) {
--		mga_crtc->lut_r[i] = red[i] >> 8;
--		mga_crtc->lut_g[i] = green[i] >> 8;
--		mga_crtc->lut_b[i] = blue[i] >> 8;
+-		nv_crtc->lut.r[i] = r[i];
+-		nv_crtc->lut.g[i] = g[i];
+-		nv_crtc->lut.b[i] = b[i];
 -	}
- 	mga_crtc_load_lut(crtc);
  
- 	return 0;
-@@ -1455,14 +1453,12 @@ static const struct drm_crtc_helper_funcs mga_helper_funcs = {
- 	.mode_set_base = mga_crtc_mode_set_base,
- 	.prepare = mga_crtc_prepare,
- 	.commit = mga_crtc_commit,
--	.load_lut = mga_crtc_load_lut,
+ 	/* We need to know the depth before we upload, but it's possible to
+ 	 * get called before a framebuffer is bound.  If this is the case,
+@@ -1095,7 +1093,6 @@ static const struct drm_crtc_helper_funcs nv04_crtc_helper_funcs = {
+ 	.mode_set = nv_crtc_mode_set,
+ 	.mode_set_base = nv04_crtc_mode_set_base,
+ 	.mode_set_base_atomic = nv04_crtc_mode_set_base_atomic,
+-	.load_lut = nv_crtc_gamma_load,
+ 	.disable = nv_crtc_disable,
  };
  
- /* CRTC setup */
- static void mga_crtc_init(struct mga_device *mdev)
+@@ -1103,17 +1100,12 @@ int
+ nv04_crtc_create(struct drm_device *dev, int crtc_num)
  {
- 	struct mga_crtc *mga_crtc;
--	int i;
+ 	struct nouveau_crtc *nv_crtc;
+-	int ret, i;
++	int ret;
  
- 	mga_crtc = kzalloc(sizeof(struct mga_crtc) +
- 			      (MGAG200FB_CONN_LIMIT * sizeof(struct drm_connector *)),
-@@ -1476,37 +1472,9 @@ static void mga_crtc_init(struct mga_device *mdev)
- 	drm_mode_crtc_set_gamma_size(&mga_crtc->base, MGAG200_LUT_SIZE);
- 	mdev->mode_info.crtc = mga_crtc;
+ 	nv_crtc = kzalloc(sizeof(*nv_crtc), GFP_KERNEL);
+ 	if (!nv_crtc)
+ 		return -ENOMEM;
  
--	for (i = 0; i < MGAG200_LUT_SIZE; i++) {
--		mga_crtc->lut_r[i] = i;
--		mga_crtc->lut_g[i] = i;
--		mga_crtc->lut_b[i] = i;
+-	for (i = 0; i < 256; i++) {
+-		nv_crtc->lut.r[i] = i << 8;
+-		nv_crtc->lut.g[i] = i << 8;
+-		nv_crtc->lut.b[i] = i << 8;
 -	}
--
- 	drm_crtc_helper_add(&mga_crtc->base, &mga_helper_funcs);
+ 	nv_crtc->lut.depth = 0;
+ 
+ 	nv_crtc->index = crtc_num;
+diff --git a/drivers/gpu/drm/nouveau/nouveau_crtc.h b/drivers/gpu/drm/nouveau/nouveau_crtc.h
+index 050fcf3..b7a18fb 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_crtc.h
++++ b/drivers/gpu/drm/nouveau/nouveau_crtc.h
+@@ -61,9 +61,6 @@ struct nouveau_crtc {
+ 
+ 	struct {
+ 		struct nouveau_bo *nvbo;
+-		uint16_t r[256];
+-		uint16_t g[256];
+-		uint16_t b[256];
+ 		int depth;
+ 	} lut;
+ 
+diff --git a/drivers/gpu/drm/nouveau/nouveau_fbcon.c b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+index 2665a07..f770784 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_fbcon.c
++++ b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+@@ -278,26 +278,6 @@ nouveau_fbcon_accel_init(struct drm_device *dev)
+ 		info->fbops = &nouveau_fbcon_ops;
  }
  
--/** Sets the color ramps on behalf of fbcon */
--void mga_crtc_fb_gamma_set(struct drm_crtc *crtc, u16 red, u16 green,
--			      u16 blue, int regno)
+-static void nouveau_fbcon_gamma_set(struct drm_crtc *crtc, u16 red, u16 green,
+-				    u16 blue, int regno)
 -{
--	struct mga_crtc *mga_crtc = to_mga_crtc(crtc);
+-	struct nouveau_crtc *nv_crtc = nouveau_crtc(crtc);
 -
--	mga_crtc->lut_r[regno] = red >> 8;
--	mga_crtc->lut_g[regno] = green >> 8;
--	mga_crtc->lut_b[regno] = blue >> 8;
+-	nv_crtc->lut.r[regno] = red;
+-	nv_crtc->lut.g[regno] = green;
+-	nv_crtc->lut.b[regno] = blue;
 -}
 -
--/** Gets the color ramps on behalf of fbcon */
--void mga_crtc_fb_gamma_get(struct drm_crtc *crtc, u16 *red, u16 *green,
--			      u16 *blue, int regno)
+-static void nouveau_fbcon_gamma_get(struct drm_crtc *crtc, u16 *red, u16 *green,
+-				    u16 *blue, int regno)
 -{
--	struct mga_crtc *mga_crtc = to_mga_crtc(crtc);
+-	struct nouveau_crtc *nv_crtc = nouveau_crtc(crtc);
 -
--	*red = (u16)mga_crtc->lut_r[regno] << 8;
--	*green = (u16)mga_crtc->lut_g[regno] << 8;
--	*blue = (u16)mga_crtc->lut_b[regno] << 8;
+-	*red = nv_crtc->lut.r[regno];
+-	*green = nv_crtc->lut.g[regno];
+-	*blue = nv_crtc->lut.b[regno];
 -}
 -
- /*
-  * The encoder comes after the CRTC in the output pipeline, but before
-  * the connector. It's responsible for ensuring that the digital
+ static void
+ nouveau_fbcon_zfill(struct drm_device *dev, struct nouveau_fbdev *fbcon)
+ {
+@@ -467,8 +447,6 @@ void nouveau_fbcon_gpu_lockup(struct fb_info *info)
+ }
+ 
+ static const struct drm_fb_helper_funcs nouveau_fbcon_helper_funcs = {
+-	.gamma_set = nouveau_fbcon_gamma_set,
+-	.gamma_get = nouveau_fbcon_gamma_get,
+ 	.fb_probe = nouveau_fbcon_create,
+ };
+ 
+diff --git a/drivers/gpu/drm/nouveau/nv50_display.c b/drivers/gpu/drm/nouveau/nv50_display.c
+index e3132a2..0d57d61 100644
+--- a/drivers/gpu/drm/nouveau/nv50_display.c
++++ b/drivers/gpu/drm/nouveau/nv50_display.c
+@@ -2204,28 +2204,29 @@ nv50_head_lut_load(struct drm_crtc *crtc)
+ 	struct nv50_disp *disp = nv50_disp(crtc->dev);
+ 	struct nouveau_crtc *nv_crtc = nouveau_crtc(crtc);
+ 	void __iomem *lut = nvbo_kmap_obj_iovirtual(nv_crtc->lut.nvbo);
++	u16 *r, *g, *b;
+ 	int i;
+ 
+-	for (i = 0; i < 256; i++) {
+-		u16 r = nv_crtc->lut.r[i] >> 2;
+-		u16 g = nv_crtc->lut.g[i] >> 2;
+-		u16 b = nv_crtc->lut.b[i] >> 2;
++	r = crtc->gamma_store;
++	g = r + crtc->gamma_size;
++	b = g + crtc->gamma_size;
+ 
++	for (i = 0; i < 256; i++) {
+ 		if (disp->disp->oclass < GF110_DISP) {
+-			writew(r + 0x0000, lut + (i * 0x08) + 0);
+-			writew(g + 0x0000, lut + (i * 0x08) + 2);
+-			writew(b + 0x0000, lut + (i * 0x08) + 4);
++			writew((*r++ >> 2) + 0x0000, lut + (i * 0x08) + 0);
++			writew((*g++ >> 2) + 0x0000, lut + (i * 0x08) + 2);
++			writew((*b++ >> 2) + 0x0000, lut + (i * 0x08) + 4);
+ 		} else {
+-			writew(r + 0x6000, lut + (i * 0x20) + 0);
+-			writew(g + 0x6000, lut + (i * 0x20) + 2);
+-			writew(b + 0x6000, lut + (i * 0x20) + 4);
++			/* 0x6000 interferes with the 14-bit color??? */
++			writew((*r++ >> 2) + 0x6000, lut + (i * 0x20) + 0);
++			writew((*g++ >> 2) + 0x6000, lut + (i * 0x20) + 2);
++			writew((*b++ >> 2) + 0x6000, lut + (i * 0x20) + 4);
+ 		}
+ 	}
+ }
+ 
+ static const struct drm_crtc_helper_funcs
+ nv50_head_help = {
+-	.load_lut = nv50_head_lut_load,
+ 	.atomic_check = nv50_head_atomic_check,
+ };
+ 
+@@ -2234,15 +2235,6 @@ nv50_head_gamma_set(struct drm_crtc *crtc, u16 *r, u16 *g, u16 *b,
+ 		    uint32_t size,
+ 		    struct drm_modeset_acquire_ctx *ctx)
+ {
+-	struct nouveau_crtc *nv_crtc = nouveau_crtc(crtc);
+-	u32 i;
+-
+-	for (i = 0; i < size; i++) {
+-		nv_crtc->lut.r[i] = r[i];
+-		nv_crtc->lut.g[i] = g[i];
+-		nv_crtc->lut.b[i] = b[i];
+-	}
+-
+ 	nv50_head_lut_load(crtc);
+ 	return 0;
+ }
+@@ -2340,19 +2332,13 @@ nv50_head_create(struct drm_device *dev, int index)
+ 	struct nv50_base *base;
+ 	struct nv50_curs *curs;
+ 	struct drm_crtc *crtc;
+-	int ret, i;
++	int ret;
+ 
+ 	head = kzalloc(sizeof(*head), GFP_KERNEL);
+ 	if (!head)
+ 		return -ENOMEM;
+ 
+ 	head->base.index = index;
+-	for (i = 0; i < 256; i++) {
+-		head->base.lut.r[i] = i << 8;
+-		head->base.lut.g[i] = i << 8;
+-		head->base.lut.b[i] = i << 8;
+-	}
+-
+ 	ret = nv50_base_new(drm, head, &base);
+ 	if (ret == 0)
+ 		ret = nv50_curs_new(drm, head, &curs);
 -- 
 2.1.4
