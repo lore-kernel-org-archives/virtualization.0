@@ -1,18 +1,15 @@
 From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 01/11] drm/fb-helper: do a generic fb_setcmap helper in
-	terms of crtc .gamma_set
-Date: Thu, 22 Jun 2017 08:36:45 +0200
-Message-ID: <20170622063645.k5ciwdeqfafgnxtv__9593.87185653231$1498113422$gmane$org@phenom.ffwll.local>
-References: <1497986735-14418-1-git-send-email-peda@axentia.se>
-	<1497986735-14418-2-git-send-email-peda@axentia.se>
-	<20170621073804.akyg4rxvoavjjt2v@phenom.ffwll.local>
-	<fc8ca240-61ad-b5b6-174c-490858401237@axentia.se>
+Subject: Re: [PATCH 11/11] drm: remove unused and redundant callbacks
+Date: Thu, 22 Jun 2017 08:37:55 +0200
+Message-ID: <20170622063755.3bfwybkotacyn4p7__25496.6092682027$1498113487$gmane$org@phenom.ffwll.local>
+References: <1497986735-14418-12-git-send-email-peda@axentia.se>
+	<201706220036.6WxRju5X%fengguang.wu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <fc8ca240-61ad-b5b6-174c-490858401237@axentia.se>
+In-Reply-To: <201706220036.6WxRju5X%fengguang.wu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,55 +19,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Rosin <peda@axentia.se>
-Cc: nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Philippe Cornu <philippe.cornu@st.com>, Yannick Fertre <yannick.fertre@st.com>, Ben Skeggs <bskeggs@redhat.com>, amd-gfx@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>, Alex Deucher <alexander.deucher@amd.com>, Daniel Vetter <daniel.vetter@intel.com>, virtualization@lists.linux-foundation.org, Vincent Abriou <vincent.abriou@st.com>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+To: kbuild test robot <lkp@intel.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, kbuild-all@01.org, Philippe Cornu <philippe.cornu@st.com>, nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Yannick Fertre <yannick.fertre@st.com>, dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>, Alex Deucher <alexander.deucher@amd.com>, Daniel Vetter <daniel.vetter@intel.com>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>, Vincent Abriou <vincent.abriou@st.com>, Peter Rosin <peda@axentia.se>, Ben Skeggs <bskeggs@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 21, 2017 at 11:40:52AM +0200, Peter Rosin wrote:
-> On 2017-06-21 09:38, Daniel Vetter wrote:
-> > On Tue, Jun 20, 2017 at 09:25:25PM +0200, Peter Rosin wrote:
-> >> This makes the redundant fb helpers .load_lut, .gamma_set and .gamma_get
-> >> totally obsolete.
-> >>
-> >> I think the gamma_store can end up invalid on error. But the way I read
-> >> it, that can happen in drm_mode_gamma_set_ioctl as well, so why should
-> >> this pesky legacy fbdev stuff be any better?
-> >>
-> >> drm_fb_helper_save_lut_atomic justs saves the gamma lut for later. However,
-> >> it saves it to the gamma_store which should already be up to date with what
-> >> .gamma_get would return and is thus a nop. So, zap it.
-> > 
-> > Removing drm_fb_helper_save_lut_atomic should be a separate patch I
-> > think.
+On Thu, Jun 22, 2017 at 12:34:36AM +0800, kbuild test robot wrote:
+> Hi Peter,
 > 
-> Then 3 patches would be needed, first some hybrid thing that does it the
-> old way, but also stores the lut in .gamma_store, then the split-out that
-> removes drm_fb_helper_save_lut_atomic, then whatever is needed to get
-> to the desired code. I can certainly do that, but do you want me to?
-
-Explain that in the commit message and it's fine.
-
-> > It's a pre-existing bug, but should we also try to restore the fbdev lut
-> > in drm_fb_helper_restore_fbdev_mode_unlocked()? Would be yet another bug,
-> > but might be relevant for your use-case. Just try to run both an fbdev
-> > application and some kms-native thing, and then SIGKILL the native kms
-> > app.
-> > 
-> > But since pre-existing not really required, and probably too much effort.
+> [auto build test ERROR on drm/drm-next]
+> [also build test ERROR on next-20170621]
+> [cannot apply to v4.12-rc6]
+> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
 > 
-> Good thing too, because I don't really know my way around this code...
+> url:    https://github.com/0day-ci/linux/commits/Peter-Rosin/improve-the-fb_setcmap-helper/20170621-205441
+> base:   git://people.freedesktop.org/~airlied/linux.git drm-next
+> config: arm-allmodconfig (attached as .config)
+> compiler: arm-linux-gnueabi-gcc (Debian 6.1.1-9) 6.1.1 20160705
+> reproduce:
+>         wget https://raw.githubusercontent.com/01org/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # save the attached .config to linux build tree
+>         make.cross ARCH=arm 
+> 
+> All errors (new ones prefixed by >>):
+> 
+> >> drivers/gpu//drm/armada/armada_fbdev.c:121:2: error: unknown field 'gamma_set' specified in initializer
+>      .gamma_set = armada_drm_crtc_gamma_set,
 
-Btw I cc'ed you on one of my patches in the fbdev locking series, we might
-need to do the same legacy vs. atomic split for the new lut code as I did
-for dpms. The rule with atomic is that you can't do multiple commits under
-drm_modeset_lock_all, you either have to do one overall atomic commit
-(preferred) or drop&reacquire locks again. This matters for LUT since
-you're updating the LUT on all CRTCs, which when using the gamma_set
-atomic helper would be multiple commits :-/
-
-Using the dpms patch as template it shouldn't be too hard to address that
-for your patch here too.
+Looks like you've missed at least the armada driver in your conversion?
 -Daniel
+
+>      ^
+> >> drivers/gpu//drm/armada/armada_fbdev.c:121:15: error: initialization from incompatible pointer type [-Werror=incompatible-pointer-types]
+>      .gamma_set = armada_drm_crtc_gamma_set,
+>                   ^~~~~~~~~~~~~~~~~~~~~~~~~
+>    drivers/gpu//drm/armada/armada_fbdev.c:121:15: note: (near initialization for 'armada_fb_helper_funcs.fb_probe')
+> >> drivers/gpu//drm/armada/armada_fbdev.c:122:2: error: unknown field 'gamma_get' specified in initializer
+>      .gamma_get = armada_drm_crtc_gamma_get,
+>      ^
+>    drivers/gpu//drm/armada/armada_fbdev.c:122:15: error: initialization from incompatible pointer type [-Werror=incompatible-pointer-types]
+>      .gamma_get = armada_drm_crtc_gamma_get,
+>                   ^~~~~~~~~~~~~~~~~~~~~~~~~
+>    drivers/gpu//drm/armada/armada_fbdev.c:122:15: note: (near initialization for 'armada_fb_helper_funcs.initial_config')
+>    cc1: some warnings being treated as errors
+> 
+> vim +/gamma_set +121 drivers/gpu//drm/armada/armada_fbdev.c
+> 
+> 96f60e37 Russell King   2012-08-15  115  			ret = 1;
+> 96f60e37 Russell King   2012-08-15  116  	}
+> 96f60e37 Russell King   2012-08-15  117  	return ret;
+> 96f60e37 Russell King   2012-08-15  118  }
+> 96f60e37 Russell King   2012-08-15  119  
+> 3a493879 Thierry Reding 2014-06-27  120  static const struct drm_fb_helper_funcs armada_fb_helper_funcs = {
+> 96f60e37 Russell King   2012-08-15 @121  	.gamma_set	= armada_drm_crtc_gamma_set,
+> 96f60e37 Russell King   2012-08-15 @122  	.gamma_get	= armada_drm_crtc_gamma_get,
+> 96f60e37 Russell King   2012-08-15  123  	.fb_probe	= armada_fb_probe,
+> 96f60e37 Russell King   2012-08-15  124  };
+> 96f60e37 Russell King   2012-08-15  125  
+> 
+> :::::: The code at line 121 was first introduced by commit
+> :::::: 96f60e37dc66091bde8d5de136ff6fda09f2d799 DRM: Armada: Add Armada DRM driver
+> 
+> :::::: TO: Russell King <rmk+kernel@arm.linux.org.uk>
+> :::::: CC: Russell King <rmk+kernel@arm.linux.org.uk>
+> 
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+
+
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+
+
 -- 
 Daniel Vetter
 Software Engineer, Intel Corporation
