@@ -1,18 +1,17 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [virtio-dev] Re: [PATCH v11 6/6] virtio-balloon:
-	VIRTIO_BALLOON_F_CMD_VQ
-Date: Thu, 22 Jun 2017 16:40:39 +0800
-Message-ID: <594B8287.6000706__2250.67569776929$1498120705$gmane$org@intel.com>
-References: <1497004901-30593-1-git-send-email-wei.w.wang@intel.com>
-	<1497004901-30593-7-git-send-email-wei.w.wang@intel.com>
-	<20170620190343-mutt-send-email-mst@kernel.org>
-	<5949E7C0.3050106@intel.com>
-	<20170621151922-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: BUG: KASAN: use-after-free in free_old_xmit_skbs
+Date: Thu, 22 Jun 2017 21:53:03 +0300
+Message-ID: <20170622215125-mutt-send-email-mst__18433.8372353979$1498157591$gmane$org@kernel.org>
+References: <d2e8cf65-ea3d-7db2-9382-a063daf1168a@gmail.com>
+	<20170605050423-mutt-send-email-mst@kernel.org>
+	<20170606024211-mutt-send-email-mst@kernel.org>
+	<CAOTcU=u_HSMQiwDF3Snv5P8mT-b_Aepeb=Z9gbLd1j=2P+Yy+A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170621151922-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAOTcU=u_HSMQiwDF3Snv5P8mT-b_Aepeb=Z9gbLd1j=2P+Yy+A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,95 +21,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "Hansen, Dave" <dave.hansen@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "nilal@redhat.com" <nilal@redhat.com>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
+To: jean-philippe menil <jpmenil@gmail.com>
+Cc: netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/21/2017 08:28 PM, Michael S. Tsirkin wrote:
-> On Wed, Jun 21, 2017 at 11:28:00AM +0800, Wei Wang wrote:
->> On 06/21/2017 12:18 AM, Michael S. Tsirkin wrote:
->>> On Fri, Jun 09, 2017 at 06:41:41PM +0800, Wei Wang wrote:
->>>> -	if (!virtqueue_indirect_desc_table_add(vq, desc, num)) {
->>>> +	if (!virtqueue_indirect_desc_table_add(vq, desc, *num)) {
->>>>    		virtqueue_kick(vq);
->>>> -		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
->>>> -		vb->balloon_page_chunk.chunk_num = 0;
->>>> +		if (busy_wait)
->>>> +			while (!virtqueue_get_buf(vq, &len) &&
->>>> +			       !virtqueue_is_broken(vq))
->>>> +				cpu_relax();
->>>> +		else
->>>> +			wait_event(vb->acked, virtqueue_get_buf(vq, &len));
->>> This is something I didn't previously notice.
->>> As you always keep a single buffer in flight, you do not
->>> really need indirect at all. Just add all descriptors
->>> in the ring directly, then kick.
->>>
->>> E.g.
->>> 	virtqueue_add_first
->>> 	virtqueue_add_next
->>> 	virtqueue_add_last
->>>
->>> ?
->>>
->>> You also want a flag to avoid allocations but there's no need to do it
->>> per descriptor, set it on vq.
->>>
->> Without using the indirect table, I'm thinking about changing to use
->> the standard sg (i.e. struct scatterlist), instead of vring_desc, so that
->> we don't need to modify or add any new functions of virtqueue_add().
->>
->> In this case, we will kmalloc an array of sgs in probe(), and we can add
->> the sgs one by one to the vq, which won't trigger the allocation of an
->> indirect table inside virtqueue_add(), and then kick when all are added.
->>
->> Best,
->> Wei
-> And allocate headers too? This can work. API extensions aren't
-> necessarily a bad idea though. The API I suggest above is preferable
-> for the simple reason that it can work without INDIRECT flag
-> support in hypervisor.
+On Thu, Jun 22, 2017 at 08:15:58AM +0200, jean-philippe menil wrote:
+> 2017-06-06 1:52 GMT+02:00 Michael S. Tsirkin <mst@redhat.com>:
+> =
 
-OK, probably we don't need to add a desc to the vq - we can just use
-the vq's desc, like this:
+>     On Mon, Jun 05, 2017 at 05:08:25AM +0300, Michael S. Tsirkin wrote:
+>     > On Mon, Jun 05, 2017 at 12:48:53AM +0200, Jean-Philippe Menil wrote:
+>     > > Hi,
+>     > >
+>     > > while playing with xdp and ebpf, i'm hitting the following:
+>     > >
+>     > > [=A0 309.993136]
+>     > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>     > > [=A0 309.994735] BUG: KASAN: use-after-free in
+>     > > free_old_xmit_skbs.isra.29+0x2b7/0x2e0 [virtio_net]
+>     > > [=A0 309.998396] Read of size 8 at addr ffff88006aa64220 by task =
+sshd/323
+>     > > [=A0 310.000650]
+>     > > [=A0 310.002305] CPU: 1 PID: 323 Comm: sshd Not tainted 4.12.0-rc=
+3+ #2
+>     > > [=A0 310.004018] Hardware name: QEMU Standard PC (i440FX + PIIX, =
+1996),
+>     BIOS
+>     > > 1.10.2-20170228_101828-anatol 04/01/2014
 
-int virtqueue_add_first(struct virtqueue *_vq,
-                                      uint64_t addr,
-                                      uint32_t len,
-                                      bool in,
-                                      unsigned int *idx) {
+...
 
-     ...
-    uint16_t desc_flags = in ? VRING_DESC_F_NEXT | VRING_DESC_F_WRITE :
-                                              VRING_DESC_F_NEXT;
+>     >
+>     > Since commit 680557cf79f82623e2c4fd42733077d60a843513
+>     >=A0 =A0 =A0virtio_net: rework mergeable buffer handling
+>     >
+>     > we no longer must do the resets, we now have enough space
+>     > to store a bit saying whether a buffer is xdp one or not.
+>     >
+>     > And that's probably a cleaner way to fix these issues than
+>     > try to find and fix the race condition.
+>     >
+>     > John?
+>     >
+>     > --
+>     > MST
+> =
 
-     vq->vring.desc[vq->free_head].addr = addr;
-     vq->vring.desc[vq->free_head].len = len;
-     vq->vring.desc[vq->free_head].flags = cpu_to_virtio16(_vq->vdev, 
-flags);
-     /* return to the caller the desc id */
-     *idx = vq->free_head;
-     ...
-}
+> =
 
-int virtqueue_add_next(struct virtqueue *_vq,
-                                      uint64_t addr,
-                                      uint32_t len,
-                                      bool in,
-                                      bool end,
-                                      unsigned int *idx) {
-     ...
-     vq->vring.desc[*idx].next = vq->free_head;
-     vq->vring.desc[vq->free_head].addr = addr;
-     ...
-     if (end)
-         remove the VRING_DESC_F_NEXT flag
-}
+>     I think I see the source of the race. virtio net calls
+>     netif_device_detach and assumes no packets will be sent after
+>     this point. However, all it does is stop all queues so
+>     no new packets will be transmitted.
+> =
+
+>     Try locking with HARD_TX_LOCK?
+>    =
+
+> =
+
+>     --
+>     MST
+> =
+
+> =
+
+> Hi Michael,
+> =
+
+> from what i see, the race appear when we hit virtnet_reset in virtnet_xdp=
+_set.
+> virtnet_reset
+> =A0 _remove_vq_common
+> =A0=A0=A0 virtnet_del_vqs
+> =A0=A0=A0=A0=A0 virtnet_free_queues
+> =A0=A0=A0=A0=A0 =A0 kfree(vi->sq)
+> when the xdp program (with two instances of the program to trigger it fas=
+ter)
+> is added or removed.
+> =
+
+> It's easily repeatable, with 2 cpus and 4 queues on the qemu command line,
+> running the xdp_ttl tool from Jesper.
+> =
+
+> For now, i'm able to continue my qualification, testing if xdp_qp is not =
+null,
+> but do not seem to be a sustainable trick.
+> if (xdp_qp && vi->xdp_queues_pairs !=3D xdp_qp)
+> =
+
+> Maybe it will be more clear to you with theses informations.
+> =
+
+> Best regards.
+> =
+
+> Jean-Philippe
 
 
-What do you think? We can also combine the two functions into one.
+I'm pretty clear about the issue here, I was trying to figure out a fix.
+Jason, any thoughts?
 
 
+-- =
 
-Best,
-Wei
+MST
