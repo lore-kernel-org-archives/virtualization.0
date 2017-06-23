@@ -1,17 +1,16 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [Intel-gfx] [PATCH v2 13/14] drm: stm: remove dead code and
-	pointless local lut storage
-Date: Fri, 23 Jun 2017 11:35:32 +0200
-Message-ID: <20170623093532.gtkl4ia7smc5gudc__47001.1682752103$1498210545$gmane$org@phenom.ffwll.local>
-References: <1498111597-10714-1-git-send-email-peda@axentia.se>
-	<1498111597-10714-14-git-send-email-peda@axentia.se>
-	<159dad37-7f12-0b4d-5512-d19a80670d5c@st.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [RFC] virtio-mem: paravirtualized memory
+Date: Fri, 23 Jun 2017 13:45:12 +0100
+Message-ID: <20170623124512.GB14304__32400.1418812715$1498221921$gmane$org@stefanha-x1.localdomain>
+References: <547865a9-d6c2-7140-47e2-5af01e7d761d@redhat.com>
+	<20170619100813.GB17304@stefanha-x1.localdomain>
+	<4cec825b-d92e-832e-3a76-103767032528@redhat.com>
+	<20170621110817.GF16183@stefanha-x1.localdomain>
+	<2361e86b-6660-4261-a805-c82c3b3a37c6@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4202036216493488882=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <159dad37-7f12-0b4d-5512-d19a80670d5c@st.com>
+In-Reply-To: <2361e86b-6660-4261-a805-c82c3b3a37c6@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,105 +20,140 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Philippe CORNU <philippe.cornu@st.com>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>, David Airlie <airlied@linux.ie>, "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>, Russell King <linux@armlinux.org.uk>, Yannick FERTRE <yannick.fertre@st.com>, Ben Skeggs <bskeggs@redhat.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Dave Airlie <airlied@redhat.com>, Alex Deucher <alexander.deucher@amd.com>, Daniel Vetter <daniel.vetter@intel.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Vincent ABRIOU <vincent.abriou@st>
+To: David Hildenbrand <david@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 22, 2017 at 11:49:34AM +0000, Philippe CORNU wrote:
-> 
-> 
-> On 06/22/2017 08:06 AM, Peter Rosin wrote:
-> > The redundant fb helper .load_lut is no longer used, and can not
-> > work right without also providing the fb helpers .gamma_set and
-> > .gamma_get thus rendering the code in this driver suspect.
-> > 
-> 
-> Hi Peter,
-> STM32 chipsets supports 8-bit CLUT mode but this driver version does not 
-> support it "yet" (final patch has not been upstreamed because it was a 
-> too big fbdev patch for simply adding CLUT...).
-> 
-> Regarding your patch below, if it helps you to ease the drm framework 
-> update then I am agree to "acknowledge it" asap, else if you are not in 
-> a hurry, I would prefer a better and definitive patch handling 8-bit 
-> CLUT properly and I am ok to help or/and to do it : )
 
-I'll take your ack, since your 8bit lut support will be massively simpler
-with Peter's series here :-)
+--===============4202036216493488882==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="hQiwHBbRI9kgIhsi"
+Content-Disposition: inline
 
-> Extra questions:
-> - any plan to update modetest with the DRM_FORMAT_C8 support + gamma 
-> get/set?
 
-We have gamma igts, well for the fancy new atomic color manager stuff.
-Testing drivers with modetest is kinda not that awesome :-)
--Daniel
+--hQiwHBbRI9kgIhsi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> - do you have a simple way to test clut with fbdev, last year we where 
-> using an old version of the SDL but I am still looking for a small piece 
-> of code to do it (else I will do it myself but C8 on fbdev is not really 
-> a priority ;-)
-> 
-> best regards,
-> Philippe
-> 
-> > Just remove the dead code.
-> > 
-> > Signed-off-by: Peter Rosin <peda@axentia.se>
-> > ---
-> >   drivers/gpu/drm/stm/ltdc.c | 12 ------------
-> >   drivers/gpu/drm/stm/ltdc.h |  1 -
-> >   2 files changed, 13 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
-> > index 1b9483d..87829b9 100644
-> > --- a/drivers/gpu/drm/stm/ltdc.c
-> > +++ b/drivers/gpu/drm/stm/ltdc.c
-> > @@ -375,17 +375,6 @@ static irqreturn_t ltdc_irq(int irq, void *arg)
-> >    * DRM_CRTC
-> >    */
-> >   
-> > -static void ltdc_crtc_load_lut(struct drm_crtc *crtc)
-> > -{
-> > -	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
-> > -	unsigned int i, lay;
-> > -
-> > -	for (lay = 0; lay < ldev->caps.nb_layers; lay++)
-> > -		for (i = 0; i < 256; i++)
-> > -			reg_write(ldev->regs, LTDC_L1CLUTWR + lay * LAY_OFS,
-> > -				  ldev->clut[i]);
-> > -}
-> > -
-> >   static void ltdc_crtc_enable(struct drm_crtc *crtc)
-> >   {
-> >   	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
-> > @@ -523,7 +512,6 @@ static void ltdc_crtc_atomic_flush(struct drm_crtc *crtc,
-> >   }
-> >   
-> >   static struct drm_crtc_helper_funcs ltdc_crtc_helper_funcs = {
-> > -	.load_lut = ltdc_crtc_load_lut,
-> >   	.enable = ltdc_crtc_enable,
-> >   	.disable = ltdc_crtc_disable,
-> >   	.mode_set_nofb = ltdc_crtc_mode_set_nofb,
-> > diff --git a/drivers/gpu/drm/stm/ltdc.h b/drivers/gpu/drm/stm/ltdc.h
-> > index d7a9c73..620ca55 100644
-> > --- a/drivers/gpu/drm/stm/ltdc.h
-> > +++ b/drivers/gpu/drm/stm/ltdc.h
-> > @@ -27,7 +27,6 @@ struct ltdc_device {
-> >   	struct drm_panel *panel;
-> >   	struct mutex err_lock;	/* protecting error_status */
-> >   	struct ltdc_caps caps;
-> > -	u32 clut[256];		/* color look up table */
-> >   	u32 error_status;
-> >   	u32 irq_status;
-> >   };
-> > 
-> _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+On Wed, Jun 21, 2017 at 02:32:48PM +0200, David Hildenbrand wrote:
+> On 21.06.2017 13:08, Stefan Hajnoczi wrote:
+> > On Mon, Jun 19, 2017 at 12:26:52PM +0200, David Hildenbrand wrote:
+> >> On 19.06.2017 12:08, Stefan Hajnoczi wrote:
+> >>> On Fri, Jun 16, 2017 at 04:20:02PM +0200, David Hildenbrand wrote:
+> >>>> Important restrictions of this concept:
+> >>>> - Guests without a virtio-mem guest driver can't see that memory.
+> >>>> - We will always require some boot memory that cannot get unplugged.
+> >>>>   Also, virtio-mem memory (as all other hotplugged memory) cannot be=
+come
+> >>>>   DMA memory under Linux. So the boot memory also defines the amount=
+ of
+> >>>>   DMA memory.
+> >>>
+> >>> I didn't know that hotplug memory cannot become DMA memory.
+> >>>
+> >>> Ouch.  Zero-copy disk I/O with O_DIRECT and network I/O with virtio-n=
+et
+> >>> won't be possible.
+> >>>
+> >>> When running an application that uses O_DIRECT file I/O this probably
+> >>> means we now have 2 copies of pages in memory: 1. in the application =
+and
+> >>> 2. in the kernel page cache.
+> >>>
+> >>> So this increases pressure on the page cache and reduces performance =
+:(.
+> >>>
+> >>> Stefan
+> >>>
+> >>
+> >> arch/x86/mm/init_64.c:
+> >>
+> >> /*
+> >>  * Memory is added always to NORMAL zone. This means you will never get
+> >>  * additional DMA/DMA32 memory.
+> >>  */
+> >> int arch_add_memory(int nid, u64 start, u64 size, bool for_device)
+> >> {
+> >>
+> >> The is for sure something to work on in the future. Until then, base
+> >> memory of 3.X GB should be sufficient, right?
+> >=20
+> > I'm not sure that helps because applications typically don't control
+> > where their buffers are located?
+>=20
+> Okay, let me try to explain what is going on here (no expert, please
+> someone correct me if I am wrong).
+>=20
+> There is a difference between DMA and DMA memory in Linux. DMA memory is
+> simply memory with special addresses. DMA is the general technique of a
+> device directly copying data to ram, bypassing the CPU.
+>=20
+> ZONE_DMA contains all* memory < 16MB
+> ZONE_DMA32 contains all* memory < 4G
+> * meaning available on boot via a820 map, not hotplugged.
+>=20
+> So memory from these zones can be used by devices that can only deal
+> with 24bit/32bit addresses.
+>=20
+> Hotplugged memory is never added to the ZONE_DMA/DMA32, but to
+> ZONE_NORMAL. That means, kmalloc(.., GFP_DMA will) not be able to use
+> hotplugged memory. Say you have 1GB of main storage and hotplug 1G (on
+> address 1G). This memory will not be available in the ZONE_DMA, although
+> below 4g.
+>=20
+> Memory in ZONE_NORMAL is used for ordinary kmalloc(), so all these
+> memory can be used to do DMA, but you are not guaranteed to get 32bit
+> capable addresses. I pretty much assume that virtio-net can deal with
+> 64bit addresses.
+>=20
+>=20
+> My understanding of O_DIRECT:
+>=20
+> The user space buffers (O_DIRECT) is directly used to do DMA. This will
+> work just fine as long as the device can deal with 64bit addresses. I
+> guess this is the case for virtio-net, otherwise there would be the
+> exact same problem already without virtio-mem.
+>=20
+> Summary:
+>=20
+> virtio-mem memory can be used for DMA, it will simply not be added to
+> ZONE_DMA/DMA32 and therefore won't be available for kmalloc(...,
+> GFP_DMA). This should work just fine with O_DIRECT as before.
+>=20
+> If necessary, we could try to add memory to the ZONE_DMA later on,
+> however for now I would rate this a minor problem. By simply using 3.X
+> GB of base memory, basically all memory that could go to ZONE_DMA/DMA32
+> already is in these zones without virtio-mem.
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Nice, thanks for clearing this up!
+
+Stefan
+
+--hQiwHBbRI9kgIhsi
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJZTQ1YAAoJEJykq7OBq3PIbxwH/3w+GoO6ZDogPuQ3w4qlInWw
+/WyESXIRnVQOd8IxPq4w+EKBVbzGFnabQIEYP/cJWwZYxTVRoUNRwdDIADKdeTsw
+gRSDGDaswCerbpUQco4IxcuZObt6ORZgkss41CvA5ZseO6eGfWAEJ4HQpofAPoRw
+S+23Wc6y4h+sMn80E2SYitIZD6Ig63f/agwu4nNeaZq/Vi/nWBG+PHih/XMKHTHa
+L5FXTpncvJ95zip2bnb4Dc3p9tflxNTkg1c+Ze9wedpOzzj1Gl9czbXq75+rbCvR
+PmTIfWsvfR1JE9BafG2yAslISI42xz5OQ0YJ/FzQXRjyJIhBxNgPoL+upqXeATg=
+=UMo8
+-----END PGP SIGNATURE-----
+
+--hQiwHBbRI9kgIhsi--
+
+--===============4202036216493488882==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4202036216493488882==--
