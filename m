@@ -1,18 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: BUG: KASAN: use-after-free in free_old_xmit_skbs
-Date: Fri, 23 Jun 2017 16:43:13 +0800
-Message-ID: <4f6d4342-8476-882e-e7a8-b3f0ebd20d95@redhat.com>
-References: <d2e8cf65-ea3d-7db2-9382-a063daf1168a@gmail.com>
-	<20170605050423-mutt-send-email-mst@kernel.org>
-	<20170606024211-mutt-send-email-mst@kernel.org>
-	<CAOTcU=u_HSMQiwDF3Snv5P8mT-b_Aepeb=Z9gbLd1j=2P+Yy+A@mail.gmail.com>
-	<20170622215125-mutt-send-email-mst@kernel.org>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [Intel-gfx] [PATCH v2 13/14] drm: stm: remove dead code and
+	pointless local lut storage
+Date: Fri, 23 Jun 2017 11:35:32 +0200
+Message-ID: <20170623093532.gtkl4ia7smc5gudc__47001.1682752103$1498210545$gmane$org@phenom.ffwll.local>
+References: <1498111597-10714-1-git-send-email-peda@axentia.se>
+	<1498111597-10714-14-git-send-email-peda@axentia.se>
+	<159dad37-7f12-0b4d-5512-d19a80670d5c@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170622215125-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <159dad37-7f12-0b4d-5512-d19a80670d5c@st.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,68 +21,105 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, jean-philippe menil <jpmenil@gmail.com>
-Cc: netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Philippe CORNU <philippe.cornu@st.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>, David Airlie <airlied@linux.ie>, "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>, Russell King <linux@armlinux.org.uk>, Yannick FERTRE <yannick.fertre@st.com>, Ben Skeggs <bskeggs@redhat.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Dave Airlie <airlied@redhat.com>, Alex Deucher <alexander.deucher@amd.com>, Daniel Vetter <daniel.vetter@intel.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Vincent ABRIOU <vincent.abriou@st>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDbmnIgyM+aXpSAwMjo1MywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFRodSwgSnVuIDIyLCAyMDE3IGF0IDA4OjE1OjU4QU0gKzAyMDAsIGplYW4tcGhpbGlwcGUg
-bWVuaWwgd3JvdGU6Cj4+IDIwMTctMDYtMDYgMTo1MiBHTVQrMDI6MDAgTWljaGFlbCBTLiBUc2ly
-a2luIDxtc3RAcmVkaGF0LmNvbT46Cj4+Cj4+ICAgICAgT24gTW9uLCBKdW4gMDUsIDIwMTcgYXQg
-MDU6MDg6MjVBTSArMDMwMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+PiAgICAgID4gT24g
-TW9uLCBKdW4gMDUsIDIwMTcgYXQgMTI6NDg6NTNBTSArMDIwMCwgSmVhbi1QaGlsaXBwZSBNZW5p
-bCB3cm90ZToKPj4gICAgICA+ID4gSGksCj4+ICAgICAgPiA+Cj4+ICAgICAgPiA+IHdoaWxlIHBs
-YXlpbmcgd2l0aCB4ZHAgYW5kIGVicGYsIGknbSBoaXR0aW5nIHRoZSBmb2xsb3dpbmc6Cj4+ICAg
-ICAgPiA+Cj4+ICAgICAgPiA+IFsgIDMwOS45OTMxMzZdCj4+ICAgICAgPiA+ID09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQo+
-PiAgICAgID4gPiBbICAzMDkuOTk0NzM1XSBCVUc6IEtBU0FOOiB1c2UtYWZ0ZXItZnJlZSBpbgo+
-PiAgICAgID4gPiBmcmVlX29sZF94bWl0X3NrYnMuaXNyYS4yOSsweDJiNy8weDJlMCBbdmlydGlv
-X25ldF0KPj4gICAgICA+ID4gWyAgMzA5Ljk5ODM5Nl0gUmVhZCBvZiBzaXplIDggYXQgYWRkciBm
-ZmZmODgwMDZhYTY0MjIwIGJ5IHRhc2sgc3NoZC8zMjMKPj4gICAgICA+ID4gWyAgMzEwLjAwMDY1
-MF0KPj4gICAgICA+ID4gWyAgMzEwLjAwMjMwNV0gQ1BVOiAxIFBJRDogMzIzIENvbW06IHNzaGQg
-Tm90IHRhaW50ZWQgNC4xMi4wLXJjMysgIzIKPj4gICAgICA+ID4gWyAgMzEwLjAwNDAxOF0gSGFy
-ZHdhcmUgbmFtZTogUUVNVSBTdGFuZGFyZCBQQyAoaTQ0MEZYICsgUElJWCwgMTk5NiksCj4+ICAg
-ICAgQklPUwo+PiAgICAgID4gPiAxLjEwLjItMjAxNzAyMjhfMTAxODI4LWFuYXRvbCAwNC8wMS8y
-MDE0Cj4gLi4uCj4KPj4gICAgICA+Cj4+ICAgICAgPiBTaW5jZSBjb21taXQgNjgwNTU3Y2Y3OWY4
-MjYyM2UyYzRmZDQyNzMzMDc3ZDYwYTg0MzUxMwo+PiAgICAgID4gICAgIHZpcnRpb19uZXQ6IHJl
-d29yayBtZXJnZWFibGUgYnVmZmVyIGhhbmRsaW5nCj4+ICAgICAgPgo+PiAgICAgID4gd2Ugbm8g
-bG9uZ2VyIG11c3QgZG8gdGhlIHJlc2V0cywgd2Ugbm93IGhhdmUgZW5vdWdoIHNwYWNlCj4+ICAg
-ICAgPiB0byBzdG9yZSBhIGJpdCBzYXlpbmcgd2hldGhlciBhIGJ1ZmZlciBpcyB4ZHAgb25lIG9y
-IG5vdC4KPj4gICAgICA+Cj4+ICAgICAgPiBBbmQgdGhhdCdzIHByb2JhYmx5IGEgY2xlYW5lciB3
-YXkgdG8gZml4IHRoZXNlIGlzc3VlcyB0aGFuCj4+ICAgICAgPiB0cnkgdG8gZmluZCBhbmQgZml4
-IHRoZSByYWNlIGNvbmRpdGlvbi4KPj4gICAgICA+Cj4+ICAgICAgPiBKb2huPwo+PiAgICAgID4K
-Pj4gICAgICA+IC0tCj4+ICAgICAgPiBNU1QKPj4KPj4KPj4gICAgICBJIHRoaW5rIEkgc2VlIHRo
-ZSBzb3VyY2Ugb2YgdGhlIHJhY2UuIHZpcnRpbyBuZXQgY2FsbHMKPj4gICAgICBuZXRpZl9kZXZp
-Y2VfZGV0YWNoIGFuZCBhc3N1bWVzIG5vIHBhY2tldHMgd2lsbCBiZSBzZW50IGFmdGVyCj4+ICAg
-ICAgdGhpcyBwb2ludC4gSG93ZXZlciwgYWxsIGl0IGRvZXMgaXMgc3RvcCBhbGwgcXVldWVzIHNv
-Cj4+ICAgICAgbm8gbmV3IHBhY2tldHMgd2lsbCBiZSB0cmFuc21pdHRlZC4KPj4KPj4gICAgICBU
-cnkgbG9ja2luZyB3aXRoIEhBUkRfVFhfTE9DSz8KPj4gICAgIAo+Pgo+PiAgICAgIC0tCj4+ICAg
-ICAgTVNUCj4+Cj4+Cj4+IEhpIE1pY2hhZWwsCj4+Cj4+IGZyb20gd2hhdCBpIHNlZSwgdGhlIHJh
-Y2UgYXBwZWFyIHdoZW4gd2UgaGl0IHZpcnRuZXRfcmVzZXQgaW4gdmlydG5ldF94ZHBfc2V0Lgo+
-PiB2aXJ0bmV0X3Jlc2V0Cj4+ICAgIF9yZW1vdmVfdnFfY29tbW9uCj4+ICAgICAgdmlydG5ldF9k
-ZWxfdnFzCj4+ICAgICAgICB2aXJ0bmV0X2ZyZWVfcXVldWVzCj4+ICAgICAgICAgIGtmcmVlKHZp
-LT5zcSkKPj4gd2hlbiB0aGUgeGRwIHByb2dyYW0gKHdpdGggdHdvIGluc3RhbmNlcyBvZiB0aGUg
-cHJvZ3JhbSB0byB0cmlnZ2VyIGl0IGZhc3RlcikKPj4gaXMgYWRkZWQgb3IgcmVtb3ZlZC4KPj4K
-Pj4gSXQncyBlYXNpbHkgcmVwZWF0YWJsZSwgd2l0aCAyIGNwdXMgYW5kIDQgcXVldWVzIG9uIHRo
-ZSBxZW11IGNvbW1hbmQgbGluZSwKPj4gcnVubmluZyB0aGUgeGRwX3R0bCB0b29sIGZyb20gSmVz
-cGVyLgo+Pgo+PiBGb3Igbm93LCBpJ20gYWJsZSB0byBjb250aW51ZSBteSBxdWFsaWZpY2F0aW9u
-LCB0ZXN0aW5nIGlmIHhkcF9xcCBpcyBub3QgbnVsbCwKPj4gYnV0IGRvIG5vdCBzZWVtIHRvIGJl
-IGEgc3VzdGFpbmFibGUgdHJpY2suCj4+IGlmICh4ZHBfcXAgJiYgdmktPnhkcF9xdWV1ZXNfcGFp
-cnMgIT0geGRwX3FwKQo+Pgo+PiBNYXliZSBpdCB3aWxsIGJlIG1vcmUgY2xlYXIgdG8geW91IHdp
-dGggdGhlc2VzIGluZm9ybWF0aW9ucy4KPj4KPj4gQmVzdCByZWdhcmRzLgo+Pgo+PiBKZWFuLVBo
-aWxpcHBlCj4KPiBJJ20gcHJldHR5IGNsZWFyIGFib3V0IHRoZSBpc3N1ZSBoZXJlLCBJIHdhcyB0
-cnlpbmcgdG8gZmlndXJlIG91dCBhIGZpeC4KPiBKYXNvbiwgYW55IHRob3VnaHRzPwo+Cj4KCkhp
-IEplYW46CgpEb2VzIHRoZSBmb2xsb3dpbmcgZml4IHRoaXMgaXNzdWU/IChJIGNhbid0IHJlcHJv
-ZHVjZSBpdCBsb2NhbGx5IHRocm91Z2ggCnhkcF90dGwpCgpUaGFua3MKCmRpZmYgLS1naXQgYS9k
-cml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKaW5kZXgg
-MWY4YzE1Yy4uM2U2NWMzZiAxMDA2NDQKLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCisr
-KyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwpAQCAtMTgwMSw3ICsxODAxLDkgQEAgc3RhdGlj
-IHZvaWQgdmlydG5ldF9mcmVlemVfZG93bihzdHJ1Y3QgCnZpcnRpb19kZXZpY2UgKnZkZXYpCiAg
-ICAgICAgIC8qIE1ha2Ugc3VyZSBubyB3b3JrIGhhbmRsZXIgaXMgYWNjZXNzaW5nIHRoZSBkZXZp
-Y2UgKi8KICAgICAgICAgZmx1c2hfd29yaygmdmktPmNvbmZpZ193b3JrKTsKCisgICAgICAgbmV0
-aWZfdHhfbG9ja19iaCh2aS0+ZGV2KTsKICAgICAgICAgbmV0aWZfZGV2aWNlX2RldGFjaCh2aS0+
-ZGV2KTsKKyAgICAgICBuZXRpZl90eF91bmxvY2tfYmgodmktPmRldik7CiAgICAgICAgIGNhbmNl
-bF9kZWxheWVkX3dvcmtfc3luYygmdmktPnJlZmlsbCk7CgpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
-eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, Jun 22, 2017 at 11:49:34AM +0000, Philippe CORNU wrote:
+> 
+> 
+> On 06/22/2017 08:06 AM, Peter Rosin wrote:
+> > The redundant fb helper .load_lut is no longer used, and can not
+> > work right without also providing the fb helpers .gamma_set and
+> > .gamma_get thus rendering the code in this driver suspect.
+> > 
+> 
+> Hi Peter,
+> STM32 chipsets supports 8-bit CLUT mode but this driver version does not 
+> support it "yet" (final patch has not been upstreamed because it was a 
+> too big fbdev patch for simply adding CLUT...).
+> 
+> Regarding your patch below, if it helps you to ease the drm framework 
+> update then I am agree to "acknowledge it" asap, else if you are not in 
+> a hurry, I would prefer a better and definitive patch handling 8-bit 
+> CLUT properly and I am ok to help or/and to do it : )
+
+I'll take your ack, since your 8bit lut support will be massively simpler
+with Peter's series here :-)
+
+> Extra questions:
+> - any plan to update modetest with the DRM_FORMAT_C8 support + gamma 
+> get/set?
+
+We have gamma igts, well for the fancy new atomic color manager stuff.
+Testing drivers with modetest is kinda not that awesome :-)
+-Daniel
+
+> - do you have a simple way to test clut with fbdev, last year we where 
+> using an old version of the SDL but I am still looking for a small piece 
+> of code to do it (else I will do it myself but C8 on fbdev is not really 
+> a priority ;-)
+> 
+> best regards,
+> Philippe
+> 
+> > Just remove the dead code.
+> > 
+> > Signed-off-by: Peter Rosin <peda@axentia.se>
+> > ---
+> >   drivers/gpu/drm/stm/ltdc.c | 12 ------------
+> >   drivers/gpu/drm/stm/ltdc.h |  1 -
+> >   2 files changed, 13 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
+> > index 1b9483d..87829b9 100644
+> > --- a/drivers/gpu/drm/stm/ltdc.c
+> > +++ b/drivers/gpu/drm/stm/ltdc.c
+> > @@ -375,17 +375,6 @@ static irqreturn_t ltdc_irq(int irq, void *arg)
+> >    * DRM_CRTC
+> >    */
+> >   
+> > -static void ltdc_crtc_load_lut(struct drm_crtc *crtc)
+> > -{
+> > -	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
+> > -	unsigned int i, lay;
+> > -
+> > -	for (lay = 0; lay < ldev->caps.nb_layers; lay++)
+> > -		for (i = 0; i < 256; i++)
+> > -			reg_write(ldev->regs, LTDC_L1CLUTWR + lay * LAY_OFS,
+> > -				  ldev->clut[i]);
+> > -}
+> > -
+> >   static void ltdc_crtc_enable(struct drm_crtc *crtc)
+> >   {
+> >   	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
+> > @@ -523,7 +512,6 @@ static void ltdc_crtc_atomic_flush(struct drm_crtc *crtc,
+> >   }
+> >   
+> >   static struct drm_crtc_helper_funcs ltdc_crtc_helper_funcs = {
+> > -	.load_lut = ltdc_crtc_load_lut,
+> >   	.enable = ltdc_crtc_enable,
+> >   	.disable = ltdc_crtc_disable,
+> >   	.mode_set_nofb = ltdc_crtc_mode_set_nofb,
+> > diff --git a/drivers/gpu/drm/stm/ltdc.h b/drivers/gpu/drm/stm/ltdc.h
+> > index d7a9c73..620ca55 100644
+> > --- a/drivers/gpu/drm/stm/ltdc.h
+> > +++ b/drivers/gpu/drm/stm/ltdc.h
+> > @@ -27,7 +27,6 @@ struct ltdc_device {
+> >   	struct drm_panel *panel;
+> >   	struct mutex err_lock;	/* protecting error_status */
+> >   	struct ltdc_caps caps;
+> > -	u32 clut[256];		/* color look up table */
+> >   	u32 error_status;
+> >   	u32 irq_status;
+> >   };
+> > 
+> _______________________________________________
+> Intel-gfx mailing list
+> Intel-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
