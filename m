@@ -1,17 +1,11 @@
-From: Philippe CORNU <philippe.cornu@st.com>
-Subject: Re: [PATCH v2 13/14] drm: stm: remove dead code and pointless local
-	lut storage
-Date: Thu, 22 Jun 2017 11:49:34 +0000
-Message-ID: <159dad37-7f12-0b4d-5512-d19a80670d5c__29595.5866612077$1509078554$gmane$org@st.com>
-References: <1498111597-10714-1-git-send-email-peda@axentia.se>
-	<1498111597-10714-14-git-send-email-peda@axentia.se>
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH] char: virtio_console: constify port_attribute_group
+Date: Fri, 23 Jun 2017 10:26:18 +0530
+Message-ID: <ff3036ff4eb284dc67c23d34d839b060abfa5a4a.1498193508.git.arvind.yadav.cs__29730.1816674464$1509078559$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1498111597-10714-14-git-send-email-peda@axentia.se>
-Content-Language: en-US
-Content-ID: <A84B5F024E8DD34AAD06FA4974DFFEB7@st.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,87 +15,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Rosin <peda@axentia.se>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, David Airlie <airlied@linux.ie>, "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, Russell King <linux@armlinux.org.uk>, Jani Nikula <jani.nikula@linux.intel.com>, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Yannick FERTRE <yannick.fertre@st.com>, Sean Paul <seanpaul@chromium.org>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Alex Deucher <alexander.deucher@amd.com>, Dave Airlie <airlied@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Vincent ABRIOU <vincent.abriou@st.com>, =?utf-8?B?Q2hyaXN0aWFuIE
+To: arnd@arndb.de, gregkh@linuxfoundation.org, amit@kernel.org
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+File size before:
+   text	   data	    bss	    dec	    hex	filename
+  13775	    656	     88	  14519	   38b7	drivers/char/virtio_console.o
 
+File size After adding 'const':
+   text	   data	    bss	    dec	    hex	filename
+  13839	    592	     88	  14519	   38b7	drivers/char/virtio_console.o
 
-On 06/22/2017 08:06 AM, Peter Rosin wrote:
-> The redundant fb helper .load_lut is no longer used, and can not
-> work right without also providing the fb helpers .gamma_set and
-> .gamma_get thus rendering the code in this driver suspect.
-> 
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/char/virtio_console.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hi Peter,
-STM32 chipsets supports 8-bit CLUT mode but this driver version does not 
-support it "yet" (final patch has not been upstreamed because it was a 
-too big fbdev patch for simply adding CLUT...).
-
-Regarding your patch below, if it helps you to ease the drm framework 
-update then I am agree to "acknowledge it" asap, else if you are not in 
-a hurry, I would prefer a better and definitive patch handling 8-bit 
-CLUT properly and I am ok to help or/and to do it : )
-
-Extra questions:
-- any plan to update modetest with the DRM_FORMAT_C8 support + gamma 
-get/set?
-- do you have a simple way to test clut with fbdev, last year we where 
-using an old version of the SDL but I am still looking for a small piece 
-of code to do it (else I will do it myself but C8 on fbdev is not really 
-a priority ;-)
-
-best regards,
-Philippe
-
-> Just remove the dead code.
-> 
-> Signed-off-by: Peter Rosin <peda@axentia.se>
-> ---
->   drivers/gpu/drm/stm/ltdc.c | 12 ------------
->   drivers/gpu/drm/stm/ltdc.h |  1 -
->   2 files changed, 13 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
-> index 1b9483d..87829b9 100644
-> --- a/drivers/gpu/drm/stm/ltdc.c
-> +++ b/drivers/gpu/drm/stm/ltdc.c
-> @@ -375,17 +375,6 @@ static irqreturn_t ltdc_irq(int irq, void *arg)
->    * DRM_CRTC
->    */
->   
-> -static void ltdc_crtc_load_lut(struct drm_crtc *crtc)
-> -{
-> -	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
-> -	unsigned int i, lay;
-> -
-> -	for (lay = 0; lay < ldev->caps.nb_layers; lay++)
-> -		for (i = 0; i < 256; i++)
-> -			reg_write(ldev->regs, LTDC_L1CLUTWR + lay * LAY_OFS,
-> -				  ldev->clut[i]);
-> -}
-> -
->   static void ltdc_crtc_enable(struct drm_crtc *crtc)
->   {
->   	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
-> @@ -523,7 +512,6 @@ static void ltdc_crtc_atomic_flush(struct drm_crtc *crtc,
->   }
->   
->   static struct drm_crtc_helper_funcs ltdc_crtc_helper_funcs = {
-> -	.load_lut = ltdc_crtc_load_lut,
->   	.enable = ltdc_crtc_enable,
->   	.disable = ltdc_crtc_disable,
->   	.mode_set_nofb = ltdc_crtc_mode_set_nofb,
-> diff --git a/drivers/gpu/drm/stm/ltdc.h b/drivers/gpu/drm/stm/ltdc.h
-> index d7a9c73..620ca55 100644
-> --- a/drivers/gpu/drm/stm/ltdc.h
-> +++ b/drivers/gpu/drm/stm/ltdc.h
-> @@ -27,7 +27,6 @@ struct ltdc_device {
->   	struct drm_panel *panel;
->   	struct mutex err_lock;	/* protecting error_status */
->   	struct ltdc_caps caps;
-> -	u32 clut[256];		/* color look up table */
->   	u32 error_status;
->   	u32 irq_status;
->   };
-> 
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index ad843eb..06bd635 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1308,7 +1308,7 @@ static ssize_t show_port_name(struct device *dev,
+ 	NULL
+ };
+ 
+-static struct attribute_group port_attribute_group = {
++static const struct attribute_group port_attribute_group = {
+ 	.name = NULL,		/* put in device directory */
+ 	.attrs = port_sysfs_entries,
+ };
+-- 
+1.9.1
