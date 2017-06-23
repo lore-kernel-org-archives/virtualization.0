@@ -1,20 +1,18 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 01/11] drm/fb-helper: do a generic fb_setcmap helper in
-	terms of crtc .gamma_set
-Date: Fri, 23 Jun 2017 10:40:38 +0200
-Message-ID: <20170623084037.7jzeecvn5cgm7tmz__27070.5847106457$1498207250$gmane$org@phenom.ffwll.local>
-References: <1497986735-14418-1-git-send-email-peda@axentia.se>
-	<1497986735-14418-2-git-send-email-peda@axentia.se>
-	<20170621073804.akyg4rxvoavjjt2v@phenom.ffwll.local>
-	<fc8ca240-61ad-b5b6-174c-490858401237@axentia.se>
-	<20170622063645.k5ciwdeqfafgnxtv@phenom.ffwll.local>
-	<854a89af-d146-8414-73e7-2460c8f33598@axentia.se>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: BUG: KASAN: use-after-free in free_old_xmit_skbs
+Date: Fri, 23 Jun 2017 16:43:13 +0800
+Message-ID: <4f6d4342-8476-882e-e7a8-b3f0ebd20d95@redhat.com>
+References: <d2e8cf65-ea3d-7db2-9382-a063daf1168a@gmail.com>
+	<20170605050423-mutt-send-email-mst@kernel.org>
+	<20170606024211-mutt-send-email-mst@kernel.org>
+	<CAOTcU=u_HSMQiwDF3Snv5P8mT-b_Aepeb=Z9gbLd1j=2P+Yy+A@mail.gmail.com>
+	<20170622215125-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <854a89af-d146-8414-73e7-2460c8f33598@axentia.se>
+In-Reply-To: <20170622215125-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,95 +22,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Rosin <peda@axentia.se>
-Cc: nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Philippe Cornu <philippe.cornu@st.com>, Yannick Fertre <yannick.fertre@st.com>, Ben Skeggs <bskeggs@redhat.com>, amd-gfx@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>, Alex Deucher <alexander.deucher@amd.com>, Daniel Vetter <daniel.vetter@intel.com>, virtualization@lists.linux-foundation.org, Vincent Abriou <vincent.abriou@st.com>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, jean-philippe menil <jpmenil@gmail.com>
+Cc: netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 22, 2017 at 10:48:10AM +0200, Peter Rosin wrote:
-> On 2017-06-22 08:36, Daniel Vetter wrote:
-> > On Wed, Jun 21, 2017 at 11:40:52AM +0200, Peter Rosin wrote:
-> >> On 2017-06-21 09:38, Daniel Vetter wrote:
-> >>> On Tue, Jun 20, 2017 at 09:25:25PM +0200, Peter Rosin wrote:
-> >>>> This makes the redundant fb helpers .load_lut, .gamma_set and .gamma_get
-> >>>> totally obsolete.
-> >>>>
-> >>>> I think the gamma_store can end up invalid on error. But the way I read
-> >>>> it, that can happen in drm_mode_gamma_set_ioctl as well, so why should
-> >>>> this pesky legacy fbdev stuff be any better?
-> >>>>
-> >>>> drm_fb_helper_save_lut_atomic justs saves the gamma lut for later. However,
-> >>>> it saves it to the gamma_store which should already be up to date with what
-> >>>> .gamma_get would return and is thus a nop. So, zap it.
-> >>>
-> >>> Removing drm_fb_helper_save_lut_atomic should be a separate patch I
-> >>> think.
-> >>
-> >> Then 3 patches would be needed, first some hybrid thing that does it the
-> >> old way, but also stores the lut in .gamma_store, then the split-out that
-> >> removes drm_fb_helper_save_lut_atomic, then whatever is needed to get
-> >> to the desired code. I can certainly do that, but do you want me to?
-> > 
-> > Explain that in the commit message and it's fine.
-> 
-> I did the split in v2, I assume that's ok too. Better in case anyone ever
-> needs to run a bisect on this...
-> 
-> >>> It's a pre-existing bug, but should we also try to restore the fbdev lut
-> >>> in drm_fb_helper_restore_fbdev_mode_unlocked()? Would be yet another bug,
-> >>> but might be relevant for your use-case. Just try to run both an fbdev
-> >>> application and some kms-native thing, and then SIGKILL the native kms
-> >>> app.
-> >>>
-> >>> But since pre-existing not really required, and probably too much effort.
-> >>
-> >> Good thing too, because I don't really know my way around this code...
-> > 
-> > Btw I cc'ed you on one of my patches in the fbdev locking series, we might
-> > need to do the same legacy vs. atomic split for the new lut code as I did
-> > for dpms. The rule with atomic is that you can't do multiple commits under
-> > drm_modeset_lock_all, you either have to do one overall atomic commit
-> > (preferred) or drop&reacquire locks again. This matters for LUT since
-> > you're updating the LUT on all CRTCs, which when using the gamma_set
-> > atomic helper would be multiple commits :-/
-> 
-> Ahh, ok, I see the problem.
-> 
-> > Using the dpms patch as template it shouldn't be too hard to address that
-> > for your patch here too.
-> 
-> Hmm, in that patch you handle the legacy case in a separate function, and
-> doing that for the lut case looks difficult when the atomic commit happens
-> inside the helper (typically drm_atomic_helper_legacy_gamma_set which
-> could perhaps be handled, but a real drag to handle for drivers that have
-> a custom crtc .gamma_set).
-
-Yeah, that's essentially why you need 2 functions. Legacy one calls the
-legacy interfaces, the atomic one calls the new fancy atomic property
-stuff directly (i.e. it open-codes the property setting dance from the
-helper, but with one atomic commit across all crtc).
-
-The reason that the legacy callback functions are helpers and not just
-default behavior is that I expected some drivers to need special hacks to
-keep their existing legacy kms userspace working. Atomic helpers unified
-behaviour a lot that beforehand was slightly inconsistent. I somewhat
-expect that long-term we'll unexport all the compat helpers and just make
-them the default for all atomic drivers.
-
-> So, I'm aiming for the drop&reacquire approach...
-
-Hm, I prefer the open-coding, that's at least what we do everywhere else.
-Has the benefit that it's more atomic (one commit for everything).
-
-> However, I don't have all of that series, and I suspect that is why I do
-> not have any fb_helper->lock.
-
-Oh sorry, entire series is on dri-devel. I can do a git branch too if you
-need one, atm it's in my general pile:
-
-https://cgit.freedesktop.org/~danvet/drm/log/
-
-Cheers, Daniel
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+CgpPbiAyMDE35bm0MDbmnIgyM+aXpSAwMjo1MywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFRodSwgSnVuIDIyLCAyMDE3IGF0IDA4OjE1OjU4QU0gKzAyMDAsIGplYW4tcGhpbGlwcGUg
+bWVuaWwgd3JvdGU6Cj4+IDIwMTctMDYtMDYgMTo1MiBHTVQrMDI6MDAgTWljaGFlbCBTLiBUc2ly
+a2luIDxtc3RAcmVkaGF0LmNvbT46Cj4+Cj4+ICAgICAgT24gTW9uLCBKdW4gMDUsIDIwMTcgYXQg
+MDU6MDg6MjVBTSArMDMwMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+PiAgICAgID4gT24g
+TW9uLCBKdW4gMDUsIDIwMTcgYXQgMTI6NDg6NTNBTSArMDIwMCwgSmVhbi1QaGlsaXBwZSBNZW5p
+bCB3cm90ZToKPj4gICAgICA+ID4gSGksCj4+ICAgICAgPiA+Cj4+ICAgICAgPiA+IHdoaWxlIHBs
+YXlpbmcgd2l0aCB4ZHAgYW5kIGVicGYsIGknbSBoaXR0aW5nIHRoZSBmb2xsb3dpbmc6Cj4+ICAg
+ICAgPiA+Cj4+ICAgICAgPiA+IFsgIDMwOS45OTMxMzZdCj4+ICAgICAgPiA+ID09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQo+
+PiAgICAgID4gPiBbICAzMDkuOTk0NzM1XSBCVUc6IEtBU0FOOiB1c2UtYWZ0ZXItZnJlZSBpbgo+
+PiAgICAgID4gPiBmcmVlX29sZF94bWl0X3NrYnMuaXNyYS4yOSsweDJiNy8weDJlMCBbdmlydGlv
+X25ldF0KPj4gICAgICA+ID4gWyAgMzA5Ljk5ODM5Nl0gUmVhZCBvZiBzaXplIDggYXQgYWRkciBm
+ZmZmODgwMDZhYTY0MjIwIGJ5IHRhc2sgc3NoZC8zMjMKPj4gICAgICA+ID4gWyAgMzEwLjAwMDY1
+MF0KPj4gICAgICA+ID4gWyAgMzEwLjAwMjMwNV0gQ1BVOiAxIFBJRDogMzIzIENvbW06IHNzaGQg
+Tm90IHRhaW50ZWQgNC4xMi4wLXJjMysgIzIKPj4gICAgICA+ID4gWyAgMzEwLjAwNDAxOF0gSGFy
+ZHdhcmUgbmFtZTogUUVNVSBTdGFuZGFyZCBQQyAoaTQ0MEZYICsgUElJWCwgMTk5NiksCj4+ICAg
+ICAgQklPUwo+PiAgICAgID4gPiAxLjEwLjItMjAxNzAyMjhfMTAxODI4LWFuYXRvbCAwNC8wMS8y
+MDE0Cj4gLi4uCj4KPj4gICAgICA+Cj4+ICAgICAgPiBTaW5jZSBjb21taXQgNjgwNTU3Y2Y3OWY4
+MjYyM2UyYzRmZDQyNzMzMDc3ZDYwYTg0MzUxMwo+PiAgICAgID4gICAgIHZpcnRpb19uZXQ6IHJl
+d29yayBtZXJnZWFibGUgYnVmZmVyIGhhbmRsaW5nCj4+ICAgICAgPgo+PiAgICAgID4gd2Ugbm8g
+bG9uZ2VyIG11c3QgZG8gdGhlIHJlc2V0cywgd2Ugbm93IGhhdmUgZW5vdWdoIHNwYWNlCj4+ICAg
+ICAgPiB0byBzdG9yZSBhIGJpdCBzYXlpbmcgd2hldGhlciBhIGJ1ZmZlciBpcyB4ZHAgb25lIG9y
+IG5vdC4KPj4gICAgICA+Cj4+ICAgICAgPiBBbmQgdGhhdCdzIHByb2JhYmx5IGEgY2xlYW5lciB3
+YXkgdG8gZml4IHRoZXNlIGlzc3VlcyB0aGFuCj4+ICAgICAgPiB0cnkgdG8gZmluZCBhbmQgZml4
+IHRoZSByYWNlIGNvbmRpdGlvbi4KPj4gICAgICA+Cj4+ICAgICAgPiBKb2huPwo+PiAgICAgID4K
+Pj4gICAgICA+IC0tCj4+ICAgICAgPiBNU1QKPj4KPj4KPj4gICAgICBJIHRoaW5rIEkgc2VlIHRo
+ZSBzb3VyY2Ugb2YgdGhlIHJhY2UuIHZpcnRpbyBuZXQgY2FsbHMKPj4gICAgICBuZXRpZl9kZXZp
+Y2VfZGV0YWNoIGFuZCBhc3N1bWVzIG5vIHBhY2tldHMgd2lsbCBiZSBzZW50IGFmdGVyCj4+ICAg
+ICAgdGhpcyBwb2ludC4gSG93ZXZlciwgYWxsIGl0IGRvZXMgaXMgc3RvcCBhbGwgcXVldWVzIHNv
+Cj4+ICAgICAgbm8gbmV3IHBhY2tldHMgd2lsbCBiZSB0cmFuc21pdHRlZC4KPj4KPj4gICAgICBU
+cnkgbG9ja2luZyB3aXRoIEhBUkRfVFhfTE9DSz8KPj4gICAgIAo+Pgo+PiAgICAgIC0tCj4+ICAg
+ICAgTVNUCj4+Cj4+Cj4+IEhpIE1pY2hhZWwsCj4+Cj4+IGZyb20gd2hhdCBpIHNlZSwgdGhlIHJh
+Y2UgYXBwZWFyIHdoZW4gd2UgaGl0IHZpcnRuZXRfcmVzZXQgaW4gdmlydG5ldF94ZHBfc2V0Lgo+
+PiB2aXJ0bmV0X3Jlc2V0Cj4+ICAgIF9yZW1vdmVfdnFfY29tbW9uCj4+ICAgICAgdmlydG5ldF9k
+ZWxfdnFzCj4+ICAgICAgICB2aXJ0bmV0X2ZyZWVfcXVldWVzCj4+ICAgICAgICAgIGtmcmVlKHZp
+LT5zcSkKPj4gd2hlbiB0aGUgeGRwIHByb2dyYW0gKHdpdGggdHdvIGluc3RhbmNlcyBvZiB0aGUg
+cHJvZ3JhbSB0byB0cmlnZ2VyIGl0IGZhc3RlcikKPj4gaXMgYWRkZWQgb3IgcmVtb3ZlZC4KPj4K
+Pj4gSXQncyBlYXNpbHkgcmVwZWF0YWJsZSwgd2l0aCAyIGNwdXMgYW5kIDQgcXVldWVzIG9uIHRo
+ZSBxZW11IGNvbW1hbmQgbGluZSwKPj4gcnVubmluZyB0aGUgeGRwX3R0bCB0b29sIGZyb20gSmVz
+cGVyLgo+Pgo+PiBGb3Igbm93LCBpJ20gYWJsZSB0byBjb250aW51ZSBteSBxdWFsaWZpY2F0aW9u
+LCB0ZXN0aW5nIGlmIHhkcF9xcCBpcyBub3QgbnVsbCwKPj4gYnV0IGRvIG5vdCBzZWVtIHRvIGJl
+IGEgc3VzdGFpbmFibGUgdHJpY2suCj4+IGlmICh4ZHBfcXAgJiYgdmktPnhkcF9xdWV1ZXNfcGFp
+cnMgIT0geGRwX3FwKQo+Pgo+PiBNYXliZSBpdCB3aWxsIGJlIG1vcmUgY2xlYXIgdG8geW91IHdp
+dGggdGhlc2VzIGluZm9ybWF0aW9ucy4KPj4KPj4gQmVzdCByZWdhcmRzLgo+Pgo+PiBKZWFuLVBo
+aWxpcHBlCj4KPiBJJ20gcHJldHR5IGNsZWFyIGFib3V0IHRoZSBpc3N1ZSBoZXJlLCBJIHdhcyB0
+cnlpbmcgdG8gZmlndXJlIG91dCBhIGZpeC4KPiBKYXNvbiwgYW55IHRob3VnaHRzPwo+Cj4KCkhp
+IEplYW46CgpEb2VzIHRoZSBmb2xsb3dpbmcgZml4IHRoaXMgaXNzdWU/IChJIGNhbid0IHJlcHJv
+ZHVjZSBpdCBsb2NhbGx5IHRocm91Z2ggCnhkcF90dGwpCgpUaGFua3MKCmRpZmYgLS1naXQgYS9k
+cml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKaW5kZXgg
+MWY4YzE1Yy4uM2U2NWMzZiAxMDA2NDQKLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCisr
+KyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwpAQCAtMTgwMSw3ICsxODAxLDkgQEAgc3RhdGlj
+IHZvaWQgdmlydG5ldF9mcmVlemVfZG93bihzdHJ1Y3QgCnZpcnRpb19kZXZpY2UgKnZkZXYpCiAg
+ICAgICAgIC8qIE1ha2Ugc3VyZSBubyB3b3JrIGhhbmRsZXIgaXMgYWNjZXNzaW5nIHRoZSBkZXZp
+Y2UgKi8KICAgICAgICAgZmx1c2hfd29yaygmdmktPmNvbmZpZ193b3JrKTsKCisgICAgICAgbmV0
+aWZfdHhfbG9ja19iaCh2aS0+ZGV2KTsKICAgICAgICAgbmV0aWZfZGV2aWNlX2RldGFjaCh2aS0+
+ZGV2KTsKKyAgICAgICBuZXRpZl90eF91bmxvY2tfYmgodmktPmRldik7CiAgICAgICAgIGNhbmNl
+bF9kZWxheWVkX3dvcmtfc3luYygmdmktPnJlZmlsbCk7CgpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
