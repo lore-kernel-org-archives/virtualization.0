@@ -1,20 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: BUG: KASAN: use-after-free in free_old_xmit_skbs
-Date: Mon, 26 Jun 2017 10:50:53 +0800
-Message-ID: <9327ebf9-59db-f34e-b945-ef381ee95315@redhat.com>
-References: <d2e8cf65-ea3d-7db2-9382-a063daf1168a@gmail.com>
-	<20170605050423-mutt-send-email-mst@kernel.org>
-	<20170606024211-mutt-send-email-mst@kernel.org>
-	<CAOTcU=u_HSMQiwDF3Snv5P8mT-b_Aepeb=Z9gbLd1j=2P+Yy+A@mail.gmail.com>
-	<20170622215125-mutt-send-email-mst@kernel.org>
-	<4f6d4342-8476-882e-e7a8-b3f0ebd20d95@redhat.com>
-	<CAM_iQpXhW___-iP3kdv9MJcW=hroyp2SuMzAZdx3KCpc9-W76g@mail.gmail.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v2 02/14] drm/fb-helper: remove
+	drm_fb_helper_save_lut_atomic
+Date: Mon, 26 Jun 2017 11:18:48 +0200
+Message-ID: <20170626091848.nt73oskubcm3u5ki__7457.90861915356$1498468746$gmane$org@phenom.ffwll.local>
+References: <1498111597-10714-1-git-send-email-peda@axentia.se>
+	<1498111597-10714-3-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAM_iQpXhW___-iP3kdv9MJcW=hroyp2SuMzAZdx3KCpc9-W76g@mail.gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1498111597-10714-3-git-send-email-peda@axentia.se>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,48 +20,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linux Kernel Network Developers <netdev@vger.kernel.org>, John Fastabend <john.fastabend@gmail.com>, qemu-devel Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, jean-philippe menil <jpmenil@gmail.com>
+To: Peter Rosin <peda@axentia.se>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, Philippe Cornu <philippe.cornu@st.com>, Russell King <linux@armlinux.org.uk>, nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Yannick Fertre <yannick.fertre@st.com>, dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>, Alex Deucher <alexander.deucher@amd.com>, Daniel Vetter <daniel.vetter@intel.com>, Vincent Abriou <vincent.abriou@st.com>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>, Ben Skeggs <bskeggs@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDbmnIgyNOaXpSAwNjozMiwgQ29uZyBXYW5nIHdyb3RlOgo+IE9uIEZyaSwg
-SnVuIDIzLCAyMDE3IGF0IDE6NDMgQU0sIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+
-IHdyb3RlOgo+Pgo+PiBPbiAyMDE35bm0MDbmnIgyM+aXpSAwMjo1MywgTWljaGFlbCBTLiBUc2ly
-a2luIHdyb3RlOgo+Pj4gT24gVGh1LCBKdW4gMjIsIDIwMTcgYXQgMDg6MTU6NThBTSArMDIwMCwg
-amVhbi1waGlsaXBwZSBtZW5pbCB3cm90ZToKPj4+PiBIaSBNaWNoYWVsLAo+Pj4+Cj4+Pj4gZnJv
-bSB3aGF0IGkgc2VlLCB0aGUgcmFjZSBhcHBlYXIgd2hlbiB3ZSBoaXQgdmlydG5ldF9yZXNldCBp
-bgo+Pj4+IHZpcnRuZXRfeGRwX3NldC4KPj4+PiB2aXJ0bmV0X3Jlc2V0Cj4+Pj4gICAgIF9yZW1v
-dmVfdnFfY29tbW9uCj4+Pj4gICAgICAgdmlydG5ldF9kZWxfdnFzCj4+Pj4gICAgICAgICB2aXJ0
-bmV0X2ZyZWVfcXVldWVzCj4+Pj4gICAgICAgICAgIGtmcmVlKHZpLT5zcSkKPj4+PiB3aGVuIHRo
-ZSB4ZHAgcHJvZ3JhbSAod2l0aCB0d28gaW5zdGFuY2VzIG9mIHRoZSBwcm9ncmFtIHRvIHRyaWdn
-ZXIgaXQKPj4+PiBmYXN0ZXIpCj4+Pj4gaXMgYWRkZWQgb3IgcmVtb3ZlZC4KPj4+Pgo+Pj4+IEl0
-J3MgZWFzaWx5IHJlcGVhdGFibGUsIHdpdGggMiBjcHVzIGFuZCA0IHF1ZXVlcyBvbiB0aGUgcWVt
-dSBjb21tYW5kCj4+Pj4gbGluZSwKPj4+PiBydW5uaW5nIHRoZSB4ZHBfdHRsIHRvb2wgZnJvbSBK
-ZXNwZXIuCj4+Pj4KPj4+PiBGb3Igbm93LCBpJ20gYWJsZSB0byBjb250aW51ZSBteSBxdWFsaWZp
-Y2F0aW9uLCB0ZXN0aW5nIGlmIHhkcF9xcCBpcyBub3QKPj4+PiBudWxsLAo+Pj4+IGJ1dCBkbyBu
-b3Qgc2VlbSB0byBiZSBhIHN1c3RhaW5hYmxlIHRyaWNrLgo+Pj4+IGlmICh4ZHBfcXAgJiYgdmkt
-PnhkcF9xdWV1ZXNfcGFpcnMgIT0geGRwX3FwKQo+Pj4+Cj4+Pj4gTWF5YmUgaXQgd2lsbCBiZSBt
-b3JlIGNsZWFyIHRvIHlvdSB3aXRoIHRoZXNlcyBpbmZvcm1hdGlvbnMuCj4+Pj4KPj4+PiBCZXN0
-IHJlZ2FyZHMuCj4+Pj4KPj4+PiBKZWFuLVBoaWxpcHBlCj4+Pgo+Pj4gSSdtIHByZXR0eSBjbGVh
-ciBhYm91dCB0aGUgaXNzdWUgaGVyZSwgSSB3YXMgdHJ5aW5nIHRvIGZpZ3VyZSBvdXQgYSBmaXgu
-Cj4+PiBKYXNvbiwgYW55IHRob3VnaHRzPwo+Pj4KPj4+Cj4+IEhpIEplYW46Cj4+Cj4+IERvZXMg
-dGhlIGZvbGxvd2luZyBmaXggdGhpcyBpc3N1ZT8gKEkgY2FuJ3QgcmVwcm9kdWNlIGl0IGxvY2Fs
-bHkgdGhyb3VnaAo+PiB4ZHBfdHRsKQo+IEl0IGlzIHRyaWNreSBoZXJlLgo+Cj4gIEZyb20gbXkg
-dW5kZXJzdGFuZGluZyBvZiB0aGUgY29kZSBiYXNlLCB0aGUgdHhfbG9jayBpcyBub3Qgc3VmZmlj
-aWVudAo+IGhlcmUsIGJlY2F1c2UgaW4gdmlydG5ldF9kZWxfdnFzKCkgYWxsIHZxcyBhcmUgZGVs
-ZXRlZCBhbmQgb25lIHZwCj4gbWFwcyB0byBvbmUgdHhxLgo+Cj4gSSBhbSBhZnJhaWQgeW91IGhh
-dmUgdG8gYWRkIGEgc3BpbmxvY2sgc29tZXdoZXJlIHRvIHNlcmlhbGl6ZWQKPiBmcmVlX29sZF94
-bWl0X3NrYnMoKSB2cy4gdnJpbmdfZGVsX3ZpcnRxdWV1ZSgpLiBBcyB5b3UgY2FuIHNlZQo+IHRo
-ZXkgYXJlIGluIGRpZmZlcmVudCBsYXllcnMsIHNvIGl0IGlzIGhhcmQgdG8gZmlndXJlIG91dCB3
-aGVyZSB0byBhZGQKPiBpdC4uLgo+Cj4gQWxzbywgbWFrZSBzdXJlIHdlIGRvbid0IHNsZWVwIGlu
-c2lkZSB0aGUgc3BpbmxvY2ssIEkgc2VlIGEKPiBzeW5jaHJvbml6ZV9uZXQoKS4KCkxvb2tzIGxp
-a2UgSSBtaXNzIHNvbWV0aGluZy4gSSB0aG91Z2h0IGZyZWVfb2xkX3htaXRfc2ticygpIHdlcmUg
-CnNlcmlhbGl6ZWQgaW4gdGhpcyBjYXNlIHNpbmNlIHdlIGRpc2FibGUgYWxsIHR4IHF1ZXVlcyBh
-ZnRlciAKbmV0aWZfdHhfdW5sb2NrX2JoKCk/CgpKZWFuOgoKSSB0aG91Z2h0IHRoaXMgY291bGQg
-YmUgZWFzaWx5IHJlcHJvZHVjZWQgYnkgZS5nIHByb2R1Y2Ugc29tZSB0cmFmZmljIAphbmQgaW4g
-dGhlIHNhbWUgdGltZSB0cnkgdG8gYXR0YWNoIGFuIHhkcCBwcm9ncmFtLiBCdXQgbG9va3Mgbm90
-LiBIb3cgZG8gCnlvdSB0cmlnZ2VyIHRoaXM/IFdoYXQncyB5b3VyIHFlbXUgY29tbWFuZCBsaW5l
-IGZvciB0aGlzPwoKVGhhbmtzCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Jun 22, 2017 at 08:06:25AM +0200, Peter Rosin wrote:
+> drm_fb_helper_save_lut_atomic is redundant since the .gamma_store is
+> now always kept up to date by drm_fb_helper_setcmap.
+> 
+> Signed-off-by: Peter Rosin <peda@axentia.se>
+
+Also note that this is for kgdb support only and so likely very buggy
+(since no one cried when we started to break kgdb support when switching
+drivers to atomic).
+-Daniel
+
+> ---
+>  drivers/gpu/drm/drm_fb_helper.c | 17 -----------------
+>  1 file changed, 17 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
+> index 25315fb..7ade384 100644
+> --- a/drivers/gpu/drm/drm_fb_helper.c
+> +++ b/drivers/gpu/drm/drm_fb_helper.c
+> @@ -229,22 +229,6 @@ int drm_fb_helper_remove_one_connector(struct drm_fb_helper *fb_helper,
+>  }
+>  EXPORT_SYMBOL(drm_fb_helper_remove_one_connector);
+>  
+> -static void drm_fb_helper_save_lut_atomic(struct drm_crtc *crtc, struct drm_fb_helper *helper)
+> -{
+> -	uint16_t *r_base, *g_base, *b_base;
+> -	int i;
+> -
+> -	if (helper->funcs->gamma_get == NULL)
+> -		return;
+> -
+> -	r_base = crtc->gamma_store;
+> -	g_base = r_base + crtc->gamma_size;
+> -	b_base = g_base + crtc->gamma_size;
+> -
+> -	for (i = 0; i < crtc->gamma_size; i++)
+> -		helper->funcs->gamma_get(crtc, &r_base[i], &g_base[i], &b_base[i], i);
+> -}
+> -
+>  static void drm_fb_helper_restore_lut_atomic(struct drm_crtc *crtc)
+>  {
+>  	uint16_t *r_base, *g_base, *b_base;
+> @@ -285,7 +269,6 @@ int drm_fb_helper_debug_enter(struct fb_info *info)
+>  			if (drm_drv_uses_atomic_modeset(mode_set->crtc->dev))
+>  				continue;
+>  
+> -			drm_fb_helper_save_lut_atomic(mode_set->crtc, helper);
+>  			funcs->mode_set_base_atomic(mode_set->crtc,
+>  						    mode_set->fb,
+>  						    mode_set->x,
+> -- 
+> 2.1.4
+> 
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
