@@ -1,22 +1,14 @@
-From: Jean-Philippe Menil <jpmenil@gmail.com>
-Subject: Re: BUG: KASAN: use-after-free in free_old_xmit_skbs
-Date: Mon, 26 Jun 2017 09:35:42 +0200
-Message-ID: <f91048e7-5567-cdf8-fd98-3077ca7ac9a3__34858.0531929203$1509078607$gmane$org@gmail.com>
-References: <d2e8cf65-ea3d-7db2-9382-a063daf1168a@gmail.com>
-	<20170605050423-mutt-send-email-mst@kernel.org>
-	<20170606024211-mutt-send-email-mst@kernel.org>
-	<CAOTcU=u_HSMQiwDF3Snv5P8mT-b_Aepeb=Z9gbLd1j=2P+Yy+A@mail.gmail.com>
-	<20170622215125-mutt-send-email-mst@kernel.org>
-	<4f6d4342-8476-882e-e7a8-b3f0ebd20d95@redhat.com>
-	<CAM_iQpXhW___-iP3kdv9MJcW=hroyp2SuMzAZdx3KCpc9-W76g@mail.gmail.com>
-	<9327ebf9-59db-f34e-b945-ef381ee95315@redhat.com>
-Reply-To: jpmenil@gmail.com
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: Re: [PATCH] virtio_scsi: let host do exception handling
+Date: Mon, 26 Jun 2017 13:11:27 -0400
+Message-ID: <yq1zicu65ds.fsf__34859.2709437527$1509078620$gmane$org@oracle.com>
+References: <20170621143546.5826-1-pbonzini@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <9327ebf9-59db-f34e-b945-ef381ee95315@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20170621143546.5826-1-pbonzini@redhat.com> (Paolo Bonzini's
+	message of "Wed, 21 Jun 2017 16:35:46 +0200")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,71 +18,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, John Fastabend <john.fastabend@gmail.com>, qemu-devel Developers <qemu-devel@nongnu.org>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, linux-scsi@vger.kernel.org, "Martin K. Petersen" <martin.petersen@oracle.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Douglas Miller <dougmill@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDYvMjYvMjAxNyAwNDo1MCBBTSwgSmFzb24gV2FuZyB3cm90ZToKPiAKPiAKPiBPbiAyMDE3
-5bm0MDbmnIgyNOaXpSAwNjozMiwgQ29uZyBXYW5nIHdyb3RlOgo+PiBPbiBGcmksIEp1biAyMywg
-MjAxNyBhdCAxOjQzIEFNLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPiB3cm90ZToK
-Pj4+Cj4+PiBPbiAyMDE35bm0MDbmnIgyM+aXpSAwMjo1MywgTWljaGFlbCBTLiBUc2lya2luIHdy
-b3RlOgo+Pj4+IE9uIFRodSwgSnVuIDIyLCAyMDE3IGF0IDA4OjE1OjU4QU0gKzAyMDAsIGplYW4t
-cGhpbGlwcGUgbWVuaWwgd3JvdGU6Cj4+Pj4+IEhpIE1pY2hhZWwsCj4+Pj4+Cj4+Pj4+IGZyb20g
-d2hhdCBpIHNlZSwgdGhlIHJhY2UgYXBwZWFyIHdoZW4gd2UgaGl0IHZpcnRuZXRfcmVzZXQgaW4K
-Pj4+Pj4gdmlydG5ldF94ZHBfc2V0Lgo+Pj4+PiB2aXJ0bmV0X3Jlc2V0Cj4+Pj4+ICAgICBfcmVt
-b3ZlX3ZxX2NvbW1vbgo+Pj4+PiAgICAgICB2aXJ0bmV0X2RlbF92cXMKPj4+Pj4gICAgICAgICB2
-aXJ0bmV0X2ZyZWVfcXVldWVzCj4+Pj4+ICAgICAgICAgICBrZnJlZSh2aS0+c3EpCj4+Pj4+IHdo
-ZW4gdGhlIHhkcCBwcm9ncmFtICh3aXRoIHR3byBpbnN0YW5jZXMgb2YgdGhlIHByb2dyYW0gdG8g
-dHJpZ2dlciBpdAo+Pj4+PiBmYXN0ZXIpCj4+Pj4+IGlzIGFkZGVkIG9yIHJlbW92ZWQuCj4+Pj4+
-Cj4+Pj4+IEl0J3MgZWFzaWx5IHJlcGVhdGFibGUsIHdpdGggMiBjcHVzIGFuZCA0IHF1ZXVlcyBv
-biB0aGUgcWVtdSBjb21tYW5kCj4+Pj4+IGxpbmUsCj4+Pj4+IHJ1bm5pbmcgdGhlIHhkcF90dGwg
-dG9vbCBmcm9tIEplc3Blci4KPj4+Pj4KPj4+Pj4gRm9yIG5vdywgaSdtIGFibGUgdG8gY29udGlu
-dWUgbXkgcXVhbGlmaWNhdGlvbiwgdGVzdGluZyBpZiB4ZHBfcXAgCj4+Pj4+IGlzIG5vdAo+Pj4+
-PiBudWxsLAo+Pj4+PiBidXQgZG8gbm90IHNlZW0gdG8gYmUgYSBzdXN0YWluYWJsZSB0cmljay4K
-Pj4+Pj4gaWYgKHhkcF9xcCAmJiB2aS0+eGRwX3F1ZXVlc19wYWlycyAhPSB4ZHBfcXApCj4+Pj4+
-Cj4+Pj4+IE1heWJlIGl0IHdpbGwgYmUgbW9yZSBjbGVhciB0byB5b3Ugd2l0aCB0aGVzZXMgaW5m
-b3JtYXRpb25zLgo+Pj4+Pgo+Pj4+PiBCZXN0IHJlZ2FyZHMuCj4+Pj4+Cj4+Pj4+IEplYW4tUGhp
-bGlwcGUKPj4+Pgo+Pj4+IEknbSBwcmV0dHkgY2xlYXIgYWJvdXQgdGhlIGlzc3VlIGhlcmUsIEkg
-d2FzIHRyeWluZyB0byBmaWd1cmUgb3V0IGEgCj4+Pj4gZml4Lgo+Pj4+IEphc29uLCBhbnkgdGhv
-dWdodHM/Cj4+Pj4KPj4+Pgo+Pj4gSGkgSmVhbjoKPj4+Cj4+PiBEb2VzIHRoZSBmb2xsb3dpbmcg
-Zml4IHRoaXMgaXNzdWU/IChJIGNhbid0IHJlcHJvZHVjZSBpdCBsb2NhbGx5IHRocm91Z2gKPj4+
-IHhkcF90dGwpCj4+IEl0IGlzIHRyaWNreSBoZXJlLgo+Pgo+PiAgRnJvbSBteSB1bmRlcnN0YW5k
-aW5nIG9mIHRoZSBjb2RlIGJhc2UsIHRoZSB0eF9sb2NrIGlzIG5vdCBzdWZmaWNpZW50Cj4+IGhl
-cmUsIGJlY2F1c2UgaW4gdmlydG5ldF9kZWxfdnFzKCkgYWxsIHZxcyBhcmUgZGVsZXRlZCBhbmQg
-b25lIHZwCj4+IG1hcHMgdG8gb25lIHR4cS4KPj4KPj4gSSBhbSBhZnJhaWQgeW91IGhhdmUgdG8g
-YWRkIGEgc3BpbmxvY2sgc29tZXdoZXJlIHRvIHNlcmlhbGl6ZWQKPj4gZnJlZV9vbGRfeG1pdF9z
-a2JzKCkgdnMuIHZyaW5nX2RlbF92aXJ0cXVldWUoKS4gQXMgeW91IGNhbiBzZWUKPj4gdGhleSBh
-cmUgaW4gZGlmZmVyZW50IGxheWVycywgc28gaXQgaXMgaGFyZCB0byBmaWd1cmUgb3V0IHdoZXJl
-IHRvIGFkZAo+PiBpdC4uLgo+Pgo+PiBBbHNvLCBtYWtlIHN1cmUgd2UgZG9uJ3Qgc2xlZXAgaW5z
-aWRlIHRoZSBzcGlubG9jaywgSSBzZWUgYQo+PiBzeW5jaHJvbml6ZV9uZXQoKS4KPiAKPiBMb29r
-cyBsaWtlIEkgbWlzcyBzb21ldGhpbmcuIEkgdGhvdWdodCBmcmVlX29sZF94bWl0X3NrYnMoKSB3
-ZXJlIAo+IHNlcmlhbGl6ZWQgaW4gdGhpcyBjYXNlIHNpbmNlIHdlIGRpc2FibGUgYWxsIHR4IHF1
-ZXVlcyBhZnRlciAKPiBuZXRpZl90eF91bmxvY2tfYmgoKT8KPiAKPiBKZWFuOgo+IAo+IEkgdGhv
-dWdodCB0aGlzIGNvdWxkIGJlIGVhc2lseSByZXByb2R1Y2VkIGJ5IGUuZyBwcm9kdWNlIHNvbWUg
-dHJhZmZpYyAKPiBhbmQgaW4gdGhlIHNhbWUgdGltZSB0cnkgdG8gYXR0YWNoIGFuIHhkcCBwcm9n
-cmFtLiBCdXQgbG9va3Mgbm90LiBIb3cgZG8gCj4geW91IHRyaWdnZXIgdGhpcz8gV2hhdCdzIHlv
-dXIgcWVtdSBjb21tYW5kIGxpbmUgZm9yIHRoaXM/Cj4gCj4gVGhhbmtzCgpIaSBKYXNvbiwKCnRo
-aXMgaXMgaG93IGkgdHJpZ2dlciB0aGUgYnVnOgotIG9uIHRoZSBndWVzdCwgdGNwZHVtcCBvbiBv
-biB0aGUgaW50ZXJmYWNlCi0gb24gdGhlIGd1ZXN0LCBydW4gaXBlcmYgYWdhaW5zdCB0aGUgaG9z
-dAotIG9uIHRoZSBndWVzdCwgY2F0IC9zeXMva2VybmVsL2RlYnVnL3RyYWNpbmcvdHJhY2VfcGlw
-ZQotIG9uIHRoZSBndWVzdCwgcnVuIG9uZSBvciB0d28gaW5zdGFuY2VzIG9mIHhkcF90dGwgY29t
-cGlsZWQgd2l0aCBERUJVRyAKdW5jb21tZW50ZWQsIHRoYXQgaSBzdGFydCBzdG9wLCB1bnRpbCBp
-IHRyaWdnZXIgdGhlIGJ1Zy4KCnFlbXUgY29tbWFuZCBsaW5lIGlzIGFzIGZvbGxvdzoKCnFlbXUt
-c3lzdGVtLXg4Nl82NCAtbmFtZSB1YnVudHUgLS1lbmFibGUta3ZtIC1tYWNoaW5lIHBjLGFjY2Vs
-PWt2bSAtc21wIAoyIC1kcml2ZSBmaWxlPS9kZXYvTG9jYWxEaXNrL3VidW50dSxpZj12aXJ0aW8s
-Zm9ybWF0PXJhdyAtbSAyMDQ4IC1ydGMgCmJhc2U9bG9jYWx0aW1lLGNsb2NrPWhvc3QgLXVzYmRl
-dmljZSB0YWJsZXQgLS1iYWxsb29uIHZpcnRpbyAtbmV0ZGV2IAp0YXAsaWQ9dWJ1bnR1LTAsaWZu
-YW1lPXVidW50dS0wLHNjcmlwdD0vaG9tZS9qZW5maS9XT1JLL2pwL3FlbXUvaWYtdXAsZG93bnNj
-cmlwdD0vaG9tZS9qZW5maS9XT1JLL2pwL3FlbXUvaWYtZG93bix2aG9zdD1vbixxdWV1ZXM9NCAK
-LWRldmljZSAKdmlydGlvLW5ldC1wY2ksbmV0ZGV2PXVidW50dS0wLG1hYz1kZTphZDpiZTplZjow
-MTowMyxtcT1vbixndWVzdF90c280PW9mZixndWVzdF90c282PW9mZixndWVzdF9lY249b2ZmLGd1
-ZXN0X3Vmbz1vZmYsdmVjdG9ycz0yIAotdm5jIDEyNy4wLjAuMTozIC1ub2dyYXBoaWMgLXNlcmlh
-bCAKZmlsZTovaG9tZS9qZW5maS9XT1JLL2pwL3FlbXUvdWJ1bnR1Lm91dCAtbW9uaXRvciAKdW5p
-eDovaG9tZS9qZW5maS9XT1JLL2pwL3FlbXUvdWJ1bnR1LnNvY2ssc2VydmVyLG5vd2FpdAoKTm90
-aWNlLCB0aGUgc21wIDIsIHF1ZXVlcyB0byA0IGFuZCB2ZWN0b3JzIHRvIDIuClNlZW0gdGhhdCBp
-ZiBmb2dvdCB0byBtZW50aW9uIHRoYXQgaW4gdGhlIGJlZ2lubmluZyBvZiB0aGlzIHRocmVhZCwg
-CnNvcnJ5IGZvciB0aGF0LgoKQmVzdCByZWdhcmRzLgoKSmVhbi1QaGlsaXBwZQpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+
+Paolo,
+
+> virtio_scsi tries to do exception handling after the default 30
+> seconds timeout expires.  However, it's better to let the host control
+> the timeout, otherwise with a heavy I/O load it is likely that an
+> abort will also timeout.  This leads to fatal errors like filesystems
+> going offline.
+>
+> Disable the 'sd' timeout and allow the host to do exception handling,
+> following the precedent of the storvsc driver.
+
+Applied to 4.13/scsi-queue. Thank you!
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
