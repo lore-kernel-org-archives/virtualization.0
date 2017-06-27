@@ -1,14 +1,24 @@
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: Re: [PATCH] virtio_scsi: let host do exception handling
-Date: Mon, 26 Jun 2017 13:11:27 -0400
-Message-ID: <yq1zicu65ds.fsf__34859.2709437527$1509078620$gmane$org@oracle.com>
-References: <20170621143546.5826-1-pbonzini@redhat.com>
+From: Jean-Philippe Menil <jpmenil@gmail.com>
+Subject: Re: [Qemu-devel] BUG: KASAN: use-after-free in free_old_xmit_skbs
+Date: Tue, 27 Jun 2017 14:35:21 +0200
+Message-ID: <bc945405-7269-b71b-4e2a-6ba290af70ea__8715.53682159192$1509078632$gmane$org@gmail.com>
+References: <d2e8cf65-ea3d-7db2-9382-a063daf1168a@gmail.com>
+	<20170605050423-mutt-send-email-mst@kernel.org>
+	<20170606024211-mutt-send-email-mst@kernel.org>
+	<CAOTcU=u_HSMQiwDF3Snv5P8mT-b_Aepeb=Z9gbLd1j=2P+Yy+A@mail.gmail.com>
+	<20170622215125-mutt-send-email-mst@kernel.org>
+	<4f6d4342-8476-882e-e7a8-b3f0ebd20d95@redhat.com>
+	<CAM_iQpXhW___-iP3kdv9MJcW=hroyp2SuMzAZdx3KCpc9-W76g@mail.gmail.com>
+	<9327ebf9-59db-f34e-b945-ef381ee95315@redhat.com>
+	<f91048e7-5567-cdf8-fd98-3077ca7ac9a3@gmail.com>
+	<56868f1a-b4d9-50ca-873b-8fe4f70846d6@redhat.com>
+Reply-To: jpmenil@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170621143546.5826-1-pbonzini@redhat.com> (Paolo Bonzini's
-	message of "Wed, 21 Jun 2017 16:35:46 +0200")
+In-Reply-To: <56868f1a-b4d9-50ca-873b-8fe4f70846d6@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,23 +28,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: "James E.J. Bottomley" <jejb@linux.vnet.ibm.com>, linux-scsi@vger.kernel.org, "Martin K. Petersen" <martin.petersen@oracle.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Douglas Miller <dougmill@linux.vnet.ibm.com>
+To: Jason Wang <jasowang@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, John Fastabend <john.fastabend@gmail.com>, qemu-devel Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-Paolo,
-
-> virtio_scsi tries to do exception handling after the default 30
-> seconds timeout expires.  However, it's better to let the host control
-> the timeout, otherwise with a heavy I/O load it is likely that an
-> abort will also timeout.  This leads to fatal errors like filesystems
-> going offline.
->
-> Disable the 'sd' timeout and allow the host to do exception handling,
-> following the precedent of the storvsc driver.
-
-Applied to 4.13/scsi-queue. Thank you!
-
--- 
-Martin K. Petersen	Oracle Linux Engineering
+T24gMDYvMjcvMjAxNyAwNDoxMyBBTSwgSmFzb24gV2FuZyB3cm90ZToKPiAKPiAKPiBPbiAyMDE3
+5bm0MDbmnIgyNuaXpSAxNTozNSwgSmVhbi1QaGlsaXBwZSBNZW5pbCB3cm90ZToKPj4gT24gMDYv
+MjYvMjAxNyAwNDo1MCBBTSwgSmFzb24gV2FuZyB3cm90ZToKPj4+Cj4+Pgo+Pj4gT24gMjAxN+W5
+tDA25pyIMjTml6UgMDY6MzIsIENvbmcgV2FuZyB3cm90ZToKPj4+PiBPbiBGcmksIEp1biAyMywg
+MjAxNyBhdCAxOjQzIEFNLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPiAKPj4+PiB3
+cm90ZToKPj4+Pj4KPj4+Pj4gT24gMjAxN+W5tDA25pyIMjPml6UgMDI6NTMsIE1pY2hhZWwgUy4g
+VHNpcmtpbiB3cm90ZToKPj4+Pj4+IE9uIFRodSwgSnVuIDIyLCAyMDE3IGF0IDA4OjE1OjU4QU0g
+KzAyMDAsIGplYW4tcGhpbGlwcGUgbWVuaWwgd3JvdGU6Cj4+Pj4+Pj4gSGkgTWljaGFlbCwKPj4+
+Pj4+Pgo+Pj4+Pj4+IGZyb20gd2hhdCBpIHNlZSwgdGhlIHJhY2UgYXBwZWFyIHdoZW4gd2UgaGl0
+IHZpcnRuZXRfcmVzZXQgaW4KPj4+Pj4+PiB2aXJ0bmV0X3hkcF9zZXQuCj4+Pj4+Pj4gdmlydG5l
+dF9yZXNldAo+Pj4+Pj4+ICAgICBfcmVtb3ZlX3ZxX2NvbW1vbgo+Pj4+Pj4+ICAgICAgIHZpcnRu
+ZXRfZGVsX3Zxcwo+Pj4+Pj4+ICAgICAgICAgdmlydG5ldF9mcmVlX3F1ZXVlcwo+Pj4+Pj4+ICAg
+ICAgICAgICBrZnJlZSh2aS0+c3EpCj4+Pj4+Pj4gd2hlbiB0aGUgeGRwIHByb2dyYW0gKHdpdGgg
+dHdvIGluc3RhbmNlcyBvZiB0aGUgcHJvZ3JhbSB0byAKPj4+Pj4+PiB0cmlnZ2VyIGl0Cj4+Pj4+
+Pj4gZmFzdGVyKQo+Pj4+Pj4+IGlzIGFkZGVkIG9yIHJlbW92ZWQuCj4+Pj4+Pj4KPj4+Pj4+PiBJ
+dCdzIGVhc2lseSByZXBlYXRhYmxlLCB3aXRoIDIgY3B1cyBhbmQgNCBxdWV1ZXMgb24gdGhlIHFl
+bXUgY29tbWFuZAo+Pj4+Pj4+IGxpbmUsCj4+Pj4+Pj4gcnVubmluZyB0aGUgeGRwX3R0bCB0b29s
+IGZyb20gSmVzcGVyLgo+Pj4+Pj4+Cj4+Pj4+Pj4gRm9yIG5vdywgaSdtIGFibGUgdG8gY29udGlu
+dWUgbXkgcXVhbGlmaWNhdGlvbiwgdGVzdGluZyBpZiB4ZHBfcXAgCj4+Pj4+Pj4gaXMgbm90Cj4+
+Pj4+Pj4gbnVsbCwKPj4+Pj4+PiBidXQgZG8gbm90IHNlZW0gdG8gYmUgYSBzdXN0YWluYWJsZSB0
+cmljay4KPj4+Pj4+PiBpZiAoeGRwX3FwICYmIHZpLT54ZHBfcXVldWVzX3BhaXJzICE9IHhkcF9x
+cCkKPj4+Pj4+Pgo+Pj4+Pj4+IE1heWJlIGl0IHdpbGwgYmUgbW9yZSBjbGVhciB0byB5b3Ugd2l0
+aCB0aGVzZXMgaW5mb3JtYXRpb25zLgo+Pj4+Pj4+Cj4+Pj4+Pj4gQmVzdCByZWdhcmRzLgo+Pj4+
+Pj4+Cj4+Pj4+Pj4gSmVhbi1QaGlsaXBwZQo+Pj4+Pj4KPj4+Pj4+IEknbSBwcmV0dHkgY2xlYXIg
+YWJvdXQgdGhlIGlzc3VlIGhlcmUsIEkgd2FzIHRyeWluZyB0byBmaWd1cmUgb3V0IAo+Pj4+Pj4g
+YSBmaXguCj4+Pj4+PiBKYXNvbiwgYW55IHRob3VnaHRzPwo+Pj4+Pj4KPj4+Pj4+Cj4+Pj4+IEhp
+IEplYW46Cj4+Pj4+Cj4+Pj4+IERvZXMgdGhlIGZvbGxvd2luZyBmaXggdGhpcyBpc3N1ZT8gKEkg
+Y2FuJ3QgcmVwcm9kdWNlIGl0IGxvY2FsbHkgCj4+Pj4+IHRocm91Z2gKPj4+Pj4geGRwX3R0bCkK
+Pj4+PiBJdCBpcyB0cmlja3kgaGVyZS4KPj4+Pgo+Pj4+ICBGcm9tIG15IHVuZGVyc3RhbmRpbmcg
+b2YgdGhlIGNvZGUgYmFzZSwgdGhlIHR4X2xvY2sgaXMgbm90IHN1ZmZpY2llbnQKPj4+PiBoZXJl
+LCBiZWNhdXNlIGluIHZpcnRuZXRfZGVsX3ZxcygpIGFsbCB2cXMgYXJlIGRlbGV0ZWQgYW5kIG9u
+ZSB2cAo+Pj4+IG1hcHMgdG8gb25lIHR4cS4KPj4+Pgo+Pj4+IEkgYW0gYWZyYWlkIHlvdSBoYXZl
+IHRvIGFkZCBhIHNwaW5sb2NrIHNvbWV3aGVyZSB0byBzZXJpYWxpemVkCj4+Pj4gZnJlZV9vbGRf
+eG1pdF9za2JzKCkgdnMuIHZyaW5nX2RlbF92aXJ0cXVldWUoKS4gQXMgeW91IGNhbiBzZWUKPj4+
+PiB0aGV5IGFyZSBpbiBkaWZmZXJlbnQgbGF5ZXJzLCBzbyBpdCBpcyBoYXJkIHRvIGZpZ3VyZSBv
+dXQgd2hlcmUgdG8gYWRkCj4+Pj4gaXQuLi4KPj4+Pgo+Pj4+IEFsc28sIG1ha2Ugc3VyZSB3ZSBk
+b24ndCBzbGVlcCBpbnNpZGUgdGhlIHNwaW5sb2NrLCBJIHNlZSBhCj4+Pj4gc3luY2hyb25pemVf
+bmV0KCkuCj4+Pgo+Pj4gTG9va3MgbGlrZSBJIG1pc3Mgc29tZXRoaW5nLiBJIHRob3VnaHQgZnJl
+ZV9vbGRfeG1pdF9za2JzKCkgd2VyZSAKPj4+IHNlcmlhbGl6ZWQgaW4gdGhpcyBjYXNlIHNpbmNl
+IHdlIGRpc2FibGUgYWxsIHR4IHF1ZXVlcyBhZnRlciAKPj4+IG5ldGlmX3R4X3VubG9ja19iaCgp
+Pwo+Pj4KPj4+IEplYW46Cj4+Pgo+Pj4gSSB0aG91Z2h0IHRoaXMgY291bGQgYmUgZWFzaWx5IHJl
+cHJvZHVjZWQgYnkgZS5nIHByb2R1Y2Ugc29tZSB0cmFmZmljIAo+Pj4gYW5kIGluIHRoZSBzYW1l
+IHRpbWUgdHJ5IHRvIGF0dGFjaCBhbiB4ZHAgcHJvZ3JhbS4gQnV0IGxvb2tzIG5vdC4gSG93IAo+
+Pj4gZG8geW91IHRyaWdnZXIgdGhpcz8gV2hhdCdzIHlvdXIgcWVtdSBjb21tYW5kIGxpbmUgZm9y
+IHRoaXM/Cj4+Pgo+Pj4gVGhhbmtzCj4+Cj4+IEhpIEphc29uLAo+Pgo+PiB0aGlzIGlzIGhvdyBp
+IHRyaWdnZXIgdGhlIGJ1ZzoKPj4gLSBvbiB0aGUgZ3Vlc3QsIHRjcGR1bXAgb24gb24gdGhlIGlu
+dGVyZmFjZQo+PiAtIG9uIHRoZSBndWVzdCwgcnVuIGlwZXJmIGFnYWluc3QgdGhlIGhvc3QKPj4g
+LSBvbiB0aGUgZ3Vlc3QsIGNhdCAvc3lzL2tlcm5lbC9kZWJ1Zy90cmFjaW5nL3RyYWNlX3BpcGUK
+Pj4gLSBvbiB0aGUgZ3Vlc3QsIHJ1biBvbmUgb3IgdHdvIGluc3RhbmNlcyBvZiB4ZHBfdHRsIGNv
+bXBpbGVkIHdpdGggCj4+IERFQlVHIHVuY29tbWVudGVkLCB0aGF0IGkgc3RhcnQgc3RvcCwgdW50
+aWwgaSB0cmlnZ2VyIHRoZSBidWcuCj4+Cj4+IHFlbXUgY29tbWFuZCBsaW5lIGlzIGFzIGZvbGxv
+dzoKPj4KPj4gcWVtdS1zeXN0ZW0teDg2XzY0IC1uYW1lIHVidW50dSAtLWVuYWJsZS1rdm0gLW1h
+Y2hpbmUgcGMsYWNjZWw9a3ZtIAo+PiAtc21wIDIgLWRyaXZlIGZpbGU9L2Rldi9Mb2NhbERpc2sv
+dWJ1bnR1LGlmPXZpcnRpbyxmb3JtYXQ9cmF3IC1tIDIwNDggCj4+IC1ydGMgYmFzZT1sb2NhbHRp
+bWUsY2xvY2s9aG9zdCAtdXNiZGV2aWNlIHRhYmxldCAtLWJhbGxvb24gdmlydGlvIAo+PiAtbmV0
+ZGV2IAo+PiB0YXAsaWQ9dWJ1bnR1LTAsaWZuYW1lPXVidW50dS0wLHNjcmlwdD0vaG9tZS9qZW5m
+aS9XT1JLL2pwL3FlbXUvaWYtdXAsZG93bnNjcmlwdD0vaG9tZS9qZW5maS9XT1JLL2pwL3FlbXUv
+aWYtZG93bix2aG9zdD1vbixxdWV1ZXM9NCAKPj4gLWRldmljZSAKPj4gdmlydGlvLW5ldC1wY2ks
+bmV0ZGV2PXVidW50dS0wLG1hYz1kZTphZDpiZTplZjowMTowMyxtcT1vbixndWVzdF90c280PW9m
+ZixndWVzdF90c282PW9mZixndWVzdF9lY249b2ZmLGd1ZXN0X3Vmbz1vZmYsdmVjdG9ycz0yIAo+
+PiAtdm5jIDEyNy4wLjAuMTozIC1ub2dyYXBoaWMgLXNlcmlhbCAKPj4gZmlsZTovaG9tZS9qZW5m
+aS9XT1JLL2pwL3FlbXUvdWJ1bnR1Lm91dCAtbW9uaXRvciAKPj4gdW5peDovaG9tZS9qZW5maS9X
+T1JLL2pwL3FlbXUvdWJ1bnR1LnNvY2ssc2VydmVyLG5vd2FpdAo+Pgo+PiBOb3RpY2UsIHRoZSBz
+bXAgMiwgcXVldWVzIHRvIDQgYW5kIHZlY3RvcnMgdG8gMi4KPj4gU2VlbSB0aGF0IGlmIGZvZ290
+IHRvIG1lbnRpb24gdGhhdCBpbiB0aGUgYmVnaW5uaW5nIG9mIHRoaXMgdGhyZWFkLCAKPj4gc29y
+cnkgZm9yIHRoYXQuCj4+Cj4+IEJlc3QgcmVnYXJkcy4KPj4KPj4gSmVhbi1QaGlsaXBwZQo+Pgo+
+IAo+IFRoYW5rcyBKZWFuLCBJIG1hbmFnZSB0byByZXByb2R1Y2UgdGhlIGlzc3VlLgo+IAo+IEkg
+dGhvdWdodCBuZXRpZl90eF91bmxvY2tfYmgoKSB3aWxsIGRvIHR4IGxvY2sgYnV0IGxvb2tzIG5v
+dCwgdGhhdCdzIHdoeSAKPiBwcmV2aW91cyBwYXRjaCBkb2Vzbid0IHdvcmsuCj4gCj4gQ291bGQg
+eW91IHBsZWFzZSB0aGlzIHRoaXMgcGF0Y2g/IChBdCBsZWFzdCBpdCBjYW4ndCB0cmlnZ2VyIHRo
+ZSB3YXJuaW5nIAo+IGFmdGVyIG1vcmUgdGhhbiAyMCB0aW1lcyBvZiB4ZHAgc3RhcnQvc3RvcCku
+Cj4gCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0
+L3ZpcnRpb19uZXQuYwo+IGluZGV4IDFmOGMxNWMuLmExOGY4NTkgMTAwNjQ0Cj4gLS0tIGEvZHJp
+dmVycy9uZXQvdmlydGlvX25ldC5jCj4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4g
+QEAgLTE4MDIsNiArMTgwMiw3IEBAIHN0YXRpYyB2b2lkIHZpcnRuZXRfZnJlZXplX2Rvd24oc3Ry
+dWN0IAo+IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gICAgICAgICAgZmx1c2hfd29yaygmdmktPmNv
+bmZpZ193b3JrKTsKPiAKPiAgICAgICAgICBuZXRpZl9kZXZpY2VfZGV0YWNoKHZpLT5kZXYpOwo+
+ICsgICAgICAgbmV0aWZfdHhfZGlzYWJsZSh2aS0+ZGV2KTsKPiAgICAgICAgICBjYW5jZWxfZGVs
+YXllZF93b3JrX3N5bmMoJnZpLT5yZWZpbGwpOwo+IAo+ICAgICAgICAgIGlmIChuZXRpZl9ydW5u
+aW5nKHZpLT5kZXYpKSB7Cj4gCj4gCgpIaSBKYXNvbiwKClNlZW0gdG8gZG8gdGhlIHRyaWNrICEK
+d2l0aCB5b3VyIHBhdGNoLCBpJ20gdW5hYmxlIHRvIHJlcGVhdCB0aGUgcHJvYmxlbSBhbnltb3Jl
+IChydW5uaW5nIG1vcmUgCnRoYW4gMmggd2l0aG91dCBhbnkgaXNzdWUpLgoKQmVzdCByZWdhcmRz
+LgoKSmVhbi1QaGlsaXBwZQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
+aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
