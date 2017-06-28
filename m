@@ -1,17 +1,11 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [Nouveau] [PATCH v2 00/14] improve the fb_setcmap helper
-Date: Tue, 27 Jun 2017 09:19:48 +0200
-Message-ID: <20170627071948.a2v6ibxvfuvk2gxs__49187.815297819$1498548006$gmane$org@phenom.ffwll.local>
-References: <1498111597-10714-1-git-send-email-peda@axentia.se>
-	<20170626093526.7dezn6d74m5ktsok@phenom.ffwll.local>
-	<59515CCF.8060406@axentia.se>
-	<CAPM=9tzr_B9cWG4gEU_+PgkmVnpKtfBFGfQ85gwWpFs+3WQMjg@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] virtio-net: serialize tx routine during reset
+Date: Wed, 28 Jun 2017 09:51:03 +0800
+Message-ID: <1498614663-7711-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAPM=9tzr_B9cWG4gEU_+PgkmVnpKtfBFGfQ85gwWpFs+3WQMjg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,28 +15,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Airlie <airlied@gmail.com>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, dri-devel <dri-devel@lists.freedesktop.org>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>, nouveau <nouveau@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, Philippe Cornu <philippe.cornu@st.com>, amd-gfx mailing list <amd-gfx@lists.freedesktop.org>, Russell King <linux@armlinux.org.uk>, Yannick Fertre <yannick.fertre@st.com>, Daniel Vetter <daniel.vetter@intel.com>, Alex Deucher <alexander.deucher@amd.com>, Dave Airlie <airlied@redhat.com>, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>, Vincent Abriou <vincent.abriou@st.com>, Peter Rosin <peda@axentia.se>, LKML <linux-kernel@vger.kernel.org>, Ben Skeggs <bskeggs@redhat.com>
+To: mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: John Fastabend <john.fastabend@gmail.com>, jpmenil@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 27, 2017 at 05:50:38AM +1000, Dave Airlie wrote:
-> >
-> > I'm traveling and cannot make progress this week. The merge window is
-> > also real close so this series will therefore probably miss it unless
-> > something unexpected happens...
-> 
-> Don't worry you missed the merge window for drm already, we don't merge
-> things after -rc6. Please remember the Linus merge window is for maintainers
-> to merge stuff to Linus, things need to be ready long before it, and for drm
-> you shouldn't really tie yourself to the merge cycle.
+We don't hold any tx lock when trying to disable TX during reset, this
+would lead a use after free since ndo_start_xmit() tries to access
+the virtqueue which has already been freed. Fix this by using
+netif_tx_disable() before freeing the vqs, this could make sure no tx
+after vq freeing.
 
-Yeah, drm-misc is open for refactorings like this all the time, and
-maintainers make sure the code will get into upstream asap, without
-interferring with the upstream merge window schedules. Like Dave said,
-don't worry.
--Daniel
+Reported-by: Jean-Philippe Menil <jpmenil@gmail.com>
+Tested-by: Jean-Philippe Menil <jpmenil@gmail.com>
+Fixes commit f600b6905015 ("virtio_net: Add XDP support")
+Cc: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index a871f45..143d8a9 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1797,6 +1797,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+ 	flush_work(&vi->config_work);
+ 
+ 	netif_device_detach(vi->dev);
++	netif_tx_disable(vi->dev);
+ 	cancel_delayed_work_sync(&vi->refill);
+ 
+ 	if (netif_running(vi->dev)) {
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2.7.4
