@@ -1,14 +1,11 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2 00/14] improve the fb_setcmap helper
-Date: Mon, 26 Jun 2017 21:13:19 +0200
-Message-ID: <59515CCF.8060406__49579.1783360348$1509078637$gmane$org@axentia.se>
-References: <1498111597-10714-1-git-send-email-peda@axentia.se>
-	<20170626093526.7dezn6d74m5ktsok@phenom.ffwll.local>
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH] drm: ttm: virtio-gpu: dma-buf: Constify ttm_place structures.
+Date: Sun,  2 Jul 2017 13:11:02 +0530
+Message-ID: <25a189402a516a0142d9a4412da0a597c660a96a.1498981093.git.arvind.yadav.cs__44218.8800000169$1509078654$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170626093526.7dezn6d74m5ktsok@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,58 +15,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, nouveau@lists.freedesktop.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, amd-gfx@lists.freedesktop.org, Daniel Vetter <daniel.vetter@intel.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Russell King <linux@armlinux.org.uk>, Ben Skeggs <bskeggs@redhat.com>, Dave Airlie <airlied@redhat.com>, intel-gfx@lists.freedesktop.org, Vincent Abriou <vincent.abriou@st.com>, Philippe Cornu <philippe.cornu@st.com>, Yannick Fertre <yannick.fertre@st.com>, Alex Deucher <alexander.deucher@amd.com>, =?windows-1252?Q?Christian_K=F6nig?= <christian.koenig@amd.com>, Gerd Hoffmann <kraxel@redhat.com>
+To: airlied@linux.ie, kraxel@redhat.com
+Cc: linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2017-06-26 11:35, Daniel Vetter wrote:
-> On Thu, Jun 22, 2017 at 08:06:23AM +0200, Peter Rosin wrote:
->> Hi!
->>
->> While trying to get CLUT support for the atmel_hlcdc driver, and
->> specifically for the emulated fbdev interface, I received some
->> push-back that my feeble in-driver attempts should be solved
->> by the core. This is my attempt to do it right.
->>
->> I have obviously not tested all of this with more than a compile,
->> but patches 1 and 3 are enough to make the atmel-hlcdc driver
->> do what I need (when patched to support CLUT modes). The rest is
->> just lots of removals and cleanup made possible by the improved
->> core.
->>
->> Please test, I would not be surprised if I have fouled up some
->> bit-manipulation somewhere in this mostly mechanical change...
->>
->> Changes since v1:
->>
->> - Rebased to next-20170621
->> - Split 1/11 into a preparatory patch, a cleanup patch and then
->>   the meat in 3/14.
->> - Handle pseudo-palette for FB_VISUAL_TRUECOLOR.
->> - Removed the empty .gamma_get/.gamma_set fb helpers from the
->>   armada driver that I had somehow managed to ignore but which
->>   0day found real quick.
->> - Be less judgemental on drivers only providing .gamma_get and
->>   .gamma_set, but no .load_lut. That's actually a valid thing
->>   to do if you only need pseudo-palette for FB_VISUAL_TRUECOLOR.
->> - Add a comment about colliding bitfields in the nouveau driver.
->> - Remove gamma_set/gamma_get declarations from the radeon driver
->>   (the definitions were removed in v1).
-> 
-> Ok some nits/questions on the first three, but in principle looks all ok I
-> think. The driver patches also look good (but I didn't yet carefully
-> review all the conversion). What we might want to do is entirely remove
-> driver's reliance on ->gamma_store (mostly amounts to in-lining the
-> load_lut functions) and only update ->gamma_store after gamma_set returned
-> successfully. But that's a bit more work.
-> 
-> Save/restoring it instead might be simpler to fix that bug, but since it's
-> pre-existing also ok as follow-up.
+ttm_place are not supposed to change at runtime. All functions
+working with ttm_place provided by <drm/ttm/ttm_placement.h> work
+with const ttm_place. So mark the non-const structs as const.
 
-I'm traveling and cannot make progress this week. The merge window is
-also real close so this series will therefore probably miss it unless
-something unexpected happens...
+File size before:
+   text	   data	    bss	    dec	    hex	filename
+   2315	    184	      0	   2499	    9c3 drivers/gpu/drm/virtio/virtgpu_ttm.o
 
-I'll get back to this for the next cycle, just a heads up.
+File size After adding 'const':
+   text	   data	    bss	    dec	    hex	filename
+   2347	    152	      0	   2499	    9c3 drivers/gpu/drm/virtio/virtgpu_ttm.o
 
-Cheers,
-peda
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_ttm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ttm.c b/drivers/gpu/drm/virtio/virtgpu_ttm.c
+index 4e8e27d..012d5bc 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ttm.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ttm.c
+@@ -234,7 +234,7 @@ static int virtio_gpu_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
+ static void virtio_gpu_evict_flags(struct ttm_buffer_object *bo,
+ 				struct ttm_placement *placement)
+ {
+-	static struct ttm_place placements = {
++	static const struct ttm_place placements = {
+ 		.fpfn  = 0,
+ 		.lpfn  = 0,
+ 		.flags = TTM_PL_MASK_CACHING | TTM_PL_FLAG_SYSTEM,
+-- 
+2.7.4
