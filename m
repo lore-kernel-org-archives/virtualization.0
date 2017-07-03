@@ -1,15 +1,22 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v1] virtio_blk: Use sysfs_match_string() helper
-Date: Mon, 3 Jul 2017 19:37:51 +0300
-Message-ID: <20170703193730-mutt-send-email-mst@kernel.org>
-References: <20170609120742.21959-1-andriy.shevchenko@linux.intel.com>
-	<1499083530.22624.239.camel@linux.intel.com>
+Subject: Re: [PATCH net] virtio-net: unbreak cusmed packet for small buffer XDP
+Date: Mon, 3 Jul 2017 20:03:57 +0300
+Message-ID: <20170703195752-mutt-send-email-mst__48674.2184185006$1499101449$gmane$org@kernel.org>
+References: <1498614843-8163-1-git-send-email-jasowang@redhat.com>
+	<20170628050057-mutt-send-email-mst@kernel.org>
+	<7068053c-50da-6779-5ff2-6588e01e616d@redhat.com>
+	<20170628051555-mutt-send-email-mst@kernel.org>
+	<69907228-fc1b-175f-f6cd-7ac332e318be@redhat.com>
+	<20170628063033-mutt-send-email-mst@kernel.org>
+	<51f4c402-6a02-9bad-6dab-563ca72f431a@redhat.com>
+	<20170628065126-mutt-send-email-mst@kernel.org>
+	<a7e457d5-88c4-745d-5189-18a5f13797dc@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1499083530.22624.239.camel@linux.intel.com>
+In-Reply-To: <a7e457d5-88c4-745d-5189-18a5f13797dc@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,59 +26,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jens Axboe <axboe@fb.com>, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 03, 2017 at 03:05:30PM +0300, Andy Shevchenko wrote:
-> On Fri, 2017-06-09 at 15:07 +0300, Andy Shevchenko wrote:
-> > Use sysfs_match_string() helper instead of open coded variant.
-> =
-
-> Did I miss maintainer?
-> =
-
-> > =
-
-> > Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> > Cc: Jason Wang <jasowang@redhat.com>
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-
-You didn't, I'll merge this in the next PULL.
-
-Thanks!
-
-> > ---
-> > =A0drivers/block/virtio_blk.c | 7 ++-----
-> > =A01 file changed, 2 insertions(+), 5 deletions(-)
-> > =
-
-> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > index 553cc4c542b4..0e707b8cce9d 100644
-> > --- a/drivers/block/virtio_blk.c
-> > +++ b/drivers/block/virtio_blk.c
-> > @@ -541,12 +541,9 @@ virtblk_cache_type_store(struct device *dev,
-> > struct device_attribute *attr,
-> > =A0	int i;
-> > =A0
-> > =A0	BUG_ON(!virtio_has_feature(vblk->vdev,
-> > VIRTIO_BLK_F_CONFIG_WCE));
-> > -	for (i =3D ARRAY_SIZE(virtblk_cache_types); --i >=3D 0; )
-> > -		if (sysfs_streq(buf, virtblk_cache_types[i]))
-> > -			break;
-> > -
-> > +	i =3D sysfs_match_string(virtblk_cache_types, buf);
-> > =A0	if (i < 0)
-> > -		return -EINVAL;
-> > +		return i;
-> > =A0
-> > =A0	virtio_cwrite8(vdev, offsetof(struct virtio_blk_config, wce),
-> > i);
-> > =A0	virtblk_update_cache_mode(vdev);
-> =
-
-> -- =
-
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Intel Finland Oy
+T24gV2VkLCBKdW4gMjgsIDIwMTcgYXQgMDg6MDU6MDZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE35bm0MDbmnIgyOOaXpSAxMjowMSwgTWljaGFlbCBTLiBUc2lya2lu
+IHdyb3RlOgo+ID4gT24gV2VkLCBKdW4gMjgsIDIwMTcgYXQgMTE6NDA6MzBBTSArMDgwMCwgSmFz
+b24gV2FuZyB3cm90ZToKPiA+ID4gCj4gPiA+IE9uIDIwMTflubQwNuaciDI45pelIDExOjMxLCBN
+aWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gT24gV2VkLCBKdW4gMjgsIDIwMTcgYXQg
+MTA6NDU6MThBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+IE9uIDIwMTflubQw
+NuaciDI45pelIDEwOjE3LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gPiA+IE9u
+IFdlZCwgSnVuIDI4LCAyMDE3IGF0IDEwOjE0OjM0QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
+Cj4gPiA+ID4gPiA+ID4gT24gMjAxN+W5tDA25pyIMjjml6UgMTA6MDIsIE1pY2hhZWwgUy4gVHNp
+cmtpbiB3cm90ZToKPiA+ID4gPiA+ID4gPiA+IE9uIFdlZCwgSnVuIDI4LCAyMDE3IGF0IDA5OjU0
+OjAzQU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4gPiA+ID4gPiA+IFdlIHNob3Vs
+ZCBhbGxvdyBjc3VtZWQgcGFja2V0IGZvciBzbWFsbCBidWZmZXIsIG90aGVyd2lzZSBYRFBfUEFT
+Uwo+ID4gPiA+ID4gPiA+ID4gPiB3b24ndCB3b3JrIGNvcnJlY3RseS4KPiA+ID4gPiA+ID4gPiA+
+ID4gCj4gPiA+ID4gPiA+ID4gPiA+IEZpeGVzIGNvbW1pdCBiYjkxYWNjZjI3MzMgKCJ2aXJ0aW8t
+bmV0OiBYRFAgc3VwcG9ydCBmb3Igc21hbGwgYnVmZmVycyIpCj4gPiA+ID4gPiA+ID4gPiA+IFNp
+Z25lZC1vZmYtYnk6IEphc29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiA+ID4gPiA+ID4g
+PiA+IFRoZSBpc3N1ZSB3b3VsZCBiZSBWSVJUSU9fTkVUX0hEUl9GX0RBVEFfVkFMSUQgbWlnaHQg
+YmUgc2V0Lgo+ID4gPiA+ID4gPiA+ID4gV2hhdCBkbyB5b3UgdGhpbms/Cj4gPiA+ID4gPiA+ID4g
+SSB0aGluayBpdCdzIHNhZmUuIEZvciBYRFBfUEFTUywgaXQgd29yayBsaWtlIGluIHRoZSBwYXN0
+Lgo+ID4gPiA+ID4gPiBUaGF0J3MgdGhlIHBhcnQgSSBkb24ndCBnZXQuIFdpdGggREFUQV9WQUxJ
+RCBjc3VtIGluIHBhY2tldCBpcyB3cm9uZywgWERQCj4gPiA+ID4gPiA+IHRvb2xzIGFzc3VtZSBp
+dCdzIHZhbHVlLgo+ID4gPiA+ID4gREFUQV9WQUxJRCBpcyBDSEVDS1NVTV9VTkNFU1NBUlkgb24g
+dGhlIGhvc3QsIGFuZCBhY2NvcmRpbmcgdG8gdGhlIGNvbW1lbnQKPiA+ID4gPiA+IGluIHNrYnVm
+Zi5oCj4gPiA+ID4gPiAKPiA+ID4gPiA+IAo+ID4gPiA+ID4gIgo+ID4gPiA+ID4gICAgKiAgIFRo
+ZSBoYXJkd2FyZSB5b3UncmUgZGVhbGluZyB3aXRoIGRvZXNuJ3QgY2FsY3VsYXRlIHRoZSBmdWxs
+IGNoZWNrc3VtCj4gPiA+ID4gPiAgICAqICAgKGFzIGluIENIRUNLU1VNX0NPTVBMRVRFKSwgYnV0
+IGl0IGRvZXMgcGFyc2UgaGVhZGVycyBhbmQgdmVyaWZ5Cj4gPiA+ID4gPiBjaGVja3N1bXMKPiA+
+ID4gPiA+ICAgICogICBmb3Igc3BlY2lmaWMgcHJvdG9jb2xzLiBGb3Igc3VjaCBwYWNrZXRzIGl0
+IHdpbGwgc2V0Cj4gPiA+ID4gPiBDSEVDS1NVTV9VTk5FQ0VTU0FSWQo+ID4gPiA+ID4gICAgKiAg
+IGlmIHRoZWlyIGNoZWNrc3VtcyBhcmUgb2theS4gc2tiLT5jc3VtIGlzIHN0aWxsIHVuZGVmaW5l
+ZCBpbiB0aGlzIGNhc2UKPiA+ID4gPiA+ICAgICogICB0aG91Z2guIEEgZHJpdmVyIG9yIGRldmlj
+ZSBtdXN0IG5ldmVyIG1vZGlmeSB0aGUgY2hlY2tzdW0gZmllbGQgaW4gdGhlCj4gPiA+ID4gPiAg
+ICAqICAgcGFja2V0IGV2ZW4gaWYgY2hlY2tzdW0gaXMgdmVyaWZpZWQuCj4gPiA+ID4gPiAiCj4g
+PiA+ID4gPiAKPiA+ID4gPiA+IFRoZSBjc3VtIGlzIGNvcnJlY3QgSSBiZWxpZXZlPwo+ID4gPiA+
+ID4gCj4gPiA+ID4gPiBUaGFua3MKPiA+ID4gPiBUaGF0J3Mgb24gaW5wdXQuIEJ1dCBJIHRoaW5r
+IGZvciB0dW4gaXQncyBvdXRwdXQsIHdoZXJlIHRoYXQgaXMgZXF1aXZhbGVudAo+ID4gPiA+IHRv
+IENIRUNLU1VNX05PTkUKPiA+ID4gPiAKPiA+ID4gPiAKPiA+ID4gWWVzLCBidXQgdGhlIGNvbW1l
+bnQgc2FpZDoKPiA+ID4gCj4gPiA+ICIKPiA+ID4gQ0tTVU1fTk9ORToKPiA+ID4gICAqCj4gPiA+
+ICAgKiAgIFRoZSBza2Igd2FzIGFscmVhZHkgY2hlY2tzdW1tZWQgYnkgdGhlIHByb3RvY29sLCBv
+ciBhIGNoZWNrc3VtIGlzIG5vdAo+ID4gPiAgICogICByZXF1aXJlZC4KPiA+ID4gICAqCj4gPiA+
+ICAgKiBDSEVDS1NVTV9VTk5FQ0VTU0FSWToKPiA+ID4gICAqCj4gPiA+ICAgKiAgIFRoaXMgaGFz
+IHRoZSBzYW1lIG1lYW5pbmcgb24gYXMgQ0hFQ0tTVU1fTk9ORSBmb3IgY2hlY2tzdW0gb2ZmbG9h
+ZCBvbgo+ID4gPiAgICogICBvdXRwdXQuCj4gPiA+ICAgKgo+ID4gPiAiCj4gPiA+IAo+ID4gPiBT
+byBzdGlsbCBjb3JyZWN0IEkgdGhpbms/Cj4gPiA+IAo+ID4gPiBUaGFua3MKPiA+IEhtbSBtYXli
+ZSBJIG1lYW4gTkVFRFNfQ0hFQ0tTVU0gYWN0dWFsbHkuCj4gPiAKPiA+IEknbGwgbmVlZCB0byBy
+ZS1yZWFkIHRoZSBzcGVjLgo+ID4gCj4gCj4gTm90IHN1cmUgdGhpcyBpcyBhbiBpc3N1ZS4gQnV0
+IGlmIGl0IGlzLCB3ZSBjYW4gcHJvYmFibHkgY2hlY2tzdW0gdGhlIHBhY2tldAo+IGJlZm9yZSBw
+YXNzaW5nIGl0IHRvIFhEUC4gQnV0IGl0IHdvdWxkIGJlIGEgbGl0dGxlIHNsb3cuCj4gCj4gVGhh
+bmtzCgoKClJpZ2h0LiBJIGNvbmZ1c2VkIERBVEFfVkFMSUQgd2l0aCBORUVEU19DSEVDS1NVTS4K
+CklJVUMgWERQIGdlbmVyYWxseSByZWZ1c2VzIHRvIGF0dGFjaCBpZiBjaGVja3N1bSBvZmZsb2Fk
+CmlzIGVuYWJsZWQuCgpDb3VsZCB5b3UgcGxzIGV4cGxhaW4gaG93IHRvIHJlcHJvZHVjZSB0aGUg
+aXNzdWUgeW91IGFyZSBzZWVpbmc/CgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
