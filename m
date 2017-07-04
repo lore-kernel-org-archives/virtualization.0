@@ -1,22 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] virtio-net: unbreak cusmed packet for small buffer XDP
-Date: Mon, 3 Jul 2017 20:03:57 +0300
-Message-ID: <20170703195752-mutt-send-email-mst__48674.2184185006$1499101449$gmane$org@kernel.org>
-References: <1498614843-8163-1-git-send-email-jasowang@redhat.com>
-	<20170628050057-mutt-send-email-mst@kernel.org>
-	<7068053c-50da-6779-5ff2-6588e01e616d@redhat.com>
-	<20170628051555-mutt-send-email-mst@kernel.org>
-	<69907228-fc1b-175f-f6cd-7ac332e318be@redhat.com>
-	<20170628063033-mutt-send-email-mst@kernel.org>
-	<51f4c402-6a02-9bad-6dab-563ca72f431a@redhat.com>
-	<20170628065126-mutt-send-email-mst@kernel.org>
-	<a7e457d5-88c4-745d-5189-18a5f13797dc@redhat.com>
+From: Changpeng Liu <changpeng.liu@intel.com>
+Subject: [PATCH v2] virtio-blk: add DISCARD support to virtio-blk driver
+Date: Tue, 4 Jul 2017 08:26:57 +0000 (UTC)
+Message-ID: <1499244279-3484-1-git-send-email-changpeng.liu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <a7e457d5-88c4-745d-5189-18a5f13797dc@redhat.com>
+Date: Wed,  5 Jul 2017 16:44:39 +0800
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,62 +16,204 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: changpeng.liu@intel.com, virtualization@lists.linux-foundation.org
+Cc: mst@redhat.com, hch@lst.de, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKdW4gMjgsIDIwMTcgYXQgMDg6MDU6MDZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE35bm0MDbmnIgyOOaXpSAxMjowMSwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gT24gV2VkLCBKdW4gMjgsIDIwMTcgYXQgMTE6NDA6MzBBTSArMDgwMCwgSmFz
-b24gV2FuZyB3cm90ZToKPiA+ID4gCj4gPiA+IE9uIDIwMTflubQwNuaciDI45pelIDExOjMxLCBN
-aWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gT24gV2VkLCBKdW4gMjgsIDIwMTcgYXQg
-MTA6NDU6MThBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+IE9uIDIwMTflubQw
-NuaciDI45pelIDEwOjE3LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gPiA+IE9u
-IFdlZCwgSnVuIDI4LCAyMDE3IGF0IDEwOjE0OjM0QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
-Cj4gPiA+ID4gPiA+ID4gT24gMjAxN+W5tDA25pyIMjjml6UgMTA6MDIsIE1pY2hhZWwgUy4gVHNp
-cmtpbiB3cm90ZToKPiA+ID4gPiA+ID4gPiA+IE9uIFdlZCwgSnVuIDI4LCAyMDE3IGF0IDA5OjU0
-OjAzQU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4gPiA+ID4gPiA+IFdlIHNob3Vs
-ZCBhbGxvdyBjc3VtZWQgcGFja2V0IGZvciBzbWFsbCBidWZmZXIsIG90aGVyd2lzZSBYRFBfUEFT
-Uwo+ID4gPiA+ID4gPiA+ID4gPiB3b24ndCB3b3JrIGNvcnJlY3RseS4KPiA+ID4gPiA+ID4gPiA+
-ID4gCj4gPiA+ID4gPiA+ID4gPiA+IEZpeGVzIGNvbW1pdCBiYjkxYWNjZjI3MzMgKCJ2aXJ0aW8t
-bmV0OiBYRFAgc3VwcG9ydCBmb3Igc21hbGwgYnVmZmVycyIpCj4gPiA+ID4gPiA+ID4gPiA+IFNp
-Z25lZC1vZmYtYnk6IEphc29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiA+ID4gPiA+ID4g
-PiA+IFRoZSBpc3N1ZSB3b3VsZCBiZSBWSVJUSU9fTkVUX0hEUl9GX0RBVEFfVkFMSUQgbWlnaHQg
-YmUgc2V0Lgo+ID4gPiA+ID4gPiA+ID4gV2hhdCBkbyB5b3UgdGhpbms/Cj4gPiA+ID4gPiA+ID4g
-SSB0aGluayBpdCdzIHNhZmUuIEZvciBYRFBfUEFTUywgaXQgd29yayBsaWtlIGluIHRoZSBwYXN0
-Lgo+ID4gPiA+ID4gPiBUaGF0J3MgdGhlIHBhcnQgSSBkb24ndCBnZXQuIFdpdGggREFUQV9WQUxJ
-RCBjc3VtIGluIHBhY2tldCBpcyB3cm9uZywgWERQCj4gPiA+ID4gPiA+IHRvb2xzIGFzc3VtZSBp
-dCdzIHZhbHVlLgo+ID4gPiA+ID4gREFUQV9WQUxJRCBpcyBDSEVDS1NVTV9VTkNFU1NBUlkgb24g
-dGhlIGhvc3QsIGFuZCBhY2NvcmRpbmcgdG8gdGhlIGNvbW1lbnQKPiA+ID4gPiA+IGluIHNrYnVm
-Zi5oCj4gPiA+ID4gPiAKPiA+ID4gPiA+IAo+ID4gPiA+ID4gIgo+ID4gPiA+ID4gICAgKiAgIFRo
-ZSBoYXJkd2FyZSB5b3UncmUgZGVhbGluZyB3aXRoIGRvZXNuJ3QgY2FsY3VsYXRlIHRoZSBmdWxs
-IGNoZWNrc3VtCj4gPiA+ID4gPiAgICAqICAgKGFzIGluIENIRUNLU1VNX0NPTVBMRVRFKSwgYnV0
-IGl0IGRvZXMgcGFyc2UgaGVhZGVycyBhbmQgdmVyaWZ5Cj4gPiA+ID4gPiBjaGVja3N1bXMKPiA+
-ID4gPiA+ICAgICogICBmb3Igc3BlY2lmaWMgcHJvdG9jb2xzLiBGb3Igc3VjaCBwYWNrZXRzIGl0
-IHdpbGwgc2V0Cj4gPiA+ID4gPiBDSEVDS1NVTV9VTk5FQ0VTU0FSWQo+ID4gPiA+ID4gICAgKiAg
-IGlmIHRoZWlyIGNoZWNrc3VtcyBhcmUgb2theS4gc2tiLT5jc3VtIGlzIHN0aWxsIHVuZGVmaW5l
-ZCBpbiB0aGlzIGNhc2UKPiA+ID4gPiA+ICAgICogICB0aG91Z2guIEEgZHJpdmVyIG9yIGRldmlj
-ZSBtdXN0IG5ldmVyIG1vZGlmeSB0aGUgY2hlY2tzdW0gZmllbGQgaW4gdGhlCj4gPiA+ID4gPiAg
-ICAqICAgcGFja2V0IGV2ZW4gaWYgY2hlY2tzdW0gaXMgdmVyaWZpZWQuCj4gPiA+ID4gPiAiCj4g
-PiA+ID4gPiAKPiA+ID4gPiA+IFRoZSBjc3VtIGlzIGNvcnJlY3QgSSBiZWxpZXZlPwo+ID4gPiA+
-ID4gCj4gPiA+ID4gPiBUaGFua3MKPiA+ID4gPiBUaGF0J3Mgb24gaW5wdXQuIEJ1dCBJIHRoaW5r
-IGZvciB0dW4gaXQncyBvdXRwdXQsIHdoZXJlIHRoYXQgaXMgZXF1aXZhbGVudAo+ID4gPiA+IHRv
-IENIRUNLU1VNX05PTkUKPiA+ID4gPiAKPiA+ID4gPiAKPiA+ID4gWWVzLCBidXQgdGhlIGNvbW1l
-bnQgc2FpZDoKPiA+ID4gCj4gPiA+ICIKPiA+ID4gQ0tTVU1fTk9ORToKPiA+ID4gICAqCj4gPiA+
-ICAgKiAgIFRoZSBza2Igd2FzIGFscmVhZHkgY2hlY2tzdW1tZWQgYnkgdGhlIHByb3RvY29sLCBv
-ciBhIGNoZWNrc3VtIGlzIG5vdAo+ID4gPiAgICogICByZXF1aXJlZC4KPiA+ID4gICAqCj4gPiA+
-ICAgKiBDSEVDS1NVTV9VTk5FQ0VTU0FSWToKPiA+ID4gICAqCj4gPiA+ICAgKiAgIFRoaXMgaGFz
-IHRoZSBzYW1lIG1lYW5pbmcgb24gYXMgQ0hFQ0tTVU1fTk9ORSBmb3IgY2hlY2tzdW0gb2ZmbG9h
-ZCBvbgo+ID4gPiAgICogICBvdXRwdXQuCj4gPiA+ICAgKgo+ID4gPiAiCj4gPiA+IAo+ID4gPiBT
-byBzdGlsbCBjb3JyZWN0IEkgdGhpbms/Cj4gPiA+IAo+ID4gPiBUaGFua3MKPiA+IEhtbSBtYXli
-ZSBJIG1lYW4gTkVFRFNfQ0hFQ0tTVU0gYWN0dWFsbHkuCj4gPiAKPiA+IEknbGwgbmVlZCB0byBy
-ZS1yZWFkIHRoZSBzcGVjLgo+ID4gCj4gCj4gTm90IHN1cmUgdGhpcyBpcyBhbiBpc3N1ZS4gQnV0
-IGlmIGl0IGlzLCB3ZSBjYW4gcHJvYmFibHkgY2hlY2tzdW0gdGhlIHBhY2tldAo+IGJlZm9yZSBw
-YXNzaW5nIGl0IHRvIFhEUC4gQnV0IGl0IHdvdWxkIGJlIGEgbGl0dGxlIHNsb3cuCj4gCj4gVGhh
-bmtzCgoKClJpZ2h0LiBJIGNvbmZ1c2VkIERBVEFfVkFMSUQgd2l0aCBORUVEU19DSEVDS1NVTS4K
-CklJVUMgWERQIGdlbmVyYWxseSByZWZ1c2VzIHRvIGF0dGFjaCBpZiBjaGVja3N1bSBvZmZsb2Fk
-CmlzIGVuYWJsZWQuCgpDb3VsZCB5b3UgcGxzIGV4cGxhaW4gaG93IHRvIHJlcHJvZHVjZSB0aGUg
-aXNzdWUgeW91IGFyZSBzZWVpbmc/CgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Currently virtio-blk driver does not provide discard feature flag, so the
+filesystems which built on top of the block device will not send discard
+command. This is okay for HDD backend, but it will impact the performance
+for SSD backend.
+
+Add a feature flag VIRTIO_BLK_F_DISCARD and command VIRTIO_BLK_T_DISCARD
+to extend exist virtio-blk protocol, define 16 bytes discard descriptor
+for each discard segment, the discard segment defination aligns with
+SCSI or NVM Express protocols, virtio-blk driver will support multi-range
+discard request as well.
+
+Signed-off-by: Changpeng Liu <changpeng.liu@intel.com>
+---
+ drivers/block/virtio_blk.c      | 76 +++++++++++++++++++++++++++++++++++++++--
+ include/uapi/linux/virtio_blk.h | 19 +++++++++++
+ 2 files changed, 92 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 0297ad7..8f0c614 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -172,10 +172,52 @@ static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr,
+ 	return virtqueue_add_sgs(vq, sgs, num_out, num_in, vbr, GFP_ATOMIC);
+ }
+ 
++static inline int virtblk_setup_discard(struct request *req)
++{
++	unsigned short segments = blk_rq_nr_discard_segments(req), n = 0;
++	u32 block_size = queue_logical_block_size(req->q);
++	struct virtio_blk_discard *range;
++	struct bio *bio;
++
++	if (block_size < 512 || !block_size)
++		return -1;
++
++	range = kmalloc_array(segments, sizeof(*range), GFP_ATOMIC);
++	if (!range)
++		return -1;
++
++	__rq_for_each_bio(bio, req) {
++		u64 slba = (bio->bi_iter.bi_sector << 9) / block_size;
++		u32 nlb = bio->bi_iter.bi_size / block_size;
++
++		range[n].reserved = cpu_to_le32(0);
++		range[n].nlba = cpu_to_le32(nlb);
++		range[n].slba = cpu_to_le64(slba);
++		n++;
++	}
++
++	if (WARN_ON_ONCE(n != segments)) {
++		kfree(range);
++		return -1;
++	}
++
++	req->special_vec.bv_page = virt_to_page(range);
++	req->special_vec.bv_offset = offset_in_page(range);
++	req->special_vec.bv_len = sizeof(*range) * segments;
++	req->rq_flags |= RQF_SPECIAL_PAYLOAD;
++
++	return 0;
++}
++
+ static inline void virtblk_request_done(struct request *req)
+ {
+ 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+ 
++	if (req->rq_flags & RQF_SPECIAL_PAYLOAD) {
++		kfree(page_address(req->special_vec.bv_page) +
++		      req->special_vec.bv_offset);
++	}
++
+ 	switch (req_op(req)) {
+ 	case REQ_OP_SCSI_IN:
+ 	case REQ_OP_SCSI_OUT:
+@@ -237,6 +279,9 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	case REQ_OP_FLUSH:
+ 		type = VIRTIO_BLK_T_FLUSH;
+ 		break;
++	case REQ_OP_DISCARD:
++		type = VIRTIO_BLK_T_DISCARD;
++		break;
+ 	case REQ_OP_SCSI_IN:
+ 	case REQ_OP_SCSI_OUT:
+ 		type = VIRTIO_BLK_T_SCSI_CMD;
+@@ -256,9 +301,15 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 
+ 	blk_mq_start_request(req);
+ 
++	if (type == VIRTIO_BLK_T_DISCARD) {
++		err = virtblk_setup_discard(req);
++		if (err)
++			return BLK_STS_IOERR;
++	}
++
+ 	num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
+ 	if (num) {
+-		if (rq_data_dir(req) == WRITE)
++		if (rq_data_dir(req) == WRITE || type == VIRTIO_BLK_T_DISCARD)
+ 			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_OUT);
+ 		else
+ 			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_IN);
+@@ -767,6 +818,25 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	if (!err && opt_io_size)
+ 		blk_queue_io_opt(q, blk_size * opt_io_size);
+ 
++	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
++		q->limits.discard_alignment = blk_size;
++		q->limits.discard_granularity = blk_size;
++
++		virtio_cread(vdev, struct virtio_blk_config, max_discard_seg, &v);
++		if (v)
++			blk_queue_max_discard_sectors(q, v);
++		else
++			blk_queue_max_discard_sectors(q, -1U);
++
++		virtio_cread(vdev, struct virtio_blk_config, max_discard_num, &v);
++		if (v)
++			blk_queue_max_discard_segments(q, v);
++		else
++			blk_queue_max_discard_segments(q, 256);
++
++		queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, q);
++	}
++
+ 	virtio_device_ready(vdev);
+ 
+ 	device_add_disk(&vdev->dev, vblk->disk);
+@@ -874,14 +944,14 @@ static int virtblk_restore(struct virtio_device *vdev)
+ 	VIRTIO_BLK_F_SCSI,
+ #endif
+ 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+-	VIRTIO_BLK_F_MQ,
++	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD,
+ }
+ ;
+ static unsigned int features[] = {
+ 	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
+ 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+ 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+-	VIRTIO_BLK_F_MQ,
++	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD,
+ };
+ 
+ static struct virtio_driver virtio_blk = {
+diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+index 9ebe4d9..3354cc3 100644
+--- a/include/uapi/linux/virtio_blk.h
++++ b/include/uapi/linux/virtio_blk.h
+@@ -38,6 +38,7 @@
+ #define VIRTIO_BLK_F_BLK_SIZE	6	/* Block size of disk is available*/
+ #define VIRTIO_BLK_F_TOPOLOGY	10	/* Topology information is available */
+ #define VIRTIO_BLK_F_MQ		12	/* support more than one vq */
++#define VIRTIO_BLK_F_DISCARD	13	/* DISCARD command is supported */
+ 
+ /* Legacy feature bits */
+ #ifndef VIRTIO_BLK_NO_LEGACY
+@@ -86,6 +87,10 @@ struct virtio_blk_config {
+ 
+ 	/* number of vqs, only available when VIRTIO_BLK_F_MQ is set */
+ 	__u16 num_queues;
++	/* The maximum segment size (if VIRTIO_BLK_F_DISCARD) */
++	__u32 max_discard_seg;
++	/* The maximum number of segments (if VIRTIO_BLK_F_DISCARD) */
++	__u32 max_discard_num;
+ } __attribute__((packed));
+ 
+ /*
+@@ -114,6 +119,9 @@ struct virtio_blk_config {
+ /* Get device ID command */
+ #define VIRTIO_BLK_T_GET_ID    8
+ 
++/* Discard command */
++#define VIRTIO_BLK_T_DISCARD	16
++
+ #ifndef VIRTIO_BLK_NO_LEGACY
+ /* Barrier before this op. */
+ #define VIRTIO_BLK_T_BARRIER	0x80000000
+@@ -133,6 +141,17 @@ struct virtio_blk_outhdr {
+ 	__virtio64 sector;
+ };
+ 
++/*
++ * Array of discard ranges for each request.
++ */
++struct virtio_blk_discard {
++	/* start discard lba */
++	__virtio64 slba;
++	/* number of discard sectors */
++	__virtio32 nlba;
++	__virtio32 reserved;
++};
++
+ #ifndef VIRTIO_BLK_NO_LEGACY
+ struct virtio_scsi_inhdr {
+ 	__virtio32 errors;
+-- 
+1.9.3
