@@ -1,15 +1,15 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 0/1] Change email address
-Date: Tue, 4 Jul 2017 14:07:52 +0200
-Message-ID: <ef895e67-b014-f277-a343-3fb8ba06b858__40027.1535771482$1499170091$gmane$org@de.ibm.com>
-References: <20170704093038.13943-1-cohuck@redhat.com>
-	<8a09062e-4d40-3f5a-7e4b-0653baafa19a@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v1] virtio_blk: Use sysfs_match_string() helper
+Date: Tue, 4 Jul 2017 20:17:43 +0800
+Message-ID: <aff36954-3480-396a-32b7-3c8d669d13f6@redhat.com>
+References: <20170609120742.21959-1-andriy.shevchenko@linux.intel.com>
+	<1499083530.22624.239.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8a09062e-4d40-3f5a-7e4b-0653baafa19a@redhat.com>
-Content-Language: en-IE
+In-Reply-To: <1499083530.22624.239.camel@linux.intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,31 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: schwidefsky@de.ibm.com
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, virtualization@lists.linux-foundation.org, Jens Axboe <axboe@fb.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/04/2017 02:02 PM, Paolo Bonzini wrote:
-> 
-> 
-> On 04/07/2017 11:30, Cornelia Huck wrote:
->> New employer, new address. Make sure people use the right one.
->>
->> Christian, Martin, it's probably quickest if one of you takes this.
-> 
-> I'm sending a pull request tomorrow so I'll include this too.
-
-Ok,
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-
-> 
-> Paolo
-> 
->> Cornelia Huck (1):
->>   Update my email address
->>
->>  MAINTAINERS | 6 +++---
->>  1 file changed, 3 insertions(+), 3 deletions(-)
->>
-> 
+CgpPbiAyMDE35bm0MDfmnIgwM+aXpSAyMDowNSwgQW5keSBTaGV2Y2hlbmtvIHdyb3RlOgo+IE9u
+IEZyaSwgMjAxNy0wNi0wOSBhdCAxNTowNyArMDMwMCwgQW5keSBTaGV2Y2hlbmtvIHdyb3RlOgo+
+PiBVc2Ugc3lzZnNfbWF0Y2hfc3RyaW5nKCkgaGVscGVyIGluc3RlYWQgb2Ygb3BlbiBjb2RlZCB2
+YXJpYW50Lgo+IERpZCBJIG1pc3MgbWFpbnRhaW5lcj8KCk5vcGUgOikKClJldmlld2VkLWJ5OiBK
+YXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKPgo+PiBDYzogIk1pY2hhZWwgUy4gVHNp
+cmtpbiIgPG1zdEByZWRoYXQuY29tPgo+PiBDYzogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0
+LmNvbT4KPj4gU2lnbmVkLW9mZi1ieTogQW5keSBTaGV2Y2hlbmtvIDxhbmRyaXkuc2hldmNoZW5r
+b0BsaW51eC5pbnRlbC5jb20+Cj4+IC0tLQo+PiAgIGRyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5j
+IHwgNyArKy0tLS0tCj4+ICAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgNSBkZWxl
+dGlvbnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jIGIv
+ZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMKPj4gaW5kZXggNTUzY2M0YzU0MmI0Li4wZTcwN2I4
+Y2NlOWQgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4+ICsrKyBi
+L2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4+IEBAIC01NDEsMTIgKzU0MSw5IEBAIHZpcnRi
+bGtfY2FjaGVfdHlwZV9zdG9yZShzdHJ1Y3QgZGV2aWNlICpkZXYsCj4+IHN0cnVjdCBkZXZpY2Vf
+YXR0cmlidXRlICphdHRyLAo+PiAgIAlpbnQgaTsKPj4gICAKPj4gICAJQlVHX09OKCF2aXJ0aW9f
+aGFzX2ZlYXR1cmUodmJsay0+dmRldiwKPj4gVklSVElPX0JMS19GX0NPTkZJR19XQ0UpKTsKPj4g
+LQlmb3IgKGkgPSBBUlJBWV9TSVpFKHZpcnRibGtfY2FjaGVfdHlwZXMpOyAtLWkgPj0gMDsgKQo+
+PiAtCQlpZiAoc3lzZnNfc3RyZXEoYnVmLCB2aXJ0YmxrX2NhY2hlX3R5cGVzW2ldKSkKPj4gLQkJ
+CWJyZWFrOwo+PiAtCj4+ICsJaSA9IHN5c2ZzX21hdGNoX3N0cmluZyh2aXJ0YmxrX2NhY2hlX3R5
+cGVzLCBidWYpOwo+PiAgIAlpZiAoaSA8IDApCj4+IC0JCXJldHVybiAtRUlOVkFMOwo+PiArCQly
+ZXR1cm4gaTsKPj4gICAKPj4gICAJdmlydGlvX2N3cml0ZTgodmRldiwgb2Zmc2V0b2Yoc3RydWN0
+IHZpcnRpb19ibGtfY29uZmlnLCB3Y2UpLAo+PiBpKTsKPj4gICAJdmlydGJsa191cGRhdGVfY2Fj
+aGVfbW9kZSh2ZGV2KTsKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
+bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
