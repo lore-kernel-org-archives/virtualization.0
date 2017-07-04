@@ -1,23 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] virtio-net: unbreak cusmed packet for small buffer XDP
-Date: Tue, 4 Jul 2017 20:20:00 +0800
-Message-ID: <4de0c8e7-a9b6-7477-691a-a2ed0f317106@redhat.com>
-References: <1498614843-8163-1-git-send-email-jasowang@redhat.com>
-	<20170628050057-mutt-send-email-mst@kernel.org>
-	<7068053c-50da-6779-5ff2-6588e01e616d@redhat.com>
-	<20170628051555-mutt-send-email-mst@kernel.org>
-	<69907228-fc1b-175f-f6cd-7ac332e318be@redhat.com>
-	<20170628063033-mutt-send-email-mst@kernel.org>
-	<51f4c402-6a02-9bad-6dab-563ca72f431a@redhat.com>
-	<20170628065126-mutt-send-email-mst@kernel.org>
-	<a7e457d5-88c4-745d-5189-18a5f13797dc@redhat.com>
-	<20170703195752-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2] virtio-blk: add DISCARD support to virtio-blk driver
+Date: Wed, 5 Jul 2017 00:35:12 +0300
+Message-ID: <20170705003308-mutt-send-email-mst@kernel.org>
+References: <1499244279-3484-1-git-send-email-changpeng.liu@intel.com>
+	<01542f21-6fa3-c406-65e1-a37d04130fb7@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170703195752-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <01542f21-6fa3-c406-65e1-a37d04130fb7@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,63 +19,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, hch@lst.de, Changpeng Liu <changpeng.liu@intel.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDfmnIgwNOaXpSAwMTowMywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFdlZCwgSnVuIDI4LCAyMDE3IGF0IDA4OjA1OjA2UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Cj4+IE9uIDIwMTflubQwNuaciDI45pelIDEyOjAxLCBNaWNoYWVsIFMuIFRzaXJraW4g
-d3JvdGU6Cj4+PiBPbiBXZWQsIEp1biAyOCwgMjAxNyBhdCAxMTo0MDozMEFNICswODAwLCBKYXNv
-biBXYW5nIHdyb3RlOgo+Pj4+IE9uIDIwMTflubQwNuaciDI45pelIDExOjMxLCBNaWNoYWVsIFMu
-IFRzaXJraW4gd3JvdGU6Cj4+Pj4+IE9uIFdlZCwgSnVuIDI4LCAyMDE3IGF0IDEwOjQ1OjE4QU0g
-KzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+PiBPbiAyMDE35bm0MDbmnIgyOOaXpSAxMDox
-NywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4+Pj4+IE9uIFdlZCwgSnVuIDI4LCAyMDE3
-IGF0IDEwOjE0OjM0QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+Pj4+IE9uIDIwMTfl
-ubQwNuaciDI45pelIDEwOjAyLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+Pj4+Pj4+PiBP
-biBXZWQsIEp1biAyOCwgMjAxNyBhdCAwOTo1NDowM0FNICswODAwLCBKYXNvbiBXYW5nIHdyb3Rl
-Ogo+Pj4+Pj4+Pj4+IFdlIHNob3VsZCBhbGxvdyBjc3VtZWQgcGFja2V0IGZvciBzbWFsbCBidWZm
-ZXIsIG90aGVyd2lzZSBYRFBfUEFTUwo+Pj4+Pj4+Pj4+IHdvbid0IHdvcmsgY29ycmVjdGx5Lgo+
-Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4gRml4ZXMgY29tbWl0IGJiOTFhY2NmMjczMyAoInZpcnRpby1u
-ZXQ6IFhEUCBzdXBwb3J0IGZvciBzbWFsbCBidWZmZXJzIikKPj4+Pj4+Pj4+PiBTaWduZWQtb2Zm
-LWJ5OiBKYXNvbiBXYW5nPGphc293YW5nQHJlZGhhdC5jb20+Cj4+Pj4+Pj4+PiBUaGUgaXNzdWUg
-d291bGQgYmUgVklSVElPX05FVF9IRFJfRl9EQVRBX1ZBTElEIG1pZ2h0IGJlIHNldC4KPj4+Pj4+
-Pj4+IFdoYXQgZG8geW91IHRoaW5rPwo+Pj4+Pj4+PiBJIHRoaW5rIGl0J3Mgc2FmZS4gRm9yIFhE
-UF9QQVNTLCBpdCB3b3JrIGxpa2UgaW4gdGhlIHBhc3QuCj4+Pj4+Pj4gVGhhdCdzIHRoZSBwYXJ0
-IEkgZG9uJ3QgZ2V0LiBXaXRoIERBVEFfVkFMSUQgY3N1bSBpbiBwYWNrZXQgaXMgd3JvbmcsIFhE
-UAo+Pj4+Pj4+IHRvb2xzIGFzc3VtZSBpdCdzIHZhbHVlLgo+Pj4+Pj4gREFUQV9WQUxJRCBpcyBD
-SEVDS1NVTV9VTkNFU1NBUlkgb24gdGhlIGhvc3QsIGFuZCBhY2NvcmRpbmcgdG8gdGhlIGNvbW1l
-bnQKPj4+Pj4+IGluIHNrYnVmZi5oCj4+Pj4+Pgo+Pj4+Pj4KPj4+Pj4+ICIKPj4+Pj4+ICAgICAq
-ICAgVGhlIGhhcmR3YXJlIHlvdSdyZSBkZWFsaW5nIHdpdGggZG9lc24ndCBjYWxjdWxhdGUgdGhl
-IGZ1bGwgY2hlY2tzdW0KPj4+Pj4+ICAgICAqICAgKGFzIGluIENIRUNLU1VNX0NPTVBMRVRFKSwg
-YnV0IGl0IGRvZXMgcGFyc2UgaGVhZGVycyBhbmQgdmVyaWZ5Cj4+Pj4+PiBjaGVja3N1bXMKPj4+
-Pj4+ICAgICAqICAgZm9yIHNwZWNpZmljIHByb3RvY29scy4gRm9yIHN1Y2ggcGFja2V0cyBpdCB3
-aWxsIHNldAo+Pj4+Pj4gQ0hFQ0tTVU1fVU5ORUNFU1NBUlkKPj4+Pj4+ICAgICAqICAgaWYgdGhl
-aXIgY2hlY2tzdW1zIGFyZSBva2F5LiBza2ItPmNzdW0gaXMgc3RpbGwgdW5kZWZpbmVkIGluIHRo
-aXMgY2FzZQo+Pj4+Pj4gICAgICogICB0aG91Z2guIEEgZHJpdmVyIG9yIGRldmljZSBtdXN0IG5l
-dmVyIG1vZGlmeSB0aGUgY2hlY2tzdW0gZmllbGQgaW4gdGhlCj4+Pj4+PiAgICAgKiAgIHBhY2tl
-dCBldmVuIGlmIGNoZWNrc3VtIGlzIHZlcmlmaWVkLgo+Pj4+Pj4gIgo+Pj4+Pj4KPj4+Pj4+IFRo
-ZSBjc3VtIGlzIGNvcnJlY3QgSSBiZWxpZXZlPwo+Pj4+Pj4KPj4+Pj4+IFRoYW5rcwo+Pj4+PiBU
-aGF0J3Mgb24gaW5wdXQuIEJ1dCBJIHRoaW5rIGZvciB0dW4gaXQncyBvdXRwdXQsIHdoZXJlIHRo
-YXQgaXMgZXF1aXZhbGVudAo+Pj4+PiB0byBDSEVDS1NVTV9OT05FCj4+Pj4+Cj4+Pj4+Cj4+Pj4g
-WWVzLCBidXQgdGhlIGNvbW1lbnQgc2FpZDoKPj4+Pgo+Pj4+ICIKPj4+PiBDS1NVTV9OT05FOgo+
-Pj4+ICAgICoKPj4+PiAgICAqICAgVGhlIHNrYiB3YXMgYWxyZWFkeSBjaGVja3N1bW1lZCBieSB0
-aGUgcHJvdG9jb2wsIG9yIGEgY2hlY2tzdW0gaXMgbm90Cj4+Pj4gICAgKiAgIHJlcXVpcmVkLgo+
-Pj4+ICAgICoKPj4+PiAgICAqIENIRUNLU1VNX1VOTkVDRVNTQVJZOgo+Pj4+ICAgICoKPj4+PiAg
-ICAqICAgVGhpcyBoYXMgdGhlIHNhbWUgbWVhbmluZyBvbiBhcyBDSEVDS1NVTV9OT05FIGZvciBj
-aGVja3N1bSBvZmZsb2FkIG9uCj4+Pj4gICAgKiAgIG91dHB1dC4KPj4+PiAgICAqCj4+Pj4gIgo+
-Pj4+Cj4+Pj4gU28gc3RpbGwgY29ycmVjdCBJIHRoaW5rPwo+Pj4+Cj4+Pj4gVGhhbmtzCj4+PiBI
-bW0gbWF5YmUgSSBtZWFuIE5FRURTX0NIRUNLU1VNIGFjdHVhbGx5Lgo+Pj4KPj4+IEknbGwgbmVl
-ZCB0byByZS1yZWFkIHRoZSBzcGVjLgo+Pj4KPj4gTm90IHN1cmUgdGhpcyBpcyBhbiBpc3N1ZS4g
-QnV0IGlmIGl0IGlzLCB3ZSBjYW4gcHJvYmFibHkgY2hlY2tzdW0gdGhlIHBhY2tldAo+PiBiZWZv
-cmUgcGFzc2luZyBpdCB0byBYRFAuIEJ1dCBpdCB3b3VsZCBiZSBhIGxpdHRsZSBzbG93Lgo+Pgo+
-PiBUaGFua3MKPgo+Cj4gUmlnaHQuIEkgY29uZnVzZWQgREFUQV9WQUxJRCB3aXRoIE5FRURTX0NI
-RUNLU1VNLgo+Cj4gSUlVQyBYRFAgZ2VuZXJhbGx5IHJlZnVzZXMgdG8gYXR0YWNoIGlmIGNoZWNr
-c3VtIG9mZmxvYWQKPiBpcyBlbmFibGVkLgoKQW55IHJlYXNvbiB0byBkbyB0aGlzPyAoTG9va3Mg
-bGlrZSBJIGRvbid0IHNlZSBhbnkgY29kZSBmb3IgdGhpcykKCj4KPiBDb3VsZCB5b3UgcGxzIGV4
-cGxhaW4gaG93IHRvIHJlcHJvZHVjZSB0aGUgaXNzdWUgeW91IGFyZSBzZWVpbmc/Cj4KClVzaW5n
-IHNtYWxsIGJ1ZmZlciwgYWxsIGNzdW1lZCBwYWNrZXRzIHdpbGwgYmUgZHJvcHBlZC4KClRoYW5r
-cwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+On Tue, Jul 04, 2017 at 11:24:01AM +0200, Paolo Bonzini wrote:
+> 
+> 
+> On 05/07/2017 10:44, Changpeng Liu wrote:
+> > Currently virtio-blk driver does not provide discard feature flag, so the
+> > filesystems which built on top of the block device will not send discard
+> > command. This is okay for HDD backend, but it will impact the performance
+> > for SSD backend.
+> > 
+> > Add a feature flag VIRTIO_BLK_F_DISCARD and command VIRTIO_BLK_T_DISCARD
+> > to extend exist virtio-blk protocol, define 16 bytes discard descriptor
+> > for each discard segment, the discard segment defination aligns with
+> > SCSI or NVM Express protocols, virtio-blk driver will support multi-range
+> > discard request as well.
+> > 
+> > Signed-off-by: Changpeng Liu <changpeng.liu@intel.com>
+> 
+> Please include a patch for the specification.
+
+
+Most importantly, please remember to copy virtio-dev@lists.oasis-open.org
+on anything that changes the host/guest interface.
+
+> Since we are at it, I
+> would like to have three operations defined using the same descriptor:
+> 
+> - discard (SCSI UNMAP)
+> 
+> - write zeroes (SCSI WRITE SAME without UNMAP flag)
+> 
+> - write zeroes and possibly discard (SCSI WRITE SAME with UNMAP flag)
+> 
+> The last two can use the same command VIRTIO_BLK_T_WRITE_ZEROES, using
+> the reserved field as a flags field.
+> 
+> Paolo
+
+> > ---
+> >  drivers/block/virtio_blk.c      | 76 +++++++++++++++++++++++++++++++++++++++--
+> >  include/uapi/linux/virtio_blk.h | 19 +++++++++++
+> >  2 files changed, 92 insertions(+), 3 deletions(-)
