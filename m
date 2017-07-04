@@ -1,13 +1,11 @@
-From: Thomas Huth <thuth@redhat.com>
-Subject: Re: [PATCH 1/1] Update my email address
-Date: Tue, 4 Jul 2017 12:00:04 +0200
-Message-ID: <0ef459db-29bd-feb5-3fe2-3e1ffb9f9ceb__36522.4742483862$1509078690$gmane$org@redhat.com>
-References: <20170704093038.13943-1-cohuck@redhat.com>
-	<20170704093038.13943-2-cohuck@redhat.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH v3 00/16] improve the fb_setcmap helper
+Date: Tue,  4 Jul 2017 12:36:56 +0200
+Message-ID: <1499164632-5582-1-git-send-email-peda__4041.47416488758$1509078701$gmane$org@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4973474038679767205=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170704093038.13943-2-cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,99 +15,128 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: schwidefsky@de.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: David Airlie <airlied@linux.ie>, nouveau@lists.freedesktop.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Thomas Hellstrom <thellstrom@vmware.com>, Sinclair Yeh <syeh@vmware.com>, Russell King <linux@armlinux.org.uk>, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, VMware Graphics <linux-graphics-maintainer@vmware.com>, Ben Skeggs <bskeggs@redhat.com>, Dave Airlie <airlied@redhat.com>, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Sean Paul <seanpaul@chromium.org>, Vincent Abriou <vincent.abriou@st.com>, amd-gfx@lists.freedesktop.org, Philippe Cornu <philippe.cornu@st.com>, Peter Rosin <peda@axentia.se>, Yannick Fertre <yannick.fertr>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============4973474038679767205==
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="Vu7jJDHaa1sViHPwKJ2fkLjAguxeCeHAQ"
+Hi!
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---Vu7jJDHaa1sViHPwKJ2fkLjAguxeCeHAQ
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+While trying to get CLUT support for the atmel_hlcdc driver, and
+specifically for the emulated fbdev interface, I received some
+push-back that my feeble in-driver attempts should be solved
+by the core. This is my attempt to do it right.
 
-On 04.07.2017 11:30, Cornelia Huck wrote:
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> ---
->  MAINTAINERS | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->=20
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 767e9d202adf..84155d593bba 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -7285,7 +7285,7 @@ F:	arch/powerpc/kvm/
-> =20
->  KERNEL VIRTUAL MACHINE for s390 (KVM/s390)
->  M:	Christian Borntraeger <borntraeger@de.ibm.com>
-> -M:	Cornelia Huck <cornelia.huck@de.ibm.com>
-> +M:	Cornelia Huck <cohuck@redhat.com>
->  L:	linux-s390@vger.kernel.org
->  W:	http://www.ibm.com/developerworks/linux/linux390/
->  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git=
+I have obviously not tested all of this with more than a compile,
+but patches 1 through 5 are enough to make the atmel-hlcdc driver
+do what I need. The rest is just lots of removals and cleanup made
+possible by the improved core.
 
-> @@ -11060,7 +11060,7 @@ S:	Supported
->  F:	drivers/iommu/s390-iommu.c
-> =20
->  S390 VFIO-CCW DRIVER
-> -M:	Cornelia Huck <cornelia.huck@de.ibm.com>
-> +M:	Cornelia Huck <cohuck@redhat.com>
->  M:	Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
->  L:	linux-s390@vger.kernel.org
->  L:	kvm@vger.kernel.org
-> @@ -13569,7 +13569,7 @@ F:	include/uapi/linux/virtio_*.h
->  F:	drivers/crypto/virtio/
-> =20
->  VIRTIO DRIVERS FOR S390
-> -M:	Cornelia Huck <cornelia.huck@de.ibm.com>
-> +M:	Cornelia Huck <cohuck@redhat.com>
->  M:	Halil Pasic <pasic@linux.vnet.ibm.com>
->  L:	linux-s390@vger.kernel.org
->  L:	virtualization@lists.linux-foundation.org
->=20
+Please test, I would not be surprised if I have fouled up some
+bit-manipulation somewhere, or if I have misunderstood something
+about atomics...
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Changes since v2:
+- Added patch 1/16 which factors out pseudo-palette handling.
+- Removed the if (cmap->start + cmap->len < cmap->start)
+  sanity check on the assumption that the fbdev core handles it.
+- Added patch 4/16 which factors out atomic state and commit
+  handling from drm_atomic_helper_legacy_gamma_set to
+  drm_mode_gamma_set_ioctl.
+- Do one atomic commit for all affected crtc.
+- Removed a now obsolete note in include/drm/drm_crtc.h (ammended
+  the last patch).
+- Cc list is getting long, so I have redused the list for the
+  individual patches. If you would like to get the full series
+  (or nothing at all) for the next round (if that is needed) just
+  say so.
 
+Changes since v1:
 
+- Rebased to next-20170621
+- Split 1/11 into a preparatory patch, a cleanup patch and then
+  the meat in 3/14.
+- Handle pseudo-palette for FB_VISUAL_TRUECOLOR.
+- Removed the empty .gamma_get/.gamma_set fb helpers from the
+  armada driver that I had somehow managed to ignore but which
+  0day found real quick.
+- Be less judgemental on drivers only providing .gamma_get and
+  .gamma_set, but no .load_lut. That's actually a valid thing
+  to do if you only need pseudo-palette for FB_VISUAL_TRUECOLOR.
+- Add a comment about colliding bitfields in the nouveau driver.
+- Remove gamma_set/gamma_get declarations from the radeon driver
+  (the definitions were removed in v1).
 
---Vu7jJDHaa1sViHPwKJ2fkLjAguxeCeHAQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Cheers,
+peda
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
+Peter Rosin (16):
+  drm/fb-helper: factor out pseudo-palette
+  drm/fb-helper: keep the .gamma_store updated in drm_fb_helper_setcmap
+  drm/fb-helper: remove drm_fb_helper_save_lut_atomic
+  drm/color-mgmt: move atomic state/commit out from .gamma_set
+  drm/fb-helper: do a generic fb_setcmap helper in terms of crtc
+    .gamma_set
+  drm: amd: remove dead code and pointless local lut storage
+  drm: armada: remove dead empty functions
+  drm: ast: remove dead code and pointless local lut storage
+  drm: cirrus: remove dead code and pointless local lut storage
+  drm: gma500: remove dead code and pointless local lut storage
+  drm: i915: remove dead code and pointless local lut storage
+  drm: mgag200: remove dead code and pointless local lut storage
+  drm: nouveau: remove dead code and pointless local lut storage
+  drm: radeon: remove dead code and pointless local lut storage
+  drm: stm: remove dead code and pointless local lut storage
+  drm: remove unused and redundant callbacks
 
-iQIcBAEBAgAGBQJZW2cpAAoJEC7Z13T+cC21XqwP/1YEkKv3SMOHEzTupkvX4Pec
-ioNyRiw77jTKtKof8UfUIWm68xwXyUeCIH1KSOQpmgDa35gmjku22ETdGr/GfbPU
-WUGex2Sy0k1HWAH/07soeNRS05VfsqW8UmFVUshQR6Qu5wJHQup2o6JrUE5i/grH
-fiMUb0x60v20IhGcTz04w+eDr2ZaMqlttVnUXsLAbo7xgppiRk21v505pUEfMbzh
-SJ1RIrikQ3GuPcUkI6DvU4sl2r3Oat9ieq5BpfpB4+7n8whhWPr8EiPdN3dXPvnp
-Tw56/RL6ODcdpHs2vNAXV05++F1IC+ciUEbYVoAfGClYn42TATa9XFP/YQWdsW60
-hB9Kpj8qrFDKju1zrZcp/Lh9xOQAhMA8xey6PjmU0Ek9yL1PoMKvIBIQtUON5mGx
-NE0X6Rp1La+9noVSmrwOTHY5dmY3cX0hOn9/7xKun89U/RhgmtO9lPSUSKrT/+tR
-VbL7f1lcHcpEi8BClZEJSw0IIXBFGBgZyeiIsuuDC7+pwuIEBX4lsnJbv12c8xdq
-rrRbt0/1AoJRCXmwYuzTqxKhCsv1Jpo6pIFbJxQmqYxsYN8rrbLYJ3aoMWbb/yG+
-k4T5O/8JQ+IRP48bcyJAMZjT3eKc9p6PJl6mY4/BGl4O9S7Ti6Gkeq1ANJvKKgJv
-MbwR6U/MUcPL/jdh5rMb
-=i2u+
------END PGP SIGNATURE-----
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c      |  24 ----
+ drivers/gpu/drm/amd/amdgpu/amdgpu_mode.h    |   1 -
+ drivers/gpu/drm/amd/amdgpu/dce_v10_0.c      |  29 ++---
+ drivers/gpu/drm/amd/amdgpu/dce_v11_0.c      |  29 ++---
+ drivers/gpu/drm/amd/amdgpu/dce_v6_0.c       |  29 ++---
+ drivers/gpu/drm/amd/amdgpu/dce_v8_0.c       |  29 ++---
+ drivers/gpu/drm/amd/amdgpu/dce_virtual.c    |  25 +---
+ drivers/gpu/drm/armada/armada_crtc.c        |  10 --
+ drivers/gpu/drm/armada/armada_crtc.h        |   2 -
+ drivers/gpu/drm/armada/armada_fbdev.c       |   2 -
+ drivers/gpu/drm/ast/ast_drv.h               |   1 -
+ drivers/gpu/drm/ast/ast_fb.c                |  20 ---
+ drivers/gpu/drm/ast/ast_mode.c              |  28 +---
+ drivers/gpu/drm/cirrus/cirrus_drv.h         |   8 --
+ drivers/gpu/drm/cirrus/cirrus_fbdev.c       |   2 -
+ drivers/gpu/drm/cirrus/cirrus_mode.c        |  73 +++--------
+ drivers/gpu/drm/drm_atomic_helper.c         |  37 ++----
+ drivers/gpu/drm/drm_color_mgmt.c            |  27 +++-
+ drivers/gpu/drm/drm_fb_helper.c             | 195 +++++++++++++++++-----------
+ drivers/gpu/drm/gma500/framebuffer.c        |  22 ----
+ drivers/gpu/drm/gma500/gma_display.c        |  34 ++---
+ drivers/gpu/drm/gma500/gma_display.h        |   2 +-
+ drivers/gpu/drm/gma500/psb_intel_display.c  |   7 +-
+ drivers/gpu/drm/gma500/psb_intel_drv.h      |   1 -
+ drivers/gpu/drm/i915/intel_drv.h            |   1 -
+ drivers/gpu/drm/i915/intel_fbdev.c          |  31 -----
+ drivers/gpu/drm/mgag200/mgag200_drv.h       |   5 -
+ drivers/gpu/drm/mgag200/mgag200_fb.c        |   2 -
+ drivers/gpu/drm/mgag200/mgag200_mode.c      |  64 +++------
+ drivers/gpu/drm/nouveau/dispnv04/crtc.c     |  28 ++--
+ drivers/gpu/drm/nouveau/nouveau_crtc.h      |   3 -
+ drivers/gpu/drm/nouveau/nouveau_fbcon.c     |  22 ----
+ drivers/gpu/drm/nouveau/nv50_display.c      |  42 ++----
+ drivers/gpu/drm/radeon/atombios_crtc.c      |   1 -
+ drivers/gpu/drm/radeon/radeon_connectors.c  |   7 +-
+ drivers/gpu/drm/radeon/radeon_display.c     |  73 +++++------
+ drivers/gpu/drm/radeon/radeon_fb.c          |   2 -
+ drivers/gpu/drm/radeon/radeon_legacy_crtc.c |   1 -
+ drivers/gpu/drm/radeon/radeon_mode.h        |   4 -
+ drivers/gpu/drm/stm/ltdc.c                  |  12 --
+ drivers/gpu/drm/stm/ltdc.h                  |   1 -
+ drivers/gpu/drm/vc4/vc4_crtc.c              |   2 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c         |   2 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.h         |   2 +-
+ include/drm/drm_atomic_helper.h             |   2 +-
+ include/drm/drm_crtc.h                      |  11 +-
+ include/drm/drm_fb_helper.h                 |  32 -----
+ include/drm/drm_modeset_helper_vtables.h    |  16 ---
+ 48 files changed, 301 insertions(+), 702 deletions(-)
 
---Vu7jJDHaa1sViHPwKJ2fkLjAguxeCeHAQ--
-
---===============4973474038679767205==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4973474038679767205==--
+-- 
+2.1.4
