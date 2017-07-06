@@ -1,23 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] virtio-net: unbreak cusmed packet for small buffer XDP
-Date: Thu, 6 Jul 2017 03:07:07 +0300
-Message-ID: <20170706030356-mutt-send-email-mst@kernel.org>
-References: <20170628050057-mutt-send-email-mst@kernel.org>
-	<7068053c-50da-6779-5ff2-6588e01e616d@redhat.com>
-	<20170628051555-mutt-send-email-mst@kernel.org>
-	<69907228-fc1b-175f-f6cd-7ac332e318be@redhat.com>
-	<20170628063033-mutt-send-email-mst@kernel.org>
-	<51f4c402-6a02-9bad-6dab-563ca72f431a@redhat.com>
-	<20170628065126-mutt-send-email-mst@kernel.org>
-	<a7e457d5-88c4-745d-5189-18a5f13797dc@redhat.com>
-	<20170703195752-mutt-send-email-mst@kernel.org>
-	<4de0c8e7-a9b6-7477-691a-a2ed0f317106@redhat.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 3/4] drm/qxl: Drop fbdev hwaccel flags
+Date: Thu,  6 Jul 2017 14:57:34 +0200
+Message-ID: <20170706125735.28299-4-daniel.vetter@ffwll.ch>
+References: <20170706125735.28299-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4de0c8e7-a9b6-7477-691a-a2ed0f317106@redhat.com>
+In-Reply-To: <20170706125735.28299-1-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,18 +17,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: DRI Development <dri-devel@lists.freedesktop.org>
+Cc: linux-fbdev@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 04, 2017 at 08:20:00PM +0800, Jason Wang wrote:
-> > IIUC XDP generally refuses to attach if checksum offload
-> > is enabled.
-> 
-> Any reason to do this? (Looks like I don't see any code for this)
+It's not accelarated, just system memory. Note we don't even need to
+set the default flag since that's now always 0.
 
-Some of it was covered here
-https://www.mail-archive.com/netdev@vger.kernel.org/msg162577.html
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+---
+ drivers/gpu/drm/qxl/qxl_fb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/gpu/drm/qxl/qxl_fb.c b/drivers/gpu/drm/qxl/qxl_fb.c
+index 573e7e9a5f98..69e7359b562a 100644
+--- a/drivers/gpu/drm/qxl/qxl_fb.c
++++ b/drivers/gpu/drm/qxl/qxl_fb.c
+@@ -275,7 +275,7 @@ static int qxlfb_create(struct qxl_fbdev *qfbdev,
+ 
+ 	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
+ 
+-	info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_COPYAREA | FBINFO_HWACCEL_FILLRECT;
++	info->flags = FBINFO_DEFAULT;
+ 	info->fbops = &qxlfb_ops;
+ 
+ 	/*
 -- 
-MST
+2.13.2
