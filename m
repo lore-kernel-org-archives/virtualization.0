@@ -1,13 +1,11 @@
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 3/4] drm/qxl: Drop fbdev hwaccel flags
-Date: Thu,  6 Jul 2017 14:57:34 +0200
-Message-ID: <20170706125735.28299-4-daniel.vetter@ffwll.ch>
-References: <20170706125735.28299-1-daniel.vetter@ffwll.ch>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] virtio-net: fix leaking of ctx array
+Date: Fri,  7 Jul 2017 19:56:09 +0800
+Message-ID: <1499428569-1608-1-git-send-email-jasowang__39231.3517317691$1499428587$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170706125735.28299-1-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,33 +15,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: DRI Development <dri-devel@lists.freedesktop.org>
-Cc: linux-fbdev@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-It's not accelarated, just system memory. Note we don't even need to
-set the default flag since that's now always 0.
-
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Fixes: commit d45b897b11ea ("virtio_net: allow specifying context for rx")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_fb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/virtio_net.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_fb.c b/drivers/gpu/drm/qxl/qxl_fb.c
-index 573e7e9a5f98..69e7359b562a 100644
---- a/drivers/gpu/drm/qxl/qxl_fb.c
-+++ b/drivers/gpu/drm/qxl/qxl_fb.c
-@@ -275,7 +275,7 @@ static int qxlfb_create(struct qxl_fbdev *qfbdev,
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 2e69bcd..99a26a9 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2229,6 +2229,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ 	kfree(names);
+ 	kfree(callbacks);
+ 	kfree(vqs);
++	kfree(ctx);
  
- 	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
+ 	return 0;
  
--	info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_COPYAREA | FBINFO_HWACCEL_FILLRECT;
-+	info->flags = FBINFO_DEFAULT;
- 	info->fbops = &qxlfb_ops;
- 
- 	/*
 -- 
-2.13.2
+2.7.4
