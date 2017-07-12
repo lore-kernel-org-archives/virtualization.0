@@ -1,13 +1,20 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v12 8/8] virtio-balloon: VIRTIO_BALLOON_F_CMD_VQ
-Date: Wed, 12 Jul 2017 20:40:21 +0800
-Message-ID: <1499863221-16206-9-git-send-email-wei.w.wang__20490.5891827822$1499863741$gmane$org@intel.com>
-References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
+Subject: Re: [virtio-dev] Re: [PATCH v11 6/6] virtio-balloon:
+	VIRTIO_BALLOON_F_CMD_VQ
+Date: Wed, 12 Jul 2017 20:57:10 +0800
+Message-ID: <59661CA6.5040903__26059.3146471821$1499864090$gmane$org@intel.com>
+References: <1497004901-30593-1-git-send-email-wei.w.wang@intel.com>
+	<1497004901-30593-7-git-send-email-wei.w.wang@intel.com>
+	<20170620190343-mutt-send-email-mst@kernel.org>
+	<5949E7C0.3050106@intel.com>
+	<20170621151922-mutt-send-email-mst@kernel.org>
+	<594B8287.6000706@intel.com>
+	<20170628175956-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20170628175956-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,441 +24,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, david@redhat.com, cornelia.huck@de.ibm.com, akpm@linux-foundation.org, mgorman@techsingularity.net, aarcange@redhat.com, amit.shah@redhat.com, pbonzini@redhat.com, wei.w.wang@intel.com, liliang.opensource@gmail.com
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, quan.xu@aliyun.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "Hansen, Dave" <dave.hansen@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "nilal@redhat.com" <nilal@redhat.com>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new vq, cmdq, to handle requests between the device and driver.
+On 06/28/2017 11:01 PM, Michael S. Tsirkin wrote:
+> On Thu, Jun 22, 2017 at 04:40:39PM +0800, Wei Wang wrote:
+>> On 06/21/2017 08:28 PM, Michael S. Tsirkin wrote:
+>>> On Wed, Jun 21, 2017 at 11:28:00AM +0800, Wei Wang wrote:
+>>>> On 06/21/2017 12:18 AM, Michael S. Tsirkin wrote:
+>>>>> On Fri, Jun 09, 2017 at 06:41:41PM +0800, Wei Wang wrote:
+>>>>>> -	if (!virtqueue_indirect_desc_table_add(vq, desc, num)) {
+>>>>>> +	if (!virtqueue_indirect_desc_table_add(vq, desc, *num)) {
+>>>>>>     		virtqueue_kick(vq);
+>>>>>> -		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+>>>>>> -		vb->balloon_page_chunk.chunk_num = 0;
+>>>>>> +		if (busy_wait)
+>>>>>> +			while (!virtqueue_get_buf(vq, &len) &&
+>>>>>> +			       !virtqueue_is_broken(vq))
+>>>>>> +				cpu_relax();
+>>>>>> +		else
+>>>>>> +			wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+>>>>> This is something I didn't previously notice.
+>>>>> As you always keep a single buffer in flight, you do not
+>>>>> really need indirect at all. Just add all descriptors
+>>>>> in the ring directly, then kick.
+>>>>>
+>>>>> E.g.
+>>>>> 	virtqueue_add_first
+>>>>> 	virtqueue_add_next
+>>>>> 	virtqueue_add_last
+>>>>>
+>>>>> ?
+>>>>>
+>>>>> You also want a flag to avoid allocations but there's no need to do it
+>>>>> per descriptor, set it on vq.
+>>>>>
+>>>> Without using the indirect table, I'm thinking about changing to use
+>>>> the standard sg (i.e. struct scatterlist), instead of vring_desc, so that
+>>>> we don't need to modify or add any new functions of virtqueue_add().
+>>>>
+>>>> In this case, we will kmalloc an array of sgs in probe(), and we can add
+>>>> the sgs one by one to the vq, which won't trigger the allocation of an
+>>>> indirect table inside virtqueue_add(), and then kick when all are added.
+>>>>
+>>>> Best,
+>>>> Wei
+>>> And allocate headers too? This can work. API extensions aren't
+>>> necessarily a bad idea though. The API I suggest above is preferable
+>>> for the simple reason that it can work without INDIRECT flag
+>>> support in hypervisor.
+>> OK, probably we don't need to add a desc to the vq - we can just use
+>> the vq's desc, like this:
+>>
+>> int virtqueue_add_first(struct virtqueue *_vq,
+>>                                       uint64_t addr,
+>>                                       uint32_t len,
+>>                                       bool in,
+>>                                       unsigned int *idx) {
+>>
+>>      ...
+>>     uint16_t desc_flags = in ? VRING_DESC_F_NEXT | VRING_DESC_F_WRITE :
+>>                                               VRING_DESC_F_NEXT;
+>>
+>>      vq->vring.desc[vq->free_head].addr = addr;
+>>      vq->vring.desc[vq->free_head].len = len;
+>>      vq->vring.desc[vq->free_head].flags = cpu_to_virtio16(_vq->vdev, flags);
+>>      /* return to the caller the desc id */
+>>      *idx = vq->free_head;
+>>      ...
+>> }
+>>
+>> int virtqueue_add_next(struct virtqueue *_vq,
+>>                                       uint64_t addr,
+>>                                       uint32_t len,
+>>                                       bool in,
+>>                                       bool end,
+>>                                       unsigned int *idx) {
+>>      ...
+>>      vq->vring.desc[*idx].next = vq->free_head;
+>>      vq->vring.desc[vq->free_head].addr = addr;
+>>      ...
+>>      if (end)
+>>          remove the VRING_DESC_F_NEXT flag
+>> }
+>>
+> Add I would say add-last.
+>
+>> What do you think? We can also combine the two functions into one.
+>>
+>>
+>>
+>> Best,
+>> Wei
+> With an enum? Yes that's also an option.
+>
 
-This patch implements two commands sent from the device and handled in
-the driver.
-1) VIRTIO_BALLOON_CMDQ_REPORT_STATS: this command is used to report
-the guest memory statistics to the host. The stats_vq mechanism is not
-used when the cmdq mechanism is enabled.
-2) VIRTIO_BALLOON_CMDQ_REPORT_UNUSED_PAGES: this command is used to
-report the guest unused pages to the host.
+Thanks for the suggestion. I shifted it a little bit, please have a check
+the latest v12 patches that I just sent out.
 
-Since now we have a vq to handle multiple commands, we need to keep only
-one vq operation at a time. Here, we change the existing START_USE()
-and END_USE() to lock on each vq operation.
-
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Signed-off-by: Liang Li <liang.z.li@intel.com>
----
- drivers/virtio/virtio_balloon.c     | 245 ++++++++++++++++++++++++++++++++++--
- drivers/virtio/virtio_ring.c        |  25 +++-
- include/linux/virtio.h              |   2 +
- include/uapi/linux/virtio_balloon.h |  10 ++
- 4 files changed, 265 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index aa4e7ec..ae91fbf 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -54,11 +54,12 @@ static struct vfsmount *balloon_mnt;
- 
- struct virtio_balloon {
- 	struct virtio_device *vdev;
--	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
-+	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *cmd_vq;
- 
- 	/* The balloon servicing is delegated to a freezable workqueue. */
- 	struct work_struct update_balloon_stats_work;
- 	struct work_struct update_balloon_size_work;
-+	struct work_struct cmdq_handle_work;
- 
- 	/* Prevent updating balloon when it is being canceled. */
- 	spinlock_t stop_update_lock;
-@@ -90,6 +91,12 @@ struct virtio_balloon {
- 	/* Memory statistics */
- 	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
- 
-+	/* Cmdq msg buffer for memory statistics */
-+	struct virtio_balloon_cmdq_hdr cmdq_stats_hdr;
-+
-+	/* Cmdq msg buffer for reporting ununsed pages */
-+	struct virtio_balloon_cmdq_hdr cmdq_unused_page_hdr;
-+
- 	/* To register callback in oom notifier call chain */
- 	struct notifier_block nb;
- };
-@@ -485,25 +492,214 @@ static void update_balloon_size_func(struct work_struct *work)
- 		queue_work(system_freezable_wq, work);
- }
- 
-+static unsigned int cmdq_hdr_add(struct virtqueue *vq,
-+				 struct virtio_balloon_cmdq_hdr *hdr,
-+				 bool in)
-+{
-+	unsigned int id = VIRTQUEUE_DESC_ID_INIT;
-+	uint64_t hdr_pa = (uint64_t)virt_to_phys((void *)hdr);
-+
-+	virtqueue_add_chain_desc(vq, hdr_pa, sizeof(*hdr), &id, &id, in);
-+
-+	/* Deliver the hdr for the host to send commands. */
-+	if (in) {
-+		hdr->flags = 0;
-+		virtqueue_add_chain(vq, id, 0, NULL, hdr, NULL);
-+		virtqueue_kick(vq);
-+	}
-+
-+	return id;
-+}
-+
-+static void cmdq_add_chain_desc(struct virtio_balloon *vb,
-+				struct virtio_balloon_cmdq_hdr *hdr,
-+				uint64_t addr,
-+				uint32_t len,
-+				unsigned int *head_id,
-+				unsigned int *prev_id)
-+{
-+retry:
-+	if (*head_id == VIRTQUEUE_DESC_ID_INIT) {
-+		*head_id = cmdq_hdr_add(vb->cmd_vq, hdr, 0);
-+		*prev_id = *head_id;
-+	}
-+
-+	virtqueue_add_chain_desc(vb->cmd_vq, addr, len, head_id, prev_id, 0);
-+	if (*head_id == *prev_id) {
-+		/*
-+		 * The VQ was full and kicked to release some descs. Now we
-+		 * will re-start to build the chain by using the hdr as the
-+		 * first desc, so we need to detach the desc that was just
-+		 * added, and re-start to add the hdr.
-+		 */
-+		virtqueue_detach_buf(vb->cmd_vq, *head_id, NULL);
-+		*head_id = VIRTQUEUE_DESC_ID_INIT;
-+		*prev_id = VIRTQUEUE_DESC_ID_INIT;
-+		goto retry;
-+	}
-+}
-+
-+static void cmdq_handle_stats(struct virtio_balloon *vb)
-+{
-+	unsigned int num_stats,
-+		     head_id = VIRTQUEUE_DESC_ID_INIT,
-+		     prev_id = VIRTQUEUE_DESC_ID_INIT;
-+	uint64_t addr = (uint64_t)virt_to_phys((void *)vb->stats);
-+	uint32_t len;
-+
-+	spin_lock(&vb->stop_update_lock);
-+	if (!vb->stop_update) {
-+		num_stats = update_balloon_stats(vb);
-+		len = sizeof(struct virtio_balloon_stat) * num_stats;
-+		cmdq_add_chain_desc(vb, &vb->cmdq_stats_hdr, addr, len,
-+				    &head_id, &prev_id);
-+		virtqueue_add_chain(vb->cmd_vq, head_id, 0, NULL, vb, NULL);
-+		virtqueue_kick_sync(vb->cmd_vq);
-+	}
-+	spin_unlock(&vb->stop_update_lock);
-+}
-+
-+static void cmdq_add_unused_page(struct virtio_balloon *vb,
-+				 struct zone *zone,
-+				 unsigned int order,
-+				 unsigned int type,
-+				 struct page *page,
-+				 unsigned int *head_id,
-+				 unsigned int *prev_id)
-+{
-+	uint64_t addr;
-+	uint32_t len;
-+
-+	while (!report_unused_page_block(zone, order, type, &page)) {
-+		addr = (u64)page_to_pfn(page) << VIRTIO_BALLOON_PFN_SHIFT;
-+		len = (u64)(1 << order) << VIRTIO_BALLOON_PFN_SHIFT;
-+		cmdq_add_chain_desc(vb, &vb->cmdq_unused_page_hdr, addr, len,
-+				    head_id, prev_id);
-+	}
-+}
-+
-+static void cmdq_handle_unused_pages(struct virtio_balloon *vb)
-+{
-+	struct virtqueue *vq = vb->cmd_vq;
-+	unsigned int order = 0, type = 0,
-+		     head_id = VIRTQUEUE_DESC_ID_INIT,
-+		     prev_id = VIRTQUEUE_DESC_ID_INIT;
-+	struct zone *zone = NULL;
-+	struct page *page = NULL;
-+
-+	for_each_populated_zone(zone)
-+		for_each_migratetype_order(order, type)
-+			cmdq_add_unused_page(vb, zone, order, type, page,
-+					     &head_id, &prev_id);
-+
-+	/* Set the cmd completion flag. */
-+	vb->cmdq_unused_page_hdr.flags |=
-+				cpu_to_le32(VIRTIO_BALLOON_CMDQ_F_COMPLETION);
-+	virtqueue_add_chain(vq, head_id, 0, NULL, vb, NULL);
-+	virtqueue_kick_sync(vb->cmd_vq);
-+}
-+
-+static void cmdq_handle(struct virtio_balloon *vb)
-+{
-+	struct virtio_balloon_cmdq_hdr *hdr;
-+	unsigned int len;
-+
-+	while ((hdr = (struct virtio_balloon_cmdq_hdr *)
-+			virtqueue_get_buf(vb->cmd_vq, &len)) != NULL) {
-+		switch (__le32_to_cpu(hdr->cmd)) {
-+		case VIRTIO_BALLOON_CMDQ_REPORT_STATS:
-+			cmdq_handle_stats(vb);
-+			break;
-+		case VIRTIO_BALLOON_CMDQ_REPORT_UNUSED_PAGES:
-+			cmdq_handle_unused_pages(vb);
-+			break;
-+		default:
-+			dev_warn(&vb->vdev->dev, "%s: wrong cmd\n", __func__);
-+			return;
-+		}
-+		/*
-+		 * Replenish all the command buffer to the device after a
-+		 * command is handled. This is for the convenience of the
-+		 * device to rewind the cmdq to get back all the command
-+		 * buffer after live migration.
-+		 */
-+		cmdq_hdr_add(vb->cmd_vq, &vb->cmdq_stats_hdr, 1);
-+		cmdq_hdr_add(vb->cmd_vq, &vb->cmdq_unused_page_hdr, 1);
-+	}
-+}
-+
-+static void cmdq_handle_work_func(struct work_struct *work)
-+{
-+	struct virtio_balloon *vb;
-+
-+	vb = container_of(work, struct virtio_balloon,
-+			  cmdq_handle_work);
-+	cmdq_handle(vb);
-+}
-+
-+static void cmdq_callback(struct virtqueue *vq)
-+{
-+	struct virtio_balloon *vb = vq->vdev->priv;
-+
-+	queue_work(system_freezable_wq, &vb->cmdq_handle_work);
-+}
-+
- static int init_vqs(struct virtio_balloon *vb)
- {
--	struct virtqueue *vqs[3];
--	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
--	static const char * const names[] = { "inflate", "deflate", "stats" };
--	int err, nvqs;
-+	struct virtqueue **vqs;
-+	vq_callback_t **callbacks;
-+	const char **names;
-+	int err = -ENOMEM;
-+	int nvqs;
-+
-+	/* Inflateq and deflateq are used unconditionally */
-+	nvqs = 2;
-+
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_CMD_VQ) ||
-+	    virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ))
-+		nvqs++;
-+
-+	/* Allocate space for find_vqs parameters */
-+	vqs = kcalloc(nvqs, sizeof(*vqs), GFP_KERNEL);
-+	if (!vqs)
-+		goto err_vq;
-+	callbacks = kmalloc_array(nvqs, sizeof(*callbacks), GFP_KERNEL);
-+	if (!callbacks)
-+		goto err_callback;
-+	names = kmalloc_array(nvqs, sizeof(*names), GFP_KERNEL);
-+	if (!names)
-+		goto err_names;
-+
-+	callbacks[0] = balloon_ack;
-+	names[0] = "inflate";
-+	callbacks[1] = balloon_ack;
-+	names[1] = "deflate";
- 
- 	/*
--	 * We expect two virtqueues: inflate and deflate, and
--	 * optionally stat.
-+	 * The stats_vq is used only when cmdq is not supported (or disabled)
-+	 * by the device.
- 	 */
--	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
--	err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
--	if (err)
--		return err;
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_CMD_VQ)) {
-+		callbacks[2] = cmdq_callback;
-+		names[2] = "cmdq";
-+	} else if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-+		callbacks[2] = stats_request;
-+		names[2] = "stats";
-+	}
- 
-+	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks,
-+					 names, NULL, NULL);
-+	if (err)
-+		goto err_find;
- 	vb->inflate_vq = vqs[0];
- 	vb->deflate_vq = vqs[1];
--	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-+
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_CMD_VQ)) {
-+		vb->cmd_vq = vqs[2];
-+		/* Prime the cmdq with the header buffer. */
-+		cmdq_hdr_add(vb->cmd_vq, &vb->cmdq_stats_hdr, 1);
-+		cmdq_hdr_add(vb->cmd_vq, &vb->cmdq_unused_page_hdr, 1);
-+	} else if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
- 		struct scatterlist sg;
- 		unsigned int num_stats;
- 		vb->stats_vq = vqs[2];
-@@ -520,6 +716,16 @@ static int init_vqs(struct virtio_balloon *vb)
- 			BUG();
- 		virtqueue_kick(vb->stats_vq);
- 	}
-+
-+err_find:
-+	kfree(names);
-+err_names:
-+	kfree(callbacks);
-+err_callback:
-+	kfree(vqs);
-+err_vq:
-+	return err;
-+
- 	return 0;
- }
- 
-@@ -640,7 +846,18 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 		goto out;
- 	}
- 
--	INIT_WORK(&vb->update_balloon_stats_work, update_balloon_stats_func);
-+	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_CMD_VQ)) {
-+		vb->cmdq_stats_hdr.cmd =
-+				cpu_to_le32(VIRTIO_BALLOON_CMDQ_REPORT_STATS);
-+		vb->cmdq_stats_hdr.flags = 0;
-+		vb->cmdq_unused_page_hdr.cmd =
-+			cpu_to_le32(VIRTIO_BALLOON_CMDQ_REPORT_UNUSED_PAGES);
-+		vb->cmdq_unused_page_hdr.flags = 0;
-+		INIT_WORK(&vb->cmdq_handle_work, cmdq_handle_work_func);
-+	} else if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-+		INIT_WORK(&vb->update_balloon_stats_work,
-+			  update_balloon_stats_func);
-+	}
- 	INIT_WORK(&vb->update_balloon_size_work, update_balloon_size_func);
- 	spin_lock_init(&vb->stop_update_lock);
- 	vb->stop_update = false;
-@@ -722,6 +939,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
- 	spin_unlock_irq(&vb->stop_update_lock);
- 	cancel_work_sync(&vb->update_balloon_size_work);
- 	cancel_work_sync(&vb->update_balloon_stats_work);
-+	cancel_work_sync(&vb->cmdq_handle_work);
- 
- 	xb_empty(&vb->page_xb);
- 	remove_common(vb);
-@@ -776,6 +994,7 @@ static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_STATS_VQ,
- 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
- 	VIRTIO_BALLOON_F_SG,
-+	VIRTIO_BALLOON_F_CMD_VQ,
- };
- 
- static struct virtio_driver virtio_balloon_driver = {
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index b9d7e10..793de12 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -52,8 +52,13 @@
- 			"%s:"fmt, (_vq)->vq.name, ##args);	\
- 		(_vq)->broken = true;				\
- 	} while (0)
--#define START_USE(vq)
--#define END_USE(vq)
-+#define START_USE(_vq)						\
-+	do {							\
-+		while ((_vq)->in_use)				\
-+			cpu_relax();				\
-+		(_vq)->in_use = __LINE__;			\
-+	} while (0)
-+#define END_USE(_vq)	((_vq)->in_use = 0)
- #endif
- 
- struct vring_desc_state {
-@@ -101,9 +106,9 @@ struct vring_virtqueue {
- 	size_t queue_size_in_bytes;
- 	dma_addr_t queue_dma_addr;
- 
--#ifdef DEBUG
- 	/* They're supposed to lock for us. */
- 	unsigned int in_use;
-+#ifdef DEBUG
- 
- 	/* Figure out if their kicks are too delayed. */
- 	bool last_add_time_valid;
-@@ -845,6 +850,18 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head,
- 	}
- }
- 
-+void virtqueue_detach_buf(struct virtqueue *_vq, unsigned int head, void **ctx)
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+
-+	START_USE(vq);
-+
-+	detach_buf(vq, head, ctx);
-+
-+	END_USE(vq);
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_detach_buf);
-+
- static inline bool more_used(const struct vring_virtqueue *vq)
- {
- 	return vq->last_used_idx != virtio16_to_cpu(vq->vq.vdev, vq->vring.used->idx);
-@@ -1158,8 +1175,8 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	vq->avail_idx_shadow = 0;
- 	vq->num_added = 0;
- 	list_add_tail(&vq->vq.list, &vdev->vqs);
-+	vq->in_use = 0;
- #ifdef DEBUG
--	vq->in_use = false;
- 	vq->last_add_time_valid = false;
- #endif
- 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 9f27101..9df480b 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -88,6 +88,8 @@ void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len);
- void *virtqueue_get_buf_ctx(struct virtqueue *vq, unsigned int *len,
- 			    void **ctx);
- 
-+void virtqueue_detach_buf(struct virtqueue *_vq, unsigned int head, void **ctx);
-+
- void virtqueue_disable_cb(struct virtqueue *vq);
- 
- bool virtqueue_enable_cb(struct virtqueue *vq);
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index 37780a7..b38c370 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -35,6 +35,7 @@
- #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
- #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
- #define VIRTIO_BALLOON_F_SG		3 /* Use sg instead of PFN lists */
-+#define VIRTIO_BALLOON_F_CMD_VQ		4 /* Command virtqueue */
- 
- /* Size of a PFN in the balloon interface. */
- #define VIRTIO_BALLOON_PFN_SHIFT 12
-@@ -83,4 +84,13 @@ struct virtio_balloon_stat {
- 	__virtio64 val;
- } __attribute__((packed));
- 
-+struct virtio_balloon_cmdq_hdr {
-+#define VIRTIO_BALLOON_CMDQ_REPORT_STATS	0
-+#define VIRTIO_BALLOON_CMDQ_REPORT_UNUSED_PAGES	1
-+	__le32 cmd;
-+/* Flag to indicate the completion of handling a command */
-+#define VIRTIO_BALLOON_CMDQ_F_COMPLETION	1
-+	__le32 flags;
-+};
-+
- #endif /* _LINUX_VIRTIO_BALLOON_H */
--- 
-2.7.4
+Best,
+Wei
