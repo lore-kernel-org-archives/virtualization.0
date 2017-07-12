@@ -1,18 +1,15 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [virtio-dev] Re: [PATCH v11 3/6] virtio-balloon:
-	VIRTIO_BALLOON_F_PAGE_CHUNKS
-Date: Wed, 12 Jul 2017 21:05:38 +0800
-Message-ID: <59661EA2.2040708__4245.46067738465$1499864626$gmane$org@intel.com>
-References: <1497004901-30593-1-git-send-email-wei.w.wang@intel.com>
-	<1497004901-30593-4-git-send-email-wei.w.wang@intel.com>
-	<20170613200049-mutt-send-email-mst@kernel.org>
-	<594240E9.2070705@intel.com>
-	<20170628150450.GA1402@bombadil.infradead.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v12 5/8] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Wed, 12 Jul 2017 16:06:18 +0300
+Message-ID: <20170712160129-mutt-send-email-mst__13961.7928340614$1499864797$gmane$org@kernel.org>
+References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
+	<1499863221-16206-6-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170628150450.GA1402@bombadil.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1499863221-16206-6-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,24 +19,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <willy@infradead.org>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, amit.shah@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, liliang.opensource@gmail.com, dave.hansen@intel.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Matthew,
+On Wed, Jul 12, 2017 at 08:40:18PM +0800, Wei Wang wrote:
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 28b0e96..9f27101 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -57,8 +57,28 @@ int virtqueue_add_sgs(struct virtqueue *vq,
+>  		      void *data,
+>  		      gfp_t gfp);
+>  
+> +/* A desc with this init id is treated as an invalid desc */
+> +#define VIRTQUEUE_DESC_ID_INIT UINT_MAX
+> +int virtqueue_add_chain_desc(struct virtqueue *_vq,
+> +			     uint64_t addr,
+> +			     uint32_t len,
+> +			     unsigned int *head_id,
+> +			     unsigned int *prev_id,
+> +			     bool in);
+> +
+> +int virtqueue_add_chain(struct virtqueue *_vq,
+> +			unsigned int head,
+> +			bool indirect,
+> +			struct vring_desc *indirect_desc,
+> +			void *data,
+> +			void *ctx);
+> +
+>  bool virtqueue_kick(struct virtqueue *vq);
+>  
+> +bool virtqueue_kick_sync(struct virtqueue *vq);
+> +
+> +bool virtqueue_kick_async(struct virtqueue *vq, wait_queue_head_t wq);
+> +
+>  bool virtqueue_kick_prepare(struct virtqueue *vq);
+>  
+>  bool virtqueue_notify(struct virtqueue *vq);
 
-On 06/28/2017 11:04 PM, Matthew Wilcox wrote:
-> On Thu, Jun 15, 2017 at 04:10:17PM +0800, Wei Wang wrote:
->>> So you still have a home-grown bitmap. I'd like to know why
->>> isn't xbitmap suggested for this purpose by Matthew Wilcox
->>> appropriate. Please add a comment explaining the requirements
->>> from the data structure.
->> I didn't find his xbitmap being upstreamed, did you?
-> It doesn't have any users in the tree yet.  Can't add code with new users.
-> You should be the first!
+I don't much care for this API. It does exactly what balloon needs,
+but at cost of e.g. transparently busy-waiting. Unlikely to be
+a good fit for anything else.
 
-Glad to be the first person eating your tomato. Taste good :-)
-Please have a check how it's cooked in the latest v12 patches. Thanks.
+If you don't like my original _first/_next/_last, you will
+need to come up with something else.
 
-Best,
-Wei
+-- 
+MST
