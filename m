@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v4 00/14] improve the fb_setcmap helper
-Date: Thu,  6 Jul 2017 14:20:34 +0200
-Message-ID: <1499343648-29695-1-git-send-email-peda__11725.7873680957$1509078754$gmane$org@axentia.se>
+Subject: [PATCH v5 00/14] improve the fb_setcmap helper
+Date: Thu, 13 Jul 2017 18:25:24 +0200
+Message-ID: <20170713162538.22788-1-peda__2006.7443409518$1509078768$gmane$org@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,7 +16,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: David Airlie <airlied@linux.ie>, nouveau@lists.freedesktop.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, amd-gfx@lists.freedesktop.org, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Russell King <linux@armlinux.org.uk>, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Ben Skeggs <bskeggs@redhat.com>, Dave Airlie <airlied@redhat.com>, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Sean Paul <seanpaul@chromium.org>, Vincent Abriou <vincent.abriou@st.com>, Philippe Cornu <philippe.cornu@st.com>, Peter Rosin <peda@axentia.se>, Yannick Fertre <yannick.fertre@st.com>, Alex Deucher <alexander.deucher@amd.com>, =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Cc: David Airlie <airlied@linux.ie>, nouveau@lists.freedesktop.org, Lionel Landwerlin <lionel.g.landwerlin@intel.com>, virtualization@lists.linux-foundation.org, amd-gfx@lists.freedesktop.org, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Russell King <linux@armlinux.org.uk>, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Ben Skeggs <bskeggs@redhat.com>, Dave Airlie <airlied@redhat.com>, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Sean Paul <seanpaul@chromium.org>, dri-devel@lists.freedesktop.org, Vincent Abriou <vincent.abriou@st.com>, Philippe Cornu <philippe.cornu@st.com>, Peter Rosin <peda@axentia.se>, Yannick Fertre <yannick.fertre@st.com>, Alex Deucher <alexander.deucher@amd.com>, =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Hi!
@@ -34,6 +34,16 @@ possible by the other improvements.
 Please test, I would not be surprised if I have fouled up some
 bit-manipulation somewhere, or if I have misunderstood something
 about atomics...
+
+Changes since v5:
+- Rebased onto fresher drm-misc-next.
+- Instead of just exporting drm_atomic_replace_propery_blob(), move
+  it to drm_propery.c, rename it to drm_property_replace_blob() and
+  change its semantics to return if the blob was replaced.
+- Install the same gamma_lut blob for all crtc, regardless of any
+  variation in the gamma_lut state for the individual crtc prior to
+  the fbdev setcmap call.
+- Add acks from Daniel for patches 4-14.
 
 Changes since v3:
 - Rebased onto drm-misc-next and dropped patches 1-3 from v3, since
@@ -63,7 +73,6 @@ Changes since v2:
   say so.
 
 Changes since v1:
-
 - Rebased to next-20170621
 - Split 1/11 into a preparatory patch, a cleanup patch and then
   the meat in 3/14.
@@ -82,7 +91,7 @@ Cheers,
 peda
 
 Peter Rosin (14):
-  drm/atomic: export drm_atomic_replace_property_blob
+  drm: rename, adjust and export drm_atomic_replace_property_blob
   drm/atomic-helper: update lut props directly in ..._legacy_gamma_set
   drm/fb-helper: separate the fb_setcmap helper into atomic and legacy
     paths
@@ -114,9 +123,10 @@ Peter Rosin (14):
  drivers/gpu/drm/cirrus/cirrus_drv.h         |   8 -
  drivers/gpu/drm/cirrus/cirrus_fbdev.c       |   2 -
  drivers/gpu/drm/cirrus/cirrus_mode.c        |  71 ++-------
- drivers/gpu/drm/drm_atomic.c                |  17 +-
- drivers/gpu/drm/drm_atomic_helper.c         |  23 +--
- drivers/gpu/drm/drm_fb_helper.c             | 232 +++++++++++++++++++---------
+ drivers/gpu/drm/drm_atomic.c                |  30 +---
+ drivers/gpu/drm/drm_atomic_helper.c         |  20 +--
+ drivers/gpu/drm/drm_fb_helper.c             | 231 +++++++++++++++++++---------
+ drivers/gpu/drm/drm_property.c              |  23 +++
  drivers/gpu/drm/gma500/framebuffer.c        |  22 ---
  drivers/gpu/drm/gma500/gma_display.c        |  32 ++--
  drivers/gpu/drm/gma500/psb_intel_display.c  |   7 +-
@@ -138,11 +148,11 @@ Peter Rosin (14):
  drivers/gpu/drm/radeon/radeon_mode.h        |   4 -
  drivers/gpu/drm/stm/ltdc.c                  |  12 --
  drivers/gpu/drm/stm/ltdc.h                  |   1 -
- include/drm/drm_atomic.h                    |   4 +
  include/drm/drm_crtc.h                      |   8 -
  include/drm/drm_fb_helper.h                 |  32 ----
  include/drm/drm_modeset_helper_vtables.h    |  16 --
- 44 files changed, 314 insertions(+), 669 deletions(-)
+ include/drm/drm_property.h                  |   2 +
+ 45 files changed, 323 insertions(+), 690 deletions(-)
 
 -- 
-2.1.4
+2.11.0
