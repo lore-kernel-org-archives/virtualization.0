@@ -1,17 +1,15 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v12 5/8] virtio-balloon: VIRTIO_BALLOON_F_SG
-Date: Thu, 13 Jul 2017 15:42:35 +0800
-Message-ID: <5967246B.9030804__32331.025604117$1499931617$gmane$org@intel.com>
+Subject: Re: [PATCH v12 6/8] mm: support reporting free page blocks
+Date: Thu, 13 Jul 2017 16:25:47 +0800
+Message-ID: <59672E8B.9040108__10389.3084022731$1499934209$gmane$org@intel.com>
 References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
-	<1499863221-16206-6-git-send-email-wei.w.wang@intel.com>
-	<20170712160129-mutt-send-email-mst@kernel.org>
-	<5966241C.9060503@intel.com>
-	<20170712163746-mutt-send-email-mst@kernel.org>
+	<1499863221-16206-7-git-send-email-wei.w.wang@intel.com>
+	<20170713032314-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170712163746-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170713032314-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,78 +23,160 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/12/2017 09:56 PM, Michael S. Tsirkin wrote:
+On 07/13/2017 08:33 AM, Michael S. Tsirkin wrote:
+> On Wed, Jul 12, 2017 at 08:40:19PM +0800, Wei Wang wrote:
+>> This patch adds support for reporting blocks of pages on the free list
+>> specified by the caller.
+>>
+>> As pages can leave the free list during this call or immediately
+>> afterwards, they are not guaranteed to be free after the function
+>> returns. The only guarantee this makes is that the page was on the free
+>> list at some point in time after the function has been invoked.
+>>
+>> Therefore, it is not safe for caller to use any pages on the returned
+>> block or to discard data that is put there after the function returns.
+>> However, it is safe for caller to discard data that was in one of these
+>> pages before the function was invoked.
+>>
+>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+>> Signed-off-by: Liang Li <liang.z.li@intel.com>
+>> ---
+>>   include/linux/mm.h |  5 +++
+>>   mm/page_alloc.c    | 96 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>>   2 files changed, 101 insertions(+)
+>>
+>> diff --git a/include/linux/mm.h b/include/linux/mm.h
+>> index 46b9ac5..76cb433 100644
+>> --- a/include/linux/mm.h
+>> +++ b/include/linux/mm.h
+>> @@ -1835,6 +1835,11 @@ extern void free_area_init_node(int nid, unsigned long * zones_size,
+>>   		unsigned long zone_start_pfn, unsigned long *zholes_size);
+>>   extern void free_initmem(void);
+>>   
+>> +#if IS_ENABLED(CONFIG_VIRTIO_BALLOON)
+>> +extern int report_unused_page_block(struct zone *zone, unsigned int order,
+>> +				    unsigned int migratetype,
+>> +				    struct page **page);
+>> +#endif
+>>   /*
+>>    * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
+>>    * into the buddy system. The freed pages will be poisoned with pattern
+>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+>> index 64b7d82..8b3c9dd 100644
+>> --- a/mm/page_alloc.c
+>> +++ b/mm/page_alloc.c
+>> @@ -4753,6 +4753,102 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
+>>   	show_swap_cache_info();
+>>   }
+>>   
+>> +#if IS_ENABLED(CONFIG_VIRTIO_BALLOON)
+>> +
+>> +/*
+>> + * Heuristically get a page block in the system that is unused.
+>> + * It is possible that pages from the page block are used immediately after
+>> + * report_unused_page_block() returns. It is the caller's responsibility
+>> + * to either detect or prevent the use of such pages.
+>> + *
+>> + * The free list to check: zone->free_area[order].free_list[migratetype].
+>> + *
+>> + * If the caller supplied page block (i.e. **page) is on the free list, offer
+>> + * the next page block on the list to the caller. Otherwise, offer the first
+>> + * page block on the list.
+>> + *
+>> + * Note: it is not safe for caller to use any pages on the returned
+>> + * block or to discard data that is put there after the function returns.
+>> + * However, it is safe for caller to discard data that was in one of these
+>> + * pages before the function was invoked.
+>> + *
+>> + * Return 0 when a page block is found on the caller specified free list.
+> Otherwise?
+
+Other values mean that no page block is found. I will add them.
+
 >
-> So the way I see it, there are several issues:
+>> + */
+> As an alternative, we could have an API that scans free pages
+> and invokes a callback under a lock. Granted, this might end up
+> staying a lot of time under a lock. Is this a big issue?
+> Some benchmarking will tell.
 >
-> - internal wait - forces multiple APIs like kick/kick_sync
->    note how kick_sync can fail but your code never checks return code
-> - need to re-write the last descriptor - might not work
->    for alternative layouts which always expose descriptors
->    immediately
+> It would then be up to the hypervisor to decide whether it wants to play
+> tricks with the dirty bit or just wants to drop pages while VCPU is
+> stopped.
+>
+>
+>> +int report_unused_page_block(struct zone *zone, unsigned int order,
+>> +			     unsigned int migratetype, struct page **page)
+>> +{
+>> +	struct zone *this_zone;
+>> +	struct list_head *this_list;
+>> +	int ret = 0;
+>> +	unsigned long flags;
+>> +
+>> +	/* Sanity check */
+>> +	if (zone == NULL || page == NULL || order >= MAX_ORDER ||
+>> +	    migratetype >= MIGRATE_TYPES)
+>> +		return -EINVAL;
+> Why do callers this?
+>
+>> +
+>> +	/* Zone validity check */
+>> +	for_each_populated_zone(this_zone) {
+>> +		if (zone == this_zone)
+>> +			break;
+>> +	}
+> Why?  Will take a long time if there are lots of zones.
+>
+>> +
+>> +	/* Got a non-existent zone from the caller? */
+>> +	if (zone != this_zone)
+>> +		return -EINVAL;
+> When does this happen?
 
-Probably it wasn't clear. Please let me explain the two functions here:
-
-1) virtqueue_add_chain_desc(vq, head_id, prev_id,..):
-grabs a desc from the vq and inserts it to the chain tail (which is 
-indexed by
-prev_id, probably better to call it tail_id). Then, the new added desc 
-becomes
-the tail (i.e. the last desc). The _F_NEXT flag is cleared for each desc 
-when it's
-added to the chain, and set when another desc comes to follow later.
-
-2) virtqueue_add_chain(vq, head_id,..): expose the chain to the other end.
-
-So, if people want to add a desc and immediately expose it to the other end,
-i.e. build a single desc chain, they can just add and expose:
-
-virtqueue_add_chain_desc(..);
-virtqueue_add_chain(..,head_id);
-
-Would you see any issues here?
-
-
-> - some kind of iterator type would be nicer instead of
->    maintaining head/prev explicitly
-
-Why would we need to iterate the chain? I think it would be simpler to use
-a wrapper struct:
-
-struct virtqueue_desc_chain {
-     unsigned int head;  // head desc id of the chain
-     unsigned int tail;     // tail desc id of the chain
-}
-
-The new desc will be put to desc[tail].next, and we don't need to walk
-from the head desc[head].next when inserting a new desc to the chain, right?
-
+The above lines of code are just sanity check. If not
+necessary, we can remove them.
 
 >
-> As for the use, it would be better to do
+>> +
+>> +	spin_lock_irqsave(&this_zone->lock, flags);
+>> +
+>> +	this_list = &zone->free_area[order].free_list[migratetype];
+>> +	if (list_empty(this_list)) {
+>> +		*page = NULL;
+>> +		ret = 1;
 >
-> if (!add_next(vq, ...)) {
-> 	add_last(vq, ...)
-> 	kick
-> 	wait
-> }
+> What does this mean?
 
-"!add_next(vq, ...)" means that the vq is full? If so, what would 
-add_last() do then?
+Just means the list is empty, and expects the caller to try again
+in the next list.
 
+Probably, use "-EAGAIN" is better?
 
-> Using VIRTQUEUE_DESC_ID_INIT seems to avoid a branch in the driver, but
-> in fact it merely puts the branch in the virtio code.
 >
+>> +		*page = list_first_entry(this_list, struct page, lru);
+>> +		ret = 0;
+>> +		goto out;
+>> +	}
+>> +
+>> +	/*
+>> +	 * The page block passed from the caller is not on this free list
+>> +	 * anymore (e.g. a 1MB free page block has been split). In this case,
+>> +	 * offer the first page block on the free list that the caller is
+>> +	 * asking for.
+> This just might keep giving you same block over and over again.
+> E.g.
+> 	- get 1st block
+> 	- get 2nd block
+> 	- 2nd gets broken up
+> 	- get 1st block again
+>
+> this way we might never make progress beyond the 1st 2 blocks
 
-Actually it wasn't intended to improve performance. It is used to 
-indicate the "init" state
-of the chain. So, when virtqueue_add_chain_desc(, head_id,..) finds head 
-id=INIT, it will
-assign the grabbed desc id to &head_id. In some sense, it is equivalent 
-to add_first().
-
-Do you have a different opinion here?
+Not really. I think the pages are allocated in order. If the 2nd block 
+isn't there, then
+the 1st block must have gone, too. So, the call will return the 3rd one 
+(which is the
+new first) on the list.
 
 Best,
 Wei
