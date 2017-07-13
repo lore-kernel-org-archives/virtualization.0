@@ -1,17 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v12 5/8] virtio-balloon: VIRTIO_BALLOON_F_SG
-Date: Wed, 12 Jul 2017 16:56:00 +0300
-Message-ID: <20170712163746-mutt-send-email-mst__1314.6583726213$1499867776$gmane$org@kernel.org>
+Subject: Re: [PATCH v12 0/8] Virtio-balloon Enhancement
+Date: Thu, 13 Jul 2017 03:14:07 +0300
+Message-ID: <20170713031326-mutt-send-email-mst__5644.37209764055$1499904867$gmane$org@kernel.org>
 References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
-	<1499863221-16206-6-git-send-email-wei.w.wang@intel.com>
-	<20170712160129-mutt-send-email-mst@kernel.org>
-	<5966241C.9060503@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5966241C.9060503@intel.com>
+In-Reply-To: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,89 +22,78 @@ To: Wei Wang <wei.w.wang@intel.com>
 Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 12, 2017 at 09:29:00PM +0800, Wei Wang wrote:
-> On 07/12/2017 09:06 PM, Michael S. Tsirkin wrote:
-> > On Wed, Jul 12, 2017 at 08:40:18PM +0800, Wei Wang wrote:
-> > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > > index 28b0e96..9f27101 100644
-> > > --- a/include/linux/virtio.h
-> > > +++ b/include/linux/virtio.h
-> > > @@ -57,8 +57,28 @@ int virtqueue_add_sgs(struct virtqueue *vq,
-> > >   		      void *data,
-> > >   		      gfp_t gfp);
-> > > +/* A desc with this init id is treated as an invalid desc */
-> > > +#define VIRTQUEUE_DESC_ID_INIT UINT_MAX
-> > > +int virtqueue_add_chain_desc(struct virtqueue *_vq,
-> > > +			     uint64_t addr,
-> > > +			     uint32_t len,
-> > > +			     unsigned int *head_id,
-> > > +			     unsigned int *prev_id,
-> > > +			     bool in);
-> > > +
-> > > +int virtqueue_add_chain(struct virtqueue *_vq,
-> > > +			unsigned int head,
-> > > +			bool indirect,
-> > > +			struct vring_desc *indirect_desc,
-> > > +			void *data,
-> > > +			void *ctx);
-> > > +
-> > >   bool virtqueue_kick(struct virtqueue *vq);
-> > > +bool virtqueue_kick_sync(struct virtqueue *vq);
-> > > +
-> > > +bool virtqueue_kick_async(struct virtqueue *vq, wait_queue_head_t wq);
-> > > +
-> > >   bool virtqueue_kick_prepare(struct virtqueue *vq);
-> > >   bool virtqueue_notify(struct virtqueue *vq);
-> > I don't much care for this API. It does exactly what balloon needs,
-> > but at cost of e.g. transparently busy-waiting. Unlikely to be
-> > a good fit for anything else.
+On Wed, Jul 12, 2017 at 08:40:13PM +0800, Wei Wang wrote:
+> This patch series enhances the existing virtio-balloon with the following new
+> features:
+> 1) fast ballooning: transfer ballooned pages between the guest and host in
+> chunks using sgs, instead of one by one; and
+> 2) cmdq: a new virtqueue to send commands between the device and driver.
+> Currently, it supports commands to report memory stats (replace the old statq
+> mechanism) and report guest unused pages.
+
+Could we get some feedback from mm crowd on patches 6 and 7?
+
+> Change Log:
 > 
-> If you were referring to this API - virtqueue_add_chain_desc():
+> v11->v12:
+> 1) xbitmap: use the xbitmap from Matthew Wilcox to record ballooned pages.
+> 2) virtio-ring: enable the driver to build up a desc chain using vring desc.
+> 3) virtio-ring: Add locking to the existing START_USE() and END_USE() macro
+> to lock/unlock the vq when a vq operation starts/ends.
+> 4) virtio-ring: add virtqueue_kick_sync() and virtqueue_kick_async()
+> 5) virtio-balloon: describe chunks of ballooned pages and free pages blocks
+> directly using one or more chains of desc from the vq.
 > 
-> Busy waiting only happens when the vq is full (i.e. no desc left). If
-> necessary, I think we can add an input parameter like
-> "bool busywaiting", then the caller can decide to simply get a -ENOSPC
-> or busy wait to add when no desc is available.
-
-I think this just shows this API is too high level.
-This policy should live in drivers.
-
-> > 
-> > If you don't like my original _first/_next/_last, you will
-> > need to come up with something else.
+> v10->v11:
+> 1) virtio_balloon: use vring_desc to describe a chunk;
+> 2) virtio_ring: support to add an indirect desc table to virtqueue;
+> 3)  virtio_balloon: use cmdq to report guest memory statistics.
 > 
-> I thought the above virtqueue_add_chain_des() performs the same
-> functionality as _first/next/last, which are used to grab descs from the
-> vq and chain them together. If not, could you please elaborate the
-> usage of the original proposal?
+> v9->v10:
+> 1) mm: put report_unused_page_block() under CONFIG_VIRTIO_BALLOON;
+> 2) virtio-balloon: add virtballoon_validate();
+> 3) virtio-balloon: msg format change;
+> 4) virtio-balloon: move miscq handling to a task on system_freezable_wq;
+> 5) virtio-balloon: code cleanup.
 > 
-> Best,
-> Wei
+> v8->v9:
+> 1) Split the two new features, VIRTIO_BALLOON_F_BALLOON_CHUNKS and
+> VIRTIO_BALLOON_F_MISC_VQ, which were mixed together in the previous
+> implementation;
+> 2) Simpler function to get the free page block.
 > 
-
-So the way I see it, there are several issues:
-
-- internal wait - forces multiple APIs like kick/kick_sync
-  note how kick_sync can fail but your code never checks return code
-- need to re-write the last descriptor - might not work
-  for alternative layouts which always expose descriptors
-  immediately
-- some kind of iterator type would be nicer instead of
-  maintaining head/prev explicitly
-
-
-As for the use, it would be better to do
-
-if (!add_next(vq, ...)) {
-	add_last(vq, ...)
-	kick
-	wait
-}
-
-Using VIRTQUEUE_DESC_ID_INIT seems to avoid a branch in the driver, but
-in fact it merely puts the branch in the virtio code.
-
-
-
--- 
-MST
+> v7->v8:
+> 1) Use only one chunk format, instead of two.
+> 2) re-write the virtio-balloon implementation patch.
+> 3) commit changes
+> 4) patch re-org
+> 
+> Liang Li (1):
+>   virtio-balloon: deflate via a page list
+> 
+> Matthew Wilcox (1):
+>   Introduce xbitmap
+> 
+> Wei Wang (6):
+>   virtio-balloon: coding format cleanup
+>   xbitmap: add xb_find_next_bit() and xb_zero()
+>   virtio-balloon: VIRTIO_BALLOON_F_SG
+>   mm: support reporting free page blocks
+>   mm: export symbol of next_zone and first_online_pgdat
+>   virtio-balloon: VIRTIO_BALLOON_F_CMD_VQ
+> 
+>  drivers/virtio/virtio_balloon.c     | 414 ++++++++++++++++++++++++++++++++----
+>  drivers/virtio/virtio_ring.c        | 224 +++++++++++++++++--
+>  include/linux/mm.h                  |   5 +
+>  include/linux/radix-tree.h          |   2 +
+>  include/linux/virtio.h              |  22 ++
+>  include/linux/xbitmap.h             |  53 +++++
+>  include/uapi/linux/virtio_balloon.h |  11 +
+>  lib/radix-tree.c                    | 164 +++++++++++++-
+>  mm/mmzone.c                         |   2 +
+>  mm/page_alloc.c                     |  96 +++++++++
+>  10 files changed, 926 insertions(+), 67 deletions(-)
+>  create mode 100644 include/linux/xbitmap.h
+> 
+> -- 
+> 2.7.4
