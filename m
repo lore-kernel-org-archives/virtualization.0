@@ -1,17 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v12 8/8] virtio-balloon: VIRTIO_BALLOON_F_CMD_VQ
-Date: Thu, 13 Jul 2017 20:59:09 +0300
-Message-ID: <20170713205247-mutt-send-email-mst__16176.8445083455$1499968774$gmane$org@kernel.org>
+Subject: Re: [PATCH v12 5/8] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Thu, 13 Jul 2017 23:19:22 +0300
+Message-ID: <20170713210819-mutt-send-email-mst__41056.0300494128$1499977180$gmane$org@kernel.org>
 References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
-	<1499863221-16206-9-git-send-email-wei.w.wang@intel.com>
-	<20170713032207-mutt-send-email-mst@kernel.org>
-	<59673365.7080408@intel.com>
+	<1499863221-16206-6-git-send-email-wei.w.wang@intel.com>
+	<20170712160129-mutt-send-email-mst@kernel.org>
+	<5966241C.9060503@intel.com>
+	<20170712163746-mutt-send-email-mst@kernel.org>
+	<5967246B.9030804@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <59673365.7080408@intel.com>
+In-Reply-To: <5967246B.9030804@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,118 +27,103 @@ To: Wei Wang <wei.w.wang@intel.com>
 Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 13, 2017 at 04:46:29PM +0800, Wei Wang wrote:
-> On 07/13/2017 08:22 AM, Michael S. Tsirkin wrote:
-> > On Wed, Jul 12, 2017 at 08:40:21PM +0800, Wei Wang wrote:
-> > > Add a new vq, cmdq, to handle requests between the device and driver.
-> > > 
-> > > This patch implements two commands sent from the device and handled in
-> > > the driver.
-> > > 1) VIRTIO_BALLOON_CMDQ_REPORT_STATS: this command is used to report
-> > > the guest memory statistics to the host. The stats_vq mechanism is not
-> > > used when the cmdq mechanism is enabled.
-> > > 2) VIRTIO_BALLOON_CMDQ_REPORT_UNUSED_PAGES: this command is used to
-> > > report the guest unused pages to the host.
-> > > 
-> > > Since now we have a vq to handle multiple commands, we need to keep only
-> > > one vq operation at a time. Here, we change the existing START_USE()
-> > > and END_USE() to lock on each vq operation.
-> > > 
-> > > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> > > Signed-off-by: Liang Li <liang.z.li@intel.com>
-> > > ---
-> > >   drivers/virtio/virtio_balloon.c     | 245 ++++++++++++++++++++++++++++++++++--
-> > >   drivers/virtio/virtio_ring.c        |  25 +++-
-> > >   include/linux/virtio.h              |   2 +
-> > >   include/uapi/linux/virtio_balloon.h |  10 ++
-> > >   4 files changed, 265 insertions(+), 17 deletions(-)
-> > > 
-> > > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> > > index aa4e7ec..ae91fbf 100644
-> > > --- a/drivers/virtio/virtio_balloon.c
-> > > +++ b/drivers/virtio/virtio_balloon.c
-> > > @@ -54,11 +54,12 @@ static struct vfsmount *balloon_mnt;
-> > >   struct virtio_balloon {
-> > >   	struct virtio_device *vdev;
-> > > -	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
-> > > +	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *cmd_vq;
-> > >   	/* The balloon servicing is delegated to a freezable workqueue. */
-> > >   	struct work_struct update_balloon_stats_work;
-> > >   	struct work_struct update_balloon_size_work;
-> > > +	struct work_struct cmdq_handle_work;
-> > >   	/* Prevent updating balloon when it is being canceled. */
-> > >   	spinlock_t stop_update_lock;
-> > > @@ -90,6 +91,12 @@ struct virtio_balloon {
-> > >   	/* Memory statistics */
-> > >   	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
-> > > +	/* Cmdq msg buffer for memory statistics */
-> > > +	struct virtio_balloon_cmdq_hdr cmdq_stats_hdr;
-> > > +
-> > > +	/* Cmdq msg buffer for reporting ununsed pages */
-
-typo above btw
-
-> > > +	struct virtio_balloon_cmdq_hdr cmdq_unused_page_hdr;
-> > > +
-> > >   	/* To register callback in oom notifier call chain */
-> > >   	struct notifier_block nb;
-> > >   };
-> > > @@ -485,25 +492,214 @@ static void update_balloon_size_func(struct work_struct *work)
-> > >   		queue_work(system_freezable_wq, work);
-> > >   }
-> > > +static unsigned int cmdq_hdr_add(struct virtqueue *vq,
-> > > +				 struct virtio_balloon_cmdq_hdr *hdr,
-> > > +				 bool in)
-> > > +{
-> > > +	unsigned int id = VIRTQUEUE_DESC_ID_INIT;
-> > > +	uint64_t hdr_pa = (uint64_t)virt_to_phys((void *)hdr);
-> > > +
-> > > +	virtqueue_add_chain_desc(vq, hdr_pa, sizeof(*hdr), &id, &id, in);
-> > > +
-> > > +	/* Deliver the hdr for the host to send commands. */
-> > > +	if (in) {
-> > > +		hdr->flags = 0;
-> > > +		virtqueue_add_chain(vq, id, 0, NULL, hdr, NULL);
-> > > +		virtqueue_kick(vq);
-> > > +	}
-> > > +
-> > > +	return id;
-> > > +}
-> > > +
-> > > +static void cmdq_add_chain_desc(struct virtio_balloon *vb,
-> > > +				struct virtio_balloon_cmdq_hdr *hdr,
-> > > +				uint64_t addr,
-> > > +				uint32_t len,
-> > > +				unsigned int *head_id,
-> > > +				unsigned int *prev_id)
-> > > +{
-> > > +retry:
-> > > +	if (*head_id == VIRTQUEUE_DESC_ID_INIT) {
-> > > +		*head_id = cmdq_hdr_add(vb->cmd_vq, hdr, 0);
-> > > +		*prev_id = *head_id;
-> > > +	}
-> > > +
-> > > +	virtqueue_add_chain_desc(vb->cmd_vq, addr, len, head_id, prev_id, 0);
-> > > +	if (*head_id == *prev_id) {
-> > That's an ugly way to detect ring full.
+On Thu, Jul 13, 2017 at 03:42:35PM +0800, Wei Wang wrote:
+> On 07/12/2017 09:56 PM, Michael S. Tsirkin wrote:
+> > 
+> > So the way I see it, there are several issues:
+> > 
+> > - internal wait - forces multiple APIs like kick/kick_sync
+> >    note how kick_sync can fail but your code never checks return code
+> > - need to re-write the last descriptor - might not work
+> >    for alternative layouts which always expose descriptors
+> >    immediately
 > 
-> It's actually not detecting ring full. I will call it tail_id, instead of
-> prev_id.
-> So, *head_id == *tail_id is the case that the first desc was just added by
->  virtqueue_add_chain_desc().
+> Probably it wasn't clear. Please let me explain the two functions here:
+> 
+> 1) virtqueue_add_chain_desc(vq, head_id, prev_id,..):
+> grabs a desc from the vq and inserts it to the chain tail (which is indexed
+> by
+> prev_id, probably better to call it tail_id). Then, the new added desc
+> becomes
+> the tail (i.e. the last desc). The _F_NEXT flag is cleared for each desc
+> when it's
+> added to the chain, and set when another desc comes to follow later.
+
+And this only works if there are multiple rings like
+avail + descriptor ring.
+It won't work e.g. with the proposed new layout where
+writing out a descriptor exposes it immediately.
+
+> 2) virtqueue_add_chain(vq, head_id,..): expose the chain to the other end.
+> 
+> So, if people want to add a desc and immediately expose it to the other end,
+> i.e. build a single desc chain, they can just add and expose:
+> 
+> virtqueue_add_chain_desc(..);
+> virtqueue_add_chain(..,head_id);
+> 
+> Would you see any issues here?
+
+The way the new APIs poll used ring internally.
+
+> 
+> > - some kind of iterator type would be nicer instead of
+> >    maintaining head/prev explicitly
+> 
+> Why would we need to iterate the chain?
+
+In your patches prev/tail are iterators - they keep track of
+where you are in the chain.
+
+> I think it would be simpler to use
+> a wrapper struct:
+> 
+> struct virtqueue_desc_chain {
+>     unsigned int head;  // head desc id of the chain
+>     unsigned int tail;     // tail desc id of the chain
+> }
+> 
+> The new desc will be put to desc[tail].next, and we don't need to walk
+> from the head desc[head].next when inserting a new desc to the chain, right?
+> 
+> 
+> > 
+> > As for the use, it would be better to do
+> > 
+> > if (!add_next(vq, ...)) {
+> > 	add_last(vq, ...)
+> > 	kick
+> > 	wait
+> > }
+> 
+> "!add_next(vq, ...)" means that the vq is full?
+
+
+No - it means there's only 1 entry left for the last descriptor.
+
+
+> If so, what would add_last()
+> do then?
+> 
+> > Using VIRTQUEUE_DESC_ID_INIT seems to avoid a branch in the driver, but
+> > in fact it merely puts the branch in the virtio code.
+> > 
+> 
+> Actually it wasn't intended to improve performance. It is used to indicate
+> the "init" state
+> of the chain. So, when virtqueue_add_chain_desc(, head_id,..) finds head
+> id=INIT, it will
+> assign the grabbed desc id to &head_id. In some sense, it is equivalent to
+> add_first().
+> 
+> Do you have a different opinion here?
 > 
 > Best,
 > Wei
+> 
 
-Oh so it's adding header before each list. Ugh.
-
-I don't think we should stay with this API. It's just too tricky to use.
-
-If we have an API that fails when it can't add descriptors
-(you can reserve space for the last descriptor)
-the balloon knows whether it's the first descriptor in a chain
-and can just use a boolean that tells it whether that is the case.
-
+It is but let's make it explicit here - an API function is better
+than a special value.
 
 -- 
 MST
