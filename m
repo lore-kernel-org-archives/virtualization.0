@@ -1,16 +1,15 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [virtio-dev] Re: [PATCH v12 7/8] mm: export symbol of next_zone
-	and first_online_pgdat
-Date: Thu, 13 Jul 2017 16:41:54 +0800
-Message-ID: <59673252.7090203__2785.57979404486$1499935171$gmane$org@intel.com>
+Subject: Re: [PATCH v12 8/8] virtio-balloon: VIRTIO_BALLOON_F_CMD_VQ
+Date: Thu, 13 Jul 2017 16:46:29 +0800
+Message-ID: <59673365.7080408__28213.5163237855$1499935445$gmane$org@intel.com>
 References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
-	<1499863221-16206-8-git-send-email-wei.w.wang@intel.com>
-	<20170713031526-mutt-send-email-mst@kernel.org>
+	<1499863221-16206-9-git-send-email-wei.w.wang@intel.com>
+	<20170713032207-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170713031526-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170713032207-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,53 +23,106 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/13/2017 08:16 AM, Michael S. Tsirkin wrote:
-> On Wed, Jul 12, 2017 at 08:40:20PM +0800, Wei Wang wrote:
->> This patch enables for_each_zone()/for_each_populated_zone() to be
->> invoked by a kernel module.
-> ... for use by virtio balloon.
-
-With this patch, other kernel modules can also use the for_each_zone().
-Would it be better to claim it broader?
-
->
+On 07/13/2017 08:22 AM, Michael S. Tsirkin wrote:
+> On Wed, Jul 12, 2017 at 08:40:21PM +0800, Wei Wang wrote:
+>> Add a new vq, cmdq, to handle requests between the device and driver.
+>>
+>> This patch implements two commands sent from the device and handled in
+>> the driver.
+>> 1) VIRTIO_BALLOON_CMDQ_REPORT_STATS: this command is used to report
+>> the guest memory statistics to the host. The stats_vq mechanism is not
+>> used when the cmdq mechanism is enabled.
+>> 2) VIRTIO_BALLOON_CMDQ_REPORT_UNUSED_PAGES: this command is used to
+>> report the guest unused pages to the host.
+>>
+>> Since now we have a vq to handle multiple commands, we need to keep only
+>> one vq operation at a time. Here, we change the existing START_USE()
+>> and END_USE() to lock on each vq operation.
+>>
 >> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> balloon seems to only use
-> +       for_each_populated_zone(zone)
-> +               for_each_migratetype_order(order, type)
->
+>> Signed-off-by: Liang Li <liang.z.li@intel.com>
+>> ---
+>>   drivers/virtio/virtio_balloon.c     | 245 ++++++++++++++++++++++++++++++++++--
+>>   drivers/virtio/virtio_ring.c        |  25 +++-
+>>   include/linux/virtio.h              |   2 +
+>>   include/uapi/linux/virtio_balloon.h |  10 ++
+>>   4 files changed, 265 insertions(+), 17 deletions(-)
+>>
+>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+>> index aa4e7ec..ae91fbf 100644
+>> --- a/drivers/virtio/virtio_balloon.c
+>> +++ b/drivers/virtio/virtio_balloon.c
+>> @@ -54,11 +54,12 @@ static struct vfsmount *balloon_mnt;
+>>   
+>>   struct virtio_balloon {
+>>   	struct virtio_device *vdev;
+>> -	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
+>> +	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *cmd_vq;
+>>   
+>>   	/* The balloon servicing is delegated to a freezable workqueue. */
+>>   	struct work_struct update_balloon_stats_work;
+>>   	struct work_struct update_balloon_size_work;
+>> +	struct work_struct cmdq_handle_work;
+>>   
+>>   	/* Prevent updating balloon when it is being canceled. */
+>>   	spinlock_t stop_update_lock;
+>> @@ -90,6 +91,12 @@ struct virtio_balloon {
+>>   	/* Memory statistics */
+>>   	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
+>>   
+>> +	/* Cmdq msg buffer for memory statistics */
+>> +	struct virtio_balloon_cmdq_hdr cmdq_stats_hdr;
+>> +
+>> +	/* Cmdq msg buffer for reporting ununsed pages */
+>> +	struct virtio_balloon_cmdq_hdr cmdq_unused_page_hdr;
+>> +
+>>   	/* To register callback in oom notifier call chain */
+>>   	struct notifier_block nb;
+>>   };
+>> @@ -485,25 +492,214 @@ static void update_balloon_size_func(struct work_struct *work)
+>>   		queue_work(system_freezable_wq, work);
+>>   }
+>>   
+>> +static unsigned int cmdq_hdr_add(struct virtqueue *vq,
+>> +				 struct virtio_balloon_cmdq_hdr *hdr,
+>> +				 bool in)
+>> +{
+>> +	unsigned int id = VIRTQUEUE_DESC_ID_INIT;
+>> +	uint64_t hdr_pa = (uint64_t)virt_to_phys((void *)hdr);
+>> +
+>> +	virtqueue_add_chain_desc(vq, hdr_pa, sizeof(*hdr), &id, &id, in);
+>> +
+>> +	/* Deliver the hdr for the host to send commands. */
+>> +	if (in) {
+>> +		hdr->flags = 0;
+>> +		virtqueue_add_chain(vq, id, 0, NULL, hdr, NULL);
+>> +		virtqueue_kick(vq);
+>> +	}
+>> +
+>> +	return id;
+>> +}
+>> +
+>> +static void cmdq_add_chain_desc(struct virtio_balloon *vb,
+>> +				struct virtio_balloon_cmdq_hdr *hdr,
+>> +				uint64_t addr,
+>> +				uint32_t len,
+>> +				unsigned int *head_id,
+>> +				unsigned int *prev_id)
+>> +{
+>> +retry:
+>> +	if (*head_id == VIRTQUEUE_DESC_ID_INIT) {
+>> +		*head_id = cmdq_hdr_add(vb->cmd_vq, hdr, 0);
+>> +		*prev_id = *head_id;
+>> +	}
+>> +
+>> +	virtqueue_add_chain_desc(vb->cmd_vq, addr, len, head_id, prev_id, 0);
+>> +	if (*head_id == *prev_id) {
+> That's an ugly way to detect ring full.
 
-Yes. using for_each_populated_zone() requires the following export.
+It's actually not detecting ring full. I will call it tail_id, instead 
+of prev_id.
+So, *head_id == *tail_id is the case that the first desc was just added by
+  virtqueue_add_chain_desc().
 
 Best,
 Wei
->> ---
->>   mm/mmzone.c | 2 ++
->>   1 file changed, 2 insertions(+)
->>
->> diff --git a/mm/mmzone.c b/mm/mmzone.c
->> index a51c0a6..08a2a3a 100644
->> --- a/mm/mmzone.c
->> +++ b/mm/mmzone.c
->> @@ -13,6 +13,7 @@ struct pglist_data *first_online_pgdat(void)
->>   {
->>   	return NODE_DATA(first_online_node);
->>   }
->> +EXPORT_SYMBOL_GPL(first_online_pgdat);
->>   
->>   struct pglist_data *next_online_pgdat(struct pglist_data *pgdat)
->>   {
->> @@ -41,6 +42,7 @@ struct zone *next_zone(struct zone *zone)
->>   	}
->>   	return zone;
->>   }
->> +EXPORT_SYMBOL_GPL(next_zone);
->>   
->>   static inline int zref_in_nodemask(struct zoneref *zref, nodemask_t *nodes)
->>   {
->> -- 
->> 2.7.4
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
->
