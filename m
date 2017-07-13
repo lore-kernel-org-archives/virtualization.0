@@ -1,15 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v12 8/8] virtio-balloon: VIRTIO_BALLOON_F_CMD_VQ
-Date: Thu, 13 Jul 2017 03:22:50 +0300
-Message-ID: <20170713032207-mutt-send-email-mst__30289.8099915639$1499905389$gmane$org@kernel.org>
+Subject: Re: [PATCH v12 6/8] mm: support reporting free page blocks
+Date: Thu, 13 Jul 2017 03:33:13 +0300
+Message-ID: <20170713032314-mutt-send-email-mst__21995.7963134677$1499906011$gmane$org@kernel.org>
 References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
-	<1499863221-16206-9-git-send-email-wei.w.wang@intel.com>
+	<1499863221-16206-7-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1499863221-16206-9-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <1499863221-16206-7-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,441 +23,190 @@ To: Wei Wang <wei.w.wang@intel.com>
 Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 12, 2017 at 08:40:21PM +0800, Wei Wang wrote:
-> Add a new vq, cmdq, to handle requests between the device and driver.
+On Wed, Jul 12, 2017 at 08:40:19PM +0800, Wei Wang wrote:
+> This patch adds support for reporting blocks of pages on the free list
+> specified by the caller.
 > 
-> This patch implements two commands sent from the device and handled in
-> the driver.
-> 1) VIRTIO_BALLOON_CMDQ_REPORT_STATS: this command is used to report
-> the guest memory statistics to the host. The stats_vq mechanism is not
-> used when the cmdq mechanism is enabled.
-> 2) VIRTIO_BALLOON_CMDQ_REPORT_UNUSED_PAGES: this command is used to
-> report the guest unused pages to the host.
+> As pages can leave the free list during this call or immediately
+> afterwards, they are not guaranteed to be free after the function
+> returns. The only guarantee this makes is that the page was on the free
+> list at some point in time after the function has been invoked.
 > 
-> Since now we have a vq to handle multiple commands, we need to keep only
-> one vq operation at a time. Here, we change the existing START_USE()
-> and END_USE() to lock on each vq operation.
+> Therefore, it is not safe for caller to use any pages on the returned
+> block or to discard data that is put there after the function returns.
+> However, it is safe for caller to discard data that was in one of these
+> pages before the function was invoked.
 > 
 > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
 > Signed-off-by: Liang Li <liang.z.li@intel.com>
 > ---
->  drivers/virtio/virtio_balloon.c     | 245 ++++++++++++++++++++++++++++++++++--
->  drivers/virtio/virtio_ring.c        |  25 +++-
->  include/linux/virtio.h              |   2 +
->  include/uapi/linux/virtio_balloon.h |  10 ++
->  4 files changed, 265 insertions(+), 17 deletions(-)
+>  include/linux/mm.h |  5 +++
+>  mm/page_alloc.c    | 96 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 101 insertions(+)
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index aa4e7ec..ae91fbf 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -54,11 +54,12 @@ static struct vfsmount *balloon_mnt;
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index 46b9ac5..76cb433 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -1835,6 +1835,11 @@ extern void free_area_init_node(int nid, unsigned long * zones_size,
+>  		unsigned long zone_start_pfn, unsigned long *zholes_size);
+>  extern void free_initmem(void);
 >  
->  struct virtio_balloon {
->  	struct virtio_device *vdev;
-> -	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
-> +	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *cmd_vq;
->  
->  	/* The balloon servicing is delegated to a freezable workqueue. */
->  	struct work_struct update_balloon_stats_work;
->  	struct work_struct update_balloon_size_work;
-> +	struct work_struct cmdq_handle_work;
->  
->  	/* Prevent updating balloon when it is being canceled. */
->  	spinlock_t stop_update_lock;
-> @@ -90,6 +91,12 @@ struct virtio_balloon {
->  	/* Memory statistics */
->  	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
->  
-> +	/* Cmdq msg buffer for memory statistics */
-> +	struct virtio_balloon_cmdq_hdr cmdq_stats_hdr;
-> +
-> +	/* Cmdq msg buffer for reporting ununsed pages */
-> +	struct virtio_balloon_cmdq_hdr cmdq_unused_page_hdr;
-> +
->  	/* To register callback in oom notifier call chain */
->  	struct notifier_block nb;
->  };
-> @@ -485,25 +492,214 @@ static void update_balloon_size_func(struct work_struct *work)
->  		queue_work(system_freezable_wq, work);
+> +#if IS_ENABLED(CONFIG_VIRTIO_BALLOON)
+> +extern int report_unused_page_block(struct zone *zone, unsigned int order,
+> +				    unsigned int migratetype,
+> +				    struct page **page);
+> +#endif
+>  /*
+>   * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
+>   * into the buddy system. The freed pages will be poisoned with pattern
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 64b7d82..8b3c9dd 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -4753,6 +4753,102 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
+>  	show_swap_cache_info();
 >  }
 >  
-> +static unsigned int cmdq_hdr_add(struct virtqueue *vq,
-> +				 struct virtio_balloon_cmdq_hdr *hdr,
-> +				 bool in)
-> +{
-> +	unsigned int id = VIRTQUEUE_DESC_ID_INIT;
-> +	uint64_t hdr_pa = (uint64_t)virt_to_phys((void *)hdr);
+> +#if IS_ENABLED(CONFIG_VIRTIO_BALLOON)
 > +
-> +	virtqueue_add_chain_desc(vq, hdr_pa, sizeof(*hdr), &id, &id, in);
-> +
-> +	/* Deliver the hdr for the host to send commands. */
-> +	if (in) {
-> +		hdr->flags = 0;
-> +		virtqueue_add_chain(vq, id, 0, NULL, hdr, NULL);
-> +		virtqueue_kick(vq);
-> +	}
-> +
-> +	return id;
-> +}
-> +
-> +static void cmdq_add_chain_desc(struct virtio_balloon *vb,
-> +				struct virtio_balloon_cmdq_hdr *hdr,
-> +				uint64_t addr,
-> +				uint32_t len,
-> +				unsigned int *head_id,
-> +				unsigned int *prev_id)
-> +{
-> +retry:
-> +	if (*head_id == VIRTQUEUE_DESC_ID_INIT) {
-> +		*head_id = cmdq_hdr_add(vb->cmd_vq, hdr, 0);
-> +		*prev_id = *head_id;
-> +	}
-> +
-> +	virtqueue_add_chain_desc(vb->cmd_vq, addr, len, head_id, prev_id, 0);
-> +	if (*head_id == *prev_id) {
+> +/*
+> + * Heuristically get a page block in the system that is unused.
+> + * It is possible that pages from the page block are used immediately after
+> + * report_unused_page_block() returns. It is the caller's responsibility
+> + * to either detect or prevent the use of such pages.
+> + *
+> + * The free list to check: zone->free_area[order].free_list[migratetype].
+> + *
+> + * If the caller supplied page block (i.e. **page) is on the free list, offer
+> + * the next page block on the list to the caller. Otherwise, offer the first
+> + * page block on the list.
+> + *
+> + * Note: it is not safe for caller to use any pages on the returned
+> + * block or to discard data that is put there after the function returns.
+> + * However, it is safe for caller to discard data that was in one of these
+> + * pages before the function was invoked.
+> + *
+> + * Return 0 when a page block is found on the caller specified free list.
 
-That's an ugly way to detect ring full.
+Otherwise?
 
-> +		/*
-> +		 * The VQ was full and kicked to release some descs. Now we
-> +		 * will re-start to build the chain by using the hdr as the
-> +		 * first desc, so we need to detach the desc that was just
-> +		 * added, and re-start to add the hdr.
-> +		 */
-> +		virtqueue_detach_buf(vb->cmd_vq, *head_id, NULL);
-> +		*head_id = VIRTQUEUE_DESC_ID_INIT;
-> +		*prev_id = VIRTQUEUE_DESC_ID_INIT;
-> +		goto retry;
-> +	}
-> +}
-> +
-> +static void cmdq_handle_stats(struct virtio_balloon *vb)
+> + */
+
+As an alternative, we could have an API that scans free pages
+and invokes a callback under a lock. Granted, this might end up
+staying a lot of time under a lock. Is this a big issue?
+Some benchmarking will tell.
+
+It would then be up to the hypervisor to decide whether it wants to play
+tricks with the dirty bit or just wants to drop pages while VCPU is
+stopped.
+
+
+> +int report_unused_page_block(struct zone *zone, unsigned int order,
+> +			     unsigned int migratetype, struct page **page)
 > +{
-> +	unsigned int num_stats,
-> +		     head_id = VIRTQUEUE_DESC_ID_INIT,
-> +		     prev_id = VIRTQUEUE_DESC_ID_INIT;
-> +	uint64_t addr = (uint64_t)virt_to_phys((void *)vb->stats);
-> +	uint32_t len;
+> +	struct zone *this_zone;
+> +	struct list_head *this_list;
+> +	int ret = 0;
+> +	unsigned long flags;
 > +
-> +	spin_lock(&vb->stop_update_lock);
-> +	if (!vb->stop_update) {
-> +		num_stats = update_balloon_stats(vb);
-> +		len = sizeof(struct virtio_balloon_stat) * num_stats;
-> +		cmdq_add_chain_desc(vb, &vb->cmdq_stats_hdr, addr, len,
-> +				    &head_id, &prev_id);
-> +		virtqueue_add_chain(vb->cmd_vq, head_id, 0, NULL, vb, NULL);
-> +		virtqueue_kick_sync(vb->cmd_vq);
-> +	}
-> +	spin_unlock(&vb->stop_update_lock);
-> +}
+> +	/* Sanity check */
+> +	if (zone == NULL || page == NULL || order >= MAX_ORDER ||
+> +	    migratetype >= MIGRATE_TYPES)
+> +		return -EINVAL;
+
+Why do callers this?
+
 > +
-> +static void cmdq_add_unused_page(struct virtio_balloon *vb,
-> +				 struct zone *zone,
-> +				 unsigned int order,
-> +				 unsigned int type,
-> +				 struct page *page,
-> +				 unsigned int *head_id,
-> +				 unsigned int *prev_id)
-> +{
-> +	uint64_t addr;
-> +	uint32_t len;
-> +
-> +	while (!report_unused_page_block(zone, order, type, &page)) {
-> +		addr = (u64)page_to_pfn(page) << VIRTIO_BALLOON_PFN_SHIFT;
-> +		len = (u64)(1 << order) << VIRTIO_BALLOON_PFN_SHIFT;
-> +		cmdq_add_chain_desc(vb, &vb->cmdq_unused_page_hdr, addr, len,
-> +				    head_id, prev_id);
-> +	}
-> +}
-> +
-> +static void cmdq_handle_unused_pages(struct virtio_balloon *vb)
-> +{
-> +	struct virtqueue *vq = vb->cmd_vq;
-> +	unsigned int order = 0, type = 0,
-> +		     head_id = VIRTQUEUE_DESC_ID_INIT,
-> +		     prev_id = VIRTQUEUE_DESC_ID_INIT;
-> +	struct zone *zone = NULL;
-> +	struct page *page = NULL;
-> +
-> +	for_each_populated_zone(zone)
-> +		for_each_migratetype_order(order, type)
-> +			cmdq_add_unused_page(vb, zone, order, type, page,
-> +					     &head_id, &prev_id);
-> +
-> +	/* Set the cmd completion flag. */
-> +	vb->cmdq_unused_page_hdr.flags |=
-> +				cpu_to_le32(VIRTIO_BALLOON_CMDQ_F_COMPLETION);
-> +	virtqueue_add_chain(vq, head_id, 0, NULL, vb, NULL);
-> +	virtqueue_kick_sync(vb->cmd_vq);
-> +}
-> +
-> +static void cmdq_handle(struct virtio_balloon *vb)
-> +{
-> +	struct virtio_balloon_cmdq_hdr *hdr;
-> +	unsigned int len;
-> +
-> +	while ((hdr = (struct virtio_balloon_cmdq_hdr *)
-> +			virtqueue_get_buf(vb->cmd_vq, &len)) != NULL) {
-> +		switch (__le32_to_cpu(hdr->cmd)) {
-> +		case VIRTIO_BALLOON_CMDQ_REPORT_STATS:
-> +			cmdq_handle_stats(vb);
+> +	/* Zone validity check */
+> +	for_each_populated_zone(this_zone) {
+> +		if (zone == this_zone)
 > +			break;
-> +		case VIRTIO_BALLOON_CMDQ_REPORT_UNUSED_PAGES:
-> +			cmdq_handle_unused_pages(vb);
-> +			break;
-> +		default:
-> +			dev_warn(&vb->vdev->dev, "%s: wrong cmd\n", __func__);
-> +			return;
-> +		}
-> +		/*
-> +		 * Replenish all the command buffer to the device after a
-> +		 * command is handled. This is for the convenience of the
-> +		 * device to rewind the cmdq to get back all the command
-> +		 * buffer after live migration.
-> +		 */
-> +		cmdq_hdr_add(vb->cmd_vq, &vb->cmdq_stats_hdr, 1);
-> +		cmdq_hdr_add(vb->cmd_vq, &vb->cmdq_unused_page_hdr, 1);
 > +	}
+
+Why?  Will take a long time if there are lots of zones.
+
+> +
+> +	/* Got a non-existent zone from the caller? */
+> +	if (zone != this_zone)
+> +		return -EINVAL;
+
+When does this happen?
+
+> +
+> +	spin_lock_irqsave(&this_zone->lock, flags);
+> +
+> +	this_list = &zone->free_area[order].free_list[migratetype];
+> +	if (list_empty(this_list)) {
+> +		*page = NULL;
+> +		ret = 1;
+
+
+What does this mean?
+
+> +		goto out;
+> +	}
+> +
+> +	/* The caller is asking for the first free page block on the list */
+> +	if ((*page) == NULL) {
+
+if (!*page) is shorter and prettier.
+
+> +		*page = list_first_entry(this_list, struct page, lru);
+> +		ret = 0;
+> +		goto out;
+> +	}
+> +
+> +	/*
+> +	 * The page block passed from the caller is not on this free list
+> +	 * anymore (e.g. a 1MB free page block has been split). In this case,
+> +	 * offer the first page block on the free list that the caller is
+> +	 * asking for.
+
+This just might keep giving you same block over and over again.
+E.g.
+	- get 1st block
+	- get 2nd block
+	- 2nd gets broken up
+	- get 1st block again
+
+this way we might never make progress beyond the 1st 2 blocks
+
+
+> +	 */
+> +	if (PageBuddy(*page) && order != page_order(*page)) {
+> +		*page = list_first_entry(this_list, struct page, lru);
+> +		ret = 0;
+> +		goto out;
+> +	}
+> +
+> +	/*
+> +	 * The page block passed from the caller has been the last page block
+> +	 * on the list.
+> +	 */
+> +	if ((*page)->lru.next == this_list) {
+> +		*page = NULL;
+> +		ret = 1;
+> +		goto out;
+> +	}
+> +
+> +	/*
+> +	 * Finally, fall into the regular case: the page block passed from the
+> +	 * caller is still on the free list. Offer the next one.
+> +	 */
+> +	*page = list_next_entry((*page), lru);
+> +	ret = 0;
+> +out:
+> +	spin_unlock_irqrestore(&this_zone->lock, flags);
+> +	return ret;
 > +}
+> +EXPORT_SYMBOL(report_unused_page_block);
 > +
-> +static void cmdq_handle_work_func(struct work_struct *work)
-> +{
-> +	struct virtio_balloon *vb;
+> +#endif
 > +
-> +	vb = container_of(work, struct virtio_balloon,
-> +			  cmdq_handle_work);
-> +	cmdq_handle(vb);
-> +}
-> +
-> +static void cmdq_callback(struct virtqueue *vq)
-> +{
-> +	struct virtio_balloon *vb = vq->vdev->priv;
-> +
-> +	queue_work(system_freezable_wq, &vb->cmdq_handle_work);
-> +}
-> +
->  static int init_vqs(struct virtio_balloon *vb)
+>  static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
 >  {
-> -	struct virtqueue *vqs[3];
-> -	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
-> -	static const char * const names[] = { "inflate", "deflate", "stats" };
-> -	int err, nvqs;
-> +	struct virtqueue **vqs;
-> +	vq_callback_t **callbacks;
-> +	const char **names;
-> +	int err = -ENOMEM;
-> +	int nvqs;
-> +
-> +	/* Inflateq and deflateq are used unconditionally */
-> +	nvqs = 2;
-> +
-> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_CMD_VQ) ||
-> +	    virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ))
-> +		nvqs++;
-> +
-> +	/* Allocate space for find_vqs parameters */
-> +	vqs = kcalloc(nvqs, sizeof(*vqs), GFP_KERNEL);
-> +	if (!vqs)
-> +		goto err_vq;
-> +	callbacks = kmalloc_array(nvqs, sizeof(*callbacks), GFP_KERNEL);
-> +	if (!callbacks)
-> +		goto err_callback;
-> +	names = kmalloc_array(nvqs, sizeof(*names), GFP_KERNEL);
-> +	if (!names)
-> +		goto err_names;
-> +
-> +	callbacks[0] = balloon_ack;
-> +	names[0] = "inflate";
-> +	callbacks[1] = balloon_ack;
-> +	names[1] = "deflate";
->  
->  	/*
-> -	 * We expect two virtqueues: inflate and deflate, and
-> -	 * optionally stat.
-> +	 * The stats_vq is used only when cmdq is not supported (or disabled)
-> +	 * by the device.
->  	 */
-> -	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
-> -	err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
-> -	if (err)
-> -		return err;
-> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_CMD_VQ)) {
-> +		callbacks[2] = cmdq_callback;
-> +		names[2] = "cmdq";
-> +	} else if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-> +		callbacks[2] = stats_request;
-> +		names[2] = "stats";
-> +	}
->  
-> +	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks,
-> +					 names, NULL, NULL);
-> +	if (err)
-> +		goto err_find;
->  	vb->inflate_vq = vqs[0];
->  	vb->deflate_vq = vqs[1];
-> -	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-> +
-> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_CMD_VQ)) {
-> +		vb->cmd_vq = vqs[2];
-> +		/* Prime the cmdq with the header buffer. */
-> +		cmdq_hdr_add(vb->cmd_vq, &vb->cmdq_stats_hdr, 1);
-> +		cmdq_hdr_add(vb->cmd_vq, &vb->cmdq_unused_page_hdr, 1);
-> +	} else if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
->  		struct scatterlist sg;
->  		unsigned int num_stats;
->  		vb->stats_vq = vqs[2];
-> @@ -520,6 +716,16 @@ static int init_vqs(struct virtio_balloon *vb)
->  			BUG();
->  		virtqueue_kick(vb->stats_vq);
->  	}
-> +
-> +err_find:
-> +	kfree(names);
-> +err_names:
-> +	kfree(callbacks);
-> +err_callback:
-> +	kfree(vqs);
-> +err_vq:
-> +	return err;
-> +
->  	return 0;
->  }
->  
-> @@ -640,7 +846,18 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  		goto out;
->  	}
->  
-> -	INIT_WORK(&vb->update_balloon_stats_work, update_balloon_stats_func);
-> +	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_CMD_VQ)) {
-> +		vb->cmdq_stats_hdr.cmd =
-> +				cpu_to_le32(VIRTIO_BALLOON_CMDQ_REPORT_STATS);
-> +		vb->cmdq_stats_hdr.flags = 0;
-> +		vb->cmdq_unused_page_hdr.cmd =
-> +			cpu_to_le32(VIRTIO_BALLOON_CMDQ_REPORT_UNUSED_PAGES);
-> +		vb->cmdq_unused_page_hdr.flags = 0;
-> +		INIT_WORK(&vb->cmdq_handle_work, cmdq_handle_work_func);
-> +	} else if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-> +		INIT_WORK(&vb->update_balloon_stats_work,
-> +			  update_balloon_stats_func);
-> +	}
->  	INIT_WORK(&vb->update_balloon_size_work, update_balloon_size_func);
->  	spin_lock_init(&vb->stop_update_lock);
->  	vb->stop_update = false;
-> @@ -722,6 +939,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
->  	spin_unlock_irq(&vb->stop_update_lock);
->  	cancel_work_sync(&vb->update_balloon_size_work);
->  	cancel_work_sync(&vb->update_balloon_stats_work);
-> +	cancel_work_sync(&vb->cmdq_handle_work);
->  
->  	xb_empty(&vb->page_xb);
->  	remove_common(vb);
-> @@ -776,6 +994,7 @@ static unsigned int features[] = {
->  	VIRTIO_BALLOON_F_STATS_VQ,
->  	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
->  	VIRTIO_BALLOON_F_SG,
-> +	VIRTIO_BALLOON_F_CMD_VQ,
->  };
->  
->  static struct virtio_driver virtio_balloon_driver = {
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index b9d7e10..793de12 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -52,8 +52,13 @@
->  			"%s:"fmt, (_vq)->vq.name, ##args);	\
->  		(_vq)->broken = true;				\
->  	} while (0)
-> -#define START_USE(vq)
-> -#define END_USE(vq)
-> +#define START_USE(_vq)						\
-> +	do {							\
-> +		while ((_vq)->in_use)				\
-> +			cpu_relax();				\
-> +		(_vq)->in_use = __LINE__;			\
-> +	} while (0)
-> +#define END_USE(_vq)	((_vq)->in_use = 0)
->  #endif
->  
->  struct vring_desc_state {
-> @@ -101,9 +106,9 @@ struct vring_virtqueue {
->  	size_t queue_size_in_bytes;
->  	dma_addr_t queue_dma_addr;
->  
-> -#ifdef DEBUG
->  	/* They're supposed to lock for us. */
->  	unsigned int in_use;
-> +#ifdef DEBUG
->  
->  	/* Figure out if their kicks are too delayed. */
->  	bool last_add_time_valid;
-> @@ -845,6 +850,18 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head,
->  	}
->  }
->  
-> +void virtqueue_detach_buf(struct virtqueue *_vq, unsigned int head, void **ctx)
-> +{
-> +	struct vring_virtqueue *vq = to_vvq(_vq);
-> +
-> +	START_USE(vq);
-> +
-> +	detach_buf(vq, head, ctx);
-> +
-> +	END_USE(vq);
-> +}
-> +EXPORT_SYMBOL_GPL(virtqueue_detach_buf);
-> +
->  static inline bool more_used(const struct vring_virtqueue *vq)
->  {
->  	return vq->last_used_idx != virtio16_to_cpu(vq->vq.vdev, vq->vring.used->idx);
-> @@ -1158,8 +1175,8 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
->  	vq->avail_idx_shadow = 0;
->  	vq->num_added = 0;
->  	list_add_tail(&vq->vq.list, &vdev->vqs);
-> +	vq->in_use = 0;
->  #ifdef DEBUG
-> -	vq->in_use = false;
->  	vq->last_add_time_valid = false;
->  #endif
->  
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index 9f27101..9df480b 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -88,6 +88,8 @@ void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len);
->  void *virtqueue_get_buf_ctx(struct virtqueue *vq, unsigned int *len,
->  			    void **ctx);
->  
-> +void virtqueue_detach_buf(struct virtqueue *_vq, unsigned int head, void **ctx);
-> +
->  void virtqueue_disable_cb(struct virtqueue *vq);
->  
->  bool virtqueue_enable_cb(struct virtqueue *vq);
-> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> index 37780a7..b38c370 100644
-> --- a/include/uapi/linux/virtio_balloon.h
-> +++ b/include/uapi/linux/virtio_balloon.h
-> @@ -35,6 +35,7 @@
->  #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
->  #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
->  #define VIRTIO_BALLOON_F_SG		3 /* Use sg instead of PFN lists */
-> +#define VIRTIO_BALLOON_F_CMD_VQ		4 /* Command virtqueue */
->  
->  /* Size of a PFN in the balloon interface. */
->  #define VIRTIO_BALLOON_PFN_SHIFT 12
-> @@ -83,4 +84,13 @@ struct virtio_balloon_stat {
->  	__virtio64 val;
->  } __attribute__((packed));
->  
-> +struct virtio_balloon_cmdq_hdr {
-> +#define VIRTIO_BALLOON_CMDQ_REPORT_STATS	0
-> +#define VIRTIO_BALLOON_CMDQ_REPORT_UNUSED_PAGES	1
-> +	__le32 cmd;
-> +/* Flag to indicate the completion of handling a command */
-> +#define VIRTIO_BALLOON_CMDQ_F_COMPLETION	1
-> +	__le32 flags;
-> +};
-> +
->  #endif /* _LINUX_VIRTIO_BALLOON_H */
+>  	zoneref->zone = zone;
 > -- 
 > 2.7.4
