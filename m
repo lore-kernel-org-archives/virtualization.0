@@ -1,11 +1,13 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 0/5] refine virtio-net XDP
-Date: Mon, 17 Jul 2017 20:43:56 +0800
-Message-ID: <1500295441-19339-1-git-send-email-jasowang__18685.6556254954$1500295459$gmane$org@redhat.com>
+Subject: [PATCH net-next 1/5] virtio_ring: allow to store zero as the ctx
+Date: Mon, 17 Jul 2017 20:43:57 +0800
+Message-ID: <1500295441-19339-2-git-send-email-jasowang__41282.2632388726$1500295464$gmane$org@redhat.com>
+References: <1500295441-19339-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1500295441-19339-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +20,27 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi:
+Allow zero to be store as a ctx, with this we could store e.g zero
+value which could be meaningful for the case of storing headroom
+through ctx.
 
-This series brings two optimizations for virtio-net XDP:
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/virtio/virtio_ring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-- avoid reset during XDP set
-- turn off offloads on demand
-
-Please review.
-
-Thanks
-
-Jason Wang (5):
-  virtio_ring: allow to store zero as the ctx
-  virtio-net: pack headroom into ctx for mergeable buffer
-  virtio-net: switch to use new ctx API for small buffer
-  virtio-net: do not reset during XDP set
-  virtio-net: switch off offloads on demand if possible on XDP set
-
- drivers/net/virtio_net.c     | 325 +++++++++++++++++++++++++------------------
- drivers/virtio/virtio_ring.c |   2 +-
- 2 files changed, 194 insertions(+), 133 deletions(-)
-
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 5e1b548..9aaa177 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -391,7 +391,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 	vq->desc_state[head].data = data;
+ 	if (indirect)
+ 		vq->desc_state[head].indir_desc = desc;
+-	if (ctx)
++	else
+ 		vq->desc_state[head].indir_desc = ctx;
+ 
+ 	/* Put entry in available array (but don't update avail->idx until they
 -- 
 2.7.4
