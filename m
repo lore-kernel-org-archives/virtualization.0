@@ -1,14 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 5/5] virtio-net: switch off offloads on demand if
-	possible on XDP set
-Date: Mon, 17 Jul 2017 20:44:01 +0800
-Message-ID: <1500295441-19339-6-git-send-email-jasowang__13821.5966792361$1500295511$gmane$org@redhat.com>
-References: <1500295441-19339-1-git-send-email-jasowang@redhat.com>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH v12 6/8] mm: support reporting free page blocks
+Date: Mon, 17 Jul 2017 17:24:48 +0200
+Message-ID: <20170717152448.GN12888__12327.3381883793$1500305104$gmane$org@dhcp22.suse.cz>
+References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
+	<1499863221-16206-7-git-send-email-wei.w.wang@intel.com>
+	<20170714123023.GA2624@dhcp22.suse.cz>
+	<20170714181523-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1500295441-19339-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20170714181523-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,147 +21,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Current XDP implementation want guest offloads feature to be disabled
-on qemu cli. This is inconvenient and means guest can't benefit from
-offloads if XDP is not used. This patch tries to address this
-limitation by disable the offloads on demand through control guest
-offloads. Guest offloads will be disabled and enabled on demand on XDP
-set.
+On Fri 14-07-17 22:17:13, Michael S. Tsirkin wrote:
+> On Fri, Jul 14, 2017 at 02:30:23PM +0200, Michal Hocko wrote:
+> > On Wed 12-07-17 20:40:19, Wei Wang wrote:
+> > > This patch adds support for reporting blocks of pages on the free list
+> > > specified by the caller.
+> > > 
+> > > As pages can leave the free list during this call or immediately
+> > > afterwards, they are not guaranteed to be free after the function
+> > > returns. The only guarantee this makes is that the page was on the free
+> > > list at some point in time after the function has been invoked.
+> > > 
+> > > Therefore, it is not safe for caller to use any pages on the returned
+> > > block or to discard data that is put there after the function returns.
+> > > However, it is safe for caller to discard data that was in one of these
+> > > pages before the function was invoked.
+> > 
+> > I do not understand what is the point of such a function and how it is
+> > used because the patch doesn't give us any user (I haven't checked other
+> > patches yet).
+> > 
+> > But just from the semantic point of view this sounds like a horrible
+> > idea. The only way to get a free block of pages is to call the page
+> > allocator. I am tempted to give it Nack right on those grounds but I
+> > would like to hear more about what you actually want to achieve.
+> 
+> Basically it's a performance hint to the hypervisor.
+> For example, these pages would be good candidates to
+> move around as they are not mapped into any running
+> applications.
+>
+> As such, it's important not to slow down other parts of the system too
+> much - otherwise we are speeding up one part of the system while we slow
+> down other parts of it, which is why it's trying to drop the lock as
+> soon a possible.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 70 ++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 65 insertions(+), 5 deletions(-)
+So why cannot you simply allocate those page and then do whatever you
+need. You can tell the page allocator to do only a lightweight
+allocation by the gfp_mask - e.g. GFP_NOWAIT or if you even do not want
+to risk kswapd intervening then 0 mask.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e732bd6..d970c2d 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -57,6 +57,11 @@ DECLARE_EWMA(pkt_len, 0, 64)
- 
- #define VIRTNET_DRIVER_VERSION "1.0.0"
- 
-+const unsigned long guest_offloads[] = { VIRTIO_NET_F_GUEST_TSO4,
-+					 VIRTIO_NET_F_GUEST_TSO6,
-+					 VIRTIO_NET_F_GUEST_ECN,
-+					 VIRTIO_NET_F_GUEST_UFO };
-+
- struct virtnet_stats {
- 	struct u64_stats_sync tx_syncp;
- 	struct u64_stats_sync rx_syncp;
-@@ -164,10 +169,13 @@ struct virtnet_info {
- 	u8 ctrl_promisc;
- 	u8 ctrl_allmulti;
- 	u16 ctrl_vid;
-+	u64 ctrl_offloads;
- 
- 	/* Ethtool settings */
- 	u8 duplex;
- 	u32 speed;
-+
-+	unsigned long guest_offloads;
- };
- 
- struct padded_vnet_hdr {
-@@ -1889,6 +1897,47 @@ static int virtnet_restore_up(struct virtio_device *vdev)
- 	return err;
- }
- 
-+static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
-+{
-+	struct scatterlist sg;
-+	vi->ctrl_offloads = cpu_to_virtio64(vi->vdev, offloads);
-+
-+	sg_init_one(&sg, &vi->ctrl_offloads, sizeof(vi->ctrl_offloads));
-+
-+	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_GUEST_OFFLOADS,
-+				  VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET, &sg)) {
-+		dev_warn(&vi->dev->dev, "Fail to set guest offload. \n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int virtnet_clear_guest_offloads(struct virtnet_info *vi)
-+{
-+	u64 offloads = 0;
-+
-+	if (!vi->guest_offloads)
-+		return 0;
-+
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))
-+		offloads = 1ULL << VIRTIO_NET_F_GUEST_CSUM;
-+
-+	return virtnet_set_guest_offloads(vi, offloads);
-+}
-+
-+static int virtnet_restore_guest_offloads(struct virtnet_info *vi)
-+{
-+	u64 offloads = vi->guest_offloads;
-+
-+	if (!vi->guest_offloads)
-+		return 0;
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))
-+		offloads |= 1ULL << VIRTIO_NET_F_GUEST_CSUM;
-+
-+	return virtnet_set_guest_offloads(vi, offloads);
-+}
-+
- static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 			   struct netlink_ext_ack *extack)
- {
-@@ -1898,10 +1947,11 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 	u16 xdp_qp = 0, curr_qp;
- 	int i, err;
- 
--	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
--	    virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO6) ||
--	    virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ECN) ||
--	    virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO)) {
-+	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS)
-+	    && (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
-+	        virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO6) ||
-+	        virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ECN) ||
-+		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO))) {
- 		NL_SET_ERR_MSG_MOD(extack, "Can't set XDP while host is implementing LRO, disable LRO first");
- 		return -EOPNOTSUPP;
- 	}
-@@ -1950,6 +2000,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		old_prog = rtnl_dereference(vi->rq[i].xdp_prog);
- 		rcu_assign_pointer(vi->rq[i].xdp_prog, prog);
-+		if (i == 0) {
-+			if (!old_prog)
-+				virtnet_clear_guest_offloads(vi);
-+			if (!prog)
-+				virtnet_restore_guest_offloads(vi);
-+		}
- 		if (old_prog)
- 			bpf_prog_put(old_prog);
- 		napi_enable(&vi->rq[i].napi);
-@@ -2583,6 +2639,10 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		netif_carrier_on(dev);
- 	}
- 
-+	for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
-+		if (virtio_has_feature(vi->vdev, guest_offloads[i]))
-+			set_bit(guest_offloads[i], &vi->guest_offloads);
-+
- 	pr_debug("virtnet: registered device %s with %d RX and TX vq's\n",
- 		 dev->name, max_queue_pairs);
- 
-@@ -2679,7 +2739,7 @@ static struct virtio_device_id id_table[] = {
- 	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN, \
- 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
- 	VIRTIO_NET_F_CTRL_MAC_ADDR, \
--	VIRTIO_NET_F_MTU
-+	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS
- 
- static unsigned int features[] = {
- 	VIRTNET_FEATURES,
+> As long as hypervisor does not assume it can drop these pages, and as
+> long it's correct in most cases.  we are OK even if the hint is slightly
+> wrong because hypervisor notifications are racing with allocations.
+
+But the page could have been reused anytime after the lock is dropped
+and you cannot check for that except for elevating the reference count.
 -- 
-2.7.4
+Michal Hocko
+SUSE Labs
