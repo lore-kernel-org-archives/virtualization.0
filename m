@@ -1,13 +1,15 @@
-From: David Miller <davem@davemloft.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net-next 0/5] refine virtio-net XDP
-Date: Tue, 18 Jul 2017 11:24:42 -0700 (PDT)
-Message-ID: <20170718.112442.705495974245565173.davem@davemloft.net>
+Date: Tue, 18 Jul 2017 21:47:01 +0300
+Message-ID: <20170718214645-mutt-send-email-mst@kernel.org>
 References: <1500295441-19339-1-git-send-email-jasowang@redhat.com>
+	<20170718.112442.705495974245565173.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1500295441-19339-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20170718.112442.705495974245565173.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,20 +19,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 17 Jul 2017 20:43:56 +0800
-
-> This series brings two optimizations for virtio-net XDP:
+On Tue, Jul 18, 2017 at 11:24:42AM -0700, David Miller wrote:
+> From: Jason Wang <jasowang@redhat.com>
+> Date: Mon, 17 Jul 2017 20:43:56 +0800
 > 
-> - avoid reset during XDP set
-> - turn off offloads on demand
+> > This series brings two optimizations for virtio-net XDP:
+> > 
+> > - avoid reset during XDP set
+> > - turn off offloads on demand
+> > 
+> > Please review.
 > 
-> Please review.
+> Michael, please review Jason's changes.
+> 
+> Thanks.
 
-Michael, please review Jason's changes.
+Doing that, thanks for the reminder.
 
-Thanks.
+-- 
+MST
