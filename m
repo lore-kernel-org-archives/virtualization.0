@@ -1,15 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next 0/5] refine virtio-net XDP
-Date: Wed, 19 Jul 2017 10:40:51 +0800
-Message-ID: <76c84108-76a1-fa5e-8b4a-db8bc3724f4f@redhat.com>
-References: <1500295441-19339-1-git-send-email-jasowang@redhat.com>
-	<20170718230748-mutt-send-email-mst@kernel.org>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH 3/4] drm/qxl: Drop fbdev hwaccel flags
+Date: Wed, 19 Jul 2017 09:39:10 +0200
+Message-ID: <20170719073910.kkhcrfmzz7c2jpzo__27794.1667162397$1500449961$gmane$org@phenom.ffwll.local>
+References: <20170706125735.28299-1-daniel.vetter@ffwll.ch>
+	<20170706125735.28299-4-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170718230748-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20170706125735.28299-4-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,20 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: DRI Development <dri-devel@lists.freedesktop.org>
+Cc: linux-fbdev@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDfmnIgxOeaXpSAwNDoxMywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIE1vbiwgSnVsIDE3LCAyMDE3IGF0IDA4OjQzOjU2UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+IEhpOgo+Pgo+PiBUaGlzIHNlcmllcyBicmluZ3MgdHdvIG9wdGltaXphdGlvbnMgZm9y
-IHZpcnRpby1uZXQgWERQOgo+Pgo+PiAtIGF2b2lkIHJlc2V0IGR1cmluZyBYRFAgc2V0Cj4+IC0g
-dHVybiBvZmYgb2ZmbG9hZHMgb24gZGVtYW5kCj4gSSdtIGdsYWQgdG8gc2VlIHRoaXMgdGFrZSBz
-aGFwZSAtIHRoaXMgY2FuIGJlCj4gZXh0ZW5kZWQgdG8gb3B0aW1pemUgdmlydG5ldF9nZXRfaGVh
-ZHJvb20gc28gd2UgZG9uJ3QKPiB3YXN0ZSByb29tIGlmIGFkanVzdF9oZWFkIGlzIGVuYWJsZWQu
-CgpSaWdodCwgd2UgY2FuIGRvIGl0IG9uIHRvcC4KCj4gSSBzZWUgYSBjb3VwbGUgb2YgaXNzdWVz
-LCByZXNwb25kZWQgdG8gaW5kaXZpZHVhbCBwYXRjaGVzLgo+Cj4KClRoYW5rcyBmb3IgdGhlIHJl
-dmlld2luZy4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Jul 06, 2017 at 02:57:34PM +0200, Daniel Vetter wrote:
+> It's not accelarated, just system memory. Note we don't even need to
+> set the default flag since that's now always 0.
+> 
+> Cc: Dave Airlie <airlied@redhat.com>
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: virtualization@lists.linux-foundation.org
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+
+Merged with Dave's irc-ack + commit message amended that qxl once had
+accel, but that was removed in 2015.
+-Daniel
+
+> ---
+>  drivers/gpu/drm/qxl/qxl_fb.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/qxl/qxl_fb.c b/drivers/gpu/drm/qxl/qxl_fb.c
+> index 573e7e9a5f98..69e7359b562a 100644
+> --- a/drivers/gpu/drm/qxl/qxl_fb.c
+> +++ b/drivers/gpu/drm/qxl/qxl_fb.c
+> @@ -275,7 +275,7 @@ static int qxlfb_create(struct qxl_fbdev *qfbdev,
+>  
+>  	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
+>  
+> -	info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_COPYAREA | FBINFO_HWACCEL_FILLRECT;
+> +	info->flags = FBINFO_DEFAULT;
+>  	info->fbops = &qxlfb_ops;
+>  
+>  	/*
+> -- 
+> 2.13.2
+> 
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
