@@ -1,14 +1,19 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next V2 5/5] virtio-net: switch off offloads on demand if
-	possible on XDP set
-Date: Wed, 19 Jul 2017 16:54:49 +0800
-Message-ID: <1500454489-16805-6-git-send-email-jasowang@redhat.com>
-References: <1500454489-16805-1-git-send-email-jasowang@redhat.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v12 6/8] mm: support reporting free page blocks
+Date: Wed, 19 Jul 2017 20:01:18 +0800
+Message-ID: <596F4A0E.4010507__23326.2971313254$1500465535$gmane$org@intel.com>
+References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
+	<1499863221-16206-7-git-send-email-wei.w.wang@intel.com>
+	<20170714123023.GA2624@dhcp22.suse.cz>
+	<20170714181523-mutt-send-email-mst@kernel.org>
+	<20170717152448.GN12888@dhcp22.suse.cz>
+	<596D6E7E.4070700@intel.com>
+	<20170719081311.GC26779@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1500454489-16805-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20170719081311.GC26779@dhcp22.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,147 +23,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, virtualization@lists.linux-foundation.org, jasowang@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Michal Hocko <mhocko@kernel.org>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, amit.shah@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Current XDP implementation wants guest offloads feature to be disabled
-on device. This is inconvenient and means guest can't benefit from
-offloads if XDP is not used. This patch tries to address this
-limitation by disabling the offloads on demand through control guest
-offloads. Guest offloads will be disabled and enabled on demand on XDP
-set.
+On 07/19/2017 04:13 PM, Michal Hocko wrote:
+> On Tue 18-07-17 10:12:14, Wei Wang wrote:
+> [...]
+>> Probably I should have included the introduction of the usages in
+>> the log. Hope it is not too later to explain here:
+> Yes this should have been described in the cover.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 70 ++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 65 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index b3fc01d..5fbd15e 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -57,6 +57,11 @@ DECLARE_EWMA(pkt_len, 0, 64)
- 
- #define VIRTNET_DRIVER_VERSION "1.0.0"
- 
-+const unsigned long guest_offloads[] = { VIRTIO_NET_F_GUEST_TSO4,
-+					 VIRTIO_NET_F_GUEST_TSO6,
-+					 VIRTIO_NET_F_GUEST_ECN,
-+					 VIRTIO_NET_F_GUEST_UFO };
-+
- struct virtnet_stats {
- 	struct u64_stats_sync tx_syncp;
- 	struct u64_stats_sync rx_syncp;
-@@ -164,10 +169,13 @@ struct virtnet_info {
- 	u8 ctrl_promisc;
- 	u8 ctrl_allmulti;
- 	u16 ctrl_vid;
-+	u64 ctrl_offloads;
- 
- 	/* Ethtool settings */
- 	u8 duplex;
- 	u32 speed;
-+
-+	unsigned long guest_offloads;
- };
- 
- struct padded_vnet_hdr {
-@@ -1896,6 +1904,47 @@ static int virtnet_restore_up(struct virtio_device *vdev)
- 	return err;
- }
- 
-+static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
-+{
-+	struct scatterlist sg;
-+	vi->ctrl_offloads = cpu_to_virtio64(vi->vdev, offloads);
-+
-+	sg_init_one(&sg, &vi->ctrl_offloads, sizeof(vi->ctrl_offloads));
-+
-+	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_GUEST_OFFLOADS,
-+				  VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET, &sg)) {
-+		dev_warn(&vi->dev->dev, "Fail to set guest offload. \n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int virtnet_clear_guest_offloads(struct virtnet_info *vi)
-+{
-+	u64 offloads = 0;
-+
-+	if (!vi->guest_offloads)
-+		return 0;
-+
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))
-+		offloads = 1ULL << VIRTIO_NET_F_GUEST_CSUM;
-+
-+	return virtnet_set_guest_offloads(vi, offloads);
-+}
-+
-+static int virtnet_restore_guest_offloads(struct virtnet_info *vi)
-+{
-+	u64 offloads = vi->guest_offloads;
-+
-+	if (!vi->guest_offloads)
-+		return 0;
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))
-+		offloads |= 1ULL << VIRTIO_NET_F_GUEST_CSUM;
-+
-+	return virtnet_set_guest_offloads(vi, offloads);
-+}
-+
- static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 			   struct netlink_ext_ack *extack)
- {
-@@ -1905,10 +1954,11 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 	u16 xdp_qp = 0, curr_qp;
- 	int i, err;
- 
--	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
--	    virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO6) ||
--	    virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ECN) ||
--	    virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO)) {
-+	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS)
-+	    && (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
-+	        virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO6) ||
-+	        virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ECN) ||
-+		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO))) {
- 		NL_SET_ERR_MSG_MOD(extack, "Can't set XDP while host is implementing LRO, disable LRO first");
- 		return -EOPNOTSUPP;
- 	}
-@@ -1955,6 +2005,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		old_prog = rtnl_dereference(vi->rq[i].xdp_prog);
- 		rcu_assign_pointer(vi->rq[i].xdp_prog, prog);
-+		if (i == 0) {
-+			if (!old_prog)
-+				virtnet_clear_guest_offloads(vi);
-+			if (!prog)
-+				virtnet_restore_guest_offloads(vi);
-+		}
- 		if (old_prog)
- 			bpf_prog_put(old_prog);
- 		virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
-@@ -2588,6 +2644,10 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		netif_carrier_on(dev);
- 	}
- 
-+	for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
-+		if (virtio_has_feature(vi->vdev, guest_offloads[i]))
-+			set_bit(guest_offloads[i], &vi->guest_offloads);
-+
- 	pr_debug("virtnet: registered device %s with %d RX and TX vq's\n",
- 		 dev->name, max_queue_pairs);
- 
-@@ -2684,7 +2744,7 @@ static struct virtio_device_id id_table[] = {
- 	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN, \
- 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
- 	VIRTIO_NET_F_CTRL_MAC_ADDR, \
--	VIRTIO_NET_F_MTU
-+	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS
- 
- static unsigned int features[] = {
- 	VIRTNET_FEATURES,
--- 
-2.7.4
+OK, I will do it in the next version.
+
+
+>   
+>> Live migration needs to transfer the VM's memory from the source
+>> machine to the destination round by round. For the 1st round, all the VM's
+>> memory is transferred. From the 2nd round, only the pieces of memory
+>> that were written by the guest (after the 1st round) are transferred. One
+>> method that is popularly used by the hypervisor to track which part of
+>> memory is written is to write-protect all the guest memory.
+>>
+>> This patch enables the optimization of the 1st round memory transfer -
+>> the hypervisor can skip the transfer of guest unused pages in the 1st round.
+> All you should need is the check for the page reference count, no?  I
+> assume you do some sort of pfn walk and so you should be able to get an
+> access to the struct page.
+
+
+Not necessarily - the guest struct page is not seen by the hypervisor. The
+hypervisor only gets those guest pfns which are hinted as unused. From the
+hypervisor (host) point of view, a guest physical address corresponds to a
+virtual address of a host process. So, once the hypervisor knows a guest
+physical page is unsued, it knows that the corresponding virtual memory of
+the process doesn't need to be transferred in the 1st round.
+
+
+Best,
+Wei
