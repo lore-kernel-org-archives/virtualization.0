@@ -1,14 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 0/5] refine virtio-net XDP
-Date: Tue, 18 Jul 2017 23:13:15 +0300
-Message-ID: <20170718230748-mutt-send-email-mst__36207.4014767588$1500408812$gmane$org@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 2/5] virtio-net: pack headroom into ctx for
+	mergeable buffer
+Date: Wed, 19 Jul 2017 10:29:18 +0800
+Message-ID: <382b22b5-0735-b2d3-e838-adbc4bedfb3c__40389.737688429$1500431369$gmane$org@redhat.com>
 References: <1500295441-19339-1-git-send-email-jasowang@redhat.com>
+	<1500295441-19339-3-git-send-email-jasowang@redhat.com>
+	<20170718215432-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1500295441-19339-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20170718215432-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,39 +21,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 17, 2017 at 08:43:56PM +0800, Jason Wang wrote:
-> Hi:
-> 
-> This series brings two optimizations for virtio-net XDP:
-> 
-> - avoid reset during XDP set
-> - turn off offloads on demand
-
-I'm glad to see this take shape - this can be
-extended to optimize virtnet_get_headroom so we don't
-waste room if adjust_head is enabled.
-
-I see a couple of issues, responded to individual patches.
-
-
-> Please review.
-> 
-> Thanks
-> 
-> Jason Wang (5):
->   virtio_ring: allow to store zero as the ctx
->   virtio-net: pack headroom into ctx for mergeable buffer
->   virtio-net: switch to use new ctx API for small buffer
->   virtio-net: do not reset during XDP set
->   virtio-net: switch off offloads on demand if possible on XDP set
-> 
->  drivers/net/virtio_net.c     | 325 +++++++++++++++++++++++++------------------
->  drivers/virtio/virtio_ring.c |   2 +-
->  2 files changed, 194 insertions(+), 133 deletions(-)
-> 
-> -- 
-> 2.7.4
+CgpPbiAyMDE35bm0MDfmnIgxOeaXpSAwMjo1OSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIE1vbiwgSnVsIDE3LCAyMDE3IGF0IDA4OjQzOjU4UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+IFBhY2sgaGVhZHJvb20gaW50byBjdHgsIHRoZW4gZHVyaW5nIFhEUCBzZXQsIHdlIGNv
+dWxkIGtub3cgdGhlIHNpemUgb2YKPj4gaGVhZHJvb20gYW5kIGNvcHkgaWYgbmVlZGVkLiBUaGlz
+IGlzIHJlcXVpcmVkIGZvciBhdm9pZGluZyByZXNldCBvbgo+PiBYRFAuCj4gTm90IHJlYWxseSB3
+aGVuIFhEUCBpcyBzZXQgLSBpdCdzIHdoZW4gYnVmZmVycyBhcmUgdXNlZC4KCk9mIGNvdXJzZSA6
+KQoKPgo+IHZpcnRpby1uZXQ6IHBhY2sgaGVhZHJvb20gaW50byBjdHggZm9yIG1lcmdlYWJsZSBi
+dWZmZXJzCj4KPiBQYWNrIGhlYWRyb29tIGludG8gY3R4IC0gdGhpcyB3YXkgd2hlbiB3ZSBnZXQg
+YSBidWZmZXIgd2UgY2FuIGZpZ3VyZSBvdXQKPiB0aGUgYWN0dWFsIGhlYWRyb29tIHRoYXQgd2Fz
+IGFsbG9jYXRlZCBmb3IgdGhlIGJ1ZmZlci4gV2lsbCBiZSBoZWxwZnVsCj4gdG8gb3B0aW1pemUg
+c3dpdGNoaW5nIGJldHdlZW4gWERQIGFuZCBub24tWERQIG1vZGVzIHdoaWNoIGhhdmUgZGlmZmVy
+ZW50Cj4gaGVhZHJvb20gcmVxdWlyZW1lbnRzLgoKVGhhbmtzLCBsZXQgbWUgdXNlIHRoaXMgYXMg
+dGhlIGNvbW1pdCBsb2cuCgo+Cj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5n
+QHJlZGhhdC5jb20+Cj4+IC0tLQo+PiAgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDI5ICsr
+KysrKysrKysrKysrKysrKysrKysrKy0tLS0tCj4+ICAgMSBmaWxlIGNoYW5nZWQsIDI0IGluc2Vy
+dGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92
+aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPj4gaW5kZXggMWY4YzE1Yy4u
+OGZhZTlhOCAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4+ICsrKyBi
+L2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+PiBAQCAtMjcwLDYgKzI3MCwyMyBAQCBzdGF0aWMg
+dm9pZCBza2JfeG1pdF9kb25lKHN0cnVjdCB2aXJ0cXVldWUgKnZxKQo+PiAgIAkJbmV0aWZfd2Fr
+ZV9zdWJxdWV1ZSh2aS0+ZGV2LCB2cTJ0eHEodnEpKTsKPj4gICB9Cj4+ICAgCj4+ICsjZGVmaW5l
+IE1SR19DVFhfSEVBREVSX1NISUZUIDIyCj4+ICtzdGF0aWMgdm9pZCAqbWVyZ2VhYmxlX2xlbl90
+b19jdHgodW5zaWduZWQgaW50IHRydWVzaXplLAo+PiArCQkJCSAgdW5zaWduZWQgaW50IGhlYWRy
+b29tKQo+PiArewo+PiArCXJldHVybiAodm9pZCAqKSh1bnNpZ25lZCBsb25nKSgoaGVhZHJvb20g
+PDwgTVJHX0NUWF9IRUFERVJfU0hJRlQpIHwgdHJ1ZXNpemUpOwo+PiArfQo+PiArCj4+ICtzdGF0
+aWMgdW5zaWduZWQgaW50IG1lcmdlYWJsZV9jdHhfdG9faGVhZHJvb20odm9pZCAqbXJnX2N0eCkK
+Pj4gK3sKPj4gKwlyZXR1cm4gKHVuc2lnbmVkIGxvbmcpbXJnX2N0eCA+PiBNUkdfQ1RYX0hFQURF
+Ul9TSElGVDsKPj4gK30KPj4gKwo+PiArc3RhdGljIHVuc2lnbmVkIGludCBtZXJnZWFibGVfY3R4
+X3RvX3RydWVzaXplKHZvaWQgKm1yZ19jdHgpCj4+ICt7Cj4+ICsJcmV0dXJuICh1bnNpZ25lZCBs
+b25nKW1yZ19jdHggJiAoKDEgPDwgTVJHX0NUWF9IRUFERVJfU0hJRlQpIC0gMSk7Cj4+ICt9Cj4+
+ICsKPj4gICAvKiBDYWxsZWQgZnJvbSBib3R0b20gaGFsZiBjb250ZXh0ICovCj4+ICAgc3RhdGlj
+IHN0cnVjdCBza19idWZmICpwYWdlX3RvX3NrYihzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwKPj4g
+ICAJCQkJICAgc3RydWN0IHJlY2VpdmVfcXVldWUgKnJxLAo+PiBAQCAtNjM5LDEzICs2NTYsMTQg
+QEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZlX21lcmdlYWJsZShzdHJ1Y3QgbmV0X2Rl
+dmljZSAqZGV2LAo+PiAgIAl9Cj4+ICAgCXJjdV9yZWFkX3VubG9jaygpOwo+PiAgIAo+PiAtCWlm
+ICh1bmxpa2VseShsZW4gPiAodW5zaWduZWQgbG9uZyljdHgpKSB7Cj4+ICsJdHJ1ZXNpemUgPSBt
+ZXJnZWFibGVfY3R4X3RvX3RydWVzaXplKGN0eCk7Cj4+ICsJaWYgKHVubGlrZWx5KGxlbiA+IHRy
+dWVzaXplKSkgewo+PiAgIAkJcHJfZGVidWcoIiVzOiByeCBlcnJvcjogbGVuICV1IGV4Y2VlZHMg
+dHJ1ZXNpemUgJWx1XG4iLAo+PiAgIAkJCSBkZXYtPm5hbWUsIGxlbiwgKHVuc2lnbmVkIGxvbmcp
+Y3R4KTsKPj4gICAJCWRldi0+c3RhdHMucnhfbGVuZ3RoX2Vycm9ycysrOwo+PiAgIAkJZ290byBl
+cnJfc2tiOwo+PiAgIAl9Cj4+IC0JdHJ1ZXNpemUgPSAodW5zaWduZWQgbG9uZyljdHg7Cj4+ICsK
+Pj4gICAJaGVhZF9za2IgPSBwYWdlX3RvX3NrYih2aSwgcnEsIHBhZ2UsIG9mZnNldCwgbGVuLCB0
+cnVlc2l6ZSk7Cj4+ICAgCWN1cnJfc2tiID0gaGVhZF9za2I7Cj4+ICAgCj4+IEBAIC02NjUsMTMg
+KzY4MywxNCBAQCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKnJlY2VpdmVfbWVyZ2VhYmxlKHN0cnVj
+dCBuZXRfZGV2aWNlICpkZXYsCj4+ICAgCQl9Cj4+ICAgCj4+ICAgCQlwYWdlID0gdmlydF90b19o
+ZWFkX3BhZ2UoYnVmKTsKPj4gLQkJaWYgKHVubGlrZWx5KGxlbiA+ICh1bnNpZ25lZCBsb25nKWN0
+eCkpIHsKPj4gKwo+PiArCQl0cnVlc2l6ZSA9IG1lcmdlYWJsZV9jdHhfdG9fdHJ1ZXNpemUoY3R4
+KTsKPj4gKwkJaWYgKHVubGlrZWx5KGxlbiA+IHRydWVzaXplKSkgewo+PiAgIAkJCXByX2RlYnVn
+KCIlczogcnggZXJyb3I6IGxlbiAldSBleGNlZWRzIHRydWVzaXplICVsdVxuIiwKPj4gICAJCQkJ
+IGRldi0+bmFtZSwgbGVuLCAodW5zaWduZWQgbG9uZyljdHgpOwo+PiAgIAkJCWRldi0+c3RhdHMu
+cnhfbGVuZ3RoX2Vycm9ycysrOwo+PiAgIAkJCWdvdG8gZXJyX3NrYjsKPj4gICAJCX0KPj4gLQkJ
+dHJ1ZXNpemUgPSAodW5zaWduZWQgbG9uZyljdHg7Cj4+ICAgCj4+ICAgCQludW1fc2tiX2ZyYWdz
+ID0gc2tiX3NoaW5mbyhjdXJyX3NrYiktPm5yX2ZyYWdzOwo+PiAgIAkJaWYgKHVubGlrZWx5KG51
+bV9za2JfZnJhZ3MgPT0gTUFYX1NLQl9GUkFHUykpIHsKPj4gQEAgLTg4OSw3ICs5MDgsNyBAQCBz
+dGF0aWMgaW50IGFkZF9yZWN2YnVmX21lcmdlYWJsZShzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwK
+Pj4gICAKPj4gICAJYnVmID0gKGNoYXIgKilwYWdlX2FkZHJlc3MoYWxsb2NfZnJhZy0+cGFnZSkg
+KyBhbGxvY19mcmFnLT5vZmZzZXQ7Cj4+ICAgCWJ1ZiArPSBoZWFkcm9vbTsgLyogYWR2YW5jZSBh
+ZGRyZXNzIGxlYXZpbmcgaG9sZSBhdCBmcm9udCBvZiBwa3QgKi8KPj4gLQljdHggPSAodm9pZCAq
+KSh1bnNpZ25lZCBsb25nKWxlbjsKPj4gKwljdHggPSBtZXJnZWFibGVfbGVuX3RvX2N0eChsZW4s
+IGhlYWRyb29tKTsKPj4gICAJZ2V0X3BhZ2UoYWxsb2NfZnJhZy0+cGFnZSk7Cj4+ICAgCWFsbG9j
+X2ZyYWctPm9mZnNldCArPSBsZW4gKyBoZWFkcm9vbTsKPj4gICAJaG9sZSA9IGFsbG9jX2ZyYWct
+PnNpemUgLSBhbGxvY19mcmFnLT5vZmZzZXQ7Cj4+IC0tIAo+PiAyLjcuNAoKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
