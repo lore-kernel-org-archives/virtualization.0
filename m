@@ -1,16 +1,21 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC v1 0/3] Add VIRTIO_F_IOMMU_PLATFORM support
-Date: Sat, 22 Jul 2017 02:48:35 +0300
-Message-ID: <20170722024318-mutt-send-email-mst__28524.7964006432$1500681231$gmane$org@kernel.org>
-References: <1500502151-13508-1-git-send-email-brijesh.singh@amd.com>
-	<62320c1a-0cec-947c-8c63-5eb0416e4e33@redhat.com>
-	<25d78a89-59bd-157a-ccf5-70cd25e14a05@amd.com>
+Subject: Re: [PATCH v12 5/8] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Sun, 23 Jul 2017 04:45:19 +0300
+Message-ID: <20170723044036-mutt-send-email-mst__22789.2787116163$1500774339$gmane$org@kernel.org>
+References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
+	<1499863221-16206-6-git-send-email-wei.w.wang@intel.com>
+	<20170712160129-mutt-send-email-mst@kernel.org>
+	<5966241C.9060503@intel.com>
+	<20170712163746-mutt-send-email-mst@kernel.org>
+	<5967246B.9030804@intel.com>
+	<20170713210819-mutt-send-email-mst@kernel.org>
+	<59686EEB.8080805@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <25d78a89-59bd-157a-ccf5-70cd25e14a05@amd.com>
+In-Reply-To: <59686EEB.8080805@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,64 +25,153 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Brijesh Singh <brijesh.singh@amd.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>, David Airlie <airlied@linux.ie>, Jordan Justen <jordan.l.justen@intel.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Laszlo Ersek <lersek@redhat.com>, edk2-devel@lists.01.org
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBKdWwgMjEsIDIwMTcgYXQgMDY6MTc6MTVBTSAtMDUwMCwgQnJpamVzaCBTaW5naCB3
-cm90ZToKPiAKPiBPbiA3LzIwLzE3IDEwOjI0IFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4KPiA+
-Cj4gPiBPbiAyMDE35bm0MDfmnIgyMOaXpSAwNjowOSwgQnJpamVzaCBTaW5naCB3cm90ZToKPiA+
-PiBJIGhhdmUgZm91bmQgdGhhdCBPVk1GIGZhaWxzIHRvIGRldGVjdCB0aGUgZGlzayB3aGVuIGlv
-bW11X3BsYXRmb3JtCj4gPj4gaXMgc2V0IGZyb20KPiA+PiBxZW11IGNsaS4gVGhlIGZhaWx1cmUg
-b2NjdXJzIGR1cmluZyB0aGUgZmVhdHVyZSBiaXQgbmVnb3RpYXRpb24uCj4gPj4KPiA+PiBSZWNl
-bnRseSwgRURLSUkgaW50cm9kdWNlZCBJT01NVSBwcm90b2NvbCBkMWZkZGM0NTMzYmYuIFNFViBw
-YXRjaAo+ID4+IHNlcmllcyBpbnRyb2R1Y2VkCj4gPj4gYSBJb01tdSBwcm90b2NvbCBkcml2ZXIg
-ZjlkMTI5ZTY4YTQ1IHRvIHNldCBhIERNQSBhY2Nlc3MgYXR0cmlidXRlCj4gPj4gYW5kIG1ldGhv
-ZHMgdG8KPiA+PiBhbGxvY2F0ZSwgZnJlZSwgbWFwIGFuZCB1bm1hcCB0aGUgRE1BIG1lbW9yeSBm
-b3IgdGhlIG1hc3RlciBidXMgZGV2aWNlcwo+ID4+Cj4gPj4gSW4gdGhpcyBwYXRjaCBzZXJpZXMs
-IEkgaGF2ZSB0cmllZCB0byBlbmFibGUgdGhlIElPTU1VX1BMQVRGT1JNCj4gPj4gZmVhdHVyZSBm
-b3IKPiA+PiBWaXJ0aW9CbGtEZXZpY2UuIEkgYW0gc2VuZGluZyB0aGlzIGFzIFJGQyB0byBzZWVr
-IGZlZWRiYWNrIGJlZm9yZSBJCj4gPj4gZXh0ZW5kIHRoZSBzdXBwb3J0Cj4gPj4gZm9yIG90aGVy
-IFZpcnRpbyBkZXZpY2VzLiBUaGUgcGF0Y2ggaGFzIGJlZW4gdGVzdGVkIGluIFNFViBndWVzdCAt
-Cj4gPj4gbWFpbmx5IGJlY2F1c2UKPiA+PiBJb01tdUR4ZSBkcml2ZXIgaW5zdGFsbHMgdGhlIElP
-TU1VIHByb3RvY29sIGZvciBTRVYgZ3Vlc3Qgb25seS4gSWYKPiA+PiBuZWVkZWQsIEkgY2FuCj4g
-Pj4gZXh0ZW5kIHRoZSBJb01tdUR4ZSBkcml2ZXIgdG8gaW5zdGFsbCBJT01NVSBwcm90b2NvbCBm
-b3Igbm9uIFNFViBndWVzdHMuCj4gPj4KPiA+PiBxZW11IGNsaSB1c2VkIGZvciB0ZXN0aW5nOgo+
-ID4+Cj4gPj4gIyAkUUVNVSBcCj4gPj4gICAgLi4uCj4gPj4gICAgLWRyaXZlIGZpbGU9JHtIREFf
-RklMRX0saWY9bm9uZSxpZD1kaXNrMCxmb3JtYXQ9cWNvdzIgXAo+ID4+ICAgIC1kZXZpY2UKPiA+
-PiB2aXJ0aW8tYmxrLXBjaSxkcml2ZT1kaXNrMCxkaXNhYmxlLWxlZ2FjeT1vbixpb21tdV9wbGF0
-Zm9ybT10cnVlLGRpc2FibGUtbW9kZXJuPW9mZixzY3NpPW9mZgo+ID4+ICAgIC4uLgo+ID4+Cj4g
-Pj4gQ2M6IEpvcmRhbiBKdXN0ZW4gPGpvcmRhbi5sLmp1c3RlbkBpbnRlbC5jb20+Cj4gPj4gQ2M6
-IExhc3psbyBFcnNlayA8bGVyc2VrQHJlZGhhdC5jb20+Cj4gPj4gQ2M6IEphc29uIFdhbmcgPGph
-c293YW5nQHJlZGhhdC5jb20+Cj4gPj4gQ2M6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhh
-dC5jb20+Cj4gPj4gQ29udHJpYnV0ZWQtdW5kZXI6IFRpYW5vQ29yZSBDb250cmlidXRpb24gQWdy
-ZWVtZW50IDEuMAo+ID4+IFNpZ25lZC1vZmYtYnk6IEJyaWplc2ggU2luZ2ggPGJyaWplc2guc2lu
-Z2hAYW1kLmNvbT4KPiA+Pgo+ID4+IEJyaWplc2ggU2luZ2ggKDMpOgo+ID4+ICAgIE92bWZQa2cv
-SW5jbHVkZS9WaXJ0aW8xMDogRGVmaW5lIFZJUlRJT19GX0lPTU1VX1BMQVRGT1JNIGZlYXR1cmUg
-Yml0Cj4gPj4gICAgT3ZtZlBrZy9WaXJ0aW9MaWI6IEFkZCBJT01NVV9QTEFURk9STSBzdXBwb3J0
-Cj4gPj4gICAgT3ZtZlBrZy9WaXJ0aW9CbGtEeGU6IEFkZCBWSVJJVE9fRl9JT01NVV9QTEFURk9S
-TSBzdXBwb3J0Cj4gPgo+ID4gSGksIGRvIHdlIG5lZWQgY2hhbmdlIHZpcnRpby1zY3NpIGRyaXZl
-ciBhcyB3ZWxsPwo+ID4KPiBJIHNlZSB0aGF0IE9WTUYgaGFzIHRoZSBmb2xsb3dpbmcgdmlydGlv
-IGRyaXZlcnMsIHdlIG5lZWQgdG8gdXBkYXRlIHRoZW0KPiBhbGw6Cj4gCj4gVmlydGlvQmxrRHhl
-Cj4gVmlydGlvR3B1RHhlCj4gVmlydGlvTmV0RHhlCj4gVmlydGlvUm5nRHhlCj4gVmlydGlvU2Nz
-aUR4ZQo+IAo+IEkgd2lsbCB3YWl0IGZvciBMYXN6bG8gYW5kIEpvcmRhbidzIGluaXRpYWwgZmVl
-ZGJhY2sgYmVmb3JlIGNoYW5naW5nCj4gb3RoZXIgZHJpdmVycy4KCkknbSBub3Qgc3VyZSBhYm91
-dCB0aGUgR1BVLiBDYyByZWxldmFudCBtYWludGFpbmVycyAtCmNhbiB2aXJ0aW8gR1BVIHdvcmsg
-ZnJvbSBiZWhpbmQgYW4gSU9NTVU/CgoKPiA+IFRoYW5rcwo+ID4KPiA+Pgo+ID4+ICAgT3ZtZlBr
-Zy9MaWJyYXJ5L1ZpcnRpb0xpYi9WaXJ0aW9MaWIuaW5mICAgICAgfCAgIDEgKwo+ID4+ICAgT3Zt
-ZlBrZy9WaXJ0aW9CbGtEeGUvVmlydGlvQmxrLmluZiAgICAgICAgICAgfCAgIDUgKwo+ID4+ICAg
-T3ZtZlBrZy9WaXJ0aW9HcHVEeGUvVmlydGlvR3B1LmluZiAgICAgICAgICAgfCAgIDEgKwo+ID4+
-ICAgT3ZtZlBrZy9WaXJ0aW9OZXREeGUvVmlydGlvTmV0LmluZiAgICAgICAgICAgfCAgIDEgKwo+
-ID4+ICAgT3ZtZlBrZy9WaXJ0aW9SbmdEeGUvVmlydGlvUm5nLmluZiAgICAgICAgICAgfCAgIDEg
-Kwo+ID4+ICAgT3ZtZlBrZy9WaXJ0aW9TY3NpRHhlL1ZpcnRpb1Njc2kuaW5mICAgICAgICAgfCAg
-IDEgKwo+ID4+ICAgT3ZtZlBrZy9JbmNsdWRlL0luZHVzdHJ5U3RhbmRhcmQvVmlydGlvMDk1Lmgg
-fCAgIDEgKwo+ID4+ICAgT3ZtZlBrZy9JbmNsdWRlL0luZHVzdHJ5U3RhbmRhcmQvVmlydGlvMTAu
-aCAgfCAgIDUgKwo+ID4+ICAgT3ZtZlBrZy9JbmNsdWRlL0xpYnJhcnkvVmlydGlvTGliLmggICAg
-ICAgICAgfCAgMjAgKysrKwo+ID4+ICAgT3ZtZlBrZy9MaWJyYXJ5L1ZpcnRpb0xpYi9WaXJ0aW9M
-aWIuYyAgICAgICAgfCAgOTYgKysrKysrKysrKysrKystCj4gPj4gICBPdm1mUGtnL1ZpcnRpb0Js
-a0R4ZS9WaXJ0aW9CbGsuYyAgICAgICAgICAgICB8IDEyNQo+ID4+ICsrKysrKysrKysrKysrKysr
-Ky0tCj4gPj4gICAxMSBmaWxlcyBjaGFuZ2VkLCAyNDQgaW5zZXJ0aW9ucygrKSwgMTMgZGVsZXRp
-b25zKC0pCj4gPj4KPiA+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
-aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
-bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Fri, Jul 14, 2017 at 03:12:43PM +0800, Wei Wang wrote:
+> On 07/14/2017 04:19 AM, Michael S. Tsirkin wrote:
+> > On Thu, Jul 13, 2017 at 03:42:35PM +0800, Wei Wang wrote:
+> > > On 07/12/2017 09:56 PM, Michael S. Tsirkin wrote:
+> > > > So the way I see it, there are several issues:
+> > > > 
+> > > > - internal wait - forces multiple APIs like kick/kick_sync
+> > > >     note how kick_sync can fail but your code never checks return code
+> > > > - need to re-write the last descriptor - might not work
+> > > >     for alternative layouts which always expose descriptors
+> > > >     immediately
+> > > Probably it wasn't clear. Please let me explain the two functions here:
+> > > 
+> > > 1) virtqueue_add_chain_desc(vq, head_id, prev_id,..):
+> > > grabs a desc from the vq and inserts it to the chain tail (which is indexed
+> > > by
+> > > prev_id, probably better to call it tail_id). Then, the new added desc
+> > > becomes
+> > > the tail (i.e. the last desc). The _F_NEXT flag is cleared for each desc
+> > > when it's
+> > > added to the chain, and set when another desc comes to follow later.
+> > And this only works if there are multiple rings like
+> > avail + descriptor ring.
+> > It won't work e.g. with the proposed new layout where
+> > writing out a descriptor exposes it immediately.
+> 
+> I think it can support the 1.1 proposal, too. But before getting
+> into that, I think we first need to deep dive into the implementation
+> and usage of _first/next/last. The usage would need to lock the vq
+> from the first to the end (otherwise, the returned info about the number
+> of available desc in the vq, i.e. num_free, would be invalid):
+> 
+> lock(vq);
+> add_first();
+> add_next();
+> add_last();
+> unlock(vq);
+> 
+> However, I think the case isn't this simple, since we need to check more
+> things
+> after each add_xx() step. For example, if only one entry is available at the
+> time
+> we start to use the vq, that is, num_free is 0 after add_first(), we
+> wouldn't be
+> able to add_next and add_last. So, it would work like this:
+> 
+> start:
+>     ...get free page block..
+>     lock(vq)
+> retry:
+>     ret = add_first(..,&num_free,);
+>     if(ret == -ENOSPC) {
+>         goto retry;
+>     } else if (!num_free) {
+>         add_chain_head();
+>         unlock(vq);
+>         kick & wait;
+>         goto start;
+>     }
+> next_one:
+>     ...get free page block..
+>     add_next(..,&num_free,);
+>     if (!num_free) {
+>         add_chain_head();
+>         unlock(vq);
+>         kick & wait;
+>         goto start;
+>     } if (num_free == 1) {
+>         ...get free page block..
+>         add_last(..);
+>         unlock(vq);
+>         kick & wait;
+>         goto start;
+>     } else {
+>         goto next_one;
+>     }
+> 
+> The above seems unnecessary to me to have three different APIs.
+> That's the reason to combine them into one virtqueue_add_chain_desc().
+> 
+> -- or, do you have a different thought about using the three APIs?
+> 
+> 
+> Implementation Reference:
+> 
+> struct desc_iterator {
+>     unsigned int head;
+>     unsigned int tail;
+> };
+> 
+> add_first(*vq, *desc_iterator, *num_free, ..)
+> {
+>     if (vq->vq.num_free < 1)
+>         return -ENOSPC;
+>     get_desc(&desc_id);
+>     desc[desc_id].flag &= ~_F_NEXT;
+>     desc_iterator->head = desc_id
+>     desc_iterator->tail = desc_iterator->head;
+>     *num_free = vq->vq.num_free;
+> }
+> 
+> add_next(vq, desc_iterator, *num_free,..)
+> {
+>     get_desc(&desc_id);
+>     desc[desc_id].flag &= ~_F_NEXT;
+>     desc[desc_iterator.tail].next = desc_id;
+>     desc[desc_iterator->tail].flag |= _F_NEXT;
+>     desc_iterator->tail = desc_id;
+>     *num_free = vq->vq.num_free;
+> }
+> 
+> add_last(vq, desc_iterator,..)
+> {
+>     get_desc(&desc_id);
+>     desc[desc_id].flag &= ~_F_NEXT;
+>     desc[desc_iterator.tail].next = desc_id;
+>     desc_iterator->tail = desc_id;
+> 
+>     add_chain_head(); // put the desc_iterator.head to the ring
+> }
+> 
+> 
+> Best,
+> Wei
+
+OK I thought this over. While we might need these new APIs in
+the future, I think that at the moment, there's a way to implement
+this feature that is significantly simpler. Just add each s/g
+as a separate input buffer.
+
+This needs zero new APIs.
+
+I know that follow-up patches need to add a header in front
+so you might be thinking: how am I going to add this
+header? The answer is quite simple - add it as a separate
+out header.
+
+Host will be able to distinguish between header and pages
+by looking at the direction, and - should we want to add
+IN data to header - additionally size (<4K => header).
+
+We will be able to look at extended APIs separately down
+the road.
+
+-- 
+MST
