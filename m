@@ -1,14 +1,21 @@
-From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH 7/8] drm: Nuke drm_atomic_helper_connector_dpms
-Date: Tue, 25 Jul 2017 10:59:17 +0200
-Message-ID: <1500973157.4101.13.camel__17717.7713755102$1500974578$gmane$org@pengutronix.de>
-References: <20170725080122.20548-1-daniel.vetter@ffwll.ch>
-	<20170725080122.20548-8-daniel.vetter@ffwll.ch>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v12 6/8] mm: support reporting free page blocks
+Date: Tue, 25 Jul 2017 17:32:00 +0800
+Message-ID: <59771010.6080108__46549.5645338253$1500974969$gmane$org@intel.com>
+References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
+	<1499863221-16206-7-git-send-email-wei.w.wang@intel.com>
+	<20170714123023.GA2624@dhcp22.suse.cz>
+	<20170714181523-mutt-send-email-mst@kernel.org>
+	<20170717152448.GN12888@dhcp22.suse.cz>
+	<596D6E7E.4070700@intel.com>
+	<20170719081311.GC26779@dhcp22.suse.cz>
+	<596F4A0E.4010507@intel.com>
+	<20170724090042.GF25221@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170725080122.20548-8-daniel.vetter@ffwll.ch>
+In-Reply-To: <20170724090042.GF25221@dhcp22.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,28 +25,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Martyn Welch <martyn.welch@collabora.co.uk>, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, nouveau@lists.freedesktop.org, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Andrzej Hajda <a.hajda@samsung.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-mediatek@lists.infradead.org, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Romain Perier <romain.perier@collabora.com>, Daniel Vetter <daniel.vetter@intel.com>, Jyri Sarha <jsarha@ti.com>, Heiko Stuebner <heiko@sntech.de>, Marek Vasut <marex@denx.de>, linux-renesas-soc@vger.kernel.org, Archit Taneja <architt@codeaurora.org>, Lars-Peter Clausen <lars@metafoo.de>, Joonyoung Shim <jy0922.shim@samsung.com>, Kevin Hilman <khilman@baylibre.com>, Alexey Brodkin <abrodkin@synopsys.com>, Russell
+To: Michal Hocko <mhocko@kernel.org>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, amit.shah@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2017-07-25 at 10:01 +0200, Daniel Vetter wrote:
-> It's dead code, the core handles all this directly now.
-> 
-> The only special case is nouveau and tda988x which used one function
-> for both legacy modeset code and -nv50 atomic world instead of 2
-> vtables. But amounts to exactly the same.
-> 
-> v2: Rebase over the panel/brideg refactorings in stm/ltdc.
-> 
-> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-[...]
->  drivers/gpu/drm/imx/imx-ldb.c                      |  1 -
->  drivers/gpu/drm/imx/imx-tve.c                      |  1 -
->  drivers/gpu/drm/imx/parallel-display.c             |  1 -
->  drivers/gpu/drm/mediatek/mtk_dsi.c                 |  1 -
->  drivers/gpu/drm/mediatek/mtk_hdmi.c                |  1 -
+On 07/24/2017 05:00 PM, Michal Hocko wrote:
+> On Wed 19-07-17 20:01:18, Wei Wang wrote:
+>> On 07/19/2017 04:13 PM, Michal Hocko wrote:
+> [...
+>>> All you should need is the check for the page reference count, no?  I
+>>> assume you do some sort of pfn walk and so you should be able to get an
+>>> access to the struct page.
+>> Not necessarily - the guest struct page is not seen by the hypervisor. The
+>> hypervisor only gets those guest pfns which are hinted as unused. From the
+>> hypervisor (host) point of view, a guest physical address corresponds to a
+>> virtual address of a host process. So, once the hypervisor knows a guest
+>> physical page is unsued, it knows that the corresponding virtual memory of
+>> the process doesn't need to be transferred in the 1st round.
+> I am sorry, but I do not understand. Why cannot _guest_ simply check the
+> struct page ref count and send them to the hypervisor?
 
-Acked-by: Philipp Zabel <p.zabel@pengutronix.de>
+Were you suggesting the following?
+1) get a free page block from the page list using the API;
+2) if page->ref_count == 0, send it to the hypervisor
 
-regards
-Philipp
+Btw, ref_count may also change at any time.
+
+> Is there any
+> documentation which describes the workflow or code which would use your
+> new API?
+>
+
+It's used in the balloon driver (patch 8). We don't have any docs yet, but
+I think the high level workflow is the two steps above.
+
+
+Best,
+Wei
