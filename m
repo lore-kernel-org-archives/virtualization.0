@@ -1,14 +1,20 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH 7/8] drm: Nuke drm_atomic_helper_connector_dpms
-Date: Tue, 25 Jul 2017 17:01:36 +0300
-Message-ID: <3211906.qXAXzL790j__15430.5729004138$1500991313$gmane$org@avalon>
-References: <20170725080122.20548-1-daniel.vetter@ffwll.ch>
-	<20170725080122.20548-8-daniel.vetter@ffwll.ch>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v12 6/8] mm: support reporting free page blocks
+Date: Tue, 25 Jul 2017 14:47:16 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F739283F62__30299.1931363524$1500994049$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <20170714123023.GA2624@dhcp22.suse.cz>
+	<20170714181523-mutt-send-email-mst@kernel.org>
+	<20170717152448.GN12888@dhcp22.suse.cz> <596D6E7E.4070700@intel.com>
+	<20170719081311.GC26779@dhcp22.suse.cz> <596F4A0E.4010507@intel.com>
+	<20170724090042.GF25221@dhcp22.suse.cz> <59771010.6080108@intel.com>
+	<20170725112513.GD26723@dhcp22.suse.cz> <597731E8.9040803@intel.com>
+	<20170725124141.GF26723@dhcp22.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170725080122.20548-8-daniel.vetter@ffwll.ch>
+In-Reply-To: <20170725124141.GF26723@dhcp22.suse.cz>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,41 +24,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: nopsys.com@mail.linuxfoundation.org, one.org@mail.linuxfoundation.org, Martyn Welch <martyn.welch@collabora.co.uk>, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, nouveau@lists.freedesktop.org, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Andrzej Hajda <a.hajda@samsung.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-mediatek@lists.infradead.org, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Romain Perier <romain.perier@collabora.com>, Daniel Vetter <daniel.vetter@intel.com>, Jyri Sarha <jsarha@ti.com>, Heiko Stuebner <heiko@sntech.de>, Marek Vasut <marex@denx.de>, linux-renesas-soc@vger.kernel.org, Archit Taneja <architt@codeaurora.org>, Lars-Peter Clausen <lars@metafoo.de>, Joonyoung Shim <jy0922.shim@samsung.com>, Kevin Hilman <khilman@baylibre.com>, Alexey Brodkin <abrodkin@sy>
+To: Michal Hocko <mhocko@kernel.org>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Daniel,
-
-Thank you for the patch.
-
-On Tuesday 25 Jul 2017 10:01:21 Daniel Vetter wrote:
-> It's dead code, the core handles all this directly now.
+On Tuesday, July 25, 2017 8:42 PM, hal Hocko wrote:
+> On Tue 25-07-17 19:56:24, Wei Wang wrote:
+> > On 07/25/2017 07:25 PM, Michal Hocko wrote:
+> > >On Tue 25-07-17 17:32:00, Wei Wang wrote:
+> > >>On 07/24/2017 05:00 PM, Michal Hocko wrote:
+> > >>>On Wed 19-07-17 20:01:18, Wei Wang wrote:
+> > >>>>On 07/19/2017 04:13 PM, Michal Hocko wrote:
+> > >>>[...
+> > We don't need to do the pfn walk in the guest kernel. When the API
+> > reports, for example, a 2MB free page block, the API caller offers to
+> > the hypervisor the base address of the page block, and size=2MB, to
+> > the hypervisor.
 > 
-> The only special case is nouveau and tda988x which used one function
-> for both legacy modeset code and -nv50 atomic world instead of 2
-> vtables. But amounts to exactly the same.
+> So you want to skip pfn walks by regularly calling into the page allocator to
+> update your bitmap. If that is the case then would an API that would allow you
+> to update your bitmap via a callback be s sufficient? Something like
+> 	void walk_free_mem(int node, int min_order,
+> 			void (*visit)(unsigned long pfn, unsigned long nr_pages))
 > 
-> v2: Rebase over the panel/brideg refactorings in stm/ltdc.
+> The function will call the given callback for each free memory block on the given
+> node starting from the given min_order. The callback will be strictly an atomic
+> and very light context. You can update your bitmap from there.
+
+I would need to introduce more about the background here:
+The hypervisor and the guest live in their own address space. The hypervisor's bitmap
+isn't seen by the guest. I think we also wouldn't be able to give a callback function 
+from the hypervisor to the guest in this case.
+
 > 
-> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> This would address my main concern that the allocator internals would get
+> outside of the allocator proper. 
 
-[snip]
+What issue would it have to expose the internal, for_each_zone()?
+I think new code which would call it will also be strictly checked when they
+are pushed to upstream.
 
-> ---
->  drivers/gpu/drm/bridge/adv7511/adv7511_drv.c       |  1 -
->  drivers/gpu/drm/bridge/dumb-vga-dac.c              |  1 -
->  drivers/gpu/drm/bridge/panel.c                     |  1 -
->  drivers/gpu/drm/bridge/synopsys/dw-hdmi.c          |  1 -
->  drivers/gpu/drm/drm_atomic_helper.c                | 79 -------------------
->  drivers/gpu/drm/omapdrm/omap_connector.c           |  1 -
->  drivers/gpu/drm/rcar-du/rcar_du_lvdscon.c          |  1 -
-
-For the above,
-
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-
--- 
-Regards,
-
-Laurent Pinchart
+Best,
+Wei
