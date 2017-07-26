@@ -1,23 +1,17 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v12 6/8] mm: support reporting free page blocks
-Date: Wed, 26 Jul 2017 10:22:23 +0800
-Message-ID: <5977FCDF.7040606__14065.0089983412$1501035595$gmane$org@intel.com>
-References: <20170717152448.GN12888@dhcp22.suse.cz>
-	<596D6E7E.4070700@intel.com>
-	<20170719081311.GC26779@dhcp22.suse.cz>
-	<596F4A0E.4010507@intel.com>
-	<20170724090042.GF25221@dhcp22.suse.cz>
-	<59771010.6080108@intel.com>
-	<20170725112513.GD26723@dhcp22.suse.cz>
-	<597731E8.9040803@intel.com>
-	<20170725124141.GF26723@dhcp22.suse.cz>
-	<286AC319A985734F985F78AFA26841F739283F62@shsmsx102.ccr.corp.intel.com>
-	<20170725145333.GK26723@dhcp22.suse.cz>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next V2 5/5] virtio-net: switch off offloads on demand
+	if possible on XDP set
+Date: Wed, 26 Jul 2017 11:19:47 +0800
+Message-ID: <2a9b8132-4438-bf65-6421-b6b3b4630cb4__1532.79651790417$1501039200$gmane$org@redhat.com>
+References: <1500454489-16805-1-git-send-email-jasowang@redhat.com>
+	<1500454489-16805-6-git-send-email-jasowang@redhat.com>
+	<20170725002700-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170725145333.GK26723@dhcp22.suse.cz>
+In-Reply-To: <20170725002700-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,65 +21,120 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/25/2017 10:53 PM, Michal Hocko wrote:
-> On Tue 25-07-17 14:47:16, Wang, Wei W wrote:
->> On Tuesday, July 25, 2017 8:42 PM, hal Hocko wrote:
->>> On Tue 25-07-17 19:56:24, Wei Wang wrote:
->>>> On 07/25/2017 07:25 PM, Michal Hocko wrote:
->>>>> On Tue 25-07-17 17:32:00, Wei Wang wrote:
->>>>>> On 07/24/2017 05:00 PM, Michal Hocko wrote:
->>>>>>> On Wed 19-07-17 20:01:18, Wei Wang wrote:
->>>>>>>> On 07/19/2017 04:13 PM, Michal Hocko wrote:
->>>>>>> [...
->>>> We don't need to do the pfn walk in the guest kernel. When the API
->>>> reports, for example, a 2MB free page block, the API caller offers to
->>>> the hypervisor the base address of the page block, and size=2MB, to
->>>> the hypervisor.
->>> So you want to skip pfn walks by regularly calling into the page allocator to
->>> update your bitmap. If that is the case then would an API that would allow you
->>> to update your bitmap via a callback be s sufficient? Something like
->>> 	void walk_free_mem(int node, int min_order,
->>> 			void (*visit)(unsigned long pfn, unsigned long nr_pages))
->>>
->>> The function will call the given callback for each free memory block on the given
->>> node starting from the given min_order. The callback will be strictly an atomic
->>> and very light context. You can update your bitmap from there.
->> I would need to introduce more about the background here:
->> The hypervisor and the guest live in their own address space. The hypervisor's bitmap
->> isn't seen by the guest. I think we also wouldn't be able to give a callback function
->> from the hypervisor to the guest in this case.
-> How did you plan to use your original API which export struct page array
-> then?
-
-
-That's where the virtio-balloon driver comes in. It uses a shared ring 
-mechanism to
-send the guest memory info to the hypervisor.
-
-We didn't expose the struct page array from the guest to the hypervisor. 
-For example, when
-a 2MB free page block is reported from the free page list, the info put 
-on the ring is just
-(base address of the 2MB continuous memory, size=2M).
-
-
->
->>> This would address my main concern that the allocator internals would get
->>> outside of the allocator proper.
->> What issue would it have to expose the internal, for_each_zone()?
-> zone is a MM internal concept. No code outside of the MM proper should
-> really care about zones.
-
-I think this is also what Andrew suggested in the previous discussion:
-https://lkml.org/lkml/2017/3/16/951
-
-Move the code to virtio-balloon and a little layering violation seems 
-acceptable.
-
-
-Best,
-Wei
+CgpPbiAyMDE35bm0MDfmnIgyNeaXpSAwNToyOSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFdlZCwgSnVsIDE5LCAyMDE3IGF0IDA0OjU0OjQ5UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+IEN1cnJlbnQgWERQIGltcGxlbWVudGF0aW9uIHdhbnRzIGd1ZXN0IG9mZmxvYWRzIGZl
+YXR1cmUgdG8gYmUgZGlzYWJsZWQKPj4gb24gZGV2aWNlLiBUaGlzIGlzIGluY29udmVuaWVudCBh
+bmQgbWVhbnMgZ3Vlc3QgY2FuJ3QgYmVuZWZpdCBmcm9tCj4+IG9mZmxvYWRzIGlmIFhEUCBpcyBu
+b3QgdXNlZC4gVGhpcyBwYXRjaCB0cmllcyB0byBhZGRyZXNzIHRoaXMKPj4gbGltaXRhdGlvbiBi
+eSBkaXNhYmxpbmcgdGhlIG9mZmxvYWRzIG9uIGRlbWFuZCB0aHJvdWdoIGNvbnRyb2wgZ3Vlc3QK
+Pj4gb2ZmbG9hZHMuIEd1ZXN0IG9mZmxvYWRzIHdpbGwgYmUgZGlzYWJsZWQgYW5kIGVuYWJsZWQg
+b24gZGVtYW5kIG9uIFhEUAo+PiBzZXQuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcg
+PGphc293YW5nQHJlZGhhdC5jb20+Cj4gRG9lc24ndCBsb29rIGxpa2UgbXkgY29tbWVudHMgb24g
+djEgd2VyZSBhZGRyZXNzZWQuCj4gQ29weWluZyBoZXJlOgo+Cj4gSW4gZmFjdCwgc2luY2Ugd2Ug
+bm8gbG9uZ2VyIHJlc2V0IHdoZW4gWERQIGlzIHNldCwKPiBoZXJlIGRldmljZSBtaWdodCBoYXZl
+IG9mZmxvYWRzIGVuYWJsZWQsIGJ1ZmZlcnMgYXJlCj4gdXNlZCBidXQgbm90IGNvbnN1bWVkLCB0
+aGVuIFhEUCBpcyBzZXQuCj4KPiBUaGlzIGNhbiByZXN1bHQgaW4KPiAtIHBhY2tldCBzY2F0dGVy
+ZWQgYWNyb3NzIG11bHRpcGxlIGJ1ZmZlcnMKPiAgICAoaGFuZGxlZCBjb3JyZWN0bHkgYnV0IG5l
+ZWQgdG8gdXBkYXRlIHRoZSBjb21tZW50KQoKV2UgZHJvcCBhbGwgZ3NvIHBhY2tldCBub3csIHNv
+IHRoaXMgd29uJ3QgaGFwcGVuLgoKPiAtIHBhY2tldCBtYXkgaGF2ZSBWSVJUSU9fTkVUX0hEUl9G
+X05FRURTX0NTVU0sIGluIHRoYXQgY2FzZQo+ICAgIHRoZSBzcGVjIHNheXMgIlRoZSBjaGVja3N1
+bSBvbiB0aGUgcGFja2V0IGlzIGluY29tcGxldGUiLgo+ICAgIChwcm9iYWJseSBuZWVkcyB0byBi
+ZSBoYW5kbGVkIGJ5IGNhbGN1bGF0aW5nIHRoZSBjaGVja3N1bSkuCgpUaGlzIG5lZWRzIHRvIGJl
+IGZpeGVkLCBidXQgaXQgd2FzIG5vdCBpbnRyb2R1Y2VkIGJ5IHRoaXMgY29tbWl0IGJ1dDoKCmIw
+MGY3MGIwZGFjYiB2aXJ0aW8tbmV0OiB1bmJyZWFrIGNzdW1lZCBwYWNrZXRzIGZvciBYRFBfUEFT
+UyB3aGljaCAKYWxsb3dzIE5FRURTX0NTVU0gZm9yIG1lcmdlYWJsZSBidWZmZXIKYmI5MWFjY2Yy
+NzMzIHZpcnRpby1uZXQ6IFhEUCBzdXBwb3J0IGZvciBzbWFsbCBidWZmZXJzIHdoaWNoIGZvcmJp
+ZCAKY2hlY2tzdW1lZCBwYWNrZXQgZm9yIHNtYWxsIGJ1ZmZlcgoKV2lsbCBwb3N0IGEgcGF0Y2gg
+dG8gY2hlY2tzdW0gdGhlIHBhY2tldC4KClRoYW5rcwoKPgo+IEphc29uLCBhcyBEYXZpZCBhcHBs
+aWVkIHRoaXMgcGF0Y2ggYWxyZWFkeSwgY2FuIHlvdSBjb21tZW50Cj4gb24gdGhlIGlzc3VlcyBw
+bGVhc2U/Cj4KPj4gLS0tCj4+ICAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIHwgNzAgKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tCj4+ICAgMSBmaWxlIGNo
+YW5nZWQsIDY1IGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYgLS1naXQg
+YS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPj4g
+aW5kZXggYjNmYzAxZC4uNWZiZDE1ZSAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlv
+X25ldC5jCj4+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+PiBAQCAtNTcsNiArNTcs
+MTEgQEAgREVDTEFSRV9FV01BKHBrdF9sZW4sIDAsIDY0KQo+PiAgIAo+PiAgICNkZWZpbmUgVklS
+VE5FVF9EUklWRVJfVkVSU0lPTiAiMS4wLjAiCj4+ICAgCj4+ICtjb25zdCB1bnNpZ25lZCBsb25n
+IGd1ZXN0X29mZmxvYWRzW10gPSB7IFZJUlRJT19ORVRfRl9HVUVTVF9UU080LAo+PiArCQkJCQkg
+VklSVElPX05FVF9GX0dVRVNUX1RTTzYsCj4+ICsJCQkJCSBWSVJUSU9fTkVUX0ZfR1VFU1RfRUNO
+LAo+PiArCQkJCQkgVklSVElPX05FVF9GX0dVRVNUX1VGTyB9Owo+PiArCj4+ICAgc3RydWN0IHZp
+cnRuZXRfc3RhdHMgewo+PiAgIAlzdHJ1Y3QgdTY0X3N0YXRzX3N5bmMgdHhfc3luY3A7Cj4+ICAg
+CXN0cnVjdCB1NjRfc3RhdHNfc3luYyByeF9zeW5jcDsKPj4gQEAgLTE2NCwxMCArMTY5LDEzIEBA
+IHN0cnVjdCB2aXJ0bmV0X2luZm8gewo+PiAgIAl1OCBjdHJsX3Byb21pc2M7Cj4+ICAgCXU4IGN0
+cmxfYWxsbXVsdGk7Cj4+ICAgCXUxNiBjdHJsX3ZpZDsKPj4gKwl1NjQgY3RybF9vZmZsb2FkczsK
+Pj4gICAKPj4gICAJLyogRXRodG9vbCBzZXR0aW5ncyAqLwo+PiAgIAl1OCBkdXBsZXg7Cj4+ICAg
+CXUzMiBzcGVlZDsKPj4gKwo+PiArCXVuc2lnbmVkIGxvbmcgZ3Vlc3Rfb2ZmbG9hZHM7Cj4+ICAg
+fTsKPj4gICAKPj4gICBzdHJ1Y3QgcGFkZGVkX3ZuZXRfaGRyIHsKPj4gQEAgLTE4OTYsNiArMTkw
+NCw0NyBAQCBzdGF0aWMgaW50IHZpcnRuZXRfcmVzdG9yZV91cChzdHJ1Y3QgdmlydGlvX2Rldmlj
+ZSAqdmRldikKPj4gICAJcmV0dXJuIGVycjsKPj4gICB9Cj4+ICAgCj4+ICtzdGF0aWMgaW50IHZp
+cnRuZXRfc2V0X2d1ZXN0X29mZmxvYWRzKHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpLCB1NjQgb2Zm
+bG9hZHMpCj4+ICt7Cj4+ICsJc3RydWN0IHNjYXR0ZXJsaXN0IHNnOwo+PiArCXZpLT5jdHJsX29m
+ZmxvYWRzID0gY3B1X3RvX3ZpcnRpbzY0KHZpLT52ZGV2LCBvZmZsb2Fkcyk7Cj4+ICsKPj4gKwlz
+Z19pbml0X29uZSgmc2csICZ2aS0+Y3RybF9vZmZsb2Fkcywgc2l6ZW9mKHZpLT5jdHJsX29mZmxv
+YWRzKSk7Cj4+ICsKPj4gKwlpZiAoIXZpcnRuZXRfc2VuZF9jb21tYW5kKHZpLCBWSVJUSU9fTkVU
+X0NUUkxfR1VFU1RfT0ZGTE9BRFMsCj4+ICsJCQkJICBWSVJUSU9fTkVUX0NUUkxfR1VFU1RfT0ZG
+TE9BRFNfU0VULCAmc2cpKSB7Cj4+ICsJCWRldl93YXJuKCZ2aS0+ZGV2LT5kZXYsICJGYWlsIHRv
+IHNldCBndWVzdCBvZmZsb2FkLiBcbiIpOwo+PiArCQlyZXR1cm4gLUVJTlZBTDsKPj4gKwl9Cj4+
+ICsKPj4gKwlyZXR1cm4gMDsKPj4gK30KPj4gKwo+PiArc3RhdGljIGludCB2aXJ0bmV0X2NsZWFy
+X2d1ZXN0X29mZmxvYWRzKHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpKQo+PiArewo+PiArCXU2NCBv
+ZmZsb2FkcyA9IDA7Cj4+ICsKPj4gKwlpZiAoIXZpLT5ndWVzdF9vZmZsb2FkcykKPj4gKwkJcmV0
+dXJuIDA7Cj4+ICsKPj4gKwlpZiAodmlydGlvX2hhc19mZWF0dXJlKHZpLT52ZGV2LCBWSVJUSU9f
+TkVUX0ZfR1VFU1RfQ1NVTSkpCj4+ICsJCW9mZmxvYWRzID0gMVVMTCA8PCBWSVJUSU9fTkVUX0Zf
+R1VFU1RfQ1NVTTsKPj4gKwo+PiArCXJldHVybiB2aXJ0bmV0X3NldF9ndWVzdF9vZmZsb2Fkcyh2
+aSwgb2ZmbG9hZHMpOwo+PiArfQo+PiArCj4+ICtzdGF0aWMgaW50IHZpcnRuZXRfcmVzdG9yZV9n
+dWVzdF9vZmZsb2FkcyhzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSkKPj4gK3sKPj4gKwl1NjQgb2Zm
+bG9hZHMgPSB2aS0+Z3Vlc3Rfb2ZmbG9hZHM7Cj4+ICsKPj4gKwlpZiAoIXZpLT5ndWVzdF9vZmZs
+b2FkcykKPj4gKwkJcmV0dXJuIDA7Cj4+ICsJaWYgKHZpcnRpb19oYXNfZmVhdHVyZSh2aS0+dmRl
+diwgVklSVElPX05FVF9GX0dVRVNUX0NTVU0pKQo+PiArCQlvZmZsb2FkcyB8PSAxVUxMIDw8IFZJ
+UlRJT19ORVRfRl9HVUVTVF9DU1VNOwo+PiArCj4+ICsJcmV0dXJuIHZpcnRuZXRfc2V0X2d1ZXN0
+X29mZmxvYWRzKHZpLCBvZmZsb2Fkcyk7Cj4+ICt9Cj4+ICsKPj4gICBzdGF0aWMgaW50IHZpcnRu
+ZXRfeGRwX3NldChzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LCBzdHJ1Y3QgYnBmX3Byb2cgKnByb2cs
+Cj4+ICAgCQkJICAgc3RydWN0IG5ldGxpbmtfZXh0X2FjayAqZXh0YWNrKQo+PiAgIHsKPj4gQEAg
+LTE5MDUsMTAgKzE5NTQsMTEgQEAgc3RhdGljIGludCB2aXJ0bmV0X3hkcF9zZXQoc3RydWN0IG5l
+dF9kZXZpY2UgKmRldiwgc3RydWN0IGJwZl9wcm9nICpwcm9nLAo+PiAgIAl1MTYgeGRwX3FwID0g
+MCwgY3Vycl9xcDsKPj4gICAJaW50IGksIGVycjsKPj4gICAKPj4gLQlpZiAodmlydGlvX2hhc19m
+ZWF0dXJlKHZpLT52ZGV2LCBWSVJUSU9fTkVUX0ZfR1VFU1RfVFNPNCkgfHwKPj4gLQkgICAgdmly
+dGlvX2hhc19mZWF0dXJlKHZpLT52ZGV2LCBWSVJUSU9fTkVUX0ZfR1VFU1RfVFNPNikgfHwKPj4g
+LQkgICAgdmlydGlvX2hhc19mZWF0dXJlKHZpLT52ZGV2LCBWSVJUSU9fTkVUX0ZfR1VFU1RfRUNO
+KSB8fAo+PiAtCSAgICB2aXJ0aW9faGFzX2ZlYXR1cmUodmktPnZkZXYsIFZJUlRJT19ORVRfRl9H
+VUVTVF9VRk8pKSB7Cj4+ICsJaWYgKCF2aXJ0aW9faGFzX2ZlYXR1cmUodmktPnZkZXYsIFZJUlRJ
+T19ORVRfRl9DVFJMX0dVRVNUX09GRkxPQURTKQo+PiArCSAgICAmJiAodmlydGlvX2hhc19mZWF0
+dXJlKHZpLT52ZGV2LCBWSVJUSU9fTkVUX0ZfR1VFU1RfVFNPNCkgfHwKPj4gKwkgICAgICAgIHZp
+cnRpb19oYXNfZmVhdHVyZSh2aS0+dmRldiwgVklSVElPX05FVF9GX0dVRVNUX1RTTzYpIHx8Cj4+
+ICsJICAgICAgICB2aXJ0aW9faGFzX2ZlYXR1cmUodmktPnZkZXYsIFZJUlRJT19ORVRfRl9HVUVT
+VF9FQ04pIHx8Cj4+ICsJCXZpcnRpb19oYXNfZmVhdHVyZSh2aS0+dmRldiwgVklSVElPX05FVF9G
+X0dVRVNUX1VGTykpKSB7Cj4+ICAgCQlOTF9TRVRfRVJSX01TR19NT0QoZXh0YWNrLCAiQ2FuJ3Qg
+c2V0IFhEUCB3aGlsZSBob3N0IGlzIGltcGxlbWVudGluZyBMUk8sIGRpc2FibGUgTFJPIGZpcnN0
+Iik7Cj4+ICAgCQlyZXR1cm4gLUVPUE5PVFNVUFA7Cj4+ICAgCX0KPj4gQEAgLTE5NTUsNiArMjAw
+NSwxMiBAQCBzdGF0aWMgaW50IHZpcnRuZXRfeGRwX3NldChzdHJ1Y3QgbmV0X2RldmljZSAqZGV2
+LCBzdHJ1Y3QgYnBmX3Byb2cgKnByb2csCj4+ICAgCWZvciAoaSA9IDA7IGkgPCB2aS0+bWF4X3F1
+ZXVlX3BhaXJzOyBpKyspIHsKPj4gICAJCW9sZF9wcm9nID0gcnRubF9kZXJlZmVyZW5jZSh2aS0+
+cnFbaV0ueGRwX3Byb2cpOwo+PiAgIAkJcmN1X2Fzc2lnbl9wb2ludGVyKHZpLT5ycVtpXS54ZHBf
+cHJvZywgcHJvZyk7Cj4+ICsJCWlmIChpID09IDApIHsKPj4gKwkJCWlmICghb2xkX3Byb2cpCj4+
+ICsJCQkJdmlydG5ldF9jbGVhcl9ndWVzdF9vZmZsb2Fkcyh2aSk7Cj4+ICsJCQlpZiAoIXByb2cp
+Cj4+ICsJCQkJdmlydG5ldF9yZXN0b3JlX2d1ZXN0X29mZmxvYWRzKHZpKTsKPj4gKwkJfQo+PiAg
+IAkJaWYgKG9sZF9wcm9nKQo+PiAgIAkJCWJwZl9wcm9nX3B1dChvbGRfcHJvZyk7Cj4+ICAgCQl2
+aXJ0bmV0X25hcGlfZW5hYmxlKHZpLT5ycVtpXS52cSwgJnZpLT5ycVtpXS5uYXBpKTsKPj4gQEAg
+LTI1ODgsNiArMjY0NCwxMCBAQCBzdGF0aWMgaW50IHZpcnRuZXRfcHJvYmUoc3RydWN0IHZpcnRp
+b19kZXZpY2UgKnZkZXYpCj4+ICAgCQluZXRpZl9jYXJyaWVyX29uKGRldik7Cj4+ICAgCX0KPj4g
+ICAKPj4gKwlmb3IgKGkgPSAwOyBpIDwgQVJSQVlfU0laRShndWVzdF9vZmZsb2Fkcyk7IGkrKykK
+Pj4gKwkJaWYgKHZpcnRpb19oYXNfZmVhdHVyZSh2aS0+dmRldiwgZ3Vlc3Rfb2ZmbG9hZHNbaV0p
+KQo+PiArCQkJc2V0X2JpdChndWVzdF9vZmZsb2Fkc1tpXSwgJnZpLT5ndWVzdF9vZmZsb2Fkcyk7
+Cj4+ICsKPj4gICAJcHJfZGVidWcoInZpcnRuZXQ6IHJlZ2lzdGVyZWQgZGV2aWNlICVzIHdpdGgg
+JWQgUlggYW5kIFRYIHZxJ3NcbiIsCj4+ICAgCQkgZGV2LT5uYW1lLCBtYXhfcXVldWVfcGFpcnMp
+Owo+PiAgIAo+PiBAQCAtMjY4NCw3ICsyNzQ0LDcgQEAgc3RhdGljIHN0cnVjdCB2aXJ0aW9fZGV2
+aWNlX2lkIGlkX3RhYmxlW10gPSB7Cj4+ICAgCVZJUlRJT19ORVRfRl9DVFJMX1JYLCBWSVJUSU9f
+TkVUX0ZfQ1RSTF9WTEFOLCBcCj4+ICAgCVZJUlRJT19ORVRfRl9HVUVTVF9BTk5PVU5DRSwgVklS
+VElPX05FVF9GX01RLCBcCj4+ICAgCVZJUlRJT19ORVRfRl9DVFJMX01BQ19BRERSLCBcCj4+IC0J
+VklSVElPX05FVF9GX01UVQo+PiArCVZJUlRJT19ORVRfRl9NVFUsIFZJUlRJT19ORVRfRl9DVFJM
+X0dVRVNUX09GRkxPQURTCj4+ICAgCj4+ICAgc3RhdGljIHVuc2lnbmVkIGludCBmZWF0dXJlc1td
+ID0gewo+PiAgIAlWSVJUTkVUX0ZFQVRVUkVTLAo+PiAtLSAKPj4gMi43LjQKCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
