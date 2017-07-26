@@ -1,20 +1,15 @@
-From: "Wang, Wei W" <wei.w.wang@intel.com>
-Subject: RE: [PATCH v12 6/8] mm: support reporting free page blocks
-Date: Wed, 26 Jul 2017 12:47:47 +0000
-Message-ID: <286AC319A985734F985F78AFA26841F739285191__28463.0836839371$1501073294$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <20170724090042.GF25221@dhcp22.suse.cz>
-	<59771010.6080108@intel.com> <20170725112513.GD26723@dhcp22.suse.cz>
-	<597731E8.9040803@intel.com> <20170725124141.GF26723@dhcp22.suse.cz>
-	<286AC319A985734F985F78AFA26841F739283F62@shsmsx102.ccr.corp.intel.com>
-	<20170725145333.GK26723@dhcp22.suse.cz> <5977FCDF.7040606@intel.com>
-	<20170726102458.GH2981@dhcp22.suse.cz> <59788097.6010402@intel.com>
-	<20170726115506.GM2981@dhcp22.suse.cz>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-net: fix module unloading
+Date: Wed, 26 Jul 2017 15:50:03 +0300
+Message-ID: <20170726154927-mutt-send-email-mst__35883.3457729363$1501073422$gmane$org@kernel.org>
+References: <20170724133832.27364-1-drjones@redhat.com>
+	<37d51fa3-21e4-ae55-6d5b-6ade97ae4bc8@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170726115506.GM2981@dhcp22.suse.cz>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <37d51fa3-21e4-ae55-6d5b-6ade97ae4bc8@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,53 +19,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Andrew Jones <drjones@redhat.com>, linux-kernel@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday, July 26, 2017 7:55 PM, Michal Hocko wrote:
-> On Wed 26-07-17 19:44:23, Wei Wang wrote:
-> [...]
-> > I thought about it more. Probably we can use the callback function
-> > with a little change like this:
-> >
-> > void walk_free_mem(void *opaque1, void (*visit)(void *opaque2,
-> > unsigned long pfn,
-> >            unsigned long nr_pages))
-> > {
-> >     ...
-> >     for_each_populated_zone(zone) {
-> >                    for_each_migratetype_order(order, type) {
-> >                         report_unused_page_block(zone, order, type,
-> > &page); // from patch 6
-> >                         pfn = page_to_pfn(page);
-> >                         visit(opaque1, pfn, 1 << order);
-> >                     }
-> >     }
-> > }
-> >
-> > The above function scans all the free list and directly sends each
-> > free page block to the hypervisor via the virtio_balloon callback
-> > below. No need to implement a bitmap.
-> >
-> > In virtio-balloon, we have the callback:
-> > void *virtio_balloon_report_unused_pages(void *opaque,  unsigned long
-> > pfn, unsigned long nr_pages) {
-> >     struct virtio_balloon *vb = (struct virtio_balloon *)opaque;
-> >     ...put the free page block to the the ring of vb; }
-> >
-> >
-> > What do you think?
-> 
-> I do not mind conveying a context to the callback. I would still prefer
-> to keep the original min_order to check semantic though. Why? Well,
-> it doesn't make much sense to scan low order free blocks all the time
-> because they are simply too volatile. Larger blocks tend to surivive for
-> longer. So I assume you would only care about larger free blocks. This
-> will also make the call cheaper.
-> --
-
-OK, I will keep min order there in the next version.
-
-Best,
-Wei
+T24gV2VkLCBKdWwgMjYsIDIwMTcgYXQgMTE6NTI6MDdBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE35bm0MDfmnIgyNOaXpSAyMTozOCwgQW5kcmV3IEpvbmVzIHdyb3Rl
+Ogo+ID4gVW5yZWdpc3RlciB0aGUgZHJpdmVyIGJlZm9yZSByZW1vdmluZyBtdWx0aS1pbnN0YW5j
+ZSBob3RwbHVnCj4gPiBjYWxsYmFja3MuIFRoaXMgb3JkZXIgYXZvaWRzIHRoZSB3YXJuaW5nIGlz
+c3VlZCBmcm9tCj4gPiBfX2NwdWhwX3JlbW92ZV9zdGF0ZV9jcHVzbG9ja2VkIHdoZW4gdGhlIG51
+bWJlciBvZiByZW1haW5pbmcKPiA+IGluc3RhbmNlcyBpc24ndCB5ZXQgemVyby4KPiA+IAo+ID4g
+Rml4ZXM6IDgwMTdjMjc5MTk2YSAoIm5ldC92aXJ0aW8tbmV0OiBDb252ZXJ0IHRvIGhvdHBsdWcg
+c3RhdGUgbWFjaGluZSIpCj4gPiBDYzogU2ViYXN0aWFuIEFuZHJ6ZWogU2lld2lvciA8YmlnZWFz
+eUBsaW51dHJvbml4LmRlPgo+ID4gU2lnbmVkLW9mZi1ieTogQW5kcmV3IEpvbmVzIDxkcmpvbmVz
+QHJlZGhhdC5jb20+Cj4gPiAtLS0KPiA+ICAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIHwgMiAr
+LQo+ID4gICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPiA+
+IAo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0
+L3ZpcnRpb19uZXQuYwo+ID4gaW5kZXggOTlhMjZhOWVmZWMxLi5mNDFhYjBlYTk0MmEgMTAwNjQ0
+Cj4gPiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiA+ICsrKyBiL2RyaXZlcnMvbmV0
+L3ZpcnRpb19uZXQuYwo+ID4gQEAgLTI3NDMsOSArMjc0Myw5IEBAIG1vZHVsZV9pbml0KHZpcnRp
+b19uZXRfZHJpdmVyX2luaXQpOwo+ID4gICBzdGF0aWMgX19leGl0IHZvaWQgdmlydGlvX25ldF9k
+cml2ZXJfZXhpdCh2b2lkKQo+ID4gICB7Cj4gPiArCXVucmVnaXN0ZXJfdmlydGlvX2RyaXZlcigm
+dmlydGlvX25ldF9kcml2ZXIpOwo+ID4gICAJY3B1aHBfcmVtb3ZlX211bHRpX3N0YXRlKENQVUhQ
+X1ZJUlRfTkVUX0RFQUQpOwo+ID4gICAJY3B1aHBfcmVtb3ZlX211bHRpX3N0YXRlKHZpcnRpb25l
+dF9vbmxpbmUpOwo+ID4gLQl1bnJlZ2lzdGVyX3ZpcnRpb19kcml2ZXIoJnZpcnRpb19uZXRfZHJp
+dmVyKTsKPiA+ICAgfQo+ID4gICBtb2R1bGVfZXhpdCh2aXJ0aW9fbmV0X2RyaXZlcl9leGl0KTsK
+PiAKPiBBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KClRoYW5rcyBm
+b3IgdGhlIHJldmlldyEKSSBtZXJnZWQgaXQgYmVmb3JlIHRoZSB0YWcgYW5kIGRvbid0IHdhbnQg
+dG8gcmViYXNlLgpTb3JyeSBhYm91dCB0aGF0LgoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
+VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
+aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
