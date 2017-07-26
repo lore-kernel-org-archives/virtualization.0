@@ -1,18 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] Revert "vhost: cache used event for better
-	performance"
-Date: Wed, 26 Jul 2017 19:08:26 +0300
-Message-ID: <20170726190745-mutt-send-email-mst@kernel.org>
-References: <1501056197-3368-1-git-send-email-jasowang@redhat.com>
-	<20170726155435-mutt-send-email-mst@kernel.org>
-	<117542fc-eef9-c043-7c9e-daafceb7db4e@redhat.com>
-	<6b3a9a98-c095-1729-3528-dd521f136797@redhat.com>
+Subject: [PULL] vhost: fixes, cleanups
+Date: Wed, 26 Jul 2017 19:11:34 +0300
+Message-ID: <20170726191134-mutt-send-email-mst__1460.33399873904$1501085522$gmane$org@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <6b3a9a98-c095-1729-3528-dd521f136797@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,36 +16,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: drjones@redhat.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, bigeasy@linutronix.de, liang.z.li@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, andriy.shevchenko@linux.intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKdWwgMjYsIDIwMTcgYXQgMDk6Mzc6MTVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE35bm0MDfmnIgyNuaXpSAyMToxOCwgSmFzb24gV2FuZyB3cm90ZToK
-PiA+IAo+ID4gCj4gPiBPbiAyMDE35bm0MDfmnIgyNuaXpSAyMDo1NywgTWljaGFlbCBTLiBUc2ly
-a2luIHdyb3RlOgo+ID4gPiBPbiBXZWQsIEp1bCAyNiwgMjAxNyBhdCAwNDowMzoxN1BNICswODAw
-LCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+IFRoaXMgcmV2ZXJ0cyBjb21taXQgODA5ZWNiOWJj
-YTZhOTQyNGNjZDM5MmQ2N2UzNjgxNjBmOGI3NmM5Mi4gU2luY2UgaXQKPiA+ID4gPiB3YXMgcmVw
-b3J0ZWQgdG8gYnJlYWsgdmhvc3RfbmV0LiBXZSB3YW50IHRvIGNhY2hlIHVzZWQgZXZlbnQgYW5k
-IHVzZQo+ID4gPiA+IGl0IHRvIGNoZWNrIGZvciBub3RpZmljYXRpb24uIFdlIHRyeSB0byB2YWxp
-ZCBjYWNoZWQgdXNlZCBldmVudCBieQo+ID4gPiA+IGNoZWNraW5nIHdoZXRoZXIgb3Igbm90IGl0
-IHdhcyBhaGVhZCBvZiBuZXcsIGJ1dCB0aGlzIGlzIG5vdCBjb3JyZWN0Cj4gPiA+ID4gYWxsIHRo
-ZSB0aW1lLCBpdCBjb3VsZCBiZSBzdGFsZSBhbmQgdGhlcmUncyBubyB3YXkgdG8ga25vdyBhYm91
-dCB0aGlzLgo+ID4gPiA+IAo+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmc8amFzb3dh
-bmdAcmVkaGF0LmNvbT4KPiA+ID4gQ291bGQgeW91IHN1cHBseSBhIGJpdCBtb3JlIGRhdGEgaGVy
-ZSBwbGVhc2U/ICBIb3cgZG9lcyBpdCBnZXQgc3RhbGU/Cj4gPiA+IFdoYXQgZG9lcyBndWVzdCBu
-ZWVkIHRvIGRvIHRvIG1ha2UgaXQgc3RhbGU/ICBUaGlzIHdpbGwgYmUgaGVscGZ1bCBpZgo+ID4g
-PiBhbnlvbmUgd2FudHMgdG8gYnJpbmcgaXQgYmFjaywgb3IgaWYgd2Ugd2FudCB0byBleHRlbmQg
-dGhlIHByb3RvY29sLgo+ID4gPiAKPiA+IAo+ID4gVGhlIHByb2JsZW0gd2UgZG9uJ3Qga25vdyB3
-aGV0aGVyIG9yIG5vdCBndWVzdCBoYXMgcHVibGlzaGVkIGEgbmV3IHVzZWQKPiA+IGV2ZW50LiBU
-aGUgY2hlY2sgdnJpbmdfbmVlZF9ldmVudCh2cS0+bGFzdF91c2VkX2V2ZW50LCBuZXcgKyB2cS0+
-bnVtLAo+ID4gbmV3KSBpcyBub3Qgc3VmZmljaWVudCB0byBjaGVjayBmb3IgdGhpcy4KPiA+IAo+
-ID4gVGhhbmtzCj4gCj4gTW9yZSBub3RlcywgdGhlIHByZXZpb3VzIGFzc3VtcHRpb24gaXMgdGhh
-dCB3ZSBkb24ndCBtb3ZlIHVzZWQgZXZlbnQgYmFjaywKPiBidXQgdGhpcyBjb3VsZCBoYXBwZW4g
-aW4gZmFjdCBpZiBpZHggaXMgd3JhcHBlciBhcm91bmQuCgpZb3UgbWVhbiBpZiB0aGUgMTYgYml0
-IGluZGV4IHdyYXBzIGFyb3VuZCBhZnRlciA2NEsgZW50cmllcy4KTWFrZXMgc2Vuc2UuCgo+IFdp
-bGwgcmVwb3N0IGFuZCBhZGQKPiB0aGlzIGludG8gY29tbWl0IGxvZy4KPiAKPiBUaGFua3MKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+All's quiet here this cycle, just some minor fixes.  A block printk
+message bugfix is still pending for the next pull, didn't want to delay
+this one as people are getting impatient.
+
+The following changes since commit 520eccdfe187591a51ea9ab4c1a024ae4d0f68d9:
+
+  Linux 4.13-rc2 (2017-07-23 16:15:17 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to cfa0ebc9d6d6308564f5174ecb655b9d504b2be5:
+
+  virtio-net: fix module unloading (2017-07-25 16:37:36 +0300)
+
+----------------------------------------------------------------
+virtio: fixes, cleanups
+
+Fixes some minor issues all over the codebase.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Andrew Jones (1):
+      virtio-net: fix module unloading
+
+Andy Shevchenko (1):
+      virtio_blk: Use sysfs_match_string() helper
+
+Liang Li (1):
+      virtio-balloon: deflate via a page list
+
+Wei Wang (1):
+      virtio-balloon: coding format cleanup
+
+ drivers/block/virtio_blk.c      |  7 ++-----
+ drivers/net/virtio_net.c        |  2 +-
+ drivers/virtio/virtio_balloon.c | 28 ++++++++++++----------------
+ 3 files changed, 15 insertions(+), 22 deletions(-)
