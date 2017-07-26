@@ -1,17 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] Revert "vhost: cache used event for better
-	performance"
-Date: Wed, 26 Jul 2017 21:37:15 +0800
-Message-ID: <6b3a9a98-c095-1729-3528-dd521f136797__47015.950541436$1501076264$gmane$org@redhat.com>
-References: <1501056197-3368-1-git-send-email-jasowang@redhat.com>
-	<20170726155435-mutt-send-email-mst@kernel.org>
-	<117542fc-eef9-c043-7c9e-daafceb7db4e@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [PATCH] virtio_blk: fix incorrect message when disk is resized
+Date: Wed, 26 Jul 2017 15:32:23 +0100
+Message-ID: <20170726143223.2769-1-stefanha@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <117542fc-eef9-c043-7c9e-daafceb7db4e@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,32 +15,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDfmnIgyNuaXpSAyMToxOCwgSmFzb24gV2FuZyB3cm90ZToKPgo+Cj4gT24g
-MjAxN+W5tDA35pyIMjbml6UgMjA6NTcsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4gT24g
-V2VkLCBKdWwgMjYsIDIwMTcgYXQgMDQ6MDM6MTdQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4+IFRoaXMgcmV2ZXJ0cyBjb21taXQgODA5ZWNiOWJjYTZhOTQyNGNjZDM5MmQ2N2UzNjgxNjBm
-OGI3NmM5Mi4gU2luY2UgaXQKPj4+IHdhcyByZXBvcnRlZCB0byBicmVhayB2aG9zdF9uZXQuIFdl
-IHdhbnQgdG8gY2FjaGUgdXNlZCBldmVudCBhbmQgdXNlCj4+PiBpdCB0byBjaGVjayBmb3Igbm90
-aWZpY2F0aW9uLiBXZSB0cnkgdG8gdmFsaWQgY2FjaGVkIHVzZWQgZXZlbnQgYnkKPj4+IGNoZWNr
-aW5nIHdoZXRoZXIgb3Igbm90IGl0IHdhcyBhaGVhZCBvZiBuZXcsIGJ1dCB0aGlzIGlzIG5vdCBj
-b3JyZWN0Cj4+PiBhbGwgdGhlIHRpbWUsIGl0IGNvdWxkIGJlIHN0YWxlIGFuZCB0aGVyZSdzIG5v
-IHdheSB0byBrbm93IGFib3V0IHRoaXMuCj4+Pgo+Pj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2Fu
-ZzxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+PiBDb3VsZCB5b3Ugc3VwcGx5IGEgYml0IG1vcmUgZGF0
-YSBoZXJlIHBsZWFzZT8gIEhvdyBkb2VzIGl0IGdldCBzdGFsZT8KPj4gV2hhdCBkb2VzIGd1ZXN0
-IG5lZWQgdG8gZG8gdG8gbWFrZSBpdCBzdGFsZT8gIFRoaXMgd2lsbCBiZSBoZWxwZnVsIGlmCj4+
-IGFueW9uZSB3YW50cyB0byBicmluZyBpdCBiYWNrLCBvciBpZiB3ZSB3YW50IHRvIGV4dGVuZCB0
-aGUgcHJvdG9jb2wuCj4+Cj4KPiBUaGUgcHJvYmxlbSB3ZSBkb24ndCBrbm93IHdoZXRoZXIgb3Ig
-bm90IGd1ZXN0IGhhcyBwdWJsaXNoZWQgYSBuZXcgCj4gdXNlZCBldmVudC4gVGhlIGNoZWNrIHZy
-aW5nX25lZWRfZXZlbnQodnEtPmxhc3RfdXNlZF9ldmVudCwgbmV3ICsgCj4gdnEtPm51bSwgbmV3
-KSBpcyBub3Qgc3VmZmljaWVudCB0byBjaGVjayBmb3IgdGhpcy4KPgo+IFRoYW5rcwoKTW9yZSBu
-b3RlcywgdGhlIHByZXZpb3VzIGFzc3VtcHRpb24gaXMgdGhhdCB3ZSBkb24ndCBtb3ZlIHVzZWQg
-ZXZlbnQgCmJhY2ssIGJ1dCB0aGlzIGNvdWxkIGhhcHBlbiBpbiBmYWN0IGlmIGlkeCBpcyB3cmFw
-cGVyIGFyb3VuZC4gV2lsbCAKcmVwb3N0IGFuZCBhZGQgdGhpcyBpbnRvIGNvbW1pdCBsb2cuCgpU
-aGFua3MKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+The message printed on disk resize is incorrect.  The following is
+printed when resizing to 2 GiB:
+
+  $ truncate -s 1G test.img
+  $ qemu -device virtio-blk-pci,logical_block_size=4096,...
+  (qemu) block_resize drive1 2G
+
+  virtio_blk virtio0: new size: 4194304 4096-byte logical blocks (17.2 GB/16.0 GiB)
+
+The virtio_blk capacity config field is in 512-byte sector units
+regardless of logical_block_size as per the VIRTIO specification.
+Therefore the message should read:
+
+  virtio_blk virtio0: new size: 524288 4096-byte logical blocks (2.15 GB/2.0 GiB)
+
+Note that this only affects the printed message.  Thankfully the actual
+block device has the correct size because the block layer expects
+capacity in sectors.
+
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+---
+ drivers/block/virtio_blk.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 4e02aa5fdac0..69a2d1748743 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -381,6 +381,7 @@ static void virtblk_config_changed_work(struct work_struct *work)
+ 	struct request_queue *q = vblk->disk->queue;
+ 	char cap_str_2[10], cap_str_10[10];
+ 	char *envp[] = { "RESIZE=1", NULL };
++	unsigned long long nblocks;
+ 	u64 capacity;
+ 
+ 	/* Host must always specify the capacity. */
+@@ -393,16 +394,19 @@ static void virtblk_config_changed_work(struct work_struct *work)
+ 		capacity = (sector_t)-1;
+ 	}
+ 
+-	string_get_size(capacity, queue_logical_block_size(q),
++	nblocks = DIV_ROUND_UP_ULL(capacity, queue_logical_block_size(q) >> 9);
++
++	string_get_size(nblocks, queue_logical_block_size(q),
+ 			STRING_UNITS_2, cap_str_2, sizeof(cap_str_2));
+-	string_get_size(capacity, queue_logical_block_size(q),
++	string_get_size(nblocks, queue_logical_block_size(q),
+ 			STRING_UNITS_10, cap_str_10, sizeof(cap_str_10));
+ 
+ 	dev_notice(&vdev->dev,
+-		  "new size: %llu %d-byte logical blocks (%s/%s)\n",
+-		  (unsigned long long)capacity,
+-		  queue_logical_block_size(q),
+-		  cap_str_10, cap_str_2);
++		   "new size: %llu %d-byte logical blocks (%s/%s)\n",
++		   nblocks,
++		   queue_logical_block_size(q),
++		   cap_str_10,
++		   cap_str_2);
+ 
+ 	set_capacity(vblk->disk, capacity);
+ 	revalidate_disk(vblk->disk);
+-- 
+2.13.3
