@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net] Revert "vhost: cache used event for better
 	performance"
-Date: Wed, 26 Jul 2017 15:57:23 +0300
-Message-ID: <20170726155435-mutt-send-email-mst@kernel.org>
+Date: Wed, 26 Jul 2017 21:18:02 +0800
+Message-ID: <117542fc-eef9-c043-7c9e-daafceb7db4e__10500.8252816789$1501075114$gmane$org@redhat.com>
 References: <1501056197-3368-1-git-send-email-jasowang@redhat.com>
+	<20170726155435-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1501056197-3368-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20170726155435-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,113 +20,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 26, 2017 at 04:03:17PM +0800, Jason Wang wrote:
-> This reverts commit 809ecb9bca6a9424ccd392d67e368160f8b76c92. Since it
-> was reported to break vhost_net. We want to cache used event and use
-> it to check for notification. We try to valid cached used event by
-> checking whether or not it was ahead of new, but this is not correct
-> all the time, it could be stale and there's no way to know about this.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-
-Could you supply a bit more data here please?  How does it get stale?
-What does guest need to do to make it stale?  This will be helpful if
-anyone wants to bring it back, or if we want to extend the protocol.
-
-> ---
->  drivers/vhost/vhost.c | 28 ++++++----------------------
->  drivers/vhost/vhost.h |  3 ---
->  2 files changed, 6 insertions(+), 25 deletions(-)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index e4613a3..9cb3f72 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -308,7 +308,6 @@ static void vhost_vq_reset(struct vhost_dev *dev,
->  	vq->avail = NULL;
->  	vq->used = NULL;
->  	vq->last_avail_idx = 0;
-> -	vq->last_used_event = 0;
->  	vq->avail_idx = 0;
->  	vq->last_used_idx = 0;
->  	vq->signalled_used = 0;
-> @@ -1402,7 +1401,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
->  			r = -EINVAL;
->  			break;
->  		}
-> -		vq->last_avail_idx = vq->last_used_event = s.num;
-> +		vq->last_avail_idx = s.num;
->  		/* Forget the cached index value. */
->  		vq->avail_idx = vq->last_avail_idx;
->  		break;
-> @@ -2241,6 +2240,10 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
->  	__u16 old, new;
->  	__virtio16 event;
->  	bool v;
-> +	/* Flush out used index updates. This is paired
-> +	 * with the barrier that the Guest executes when enabling
-> +	 * interrupts. */
-> +	smp_mb();
->  
->  	if (vhost_has_feature(vq, VIRTIO_F_NOTIFY_ON_EMPTY) &&
->  	    unlikely(vq->avail_idx == vq->last_avail_idx))
-> @@ -2248,10 +2251,6 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
->  
->  	if (!vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX)) {
->  		__virtio16 flags;
-> -		/* Flush out used index updates. This is paired
-> -		 * with the barrier that the Guest executes when enabling
-> -		 * interrupts. */
-> -		smp_mb();
->  		if (vhost_get_avail(vq, flags, &vq->avail->flags)) {
->  			vq_err(vq, "Failed to get flags");
->  			return true;
-> @@ -2266,26 +2265,11 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
->  	if (unlikely(!v))
->  		return true;
->  
-> -	/* We're sure if the following conditions are met, there's no
-> -	 * need to notify guest:
-> -	 * 1) cached used event is ahead of new
-> -	 * 2) old to new updating does not cross cached used event. */
-> -	if (vring_need_event(vq->last_used_event, new + vq->num, new) &&
-> -	    !vring_need_event(vq->last_used_event, new, old))
-> -		return false;
-> -
-> -	/* Flush out used index updates. This is paired
-> -	 * with the barrier that the Guest executes when enabling
-> -	 * interrupts. */
-> -	smp_mb();
-> -
->  	if (vhost_get_avail(vq, event, vhost_used_event(vq))) {
->  		vq_err(vq, "Failed to get used event idx");
->  		return true;
->  	}
-> -	vq->last_used_event = vhost16_to_cpu(vq, event);
-> -
-> -	return vring_need_event(vq->last_used_event, new, old);
-> +	return vring_need_event(vhost16_to_cpu(vq, event), new, old);
->  }
->  
->  /* This actually signals the guest, using eventfd. */
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index f720958..bb7c29b 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -115,9 +115,6 @@ struct vhost_virtqueue {
->  	/* Last index we used. */
->  	u16 last_used_idx;
->  
-> -	/* Last used evet we've seen */
-> -	u16 last_used_event;
-> -
->  	/* Used flags */
->  	u16 used_flags;
->  
-> -- 
-> 2.7.4
+CgpPbiAyMDE35bm0MDfmnIgyNuaXpSAyMDo1NywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFdlZCwgSnVsIDI2LCAyMDE3IGF0IDA0OjAzOjE3UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+IFRoaXMgcmV2ZXJ0cyBjb21taXQgODA5ZWNiOWJjYTZhOTQyNGNjZDM5MmQ2N2UzNjgx
+NjBmOGI3NmM5Mi4gU2luY2UgaXQKPj4gd2FzIHJlcG9ydGVkIHRvIGJyZWFrIHZob3N0X25ldC4g
+V2Ugd2FudCB0byBjYWNoZSB1c2VkIGV2ZW50IGFuZCB1c2UKPj4gaXQgdG8gY2hlY2sgZm9yIG5v
+dGlmaWNhdGlvbi4gV2UgdHJ5IHRvIHZhbGlkIGNhY2hlZCB1c2VkIGV2ZW50IGJ5Cj4+IGNoZWNr
+aW5nIHdoZXRoZXIgb3Igbm90IGl0IHdhcyBhaGVhZCBvZiBuZXcsIGJ1dCB0aGlzIGlzIG5vdCBj
+b3JyZWN0Cj4+IGFsbCB0aGUgdGltZSwgaXQgY291bGQgYmUgc3RhbGUgYW5kIHRoZXJlJ3Mgbm8g
+d2F5IHRvIGtub3cgYWJvdXQgdGhpcy4KPj4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZzxq
+YXNvd2FuZ0ByZWRoYXQuY29tPgo+IENvdWxkIHlvdSBzdXBwbHkgYSBiaXQgbW9yZSBkYXRhIGhl
+cmUgcGxlYXNlPyAgSG93IGRvZXMgaXQgZ2V0IHN0YWxlPwo+IFdoYXQgZG9lcyBndWVzdCBuZWVk
+IHRvIGRvIHRvIG1ha2UgaXQgc3RhbGU/ICBUaGlzIHdpbGwgYmUgaGVscGZ1bCBpZgo+IGFueW9u
+ZSB3YW50cyB0byBicmluZyBpdCBiYWNrLCBvciBpZiB3ZSB3YW50IHRvIGV4dGVuZCB0aGUgcHJv
+dG9jb2wuCj4KClRoZSBwcm9ibGVtIHdlIGRvbid0IGtub3cgd2hldGhlciBvciBub3QgZ3Vlc3Qg
+aGFzIHB1Ymxpc2hlZCBhIG5ldyB1c2VkIApldmVudC4gVGhlIGNoZWNrIHZyaW5nX25lZWRfZXZl
+bnQodnEtPmxhc3RfdXNlZF9ldmVudCwgbmV3ICsgdnEtPm51bSwgCm5ldykgaXMgbm90IHN1ZmZp
+Y2llbnQgdG8gY2hlY2sgZm9yIHRoaXMuCgpUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
