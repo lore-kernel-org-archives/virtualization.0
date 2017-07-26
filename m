@@ -1,15 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-net: fix module unloading
-Date: Wed, 26 Jul 2017 15:50:03 +0300
-Message-ID: <20170726154927-mutt-send-email-mst__35883.3457729363$1501073422$gmane$org@kernel.org>
-References: <20170724133832.27364-1-drjones@redhat.com>
-	<37d51fa3-21e4-ae55-6d5b-6ade97ae4bc8@redhat.com>
+Subject: Re: [PATCH net] Revert "vhost: cache used event for better
+	performance"
+Date: Wed, 26 Jul 2017 15:57:23 +0300
+Message-ID: <20170726155435-mutt-send-email-mst@kernel.org>
+References: <1501056197-3368-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <37d51fa3-21e4-ae55-6d5b-6ade97ae4bc8@redhat.com>
+In-Reply-To: <1501056197-3368-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,33 +20,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jason Wang <jasowang@redhat.com>
-Cc: Andrew Jones <drjones@redhat.com>, linux-kernel@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKdWwgMjYsIDIwMTcgYXQgMTE6NTI6MDdBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE35bm0MDfmnIgyNOaXpSAyMTozOCwgQW5kcmV3IEpvbmVzIHdyb3Rl
-Ogo+ID4gVW5yZWdpc3RlciB0aGUgZHJpdmVyIGJlZm9yZSByZW1vdmluZyBtdWx0aS1pbnN0YW5j
-ZSBob3RwbHVnCj4gPiBjYWxsYmFja3MuIFRoaXMgb3JkZXIgYXZvaWRzIHRoZSB3YXJuaW5nIGlz
-c3VlZCBmcm9tCj4gPiBfX2NwdWhwX3JlbW92ZV9zdGF0ZV9jcHVzbG9ja2VkIHdoZW4gdGhlIG51
-bWJlciBvZiByZW1haW5pbmcKPiA+IGluc3RhbmNlcyBpc24ndCB5ZXQgemVyby4KPiA+IAo+ID4g
-Rml4ZXM6IDgwMTdjMjc5MTk2YSAoIm5ldC92aXJ0aW8tbmV0OiBDb252ZXJ0IHRvIGhvdHBsdWcg
-c3RhdGUgbWFjaGluZSIpCj4gPiBDYzogU2ViYXN0aWFuIEFuZHJ6ZWogU2lld2lvciA8YmlnZWFz
-eUBsaW51dHJvbml4LmRlPgo+ID4gU2lnbmVkLW9mZi1ieTogQW5kcmV3IEpvbmVzIDxkcmpvbmVz
-QHJlZGhhdC5jb20+Cj4gPiAtLS0KPiA+ICAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIHwgMiAr
-LQo+ID4gICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPiA+
-IAo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0
-L3ZpcnRpb19uZXQuYwo+ID4gaW5kZXggOTlhMjZhOWVmZWMxLi5mNDFhYjBlYTk0MmEgMTAwNjQ0
-Cj4gPiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiA+ICsrKyBiL2RyaXZlcnMvbmV0
-L3ZpcnRpb19uZXQuYwo+ID4gQEAgLTI3NDMsOSArMjc0Myw5IEBAIG1vZHVsZV9pbml0KHZpcnRp
-b19uZXRfZHJpdmVyX2luaXQpOwo+ID4gICBzdGF0aWMgX19leGl0IHZvaWQgdmlydGlvX25ldF9k
-cml2ZXJfZXhpdCh2b2lkKQo+ID4gICB7Cj4gPiArCXVucmVnaXN0ZXJfdmlydGlvX2RyaXZlcigm
-dmlydGlvX25ldF9kcml2ZXIpOwo+ID4gICAJY3B1aHBfcmVtb3ZlX211bHRpX3N0YXRlKENQVUhQ
-X1ZJUlRfTkVUX0RFQUQpOwo+ID4gICAJY3B1aHBfcmVtb3ZlX211bHRpX3N0YXRlKHZpcnRpb25l
-dF9vbmxpbmUpOwo+ID4gLQl1bnJlZ2lzdGVyX3ZpcnRpb19kcml2ZXIoJnZpcnRpb19uZXRfZHJp
-dmVyKTsKPiA+ICAgfQo+ID4gICBtb2R1bGVfZXhpdCh2aXJ0aW9fbmV0X2RyaXZlcl9leGl0KTsK
-PiAKPiBBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KClRoYW5rcyBm
-b3IgdGhlIHJldmlldyEKSSBtZXJnZWQgaXQgYmVmb3JlIHRoZSB0YWcgYW5kIGRvbid0IHdhbnQg
-dG8gcmViYXNlLgpTb3JyeSBhYm91dCB0aGF0LgoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, Jul 26, 2017 at 04:03:17PM +0800, Jason Wang wrote:
+> This reverts commit 809ecb9bca6a9424ccd392d67e368160f8b76c92. Since it
+> was reported to break vhost_net. We want to cache used event and use
+> it to check for notification. We try to valid cached used event by
+> checking whether or not it was ahead of new, but this is not correct
+> all the time, it could be stale and there's no way to know about this.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+
+
+Could you supply a bit more data here please?  How does it get stale?
+What does guest need to do to make it stale?  This will be helpful if
+anyone wants to bring it back, or if we want to extend the protocol.
+
+> ---
+>  drivers/vhost/vhost.c | 28 ++++++----------------------
+>  drivers/vhost/vhost.h |  3 ---
+>  2 files changed, 6 insertions(+), 25 deletions(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index e4613a3..9cb3f72 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -308,7 +308,6 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+>  	vq->avail = NULL;
+>  	vq->used = NULL;
+>  	vq->last_avail_idx = 0;
+> -	vq->last_used_event = 0;
+>  	vq->avail_idx = 0;
+>  	vq->last_used_idx = 0;
+>  	vq->signalled_used = 0;
+> @@ -1402,7 +1401,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp)
+>  			r = -EINVAL;
+>  			break;
+>  		}
+> -		vq->last_avail_idx = vq->last_used_event = s.num;
+> +		vq->last_avail_idx = s.num;
+>  		/* Forget the cached index value. */
+>  		vq->avail_idx = vq->last_avail_idx;
+>  		break;
+> @@ -2241,6 +2240,10 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>  	__u16 old, new;
+>  	__virtio16 event;
+>  	bool v;
+> +	/* Flush out used index updates. This is paired
+> +	 * with the barrier that the Guest executes when enabling
+> +	 * interrupts. */
+> +	smp_mb();
+>  
+>  	if (vhost_has_feature(vq, VIRTIO_F_NOTIFY_ON_EMPTY) &&
+>  	    unlikely(vq->avail_idx == vq->last_avail_idx))
+> @@ -2248,10 +2251,6 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>  
+>  	if (!vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX)) {
+>  		__virtio16 flags;
+> -		/* Flush out used index updates. This is paired
+> -		 * with the barrier that the Guest executes when enabling
+> -		 * interrupts. */
+> -		smp_mb();
+>  		if (vhost_get_avail(vq, flags, &vq->avail->flags)) {
+>  			vq_err(vq, "Failed to get flags");
+>  			return true;
+> @@ -2266,26 +2265,11 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>  	if (unlikely(!v))
+>  		return true;
+>  
+> -	/* We're sure if the following conditions are met, there's no
+> -	 * need to notify guest:
+> -	 * 1) cached used event is ahead of new
+> -	 * 2) old to new updating does not cross cached used event. */
+> -	if (vring_need_event(vq->last_used_event, new + vq->num, new) &&
+> -	    !vring_need_event(vq->last_used_event, new, old))
+> -		return false;
+> -
+> -	/* Flush out used index updates. This is paired
+> -	 * with the barrier that the Guest executes when enabling
+> -	 * interrupts. */
+> -	smp_mb();
+> -
+>  	if (vhost_get_avail(vq, event, vhost_used_event(vq))) {
+>  		vq_err(vq, "Failed to get used event idx");
+>  		return true;
+>  	}
+> -	vq->last_used_event = vhost16_to_cpu(vq, event);
+> -
+> -	return vring_need_event(vq->last_used_event, new, old);
+> +	return vring_need_event(vhost16_to_cpu(vq, event), new, old);
+>  }
+>  
+>  /* This actually signals the guest, using eventfd. */
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index f720958..bb7c29b 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -115,9 +115,6 @@ struct vhost_virtqueue {
+>  	/* Last index we used. */
+>  	u16 last_used_idx;
+>  
+> -	/* Last used evet we've seen */
+> -	u16 last_used_event;
+> -
+>  	/* Used flags */
+>  	u16 used_flags;
+>  
+> -- 
+> 2.7.4
