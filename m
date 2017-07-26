@@ -1,14 +1,21 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next] virtio-net: mark PM functions as __maybe_unused
-Date: Wed, 26 Jul 2017 11:21:46 +0800
-Message-ID: <964aa12c-37cc-749f-e4a2-abb26d953517@redhat.com>
-References: <20170725153600.211694-1-arnd@arndb.de>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v12 5/8] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Wed, 26 Jul 2017 11:48:41 +0800
+Message-ID: <59781119.8010200__13583.3812797957$1501040785$gmane$org@intel.com>
+References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
+	<1499863221-16206-6-git-send-email-wei.w.wang@intel.com>
+	<20170712160129-mutt-send-email-mst@kernel.org>
+	<5966241C.9060503@intel.com>
+	<20170712163746-mutt-send-email-mst@kernel.org>
+	<5967246B.9030804@intel.com>
+	<20170713210819-mutt-send-email-mst@kernel.org>
+	<59686EEB.8080805@intel.com>
+	<20170723044036-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170725153600.211694-1-arnd@arndb.de>
-Content-Language: en-US
+In-Reply-To: <20170723044036-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,45 +25,166 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, John Fastabend <john.fastabend@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDfmnIgyNeaXpSAyMzozNSwgQXJuZCBCZXJnbWFubiB3cm90ZToKPiBBZnRl
-ciByZW1vdmluZyB0aGUgcmVzZXQgZnVuY3Rpb24sIHRoZSBmcmVlemUgYW5kIHJlc3RvcmUgZnVu
-Y3Rpb25zCj4gYXJlIG5vdyB1bnVzZWQgd2hlbiBDT05GSUdfUE1fU0xFRVAgaXMgZGlzYWJsZWQ6
-Cj4KPiBkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmM6MTg4MToxMjogZXJyb3I6ICd2aXJ0bmV0X3Jl
-c3RvcmVfdXAnIGRlZmluZWQgYnV0IG5vdCB1c2VkIFstV2Vycm9yPXVudXNlZC1mdW5jdGlvbl0K
-PiAgIHN0YXRpYyBpbnQgdmlydG5ldF9yZXN0b3JlX3VwKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2
-ZGV2KQo+IGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYzoxODU5OjEzOiBlcnJvcjogJ3ZpcnRuZXRf
-ZnJlZXplX2Rvd24nIGRlZmluZWQgYnV0IG5vdCB1c2VkIFstV2Vycm9yPXVudXNlZC1mdW5jdGlv
-bl0KPiAgIHN0YXRpYyB2b2lkIHZpcnRuZXRfZnJlZXplX2Rvd24oc3RydWN0IHZpcnRpb19kZXZp
-Y2UgKnZkZXYpCj4KPiBBIG1vcmUgcm9idXN0IHdheSB0byBkbyB0aGlzIGlzIHRvIHJlbW92ZSB0
-aGUgI2lmZGVmIGFyb3VuZCB0aGUgY2FsbGVycwo+IGFuZCBpbnN0ZWFkIG1hcmsgdGhlbSBhcyBf
-X21heWJlX3VudXNlZC4gVGhlIGNvbXBpbGVyIHdpbGwgbm93IGp1c3QKPiBzaWxlbnRseSBkcm9w
-IHRoZSB1bnVzZWQgY29kZS4KPgo+IEZpeGVzOiA0OTQxZDQ3MmJmOTUgKCJ2aXJ0aW8tbmV0OiBk
-byBub3QgcmVzZXQgZHVyaW5nIFhEUCBzZXQiKQo+IFNpZ25lZC1vZmYtYnk6IEFybmQgQmVyZ21h
-bm4gPGFybmRAYXJuZGIuZGU+Cj4gLS0tCj4gICBkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgfCA2
-ICsrLS0tLQo+ICAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMo
-LSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25l
-dC92aXJ0aW9fbmV0LmMKPiBpbmRleCBkNDc1MWNlMjNiNGYuLjE5MDI3MDFlMTVhOSAxMDA2NDQK
-PiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiArKysgYi9kcml2ZXJzL25ldC92aXJ0
-aW9fbmV0LmMKPiBAQCAtMjcwMiw4ICsyNzAyLDcgQEAgc3RhdGljIHZvaWQgdmlydG5ldF9yZW1v
-dmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gICAJZnJlZV9uZXRkZXYodmktPmRldik7
-Cj4gICB9Cj4gICAKPiAtI2lmZGVmIENPTkZJR19QTV9TTEVFUAo+IC1zdGF0aWMgaW50IHZpcnRu
-ZXRfZnJlZXplKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICtzdGF0aWMgX19tYXliZV91
-bnVzZWQgaW50IHZpcnRuZXRfZnJlZXplKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICAg
-ewo+ICAgCXN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpID0gdmRldi0+cHJpdjsKPiAgIAo+IEBAIC0y
-NzE0LDcgKzI3MTMsNyBAQCBzdGF0aWMgaW50IHZpcnRuZXRfZnJlZXplKHN0cnVjdCB2aXJ0aW9f
-ZGV2aWNlICp2ZGV2KQo+ICAgCXJldHVybiAwOwo+ICAgfQo+ICAgCj4gLXN0YXRpYyBpbnQgdmly
-dG5ldF9yZXN0b3JlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICtzdGF0aWMgX19tYXli
-ZV91bnVzZWQgaW50IHZpcnRuZXRfcmVzdG9yZShzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikK
-PiAgIHsKPiAgIAlzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSA9IHZkZXYtPnByaXY7Cj4gICAJaW50
-IGVycjsKPiBAQCAtMjczMCw3ICsyNzI5LDYgQEAgc3RhdGljIGludCB2aXJ0bmV0X3Jlc3RvcmUo
-c3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gICAKPiAgIAlyZXR1cm4gMDsKPiAgIH0KPiAt
-I2VuZGlmCj4gICAKPiAgIHN0YXRpYyBzdHJ1Y3QgdmlydGlvX2RldmljZV9pZCBpZF90YWJsZVtd
-ID0gewo+ICAgCXsgVklSVElPX0lEX05FVCwgVklSVElPX0RFVl9BTllfSUQgfSwKCkFja2VkLWJ5
-OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 07/23/2017 09:45 AM, Michael S. Tsirkin wrote:
+> On Fri, Jul 14, 2017 at 03:12:43PM +0800, Wei Wang wrote:
+>> On 07/14/2017 04:19 AM, Michael S. Tsirkin wrote:
+>>> On Thu, Jul 13, 2017 at 03:42:35PM +0800, Wei Wang wrote:
+>>>> On 07/12/2017 09:56 PM, Michael S. Tsirkin wrote:
+>>>>> So the way I see it, there are several issues:
+>>>>>
+>>>>> - internal wait - forces multiple APIs like kick/kick_sync
+>>>>>      note how kick_sync can fail but your code never checks return code
+>>>>> - need to re-write the last descriptor - might not work
+>>>>>      for alternative layouts which always expose descriptors
+>>>>>      immediately
+>>>> Probably it wasn't clear. Please let me explain the two functions here:
+>>>>
+>>>> 1) virtqueue_add_chain_desc(vq, head_id, prev_id,..):
+>>>> grabs a desc from the vq and inserts it to the chain tail (which is indexed
+>>>> by
+>>>> prev_id, probably better to call it tail_id). Then, the new added desc
+>>>> becomes
+>>>> the tail (i.e. the last desc). The _F_NEXT flag is cleared for each desc
+>>>> when it's
+>>>> added to the chain, and set when another desc comes to follow later.
+>>> And this only works if there are multiple rings like
+>>> avail + descriptor ring.
+>>> It won't work e.g. with the proposed new layout where
+>>> writing out a descriptor exposes it immediately.
+>> I think it can support the 1.1 proposal, too. But before getting
+>> into that, I think we first need to deep dive into the implementation
+>> and usage of _first/next/last. The usage would need to lock the vq
+>> from the first to the end (otherwise, the returned info about the number
+>> of available desc in the vq, i.e. num_free, would be invalid):
+>>
+>> lock(vq);
+>> add_first();
+>> add_next();
+>> add_last();
+>> unlock(vq);
+>>
+>> However, I think the case isn't this simple, since we need to check more
+>> things
+>> after each add_xx() step. For example, if only one entry is available at the
+>> time
+>> we start to use the vq, that is, num_free is 0 after add_first(), we
+>> wouldn't be
+>> able to add_next and add_last. So, it would work like this:
+>>
+>> start:
+>>      ...get free page block..
+>>      lock(vq)
+>> retry:
+>>      ret = add_first(..,&num_free,);
+>>      if(ret == -ENOSPC) {
+>>          goto retry;
+>>      } else if (!num_free) {
+>>          add_chain_head();
+>>          unlock(vq);
+>>          kick & wait;
+>>          goto start;
+>>      }
+>> next_one:
+>>      ...get free page block..
+>>      add_next(..,&num_free,);
+>>      if (!num_free) {
+>>          add_chain_head();
+>>          unlock(vq);
+>>          kick & wait;
+>>          goto start;
+>>      } if (num_free == 1) {
+>>          ...get free page block..
+>>          add_last(..);
+>>          unlock(vq);
+>>          kick & wait;
+>>          goto start;
+>>      } else {
+>>          goto next_one;
+>>      }
+>>
+>> The above seems unnecessary to me to have three different APIs.
+>> That's the reason to combine them into one virtqueue_add_chain_desc().
+>>
+>> -- or, do you have a different thought about using the three APIs?
+>>
+>>
+>> Implementation Reference:
+>>
+>> struct desc_iterator {
+>>      unsigned int head;
+>>      unsigned int tail;
+>> };
+>>
+>> add_first(*vq, *desc_iterator, *num_free, ..)
+>> {
+>>      if (vq->vq.num_free < 1)
+>>          return -ENOSPC;
+>>      get_desc(&desc_id);
+>>      desc[desc_id].flag &= ~_F_NEXT;
+>>      desc_iterator->head = desc_id
+>>      desc_iterator->tail = desc_iterator->head;
+>>      *num_free = vq->vq.num_free;
+>> }
+>>
+>> add_next(vq, desc_iterator, *num_free,..)
+>> {
+>>      get_desc(&desc_id);
+>>      desc[desc_id].flag &= ~_F_NEXT;
+>>      desc[desc_iterator.tail].next = desc_id;
+>>      desc[desc_iterator->tail].flag |= _F_NEXT;
+>>      desc_iterator->tail = desc_id;
+>>      *num_free = vq->vq.num_free;
+>> }
+>>
+>> add_last(vq, desc_iterator,..)
+>> {
+>>      get_desc(&desc_id);
+>>      desc[desc_id].flag &= ~_F_NEXT;
+>>      desc[desc_iterator.tail].next = desc_id;
+>>      desc_iterator->tail = desc_id;
+>>
+>>      add_chain_head(); // put the desc_iterator.head to the ring
+>> }
+>>
+>>
+>> Best,
+>> Wei
+> OK I thought this over. While we might need these new APIs in
+> the future, I think that at the moment, there's a way to implement
+> this feature that is significantly simpler. Just add each s/g
+> as a separate input buffer.
+
+
+Should it be an output buffer? I think output means from the
+driver to device (i.e. DMA_TO_DEVICE).
+
+>
+> This needs zero new APIs.
+>
+> I know that follow-up patches need to add a header in front
+> so you might be thinking: how am I going to add this
+> header? The answer is quite simple - add it as a separate
+> out header.
+>
+> Host will be able to distinguish between header and pages
+> by looking at the direction, and - should we want to add
+> IN data to header - additionally size (<4K => header).
+
+
+I think this works fine when the cmdq is only used for
+reporting the unused pages. It would be an issue
+if there are other usages (e.g. report memory statistics)
+interleaving. I think one solution would be to lock the cmdq until
+a cmd usage is done ((e.g. all the unused pages are reported) ) -
+in this case, the periodically updated guest memory statistics
+may be delayed for a while occasionally when live migration starts.
+Would this be acceptable? If not, probably we can have the cmdq
+for one usage only.
+
+
+Best,
+Wei
