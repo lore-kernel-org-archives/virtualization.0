@@ -1,14 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio-net: fix module unloading
-Date: Wed, 26 Jul 2017 11:52:07 +0800
-Message-ID: <37d51fa3-21e4-ae55-6d5b-6ade97ae4bc8__32303.9002869793$1501041141$gmane$org@redhat.com>
-References: <20170724133832.27364-1-drjones@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next] virtio-net: mark PM functions as __maybe_unused
+Date: Tue, 25 Jul 2017 21:23:13 -0700 (PDT)
+Message-ID: <20170725.212313.1074903864708351840.davem__43930.3150553771$1501043003$gmane$org@davemloft.net>
+References: <20170725153600.211694-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170724133832.27364-1-drjones@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20170725153600.211694-1-arnd@arndb.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +17,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Jones <drjones@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: arnd@arndb.de
+Cc: willemb@google.com, mst@redhat.com, netdev@vger.kernel.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, bigeasy@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDfmnIgyNOaXpSAyMTozOCwgQW5kcmV3IEpvbmVzIHdyb3RlOgo+IFVucmVn
-aXN0ZXIgdGhlIGRyaXZlciBiZWZvcmUgcmVtb3ZpbmcgbXVsdGktaW5zdGFuY2UgaG90cGx1Zwo+
-IGNhbGxiYWNrcy4gVGhpcyBvcmRlciBhdm9pZHMgdGhlIHdhcm5pbmcgaXNzdWVkIGZyb20KPiBf
-X2NwdWhwX3JlbW92ZV9zdGF0ZV9jcHVzbG9ja2VkIHdoZW4gdGhlIG51bWJlciBvZiByZW1haW5p
-bmcKPiBpbnN0YW5jZXMgaXNuJ3QgeWV0IHplcm8uCj4KPiBGaXhlczogODAxN2MyNzkxOTZhICgi
-bmV0L3ZpcnRpby1uZXQ6IENvbnZlcnQgdG8gaG90cGx1ZyBzdGF0ZSBtYWNoaW5lIikKPiBDYzog
-U2ViYXN0aWFuIEFuZHJ6ZWogU2lld2lvciA8YmlnZWFzeUBsaW51dHJvbml4LmRlPgo+IFNpZ25l
-ZC1vZmYtYnk6IEFuZHJldyBKb25lcyA8ZHJqb25lc0ByZWRoYXQuY29tPgo+IC0tLQo+ICAgZHJp
-dmVycy9uZXQvdmlydGlvX25ldC5jIHwgMiArLQo+ICAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0
-aW9uKCspLCAxIGRlbGV0aW9uKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlv
-X25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gaW5kZXggOTlhMjZhOWVmZWMxLi5m
-NDFhYjBlYTk0MmEgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gKysr
-IGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gQEAgLTI3NDMsOSArMjc0Myw5IEBAIG1vZHVs
-ZV9pbml0KHZpcnRpb19uZXRfZHJpdmVyX2luaXQpOwo+ICAgCj4gICBzdGF0aWMgX19leGl0IHZv
-aWQgdmlydGlvX25ldF9kcml2ZXJfZXhpdCh2b2lkKQo+ICAgewo+ICsJdW5yZWdpc3Rlcl92aXJ0
-aW9fZHJpdmVyKCZ2aXJ0aW9fbmV0X2RyaXZlcik7Cj4gICAJY3B1aHBfcmVtb3ZlX211bHRpX3N0
-YXRlKENQVUhQX1ZJUlRfTkVUX0RFQUQpOwo+ICAgCWNwdWhwX3JlbW92ZV9tdWx0aV9zdGF0ZSh2
-aXJ0aW9uZXRfb25saW5lKTsKPiAtCXVucmVnaXN0ZXJfdmlydGlvX2RyaXZlcigmdmlydGlvX25l
-dF9kcml2ZXIpOwo+ICAgfQo+ICAgbW9kdWxlX2V4aXQodmlydGlvX25ldF9kcml2ZXJfZXhpdCk7
-Cj4gICAKCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Tue, 25 Jul 2017 17:35:50 +0200
+
+> After removing the reset function, the freeze and restore functions
+> are now unused when CONFIG_PM_SLEEP is disabled:
+> 
+> drivers/net/virtio_net.c:1881:12: error: 'virtnet_restore_up' defined but not used [-Werror=unused-function]
+>  static int virtnet_restore_up(struct virtio_device *vdev)
+> drivers/net/virtio_net.c:1859:13: error: 'virtnet_freeze_down' defined but not used [-Werror=unused-function]
+>  static void virtnet_freeze_down(struct virtio_device *vdev)
+> 
+> A more robust way to do this is to remove the #ifdef around the callers
+> and instead mark them as __maybe_unused. The compiler will now just
+> silently drop the unused code.
+> 
+> Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+Applied, thanks.
