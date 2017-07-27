@@ -1,15 +1,12 @@
-From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH 7/8] drm: Nuke drm_atomic_helper_connector_dpms
-Date: Tue, 25 Jul 2017 22:42:38 +0800
-Message-ID: <20170725144237.GF29754__17220.9921329797$1509078819$gmane$org@dragon>
-References: <20170725080122.20548-1-daniel.vetter@ffwll.ch>
-	<20170725080122.20548-8-daniel.vetter@ffwll.ch>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Performance regression with virtio_net
+Date: Thu, 27 Jul 2017 12:09:42 -0500
+Message-ID: <20170727170942.ub24lwgrl3x2outp__27967.7359424115$1509078828$gmane$org@ubuntu-hedt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170725080122.20548-8-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,23 +16,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Martyn Welch <martyn.welch@collabora.co.uk>, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, nouveau@lists.freedesktop.org, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Andrzej Hajda <a.hajda@samsung.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-mediatek@lists.infradead.org, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Romain Perier <romain.perier@collabora.com>, Daniel Vetter <daniel.vetter@intel.com>, Jyri Sarha <jsarha@ti.com>, Heiko Stuebner <heiko@sntech.de>, Marek Vasut <marex@denx.de>, linux-renesas-soc@vger.kernel.org, Archit Taneja <architt@codeaurora.org>, Lars-Peter Clausen <lars@metafoo.de>, Joonyoung Shim <jy0922.shim@samsung.com>, Kevin Hilman <khilman@baylibre.com>, Alexey Brodkin <abrodkin@synopsys.com>, Russell
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 25, 2017 at 10:01:21AM +0200, Daniel Vetter wrote:
-> It's dead code, the core handles all this directly now.
-> 
-> The only special case is nouveau and tda988x which used one function
-> for both legacy modeset code and -nv50 atomic world instead of 2
-> vtables. But amounts to exactly the same.
-> 
-> v2: Rebase over the panel/brideg refactorings in stm/ltdc.
-> 
-> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-...
->  drivers/gpu/drm/zte/zx_hdmi.c                      |  1 -
->  drivers/gpu/drm/zte/zx_tvenc.c                     |  1 -
->  drivers/gpu/drm/zte/zx_vga.c                       |  1 -
+I'm seeing a performance regression with virtio_net that looks to have
+started in 4.12-rc1. I only see it in one context though, downloading
+snap packages from the Ubuntu snap store. For example:
 
-Acked-by: Shawn Guo <shawnguo@kernel.org>
+ https://api.snapcraft.io/api/v1/snaps/download/b8X2psL1ryVrPt5WEmpYiqfr5emixTd7_1797.snap
+
+which redirects to Internap's CDN. Normally this downloads in a few
+seconds at ~10 MB/s, but with 4.12 and 4.13 it takes minutes with a rate
+of ~150 KB/s. Everything else I've tried downloads as normal speeds.
+
+I bisected this to 680557cf79f8 "virtio_net: rework mergeable buffer
+handling". If I revert this on top of 4.13-rc2 (along with other changes
+needed to successfully revert it) speeds return to normal.
+
+Thanks,
+Seth
