@@ -1,16 +1,23 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v12 5/8] virtio-balloon: VIRTIO_BALLOON_F_SG
-Date: Sat, 29 Jul 2017 02:01:35 +0300
-Message-ID: <20170729020006-mutt-send-email-mst__2921.40376191146$1501282913$gmane$org@kernel.org>
-References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
-	<1499863221-16206-6-git-send-email-wei.w.wang@intel.com>
-	<597AF4EF.4020705@intel.com>
+Date: Sat, 29 Jul 2017 02:08:54 +0300
+Message-ID: <20170729020231-mutt-send-email-mst__28406.4932879575$1501283351$gmane$org@kernel.org>
+References: <20170712160129-mutt-send-email-mst@kernel.org>
+	<5966241C.9060503@intel.com>
+	<20170712163746-mutt-send-email-mst@kernel.org>
+	<5967246B.9030804@intel.com>
+	<20170713210819-mutt-send-email-mst@kernel.org>
+	<59686EEB.8080805@intel.com>
+	<20170723044036-mutt-send-email-mst@kernel.org>
+	<59781119.8010200@intel.com>
+	<20170726155856-mutt-send-email-mst@kernel.org>
+	<597954E3.2070801@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <597AF4EF.4020705@intel.com>
+In-Reply-To: <597954E3.2070801@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,58 +28,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Wei Wang <wei.w.wang@intel.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 28, 2017 at 04:25:19PM +0800, Wei Wang wrote:
-> On 07/12/2017 08:40 PM, Wei Wang wrote:
-> > Add a new feature, VIRTIO_BALLOON_F_SG, which enables to
-> > transfer a chunk of ballooned (i.e. inflated/deflated) pages using
-> > scatter-gather lists to the host.
-> > 
-> > The implementation of the previous virtio-balloon is not very
-> > efficient, because the balloon pages are transferred to the
-> > host one by one. Here is the breakdown of the time in percentage
-> > spent on each step of the balloon inflating process (inflating
-> > 7GB of an 8GB idle guest).
-> > 
-> > 1) allocating pages (6.5%)
-> > 2) sending PFNs to host (68.3%)
-> > 3) address translation (6.1%)
-> > 4) madvise (19%)
-> > 
-> > It takes about 4126ms for the inflating process to complete.
-> > The above profiling shows that the bottlenecks are stage 2)
-> > and stage 4).
-> > 
-> > This patch optimizes step 2) by transferring pages to the host in
-> > sgs. An sg describes a chunk of guest physically continuous pages.
-> > With this mechanism, step 4) can also be optimized by doing address
-> > translation and madvise() in chunks rather than page by page.
-> > 
-> > With this new feature, the above ballooning process takes ~491ms
-> > resulting in an improvement of ~88%.
-> > 
+On Thu, Jul 27, 2017 at 10:50:11AM +0800, Wei Wang wrote:
+> > > > OK I thought this over. While we might need these new APIs in
+> > > > the future, I think that at the moment, there's a way to implement
+> > > > this feature that is significantly simpler. Just add each s/g
+> > > > as a separate input buffer.
+> > > 
+> > > Should it be an output buffer?
+> > Hypervisor overwrites these pages with zeroes. Therefore it is
+> > writeable by device: DMA_FROM_DEVICE.
 > 
-> 
-> I found a recent mm patch, bb01b64cfab7c22f3848cb73dc0c2b46b8d38499
-> , zeros all the ballooned pages, which is very time consuming.
-> 
-> Tests show that the time to balloon 7G pages is increased from ~491 ms to
-> 2.8 seconds with the above patch.
+> Why would the hypervisor need to zero the buffer?
 
-Sounds like it should be reverted. Post a revert pls and
-we'll discuss.
+The page is supplied to hypervisor and can lose the value that
+is there.  That is the definition of writeable by device.
 
-> How about moving the zero operation to the hypervisor? In this way, we
-> will have a much faster balloon process.
+> I think it may only
+> need to read out the info(base,size).
+
+And then do what?
+
+> I think it should be like this:
+> the cmd hdr buffer: input, because the hypervisor would write it to
+> send a cmd to the guest
+> the payload buffer: output, for the hypervisor to read the info
+
+These should be split.
+
+We have:
+
+1. request that hypervisor sends to guest, includes ID: input
+2. synchronisation header with ID sent by guest: output
+3. list of pages: input
+
+2 and 3 must be on the same VQ. 1 can come on any VQ - reusing stats VQ
+might make sense.
+
+
+> > > I think output means from the
+> > > driver to device (i.e. DMA_TO_DEVICE).
+> > This part is correct I believe.
+> > 
+> > > > This needs zero new APIs.
+> > > > 
+> > > > I know that follow-up patches need to add a header in front
+> > > > so you might be thinking: how am I going to add this
+> > > > header? The answer is quite simple - add it as a separate
+> > > > out header.
+> > > > 
+> > > > Host will be able to distinguish between header and pages
+> > > > by looking at the direction, and - should we want to add
+> > > > IN data to header - additionally size (<4K => header).
+> > > 
+> > > I think this works fine when the cmdq is only used for
+> > > reporting the unused pages.
+> > > It would be an issue
+> > > if there are other usages (e.g. report memory statistics)
+> > > interleaving. I think one solution would be to lock the cmdq until
+> > > a cmd usage is done ((e.g. all the unused pages are reported) ) -
+> > > in this case, the periodically updated guest memory statistics
+> > > may be delayed for a while occasionally when live migration starts.
+> > > Would this be acceptable? If not, probably we can have the cmdq
+> > > for one usage only.
+> > > 
+> > > 
+> > > Best,
+> > > Wei
+> > OK I see, I think the issue is that reporting free pages
+> > was structured like stats. Let's split it -
+> > send pages on e.g. free_vq, get commands on vq shared with
+> > stats.
+> > 
 > 
+> Would it be better to have the "report free page" command to be sent
+> through the free_vq? In this case,we will have
+> stats_vq: for the stats usage, which is already there
+> free_vq: for reporting free pages.
 > 
 > Best,
 > Wei
 
-Or in other words hypervisors should not be stupid and
-should not try to run ksm on DONTNEED pages.
+See above. I would get requests on stats vq but report
+free pages separately on free vq.
 
--- 
-MST
+> 
+> 
+> 
+> 
