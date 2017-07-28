@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: Performance regression with virtio_net
-Date: Fri, 28 Jul 2017 00:30:54 +0300
-Message-ID: <20170728002913-mutt-send-email-mst@kernel.org>
-References: <20170727170942.ub24lwgrl3x2outp@ubuntu-hedt>
-	<20170727233244-mutt-send-email-mst@kernel.org>
-	<20170727211430.viki2jcxbzk2u62c@ubuntu-hedt>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v12 5/8] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Fri, 28 Jul 2017 16:25:19 +0800
+Message-ID: <597AF4EF.4020705__18931.7300254062$1501230174$gmane$org@intel.com>
+References: <1499863221-16206-1-git-send-email-wei.w.wang@intel.com>
+	<1499863221-16206-6-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170727211430.viki2jcxbzk2u62c@ubuntu-hedt>
+In-Reply-To: <1499863221-16206-6-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,51 +18,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, david@redhat.com, cornelia.huck@de.ibm.com, akpm@linux-foundation.org, mgorman@techsingularity.net, aarcange@redhat.com, amit.shah@redhat.com, pbonzini@redhat.com, liliang.opensource@gmail.com, mhocko@kernel.org, willy@infradead.org
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, quan.xu@aliyun.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 27, 2017 at 04:14:30PM -0500, Seth Forshee wrote:
-> On Thu, Jul 27, 2017 at 11:38:52PM +0300, Michael S. Tsirkin wrote:
-> > On Thu, Jul 27, 2017 at 12:09:42PM -0500, Seth Forshee wrote:
-> > > I'm seeing a performance regression with virtio_net that looks to have
-> > > started in 4.12-rc1. I only see it in one context though, downloading
-> > > snap packages from the Ubuntu snap store. For example:
-> > > 
-> > >  https://api.snapcraft.io/api/v1/snaps/download/b8X2psL1ryVrPt5WEmpYiqfr5emixTd7_1797.snap
-> > > 
-> > > which redirects to Internap's CDN. Normally this downloads in a few
-> > > seconds at ~10 MB/s, but with 4.12 and 4.13 it takes minutes with a rate
-> > > of ~150 KB/s. Everything else I've tried downloads as normal speeds.
-> > 
-> > So just wget that URL should be enough?
-> 
-> Yes. Note that sometimes it starts out faster then slows down.
-> > > I bisected this to 680557cf79f8 "virtio_net: rework mergeable buffer
-> > > handling". If I revert this on top of 4.13-rc2 (along with other changes
-> > > needed to successfully revert it) speeds return to normal.
-> > > 
-> > > Thanks,
-> > > Seth
-> > 
-> > 
-> > Interesting. A more likely suspect would be
-> > e377fcc8486d40867c6c217077ad0fa40977e060 - could you please try
-> > reverting that one instead?
-> 
-> I tried it, and I still get slow download speeds. I did test at
-> 680557cf79f82623e2c4fd42733077d60a843513 during the bisect so I'm
-> reasonably confident that this is the one where things went bad.
-> > Also, could you please look at mergeable_rx_buffer_size in sysfs with
-> > and without the change?
-> 
-> In all cases (stock 4.13-rc2, 680557cf79f8 reverted, and e377fcc8486d
-> reverted) mergeable_rx_buffer_size was 1536.
-> 
-> Thanks,
-> Seth
+On 07/12/2017 08:40 PM, Wei Wang wrote:
+> Add a new feature, VIRTIO_BALLOON_F_SG, which enables to
+> transfer a chunk of ballooned (i.e. inflated/deflated) pages using
+> scatter-gather lists to the host.
+>
+> The implementation of the previous virtio-balloon is not very
+> efficient, because the balloon pages are transferred to the
+> host one by one. Here is the breakdown of the time in percentage
+> spent on each step of the balloon inflating process (inflating
+> 7GB of an 8GB idle guest).
+>
+> 1) allocating pages (6.5%)
+> 2) sending PFNs to host (68.3%)
+> 3) address translation (6.1%)
+> 4) madvise (19%)
+>
+> It takes about 4126ms for the inflating process to complete.
+> The above profiling shows that the bottlenecks are stage 2)
+> and stage 4).
+>
+> This patch optimizes step 2) by transferring pages to the host in
+> sgs. An sg describes a chunk of guest physically continuous pages.
+> With this mechanism, step 4) can also be optimized by doing address
+> translation and madvise() in chunks rather than page by page.
+>
+> With this new feature, the above ballooning process takes ~491ms
+> resulting in an improvement of ~88%.
+>
 
-Do you see any error counters incrementing after it slows down?
 
--- 
-MST
+I found a recent mm patch, bb01b64cfab7c22f3848cb73dc0c2b46b8d38499
+, zeros all the ballooned pages, which is very time consuming.
+
+Tests show that the time to balloon 7G pages is increased from ~491 ms to
+2.8 seconds with the above patch.
+
+How about moving the zero operation to the hypervisor? In this way, we
+will have a much faster balloon process.
+
+
+Best,
+Wei
