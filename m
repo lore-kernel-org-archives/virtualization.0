@@ -1,18 +1,23 @@
-From: "K. Den" <den@klaipeden.com>
-Subject: Re: [PATCH net] Revert "vhost: cache used event for better
-	performance"
-Date: Sun, 30 Jul 2017 15:26:51 +0900
-Message-ID: <1501396011.21001.11.camel__33056.9724356339$1501396933$gmane$org@klaipeden.com>
-References: <1501056197-3368-1-git-send-email-jasowang@redhat.com>
-	<20170726155435-mutt-send-email-mst@kernel.org>
-	<117542fc-eef9-c043-7c9e-daafceb7db4e@redhat.com>
-	<6b3a9a98-c095-1729-3528-dd521f136797@redhat.com>
-	<20170726190745-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v12 5/8] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Sun, 30 Jul 2017 19:18:33 +0300
+Message-ID: <20170730191735-mutt-send-email-mst__41201.3361267329$1501431530$gmane$org@kernel.org>
+References: <20170713210819-mutt-send-email-mst@kernel.org>
+	<59686EEB.8080805@intel.com>
+	<20170723044036-mutt-send-email-mst@kernel.org>
+	<59781119.8010200@intel.com>
+	<20170726155856-mutt-send-email-mst@kernel.org>
+	<597954E3.2070801@intel.com>
+	<20170729020231-mutt-send-email-mst@kernel.org>
+	<597C83CC.7060702@intel.com>
+	<20170730043922-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F739288D85@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170726190745-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <286AC319A985734F985F78AFA26841F739288D85@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,58 +27,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Wang, Wei W" <wei.w.wang@intel.com>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCAyMDE3LTA3LTI2IGF0IDE5OjA4ICswMzAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3Jv
-dGU6Cj4gT24gV2VkLCBKdWwgMjYsIDIwMTcgYXQgMDk6Mzc6MTVQTSArMDgwMCwgSmFzb24gV2Fu
-ZyB3cm90ZToKPiA+IAo+ID4gCj4gPiBPbiAyMDE35bm0MDfmnIgyNuaXpSAyMToxOCwgSmFzb24g
-V2FuZyB3cm90ZToKPiA+ID4gCj4gPiA+IAo+ID4gPiBPbiAyMDE35bm0MDfmnIgyNuaXpSAyMDo1
-NywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+ID4gPiA+IE9uIFdlZCwgSnVsIDI2LCAyMDE3
-IGF0IDA0OjAzOjE3UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4gPiBUaGlzIHJl
-dmVydHMgY29tbWl0IDgwOWVjYjliY2E2YTk0MjRjY2QzOTJkNjdlMzY4MTYwZjhiNzZjOTIuIFNp
-bmNlIGl0Cj4gPiA+ID4gPiB3YXMgcmVwb3J0ZWQgdG8gYnJlYWsgdmhvc3RfbmV0LiBXZSB3YW50
-IHRvIGNhY2hlIHVzZWQgZXZlbnQgYW5kIHVzZQo+ID4gPiA+ID4gaXQgdG8gY2hlY2sgZm9yIG5v
-dGlmaWNhdGlvbi4gV2UgdHJ5IHRvIHZhbGlkIGNhY2hlZCB1c2VkIGV2ZW50IGJ5Cj4gPiA+ID4g
-PiBjaGVja2luZyB3aGV0aGVyIG9yIG5vdCBpdCB3YXMgYWhlYWQgb2YgbmV3LCBidXQgdGhpcyBp
-cyBub3QgY29ycmVjdAo+ID4gPiA+ID4gYWxsIHRoZSB0aW1lLCBpdCBjb3VsZCBiZSBzdGFsZSBh
-bmQgdGhlcmUncyBubyB3YXkgdG8ga25vdyBhYm91dCB0aGlzLgo+ID4gPiA+ID4gCj4gPiA+ID4g
-PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nPGphc293YW5nQHJlZGhhdC5jb20+Cj4gPiA+ID4g
-Cj4gPiA+ID4gQ291bGQgeW91IHN1cHBseSBhIGJpdCBtb3JlIGRhdGEgaGVyZSBwbGVhc2U/wqDC
-oEhvdyBkb2VzIGl0IGdldCBzdGFsZT8KPiA+ID4gPiBXaGF0IGRvZXMgZ3Vlc3QgbmVlZCB0byBk
-byB0byBtYWtlIGl0IHN0YWxlP8KgwqBUaGlzIHdpbGwgYmUgaGVscGZ1bCBpZgo+ID4gPiA+IGFu
-eW9uZSB3YW50cyB0byBicmluZyBpdCBiYWNrLCBvciBpZiB3ZSB3YW50IHRvIGV4dGVuZCB0aGUg
-cHJvdG9jb2wuCj4gPiA+ID4gCj4gPiA+IAo+ID4gPiBUaGUgcHJvYmxlbSB3ZSBkb24ndCBrbm93
-IHdoZXRoZXIgb3Igbm90IGd1ZXN0IGhhcyBwdWJsaXNoZWQgYSBuZXcgdXNlZAo+ID4gPiBldmVu
-dC4gVGhlIGNoZWNrIHZyaW5nX25lZWRfZXZlbnQodnEtPmxhc3RfdXNlZF9ldmVudCwgbmV3ICsg
-dnEtPm51bSwKPiA+ID4gbmV3KSBpcyBub3Qgc3VmZmljaWVudCB0byBjaGVjayBmb3IgdGhpcy4K
-PiA+ID4gCj4gPiA+IFRoYW5rcwo+ID4gCj4gPiBNb3JlIG5vdGVzLCB0aGUgcHJldmlvdXMgYXNz
-dW1wdGlvbiBpcyB0aGF0IHdlIGRvbid0IG1vdmUgdXNlZCBldmVudCBiYWNrLAo+ID4gYnV0IHRo
-aXMgY291bGQgaGFwcGVuIGluIGZhY3QgaWYgaWR4IGlzIHdyYXBwZXIgYXJvdW5kLgo+IAo+IFlv
-dSBtZWFuIGlmIHRoZSAxNiBiaXQgaW5kZXggd3JhcHMgYXJvdW5kIGFmdGVyIDY0SyBlbnRyaWVz
-Lgo+IE1ha2VzIHNlbnNlLgo+IAo+ID4gV2lsbCByZXBvc3QgYW5kIGFkZAo+ID4gdGhpcyBpbnRv
-IGNvbW1pdCBsb2cuCj4gPiAKPiA+IFRoYW5rcwoKSGksCgpJIGFtIGp1c3QgY3VyaW91cyBidXQg
-SSBoYXZlIGdvdCBhIHF1ZXN0aW9uOgpBRkFJVSwgaWYgeW91IHdhbnRlZCB0byBrZWVwIHRoZSBj
-YWNoaW5nIG1lY2hhbmlzbSBhbGl2ZSBpbiB0aGUgY29kZSBiYXNlLAp0aGUgZm9sbG93aW5nIHR3
-byBjaGFuZ2VzIGNvdWxkIGNsZWFyIG9mZiB0aGUgaXNzdWUsIG9yIG5vdD86CigxKSBBbHdheXMg
-ZmV0Y2ggdGhlIGxhdGVzdCBldmVudCB2YWx1ZSBmcm9tIGd1ZXN0IHdoZW4gc2lnbmFsbGVkX3Vz
-ZWQgZXZlbnQgaXMKaW52YWxpZCwgd2hpY2ggaW5jbHVkZXMgbGFzdF91c2VkX2lkeCB3cmFwcy1h
-cm91bmQgY2FzZS4gT3RoZXJ3aXNlIHdlIG1pZ2h0IG5lZWQKY2hhbmdlcyB3aGljaCB3b3VsZCBj
-b21wbGljYXRlIHRvbyBtdWNoIHRoZSBsb2dpYyB0byBwcm9wZXJseSBkZWNpZGUgd2hldGhlciBv
-cgpub3QgdG8gc2tpcCBzaWduYWxsaW5nIGluIHRoZSBuZXh0IHZob3N0X25vdGlmeSByb3VuZC4K
-KDIpIE9uIHRvcCBvZiB0aGF0LCBzcGxpdCB0aGUgc2lnbmFsLXBvc3Rwb25pbmcgbG9naWMgdG8g
-dGhyZWUgY2FzZXMgbGlrZToKKiBpZiB0aGUgaW50ZXJ2YWwgb2YgdnEubnVtIGlzIFsyXjE2LCBV
-SU5UX01BWF06CmFueSBjYWNoZWQgZXZlbnQgaXMgaW4gc2hvdWxkLXBvc3Rwb25lLXNpZ25hbGxp
-bmcgaW50ZXJ2YWwsIHNvIHBhcmFkb3hpY2FsbHkKbXVzdCBhbHdheXMgZG8gc2lnbmFsbGluZy4K
-KiBlbHNlIGlmIHRoZSBpbnRlcnZhbCBvZiB2cS5udW0gaXMgWzJeMTUsIDJeMTYpOgp0aGUgbG9n
-aWMgaW4gdGhlIG9yaWdpbmFsIHBhdGNoICg4MDllY2I5YmNhNmE5KSBzdWZmaWNlcwoqIGVsc2Ug
-KD0gbGVzcyB0aGFuIDJeMTUpIChvcHRpb25hbCk6CmNoZWNraW5nIG9ubHkgKHZyaW5nX25lZWRf
-ZXZlbnQodnEtPmxhc3RfdXNlZF9ldmVudCwgbmV3ICsgdnEtPm51bSwgbmV3KQp3b3VsZCBzdWZm
-aWNlLgoKQW0gSSBtaXNzaW5nIHNvbWV0aGluZywgb3IgaXMgdGhpcyBpcnJlbGV2YW50PwpJIHdv
-dWxkIGFwcHJlY2lhdGUgaWYgeW91IGNvdWxkIGVsYWJvcmF0ZSBhIGJpdCBtb3JlIGhvdyB0aGUg
-c2l0dWF0aW9uIHdoZXJlCmV2ZW50IGlkeCB3cmFwcyBhcm91bmQgYW5kIG1vdmVzIGJhY2sgd291
-bGQgbWFrZSB0cm91YmxlLgoKVGhhbmtzLgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Sun, Jul 30, 2017 at 05:59:17AM +0000, Wang, Wei W wrote:
+> On Sunday, July 30, 2017 12:23 PM, Michael S. Tsirkin wrote:
+> > On Sat, Jul 29, 2017 at 08:47:08PM +0800, Wei Wang wrote:
+> > > On 07/29/2017 07:08 AM, Michael S. Tsirkin wrote:
+> > > > On Thu, Jul 27, 2017 at 10:50:11AM +0800, Wei Wang wrote:
+> > > > > > > > OK I thought this over. While we might need these new APIs
+> > > > > > > > in the future, I think that at the moment, there's a way to
+> > > > > > > > implement this feature that is significantly simpler. Just
+> > > > > > > > add each s/g as a separate input buffer.
+> > > > > > > Should it be an output buffer?
+> > > > > > Hypervisor overwrites these pages with zeroes. Therefore it is
+> > > > > > writeable by device: DMA_FROM_DEVICE.
+> > > > > Why would the hypervisor need to zero the buffer?
+> > > > The page is supplied to hypervisor and can lose the value that is
+> > > > there.  That is the definition of writeable by device.
+> > >
+> > > I think for the free pages, it should be clear that they will be added
+> > > as output buffer to the device, because (as we discussed) they are
+> > > just hints, and some of them may be used by the guest after the report_ API is
+> > invoked.
+> > > The device/hypervisor should not use or discard them.
+> > 
+> > Discarding contents is exactly what you propose doing if migration is going on,
+> > isn't it?
+> 
+> That's actually a different concept. Please let me explain it with this example:
+> 
+> The hypervisor receives the hint saying the guest PageX is a free page, but as we know, 
+> after that report_ API exits, the guest kernel may take PageX to use, so PageX is not free
+> page any more. At this time, if the hypervisor writes to the page, that would crash the guest.
+> So, I think the cornerstone of this work is that the hypervisor should not touch the
+> reported pages.
+> 
+> Best,
+> Wei    
+
+That's a hypervisor implementation detail. From guest point of view,
+discarding contents can not be distinguished from writing old contents.
