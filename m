@@ -1,15 +1,14 @@
-From: Seth Forshee <seth.forshee@canonical.com>
-Subject: Re: Performance regression with virtio_net
-Date: Thu, 27 Jul 2017 16:14:30 -0500
-Message-ID: <20170727211430.viki2jcxbzk2u62c__34718.8049382114$1509078848$gmane$org@ubuntu-hedt>
-References: <20170727170942.ub24lwgrl3x2outp@ubuntu-hedt>
-	<20170727233244-mutt-send-email-mst@kernel.org>
+From: ZhenweiPi <zhenwei.pi@youruncloud.com>
+Subject: Re: [PATCH] mm: don't zero ballooned pages
+Date: Mon, 31 Jul 2017 15:39:35 +0800
+Message-ID: <7146526c-fb47-80c1-363b-319b01ea7eb1__16452.6228014894$1509078867$gmane$org@youruncloud.com>
+References: <1501474413-21580-1-git-send-email-wei.w.wang@intel.com>
+	<20170731065508.GE13036@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170727233244-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170731065508.GE13036@dhcp22.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,47 +18,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Michal Hocko <mhocko@kernel.org>, Wei Wang <wei.w.wang@intel.com>
+Cc: mst@redhat.com, mawilcox@microsoft.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 27, 2017 at 11:38:52PM +0300, Michael S. Tsirkin wrote:
-> On Thu, Jul 27, 2017 at 12:09:42PM -0500, Seth Forshee wrote:
-> > I'm seeing a performance regression with virtio_net that looks to have
-> > started in 4.12-rc1. I only see it in one context though, downloading
-> > snap packages from the Ubuntu snap store. For example:
-> > 
-> >  https://api.snapcraft.io/api/v1/snaps/download/b8X2psL1ryVrPt5WEmpYiqfr5emixTd7_1797.snap
-> > 
-> > which redirects to Internap's CDN. Normally this downloads in a few
-> > seconds at ~10 MB/s, but with 4.12 and 4.13 it takes minutes with a rate
-> > of ~150 KB/s. Everything else I've tried downloads as normal speeds.
-> 
-> So just wget that URL should be enough?
+on qemu upstream, code in qemu/util/osdep.c
 
-Yes. Note that sometimes it starts out faster then slows down.
+int qemu_madvise(void *addr, size_t len, int advice)
 
-> > I bisected this to 680557cf79f8 "virtio_net: rework mergeable buffer
-> > handling". If I revert this on top of 4.13-rc2 (along with other changes
-> > needed to successfully revert it) speeds return to normal.
-> > 
-> > Thanks,
-> > Seth
-> 
-> 
-> Interesting. A more likely suspect would be
-> e377fcc8486d40867c6c217077ad0fa40977e060 - could you please try
-> reverting that one instead?
+{
 
-I tried it, and I still get slow download speeds. I did test at
-680557cf79f82623e2c4fd42733077d60a843513 during the bisect so I'm
-reasonably confident that this is the one where things went bad.
+     if (advice == QEMU_MADV_INVALID) {
 
-> Also, could you please look at mergeable_rx_buffer_size in sysfs with
-> and without the change?
+         errno = EINVAL;
 
-In all cases (stock 4.13-rc2, 680557cf79f8 reverted, and e377fcc8486d
-reverted) mergeable_rx_buffer_size was 1536.
+         return -1;
 
-Thanks,
-Seth
+     }
+
+#if defined(CONFIG_MADVISE)
+
+     return madvise(addr, len, advice);
+
+#elif defined(CONFIG_POSIX_MADVISE)
+
+     return posix_madvise(addr, len, advice);
+
+#else
+
+     errno = EINVAL;
+
+     return -1;
+
+#endif
+
+}
+
+Host OS maybe not support MADV_DONTNEED.
+And madvise syscall uses more time.
+
+
+On 07/31/2017 02:55 PM, Michal Hocko wrote:
+> On Mon 31-07-17 12:13:33, Wei Wang wrote:
+>> Ballooned pages will be marked as MADV_DONTNEED by the hypervisor and
+>> shouldn't be given to the host ksmd to scan.
+> Could you point me where this MADV_DONTNEED is done, please?
+>
+>> Therefore, it is not
+>> necessary to zero ballooned pages, which is very time consuming when
+>> the page amount is large. The ongoing fast balloon tests show that the
+>> time to balloon 7G pages is increased from ~491ms to 2.8 seconds with
+>> __GFP_ZERO added. So, this patch removes the flag.
+> Please make it obvious that this is a revert of bb01b64cfab7
+> ("mm/balloon_compaction.c: enqueue zero page to balloon device").
+>
+>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+>> ---
+>>   mm/balloon_compaction.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+>> index 9075aa5..b06d9fe 100644
+>> --- a/mm/balloon_compaction.c
+>> +++ b/mm/balloon_compaction.c
+>> @@ -24,7 +24,7 @@ struct page *balloon_page_enqueue(struct balloon_dev_info *b_dev_info)
+>>   {
+>>   	unsigned long flags;
+>>   	struct page *page = alloc_page(balloon_mapping_gfp_mask() |
+>> -				__GFP_NOMEMALLOC | __GFP_NORETRY | __GFP_ZERO);
+>> +				       __GFP_NOMEMALLOC | __GFP_NORETRY);
+>>   	if (!page)
+>>   		return NULL;
+>>   
+>> -- 
+>> 2.7.4
+>>
