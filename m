@@ -1,18 +1,23 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH] mm: don't zero ballooned pages
-Date: Mon, 31 Jul 2017 10:37:24 +0200
-Message-ID: <20170731083724.GF15767__24706.1139242307$1501490255$gmane$org@dhcp22.suse.cz>
-References: <1501474413-21580-1-git-send-email-wei.w.wang@intel.com>
-	<20170731065508.GE13036@dhcp22.suse.cz>
-	<597EDF3D.8020101@intel.com>
-	<20170731075153.GD15767@dhcp22.suse.cz>
-	<32d9c53d-5310-25a7-0348-a6cf362a5dcd@youruncloud.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v12 5/8] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Mon, 31 Jul 2017 20:36:09 +0800
+Message-ID: <597F2439.5070309__1325.36401874876$1501504423$gmane$org@intel.com>
+References: <59686EEB.8080805@intel.com>
+	<20170723044036-mutt-send-email-mst@kernel.org>
+	<59781119.8010200@intel.com>
+	<20170726155856-mutt-send-email-mst@kernel.org>
+	<597954E3.2070801@intel.com>
+	<20170729020231-mutt-send-email-mst@kernel.org>
+	<597C83CC.7060702@intel.com>
+	<20170730043922-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F739288D85@shsmsx102.ccr.corp.intel.com>
+	<20170730191735-mutt-send-email-mst@kernel.org>
+	<20170730191911-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <32d9c53d-5310-25a7-0348-a6cf362a5dcd@youruncloud.com>
+In-Reply-To: <20170730191911-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,56 +27,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: ZhenweiPi <zhenwei.pi@youruncloud.com>
-Cc: mst@redhat.com, mawilcox@microsoft.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon 31-07-17 16:23:26, ZhenweiPi wrote:
-> On 07/31/2017 03:51 PM, Michal Hocko wrote:
-> 
-> >On Mon 31-07-17 15:41:49, Wei Wang wrote:
-> >>>On 07/31/2017 02:55 PM, Michal Hocko wrote:
-> >>>> >On Mon 31-07-17 12:13:33, Wei Wang wrote:
-> >>>>> >>Ballooned pages will be marked as MADV_DONTNEED by the hypervisor and
-> >>>>> >>shouldn't be given to the host ksmd to scan.
-> >>>> >Could you point me where this MADV_DONTNEED is done, please?
-> >>>
-> >>>Sure. It's done in the hypervisor when the balloon pages are received.
-> >>>
-> >>>Please see line 40 at
-> >>>https://github.com/qemu/qemu/blob/master/hw/virtio/virtio-balloon.c
-> >And one more thing. I am not familiar with ksm much. But how is
-> >MADV_DONTNEED even helping? This madvise is not sticky - aka it will
-> >unmap the range without leaving any note behind. AFAICS the only way
-> >to have vma scanned is to have VM_MERGEABLE and that is an opt in:
-> >See Documentation/vm/ksm.txt
-> >"
-> >KSM only operates on those areas of address space which an application
-> >has advised to be likely candidates for merging, by using the madvise(2)
-> >system call: int madvise(addr, length, MADV_MERGEABLE).
-> >"
-> >
-> >So what exactly is going on here? The original patch looks highly
-> >suspicious as well. If somebody wants to make that memory mergable then
-> >the user of that memory should zero them out.
-> 
-> Kernel starts a kthread named "ksmd". ksmd scans the VM_MERGEABLE
-> memory, and merge the same pages.(same page means memcmp(page1,
-> page2, PAGESIZE) == 0).
-> 
-> Guest can not use ballooned pages, and these pages will not be accessed
-> in a long time. Kswapd on host will swap these pages out and get more
-> free memory.
-> 
-> Rather than swapping, KSM has better performence.  Presently pages in
-> the balloon device have random value,  they usually cannot be merged.
-> So enqueue zero pages will resolve this problem.
-> 
-> Because MADV_DONTNEED depends on host os capability and hypervisor capability,
-> I prefer to enqueue zero pages to balloon device and made this patch.
+On 07/31/2017 12:20 AM, Michael S. Tsirkin wrote:
+> On Sun, Jul 30, 2017 at 07:18:33PM +0300, Michael S. Tsirkin wrote:
+>> On Sun, Jul 30, 2017 at 05:59:17AM +0000, Wang, Wei W wrote:
+>> That's a hypervisor implementation detail. From guest point of view,
+>> discarding contents can not be distinguished from writing old contents.
+>>
+> Besides, ignoring the free page tricks, consider regular ballooning.
+> We map page with DONTNEED then back with WILLNEED. Result is
+> getting a zero page. So at least one of deflate/inflate should be input.
+> I'd say both for symmetry.
+>
 
-So why exactly are we zeroying pages (and pay some cost for that) in
-guest when we do not know what host actually does with them?
--- 
-Michal Hocko
-SUSE Labs
+OK, I see the point. Thanks.
+
+Best,
+Wei
