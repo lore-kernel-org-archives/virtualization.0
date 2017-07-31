@@ -1,7 +1,7 @@
 From: Michal Hocko <mhocko@kernel.org>
 Subject: Re: [PATCH] mm: don't zero ballooned pages
-Date: Mon, 31 Jul 2017 09:43:50 +0200
-Message-ID: <20170731074350.GC15767__10020.9431876012$1501487038$gmane$org@dhcp22.suse.cz>
+Date: Mon, 31 Jul 2017 09:51:54 +0200
+Message-ID: <20170731075153.GD15767__16162.8163107254$1501487523$gmane$org@dhcp22.suse.cz>
 References: <1501474413-21580-1-git-send-email-wei.w.wang@intel.com>
 	<20170731065508.GE13036@dhcp22.suse.cz>
 	<597EDF3D.8020101@intel.com>
@@ -36,10 +36,20 @@ On Mon 31-07-17 15:41:49, Wei Wang wrote:
 > Please see line 40 at
 > https://github.com/qemu/qemu/blob/master/hw/virtio/virtio-balloon.c
 
-Thanks. Are all hypervisors which are using this API doing this?
-bb01b64cfab7 doesn't mention the specify hypervisor nor does it mention
-any real numbers so I suspect the revert is the right thing to do but
-the changelog should mention all those details.
+And one more thing. I am not familiar with ksm much. But how is
+MADV_DONTNEED even helping? This madvise is not sticky - aka it will
+unmap the range without leaving any note behind. AFAICS the only way
+to have vma scanned is to have VM_MERGEABLE and that is an opt in:
+See Documentation/vm/ksm.txt
+"
+KSM only operates on those areas of address space which an application
+has advised to be likely candidates for merging, by using the madvise(2)
+system call: int madvise(addr, length, MADV_MERGEABLE).
+"
+
+So what exactly is going on here? The original patch looks highly
+suspicious as well. If somebody wants to make that memory mergable then
+the user of that memory should zero them out.
 -- 
 Michal Hocko
 SUSE Labs
