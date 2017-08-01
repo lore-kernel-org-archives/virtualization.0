@@ -1,12 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH net] virtio_net: fix truesize for mergeable buffers
-Date: Mon, 31 Jul 2017 21:49:49 +0300
-Message-ID: <1501526948-5285-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH] mm: don't zero ballooned pages
+Date: Tue, 1 Aug 2017 18:38:54 +0300
+Message-ID: <20170801183518-mutt-send-email-mst@kernel.org>
+References: <1501474413-21580-1-git-send-email-wei.w.wang@intel.com>
+	<20170731065508.GE13036@dhcp22.suse.cz>
+	<597EDF3D.8020101@intel.com>
+	<20170731075153.GD15767@dhcp22.suse.cz>
+	<32d9c53d-5310-25a7-0348-a6cf362a5dcd@youruncloud.com>
+	<20170731083724.GF15767@dhcp22.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20170731083724.GF15767@dhcp22.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,63 +23,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Seth Forshee <seth.forshee@canonical.com>, David Miller <davem@davemloft.net>
+To: Michal Hocko <mhocko@kernel.org>
+Cc: mawilcox@microsoft.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org, ZhenweiPi <zhenwei.pi@youruncloud.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Seth Forshee noticed a performance degradation with some workloads.
-This turns out to be due to packet drops.  Euan Kemp noticed that this
-is because we drop all packets where length exceeds the truesize, but
-for some packets we add in extra memory without updating the truesize.
-This in turn was kept around unchanged from ab7db91705e95 ("virtio-net:
-auto-tune mergeable rx buffer size for improved performance").  That
-commit had an internal reason not to account for the extra space: not
-enough bits to do it.  No longer true so let's account for the allocated
-length exactly.
+On Mon, Jul 31, 2017 at 10:37:24AM +0200, Michal Hocko wrote:
+> On Mon 31-07-17 16:23:26, ZhenweiPi wrote:
+> > On 07/31/2017 03:51 PM, Michal Hocko wrote:
+> > 
+> > >On Mon 31-07-17 15:41:49, Wei Wang wrote:
+> > >>>On 07/31/2017 02:55 PM, Michal Hocko wrote:
+> > >>>> >On Mon 31-07-17 12:13:33, Wei Wang wrote:
+> > >>>>> >>Ballooned pages will be marked as MADV_DONTNEED by the hypervisor and
+> > >>>>> >>shouldn't be given to the host ksmd to scan.
+> > >>>> >Could you point me where this MADV_DONTNEED is done, please?
+> > >>>
+> > >>>Sure. It's done in the hypervisor when the balloon pages are received.
+> > >>>
+> > >>>Please see line 40 at
+> > >>>https://github.com/qemu/qemu/blob/master/hw/virtio/virtio-balloon.c
+> > >And one more thing. I am not familiar with ksm much. But how is
+> > >MADV_DONTNEED even helping? This madvise is not sticky - aka it will
+> > >unmap the range without leaving any note behind. AFAICS the only way
+> > >to have vma scanned is to have VM_MERGEABLE and that is an opt in:
+> > >See Documentation/vm/ksm.txt
+> > >"
+> > >KSM only operates on those areas of address space which an application
+> > >has advised to be likely candidates for merging, by using the madvise(2)
+> > >system call: int madvise(addr, length, MADV_MERGEABLE).
+> > >"
+> > >
+> > >So what exactly is going on here? The original patch looks highly
+> > >suspicious as well. If somebody wants to make that memory mergable then
+> > >the user of that memory should zero them out.
+> > 
+> > Kernel starts a kthread named "ksmd". ksmd scans the VM_MERGEABLE
+> > memory, and merge the same pages.(same page means memcmp(page1,
+> > page2, PAGESIZE) == 0).
+> > 
+> > Guest can not use ballooned pages, and these pages will not be accessed
+> > in a long time. Kswapd on host will swap these pages out and get more
+> > free memory.
+> > 
+> > Rather than swapping, KSM has better performence.  Presently pages in
+> > the balloon device have random value,  they usually cannot be merged.
+> > So enqueue zero pages will resolve this problem.
+> > 
+> > Because MADV_DONTNEED depends on host os capability and hypervisor capability,
+> > I prefer to enqueue zero pages to balloon device and made this patch.
 
-Many thanks to Seth Forshee for the report and bisecting and Euan Kemp
-for debugging the issue.
+I think you should have hypervisor zero them out if it wants to then. Seems cleaner.
 
-Fixes: 680557cf79f8 ("virtio_net: rework mergeable buffer handling")
-Reported-by: Euan Kemp <euan.kemp@coreos.com>
-Tested-by: Euan Kemp <euan.kemp@coreos.com>
-Reported-by: Seth Forshee <seth.forshee@canonical.com>
-Tested-by: Seth Forshee <seth.forshee@canonical.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+> 
+> So why exactly are we zeroying pages (and pay some cost for that) in
+> guest when we do not know what host actually does with them?
 
-This patch is needed on stable as well.
+I suspect this is some special hypervisor that somehow benefits from
+this patch. It should just use a feature bit for its special needs
+I think.
 
- drivers/net/virtio_net.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+Michal is also exactly right that patches like this should come
+with some performance numbers.
+I'll post a patch adding virtio lists for mm/balloon_compaction.c
+so that we notice when people tweak it like that.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index f41ab0e..98f17b0 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -889,21 +889,20 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
- 
- 	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
- 	buf += headroom; /* advance address leaving hole at front of pkt */
--	ctx = (void *)(unsigned long)len;
- 	get_page(alloc_frag->page);
- 	alloc_frag->offset += len + headroom;
- 	hole = alloc_frag->size - alloc_frag->offset;
- 	if (hole < len + headroom) {
- 		/* To avoid internal fragmentation, if there is very likely not
- 		 * enough space for another buffer, add the remaining space to
--		 * the current buffer. This extra space is not included in
--		 * the truesize stored in ctx.
-+		 * the current buffer.
- 		 */
- 		len += hole;
- 		alloc_frag->offset += hole;
- 	}
- 
- 	sg_init_one(rq->sg, buf, len);
-+	ctx = (void *)(unsigned long)len;
- 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
- 	if (err < 0)
- 		put_page(virt_to_head_page(buf));
--- 
-MST
+> -- 
+> Michal Hocko
+> SUSE Labs
