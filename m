@@ -1,19 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] mm: don't zero ballooned pages
-Date: Tue, 1 Aug 2017 18:38:54 +0300
-Message-ID: <20170801183518-mutt-send-email-mst@kernel.org>
-References: <1501474413-21580-1-git-send-email-wei.w.wang@intel.com>
-	<20170731065508.GE13036@dhcp22.suse.cz>
-	<597EDF3D.8020101@intel.com>
-	<20170731075153.GD15767@dhcp22.suse.cz>
-	<32d9c53d-5310-25a7-0348-a6cf362a5dcd@youruncloud.com>
-	<20170731083724.GF15767@dhcp22.suse.cz>
+Subject: Re: [virtio-dev] repost: af_packet vs virtio (was packed ring layout
+	proposal v2)
+Date: Wed, 2 Aug 2017 16:50:03 +0300
+Message-ID: <20170802164931-mutt-send-email-mst__7150.42353044755$1501681816$gmane$org@kernel.org>
+References: <20170414051304-mutt-send-email-mst@kernel.org>
+	<20170414054318-mutt-send-email-mst@kernel.org>
+	<CAJR92jnV1VgBs567QNjO1fHKDgMX=1j1aJJ2gK-TqMB5E1=fvw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170731083724.GF15767@dhcp22.suse.cz>
+In-Reply-To: <CAJR92jnV1VgBs567QNjO1fHKDgMX=1j1aJJ2gK-TqMB5E1=fvw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,70 +21,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: mawilcox@microsoft.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org, ZhenweiPi <zhenwei.pi@youruncloud.com>
+To: Steven Luong <sluong99@gmail.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, john.fastabend@gmail.com, virtualization@lists.linux-foundation.org, alexei.starovoitov@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 31, 2017 at 10:37:24AM +0200, Michal Hocko wrote:
-> On Mon 31-07-17 16:23:26, ZhenweiPi wrote:
-> > On 07/31/2017 03:51 PM, Michal Hocko wrote:
-> > 
-> > >On Mon 31-07-17 15:41:49, Wei Wang wrote:
-> > >>>On 07/31/2017 02:55 PM, Michal Hocko wrote:
-> > >>>> >On Mon 31-07-17 12:13:33, Wei Wang wrote:
-> > >>>>> >>Ballooned pages will be marked as MADV_DONTNEED by the hypervisor and
-> > >>>>> >>shouldn't be given to the host ksmd to scan.
-> > >>>> >Could you point me where this MADV_DONTNEED is done, please?
-> > >>>
-> > >>>Sure. It's done in the hypervisor when the balloon pages are received.
-> > >>>
-> > >>>Please see line 40 at
-> > >>>https://github.com/qemu/qemu/blob/master/hw/virtio/virtio-balloon.c
-> > >And one more thing. I am not familiar with ksm much. But how is
-> > >MADV_DONTNEED even helping? This madvise is not sticky - aka it will
-> > >unmap the range without leaving any note behind. AFAICS the only way
-> > >to have vma scanned is to have VM_MERGEABLE and that is an opt in:
-> > >See Documentation/vm/ksm.txt
-> > >"
-> > >KSM only operates on those areas of address space which an application
-> > >has advised to be likely candidates for merging, by using the madvise(2)
-> > >system call: int madvise(addr, length, MADV_MERGEABLE).
-> > >"
-> > >
-> > >So what exactly is going on here? The original patch looks highly
-> > >suspicious as well. If somebody wants to make that memory mergable then
-> > >the user of that memory should zero them out.
-> > 
-> > Kernel starts a kthread named "ksmd". ksmd scans the VM_MERGEABLE
-> > memory, and merge the same pages.(same page means memcmp(page1,
-> > page2, PAGESIZE) == 0).
-> > 
-> > Guest can not use ballooned pages, and these pages will not be accessed
-> > in a long time. Kswapd on host will swap these pages out and get more
-> > free memory.
-> > 
-> > Rather than swapping, KSM has better performence.  Presently pages in
-> > the balloon device have random value,  they usually cannot be merged.
-> > So enqueue zero pages will resolve this problem.
-> > 
-> > Because MADV_DONTNEED depends on host os capability and hypervisor capability,
-> > I prefer to enqueue zero pages to balloon device and made this patch.
+On Tue, Aug 01, 2017 at 08:54:27PM -0700, Steven Luong wrote:
+>     * Descriptor ring:
+> =
 
-I think you should have hypervisor zero them out if it wants to then. Seems cleaner.
+>     Guest adds descriptors with unique index values and DESC_HW set in fl=
+ags.
+>     Host overwrites used descriptors with correct len, index, and DESC_HW
+>     clear.=A0 Flags are always set/cleared last.
+> =
 
-> 
-> So why exactly are we zeroying pages (and pay some cost for that) in
-> guest when we do not know what host actually does with them?
+>     #define DESC_HW 0x0080
+> =
 
-I suspect this is some special hypervisor that somehow benefits from
-this patch. It should just use a feature bit for its special needs
-I think.
+>     struct desc {
+>     =A0 =A0 =A0 =A0 __le64 addr;
+>     =A0 =A0 =A0 =A0 __le32 len;
+>     =A0 =A0 =A0 =A0 __le16 index;
+>     =A0 =A0 =A0 =A0 __le16 flags;
+>     };
+> =
 
-Michal is also exactly right that patches like this should come
-with some performance numbers.
-I'll post a patch adding virtio lists for mm/balloon_compaction.c
-so that we notice when people tweak it like that.
+>     When DESC_HW is set, descriptor belongs to device. When it is clear,
+>     it belongs to the driver.
+> =
 
-> -- 
-> Michal Hocko
-> SUSE Labs
+>     We can use 1 bit to set direction
+>     /* This marks a buffer as write-only (otherwise read-only). */
+>     #define VRING_DESC_F_WRITE=A0 =A0 =A0 2
+> =
+
+>     * Scatter/gather support
+> =
+
+>     We can use 1 bit to chain s/g entries in a request, same as virtio 1.=
+0:
+> =
+
+>     /* This marks a buffer as continuing via the next field. */
+> =
+
+> =
+
+> This comment here is confusing to me. In 1.0, virtq_desc has the next fie=
+ld.
+> When the flag VRING_DESC_F_NEXT is set, the next entry to continue is spe=
+cified
+> in the next field.
+> =
+
+> Here in 1.1, struct desc does not have the next field, only addr, len, in=
+dex,
+> and flags. So when VRING_DESC_F_NEXT is set in struct desc's flags field,=
+ where
+> is the next entry to continue the current descriptor, the entry immediate=
+ly
+> following the current entry? ie, if the current entry is at index 10 in t=
+he
+> descriptor table and its flags is set for VRING_DESC_F_NEXT, is the entry
+> continuing the current entry in index 11?
+> =
+
+> Steven
+
+Exactly, you got it right.
