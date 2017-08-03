@@ -1,17 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] repost: af_packet vs virtio (was packed ring layout
-	proposal v2)
-Date: Wed, 2 Aug 2017 16:50:03 +0300
-Message-ID: <20170802164931-mutt-send-email-mst__7150.42353044755$1501681816$gmane$org@kernel.org>
-References: <20170414051304-mutt-send-email-mst@kernel.org>
-	<20170414054318-mutt-send-email-mst@kernel.org>
-	<CAJR92jnV1VgBs567QNjO1fHKDgMX=1j1aJJ2gK-TqMB5E1=fvw@mail.gmail.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v13 4/5] mm: support reporting free page blocks
+Date: Thu, 3 Aug 2017 15:20:09 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73928C971__29724.5719623335$1501793304$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1501742299-4369-1-git-send-email-wei.w.wang@intel.com>
+	<1501742299-4369-5-git-send-email-wei.w.wang@intel.com>
+	<20170803091151.GF12521@dhcp22.suse.cz> <5982FE07.3040207@intel.com>
+	<20170803104417.GI12521@dhcp22.suse.cz> <59830897.2060203@intel.com>
+	<20170803112831.GN12521@dhcp22.suse.cz> <5983130E.2070806@intel.com>
+	<20170803124106.GR12521@dhcp22.suse.cz> <59832265.1040805@intel.com>
+	<20170803135047.GV12521@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAJR92jnV1VgBs567QNjO1fHKDgMX=1j1aJJ2gK-TqMB5E1=fvw@mail.gmail.com>
+In-Reply-To: <20170803135047.GV12521@dhcp22.suse.cz>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,71 +24,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Steven Luong <sluong99@gmail.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, john.fastabend@gmail.com, virtualization@lists.linux-foundation.org, alexei.starovoitov@gmail.com
+To: Michal Hocko <mhocko@kernel.org>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 01, 2017 at 08:54:27PM -0700, Steven Luong wrote:
->     * Descriptor ring:
-> =
+On Thursday, August 3, 2017 9:51 PM, Michal Hocko: 
+> As I've said earlier. Start simple optimize incrementally with some numbers to
+> justify a more subtle code.
+> --
 
->     Guest adds descriptors with unique index values and DESC_HW set in fl=
-ags.
->     Host overwrites used descriptors with correct len, index, and DESC_HW
->     clear.=A0 Flags are always set/cleared last.
-> =
+OK. Let's start with the simple implementation as you suggested.
 
->     #define DESC_HW 0x0080
-> =
-
->     struct desc {
->     =A0 =A0 =A0 =A0 __le64 addr;
->     =A0 =A0 =A0 =A0 __le32 len;
->     =A0 =A0 =A0 =A0 __le16 index;
->     =A0 =A0 =A0 =A0 __le16 flags;
->     };
-> =
-
->     When DESC_HW is set, descriptor belongs to device. When it is clear,
->     it belongs to the driver.
-> =
-
->     We can use 1 bit to set direction
->     /* This marks a buffer as write-only (otherwise read-only). */
->     #define VRING_DESC_F_WRITE=A0 =A0 =A0 2
-> =
-
->     * Scatter/gather support
-> =
-
->     We can use 1 bit to chain s/g entries in a request, same as virtio 1.=
-0:
-> =
-
->     /* This marks a buffer as continuing via the next field. */
-> =
-
-> =
-
-> This comment here is confusing to me. In 1.0, virtq_desc has the next fie=
-ld.
-> When the flag VRING_DESC_F_NEXT is set, the next entry to continue is spe=
-cified
-> in the next field.
-> =
-
-> Here in 1.1, struct desc does not have the next field, only addr, len, in=
-dex,
-> and flags. So when VRING_DESC_F_NEXT is set in struct desc's flags field,=
- where
-> is the next entry to continue the current descriptor, the entry immediate=
-ly
-> following the current entry? ie, if the current entry is at index 10 in t=
-he
-> descriptor table and its flags is set for VRING_DESC_F_NEXT, is the entry
-> continuing the current entry in index 11?
-> =
-
-> Steven
-
-Exactly, you got it right.
+Best,
+Wei
