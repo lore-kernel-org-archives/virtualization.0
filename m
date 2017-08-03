@@ -1,7 +1,7 @@
 From: Cihangir Akturk <cakturk@gmail.com>
-Subject: [PATCH 07/29] drm/cirrus: switch to drm_*{get,put} helpers
-Date: Thu,  3 Aug 2017 14:58:22 +0300
-Message-ID: <1501761585-11757-8-git-send-email-cakturk__22442.276942502$1509078906$gmane$org@gmail.com>
+Subject: [PATCH 19/29] drm/qxl: switch to drm_*{get,put} helpers
+Date: Thu,  3 Aug 2017 14:58:34 +0300
+Message-ID: <1501761585-11757-20-git-send-email-cakturk__31481.6787410111$1509078927$gmane$org@gmail.com>
 References: <1501761585-11757-1-git-send-email-cakturk@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -17,7 +17,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, Archit Taneja <architt@codeaurora.org>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Cihangir Akturk <cakturk@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Alex Deucher <alexander.deucher@amd.com>, Dave Airlie <airlied@redhat.com>, Gabriel Krisman Bertazi <krisman@collabora.co.uk>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Cihangir Akturk <cakturk@gmail.com>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 drm_*_reference() and drm_*_unreference() functions are just
@@ -27,69 +27,138 @@ the new APIs.
 
 Signed-off-by: Cihangir Akturk <cakturk@gmail.com>
 ---
- drivers/gpu/drm/cirrus/cirrus_fbdev.c |  2 +-
- drivers/gpu/drm/cirrus/cirrus_main.c  | 10 +++++-----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/qxl/qxl_display.c | 4 ++--
+ drivers/gpu/drm/qxl/qxl_dumb.c    | 2 +-
+ drivers/gpu/drm/qxl/qxl_fb.c      | 6 +++---
+ drivers/gpu/drm/qxl/qxl_gem.c     | 2 +-
+ drivers/gpu/drm/qxl/qxl_ioctl.c   | 4 ++--
+ drivers/gpu/drm/qxl/qxl_object.c  | 6 +++---
+ 6 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/cirrus/cirrus_fbdev.c b/drivers/gpu/drm/cirrus/cirrus_fbdev.c
-index 7fa58ee..c0b9a29 100644
---- a/drivers/gpu/drm/cirrus/cirrus_fbdev.c
-+++ b/drivers/gpu/drm/cirrus/cirrus_fbdev.c
-@@ -252,7 +252,7 @@ static int cirrus_fbdev_destroy(struct drm_device *dev,
- 	drm_fb_helper_unregister_fbi(&gfbdev->helper);
- 
- 	if (gfb->obj) {
--		drm_gem_object_unreference_unlocked(gfb->obj);
-+		drm_gem_object_put_unlocked(gfb->obj);
- 		gfb->obj = NULL;
- 	}
- 
-diff --git a/drivers/gpu/drm/cirrus/cirrus_main.c b/drivers/gpu/drm/cirrus/cirrus_main.c
-index e7fc95f..b5f5285 100644
---- a/drivers/gpu/drm/cirrus/cirrus_main.c
-+++ b/drivers/gpu/drm/cirrus/cirrus_main.c
-@@ -18,7 +18,7 @@ static void cirrus_user_framebuffer_destroy(struct drm_framebuffer *fb)
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 03fe182..7aa5097 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -306,7 +306,7 @@ void qxl_user_framebuffer_destroy(struct drm_framebuffer *fb)
  {
- 	struct cirrus_framebuffer *cirrus_fb = to_cirrus_framebuffer(fb);
+ 	struct qxl_framebuffer *qxl_fb = to_qxl_framebuffer(fb);
  
--	drm_gem_object_unreference_unlocked(cirrus_fb->obj);
-+	drm_gem_object_put_unlocked(cirrus_fb->obj);
+-	drm_gem_object_unreference_unlocked(qxl_fb->obj);
++	drm_gem_object_put_unlocked(qxl_fb->obj);
  	drm_framebuffer_cleanup(fb);
- 	kfree(fb);
+ 	kfree(qxl_fb);
  }
-@@ -67,13 +67,13 @@ cirrus_user_framebuffer_create(struct drm_device *dev,
- 
- 	cirrus_fb = kzalloc(sizeof(*cirrus_fb), GFP_KERNEL);
- 	if (!cirrus_fb) {
--		drm_gem_object_unreference_unlocked(obj);
-+		drm_gem_object_put_unlocked(obj);
- 		return ERR_PTR(-ENOMEM);
- 	}
- 
- 	ret = cirrus_framebuffer_init(dev, cirrus_fb, mode_cmd, obj);
+@@ -1109,7 +1109,7 @@ qxl_user_framebuffer_create(struct drm_device *dev,
+ 	ret = qxl_framebuffer_init(dev, qxl_fb, mode_cmd, obj, &qxl_fb_funcs);
  	if (ret) {
+ 		kfree(qxl_fb);
 -		drm_gem_object_unreference_unlocked(obj);
 +		drm_gem_object_put_unlocked(obj);
- 		kfree(cirrus_fb);
- 		return ERR_PTR(ret);
+ 		return NULL;
  	}
-@@ -261,7 +261,7 @@ int cirrus_dumb_create(struct drm_file *file,
- 		return ret;
  
- 	ret = drm_gem_handle_create(file, gobj, &handle);
+diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_dumb.c
+index 5e65d5d..a0c9e73 100644
+--- a/drivers/gpu/drm/qxl/qxl_dumb.c
++++ b/drivers/gpu/drm/qxl/qxl_dumb.c
+@@ -81,6 +81,6 @@ int qxl_mode_dumb_mmap(struct drm_file *file_priv,
+ 		return -ENOENT;
+ 	qobj = gem_to_qxl_bo(gobj);
+ 	*offset_p = qxl_bo_mmap_offset(qobj);
+-	drm_gem_object_unreference_unlocked(gobj);
++	drm_gem_object_put_unlocked(gobj);
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/qxl/qxl_fb.c b/drivers/gpu/drm/qxl/qxl_fb.c
+index 573e7e9..47a25b0 100644
+--- a/drivers/gpu/drm/qxl/qxl_fb.c
++++ b/drivers/gpu/drm/qxl/qxl_fb.c
+@@ -95,7 +95,7 @@ static void qxlfb_destroy_pinned_object(struct drm_gem_object *gobj)
+ 	qxl_bo_kunmap(qbo);
+ 	qxl_bo_unpin(qbo);
+ 
+-	drm_gem_object_unreference_unlocked(gobj);
++	drm_gem_object_put_unlocked(gobj);
+ }
+ 
+ int qxl_get_handle_for_primary_fb(struct qxl_device *qdev,
+@@ -320,11 +320,11 @@ static int qxlfb_create(struct qxl_fbdev *qfbdev,
+ 		qxl_bo_unpin(qbo);
+ 	}
+ 	if (fb && ret) {
+-		drm_gem_object_unreference_unlocked(gobj);
++		drm_gem_object_put_unlocked(gobj);
+ 		drm_framebuffer_cleanup(fb);
+ 		kfree(fb);
+ 	}
+-	drm_gem_object_unreference_unlocked(gobj);
++	drm_gem_object_put_unlocked(gobj);
+ 	return ret;
+ }
+ 
+diff --git a/drivers/gpu/drm/qxl/qxl_gem.c b/drivers/gpu/drm/qxl/qxl_gem.c
+index 85f5467..f5c1e78 100644
+--- a/drivers/gpu/drm/qxl/qxl_gem.c
++++ b/drivers/gpu/drm/qxl/qxl_gem.c
+@@ -98,7 +98,7 @@ int qxl_gem_object_create_with_handle(struct qxl_device *qdev,
+ 		return r;
+ 	/* drop reference from allocate - handle holds it now */
+ 	*qobj = gem_to_qxl_bo(gobj);
+-	drm_gem_object_unreference_unlocked(gobj);
++	drm_gem_object_put_unlocked(gobj);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
+index 0b82a87..dfefd45 100644
+--- a/drivers/gpu/drm/qxl/qxl_ioctl.c
++++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
+@@ -121,7 +121,7 @@ static int qxlhw_handle_to_bo(struct drm_file *file_priv, uint64_t handle,
+ 	qobj = gem_to_qxl_bo(gobj);
+ 
+ 	ret = qxl_release_list_add(release, qobj);
 -	drm_gem_object_unreference_unlocked(gobj);
 +	drm_gem_object_put_unlocked(gobj);
  	if (ret)
  		return ret;
  
-@@ -310,7 +310,7 @@ cirrus_dumb_mmap_offset(struct drm_file *file,
- 	bo = gem_to_cirrus_bo(obj);
- 	*offset = cirrus_bo_mmap_offset(bo);
+@@ -342,7 +342,7 @@ static int qxl_update_area_ioctl(struct drm_device *dev, void *data,
+ 	qxl_bo_unreserve(qobj);
  
--	drm_gem_object_unreference_unlocked(obj);
-+	drm_gem_object_put_unlocked(obj);
- 
- 	return 0;
+ out:
+-	drm_gem_object_unreference_unlocked(gobj);
++	drm_gem_object_put_unlocked(gobj);
+ 	return ret;
  }
+ 
+diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
+index 9a7eef7..cdf1455 100644
+--- a/drivers/gpu/drm/qxl/qxl_object.c
++++ b/drivers/gpu/drm/qxl/qxl_object.c
+@@ -211,13 +211,13 @@ void qxl_bo_unref(struct qxl_bo **bo)
+ 	if ((*bo) == NULL)
+ 		return;
+ 
+-	drm_gem_object_unreference_unlocked(&(*bo)->gem_base);
++	drm_gem_object_put_unlocked(&(*bo)->gem_base);
+ 	*bo = NULL;
+ }
+ 
+ struct qxl_bo *qxl_bo_ref(struct qxl_bo *bo)
+ {
+-	drm_gem_object_reference(&bo->gem_base);
++	drm_gem_object_get(&bo->gem_base);
+ 	return bo;
+ }
+ 
+@@ -316,7 +316,7 @@ void qxl_bo_force_delete(struct qxl_device *qdev)
+ 		list_del_init(&bo->list);
+ 		mutex_unlock(&qdev->gem.mutex);
+ 		/* this should unref the ttm bo */
+-		drm_gem_object_unreference_unlocked(&bo->gem_base);
++		drm_gem_object_put_unlocked(&bo->gem_base);
+ 	}
+ }
+ 
 -- 
 2.7.4
