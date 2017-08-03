@@ -1,7 +1,7 @@
 From: Cihangir Akturk <cakturk@gmail.com>
-Subject: [PATCH 19/29] drm/qxl: switch to drm_*{get,put} helpers
-Date: Thu,  3 Aug 2017 14:58:34 +0300
-Message-ID: <1501761585-11757-20-git-send-email-cakturk__31481.6787410111$1509078927$gmane$org@gmail.com>
+Subject: [PATCH 27/29] drm/virtio: switch to drm_*{get,put} helpers
+Date: Thu,  3 Aug 2017 14:58:42 +0300
+Message-ID: <1501761585-11757-28-git-send-email-cakturk__2932.90465274385$1509078930$gmane$org@gmail.com>
 References: <1501761585-11757-1-git-send-email-cakturk@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -17,7 +17,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Cihangir Akturk <cakturk@gmail.com>, Dave Airlie <airlied@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Cihangir Akturk <cakturk@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 drm_*_reference() and drm_*_unreference() functions are just
@@ -27,137 +27,120 @@ the new APIs.
 
 Signed-off-by: Cihangir Akturk <cakturk@gmail.com>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 4 ++--
- drivers/gpu/drm/qxl/qxl_dumb.c    | 2 +-
- drivers/gpu/drm/qxl/qxl_fb.c      | 6 +++---
- drivers/gpu/drm/qxl/qxl_gem.c     | 2 +-
- drivers/gpu/drm/qxl/qxl_ioctl.c   | 4 ++--
- drivers/gpu/drm/qxl/qxl_object.c  | 6 +++---
- 6 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_display.c |  4 ++--
+ drivers/gpu/drm/virtio/virtgpu_gem.c     |  4 ++--
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c   | 14 +++++++-------
+ 3 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 03fe182..7aa5097 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -306,7 +306,7 @@ void qxl_user_framebuffer_destroy(struct drm_framebuffer *fb)
- {
- 	struct qxl_framebuffer *qxl_fb = to_qxl_framebuffer(fb);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index d51bd45..ef2d450 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -53,7 +53,7 @@ static void virtio_gpu_user_framebuffer_destroy(struct drm_framebuffer *fb)
+ 	struct virtio_gpu_framebuffer *virtio_gpu_fb
+ 		= to_virtio_gpu_framebuffer(fb);
  
--	drm_gem_object_unreference_unlocked(qxl_fb->obj);
-+	drm_gem_object_put_unlocked(qxl_fb->obj);
+-	drm_gem_object_unreference_unlocked(virtio_gpu_fb->obj);
++	drm_gem_object_put_unlocked(virtio_gpu_fb->obj);
  	drm_framebuffer_cleanup(fb);
- 	kfree(qxl_fb);
+ 	kfree(virtio_gpu_fb);
  }
-@@ -1109,7 +1109,7 @@ qxl_user_framebuffer_create(struct drm_device *dev,
- 	ret = qxl_framebuffer_init(dev, qxl_fb, mode_cmd, obj, &qxl_fb_funcs);
+@@ -326,7 +326,7 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
+ 	ret = virtio_gpu_framebuffer_init(dev, virtio_gpu_fb, mode_cmd, obj);
  	if (ret) {
- 		kfree(qxl_fb);
+ 		kfree(virtio_gpu_fb);
 -		drm_gem_object_unreference_unlocked(obj);
 +		drm_gem_object_put_unlocked(obj);
  		return NULL;
  	}
  
-diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_dumb.c
-index 5e65d5d..a0c9e73 100644
---- a/drivers/gpu/drm/qxl/qxl_dumb.c
-+++ b/drivers/gpu/drm/qxl/qxl_dumb.c
-@@ -81,6 +81,6 @@ int qxl_mode_dumb_mmap(struct drm_file *file_priv,
- 		return -ENOENT;
- 	qobj = gem_to_qxl_bo(gobj);
- 	*offset_p = qxl_bo_mmap_offset(qobj);
--	drm_gem_object_unreference_unlocked(gobj);
-+	drm_gem_object_put_unlocked(gobj);
- 	return 0;
- }
-diff --git a/drivers/gpu/drm/qxl/qxl_fb.c b/drivers/gpu/drm/qxl/qxl_fb.c
-index 573e7e9..47a25b0 100644
---- a/drivers/gpu/drm/qxl/qxl_fb.c
-+++ b/drivers/gpu/drm/qxl/qxl_fb.c
-@@ -95,7 +95,7 @@ static void qxlfb_destroy_pinned_object(struct drm_gem_object *gobj)
- 	qxl_bo_kunmap(qbo);
- 	qxl_bo_unpin(qbo);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index cc025d8..78da210 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -72,7 +72,7 @@ int virtio_gpu_gem_create(struct drm_file *file,
+ 	*obj_p = &obj->gem_base;
  
--	drm_gem_object_unreference_unlocked(gobj);
-+	drm_gem_object_put_unlocked(gobj);
- }
- 
- int qxl_get_handle_for_primary_fb(struct qxl_device *qdev,
-@@ -320,11 +320,11 @@ static int qxlfb_create(struct qxl_fbdev *qfbdev,
- 		qxl_bo_unpin(qbo);
- 	}
- 	if (fb && ret) {
--		drm_gem_object_unreference_unlocked(gobj);
-+		drm_gem_object_put_unlocked(gobj);
- 		drm_framebuffer_cleanup(fb);
- 		kfree(fb);
- 	}
--	drm_gem_object_unreference_unlocked(gobj);
-+	drm_gem_object_put_unlocked(gobj);
- 	return ret;
- }
- 
-diff --git a/drivers/gpu/drm/qxl/qxl_gem.c b/drivers/gpu/drm/qxl/qxl_gem.c
-index 85f5467..f5c1e78 100644
---- a/drivers/gpu/drm/qxl/qxl_gem.c
-+++ b/drivers/gpu/drm/qxl/qxl_gem.c
-@@ -98,7 +98,7 @@ int qxl_gem_object_create_with_handle(struct qxl_device *qdev,
- 		return r;
  	/* drop reference from allocate - handle holds it now */
- 	*qobj = gem_to_qxl_bo(gobj);
+-	drm_gem_object_unreference_unlocked(&obj->gem_base);
++	drm_gem_object_put_unlocked(&obj->gem_base);
+ 
+ 	*handle_p = handle;
+ 	return 0;
+@@ -137,7 +137,7 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
+ 		return -ENOENT;
+ 	obj = gem_to_virtio_gpu_obj(gobj);
+ 	*offset_p = virtio_gpu_object_mmap_offset(obj);
 -	drm_gem_object_unreference_unlocked(gobj);
 +	drm_gem_object_put_unlocked(gobj);
  	return 0;
  }
  
-diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
-index 0b82a87..dfefd45 100644
---- a/drivers/gpu/drm/qxl/qxl_ioctl.c
-+++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
-@@ -121,7 +121,7 @@ static int qxlhw_handle_to_bo(struct drm_file *file_priv, uint64_t handle,
- 	qobj = gem_to_qxl_bo(gobj);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index b94bd54..461f81a 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -86,7 +86,7 @@ static void virtio_gpu_unref_list(struct list_head *head)
+ 		bo = buf->bo;
+ 		qobj = container_of(bo, struct virtio_gpu_object, tbo);
  
- 	ret = qxl_release_list_add(release, qobj);
+-		drm_gem_object_unreference_unlocked(&qobj->gem_base);
++		drm_gem_object_put_unlocked(&qobj->gem_base);
+ 	}
+ }
+ 
+@@ -261,7 +261,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 		ret = virtio_gpu_object_attach(vgdev, qobj, res_id, NULL);
+ 	} else {
+ 		/* use a gem reference since unref list undoes them */
+-		drm_gem_object_reference(&qobj->gem_base);
++		drm_gem_object_get(&qobj->gem_base);
+ 		mainbuf.bo = &qobj->tbo;
+ 		list_add(&mainbuf.head, &validate_list);
+ 
+@@ -304,7 +304,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 		}
+ 		return ret;
+ 	}
+-	drm_gem_object_unreference_unlocked(obj);
++	drm_gem_object_put_unlocked(obj);
+ 
+ 	rc->res_handle = res_id; /* similiar to a VM address */
+ 	rc->bo_handle = handle;
+@@ -341,7 +341,7 @@ static int virtio_gpu_resource_info_ioctl(struct drm_device *dev, void *data,
+ 
+ 	ri->size = qobj->gem_base.size;
+ 	ri->res_handle = qobj->hw_res_handle;
 -	drm_gem_object_unreference_unlocked(gobj);
 +	drm_gem_object_put_unlocked(gobj);
- 	if (ret)
- 		return ret;
+ 	return 0;
+ }
  
-@@ -342,7 +342,7 @@ static int qxl_update_area_ioctl(struct drm_device *dev, void *data,
- 	qxl_bo_unreserve(qobj);
- 
+@@ -389,7 +389,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ out_unres:
+ 	virtio_gpu_object_unreserve(qobj);
  out:
 -	drm_gem_object_unreference_unlocked(gobj);
 +	drm_gem_object_put_unlocked(gobj);
  	return ret;
  }
  
-diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
-index 9a7eef7..cdf1455 100644
---- a/drivers/gpu/drm/qxl/qxl_object.c
-+++ b/drivers/gpu/drm/qxl/qxl_object.c
-@@ -211,13 +211,13 @@ void qxl_bo_unref(struct qxl_bo **bo)
- 	if ((*bo) == NULL)
- 		return;
- 
--	drm_gem_object_unreference_unlocked(&(*bo)->gem_base);
-+	drm_gem_object_put_unlocked(&(*bo)->gem_base);
- 	*bo = NULL;
+@@ -439,7 +439,7 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+ out_unres:
+ 	virtio_gpu_object_unreserve(qobj);
+ out:
+-	drm_gem_object_unreference_unlocked(gobj);
++	drm_gem_object_put_unlocked(gobj);
+ 	return ret;
  }
  
- struct qxl_bo *qxl_bo_ref(struct qxl_bo *bo)
- {
--	drm_gem_object_reference(&bo->gem_base);
-+	drm_gem_object_get(&bo->gem_base);
- 	return bo;
- }
+@@ -462,7 +462,7 @@ static int virtio_gpu_wait_ioctl(struct drm_device *dev, void *data,
+ 		nowait = true;
+ 	ret = virtio_gpu_object_wait(qobj, nowait);
  
-@@ -316,7 +316,7 @@ void qxl_bo_force_delete(struct qxl_device *qdev)
- 		list_del_init(&bo->list);
- 		mutex_unlock(&qdev->gem.mutex);
- 		/* this should unref the ttm bo */
--		drm_gem_object_unreference_unlocked(&bo->gem_base);
-+		drm_gem_object_put_unlocked(&bo->gem_base);
- 	}
+-	drm_gem_object_unreference_unlocked(gobj);
++	drm_gem_object_put_unlocked(gobj);
+ 	return ret;
  }
  
 -- 
