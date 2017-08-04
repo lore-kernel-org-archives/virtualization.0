@@ -1,23 +1,12 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v13 4/5] mm: support reporting free page blocks
-Date: Fri, 04 Aug 2017 16:55:22 +0800
-Message-ID: <5984367A.3030809__13950.8158354603$1501836769$gmane$org@intel.com>
-References: <59830897.2060203@intel.com>
-	<20170803112831.GN12521@dhcp22.suse.cz>
-	<5983130E.2070806@intel.com>
-	<20170803124106.GR12521@dhcp22.suse.cz>
-	<59832265.1040805@intel.com>
-	<20170803135047.GV12521@dhcp22.suse.cz>
-	<286AC319A985734F985F78AFA26841F73928C971@shsmsx102.ccr.corp.intel.com>
-	<20170804000043-mutt-send-email-mst@kernel.org>
-	<20170804075337.GC26029@dhcp22.suse.cz>
-	<59842D1C.5020608@intel.com>
-	<20170804082423.GG26029@dhcp22.suse.cz>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH] virtio_blk: fix incorrect message when disk is resized
+Date: Fri, 4 Aug 2017 10:37:54 +0100
+Message-ID: <20170804093754.GA9867__42090.0800418623$1501839488$gmane$org@stefanha-x1.localdomain>
+References: <20170726143223.2769-1-stefanha@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5213003009616028272=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170804082423.GG26029@dhcp22.suse.cz>
+In-Reply-To: <20170726143223.2769-1-stefanha@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,30 +16,120 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "mgorman@techsingularity.net" <mgorman@techsingularity.net>
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/04/2017 04:24 PM, Michal Hocko wrote:
->
->> For our use case, the callback just puts the reported page
->> block to the ring, then returns. If the ring is full as the host
->> is busy, then I think it should skip this one, and just return.
->> Because:
->>      A. This is an optimization feature, losing a couple of free
->>           pages to report isn't that important;
->>      B. In reality, I think it's uncommon to see this ring getting
->>          full (I didn't observe ring full in the tests), since the host
->>          (consumer) is notified to take out the page block right
->>          after it is added.
-> I thought you only updated a pre allocated bitmat... Anyway, I cannot
-> comment on this part much as I am not familiar with your usecase.
->   
 
-Actually the bitmap is in the hypervisor (host). The callback puts the
-(pfn,size) on a ring which is shared with the hypervisor, then the
-hypervisor takes that info from the ring and updates that bitmap.
+--===============5213003009616028272==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+Content-Disposition: inline
 
 
-Best,
-Wei
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jul 26, 2017 at 03:32:23PM +0100, Stefan Hajnoczi wrote:
+> The message printed on disk resize is incorrect.  The following is
+> printed when resizing to 2 GiB:
+>=20
+>   $ truncate -s 1G test.img
+>   $ qemu -device virtio-blk-pci,logical_block_size=3D4096,...
+>   (qemu) block_resize drive1 2G
+>=20
+>   virtio_blk virtio0: new size: 4194304 4096-byte logical blocks (17.2 GB=
+/16.0 GiB)
+>=20
+> The virtio_blk capacity config field is in 512-byte sector units
+> regardless of logical_block_size as per the VIRTIO specification.
+> Therefore the message should read:
+>=20
+>   virtio_blk virtio0: new size: 524288 4096-byte logical blocks (2.15 GB/=
+2.0 GiB)
+>=20
+> Note that this only affects the printed message.  Thankfully the actual
+> block device has the correct size because the block layer expects
+> capacity in sectors.
+>=20
+> Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+> ---
+>  drivers/block/virtio_blk.c | 16 ++++++++++------
+>  1 file changed, 10 insertions(+), 6 deletions(-)
+
+Ping?
+
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 4e02aa5fdac0..69a2d1748743 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -381,6 +381,7 @@ static void virtblk_config_changed_work(struct work_s=
+truct *work)
+>  	struct request_queue *q =3D vblk->disk->queue;
+>  	char cap_str_2[10], cap_str_10[10];
+>  	char *envp[] =3D { "RESIZE=3D1", NULL };
+> +	unsigned long long nblocks;
+>  	u64 capacity;
+> =20
+>  	/* Host must always specify the capacity. */
+> @@ -393,16 +394,19 @@ static void virtblk_config_changed_work(struct work=
+_struct *work)
+>  		capacity =3D (sector_t)-1;
+>  	}
+> =20
+> -	string_get_size(capacity, queue_logical_block_size(q),
+> +	nblocks =3D DIV_ROUND_UP_ULL(capacity, queue_logical_block_size(q) >> 9=
+);
+> +
+> +	string_get_size(nblocks, queue_logical_block_size(q),
+>  			STRING_UNITS_2, cap_str_2, sizeof(cap_str_2));
+> -	string_get_size(capacity, queue_logical_block_size(q),
+> +	string_get_size(nblocks, queue_logical_block_size(q),
+>  			STRING_UNITS_10, cap_str_10, sizeof(cap_str_10));
+> =20
+>  	dev_notice(&vdev->dev,
+> -		  "new size: %llu %d-byte logical blocks (%s/%s)\n",
+> -		  (unsigned long long)capacity,
+> -		  queue_logical_block_size(q),
+> -		  cap_str_10, cap_str_2);
+> +		   "new size: %llu %d-byte logical blocks (%s/%s)\n",
+> +		   nblocks,
+> +		   queue_logical_block_size(q),
+> +		   cap_str_10,
+> +		   cap_str_2);
+> =20
+>  	set_capacity(vblk->disk, capacity);
+>  	revalidate_disk(vblk->disk);
+> --=20
+> 2.13.3
+>=20
+
+--mYCpIKhGyMATD0i+
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJZhEByAAoJEJykq7OBq3PI9KQH/1OWO6sx6Htr4P7BG9KT++TA
+DzDeVxmPS656kwLZ+0D109mRxZTuhxMe2jkUFRmgdiVqUwn3HXqeLRWOwQIOUQYZ
+9yKfQiHSOGpI8/IlYWh/cBGaiZClqvZAUYxTqJ23oKzZ1JEh94F6MusuAVzmBy1x
+tAq376OroVbLGe0DUf65+4oMaiTPAUe4szKTezwJmy3RvcnSbXEIG2neZ8YOfhIC
+MpZyk2Re08n44Zfei7+Xp7tNZBzlAB/YYnZ8VQ3j6CdqhshKqTuM+bsWe7JsTUYg
+AnJLwO8mdldRA6qt4yJVEFUW/PG3zm+daYHI4XqOf977/P0FdlegZ7g79gHMZEo=
+=eZIg
+-----END PGP SIGNATURE-----
+
+--mYCpIKhGyMATD0i+--
+
+--===============5213003009616028272==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5213003009616028272==--
