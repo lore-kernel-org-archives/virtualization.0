@@ -1,13 +1,18 @@
-From: Cihangir Akturk <cakturk@gmail.com>
-Subject: [PATCH 27/29] drm/virtio: switch to drm_*{get,put} helpers
-Date: Thu,  3 Aug 2017 14:58:42 +0300
-Message-ID: <1501761585-11757-28-git-send-email-cakturk__2932.90465274385$1509078930$gmane$org@gmail.com>
-References: <1501761585-11757-1-git-send-email-cakturk@gmail.com>
+From: Adam Tao <taozhe1@huawei.com>
+Subject: Re: [virtio-dev] repost: af_packet vs virtio (was packed ring layout
+	proposal v2)
+Date: Mon, 7 Aug 2017 12:16:23 +0800
+Message-ID: <20170807041623.GA12132__48800.3300656148$1509078938$gmane$org@shay3t003839711.china.huawei.com>
+References: <20170414051304-mutt-send-email-mst@kernel.org>
+	<20170414054318-mutt-send-email-mst@kernel.org>
+	<CAJR92jnV1VgBs567QNjO1fHKDgMX=1j1aJJ2gK-TqMB5E1=fvw@mail.gmail.com>
+	<20170802164931-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1501761585-11757-1-git-send-email-cakturk@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20170802164931-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,131 +22,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Cihangir Akturk <cakturk@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, g@shay3t003839711.china.huawei.com
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, john.fastabend@gmail.com, virtualization@lists.linux-foundation.org, Steven Luong <sluong99@gmail.com>, alexei.starovoitov@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-drm_*_reference() and drm_*_unreference() functions are just
-compatibility alias for drm_*_get() and drm_*_put() adn should not be
-used by new code. So convert all users of compatibility functions to use
-the new APIs.
-
-Signed-off-by: Cihangir Akturk <cakturk@gmail.com>
----
- drivers/gpu/drm/virtio/virtgpu_display.c |  4 ++--
- drivers/gpu/drm/virtio/virtgpu_gem.c     |  4 ++--
- drivers/gpu/drm/virtio/virtgpu_ioctl.c   | 14 +++++++-------
- 3 files changed, 11 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index d51bd45..ef2d450 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -53,7 +53,7 @@ static void virtio_gpu_user_framebuffer_destroy(struct drm_framebuffer *fb)
- 	struct virtio_gpu_framebuffer *virtio_gpu_fb
- 		= to_virtio_gpu_framebuffer(fb);
- 
--	drm_gem_object_unreference_unlocked(virtio_gpu_fb->obj);
-+	drm_gem_object_put_unlocked(virtio_gpu_fb->obj);
- 	drm_framebuffer_cleanup(fb);
- 	kfree(virtio_gpu_fb);
- }
-@@ -326,7 +326,7 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
- 	ret = virtio_gpu_framebuffer_init(dev, virtio_gpu_fb, mode_cmd, obj);
- 	if (ret) {
- 		kfree(virtio_gpu_fb);
--		drm_gem_object_unreference_unlocked(obj);
-+		drm_gem_object_put_unlocked(obj);
- 		return NULL;
- 	}
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index cc025d8..78da210 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -72,7 +72,7 @@ int virtio_gpu_gem_create(struct drm_file *file,
- 	*obj_p = &obj->gem_base;
- 
- 	/* drop reference from allocate - handle holds it now */
--	drm_gem_object_unreference_unlocked(&obj->gem_base);
-+	drm_gem_object_put_unlocked(&obj->gem_base);
- 
- 	*handle_p = handle;
- 	return 0;
-@@ -137,7 +137,7 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
- 		return -ENOENT;
- 	obj = gem_to_virtio_gpu_obj(gobj);
- 	*offset_p = virtio_gpu_object_mmap_offset(obj);
--	drm_gem_object_unreference_unlocked(gobj);
-+	drm_gem_object_put_unlocked(gobj);
- 	return 0;
- }
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index b94bd54..461f81a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -86,7 +86,7 @@ static void virtio_gpu_unref_list(struct list_head *head)
- 		bo = buf->bo;
- 		qobj = container_of(bo, struct virtio_gpu_object, tbo);
- 
--		drm_gem_object_unreference_unlocked(&qobj->gem_base);
-+		drm_gem_object_put_unlocked(&qobj->gem_base);
- 	}
- }
- 
-@@ -261,7 +261,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
- 		ret = virtio_gpu_object_attach(vgdev, qobj, res_id, NULL);
- 	} else {
- 		/* use a gem reference since unref list undoes them */
--		drm_gem_object_reference(&qobj->gem_base);
-+		drm_gem_object_get(&qobj->gem_base);
- 		mainbuf.bo = &qobj->tbo;
- 		list_add(&mainbuf.head, &validate_list);
- 
-@@ -304,7 +304,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
- 		}
- 		return ret;
- 	}
--	drm_gem_object_unreference_unlocked(obj);
-+	drm_gem_object_put_unlocked(obj);
- 
- 	rc->res_handle = res_id; /* similiar to a VM address */
- 	rc->bo_handle = handle;
-@@ -341,7 +341,7 @@ static int virtio_gpu_resource_info_ioctl(struct drm_device *dev, void *data,
- 
- 	ri->size = qobj->gem_base.size;
- 	ri->res_handle = qobj->hw_res_handle;
--	drm_gem_object_unreference_unlocked(gobj);
-+	drm_gem_object_put_unlocked(gobj);
- 	return 0;
- }
- 
-@@ -389,7 +389,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
- out_unres:
- 	virtio_gpu_object_unreserve(qobj);
- out:
--	drm_gem_object_unreference_unlocked(gobj);
-+	drm_gem_object_put_unlocked(gobj);
- 	return ret;
- }
- 
-@@ -439,7 +439,7 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
- out_unres:
- 	virtio_gpu_object_unreserve(qobj);
- out:
--	drm_gem_object_unreference_unlocked(gobj);
-+	drm_gem_object_put_unlocked(gobj);
- 	return ret;
- }
- 
-@@ -462,7 +462,7 @@ static int virtio_gpu_wait_ioctl(struct drm_device *dev, void *data,
- 		nowait = true;
- 	ret = virtio_gpu_object_wait(qobj, nowait);
- 
--	drm_gem_object_unreference_unlocked(gobj);
-+	drm_gem_object_put_unlocked(gobj);
- 	return ret;
- }
- 
--- 
-2.7.4
+On Wed, Aug 02, 2017 at 04:50:03PM +0300, Michael S. Tsirkin wrote:
+> On Tue, Aug 01, 2017 at 08:54:27PM -0700, Steven Luong wrote:
+> >     * Descriptor ring:
+> > 
+> >     Guest adds descriptors with unique index values and DESC_HW set in flags.
+> >     Host overwrites used descriptors with correct len, index, and DESC_HW
+> >     clear.? Flags are always set/cleared last.
+> > 
+> >     #define DESC_HW 0x0080
+> > 
+> >     struct desc {
+> >     ? ? ? ? __le64 addr;
+> >     ? ? ? ? __le32 len;
+> >     ? ? ? ? __le16 index;
+> >     ? ? ? ? __le16 flags;
+> >     };
+> > 
+> >     When DESC_HW is set, descriptor belongs to device. When it is clear,
+> >     it belongs to the driver.
+> > 
+> >     We can use 1 bit to set direction
+> >     /* This marks a buffer as write-only (otherwise read-only). */
+> >     #define VRING_DESC_F_WRITE? ? ? 2
+> > 
+> >     * Scatter/gather support
+> > 
+> >     We can use 1 bit to chain s/g entries in a request, same as virtio 1.0:
+> > 
+> >     /* This marks a buffer as continuing via the next field. */
+next field seems like a structure field in the software, maybe we need
+to change the "next field" to "next desc" to avoid misunderstanding.
+> > 
+> > 
+> > This comment here is confusing to me. In 1.0, virtq_desc has the next field.
+> > When the flag VRING_DESC_F_NEXT is set, the next entry to continue is specified
+> > in the next field.
+> > 
+> > Here in 1.1, struct desc does not have the next field, only addr, len, index,
+> > and flags. So when VRING_DESC_F_NEXT is set in struct desc's flags field, where
+> > is the next entry to continue the current descriptor, the entry immediately
+> > following the current entry? ie, if the current entry is at index 10 in the
+> > descriptor table and its flags is set for VRING_DESC_F_NEXT, is the entry
+> > continuing the current entry in index 11?
+> > 
+> > Steven
+> 
+> Exactly, you got it right.
+> 
+> ---------------------------------------------------------------------
+> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
