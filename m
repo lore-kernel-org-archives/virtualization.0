@@ -1,16 +1,14 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: Re: [PATCH 00/11] virtio-console: Fine-tuning for 14 function
-	implementations
-Date: Sun, 6 Aug 2017 12:56:17 +0200
-Message-ID: <c913fff3-b373-73a1-71f0-e74591e19bb4__2760.78749816424$1502017362$gmane$org@users.sourceforge.net>
-References: <566ABCD9.1060404@users.sourceforge.net>
-	<020438b9-a7f8-0050-04c1-43382ba60b75@users.sourceforge.net>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v13 1/5] Introduce xbitmap
+Date: Mon, 07 Aug 2017 14:58:45 +0800
+Message-ID: <59880FA5.6040703__10585.7153459967$1502089016$gmane$org@intel.com>
+References: <1501742299-4369-1-git-send-email-wei.w.wang@intel.com>
+	<1501742299-4369-2-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <020438b9-a7f8-0050-04c1-43382ba60b75@users.sourceforge.net>
-Content-Language: en-GB
+In-Reply-To: <1501742299-4369-2-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,33 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S. Tsirkin" <mst@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, mawilcox@microsoft.com, akpm@linux-foundation.org, willy@infradead.org
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, liliang.opensource@gmail.com, amit.shah@redhat.com, pbonzini@redhat.com, cornelia.huck@de.ibm.com, quan.xu@aliyun.com, yang.zhang.wz@gmail.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Date: Wed, 14 Sep 2016 15:43:21 +0200
-> 
-> Several update suggestions were taken into account
-> from static source code analysis.
-> 
-> Markus Elfring (11):
->   Use kmalloc_array() in init_vqs()
->   Less function calls in init_vqs() after error detection
->   Rename a jump label in init()
->   Rename jump labels in virtcons_probe()
->   Rename jump labels in add_port()
->   Rename a jump label in port_fops_open()
->   Rename a jump label in port_fops_splice_write()
->   Rename jump labels in port_fops_write()
->   Rename a jump label in __send_to_port()
->   Rename jump labels in alloc_buf()
->   Rename a jump label in five functions
-> 
->  drivers/char/virtio_console.c | 155 ++++++++++++++++++++++++------------------
->  1 file changed, 87 insertions(+), 68 deletions(-)
+On 08/03/2017 02:38 PM, Wei Wang wrote:
+> From: Matthew Wilcox <mawilcox@microsoft.com>
+>
+> The eXtensible Bitmap is a sparse bitmap representation which is
+> efficient for set bits which tend to cluster.  It supports up to
+> 'unsigned long' worth of bits, and this commit adds the bare bones --
+> xb_set_bit(), xb_clear_bit() and xb_test_bit().
+>
+> Signed-off-by: Matthew Wilcox <mawilcox@microsoft.com>
+> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> ---
+>   include/linux/radix-tree.h |   2 +
+>   include/linux/xbitmap.h    |  49 ++++++++++++++++
+>   lib/radix-tree.c           | 139 ++++++++++++++++++++++++++++++++++++++++++++-
+>   3 files changed, 188 insertions(+), 2 deletions(-)
+>   create mode 100644 include/linux/xbitmap.h
+>
+> diff --git a/include/linux/radix-tree.h b/include/linux/radix-tree.h
+> index 3e57350..428ccc9 100644
+> --- a/include/linux/radix-tree.h
+> +++ b/include/linux/radix-tree.h
 
-Would you like to take another look at change possibilities
-for this software module?
 
-Regards,
-Markus
+Hi Matthew,
+
+Could you please help to upstream this patch?
+
+
+Best,
+Wei
