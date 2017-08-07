@@ -1,14 +1,16 @@
-From: Wei Wang <wei.w.wang@intel.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH RESEND] mm: don't zero ballooned pages
-Date: Mon, 07 Aug 2017 17:35:32 +0800
-Message-ID: <59883464.700__24954.9379376278$1502098426$gmane$org@intel.com>
+Date: Mon, 7 Aug 2017 11:37:26 +0200
+Message-ID: <8b862c93-1a9f-9247-8401-5092cc35a857__41932.706864509$1502098693$gmane$org@redhat.com>
 References: <1501761557-9758-1-git-send-email-wei.w.wang@intel.com>
 	<9ac31505-0996-2822-752e-8ec055373aa0@redhat.com>
+	<20170807092525.GE32434@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <9ac31505-0996-2822-752e-8ec055373aa0@redhat.com>
+In-Reply-To: <20170807092525.GE32434@dhcp22.suse.cz>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,67 +20,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, mhocko@kernel.org, mst@redhat.com, zhenwei.pi@youruncloud.com
-Cc: Andrea Arcangeli <aarcange@redhat.com>, dave.hansen@intel.com, akpm@linux-foundation.org, mawilcox@microsoft.com
+To: Michal Hocko <mhocko@kernel.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, mst@redhat.com, mawilcox@microsoft.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org, zhenwei.pi@youruncloud.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/07/2017 04:44 PM, David Hildenbrand wrote:
-> On 03.08.2017 13:59, Wei Wang wrote:
->> This patch is a revert of 'commit bb01b64cfab7 ("mm/balloon_compaction.c:
->> enqueue zero page to balloon device")'
->>
->> Ballooned pages will be marked as MADV_DONTNEED by the hypervisor and
->> shouldn't be given to the host ksmd to scan. Therefore, it is not
->> necessary to zero ballooned pages, which is very time consuming when
->> the page amount is large. The ongoing fast balloon tests show that the
->> time to balloon 7G pages is increased from ~491ms to 2.8 seconds with
->> __GFP_ZERO added. So, this patch removes the flag.
->>
->> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
->> Cc: Michal Hocko <mhocko@kernel.org>
->> Cc: Michael S. Tsirkin <mst@redhat.com>
->> ---
->>   mm/balloon_compaction.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
->> index 9075aa5..b06d9fe 100644
->> --- a/mm/balloon_compaction.c
->> +++ b/mm/balloon_compaction.c
->> @@ -24,7 +24,7 @@ struct page *balloon_page_enqueue(struct balloon_dev_info *b_dev_info)
->>   {
->>   	unsigned long flags;
->>   	struct page *page = alloc_page(balloon_mapping_gfp_mask() |
->> -				__GFP_NOMEMALLOC | __GFP_NORETRY | __GFP_ZERO);
->> +				       __GFP_NOMEMALLOC | __GFP_NORETRY);
->>   	if (!page)
->>   		return NULL;
->>   
->>
-> Your assumption here is, that the hypervisor will always supply a zero
-> page. Unfortunately, this assumption is wrong (and it stems from the
-> lack of different page size support in virtio-balloon).
+> Maybe it is my absolute lack of familiarity with what the host actually
+> does with balloon pages but I fail to see why the above matters at all.
+> ksm will not try to merge sub page units (4k for hugetlb or a large base
+> page). And if you need to hide the guest contents then the host can
+> clear the respective subpage just fine. So could you be more explicit
+> why MADV_DONTNEED matters at all? Also does any host actually share sub
+> pages between different guests? This sounds like a bad idea to me in
+> general.
+> 
 
-I think this would be something that we can improve the balloon.
+Okay, I think I got the issue wrong. I thought that the original patch
+tried to also fix a corner case where the guest would assume that it
+would get supplied zero pages afterwards. Please ignore the noise. :)
 
-For example, the balloon request from the device should be aligned
-to the host page size before sending to the guest driver:
-On PPC, if the command requests for 140K memory to inflate, it can
-be aligned to 128K.
+-- 
 
+Thanks,
 
->
-> Think about these examples:
->
-> 1. Guest is backed by huge pages (hugetbfs). Ballooning kicks in.
->
-> MADV_DONTNEED is simply ignored in the hypervisor (hugetlbfs requires
-> fallocate punshhole). Also, trying to zap 4k on e.g. 1MB pages will
-> simply be ignored.
-
-For the hugetlbfs case, I think the balloon size can be aligned to
-the huge page size (i.e 2M or 1GB).
-
-
-Best,
-Wei
+David
