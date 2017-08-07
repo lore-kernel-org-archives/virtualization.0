@@ -1,16 +1,11 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH RESEND] mm: don't zero ballooned pages
-Date: Mon, 7 Aug 2017 11:37:26 +0200
-Message-ID: <8b862c93-1a9f-9247-8401-5092cc35a857__41932.706864509$1502098693$gmane$org@redhat.com>
-References: <1501761557-9758-1-git-send-email-wei.w.wang@intel.com>
-	<9ac31505-0996-2822-752e-8ec055373aa0@redhat.com>
-	<20170807092525.GE32434@dhcp22.suse.cz>
+From: "Marle" <marialemos72@gmail.com>
+Subject: Call for Papers --- ICITS'18 --- Ecuador
+Date: Mon, 7 Aug 2017 17:47:26 +0100
+Message-ID: <20170807164750.50578AB6@mail.linuxfoundation.org>
+Reply-To: intercits@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0171495157200732112=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170807092525.GE32434@dhcp22.suse.cz>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,26 +15,171 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, mst@redhat.com, mawilcox@microsoft.com, dave.hansen@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org, zhenwei.pi@youruncloud.com
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Maybe it is my absolute lack of familiarity with what the host actually
-> does with balloon pages but I fail to see why the above matters at all.
-> ksm will not try to merge sub page units (4k for hugetlb or a large base
-> page). And if you need to hide the guest contents then the host can
-> clear the respective subpage just fine. So could you be more explicit
-> why MADV_DONTNEED matters at all? Also does any host actually share sub
-> pages between different guests? This sounds like a bad idea to me in
-> general.
-> 
+--===============0171495157200732112==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Okay, I think I got the issue wrong. I thought that the original patch
-tried to also fix a corner case where the guest would assume that it
-would get supplied zero pages afterwards. Please ignore the noise. :)
+*** Proceedings published by Springer and indexed by ISI, Scopus, EI-Compen=
+dex, DBLP, etc.
 
--- 
 
-Thanks,
+---------------------------------------------------------------------------=
+------------------------
+ICITS'18 - The 2018 International Conference on Information Technology & Sy=
+stems
+           Peninsula de Santa Elena, Ecuador, 10 - 12 January 2018
+                             http://www.icits.me/
+---------------------------------------------------------------------------=
+----------------------
 
-David
+
+SCOPE
+
+ICITS'18 - The 2018 International Conference on Information Technology & Sy=
+stems (http://www.icits.me/), to be held at Pen=EDnsula de Santa Elena, Ecu=
+ador, 10 - 12 January 2018, is an international forum for researchers and p=
+ractitioners to present and discuss the most recent innovations, trends, re=
+sults, experiences and concerns in the several perspectives of Information =
+Technology & Systems.
+
+We are pleased to invite you to submit your papers to ICITS'18. They can be=
+ written in English, Spanish or Portuguese. All submissions will be reviewe=
+d on the basis of relevance, originality, importance and clarity.
+
+ 
+
+TOPICS
+
+Submitted papers should be related with one or more of the main themes prop=
+osed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Software and Systems Modeling (SSM);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Multimedia Systems and Applications (MSA);
+
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+G) Intelligent and Decision Support Systems (IDSS);
+
+H) Big Data Analytics and Applications (BDAA);
+
+I) Human-Computer Interaction (HCI);
+
+J) Ethics, Computers and Security (ECS)
+
+K) Health Informatics (HIS);
+
+L) Information Technologies in Education (ITE);
+
+ 
+
+SUBMISSION AND DECISION
+
+Submitted papers (until 10-page limit) must comply with the format of Advan=
+ces in Intelligent Systems and Computing series (see Instructions for Autho=
+rs at Springer Website or download a DOC example) be written in English, Sp=
+anish or Portuguese, must not have been published before, not be under revi=
+ew for any other conference or publication and not include any information =
+leading to the authors=92 identification. Therefore, the authors=92 names, =
+affiliations and bibliographic references should not be included in the ver=
+sion for evaluation by the Scientific Committee. This information should on=
+ly be included in the camera-ready version, saved in Word or Latex format a=
+nd also in PDF format. These files must be accompanied by the Consent to Pu=
+blication form filled out, in a ZIP file, and uploaded at the conference ma=
+nagement system.
+
+All papers will be subjected to a =93double-blind review=94 by at least two=
+ members of the Scientific Committee.
+
+Based on Scientific Committee evaluation, a paper can be rejected or accept=
+ed by the Conference Chairs. In the later case, it can be accepted as paper=
+ or poster.
+
+The authors of papers accepted as posters must build and print a poster to =
+be exhibited during the Conference. This poster must follow an A1 or A2 ver=
+tical format. The Conference can includes Work Sessions where these posters=
+ are presented and orally discussed, with a 7 minute limit per poster.
+
+The authors of accepted papers will have 15 minutes to present their work i=
+n a Conference Work Session; approximately 5 minutes of discussion will fol=
+low each presentation.
+
+ 
+
+PUBLICATION AND INDEXING
+
+To ensure that an accepted paper is published, at least one of the authors =
+must be fully registered by the 20th of October 2017, and the paper must co=
+mply with the suggested layout and page-limit (until 10 pages). Additionall=
+y, all recommended changes must be addressed by the authors before they sub=
+mit the camera-ready version.
+
+No more than one paper per registration will be published. An extra fee mus=
+t be paid for publication of additional papers, with a maximum of one addit=
+ional paper per registration. One registration permits only the participati=
+on of one author in the conference.
+
+Papers written in English and accepted and registered will be published in =
+Proceedings by Springer, in a book of the Advances in Intelligent Systems a=
+nd Computing series, will  be submitted for indexation by ISI, EI-Compendex=
+, SCOPUS and DBLP, among others, and will be available in the SpringerLink =
+Digital Library.
+
+Papers written in Spanish or Portuguese and accepted and registered will be=
+ published in Proceedings by AISTI and will be submitted for evaluation and=
+ possible indexation by ISI, EI-Compendex and SCOPUS.
+
+The authors of the best selected papers will be invited to extend them for =
+publication in international journals indexed by ISI, SCOPUS, EI-Compendex =
+and DBLP, among others.
+
+ 
+
+IMPORTANT DATES
+
+Paper Submission: September 6, 2017
+
+Notification of Acceptance: October 13, 2017
+
+Payment of Registration, to ensure the inclusion of an accepted paper in th=
+e conference proceedings: October 20, 2017.
+
+Camera-ready Submission: October 20, 2017
+
+
+---------
+
+ICITS'18 website: http://www.icits.me/
+
+---------
+
+
+----------------------------------------------
+
+
+
+---
+This email has been checked for viruses by AVG.
+http://www.avg.com
+
+
+--===============0171495157200732112==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0171495157200732112==--
