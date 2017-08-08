@@ -1,18 +1,15 @@
-From: Adam Tao <taozhe1@huawei.com>
-Subject: Re: [virtio-dev] repost: af_packet vs virtio (was packed ring layout
-	proposal v2)
-Date: Mon, 7 Aug 2017 12:16:23 +0800
-Message-ID: <20170807041623.GA12132__48800.3300656148$1509078938$gmane$org@shay3t003839711.china.huawei.com>
-References: <20170414051304-mutt-send-email-mst@kernel.org>
-	<20170414054318-mutt-send-email-mst@kernel.org>
-	<CAJR92jnV1VgBs567QNjO1fHKDgMX=1j1aJJ2gK-TqMB5E1=fvw@mail.gmail.com>
-	<20170802164931-mutt-send-email-mst@kernel.org>
+From: Joe Kniss via Virtualization <virtualization@lists.linux-foundation.org>
+Subject: Re: [Intel-gfx] [PATCH libdrm] drm: Remove create_handle()
+	drm_framebuffer "virtual".
+Date: Tue, 8 Aug 2017 16:53:45 -0700
+Message-ID: <CAOvnNvbEdMA-8bGiZquYEoLGUPTc083-EbUn6UpAZvd7khGixw__38000.7999403917$1509078966$gmane$org@mail.gmail.com>
+References: <20170808234237.62051-1-djmk@google.com>
+	<CAPM=9tzQuont4B9ybMXEDpqP583V_G64ypCR4E+zGvxLGdTULw@mail.gmail.com>
+Reply-To: Joe Kniss <djmk@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6671432745317679366=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170802164931-mutt-send-email-mst@kernel.org>
+In-Reply-To: <CAPM=9tzQuont4B9ybMXEDpqP583V_G64ypCR4E+zGvxLGdTULw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,58 +19,134 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, g@shay3t003839711.china.huawei.com
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, john.fastabend@gmail.com, virtualization@lists.linux-foundation.org, Steven Luong <sluong99@gmail.com>, alexei.starovoitov@gmail.com
+To: Dave Airlie <airlied@gmail.com>
+Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Edward O'Callaghan <funfunctor@folklore1984.net>, Dave Airlie <airlied@linux.ie>, nouveau <nouveau@lists.freedesktop.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>, "Vetter,
+	Daniel" <daniel.vetter@intel.com>, baoyou.xie@linaro.org, Alex Xie <AlexBin.Xie@amd.com>, "StDenis,
+	Tom" <tom.stdenis@amd.com>, zhoucm1 <David1.Zhou@amd.com>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Joonyoung Shim <jy0922.shim@samsung.com>, =?UTF-8?Q?Noralf_Tr=C3=B8nnes?= <noralf@tronnes.org>, Russell King <linux@armlinux.org.uk>, krzk@kernel.org, jonathanh@nvidia.com, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, Tomi
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 02, 2017 at 04:50:03PM +0300, Michael S. Tsirkin wrote:
-> On Tue, Aug 01, 2017 at 08:54:27PM -0700, Steven Luong wrote:
-> >     * Descriptor ring:
-> > 
-> >     Guest adds descriptors with unique index values and DESC_HW set in flags.
-> >     Host overwrites used descriptors with correct len, index, and DESC_HW
-> >     clear.? Flags are always set/cleared last.
-> > 
-> >     #define DESC_HW 0x0080
-> > 
-> >     struct desc {
-> >     ? ? ? ? __le64 addr;
-> >     ? ? ? ? __le32 len;
-> >     ? ? ? ? __le16 index;
-> >     ? ? ? ? __le16 flags;
-> >     };
-> > 
-> >     When DESC_HW is set, descriptor belongs to device. When it is clear,
-> >     it belongs to the driver.
-> > 
-> >     We can use 1 bit to set direction
-> >     /* This marks a buffer as write-only (otherwise read-only). */
-> >     #define VRING_DESC_F_WRITE? ? ? 2
-> > 
-> >     * Scatter/gather support
-> > 
-> >     We can use 1 bit to chain s/g entries in a request, same as virtio 1.0:
-> > 
-> >     /* This marks a buffer as continuing via the next field. */
-next field seems like a structure field in the software, maybe we need
-to change the "next field" to "next desc" to avoid misunderstanding.
-> > 
-> > 
-> > This comment here is confusing to me. In 1.0, virtq_desc has the next field.
-> > When the flag VRING_DESC_F_NEXT is set, the next entry to continue is specified
-> > in the next field.
-> > 
-> > Here in 1.1, struct desc does not have the next field, only addr, len, index,
-> > and flags. So when VRING_DESC_F_NEXT is set in struct desc's flags field, where
-> > is the next entry to continue the current descriptor, the entry immediately
-> > following the current entry? ie, if the current entry is at index 10 in the
-> > descriptor table and its flags is set for VRING_DESC_F_NEXT, is the entry
-> > continuing the current entry in index 11?
-> > 
-> > Steven
-> 
-> Exactly, you got it right.
-> 
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+--===============6671432745317679366==
+Content-Type: multipart/alternative; boundary="001a113cdeaa859de8055646ac90"
+
+--001a113cdeaa859de8055646ac90
+Content-Type: text/plain; charset="UTF-8"
+
+I didn't mean to add libdrm, sorry, there is a separate change for that.
+I'll double check and test the drivers that don't implement the virtual.
+
+Thanks for the quick reply!
+
+-j
+
+On Tue, Aug 8, 2017 at 4:50 PM, Dave Airlie <airlied@gmail.com> wrote:
+
+> On 9 August 2017 at 09:42, Joe Kniss <djmk@chromium.org> wrote:
+> > Because all drivers currently use gem objects for framebuffer planes,
+> > the virtual create_handle() is not required.  This change adds a
+> > struct drm_gem_object *gems[4] field to drm_framebuffer and removes
+> > create_handle() function pointer from drm_framebuffer_funcs.  The
+> > corresponding *_create_handle() function is removed from each driver.
+> >
+> > In many cases this change eliminates a struct *_framebuffer object,
+> > as the only need for the derived struct is the addition of the gem
+> > object pointer.
+>
+> Why the libdrm in the tag? this isn't for libdrm.
+>
+> This will break drivers that don't current implement the virtual at all.
+>
+> I think vwmgfx.
+>
+> The current code checks if the virtual is there before callng it, this code
+> just calls the gem code always.
+>
+> Dave.
+>
+
+
+
+-- 
+Dr. Joe Michael Kniss |  Google ChromeOS |  djmk@google.com   |
+1-801-898-7977
+
+--001a113cdeaa859de8055646ac90
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">I didn&#39;t mean to add libdrm, sorry, there is a separat=
+e change for that.=C2=A0 I&#39;ll double check and test the drivers that do=
+n&#39;t implement the virtual. =C2=A0<div><br></div><div>Thanks for the qui=
+ck reply!</div><div><br></div><div>-j</div></div><div class=3D"gmail_extra"=
+><br><div class=3D"gmail_quote">On Tue, Aug 8, 2017 at 4:50 PM, Dave Airlie=
+ <span dir=3D"ltr">&lt;<a href=3D"mailto:airlied@gmail.com" target=3D"_blan=
+k">airlied@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_qu=
+ote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex=
+"><span class=3D"">On 9 August 2017 at 09:42, Joe Kniss &lt;<a href=3D"mail=
+to:djmk@chromium.org">djmk@chromium.org</a>&gt; wrote:<br>
+&gt; Because all drivers currently use gem objects for framebuffer planes,<=
+br>
+&gt; the virtual create_handle() is not required.=C2=A0 This change adds a<=
+br>
+&gt; struct drm_gem_object *gems[4] field to drm_framebuffer and removes<br=
+>
+&gt; create_handle() function pointer from drm_framebuffer_funcs.=C2=A0 The=
+<br>
+&gt; corresponding *_create_handle() function is removed from each driver.<=
+br>
+&gt;<br>
+&gt; In many cases this change eliminates a struct *_framebuffer object,<br=
+>
+&gt; as the only need for the derived struct is the addition of the gem<br>
+&gt; object pointer.<br>
+<br>
+</span>Why the libdrm in the tag? this isn&#39;t for libdrm.<br>
+<br>
+This will break drivers that don&#39;t current implement the virtual at all=
+.<br>
+<br>
+I think vwmgfx.<br>
+<br>
+The current code checks if the virtual is there before callng it, this code=
+<br>
+just calls the gem code always.<br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
+Dave.<br>
+</font></span></blockquote></div><br><br clear=3D"all"><div><br></div>-- <b=
+r><div class=3D"gmail_signature" data-smartmail=3D"gmail_signature"><div di=
+r=3D"ltr"><div><div dir=3D"ltr"><table cellspacing=3D"0" cellpadding=3D"0" =
+style=3D"text-align:center;color:rgb(80,0,80);font-family:&#39;Times New Ro=
+man&#39;"><tbody><tr style=3D"color:rgb(85,85,85);font-family:sans-serif;fo=
+nt-size:small"><td nowrap style=3D"border-top-style:solid;border-top-color:=
+rgb(213,15,37);border-top-width:2px"><font size=3D"1"><font face=3D"garamon=
+d, serif">Dr. Joe Michael Kniss </font>|</font></td><td nowrap style=3D"bor=
+der-top-style:solid;border-top-color:rgb(51,105,232);border-top-width:2px">=
+<font size=3D"1">=C2=A0<font face=3D"garamond, serif"><font color=3D"#0b539=
+4">G</font><font color=3D"#cc0000">o</font><font color=3D"#bf9000">o</font>=
+<font color=3D"#0b5394">g</font><font color=3D"#38761d">l</font><font color=
+=3D"#cc0000">e</font><font color=3D"#000000">=C2=A0</font><font color=3D"#4=
+44444">ChromeOS</font></font><font color=3D"#000000">=C2=A0</font>|</font><=
+/td><td nowrap style=3D"border-top-style:solid;border-top-color:rgb(0,153,5=
+7);border-top-width:2px"><font size=3D"1"><font face=3D"garamond, serif">=
+=C2=A0<a href=3D"mailto:djmk@google.com" target=3D"_blank">djmk<font color=
+=3D"#1155cc">@google.com</font></a>=C2=A0</font>=C2=A0</font></td><td nowra=
+p style=3D"border-top-style:solid;border-top-color:rgb(238,178,17);border-t=
+op-width:2px"><font size=3D"1"><a value=3D"+16504298119" style=3D"color:rgb=
+(17,85,204)">| </a><font face=3D"garamond, serif"><font color=3D"#1155cc">1=
+-801-898-7977</font><br></font></font></td></tr></tbody></table></div></div=
+></div></div>
+</div>
+
+--001a113cdeaa859de8055646ac90--
+
+--===============6671432745317679366==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6671432745317679366==--
