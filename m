@@ -1,17 +1,16 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [virtio-dev] Re: [PATCH v13 4/5] mm: support reporting free page
-	blocks
-Date: Tue, 08 Aug 2017 14:34:25 +0800
-Message-ID: <59895B71.7050709__9642.29512396759$1502173968$gmane$org@intel.com>
-References: <1501742299-4369-1-git-send-email-wei.w.wang@intel.com>
-	<1501742299-4369-5-git-send-email-wei.w.wang@intel.com>
-	<20170803091151.GF12521@dhcp22.suse.cz>
-	<59895668.9090104@intel.com>
+From: Vincent ABRIOU <vincent.abriou@st.com>
+Subject: Re: [PATCH 7/8] drm: Nuke drm_atomic_helper_connector_dpms
+Date: Tue, 8 Aug 2017 10:05:11 +0000
+Message-ID: <462c98df-2633-3c61-9ae6-e567780941c0__40439.8171733648$1502187612$gmane$org@st.com>
+References: <20170725080122.20548-1-daniel.vetter@ffwll.ch>
+	<20170725080122.20548-8-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <59895668.9090104@intel.com>
+In-Reply-To: <20170725080122.20548-8-daniel.vetter@ffwll.ch>
+Content-Language: en-US
+Content-ID: <C1D66642F494334E83389CC9FEAF0D3A@st.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,81 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, amit.shah@redhat.com, liliang.opensource@gmail.com, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>
+Cc: Martyn Welch <martyn.welch@collabora.co.uk>, Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>, "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Andrzej Hajda <a.hajda@samsung.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-mediatek@lists.infradead.org" <linux-mediatek@lists.infradead.org>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Romain Perier <romain.perier@collabora.com>, Daniel Vetter <daniel.vetter@intel.com>, Jyri Sarha <jsarha@ti.com>, Heiko Stuebner <heiko@sntech.de>, Marek Vasut <marex@denx.de>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Archit Taneja <architt@codeaurora.org>, Lars-Pete
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/08/2017 02:12 PM, Wei Wang wrote:
-> On 08/03/2017 05:11 PM, Michal Hocko wrote:
->> On Thu 03-08-17 14:38:18, Wei Wang wrote:
->> This is just too ugly and wrong actually. Never provide struct page
->> pointers outside of the zone->lock. What I've had in mind was to simply
->> walk free lists of the suitable order and call the callback for each 
->> one.
->> Something as simple as
->>
->>     for (i = 0; i < MAX_NR_ZONES; i++) {
->>         struct zone *zone = &pgdat->node_zones[i];
->>
->>         if (!populated_zone(zone))
->>             continue;
->
-> Can we directly use for_each_populated_zone(zone) here?
->
->
->> spin_lock_irqsave(&zone->lock, flags);
->>         for (order = min_order; order < MAX_ORDER; ++order) {
->
->
-> This appears to be covered by for_each_migratetype_order(order, mt) 
-> below.
->
->
->>             struct free_area *free_area = &zone->free_area[order];
->>             enum migratetype mt;
->>             struct page *page;
->>
->>             if (!free_area->nr_pages)
->>                 continue;
->>
->>             for_each_migratetype_order(order, mt) {
->>                 list_for_each_entry(page,
->>                         &free_area->free_list[mt], lru) {
->>
->>                     pfn = page_to_pfn(page);
->>                     visit(opaque2, prn, 1<<order);
->>                 }
->>             }
->>         }
->>
->>         spin_unlock_irqrestore(&zone->lock, flags);
->>     }
->>
->> [...]
->>
->
-> What do you think if we further simply the above implementation like 
-> this:
->
-> for_each_populated_zone(zone) {
->                 for_each_migratetype_order_decend(1, order, mt) {
-
-here it will be min_order (passed by the caller), instead of "1",
-that is, for_each_migratetype_order_decend(min_order, order, mt)
 
 
-> spin_lock_irqsave(&zone->lock, flags);
->                         list_for_each_entry(page,
-> &zone->free_area[order].free_list[mt], lru) {
->                                 pfn = page_to_pfn(page);
->                                 visit(opaque1, pfn, 1 << order);
->                         }
->                         spin_unlock_irqrestore(&zone->lock, flags);
->                 }
->         }
->
->
+On 07/25/2017 10:01 AM, Daniel Vetter wrote:
+> It's dead code, the core handles all this directly now.
+> 
+> The only special case is nouveau and tda988x which used one function
+> for both legacy modeset code and -nv50 atomic world instead of 2
+> vtables. But amounts to exactly the same.
+> 
+> v2: Rebase over the panel/brideg refactorings in stm/ltdc.
+> 
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
 
+[...]
 
-Best,
-Wei
+>   drivers/gpu/drm/sti/sti_dvo.c                      |  1 -
+>   drivers/gpu/drm/sti/sti_hda.c                      |  1 -
+>   drivers/gpu/drm/sti/sti_hdmi.c                     |  1 -
+
+Acked-by: Vincent Abriou <vincent.abriou@st.com>
+
+BR
+Vincent
