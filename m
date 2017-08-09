@@ -1,21 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] Revert "vhost: cache used event for better
-	performance"
-Date: Wed, 9 Aug 2017 07:37:11 +0300
-Message-ID: <20170809073422-mutt-send-email-mst@kernel.org>
-References: <1501056197-3368-1-git-send-email-jasowang@redhat.com>
-	<20170726155435-mutt-send-email-mst@kernel.org>
-	<117542fc-eef9-c043-7c9e-daafceb7db4e@redhat.com>
-	<6b3a9a98-c095-1729-3528-dd521f136797@redhat.com>
-	<20170726190745-mutt-send-email-mst@kernel.org>
-	<1501396011.21001.11.camel@klaipeden.com>
-	<6698b85c-18f4-17e6-db70-7708692fb761@redhat.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH] drm/virtio: make drm_fb_helper_funcs const
+Date: Wed, 9 Aug 2017 18:40:10 +0200
+Message-ID: <20170809164010.sff3ebprwpqv6axu@phenom.ffwll.local>
+References: <1502205245-17365-1-git-send-email-bhumirks@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <6698b85c-18f4-17e6-db70-7708692fb761@redhat.com>
+In-Reply-To: <1502205245-17365-1-git-send-email-bhumirks@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,32 +18,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "K. Den" <den@klaipeden.com>, virtualization@lists.linux-foundation.org
+To: Bhumika Goyal <bhumirks@gmail.com>
+Cc: airlied@linux.ie, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, julia.lawall@lip6.fr
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 09, 2017 at 10:38:10AM +0800, Jason Wang wrote:
-> I think don't think current code can work well if vq.num is grater than
-> 2^15. Since all cached idx is u16. This looks like a bug which needs to be
-> fixed.
-
-That's a limitation of virtio 1.0.
-
-> > * else if the interval of vq.num is [2^15, 2^16):
-> > the logic in the original patch (809ecb9bca6a9) suffices
-> > * else (= less than 2^15) (optional):
-> > checking only (vring_need_event(vq->last_used_event, new + vq->num, new)
-> > would suffice.
-> > 
-> > Am I missing something, or is this irrelevant?
-
-Could you pls repost the suggestion copying virtio-dev mailing list
-(subscriber only, sorry about that, but host/guest ABI discussions
-need to copy that list)?
-
-> Looks not, I think this may work. Let me do some test.
+On Tue, Aug 08, 2017 at 08:44:05PM +0530, Bhumika Goyal wrote:
+> Make these structures const as they are only passed to the function
+> drm_fb_helper_prepare and the corresponding argument is of type const.
+> Done using Coccinelle
 > 
-> Thanks
+> @match disable optional_qualifier@
+> identifier s;
+> @@
+> static struct drm_fb_helper_funcs s = {...};
+> 
+> @ref@
+> position p;
+> identifier match.s;
+> @@
+> s@p
+> 
+> @good1@
+> identifier match.s;
+> expression e1,e2;
+> position ref.p;
+> @@
+> drm_fb_helper_prepare(e1,e2,&s@p,...)
+> 
+> @bad depends on  !good1@
+> position ref.p;
+> identifier match.s;
+> @@
+> s@p
+> 
+> @depends on forall !bad disable optional_qualifier@
+> identifier match.s;
+> @@
+> static
+> + const
+> struct drm_fb_helper_funcs s;
+> 
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
 
-I think that at this point it's prudent to add a feature bit
-as the virtio spec does not require to never move the event index back.
+This and the previous one merged too.
+-Daniel
+
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_fb.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
+> index 046e28b..15d18fd 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_fb.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
+> @@ -308,7 +308,7 @@ static int virtio_gpu_fbdev_destroy(struct drm_device *dev,
+>  
+>  	return 0;
+>  }
+> -static struct drm_fb_helper_funcs virtio_gpu_fb_helper_funcs = {
+> +static const struct drm_fb_helper_funcs virtio_gpu_fb_helper_funcs = {
+>  	.fb_probe = virtio_gpufb_create,
+>  };
+>  
+> -- 
+> 1.9.1
+> 
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
