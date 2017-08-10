@@ -1,16 +1,11 @@
-From: Joe Kniss via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH libdrm] drm: Remove create_handle() drm_framebuffer
-	"virtual".
-Date: Wed, 9 Aug 2017 16:13:05 -0700
-Message-ID: <CAOvnNvbEt=Uyve3cu_+6BB0EepvO=OKC6gpV3isRef+UdVoX-g__32433.3811332055$1509079007$gmane$org@mail.gmail.com>
-References: <20170808234237.62051-1-djmk@google.com>
-	<8a7bf59a-0f58-21ba-8b82-78e6ba873065@tronnes.org>
-Reply-To: Joe Kniss <djmk@google.com>
+From: Cihangir Akturk <cakturk@gmail.com>
+Subject: [PATCH v2 00/29] DRM API Conversions
+Date: Thu, 10 Aug 2017 15:09:43 +0300
+Message-ID: <1502367012-9417-1-git-send-email-cakturk__9817.17020408741$1509079011$gmane$org@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8a7bf59a-0f58-21ba-8b82-78e6ba873065@tronnes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,47 +15,206 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?UTF-8?Q?Noralf_Tr=C3=B8nnes?= <noralf@tronnes.org>
-Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Dave Airlie <airlied@linux.ie>, Michel Daenzer <michel.daenzer@amd.com>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>, "Zhang,
-	Jerry" <Jerry.Zhang@amd.com>, Thierry Reding <thierry.reding@gmail.com>, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, "Vetter,
-	Daniel" <daniel.vetter@intel.com>, baoyou.xie@linaro.org, ville.syrjala@linux.intel.com, Alex Xie <AlexBin.Xie@amd.com>, "StDenis, Tom" <tom.stdenis@amd.com>, zhoucm1 <David1.Zhou@amd.com>, mario.kleiner.de@gmail.com, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, joe@perches.com, Joonyoung Shim <jy0922.shim@samsung.com>, linux-mediatek@lists.infradead.org, Russell King <linux@armlinux.org.uk>, krzk@kernel.org, jonathanh@nvidia.com, "open list:ARM/Rockchip SoC..." <linux-rockchip@list>
+Cc: devel@driverdev.osuosl.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org, Cihangir Akturk <cakturk@gmail.com>, amd-gfx@lists.freedesktop.org, daniel@ffwll.ch, nouveau@lists.freedesktop.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, freedreno@lists.freedesktop.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBBdWcgOSwgMjAxNyBhdCAxMjoxNCBQTSwgTm9yYWxmIFRyw7hubmVzIDxub3JhbGZA
-dHJvbm5lcy5vcmc+IHdyb3RlOgo+Cj4gRGVuIDA5LjA4LjIwMTcgMDEuNDIsIHNrcmV2IEpvZSBL
-bmlzczoKPj4KPj4gQmVjYXVzZSBhbGwgZHJpdmVycyBjdXJyZW50bHkgdXNlIGdlbSBvYmplY3Rz
-IGZvciBmcmFtZWJ1ZmZlciBwbGFuZXMsCj4+IHRoZSB2aXJ0dWFsIGNyZWF0ZV9oYW5kbGUoKSBp
-cyBub3QgcmVxdWlyZWQuICBUaGlzIGNoYW5nZSBhZGRzIGEKPj4gc3RydWN0IGRybV9nZW1fb2Jq
-ZWN0ICpnZW1zWzRdIGZpZWxkIHRvIGRybV9mcmFtZWJ1ZmZlciBhbmQgcmVtb3Zlcwo+PiBjcmVh
-dGVfaGFuZGxlKCkgZnVuY3Rpb24gcG9pbnRlciBmcm9tIGRybV9mcmFtZWJ1ZmZlcl9mdW5jcy4g
-IFRoZQo+PiBjb3JyZXNwb25kaW5nICpfY3JlYXRlX2hhbmRsZSgpIGZ1bmN0aW9uIGlzIHJlbW92
-ZWQgZnJvbSBlYWNoIGRyaXZlci4KPj4KPj4gSW4gbWFueSBjYXNlcyB0aGlzIGNoYW5nZSBlbGlt
-aW5hdGVzIGEgc3RydWN0ICpfZnJhbWVidWZmZXIgb2JqZWN0LAo+PiBhcyB0aGUgb25seSBuZWVk
-IGZvciB0aGUgZGVyaXZlZCBzdHJ1Y3QgaXMgdGhlIGFkZGl0aW9uIG9mIHRoZSBnZW0KPj4gb2Jq
-ZWN0IHBvaW50ZXIuCj4+Cj4+IFRFU1RFRDogY29tcGlsZWQ6IGFsbHllc2NvbmZpZyBBUkNIPXg4
-Nixhcm0gcGxhdGZvcm1zOmk5MTUsIHJvY2tjaGlwCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IEpvZSBL
-bmlzcyA8ZGpta0Bnb29nbGUuY29tPgo+PiAtLS0KPgo+Cj4gSGkgSm9lLAo+Cj4gSSdtIGFsc28g
-bG9va2luZyBpbnRvIGFkZGluZyBnZW0gb2JqcyB0byBkcm1fZnJhbWVidWZmZXIgaW4gdGhpcyBw
-YXRjaDoKPiBbUEFUQ0ggdjIgMDEvMjJdIGRybTogQWRkIEdFTSBiYWNrZWQgZnJhbWVidWZmZXIg
-bGlicmFyeQo+IGh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL2FyY2hpdmVzL2RyaS1kZXZl
-bC8yMDE3LUF1Z3VzdC8xNDk3ODIuaHRtbAo+CgpHcmVhdC4gIFRoZXJlJ3Mgb25seSBtaW5pbWFs
-IG92ZXJsYXAgaGVyZS4gIEknbGwgcmViYXNlIHRoaXMgY2hhbmdlIG9uIHlvdXJzCm9uY2UgaXQn
-cyBpbi4KCj4gWy4uLl0KPgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2RybV9mYl9j
-bWFfaGVscGVyLmMKPj4gYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2ZiX2NtYV9oZWxwZXIuYwo+PiBp
-bmRleCBhZGUzMTlkMTBlNzAuLmY1ZjAxMWI5MTBiMSAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9n
-cHUvZHJtL2RybV9mYl9jbWFfaGVscGVyLmMKPj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2RybV9m
-Yl9jbWFfaGVscGVyLmMKPj4gQEAgLTMxLDE0ICszMSw5IEBACj4+ICAgICAjZGVmaW5lIERFRkFV
-TFRfRkJERUZJT19ERUxBWV9NUyA1MAo+PiAgIC1zdHJ1Y3QgZHJtX2ZiX2NtYSB7Cj4+IC0gICAg
-ICAgc3RydWN0IGRybV9mcmFtZWJ1ZmZlciAgICAgICAgICBmYjsKPj4gLSAgICAgICBzdHJ1Y3Qg
-ZHJtX2dlbV9jbWFfb2JqZWN0ICAgICAgICpvYmpbNF07Cj4+IC19Owo+PiAtCj4+ICAgc3RydWN0
-IGRybV9mYmRldl9jbWEgewo+PiAgICAgICAgIHN0cnVjdCBkcm1fZmJfaGVscGVyICAgIGZiX2hl
-bHBlcjsKPj4gLSAgICAgICBzdHJ1Y3QgZHJtX2ZiX2NtYSAgICAgICAqZmI7Cj4+ICsgICAgICAg
-c3RydWN0IGRybV9mcmFtZWJ1ZmZlciAgKmZiOwo+Cj4KPiBUaGlzIGZiIHBvaW50ZXIgaXNuJ3Qg
-bmVjZXNzYXJ5LCBzaW5jZSBmYl9oZWxwZXIgYWxyZWFkeSBoYXMgb25lLgo+CgpJJ2xsIHJlbW92
-ZSBpdC4uLiBidXQgSSBhbSBzdXJlIHdoZW4gSSBsb29rIGRlZXBlciB0aGVyZSB3aWxsIGJlIG1v
-cmUKb2YgdGhlc2UgaW4gdGhlIHZhcmlvdXMgZHJpdmVycyB0b28uCgo+IE5vcmFsZi4KPgo+Cgot
-am9lCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+Changes since v1:
+
+- This time patches were generated with coccinelle instead of my own
+  script, as suggested by Daniel Vetter.
+- Fixed the typo in commit messages. s/adn/and
+
+Note: I've included r-b, a-b tags, as these patches are identical to v1
+except for the file: drivers/gpu/drm/i915/i915_gem_object.h
+
+This patch set replaces the occurrences of drm_*_reference() and
+drm_*_unreference() with the new drm_*_get() and drm_*_put() functions.
+All patches in the series do the same thing, converting to the new APIs.
+I created patches per DRM driver as suggested by Daniel Vetter.
+
+This patch set was generated by scripts/coccinelle/api/drm-get-put.cocci
+
+Previous thread can be reached at:
+https://marc.info/?l=dri-devel&m=150178288816047
+
+Background:
+
+In the kernel, reference counting APIs use *_get(), *_put() style naming
+to reference-count the objects. But DRM subsystem uses a different
+naming for them such as *_reference(), *_unreference() which is
+inconsistent with the other reference counting APIs in the kernel. To
+solve this consistency issue, Thierry Reding introduced a couple of
+functions and compatibility aliases in the following commits for them.
+
+commit 020a218f95bd3ceff7dd1022ff7ebc0497bc7bf9
+Author: Thierry Reding <treding@nvidia.com>
+Date:   Tue Feb 28 15:46:38 2017 +0100
+
+    drm: Introduce drm_mode_object_{get,put}()
+
+commit ad09360750afa18a0a0ce0253d6ea6033abc22e7
+Author: Thierry Reding <treding@nvidia.com>
+Date:   Tue Feb 28 15:46:39 2017 +0100
+
+    drm: Introduce drm_connector_{get,put}()
+
+commit a4a69da06bc11a937a6e417938b1bb698ee1fa46
+Author: Thierry Reding <treding@nvidia.com>
+Date:   Tue Feb 28 15:46:40 2017 +0100
+
+    drm: Introduce drm_framebuffer_{get,put}()
+
+commit e6b62714e87c8811d5564b6a0738dcde63a51774
+Author: Thierry Reding <treding@nvidia.com>
+Date:   Tue Feb 28 15:46:41 2017 +0100
+
+    drm: Introduce drm_gem_object_{get,put}()
+
+commit 6472e5090be7c78749a3c279b4faae87ab835c40
+Author: Thierry Reding <treding@nvidia.com>
+Date:   Tue Feb 28 15:46:42 2017 +0100
+
+    drm: Introduce drm_property_blob_{get,put}()
+
+Cihangir Akturk (29):
+  drm/amdgpu: switch to drm_*_get(), drm_*_put() helpers
+  drm: mali-dp: switch to drm_*_get(), drm_*_put() helpers
+  drm/armada: switch to drm_*_get(), drm_*_put() helpers
+  drm/ast: switch to drm_*_get(), drm_*_put() helpers
+  drm/atmel-hlcdc: switch to drm_*_get(), drm_*_put() helpers
+  drm/bochs: switch to drm_*_get(), drm_*_put() helpers
+  drm/cirrus: switch to drm_*_get(), drm_*_put() helpers
+  drm/etnaviv: switch to drm_*_get(), drm_*_put() helpers
+  drm/exynos: switch to drm_*_get(), drm_*_put() helpers
+  drm/gma500: switch to drm_*_get(), drm_*_put() helpers
+  drm/hisilicon: switch to drm_*_get(), drm_*_put() helpers
+  drm/i915: switch to drm_*_get(), drm_*_put() helpers
+  drm/imx: switch to drm_*_get(), drm_*_put() helpers
+  drm/mediatek: switch to drm_*_get(), drm_*_put() helpers
+  drm/mgag200: switch to drm_*_get(), drm_*_put() helpers
+  drm/msm: switch to drm_*_get(), drm_*_put() helpers
+  drm/nouveau: switch to drm_*_get(), drm_*_put() helpers
+  drm/omap: switch to drm_*_get(), drm_*_put() helpers
+  drm/qxl: switch to drm_*_get(), drm_*_put() helpers
+  drm/radeon: switch to drm_*_get(), drm_*_put() helpers
+  drm/rockchip: switch to drm_*_get(), drm_*_put() helpers
+  drm/tegra: switch to drm_*_get(), drm_*_put() helpers
+  drm/tilcdc: switch to drm_*_get(), drm_*_put() helpers
+  drm/udl: switch to drm_*_get(), drm_*_put() helpers
+  drm/vc4: switch to drm_*_get(), drm_*_put() helpers
+  drm/vgem: switch to drm_*_get(), drm_*_put() helpers
+  drm/virtio: switch to drm_*_get(), drm_*_put() helpers
+  drm/vmwgfx: switch to drm_*_get(), drm_*_put() helpers
+  staging: vboxvideo: switch to drm_*_get(), drm_*_put() helpers
+
+ drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c       |  2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c            |  2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_display.c       |  6 ++---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c            |  4 +--
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c           | 22 ++++++++---------
+ drivers/gpu/drm/amd/amdgpu/dce_v10_0.c            |  6 ++---
+ drivers/gpu/drm/amd/amdgpu/dce_v11_0.c            |  6 ++---
+ drivers/gpu/drm/amd/amdgpu/dce_v6_0.c             |  6 ++---
+ drivers/gpu/drm/amd/amdgpu/dce_v8_0.c             |  6 ++---
+ drivers/gpu/drm/arm/malidp_planes.c               |  2 +-
+ drivers/gpu/drm/armada/armada_crtc.c              | 22 ++++++++---------
+ drivers/gpu/drm/armada/armada_drv.c               |  2 +-
+ drivers/gpu/drm/armada/armada_fb.c                |  8 +++---
+ drivers/gpu/drm/armada/armada_fbdev.c             |  6 ++---
+ drivers/gpu/drm/armada/armada_gem.c               | 14 +++++------
+ drivers/gpu/drm/armada/armada_overlay.c           |  4 +--
+ drivers/gpu/drm/ast/ast_fb.c                      |  2 +-
+ drivers/gpu/drm/ast/ast_main.c                    | 10 ++++----
+ drivers/gpu/drm/ast/ast_mode.c                    |  6 ++---
+ drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_plane.c   |  8 +++---
+ drivers/gpu/drm/bochs/bochs_fbdev.c               |  2 +-
+ drivers/gpu/drm/bochs/bochs_mm.c                  | 10 ++++----
+ drivers/gpu/drm/cirrus/cirrus_fbdev.c             |  2 +-
+ drivers/gpu/drm/cirrus/cirrus_main.c              | 10 ++++----
+ drivers/gpu/drm/etnaviv/etnaviv_drv.c             |  8 +++---
+ drivers/gpu/drm/etnaviv/etnaviv_gem.c             | 20 +++++++--------
+ drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c       |  2 +-
+ drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c      |  4 +--
+ drivers/gpu/drm/exynos/exynos_drm_fb.c            |  4 +--
+ drivers/gpu/drm/exynos/exynos_drm_gem.c           | 12 ++++-----
+ drivers/gpu/drm/exynos/exynos_drm_plane.c         |  2 +-
+ drivers/gpu/drm/gma500/framebuffer.c              |  4 +--
+ drivers/gpu/drm/gma500/gem.c                      |  4 +--
+ drivers/gpu/drm/gma500/gma_display.c              |  6 ++---
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c |  4 +--
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c       |  8 +++---
+ drivers/gpu/drm/i915/i915_gem_object.h            |  4 +--
+ drivers/gpu/drm/i915/intel_display.c              | 24 +++++++++---------
+ drivers/gpu/drm/i915/intel_dp_mst.c               |  2 +-
+ drivers/gpu/drm/i915/intel_fbdev.c                |  4 +--
+ drivers/gpu/drm/imx/ipuv3-crtc.c                  |  2 +-
+ drivers/gpu/drm/mediatek/mtk_drm_fb.c             |  4 +--
+ drivers/gpu/drm/mediatek/mtk_drm_gem.c            |  4 +--
+ drivers/gpu/drm/mgag200/mgag200_cursor.c          |  2 +-
+ drivers/gpu/drm/mgag200/mgag200_fb.c              |  4 +--
+ drivers/gpu/drm/mgag200/mgag200_main.c            | 10 ++++----
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c             | 10 ++++----
+ drivers/gpu/drm/msm/adreno/a5xx_power.c           |  2 +-
+ drivers/gpu/drm/msm/adreno/adreno_gpu.c           |  2 +-
+ drivers/gpu/drm/msm/mdp/mdp4/mdp4_crtc.c          |  6 ++---
+ drivers/gpu/drm/msm/mdp/mdp4/mdp4_kms.c           |  2 +-
+ drivers/gpu/drm/msm/mdp/mdp5/mdp5_crtc.c          |  2 +-
+ drivers/gpu/drm/msm/mdp/mdp5/mdp5_plane.c         |  4 +--
+ drivers/gpu/drm/msm/msm_drv.c                     |  8 +++---
+ drivers/gpu/drm/msm/msm_fb.c                      |  4 +--
+ drivers/gpu/drm/msm/msm_fbdev.c                   |  2 +-
+ drivers/gpu/drm/msm/msm_gem.c                     |  8 +++---
+ drivers/gpu/drm/msm/msm_gem_submit.c              |  4 +--
+ drivers/gpu/drm/msm/msm_gpu.c                     |  4 +--
+ drivers/gpu/drm/msm/msm_ringbuffer.c              |  2 +-
+ drivers/gpu/drm/nouveau/dispnv04/crtc.c           |  2 +-
+ drivers/gpu/drm/nouveau/nouveau_abi16.c           |  2 +-
+ drivers/gpu/drm/nouveau/nouveau_display.c         |  8 +++---
+ drivers/gpu/drm/nouveau/nouveau_fbcon.c           |  2 +-
+ drivers/gpu/drm/nouveau/nouveau_gem.c             | 14 +++++------
+ drivers/gpu/drm/nouveau/nv50_display.c            |  2 +-
+ drivers/gpu/drm/omapdrm/omap_drv.c                |  2 +-
+ drivers/gpu/drm/omapdrm/omap_fb.c                 |  4 +--
+ drivers/gpu/drm/omapdrm/omap_fbdev.c              |  2 +-
+ drivers/gpu/drm/omapdrm/omap_gem.c                |  4 +--
+ drivers/gpu/drm/omapdrm/omap_gem_dmabuf.c         |  2 +-
+ drivers/gpu/drm/qxl/qxl_display.c                 |  4 +--
+ drivers/gpu/drm/qxl/qxl_dumb.c                    |  2 +-
+ drivers/gpu/drm/qxl/qxl_fb.c                      |  6 ++---
+ drivers/gpu/drm/qxl/qxl_gem.c                     |  2 +-
+ drivers/gpu/drm/qxl/qxl_ioctl.c                   |  4 +--
+ drivers/gpu/drm/qxl/qxl_object.c                  |  6 ++---
+ drivers/gpu/drm/radeon/radeon_cs.c                |  2 +-
+ drivers/gpu/drm/radeon/radeon_cursor.c            |  6 ++---
+ drivers/gpu/drm/radeon/radeon_display.c           | 12 ++++-----
+ drivers/gpu/drm/radeon/radeon_fb.c                |  4 +--
+ drivers/gpu/drm/radeon/radeon_gem.c               | 30 +++++++++++------------
+ drivers/gpu/drm/radeon/radeon_object.c            |  2 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_fb.c        |  6 ++---
+ drivers/gpu/drm/rockchip/rockchip_drm_fbdev.c     |  2 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_gem.c       |  4 +--
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c       |  4 +--
+ drivers/gpu/drm/tegra/drm.c                       | 12 ++++-----
+ drivers/gpu/drm/tegra/fb.c                        |  8 +++---
+ drivers/gpu/drm/tegra/gem.c                       | 10 ++++----
+ drivers/gpu/drm/tilcdc/tilcdc_crtc.c              |  6 ++---
+ drivers/gpu/drm/udl/udl_fb.c                      |  6 ++---
+ drivers/gpu/drm/udl/udl_gem.c                     |  4 +--
+ drivers/gpu/drm/vc4/vc4_bo.c                      | 12 ++++-----
+ drivers/gpu/drm/vc4/vc4_crtc.c                    |  6 ++---
+ drivers/gpu/drm/vc4/vc4_gem.c                     | 14 +++++------
+ drivers/gpu/drm/vc4/vc4_kms.c                     |  2 +-
+ drivers/gpu/drm/vgem/vgem_drv.c                   |  4 +--
+ drivers/gpu/drm/vgem/vgem_fence.c                 |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_display.c          |  4 +--
+ drivers/gpu/drm/virtio/virtgpu_gem.c              |  4 +--
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c            | 14 +++++------
+ drivers/gpu/drm/vmwgfx/vmwgfx_fb.c                |  2 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_ioctl.c             |  4 +--
+ drivers/staging/vboxvideo/vbox_fb.c               |  2 +-
+ drivers/staging/vboxvideo/vbox_main.c             |  8 +++---
+ drivers/staging/vboxvideo/vbox_mode.c             |  2 +-
+ 107 files changed, 316 insertions(+), 316 deletions(-)
+
+-- 
+2.7.4
