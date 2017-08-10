@@ -1,14 +1,18 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v13 1/5] Introduce xbitmap
-Date: Thu, 10 Aug 2017 13:59:12 +0800
-Message-ID: <598BF630.3060308__40838.8207237751$1502344913$gmane$org@intel.com>
-References: <1501742299-4369-1-git-send-email-wei.w.wang@intel.com>	<1501742299-4369-2-git-send-email-wei.w.wang@intel.com>
-	<20170809143636.e2c2d2713f58768c1427855d@linux-foundation.org>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [virtio-dev] Re: [PATCH v13 4/5] mm: support reporting free page
+	blocks
+Date: Thu, 10 Aug 2017 09:05:18 +0200
+Message-ID: <20170810070517.GB23863__4449.71756446666$1502348726$gmane$org@dhcp22.suse.cz>
+References: <1501742299-4369-1-git-send-email-wei.w.wang@intel.com>
+	<1501742299-4369-5-git-send-email-wei.w.wang@intel.com>
+	<20170803091151.GF12521@dhcp22.suse.cz>
+	<59895668.9090104@intel.com> <59895B71.7050709@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170809143636.e2c2d2713f58768c1427855d@linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <59895B71.7050709@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,144 +22,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, amit.shah@redhat.com, liliang.opensource@gmail.com, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, yang.zhang.wz@gmail.com, virtualization@lists.linux-foundation.org, mgorman@techsingularity.net
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, amit.shah@redhat.com, liliang.opensource@gmail.com, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/10/2017 05:36 AM, Andrew Morton wrote:
-> On Thu,  3 Aug 2017 14:38:15 +0800 Wei Wang <wei.w.wang@intel.com> wrote:
->
->> From: Matthew Wilcox <mawilcox@microsoft.com>
->>
->> The eXtensible Bitmap is a sparse bitmap representation which is
->> efficient for set bits which tend to cluster.  It supports up to
->> 'unsigned long' worth of bits, and this commit adds the bare bones --
->> xb_set_bit(), xb_clear_bit() and xb_test_bit().
-> Would like to see some additional details here justifying the change.
-> The sole user is virtio-balloon, yes?  What alternatives were examined
-> and what are the benefits of this approach?
->
-> Have you identified any other subsystems which could utilize this?
+On Tue 08-08-17 14:34:25, Wei Wang wrote:
+> On 08/08/2017 02:12 PM, Wei Wang wrote:
+> >On 08/03/2017 05:11 PM, Michal Hocko wrote:
+> >>On Thu 03-08-17 14:38:18, Wei Wang wrote:
+> >>This is just too ugly and wrong actually. Never provide struct page
+> >>pointers outside of the zone->lock. What I've had in mind was to simply
+> >>walk free lists of the suitable order and call the callback for each
+> >>one.
+> >>Something as simple as
+> >>
+> >>    for (i = 0; i < MAX_NR_ZONES; i++) {
+> >>        struct zone *zone = &pgdat->node_zones[i];
+> >>
+> >>        if (!populated_zone(zone))
+> >>            continue;
+> >
+> >Can we directly use for_each_populated_zone(zone) here?
 
+yes, my example couldn't because I was still assuming per-node API
 
-The idea and implementation comes from Matthew, but I can share
-my thought here (mostly from a user perspective):
+> >>spin_lock_irqsave(&zone->lock, flags);
+> >>        for (order = min_order; order < MAX_ORDER; ++order) {
+> >
+> >
+> >This appears to be covered by for_each_migratetype_order(order, mt) below.
 
-This seems to be the first kind that uses bitmaps based on radix like
-structures for id recording purposes.  The id is given by the user,
-which is different from ida (ida is used for id allocation purpose). A
-bitmap is allocated on demand when an id provided by the user to
-record beyond the existing id range that the allocated bitmaps can
-cover. Benefits are actually from the radix implementation - efficient
-storage and quick lookup.
+yes but
+#define for_each_migratetype_order(order, type) \
+	for (order = 0; order < MAX_ORDER; order++) \
+		for (type = 0; type < MIGRATE_TYPES; type++)
 
-We use it in virtio-balloon to record the pfns of balloon pages, that is,
-a pfn is an id to be recorded into the bitmap. The bitmaps are latter
-searched for continuous "1" bits, which correspond to continuous pfns.
-
-Virtio-ballon is the first user of it. I'm not sure about other subsystems,
-but other developers may notice it and use it once it's available there.
-
-
->> ...
->>
->> --- a/lib/radix-tree.c
->> +++ b/lib/radix-tree.c
->> @@ -37,6 +37,7 @@
->>   #include <linux/rcupdate.h>
->>   #include <linux/slab.h>
->>   #include <linux/string.h>
->> +#include <linux/xbitmap.h>
->>   
->>   
->>   /* Number of nodes in fully populated tree of given height */
->> @@ -78,6 +79,14 @@ static struct kmem_cache *radix_tree_node_cachep;
->>   #define IDA_PRELOAD_SIZE	(IDA_MAX_PATH * 2 - 1)
->>   
->>   /*
->> + * The XB can go up to unsigned long, but also uses a bitmap.
-> This comment is hard to understand.
-
-Also not sure bout it.
-
->
->> + */
->> +#define XB_INDEX_BITS		(BITS_PER_LONG - ilog2(IDA_BITMAP_BITS))
->> +#define XB_MAX_PATH		(DIV_ROUND_UP(XB_INDEX_BITS, \
->> +					      RADIX_TREE_MAP_SHIFT))
->> +#define XB_PRELOAD_SIZE		(XB_MAX_PATH * 2 - 1)
->> +
->>
->> ...
->>   
->> +void xb_preload(gfp_t gfp)
->> +{
->> +	__radix_tree_preload(gfp, XB_PRELOAD_SIZE);
->> +	if (!this_cpu_read(ida_bitmap)) {
->> +		struct ida_bitmap *bitmap = kmalloc(sizeof(*bitmap), gfp);
->> +
->> +		if (!bitmap)
->> +			return;
->> +		bitmap = this_cpu_cmpxchg(ida_bitmap, NULL, bitmap);
->> +		kfree(bitmap);
->> +	}
->> +}
->> +EXPORT_SYMBOL(xb_preload);
-> Please document the exported API.  It's conventional to do this in
-> kerneldoc but for some reason kerneldoc makes people write
-> uninteresting and unuseful documentation.  Be sure to cover the
-> *useful* stuff: what it does, why it does it, under which circumstances
-> it should be used, what the caller-provided locking should look like,
-> what the return values mean, etc.  Stuff which programmers actually
-> will benefit from knowing.
-
-OK.
-
->
->> +int xb_set_bit(struct xb *xb, unsigned long bit)
->>
->> ...
->>
->> +int xb_clear_bit(struct xb *xb, unsigned long bit)
-> There's quite a lot of common code here.  Did you investigate factoring
-> that out in some fashion?
-
-
-If we combine the functions into one
-xb_bit_ops(struct xb *xb, unsigned long bit, enum xb_ops ops),
-it will be a big function with some if (ops == set/clear/test)-else,
-not sure if that would look good.
-
-
->
->> +bool xb_test_bit(const struct xb *xb, unsigned long bit)
->> +{
->> +	unsigned long index = bit / IDA_BITMAP_BITS;
->> +	const struct radix_tree_root *root = &xb->xbrt;
->> +	struct ida_bitmap *bitmap = radix_tree_lookup(root, index);
->> +
->> +	bit %= IDA_BITMAP_BITS;
->> +
->> +	if (!bitmap)
->> +		return false;
->> +	if (radix_tree_exception(bitmap)) {
->> +		bit += RADIX_TREE_EXCEPTIONAL_SHIFT;
->> +		if (bit > BITS_PER_LONG)
->> +			return false;
->> +		return (unsigned long)bitmap & (1UL << bit);
->> +	}
->> +	return test_bit(bit, bitmap->bitmap);
->> +}
->> +
-> Missing EXPORT_SYMBOL?
-
-Yes, will add that, thanks.
-
->
-> Perhaps all this code should go into a new lib/xbitmap.c.
-
-Ok, will relocate.
-
-
-Best,
-Wei
+so you would have to skip orders < min_order
+-- 
+Michal Hocko
+SUSE Labs
