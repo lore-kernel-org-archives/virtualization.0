@@ -1,8 +1,8 @@
 From: "Richard W.M. Jones" <rjones@redhat.com>
-Subject: [PATCH v2 1/2] virtio: Reduce BUG if total_sg > virtqueue size to
-	WARN.
-Date: Thu, 10 Aug 2017 17:56:51 +0100
-Message-ID: <20170810165652.21515-2-rjones__16349.0412560806$1502384244$gmane$org@redhat.com>
+Subject: [PATCH v2 2/2] virtio: virtio_scsi: Set can_queue to the length of
+	the virtqueue.
+Date: Thu, 10 Aug 2017 17:56:52 +0100
+Message-ID: <20170810165652.21515-3-rjones__48114.175516139$1502384261$gmane$org@redhat.com>
 References: <20170810165652.21515-1-rjones@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,41 +22,53 @@ To: jejb@linux.vnet.ibm.com
 Cc: martin.petersen@oracle.com, linux-scsi@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, hch@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-If using indirect descriptors, you can make the total_sg as large as
-you want.  If not, BUG is too serious because the function later
-returns -ENOSPC.
+Since switching to blk-mq as the default in commit 5c279bd9e406
+("scsi: default to scsi-mq"), virtio-scsi LUNs consume about 10x as
+much kernel memory.
+
+qemu currently allocates a fixed 128 entry virtqueue.  can_queue
+currently is set to 1024.  But with indirect descriptors, each command
+in the queue takes 1 virtqueue entry, so the number of commands which
+can be queued is equal to the length of the virtqueue.
+
+Note I intend to send a patch to qemu to allow the virtqueue size to
+be configured from the qemu command line.
 
 Thanks Paolo Bonzini, Christoph Hellwig.
 
 Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/virtio_scsi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 5e1b548828e6..27cbc1eab868 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -296,7 +296,6 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 	}
- #endif
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index 9be211d68b15..7c28e8d4955a 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -818,7 +818,6 @@ static struct scsi_host_template virtscsi_host_template_single = {
+ 	.eh_timed_out = virtscsi_eh_timed_out,
+ 	.slave_alloc = virtscsi_device_alloc,
  
--	BUG_ON(total_sg > vq->vring.num);
- 	BUG_ON(total_sg == 0);
+-	.can_queue = 1024,
+ 	.dma_boundary = UINT_MAX,
+ 	.use_clustering = ENABLE_CLUSTERING,
+ 	.target_alloc = virtscsi_target_alloc,
+@@ -839,7 +838,6 @@ static struct scsi_host_template virtscsi_host_template_multi = {
+ 	.eh_timed_out = virtscsi_eh_timed_out,
+ 	.slave_alloc = virtscsi_device_alloc,
  
- 	head = vq->free_head;
-@@ -305,8 +304,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 	 * buffers, then go indirect. FIXME: tune this threshold */
- 	if (vq->indirect && total_sg > 1 && vq->vq.num_free)
- 		desc = alloc_indirect(_vq, total_sg, gfp);
--	else
-+	else {
- 		desc = NULL;
-+		WARN_ON_ONCE(total_sg > vq->vring.num && !vq->indirect);
-+	}
+-	.can_queue = 1024,
+ 	.dma_boundary = UINT_MAX,
+ 	.use_clustering = ENABLE_CLUSTERING,
+ 	.target_alloc = virtscsi_target_alloc,
+@@ -972,6 +970,8 @@ static int virtscsi_probe(struct virtio_device *vdev)
+ 	if (err)
+ 		goto virtscsi_init_failed;
  
- 	if (desc) {
- 		/* Use a single buffer which doesn't continue */
++	shost->can_queue = virtqueue_get_vring_size(vscsi->req_vqs[0].vq);
++
+ 	cmd_per_lun = virtscsi_config_get(vdev, cmd_per_lun) ?: 1;
+ 	shost->cmd_per_lun = min_t(u32, cmd_per_lun, shost->can_queue);
+ 	shost->max_sectors = virtscsi_config_get(vdev, max_sectors) ?: 0xFFFF;
 -- 
 2.13.1
