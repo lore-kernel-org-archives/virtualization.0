@@ -1,23 +1,11 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 1/2] virtio: Reduce BUG if total_sg > virtqueue size to
-	WARN.
-Date: Fri, 11 Aug 2017 20:36:59 +0200
-Message-ID: <a7220de9-0a51-0548-03c0-236e37aa2ef4__7406.21050722456$1502476628$gmane$org@redhat.com>
-References: <20170810164035.19963-1-rjones@redhat.com>
-	<20170810164035.19963-2-rjones@redhat.com>
-	<20170811001447-mutt-send-email-mst@kernel.org>
-	<20170810213038.GC20914@redhat.com>
-	<20170811003107-mutt-send-email-mst@kernel.org>
-	<20170810213511.GB10017@redhat.com>
-	<20170811003621-mutt-send-email-mst@kernel.org>
-	<64d3c483-076b-1362-b284-30dda704f80c@redhat.com>
-	<20170811201843-mutt-send-email-mst@kernel.org>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] virtio-net: make array guest_offloads static
+Date: Sat, 12 Aug 2017 22:45:53 +0100
+Message-ID: <20170812214553.6073-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170811201843-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,35 +15,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: jejb@linux.vnet.ibm.com, linux-scsi@vger.kernel.org, martin.petersen@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@lst.de
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/08/2017 19:23, Michael S. Tsirkin wrote:
-> On Fri, Aug 11, 2017 at 04:09:26PM +0200, Paolo Bonzini wrote:
->> On 10/08/2017 23:41, Michael S. Tsirkin wrote:
->>>>> Then we probably should fail probe if vq size is too small.
->>>> What does this mean?
->>>
->>> We must prevent driver from submitting s/g lists > vq size to device.
->>
->> What is the rationale for the limit?
-> 
-> So the host knows what it needs to support.
-> 
->> both virtio-blk and virtio-scsi transmit their own value for the
->> maximum sg list size (max_seg in virtio-scsi, seg_max in virtio-blk).
-> 
-> No other device has it, and it seemed like a good idea to
-> limit it generally at the time.
-> 
-> we can fix the spec to relax the requirement for blk and scsi -
-> want to submit a proposal? Alternatively, add a generic field
-> for that.
+From: Colin Ian King <colin.king@canonical.com>
 
-Yes, I can submit a proposal.  blk and scsi are the ones that are most
-likely to have very long sg lists.
+The array guest_offloads is local to the source and does not need to
+be in global scope, so make it static. Also tweak formatting.
 
-When I was designing scsi I just copied that field from blk. :)
+Cleans up sparse warnings:
+symbol 'guest_offloads' was not declared. Should it be static?
 
-Paolo
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/net/virtio_net.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e90de2186ffc..a3f3c66b4530 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -57,10 +57,12 @@ DECLARE_EWMA(pkt_len, 0, 64)
+ 
+ #define VIRTNET_DRIVER_VERSION "1.0.0"
+ 
+-const unsigned long guest_offloads[] = { VIRTIO_NET_F_GUEST_TSO4,
+-					 VIRTIO_NET_F_GUEST_TSO6,
+-					 VIRTIO_NET_F_GUEST_ECN,
+-					 VIRTIO_NET_F_GUEST_UFO };
++static const unsigned long guest_offloads[] = {
++	VIRTIO_NET_F_GUEST_TSO4,
++	VIRTIO_NET_F_GUEST_TSO6,
++	VIRTIO_NET_F_GUEST_ECN,
++	VIRTIO_NET_F_GUEST_UFO
++};
+ 
+ struct virtnet_stats {
+ 	struct u64_stats_sync tx_syncp;
+-- 
+2.11.0
