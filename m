@@ -1,11 +1,21 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] virtio-net: make array guest_offloads static
-Date: Sat, 12 Aug 2017 22:45:53 +0100
-Message-ID: <20170812214553.6073-1-colin.king@canonical.com>
+From: Koichiro Den <den@klaipeden.com>
+Subject: Re: [PATCH net] Revert "vhost: cache used event for better
+	performance"
+Date: Sun, 13 Aug 2017 23:11:00 +0900
+Message-ID: <1502633460.3547.1.camel@klaipeden.com>
+References: <1501056197-3368-1-git-send-email-jasowang@redhat.com>
+	<20170726155435-mutt-send-email-mst@kernel.org>
+	<117542fc-eef9-c043-7c9e-daafceb7db4e@redhat.com>
+	<6b3a9a98-c095-1729-3528-dd521f136797@redhat.com>
+	<20170726190745-mutt-send-email-mst@kernel.org>
+	<1501396011.21001.11.camel@klaipeden.com>
+	<6698b85c-18f4-17e6-db70-7708692fb761@redhat.com>
+	<20170809073422-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20170809073422-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,43 +25,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Colin Ian King <colin.king@canonical.com>
-
-The array guest_offloads is local to the source and does not need to
-be in global scope, so make it static. Also tweak formatting.
-
-Cleans up sparse warnings:
-symbol 'guest_offloads' was not declared. Should it be static?
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/net/virtio_net.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e90de2186ffc..a3f3c66b4530 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -57,10 +57,12 @@ DECLARE_EWMA(pkt_len, 0, 64)
- 
- #define VIRTNET_DRIVER_VERSION "1.0.0"
- 
--const unsigned long guest_offloads[] = { VIRTIO_NET_F_GUEST_TSO4,
--					 VIRTIO_NET_F_GUEST_TSO6,
--					 VIRTIO_NET_F_GUEST_ECN,
--					 VIRTIO_NET_F_GUEST_UFO };
-+static const unsigned long guest_offloads[] = {
-+	VIRTIO_NET_F_GUEST_TSO4,
-+	VIRTIO_NET_F_GUEST_TSO6,
-+	VIRTIO_NET_F_GUEST_ECN,
-+	VIRTIO_NET_F_GUEST_UFO
-+};
- 
- struct virtnet_stats {
- 	struct u64_stats_sync tx_syncp;
--- 
-2.11.0
+VGhhbmtzIGZvciB5b3VyIGNvbW1lbnRzLCBNaWNoYWVsIGFuZCBKYXNvbi4gQW5kIEknbSBzb3Jy
+eSBhYm91dCBsYXRlIHJlc3BvbnNlLgpUbyBiZSBob25lc3QsIEkgYW0gb24gYSBzdW1tZXIgdmFj
+YXRpb24gdW50aWwgbmV4dCBUdWVzZGF5LgoKSSBub3RpY2VkIHRoYXQgd2hhdCBJIHdyb3RlIHdh
+cyBub3Qgc3VmZmljaWVudC4gUmVnYXJkbGVzcyBvZiBjYWNoaW5nIG1lY2hhbmlzbQpleGlzdGVu
+Y2UsIHRoZSAiZXZlbnQiIGNvdWxkIGxlZ2l0aW1hdGVseSBiZSBhdCBhbnkgcG9pbnQgb3V0IG9m
+IHRoZSBsYXRlc3QKaW50ZXJ2YWwsIHdoaWNoIHZob3N0X25vdGlmeSBjaGVja3MgaXQgYWdhaW5z
+dCwgbWVhbmluZyB0aGF0IGlmIGl0J3Mgb3V0IG9mIHRoZQppbnRlcnZhbCB3ZSBjYW5ub3QgZGlz
+dGluZ3Vpc2ggd2hldGhlciBvciBub3QgaXQgbGFncyBiZWhpbmQgb3IgaGFzIGEgbGVhZC7CoEFu
+ZAppdCBzZWVtcyB0byBjb25mb3JtIHRvIHRoZSBzcGVjLiBUaGFua3MgZm9yIGxlYWRpbmcgbWUg
+dG8gdGhlIHNwZWMuIFRoZSBjb3JuZXIKY2FzZSBJIHBvaW50IG91dCBoZXJlIGlzOgooMCkgZXZl
+bnQgaWR4IGZlYXR1cmUgdHVybmVkIG9uICsgVFggbmFwaSB0dXJuZWQgb2ZmCi0+ICgxKSBndWVz
+dC1zaWRlIFRYIHRyYWZmaWMgYnVyc3Rpbmcgb2NjdXJzIGFuZCBkZWxheWVkIGNhbGxiYWNrIHNl
+dAotPiAoMikgc29tZSBpbnRlcnJ1cHRpb24gdHJpZ2dlcnMgc2tiX3htaXRfZG9uZQotPiAoMykg
+Z3Vlc3Qtc2lkZSBtb2Rlc3QgdHJhZmZpYyBtYWtlcyB0aGUgaW50ZXJ2YWwgcHJvY2VlZCB0byB1
+bmJvdW5kZWQgZXh0ZW50CndpdGhvdXQgdXBkYXRpbmcgImV2ZW50IiBzaW5jZSBOT19JTlRFUlJV
+UFQgY29udGludWVzIHRvIGJlIHNldCBvbiBpdHMgc2hhZG93CmZsYWcuCgpJTUhPLMKgaWYgeW91
+IHBsYW4gdG8gbWFrZSBUWCBuYXBpIHRoZSBvbmx5IGNob2ljZSwgZG9pbmcgdGhpcyBzb3J0IG9m
+Cm9wdGltaXNhdGlvbiBiZWZvcmVoYW5kIHNlZW1zIGxpa2VseSB0byBiZSBpbiB2YWluLgoKU28s
+IGlmIHRoZSBub25lLVRYIG5hcGkgY2FzZSBjb250aW51ZXMgdG8gY29leGlzdCwgd2hhdCBJIHdv
+dWxkIGxpa2UgdG8gc3VnZ2VzdAppcyBub3QganVzdCB0aGUgc29ydCBvZiBteSBsYXN0IGVtYWls
+LCBidXQgbGlrZSBtYWtpbmcgbWF4aW11bSBzdGFsZW5lc3Mgb2YKImV2ZW50IiBsZXNzIHRoYW4g
+b3IgZXF1YWwgdG8gdnEubnVtLCBhbmQgYWZ0ZXJ3YXJkIGNhY2hpbmcgc3VnZ2VzdGlvbi4KT3Ro
+ZXJ3aXNlLCBJIGd1ZXNzIEkgc2hvdWxkIG5vdCByZXBvc3QgbXkgbGFzdCBlbWFpbCBzaW5jZSBp
+dCB3b3VsZCBtYWtlIG1hdHRlcnMKIHRvbyBjb21wbGljYXRlZCBldmVuIHRob3VnaCBpdCB3aWxs
+IHNvb24gYmUgcmVtb3ZlZCB3aGVuIFRYLW5hcGkgYmVjb21lcyB0aGUKb25seSBjaG9pY2UuCgpU
+aGFua3MhCgoKT24gV2VkLCAyMDE3LTA4LTA5IGF0IDA3OjM3ICswMzAwLCBNaWNoYWVsIFMuIFRz
+aXJraW4gd3JvdGU6Cj4gT24gV2VkLCBBdWcgMDksIDIwMTcgYXQgMTA6Mzg6MTBBTSArMDgwMCwg
+SmFzb24gV2FuZyB3cm90ZToKPiA+IEkgdGhpbmsgZG9uJ3QgdGhpbmsgY3VycmVudCBjb2RlIGNh
+biB3b3JrIHdlbGwgaWYgdnEubnVtIGlzIGdyYXRlciB0aGFuCj4gPiAyXjE1LiBTaW5jZSBhbGwg
+Y2FjaGVkIGlkeCBpcyB1MTYuIFRoaXMgbG9va3MgbGlrZSBhIGJ1ZyB3aGljaCBuZWVkcyB0byBi
+ZQo+ID4gZml4ZWQuCj4gCj4gVGhhdCdzIGEgbGltaXRhdGlvbiBvZiB2aXJ0aW8gMS4wLgo+IAo+
+ID4gPiAqIGVsc2UgaWYgdGhlIGludGVydmFsIG9mIHZxLm51bSBpcyBbMl4xNSwgMl4xNik6Cj4g
+PiA+IHRoZSBsb2dpYyBpbiB0aGUgb3JpZ2luYWwgcGF0Y2ggKDgwOWVjYjliY2E2YTkpIHN1ZmZp
+Y2VzCj4gPiA+ICogZWxzZSAoPSBsZXNzIHRoYW4gMl4xNSkgKG9wdGlvbmFsKToKPiA+ID4gY2hl
+Y2tpbmcgb25seSAodnJpbmdfbmVlZF9ldmVudCh2cS0+bGFzdF91c2VkX2V2ZW50LCBuZXcgKyB2
+cS0+bnVtLCBuZXcpCj4gPiA+IHdvdWxkIHN1ZmZpY2UuCj4gPiA+IAo+ID4gPiBBbSBJIG1pc3Np
+bmcgc29tZXRoaW5nLCBvciBpcyB0aGlzIGlycmVsZXZhbnQ/Cj4gCj4gQ291bGQgeW91IHBscyBy
+ZXBvc3QgdGhlIHN1Z2dlc3Rpb24gY29weWluZyB2aXJ0aW8tZGV2IG1haWxpbmcgbGlzdAo+IChz
+dWJzY3JpYmVyIG9ubHksIHNvcnJ5IGFib3V0IHRoYXQsIGJ1dCBob3N0L2d1ZXN0IEFCSSBkaXNj
+dXNzaW9ucwo+IG5lZWQgdG8gY29weSB0aGF0IGxpc3QpPwo+IAo+ID4gTG9va3Mgbm90LCBJIHRo
+aW5rIHRoaXMgbWF5IHdvcmsuIExldCBtZSBkbyBzb21lIHRlc3QuCj4gPiAKPiA+IFRoYW5rcwo+
+IAo+IEkgdGhpbmsgdGhhdCBhdCB0aGlzIHBvaW50IGl0J3MgcHJ1ZGVudCB0byBhZGQgYSBmZWF0
+dXJlIGJpdAo+IGFzIHRoZSB2aXJ0aW8gc3BlYyBkb2VzIG5vdCByZXF1aXJlIHRvIG5ldmVyIG1v
+dmUgdGhlIGV2ZW50IGluZGV4IGJhY2suCj4gCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
