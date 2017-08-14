@@ -1,22 +1,13 @@
-From: Koichiro Den <den@klaipeden.com>
-Subject: Re: [PATCH net] Revert "vhost: cache used event for better
-	performance"
-Date: Mon, 14 Aug 2017 01:12:26 +0900
-Message-ID: <1502640746.3547.3.camel@klaipeden.com>
-References: <1501056197-3368-1-git-send-email-jasowang@redhat.com>
-	<20170726155435-mutt-send-email-mst@kernel.org>
-	<117542fc-eef9-c043-7c9e-daafceb7db4e@redhat.com>
-	<6b3a9a98-c095-1729-3528-dd521f136797@redhat.com>
-	<20170726190745-mutt-send-email-mst@kernel.org>
-	<1501396011.21001.11.camel@klaipeden.com>
-	<6698b85c-18f4-17e6-db70-7708692fb761@redhat.com>
-	<20170809073422-mutt-send-email-mst@kernel.org>
-	<1502633460.3547.1.camel@klaipeden.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] virtio-net: make array guest_offloads static
+Date: Sun, 13 Aug 2017 20:10:08 -0700 (PDT)
+Message-ID: <20170813.201008.318311086414456095.davem@davemloft.net>
+References: <20170812214553.6073-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1502633460.3547.1.camel@klaipeden.com>
+In-Reply-To: <20170812214553.6073-1-colin.king@canonical.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,60 +17,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: colin.king@canonical.com
+Cc: mst@redhat.com, netdev@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U29ycnkgSSBtaXN0YWtlbmx5IGZvY3VzZWQgb24gTkVUIGNhc2UsIHBsZWFzZSBwYXNzIGl0IG92
-ZXIuIEkgd2lsbCBkbyBhbnkKcmVsZXZhbnQgc3VnZ2VzdGlvbiBpbiBwYXRjaC1iYXNlZCB3YXku
-IFRoYW5rcy4KCk9uIFN1biwgMjAxNy0wOC0xMyBhdCAyMzoxMSArMDkwMCwgS29pY2hpcm8gRGVu
-IHdyb3RlOgo+IFRoYW5rcyBmb3IgeW91ciBjb21tZW50cywgTWljaGFlbCBhbmQgSmFzb24uIEFu
-ZCBJJ20gc29ycnkgYWJvdXQgbGF0ZQo+IHJlc3BvbnNlLgo+IFRvIGJlIGhvbmVzdCwgSSBhbSBv
-biBhIHN1bW1lciB2YWNhdGlvbiB1bnRpbCBuZXh0IFR1ZXNkYXkuCj4gCj4gSSBub3RpY2VkIHRo
-YXQgd2hhdCBJIHdyb3RlIHdhcyBub3Qgc3VmZmljaWVudC4gUmVnYXJkbGVzcyBvZiBjYWNoaW5n
-Cj4gbWVjaGFuaXNtCj4gZXhpc3RlbmNlLCB0aGUgImV2ZW50IiBjb3VsZCBsZWdpdGltYXRlbHkg
-YmUgYXQgYW55IHBvaW50IG91dCBvZiB0aGUgbGF0ZXN0Cj4gaW50ZXJ2YWwsIHdoaWNoIHZob3N0
-X25vdGlmeSBjaGVja3MgaXQgYWdhaW5zdCwgbWVhbmluZyB0aGF0IGlmIGl0J3Mgb3V0IG9mCj4g
-dGhlCj4gaW50ZXJ2YWwgd2UgY2Fubm90IGRpc3Rpbmd1aXNoIHdoZXRoZXIgb3Igbm90IGl0IGxh
-Z3MgYmVoaW5kIG9yIGhhcyBhCj4gbGVhZC7CoEFuZAo+IGl0IHNlZW1zIHRvIGNvbmZvcm0gdG8g
-dGhlIHNwZWMuIFRoYW5rcyBmb3IgbGVhZGluZyBtZSB0byB0aGUgc3BlYy4gVGhlIGNvcm5lcgo+
-IGNhc2UgSSBwb2ludCBvdXQgaGVyZSBpczoKPiAoMCkgZXZlbnQgaWR4IGZlYXR1cmUgdHVybmVk
-IG9uICsgVFggbmFwaSB0dXJuZWQgb2ZmCj4gLT4gKDEpIGd1ZXN0LXNpZGUgVFggdHJhZmZpYyBi
-dXJzdGluZyBvY2N1cnMgYW5kIGRlbGF5ZWQgY2FsbGJhY2sgc2V0Cj4gLT4gKDIpIHNvbWUgaW50
-ZXJydXB0aW9uIHRyaWdnZXJzIHNrYl94bWl0X2RvbmUKPiAtPiAoMykgZ3Vlc3Qtc2lkZSBtb2Rl
-c3QgdHJhZmZpYyBtYWtlcyB0aGUgaW50ZXJ2YWwgcHJvY2VlZCB0byB1bmJvdW5kZWQKPiBleHRl
-bnQKPiB3aXRob3V0IHVwZGF0aW5nICJldmVudCIgc2luY2UgTk9fSU5URVJSVVBUIGNvbnRpbnVl
-cyB0byBiZSBzZXQgb24gaXRzIHNoYWRvdwo+IGZsYWcuCj4gCj4gSU1ITyzCoGlmIHlvdSBwbGFu
-IHRvIG1ha2UgVFggbmFwaSB0aGUgb25seSBjaG9pY2UsIGRvaW5nIHRoaXMgc29ydCBvZgo+IG9w
-dGltaXNhdGlvbiBiZWZvcmVoYW5kIHNlZW1zIGxpa2VseSB0byBiZSBpbiB2YWluLgo+IAo+IFNv
-LCBpZiB0aGUgbm9uZS1UWCBuYXBpIGNhc2UgY29udGludWVzIHRvIGNvZXhpc3QsIHdoYXQgSSB3
-b3VsZCBsaWtlIHRvCj4gc3VnZ2VzdAo+IGlzIG5vdCBqdXN0IHRoZSBzb3J0IG9mIG15IGxhc3Qg
-ZW1haWwsIGJ1dCBsaWtlIG1ha2luZyBtYXhpbXVtIHN0YWxlbmVzcyBvZgo+ICJldmVudCIgbGVz
-cyB0aGFuIG9yIGVxdWFsIHRvIHZxLm51bSwgYW5kIGFmdGVyd2FyZCBjYWNoaW5nIHN1Z2dlc3Rp
-b24uCj4gT3RoZXJ3aXNlLCBJIGd1ZXNzIEkgc2hvdWxkIG5vdCByZXBvc3QgbXkgbGFzdCBlbWFp
-bCBzaW5jZSBpdCB3b3VsZCBtYWtlCj4gbWF0dGVycwo+IMKgdG9vIGNvbXBsaWNhdGVkIGV2ZW4g
-dGhvdWdoIGl0IHdpbGwgc29vbiBiZSByZW1vdmVkIHdoZW4gVFgtbmFwaSBiZWNvbWVzIHRoZQo+
-IG9ubHkgY2hvaWNlLgo+IAo+IFRoYW5rcyEKPiAKPiAKPiBPbiBXZWQsIDIwMTctMDgtMDkgYXQg
-MDc6MzcgKzAzMDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+IE9uIFdlZCwgQXVnIDA5
-LCAyMDE3IGF0IDEwOjM4OjEwQU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+IEkgdGhp
-bmsgZG9uJ3QgdGhpbmsgY3VycmVudCBjb2RlIGNhbiB3b3JrIHdlbGwgaWYgdnEubnVtIGlzIGdy
-YXRlciB0aGFuCj4gPiA+IDJeMTUuIFNpbmNlIGFsbCBjYWNoZWQgaWR4IGlzIHUxNi4gVGhpcyBs
-b29rcyBsaWtlIGEgYnVnIHdoaWNoIG5lZWRzIHRvIGJlCj4gPiA+IGZpeGVkLgo+ID4gCj4gPiBU
-aGF0J3MgYSBsaW1pdGF0aW9uIG9mIHZpcnRpbyAxLjAuCj4gPiAKPiA+ID4gPiAqIGVsc2UgaWYg
-dGhlIGludGVydmFsIG9mIHZxLm51bSBpcyBbMl4xNSwgMl4xNik6Cj4gPiA+ID4gdGhlIGxvZ2lj
-IGluIHRoZSBvcmlnaW5hbCBwYXRjaCAoODA5ZWNiOWJjYTZhOSkgc3VmZmljZXMKPiA+ID4gPiAq
-IGVsc2UgKD0gbGVzcyB0aGFuIDJeMTUpIChvcHRpb25hbCk6Cj4gPiA+ID4gY2hlY2tpbmcgb25s
-eSAodnJpbmdfbmVlZF9ldmVudCh2cS0+bGFzdF91c2VkX2V2ZW50LCBuZXcgKyB2cS0+bnVtLCBu
-ZXcpCj4gPiA+ID4gd291bGQgc3VmZmljZS4KPiA+ID4gPiAKPiA+ID4gPiBBbSBJIG1pc3Npbmcg
-c29tZXRoaW5nLCBvciBpcyB0aGlzIGlycmVsZXZhbnQ/Cj4gPiAKPiA+IENvdWxkIHlvdSBwbHMg
-cmVwb3N0IHRoZSBzdWdnZXN0aW9uIGNvcHlpbmcgdmlydGlvLWRldiBtYWlsaW5nIGxpc3QKPiA+
-IChzdWJzY3JpYmVyIG9ubHksIHNvcnJ5IGFib3V0IHRoYXQsIGJ1dCBob3N0L2d1ZXN0IEFCSSBk
-aXNjdXNzaW9ucwo+ID4gbmVlZCB0byBjb3B5IHRoYXQgbGlzdCk/Cj4gPiAKPiA+ID4gTG9va3Mg
-bm90LCBJIHRoaW5rIHRoaXMgbWF5IHdvcmsuIExldCBtZSBkbyBzb21lIHRlc3QuCj4gPiA+IAo+
-ID4gPiBUaGFua3MKPiA+IAo+ID4gSSB0aGluayB0aGF0IGF0IHRoaXMgcG9pbnQgaXQncyBwcnVk
-ZW50IHRvIGFkZCBhIGZlYXR1cmUgYml0Cj4gPiBhcyB0aGUgdmlydGlvIHNwZWMgZG9lcyBub3Qg
-cmVxdWlyZSB0byBuZXZlciBtb3ZlIHRoZSBldmVudCBpbmRleCBiYWNrLgo+ID4gCgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+From: Colin King <colin.king@canonical.com>
+Date: Sat, 12 Aug 2017 22:45:53 +0100
+
+> From: Colin Ian King <colin.king@canonical.com>
+> 
+> The array guest_offloads is local to the source and does not need to
+> be in global scope, so make it static. Also tweak formatting.
+> 
+> Cleans up sparse warnings:
+> symbol 'guest_offloads' was not declared. Should it be static?
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+
+Applied.
