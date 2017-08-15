@@ -1,15 +1,11 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [RFC] virtio-iommu version 0.4
-Date: Mon, 14 Aug 2017 10:38:51 +0100
-Message-ID: <1770ca04-0deb-a3d4-c63e-82054e8a584c__14436.7972309285$1502703404$gmane$org@arm.com>
-References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
-	<AADFC41AFE54684AB9EE6CBC0274A5D190D7173C@SHSMSX101.ccr.corp.intel.com>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: [PATCH net-next 0/4] various sizeof cleanups
+Date: Tue, 15 Aug 2017 10:29:15 -0700
+Message-ID: <20170815172919.26153-1-sthemmin@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D190D7173C@SHSMSX101.ccr.corp.intel.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,46 +15,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Tian, Kevin" <kevin.tian@intel.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
-Cc: "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
+To: mlindner@marvell.com, stephen@networkplumber.org, mst@redhat.com, jasowang@redhat.com
+Cc: linux-rdma@vger.kernel.org, netdev@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 14/08/17 09:27, Tian, Kevin wrote:
->> * First, since the IOMMU is paravirtualized, the device can expose some
->>   properties of the physical topology to the guest, and let it allocate
->>   resources more efficiently. For example, when the virtio-iommu manages
->>   both physical and emulated endpoints, with different underlying IOMMUs,
->>   we now have a way to describe multiple page and block granularities,
->>   instead of forcing the guest to use the most restricted one for all
->>   endpoints. This will most likely be in v0.5.
-> 
-> emulated IOMMU has similar requirement, e.g. available PASID bits,
-> address widths, etc. which may break guest usage if not aligned to
-> physical limitation. Suppose we can introduce a general interface
-> through VFIO for all vIOMMU incarnations. 
+Noticed some places that were using sizeof as an operator.
+This is legal C but is not the convention used in the kernel.
 
-A nice location for this kind of info would be sysfs, as discussed in the
-SVM virtualization thread [1]. Properties of an IOMMU could be described
-in /sys/class/iommu/<dev>. Properties of a PCI device are available in its
-PASID/PRI capabilities. For platform devices we'll have to look at DT and
-ACPI properties in /sys/firmware.
+Stephen Hemminger (4):
+  tun/tap: use paren's with sizeof
+  virtio: put paren around sizeof
+  skge: add paren around sizeof arg
+  mlx4: sizeof style usage
 
->> * Then on top of that, a major improvement will describe hardware
->>   acceleration features available to the guest. There is what I call "Page
->>   Table Handover" (or simply, from the host POV, "Nested"), the ability
->>   for the guest to manipulate its own page tables instead of sending
->>   MAP/UNMAP requests to the host. This, along with IO Page Fault
->>   reporting, will also permit SVM virtualization on different platforms.
-> 
-> what's your planned cadence for future versions? :-)
+ drivers/net/ethernet/marvell/skge.c                |  2 +-
+ drivers/net/ethernet/mellanox/mlx4/alloc.c         |  2 +-
+ drivers/net/ethernet/mellanox/mlx4/cmd.c           |  4 ++--
+ drivers/net/ethernet/mellanox/mlx4/en_resources.c  |  2 +-
+ drivers/net/ethernet/mellanox/mlx4/en_rx.c         |  2 +-
+ drivers/net/ethernet/mellanox/mlx4/en_tx.c         |  2 +-
+ drivers/net/ethernet/mellanox/mlx4/eq.c            | 20 +++++++++---------
+ drivers/net/ethernet/mellanox/mlx4/fw.c            |  2 +-
+ drivers/net/ethernet/mellanox/mlx4/icm.c           |  2 +-
+ drivers/net/ethernet/mellanox/mlx4/icm.h           |  4 ++--
+ drivers/net/ethernet/mellanox/mlx4/intf.c          |  2 +-
+ drivers/net/ethernet/mellanox/mlx4/main.c          | 12 +++++------
+ drivers/net/ethernet/mellanox/mlx4/mcg.c           | 12 +++++------
+ drivers/net/ethernet/mellanox/mlx4/mr.c            | 10 ++++-----
+ drivers/net/ethernet/mellanox/mlx4/qp.c            | 12 +++++------
+ .../net/ethernet/mellanox/mlx4/resource_tracker.c  | 24 +++++++++++-----------
+ drivers/net/tap.c                                  |  2 +-
+ drivers/net/tun.c                                  |  2 +-
+ drivers/net/virtio_net.c                           |  2 +-
+ 19 files changed, 60 insertions(+), 60 deletions(-)
 
-Hard to say, it depends on a number of things. I have various other tasks
-eating up my bandwidth at the moment and I may have to considerably rework
-this version depending on the feedback it gets. Ideally, I would like to
-get the base driver merged and a proposal for hardware acceleration out by
-the end of the year, but I obviously can't make any guarantee.
-
-Thanks,
-Jean
-
-[1] https://lists.gnu.org/archive/html/qemu-devel/2017-07/msg05731.html
+-- 
+2.11.0
