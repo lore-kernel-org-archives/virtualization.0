@@ -1,7 +1,7 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH net-next 1/4] tun/tap: use paren's with sizeof
-Date: Tue, 15 Aug 2017 10:29:16 -0700
-Message-ID: <20170815172919.26153-2-sthemmin@microsoft.com>
+Subject: [PATCH net-next 2/4] virtio: put paren around sizeof
+Date: Tue, 15 Aug 2017 10:29:17 -0700
+Message-ID: <20170815172919.26153-3-sthemmin__18255.1589016386$1502818199$gmane$org@microsoft.com>
 References: <20170815172919.26153-1-sthemmin@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,40 +21,25 @@ To: mlindner@marvell.com, stephen@networkplumber.org, mst@redhat.com, jasowang@r
 Cc: linux-rdma@vger.kernel.org, netdev@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Although sizeof is an operator in C. The kernel coding style convention
-is to always use it like a function and add parenthesis.
+Kernel coding style is to put paren around operand of sizeof.
 
 Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
 ---
- drivers/net/tap.c | 2 +-
- drivers/net/tun.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-index 0d039411e64c..21b71ae947fd 100644
---- a/drivers/net/tap.c
-+++ b/drivers/net/tap.c
-@@ -1215,7 +1215,7 @@ int tap_queue_resize(struct tap_dev *tap)
- 	int n = tap->numqueues;
- 	int ret, i = 0;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index a3f3c66b4530..4302f313d9a7 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -319,7 +319,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
  
--	arrays = kmalloc(sizeof *arrays * n, GFP_KERNEL);
-+	arrays = kmalloc_array(n, sizeof(*arrays), GFP_KERNEL);
- 	if (!arrays)
- 		return -ENOMEM;
- 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 5892284eb8d0..f5017121cd57 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -2737,7 +2737,7 @@ static int tun_queue_resize(struct tun_struct *tun)
- 	int n = tun->numqueues + tun->numdisabled;
- 	int ret, i;
- 
--	arrays = kmalloc(sizeof *arrays * n, GFP_KERNEL);
-+	arrays = kmalloc_array(n, sizeof(*arrays), GFP_KERNEL);
- 	if (!arrays)
- 		return -ENOMEM;
+ 	hdr_len = vi->hdr_len;
+ 	if (vi->mergeable_rx_bufs)
+-		hdr_padded_len = sizeof *hdr;
++		hdr_padded_len = sizeof(*hdr);
+ 	else
+ 		hdr_padded_len = sizeof(struct padded_vnet_hdr);
  
 -- 
 2.11.0
