@@ -1,14 +1,14 @@
 From: Adam Tao <taozhe1@huawei.com>
-Subject: Re: [virtio-dev] [RFC] virtio-iommu version 0.4
-Date: Wed, 16 Aug 2017 12:08:53 +0800
-Message-ID: <20170816040853.GA10652__42839.1037894928$1509079184$gmane$org@shay3t003839711.china.huawei.com>
-References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
+Subject: Re: [virtio-dev] [PATCH v13 0/5] Virtio-balloon Enhancement
+Date: Wed, 16 Aug 2017 13:57:04 +0800
+Message-ID: <20170816055704.GB21088__39702.0204495222$1509079206$gmane$org@shay3t003839711.china.huawei.com>
+References: <1501742299-4369-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
+In-Reply-To: <1501742299-4369-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,128 +18,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, kvm@vger.kernel.org, mst@redhat.com, marc.zyngier@arm.com, will.deacon@arm.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, robin.murphy@arm.com, eric.auger.pro@gmail.com
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, amit.shah@redhat.com, liliang.opensource@gmail.com, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Aug 04, 2017 at 07:19:25PM +0100, Jean-Philippe Brucker wrote:
-> This is the continuation of my proposal for virtio-iommu, the para-
-> virtualized IOMMU. Here is a summary of the changes since last time [1]:
+On Thu, Aug 03, 2017 at 02:38:14PM +0800, Wei Wang wrote:
+> This patch series enhances the existing virtio-balloon with the following
+> new features:
+> 1) fast ballooning: transfer ballooned pages between the guest and host in
+> chunks using sgs, instead of one by one; and
+> 2) free_page_vq: a new virtqueue to report guest free pages to the host.
 > 
-> * The virtio-iommu document now resembles an actual specification. It is
->   split into a formal description of the virtio device, and implementation
->   notes. Please find sources and binaries at [2].
-> 
-> * Added a probe request to describe to the guest different properties that
->   do not fit in firmware or in the virtio config space. This is a
->   necessary stepping stone for extending the virtio-iommu.
-> 
-> * There is a working Qemu prototype [3], thanks to Eric Auger and Bharat
->   Bhushan.
-Hi, Brucker
-I read the related spec for virtio IOMMU,
-I am wondering if we support both the virtual and physical devices in
-the guest to use the virtio IOMMU, how can we config the related address
-translation for the different type of devices.
-e.g.
-1. for Virtio devs(e.g. virtio-net), we can change the memmap table used
-by the vhost device.
-2. for physical devices we can directly config the IOMMU/SMMU on the
-host.
-
-So do you know are there any RFCs for the back-end implementation for the virtio-IOMMU
-thanks
+Hi wei,
+The reason we add the new vq for the migration feature is based on
+what(original design based on inflate and deflate vq)?
+I am wondering if we add new feature in the future do we still need to add new type
+of vq?
+Do we need to add one command queue for the common purpose(including
+different type of requests except the in/deflate ones)?
+Thanks
 Adam
+> The second feature can be used to accelerate live migration of VMs. Here
+> are some details:
 > 
-> You can find the Linux driver and kvmtool device at [4] and [5]. I
-> plan to rework driver and kvmtool device slightly before sending the
-> patches.
+> Live migration needs to transfer the VM's memory from the source machine
+> to the destination round by round. For the 1st round, all the VM's memory
+> is transferred. From the 2nd round, only the pieces of memory that were
+> written by the guest (after the 1st round) are transferred. One method
+> that is popularly used by the hypervisor to track which part of memory is
+> written is to write-protect all the guest memory.
 > 
-> To understand the virtio-iommu, I advise to first read introduction and
-> motivation, then skim through implementation notes and finally look at the
-> device specification.
+> The second feature  enables the optimization of the 1st round memory
+> transfer - the hypervisor can skip the transfer of guest free pages in the
+> 1st round. It is not concerned that the memory pages are used after they
+> are given to the hypervisor as a hint of the free pages, because they will
+> be tracked by the hypervisor and transferred in the next round if they are
+> used and written.
 > 
-> I wasn't sure how to organize the review. For those who prefer to comment
-> inline, I attached v0.4 of device-operations.tex and topology.tex+MSI.tex
-> to this thread. They are the biggest chunks of the document. But LaTeX
-> isn't very pleasant to read, so you can simply send a list of comments in
-> relation to section numbers and a few words of context, we'll manage.
+> Change Log:
+> v12->v13:
+> 1) mm: use a callback function to handle the the free page blocks from the
+> report function. This avoids exposing the zone internal to a kernel module.
+> 2) virtio-balloon: send balloon pages or a free page block using a single sg
+> each time. This has the benefits of simpler implementation with no new APIs.
+> 3) virtio-balloon: the free_page_vq is used to report free pages only (no
+> multiple usages interleaving)
+> 4) virtio-balloon: Balloon pages and free page blocks are sent via input sgs,
+> and the completion signal to the host is sent via an output sg.
 > 
-> ---
-> Version numbers 0.1-0.4 are arbitrary. I'm hoping they allow to compare
-> more easily differences since the RFC (see [6]), but haven't been made
-> public so far. This is the first public posting since initial proposal
-> [1], and the following describes all changes.
+> v11->v12:
+> 1) xbitmap: use the xbitmap from Matthew Wilcox to record ballooned pages.
+> 2) virtio-ring: enable the driver to build up a desc chain using vring desc.
+> 3) virtio-ring: Add locking to the existing START_USE() and END_USE() macro
+> to lock/unlock the vq when a vq operation starts/ends.
+> 4) virtio-ring: add virtqueue_kick_sync() and virtqueue_kick_async()
+> 5) virtio-balloon: describe chunks of ballooned pages and free pages blocks
+> directly using one or more chains of desc from the vq.
 > 
-> ## v0.1 ##
+> v10->v11:
+> 1) virtio_balloon: use vring_desc to describe a chunk;
+> 2) virtio_ring: support to add an indirect desc table to virtqueue;
+> 3)  virtio_balloon: use cmdq to report guest memory statistics.
 > 
-> Content is the same as the RFC, but formatted to LaTeX. 'make' generates
-> one PDF and one HTML document.
+> v9->v10:
+> 1) mm: put report_unused_page_block() under CONFIG_VIRTIO_BALLOON;
+> 2) virtio-balloon: add virtballoon_validate();
+> 3) virtio-balloon: msg format change;
+> 4) virtio-balloon: move miscq handling to a task on system_freezable_wq;
+> 5) virtio-balloon: code cleanup.
 > 
-> ## v0.2 ##
+> v8->v9:
+> 1) Split the two new features, VIRTIO_BALLOON_F_BALLOON_CHUNKS and
+> VIRTIO_BALLOON_F_MISC_VQ, which were mixed together in the previous
+> implementation;
+> 2) Simpler function to get the free page block.
 > 
-> Add introductions, improve topology example and firmware description based
-> on feedback and a number of useful discussions.
+> v7->v8:
+> 1) Use only one chunk format, instead of two.
+> 2) re-write the virtio-balloon implementation patch.
+> 3) commit changes
+> 4) patch re-org
 > 
-> ## v0.3 ##
+> Matthew Wilcox (1):
+>   Introduce xbitmap
 > 
-> Add normative sections (MUST, SHOULD, etc). Clarify some things, tighten
-> the device and driver behaviour. Unmap semantics are consolidated; they
-> are now closer to VFIO Type1 v2 semantics.
+> Wei Wang (4):
+>   xbitmap: add xb_find_next_bit() and xb_zero()
+>   virtio-balloon: VIRTIO_BALLOON_F_SG
+>   mm: support reporting free page blocks
+>   virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
 > 
-> ## v0.4 ##
+>  drivers/virtio/virtio_balloon.c     | 302 +++++++++++++++++++++++++++++++-----
+>  include/linux/mm.h                  |   7 +
+>  include/linux/mmzone.h              |   5 +
+>  include/linux/radix-tree.h          |   2 +
+>  include/linux/xbitmap.h             |  53 +++++++
+>  include/uapi/linux/virtio_balloon.h |   2 +
+>  lib/radix-tree.c                    | 167 +++++++++++++++++++-
+>  mm/page_alloc.c                     | 109 +++++++++++++
+>  8 files changed, 609 insertions(+), 38 deletions(-)
+>  create mode 100644 include/linux/xbitmap.h
 > 
-> Introduce PROBE requests. They provide per-endpoint information to the
-> driver that couldn't be described otherwise.
+> -- 
+> 2.7.4
 > 
-> For the moment, they allow to handle MSIs on x86 virtual platforms (see
-> 3.2). To do that we communicate reserved IOVA regions, that will also be
-> useful for describing regions that cannot be mapped for a given endpoint,
-> for instance addresses that correspond to a PCI bridge window.
-> 
-> Introducing such a large framework for this tiny feature may seem
-> overkill, but it is needed for future extensions of the virtio-iommu and I
-> believe it really is worth the effort.
-> 
-> ## Future ##
-> 
-> Other extensions are in preparation. I won't detail them here because v0.4
-> already is a lot to digest, but in short, building on top of PROBE:
-> 
-> * First, since the IOMMU is paravirtualized, the device can expose some
->   properties of the physical topology to the guest, and let it allocate
->   resources more efficiently. For example, when the virtio-iommu manages
->   both physical and emulated endpoints, with different underlying IOMMUs,
->   we now have a way to describe multiple page and block granularities,
->   instead of forcing the guest to use the most restricted one for all
->   endpoints. This will most likely be in v0.5.
-> 
-> * Then on top of that, a major improvement will describe hardware
->   acceleration features available to the guest. There is what I call "Page
->   Table Handover" (or simply, from the host POV, "Nested"), the ability
->   for the guest to manipulate its own page tables instead of sending
->   MAP/UNMAP requests to the host. This, along with IO Page Fault
->   reporting, will also permit SVM virtualization on different platforms.
-> 
-> Thanks,
-> Jean
-> 
-> [1] http://www.spinics.net/lists/kvm/msg147990.html
-> [2] git://linux-arm.org/virtio-iommu.git branch viommu/v0.4
->     http://www.linux-arm.org/git?p=virtio-iommu.git;a=blob;f=dist/v0.4/virtio-iommu-v0.4.pdf
->     I reiterate the disclaimers: don't use this document as a reference,
->     it's a draft. It's also not an OASIS document yet. It may be riddled
->     with mistakes. As this is a working draft, it is unstable and I do not
->     guarantee backward compatibility of future versions.
-> [3] https://lists.gnu.org/archive/html/qemu-arm/2017-08/msg00004.html
-> [4] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.4
->     Warning: UAPI headers have changed! They didn't follow the spec,
->     please update. (Use branch v0.1, that has the old headers, for the
->     Qemu prototype [3])
-> [5] git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.4
->     Warning: command-line has changed! Use --viommu vfio[,opts] and
->     --viommu virtio[,opts] to instantiate a device.
-> [6] http://www.linux-arm.org/git?p=virtio-iommu.git;a=tree;f=dist/diffs
 > 
 > ---------------------------------------------------------------------
 > To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
