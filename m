@@ -1,13 +1,15 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v14 5/5] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
-Date: Thu, 17 Aug 2017 11:26:56 +0800
-Message-ID: <1502940416-42944-6-git-send-email-wei.w.wang__26169.9389121079$1502941156$gmane$org@intel.com>
-References: <1502940416-42944-1-git-send-email-wei.w.wang@intel.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [virtio-dev] [RFC] virtio-iommu version 0.4
+Date: Thu, 17 Aug 2017 11:12:24 +0100
+Message-ID: <a2e573f3-bdfb-b5e5-7835-a7597abd48f5__35529.7115318992$1502964613$gmane$org@arm.com>
+References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
+	<20170816040853.GA10652@shay3t003839711.china.huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1502940416-42944-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20170816040853.GA10652@shay3t003839711.china.huawei.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,270 +19,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, mawilcox@microsoft.com
-Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, mgorman@techsingularity.net
+To: Adam Tao <taozhe1@huawei.com>
+Cc: virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, kvm@vger.kernel.org, mst@redhat.com, marc.zyngier@arm.com, will.deacon@arm.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, robin.murphy@arm.com, eric.auger.pro@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new vq to report hints of guest free pages to the host.
+Hi Adam,
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Signed-off-by: Liang Li <liang.z.li@intel.com>
----
- drivers/virtio/virtio_balloon.c     | 167 +++++++++++++++++++++++++++++++-----
- include/uapi/linux/virtio_balloon.h |   1 +
- 2 files changed, 147 insertions(+), 21 deletions(-)
+On 16/08/17 05:08, Adam Tao wrote:
+>> * There is a working Qemu prototype [3], thanks to Eric Auger and Bharat
+>>   Bhushan.
+> Hi, Brucker
+> I read the related spec for virtio IOMMU,
+> I am wondering if we support both the virtual and physical devices in
+> the guest to use the virtio IOMMU, how can we config the related address
+> translation for the different type of devices.
+> e.g.
+> 1. for Virtio devs(e.g. virtio-net), we can change the memmap table used
+> by the vhost device.
+> 2. for physical devices we can directly config the IOMMU/SMMU on the
+> host.
+> 
+> So do you know are there any RFCs for the back-end implementation for the virtio-IOMMU
+> thanks
+> Adam
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 72041b4..e6755bc 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -54,11 +54,12 @@ static struct vfsmount *balloon_mnt;
- 
- struct virtio_balloon {
- 	struct virtio_device *vdev;
--	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
-+	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *free_page_vq;
- 
- 	/* The balloon servicing is delegated to a freezable workqueue. */
- 	struct work_struct update_balloon_stats_work;
- 	struct work_struct update_balloon_size_work;
-+	struct work_struct report_free_page_work;
- 
- 	/* Prevent updating balloon when it is being canceled. */
- 	spinlock_t stop_update_lock;
-@@ -90,6 +91,13 @@ struct virtio_balloon {
- 	/* Memory statistics */
- 	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
- 
-+	/*
-+	 * Used by the device and driver to signal each other.
-+	 * device->driver: start the free page report.
-+	 * driver->device: end the free page report.
-+	 */
-+	__virtio32 report_free_page_signal;
-+
- 	/* To register callback in oom notifier call chain */
- 	struct notifier_block nb;
- };
-@@ -174,6 +182,17 @@ static void send_balloon_page_sg(struct virtio_balloon *vb,
- 	} while (unlikely(ret == -ENOSPC));
- }
- 
-+static void send_free_page_sg(struct virtqueue *vq, void *addr, uint32_t size)
-+{
-+	unsigned int len;
-+
-+	add_one_sg(vq, addr, size);
-+	virtqueue_kick(vq);
-+	/* Release entries if there are */
-+	while (virtqueue_get_buf(vq, &len))
-+		;
-+}
-+
- /*
-  * Send balloon pages in sgs to host. The balloon pages are recorded in the
-  * page xbitmap. Each bit in the bitmap corresponds to a page of PAGE_SIZE.
-@@ -511,42 +530,143 @@ static void update_balloon_size_func(struct work_struct *work)
- 		queue_work(system_freezable_wq, work);
- }
- 
-+static void virtio_balloon_send_free_pages(void *opaque, unsigned long pfn,
-+					   unsigned long nr_pages)
-+{
-+	struct virtio_balloon *vb = (struct virtio_balloon *)opaque;
-+	void *addr = (void *)pfn_to_kaddr(pfn);
-+	uint32_t len = nr_pages << PAGE_SHIFT;
-+
-+	send_free_page_sg(vb->free_page_vq, addr, len);
-+}
-+
-+static void report_free_page_completion(struct virtio_balloon *vb)
-+{
-+	struct virtqueue *vq = vb->free_page_vq;
-+	struct scatterlist sg;
-+	unsigned int len;
-+	int ret;
-+
-+	sg_init_one(&sg, &vb->report_free_page_signal, sizeof(__virtio32));
-+retry:
-+	ret = virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
-+	virtqueue_kick(vq);
-+	if (unlikely(ret == -ENOSPC)) {
-+		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
-+		goto retry;
-+	}
-+}
-+
-+static void report_free_page(struct work_struct *work)
-+{
-+	struct virtio_balloon *vb;
-+
-+	vb = container_of(work, struct virtio_balloon, report_free_page_work);
-+	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
-+	report_free_page_completion(vb);
-+}
-+
-+static void free_page_request(struct virtqueue *vq)
-+{
-+	struct virtio_balloon *vb = vq->vdev->priv;
-+
-+	queue_work(system_freezable_wq, &vb->report_free_page_work);
-+}
-+
- static int init_vqs(struct virtio_balloon *vb)
- {
--	struct virtqueue *vqs[3];
--	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
--	static const char * const names[] = { "inflate", "deflate", "stats" };
--	int err, nvqs;
-+	struct virtqueue **vqs;
-+	vq_callback_t **callbacks;
-+	const char **names;
-+	struct scatterlist sg;
-+	int i, nvqs, err = -ENOMEM;
-+
-+	/* Inflateq and deflateq are used unconditionally */
-+	nvqs = 2;
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ))
-+		nvqs++;
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ))
-+		nvqs++;
-+
-+	/* Allocate space for find_vqs parameters */
-+	vqs = kcalloc(nvqs, sizeof(*vqs), GFP_KERNEL);
-+	if (!vqs)
-+		goto err_vq;
-+	callbacks = kmalloc_array(nvqs, sizeof(*callbacks), GFP_KERNEL);
-+	if (!callbacks)
-+		goto err_callback;
-+	names = kmalloc_array(nvqs, sizeof(*names), GFP_KERNEL);
-+	if (!names)
-+		goto err_names;
-+
-+	callbacks[0] = balloon_ack;
-+	names[0] = "inflate";
-+	callbacks[1] = balloon_ack;
-+	names[1] = "deflate";
-+
-+	i = 2;
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-+		callbacks[i] = stats_request;
-+		names[i] = "stats";
-+		i++;
-+	}
- 
--	/*
--	 * We expect two virtqueues: inflate and deflate, and
--	 * optionally stat.
--	 */
--	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
--	err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ)) {
-+		callbacks[i] = free_page_request;
-+		names[i] = "free_page_vq";
-+	}
-+
-+	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks, names,
-+					 NULL, NULL);
- 	if (err)
--		return err;
-+		goto err_find;
- 
- 	vb->inflate_vq = vqs[0];
- 	vb->deflate_vq = vqs[1];
-+	i = 2;
- 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
--		struct scatterlist sg;
--		unsigned int num_stats;
--		vb->stats_vq = vqs[2];
--
-+		vb->stats_vq = vqs[i++];
- 		/*
- 		 * Prime this virtqueue with one buffer so the hypervisor can
- 		 * use it to signal us later (it can't be broken yet!).
- 		 */
--		num_stats = update_balloon_stats(vb);
--
--		sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
-+		sg_init_one(&sg, vb->stats, sizeof(vb->stats));
- 		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
--		    < 0)
--			BUG();
-+		    < 0) {
-+			dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
-+				 __func__);
-+			goto err_find;
-+		}
- 		virtqueue_kick(vb->stats_vq);
- 	}
-+
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ)) {
-+		vb->free_page_vq = vqs[i];
-+		vb->report_free_page_signal = 0;
-+		sg_init_one(&sg, &vb->report_free_page_signal,
-+			    sizeof(__virtio32));
-+		if (virtqueue_add_outbuf(vb->free_page_vq, &sg, 1, vb,
-+					 GFP_KERNEL) < 0) {
-+			dev_warn(&vb->vdev->dev, "%s: add signal buf failed\n",
-+				 __func__);
-+			goto err_find;
-+		}
-+		virtqueue_kick(vb->free_page_vq);
-+	}
-+
-+	kfree(names);
-+	kfree(callbacks);
-+	kfree(vqs);
- 	return 0;
-+
-+err_find:
-+	kfree(names);
-+err_names:
-+	kfree(callbacks);
-+err_callback:
-+	kfree(vqs);
-+err_vq:
-+	return err;
- }
- 
- #ifdef CONFIG_BALLOON_COMPACTION
-@@ -675,6 +795,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_SG))
- 		xb_init(&vb->page_xb);
- 
-+	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ))
-+		INIT_WORK(&vb->report_free_page_work, report_free_page);
-+
- 	vb->nb.notifier_call = virtballoon_oom_notify;
- 	vb->nb.priority = VIRTBALLOON_OOM_NOTIFY_PRIORITY;
- 	err = register_oom_notifier(&vb->nb);
-@@ -739,6 +862,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
- 	spin_unlock_irq(&vb->stop_update_lock);
- 	cancel_work_sync(&vb->update_balloon_size_work);
- 	cancel_work_sync(&vb->update_balloon_stats_work);
-+	cancel_work_sync(&vb->report_free_page_work);
- 
- 	remove_common(vb);
- #ifdef CONFIG_BALLOON_COMPACTION
-@@ -792,6 +916,7 @@ static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_STATS_VQ,
- 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
- 	VIRTIO_BALLOON_F_SG,
-+	VIRTIO_BALLOON_F_FREE_PAGE_VQ,
- };
- 
- static struct virtio_driver virtio_balloon_driver = {
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index 37780a7..8214f84 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -35,6 +35,7 @@
- #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
- #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
- #define VIRTIO_BALLOON_F_SG		3 /* Use sg instead of PFN lists */
-+#define VIRTIO_BALLOON_F_FREE_PAGE_VQ	4 /* Virtqueue to report free pages */
- 
- /* Size of a PFN in the balloon interface. */
- #define VIRTIO_BALLOON_PFN_SHIFT 12
--- 
-2.7.4
+Eric's series [3] adds support for virtual devices (I'v only had time to
+test virtio-net so far, but as vhost-iotlb seems to be supported by Qemu,
+it should work with vhost-net as well). Bharat is working on the VFIO
+backend for physical devices. As far as I'm aware, his latest version is:
+
+[7] https://lists.gnu.org/archive/html/qemu-devel/2017-07/msg04094.html
+
+Thanks,
+Jean
+
+
+>> [1] http://www.spinics.net/lists/kvm/msg147990.html
+>> [2] git://linux-arm.org/virtio-iommu.git branch viommu/v0.4
+>>     http://www.linux-arm.org/git?p=virtio-iommu.git;a=blob;f=dist/v0.4/virtio-iommu-v0.4.pdf
+>>     I reiterate the disclaimers: don't use this document as a reference,
+>>     it's a draft. It's also not an OASIS document yet. It may be riddled
+>>     with mistakes. As this is a working draft, it is unstable and I do not
+>>     guarantee backward compatibility of future versions.
+>> [3] https://lists.gnu.org/archive/html/qemu-arm/2017-08/msg00004.html
+>> [4] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.4
+>>     Warning: UAPI headers have changed! They didn't follow the spec,
+>>     please update. (Use branch v0.1, that has the old headers, for the
+>>     Qemu prototype [3])
+>> [5] git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.4
+>>     Warning: command-line has changed! Use --viommu vfio[,opts] and
+>>     --viommu virtio[,opts] to instantiate a device.
+>> [6] http://www.linux-arm.org/git?p=virtio-iommu.git;a=tree;f=dist/diffs
