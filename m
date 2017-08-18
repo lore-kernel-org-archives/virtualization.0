@@ -1,15 +1,15 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v14 3/5] virtio-balloon: VIRTIO_BALLOON_F_SG
-Date: Fri, 18 Aug 2017 15:39:27 +0800
-Message-ID: <599699AF.1090705__49089.991374831$1503041838$gmane$org@intel.com>
-References: <1502940416-42944-1-git-send-email-wei.w.wang@intel.com>
-	<1502940416-42944-4-git-send-email-wei.w.wang@intel.com>
-	<20170818051451-mutt-send-email-mst@kernel.org>
+From: Hannes Reinecke <hare@suse.de>
+Subject: Re: [PATCH 09/12] virtio_blk: Use blk_rq_is_scsi()
+Date: Fri, 18 Aug 2017 09:39:45 +0200
+Message-ID: <c1ca05a5-f7fb-fd9a-e682-a4dbbc214fd7__33065.0824275382$1503041995$gmane$org@suse.de>
+References: <20170817232311.25948-1-bart.vanassche@wdc.com>
+	<20170817232311.25948-10-bart.vanassche@wdc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170818051451-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170817232311.25948-10-bart.vanassche@wdc.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,36 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
+To: Bart Van Assche <bart.vanassche@wdc.com>, Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>, "Michael S . Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/18/2017 10:22 AM, Michael S. Tsirkin wrote:
-> +static void send_balloon_page_sg(struct virtio_balloon *vb,
-> +				 struct virtqueue *vq,
-> +				 void *addr,
-> +				 uint32_t size)
-> +{
-> +	unsigned int len;
-> +	int ret;
-> +
-> +	do {
-> +		ret = add_one_sg(vq, addr, size);
-> +		virtqueue_kick(vq);
-> +		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
-> +		/*
-> +		 * It is uncommon to see the vq is full, because the sg is sent
-> +		 * one by one and the device is able to handle it in time. But
-> +		 * if that happens, we go back to retry after an entry gets
-> +		 * released.
-> +		 */
-> Why send one by one though? Why not batch some s/gs and wait for all
-> of them to be completed? If memory if fragmented, waiting every time is
-> worse than what we have now (VIRTIO_BALLOON_ARRAY_PFNS_MAX at a time).
->
-
-OK, I'll do batching in some fashion.
-
-
-Best,
-Wei
+T24gMDgvMTgvMjAxNyAwMToyMyBBTSwgQmFydCBWYW4gQXNzY2hlIHdyb3RlOgo+IFRoaXMgcGF0
+Y2ggZG9lcyBub3QgY2hhbmdlIGFueSBmdW5jdGlvbmFsaXR5Lgo+IAo+IFNpZ25lZC1vZmYtYnk6
+IEJhcnQgVmFuIEFzc2NoZSA8YmFydC52YW5hc3NjaGVAd2RjLmNvbT4KPiBDYzogTWljaGFlbCBT
+LiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiBDYzogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
+aGF0LmNvbT4KPiBDYzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+PiAtLS0KPiAgZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMgfCAyICstCj4gIDEgZmlsZSBjaGFu
+Z2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2
+ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYyBiL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4gaW5k
+ZXggMTQ5OGI4OTlhNTkzLi4wYmExZWI5MTFhNDIgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ibG9j
+ay92aXJ0aW9fYmxrLmMKPiArKysgYi9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYwo+IEBAIC0y
+NjUsNyArMjY1LDcgQEAgc3RhdGljIGJsa19zdGF0dXNfdCB2aXJ0aW9fcXVldWVfcnEoc3RydWN0
+IGJsa19tcV9od19jdHggKmhjdHgsCj4gIAl9Cj4gIAo+ICAJc3Bpbl9sb2NrX2lycXNhdmUoJnZi
+bGstPnZxc1txaWRdLmxvY2ssIGZsYWdzKTsKPiAtCWlmIChyZXFfb3AocmVxKSA9PSBSRVFfT1Bf
+U0NTSV9JTiB8fCByZXFfb3AocmVxKSA9PSBSRVFfT1BfU0NTSV9PVVQpCj4gKwlpZiAoYmxrX3Jx
+X2lzX3Njc2kocmVxKSkKPiAgCQllcnIgPSB2aXJ0YmxrX2FkZF9yZXFfc2NzaSh2YmxrLT52cXNb
+cWlkXS52cSwgdmJyLCB2YnItPnNnLCBudW0pOwo+ICAJZWxzZQo+ICAJCWVyciA9IHZpcnRibGtf
+YWRkX3JlcSh2YmxrLT52cXNbcWlkXS52cSwgdmJyLCB2YnItPnNnLCBudW0pOwo+IApSZXZpZXdl
+ZC1ieTogSGFubmVzIFJlaW5lY2tlIDxoYXJlQHN1c2UuY29tPgoKQ2hlZXJzLAoKSGFubmVzCi0t
+IApEci4gSGFubmVzIFJlaW5lY2tlCQkgICBUZWFtbGVhZCBTdG9yYWdlICYgTmV0d29ya2luZwpo
+YXJlQHN1c2UuZGUJCQkgICAgICAgICAgICAgICArNDkgOTExIDc0MDUzIDY4OApTVVNFIExJTlVY
+IEdtYkgsIE1heGZlbGRzdHIuIDUsIDkwNDA5IE7DvHJuYmVyZwpHRjogRi4gSW1lbmTDtnJmZmVy
+LCBKLiBTbWl0aGFyZCwgSi4gR3VpbGQsIEQuIFVwbWFueXUsIEcuIE5vcnRvbgpIUkIgMjEyODQg
+KEFHIE7DvHJuYmVyZykKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
