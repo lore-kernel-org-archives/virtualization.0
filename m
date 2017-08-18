@@ -1,7 +1,7 @@
-From: Michal Hocko <mhocko@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v14 4/5] mm: support reporting free page blocks
-Date: Fri, 18 Aug 2017 15:46:50 +0200
-Message-ID: <20170818134650.GC18499__32538.5083132007$1503064020$gmane$org@dhcp22.suse.cz>
+Date: Fri, 18 Aug 2017 20:23:05 +0300
+Message-ID: <20170818201946-mutt-send-email-mst__24949.0866125145$1503077005$gmane$org@kernel.org>
 References: <1502940416-42944-1-git-send-email-wei.w.wang@intel.com>
 	<1502940416-42944-5-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
@@ -20,21 +20,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Wei Wang <wei.w.wang@intel.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu 17-08-17 11:26:55, Wei Wang wrote:
+On Thu, Aug 17, 2017 at 11:26:55AM +0800, Wei Wang wrote:
 > This patch adds support to walk through the free page blocks in the
 > system and report them via a callback function. Some page blocks may
 > leave the free list after zone->lock is released, so it is the caller's
 > responsibility to either detect or prevent the use of such pages.
-
-This could see more details to be honest. Especially the usecase you are
-going to use this for. This will help us to understand the motivation
-in future when the current user might be gone a new ones largely diverge
-into a different usage. This wouldn't be the first time I have seen
-something like that.
-
+> 
 > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
 > Signed-off-by: Liang Li <liang.z.li@intel.com>
 > Cc: Michal Hocko <mhocko@kernel.org>
@@ -74,11 +68,6 @@ something like that.
 > + * @opaque1: the context passed from the caller
 > + * @min_order: the minimum order of free lists to check
 > + * @visit: the callback function given by the caller
-
-The original suggestion for using visit was motivated by a visit design
-pattern but I can see how this can be confusing. Maybe a more explicit
-name wold be better. What about report_free_range.
-
 > + *
 > + * The function is used to walk through the free page blocks in the system,
 > + * and each free page block is reported to the caller via the @visit callback.
@@ -87,43 +76,14 @@ name wold be better. What about report_free_range.
 > + * not use those reported pages after the callback returns.
 > + * 2) The callback is invoked with the zone->lock being held, so it should not
 > + * block and should finish as soon as possible.
-
-I think that the explicit note about zone->lock is not really need. This
-can change in future and I would even bet that somebody might rely on
-the lock being held for some purpose and silently get broken with the
-change. Instead I would much rather see something like the following:
-"
-Please note that there are no locking guarantees for the callback and
-that the reported pfn range might be freed or disappear after the
-callback returns so the caller has to be very careful how it is used.
-
-The callback itself must not sleep or perform any operations which would
-require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
-or via any lock dependency. It is generally advisable to implement
-the callback as simple as possible and defer any heavy lifting to a
-different context.
-
-There is no guarantee that each free range will be reported only once
-during one walk_free_mem_block invocation.
-
-pfn_to_page on the given range is strongly discouraged and if there is
-an absolute need for that make sure to contact MM people to discuss
-potential problems.
-
-The function itself might sleep so it cannot be called from atomic
-contexts.
-
-In general low orders tend to be very volatile and so it makes more
-sense to query larger ones for various optimizations which like
-ballooning etc... This will reduce the overhead as well.
-"
-
 > + */
 > +void walk_free_mem_block(void *opaque1,
 > +			 unsigned int min_order,
-
-make the order int and...
 > +			 void (*visit)(void *opaque2,
+
+You can just avoid opaque2 completely I think, then opaque1 can
+be renamed opaque.
+
 > +				       unsigned long pfn,
 > +				       unsigned long nr_pages))
 > +{
@@ -137,19 +97,23 @@ make the order int and...
 > +	for_each_populated_zone(zone) {
 > +		for (order = MAX_ORDER - 1;
 > +		     order < MAX_ORDER && order >= min_order; order--) {
-
-you will not need the underflow check which is just ugly
-
 > +			for (mt = 0; mt < MIGRATE_TYPES; mt++) {
 > +				spin_lock_irqsave(&zone->lock, flags);
 > +				list = &zone->free_area[order].free_list[mt];
 > +				list_for_each_entry(page, list, lru) {
 > +					pfn = page_to_pfn(page);
 > +					visit(opaque1, pfn, 1 << order);
+
+My only concern here is inability of callback to
+1. break out of list
+2. remove page from the list
+
+So I would make the callback bool, and I would use
+list_for_each_entry_safe.
+
+
 > +				}
 > +				spin_unlock_irqrestore(&zone->lock, flags);
-
-				cond_resched();
 > +			}
 > +		}
 > +	}
@@ -161,9 +125,3 @@ you will not need the underflow check which is just ugly
 >  	zoneref->zone = zone;
 > -- 
 > 2.7.4
-
-Other than that this looks _much_ more reasonable than previous
-versions.
--- 
-Michal Hocko
-SUSE Labs
