@@ -1,15 +1,15 @@
-From: Hannes Reinecke <hare@suse.de>
-Subject: Re: [PATCH 09/12] virtio_blk: Use blk_rq_is_scsi()
-Date: Fri, 18 Aug 2017 09:39:45 +0200
-Message-ID: <c1ca05a5-f7fb-fd9a-e682-a4dbbc214fd7__33065.0824275382$1503041995$gmane$org@suse.de>
-References: <20170817232311.25948-1-bart.vanassche@wdc.com>
-	<20170817232311.25948-10-bart.vanassche@wdc.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v14 5/5] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
+Date: Fri, 18 Aug 2017 16:36:06 +0800
+Message-ID: <5996A6F6.2050405__29705.3432245322$1503045235$gmane$org@intel.com>
+References: <1502940416-42944-1-git-send-email-wei.w.wang@intel.com>
+	<1502940416-42944-6-git-send-email-wei.w.wang@intel.com>
+	<20170818052301-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170817232311.25948-10-bart.vanassche@wdc.com>
-Content-Language: en-US
+In-Reply-To: <20170818052301-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,33 +19,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bart Van Assche <bart.vanassche@wdc.com>, Jens Axboe <axboe@kernel.dk>
-Cc: linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>, "Michael S . Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDgvMTgvMjAxNyAwMToyMyBBTSwgQmFydCBWYW4gQXNzY2hlIHdyb3RlOgo+IFRoaXMgcGF0
-Y2ggZG9lcyBub3QgY2hhbmdlIGFueSBmdW5jdGlvbmFsaXR5Lgo+IAo+IFNpZ25lZC1vZmYtYnk6
-IEJhcnQgVmFuIEFzc2NoZSA8YmFydC52YW5hc3NjaGVAd2RjLmNvbT4KPiBDYzogTWljaGFlbCBT
-LiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiBDYzogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT4KPiBDYzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-PiAtLS0KPiAgZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMgfCAyICstCj4gIDEgZmlsZSBjaGFu
-Z2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYyBiL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4gaW5k
-ZXggMTQ5OGI4OTlhNTkzLi4wYmExZWI5MTFhNDIgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ibG9j
-ay92aXJ0aW9fYmxrLmMKPiArKysgYi9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYwo+IEBAIC0y
-NjUsNyArMjY1LDcgQEAgc3RhdGljIGJsa19zdGF0dXNfdCB2aXJ0aW9fcXVldWVfcnEoc3RydWN0
-IGJsa19tcV9od19jdHggKmhjdHgsCj4gIAl9Cj4gIAo+ICAJc3Bpbl9sb2NrX2lycXNhdmUoJnZi
-bGstPnZxc1txaWRdLmxvY2ssIGZsYWdzKTsKPiAtCWlmIChyZXFfb3AocmVxKSA9PSBSRVFfT1Bf
-U0NTSV9JTiB8fCByZXFfb3AocmVxKSA9PSBSRVFfT1BfU0NTSV9PVVQpCj4gKwlpZiAoYmxrX3Jx
-X2lzX3Njc2kocmVxKSkKPiAgCQllcnIgPSB2aXJ0YmxrX2FkZF9yZXFfc2NzaSh2YmxrLT52cXNb
-cWlkXS52cSwgdmJyLCB2YnItPnNnLCBudW0pOwo+ICAJZWxzZQo+ICAJCWVyciA9IHZpcnRibGtf
-YWRkX3JlcSh2YmxrLT52cXNbcWlkXS52cSwgdmJyLCB2YnItPnNnLCBudW0pOwo+IApSZXZpZXdl
-ZC1ieTogSGFubmVzIFJlaW5lY2tlIDxoYXJlQHN1c2UuY29tPgoKQ2hlZXJzLAoKSGFubmVzCi0t
-IApEci4gSGFubmVzIFJlaW5lY2tlCQkgICBUZWFtbGVhZCBTdG9yYWdlICYgTmV0d29ya2luZwpo
-YXJlQHN1c2UuZGUJCQkgICAgICAgICAgICAgICArNDkgOTExIDc0MDUzIDY4OApTVVNFIExJTlVY
-IEdtYkgsIE1heGZlbGRzdHIuIDUsIDkwNDA5IE7DvHJuYmVyZwpHRjogRi4gSW1lbmTDtnJmZmVy
-LCBKLiBTbWl0aGFyZCwgSi4gR3VpbGQsIEQuIFVwbWFueXUsIEcuIE5vcnRvbgpIUkIgMjEyODQg
-KEFHIE7DvHJuYmVyZykKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 08/18/2017 10:28 AM, Michael S. Tsirkin wrote:
+> On Thu, Aug 17, 2017 at 11:26:56AM +0800, Wei Wang wrote:
+>> Add a new vq to report hints of guest free pages to the host.
+>>
+>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+>> Signed-off-by: Liang Li <liang.z.li@intel.com>
+>> ---
+>>   drivers/virtio/virtio_balloon.c     | 167 +++++++++++++++++++++++++++++++-----
+>>   include/uapi/linux/virtio_balloon.h |   1 +
+>>   2 files changed, 147 insertions(+), 21 deletions(-)
+>>
+>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+>> index 72041b4..e6755bc 100644
+>> --- a/drivers/virtio/virtio_balloon.c
+>> +++ b/drivers/virtio/virtio_balloon.c
+>> @@ -54,11 +54,12 @@ static struct vfsmount *balloon_mnt;
+>>   
+>>   struct virtio_balloon {
+>>   	struct virtio_device *vdev;
+>> -	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
+>> +	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *free_page_vq;
+>>   
+>>   	/* The balloon servicing is delegated to a freezable workqueue. */
+>>   	struct work_struct update_balloon_stats_work;
+>>   	struct work_struct update_balloon_size_work;
+>> +	struct work_struct report_free_page_work;
+>>   
+>>   	/* Prevent updating balloon when it is being canceled. */
+>>   	spinlock_t stop_update_lock;
+>> @@ -90,6 +91,13 @@ struct virtio_balloon {
+>>   	/* Memory statistics */
+>>   	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
+>>   
+>> +	/*
+>> +	 * Used by the device and driver to signal each other.
+>> +	 * device->driver: start the free page report.
+>> +	 * driver->device: end the free page report.
+>> +	 */
+>> +	__virtio32 report_free_page_signal;
+>> +
+>>   	/* To register callback in oom notifier call chain */
+>>   	struct notifier_block nb;
+>>   };
+>> @@ -174,6 +182,17 @@ static void send_balloon_page_sg(struct virtio_balloon *vb,
+>>   	} while (unlikely(ret == -ENOSPC));
+>>   }
+>>   
+>> +static void send_free_page_sg(struct virtqueue *vq, void *addr, uint32_t size)
+>> +{
+>> +	unsigned int len;
+>> +
+>> +	add_one_sg(vq, addr, size);
+>> +	virtqueue_kick(vq);
+>> +	/* Release entries if there are */
+>> +	while (virtqueue_get_buf(vq, &len))
+>> +		;
+>> +}
+>> +
+>>   /*
+>>    * Send balloon pages in sgs to host. The balloon pages are recorded in the
+>>    * page xbitmap. Each bit in the bitmap corresponds to a page of PAGE_SIZE.
+>> @@ -511,42 +530,143 @@ static void update_balloon_size_func(struct work_struct *work)
+>>   		queue_work(system_freezable_wq, work);
+>>   }
+>>   
+>> +static void virtio_balloon_send_free_pages(void *opaque, unsigned long pfn,
+>> +					   unsigned long nr_pages)
+>> +{
+>> +	struct virtio_balloon *vb = (struct virtio_balloon *)opaque;
+>> +	void *addr = (void *)pfn_to_kaddr(pfn);
+>> +	uint32_t len = nr_pages << PAGE_SHIFT;
+>> +
+>> +	send_free_page_sg(vb->free_page_vq, addr, len);
+>> +}
+>> +
+>> +static void report_free_page_completion(struct virtio_balloon *vb)
+>> +{
+>> +	struct virtqueue *vq = vb->free_page_vq;
+>> +	struct scatterlist sg;
+>> +	unsigned int len;
+>> +	int ret;
+>> +
+>> +	sg_init_one(&sg, &vb->report_free_page_signal, sizeof(__virtio32));
+>> +retry:
+>> +	ret = virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+>> +	virtqueue_kick(vq);
+>> +	if (unlikely(ret == -ENOSPC)) {
+>> +		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+>> +		goto retry;
+>> +	}
+>> +}
+> So the annoying thing here is that once this starts going,
+> it will keep sending free pages from the list even if
+> host is no longer interested. There should be a way
+> for host to tell guest "stop" or "start from the beginning".
+
+This can be achieved via two output signal buf here:
+signal_buf_start: filled with VIRTIO_BALLOON_F_FREE_PAGE_REPORT_START
+signal_buf_end: filled with VIRTIO_BALLOON_F_FREE_PAGE_REPORT_END
+
+The device holds both, and can put one of them to the vq and notify.
+
+
+
+>
+> It's the result of using same vq for guest to host and
+> host to guest communication, and I think it's not a great idea.
+> I'd reuse stats vq for host to guest requests maybe.
+>
+
+
+As we discussed before, we can't have a vq interleave the report of 
+stats and free pages.
+The vq will be locked when one command is in use. So, when live 
+migration starts, the
+periodically reported stats will be delayed. Would this be OK? Or would 
+you like to have
+one host to guest vq, and multiple host to guest vqs? That is,
+
+- host to guest:
+CMD_VQ
+
+- guest to host:
+STATS_REPORT_VQ
+FREE_PAGE_VQ
+
+
+Best,
+Wei
