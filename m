@@ -1,15 +1,15 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v14 5/5] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
-Date: Fri, 18 Aug 2017 16:41:41 +0800
-Message-ID: <5996A845.4010405__30941.3224844777$1503045564$gmane$org@intel.com>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH v14 4/5] mm: support reporting free page blocks
+Date: Fri, 18 Aug 2017 15:46:50 +0200
+Message-ID: <20170818134650.GC18499__32538.5083132007$1503064020$gmane$org@dhcp22.suse.cz>
 References: <1502940416-42944-1-git-send-email-wei.w.wang@intel.com>
-	<1502940416-42944-6-git-send-email-wei.w.wang@intel.com>
-	<20170818045519-mutt-send-email-mst@kernel.org>
+	<1502940416-42944-5-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170818045519-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1502940416-42944-5-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,93 +19,151 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/18/2017 10:13 AM, Michael S. Tsirkin wrote:
-> On Thu, Aug 17, 2017 at 11:26:56AM +0800, Wei Wang wrote:
->> Add a new vq to report hints of guest free pages to the host.
-> Please add some text here explaining the report_free_page_signal
-> thing.
->
->
-> I also really think we need some kind of ID in the
-> buffer to do a handshake. whenever id changes you
-> add another outbuf.
+On Thu 17-08-17 11:26:55, Wei Wang wrote:
+> This patch adds support to walk through the free page blocks in the
+> system and report them via a callback function. Some page blocks may
+> leave the free list after zone->lock is released, so it is the caller's
+> responsibility to either detect or prevent the use of such pages.
 
-Please let me introduce the current design first:
-1) device put the signal buf to the vq and notify the driver (we need
-a buffer because currently the device can't notify when the vq is empty);
+This could see more details to be honest. Especially the usecase you are
+going to use this for. This will help us to understand the motivation
+in future when the current user might be gone a new ones largely diverge
+into a different usage. This wouldn't be the first time I have seen
+something like that.
 
-2) the driver starts the report of free page blocks via inbuf;
+> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> Signed-off-by: Liang Li <liang.z.li@intel.com>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  include/linux/mm.h |  6 ++++++
+>  mm/page_alloc.c    | 44 ++++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 50 insertions(+)
+> 
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index 46b9ac5..cd29b9f 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -1835,6 +1835,12 @@ extern void free_area_init_node(int nid, unsigned long * zones_size,
+>  		unsigned long zone_start_pfn, unsigned long *zholes_size);
+>  extern void free_initmem(void);
+>  
+> +extern void walk_free_mem_block(void *opaque1,
+> +				unsigned int min_order,
+> +				void (*visit)(void *opaque2,
+> +					      unsigned long pfn,
+> +					      unsigned long nr_pages));
+> +
+>  /*
+>   * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
+>   * into the buddy system. The freed pages will be poisoned with pattern
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 6d00f74..a721a35 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -4762,6 +4762,50 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
+>  	show_swap_cache_info();
+>  }
+>  
+> +/**
+> + * walk_free_mem_block - Walk through the free page blocks in the system
+> + * @opaque1: the context passed from the caller
+> + * @min_order: the minimum order of free lists to check
+> + * @visit: the callback function given by the caller
 
-3) the driver adds an the signal buf via outbuf to tell the device all 
-are reported.
+The original suggestion for using visit was motivated by a visit design
+pattern but I can see how this can be confusing. Maybe a more explicit
+name wold be better. What about report_free_range.
 
+> + *
+> + * The function is used to walk through the free page blocks in the system,
+> + * and each free page block is reported to the caller via the @visit callback.
+> + * Please note:
+> + * 1) The function is used to report hints of free pages, so the caller should
+> + * not use those reported pages after the callback returns.
+> + * 2) The callback is invoked with the zone->lock being held, so it should not
+> + * block and should finish as soon as possible.
 
-Could you please elaborate more on the usage of ID?
+I think that the explicit note about zone->lock is not really need. This
+can change in future and I would even bet that somebody might rely on
+the lock being held for some purpose and silently get broken with the
+change. Instead I would much rather see something like the following:
+"
+Please note that there are no locking guarantees for the callback and
+that the reported pfn range might be freed or disappear after the
+callback returns so the caller has to be very careful how it is used.
 
->> +retry:
->> +	ret = virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
->> +	virtqueue_kick(vq);
->> +	if (unlikely(ret == -ENOSPC)) {
-> what if there's another error?
+The callback itself must not sleep or perform any operations which would
+require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
+or via any lock dependency. It is generally advisable to implement
+the callback as simple as possible and defer any heavy lifting to a
+different context.
 
-Another error is -EIO, how about disabling the free page report feature?
-(I also saw it isn't handled in many other virtio devices e.g. virtio-net)
+There is no guarantee that each free range will be reported only once
+during one walk_free_mem_block invocation.
 
->> +		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
->> +		goto retry;
->> +	}
-> what is this trickery doing? needs more comments or
-> a simplification.
+pfn_to_page on the given range is strongly discouraged and if there is
+an absolute need for that make sure to contact MM people to discuss
+potential problems.
 
-Just this:
-if the vq is full, blocking wait till an entry gets released, then 
-retry. This is the
-final one, which puts the signal buf to the vq to signify the end of the 
-report and
-the mm lock is not held here, so it is fine to block.
+The function itself might sleep so it cannot be called from atomic
+contexts.
 
+In general low orders tend to be very volatile and so it makes more
+sense to query larger ones for various optimizations which like
+ballooning etc... This will reduce the overhead as well.
+"
 
->
->
->> +}
->> +
->> +static void report_free_page(struct work_struct *work)
->> +{
->> +	struct virtio_balloon *vb;
->> +
->> +	vb = container_of(work, struct virtio_balloon, report_free_page_work);
->> +	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
-> That's a lot of work here. And system_wq documentation says:
->   *
->   * system_wq is the one used by schedule[_delayed]_work[_on]().
->   * Multi-CPU multi-threaded.  There are users which expect relatively
->   * short queue flush time.  Don't queue works which can run for too
->   * long.
->
-> You might want to create your own wq, maybe even with WQ_CPU_INTENSIVE.
+> + */
+> +void walk_free_mem_block(void *opaque1,
+> +			 unsigned int min_order,
 
-Thanks for the reminder. If not creating a new wq, how about 
-system_unbound_wq?
-The first round of live migration needs the free pages, in that way we 
-can have the
-pages reported to the hypervisor quicker.
+make the order int and...
+> +			 void (*visit)(void *opaque2,
+> +				       unsigned long pfn,
+> +				       unsigned long nr_pages))
+> +{
+> +	struct zone *zone;
+> +	struct page *page;
+> +	struct list_head *list;
+> +	unsigned int order;
+> +	enum migratetype mt;
+> +	unsigned long pfn, flags;
+> +
+> +	for_each_populated_zone(zone) {
+> +		for (order = MAX_ORDER - 1;
+> +		     order < MAX_ORDER && order >= min_order; order--) {
 
->
->> +	report_free_page_completion(vb);
-> So first you get list of pages, then an outbuf telling you
-> what they are in end of.  I think it's backwards.
-> Add an outbuf first followed by inbufs that tell you
-> what they are.
+you will not need the underflow check which is just ugly
 
+> +			for (mt = 0; mt < MIGRATE_TYPES; mt++) {
+> +				spin_lock_irqsave(&zone->lock, flags);
+> +				list = &zone->free_area[order].free_list[mt];
+> +				list_for_each_entry(page, list, lru) {
+> +					pfn = page_to_pfn(page);
+> +					visit(opaque1, pfn, 1 << order);
+> +				}
+> +				spin_unlock_irqrestore(&zone->lock, flags);
 
-If we have the signal filled with those flags like
-VIRTIO_BALLOON_F_FREE_PAGE_REPORT_START,
-Probably not necessary to have an inbuf followed by an outbuf, right?
+				cond_resched();
+> +			}
+> +		}
+> +	}
+> +}
+> +EXPORT_SYMBOL_GPL(walk_free_mem_block);
+> +
+>  static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
+>  {
+>  	zoneref->zone = zone;
+> -- 
+> 2.7.4
 
-
-Best,
-Wei
+Other than that this looks _much_ more reasonable than previous
+versions.
+-- 
+Michal Hocko
+SUSE Labs
