@@ -1,17 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v14 5/5] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
-Date: Fri, 18 Aug 2017 21:26:51 +0300
-Message-ID: <20170818211119-mutt-send-email-mst__35545.2799740762$1503080831$gmane$org@kernel.org>
-References: <1502940416-42944-1-git-send-email-wei.w.wang@intel.com>
-	<1502940416-42944-6-git-send-email-wei.w.wang@intel.com>
-	<20170818045519-mutt-send-email-mst@kernel.org>
-	<5996A845.4010405@intel.com>
+From: "ML" <marialemos72@gmail.com>
+Subject: WorldCIST'18, Naples, Italy --- Call for Workshops Proposals
+Date: Fri, 18 Aug 2017 20:15:45 +0100
+Message-ID: <20170818191549.29D969BA@mail.linuxfoundation.org>
+Reply-To: worldcist@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5416233837314656786=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5996A845.4010405@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,145 +15,118 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Aug 18, 2017 at 04:41:41PM +0800, Wei Wang wrote:
-> On 08/18/2017 10:13 AM, Michael S. Tsirkin wrote:
-> > On Thu, Aug 17, 2017 at 11:26:56AM +0800, Wei Wang wrote:
-> > > Add a new vq to report hints of guest free pages to the host.
-> > Please add some text here explaining the report_free_page_signal
-> > thing.
-> > 
-> > 
-> > I also really think we need some kind of ID in the
-> > buffer to do a handshake. whenever id changes you
-> > add another outbuf.
-> 
-> Please let me introduce the current design first:
-> 1) device put the signal buf to the vq and notify the driver (we need
-> a buffer because currently the device can't notify when the vq is empty);
-> 
-> 2) the driver starts the report of free page blocks via inbuf;
-> 
-> 3) the driver adds an the signal buf via outbuf to tell the device all are
-> reported.
-> 
-> 
-> Could you please elaborate more on the usage of ID?
+--===============5416233837314656786==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-While driver is free to maintain at most one buffer in flight
-the design must work with pipelined requests as that
-is important for performance.
-
-So host might be able to request the reporting twice.
-How does it know what is the report in response to?
-
-If we put an id in request and in response, then that fixes it.
+-
+--------------------- CALL FOR WORKSHOPS PROPOSALS ------------------------=
+---------------
+WorldCIST'18 - 6th World Conference on Information Systems and Technologies=
+ 
+                 27th-29th of March 2018, Naples, Italy 
+                       http://www.worldcist.org/
+---------------------------------------------------------------------------=
+---------------
 
 
-So there's a vq used for requesting free page reports.
-driver does add_inbuf( &device->id).
+WORKSHOP FORMAT
 
-Then when it starts reporting it does
+The Information Systems and Technologies research and industrial community =
+is invited to submit proposals of Workshops for WorldCist'18 =96 6th World =
+Conference on Information Systems and Technologies to be held at Naples, It=
+aly, 27th - 29th of March 2018.
 
+Workshops should focus on a specific scientific subject on the scope of Wor=
+ldCist'18 but not directly included on the main conference areas. Each work=
+shop will be coordinated by an Organizing Committee composed of, at least, =
+two researchers in the field, preferably from different institutions and di=
+fferent countries. The organizers should create an international Program Co=
+mmittee for the Workshop, with recognized researchers within the specific W=
+orkshop scientific area. Each workshop should have at least 10 submissions =
+and 5 accepted papers in order to be conducted at WorldCist'18.
 
-add_outbuf(&device->id)
-
-followed by pages.
-
-
-Also if device->id changes it knows it should restart
-reporting from beginning.
-
-
-
-
-
-
-> > > +retry:
-> > > +	ret = virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
-> > > +	virtqueue_kick(vq);
-> > > +	if (unlikely(ret == -ENOSPC)) {
-> > what if there's another error?
-> 
-> Another error is -EIO, how about disabling the free page report feature?
-> (I also saw it isn't handled in many other virtio devices e.g. virtio-net)
-> 
-> > > +		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
-> > > +		goto retry;
-> > > +	}
-> > what is this trickery doing? needs more comments or
-> > a simplification.
-> 
-> Just this:
-> if the vq is full, blocking wait till an entry gets released, then retry.
-> This is the
-> final one, which puts the signal buf to the vq to signify the end of the
-> report and
-> the mm lock is not held here, so it is fine to block.
-> 
-
-But why do you kick here on failure? I would understand it if you
-did not kick when adding pages, as it is I don't understand.
+The selection of Workshops will be performed by WorldCist'18 Conference/Wor=
+kshop Chairs. Workshops full and short papers will be published in the conf=
+erence main proceedings in specific Workshop chapters published by Springer=
+ in a book of the AISC series. Proceedings will be submitted for indexation=
+ by ISI Thomson, SCOPUS, DBLP, EI-Compendex among several other scientific =
+databases. Extended versions of best selected papers will be published in j=
+ournals indexed by ISI/SCI, SCOPUS and DBLP. Detailed and up-to-date inform=
+ation may be found at WorldCist'18 website: http://www.worldcist.org/
 
 
-Also pls rewrite this with a for or while loop for clarity.
+WORKSHOP ORGANIZATION
+
+The Organizing Committee of each Workshop will be responsible for:
+-    Producing and distributing the Workshop Call for Papers (CFP);
+-    Coordinating the review and selection process for the papers submitted=
+ to the Workshop, as Workshop chairs (on the paper submission system to be =
+installed);
+-    Delivering the final versions of the papers accepted for the Workshop =
+in accordance with the guidelines and deadlines defined by WorldCist'18 org=
+anizers;
+-    Coordinating and chairing the Workshop sessions at the conference.
+WorldCist'18 organizers reserve the right to cancel any Workshop if deadlin=
+es are missed or if the number of registered attendees is too low to suppor=
+t the costs associated with the Workshop.
 
 
-> > 
-> > 
-> > > +}
-> > > +
-> > > +static void report_free_page(struct work_struct *work)
-> > > +{
-> > > +	struct virtio_balloon *vb;
-> > > +
-> > > +	vb = container_of(work, struct virtio_balloon, report_free_page_work);
-> > > +	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
-> > That's a lot of work here. And system_wq documentation says:
-> >   *
-> >   * system_wq is the one used by schedule[_delayed]_work[_on]().
-> >   * Multi-CPU multi-threaded.  There are users which expect relatively
-> >   * short queue flush time.  Don't queue works which can run for too
-> >   * long.
-> > 
-> > You might want to create your own wq, maybe even with WQ_CPU_INTENSIVE.
-> 
-> Thanks for the reminder. If not creating a new wq, how about
-> system_unbound_wq?
+PROPOSAL CONTENT
 
-I don't think that one's freezeable. 
+Workshop proposals should contain the following information:
+-    Workshop title;
+-    Brief description of the specific scientific scope of the Workshop;
+-    List of topics of interest (max 15 topics);
+-    Reasons the Workshop should be held within WorldCist=9218;
+-    Name, postal address, phone and email of all the members of the Worksh=
+op Organizing Committee;
+-    Proposal for the Workshop Program Committee (Names and affiliations).
 
-> The first round of live migration needs the free pages, in that way we can
-> have the
-> pages reported to the hypervisor quicker.
+Proposals should be submitted at https://easychair.org/conferences/?conf=3D=
+worldcist-workshops20180, in PDF (in English), by September 6, 2017.
 
-The reason people call it *live* migration is because tasks keep
-running. If you pin VCPUs with maintainance tasks it becomes pointless.
 
-Maybe we need to set a special wq which will create idle
-class threads. Does not seem to be supported but not hard to do.
+IMPORTANT DATES
 
-> > 
-> > > +	report_free_page_completion(vb);
-> > So first you get list of pages, then an outbuf telling you
-> > what they are in end of.  I think it's backwards.
-> > Add an outbuf first followed by inbufs that tell you
-> > what they are.
-> 
-> 
-> If we have the signal filled with those flags like
-> VIRTIO_BALLOON_F_FREE_PAGE_REPORT_START,
-> Probably not necessary to have an inbuf followed by an outbuf, right?
-> 
-> 
-> Best,
-> Wei
+-    Deadline for Workshop proposals: September 6, 2017
+-    Notification of Workshop acceptance: September 10, 2017
+-    Deadline for paper submission: November 26, 2017
+-    Notification of paper acceptance: December 26, 2017
+-    Deadline for final versions and conference registration: January 7, 20=
+18
+-    Conference dates: March 27-29, 2018
 
-You really should document the messages in the commit log
-and in the header.
 
--- 
-MST
+CHAIR
+
+Luis Paulo Reis, AISTI, IEEE & University of Minho, Portugal
+
+
+WorldCIST'18 Website: http://www.worldcist.org/
+
+
+------------------
+
+---
+
+
+---
+This email has been checked for viruses by AVG.
+http://www.avg.com
+
+
+--===============5416233837314656786==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5416233837314656786==--
