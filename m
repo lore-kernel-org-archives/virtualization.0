@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v14 5/5] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
-Date: Fri, 18 Aug 2017 05:28:58 +0300
-Message-ID: <20170818052301-mutt-send-email-mst__28434.851478278$1503034479$gmane$org@kernel.org>
+Date: Fri, 18 Aug 2017 05:13:08 +0300
+Message-ID: <20170818045519-mutt-send-email-mst__22034.5013695352$1503035384$gmane$org@kernel.org>
 References: <1502940416-42944-1-git-send-email-wei.w.wang@intel.com>
 	<1502940416-42944-6-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
@@ -25,6 +25,15 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 On Thu, Aug 17, 2017 at 11:26:56AM +0800, Wei Wang wrote:
 > Add a new vq to report hints of guest free pages to the host.
+
+Please add some text here explaining the report_free_page_signal
+thing.
+
+
+I also really think we need some kind of ID in the
+buffer to do a handshake. whenever id changes you
+add another outbuf.
+
 > 
 > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
 > Signed-off-by: Liang Li <liang.z.li@intel.com>
@@ -61,6 +70,10 @@ On Thu, Aug 17, 2017 at 11:26:56AM +0800, Wei Wang wrote:
 > +	 * driver->device: end the free page report.
 > +	 */
 > +	__virtio32 report_free_page_signal;
+
+Weird - all I can see is driver writing 0 there, then adding
+it as out buf.
+
 > +
 >  	/* To register callback in oom notifier call chain */
 >  	struct notifier_block nb;
@@ -105,25 +118,26 @@ On Thu, Aug 17, 2017 at 11:26:56AM +0800, Wei Wang wrote:
 > +	int ret;
 > +
 > +	sg_init_one(&sg, &vb->report_free_page_signal, sizeof(__virtio32));
+
+sizeof vb->report_free_page_signal is better.
+
 > +retry:
 > +	ret = virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
 > +	virtqueue_kick(vq);
 > +	if (unlikely(ret == -ENOSPC)) {
+
+what if there's another error?
+
 > +		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
 > +		goto retry;
 > +	}
+
+what is this trickery doing? needs more comments or
+a simplification.
+
+
+
 > +}
-
-So the annoying thing here is that once this starts going,
-it will keep sending free pages from the list even if
-host is no longer interested. There should be a way
-for host to tell guest "stop" or "start from the beginning".
-
-
-It's the result of using same vq for guest to host and
-host to guest communication, and I think it's not a great idea.
-I'd reuse stats vq for host to guest requests maybe.
-
 > +
 > +static void report_free_page(struct work_struct *work)
 > +{
@@ -131,7 +145,24 @@ I'd reuse stats vq for host to guest requests maybe.
 > +
 > +	vb = container_of(work, struct virtio_balloon, report_free_page_work);
 > +	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
+
+That's a lot of work here. And system_wq documentation says:
+ *
+ * system_wq is the one used by schedule[_delayed]_work[_on]().
+ * Multi-CPU multi-threaded.  There are users which expect relatively
+ * short queue flush time.  Don't queue works which can run for too
+ * long.
+
+You might want to create your own wq, maybe even with WQ_CPU_INTENSIVE.
+
 > +	report_free_page_completion(vb);
+
+So first you get list of pages, then an outbuf telling you
+what they are in end of.  I think it's backwards.
+Add an outbuf first followed by inbufs that tell you
+what they are.
+
+
 > +}
 > +
 > +static void free_page_request(struct virtqueue *vq)
