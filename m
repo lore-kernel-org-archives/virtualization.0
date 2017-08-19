@@ -1,10 +1,10 @@
-From: "ML" <marialemos72@gmail.com>
-Subject: WorldCIST'18, Naples, Italy --- Call for Workshops Proposals
-Date: Fri, 18 Aug 2017 20:15:45 +0100
-Message-ID: <20170818191549.29D969BA@mail.linuxfoundation.org>
-Reply-To: worldcist@gmail.com
+From: Koichiro Den <den@klaipeden.com>
+Subject: [PATCH net-next] virtio-net: make napi_tx param easier to grasp
+Date: Sat, 19 Aug 2017 15:37:07 +0900
+Message-ID: <20170819063707.26822-1-den@klaipeden.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5416233837314656786=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,118 +15,101 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: mst@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============5416233837314656786==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The module param napi_tx needs not to be writable for now since we do
+not have any means of activating/deactivating it online, which seems to
+be a low priority. Also make it clear that napi_tx is disabled when it
+has been dynamically disabled behind the scenes.
 
--
---------------------- CALL FOR WORKSHOPS PROPOSALS ------------------------=
----------------
-WorldCIST'18 - 6th World Conference on Information Systems and Technologies=
+Signed-off-by: Koichiro Den <den@klaipeden.com>
+---
+ drivers/net/virtio_net.c | 34 +++++++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 4302f313d9a7..ea4e7ddcd377 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -37,7 +37,7 @@ module_param(napi_weight, int, 0444);
+ static bool csum = true, gso = true, napi_tx;
+ module_param(csum, bool, 0444);
+ module_param(gso, bool, 0444);
+-module_param(napi_tx, bool, 0644);
++module_param(napi_tx, bool, 0444);
  
-                 27th-29th of March 2018, Naples, Italy 
-                       http://www.worldcist.org/
----------------------------------------------------------------------------=
----------------
-
-
-WORKSHOP FORMAT
-
-The Information Systems and Technologies research and industrial community =
-is invited to submit proposals of Workshops for WorldCist'18 =96 6th World =
-Conference on Information Systems and Technologies to be held at Naples, It=
-aly, 27th - 29th of March 2018.
-
-Workshops should focus on a specific scientific subject on the scope of Wor=
-ldCist'18 but not directly included on the main conference areas. Each work=
-shop will be coordinated by an Organizing Committee composed of, at least, =
-two researchers in the field, preferably from different institutions and di=
-fferent countries. The organizers should create an international Program Co=
-mmittee for the Workshop, with recognized researchers within the specific W=
-orkshop scientific area. Each workshop should have at least 10 submissions =
-and 5 accepted papers in order to be conducted at WorldCist'18.
-
-The selection of Workshops will be performed by WorldCist'18 Conference/Wor=
-kshop Chairs. Workshops full and short papers will be published in the conf=
-erence main proceedings in specific Workshop chapters published by Springer=
- in a book of the AISC series. Proceedings will be submitted for indexation=
- by ISI Thomson, SCOPUS, DBLP, EI-Compendex among several other scientific =
-databases. Extended versions of best selected papers will be published in j=
-ournals indexed by ISI/SCI, SCOPUS and DBLP. Detailed and up-to-date inform=
-ation may be found at WorldCist'18 website: http://www.worldcist.org/
-
-
-WORKSHOP ORGANIZATION
-
-The Organizing Committee of each Workshop will be responsible for:
--    Producing and distributing the Workshop Call for Papers (CFP);
--    Coordinating the review and selection process for the papers submitted=
- to the Workshop, as Workshop chairs (on the paper submission system to be =
-installed);
--    Delivering the final versions of the papers accepted for the Workshop =
-in accordance with the guidelines and deadlines defined by WorldCist'18 org=
-anizers;
--    Coordinating and chairing the Workshop sessions at the conference.
-WorldCist'18 organizers reserve the right to cancel any Workshop if deadlin=
-es are missed or if the number of registered attendees is too low to suppor=
-t the costs associated with the Workshop.
-
-
-PROPOSAL CONTENT
-
-Workshop proposals should contain the following information:
--    Workshop title;
--    Brief description of the specific scientific scope of the Workshop;
--    List of topics of interest (max 15 topics);
--    Reasons the Workshop should be held within WorldCist=9218;
--    Name, postal address, phone and email of all the members of the Worksh=
-op Organizing Committee;
--    Proposal for the Workshop Program Committee (Names and affiliations).
-
-Proposals should be submitted at https://easychair.org/conferences/?conf=3D=
-worldcist-workshops20180, in PDF (in English), by September 6, 2017.
-
-
-IMPORTANT DATES
-
--    Deadline for Workshop proposals: September 6, 2017
--    Notification of Workshop acceptance: September 10, 2017
--    Deadline for paper submission: November 26, 2017
--    Notification of paper acceptance: December 26, 2017
--    Deadline for final versions and conference registration: January 7, 20=
-18
--    Conference dates: March 27-29, 2018
-
-
-CHAIR
-
-Luis Paulo Reis, AISTI, IEEE & University of Minho, Portugal
-
-
-WorldCIST'18 Website: http://www.worldcist.org/
-
-
-------------------
-
----
-
-
----
-This email has been checked for viruses by AVG.
-http://www.avg.com
-
-
---===============5416233837314656786==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5416233837314656786==--
+ /* FIXME: MTU in config. */
+ #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
+@@ -1026,20 +1026,13 @@ static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
+ 	local_bh_enable();
+ }
+ 
+-static void virtnet_napi_tx_enable(struct virtnet_info *vi,
+-				   struct virtqueue *vq,
+-				   struct napi_struct *napi)
++static void virtnet_napi_tx_enable(struct virtqueue *vq, struct napi_struct *napi)
+ {
+-	if (!napi->weight)
+-		return;
+-
+-	/* Tx napi touches cachelines on the cpu handling tx interrupts. Only
+-	 * enable the feature if this is likely affine with the transmit path.
+-	 */
+-	if (!vi->affinity_hint_set) {
++	if (!napi_tx)
+ 		napi->weight = 0;
++
++	if (!napi->weight)
+ 		return;
+-	}
+ 
+ 	return virtnet_napi_enable(vq, napi);
+ }
+@@ -1179,13 +1172,19 @@ static int virtnet_open(struct net_device *dev)
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	int i;
+ 
++	/* Tx napi touches cachelines on the cpu handling tx interrupts. Only
++	 * enable the feature if this is likely affine with the transmit path.
++	 */
++	if (!vi->affinity_hint_set)
++		napi_tx = false;
++
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+ 		if (i < vi->curr_queue_pairs)
+ 			/* Make sure we have some buffers: if oom use wq. */
+ 			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+ 				schedule_delayed_work(&vi->refill, 0);
+ 		virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
+-		virtnet_napi_tx_enable(vi, vi->sq[i].vq, &vi->sq[i].napi);
++		virtnet_napi_tx_enable(vi->sq[i].vq, &vi->sq[i].napi);
+ 	}
+ 
+ 	return 0;
+@@ -1890,6 +1889,12 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+ 
+ 	virtio_device_ready(vdev);
+ 
++	/* Tx napi touches cachelines on the cpu handling tx interrupts. Only
++	 * enable the feature if this is likely affine with the transmit path.
++	 */
++	if (!vi->affinity_hint_set)
++		napi_tx = false;
++
+ 	if (netif_running(vi->dev)) {
+ 		for (i = 0; i < vi->curr_queue_pairs; i++)
+ 			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+@@ -1897,8 +1902,7 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+ 
+ 		for (i = 0; i < vi->max_queue_pairs; i++) {
+ 			virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
+-			virtnet_napi_tx_enable(vi, vi->sq[i].vq,
+-					       &vi->sq[i].napi);
++			virtnet_napi_tx_enable(vi->sq[i].vq, &vi->sq[i].napi);
+ 		}
+ 	}
+ 
+-- 
+2.9.4
