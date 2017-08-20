@@ -1,18 +1,13 @@
-From: Stephen Hemminger via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: RE: [PATCH net-next 4/4] mlx4: sizeof style usage
-Date: Sun, 20 Aug 2017 18:00:27 +0000
-Message-ID: <DM2PR21MB0074E2B2C697B1300B77EFEACC860__2987.59811926193$1503252041$gmane$org@DM2PR21MB0074.namprd21.prod.outlook.com>
-References: <20170815172919.26153-1-sthemmin@microsoft.com>
-	<20170815172919.26153-5-sthemmin@microsoft.com>
-	<d38cac6d-77a7-e411-73b0-78adad9cbd5f@mellanox.com>
-Reply-To: Stephen Hemminger <sthemmin@microsoft.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH net-next] virtio-net: make napi_tx param easier to grasp
+Date: Sun, 20 Aug 2017 16:30:38 -0400
+Message-ID: <CAF=yD-JA_JPyUbDd=SR9Epvzw6-kbUcrfvwRWODwmeV+yHEMHw__40313.1344392479$1503261089$gmane$org@mail.gmail.com>
+References: <20170819063707.26822-1-den@klaipeden.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <d38cac6d-77a7-e411-73b0-78adad9cbd5f@mellanox.com>
-Content-Language: en-US
+In-Reply-To: <20170819063707.26822-1-den@klaipeden.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,48 +17,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tariq Toukan <tariqt@mellanox.com>, Stephen Hemminger <stephen@networkplumber.org>, "mlindner@marvell.com" <mlindner@marvell.com>, "mst@redhat.com" <mst@redhat.com>, "jasowang@redhat.com" <jasowang@redhat.com>
-Cc: "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Koichiro Den <den@klaipeden.com>
+Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Yes, good catch.
+On Sat, Aug 19, 2017 at 2:37 AM, Koichiro Den <den@klaipeden.com> wrote:
+> The module param napi_tx needs not to be writable for now since we do
+> not have any means of activating/deactivating it online,
 
------Original Message-----
-From: Tariq Toukan [mailto:tariqt@mellanox.com] 
-Sent: Sunday, August 20, 2017 3:27 AM
-To: Stephen Hemminger <stephen@networkplumber.org>; mlindner@marvell.com; mst@redhat.com; jasowang@redhat.com
-Cc: netdev@vger.kernel.org; linux-rdma@vger.kernel.org; virtualization@lists.linux-foundation.org; Stephen Hemminger <sthemmin@microsoft.com>
-Subject: Re: [PATCH net-next 4/4] mlx4: sizeof style usage
+A virtio_net device inherits its napi tx mode from the global napi_tx flag
+on device up. It is possible to change the parameter and bring a device
+down/up to change the device mode.
 
-[You don't often get email from TARIQT@MELLANOX.COM. Learn why this is important at http://aka.ms/LearnAboutSenderIdentification.]
-
-Thanks Stephen.
-Sorry for the late reply, I was on vacation.
-I know this is already accepted, but still I have one comment.
-
-On 15/08/2017 8:29 PM, Stephen Hemminger wrote:
-> The kernel coding style is to treat sizeof as a function
-> (ie. with parenthesis) not as an operator.
+> @@ -1179,13 +1172,19 @@ static int virtnet_open(struct net_device *dev)
+>         struct virtnet_info *vi = netdev_priv(dev);
+>         int i;
 >
-> Also use kcalloc and kmalloc_array
->
-> Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
-> ---
-> @@ -726,7 +726,7 @@ static int mlx4_eq_int(struct mlx4_dev *dev, struct mlx4_eq *eq)
->                       }
->                       memcpy(&priv->mfunc.master.comm_arm_bit_vector,
->                              eqe->event.comm_channel_arm.bit_vec,
-> -                            sizeof eqe->event.comm_channel_arm.bit_vec);
-> +                            sizeof(eqe)->event.comm_channel_arm.bit_vec);
+> +       /* Tx napi touches cachelines on the cpu handling tx interrupts. Only
+> +        * enable the feature if this is likely affine with the transmit path.
+> +        */
+> +       if (!vi->affinity_hint_set)
+> +               napi_tx = false;
+> +
 
-I think the brackets here are misplaced.
-Shouldn't they be as follows?
-
-sizeof(eqe->event.comm_channel_arm.bit_vec));
-
->                       queue_work(priv->mfunc.master.comm_wq,
->                                  &priv->mfunc.master.comm_work);
->                       break;
-
-Thanks,
-Tariq
+This disables napi globally if a specific device lacks affinity.
