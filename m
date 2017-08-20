@@ -1,13 +1,15 @@
-From: Bart Van Assche <bart.vanassche@wdc.com>
-Subject: [PATCH 09/12] virtio_blk: Use blk_rq_is_scsi()
-Date: Thu, 17 Aug 2017 16:23:08 -0700
-Message-ID: <20170817232311.25948-10-bart.vanassche__33936.3663727001$1509079214$gmane$org@wdc.com>
-References: <20170817232311.25948-1-bart.vanassche@wdc.com>
+From: Tariq Toukan <tariqt@mellanox.com>
+Subject: Re: [PATCH net-next 4/4] mlx4: sizeof style usage
+Date: Sun, 20 Aug 2017 13:27:14 +0300
+Message-ID: <d38cac6d-77a7-e411-73b0-78adad9cbd5f__42468.1902667091$1509079237$gmane$org@mellanox.com>
+References: <20170815172919.26153-1-sthemmin@microsoft.com>
+	<20170815172919.26153-5-sthemmin@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170817232311.25948-1-bart.vanassche@wdc.com>
+In-Reply-To: <20170815172919.26153-5-sthemmin@microsoft.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,32 +19,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <axboe@kernel.dk>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, Bart Van Assche <bart.vanassche@wdc.com>, Christoph Hellwig <hch@lst.de>
+To: Stephen Hemminger <stephen@networkplumber.org>, mlindner@marvell.com, mst@redhat.com, jasowang@redhat.com
+Cc: linux-rdma@vger.kernel.org, netdev@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch does not change any functionality.
+Thanks Stephen.
+Sorry for the late reply, I was on vacation.
+I know this is already accepted, but still I have one comment.
 
-Signed-off-by: Bart Van Assche <bart.vanassche@wdc.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
----
- drivers/block/virtio_blk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 15/08/2017 8:29 PM, Stephen Hemminger wrote:
+> The kernel coding style is to treat sizeof as a function
+> (ie. with parenthesis) not as an operator.
+> 
+> Also use kcalloc and kmalloc_array
+> 
+> Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+> ---
+> @@ -726,7 +726,7 @@ static int mlx4_eq_int(struct mlx4_dev *dev, struct mlx4_eq *eq)
+>   			}
+>   			memcpy(&priv->mfunc.master.comm_arm_bit_vector,
+>   			       eqe->event.comm_channel_arm.bit_vec,
+> -			       sizeof eqe->event.comm_channel_arm.bit_vec);
+> +			       sizeof(eqe)->event.comm_channel_arm.bit_vec);
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 1498b899a593..0ba1eb911a42 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -265,7 +265,7 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
- 	}
- 
- 	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
--	if (req_op(req) == REQ_OP_SCSI_IN || req_op(req) == REQ_OP_SCSI_OUT)
-+	if (blk_rq_is_scsi(req))
- 		err = virtblk_add_req_scsi(vblk->vqs[qid].vq, vbr, vbr->sg, num);
- 	else
- 		err = virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg, num);
--- 
-2.14.0
+I think the brackets here are misplaced.
+Shouldn't they be as follows?
+
+sizeof(eqe->event.comm_channel_arm.bit_vec));
+
+>   			queue_work(priv->mfunc.master.comm_wq,
+>   				   &priv->mfunc.master.comm_work);
+>   			break;
+
+Thanks,
+Tariq
