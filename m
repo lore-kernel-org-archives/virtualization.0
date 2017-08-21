@@ -1,16 +1,19 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v14 4/5] mm: support reporting free page blocks
-Date: Mon, 21 Aug 2017 08:18:12 +0200
-Message-ID: <20170821061812.GB13724__3501.1678039611$1503296304$gmane$org@dhcp22.suse.cz>
-References: <1502940416-42944-1-git-send-email-wei.w.wang@intel.com>
-	<1502940416-42944-5-git-send-email-wei.w.wang@intel.com>
-	<20170818201946-mutt-send-email-mst@kernel.org>
+From: "Tian, Kevin" <kevin.tian@intel.com>
+Subject: RE: [RFC 2/3] virtio-iommu: device probing and operations
+Date: Mon, 21 Aug 2017 07:59:29 +0000
+Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D190D7BAB1@SHSMSX101.ccr.corp.intel.com>
+References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
+	<20170407191747.26618-3-jean-philippe.brucker@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D190CADECE@SHSMSX101.ccr.corp.intel.com>
+	<34166633-f4d5-21d5-20db-9091243ccd84@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D190CB262D@SHSMSX101.ccr.corp.intel.com>
+	<a4df3472-449f-297f-2a18-b3a21affadee@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20170818201946-mutt-send-email-mst@kernel.org>
+In-Reply-To: <a4df3472-449f-297f-2a18-b3a21affadee@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,52 +23,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: "cdall@linaro.org" <cdall@linaro.org>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "will.deacon@arm.com" <will.deacon@arm.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri 18-08-17 20:23:05, Michael S. Tsirkin wrote:
-> On Thu, Aug 17, 2017 at 11:26:55AM +0800, Wei Wang wrote:
-[...]
-> > +void walk_free_mem_block(void *opaque1,
-> > +			 unsigned int min_order,
-> > +			 void (*visit)(void *opaque2,
-> 
-> You can just avoid opaque2 completely I think, then opaque1 can
-> be renamed opaque.
-> 
-> > +				       unsigned long pfn,
-> > +				       unsigned long nr_pages))
-> > +{
-> > +	struct zone *zone;
-> > +	struct page *page;
-> > +	struct list_head *list;
-> > +	unsigned int order;
-> > +	enum migratetype mt;
-> > +	unsigned long pfn, flags;
-> > +
-> > +	for_each_populated_zone(zone) {
-> > +		for (order = MAX_ORDER - 1;
-> > +		     order < MAX_ORDER && order >= min_order; order--) {
-> > +			for (mt = 0; mt < MIGRATE_TYPES; mt++) {
-> > +				spin_lock_irqsave(&zone->lock, flags);
-> > +				list = &zone->free_area[order].free_list[mt];
-> > +				list_for_each_entry(page, list, lru) {
-> > +					pfn = page_to_pfn(page);
-> > +					visit(opaque1, pfn, 1 << order);
-> 
-> My only concern here is inability of callback to
-> 1. break out of list
-> 2. remove page from the list
-
-As I've said before this has to be a read only API. You cannot simply
-fiddle with the page allocator internals under its feet.
-
-> So I would make the callback bool, and I would use
-> list_for_each_entry_safe.
-
-If a bool would tell to break out of the loop then I agree. This sounds
-useful.
--- 
-Michal Hocko
-SUSE Labs
+PiBGcm9tOiBKZWFuLVBoaWxpcHBlIEJydWNrZXIgW21haWx0bzpqZWFuLXBoaWxpcHBlLmJydWNr
+ZXJAYXJtLmNvbV0NCj4gU2VudDogTW9uZGF5LCBBcHJpbCAyNCwgMjAxNyAxMTowNiBQTQ0KPiA+
+Pj4+ICAgMS4gQXR0YWNoIGRldmljZQ0KPiA+Pj4+ICAgLS0tLS0tLS0tLS0tLS0tLQ0KPiA+Pj4+
+DQo+ID4+Pj4gc3RydWN0IHZpcnRpb19pb21tdV9yZXFfYXR0YWNoIHsNCj4gPj4+PiAJbGUzMglh
+ZGRyZXNzX3NwYWNlOw0KPiA+Pj4+IAlsZTMyCWRldmljZTsNCj4gPj4+PiAJbGUzMglmbGFncy9y
+ZXNlcnZlZDsNCj4gPj4+PiB9Ow0KPiA+Pj4+DQo+ID4+Pj4gQXR0YWNoIGEgZGV2aWNlIHRvIGFu
+IGFkZHJlc3Mgc3BhY2UuICdhZGRyZXNzX3NwYWNlJyBpcyBhbiBpZGVudGlmaWVyDQo+ID4+Pj4g
+dW5pcXVlIHRvIHRoZSBndWVzdC4gSWYgdGhlIGFkZHJlc3Mgc3BhY2UgZG9lc24ndCBleGlzdCBp
+biB0aGUgSU9NTVUNCj4gPj4+DQo+ID4+PiBCYXNlZCBvbiB5b3VyIGRlc2NyaXB0aW9uIHRoaXMg
+YWRkcmVzcyBzcGFjZSBJRCBpcyBwZXIgb3BlcmF0aW9uIHJpZ2h0Pw0KPiA+Pj4gTUFQL1VOTUFQ
+IGFuZCBwYWdlLXRhYmxlIHNoYXJpbmcgc2hvdWxkIGhhdmUgZGlmZmVyZW50IElEIHNwYWNlcy4u
+Lg0KPiA+Pg0KPiA+PiBJIHRoaW5rIGl0J3Mgc2ltcGxlciBpZiB3ZSBrZWVwIGEgc2luZ2xlIElP
+QVNJRCBzcGFjZSBwZXIgdmlydGlvLWlvbW11DQo+ID4+IGRldmljZSwgYmVjYXVzZSB0aGUgbWF4
+aW11bSBudW1iZXIgb2YgYWRkcmVzcyBzcGFjZXMgKGRlc2NyaWJlZCBieQ0KPiA+PiBpb2FzaWRf
+Yml0cykgbWlnaHQgYmUgYSByZXN0cmljdGlvbiBvZiB0aGUgcElPTU1VLiBGb3IgcGFnZS10YWJs
+ZQ0KPiBzaGFyaW5nDQo+ID4+IHlvdSBzdGlsbCBuZWVkIHRvIGRlZmluZSB3aGljaCBkZXZpY2Vz
+IHdpbGwgc2hhcmUgYSBwYWdlIGRpcmVjdG9yeSB1c2luZw0KPiA+PiBBVFRBQ0ggcmVxdWVzdHMs
+IHRob3VnaCB0aGF0IGludGVyZmFjZSBpcyBub3Qgc2V0IGluIHN0b25lLg0KPiA+DQo+ID4gZ290
+IHlvdS4geWVzIFZNIGlzIHN1cHBvc2VkIHRvIGNvbnN1bWUgbGVzcyBJT0FTSURzIHRoYW4gcGh5
+c2ljYWxseQ0KPiA+IGF2YWlsYWJsZS4gSXQgZG9lc27igJl0IGh1cnQgdG8gaGF2ZSBvbmUgSU9B
+U0lEIHNwYWNlIGZvciBib3RoIElPVkENCj4gPiBtYXAvdW5tYXAgdXNhZ2VzIChvbmUgSU9BU0lE
+IHBlciBkZXZpY2UpIGFuZCBTVk0gdXNhZ2VzIChtdWx0aXBsZQ0KPiA+IElPQVNJRHMgcGVyIGRl
+dmljZSkuIFRoZSBmb3JtZXIgaXMgZGlnZXN0ZWQgYnkgc29mdHdhcmUgYW5kIHRoZSBsYXR0ZXIN
+Cj4gPiB3aWxsIGJlIGJvdW5kIHRvIGhhcmR3YXJlLg0KPiA+DQo+IA0KPiBIbW0sIEknbSB1c2lu
+ZyBhZGRyZXNzIHNwYWNlIGluZGV4ZWQgYnkgSU9BU0lEIGZvciAiY2xhc3NpYyIgSU9NTVUsIGFu
+ZA0KPiB0aGVuIGNvbnRleHRzIGluZGV4ZWQgYnkgUEFTSUQgd2hlbiB0YWxraW5nIGFib3V0IFNW
+TS4gU28gaW4gbXkgbWluZCBhbg0KPiBhZGRyZXNzIHNwYWNlIGNhbiBoYXZlIG11bHRpcGxlIHN1
+Yi1hZGRyZXNzLXNwYWNlcyAoY29udGV4dHMpLiBOdW1iZXIgb2YNCj4gSU9BU0lEcyBpcyBhIGxp
+bWl0YXRpb24gb2YgdGhlIHBJT01NVSwgYW5kIG51bWJlciBvZiBQQVNJRHMgaXMgYQ0KPiBsaW1p
+dGF0aW9uIG9mIHRoZSBkZXZpY2UuIFRoZXJlZm9yZSBhdHRhY2hpbmcgZGV2aWNlcyB0byBhZGRy
+ZXNzIHNwYWNlcw0KPiB3b3VsZCB1cGRhdGUgdGhlIG51bWJlciBvZiBhdmFpbGFibGUgY29udGV4
+dHMgaW4gdGhhdCBhZGRyZXNzIHNwYWNlLiBUaGUNCj4gdGVybWlub2xvZ3kgaXMgbm90IGlkZWFs
+LCBhbmQgSSdkIGJlIGhhcHB5IHRvIGNoYW5nZSBpdCBmb3Igc29tZXRoaW5nIG1vcmUNCj4gY2xl
+YXIuDQo+IA0KDQooc29ycnkgdG8gcGljayB1cCB0aGlzIG9sZCB0aHJlYWQsIGFzIHRoZSAudGV4
+IG9uZSBpcyBub3QgZ29vZCBmb3IgcmV2aWV3DQphbmQgdGhpcyB0aHJlYWQgcHJvdmlkZXMgbmVj
+ZXNzYXJ5IGJhY2tncm91bmQgZm9yIElPQVNJRCkuDQoNCkhpLCBKZWFuLA0KDQpJJ2QgbGlrZSB0
+byBoZWFyIG1vcmUgY2xhcmlmaWNhdGlvbiByZWdhcmRpbmcgdGhlIHJlbGF0aW9uc2hpcCBiZXR3
+ZWVuIA0KSU9BU0lEIGFuZCBQQVNJRC4gV2hlbiByZWFkaW5nIGJhY2sgYWJvdmUgZXhwbGFuYXRp
+b24sIGl0IGxvb2tzDQpjb25mdXNpbmcgdG8gbWUgbm93ICh0aG91Z2ggSSBtaWdodCBnZXQgdGhl
+IG1lYW5pbmcgbW9udGhzIGFnbyA6LykuDQpBdCBsZWFzdCBJbnRlbCBWVC1kIG9ubHkgdW5kZXJz
+dGFuZHMgUEFTSUQgKG9yIHlvdSBjYW4gdGhpbmsgSU9BU0lEDQo9UEFTSUQpLiBUaGVyZSBpcyBu
+byBzdWNoIGxheWVyZWQgYWRkcmVzcyBzcGFjZSBjb25jZXB0LiBUaGVuIGZvcg0KbWFwL3VubWFw
+IHR5cGUgcmVxdWVzdCwgZG8geW91IGludGVuZCB0byBzdGVhbCBzb21lIFBBU0lEcyBmb3INCnRo
+YXQgcHVycG9zZSBvbiBzdWNoIGFyY2hpdGVjdHVyZSAoc2luY2UgSU9BU0lEIGlzIGEgbWFuZGF0
+b3J5IGZpZWxkIA0KaW4gbWFwL3VubWFwIHJlcXVlc3QpPw0KDQpUaGFua3MNCktldmluDQpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
