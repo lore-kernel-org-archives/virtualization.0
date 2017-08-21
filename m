@@ -1,15 +1,12 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
-	path if no tx napi
-Date: Mon, 21 Aug 2017 11:41:19 -0400
-Message-ID: <CAF=yD-LZ4=WAYfUtY7xRWi50FRSkrcOa+b7uc46xRnC4sbDCzQ__46473.1045802639$1503330157$gmane$org@mail.gmail.com>
-References: <20170819063854.27010-1-den@klaipeden.com>
-	<5352c98a-fa48-fcf9-c062-9986a317a1b0@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] vhost: fix end of range for access_ok
+Date: Mon, 21 Aug 2017 22:45:07 +0300
+Message-ID: <1503344576-8141-1-git-send-email-mst__24962.9978010946$1503344735$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5352c98a-fa48-fcf9-c062-9986a317a1b0@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,70 +16,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Koichiro Den <den@klaipeden.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, Koichiro Den <den@klaipeden.com>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBBdWcgMjEsIDIwMTcgYXQgODozMyBBTSwgSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT4gd3JvdGU6Cj4KPgo+IE9uIDIwMTflubQwOOaciDE55pelIDE0OjM4LCBLb2ljaGly
-byBEZW4gd3JvdGU6Cj4+Cj4+IEZhY2luZyB0aGUgcG9zc2libGUgdW5ib3VuZGVkIGRlbGF5IHJl
-bHlpbmcgb24gZnJlZWluZyBvbiB4bWl0IHBhdGgsCj4+IHdlIGFsc28gYmV0dGVyIHRvIGludm9r
-ZSBhbmQgY2xlYXIgdGhlIHVwcGVyIGxheWVyIHplcm9jb3B5IGNhbGxiYWNrCj4+IGJlZm9yZWhh
-bmQgdG8ga2VlcCB0aGVtIGZyb20gd2FpdGluZyBmb3IgdW5ib3VuZGVkIGR1cmF0aW9uIGluIHZh
-aW4uCj4+IEZvciBpbnN0YW5jZSwgdGhpcyByZW1vdmVzIHRoZSBwb3NzaWJsZSBkZWFkbG9jayBp
-biB0aGUgY2FzZSB0aGF0IHRoZQo+PiB1cHBlciBsYXllciBpcyBhIHplcm9jb3B5LWVuYWJsZWQg
-dmhvc3QtbmV0Lgo+PiBUaGlzIGRvZXMgbm90IGFwcGx5IGlmIG5hcGlfdHggaXMgZW5hYmxlZCBz
-aW5jZSBpdCB3aWxsIGJlIGNhbGxlZCBpbgo+PiByZWFzb25hbGUgdGltZS4KPj4KPj4gU2lnbmVk
-LW9mZi1ieTogS29pY2hpcm8gRGVuIDxkZW5Aa2xhaXBlZGVuLmNvbT4KPj4gLS0tCj4+ICAgZHJp
-dmVycy9uZXQvdmlydGlvX25ldC5jIHwgOCArKysrKysrKwo+PiAgIDEgZmlsZSBjaGFuZ2VkLCA4
-IGluc2VydGlvbnMoKykKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQu
-YyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+PiBpbmRleCA0MzAyZjMxM2Q5YTcuLmY3ZGVh
-YTViN2I1MCAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4+ICsrKyBi
-L2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+PiBAQCAtMTI5MCw2ICsxMjkwLDE0IEBAIHN0YXRp
-YyBuZXRkZXZfdHhfdCBzdGFydF94bWl0KHN0cnVjdCBza19idWZmICpza2IsCj4+IHN0cnVjdCBu
-ZXRfZGV2aWNlICpkZXYpCj4+ICAgICAgICAgLyogRG9uJ3Qgd2FpdCB1cCBmb3IgdHJhbnNtaXR0
-ZWQgc2ticyB0byBiZSBmcmVlZC4gKi8KPj4gICAgICAgICBpZiAoIXVzZV9uYXBpKSB7Cj4+ICsg
-ICAgICAgICAgICAgICBpZiAoc2tiX3NoaW5mbyhza2IpLT50eF9mbGFncyAmIFNLQlRYX0RFVl9a
-RVJPQ09QWSkgewo+PiArICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3QgdWJ1Zl9pbmZvICp1
-YXJnOwo+PiArICAgICAgICAgICAgICAgICAgICAgICB1YXJnID0gc2tiX3NoaW5mbyhza2IpLT5k
-ZXN0cnVjdG9yX2FyZzsKPj4gKyAgICAgICAgICAgICAgICAgICAgICAgaWYgKHVhcmctPmNhbGxi
-YWNrKQo+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgdWFyZy0+Y2FsbGJhY2sodWFyZywg
-dHJ1ZSk7Cj4+ICsgICAgICAgICAgICAgICAgICAgICAgIHNrYl9zaGluZm8oc2tiKS0+ZGVzdHJ1
-Y3Rvcl9hcmcgPSBOVUxMOwo+PiArICAgICAgICAgICAgICAgICAgICAgICBza2Jfc2hpbmZvKHNr
-YiktPnR4X2ZsYWdzICY9IH5TS0JUWF9ERVZfWkVST0NPUFk7Cj4+ICsgICAgICAgICAgICAgICB9
-Cj4+ICAgICAgICAgICAgICAgICBza2Jfb3JwaGFuKHNrYik7Cj4+ICAgICAgICAgICAgICAgICBu
-Zl9yZXNldChza2IpOwo+PiAgICAgICAgIH0KPgo+Cj4KPiBJbnRlcmVzdGluZywgZGVhZGxvY2sg
-Y291bGQgYmUgdHJlYXRlZCBhcyBhIGEgcmFkaWNhbCBjYXNlIG9mIHRoZSBkaXNjdXNzaW9uCj4g
-aGVyZSBodHRwczovL3BhdGNod29yay5rZXJuZWwub3JnL3BhdGNoLzM3ODc2NzEvLgo+Cj4gZ2l0
-IGdyZXAgdGVsbHMgbW9yZSBzaW1pbGFyIHNrYl9vcnBoYW4oKSBjYXNlcy4gRG8gd2UgbmVlZCB0
-byBjaGFuZ2UgdGhlbQo+IGFsbCAob3IgcGFydCk/CgpNb3N0IHNrYl9vcnBoYW4gY2FsbHMgYXJl
-IG5vdCByZWxldmFudCB0byB0aGUgaXNzdWUgb2YgdHJhbnNtaXQgZGVsYXkuCgo+IEFjdHVhbGx5
-LCB3ZSBtYXkgbWVldCBzaW1pbGFyIGlzc3VlcyBhdCBtYW55IG90aGVyIHBsYWNlcyAoZS5nIG5l
-dGVtKS4KCk5ldGVtIGlzIGFuIGludGVyZXN0aW5nIGNhc2UuIEJlY2F1c2UgaXQgaXMgaW50ZW5k
-ZWQgdG8gbWltaWMgbmV0d29yawpkZWxheSwgYXQgbGVhc3QgaW4gdGhlIGNhc2Ugd2hlcmUgaXQg
-Y2FsbHMgc2tiX29ycGhhbiwgaXQgbWF5IG1ha2UKc2Vuc2UgdG8gcmVsZWFzZSBhbGwgcmVmZXJl
-bmNlcywgaW5jbHVkaW5nIGNhbGxpbmcgc2tiX3pjb3B5X2NsZWFyLgoKSW4gZ2VuZXJhbCwgemVy
-b2NvcHkgcmV2ZXJ0cyB0byBjb3B5IG9uIGFsbCBwYXRocyB0aGF0IG1heSBjYXVzZQp1bmJvdW5k
-ZWQgZGVsYXkgZHVlIHRvIGFub3RoZXIgcHJvY2Vzcy4gR3VhcmRpbmcgYWdhaW5zdCBkZWxheQpp
-bmR1Y2VkIGJ5IHRoZSBhZG1pbmlzdHJhdG9yIGlzIGluZmVhc2libGUuIEl0IGlzIGFsd2F5cyBw
-b3NzaWJsZSB0bwpqdXN0IHBhdXNlIHRoZSBuaWMuIE5ldGVtIGlzIG9uZSBpbnN0YW5jZSBvZiB0
-aGF0LCBhbmQgbm90IHVuYm91bmRlZC4KCj4gTmVlZAo+IHRvIGNvbnNpZGVyIGEgY29tcGxldGUg
-c29sdXRpb24gZm9yIHRoaXMuIEZpZ3VyaW5nIG91dCBhbGwgcGxhY2VzIHRoYXQgY291bGQKPiBk
-ZWxheSBhIHBhY2tldCBpcyBhIG1ldGhvZC4KClRoZSBpc3N1ZSBkZXNjcmliZWQgaW4gdGhlIHJl
-ZmVyZW5jZWQgcGF0Y2ggc2VlbXMgbGlrZSBoZWFkIG9mIGxpbmUKYmxvY2tpbmcgYmV0d2VlbiB0
-d28gZmxvd3MuIElmIG9uZSBmbG93IGRlbGF5cyB6ZXJvY29weSBkZXNjcmlwdG9yCnJlbGVhc2Ug
-ZnJvbSB0aGUgdmhvc3QtbmV0IHBvb2wsIGl0IGJsb2NrcyBhbGwgc3Vic2VxdWVudCBkZXNjcmlw
-dG9ycwppbiB0aGF0IHBvb2wgZnJvbSBiZWluZyByZWxlYXNlZCwgYWxzbyBkZWxheWluZyBvdGhl
-ciBmbG93cyB0aGF0IHVzZQp0aGUgc2FtZSBkZXNjcmlwdG9yIHBvb2wuIElmIHRoZSBwb29sIGlz
-IGVtcHR5LCBhbGwgdHJhbnNtaXNzaW9uIHN0b3BwZWQuCgpSZXZlcnRpbmcgdG8gY29weSB0eCB3
-aGVuIHRoZSBwb29sIHJlYWNoZXMgYSBsb3cgd2F0ZXJtYXJrLCBhcyB0aGUKcGF0Y2ggZG9lcywg
-Zml4ZXMgdGhpcy4gUGVyaGFwcyB0aGUgZGVzY3JpcHRvciBwb29sIHNob3VsZCBhbHNvIGJlCnJl
-dmlzZWQgdG8gYWxsb3cgb3V0IG9mIG9yZGVyIGNvbXBsZXRpb25zLiBUaGVuIHRoZXJlIGlzIG5v
-IG5lZWQgdG8KY29weSB6ZXJvY29weSBwYWNrZXRzIHdoZW5ldmVyIHRoZXkgbWF5IGV4cGVyaWVu
-Y2UgZGVsYXkuCgpPbiB0aGUgcG9pbnQgb2YgY291bnRpbmcgY29weSB2cyB6ZXJvY29weTogdGhl
-IG5ldyBtc2dfemVyb2NvcHkKdmFyaWFudCBvZiB1YnVmX2luZm8gaGFzIGEgZmllbGQgdG8gcmVj
-b3JkIHdoZXRoZXIgYSBkZWVwIGNvcHkgd2FzCm1hZGUuIFRoaXMgY2FuIGJlIHVzZWQgd2l0aCB2
-aG9zdC1uZXQgemVyb2NvcHksIHRvby4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+During access_ok checks, addr increases as we iterate over the data
+structure, thus addr + len - 1 will point beyond the end of region we
+are translating.  Harmless since we then verify that the region covers
+addr, but let's not waste cpu cycles.
+
+Reported-by: Koichiro Den <den@klaipeden.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+Lightly tested, would appreciate an ack from reporter.
+
+ drivers/vhost/vhost.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index e4613a3..ecd70e4 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1176,7 +1176,7 @@ static int iotlb_access_ok(struct vhost_virtqueue *vq,
+ {
+ 	const struct vhost_umem_node *node;
+ 	struct vhost_umem *umem = vq->iotlb;
+-	u64 s = 0, size, orig_addr = addr;
++	u64 s = 0, size, orig_addr = addr, last = addr + len - 1;
+ 
+ 	if (vhost_vq_meta_fetch(vq, addr, len, type))
+ 		return true;
+@@ -1184,7 +1184,7 @@ static int iotlb_access_ok(struct vhost_virtqueue *vq,
+ 	while (len > s) {
+ 		node = vhost_umem_interval_tree_iter_first(&umem->umem_tree,
+ 							   addr,
+-							   addr + len - 1);
++							   last);
+ 		if (node == NULL || node->start > addr) {
+ 			vhost_iotlb_miss(vq, addr, access);
+ 			return false;
+-- 
+MST
