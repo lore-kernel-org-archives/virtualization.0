@@ -1,19 +1,17 @@
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
 	path if no tx napi
-Date: Tue, 22 Aug 2017 13:16:26 -0400
-Message-ID: <CAF=yD-+AOnYafiwAf+v+fhyg_0fi-6LdQSnPYcoAcngJqYs9dg__33154.1238389493$1503422382$gmane$org@mail.gmail.com>
+Date: Tue, 22 Aug 2017 13:19:36 -0400
+Message-ID: <CAF=yD-JyLEUgUgeH5TjRUj2wz9CjRkAx1HUyXRxCDyT5iHx-sg__33263.7674095624$1503422616$gmane$org@mail.gmail.com>
 References: <20170819063854.27010-1-den@klaipeden.com>
-	<5352c98a-fa48-fcf9-c062-9986a317a1b0@redhat.com>
-	<CAF=yD-LZ4=WAYfUtY7xRWi50FRSkrcOa+b7uc46xRnC4sbDCzQ@mail.gmail.com>
-	<64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
-	<CAF=yD-L-9QnxV2kM_j2BxVk=h7i3wvMZxG-3_=0Q=jDPgeT=VQ@mail.gmail.com>
-	<1503409339.8694.12.camel@klaipeden.com>
+	<CAF=yD-LYLsQNt_5yYZ+PUwv04ZwaJUXn-YakH=tuh0TV+BG7iA@mail.gmail.com>
+	<CAF=yD-LO0rP1A_hrxqx_1HYEv6qyk=Sc=D7iH7cPh2YXDm=cYQ@mail.gmail.com>
+	<1503410668.8694.14.camel@klaipeden.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1503409339.8694.12.camel@klaipeden.com>
+In-Reply-To: <1503410668.8694.14.camel@klaipeden.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,56 +25,44 @@ To: Koichiro Den <den@klaipeden.com>
 Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
->> > An issue of the referenced patch is that sndbuf could be smaller than low
->> > watermark.
-> We cannot determine the low watermark properly because of not only sndbuf size
-> issue but also the fact that the upper vhost-net cannot directly see how much
-> descriptor is currently available at the virtio-net tx queue. It depends on
-> multiqueue settings or other senders which are also using the same tx queue.
-> Note that in the latter case if they constantly transmitting, the deadlock could
-> not occur(*), however if it has just temporarily fulfill some portion of the
-> pool in the mean time, then the low watermark cannot be helpful.
-> (*: That is because it's reliable enough in the sense I mention below.)
+>> > >         /* Don't wait up for transmitted skbs to be freed. */
+>> > >         if (!use_napi) {
+>> > > +               if (skb_shinfo(skb)->tx_flags & SKBTX_DEV_ZEROCOPY) {
+>> > > +                       struct ubuf_info *uarg;
+>> > > +                       uarg = skb_shinfo(skb)->destructor_arg;
+>> > > +                       if (uarg->callback)
+>> > > +                           uarg->callback(uarg, true);
+>> > > +                       skb_shinfo(skb)->destructor_arg = NULL;
+>> > > +                       skb_shinfo(skb)->tx_flags &= ~SKBTX_DEV_ZEROCOPY;
+>> > > +               }
+>> >
+>> > Instead of open coding, this can use skb_zcopy_clear.
+>>
+>> It is not correct to only send the zerocopy completion here, as
+>> the skb will still be shared with the nic. The only safe approach
+>> to notifying early is to create a copy with skb_orphan_frags_rx.
+>> That will call skb_zcopy_clear(skb, false) internally. But the
+>> copy will be very expensive.
+> I noticed this email after my last post. I cannot not imagine how it could be
+> unsafe in virtio case. Sorry could you explain a bit more?
+
+A guest process sends a packet with MSG_ZEROCOPY to the
+virtio-net device. As soon as the process receives the completion
+notification, it is allowed to reuse the memory backing the packet.
+
+A call to skb_zcopy_clear in virtio-net start_xmit will notify the
+process that it is allowed to reuse the memory. But the user pages
+are still linked into the skb frags and are about to be shared with
+the host os.
+
+>> Is the deadlock you refer to the case where tx interrupts are
+>> disabled, so transmit completions are only handled in start_xmit
+>> and somehow the socket(s) are unable to send new data? The
+>> question is what is blocking them. If it is zerocopy, it may be a
+>> too low optmem_max or hitting the per-user locked pages limit.
+>> We may have to keep interrupts enabled when zerocopy skbs
+>> are in flight.
+> Even if we keep interrupts enabled, We miss the completion without start_xmit.
+> And it's also likely that the next start_xmit depends on the completion itself
+> as I described in my last post.
 >
-> Keep in this in mind, let me briefly describe the possible deadlock I mentioned:
-> (1). vhost-net on L1 guest has nothing to do sendmsg until the upper layer sets
-> new descriptors, which depends only on the vhost-net zcopy callback and adding
-> newly used descriptors.
-> (2). vhost-net callback depends on the skb freeing on the xmit path only.
-> (3). the xmit path depends (possibly only) on the vhost-net sendmsg.
-> As you see, it's enough to bring about the situation above that L1 virtio-net
-> reaches its limit earlier than the L0 host processing. The vhost-net pool could
-> be almost full or empty, whatever.
-
-Thanks for the context. This issue is very similar to the one that used to
-exist when running out of transmit descriptors, before the removal of
-the timer and introduction of skb_orphan in start_xmit.
-
-To make sure that I understand correctly, let me paraphrase:
-
-A. guest socket cannot send because it exhausted its sk budget (sndbuf, tsq, ..)
-
-B. budget is not freed up until guest receives tx completion for this flow
-
-C. tx completion is held back on the host side in vhost_zerocopy_signal_used
-   behind the completion for an unrelated skb
-
-D. unrelated packet is delayed somewhere in the host stackf zerocopy
-completions.
-   e.g., netem
-
-The issue that is specific to vhost-net zerocopy is that (C) enforces strict
-ordering of transmit completions causing head of line blocking behind
-vhost-net zerocopy callbacks.
-
-This is a different problem from
-
-C1. tx completion is delayed until guest sends another packet and
-       triggers free_old_xmit_skb
-
-Both in host and guest, zerocopy packets should never be able to loop
-to a receive path where they can cause unbounded delay.
-
-The obvious cases of latency are queueing, like netem. That leads
-to poor performance for unrelated flows, but I don't see how this
-could cause deadlock.
