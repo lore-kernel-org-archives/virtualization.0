@@ -1,17 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
 	path if no tx napi
-Date: Tue, 22 Aug 2017 10:50:41 +0800
-Message-ID: <64d451ae-9944-e978-5a05-54bb1a62aaad__11709.0454361916$1503370260$gmane$org@redhat.com>
+Date: Mon, 21 Aug 2017 23:10:04 -0400
+Message-ID: <CAF=yD-L-9QnxV2kM_j2BxVk=h7i3wvMZxG-3_=0Q=jDPgeT=VQ__3158.1689989709$1503371452$gmane$org@mail.gmail.com>
 References: <20170819063854.27010-1-den@klaipeden.com>
 	<5352c98a-fa48-fcf9-c062-9986a317a1b0@redhat.com>
 	<CAF=yD-LZ4=WAYfUtY7xRWi50FRSkrcOa+b7uc46xRnC4sbDCzQ@mail.gmail.com>
+	<64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAF=yD-LZ4=WAYfUtY7xRWi50FRSkrcOa+b7uc46xRnC4sbDCzQ@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,82 +21,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Jason Wang <jasowang@redhat.com>
 Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Koichiro Den <den@klaipeden.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDjmnIgyMeaXpSAyMzo0MSwgV2lsbGVtIGRlIEJydWlqbiB3cm90ZToKPiBP
-biBNb24sIEF1ZyAyMSwgMjAxNyBhdCA4OjMzIEFNLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
-YXQuY29tPiB3cm90ZToKPj4KPj4gT24gMjAxN+W5tDA45pyIMTnml6UgMTQ6MzgsIEtvaWNoaXJv
-IERlbiB3cm90ZToKPj4+IEZhY2luZyB0aGUgcG9zc2libGUgdW5ib3VuZGVkIGRlbGF5IHJlbHlp
-bmcgb24gZnJlZWluZyBvbiB4bWl0IHBhdGgsCj4+PiB3ZSBhbHNvIGJldHRlciB0byBpbnZva2Ug
-YW5kIGNsZWFyIHRoZSB1cHBlciBsYXllciB6ZXJvY29weSBjYWxsYmFjawo+Pj4gYmVmb3JlaGFu
-ZCB0byBrZWVwIHRoZW0gZnJvbSB3YWl0aW5nIGZvciB1bmJvdW5kZWQgZHVyYXRpb24gaW4gdmFp
-bi4KPj4+IEZvciBpbnN0YW5jZSwgdGhpcyByZW1vdmVzIHRoZSBwb3NzaWJsZSBkZWFkbG9jayBp
-biB0aGUgY2FzZSB0aGF0IHRoZQo+Pj4gdXBwZXIgbGF5ZXIgaXMgYSB6ZXJvY29weS1lbmFibGVk
-IHZob3N0LW5ldC4KPj4+IFRoaXMgZG9lcyBub3QgYXBwbHkgaWYgbmFwaV90eCBpcyBlbmFibGVk
-IHNpbmNlIGl0IHdpbGwgYmUgY2FsbGVkIGluCj4+PiByZWFzb25hbGUgdGltZS4KPj4+Cj4+PiBT
-aWduZWQtb2ZmLWJ5OiBLb2ljaGlybyBEZW4gPGRlbkBrbGFpcGVkZW4uY29tPgo+Pj4gLS0tCj4+
-PiAgICBkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgfCA4ICsrKysrKysrCj4+PiAgICAxIGZpbGUg
-Y2hhbmdlZCwgOCBpbnNlcnRpb25zKCspCj4+Pgo+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0
-L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+Pj4gaW5kZXggNDMwMmYz
-MTNkOWE3Li5mN2RlYWE1YjdiNTAgMTAwNjQ0Cj4+PiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9f
-bmV0LmMKPj4+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+Pj4gQEAgLTEyOTAsNiAr
-MTI5MCwxNCBAQCBzdGF0aWMgbmV0ZGV2X3R4X3Qgc3RhcnRfeG1pdChzdHJ1Y3Qgc2tfYnVmZiAq
-c2tiLAo+Pj4gc3RydWN0IG5ldF9kZXZpY2UgKmRldikKPj4+ICAgICAgICAgIC8qIERvbid0IHdh
-aXQgdXAgZm9yIHRyYW5zbWl0dGVkIHNrYnMgdG8gYmUgZnJlZWQuICovCj4+PiAgICAgICAgICBp
-ZiAoIXVzZV9uYXBpKSB7Cj4+PiArICAgICAgICAgICAgICAgaWYgKHNrYl9zaGluZm8oc2tiKS0+
-dHhfZmxhZ3MgJiBTS0JUWF9ERVZfWkVST0NPUFkpIHsKPj4+ICsgICAgICAgICAgICAgICAgICAg
-ICAgIHN0cnVjdCB1YnVmX2luZm8gKnVhcmc7Cj4+PiArICAgICAgICAgICAgICAgICAgICAgICB1
-YXJnID0gc2tiX3NoaW5mbyhza2IpLT5kZXN0cnVjdG9yX2FyZzsKPj4+ICsgICAgICAgICAgICAg
-ICAgICAgICAgIGlmICh1YXJnLT5jYWxsYmFjaykKPj4+ICsgICAgICAgICAgICAgICAgICAgICAg
-ICAgICB1YXJnLT5jYWxsYmFjayh1YXJnLCB0cnVlKTsKPj4+ICsgICAgICAgICAgICAgICAgICAg
-ICAgIHNrYl9zaGluZm8oc2tiKS0+ZGVzdHJ1Y3Rvcl9hcmcgPSBOVUxMOwo+Pj4gKyAgICAgICAg
-ICAgICAgICAgICAgICAgc2tiX3NoaW5mbyhza2IpLT50eF9mbGFncyAmPSB+U0tCVFhfREVWX1pF
-Uk9DT1BZOwo+Pj4gKyAgICAgICAgICAgICAgIH0KPj4+ICAgICAgICAgICAgICAgICAgc2tiX29y
-cGhhbihza2IpOwo+Pj4gICAgICAgICAgICAgICAgICBuZl9yZXNldChza2IpOwo+Pj4gICAgICAg
-ICAgfQo+Pgo+Pgo+PiBJbnRlcmVzdGluZywgZGVhZGxvY2sgY291bGQgYmUgdHJlYXRlZCBhcyBh
-IGEgcmFkaWNhbCBjYXNlIG9mIHRoZSBkaXNjdXNzaW9uCj4+IGhlcmUgaHR0cHM6Ly9wYXRjaHdv
-cmsua2VybmVsLm9yZy9wYXRjaC8zNzg3NjcxLy4KPj4KPj4gZ2l0IGdyZXAgdGVsbHMgbW9yZSBz
-aW1pbGFyIHNrYl9vcnBoYW4oKSBjYXNlcy4gRG8gd2UgbmVlZCB0byBjaGFuZ2UgdGhlbQo+PiBh
-bGwgKG9yIHBhcnQpPwo+IE1vc3Qgc2tiX29ycGhhbiBjYWxscyBhcmUgbm90IHJlbGV2YW50IHRv
-IHRoZSBpc3N1ZSBvZiB0cmFuc21pdCBkZWxheS4KClllcywgYnV0IGF0IGxlYXN0IHdlIHNob3Vs
-ZCBhdWRpdCB0aGUgb25lcyBpbiBkcml2ZXJzL25ldC4KCj4KPj4gQWN0dWFsbHksIHdlIG1heSBt
-ZWV0IHNpbWlsYXIgaXNzdWVzIGF0IG1hbnkgb3RoZXIgcGxhY2VzIChlLmcgbmV0ZW0pLgo+IE5l
-dGVtIGlzIGFuIGludGVyZXN0aW5nIGNhc2UuIEJlY2F1c2UgaXQgaXMgaW50ZW5kZWQgdG8gbWlt
-aWMgbmV0d29yawo+IGRlbGF5LCBhdCBsZWFzdCBpbiB0aGUgY2FzZSB3aGVyZSBpdCBjYWxscyBz
-a2Jfb3JwaGFuLCBpdCBtYXkgbWFrZQo+IHNlbnNlIHRvIHJlbGVhc2UgYWxsIHJlZmVyZW5jZXMs
-IGluY2x1ZGluZyBjYWxsaW5nIHNrYl96Y29weV9jbGVhci4KPgo+IEluIGdlbmVyYWwsIHplcm9j
-b3B5IHJldmVydHMgdG8gY29weSBvbiBhbGwgcGF0aHMgdGhhdCBtYXkgY2F1c2UKPiB1bmJvdW5k
-ZWQgZGVsYXkgZHVlIHRvIGFub3RoZXIgcHJvY2Vzcy4gR3VhcmRpbmcgYWdhaW5zdCBkZWxheQo+
-IGluZHVjZWQgYnkgdGhlIGFkbWluaXN0cmF0b3IgaXMgaW5mZWFzaWJsZS4gSXQgaXMgYWx3YXlz
-IHBvc3NpYmxlIHRvCj4ganVzdCBwYXVzZSB0aGUgbmljLiBOZXRlbSBpcyBvbmUgaW5zdGFuY2Ug
-b2YgdGhhdCwgYW5kIG5vdCB1bmJvdW5kZWQuCgpUaGUgcHJvYmxlbSBpcywgYWRtaW4gbWF5IG9u
-bHkgZGVsYXkgdGhlIHRyYWZmaWMgaW4gZS5nIG9uZSBpbnRlcmZhY2UsIApidXQgaXQgYWN0dWFs
-bHkgZGVsYXkgb3Igc3RhbGwgYWxsIHRyYWZmaWMgaW5zaWRlIGEgVk0uCgo+Cj4+IE5lZWQKPj4g
-dG8gY29uc2lkZXIgYSBjb21wbGV0ZSBzb2x1dGlvbiBmb3IgdGhpcy4gRmlndXJpbmcgb3V0IGFs
-bCBwbGFjZXMgdGhhdCBjb3VsZAo+PiBkZWxheSBhIHBhY2tldCBpcyBhIG1ldGhvZC4KPiBUaGUg
-aXNzdWUgZGVzY3JpYmVkIGluIHRoZSByZWZlcmVuY2VkIHBhdGNoIHNlZW1zIGxpa2UgaGVhZCBv
-ZiBsaW5lCj4gYmxvY2tpbmcgYmV0d2VlbiB0d28gZmxvd3MuIElmIG9uZSBmbG93IGRlbGF5cyB6
-ZXJvY29weSBkZXNjcmlwdG9yCj4gcmVsZWFzZSBmcm9tIHRoZSB2aG9zdC1uZXQgcG9vbCwgaXQg
-YmxvY2tzIGFsbCBzdWJzZXF1ZW50IGRlc2NyaXB0b3JzCj4gaW4gdGhhdCBwb29sIGZyb20gYmVp
-bmcgcmVsZWFzZWQsIGFsc28gZGVsYXlpbmcgb3RoZXIgZmxvd3MgdGhhdCB1c2UKPiB0aGUgc2Ft
-ZSBkZXNjcmlwdG9yIHBvb2wuIElmIHRoZSBwb29sIGlzIGVtcHR5LCBhbGwgdHJhbnNtaXNzaW9u
-IHN0b3BwZWQuCj4KPiBSZXZlcnRpbmcgdG8gY29weSB0eCB3aGVuIHRoZSBwb29sIHJlYWNoZXMg
-YSBsb3cgd2F0ZXJtYXJrLCBhcyB0aGUKPiBwYXRjaCBkb2VzLCBmaXhlcyB0aGlzLgoKQW4gaXNz
-dWUgb2YgdGhlIHJlZmVyZW5jZWQgcGF0Y2ggaXMgdGhhdCBzbmRidWYgY291bGQgYmUgc21hbGxl
-ciB0aGFuIApsb3cgd2F0ZXJtYXJrLgoKPiBQZXJoYXBzIHRoZSBkZXNjcmlwdG9yIHBvb2wgc2hv
-dWxkIGFsc28gYmUKPiByZXZpc2VkIHRvIGFsbG93IG91dCBvZiBvcmRlciBjb21wbGV0aW9ucy4g
-VGhlbiB0aGVyZSBpcyBubyBuZWVkIHRvCj4gY29weSB6ZXJvY29weSBwYWNrZXRzIHdoZW5ldmVy
-IHRoZXkgbWF5IGV4cGVyaWVuY2UgZGVsYXkuCgpZZXMsIGJ1dCBhcyByZXBsaWVkIGluIHRoZSBy
-ZWZlcmVuY2VkIHRocmVhZCwgd2luZG93cyBkcml2ZXIgbWF5IHRyZWF0IApvdXQgb2Ygb3JkZXIg
-Y29tcGxldGlvbiBhcyBhIGJ1Zy4KCj4KPiBPbiB0aGUgcG9pbnQgb2YgY291bnRpbmcgY29weSB2
-cyB6ZXJvY29weTogdGhlIG5ldyBtc2dfemVyb2NvcHkKPiB2YXJpYW50IG9mIHVidWZfaW5mbyBo
-YXMgYSBmaWVsZCB0byByZWNvcmQgd2hldGhlciBhIGRlZXAgY29weSB3YXMKPiBtYWRlLiBUaGlz
-IGNhbiBiZSB1c2VkIHdpdGggdmhvc3QtbmV0IHplcm9jb3B5LCB0b28uCgpKdXN0IHRvIG1ha2Ug
-c3VyZSBJIHVuZGVyc3RhbmQuIEl0J3Mgc3RpbGwgbm90IGNsZWFyIHRvIG1lIGhvdyB0byByZXVz
-ZSAKdGhpcyBmb3Igdmhvc3QtbmV0LCBlLmcgemVyb2NvcHkgZmxhZyBpcyBpbiBhIHVuaW9uIHdo
-aWNoIGlzIG5vdCB1c2VkIGJ5IAp2aG9zdF9uZXQuCgpUaGFua3MKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+>>> Interesting, deadlock could be treated as a a radical case of the
+>>> discussion
+>>> here https://patchwork.kernel.org/patch/3787671/.
+>>>
+>>> git grep tells more similar skb_orphan() cases. Do we need to change them
+>>> all (or part)?
+>>
+>> Most skb_orphan calls are not relevant to the issue of transmit delay.
+>
+>
+> Yes, but at least we should audit the ones in drivers/net.
+
+Do you mean other virtual device driver transmit paths, like xen,
+specifically?
+
+>>> Actually, we may meet similar issues at many other places (e.g netem).
+>>
+>> Netem is an interesting case. Because it is intended to mimic network
+>> delay, at least in the case where it calls skb_orphan, it may make
+>> sense to release all references, including calling skb_zcopy_clear.
+>>
+>> In general, zerocopy reverts to copy on all paths that may cause
+>> unbounded delay due to another process. Guarding against delay
+>> induced by the administrator is infeasible. It is always possible to
+>> just pause the nic. Netem is one instance of that, and not unbounded.
+>
+>
+> The problem is, admin may only delay the traffic in e.g one interface, but
+> it actually delay or stall all traffic inside a VM.
+
+Understood. Ideally we can remove the HoL blocking cause of this,
+itself.
+
+>>> Need
+>>> to consider a complete solution for this. Figuring out all places that
+>>> could
+>>> delay a packet is a method.
+>>
+>> The issue described in the referenced patch seems like head of line
+>> blocking between two flows. If one flow delays zerocopy descriptor
+>> release from the vhost-net pool, it blocks all subsequent descriptors
+>> in that pool from being released, also delaying other flows that use
+>> the same descriptor pool. If the pool is empty, all transmission stopped.
+>>
+>> Reverting to copy tx when the pool reaches a low watermark, as the
+>> patch does, fixes this.
+>
+>
+> An issue of the referenced patch is that sndbuf could be smaller than low
+> watermark.
+>
+>> Perhaps the descriptor pool should also be
+>> revised to allow out of order completions. Then there is no need to
+>> copy zerocopy packets whenever they may experience delay.
+>
+>
+> Yes, but as replied in the referenced thread, windows driver may treat out
+> of order completion as a bug.
+
+Interesting. I missed that. Perhaps the zerocopy optimization
+could be gated on guest support for out of order completions.
+
+>> On the point of counting copy vs zerocopy: the new msg_zerocopy
+>> variant of ubuf_info has a field to record whether a deep copy was
+>> made. This can be used with vhost-net zerocopy, too.
+>
+>
+> Just to make sure I understand. It's still not clear to me how to reuse this
+> for vhost-net, e.g zerocopy flag is in a union which is not used by
+> vhost_net.
+
+True, but that is not set in stone. I went back and forth on that when
+preparing fix 0a4a060bb204 ("sock: fix zerocopy_success regression
+with msg_zerocopy"). The field can be moved outside the union and
+initialized in the other zerocopy paths.
