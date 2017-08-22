@@ -1,15 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] net/virtio-net: reverse unregistering on exit
-Date: Tue, 22 Aug 2017 21:13:07 +0300
-Message-ID: <20170822211245-mutt-send-email-mst@kernel.org>
+Date: Tue, 22 Aug 2017 21:17:54 +0300
+Message-ID: <20170822211736-mutt-send-email-mst@kernel.org>
 References: <1503413992-29558-1-git-send-email-pmorel@linux.vnet.ibm.com>
-	<1503413992-29558-2-git-send-email-pmorel@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1503413992-29558-2-git-send-email-pmorel@linux.vnet.ibm.com>
+In-Reply-To: <1503413992-29558-1-git-send-email-pmorel@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,46 +22,38 @@ To: Pierre Morel <pmorel@linux.vnet.ibm.com>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 22, 2017 at 04:59:52PM +0200, Pierre Morel wrote:
-> unregister_virtio_driver should be done before the unregistering of
-> the hotplug state machine callbacks, otherwise the state machine still
-> holds some instance states at that time.
+On Tue, Aug 22, 2017 at 04:59:51PM +0200, Pierre Morel wrote:
+> Hi,
 > 
-> Let's first unregister the virtio_net_driver first and then the hotplug
-> state machine callbacks.
+> I got a problem with virtio-net in a QEMU guest.
 > 
-> Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+> When virtio-net is used as a module in a guest and the network is
+> activated, removing the virtio-net modules produces a kernel error:
+> 
+> [ 2375.624949] Last Breaking-Event-Address:
+> [ 2375.624954]  [<00000000001453d4>] __cpuhp_remove_state+0x84/0x1a8
+> [ 2375.624959] ---[ end trace cc9fd68b89f5235a ]---
+> [ 2375.624966] Error: Removing state 163 which has instances left.
+> [ 2375.624985] ------------[ cut here ]------------
 
-I'm having a deja vu.
+Which kernel do you use?
 
-Wasn't this fixed by
 
-commit cfa0ebc9d6d6308564f5174ecb655b9d504b2be5
-Author: Andrew Jones <drjones@redhat.com>
-Date:   Mon Jul 24 15:38:32 2017 +0200
-
-    virtio-net: fix module unloading
-
-already?
-
-> ---
+> The problem is produced by an inversion in the order of unregistering
+> the driver and the hotplug state machine callbacks in virtio_net_driver_exit.
+> 
+> This patch solves the problem by first unregistering the virtio_net_driver
+> before unregistering the hotplug state machine callbacks.
+> 
+> Best regards,
+> 
+> Pierre Morel
+> 
+> Pierre Morel (1):
+>   net/virtio-net: reverse unregistering on exit
+> 
 >  drivers/net/virtio_net.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 143d8a9..c042ffd 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2734,9 +2734,9 @@ module_init(virtio_net_driver_init);
->  
->  static __exit void virtio_net_driver_exit(void)
->  {
-> +	unregister_virtio_driver(&virtio_net_driver);
->  	cpuhp_remove_multi_state(CPUHP_VIRT_NET_DEAD);
->  	cpuhp_remove_multi_state(virtionet_online);
-> -	unregister_virtio_driver(&virtio_net_driver);
->  }
->  module_exit(virtio_net_driver_exit);
->  
 > -- 
 > 2.7.4
