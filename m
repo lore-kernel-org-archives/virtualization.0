@@ -1,13 +1,13 @@
-From: Koichiro Den <den@klaipeden.com>
-Subject: Re: [PATCH] vhost: fix end of range for access_ok
-Date: Tue, 22 Aug 2017 23:49:37 +0900
-Message-ID: <1503413377.8694.17.camel@klaipeden.com>
-References: <1503344576-8141-1-git-send-email-mst@redhat.com>
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Subject: [PATCH] net/virtio-net: reverse unregistering on exit
+Date: Tue, 22 Aug 2017 16:59:52 +0200
+Message-ID: <1503413992-29558-2-git-send-email-pmorel@linux.vnet.ibm.com>
+References: <1503413992-29558-1-git-send-email-pmorel@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1503344576-8141-1-git-send-email-mst@redhat.com>
+In-Reply-To: <1503413992-29558-1-git-send-email-pmorel@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,37 +17,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, David Miller <davem@davemloft.net>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCAyMDE3LTA4LTIxIGF0IDIyOjQ1ICswMzAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3Jv
-dGU6Cj4gRHVyaW5nIGFjY2Vzc19vayBjaGVja3MsIGFkZHIgaW5jcmVhc2VzIGFzIHdlIGl0ZXJh
-dGUgb3ZlciB0aGUgZGF0YQo+IHN0cnVjdHVyZSwgdGh1cyBhZGRyICsgbGVuIC0gMSB3aWxsIHBv
-aW50IGJleW9uZCB0aGUgZW5kIG9mIHJlZ2lvbiB3ZQo+IGFyZSB0cmFuc2xhdGluZy7CoMKgSGFy
-bWxlc3Mgc2luY2Ugd2UgdGhlbiB2ZXJpZnkgdGhhdCB0aGUgcmVnaW9uIGNvdmVycwo+IGFkZHIs
-IGJ1dCBsZXQncyBub3Qgd2FzdGUgY3B1IGN5Y2xlcy4KPiAKPiBSZXBvcnRlZC1ieTogS29pY2hp
-cm8gRGVuIDxkZW5Aa2xhaXBlZGVuLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRz
-aXJraW4gPG1zdEByZWRoYXQuY29tPgo+IC0tLQo+IAo+IExpZ2h0bHkgdGVzdGVkLCB3b3VsZCBh
-cHByZWNpYXRlIGFuIGFjayBmcm9tIHJlcG9ydGVyLgo+IAo+IMKgZHJpdmVycy92aG9zdC92aG9z
-dC5jIHwgNCArKy0tCj4gwqAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAyIGRlbGV0
-aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJz
-L3Zob3N0L3Zob3N0LmMKPiBpbmRleCBlNDYxM2EzLi5lY2Q3MGU0IDEwMDY0NAo+IC0tLSBhL2Ry
-aXZlcnMvdmhvc3Qvdmhvc3QuYwo+ICsrKyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+IEBAIC0x
-MTc2LDcgKzExNzYsNyBAQCBzdGF0aWMgaW50IGlvdGxiX2FjY2Vzc19vayhzdHJ1Y3Qgdmhvc3Rf
-dmlydHF1ZXVlICp2cSwKPiDCoHsKPiDCoAljb25zdCBzdHJ1Y3Qgdmhvc3RfdW1lbV9ub2RlICpu
-b2RlOwo+IMKgCXN0cnVjdCB2aG9zdF91bWVtICp1bWVtID0gdnEtPmlvdGxiOwo+IC0JdTY0IHMg
-PSAwLCBzaXplLCBvcmlnX2FkZHIgPSBhZGRyOwo+ICsJdTY0IHMgPSAwLCBzaXplLCBvcmlnX2Fk
-ZHIgPSBhZGRyLCBsYXN0ID0gYWRkciArIGxlbiAtIDE7Cj4gwqAKPiDCoAlpZiAodmhvc3RfdnFf
-bWV0YV9mZXRjaCh2cSwgYWRkciwgbGVuLCB0eXBlKSkKPiDCoAkJcmV0dXJuIHRydWU7Cj4gQEAg
-LTExODQsNyArMTE4NCw3IEBAIHN0YXRpYyBpbnQgaW90bGJfYWNjZXNzX29rKHN0cnVjdCB2aG9z
-dF92aXJ0cXVldWUgKnZxLAo+IMKgCXdoaWxlIChsZW4gPiBzKSB7Cj4gwqAJCW5vZGUgPSB2aG9z
-dF91bWVtX2ludGVydmFsX3RyZWVfaXRlcl9maXJzdCgmdW1lbS0+dW1lbV90cmVlLAo+IMKgCQkJ
-CQkJCcKgwqDCoGFkZHIsCj4gLQkJCQkJCQnCoMKgwqBhZGRyICsgbGVuIC0gMSk7Cj4gKwkJCQkJ
-CQnCoMKgwqBsYXN0KTsKPiDCoAkJaWYgKG5vZGUgPT0gTlVMTCB8fCBub2RlLT5zdGFydCA+IGFk
-ZHIpIHsKPiDCoAkJCXZob3N0X2lvdGxiX21pc3ModnEsIGFkZHIsIGFjY2Vzcyk7Cj4gwqAJCQly
-ZXR1cm4gZmFsc2U7CgpNaWNoYWVsLCBUaGFuayB5b3UgZm9yIHRoaXMgb25lLgoKQWNrZWQtYnk6
-IEtvaWNoaXJvIERlbiA8ZGVuQGtsYWlwZWRlbi5jb20+CgpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
-eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+unregister_virtio_driver should be done before the unregistering of
+the hotplug state machine callbacks, otherwise the state machine still
+holds some instance states at that time.
+
+Let's first unregister the virtio_net_driver first and then the hotplug
+state machine callbacks.
+
+Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+---
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 143d8a9..c042ffd 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2734,9 +2734,9 @@ module_init(virtio_net_driver_init);
+ 
+ static __exit void virtio_net_driver_exit(void)
+ {
++	unregister_virtio_driver(&virtio_net_driver);
+ 	cpuhp_remove_multi_state(CPUHP_VIRT_NET_DEAD);
+ 	cpuhp_remove_multi_state(virtionet_online);
+-	unregister_virtio_driver(&virtio_net_driver);
+ }
+ module_exit(virtio_net_driver_exit);
+ 
+-- 
+2.7.4
