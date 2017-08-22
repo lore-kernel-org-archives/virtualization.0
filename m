@@ -1,17 +1,21 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
-	path if no tx napi
-Date: Mon, 21 Aug 2017 23:10:04 -0400
-Message-ID: <CAF=yD-L-9QnxV2kM_j2BxVk=h7i3wvMZxG-3_=0Q=jDPgeT=VQ__3158.1689989709$1503371452$gmane$org@mail.gmail.com>
-References: <20170819063854.27010-1-den@klaipeden.com>
-	<5352c98a-fa48-fcf9-c062-9986a317a1b0@redhat.com>
-	<CAF=yD-LZ4=WAYfUtY7xRWi50FRSkrcOa+b7uc46xRnC4sbDCzQ@mail.gmail.com>
-	<64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
+From: "Tian, Kevin" <kevin.tian@intel.com>
+Subject: RE: [RFC 2/3] virtio-iommu: device probing and operations
+Date: Tue, 22 Aug 2017 06:24:37 +0000
+Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D190D7CF52__32887.1237150908$1503383093$gmane$org@SHSMSX101.ccr.corp.intel.com>
+References: <20170407191747.26618-1-jean-philippe.brucker@arm.com>
+	<20170407191747.26618-3-jean-philippe.brucker@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D190CADECE@SHSMSX101.ccr.corp.intel.com>
+	<34166633-f4d5-21d5-20db-9091243ccd84@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D190CB262D@SHSMSX101.ccr.corp.intel.com>
+	<a4df3472-449f-297f-2a18-b3a21affadee@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D190D7BAB1@SHSMSX101.ccr.corp.intel.com>
+	<454095c4-cae5-ad52-a459-5c9e2cce4047@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
+In-Reply-To: <454095c4-cae5-ad52-a459-5c9e2cce4047@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,82 +25,114 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Koichiro Den <den@klaipeden.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: "cdall@linaro.org" <cdall@linaro.org>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "will.deacon@arm.com" <will.deacon@arm.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> Interesting, deadlock could be treated as a a radical case of the
->>> discussion
->>> here https://patchwork.kernel.org/patch/3787671/.
->>>
->>> git grep tells more similar skb_orphan() cases. Do we need to change them
->>> all (or part)?
->>
->> Most skb_orphan calls are not relevant to the issue of transmit delay.
->
->
-> Yes, but at least we should audit the ones in drivers/net.
-
-Do you mean other virtual device driver transmit paths, like xen,
-specifically?
-
->>> Actually, we may meet similar issues at many other places (e.g netem).
->>
->> Netem is an interesting case. Because it is intended to mimic network
->> delay, at least in the case where it calls skb_orphan, it may make
->> sense to release all references, including calling skb_zcopy_clear.
->>
->> In general, zerocopy reverts to copy on all paths that may cause
->> unbounded delay due to another process. Guarding against delay
->> induced by the administrator is infeasible. It is always possible to
->> just pause the nic. Netem is one instance of that, and not unbounded.
->
->
-> The problem is, admin may only delay the traffic in e.g one interface, but
-> it actually delay or stall all traffic inside a VM.
-
-Understood. Ideally we can remove the HoL blocking cause of this,
-itself.
-
->>> Need
->>> to consider a complete solution for this. Figuring out all places that
->>> could
->>> delay a packet is a method.
->>
->> The issue described in the referenced patch seems like head of line
->> blocking between two flows. If one flow delays zerocopy descriptor
->> release from the vhost-net pool, it blocks all subsequent descriptors
->> in that pool from being released, also delaying other flows that use
->> the same descriptor pool. If the pool is empty, all transmission stopped.
->>
->> Reverting to copy tx when the pool reaches a low watermark, as the
->> patch does, fixes this.
->
->
-> An issue of the referenced patch is that sndbuf could be smaller than low
-> watermark.
->
->> Perhaps the descriptor pool should also be
->> revised to allow out of order completions. Then there is no need to
->> copy zerocopy packets whenever they may experience delay.
->
->
-> Yes, but as replied in the referenced thread, windows driver may treat out
-> of order completion as a bug.
-
-Interesting. I missed that. Perhaps the zerocopy optimization
-could be gated on guest support for out of order completions.
-
->> On the point of counting copy vs zerocopy: the new msg_zerocopy
->> variant of ubuf_info has a field to record whether a deep copy was
->> made. This can be used with vhost-net zerocopy, too.
->
->
-> Just to make sure I understand. It's still not clear to me how to reuse this
-> for vhost-net, e.g zerocopy flag is in a union which is not used by
-> vhost_net.
-
-True, but that is not set in stone. I went back and forth on that when
-preparing fix 0a4a060bb204 ("sock: fix zerocopy_success regression
-with msg_zerocopy"). The field can be moved outside the union and
-initialized in the other zerocopy paths.
+PiBGcm9tOiBKZWFuLVBoaWxpcHBlIEJydWNrZXIgW21haWx0bzpqZWFuLXBoaWxpcHBlLmJydWNr
+ZXJAYXJtLmNvbV0NCj4gU2VudDogTW9uZGF5LCBBdWd1c3QgMjEsIDIwMTcgODowMCBQTQ0KPiAN
+Cj4gT24gMjEvMDgvMTcgMDg6NTksIFRpYW4sIEtldmluIHdyb3RlOg0KPiA+PiBGcm9tOiBKZWFu
+LVBoaWxpcHBlIEJydWNrZXIgW21haWx0bzpqZWFuLXBoaWxpcHBlLmJydWNrZXJAYXJtLmNvbV0N
+Cj4gPj4gU2VudDogTW9uZGF5LCBBcHJpbCAyNCwgMjAxNyAxMTowNiBQTQ0KPiA+Pj4+Pj4gICAx
+LiBBdHRhY2ggZGV2aWNlDQo+ID4+Pj4+PiAgIC0tLS0tLS0tLS0tLS0tLS0NCj4gPj4+Pj4+DQo+
+ID4+Pj4+PiBzdHJ1Y3QgdmlydGlvX2lvbW11X3JlcV9hdHRhY2ggew0KPiA+Pj4+Pj4gCWxlMzIJ
+YWRkcmVzc19zcGFjZTsNCj4gPj4+Pj4+IAlsZTMyCWRldmljZTsNCj4gPj4+Pj4+IAlsZTMyCWZs
+YWdzL3Jlc2VydmVkOw0KPiA+Pj4+Pj4gfTsNCj4gPj4+Pj4+DQo+ID4+Pj4+PiBBdHRhY2ggYSBk
+ZXZpY2UgdG8gYW4gYWRkcmVzcyBzcGFjZS4gJ2FkZHJlc3Nfc3BhY2UnIGlzIGFuIGlkZW50aWZp
+ZXINCj4gPj4+Pj4+IHVuaXF1ZSB0byB0aGUgZ3Vlc3QuIElmIHRoZSBhZGRyZXNzIHNwYWNlIGRv
+ZXNuJ3QgZXhpc3QgaW4gdGhlDQo+IElPTU1VDQo+ID4+Pj4+DQo+ID4+Pj4+IEJhc2VkIG9uIHlv
+dXIgZGVzY3JpcHRpb24gdGhpcyBhZGRyZXNzIHNwYWNlIElEIGlzIHBlciBvcGVyYXRpb24NCj4g
+cmlnaHQ/DQo+ID4+Pj4+IE1BUC9VTk1BUCBhbmQgcGFnZS10YWJsZSBzaGFyaW5nIHNob3VsZCBo
+YXZlIGRpZmZlcmVudCBJRA0KPiBzcGFjZXMuLi4NCj4gPj4+Pg0KPiA+Pj4+IEkgdGhpbmsgaXQn
+cyBzaW1wbGVyIGlmIHdlIGtlZXAgYSBzaW5nbGUgSU9BU0lEIHNwYWNlIHBlciB2aXJ0aW8taW9t
+bXUNCj4gPj4+PiBkZXZpY2UsIGJlY2F1c2UgdGhlIG1heGltdW0gbnVtYmVyIG9mIGFkZHJlc3Mg
+c3BhY2VzIChkZXNjcmliZWQNCj4gYnkNCj4gPj4+PiBpb2FzaWRfYml0cykgbWlnaHQgYmUgYSBy
+ZXN0cmljdGlvbiBvZiB0aGUgcElPTU1VLiBGb3IgcGFnZS10YWJsZQ0KPiA+PiBzaGFyaW5nDQo+
+ID4+Pj4geW91IHN0aWxsIG5lZWQgdG8gZGVmaW5lIHdoaWNoIGRldmljZXMgd2lsbCBzaGFyZSBh
+IHBhZ2UgZGlyZWN0b3J5IHVzaW5nDQo+ID4+Pj4gQVRUQUNIIHJlcXVlc3RzLCB0aG91Z2ggdGhh
+dCBpbnRlcmZhY2UgaXMgbm90IHNldCBpbiBzdG9uZS4NCj4gPj4+DQo+ID4+PiBnb3QgeW91LiB5
+ZXMgVk0gaXMgc3VwcG9zZWQgdG8gY29uc3VtZSBsZXNzIElPQVNJRHMgdGhhbiBwaHlzaWNhbGx5
+DQo+ID4+PiBhdmFpbGFibGUuIEl0IGRvZXNu4oCZdCBodXJ0IHRvIGhhdmUgb25lIElPQVNJRCBz
+cGFjZSBmb3IgYm90aCBJT1ZBDQo+ID4+PiBtYXAvdW5tYXAgdXNhZ2VzIChvbmUgSU9BU0lEIHBl
+ciBkZXZpY2UpIGFuZCBTVk0gdXNhZ2VzIChtdWx0aXBsZQ0KPiA+Pj4gSU9BU0lEcyBwZXIgZGV2
+aWNlKS4gVGhlIGZvcm1lciBpcyBkaWdlc3RlZCBieSBzb2Z0d2FyZSBhbmQgdGhlIGxhdHRlcg0K
+PiA+Pj4gd2lsbCBiZSBib3VuZCB0byBoYXJkd2FyZS4NCj4gPj4+DQo+ID4+DQo+ID4+IEhtbSwg
+SSdtIHVzaW5nIGFkZHJlc3Mgc3BhY2UgaW5kZXhlZCBieSBJT0FTSUQgZm9yICJjbGFzc2ljIiBJ
+T01NVSwNCj4gYW5kDQo+ID4+IHRoZW4gY29udGV4dHMgaW5kZXhlZCBieSBQQVNJRCB3aGVuIHRh
+bGtpbmcgYWJvdXQgU1ZNLiBTbyBpbiBteSBtaW5kDQo+IGFuDQo+ID4+IGFkZHJlc3Mgc3BhY2Ug
+Y2FuIGhhdmUgbXVsdGlwbGUgc3ViLWFkZHJlc3Mtc3BhY2VzIChjb250ZXh0cykuIE51bWJlcg0K
+PiBvZg0KPiA+PiBJT0FTSURzIGlzIGEgbGltaXRhdGlvbiBvZiB0aGUgcElPTU1VLCBhbmQgbnVt
+YmVyIG9mIFBBU0lEcyBpcyBhDQo+ID4+IGxpbWl0YXRpb24gb2YgdGhlIGRldmljZS4gVGhlcmVm
+b3JlIGF0dGFjaGluZyBkZXZpY2VzIHRvIGFkZHJlc3Mgc3BhY2VzDQo+ID4+IHdvdWxkIHVwZGF0
+ZSB0aGUgbnVtYmVyIG9mIGF2YWlsYWJsZSBjb250ZXh0cyBpbiB0aGF0IGFkZHJlc3Mgc3BhY2Uu
+DQo+IFRoZQ0KPiA+PiB0ZXJtaW5vbG9neSBpcyBub3QgaWRlYWwsIGFuZCBJJ2QgYmUgaGFwcHkg
+dG8gY2hhbmdlIGl0IGZvciBzb21ldGhpbmcNCj4gbW9yZQ0KPiA+PiBjbGVhci4NCj4gPj4NCj4g
+Pg0KPiA+IChzb3JyeSB0byBwaWNrIHVwIHRoaXMgb2xkIHRocmVhZCwgYXMgdGhlIC50ZXggb25l
+IGlzIG5vdCBnb29kIGZvciByZXZpZXcNCj4gPiBhbmQgdGhpcyB0aHJlYWQgcHJvdmlkZXMgbmVj
+ZXNzYXJ5IGJhY2tncm91bmQgZm9yIElPQVNJRCkuDQo+ID4NCj4gPiBIaSwgSmVhbiwNCj4gPg0K
+PiA+IEknZCBsaWtlIHRvIGhlYXIgbW9yZSBjbGFyaWZpY2F0aW9uIHJlZ2FyZGluZyB0aGUgcmVs
+YXRpb25zaGlwIGJldHdlZW4NCj4gPiBJT0FTSUQgYW5kIFBBU0lELiBXaGVuIHJlYWRpbmcgYmFj
+ayBhYm92ZSBleHBsYW5hdGlvbiwgaXQgbG9va3MNCj4gPiBjb25mdXNpbmcgdG8gbWUgbm93ICh0
+aG91Z2ggSSBtaWdodCBnZXQgdGhlIG1lYW5pbmcgbW9udGhzIGFnbyA6LykuDQo+ID4gQXQgbGVh
+c3QgSW50ZWwgVlQtZCBvbmx5IHVuZGVyc3RhbmRzIFBBU0lEIChvciB5b3UgY2FuIHRoaW5rIElP
+QVNJRA0KPiA+ID1QQVNJRCkuIFRoZXJlIGlzIG5vIHN1Y2ggbGF5ZXJlZCBhZGRyZXNzIHNwYWNl
+IGNvbmNlcHQuIFRoZW4gZm9yDQo+ID4gbWFwL3VubWFwIHR5cGUgcmVxdWVzdCwgZG8geW91IGlu
+dGVuZCB0byBzdGVhbCBzb21lIFBBU0lEcyBmb3INCj4gPiB0aGF0IHB1cnBvc2Ugb24gc3VjaCBh
+cmNoaXRlY3R1cmUgKHNpbmNlIElPQVNJRCBpcyBhIG1hbmRhdG9yeSBmaWVsZA0KPiA+IGluIG1h
+cC91bm1hcCByZXF1ZXN0KT8NCj4gDQo+IElPQVNJRCBpcyBhIGxvZ2ljYWwgSUQsIGl0IGlzbid0
+IHVzZWQgYnkgaGFyZHdhcmUuIFRoZSBhZGRyZXNzIHNwYWNlDQo+IGNvbmNlcHQgaW4gdmlydGlv
+LWlvbW11IGFsbG93cyB0byBncm91cCBlbmRwb2ludHMgdG9nZXRoZXIsIHNvIHRoYXQgdGhleQ0K
+PiBoYXZlIHRoZSBzYW1lIGFkZHJlc3Mgc3BhY2UuIEkgdGhvdWdodCBpdCB3YXMgcHJldHR5IG11
+Y2ggdGhlIHNhbWUgYXMNCj4gImRvbWFpbnMiIGluIFZULWQ/IEluIGFueSBjYXNlLCBpdCBpcyB0
+aGUgc2FtZSBhcyBkb21haW5zIGluIExpbnV4LiBBbg0KPiBJT0FTSUQgcHJvdmlkZXMgYSBoYW5k
+bGUgZm9yIGNvbW11bmljYXRpb24gYmV0d2VlbiB2aXJ0aW8taW9tbXUgZGV2aWNlDQo+IGFuZA0K
+PiBkcml2ZXIsIGJ1dCB1bmxpa2UgUEFTSUQsIHRoZSBJT0FTSUQgbnVtYmVyIGRvZXNuJ3QgbWVh
+biBhbnl0aGluZyBvdXRzaWRlDQo+IG9mIHZpcnRpby1pb21tdS4NCg0KVGhhbmtzLiBJdCdzIGNs
+ZWFyIHRvIG1lIHRoZW4uDQoNCmJ0dyBkb2VzIGl0IG1ha2UgbW9yZSBzZW5zZSB0byB1c2UgImRv
+bWFpbiBpZCIgaW5zdGVhZCBvZiAiSU8gYWRkcmVzcw0Kc3BhY2UgaWQiPyBGb3Igb25lLCB3aGVu
+IHRhbGtpbmcgYWJvdXQgbGF5ZXJlZCBhZGRyZXNzIHNwYWNlcw0KdXN1YWxseSBwYXJlbnQgYWRk
+cmVzcyBzcGFjZSBpcyBhIHN1cGVyc2V0IG9mIGFsbCBjaGlsZCBhZGRyZXNzIHNwYWNlcw0Kd2hp
+Y2ggZG9lc24ndCBhcHBseSB0byB0aGlzIGNhc2UsIHNpbmNlIGVpdGhlciBhbm9ueW1vdXMgYWRk
+cmVzcw0Kc3BhY2Ugb3IgUEFTSUQtdGFnZ2VkIGFkZHJlc3Mgc3BhY2VzIGFyZSBjb21wbGV0ZWx5
+IGlzb2xhdGVkLiBJbnN0ZWFkDQonZG9tYWluJyBpcyBhIG1vcmUgaW5jbHVzaXZlIHRlcm1pbm9s
+b2d5IHRvIGVtYnJhY2UgbXVsdGlwbGUgYWRkcmVzcw0Kc3BhY2VzLiBGb3IgdHdvLCAnZG9tYWlu
+JyBpcyBiZXR0ZXIgYWxpZ25lZCB0byBzb2Z0d2FyZSB0ZXJtaW5vbG9neSAoZS5nLg0KaW9tbXVf
+ZG9tYWluKSBpcyBlYXNpZXIgZm9yIHBlb3BsZSB0byBjYXRjaCB1cC4gOi0pDQoNCj4gDQo+IEkg
+aGF2ZW4ndCBpbnRyb2R1Y2VkIFBBU0lEcyBpbiBwdWJsaWMgdmlydGlvLWlvbW11IGRvY3VtZW50
+cyB5ZXQsIGJ1dCB0aGUNCj4gd2F5IEkgaW50ZW5kIGl0LCBQQVNJRCAhPSBJT0FTSUQuIFdlIHdp
+bGwgc3RpbGwgaGF2ZSBhIGxvZ2ljYWwgYWRkcmVzcw0KPiBzcGFjZSBpZGVudGlmaWVkIGJ5IElP
+QVNJRCwgdGhhdCBjYW4gY29udGFpbiBtdWx0aXBsZSBjb250ZXh0cyBpZGVudGlmaWVkDQo+IGJ5
+IFBBU0lELiBBdCB0aGUgbW9tZW50LCBhZnRlciB0aGUgQVRUQUNIIHJlcXVlc3QsIGFuIGFkZHJl
+c3Mgc3BhY2UNCj4gY29udGFpbnMgYSBzaW5nbGUgYW5vbnltb3VzIGNvbnRleHQgKE5PIFBBU0lE
+KSB0aGF0IGNhbiBiZSBtYW5hZ2VkIHdpdGgNCj4gTUFQL1VOTUFQIHJlcXVlc3RzLiBXaXRoIHZp
+cnRpby1pb21tdSB2MC40LCBzdHJ1Y3R1cmVzIGxvb2sgbGlrZSB0aGUNCj4gZm9sbG93aW5nLiBU
+aGUgTk8gUEFTSUQgY29udGV4dCBpcyBpbXBsaWNpdC4NCj4gDQo+ICAgICAgICAgICAgICAgICAg
+ICAgYWRkcmVzcyBzcGFjZSAgICAgIGNvbnRleHQNCj4gICAgIGVuZHBvaW50IC0tLS0uICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIC4tIG1hcHBpbmcNCj4gICAgIGVuZHBvaW50IC0t
+LS0rLS0tLSBJT0FTSUQgLS0tLS0tLS0gTk8gUEFTSUQgLS0tLSstIG1hcHBpbmcNCj4gICAgIGVu
+ZHBvaW50IC0tLS0nICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICctIG1hcHBpbmcN
+Cj4gDQo+IEknZCBsaWtlIHRvIGFkZCBhIGZsYWcgdG8gQVRUQUNIIHRoYXQgc2F5cyAiZG9uJ3Qg
+Y3JlYXRlIGEgZGVmYXVsdA0KPiBhbm9ueW1vdXMgY29udGV4dCwgSSdsbCBoYW5kbGUgY29udGV4
+dHMgbXlzZWxmIi4gVGhlbiBhIG5ldyAiQUREX1RBQkxFIg0KPiByZXF1ZXN0IHRvIGhhbmRsZSBj
+b250ZXh0cy4gV2hlbiBjcmVhdGluZyBhIGNvbnRleHQsIHRoZSBndWVzdCBkZWNpZGVzIGlmDQo+
+IGl0IHdhbnRzIHRvIG1hbmFnZSBpdCB2aWEgTUFQL1VOTUFQIHJlcXVlc3RzIChhbmQgYSBuZXcg
+ImNvbnRleHQiIGZpZWxkKSwNCj4gb3IgaW5zdGVhZCBtYW5hZ2UgbWFwcGluZ3MgaXRzZWxmIGJ5
+IGFsbG9jYXRpbmcgYSBwYWdlIGRpcmVjdG9yeSBhbmQgdXNlDQo+IElOVkFMSURBVEUgcmVxdWVz
+dHMuDQo+IA0KPiAgICAgICAgICAgICAgICAgICAgIGFkZHJlc3Mgc3BhY2UgICAgICBjb250ZXh0
+DQo+ICAgICBlbmRwb2ludCAtLS0tLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAu
+LSBtYXBwaW5nDQo+ICAgICBlbmRwb2ludCAtLS0tKy0tLS0gSU9BU0lEIC0tLS0rLS0tIE5PIFBB
+U0lEIC0tLS0rLSBtYXBwaW5nDQo+ICAgICBlbmRwb2ludCAtLS0tJyAgICAgICAgICAgICAgICB8
+ICAgICAgICAgICAgICAgICAnLSBtYXBwaW5nDQo+ICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICArLS0tIFBBU0lEIDAgIC0tLS0gcGdkDQo+ICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICB8ICAgICAuLi4NCj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICctLS0gUEFTSUQgTiAgLS0tLSBwZ2QNCj4gDQo+IEluIHRoaXMgZXhhbXBsZSB0aGUgZ3Vlc3Qg
+Y2hvc2UgdG8gc3RpbGwgaGF2ZSBhbiBhbm9ueW1vdXMgY29udGV4dCB0aGF0DQo+IHVzZXMgTUFQ
+L1VOTUFQLCBhbG9uZyB3aXRoIGEgZmV3IFBBU0lEIGNvbnRleHRzIHdpdGggdGhlaXIgb3duIHBh
+Z2UNCj4gdGFibGVzLg0KPiANCg0KQWJvdmUgZXhwbGFuYXRpb24gaXMgYSBnb29kIGJhY2tncm91
+bmQuIElzIGl0IHVzZWZ1bCB0byBpbmNsdWRlIGl0DQppbiBjdXJyZW50IHNwZWM/IFRob3VnaCBT
+Vk0gc3VwcG9ydCBpcyBub3QgcGxhbm5lZCBub3csIGFkZGluZw0Kc3VjaCBiYWNrZ3JvdW5kIGNv
+dWxkIGhlbHAgYnVpbGQgYSBmdWxsIHN0b3J5IGZvciBJT0FTSUQgY29uY2VwdC4NCg0KVGhhbmtz
+DQpLZXZpbg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
