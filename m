@@ -1,14 +1,13 @@
-From: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Subject: Re: [PATCH] net/virtio-net: reverse unregistering on exit
-Date: Wed, 23 Aug 2017 10:46:41 +0200
-Message-ID: <d534dabe-6b5b-e4ac-2728-9f42094d43ab@linux.vnet.ibm.com>
-References: <1503413992-29558-1-git-send-email-pmorel@linux.vnet.ibm.com>
-	<20170822211736-mutt-send-email-mst@kernel.org>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [RFC] virtio-iommu version 0.4
+Date: Wed, 23 Aug 2017 11:01:11 +0100
+Message-ID: <5be484ff-6a1a-6c9b-947c-f64ea23f58cc__31963.7798857459$1503482328$gmane$org@arm.com>
+References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170822211736-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,35 +18,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
+Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, will.deacon@arm.com, eric.auger@redhat.com, robin.murphy@arm.com, eric.auger.pro@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjIvMDgvMjAxNyAyMDoxNywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9uIFR1ZSwg
-QXVnIDIyLCAyMDE3IGF0IDA0OjU5OjUxUE0gKzAyMDAsIFBpZXJyZSBNb3JlbCB3cm90ZToKPj4g
-SGksCj4+Cj4+IEkgZ290IGEgcHJvYmxlbSB3aXRoIHZpcnRpby1uZXQgaW4gYSBRRU1VIGd1ZXN0
-Lgo+Pgo+PiBXaGVuIHZpcnRpby1uZXQgaXMgdXNlZCBhcyBhIG1vZHVsZSBpbiBhIGd1ZXN0IGFu
-ZCB0aGUgbmV0d29yayBpcwo+PiBhY3RpdmF0ZWQsIHJlbW92aW5nIHRoZSB2aXJ0aW8tbmV0IG1v
-ZHVsZXMgcHJvZHVjZXMgYSBrZXJuZWwgZXJyb3I6Cj4+Cj4+IFsgMjM3NS42MjQ5NDldIExhc3Qg
-QnJlYWtpbmctRXZlbnQtQWRkcmVzczoKPj4gWyAyMzc1LjYyNDk1NF0gIFs8MDAwMDAwMDAwMDE0
-NTNkND5dIF9fY3B1aHBfcmVtb3ZlX3N0YXRlKzB4ODQvMHgxYTgKPj4gWyAyMzc1LjYyNDk1OV0g
-LS0tWyBlbmQgdHJhY2UgY2M5ZmQ2OGI4OWY1MjM1YSBdLS0tCj4+IFsgMjM3NS42MjQ5NjZdIEVy
-cm9yOiBSZW1vdmluZyBzdGF0ZSAxNjMgd2hpY2ggaGFzIGluc3RhbmNlcyBsZWZ0Lgo+PiBbIDIz
-NzUuNjI0OTg1XSAtLS0tLS0tLS0tLS1bIGN1dCBoZXJlIF0tLS0tLS0tLS0tLS0KPiAKPiBXaGlj
-aCBrZXJuZWwgZG8geW91IHVzZT8KCkEgdG9vIG9sZCBvbmUgLCA0LjEyLjAgLCBJIGZvcmdvdCB0
-byBjaGVjayBvbiBsaW51eC1uZXh0LgpUaGUgcHJvYmxlbSBoYXMgaW5kZWVkIGJlZW4gc29sdmVk
-IGluIGJldHdlZW4uClNvcnJ5IGZvciB0aGUgbm9pc2UuCgo+IAo+IAo+PiBUaGUgcHJvYmxlbSBp
-cyBwcm9kdWNlZCBieSBhbiBpbnZlcnNpb24gaW4gdGhlIG9yZGVyIG9mIHVucmVnaXN0ZXJpbmcK
-Pj4gdGhlIGRyaXZlciBhbmQgdGhlIGhvdHBsdWcgc3RhdGUgbWFjaGluZSBjYWxsYmFja3MgaW4g
-dmlydGlvX25ldF9kcml2ZXJfZXhpdC4KPj4KPj4gVGhpcyBwYXRjaCBzb2x2ZXMgdGhlIHByb2Js
-ZW0gYnkgZmlyc3QgdW5yZWdpc3RlcmluZyB0aGUgdmlydGlvX25ldF9kcml2ZXIKPj4gYmVmb3Jl
-IHVucmVnaXN0ZXJpbmcgdGhlIGhvdHBsdWcgc3RhdGUgbWFjaGluZSBjYWxsYmFja3MuCj4+Cj4+
-IEJlc3QgcmVnYXJkcywKPj4KPj4gUGllcnJlIE1vcmVsCj4+Cj4+IFBpZXJyZSBNb3JlbCAoMSk6
-Cj4+ICAgIG5ldC92aXJ0aW8tbmV0OiByZXZlcnNlIHVucmVnaXN0ZXJpbmcgb24gZXhpdAo+Pgo+
-PiAgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDIgKy0KPj4gICAxIGZpbGUgY2hhbmdlZCwg
-MSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPj4KPj4gLS0gCj4+IDIuNy40Cj4gCgoKLS0g
-ClBpZXJyZSBNb3JlbApMaW51eC9LVk0vUUVNVSBpbiBCw7ZibGluZ2VuIC0gR2VybWFueQoKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+On 04/08/17 19:19, Jean-Philippe Brucker wrote:
+> Other extensions are in preparation. I won't detail them here because v0.4
+> already is a lot to digest, but in short, building on top of PROBE:
+> 
+> * First, since the IOMMU is paravirtualized, the device can expose some
+>   properties of the physical topology to the guest, and let it allocate
+>   resources more efficiently. For example, when the virtio-iommu manages
+>   both physical and emulated endpoints, with different underlying IOMMUs,
+>   we now have a way to describe multiple page and block granularities,
+>   instead of forcing the guest to use the most restricted one for all
+>   endpoints. This will most likely be in v0.5.
+
+In order to extend requests with PASIDs and (later) nested mode, I intend
+to rename "address_space" field to "domain", since it is a lot more
+precise about what the field is referring to and the current name would
+make these extensions confusing. Please find the rationale at [1].
+"ioasid_bits" will be "domain_bits" and "VIRTIO_IOMMU_F_IOASID_BITS" will
+be "VIRTIO_IOMMU_F_DOMAIN_BITS".
+
+For those that had time to read this version, do you have other comments
+and suggestions about v0.4? Otherwise it is the only update I have for
+v0.5 (along with fine-grained address range and page size properties from
+the quoted text) and I will send it soon.
+
+In particular, please tell me now if you see the need for other
+destructive changes like this one. They will be impossible to introduce
+once a driver or device is upstream.
+
+Thanks,
+Jean
+
+[1] https://www.spinics.net/lists/kvm/msg154573.html
