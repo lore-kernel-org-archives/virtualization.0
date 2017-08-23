@@ -1,14 +1,20 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [RFC] virtio-iommu version 0.4
-Date: Wed, 23 Aug 2017 11:01:11 +0100
-Message-ID: <5be484ff-6a1a-6c9b-947c-f64ea23f58cc__31963.7798857459$1503482328$gmane$org@arm.com>
-References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
+From: Koichiro Den <den@klaipeden.com>
+Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
+	path if no tx napi
+Date: Wed, 23 Aug 2017 23:24:35 +0900
+Message-ID: <1503498275.8694.23.camel__42351.5268056237$1503498300$gmane$org@klaipeden.com>
+References: <20170819063854.27010-1-den@klaipeden.com>
+	<5352c98a-fa48-fcf9-c062-9986a317a1b0@redhat.com>
+	<CAF=yD-LZ4=WAYfUtY7xRWi50FRSkrcOa+b7uc46xRnC4sbDCzQ@mail.gmail.com>
+	<64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
+	<CAF=yD-L-9QnxV2kM_j2BxVk=h7i3wvMZxG-3_=0Q=jDPgeT=VQ@mail.gmail.com>
+	<1503409339.8694.12.camel@klaipeden.com>
+	<CAF=yD-+AOnYafiwAf+v+fhyg_0fi-6LdQSnPYcoAcngJqYs9dg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
-Content-Language: en-US
+In-Reply-To: <CAF=yD-+AOnYafiwAf+v+fhyg_0fi-6LdQSnPYcoAcngJqYs9dg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,39 +24,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
-Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, will.deacon@arm.com, eric.auger@redhat.com, robin.murphy@arm.com, eric.auger.pro@gmail.com
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/08/17 19:19, Jean-Philippe Brucker wrote:
-> Other extensions are in preparation. I won't detail them here because v0.4
-> already is a lot to digest, but in short, building on top of PROBE:
-> 
-> * First, since the IOMMU is paravirtualized, the device can expose some
->   properties of the physical topology to the guest, and let it allocate
->   resources more efficiently. For example, when the virtio-iommu manages
->   both physical and emulated endpoints, with different underlying IOMMUs,
->   we now have a way to describe multiple page and block granularities,
->   instead of forcing the guest to use the most restricted one for all
->   endpoints. This will most likely be in v0.5.
-
-In order to extend requests with PASIDs and (later) nested mode, I intend
-to rename "address_space" field to "domain", since it is a lot more
-precise about what the field is referring to and the current name would
-make these extensions confusing. Please find the rationale at [1].
-"ioasid_bits" will be "domain_bits" and "VIRTIO_IOMMU_F_IOASID_BITS" will
-be "VIRTIO_IOMMU_F_DOMAIN_BITS".
-
-For those that had time to read this version, do you have other comments
-and suggestions about v0.4? Otherwise it is the only update I have for
-v0.5 (along with fine-grained address range and page size properties from
-the quoted text) and I will send it soon.
-
-In particular, please tell me now if you see the need for other
-destructive changes like this one. They will be impossible to introduce
-once a driver or device is upstream.
-
-Thanks,
-Jean
-
-[1] https://www.spinics.net/lists/kvm/msg154573.html
+T24gVHVlLCAyMDE3LTA4LTIyIGF0IDEzOjE2IC0wNDAwLCBXaWxsZW0gZGUgQnJ1aWpuIHdyb3Rl
+Ogo+ID4gPiA+IEFuIGlzc3VlIG9mIHRoZSByZWZlcmVuY2VkIHBhdGNoIGlzIHRoYXQgc25kYnVm
+IGNvdWxkIGJlIHNtYWxsZXIgdGhhbgo+ID4gPiA+IGxvdwo+ID4gPiA+IHdhdGVybWFyay4KPiA+
+IAo+ID4gV2UgY2Fubm90IGRldGVybWluZSB0aGUgbG93IHdhdGVybWFyayBwcm9wZXJseSBiZWNh
+dXNlIG9mIG5vdCBvbmx5IHNuZGJ1Zgo+ID4gc2l6ZQo+ID4gaXNzdWUgYnV0IGFsc28gdGhlIGZh
+Y3QgdGhhdCB0aGUgdXBwZXIgdmhvc3QtbmV0IGNhbm5vdCBkaXJlY3RseSBzZWUgaG93Cj4gPiBt
+dWNoCj4gPiBkZXNjcmlwdG9yIGlzIGN1cnJlbnRseSBhdmFpbGFibGUgYXQgdGhlIHZpcnRpby1u
+ZXQgdHggcXVldWUuIEl0IGRlcGVuZHMgb24KPiA+IG11bHRpcXVldWUgc2V0dGluZ3Mgb3Igb3Ro
+ZXIgc2VuZGVycyB3aGljaCBhcmUgYWxzbyB1c2luZyB0aGUgc2FtZSB0eCBxdWV1ZS4KPiA+IE5v
+dGUgdGhhdCBpbiB0aGUgbGF0dGVyIGNhc2UgaWYgdGhleSBjb25zdGFudGx5IHRyYW5zbWl0dGlu
+ZywgdGhlIGRlYWRsb2NrCj4gPiBjb3VsZAo+ID4gbm90IG9jY3VyKCopLCBob3dldmVyIGlmIGl0
+IGhhcyBqdXN0IHRlbXBvcmFyaWx5IGZ1bGZpbGwgc29tZSBwb3J0aW9uIG9mIHRoZQo+ID4gcG9v
+bCBpbiB0aGUgbWVhbiB0aW1lLCB0aGVuIHRoZSBsb3cgd2F0ZXJtYXJrIGNhbm5vdCBiZSBoZWxw
+ZnVsLgo+ID4gKCo6IFRoYXQgaXMgYmVjYXVzZSBpdCdzIHJlbGlhYmxlIGVub3VnaCBpbiB0aGUg
+c2Vuc2UgSSBtZW50aW9uIGJlbG93LikKPiA+IAo+ID4gS2VlcCBpbiB0aGlzIGluIG1pbmQsIGxl
+dCBtZSBicmllZmx5IGRlc2NyaWJlIHRoZSBwb3NzaWJsZSBkZWFkbG9jayBJCj4gPiBtZW50aW9u
+ZWQ6Cj4gPiAoMSkuIHZob3N0LW5ldCBvbiBMMSBndWVzdCBoYXMgbm90aGluZyB0byBkbyBzZW5k
+bXNnIHVudGlsIHRoZSB1cHBlciBsYXllcgo+ID4gc2V0cwo+ID4gbmV3IGRlc2NyaXB0b3JzLCB3
+aGljaCBkZXBlbmRzIG9ubHkgb24gdGhlIHZob3N0LW5ldCB6Y29weSBjYWxsYmFjayBhbmQKPiA+
+IGFkZGluZwo+ID4gbmV3bHkgdXNlZCBkZXNjcmlwdG9ycy4KPiA+ICgyKS4gdmhvc3QtbmV0IGNh
+bGxiYWNrIGRlcGVuZHMgb24gdGhlIHNrYiBmcmVlaW5nIG9uIHRoZSB4bWl0IHBhdGggb25seS4K
+PiA+ICgzKS4gdGhlIHhtaXQgcGF0aCBkZXBlbmRzIChwb3NzaWJseSBvbmx5KSBvbiB0aGUgdmhv
+c3QtbmV0IHNlbmRtc2cuCj4gPiBBcyB5b3Ugc2VlLCBpdCdzIGVub3VnaCB0byBicmluZyBhYm91
+dCB0aGUgc2l0dWF0aW9uIGFib3ZlIHRoYXQgTDEgdmlydGlvLQo+ID4gbmV0Cj4gPiByZWFjaGVz
+IGl0cyBsaW1pdCBlYXJsaWVyIHRoYW4gdGhlIEwwIGhvc3QgcHJvY2Vzc2luZy4gVGhlIHZob3N0
+LW5ldCBwb29sCj4gPiBjb3VsZAo+ID4gYmUgYWxtb3N0IGZ1bGwgb3IgZW1wdHksIHdoYXRldmVy
+Lgo+IAo+IFRoYW5rcyBmb3IgdGhlIGNvbnRleHQuIFRoaXMgaXNzdWUgaXMgdmVyeSBzaW1pbGFy
+IHRvIHRoZSBvbmUgdGhhdCB1c2VkIHRvCj4gZXhpc3Qgd2hlbiBydW5uaW5nIG91dCBvZiB0cmFu
+c21pdCBkZXNjcmlwdG9ycywgYmVmb3JlIHRoZSByZW1vdmFsIG9mCj4gdGhlIHRpbWVyIGFuZCBp
+bnRyb2R1Y3Rpb24gb2Ygc2tiX29ycGhhbiBpbiBzdGFydF94bWl0Lgo+IAo+IFRvIG1ha2Ugc3Vy
+ZSB0aGF0IEkgdW5kZXJzdGFuZCBjb3JyZWN0bHksIGxldCBtZSBwYXJhcGhyYXNlOgo+IAo+IEEu
+IGd1ZXN0IHNvY2tldCBjYW5ub3Qgc2VuZCBiZWNhdXNlIGl0IGV4aGF1c3RlZCBpdHMgc2sgYnVk
+Z2V0IChzbmRidWYsIHRzcSwKPiAuLikKPiAKPiBCLiBidWRnZXQgaXMgbm90IGZyZWVkIHVwIHVu
+dGlsIGd1ZXN0IHJlY2VpdmVzIHR4IGNvbXBsZXRpb24gZm9yIHRoaXMgZmxvdwo+IAo+IEMuIHR4
+IGNvbXBsZXRpb24gaXMgaGVsZCBiYWNrIG9uIHRoZSBob3N0IHNpZGUgaW4gdmhvc3RfemVyb2Nv
+cHlfc2lnbmFsX3VzZWQKPiDCoMKgwqBiZWhpbmQgdGhlIGNvbXBsZXRpb24gZm9yIGFuIHVucmVs
+YXRlZCBza2IKPiAKPiBELiB1bnJlbGF0ZWQgcGFja2V0IGlzIGRlbGF5ZWQgc29tZXdoZXJlIGlu
+IHRoZSBob3N0IHN0YWNrZiB6ZXJvY29weQo+IGNvbXBsZXRpb25zLgo+IMKgwqDCoGUuZy4sIG5l
+dGVtCj4gCj4gVGhlIGlzc3VlIHRoYXQgaXMgc3BlY2lmaWMgdG8gdmhvc3QtbmV0IHplcm9jb3B5
+IGlzIHRoYXQgKEMpIGVuZm9yY2VzIHN0cmljdAo+IG9yZGVyaW5nIG9mIHRyYW5zbWl0IGNvbXBs
+ZXRpb25zIGNhdXNpbmcgaGVhZCBvZiBsaW5lIGJsb2NraW5nIGJlaGluZAo+IHZob3N0LW5ldCB6
+ZXJvY29weSBjYWxsYmFja3MuCj4gCj4gVGhpcyBpcyBhIGRpZmZlcmVudCBwcm9ibGVtIGZyb20K
+PiAKPiBDMS4gdHggY29tcGxldGlvbiBpcyBkZWxheWVkIHVudGlsIGd1ZXN0IHNlbmRzIGFub3Ro
+ZXIgcGFja2V0IGFuZAo+IMKgwqDCoMKgwqDCoMKgdHJpZ2dlcnMgZnJlZV9vbGRfeG1pdF9za2IK
+PiAKPiBCb3RoIGluIGhvc3QgYW5kIGd1ZXN0LCB6ZXJvY29weSBwYWNrZXRzIHNob3VsZCBuZXZl
+ciBiZSBhYmxlIHRvIGxvb3AKPiB0byBhIHJlY2VpdmUgcGF0aCB3aGVyZSB0aGV5IGNhbiBjYXVz
+ZSB1bmJvdW5kZWQgZGVsYXkuCj4gCj4gVGhlIG9idmlvdXMgY2FzZXMgb2YgbGF0ZW5jeSBhcmUg
+cXVldWVpbmcsIGxpa2UgbmV0ZW0uIFRoYXQgbGVhZHMKPiB0byBwb29yIHBlcmZvcm1hbmNlIGZv
+ciB1bnJlbGF0ZWQgZmxvd3MsIGJ1dCBJIGRvbid0IHNlZSBob3cgdGhpcwo+IGNvdWxkIGNhdXNl
+IGRlYWRsb2NrLgoKVGhhbmtzIGZvciB0aGUgd3JhcC11cC4gSSBzZWUgYWxsIHRoZSBwb2ludHMg
+bm93IGFuZCBhbHNvIHRoYXQgQzEgc2hvdWxkIG5vdApjYXVzZSBkZWFkbG9jay4KCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
+aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
+czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
+dGlvbg==
