@@ -1,17 +1,13 @@
-From: Tariq Toukan <tariqt@mellanox.com>
-Subject: Re: [PATCH net-next 4/4] mlx4: sizeof style usage
-Date: Mon, 21 Aug 2017 13:53:40 +0300
-Message-ID: <7dad88cf-76ac-07d8-6d00-c2cdf481b0ed__49673.4922206544$1509079252$gmane$org@mellanox.com>
-References: <20170815172919.26153-1-sthemmin@microsoft.com>
-	<20170815172919.26153-5-sthemmin@microsoft.com>
-	<d38cac6d-77a7-e411-73b0-78adad9cbd5f@mellanox.com>
-	<DM2PR21MB0074E2B2C697B1300B77EFEACC860@DM2PR21MB0074.namprd21.prod.outlook.com>
+From: Auger Eric <eric.auger@redhat.com>
+Subject: Re: [virtio-dev] [RFC] virtio-iommu version 0.4
+Date: Wed, 23 Aug 2017 15:55:07 +0200
+Message-ID: <f9b02ce1-057f-df4f-90d7-52616ad60b88__6313.60084885291$1509079257$gmane$org@redhat.com>
+References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <DM2PR21MB0074E2B2C697B1300B77EFEACC860@DM2PR21MB0074.namprd21.prod.outlook.com>
-Content-Language: en-US
+In-Reply-To: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,13 +17,152 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <sthemmin@microsoft.com>, Tariq Toukan <tariqt@mellanox.com>, Stephen Hemminger <stephen@networkplumber.org>, "mlindner@marvell.com" <mlindner@marvell.com>, "mst@redhat.com" <mst@redhat.com>, "jasowang@redhat.com" <jasowang@redhat.com>
-Cc: "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
+Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, will.deacon@arm.com, robin.murphy@arm.com, eric.auger.pro@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hi Jean-Philippe,
 
-
-On 20/08/2017 9:00 PM, Stephen Hemminger wrote:
-> Yes, good catch.
+On 04/08/2017 20:19, Jean-Philippe Brucker wrote:
+> This is the continuation of my proposal for virtio-iommu, the para-
+> virtualized IOMMU. Here is a summary of the changes since last time [1]:
 > 
-OK, I will include a fix for this in my next series.
+> * The virtio-iommu document now resembles an actual specification. It is
+>   split into a formal description of the virtio device, and implementation
+>   notes. Please find sources and binaries at [2].
+> 
+> * Added a probe request to describe to the guest different properties that
+>   do not fit in firmware or in the virtio config space. This is a
+>   necessary stepping stone for extending the virtio-iommu.
+> 
+> * There is a working Qemu prototype [3], thanks to Eric Auger and Bharat
+>   Bhushan.
+> 
+> You can find the Linux driver and kvmtool device at [4] and [5]. I
+> plan to rework driver and kvmtool device slightly before sending the
+> patches.
+> 
+> To understand the virtio-iommu, I advise to first read introduction and
+> motivation, then skim through implementation notes and finally look at the
+> device specification.
+> 
+> I wasn't sure how to organize the review. For those who prefer to comment
+> inline, I attached v0.4 of device-operations.tex and topology.tex+MSI.tex
+> to this thread. They are the biggest chunks of the document. But LaTeX
+> isn't very pleasant to read, so you can simply send a list of comments in
+> relation to section numbers and a few words of context, we'll manage.
+
+Please find some comments/questions below:
+
+2.6.7:1
+I do not understand the footnode #6 sentence: 'Without a specific
+definition of the ACK requirements for a given property type, it simply
+means that the driver read all fields of that property."
+2.6.7:2
+what if the driver has not provided a big enough buffer and the device
+cannot report all supported properties?
+2.6.8.2:
+Couldn't we use the same terminology as iommu_resv_type in iommu.h?
+the negative form is not the easiest to understand for me.
+Why F_MSI?
+2.6.8.2.1
+Multiple overlapping RESV_MEM properties are merged together. Device
+requirement? if same types I assume?
+
+what if the device is a physical assigned device. does the device report
+the host doorbell or the guest doorbell, may be worth to clarify.
+
+3.1.1 last paragraph
+you talk about device ID but this is a terminology only known by ARM I
+think. Actually it is introduced later in 3.1.2.
+
+3.1.2
+About ACPI integration. Isn't IORT ARM specific? Will other
+architectures use that table? In IORT we also have Named Component node
+which look pretty the same. Could you elaborate of the difference?
+Device Object name: isn't it the path to the LNR0005 in the namespace?
+
+Thanks
+
+Eric
+> 
+> ---
+> Version numbers 0.1-0.4 are arbitrary. I'm hoping they allow to compare
+> more easily differences since the RFC (see [6]), but haven't been made
+> public so far. This is the first public posting since initial proposal
+> [1], and the following describes all changes.
+> 
+> ## v0.1 ##
+> 
+> Content is the same as the RFC, but formatted to LaTeX. 'make' generates
+> one PDF and one HTML document.
+> 
+> ## v0.2 ##
+> 
+> Add introductions, improve topology example and firmware description based
+> on feedback and a number of useful discussions.
+> 
+> ## v0.3 ##
+> 
+> Add normative sections (MUST, SHOULD, etc). Clarify some things, tighten
+> the device and driver behaviour. Unmap semantics are consolidated; they
+> are now closer to VFIO Type1 v2 semantics.
+> 
+> ## v0.4 ##
+> 
+> Introduce PROBE requests. They provide per-endpoint information to the
+> driver that couldn't be described otherwise.
+> 
+> For the moment, they allow to handle MSIs on x86 virtual platforms (see
+> 3.2). To do that we communicate reserved IOVA regions, that will also be
+> useful for describing regions that cannot be mapped for a given endpoint,
+> for instance addresses that correspond to a PCI bridge window.
+> 
+> Introducing such a large framework for this tiny feature may seem
+> overkill, but it is needed for future extensions of the virtio-iommu and I
+> believe it really is worth the effort.
+> 
+> ## Future ##
+> 
+> Other extensions are in preparation. I won't detail them here because v0.4
+> already is a lot to digest, but in short, building on top of PROBE:
+> 
+> * First, since the IOMMU is paravirtualized, the device can expose some
+>   properties of the physical topology to the guest, and let it allocate
+>   resources more efficiently. For example, when the virtio-iommu manages
+>   both physical and emulated endpoints, with different underlying IOMMUs,
+>   we now have a way to describe multiple page and block granularities,
+>   instead of forcing the guest to use the most restricted one for all
+>   endpoints. This will most likely be in v0.5.
+> 
+> * Then on top of that, a major improvement will describe hardware
+>   acceleration features available to the guest. There is what I call "Page
+>   Table Handover" (or simply, from the host POV, "Nested"), the ability
+>   for the guest to manipulate its own page tables instead of sending
+>   MAP/UNMAP requests to the host. This, along with IO Page Fault
+>   reporting, will also permit SVM virtualization on different platforms.
+> 
+> Thanks,
+> Jean
+> 
+> [1] http://www.spinics.net/lists/kvm/msg147990.html
+> [2] git://linux-arm.org/virtio-iommu.git branch viommu/v0.4
+>     http://www.linux-arm.org/git?p=virtio-iommu.git;a=blob;f=dist/v0.4/virtio-iommu-v0.4.pdf
+>     I reiterate the disclaimers: don't use this document as a reference,
+>     it's a draft. It's also not an OASIS document yet. It may be riddled
+>     with mistakes. As this is a working draft, it is unstable and I do not
+>     guarantee backward compatibility of future versions.
+> [3] https://lists.gnu.org/archive/html/qemu-arm/2017-08/msg00004.html
+> [4] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.4
+>     Warning: UAPI headers have changed! They didn't follow the spec,
+>     please update. (Use branch v0.1, that has the old headers, for the
+>     Qemu prototype [3])
+> [5] git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.4
+>     Warning: command-line has changed! Use --viommu vfio[,opts] and
+>     --viommu virtio[,opts] to instantiate a device.
+> [6] http://www.linux-arm.org/git?p=virtio-iommu.git;a=tree;f=dist/diffs
+> 
+> ---------------------------------------------------------------------
+> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+> 
