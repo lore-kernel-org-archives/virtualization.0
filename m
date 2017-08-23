@@ -1,8 +1,8 @@
-From: Koichiro Den <den@klaipeden.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
 	path if no tx napi
-Date: Wed, 23 Aug 2017 23:47:22 +0900
-Message-ID: <1503499642.8694.27.camel__11761.615824844$1503499681$gmane$org@klaipeden.com>
+Date: Wed, 23 Aug 2017 11:20:45 -0400
+Message-ID: <CAF=yD-+U_aWxSmPPY8v8t=JO0MRZ+N+DzVJTAMKYQ5F=pE1PfA__19826.6054889702$1503501723$gmane$org@mail.gmail.com>
 References: <20170819063854.27010-1-den@klaipeden.com>
 	<5352c98a-fa48-fcf9-c062-9986a317a1b0@redhat.com>
 	<CAF=yD-LZ4=WAYfUtY7xRWi50FRSkrcOa+b7uc46xRnC4sbDCzQ@mail.gmail.com>
@@ -10,8 +10,8 @@ References: <20170819063854.27010-1-den@klaipeden.com>
 	<20170822204015-mutt-send-email-mst@kernel.org>
 	<1503498504.8694.26.camel@klaipeden.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <1503498504.8694.26.camel@klaipeden.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -23,48 +23,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Network Development <netdev@vger.kernel.org>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, virtualization@lists.linux-foundation.org
+To: Koichiro Den <den@klaipeden.com>
+Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCAyMDE3LTA4LTIzIGF0IDIzOjI4ICswOTAwLCBLb2ljaGlybyBEZW4gd3JvdGU6Cj4g
-T24gVHVlLCAyMDE3LTA4LTIyIGF0IDIwOjU1ICswMzAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3Jv
-dGU6Cj4gPiBPbiBUdWUsIEF1ZyAyMiwgMjAxNyBhdCAxMDo1MDo0MUFNICswODAwLCBKYXNvbiBX
-YW5nIHdyb3RlOgo+ID4gPiA+IFBlcmhhcHMgdGhlIGRlc2NyaXB0b3IgcG9vbCBzaG91bGQgYWxz
-byBiZQo+ID4gPiA+IHJldmlzZWQgdG8gYWxsb3cgb3V0IG9mIG9yZGVyIGNvbXBsZXRpb25zLiBU
-aGVuIHRoZXJlIGlzIG5vIG5lZWQgdG8KPiA+ID4gPiBjb3B5IHplcm9jb3B5IHBhY2tldHMgd2hl
-bmV2ZXIgdGhleSBtYXkgZXhwZXJpZW5jZSBkZWxheS4KPiA+ID4gCj4gPiA+IFllcywgYnV0IGFz
-IHJlcGxpZWQgaW4gdGhlIHJlZmVyZW5jZWQgdGhyZWFkLCB3aW5kb3dzIGRyaXZlciBtYXkgdHJl
-YXQgb3V0Cj4gPiA+IG9mIG9yZGVyIGNvbXBsZXRpb24gYXMgYSBidWcuCj4gPiAKPiA+IFRoYXQg
-d291bGQgYmUgYSB3aW5kb3dzIGRyaXZlciBidWcgdGhlbiwgYnV0IEkgZG9uJ3QgdGhpbmsgaXQg
-bWFrZXMgdGhpcwo+ID4gYXNzdW1wdGlvbi4gV2hhdCB0aGUgcmVmZXJlbmNlZCB0aHJlYWQKPiA+
-IChodHRwczovL3BhdGNod29yay5rZXJuZWwub3JnL3BhdGNoLzM3ODc2NzEvKSBpcyBzYXlpbmcg
-aXMgdGhhdCBob3N0Cj4gPiBtdXN0IHVzZSBhbnkgYnVmZmVycyBtYWRlIGF2YWlsYWJsZSBvbiBh
-IHR4IHZxIHdpdGhpbiBhIHJlYXNvbmFibGUKPiA+IHRpbWVmcmFtZSBvdGhlcndpc2Ugd2luZG93
-cyBndWVzdHMgcGFuaWMuCj4gPiAKPiA+IElkZWFsbHkgd2Ugd291bGQgZGV0ZWN0IHRoYXQgYSBw
-YWNrZXQgaXMgYWN0dWFsbHkgZXhwZXJpZW5jaW5nIGRlbGF5IGFuZAo+ID4gdHJpZ2dlciB0aGUg
-Y29weSBhdCB0aGF0IHBvaW50IGUuZy4gYnkgY2FsbGluZyBza2JfbGluZWFyaXplLiBCdXQgaXQK
-PiA+IGlzbid0IGVhc3kgdG8gdHJhY2sgdGhlc2UgcGFja2V0cyB0aG91Z2ggYW5kIGV2ZW4gaGFy
-ZGVyIHRvIGRvIGEgZGF0YQo+ID4gY29weSB3aXRob3V0IHJhY2VzLgo+ID4gCj4gPiBXaGljaCBy
-ZW1pbmRzIG1lIHRoYXQgc2tiX2xpbmVhcml6ZSBpbiBuZXQgY29yZSBzZWVtcyB0byBiZQo+ID4g
-ZnVuZGFtZW50YWxseSByYWN5IC0gSSBzdXNwZWN0IHRoYXQgaWYgc2tiIGlzIGNsb25lZCwgYW5k
-IHNvbWVvbmUgaXMKPiA+IHRyeWluZyB0byB1c2UgdGhlIHNoYXJlZCBmcmFncyB3aGlsZSBhbm90
-aGVyIHRocmVhZCBjYWxscyBza2JfbGluZWFyaXplLAo+ID4gd2UgZ2V0IHNvbWUgdXNlIGFmdGVy
-IGZyZWUgYnVncyB3aGljaCBsaWtlbHkgbW9zdGx5IGdvIHVuZGV0ZWN0ZWQKPiA+IGJlY2F1c2Ug
-dGhlIGNvcnJ1cHRlZCBwYWNrZXRzIG1vc3RseSBnbyBvbiB3aXJlIGFuZCBnZXQgZHJvcHBlZAo+
-ID4gYnkgY2hlY2tzdW0gY29kZS4KPiA+IAo+IAo+IFBsZWFzZSBsZXQgbWUgbWFrZSBzdXJlIGlm
-IEkgdW5kZXJzdGFuZCBpdCBjb3JyZWN0bHk6Cj4gKiBhbHdheXMgZG8gY29weSB3aXRoIHNrYl9v
-cnBoYW5fZnJhZ3NfcnggYXMgV2lsbGVtIG1lbnRpb25lZCBpbiB0aGUgZWFybGllcgo+IHBvc3Qs
-IGJlZm9yZSB0aGUgeG1pdF9za2IgYXMgb3Bwb3NlZCB0byBteSBvcmlnaW5hbCBwYXRjaCwgaXMg
-c2FmZSBidXQgdG9vCj4gY29zdGx5IHNvIGNhbm5vdCBiZSBhZG9wdGVkLgo+ICrCoGFzIGEgZ2Vu
-ZXJpYyBzb2x1dGlvbiwgaWYgd2Ugd2VyZSB0byBzb21laG93IG92ZXJjb21lIHRoZSBzYWZldHkg
-aXNzdWUsCj4gdHJhY2sKPiB0aGUgZGVsYXkgYW5kIGRvIGNvcHkgaWYgc29tZSB0aHJlc2hvbGQg
-aXMgcmVhY2hlZCBjb3VsZCBiZSBhbiBhbnN3ZXIsIGJ1dAo+IGl0J3MKPiBoYXJkIGZvciBub3cu
-Cj4gKiBzbyB0aGluZ3MgbGlrZSB0aGUgY3VycmVudCB2aG9zdC1uZXQgaW1wbGVtZW50YXRpb24g
-b2YgZGVjaWRpbmcgd2hldGhlciBvcgo+IG5vdAo+IHRvIGRvIHplcm9jb3B5IGJlZm9yZWhhbmQg
-cmVmZXJyaW5nIHRoZSB6ZXJvY29weSB0eCBlcnJvciByYXRpbyBpcyBhIHBvaW50IG9mCj4gcHJh
-Y3RpY2FsIGNvbXByb21pc2UuCjwtIEkgZm9yZ290IHRvIG1lbnRpb24gdGhlIG1heCBwZW5kIGNo
-ZWNraW5nIHBhcnQuCj4gCj4gVGhhbmtzLgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+> Please let me make sure if I understand it correctly:
+> * always do copy with skb_orphan_frags_rx as Willem mentioned in the earlier
+> post, before the xmit_skb as opposed to my original patch, is safe but too
+> costly so cannot be adopted.
+
+One more point about msg_zerocopy in the guest. This does add new allocation
+limits on optmem and locked pages rlimit.
+
+Hitting these should be extremely rare. The tcp small queues limit normally
+throttles well before this.
+
+Virtio-net is an exception because it breaks the tsq signal by calling
+skb_orphan before transmission.
+
+As a result hitting these limits is more likely here. But, in this edge case the
+sendmsg call will not block, either, but fail with -ENOBUFS. The caller can
+send without zerocopy to make forward progress and
+trigger free_old_xmit_skbs from start_xmit.
+
+> * as a generic solution, if we were to somehow overcome the safety issue, track
+> the delay and do copy if some threshold is reached could be an answer, but it's
+> hard for now.> * so things like the current vhost-net implementation of deciding whether or not
+> to do zerocopy beforehand referring the zerocopy tx error ratio is a point of
+> practical compromise.
+
+The fragility of this mechanism is another argument for switching to tx napi
+as default.
+
+Is there any more data about the windows guest issues when completions
+are not queued within a reasonable timeframe? What is this timescale and
+do we really need to work around this. That is the only thing keeping us from
+removing the HoL blocking in vhost-net zerocopy.
