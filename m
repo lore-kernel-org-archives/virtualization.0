@@ -1,15 +1,23 @@
-From: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Subject: Re: [PATCH] [RFC] virtio: Limit the retries on a virtio device reset
-Date: Thu, 24 Aug 2017 19:42:07 +0200
-Message-ID: <05de15a6-9c4f-f44f-b8bd-ca04e7e91499@linux.vnet.ibm.com>
-References: <1503505982-29568-1-git-send-email-pmorel@linux.vnet.ibm.com>
-	<20170824171253-mutt-send-email-mst@kernel.org>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
+	path if no tx napi
+Date: Thu, 24 Aug 2017 16:20:39 -0400
+Message-ID: <CAF=yD-+9Ah8pC9i2w3Ad3WnhQit7Yo479pMrToty7priL6BFLw__38441.4980341264$1503606145$gmane$org@mail.gmail.com>
+References: <20170819063854.27010-1-den@klaipeden.com>
+	<5352c98a-fa48-fcf9-c062-9986a317a1b0@redhat.com>
+	<CAF=yD-LZ4=WAYfUtY7xRWi50FRSkrcOa+b7uc46xRnC4sbDCzQ@mail.gmail.com>
+	<64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
+	<20170822204015-mutt-send-email-mst@kernel.org>
+	<1503498504.8694.26.camel@klaipeden.com>
+	<CAF=yD-+U_aWxSmPPY8v8t=JO0MRZ+N+DzVJTAMKYQ5F=pE1PfA@mail.gmail.com>
+	<20170824014553-mutt-send-email-mst@kernel.org>
+	<CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
+	<20170824160748-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170824171253-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <20170824160748-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,89 +28,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: cohuck@redhat.com, virtualization@lists.linux-foundation.org
+Cc: Network Development <netdev@vger.kernel.org>, Koichiro Den <den@klaipeden.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjQvMDgvMjAxNyAxNjoxOSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9uIFdlZCwg
-QXVnIDIzLCAyMDE3IGF0IDA2OjMzOjAyUE0gKzAyMDAsIFBpZXJyZSBNb3JlbCB3cm90ZToKPj4g
-UmVzZXRpbmcgYSBkZXZpY2UgY2FuIHNvbWV0aW1lIGZhaWwsIGV2ZW4gYSB2aXJ0dWFsIGRldmlj
-ZS4KPj4gSWYgdGhlIGRldmljZSBpcyBub3QgcmVzZXRlZCBhZnRlciBhIHdoaWxlIHRoZSBkcml2
-ZXIgc2hvdWxkCj4+IGFiYW5kb24gdGhlIHJldHJpZXMuCj4+IFRoaXMgaXMgdGhlIGNoYW5nZSBw
-cm9wb3NlZCBmb3IgdGhlIG1vZGVybiB2aXJ0aW9fcGNpLgo+Pgo+PiBNb3JlIGdlbmVyYWxseSwg
-d2hlbiB0aGlzIGhhcHBlbnMsdGhlIHZpcnRpbyBkcml2ZXIgY2FuIHNldCB0aGUKPj4gVklSVElP
-X0NPTkZJR19TX0ZBSUxFRCBzdGF0dXMgZmxhZyB0byBhZHZlcnRpc2UgdGhlIGNhbGxlci4KPj4K
-Pj4gVGhlIHZpcnRpbyBjb3JlIGNhbiB0ZXN0IGlmIHRoZSByZXNldCB3YXMgc3VjY2VzZnVsIGJ5
-IHRlc3RpbmcKPj4gdGhpcyBmbGFnIGFmdGVyIGEgcmVzZXQuCj4+Cj4+IFRoaXMgYmVoYXZpb3Ig
-aXMgYmFja3dhcmQgY29tcGF0aWJsZSB3aXRoIGV4aXN0aW5nIGRyaXZlcnMuCj4+IFRoaXMgYmVo
-YXZpb3Igc2VlbXMgdG8gbWUgY29tcGF0aWJsZSB3aXRoIFZpcnRpby0xLjAgc3BlY2lmaWNhdGlv
-bnMsCj4+IENoYXB0ZXJzIDIuMSBEZXZpY2UgU3RhdHVzIEZpZWxkLgo+PiBUaGVyZSBJIGRlZmlu
-aXRpdmVseSBuZWVkIHlvdXIgb3BpbmlvbjogSXMgaXQgcmlnaHQ/Cj4+Cj4+IFRoaXMgcGF0Y2gg
-YWxzbyBsZWFkIHRvIGFub3RoZXIgcXVlc3Rpb246Cj4+IGRvIHdlIGNhcmUgaWYgYSBkZXZpY2Ug
-cHJvdmlkZWQgYnkgdGhlIGh5cGVydmlzb3IgaXMgYnVnZ3k/Cj4+Cj4+IFNpZ25lZC1vZmYtYnk6
-IFBpZXJyZSBNb3JlbCA8cG1vcmVsQGxpbnV4LnZuZXQuaWJtLmNvbT4KPiAKPiBTbyBJIHRoaW5r
-IHRoaXMgaXMgbm90IHRoZSBiZXN0IHBsYWNlIHRvIHN0YXJ0IHRvIGFkZCBlcnJvciByZWNvdmVy
-eS4KCkkgYWdyZWUsIHRoZXJlIGNhbiBub3QgYmUgYW55IGVycm9yIHJlY292ZXJ5IHRoZXJlLgpJ
-ZiByZXNldCBkb2VzIG5vdCB3b3JrIHdlIGNhbiBsZXQgZmFsbCB0aGUgZGV2aWNlIHVudGlsIG5l
-eHQgcmVzZXQgb2YgCnRoZSBoeXBlcnZpc29yLgoKPiBJdCBzaG91bGQgYmUgbXVjaCBtb3JlIGNv
-bW1vbiB0byBoYXZlIGEgc2l0dWF0aW9uIHdoZXJlIGRldmljZSBnZXRzCj4gYnJva2VuIHdoaWxl
-IGl0J3MgYmVpbmcgdXNlZC4gIFNwZWMgaGFzIGEgTkVFRFNfUkVTRVQgZmxhZyBmb3IgdGhpcy4K
-ClllcyB0aGUgZGV2aWNlIHNpZGUgY2FuIHNldCB0aGlzIGZsYWcsIGJ1dCBpdCBpcyBhbm90aGVy
-IHByb2JsZW0sIGl0IGlzIApzdXBwb3NpbmcgdGhhdDoKLSB0aGUgdHJhbnNwb3J0LCBkZXZpY2Ug
-c2lkZSwgc3RpbGwgd29ya3MuCi0gaXQgaXMgYWJsZSB0byBkZXRlY3QgdGhhdCB0aGUgZGV2aWNl
-IG5lZWQgYSByZXNldAotIGEgcmVzZXQgaXMgZWZmZWN0aXZlCgo+IAo+IEkgdGhpbmsgd2Ugc2hv
-dWxkIHN0YXJ0IGJ5IGNvZGluZyB1cCB0aGF0IHN1cHBvcnQgaW4gYWxsIHZpcnRpbyBkcml2ZXJz
-Lgo+IAo+IEFzIGEgbmV4dCBzdGVwLCB3ZSBjYW4gYWRkIG1vcmUgY29kZSB0byBkZXRlY3QgdW5l
-eHBlY3RlZCBiZWhhdmlvdXIgYnkKPiB0aGUgaG9zdCBhbmQgbWFyayBkZXZpY2UgYXMgYnJva2Vu
-LiBUaGVuIHdlIGNhbiBkbyBtb3JlIHRoaW5ncyBieQo+IGxvb2tpbmcgYXQgdGhlIGJyb2tlbiBm
-bGFnLgoKSXQgc2VlbXMgZGlmZmljdWx0IHRvIG1lLgpCdXQgbWF5IGJlIEkgd2VudCB0b28gZmFz
-dCB0byB0aGUgY29uY2x1c2lvbiB0aGF0IHRoZXJlIGlzIG5vdGhpbmcgdG8gZG8uCkkgc3RpbGwg
-dGhpbmsgYWJvdXQgaXQuCgpCZXN0IHJlZ2FyZHMKClBpZXJyZQoKPiAKPiAKPj4gLS0tCj4+ICAg
-ZHJpdmVycy92aXJ0aW8vdmlydGlvLmMgICAgICAgICAgICB8ICA0ICsrKysKPj4gICBkcml2ZXJz
-L3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5jIHwgMTEgKysrKysrKysrKy0KPj4gICAyIGZpbGVz
-IGNoYW5nZWQsIDE0IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPj4KPj4gZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpby5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvLmMKPj4g
-aW5kZXggNDgyMzBhNS4uNjI1NWRjNCAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmly
-dGlvLmMKPj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvLmMKPj4gQEAgLTMyNCw2ICszMjQs
-OCBAQCBpbnQgcmVnaXN0ZXJfdmlydGlvX2RldmljZShzdHJ1Y3QgdmlydGlvX2RldmljZSAqZGV2
-KQo+PiAgIAkvKiBXZSBhbHdheXMgc3RhcnQgYnkgcmVzZXR0aW5nIHRoZSBkZXZpY2UsIGluIGNh
-c2UgYSBwcmV2aW91cwo+PiAgIAkgKiBkcml2ZXIgbWVzc2VkIGl0IHVwLiAgVGhpcyBhbHNvIHRl
-c3RzIHRoYXQgY29kZSBwYXRoIGEgbGl0dGxlLiAqLwo+PiAgIAlkZXYtPmNvbmZpZy0+cmVzZXQo
-ZGV2KTsKPj4gKwlpZiAoZGV2LT5jb25maWctPmdldF9zdGF0dXMoZGV2KSAmIFZJUlRJT19DT05G
-SUdfU19GQUlMRUQpCj4+ICsJCXJldHVybiAtRUlPOwo+PiAgIAo+PiAgIAkvKiBBY2tub3dsZWRn
-ZSB0aGF0IHdlJ3ZlIHNlZW4gdGhlIGRldmljZS4gKi8KPj4gICAJdmlydGlvX2FkZF9zdGF0dXMo
-ZGV2LCBWSVJUSU9fQ09ORklHX1NfQUNLTk9XTEVER0UpOwo+PiBAQCAtMzczLDYgKzM3NSw4IEBA
-IGludCB2aXJ0aW9fZGV2aWNlX3Jlc3RvcmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKmRldikKPj4g
-ICAJLyogV2UgYWx3YXlzIHN0YXJ0IGJ5IHJlc2V0dGluZyB0aGUgZGV2aWNlLCBpbiBjYXNlIGEg
-cHJldmlvdXMKPj4gICAJICogZHJpdmVyIG1lc3NlZCBpdCB1cC4gKi8KPj4gICAJZGV2LT5jb25m
-aWctPnJlc2V0KGRldik7Cj4+ICsJaWYgKGRldi0+Y29uZmlnLT5nZXRfc3RhdHVzKGRldikgJiBW
-SVJUSU9fQ09ORklHX1NfRkFJTEVEKQo+PiArCQlyZXR1cm4gLUVJTzsKPj4gICAKPj4gICAJLyog
-QWNrbm93bGVkZ2UgdGhhdCB3ZSd2ZSBzZWVuIHRoZSBkZXZpY2UuICovCj4+ICAgCXZpcnRpb19h
-ZGRfc3RhdHVzKGRldiwgVklSVElPX0NPTkZJR19TX0FDS05PV0xFREdFKTsKPj4gZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMgYi9kcml2ZXJzL3ZpcnRpby92
-aXJ0aW9fcGNpX21vZGVybi5jCj4+IGluZGV4IDI1NTVkODAuLmJmYzVmYzEgMTAwNjQ0Cj4+IC0t
-LSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMKPj4gKysrIGIvZHJpdmVycy92
-aXJ0aW8vdmlydGlvX3BjaV9tb2Rlcm4uYwo+PiBAQCAtMjcwLDYgKzI3MCw3IEBAIHN0YXRpYyB2
-b2lkIHZwX3NldF9zdGF0dXMoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYsIHU4IHN0YXR1cykK
-Pj4gICBzdGF0aWMgdm9pZCB2cF9yZXNldChzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPj4g
-ICB7Cj4+ICAgCXN0cnVjdCB2aXJ0aW9fcGNpX2RldmljZSAqdnBfZGV2ID0gdG9fdnBfZGV2aWNl
-KHZkZXYpOwo+PiArCWludCByZXRyeV9jb3VudCA9IDEwOwo+PiAgIAkvKiAwIHN0YXR1cyBtZWFu
-cyBhIHJlc2V0LiAqLwo+PiAgIAl2cF9pb3dyaXRlOCgwLCAmdnBfZGV2LT5jb21tb24tPmRldmlj
-ZV9zdGF0dXMpOwo+PiAgIAkvKiBBZnRlciB3cml0aW5nIDAgdG8gZGV2aWNlX3N0YXR1cywgdGhl
-IGRyaXZlciBNVVNUIHdhaXQgZm9yIGEgcmVhZCBvZgo+PiBAQCAtMjc3LDggKzI3OCwxNiBAQCBz
-dGF0aWMgdm9pZCB2cF9yZXNldChzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPj4gICAJICog
-VGhpcyB3aWxsIGZsdXNoIG91dCB0aGUgc3RhdHVzIHdyaXRlLCBhbmQgZmx1c2ggaW4gZGV2aWNl
-IHdyaXRlcywKPj4gICAJICogaW5jbHVkaW5nIE1TSS1YIGludGVycnVwdHMsIGlmIGFueS4KPj4g
-ICAJICovCj4+IC0Jd2hpbGUgKHZwX2lvcmVhZDgoJnZwX2Rldi0+Y29tbW9uLT5kZXZpY2Vfc3Rh
-dHVzKSkKPj4gKwl3aGlsZSAodnBfaW9yZWFkOCgmdnBfZGV2LT5jb21tb24tPmRldmljZV9zdGF0
-dXMpICYmIHJldHJ5X2NvdW50LS0pCj4+ICAgCQltc2xlZXAoMSk7Cj4+ICsJLyogSWYgdGhlIHJl
-YWQgZGlkIG5vdCByZXR1cm4gMCBiZWZvcmUgdGhlIHRpbWVvdXQgY29uc2lkZXIgdGhhdAo+PiAr
-CSAqIHRoZSBkZXZpY2UgZmFpbGVkLgo+PiArCSAqLwo+PiArCWlmIChyZXRyeV9jb3VudCA8PSAw
-KSB7Cj4+ICsJCXZpcnRpb19hZGRfc3RhdHVzKHZkZXYsIFZJUlRJT19DT05GSUdfU19GQUlMRUQp
-Owo+PiArCQlyZXR1cm47Cj4+ICsJfQo+PiArCXZpcnRpb19hZGRfc3RhdHVzKHZkZXYsIFZJUlRJ
-T19DT05GSUdfU19BQ0tOT1dMRURHRSk7Cj4+ICAgCS8qIEZsdXNoIHBlbmRpbmcgVlEvY29uZmln
-dXJhdGlvbiBjYWxsYmFja3MuICovCj4+ICAgCXZwX3N5bmNocm9uaXplX3ZlY3RvcnModmRldik7
-Cj4+ICAgfQo+PiAtLSAKPj4gMi4zLjAKPiAKCgotLSAKUGllcnJlIE1vcmVsCkxpbnV4L0tWTS9R
-RU1VIGluIELDtmJsaW5nZW4gLSBHZXJtYW55CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
-YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
-YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+>> Traffic shaping can introduce msec timescale latencies.
+>>
+>> The delay may actually be a useful signal. If the guest does not
+>> orphan skbs early, TSQ will throttle the socket causing host
+>> queue build up.
+>>
+>> But, if completions are queued in-order, unrelated flows may be
+>> throttled as well. Allowing out of order completions would resolve
+>> this HoL blocking.
+>
+> We can allow out of order, no guests that follow virtio spec
+> will break. But this won't help in all cases
+> - a single slow flow can occupy the whole ring, you will not
+>   be able to make any new buffers available for the fast flow
+> - what host considers a single flow can be multiple flows for guest
+>
+> There are many other examples.
+
+These examples are due to exhaustion of the fixed ubuf_info pool,
+right? We could use dynamic allocation or a resizable pool if these
+issues are serious enough.
+
+>> > Neither
+>> > do I see why would using tx interrupts within guest be a work around -
+>> > AFAIK windows driver uses tx interrupts.
+>>
+>> It does not address completion latency itself. What I meant was
+>> that in an interrupt-driver model, additional starvation issues,
+>> such as the potential deadlock raised at the start of this thread,
+>> or the timer delay observed before packets were orphaned in
+>> virtio-net in commit b0c39dbdc204, are mitigated.
+>>
+>> Specifically, it breaks the potential deadlock where sockets are
+>> blocked waiting for completions (to free up budget in sndbuf, tsq, ..),
+>> yet completion handling is blocked waiting for a new packet to
+>> trigger free_old_xmit_skbs from start_xmit.
+>
+> This talk of potential deadlock confuses me - I think you mean we would
+> deadlock if we did not orphan skbs in !use_napi - is that right?  If you
+> mean that you can drop skb orphan and this won't lead to a deadlock if
+> free skbs upon a tx interrupt, I agree, for sure.
+
+Yes, that is what I meant.
+
+>> >> That is the only thing keeping us from removing the HoL blocking in vhost-net zerocopy.
+>> >
+>> > We don't enable network watchdog on virtio but we could and maybe
+>> > should.
+>>
+>> Can you elaborate?
+>
+> The issue is that holding onto buffers for very long times makes guests
+> think they are stuck. This is funamentally because from guest point of
+> view this is a NIC, so it is supposed to transmit things out in
+> a timely manner. If host backs the virtual NIC by something that is not
+> a NIC, with traffic shaping etc introducing unbounded latencies,
+> guest will be confused.
+
+That assumes that guests are fragile in this regard. A linux guest
+does not make such assumptions. There are NICs with hardware
+rate limiting, so I'm not sure how much of a leap host os rate
+limiting is.
