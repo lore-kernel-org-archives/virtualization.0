@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] [RFC] virtio: Limit the retries on a virtio device reset
-Date: Thu, 24 Aug 2017 17:19:55 +0300
-Message-ID: <20170824171253-mutt-send-email-mst@kernel.org>
-References: <1503505982-29568-1-git-send-email-pmorel@linux.vnet.ibm.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH] virtio_pci: fix cpu affinity support
+Date: Thu, 24 Aug 2017 18:07:02 +0200
+Message-ID: <20170824160702.31615-1-hch__21109.5541053966$1503590835$gmane$org@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1503505982-29568-1-git-send-email-pmorel@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,99 +15,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Cc: cohuck@redhat.com, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, jasowang@redhat.com
+Cc: virtualization@lists.linux-foundation.org, stable@vger.kernel.org, yasu.isimatu@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 23, 2017 at 06:33:02PM +0200, Pierre Morel wrote:
-> Reseting a device can sometime fail, even a virtual device.
-> If the device is not reseted after a while the driver should
-> abandon the retries.
-> This is the change proposed for the modern virtio_pci.
-> 
-> More generally, when this happens,the virtio driver can set the
-> VIRTIO_CONFIG_S_FAILED status flag to advertise the caller.
-> 
-> The virtio core can test if the reset was succesful by testing
-> this flag after a reset.
-> 
-> This behavior is backward compatible with existing drivers.
-> This behavior seems to me compatible with Virtio-1.0 specifications,
-> Chapters 2.1 Device Status Field.
-> There I definitively need your opinion: Is it right?
-> 
-> This patch also lead to another question:
-> do we care if a device provided by the hypervisor is buggy?
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Commit 0b0f9dc5 ("Revert "virtio_pci: use shared interrupts for
+virtqueues"") removed the adjustment of the pre_vectors for the virtio
+MSI-X vector allocation which was added in commit fb5e31d9 ("virtio:
+allow drivers to request IRQ affinity when creating VQs"). This will
+lead to an incorrect assignment of MSI-X vectors, and potential
+deadlocks when offlining cpus.
 
-So I think this is not the best place to start to add error recovery.
-It should be much more common to have a situation where device gets
-broken while it's being used.  Spec has a NEEDS_RESET flag for this.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 0b0f9dc5 ("Revert "virtio_pci: use shared interrupts for virtqueues")
+Reported-by: YASUAKI ISHIMATSU <yasu.isimatu@gmail.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/virtio/virtio_pci_common.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-I think we should start by coding up that support in all virtio drivers.
-
-As a next step, we can add more code to detect unexpected behaviour by
-the host and mark device as broken. Then we can do more things by
-looking at the broken flag.
-
-
-> ---
->  drivers/virtio/virtio.c            |  4 ++++
->  drivers/virtio/virtio_pci_modern.c | 11 ++++++++++-
->  2 files changed, 14 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 48230a5..6255dc4 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -324,6 +324,8 @@ int register_virtio_device(struct virtio_device *dev)
->  	/* We always start by resetting the device, in case a previous
->  	 * driver messed it up.  This also tests that code path a little. */
->  	dev->config->reset(dev);
-> +	if (dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED)
-> +		return -EIO;
->  
->  	/* Acknowledge that we've seen the device. */
->  	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> @@ -373,6 +375,8 @@ int virtio_device_restore(struct virtio_device *dev)
->  	/* We always start by resetting the device, in case a previous
->  	 * driver messed it up. */
->  	dev->config->reset(dev);
-> +	if (dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED)
-> +		return -EIO;
->  
->  	/* Acknowledge that we've seen the device. */
->  	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index 2555d80..bfc5fc1 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -270,6 +270,7 @@ static void vp_set_status(struct virtio_device *vdev, u8 status)
->  static void vp_reset(struct virtio_device *vdev)
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> +	int retry_count = 10;
->  	/* 0 status means a reset. */
->  	vp_iowrite8(0, &vp_dev->common->device_status);
->  	/* After writing 0 to device_status, the driver MUST wait for a read of
-> @@ -277,8 +278,16 @@ static void vp_reset(struct virtio_device *vdev)
->  	 * This will flush out the status write, and flush in device writes,
->  	 * including MSI-X interrupts, if any.
->  	 */
-> -	while (vp_ioread8(&vp_dev->common->device_status))
-> +	while (vp_ioread8(&vp_dev->common->device_status) && retry_count--)
->  		msleep(1);
-> +	/* If the read did not return 0 before the timeout consider that
-> +	 * the device failed.
-> +	 */
-> +	if (retry_count <= 0) {
-> +		virtio_add_status(vdev, VIRTIO_CONFIG_S_FAILED);
-> +		return;
-> +	}
-> +	virtio_add_status(vdev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
->  	/* Flush pending VQ/configuration callbacks. */
->  	vp_synchronize_vectors(vdev);
->  }
-> -- 
-> 2.3.0
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 007a4f366086..1c4797e53f68 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -107,6 +107,7 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	const char *name = dev_name(&vp_dev->vdev.dev);
++	unsigned flags = PCI_IRQ_MSIX;
+ 	unsigned i, v;
+ 	int err = -ENOMEM;
+ 
+@@ -126,10 +127,13 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 					GFP_KERNEL))
+ 			goto error;
+ 
++	if (desc) {
++		flags |= PCI_IRQ_AFFINITY;
++		desc->pre_vectors++; /* virtio config vector */
++	}
++
+ 	err = pci_alloc_irq_vectors_affinity(vp_dev->pci_dev, nvectors,
+-					     nvectors, PCI_IRQ_MSIX |
+-					     (desc ? PCI_IRQ_AFFINITY : 0),
+-					     desc);
++					     nvectors, flags, desc);
+ 	if (err < 0)
+ 		goto error;
+ 	vp_dev->msix_enabled = 1;
+-- 
+2.11.0
