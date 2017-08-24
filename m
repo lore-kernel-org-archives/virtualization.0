@@ -1,23 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
-	path if no tx napi
-Date: Thu, 24 Aug 2017 16:50:31 +0300
-Message-ID: <20170824160748-mutt-send-email-mst@kernel.org>
-References: <20170819063854.27010-1-den@klaipeden.com>
-	<5352c98a-fa48-fcf9-c062-9986a317a1b0@redhat.com>
-	<CAF=yD-LZ4=WAYfUtY7xRWi50FRSkrcOa+b7uc46xRnC4sbDCzQ@mail.gmail.com>
-	<64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
-	<20170822204015-mutt-send-email-mst@kernel.org>
-	<1503498504.8694.26.camel@klaipeden.com>
-	<CAF=yD-+U_aWxSmPPY8v8t=JO0MRZ+N+DzVJTAMKYQ5F=pE1PfA@mail.gmail.com>
-	<20170824014553-mutt-send-email-mst@kernel.org>
-	<CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
+Subject: Re: [PATCH] [RFC] virtio: Limit the retries on a virtio device reset
+Date: Thu, 24 Aug 2017 17:12:49 +0300
+Message-ID: <20170824170725-mutt-send-email-mst@kernel.org>
+References: <1503505982-29568-1-git-send-email-pmorel@linux.vnet.ibm.com>
+	<20170824130746.25f80368.cohuck@redhat.com>
+	<af4aa628-3583-50b3-1007-4c8b6d4e2183@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
+In-Reply-To: <af4aa628-3583-50b3-1007-4c8b6d4e2183@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,100 +20,175 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Network Development <netdev@vger.kernel.org>, Koichiro Den <den@klaipeden.com>, virtualization@lists.linux-foundation.org
+To: Pierre Morel <pmorel@linux.vnet.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 23, 2017 at 11:28:24PM -0400, Willem de Bruijn wrote:
-> >> > * as a generic solution, if we were to somehow overcome the safety issue, track
-> >> > the delay and do copy if some threshold is reached could be an answer, but it's
-> >> > hard for now.> * so things like the current vhost-net implementation of deciding whether or not
-> >> > to do zerocopy beforehand referring the zerocopy tx error ratio is a point of
-> >> > practical compromise.
-> >>
-> >> The fragility of this mechanism is another argument for switching to tx napi
-> >> as default.
-> >>
-> >> Is there any more data about the windows guest issues when completions
-> >> are not queued within a reasonable timeframe? What is this timescale and
-> >> do we really need to work around this.
-> >
-> > I think it's pretty large, many milliseconds.
-> >
-> > But I wonder what do you mean by "work around". Using buffers within
-> > limited time frame sounds like a reasonable requirement to me.
-> 
-> Vhost-net zerocopy delays completions until the skb is really
-> sent.
+On Thu, Aug 24, 2017 at 02:16:11PM +0200, Pierre Morel wrote:
+> On 24/08/2017 13:07, Cornelia Huck wrote:
+> > On Wed, 23 Aug 2017 18:33:02 +0200
+> > Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+> > =
 
-This is fundamental in any solution. Guest/application can not
-write over a memory buffer as long as hardware might be reading it.
+> > > Reseting a device can sometime fail, even a virtual device.
+> > > If the device is not reseted after a while the driver should
+> > > abandon the retries.
+> > > This is the change proposed for the modern virtio_pci.
+> > > =
 
-> Traffic shaping can introduce msec timescale latencies.
-> 
-> The delay may actually be a useful signal. If the guest does not
-> orphan skbs early, TSQ will throttle the socket causing host
-> queue build up.
-> 
-> But, if completions are queued in-order, unrelated flows may be
-> throttled as well. Allowing out of order completions would resolve
-> this HoL blocking.
+> > > More generally, when this happens,the virtio driver can set the
+> > > VIRTIO_CONFIG_S_FAILED status flag to advertise the caller.
+> > > =
 
-We can allow out of order, no guests that follow virtio spec
-will break. But this won't help in all cases
-- a single slow flow can occupy the whole ring, you will not
-  be able to make any new buffers available for the fast flow
-- what host considers a single flow can be multiple flows for guest
+> > > The virtio core can test if the reset was succesful by testing
+> > > this flag after a reset.
+> > > =
 
-There are many other examples.
+> > > This behavior is backward compatible with existing drivers.
+> > > This behavior seems to me compatible with Virtio-1.0 specifications,
+> > > Chapters 2.1 Device Status Field.
+> > > There I definitively need your opinion: Is it right?
+> > =
 
-> > Neither
-> > do I see why would using tx interrupts within guest be a work around -
-> > AFAIK windows driver uses tx interrupts.
-> 
-> It does not address completion latency itself. What I meant was
-> that in an interrupt-driver model, additional starvation issues,
-> such as the potential deadlock raised at the start of this thread,
-> or the timer delay observed before packets were orphaned in
-> virtio-net in commit b0c39dbdc204, are mitigated.
-> 
-> Specifically, it breaks the potential deadlock where sockets are
-> blocked waiting for completions (to free up budget in sndbuf, tsq, ..),
-> yet completion handling is blocked waiting for a new packet to
-> trigger free_old_xmit_skbs from start_xmit.
+> > Will have to double check with the spec.
+> > =
 
-This talk of potential deadlock confuses me - I think you mean we would
-deadlock if we did not orphan skbs in !use_napi - is that right?  If you
-mean that you can drop skb orphan and this won't lead to a deadlock if
-free skbs upon a tx interrupt, I agree, for sure.
+> > > =
 
-> >> That is the only thing keeping us from removing the HoL blocking in vhost-net zerocopy.
-> >
-> > We don't enable network watchdog on virtio but we could and maybe
-> > should.
-> 
-> Can you elaborate?
+> > > This patch also lead to another question:
+> > > do we care if a device provided by the hypervisor is buggy?
+> > =
 
-The issue is that holding onto buffers for very long times makes guests
-think they are stuck. This is funamentally because from guest point of
-view this is a NIC, so it is supposed to transmit things out in
-a timely manner. If host backs the virtual NIC by something that is not
-a NIC, with traffic shaping etc introducing unbounded latencies,
-guest will be confused.
+> > Getting into a hang because of a broken device is not nice, but I'm not
+> > sure we need to plan for this. Have you seen this in the wild?
+> =
 
-For example, we could set ndo_tx_timeout within guest. Then
-if tx queue is stopped for too long, a watchdog would fire.
+> Yes, with virtio-pci on S390.
 
-We worked around most of the issues by introducing guest/host
-copy. This copy, done by vhost-net, allows us to pretend that
-a not-nic backend (e.g. a qdisc) is a nic (virtio-net).
-This way you can both do traffic shaping in host with
-unbounded latencies and limit latency from guest point of view.
+And what triggered this?
+I don't think we can recover from a failed reset in all cases.
 
-Cost is both data copies and loss of end to end credit accounting.
+> =
 
-Changing Linux as a host to limit latencies while not doing copies will
-not be an easy task but that's the only fix that comes to mind.
+> > =
 
--- 
-MST
+> > > =
+
+> > > Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
+> > > ---
+> > >   drivers/virtio/virtio.c            |  4 ++++
+> > >   drivers/virtio/virtio_pci_modern.c | 11 ++++++++++-
+> > >   2 files changed, 14 insertions(+), 1 deletion(-)
+> > > =
+
+> > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > > index 48230a5..6255dc4 100644
+> > > --- a/drivers/virtio/virtio.c
+> > > +++ b/drivers/virtio/virtio.c
+> > > @@ -324,6 +324,8 @@ int register_virtio_device(struct virtio_device *=
+dev)
+> > >   	/* We always start by resetting the device, in case a previous
+> > >   	 * driver messed it up.  This also tests that code path a little. =
+*/
+> > >   	dev->config->reset(dev);
+> > > +	if (dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED)
+> > > +		return -EIO;
+> > >   	/* Acknowledge that we've seen the device. */
+> > >   	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+> > > @@ -373,6 +375,8 @@ int virtio_device_restore(struct virtio_device *d=
+ev)
+> > >   	/* We always start by resetting the device, in case a previous
+> > >   	 * driver messed it up. */
+> > >   	dev->config->reset(dev);
+> > > +	if (dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED)
+> > > +		return -EIO;
+> > =
+
+> > virtio-ccw prior to rev 2 won't ever see this (as the read command did
+> > not exist then), but this is not really a problem.
+> > =
+
+> > >   	/* Acknowledge that we've seen the device. */
+> > >   	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+> > > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virt=
+io_pci_modern.c
+> > > index 2555d80..bfc5fc1 100644
+> > > --- a/drivers/virtio/virtio_pci_modern.c
+> > > +++ b/drivers/virtio/virtio_pci_modern.c
+> > > @@ -270,6 +270,7 @@ static void vp_set_status(struct virtio_device *v=
+dev, u8 status)
+> > >   static void vp_reset(struct virtio_device *vdev)
+> > >   {
+> > >   	struct virtio_pci_device *vp_dev =3D to_vp_device(vdev);
+> > > +	int retry_count =3D 10;
+> > =
+
+> > When you're touching this anyway, it would be a good time to add an
+> > extra blank line :)
+> =
+
+> Yes, I like blank lines too.
+> =
+
+> > =
+
+> > >   	/* 0 status means a reset. */
+> > >   	vp_iowrite8(0, &vp_dev->common->device_status);
+> > >   	/* After writing 0 to device_status, the driver MUST wait for a re=
+ad of
+> > > @@ -277,8 +278,16 @@ static void vp_reset(struct virtio_device *vdev)
+> > >   	 * This will flush out the status write, and flush in device write=
+s,
+> > >   	 * including MSI-X interrupts, if any.
+> > >   	 */
+> > > -	while (vp_ioread8(&vp_dev->common->device_status))
+> > > +	while (vp_ioread8(&vp_dev->common->device_status) && retry_count--)
+> > >   		msleep(1);
+> > > +	/* If the read did not return 0 before the timeout consider that
+> > > +	 * the device failed.
+> > > +	 */
+> > > +	if (retry_count <=3D 0) {
+> > > +		virtio_add_status(vdev, VIRTIO_CONFIG_S_FAILED);
+> > > +		return;
+> > > +	}
+
+I'm not sure what's the right approach by I don't really like this one:
+- an arbitrary number of retries looks wrong. why 10?
+- doing this on probe might be reasonable but any other reset
+  is expected to actually reset the device
+- we'll have to spread these tests all over the place.
+  Allowing reset to fail would be better. =
+
+
+
+> > > +	virtio_add_status(vdev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+> > =
+
+> > Adding ACK here seems wrong?
+> =
+
+> Exact, I forgot to remove this from a previous test.
+> I wait a little and post a v2
+> =
+
+> Thanks for reviewing.
+> =
+
+> Pierre
+> =
+
+> > =
+
+> > >   	/* Flush pending VQ/configuration callbacks. */
+> > >   	vp_synchronize_vectors(vdev);
+> > >   }
+> > =
+
+> =
+
+> =
+
+> -- =
+
+> Pierre Morel
+> Linux/KVM/QEMU in B=F6blingen - Germany
