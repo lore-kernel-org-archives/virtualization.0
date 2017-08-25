@@ -1,13 +1,18 @@
 From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH] [RFC] virtio: Limit the retries on a virtio device reset
-Date: Thu, 24 Aug 2017 13:07:46 +0200
-Message-ID: <20170824130746.25f80368.cohuck@redhat.com>
+Date: Fri, 25 Aug 2017 10:26:12 +0200
+Message-ID: <20170825102612.39a5ca60.cohuck@redhat.com>
 References: <1503505982-29568-1-git-send-email-pmorel@linux.vnet.ibm.com>
+	<20170824130746.25f80368.cohuck@redhat.com>
+	<af4aa628-3583-50b3-1007-4c8b6d4e2183@linux.vnet.ibm.com>
+	<20170824170725-mutt-send-email-mst@kernel.org>
+	<d75121e6-5685-295a-7430-6aa8d713060b@linux.vnet.ibm.com>
+	<20170825001411-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1503505982-29568-1-git-send-email-pmorel@linux.vnet.ibm.com>
+In-Reply-To: <20170825001411-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,105 +22,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pierre Morel <pmorel@linux.vnet.ibm.com>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 23 Aug 2017 18:33:02 +0200
-Pierre Morel <pmorel@linux.vnet.ibm.com> wrote:
+On Fri, 25 Aug 2017 00:16:05 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> Reseting a device can sometime fail, even a virtual device.
-> If the device is not reseted after a while the driver should
-> abandon the retries.
-> This is the change proposed for the modern virtio_pci.
+> On Thu, Aug 24, 2017 at 07:07:42PM +0200, Pierre Morel wrote:
+> > > - we'll have to spread these tests all over the place.  
+> > 
+> > I counted 19 places where to check if the reset went OK.
+> > 
+> > None of them touch the device anymore after reset and just free driver's
+> > resources.  
 > 
-> More generally, when this happens,the virtio driver can set the
-> VIRTIO_CONFIG_S_FAILED status flag to advertise the caller.
-> 
-> The virtio core can test if the reset was succesful by testing
-> this flag after a reset.
-> 
-> This behavior is backward compatible with existing drivers.
-> This behavior seems to me compatible with Virtio-1.0 specifications,
-> Chapters 2.1 Device Status Field.
-> There I definitively need your opinion: Is it right?
+> ... and then hypervisor uses the resources after free. Not good.
 
-Will have to double check with the spec.
+The only place where we can simply give up on the device and be sure
+that nothing bad happens is during initial setup. In the other places,
+it seems we have the choice between looping (as now) or panic.
 
 > 
-> This patch also lead to another question:
-> do we care if a device provided by the hypervisor is buggy?
+> > So that if reset failed, nothing goes wrong, no device access, but the
+> > probability that the next probe fail is high. (If it ever succeed).
+> >   
+> > >    Allowing reset to fail would be better.  
+> > 
+> > May be I did not understand what you mean.
+> > Testing the flag or a return value is as expensive.
+> > 
+> > Of course the implementation is a mater of taste.  
+> 
+> If a function can fail it should return an error, not just set a flag.
 
-Getting into a hang because of a broken device is not nice, but I'm not
-sure we need to plan for this. Have you seen this in the wild?
+ccw reset can (a) succeed, (b) fail (by returning an error status via
+standard channel subsystem mechanisms), or (c) run into a timeout
+(where the driver should recover via csch and friends). [1] In any
+case, we need to able to rely on the channel subsystem to make sure a
+broken device is dead.
+
+pci-modern reset can (a) succeed, or (b) be in an indeterminate state
+(it has not yet completed, but we don't know whether it will complete
+in the future). It may be reasonable to just give up if (b) happens
+during initial setup.
+
+I'm not sure that allowing to fail reset will help much, other than
+allowing to give up on a pci device early.
 
 > 
-> Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-> ---
->  drivers/virtio/virtio.c            |  4 ++++
->  drivers/virtio/virtio_pci_modern.c | 11 ++++++++++-
->  2 files changed, 14 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 48230a5..6255dc4 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -324,6 +324,8 @@ int register_virtio_device(struct virtio_device *dev)
->  	/* We always start by resetting the device, in case a previous
->  	 * driver messed it up.  This also tests that code path a little. */
->  	dev->config->reset(dev);
-> +	if (dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED)
-> +		return -EIO;
->  
->  	/* Acknowledge that we've seen the device. */
->  	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> @@ -373,6 +375,8 @@ int virtio_device_restore(struct virtio_device *dev)
->  	/* We always start by resetting the device, in case a previous
->  	 * driver messed it up. */
->  	dev->config->reset(dev);
-> +	if (dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED)
-> +		return -EIO;
+> > I notice two other things to do:
+> > 
+> > - May be adding a warning would be fine too.
+> > - Virtio_ccw may add a fail flag when allocation of CCW failed.
+> >   I did not find anything to do for virtio_mmio or legacy virtio_pci.
+> > 
+> > Regards,
+> > 
+> > Pierre  
 
-virtio-ccw prior to rev 2 won't ever see this (as the read command did
-not exist then), but this is not really a problem.
-
->  
->  	/* Acknowledge that we've seen the device. */
->  	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index 2555d80..bfc5fc1 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -270,6 +270,7 @@ static void vp_set_status(struct virtio_device *vdev, u8 status)
->  static void vp_reset(struct virtio_device *vdev)
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> +	int retry_count = 10;
-
-When you're touching this anyway, it would be a good time to add an
-extra blank line :)
-
->  	/* 0 status means a reset. */
->  	vp_iowrite8(0, &vp_dev->common->device_status);
->  	/* After writing 0 to device_status, the driver MUST wait for a read of
-> @@ -277,8 +278,16 @@ static void vp_reset(struct virtio_device *vdev)
->  	 * This will flush out the status write, and flush in device writes,
->  	 * including MSI-X interrupts, if any.
->  	 */
-> -	while (vp_ioread8(&vp_dev->common->device_status))
-> +	while (vp_ioread8(&vp_dev->common->device_status) && retry_count--)
->  		msleep(1);
-> +	/* If the read did not return 0 before the timeout consider that
-> +	 * the device failed.
-> +	 */
-> +	if (retry_count <= 0) {
-> +		virtio_add_status(vdev, VIRTIO_CONFIG_S_FAILED);
-> +		return;
-> +	}
-> +	virtio_add_status(vdev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-
-Adding ACK here seems wrong?
-
->  	/* Flush pending VQ/configuration callbacks. */
->  	vp_synchronize_vectors(vdev);
->  }
+[1] At that point, we either succeed with csch and can either retry or
+fail, or fail with device gone, in which case the device is, well,
+gone, which we also should be able to handle fine.
