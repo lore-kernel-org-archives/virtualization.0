@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Pierre Morel <pmorel@linux.vnet.ibm.com>
 Subject: Re: [PATCH] [RFC] virtio: Limit the retries on a virtio device reset
-Date: Fri, 25 Aug 2017 00:23:00 +0300
-Message-ID: <20170825001922-mutt-send-email-mst@kernel.org>
+Date: Fri, 25 Aug 2017 10:33:57 +0200
+Message-ID: <d271e548-efd2-5315-c406-a32fad838e87@linux.vnet.ibm.com>
 References: <1503505982-29568-1-git-send-email-pmorel@linux.vnet.ibm.com>
 	<20170824171253-mutt-send-email-mst@kernel.org>
 	<05de15a6-9c4f-f44f-b8bd-ca04e7e91499@linux.vnet.ibm.com>
+	<20170825001922-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <05de15a6-9c4f-f44f-b8bd-ca04e7e91499@linux.vnet.ibm.com>
+In-Reply-To: <20170825001922-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,160 +21,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pierre Morel <pmorel@linux.vnet.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: cohuck@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 24, 2017 at 07:42:07PM +0200, Pierre Morel wrote:
-> On 24/08/2017 16:19, Michael S. Tsirkin wrote:
-> > On Wed, Aug 23, 2017 at 06:33:02PM +0200, Pierre Morel wrote:
-> > > Reseting a device can sometime fail, even a virtual device.
-> > > If the device is not reseted after a while the driver should
-> > > abandon the retries.
-> > > This is the change proposed for the modern virtio_pci.
-> > > =
-
-> > > More generally, when this happens,the virtio driver can set the
-> > > VIRTIO_CONFIG_S_FAILED status flag to advertise the caller.
-> > > =
-
-> > > The virtio core can test if the reset was succesful by testing
-> > > this flag after a reset.
-> > > =
-
-> > > This behavior is backward compatible with existing drivers.
-> > > This behavior seems to me compatible with Virtio-1.0 specifications,
-> > > Chapters 2.1 Device Status Field.
-> > > There I definitively need your opinion: Is it right?
-> > > =
-
-> > > This patch also lead to another question:
-> > > do we care if a device provided by the hypervisor is buggy?
-> > > =
-
-> > > Signed-off-by: Pierre Morel <pmorel@linux.vnet.ibm.com>
-> > =
-
-> > So I think this is not the best place to start to add error recovery.
-> =
-
-> I agree, there can not be any error recovery there.
-> If reset does not work we can let fall the device until next reset of the
-> hypervisor.
-
-On probe, yes. But failures are more likely to trigger at other times.
-
-> > It should be much more common to have a situation where device gets
-> > broken while it's being used.  Spec has a NEEDS_RESET flag for this.
-> =
-
-> Yes the device side can set this flag, but it is another problem, it is
-> supposing that:
-> - the transport, device side, still works.
-> - it is able to detect that the device need a reset
-> - a reset is effective
-
-Right. OTOH in this case there's more we can do.
-
-
-> > =
-
-> > I think we should start by coding up that support in all virtio drivers.
-> > =
-
-> > As a next step, we can add more code to detect unexpected behaviour by
-> > the host and mark device as broken. Then we can do more things by
-> > looking at the broken flag.
-> =
-
-> It seems difficult to me.
-> But may be I went too fast to the conclusion that there is nothing to do.
-> I still think about it.
-> =
-
-> Best regards
-> =
-
-> Pierre
-> =
-
-> > =
-
-> > =
-
-> > > ---
-> > >   drivers/virtio/virtio.c            |  4 ++++
-> > >   drivers/virtio/virtio_pci_modern.c | 11 ++++++++++-
-> > >   2 files changed, 14 insertions(+), 1 deletion(-)
-> > > =
-
-> > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > index 48230a5..6255dc4 100644
-> > > --- a/drivers/virtio/virtio.c
-> > > +++ b/drivers/virtio/virtio.c
-> > > @@ -324,6 +324,8 @@ int register_virtio_device(struct virtio_device *=
-dev)
-> > >   	/* We always start by resetting the device, in case a previous
-> > >   	 * driver messed it up.  This also tests that code path a little. =
-*/
-> > >   	dev->config->reset(dev);
-> > > +	if (dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED)
-> > > +		return -EIO;
-> > >   	/* Acknowledge that we've seen the device. */
-> > >   	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> > > @@ -373,6 +375,8 @@ int virtio_device_restore(struct virtio_device *d=
-ev)
-> > >   	/* We always start by resetting the device, in case a previous
-> > >   	 * driver messed it up. */
-> > >   	dev->config->reset(dev);
-> > > +	if (dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED)
-> > > +		return -EIO;
-> > >   	/* Acknowledge that we've seen the device. */
-> > >   	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> > > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virt=
-io_pci_modern.c
-> > > index 2555d80..bfc5fc1 100644
-> > > --- a/drivers/virtio/virtio_pci_modern.c
-> > > +++ b/drivers/virtio/virtio_pci_modern.c
-> > > @@ -270,6 +270,7 @@ static void vp_set_status(struct virtio_device *v=
-dev, u8 status)
-> > >   static void vp_reset(struct virtio_device *vdev)
-> > >   {
-> > >   	struct virtio_pci_device *vp_dev =3D to_vp_device(vdev);
-> > > +	int retry_count =3D 10;
-> > >   	/* 0 status means a reset. */
-> > >   	vp_iowrite8(0, &vp_dev->common->device_status);
-> > >   	/* After writing 0 to device_status, the driver MUST wait for a re=
-ad of
-> > > @@ -277,8 +278,16 @@ static void vp_reset(struct virtio_device *vdev)
-> > >   	 * This will flush out the status write, and flush in device write=
-s,
-> > >   	 * including MSI-X interrupts, if any.
-> > >   	 */
-> > > -	while (vp_ioread8(&vp_dev->common->device_status))
-> > > +	while (vp_ioread8(&vp_dev->common->device_status) && retry_count--)
-> > >   		msleep(1);
-> > > +	/* If the read did not return 0 before the timeout consider that
-> > > +	 * the device failed.
-> > > +	 */
-> > > +	if (retry_count <=3D 0) {
-> > > +		virtio_add_status(vdev, VIRTIO_CONFIG_S_FAILED);
-> > > +		return;
-> > > +	}
-> > > +	virtio_add_status(vdev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> > >   	/* Flush pending VQ/configuration callbacks. */
-> > >   	vp_synchronize_vectors(vdev);
-> > >   }
-> > > -- =
-
-> > > 2.3.0
-> > =
-
-> =
-
-> =
-
-> -- =
-
-> Pierre Morel
-> Linux/KVM/QEMU in B=F6blingen - Germany
+T24gMjQvMDgvMjAxNyAyMzoyMywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9uIFRodSwg
+QXVnIDI0LCAyMDE3IGF0IDA3OjQyOjA3UE0gKzAyMDAsIFBpZXJyZSBNb3JlbCB3cm90ZToKPj4g
+T24gMjQvMDgvMjAxNyAxNjoxOSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4gT24gV2Vk
+LCBBdWcgMjMsIDIwMTcgYXQgMDY6MzM6MDJQTSArMDIwMCwgUGllcnJlIE1vcmVsIHdyb3RlOgo+
+Pj4+IFJlc2V0aW5nIGEgZGV2aWNlIGNhbiBzb21ldGltZSBmYWlsLCBldmVuIGEgdmlydHVhbCBk
+ZXZpY2UuCj4+Pj4gSWYgdGhlIGRldmljZSBpcyBub3QgcmVzZXRlZCBhZnRlciBhIHdoaWxlIHRo
+ZSBkcml2ZXIgc2hvdWxkCj4+Pj4gYWJhbmRvbiB0aGUgcmV0cmllcy4KPj4+PiBUaGlzIGlzIHRo
+ZSBjaGFuZ2UgcHJvcG9zZWQgZm9yIHRoZSBtb2Rlcm4gdmlydGlvX3BjaS4KPj4+Pgo+Pj4+IE1v
+cmUgZ2VuZXJhbGx5LCB3aGVuIHRoaXMgaGFwcGVucyx0aGUgdmlydGlvIGRyaXZlciBjYW4gc2V0
+IHRoZQo+Pj4+IFZJUlRJT19DT05GSUdfU19GQUlMRUQgc3RhdHVzIGZsYWcgdG8gYWR2ZXJ0aXNl
+IHRoZSBjYWxsZXIuCj4+Pj4KPj4+PiBUaGUgdmlydGlvIGNvcmUgY2FuIHRlc3QgaWYgdGhlIHJl
+c2V0IHdhcyBzdWNjZXNmdWwgYnkgdGVzdGluZwo+Pj4+IHRoaXMgZmxhZyBhZnRlciBhIHJlc2V0
+Lgo+Pj4+Cj4+Pj4gVGhpcyBiZWhhdmlvciBpcyBiYWNrd2FyZCBjb21wYXRpYmxlIHdpdGggZXhp
+c3RpbmcgZHJpdmVycy4KPj4+PiBUaGlzIGJlaGF2aW9yIHNlZW1zIHRvIG1lIGNvbXBhdGlibGUg
+d2l0aCBWaXJ0aW8tMS4wIHNwZWNpZmljYXRpb25zLAo+Pj4+IENoYXB0ZXJzIDIuMSBEZXZpY2Ug
+U3RhdHVzIEZpZWxkLgo+Pj4+IFRoZXJlIEkgZGVmaW5pdGl2ZWx5IG5lZWQgeW91ciBvcGluaW9u
+OiBJcyBpdCByaWdodD8KPj4+Pgo+Pj4+IFRoaXMgcGF0Y2ggYWxzbyBsZWFkIHRvIGFub3RoZXIg
+cXVlc3Rpb246Cj4+Pj4gZG8gd2UgY2FyZSBpZiBhIGRldmljZSBwcm92aWRlZCBieSB0aGUgaHlw
+ZXJ2aXNvciBpcyBidWdneT8KPj4+Pgo+Pj4+IFNpZ25lZC1vZmYtYnk6IFBpZXJyZSBNb3JlbCA8
+cG1vcmVsQGxpbnV4LnZuZXQuaWJtLmNvbT4KPj4+Cj4+PiBTbyBJIHRoaW5rIHRoaXMgaXMgbm90
+IHRoZSBiZXN0IHBsYWNlIHRvIHN0YXJ0IHRvIGFkZCBlcnJvciByZWNvdmVyeS4KPj4KPj4gSSBh
+Z3JlZSwgdGhlcmUgY2FuIG5vdCBiZSBhbnkgZXJyb3IgcmVjb3ZlcnkgdGhlcmUuCj4+IElmIHJl
+c2V0IGRvZXMgbm90IHdvcmsgd2UgY2FuIGxldCBmYWxsIHRoZSBkZXZpY2UgdW50aWwgbmV4dCBy
+ZXNldCBvZiB0aGUKPj4gaHlwZXJ2aXNvci4KPiAKPiBPbiBwcm9iZSwgeWVzLiBCdXQgZmFpbHVy
+ZXMgYXJlIG1vcmUgbGlrZWx5IHRvIHRyaWdnZXIgYXQgb3RoZXIgdGltZXMuCgpPSywgd2hhdCBh
+Ym91dDoKLSBPbiBwcm9iZSBpZiByZXNldCBmYWlsLCB0aGUgcHJvYmUgZmFpbC4KCi0gT24gZnJl
+ZXplIGFuZCByZW1vdmUgOiB3ZSBjYW4gbm90IGZyZWUgcmVzb3VyY2VzIHdoaWNoIGFyZSBjb21t
+b24KCXdpdGggdGhlIGRldmljZSwgYXQgbGVhc3QgdGhlIHF1ZXVlcy4KCS4uLiB3ZSBjYW4gb25s
+eSBzaWduYWwgdGhlIGVycm9yIGFuZCBnaXZlIHVwIHdpdGggdGhlIGRldmljZS4KCj4gCj4+PiBJ
+dCBzaG91bGQgYmUgbXVjaCBtb3JlIGNvbW1vbiB0byBoYXZlIGEgc2l0dWF0aW9uIHdoZXJlIGRl
+dmljZSBnZXRzCj4+PiBicm9rZW4gd2hpbGUgaXQncyBiZWluZyB1c2VkLiAgU3BlYyBoYXMgYSBO
+RUVEU19SRVNFVCBmbGFnIGZvciB0aGlzLgo+Pgo+PiBZZXMgdGhlIGRldmljZSBzaWRlIGNhbiBz
+ZXQgdGhpcyBmbGFnLCBidXQgaXQgaXMgYW5vdGhlciBwcm9ibGVtLCBpdCBpcwo+PiBzdXBwb3Np
+bmcgdGhhdDoKPj4gLSB0aGUgdHJhbnNwb3J0LCBkZXZpY2Ugc2lkZSwgc3RpbGwgd29ya3MuCj4+
+IC0gaXQgaXMgYWJsZSB0byBkZXRlY3QgdGhhdCB0aGUgZGV2aWNlIG5lZWQgYSByZXNldAo+PiAt
+IGEgcmVzZXQgaXMgZWZmZWN0aXZlCj4gCj4gUmlnaHQuIE9UT0ggaW4gdGhpcyBjYXNlIHRoZXJl
+J3MgbW9yZSB3ZSBjYW4gZG8uCgpZZXMsIEkgZGlkIG5vdCBmaW5kIGEgc2luZ2xlIHRlc3Qgb2Yg
+dGhpcyBmbGFnIChORUVEU19SRVNFVCkuCmV2ZW4gUUVNVSBzZXQgaXQgcXVpdGUgb2Z0ZW4gKHRo
+b3VnaCB2aXJ0aW9fZXJyb3IoKSkKClRoZSBkZWNpc2lvbiB0byByZXNldCB0aGUgZGV2aWNlIG11
+c3QgY29tZSBmcm9tIHRoZSBkcml2ZXIuClRoZSBwcm90b2NvbCB0byByZXNldCB0aGUgZGV2aWNl
+IGlzIGRldmljZS9kcml2ZXIgc3BlY2lmaWMuLi4gbG90dGEgd29yawoKU2hvdWxkbid0IGl0IGJl
+IHNlcGFyYXRlIGZyb20gdGhlICJyZXNldCBmYWlsZWQiIHByb2JsZW0/CgoKUmVnYXJkcywKClBp
+ZXJyZQoKCj4gCj4gCj4+Pgo+Pj4gSSB0aGluayB3ZSBzaG91bGQgc3RhcnQgYnkgY29kaW5nIHVw
+IHRoYXQgc3VwcG9ydCBpbiBhbGwgdmlydGlvIGRyaXZlcnMuCj4+Pgo+Pj4gQXMgYSBuZXh0IHN0
+ZXAsIHdlIGNhbiBhZGQgbW9yZSBjb2RlIHRvIGRldGVjdCB1bmV4cGVjdGVkIGJlaGF2aW91ciBi
+eQo+Pj4gdGhlIGhvc3QgYW5kIG1hcmsgZGV2aWNlIGFzIGJyb2tlbi4gVGhlbiB3ZSBjYW4gZG8g
+bW9yZSB0aGluZ3MgYnkKPj4+IGxvb2tpbmcgYXQgdGhlIGJyb2tlbiBmbGFnLgo+Pgo+PiBJdCBz
+ZWVtcyBkaWZmaWN1bHQgdG8gbWUuCj4+IEJ1dCBtYXkgYmUgSSB3ZW50IHRvbyBmYXN0IHRvIHRo
+ZSBjb25jbHVzaW9uIHRoYXQgdGhlcmUgaXMgbm90aGluZyB0byBkby4KPj4gSSBzdGlsbCB0aGlu
+ayBhYm91dCBpdC4KPj4KPj4gQmVzdCByZWdhcmRzCj4+Cj4+IFBpZXJyZQo+Pgo+Pj4KPj4+Cj4+
+Pj4gLS0tCj4+Pj4gICAgZHJpdmVycy92aXJ0aW8vdmlydGlvLmMgICAgICAgICAgICB8ICA0ICsr
+KysKPj4+PiAgICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5jIHwgMTEgKysrKysr
+KysrKy0KPj4+PiAgICAyIGZpbGVzIGNoYW5nZWQsIDE0IGluc2VydGlvbnMoKyksIDEgZGVsZXRp
+b24oLSkKPj4+Pgo+Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW8uYyBiL2Ry
+aXZlcnMvdmlydGlvL3ZpcnRpby5jCj4+Pj4gaW5kZXggNDgyMzBhNS4uNjI1NWRjNCAxMDA2NDQK
+Pj4+PiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW8uYwo+Pj4+ICsrKyBiL2RyaXZlcnMvdmly
+dGlvL3ZpcnRpby5jCj4+Pj4gQEAgLTMyNCw2ICszMjQsOCBAQCBpbnQgcmVnaXN0ZXJfdmlydGlv
+X2RldmljZShzdHJ1Y3QgdmlydGlvX2RldmljZSAqZGV2KQo+Pj4+ICAgIAkvKiBXZSBhbHdheXMg
+c3RhcnQgYnkgcmVzZXR0aW5nIHRoZSBkZXZpY2UsIGluIGNhc2UgYSBwcmV2aW91cwo+Pj4+ICAg
+IAkgKiBkcml2ZXIgbWVzc2VkIGl0IHVwLiAgVGhpcyBhbHNvIHRlc3RzIHRoYXQgY29kZSBwYXRo
+IGEgbGl0dGxlLiAqLwo+Pj4+ICAgIAlkZXYtPmNvbmZpZy0+cmVzZXQoZGV2KTsKPj4+PiArCWlm
+IChkZXYtPmNvbmZpZy0+Z2V0X3N0YXR1cyhkZXYpICYgVklSVElPX0NPTkZJR19TX0ZBSUxFRCkK
+Pj4+PiArCQlyZXR1cm4gLUVJTzsKPj4+PiAgICAJLyogQWNrbm93bGVkZ2UgdGhhdCB3ZSd2ZSBz
+ZWVuIHRoZSBkZXZpY2UuICovCj4+Pj4gICAgCXZpcnRpb19hZGRfc3RhdHVzKGRldiwgVklSVElP
+X0NPTkZJR19TX0FDS05PV0xFREdFKTsKPj4+PiBAQCAtMzczLDYgKzM3NSw4IEBAIGludCB2aXJ0
+aW9fZGV2aWNlX3Jlc3RvcmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKmRldikKPj4+PiAgICAJLyog
+V2UgYWx3YXlzIHN0YXJ0IGJ5IHJlc2V0dGluZyB0aGUgZGV2aWNlLCBpbiBjYXNlIGEgcHJldmlv
+dXMKPj4+PiAgICAJICogZHJpdmVyIG1lc3NlZCBpdCB1cC4gKi8KPj4+PiAgICAJZGV2LT5jb25m
+aWctPnJlc2V0KGRldik7Cj4+Pj4gKwlpZiAoZGV2LT5jb25maWctPmdldF9zdGF0dXMoZGV2KSAm
+IFZJUlRJT19DT05GSUdfU19GQUlMRUQpCj4+Pj4gKwkJcmV0dXJuIC1FSU87Cj4+Pj4gICAgCS8q
+IEFja25vd2xlZGdlIHRoYXQgd2UndmUgc2VlbiB0aGUgZGV2aWNlLiAqLwo+Pj4+ICAgIAl2aXJ0
+aW9fYWRkX3N0YXR1cyhkZXYsIFZJUlRJT19DT05GSUdfU19BQ0tOT1dMRURHRSk7Cj4+Pj4gZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMgYi9kcml2ZXJzL3Zp
+cnRpby92aXJ0aW9fcGNpX21vZGVybi5jCj4+Pj4gaW5kZXggMjU1NWQ4MC4uYmZjNWZjMSAxMDA2
+NDQKPj4+PiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5jCj4+Pj4gKysr
+IGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9tb2Rlcm4uYwo+Pj4+IEBAIC0yNzAsNiArMjcw
+LDcgQEAgc3RhdGljIHZvaWQgdnBfc2V0X3N0YXR1cyhzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRl
+diwgdTggc3RhdHVzKQo+Pj4+ICAgIHN0YXRpYyB2b2lkIHZwX3Jlc2V0KHN0cnVjdCB2aXJ0aW9f
+ZGV2aWNlICp2ZGV2KQo+Pj4+ICAgIHsKPj4+PiAgICAJc3RydWN0IHZpcnRpb19wY2lfZGV2aWNl
+ICp2cF9kZXYgPSB0b192cF9kZXZpY2UodmRldik7Cj4+Pj4gKwlpbnQgcmV0cnlfY291bnQgPSAx
+MDsKPj4+PiAgICAJLyogMCBzdGF0dXMgbWVhbnMgYSByZXNldC4gKi8KPj4+PiAgICAJdnBfaW93
+cml0ZTgoMCwgJnZwX2Rldi0+Y29tbW9uLT5kZXZpY2Vfc3RhdHVzKTsKPj4+PiAgICAJLyogQWZ0
+ZXIgd3JpdGluZyAwIHRvIGRldmljZV9zdGF0dXMsIHRoZSBkcml2ZXIgTVVTVCB3YWl0IGZvciBh
+IHJlYWQgb2YKPj4+PiBAQCAtMjc3LDggKzI3OCwxNiBAQCBzdGF0aWMgdm9pZCB2cF9yZXNldChz
+dHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPj4+PiAgICAJICogVGhpcyB3aWxsIGZsdXNoIG91
+dCB0aGUgc3RhdHVzIHdyaXRlLCBhbmQgZmx1c2ggaW4gZGV2aWNlIHdyaXRlcywKPj4+PiAgICAJ
+ICogaW5jbHVkaW5nIE1TSS1YIGludGVycnVwdHMsIGlmIGFueS4KPj4+PiAgICAJICovCj4+Pj4g
+LQl3aGlsZSAodnBfaW9yZWFkOCgmdnBfZGV2LT5jb21tb24tPmRldmljZV9zdGF0dXMpKQo+Pj4+
+ICsJd2hpbGUgKHZwX2lvcmVhZDgoJnZwX2Rldi0+Y29tbW9uLT5kZXZpY2Vfc3RhdHVzKSAmJiBy
+ZXRyeV9jb3VudC0tKQo+Pj4+ICAgIAkJbXNsZWVwKDEpOwo+Pj4+ICsJLyogSWYgdGhlIHJlYWQg
+ZGlkIG5vdCByZXR1cm4gMCBiZWZvcmUgdGhlIHRpbWVvdXQgY29uc2lkZXIgdGhhdAo+Pj4+ICsJ
+ICogdGhlIGRldmljZSBmYWlsZWQuCj4+Pj4gKwkgKi8KPj4+PiArCWlmIChyZXRyeV9jb3VudCA8
+PSAwKSB7Cj4+Pj4gKwkJdmlydGlvX2FkZF9zdGF0dXModmRldiwgVklSVElPX0NPTkZJR19TX0ZB
+SUxFRCk7Cj4+Pj4gKwkJcmV0dXJuOwo+Pj4+ICsJfQo+Pj4+ICsJdmlydGlvX2FkZF9zdGF0dXMo
+dmRldiwgVklSVElPX0NPTkZJR19TX0FDS05PV0xFREdFKTsKPj4+PiAgICAJLyogRmx1c2ggcGVu
+ZGluZyBWUS9jb25maWd1cmF0aW9uIGNhbGxiYWNrcy4gKi8KPj4+PiAgICAJdnBfc3luY2hyb25p
+emVfdmVjdG9ycyh2ZGV2KTsKPj4+PiAgICB9Cj4+Pj4gLS0gCj4+Pj4gMi4zLjAKPj4+Cj4+Cj4+
+Cj4+IC0tIAo+PiBQaWVycmUgTW9yZWwKPj4gTGludXgvS1ZNL1FFTVUgaW4gQsO2YmxpbmdlbiAt
+IEdlcm1hbnkKPiAKCgotLSAKUGllcnJlIE1vcmVsCkxpbnV4L0tWTS9RRU1VIGluIELDtmJsaW5n
+ZW4gLSBHZXJtYW55CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
