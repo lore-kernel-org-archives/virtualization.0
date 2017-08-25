@@ -1,7 +1,7 @@
-From: Pierre Morel <pmorel@linux.vnet.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] [RFC] virtio: Limit the retries on a virtio device reset
-Date: Fri, 25 Aug 2017 13:21:06 +0200
-Message-ID: <c95e82e6-a39f-ad9a-45cd-13e9f9870caf@linux.vnet.ibm.com>
+Date: Fri, 25 Aug 2017 19:43:35 +0300
+Message-ID: <20170825193824-mutt-send-email-mst@kernel.org>
 References: <1503505982-29568-1-git-send-email-pmorel@linux.vnet.ibm.com>
 	<20170824130746.25f80368.cohuck@redhat.com>
 	<af4aa628-3583-50b3-1007-4c8b6d4e2183@linux.vnet.ibm.com>
@@ -10,11 +10,11 @@ References: <1503505982-29568-1-git-send-email-pmorel@linux.vnet.ibm.com>
 	<20170825001411-mutt-send-email-mst@kernel.org>
 	<20170825102612.39a5ca60.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20170825102612.39a5ca60.cohuck@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,73 +24,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Pierre Morel <pmorel@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjUvMDgvMjAxNyAxMDoyNiwgQ29ybmVsaWEgSHVjayB3cm90ZToKPiBPbiBGcmksIDI1IEF1
-ZyAyMDE3IDAwOjE2OjA1ICswMzAwCj4gIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQu
-Y29tPiB3cm90ZToKPiAKPj4gT24gVGh1LCBBdWcgMjQsIDIwMTcgYXQgMDc6MDc6NDJQTSArMDIw
-MCwgUGllcnJlIE1vcmVsIHdyb3RlOgo+Pj4+IC0gd2UnbGwgaGF2ZSB0byBzcHJlYWQgdGhlc2Ug
-dGVzdHMgYWxsIG92ZXIgdGhlIHBsYWNlLgo+Pj4KPj4+IEkgY291bnRlZCAxOSBwbGFjZXMgd2hl
-cmUgdG8gY2hlY2sgaWYgdGhlIHJlc2V0IHdlbnQgT0suCj4+Pgo+Pj4gTm9uZSBvZiB0aGVtIHRv
-dWNoIHRoZSBkZXZpY2UgYW55bW9yZSBhZnRlciByZXNldCBhbmQganVzdCBmcmVlIGRyaXZlcidz
-Cj4+PiByZXNvdXJjZXMuCj4+Cj4+IC4uLiBhbmQgdGhlbiBoeXBlcnZpc29yIHVzZXMgdGhlIHJl
-c291cmNlcyBhZnRlciBmcmVlLiBOb3QgZ29vZC4KCmh1bS4uLiB5ZXMsIG5vIGdvb2QuCndlIGNh
-biBub3QgYXNzdW1lIGFueXRoaW5nIGFib3V0IHRoZSBob3N0IHNpZGUgYXQgdGhhdCB0aW1lIGFu
-eW1vcmUuCgo+IAo+IFRoZSBvbmx5IHBsYWNlIHdoZXJlIHdlIGNhbiBzaW1wbHkgZ2l2ZSB1cCBv
-biB0aGUgZGV2aWNlIGFuZCBiZSBzdXJlCj4gdGhhdCBub3RoaW5nIGJhZCBoYXBwZW5zIGlzIGR1
-cmluZyBpbml0aWFsIHNldHVwLiBJbiB0aGUgb3RoZXIgcGxhY2VzLAo+IGl0IHNlZW1zIHdlIGhh
-dmUgdGhlIGNob2ljZSBiZXR3ZWVuIGxvb3BpbmcgKGFzIG5vdykgb3IgcGFuaWMuCgpZZXMKTm90
-ZSBhbHNvIHRoYXQgdGhlIHByb2JhYmlsaXR5IHRoYXQgYW4gaW5pdGlhbCByZXNldCB3b3JrcyBi
-dXQgZnVydGhlciAKcmVzZXQgZG9uJ3QgaXMgdmVyeSBzbWFsbC4KSSB0aGluayB3ZSBjYXRjaCBt
-b3N0IG9mIHRoZSBwcm9ibGVtIGR1cmluZyB0aGUgcHJvYmUuCgpJTUhPLCBsb29waW5nIGlmIG5v
-dCBpbiBpbml0aWFsIHNldHVwIGxldCB0aGUgYWRtaW5pc3RyYXRvciBtb3JlIGZyZWVkb20uCk9U
-T0ggcGFuaWMgcmVzZXQgdG8gYSBrbm93biBzdGF0ZQoKUHJvYmxlbSBvcGVuOiBob3cgdG8gcmVj
-b2duaXplIGFuIGluaXRpYWwgc2V0dXA6Ci0ganVzdCBtYWtlIHJlc2V0IHJldHVybiBhbiBlcnJv
-ciBhbmQgbGV0IHRoZSBkcml2ZXIgdGFrZSB0aGUgZGVjaXNpb24KLSBmaW5kIGEgd2F5IHRvIGxl
-dCB0aGUgcmVzZXQgZnVuY3Rpb24gdGhhdCB0aGlzIGlzIGFuIGluaXRpYWwgc2V0dXAKCS0gYWRk
-IGEgc3RhdGUgaW4gdmlydGlvX2RldmljZT8KCS0gb3RoZXI/CgpJZiB3ZSBhZGQgYSBzdGF0ZSB0
-byB0aGUgdmlydGlvX2RldmljZSB3ZSBjb3VsZCBhbHNvIGFkZCBvdGhlciAKaW5mb3JtYXRpb24g
-YXMgdGhlIHJlc2V0X3JldHJpZXNfY291bnQuCgo+IAo+Pgo+Pj4gU28gdGhhdCBpZiByZXNldCBm
-YWlsZWQsIG5vdGhpbmcgZ29lcyB3cm9uZywgbm8gZGV2aWNlIGFjY2VzcywgYnV0IHRoZQo+Pj4g
-cHJvYmFiaWxpdHkgdGhhdCB0aGUgbmV4dCBwcm9iZSBmYWlsIGlzIGhpZ2guIChJZiBpdCBldmVy
-IHN1Y2NlZWQpLgo+Pj4gICAgCj4+Pj4gICAgIEFsbG93aW5nIHJlc2V0IHRvIGZhaWwgd291bGQg
-YmUgYmV0dGVyLgo+Pj4KPj4+IE1heSBiZSBJIGRpZCBub3QgdW5kZXJzdGFuZCB3aGF0IHlvdSBt
-ZWFuLgo+Pj4gVGVzdGluZyB0aGUgZmxhZyBvciBhIHJldHVybiB2YWx1ZSBpcyBhcyBleHBlbnNp
-dmUuCj4+Pgo+Pj4gT2YgY291cnNlIHRoZSBpbXBsZW1lbnRhdGlvbiBpcyBhIG1hdGVyIG9mIHRh
-c3RlLgo+Pgo+PiBJZiBhIGZ1bmN0aW9uIGNhbiBmYWlsIGl0IHNob3VsZCByZXR1cm4gYW4gZXJy
-b3IsIG5vdCBqdXN0IHNldCBhIGZsYWcuCgpZb3UgYXJlIHJpZ2h0IGluIHRoaXMgY2FzZSAoYXQg
-bGVhc3QpLCBzZXR0aW5nIHRoZSBmbGFnIGlzIGJhZCwgc2luY2UgCnRoZSBmbGFnIGlzIHNldCBi
-eSBpb3dyaXRlOCgpLCBpdCBpcyBoYW5kbGVkIG9uIHRoZSBkZXZpY2Ugc2lkZS4uLiAKdW50cnVz
-dGVkIGluIHRoZSBjYXNlIHdlIGV4cGxvcmUuCgo+IAo+IGNjdyByZXNldCBjYW4gKGEpIHN1Y2Nl
-ZWQsIChiKSBmYWlsIChieSByZXR1cm5pbmcgYW4gZXJyb3Igc3RhdHVzIHZpYQo+IHN0YW5kYXJk
-IGNoYW5uZWwgc3Vic3lzdGVtIG1lY2hhbmlzbXMpLCBvciAoYykgcnVuIGludG8gYSB0aW1lb3V0
-Cj4gKHdoZXJlIHRoZSBkcml2ZXIgc2hvdWxkIHJlY292ZXIgdmlhIGNzY2ggYW5kIGZyaWVuZHMp
-LiBbMV0gSW4gYW55Cj4gY2FzZSwgd2UgbmVlZCB0byBhYmxlIHRvIHJlbHkgb24gdGhlIGNoYW5u
-ZWwgc3Vic3lzdGVtIHRvIG1ha2Ugc3VyZSBhCj4gYnJva2VuIGRldmljZSBpcyBkZWFkLgo+IAo+
-IHBjaS1tb2Rlcm4gcmVzZXQgY2FuIChhKSBzdWNjZWVkLCBvciAoYikgYmUgaW4gYW4gaW5kZXRl
-cm1pbmF0ZSBzdGF0ZQo+IChpdCBoYXMgbm90IHlldCBjb21wbGV0ZWQsIGJ1dCB3ZSBkb24ndCBr
-bm93IHdoZXRoZXIgaXQgd2lsbCBjb21wbGV0ZQo+IGluIHRoZSBmdXR1cmUpLiBJdCBtYXkgYmUg
-cmVhc29uYWJsZSB0byBqdXN0IGdpdmUgdXAgaWYgKGIpIGhhcHBlbnMKPiBkdXJpbmcgaW5pdGlh
-bCBzZXR1cC4KPiAKPiBJJ20gbm90IHN1cmUgdGhhdCBhbGxvd2luZyB0byBmYWlsIHJlc2V0IHdp
-bGwgaGVscCBtdWNoLCBvdGhlciB0aGFuCj4gYWxsb3dpbmcgdG8gZ2l2ZSB1cCBvbiBhIHBjaSBk
-ZXZpY2UgZWFybHkuCldlIGhhdmUgbm93aGVyZSBhIHNhbml0eSBjaGVjayB0byB2ZXJpZnkgdGhh
-dCB0aGUgdmlydGlvIHRyYW5zcG9ydCBpcyBpbiAKb3JkZXIuClRoZSBmaXJzdCBzdWNjZXNzZnVs
-IHJlc2V0IGNhbiBiZSBzZWVuIGFzIHN1Y2ggYSBjaGVjaywgaW5kZXBlbmRlbnRseSAKZnJvbSB0
-aGUgdmlydGlvIHRyYW5zcG9ydCB0eXBlLgpHaXZlIHVwIHRoZSBkZXZpY2UgZWFybHkgaWYgdGhl
-IHRyYW5zcG9ydCBpcyBub3QgaW4gb3JkZXIgaXMgaW5kZWVkIHRoZSAKb25seSB0aGluZyB3ZSBj
-YW4gZG8uCgpSZWdhcmRzLAoKUGllcnJlCgo+IAo+Pgo+Pgo+Pj4gSSBub3RpY2UgdHdvIG90aGVy
-IHRoaW5ncyB0byBkbzoKPj4+Cj4+PiAtIE1heSBiZSBhZGRpbmcgYSB3YXJuaW5nIHdvdWxkIGJl
-IGZpbmUgdG9vLgo+Pj4gLSBWaXJ0aW9fY2N3IG1heSBhZGQgYSBmYWlsIGZsYWcgd2hlbiBhbGxv
-Y2F0aW9uIG9mIENDVyBmYWlsZWQuCj4+PiAgICBJIGRpZCBub3QgZmluZCBhbnl0aGluZyB0byBk
-byBmb3IgdmlydGlvX21taW8gb3IgbGVnYWN5IHZpcnRpb19wY2kuCj4+Pgo+Pj4gUmVnYXJkcywK
-Pj4+Cj4+PiBQaWVycmUKPiAKPiBbMV0gQXQgdGhhdCBwb2ludCwgd2UgZWl0aGVyIHN1Y2NlZWQg
-d2l0aCBjc2NoIGFuZCBjYW4gZWl0aGVyIHJldHJ5IG9yCj4gZmFpbCwgb3IgZmFpbCB3aXRoIGRl
-dmljZSBnb25lLCBpbiB3aGljaCBjYXNlIHRoZSBkZXZpY2UgaXMsIHdlbGwsCj4gZ29uZSwgd2hp
-Y2ggd2UgYWxzbyBzaG91bGQgYmUgYWJsZSB0byBoYW5kbGUgZmluZS4KPiAKCgotLSAKUGllcnJl
-IE1vcmVsCkxpbnV4L0tWTS9RRU1VIGluIELDtmJsaW5nZW4gLSBHZXJtYW55CgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+On Fri, Aug 25, 2017 at 10:26:12AM +0200, Cornelia Huck wrote:
+> On Fri, 25 Aug 2017 00:16:05 +0300
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > On Thu, Aug 24, 2017 at 07:07:42PM +0200, Pierre Morel wrote:
+> > > > - we'll have to spread these tests all over the place.  
+> > > 
+> > > I counted 19 places where to check if the reset went OK.
+> > > 
+> > > None of them touch the device anymore after reset and just free driver's
+> > > resources.  
+> > 
+> > ... and then hypervisor uses the resources after free. Not good.
+> 
+> The only place where we can simply give up on the device and be sure
+> that nothing bad happens is during initial setup. In the other places,
+> it seems we have the choice between looping (as now) or panic.
+
+Right. Whether it's even worth it to handle just this corner case,
+I don't really know.
+
+-- 
+MST
