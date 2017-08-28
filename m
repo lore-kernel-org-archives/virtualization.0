@@ -1,24 +1,15 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
-	path if no tx napi
-Date: Fri, 25 Aug 2017 21:03:29 -0400
-Message-ID: <CAF=yD-Lre0NATUVH8p0zS=G5CiY=WfKSefLmOZw940jZFgECgQ__35561.6400986493$1503709492$gmane$org@mail.gmail.com>
-References: <64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
-	<20170822204015-mutt-send-email-mst@kernel.org>
-	<1503498504.8694.26.camel@klaipeden.com>
-	<CAF=yD-+U_aWxSmPPY8v8t=JO0MRZ+N+DzVJTAMKYQ5F=pE1PfA@mail.gmail.com>
-	<20170824014553-mutt-send-email-mst@kernel.org>
-	<CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
-	<20170824160748-mutt-send-email-mst@kernel.org>
-	<CAF=yD-+9Ah8pC9i2w3Ad3WnhQit7Yo479pMrToty7priL6BFLw@mail.gmail.com>
-	<20170824234551-mutt-send-email-mst@kernel.org>
-	<CAF=yD-+1wheMmC+HFKe_B_ULO0Mmh6HMSEbYY5D-HgqxVJee6A@mail.gmail.com>
-	<20170826022744-mutt-send-email-mst@kernel.org>
+From: "Tian, Kevin" <kevin.tian@intel.com>
+Subject: RE: [RFC] virtio-iommu version 0.4
+Date: Mon, 28 Aug 2017 07:39:49 +0000
+Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D190D941E3@SHSMSX101.ccr.corp.intel.com>
+References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
+	<5be484ff-6a1a-6c9b-947c-f64ea23f58cc@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170826022744-mutt-send-email-mst@kernel.org>
+In-Reply-To: <5be484ff-6a1a-6c9b-947c-f64ea23f58cc@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,57 +19,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Network Development <netdev@vger.kernel.org>, Koichiro Den <den@klaipeden.com>, virtualization@lists.linux-foundation.org
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Aug 25, 2017 at 7:32 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Fri, Aug 25, 2017 at 06:44:36PM -0400, Willem de Bruijn wrote:
->> >> >> > We don't enable network watchdog on virtio but we could and maybe
->> >> >> > should.
->> >> >>
->> >> >> Can you elaborate?
->> >> >
->> >> > The issue is that holding onto buffers for very long times makes guests
->> >> > think they are stuck. This is funamentally because from guest point of
->> >> > view this is a NIC, so it is supposed to transmit things out in
->> >> > a timely manner. If host backs the virtual NIC by something that is not
->> >> > a NIC, with traffic shaping etc introducing unbounded latencies,
->> >> > guest will be confused.
->> >>
->> >> That assumes that guests are fragile in this regard. A linux guest
->> >> does not make such assumptions.
->> >
->> > Yes it does. Examples above:
->> >         > > - a single slow flow can occupy the whole ring, you will not
->> >         > >   be able to make any new buffers available for the fast flow
->>
->> Oh, right. Though those are due to vring_desc pool exhaustion
->> rather than an upper bound on latency of any single packet.
->>
->> Limiting the number of zerocopy packets in flight to some fraction
->> of the ring ensures that fast flows can always grab a slot.
->> Running
->> out of ubuf_info slots reverts to copy, so indirectly does this. But
->> I read it correclty the zerocopy pool may be equal to or larger than
->> the descriptor pool. Should we refine the zcopy_used test
->>
->>     (nvq->upend_idx + 1) % UIO_MAXIOV != nvq->done_idx
->>
->> to also return false if the number of outstanding ubuf_info is greater
->> than, say, vq->num >> 1?
->
->
-> We'll need to think about where to put the threshold, but I think it's
-> a good idea.
->
-> Maybe even a fixed number, e.g. max(vq->num >> 1, X) to limit host
-> resources.
->
-> In a sense it still means once you run out of slots zcopt gets disabled possibly permanently.
->
-> Need to experiment with some numbers.
+> From: Jean-Philippe Brucker [mailto:jean-philippe.brucker@arm.com]
+> Sent: Wednesday, August 23, 2017 6:01 PM
+> 
+> On 04/08/17 19:19, Jean-Philippe Brucker wrote:
+> > Other extensions are in preparation. I won't detail them here because
+> v0.4
+> > already is a lot to digest, but in short, building on top of PROBE:
+> >
+> > * First, since the IOMMU is paravirtualized, the device can expose some
+> >   properties of the physical topology to the guest, and let it allocate
+> >   resources more efficiently. For example, when the virtio-iommu
+> manages
+> >   both physical and emulated endpoints, with different underlying
+> IOMMUs,
+> >   we now have a way to describe multiple page and block granularities,
+> >   instead of forcing the guest to use the most restricted one for all
+> >   endpoints. This will most likely be in v0.5.
+> 
+> In order to extend requests with PASIDs and (later) nested mode, I intend
+> to rename "address_space" field to "domain", since it is a lot more
+> precise about what the field is referring to and the current name would
+> make these extensions confusing. Please find the rationale at [1].
+> "ioasid_bits" will be "domain_bits" and "VIRTIO_IOMMU_F_IOASID_BITS"
+> will
+> be "VIRTIO_IOMMU_F_DOMAIN_BITS".
+> 
+> For those that had time to read this version, do you have other comments
+> and suggestions about v0.4? Otherwise it is the only update I have for
+> v0.5 (along with fine-grained address range and page size properties from
+> the quoted text) and I will send it soon.
+> 
+> In particular, please tell me now if you see the need for other
+> destructive changes like this one. They will be impossible to introduce
+> once a driver or device is upstream.
+> 
+> Thanks,
+> Jean
+> 
+> [1] https://www.spinics.net/lists/kvm/msg154573.html
 
-I can take a stab with two flows, one delayed in a deep host qdisc
-queue. See how this change affects the other flow and also how
-sensitive that is to the chosen threshold value.
+Here comes some comments:
+
+1.1 Motivation
+
+You describe I/O page faults handling as future work. Seems you considered
+only recoverable fault (since "aka. PCI PRI" being used). What about other
+unrecoverable faults e.g. what to do if a virtual DMA request doesn't find 
+a valid mapping? Even when there is no PRI support, we need some basic
+form of fault reporting mechanism to indicate such errors to guest.
+
+2.6.8.2 Property RESV_MEM
+
+I'm not immediately clear when VIRTIO_IOMMU_PROBE_RESV_MEM_T_ABORT
+should be explicitly reported. Is there any real example on bare metal IOMMU?
+usually reserved memory is reported to CPU through other method (e.g. e820
+on x86 platform). Of course MSI is a special case which is covered by BYPASS 
+and MSI flag... If yes, maybe you can also include an example in implementation 
+notes.
+
+Another thing I want to ask your opinion, about whether there is value of
+adding another subtype (MEM_T_IDENTITY), asking for identity mapping
+in the address space. It's similar to Reserved Memory Region Reporting
+(RMRR) structure defined in VT-d, to indicate BIOS allocated reserved
+memory ranges which may be DMA target and has to be identity mapped
+when DMA remapping is enabled. I'm not sure whether ARM has similar
+capability and whether there might be a general usage beyond VT-d. For
+now the only usage in my mind is to assign a device with RMRR associated
+on VT-d (Intel GPU, or some USB controllers) where the RMRR info needs
+propagated to the guest (since identity mapping also means reservation
+of virtual address space).
+
+2.6.8.2.3 Device Requirements: Property RESV_MEM
+
+--citation start--
+If an endpoint is attached to an address space, the device SHOULD leave 
+any access targeting one of its VIRTIO_IOMMU_PROBE_RESV_MEM_T_BYPASS 
+regions pass through untranslated. In other words, the device SHOULD 
+handle such a region as if it was identity-mapped (virtual address equal to
+physical address). If the endpoint is not attached to any address space, 
+then the device MAY abort the transaction.
+--citation end
+
+I have a question for the last sentence. From definition of BYPASS, it's
+orthogonal to whether there is an address space attached, then should
+we still allow "May abort" behavior? 
+
+Thanks
+Kevin 
