@@ -1,15 +1,14 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v15 4/5] mm: support reporting free page blocks
-Date: Tue, 29 Aug 2017 11:23:52 +0800
-Message-ID: <59A4DE48.9030206__24.384170728986$1503976886$gmane$org@intel.com>
-References: <1503914913-28893-1-git-send-email-wei.w.wang@intel.com>
-	<1503914913-28893-5-git-send-email-wei.w.wang@intel.com>
-	<20170828133326.GN17097@dhcp22.suse.cz>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [Qemu-devel] [RFC] Buffers/caches in VirtIO Balloon driver stats
+Date: Tue, 29 Aug 2017 10:57:26 +0100
+Message-ID: <20170829095726.GL25960__2130.0105764114$1504000694$gmane$org@stefanha-x1.localdomain>
+References: <20170827233033.7afa49b9@fiorina>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170828133326.GN17097@dhcp22.suse.cz>
+Content-Disposition: inline
+In-Reply-To: <20170827233033.7afa49b9@fiorina>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,76 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: =?utf-8?B?VG9tw6HFoSBHb2xlbWJpb3Zza8O9?= <tgolembi@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/28/2017 09:33 PM, Michal Hocko wrote:
-> On Mon 28-08-17 18:08:32, Wei Wang wrote:
->> This patch adds support to walk through the free page blocks in the
->> system and report them via a callback function. Some page blocks may
->> leave the free list after zone->lock is released, so it is the caller's
->> responsibility to either detect or prevent the use of such pages.
->>
->> One use example of this patch is to accelerate live migration by skipping
->> the transfer of free pages reported from the guest. A popular method used
->> by the hypervisor to track which part of memory is written during live
->> migration is to write-protect all the guest memory. So, those pages that
->> are reported as free pages but are written after the report function
->> returns will be captured by the hypervisor, and they will be added to the
->> next round of memory transfer.
-> OK, looks much better. I still have few nits.
->
->> +extern void walk_free_mem_block(void *opaque,
->> +				int min_order,
->> +				bool (*report_page_block)(void *, unsigned long,
->> +							  unsigned long));
->> +
-> please add names to arguments of the prototype
->
->>   /*
->>    * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
->>    * into the buddy system. The freed pages will be poisoned with pattern
->> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
->> index 6d00f74..81eedc7 100644
->> --- a/mm/page_alloc.c
->> +++ b/mm/page_alloc.c
->> @@ -4762,6 +4762,71 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
->>   	show_swap_cache_info();
->>   }
->>   
->> +/**
->> + * walk_free_mem_block - Walk through the free page blocks in the system
->> + * @opaque: the context passed from the caller
->> + * @min_order: the minimum order of free lists to check
->> + * @report_page_block: the callback function to report free page blocks
-> page_block has meaning in the core MM which doesn't strictly match its
-> usage here. Moreover we are reporting pfn ranges rather than struct page
-> range. So report_pfn_range would suit better.
->
-> [...]
->> +	for_each_populated_zone(zone) {
->> +		for (order = MAX_ORDER - 1; order >= min_order; order--) {
->> +			for (mt = 0; !stop && mt < MIGRATE_TYPES; mt++) {
->> +				spin_lock_irqsave(&zone->lock, flags);
->> +				list = &zone->free_area[order].free_list[mt];
->> +				list_for_each_entry(page, list, lru) {
->> +					pfn = page_to_pfn(page);
->> +					stop = report_page_block(opaque, pfn,
->> +								 1 << order);
->> +					if (stop)
->> +						break;
-> 					if (stop) {
-> 						spin_unlock_irqrestore(&zone->lock, flags);
-> 						return;
-> 					}
->
-> would be both easier and less error prone. E.g. You wouldn't pointlessly
-> iterate over remaining orders just to realize there is nothing to be
-> done for those...
->
-
-Yes, that's better, thanks. I will take other suggestions as well.
-
-Best,
-Wei
+T24gU3VuLCBBdWcgMjcsIDIwMTcgYXQgMTE6MzA6MzNQTSArMDIwMCwgVG9tw6HFoSBHb2xlbWJp
+b3Zza8O9IHdyb3RlOgo+IEhpLAoKSSBoYXZlIENDZWQgdGhlIHJlbGV2YW50IG1haWxpbmcgbGlz
+dHMgYW5kIHBlb3BsZSBtb3N0IHJlY2VudGx5IGludm9sdmVkCmluIHZpcnRpby1iYWxsb29uIGRp
+c2N1c3Npb25zLiAgSG9wZWZ1bGx5IHRoaXMgd2lsbCBoZWxwIGdldCB0aGUgcmlnaHQKcGVvcGxl
+IHRvIHNlZSB5b3VyIHF1ZXN0aW9ucy4KCj4gV2UnZCBsaWtlIHRvIGluY2x1ZGUgaW5mb3JtYXRp
+b24gYWJvdXQgcmVjbGFpbWFibGUgbWVtb3J5IGludG8gdGhlCj4gc3RhdGlzdGljcyBpbiBWaXJ0
+aU8gQmFsbG9vbiBkcml2ZXIuIE5hbWVseSwgd2UnZCBsaWtlIHRvIGluY2x1ZGUKPiBjb3VudGVy
+cyBmb3IgYnVmZmVyZXMgYW5kIGNhY2hlcyBvZiBMaW51eCBrZXJuZWwuIFRoZSBwYXRjaCBpdHNl
+bGYgaXMKPiBwcmV0dHkgdHJpdmlhbCAtLSBubyBwcm9ibGVtIHRoZXJlLiBCdXQgYmVmb3JlIHdl
+IGRvIHRoYXQgSSdkIGxpa2UgdG8KPiBnZXQgc29tZSBpbnB1dCBmcm9tIHRoZSBRRU1VIGNvbW11
+bml0eS4KPiAKPiAxKSBJcyB0aGVyZSBhbnkgcmVhc29uIG5vdCB0byBoYXZlIHRoZSBzdGF0cyB0
+aGVyZT8KPiAKPiAyKSBDb25zaWRlcmluZyB0aGUgYmFsbG9vbiBkZXZpY2UgaXMgbXVsdGlwbGF0
+Zm9ybSAoTGludXgsIEJTRCwKPiBXaW5kb3dzKSwgaXMgdGhlcmUgYSBwcm9ibGVtIHdpdGggaW5j
+bHVkaW5nIGJ1ZmZlcnMvY2FjaGVzPyBUaGVzZSBzZWVtCj4gdG8gYmUgc3BlY2lmaWMgdG8gdGhl
+IExpbnV4IHZpcnR1YWwgbWVtb3J5IHN1YnN5c3RlbS4gT2YgY291cnNlLCBvdGhlcgo+IE9TZXMg
+Y291bGQganVzdCByZXBvcnQgemVyb3MuIEFyZSB0aGVyZSBzb21lIGludGVybmFsIHN0YXRzIG9u
+IHRob3NlCj4gT1NlcyB0aGF0IGNvdWxkIGJlIGZpbGxlZCBpbj8gSSBkb24ndCBub3cgaWYgc3Vj
+aCBvciBzaW1pbGFyIHN0YXRpc3RpYwo+IGFyZSBhdmFpbGFibGUgb24gQlNELiBPbiBXaW5kb3dz
+IG9ubHkgU3lzdGVtQ2FjaGUgc3RhdCBsb29rcyBsaWtlCj4gc29tZXRoaW5nIHJlbGV2YW50LiBB
+bnlvbmUgZmFtaWxpYXIgd2l0aCB0aG9zZSBPU2VzIGhhcyBhbnkgc3VnZ2VzdGlvbnM/Cj4gCj4g
+ICAgIFRvbWFzCj4gCj4gLS0gCj4gVG9tw6HFoSBHb2xlbWJpb3Zza8O9IDx0Z29sZW1iaUByZWRo
+YXQuY29tPgo+IApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
+Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
+bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
