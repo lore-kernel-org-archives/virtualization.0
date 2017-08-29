@@ -1,15 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 2/2] virtio_net: enable probing for NEEDS_RESET support
-Date: Tue, 29 Aug 2017 23:16:58 +0300
-Message-ID: <20170829231606-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH RFC 1/2] virtio_net: implement VIRTIO_CONFIG_S_NEEDS_RESET
+Date: Tue, 29 Aug 2017 23:20:33 +0300
+Message-ID: <20170829231739-mutt-send-email-mst__33383.7236663841$1504038075$gmane$org@kernel.org>
 References: <20170829200759.13975-1-willemdebruijn.kernel@gmail.com>
-	<20170829200759.13975-3-willemdebruijn.kernel@gmail.com>
+	<20170829200759.13975-2-willemdebruijn.kernel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170829200759.13975-3-willemdebruijn.kernel@gmail.com>
+In-Reply-To: <20170829200759.13975-2-willemdebruijn.kernel@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,63 +23,181 @@ To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 29, 2017 at 04:07:59PM -0400, Willem de Bruijn wrote:
+On Tue, Aug 29, 2017 at 04:07:58PM -0400, Willem de Bruijn wrote:
 > From: Willem de Bruijn <willemb@google.com>
 > 
-> Implement a mechanism to signal that a virtio device implements the
-> VIRTIO_CONFIG_S_NEEDS_RESET command.
+> Implement the reset communication request defined in the VIRTIO 1.0
+> specification and introduces in Linux in commit c00bbcf862896 ("virtio:
+> add VIRTIO_CONFIG_S_NEEDS_RESET device status bit").
 > 
-> Testing for VIRTIO_CONFIG_S_NEEDS_RESET support by issuing the request
-> and verifying the reset state would require an expensive state change.
+> Since that patch, the virtio-net driver has added a virtnet_reset
+> function that implements the requested behavior through calls to the
+> power management freeze and restore functions.
 > 
-> To avoid that, add a status bit to the feature register used during
-> feature negotiation between host and guest.
+> That function has recently been reverted when its sole caller was
+> updated. Bring it back and listen for the request from the host on
+> the config channel.
 > 
-> Set the bit for virtio-net, which supports the feature.
+> Implement the feature analogous to other config requests. In
+> particular, acknowledge the request in the same manner as the
+> NET_S_ANNOUNCE link announce request, by responding with a new
+> VIRTIO_NET_CTRL_${TYPE} command. On reception, the host must check
+> the config status register for success or failure.
+
+
+Pls make it clearer why do you need these interface extensions.
+
+> The existing freeze handler verifies that no config changes are
+> running concurrently. Elide this check for reset. The request is
+> always handled from the config workqueue. No other config requests
+> can be active or scheduled concurrently on vi->config.
+
+You need to prevent packet TX from being in progress.
+
 > 
 > Signed-off-by: Willem de Bruijn <willemb@google.com>
-
-All virtio 1 devices have the reset feature so maybe guest does
-not need this flag. Does device need it? Does device really
-care that guest can't recover?
-
 > ---
->  drivers/net/virtio_net.c           | 2 ++
->  include/uapi/linux/virtio_config.h | 3 +++
->  2 files changed, 5 insertions(+)
+>  drivers/net/virtio_net.c        | 69 +++++++++++++++++++++++++++++++++++------
+>  include/uapi/linux/virtio_net.h |  4 +++
+
+virtio dev or another virtio TC list must be Cc'd on any proposed API changes.
+
+
+>  2 files changed, 64 insertions(+), 9 deletions(-)
 > 
 > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 5e349226f7c1..15483a982106 100644
+> index 52ae78ca3d38..5e349226f7c1 100644
 > --- a/drivers/net/virtio_net.c
 > +++ b/drivers/net/virtio_net.c
-> @@ -2801,12 +2801,14 @@ static struct virtio_device_id id_table[] = {
+> @@ -1458,12 +1458,11 @@ static void virtnet_netpoll(struct net_device *dev)
+>  }
+>  #endif
 >  
->  static unsigned int features[] = {
->  	VIRTNET_FEATURES,
-> +	VIRTIO_F_CAN_RESET,
+> -static void virtnet_ack_link_announce(struct virtnet_info *vi)
+> +static void virtnet_ack(struct virtnet_info *vi, u8 class, u8 cmd)
+>  {
+>  	rtnl_lock();
+> -	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_ANNOUNCE,
+> -				  VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL))
+> -		dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
+> +	if (!virtnet_send_command(vi, class, cmd, NULL))
+> +		dev_warn(&vi->dev->dev, "Failed to ack %u.%u\n", class, cmd);
+>  	rtnl_unlock();
+>  }
+>  
+> @@ -1857,13 +1856,16 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+>  	.set_link_ksettings = virtnet_set_link_ksettings,
 >  };
 >  
->  static unsigned int features_legacy[] = {
->  	VIRTNET_FEATURES,
->  	VIRTIO_NET_F_GSO,
->  	VIRTIO_F_ANY_LAYOUT,
-> +	VIRTIO_F_CAN_RESET,
->  };
+> -static void virtnet_freeze_down(struct virtio_device *vdev)
+> +static void virtnet_freeze_down(struct virtio_device *vdev, bool in_reset)
+>  {
+>  	struct virtnet_info *vi = vdev->priv;
+>  	int i;
 >  
->  static struct virtio_driver virtio_net_driver = {
-> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-> index 308e2096291f..726be44a04d3 100644
-> --- a/include/uapi/linux/virtio_config.h
-> +++ b/include/uapi/linux/virtio_config.h
-> @@ -56,6 +56,9 @@
->   * suppressed them? */
->  #define VIRTIO_F_NOTIFY_ON_EMPTY	24
+> -	/* Make sure no work handler is accessing the device */
+> -	flush_work(&vi->config_work);
+> +	/* Make sure no work handler is accessing the device,
+> +	 * unless this call is made from the reset work handler itself.
+> +	 */
+> +	if (!in_reset)
+> +		flush_work(&vi->config_work);
 >  
-> +/* Driver supports the VIRTIO_CONFIG_S_NEEDS_RESET command */
-> +#define VIRTIO_F_CAN_RESET		25
+>  	netif_device_detach(vi->dev);
+>  	netif_tx_disable(vi->dev);
+> @@ -1878,6 +1880,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+>  }
+>  
+>  static int init_vqs(struct virtnet_info *vi);
+> +static void remove_vq_common(struct virtnet_info *vi);
+>  
+>  static int virtnet_restore_up(struct virtio_device *vdev)
+>  {
+> @@ -1906,6 +1909,45 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+>  	return err;
+>  }
+>  
+> +static int virtnet_reset(struct virtnet_info *vi)
+> +{
+> +	struct virtio_device *dev = vi->vdev;
+> +	bool failed;
+> +	int ret;
 > +
->  /* Can the device handle any descriptor layout? */
->  #define VIRTIO_F_ANY_LAYOUT		27
->  #endif /* VIRTIO_CONFIG_NO_LEGACY */
+> +	virtio_config_disable(dev);
+> +	failed = dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED;
+> +	virtnet_freeze_down(dev, true);
+> +	remove_vq_common(vi);
+> +
+> +	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+> +	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
+> +
+> +	/* Restore the failed status (see virtio_device_restore). */
+> +	if (failed)
+> +		virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
+> +
+> +	ret = virtio_finalize_features(dev);
+> +	if (ret)
+> +		goto err;
+> +
+> +	ret = virtnet_restore_up(dev);
+> +	if (ret)
+> +		goto err;
+> +
+> +	ret = virtnet_set_queues(vi, vi->curr_queue_pairs);
+> +	if (ret)
+> +		goto err;
+> +
+> +	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
+> +	virtio_config_enable(dev);
+> +	return 0;
+> +
+> +err:
+> +	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
+> +	return ret;
+> +}
+> +
+>  static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
+>  {
+>  	struct scatterlist sg;
+> @@ -2085,7 +2127,16 @@ static void virtnet_config_changed_work(struct work_struct *work)
+>  
+>  	if (v & VIRTIO_NET_S_ANNOUNCE) {
+>  		netdev_notify_peers(vi->dev);
+> -		virtnet_ack_link_announce(vi);
+> +		virtnet_ack(vi, VIRTIO_NET_CTRL_ANNOUNCE,
+> +			    VIRTIO_NET_CTRL_ANNOUNCE_ACK);
+> +	}
+> +
+> +	if (vi->vdev->config->get_status(vi->vdev) &
+> +	    VIRTIO_CONFIG_S_NEEDS_RESET) {
+> +		virtnet_reset(vi);
+> +		virtnet_ack(vi, VIRTIO_NET_CTRL_RESET,
+> +			    VIRTIO_NET_CTRL_RESET_ACK);
+> +
+>  	}
+>  
+>  	/* Ignore unknown (future) status bits */
+> @@ -2708,7 +2759,7 @@ static __maybe_unused int virtnet_freeze(struct virtio_device *vdev)
+>  	struct virtnet_info *vi = vdev->priv;
+>  
+>  	virtnet_cpu_notif_remove(vi);
+> -	virtnet_freeze_down(vdev);
+> +	virtnet_freeze_down(vdev, false);
+>  	remove_vq_common(vi);
+>  
+>  	return 0;
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index fc353b518288..188fdc528f13 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -245,4 +245,8 @@ struct virtio_net_ctrl_mq {
+>  #define VIRTIO_NET_CTRL_GUEST_OFFLOADS   5
+>  #define VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET        0
+>  
+> +/* Signal that the driver received and executed the reset command. */
+> +#define VIRTIO_NET_CTRL_RESET			6
+> +#define VIRTIO_NET_CTRL_RESET_ACK		0
+> +
+>  #endif /* _UAPI_LINUX_VIRTIO_NET_H */
 > -- 
 > 2.14.1.342.g6490525c54-goog
