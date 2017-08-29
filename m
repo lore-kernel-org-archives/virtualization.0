@@ -1,24 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
-	path if no tx napi
-Date: Tue, 29 Aug 2017 23:40:49 +0300
-Message-ID: <20170829233920-mutt-send-email-mst__8041.18074379421$1504039265$gmane$org@kernel.org>
-References: <CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
-	<20170824160748-mutt-send-email-mst@kernel.org>
-	<CAF=yD-+9Ah8pC9i2w3Ad3WnhQit7Yo479pMrToty7priL6BFLw@mail.gmail.com>
-	<20170824234551-mutt-send-email-mst@kernel.org>
-	<CAF=yD-+1wheMmC+HFKe_B_ULO0Mmh6HMSEbYY5D-HgqxVJee6A@mail.gmail.com>
-	<20170826022744-mutt-send-email-mst@kernel.org>
-	<CAF=yD-Lre0NATUVH8p0zS=G5CiY=WfKSefLmOZw940jZFgECgQ@mail.gmail.com>
-	<CAF=yD-+Wk9sc9dXMUq1+x_hh=3ThTXa6BnZkygP3tgVpjbp93g@mail.gmail.com>
-	<20170829224136-mutt-send-email-mst@kernel.org>
-	<CAF=yD-L5MG5RCZzT8EZ0coFiuQLp-2UQN0zzQefVnEd7rMQbyw@mail.gmail.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH RFC 2/2] virtio_net: enable probing for NEEDS_RESET support
+Date: Tue, 29 Aug 2017 17:02:29 -0400
+Message-ID: <CAF=yD-+gPOYSgq8ckJ4wt3TPQYEnnB36g=Q5G4=yfoesGc=4hA__18254.9630561427$1504040619$gmane$org@mail.gmail.com>
+References: <20170829200759.13975-1-willemdebruijn.kernel@gmail.com>
+	<20170829200759.13975-3-willemdebruijn.kernel@gmail.com>
+	<20170829231606-mutt-send-email-mst@kernel.org>
+	<CAF=yD-L95x1EPKFeiPiZ2hbTzwYmDaG9O54+0tUW_4opuRKDMw@mail.gmail.com>
+	<20170829233525-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAF=yD-L5MG5RCZzT8EZ0coFiuQLp-2UQN0zzQefVnEd7rMQbyw@mail.gmail.com>
+In-Reply-To: <20170829233525-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,35 +21,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Network Development <netdev@vger.kernel.org>, Koichiro Den <den@klaipeden.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Network Development <netdev@vger.kernel.org>, virtio-dev@lists.oasis-open.org, Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 29, 2017 at 03:53:08PM -0400, Willem de Bruijn wrote:
-> On Tue, Aug 29, 2017 at 3:42 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Tue, Aug 29, 2017 at 03:35:38PM -0400, Willem de Bruijn wrote:
-> >> By the way, I have had an unrelated patch outstanding for a while
-> >> to have virtio-net support the VIRTIO_CONFIG_S_NEEDS_RESET
-> >> command. Will send that as RFC.
-> >
-> > Oh nice.
-> 
-> Great :)
-> 
-> > One needs to be careful about locking there which is why
-> > no devices support that yet.
-> 
-> I originally wrote it based on the virtnet_reset function introduced
-> for xdp. Calling this from virtnet_config_changed_work is non trivial,
-> as virtnet_freeze_down waits until no config worker is running.
-> 
-> Otherwise, I could not find any constraints on when freeze may be
-> called, and it largely follows the same path. I hope I didn't miss anything.
++ virtio-dev
 
-The issue is that on freeze processes are not running so we
-generally know no new packets will arrive (might be wrong
-for bridging, then it's a bug). On device error you must
-prevent new skbs from coming in, etc.
+On Tue, Aug 29, 2017 at 4:38 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Tue, Aug 29, 2017 at 04:27:41PM -0400, Willem de Bruijn wrote:
+>> On Tue, Aug 29, 2017 at 4:16 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>> > On Tue, Aug 29, 2017 at 04:07:59PM -0400, Willem de Bruijn wrote:
+>> >> From: Willem de Bruijn <willemb@google.com>
+>> >>
+>> >> Implement a mechanism to signal that a virtio device implements the
+>> >> VIRTIO_CONFIG_S_NEEDS_RESET command.
+>> >>
+>> >> Testing for VIRTIO_CONFIG_S_NEEDS_RESET support by issuing the request
+>> >> and verifying the reset state would require an expensive state change.
+>> >>
+>> >> To avoid that, add a status bit to the feature register used during
+>> >> feature negotiation between host and guest.
+>> >>
+>> >> Set the bit for virtio-net, which supports the feature.
+>> >>
+>> >> Signed-off-by: Willem de Bruijn <willemb@google.com>
+>> >
+>> > All virtio 1 devices have the reset feature
+>>
+>> I don't quite follow. No device drivers implement this request currently?
+>
+> Depends. Spec 1.0 describes the bit and that driver can respond
+> by reseting the device. You seem to do something else
+> in this patchset, but as designed in 1.0 it does not seem to need
+> a feature bit.
 
--- 
-MST
+I see. So support is designed to be best effort?
+
+The feature bit is only needed if driver support is optional.
+
+The ack response is necessary if the device acts differently
+depending on whether the reset happened. The device has
+to reset its local state, too, so I think that this is needed.
+
+
+>> > so maybe guest does
+>> > not need this flag. Does device need it? Does device really
+>> > care that guest can't recover?
+>>
+>> If all device drivers support it, then the flag is not needed.
+>>
+>> But as long as legacy device drivers can exist that do not support
+>> this feature, it has to have a way of differentiating between the two.
+>
+> Why? Device won't set this unless it's in a bad state. In that case,
+> setting the bit is harmless even if drivers ignore it.
+
+The goal is for the device to be able to rely on the driver reset to get
+to a good state even if it gets it into a bad state.
+
+That allows it to implement optimizations that could get it into that bad
+state.
+
+In particular, in the edge case where the device performs backpressure,
+takes the descriptor out of the avail ring and does not immediately post
+it to the used ring.
+
+A reset will make the guest free all delayed packets and treat any
+unsent and unacknowledged as network drops. This allows the
+device to indeed drop long delayed packets when they eventually
+surface (e.g., leave a qdisc queue). This is of course not safe with
+zerocopy packets.
