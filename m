@@ -1,15 +1,25 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [RFC PATCH v2 1/7] x86/paravirt: Add pv_idle_ops to paravirt ops
-Date: Tue, 29 Aug 2017 09:55:48 -0400
-Message-ID: <20170829135548.GG32175@char.us.oracle.com>
-References: <1504007201-12904-1-git-send-email-yang.zhang.wz@gmail.com>
-	<1504007201-12904-2-git-send-email-yang.zhang.wz@gmail.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
+	path if no tx napi
+Date: Tue, 29 Aug 2017 15:35:38 -0400
+Message-ID: <CAF=yD-+Wk9sc9dXMUq1+x_hh=3ThTXa6BnZkygP3tgVpjbp93g@mail.gmail.com>
+References: <64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
+	<20170822204015-mutt-send-email-mst@kernel.org>
+	<1503498504.8694.26.camel@klaipeden.com>
+	<CAF=yD-+U_aWxSmPPY8v8t=JO0MRZ+N+DzVJTAMKYQ5F=pE1PfA@mail.gmail.com>
+	<20170824014553-mutt-send-email-mst@kernel.org>
+	<CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
+	<20170824160748-mutt-send-email-mst@kernel.org>
+	<CAF=yD-+9Ah8pC9i2w3Ad3WnhQit7Yo479pMrToty7priL6BFLw@mail.gmail.com>
+	<20170824234551-mutt-send-email-mst@kernel.org>
+	<CAF=yD-+1wheMmC+HFKe_B_ULO0Mmh6HMSEbYY5D-HgqxVJee6A@mail.gmail.com>
+	<20170826022744-mutt-send-email-mst@kernel.org>
+	<CAF=yD-Lre0NATUVH8p0zS=G5CiY=WfKSefLmOZw940jZFgECgQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1504007201-12904-2-git-send-email-yang.zhang.wz@gmail.com>
+In-Reply-To: <CAF=yD-Lre0NATUVH8p0zS=G5CiY=WfKSefLmOZw940jZFgECgQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,131 +29,144 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yang Zhang <yang.zhang.wz@gmail.com>, xen-devel@lists.xensource.com, jgross@suse.com, Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, rkrcmar@redhat.com, kvm@vger.kernel.org, mst@redhat.com, peterz@infradead.org, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, wanpeng.li@hotmail.com, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, Chris Wright <chrisw@sous-sol.org>, Andy Lutomirski <luto@kernel.org>, dmatlack@google.com, tglx@linutronix.de, Quan Xu <quan.xu0@gmail.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, pbonzini@redhat.com, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Network Development <netdev@vger.kernel.org>, Koichiro Den <den@klaipeden.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 29, 2017 at 11:46:35AM +0000, Yang Zhang wrote:
-> So far, pv_idle_ops.poll is the only ops for pv_idle. .poll is called in
-> idle path which will polling for a while before we enter the real idle
-> state.
-> 
-> In virtualization, idle path includes several heavy operations
-> includes timer access(LAPIC timer or TSC deadline timer) which will hurt
-> performance especially for latency intensive workload like message
-> passing task. The cost is mainly come from the vmexit which is a
-> hardware context switch between VM and hypervisor. Our solution is to
-> poll for a while and do not enter real idle path if we can get the
-> schedule event during polling.
-> 
-> Poll may cause the CPU waste so we adopt a smart polling mechanism to
-> reduce the useless poll.
-> 
-> Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
-> Signed-off-by: Quan Xu <quan.xu0@gmail.com>
-> Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-> Cc: Chris Wright <chrisw@sous-sol.org>
-> Cc: Alok Kataria <akataria@vmware.com>
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: x86@kernel.org
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Andy Lutomirski <luto@kernel.org>
-> Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-> Cc: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: linux-kernel@vger.kernel.org
+On Fri, Aug 25, 2017 at 9:03 PM, Willem de Bruijn
+<willemdebruijn.kernel@gmail.com> wrote:
+> On Fri, Aug 25, 2017 at 7:32 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>> On Fri, Aug 25, 2017 at 06:44:36PM -0400, Willem de Bruijn wrote:
+>>> >> >> > We don't enable network watchdog on virtio but we could and maybe
+>>> >> >> > should.
+>>> >> >>
+>>> >> >> Can you elaborate?
+>>> >> >
+>>> >> > The issue is that holding onto buffers for very long times makes guests
+>>> >> > think they are stuck. This is funamentally because from guest point of
+>>> >> > view this is a NIC, so it is supposed to transmit things out in
+>>> >> > a timely manner. If host backs the virtual NIC by something that is not
+>>> >> > a NIC, with traffic shaping etc introducing unbounded latencies,
+>>> >> > guest will be confused.
+>>> >>
+>>> >> That assumes that guests are fragile in this regard. A linux guest
+>>> >> does not make such assumptions.
+>>> >
+>>> > Yes it does. Examples above:
+>>> >         > > - a single slow flow can occupy the whole ring, you will not
+>>> >         > >   be able to make any new buffers available for the fast flow
+>>>
+>>> Oh, right. Though those are due to vring_desc pool exhaustion
+>>> rather than an upper bound on latency of any single packet.
+>>>
+>>> Limiting the number of zerocopy packets in flight to some fraction
+>>> of the ring ensures that fast flows can always grab a slot.
+>>> Running
+>>> out of ubuf_info slots reverts to copy, so indirectly does this. But
+>>> I read it correclty the zerocopy pool may be equal to or larger than
+>>> the descriptor pool. Should we refine the zcopy_used test
+>>>
+>>>     (nvq->upend_idx + 1) % UIO_MAXIOV != nvq->done_idx
+>>>
+>>> to also return false if the number of outstanding ubuf_info is greater
+>>> than, say, vq->num >> 1?
+>>
+>>
+>> We'll need to think about where to put the threshold, but I think it's
+>> a good idea.
+>>
+>> Maybe even a fixed number, e.g. max(vq->num >> 1, X) to limit host
+>> resources.
+>>
+>> In a sense it still means once you run out of slots zcopt gets disabled possibly permanently.
+>>
+>> Need to experiment with some numbers.
+>
+> I can take a stab with two flows, one delayed in a deep host qdisc
+> queue. See how this change affects the other flow and also how
+> sensitive that is to the chosen threshold value.
 
-Adding xen-devel.
+Incomplete results at this stage, but I do see this correlation between
+flows. It occurs even while not running out of zerocopy descriptors,
+which I cannot yet explain.
 
-Juergen, we really should replace Jeremy's name with xen-devel or
-your name.. Wasn't there an patch by you that took some of the 
-mainternship over it?
+Running two threads in a guest, each with a udp socket, each
+sending up to 100 datagrams, or until EAGAIN, every msec.
 
-> ---
->  arch/x86/include/asm/paravirt.h       | 5 +++++
->  arch/x86/include/asm/paravirt_types.h | 6 ++++++
->  arch/x86/kernel/paravirt.c            | 6 ++++++
->  3 files changed, 17 insertions(+)
-> 
-> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-> index 9ccac19..6d46760 100644
-> --- a/arch/x86/include/asm/paravirt.h
-> +++ b/arch/x86/include/asm/paravirt.h
-> @@ -202,6 +202,11 @@ static inline unsigned long long paravirt_read_pmc(int counter)
->  
->  #define rdpmcl(counter, val) ((val) = paravirt_read_pmc(counter))
->  
-> +static inline void paravirt_idle_poll(void)
-> +{
-> +	PVOP_VCALL0(pv_idle_ops.poll);
-> +}
-> +
->  static inline void paravirt_alloc_ldt(struct desc_struct *ldt, unsigned entries)
->  {
->  	PVOP_VCALL2(pv_cpu_ops.alloc_ldt, ldt, entries);
-> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-> index 9ffc36b..cf45726 100644
-> --- a/arch/x86/include/asm/paravirt_types.h
-> +++ b/arch/x86/include/asm/paravirt_types.h
-> @@ -324,6 +324,10 @@ struct pv_lock_ops {
->  	struct paravirt_callee_save vcpu_is_preempted;
->  } __no_randomize_layout;
->  
-> +struct pv_idle_ops {
-> +	void (*poll)(void);
-> +} __no_randomize_layout;
-> +
->  /* This contains all the paravirt structures: we get a convenient
->   * number for each function using the offset which we use to indicate
->   * what to patch. */
-> @@ -334,6 +338,7 @@ struct paravirt_patch_template {
->  	struct pv_irq_ops pv_irq_ops;
->  	struct pv_mmu_ops pv_mmu_ops;
->  	struct pv_lock_ops pv_lock_ops;
-> +	struct pv_idle_ops pv_idle_ops;
->  } __no_randomize_layout;
->  
->  extern struct pv_info pv_info;
-> @@ -343,6 +348,7 @@ struct paravirt_patch_template {
->  extern struct pv_irq_ops pv_irq_ops;
->  extern struct pv_mmu_ops pv_mmu_ops;
->  extern struct pv_lock_ops pv_lock_ops;
-> +extern struct pv_idle_ops pv_idle_ops;
->  
->  #define PARAVIRT_PATCH(x)					\
->  	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
-> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-> index bc0a849..1b5b247 100644
-> --- a/arch/x86/kernel/paravirt.c
-> +++ b/arch/x86/kernel/paravirt.c
-> @@ -128,6 +128,7 @@ static void *get_call_destination(u8 type)
->  #ifdef CONFIG_PARAVIRT_SPINLOCKS
->  		.pv_lock_ops = pv_lock_ops,
->  #endif
-> +		.pv_idle_ops = pv_idle_ops,
->  	};
->  	return *((void **)&tmpl + type);
->  }
-> @@ -312,6 +313,10 @@ struct pv_time_ops pv_time_ops = {
->  	.steal_clock = native_steal_clock,
->  };
->  
-> +struct pv_idle_ops pv_idle_ops = {
-> +	.poll = paravirt_nop,
-> +};
-> +
->  __visible struct pv_irq_ops pv_irq_ops = {
->  	.save_fl = __PV_IS_CALLEE_SAVE(native_save_fl),
->  	.restore_fl = __PV_IS_CALLEE_SAVE(native_restore_fl),
-> @@ -471,3 +476,4 @@ struct pv_mmu_ops pv_mmu_ops __ro_after_init = {
->  EXPORT_SYMBOL    (pv_mmu_ops);
->  EXPORT_SYMBOL_GPL(pv_info);
->  EXPORT_SYMBOL    (pv_irq_ops);
-> +EXPORT_SYMBOL    (pv_idle_ops);
-> -- 
-> 1.8.3.1
-> 
+Sender A sends 1B datagrams.
+Sender B sends VHOST_GOODCOPY_LEN, which is enough
+to trigger zcopy_used in vhost net.
+
+A local receive process on the host receives both flows. To avoid
+a deep copy when looping the packet onto the receive path,
+changed skb_orphan_frags_rx to always return false (gross hack).
+
+The flow with the larger packets is redirected through netem on ifb0:
+
+  modprobe ifb
+  ip link set dev ifb0 up
+  tc qdisc add dev ifb0 root netem limit $LIMIT rate 1MBit
+
+  tc qdisc add dev tap0 ingress
+  tc filter add dev tap0 parent ffff: protocol ip \
+      u32 match ip dport 8000 0xffff \
+      action mirred egress redirect dev ifb0
+
+For 10 second run, packet count with various ifb0 queue lengths $LIMIT:
+
+no filter
+  rx.A: ~840,000
+  rx.B: ~840,000
+
+limit 1
+  rx.A: ~500,000
+  rx.B: ~3100
+  ifb0: 3273 sent, 371141 dropped
+
+limit 100
+  rx.A: ~9000
+  rx.B: ~4200
+  ifb0: 4630 sent, 1491 dropped
+
+limit 1000
+  rx.A: ~6800
+  rx.B: ~4200
+  ifb0: 4651 sent, 0 dropped
+
+Sender B is always correctly rate limited to 1 MBps or less. With a
+short queue, it ends up dropping a lot and sending even less.
+
+When a queue builds up for sender B, sender A throughput is strongly
+correlated with queue length. With queue length 1, it can send almost
+at unthrottled speed. But even at limit 100 its throughput is on the
+same order as sender B.
+
+What is surprising to me is that this happens even though the number
+of ubuf_info in use at limit 100 is around 100 at all times. In other words,
+it does not exhaust the pool.
+
+When forcing zcopy_used to be false for all packets, this effect of
+sender A throughput being correlated with sender B does not happen.
+
+no filter
+  rx.A: ~850,000
+  rx.B: ~850,000
+
+limit 100
+  rx.A: ~850,000
+  rx.B: ~4200
+  ifb0: 4518 sent, 876182 dropped
+
+Also relevant is that with zerocopy, the sender processes back off
+and report the same count as the receiver. Without zerocopy,
+both senders send at full speed, even if only 4200 packets from flow
+B arrive at the receiver.
+
+This is with the default virtio_net driver, so without napi-tx.
+
+It appears that the zerocopy notifications are pausing the guest.
+Will look at that now.
+
+By the way, I have had an unrelated patch outstanding for a while
+to have virtio-net support the VIRTIO_CONFIG_S_NEEDS_RESET
+command. Will send that as RFC.
