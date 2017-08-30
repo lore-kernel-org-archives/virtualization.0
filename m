@@ -1,27 +1,16 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
-	path if no tx napi
-Date: Tue, 29 Aug 2017 23:11:24 -0400
-Message-ID: <CAF=yD-KUoW6hxZtpAmyVrJXCY+=Fq1FOcbD3h=HmDQaPoC1MLg__42541.7330036455$1504062749$gmane$org@mail.gmail.com>
-References: <64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
-	<20170822204015-mutt-send-email-mst@kernel.org>
-	<1503498504.8694.26.camel@klaipeden.com>
-	<CAF=yD-+U_aWxSmPPY8v8t=JO0MRZ+N+DzVJTAMKYQ5F=pE1PfA@mail.gmail.com>
-	<20170824014553-mutt-send-email-mst@kernel.org>
-	<CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
-	<20170824160748-mutt-send-email-mst@kernel.org>
-	<CAF=yD-+9Ah8pC9i2w3Ad3WnhQit7Yo479pMrToty7priL6BFLw@mail.gmail.com>
-	<20170824234551-mutt-send-email-mst@kernel.org>
-	<CAF=yD-+1wheMmC+HFKe_B_ULO0Mmh6HMSEbYY5D-HgqxVJee6A@mail.gmail.com>
-	<20170826022744-mutt-send-email-mst@kernel.org>
-	<CAF=yD-Lre0NATUVH8p0zS=G5CiY=WfKSefLmOZw940jZFgECgQ@mail.gmail.com>
-	<CAF=yD-+Wk9sc9dXMUq1+x_hh=3ThTXa6BnZkygP3tgVpjbp93g@mail.gmail.com>
-	<b8893b72-4d09-2492-0d31-5135286e6874@redhat.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [RFC PATCH v2 1/7] x86/paravirt: Add pv_idle_ops to paravirt ops
+Date: Wed, 30 Aug 2017 09:33:52 +0200
+Message-ID: <a9eceaa9-65c8-1eb3-7a31-3e7a4800cf04__21626.3116607026$1504078455$gmane$org@suse.com>
+References: <1504007201-12904-1-git-send-email-yang.zhang.wz@gmail.com>
+	<1504007201-12904-2-git-send-email-yang.zhang.wz@gmail.com>
+	<20170829135548.GG32175@char.us.oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <b8893b72-4d09-2492-0d31-5135286e6874@redhat.com>
+In-Reply-To: <20170829135548.GG32175@char.us.oracle.com>
+Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -31,132 +20,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Koichiro Den <den@klaipeden.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Yang Zhang <yang.zhang.wz@gmail.com>, xen-devel@lists.xensource.com, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, rkrcmar@redhat.com, kvm@vger.kernel.org, mst@redhat.com, peterz@infradead.org, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, wanpeng.li@hotmail.com, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, Chris Wright <chrisw@sous-sol.org>, Andy Lutomirski <luto@kernel.org>, dmatlack@google.com, tglx@linutronix.de, Quan Xu <quan.xu0@gmail.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, pbonzini@redhat.com, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBBdWcgMjksIDIwMTcgYXQgOTo0NSBQTSwgSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT4gd3JvdGU6Cj4KPgo+IE9uIDIwMTflubQwOOaciDMw5pelIDAzOjM1LCBXaWxsZW0g
-ZGUgQnJ1aWpuIHdyb3RlOgo+Pgo+PiBPbiBGcmksIEF1ZyAyNSwgMjAxNyBhdCA5OjAzIFBNLCBX
-aWxsZW0gZGUgQnJ1aWpuCj4+IDx3aWxsZW1kZWJydWlqbi5rZXJuZWxAZ21haWwuY29tPiB3cm90
-ZToKPj4+Cj4+PiBPbiBGcmksIEF1ZyAyNSwgMjAxNyBhdCA3OjMyIFBNLCBNaWNoYWVsIFMuIFRz
-aXJraW4gPG1zdEByZWRoYXQuY29tPgo+Pj4gd3JvdGU6Cj4+Pj4KPj4+PiBPbiBGcmksIEF1ZyAy
-NSwgMjAxNyBhdCAwNjo0NDozNlBNIC0wNDAwLCBXaWxsZW0gZGUgQnJ1aWpuIHdyb3RlOgo+Pj4+
-Pj4+Pj4+Cj4+Pj4+Pj4+Pj4gV2UgZG9uJ3QgZW5hYmxlIG5ldHdvcmsgd2F0Y2hkb2cgb24gdmly
-dGlvIGJ1dCB3ZSBjb3VsZCBhbmQgbWF5YmUKPj4+Pj4+Pj4+PiBzaG91bGQuCj4+Pj4+Pj4+Pgo+
-Pj4+Pj4+Pj4gQ2FuIHlvdSBlbGFib3JhdGU/Cj4+Pj4+Pj4+Cj4+Pj4+Pj4+IFRoZSBpc3N1ZSBp
-cyB0aGF0IGhvbGRpbmcgb250byBidWZmZXJzIGZvciB2ZXJ5IGxvbmcgdGltZXMgbWFrZXMKPj4+
-Pj4+Pj4gZ3Vlc3RzCj4+Pj4+Pj4+IHRoaW5rIHRoZXkgYXJlIHN0dWNrLiBUaGlzIGlzIGZ1bmFt
-ZW50YWxseSBiZWNhdXNlIGZyb20gZ3Vlc3QgcG9pbnQKPj4+Pj4+Pj4gb2YKPj4+Pj4+Pj4gdmll
-dyB0aGlzIGlzIGEgTklDLCBzbyBpdCBpcyBzdXBwb3NlZCB0byB0cmFuc21pdCB0aGluZ3Mgb3V0
-IGluCj4+Pj4+Pj4+IGEgdGltZWx5IG1hbm5lci4gSWYgaG9zdCBiYWNrcyB0aGUgdmlydHVhbCBO
-SUMgYnkgc29tZXRoaW5nIHRoYXQgaXMKPj4+Pj4+Pj4gbm90Cj4+Pj4+Pj4+IGEgTklDLCB3aXRo
-IHRyYWZmaWMgc2hhcGluZyBldGMgaW50cm9kdWNpbmcgdW5ib3VuZGVkIGxhdGVuY2llcywKPj4+
-Pj4+Pj4gZ3Vlc3Qgd2lsbCBiZSBjb25mdXNlZC4KPj4+Pj4+Pgo+Pj4+Pj4+IFRoYXQgYXNzdW1l
-cyB0aGF0IGd1ZXN0cyBhcmUgZnJhZ2lsZSBpbiB0aGlzIHJlZ2FyZC4gQSBsaW51eCBndWVzdAo+
-Pj4+Pj4+IGRvZXMgbm90IG1ha2Ugc3VjaCBhc3N1bXB0aW9ucy4KPj4+Pj4+Cj4+Pj4+PiBZZXMg
-aXQgZG9lcy4gRXhhbXBsZXMgYWJvdmU6Cj4+Pj4+PiAgICAgICAgICA+ID4gLSBhIHNpbmdsZSBz
-bG93IGZsb3cgY2FuIG9jY3VweSB0aGUgd2hvbGUgcmluZywgeW91IHdpbGwKPj4+Pj4+IG5vdAo+
-Pj4+Pj4gICAgICAgICAgPiA+ICAgYmUgYWJsZSB0byBtYWtlIGFueSBuZXcgYnVmZmVycyBhdmFp
-bGFibGUgZm9yIHRoZSBmYXN0Cj4+Pj4+PiBmbG93Cj4+Pj4+Cj4+Pj4+IE9oLCByaWdodC4gVGhv
-dWdoIHRob3NlIGFyZSBkdWUgdG8gdnJpbmdfZGVzYyBwb29sIGV4aGF1c3Rpb24KPj4+Pj4gcmF0
-aGVyIHRoYW4gYW4gdXBwZXIgYm91bmQgb24gbGF0ZW5jeSBvZiBhbnkgc2luZ2xlIHBhY2tldC4K
-Pj4+Pj4KPj4+Pj4gTGltaXRpbmcgdGhlIG51bWJlciBvZiB6ZXJvY29weSBwYWNrZXRzIGluIGZs
-aWdodCB0byBzb21lIGZyYWN0aW9uCj4+Pj4+IG9mIHRoZSByaW5nIGVuc3VyZXMgdGhhdCBmYXN0
-IGZsb3dzIGNhbiBhbHdheXMgZ3JhYiBhIHNsb3QuCj4+Pj4+IFJ1bm5pbmcKPj4+Pj4gb3V0IG9m
-IHVidWZfaW5mbyBzbG90cyByZXZlcnRzIHRvIGNvcHksIHNvIGluZGlyZWN0bHkgZG9lcyB0aGlz
-LiBCdXQKPj4+Pj4gSSByZWFkIGl0IGNvcnJlY2x0eSB0aGUgemVyb2NvcHkgcG9vbCBtYXkgYmUg
-ZXF1YWwgdG8gb3IgbGFyZ2VyIHRoYW4KPj4+Pj4gdGhlIGRlc2NyaXB0b3IgcG9vbC4gU2hvdWxk
-IHdlIHJlZmluZSB0aGUgemNvcHlfdXNlZCB0ZXN0Cj4+Pj4+Cj4+Pj4+ICAgICAgKG52cS0+dXBl
-bmRfaWR4ICsgMSkgJSBVSU9fTUFYSU9WICE9IG52cS0+ZG9uZV9pZHgKPj4+Pj4KPj4+Pj4gdG8g
-YWxzbyByZXR1cm4gZmFsc2UgaWYgdGhlIG51bWJlciBvZiBvdXRzdGFuZGluZyB1YnVmX2luZm8g
-aXMgZ3JlYXRlcgo+Pj4+PiB0aGFuLCBzYXksIHZxLT5udW0gPj4gMT8KPj4+Pgo+Pj4+Cj4+Pj4g
-V2UnbGwgbmVlZCB0byB0aGluayBhYm91dCB3aGVyZSB0byBwdXQgdGhlIHRocmVzaG9sZCwgYnV0
-IEkgdGhpbmsgaXQncwo+Pj4+IGEgZ29vZCBpZGVhLgo+Pj4+Cj4+Pj4gTWF5YmUgZXZlbiBhIGZp
-eGVkIG51bWJlciwgZS5nLiBtYXgodnEtPm51bSA+PiAxLCBYKSB0byBsaW1pdCBob3N0Cj4+Pj4g
-cmVzb3VyY2VzLgo+Pj4+Cj4+Pj4gSW4gYSBzZW5zZSBpdCBzdGlsbCBtZWFucyBvbmNlIHlvdSBy
-dW4gb3V0IG9mIHNsb3RzIHpjb3B0IGdldHMgZGlzYWJsZWQKPj4+PiBwb3NzaWJseSBwZXJtYW5l
-bnRseS4KPj4+Pgo+Pj4+IE5lZWQgdG8gZXhwZXJpbWVudCB3aXRoIHNvbWUgbnVtYmVycy4KPj4+
-Cj4+PiBJIGNhbiB0YWtlIGEgc3RhYiB3aXRoIHR3byBmbG93cywgb25lIGRlbGF5ZWQgaW4gYSBk
-ZWVwIGhvc3QgcWRpc2MKPj4+IHF1ZXVlLiBTZWUgaG93IHRoaXMgY2hhbmdlIGFmZmVjdHMgdGhl
-IG90aGVyIGZsb3cgYW5kIGFsc28gaG93Cj4+PiBzZW5zaXRpdmUgdGhhdCBpcyB0byB0aGUgY2hv
-c2VuIHRocmVzaG9sZCB2YWx1ZS4KPj4KPj4gSW5jb21wbGV0ZSByZXN1bHRzIGF0IHRoaXMgc3Rh
-Z2UsIGJ1dCBJIGRvIHNlZSB0aGlzIGNvcnJlbGF0aW9uIGJldHdlZW4KPj4gZmxvd3MuIEl0IG9j
-Y3VycyBldmVuIHdoaWxlIG5vdCBydW5uaW5nIG91dCBvZiB6ZXJvY29weSBkZXNjcmlwdG9ycywK
-Pj4gd2hpY2ggSSBjYW5ub3QgeWV0IGV4cGxhaW4uCj4+Cj4+IFJ1bm5pbmcgdHdvIHRocmVhZHMg
-aW4gYSBndWVzdCwgZWFjaCB3aXRoIGEgdWRwIHNvY2tldCwgZWFjaAo+PiBzZW5kaW5nIHVwIHRv
-IDEwMCBkYXRhZ3JhbXMsIG9yIHVudGlsIEVBR0FJTiwgZXZlcnkgbXNlYy4KPj4KPj4gU2VuZGVy
-IEEgc2VuZHMgMUIgZGF0YWdyYW1zLgo+PiBTZW5kZXIgQiBzZW5kcyBWSE9TVF9HT09EQ09QWV9M
-RU4sIHdoaWNoIGlzIGVub3VnaAo+PiB0byB0cmlnZ2VyIHpjb3B5X3VzZWQgaW4gdmhvc3QgbmV0
-Lgo+Pgo+PiBBIGxvY2FsIHJlY2VpdmUgcHJvY2VzcyBvbiB0aGUgaG9zdCByZWNlaXZlcyBib3Ro
-IGZsb3dzLiBUbyBhdm9pZAo+PiBhIGRlZXAgY29weSB3aGVuIGxvb3BpbmcgdGhlIHBhY2tldCBv
-bnRvIHRoZSByZWNlaXZlIHBhdGgsCj4+IGNoYW5nZWQgc2tiX29ycGhhbl9mcmFnc19yeCB0byBh
-bHdheXMgcmV0dXJuIGZhbHNlIChncm9zcyBoYWNrKS4KPj4KPj4gVGhlIGZsb3cgd2l0aCB0aGUg
-bGFyZ2VyIHBhY2tldHMgaXMgcmVkaXJlY3RlZCB0aHJvdWdoIG5ldGVtIG9uIGlmYjA6Cj4+Cj4+
-ICAgIG1vZHByb2JlIGlmYgo+PiAgICBpcCBsaW5rIHNldCBkZXYgaWZiMCB1cAo+PiAgICB0YyBx
-ZGlzYyBhZGQgZGV2IGlmYjAgcm9vdCBuZXRlbSBsaW1pdCAkTElNSVQgcmF0ZSAxTUJpdAo+Pgo+
-PiAgICB0YyBxZGlzYyBhZGQgZGV2IHRhcDAgaW5ncmVzcwo+PiAgICB0YyBmaWx0ZXIgYWRkIGRl
-diB0YXAwIHBhcmVudCBmZmZmOiBwcm90b2NvbCBpcCBcCj4+ICAgICAgICB1MzIgbWF0Y2ggaXAg
-ZHBvcnQgODAwMCAweGZmZmYgXAo+PiAgICAgICAgYWN0aW9uIG1pcnJlZCBlZ3Jlc3MgcmVkaXJl
-Y3QgZGV2IGlmYjAKPj4KPj4gRm9yIDEwIHNlY29uZCBydW4sIHBhY2tldCBjb3VudCB3aXRoIHZh
-cmlvdXMgaWZiMCBxdWV1ZSBsZW5ndGhzICRMSU1JVDoKPj4KPj4gbm8gZmlsdGVyCj4+ICAgIHJ4
-LkE6IH44NDAsMDAwCj4+ICAgIHJ4LkI6IH44NDAsMDAwCj4KPgo+IEp1c3QgdG8gbWFrZSBzdXJl
-IEkgdW5kZXJzdGFuZCB0aGUgY2FzZSBoZXJlLiBXaGF0IGRpZCByeC5CIG1lYW4gaGVyZT8gSQo+
-IHRob3VnaHQgYWxsIHRyYWZmaWMgc2VudCBieSBTZW5kZXIgQiBoYXMgYmVlbiByZWRpcmVjdGVk
-IHRvIGlmYjA/CgpJdCBoYXMgYmVlbiwgYnV0IHRoZSBwYWNrZXQgc3RpbGwgYXJyaXZlcyBhdCB0
-aGUgZGVzdGluYXRpb24gc29ja2V0LgpJRkIgaXMgYSBzcGVjaWFsIHZpcnR1YWwgZGV2aWNlIHRo
-YXQgYXBwbGllcyB0cmFmZmljIHNoYXBpbmcgYW5kCnRoZW4gcmVpbmplY3RzIGl0IGJhY2sgYXQg
-dGhlIHBvaW50IGl0IHdhcyBpbnRlcmNlcHQgYnkgbWlycmVkLgoKcnguQiBpcyBpbmRlZWQgYXJy
-aXZhbCByYXRlIGF0IHRoZSByZWNlaXZlciwgc2ltaWxhciB0byByeC5BLgoKPj4KPj4gbGltaXQg
-MQo+PiAgICByeC5BOiB+NTAwLDAwMAo+PiAgICByeC5COiB+MzEwMAo+PiAgICBpZmIwOiAzMjcz
-IHNlbnQsIDM3MTE0MSBkcm9wcGVkCj4+Cj4+IGxpbWl0IDEwMAo+PiAgICByeC5BOiB+OTAwMAo+
-PiAgICByeC5COiB+NDIwMAo+PiAgICBpZmIwOiA0NjMwIHNlbnQsIDE0OTEgZHJvcHBlZAo+Pgo+
-PiBsaW1pdCAxMDAwCj4+ICAgIHJ4LkE6IH42ODAwCj4+ICAgIHJ4LkI6IH40MjAwCj4+ICAgIGlm
-YjA6IDQ2NTEgc2VudCwgMCBkcm9wcGVkCj4+Cj4+IFNlbmRlciBCIGlzIGFsd2F5cyBjb3JyZWN0
-bHkgcmF0ZSBsaW1pdGVkIHRvIDEgTUJwcyBvciBsZXNzLiBXaXRoIGEKPj4gc2hvcnQgcXVldWUs
-IGl0IGVuZHMgdXAgZHJvcHBpbmcgYSBsb3QgYW5kIHNlbmRpbmcgZXZlbiBsZXNzLgo+Pgo+PiBX
-aGVuIGEgcXVldWUgYnVpbGRzIHVwIGZvciBzZW5kZXIgQiwgc2VuZGVyIEEgdGhyb3VnaHB1dCBp
-cyBzdHJvbmdseQo+PiBjb3JyZWxhdGVkIHdpdGggcXVldWUgbGVuZ3RoLiBXaXRoIHF1ZXVlIGxl
-bmd0aCAxLCBpdCBjYW4gc2VuZCBhbG1vc3QKPj4gYXQgdW50aHJvdHRsZWQgc3BlZWQuIEJ1dCBl
-dmVuIGF0IGxpbWl0IDEwMCBpdHMgdGhyb3VnaHB1dCBpcyBvbiB0aGUKPj4gc2FtZSBvcmRlciBh
-cyBzZW5kZXIgQi4KPj4KPj4gV2hhdCBpcyBzdXJwcmlzaW5nIHRvIG1lIGlzIHRoYXQgdGhpcyBo
-YXBwZW5zIGV2ZW4gdGhvdWdoIHRoZSBudW1iZXIKPj4gb2YgdWJ1Zl9pbmZvIGluIHVzZSBhdCBs
-aW1pdCAxMDAgaXMgYXJvdW5kIDEwMCBhdCBhbGwgdGltZXMuIEluIG90aGVyCj4+IHdvcmRzLAo+
-PiBpdCBkb2VzIG5vdCBleGhhdXN0IHRoZSBwb29sLgo+Pgo+PiBXaGVuIGZvcmNpbmcgemNvcHlf
-dXNlZCB0byBiZSBmYWxzZSBmb3IgYWxsIHBhY2tldHMsIHRoaXMgZWZmZWN0IG9mCj4+IHNlbmRl
-ciBBIHRocm91Z2hwdXQgYmVpbmcgY29ycmVsYXRlZCB3aXRoIHNlbmRlciBCIGRvZXMgbm90IGhh
-cHBlbi4KPj4KPj4gbm8gZmlsdGVyCj4+ICAgIHJ4LkE6IH44NTAsMDAwCj4+ICAgIHJ4LkI6IH44
-NTAsMDAwCj4+Cj4+IGxpbWl0IDEwMAo+PiAgICByeC5BOiB+ODUwLDAwMAo+PiAgICByeC5COiB+
-NDIwMAo+PiAgICBpZmIwOiA0NTE4IHNlbnQsIDg3NjE4MiBkcm9wcGVkCj4+Cj4+IEFsc28gcmVs
-ZXZhbnQgaXMgdGhhdCB3aXRoIHplcm9jb3B5LCB0aGUgc2VuZGVyIHByb2Nlc3NlcyBiYWNrIG9m
-Zgo+PiBhbmQgcmVwb3J0IHRoZSBzYW1lIGNvdW50IGFzIHRoZSByZWNlaXZlci4gV2l0aG91dCB6
-ZXJvY29weSwKPj4gYm90aCBzZW5kZXJzIHNlbmQgYXQgZnVsbCBzcGVlZCwgZXZlbiBpZiBvbmx5
-IDQyMDAgcGFja2V0cyBmcm9tIGZsb3cKPj4gQiBhcnJpdmUgYXQgdGhlIHJlY2VpdmVyLgo+Pgo+
-PiBUaGlzIGlzIHdpdGggdGhlIGRlZmF1bHQgdmlydGlvX25ldCBkcml2ZXIsIHNvIHdpdGhvdXQg
-bmFwaS10eC4KPgo+Cj4gV2hhdCBraW5kIG9mIHFkaXNjIGRvIHlvdSB1c2UgaW4gZ3Vlc3Q/IEkg
-c3VzcGVjdCB3ZSBzaG91bGQgdXNlIHNvbWV0aGluZwo+IHdoaWNoIGNvdWxkIGRvIGZhaXIgcXVl
-dWVpbmcgKGUuZyBzZnEpLgoKT3IgZnEuIFRoZSB0ZXN0IHdhcyB1c2luZyB0aGUgZGVmYXVsdCwg
-cGZpZm9fZmFzdC4KClRoaXMgcGFydGljdWxhciB0d28gZmxvdyB0ZXN0IHByb2JhYmx5IHdvdWxk
-IG5vdCBiZSBhZmZlY3RlZCwKYXMgc29tZXRoaW5nIGVsc2UgaXMgZGVsYXlpbmcgYm90aCBmbG93
-cyBlcXVhbGx5IG9uY2Ugc29tZQpjb21wbGV0aW9ucyBhcmUgZGVsYXllZC4KCk9uZSBvYnZpb3Vz
-IGNhbmRpZGF0ZSB3b3VsZCBiZSBoaXR0aW5nIFZIT1NUX01BWF9QRU5ELgpCdXQgSSBpbnN0cnVt
-ZW50ZWQgdGhhdCBhbmQgaGFuZGxlX3R4IGlzIG5ldmVyIHRocm90dGxlZCBieQp2aG9zdF9leGNl
-ZWRzX21heHBlbmQuCgpCdHcsIHZob3N0X2V4Y2VlZHNfbWF4cGVuZCBpbXBsZW1lbnRzIGFsbW9z
-dCB3aGF0IEkKc3VnZ2VzdGVkIGVhcmxpZXIgYW5kIHdhcyBwbGFubmluZyB0byB0ZXN0IGhlcmU6
-IGVuc3VyZSB0aGF0Cm9ubHkgcGFydCBvZiB0aGUgZGVzY3JpcHRvciBwb29sIGlzIGZpbGxlZCB3
-aXRoIHplcm9jb3B5IHJlcXVlc3RzLgoKT25seSwgaXQgY3VycmVudGx5IGJyZWFrcyBvdXQgb2Yg
-dGhlIGxvb3Agd2hlbiB0aGUgbWF4IGlzCnJlYWNoZWQuIEkgdGhpbmsgdGhhdCB3ZSBzaG91bGQg
-bW92ZSBpdCBpbnRvIHRoZSBtYWluCnpjb3B5X3VzZWQgY2FsY3VsYXRpb24sIHNvIHRoYXQgaGl0
-dGluZyB0aGlzIHRocmVzaG9sZCByZXZlcnRzIHRvCmNvcHktYmFzZWQgdHJhbnNtaXNzaW9uLCBp
-bnN0ZWFkIG9mIGRlbGF5aW5nIGFsbCB0eCB1bnRpbAp6ZXJvY29weSBidWRnZXQgb3BlbnMgdXAu
-CgoKPj4KPj4gSXQgYXBwZWFycyB0aGF0IHRoZSB6ZXJvY29weSBub3RpZmljYXRpb25zIGFyZSBw
-YXVzaW5nIHRoZSBndWVzdC4KPj4gV2lsbCBsb29rIGF0IHRoYXQgbm93Lgo+Cj4KPiBBbm90aGVy
-IGZhY3RvciBpcyB0aGUgdHggaW50ZXJydXB0IGNvYWxlc2NpbmcgcGFyYW1ldGVycyBvZiBpZmIw
-LCBtYXliZSB3ZQo+IHNob3VsZCBkaXNhYmxlIGl0IGR1cmluZyB0aGUgdGVzdC4KPgo+IFRoYW5r
-cwo+Cj4KPj4KPj4gQnkgdGhlIHdheSwgSSBoYXZlIGhhZCBhbiB1bnJlbGF0ZWQgcGF0Y2ggb3V0
-c3RhbmRpbmcgZm9yIGEgd2hpbGUKPj4gdG8gaGF2ZSB2aXJ0aW8tbmV0IHN1cHBvcnQgdGhlIFZJ
-UlRJT19DT05GSUdfU19ORUVEU19SRVNFVAo+PiBjb21tYW5kLiBXaWxsIHNlbmQgdGhhdCBhcyBS
-RkMuCj4KPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On 29/08/17 15:55, Konrad Rzeszutek Wilk wrote:
+> On Tue, Aug 29, 2017 at 11:46:35AM +0000, Yang Zhang wrote:
+>> So far, pv_idle_ops.poll is the only ops for pv_idle. .poll is called in
+>> idle path which will polling for a while before we enter the real idle
+>> state.
+>>
+>> In virtualization, idle path includes several heavy operations
+>> includes timer access(LAPIC timer or TSC deadline timer) which will hurt
+>> performance especially for latency intensive workload like message
+>> passing task. The cost is mainly come from the vmexit which is a
+>> hardware context switch between VM and hypervisor. Our solution is to
+>> poll for a while and do not enter real idle path if we can get the
+>> schedule event during polling.
+>>
+>> Poll may cause the CPU waste so we adopt a smart polling mechanism to
+>> reduce the useless poll.
+>>
+>> Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
+>> Signed-off-by: Quan Xu <quan.xu0@gmail.com>
+>> Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+>> Cc: Chris Wright <chrisw@sous-sol.org>
+>> Cc: Alok Kataria <akataria@vmware.com>
+>> Cc: Rusty Russell <rusty@rustcorp.com.au>
+>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>> Cc: Ingo Molnar <mingo@redhat.com>
+>> Cc: "H. Peter Anvin" <hpa@zytor.com>
+>> Cc: x86@kernel.org
+>> Cc: Peter Zijlstra <peterz@infradead.org>
+>> Cc: Andy Lutomirski <luto@kernel.org>
+>> Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+>> Cc: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+>> Cc: Kees Cook <keescook@chromium.org>
+>> Cc: virtualization@lists.linux-foundation.org
+>> Cc: linux-kernel@vger.kernel.org
+> 
+> Adding xen-devel.
+> 
+> Juergen, we really should replace Jeremy's name with xen-devel or
+> your name..
+
+I wouldn't mind being added. What does Jeremy think of being removed?
+
+> Wasn't there an patch by you that took some of the 
+> mainternship over it?
+
+I added include/linux/hypervisor.h to the PARAVIRT section and offered
+to maintain it in case the PARAVIRT maintainers didn't want to.
+
+
+Juergen
