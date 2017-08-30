@@ -1,9 +1,14 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
 	path if no tx napi
-Date: Tue, 29 Aug 2017 18:55:32 -0400
-Message-ID: <CAF=yD-LzBowzRNREFCF4fGoQ=Z4hnJR=eTXoAfJZ_mOe-ZznrA@mail.gmail.com>
-References: <CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
+Date: Wed, 30 Aug 2017 09:45:50 +0800
+Message-ID: <b8893b72-4d09-2492-0d31-5135286e6874__46606.7004636445$1504057590$gmane$org@redhat.com>
+References: <64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
+	<20170822204015-mutt-send-email-mst@kernel.org>
+	<1503498504.8694.26.camel@klaipeden.com>
+	<CAF=yD-+U_aWxSmPPY8v8t=JO0MRZ+N+DzVJTAMKYQ5F=pE1PfA@mail.gmail.com>
+	<20170824014553-mutt-send-email-mst@kernel.org>
+	<CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
 	<20170824160748-mutt-send-email-mst@kernel.org>
 	<CAF=yD-+9Ah8pC9i2w3Ad3WnhQit7Yo479pMrToty7priL6BFLw@mail.gmail.com>
 	<20170824234551-mutt-send-email-mst@kernel.org>
@@ -11,14 +16,12 @@ References: <CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
 	<20170826022744-mutt-send-email-mst@kernel.org>
 	<CAF=yD-Lre0NATUVH8p0zS=G5CiY=WfKSefLmOZw940jZFgECgQ@mail.gmail.com>
 	<CAF=yD-+Wk9sc9dXMUq1+x_hh=3ThTXa6BnZkygP3tgVpjbp93g@mail.gmail.com>
-	<20170829224136-mutt-send-email-mst@kernel.org>
-	<CAF=yD-L5MG5RCZzT8EZ0coFiuQLp-2UQN0zzQefVnEd7rMQbyw@mail.gmail.com>
-	<20170829233920-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170829233920-mutt-send-email-mst@kernel.org>
+In-Reply-To: <CAF=yD-+Wk9sc9dXMUq1+x_hh=3ThTXa6BnZkygP3tgVpjbp93g@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,38 +31,107 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Network Development <netdev@vger.kernel.org>, Koichiro Den <den@klaipeden.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 29, 2017 at 4:40 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Tue, Aug 29, 2017 at 03:53:08PM -0400, Willem de Bruijn wrote:
->> On Tue, Aug 29, 2017 at 3:42 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> > On Tue, Aug 29, 2017 at 03:35:38PM -0400, Willem de Bruijn wrote:
->> >> By the way, I have had an unrelated patch outstanding for a while
->> >> to have virtio-net support the VIRTIO_CONFIG_S_NEEDS_RESET
->> >> command. Will send that as RFC.
->> >
->> > Oh nice.
->>
->> Great :)
->>
->> > One needs to be careful about locking there which is why
->> > no devices support that yet.
->>
->> I originally wrote it based on the virtnet_reset function introduced
->> for xdp. Calling this from virtnet_config_changed_work is non trivial,
->> as virtnet_freeze_down waits until no config worker is running.
->>
->> Otherwise, I could not find any constraints on when freeze may be
->> called, and it largely follows the same path. I hope I didn't miss anything.
->
-> The issue is that on freeze processes are not running so we
-> generally know no new packets will arrive (might be wrong
-> for bridging, then it's a bug). On device error you must
-> prevent new skbs from coming in, etc.
-
-Thanks a lot for the quick review. I had indeed not yet figured out
-which invariants freeze can depend on that are not universal. Same
-for the virtnet_reset call from the .ndo_xdp. Will need to take a much
-better look at that.
+CgpPbiAyMDE35bm0MDjmnIgzMOaXpSAwMzozNSwgV2lsbGVtIGRlIEJydWlqbiB3cm90ZToKPiBP
+biBGcmksIEF1ZyAyNSwgMjAxNyBhdCA5OjAzIFBNLCBXaWxsZW0gZGUgQnJ1aWpuCj4gPHdpbGxl
+bWRlYnJ1aWpuLmtlcm5lbEBnbWFpbC5jb20+IHdyb3RlOgo+PiBPbiBGcmksIEF1ZyAyNSwgMjAx
+NyBhdCA3OjMyIFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPiB3cm90ZToK
+Pj4+IE9uIEZyaSwgQXVnIDI1LCAyMDE3IGF0IDA2OjQ0OjM2UE0gLTA0MDAsIFdpbGxlbSBkZSBC
+cnVpam4gd3JvdGU6Cj4+Pj4+Pj4+PiBXZSBkb24ndCBlbmFibGUgbmV0d29yayB3YXRjaGRvZyBv
+biB2aXJ0aW8gYnV0IHdlIGNvdWxkIGFuZCBtYXliZQo+Pj4+Pj4+Pj4gc2hvdWxkLgo+Pj4+Pj4+
+PiBDYW4geW91IGVsYWJvcmF0ZT8KPj4+Pj4+PiBUaGUgaXNzdWUgaXMgdGhhdCBob2xkaW5nIG9u
+dG8gYnVmZmVycyBmb3IgdmVyeSBsb25nIHRpbWVzIG1ha2VzIGd1ZXN0cwo+Pj4+Pj4+IHRoaW5r
+IHRoZXkgYXJlIHN0dWNrLiBUaGlzIGlzIGZ1bmFtZW50YWxseSBiZWNhdXNlIGZyb20gZ3Vlc3Qg
+cG9pbnQgb2YKPj4+Pj4+PiB2aWV3IHRoaXMgaXMgYSBOSUMsIHNvIGl0IGlzIHN1cHBvc2VkIHRv
+IHRyYW5zbWl0IHRoaW5ncyBvdXQgaW4KPj4+Pj4+PiBhIHRpbWVseSBtYW5uZXIuIElmIGhvc3Qg
+YmFja3MgdGhlIHZpcnR1YWwgTklDIGJ5IHNvbWV0aGluZyB0aGF0IGlzIG5vdAo+Pj4+Pj4+IGEg
+TklDLCB3aXRoIHRyYWZmaWMgc2hhcGluZyBldGMgaW50cm9kdWNpbmcgdW5ib3VuZGVkIGxhdGVu
+Y2llcywKPj4+Pj4+PiBndWVzdCB3aWxsIGJlIGNvbmZ1c2VkLgo+Pj4+Pj4gVGhhdCBhc3N1bWVz
+IHRoYXQgZ3Vlc3RzIGFyZSBmcmFnaWxlIGluIHRoaXMgcmVnYXJkLiBBIGxpbnV4IGd1ZXN0Cj4+
+Pj4+PiBkb2VzIG5vdCBtYWtlIHN1Y2ggYXNzdW1wdGlvbnMuCj4+Pj4+IFllcyBpdCBkb2VzLiBF
+eGFtcGxlcyBhYm92ZToKPj4+Pj4gICAgICAgICAgPiA+IC0gYSBzaW5nbGUgc2xvdyBmbG93IGNh
+biBvY2N1cHkgdGhlIHdob2xlIHJpbmcsIHlvdSB3aWxsIG5vdAo+Pj4+PiAgICAgICAgICA+ID4g
+ICBiZSBhYmxlIHRvIG1ha2UgYW55IG5ldyBidWZmZXJzIGF2YWlsYWJsZSBmb3IgdGhlIGZhc3Qg
+Zmxvdwo+Pj4+IE9oLCByaWdodC4gVGhvdWdoIHRob3NlIGFyZSBkdWUgdG8gdnJpbmdfZGVzYyBw
+b29sIGV4aGF1c3Rpb24KPj4+PiByYXRoZXIgdGhhbiBhbiB1cHBlciBib3VuZCBvbiBsYXRlbmN5
+IG9mIGFueSBzaW5nbGUgcGFja2V0Lgo+Pj4+Cj4+Pj4gTGltaXRpbmcgdGhlIG51bWJlciBvZiB6
+ZXJvY29weSBwYWNrZXRzIGluIGZsaWdodCB0byBzb21lIGZyYWN0aW9uCj4+Pj4gb2YgdGhlIHJp
+bmcgZW5zdXJlcyB0aGF0IGZhc3QgZmxvd3MgY2FuIGFsd2F5cyBncmFiIGEgc2xvdC4KPj4+PiBS
+dW5uaW5nCj4+Pj4gb3V0IG9mIHVidWZfaW5mbyBzbG90cyByZXZlcnRzIHRvIGNvcHksIHNvIGlu
+ZGlyZWN0bHkgZG9lcyB0aGlzLiBCdXQKPj4+PiBJIHJlYWQgaXQgY29ycmVjbHR5IHRoZSB6ZXJv
+Y29weSBwb29sIG1heSBiZSBlcXVhbCB0byBvciBsYXJnZXIgdGhhbgo+Pj4+IHRoZSBkZXNjcmlw
+dG9yIHBvb2wuIFNob3VsZCB3ZSByZWZpbmUgdGhlIHpjb3B5X3VzZWQgdGVzdAo+Pj4+Cj4+Pj4g
+ICAgICAobnZxLT51cGVuZF9pZHggKyAxKSAlIFVJT19NQVhJT1YgIT0gbnZxLT5kb25lX2lkeAo+
+Pj4+Cj4+Pj4gdG8gYWxzbyByZXR1cm4gZmFsc2UgaWYgdGhlIG51bWJlciBvZiBvdXRzdGFuZGlu
+ZyB1YnVmX2luZm8gaXMgZ3JlYXRlcgo+Pj4+IHRoYW4sIHNheSwgdnEtPm51bSA+PiAxPwo+Pj4K
+Pj4+IFdlJ2xsIG5lZWQgdG8gdGhpbmsgYWJvdXQgd2hlcmUgdG8gcHV0IHRoZSB0aHJlc2hvbGQs
+IGJ1dCBJIHRoaW5rIGl0J3MKPj4+IGEgZ29vZCBpZGVhLgo+Pj4KPj4+IE1heWJlIGV2ZW4gYSBm
+aXhlZCBudW1iZXIsIGUuZy4gbWF4KHZxLT5udW0gPj4gMSwgWCkgdG8gbGltaXQgaG9zdAo+Pj4g
+cmVzb3VyY2VzLgo+Pj4KPj4+IEluIGEgc2Vuc2UgaXQgc3RpbGwgbWVhbnMgb25jZSB5b3UgcnVu
+IG91dCBvZiBzbG90cyB6Y29wdCBnZXRzIGRpc2FibGVkIHBvc3NpYmx5IHBlcm1hbmVudGx5Lgo+
+Pj4KPj4+IE5lZWQgdG8gZXhwZXJpbWVudCB3aXRoIHNvbWUgbnVtYmVycy4KPj4gSSBjYW4gdGFr
+ZSBhIHN0YWIgd2l0aCB0d28gZmxvd3MsIG9uZSBkZWxheWVkIGluIGEgZGVlcCBob3N0IHFkaXNj
+Cj4+IHF1ZXVlLiBTZWUgaG93IHRoaXMgY2hhbmdlIGFmZmVjdHMgdGhlIG90aGVyIGZsb3cgYW5k
+IGFsc28gaG93Cj4+IHNlbnNpdGl2ZSB0aGF0IGlzIHRvIHRoZSBjaG9zZW4gdGhyZXNob2xkIHZh
+bHVlLgo+IEluY29tcGxldGUgcmVzdWx0cyBhdCB0aGlzIHN0YWdlLCBidXQgSSBkbyBzZWUgdGhp
+cyBjb3JyZWxhdGlvbiBiZXR3ZWVuCj4gZmxvd3MuIEl0IG9jY3VycyBldmVuIHdoaWxlIG5vdCBy
+dW5uaW5nIG91dCBvZiB6ZXJvY29weSBkZXNjcmlwdG9ycywKPiB3aGljaCBJIGNhbm5vdCB5ZXQg
+ZXhwbGFpbi4KPgo+IFJ1bm5pbmcgdHdvIHRocmVhZHMgaW4gYSBndWVzdCwgZWFjaCB3aXRoIGEg
+dWRwIHNvY2tldCwgZWFjaAo+IHNlbmRpbmcgdXAgdG8gMTAwIGRhdGFncmFtcywgb3IgdW50aWwg
+RUFHQUlOLCBldmVyeSBtc2VjLgo+Cj4gU2VuZGVyIEEgc2VuZHMgMUIgZGF0YWdyYW1zLgo+IFNl
+bmRlciBCIHNlbmRzIFZIT1NUX0dPT0RDT1BZX0xFTiwgd2hpY2ggaXMgZW5vdWdoCj4gdG8gdHJp
+Z2dlciB6Y29weV91c2VkIGluIHZob3N0IG5ldC4KPgo+IEEgbG9jYWwgcmVjZWl2ZSBwcm9jZXNz
+IG9uIHRoZSBob3N0IHJlY2VpdmVzIGJvdGggZmxvd3MuIFRvIGF2b2lkCj4gYSBkZWVwIGNvcHkg
+d2hlbiBsb29waW5nIHRoZSBwYWNrZXQgb250byB0aGUgcmVjZWl2ZSBwYXRoLAo+IGNoYW5nZWQg
+c2tiX29ycGhhbl9mcmFnc19yeCB0byBhbHdheXMgcmV0dXJuIGZhbHNlIChncm9zcyBoYWNrKS4K
+Pgo+IFRoZSBmbG93IHdpdGggdGhlIGxhcmdlciBwYWNrZXRzIGlzIHJlZGlyZWN0ZWQgdGhyb3Vn
+aCBuZXRlbSBvbiBpZmIwOgo+Cj4gICAgbW9kcHJvYmUgaWZiCj4gICAgaXAgbGluayBzZXQgZGV2
+IGlmYjAgdXAKPiAgICB0YyBxZGlzYyBhZGQgZGV2IGlmYjAgcm9vdCBuZXRlbSBsaW1pdCAkTElN
+SVQgcmF0ZSAxTUJpdAo+Cj4gICAgdGMgcWRpc2MgYWRkIGRldiB0YXAwIGluZ3Jlc3MKPiAgICB0
+YyBmaWx0ZXIgYWRkIGRldiB0YXAwIHBhcmVudCBmZmZmOiBwcm90b2NvbCBpcCBcCj4gICAgICAg
+IHUzMiBtYXRjaCBpcCBkcG9ydCA4MDAwIDB4ZmZmZiBcCj4gICAgICAgIGFjdGlvbiBtaXJyZWQg
+ZWdyZXNzIHJlZGlyZWN0IGRldiBpZmIwCj4KPiBGb3IgMTAgc2Vjb25kIHJ1biwgcGFja2V0IGNv
+dW50IHdpdGggdmFyaW91cyBpZmIwIHF1ZXVlIGxlbmd0aHMgJExJTUlUOgo+Cj4gbm8gZmlsdGVy
+Cj4gICAgcnguQTogfjg0MCwwMDAKPiAgICByeC5COiB+ODQwLDAwMAoKSnVzdCB0byBtYWtlIHN1
+cmUgSSB1bmRlcnN0YW5kIHRoZSBjYXNlIGhlcmUuIFdoYXQgZGlkIHJ4LkIgbWVhbiBoZXJlPyBJ
+IAp0aG91Z2h0IGFsbCB0cmFmZmljIHNlbnQgYnkgU2VuZGVyIEIgaGFzIGJlZW4gcmVkaXJlY3Rl
+ZCB0byBpZmIwPwoKPgo+IGxpbWl0IDEKPiAgICByeC5BOiB+NTAwLDAwMAo+ICAgIHJ4LkI6IH4z
+MTAwCj4gICAgaWZiMDogMzI3MyBzZW50LCAzNzExNDEgZHJvcHBlZAo+Cj4gbGltaXQgMTAwCj4g
+ICAgcnguQTogfjkwMDAKPiAgICByeC5COiB+NDIwMAo+ICAgIGlmYjA6IDQ2MzAgc2VudCwgMTQ5
+MSBkcm9wcGVkCj4KPiBsaW1pdCAxMDAwCj4gICAgcnguQTogfjY4MDAKPiAgICByeC5COiB+NDIw
+MAo+ICAgIGlmYjA6IDQ2NTEgc2VudCwgMCBkcm9wcGVkCj4KPiBTZW5kZXIgQiBpcyBhbHdheXMg
+Y29ycmVjdGx5IHJhdGUgbGltaXRlZCB0byAxIE1CcHMgb3IgbGVzcy4gV2l0aCBhCj4gc2hvcnQg
+cXVldWUsIGl0IGVuZHMgdXAgZHJvcHBpbmcgYSBsb3QgYW5kIHNlbmRpbmcgZXZlbiBsZXNzLgo+
+Cj4gV2hlbiBhIHF1ZXVlIGJ1aWxkcyB1cCBmb3Igc2VuZGVyIEIsIHNlbmRlciBBIHRocm91Z2hw
+dXQgaXMgc3Ryb25nbHkKPiBjb3JyZWxhdGVkIHdpdGggcXVldWUgbGVuZ3RoLiBXaXRoIHF1ZXVl
+IGxlbmd0aCAxLCBpdCBjYW4gc2VuZCBhbG1vc3QKPiBhdCB1bnRocm90dGxlZCBzcGVlZC4gQnV0
+IGV2ZW4gYXQgbGltaXQgMTAwIGl0cyB0aHJvdWdocHV0IGlzIG9uIHRoZQo+IHNhbWUgb3JkZXIg
+YXMgc2VuZGVyIEIuCj4KPiBXaGF0IGlzIHN1cnByaXNpbmcgdG8gbWUgaXMgdGhhdCB0aGlzIGhh
+cHBlbnMgZXZlbiB0aG91Z2ggdGhlIG51bWJlcgo+IG9mIHVidWZfaW5mbyBpbiB1c2UgYXQgbGlt
+aXQgMTAwIGlzIGFyb3VuZCAxMDAgYXQgYWxsIHRpbWVzLiBJbiBvdGhlciB3b3JkcywKPiBpdCBk
+b2VzIG5vdCBleGhhdXN0IHRoZSBwb29sLgo+Cj4gV2hlbiBmb3JjaW5nIHpjb3B5X3VzZWQgdG8g
+YmUgZmFsc2UgZm9yIGFsbCBwYWNrZXRzLCB0aGlzIGVmZmVjdCBvZgo+IHNlbmRlciBBIHRocm91
+Z2hwdXQgYmVpbmcgY29ycmVsYXRlZCB3aXRoIHNlbmRlciBCIGRvZXMgbm90IGhhcHBlbi4KPgo+
+IG5vIGZpbHRlcgo+ICAgIHJ4LkE6IH44NTAsMDAwCj4gICAgcnguQjogfjg1MCwwMDAKPgo+IGxp
+bWl0IDEwMAo+ICAgIHJ4LkE6IH44NTAsMDAwCj4gICAgcnguQjogfjQyMDAKPiAgICBpZmIwOiA0
+NTE4IHNlbnQsIDg3NjE4MiBkcm9wcGVkCj4KPiBBbHNvIHJlbGV2YW50IGlzIHRoYXQgd2l0aCB6
+ZXJvY29weSwgdGhlIHNlbmRlciBwcm9jZXNzZXMgYmFjayBvZmYKPiBhbmQgcmVwb3J0IHRoZSBz
+YW1lIGNvdW50IGFzIHRoZSByZWNlaXZlci4gV2l0aG91dCB6ZXJvY29weSwKPiBib3RoIHNlbmRl
+cnMgc2VuZCBhdCBmdWxsIHNwZWVkLCBldmVuIGlmIG9ubHkgNDIwMCBwYWNrZXRzIGZyb20gZmxv
+dwo+IEIgYXJyaXZlIGF0IHRoZSByZWNlaXZlci4KPgo+IFRoaXMgaXMgd2l0aCB0aGUgZGVmYXVs
+dCB2aXJ0aW9fbmV0IGRyaXZlciwgc28gd2l0aG91dCBuYXBpLXR4LgoKV2hhdCBraW5kIG9mIHFk
+aXNjIGRvIHlvdSB1c2UgaW4gZ3Vlc3Q/IEkgc3VzcGVjdCB3ZSBzaG91bGQgdXNlIApzb21ldGhp
+bmcgd2hpY2ggY291bGQgZG8gZmFpciBxdWV1ZWluZyAoZS5nIHNmcSkuCgo+Cj4gSXQgYXBwZWFy
+cyB0aGF0IHRoZSB6ZXJvY29weSBub3RpZmljYXRpb25zIGFyZSBwYXVzaW5nIHRoZSBndWVzdC4K
+PiBXaWxsIGxvb2sgYXQgdGhhdCBub3cuCgpBbm90aGVyIGZhY3RvciBpcyB0aGUgdHggaW50ZXJy
+dXB0IGNvYWxlc2NpbmcgcGFyYW1ldGVycyBvZiBpZmIwLCBtYXliZSAKd2Ugc2hvdWxkIGRpc2Fi
+bGUgaXQgZHVyaW5nIHRoZSB0ZXN0LgoKVGhhbmtzCgo+Cj4gQnkgdGhlIHdheSwgSSBoYXZlIGhh
+ZCBhbiB1bnJlbGF0ZWQgcGF0Y2ggb3V0c3RhbmRpbmcgZm9yIGEgd2hpbGUKPiB0byBoYXZlIHZp
+cnRpby1uZXQgc3VwcG9ydCB0aGUgVklSVElPX0NPTkZJR19TX05FRURTX1JFU0VUCj4gY29tbWFu
+ZC4gV2lsbCBzZW5kIHRoYXQgYXMgUkZDLgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
