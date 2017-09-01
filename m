@@ -1,13 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: virtio_net: ethtool supported link modes
-Date: Fri, 1 Sep 2017 11:36:01 +0800
-Message-ID: <38286395-683f-f285-aaa5-68f0e8b68675@redhat.com>
-References: <1504199044.22080.11.camel@arista.com>
+From: Yang Zhang <yang.zhang.wz@gmail.com>
+Subject: Re: [RFC PATCH v2 1/7] x86/paravirt: Add pv_idle_ops to paravirt ops
+Date: Fri, 1 Sep 2017 14:50:28 +0800
+Message-ID: <a1aa7c5a-4eb7-af0d-dccd-f363bae7e668__39845.5830676996$1504248900$gmane$org@gmail.com>
+References: <1504007201-12904-1-git-send-email-yang.zhang.wz@gmail.com>
+	<1504007201-12904-2-git-send-email-yang.zhang.wz@gmail.com>
+	<20170829135548.GG32175@char.us.oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1504199044.22080.11.camel@arista.com>
+In-Reply-To: <20170829135548.GG32175@char.us.oracle.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,27 +20,142 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Radu Rendec <rrendec@arista.com>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xensource.com, jgross@suse.com, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, rkrcmar@redhat.com, kvm@vger.kernel.org, mst@redhat.com, peterz@infradead.org, Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, wanpeng.li@hotmail.com, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>, Chris Wright <chrisw@sous-sol.org>, Andy Lutomirski <luto@kernel.org>, dmatlack@google.com, tglx@linutronix.de, Quan Xu <quan.xu0@gmail.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, pbonzini@redhat.com, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDnmnIgwMeaXpSAwMTowNCwgUmFkdSBSZW5kZWMgd3JvdGU6Cj4gSGVsbG8s
-Cj4KPiBMb29raW5nIGF0IHRoZSBjb2RlIGluIHZpcnRuZXRfc2V0X2xpbmtfa3NldHRpbmdzLCBp
-dCBzZWVtcyB0aGUgc3BlZWQKPiBhbmQgZHVwbGV4IGNhbiBiZSBzZXQgdG8gYW55IHZhbGlkIHZh
-bHVlLiBUaGUgZHJpdmVyIHdpbGwgInJlbWVtYmVyIgo+IHRoZW0gYW5kIHJlcG9ydCB0aGVtIGJh
-Y2sgaW4gdmlydG5ldF9nZXRfbGlua19rc2V0dGluZ3MuCj4KPiBIb3dldmVyLCB0aGUgc3VwcG9y
-dGVkIGxpbmsgbW9kZXMgKGxpbmtfbW9kZXMuc3VwcG9ydGVkIGluIHN0cnVjdAo+IGV0aHRvb2xf
-bGlua19rc2V0dGluZ3MpIGlzIGFsd2F5cyAwLCBpbmRpY2F0aW5nIHRoYXQgbm8gc3BlZWQvZHVw
-bGV4Cj4gc2V0dGluZyBpcyBzdXBwb3J0ZWQuCj4KPiBEb2VzIGl0IG1ha2UgbW9yZSBzZW5zZSB0
-byBzZXQgKGF0IGxlYXN0IGEgZmV3IG9mKSB0aGUgc3VwcG9ydGVkIGxpbmsKPiBtb2Rlcywgc3Vj
-aCBhcyAxMGJhc2VUX0hhbGYgLi4uIDEwMDAwYmFzZVRfRnVsbD8KPgo+IEkgd291bGQgZXhwZWN0
-IHRvIHNlZSBjb25zaXN0ZW5jeSBiZXR3ZWVuIHdoYXQgaXMgcmVwb3J0ZWQgaW4KPiBsaW5rX21v
-ZGVzLnN1cHBvcnRlZCBhbmQgd2hhdCBjYW4gYWN0dWFsbHkgYmUgc2V0LiBDb3VsZCB5b3UgcGxl
-YXNlCj4gc2hhcmUgeW91ciBvcGluaW9uIG9uIHRoaXM/CgpJIHRoaW5rIHRoZSBtYXkgbWFrZSBz
-ZW5zZSBvbmx5IGlmIHRoZXJlJ3MgYSBoYXJkd2FyZSBpbXBsZW1lbnRhdGlvbiBmb3IgCnZpcnRp
-by4gQW5kIHdlIHByb2JhYmx5IG5lZWQgdG8gZXh0ZW5kIHZpcnRpbyBzcGVjIGZvciBhZGRpbmcg
-bmV3IGNvbW1hbmRzLgoKVGhhbmtzCgo+Cj4gVGhhbmsgeW91LAo+IFJhZHUgUmVuZGVjCj4KCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On 2017/8/29 21:55, Konrad Rzeszutek Wilk wrote:
+> On Tue, Aug 29, 2017 at 11:46:35AM +0000, Yang Zhang wrote:
+>> So far, pv_idle_ops.poll is the only ops for pv_idle. .poll is called in
+>> idle path which will polling for a while before we enter the real idle
+>> state.
+>>
+>> In virtualization, idle path includes several heavy operations
+>> includes timer access(LAPIC timer or TSC deadline timer) which will hurt
+>> performance especially for latency intensive workload like message
+>> passing task. The cost is mainly come from the vmexit which is a
+>> hardware context switch between VM and hypervisor. Our solution is to
+>> poll for a while and do not enter real idle path if we can get the
+>> schedule event during polling.
+>>
+>> Poll may cause the CPU waste so we adopt a smart polling mechanism to
+>> reduce the useless poll.
+>>
+>> Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
+>> Signed-off-by: Quan Xu <quan.xu0@gmail.com>
+>> Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+>> Cc: Chris Wright <chrisw@sous-sol.org>
+>> Cc: Alok Kataria <akataria@vmware.com>
+>> Cc: Rusty Russell <rusty@rustcorp.com.au>
+>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>> Cc: Ingo Molnar <mingo@redhat.com>
+>> Cc: "H. Peter Anvin" <hpa@zytor.com>
+>> Cc: x86@kernel.org
+>> Cc: Peter Zijlstra <peterz@infradead.org>
+>> Cc: Andy Lutomirski <luto@kernel.org>
+>> Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+>> Cc: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+>> Cc: Kees Cook <keescook@chromium.org>
+>> Cc: virtualization@lists.linux-foundation.org
+>> Cc: linux-kernel@vger.kernel.org
+> 
+> Adding xen-devel.
+> 
+> Juergen, we really should replace Jeremy's name with xen-devel or
+> your name.. Wasn't there an patch by you that took some of the
+> mainternship over it?
+
+Hi Konard, I didn't test it in Xen side since i don't have the 
+environment but i can add it for Xen in next version if you think it is 
+useful to Xen as well.
+
+> 
+>> ---
+>>   arch/x86/include/asm/paravirt.h       | 5 +++++
+>>   arch/x86/include/asm/paravirt_types.h | 6 ++++++
+>>   arch/x86/kernel/paravirt.c            | 6 ++++++
+>>   3 files changed, 17 insertions(+)
+>>
+>> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+>> index 9ccac19..6d46760 100644
+>> --- a/arch/x86/include/asm/paravirt.h
+>> +++ b/arch/x86/include/asm/paravirt.h
+>> @@ -202,6 +202,11 @@ static inline unsigned long long paravirt_read_pmc(int counter)
+>>   
+>>   #define rdpmcl(counter, val) ((val) = paravirt_read_pmc(counter))
+>>   
+>> +static inline void paravirt_idle_poll(void)
+>> +{
+>> +	PVOP_VCALL0(pv_idle_ops.poll);
+>> +}
+>> +
+>>   static inline void paravirt_alloc_ldt(struct desc_struct *ldt, unsigned entries)
+>>   {
+>>   	PVOP_VCALL2(pv_cpu_ops.alloc_ldt, ldt, entries);
+>> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+>> index 9ffc36b..cf45726 100644
+>> --- a/arch/x86/include/asm/paravirt_types.h
+>> +++ b/arch/x86/include/asm/paravirt_types.h
+>> @@ -324,6 +324,10 @@ struct pv_lock_ops {
+>>   	struct paravirt_callee_save vcpu_is_preempted;
+>>   } __no_randomize_layout;
+>>   
+>> +struct pv_idle_ops {
+>> +	void (*poll)(void);
+>> +} __no_randomize_layout;
+>> +
+>>   /* This contains all the paravirt structures: we get a convenient
+>>    * number for each function using the offset which we use to indicate
+>>    * what to patch. */
+>> @@ -334,6 +338,7 @@ struct paravirt_patch_template {
+>>   	struct pv_irq_ops pv_irq_ops;
+>>   	struct pv_mmu_ops pv_mmu_ops;
+>>   	struct pv_lock_ops pv_lock_ops;
+>> +	struct pv_idle_ops pv_idle_ops;
+>>   } __no_randomize_layout;
+>>   
+>>   extern struct pv_info pv_info;
+>> @@ -343,6 +348,7 @@ struct paravirt_patch_template {
+>>   extern struct pv_irq_ops pv_irq_ops;
+>>   extern struct pv_mmu_ops pv_mmu_ops;
+>>   extern struct pv_lock_ops pv_lock_ops;
+>> +extern struct pv_idle_ops pv_idle_ops;
+>>   
+>>   #define PARAVIRT_PATCH(x)					\
+>>   	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
+>> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+>> index bc0a849..1b5b247 100644
+>> --- a/arch/x86/kernel/paravirt.c
+>> +++ b/arch/x86/kernel/paravirt.c
+>> @@ -128,6 +128,7 @@ static void *get_call_destination(u8 type)
+>>   #ifdef CONFIG_PARAVIRT_SPINLOCKS
+>>   		.pv_lock_ops = pv_lock_ops,
+>>   #endif
+>> +		.pv_idle_ops = pv_idle_ops,
+>>   	};
+>>   	return *((void **)&tmpl + type);
+>>   }
+>> @@ -312,6 +313,10 @@ struct pv_time_ops pv_time_ops = {
+>>   	.steal_clock = native_steal_clock,
+>>   };
+>>   
+>> +struct pv_idle_ops pv_idle_ops = {
+>> +	.poll = paravirt_nop,
+>> +};
+>> +
+>>   __visible struct pv_irq_ops pv_irq_ops = {
+>>   	.save_fl = __PV_IS_CALLEE_SAVE(native_save_fl),
+>>   	.restore_fl = __PV_IS_CALLEE_SAVE(native_restore_fl),
+>> @@ -471,3 +476,4 @@ struct pv_mmu_ops pv_mmu_ops __ro_after_init = {
+>>   EXPORT_SYMBOL    (pv_mmu_ops);
+>>   EXPORT_SYMBOL_GPL(pv_info);
+>>   EXPORT_SYMBOL    (pv_irq_ops);
+>> +EXPORT_SYMBOL    (pv_idle_ops);
+>> -- 
+>> 1.8.3.1
+>>
+
+
+-- 
+Yang
+Alibaba Cloud Computing
