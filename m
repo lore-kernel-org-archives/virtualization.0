@@ -1,15 +1,28 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] vhost_net: correctly check tx avail during rx busy
-	polling
-Date: Fri, 1 Sep 2017 18:51:26 +0300
-Message-ID: <20170901184531-mutt-send-email-mst__16558.4245966331$1504281131$gmane$org@kernel.org>
-References: <1504256570-3488-1-git-send-email-jasowang@redhat.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
+	path if no tx napi
+Date: Fri, 1 Sep 2017 12:15:06 -0400
+Message-ID: <CAF=yD-JREJqpsRdCi31qo1QNFEE2DDCaTGYw1f1waPgtov8WEg__16551.0265542709$1504282575$gmane$org@mail.gmail.com>
+References: <64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
+	<20170822204015-mutt-send-email-mst@kernel.org>
+	<1503498504.8694.26.camel@klaipeden.com>
+	<CAF=yD-+U_aWxSmPPY8v8t=JO0MRZ+N+DzVJTAMKYQ5F=pE1PfA@mail.gmail.com>
+	<20170824014553-mutt-send-email-mst@kernel.org>
+	<CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
+	<20170824160748-mutt-send-email-mst@kernel.org>
+	<CAF=yD-+9Ah8pC9i2w3Ad3WnhQit7Yo479pMrToty7priL6BFLw@mail.gmail.com>
+	<20170824234551-mutt-send-email-mst@kernel.org>
+	<CAF=yD-+1wheMmC+HFKe_B_ULO0Mmh6HMSEbYY5D-HgqxVJee6A@mail.gmail.com>
+	<20170826022744-mutt-send-email-mst@kernel.org>
+	<CAF=yD-Lre0NATUVH8p0zS=G5CiY=WfKSefLmOZw940jZFgECgQ@mail.gmail.com>
+	<CAF=yD-+Wk9sc9dXMUq1+x_hh=3ThTXa6BnZkygP3tgVpjbp93g@mail.gmail.com>
+	<CAF=yD-+AjQLLUKdvnrwd2tqFtw4Hm81cR7WUJd65oLnziNGM8A@mail.gmail.com>
+	<5ef7fcf3-d4f0-be16-6ddb-724d954cfc68@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1504256570-3488-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <5ef7fcf3-d4f0-be16-6ddb-724d954cfc68@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,80 +33,120 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Koichiro Den <den@klaipeden.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 01, 2017 at 05:02:50PM +0800, Jason Wang wrote:
-> We check tx avail through vhost_enable_notify() in the past which is
-> wrong since it only checks whether or not guest has filled more
-> available buffer since last avail idx synchronization which was just
-> done by vhost_vq_avail_empty() before. What we really want is checking
-> pending buffers in the avail ring.
-
-These are rx buffers, right? I'm not even sure why do we need to poll
-for them. Running out of rx buffers is a slow path.
-
-> Fix this by calling
-> vhost_vq_avail_empty() instead.
-> 
-> This issue could be noticed by doing netperf TCP_RR benchmark as
-> client from guest (but not host). With this fix, TCP_RR from guest to
-> localhost restores from 1375.91 trans per sec to 55235.28 trans per
-> sec on my laptop (Intel(R) Core(TM) i7-5600U CPU @ 2.60GHz).
-> 
-> Fixes: 030881372460 ("vhost_net: basic polling support")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-> - The patch is needed for -stable
-> ---
->  drivers/vhost/net.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 06d0448..1b68253 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -634,7 +634,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
-
-In fact why does it poll the ring at all? I thought this function's
-job is to poll the socket, isn't it?
-
-
->  
->  		preempt_enable();
->  
-> -		if (vhost_enable_notify(&net->dev, vq))
-> +		if (!vhost_vq_avail_empty(&net->dev, vq))
->  			vhost_poll_queue(&vq->poll);
->  		mutex_unlock(&vq->mutex);
-
-
-Adding more contex:
-
-                mutex_lock(&vq->mutex);
-                vhost_disable_notify(&net->dev, vq);
-
-                preempt_disable();
-                endtime = busy_clock() + vq->busyloop_timeout;
-
-                while (vhost_can_busy_poll(&net->dev, endtime) &&
-                       !sk_has_rx_data(sk) &&
-                       vhost_vq_avail_empty(&net->dev, vq))
-                        cpu_relax();
-                
-                preempt_enable();
-        
-                if (vhost_enable_notify(&net->dev, vq))
-                        vhost_poll_queue(&vq->poll);
-                mutex_unlock(&vq->mutex);
-
-                len = peek_head_len(rvq, sk);
-
-
-If you drop this we'll exit the function with notifications
-disabled. Seems wrong to me.
-
-
->  
-> -- 
-> 2.7.4
+T24gVGh1LCBBdWcgMzEsIDIwMTcgYXQgMTE6MjUgUE0sIEphc29uIFdhbmcgPGphc293YW5nQHJl
+ZGhhdC5jb20+IHdyb3RlOgo+Cj4KPiBPbiAyMDE35bm0MDjmnIgzMeaXpSAyMjozMCwgV2lsbGVt
+IGRlIEJydWlqbiB3cm90ZToKPj4+Cj4+PiBJbmNvbXBsZXRlIHJlc3VsdHMgYXQgdGhpcyBzdGFn
+ZSwgYnV0IEkgZG8gc2VlIHRoaXMgY29ycmVsYXRpb24gYmV0d2Vlbgo+Pj4gZmxvd3MuIEl0IG9j
+Y3VycyBldmVuIHdoaWxlIG5vdCBydW5uaW5nIG91dCBvZiB6ZXJvY29weSBkZXNjcmlwdG9ycywK
+Pj4+IHdoaWNoIEkgY2Fubm90IHlldCBleHBsYWluLgo+Pj4KPj4+IFJ1bm5pbmcgdHdvIHRocmVh
+ZHMgaW4gYSBndWVzdCwgZWFjaCB3aXRoIGEgdWRwIHNvY2tldCwgZWFjaAo+Pj4gc2VuZGluZyB1
+cCB0byAxMDAgZGF0YWdyYW1zLCBvciB1bnRpbCBFQUdBSU4sIGV2ZXJ5IG1zZWMuCj4+Pgo+Pj4g
+U2VuZGVyIEEgc2VuZHMgMUIgZGF0YWdyYW1zLgo+Pj4gU2VuZGVyIEIgc2VuZHMgVkhPU1RfR09P
+RENPUFlfTEVOLCB3aGljaCBpcyBlbm91Z2gKPj4+IHRvIHRyaWdnZXIgemNvcHlfdXNlZCBpbiB2
+aG9zdCBuZXQuCj4+Pgo+Pj4gQSBsb2NhbCByZWNlaXZlIHByb2Nlc3Mgb24gdGhlIGhvc3QgcmVj
+ZWl2ZXMgYm90aCBmbG93cy4gVG8gYXZvaWQKPj4+IGEgZGVlcCBjb3B5IHdoZW4gbG9vcGluZyB0
+aGUgcGFja2V0IG9udG8gdGhlIHJlY2VpdmUgcGF0aCwKPj4+IGNoYW5nZWQgc2tiX29ycGhhbl9m
+cmFnc19yeCB0byBhbHdheXMgcmV0dXJuIGZhbHNlIChncm9zcyBoYWNrKS4KPj4+Cj4+PiBUaGUg
+ZmxvdyB3aXRoIHRoZSBsYXJnZXIgcGFja2V0cyBpcyByZWRpcmVjdGVkIHRocm91Z2ggbmV0ZW0g
+b24gaWZiMDoKPj4+Cj4+PiAgICBtb2Rwcm9iZSBpZmIKPj4+ICAgIGlwIGxpbmsgc2V0IGRldiBp
+ZmIwIHVwCj4+PiAgICB0YyBxZGlzYyBhZGQgZGV2IGlmYjAgcm9vdCBuZXRlbSBsaW1pdCAkTElN
+SVQgcmF0ZSAxTUJpdAo+Pj4KPj4+ICAgIHRjIHFkaXNjIGFkZCBkZXYgdGFwMCBpbmdyZXNzCj4+
+PiAgICB0YyBmaWx0ZXIgYWRkIGRldiB0YXAwIHBhcmVudCBmZmZmOiBwcm90b2NvbCBpcCBcCj4+
+PiAgICAgICAgdTMyIG1hdGNoIGlwIGRwb3J0IDgwMDAgMHhmZmZmIFwKPj4+ICAgICAgICBhY3Rp
+b24gbWlycmVkIGVncmVzcyByZWRpcmVjdCBkZXYgaWZiMAo+Pj4KPj4+IEZvciAxMCBzZWNvbmQg
+cnVuLCBwYWNrZXQgY291bnQgd2l0aCB2YXJpb3VzIGlmYjAgcXVldWUgbGVuZ3RocyAkTElNSVQ6
+Cj4+Pgo+Pj4gbm8gZmlsdGVyCj4+PiAgICByeC5BOiB+ODQwLDAwMAo+Pj4gICAgcnguQjogfjg0
+MCwwMDAKPj4+Cj4+PiBsaW1pdCAxCj4+PiAgICByeC5BOiB+NTAwLDAwMAo+Pj4gICAgcnguQjog
+fjMxMDAKPj4+ICAgIGlmYjA6IDMyNzMgc2VudCwgMzcxMTQxIGRyb3BwZWQKPj4+Cj4+PiBsaW1p
+dCAxMDAKPj4+ICAgIHJ4LkE6IH45MDAwCj4+PiAgICByeC5COiB+NDIwMAo+Pj4gICAgaWZiMDog
+NDYzMCBzZW50LCAxNDkxIGRyb3BwZWQKPj4+Cj4+PiBsaW1pdCAxMDAwCj4+PiAgICByeC5BOiB+
+NjgwMAo+Pj4gICAgcnguQjogfjQyMDAKPj4+ICAgIGlmYjA6IDQ2NTEgc2VudCwgMCBkcm9wcGVk
+Cj4+Pgo+Pj4gU2VuZGVyIEIgaXMgYWx3YXlzIGNvcnJlY3RseSByYXRlIGxpbWl0ZWQgdG8gMSBN
+QnBzIG9yIGxlc3MuIFdpdGggYQo+Pj4gc2hvcnQgcXVldWUsIGl0IGVuZHMgdXAgZHJvcHBpbmcg
+YSBsb3QgYW5kIHNlbmRpbmcgZXZlbiBsZXNzLgo+Pj4KPj4+IFdoZW4gYSBxdWV1ZSBidWlsZHMg
+dXAgZm9yIHNlbmRlciBCLCBzZW5kZXIgQSB0aHJvdWdocHV0IGlzIHN0cm9uZ2x5Cj4+PiBjb3Jy
+ZWxhdGVkIHdpdGggcXVldWUgbGVuZ3RoLiBXaXRoIHF1ZXVlIGxlbmd0aCAxLCBpdCBjYW4gc2Vu
+ZCBhbG1vc3QKPj4+IGF0IHVudGhyb3R0bGVkIHNwZWVkLiBCdXQgZXZlbiBhdCBsaW1pdCAxMDAg
+aXRzIHRocm91Z2hwdXQgaXMgb24gdGhlCj4+PiBzYW1lIG9yZGVyIGFzIHNlbmRlciBCLgo+Pj4K
+Pj4+IFdoYXQgaXMgc3VycHJpc2luZyB0byBtZSBpcyB0aGF0IHRoaXMgaGFwcGVucyBldmVuIHRo
+b3VnaCB0aGUgbnVtYmVyCj4+PiBvZiB1YnVmX2luZm8gaW4gdXNlIGF0IGxpbWl0IDEwMCBpcyBh
+cm91bmQgMTAwIGF0IGFsbCB0aW1lcy4gSW4gb3RoZXIKPj4+IHdvcmRzLAo+Pj4gaXQgZG9lcyBu
+b3QgZXhoYXVzdCB0aGUgcG9vbC4KPj4+Cj4+PiBXaGVuIGZvcmNpbmcgemNvcHlfdXNlZCB0byBi
+ZSBmYWxzZSBmb3IgYWxsIHBhY2tldHMsIHRoaXMgZWZmZWN0IG9mCj4+PiBzZW5kZXIgQSB0aHJv
+dWdocHV0IGJlaW5nIGNvcnJlbGF0ZWQgd2l0aCBzZW5kZXIgQiBkb2VzIG5vdCBoYXBwZW4uCj4+
+Pgo+Pj4gbm8gZmlsdGVyCj4+PiAgICByeC5BOiB+ODUwLDAwMAo+Pj4gICAgcnguQjogfjg1MCww
+MDAKPj4+Cj4+PiBsaW1pdCAxMDAKPj4+ICAgIHJ4LkE6IH44NTAsMDAwCj4+PiAgICByeC5COiB+
+NDIwMAo+Pj4gICAgaWZiMDogNDUxOCBzZW50LCA4NzYxODIgZHJvcHBlZAo+Pj4KPj4+IEFsc28g
+cmVsZXZhbnQgaXMgdGhhdCB3aXRoIHplcm9jb3B5LCB0aGUgc2VuZGVyIHByb2Nlc3NlcyBiYWNr
+IG9mZgo+Pj4gYW5kIHJlcG9ydCB0aGUgc2FtZSBjb3VudCBhcyB0aGUgcmVjZWl2ZXIuIFdpdGhv
+dXQgemVyb2NvcHksCj4+PiBib3RoIHNlbmRlcnMgc2VuZCBhdCBmdWxsIHNwZWVkLCBldmVuIGlm
+IG9ubHkgNDIwMCBwYWNrZXRzIGZyb20gZmxvdwo+Pj4gQiBhcnJpdmUgYXQgdGhlIHJlY2VpdmVy
+Lgo+Pj4KPj4+IFRoaXMgaXMgd2l0aCB0aGUgZGVmYXVsdCB2aXJ0aW9fbmV0IGRyaXZlciwgc28g
+d2l0aG91dCBuYXBpLXR4Lgo+Pj4KPj4+IEl0IGFwcGVhcnMgdGhhdCB0aGUgemVyb2NvcHkgbm90
+aWZpY2F0aW9ucyBhcmUgcGF1c2luZyB0aGUgZ3Vlc3QuCj4+PiBXaWxsIGxvb2sgYXQgdGhhdCBu
+b3cuCj4+Cj4+IEl0IHdhcyBpbmRlZWQgYXMgc2ltcGxlIGFzIHRoYXQuIFdpdGggMjU2IGRlc2Ny
+aXB0b3JzLCBxdWV1aW5nIGV2ZW4KPj4gYSBodW5kcmVkIG9yIHNvIHBhY2tldHMgY2F1c2VzIHRo
+ZSBndWVzdCB0byBzdGFsbCB0aGUgZGV2aWNlIGFzIHNvb24KPj4gYXMgdGhlIHFkaXNjIGlzIGlu
+c3RhbGxlZC4KPj4KPj4gQWRkaW5nIHRoaXMgY2hlY2sKPj4KPj4gKyAgICAgICAgICAgICAgICAg
+ICAgICAgaW5fdXNlID0gbnZxLT51cGVuZF9pZHggLSBudnEtPmRvbmVfaWR4Owo+PiArICAgICAg
+ICAgICAgICAgICAgICAgICBpZiAobnZxLT51cGVuZF9pZHggPCBudnEtPmRvbmVfaWR4KQo+PiAr
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGluX3VzZSArPSBVSU9fTUFYSU9WOwo+PiAr
+Cj4+ICsgICAgICAgICAgICAgICAgICAgICAgIGlmIChpbl91c2UgPiAodnEtPm51bSA+PiAyKSkK
+Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB6Y29weV91c2VkID0gZmFsc2U7Cj4+
+Cj4+IEhhcyB0aGUgZGVzaXJlZCBiZWhhdmlvciBvZiByZXZlcnRpbmcgemVyb2NvcHkgcmVxdWVz
+dHMgdG8gY29weWluZy4KPj4KPj4gV2l0aG91dCB0aGlzIGNoYW5nZSwgdGhlIHJlc3VsdCBpcywg
+YXMgcHJldmlvdXNseSByZXBvcnRlZCwgdGhyb3VnaHB1dAo+PiBkcm9wcGluZyB0byBodW5kcmVk
+cyBvZiBwYWNrZXRzIHBlciBzZWNvbmQgb24gYm90aCBmbG93cy4KPj4KPj4gV2l0aCB0aGUgY2hh
+bmdlLCBwcHMgYXMgb2JzZXJ2ZWQgZm9yIGEgZmV3IHNlY29uZHMgYXQgaGFuZGxlX3R4IGlzCj4+
+Cj4+IHplcm9jb3B5PTE2NSBjb3B5PTE2ODQzNQo+PiB6ZXJvY29weT0wIGNvcHk9MTY4NTAwCj4+
+IHplcm9jb3B5PTY1IGNvcHk9MTY4NTM1Cj4+Cj4+IEJvdGggZmxvd3MgY29udGludWUgdG8gc2Vu
+ZCBhdCBtb3JlIG9yIGxlc3Mgbm9ybWFsIHJhdGUsIHdpdGggb25seQo+PiBzZW5kZXIgQiBvYnNl
+cnZpbmcgbWFzc2l2ZSBkcm9wcyBhdCB0aGUgbmV0ZW0uCj4+Cj4+IFdpdGggdGhlIHF1ZXVlIHJl
+bW92ZWQgdGhlIHJhdGUgcmV2ZXJ0cyB0bwo+Pgo+PiB6ZXJvY29weT01ODg3OCBjb3B5PTExMDIz
+OQo+PiB6ZXJvY29weT01ODgzMyBjb3B5PTExMDIwNwo+Pgo+PiBUaGlzIGlzIG5vdCBhIDUwLzUw
+IHNwbGl0LCB3aGljaCBpbXBsaWVzVHcgdGhhdCBzb21lIHBhY2tldHMgZnJvbSB0aGUKPj4gbGFy
+Z2UKPj4gcGFja2V0IGZsb3cgYXJlIHN0aWxsIGNvbnZlcnRlZCB0byBjb3B5aW5nLiBXaXRob3V0
+IHRoZSBjaGFuZ2UgdGhlIHJhdGUKPj4gd2l0aG91dCBxdWV1ZSB3YXMgODBrIHplcm9jb3B5IHZz
+IDgwayBjb3B5LCBzbyB0aGlzIGNob2ljZSBvZgo+PiAodnEtPm51bSA+PiAyKSBhcHBlYXJzIHRv
+byBjb25zZXJ2YXRpdmUuCj4+Cj4+IEhvd2V2ZXIsIHRlc3Rpbmcgd2l0aCAodnEtPm51bSA+PiAx
+KSB3YXMgbm90IGFzIGVmZmVjdGl2ZSBhdCBtaXRpZ2F0aW5nCj4+IHN0YWxscy4gSSBkaWQgbm90
+IHNhdmUgdGhhdCBkYXRhLCB1bmZvcnR1bmF0ZWx5LiBDYW4gcnVuIG1vcmUgdGVzdHMgb24KPj4g
+ZmluZQo+PiB0dW5pbmcgdGhpcyB2YXJpYWJsZSwgaWYgdGhlIGlkZWEgc291bmRzIGdvb2QuCj4K
+Pgo+IExvb2tzIGxpa2UgdGhlcmUncmUgc3RpbGwgdHdvIGNhc2VzIHdlcmUgbGVmdDoKClRvIGJl
+IGNsZWFyLCB0aGlzIHBhdGNoIGlzIG5vdCBpbnRlbmRlZCB0byBmaXggYWxsIGlzc3Vlcy4gSXQg
+aXMgYSBzbWFsbAppbXByb3ZlbWVudCB0byBhdm9pZCBIb0wgYmxvY2tpbmcgZHVlIHRvIHF1ZXVl
+ZCB6ZXJvY29weSBza2JzLgoKVGhlIHRyYWRlLW9mZiBpcyB0aGF0IHJldmVydGluZyB0byBjb3B5
+aW5nIGluIHRoZXNlIGNhc2VzIGluY3JlYXNlcwpjeWNsZSBjb3N0LiBJIHRoaW5rIHRoYXQgdGhh
+dCBpcyBhIHRyYWRlLW9mZiB3b3J0aCBtYWtpbmcgY29tcGFyZWQgdG8KdGhlIGFsdGVybmF0aXZl
+IGRyb3AgaW4gdGhyb3VnaHB1dC4gSXQgcHJvYmFibHkgd291bGQgYmUgZ29vZCB0byBiZQphYmxl
+IHRvIG1lYXN1cmUgdGhpcyB3aXRob3V0IGtlcm5lbCBpbnN0cnVtZW50YXRpb246IGV4cG9ydApj
+b3VudGVycyBzaW1pbGFyIHRvIG5ldC0+dHhfemNvcHlfZXJyIGFuZCBuZXQtPnR4X3BhY2tldHMg
+KHRob3VnaAp3aXRob3V0IHJlc2V0IHRvIHplcm8sIGFzIGluIHZob3N0X25ldF90eF9wYWNrZXQp
+LgoKPiAxKSBzbmRidWYgaXMgbm90IElOVF9NQVgKCllvdSBtZWFuIHRoZSBjYXNlIHdoZXJlIHRo
+ZSBkZXZpY2Ugc3RhbGxzLCBsYXRlciB6ZXJvY29weSBub3RpZmljYXRpb25zCmFyZSBxdWV1ZWQs
+IGJ1dCB0aGVzZSBhcmUgbmV2ZXIgY2xlYW5lZCBpbiBmcmVlX29sZF94bWl0X3NrYnMsCmJlY2F1
+c2UgaXQgcmVxdWlyZXMgYSBzdGFydF94bWl0IGFuZCBieSBub3cgdGhlIChvbmx5KSBzb2NrZXQg
+aXMgb3V0IG9mCmRlc2NyaXB0b3JzPwoKQSB3YXRjaGRvZyB3b3VsZCBoZWxwIHNvbWV3aGF0LiBX
+aXRoIHR4LW5hcGksIHRoaXMgY2FzZSBjYW5ub3Qgb2NjdXIsCmVpdGhlciwgYXMgZnJlZV9vbGRf
+eG1pdF9za2JzIG5vIGxvbmdlciBkZXBlbmRzIG9uIGEgY2FsbCB0byBzdGFydF94bWl0LgoKPiAy
+KSB0eCBuYXBpIGlzIHVzZWQgZm9yIHZpcnRpby1uZXQKCkkgYW0gbm90IGF3YXJlIG9mIGFueSBp
+c3N1ZSBzcGVjaWZpYyB0byB0aGUgdXNlIG9mIHR4LW5hcGk/Cgo+IDEpIGNvdWxkIGJlIGEgY29y
+bmVyIGNhc2UsIGFuZCBmb3IgMikgd2hhdCB5b3VyIHN1Z2dlc3QgaGVyZSBtYXkgbm90IHNvbHZl
+Cj4gdGhlIGlzc3VlIHNpbmNlIGl0IHN0aWxsIGRvIGluIG9yZGVyIGNvbXBsZXRpb24uCgpTb21l
+d2hhdCB0YW5nZW50aWFsLCBidXQgaXQgbWlnaHQgYWxzbyBoZWxwIHRvIGJyZWFrIHRoZSBpbi1v
+cmRlcgpjb21wbGV0aW9uIHByb2Nlc3NpbmcgaW4gdmhvc3RfemVyb2NvcHlfc2lnbmFsX3VzZWQu
+IENvbXBsZXRlCmFsbCBkZXNjcmlwdG9ycyBiZXR3ZWVuIGRvbmVfaWR4IGFuZCB1cGVuZF9pZHgu
+IGRvbmVfaWR4IHNob3VsZAp0aGVuIG9ubHkgYmUgZm9yd2FyZCB0byB0aGUgb2xkZXN0IHN0aWxs
+IG5vdC1jb21wbGV0ZWQgZGVzY3JpcHRvci4KCkluIHRoZSB0ZXN0IEkgcmFuLCB3aGVyZSB0aGUg
+b2xkZXN0IGRlc2NyaXB0b3JzIGFyZSBoZWxkIGluIGEgcXVldWUgYW5kCmFsbCBuZXdlciBvbmVz
+IGFyZSB0YWlsLWRyb3BwZWQsIHRoaXMgd291bGQgYXZvaWQgYmxvY2tpbmcgYSBmdWxsIHJpbmcK
+b2YgY29tcGxldGlvbnMsIHdoZW4gb25seSBhIHNtYWxsIG51bWJlciAob3IgMSkgaXMgYWN0dWFs
+bHkgZGVsYXllZC4KCkR5bmFtaWMgc3dpdGNoaW5nIGJldHdlZW4gY29weSBhbmQgemVyb2NvcHkg
+dXNpbmcgemNvcHlfdXNlZAphbHJlYWR5IHJldHVybnMgY29tcGxldGlvbnMgb3V0LW9mLW9yZGVy
+LCBzbyB0aGlzIGlzIG5vdCBhIGh1Z2UgbGVhcC4KX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
+emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
+ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
