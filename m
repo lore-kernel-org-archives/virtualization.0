@@ -1,8 +1,8 @@
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
 	path if no tx napi
-Date: Fri, 1 Sep 2017 12:15:06 -0400
-Message-ID: <CAF=yD-JREJqpsRdCi31qo1QNFEE2DDCaTGYw1f1waPgtov8WEg__16551.0265542709$1504282575$gmane$org@mail.gmail.com>
+Date: Fri, 1 Sep 2017 12:17:08 -0400
+Message-ID: <CAF=yD-LZ4Abn8CFSQyuNnYSRZkHx4FTzK4hSi9WQaHO-28rsHQ__43107.1080304266$1504282723$gmane$org@mail.gmail.com>
 References: <64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
 	<20170822204015-mutt-send-email-mst@kernel.org>
 	<1503498504.8694.26.camel@klaipeden.com>
@@ -18,11 +18,12 @@ References: <64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
 	<CAF=yD-+Wk9sc9dXMUq1+x_hh=3ThTXa6BnZkygP3tgVpjbp93g@mail.gmail.com>
 	<CAF=yD-+AjQLLUKdvnrwd2tqFtw4Hm81cR7WUJd65oLnziNGM8A@mail.gmail.com>
 	<5ef7fcf3-d4f0-be16-6ddb-724d954cfc68@redhat.com>
+	<CAF=yD-JREJqpsRdCi31qo1QNFEE2DDCaTGYw1f1waPgtov8WEg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5ef7fcf3-d4f0-be16-6ddb-724d954cfc68@redhat.com>
+In-Reply-To: <CAF=yD-JREJqpsRdCi31qo1QNFEE2DDCaTGYw1f1waPgtov8WEg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -36,117 +37,57 @@ To: Jason Wang <jasowang@redhat.com>
 Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Koichiro Den <den@klaipeden.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBBdWcgMzEsIDIwMTcgYXQgMTE6MjUgUE0sIEphc29uIFdhbmcgPGphc293YW5nQHJl
-ZGhhdC5jb20+IHdyb3RlOgo+Cj4KPiBPbiAyMDE35bm0MDjmnIgzMeaXpSAyMjozMCwgV2lsbGVt
-IGRlIEJydWlqbiB3cm90ZToKPj4+Cj4+PiBJbmNvbXBsZXRlIHJlc3VsdHMgYXQgdGhpcyBzdGFn
-ZSwgYnV0IEkgZG8gc2VlIHRoaXMgY29ycmVsYXRpb24gYmV0d2Vlbgo+Pj4gZmxvd3MuIEl0IG9j
-Y3VycyBldmVuIHdoaWxlIG5vdCBydW5uaW5nIG91dCBvZiB6ZXJvY29weSBkZXNjcmlwdG9ycywK
-Pj4+IHdoaWNoIEkgY2Fubm90IHlldCBleHBsYWluLgo+Pj4KPj4+IFJ1bm5pbmcgdHdvIHRocmVh
-ZHMgaW4gYSBndWVzdCwgZWFjaCB3aXRoIGEgdWRwIHNvY2tldCwgZWFjaAo+Pj4gc2VuZGluZyB1
-cCB0byAxMDAgZGF0YWdyYW1zLCBvciB1bnRpbCBFQUdBSU4sIGV2ZXJ5IG1zZWMuCj4+Pgo+Pj4g
-U2VuZGVyIEEgc2VuZHMgMUIgZGF0YWdyYW1zLgo+Pj4gU2VuZGVyIEIgc2VuZHMgVkhPU1RfR09P
-RENPUFlfTEVOLCB3aGljaCBpcyBlbm91Z2gKPj4+IHRvIHRyaWdnZXIgemNvcHlfdXNlZCBpbiB2
-aG9zdCBuZXQuCj4+Pgo+Pj4gQSBsb2NhbCByZWNlaXZlIHByb2Nlc3Mgb24gdGhlIGhvc3QgcmVj
-ZWl2ZXMgYm90aCBmbG93cy4gVG8gYXZvaWQKPj4+IGEgZGVlcCBjb3B5IHdoZW4gbG9vcGluZyB0
-aGUgcGFja2V0IG9udG8gdGhlIHJlY2VpdmUgcGF0aCwKPj4+IGNoYW5nZWQgc2tiX29ycGhhbl9m
-cmFnc19yeCB0byBhbHdheXMgcmV0dXJuIGZhbHNlIChncm9zcyBoYWNrKS4KPj4+Cj4+PiBUaGUg
-ZmxvdyB3aXRoIHRoZSBsYXJnZXIgcGFja2V0cyBpcyByZWRpcmVjdGVkIHRocm91Z2ggbmV0ZW0g
-b24gaWZiMDoKPj4+Cj4+PiAgICBtb2Rwcm9iZSBpZmIKPj4+ICAgIGlwIGxpbmsgc2V0IGRldiBp
-ZmIwIHVwCj4+PiAgICB0YyBxZGlzYyBhZGQgZGV2IGlmYjAgcm9vdCBuZXRlbSBsaW1pdCAkTElN
-SVQgcmF0ZSAxTUJpdAo+Pj4KPj4+ICAgIHRjIHFkaXNjIGFkZCBkZXYgdGFwMCBpbmdyZXNzCj4+
-PiAgICB0YyBmaWx0ZXIgYWRkIGRldiB0YXAwIHBhcmVudCBmZmZmOiBwcm90b2NvbCBpcCBcCj4+
-PiAgICAgICAgdTMyIG1hdGNoIGlwIGRwb3J0IDgwMDAgMHhmZmZmIFwKPj4+ICAgICAgICBhY3Rp
-b24gbWlycmVkIGVncmVzcyByZWRpcmVjdCBkZXYgaWZiMAo+Pj4KPj4+IEZvciAxMCBzZWNvbmQg
-cnVuLCBwYWNrZXQgY291bnQgd2l0aCB2YXJpb3VzIGlmYjAgcXVldWUgbGVuZ3RocyAkTElNSVQ6
-Cj4+Pgo+Pj4gbm8gZmlsdGVyCj4+PiAgICByeC5BOiB+ODQwLDAwMAo+Pj4gICAgcnguQjogfjg0
-MCwwMDAKPj4+Cj4+PiBsaW1pdCAxCj4+PiAgICByeC5BOiB+NTAwLDAwMAo+Pj4gICAgcnguQjog
-fjMxMDAKPj4+ICAgIGlmYjA6IDMyNzMgc2VudCwgMzcxMTQxIGRyb3BwZWQKPj4+Cj4+PiBsaW1p
-dCAxMDAKPj4+ICAgIHJ4LkE6IH45MDAwCj4+PiAgICByeC5COiB+NDIwMAo+Pj4gICAgaWZiMDog
-NDYzMCBzZW50LCAxNDkxIGRyb3BwZWQKPj4+Cj4+PiBsaW1pdCAxMDAwCj4+PiAgICByeC5BOiB+
-NjgwMAo+Pj4gICAgcnguQjogfjQyMDAKPj4+ICAgIGlmYjA6IDQ2NTEgc2VudCwgMCBkcm9wcGVk
-Cj4+Pgo+Pj4gU2VuZGVyIEIgaXMgYWx3YXlzIGNvcnJlY3RseSByYXRlIGxpbWl0ZWQgdG8gMSBN
-QnBzIG9yIGxlc3MuIFdpdGggYQo+Pj4gc2hvcnQgcXVldWUsIGl0IGVuZHMgdXAgZHJvcHBpbmcg
-YSBsb3QgYW5kIHNlbmRpbmcgZXZlbiBsZXNzLgo+Pj4KPj4+IFdoZW4gYSBxdWV1ZSBidWlsZHMg
-dXAgZm9yIHNlbmRlciBCLCBzZW5kZXIgQSB0aHJvdWdocHV0IGlzIHN0cm9uZ2x5Cj4+PiBjb3Jy
-ZWxhdGVkIHdpdGggcXVldWUgbGVuZ3RoLiBXaXRoIHF1ZXVlIGxlbmd0aCAxLCBpdCBjYW4gc2Vu
-ZCBhbG1vc3QKPj4+IGF0IHVudGhyb3R0bGVkIHNwZWVkLiBCdXQgZXZlbiBhdCBsaW1pdCAxMDAg
-aXRzIHRocm91Z2hwdXQgaXMgb24gdGhlCj4+PiBzYW1lIG9yZGVyIGFzIHNlbmRlciBCLgo+Pj4K
-Pj4+IFdoYXQgaXMgc3VycHJpc2luZyB0byBtZSBpcyB0aGF0IHRoaXMgaGFwcGVucyBldmVuIHRo
-b3VnaCB0aGUgbnVtYmVyCj4+PiBvZiB1YnVmX2luZm8gaW4gdXNlIGF0IGxpbWl0IDEwMCBpcyBh
-cm91bmQgMTAwIGF0IGFsbCB0aW1lcy4gSW4gb3RoZXIKPj4+IHdvcmRzLAo+Pj4gaXQgZG9lcyBu
-b3QgZXhoYXVzdCB0aGUgcG9vbC4KPj4+Cj4+PiBXaGVuIGZvcmNpbmcgemNvcHlfdXNlZCB0byBi
-ZSBmYWxzZSBmb3IgYWxsIHBhY2tldHMsIHRoaXMgZWZmZWN0IG9mCj4+PiBzZW5kZXIgQSB0aHJv
-dWdocHV0IGJlaW5nIGNvcnJlbGF0ZWQgd2l0aCBzZW5kZXIgQiBkb2VzIG5vdCBoYXBwZW4uCj4+
-Pgo+Pj4gbm8gZmlsdGVyCj4+PiAgICByeC5BOiB+ODUwLDAwMAo+Pj4gICAgcnguQjogfjg1MCww
-MDAKPj4+Cj4+PiBsaW1pdCAxMDAKPj4+ICAgIHJ4LkE6IH44NTAsMDAwCj4+PiAgICByeC5COiB+
-NDIwMAo+Pj4gICAgaWZiMDogNDUxOCBzZW50LCA4NzYxODIgZHJvcHBlZAo+Pj4KPj4+IEFsc28g
-cmVsZXZhbnQgaXMgdGhhdCB3aXRoIHplcm9jb3B5LCB0aGUgc2VuZGVyIHByb2Nlc3NlcyBiYWNr
-IG9mZgo+Pj4gYW5kIHJlcG9ydCB0aGUgc2FtZSBjb3VudCBhcyB0aGUgcmVjZWl2ZXIuIFdpdGhv
-dXQgemVyb2NvcHksCj4+PiBib3RoIHNlbmRlcnMgc2VuZCBhdCBmdWxsIHNwZWVkLCBldmVuIGlm
-IG9ubHkgNDIwMCBwYWNrZXRzIGZyb20gZmxvdwo+Pj4gQiBhcnJpdmUgYXQgdGhlIHJlY2VpdmVy
-Lgo+Pj4KPj4+IFRoaXMgaXMgd2l0aCB0aGUgZGVmYXVsdCB2aXJ0aW9fbmV0IGRyaXZlciwgc28g
-d2l0aG91dCBuYXBpLXR4Lgo+Pj4KPj4+IEl0IGFwcGVhcnMgdGhhdCB0aGUgemVyb2NvcHkgbm90
-aWZpY2F0aW9ucyBhcmUgcGF1c2luZyB0aGUgZ3Vlc3QuCj4+PiBXaWxsIGxvb2sgYXQgdGhhdCBu
-b3cuCj4+Cj4+IEl0IHdhcyBpbmRlZWQgYXMgc2ltcGxlIGFzIHRoYXQuIFdpdGggMjU2IGRlc2Ny
-aXB0b3JzLCBxdWV1aW5nIGV2ZW4KPj4gYSBodW5kcmVkIG9yIHNvIHBhY2tldHMgY2F1c2VzIHRo
-ZSBndWVzdCB0byBzdGFsbCB0aGUgZGV2aWNlIGFzIHNvb24KPj4gYXMgdGhlIHFkaXNjIGlzIGlu
-c3RhbGxlZC4KPj4KPj4gQWRkaW5nIHRoaXMgY2hlY2sKPj4KPj4gKyAgICAgICAgICAgICAgICAg
-ICAgICAgaW5fdXNlID0gbnZxLT51cGVuZF9pZHggLSBudnEtPmRvbmVfaWR4Owo+PiArICAgICAg
-ICAgICAgICAgICAgICAgICBpZiAobnZxLT51cGVuZF9pZHggPCBudnEtPmRvbmVfaWR4KQo+PiAr
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGluX3VzZSArPSBVSU9fTUFYSU9WOwo+PiAr
-Cj4+ICsgICAgICAgICAgICAgICAgICAgICAgIGlmIChpbl91c2UgPiAodnEtPm51bSA+PiAyKSkK
-Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB6Y29weV91c2VkID0gZmFsc2U7Cj4+
-Cj4+IEhhcyB0aGUgZGVzaXJlZCBiZWhhdmlvciBvZiByZXZlcnRpbmcgemVyb2NvcHkgcmVxdWVz
-dHMgdG8gY29weWluZy4KPj4KPj4gV2l0aG91dCB0aGlzIGNoYW5nZSwgdGhlIHJlc3VsdCBpcywg
-YXMgcHJldmlvdXNseSByZXBvcnRlZCwgdGhyb3VnaHB1dAo+PiBkcm9wcGluZyB0byBodW5kcmVk
-cyBvZiBwYWNrZXRzIHBlciBzZWNvbmQgb24gYm90aCBmbG93cy4KPj4KPj4gV2l0aCB0aGUgY2hh
-bmdlLCBwcHMgYXMgb2JzZXJ2ZWQgZm9yIGEgZmV3IHNlY29uZHMgYXQgaGFuZGxlX3R4IGlzCj4+
-Cj4+IHplcm9jb3B5PTE2NSBjb3B5PTE2ODQzNQo+PiB6ZXJvY29weT0wIGNvcHk9MTY4NTAwCj4+
-IHplcm9jb3B5PTY1IGNvcHk9MTY4NTM1Cj4+Cj4+IEJvdGggZmxvd3MgY29udGludWUgdG8gc2Vu
-ZCBhdCBtb3JlIG9yIGxlc3Mgbm9ybWFsIHJhdGUsIHdpdGggb25seQo+PiBzZW5kZXIgQiBvYnNl
-cnZpbmcgbWFzc2l2ZSBkcm9wcyBhdCB0aGUgbmV0ZW0uCj4+Cj4+IFdpdGggdGhlIHF1ZXVlIHJl
-bW92ZWQgdGhlIHJhdGUgcmV2ZXJ0cyB0bwo+Pgo+PiB6ZXJvY29weT01ODg3OCBjb3B5PTExMDIz
-OQo+PiB6ZXJvY29weT01ODgzMyBjb3B5PTExMDIwNwo+Pgo+PiBUaGlzIGlzIG5vdCBhIDUwLzUw
-IHNwbGl0LCB3aGljaCBpbXBsaWVzVHcgdGhhdCBzb21lIHBhY2tldHMgZnJvbSB0aGUKPj4gbGFy
-Z2UKPj4gcGFja2V0IGZsb3cgYXJlIHN0aWxsIGNvbnZlcnRlZCB0byBjb3B5aW5nLiBXaXRob3V0
-IHRoZSBjaGFuZ2UgdGhlIHJhdGUKPj4gd2l0aG91dCBxdWV1ZSB3YXMgODBrIHplcm9jb3B5IHZz
-IDgwayBjb3B5LCBzbyB0aGlzIGNob2ljZSBvZgo+PiAodnEtPm51bSA+PiAyKSBhcHBlYXJzIHRv
-byBjb25zZXJ2YXRpdmUuCj4+Cj4+IEhvd2V2ZXIsIHRlc3Rpbmcgd2l0aCAodnEtPm51bSA+PiAx
-KSB3YXMgbm90IGFzIGVmZmVjdGl2ZSBhdCBtaXRpZ2F0aW5nCj4+IHN0YWxscy4gSSBkaWQgbm90
-IHNhdmUgdGhhdCBkYXRhLCB1bmZvcnR1bmF0ZWx5LiBDYW4gcnVuIG1vcmUgdGVzdHMgb24KPj4g
-ZmluZQo+PiB0dW5pbmcgdGhpcyB2YXJpYWJsZSwgaWYgdGhlIGlkZWEgc291bmRzIGdvb2QuCj4K
-Pgo+IExvb2tzIGxpa2UgdGhlcmUncmUgc3RpbGwgdHdvIGNhc2VzIHdlcmUgbGVmdDoKClRvIGJl
-IGNsZWFyLCB0aGlzIHBhdGNoIGlzIG5vdCBpbnRlbmRlZCB0byBmaXggYWxsIGlzc3Vlcy4gSXQg
-aXMgYSBzbWFsbAppbXByb3ZlbWVudCB0byBhdm9pZCBIb0wgYmxvY2tpbmcgZHVlIHRvIHF1ZXVl
-ZCB6ZXJvY29weSBza2JzLgoKVGhlIHRyYWRlLW9mZiBpcyB0aGF0IHJldmVydGluZyB0byBjb3B5
-aW5nIGluIHRoZXNlIGNhc2VzIGluY3JlYXNlcwpjeWNsZSBjb3N0LiBJIHRoaW5rIHRoYXQgdGhh
-dCBpcyBhIHRyYWRlLW9mZiB3b3J0aCBtYWtpbmcgY29tcGFyZWQgdG8KdGhlIGFsdGVybmF0aXZl
-IGRyb3AgaW4gdGhyb3VnaHB1dC4gSXQgcHJvYmFibHkgd291bGQgYmUgZ29vZCB0byBiZQphYmxl
-IHRvIG1lYXN1cmUgdGhpcyB3aXRob3V0IGtlcm5lbCBpbnN0cnVtZW50YXRpb246IGV4cG9ydApj
-b3VudGVycyBzaW1pbGFyIHRvIG5ldC0+dHhfemNvcHlfZXJyIGFuZCBuZXQtPnR4X3BhY2tldHMg
-KHRob3VnaAp3aXRob3V0IHJlc2V0IHRvIHplcm8sIGFzIGluIHZob3N0X25ldF90eF9wYWNrZXQp
-LgoKPiAxKSBzbmRidWYgaXMgbm90IElOVF9NQVgKCllvdSBtZWFuIHRoZSBjYXNlIHdoZXJlIHRo
-ZSBkZXZpY2Ugc3RhbGxzLCBsYXRlciB6ZXJvY29weSBub3RpZmljYXRpb25zCmFyZSBxdWV1ZWQs
-IGJ1dCB0aGVzZSBhcmUgbmV2ZXIgY2xlYW5lZCBpbiBmcmVlX29sZF94bWl0X3NrYnMsCmJlY2F1
-c2UgaXQgcmVxdWlyZXMgYSBzdGFydF94bWl0IGFuZCBieSBub3cgdGhlIChvbmx5KSBzb2NrZXQg
-aXMgb3V0IG9mCmRlc2NyaXB0b3JzPwoKQSB3YXRjaGRvZyB3b3VsZCBoZWxwIHNvbWV3aGF0LiBX
-aXRoIHR4LW5hcGksIHRoaXMgY2FzZSBjYW5ub3Qgb2NjdXIsCmVpdGhlciwgYXMgZnJlZV9vbGRf
-eG1pdF9za2JzIG5vIGxvbmdlciBkZXBlbmRzIG9uIGEgY2FsbCB0byBzdGFydF94bWl0LgoKPiAy
-KSB0eCBuYXBpIGlzIHVzZWQgZm9yIHZpcnRpby1uZXQKCkkgYW0gbm90IGF3YXJlIG9mIGFueSBp
-c3N1ZSBzcGVjaWZpYyB0byB0aGUgdXNlIG9mIHR4LW5hcGk/Cgo+IDEpIGNvdWxkIGJlIGEgY29y
-bmVyIGNhc2UsIGFuZCBmb3IgMikgd2hhdCB5b3VyIHN1Z2dlc3QgaGVyZSBtYXkgbm90IHNvbHZl
-Cj4gdGhlIGlzc3VlIHNpbmNlIGl0IHN0aWxsIGRvIGluIG9yZGVyIGNvbXBsZXRpb24uCgpTb21l
-d2hhdCB0YW5nZW50aWFsLCBidXQgaXQgbWlnaHQgYWxzbyBoZWxwIHRvIGJyZWFrIHRoZSBpbi1v
-cmRlcgpjb21wbGV0aW9uIHByb2Nlc3NpbmcgaW4gdmhvc3RfemVyb2NvcHlfc2lnbmFsX3VzZWQu
-IENvbXBsZXRlCmFsbCBkZXNjcmlwdG9ycyBiZXR3ZWVuIGRvbmVfaWR4IGFuZCB1cGVuZF9pZHgu
-IGRvbmVfaWR4IHNob3VsZAp0aGVuIG9ubHkgYmUgZm9yd2FyZCB0byB0aGUgb2xkZXN0IHN0aWxs
-IG5vdC1jb21wbGV0ZWQgZGVzY3JpcHRvci4KCkluIHRoZSB0ZXN0IEkgcmFuLCB3aGVyZSB0aGUg
-b2xkZXN0IGRlc2NyaXB0b3JzIGFyZSBoZWxkIGluIGEgcXVldWUgYW5kCmFsbCBuZXdlciBvbmVz
-IGFyZSB0YWlsLWRyb3BwZWQsIHRoaXMgd291bGQgYXZvaWQgYmxvY2tpbmcgYSBmdWxsIHJpbmcK
-b2YgY29tcGxldGlvbnMsIHdoZW4gb25seSBhIHNtYWxsIG51bWJlciAob3IgMSkgaXMgYWN0dWFs
-bHkgZGVsYXllZC4KCkR5bmFtaWMgc3dpdGNoaW5nIGJldHdlZW4gY29weSBhbmQgemVyb2NvcHkg
-dXNpbmcgemNvcHlfdXNlZAphbHJlYWR5IHJldHVybnMgY29tcGxldGlvbnMgb3V0LW9mLW9yZGVy
-LCBzbyB0aGlzIGlzIG5vdCBhIGh1Z2UgbGVhcC4KX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
-emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
-ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+>>> This is not a 50/50 split, which impliesTw that some packets from the
+>>> large
+>>> packet flow are still converted to copying. Without the change the rate
+>>> without queue was 80k zerocopy vs 80k copy, so this choice of
+>>> (vq->num >> 2) appears too conservative.
+>>>
+>>> However, testing with (vq->num >> 1) was not as effective at mitigating
+>>> stalls. I did not save that data, unfortunately. Can run more tests on
+>>> fine
+>>> tuning this variable, if the idea sounds good.
+>>
+>>
+>> Looks like there're still two cases were left:
+>
+> To be clear, this patch is not intended to fix all issues. It is a small
+> improvement to avoid HoL blocking due to queued zerocopy skbs.
+>
+> The trade-off is that reverting to copying in these cases increases
+> cycle cost. I think that that is a trade-off worth making compared to
+> the alternative drop in throughput. It probably would be good to be
+> able to measure this without kernel instrumentation: export
+> counters similar to net->tx_zcopy_err and net->tx_packets (though
+> without reset to zero, as in vhost_net_tx_packet).
+>
+>> 1) sndbuf is not INT_MAX
+>
+> You mean the case where the device stalls, later zerocopy notifications
+> are queued, but these are never cleaned in free_old_xmit_skbs,
+> because it requires a start_xmit and by now the (only) socket is out of
+> descriptors?
+
+Typo, sorry. I meant out of sndbuf.
+
+> A watchdog would help somewhat. With tx-napi, this case cannot occur,
+> either, as free_old_xmit_skbs no longer depends on a call to start_xmit.
+>
+>> 2) tx napi is used for virtio-net
+>
+> I am not aware of any issue specific to the use of tx-napi?
+>
+>> 1) could be a corner case, and for 2) what your suggest here may not solve
+>> the issue since it still do in order completion.
+>
+> Somewhat tangential, but it might also help to break the in-order
+> completion processing in vhost_zerocopy_signal_used. Complete
+> all descriptors between done_idx and upend_idx. done_idx should
+> then only be forward to the oldest still not-completed descriptor.
+>
+> In the test I ran, where the oldest descriptors are held in a queue and
+> all newer ones are tail-dropped, this would avoid blocking a full ring
+> of completions, when only a small number (or 1) is actually delayed.
+>
+> Dynamic switching between copy and zerocopy using zcopy_used
+> already returns completions out-of-order, so this is not a huge leap.
