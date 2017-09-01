@@ -1,29 +1,16 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
-	path if no tx napi
-Date: Fri, 1 Sep 2017 12:17:08 -0400
-Message-ID: <CAF=yD-LZ4Abn8CFSQyuNnYSRZkHx4FTzK4hSi9WQaHO-28rsHQ__43107.1080304266$1504282723$gmane$org@mail.gmail.com>
-References: <64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
-	<20170822204015-mutt-send-email-mst@kernel.org>
-	<1503498504.8694.26.camel@klaipeden.com>
-	<CAF=yD-+U_aWxSmPPY8v8t=JO0MRZ+N+DzVJTAMKYQ5F=pE1PfA@mail.gmail.com>
-	<20170824014553-mutt-send-email-mst@kernel.org>
-	<CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
-	<20170824160748-mutt-send-email-mst@kernel.org>
-	<CAF=yD-+9Ah8pC9i2w3Ad3WnhQit7Yo479pMrToty7priL6BFLw@mail.gmail.com>
-	<20170824234551-mutt-send-email-mst@kernel.org>
-	<CAF=yD-+1wheMmC+HFKe_B_ULO0Mmh6HMSEbYY5D-HgqxVJee6A@mail.gmail.com>
-	<20170826022744-mutt-send-email-mst@kernel.org>
-	<CAF=yD-Lre0NATUVH8p0zS=G5CiY=WfKSefLmOZw940jZFgECgQ@mail.gmail.com>
-	<CAF=yD-+Wk9sc9dXMUq1+x_hh=3ThTXa6BnZkygP3tgVpjbp93g@mail.gmail.com>
-	<CAF=yD-+AjQLLUKdvnrwd2tqFtw4Hm81cR7WUJd65oLnziNGM8A@mail.gmail.com>
-	<5ef7fcf3-d4f0-be16-6ddb-724d954cfc68@redhat.com>
-	<CAF=yD-JREJqpsRdCi31qo1QNFEE2DDCaTGYw1f1waPgtov8WEg@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: virtio_net: ethtool supported link modes
+Date: Fri, 1 Sep 2017 20:45:11 +0300
+Message-ID: <20170901204222-mutt-send-email-mst__32704.7070175924$1504287927$gmane$org@kernel.org>
+References: <1504199044.22080.11.camel@arista.com>
+	<20170901183517-mutt-send-email-mst@kernel.org>
+	<1504282793.12952.17.camel@arista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAF=yD-JREJqpsRdCi31qo1QNFEE2DDCaTGYw1f1waPgtov8WEg@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1504282793.12952.17.camel@arista.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -33,61 +20,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Koichiro Den <den@klaipeden.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Radu Rendec <rrendec@arista.com>
+Cc: netdev@vger.kernel.org, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> This is not a 50/50 split, which impliesTw that some packets from the
->>> large
->>> packet flow are still converted to copying. Without the change the rate
->>> without queue was 80k zerocopy vs 80k copy, so this choice of
->>> (vq->num >> 2) appears too conservative.
->>>
->>> However, testing with (vq->num >> 1) was not as effective at mitigating
->>> stalls. I did not save that data, unfortunately. Can run more tests on
->>> fine
->>> tuning this variable, if the idea sounds good.
->>
->>
->> Looks like there're still two cases were left:
->
-> To be clear, this patch is not intended to fix all issues. It is a small
-> improvement to avoid HoL blocking due to queued zerocopy skbs.
->
-> The trade-off is that reverting to copying in these cases increases
-> cycle cost. I think that that is a trade-off worth making compared to
-> the alternative drop in throughput. It probably would be good to be
-> able to measure this without kernel instrumentation: export
-> counters similar to net->tx_zcopy_err and net->tx_packets (though
-> without reset to zero, as in vhost_net_tx_packet).
->
->> 1) sndbuf is not INT_MAX
->
-> You mean the case where the device stalls, later zerocopy notifications
-> are queued, but these are never cleaned in free_old_xmit_skbs,
-> because it requires a start_xmit and by now the (only) socket is out of
-> descriptors?
+On Fri, Sep 01, 2017 at 05:19:53PM +0100, Radu Rendec wrote:
+> On Fri, 2017-09-01 at 18:43 +0300, Michael S. Tsirkin wrote:
+> > On Thu, Aug 31, 2017 at 06:04:04PM +0100, Radu Rendec wrote:
+> > > Looking at the code in virtnet_set_link_ksettings, it seems the speed
+> > > and duplex can be set to any valid value. The driver will "remember"
+> > > them and report them back in virtnet_get_link_ksettings.
+> > > =
 
-Typo, sorry. I meant out of sndbuf.
+> > > However, the supported link modes (link_modes.supported in struct
+> > > ethtool_link_ksettings) is always 0, indicating that no speed/duplex
+> > > setting is supported.
+> > > =
 
-> A watchdog would help somewhat. With tx-napi, this case cannot occur,
-> either, as free_old_xmit_skbs no longer depends on a call to start_xmit.
->
->> 2) tx napi is used for virtio-net
->
-> I am not aware of any issue specific to the use of tx-napi?
->
->> 1) could be a corner case, and for 2) what your suggest here may not solve
->> the issue since it still do in order completion.
->
-> Somewhat tangential, but it might also help to break the in-order
-> completion processing in vhost_zerocopy_signal_used. Complete
-> all descriptors between done_idx and upend_idx. done_idx should
-> then only be forward to the oldest still not-completed descriptor.
->
-> In the test I ran, where the oldest descriptors are held in a queue and
-> all newer ones are tail-dropped, this would avoid blocking a full ring
-> of completions, when only a small number (or 1) is actually delayed.
->
-> Dynamic switching between copy and zerocopy using zcopy_used
-> already returns completions out-of-order, so this is not a huge leap.
+> > > Does it make more sense to set (at least a few of) the supported link
+> > > modes, such as 10baseT_Half ... 10000baseT_Full?
+> > > =
+
+> > > I would expect to see consistency between what is reported in
+> > > link_modes.supported and what can actually be set. Could you please
+> > > share your opinion on this?
+> > =
+
+> > I would like to know more about why this is desirable.
+> > =
+
+> > We used not to support the modes at all, but it turned out
+> > some tools are confused by this: e.g. people would try to
+> > bond virtio with a hardware device, tools would see
+> > a mismatch in speed and features between bonded devices
+> > and get confused.
+> > =
+
+> > See
+> > =
+
+> > 	commit 16032be56c1f66770da15cb94f0eb366c37aff6e
+> > 	Author: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> > 	Date:=A0=A0=A0Wed Feb 3 04:04:37 2016 +0100
+> > =
+
+> > 	=A0=A0=A0=A0virtio_net: add ethtool support for set and get of settings
+> > =
+
+> > =
+
+> > as well as the discussion around it
+> > 	https://www.spinics.net/lists/netdev/msg362111.html
+> =
+
+> Thanks for pointing these out. It is much more clear now why modes
+> support is implemented the way it is and what the expectations are.
+> =
+
+> > If you think we need to add more hacks like this, a stronger
+> > motivation than "to see consistency" would be needed.
+> =
+
+> The use case behind my original question is very simple:
+>  * Net device is queried via ethtool for supported modes.
+>  * Supported modes are presented to user.
+>  * User can configure any of the supported modes.
+
+Since this has no effect on virtio, isn't presenting
+"no supported modes" to user the right thing to do?
+
+> This is done transparently to the net device type (driver), so it
+> actually makes sense for physical NICs.
+> =
+
+> This alone of course is not a good enough motivation to modify the
+> driver. And it can be easily addressed in user-space at the application
+> level by testing for the driver.
+
+I think you might want to special-case no supported modes.
+Special-casing virtio is probably best avoided.
+
+> I was merely trying to avoid driver-specific workarounds (i.e. keep the
+> application driver agnostic)
+
+I think that's the right approach. So if driver does not present
+any supported modes this probably means it is not necessary
+to display or program any.
+
+> and wondered if "advertising" supported
+> modes through ethtool made any sense and/or would be a desirable change
+> from the driver perspective. I believe I have my answers now.
+> =
+
+> Thanks,
+> Radu
