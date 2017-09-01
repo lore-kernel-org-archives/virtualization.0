@@ -1,11 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net] vhost_net: correctly check tx avail during rx busy polling
-Date: Fri,  1 Sep 2017 17:02:50 +0800
-Message-ID: <1504256570-3488-1-git-send-email-jasowang__32642.8527980626$1504256624$gmane$org@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: virtio_net: ethtool supported link modes
+Date: Fri, 1 Sep 2017 18:43:07 +0300
+Message-ID: <20170901183517-mutt-send-email-mst__13662.4258164831$1504280642$gmane$org@kernel.org>
+References: <1504199044.22080.11.camel@arista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1504199044.22080.11.camel@arista.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,42 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Radu Rendec <rrendec@arista.com>
+Cc: netdev@vger.kernel.org, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We check tx avail through vhost_enable_notify() in the past which is
-wrong since it only checks whether or not guest has filled more
-available buffer since last avail idx synchronization which was just
-done by vhost_vq_avail_empty() before. What we really want is checking
-pending buffers in the avail ring. Fix this by calling
-vhost_vq_avail_empty() instead.
+On Thu, Aug 31, 2017 at 06:04:04PM +0100, Radu Rendec wrote:
+> Hello,
+> 
+> Looking at the code in virtnet_set_link_ksettings, it seems the speed
+> and duplex can be set to any valid value. The driver will "remember"
+> them and report them back in virtnet_get_link_ksettings.
+> 
+> However, the supported link modes (link_modes.supported in struct
+> ethtool_link_ksettings) is always 0, indicating that no speed/duplex
+> setting is supported.
+> 
+> Does it make more sense to set (at least a few of) the supported link
+> modes, such as 10baseT_Half ... 10000baseT_Full?
+> 
+> I would expect to see consistency between what is reported in
+> link_modes.supported and what can actually be set. Could you please
+> share your opinion on this?
+> 
+> Thank you,
+> Radu Rendec
 
-This issue could be noticed by doing netperf TCP_RR benchmark as
-client from guest (but not host). With this fix, TCP_RR from guest to
-localhost restores from 1375.91 trans per sec to 55235.28 trans per
-sec on my laptop (Intel(R) Core(TM) i7-5600U CPU @ 2.60GHz).
 
-Fixes: 030881372460 ("vhost_net: basic polling support")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
-- The patch is needed for -stable
----
- drivers/vhost/net.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I would like to know more about why this is desirable.
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 06d0448..1b68253 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -634,7 +634,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
- 
- 		preempt_enable();
- 
--		if (vhost_enable_notify(&net->dev, vq))
-+		if (!vhost_vq_avail_empty(&net->dev, vq))
- 			vhost_poll_queue(&vq->poll);
- 		mutex_unlock(&vq->mutex);
- 
+We used not to support the modes at all, but it turned out
+some tools are confused by this: e.g. people would try to
+bond virtio with a hardware device, tools would see
+a mismatch in speed and features between bonded devices
+and get confused.
+
+See
+
+	commit 16032be56c1f66770da15cb94f0eb366c37aff6e
+	Author: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+	Date:   Wed Feb 3 04:04:37 2016 +0100
+
+	    virtio_net: add ethtool support for set and get of settings
+
+
+as well as the discussion around it
+	https://www.spinics.net/lists/netdev/msg362111.html
+
+
+If you think we need to add more hacks like this, a stronger
+motivation than "to see consistency" would be needed.
+
 -- 
-2.7.4
+MST
