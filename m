@@ -1,13 +1,16 @@
 From: Radu Rendec via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: virtio_net: ethtool supported link modes
-Date: Thu, 31 Aug 2017 18:04:04 +0100
-Message-ID: <1504199044.22080.11.camel__28597.712404053$1509079303$gmane$org@arista.com>
+Subject: Re: virtio_net: ethtool supported link modes
+Date: Fri, 01 Sep 2017 13:01:34 +0100
+Message-ID: <1504267294.12952.5.camel__26996.5428313755$1509079309$gmane$org@arista.com>
+References: <1504199044.22080.11.camel@arista.com>
+	<38286395-683f-f285-aaa5-68f0e8b68675@redhat.com>
 Reply-To: Radu Rendec <rrendec@arista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <38286395-683f-f285-aaa5-68f0e8b68675@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,26 +20,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
-
-Looking at the code in virtnet_set_link_ksettings, it seems the speed
-and duplex can be set to any valid value. The driver will "remember"
-them and report them back in virtnet_get_link_ksettings.
-
-However, the supported link modes (link_modes.supported in struct
-ethtool_link_ksettings) is always 0, indicating that no speed/duplex
-setting is supported.
-
-Does it make more sense to set (at least a few of) the supported link
-modes, such as 10baseT_Half ... 10000baseT_Full?
-
-I would expect to see consistency between what is reported in
-link_modes.supported and what can actually be set. Could you please
-share your opinion on this?
-
-Thank you,
-Radu Rendec
+T24gRnJpLCAyMDE3LTA5LTAxIGF0IDExOjM2ICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+IAo+
+IE9uIDIwMTflubQwOeaciDAx5pelIDAxOjA0LCBSYWR1IFJlbmRlYyB3cm90ZToKPiA+IEhlbGxv
+LAo+ID4gCj4gPiBMb29raW5nIGF0IHRoZSBjb2RlIGluIHZpcnRuZXRfc2V0X2xpbmtfa3NldHRp
+bmdzLCBpdCBzZWVtcyB0aGUgc3BlZWQKPiA+IGFuZCBkdXBsZXggY2FuIGJlIHNldCB0byBhbnkg
+dmFsaWQgdmFsdWUuIFRoZSBkcml2ZXIgd2lsbCAicmVtZW1iZXIiCj4gPiB0aGVtIGFuZCByZXBv
+cnQgdGhlbSBiYWNrIGluIHZpcnRuZXRfZ2V0X2xpbmtfa3NldHRpbmdzLgo+ID4gCj4gPiBIb3dl
+dmVyLCB0aGUgc3VwcG9ydGVkIGxpbmsgbW9kZXMgKGxpbmtfbW9kZXMuc3VwcG9ydGVkIGluIHN0
+cnVjdAo+ID4gZXRodG9vbF9saW5rX2tzZXR0aW5ncykgaXMgYWx3YXlzIDAsIGluZGljYXRpbmcg
+dGhhdCBubyBzcGVlZC9kdXBsZXgKPiA+IHNldHRpbmcgaXMgc3VwcG9ydGVkLgo+ID4gCj4gPiBE
+b2VzIGl0IG1ha2UgbW9yZSBzZW5zZSB0byBzZXQgKGF0IGxlYXN0IGEgZmV3IG9mKSB0aGUgc3Vw
+cG9ydGVkIGxpbmsKPiA+IG1vZGVzLCBzdWNoIGFzIDEwYmFzZVRfSGFsZiAuLi4gMTAwMDBiYXNl
+VF9GdWxsPwo+ID4gCj4gPiBJIHdvdWxkIGV4cGVjdCB0byBzZWUgY29uc2lzdGVuY3kgYmV0d2Vl
+biB3aGF0IGlzIHJlcG9ydGVkIGluCj4gPiBsaW5rX21vZGVzLnN1cHBvcnRlZCBhbmQgd2hhdCBj
+YW4gYWN0dWFsbHkgYmUgc2V0LiBDb3VsZCB5b3UgcGxlYXNlCj4gPiBzaGFyZSB5b3VyIG9waW5p
+b24gb24gdGhpcz8KPiAKPiBJIHRoaW5rIHRoZSBtYXkgbWFrZSBzZW5zZSBvbmx5IGlmIHRoZXJl
+J3MgYSBoYXJkd2FyZSBpbXBsZW1lbnRhdGlvbiBmb3LCoAo+IHZpcnRpby4gQW5kIHdlIHByb2Jh
+Ymx5IG5lZWQgdG8gZXh0ZW5kIHZpcnRpbyBzcGVjIGZvciBhZGRpbmcgbmV3IGNvbW1hbmRzLgoK
+U28geW91J3JlIHNheWluZyB0aGF0IHRoZSAiaGFyZHdhcmUiIHNob3VsZCBwcm92aWRlIHRoZSBz
+dXBwb3J0ZWQgbGluawptb2RlcyAoZS5nLiBieSB1c2luZyBmZWF0dXJlIGJpdHMgYXQgdGhlIHZp
+cnRpbyBsYXllcikgYW5kIHRoZQp2aXJ0aW9fbmV0IGRyaXZlciBzaG91bGQganVzdCB0cmFuc2xh
+dGUgdGhlbSBhbmQgZXhwb3NlIHRoZW0gYXMKbGlua19tb2Rlcy5zdXBwb3J0ZWQ/CgpUaGVuIGZv
+ciBjb25zaXN0ZW5jeSwgSSBhc3N1bWUgc2V0dGluZyBzcGVlZC9kdXBsZXggdmlhIGV0aHRvb2wg
+c2hvdWxkCmFsc28gZ28gaW50byB0aGUgdmlydGlvIGxheWVyIChjdXJyZW50bHkgdmlydGlvX25l
+dCBzZWVtcyB0byBqdXN0IHN0b3JlCnRoZW0gZm9yIGZ1dHVyZSByZXRyaWV2YWwgdmlhIGV0aHRv
+b2wpLgoKVGhhbmtzLApSYWR1Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
+cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
+bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
