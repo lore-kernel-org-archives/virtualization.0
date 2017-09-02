@@ -1,16 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio_net: ethtool supported link modes
-Date: Fri, 1 Sep 2017 20:45:11 +0300
-Message-ID: <20170901204222-mutt-send-email-mst__32704.7070175924$1504287927$gmane$org@kernel.org>
-References: <1504199044.22080.11.camel@arista.com>
-	<20170901183517-mutt-send-email-mst@kernel.org>
-	<1504282793.12952.17.camel@arista.com>
+From: "Marle" <marialemos72@gmail.com>
+Subject: Call for Papers --- ICITS'18 --- Ecuador,,, Deadline: September 12
+Date: Sat, 2 Sep 2017 19:23:46 +0100
+Message-ID: <20170902182352.389F7491@mail.linuxfoundation.org>
+Reply-To: intercits@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="===============2239303916059901240=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1504282793.12952.17.camel@arista.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,97 +15,171 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Radu Rendec <rrendec@arista.com>
-Cc: netdev@vger.kernel.org, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 01, 2017 at 05:19:53PM +0100, Radu Rendec wrote:
-> On Fri, 2017-09-01 at 18:43 +0300, Michael S. Tsirkin wrote:
-> > On Thu, Aug 31, 2017 at 06:04:04PM +0100, Radu Rendec wrote:
-> > > Looking at the code in virtnet_set_link_ksettings, it seems the speed
-> > > and duplex can be set to any valid value. The driver will "remember"
-> > > them and report them back in virtnet_get_link_ksettings.
-> > > =
+--===============2239303916059901240==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > > However, the supported link modes (link_modes.supported in struct
-> > > ethtool_link_ksettings) is always 0, indicating that no speed/duplex
-> > > setting is supported.
-> > > =
+*** Proceedings published by Springer and indexed by ISI, Scopus, EI-Compen=
+dex, DBLP, etc.
 
-> > > Does it make more sense to set (at least a few of) the supported link
-> > > modes, such as 10baseT_Half ... 10000baseT_Full?
-> > > =
 
-> > > I would expect to see consistency between what is reported in
-> > > link_modes.supported and what can actually be set. Could you please
-> > > share your opinion on this?
-> > =
+---------------------------------------------------------------------------=
+------------------------
+ICITS'18 - The 2018 International Conference on Information Technology & Sy=
+stems
+           Peninsula de Santa Elena, Ecuador, 10 - 12 January 2018
+                             http://www.icits.me/
+---------------------------------------------------------------------------=
+----------------------
 
-> > I would like to know more about why this is desirable.
-> > =
 
-> > We used not to support the modes at all, but it turned out
-> > some tools are confused by this: e.g. people would try to
-> > bond virtio with a hardware device, tools would see
-> > a mismatch in speed and features between bonded devices
-> > and get confused.
-> > =
+SCOPE
 
-> > See
-> > =
+ICITS'18 - The 2018 International Conference on Information Technology & Sy=
+stems (http://www.icits.me/), to be held at Pen=EDnsula de Santa Elena, Ecu=
+ador, 10 - 12 January 2018, is an international forum for researchers and p=
+ractitioners to present and discuss the most recent innovations, trends, re=
+sults, experiences and concerns in the several perspectives of Information =
+Technology & Systems.
 
-> > 	commit 16032be56c1f66770da15cb94f0eb366c37aff6e
-> > 	Author: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> > 	Date:=A0=A0=A0Wed Feb 3 04:04:37 2016 +0100
-> > =
+We are pleased to invite you to submit your papers to ICITS'18. They can be=
+ written in English, Spanish or Portuguese. All submissions will be reviewe=
+d on the basis of relevance, originality, importance and clarity.
 
-> > 	=A0=A0=A0=A0virtio_net: add ethtool support for set and get of settings
-> > =
+ 
 
-> > =
+TOPICS
 
-> > as well as the discussion around it
-> > 	https://www.spinics.net/lists/netdev/msg362111.html
-> =
+Submitted papers should be related with one or more of the main themes prop=
+osed for the Conference:
 
-> Thanks for pointing these out. It is much more clear now why modes
-> support is implemented the way it is and what the expectations are.
-> =
+A) Information and Knowledge Management (IKM);
 
-> > If you think we need to add more hacks like this, a stronger
-> > motivation than "to see consistency" would be needed.
-> =
+B) Organizational Models and Information Systems (OMIS);
 
-> The use case behind my original question is very simple:
->  * Net device is queried via ethtool for supported modes.
->  * Supported modes are presented to user.
->  * User can configure any of the supported modes.
+C) Software and Systems Modeling (SSM);
 
-Since this has no effect on virtio, isn't presenting
-"no supported modes" to user the right thing to do?
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
 
-> This is done transparently to the net device type (driver), so it
-> actually makes sense for physical NICs.
-> =
+E) Multimedia Systems and Applications (MSA);
 
-> This alone of course is not a good enough motivation to modify the
-> driver. And it can be easily addressed in user-space at the application
-> level by testing for the driver.
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
 
-I think you might want to special-case no supported modes.
-Special-casing virtio is probably best avoided.
+G) Intelligent and Decision Support Systems (IDSS);
 
-> I was merely trying to avoid driver-specific workarounds (i.e. keep the
-> application driver agnostic)
+H) Big Data Analytics and Applications (BDAA);
 
-I think that's the right approach. So if driver does not present
-any supported modes this probably means it is not necessary
-to display or program any.
+I) Human-Computer Interaction (HCI);
 
-> and wondered if "advertising" supported
-> modes through ethtool made any sense and/or would be a desirable change
-> from the driver perspective. I believe I have my answers now.
-> =
+J) Ethics, Computers and Security (ECS)
 
-> Thanks,
-> Radu
+K) Health Informatics (HIS);
+
+L) Information Technologies in Education (ITE);
+
+ 
+
+SUBMISSION AND DECISION
+
+Submitted papers (until 10-page limit) must comply with the format of Advan=
+ces in Intelligent Systems and Computing series (see Instructions for Autho=
+rs at Springer Website or download a DOC example) be written in English, Sp=
+anish or Portuguese, must not have been published before, not be under revi=
+ew for any other conference or publication and not include any information =
+leading to the authors=92 identification. Therefore, the authors=92 names, =
+affiliations and bibliographic references should not be included in the ver=
+sion for evaluation by the Scientific Committee. This information should on=
+ly be included in the camera-ready version, saved in Word or Latex format a=
+nd also in PDF format. These files must be accompanied by the Consent to Pu=
+blication form filled out, in a ZIP file, and uploaded at the conference ma=
+nagement system.
+
+All papers will be subjected to a =93double-blind review=94 by at least two=
+ members of the Scientific Committee.
+
+Based on Scientific Committee evaluation, a paper can be rejected or accept=
+ed by the Conference Chairs. In the later case, it can be accepted as paper=
+ or poster.
+
+The authors of papers accepted as posters must build and print a poster to =
+be exhibited during the Conference. This poster must follow an A1 or A2 ver=
+tical format. The Conference can includes Work Sessions where these posters=
+ are presented and orally discussed, with a 7 minute limit per poster.
+
+The authors of accepted papers will have 15 minutes to present their work i=
+n a Conference Work Session; approximately 5 minutes of discussion will fol=
+low each presentation.
+
+ 
+
+PUBLICATION AND INDEXING
+
+To ensure that an accepted paper is published, at least one of the authors =
+must be fully registered by the 20th of October 2017, and the paper must co=
+mply with the suggested layout and page-limit (until 10 pages). Additionall=
+y, all recommended changes must be addressed by the authors before they sub=
+mit the camera-ready version.
+
+No more than one paper per registration will be published. An extra fee mus=
+t be paid for publication of additional papers, with a maximum of one addit=
+ional paper per registration. One registration permits only the participati=
+on of one author in the conference.
+
+Papers written in English and accepted and registered will be published in =
+Proceedings by Springer, in a book of the Advances in Intelligent Systems a=
+nd Computing series, will  be submitted for indexation by ISI, EI-Compendex=
+, SCOPUS and DBLP, among others, and will be available in the SpringerLink =
+Digital Library.
+
+Papers written in Spanish or Portuguese and accepted and registered will be=
+ published in Proceedings by AISTI and will be submitted for evaluation and=
+ possible indexation by ISI, EI-Compendex and SCOPUS.
+
+The authors of the best selected papers will be invited to extend them for =
+publication in international journals indexed by ISI, SCOPUS, EI-Compendex =
+and DBLP, among others.
+
+ 
+
+IMPORTANT DATES
+
+Paper Submission: September 12, 2017
+
+Notification of Acceptance: October 13, 2017
+
+Payment of Registration, to ensure the inclusion of an accepted paper in th=
+e conference proceedings: October 20, 2017.
+
+Camera-ready Submission: October 20, 2017
+
+
+---------
+
+ICITS'18 website: http://www.icits.me/
+
+---------
+
+
+----------------------------------------------
+
+
+
+---
+This email has been checked for viruses by AVG.
+http://www.avg.com
+
+
+--===============2239303916059901240==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2239303916059901240==--
