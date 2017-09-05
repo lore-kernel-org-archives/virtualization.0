@@ -1,7 +1,7 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH 3/4] paravirt: add virt_spin_lock pvops function
-Date: Tue,  5 Sep 2017 15:24:43 +0200
-Message-ID: <20170905132444.7163-4-jgross__13932.6493641876$1504617954$gmane$org@suse.com>
+Subject: [PATCH 1/4] paravirt: add generic _paravirt_false() function
+Date: Tue,  5 Sep 2017 15:24:41 +0200
+Message-ID: <20170905132444.7163-2-jgross__28193.426380358$1504617971$gmane$org@suse.com>
 References: <20170905132444.7163-1-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,181 +21,113 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
 Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, peterz@infradead.org, chrisw@sous-sol.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, longman@redhat.com, akataria@vmware.com, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-There are cases where a guest tries to switch spinlocks to bare metal
-behavior (e.g. by setting "xen_nopvspin" boot parameter). Today this
-has the downside of falling back to unfair test and set scheme for
-qspinlocks due to virt_spin_lock() detecting the virtualized
-environment.
-
-Make virt_spin_lock() a paravirt operation in order to enable users
-to select an explicit behavior like bare metal.
+Add a _paravirt_false() default function returning always false which
+can be used for cases where a boolean pvops replacement should just
+say "no".
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/x86/include/asm/paravirt.h       |  5 ++++
- arch/x86/include/asm/paravirt_types.h |  1 +
- arch/x86/include/asm/qspinlock.h      | 48 ++++++++++++++++++++++++-----------
- arch/x86/kernel/paravirt-spinlocks.c  | 14 ++++++++++
- arch/x86/kernel/smpboot.c             |  2 ++
- 5 files changed, 55 insertions(+), 15 deletions(-)
+ arch/x86/include/asm/paravirt_types.h | 2 ++
+ arch/x86/kernel/paravirt.c            | 7 +++++++
+ arch/x86/kernel/paravirt_patch_32.c   | 8 ++++++++
+ arch/x86/kernel/paravirt_patch_64.c   | 7 +++++++
+ 4 files changed, 24 insertions(+)
 
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index c25dd22f7c70..d9e954fb37df 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -725,6 +725,11 @@ static __always_inline bool pv_vcpu_is_preempted(long cpu)
- 	return PVOP_CALLEE1(bool, pv_lock_ops.vcpu_is_preempted, cpu);
- }
- 
-+static __always_inline bool pv_virt_spin_lock(struct qspinlock *lock)
-+{
-+	return PVOP_CALLEE1(bool, pv_lock_ops.virt_spin_lock, lock);
-+}
-+
- #endif /* SMP && PARAVIRT_SPINLOCKS */
- 
- #ifdef CONFIG_X86_32
 diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 19efefc0e27e..928f5e7953a7 100644
+index 6b64fc6367f2..19efefc0e27e 100644
 --- a/arch/x86/include/asm/paravirt_types.h
 +++ b/arch/x86/include/asm/paravirt_types.h
-@@ -319,6 +319,7 @@ struct pv_lock_ops {
- 	void (*kick)(int cpu);
+@@ -377,6 +377,7 @@ extern struct pv_lock_ops pv_lock_ops;
  
- 	struct paravirt_callee_save vcpu_is_preempted;
-+	struct paravirt_callee_save virt_spin_lock;
- } __no_randomize_layout;
+ unsigned paravirt_patch_ident_32(void *insnbuf, unsigned len);
+ unsigned paravirt_patch_ident_64(void *insnbuf, unsigned len);
++unsigned paravirt_patch_false(void *insnbuf, unsigned len);
+ unsigned paravirt_patch_call(void *insnbuf,
+ 			     const void *target, u16 tgt_clobbers,
+ 			     unsigned long addr, u16 site_clobbers,
+@@ -682,6 +683,7 @@ void paravirt_flush_lazy_mmu(void);
+ void _paravirt_nop(void);
+ u32 _paravirt_ident_32(u32);
+ u64 _paravirt_ident_64(u64);
++bool _paravirt_false(void);
  
- /* This contains all the paravirt structures: we get a convenient
-diff --git a/arch/x86/include/asm/qspinlock.h b/arch/x86/include/asm/qspinlock.h
-index 48a706f641f2..fbd98896385c 100644
---- a/arch/x86/include/asm/qspinlock.h
-+++ b/arch/x86/include/asm/qspinlock.h
-@@ -17,6 +17,25 @@ static inline void native_queued_spin_unlock(struct qspinlock *lock)
- 	smp_store_release((u8 *)lock, 0);
+ #define paravirt_nop	((void *)_paravirt_nop)
+ 
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index a14df9eecfed..94105773c00c 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -66,6 +66,11 @@ u64 notrace _paravirt_ident_64(u64 x)
+ 	return x;
  }
  
-+static inline bool native_virt_spin_lock(struct qspinlock *lock)
++bool notrace _paravirt_false(void)
 +{
-+	if (!static_cpu_has(X86_FEATURE_HYPERVISOR))
-+		return false;
-+
-+	/*
-+	 * On hypervisors without PARAVIRT_SPINLOCKS support we fall
-+	 * back to a Test-and-Set spinlock, because fair locks have
-+	 * horrible lock 'holder' preemption issues.
-+	 */
-+
-+	do {
-+		while (atomic_read(&lock->val) != 0)
-+			cpu_relax();
-+	} while (atomic_cmpxchg(&lock->val, 0, _Q_LOCKED_VAL) != 0);
-+
-+	return true;
++	return false;
 +}
 +
- #ifdef CONFIG_PARAVIRT_SPINLOCKS
- extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
- extern void __pv_init_lock_hash(void);
-@@ -38,33 +57,32 @@ static inline bool vcpu_is_preempted(long cpu)
+ void __init default_banner(void)
  {
- 	return pv_vcpu_is_preempted(cpu);
- }
+ 	printk(KERN_INFO "Booting paravirtualized kernel on %s\n",
+@@ -149,6 +154,8 @@ unsigned paravirt_patch_default(u8 type, u16 clobbers, void *insnbuf,
+ 		ret = paravirt_patch_ident_32(insnbuf, len);
+ 	else if (opfunc == _paravirt_ident_64)
+ 		ret = paravirt_patch_ident_64(insnbuf, len);
++	else if (opfunc == _paravirt_false)
++		ret = paravirt_patch_false(insnbuf, len);
+ 
+ 	else if (type == PARAVIRT_PATCH(pv_cpu_ops.iret) ||
+ 		 type == PARAVIRT_PATCH(pv_cpu_ops.usergs_sysret64))
+diff --git a/arch/x86/kernel/paravirt_patch_32.c b/arch/x86/kernel/paravirt_patch_32.c
+index 553acbbb4d32..287c7b9735de 100644
+--- a/arch/x86/kernel/paravirt_patch_32.c
++++ b/arch/x86/kernel/paravirt_patch_32.c
+@@ -9,6 +9,8 @@ DEF_NATIVE(pv_mmu_ops, read_cr2, "mov %cr2, %eax");
+ DEF_NATIVE(pv_mmu_ops, write_cr3, "mov %eax, %cr3");
+ DEF_NATIVE(pv_mmu_ops, read_cr3, "mov %cr3, %eax");
+ 
++DEF_NATIVE(, xor, "xor %eax, %eax");
 +
-+void native_pv_lock_init(void) __init;
- #else
- static inline void queued_spin_unlock(struct qspinlock *lock)
- {
- 	native_queued_spin_unlock(lock);
+ #if defined(CONFIG_PARAVIRT_SPINLOCKS)
+ DEF_NATIVE(pv_lock_ops, queued_spin_unlock, "movb $0, (%eax)");
+ DEF_NATIVE(pv_lock_ops, vcpu_is_preempted, "xor %eax, %eax");
+@@ -26,6 +28,12 @@ unsigned paravirt_patch_ident_64(void *insnbuf, unsigned len)
+ 	return 0;
  }
+ 
++unsigned paravirt_patch_false(void *insnbuf, unsigned len)
++{
++	return paravirt_patch_insns(insnbuf, len,
++				    start__xor, end__xor);
++}
 +
-+static inline void native_pv_lock_init(void)
-+{
-+}
- #endif
+ extern bool pv_is_native_spin_unlock(void);
+ extern bool pv_is_native_vcpu_is_preempted(void);
  
- #ifdef CONFIG_PARAVIRT
- #define virt_spin_lock virt_spin_lock
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
- static inline bool virt_spin_lock(struct qspinlock *lock)
- {
--	if (!static_cpu_has(X86_FEATURE_HYPERVISOR))
--		return false;
--
--	/*
--	 * On hypervisors without PARAVIRT_SPINLOCKS support we fall
--	 * back to a Test-and-Set spinlock, because fair locks have
--	 * horrible lock 'holder' preemption issues.
--	 */
--
--	do {
--		while (atomic_read(&lock->val) != 0)
--			cpu_relax();
--	} while (atomic_cmpxchg(&lock->val, 0, _Q_LOCKED_VAL) != 0);
--
--	return true;
-+	return pv_virt_spin_lock(lock);
-+}
-+#else
-+static inline bool virt_spin_lock(struct qspinlock *lock)
-+{
-+	return native_virt_spin_lock(lock);
- }
-+#endif /* CONFIG_PARAVIRT_SPINLOCKS */
- #endif /* CONFIG_PARAVIRT */
+diff --git a/arch/x86/kernel/paravirt_patch_64.c b/arch/x86/kernel/paravirt_patch_64.c
+index 11aaf1eaa0e4..8ab4379ceea9 100644
+--- a/arch/x86/kernel/paravirt_patch_64.c
++++ b/arch/x86/kernel/paravirt_patch_64.c
+@@ -17,6 +17,7 @@ DEF_NATIVE(pv_cpu_ops, swapgs, "swapgs");
  
- #include <asm-generic/qspinlock.h>
-diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
-index 26e4bd92f309..1be187ef8a38 100644
---- a/arch/x86/kernel/paravirt-spinlocks.c
-+++ b/arch/x86/kernel/paravirt-spinlocks.c
-@@ -20,6 +20,12 @@ bool pv_is_native_spin_unlock(void)
- 		__raw_callee_save___native_queued_spin_unlock;
+ DEF_NATIVE(, mov32, "mov %edi, %eax");
+ DEF_NATIVE(, mov64, "mov %rdi, %rax");
++DEF_NATIVE(, xor, "xor %rax, %rax");
+ 
+ #if defined(CONFIG_PARAVIRT_SPINLOCKS)
+ DEF_NATIVE(pv_lock_ops, queued_spin_unlock, "movb $0, (%rdi)");
+@@ -35,6 +36,12 @@ unsigned paravirt_patch_ident_64(void *insnbuf, unsigned len)
+ 				    start__mov64, end__mov64);
  }
  
-+__visible bool __native_virt_spin_lock(struct qspinlock *lock)
++unsigned paravirt_patch_false(void *insnbuf, unsigned len)
 +{
-+	return native_virt_spin_lock(lock);
++	return paravirt_patch_insns(insnbuf, len,
++				    start__xor, end__xor);
 +}
-+PV_CALLEE_SAVE_REGS_THUNK(__native_virt_spin_lock);
 +
- struct pv_lock_ops pv_lock_ops = {
- #ifdef CONFIG_SMP
- 	.queued_spin_lock_slowpath = native_queued_spin_lock_slowpath,
-@@ -27,6 +33,14 @@ struct pv_lock_ops pv_lock_ops = {
- 	.wait = paravirt_nop,
- 	.kick = paravirt_nop,
- 	.vcpu_is_preempted = __PV_IS_CALLEE_SAVE(_paravirt_false),
-+	.virt_spin_lock = PV_CALLEE_SAVE(__native_virt_spin_lock),
- #endif /* SMP */
- };
- EXPORT_SYMBOL(pv_lock_ops);
-+
-+void __init native_pv_lock_init(void)
-+{
-+	if (!static_cpu_has(X86_FEATURE_HYPERVISOR))
-+		pv_lock_ops.virt_spin_lock =
-+			__PV_IS_CALLEE_SAVE(_paravirt_false);
-+}
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 54b9e89d4d6b..21500d3ba359 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -77,6 +77,7 @@
- #include <asm/i8259.h>
- #include <asm/realmode.h>
- #include <asm/misc.h>
-+#include <asm/qspinlock.h>
+ extern bool pv_is_native_spin_unlock(void);
+ extern bool pv_is_native_vcpu_is_preempted(void);
  
- /* Number of siblings per CPU package */
- int smp_num_siblings = 1;
-@@ -1381,6 +1382,7 @@ void __init native_smp_prepare_boot_cpu(void)
- 	/* already set me in cpu_online_mask in boot_cpu_init() */
- 	cpumask_set_cpu(me, cpu_callout_mask);
- 	cpu_set_state_online(me);
-+	native_pv_lock_init();
- }
- 
- void __init native_smp_cpus_done(unsigned int max_cpus)
 -- 
 2.12.3
