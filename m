@@ -1,16 +1,30 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 3/4] paravirt: add virt_spin_lock pvops function
-Date: Tue, 5 Sep 2017 16:08:13 +0200
-Message-ID: <20170905140813.e455trgmcq3ahzry@hirez.programming.kicks-ass.net>
-References: <20170905132444.7163-1-jgross@suse.com>
-	<20170905132444.7163-4-jgross@suse.com>
-	<3eee978b-e570-5675-7840-c448375b02fc@redhat.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH net-next] virtio-net: invoke zerocopy callback on xmit
+	path if no tx napi
+Date: Tue, 5 Sep 2017 16:09:19 +0200
+Message-ID: <CAF=yD-JQ5vL8fhLwtz9yY9B4NZR3Tf0kmZHAi-9ht_-Bz0n4Sw@mail.gmail.com>
+References: <64d451ae-9944-e978-5a05-54bb1a62aaad@redhat.com>
+	<1503498504.8694.26.camel@klaipeden.com>
+	<CAF=yD-+U_aWxSmPPY8v8t=JO0MRZ+N+DzVJTAMKYQ5F=pE1PfA@mail.gmail.com>
+	<20170824014553-mutt-send-email-mst@kernel.org>
+	<CAF=yD-KSek+LmZu0X0TXetmFEQ59iF3NpjZ4KugbwLo1BGfhaA@mail.gmail.com>
+	<20170824160748-mutt-send-email-mst@kernel.org>
+	<CAF=yD-+9Ah8pC9i2w3Ad3WnhQit7Yo479pMrToty7priL6BFLw@mail.gmail.com>
+	<20170824234551-mutt-send-email-mst@kernel.org>
+	<CAF=yD-+1wheMmC+HFKe_B_ULO0Mmh6HMSEbYY5D-HgqxVJee6A@mail.gmail.com>
+	<20170826022744-mutt-send-email-mst@kernel.org>
+	<CAF=yD-Lre0NATUVH8p0zS=G5CiY=WfKSefLmOZw940jZFgECgQ@mail.gmail.com>
+	<CAF=yD-+Wk9sc9dXMUq1+x_hh=3ThTXa6BnZkygP3tgVpjbp93g@mail.gmail.com>
+	<CAF=yD-+AjQLLUKdvnrwd2tqFtw4Hm81cR7WUJd65oLnziNGM8A@mail.gmail.com>
+	<5ef7fcf3-d4f0-be16-6ddb-724d954cfc68@redhat.com>
+	<CAF=yD-JREJqpsRdCi31qo1QNFEE2DDCaTGYw1f1waPgtov8WEg@mail.gmail.com>
+	<CAF=yD-LZ4Abn8CFSQyuNnYSRZkHx4FTzK4hSi9WQaHO-28rsHQ@mail.gmail.com>
+	<96819b6a-6d44-fd7e-37af-5a0db81b3840@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <3eee978b-e570-5675-7840-c448375b02fc@redhat.com>
+In-Reply-To: <96819b6a-6d44-fd7e-37af-5a0db81b3840@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,25 +34,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <longman@redhat.com>
-Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, xen-devel@lists.xenproject.org, akataria@vmware.com, boris.ostrovsky@oracle.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Koichiro Den <den@klaipeden.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 05, 2017 at 10:02:57AM -0400, Waiman Long wrote:
-> On 09/05/2017 09:24 AM, Juergen Gross wrote:
-
-> > +static inline bool native_virt_spin_lock(struct qspinlock *lock)
-> > +{
-> > +	if (!static_cpu_has(X86_FEATURE_HYPERVISOR))
-> > +		return false;
-> > +
-> 
-> I think you can take the above if statement out as you has done test in
-> native_pv_lock_init(). So the test will also be false here.
-
-That does mean we'll run a test-and-set spinlock until paravirt patching
-happens though. I prefer to not do that.
-
-One important point.. we must not be holding any locks when we switch
-over between the two locks. Back then I spend some time making sure that
-didn't happen with the X86 feature flag muck.
+T24gTW9uLCBTZXAgNCwgMjAxNyBhdCA1OjAzIEFNLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPiB3cm90ZToKPgo+Cj4gT24gMjAxN+W5tDA55pyIMDLml6UgMDA6MTcsIFdpbGxlbSBk
+ZSBCcnVpam4gd3JvdGU6Cj4+Pj4+Cj4+Pj4+IFRoaXMgaXMgbm90IGEgNTAvNTAgc3BsaXQsIHdo
+aWNoIGltcGxpZXNUdyB0aGF0IHNvbWUgcGFja2V0cyBmcm9tIHRoZQo+Pj4+PiBsYXJnZQo+Pj4+
+PiBwYWNrZXQgZmxvdyBhcmUgc3RpbGwgY29udmVydGVkIHRvIGNvcHlpbmcuIFdpdGhvdXQgdGhl
+IGNoYW5nZSB0aGUgcmF0ZQo+Pj4+PiB3aXRob3V0IHF1ZXVlIHdhcyA4MGsgemVyb2NvcHkgdnMg
+ODBrIGNvcHksIHNvIHRoaXMgY2hvaWNlIG9mCj4+Pj4+ICh2cS0+bnVtID4+IDIpIGFwcGVhcnMg
+dG9vIGNvbnNlcnZhdGl2ZS4KPj4+Pj4KPj4+Pj4gSG93ZXZlciwgdGVzdGluZyB3aXRoICh2cS0+
+bnVtID4+IDEpIHdhcyBub3QgYXMgZWZmZWN0aXZlIGF0IG1pdGlnYXRpbmcKPj4+Pj4gc3RhbGxz
+LiBJIGRpZCBub3Qgc2F2ZSB0aGF0IGRhdGEsIHVuZm9ydHVuYXRlbHkuIENhbiBydW4gbW9yZSB0
+ZXN0cyBvbgo+Pj4+PiBmaW5lCj4+Pj4+IHR1bmluZyB0aGlzIHZhcmlhYmxlLCBpZiB0aGUgaWRl
+YSBzb3VuZHMgZ29vZC4KPj4+Pgo+Pj4+Cj4+Pj4gTG9va3MgbGlrZSB0aGVyZSdyZSBzdGlsbCB0
+d28gY2FzZXMgd2VyZSBsZWZ0Ogo+Pj4KPj4+IFRvIGJlIGNsZWFyLCB0aGlzIHBhdGNoIGlzIG5v
+dCBpbnRlbmRlZCB0byBmaXggYWxsIGlzc3Vlcy4gSXQgaXMgYSBzbWFsbAo+Pj4gaW1wcm92ZW1l
+bnQgdG8gYXZvaWQgSG9MIGJsb2NraW5nIGR1ZSB0byBxdWV1ZWQgemVyb2NvcHkgc2ticy4KPgo+
+Cj4gUmlnaHQsIGp1c3Qgd2FudCB0byBzZWUgaWYgdGhlcmUncyBhbnl0aGluZyBsZWZ0Lgo+Cj4+
+Pgo+Pj4gVGhlIHRyYWRlLW9mZiBpcyB0aGF0IHJldmVydGluZyB0byBjb3B5aW5nIGluIHRoZXNl
+IGNhc2VzIGluY3JlYXNlcwo+Pj4gY3ljbGUgY29zdC4gSSB0aGluayB0aGF0IHRoYXQgaXMgYSB0
+cmFkZS1vZmYgd29ydGggbWFraW5nIGNvbXBhcmVkIHRvCj4+PiB0aGUgYWx0ZXJuYXRpdmUgZHJv
+cCBpbiB0aHJvdWdocHV0LiBJdCBwcm9iYWJseSB3b3VsZCBiZSBnb29kIHRvIGJlCj4+PiBhYmxl
+IHRvIG1lYXN1cmUgdGhpcyB3aXRob3V0IGtlcm5lbCBpbnN0cnVtZW50YXRpb246IGV4cG9ydAo+
+Pj4gY291bnRlcnMgc2ltaWxhciB0byBuZXQtPnR4X3pjb3B5X2VyciBhbmQgbmV0LT50eF9wYWNr
+ZXRzICh0aG91Z2gKPj4+IHdpdGhvdXQgcmVzZXQgdG8gemVybywgYXMgaW4gdmhvc3RfbmV0X3R4
+X3BhY2tldCkuCj4KPgo+IEkgdGhpbmsgaXQncyBhY2NlcHRhYmxlIGlmIGV4dHJhIGN5Y2xlcyB3
+ZXJlIHNwZW50IGlmIHdlIGRldGVjdCBIT0wgYW55aG93Lgo+Cj4+Pgo+Pj4+IDEpIHNuZGJ1ZiBp
+cyBub3QgSU5UX01BWAo+Pj4KPj4+IFlvdSBtZWFuIHRoZSBjYXNlIHdoZXJlIHRoZSBkZXZpY2Ug
+c3RhbGxzLCBsYXRlciB6ZXJvY29weSBub3RpZmljYXRpb25zCj4+PiBhcmUgcXVldWVkLCBidXQg
+dGhlc2UgYXJlIG5ldmVyIGNsZWFuZWQgaW4gZnJlZV9vbGRfeG1pdF9za2JzLAo+Pj4gYmVjYXVz
+ZSBpdCByZXF1aXJlcyBhIHN0YXJ0X3htaXQgYW5kIGJ5IG5vdyB0aGUgKG9ubHkpIHNvY2tldCBp
+cyBvdXQgb2YKPj4+IGRlc2NyaXB0b3JzPwo+Pgo+PiBUeXBvLCBzb3JyeS4gSSBtZWFudCBvdXQg
+b2Ygc25kYnVmLgo+Cj4KPiBJIG1lYW4gZS5nIGZvciB0dW4uIElmIGl0cyBzbmRidWYgaXMgc21h
+bGxlciB0aGFuIGUuZyAodnEtPm51bSA+PiAxKSAqCj4gJHBrdF9zaXplIGFuZCBpZiBhbGwgcGFj
+a2V0IHdlcmUgaGVsZCBieSBzb21lIG1vZHVsZXMsIGxpbWl0YXRpb24gbGlrZQo+IHZxLT5udW0g
+Pj4gMSB3b24ndCB3b3JrIHNpbmNlIHdlIGhpdCBzdWRidWYgYmVmb3JlIGl0LgoKR29vZCBwb2lu
+dC4KCj4+Cj4+PiBBIHdhdGNoZG9nIHdvdWxkIGhlbHAgc29tZXdoYXQuIFdpdGggdHgtbmFwaSwg
+dGhpcyBjYXNlIGNhbm5vdCBvY2N1ciwKPj4+IGVpdGhlciwgYXMgZnJlZV9vbGRfeG1pdF9za2Jz
+IG5vIGxvbmdlciBkZXBlbmRzIG9uIGEgY2FsbCB0byBzdGFydF94bWl0Lgo+Pj4KPj4+PiAyKSB0
+eCBuYXBpIGlzIHVzZWQgZm9yIHZpcnRpby1uZXQKPj4+Cj4+PiBJIGFtIG5vdCBhd2FyZSBvZiBh
+bnkgaXNzdWUgc3BlY2lmaWMgdG8gdGhlIHVzZSBvZiB0eC1uYXBpPwo+Cj4KPiBNaWdodCBub3Qg
+YmUgY2xlYXIgaGVyZSwgSSBtZWFuIGUuZyB2aXJ0aW9fbmV0ICh0eC1uYXBpKSBpbiBndWVzdCAr
+Cj4gdmhvc3RfbmV0ICh6ZXJvY29weSkgaW4gaG9zdC4gSW4gdGhpcyBjYXNlLCBldmVuIGlmIHdl
+IHN3aXRjaCB0byBkYXRhY29weSBpZgo+IHVidWYgY291bnRzIGV4Y2VlZHMgdnEtPm51bSA+PiAx
+LCB3ZSBzdGlsbCBjb21wbGV0ZSB0eCBidWZmZXJzIGluIG9yZGVyLCB0eAo+IGludGVycnVwdCBj
+b3VsZCBiZSBkZWxheWVkIGZvciBpbmRlZmluaXRlIHRpbWUuCgpDb3BpZWQgYnVmZmVycyBhcmUg
+Y29tcGxldGVkIGltbWVkaWF0ZWx5IGluIGhhbmRsZV90eC4KCkRvIHlvdSBtZWFuIHdoZW4gYSBw
+cm9jZXNzIHNlbmRzIGZld2VyIHBhY2tldHMgdGhhbiB2cS0+bnVtID4+IDEsCnNvIHRoYXQgYWxs
+IGFyZSBxdWV1ZWQ/IFllcywgdGhlbiB0aGUgbGF0ZW5jeSBpcyBpbmRlZWQgdGhhdCBvZiB0aGUg
+bGFzdAplbGVtZW50IGxlYXZpbmcgdGhlIHFkaXNjLgoKPj4+Cj4+Pj4gMSkgY291bGQgYmUgYSBj
+b3JuZXIgY2FzZSwgYW5kIGZvciAyKSB3aGF0IHlvdXIgc3VnZ2VzdCBoZXJlIG1heSBub3QKPj4+
+PiBzb2x2ZQo+Pj4+IHRoZSBpc3N1ZSBzaW5jZSBpdCBzdGlsbCBkbyBpbiBvcmRlciBjb21wbGV0
+aW9uLgo+Pj4KPj4+IFNvbWV3aGF0IHRhbmdlbnRpYWwsIGJ1dCBpdCBtaWdodCBhbHNvIGhlbHAg
+dG8gYnJlYWsgdGhlIGluLW9yZGVyCj4+PiBjb21wbGV0aW9uIHByb2Nlc3NpbmcgaW4gdmhvc3Rf
+emVyb2NvcHlfc2lnbmFsX3VzZWQuIENvbXBsZXRlCj4+PiBhbGwgZGVzY3JpcHRvcnMgYmV0d2Vl
+biBkb25lX2lkeCBhbmQgdXBlbmRfaWR4LiBkb25lX2lkeCBzaG91bGQKPj4+IHRoZW4gb25seSBi
+ZSBmb3J3YXJkIHRvIHRoZSBvbGRlc3Qgc3RpbGwgbm90LWNvbXBsZXRlZCBkZXNjcmlwdG9yLgo+
+Pj4KPj4+IEluIHRoZSB0ZXN0IEkgcmFuLCB3aGVyZSB0aGUgb2xkZXN0IGRlc2NyaXB0b3JzIGFy
+ZSBoZWxkIGluIGEgcXVldWUgYW5kCj4+PiBhbGwgbmV3ZXIgb25lcyBhcmUgdGFpbC1kcm9wcGVk
+LAo+Cj4KPiBEbyB5b3UgbWVhbiB0aGUgZGVzY3JpcHRvcnMgd2VyZSB0YWlsLWRyb3BwZWQgYnkg
+dmhvc3Q/CgpUYWlsLWRyb3BwZWQgYnkgbmV0ZW0uIFRoZSBkcm9wcGVkIGl0ZW1zIGFyZSBjb21w
+bGV0ZWQgb3V0IG9mCm9yZGVyIGJ5IHZob3N0IGJlZm9yZSB0aGUgaGVsZCBpdGVtcy4KX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
+bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
+dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
