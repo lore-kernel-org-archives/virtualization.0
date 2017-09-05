@@ -1,13 +1,15 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4/4] paravirt,xen: correct xen_nopvspin case
-Date: Tue,  5 Sep 2017 15:24:44 +0200
-Message-ID: <20170905132444.7163-5-jgross__45427.6714394384$1504617980$gmane$org@suse.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 3/4] paravirt: add virt_spin_lock pvops function
+Date: Tue, 5 Sep 2017 15:55:06 +0200
+Message-ID: <20170905135506.55drjahteljbatak@hirez.programming.kicks-ass.net>
 References: <20170905132444.7163-1-jgross@suse.com>
+	<20170905132444.7163-4-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170905132444.7163-1-jgross@suse.com>
+Content-Disposition: inline
+In-Reply-To: <20170905132444.7163-4-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,35 +19,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org, virtualization@lists.linux-foundation.org
-Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, peterz@infradead.org, chrisw@sous-sol.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, longman@redhat.com, akataria@vmware.com, boris.ostrovsky@oracle.com
+To: Juergen Gross <jgross@suse.com>
+Cc: jeremy@goop.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, tglx@linutronix.de, longman@redhat.com, hpa@zytor.com, xen-devel@lists.xenproject.org, akataria@vmware.com, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-With the boot parameter "xen_nopvspin" specified a Xen guest should not
-make use of paravirt spinlocks, but behave as if running on bare
-metal. This is not true, however, as the qspinlock code will fall back
-to a test-and-set scheme when it is detecting a hypervisor.
+On Tue, Sep 05, 2017 at 03:24:43PM +0200, Juergen Gross wrote:
+> diff --git a/arch/x86/include/asm/qspinlock.h b/arch/x86/include/asm/qspinlock.h
+> index 48a706f641f2..fbd98896385c 100644
+> --- a/arch/x86/include/asm/qspinlock.h
+> +++ b/arch/x86/include/asm/qspinlock.h
+> @@ -17,6 +17,25 @@ static inline void native_queued_spin_unlock(struct qspinlock *lock)
+>  	smp_store_release((u8 *)lock, 0);
+>  }
+>  
 
-In order to avoid this set the virt_spin_lock pvops function to
-_paravirt_false() in case xen_nopvspin has been specified.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- arch/x86/xen/spinlock.c | 2 ++
- 1 file changed, 2 insertions(+)
+Should this not have:
 
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 25a7c4302ce7..c01cedfa745d 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -129,6 +129,8 @@ void __init xen_init_spinlocks(void)
- 
- 	if (!xen_pvspin) {
- 		printk(KERN_DEBUG "xen: PV spinlocks disabled\n");
-+		pv_lock_ops.virt_spin_lock =
-+			__PV_IS_CALLEE_SAVE(_paravirt_false);
- 		return;
- 	}
- 	printk(KERN_DEBUG "xen: PV spinlocks enabled\n");
--- 
-2.12.3
+#ifdef CONFIG_PARAVIRT
+
+?
+
+> +static inline bool native_virt_spin_lock(struct qspinlock *lock)
+> +{
+> +	if (!static_cpu_has(X86_FEATURE_HYPERVISOR))
+> +		return false;
+> +
+> +	/*
+> +	 * On hypervisors without PARAVIRT_SPINLOCKS support we fall
+> +	 * back to a Test-and-Set spinlock, because fair locks have
+> +	 * horrible lock 'holder' preemption issues.
+> +	 */
+> +
+> +	do {
+> +		while (atomic_read(&lock->val) != 0)
+> +			cpu_relax();
+> +	} while (atomic_cmpxchg(&lock->val, 0, _Q_LOCKED_VAL) != 0);
+> +
+> +	return true;
+> +}
+
+#endif
+
+> +
+>  #ifdef CONFIG_PARAVIRT_SPINLOCKS
+>  extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
+>  extern void __pv_init_lock_hash(void);
+
+
+>  #ifdef CONFIG_PARAVIRT
+>  #define virt_spin_lock virt_spin_lock
+> +#ifdef CONFIG_PARAVIRT_SPINLOCKS
+>  static inline bool virt_spin_lock(struct qspinlock *lock)
+>  {
+> +	return pv_virt_spin_lock(lock);
+> +}
+> +#else
+> +static inline bool virt_spin_lock(struct qspinlock *lock)
+> +{
+> +	return native_virt_spin_lock(lock);
+>  }
+> +#endif /* CONFIG_PARAVIRT_SPINLOCKS */
+>  #endif /* CONFIG_PARAVIRT */
+
+Because I think the above only ever uses native_virt_spin_lock() when
+PARAVIRT.
+
+> @@ -1381,6 +1382,7 @@ void __init native_smp_prepare_boot_cpu(void)
+>  	/* already set me in cpu_online_mask in boot_cpu_init() */
+>  	cpumask_set_cpu(me, cpu_callout_mask);
+>  	cpu_set_state_online(me);
+> +	native_pv_lock_init();
+>  }
+
+Aah, this is where that goes.. OK that works too.
