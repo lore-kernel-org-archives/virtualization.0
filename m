@@ -1,15 +1,19 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [RFC] virtio-iommu version 0.4
-Date: Wed, 6 Sep 2017 12:54:46 +0100
-Message-ID: <013a2fdd-86f7-a7ee-7e71-11bbb6261f33__29454.849768854$1504698718$gmane$org@arm.com>
-References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
-	<5be484ff-6a1a-6c9b-947c-f64ea23f58cc@arm.com>
-	<AADFC41AFE54684AB9EE6CBC0274A5D190D941E3@SHSMSX101.ccr.corp.intel.com>
+From: Waiman Long <longman@redhat.com>
+Subject: Re: [PATCH 3/4] paravirt: add virt_spin_lock pvops function
+Date: Wed, 6 Sep 2017 08:44:09 -0400
+Message-ID: <dd4511e9-3730-913b-9a80-59476661f3c8__20013.3503335111$1504701897$gmane$org@redhat.com>
+References: <20170905132444.7163-1-jgross@suse.com>
+	<20170905132444.7163-4-jgross@suse.com>
+	<c62a47cd-c46d-bfbf-77f2-ec27c86c0f7c@redhat.com>
+	<42918500-4487-f0d8-e6fd-99e4d0d7f1bf@suse.com>
+	<3a2eefe7-5c0b-9768-2bb8-03c947133b06@redhat.com>
+	<a921465a-3c4f-9223-b4af-cd250df62f90@redhat.com>
+	<20170906070816.s6rtgtqpljnbudux@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D190D941E3@SHSMSX101.ccr.corp.intel.com>
+In-Reply-To: <20170906070816.s6rtgtqpljnbudux@hirez.programming.kicks-ass.net>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,107 +24,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Tian, Kevin" <kevin.tian@intel.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
-Cc: "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, xen-devel@lists.xenproject.org, akataria@vmware.com, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Kevin,
+On 09/06/2017 03:08 AM, Peter Zijlstra wrote:
+> Guys, please trim email.
+>
+> On Tue, Sep 05, 2017 at 10:31:46AM -0400, Waiman Long wrote:
+>> For clarification, I was actually asking if you consider just adding one
+>> more jump label to skip it for Xen/KVM instead of making
+>> virt_spin_lock() a pv-op.
+> I don't understand. What performance are you worried about. Native will
+> now do: "xor rax,rax; jnz some_cold_label" that's fairly trival code.
 
-On 28/08/17 08:39, Tian, Kevin wrote:
-> Here comes some comments:
-> 
-> 1.1 Motivation
-> 
-> You describe I/O page faults handling as future work. Seems you considered
-> only recoverable fault (since "aka. PCI PRI" being used). What about other
-> unrecoverable faults e.g. what to do if a virtual DMA request doesn't find 
-> a valid mapping? Even when there is no PRI support, we need some basic
-> form of fault reporting mechanism to indicate such errors to guest.
+It is not native that I am talking about. I am worry about VM with
+non-Xen/KVM hypervisor where virt_spin_lock() will actually be called.
+Now that function will become a callee-saved function call instead of
+being inlined into the native slowpath function.
 
-I am considering recoverable faults as the end goal, but reporting
-unrecoverable faults should use the same queue, with slightly different
-fields and no need for the driver to reply to the device.
-
-> 2.6.8.2 Property RESV_MEM
-> 
-> I'm not immediately clear when VIRTIO_IOMMU_PROBE_RESV_MEM_T_ABORT
-> should be explicitly reported. Is there any real example on bare metal IOMMU?
-> usually reserved memory is reported to CPU through other method (e.g. e820
-> on x86 platform). Of course MSI is a special case which is covered by BYPASS 
-> and MSI flag... If yes, maybe you can also include an example in implementation 
-> notes.
-
-The RESV_MEM regions only describes IOVA space for the moment, not
-guest-physical, so I guess it provides different information than e820.
-
-I think a useful example is the PCI bridge windows reported by the Linux
-host to userspace using RESV_RESERVED regions (see
-iommu_dma_get_resv_regions). If I understand correctly, they represent DMA
-addresses that shouldn't be accessed by endpoints because they won't reach
-the IOMMU. These are specific to the physical topology: a device will have
-different reserved regions depending on the PCI slot it occupies.
-
-When handled properly, PCI bridge windows quickly become a nuisance. With
-kvmtool we observed that carving out their addresses globally removes a
-lot of useful GPA space from the guest. Without a virtual IOMMU we can
-either ignore them and hope everything will be fine, or remove all
-reserved regions from the GPA space (which currently means editing by hand
-the static guest-physical map...)
-
-That's where RESV_MEM_T_ABORT comes handy with virtio-iommu. It describes
-reserved IOVAs for a specific endpoint, and therefore removes the need to
-carve the window out of the whole guest.
-
-> Another thing I want to ask your opinion, about whether there is value of
-> adding another subtype (MEM_T_IDENTITY), asking for identity mapping
-> in the address space. It's similar to Reserved Memory Region Reporting
-> (RMRR) structure defined in VT-d, to indicate BIOS allocated reserved
-> memory ranges which may be DMA target and has to be identity mapped
-> when DMA remapping is enabled. I'm not sure whether ARM has similar
-> capability and whether there might be a general usage beyond VT-d. For
-> now the only usage in my mind is to assign a device with RMRR associated
-> on VT-d (Intel GPU, or some USB controllers) where the RMRR info needs
-> propagated to the guest (since identity mapping also means reservation
-> of virtual address space).
-
-Yes I think adding MEM_T_IDENTITY will be necessary. I can see they are
-used for both iGPU and USB controllers on my x86 machines. Do you know
-more precisely what they are used for by the firmware?
-
-It's not necessary with the base virtio-iommu device though (v0.4),
-because the device can create the identity mappings itself and report them
-to the guest as MEM_T_BYPASS. However, when we start handing page table
-control over to the guest, the host won't be in control of IOVA->GPA
-mappings and will need to gracefully ask the guest to do it.
-
-I'm not aware of any firmware description resembling Intel RMRR or AMD
-IVMD on ARM platforms. I do think ARM platforms could need MEM_T_IDENTITY
-for requesting the guest to map MSI windows when page-table handover is in
-use (MSI addresses are translated by the physical SMMU, so a IOVA->GPA
-mapping must be installed by the guest). But since a vSMMU would need a
-solution as well, I think I'll try to implement something more generic.
-
-> 2.6.8.2.3 Device Requirements: Property RESV_MEM
-> 
-> --citation start--
-> If an endpoint is attached to an address space, the device SHOULD leave 
-> any access targeting one of its VIRTIO_IOMMU_PROBE_RESV_MEM_T_BYPASS 
-> regions pass through untranslated. In other words, the device SHOULD 
-> handle such a region as if it was identity-mapped (virtual address equal to
-> physical address). If the endpoint is not attached to any address space, 
-> then the device MAY abort the transaction.
-> --citation end
-> 
-> I have a question for the last sentence. From definition of BYPASS, it's
-> orthogonal to whether there is an address space attached, then should
-> we still allow "May abort" behavior? 
-
-The behavior is left as an implementation choice, and I'm not sure it's
-worth enforcing in the architecture. If the endpoint isn't attached to any
-domain then (unless VIRTIO_IOMMU_F_BYPASS is negotiated), it isn't
-necessarily able to do DMA at all. The virtio-iommu device may setup DMA
-mastering lazily, in which case any DMA transaction would abort, or have
-setup DMA already, in which case the endpoint can access MEM_T_BYPASS regions.
-
-Thanks!
-Jean
+Cheers,
+Longman
