@@ -1,7 +1,7 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: Waiman Long <longman@redhat.com>
 Subject: Re: [PATCH 3/4] paravirt: add virt_spin_lock pvops function
-Date: Wed, 6 Sep 2017 15:06:00 +0200
-Message-ID: <20170906130600.2dke3ntcw2i5fss2__11512.245811946$1504703208$gmane$org@hirez.programming.kicks-ass.net>
+Date: Wed, 6 Sep 2017 09:11:40 -0400
+Message-ID: <6dcf43c9-07a5-84dd-5a8e-ff7f7ba825dd__14918.5078371831$1504703568$gmane$org@redhat.com>
 References: <20170905132444.7163-1-jgross@suse.com>
 	<20170905132444.7163-4-jgross@suse.com>
 	<c62a47cd-c46d-bfbf-77f2-ec27c86c0f7c@redhat.com>
@@ -10,12 +10,13 @@ References: <20170905132444.7163-1-jgross@suse.com>
 	<a921465a-3c4f-9223-b4af-cd250df62f90@redhat.com>
 	<20170906070816.s6rtgtqpljnbudux@hirez.programming.kicks-ass.net>
 	<dd4511e9-3730-913b-9a80-59476661f3c8@redhat.com>
+	<20170906130600.2dke3ntcw2i5fss2@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <dd4511e9-3730-913b-9a80-59476661f3c8@redhat.com>
+In-Reply-To: <20170906130600.2dke3ntcw2i5fss2@hirez.programming.kicks-ass.net>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,28 +26,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <longman@redhat.com>
+To: Peter Zijlstra <peterz@infradead.org>
 Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, xen-devel@lists.xenproject.org, akataria@vmware.com, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 06, 2017 at 08:44:09AM -0400, Waiman Long wrote:
-> On 09/06/2017 03:08 AM, Peter Zijlstra wrote:
-> > Guys, please trim email.
-> >
-> > On Tue, Sep 05, 2017 at 10:31:46AM -0400, Waiman Long wrote:
-> >> For clarification, I was actually asking if you consider just adding one
-> >> more jump label to skip it for Xen/KVM instead of making
-> >> virt_spin_lock() a pv-op.
-> > I don't understand. What performance are you worried about. Native will
-> > now do: "xor rax,rax; jnz some_cold_label" that's fairly trival code.
-> 
-> It is not native that I am talking about. I am worry about VM with
-> non-Xen/KVM hypervisor where virt_spin_lock() will actually be called.
-> Now that function will become a callee-saved function call instead of
-> being inlined into the native slowpath function.
+On 09/06/2017 09:06 AM, Peter Zijlstra wrote:
+> On Wed, Sep 06, 2017 at 08:44:09AM -0400, Waiman Long wrote:
+>> On 09/06/2017 03:08 AM, Peter Zijlstra wrote:
+>>> Guys, please trim email.
+>>>
+>>> On Tue, Sep 05, 2017 at 10:31:46AM -0400, Waiman Long wrote:
+>>>> For clarification, I was actually asking if you consider just adding one
+>>>> more jump label to skip it for Xen/KVM instead of making
+>>>> virt_spin_lock() a pv-op.
+>>> I don't understand. What performance are you worried about. Native will
+>>> now do: "xor rax,rax; jnz some_cold_label" that's fairly trival code.
+>> It is not native that I am talking about. I am worry about VM with
+>> non-Xen/KVM hypervisor where virt_spin_lock() will actually be called.
+>> Now that function will become a callee-saved function call instead of
+>> being inlined into the native slowpath function.
+> But only if we actually end up using the test-and-set thing, because if
+> you have paravirt we end up using that.
 
-But only if we actually end up using the test-and-set thing, because if
-you have paravirt we end up using that.
+I am talking about scenario like a kernel with paravirt spinlock running
+in a VM managed by VMware, for example. We may not want to penalize them
+while there are alternatives with less penalty.
 
-And the test-and-set thing sucks anyway. But yes, you're right, that
-case gets worse.
+Cheers,
+Longman
