@@ -1,14 +1,17 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v3 1/2] paravirt/locks: use new static key for controlling
-	call of virt_spin_lock()
-Date: Wed,  6 Sep 2017 19:36:24 +0200
-Message-ID: <20170906173625.18158-2-jgross__48583.5312786095$1504719434$gmane$org@suse.com>
-References: <20170906173625.18158-1-jgross@suse.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v15 3/5] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Fri, 8 Sep 2017 06:36:46 +0300
+Message-ID: <20170908062748-mutt-send-email-mst__46103.0600512915$1504841878$gmane$org@kernel.org>
+References: <1503914913-28893-1-git-send-email-wei.w.wang@intel.com>
+	<1503914913-28893-4-git-send-email-wei.w.wang@intel.com>
+	<20170828204659-mutt-send-email-mst@kernel.org>
+	<59A4DADE.5050303@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170906173625.18158-1-jgross@suse.com>
+Content-Disposition: inline
+In-Reply-To: <59A4DADE.5050303@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,114 +21,228 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org, virtualization@lists.linux-foundation.org
-Cc: Juergen Gross <jgross@suse.com>, jeremy@goop.org, peterz@infradead.org, chrisw@sous-sol.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, longman@redhat.com, akataria@vmware.com, boris.ostrovsky@oracle.com
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-There are cases where a guest tries to switch spinlocks to bare metal
-behavior (e.g. by setting "xen_nopvspin" boot parameter). Today this
-has the downside of falling back to unfair test and set scheme for
-qspinlocks due to virt_spin_lock() detecting the virtualized
-environment.
+On Tue, Aug 29, 2017 at 11:09:18AM +0800, Wei Wang wrote:
+> On 08/29/2017 02:03 AM, Michael S. Tsirkin wrote:
+> > On Mon, Aug 28, 2017 at 06:08:31PM +0800, Wei Wang wrote:
+> > > Add a new feature, VIRTIO_BALLOON_F_SG, which enables the transfer
+> > > of balloon (i.e. inflated/deflated) pages using scatter-gather lists
+> > > to the host.
+> > > 
+> > > The implementation of the previous virtio-balloon is not very
+> > > efficient, because the balloon pages are transferred to the
+> > > host one by one. Here is the breakdown of the time in percentage
+> > > spent on each step of the balloon inflating process (inflating
+> > > 7GB of an 8GB idle guest).
+> > > 
+> > > 1) allocating pages (6.5%)
+> > > 2) sending PFNs to host (68.3%)
+> > > 3) address translation (6.1%)
+> > > 4) madvise (19%)
+> > > 
+> > > It takes about 4126ms for the inflating process to complete.
+> > > The above profiling shows that the bottlenecks are stage 2)
+> > > and stage 4).
+> > > 
+> > > This patch optimizes step 2) by transferring pages to the host in
+> > > sgs. An sg describes a chunk of guest physically continuous pages.
+> > > With this mechanism, step 4) can also be optimized by doing address
+> > > translation and madvise() in chunks rather than page by page.
+> > > 
+> > > With this new feature, the above ballooning process takes ~597ms
+> > > resulting in an improvement of ~86%.
+> > > 
+> > > TODO: optimize stage 1) by allocating/freeing a chunk of pages
+> > > instead of a single page each time.
+> > > 
+> > > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> > > Signed-off-by: Liang Li <liang.z.li@intel.com>
+> > > Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> > > ---
+> > >   drivers/virtio/virtio_balloon.c     | 171 ++++++++++++++++++++++++++++++++----
+> > >   include/uapi/linux/virtio_balloon.h |   1 +
+> > >   2 files changed, 155 insertions(+), 17 deletions(-)
+> > > 
+> > > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > > index f0b3a0b..8ecc1d4 100644
+> > > --- a/drivers/virtio/virtio_balloon.c
+> > > +++ b/drivers/virtio/virtio_balloon.c
+> > > @@ -32,6 +32,8 @@
+> > >   #include <linux/mm.h>
+> > >   #include <linux/mount.h>
+> > >   #include <linux/magic.h>
+> > > +#include <linux/xbitmap.h>
+> > > +#include <asm/page.h>
+> > >   /*
+> > >    * Balloon device works in 4K page units.  So each page is pointed to by
+> > > @@ -79,6 +81,9 @@ struct virtio_balloon {
+> > >   	/* Synchronize access/update to this struct virtio_balloon elements */
+> > >   	struct mutex balloon_lock;
+> > > +	/* The xbitmap used to record balloon pages */
+> > > +	struct xb page_xb;
+> > > +
+> > >   	/* The array of pfns we tell the Host about. */
+> > >   	unsigned int num_pfns;
+> > >   	__virtio32 pfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
+> > > @@ -141,13 +146,111 @@ static void set_page_pfns(struct virtio_balloon *vb,
+> > >   					  page_to_balloon_pfn(page) + i);
+> > >   }
+> > > +static int add_one_sg(struct virtqueue *vq, void *addr, uint32_t size)
+> > > +{
+> > > +	struct scatterlist sg;
+> > > +
+> > > +	sg_init_one(&sg, addr, size);
+> > > +	return virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
+> > > +}
+> > > +
+> > > +static void send_balloon_page_sg(struct virtio_balloon *vb,
+> > > +				 struct virtqueue *vq,
+> > > +				 void *addr,
+> > > +				 uint32_t size,
+> > > +				 bool batch)
+> > > +{
+> > > +	unsigned int len;
+> > > +	int err;
+> > > +
+> > > +	err = add_one_sg(vq, addr, size);
+> > > +	/* Sanity check: this can't really happen */
+> > > +	WARN_ON(err);
+> > It might be cleaner to detect that add failed due to
+> > ring full and kick then. Just an idea, up to you
+> > whether to do it.
+> > 
+> > > +
+> > > +	/* If batching is in use, we batch the sgs till the vq is full. */
+> > > +	if (!batch || !vq->num_free) {
+> > > +		virtqueue_kick(vq);
+> > > +		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+> > > +		/* Release all the entries if there are */
+> > Meaning
+> > 	Account for all used entries if any
+> > ?
+> > 
+> > > +		while (virtqueue_get_buf(vq, &len))
+> > > +			;
+> > 
+> > Above code is reused below. Add a function?
+> > 
+> > > +	}
+> > > +}
+> > > +
+> > > +/*
+> > > + * Send balloon pages in sgs to host. The balloon pages are recorded in the
+> > > + * page xbitmap. Each bit in the bitmap corresponds to a page of PAGE_SIZE.
+> > > + * The page xbitmap is searched for continuous "1" bits, which correspond
+> > > + * to continuous pages, to chunk into sgs.
+> > > + *
+> > > + * @page_xb_start and @page_xb_end form the range of bits in the xbitmap that
+> > > + * need to be searched.
+> > > + */
+> > > +static void tell_host_sgs(struct virtio_balloon *vb,
+> > > +			  struct virtqueue *vq,
+> > > +			  unsigned long page_xb_start,
+> > > +			  unsigned long page_xb_end)
+> > > +{
+> > > +	unsigned long sg_pfn_start, sg_pfn_end;
+> > > +	void *sg_addr;
+> > > +	uint32_t sg_len, sg_max_len = round_down(UINT_MAX, PAGE_SIZE);
+> > > +
+> > > +	sg_pfn_start = page_xb_start;
+> > > +	while (sg_pfn_start < page_xb_end) {
+> > > +		sg_pfn_start = xb_find_next_bit(&vb->page_xb, sg_pfn_start,
+> > > +						page_xb_end, 1);
+> > > +		if (sg_pfn_start == page_xb_end + 1)
+> > > +			break;
+> > > +		sg_pfn_end = xb_find_next_bit(&vb->page_xb, sg_pfn_start + 1,
+> > > +					      page_xb_end, 0);
+> > > +		sg_addr = (void *)pfn_to_kaddr(sg_pfn_start);
+> > > +		sg_len = (sg_pfn_end - sg_pfn_start) << PAGE_SHIFT;
+> > > +		while (sg_len > sg_max_len) {
+> > > +			send_balloon_page_sg(vb, vq, sg_addr, sg_max_len, 1);
+> > Last argument should be true, not 1.
+> > 
+> > > +			sg_addr += sg_max_len;
+> > > +			sg_len -= sg_max_len;
+> > > +		}
+> > > +		send_balloon_page_sg(vb, vq, sg_addr, sg_len, 1);
+> > > +		xb_zero(&vb->page_xb, sg_pfn_start, sg_pfn_end);
+> > > +		sg_pfn_start = sg_pfn_end + 1;
+> > > +	}
+> > > +
+> > > +	/*
+> > > +	 * The last few sgs may not reach the batch size, but need a kick to
+> > > +	 * notify the device to handle them.
+> > > +	 */
+> > > +	if (vq->num_free != virtqueue_get_vring_size(vq)) {
+> > > +		virtqueue_kick(vq);
+> > > +		wait_event(vb->acked, virtqueue_get_buf(vq, &sg_len));
+> > > +		while (virtqueue_get_buf(vq, &sg_len))
+> > > +			;
+> > Some entries can get used after a pause. Looks like they will leak then?
+> > One fix would be to convert above if to a while loop.
+> > I don't know whether to do it like this in send_balloon_page_sg too.
+> > 
+> 
+> Thanks for the above comments. I've re-written this part of code.
+> Please have a check below if there is anything more we could improve:
+> 
+> static void kick_and_wait(struct virtqueue *vq, wait_queue_head_t wq_head)
+> {
+>         unsigned int len;
+> 
+>         virtqueue_kick(vq);
+>         wait_event(wq_head, virtqueue_get_buf(vq, &len));
+>         /* Detach all the used buffers from the vq */
+>         while (virtqueue_get_buf(vq, &len))
+>                 ;
 
-Add a static key controlling whether virt_spin_lock() should be
-called or not. When running on bare metal set the new key to false.
+I would move this last part to before add_buf. Increases chances
+it succeeds even in case of a bug.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- arch/x86/include/asm/qspinlock.h     | 11 ++++++++++-
- arch/x86/kernel/paravirt-spinlocks.c |  6 ++++++
- arch/x86/kernel/smpboot.c            |  2 ++
- kernel/locking/qspinlock.c           |  4 ++++
- 4 files changed, 22 insertions(+), 1 deletion(-)
+> }
+> 
+> static int add_one_sg(struct virtqueue *vq, void *addr, uint32_t size)
+> {
+>         struct scatterlist sg;
+>         int ret;
+> 
+>         sg_init_one(&sg, addr, size);
+>         ret = virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
+>         if (unlikely(ret == -ENOSPC))
+>                 dev_warn(&vq->vdev->dev, "%s: failed due to ring full\n",
+>                                  __func__);
 
-diff --git a/arch/x86/include/asm/qspinlock.h b/arch/x86/include/asm/qspinlock.h
-index 48a706f641f2..308dfd0714c7 100644
---- a/arch/x86/include/asm/qspinlock.h
-+++ b/arch/x86/include/asm/qspinlock.h
-@@ -1,6 +1,7 @@
- #ifndef _ASM_X86_QSPINLOCK_H
- #define _ASM_X86_QSPINLOCK_H
- 
-+#include <linux/jump_label.h>
- #include <asm/cpufeature.h>
- #include <asm-generic/qspinlock_types.h>
- #include <asm/paravirt.h>
-@@ -46,10 +47,14 @@ static inline void queued_spin_unlock(struct qspinlock *lock)
- #endif
- 
- #ifdef CONFIG_PARAVIRT
-+DECLARE_STATIC_KEY_TRUE(virt_spin_lock_key);
-+
-+void native_pv_lock_init(void) __init;
-+
- #define virt_spin_lock virt_spin_lock
- static inline bool virt_spin_lock(struct qspinlock *lock)
- {
--	if (!static_cpu_has(X86_FEATURE_HYPERVISOR))
-+	if (!static_branch_likely(&virt_spin_lock_key))
- 		return false;
- 
- 	/*
-@@ -65,6 +70,10 @@ static inline bool virt_spin_lock(struct qspinlock *lock)
- 
- 	return true;
- }
-+#else
-+static inline void native_pv_lock_init(void)
-+{
-+}
- #endif /* CONFIG_PARAVIRT */
- 
- #include <asm-generic/qspinlock.h>
-diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
-index 8f2d1c9d43a8..2fc65ddea40d 100644
---- a/arch/x86/kernel/paravirt-spinlocks.c
-+++ b/arch/x86/kernel/paravirt-spinlocks.c
-@@ -42,3 +42,9 @@ struct pv_lock_ops pv_lock_ops = {
- #endif /* SMP */
- };
- EXPORT_SYMBOL(pv_lock_ops);
-+
-+void __init native_pv_lock_init(void)
-+{
-+	if (!static_cpu_has(X86_FEATURE_HYPERVISOR))
-+		static_branch_disable(&virt_spin_lock_key);
-+}
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 54b9e89d4d6b..21500d3ba359 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -77,6 +77,7 @@
- #include <asm/i8259.h>
- #include <asm/realmode.h>
- #include <asm/misc.h>
-+#include <asm/qspinlock.h>
- 
- /* Number of siblings per CPU package */
- int smp_num_siblings = 1;
-@@ -1381,6 +1382,7 @@ void __init native_smp_prepare_boot_cpu(void)
- 	/* already set me in cpu_online_mask in boot_cpu_init() */
- 	cpumask_set_cpu(me, cpu_callout_mask);
- 	cpu_set_state_online(me);
-+	native_pv_lock_init();
- }
- 
- void __init native_smp_cpus_done(unsigned int max_cpus)
-diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
-index 294294c71ba4..838d235b87ef 100644
---- a/kernel/locking/qspinlock.c
-+++ b/kernel/locking/qspinlock.c
-@@ -76,6 +76,10 @@
- #define MAX_NODES	4
- #endif
- 
-+#ifdef CONFIG_PARAVIRT
-+DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
-+#endif
-+
- /*
-  * Per-CPU queue node structures; we can never have more than 4 nested
-  * contexts: task, softirq, hardirq, nmi.
+So if this ever triggers then kick and wait might fail, right?
+I think you should not special-case this one then.
+
+> 
+>         return ret;
+> }
+> 
+> static void send_balloon_page_sg(struct virtio_balloon *vb,
+>                                                       struct virtqueue *vq,
+>                                                       void *addr,
+>                                                       uint32_t size,
+>                                                       bool batch)
+> {
+>         int err;
+> 
+>         do {
+>                 err = add_one_sg(vq, addr, size);
+>                 if (err == -ENOSPC || !batch || !vq->num_free)
+>                         kick_and_wait(vq, vb->acked);
+>         } while (err == -ENOSPC);
+> }
+> 
+> 
+> Best,
+> Wei
+
+I think this fixes the bug, yes. I would skip trying to handle ENOSPC,
+it's more a less a bug if it triggers. Just bail out on any error.
+
 -- 
-2.12.3
+MST
