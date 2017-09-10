@@ -1,18 +1,12 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [virtio-dev] Re: [PATCH v15 3/5] virtio-balloon:
-	VIRTIO_BALLOON_F_SG
-Date: Fri, 08 Sep 2017 19:09:24 +0800
-Message-ID: <59B27A64.4040604__28389.6225541413$1504868840$gmane$org@intel.com>
-References: <1503914913-28893-1-git-send-email-wei.w.wang@intel.com>
-	<1503914913-28893-4-git-send-email-wei.w.wang@intel.com>
-	<20170828204659-mutt-send-email-mst@kernel.org>
-	<59A4DADE.5050303@intel.com>
-	<20170908062748-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: packed ring layout proposal v3
+Date: Sun, 10 Sep 2017 08:06:15 +0300
+Message-ID: <20160915223915.qjlnlvf2w7u37bu3__23775.8185052828$1505019997$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170908062748-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,203 +16,421 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
+To: virtio-dev@lists.oasis-open.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/08/2017 11:36 AM, Michael S. Tsirkin wrote:
-> On Tue, Aug 29, 2017 at 11:09:18AM +0800, Wei Wang wrote:
->> On 08/29/2017 02:03 AM, Michael S. Tsirkin wrote:
->>> On Mon, Aug 28, 2017 at 06:08:31PM +0800, Wei Wang wrote:
->>>> Add a new feature, VIRTIO_BALLOON_F_SG, which enables the transfer
->>>> of balloon (i.e. inflated/deflated) pages using scatter-gather lists
->>>> to the host.
->>>>
->>>> The implementation of the previous virtio-balloon is not very
->>>> efficient, because the balloon pages are transferred to the
->>>> host one by one. Here is the breakdown of the time in percentage
->>>> spent on each step of the balloon inflating process (inflating
->>>> 7GB of an 8GB idle guest).
->>>>
->>>> 1) allocating pages (6.5%)
->>>> 2) sending PFNs to host (68.3%)
->>>> 3) address translation (6.1%)
->>>> 4) madvise (19%)
->>>>
->>>> It takes about 4126ms for the inflating process to complete.
->>>> The above profiling shows that the bottlenecks are stage 2)
->>>> and stage 4).
->>>>
->>>> This patch optimizes step 2) by transferring pages to the host in
->>>> sgs. An sg describes a chunk of guest physically continuous pages.
->>>> With this mechanism, step 4) can also be optimized by doing address
->>>> translation and madvise() in chunks rather than page by page.
->>>>
->>>> With this new feature, the above ballooning process takes ~597ms
->>>> resulting in an improvement of ~86%.
->>>>
->>>> TODO: optimize stage 1) by allocating/freeing a chunk of pages
->>>> instead of a single page each time.
->>>>
->>>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
->>>> Signed-off-by: Liang Li <liang.z.li@intel.com>
->>>> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
->>>> ---
->>>>    drivers/virtio/virtio_balloon.c     | 171 ++++++++++++++++++++++++++++++++----
->>>>    include/uapi/linux/virtio_balloon.h |   1 +
->>>>    2 files changed, 155 insertions(+), 17 deletions(-)
->>>>
->>>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
->>>> index f0b3a0b..8ecc1d4 100644
->>>> --- a/drivers/virtio/virtio_balloon.c
->>>> +++ b/drivers/virtio/virtio_balloon.c
->>>> @@ -32,6 +32,8 @@
->>>>    #include <linux/mm.h>
->>>>    #include <linux/mount.h>
->>>>    #include <linux/magic.h>
->>>> +#include <linux/xbitmap.h>
->>>> +#include <asm/page.h>
->>>>    /*
->>>>     * Balloon device works in 4K page units.  So each page is pointed to by
->>>> @@ -79,6 +81,9 @@ struct virtio_balloon {
->>>>    	/* Synchronize access/update to this struct virtio_balloon elements */
->>>>    	struct mutex balloon_lock;
->>>> +	/* The xbitmap used to record balloon pages */
->>>> +	struct xb page_xb;
->>>> +
->>>>    	/* The array of pfns we tell the Host about. */
->>>>    	unsigned int num_pfns;
->>>>    	__virtio32 pfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
->>>> @@ -141,13 +146,111 @@ static void set_page_pfns(struct virtio_balloon *vb,
->>>>    					  page_to_balloon_pfn(page) + i);
->>>>    }
->>>> +static int add_one_sg(struct virtqueue *vq, void *addr, uint32_t size)
->>>> +{
->>>> +	struct scatterlist sg;
->>>> +
->>>> +	sg_init_one(&sg, addr, size);
->>>> +	return virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
->>>> +}
->>>> +
->>>> +static void send_balloon_page_sg(struct virtio_balloon *vb,
->>>> +				 struct virtqueue *vq,
->>>> +				 void *addr,
->>>> +				 uint32_t size,
->>>> +				 bool batch)
->>>> +{
->>>> +	unsigned int len;
->>>> +	int err;
->>>> +
->>>> +	err = add_one_sg(vq, addr, size);
->>>> +	/* Sanity check: this can't really happen */
->>>> +	WARN_ON(err);
->>> It might be cleaner to detect that add failed due to
->>> ring full and kick then. Just an idea, up to you
->>> whether to do it.
->>>
->>>> +
->>>> +	/* If batching is in use, we batch the sgs till the vq is full. */
->>>> +	if (!batch || !vq->num_free) {
->>>> +		virtqueue_kick(vq);
->>>> +		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
->>>> +		/* Release all the entries if there are */
->>> Meaning
->>> 	Account for all used entries if any
->>> ?
->>>
->>>> +		while (virtqueue_get_buf(vq, &len))
->>>> +			;
->>> Above code is reused below. Add a function?
->>>
->>>> +	}
->>>> +}
->>>> +
->>>> +/*
->>>> + * Send balloon pages in sgs to host. The balloon pages are recorded in the
->>>> + * page xbitmap. Each bit in the bitmap corresponds to a page of PAGE_SIZE.
->>>> + * The page xbitmap is searched for continuous "1" bits, which correspond
->>>> + * to continuous pages, to chunk into sgs.
->>>> + *
->>>> + * @page_xb_start and @page_xb_end form the range of bits in the xbitmap that
->>>> + * need to be searched.
->>>> + */
->>>> +static void tell_host_sgs(struct virtio_balloon *vb,
->>>> +			  struct virtqueue *vq,
->>>> +			  unsigned long page_xb_start,
->>>> +			  unsigned long page_xb_end)
->>>> +{
->>>> +	unsigned long sg_pfn_start, sg_pfn_end;
->>>> +	void *sg_addr;
->>>> +	uint32_t sg_len, sg_max_len = round_down(UINT_MAX, PAGE_SIZE);
->>>> +
->>>> +	sg_pfn_start = page_xb_start;
->>>> +	while (sg_pfn_start < page_xb_end) {
->>>> +		sg_pfn_start = xb_find_next_bit(&vb->page_xb, sg_pfn_start,
->>>> +						page_xb_end, 1);
->>>> +		if (sg_pfn_start == page_xb_end + 1)
->>>> +			break;
->>>> +		sg_pfn_end = xb_find_next_bit(&vb->page_xb, sg_pfn_start + 1,
->>>> +					      page_xb_end, 0);
->>>> +		sg_addr = (void *)pfn_to_kaddr(sg_pfn_start);
->>>> +		sg_len = (sg_pfn_end - sg_pfn_start) << PAGE_SHIFT;
->>>> +		while (sg_len > sg_max_len) {
->>>> +			send_balloon_page_sg(vb, vq, sg_addr, sg_max_len, 1);
->>> Last argument should be true, not 1.
->>>
->>>> +			sg_addr += sg_max_len;
->>>> +			sg_len -= sg_max_len;
->>>> +		}
->>>> +		send_balloon_page_sg(vb, vq, sg_addr, sg_len, 1);
->>>> +		xb_zero(&vb->page_xb, sg_pfn_start, sg_pfn_end);
->>>> +		sg_pfn_start = sg_pfn_end + 1;
->>>> +	}
->>>> +
->>>> +	/*
->>>> +	 * The last few sgs may not reach the batch size, but need a kick to
->>>> +	 * notify the device to handle them.
->>>> +	 */
->>>> +	if (vq->num_free != virtqueue_get_vring_size(vq)) {
->>>> +		virtqueue_kick(vq);
->>>> +		wait_event(vb->acked, virtqueue_get_buf(vq, &sg_len));
->>>> +		while (virtqueue_get_buf(vq, &sg_len))
->>>> +			;
->>> Some entries can get used after a pause. Looks like they will leak then?
->>> One fix would be to convert above if to a while loop.
->>> I don't know whether to do it like this in send_balloon_page_sg too.
->>>
->> Thanks for the above comments. I've re-written this part of code.
->> Please have a check below if there is anything more we could improve:
->>
->> static void kick_and_wait(struct virtqueue *vq, wait_queue_head_t wq_head)
->> {
->>          unsigned int len;
->>
->>          virtqueue_kick(vq);
->>          wait_event(wq_head, virtqueue_get_buf(vq, &len));
->>          /* Detach all the used buffers from the vq */
->>          while (virtqueue_get_buf(vq, &len))
->>                  ;
-> I would move this last part to before add_buf. Increases chances
-> it succeeds even in case of a bug.
+This is an update from v2 version.
+Changes:
+- update event suppression mechanism
+- add wrap counter: DESC_WRAP flag in addition to
+  DESC_DRIVER flag used for validity so device does not have to
+  write out all used descriptors.
+- more options especially helpful for hardware implementations
+- in-order processing option due to popular demand
+- list of TODO items to consider as a follow-up, only two are
+  open questions we need to descide now, marked as blocker,
+  others are future enhancement ideas.
 
->
->> }
->>
->> static int add_one_sg(struct virtqueue *vq, void *addr, uint32_t size)
->> {
->>          struct scatterlist sg;
->>          int ret;
->>
->>          sg_init_one(&sg, addr, size);
->>          ret = virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
->>          if (unlikely(ret == -ENOSPC))
->>                  dev_warn(&vq->vdev->dev, "%s: failed due to ring full\n",
->>                                   __func__);
-> So if this ever triggers then kick and wait might fail, right?
-> I think you should not special-case this one then.
+---
 
-OK, I will remove the check above, and take other suggestions as well. 
-Thanks.
+Performance analysis of this is in my kvm forum 2016 presentation.
+The idea is to have a r/w descriptor in a ring structure,
+replacing the used and available ring, index and descriptor
+buffer.
 
-Best,
-Wei
+Note: the following mode of operation will actually work
+without changes when descriptor rings do not overlap, with driver
+writing out available entries in a read-only driver descriptor ring,
+device writing used entries in a write-only device descriptor ring.
+
+TODO: does this have any value for some? E.g. as a security feature?
+
+
+* Descriptor ring:
+
+Driver writes descriptors with unique index values and DESC_DRIVER set in flags.
+Descriptors are written in a ring order: from start to end of ring,
+wrapping around to the beginning.
+Device writes used descriptors with correct len, index, and DESC_HW clear.
+Again descriptors are written in ring order. This might not be the same
+order of driver descriptors, and not all descriptors have to be written out.
+
+Driver and device are expected to maintain (internally) a wrap-around
+bit, starting at 0 and changing value each time they start writing out
+descriptors at the beginning of the ring. This bit is passed as
+DESC_WRAP bit in the flags field.
+
+Flags are always set/cleared last.
+
+Note that driver can write descriptors out in any order, but device
+will not execute descriptor X+1 until descriptor X has been
+read as valid.
+
+Driver operation:
+
+Driver makes descriptors available to device by writing out descriptors
+in the descriptor ring. Once ring is full, driver waits for device to
+use some descriptors before making more available.
+
+Descriptors can be used by device in any order, but must be read from
+ring in-order, and must be read completely before starting use.  Thus,
+once a descriptor is used, driver can over-write both this descriptor
+and any descriptors which preceded it in the ring.
+
+Driver can detect use of descriptor either by device specific means
+(e.g. detect a buffer data change by device) or in a generic way
+by detecting that a used buffer has been written out by device.
+
+
+Driver writes out available scatter/gather descriptor entries in guest
+descriptor format:
+
+
+#define DESC_WRAP 0x0040
+#define DESC_DRIVER 0x0080
+
+struct desc {
+        __le64 addr;
+        __le32 len;
+        __le16 index;
+        __le16 flags;
+};
+
+Fields:
+
+addr - physical address of a s/g entry
+len - length of an entry
+index - unique index.  The low $\lceil log(N) \rceil - 1$
+      bits of the index is a driver-supplied value which can have any value
+      (under driver control).  The high bits are reserved and should be
+      set to 0.
+
+flags - descriptor flags.
+
+Descriptors written by driver have DESC_DRIVER set.
+
+Writing out this field makes the descriptor available for the device to use,
+so all other fields must be valid when it is written.
+
+DESC_WRAP - device uses this field to detect descriptor change by driver.
+
+Driver can use 1 bit to set direction
+/* This marks a descriptor as write-only (otherwise read-only). */
+#define VRING_DESC_F_WRITE      2
+
+
+Device operation (using descriptors):
+
+Device is looking for descriptors in ring order. After detecting that
+the flags value has changed with DESC_DRIVER set and DESC_WRAP matching
+the wrap-around counter, it can start using the descriptors.
+Descriptors can be used in any order, but must be read from ring
+in-order.  In other words device must not read descriptor X after it
+started using descriptor X+1.  Further, all buffer descriptors must be
+read completely before device starts using the buffer.
+
+This because once a descriptor is used, driver can over-write both this
+descriptor and any preceeding descriptors in ring.
+
+To help driver detect use of descriptors and to pass extra meta-data
+to driver, device writes out used entries in device descriptor format:
+
+
+#define DESC_WRAP 0x0040
+#define DESC_DRIVER 0x0080
+
+struct desc {
+        __le64 reserved;
+        __le32 len;
+        __le16 index;
+        __le16 flags;
+};
+
+Fields:
+
+reserved - can be any value, ignored by driver
+len - length written by device. only valid if VRING_DESC_F_WRITE is set
+      len bytes of data from beginning of buffer are assumed to have been updated
+index - unique index copied from the driver descriptor that has been used.
+flags - descriptor flags.
+
+Descriptors written by device have DESC_DRIVER clear.
+
+Writing out this field notifies the driver that it can re-use the
+descriptor id. It is also a signal that driver can over-write the
+relevant descriptor (with the supplied id), and any other
+
+DESC_WRAP - driver uses this field to detect descriptor change by device.
+
+If device has used a buffer containing a write descriptor, it sets this bit:
+#define VRING_DESC_F_WRITE      2
+
+* Driver scatter/gather support
+
+Driver can use 1 bit to chain s/g entries in a request, similar to virtio 1.0:
+
+/* This marks a buffer as continuing in the next ring entry. */
+#define VRING_DESC_F_NEXT       1
+
+When driver descriptors are chained in this way, multiple
+descriptors are treated as a part of a single transaction
+containing an optional write buffer followed by an optional read buffer.
+All descriptors in the chain must have the same ID.
+
+Unlike virtio 1.0, use of this flag will be an optional feature
+so both devices and drivers can opt out of it.
+If they do, they can either negotiate indirect descriptors or use
+single-descriptor entries exclusively for buffers.
+
+Device might detect a partial descriptor chain (VRING_DESC_F_NEXT
+set but next descriptor not valid). In that case it must not
+use any parts of the chain - it will later be completed by driver,
+but device is allowed to store the valid parts of the chain as
+driver is not allowed to change them anymore.
+
+Two options are available:
+
+Device can write out the same number of descriptors for the chain,
+setting VRING_DESC_F_NEXT for all but the last descriptor.
+Driver will ignore all used descriptors with VRING_DESC_F_NEXT bit set.
+
+Device only writes out a single descriptor for the whole chain.
+However, to keep device and driver in sync, it then skips a number of
+descriptors corresponding to the length of the chain before writing out
+the next used descriptor.
+After detecting a used descriptor driver must find out the length of the
+chain that it built in order to know where to look for the next
+device descriptor.
+
+* Indirect buffers
+
+Indirect buffer descriptors is an optional feature.
+These are always written by driver, not the device.
+Indirect buffers have a special flag bit set - like in virtio 1.0:
+
+/* This means the buffer contains a table of buffer descriptors. */
+#define VRING_DESC_F_INDIRECT   4
+
+VRING_DESC_F_WRITE and VRING_DESC_F_NEXT are always clear.
+
+len specifies the length of the indirect descriptor buffer in bytes
+and must be a multiple of 16.
+
+Unlike virtio 1.0, the buffer pointed to is a table, not a list:
+struct indirect_descriptor_table {
+        /* The actual descriptors (16 bytes each) */
+        struct indirect_desc desc[len / 16];
+};
+
+The first descriptor is located at start of the indirect descriptor
+table, additional indirect descriptors come immediately afterwards.
+
+struct indirect_desc {
+        __le64 addr;
+        __le32 len;
+        __le16 reserved;
+        __le16 flags;
+};
+
+
+DESC_F_WRITE is the only valid flag for descriptors in the indirect
+table. Others should be set to 0 and are ignored.  reserved field is
+also set to 0 and should be ignored.
+
+TODO (blocker): virtio 1.0 allows a s/g entry followed by
+      an indirect descriptor. Is this useful?
+
+This support would be an optional feature, same as in virtio 1.0
+
+* Batching descriptors:
+
+virtio 1.0 allows passing a batch of descriptors in both directions, by
+incrementing the used/avail index by values > 1.
+At the moment only batching of used descriptors is used.
+
+We can support this by chaining a list of device descriptors through
+VRING_DESC_F_MORE flag. Device sets this bit to signal
+driver that this is part of a batch of used descriptors
+which are all part of a single transaction.
+
+Driver might detect a partial descriptor chain (VRING_DESC_F_MORE
+set but next descriptor not valid). In that case it must not
+use any parts of the chain - it will later be completed by device,
+but driver is allowed to store the valid parts of the chain as
+device is not allowed to change them anymore.
+
+Descriptor should not have both VRING_DESC_F_MORE and
+VRING_DESC_F_NEXT set.
+
+* Using descriptors in order
+
+Some devices can guarantee that descriptors are used in
+the order in which they were made available.
+This allows driver optimizations and can be negotiated through
+a feature bit.
+
+* Per ring flags
+
+It is useful to support features for some rings but not others.
+E.g. it's reasonable to use single buffers for RX rings but
+sg or indirect for TX rings of the network device.
+Generic configuration space will be extended so features can
+be negotiated per ring.
+
+* Selective use of descriptors
+
+As described above, descriptors with NEXT bit set are part of a
+scatter/gather chain and so do not have to cause device to write a used
+descriptor out.
+
+Similarly, driver can set a flag VRING_DESC_F_MORE in the descriptor to
+signal to device that it does not have to write out the used descriptor
+as it is part of a batch of descriptors. Device has two options (similar
+to VRING_DESC_F_NEXT):
+
+Device can write out the same number of descriptors for the batch,
+setting VRING_DESC_F_MORE for all but the last descriptor.
+Driver will ignore all used descriptors with VRING_DESC_F_MORE bit set.
+
+Device only writes out a single descriptor for the whole batch.
+However, to keep device and driver in sync, it then skips a number of
+descriptors corresponding to the length of the batch before writing out
+the next used descriptor.
+After detecting a used descriptor driver must find out the length of the
+batch that it built in order to know where to look for the next
+device descriptor.
+
+
+TODO (blocker): skipping descriptors for selective and
+scatter/gather seem to be only requested with in-order right now. Let's
+require in-order for this skipping?  This will simplify the accounting
+by driver.
+
+
+* Interrupt/event suppression
+
+virtio 1.0 has two mechanisms for suppression but only
+one can be used at a time. we pack them together
+in a structure - one for interrupts, one for notifications:
+
+struct event {
+	__le16 idx;
+	__le16 flags;
+}
+
+Both fields would be optional, with a feature bit:
+VIRTIO_F_EVENT_IDX
+VIRTIO_F_EVENT_FLAGS
+
+Flags can be used like in virtio 1.0, by storing a special
+value there:
+
+#define VRING_F_EVENT_ENABLE  0x0
+
+#define VRING_F_EVENT_DISABLE 0x1
+
+Event index includes the index of the descriptor
+which should trigger the event, and the wrap counter
+in the high bit.
+
+In that case, interrupt triggers when descriptor is written at a given
+location in the ring (or skipped in case of NEXT/MORE).
+
+If both features are negotiated, a special flags value
+can be used to switch to event idx:
+
+#define VRING_F_EVENT_IDX     0x2
+
+* Available notification
+
+Driver currently writes out the queue number to device to
+kick off ring processing.
+
+As queue number is currently 16 bit, we can extend that
+to additionally include the offset within ring of the descriptor
+which triggered the kick event in bits 16 to 30,
+and the wrap counter in the high bit (31).
+
+Device is allowed to pre-fetch descriptors beyond the specified
+offset but is not required to do so.
+
+
+
+* TODO: interrupt coalescing
+
+Does it make sense just for networking or for all devices?
+If later should we make it a per ring or a global feature?
+
+
+* TODO: event index/flags in device memory?
+
+Should we move the event index/flags to device memory?
+Might be helpful for hardware configuration so they do not
+need to do DMA reads to check whether interrupt is needed.
+OTOH maybe interrupt coalescing is sufficient for this.
+
+
+* TODO: Device specific descriptor flags
+
+We have a lot of unused space in the descriptor.  This can be put to
+good use by reserving some flag bits for device use.
+For example, network device can set a bit to request
+that header in the descriptor is suppressed
+(in case it's all 0s anyway). This reduces cache utilization.
+
+Note: this feature can be supported in virtio 1.0 as well,
+as we have unused bits in both descriptor and used ring there.
+
+* TODO: Descriptor length in device descriptors
+
+Some devices use identically-sized buffers in all descriptors.
+Ignoring length for driver descriptors there could be an option too.
+
+* TODO: Writing at an offset
+
+Some devices might want to write into some descriptors
+at an offset, the offset would be in reserved field in the descriptor,
+possibly a descriptor flag could indicate this:
+
+#define VRING_DESC_F_OFFSET 0x0020
+
+How exactly to use the offset would be device specific,
+for example it can be used to align beginning of packet
+in the 1st buffer for mergeable buffers to cache line boundary
+while also aligning rest of buffers.
+
+* TODO: Non power-of-2 ring sizes
+
+As the ring simply wraps around, there's no reason to
+require ring size to be power of two.
+It can be made a separate feature though.
+
+
+TODO: limits on buffer alignment/size
+
+Seems to be useful for RX for networking.
+Is there a need to negotiate above in a generic way
+or is this a networking specific optimization?
+
+TODO: expose wrap counters to device for debugging
+
+TODO: expose last avail/used offsets to device/driver for debugging
+
+TODO: ability to reset individual rings
+
+---
+
+Note: should this proposal be accepted and approved, one or more
+      claims disclosed to the TC admin and listed on the Virtio TC
+      IPR page https://www.oasis-open.org/committees/virtio/ipr.php
+      might become Essential Claims.
+Note: the page above is unfortunately out of date and out of
+      my hands. I'm in the process of updating ipr disclosures
+      in github instead.  Will make sure all is in place before
+      this proposal is put to vote. As usual this TC operates under the
+      Non-Assertion Mode of the OASIS IPR Policy, which protects
+      anyone implementing the virtio spec.
+
+-- 
+MST
