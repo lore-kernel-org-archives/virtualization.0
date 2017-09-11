@@ -1,15 +1,15 @@
-From: Bharat Bhushan <bharat.bhushan@nxp.com>
-Subject: RE: [RFC] virtio-iommu version 0.4
-Date: Wed, 13 Sep 2017 03:47:50 +0000
-Message-ID: <AM5PR0401MB25455D83B3C3361FEC0464F29A6E0__27790.3429036543$1505274498$gmane$org@AM5PR0401MB2545.eurprd04.prod.outlook.com>
-References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
-	<072f5a14-baae-57a9-9c5b-b93163c67075@redhat.com>
+From: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH v15 2/5] lib/xbitmap: add xb_find_next_bit() and xb_zero()
+Date: Mon, 11 Sep 2017 06:27:10 -0700
+Message-ID: <20170911132710.GB32538__39381.8265213214$1505325385$gmane$org@bombadil.infradead.org>
+References: <1503914913-28893-1-git-send-email-wei.w.wang@intel.com>
+	<1503914913-28893-3-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <072f5a14-baae-57a9-9c5b-b93163c67075@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1503914913-28893-3-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,179 +19,107 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Auger Eric <eric.auger@redhat.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
-Cc: "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Eric,
+On Mon, Aug 28, 2017 at 06:08:30PM +0800, Wei Wang wrote:
+> +/**
+> + *  xb_zero - zero a range of bits in the xbitmap
+> + *  @xb: the xbitmap that the bits reside in
+> + *  @start: the start of the range, inclusive
+> + *  @end: the end of the range, inclusive
+> + */
+> +void xb_zero(struct xb *xb, unsigned long start, unsigned long end)
+> +{
+> +	unsigned long i;
+> +
+> +	for (i = start; i <= end; i++)
+> +		xb_clear_bit(xb, i);
+> +}
+> +EXPORT_SYMBOL(xb_zero);
 
-> -----Original Message-----
-> From: Auger Eric [mailto:eric.auger@redhat.com]
-> Sent: Tuesday, September 12, 2017 10:43 PM
-> To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>;
-> iommu@lists.linux-foundation.org; kvm@vger.kernel.org;
-> virtualization@lists.linux-foundation.org; virtio-dev@lists.oasis-open.org
-> Cc: will.deacon@arm.com; robin.murphy@arm.com;
-> lorenzo.pieralisi@arm.com; mst@redhat.com; jasowang@redhat.com;
-> marc.zyngier@arm.com; eric.auger.pro@gmail.com; Bharat Bhushan
-> <bharat.bhushan@nxp.com>; peterx@redhat.com; kevin.tian@intel.com
-> Subject: Re: [RFC] virtio-iommu version 0.4
-> 
-> Hi jean,
-> 
-> On 04/08/2017 20:19, Jean-Philippe Brucker wrote:
-> > This is the continuation of my proposal for virtio-iommu, the para-
-> > virtualized IOMMU. Here is a summary of the changes since last time [1]:
-> >
-> > * The virtio-iommu document now resembles an actual specification. It is
-> >   split into a formal description of the virtio device, and implementation
-> >   notes. Please find sources and binaries at [2].
-> >
-> > * Added a probe request to describe to the guest different properties that
-> >   do not fit in firmware or in the virtio config space. This is a
-> >   necessary stepping stone for extending the virtio-iommu.
-> >
-> > * There is a working Qemu prototype [3], thanks to Eric Auger and Bharat
-> >   Bhushan.
-> >
-> > You can find the Linux driver and kvmtool device at [4] and [5]. I
-> > plan to rework driver and kvmtool device slightly before sending the
-> > patches.
-> >
-> > To understand the virtio-iommu, I advise to first read introduction
-> > and motivation, then skim through implementation notes and finally
-> > look at the device specification.
-> >
-> > I wasn't sure how to organize the review. For those who prefer to
-> > comment inline, I attached v0.4 of device-operations.tex and
-> > topology.tex+MSI.tex to this thread. They are the biggest chunks of
-> > the document. But LaTeX isn't very pleasant to read, so you can simply
-> > send a list of comments in relation to section numbers and a few words of
-> context, we'll manage.
-> >
-> > ---
-> > Version numbers 0.1-0.4 are arbitrary. I'm hoping they allow to
-> > compare more easily differences since the RFC (see [6]), but haven't
-> > been made public so far. This is the first public posting since
-> > initial proposal [1], and the following describes all changes.
-> >
-> > ## v0.1 ##
-> >
-> > Content is the same as the RFC, but formatted to LaTeX. 'make'
-> > generates one PDF and one HTML document.
-> >
-> > ## v0.2 ##
-> >
-> > Add introductions, improve topology example and firmware description
-> > based on feedback and a number of useful discussions.
-> >
-> > ## v0.3 ##
-> >
-> > Add normative sections (MUST, SHOULD, etc). Clarify some things,
-> > tighten the device and driver behaviour. Unmap semantics are
-> > consolidated; they are now closer to VFIO Type1 v2 semantics.
-> >
-> > ## v0.4 ##
-> >
-> > Introduce PROBE requests. They provide per-endpoint information to the
-> > driver that couldn't be described otherwise.
-> >
-> > For the moment, they allow to handle MSIs on x86 virtual platforms
-> > (see 3.2). To do that we communicate reserved IOVA regions, that will
-> > also be useful for describing regions that cannot be mapped for a
-> > given endpoint, for instance addresses that correspond to a PCI bridge
-> window.
-> >
-> > Introducing such a large framework for this tiny feature may seem
-> > overkill, but it is needed for future extensions of the virtio-iommu
-> > and I believe it really is worth the effort.
-> 
-> 2.6.7
-> - As I am currently integrating v0.4 in QEMU here are some other comments:
-> At the moment struct virtio_iommu_req_probe flags is missing in your
-> header. As such I understood the ACK protocol was not implemented by the
-> driver in your branch.
-> - VIRTIO_IOMMU_PROBE_PROPERTY_TYPE_MASK is
-> VIRTIO_IOMMU_T_MASK in your header too.
-> 2.6.8.2:
-> - I am really confused about what the device should report as resv regions
-> depending on the PE nature (VFIO or not VFIO)
-> 
-> In other iommu drivers, the resv regions are populated by the iommu driver
-> through its get_resv_regions callback. They are usually composed of an
-> iommu specific MSI region (mapped or bypassed) and non IOMMU specific
-> (device specific) reserved regions:
-> iommu_dma_get_resv_regions(). In the case of virtio-iommu driver, those
-> are the guest reserved regions.
-> 
-> First in the current virtio-iommu driver I don't see the
-> iommu_dma_get_resv_regions call. Do you agree that the virtio-iommu
-> driver should compute the non IOMMU specific MSI regions. ie. this is not
-> the responsability of the virtio-iommu device.
-> 
-> Then why is it more the job of the device to return the guest iommu specific
-> region rather than the driver itself?
-> 
-> Then I understand this is the responsability of the virtio-iommu device to
-> gather information about the host resv regions in case of VFIO EP.
-> Typically the host PCIe host bridge windows cannot be used for IOVA.
-> Also the host MSI reserved IOVA window cannot be used. Do you agree.
-> 
-> I really think the spec should clarify what exact resv regions the device should
-> return in case of VFIO device and non VFIO device.
+Um.  This is not exactly going to be quick if you're clearing a range of bits.
+I think it needs to be more along the lines of this:
 
-My understanding is that reserved regions are 1) Host reserved regions ( This is applicable for VFIO) 2) Guest MSI reserved region (This is applicable for emulated devices as well)
-Does this make sense to have reserved regions per address-space/domain?
+void xb_clear(struct xb *xb, unsigned long start, unsigned long end) 
+{ 
+        struct radix_tree_root *root = &xb->xbrt; 
+        struct radix_tree_node *node; 
+        void **slot; 
+        struct ida_bitmap *bitmap; 
+ 
+        for (; end < start; start = (start | (IDA_BITMAP_BITS - 1)) + 1) { 
+                unsigned long index = start / IDA_BITMAP_BITS; 
+                unsigned long bit = start % IDA_BITMAP_BITS; 
 
-Thanks
--Bharat
+                bitmap = __radix_tree_lookup(root, index, &node, &slot);
+                if (radix_tree_exception(bitmap)) {
+                        unsigned long ebit = bit + 2;
+                        unsigned long tmp = (unsigned long)bitmap;
+                        if (ebit >= BITS_PER_LONG)
+                                continue;
+                        tmp &= ... something ...;
+                        if (tmp == RADIX_TREE_EXCEPTIONAL_ENTRY)
+                                __radix_tree_delete(root, node, slot);
+                        else
+                                rcu_assign_pointer(*slot, (void *)tmp);
+                } else if (bitmap) {
+                        unsigned int nbits = end - start + 1;
+                        if (nbits + bit > IDA_BITMAP_BITS)
+                                nbits = IDA_BITMAP_BITS - bit;
+                        bitmap_clear(bitmap->bitmap, bit, nbits);
+                        if (bitmap_empty(bitmap->bitmap, IDA_BITMAP_BITS)) {
+                                kfree(bitmap);
+                                __radix_tree_delete(root, node, slot);
+                        }
+                }
+        }
+}
 
-> 
-> Thanks
-> 
-> Eric
-> 
-> >
-> > ## Future ##
-> >
-> > Other extensions are in preparation. I won't detail them here because
-> > v0.4 already is a lot to digest, but in short, building on top of PROBE:
-> >
-> > * First, since the IOMMU is paravirtualized, the device can expose some
-> >   properties of the physical topology to the guest, and let it allocate
-> >   resources more efficiently. For example, when the virtio-iommu manages
-> >   both physical and emulated endpoints, with different underlying
-> IOMMUs,
-> >   we now have a way to describe multiple page and block granularities,
-> >   instead of forcing the guest to use the most restricted one for all
-> >   endpoints. This will most likely be in v0.5.
-> >
-> > * Then on top of that, a major improvement will describe hardware
-> >   acceleration features available to the guest. There is what I call "Page
-> >   Table Handover" (or simply, from the host POV, "Nested"), the ability
-> >   for the guest to manipulate its own page tables instead of sending
-> >   MAP/UNMAP requests to the host. This, along with IO Page Fault
-> >   reporting, will also permit SVM virtualization on different platforms.
-> >
-> > Thanks,
-> > Jean
-> >
-> > [1] http://www.spinics.net/lists/kvm/msg147990.html
-> > [2] git://linux-arm.org/virtio-iommu.git branch viommu/v0.4
-> >     http://www.linux-arm.org/git?p=virtio-
-> iommu.git;a=blob;f=dist/v0.4/virtio-iommu-v0.4.pdf
-> >     I reiterate the disclaimers: don't use this document as a reference,
-> >     it's a draft. It's also not an OASIS document yet. It may be riddled
-> >     with mistakes. As this is a working draft, it is unstable and I do not
-> >     guarantee backward compatibility of future versions.
-> > [3] https://lists.gnu.org/archive/html/qemu-arm/2017-08/msg00004.html
-> > [4] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.4
-> >     Warning: UAPI headers have changed! They didn't follow the spec,
-> >     please update. (Use branch v0.1, that has the old headers, for the
-> >     Qemu prototype [3])
-> > [5] git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.4
-> >     Warning: command-line has changed! Use --viommu vfio[,opts] and
-> >     --viommu virtio[,opts] to instantiate a device.
-> > [6]
-> > http://www.linux-arm.org/git?p=virtio-iommu.git;a=tree;f=dist/diffs
-> >
+Also note that this should be called xb_clear(), not xb_zero() to fit
+in with bitmap_clear().  And this needs a thorough test suite testing
+all values for 'start' and 'end' between 0 and at least 1024; probably
+much higher.  And a variable number of bits need to be set before calling
+xb_clear() in the test suite.
+
+Also, this implementation above is missing a few tricks.  For example,
+if 'bit' is 0 and 'nbits' == IDA_BITMAP_BITS, we can simply call kfree
+without first zeroing out the bits and then checking if the whole thing
+is zero.
+
+Another missing optimisation above is that we always restart the radix
+tree walk from the top instead of simply moving on to the next bitmap.
+This is still a thousand times faster than the implementation you posted,
+but I'd be keen to add that optimisation too.
+
+> +/**
+> + * xb_find_next_bit - find next 1 or 0 in the give range of bits
+> + * @xb: the xbitmap that the bits reside in
+> + * @start: the start of the range, inclusive
+> + * @end: the end of the range, inclusive
+> + * @set: the polarity (1 or 0) of the next bit to find
+> + *
+> + * Return the index of the found bit in the xbitmap. If the returned index
+> + * exceeds @end, it indicates that no such bit is found in the given range.
+> + */
+> +unsigned long xb_find_next_bit(struct xb *xb, unsigned long start,
+> +			       unsigned long end, bool set)
+> +{
+> +	unsigned long i;
+> +
+> +	for (i = start; i <= end; i++) {
+> +		if (xb_test_bit(xb, i) == set)
+> +			break;
+> +	}
+> +
+> +	return i;
+> +}
+> +EXPORT_SYMBOL(xb_find_next_bit);
+
+Similar comments ... this is going to be very slow.  You can use the
+tags in the tree to help you find set and clear bits so performance
+doesn't fall apart in big trees.
+
+I'd like to see this be two functions, xb_find_next_zero_bit() and
+xb_find_next_set_bit().
