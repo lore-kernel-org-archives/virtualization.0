@@ -1,15 +1,11 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v15 1/5] lib/xbitmap: Introduce xbitmap
-Date: Mon, 11 Sep 2017 05:54:56 -0700
-Message-ID: <20170911125455.GA32538__43883.975785184$1505134535$gmane$org@bombadil.infradead.org>
-References: <1503914913-28893-1-git-send-email-wei.w.wang@intel.com>
-	<1503914913-28893-2-git-send-email-wei.w.wang@intel.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] drm: qxl: ratelimit pr_info message, reduce log spamming
+Date: Tue, 12 Sep 2017 10:45:48 +0100
+Message-ID: <20170912094548.30603-1-colin.king__11754.474140662$1505209563$gmane$org@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1503914913-28893-2-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,181 +15,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
+To: Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 28, 2017 at 06:08:29PM +0800, Wei Wang wrote:
-> From: Matthew Wilcox <mawilcox@microsoft.com>
-> 
-> The eXtensible Bitmap is a sparse bitmap representation which is
-> efficient for set bits which tend to cluster.  It supports up to
-> 'unsigned long' worth of bits, and this commit adds the bare bones --
-> xb_set_bit(), xb_clear_bit() and xb_test_bit().
-> 
-> Signed-off-by: Matthew Wilcox <mawilcox@microsoft.com>
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Michal Hocko <mhocko@kernel.org>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-This is quite naughty of you.  You've modified the xbitmap implementation
-without any indication in the changelog that you did so.  I don't
-think the modifications you made are an improvement, but without any
-argumentation from you I don't know why you think they're an improvement.
+Simply mmap'ing /dev/dri/card0 repeatedly will spam the kernel
+log with qxl_mmap information messages. The following example code
+illustrates this:
 
-> diff --git a/lib/radix-tree.c b/lib/radix-tree.c
-> index 898e879..ee72e2c 100644
-> --- a/lib/radix-tree.c
-> +++ b/lib/radix-tree.c
-> @@ -496,6 +496,7 @@ static int __radix_tree_preload(gfp_t gfp_mask, unsigned nr)
->  out:
->  	return ret;
->  }
-> +EXPORT_SYMBOL(__radix_tree_preload);
->  
->  /*
->   * Load up this CPU's radix_tree_node buffer with sufficient objects to
+int main(void)
+{
+	int fd = open("/dev/dri/card0", O_RDONLY);
+	if (fd == -1)
+		err(1, "open failed");
 
-You exported this to modules for some reason.  Why?
+	for (;;) {
+		void *m = mmap(NULL, 4096, PROT_READ,
+			MAP_SHARED, fd, 0);
+		if (m != MAP_FAILED)
+			munmap(m, 4096);
+	}
+}
 
-> @@ -2003,6 +2018,7 @@ static bool __radix_tree_delete(struct radix_tree_root *root,
->  	replace_slot(slot, NULL, node, -1, exceptional);
->  	return node && delete_node(root, node, NULL, NULL);
->  }
-> +EXPORT_SYMBOL(__radix_tree_delete);
->  
->  /**
->   * radix_tree_iter_delete - delete the entry at this iterator position
+Reduce the spamming by ratelimiting the pr_info messages.
 
-Ditto?
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/gpu/drm/qxl/qxl_ttm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> diff --git a/lib/xbitmap.c b/lib/xbitmap.c
-> new file mode 100644
-> index 0000000..8c55296
-> --- /dev/null
-> +++ b/lib/xbitmap.c
-> @@ -0,0 +1,176 @@
-> +#include <linux/slab.h>
-> +#include <linux/xbitmap.h>
-> +
-> +/*
-> + * The xbitmap implementation supports up to ULONG_MAX bits, and it is
-> + * implemented based on ida bitmaps. So, given an unsigned long index,
-> + * the high order XB_INDEX_BITS bits of the index is used to find the
-> + * corresponding item (i.e. ida bitmap) from the radix tree, and the low
-> + * order (i.e. ilog2(IDA_BITMAP_BITS)) bits of the index are indexed into
-> + * the ida bitmap to find the bit.
-> + */
-> +#define XB_INDEX_BITS		(BITS_PER_LONG - ilog2(IDA_BITMAP_BITS))
-> +#define XB_MAX_PATH		(DIV_ROUND_UP(XB_INDEX_BITS, \
-> +					      RADIX_TREE_MAP_SHIFT))
-> +#define XB_PRELOAD_SIZE		(XB_MAX_PATH * 2 - 1)
-
-I don't understand why you moved the xb_preload code here from the
-radix tree.  I want all the code which touches the preload implementation
-together in one place, which is the radix tree.
-
-> +enum xb_ops {
-> +	XB_SET,
-> +	XB_CLEAR,
-> +	XB_TEST
-> +};
-> +
-> +static int xb_bit_ops(struct xb *xb, unsigned long bit, enum xb_ops ops)
-> +{
-> +	int ret = 0;
-> +	unsigned long index = bit / IDA_BITMAP_BITS;
-> +	struct radix_tree_root *root = &xb->xbrt;
-> +	struct radix_tree_node *node;
-> +	void **slot;
-> +	struct ida_bitmap *bitmap;
-> +	unsigned long ebit, tmp;
-> +
-> +	bit %= IDA_BITMAP_BITS;
-> +	ebit = bit + RADIX_TREE_EXCEPTIONAL_SHIFT;
-> +
-> +	switch (ops) {
-> +	case XB_SET:
-> +		ret = __radix_tree_create(root, index, 0, &node, &slot);
-> +		if (ret)
-> +			return ret;
-> +		bitmap = rcu_dereference_raw(*slot);
-> +		if (radix_tree_exception(bitmap)) {
-> +			tmp = (unsigned long)bitmap;
-> +			if (ebit < BITS_PER_LONG) {
-> +				tmp |= 1UL << ebit;
-> +				rcu_assign_pointer(*slot, (void *)tmp);
-> +				return 0;
-> +			}
-> +			bitmap = this_cpu_xchg(ida_bitmap, NULL);
-> +			if (!bitmap)
-> +				return -EAGAIN;
-> +			memset(bitmap, 0, sizeof(*bitmap));
-> +			bitmap->bitmap[0] =
-> +					tmp >> RADIX_TREE_EXCEPTIONAL_SHIFT;
-> +			rcu_assign_pointer(*slot, bitmap);
-> +		}
-> +		if (!bitmap) {
-> +			if (ebit < BITS_PER_LONG) {
-> +				bitmap = (void *)((1UL << ebit) |
-> +					RADIX_TREE_EXCEPTIONAL_ENTRY);
-> +				__radix_tree_replace(root, node, slot, bitmap,
-> +						     NULL, NULL);
-> +				return 0;
-> +			}
-> +			bitmap = this_cpu_xchg(ida_bitmap, NULL);
-> +			if (!bitmap)
-> +				return -EAGAIN;
-> +			memset(bitmap, 0, sizeof(*bitmap));
-> +			__radix_tree_replace(root, node, slot, bitmap, NULL,
-> +					     NULL);
-> +		}
-> +		__set_bit(bit, bitmap->bitmap);
-> +		break;
-> +	case XB_CLEAR:
-> +		bitmap = __radix_tree_lookup(root, index, &node, &slot);
-> +		if (radix_tree_exception(bitmap)) {
-> +			tmp = (unsigned long)bitmap;
-> +			if (ebit >= BITS_PER_LONG)
-> +				return 0;
-> +			tmp &= ~(1UL << ebit);
-> +			if (tmp == RADIX_TREE_EXCEPTIONAL_ENTRY)
-> +				__radix_tree_delete(root, node, slot);
-> +			else
-> +				rcu_assign_pointer(*slot, (void *)tmp);
-> +			return 0;
-> +		}
-> +		if (!bitmap)
-> +			return 0;
-> +		__clear_bit(bit, bitmap->bitmap);
-> +		if (bitmap_empty(bitmap->bitmap, IDA_BITMAP_BITS)) {
-> +			kfree(bitmap);
-> +			__radix_tree_delete(root, node, slot);
-> +		}
-> +		break;
-> +	case XB_TEST:
-> +		bitmap = radix_tree_lookup(root, index);
-> +		if (!bitmap)
-> +			return 0;
-> +		if (radix_tree_exception(bitmap)) {
-> +			if (ebit > BITS_PER_LONG)
-> +				return 0;
-> +			return (unsigned long)bitmap & (1UL << bit);
-> +		}
-> +		ret = test_bit(bit, bitmap->bitmap);
-> +		break;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +	return ret;
-> +}
-
-This is what I have the biggest problem with.  You've spliced
-three functions together into a single 86-line function.  All that
-they share is the first 11 lines of setup!  Go back and read
-Documentation/process/coding-style.rst section 6 again.
-
-
-And you've just deleted the test suite.  Test suites are incredibly
-important!  They keep us from regressing.
+diff --git a/drivers/gpu/drm/qxl/qxl_ttm.c b/drivers/gpu/drm/qxl/qxl_ttm.c
+index 7ecf8a4b9fe6..6502e699f462 100644
+--- a/drivers/gpu/drm/qxl/qxl_ttm.c
++++ b/drivers/gpu/drm/qxl/qxl_ttm.c
+@@ -124,7 +124,7 @@ int qxl_mmap(struct file *filp, struct vm_area_struct *vma)
+ 	int r;
+ 
+ 	if (unlikely(vma->vm_pgoff < DRM_FILE_PAGE_OFFSET)) {
+-		pr_info("%s: vma->vm_pgoff (%ld) < DRM_FILE_PAGE_OFFSET\n",
++		pr_info_ratelimited("%s: vma->vm_pgoff (%ld) < DRM_FILE_PAGE_OFFSET\n",
+ 			__func__, vma->vm_pgoff);
+ 		return -EINVAL;
+ 	}
+-- 
+2.14.1
