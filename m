@@ -1,15 +1,13 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v15 1/5] lib/xbitmap: Introduce xbitmap
-Date: Tue, 12 Sep 2017 21:23:57 +0800
-Message-ID: <59B7DFED.6060502__29896.2625129663$1505222489$gmane$org@intel.com>
-References: <1503914913-28893-1-git-send-email-wei.w.wang@intel.com>
-	<1503914913-28893-2-git-send-email-wei.w.wang@intel.com>
-	<20170911125455.GA32538@bombadil.infradead.org>
+From: Emil Velikov <emil.l.velikov@gmail.com>
+Subject: Re: [PATCH] drm: qxl: ratelimit pr_info message, reduce log spamming
+Date: Tue, 12 Sep 2017 15:02:04 +0100
+Message-ID: <CACvgo53vbGbvejkEnQuuB-ZuVfbzvSmAsx3Ovj-wMWMQE8ihXw__15078.4283680425$1505224976$gmane$org@mail.gmail.com>
+References: <20170912094548.30603-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170911125455.GA32538@bombadil.infradead.org>
+In-Reply-To: <20170912094548.30603-1-colin.king@canonical.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,76 +17,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <willy@infradead.org>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
+To: Colin King <colin.king@canonical.com>
+Cc: David Airlie <airlied@linux.ie>, kernel-janitors@vger.kernel.org, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/11/2017 08:54 PM, Matthew Wilcox wrote:
-> On Mon, Aug 28, 2017 at 06:08:29PM +0800, Wei Wang wrote:
->> From: Matthew Wilcox <mawilcox@microsoft.com>
->>
->> The eXtensible Bitmap is a sparse bitmap representation which is
->> efficient for set bits which tend to cluster.  It supports up to
->> 'unsigned long' worth of bits, and this commit adds the bare bones --
->> xb_set_bit(), xb_clear_bit() and xb_test_bit().
->>
->> Signed-off-by: Matthew Wilcox <mawilcox@microsoft.com>
->> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
->> Cc: Andrew Morton <akpm@linux-foundation.org>
->> Cc: Michal Hocko <mhocko@kernel.org>
->> Cc: Michael S. Tsirkin <mst@redhat.com>
-> This is quite naughty of you.  You've modified the xbitmap implementation
-> without any indication in the changelog that you did so.
+Hi Colin,
 
-This was changed in the previous version and included in that
-v13->v14 ChangeLog: https://lkml.org/lkml/2017/8/16/923
+On 12 September 2017 at 10:45, Colin King <colin.king@canonical.com> wrote:
+> From: Colin Ian King <colin.king@canonical.com>
+>
+> Simply mmap'ing /dev/dri/card0 repeatedly will spam the kernel
+> log with qxl_mmap information messages. The following example code
+> illustrates this:
+>
+> int main(void)
+> {
+>         int fd = open("/dev/dri/card0", O_RDONLY);
+>         if (fd == -1)
+>                 err(1, "open failed");
+>
+>         for (;;) {
+>                 void *m = mmap(NULL, 4096, PROT_READ,
+>                         MAP_SHARED, fd, 0);
+>                 if (m != MAP_FAILED)
+>                         munmap(m, 4096);
+>         }
+> }
+>
+> Reduce the spamming by ratelimiting the pr_info messages.
+>
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> ---
+>  drivers/gpu/drm/qxl/qxl_ttm.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpu/drm/qxl/qxl_ttm.c b/drivers/gpu/drm/qxl/qxl_ttm.c
+> index 7ecf8a4b9fe6..6502e699f462 100644
+> --- a/drivers/gpu/drm/qxl/qxl_ttm.c
+> +++ b/drivers/gpu/drm/qxl/qxl_ttm.c
+> @@ -124,7 +124,7 @@ int qxl_mmap(struct file *filp, struct vm_area_struct *vma)
+>         int r;
+>
+>         if (unlikely(vma->vm_pgoff < DRM_FILE_PAGE_OFFSET)) {
+> -               pr_info("%s: vma->vm_pgoff (%ld) < DRM_FILE_PAGE_OFFSET\n",
+> +               pr_info_ratelimited("%s: vma->vm_pgoff (%ld) < DRM_FILE_PAGE_OFFSET\n",
+Quick grep suggests that only qxl and vmwgfx produce any output in
+this case, likely for the reasons you mentioned.
 
+That said, I'm not sure how useful the information is - perhaps it's
+better to drop it all together? Regardless of the route taken, vmwgfx
+could use a similar fix.
 
-> I don't
-> think the modifications you made are an improvement, but without any
-> argumentation from you I don't know why you think they're an improvement.
-
-Probably it shouldn't be modified when the discussion is incomplete:
-https://lkml.org/lkml/2017/8/10/36
-Sorry about that. Hope we could get more feedback from you on the
-changes later.
-
-If you want, we can continue this part from the the v13 patch, which might
-be closer to the implementation that you like: 
-https://lkml.org/lkml/2017/8/3/60
-
->> diff --git a/lib/xbitmap.c b/lib/xbitmap.c
->> new file mode 100644
->> index 0000000..8c55296
->> --- /dev/null
->> +++ b/lib/xbitmap.c
->> @@ -0,0 +1,176 @@
->> +#include <linux/slab.h>
->> +#include <linux/xbitmap.h>
->> +
->> +/*
->> + * The xbitmap implementation supports up to ULONG_MAX bits, and it is
->> + * implemented based on ida bitmaps. So, given an unsigned long index,
->> + * the high order XB_INDEX_BITS bits of the index is used to find the
->> + * corresponding item (i.e. ida bitmap) from the radix tree, and the low
->> + * order (i.e. ilog2(IDA_BITMAP_BITS)) bits of the index are indexed into
->> + * the ida bitmap to find the bit.
->> + */
->> +#define XB_INDEX_BITS		(BITS_PER_LONG - ilog2(IDA_BITMAP_BITS))
->> +#define XB_MAX_PATH		(DIV_ROUND_UP(XB_INDEX_BITS, \
->> +					      RADIX_TREE_MAP_SHIFT))
->> +#define XB_PRELOAD_SIZE		(XB_MAX_PATH * 2 - 1)
-> I don't understand why you moved the xb_preload code here from the
-> radix tree.  I want all the code which touches the preload implementation
-> together in one place, which is the radix tree.
-
-Based on the previous comments (put all the code to lib/xbitmap.c) and your
-comment here, I will move xb_preload() and the above Macro to radix-tree.c,
-while leaving the rest in xbitmap.c.
-
-Would this be something you expected? Or would you like to move all back
-to radix-tree.c like that in v13?
-
-
-Best,
-Wei
+HTH
+Emil
