@@ -1,15 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm: qxl: ratelimit pr_info message, reduce log spamming
-Date: Tue, 12 Sep 2017 16:21:57 +0200
-Message-ID: <1505226117.31639.24.camel@redhat.com>
-References: <20170912094548.30603-1-colin.king@canonical.com>
-	<CACvgo53vbGbvejkEnQuuB-ZuVfbzvSmAsx3Ovj-wMWMQE8ihXw@mail.gmail.com>
-	<20170912140921.maegwq32x5a6jyql@mwanda>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [virtio-dev] Re: packed ring layout proposal v3
+Date: Tue, 12 Sep 2017 12:23:56 -0400
+Message-ID: <CAF=yD-+LtZO=Fcw6Y-v0dnxkmwqW1+CqzopyQEApOjOAszgqMg__11336.504869587$1505233514$gmane$org@mail.gmail.com>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+	<0f0e1b94-2a46-689c-dbb3-0d578cc8df33@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170912140921.maegwq32x5a6jyql@mwanda>
+In-Reply-To: <0f0e1b94-2a46-689c-dbb3-0d578cc8df33@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +18,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Carpenter <dan.carpenter@oracle.com>, Emil Velikov <emil.l.velikov@gmail.com>
-Cc: David Airlie <airlied@linux.ie>, kernel-janitors@vger.kernel.org, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, Colin King <colin.king@canonical.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2017-09-12 at 17:09 +0300, Dan Carpenter wrote:
-> On Tue, Sep 12, 2017 at 03:02:04PM +0100, Emil Velikov wrote:
-> > That said, I'm not sure how useful the information is - perhaps
-> > it's
-> > better to drop it all together?
-> 
-> Or a WARN_ONCE().
-
-It's userspace calling into the driver with invalid parameters.
-
-IMO we should never WARN_ONCE() on something userspace can trigger.
-
-I'd suggest to just drop the message altogether, simply throwing EINVAL
-at userspace is perfectly fine IMHO.
-
-cheers,
-  Gerd
+T24gTW9uLCBTZXAgMTEsIDIwMTcgYXQgMzo0NyBBTSwgSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
+aGF0LmNvbT4gd3JvdGU6Cj4KPgo+IE9uIDIwMTflubQwOeaciDEw5pelIDEzOjA2LCBNaWNoYWVs
+IFMuIFRzaXJraW4gd3JvdGU6Cj4+Cj4+IFRoaXMgaXMgYW4gdXBkYXRlIGZyb20gdjIgdmVyc2lv
+bi4KPj4gQ2hhbmdlczoKPj4gLSB1cGRhdGUgZXZlbnQgc3VwcHJlc3Npb24gbWVjaGFuaXNtCj4+
+IC0gYWRkIHdyYXAgY291bnRlcjogREVTQ19XUkFQIGZsYWcgaW4gYWRkaXRpb24gdG8KPj4gICAg
+REVTQ19EUklWRVIgZmxhZyB1c2VkIGZvciB2YWxpZGl0eSBzbyBkZXZpY2UgZG9lcyBub3QgaGF2
+ZSB0bwo+PiAgICB3cml0ZSBvdXQgYWxsIHVzZWQgZGVzY3JpcHRvcnMuCj4KPgo+IERvIHdlIGhh
+dmUgYmVuY2htYXJrIHJlc3VsdCB0byBzaG93IHRoZSBhZHZhbnRhZ2Ugb2YgREVTQ19EUklWRVIg
+b3ZlciBlLmcKPiBhdmFpbC91c2VkIGluZGV4PwoKVGhlIEtWTSBmb3J1bSBwcmVzZW50YXRpb24g
+aGFzIHNvbWUgbnVtYmVycy4KCkknbSBub3Qgc3VyZSB0aGF0IHN5bnRoZXRpYyBiZW5jaG1hcmtz
+IHdpbGwgcHJvdmlkZSBtdWNoIHZhbHVlLCBhcyB3ZQp1bmRlcnN0YW5kIHRoZSB0cmFkZS1vZmYg
+cXVpdGUgd2VsbC4KClRoZSBiZW5lZml0IG9mIHRoaXMgbW9kZWwgaXMgaW1wcm92ZWQgYmVzdCBj
+YXNlIHBlcmZvcm1hbmNlLCBieSBoYXZpbmcKYSBzaW5nbGUgY2FjaGVsaW5lIHJlYWQgaW5zdGVh
+ZCBvZiB0d28gZm9yIHRoZSBpbmRpcmVjdCB1c2VkL2F2YWlsIHJpbmcgbW9kZWwuCgpUaGUgZHJh
+d2JhY2sgaXMgd29yc2Ugd29yc3QgY2FzZSwgYXMgc2Nhbm5pbmcgdGhlIHJpbmcgb2YgZGVzY3Jp
+cHRvcnMKaW50cm9kdWNlcyBtb3JlIGNhY2hlbGluZSBtaXNzZXMgdGhhbiBzY2FubmluZyB0aGUg
+Y29tcHJlc3NlZAp1c2VkL2F2YWlsIHJpbmcuCgpUaGlzIG1vZGVsIGlzIGVhc2llciB0byBpbXBs
+ZW1lbnQgaW4gaGFyZHdhcmUgYW5kIHRoZSBjb21tb24gY2FzZSBpcwpsaWtlbHkgY2xvc2UgdG8g
+dGhlIGJlc3QgY2FzZSwgc28gSSB0aGluayBpdCBtYWtlcyBzZW5zZS4KX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
