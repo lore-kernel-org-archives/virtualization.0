@@ -1,13 +1,15 @@
-From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [RFC] virtio-iommu version 0.4
-Date: Tue, 12 Sep 2017 19:13:07 +0200
-Message-ID: <072f5a14-baae-57a9-9c5b-b93163c67075__3828.53339328921$1509079362$gmane$org@redhat.com>
-References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
+From: =?UTF-8?B?VG9tw6HFoSBHb2xlbWJpb3Zza8O9?= <tgolembi@redhat.com>
+Subject: Re: [Qemu-devel] [RFC] Buffers/caches in VirtIO Balloon driver stats
+Date: Tue, 12 Sep 2017 21:23:35 +0200
+Message-ID: <20170912212335.34f42ec7__35599.8978288428$1509079369$gmane$org@fiorina>
+References: <20170827233033.7afa49b9@fiorina>
+	<20170829095726.GL25960@stefanha-x1.localdomain>
+	<59A557B1.7080704@intel.com> <20170912162947.130c2df2@fiorina>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
+In-Reply-To: <20170912162947.130c2df2@fiorina>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,153 +19,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
-Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, will.deacon@arm.com, robin.murphy@arm.com, eric.auger.pro@gmail.com
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi jean,
-
-On 04/08/2017 20:19, Jean-Philippe Brucker wrote:
-> This is the continuation of my proposal for virtio-iommu, the para-
-> virtualized IOMMU. Here is a summary of the changes since last time [1]:
-> 
-> * The virtio-iommu document now resembles an actual specification. It is
->   split into a formal description of the virtio device, and implementation
->   notes. Please find sources and binaries at [2].
-> 
-> * Added a probe request to describe to the guest different properties that
->   do not fit in firmware or in the virtio config space. This is a
->   necessary stepping stone for extending the virtio-iommu.
-> 
-> * There is a working Qemu prototype [3], thanks to Eric Auger and Bharat
->   Bhushan.
-> 
-> You can find the Linux driver and kvmtool device at [4] and [5]. I
-> plan to rework driver and kvmtool device slightly before sending the
-> patches.
-> 
-> To understand the virtio-iommu, I advise to first read introduction and
-> motivation, then skim through implementation notes and finally look at the
-> device specification.
-> 
-> I wasn't sure how to organize the review. For those who prefer to comment
-> inline, I attached v0.4 of device-operations.tex and topology.tex+MSI.tex
-> to this thread. They are the biggest chunks of the document. But LaTeX
-> isn't very pleasant to read, so you can simply send a list of comments in
-> relation to section numbers and a few words of context, we'll manage.
-> 
-> ---
-> Version numbers 0.1-0.4 are arbitrary. I'm hoping they allow to compare
-> more easily differences since the RFC (see [6]), but haven't been made
-> public so far. This is the first public posting since initial proposal
-> [1], and the following describes all changes.
-> 
-> ## v0.1 ##
-> 
-> Content is the same as the RFC, but formatted to LaTeX. 'make' generates
-> one PDF and one HTML document.
-> 
-> ## v0.2 ##
-> 
-> Add introductions, improve topology example and firmware description based
-> on feedback and a number of useful discussions.
-> 
-> ## v0.3 ##
-> 
-> Add normative sections (MUST, SHOULD, etc). Clarify some things, tighten
-> the device and driver behaviour. Unmap semantics are consolidated; they
-> are now closer to VFIO Type1 v2 semantics.
-> 
-> ## v0.4 ##
-> 
-> Introduce PROBE requests. They provide per-endpoint information to the
-> driver that couldn't be described otherwise.
-> 
-> For the moment, they allow to handle MSIs on x86 virtual platforms (see
-> 3.2). To do that we communicate reserved IOVA regions, that will also be
-> useful for describing regions that cannot be mapped for a given endpoint,
-> for instance addresses that correspond to a PCI bridge window.
-> 
-> Introducing such a large framework for this tiny feature may seem
-> overkill, but it is needed for future extensions of the virtio-iommu and I
-> believe it really is worth the effort.
-
-2.6.7
-- As I am currently integrating v0.4 in QEMU here are some other comments:
-At the moment struct virtio_iommu_req_probe flags is missing in your
-header. As such I understood the ACK protocol was not implemented by the
-driver in your branch.
-- VIRTIO_IOMMU_PROBE_PROPERTY_TYPE_MASK is VIRTIO_IOMMU_T_MASK in your
-header too.
-2.6.8.2:
-- I am really confused about what the device should report as resv
-regions depending on the PE nature (VFIO or not VFIO)
-
-In other iommu drivers, the resv regions are populated by the iommu
-driver through its get_resv_regions callback. They are usually composed
-of an iommu specific MSI region (mapped or bypassed) and non IOMMU
-specific (device specific) reserved regions:
-iommu_dma_get_resv_regions(). In the case of virtio-iommu driver, those
-are the guest reserved regions.
-
-First in the current virtio-iommu driver I don't see the
-iommu_dma_get_resv_regions call. Do you agree that the virtio-iommu
-driver should compute the non IOMMU specific MSI regions. ie. this is
-not the responsability of the virtio-iommu device.
-
-Then why is it more the job of the device to return the guest iommu
-specific region rather than the driver itself?
-
-Then I understand this is the responsability of the virtio-iommu device
-to gather information about the host resv regions in case of VFIO EP.
-Typically the host PCIe host bridge windows cannot be used for IOVA.
-Also the host MSI reserved IOVA window cannot be used. Do you agree.
-
-I really think the spec should clarify what exact resv regions the
-device should return in case of VFIO device and non VFIO device.
-
-Thanks
-
-Eric
-
-> 
-> ## Future ##
-> 
-> Other extensions are in preparation. I won't detail them here because v0.4
-> already is a lot to digest, but in short, building on top of PROBE:
-> 
-> * First, since the IOMMU is paravirtualized, the device can expose some
->   properties of the physical topology to the guest, and let it allocate
->   resources more efficiently. For example, when the virtio-iommu manages
->   both physical and emulated endpoints, with different underlying IOMMUs,
->   we now have a way to describe multiple page and block granularities,
->   instead of forcing the guest to use the most restricted one for all
->   endpoints. This will most likely be in v0.5.
-> 
-> * Then on top of that, a major improvement will describe hardware
->   acceleration features available to the guest. There is what I call "Page
->   Table Handover" (or simply, from the host POV, "Nested"), the ability
->   for the guest to manipulate its own page tables instead of sending
->   MAP/UNMAP requests to the host. This, along with IO Page Fault
->   reporting, will also permit SVM virtualization on different platforms.
-> 
-> Thanks,
-> Jean
-> 
-> [1] http://www.spinics.net/lists/kvm/msg147990.html
-> [2] git://linux-arm.org/virtio-iommu.git branch viommu/v0.4
->     http://www.linux-arm.org/git?p=virtio-iommu.git;a=blob;f=dist/v0.4/virtio-iommu-v0.4.pdf
->     I reiterate the disclaimers: don't use this document as a reference,
->     it's a draft. It's also not an OASIS document yet. It may be riddled
->     with mistakes. As this is a working draft, it is unstable and I do not
->     guarantee backward compatibility of future versions.
-> [3] https://lists.gnu.org/archive/html/qemu-arm/2017-08/msg00004.html
-> [4] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.4
->     Warning: UAPI headers have changed! They didn't follow the spec,
->     please update. (Use branch v0.1, that has the old headers, for the
->     Qemu prototype [3])
-> [5] git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.4
->     Warning: command-line has changed! Use --viommu vfio[,opts] and
->     --viommu virtio[,opts] to instantiate a device.
-> [6] http://www.linux-arm.org/git?p=virtio-iommu.git;a=tree;f=dist/diffs
-> 
+UmVzZW5kaW5nLiBJdCBkaWQgbm90IHJlYWNoIHZpcnRpby1kZXYgdGhlIGZpcnN0IHRpbWUuCgpP
+biBUdWUsIDEyIFNlcCAyMDE3IDE2OjI5OjQ3ICswMjAwClRvbcOhxaEgR29sZW1iaW92c2vDvSA8
+dGdvbGVtYmlAcmVkaGF0LmNvbT4gd3JvdGU6Cgo+IE9uIFR1ZSwgMjkgQXVnIDIwMTcgMjA6MDE6
+NTMgKzA4MDAKPiBXZWkgV2FuZyA8d2VpLncud2FuZ0BpbnRlbC5jb20+IHdyb3RlOgo+IAo+ID4g
+T24gMDgvMjkvMjAxNyAwNTo1NyBQTSwgU3RlZmFuIEhham5vY3ppIHdyb3RlOgo+ID4gPiBPbiBT
+dW4sIEF1ZyAyNywgMjAxNyBhdCAxMTozMDozM1BNICswMjAwLCBUb23DocWhIEdvbGVtYmlvdnNr
+w70gd3JvdGU6ICAKPiA+ID4+IEhpLCAgCj4gPiA+IEkgaGF2ZSBDQ2VkIHRoZSByZWxldmFudCBt
+YWlsaW5nIGxpc3RzIGFuZCBwZW9wbGUgbW9zdCByZWNlbnRseSBpbnZvbHZlZAo+ID4gPiBpbiB2
+aXJ0aW8tYmFsbG9vbiBkaXNjdXNzaW9ucy4gIEhvcGVmdWxseSB0aGlzIHdpbGwgaGVscCBnZXQg
+dGhlIHJpZ2h0Cj4gPiA+IHBlb3BsZSB0byBzZWUgeW91ciBxdWVzdGlvbnMuCj4gPiA+ICAKPiA+
+ID4+IFdlJ2QgbGlrZSB0byBpbmNsdWRlIGluZm9ybWF0aW9uIGFib3V0IHJlY2xhaW1hYmxlIG1l
+bW9yeSBpbnRvIHRoZQo+ID4gPj4gc3RhdGlzdGljcyBpbiBWaXJ0aU8gQmFsbG9vbiBkcml2ZXIu
+IE5hbWVseSwgd2UnZCBsaWtlIHRvIGluY2x1ZGUKPiA+ID4+IGNvdW50ZXJzIGZvciBidWZmZXJl
+cyBhbmQgY2FjaGVzIG9mIExpbnV4IGtlcm5lbC4gVGhlIHBhdGNoIGl0c2VsZiBpcwo+ID4gPj4g
+cHJldHR5IHRyaXZpYWwgLS0gbm8gcHJvYmxlbSB0aGVyZS4gQnV0IGJlZm9yZSB3ZSBkbyB0aGF0
+IEknZCBsaWtlIHRvCj4gPiA+PiBnZXQgc29tZSBpbnB1dCBmcm9tIHRoZSBRRU1VIGNvbW11bml0
+eS4KPiA+ID4+Cj4gPiA+PiAxKSBJcyB0aGVyZSBhbnkgcmVhc29uIG5vdCB0byBoYXZlIHRoZSBz
+dGF0cyB0aGVyZT8gIAo+ID4gCj4gPiBDb3VsZCB5b3UgcGxlYXNlIHNoYXJlIHRoZSB1c2FnZXMg
+b2YgcmVjbGFpbWFibGUgbWVtb3J5IHZpYSB0aGUgc3RhdHM/Cj4gCj4gSSdsbCBnbyBhaGVhZCB0
+aGVuIGFuZCBzdGFydCBzZW5kaW5nIHBhdGNoZXMuIFdoYXQgd291bGQgYmUgdGhlIHByb3Blcgo+
+IGNvdXJzZSBvZiBhY3Rpb24gaGVyZT8gU2VuZCBwYXRjaCBmb3IgdGhlIGRyaXZlciBmaXJzdCwg
+b3Igc2VuZCBwYXRjaAo+IGZvciBRRU1VIGZpcnN0IG9yIHNlbmQgYm90aCBwYXRjaGVzIHJpZ2h0
+IGF3YXk/Cj4gCj4gCj4gPiA+Pgo+ID4gPj4gMikgQ29uc2lkZXJpbmcgdGhlIGJhbGxvb24gZGV2
+aWNlIGlzIG11bHRpcGxhdGZvcm0gKExpbnV4LCBCU0QsCj4gPiA+PiBXaW5kb3dzKSwgaXMgdGhl
+cmUgYSBwcm9ibGVtIHdpdGggaW5jbHVkaW5nIGJ1ZmZlcnMvY2FjaGVzPyBUaGVzZSBzZWVtCj4g
+PiA+PiB0byBiZSBzcGVjaWZpYyB0byB0aGUgTGludXggdmlydHVhbCBtZW1vcnkgc3Vic3lzdGVt
+LiBPZiBjb3Vyc2UsIG90aGVyCj4gPiA+PiBPU2VzIGNvdWxkIGp1c3QgcmVwb3J0IHplcm9zLiBB
+cmUgdGhlcmUgc29tZSBpbnRlcm5hbCBzdGF0cyBvbiB0aG9zZQo+ID4gPj4gT1NlcyB0aGF0IGNv
+dWxkIGJlIGZpbGxlZCBpbj8gSSBkb24ndCBub3cgaWYgc3VjaCBvciBzaW1pbGFyIHN0YXRpc3Rp
+Ywo+ID4gPj4gYXJlIGF2YWlsYWJsZSBvbiBCU0QuIE9uIFdpbmRvd3Mgb25seSBTeXN0ZW1DYWNo
+ZSBzdGF0IGxvb2tzIGxpa2UKPiA+ID4+IHNvbWV0aGluZyByZWxldmFudC4gQW55b25lIGZhbWls
+aWFyIHdpdGggdGhvc2UgT1NlcyBoYXMgYW55IHN1Z2dlc3Rpb25zPwo+ID4gPj4KPiA+ID4+ICAg
+ICAgIAo+ID4gCj4gPiBPbmUgb2YgdGhlIHNvbHV0aW9ucyB0aGF0IEknbSB0aGlua2luZyBhYm91
+dCBpcyB0byBtYWtlIHZpcnRpbyAKPiA+IHBsYXRmb3JtLXdhcmUuCj4gCj4gVGhpcyBpcyBub3Qg
+bmVjZXNzYXJ5LiBJSVVDIHRoZSBkcml2ZXIgZG9lcyBub3QgbmVlZCB0byBzZW5kIGFsbCB0aGUK
+PiBzdGF0cy4gV2UgY2FuIHNpbXBseSB0cmVhdCB0aG9zZSBzdGF0cyBhcyBzcGVjaWZpYyB0byBM
+aW51eCBkcml2ZXIgYW5kCj4gb3RoZXIgZHJpdmVycyB3aWxsIG5vdCBzZW5kIHRoZW0uIFRoZW4g
+UUVNVSB3aWxsIHRyZWF0IHRoZW0gYXMgaWYgemVybwo+IHdhcyByZXBvcnRlZC4KPiAKPiA+IAo+
+ID4gVGhhdCBpcywgdGhlIGRldmljZSBieSBkZWZhdWx0IHN1cHBvcnRzCj4gPiBWSVJUSU9fRl9M
+SU5VWCwKPiA+IFZJUlRJT19GX1dJTkRPV1MsCj4gPiBWSVJUSU9fRl9CU0QuCj4gPiAKPiA+IEZv
+ciB0aGUgTGludXggZHJpdmVyLCBvbmx5IFZJUlRJT19GX0xJTlVYIGlzIHN1cHBvcnRlZCwgdGhl
+biB3ZSBjYW4KPiA+IGhhdmUgTGludXggc3BlY2lmaWMgZHJpdmVyIGltcGxlbWVudGF0aW9ucyB1
+bmRlciB0aGF0IGZlYXR1cmUuCj4gCj4gCj4gU2luY2UgdGhlcmUgd2VyZSBubyBzdWdnZXN0aW9u
+cyBmb3Igc2ltaWxhciBzdGF0cyBvbiBvdGhlciBPU2VzIEknZCBzYXkKPiB3ZSB0cmVhdCB0aGUg
+c3RhdHMgZm9yIGJ1ZmZlcnMgYW5kIGNhY2hlcyBhcyBMaW51eCBzcGVjaWZpYy4gSWYgdGhlcmUg
+aXMKPiBhbnkgbmVlZCB0byBzZW5kIHNpbWlsYXIgc3RhdHMgZm9yIG90aGVyIE9TZXMgd2Ugd2ls
+bCBhZGQgbmV3IHN0YXQgZmllbGRzCj4gKHNwZWNpZmljIGZvciB0aGF0IHBhcnRpY3VsYXIgT1Mp
+Lgo+IAo+IAo+IFRoYW5rcywKPiAKPiAgICAgVG9tYXMKPiAKPiAtLSAKPiBUb23DocWhIEdvbGVt
+YmlvdnNrw70gPHRnb2xlbWJpQHJlZGhhdC5jb20+CgoKLS0gClRvbcOhxaEgR29sZW1iaW92c2vD
+vSA8dGdvbGVtYmlAcmVkaGF0LmNvbT4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
