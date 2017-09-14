@@ -1,11 +1,14 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH][V2] drm: qxl: remove pr_info message, stops log spamming
-Date: Tue, 12 Sep 2017 18:34:22 +0100
-Message-ID: <20170912173422.14062-1-colin.king__24604.7638626353$1505337369$gmane$org@canonical.com>
+From: Ilya Lesokhin <ilyal@mellanox.com>
+Subject: RE: packed ring layout proposal v3
+Date: Thu, 14 Sep 2017 08:23:32 +0000
+Message-ID: <AM4PR0501MB27231AB2873CFFB99E66CE98D46F0@AM4PR0501MB2723.eurprd05.prod.outlook.com>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,54 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Colin Ian King <colin.king@canonical.com>
+> -----Original Message-----
+> From: virtualization-bounces@lists.linux-foundation.org
+> [mailto:virtualization-bounces@lists.linux-foundation.org] On Behalf Of
+> Michael S. Tsirkin
+> Sent: Sunday, September 10, 2017 8:06 AM
+> To: virtio-dev@lists.oasis-open.org
+> Cc: virtualization@lists.linux-foundation.org
+> Subject: packed ring layout proposal v3
+> 
+> This is an update from v2 version.
+...
+> When driver descriptors are chained in this way, multiple descriptors are
+> treated as a part of a single transaction containing an optional write buffer
+> followed by an optional read buffer.
+> All descriptors in the chain must have the same ID.
+> 
+...
 
-Simply mmap'ing /dev/dri/card0 repeatedly will spam the kernel
-log with qxl_mmap information messages. The following example code
-illustrates this:
+I think you should consider removing  the "same ID" requirement.
 
-int main(void)
-{
-	int fd = open("/dev/dri/card0", O_RDONLY);
-	if (fd == -1)
-		err(1, "open failed");
+Assuming out of order execution, how is the driver supposed to re-assign unique IDs to the previously
+chained descriptor?
+Do you expected driver to copy original IDs somewhere else before the chaining and then restore them after the chain is
+executed?
 
-	for (;;) {
-		void *m = mmap(NULL, 4096, PROT_READ,
-			MAP_SHARED, fd, 0);
-		if (m != MAP_FAILED)
-			munmap(m, 4096);
-	}
-}
-
-Stop the spamming by removing the pr_info message. Since the mmap'ing
-returns -EINVAL there is no need for the pr_info message.
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/gpu/drm/qxl/qxl_ttm.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_ttm.c b/drivers/gpu/drm/qxl/qxl_ttm.c
-index 7ecf8a4b9fe6..0f50c0b25a58 100644
---- a/drivers/gpu/drm/qxl/qxl_ttm.c
-+++ b/drivers/gpu/drm/qxl/qxl_ttm.c
-@@ -123,11 +123,8 @@ int qxl_mmap(struct file *filp, struct vm_area_struct *vma)
- 	struct qxl_device *qdev;
- 	int r;
- 
--	if (unlikely(vma->vm_pgoff < DRM_FILE_PAGE_OFFSET)) {
--		pr_info("%s: vma->vm_pgoff (%ld) < DRM_FILE_PAGE_OFFSET\n",
--			__func__, vma->vm_pgoff);
-+	if (unlikely(vma->vm_pgoff < DRM_FILE_PAGE_OFFSET))
- 		return -EINVAL;
--	}
- 
- 	file_priv = filp->private_data;
- 	qdev = file_priv->minor->dev->dev_private;
--- 
-2.14.1
+Thanks,
+Ilya
