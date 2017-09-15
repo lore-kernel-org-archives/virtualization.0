@@ -1,12 +1,14 @@
-From: "Mariana" <marialemos72@gmail.com>
-Subject: Call for papers - MOSITS'17 - Moscow,
-	Russia ------ Deadline: October 2
-Date: Thu, 14 Sep 2017 20:05:04 +0100
-Message-ID: <20170914190511.18C80989@mail.linuxfoundation.org>
-Reply-To: antipovatatianav@gmail.com
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [Qemu-devel] [RFC] Buffers/caches in VirtIO Balloon driver stats
+Date: Fri, 15 Sep 2017 10:01:37 +0800
+Message-ID: <59BB3481.7050909__43839.2191230834$1505440715$gmane$org@intel.com>
+References: <20170827233033.7afa49b9@fiorina>	<20170829095726.GL25960@stefanha-x1.localdomain>	<59A557B1.7080704@intel.com>
+	<20170912162947.130c2df2@fiorina>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2669008913314970745=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20170912162947.130c2df2@fiorina>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,164 +18,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: =?UTF-8?B?VG9tw6HFoSBHb2xlbWJpb3Zza8O9?= <tgolembi@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============2669008913314970745==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-*** Proceedings published by Springer and indexed by ISI, Scopus, EI-Compen=
-dex, DBLP, etc.
-
----------------------------------------------------------------------------=
-------------------------
-MOSITS=9217 =96 The 2017 International Conference on Information Technology=
- Science
-                     Moscow, Russia, 01 =96 03 December 2017
-                            https://www.mosits.org/
----------------------------------------------------------------------------=
-----------------------
-
-SCOPE
-
-MOSITS=9217 =96 The 2017 International Conference on Information Technology=
- Science (https://www.mosits.org/), to be held at Moscow, Russia, 01 =96 03=
- December 2017, is an international forum for researchers and practitioners=
- to present and discuss the most recent innovations, trends, results, exper=
-iences and concerns in the several perspectives of Information Technology S=
-cience.
-
-We are pleased to invite you to submit your papers to MOSITS'17. Papers mus=
-t be written in English and related with one or more of the Conference Topi=
-cs (see below). All submissions will be twice =ABblind=BB reviewed on the b=
-asis of relevance, timeliness, originality, importance and clarity of expre=
-ssion with convincing argumentative.
-
-Accepted and registered Papers will be published in Proceedings by Springer=
- in a book of the AISC series and then indexed by Web of Science, Scopus.
-You can see more details on https://www. mosits.org.
-
-
-TOPICS
-
-Submitted papers should be related with one or more of the main themes prop=
-osed for the Conference:
-1. Information Technology in Natural Science
-=95	Information Technology in Agriculture & Food Technology
-=95	Information Technology in Biochemistry
-=95	Information Technology in Biology
-=95	Information Technology in Biomedical Sciences
-=95	Information Technology in Chemistry
-=95	Information Technology in Computer Sciences
-=95	Information Technology in Electronics
-=95	Information Technology in Engineering
-=95	Information Technology in Genetics
-=95	Information Technology in Mathematics
-=95	Information Technology in Microbiology
-=95	Information Technology in Medicine
-=95	Information Technology in Nuclear Science
-=95	Information Technology in Pharmacology
-=95	Information Technology in Physics
-=95	Information Technology in Technology & AppliedScience
-=95	Information Technology in Zoology
-2. Information Technology in Social Science
-=95	Information Technology in Business & Finance
-=95	Information Technology in Communication
-=95	Information Technology in Criminology & Penology
-=95	Information Technology in Demography
-=95	Information Technology in Economics
-=95	Information Technology in Education
-=95	Information Technology in Law
-=95	Information Technology in Management Science
-=95	Information Technology in Health & Rehabilitation
-=95	Information Technology in Public Administration
-3. Information Technology in Art&Humanities
-=95	Information Technology in Archaeology
-=95	Information Technology in Architecture
-=95	Information Technology in Art
-=95	Information Technology in Film
-=95	Information Technology in History
-=95	Information Technology in Humanities
-=95	Information Technology in Linguistic
-=95	Information Technology in Literature
-=95	Information Technology in Religion
-=95	Information Technology in Television & Radio
-=95	Information Technology in Theater
-
-
-SUBMISSION AND DECISION
-
-You may submit your paper online using address https://www.mosits.org/submi=
-ssion/. Submitted papers should be related with one or more of the Conferen=
-ce topics: Information Technology in Natural Science, Social Science, and A=
-rt&Humanities. 
-In addition, submitted papers (until 8-page limit) must comply with the req=
-uested format (download a DOC example) be written in English, must not have=
- been published before, not be under review for any other conference or pub=
-lication and not include any information leading to the authors=92 identifi=
-cation. 
-
-All papers will be subjected to a =93double-blind review=94 by at least two=
- Scientific Committee members. The =ABblind=BB review means that the author=
-s=92 names, affiliations and bibliographic references should not be include=
-d in the version for evaluation by the Scientific Committee. This informati=
-on should only be included in the camera-ready version, saved in Word and/o=
-r in PDF format. Based on Scientific Committee evaluation, a paper can be r=
-ejected or accepted by the Conference Chairs.
-
-Each accepted paper might be presented in the appropriate thematic session =
-of narrow specialization.
- 
-
-PUBLICATION AND INDEXING
-
-To ensure that an accepted paper will be published, at least one of the aut=
-hors must be fully registered by the 10th of October 2017, and the paper mu=
-st comply with the suggested layout and page-limit (until 10 pages). Additi=
-onally, all recommended changes must be addressed by the authors before the=
-y submit the camera-ready version.
-
-No more than one paper per registration will be published. An extra fee mus=
-t be paid for publication of additional papers, with a maximum of one addit=
-ional paper per registration. One registration permits only the participati=
-on of one author in the conference.
-
-Accepted and registered Papers will be published in Proceedings by Springer=
- in a book of the AISC series and then indexed by Web of Science, Scopus.
-
-The authors of the best selected papers will be invited to extend them for =
-publication in international journals.
-
-
-IMPORTANT DATES 
-
-Paper Submission Deadline: October 2, 2017
-Notification of Acceptance: November 02, 2017
-Payment of Registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: November 10, 2017.
-Camera-ready Submission: November 10, 2017
-
---
-
-MOSITS'17 website: https://www.mosits.org/
-
--
-
-
----
-This email has been checked for viruses by AVG.
-http://www.avg.com
-
-
---===============2669008913314970745==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2669008913314970745==--
+T24gMDkvMTIvMjAxNyAxMDoyOSBQTSwgVG9tw6HFoSBHb2xlbWJpb3Zza8O9IHdyb3RlOgo+IE9u
+IFR1ZSwgMjkgQXVnIDIwMTcgMjA6MDE6NTMgKzA4MDAKPiBXZWkgV2FuZyA8d2VpLncud2FuZ0Bp
+bnRlbC5jb20+IHdyb3RlOgo+Cj4+IE9uIDA4LzI5LzIwMTcgMDU6NTcgUE0sIFN0ZWZhbiBIYWpu
+b2N6aSB3cm90ZToKPj4+IE9uIFN1biwgQXVnIDI3LCAyMDE3IGF0IDExOjMwOjMzUE0gKzAyMDAs
+IFRvbcOhxaEgR29sZW1iaW92c2vDvSB3cm90ZToKPj4+PiBIaSwKPj4+IEkgaGF2ZSBDQ2VkIHRo
+ZSByZWxldmFudCBtYWlsaW5nIGxpc3RzIGFuZCBwZW9wbGUgbW9zdCByZWNlbnRseSBpbnZvbHZl
+ZAo+Pj4gaW4gdmlydGlvLWJhbGxvb24gZGlzY3Vzc2lvbnMuICBIb3BlZnVsbHkgdGhpcyB3aWxs
+IGhlbHAgZ2V0IHRoZSByaWdodAo+Pj4gcGVvcGxlIHRvIHNlZSB5b3VyIHF1ZXN0aW9ucy4KPj4+
+ICAgCj4+Pj4gV2UnZCBsaWtlIHRvIGluY2x1ZGUgaW5mb3JtYXRpb24gYWJvdXQgcmVjbGFpbWFi
+bGUgbWVtb3J5IGludG8gdGhlCj4+Pj4gc3RhdGlzdGljcyBpbiBWaXJ0aU8gQmFsbG9vbiBkcml2
+ZXIuIE5hbWVseSwgd2UnZCBsaWtlIHRvIGluY2x1ZGUKPj4+PiBjb3VudGVycyBmb3IgYnVmZmVy
+ZXMgYW5kIGNhY2hlcyBvZiBMaW51eCBrZXJuZWwuIFRoZSBwYXRjaCBpdHNlbGYgaXMKPj4+PiBw
+cmV0dHkgdHJpdmlhbCAtLSBubyBwcm9ibGVtIHRoZXJlLiBCdXQgYmVmb3JlIHdlIGRvIHRoYXQg
+SSdkIGxpa2UgdG8KPj4+PiBnZXQgc29tZSBpbnB1dCBmcm9tIHRoZSBRRU1VIGNvbW11bml0eS4K
+Pj4+Pgo+Pj4+IDEpIElzIHRoZXJlIGFueSByZWFzb24gbm90IHRvIGhhdmUgdGhlIHN0YXRzIHRo
+ZXJlPwo+PiBDb3VsZCB5b3UgcGxlYXNlIHNoYXJlIHRoZSB1c2FnZXMgb2YgcmVjbGFpbWFibGUg
+bWVtb3J5IHZpYSB0aGUgc3RhdHM/Cj4gSSdsbCBnbyBhaGVhZCB0aGVuIGFuZCBzdGFydCBzZW5k
+aW5nIHBhdGNoZXMuIFdoYXQgd291bGQgYmUgdGhlIHByb3Blcgo+IGNvdXJzZSBvZiBhY3Rpb24g
+aGVyZT8gU2VuZCBwYXRjaCBmb3IgdGhlIGRyaXZlciBmaXJzdCwgb3Igc2VuZCBwYXRjaAo+IGZv
+ciBRRU1VIGZpcnN0IG9yIHNlbmQgYm90aCBwYXRjaGVzIHJpZ2h0IGF3YXk/CgpJZiB5b3UgaGF2
+ZSBib3RoIHJlYWR5LCBJIHRoaW5rIGl0IHdvdWxkIGJlIGZpbmUgdG8gc2VuZCB0aGVtIGFsbC4K
+Cgo+Cj4KPj4+PiAyKSBDb25zaWRlcmluZyB0aGUgYmFsbG9vbiBkZXZpY2UgaXMgbXVsdGlwbGF0
+Zm9ybSAoTGludXgsIEJTRCwKPj4+PiBXaW5kb3dzKSwgaXMgdGhlcmUgYSBwcm9ibGVtIHdpdGgg
+aW5jbHVkaW5nIGJ1ZmZlcnMvY2FjaGVzPyBUaGVzZSBzZWVtCj4+Pj4gdG8gYmUgc3BlY2lmaWMg
+dG8gdGhlIExpbnV4IHZpcnR1YWwgbWVtb3J5IHN1YnN5c3RlbS4gT2YgY291cnNlLCBvdGhlcgo+
+Pj4+IE9TZXMgY291bGQganVzdCByZXBvcnQgemVyb3MuIEFyZSB0aGVyZSBzb21lIGludGVybmFs
+IHN0YXRzIG9uIHRob3NlCj4+Pj4gT1NlcyB0aGF0IGNvdWxkIGJlIGZpbGxlZCBpbj8gSSBkb24n
+dCBub3cgaWYgc3VjaCBvciBzaW1pbGFyIHN0YXRpc3RpYwo+Pj4+IGFyZSBhdmFpbGFibGUgb24g
+QlNELiBPbiBXaW5kb3dzIG9ubHkgU3lzdGVtQ2FjaGUgc3RhdCBsb29rcyBsaWtlCj4+Pj4gc29t
+ZXRoaW5nIHJlbGV2YW50LiBBbnlvbmUgZmFtaWxpYXIgd2l0aCB0aG9zZSBPU2VzIGhhcyBhbnkg
+c3VnZ2VzdGlvbnM/Cj4+Pj4KPj4+PiAgICAgICAgCj4+IE9uZSBvZiB0aGUgc29sdXRpb25zIHRo
+YXQgSSdtIHRoaW5raW5nIGFib3V0IGlzIHRvIG1ha2UgdmlydGlvCj4+IHBsYXRmb3JtLXdhcmUu
+Cj4gVGhpcyBpcyBub3QgbmVjZXNzYXJ5LiBJSVVDIHRoZSBkcml2ZXIgZG9lcyBub3QgbmVlZCB0
+byBzZW5kIGFsbCB0aGUKPiBzdGF0cy4gV2UgY2FuIHNpbXBseSB0cmVhdCB0aG9zZSBzdGF0cyBh
+cyBzcGVjaWZpYyB0byBMaW51eCBkcml2ZXIgYW5kCj4gb3RoZXIgZHJpdmVycyB3aWxsIG5vdCBz
+ZW5kIHRoZW0uIFRoZW4gUUVNVSB3aWxsIHRyZWF0IHRoZW0gYXMgaWYgemVybwo+IHdhcyByZXBv
+cnRlZC4KCkp1c3QgaGFkIGEgcXVpY2sgY2hlY2ssIEkgdGhpbmsgdGhhdCBzaG91bGQgZnVuY3Rp
+b24gd2VsbCB0b28uClFFTVUgd2lsbCByZXBvcnQgLTEgZm9yIHRoZSBzdGF0cy4KCkJlc3QsCldl
+aQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
