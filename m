@@ -1,15 +1,16 @@
-From: Laura Abbott <labbott@redhat.com>
+From: Christoph Hellwig <hch@infradead.org>
 Subject: Re: Regression in virtio block driver with 4.13.2
-Date: Sat, 16 Sep 2017 16:16:06 -0700
-Message-ID: <db314009-f47f-17bc-e2d6-d84936432575@redhat.com>
+Date: Sun, 17 Sep 2017 16:57:31 -0700
+Message-ID: <20170917235731.GA31789__40131.6793323078$1505692683$gmane$org@infradead.org>
 References: <93e65aef-e93d-6a99-854a-f6147f84e3b1@redhat.com>
 	<20170915173703.GA23073@infradead.org>
+	<db314009-f47f-17bc-e2d6-d84936432575@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170915173703.GA23073@infradead.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <db314009-f47f-17bc-e2d6-d84936432575@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,23 +20,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Laura Abbott <labbott@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/15/2017 10:37 AM, Christoph Hellwig wrote:
-> On Fri, Sep 15, 2017 at 09:54:08AM -0700, Laura Abbott wrote:
->> Hi,
->>
->> Fedora got a bug report on an early version of 4.13.2
->> https://paste.fedoraproject.org/paste/t-Yx23LN5QwJ7oPZLj3zrg
-> 
-> Can you check if the issue goes away when you disable
-> CONFIG_VIRTIO_BLK_SCSI?
-> 
+On Sat, Sep 16, 2017 at 04:16:06PM -0700, Laura Abbott wrote:
+> Yes, the issue goes  away when CONFIG_VIRTIO_BLK_SCSI is
+> disabled.
 
-Yes, the issue goes  away when CONFIG_VIRTIO_BLK_SCSI is
-disabled.
+Ok, so it's probably related to follow ups to the scsi_request split.
 
-Thanks,
-Laura
+That being said, I would highly recommend turning off
+CONFIG_VIRTIO_BLK_SCSI in fedora.  The feature has caused more trouble
+than it helped with, and should never have been added (saying that as
+the person who added it). It was never supported with virtio 1.0 devices
+and has been disabled in qemu by default for quite a while.
