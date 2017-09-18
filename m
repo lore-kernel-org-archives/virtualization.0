@@ -1,15 +1,11 @@
-From: =?UTF-8?B?VG9tw6HFoSBHb2xlbWJpb3Zza8O9?= <tgolembi@redhat.com>
-Subject: Re: [Qemu-devel] [RFC] Buffers/caches in VirtIO Balloon driver stats
-Date: Tue, 12 Sep 2017 21:23:35 +0200
-Message-ID: <20170912212335.34f42ec7__35599.8978288428$1509079369$gmane$org@fiorina>
-References: <20170827233033.7afa49b9@fiorina>
-	<20170829095726.GL25960@stefanha-x1.localdomain>
-	<59A557B1.7080704@intel.com> <20170912162947.130c2df2@fiorina>
+From: Corentin Labbe <clabbe.montjoie@gmail.com>
+Subject: [PATCH] vhost: remove unneeded linux/miscdevice.h include
+Date: Mon, 18 Sep 2017 18:58:54 +0200
+Message-ID: <20170918165854.23408-1-clabbe.montjoie__36899.7602178299$1509079370$gmane$org@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170912162947.130c2df2@fiorina>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,60 +15,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, jasowang@redhat.com
+Cc: netdev@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-UmVzZW5kaW5nLiBJdCBkaWQgbm90IHJlYWNoIHZpcnRpby1kZXYgdGhlIGZpcnN0IHRpbWUuCgpP
-biBUdWUsIDEyIFNlcCAyMDE3IDE2OjI5OjQ3ICswMjAwClRvbcOhxaEgR29sZW1iaW92c2vDvSA8
-dGdvbGVtYmlAcmVkaGF0LmNvbT4gd3JvdGU6Cgo+IE9uIFR1ZSwgMjkgQXVnIDIwMTcgMjA6MDE6
-NTMgKzA4MDAKPiBXZWkgV2FuZyA8d2VpLncud2FuZ0BpbnRlbC5jb20+IHdyb3RlOgo+IAo+ID4g
-T24gMDgvMjkvMjAxNyAwNTo1NyBQTSwgU3RlZmFuIEhham5vY3ppIHdyb3RlOgo+ID4gPiBPbiBT
-dW4sIEF1ZyAyNywgMjAxNyBhdCAxMTozMDozM1BNICswMjAwLCBUb23DocWhIEdvbGVtYmlvdnNr
-w70gd3JvdGU6ICAKPiA+ID4+IEhpLCAgCj4gPiA+IEkgaGF2ZSBDQ2VkIHRoZSByZWxldmFudCBt
-YWlsaW5nIGxpc3RzIGFuZCBwZW9wbGUgbW9zdCByZWNlbnRseSBpbnZvbHZlZAo+ID4gPiBpbiB2
-aXJ0aW8tYmFsbG9vbiBkaXNjdXNzaW9ucy4gIEhvcGVmdWxseSB0aGlzIHdpbGwgaGVscCBnZXQg
-dGhlIHJpZ2h0Cj4gPiA+IHBlb3BsZSB0byBzZWUgeW91ciBxdWVzdGlvbnMuCj4gPiA+ICAKPiA+
-ID4+IFdlJ2QgbGlrZSB0byBpbmNsdWRlIGluZm9ybWF0aW9uIGFib3V0IHJlY2xhaW1hYmxlIG1l
-bW9yeSBpbnRvIHRoZQo+ID4gPj4gc3RhdGlzdGljcyBpbiBWaXJ0aU8gQmFsbG9vbiBkcml2ZXIu
-IE5hbWVseSwgd2UnZCBsaWtlIHRvIGluY2x1ZGUKPiA+ID4+IGNvdW50ZXJzIGZvciBidWZmZXJl
-cyBhbmQgY2FjaGVzIG9mIExpbnV4IGtlcm5lbC4gVGhlIHBhdGNoIGl0c2VsZiBpcwo+ID4gPj4g
-cHJldHR5IHRyaXZpYWwgLS0gbm8gcHJvYmxlbSB0aGVyZS4gQnV0IGJlZm9yZSB3ZSBkbyB0aGF0
-IEknZCBsaWtlIHRvCj4gPiA+PiBnZXQgc29tZSBpbnB1dCBmcm9tIHRoZSBRRU1VIGNvbW11bml0
-eS4KPiA+ID4+Cj4gPiA+PiAxKSBJcyB0aGVyZSBhbnkgcmVhc29uIG5vdCB0byBoYXZlIHRoZSBz
-dGF0cyB0aGVyZT8gIAo+ID4gCj4gPiBDb3VsZCB5b3UgcGxlYXNlIHNoYXJlIHRoZSB1c2FnZXMg
-b2YgcmVjbGFpbWFibGUgbWVtb3J5IHZpYSB0aGUgc3RhdHM/Cj4gCj4gSSdsbCBnbyBhaGVhZCB0
-aGVuIGFuZCBzdGFydCBzZW5kaW5nIHBhdGNoZXMuIFdoYXQgd291bGQgYmUgdGhlIHByb3Blcgo+
-IGNvdXJzZSBvZiBhY3Rpb24gaGVyZT8gU2VuZCBwYXRjaCBmb3IgdGhlIGRyaXZlciBmaXJzdCwg
-b3Igc2VuZCBwYXRjaAo+IGZvciBRRU1VIGZpcnN0IG9yIHNlbmQgYm90aCBwYXRjaGVzIHJpZ2h0
-IGF3YXk/Cj4gCj4gCj4gPiA+Pgo+ID4gPj4gMikgQ29uc2lkZXJpbmcgdGhlIGJhbGxvb24gZGV2
-aWNlIGlzIG11bHRpcGxhdGZvcm0gKExpbnV4LCBCU0QsCj4gPiA+PiBXaW5kb3dzKSwgaXMgdGhl
-cmUgYSBwcm9ibGVtIHdpdGggaW5jbHVkaW5nIGJ1ZmZlcnMvY2FjaGVzPyBUaGVzZSBzZWVtCj4g
-PiA+PiB0byBiZSBzcGVjaWZpYyB0byB0aGUgTGludXggdmlydHVhbCBtZW1vcnkgc3Vic3lzdGVt
-LiBPZiBjb3Vyc2UsIG90aGVyCj4gPiA+PiBPU2VzIGNvdWxkIGp1c3QgcmVwb3J0IHplcm9zLiBB
-cmUgdGhlcmUgc29tZSBpbnRlcm5hbCBzdGF0cyBvbiB0aG9zZQo+ID4gPj4gT1NlcyB0aGF0IGNv
-dWxkIGJlIGZpbGxlZCBpbj8gSSBkb24ndCBub3cgaWYgc3VjaCBvciBzaW1pbGFyIHN0YXRpc3Rp
-Ywo+ID4gPj4gYXJlIGF2YWlsYWJsZSBvbiBCU0QuIE9uIFdpbmRvd3Mgb25seSBTeXN0ZW1DYWNo
-ZSBzdGF0IGxvb2tzIGxpa2UKPiA+ID4+IHNvbWV0aGluZyByZWxldmFudC4gQW55b25lIGZhbWls
-aWFyIHdpdGggdGhvc2UgT1NlcyBoYXMgYW55IHN1Z2dlc3Rpb25zPwo+ID4gPj4KPiA+ID4+ICAg
-ICAgIAo+ID4gCj4gPiBPbmUgb2YgdGhlIHNvbHV0aW9ucyB0aGF0IEknbSB0aGlua2luZyBhYm91
-dCBpcyB0byBtYWtlIHZpcnRpbyAKPiA+IHBsYXRmb3JtLXdhcmUuCj4gCj4gVGhpcyBpcyBub3Qg
-bmVjZXNzYXJ5LiBJSVVDIHRoZSBkcml2ZXIgZG9lcyBub3QgbmVlZCB0byBzZW5kIGFsbCB0aGUK
-PiBzdGF0cy4gV2UgY2FuIHNpbXBseSB0cmVhdCB0aG9zZSBzdGF0cyBhcyBzcGVjaWZpYyB0byBM
-aW51eCBkcml2ZXIgYW5kCj4gb3RoZXIgZHJpdmVycyB3aWxsIG5vdCBzZW5kIHRoZW0uIFRoZW4g
-UUVNVSB3aWxsIHRyZWF0IHRoZW0gYXMgaWYgemVybwo+IHdhcyByZXBvcnRlZC4KPiAKPiA+IAo+
-ID4gVGhhdCBpcywgdGhlIGRldmljZSBieSBkZWZhdWx0IHN1cHBvcnRzCj4gPiBWSVJUSU9fRl9M
-SU5VWCwKPiA+IFZJUlRJT19GX1dJTkRPV1MsCj4gPiBWSVJUSU9fRl9CU0QuCj4gPiAKPiA+IEZv
-ciB0aGUgTGludXggZHJpdmVyLCBvbmx5IFZJUlRJT19GX0xJTlVYIGlzIHN1cHBvcnRlZCwgdGhl
-biB3ZSBjYW4KPiA+IGhhdmUgTGludXggc3BlY2lmaWMgZHJpdmVyIGltcGxlbWVudGF0aW9ucyB1
-bmRlciB0aGF0IGZlYXR1cmUuCj4gCj4gCj4gU2luY2UgdGhlcmUgd2VyZSBubyBzdWdnZXN0aW9u
-cyBmb3Igc2ltaWxhciBzdGF0cyBvbiBvdGhlciBPU2VzIEknZCBzYXkKPiB3ZSB0cmVhdCB0aGUg
-c3RhdHMgZm9yIGJ1ZmZlcnMgYW5kIGNhY2hlcyBhcyBMaW51eCBzcGVjaWZpYy4gSWYgdGhlcmUg
-aXMKPiBhbnkgbmVlZCB0byBzZW5kIHNpbWlsYXIgc3RhdHMgZm9yIG90aGVyIE9TZXMgd2Ugd2ls
-bCBhZGQgbmV3IHN0YXQgZmllbGRzCj4gKHNwZWNpZmljIGZvciB0aGF0IHBhcnRpY3VsYXIgT1Mp
-Lgo+IAo+IAo+IFRoYW5rcywKPiAKPiAgICAgVG9tYXMKPiAKPiAtLSAKPiBUb23DocWhIEdvbGVt
-YmlvdnNrw70gPHRnb2xlbWJpQHJlZGhhdC5jb20+CgoKLS0gClRvbcOhxaEgR29sZW1iaW92c2vD
-vSA8dGdvbGVtYmlAcmVkaGF0LmNvbT4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+drivers/vhost/vhost.c does not use any miscdevice, so this patch
+remove this unnecessary inclusion.
+
+Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+---
+ drivers/vhost/vhost.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 33ac2b186b85..33ab839696f9 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -16,7 +16,6 @@
+ #include <linux/uio.h>
+ #include <linux/mm.h>
+ #include <linux/mmu_context.h>
+-#include <linux/miscdevice.h>
+ #include <linux/mutex.h>
+ #include <linux/poll.h>
+ #include <linux/file.h>
+-- 
+2.13.5
