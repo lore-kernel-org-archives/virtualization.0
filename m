@@ -1,16 +1,12 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: Regression in virtio block driver with 4.13.2
-Date: Sun, 17 Sep 2017 16:57:31 -0700
-Message-ID: <20170917235731.GA31789__40131.6793323078$1505692683$gmane$org@infradead.org>
-References: <93e65aef-e93d-6a99-854a-f6147f84e3b1@redhat.com>
-	<20170915173703.GA23073@infradead.org>
-	<db314009-f47f-17bc-e2d6-d84936432575@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next 1/3] virtio-net: remove unnecessary parameter of
+	virtnet_xdp_xmit()
+Date: Tue, 19 Sep 2017 17:42:41 +0800
+Message-ID: <1505814163-7315-1-git-send-email-jasowang__37206.9973884665$1505814204$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <db314009-f47f-17bc-e2d6-d84936432575@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,18 +16,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Laura Abbott <labbott@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: John Fastabend <john.fastabend@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Sep 16, 2017 at 04:16:06PM -0700, Laura Abbott wrote:
-> Yes, the issue goes  away when CONFIG_VIRTIO_BLK_SCSI is
-> disabled.
+CC: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Ok, so it's probably related to follow ups to the scsi_request split.
-
-That being said, I would highly recommend turning off
-CONFIG_VIRTIO_BLK_SCSI in fedora.  The feature has caused more trouble
-than it helped with, and should never have been added (saying that as
-the person who added it). It was never supported with virtio 1.0 devices
-and has been disabled in qemu by default for quite a while.
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 511f833..a0ef4b0 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -373,7 +373,6 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+ }
+ 
+ static bool virtnet_xdp_xmit(struct virtnet_info *vi,
+-			     struct receive_queue *rq,
+ 			     struct xdp_buff *xdp)
+ {
+ 	struct virtio_net_hdr_mrg_rxbuf *hdr;
+@@ -542,7 +541,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
+ 			delta = orig_data - xdp.data;
+ 			break;
+ 		case XDP_TX:
+-			if (unlikely(!virtnet_xdp_xmit(vi, rq, &xdp)))
++			if (unlikely(!virtnet_xdp_xmit(vi, &xdp)))
+ 				trace_xdp_exception(vi->dev, xdp_prog, act);
+ 			rcu_read_unlock();
+ 			goto xdp_xmit;
+@@ -677,7 +676,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 			}
+ 			break;
+ 		case XDP_TX:
+-			if (unlikely(!virtnet_xdp_xmit(vi, rq, &xdp)))
++			if (unlikely(!virtnet_xdp_xmit(vi, &xdp)))
+ 				trace_xdp_exception(vi->dev, xdp_prog, act);
+ 			ewma_pkt_len_add(&rq->mrg_avg_pkt_len, len);
+ 			if (unlikely(xdp_page != page))
+-- 
+2.7.4
