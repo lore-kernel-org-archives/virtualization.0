@@ -1,13 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 3/3] virtio-net: support XDP_REDIRECT
-Date: Tue, 19 Sep 2017 17:42:43 +0800
-Message-ID: <1505814163-7315-3-git-send-email-jasowang__42851.6961321749$1505814228$gmane$org@redhat.com>
-References: <1505814163-7315-1-git-send-email-jasowang@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [RFC] virtio-iommu version 0.4
+Date: Tue, 19 Sep 2017 11:47:43 +0100
+Message-ID: <4543e6dc-0f36-11ad-784a-d7c07399d10f__19484.0363030837$1505817831$gmane$org@arm.com>
+References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
+	<072f5a14-baae-57a9-9c5b-b93163c67075@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1505814163-7315-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <072f5a14-baae-57a9-9c5b-b93163c67075@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,236 +19,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: John Fastabend <john.fastabend@gmail.com>
+To: Auger Eric <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, Robin Murphy <Robin.Murphy@arm.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch tries to add XDP_REDIRECT for virtio-net. The changes are
-not complex as we could use exist XDP_TX helpers for most of the
-work. The rest is passing the XDP_TX to NAPI handler for implementing
-batching.
+Hi Eric,
 
-Cc: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.  |  0
- drivers/net/virtio_net.c | 77 ++++++++++++++++++++++++++++++++++++++----------
- 2 files changed, 62 insertions(+), 15 deletions(-)
- create mode 100644 drivers/net/virtio_net.
+On 12/09/17 18:13, Auger Eric wrote:
+> 2.6.7
+> - As I am currently integrating v0.4 in QEMU here are some other comments:
+> At the moment struct virtio_iommu_req_probe flags is missing in your
+> header. As such I understood the ACK protocol was not implemented by the
+> driver in your branch.
 
-diff --git a/drivers/net/virtio_net. b/drivers/net/virtio_net.
-new file mode 100644
-index 0000000..e69de29
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index db5924c..f6c1f13 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -29,6 +29,7 @@
- #include <linux/slab.h>
- #include <linux/cpu.h>
- #include <linux/average.h>
-+#include <linux/filter.h>
- #include <net/route.h>
- 
- static int napi_weight = NAPI_POLL_WEIGHT;
-@@ -372,8 +373,20 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	return skb;
- }
- 
--static bool virtnet_xdp_xmit(struct virtnet_info *vi,
--			     struct xdp_buff *xdp)
-+static void virtnet_xdp_flush(struct net_device *dev)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	struct send_queue *sq;
-+	unsigned int qp;
-+
-+	qp = vi->curr_queue_pairs - vi->xdp_queue_pairs + smp_processor_id();
-+	sq = &vi->sq[qp];
-+
-+	virtqueue_kick(sq->vq);
-+}
-+
-+static bool __virtnet_xdp_xmit(struct virtnet_info *vi,
-+			       struct xdp_buff *xdp)
- {
- 	struct virtio_net_hdr_mrg_rxbuf *hdr;
- 	unsigned int len;
-@@ -407,10 +420,19 @@ static bool virtnet_xdp_xmit(struct virtnet_info *vi,
- 		return false;
- 	}
- 
--	virtqueue_kick(sq->vq);
- 	return true;
- }
- 
-+static int virtnet_xdp_xmit(struct net_device *dev, struct xdp_buff *xdp)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	bool sent = __virtnet_xdp_xmit(vi, xdp);
-+
-+	if (!sent)
-+		return -ENOSPC;
-+	return 0;
-+}
-+
- static unsigned int virtnet_get_headroom(struct virtnet_info *vi)
- {
- 	return vi->xdp_queue_pairs ? VIRTIO_XDP_HEADROOM : 0;
-@@ -483,7 +505,8 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 				     struct virtnet_info *vi,
- 				     struct receive_queue *rq,
- 				     void *buf, void *ctx,
--				     unsigned int len)
-+				     unsigned int len,
-+				     bool *xdp_xmit)
- {
- 	struct sk_buff *skb;
- 	struct bpf_prog *xdp_prog;
-@@ -493,7 +516,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 	unsigned int buflen = SKB_DATA_ALIGN(GOOD_PACKET_LEN + headroom) +
- 			      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 	struct page *page = virt_to_head_page(buf);
--	unsigned int delta = 0;
-+	unsigned int delta = 0, err;
- 	struct page *xdp_page;
- 	len -= vi->hdr_len;
- 
-@@ -541,8 +564,16 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 			delta = orig_data - xdp.data;
- 			break;
- 		case XDP_TX:
--			if (unlikely(!virtnet_xdp_xmit(vi, &xdp)))
-+			if (unlikely(!__virtnet_xdp_xmit(vi, &xdp)))
- 				trace_xdp_exception(vi->dev, xdp_prog, act);
-+			else
-+				*xdp_xmit = true;
-+			rcu_read_unlock();
-+			goto xdp_xmit;
-+		case XDP_REDIRECT:
-+			err = xdp_do_redirect(dev, &xdp, xdp_prog);
-+			if (!err)
-+				*xdp_xmit = true;
- 			rcu_read_unlock();
- 			goto xdp_xmit;
- 		default:
-@@ -603,7 +634,8 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 					 struct receive_queue *rq,
- 					 void *buf,
- 					 void *ctx,
--					 unsigned int len)
-+					 unsigned int len,
-+					 bool *xdp_xmit)
- {
- 	struct virtio_net_hdr_mrg_rxbuf *hdr = buf;
- 	u16 num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
-@@ -613,6 +645,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 	struct bpf_prog *xdp_prog;
- 	unsigned int truesize;
- 	unsigned int headroom = mergeable_ctx_to_headroom(ctx);
-+	int err;
- 
- 	head_skb = NULL;
- 
-@@ -678,12 +711,20 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 			}
- 			break;
- 		case XDP_TX:
--			if (unlikely(!virtnet_xdp_xmit(vi, &xdp)))
-+			if (unlikely(!__virtnet_xdp_xmit(vi, &xdp)))
- 				trace_xdp_exception(vi->dev, xdp_prog, act);
-+			else
-+				*xdp_xmit = true;
- 			if (unlikely(xdp_page != page))
- 				goto err_xdp;
- 			rcu_read_unlock();
- 			goto xdp_xmit;
-+		case XDP_REDIRECT:
-+			err = xdp_do_redirect(dev, &xdp, xdp_prog);
-+			if (err)
-+				*xdp_xmit = true;
-+			rcu_read_unlock();
-+			goto xdp_xmit;
- 		default:
- 			bpf_warn_invalid_xdp_action(act);
- 		case XDP_ABORTED:
-@@ -788,7 +829,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- }
- 
- static int receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
--		       void *buf, unsigned int len, void **ctx)
-+		       void *buf, unsigned int len, void **ctx, bool *xdp_xmit)
- {
- 	struct net_device *dev = vi->dev;
- 	struct sk_buff *skb;
-@@ -809,11 +850,11 @@ static int receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
- 	}
- 
- 	if (vi->mergeable_rx_bufs)
--		skb = receive_mergeable(dev, vi, rq, buf, ctx, len);
-+		skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit);
- 	else if (vi->big_packets)
- 		skb = receive_big(dev, vi, rq, buf, len);
- 	else
--		skb = receive_small(dev, vi, rq, buf, ctx, len);
-+		skb = receive_small(dev, vi, rq, buf, ctx, len, xdp_xmit);
- 
- 	if (unlikely(!skb))
- 		return 0;
-@@ -1071,7 +1112,7 @@ static void refill_work(struct work_struct *work)
- 	}
- }
- 
--static int virtnet_receive(struct receive_queue *rq, int budget)
-+static int virtnet_receive(struct receive_queue *rq, int budget, bool *xdp_xmit)
- {
- 	struct virtnet_info *vi = rq->vq->vdev->priv;
- 	unsigned int len, received = 0, bytes = 0;
-@@ -1083,13 +1124,13 @@ static int virtnet_receive(struct receive_queue *rq, int budget)
- 
- 		while (received < budget &&
- 		       (buf = virtqueue_get_buf_ctx(rq->vq, &len, &ctx))) {
--			bytes += receive_buf(vi, rq, buf, len, ctx);
-+			bytes += receive_buf(vi, rq, buf, len, ctx, xdp_xmit);
- 			received++;
- 		}
- 	} else {
- 		while (received < budget &&
- 		       (buf = virtqueue_get_buf(rq->vq, &len)) != NULL) {
--			bytes += receive_buf(vi, rq, buf, len, NULL);
-+			bytes += receive_buf(vi, rq, buf, len, NULL, xdp_xmit);
- 			received++;
- 		}
- 	}
-@@ -1161,15 +1202,19 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
- 	struct receive_queue *rq =
- 		container_of(napi, struct receive_queue, napi);
- 	unsigned int received;
-+	bool xdp_xmit = false;
- 
- 	virtnet_poll_cleantx(rq);
- 
--	received = virtnet_receive(rq, budget);
-+	received = virtnet_receive(rq, budget, &xdp_xmit);
- 
- 	/* Out of packets? */
- 	if (received < budget)
- 		virtqueue_napi_complete(napi, rq->vq, received);
- 
-+	if (xdp_xmit)
-+		xdp_do_flush_map();
-+
- 	return received;
- }
- 
-@@ -2069,6 +2114,8 @@ static const struct net_device_ops virtnet_netdev = {
- 	.ndo_poll_controller = virtnet_netpoll,
- #endif
- 	.ndo_xdp		= virtnet_xdp,
-+	.ndo_xdp_xmit		= virtnet_xdp_xmit,
-+	.ndo_xdp_flush		= virtnet_xdp_flush,
- 	.ndo_features_check	= passthru_features_check,
- };
- 
--- 
-2.7.4
+Uh indeed. And yet I could swear I've written that code... somewhere. I
+will add it to the batch of v0.5 changes, it shouldn't be too invasive.
+
+> - VIRTIO_IOMMU_PROBE_PROPERTY_TYPE_MASK is VIRTIO_IOMMU_T_MASK in your
+> header too.
+
+Yes, keeping VIRTIO_IOMMU_PROBE_PROPERTY_TYPE_MASK is probably best
+(though it is a mouthful).
+
+> 2.6.8.2:
+> - I am really confused about what the device should report as resv
+> regions depending on the PE nature (VFIO or not VFIO)
+>
+> In other iommu drivers, the resv regions are populated by the iommu
+> driver through its get_resv_regions callback. They are usually composed
+> of an iommu specific MSI region (mapped or bypassed) and non IOMMU
+> specific (device specific) reserved regions:
+> iommu_dma_get_resv_regions(). In the case of virtio-iommu driver, those
+> are the guest reserved regions.
+>
+> First in the current virtio-iommu driver I don't see the
+> iommu_dma_get_resv_regions call. Do you agree that the virtio-iommu
+> driver should compute the non IOMMU specific MSI regions. ie. this is
+> not the responsability of the virtio-iommu device.
+
+For SW_MSI, certainly. The driver allocates a fixed IOVA region for
+mapping the MSI doorbell. But the driver has to know whether the doorbell
+region is translated or bypassed.
+
+> Then why is it more the job of the device to return the guest iommu
+> specific region rather than the driver itself?
+
+The MSI region is architectural on x86 IOMMUs, but
+implementation-defined on virtio-iommu. It depends which platform the host
+is emulating. In Linux, x86 IOMMU drivers register the bypass region
+because there always is an IOAPIC on the other end, with a fixed MSI
+address. But virtio-iommu may be either behind a GIC, an APIC or some
+other IRQ chip.
+
+The driver *could* go over all the irqchips/platforms it knows and try to
+guess if there is a fixed doorbell or if it needs to reserve an IOVA for
+them, but it would look horrible. I much prefer having a well-defined way
+of doing this, so a description from the device.
+
+> Then I understand this is the responsability of the virtio-iommu device
+> to gather information about the host resv regions in case of VFIO EP.
+> Typically the host PCIe host bridge windows cannot be used for IOVA.
+> Also the host MSI reserved IOVA window cannot be used. Do you agree.
+
+Yes, all regions reported in sysfs reserved_regions in the host would be
+reported as RESV_T_RESERVED by virtio-iommu.
+
+> I really think the spec should clarify what exact resv regions the
+> device should return in case of VFIO device and non VFIO device.
+
+Agreed. I will add something about RESV_T_RESERVED with the PCI bridge
+example in Implementation Notes. Do you think the MSI examples at the end
+need improvement as well? I can try to explain that RESV_MSI regions in
+virtio-iommu are only those of the emulated platform, not the HW or SW MSI
+regions from the host.
+
+Thanks,
+Jean
