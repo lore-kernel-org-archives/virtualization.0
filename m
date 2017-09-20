@@ -1,15 +1,11 @@
-From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [RFC] virtio-iommu version 0.4
-Date: Wed, 20 Sep 2017 11:37:25 +0200
-Message-ID: <6d9f91df-ebb0-2ae0-a098-60a6bcd0e09b__38475.7405416623$1509079385$gmane$org@redhat.com>
-References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
-	<072f5a14-baae-57a9-9c5b-b93163c67075@redhat.com>
-	<4543e6dc-0f36-11ad-784a-d7c07399d10f@arm.com>
+From: =?UTF-8?q?Tom=C3=A1=C5=A1=20Golembiovsk=C3=BD?= <tgolembi@redhat.com>
+Subject: [PATCH] virtio_balloon: include buffers and chached memory statistics
+Date: Wed, 20 Sep 2017 17:48:36 +0200
+Message-ID: <0bc0c49663fafdf3b03844fe048cac3216d88c5b.1505922364.git.tgolembi__28711.2706144855$1509079399$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4543e6dc-0f36-11ad-784a-d7c07399d10f@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,112 +15,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
-Cc: Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, Robin Murphy <Robin.Murphy@arm.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
+To: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?q?Tom=C3=A1=C5=A1=20Golembiovsk=C3=BD?= <tgolembi@redhat.com>, Shaohua Li <shli@fb.com>, Huang Ying <ying.huang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jean,
-On 19/09/2017 12:47, Jean-Philippe Brucker wrote:
-> Hi Eric,
-> 
-> On 12/09/17 18:13, Auger Eric wrote:
->> 2.6.7
->> - As I am currently integrating v0.4 in QEMU here are some other comments:
->> At the moment struct virtio_iommu_req_probe flags is missing in your
->> header. As such I understood the ACK protocol was not implemented by the
->> driver in your branch.
-> 
-> Uh indeed. And yet I could swear I've written that code... somewhere. I
-> will add it to the batch of v0.5 changes, it shouldn't be too invasive.
-> 
->> - VIRTIO_IOMMU_PROBE_PROPERTY_TYPE_MASK is VIRTIO_IOMMU_T_MASK in your
->> header too.
-> 
-> Yes, keeping VIRTIO_IOMMU_PROBE_PROPERTY_TYPE_MASK is probably best
-> (though it is a mouthful).
-> 
->> 2.6.8.2:
->> - I am really confused about what the device should report as resv
->> regions depending on the PE nature (VFIO or not VFIO)
->>
->> In other iommu drivers, the resv regions are populated by the iommu
->> driver through its get_resv_regions callback. They are usually composed
->> of an iommu specific MSI region (mapped or bypassed) and non IOMMU
->> specific (device specific) reserved regions:
->> iommu_dma_get_resv_regions(). In the case of virtio-iommu driver, those
->> are the guest reserved regions.
->>
->> First in the current virtio-iommu driver I don't see the
->> iommu_dma_get_resv_regions call. Do you agree that the virtio-iommu
->> driver should compute the non IOMMU specific MSI regions ie. this is
->> not the responsability of the virtio-iommu device.
-> 
-> For SW_MSI, certainly. The driver allocates a fixed IOVA region for
-> mapping the MSI doorbell. But the driver has to know whether the doorbell
-> region is translated or bypassed.
-Sorry I was talking about *non* IOMMU specific MSI regions, typically
-the regions corresponding to guest PCI host bridge windows. This is
-normally computed in the iommu driver and I didn't that that in the
-existing virtio-iommu driver.
-> 
->> Then why is it more the job of the device to return the guest iommu
->> specific region rather than the driver itself?
-> 
-> The MSI region is architectural on x86 IOMMUs, but
-> implementation-defined on virtio-iommu. It depends which platform the host
-> is emulating. In Linux, x86 IOMMU drivers register the bypass region
-> because there always is an IOAPIC on the other end, with a fixed MSI
-> address. But virtio-iommu may be either behind a GIC, an APIC or some
-> other IRQ chip.
-> 
-> The driver *could* go over all the irqchips/platforms it knows and try to
-> guess if there is a fixed doorbell or if it needs to reserve an IOVA for
-> them, but it would look horrible. I much prefer having a well-defined way
-> of doing this, so a description from the device.
-
-This means I must have target specific code in the virtio-iommu device
-which is unusual, right? I was initially thinking you could handle that
-on the driver side using a config set for ARM|ARM64. But on the other
-hand you should communicate the info to the device ...
-
-> 
->> Then I understand this is the responsability of the virtio-iommu device
->> to gather information about the host resv regions in case of VFIO EP.
->> Typically the host PCIe host bridge windows cannot be used for IOVA.
->> Also the host MSI reserved IOVA window cannot be used. Do you agree.
-> 
-> Yes, all regions reported in sysfs reserved_regions in the host would be
-> reported as RESV_T_RESERVED by virtio-iommu.
-So to summarize if the probe request is sent to an emulated device, we
-should return the target specific MSI window. We can't and don't return
-the non IOMMU specific guest reserved windows.
-
-For a VFIO device, we would return all reserved regions of the group the
-device belongs to. Is that correct?
-> 
->> I really think the spec should clarify what exact resv regions the
->> device should return in case of VFIO device and non VFIO device.
-> 
-> Agreed. I will add something about RESV_T_RESERVED with the PCI bridge
-> example in Implementation Notes. Do you think the MSI examples at the end
-> need improvement as well? I can try to explain that RESV_MSI regions in
-> virtio-iommu are only those of the emulated platform, not the HW or SW MSI
-> regions from the host.
-
-I think I would expect an explanation detailing returned reserved
-regions for pure emulated devices and HW/VFIO devices.
-
-Another unrelated remark:
-- you should add a permission violation error.
-- wrt the probe request ACK protocol, this looks pretty heavy as both
-the driver and the device need to parse the req_probe buffer. The device
-need to fill in the output buffer and then read the same info on the
-input buffer. Couldn't we imagine something simpler?
-
-Thanks
-
-Eric
-> 
-> Thanks,
-> Jean
-> 
+QWRkIGEgbmV3IGZpZWxkcywgVklSVElPX0JBTExPT05fU19CVUZGRVJTIGFuZCBWSVJUSU9fQkFM
+TE9PTl9TX0NBQ0hFRCwKdG8gdmlydGlvX2JhbGxvb24gbWVtb3J5IHN0YXRpc3RpY3MgcHJvdG9j
+b2wuIFRoZSB2YWx1ZXMgY29ycmVzcG9uZCB0bwonQnVmZmVycycgYW5kICdDYWNoZWQnIGluIC9w
+cm9jL21lbWluZm8uCgpUbyBiZSBhYmxlIHRvIGNvbXB1dGUgdGhlIHZhbHVlIG9mICdDYWNoZWQn
+IG1lbW9yeSBpdCBpcyBuZWNlc3NhcnkgdG8KZXhwb3J0IHRvdGFsX3N3YXBjYWNoZV9wYWdlcygp
+IHRvIG1vZHVsZXMuCgpTaWduZWQtb2ZmLWJ5OiBUb23DocWhIEdvbGVtYmlvdnNrw70gPHRnb2xl
+bWJpQHJlZGhhdC5jb20+Ci0tLQogZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYyAgICAg
+fCAxMSArKysrKysrKysrKwogaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmggfCAg
+NCArKystCiBtbS9zd2FwX3N0YXRlLmMgICAgICAgICAgICAgICAgICAgICB8ICAxICsKIDMgZmls
+ZXMgY2hhbmdlZCwgMTUgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9f
+YmFsbG9vbi5jCmluZGV4IGYwYjNhMGI5ZDQyZi4uYzI1NThlYzQ3YTYyIDEwMDY0NAotLS0gYS9k
+cml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jCisrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRp
+b19iYWxsb29uLmMKQEAgLTI0NCwxMiArMjQ0LDE5IEBAIHN0YXRpYyB1bnNpZ25lZCBpbnQgdXBk
+YXRlX2JhbGxvb25fc3RhdHMoc3RydWN0IHZpcnRpb19iYWxsb29uICp2YikKIAlzdHJ1Y3Qgc3lz
+aW5mbyBpOwogCXVuc2lnbmVkIGludCBpZHggPSAwOwogCWxvbmcgYXZhaWxhYmxlOworCWxvbmcg
+Y2FjaGVkOwogCiAJYWxsX3ZtX2V2ZW50cyhldmVudHMpOwogCXNpX21lbWluZm8oJmkpOwogCiAJ
+YXZhaWxhYmxlID0gc2lfbWVtX2F2YWlsYWJsZSgpOwogCisJY2FjaGVkID0gZ2xvYmFsX25vZGVf
+cGFnZV9zdGF0ZShOUl9GSUxFX1BBR0VTKSAtCisJCQl0b3RhbF9zd2FwY2FjaGVfcGFnZXMoKSAt
+IGkuYnVmZmVycmFtOworCWlmIChjYWNoZWQgPCAwKQorCQljYWNoZWQgPSAwOworCisKICNpZmRl
+ZiBDT05GSUdfVk1fRVZFTlRfQ09VTlRFUlMKIAl1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJ
+T19CQUxMT09OX1NfU1dBUF9JTiwKIAkJCQlwYWdlc190b19ieXRlcyhldmVudHNbUFNXUElOXSkp
+OwpAQCAtMjY0LDYgKzI3MSwxMCBAQCBzdGF0aWMgdW5zaWduZWQgaW50IHVwZGF0ZV9iYWxsb29u
+X3N0YXRzKHN0cnVjdCB2aXJ0aW9fYmFsbG9vbiAqdmIpCiAJCQkJcGFnZXNfdG9fYnl0ZXMoaS50
+b3RhbHJhbSkpOwogCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19BVkFJ
+TCwKIAkJCQlwYWdlc190b19ieXRlcyhhdmFpbGFibGUpKTsKKwl1cGRhdGVfc3RhdCh2YiwgaWR4
+KyssIFZJUlRJT19CQUxMT09OX1NfQlVGRkVSUywKKwkJCQlwYWdlc190b19ieXRlcyhpLmJ1ZmZl
+cnJhbSkpOworCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19DQUNIRUQs
+CisJCQkJcGFnZXNfdG9fYnl0ZXMoY2FjaGVkKSk7CiAKIAlyZXR1cm4gaWR4OwogfQpkaWZmIC0t
+Z2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmggYi9pbmNsdWRlL3VhcGkv
+bGludXgvdmlydGlvX2JhbGxvb24uaAppbmRleCAzNDNkN2RkZWZlMDQuLjExOTIyNGMzNDM4OSAx
+MDA2NDQKLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmgKKysrIGIvaW5j
+bHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmgKQEAgLTUyLDcgKzUyLDkgQEAgc3RydWN0
+IHZpcnRpb19iYWxsb29uX2NvbmZpZyB7CiAjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTUVNRlJF
+RSAgNCAgIC8qIFRvdGFsIGFtb3VudCBvZiBmcmVlIG1lbW9yeSAqLwogI2RlZmluZSBWSVJUSU9f
+QkFMTE9PTl9TX01FTVRPVCAgIDUgICAvKiBUb3RhbCBhbW91bnQgb2YgbWVtb3J5ICovCiAjZGVm
+aW5lIFZJUlRJT19CQUxMT09OX1NfQVZBSUwgICAgNiAgIC8qIEF2YWlsYWJsZSBtZW1vcnkgYXMg
+aW4gL3Byb2MgKi8KLSNkZWZpbmUgVklSVElPX0JBTExPT05fU19OUiAgICAgICA3CisjZGVmaW5l
+IFZJUlRJT19CQUxMT09OX1NfQlVGRkVSUyAgNyAgIC8qIEJ1ZmZlcmVzIG1lbW9yeSBhcyBpbiAv
+cHJvYyAqLworI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX0NBQ0hFRCAgIDggICAvKiBDYWNoZWQg
+bWVtb3J5IGFzIGluIC9wcm9jICovCisjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTlIgICAgICAg
+OQogCiAvKgogICogTWVtb3J5IHN0YXRpc3RpY3Mgc3RydWN0dXJlLgpkaWZmIC0tZ2l0IGEvbW0v
+c3dhcF9zdGF0ZS5jIGIvbW0vc3dhcF9zdGF0ZS5jCmluZGV4IDcxY2UyZDFjY2JmNy4uZjNhNGZm
+N2Q2YzUyIDEwMDY0NAotLS0gYS9tbS9zd2FwX3N0YXRlLmMKKysrIGIvbW0vc3dhcF9zdGF0ZS5j
+CkBAIC05NSw2ICs5NSw3IEBAIHVuc2lnbmVkIGxvbmcgdG90YWxfc3dhcGNhY2hlX3BhZ2VzKHZv
+aWQpCiAJcmN1X3JlYWRfdW5sb2NrKCk7CiAJcmV0dXJuIHJldDsKIH0KK0VYUE9SVF9TWU1CT0xf
+R1BMKHRvdGFsX3N3YXBjYWNoZV9wYWdlcyk7CiAKIHN0YXRpYyBhdG9taWNfdCBzd2FwaW5fcmVh
+ZGFoZWFkX2hpdHMgPSBBVE9NSUNfSU5JVCg0KTsKIAotLSAKMi4xNC4xCgpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
+IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
+aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
