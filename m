@@ -1,14 +1,16 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [RFC] virtio-iommu version 0.4
-Date: Tue, 19 Sep 2017 11:47:43 +0100
-Message-ID: <4543e6dc-0f36-11ad-784a-d7c07399d10f__19484.0363030837$1505817831$gmane$org@arm.com>
-References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
-	<072f5a14-baae-57a9-9c5b-b93163c67075@redhat.com>
+From: Laura Abbott <labbott@redhat.com>
+Subject: Re: Regression in virtio block driver with 4.13.2
+Date: Tue, 19 Sep 2017 17:15:47 -0700
+Message-ID: <227487f8-3b7a-a431-da32-890f4a73732b@redhat.com>
+References: <93e65aef-e93d-6a99-854a-f6147f84e3b1@redhat.com>
+	<20170915173703.GA23073@infradead.org>
+	<db314009-f47f-17bc-e2d6-d84936432575@redhat.com>
+	<20170917235731.GA31789@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <072f5a14-baae-57a9-9c5b-b93163c67075@redhat.com>
+In-Reply-To: <20170917235731.GA31789@infradead.org>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,79 +21,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Auger Eric <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
-Cc: Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, Robin Murphy <Robin.Murphy@arm.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Eric,
+On 09/17/2017 04:57 PM, Christoph Hellwig wrote:
+> On Sat, Sep 16, 2017 at 04:16:06PM -0700, Laura Abbott wrote:
+>> Yes, the issue goes  away when CONFIG_VIRTIO_BLK_SCSI is
+>> disabled.
+> 
+> Ok, so it's probably related to follow ups to the scsi_request split.
+> 
+> That being said, I would highly recommend turning off
+> CONFIG_VIRTIO_BLK_SCSI in fedora.  The feature has caused more trouble
+> than it helped with, and should never have been added (saying that as
+> the person who added it). It was never supported with virtio 1.0 devices
+> and has been disabled in qemu by default for quite a while.
+> 
 
-On 12/09/17 18:13, Auger Eric wrote:
-> 2.6.7
-> - As I am currently integrating v0.4 in QEMU here are some other comments:
-> At the moment struct virtio_iommu_req_probe flags is missing in your
-> header. As such I understood the ACK protocol was not implemented by the
-> driver in your branch.
+Thanks for the pointer, I went and turned it off on our 4.13 based
+kernels.
 
-Uh indeed. And yet I could swear I've written that code... somewhere. I
-will add it to the batch of v0.5 changes, it shouldn't be too invasive.
-
-> - VIRTIO_IOMMU_PROBE_PROPERTY_TYPE_MASK is VIRTIO_IOMMU_T_MASK in your
-> header too.
-
-Yes, keeping VIRTIO_IOMMU_PROBE_PROPERTY_TYPE_MASK is probably best
-(though it is a mouthful).
-
-> 2.6.8.2:
-> - I am really confused about what the device should report as resv
-> regions depending on the PE nature (VFIO or not VFIO)
->
-> In other iommu drivers, the resv regions are populated by the iommu
-> driver through its get_resv_regions callback. They are usually composed
-> of an iommu specific MSI region (mapped or bypassed) and non IOMMU
-> specific (device specific) reserved regions:
-> iommu_dma_get_resv_regions(). In the case of virtio-iommu driver, those
-> are the guest reserved regions.
->
-> First in the current virtio-iommu driver I don't see the
-> iommu_dma_get_resv_regions call. Do you agree that the virtio-iommu
-> driver should compute the non IOMMU specific MSI regions. ie. this is
-> not the responsability of the virtio-iommu device.
-
-For SW_MSI, certainly. The driver allocates a fixed IOVA region for
-mapping the MSI doorbell. But the driver has to know whether the doorbell
-region is translated or bypassed.
-
-> Then why is it more the job of the device to return the guest iommu
-> specific region rather than the driver itself?
-
-The MSI region is architectural on x86 IOMMUs, but
-implementation-defined on virtio-iommu. It depends which platform the host
-is emulating. In Linux, x86 IOMMU drivers register the bypass region
-because there always is an IOAPIC on the other end, with a fixed MSI
-address. But virtio-iommu may be either behind a GIC, an APIC or some
-other IRQ chip.
-
-The driver *could* go over all the irqchips/platforms it knows and try to
-guess if there is a fixed doorbell or if it needs to reserve an IOVA for
-them, but it would look horrible. I much prefer having a well-defined way
-of doing this, so a description from the device.
-
-> Then I understand this is the responsability of the virtio-iommu device
-> to gather information about the host resv regions in case of VFIO EP.
-> Typically the host PCIe host bridge windows cannot be used for IOVA.
-> Also the host MSI reserved IOVA window cannot be used. Do you agree.
-
-Yes, all regions reported in sysfs reserved_regions in the host would be
-reported as RESV_T_RESERVED by virtio-iommu.
-
-> I really think the spec should clarify what exact resv regions the
-> device should return in case of VFIO device and non VFIO device.
-
-Agreed. I will add something about RESV_T_RESERVED with the PCI bridge
-example in Implementation Notes. Do you think the MSI examples at the end
-need improvement as well? I can try to explain that RESV_MSI regions in
-virtio-iommu are only those of the emulated platform, not the HW or SW MSI
-regions from the host.
-
-Thanks,
-Jean
+Laura
