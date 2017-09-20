@@ -1,16 +1,13 @@
-From: Laura Abbott <labbott@redhat.com>
-Subject: Re: Regression in virtio block driver with 4.13.2
-Date: Tue, 19 Sep 2017 17:15:47 -0700
-Message-ID: <227487f8-3b7a-a431-da32-890f4a73732b@redhat.com>
-References: <93e65aef-e93d-6a99-854a-f6147f84e3b1@redhat.com>
-	<20170915173703.GA23073@infradead.org>
-	<db314009-f47f-17bc-e2d6-d84936432575@redhat.com>
-	<20170917235731.GA31789@infradead.org>
+From: "Liang, Cunming" <cunming.liang@intel.com>
+Subject: RE: [virtio-dev] packed ring layout proposal v3
+Date: Wed, 20 Sep 2017 09:11:57 +0000
+Message-ID: <D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170917235731.GA31789@infradead.org>
+In-Reply-To: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,25 +18,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/17/2017 04:57 PM, Christoph Hellwig wrote:
-> On Sat, Sep 16, 2017 at 04:16:06PM -0700, Laura Abbott wrote:
->> Yes, the issue goes  away when CONFIG_VIRTIO_BLK_SCSI is
->> disabled.
-> 
-> Ok, so it's probably related to follow ups to the scsi_request split.
-> 
-> That being said, I would highly recommend turning off
-> CONFIG_VIRTIO_BLK_SCSI in fedora.  The feature has caused more trouble
-> than it helped with, and should never have been added (saying that as
-> the person who added it). It was never supported with virtio 1.0 devices
-> and has been disabled in qemu by default for quite a while.
-> 
+Hi Michael,
 
-Thanks for the pointer, I went and turned it off on our 4.13 based
-kernels.
+> -----Original Message-----
+> From: virtio-dev@lists.oasis-open.org [mailto:virtio-dev@lists.oasis-open.org]
+> On Behalf Of Michael S. Tsirkin
+> Sent: Sunday, September 10, 2017 1:06 PM
+> To: virtio-dev@lists.oasis-open.org
+> Cc: virtualization@lists.linux-foundation.org
+> Subject: [virtio-dev] packed ring layout proposal v3
+> 
+[...]
+> * Descriptor ring:
+> 
+> Driver writes descriptors with unique index values and DESC_DRIVER set in
+> flags.
+> Descriptors are written in a ring order: from start to end of ring, wrapping
+> around to the beginning.
+> Device writes used descriptors with correct len, index, and DESC_HW clear.
+> Again descriptors are written in ring order. This might not be the same order
+> of driver descriptors, and not all descriptors have to be written out.
+> 
+> Driver and device are expected to maintain (internally) a wrap-around bit,
+> starting at 0 and changing value each time they start writing out descriptors
+> at the beginning of the ring. This bit is passed as DESC_WRAP bit in the flags
+> field.
 
-Laura
+One simple question there, trying to understand the usage of DESC_WRAP flag.
+
+DESC_WRAP bit is a new flag since v2. It's used to address 'non power-of-2 ring sizes' mentioned in v2?
+
+Being confused by the statement of wrap-around bit here, it's an internal wrap-around counter represented by single bit (0/1)?
+DESC_WRAP can appear on any descriptor entry in the ring, why it highlights changing value at the beginning of the ring?
+
+> 
+> Flags are always set/cleared last.
+> 
+> Note that driver can write descriptors out in any order, but device will not
+> execute descriptor X+1 until descriptor X has been read as valid.
+> 
+> Driver operation:
+> 
+[...]
+> 
+> DESC_WRAP - device uses this field to detect descriptor change by driver.
+
+Device uses this field to detect change of wrap-around boundary by driver? 
+
+[...]
+> 
+> Device operation (using descriptors):
+> 
+[...]
+> 
+> DESC_WRAP - driver uses this field to detect descriptor change by device.
+
+Driver uses this field to detect change of wrap-around boundary by device?
+
+By using this, driver doesn't need to maintain any internal wrap-around count, but being aware of wrap-around by DESC_WRAP flag.
+
+
+Thanks,
+Steve
+
+> 
+[...]
+> 
+> ---
+> 
+> Note: should this proposal be accepted and approved, one or more
+>       claims disclosed to the TC admin and listed on the Virtio TC
+>       IPR page https://www.oasis-open.org/committees/virtio/ipr.php
+>       might become Essential Claims.
+> Note: the page above is unfortunately out of date and out of
+>       my hands. I'm in the process of updating ipr disclosures
+>       in github instead.  Will make sure all is in place before
+>       this proposal is put to vote. As usual this TC operates under the
+>       Non-Assertion Mode of the OASIS IPR Policy, which protects
+>       anyone implementing the virtio spec.
+> 
+> --
+> MST
+> 
+> ---------------------------------------------------------------------
+> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
