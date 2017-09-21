@@ -1,16 +1,13 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [RFC] virtio-iommu version 0.4
-Date: Thu, 21 Sep 2017 11:29:37 +0100
-Message-ID: <edb3232f-ed46-9ba5-27a8-281b2f9a5f0c__4811.47552277452$1505989545$gmane$org@arm.com>
-References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
-	<072f5a14-baae-57a9-9c5b-b93163c67075@redhat.com>
-	<4543e6dc-0f36-11ad-784a-d7c07399d10f@arm.com>
-	<6d9f91df-ebb0-2ae0-a098-60a6bcd0e09b@redhat.com>
+From: "Liang, Cunming" <cunming.liang@intel.com>
+Subject: RE: [virtio-dev] packed ring layout proposal v3
+Date: Thu, 21 Sep 2017 13:36:37 +0000
+Message-ID: <D0158A423229094DA7ABF71CF2FA0DA34E1A62C8@SHSMSX152.ccr.corp.intel.com>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <6d9f91df-ebb0-2ae0-a098-60a6bcd0e09b@redhat.com>
+In-Reply-To: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,147 +18,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Auger Eric <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
-Cc: Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, Robin Murphy <Robin.Murphy@arm.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 20/09/17 10:37, Auger Eric wrote:
-> Hi Jean,
-> On 19/09/2017 12:47, Jean-Philippe Brucker wrote:
->> Hi Eric,
->>
->> On 12/09/17 18:13, Auger Eric wrote:
->>> 2.6.7
->>> - As I am currently integrating v0.4 in QEMU here are some other comments:
->>> At the moment struct virtio_iommu_req_probe flags is missing in your
->>> header. As such I understood the ACK protocol was not implemented by the
->>> driver in your branch.
->>
->> Uh indeed. And yet I could swear I've written that code... somewhere. I
->> will add it to the batch of v0.5 changes, it shouldn't be too invasive.
->>
->>> - VIRTIO_IOMMU_PROBE_PROPERTY_TYPE_MASK is VIRTIO_IOMMU_T_MASK in your
->>> header too.
->>
->> Yes, keeping VIRTIO_IOMMU_PROBE_PROPERTY_TYPE_MASK is probably best
->> (though it is a mouthful).
->>
->>> 2.6.8.2:
->>> - I am really confused about what the device should report as resv
->>> regions depending on the PE nature (VFIO or not VFIO)
->>>
->>> In other iommu drivers, the resv regions are populated by the iommu
->>> driver through its get_resv_regions callback. They are usually composed
->>> of an iommu specific MSI region (mapped or bypassed) and non IOMMU
->>> specific (device specific) reserved regions:
->>> iommu_dma_get_resv_regions(). In the case of virtio-iommu driver, those
->>> are the guest reserved regions.
->>>
->>> First in the current virtio-iommu driver I don't see the
->>> iommu_dma_get_resv_regions call. Do you agree that the virtio-iommu
->>> driver should compute the non IOMMU specific MSI regions ie. this is
->>> not the responsability of the virtio-iommu device.
->>
->> For SW_MSI, certainly. The driver allocates a fixed IOVA region for
->> mapping the MSI doorbell. But the driver has to know whether the doorbell
->> region is translated or bypassed.
-> Sorry I was talking about *non* IOMMU specific MSI regions, typically
-> the regions corresponding to guest PCI host bridge windows. This is
-> normally computed in the iommu driver and I didn't that that in the
-> existing virtio-iommu driver.
+Hi,
 
-Ah right, I don't think the virtio-iommu device has to report the windows
-of the emulated host bridge. RESV is useful for things that are not
-obvious to the guest, for instance the physical PCI bridges that are
-hidden from the guest.
-
-It's an interesting point though, I can imagine non-Linux guest that are
-not as well-equipped with dealing with things like PCI bridge windows, and
-could benefit from the device reporting them.
-
-In the end it is up to the device implementation to decide what regions to
-report, and make sure that the guest is aware of the various traps in IOVA
-space. For things like emulated bridges, the device can expect the guest
-to find out about them. For physical bridges/SW_MSI of the host, it should
-report the region and make sure that the guest doesn't map them. I'll add
-a few more examples to the Implementation Notes, but I suspect reading
-your Qemu source code will always be more helpful to people.
-
->>> Then why is it more the job of the device to return the guest iommu
->>> specific region rather than the driver itself?
->>
->> The MSI region is architectural on x86 IOMMUs, but
->> implementation-defined on virtio-iommu. It depends which platform the host
->> is emulating. In Linux, x86 IOMMU drivers register the bypass region
->> because there always is an IOAPIC on the other end, with a fixed MSI
->> address. But virtio-iommu may be either behind a GIC, an APIC or some
->> other IRQ chip.
->>
->> The driver *could* go over all the irqchips/platforms it knows and try to
->> guess if there is a fixed doorbell or if it needs to reserve an IOVA for
->> them, but it would look horrible. I much prefer having a well-defined way
->> of doing this, so a description from the device.
+> -----Original Message-----
+> From: virtio-dev@lists.oasis-open.org [mailto:virtio-dev@lists.oasis-open.org] On
+> Behalf Of Michael S. Tsirkin
+> Sent: Sunday, September 10, 2017 1:06 PM
+> To: virtio-dev@lists.oasis-open.org
+> Cc: virtualization@lists.linux-foundation.org
+> Subject: [virtio-dev] packed ring layout proposal v3
 > 
-> This means I must have target specific code in the virtio-iommu device
-> which is unusual, right? I was initially thinking you could handle that
-> on the driver side using a config set for ARM|ARM64. But on the other
-> hand you should communicate the info to the device ...
-
-But the device has to know that it has a region that DMA transactions
-bypass, right? If you want to implement MSI bypass, then you already have
-to add a special case to your device code, and reporting it in a probe
-shouldn't require a lot more work. For example, amdvi_translate() has a
-special case for amdvi_is_interrupt_addr().
-
->>> Then I understand this is the responsability of the virtio-iommu device
->>> to gather information about the host resv regions in case of VFIO EP.
->>> Typically the host PCIe host bridge windows cannot be used for IOVA.
->>> Also the host MSI reserved IOVA window cannot be used. Do you agree.
->>
->> Yes, all regions reported in sysfs reserved_regions in the host would be
->> reported as RESV_T_RESERVED by virtio-iommu.
-> So to summarize if the probe request is sent to an emulated device, we
-> should return the target specific MSI window. We can't and don't return
-> the non IOMMU specific guest reserved windows.
+[...]
+> * Batching descriptors:
 > 
-> For a VFIO device, we would return all reserved regions of the group the
-> device belongs to. Is that correct?
-
-Yes
-
->>
->>> I really think the spec should clarify what exact resv regions the
->>> device should return in case of VFIO device and non VFIO device.
->>
->> Agreed. I will add something about RESV_T_RESERVED with the PCI bridge
->> example in Implementation Notes. Do you think the MSI examples at the end
->> need improvement as well? I can try to explain that RESV_MSI regions in
->> virtio-iommu are only those of the emulated platform, not the HW or SW MSI
->> regions from the host.
+> virtio 1.0 allows passing a batch of descriptors in both directions, by incrementing
+> the used/avail index by values > 1.
+> At the moment only batching of used descriptors is used.
 > 
-> I think I would expect an explanation detailing returned reserved
-> regions for pure emulated devices and HW/VFIO devices.
+> We can support this by chaining a list of device descriptors through
+> VRING_DESC_F_MORE flag. Device sets this bit to signal driver that this is part of
+> a batch of used descriptors which are all part of a single transaction.
+
+It supposes each s/g chain represents for a packet, while each descriptor among batching chain represents for a packet. There're a few thoughts of batching chain(by VRING_DESC_F_MORE) and s/g chain(by VRING_DESC_F_NEXT).
+
+- batching chain: It's up to device to coalesce the write-out of a batched used descriptors. As the batching size is variable, driver has to detect validity of each descriptor unless the number of incoming valid descriptor is predictable, being curious on the benefits of driver from VRING_DESC_F_MORE to take  batching descriptors as a single transaction. On device perspective, it's great to write out one descriptor for the whole chain. However, it assumes no other useful fields in each descriptor of chain needs to write. TX buffer reclaiming can be the candidate, while RX side has to update 'len' at least. Even for this purpose, instead of writing out VRING_DESC_F_MORE on a few descriptors to suppress device writing back, it's cheaper to set flag (e.g. VRING_DESC_F_WB) on single descriptor
+  of chain to hint the expected position for device to write back.
+
+- s/g chain: It makes sense to indicate the packet boundary. Considering in-order descriptor ring without VRING_DESC_F_INDIRECT, the next descriptor always belongs to the same s/g chain until end of packet indicators occur. So one alternative approach is only to set a flag (e.g. VRING_DESC_F_EOP) on the last descriptor of the chain. 
+
 > 
-> Another unrelated remark:
-> - you should add a permission violation error.
+> Driver might detect a partial descriptor chain (VRING_DESC_F_MORE set but next
+> descriptor not valid). In that case it must not use any parts of the chain - it will
+> later be completed by device, but driver is allowed to store the valid parts of the
+> chain as device is not allowed to change them anymore.
+As each descriptor represent for a whole packet(otherwise it's s/g chain), wondering why it must not use any parts of the chain. 
 
-Do you mean reporting errors from device to driver? It's on the top of my
-list, I might add it to v0.5 (without recoverable/PRI mode at the moment)
+> 
+> Descriptor should not have both VRING_DESC_F_MORE and
+> VRING_DESC_F_NEXT set.
+> 
+[...]
+> 
+> * Selective use of descriptors
+> 
+> As described above, descriptors with NEXT bit set are part of a scatter/gather
+> chain and so do not have to cause device to write a used descriptor out.
+> 
+> Similarly, driver can set a flag VRING_DESC_F_MORE in the descriptor to signal to
+> device that it does not have to write out the used descriptor as it is part of a batch
+> of descriptors. Device has two options (similar to VRING_DESC_F_NEXT):
+> 
+> Device can write out the same number of descriptors for the batch, setting
+> VRING_DESC_F_MORE for all but the last descriptor.
+> Driver will ignore all used descriptors with VRING_DESC_F_MORE bit set.
+It will write out last descriptor without VRING_DESC_F_MORE anyway, so the following statement seems not like another option.
 
-> - wrt the probe request ACK protocol, this looks pretty heavy as both
-> the driver and the device need to parse the req_probe buffer. The device
-> need to fill in the output buffer and then read the same info on the
-> input buffer. Couldn't we imagine something simpler?
+> 
+> Device only writes out a single descriptor for the whole batch.
+> However, to keep device and driver in sync, it then skips a number of descriptors
+> corresponding to the length of the batch before writing out the next used
+> descriptor.
+> After detecting a used descriptor driver must find out the length of the batch that
+> it built in order to know where to look for the next device descriptor.
+It would be good to keep it simple on device side, and to have the driver control the expectation.
 
-I can't, but I can get rid of the ack protocol and leave space if someone
-needs to re-introduce it. I quite like it but don't think it'll be useful
-to the few features I'm planning to add. A future re-introduction will
-simply have to add a global feature bit VIRTIO_IOMMU_F_PROBE_ACK.
-
-Note that the device isn't required to implement the ACK phase, we simply
-give it a chance to verify that the driver understood its information. It
-could simply check if the ACK bit is present and ignore the request in
-this case.
+> 
+> 
+> TODO (blocker): skipping descriptors for selective and scatter/gather seem to be
+> only requested with in-order right now. Let's require in-order for this skipping?
+> This will simplify the accounting by driver.
+> 
+> 
 
 Thanks,
-Jean
+Steve
