@@ -1,14 +1,17 @@
-From: John Fastabend <john.fastabend@gmail.com>
-Subject: Re: [PATCH net-next 3/3] virtio-net: support XDP_REDIRECT
-Date: Wed, 20 Sep 2017 15:02:48 -0700
-Message-ID: <59C2E588.6060203__43232.1268170655$1505944986$gmane$org@gmail.com>
-References: <1505814163-7315-1-git-send-email-jasowang@redhat.com>
-	<1505814163-7315-3-git-send-email-jasowang@redhat.com>
+From: "Tian, Kevin" <kevin.tian@intel.com>
+Subject: RE: [RFC] virtio-iommu version 0.4
+Date: Thu, 21 Sep 2017 06:27:17 +0000
+Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D190DDCF8D__2983.15355689756$1505975250$gmane$org@SHSMSX101.ccr.corp.intel.com>
+References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
+	<5be484ff-6a1a-6c9b-947c-f64ea23f58cc@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D190D941E3@SHSMSX101.ccr.corp.intel.com>
+	<013a2fdd-86f7-a7ee-7e71-11bbb6261f33@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1505814163-7315-3-git-send-email-jasowang@redhat.com>
+In-Reply-To: <013a2fdd-86f7-a7ee-7e71-11bbb6261f33@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,57 +21,168 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/19/2017 02:42 AM, Jason Wang wrote:
-> This patch tries to add XDP_REDIRECT for virtio-net. The changes are
-> not complex as we could use exist XDP_TX helpers for most of the
-> work. The rest is passing the XDP_TX to NAPI handler for implementing
-> batching.
+> From: Jean-Philippe Brucker
+> Sent: Wednesday, September 6, 2017 7:55 PM
 > 
-> Cc: John Fastabend <john.fastabend@gmail.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
+> Hi Kevin,
+> 
+> On 28/08/17 08:39, Tian, Kevin wrote:
+> > Here comes some comments:
+> >
+> > 1.1 Motivation
+> >
+> > You describe I/O page faults handling as future work. Seems you
+> considered
+> > only recoverable fault (since "aka. PCI PRI" being used). What about other
+> > unrecoverable faults e.g. what to do if a virtual DMA request doesn't find
+> > a valid mapping? Even when there is no PRI support, we need some basic
+> > form of fault reporting mechanism to indicate such errors to guest.
+> 
+> I am considering recoverable faults as the end goal, but reporting
+> unrecoverable faults should use the same queue, with slightly different
+> fields and no need for the driver to reply to the device.
 
-[...]
+what about adding a placeholder for now? Though same mechanism
+can be reused, it's an essential part to make virtio-iommu architecture
+complete even before talking support for recoverable faults. :-)
 
-> @@ -678,12 +711,20 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->  			}
->  			break;
->  		case XDP_TX:
-> -			if (unlikely(!virtnet_xdp_xmit(vi, &xdp)))
-> +			if (unlikely(!__virtnet_xdp_xmit(vi, &xdp)))
->  				trace_xdp_exception(vi->dev, xdp_prog, act);
-> +			else
-> +				*xdp_xmit = true;
->  			if (unlikely(xdp_page != page))
->  				goto err_xdp;
->  			rcu_read_unlock();
->  			goto xdp_xmit;
-> +		case XDP_REDIRECT:
-> +			err = xdp_do_redirect(dev, &xdp, xdp_prog);
-> +			if (err)
-> +				*xdp_xmit = true;
+> 
+> > 2.6.8.2 Property RESV_MEM
+> >
+> > I'm not immediately clear when
+> VIRTIO_IOMMU_PROBE_RESV_MEM_T_ABORT
+> > should be explicitly reported. Is there any real example on bare metal
+> IOMMU?
+> > usually reserved memory is reported to CPU through other method (e.g.
+> e820
+> > on x86 platform). Of course MSI is a special case which is covered by
+> BYPASS
+> > and MSI flag... If yes, maybe you can also include an example in
+> implementation
+> > notes.
+> 
+> The RESV_MEM regions only describes IOVA space for the moment, not
+> guest-physical, so I guess it provides different information than e820.
+> 
+> I think a useful example is the PCI bridge windows reported by the Linux
+> host to userspace using RESV_RESERVED regions (see
+> iommu_dma_get_resv_regions). If I understand correctly, they represent
+> DMA
+> addresses that shouldn't be accessed by endpoints because they won't
+> reach
+> the IOMMU. These are specific to the physical topology: a device will have
+> different reserved regions depending on the PCI slot it occupies.
+> 
+> When handled properly, PCI bridge windows quickly become a nuisance.
+> With
+> kvmtool we observed that carving out their addresses globally removes a
+> lot of useful GPA space from the guest. Without a virtual IOMMU we can
+> either ignore them and hope everything will be fine, or remove all
+> reserved regions from the GPA space (which currently means editing by
+> hand
+> the static guest-physical map...)
+> 
+> That's where RESV_MEM_T_ABORT comes handy with virtio-iommu. It
+> describes
+> reserved IOVAs for a specific endpoint, and therefore removes the need to
+> carve the window out of the whole guest.
 
-Is this a typo? Should above be
+Understand and thanks for elaboration.
 
-			if (!err)
-				*xdp_xmit = true;
+> 
+> > Another thing I want to ask your opinion, about whether there is value of
+> > adding another subtype (MEM_T_IDENTITY), asking for identity mapping
+> > in the address space. It's similar to Reserved Memory Region Reporting
+> > (RMRR) structure defined in VT-d, to indicate BIOS allocated reserved
+> > memory ranges which may be DMA target and has to be identity mapped
+> > when DMA remapping is enabled. I'm not sure whether ARM has similar
+> > capability and whether there might be a general usage beyond VT-d. For
+> > now the only usage in my mind is to assign a device with RMRR associated
+> > on VT-d (Intel GPU, or some USB controllers) where the RMRR info needs
+> > propagated to the guest (since identity mapping also means reservation
+> > of virtual address space).
+> 
+> Yes I think adding MEM_T_IDENTITY will be necessary. I can see they are
+> used for both iGPU and USB controllers on my x86 machines. Do you know
+> more precisely what they are used for by the firmware?
 
-this would match the pattern in receive_small and also make more sense.
+VTd spec has a clear description:
 
-> +			rcu_read_unlock();
-> +			goto xdp_xmit;
->  		default:
->  			bpf_warn_invalid_xdp_action(act);
->  		case XDP_ABORTED:
-> @@ -788,7 +829,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->  }
->  
+3.14 Handling Requests to Reserved System Memory
+Reserved system memory regions are typically allocated by BIOS at boot 
+time and reported to OS as reserved address ranges in the system memory 
+map. Requests-without-PASID to these reserved regions may either occur 
+as a result of operations performed by the system software driver (for 
+example in the case of DMA from unified memory access (UMA) graphics 
+controllers to graphics reserved memory), or may be initiated by non 
+system software (for example in case of DMA performed by a USB 
+controller under BIOS SMM control for legacy keyboard emulation). 
+For proper functioning of these legacy reserved memory usages, when 
+system software enables DMA remapping, the second-level translation 
+structures for the respective devices are expected to be set up to provide
+identity mapping for the specified reserved memory regions with read 
+and write permissions.
 
-[...]
+(one specific example for GPU happens in legacy VGA usage in early
+boot time before actual graphics driver is loaded)
 
-Otherwise looks good to me thanks for doing this.
+> 
+> It's not necessary with the base virtio-iommu device though (v0.4),
+> because the device can create the identity mappings itself and report them
+> to the guest as MEM_T_BYPASS. However, when we start handing page
 
-.John
+when you say "the device can create ...", I think you really meant
+"host iommu driver can create identity mapping for assigned device",
+correct?
+
+Then yes, I think above works.
+
+> table
+> control over to the guest, the host won't be in control of IOVA->GPA
+> mappings and will need to gracefully ask the guest to do it.
+> 
+> I'm not aware of any firmware description resembling Intel RMRR or AMD
+> IVMD on ARM platforms. I do think ARM platforms could need
+> MEM_T_IDENTITY
+> for requesting the guest to map MSI windows when page-table handover is
+> in
+> use (MSI addresses are translated by the physical SMMU, so a IOVA->GPA
+> mapping must be installed by the guest). But since a vSMMU would need a
+> solution as well, I think I'll try to implement something more generic.
+
+curious do you need identity mapping full IOVA->GPA->HPA translation, 
+or just in GPA->HPA stage sufficient for above MSI scenario?
+
+> 
+> > 2.6.8.2.3 Device Requirements: Property RESV_MEM
+> >
+> > --citation start--
+> > If an endpoint is attached to an address space, the device SHOULD leave
+> > any access targeting one of its
+> VIRTIO_IOMMU_PROBE_RESV_MEM_T_BYPASS
+> > regions pass through untranslated. In other words, the device SHOULD
+> > handle such a region as if it was identity-mapped (virtual address equal to
+> > physical address). If the endpoint is not attached to any address space,
+> > then the device MAY abort the transaction.
+> > --citation end
+> >
+> > I have a question for the last sentence. From definition of BYPASS, it's
+> > orthogonal to whether there is an address space attached, then should
+> > we still allow "May abort" behavior?
+> 
+> The behavior is left as an implementation choice, and I'm not sure it's
+> worth enforcing in the architecture. If the endpoint isn't attached to any
+> domain then (unless VIRTIO_IOMMU_F_BYPASS is negotiated), it isn't
+> necessarily able to do DMA at all. The virtio-iommu device may setup DMA
+> mastering lazily, in which case any DMA transaction would abort, or have
+> setup DMA already, in which case the endpoint can access MEM_T_BYPASS
+> regions.
+> 
+
+fair enough. thanks
+
+Kevin
