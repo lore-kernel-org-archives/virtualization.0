@@ -1,11 +1,14 @@
-From: Thomas Huth <thuth@redhat.com>
-Subject: [PATCH] KVM: s390: Disable CONFIG_S390_GUEST_OLD_TRANSPORT by default
-Date: Mon, 25 Sep 2017 16:45:29 +0200
-Message-ID: <1506350729-11311-1-git-send-email-thuth__18561.3125017428$1509079434$gmane$org@redhat.com>
+From: =?UTF-8?q?Tom=C3=A1=C5=A1=20Golembiovsk=C3=BD?= <tgolembi@redhat.com>
+Subject: [PATCH v2 1/1] virtio_balloon: include buffers and cached memory
+	statistics
+Date: Thu, 21 Sep 2017 14:55:41 +0200
+Message-ID: <b13f11c03ed394bd8ad367dc90996ed134ea98da.1505998455.git.tgolembi__1888.81967119432$1509079438$gmane$org@redhat.com>
+References: <cover.1505998455.git.tgolembi@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1505998455.git.tgolembi@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,30 +18,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-mm@kvack.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtio-dev@lists.oasis-open.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?q?Tom=C3=A1=C5=A1=20Golembiovsk=C3=BD?= <tgolembi@redhat.com>, Shaohua Li <shli@fb.com>, Huang Ying <ying.huang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There is no recent user space application available anymore which still
-supports this old virtio transport, so let's disable this by default.
-
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- arch/s390/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 48af970..923bf04 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -930,7 +930,7 @@ config S390_GUEST
- 	  the KVM hypervisor.
- 
- config S390_GUEST_OLD_TRANSPORT
--	def_bool y
-+	def_bool n
- 	prompt "Guest support for old s390 virtio transport (DEPRECATED)"
- 	depends on S390_GUEST
- 	help
--- 
-1.8.3.1
+QWRkIGEgbmV3IGZpZWxkcywgVklSVElPX0JBTExPT05fU19CVUZGRVJTIGFuZCBWSVJUSU9fQkFM
+TE9PTl9TX0NBQ0hFRCwKdG8gdmlydGlvX2JhbGxvb24gbWVtb3J5IHN0YXRpc3RpY3MgcHJvdG9j
+b2wuIFRoZSB2YWx1ZXMgY29ycmVzcG9uZCB0bwonQnVmZmVycycgYW5kICdDYWNoZWQnIGluIC9w
+cm9jL21lbWluZm8uCgpUbyBiZSBhYmxlIHRvIGNvbXB1dGUgdGhlIHZhbHVlIG9mICdDYWNoZWQn
+IG1lbW9yeSBpdCBpcyBuZWNlc3NhcnkgdG8KZXhwb3J0IHRvdGFsX3N3YXBjYWNoZV9wYWdlcygp
+IHRvIG1vZHVsZXMuCgpTaWduZWQtb2ZmLWJ5OiBUb23DocWhIEdvbGVtYmlvdnNrw70gPHRnb2xl
+bWJpQHJlZGhhdC5jb20+Ci0tLQogZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYyAgICAg
+fCAxMSArKysrKysrKysrKwogaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmggfCAg
+NCArKystCiBtbS9zd2FwX3N0YXRlLmMgICAgICAgICAgICAgICAgICAgICB8ICAxICsKIDMgZmls
+ZXMgY2hhbmdlZCwgMTUgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9f
+YmFsbG9vbi5jCmluZGV4IGYwYjNhMGI5ZDQyZi4uYzI1NThlYzQ3YTYyIDEwMDY0NAotLS0gYS9k
+cml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jCisrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRp
+b19iYWxsb29uLmMKQEAgLTI0NCwxMiArMjQ0LDE5IEBAIHN0YXRpYyB1bnNpZ25lZCBpbnQgdXBk
+YXRlX2JhbGxvb25fc3RhdHMoc3RydWN0IHZpcnRpb19iYWxsb29uICp2YikKIAlzdHJ1Y3Qgc3lz
+aW5mbyBpOwogCXVuc2lnbmVkIGludCBpZHggPSAwOwogCWxvbmcgYXZhaWxhYmxlOworCWxvbmcg
+Y2FjaGVkOwogCiAJYWxsX3ZtX2V2ZW50cyhldmVudHMpOwogCXNpX21lbWluZm8oJmkpOwogCiAJ
+YXZhaWxhYmxlID0gc2lfbWVtX2F2YWlsYWJsZSgpOwogCisJY2FjaGVkID0gZ2xvYmFsX25vZGVf
+cGFnZV9zdGF0ZShOUl9GSUxFX1BBR0VTKSAtCisJCQl0b3RhbF9zd2FwY2FjaGVfcGFnZXMoKSAt
+IGkuYnVmZmVycmFtOworCWlmIChjYWNoZWQgPCAwKQorCQljYWNoZWQgPSAwOworCisKICNpZmRl
+ZiBDT05GSUdfVk1fRVZFTlRfQ09VTlRFUlMKIAl1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJ
+T19CQUxMT09OX1NfU1dBUF9JTiwKIAkJCQlwYWdlc190b19ieXRlcyhldmVudHNbUFNXUElOXSkp
+OwpAQCAtMjY0LDYgKzI3MSwxMCBAQCBzdGF0aWMgdW5zaWduZWQgaW50IHVwZGF0ZV9iYWxsb29u
+X3N0YXRzKHN0cnVjdCB2aXJ0aW9fYmFsbG9vbiAqdmIpCiAJCQkJcGFnZXNfdG9fYnl0ZXMoaS50
+b3RhbHJhbSkpOwogCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19BVkFJ
+TCwKIAkJCQlwYWdlc190b19ieXRlcyhhdmFpbGFibGUpKTsKKwl1cGRhdGVfc3RhdCh2YiwgaWR4
+KyssIFZJUlRJT19CQUxMT09OX1NfQlVGRkVSUywKKwkJCQlwYWdlc190b19ieXRlcyhpLmJ1ZmZl
+cnJhbSkpOworCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19DQUNIRUQs
+CisJCQkJcGFnZXNfdG9fYnl0ZXMoY2FjaGVkKSk7CiAKIAlyZXR1cm4gaWR4OwogfQpkaWZmIC0t
+Z2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmggYi9pbmNsdWRlL3VhcGkv
+bGludXgvdmlydGlvX2JhbGxvb24uaAppbmRleCAzNDNkN2RkZWZlMDQuLmQ1ZGM4YTU2YTQ5NyAx
+MDA2NDQKLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmgKKysrIGIvaW5j
+bHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmgKQEAgLTUyLDcgKzUyLDkgQEAgc3RydWN0
+IHZpcnRpb19iYWxsb29uX2NvbmZpZyB7CiAjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTUVNRlJF
+RSAgNCAgIC8qIFRvdGFsIGFtb3VudCBvZiBmcmVlIG1lbW9yeSAqLwogI2RlZmluZSBWSVJUSU9f
+QkFMTE9PTl9TX01FTVRPVCAgIDUgICAvKiBUb3RhbCBhbW91bnQgb2YgbWVtb3J5ICovCiAjZGVm
+aW5lIFZJUlRJT19CQUxMT09OX1NfQVZBSUwgICAgNiAgIC8qIEF2YWlsYWJsZSBtZW1vcnkgYXMg
+aW4gL3Byb2MgKi8KLSNkZWZpbmUgVklSVElPX0JBTExPT05fU19OUiAgICAgICA3CisjZGVmaW5l
+IFZJUlRJT19CQUxMT09OX1NfQlVGRkVSUyAgNyAgIC8qIEJ1ZmZlcnMgbWVtb3J5IGFzIGluIC9w
+cm9jICovCisjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfQ0FDSEVEICAgOCAgIC8qIENhY2hlZCBt
+ZW1vcnkgYXMgaW4gL3Byb2MgKi8KKyNkZWZpbmUgVklSVElPX0JBTExPT05fU19OUiAgICAgICA5
+CiAKIC8qCiAgKiBNZW1vcnkgc3RhdGlzdGljcyBzdHJ1Y3R1cmUuCmRpZmYgLS1naXQgYS9tbS9z
+d2FwX3N0YXRlLmMgYi9tbS9zd2FwX3N0YXRlLmMKaW5kZXggNzFjZTJkMWNjYmY3Li5mM2E0ZmY3
+ZDZjNTIgMTAwNjQ0Ci0tLSBhL21tL3N3YXBfc3RhdGUuYworKysgYi9tbS9zd2FwX3N0YXRlLmMK
+QEAgLTk1LDYgKzk1LDcgQEAgdW5zaWduZWQgbG9uZyB0b3RhbF9zd2FwY2FjaGVfcGFnZXModm9p
+ZCkKIAlyY3VfcmVhZF91bmxvY2soKTsKIAlyZXR1cm4gcmV0OwogfQorRVhQT1JUX1NZTUJPTF9H
+UEwodG90YWxfc3dhcGNhY2hlX3BhZ2VzKTsKIAogc3RhdGljIGF0b21pY190IHN3YXBpbl9yZWFk
+YWhlYWRfaGl0cyA9IEFUT01JQ19JTklUKDQpOwogCi0tIAoyLjE0LjEKCl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
+bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
