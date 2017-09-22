@@ -1,13 +1,15 @@
-From: "Liang, Cunming" <cunming.liang@intel.com>
-Subject: RE: [virtio-dev] packed ring layout proposal v3
-Date: Thu, 21 Sep 2017 13:36:37 +0000
-Message-ID: <D0158A423229094DA7ABF71CF2FA0DA34E1A62C8@SHSMSX152.ccr.corp.intel.com>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 3/3] virtio-net: support XDP_REDIRECT
+Date: Fri, 22 Sep 2017 12:06:20 +0800
+Message-ID: <71c435e1-1a2a-014c-97fc-34469c487a2d__44932.4474473999$1506053218$gmane$org@redhat.com>
+References: <1505814163-7315-1-git-send-email-jasowang@redhat.com>
+	<1505814163-7315-3-git-send-email-jasowang@redhat.com>
+	<59C2E588.6060203@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+In-Reply-To: <59C2E588.6060203@gmail.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,81 +20,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: John Fastabend <john.fastabend@gmail.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
-
-> -----Original Message-----
-> From: virtio-dev@lists.oasis-open.org [mailto:virtio-dev@lists.oasis-open.org] On
-> Behalf Of Michael S. Tsirkin
-> Sent: Sunday, September 10, 2017 1:06 PM
-> To: virtio-dev@lists.oasis-open.org
-> Cc: virtualization@lists.linux-foundation.org
-> Subject: [virtio-dev] packed ring layout proposal v3
-> 
-[...]
-> * Batching descriptors:
-> 
-> virtio 1.0 allows passing a batch of descriptors in both directions, by incrementing
-> the used/avail index by values > 1.
-> At the moment only batching of used descriptors is used.
-> 
-> We can support this by chaining a list of device descriptors through
-> VRING_DESC_F_MORE flag. Device sets this bit to signal driver that this is part of
-> a batch of used descriptors which are all part of a single transaction.
-
-It supposes each s/g chain represents for a packet, while each descriptor among batching chain represents for a packet. There're a few thoughts of batching chain(by VRING_DESC_F_MORE) and s/g chain(by VRING_DESC_F_NEXT).
-
-- batching chain: It's up to device to coalesce the write-out of a batched used descriptors. As the batching size is variable, driver has to detect validity of each descriptor unless the number of incoming valid descriptor is predictable, being curious on the benefits of driver from VRING_DESC_F_MORE to take  batching descriptors as a single transaction. On device perspective, it's great to write out one descriptor for the whole chain. However, it assumes no other useful fields in each descriptor of chain needs to write. TX buffer reclaiming can be the candidate, while RX side has to update 'len' at least. Even for this purpose, instead of writing out VRING_DESC_F_MORE on a few descriptors to suppress device writing back, it's cheaper to set flag (e.g. VRING_DESC_F_WB) on single descriptor
-  of chain to hint the expected position for device to write back.
-
-- s/g chain: It makes sense to indicate the packet boundary. Considering in-order descriptor ring without VRING_DESC_F_INDIRECT, the next descriptor always belongs to the same s/g chain until end of packet indicators occur. So one alternative approach is only to set a flag (e.g. VRING_DESC_F_EOP) on the last descriptor of the chain. 
-
-> 
-> Driver might detect a partial descriptor chain (VRING_DESC_F_MORE set but next
-> descriptor not valid). In that case it must not use any parts of the chain - it will
-> later be completed by device, but driver is allowed to store the valid parts of the
-> chain as device is not allowed to change them anymore.
-As each descriptor represent for a whole packet(otherwise it's s/g chain), wondering why it must not use any parts of the chain. 
-
-> 
-> Descriptor should not have both VRING_DESC_F_MORE and
-> VRING_DESC_F_NEXT set.
-> 
-[...]
-> 
-> * Selective use of descriptors
-> 
-> As described above, descriptors with NEXT bit set are part of a scatter/gather
-> chain and so do not have to cause device to write a used descriptor out.
-> 
-> Similarly, driver can set a flag VRING_DESC_F_MORE in the descriptor to signal to
-> device that it does not have to write out the used descriptor as it is part of a batch
-> of descriptors. Device has two options (similar to VRING_DESC_F_NEXT):
-> 
-> Device can write out the same number of descriptors for the batch, setting
-> VRING_DESC_F_MORE for all but the last descriptor.
-> Driver will ignore all used descriptors with VRING_DESC_F_MORE bit set.
-It will write out last descriptor without VRING_DESC_F_MORE anyway, so the following statement seems not like another option.
-
-> 
-> Device only writes out a single descriptor for the whole batch.
-> However, to keep device and driver in sync, it then skips a number of descriptors
-> corresponding to the length of the batch before writing out the next used
-> descriptor.
-> After detecting a used descriptor driver must find out the length of the batch that
-> it built in order to know where to look for the next device descriptor.
-It would be good to keep it simple on device side, and to have the driver control the expectation.
-
-> 
-> 
-> TODO (blocker): skipping descriptors for selective and scatter/gather seem to be
-> only requested with in-order right now. Let's require in-order for this skipping?
-> This will simplify the accounting by driver.
-> 
-> 
-
-Thanks,
-Steve
+CgpPbiAyMDE35bm0MDnmnIgyMeaXpSAwNjowMiwgSm9obiBGYXN0YWJlbmQgd3JvdGU6Cj4gT24g
+MDkvMTkvMjAxNyAwMjo0MiBBTSwgSmFzb24gV2FuZyB3cm90ZToKPj4gVGhpcyBwYXRjaCB0cmll
+cyB0byBhZGQgWERQX1JFRElSRUNUIGZvciB2aXJ0aW8tbmV0LiBUaGUgY2hhbmdlcyBhcmUKPj4g
+bm90IGNvbXBsZXggYXMgd2UgY291bGQgdXNlIGV4aXN0IFhEUF9UWCBoZWxwZXJzIGZvciBtb3N0
+IG9mIHRoZQo+PiB3b3JrLiBUaGUgcmVzdCBpcyBwYXNzaW5nIHRoZSBYRFBfVFggdG8gTkFQSSBo
+YW5kbGVyIGZvciBpbXBsZW1lbnRpbmcKPj4gYmF0Y2hpbmcuCj4+Cj4+IENjOiBKb2huIEZhc3Rh
+YmVuZCA8am9obi5mYXN0YWJlbmRAZ21haWwuY29tPgo+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBX
+YW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+PiAtLS0KPiBbLi4uXQo+Cj4+IEBAIC02NzgsMTIg
+KzcxMSwyMCBAQCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKnJlY2VpdmVfbWVyZ2VhYmxlKHN0cnVj
+dCBuZXRfZGV2aWNlICpkZXYsCj4+ICAgCQkJfQo+PiAgIAkJCWJyZWFrOwo+PiAgIAkJY2FzZSBY
+RFBfVFg6Cj4+IC0JCQlpZiAodW5saWtlbHkoIXZpcnRuZXRfeGRwX3htaXQodmksICZ4ZHApKSkK
+Pj4gKwkJCWlmICh1bmxpa2VseSghX192aXJ0bmV0X3hkcF94bWl0KHZpLCAmeGRwKSkpCj4+ICAg
+CQkJCXRyYWNlX3hkcF9leGNlcHRpb24odmktPmRldiwgeGRwX3Byb2csIGFjdCk7Cj4+ICsJCQll
+bHNlCj4+ICsJCQkJKnhkcF94bWl0ID0gdHJ1ZTsKPj4gICAJCQlpZiAodW5saWtlbHkoeGRwX3Bh
+Z2UgIT0gcGFnZSkpCj4+ICAgCQkJCWdvdG8gZXJyX3hkcDsKPj4gICAJCQlyY3VfcmVhZF91bmxv
+Y2soKTsKPj4gICAJCQlnb3RvIHhkcF94bWl0Owo+PiArCQljYXNlIFhEUF9SRURJUkVDVDoKPj4g
+KwkJCWVyciA9IHhkcF9kb19yZWRpcmVjdChkZXYsICZ4ZHAsIHhkcF9wcm9nKTsKPj4gKwkJCWlm
+IChlcnIpCj4+ICsJCQkJKnhkcF94bWl0ID0gdHJ1ZTsKPiBJcyB0aGlzIGEgdHlwbz8gU2hvdWxk
+IGFib3ZlIGJlCj4KPiAJCQlpZiAoIWVycikKPiAJCQkJKnhkcF94bWl0ID0gdHJ1ZTsKPgo+IHRo
+aXMgd291bGQgbWF0Y2ggdGhlIHBhdHRlcm4gaW4gcmVjZWl2ZV9zbWFsbCBhbmQgYWxzbyBtYWtl
+IG1vcmUgc2Vuc2UuCgpSaWdodCwgd2lsbCBwb3N0IGEgZml4LgoKPgo+PiArCQkJcmN1X3JlYWRf
+dW5sb2NrKCk7Cj4+ICsJCQlnb3RvIHhkcF94bWl0Owo+PiAgIAkJZGVmYXVsdDoKPj4gICAJCQli
+cGZfd2Fybl9pbnZhbGlkX3hkcF9hY3Rpb24oYWN0KTsKPj4gICAJCWNhc2UgWERQX0FCT1JURUQ6
+Cj4+IEBAIC03ODgsNyArODI5LDcgQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZlX21l
+cmdlYWJsZShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+PiAgIH0KPj4gICAKPiBbLi4uXQo+Cj4g
+T3RoZXJ3aXNlIGxvb2tzIGdvb2QgdG8gbWUgdGhhbmtzIGZvciBkb2luZyB0aGlzLgo+Cj4gLkpv
+aG4KPgoKVGhhbmtzIGZvciB0aGUgcmV2aWV3aW5nLgoKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
