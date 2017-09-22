@@ -1,8 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next] virtio-net: correctly set xdp_xmit for mergeable
-	buffer
-Date: Fri, 22 Sep 2017 14:38:58 +0800
-Message-ID: <1506062338-3617-1-git-send-email-jasowang__43330.5417340764$1506062351$gmane$org@redhat.com>
+Subject: [PATCH net-next RFC 0/5] batched tx processing in vhost_net
+Date: Fri, 22 Sep 2017 16:02:30 +0800
+Message-ID: <1506067355-5771-1-git-send-email-jasowang__40081.6456800841$1506067391$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,29 +16,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We should set xdp_xmit only when xdp_do_redirect() succeed.
+Hi:
 
-Cc: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This series tries to implement basic tx batched processing. This is
+done by prefetching descriptor indices and update used ring in a
+batch. This intends to speed up used ring updating and improve the
+cache utilization. Test shows about ~22% improvement in tx pss.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index f6c1f13..dd14a45 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -721,7 +721,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 			goto xdp_xmit;
- 		case XDP_REDIRECT:
- 			err = xdp_do_redirect(dev, &xdp, xdp_prog);
--			if (err)
-+			if (!err)
- 				*xdp_xmit = true;
- 			rcu_read_unlock();
- 			goto xdp_xmit;
+Please review.
+
+Jason Wang (5):
+  vhost: split out ring head fetching logic
+  vhost: introduce helper to prefetch desc index
+  vhost: introduce vhost_add_used_idx()
+  vhost_net: rename VHOST_RX_BATCH to VHOST_NET_BATCH
+  vhost_net: basic tx virtqueue batched processing
+
+ drivers/vhost/net.c   | 221 ++++++++++++++++++++++++++++----------------------
+ drivers/vhost/vhost.c | 165 +++++++++++++++++++++++++++++++------
+ drivers/vhost/vhost.h |   9 ++
+ 3 files changed, 270 insertions(+), 125 deletions(-)
+
 -- 
 2.7.4
