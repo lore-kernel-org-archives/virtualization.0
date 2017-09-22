@@ -1,16 +1,12 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next 3/3] virtio-net: support XDP_REDIRECT
-Date: Fri, 22 Sep 2017 12:06:20 +0800
-Message-ID: <71c435e1-1a2a-014c-97fc-34469c487a2d__44932.4474473999$1506053218$gmane$org@redhat.com>
-References: <1505814163-7315-1-git-send-email-jasowang@redhat.com>
-	<1505814163-7315-3-git-send-email-jasowang@redhat.com>
-	<59C2E588.6060203@gmail.com>
+Subject: [PATCH net-next] virtio-net: correctly set xdp_xmit for mergeable
+	buffer
+Date: Fri, 22 Sep 2017 14:38:58 +0800
+Message-ID: <1506062338-3617-1-git-send-email-jasowang__43330.5417340764$1506062351$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <59C2E588.6060203@gmail.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,36 +16,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: John Fastabend <john.fastabend@gmail.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: John Fastabend <john.fastabend@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDnmnIgyMeaXpSAwNjowMiwgSm9obiBGYXN0YWJlbmQgd3JvdGU6Cj4gT24g
-MDkvMTkvMjAxNyAwMjo0MiBBTSwgSmFzb24gV2FuZyB3cm90ZToKPj4gVGhpcyBwYXRjaCB0cmll
-cyB0byBhZGQgWERQX1JFRElSRUNUIGZvciB2aXJ0aW8tbmV0LiBUaGUgY2hhbmdlcyBhcmUKPj4g
-bm90IGNvbXBsZXggYXMgd2UgY291bGQgdXNlIGV4aXN0IFhEUF9UWCBoZWxwZXJzIGZvciBtb3N0
-IG9mIHRoZQo+PiB3b3JrLiBUaGUgcmVzdCBpcyBwYXNzaW5nIHRoZSBYRFBfVFggdG8gTkFQSSBo
-YW5kbGVyIGZvciBpbXBsZW1lbnRpbmcKPj4gYmF0Y2hpbmcuCj4+Cj4+IENjOiBKb2huIEZhc3Rh
-YmVuZCA8am9obi5mYXN0YWJlbmRAZ21haWwuY29tPgo+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBX
-YW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+PiAtLS0KPiBbLi4uXQo+Cj4+IEBAIC02NzgsMTIg
-KzcxMSwyMCBAQCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKnJlY2VpdmVfbWVyZ2VhYmxlKHN0cnVj
-dCBuZXRfZGV2aWNlICpkZXYsCj4+ICAgCQkJfQo+PiAgIAkJCWJyZWFrOwo+PiAgIAkJY2FzZSBY
-RFBfVFg6Cj4+IC0JCQlpZiAodW5saWtlbHkoIXZpcnRuZXRfeGRwX3htaXQodmksICZ4ZHApKSkK
-Pj4gKwkJCWlmICh1bmxpa2VseSghX192aXJ0bmV0X3hkcF94bWl0KHZpLCAmeGRwKSkpCj4+ICAg
-CQkJCXRyYWNlX3hkcF9leGNlcHRpb24odmktPmRldiwgeGRwX3Byb2csIGFjdCk7Cj4+ICsJCQll
-bHNlCj4+ICsJCQkJKnhkcF94bWl0ID0gdHJ1ZTsKPj4gICAJCQlpZiAodW5saWtlbHkoeGRwX3Bh
-Z2UgIT0gcGFnZSkpCj4+ICAgCQkJCWdvdG8gZXJyX3hkcDsKPj4gICAJCQlyY3VfcmVhZF91bmxv
-Y2soKTsKPj4gICAJCQlnb3RvIHhkcF94bWl0Owo+PiArCQljYXNlIFhEUF9SRURJUkVDVDoKPj4g
-KwkJCWVyciA9IHhkcF9kb19yZWRpcmVjdChkZXYsICZ4ZHAsIHhkcF9wcm9nKTsKPj4gKwkJCWlm
-IChlcnIpCj4+ICsJCQkJKnhkcF94bWl0ID0gdHJ1ZTsKPiBJcyB0aGlzIGEgdHlwbz8gU2hvdWxk
-IGFib3ZlIGJlCj4KPiAJCQlpZiAoIWVycikKPiAJCQkJKnhkcF94bWl0ID0gdHJ1ZTsKPgo+IHRo
-aXMgd291bGQgbWF0Y2ggdGhlIHBhdHRlcm4gaW4gcmVjZWl2ZV9zbWFsbCBhbmQgYWxzbyBtYWtl
-IG1vcmUgc2Vuc2UuCgpSaWdodCwgd2lsbCBwb3N0IGEgZml4LgoKPgo+PiArCQkJcmN1X3JlYWRf
-dW5sb2NrKCk7Cj4+ICsJCQlnb3RvIHhkcF94bWl0Owo+PiAgIAkJZGVmYXVsdDoKPj4gICAJCQli
-cGZfd2Fybl9pbnZhbGlkX3hkcF9hY3Rpb24oYWN0KTsKPj4gICAJCWNhc2UgWERQX0FCT1JURUQ6
-Cj4+IEBAIC03ODgsNyArODI5LDcgQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZlX21l
-cmdlYWJsZShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+PiAgIH0KPj4gICAKPiBbLi4uXQo+Cj4g
-T3RoZXJ3aXNlIGxvb2tzIGdvb2QgdG8gbWUgdGhhbmtzIGZvciBkb2luZyB0aGlzLgo+Cj4gLkpv
-aG4KPgoKVGhhbmtzIGZvciB0aGUgcmV2aWV3aW5nLgoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+We should set xdp_xmit only when xdp_do_redirect() succeed.
+
+Cc: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index f6c1f13..dd14a45 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -721,7 +721,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 			goto xdp_xmit;
+ 		case XDP_REDIRECT:
+ 			err = xdp_do_redirect(dev, &xdp, xdp_prog);
+-			if (err)
++			if (!err)
+ 				*xdp_xmit = true;
+ 			rcu_read_unlock();
+ 			goto xdp_xmit;
+-- 
+2.7.4
