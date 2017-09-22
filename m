@@ -1,14 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next RFC 5/5] vhost_net: basic tx virtqueue batched
-	processing
-Date: Fri, 22 Sep 2017 16:02:35 +0800
-Message-ID: <1506067355-5771-6-git-send-email-jasowang__7491.55428861759$1506067457$gmane$org@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH net-next RFC 1/5] vhost: split out ring head fetching logic
+Date: Fri, 22 Sep 2017 09:31:58 +0100
+Message-ID: <20170922083157.GA9243__12737.1930321262$1506069154$gmane$org@stefanha-x1.localdomain>
 References: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
+	<1506067355-5771-2-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1506067355-5771-2-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,316 +19,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch implements basic batched processing of tx virtqueue by
-prefetching desc indices and updating used ring in a batch. For
-non-zerocopy case, vq->heads were used for storing the prefetched
-indices and updating used ring. It is also a requirement for doing
-more batching on top. For zerocopy case and for simplicity, batched
-processing were simply disabled by only fetching and processing one
-descriptor at a time, this could be optimized in the future.
+On Fri, Sep 22, 2017 at 04:02:31PM +0800, Jason Wang wrote:
+> +/* This looks in the virtqueue and for the first available buffer, and converts
+> + * it to an iovec for convenient access.  Since descriptors consist of some
+> + * number of output then some number of input descriptors, it's actually two
+> + * iovecs, but we pack them into one and note how many of each there were.
+> + *
+> + * This function returns the descriptor number found, or vq->num (which is
+> + * never a valid descriptor number) if none was found.  A negative code is
+> + * returned on error. */
+> +int __vhost_get_vq_desc(struct vhost_virtqueue *vq,
+> +			struct iovec iov[], unsigned int iov_size,
+> +			unsigned int *out_num, unsigned int *in_num,
+> +			struct vhost_log *log, unsigned int *log_num,
+> +			__virtio16 head)
+[...]
+> +int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+> +		      struct iovec iov[], unsigned int iov_size,
+> +		      unsigned int *out_num, unsigned int *in_num,
+> +		      struct vhost_log *log, unsigned int *log_num)
 
-XDP_DROP (without touching skb) on tun (with Moongen in guest) with
-zercopy disabled:
+Please document vhost_get_vq_desc().
 
-Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz:
-Before: 3.20Mpps
-After:  3.90Mpps (+22%)
-
-No differences were seen with zerocopy enabled.
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c   | 215 ++++++++++++++++++++++++++++----------------------
- drivers/vhost/vhost.c |   2 +-
- 2 files changed, 121 insertions(+), 96 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index c89640e..c439892 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -408,27 +408,25 @@ static int vhost_net_enable_vq(struct vhost_net *n,
- 	return vhost_poll_start(poll, sock->file);
- }
- 
--static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
--				    struct vhost_virtqueue *vq,
--				    struct iovec iov[], unsigned int iov_size,
--				    unsigned int *out_num, unsigned int *in_num)
-+static bool vhost_net_tx_avail(struct vhost_net *net,
-+			       struct vhost_virtqueue *vq)
- {
- 	unsigned long uninitialized_var(endtime);
--	int r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
--				  out_num, in_num, NULL, NULL);
- 
--	if (r == vq->num && vq->busyloop_timeout) {
--		preempt_disable();
--		endtime = busy_clock() + vq->busyloop_timeout;
--		while (vhost_can_busy_poll(vq->dev, endtime) &&
--		       vhost_vq_avail_empty(vq->dev, vq))
--			cpu_relax();
--		preempt_enable();
--		r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
--				      out_num, in_num, NULL, NULL);
--	}
-+	if (!vq->busyloop_timeout)
-+		return false;
- 
--	return r;
-+	if (!vhost_vq_avail_empty(vq->dev, vq))
-+		return true;
-+
-+	preempt_disable();
-+	endtime = busy_clock() + vq->busyloop_timeout;
-+	while (vhost_can_busy_poll(vq->dev, endtime) &&
-+		vhost_vq_avail_empty(vq->dev, vq))
-+		cpu_relax();
-+	preempt_enable();
-+
-+	return !vhost_vq_avail_empty(vq->dev, vq);
- }
- 
- static bool vhost_exceeds_maxpend(struct vhost_net *net)
-@@ -446,8 +444,9 @@ static void handle_tx(struct vhost_net *net)
- {
- 	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
- 	struct vhost_virtqueue *vq = &nvq->vq;
-+	struct vring_used_elem used, *heads = vq->heads;
- 	unsigned out, in;
--	int head;
-+	int avails, head;
- 	struct msghdr msg = {
- 		.msg_name = NULL,
- 		.msg_namelen = 0,
-@@ -461,6 +460,7 @@ static void handle_tx(struct vhost_net *net)
- 	struct socket *sock;
- 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
- 	bool zcopy, zcopy_used;
-+	int i, batched = VHOST_NET_BATCH;
- 
- 	mutex_lock(&vq->mutex);
- 	sock = vq->private_data;
-@@ -475,6 +475,12 @@ static void handle_tx(struct vhost_net *net)
- 	hdr_size = nvq->vhost_hlen;
- 	zcopy = nvq->ubufs;
- 
-+	/* Disable zerocopy batched fetching for simplicity */
-+	if (zcopy) {
-+		heads = &used;
-+		batched = 1;
-+	}
-+
- 	for (;;) {
- 		/* Release DMAs done buffers first */
- 		if (zcopy)
-@@ -486,95 +492,114 @@ static void handle_tx(struct vhost_net *net)
- 		if (unlikely(vhost_exceeds_maxpend(net)))
- 			break;
- 
--		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
--						ARRAY_SIZE(vq->iov),
--						&out, &in);
-+		avails = vhost_prefetch_desc_indices(vq, heads, batched, !zcopy);
- 		/* On error, stop handling until the next kick. */
--		if (unlikely(head < 0))
-+		if (unlikely(avails < 0))
- 			break;
--		/* Nothing new?  Wait for eventfd to tell us they refilled. */
--		if (head == vq->num) {
-+		/* Nothing new?  Busy poll for a while or wait for
-+		 * eventfd to tell us they refilled. */
-+		if (!avails) {
-+			if (vhost_net_tx_avail(net, vq))
-+				continue;
- 			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
- 				vhost_disable_notify(&net->dev, vq);
- 				continue;
- 			}
- 			break;
- 		}
--		if (in) {
--			vq_err(vq, "Unexpected descriptor format for TX: "
--			       "out %d, int %d\n", out, in);
--			break;
--		}
--		/* Skip header. TODO: support TSO. */
--		len = iov_length(vq->iov, out);
--		iov_iter_init(&msg.msg_iter, WRITE, vq->iov, out, len);
--		iov_iter_advance(&msg.msg_iter, hdr_size);
--		/* Sanity check */
--		if (!msg_data_left(&msg)) {
--			vq_err(vq, "Unexpected header len for TX: "
--			       "%zd expected %zd\n",
--			       len, hdr_size);
--			break;
--		}
--		len = msg_data_left(&msg);
--
--		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
--				   && (nvq->upend_idx + 1) % UIO_MAXIOV !=
--				      nvq->done_idx
--				   && vhost_net_tx_select_zcopy(net);
--
--		/* use msg_control to pass vhost zerocopy ubuf info to skb */
--		if (zcopy_used) {
--			struct ubuf_info *ubuf;
--			ubuf = nvq->ubuf_info + nvq->upend_idx;
--
--			vq->heads[nvq->upend_idx].id = cpu_to_vhost32(vq, head);
--			vq->heads[nvq->upend_idx].len = VHOST_DMA_IN_PROGRESS;
--			ubuf->callback = vhost_zerocopy_callback;
--			ubuf->ctx = nvq->ubufs;
--			ubuf->desc = nvq->upend_idx;
--			refcount_set(&ubuf->refcnt, 1);
--			msg.msg_control = ubuf;
--			msg.msg_controllen = sizeof(ubuf);
--			ubufs = nvq->ubufs;
--			atomic_inc(&ubufs->refcount);
--			nvq->upend_idx = (nvq->upend_idx + 1) % UIO_MAXIOV;
--		} else {
--			msg.msg_control = NULL;
--			ubufs = NULL;
--		}
-+		for (i = 0; i < avails; i++) {
-+			head = __vhost_get_vq_desc(vq, vq->iov,
-+						   ARRAY_SIZE(vq->iov),
-+						   &out, &in, NULL, NULL,
-+					       vhost16_to_cpu(vq, heads[i].id));
-+			if (in) {
-+				vq_err(vq, "Unexpected descriptor format for "
-+					   "TX: out %d, int %d\n", out, in);
-+				goto out;
-+			}
- 
--		total_len += len;
--		if (total_len < VHOST_NET_WEIGHT &&
--		    !vhost_vq_avail_empty(&net->dev, vq) &&
--		    likely(!vhost_exceeds_maxpend(net))) {
--			msg.msg_flags |= MSG_MORE;
--		} else {
--			msg.msg_flags &= ~MSG_MORE;
--		}
-+			/* Skip header. TODO: support TSO. */
-+			len = iov_length(vq->iov, out);
-+			iov_iter_init(&msg.msg_iter, WRITE, vq->iov, out, len);
-+			iov_iter_advance(&msg.msg_iter, hdr_size);
-+			/* Sanity check */
-+			if (!msg_data_left(&msg)) {
-+				vq_err(vq, "Unexpected header len for TX: "
-+					"%zd expected %zd\n",
-+					len, hdr_size);
-+				goto out;
-+			}
-+			len = msg_data_left(&msg);
- 
--		/* TODO: Check specific error and bomb out unless ENOBUFS? */
--		err = sock->ops->sendmsg(sock, &msg, len);
--		if (unlikely(err < 0)) {
-+			zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
-+				     && (nvq->upend_idx + 1) % UIO_MAXIOV !=
-+					nvq->done_idx
-+				     && vhost_net_tx_select_zcopy(net);
-+
-+			/* use msg_control to pass vhost zerocopy ubuf
-+			 * info to skb
-+			 */
- 			if (zcopy_used) {
--				vhost_net_ubuf_put(ubufs);
--				nvq->upend_idx = ((unsigned)nvq->upend_idx - 1)
--					% UIO_MAXIOV;
-+				struct ubuf_info *ubuf;
-+				ubuf = nvq->ubuf_info + nvq->upend_idx;
-+
-+				vq->heads[nvq->upend_idx].id =
-+					cpu_to_vhost32(vq, head);
-+				vq->heads[nvq->upend_idx].len =
-+					VHOST_DMA_IN_PROGRESS;
-+				ubuf->callback = vhost_zerocopy_callback;
-+				ubuf->ctx = nvq->ubufs;
-+				ubuf->desc = nvq->upend_idx;
-+				refcount_set(&ubuf->refcnt, 1);
-+				msg.msg_control = ubuf;
-+				msg.msg_controllen = sizeof(ubuf);
-+				ubufs = nvq->ubufs;
-+				atomic_inc(&ubufs->refcount);
-+				nvq->upend_idx =
-+					(nvq->upend_idx + 1) % UIO_MAXIOV;
-+			} else {
-+				msg.msg_control = NULL;
-+				ubufs = NULL;
-+			}
-+
-+			total_len += len;
-+			if (total_len < VHOST_NET_WEIGHT &&
-+				!vhost_vq_avail_empty(&net->dev, vq) &&
-+				likely(!vhost_exceeds_maxpend(net))) {
-+				msg.msg_flags |= MSG_MORE;
-+			} else {
-+				msg.msg_flags &= ~MSG_MORE;
-+			}
-+
-+			/* TODO: Check specific error and bomb out
-+			 * unless ENOBUFS?
-+			 */
-+			err = sock->ops->sendmsg(sock, &msg, len);
-+			if (unlikely(err < 0)) {
-+				if (zcopy_used) {
-+					vhost_net_ubuf_put(ubufs);
-+					nvq->upend_idx =
-+				   ((unsigned)nvq->upend_idx - 1) % UIO_MAXIOV;
-+				}
-+				vhost_discard_vq_desc(vq, 1);
-+				goto out;
-+			}
-+			if (err != len)
-+				pr_debug("Truncated TX packet: "
-+					" len %d != %zd\n", err, len);
-+			if (!zcopy) {
-+				vhost_add_used_idx(vq, 1);
-+				vhost_signal(&net->dev, vq);
-+			} else if (!zcopy_used) {
-+				vhost_add_used_and_signal(&net->dev,
-+							  vq, head, 0);
-+			} else
-+				vhost_zerocopy_signal_used(net, vq);
-+			vhost_net_tx_packet(net);
-+			if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
-+				vhost_poll_queue(&vq->poll);
-+				goto out;
- 			}
--			vhost_discard_vq_desc(vq, 1);
--			break;
--		}
--		if (err != len)
--			pr_debug("Truncated TX packet: "
--				 " len %d != %zd\n", err, len);
--		if (!zcopy_used)
--			vhost_add_used_and_signal(&net->dev, vq, head, 0);
--		else
--			vhost_zerocopy_signal_used(net, vq);
--		vhost_net_tx_packet(net);
--		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
--			vhost_poll_queue(&vq->poll);
--			break;
- 		}
- 	}
- out:
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 6532cda..8764df5 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -392,7 +392,7 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
- 		vq->indirect = kmalloc(sizeof *vq->indirect * UIO_MAXIOV,
- 				       GFP_KERNEL);
- 		vq->log = kmalloc(sizeof *vq->log * UIO_MAXIOV, GFP_KERNEL);
--		vq->heads = kmalloc(sizeof *vq->heads * UIO_MAXIOV, GFP_KERNEL);
-+		vq->heads = kzalloc(sizeof *vq->heads * UIO_MAXIOV, GFP_KERNEL);
- 		if (!vq->indirect || !vq->log || !vq->heads)
- 			goto err_nomem;
- 	}
--- 
-2.7.4
+Please also explain the difference between __vhost_get_vq_desc() and
+vhost_get_vq_desc() in the documentation.
