@@ -1,15 +1,14 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH net-next RFC 3/5] vhost: introduce vhost_add_used_idx()
-Date: Fri, 22 Sep 2017 10:07:30 +0100
-Message-ID: <20170922090730.GC9243__17430.1401632421$1506071278$gmane$org@stefanha-x1.localdomain>
-References: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
-	<1506067355-5771-4-git-send-email-jasowang@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next] virtio-net: correctly set xdp_xmit for
+	mergeable buffer
+Date: Fri, 22 Sep 2017 18:16:21 -0700 (PDT)
+Message-ID: <20170922.181621.639395877867842082.davem__18078.6430057653$1506129408$gmane$org@davemloft.net>
+References: <1506062338-3617-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1506067355-5771-4-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1506062338-3617-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,19 +18,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 22, 2017 at 04:02:33PM +0800, Jason Wang wrote:
-> This patch introduces a helper which just increase the used idx. This
-> will be used in pair with vhost_prefetch_desc_indices() by batching
-> code.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/vhost.c | 33 +++++++++++++++++++++++++++++++++
->  drivers/vhost/vhost.h |  1 +
->  2 files changed, 34 insertions(+)
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 22 Sep 2017 14:38:58 +0800
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> We should set xdp_xmit only when xdp_do_redirect() succeed.
+> 
+> Cc: John Fastabend <john.fastabend@gmail.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+
+Applied, thanks Jason.
