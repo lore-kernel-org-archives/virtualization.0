@@ -1,14 +1,14 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v1 1/4] KVM/vmx: re-write the msr auto switch feature
-Date: Mon, 25 Sep 2017 13:54:37 +0200
-Message-ID: <7f9d54dd-546a-548f-5425-e4151e09fbdc__12517.0859661468$1506340512$gmane$org@redhat.com>
+Subject: Re: [PATCH v1 2/4] KVM/vmx: auto switch MSR_IA32_DEBUGCTLMSR
+Date: Mon, 25 Sep 2017 13:57:17 +0200
+Message-ID: <255ea5c8-09be-9597-93b5-f0524eaa2b4b__22880.4567167119$1506340669$gmane$org@redhat.com>
 References: <1506314696-4632-1-git-send-email-wei.w.wang@intel.com>
-	<1506314696-4632-2-git-send-email-wei.w.wang@intel.com>
+	<1506314696-4632-3-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1506314696-4632-2-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <1506314696-4632-3-git-send-email-wei.w.wang@intel.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,25 +23,11 @@ To: Wei Wang <wei.w.wang@intel.com>, virtualization@lists.linux-foundation.org, 
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 25/09/2017 06:44, Wei Wang wrote:
->  
-> +static void update_msr_autoload_count_max(void)
-> +{
-> +	u64 vmx_msr;
-> +	int n;
-> +
-> +	/*
-> +	 * According to the Intel SDM, if Bits 27:25 of MSR_IA32_VMX_MISC is
-> +	 * n, then (n + 1) * 512 is the recommended max number of MSRs to be
-> +	 * included in the VMExit and VMEntry MSR auto switch list.
-> +	 */
-> +	rdmsrl(MSR_IA32_VMX_MISC, vmx_msr);
-> +	n = ((vmx_msr & 0xe000000) >> 25) + 1;
-> +	msr_autoload_count_max = n * KVM_VMX_DEFAULT_MSR_AUTO_LOAD_COUNT;
-> +}
-> +
+> Passthrough the MSR_IA32_DEBUGCTLMSR to the guest, and take advantage of
+> the hardware VT-x feature to auto switch the msr upon VMExit and VMEntry.
 
-
-Any reasons to do this if it's unlikely that we'll ever update more than
-512 MSRs?
+I think most bits in the MSR should not be passed through (for example
+FREEZE_WHILE_SMM_EN, FREEZE_LBRS_ON_PMI etc.).  Using auto-switch of
+course is fine instead.
 
 Paolo
