@@ -1,15 +1,18 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v1 1/4] KVM/vmx: re-write the msr auto switch feature
-Date: Mon, 25 Sep 2017 21:02:38 +0800
-Message-ID: <59C8FE6E.7070503@intel.com>
-References: <1506314696-4632-1-git-send-email-wei.w.wang@intel.com>
-	<1506314696-4632-2-git-send-email-wei.w.wang@intel.com>
-	<7f9d54dd-546a-548f-5425-e4151e09fbdc@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [virtio-dev] RE: [RFC] virtio-iommu version 0.4
+Date: Mon, 25 Sep 2017 14:32:15 +0100
+Message-ID: <68b68f4d-360c-9849-662f-61db6919c7db__47867.8118940026$1506346100$gmane$org@arm.com>
+References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
+	<5be484ff-6a1a-6c9b-947c-f64ea23f58cc@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D190D941E3@SHSMSX101.ccr.corp.intel.com>
+	<013a2fdd-86f7-a7ee-7e71-11bbb6261f33@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D190DDCF8D@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <7f9d54dd-546a-548f-5425-e4151e09fbdc@redhat.com>
+In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D190DDCF8D@SHSMSX101.ccr.corp.intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,47 +22,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, rkrcmar@redhat.com, ak@linux.intel.com, mingo@redhat.com
+To: "Tian, Kevin" <kevin.tian@intel.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "eric.auger@redhat.com" <eric.auger@redhat.com>, Robin Murphy <Robin.Murphy@arm.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/25/2017 07:54 PM, Paolo Bonzini wrote:
-> On 25/09/2017 06:44, Wei Wang wrote:
->>   
->> +static void update_msr_autoload_count_max(void)
->> +{
->> +	u64 vmx_msr;
->> +	int n;
->> +
->> +	/*
->> +	 * According to the Intel SDM, if Bits 27:25 of MSR_IA32_VMX_MISC is
->> +	 * n, then (n + 1) * 512 is the recommended max number of MSRs to be
->> +	 * included in the VMExit and VMEntry MSR auto switch list.
->> +	 */
->> +	rdmsrl(MSR_IA32_VMX_MISC, vmx_msr);
->> +	n = ((vmx_msr & 0xe000000) >> 25) + 1;
->> +	msr_autoload_count_max = n * KVM_VMX_DEFAULT_MSR_AUTO_LOAD_COUNT;
->> +}
->> +
->
-> Any reasons to do this if it's unlikely that we'll ever update more than
-> 512 MSRs?
->
-> Paolo
+On 21/09/17 07:27, Tian, Kevin wrote:
+>> From: Jean-Philippe Brucker
+>> Sent: Wednesday, September 6, 2017 7:55 PM
+>>
+>> Hi Kevin,
+>>
+>> On 28/08/17 08:39, Tian, Kevin wrote:
+>>> Here comes some comments:
+>>>
+>>> 1.1 Motivation
+>>>
+>>> You describe I/O page faults handling as future work. Seems you
+>> considered
+>>> only recoverable fault (since "aka. PCI PRI" being used). What about other
+>>> unrecoverable faults e.g. what to do if a virtual DMA request doesn't find
+>>> a valid mapping? Even when there is no PRI support, we need some basic
+>>> form of fault reporting mechanism to indicate such errors to guest.
+>>
+>> I am considering recoverable faults as the end goal, but reporting
+>> unrecoverable faults should use the same queue, with slightly different
+>> fields and no need for the driver to reply to the device.
+> 
+> what about adding a placeholder for now? Though same mechanism
+> can be reused, it's an essential part to make virtio-iommu architecture
+> complete even before talking support for recoverable faults. :-)
 
-It isn't a must to allocate memory for 512 MSRs, but I think it would be 
-good to
-allocate memory at least for 128 MSRs, because on skylake we have 32 
-triplets
-of MSRs (FROM/TO/INFO), which are 96 in total already.
+I'll see if I can come up with something simple for v0.5, but it seems
+like a big chunk of work. I don't really know what to report to the guest
+at the moment. I don't want to report vendor-specific details about the
+fault, but it should still be useful content, to let the guest decide
+whether they need to reset/kill the device or just print something
 
-The disadvantage is that developers would need to manually calculate and 
-change
-the number carefully when they need to add new MSRs for auto switching 
-in the
-future. So, if consuming a little bit more memory isn't a concern, I 
-think we can
-directly allocate memory based on what's recommended by the hardware.
+[...]
+>> Yes I think adding MEM_T_IDENTITY will be necessary. I can see they are
+>> used for both iGPU and USB controllers on my x86 machines. Do you know
+>> more precisely what they are used for by the firmware?
+> 
+> VTd spec has a clear description:
+> 
+> 3.14 Handling Requests to Reserved System Memory
+> Reserved system memory regions are typically allocated by BIOS at boot 
+> time and reported to OS as reserved address ranges in the system memory 
+> map. Requests-without-PASID to these reserved regions may either occur 
+> as a result of operations performed by the system software driver (for 
+> example in the case of DMA from unified memory access (UMA) graphics 
+> controllers to graphics reserved memory), or may be initiated by non 
+> system software (for example in case of DMA performed by a USB 
+> controller under BIOS SMM control for legacy keyboard emulation). 
+> For proper functioning of these legacy reserved memory usages, when 
+> system software enables DMA remapping, the second-level translation 
+> structures for the respective devices are expected to be set up to provide
+> identity mapping for the specified reserved memory regions with read 
+> and write permissions.
+> 
+> (one specific example for GPU happens in legacy VGA usage in early
+> boot time before actual graphics driver is loaded)
 
+Thanks for the explanation. So it is only legacy, and enabling nested mode
+would be forbidden for a device with Reserved System Memory regions? I'm
+wondering if virtio-iommu RESV regions will be extended to affect a
+specific PASIDs (or all requests-with-PASID) in the future.
+>> It's not necessary with the base virtio-iommu device though (v0.4),
+>> because the device can create the identity mappings itself and report them
+>> to the guest as MEM_T_BYPASS. However, when we start handing page
+> 
+> when you say "the device can create ...", I think you really meant
+> "host iommu driver can create identity mapping for assigned device",
+> correct?
+> 
+> Then yes, I think above works.
 
-Best,
-Wei
+Yes it can be the host IOMMU driver, or simply Qemu sending VFIO ioctls to
+create those identity mappings (they are reported in sysfs reserved_regions).
+
+>> table
+>> control over to the guest, the host won't be in control of IOVA->GPA
+>> mappings and will need to gracefully ask the guest to do it.
+>>
+>> I'm not aware of any firmware description resembling Intel RMRR or AMD
+>> IVMD on ARM platforms. I do think ARM platforms could need
+>> MEM_T_IDENTITY
+>> for requesting the guest to map MSI windows when page-table handover is
+>> in
+>> use (MSI addresses are translated by the physical SMMU, so a IOVA->GPA
+>> mapping must be installed by the guest). But since a vSMMU would need a
+>> solution as well, I think I'll try to implement something more generic.
+> 
+> curious do you need identity mapping full IOVA->GPA->HPA translation, 
+> or just in GPA->HPA stage sufficient for above MSI scenario?
+
+It has to be IOVA->GPA->HPA. So it'll be a bit complicated to implement
+for us, I think we're going to need a VFIO ioctl to tell the host what
+IOVA the guest allocated for its MSI, but it's not ideal.
+
+Thanks,
+Jean
