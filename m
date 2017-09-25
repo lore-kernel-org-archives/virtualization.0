@@ -1,16 +1,14 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v1 1/4] KVM/vmx: re-write the msr auto switch feature
-Date: Mon, 25 Sep 2017 16:24:53 +0200
-Message-ID: <f1a530e3-5d47-3402-ffd6-10a3c1906a68__38197.0132505105$1506349518$gmane$org@redhat.com>
-References: <1506314696-4632-1-git-send-email-wei.w.wang@intel.com>
-	<1506314696-4632-2-git-send-email-wei.w.wang@intel.com>
-	<7f9d54dd-546a-548f-5425-e4151e09fbdc@redhat.com>
-	<59C8FE6E.7070503@intel.com>
+From: Waiman Long <longman@redhat.com>
+Subject: Re: [PATCH v3 0/2] guard virt_spin_lock() with a static key
+Date: Mon, 25 Sep 2017 10:44:42 -0400
+Message-ID: <67764edc-4cb5-2404-ec90-6cb83a094298__37186.9263858118$1506350817$gmane$org@redhat.com>
+References: <20170906173625.18158-1-jgross@suse.com>
+	<780c50a0-160b-24e3-a5b2-6685953882e5@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <59C8FE6E.7070503@intel.com>
+In-Reply-To: <780c50a0-160b-24e3-a5b2-6685953882e5@suse.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,36 +19,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, rkrcmar@redhat.com, ak@linux.intel.com, mingo@redhat.com
+To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org, virtualization@lists.linux-foundation.org
+Cc: jeremy@goop.org, peterz@infradead.org, rusty@rustcorp.com.au, chrisw@sous-sol.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, akataria@vmware.com, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjUvMDkvMjAxNyAxNTowMiwgV2VpIFdhbmcgd3JvdGU6Cj4gT24gMDkvMjUvMjAxNyAwNzo1
-NCBQTSwgUGFvbG8gQm9uemluaSB3cm90ZToKPj4gT24gMjUvMDkvMjAxNyAwNjo0NCwgV2VpIFdh
-bmcgd3JvdGU6Cj4+PiDCoCArc3RhdGljIHZvaWQgdXBkYXRlX21zcl9hdXRvbG9hZF9jb3VudF9t
-YXgodm9pZCkKPj4+ICt7Cj4+PiArwqDCoMKgIHU2NCB2bXhfbXNyOwo+Pj4gK8KgwqDCoCBpbnQg
-bjsKPj4+ICsKPj4+ICvCoMKgwqAgLyoKPj4+ICvCoMKgwqDCoCAqIEFjY29yZGluZyB0byB0aGUg
-SW50ZWwgU0RNLCBpZiBCaXRzIDI3OjI1IG9mCj4+PiBNU1JfSUEzMl9WTVhfTUlTQyBpcwo+Pj4g
-K8KgwqDCoMKgICogbiwgdGhlbiAobiArIDEpICogNTEyIGlzIHRoZSByZWNvbW1lbmRlZCBtYXgg
-bnVtYmVyIG9mIE1TUnMKPj4+IHRvIGJlCj4+PiArwqDCoMKgwqAgKiBpbmNsdWRlZCBpbiB0aGUg
-Vk1FeGl0IGFuZCBWTUVudHJ5IE1TUiBhdXRvIHN3aXRjaCBsaXN0Lgo+Pj4gK8KgwqDCoMKgICov
-Cj4+PiArwqDCoMKgIHJkbXNybChNU1JfSUEzMl9WTVhfTUlTQywgdm14X21zcik7Cj4+PiArwqDC
-oMKgIG4gPSAoKHZteF9tc3IgJiAweGUwMDAwMDApID4+IDI1KSArIDE7Cj4+PiArwqDCoMKgIG1z
-cl9hdXRvbG9hZF9jb3VudF9tYXggPSBuICogS1ZNX1ZNWF9ERUZBVUxUX01TUl9BVVRPX0xPQURf
-Q09VTlQ7Cj4+PiArfQo+Pj4gKwo+Pgo+PiBBbnkgcmVhc29ucyB0byBkbyB0aGlzIGlmIGl0J3Mg
-dW5saWtlbHkgdGhhdCB3ZSdsbCBldmVyIHVwZGF0ZSBtb3JlIHRoYW4KPj4gNTEyIE1TUnM/Cj4+
-Cj4+IFBhb2xvCj4gCj4gSXQgaXNuJ3QgYSBtdXN0IHRvIGFsbG9jYXRlIG1lbW9yeSBmb3IgNTEy
-IE1TUnMsIGJ1dCBJIHRoaW5rIGl0IHdvdWxkCj4gYmUgZ29vZCB0byBhbGxvY2F0ZSBtZW1vcnkg
-YXQgbGVhc3QgZm9yIDEyOCBNU1JzLCBiZWNhdXNlIG9uIHNreWxha2UKPiB3ZSBoYXZlIDMyIHRy
-aXBsZXRzIG9mIE1TUnMgKEZST00vVE8vSU5GTyksIHdoaWNoIGFyZSA5NiBpbiB0b3RhbAo+IGFs
-cmVhZHkuCj4gCj4gVGhlIGRpc2FkdmFudGFnZSBpcyB0aGF0IGRldmVsb3BlcnMgd291bGQgbmVl
-ZCB0byBtYW51YWxseSBjYWxjdWxhdGUKPiBhbmQgY2hhbmdlIHRoZSBudW1iZXIgY2FyZWZ1bGx5
-IHdoZW4gdGhleSBuZWVkIHRvIGFkZCBuZXcgTVNScyBmb3IKPiBhdXRvIHN3aXRjaGluZyBpbiB0
-aGUgZnV0dXJlLiBTbywgaWYgY29uc3VtaW5nIGEgbGl0dGxlIGJpdCBtb3JlCj4gbWVtb3J5IGlz
-bid0IGEgY29uY2VybiwgSSB0aGluayB3ZSBjYW4gZGlyZWN0bHkgYWxsb2NhdGUgbWVtb3J5IGJh
-c2VkCj4gb24gd2hhdCdzIHJlY29tbWVuZGVkIGJ5IHRoZSBoYXJkd2FyZS4KU3VyZS4gIEkgd2Fz
-IGp1c3QgdGhpbmtpbmcgdGhhdCBpdCdzIHVubmVjZXNzYXJ5IHRvIGFjdHVhbGx5IHVzZQpWTVhf
-TUlTQzsgc3RpY2tpbmcgdG8gb25lLXBhZ2UgYWxsb2NhdGlvbnMgaXMgbmljZXIuCgpQYW9sbwpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+On 09/25/2017 09:59 AM, Juergen Gross wrote:
+> Ping?
+>
+> On 06/09/17 19:36, Juergen Gross wrote:
+>> With virt_spin_lock() being guarded by a static key the bare metal case
+>> can be optimized by patching the call away completely. In case a kernel
+>> running as a guest it can decide whether to use paravitualized
+>> spinlocks, the current fallback to the unfair test-and-set scheme, or
+>> to mimic the bare metal behavior.
+>>
+>> V3:
+>> - remove test for hypervisor environment from virt_spin_lock(9 as
+>>   suggested by Waiman Long
+>>
+>> V2:
+>> - use static key instead of making virt_spin_lock() a pvops function
+>>
+>> Juergen Gross (2):
+>>   paravirt/locks: use new static key for controlling call of
+>>     virt_spin_lock()
+>>   paravirt,xen: correct xen_nopvspin case
+>>
+>>  arch/x86/include/asm/qspinlock.h     | 11 ++++++++++-
+>>  arch/x86/kernel/paravirt-spinlocks.c |  6 ++++++
+>>  arch/x86/kernel/smpboot.c            |  2 ++
+>>  arch/x86/xen/spinlock.c              |  2 ++
+>>  kernel/locking/qspinlock.c           |  4 ++++
+>>  5 files changed, 24 insertions(+), 1 deletion(-)
+>>
+Acked-by: Waiman Long <longman@redhat.com>
