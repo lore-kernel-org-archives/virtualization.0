@@ -1,17 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next RFC 2/5] vhost: introduce helper to prefetch desc
-	index
-Date: Mon, 25 Sep 2017 10:04:13 +0800
-Message-ID: <33bdcceb-9f12-e5e9-4b4d-6d619e17a206__6801.03440904549$1506305093$gmane$org@redhat.com>
-References: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
-	<1506067355-5771-3-git-send-email-jasowang@redhat.com>
-	<20170922090257.GB9243@stefanha-x1.localdomain>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: [PATCH v1 0/4] Enable LBR for the guest
+Date: Mon, 25 Sep 2017 12:44:52 +0800
+Message-ID: <1506314696-4632-1-git-send-email-wei.w.wang__32971.7458379038$1506315520$gmane$org@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170922090257.GB9243@stefanha-x1.localdomain>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,33 +15,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, pbonzini@redhat.com, mst@redhat.com, rkrcmar@redhat.com, ak@linux.intel.com, mingo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDnmnIgyMuaXpSAxNzowMiwgU3RlZmFuIEhham5vY3ppIHdyb3RlOgo+IE9u
-IEZyaSwgU2VwIDIyLCAyMDE3IGF0IDA0OjAyOjMyUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
-Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJzL3Zob3N0L3Zo
-b3N0LmMKPj4gaW5kZXggZjg3ZWM3NS4uODQyNDE2NmQgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMv
-dmhvc3Qvdmhvc3QuYwo+PiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4gQEAgLTI0Mzcs
-NiArMjQzNyw2MSBAQCBzdHJ1Y3Qgdmhvc3RfbXNnX25vZGUgKnZob3N0X2RlcXVldWVfbXNnKHN0
-cnVjdCB2aG9zdF9kZXYgKmRldiwKPj4gICB9Cj4+ICAgRVhQT1JUX1NZTUJPTF9HUEwodmhvc3Rf
-ZGVxdWV1ZV9tc2cpOwo+PiAgIAo+PiAraW50IHZob3N0X3ByZWZldGNoX2Rlc2NfaW5kaWNlcyhz
-dHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPj4gKwkJCQlzdHJ1Y3QgdnJpbmdfdXNlZF9lbGVt
-ICpoZWFkcywKPj4gKwkJCQl1MTYgbnVtLCBib29sIHVzZWRfdXBkYXRlKQo+IE1pc3NpbmcgZG9j
-IGNvbW1lbnQuCgpXaWxsIGZpeCB0aGlzLgoKPgo+PiArewo+PiArCWludCByZXQsIHJldDI7Cj4+
-ICsJdTE2IGxhc3RfYXZhaWxfaWR4LCBsYXN0X3VzZWRfaWR4LCB0b3RhbCwgY29waWVkOwo+PiAr
-CV9fdmlydGlvMTYgYXZhaWxfaWR4Owo+PiArCXN0cnVjdCB2cmluZ191c2VkX2VsZW0gX191c2Vy
-ICp1c2VkOwo+PiArCWludCBpOwo+IFRoZSBmb2xsb3dpbmcgdmFyaWFibGUgbmFtZXMgYXJlIGEg
-bGl0dGxlIGNvbmZ1c2luZzoKPgo+IGxhc3RfYXZhaWxfaWR4IHZzIHZxLT5sYXN0X2F2YWlsX2lk
-eC4gIGxhc3RfYXZhaWxfaWR4IGlzIGEgd3JhcHBlZAo+IGF2YWlsLT5yaW5nW10gaW5kZXgsIHZx
-LT5sYXN0X2F2YWlsX2lkeCBpcyBhIGZyZWUtcnVubmluZyBjb3VudGVyLiAgVGhlCj4gc2FtZSBm
-b3IgbGFzdF91c2VkX2lkeCB2cyB2cS0+bGFzdF91c2VkX2lkeC4KPgo+IG51bSBhcmd1bWVudCB2
-cyB2cS0+bnVtLiAgVGhlIGFyZ3VtZW50IGNvdWxkIGJlIGNhbGxlZCBuaGVhZHMgaW5zdGVhZCB0
-bwo+IG1ha2UgaXQgY2xlYXIgdGhhdCB0aGlzIGlzIGhlYWRzW10gYW5kIG5vdCB0aGUgdmlydHF1
-ZXVlIHNpemUuCj4KPiBOb3QgYSBidWcgYnV0IGl0IHRvb2sgbWUgYSB3aGlsZSB0byBmaWd1cmUg
-b3V0IHdoYXQgd2FzIGdvaW5nIG9uLgoKSSBhZG1pdCB0aGUgbmFtZSBpcyBjb25mdXNpbmcuIExl
-dCBtZSB0cnkgYmV0dGVyIG9uZXMgaW4gVjIuCgpUaGFua3MKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+This patch series enables the Last Branch Recording feature for the
+guest. Instead of trapping each LBR stack MSR access, the MSRs are
+passthroughed to the guest. Those MSRs are switched (i.e. load and
+saved) on VMExit and VMEntry.
+
+Test:
+Try "perf record -b ./test_program" on guest.
+
+Wei Wang (4):
+  KVM/vmx: re-write the msr auto switch feature
+  KVM/vmx: auto switch MSR_IA32_DEBUGCTLMSR
+  perf/x86: add a function to get the lbr stack
+  KVM/vmx: enable lbr for the guest
+
+ arch/x86/events/intel/lbr.c       |  23 +++++++
+ arch/x86/include/asm/perf_event.h |  14 ++++
+ arch/x86/kvm/vmx.c                | 135 +++++++++++++++++++++++++++++++++-----
+ 3 files changed, 154 insertions(+), 18 deletions(-)
+
+-- 
+2.7.4
