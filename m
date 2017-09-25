@@ -1,14 +1,15 @@
-From: Andi Kleen <ak@linux.intel.com>
-Subject: Re: [PATCH v1 0/4] Enable LBR for the guest
-Date: Mon, 25 Sep 2017 07:59:08 -0700
-Message-ID: <20170925145908.GN4311__40626.9128471196$1506351575$gmane$org@tassilo.jf.intel.com>
-References: <1506314696-4632-1-git-send-email-wei.w.wang@intel.com>
+From: Halil Pasic <pasic@linux.vnet.ibm.com>
+Subject: Re: [PATCH] KVM: s390: Disable CONFIG_S390_GUEST_OLD_TRANSPORT by
+	default
+Date: Mon, 25 Sep 2017 19:54:20 +0200
+Message-ID: <3c2b8ae8-ca2a-7b26-8ebd-14f14c286529__45732.4724099182$1506362090$gmane$org@linux.vnet.ibm.com>
+References: <1506350729-11311-1-git-send-email-thuth@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1506314696-4632-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <1506350729-11311-1-git-send-email-thuth@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,22 +19,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, rkrcmar@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, pbonzini@redhat.com
+To: Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 25, 2017 at 12:44:52PM +0800, Wei Wang wrote:
-> This patch series enables the Last Branch Recording feature for the
-> guest. Instead of trapping each LBR stack MSR access, the MSRs are
-> passthroughed to the guest. Those MSRs are switched (i.e. load and
-> saved) on VMExit and VMEntry.
+
+
+On 09/25/2017 04:45 PM, Thomas Huth wrote:
+> There is no recent user space application available anymore which still
+> supports this old virtio transport, so let's disable this by default.
 > 
-> Test:
-> Try "perf record -b ./test_program" on guest.
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
 
-I don't see where you expose the PERF capabilities MSR? 
+I don't have any objections, but there may be something I'm not aware of.
+Let's see what Connie says. From my side it's ack.
 
-That's normally needed for LBR too to report the version
-number.
+Via whom is this supposed to go in? Looking at the MAINTAINERS, I would
+say Martin or Heiko but I don't see them among the recipients.
 
--Andi
+Regards,
+Halil
+
+> ---
+>  arch/s390/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index 48af970..923bf04 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -930,7 +930,7 @@ config S390_GUEST
+>  	  the KVM hypervisor.
+> 
+>  config S390_GUEST_OLD_TRANSPORT
+> -	def_bool y
+> +	def_bool n
+>  	prompt "Guest support for old s390 virtio transport (DEPRECATED)"
+>  	depends on S390_GUEST
+>  	help
+> 
