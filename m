@@ -1,14 +1,16 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next] virtio-net: correctly set xdp_xmit for
-	mergeable buffer
-Date: Fri, 22 Sep 2017 18:16:21 -0700 (PDT)
-Message-ID: <20170922.181621.639395877867842082.davem__18078.6430057653$1506129408$gmane$org@davemloft.net>
-References: <1506062338-3617-1-git-send-email-jasowang@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next RFC 1/5] vhost: split out ring head fetching logic
+Date: Mon, 25 Sep 2017 10:03:14 +0800
+Message-ID: <5ff7d603-124e-75f1-38fa-9984b194af82__35139.7390630611$1506305027$gmane$org@redhat.com>
+References: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
+	<1506067355-5771-2-git-send-email-jasowang@redhat.com>
+	<20170922083157.GA9243@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1506062338-3617-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20170922083157.GA9243@stefanha-x1.localdomain>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,16 +20,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, mst@redhat.com
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 22 Sep 2017 14:38:58 +0800
-
-> We should set xdp_xmit only when xdp_do_redirect() succeed.
-> 
-> Cc: John Fastabend <john.fastabend@gmail.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-Applied, thanks Jason.
+CgpPbiAyMDE35bm0MDnmnIgyMuaXpSAxNjozMSwgU3RlZmFuIEhham5vY3ppIHdyb3RlOgo+IE9u
+IEZyaSwgU2VwIDIyLCAyMDE3IGF0IDA0OjAyOjMxUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
+Cj4+ICsvKiBUaGlzIGxvb2tzIGluIHRoZSB2aXJ0cXVldWUgYW5kIGZvciB0aGUgZmlyc3QgYXZh
+aWxhYmxlIGJ1ZmZlciwgYW5kIGNvbnZlcnRzCj4+ICsgKiBpdCB0byBhbiBpb3ZlYyBmb3IgY29u
+dmVuaWVudCBhY2Nlc3MuICBTaW5jZSBkZXNjcmlwdG9ycyBjb25zaXN0IG9mIHNvbWUKPj4gKyAq
+IG51bWJlciBvZiBvdXRwdXQgdGhlbiBzb21lIG51bWJlciBvZiBpbnB1dCBkZXNjcmlwdG9ycywg
+aXQncyBhY3R1YWxseSB0d28KPj4gKyAqIGlvdmVjcywgYnV0IHdlIHBhY2sgdGhlbSBpbnRvIG9u
+ZSBhbmQgbm90ZSBob3cgbWFueSBvZiBlYWNoIHRoZXJlIHdlcmUuCj4+ICsgKgo+PiArICogVGhp
+cyBmdW5jdGlvbiByZXR1cm5zIHRoZSBkZXNjcmlwdG9yIG51bWJlciBmb3VuZCwgb3IgdnEtPm51
+bSAod2hpY2ggaXMKPj4gKyAqIG5ldmVyIGEgdmFsaWQgZGVzY3JpcHRvciBudW1iZXIpIGlmIG5v
+bmUgd2FzIGZvdW5kLiAgQSBuZWdhdGl2ZSBjb2RlIGlzCj4+ICsgKiByZXR1cm5lZCBvbiBlcnJv
+ci4gKi8KPj4gK2ludCBfX3Zob3N0X2dldF92cV9kZXNjKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUg
+KnZxLAo+PiArCQkJc3RydWN0IGlvdmVjIGlvdltdLCB1bnNpZ25lZCBpbnQgaW92X3NpemUsCj4+
+ICsJCQl1bnNpZ25lZCBpbnQgKm91dF9udW0sIHVuc2lnbmVkIGludCAqaW5fbnVtLAo+PiArCQkJ
+c3RydWN0IHZob3N0X2xvZyAqbG9nLCB1bnNpZ25lZCBpbnQgKmxvZ19udW0sCj4+ICsJCQlfX3Zp
+cnRpbzE2IGhlYWQpCj4gWy4uLl0KPj4gK2ludCB2aG9zdF9nZXRfdnFfZGVzYyhzdHJ1Y3Qgdmhv
+c3RfdmlydHF1ZXVlICp2cSwKPj4gKwkJICAgICAgc3RydWN0IGlvdmVjIGlvdltdLCB1bnNpZ25l
+ZCBpbnQgaW92X3NpemUsCj4+ICsJCSAgICAgIHVuc2lnbmVkIGludCAqb3V0X251bSwgdW5zaWdu
+ZWQgaW50ICppbl9udW0sCj4+ICsJCSAgICAgIHN0cnVjdCB2aG9zdF9sb2cgKmxvZywgdW5zaWdu
+ZWQgaW50ICpsb2dfbnVtKQo+IFBsZWFzZSBkb2N1bWVudCB2aG9zdF9nZXRfdnFfZGVzYygpLgo+
+Cj4gUGxlYXNlIGFsc28gZXhwbGFpbiB0aGUgZGlmZmVyZW5jZSBiZXR3ZWVuIF9fdmhvc3RfZ2V0
+X3ZxX2Rlc2MoKSBhbmQKPiB2aG9zdF9nZXRfdnFfZGVzYygpIGluIHRoZSBkb2N1bWVudGF0aW9u
+LgoKUmlnaHQsIHdpbGwgZG9jdW1lbnQgdGhpcyBpbiBuZXh0IHZlcnNpb24uCgpUaGFua3MKCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
