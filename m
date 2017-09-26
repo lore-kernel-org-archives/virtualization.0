@@ -1,16 +1,18 @@
-From: Andi Kleen <ak@linux.intel.com>
-Subject: Re: [PATCH v1 0/4] Enable LBR for the guest
-Date: Tue, 26 Sep 2017 09:51:37 -0700
-Message-ID: <20170926165137.GR4311__49863.9042060406$1506444708$gmane$org@tassilo.jf.intel.com>
-References: <1506314696-4632-1-git-send-email-wei.w.wang@intel.com>
-	<20170925145908.GN4311@tassilo.jf.intel.com>
-	<59CA1417.7070602@intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v5 REPOST 1/6] hw_random: place mutex around read
+	functions and buffers.
+Date: Tue, 26 Sep 2017 09:52:41 -0700
+Message-ID: <20170926165241.GB14833__8550.78215613521$1506444781$gmane$org@dtor-ws>
+References: <1418028640-4891-1-git-send-email-akong@redhat.com>
+	<1418028640-4891-2-git-send-email-akong@redhat.com>
+	<CAKdAkRSF1qJv_03PJh44gkQ7NOJ3ccW2EwPckGvch=iUYY1-Qw@mail.gmail.com>
+	<369186187.14365871.1506407817157.JavaMail.zimbra@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <59CA1417.7070602@intel.com>
+In-Reply-To: <369186187.14365871.1506407817157.JavaMail.zimbra@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,17 +22,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, rkrcmar@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, pbonzini@redhat.com
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, Michael Buesch <m@bues.ch>, Matt Mackall <mpm@selenic.com>, amit shah <amit.shah@redhat.com>, Amos Kong <akong@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On the other side, it seems that the (guest) kernel driver also works
-> without
-> the above being supported, should we change it to report error and stop
-> using the PMU features when the check of the above two fails (at
-> intel_pmu_init())?
+On Tue, Sep 26, 2017 at 02:36:57AM -0400, Pankaj Gupta wrote:
+> 
+> > 
+> > A bit late to a party, but:
+> > 
+> > On Mon, Dec 8, 2014 at 12:50 AM, Amos Kong <akong@redhat.com> wrote:
+> > > From: Rusty Russell <rusty@rustcorp.com.au>
+> > >
+> > > There's currently a big lock around everything, and it means that we
+> > > can't query sysfs (eg /sys/devices/virtual/misc/hw_random/rng_current)
+> > > while the rng is reading.  This is a real problem when the rng is slow,
+> > > or blocked (eg. virtio_rng with qemu's default /dev/random backend)
+> > >
+> > > This doesn't help (it leaves the current lock untouched), just adds a
+> > > lock to protect the read function and the static buffers, in preparation
+> > > for transition.
+> > >
+> > > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> > > ---
+> > ...
+> > >
+> > > @@ -160,13 +166,14 @@ static ssize_t rng_dev_read(struct file *filp, char
+> > > __user *buf,
+> > >                         goto out_unlock;
+> > >                 }
+> > >
+> > > +               mutex_lock(&reading_mutex);
+> > 
+> > I think this breaks O_NONBLOCK: we have hwrng core thread that is
+> > constantly pumps underlying rng for data; the thread takes the mutex
+> > and calls rng_get_data() that blocks until RNG responds. This means
+> > that even user specified O_NONBLOCK here we'll be waiting until
+> > [hwrng] thread releases reading_mutex before we can continue.
+> 
+> I think for 'virtio_rng' for 'O_NON_BLOCK' 'rng_get_data' returns
+> without waiting for data which can let mutex to be  used by other 
+> threads waiting if any?
+> 
+> rng_dev_read
+>   rng_get_data
+>     virtio_read
 
-You could add the extra check for the LBR code yes, although it already checks
-if the LBR MSRs work, so in practice it's likely already covered.
+As I said in the paragraph above the code that potentially holds the
+mutex for long time is the thread in hwrng core: hwrng_fillfn(). As it
+calls rng_get_data() with "wait" argument == 1 it may block while
+holding reading_mutex, which, in turn, will block rng_dev_read(), even
+if it was called with O_NONBLOCK.
 
--Andi
+Thanks.
+
+-- 
+Dmitry
