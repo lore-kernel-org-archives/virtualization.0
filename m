@@ -1,15 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next RFC 3/5] vhost: introduce vhost_add_used_idx()
-Date: Tue, 26 Sep 2017 22:13:09 +0300
-Message-ID: <20170926170047-mutt-send-email-mst__5260.91446304253$1506453221$gmane$org@kernel.org>
+Subject: Re: [PATCH net-next RFC 2/5] vhost: introduce helper to prefetch
+	desc index
+Date: Tue, 26 Sep 2017 22:19:47 +0300
+Message-ID: <20170926221435-mutt-send-email-mst__49170.0189108544$1506453610$gmane$org@kernel.org>
 References: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
-	<1506067355-5771-4-git-send-email-jasowang@redhat.com>
+	<1506067355-5771-3-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1506067355-5771-4-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1506067355-5771-3-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,76 +24,107 @@ To: Jason Wang <jasowang@redhat.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 22, 2017 at 04:02:33PM +0800, Jason Wang wrote:
-> This patch introduces a helper which just increase the used idx. This
-> will be used in pair with vhost_prefetch_desc_indices() by batching
-> code.
+On Fri, Sep 22, 2017 at 04:02:32PM +0800, Jason Wang wrote:
+> This patch introduces vhost_prefetch_desc_indices() which could batch
+> descriptor indices fetching and used ring updating. This intends to
+> reduce the cache misses of indices fetching and updating and reduce
+> cache line bounce when virtqueue is almost full. copy_to_user() was
+> used in order to benefit from modern cpus that support fast string
+> copy. Batched virtqueue processing will be the first user.
 > 
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > ---
->  drivers/vhost/vhost.c | 33 +++++++++++++++++++++++++++++++++
->  drivers/vhost/vhost.h |  1 +
->  2 files changed, 34 insertions(+)
+>  drivers/vhost/vhost.c | 55 +++++++++++++++++++++++++++++++++++++++++++++++++++
+>  drivers/vhost/vhost.h |  3 +++
+>  2 files changed, 58 insertions(+)
 > 
 > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 8424166d..6532cda 100644
+> index f87ec75..8424166d 100644
 > --- a/drivers/vhost/vhost.c
 > +++ b/drivers/vhost/vhost.c
-> @@ -2178,6 +2178,39 @@ int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
+> @@ -2437,6 +2437,61 @@ struct vhost_msg_node *vhost_dequeue_msg(struct vhost_dev *dev,
 >  }
->  EXPORT_SYMBOL_GPL(vhost_add_used);
+>  EXPORT_SYMBOL_GPL(vhost_dequeue_msg);
 >  
-> +int vhost_add_used_idx(struct vhost_virtqueue *vq, int n)
+> +int vhost_prefetch_desc_indices(struct vhost_virtqueue *vq,
+> +				struct vring_used_elem *heads,
+> +				u16 num, bool used_update)
+
+why do you need to combine used update with prefetch?
+
 > +{
-> +	u16 old, new;
+> +	int ret, ret2;
+> +	u16 last_avail_idx, last_used_idx, total, copied;
+> +	__virtio16 avail_idx;
+> +	struct vring_used_elem __user *used;
+> +	int i;
 > +
-> +	old = vq->last_used_idx;
-> +	new = (vq->last_used_idx += n);
-> +	/* If the driver never bothers to signal in a very long while,
-> +	 * used index might wrap around. If that happens, invalidate
-> +	 * signalled_used index we stored. TODO: make sure driver
-> +	 * signals at least once in 2^16 and remove this.
-> +	 */
-> +	if (unlikely((u16)(new - vq->signalled_used) < (u16)(new - old)))
-> +		vq->signalled_used_valid = false;
-> +
-> +	/* Make sure buffer is written before we update index. */
-> +	smp_wmb();
-> +	if (vhost_put_user(vq, cpu_to_vhost16(vq, vq->last_used_idx),
-> +			   &vq->used->idx)) {
-> +		vq_err(vq, "Failed to increment used idx");
+> +	if (unlikely(vhost_get_avail(vq, avail_idx, &vq->avail->idx))) {
+> +		vq_err(vq, "Failed to access avail idx at %p\n",
+> +		       &vq->avail->idx);
 > +		return -EFAULT;
 > +	}
-> +	if (unlikely(vq->log_used)) {
-> +		/* Log used index update. */
-> +		log_write(vq->log_base,
-> +			  vq->log_addr + offsetof(struct vring_used, idx),
-> +			  sizeof(vq->used->idx));
-> +		if (vq->log_ctx)
-> +			eventfd_signal(vq->log_ctx, 1);
-> +	}
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(vhost_add_used_idx);
+> +	last_avail_idx = vq->last_avail_idx & (vq->num - 1);
+> +	vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
+> +	total = vq->avail_idx - vq->last_avail_idx;
+> +	ret = total = min(total, num);
 > +
->  static int __vhost_add_used_n(struct vhost_virtqueue *vq,
->  			    struct vring_used_elem *heads,
->  			    unsigned count)
+> +	for (i = 0; i < ret; i++) {
+> +		ret2 = vhost_get_avail(vq, heads[i].id,
+> +				      &vq->avail->ring[last_avail_idx]);
+> +		if (unlikely(ret2)) {
+> +			vq_err(vq, "Failed to get descriptors\n");
+> +			return -EFAULT;
+> +		}
+> +		last_avail_idx = (last_avail_idx + 1) & (vq->num - 1);
+> +	}
+> +
+> +	if (!used_update)
+> +		return ret;
+> +
+> +	last_used_idx = vq->last_used_idx & (vq->num - 1);
+> +	while (total) {
+> +		copied = min((u16)(vq->num - last_used_idx), total);
+> +		ret2 = vhost_copy_to_user(vq,
+> +					  &vq->used->ring[last_used_idx],
+> +					  &heads[ret - total],
+> +					  copied * sizeof(*used));
+> +
+> +		if (unlikely(ret2)) {
+> +			vq_err(vq, "Failed to update used ring!\n");
+> +			return -EFAULT;
+> +		}
+> +
+> +		last_used_idx = 0;
+> +		total -= copied;
+> +	}
+> +
+> +	/* Only get avail ring entries after they have been exposed by guest. */
+> +	smp_rmb();
+
+Barrier before return is a very confusing API. I guess it's designed to
+be used in a specific way to make it necessary - but what is it?
+
+
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL(vhost_prefetch_desc_indices);
+>  
+>  static int __init vhost_init(void)
+>  {
 > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index 16c2cb6..5dd6c05 100644
+> index 39ff897..16c2cb6 100644
 > --- a/drivers/vhost/vhost.h
 > +++ b/drivers/vhost/vhost.h
-> @@ -199,6 +199,7 @@ int __vhost_get_vq_desc(struct vhost_virtqueue *vq,
->  void vhost_discard_vq_desc(struct vhost_virtqueue *, int n);
+> @@ -228,6 +228,9 @@ ssize_t vhost_chr_read_iter(struct vhost_dev *dev, struct iov_iter *to,
+>  ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
+>  			     struct iov_iter *from);
+>  int vhost_init_device_iotlb(struct vhost_dev *d, bool enabled);
+> +int vhost_prefetch_desc_indices(struct vhost_virtqueue *vq,
+> +				struct vring_used_elem *heads,
+> +				u16 num, bool used_update);
 >  
->  int vhost_vq_init_access(struct vhost_virtqueue *);
-> +int vhost_add_used_idx(struct vhost_virtqueue *vq, int n);
->  int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
->  int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
->  		     unsigned count);
-
-Please change the API to hide the fact that there's an index that needs
-to be updated.
-
+>  #define vq_err(vq, fmt, ...) do {                                  \
+>  		pr_debug(pr_fmt(fmt), ##__VA_ARGS__);       \
 > -- 
 > 2.7.4
