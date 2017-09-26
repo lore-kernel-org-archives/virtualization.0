@@ -1,16 +1,15 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH v5 REPOST 1/6] hw_random: place mutex around read
-	functions and buffers.
-Date: Tue, 26 Sep 2017 02:36:57 -0400 (EDT)
-Message-ID: <369186187.14365871.1506407817157.JavaMail.zimbra__862.001282121305$1506407854$gmane$org@redhat.com>
-References: <1418028640-4891-1-git-send-email-akong@redhat.com>
-	<1418028640-4891-2-git-send-email-akong@redhat.com>
-	<CAKdAkRSF1qJv_03PJh44gkQ7NOJ3ccW2EwPckGvch=iUYY1-Qw@mail.gmail.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH] KVM: s390: Disable CONFIG_S390_GUEST_OLD_TRANSPORT by
+	default
+Date: Tue, 26 Sep 2017 09:33:21 +0200
+Message-ID: <24f71847-7890-4dd5-920a-11b988467e93__32561.093933373$1506411211$gmane$org@de.ibm.com>
+References: <1506350729-11311-1-git-send-email-thuth@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAKdAkRSF1qJv_03PJh44gkQ7NOJ3ccW2EwPckGvch=iUYY1-Qw@mail.gmail.com>
+In-Reply-To: <1506350729-11311-1-git-send-email-thuth@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,92 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, Michael Buesch <m@bues.ch>, Matt Mackall <mpm@selenic.com>, amit shah <amit.shah@redhat.com>, Amos Kong <akong@redhat.com>
+To: Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
+On 09/25/2017 04:45 PM, Thomas Huth wrote:
+> There is no recent user space application available anymore which still
+> supports this old virtio transport, so let's disable this by default.
 > 
-> A bit late to a party, but:
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+
+thanks applied.
+> ---
+>  arch/s390/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> On Mon, Dec 8, 2014 at 12:50 AM, Amos Kong <akong@redhat.com> wrote:
-> > From: Rusty Russell <rusty@rustcorp.com.au>
-> >
-> > There's currently a big lock around everything, and it means that we
-> > can't query sysfs (eg /sys/devices/virtual/misc/hw_random/rng_current)
-> > while the rng is reading.  This is a real problem when the rng is slow,
-> > or blocked (eg. virtio_rng with qemu's default /dev/random backend)
-> >
-> > This doesn't help (it leaves the current lock untouched), just adds a
-> > lock to protect the read function and the static buffers, in preparation
-> > for transition.
-> >
-> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > ---
-> ...
-> >
-> > @@ -160,13 +166,14 @@ static ssize_t rng_dev_read(struct file *filp, char
-> > __user *buf,
-> >                         goto out_unlock;
-> >                 }
-> >
-> > +               mutex_lock(&reading_mutex);
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index 48af970..923bf04 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -930,7 +930,7 @@ config S390_GUEST
+>  	  the KVM hypervisor.
 > 
-> I think this breaks O_NONBLOCK: we have hwrng core thread that is
-> constantly pumps underlying rng for data; the thread takes the mutex
-> and calls rng_get_data() that blocks until RNG responds. This means
-> that even user specified O_NONBLOCK here we'll be waiting until
-> [hwrng] thread releases reading_mutex before we can continue.
-
-I think for 'virtio_rng' for 'O_NON_BLOCK' 'rng_get_data' returns
-without waiting for data which can let mutex to be  used by other 
-threads waiting if any?
-
-rng_dev_read
-  rng_get_data
-    virtio_read
-  
-static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
-{
-        int ret;
-        struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
-
-        if (vi->hwrng_removed)
-                return -ENODEV;
-
-        if (!vi->busy) {
-                vi->busy = true;
-                init_completion(&vi->have_data);
-                register_buffer(vi, buf, size);
-        }
-
-        if (!wait)
-                return 0;
-
-        ret = wait_for_completion_killable(&vi->have_data);
-        if (ret < 0)
-                return ret;
-
-        vi->busy = false;
-
-        return vi->data_avail;
-}
-
-> 
-> >                 if (!data_avail) {
-> >                         bytes_read = rng_get_data(current_rng, rng_buffer,
-> >                                 rng_buffer_size(),
-> >                                 !(filp->f_flags & O_NONBLOCK));
-> >                         if (bytes_read < 0) {
-> >                                 err = bytes_read;
-> > -                               goto out_unlock;
-> > +                               goto out_unlock_reading;
-> >                         }
-> >                         data_avail = bytes_read;
-> >                 }
-> 
-> Thanks.
-> 
-> --
-> Dmitry
+>  config S390_GUEST_OLD_TRANSPORT
+> -	def_bool y
+> +	def_bool n
+>  	prompt "Guest support for old s390 virtio transport (DEPRECATED)"
+>  	depends on S390_GUEST
+>  	help
 > 
