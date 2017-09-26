@@ -1,14 +1,20 @@
-From: Cornelia Huck <cohuck@redhat.com>
+From: Thomas Huth <thuth@redhat.com>
 Subject: Re: [PATCH] KVM: s390: Disable CONFIG_S390_GUEST_OLD_TRANSPORT by
 	default
-Date: Tue, 26 Sep 2017 09:53:06 +0200
-Message-ID: <20170926095306.6765bc0b.cohuck__25944.8759411045$1509079458$gmane$org@redhat.com>
+Date: Tue, 26 Sep 2017 12:57:26 +0200
+Message-ID: <ec6d80f2-17ca-4a5f-a357-5cc165b1acfd__36642.1556137086$1509079460$gmane$org@redhat.com>
 References: <1506350729-11311-1-git-send-email-thuth@redhat.com>
+	<3c2b8ae8-ca2a-7b26-8ebd-14f14c286529@linux.vnet.ibm.com>
+	<83cacb4a-94b1-c7c2-e50d-70afea5d3e9c@de.ibm.com>
+	<20170926104019.GA3209@osiris>
+	<376655d1-87e3-4187-d2d1-d1f23c02431a@de.ibm.com>
+	<20170926104752.GB3209@osiris>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1506350729-11311-1-git-send-email-thuth@redhat.com>
+In-Reply-To: <20170926104752.GB3209@osiris>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +24,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Huth <thuth@redhat.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 25 Sep 2017 16:45:29 +0200
-Thomas Huth <thuth@redhat.com> wrote:
-
-> There is no recent user space application available anymore which still
-> supports this old virtio transport, so let's disable this by default.
-> 
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> ---
->  arch/s390/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index 48af970..923bf04 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -930,7 +930,7 @@ config S390_GUEST
->  	  the KVM hypervisor.
->  
->  config S390_GUEST_OLD_TRANSPORT
-> -	def_bool y
-> +	def_bool n
->  	prompt "Guest support for old s390 virtio transport (DEPRECATED)"
->  	depends on S390_GUEST
->  	help
-
-Acked-by: Cornelia Huck <cohuck@redhat.com>
+T24gMjYuMDkuMjAxNyAxMjo0NywgSGVpa28gQ2Fyc3RlbnMgd3JvdGU6Cj4gT24gVHVlLCBTZXAg
+MjYsIDIwMTcgYXQgMTI6NDE6NDFQTSArMDIwMCwgQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIHdyb3Rl
+Ogo+Pgo+Pgo+PiBPbiAwOS8yNi8yMDE3IDEyOjQwIFBNLCBIZWlrbyBDYXJzdGVucyB3cm90ZToK
+Pj4+IE9uIE1vbiwgU2VwIDI1LCAyMDE3IGF0IDA4OjM3OjM2UE0gKzAyMDAsIENocmlzdGlhbiBC
+b3JudHJhZWdlciB3cm90ZToKPj4+Pgo+Pj4+IE9uIDA5LzI1LzIwMTcgMDc6NTQgUE0sIEhhbGls
+IFBhc2ljIHdyb3RlOgo+Pj4+Pgo+Pj4+Pgo+Pj4+PiBPbiAwOS8yNS8yMDE3IDA0OjQ1IFBNLCBU
+aG9tYXMgSHV0aCB3cm90ZToKPj4+Pj4+IFRoZXJlIGlzIG5vIHJlY2VudCB1c2VyIHNwYWNlIGFw
+cGxpY2F0aW9uIGF2YWlsYWJsZSBhbnltb3JlIHdoaWNoIHN0aWxsCj4+Pj4+PiBzdXBwb3J0cyB0
+aGlzIG9sZCB2aXJ0aW8gdHJhbnNwb3J0LCBzbyBsZXQncyBkaXNhYmxlIHRoaXMgYnkgZGVmYXVs
+dC4KPj4+Pj4+Cj4+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBUaG9tYXMgSHV0aCA8dGh1dGhAcmVkaGF0
+LmNvbT4KPj4+Pj4KPj4+Pj4gSSBkb24ndCBoYXZlIGFueSBvYmplY3Rpb25zLCBidXQgdGhlcmUg
+bWF5IGJlIHNvbWV0aGluZyBJJ20gbm90IGF3YXJlIG9mLgo+Pj4+PiBMZXQncyBzZWUgd2hhdCBD
+b25uaWUgc2F5cy4gRnJvbSBteSBzaWRlIGl0J3MgYWNrLgo+Pj4+Pgo+Pj4+PiBWaWEgd2hvbSBp
+cyB0aGlzIHN1cHBvc2VkIHRvIGdvIGluPyBMb29raW5nIGF0IHRoZSBNQUlOVEFJTkVSUywgSSB3
+b3VsZAo+Pj4+PiBzYXkgTWFydGluIG9yIEhlaWtvIGJ1dCBJIGRvbid0IHNlZSB0aGVtIGFtb25n
+IHRoZSByZWNpcGllbnRzLgo+Pj4+Cj4+Pj4gRldJVyBhcyB0aGUgb3JpZ2luYWwgYXV0aG9yIG9m
+IHRoYXQgdHJhbnNwb3J0Cj4+Pj4gQWNrZWQtYnk6IENocmlzdGlhbiBCb3JudHJhZWdlciA8Ym9y
+bnRyYWVnZXJAZGUuaWJtLmNvbT4KPj4+Pgo+Pj4+IEkgY2FuIHBpY2sgdGhpcyB1cCBmb3IgTWFy
+dGlucy9IZWlrb3MgdHJlZSBpZiB5b3Ugd2FudC4KPj4+Cj4+PiBXaGVuIHdpbGwgdGhpcyBjb2Rl
+IGJlIHJlbW92ZWQ/Cj4+Pgo+Pj4gV2hlbiB0aGUgY29uZmlnIG9wdGlvbiB3YXMgaW5pdGlhbGx5
+IGFkZGVkIENvbm55IHNhaWQgaXQgc2hvdWxkIHN1cnZpdmUKPj4+ICJwcm9iYWJseSB0d28ga2Vy
+bmVsIHJlbGVhc2VzIG9yIHNvLCBkZXBlbmRpbmcgb24gZmVlZGJhY2siLgo+Pj4gSXQgd2FzIG1l
+cmdlZCBmb3IgdjQuOC4gTm93IHdlIGFyZSBmaXZlIGtlcm5lbCByZWxlYXNlcyBsYXRlci4uLgo+
+Pgo+PiBMZXRzIHdhaXQgZm9yIG9uZSByZWxlYXNlIGFuZCB0aGVuIGdldCByaWQgb2YgaXQ/Cj4g
+Cj4gU28gaXQncyBnb2luZyB0byBiZSByZW1vdmVkIHdpdGggdGhlIG5leHQgbWVyZ2Ugd2luZG93
+Lgo+IFdoZXJlIGlzIHRoZSBwYXRjaD8gOykKCkhtbSwgc28gZmFyIHRoZSBjb2RlIHdhcyBhbHdh
+eXMgZW5hYmxlZCBieSBkZWZhdWx0LCBzbyBpbiB0aGUgdW5saWtlbHkKY2FzZSB0aGF0IHNvbWVi
+b2R5IGlzIHN0aWxsIHVzaW5nIGl0LCB0aGV5IG1pZ2h0IG5vdCBoYXZlIG5vdGljZWQgdGhhdAp0
+aGlzIGlzIG1hcmtlZCBhcyBkZXByZWNhdGVkLiBTbyBtYXliZSBpdCdzIGJldHRlciB0byBrZWVw
+IHRoZSBjb2RlIGZvcgp0d28gbW9yZSByZWxlYXNlZCwgYnV0IGRpc2FibGUgaXQgYnkgZGVmYXVs
+dCwgc28gdGhhdCBwZW9wbGUgaGF2ZSB0aW1lCnRvIHJlYWxpemUgdGhhdCBpdCBpcyBnb2luZyBh
+d2F5PyAuLi4ganVzdCBteSAwLjAyIOKCrCAuLi4gYnV0IGlmIHlvdQpwcmVmZXIsIEkgY2FuIGFs
+c28gd3JpdGUgYSBwYXRjaCB0aGF0IHJlbW92ZXMgaXQgaW1tZWRpYXRlbHkgaW5zdGVhZC4KCiBU
+aG9tYXMKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
