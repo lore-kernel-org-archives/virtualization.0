@@ -1,18 +1,15 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 REPOST 1/6] hw_random: place mutex around read
-	functions and buffers.
-Date: Tue, 26 Sep 2017 09:52:41 -0700
-Message-ID: <20170926165241.GB14833__8550.78215613521$1506444781$gmane$org@dtor-ws>
-References: <1418028640-4891-1-git-send-email-akong@redhat.com>
-	<1418028640-4891-2-git-send-email-akong@redhat.com>
-	<CAKdAkRSF1qJv_03PJh44gkQ7NOJ3ccW2EwPckGvch=iUYY1-Qw@mail.gmail.com>
-	<369186187.14365871.1506407817157.JavaMail.zimbra@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next RFC 3/5] vhost: introduce vhost_add_used_idx()
+Date: Tue, 26 Sep 2017 22:13:09 +0300
+Message-ID: <20170926170047-mutt-send-email-mst__5260.91446304253$1506453221$gmane$org@kernel.org>
+References: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
+	<1506067355-5771-4-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <369186187.14365871.1506407817157.JavaMail.zimbra@redhat.com>
+In-Reply-To: <1506067355-5771-4-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,59 +19,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, Michael Buesch <m@bues.ch>, Matt Mackall <mpm@selenic.com>, amit shah <amit.shah@redhat.com>, Amos Kong <akong@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 26, 2017 at 02:36:57AM -0400, Pankaj Gupta wrote:
+On Fri, Sep 22, 2017 at 04:02:33PM +0800, Jason Wang wrote:
+> This patch introduces a helper which just increase the used idx. This
+> will be used in pair with vhost_prefetch_desc_indices() by batching
+> code.
 > 
-> > 
-> > A bit late to a party, but:
-> > 
-> > On Mon, Dec 8, 2014 at 12:50 AM, Amos Kong <akong@redhat.com> wrote:
-> > > From: Rusty Russell <rusty@rustcorp.com.au>
-> > >
-> > > There's currently a big lock around everything, and it means that we
-> > > can't query sysfs (eg /sys/devices/virtual/misc/hw_random/rng_current)
-> > > while the rng is reading.  This is a real problem when the rng is slow,
-> > > or blocked (eg. virtio_rng with qemu's default /dev/random backend)
-> > >
-> > > This doesn't help (it leaves the current lock untouched), just adds a
-> > > lock to protect the read function and the static buffers, in preparation
-> > > for transition.
-> > >
-> > > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > > ---
-> > ...
-> > >
-> > > @@ -160,13 +166,14 @@ static ssize_t rng_dev_read(struct file *filp, char
-> > > __user *buf,
-> > >                         goto out_unlock;
-> > >                 }
-> > >
-> > > +               mutex_lock(&reading_mutex);
-> > 
-> > I think this breaks O_NONBLOCK: we have hwrng core thread that is
-> > constantly pumps underlying rng for data; the thread takes the mutex
-> > and calls rng_get_data() that blocks until RNG responds. This means
-> > that even user specified O_NONBLOCK here we'll be waiting until
-> > [hwrng] thread releases reading_mutex before we can continue.
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vhost/vhost.c | 33 +++++++++++++++++++++++++++++++++
+>  drivers/vhost/vhost.h |  1 +
+>  2 files changed, 34 insertions(+)
 > 
-> I think for 'virtio_rng' for 'O_NON_BLOCK' 'rng_get_data' returns
-> without waiting for data which can let mutex to be  used by other 
-> threads waiting if any?
-> 
-> rng_dev_read
->   rng_get_data
->     virtio_read
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 8424166d..6532cda 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2178,6 +2178,39 @@ int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
+>  }
+>  EXPORT_SYMBOL_GPL(vhost_add_used);
+>  
+> +int vhost_add_used_idx(struct vhost_virtqueue *vq, int n)
+> +{
+> +	u16 old, new;
+> +
+> +	old = vq->last_used_idx;
+> +	new = (vq->last_used_idx += n);
+> +	/* If the driver never bothers to signal in a very long while,
+> +	 * used index might wrap around. If that happens, invalidate
+> +	 * signalled_used index we stored. TODO: make sure driver
+> +	 * signals at least once in 2^16 and remove this.
+> +	 */
+> +	if (unlikely((u16)(new - vq->signalled_used) < (u16)(new - old)))
+> +		vq->signalled_used_valid = false;
+> +
+> +	/* Make sure buffer is written before we update index. */
+> +	smp_wmb();
+> +	if (vhost_put_user(vq, cpu_to_vhost16(vq, vq->last_used_idx),
+> +			   &vq->used->idx)) {
+> +		vq_err(vq, "Failed to increment used idx");
+> +		return -EFAULT;
+> +	}
+> +	if (unlikely(vq->log_used)) {
+> +		/* Log used index update. */
+> +		log_write(vq->log_base,
+> +			  vq->log_addr + offsetof(struct vring_used, idx),
+> +			  sizeof(vq->used->idx));
+> +		if (vq->log_ctx)
+> +			eventfd_signal(vq->log_ctx, 1);
+> +	}
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(vhost_add_used_idx);
+> +
+>  static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+>  			    struct vring_used_elem *heads,
+>  			    unsigned count)
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index 16c2cb6..5dd6c05 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -199,6 +199,7 @@ int __vhost_get_vq_desc(struct vhost_virtqueue *vq,
+>  void vhost_discard_vq_desc(struct vhost_virtqueue *, int n);
+>  
+>  int vhost_vq_init_access(struct vhost_virtqueue *);
+> +int vhost_add_used_idx(struct vhost_virtqueue *vq, int n);
+>  int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
+>  int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
+>  		     unsigned count);
 
-As I said in the paragraph above the code that potentially holds the
-mutex for long time is the thread in hwrng core: hwrng_fillfn(). As it
-calls rng_get_data() with "wait" argument == 1 it may block while
-holding reading_mutex, which, in turn, will block rng_dev_read(), even
-if it was called with O_NONBLOCK.
+Please change the API to hide the fact that there's an index that needs
+to be updated.
 
-Thanks.
-
--- 
-Dmitry
+> -- 
+> 2.7.4
