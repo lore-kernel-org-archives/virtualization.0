@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] packed ring layout proposal v3
-Date: Tue, 26 Sep 2017 01:24:32 +0300
-Message-ID: <20170926011826-mutt-send-email-mst__46891.4356003099$1506378296$gmane$org@kernel.org>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [PATCH v5 REPOST 1/6] hw_random: place mutex around read
+	functions and buffers.
+Date: Tue, 26 Sep 2017 02:36:57 -0400 (EDT)
+Message-ID: <369186187.14365871.1506407817157.JavaMail.zimbra__862.001282121305$1506407854$gmane$org@redhat.com>
+References: <1418028640-4891-1-git-send-email-akong@redhat.com>
+	<1418028640-4891-2-git-send-email-akong@redhat.com>
+	<CAKdAkRSF1qJv_03PJh44gkQ7NOJ3ccW2EwPckGvch=iUYY1-Qw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
+In-Reply-To: <CAKdAkRSF1qJv_03PJh44gkQ7NOJ3ccW2EwPckGvch=iUYY1-Qw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,112 +20,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Liang, Cunming" <cunming.liang@intel.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, Michael Buesch <m@bues.ch>, Matt Mackall <mpm@selenic.com>, amit shah <amit.shah@redhat.com>, Amos Kong <akong@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 20, 2017 at 09:11:57AM +0000, Liang, Cunming wrote:
-> Hi Michael,
+
 > 
-> > -----Original Message-----
-> > From: virtio-dev@lists.oasis-open.org [mailto:virtio-dev@lists.oasis-open.org]
-> > On Behalf Of Michael S. Tsirkin
-> > Sent: Sunday, September 10, 2017 1:06 PM
-> > To: virtio-dev@lists.oasis-open.org
-> > Cc: virtualization@lists.linux-foundation.org
-> > Subject: [virtio-dev] packed ring layout proposal v3
-> > 
-> [...]
-> > * Descriptor ring:
-> > 
-> > Driver writes descriptors with unique index values and DESC_DRIVER set in
-> > flags.
-> > Descriptors are written in a ring order: from start to end of ring, wrapping
-> > around to the beginning.
-> > Device writes used descriptors with correct len, index, and DESC_HW clear.
-> > Again descriptors are written in ring order. This might not be the same order
-> > of driver descriptors, and not all descriptors have to be written out.
-> > 
-> > Driver and device are expected to maintain (internally) a wrap-around bit,
-> > starting at 0 and changing value each time they start writing out descriptors
-> > at the beginning of the ring. This bit is passed as DESC_WRAP bit in the flags
-> > field.
+> A bit late to a party, but:
 > 
-> One simple question there, trying to understand the usage of DESC_WRAP flag.
-> 
-> DESC_WRAP bit is a new flag since v2. It's used to address 'non power-of-2 ring sizes' mentioned in v2?
-> 
-> Being confused by the statement of wrap-around bit here, it's an internal wrap-around counter represented by single bit (0/1)?
-> DESC_WRAP can appear on any descriptor entry in the ring, why it highlights changing value at the beginning of the ring?
-
-
-No, this is necessary if not all descriptors are overwritten by device
-after they are used.
-
-Each time driver overwrites a descriptor, the value in DESC_WRAP changes
-which makes it possible for device to detect that there's a new
-descriptor.
-
-
-> > 
-> > Flags are always set/cleared last.
-> > 
-> > Note that driver can write descriptors out in any order, but device will not
-> > execute descriptor X+1 until descriptor X has been read as valid.
-> > 
-> > Driver operation:
-> > 
-> [...]
-> > 
-> > DESC_WRAP - device uses this field to detect descriptor change by driver.
-> 
-> Device uses this field to detect change of wrap-around boundary by driver? 
-> 
-> [...]
-> > 
-> > Device operation (using descriptors):
-> > 
-> [...]
-> > 
-> > DESC_WRAP - driver uses this field to detect descriptor change by device.
-> 
-> Driver uses this field to detect change of wrap-around boundary by device?
->
-> By using this, driver doesn't need to maintain any internal wrap-around count, but being aware of wrap-around by DESC_WRAP flag.
-> 
-> 
-> Thanks,
-> Steve
-
-So v2 simply said descriptor has a single bit: driver writes 1 there,
-device writes 0.
-
-This requires device to overwrite each descriptor and people asked 
-for a way to communicate where some descriptors are not overwritten.
-
-This new bit helps device distinguish new and old descriptors written by driver.
-
-
-
-> > 
-> [...]
-> > 
+> On Mon, Dec 8, 2014 at 12:50 AM, Amos Kong <akong@redhat.com> wrote:
+> > From: Rusty Russell <rusty@rustcorp.com.au>
+> >
+> > There's currently a big lock around everything, and it means that we
+> > can't query sysfs (eg /sys/devices/virtual/misc/hw_random/rng_current)
+> > while the rng is reading.  This is a real problem when the rng is slow,
+> > or blocked (eg. virtio_rng with qemu's default /dev/random backend)
+> >
+> > This doesn't help (it leaves the current lock untouched), just adds a
+> > lock to protect the read function and the static buffers, in preparation
+> > for transition.
+> >
+> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 > > ---
-> > 
-> > Note: should this proposal be accepted and approved, one or more
-> >       claims disclosed to the TC admin and listed on the Virtio TC
-> >       IPR page https://www.oasis-open.org/committees/virtio/ipr.php
-> >       might become Essential Claims.
-> > Note: the page above is unfortunately out of date and out of
-> >       my hands. I'm in the process of updating ipr disclosures
-> >       in github instead.  Will make sure all is in place before
-> >       this proposal is put to vote. As usual this TC operates under the
-> >       Non-Assertion Mode of the OASIS IPR Policy, which protects
-> >       anyone implementing the virtio spec.
-> > 
-> > --
-> > MST
-> > 
-> > ---------------------------------------------------------------------
-> > To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> > For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+> ...
+> >
+> > @@ -160,13 +166,14 @@ static ssize_t rng_dev_read(struct file *filp, char
+> > __user *buf,
+> >                         goto out_unlock;
+> >                 }
+> >
+> > +               mutex_lock(&reading_mutex);
+> 
+> I think this breaks O_NONBLOCK: we have hwrng core thread that is
+> constantly pumps underlying rng for data; the thread takes the mutex
+> and calls rng_get_data() that blocks until RNG responds. This means
+> that even user specified O_NONBLOCK here we'll be waiting until
+> [hwrng] thread releases reading_mutex before we can continue.
+
+I think for 'virtio_rng' for 'O_NON_BLOCK' 'rng_get_data' returns
+without waiting for data which can let mutex to be  used by other 
+threads waiting if any?
+
+rng_dev_read
+  rng_get_data
+    virtio_read
+  
+static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
+{
+        int ret;
+        struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
+
+        if (vi->hwrng_removed)
+                return -ENODEV;
+
+        if (!vi->busy) {
+                vi->busy = true;
+                init_completion(&vi->have_data);
+                register_buffer(vi, buf, size);
+        }
+
+        if (!wait)
+                return 0;
+
+        ret = wait_for_completion_killable(&vi->have_data);
+        if (ret < 0)
+                return ret;
+
+        vi->busy = false;
+
+        return vi->data_avail;
+}
+
+> 
+> >                 if (!data_avail) {
+> >                         bytes_read = rng_get_data(current_rng, rng_buffer,
+> >                                 rng_buffer_size(),
+> >                                 !(filp->f_flags & O_NONBLOCK));
+> >                         if (bytes_read < 0) {
+> >                                 err = bytes_read;
+> > -                               goto out_unlock;
+> > +                               goto out_unlock_reading;
+> >                         }
+> >                         data_avail = bytes_read;
+> >                 }
+> 
+> Thanks.
+> 
+> --
+> Dmitry
+> 
