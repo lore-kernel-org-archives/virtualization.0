@@ -1,17 +1,11 @@
-From: "Steven Luong (sluong)" <sluong@cisco.com>
-Subject: Re: [virtio-dev] packed ring layout proposal v3
-Date: Tue, 26 Sep 2017 23:38:18 +0000
-Message-ID: <7A0DC0C9-F148-4161-B2D1-8D8D14D8B9A1__26040.6382069506$1509079497$gmane$org@cisco.com>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
-	<20170926011826-mutt-send-email-mst@kernel.org>
+From: Thomas Huth <thuth@redhat.com>
+Subject: [PATCH] drivers/s390/virtio: Remove the old KVM virtio transport
+Date: Wed, 27 Sep 2017 13:42:01 +0200
+Message-ID: <1506512521-2244-1-git-send-email-thuth__23417.5844154835$1509079506$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170926011826-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Content-ID: <F7F76D702A8DB041BDB1FF61D112A881@emea.cisco.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,99 +15,578 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Halil Pasic <pasic@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-TWljaGFlbCwNCg0KV291bGQgeW91IHBsZWFzZSBnaXZlIGFuIGV4YW1wbGUgb3IgdHdvIGhvdyB0
-aGVzZSB0d28gZmxhZ3MgREVTQ19EUklWRVIgYW5kIERFU0NfV1JBUCBhcmUgdXNlZCB0b2dldGhl
-cj8gTGlrZSBvdGhlcnMsIEkgYW0gY29uZnVzZWQgYnkgdGhlIGRlc2NyaXB0aW9uIGFuZCBzdGls
-bCBkb27igJl0IHF1aXRlIGdyb2sgaXQuDQoNClN0ZXZlbg0KDQpPbiA5LzI1LzE3LCAzOjI0IFBN
-LCAidmlydGlvLWRldkBsaXN0cy5vYXNpcy1vcGVuLm9yZyBvbiBiZWhhbGYgb2YgTWljaGFlbCBT
-LiBUc2lya2luIiA8dmlydGlvLWRldkBsaXN0cy5vYXNpcy1vcGVuLm9yZyBvbiBiZWhhbGYgb2Yg
-bXN0QHJlZGhhdC5jb20+IHdyb3RlOg0KDQogICAgT24gV2VkLCBTZXAgMjAsIDIwMTcgYXQgMDk6
-MTE6NTdBTSArMDAwMCwgTGlhbmcsIEN1bm1pbmcgd3JvdGU6DQogICAgPiBIaSBNaWNoYWVsLA0K
-ICAgID4gDQogICAgPiA+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQogICAgPiA+IEZyb206
-IHZpcnRpby1kZXZAbGlzdHMub2FzaXMtb3Blbi5vcmcgW21haWx0bzp2aXJ0aW8tZGV2QGxpc3Rz
-Lm9hc2lzLW9wZW4ub3JnXQ0KICAgID4gPiBPbiBCZWhhbGYgT2YgTWljaGFlbCBTLiBUc2lya2lu
-DQogICAgPiA+IFNlbnQ6IFN1bmRheSwgU2VwdGVtYmVyIDEwLCAyMDE3IDE6MDYgUE0NCiAgICA+
-ID4gVG86IHZpcnRpby1kZXZAbGlzdHMub2FzaXMtb3Blbi5vcmcNCiAgICA+ID4gQ2M6IHZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnDQogICAgPiA+IFN1YmplY3Q6IFt2
-aXJ0aW8tZGV2XSBwYWNrZWQgcmluZyBsYXlvdXQgcHJvcG9zYWwgdjMNCiAgICA+ID4gDQogICAg
-PiBbLi4uXQ0KICAgID4gPiAqIERlc2NyaXB0b3IgcmluZzoNCiAgICA+ID4gDQogICAgPiA+IERy
-aXZlciB3cml0ZXMgZGVzY3JpcHRvcnMgd2l0aCB1bmlxdWUgaW5kZXggdmFsdWVzIGFuZCBERVND
-X0RSSVZFUiBzZXQgaW4NCiAgICA+ID4gZmxhZ3MuDQogICAgPiA+IERlc2NyaXB0b3JzIGFyZSB3
-cml0dGVuIGluIGEgcmluZyBvcmRlcjogZnJvbSBzdGFydCB0byBlbmQgb2YgcmluZywgd3JhcHBp
-bmcNCiAgICA+ID4gYXJvdW5kIHRvIHRoZSBiZWdpbm5pbmcuDQogICAgPiA+IERldmljZSB3cml0
-ZXMgdXNlZCBkZXNjcmlwdG9ycyB3aXRoIGNvcnJlY3QgbGVuLCBpbmRleCwgYW5kIERFU0NfSFcg
-Y2xlYXIuDQogICAgPiA+IEFnYWluIGRlc2NyaXB0b3JzIGFyZSB3cml0dGVuIGluIHJpbmcgb3Jk
-ZXIuIFRoaXMgbWlnaHQgbm90IGJlIHRoZSBzYW1lIG9yZGVyDQogICAgPiA+IG9mIGRyaXZlciBk
-ZXNjcmlwdG9ycywgYW5kIG5vdCBhbGwgZGVzY3JpcHRvcnMgaGF2ZSB0byBiZSB3cml0dGVuIG91
-dC4NCiAgICA+ID4gDQogICAgPiA+IERyaXZlciBhbmQgZGV2aWNlIGFyZSBleHBlY3RlZCB0byBt
-YWludGFpbiAoaW50ZXJuYWxseSkgYSB3cmFwLWFyb3VuZCBiaXQsDQogICAgPiA+IHN0YXJ0aW5n
-IGF0IDAgYW5kIGNoYW5naW5nIHZhbHVlIGVhY2ggdGltZSB0aGV5IHN0YXJ0IHdyaXRpbmcgb3V0
-IGRlc2NyaXB0b3JzDQogICAgPiA+IGF0IHRoZSBiZWdpbm5pbmcgb2YgdGhlIHJpbmcuIFRoaXMg
-Yml0IGlzIHBhc3NlZCBhcyBERVNDX1dSQVAgYml0IGluIHRoZSBmbGFncw0KICAgID4gPiBmaWVs
-ZC4NCiAgICA+IA0KICAgID4gT25lIHNpbXBsZSBxdWVzdGlvbiB0aGVyZSwgdHJ5aW5nIHRvIHVu
-ZGVyc3RhbmQgdGhlIHVzYWdlIG9mIERFU0NfV1JBUCBmbGFnLg0KICAgID4gDQogICAgPiBERVND
-X1dSQVAgYml0IGlzIGEgbmV3IGZsYWcgc2luY2UgdjIuIEl0J3MgdXNlZCB0byBhZGRyZXNzICdu
-b24gcG93ZXItb2YtMiByaW5nIHNpemVzJyBtZW50aW9uZWQgaW4gdjI/DQogICAgPiANCiAgICA+
-IEJlaW5nIGNvbmZ1c2VkIGJ5IHRoZSBzdGF0ZW1lbnQgb2Ygd3JhcC1hcm91bmQgYml0IGhlcmUs
-IGl0J3MgYW4gaW50ZXJuYWwgd3JhcC1hcm91bmQgY291bnRlciByZXByZXNlbnRlZCBieSBzaW5n
-bGUgYml0ICgwLzEpPw0KICAgID4gREVTQ19XUkFQIGNhbiBhcHBlYXIgb24gYW55IGRlc2NyaXB0
-b3IgZW50cnkgaW4gdGhlIHJpbmcsIHdoeSBpdCBoaWdobGlnaHRzIGNoYW5naW5nIHZhbHVlIGF0
-IHRoZSBiZWdpbm5pbmcgb2YgdGhlIHJpbmc/DQogICAgDQogICAgDQogICAgTm8sIHRoaXMgaXMg
-bmVjZXNzYXJ5IGlmIG5vdCBhbGwgZGVzY3JpcHRvcnMgYXJlIG92ZXJ3cml0dGVuIGJ5IGRldmlj
-ZQ0KICAgIGFmdGVyIHRoZXkgYXJlIHVzZWQuDQogICAgDQogICAgRWFjaCB0aW1lIGRyaXZlciBv
-dmVyd3JpdGVzIGEgZGVzY3JpcHRvciwgdGhlIHZhbHVlIGluIERFU0NfV1JBUCBjaGFuZ2VzDQog
-ICAgd2hpY2ggbWFrZXMgaXQgcG9zc2libGUgZm9yIGRldmljZSB0byBkZXRlY3QgdGhhdCB0aGVy
-ZSdzIGEgbmV3DQogICAgZGVzY3JpcHRvci4NCiAgICANCiAgICANCiAgICA+ID4gDQogICAgPiA+
-IEZsYWdzIGFyZSBhbHdheXMgc2V0L2NsZWFyZWQgbGFzdC4NCiAgICA+ID4gDQogICAgPiA+IE5v
-dGUgdGhhdCBkcml2ZXIgY2FuIHdyaXRlIGRlc2NyaXB0b3JzIG91dCBpbiBhbnkgb3JkZXIsIGJ1
-dCBkZXZpY2Ugd2lsbCBub3QNCiAgICA+ID4gZXhlY3V0ZSBkZXNjcmlwdG9yIFgrMSB1bnRpbCBk
-ZXNjcmlwdG9yIFggaGFzIGJlZW4gcmVhZCBhcyB2YWxpZC4NCiAgICA+ID4gDQogICAgPiA+IERy
-aXZlciBvcGVyYXRpb246DQogICAgPiA+IA0KICAgID4gWy4uLl0NCiAgICA+ID4gDQogICAgPiA+
-IERFU0NfV1JBUCAtIGRldmljZSB1c2VzIHRoaXMgZmllbGQgdG8gZGV0ZWN0IGRlc2NyaXB0b3Ig
-Y2hhbmdlIGJ5IGRyaXZlci4NCiAgICA+IA0KICAgID4gRGV2aWNlIHVzZXMgdGhpcyBmaWVsZCB0
-byBkZXRlY3QgY2hhbmdlIG9mIHdyYXAtYXJvdW5kIGJvdW5kYXJ5IGJ5IGRyaXZlcj8gDQogICAg
-PiANCiAgICA+IFsuLi5dDQogICAgPiA+IA0KICAgID4gPiBEZXZpY2Ugb3BlcmF0aW9uICh1c2lu
-ZyBkZXNjcmlwdG9ycyk6DQogICAgPiA+IA0KICAgID4gWy4uLl0NCiAgICA+ID4gDQogICAgPiA+
-IERFU0NfV1JBUCAtIGRyaXZlciB1c2VzIHRoaXMgZmllbGQgdG8gZGV0ZWN0IGRlc2NyaXB0b3Ig
-Y2hhbmdlIGJ5IGRldmljZS4NCiAgICA+IA0KICAgID4gRHJpdmVyIHVzZXMgdGhpcyBmaWVsZCB0
-byBkZXRlY3QgY2hhbmdlIG9mIHdyYXAtYXJvdW5kIGJvdW5kYXJ5IGJ5IGRldmljZT8NCiAgICA+
-DQogICAgPiBCeSB1c2luZyB0aGlzLCBkcml2ZXIgZG9lc24ndCBuZWVkIHRvIG1haW50YWluIGFu
-eSBpbnRlcm5hbCB3cmFwLWFyb3VuZCBjb3VudCwgYnV0IGJlaW5nIGF3YXJlIG9mIHdyYXAtYXJv
-dW5kIGJ5IERFU0NfV1JBUCBmbGFnLg0KICAgID4gDQogICAgPiANCiAgICA+IFRoYW5rcywNCiAg
-ICA+IFN0ZXZlDQogICAgDQogICAgU28gdjIgc2ltcGx5IHNhaWQgZGVzY3JpcHRvciBoYXMgYSBz
-aW5nbGUgYml0OiBkcml2ZXIgd3JpdGVzIDEgdGhlcmUsDQogICAgZGV2aWNlIHdyaXRlcyAwLg0K
-ICAgIA0KICAgIFRoaXMgcmVxdWlyZXMgZGV2aWNlIHRvIG92ZXJ3cml0ZSBlYWNoIGRlc2NyaXB0
-b3IgYW5kIHBlb3BsZSBhc2tlZCANCiAgICBmb3IgYSB3YXkgdG8gY29tbXVuaWNhdGUgd2hlcmUg
-c29tZSBkZXNjcmlwdG9ycyBhcmUgbm90IG92ZXJ3cml0dGVuLg0KICAgIA0KICAgIFRoaXMgbmV3
-IGJpdCBoZWxwcyBkZXZpY2UgZGlzdGluZ3Vpc2ggbmV3IGFuZCBvbGQgZGVzY3JpcHRvcnMgd3Jp
-dHRlbiBieSBkcml2ZXIuDQogICAgDQogICAgDQogICAgDQogICAgPiA+IA0KICAgID4gWy4uLl0N
-CiAgICA+ID4gDQogICAgPiA+IC0tLQ0KICAgID4gPiANCiAgICA+ID4gTm90ZTogc2hvdWxkIHRo
-aXMgcHJvcG9zYWwgYmUgYWNjZXB0ZWQgYW5kIGFwcHJvdmVkLCBvbmUgb3IgbW9yZQ0KICAgID4g
-PiAgICAgICBjbGFpbXMgZGlzY2xvc2VkIHRvIHRoZSBUQyBhZG1pbiBhbmQgbGlzdGVkIG9uIHRo
-ZSBWaXJ0aW8gVEMNCiAgICA+ID4gICAgICAgSVBSIHBhZ2UgaHR0cHM6Ly93d3cub2FzaXMtb3Bl
-bi5vcmcvY29tbWl0dGVlcy92aXJ0aW8vaXByLnBocA0KICAgID4gPiAgICAgICBtaWdodCBiZWNv
-bWUgRXNzZW50aWFsIENsYWltcy4NCiAgICA+ID4gTm90ZTogdGhlIHBhZ2UgYWJvdmUgaXMgdW5m
-b3J0dW5hdGVseSBvdXQgb2YgZGF0ZSBhbmQgb3V0IG9mDQogICAgPiA+ICAgICAgIG15IGhhbmRz
-LiBJJ20gaW4gdGhlIHByb2Nlc3Mgb2YgdXBkYXRpbmcgaXByIGRpc2Nsb3N1cmVzDQogICAgPiA+
-ICAgICAgIGluIGdpdGh1YiBpbnN0ZWFkLiAgV2lsbCBtYWtlIHN1cmUgYWxsIGlzIGluIHBsYWNl
-IGJlZm9yZQ0KICAgID4gPiAgICAgICB0aGlzIHByb3Bvc2FsIGlzIHB1dCB0byB2b3RlLiBBcyB1
-c3VhbCB0aGlzIFRDIG9wZXJhdGVzIHVuZGVyIHRoZQ0KICAgID4gPiAgICAgICBOb24tQXNzZXJ0
-aW9uIE1vZGUgb2YgdGhlIE9BU0lTIElQUiBQb2xpY3ksIHdoaWNoIHByb3RlY3RzDQogICAgPiA+
-ICAgICAgIGFueW9uZSBpbXBsZW1lbnRpbmcgdGhlIHZpcnRpbyBzcGVjLg0KICAgID4gPiANCiAg
-ICA+ID4gLS0NCiAgICA+ID4gTVNUDQogICAgPiA+IA0KICAgID4gPiAtLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCiAg
-ICA+ID4gVG8gdW5zdWJzY3JpYmUsIGUtbWFpbDogdmlydGlvLWRldi11bnN1YnNjcmliZUBsaXN0
-cy5vYXNpcy1vcGVuLm9yZw0KICAgID4gPiBGb3IgYWRkaXRpb25hbCBjb21tYW5kcywgZS1tYWls
-OiB2aXJ0aW8tZGV2LWhlbHBAbGlzdHMub2FzaXMtb3Blbi5vcmcNCiAgICANCiAgICAtLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0NCiAgICBUbyB1bnN1YnNjcmliZSwgZS1tYWlsOiB2aXJ0aW8tZGV2LXVuc3Vic2NyaWJl
-QGxpc3RzLm9hc2lzLW9wZW4ub3JnDQogICAgRm9yIGFkZGl0aW9uYWwgY29tbWFuZHMsIGUtbWFp
-bDogdmlydGlvLWRldi1oZWxwQGxpc3RzLm9hc2lzLW9wZW4ub3JnDQogICAgDQogICAgDQoNCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+There is no recent user space application available anymore which still
+supports this old virtio transport. Additionally, commit 3b2fbb3f06ef
+("virtio/s390: deprecate old transport") introduced a deprecation message
+in the driver, and apparently nobody complained so far that it is still
+required. So let's simply remove it.
+
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+---
+ arch/s390/Kconfig                |  13 -
+ drivers/s390/virtio/Makefile     |   3 -
+ drivers/s390/virtio/kvm_virtio.c | 515 ---------------------------------------
+ 3 files changed, 531 deletions(-)
+ delete mode 100644 drivers/s390/virtio/kvm_virtio.c
+
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 48af970..a0a40dd 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -929,17 +929,4 @@ config S390_GUEST
+ 	  Select this option if you want to run the kernel as a guest under
+ 	  the KVM hypervisor.
+ 
+-config S390_GUEST_OLD_TRANSPORT
+-	def_bool y
+-	prompt "Guest support for old s390 virtio transport (DEPRECATED)"
+-	depends on S390_GUEST
+-	help
+-	  Enable this option to add support for the old s390-virtio
+-	  transport (i.e. virtio devices NOT based on virtio-ccw). This
+-	  type of virtio devices is only available on the experimental
+-	  kuli userspace or with old (< 2.6) qemu. If you are running
+-	  with a modern version of qemu (which supports virtio-ccw since
+-	  1.4 and uses it by default since version 2.4), you probably won't
+-	  need this.
+-
+ endmenu
+diff --git a/drivers/s390/virtio/Makefile b/drivers/s390/virtio/Makefile
+index df40692..d9942e0 100644
+--- a/drivers/s390/virtio/Makefile
++++ b/drivers/s390/virtio/Makefile
+@@ -7,7 +7,4 @@
+ # as published by the Free Software Foundation.
+ 
+ s390-virtio-objs := virtio_ccw.o
+-ifdef CONFIG_S390_GUEST_OLD_TRANSPORT
+-s390-virtio-objs += kvm_virtio.o
+-endif
+ obj-$(CONFIG_S390_GUEST) += $(s390-virtio-objs)
+diff --git a/drivers/s390/virtio/kvm_virtio.c b/drivers/s390/virtio/kvm_virtio.c
+deleted file mode 100644
+index a99d09a..0000000
+--- a/drivers/s390/virtio/kvm_virtio.c
++++ /dev/null
+@@ -1,515 +0,0 @@
+-/*
+- * virtio for kvm on s390
+- *
+- * Copyright IBM Corp. 2008
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+- *    Author(s): Christian Borntraeger <borntraeger@de.ibm.com>
+- */
+-
+-#include <linux/kernel_stat.h>
+-#include <linux/init.h>
+-#include <linux/bootmem.h>
+-#include <linux/err.h>
+-#include <linux/virtio.h>
+-#include <linux/virtio_config.h>
+-#include <linux/slab.h>
+-#include <linux/virtio_console.h>
+-#include <linux/interrupt.h>
+-#include <linux/virtio_ring.h>
+-#include <linux/export.h>
+-#include <linux/pfn.h>
+-#include <asm/io.h>
+-#include <asm/kvm_para.h>
+-#include <asm/kvm_virtio.h>
+-#include <asm/sclp.h>
+-#include <asm/setup.h>
+-#include <asm/irq.h>
+-
+-#define VIRTIO_SUBCODE_64 0x0D00
+-
+-/*
+- * The pointer to our (page) of device descriptions.
+- */
+-static void *kvm_devices;
+-static struct work_struct hotplug_work;
+-
+-struct kvm_device {
+-	struct virtio_device vdev;
+-	struct kvm_device_desc *desc;
+-};
+-
+-#define to_kvmdev(vd) container_of(vd, struct kvm_device, vdev)
+-
+-/*
+- * memory layout:
+- * - kvm_device_descriptor
+- *        struct kvm_device_desc
+- * - configuration
+- *        struct kvm_vqconfig
+- * - feature bits
+- * - config space
+- */
+-static struct kvm_vqconfig *kvm_vq_config(const struct kvm_device_desc *desc)
+-{
+-	return (struct kvm_vqconfig *)(desc + 1);
+-}
+-
+-static u8 *kvm_vq_features(const struct kvm_device_desc *desc)
+-{
+-	return (u8 *)(kvm_vq_config(desc) + desc->num_vq);
+-}
+-
+-static u8 *kvm_vq_configspace(const struct kvm_device_desc *desc)
+-{
+-	return kvm_vq_features(desc) + desc->feature_len * 2;
+-}
+-
+-/*
+- * The total size of the config page used by this device (incl. desc)
+- */
+-static unsigned desc_size(const struct kvm_device_desc *desc)
+-{
+-	return sizeof(*desc)
+-		+ desc->num_vq * sizeof(struct kvm_vqconfig)
+-		+ desc->feature_len * 2
+-		+ desc->config_len;
+-}
+-
+-/* This gets the device's feature bits. */
+-static u64 kvm_get_features(struct virtio_device *vdev)
+-{
+-	unsigned int i;
+-	u32 features = 0;
+-	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+-	u8 *in_features = kvm_vq_features(desc);
+-
+-	for (i = 0; i < min(desc->feature_len * 8, 32); i++)
+-		if (in_features[i / 8] & (1 << (i % 8)))
+-			features |= (1 << i);
+-	return features;
+-}
+-
+-static int kvm_finalize_features(struct virtio_device *vdev)
+-{
+-	unsigned int i, bits;
+-	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+-	/* Second half of bitmap is features we accept. */
+-	u8 *out_features = kvm_vq_features(desc) + desc->feature_len;
+-
+-	/* Give virtio_ring a chance to accept features. */
+-	vring_transport_features(vdev);
+-
+-	/* Make sure we don't have any features > 32 bits! */
+-	BUG_ON((u32)vdev->features != vdev->features);
+-
+-	memset(out_features, 0, desc->feature_len);
+-	bits = min_t(unsigned, desc->feature_len, sizeof(vdev->features)) * 8;
+-	for (i = 0; i < bits; i++) {
+-		if (__virtio_test_bit(vdev, i))
+-			out_features[i / 8] |= (1 << (i % 8));
+-	}
+-
+-	return 0;
+-}
+-
+-/*
+- * Reading and writing elements in config space
+- */
+-static void kvm_get(struct virtio_device *vdev, unsigned int offset,
+-		   void *buf, unsigned len)
+-{
+-	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+-
+-	BUG_ON(offset + len > desc->config_len);
+-	memcpy(buf, kvm_vq_configspace(desc) + offset, len);
+-}
+-
+-static void kvm_set(struct virtio_device *vdev, unsigned int offset,
+-		   const void *buf, unsigned len)
+-{
+-	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+-
+-	BUG_ON(offset + len > desc->config_len);
+-	memcpy(kvm_vq_configspace(desc) + offset, buf, len);
+-}
+-
+-/*
+- * The operations to get and set the status word just access
+- * the status field of the device descriptor. set_status will also
+- * make a hypercall to the host, to tell about status changes
+- */
+-static u8 kvm_get_status(struct virtio_device *vdev)
+-{
+-	return to_kvmdev(vdev)->desc->status;
+-}
+-
+-static void kvm_set_status(struct virtio_device *vdev, u8 status)
+-{
+-	BUG_ON(!status);
+-	to_kvmdev(vdev)->desc->status = status;
+-	kvm_hypercall1(KVM_S390_VIRTIO_SET_STATUS,
+-		       (unsigned long) to_kvmdev(vdev)->desc);
+-}
+-
+-/*
+- * To reset the device, we use the KVM_VIRTIO_RESET hypercall, using the
+- * descriptor address. The Host will zero the status and all the
+- * features.
+- */
+-static void kvm_reset(struct virtio_device *vdev)
+-{
+-	kvm_hypercall1(KVM_S390_VIRTIO_RESET,
+-		       (unsigned long) to_kvmdev(vdev)->desc);
+-}
+-
+-/*
+- * When the virtio_ring code wants to notify the Host, it calls us here and we
+- * make a hypercall.  We hand the address  of the virtqueue so the Host
+- * knows which virtqueue we're talking about.
+- */
+-static bool kvm_notify(struct virtqueue *vq)
+-{
+-	long rc;
+-	struct kvm_vqconfig *config = vq->priv;
+-
+-	rc = kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, config->address);
+-	if (rc < 0)
+-		return false;
+-	return true;
+-}
+-
+-/*
+- * This routine finds the first virtqueue described in the configuration of
+- * this device and sets it up.
+- */
+-static struct virtqueue *kvm_find_vq(struct virtio_device *vdev,
+-				     unsigned index,
+-				     void (*callback)(struct virtqueue *vq),
+-				     const char *name, bool ctx)
+-{
+-	struct kvm_device *kdev = to_kvmdev(vdev);
+-	struct kvm_vqconfig *config;
+-	struct virtqueue *vq;
+-	int err;
+-
+-	if (index >= kdev->desc->num_vq)
+-		return ERR_PTR(-ENOENT);
+-
+-	if (!name)
+-		return NULL;
+-
+-	config = kvm_vq_config(kdev->desc)+index;
+-
+-	err = vmem_add_mapping(config->address,
+-			       vring_size(config->num,
+-					  KVM_S390_VIRTIO_RING_ALIGN));
+-	if (err)
+-		goto out;
+-
+-	vq = vring_new_virtqueue(index, config->num, KVM_S390_VIRTIO_RING_ALIGN,
+-				 vdev, true, ctx, (void *) config->address,
+-				 kvm_notify, callback, name);
+-	if (!vq) {
+-		err = -ENOMEM;
+-		goto unmap;
+-	}
+-
+-	/*
+-	 * register a callback token
+-	 * The host will sent this via the external interrupt parameter
+-	 */
+-	config->token = (u64) vq;
+-
+-	vq->priv = config;
+-	return vq;
+-unmap:
+-	vmem_remove_mapping(config->address,
+-			    vring_size(config->num,
+-				       KVM_S390_VIRTIO_RING_ALIGN));
+-out:
+-	return ERR_PTR(err);
+-}
+-
+-static void kvm_del_vq(struct virtqueue *vq)
+-{
+-	struct kvm_vqconfig *config = vq->priv;
+-
+-	vring_del_virtqueue(vq);
+-	vmem_remove_mapping(config->address,
+-			    vring_size(config->num,
+-				       KVM_S390_VIRTIO_RING_ALIGN));
+-}
+-
+-static void kvm_del_vqs(struct virtio_device *vdev)
+-{
+-	struct virtqueue *vq, *n;
+-
+-	list_for_each_entry_safe(vq, n, &vdev->vqs, list)
+-		kvm_del_vq(vq);
+-}
+-
+-static int kvm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+-			struct virtqueue *vqs[],
+-			vq_callback_t *callbacks[],
+-			const char * const names[],
+-			const bool *ctx,
+-			struct irq_affinity *desc)
+-{
+-	struct kvm_device *kdev = to_kvmdev(vdev);
+-	int i;
+-
+-	/* We must have this many virtqueues. */
+-	if (nvqs > kdev->desc->num_vq)
+-		return -ENOENT;
+-
+-	for (i = 0; i < nvqs; ++i) {
+-		vqs[i] = kvm_find_vq(vdev, i, callbacks[i], names[i],
+-				     ctx ? ctx[i] : false);
+-		if (IS_ERR(vqs[i]))
+-			goto error;
+-	}
+-	return 0;
+-
+-error:
+-	kvm_del_vqs(vdev);
+-	return PTR_ERR(vqs[i]);
+-}
+-
+-static const char *kvm_bus_name(struct virtio_device *vdev)
+-{
+-	return "";
+-}
+-
+-/*
+- * The config ops structure as defined by virtio config
+- */
+-static const struct virtio_config_ops kvm_vq_configspace_ops = {
+-	.get_features = kvm_get_features,
+-	.finalize_features = kvm_finalize_features,
+-	.get = kvm_get,
+-	.set = kvm_set,
+-	.get_status = kvm_get_status,
+-	.set_status = kvm_set_status,
+-	.reset = kvm_reset,
+-	.find_vqs = kvm_find_vqs,
+-	.del_vqs = kvm_del_vqs,
+-	.bus_name = kvm_bus_name,
+-};
+-
+-/*
+- * The root device for the kvm virtio devices.
+- * This makes them appear as /sys/devices/kvm_s390/0,1,2 not /sys/devices/0,1,2.
+- */
+-static struct device *kvm_root;
+-
+-/*
+- * adds a new device and register it with virtio
+- * appropriate drivers are loaded by the device model
+- */
+-static void add_kvm_device(struct kvm_device_desc *d, unsigned int offset)
+-{
+-	struct kvm_device *kdev;
+-
+-	kdev = kzalloc(sizeof(*kdev), GFP_KERNEL);
+-	if (!kdev) {
+-		printk(KERN_EMERG "Cannot allocate kvm dev %u type %u\n",
+-		       offset, d->type);
+-		return;
+-	}
+-
+-	kdev->vdev.dev.parent = kvm_root;
+-	kdev->vdev.id.device = d->type;
+-	kdev->vdev.config = &kvm_vq_configspace_ops;
+-	kdev->desc = d;
+-
+-	if (register_virtio_device(&kdev->vdev) != 0) {
+-		printk(KERN_ERR "Failed to register kvm device %u type %u\n",
+-		       offset, d->type);
+-		kfree(kdev);
+-	}
+-}
+-
+-/*
+- * scan_devices() simply iterates through the device page.
+- * The type 0 is reserved to mean "end of devices".
+- */
+-static void scan_devices(void)
+-{
+-	unsigned int i;
+-	struct kvm_device_desc *d;
+-
+-	for (i = 0; i < PAGE_SIZE; i += desc_size(d)) {
+-		d = kvm_devices + i;
+-
+-		if (d->type == 0)
+-			break;
+-
+-		add_kvm_device(d, i);
+-	}
+-}
+-
+-/*
+- * match for a kvm device with a specific desc pointer
+- */
+-static int match_desc(struct device *dev, void *data)
+-{
+-	struct virtio_device *vdev = dev_to_virtio(dev);
+-	struct kvm_device *kdev = to_kvmdev(vdev);
+-
+-	return kdev->desc == data;
+-}
+-
+-/*
+- * hotplug_device tries to find changes in the device page.
+- */
+-static void hotplug_devices(struct work_struct *dummy)
+-{
+-	unsigned int i;
+-	struct kvm_device_desc *d;
+-	struct device *dev;
+-
+-	for (i = 0; i < PAGE_SIZE; i += desc_size(d)) {
+-		d = kvm_devices + i;
+-
+-		/* end of list */
+-		if (d->type == 0)
+-			break;
+-
+-		/* device already exists */
+-		dev = device_find_child(kvm_root, d, match_desc);
+-		if (dev) {
+-			/* XXX check for hotplug remove */
+-			put_device(dev);
+-			continue;
+-		}
+-
+-		/* new device */
+-		printk(KERN_INFO "Adding new virtio device %p\n", d);
+-		add_kvm_device(d, i);
+-	}
+-}
+-
+-/*
+- * we emulate the request_irq behaviour on top of s390 extints
+- */
+-static void kvm_extint_handler(struct ext_code ext_code,
+-			       unsigned int param32, unsigned long param64)
+-{
+-	struct virtqueue *vq;
+-	u32 param;
+-
+-	if ((ext_code.subcode & 0xff00) != VIRTIO_SUBCODE_64)
+-		return;
+-	inc_irq_stat(IRQEXT_VRT);
+-
+-	/* The LSB might be overloaded, we have to mask it */
+-	vq = (struct virtqueue *)(param64 & ~1UL);
+-
+-	/* We use ext_params to decide what this interrupt means */
+-	param = param32 & VIRTIO_PARAM_MASK;
+-
+-	switch (param) {
+-	case VIRTIO_PARAM_CONFIG_CHANGED:
+-		virtio_config_changed(vq->vdev);
+-		break;
+-	case VIRTIO_PARAM_DEV_ADD:
+-		schedule_work(&hotplug_work);
+-		break;
+-	case VIRTIO_PARAM_VRING_INTERRUPT:
+-	default:
+-		vring_interrupt(0, vq);
+-		break;
+-	}
+-}
+-
+-/*
+- * For s390-virtio, we expect a page above main storage containing
+- * the virtio configuration. Try to actually load from this area
+- * in order to figure out if the host provides this page.
+- */
+-static int __init test_devices_support(unsigned long addr)
+-{
+-	int ret = -EIO;
+-
+-	asm volatile(
+-		"0:	lura	0,%1\n"
+-		"1:	xgr	%0,%0\n"
+-		"2:\n"
+-		EX_TABLE(0b,2b)
+-		EX_TABLE(1b,2b)
+-		: "+d" (ret)
+-		: "a" (addr)
+-		: "0", "cc");
+-	return ret;
+-}
+-/*
+- * Init function for virtio
+- * devices are in a single page above top of "normal" + standby mem
+- */
+-static int __init kvm_devices_init(void)
+-{
+-	int rc;
+-	unsigned long total_memory_size = sclp.rzm * sclp.rnmax;
+-
+-	if (!MACHINE_IS_KVM)
+-		return -ENODEV;
+-
+-	if (test_devices_support(total_memory_size) < 0)
+-		return -ENODEV;
+-
+-	pr_warn("The s390-virtio transport is deprecated. Please switch to a modern host providing virtio-ccw.\n");
+-
+-	rc = vmem_add_mapping(total_memory_size, PAGE_SIZE);
+-	if (rc)
+-		return rc;
+-
+-	kvm_devices = (void *) total_memory_size;
+-
+-	kvm_root = root_device_register("kvm_s390");
+-	if (IS_ERR(kvm_root)) {
+-		rc = PTR_ERR(kvm_root);
+-		printk(KERN_ERR "Could not register kvm_s390 root device");
+-		vmem_remove_mapping(total_memory_size, PAGE_SIZE);
+-		return rc;
+-	}
+-
+-	INIT_WORK(&hotplug_work, hotplug_devices);
+-
+-	irq_subclass_register(IRQ_SUBCLASS_SERVICE_SIGNAL);
+-	register_external_irq(EXT_IRQ_CP_SERVICE, kvm_extint_handler);
+-
+-	scan_devices();
+-	return 0;
+-}
+-
+-/* code for early console output with virtio_console */
+-static int early_put_chars(u32 vtermno, const char *buf, int count)
+-{
+-	char scratch[17];
+-	unsigned int len = count;
+-
+-	if (len > sizeof(scratch) - 1)
+-		len = sizeof(scratch) - 1;
+-	scratch[len] = '\0';
+-	memcpy(scratch, buf, len);
+-	kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, __pa(scratch));
+-	return len;
+-}
+-
+-static int __init s390_virtio_console_init(void)
+-{
+-	if (sclp.has_vt220 || sclp.has_linemode)
+-		return -ENODEV;
+-	return virtio_cons_early_init(early_put_chars);
+-}
+-console_initcall(s390_virtio_console_init);
+-
+-
+-/*
+- * We do this after core stuff, but before the drivers.
+- */
+-postcore_initcall(kvm_devices_init);
+-- 
+1.8.3.1
