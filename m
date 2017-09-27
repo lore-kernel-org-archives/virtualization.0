@@ -1,15 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next RFC 0/5] batched tx processing in vhost_net
-Date: Wed, 27 Sep 2017 10:06:43 +0800
-Message-ID: <c7050021-4218-32ea-bf74-149f2ff2e1ea__39678.190314635$1506478032$gmane$org@redhat.com>
-References: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
-	<20170926222528-mutt-send-email-mst@kernel.org>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [PATCH v5 REPOST 1/6] hw_random: place mutex around read
+	functions and buffers.
+Date: Wed, 27 Sep 2017 02:35:25 -0400 (EDT)
+Message-ID: <1519544875.14829746.1506494125339.JavaMail.zimbra__12120.3714203604$1506494139$gmane$org@redhat.com>
+References: <1418028640-4891-1-git-send-email-akong@redhat.com>
+	<1418028640-4891-2-git-send-email-akong@redhat.com>
+	<CAKdAkRSF1qJv_03PJh44gkQ7NOJ3ccW2EwPckGvch=iUYY1-Qw@mail.gmail.com>
+	<369186187.14365871.1506407817157.JavaMail.zimbra@redhat.com>
+	<20170926165241.GB14833@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170926222528-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <20170926165241.GB14833@dtor-ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +22,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, kvm@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, Michael Buesch <m@bues.ch>, Matt Mackall <mpm@selenic.com>, amit shah <amit.shah@redhat.com>, Amos Kong <akong@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDnmnIgyN+aXpSAwMzoyNiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIEZyaSwgU2VwIDIyLCAyMDE3IGF0IDA0OjAyOjMwUE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+IEhpOgo+Pgo+PiBUaGlzIHNlcmllcyB0cmllcyB0byBpbXBsZW1lbnQgYmFzaWMgdHgg
-YmF0Y2hlZCBwcm9jZXNzaW5nLiBUaGlzIGlzCj4+IGRvbmUgYnkgcHJlZmV0Y2hpbmcgZGVzY3Jp
-cHRvciBpbmRpY2VzIGFuZCB1cGRhdGUgdXNlZCByaW5nIGluIGEKPj4gYmF0Y2guIFRoaXMgaW50
-ZW5kcyB0byBzcGVlZCB1cCB1c2VkIHJpbmcgdXBkYXRpbmcgYW5kIGltcHJvdmUgdGhlCj4+IGNh
-Y2hlIHV0aWxpemF0aW9uLiBUZXN0IHNob3dzIGFib3V0IH4yMiUgaW1wcm92ZW1lbnQgaW4gdHgg
-cHNzLgo+Cj4KPgo+PiBQbGVhc2UgcmV2aWV3Lgo+Pgo+PiBKYXNvbiBXYW5nICg1KToKPj4gICAg
-dmhvc3Q6IHNwbGl0IG91dCByaW5nIGhlYWQgZmV0Y2hpbmcgbG9naWMKPj4gICAgdmhvc3Q6IGlu
-dHJvZHVjZSBoZWxwZXIgdG8gcHJlZmV0Y2ggZGVzYyBpbmRleAo+PiAgICB2aG9zdDogaW50cm9k
-dWNlIHZob3N0X2FkZF91c2VkX2lkeCgpCj4gUGxlYXNlIHNxdWFzaCB0aGVzZSBuZXcgQVBJcyBp
-bnRvIHdoZXJlIHRoZXkgYXJlIHVzZWQuCj4gVGhpcyBzcGxpdC11cCBqdXN0IG1ha2VzIHJldmll
-dyBoYXJkZXIgZm9yIG1lIGFzCj4gSSBjYW4ndCBmaWd1cmUgb3V0IGhvdyB0aGUgbmV3IEFQSXMg
-YXJlIHVzZWQuCgpPay4KClRoYW5rcwoKPgo+Cj4+ICAgIHZob3N0X25ldDogcmVuYW1lIFZIT1NU
-X1JYX0JBVENIIHRvIFZIT1NUX05FVF9CQVRDSAo+IFRoaXMgaXMgb2sgYXMgYSBzZXBhcmF0ZSBw
-YXRjaC4KPgo+PiAgICB2aG9zdF9uZXQ6IGJhc2ljIHR4IHZpcnRxdWV1ZSBiYXRjaGVkIHByb2Nl
-c3NpbmcKPj4KPj4gICBkcml2ZXJzL3Zob3N0L25ldC5jICAgfCAyMjEgKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPj4gICBkcml2ZXJzL3Zob3N0L3Zo
-b3N0LmMgfCAxNjUgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLQo+PiAgIGRy
-aXZlcnMvdmhvc3Qvdmhvc3QuaCB8ICAgOSArKwo+PiAgIDMgZmlsZXMgY2hhbmdlZCwgMjcwIGlu
-c2VydGlvbnMoKyksIDEyNSBkZWxldGlvbnMoLSkKPj4KPj4gLS0gCj4+IDIuNy40CgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+
+> 
+> On Tue, Sep 26, 2017 at 02:36:57AM -0400, Pankaj Gupta wrote:
+> > 
+> > > 
+> > > A bit late to a party, but:
+> > > 
+> > > On Mon, Dec 8, 2014 at 12:50 AM, Amos Kong <akong@redhat.com> wrote:
+> > > > From: Rusty Russell <rusty@rustcorp.com.au>
+> > > >
+> > > > There's currently a big lock around everything, and it means that we
+> > > > can't query sysfs (eg /sys/devices/virtual/misc/hw_random/rng_current)
+> > > > while the rng is reading.  This is a real problem when the rng is slow,
+> > > > or blocked (eg. virtio_rng with qemu's default /dev/random backend)
+> > > >
+> > > > This doesn't help (it leaves the current lock untouched), just adds a
+> > > > lock to protect the read function and the static buffers, in
+> > > > preparation
+> > > > for transition.
+> > > >
+> > > > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> > > > ---
+> > > ...
+> > > >
+> > > > @@ -160,13 +166,14 @@ static ssize_t rng_dev_read(struct file *filp,
+> > > > char
+> > > > __user *buf,
+> > > >                         goto out_unlock;
+> > > >                 }
+> > > >
+> > > > +               mutex_lock(&reading_mutex);
+> > > 
+> > > I think this breaks O_NONBLOCK: we have hwrng core thread that is
+> > > constantly pumps underlying rng for data; the thread takes the mutex
+> > > and calls rng_get_data() that blocks until RNG responds. This means
+> > > that even user specified O_NONBLOCK here we'll be waiting until
+> > > [hwrng] thread releases reading_mutex before we can continue.
+> > 
+> > I think for 'virtio_rng' for 'O_NON_BLOCK' 'rng_get_data' returns
+> > without waiting for data which can let mutex to be  used by other
+> > threads waiting if any?
+> > 
+> > rng_dev_read
+> >   rng_get_data
+> >     virtio_read
+> 
+> As I said in the paragraph above the code that potentially holds the
+> mutex for long time is the thread in hwrng core: hwrng_fillfn(). As it
+> calls rng_get_data() with "wait" argument == 1 it may block while
+> holding reading_mutex, which, in turn, will block rng_dev_read(), even
+> if it was called with O_NONBLOCK.
+
+yes, 'hwrng_fillfn' does not consider O_NONBLOCK and can result in mutex wait
+for other tasks. What if we pass zero for wait to 'hwrng_fill' to return early 
+if there is no data?
+
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -403,7 +403,7 @@ static int hwrng_fillfn(void *unused)
+                        break;
+                mutex_lock(&reading_mutex);
+                rc = rng_get_data(rng, rng_fillbuf,
+-                                 rng_buffer_size(), 1);
++                                 rng_buffer_size(), 0);
+                mutex_unlock(&reading_mutex);
+                put_rng(rng);
+                if (rc <= 0) {
+
+Thanks,
+Pankaj
+
+> 
+> Thanks.
+> 
+> --
+> Dmitry
+> 
