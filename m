@@ -1,16 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next RFC 3/5] vhost: introduce vhost_add_used_idx()
-Date: Wed, 27 Sep 2017 08:38:24 +0800
-Message-ID: <c42b7244-6d43-2ce5-46a3-ea70ec9d957f__46118.264392908$1506472738$gmane$org@redhat.com>
-References: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
-	<1506067355-5771-4-git-send-email-jasowang@redhat.com>
-	<20170926170047-mutt-send-email-mst@kernel.org>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v1 4/4] KVM/vmx: enable lbr for the guest
+Date: Wed, 27 Sep 2017 09:27:46 +0800
+Message-ID: <59CAFE92.8090608__16440.8673336313$1506475516$gmane$org@intel.com>
+References: <1506314696-4632-1-git-send-email-wei.w.wang@intel.com>
+	<1506314696-4632-5-git-send-email-wei.w.wang@intel.com>
+	<20170925145720.GM4311@tassilo.jf.intel.com>
+	<59CA164B.1080707@intel.com>
+	<20170926164114.GQ4311@tassilo.jf.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170926170047-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <20170926164114.GQ4311@tassilo.jf.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,62 +21,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Andi Kleen <ak@linux.intel.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, rkrcmar@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MDnmnIgyN+aXpSAwMzoxMywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIEZyaSwgU2VwIDIyLCAyMDE3IGF0IDA0OjAyOjMzUE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+IFRoaXMgcGF0Y2ggaW50cm9kdWNlcyBhIGhlbHBlciB3aGljaCBqdXN0IGluY3JlYXNl
-IHRoZSB1c2VkIGlkeC4gVGhpcwo+PiB3aWxsIGJlIHVzZWQgaW4gcGFpciB3aXRoIHZob3N0X3By
-ZWZldGNoX2Rlc2NfaW5kaWNlcygpIGJ5IGJhdGNoaW5nCj4+IGNvZGUuCj4+Cj4+IFNpZ25lZC1v
-ZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4+IC0tLQo+PiAgIGRyaXZl
-cnMvdmhvc3Qvdmhvc3QuYyB8IDMzICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+
-PiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuaCB8ICAxICsKPj4gICAyIGZpbGVzIGNoYW5nZWQsIDM0
-IGluc2VydGlvbnMoKykKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBi
-L2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+PiBpbmRleCA4NDI0MTY2ZC4uNjUzMmNkYSAxMDA2NDQK
-Pj4gLS0tIGEvZHJpdmVycy92aG9zdC92aG9zdC5jCj4+ICsrKyBiL2RyaXZlcnMvdmhvc3Qvdmhv
-c3QuYwo+PiBAQCAtMjE3OCw2ICsyMTc4LDM5IEBAIGludCB2aG9zdF9hZGRfdXNlZChzdHJ1Y3Qg
-dmhvc3RfdmlydHF1ZXVlICp2cSwgdW5zaWduZWQgaW50IGhlYWQsIGludCBsZW4pCj4+ICAgfQo+
-PiAgIEVYUE9SVF9TWU1CT0xfR1BMKHZob3N0X2FkZF91c2VkKTsKPj4gICAKPj4gK2ludCB2aG9z
-dF9hZGRfdXNlZF9pZHgoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsIGludCBuKQo+PiArewo+
-PiArCXUxNiBvbGQsIG5ldzsKPj4gKwo+PiArCW9sZCA9IHZxLT5sYXN0X3VzZWRfaWR4Owo+PiAr
-CW5ldyA9ICh2cS0+bGFzdF91c2VkX2lkeCArPSBuKTsKPj4gKwkvKiBJZiB0aGUgZHJpdmVyIG5l
-dmVyIGJvdGhlcnMgdG8gc2lnbmFsIGluIGEgdmVyeSBsb25nIHdoaWxlLAo+PiArCSAqIHVzZWQg
-aW5kZXggbWlnaHQgd3JhcCBhcm91bmQuIElmIHRoYXQgaGFwcGVucywgaW52YWxpZGF0ZQo+PiAr
-CSAqIHNpZ25hbGxlZF91c2VkIGluZGV4IHdlIHN0b3JlZC4gVE9ETzogbWFrZSBzdXJlIGRyaXZl
-cgo+PiArCSAqIHNpZ25hbHMgYXQgbGVhc3Qgb25jZSBpbiAyXjE2IGFuZCByZW1vdmUgdGhpcy4K
-Pj4gKwkgKi8KPj4gKwlpZiAodW5saWtlbHkoKHUxNikobmV3IC0gdnEtPnNpZ25hbGxlZF91c2Vk
-KSA8ICh1MTYpKG5ldyAtIG9sZCkpKQo+PiArCQl2cS0+c2lnbmFsbGVkX3VzZWRfdmFsaWQgPSBm
-YWxzZTsKPj4gKwo+PiArCS8qIE1ha2Ugc3VyZSBidWZmZXIgaXMgd3JpdHRlbiBiZWZvcmUgd2Ug
-dXBkYXRlIGluZGV4LiAqLwo+PiArCXNtcF93bWIoKTsKPj4gKwlpZiAodmhvc3RfcHV0X3VzZXIo
-dnEsIGNwdV90b192aG9zdDE2KHZxLCB2cS0+bGFzdF91c2VkX2lkeCksCj4+ICsJCQkgICAmdnEt
-PnVzZWQtPmlkeCkpIHsKPj4gKwkJdnFfZXJyKHZxLCAiRmFpbGVkIHRvIGluY3JlbWVudCB1c2Vk
-IGlkeCIpOwo+PiArCQlyZXR1cm4gLUVGQVVMVDsKPj4gKwl9Cj4+ICsJaWYgKHVubGlrZWx5KHZx
-LT5sb2dfdXNlZCkpIHsKPj4gKwkJLyogTG9nIHVzZWQgaW5kZXggdXBkYXRlLiAqLwo+PiArCQls
-b2dfd3JpdGUodnEtPmxvZ19iYXNlLAo+PiArCQkJICB2cS0+bG9nX2FkZHIgKyBvZmZzZXRvZihz
-dHJ1Y3QgdnJpbmdfdXNlZCwgaWR4KSwKPj4gKwkJCSAgc2l6ZW9mKHZxLT51c2VkLT5pZHgpKTsK
-Pj4gKwkJaWYgKHZxLT5sb2dfY3R4KQo+PiArCQkJZXZlbnRmZF9zaWduYWwodnEtPmxvZ19jdHgs
-IDEpOwo+PiArCX0KPj4gKwlyZXR1cm4gMDsKPj4gK30KPj4gK0VYUE9SVF9TWU1CT0xfR1BMKHZo
-b3N0X2FkZF91c2VkX2lkeCk7Cj4+ICsKPj4gICBzdGF0aWMgaW50IF9fdmhvc3RfYWRkX3VzZWRf
-bihzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPj4gICAJCQkgICAgc3RydWN0IHZyaW5nX3Vz
-ZWRfZWxlbSAqaGVhZHMsCj4+ICAgCQkJICAgIHVuc2lnbmVkIGNvdW50KQo+PiBkaWZmIC0tZ2l0
-IGEvZHJpdmVycy92aG9zdC92aG9zdC5oIGIvZHJpdmVycy92aG9zdC92aG9zdC5oCj4+IGluZGV4
-IDE2YzJjYjYuLjVkZDZjMDUgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuaAo+
-PiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPj4gQEAgLTE5OSw2ICsxOTksNyBAQCBpbnQg
-X192aG9zdF9nZXRfdnFfZGVzYyhzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPj4gICB2b2lk
-IHZob3N0X2Rpc2NhcmRfdnFfZGVzYyhzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICosIGludCBuKTsK
-Pj4gICAKPj4gICBpbnQgdmhvc3RfdnFfaW5pdF9hY2Nlc3Moc3RydWN0IHZob3N0X3ZpcnRxdWV1
-ZSAqKTsKPj4gK2ludCB2aG9zdF9hZGRfdXNlZF9pZHgoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAq
-dnEsIGludCBuKTsKPj4gICBpbnQgdmhvc3RfYWRkX3VzZWQoc3RydWN0IHZob3N0X3ZpcnRxdWV1
-ZSAqLCB1bnNpZ25lZCBpbnQgaGVhZCwgaW50IGxlbik7Cj4+ICAgaW50IHZob3N0X2FkZF91c2Vk
-X24oc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqLCBzdHJ1Y3QgdnJpbmdfdXNlZF9lbGVtICpoZWFk
-cywKPj4gICAJCSAgICAgdW5zaWduZWQgY291bnQpOwo+IFBsZWFzZSBjaGFuZ2UgdGhlIEFQSSB0
-byBoaWRlIHRoZSBmYWN0IHRoYXQgdGhlcmUncyBhbiBpbmRleCB0aGF0IG5lZWRzCj4gdG8gYmUg
-dXBkYXRlZC4KCkluIGZhY3QsIGFuIGludGVyZXN0aW5nIG9wdGltaXphdGlvbiBvbiB0b3AgaXMg
-anVzdCBjYWxsIAp2aG9zdF9hZGRfdXNlZF9pZHgodnEsIG4pIGluc3RlYWQgb2YgbiB2aG9zdF9h
-ZGRfdXNlZF9pZHgodnEsIDEpLiBUaGF0J3MgCnRoZSByZWFzb24gSSBsZWF2ZSBuIGluIHRoZSBB
-UEkuCgpUaGFua3MKCj4KPj4gLS0gCj4+IDIuNy40CgpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On 09/27/2017 12:41 AM, Andi Kleen wrote:
+>> 1) vCPU context switching and guest side task switching are not identical.
+>> That is, when the vCPU is scheduled out, the guest task on the vCPU may not
+> guest task lifetime has nothing to do with this. It's completely independent
+> of what you do here on the VCPU level.
+>
+>> run out its time slice yet, so the task will continue to run when the vCPU
+>> is
+>> scheduled in by the host (lbr wasn't save by the guest task when the vCPU is
+>> scheduled out in this case).
+>>
+>> It is possible to have the vCPU which runs the guest task (in use of lbr)
+>> scheduled
+>> out, followed by a new host task being scheduled in on the pCPU to run.
+>> It is not guaranteed that the new host task does not use the LBR feature on
+>> the
+>> pCPU.
+> Sure it may use the LBR, and the normal perf context switch
+> will switch it and everything works fine.
+>
+> It's like any other per-task LBR user.
+
+OK, I see the point, thanks.
+
+Why couldn't we save the LBR_SELECT via task switching too?
+
+
+Best,
+Wei
