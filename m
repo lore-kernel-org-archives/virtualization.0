@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net-next RFC 0/5] batched tx processing in vhost_net
-Date: Tue, 26 Sep 2017 22:26:40 +0300
-Message-ID: <20170926222528-mutt-send-email-mst__26323.5326078304$1506454036$gmane$org@kernel.org>
+Date: Wed, 27 Sep 2017 08:27:37 +0800
+Message-ID: <afb7cad9-d760-b4d7-ecc5-518442e061b1__44933.509376324$1506472085$gmane$org@redhat.com>
 References: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
+	<20170926164055-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20170926164055-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,43 +19,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 22, 2017 at 04:02:30PM +0800, Jason Wang wrote:
-> Hi:
-> 
-> This series tries to implement basic tx batched processing. This is
-> done by prefetching descriptor indices and update used ring in a
-> batch. This intends to speed up used ring updating and improve the
-> cache utilization. Test shows about ~22% improvement in tx pss.
-
-
-
-
-> Please review.
-> 
-> Jason Wang (5):
->   vhost: split out ring head fetching logic
->   vhost: introduce helper to prefetch desc index
->   vhost: introduce vhost_add_used_idx()
-
-Please squash these new APIs into where they are used.
-This split-up just makes review harder for me as
-I can't figure out how the new APIs are used.
-
-
->   vhost_net: rename VHOST_RX_BATCH to VHOST_NET_BATCH
-
-This is ok as a separate patch.
-
->   vhost_net: basic tx virtqueue batched processing
-> 
->  drivers/vhost/net.c   | 221 ++++++++++++++++++++++++++++----------------------
->  drivers/vhost/vhost.c | 165 +++++++++++++++++++++++++++++++------
->  drivers/vhost/vhost.h |   9 ++
->  3 files changed, 270 insertions(+), 125 deletions(-)
-> 
-> -- 
-> 2.7.4
+CgpPbiAyMDE35bm0MDnmnIgyNuaXpSAyMTo0NSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIEZyaSwgU2VwIDIyLCAyMDE3IGF0IDA0OjAyOjMwUE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+IEhpOgo+Pgo+PiBUaGlzIHNlcmllcyB0cmllcyB0byBpbXBsZW1lbnQgYmFzaWMgdHgg
+YmF0Y2hlZCBwcm9jZXNzaW5nLiBUaGlzIGlzCj4+IGRvbmUgYnkgcHJlZmV0Y2hpbmcgZGVzY3Jp
+cHRvciBpbmRpY2VzIGFuZCB1cGRhdGUgdXNlZCByaW5nIGluIGEKPj4gYmF0Y2guIFRoaXMgaW50
+ZW5kcyB0byBzcGVlZCB1cCB1c2VkIHJpbmcgdXBkYXRpbmcgYW5kIGltcHJvdmUgdGhlCj4+IGNh
+Y2hlIHV0aWxpemF0aW9uLgo+IEludGVyZXN0aW5nLCB0aGFua3MgZm9yIHRoZSBwYXRjaGVzLiBT
+byBJSVVDIG1vc3Qgb2YgdGhlIGdhaW4gaXMgcmVhbGx5Cj4gb3ZlcmNvbWluZyBzb21lIG9mIHRo
+ZSBzaG9ydGNvbWluZ3Mgb2YgdmlydGlvIDEuMCB3cnQgY2FjaGUgdXRpbGl6YXRpb24/CgpZZXMu
+CgpBY3R1YWxseSwgbG9va3MgbGlrZSBiYXRjaGluZyBpbiAxLjEgaXMgbm90IGFzIGVhc3kgYXMg
+aW4gMS4wLgoKSW4gMS4wLCB3ZSBjb3VsZCBkbyBzb21ldGhpbmcgbGlrZToKCmJhdGNoIHVwZGF0
+ZSB1c2VkIHJpbmcgYnkgdXNlciBjb3B5X3RvX3VzZXIoKQpzbXBfd21iKCkKdXBkYXRlIHVzZWRf
+aWR4CgpJbiAxLjEsIHdlIG5lZWQgbW9yZSBtZW1vcnkgYmFycmllcnMsIGNhbid0IGJlbmVmaXQg
+ZnJvbSBmYXN0IGNvcHkgaGVscGVycz8KCmZvciAoKSB7CiDCoMKgwqAgdXBkYXRlIGRlc2MuYWRk
+cgogwqDCoMKgIHNtcF93bWIoKQogwqDCoMKgIHVwZGF0ZSBkZXNjLmZsYWcKfQoKPgo+IFdoaWNo
+IGlzIGZhaXIgZW5vdWdoICgxLjAgaXMgYWxyZWFkeSBkZXBsb3llZCkgYnV0IEkgd291bGQgbGlr
+ZSB0byBhdm9pZAo+IG1ha2luZyAxLjEgc3VwcG9ydCBoYXJkZXIsIGFuZCB0aGlzIHBhdGNoc2V0
+IGRvZXMgdGhpcyB1bmZvcnR1bmF0ZWx5LAoKSSB0aGluayB0aGUgbmV3IEFQSXMgZG8gbm90IGV4
+cG9zZSBtb3JlIGludGVybmFsIGRhdGEgc3RydWN0dXJlIG9mIAp2aXJ0aW8gdGhhbiBiZWZvcmU/
+ICh2cS0+aGVhZHMgaGFzIGFscmVhZHkgYmVlbiB1c2VkIGJ5IHZob3N0X25ldCBmb3IgCnllYXJz
+KS4gQ29uc2lkZXIgdGhlIGxheW91dCBpcyByZS1kZXNpZ25lZCBjb21wbGV0ZWx5LCBJIGRvbid0
+IHNlZSBhbiAKZWFzeSBtZXRob2QgdG8gcmV1c2UgY3VycmVudCAxLjAgQVBJIGZvciAxLjEuCgo+
+IHNlZSBjb21tZW50cyBvbiBpbmRpdmlkdWFsIHBhdGNoZXMuIEknbSBzdXJlIGl0IGNhbiBiZSBh
+ZGRyZXNzZWQgdGhvdWdoLgo+Cj4+IFRlc3Qgc2hvd3MgYWJvdXQgfjIyJSBpbXByb3ZlbWVudCBp
+biB0eCBwc3MuCj4gSXMgdGhpcyB3aXRoIG9yIHdpdGhvdXQgdHggbmFwaSBpbiBndWVzdD8KCk1v
+b25HZW4gaXMgdXNlZCBpbiBndWVzdCBmb3IgYmV0dGVyIG51bWJlcnMuCgpUaGFua3MKCj4KPj4g
+UGxlYXNlIHJldmlldy4KPj4KPj4gSmFzb24gV2FuZyAoNSk6Cj4+ICAgIHZob3N0OiBzcGxpdCBv
+dXQgcmluZyBoZWFkIGZldGNoaW5nIGxvZ2ljCj4+ICAgIHZob3N0OiBpbnRyb2R1Y2UgaGVscGVy
+IHRvIHByZWZldGNoIGRlc2MgaW5kZXgKPj4gICAgdmhvc3Q6IGludHJvZHVjZSB2aG9zdF9hZGRf
+dXNlZF9pZHgoKQo+PiAgICB2aG9zdF9uZXQ6IHJlbmFtZSBWSE9TVF9SWF9CQVRDSCB0byBWSE9T
+VF9ORVRfQkFUQ0gKPj4gICAgdmhvc3RfbmV0OiBiYXNpYyB0eCB2aXJ0cXVldWUgYmF0Y2hlZCBw
+cm9jZXNzaW5nCj4+Cj4+ICAgZHJpdmVycy92aG9zdC9uZXQuYyAgIHwgMjIxICsrKysrKysrKysr
+KysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4+ICAgZHJpdmVycy92aG9z
+dC92aG9zdC5jIHwgMTY1ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0KPj4g
+ICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggfCAgIDkgKysKPj4gICAzIGZpbGVzIGNoYW5nZWQsIDI3
+MCBpbnNlcnRpb25zKCspLCAxMjUgZGVsZXRpb25zKC0pCj4+Cj4+IC0tIAo+PiAyLjcuNAoKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
+b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
+YWxpemF0aW9u
