@@ -1,17 +1,17 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v1 4/4] KVM/vmx: enable lbr for the guest
-Date: Wed, 27 Sep 2017 09:27:46 +0800
-Message-ID: <59CAFE92.8090608__16440.8673336313$1506475516$gmane$org@intel.com>
-References: <1506314696-4632-1-git-send-email-wei.w.wang@intel.com>
-	<1506314696-4632-5-git-send-email-wei.w.wang@intel.com>
-	<20170925145720.GM4311@tassilo.jf.intel.com>
-	<59CA164B.1080707@intel.com>
-	<20170926164114.GQ4311@tassilo.jf.intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next RFC 5/5] vhost_net: basic tx virtqueue batched
+	processing
+Date: Wed, 27 Sep 2017 10:04:18 +0800
+Message-ID: <16ea7512-d770-21ef-edb6-3ada51f08592__45671.575520146$1506477872$gmane$org@redhat.com>
+References: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
+	<1506067355-5771-6-git-send-email-jasowang@redhat.com>
+	<20170926222223-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170926164114.GQ4311@tassilo.jf.intel.com>
+In-Reply-To: <20170926222223-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,36 +21,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <ak@linux.intel.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, rkrcmar@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, pbonzini@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/27/2017 12:41 AM, Andi Kleen wrote:
->> 1) vCPU context switching and guest side task switching are not identical.
->> That is, when the vCPU is scheduled out, the guest task on the vCPU may not
-> guest task lifetime has nothing to do with this. It's completely independent
-> of what you do here on the VCPU level.
->
->> run out its time slice yet, so the task will continue to run when the vCPU
->> is
->> scheduled in by the host (lbr wasn't save by the guest task when the vCPU is
->> scheduled out in this case).
->>
->> It is possible to have the vCPU which runs the guest task (in use of lbr)
->> scheduled
->> out, followed by a new host task being scheduled in on the pCPU to run.
->> It is not guaranteed that the new host task does not use the LBR feature on
->> the
->> pCPU.
-> Sure it may use the LBR, and the normal perf context switch
-> will switch it and everything works fine.
->
-> It's like any other per-task LBR user.
-
-OK, I see the point, thanks.
-
-Why couldn't we save the LBR_SELECT via task switching too?
-
-
-Best,
-Wei
+CgpPbiAyMDE35bm0MDnmnIgyN+aXpSAwMzoyNSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIEZyaSwgU2VwIDIyLCAyMDE3IGF0IDA0OjAyOjM1UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+IFRoaXMgcGF0Y2ggaW1wbGVtZW50cyBiYXNpYyBiYXRjaGVkIHByb2Nlc3Npbmcgb2Yg
+dHggdmlydHF1ZXVlIGJ5Cj4+IHByZWZldGNoaW5nIGRlc2MgaW5kaWNlcyBhbmQgdXBkYXRpbmcg
+dXNlZCByaW5nIGluIGEgYmF0Y2guIEZvcgo+PiBub24temVyb2NvcHkgY2FzZSwgdnEtPmhlYWRz
+IHdlcmUgdXNlZCBmb3Igc3RvcmluZyB0aGUgcHJlZmV0Y2hlZAo+PiBpbmRpY2VzIGFuZCB1cGRh
+dGluZyB1c2VkIHJpbmcuIEl0IGlzIGFsc28gYSByZXF1aXJlbWVudCBmb3IgZG9pbmcKPj4gbW9y
+ZSBiYXRjaGluZyBvbiB0b3AuIEZvciB6ZXJvY29weSBjYXNlIGFuZCBmb3Igc2ltcGxpY2l0eSwg
+YmF0Y2hlZAo+PiBwcm9jZXNzaW5nIHdlcmUgc2ltcGx5IGRpc2FibGVkIGJ5IG9ubHkgZmV0Y2hp
+bmcgYW5kIHByb2Nlc3Npbmcgb25lCj4+IGRlc2NyaXB0b3IgYXQgYSB0aW1lLCB0aGlzIGNvdWxk
+IGJlIG9wdGltaXplZCBpbiB0aGUgZnV0dXJlLgo+Pgo+PiBYRFBfRFJPUCAod2l0aG91dCB0b3Vj
+aGluZyBza2IpIG9uIHR1biAod2l0aCBNb29uZ2VuIGluIGd1ZXN0KSB3aXRoCj4+IHplcmNvcHkg
+ZGlzYWJsZWQ6Cj4+Cj4+IEludGVsKFIpIFhlb24oUikgQ1BVIEU1LTI2NTAgMCBAIDIuMDBHSHo6
+Cj4+IEJlZm9yZTogMy4yME1wcHMKPj4gQWZ0ZXI6ICAzLjkwTXBwcyAoKzIyJSkKPj4KPj4gTm8g
+ZGlmZmVyZW5jZXMgd2VyZSBzZWVuIHdpdGggemVyb2NvcHkgZW5hYmxlZC4KPj4KPj4gU2lnbmVk
+LW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiBTbyB3aGVyZSBpcyB0
+aGUgc3BlZWR1cCBjb21pbmcgZnJvbT8gSSdkIGd1ZXNzIHRoZSByaW5nIGlzCj4gaG90IGluIGNh
+Y2hlLCBpdCdzIGZhc3RlciB0byBhY2Nlc3MgaXQgaW4gb25lIGdvLCB0aGVuCj4gcGFzcyBtYW55
+IHBhY2tldHMgdG8gbmV0IHN0YWNrLiBJcyB0aGF0IHJpZ2h0Pwo+Cj4gQW5vdGhlciBwb3NzaWJp
+bGl0eSBpcyBiZXR0ZXIgY29kZSBjYWNoZSBsb2NhbGl0eS4KClllcywgSSB0aGluayB0aGUgc3Bl
+ZWQgdXAgY29tZXMgZnJvbToKCi0gbGVzcyBjYWNoZSBtaXNzZXMKLSBsZXNzIGNhY2hlIGxpbmUg
+Ym91bmNlIHdoZW4gdmlydHF1ZXVlIGlzIGFib3V0IHRvIGJlIGZ1bGwgKGd1ZXN0IGlzIApmYXN0
+ZXIgdGhhbiBob3N0IHdoaWNoIGlzIHRoZSBjYXNlIG9mIE1vb25HZW4pCi0gbGVzcyBtZW1vcnkg
+YmFycmllcnMKLSBwb3NzaWJsZSBmYXN0ZXIgY29weSBzcGVlZCBieSB1c2luZyBjb3B5X3RvX3Vz
+ZXIoKSBvbiBtb2Rlcm4gQ1BVcwoKPgo+IFNvIGhvdyBhYm91dCB0aGlzIHBhdGNoc2V0IGlzIHJl
+ZmFjdG9yZWQ6Cj4KPiAxLiB1c2UgZXhpc3RpbmcgQVBJcyBqdXN0IGZpcnN0IGdldCBwYWNrZXRz
+IHRoZW4KPiAgICAgdHJhbnNtaXQgdGhlbSBhbGwgdGhlbiB1c2UgdGhlbSBhbGwKCkxvb2tzIGxp
+a2UgY3VycmVudCBBUEkgY2FuIG5vdCBnZXQgcGFja2V0cyBmaXJzdCwgaXQgb25seSBzdXBwb3J0
+IGdldCAKcGFja2V0IG9uZSBieSBvbmUgKGlmIHlvdSBtZWFuIHZob3N0X2dldF92cV9kZXNjKCkp
+LiBBbmQgdXNlZCByaW5nIAp1cGRhdGluZyBtYXkgZ2V0IG1vcmUgbWlzc2VzIGluIHRoaXMgY2Fz
+ZS4KCj4gMi4gYWRkIG5ldyBBUElzIGFuZCBtb3ZlIHRoZSBsb29wIGludG8gdmhvc3QgY29yZQo+
+ICAgICBmb3IgbW9yZSBzcGVlZHVwcwoKSSBkb24ndCBzZWUgYW55IGFkdmFudGFnZXMsIGxvb2tz
+IGxpa2UganVzdCBuZWVkIHNvbWUgZS5nIGNhbGxiYWNrcyBpbiAKdGhpcyBjYXNlLgoKVGhhbmtz
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
