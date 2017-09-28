@@ -1,17 +1,19 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH net-next RFC 3/5] vhost: introduce vhost_add_used_idx()
-Date: Wed, 27 Sep 2017 20:59:53 -0400
-Message-ID: <CAF=yD-JaivP9=dKp63U3CoReGW4K=W+j4tp_kasHEoMC7rO54A__30474.1463660777$1506560461$gmane$org@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next RFC 5/5] vhost_net: basic tx virtqueue batched
+	processing
+Date: Thu, 28 Sep 2017 15:02:48 +0800
+Message-ID: <632b9bdd-4459-8659-e491-ba125adc2038__34460.0844466642$1506582190$gmane$org@redhat.com>
 References: <1506067355-5771-1-git-send-email-jasowang@redhat.com>
-	<1506067355-5771-4-git-send-email-jasowang@redhat.com>
-	<20170926170047-mutt-send-email-mst@kernel.org>
-	<c42b7244-6d43-2ce5-46a3-ea70ec9d957f@redhat.com>
-	<20170928015749-mutt-send-email-mst@kernel.org>
+	<1506067355-5771-6-git-send-email-jasowang@redhat.com>
+	<20170926222223-mutt-send-email-mst@kernel.org>
+	<16ea7512-d770-21ef-edb6-3ada51f08592@redhat.com>
+	<20170928011724-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170928015749-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20170928011724-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,29 +24,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Network Development <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->> > > @@ -199,6 +199,7 @@ int __vhost_get_vq_desc(struct vhost_virtqueue *vq,
->> > >   void vhost_discard_vq_desc(struct vhost_virtqueue *, int n);
->> > >   int vhost_vq_init_access(struct vhost_virtqueue *);
->> > > +int vhost_add_used_idx(struct vhost_virtqueue *vq, int n);
->> > >   int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
->> > >   int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
->> > >                        unsigned count);
->> > Please change the API to hide the fact that there's an index that needs
->> > to be updated.
->>
->> In fact, an interesting optimization on top is just call
->> vhost_add_used_idx(vq, n) instead of n vhost_add_used_idx(vq, 1). That's the
->> reason I leave n in the API.
->>
->> Thanks
->
-> Right but you could increment some internal counter in the vq
-> structure then update the used index using some api
-> with a generic name, e.g.  add_used_complete or something like this.
-
-That adds a layer of information hiding. If the same variable can be
-kept close to the computation in a local variable and passed directly
-to vhost_add_used_idx_n that is easier to follow.
+CgpPbiAyMDE35bm0MDnmnIgyOOaXpSAwNjoxOSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFdlZCwgU2VwIDI3LCAyMDE3IGF0IDEwOjA0OjE4QU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+Cj4+IE9uIDIwMTflubQwOeaciDI35pelIDAzOjI1LCBNaWNoYWVsIFMuIFRzaXJraW4g
+d3JvdGU6Cj4+PiBPbiBGcmksIFNlcCAyMiwgMjAxNyBhdCAwNDowMjozNVBNICswODAwLCBKYXNv
+biBXYW5nIHdyb3RlOgo+Pj4+IFRoaXMgcGF0Y2ggaW1wbGVtZW50cyBiYXNpYyBiYXRjaGVkIHBy
+b2Nlc3Npbmcgb2YgdHggdmlydHF1ZXVlIGJ5Cj4+Pj4gcHJlZmV0Y2hpbmcgZGVzYyBpbmRpY2Vz
+IGFuZCB1cGRhdGluZyB1c2VkIHJpbmcgaW4gYSBiYXRjaC4gRm9yCj4+Pj4gbm9uLXplcm9jb3B5
+IGNhc2UsIHZxLT5oZWFkcyB3ZXJlIHVzZWQgZm9yIHN0b3JpbmcgdGhlIHByZWZldGNoZWQKPj4+
+PiBpbmRpY2VzIGFuZCB1cGRhdGluZyB1c2VkIHJpbmcuIEl0IGlzIGFsc28gYSByZXF1aXJlbWVu
+dCBmb3IgZG9pbmcKPj4+PiBtb3JlIGJhdGNoaW5nIG9uIHRvcC4gRm9yIHplcm9jb3B5IGNhc2Ug
+YW5kIGZvciBzaW1wbGljaXR5LCBiYXRjaGVkCj4+Pj4gcHJvY2Vzc2luZyB3ZXJlIHNpbXBseSBk
+aXNhYmxlZCBieSBvbmx5IGZldGNoaW5nIGFuZCBwcm9jZXNzaW5nIG9uZQo+Pj4+IGRlc2NyaXB0
+b3IgYXQgYSB0aW1lLCB0aGlzIGNvdWxkIGJlIG9wdGltaXplZCBpbiB0aGUgZnV0dXJlLgo+Pj4+
+Cj4+Pj4gWERQX0RST1AgKHdpdGhvdXQgdG91Y2hpbmcgc2tiKSBvbiB0dW4gKHdpdGggTW9vbmdl
+biBpbiBndWVzdCkgd2l0aAo+Pj4+IHplcmNvcHkgZGlzYWJsZWQ6Cj4+Pj4KPj4+PiBJbnRlbChS
+KSBYZW9uKFIpIENQVSBFNS0yNjUwIDAgQCAyLjAwR0h6Ogo+Pj4+IEJlZm9yZTogMy4yME1wcHMK
+Pj4+PiBBZnRlcjogIDMuOTBNcHBzICgrMjIlKQo+Pj4+Cj4+Pj4gTm8gZGlmZmVyZW5jZXMgd2Vy
+ZSBzZWVuIHdpdGggemVyb2NvcHkgZW5hYmxlZC4KPj4+Pgo+Pj4+IFNpZ25lZC1vZmYtYnk6IEph
+c29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4+PiBTbyB3aGVyZSBpcyB0aGUgc3BlZWR1
+cCBjb21pbmcgZnJvbT8gSSdkIGd1ZXNzIHRoZSByaW5nIGlzCj4+PiBob3QgaW4gY2FjaGUsIGl0
+J3MgZmFzdGVyIHRvIGFjY2VzcyBpdCBpbiBvbmUgZ28sIHRoZW4KPj4+IHBhc3MgbWFueSBwYWNr
+ZXRzIHRvIG5ldCBzdGFjay4gSXMgdGhhdCByaWdodD8KPj4+Cj4+PiBBbm90aGVyIHBvc3NpYmls
+aXR5IGlzIGJldHRlciBjb2RlIGNhY2hlIGxvY2FsaXR5Lgo+PiBZZXMsIEkgdGhpbmsgdGhlIHNw
+ZWVkIHVwIGNvbWVzIGZyb206Cj4+Cj4+IC0gbGVzcyBjYWNoZSBtaXNzZXMKPj4gLSBsZXNzIGNh
+Y2hlIGxpbmUgYm91bmNlIHdoZW4gdmlydHF1ZXVlIGlzIGFib3V0IHRvIGJlIGZ1bGwgKGd1ZXN0
+IGlzIGZhc3Rlcgo+PiB0aGFuIGhvc3Qgd2hpY2ggaXMgdGhlIGNhc2Ugb2YgTW9vbkdlbikKPj4g
+LSBsZXNzIG1lbW9yeSBiYXJyaWVycwo+PiAtIHBvc3NpYmxlIGZhc3RlciBjb3B5IHNwZWVkIGJ5
+IHVzaW5nIGNvcHlfdG9fdXNlcigpIG9uIG1vZGVybiBDUFVzCj4+Cj4+PiBTbyBob3cgYWJvdXQg
+dGhpcyBwYXRjaHNldCBpcyByZWZhY3RvcmVkOgo+Pj4KPj4+IDEuIHVzZSBleGlzdGluZyBBUElz
+IGp1c3QgZmlyc3QgZ2V0IHBhY2tldHMgdGhlbgo+Pj4gICAgICB0cmFuc21pdCB0aGVtIGFsbCB0
+aGVuIHVzZSB0aGVtIGFsbAo+PiBMb29rcyBsaWtlIGN1cnJlbnQgQVBJIGNhbiBub3QgZ2V0IHBh
+Y2tldHMgZmlyc3QsIGl0IG9ubHkgc3VwcG9ydCBnZXQgcGFja2V0Cj4+IG9uZSBieSBvbmUgKGlm
+IHlvdSBtZWFuIHZob3N0X2dldF92cV9kZXNjKCkpLiBBbmQgdXNlZCByaW5nIHVwZGF0aW5nIG1h
+eSBnZXQKPj4gbW9yZSBtaXNzZXMgaW4gdGhpcyBjYXNlLgo+IFJpZ2h0LiBTbyBpZiB5b3UgZG8K
+Pgo+IGZvciAoLi4uKQo+IAl2aG9zdF9nZXRfdnFfZGVzYwo+Cj4KPiB0aGVuIGxhdGVyCj4KPiBm
+b3IgKC4uLikKPiAJdmhvc3RfYWRkX3VzZWQKPgo+Cj4gdGhlbiB5b3UgZ2V0IG1vc3Qgb2YgYmVu
+ZWZpdHMgZXhjZXB0IG1heWJlIGNvZGUgY2FjaGUgbWlzc2VzCj4gYW5kIGNvcHlfdG9fdXNlci4K
+PgoKSWYgeW91IG1lYW4gdmhvc3RfYWRkX3VzZWRfbigpLCB0aGVuIG1vcmUgYmFycmllcnMgYW5k
+IHVzZXJzcGFjZSBtZW1vcnkgCmFjY2VzcyBhcyB3ZWxsLiBBbmQgeW91IHN0aWxsIG5lZWQgdG8g
+Y2FjaGUgdnJpbmdfdXNlZF9lbGVtIGluIHZxLT5oZWFkcyAKb3IgZWxzZXdoZXJlLiBTaW5jZSB5
+b3UgZG8gbm90IGJhdGNoIHJlYWRpbmcgYXZhaWwgcmluZyBpbmRleGVzLCBtb3JlIAp3cml0ZSBt
+aXNzIHdpbGwgaGFwcGVuIGlmIHRoZSByaW5nIGlzIGFib3V0IHRvIGJlIGZ1bGwuIFNvIGl0IGxv
+b2tzIApzbG93ZXIgdGhhbiB3aGF0IGlzIGRvbmUgaW4gdGhpcyBwYXRjaD8KCkFuZCBpZiB3ZSB3
+YW50IHRvIGluZG8gbW9yZSBiYXRjaGluZyBvbiB0b3AgKGRvIHdlIHdhbnQgdGhpcz8pLCB3ZSBz
+dGlsbCAKbmVlZCBuZXcgQVBJcyBhbnl3YXkuCgpUaGFua3MKCj4KPgo+Cj4KPgo+Pj4gMi4gYWRk
+IG5ldyBBUElzIGFuZCBtb3ZlIHRoZSBsb29wIGludG8gdmhvc3QgY29yZQo+Pj4gICAgICBmb3Ig
+bW9yZSBzcGVlZHVwcwo+PiBJIGRvbid0IHNlZSBhbnkgYWR2YW50YWdlcywgbG9va3MgbGlrZSBq
+dXN0IG5lZWQgc29tZSBlLmcgY2FsbGJhY2tzIGluIHRoaXMKPj4gY2FzZS4KPj4KPj4gVGhhbmtz
+Cj4gSVVDIGNhbGxiYWNrcyBwcmV0dHkgbXVjaCBkZXN0cm95IHRoZSBjb2RlIGNhY2hlIGxvY2Fs
+aXR5IGFkdmFudGFnZXMsCj4gSVAgaXMganVtcGluZyBhcm91bmQgdG9vIG11Y2guCj4KPgoKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
+b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
+YWxpemF0aW9u
