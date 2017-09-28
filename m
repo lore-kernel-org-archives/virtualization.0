@@ -1,17 +1,13 @@
-From: "Liang, Cunming" <cunming.liang@intel.com>
-Subject: RE: [virtio-dev] packed ring layout proposal v3
-Date: Thu, 28 Sep 2017 09:44:35 +0000
-Message-ID: <D0158A423229094DA7ABF71CF2FA0DA34E1AD49B__17215.7006607906$1506591886$gmane$org@SHSMSX152.ccr.corp.intel.com>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
-	<20170926011826-mutt-send-email-mst@kernel.org>
-	<7A0DC0C9-F148-4161-B2D1-8D8D14D8B9A1@cisco.com>
-	<20170928023112-mutt-send-email-mst@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH] drivers/s390/virtio: Remove the old KVM virtio transport
+Date: Thu, 28 Sep 2017 17:01:53 +0200
+Message-ID: <658d228c-8f1f-59c9-b844-6e34dc5b492e__46557.4697278955$1506610972$gmane$org@redhat.com>
+References: <1506512521-2244-1-git-send-email-thuth@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170928023112-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1506512521-2244-1-git-send-email-thuth@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,61 +18,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, "Steven Luong (sluong)" <sluong@cisco.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQpHZXQgaXQgbm93LiBQbGVhc2UgY29ycmVjdCBtZSBpZiBJIG1pc3Npbmcgc29tZXRoaW5nLg0K
-DQoNCkZsYWdzIHN0YXR1cyBoaW50cywNCg0KLSBERVNDX0RSSVZFUiBvbmx5OiBkcml2ZXIgb3du
-cyB0aGUgZGVzY3JpcHRvciB3L28gYXZhaWxhYmxlIGluZm8gcmVhZHkgZm9yIGRldmljZSB0byB1
-c2UNCg0KLSBERVNDX0RSSVZFUiB8IERFU0NfV1JBUDogZHJpdmVyIGhhcyBwcmVwYXJlZCBhbiBh
-dmFpbGFibGUgZGVzY3JpcHRvciwgZGV2aWNlIGhhc24ndCB1c2VkIGl0IHlldA0KDQotIE5vbmU6
-IGRldmljZSBoYXMgdXNlZCB0aGUgZGVzY3JpcHRvciwgYW5kIHdyaXRlIGRlc2NyaXB0b3Igb3V0
-DQoNCi0gREVTQ19XUkFQIG9ubHk6IHNoYWxsIG5vdCBoYXBwZW4sIGRldmljZSBtYWtlIHN1cmUg
-dG8gY2xlYXIgaXQNCg0KDQpQb2xsaW5nIGJlaGF2aW9yIGlzLA0KDQotIERldmljZSBtb25pdG9y
-IERFU0NfV1JBUCBiaXQgc2V0IG9yIG5vdDsgSWYgc2V0LCBnbyB0byB1c2UgZGVzY3JpcHRvciBh
-bmQgY2xlYXIgREVTQ19EUklWRVIgYml0IGluIHRoZSBlbmQgKG5vdGU6IGFsd2F5cyBuZWVkIHRv
-IGNsZWFyIERFU0NfV1JBUCkNCg0KLSBEcml2ZXIgbW9uaXRvciBERVNDX0RSSVZFUiBiaXQgY2xl
-YXJlZCBvciBub3Q7IElmIGNsZWFyZWQsIHJlY2xhaW0gZGVzY3JpcHRvcihzZXQgREVTQ19EUklW
-RVIpIGFuZCBzZXQgREVTQ19XUkFQIG9uY2UgbmV3IGF2YWlsYWJsZSBkZXNjcmlwdG9yIGdldCBy
-ZWFkeSB0byBnbw0KDQoNCi0tDQpTdGV2ZQ0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0t
-DQo+IEZyb206IE1pY2hhZWwgUy4gVHNpcmtpbiBbbWFpbHRvOm1zdEByZWRoYXQuY29tXQ0KPiBT
-ZW50OiBUaHVyc2RheSwgU2VwdGVtYmVyIDI4LCAyMDE3IDc6NDkgQU0NCj4gVG86IFN0ZXZlbiBM
-dW9uZyAoc2x1b25nKQ0KPiBDYzogTGlhbmcsIEN1bm1pbmc7IHZpcnRpby1kZXZAbGlzdHMub2Fz
-aXMtb3Blbi5vcmc7DQo+IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-DQo+IFN1YmplY3Q6IFJlOiBbdmlydGlvLWRldl0gcGFja2VkIHJpbmcgbGF5b3V0IHByb3Bvc2Fs
-IHYzDQo+IA0KPiBPbiBUdWUsIFNlcCAyNiwgMjAxNyBhdCAxMTozODoxOFBNICswMDAwLCBTdGV2
-ZW4gTHVvbmcgKHNsdW9uZykgd3JvdGU6DQo+ID4gTWljaGFlbCwNCj4gPg0KPiA+IFdvdWxkIHlv
-dSBwbGVhc2UgZ2l2ZSBhbiBleGFtcGxlIG9yIHR3byBob3cgdGhlc2UgdHdvIGZsYWdzDQo+IERF
-U0NfRFJJVkVSIGFuZCBERVNDX1dSQVAgYXJlIHVzZWQgdG9nZXRoZXI/IExpa2Ugb3RoZXJzLCBJ
-IGFtDQo+IGNvbmZ1c2VkIGJ5IHRoZSBkZXNjcmlwdGlvbiBhbmQgc3RpbGwgZG9u4oCZdCBxdWl0
-ZSBncm9rIGl0Lg0KPiA+DQo+ID4gU3RldmVuDQo+IA0KPiBNeSBiYWQsIEkgd2lsbCBuZWVkIHRv
-IHdvcmsgb24gaXQuIEhlcmUgaXMgYW4gZXhhbXBsZToNCj4gDQo+IExldCdzIGFzc3VtZSBkZXZp
-Y2UgcHJvbWlzZWQgdG8gY29uc3VtZSBwYWNrZXRzIGluIG9yZGVyDQo+IA0KPiByaW5nIHNpemUg
-PSAyDQo+IA0KPiBSaW5nIGlzIDAgaW5pdGlhbGl6ZWQuDQo+IA0KPiBEZXZpY2UgaW5pdGlhbGx5
-IHBvbGxzIERFU0NbMF0uZmxhZ3MgZm9yIFdSQVAgYml0IHRvIGNoYW5nZS4NCj4gDQo+IGRyaXZl
-ciBhZGRzOg0KPiANCj4gREVTQ1swXS5hZGRyID0gMTIzNA0KPiBERVNDWzBdLmlkID0gMA0KPiBE
-RVNDWzBdLmZsYWdzID0gREVTQ19EUklWRVIgfCBERVNDX05FWFQgfCBERVNDX1dSQVANCj4gDQo+
-IGFuZA0KPiANCj4gREVTQ1swXS5hZGRyID0gNTY3OA0KPiBERVNDWzFdLmlkID0gMQ0KPiBERVND
-WzFdLmZsYWdzID0gREVTQ19EUklWRVIgfCBERVNDX1dSQVANCj4gDQo+IA0KPiBpdCBub3cgc3Rh
-cnRzIHBvbGxpbmcgREVTQ1swXSBmbGFncy4NCj4gDQo+IA0KPiBEZXZpY2UgcmVhZHMgMTIzNCwg
-ZXhlY3V0ZXMgaXQsIGRvZXMgbm90IHVzZSBpdC4NCj4gDQo+IERldmljZSByZWFkcyA1Njc4LCBl
-eGVjdXRlcyBpdCwgYW5kIHVzZXMgaXQ6DQo+IA0KPiBERVNDWzBdLmlkID0gMQ0KPiBERVNDWzBd
-LmZsYWdzID0gMA0KPiANCj4gRGV2aWNlIG5vdyBwb2xscyBERVNDWzBdLmZsYWdzIGZvciBXUkFQ
-IGJpdCB0byBjaGFuZ2UuDQo+IA0KPiBOb3cgZHJpdmVyIHNlZXMgdGhhdCBEUklWRVIgYml0IGhh
-cyBiZWVuIGNsZWFyZWQsIHNvIGl0IG5vd3MgdGhhdCBpZCBpcyB2YWxpZC4gSQ0KPiBzZWVzIGlk
-IDEsIHRoZXJlZm9yZSBpZCAwIGFuZCAxIGhhcyBiZWVuIHJlYWQgYW5kIGFyZSBzYWZlIHRvIG92
-ZXJ3cml0ZS4NCj4gDQo+IFNvIGl0IHdyaXRlcyBpdCBvdXQuIEl0IHdyYXBwZWQgYXJvdW5kIHRv
-IGJlZ2lubmluZyBvZiByaW5nLCBzbyBpdCBmbGlwcyB0aGUNCj4gV1JBUCBiaXQgdG8gMCBvbiBh
-bGwgZGVzY3JpcHRvcnMgbm93Og0KPiANCj4gREVTQ1swXS5hZGRyID0gOUFCQw0KPiBERVNDWzBd
-LmlkID0gMA0KPiBERVNDWzBdLmZsYWdzID0gREVTQ19EUklWRVIgfCBERVNDX05FWFQNCj4gDQo+
-IA0KPiBERVNDWzBdLmFkZHIgPSBERUYwDQo+IERFU0NbMF0uaWQgPSAxDQo+IERFU0NbMF0uZmxh
-Z3MgPSBERVNDX0RSSVZFUg0KPiANCj4gDQo+IE5leHQgcm91bmQgd3JhcCB3aWxsIGJlIDEgYWdh
-aW4uDQo+IA0KPiANCj4gVG8gc3VtbWFyaXNlOg0KPiANCj4gRFJJVkVSIGJpdCBpcyB1c2VkIGJ5
-IGRyaXZlciB0byBkZXRlY3QgZGV2aWNlIGhhcyB1c2VkIG9uZSBvciBtb3JlDQo+IGRlc2NyaXB0
-b3JzLiAgV1JBUCBpcyBpcyB1c2VkIGJ5IGRldmljZSB0byBkZXRlY3QgZHJpdmVyIGhhcyBtYWRl
-IGEgbmV3DQo+IGRlc2NyaXB0b3IgYXZhaWxhYmxlLg0KPiANCj4gDQo+IC0tDQo+IE1TVA0KX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+On 27.09.2017 13:42, Thomas Huth wrote:
+> There is no recent user space application available anymore which still
+> supports this old virtio transport. Additionally, commit 3b2fbb3f06ef
+> ("virtio/s390: deprecate old transport") introduced a deprecation message
+> in the driver, and apparently nobody complained so far that it is still
+> required. So let's simply remove it.
+> 
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  arch/s390/Kconfig                |  13 -
+>  drivers/s390/virtio/Makefile     |   3 -
+>  drivers/s390/virtio/kvm_virtio.c | 515 ---------------------------------------
+>  3 files changed, 531 deletions(-)
+>  delete mode 100644 drivers/s390/virtio/kvm_virtio.c
+
+Yup, looks good to me.
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+
+Thanks,
+
+David
