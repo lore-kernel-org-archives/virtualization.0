@@ -1,17 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] packed ring layout proposal v3
-Date: Thu, 28 Sep 2017 02:49:15 +0300
-Message-ID: <20170928023112-mutt-send-email-mst@kernel.org>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
-	<20170926011826-mutt-send-email-mst@kernel.org>
-	<7A0DC0C9-F148-4161-B2D1-8D8D14D8B9A1@cisco.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: [PATCH net-next] vhost_net: do not stall on zerocopy depletion
+Date: Wed, 27 Sep 2017 20:25:56 -0400
+Message-ID: <20170928002556.41240-1-willemdebruijn.kernel__14478.7702164196$1506558445$gmane$org@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <7A0DC0C9-F148-4161-B2D1-8D8D14D8B9A1@cisco.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,38 +15,96 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Steven Luong (sluong)" <sluong@cisco.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: netdev@vger.kernel.org
+Cc: Willem de Bruijn <willemb@google.com>, mst@redhat.com, den@klaipeden.com, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBTZXAgMjYsIDIwMTcgYXQgMTE6Mzg6MThQTSArMDAwMCwgU3RldmVuIEx1b25nIChz
-bHVvbmcpIHdyb3RlOgo+IE1pY2hhZWwsCj4gCj4gV291bGQgeW91IHBsZWFzZSBnaXZlIGFuIGV4
-YW1wbGUgb3IgdHdvIGhvdyB0aGVzZSB0d28gZmxhZ3MgREVTQ19EUklWRVIgYW5kIERFU0NfV1JB
-UCBhcmUgdXNlZCB0b2dldGhlcj8gTGlrZSBvdGhlcnMsIEkgYW0gY29uZnVzZWQgYnkgdGhlIGRl
-c2NyaXB0aW9uIGFuZCBzdGlsbCBkb27igJl0IHF1aXRlIGdyb2sgaXQuCj4gCj4gU3RldmVuCgpN
-eSBiYWQsIEkgd2lsbCBuZWVkIHRvIHdvcmsgb24gaXQuIEhlcmUgaXMgYW4gZXhhbXBsZToKCkxl
-dCdzIGFzc3VtZSBkZXZpY2UgcHJvbWlzZWQgdG8gY29uc3VtZSBwYWNrZXRzIGluIG9yZGVyCgpy
-aW5nIHNpemUgPSAyCgpSaW5nIGlzIDAgaW5pdGlhbGl6ZWQuCgpEZXZpY2UgaW5pdGlhbGx5IHBv
-bGxzIERFU0NbMF0uZmxhZ3MgZm9yIFdSQVAgYml0IHRvIGNoYW5nZS4KCmRyaXZlciBhZGRzOgoK
-REVTQ1swXS5hZGRyID0gMTIzNApERVNDWzBdLmlkID0gMApERVNDWzBdLmZsYWdzID0gREVTQ19E
-UklWRVIgfCBERVNDX05FWFQgfCBERVNDX1dSQVAKCmFuZAoKREVTQ1swXS5hZGRyID0gNTY3OApE
-RVNDWzFdLmlkID0gMQpERVNDWzFdLmZsYWdzID0gREVTQ19EUklWRVIgfCBERVNDX1dSQVAKCgpp
-dCBub3cgc3RhcnRzIHBvbGxpbmcgREVTQ1swXSBmbGFncy4KCgpEZXZpY2UgcmVhZHMgMTIzNCwg
-ZXhlY3V0ZXMgaXQsIGRvZXMgbm90IHVzZSBpdC4KCkRldmljZSByZWFkcyA1Njc4LCBleGVjdXRl
-cyBpdCwgYW5kIHVzZXMgaXQ6CgpERVNDWzBdLmlkID0gMQpERVNDWzBdLmZsYWdzID0gMAoKRGV2
-aWNlIG5vdyBwb2xscyBERVNDWzBdLmZsYWdzIGZvciBXUkFQIGJpdCB0byBjaGFuZ2UuCgpOb3cg
-ZHJpdmVyIHNlZXMgdGhhdCBEUklWRVIgYml0IGhhcyBiZWVuIGNsZWFyZWQsIHNvIGl0IG5vd3Mg
-dGhhdCBpZCBpcwp2YWxpZC4gSSBzZWVzIGlkIDEsIHRoZXJlZm9yZSBpZCAwIGFuZCAxIGhhcyBi
-ZWVuIHJlYWQgYW5kIGFyZSBzYWZlIHRvCm92ZXJ3cml0ZS4KClNvIGl0IHdyaXRlcyBpdCBvdXQu
-IEl0IHdyYXBwZWQgYXJvdW5kIHRvIGJlZ2lubmluZyBvZiByaW5nLApzbyBpdCBmbGlwcyB0aGUg
-V1JBUCBiaXQgdG8gMCBvbiBhbGwgZGVzY3JpcHRvcnMgbm93OgoKREVTQ1swXS5hZGRyID0gOUFC
-QwpERVNDWzBdLmlkID0gMApERVNDWzBdLmZsYWdzID0gREVTQ19EUklWRVIgfCBERVNDX05FWFQK
-CgpERVNDWzBdLmFkZHIgPSBERUYwCkRFU0NbMF0uaWQgPSAxCkRFU0NbMF0uZmxhZ3MgPSBERVND
-X0RSSVZFUgoKCk5leHQgcm91bmQgd3JhcCB3aWxsIGJlIDEgYWdhaW4uCgoKVG8gc3VtbWFyaXNl
-OgoKRFJJVkVSIGJpdCBpcyB1c2VkIGJ5IGRyaXZlciB0byBkZXRlY3QgZGV2aWNlIGhhcyB1c2Vk
-IG9uZSBvciBtb3JlCmRlc2NyaXB0b3JzLiAgV1JBUCBpcyBpcyB1c2VkIGJ5IGRldmljZSB0byBk
-ZXRlY3QgZHJpdmVyIGhhcyBtYWRlIGEKbmV3IGRlc2NyaXB0b3IgYXZhaWxhYmxlLgoKCi0tIApN
-U1QKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+From: Willem de Bruijn <willemb@google.com>
+
+Vhost-net has a hard limit on the number of zerocopy skbs in flight.
+When reached, transmission stalls. Stalls cause latency, as well as
+head-of-line blocking of other flows that do not use zerocopy.
+
+Instead of stalling, revert to copy-based transmission.
+
+Tested by sending two udp flows from guest to host, one with payload
+of VHOST_GOODCOPY_LEN, the other too small for zerocopy (1B). The
+large flow is redirected to a netem instance with 1MBps rate limit
+and deep 1000 entry queue.
+
+  modprobe ifb
+  ip link set dev ifb0 up
+  tc qdisc add dev ifb0 root netem limit 1000 rate 1MBit
+
+  tc qdisc add dev tap0 ingress
+  tc filter add dev tap0 parent ffff: protocol ip \
+      u32 match ip dport 8000 0xffff \
+      action mirred egress redirect dev ifb0
+
+Before the delay, both flows process around 80K pps. With the delay,
+before this patch, both process around 400. After this patch, the
+large flow is still rate limited, while the small reverts to its
+original rate. See also discussion in the first link, below.
+
+The limit in vhost_exceeds_maxpend must be carefully chosen. When
+vq->num >> 1, the flows remain correlated. This value happens to
+correspond to VHOST_MAX_PENDING for vq->num == 256. Allow smaller
+fractions and ensure correctness also for much smaller values of
+vq->num, by testing the min() of both explicitly. See also the
+discussion in the second link below.
+
+Link:http://lkml.kernel.org/r/CAF=yD-+Wk9sc9dXMUq1+x_hh=3ThTXa6BnZkygP3tgVpjbp93g@mail.gmail.com
+Link:http://lkml.kernel.org/r/20170819064129.27272-1-den@klaipeden.com
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+---
+ drivers/vhost/net.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 58585ec8699e..50758602ae9d 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -436,8 +436,8 @@ static bool vhost_exceeds_maxpend(struct vhost_net *net)
+ 	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
+ 	struct vhost_virtqueue *vq = &nvq->vq;
+ 
+-	return (nvq->upend_idx + vq->num - VHOST_MAX_PEND) % UIO_MAXIOV
+-		== nvq->done_idx;
++	return (nvq->upend_idx + UIO_MAXIOV - nvq->done_idx) % UIO_MAXIOV >
++	       min(VHOST_MAX_PEND, vq->num >> 2);
+ }
+ 
+ /* Expects to be always run from workqueue - which acts as
+@@ -480,12 +480,6 @@ static void handle_tx(struct vhost_net *net)
+ 		if (zcopy)
+ 			vhost_zerocopy_signal_used(net, vq);
+ 
+-		/* If more outstanding DMAs, queue the work.
+-		 * Handle upend_idx wrap around
+-		 */
+-		if (unlikely(vhost_exceeds_maxpend(net)))
+-			break;
+-
+ 		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
+ 						ARRAY_SIZE(vq->iov),
+ 						&out, &in);
+@@ -509,6 +503,7 @@ static void handle_tx(struct vhost_net *net)
+ 		len = iov_length(vq->iov, out);
+ 		iov_iter_init(&msg.msg_iter, WRITE, vq->iov, out, len);
+ 		iov_iter_advance(&msg.msg_iter, hdr_size);
++
+ 		/* Sanity check */
+ 		if (!msg_data_left(&msg)) {
+ 			vq_err(vq, "Unexpected header len for TX: "
+@@ -519,8 +514,7 @@ static void handle_tx(struct vhost_net *net)
+ 		len = msg_data_left(&msg);
+ 
+ 		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
+-				   && (nvq->upend_idx + 1) % UIO_MAXIOV !=
+-				      nvq->done_idx
++				   && !vhost_exceeds_maxpend(net)
+ 				   && vhost_net_tx_select_zcopy(net);
+ 
+ 		/* use msg_control to pass vhost zerocopy ubuf info to skb */
+-- 
+2.14.2.822.g60be5d43e6-goog
