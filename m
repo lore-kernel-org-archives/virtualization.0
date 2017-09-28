@@ -1,14 +1,14 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] drivers/s390/virtio: Remove the old KVM virtio transport
-Date: Thu, 28 Sep 2017 17:01:53 +0200
-Message-ID: <658d228c-8f1f-59c9-b844-6e34dc5b492e__46557.4697278955$1506610972$gmane$org@redhat.com>
-References: <1506512521-2244-1-git-send-email-thuth@redhat.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH net-next] vhost_net: do not stall on zerocopy depletion
+Date: Thu, 28 Sep 2017 12:05:52 -0400
+Message-ID: <CAF=yD-LG9HN1rYsLLM9Odiia7SdHGKzB3NJP5fZorvfGKGf6zQ__47314.786949619$1506614819$gmane$org@mail.gmail.com>
+References: <20170928002556.41240-1-willemdebruijn.kernel@gmail.com>
+	<a574875f-cea7-e769-ff41-c337c9720d7a@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1506512521-2244-1-git-send-email-thuth@redhat.com>
-Content-Language: en-US
+In-Reply-To: <a574875f-cea7-e769-ff41-c337c9720d7a@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +18,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Willem de Bruijn <willemb@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, Network Development <netdev@vger.kernel.org>, Koichiro Den <den@klaipeden.com>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 27.09.2017 13:42, Thomas Huth wrote:
-> There is no recent user space application available anymore which still
-> supports this old virtio transport. Additionally, commit 3b2fbb3f06ef
-> ("virtio/s390: deprecate old transport") introduced a deprecation message
-> in the driver, and apparently nobody complained so far that it is still
-> required. So let's simply remove it.
-> 
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> ---
->  arch/s390/Kconfig                |  13 -
->  drivers/s390/virtio/Makefile     |   3 -
->  drivers/s390/virtio/kvm_virtio.c | 515 ---------------------------------------
->  3 files changed, 531 deletions(-)
->  delete mode 100644 drivers/s390/virtio/kvm_virtio.c
-
-Yup, looks good to me.
-
-Reviewed-by: David Hildenbrand <david@redhat.com>
-
--- 
-
-Thanks,
-
-David
+T24gVGh1LCBTZXAgMjgsIDIwMTcgYXQgMzo0MSBBTSwgSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
+aGF0LmNvbT4gd3JvdGU6Cj4KPgo+IE9uIDIwMTflubQwOeaciDI45pelIDA4OjI1LCBXaWxsZW0g
+ZGUgQnJ1aWpuIHdyb3RlOgo+Pgo+PiBGcm9tOiBXaWxsZW0gZGUgQnJ1aWpuIDx3aWxsZW1iQGdv
+b2dsZS5jb20+Cj4+Cj4+IFZob3N0LW5ldCBoYXMgYSBoYXJkIGxpbWl0IG9uIHRoZSBudW1iZXIg
+b2YgemVyb2NvcHkgc2ticyBpbiBmbGlnaHQuCj4+IFdoZW4gcmVhY2hlZCwgdHJhbnNtaXNzaW9u
+IHN0YWxscy4gU3RhbGxzIGNhdXNlIGxhdGVuY3ksIGFzIHdlbGwgYXMKPj4gaGVhZC1vZi1saW5l
+IGJsb2NraW5nIG9mIG90aGVyIGZsb3dzIHRoYXQgZG8gbm90IHVzZSB6ZXJvY29weS4KPj4KPj4g
+SW5zdGVhZCBvZiBzdGFsbGluZywgcmV2ZXJ0IHRvIGNvcHktYmFzZWQgdHJhbnNtaXNzaW9uLgo+
+Pgo+PiBUZXN0ZWQgYnkgc2VuZGluZyB0d28gdWRwIGZsb3dzIGZyb20gZ3Vlc3QgdG8gaG9zdCwg
+b25lIHdpdGggcGF5bG9hZAo+PiBvZiBWSE9TVF9HT09EQ09QWV9MRU4sIHRoZSBvdGhlciB0b28g
+c21hbGwgZm9yIHplcm9jb3B5ICgxQikuIFRoZQo+PiBsYXJnZSBmbG93IGlzIHJlZGlyZWN0ZWQg
+dG8gYSBuZXRlbSBpbnN0YW5jZSB3aXRoIDFNQnBzIHJhdGUgbGltaXQKPj4gYW5kIGRlZXAgMTAw
+MCBlbnRyeSBxdWV1ZS4KPj4KPj4gICAgbW9kcHJvYmUgaWZiCj4+ICAgIGlwIGxpbmsgc2V0IGRl
+diBpZmIwIHVwCj4+ICAgIHRjIHFkaXNjIGFkZCBkZXYgaWZiMCByb290IG5ldGVtIGxpbWl0IDEw
+MDAgcmF0ZSAxTUJpdAo+Pgo+PiAgICB0YyBxZGlzYyBhZGQgZGV2IHRhcDAgaW5ncmVzcwo+PiAg
+ICB0YyBmaWx0ZXIgYWRkIGRldiB0YXAwIHBhcmVudCBmZmZmOiBwcm90b2NvbCBpcCBcCj4+ICAg
+ICAgICB1MzIgbWF0Y2ggaXAgZHBvcnQgODAwMCAweGZmZmYgXAo+PiAgICAgICAgYWN0aW9uIG1p
+cnJlZCBlZ3Jlc3MgcmVkaXJlY3QgZGV2IGlmYjAKPj4KPj4gQmVmb3JlIHRoZSBkZWxheSwgYm90
+aCBmbG93cyBwcm9jZXNzIGFyb3VuZCA4MEsgcHBzLiBXaXRoIHRoZSBkZWxheSwKPj4gYmVmb3Jl
+IHRoaXMgcGF0Y2gsIGJvdGggcHJvY2VzcyBhcm91bmQgNDAwLiBBZnRlciB0aGlzIHBhdGNoLCB0
+aGUKPj4gbGFyZ2UgZmxvdyBpcyBzdGlsbCByYXRlIGxpbWl0ZWQsIHdoaWxlIHRoZSBzbWFsbCBy
+ZXZlcnRzIHRvIGl0cwo+PiBvcmlnaW5hbCByYXRlLiBTZWUgYWxzbyBkaXNjdXNzaW9uIGluIHRo
+ZSBmaXJzdCBsaW5rLCBiZWxvdy4KPj4KPj4gVGhlIGxpbWl0IGluIHZob3N0X2V4Y2VlZHNfbWF4
+cGVuZCBtdXN0IGJlIGNhcmVmdWxseSBjaG9zZW4uIFdoZW4KPj4gdnEtPm51bSA+PiAxLCB0aGUg
+Zmxvd3MgcmVtYWluIGNvcnJlbGF0ZWQuIFRoaXMgdmFsdWUgaGFwcGVucyB0bwo+PiBjb3JyZXNw
+b25kIHRvIFZIT1NUX01BWF9QRU5ESU5HIGZvciB2cS0+bnVtID09IDI1Ni4KPgo+Cj4gSGF2ZSB5
+b3UgdGVzdGVkIGUuZyB2cS0+bnVtID0gNTEyIG9yIDEwMjQ/CgpJIGRpZCB0ZXN0IHdpdGggMTAy
+NCBwcmV2aW91c2x5LCBidXQgbGV0IG1lIHJ1biB0aGF0IGFnYWluCndpdGggdGhpcyBwYXRjaCBh
+cHBsaWVkLgoKPgo+Cj4+ICAgQWxsb3cgc21hbGxlcgo+PiBmcmFjdGlvbnMgYW5kIGVuc3VyZSBj
+b3JyZWN0bmVzcyBhbHNvIGZvciBtdWNoIHNtYWxsZXIgdmFsdWVzIG9mCj4+IHZxLT5udW0sIGJ5
+IHRlc3RpbmcgdGhlIG1pbigpIG9mIGJvdGggZXhwbGljaXRseS4gU2VlIGFsc28gdGhlCj4+IGRp
+c2N1c3Npb24gaW4gdGhlIHNlY29uZCBsaW5rIGJlbG93Lgo+Pgo+Pgo+PiBMaW5rOmh0dHA6Ly9s
+a21sLmtlcm5lbC5vcmcvci9DQUY9eUQtK1drOXNjOWRYTVVxMSt4X2hoPTNUaFRYYTZCblpreWdQ
+M3RnVnBqYnA5M2dAbWFpbC5nbWFpbC5jb20KPj4gTGluazpodHRwOi8vbGttbC5rZXJuZWwub3Jn
+L3IvMjAxNzA4MTkwNjQxMjkuMjcyNzItMS1kZW5Aa2xhaXBlZGVuLmNvbQo+PiBTaWduZWQtb2Zm
+LWJ5OiBXaWxsZW0gZGUgQnJ1aWpuIDx3aWxsZW1iQGdvb2dsZS5jb20+Cj4+IC0tLQo+PiAgIGRy
+aXZlcnMvdmhvc3QvbmV0LmMgfCAxNCArKysrLS0tLS0tLS0tLQo+PiAgIDEgZmlsZSBjaGFuZ2Vk
+LCA0IGluc2VydGlvbnMoKyksIDEwIGRlbGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJp
+dmVycy92aG9zdC9uZXQuYyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPj4gaW5kZXggNTg1ODVlYzg2
+OTllLi41MDc1ODYwMmFlOWQgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMKPj4g
+KysrIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+PiBAQCAtNDM2LDggKzQzNiw4IEBAIHN0YXRpYyBi
+b29sIHZob3N0X2V4Y2VlZHNfbWF4cGVuZChzdHJ1Y3Qgdmhvc3RfbmV0Cj4+ICpuZXQpCj4+ICAg
+ICAgICAgc3RydWN0IHZob3N0X25ldF92aXJ0cXVldWUgKm52cSA9ICZuZXQtPnZxc1tWSE9TVF9O
+RVRfVlFfVFhdOwo+PiAgICAgICAgIHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxID0gJm52cS0+
+dnE7Cj4+ICAgLSAgICAgcmV0dXJuIChudnEtPnVwZW5kX2lkeCArIHZxLT5udW0gLSBWSE9TVF9N
+QVhfUEVORCkgJSBVSU9fTUFYSU9WCj4+IC0gICAgICAgICAgICAgICA9PSBudnEtPmRvbmVfaWR4
+Owo+PiArICAgICAgIHJldHVybiAobnZxLT51cGVuZF9pZHggKyBVSU9fTUFYSU9WIC0gbnZxLT5k
+b25lX2lkeCkgJSBVSU9fTUFYSU9WCj4+ID4KPj4gKyAgICAgICAgICAgICAgbWluKFZIT1NUX01B
+WF9QRU5ELCB2cS0+bnVtID4+IDIpOwo+PiAgIH0KPj4gICAgIC8qIEV4cGVjdHMgdG8gYmUgYWx3
+YXlzIHJ1biBmcm9tIHdvcmtxdWV1ZSAtIHdoaWNoIGFjdHMgYXMKPj4gQEAgLTQ4MCwxMiArNDgw
+LDYgQEAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkKPj4gICAg
+ICAgICAgICAgICAgIGlmICh6Y29weSkKPj4gICAgICAgICAgICAgICAgICAgICAgICAgdmhvc3Rf
+emVyb2NvcHlfc2lnbmFsX3VzZWQobmV0LCB2cSk7Cj4+ICAgLSAgICAgICAgICAgICAvKiBJZiBt
+b3JlIG91dHN0YW5kaW5nIERNQXMsIHF1ZXVlIHRoZSB3b3JrLgo+PiAtICAgICAgICAgICAgICAg
+ICogSGFuZGxlIHVwZW5kX2lkeCB3cmFwIGFyb3VuZAo+PiAtICAgICAgICAgICAgICAgICovCj4+
+IC0gICAgICAgICAgICAgICBpZiAodW5saWtlbHkodmhvc3RfZXhjZWVkc19tYXhwZW5kKG5ldCkp
+KQo+PiAtICAgICAgICAgICAgICAgICAgICAgICBicmVhazsKPj4gLQo+PiAgICAgICAgICAgICAg
+ICAgaGVhZCA9IHZob3N0X25ldF90eF9nZXRfdnFfZGVzYyhuZXQsIHZxLCB2cS0+aW92LAo+PiAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBUlJBWV9TSVpF
+KHZxLT5pb3YpLAo+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAmb3V0LCAmaW4pOwo+PiBAQCAtNTA5LDYgKzUwMyw3IEBAIHN0YXRpYyB2b2lkIGhhbmRs
+ZV90eChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQpCj4+ICAgICAgICAgICAgICAgICBsZW4gPSBpb3Zf
+bGVuZ3RoKHZxLT5pb3YsIG91dCk7Cj4+ICAgICAgICAgICAgICAgICBpb3ZfaXRlcl9pbml0KCZt
+c2cubXNnX2l0ZXIsIFdSSVRFLCB2cS0+aW92LCBvdXQsIGxlbik7Cj4+ICAgICAgICAgICAgICAg
+ICBpb3ZfaXRlcl9hZHZhbmNlKCZtc2cubXNnX2l0ZXIsIGhkcl9zaXplKTsKPj4gKwo+Cj4KPiBM
+b29rcyB1bm5lY2Vzc2FyeS4gT3RoZXIgbG9va3MgZ29vZC4KCk9vcHMsIGluZGVlZC4gVGhhbmtz
+LgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
