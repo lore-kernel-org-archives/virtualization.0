@@ -1,18 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [virtio-dev] packed ring layout proposal v3
-Date: Fri, 29 Sep 2017 00:13:32 +0300
-Message-ID: <20170929001152-mutt-send-email-mst__47551.2619516396$1506633227$gmane$org@kernel.org>
+Date: Fri, 29 Sep 2017 00:27:18 +0300
+Message-ID: <20170929001047-mutt-send-email-mst__37495.2378952459$1506634047$gmane$org@kernel.org>
 References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
-	<20170926011826-mutt-send-email-mst@kernel.org>
-	<7A0DC0C9-F148-4161-B2D1-8D8D14D8B9A1@cisco.com>
-	<20170928023112-mutt-send-email-mst@kernel.org>
+	<D0158A423229094DA7ABF71CF2FA0DA34E1A62C8@SHSMSX152.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20170928023112-mutt-send-email-mst@kernel.org>
+In-Reply-To: <D0158A423229094DA7ABF71CF2FA0DA34E1A62C8@SHSMSX152.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,44 +19,123 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Steven Luong (sluong)" <sluong@cisco.com>
+To: "Liang, Cunming" <cunming.liang@intel.com>
 Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBTZXAgMjgsIDIwMTcgYXQgMDI6NDk6MTVBTSArMDMwMCwgTWljaGFlbCBTLiBUc2ly
-a2luIHdyb3RlOgo+IE9uIFR1ZSwgU2VwIDI2LCAyMDE3IGF0IDExOjM4OjE4UE0gKzAwMDAsIFN0
-ZXZlbiBMdW9uZyAoc2x1b25nKSB3cm90ZToKPiA+IE1pY2hhZWwsCj4gPiAKPiA+IFdvdWxkIHlv
-dSBwbGVhc2UgZ2l2ZSBhbiBleGFtcGxlIG9yIHR3byBob3cgdGhlc2UgdHdvIGZsYWdzIERFU0Nf
-RFJJVkVSIGFuZCBERVNDX1dSQVAgYXJlIHVzZWQgdG9nZXRoZXI/IExpa2Ugb3RoZXJzLCBJIGFt
-IGNvbmZ1c2VkIGJ5IHRoZSBkZXNjcmlwdGlvbiBhbmQgc3RpbGwgZG9u4oCZdCBxdWl0ZSBncm9r
-IGl0Lgo+ID4gCj4gPiBTdGV2ZW4KCk5vdGU6IEkgbWFkZSBhIG1pc3Rha2UgaW4gdGhlIGVtYWls
-LiBJbnN0ZWFkIG9mIERFU0NfTkVYVCBpdCBzaG91bGQgcmVhZApERVNDX01PUkUgZXZlcnl3aGVy
-ZS4gSSBjb3JyZWN0ZWQgdGhlIHF1b3RlZCB0ZXh0IGJlbG93IGZvciBzaW1wbGljaXR5LgoKCgo+
-IE15IGJhZCwgSSB3aWxsIG5lZWQgdG8gd29yayBvbiBpdC4gSGVyZSBpcyBhbiBleGFtcGxlOgo+
-IAo+IExldCdzIGFzc3VtZSBkZXZpY2UgcHJvbWlzZWQgdG8gY29uc3VtZSBwYWNrZXRzIGluIG9y
-ZGVyCj4gCj4gcmluZyBzaXplID0gMgo+IAo+IFJpbmcgaXMgMCBpbml0aWFsaXplZC4KPiAKPiBE
-ZXZpY2UgaW5pdGlhbGx5IHBvbGxzIERFU0NbMF0uZmxhZ3MgZm9yIFdSQVAgYml0IHRvIGNoYW5n
-ZS4KPiAKPiBkcml2ZXIgYWRkczoKPiAKPiBERVNDWzBdLmFkZHIgPSAxMjM0Cj4gREVTQ1swXS5p
-ZCA9IDAKPiBERVNDWzBdLmZsYWdzID0gREVTQ19EUklWRVIgfCBERVNDX01PUkUgfCBERVNDX1dS
-QVAKPiAKPiBhbmQKPiAKPiBERVNDWzBdLmFkZHIgPSA1Njc4Cj4gREVTQ1sxXS5pZCA9IDEKPiBE
-RVNDWzFdLmZsYWdzID0gREVTQ19EUklWRVIgfCBERVNDX1dSQVAKPiAKPiAKPiBpdCBub3cgc3Rh
-cnRzIHBvbGxpbmcgREVTQ1swXSBmbGFncy4KPiAKPiAKPiBEZXZpY2UgcmVhZHMgMTIzNCwgZXhl
-Y3V0ZXMgaXQsIGRvZXMgbm90IHVzZSBpdC4KPiAKPiBEZXZpY2UgcmVhZHMgNTY3OCwgZXhlY3V0
-ZXMgaXQsIGFuZCB1c2VzIGl0Ogo+IAo+IERFU0NbMF0uaWQgPSAxCj4gREVTQ1swXS5mbGFncyA9
-IDAKPiAKPiBEZXZpY2Ugbm93IHBvbGxzIERFU0NbMF0uZmxhZ3MgZm9yIFdSQVAgYml0IHRvIGNo
-YW5nZS4KPiAKPiBOb3cgZHJpdmVyIHNlZXMgdGhhdCBEUklWRVIgYml0IGhhcyBiZWVuIGNsZWFy
-ZWQsIHNvIGl0IG5vd3MgdGhhdCBpZCBpcwo+IHZhbGlkLiBJIHNlZXMgaWQgMSwgdGhlcmVmb3Jl
-IGlkIDAgYW5kIDEgaGFzIGJlZW4gcmVhZCBhbmQgYXJlIHNhZmUgdG8KPiBvdmVyd3JpdGUuCj4g
-Cj4gU28gaXQgd3JpdGVzIGl0IG91dC4gSXQgd3JhcHBlZCBhcm91bmQgdG8gYmVnaW5uaW5nIG9m
-IHJpbmcsCj4gc28gaXQgZmxpcHMgdGhlIFdSQVAgYml0IHRvIDAgb24gYWxsIGRlc2NyaXB0b3Jz
-IG5vdzoKPiAKPiBERVNDWzBdLmFkZHIgPSA5QUJDCj4gREVTQ1swXS5pZCA9IDAKPiBERVNDWzBd
-LmZsYWdzID0gREVTQ19EUklWRVIgfCBERVNDX01PUkUKPiAKPiAKPiBERVNDWzBdLmFkZHIgPSBE
-RUYwCj4gREVTQ1swXS5pZCA9IDEKPiBERVNDWzBdLmZsYWdzID0gREVTQ19EUklWRVIKPiAKPiAK
-PiBOZXh0IHJvdW5kIHdyYXAgd2lsbCBiZSAxIGFnYWluLgo+IAo+IAo+IFRvIHN1bW1hcmlzZToK
-PiAKPiBEUklWRVIgYml0IGlzIHVzZWQgYnkgZHJpdmVyIHRvIGRldGVjdCBkZXZpY2UgaGFzIHVz
-ZWQgb25lIG9yIG1vcmUKPiBkZXNjcmlwdG9ycy4gIFdSQVAgaXMgaXMgdXNlZCBieSBkZXZpY2Ug
-dG8gZGV0ZWN0IGRyaXZlciBoYXMgbWFkZSBhCj4gbmV3IGRlc2NyaXB0b3IgYXZhaWxhYmxlLgo+
-IAo+IAo+IC0tIAo+IE1TVApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, Sep 21, 2017 at 01:36:37PM +0000, Liang, Cunming wrote:
+> Hi,
+> 
+> > -----Original Message-----
+> > From: virtio-dev@lists.oasis-open.org [mailto:virtio-dev@lists.oasis-open.org] On
+> > Behalf Of Michael S. Tsirkin
+> > Sent: Sunday, September 10, 2017 1:06 PM
+> > To: virtio-dev@lists.oasis-open.org
+> > Cc: virtualization@lists.linux-foundation.org
+> > Subject: [virtio-dev] packed ring layout proposal v3
+> > 
+> [...]
+> > * Batching descriptors:
+> > 
+> > virtio 1.0 allows passing a batch of descriptors in both directions, by incrementing
+> > the used/avail index by values > 1.
+> > At the moment only batching of used descriptors is used.
+> > 
+> > We can support this by chaining a list of device descriptors through
+> > VRING_DESC_F_MORE flag. Device sets this bit to signal driver that this is part of
+> > a batch of used descriptors which are all part of a single transaction.
+> 
+> It supposes each s/g chain represents for a packet, while each descriptor among batching chain represents for a packet. There're a few thoughts of batching chain(by VRING_DESC_F_MORE) and s/g chain(by VRING_DESC_F_NEXT).
+> 
+> - batching chain: It's up to device to coalesce the write-out of a batched used descriptors. As the batching size is variable, driver has to detect validity of each descriptor unless the number of incoming valid descriptor is predictable, being curious on the benefits of driver from VRING_DESC_F_MORE to take  batching descriptors as a single transaction. On device perspective, it's great to write out one descriptor for the whole chain. However, it assumes no other useful fields in each descriptor of chain needs to write. TX buffer reclaiming can be the candidate, while RX side has to update 'len' at least. Even for this purpose, instead of writing out VRING_DESC_F_MORE on a few descriptors to suppress device writing back, it's cheaper to set flag (e.g. VRING_DESC_F_WB) on single descript
+ or of chain to hint the expected position for device to write back.
+
+But driver does not really benefit from batching and does not know how
+many to batch, this depends on device. E.g. a software device does not
+need batching at all, a pci express device would want batches to be
+multiples of what fits in a pci express transaction, etc.  We would have
+to provide that info from device to driver.
+
+> - s/g chain: It makes sense to indicate the packet boundary. Considering in-order descriptor ring without VRING_DESC_F_INDIRECT, the next descriptor always belongs to the same s/g chain until end of packet indicators occur. So one alternative approach is only to set a flag (e.g. VRING_DESC_F_EOP) on the last descriptor of the chain. 
+
+EOP would be the reverse of NEXT then? I think it does not matter much,
+but NEXT matches what is there in virtio 1.0 right now. It also means that
+simple implementations with short buffers can have flags set to 0 which
+seems cleaner.
+
+
+> > 
+> > Driver might detect a partial descriptor chain (VRING_DESC_F_MORE set but next
+> > descriptor not valid). In that case it must not use any parts of the chain - it will
+> > later be completed by device, but driver is allowed to store the valid parts of the
+> > chain as device is not allowed to change them anymore.
+> As each descriptor represent for a whole packet(otherwise it's s/g chain),
+
+For RX mergeable buffers, a packet is composed of multiple s/g chains.
+
+> wondering why it must not use any parts of the chain. 
+
+This is to match what is there in virtio 1.0 right now: driver
+does not touch any used descriptors until the used index is updated.
+
+
+
+
+> > 
+> > Descriptor should not have both VRING_DESC_F_MORE and
+> > VRING_DESC_F_NEXT set.
+> > 
+> [...]
+> > 
+> > * Selective use of descriptors
+> > 
+> > As described above, descriptors with NEXT bit set are part of a scatter/gather
+> > chain and so do not have to cause device to write a used descriptor out.
+> > 
+> > Similarly, driver can set a flag VRING_DESC_F_MORE in the descriptor to signal to
+> > device that it does not have to write out the used descriptor as it is part of a batch
+> > of descriptors. Device has two options (similar to VRING_DESC_F_NEXT):
+> > 
+> > Device can write out the same number of descriptors for the batch, setting
+> > VRING_DESC_F_MORE for all but the last descriptor.
+> > Driver will ignore all used descriptors with VRING_DESC_F_MORE bit set.
+> It will write out last descriptor without VRING_DESC_F_MORE anyway, so the following statement seems not like another option.
+
+I don't understand this statement. All I said is that it's up to device
+whether to write out the descriptors with VRING_DESC_F_MORE, or to skip
+the write out.
+
+> > 
+> > Device only writes out a single descriptor for the whole batch.
+> > However, to keep device and driver in sync, it then skips a number of descriptors
+> > corresponding to the length of the batch before writing out the next used
+> > descriptor.
+> > After detecting a used descriptor driver must find out the length of the batch that
+> > it built in order to know where to look for the next device descriptor.
+> It would be good to keep it simple on device side, and to have the driver control the expectation.
+
+I'm not sure what above means either.
+That is exactly what above proposal says: device simply writes out a single
+descriptor. Driver has to keep track and know where the next one will be
+written.
+
+Example
+
+Driver writes two pairs chained with MORE: 0 + 1, 2 + 3
+Device writes: 0 and 3
+
+
+
+
+
+
+> > 
+> > 
+> > TODO (blocker): skipping descriptors for selective and scatter/gather seem to be
+> > only requested with in-order right now. Let's require in-order for this skipping?
+> > This will simplify the accounting by driver.
+> > 
+> > 
+> 
+> Thanks,
+> Steve
