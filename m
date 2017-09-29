@@ -1,13 +1,12 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH] drivers/s390/virtio: Remove the old KVM virtio transport
-Date: Wed, 27 Sep 2017 15:03:34 +0200
-Message-ID: <20170927150334.636e0b1f.cohuck__32799.5323962115$1509079522$gmane$org@redhat.com>
-References: <1506512521-2244-1-git-send-email-thuth@redhat.com>
+From: Srishti Sharma <srishtishar@gmail.com>
+Subject: [PATCH] drm/virtio: Replace instances of reference/unreference with
+	get/put
+Date: Fri, 29 Sep 2017 15:33:39 +0530
+Message-ID: <1506679419-7130-1-git-send-email-srishtishar__38855.5823745721$1509079533$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1506512521-2244-1-git-send-email-thuth@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,51 +16,129 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Huth <thuth@redhat.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: daniel.vetter@ffwll.ch
+Cc: linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, outreachy-kernel@googlegroups.com, Srishti Sharma <srishtishar@gmail.com>, seanpaul@chromium.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 27 Sep 2017 13:42:01 +0200
-Thomas Huth <thuth@redhat.com> wrote:
+Replace reference/unreference with get/put as it is consistent
+with the kernel coding style. Done using the following semantic
+patch by coccinelle.
 
-> There is no recent user space application available anymore which still
-> supports this old virtio transport. Additionally, commit 3b2fbb3f06ef
-> ("virtio/s390: deprecate old transport") introduced a deprecation message
-> in the driver, and apparently nobody complained so far that it is still
-> required. So let's simply remove it.
+@r@
+expression e;
+@@
 
-It has done its job of uncovering problems in QEMU's tcg code, so I
-guess we can remove it :)
+-drm_gem_object_unreference_unlocked(e);
++drm_gem_object_put_unlocked(e);
 
-> 
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> ---
->  arch/s390/Kconfig                |  13 -
->  drivers/s390/virtio/Makefile     |   3 -
->  drivers/s390/virtio/kvm_virtio.c | 515 ---------------------------------------
->  3 files changed, 531 deletions(-)
->  delete mode 100644 drivers/s390/virtio/kvm_virtio.c
-> 
+Signed-off-by: Srishti Sharma <srishtishar@gmail.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_display.c |  4 ++--
+ drivers/gpu/drm/virtio/virtgpu_gem.c     |  4 ++--
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c   | 12 ++++++------
+ 3 files changed, 10 insertions(+), 10 deletions(-)
 
-> diff --git a/drivers/s390/virtio/Makefile b/drivers/s390/virtio/Makefile
-> index df40692..d9942e0 100644
-> --- a/drivers/s390/virtio/Makefile
-> +++ b/drivers/s390/virtio/Makefile
-> @@ -7,7 +7,4 @@
->  # as published by the Free Software Foundation.
->  
->  s390-virtio-objs := virtio_ccw.o
-> -ifdef CONFIG_S390_GUEST_OLD_TRANSPORT
-> -s390-virtio-objs += kvm_virtio.o
-> -endif
->  obj-$(CONFIG_S390_GUEST) += $(s390-virtio-objs)
-
-We could simplify this? Does not really matter, though.
-
-This seems to be all of it (other than the uapi stuff).
-
-I can apply this and submit it through virtio, but as I don't have
-anything else queued, I would be fine with it going through the s390
-architecture tree. In that case,
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index b6d5205..41b0930 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -53,7 +53,7 @@ static void virtio_gpu_user_framebuffer_destroy(struct drm_framebuffer *fb)
+ 	struct virtio_gpu_framebuffer *virtio_gpu_fb
+ 		= to_virtio_gpu_framebuffer(fb);
+ 
+-	drm_gem_object_unreference_unlocked(virtio_gpu_fb->obj);
++	drm_gem_object_put_unlocked(virtio_gpu_fb->obj);
+ 	drm_framebuffer_cleanup(fb);
+ 	kfree(virtio_gpu_fb);
+ }
+@@ -327,7 +327,7 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
+ 	ret = virtio_gpu_framebuffer_init(dev, virtio_gpu_fb, mode_cmd, obj);
+ 	if (ret) {
+ 		kfree(virtio_gpu_fb);
+-		drm_gem_object_unreference_unlocked(obj);
++		drm_gem_object_put_unlocked(obj);
+ 		return NULL;
+ 	}
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index 72ad7b1..92fb277 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -72,7 +72,7 @@ int virtio_gpu_gem_create(struct drm_file *file,
+ 	*obj_p = &obj->gem_base;
+ 
+ 	/* drop reference from allocate - handle holds it now */
+-	drm_gem_object_unreference_unlocked(&obj->gem_base);
++	drm_gem_object_put_unlocked(&obj->gem_base);
+ 
+ 	*handle_p = handle;
+ 	return 0;
+@@ -130,7 +130,7 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
+ 		return -ENOENT;
+ 	obj = gem_to_virtio_gpu_obj(gobj);
+ 	*offset_p = virtio_gpu_object_mmap_offset(obj);
+-	drm_gem_object_unreference_unlocked(gobj);
++	drm_gem_object_put_unlocked(gobj);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index b94bd54..0528edb 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -86,7 +86,7 @@ static void virtio_gpu_unref_list(struct list_head *head)
+ 		bo = buf->bo;
+ 		qobj = container_of(bo, struct virtio_gpu_object, tbo);
+ 
+-		drm_gem_object_unreference_unlocked(&qobj->gem_base);
++		drm_gem_object_put_unlocked(&qobj->gem_base);
+ 	}
+ }
+ 
+@@ -304,7 +304,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 		}
+ 		return ret;
+ 	}
+-	drm_gem_object_unreference_unlocked(obj);
++	drm_gem_object_put_unlocked(obj);
+ 
+ 	rc->res_handle = res_id; /* similiar to a VM address */
+ 	rc->bo_handle = handle;
+@@ -341,7 +341,7 @@ static int virtio_gpu_resource_info_ioctl(struct drm_device *dev, void *data,
+ 
+ 	ri->size = qobj->gem_base.size;
+ 	ri->res_handle = qobj->hw_res_handle;
+-	drm_gem_object_unreference_unlocked(gobj);
++	drm_gem_object_put_unlocked(gobj);
+ 	return 0;
+ }
+ 
+@@ -389,7 +389,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ out_unres:
+ 	virtio_gpu_object_unreserve(qobj);
+ out:
+-	drm_gem_object_unreference_unlocked(gobj);
++	drm_gem_object_put_unlocked(gobj);
+ 	return ret;
+ }
+ 
+@@ -439,7 +439,7 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+ out_unres:
+ 	virtio_gpu_object_unreserve(qobj);
+ out:
+-	drm_gem_object_unreference_unlocked(gobj);
++	drm_gem_object_put_unlocked(gobj);
+ 	return ret;
+ }
+ 
+@@ -462,7 +462,7 @@ static int virtio_gpu_wait_ioctl(struct drm_device *dev, void *data,
+ 		nowait = true;
+ 	ret = virtio_gpu_object_wait(qobj, nowait);
+ 
+-	drm_gem_object_unreference_unlocked(gobj);
++	drm_gem_object_put_unlocked(gobj);
+ 	return ret;
+ }
+ 
+-- 
+2.7.4
