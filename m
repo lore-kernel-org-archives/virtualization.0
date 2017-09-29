@@ -1,20 +1,14 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [virtio-dev] Re: [PATCH v15 3/5] virtio-balloon:
-	VIRTIO_BALLOON_F_SG
-Date: Fri, 29 Sep 2017 14:55:18 +0800
-Message-ID: <59CDEE56.6070807__22278.3301411711$1506667937$gmane$org@intel.com>
-References: <1503914913-28893-1-git-send-email-wei.w.wang@intel.com>
-	<1503914913-28893-4-git-send-email-wei.w.wang@intel.com>
-	<20170828204659-mutt-send-email-mst@kernel.org>
-	<59A4DADE.5050303@intel.com>
-	<20170908062748-mutt-send-email-mst@kernel.org>
-	<59B27A64.4040604@intel.com>
-	<20170929070049-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next] vhost_net: do not stall on zerocopy depletion
+Date: Fri, 29 Sep 2017 22:38:04 +0300
+Message-ID: <20170929223710-mutt-send-email-mst__20589.6241743632$1506713893$gmane$org@kernel.org>
+References: <20170928002556.41240-1-willemdebruijn.kernel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170929070049-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170928002556.41240-1-willemdebruijn.kernel@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,211 +18,102 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org, den@klaipeden.com, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/29/2017 12:01 PM, Michael S. Tsirkin wrote:
-> On Fri, Sep 08, 2017 at 07:09:24PM +0800, Wei Wang wrote:
->> On 09/08/2017 11:36 AM, Michael S. Tsirkin wrote:
->>> On Tue, Aug 29, 2017 at 11:09:18AM +0800, Wei Wang wrote:
->>>> On 08/29/2017 02:03 AM, Michael S. Tsirkin wrote:
->>>>> On Mon, Aug 28, 2017 at 06:08:31PM +0800, Wei Wang wrote:
->>>>>> Add a new feature, VIRTIO_BALLOON_F_SG, which enables the transfer
->>>>>> of balloon (i.e. inflated/deflated) pages using scatter-gather lists
->>>>>> to the host.
->>>>>>
->>>>>> The implementation of the previous virtio-balloon is not very
->>>>>> efficient, because the balloon pages are transferred to the
->>>>>> host one by one. Here is the breakdown of the time in percentage
->>>>>> spent on each step of the balloon inflating process (inflating
->>>>>> 7GB of an 8GB idle guest).
->>>>>>
->>>>>> 1) allocating pages (6.5%)
->>>>>> 2) sending PFNs to host (68.3%)
->>>>>> 3) address translation (6.1%)
->>>>>> 4) madvise (19%)
->>>>>>
->>>>>> It takes about 4126ms for the inflating process to complete.
->>>>>> The above profiling shows that the bottlenecks are stage 2)
->>>>>> and stage 4).
->>>>>>
->>>>>> This patch optimizes step 2) by transferring pages to the host in
->>>>>> sgs. An sg describes a chunk of guest physically continuous pages.
->>>>>> With this mechanism, step 4) can also be optimized by doing address
->>>>>> translation and madvise() in chunks rather than page by page.
->>>>>>
->>>>>> With this new feature, the above ballooning process takes ~597ms
->>>>>> resulting in an improvement of ~86%.
->>>>>>
->>>>>> TODO: optimize stage 1) by allocating/freeing a chunk of pages
->>>>>> instead of a single page each time.
->>>>>>
->>>>>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
->>>>>> Signed-off-by: Liang Li <liang.z.li@intel.com>
->>>>>> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
->>>>>> ---
->>>>>>     drivers/virtio/virtio_balloon.c     | 171 ++++++++++++++++++++++++++++++++----
->>>>>>     include/uapi/linux/virtio_balloon.h |   1 +
->>>>>>     2 files changed, 155 insertions(+), 17 deletions(-)
->>>>>>
->>>>>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
->>>>>> index f0b3a0b..8ecc1d4 100644
->>>>>> --- a/drivers/virtio/virtio_balloon.c
->>>>>> +++ b/drivers/virtio/virtio_balloon.c
->>>>>> @@ -32,6 +32,8 @@
->>>>>>     #include <linux/mm.h>
->>>>>>     #include <linux/mount.h>
->>>>>>     #include <linux/magic.h>
->>>>>> +#include <linux/xbitmap.h>
->>>>>> +#include <asm/page.h>
->>>>>>     /*
->>>>>>      * Balloon device works in 4K page units.  So each page is pointed to by
->>>>>> @@ -79,6 +81,9 @@ struct virtio_balloon {
->>>>>>     	/* Synchronize access/update to this struct virtio_balloon elements */
->>>>>>     	struct mutex balloon_lock;
->>>>>> +	/* The xbitmap used to record balloon pages */
->>>>>> +	struct xb page_xb;
->>>>>> +
->>>>>>     	/* The array of pfns we tell the Host about. */
->>>>>>     	unsigned int num_pfns;
->>>>>>     	__virtio32 pfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
->>>>>> @@ -141,13 +146,111 @@ static void set_page_pfns(struct virtio_balloon *vb,
->>>>>>     					  page_to_balloon_pfn(page) + i);
->>>>>>     }
->>>>>> +static int add_one_sg(struct virtqueue *vq, void *addr, uint32_t size)
->>>>>> +{
->>>>>> +	struct scatterlist sg;
->>>>>> +
->>>>>> +	sg_init_one(&sg, addr, size);
->>>>>> +	return virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
->>>>>> +}
->>>>>> +
->>>>>> +static void send_balloon_page_sg(struct virtio_balloon *vb,
->>>>>> +				 struct virtqueue *vq,
->>>>>> +				 void *addr,
->>>>>> +				 uint32_t size,
->>>>>> +				 bool batch)
->>>>>> +{
->>>>>> +	unsigned int len;
->>>>>> +	int err;
->>>>>> +
->>>>>> +	err = add_one_sg(vq, addr, size);
->>>>>> +	/* Sanity check: this can't really happen */
->>>>>> +	WARN_ON(err);
->>>>> It might be cleaner to detect that add failed due to
->>>>> ring full and kick then. Just an idea, up to you
->>>>> whether to do it.
->>>>>
->>>>>> +
->>>>>> +	/* If batching is in use, we batch the sgs till the vq is full. */
->>>>>> +	if (!batch || !vq->num_free) {
->>>>>> +		virtqueue_kick(vq);
->>>>>> +		wait_event(vb->acked, virtqueue_get_buf(vq, &len));
->>>>>> +		/* Release all the entries if there are */
->>>>> Meaning
->>>>> 	Account for all used entries if any
->>>>> ?
->>>>>
->>>>>> +		while (virtqueue_get_buf(vq, &len))
->>>>>> +			;
->>>>> Above code is reused below. Add a function?
->>>>>
->>>>>> +	}
->>>>>> +}
->>>>>> +
->>>>>> +/*
->>>>>> + * Send balloon pages in sgs to host. The balloon pages are recorded in the
->>>>>> + * page xbitmap. Each bit in the bitmap corresponds to a page of PAGE_SIZE.
->>>>>> + * The page xbitmap is searched for continuous "1" bits, which correspond
->>>>>> + * to continuous pages, to chunk into sgs.
->>>>>> + *
->>>>>> + * @page_xb_start and @page_xb_end form the range of bits in the xbitmap that
->>>>>> + * need to be searched.
->>>>>> + */
->>>>>> +static void tell_host_sgs(struct virtio_balloon *vb,
->>>>>> +			  struct virtqueue *vq,
->>>>>> +			  unsigned long page_xb_start,
->>>>>> +			  unsigned long page_xb_end)
->>>>>> +{
->>>>>> +	unsigned long sg_pfn_start, sg_pfn_end;
->>>>>> +	void *sg_addr;
->>>>>> +	uint32_t sg_len, sg_max_len = round_down(UINT_MAX, PAGE_SIZE);
->>>>>> +
->>>>>> +	sg_pfn_start = page_xb_start;
->>>>>> +	while (sg_pfn_start < page_xb_end) {
->>>>>> +		sg_pfn_start = xb_find_next_bit(&vb->page_xb, sg_pfn_start,
->>>>>> +						page_xb_end, 1);
->>>>>> +		if (sg_pfn_start == page_xb_end + 1)
->>>>>> +			break;
->>>>>> +		sg_pfn_end = xb_find_next_bit(&vb->page_xb, sg_pfn_start + 1,
->>>>>> +					      page_xb_end, 0);
->>>>>> +		sg_addr = (void *)pfn_to_kaddr(sg_pfn_start);
->>>>>> +		sg_len = (sg_pfn_end - sg_pfn_start) << PAGE_SHIFT;
->>>>>> +		while (sg_len > sg_max_len) {
->>>>>> +			send_balloon_page_sg(vb, vq, sg_addr, sg_max_len, 1);
->>>>> Last argument should be true, not 1.
->>>>>
->>>>>> +			sg_addr += sg_max_len;
->>>>>> +			sg_len -= sg_max_len;
->>>>>> +		}
->>>>>> +		send_balloon_page_sg(vb, vq, sg_addr, sg_len, 1);
->>>>>> +		xb_zero(&vb->page_xb, sg_pfn_start, sg_pfn_end);
->>>>>> +		sg_pfn_start = sg_pfn_end + 1;
->>>>>> +	}
->>>>>> +
->>>>>> +	/*
->>>>>> +	 * The last few sgs may not reach the batch size, but need a kick to
->>>>>> +	 * notify the device to handle them.
->>>>>> +	 */
->>>>>> +	if (vq->num_free != virtqueue_get_vring_size(vq)) {
->>>>>> +		virtqueue_kick(vq);
->>>>>> +		wait_event(vb->acked, virtqueue_get_buf(vq, &sg_len));
->>>>>> +		while (virtqueue_get_buf(vq, &sg_len))
->>>>>> +			;
->>>>> Some entries can get used after a pause. Looks like they will leak then?
->>>>> One fix would be to convert above if to a while loop.
->>>>> I don't know whether to do it like this in send_balloon_page_sg too.
->>>>>
->>>> Thanks for the above comments. I've re-written this part of code.
->>>> Please have a check below if there is anything more we could improve:
->>>>
->>>> static void kick_and_wait(struct virtqueue *vq, wait_queue_head_t wq_head)
->>>> {
->>>>           unsigned int len;
->>>>
->>>>           virtqueue_kick(vq);
->>>>           wait_event(wq_head, virtqueue_get_buf(vq, &len));
->>>>           /* Detach all the used buffers from the vq */
->>>>           while (virtqueue_get_buf(vq, &len))
->>>>                   ;
->>> I would move this last part to before add_buf. Increases chances
->>> it succeeds even in case of a bug.
->>>> }
->>>>
->>>> static int add_one_sg(struct virtqueue *vq, void *addr, uint32_t size)
->>>> {
->>>>           struct scatterlist sg;
->>>>           int ret;
->>>>
->>>>           sg_init_one(&sg, addr, size);
->>>>           ret = virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
->>>>           if (unlikely(ret == -ENOSPC))
->>>>                   dev_warn(&vq->vdev->dev, "%s: failed due to ring full\n",
->>>>                                    __func__);
->>> So if this ever triggers then kick and wait might fail, right?
->>> I think you should not special-case this one then.
->> OK, I will remove the check above, and take other suggestions as well.
->> Thanks.
->>
->> Best,
->> Wei
-> Any updates here? It's been a while.
->
+On Wed, Sep 27, 2017 at 08:25:56PM -0400, Willem de Bruijn wrote:
+> From: Willem de Bruijn <willemb@google.com>
+> 
+> Vhost-net has a hard limit on the number of zerocopy skbs in flight.
+> When reached, transmission stalls. Stalls cause latency, as well as
+> head-of-line blocking of other flows that do not use zerocopy.
+> 
+> Instead of stalling, revert to copy-based transmission.
+> 
+> Tested by sending two udp flows from guest to host, one with payload
+> of VHOST_GOODCOPY_LEN, the other too small for zerocopy (1B). The
+> large flow is redirected to a netem instance with 1MBps rate limit
+> and deep 1000 entry queue.
+> 
+>   modprobe ifb
+>   ip link set dev ifb0 up
+>   tc qdisc add dev ifb0 root netem limit 1000 rate 1MBit
+> 
+>   tc qdisc add dev tap0 ingress
+>   tc filter add dev tap0 parent ffff: protocol ip \
+>       u32 match ip dport 8000 0xffff \
+>       action mirred egress redirect dev ifb0
+> 
+> Before the delay, both flows process around 80K pps. With the delay,
+> before this patch, both process around 400. After this patch, the
+> large flow is still rate limited, while the small reverts to its
+> original rate. See also discussion in the first link, below.
+> 
+> The limit in vhost_exceeds_maxpend must be carefully chosen. When
+> vq->num >> 1, the flows remain correlated. This value happens to
+> correspond to VHOST_MAX_PENDING for vq->num == 256. Allow smaller
+> fractions and ensure correctness also for much smaller values of
+> vq->num, by testing the min() of both explicitly. See also the
+> discussion in the second link below.
+> 
+> Link:http://lkml.kernel.org/r/CAF=yD-+Wk9sc9dXMUq1+x_hh=3ThTXa6BnZkygP3tgVpjbp93g@mail.gmail.com
+> Link:http://lkml.kernel.org/r/20170819064129.27272-1-den@klaipeden.com
+> Signed-off-by: Willem de Bruijn <willemb@google.com>
 
-Yes. with some major optimization on xbitmap, we can improve the 
-ballooning time to ~492ms.
-I will send out the patches soon.
+I'd like to see the effect on the non rate limited case though.
+If guest is quick won't we have lots of copies then?
 
-Best,
-Wei
+
+> ---
+>  drivers/vhost/net.c | 14 ++++----------
+>  1 file changed, 4 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 58585ec8699e..50758602ae9d 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -436,8 +436,8 @@ static bool vhost_exceeds_maxpend(struct vhost_net *net)
+>  	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
+>  	struct vhost_virtqueue *vq = &nvq->vq;
+>  
+> -	return (nvq->upend_idx + vq->num - VHOST_MAX_PEND) % UIO_MAXIOV
+> -		== nvq->done_idx;
+> +	return (nvq->upend_idx + UIO_MAXIOV - nvq->done_idx) % UIO_MAXIOV >
+> +	       min(VHOST_MAX_PEND, vq->num >> 2);
+>  }
+>  
+>  /* Expects to be always run from workqueue - which acts as
+> @@ -480,12 +480,6 @@ static void handle_tx(struct vhost_net *net)
+>  		if (zcopy)
+>  			vhost_zerocopy_signal_used(net, vq);
+>  
+> -		/* If more outstanding DMAs, queue the work.
+> -		 * Handle upend_idx wrap around
+> -		 */
+> -		if (unlikely(vhost_exceeds_maxpend(net)))
+> -			break;
+> -
+>  		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
+>  						ARRAY_SIZE(vq->iov),
+>  						&out, &in);
+> @@ -509,6 +503,7 @@ static void handle_tx(struct vhost_net *net)
+>  		len = iov_length(vq->iov, out);
+>  		iov_iter_init(&msg.msg_iter, WRITE, vq->iov, out, len);
+>  		iov_iter_advance(&msg.msg_iter, hdr_size);
+> +
+>  		/* Sanity check */
+>  		if (!msg_data_left(&msg)) {
+>  			vq_err(vq, "Unexpected header len for TX: "
+> @@ -519,8 +514,7 @@ static void handle_tx(struct vhost_net *net)
+>  		len = msg_data_left(&msg);
+>  
+>  		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
+> -				   && (nvq->upend_idx + 1) % UIO_MAXIOV !=
+> -				      nvq->done_idx
+> +				   && !vhost_exceeds_maxpend(net)
+>  				   && vhost_net_tx_select_zcopy(net);
+>  
+>  		/* use msg_control to pass vhost zerocopy ubuf info to skb */
+> -- 
+> 2.14.2.822.g60be5d43e6-goog
