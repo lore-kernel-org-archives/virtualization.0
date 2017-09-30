@@ -1,11 +1,11 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v16 1/5] lib/xbitmap: Introduce xbitmap
-Date: Sat, 30 Sep 2017 12:05:50 +0800
-Message-ID: <1506744354-20979-2-git-send-email-wei.w.wang__22560.4497864426$1506745177$gmane$org@intel.com>
+Subject: [PATCH v16 2/5] radix tree test suite: add tests for xbitmap
+Date: Sat, 30 Sep 2017 12:05:51 +0800
+Message-ID: <1506744354-20979-3-git-send-email-wei.w.wang__12408.6421601989$1506745187$gmane$org@intel.com>
 References: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -21,269 +21,431 @@ To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@no
 Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogTWF0dGhldyBXaWxjb3ggPG1hd2lsY294QG1pY3Jvc29mdC5jb20+CgpUaGUgZVh0ZW5z
-aWJsZSBCaXRtYXAgaXMgYSBzcGFyc2UgYml0bWFwIHJlcHJlc2VudGF0aW9uIHdoaWNoIGlzCmVm
-ZmljaWVudCBmb3Igc2V0IGJpdHMgd2hpY2ggdGVuZCB0byBjbHVzdGVyLiAgSXQgc3VwcG9ydHMg
-dXAgdG8KJ3Vuc2lnbmVkIGxvbmcnIHdvcnRoIG9mIGJpdHMsIGFuZCB0aGlzIGNvbW1pdCBhZGRz
-IHRoZSBiYXJlIGJvbmVzIC0tCnhiX3NldF9iaXQoKSwgeGJfY2xlYXJfYml0KCkgYW5kIHhiX3Rl
-c3RfYml0KCkuCgpNb3JlIHBvc3NpYmxlIG9wdGltaXphdGlvbnMgdG8gYWRkIGluIHRoZSBmdXR1
-cmXvvJoKMSkgeGJfc2V0X2JpdF9yYW5nZTogc2V0IGEgcmFuZ2Ugb2YgYml0cwoyKSB3aGVuIHNl
-YXJjaGluZyBhIGJpdCwgaWYgdGhlIGJpdCBpcyBub3QgZm91bmQgaW4gdGhlIHNsb3QsIG1vdmUg
-b24gdG8KdGhlIG5leHQgc2xvdCBkaXJlY3RseS4KMykgYWRkIFRhZ3MgdG8gaGVscCBzZWFyY2hp
-bmcKClNpZ25lZC1vZmYtYnk6IFdlaSBXYW5nIDx3ZWkudy53YW5nQGludGVsLmNvbT4KQ2M6IE1h
-dHRoZXcgV2lsY294IDxtYXdpbGNveEBtaWNyb3NvZnQuY29tPgpDYzogQW5kcmV3IE1vcnRvbiA8
-YWtwbUBsaW51eC1mb3VuZGF0aW9uLm9yZz4KQ2M6IE1pY2hhbCBIb2NrbyA8bWhvY2tvQGtlcm5l
-bC5vcmc+CkNjOiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgoKdjE1LT52MTYg
-Q2hhbmdlTG9nOgoxKSBjb2Rpbmcgc3R5bGUgLSBzZXBhcmF0ZSBzbWFsbCBmdW5jdGlvbnMgZm9y
-IGJpdCBzZXQvY2xlYXIvdGVzdDsKMikgQ2xlYXIgYSByYW5nZSBvZiBiaXRzIGluIGEgbW9yZSBl
-ZmZpY2llbnQgd2F5OgogICBBKSBjbGVhciBhIHJhbmdlIG9mIGJpdHMgZnJvbSB0aGUgc2FtZSBp
-ZGEgYml0bWFwIGRpcmVjdGx5IHJhdGhlciB0aGFuCiAgICAgIHNlYXJjaCB0aGUgYml0bWFwIGFn
-YWluIGZvciBlYWNoIGJpdDsKICAgQikgd2hlbiB0aGUgcmFuZ2Ugb2YgYml0cyB0byBjbGVhciBj
-b3ZlcnMgdGhlIHdob2xlIGlkYSBiaXRtYXAsCiAgICAgIGRpcmVjdGx5IGZyZWUgdGhlIGJpdG1h
-cCAtIG5vIG5lZWQgdG8gemVybyB0aGUgYml0bWFwIGZpcnN0LgozKSBtb3JlIGVmZmljaWVudCBi
-aXQgc2VhcmNoaW5nLCBsaWtlIDIuQS4KLS0tCiBpbmNsdWRlL2xpbnV4L3JhZGl4LXRyZWUuaCB8
-ICAgMiArCiBpbmNsdWRlL2xpbnV4L3hiaXRtYXAuaCAgICB8ICA2NiArKysrKysrKysrKysKIGxp
-Yi9NYWtlZmlsZSAgICAgICAgICAgICAgIHwgICAyICstCiBsaWIvcmFkaXgtdHJlZS5jICAgICAg
-ICAgICB8ICA0MiArKysrKysrLQogbGliL3hiaXRtYXAuYyAgICAgICAgICAgICAgfCAyNjQgKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCiA1IGZpbGVzIGNoYW5n
-ZWQsIDM3MyBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQogY3JlYXRlIG1vZGUgMTAwNjQ0
-IGluY2x1ZGUvbGludXgveGJpdG1hcC5oCiBjcmVhdGUgbW9kZSAxMDA2NDQgbGliL3hiaXRtYXAu
-YwoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvcmFkaXgtdHJlZS5oIGIvaW5jbHVkZS9saW51
-eC9yYWRpeC10cmVlLmgKaW5kZXggM2U1NzM1MC4uMWNmZmViMyAxMDA2NDQKLS0tIGEvaW5jbHVk
-ZS9saW51eC9yYWRpeC10cmVlLmgKKysrIGIvaW5jbHVkZS9saW51eC9yYWRpeC10cmVlLmgKQEAg
-LTMwOSw2ICszMDksOCBAQCB2b2lkIHJhZGl4X3RyZWVfaXRlcl9yZXBsYWNlKHN0cnVjdCByYWRp
-eF90cmVlX3Jvb3QgKiwKIAkJY29uc3Qgc3RydWN0IHJhZGl4X3RyZWVfaXRlciAqLCB2b2lkIF9f
-cmN1ICoqc2xvdCwgdm9pZCAqZW50cnkpOwogdm9pZCByYWRpeF90cmVlX3JlcGxhY2Vfc2xvdChz
-dHJ1Y3QgcmFkaXhfdHJlZV9yb290ICosCiAJCQkgICAgIHZvaWQgX19yY3UgKipzbG90LCB2b2lk
-ICplbnRyeSk7Citib29sIF9fcmFkaXhfdHJlZV9kZWxldGUoc3RydWN0IHJhZGl4X3RyZWVfcm9v
-dCAqcm9vdCwKKwkJCSBzdHJ1Y3QgcmFkaXhfdHJlZV9ub2RlICpub2RlLCB2b2lkIF9fcmN1ICoq
-c2xvdCk7CiB2b2lkIF9fcmFkaXhfdHJlZV9kZWxldGVfbm9kZShzdHJ1Y3QgcmFkaXhfdHJlZV9y
-b290ICosCiAJCQkgICAgICBzdHJ1Y3QgcmFkaXhfdHJlZV9ub2RlICosCiAJCQkgICAgICByYWRp
-eF90cmVlX3VwZGF0ZV9ub2RlX3QgdXBkYXRlX25vZGUsCmRpZmYgLS1naXQgYS9pbmNsdWRlL2xp
-bnV4L3hiaXRtYXAuaCBiL2luY2x1ZGUvbGludXgveGJpdG1hcC5oCm5ldyBmaWxlIG1vZGUgMTAw
-NjQ0CmluZGV4IDAwMDAwMDAuLmY2MzRiZDkKLS0tIC9kZXYvbnVsbAorKysgYi9pbmNsdWRlL2xp
-bnV4L3hiaXRtYXAuaApAQCAtMCwwICsxLDY2IEBACisvKgorICogZVh0ZW5zaWJsZSBCaXRtYXBz
-CisgKiBDb3B5cmlnaHQgKGMpIDIwMTcgTWljcm9zb2Z0IENvcnBvcmF0aW9uIDxtYXdpbGNveEBt
-aWNyb3NvZnQuY29tPgorICoKKyAqIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3Ug
-Y2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IKKyAqIG1vZGlmeSBpdCB1bmRlciB0aGUgdGVybXMg
-b2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzCisgKiBwdWJsaXNoZWQgYnkgdGhl
-IEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsgZWl0aGVyIHZlcnNpb24gMiBvZiB0aGUKKyAqIExp
-Y2Vuc2UsIG9yIChhdCB5b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24uCisgKgorICogVGhp
-cyBwcm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIHRoYXQgaXQgd2lsbCBiZSB1c2Vm
-dWwsCisgKiBidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZlbiB0aGUgaW1wbGll
-ZCB3YXJyYW50eSBvZgorICogTUVSQ0hBTlRBQklMSVRZIG9yIEZJVE5FU1MgRk9SIEEgUEFSVElD
-VUxBUiBQVVJQT1NFLiAgU2VlIHRoZQorICogR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgZm9y
-IG1vcmUgZGV0YWlscy4KKyAqCisgKiBlWHRlbnNpYmxlIEJpdG1hcHMgcHJvdmlkZSBhbiB1bmxp
-bWl0ZWQtc2l6ZSBzcGFyc2UgYml0bWFwIGZhY2lsaXR5LgorICogQWxsIGJpdHMgYXJlIGluaXRp
-YWxseSB6ZXJvLgorICovCisKKyNpZm5kZWYgX19YQklUTUFQX0hfXworI2RlZmluZSBfX1hCSVRN
-QVBfSF9fCisKKyNpbmNsdWRlIDxsaW51eC9pZHIuaD4KKworc3RydWN0IHhiIHsKKwlzdHJ1Y3Qg
-cmFkaXhfdHJlZV9yb290IHhicnQ7Cit9OworCisjZGVmaW5lIFhCX0lOSVQgewkJCQkJCQlcCisJ
-LnhicnQgPSBSQURJWF9UUkVFX0lOSVQoSURSX1JUX01BUktFUiB8IEdGUF9OT1dBSVQpLAkJXAor
-fQorI2RlZmluZSBERUZJTkVfWEIobmFtZSkJCXN0cnVjdCB4YiBuYW1lID0gWEJfSU5JVAorCitz
-dGF0aWMgaW5saW5lIHZvaWQgeGJfaW5pdChzdHJ1Y3QgeGIgKnhiKQoreworCUlOSVRfUkFESVhf
-VFJFRSgmeGItPnhicnQsIElEUl9SVF9NQVJLRVIgfCBHRlBfTk9XQUlUKTsKK30KKworaW50IHhi
-X3NldF9iaXQoc3RydWN0IHhiICp4YiwgdW5zaWduZWQgbG9uZyBiaXQpOworYm9vbCB4Yl90ZXN0
-X2JpdChzdHJ1Y3QgeGIgKnhiLCB1bnNpZ25lZCBsb25nIGJpdCk7Cit2b2lkIHhiX2NsZWFyX2Jp
-dChzdHJ1Y3QgeGIgKnhiLCB1bnNpZ25lZCBsb25nIGJpdCk7Cit1bnNpZ25lZCBsb25nIHhiX2Zp
-bmRfbmV4dF9zZXRfYml0KHN0cnVjdCB4YiAqeGIsIHVuc2lnbmVkIGxvbmcgc3RhcnQsCisJCQkJ
-ICAgdW5zaWduZWQgbG9uZyBlbmQpOwordW5zaWduZWQgbG9uZyB4Yl9maW5kX25leHRfemVyb19i
-aXQoc3RydWN0IHhiICp4YiwgdW5zaWduZWQgbG9uZyBzdGFydCwKKwkJCQkgICAgdW5zaWduZWQg
-bG9uZyBlbmQpOwordm9pZCB4Yl9jbGVhcl9iaXRfcmFuZ2Uoc3RydWN0IHhiICp4YiwgdW5zaWdu
-ZWQgbG9uZyBzdGFydCwgdW5zaWduZWQgbG9uZyBlbmQpOworCisvKiBDaGVjayBpZiB0aGUgeGIg
-dHJlZSBpcyBlbXB0eSAqLworc3RhdGljIGlubGluZSBib29sIHhiX2lzX2VtcHR5KGNvbnN0IHN0
-cnVjdCB4YiAqeGIpCit7CisJcmV0dXJuIHJhZGl4X3RyZWVfZW1wdHkoJnhiLT54YnJ0KTsKK30K
-Kwordm9pZCB4Yl9wcmVsb2FkKGdmcF90IGdmcCk7CisKKy8qKgorICogeGJfcHJlbG9hZF9lbmQg
-LSBlbmQgcHJlbG9hZCBzZWN0aW9uIHN0YXJ0ZWQgd2l0aCB4Yl9wcmVsb2FkKCkKKyAqCisgKiBF
-YWNoIHhiX3ByZWxvYWQoKSBzaG91bGQgYmUgbWF0Y2hlZCB3aXRoIGFuIGludm9jYXRpb24gb2Yg
-dGhpcworICogZnVuY3Rpb24uIFNlZSB4Yl9wcmVsb2FkKCkgZm9yIGRldGFpbHMuCisgKi8KK3N0
-YXRpYyBpbmxpbmUgdm9pZCB4Yl9wcmVsb2FkX2VuZCh2b2lkKQoreworCXByZWVtcHRfZW5hYmxl
-KCk7Cit9CisKKyNlbmRpZgpkaWZmIC0tZ2l0IGEvbGliL01ha2VmaWxlIGIvbGliL01ha2VmaWxl
-CmluZGV4IDQwYzE4MzcuLmVhNTA0OTYgMTAwNjQ0Ci0tLSBhL2xpYi9NYWtlZmlsZQorKysgYi9s
-aWIvTWFrZWZpbGUKQEAgLTE4LDcgKzE4LDcgQEAgS0NPVl9JTlNUUlVNRU5UX2R5bmFtaWNfZGVi
-dWcubyA6PSBuCiAKIGxpYi15IDo9IGN0eXBlLm8gc3RyaW5nLm8gdnNwcmludGYubyBjbWRsaW5l
-Lm8gXAogCSByYnRyZWUubyByYWRpeC10cmVlLm8gZHVtcF9zdGFjay5vIHRpbWVycXVldWUub1wK
-LQkgaWRyLm8gaW50X3NxcnQubyBleHRhYmxlLm8gXAorCSBpZHIubyB4Yml0bWFwLm8gaW50X3Nx
-cnQubyBleHRhYmxlLm8gXAogCSBzaGExLm8gY2hhY2hhMjAubyBpcnFfcmVncy5vIGFyZ3Zfc3Bs
-aXQubyBcCiAJIGZsZXhfcHJvcG9ydGlvbnMubyByYXRlbGltaXQubyBzaG93X21lbS5vIFwKIAkg
-aXNfc2luZ2xlX3RocmVhZGVkLm8gcGxpc3QubyBkZWNvbXByZXNzLm8ga29iamVjdF91ZXZlbnQu
-byBcCmRpZmYgLS1naXQgYS9saWIvcmFkaXgtdHJlZS5jIGIvbGliL3JhZGl4LXRyZWUuYwppbmRl
-eCA4OThlODc5Li4xZTE1ZTMwIDEwMDY0NAotLS0gYS9saWIvcmFkaXgtdHJlZS5jCisrKyBiL2xp
-Yi9yYWRpeC10cmVlLmMKQEAgLTc4LDYgKzc4LDE5IEBAIHN0YXRpYyBzdHJ1Y3Qga21lbV9jYWNo
-ZSAqcmFkaXhfdHJlZV9ub2RlX2NhY2hlcDsKICNkZWZpbmUgSURBX1BSRUxPQURfU0laRQkoSURB
-X01BWF9QQVRIICogMiAtIDEpCiAKIC8qCisgKiBUaGUgeGJpdG1hcCBpbXBsZW1lbnRhdGlvbiBz
-dXBwb3J0cyB1cCB0byBVTE9OR19NQVggYml0cywgYW5kIGl0IGlzCisgKiBpbXBsZW1lbnRlZCBi
-YXNlZCBvbiBpZGEgYml0bWFwcy4gU28sIGdpdmVuIGFuIHVuc2lnbmVkIGxvbmcgaW5kZXgsCisg
-KiB0aGUgaGlnaCBvcmRlciBYQl9JTkRFWF9CSVRTIGJpdHMgb2YgdGhlIGluZGV4IGlzIHVzZWQg
-dG8gZmluZCB0aGUKKyAqIGNvcnJlc3BvbmRpbmcgaXRlbSAoaS5lLiBpZGEgYml0bWFwKSBmcm9t
-IHRoZSByYWRpeCB0cmVlLCBhbmQgdGhlIGxvdworICogb3JkZXIgKGkuZS4gaWxvZzIoSURBX0JJ
-VE1BUF9CSVRTKSkgYml0cyBvZiB0aGUgaW5kZXggYXJlIGluZGV4ZWQgaW50bworICogdGhlIGlk
-YSBiaXRtYXAgdG8gZmluZCB0aGUgYml0LgorICovCisjZGVmaW5lIFhCX0lOREVYX0JJVFMJCShC
-SVRTX1BFUl9MT05HIC0gaWxvZzIoSURBX0JJVE1BUF9CSVRTKSkKKyNkZWZpbmUgWEJfTUFYX1BB
-VEgJCShESVZfUk9VTkRfVVAoWEJfSU5ERVhfQklUUywgXAorCQkJCQkgICAgICBSQURJWF9UUkVF
-X01BUF9TSElGVCkpCisjZGVmaW5lIFhCX1BSRUxPQURfU0laRQkJKFhCX01BWF9QQVRIICogMiAt
-IDEpCisKKy8qCiAgKiBQZXItY3B1IHBvb2wgb2YgcHJlbG9hZGVkIG5vZGVzCiAgKi8KIHN0cnVj
-dCByYWRpeF90cmVlX3ByZWxvYWQgewpAQCAtODQwLDYgKzg1Myw4IEBAIGludCBfX3JhZGl4X3Ry
-ZWVfY3JlYXRlKHN0cnVjdCByYWRpeF90cmVlX3Jvb3QgKnJvb3QsIHVuc2lnbmVkIGxvbmcgaW5k
-ZXgsCiAJCQkJCQkJb2Zmc2V0LCAwLCAwKTsKIAkJCWlmICghY2hpbGQpCiAJCQkJcmV0dXJuIC1F
-Tk9NRU07CisJCQlpZiAoaXNfaWRyKHJvb3QpKQorCQkJCWFsbF90YWdfc2V0KGNoaWxkLCBJRFJf
-RlJFRSk7CiAJCQlyY3VfYXNzaWduX3BvaW50ZXIoKnNsb3QsIG5vZGVfdG9fZW50cnkoY2hpbGQp
-KTsKIAkJCWlmIChub2RlKQogCQkJCW5vZGUtPmNvdW50Kys7CkBAIC0xOTg2LDggKzIwMDEsOCBA
-QCB2b2lkIF9fcmFkaXhfdHJlZV9kZWxldGVfbm9kZShzdHJ1Y3QgcmFkaXhfdHJlZV9yb290ICpy
-b290LAogCWRlbGV0ZV9ub2RlKHJvb3QsIG5vZGUsIHVwZGF0ZV9ub2RlLCBwcml2YXRlKTsKIH0K
-IAotc3RhdGljIGJvb2wgX19yYWRpeF90cmVlX2RlbGV0ZShzdHJ1Y3QgcmFkaXhfdHJlZV9yb290
-ICpyb290LAotCQkJCXN0cnVjdCByYWRpeF90cmVlX25vZGUgKm5vZGUsIHZvaWQgX19yY3UgKipz
-bG90KQorYm9vbCBfX3JhZGl4X3RyZWVfZGVsZXRlKHN0cnVjdCByYWRpeF90cmVlX3Jvb3QgKnJv
-b3QsCisJCQkgc3RydWN0IHJhZGl4X3RyZWVfbm9kZSAqbm9kZSwgdm9pZCBfX3JjdSAqKnNsb3Qp
-CiB7CiAJdm9pZCAqb2xkID0gcmN1X2RlcmVmZXJlbmNlX3Jhdygqc2xvdCk7CiAJaW50IGV4Y2Vw
-dGlvbmFsID0gcmFkaXhfdHJlZV9leGNlcHRpb25hbF9lbnRyeShvbGQpID8gLTEgOiAwOwpAQCAt
-MjAwNSw2ICsyMDIwLDI5IEBAIHN0YXRpYyBib29sIF9fcmFkaXhfdHJlZV9kZWxldGUoc3RydWN0
-IHJhZGl4X3RyZWVfcm9vdCAqcm9vdCwKIH0KIAogLyoqCisgKiAgeGJfcHJlbG9hZCAtIHByZWxv
-YWQgZm9yIHhiX3NldF9iaXQoKQorICogIEBnZnBfbWFzazogYWxsb2NhdGlvbiBtYXNrIHRvIHVz
-ZSBmb3IgcHJlbG9hZGluZworICoKKyAqIFByZWFsbG9jYXRlIG1lbW9yeSB0byB1c2UgZm9yIHRo
-ZSBuZXh0IGNhbGwgdG8geGJfc2V0X2JpdCgpLiBUaGlzIGZ1bmN0aW9uCisgKiByZXR1cm5zIHdp
-dGggcHJlZW1wdGlvbiBkaXNhYmxlZC4gSXQgd2lsbCBiZSBlbmFibGVkIGJ5IHhiX3ByZWxvYWRf
-ZW5kKCkuCisgKi8KK3ZvaWQgeGJfcHJlbG9hZChnZnBfdCBnZnApCit7CisJaWYgKF9fcmFkaXhf
-dHJlZV9wcmVsb2FkKGdmcCwgWEJfUFJFTE9BRF9TSVpFKSA8IDApCisJCXByZWVtcHRfZGlzYWJs
-ZSgpOworCisJaWYgKCF0aGlzX2NwdV9yZWFkKGlkYV9iaXRtYXApKSB7CisJCXN0cnVjdCBpZGFf
-Yml0bWFwICpiaXRtYXAgPSBrbWFsbG9jKHNpemVvZigqYml0bWFwKSwgZ2ZwKTsKKworCQlpZiAo
-IWJpdG1hcCkKKwkJCXJldHVybjsKKwkJYml0bWFwID0gdGhpc19jcHVfY21weGNoZyhpZGFfYml0
-bWFwLCBOVUxMLCBiaXRtYXApOworCQlrZnJlZShiaXRtYXApOworCX0KK30KK0VYUE9SVF9TWU1C
-T0woeGJfcHJlbG9hZCk7CisKKy8qKgogICogcmFkaXhfdHJlZV9pdGVyX2RlbGV0ZSAtIGRlbGV0
-ZSB0aGUgZW50cnkgYXQgdGhpcyBpdGVyYXRvciBwb3NpdGlvbgogICogQHJvb3Q6IHJhZGl4IHRy
-ZWUgcm9vdAogICogQGl0ZXI6IGl0ZXJhdG9yIHN0YXRlCmRpZmYgLS1naXQgYS9saWIveGJpdG1h
-cC5jIGIvbGliL3hiaXRtYXAuYwpuZXcgZmlsZSBtb2RlIDEwMDY0NAppbmRleCAwMDAwMDAwLi40
-YWI5YWMyCi0tLSAvZGV2L251bGwKKysrIGIvbGliL3hiaXRtYXAuYwpAQCAtMCwwICsxLDI2NCBA
-QAorI2luY2x1ZGUgPGxpbnV4L3NsYWIuaD4KKyNpbmNsdWRlIDxsaW51eC94Yml0bWFwLmg+CisK
-Ky8qKgorICogIHhiX3NldF9iaXQgLSBzZXQgYSBiaXQgaW4gdGhlIHhiaXRtYXAKKyAqICBAeGI6
-IHRoZSB4Yml0bWFwIHRyZWUgdXNlZCB0byByZWNvcmQgdGhlIGJpdAorICogIEBiaXQ6IGluZGV4
-IG9mIHRoZSBiaXQgdG8gc2V0CisgKgorICogVGhpcyBmdW5jdGlvbiBpcyB1c2VkIHRvIHNldCBh
-IGJpdCBpbiB0aGUgeGJpdG1hcC4gSWYgdGhlIGJpdG1hcCB0aGF0IEBiaXQKKyAqIHJlc2lkZXMg
-aW4gaXMgbm90IHRoZXJlLCBpdCB3aWxsIGJlIGFsbG9jYXRlZC4KKyAqCisgKiBSZXR1cm5zOiAw
-IG9uIHN1Y2Nlc3MuICUtRUFHQUlOIGluZGljYXRlcyB0aGF0IEBiaXQgd2FzIG5vdCBzZXQuIFRo
-ZSBjYWxsZXIKKyAqIG1heSB3YW50IHRvIGNhbGwgdGhlIGZ1bmN0aW9uIGFnYWluLgorICovCitp
-bnQgeGJfc2V0X2JpdChzdHJ1Y3QgeGIgKnhiLCB1bnNpZ25lZCBsb25nIGJpdCkKK3sKKwlpbnQg
-ZXJyOworCXVuc2lnbmVkIGxvbmcgaW5kZXggPSBiaXQgLyBJREFfQklUTUFQX0JJVFM7CisJc3Ry
-dWN0IHJhZGl4X3RyZWVfcm9vdCAqcm9vdCA9ICZ4Yi0+eGJydDsKKwlzdHJ1Y3QgcmFkaXhfdHJl
-ZV9ub2RlICpub2RlOworCXZvaWQgKipzbG90OworCXN0cnVjdCBpZGFfYml0bWFwICpiaXRtYXA7
-CisJdW5zaWduZWQgbG9uZyBlYml0OworCisJYml0ICU9IElEQV9CSVRNQVBfQklUUzsKKwllYml0
-ID0gYml0ICsgMjsKKworCWVyciA9IF9fcmFkaXhfdHJlZV9jcmVhdGUocm9vdCwgaW5kZXgsIDAs
-ICZub2RlLCAmc2xvdCk7CisJaWYgKGVycikKKwkJcmV0dXJuIGVycjsKKwliaXRtYXAgPSByY3Vf
-ZGVyZWZlcmVuY2VfcmF3KCpzbG90KTsKKwlpZiAocmFkaXhfdHJlZV9leGNlcHRpb24oYml0bWFw
-KSkgeworCQl1bnNpZ25lZCBsb25nIHRtcCA9ICh1bnNpZ25lZCBsb25nKWJpdG1hcDsKKworCQlp
-ZiAoZWJpdCA8IEJJVFNfUEVSX0xPTkcpIHsKKwkJCXRtcCB8PSAxVUwgPDwgZWJpdDsKKwkJCXJj
-dV9hc3NpZ25fcG9pbnRlcigqc2xvdCwgKHZvaWQgKil0bXApOworCQkJcmV0dXJuIDA7CisJCX0K
-KwkJYml0bWFwID0gdGhpc19jcHVfeGNoZyhpZGFfYml0bWFwLCBOVUxMKTsKKwkJaWYgKCFiaXRt
-YXApCisJCQlyZXR1cm4gLUVBR0FJTjsKKwkJbWVtc2V0KGJpdG1hcCwgMCwgc2l6ZW9mKCpiaXRt
-YXApKTsKKwkJYml0bWFwLT5iaXRtYXBbMF0gPSB0bXAgPj4gUkFESVhfVFJFRV9FWENFUFRJT05B
-TF9TSElGVDsKKwkJcmN1X2Fzc2lnbl9wb2ludGVyKCpzbG90LCBiaXRtYXApOworCX0KKworCWlm
-ICghYml0bWFwKSB7CisJCWlmIChlYml0IDwgQklUU19QRVJfTE9ORykgeworCQkJYml0bWFwID0g
-KHZvaWQgKikoKDFVTCA8PCBlYml0KSB8CisJCQkJCVJBRElYX1RSRUVfRVhDRVBUSU9OQUxfRU5U
-UlkpOworCQkJX19yYWRpeF90cmVlX3JlcGxhY2Uocm9vdCwgbm9kZSwgc2xvdCwgYml0bWFwLCBO
-VUxMLAorCQkJCQkJTlVMTCk7CisJCQlyZXR1cm4gMDsKKwkJfQorCQliaXRtYXAgPSB0aGlzX2Nw
-dV94Y2hnKGlkYV9iaXRtYXAsIE5VTEwpOworCQlpZiAoIWJpdG1hcCkKKwkJCXJldHVybiAtRUFH
-QUlOOworCQltZW1zZXQoYml0bWFwLCAwLCBzaXplb2YoKmJpdG1hcCkpOworCQlfX3JhZGl4X3Ry
-ZWVfcmVwbGFjZShyb290LCBub2RlLCBzbG90LCBiaXRtYXAsIE5VTEwsIE5VTEwpOworCX0KKwor
-CV9fc2V0X2JpdChiaXQsIGJpdG1hcC0+Yml0bWFwKTsKKwlyZXR1cm4gMDsKK30KK0VYUE9SVF9T
-WU1CT0woeGJfc2V0X2JpdCk7CisKKy8qKgorICogeGJfY2xlYXJfYml0IC0gY2xlYXIgYSBiaXQg
-aW4gdGhlIHhiaXRtYXAKKyAqIEB4YjogdGhlIHhiaXRtYXAgdHJlZSB1c2VkIHRvIHJlY29yZCB0
-aGUgYml0CisgKiBAYml0OiBpbmRleCBvZiB0aGUgYml0IHRvIGNsZWFyCisgKgorICogVGhpcyBm
-dW5jdGlvbiBpcyB1c2VkIHRvIGNsZWFyIGEgYml0IGluIHRoZSB4Yml0bWFwLiBJZiBhbGwgdGhl
-IGJpdHMgb2YgdGhlCisgKiBiaXRtYXAgYXJlIDAsIHRoZSBiaXRtYXAgd2lsbCBiZSBmcmVlZC4K
-KyAqLwordm9pZCB4Yl9jbGVhcl9iaXQoc3RydWN0IHhiICp4YiwgdW5zaWduZWQgbG9uZyBiaXQp
-Cit7CisJdW5zaWduZWQgbG9uZyBpbmRleCA9IGJpdCAvIElEQV9CSVRNQVBfQklUUzsKKwlzdHJ1
-Y3QgcmFkaXhfdHJlZV9yb290ICpyb290ID0gJnhiLT54YnJ0OworCXN0cnVjdCByYWRpeF90cmVl
-X25vZGUgKm5vZGU7CisJdm9pZCAqKnNsb3Q7CisJc3RydWN0IGlkYV9iaXRtYXAgKmJpdG1hcDsK
-Kwl1bnNpZ25lZCBsb25nIGViaXQ7CisKKwliaXQgJT0gSURBX0JJVE1BUF9CSVRTOworCWViaXQg
-PSBiaXQgKyAyOworCisJYml0bWFwID0gX19yYWRpeF90cmVlX2xvb2t1cChyb290LCBpbmRleCwg
-Jm5vZGUsICZzbG90KTsKKwlpZiAocmFkaXhfdHJlZV9leGNlcHRpb24oYml0bWFwKSkgeworCQl1
-bnNpZ25lZCBsb25nIHRtcCA9ICh1bnNpZ25lZCBsb25nKWJpdG1hcDsKKworCQlpZiAoZWJpdCA+
-PSBCSVRTX1BFUl9MT05HKQorCQkJcmV0dXJuOworCQl0bXAgJj0gfigxVUwgPDwgZWJpdCk7CisJ
-CWlmICh0bXAgPT0gUkFESVhfVFJFRV9FWENFUFRJT05BTF9FTlRSWSkKKwkJCV9fcmFkaXhfdHJl
-ZV9kZWxldGUocm9vdCwgbm9kZSwgc2xvdCk7CisJCWVsc2UKKwkJCXJjdV9hc3NpZ25fcG9pbnRl
-cigqc2xvdCwgKHZvaWQgKil0bXApOworCQlyZXR1cm47CisJfQorCisJaWYgKCFiaXRtYXApCisJ
-CXJldHVybjsKKworCV9fY2xlYXJfYml0KGJpdCwgYml0bWFwLT5iaXRtYXApOworCWlmIChiaXRt
-YXBfZW1wdHkoYml0bWFwLT5iaXRtYXAsIElEQV9CSVRNQVBfQklUUykpIHsKKwkJa2ZyZWUoYml0
-bWFwKTsKKwkJX19yYWRpeF90cmVlX2RlbGV0ZShyb290LCBub2RlLCBzbG90KTsKKwl9Cit9CitF
-WFBPUlRfU1lNQk9MKHhiX2NsZWFyX2JpdCk7CisKKy8qKgorICogeGJfY2xlYXJfYml0IC0gY2xl
-YXIgYSByYW5nZSBvZiBiaXRzIGluIHRoZSB4Yml0bWFwCisgKiBAc3RhcnQ6IHRoZSBzdGFydCBv
-ZiB0aGUgYml0IHJhbmdlLCBpbmNsdXNpdmUKKyAqIEBlbmQ6IHRoZSBlbmQgb2YgdGhlIGJpdCBy
-YW5nZSwgaW5jbHVzaXZlCisgKgorICogVGhpcyBmdW5jdGlvbiBpcyB1c2VkIHRvIGNsZWFyIGEg
-Yml0IGluIHRoZSB4Yml0bWFwLiBJZiBhbGwgdGhlIGJpdHMgb2YgdGhlCisgKiBiaXRtYXAgYXJl
-IDAsIHRoZSBiaXRtYXAgd2lsbCBiZSBmcmVlZC4KKyAqLwordm9pZCB4Yl9jbGVhcl9iaXRfcmFu
-Z2Uoc3RydWN0IHhiICp4YiwgdW5zaWduZWQgbG9uZyBzdGFydCwgdW5zaWduZWQgbG9uZyBlbmQp
-Cit7CisJc3RydWN0IHJhZGl4X3RyZWVfcm9vdCAqcm9vdCA9ICZ4Yi0+eGJydDsKKwlzdHJ1Y3Qg
-cmFkaXhfdHJlZV9ub2RlICpub2RlOworCXZvaWQgKipzbG90OworCXN0cnVjdCBpZGFfYml0bWFw
-ICpiaXRtYXA7CisJdW5zaWduZWQgaW50IG5iaXRzOworCisJZm9yICg7IHN0YXJ0IDwgZW5kOyBz
-dGFydCA9IChzdGFydCB8IChJREFfQklUTUFQX0JJVFMgLSAxKSkgKyAxKSB7CisJCXVuc2lnbmVk
-IGxvbmcgaW5kZXggPSBzdGFydCAvIElEQV9CSVRNQVBfQklUUzsKKwkJdW5zaWduZWQgbG9uZyBi
-aXQgPSBzdGFydCAlIElEQV9CSVRNQVBfQklUUzsKKworCQliaXRtYXAgPSBfX3JhZGl4X3RyZWVf
-bG9va3VwKHJvb3QsIGluZGV4LCAmbm9kZSwgJnNsb3QpOworCQlpZiAocmFkaXhfdHJlZV9leGNl
-cHRpb24oYml0bWFwKSkgeworCQkJdW5zaWduZWQgbG9uZyBlYml0ID0gYml0ICsgMjsKKwkJCXVu
-c2lnbmVkIGxvbmcgdG1wID0gKHVuc2lnbmVkIGxvbmcpYml0bWFwOworCisJCQluYml0cyA9IG1p
-bihlbmQgLSBzdGFydCArIDEsIEJJVFNfUEVSX0xPTkcgLSBlYml0KTsKKworCQkJaWYgKGViaXQg
-Pj0gQklUU19QRVJfTE9ORykKKwkJCQljb250aW51ZTsKKwkJCWJpdG1hcF9jbGVhcigmdG1wLCBl
-Yml0LCBuYml0cyk7CisJCQlpZiAodG1wID09IFJBRElYX1RSRUVfRVhDRVBUSU9OQUxfRU5UUlkp
-CisJCQkJX19yYWRpeF90cmVlX2RlbGV0ZShyb290LCBub2RlLCBzbG90KTsKKwkJCWVsc2UKKwkJ
-CQlyY3VfYXNzaWduX3BvaW50ZXIoKnNsb3QsICh2b2lkICopdG1wKTsKKwkJfSBlbHNlIGlmIChi
-aXRtYXApIHsKKwkJCW5iaXRzID0gbWluKGVuZCAtIHN0YXJ0ICsgMSwgSURBX0JJVE1BUF9CSVRT
-IC0gYml0KTsKKworCQkJaWYgKG5iaXRzICE9IElEQV9CSVRNQVBfQklUUykKKwkJCQliaXRtYXBf
-Y2xlYXIoYml0bWFwLT5iaXRtYXAsIGJpdCwgbmJpdHMpOworCisJCQlpZiAobmJpdHMgPT0gSURB
-X0JJVE1BUF9CSVRTIHx8CisJCQkJYml0bWFwX2VtcHR5KGJpdG1hcC0+Yml0bWFwLCBJREFfQklU
-TUFQX0JJVFMpKSB7CisJCQkJa2ZyZWUoYml0bWFwKTsKKwkJCQlfX3JhZGl4X3RyZWVfZGVsZXRl
-KHJvb3QsIG5vZGUsIHNsb3QpOworCQkJfQorCQl9CisJfQorfQorRVhQT1JUX1NZTUJPTCh4Yl9j
-bGVhcl9iaXRfcmFuZ2UpOworCisvKioKKyAqIHhiX3Rlc3RfYml0IC0gdGVzdCBhIGJpdCBpbiB0
-aGUgeGJpdG1hcAorICogQHhiOiB0aGUgeGJpdG1hcCB0cmVlIHVzZWQgdG8gcmVjb3JkIHRoZSBi
-aXQKKyAqIEBiaXQ6IGluZGV4IG9mIHRoZSBiaXQgdG8gdGVzdAorICoKKyAqIFRoaXMgZnVuY3Rp
-b24gaXMgdXNlZCB0byB0ZXN0IGEgYml0IGluIHRoZSB4Yml0bWFwLgorICogUmV0dXJuczogMSBp
-ZiB0aGUgYml0IGlzIHNldCwgb3IgMCBvdGhlcndpc2UuCisgKi8KK2Jvb2wgeGJfdGVzdF9iaXQo
-c3RydWN0IHhiICp4YiwgdW5zaWduZWQgbG9uZyBiaXQpCit7CisJdW5zaWduZWQgbG9uZyBpbmRl
-eCA9IGJpdCAvIElEQV9CSVRNQVBfQklUUzsKKwljb25zdCBzdHJ1Y3QgcmFkaXhfdHJlZV9yb290
-ICpyb290ID0gJnhiLT54YnJ0OworCXN0cnVjdCBpZGFfYml0bWFwICpiaXRtYXAgPSByYWRpeF90
-cmVlX2xvb2t1cChyb290LCBpbmRleCk7CisKKwliaXQgJT0gSURBX0JJVE1BUF9CSVRTOworCisJ
-aWYgKCFiaXRtYXApCisJCXJldHVybiBmYWxzZTsKKwlpZiAocmFkaXhfdHJlZV9leGNlcHRpb24o
-Yml0bWFwKSkgeworCQliaXQgKz0gUkFESVhfVFJFRV9FWENFUFRJT05BTF9TSElGVDsKKwkJaWYg
-KGJpdCA+IEJJVFNfUEVSX0xPTkcpCisJCQlyZXR1cm4gZmFsc2U7CisJCXJldHVybiAodW5zaWdu
-ZWQgbG9uZyliaXRtYXAgJiAoMVVMIDw8IGJpdCk7CisJfQorCisJcmV0dXJuIHRlc3RfYml0KGJp
-dCwgYml0bWFwLT5iaXRtYXApOworfQorRVhQT1JUX1NZTUJPTCh4Yl90ZXN0X2JpdCk7CisKK3N0
-YXRpYyB1bnNpZ25lZCBsb25nIHhiX2ZpbmRfbmV4dF9iaXQoc3RydWN0IHhiICp4YiwgdW5zaWdu
-ZWQgbG9uZyBzdGFydCwKKwkJCQkgICAgICB1bnNpZ25lZCBsb25nIGVuZCwgYm9vbCBzZXQpCit7
-CisJc3RydWN0IHJhZGl4X3RyZWVfcm9vdCAqcm9vdCA9ICZ4Yi0+eGJydDsKKwlzdHJ1Y3QgcmFk
-aXhfdHJlZV9ub2RlICpub2RlOworCXZvaWQgKipzbG90OworCXN0cnVjdCBpZGFfYml0bWFwICpi
-bWFwOworCXVuc2lnbmVkIGxvbmcgcmV0ID0gZW5kICsgMTsKKworCWZvciAoOyBzdGFydCA8IGVu
-ZDsgc3RhcnQgPSAoc3RhcnQgfCAoSURBX0JJVE1BUF9CSVRTIC0gMSkpICsgMSkgeworCQl1bnNp
-Z25lZCBsb25nIGluZGV4ID0gc3RhcnQgLyBJREFfQklUTUFQX0JJVFM7CisJCXVuc2lnbmVkIGxv
-bmcgYml0ID0gc3RhcnQgJSBJREFfQklUTUFQX0JJVFM7CisKKwkJYm1hcCA9IF9fcmFkaXhfdHJl
-ZV9sb29rdXAocm9vdCwgaW5kZXgsICZub2RlLCAmc2xvdCk7CisJCWlmIChyYWRpeF90cmVlX2V4
-Y2VwdGlvbihibWFwKSkgeworCQkJdW5zaWduZWQgbG9uZyB0bXAgPSAodW5zaWduZWQgbG9uZyli
-bWFwOworCQkJdW5zaWduZWQgbG9uZyBlYml0ID0gYml0ICsgMjsKKworCQkJaWYgKGViaXQgPj0g
-QklUU19QRVJfTE9ORykKKwkJCQljb250aW51ZTsKKwkJCWlmIChzZXQpCisJCQkJcmV0ID0gZmlu
-ZF9uZXh0X2JpdCgmdG1wLCBCSVRTX1BFUl9MT05HLCBlYml0KTsKKwkJCWVsc2UKKwkJCQlyZXQg
-PSBmaW5kX25leHRfemVyb19iaXQoJnRtcCwgQklUU19QRVJfTE9ORywKKwkJCQkJCQkgZWJpdCk7
-CisJCQlpZiAocmV0IDwgQklUU19QRVJfTE9ORykKKwkJCQlyZXR1cm4gcmV0IC0gMiArIElEQV9C
-SVRNQVBfQklUUyAqIGluZGV4OworCQl9IGVsc2UgaWYgKGJtYXApIHsKKwkJCWlmIChzZXQpCisJ
-CQkJcmV0ID0gZmluZF9uZXh0X2JpdChibWFwLT5iaXRtYXAsCisJCQkJCQkgICAgSURBX0JJVE1B
-UF9CSVRTLCBiaXQpOworCQkJZWxzZQorCQkJCXJldCA9IGZpbmRfbmV4dF96ZXJvX2JpdChibWFw
-LT5iaXRtYXAsCisJCQkJCQkJIElEQV9CSVRNQVBfQklUUywgYml0KTsKKwkJCWlmIChyZXQgPCBJ
-REFfQklUTUFQX0JJVFMpCisJCQkJcmV0dXJuIHJldCArIGluZGV4ICogSURBX0JJVE1BUF9CSVRT
-OworCQl9IGVsc2UgaWYgKCFibWFwICYmICFzZXQpIHsKKwkJCXJldHVybiBzdGFydDsKKwkJfQor
-CX0KKworCXJldHVybiByZXQ7Cit9CisKKy8qKgorICogeGJfZmluZF9uZXh0X3NldF9iaXQgLSBm
-aW5kIHRoZSBuZXh0IHNldCBiaXQgaW4gYSByYW5nZQorICogQHhiOiB0aGUgeGJpdG1hcCB0byBz
-ZWFyY2gKKyAqIEBzdGFydDogdGhlIHN0YXJ0IG9mIHRoZSByYW5nZSwgaW5jbHVzaXZlCisgKiBA
-ZW5kOiB0aGUgZW5kIG9mIHRoZSByYW5nZSwgaW5jbHVzaXZlCisgKgorICogUmV0dXJuczogdGhl
-IGluZGV4IG9mIHRoZSBmb3VuZCBiaXQsIG9yIEBlbmQgKyAxIGlmIG5vIHN1Y2ggYml0IGlzIGZv
-dW5kLgorICovCit1bnNpZ25lZCBsb25nIHhiX2ZpbmRfbmV4dF9zZXRfYml0KHN0cnVjdCB4YiAq
-eGIsIHVuc2lnbmVkIGxvbmcgc3RhcnQsCisJCQkJICAgdW5zaWduZWQgbG9uZyBlbmQpCit7CisJ
-cmV0dXJuIHhiX2ZpbmRfbmV4dF9iaXQoeGIsIHN0YXJ0LCBlbmQsIDEpOworfQorRVhQT1JUX1NZ
-TUJPTCh4Yl9maW5kX25leHRfc2V0X2JpdCk7CisKKy8qKgorICogeGJfZmluZF9uZXh0X3plcm9f
-Yml0IC0gZmluZCB0aGUgbmV4dCB6ZXJvIGJpdCBpbiBhIHJhbmdlCisgKiBAeGI6IHRoZSB4Yml0
-bWFwIHRvIHNlYXJjaAorICogQHN0YXJ0OiB0aGUgc3RhcnQgb2YgdGhlIHJhbmdlLCBpbmNsdXNp
-dmUKKyAqIEBlbmQ6IHRoZSBlbmQgb2YgdGhlIHJhbmdlLCBpbmNsdXNpdmUKKyAqCisgKiBSZXR1
-cm5zOiB0aGUgaW5kZXggb2YgdGhlIGZvdW5kIGJpdCwgb3IgQGVuZCArIDEgaWYgbm8gc3VjaCBi
-aXQgaXMgZm91bmQuCisgKi8KK3Vuc2lnbmVkIGxvbmcgeGJfZmluZF9uZXh0X3plcm9fYml0KHN0
-cnVjdCB4YiAqeGIsIHVuc2lnbmVkIGxvbmcgc3RhcnQsCisJCQkJICAgIHVuc2lnbmVkIGxvbmcg
-ZW5kKQoreworCXJldHVybiB4Yl9maW5kX25leHRfYml0KHhiLCBzdGFydCwgZW5kLCAwKTsKK30K
-K0VYUE9SVF9TWU1CT0woeGJfZmluZF9uZXh0X3plcm9fYml0KTsKLS0gCjIuNy40CgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+From: Matthew Wilcox <mawilcox@microsoft.com>
+
+Add the following tests for xbitmap:
+1) single bit test: single bit set/clear/find;
+2) bit range test: set/clear a range of bits and find a 0 or 1 bit in
+the range.
+
+Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+Cc: Matthew Wilcox <mawilcox@microsoft.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+---
+ tools/include/linux/bitmap.h            |  34 ++++
+ tools/include/linux/kernel.h            |   2 +
+ tools/testing/radix-tree/Makefile       |   7 +-
+ tools/testing/radix-tree/linux/kernel.h |   2 -
+ tools/testing/radix-tree/main.c         |   5 +
+ tools/testing/radix-tree/test.h         |   1 +
+ tools/testing/radix-tree/xbitmap.c      | 269 ++++++++++++++++++++++++++++++++
+ 7 files changed, 317 insertions(+), 3 deletions(-)
+ create mode 100644 tools/testing/radix-tree/xbitmap.c
+
+diff --git a/tools/include/linux/bitmap.h b/tools/include/linux/bitmap.h
+index e8b9f51..890dab2 100644
+--- a/tools/include/linux/bitmap.h
++++ b/tools/include/linux/bitmap.h
+@@ -36,6 +36,40 @@ static inline void bitmap_zero(unsigned long *dst, int nbits)
+ 	}
+ }
+ 
++static inline void __bitmap_clear(unsigned long *map, unsigned int start,
++				  int len)
++{
++	unsigned long *p = map + BIT_WORD(start);
++	const unsigned int size = start + len;
++	int bits_to_clear = BITS_PER_LONG - (start % BITS_PER_LONG);
++	unsigned long mask_to_clear = BITMAP_FIRST_WORD_MASK(start);
++
++	while (len - bits_to_clear >= 0) {
++		*p &= ~mask_to_clear;
++		len -= bits_to_clear;
++		bits_to_clear = BITS_PER_LONG;
++		mask_to_clear = ~0UL;
++		p++;
++	}
++	if (len) {
++		mask_to_clear &= BITMAP_LAST_WORD_MASK(size);
++		*p &= ~mask_to_clear;
++	}
++}
++
++static inline __always_inline void bitmap_clear(unsigned long *map,
++						unsigned int start,
++						unsigned int nbits)
++{
++	if (__builtin_constant_p(nbits) && nbits == 1)
++		__clear_bit(start, map);
++	else if (__builtin_constant_p(start & 7) && IS_ALIGNED(start, 8) &&
++		 __builtin_constant_p(nbits & 7) && IS_ALIGNED(nbits, 8))
++		memset((char *)map + start / 8, 0, nbits / 8);
++	else
++		__bitmap_clear(map, start, nbits);
++}
++
+ static inline void bitmap_fill(unsigned long *dst, unsigned int nbits)
+ {
+ 	unsigned int nlongs = BITS_TO_LONGS(nbits);
+diff --git a/tools/include/linux/kernel.h b/tools/include/linux/kernel.h
+index 77d2e94..21e90ee 100644
+--- a/tools/include/linux/kernel.h
++++ b/tools/include/linux/kernel.h
+@@ -12,6 +12,8 @@
+ #define UINT_MAX	(~0U)
+ #endif
+ 
++#define IS_ALIGNED(x, a)	(((x) & ((typeof(x))(a) - 1)) == 0)
++
+ #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+ 
+ #define PERF_ALIGN(x, a)	__PERF_ALIGN_MASK(x, (typeof(x))(a)-1)
+diff --git a/tools/testing/radix-tree/Makefile b/tools/testing/radix-tree/Makefile
+index 6a9480c..fc7cb422 100644
+--- a/tools/testing/radix-tree/Makefile
++++ b/tools/testing/radix-tree/Makefile
+@@ -5,7 +5,8 @@ LDLIBS+= -lpthread -lurcu
+ TARGETS = main idr-test multiorder
+ CORE_OFILES := radix-tree.o idr.o linux.o test.o find_bit.o
+ OFILES = main.o $(CORE_OFILES) regression1.o regression2.o regression3.o \
+-	 tag_check.o multiorder.o idr-test.o iteration_check.o benchmark.o
++	 tag_check.o multiorder.o idr-test.o iteration_check.o benchmark.o \
++	 xbitmap.o
+ 
+ ifndef SHIFT
+ 	SHIFT=3
+@@ -24,6 +25,9 @@ idr-test: idr-test.o $(CORE_OFILES)
+ 
+ multiorder: multiorder.o $(CORE_OFILES)
+ 
++xbitmap: xbitmap.o $(CORE_OFILES)
++	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o xbitmap
++
+ clean:
+ 	$(RM) $(TARGETS) *.o radix-tree.c idr.c generated/map-shift.h
+ 
+@@ -33,6 +37,7 @@ $(OFILES): Makefile *.h */*.h generated/map-shift.h \
+ 	../../include/linux/*.h \
+ 	../../include/asm/*.h \
+ 	../../../include/linux/radix-tree.h \
++	../../../include/linux/xbitmap.h \
+ 	../../../include/linux/idr.h
+ 
+ radix-tree.c: ../../../lib/radix-tree.c
+diff --git a/tools/testing/radix-tree/linux/kernel.h b/tools/testing/radix-tree/linux/kernel.h
+index b21a77f..c1e6088 100644
+--- a/tools/testing/radix-tree/linux/kernel.h
++++ b/tools/testing/radix-tree/linux/kernel.h
+@@ -16,6 +16,4 @@
+ #define pr_debug printk
+ #define pr_cont printk
+ 
+-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+-
+ #endif /* _KERNEL_H */
+diff --git a/tools/testing/radix-tree/main.c b/tools/testing/radix-tree/main.c
+index bc9a784..6f4774e 100644
+--- a/tools/testing/radix-tree/main.c
++++ b/tools/testing/radix-tree/main.c
+@@ -337,6 +337,11 @@ static void single_thread_tests(bool long_run)
+ 	rcu_barrier();
+ 	printv(2, "after copy_tag_check: %d allocated, preempt %d\n",
+ 		nr_allocated, preempt_count);
++
++	xbitmap_checks();
++	rcu_barrier();
++	printv(2, "after xbitmap_checks: %d allocated, preempt %d\n",
++			nr_allocated, preempt_count);
+ }
+ 
+ int main(int argc, char **argv)
+diff --git a/tools/testing/radix-tree/test.h b/tools/testing/radix-tree/test.h
+index 0f8220c..f8dcdaa 100644
+--- a/tools/testing/radix-tree/test.h
++++ b/tools/testing/radix-tree/test.h
+@@ -36,6 +36,7 @@ void iteration_test(unsigned order, unsigned duration);
+ void benchmark(void);
+ void idr_checks(void);
+ void ida_checks(void);
++void xbitmap_checks(void);
+ void ida_thread_tests(void);
+ 
+ struct item *
+diff --git a/tools/testing/radix-tree/xbitmap.c b/tools/testing/radix-tree/xbitmap.c
+new file mode 100644
+index 0000000..2787cb2
+--- /dev/null
++++ b/tools/testing/radix-tree/xbitmap.c
+@@ -0,0 +1,269 @@
++#include <linux/bitmap.h>
++#include <linux/slab.h>
++#include <linux/kernel.h>
++#include "../../../include/linux/xbitmap.h"
++
++static DEFINE_XB(xb1);
++
++int xb_set_bit(struct xb *xb, unsigned long bit)
++{
++	int err;
++	unsigned long index = bit / IDA_BITMAP_BITS;
++	struct radix_tree_root *root = &xb->xbrt;
++	struct radix_tree_node *node;
++	void **slot;
++	struct ida_bitmap *bitmap;
++	unsigned long ebit;
++
++	bit %= IDA_BITMAP_BITS;
++	ebit = bit + 2;
++
++	err = __radix_tree_create(root, index, 0, &node, &slot);
++	if (err)
++		return err;
++	bitmap = rcu_dereference_raw(*slot);
++	if (radix_tree_exception(bitmap)) {
++		unsigned long tmp = (unsigned long)bitmap;
++
++		if (ebit < BITS_PER_LONG) {
++			tmp |= 1UL << ebit;
++			rcu_assign_pointer(*slot, (void *)tmp);
++			return 0;
++		}
++		bitmap = this_cpu_xchg(ida_bitmap, NULL);
++		if (!bitmap)
++			return -EAGAIN;
++		memset(bitmap, 0, sizeof(*bitmap));
++		bitmap->bitmap[0] = tmp >> RADIX_TREE_EXCEPTIONAL_SHIFT;
++		rcu_assign_pointer(*slot, bitmap);
++	}
++
++	if (!bitmap) {
++		if (ebit < BITS_PER_LONG) {
++			bitmap = (void *)((1UL << ebit) |
++					RADIX_TREE_EXCEPTIONAL_ENTRY);
++			__radix_tree_replace(root, node, slot, bitmap, NULL,
++						NULL);
++			return 0;
++		}
++		bitmap = this_cpu_xchg(ida_bitmap, NULL);
++		if (!bitmap)
++			return -EAGAIN;
++		memset(bitmap, 0, sizeof(*bitmap));
++		__radix_tree_replace(root, node, slot, bitmap, NULL, NULL);
++	}
++
++	__set_bit(bit, bitmap->bitmap);
++	return 0;
++}
++
++bool xb_test_bit(struct xb *xb, unsigned long bit)
++{
++	unsigned long index = bit / IDA_BITMAP_BITS;
++	const struct radix_tree_root *root = &xb->xbrt;
++	struct ida_bitmap *bitmap = radix_tree_lookup(root, index);
++
++	bit %= IDA_BITMAP_BITS;
++
++	if (!bitmap)
++		return false;
++	if (radix_tree_exception(bitmap)) {
++		bit += RADIX_TREE_EXCEPTIONAL_SHIFT;
++		if (bit > BITS_PER_LONG)
++			return false;
++		return (unsigned long)bitmap & (1UL << bit);
++	}
++
++	return test_bit(bit, bitmap->bitmap);
++}
++
++void xb_clear_bit(struct xb *xb, unsigned long bit)
++{
++	unsigned long index = bit / IDA_BITMAP_BITS;
++	struct radix_tree_root *root = &xb->xbrt;
++	struct radix_tree_node *node;
++	void **slot;
++	struct ida_bitmap *bitmap;
++	unsigned long ebit;
++
++	bit %= IDA_BITMAP_BITS;
++	ebit = bit + 2;
++
++	bitmap = __radix_tree_lookup(root, index, &node, &slot);
++	if (radix_tree_exception(bitmap)) {
++		unsigned long tmp = (unsigned long)bitmap;
++
++		if (ebit >= BITS_PER_LONG)
++			return;
++		tmp &= ~(1UL << ebit);
++		if (tmp == RADIX_TREE_EXCEPTIONAL_ENTRY)
++			__radix_tree_delete(root, node, slot);
++		else
++			rcu_assign_pointer(*slot, (void *)tmp);
++		return;
++	}
++
++	if (!bitmap)
++		return;
++
++	__clear_bit(bit, bitmap->bitmap);
++	if (bitmap_empty(bitmap->bitmap, IDA_BITMAP_BITS)) {
++		kfree(bitmap);
++		__radix_tree_delete(root, node, slot);
++	}
++}
++
++void xb_clear_bit_range(struct xb *xb, unsigned long start, unsigned long end)
++{
++	struct radix_tree_root *root = &xb->xbrt;
++	struct radix_tree_node *node;
++	void **slot;
++	struct ida_bitmap *bitmap;
++	unsigned int nbits;
++
++	for (; start < end; start = (start | (IDA_BITMAP_BITS - 1)) + 1) {
++		unsigned long index = start / IDA_BITMAP_BITS;
++		unsigned long bit = start % IDA_BITMAP_BITS;
++
++		bitmap = __radix_tree_lookup(root, index, &node, &slot);
++		if (radix_tree_exception(bitmap)) {
++			unsigned long ebit = bit + 2;
++			unsigned long tmp = (unsigned long)bitmap;
++
++			nbits = min(end - start + 1, BITS_PER_LONG - ebit);
++
++			if (ebit >= BITS_PER_LONG)
++				continue;
++			bitmap_clear(&tmp, ebit, nbits);
++			if (tmp == RADIX_TREE_EXCEPTIONAL_ENTRY)
++				__radix_tree_delete(root, node, slot);
++			else
++				rcu_assign_pointer(*slot, (void *)tmp);
++		} else if (bitmap) {
++			nbits = min(end - start + 1, IDA_BITMAP_BITS - bit);
++
++			if (nbits != IDA_BITMAP_BITS)
++				bitmap_clear(bitmap->bitmap, bit, nbits);
++
++			if (nbits == IDA_BITMAP_BITS ||
++			    bitmap_empty(bitmap->bitmap, IDA_BITMAP_BITS)) {
++				kfree(bitmap);
++				__radix_tree_delete(root, node, slot);
++			}
++		}
++	}
++}
++
++static unsigned long xb_find_next_bit(struct xb *xb, unsigned long start,
++				      unsigned long end, bool set)
++{
++	struct radix_tree_root *root = &xb->xbrt;
++	struct radix_tree_node *node;
++	void **slot;
++	struct ida_bitmap *bmap;
++	unsigned long ret = end + 1;
++
++	for (; start < end; start = (start | (IDA_BITMAP_BITS - 1)) + 1) {
++		unsigned long index = start / IDA_BITMAP_BITS;
++		unsigned long bit = start % IDA_BITMAP_BITS;
++
++		bmap = __radix_tree_lookup(root, index, &node, &slot);
++		if (radix_tree_exception(bmap)) {
++			unsigned long tmp = (unsigned long)bmap;
++			unsigned long ebit = bit + 2;
++
++			if (ebit >= BITS_PER_LONG)
++				continue;
++			if (set)
++				ret = find_next_bit(&tmp, BITS_PER_LONG, ebit);
++			else
++				ret = find_next_zero_bit(&tmp, BITS_PER_LONG,
++							 ebit);
++			if (ret < BITS_PER_LONG)
++				return ret - 2 + IDA_BITMAP_BITS * index;
++		} else if (bmap) {
++			if (set)
++				ret = find_next_bit(bmap->bitmap,
++						    IDA_BITMAP_BITS, bit);
++			else
++				ret = find_next_zero_bit(bmap->bitmap,
++							 IDA_BITMAP_BITS, bit);
++			if (ret < IDA_BITMAP_BITS)
++				return ret + index * IDA_BITMAP_BITS;
++		} else if (!bmap && !set) {
++			return start;
++		}
++	}
++
++	return ret;
++}
++
++unsigned long xb_find_next_set_bit(struct xb *xb, unsigned long start,
++				   unsigned long end)
++{
++	return xb_find_next_bit(xb, start, end, 1);
++}
++
++unsigned long xb_find_next_zero_bit(struct xb *xb, unsigned long start,
++				    unsigned long end)
++{
++	return xb_find_next_bit(xb, start, end, 0);
++}
++
++static void xbitmap_check_bit(unsigned long bit)
++{
++	xb_preload(GFP_KERNEL);
++
++	assert(!xb_test_bit(&xb1, bit));
++	assert(!xb_set_bit(&xb1, bit));
++	assert(xb_test_bit(&xb1, bit));
++	xb_clear_bit(&xb1, bit);
++	assert(xb_is_empty(&xb1));
++
++	xb_preload_end();
++}
++
++static void xbitmap_check_bit_range(void)
++{
++	xb_preload(GFP_KERNEL);
++
++	/* Set a range of bits */
++	assert(!xb_set_bit(&xb1, 1060));
++	assert(!xb_set_bit(&xb1, 1061));
++	assert(!xb_set_bit(&xb1, 1064));
++	assert(!xb_set_bit(&xb1, 1065));
++	assert(!xb_set_bit(&xb1, 8180));
++	assert(!xb_set_bit(&xb1, 8181));
++	assert(!xb_set_bit(&xb1, 8190));
++	assert(!xb_set_bit(&xb1, 8191));
++
++	/* Test a range of bits */
++	assert(xb_find_next_set_bit(&xb1, 0, 10000) == 1060);
++	assert(xb_find_next_zero_bit(&xb1, 1061, 10000) == 1062);
++	assert(xb_find_next_set_bit(&xb1, 1062, 10000) == 1064);
++	assert(xb_find_next_zero_bit(&xb1, 1065, 10000) == 1066);
++	assert(xb_find_next_set_bit(&xb1, 1066, 10000) == 8180);
++	assert(xb_find_next_zero_bit(&xb1, 8180, 10000) == 8182);
++	xb_clear_bit_range(&xb1, 0, 1000000);
++	assert(xb_find_next_set_bit(&xb1, 0, 10000) == 10001);
++
++	assert(xb_find_next_zero_bit(&xb1, 20000, 30000) == 20000);
++
++	xb_preload_end();
++}
++
++void xbitmap_checks(void)
++{
++	xb_init(&xb1);
++
++	xbitmap_check_bit(0);
++	xbitmap_check_bit(30);
++	xbitmap_check_bit(31);
++	xbitmap_check_bit(1023);
++	xbitmap_check_bit(1024);
++	xbitmap_check_bit(1025);
++	xbitmap_check_bit((1UL << 63) | (1UL << 24));
++	xbitmap_check_bit((1UL << 63) | (1UL << 24) | 70);
++
++	xbitmap_check_bit_range();
++}
+-- 
+2.7.4
