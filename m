@@ -1,14 +1,13 @@
-From: Steven Luong <sluong99@gmail.com>
-Subject: Re: [virtio-dev] repost: af_packet vs virtio (was packed ring layout
-	proposal v2)
-Date: Tue, 1 Aug 2017 20:54:27 -0700
-Message-ID: <CAJR92jnV1VgBs567QNjO1fHKDgMX=1j1aJJ2gK-TqMB5E1=fvw__14813.8016499162$1509078118$gmane$org@mail.gmail.com>
-References: <20170414051304-mutt-send-email-mst@kernel.org>
-	<20170414054318-mutt-send-email-mst@kernel.org>
+From: Damian Tometzki <damian.tometzki@icloud.com>
+Subject: Re: [PATCH v16 0/5] Virtio-balloon Enhancement
+Date: Sun, 01 Oct 2017 15:25:27 +0200
+Message-ID: <1506864327.1916.3.camel__30654.1807869964$1509078198$gmane$org@icloud.com>
+References: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0835082085402887668=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170414054318-mutt-send-email-mst@kernel.org>
+In-reply-to: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,567 +17,131 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, john.fastabend@gmail.com, virtualization@lists.linux-foundation.org, alexei.starovoitov@gmail.com
+To: Wei Wang <wei.w.wang@intel.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, mawilcox@microsoft.com
+Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0835082085402887668==
-Content-Type: multipart/alternative; boundary="94eb2c1990687c77800555bd3832"
-
---94eb2c1990687c77800555bd3832
-Content-Type: text/plain; charset="UTF-8"
-
-Michael,
-
-I  have a question on s/g
-
-On Thu, Apr 13, 2017 at 7:50 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-
-> On Fri, Apr 14, 2017 at 05:42:58AM +0300, Michael S. Tsirkin wrote:
-> > Hi all, I wanted to raise the question of similarities between virtio
-> > and new zero copy af_packet interfaces.
-> >
-> > First I would like to mention that virtio device development isn't spec
-> > limited - spec is there to help interoperability and add peace of mind
-> > for people worried about IPR.
-> >
-> > So I tend to accept patches without requiring people write it up in the
-> > spec as work on spec proceeds at its own pace - all I ask is that the
-> > virtio mailing list is copied, this requires contributor to subscribe
-> > and in the process contributor promises that it's ok for us to add this
-> > to spec in the future.
-> >
-> > There shouldn't thus be a fundamental problem preventing use of virtio
-> > format or reusing some of the code for af_packet, but it still might or
-> > might not make sense - it was designed for CPU to CPU communication so
-> > it seems to make sense though.  So I would like that discussion to
-> > happen even if we decide against.
-> >
-> > And even if people decide against, the problem space is very similar.
-> You
-> > can look up packed ring layout proposal v2 - should I repost here?  Our
-> > prototyping shows significant performance improvements from using it as
-> > compared to head/tail layout.
-> >
-> > To start this discission I'm going to reply to this email reposting a
-> > copy of the simplified virtio layout that might be appropriate for
-> > af_packet as well.
->
-> Here's the repost (slightly cut down) sorry about the duplicates.
->
-> The idea is to have a r/w descriptor in a ring structure,
-> replacing the used and available ring, index and descriptor
-> buffer.
->
-> * Descriptor ring:
->
-> Guest adds descriptors with unique index values and DESC_HW set in flags.
-> Host overwrites used descriptors with correct len, index, and DESC_HW
-> clear.  Flags are always set/cleared last.
->
-> #define DESC_HW 0x0080
->
-> struct desc {
->         __le64 addr;
->         __le32 len;
->         __le16 index;
->         __le16 flags;
-> };
->
-> When DESC_HW is set, descriptor belongs to device. When it is clear,
-> it belongs to the driver.
->
-> We can use 1 bit to set direction
-> /* This marks a buffer as write-only (otherwise read-only). */
-> #define VRING_DESC_F_WRITE      2
->
-> * Scatter/gather support
->
-> We can use 1 bit to chain s/g entries in a request, same as virtio 1.0:
->
-> /* This marks a buffer as continuing via the next field. */
->
-
-This comment here is confusing to me. In 1.0, virtq_desc has the next
-field. When the flag VRING_DESC_F_NEXT is set, the next entry to continue
-is specified in the next field.
-
-Here in 1.1, struct desc does not have the next field, only addr, len,
-index, and flags. So when VRING_DESC_F_NEXT is set in struct desc's flags
-field, where is the next entry to continue the current descriptor, the
-entry immediately following the current entry? ie, if the current entry is
-at index 10 in the descriptor table and its flags is set for
-VRING_DESC_F_NEXT, is the entry continuing the current entry in index 11?
-
-Steven
-
-
-> #define VRING_DESC_F_NEXT       1
->
-> Unlike virtio 1.0, all descriptors must have distinct ID values.
->
-> Also unlike virtio 1.0, use of this flag will be an optional feature
-> (e.g. VIRTIO_F_DESC_NEXT) so both devices and drivers can opt out of it.
->
-> * Indirect buffers
->
-> Can be marked like in virtio 1.0:
->
-> /* This means the buffer contains a table of buffer descriptors. */
-> #define VRING_DESC_F_INDIRECT   4
->
-> Unlike virtio 1.0, this is a table, not a list:
-> struct indirect_descriptor_table {
->         /* The actual descriptors (16 bytes each) */
->         struct virtq_desc desc[len / 16];
-> };
->
-> The first descriptor is located at start of the indirect descriptor
-> table, additional indirect descriptors come immediately afterwards.
-> DESC_F_WRITE is the only valid flag for descriptors in the indirect
-> table. Others should be set to 0 and are ignored.  id is also set to 0
-> and should be ignored.
->
-> virtio 1.0 seems to allow a s/g entry followed by
-> an indirect descriptor. This does not seem useful,
-> so we do not allow that anymore.
->
-> This support would be an optional feature, same as in virtio 1.0
->
-> * Batching descriptors:
->
-> virtio 1.0 allows passing a batch of descriptors in both directions, by
-> incrementing the used/avail index by values > 1.  We can support this by
-> chaining a list of descriptors through a bit the flags field.
-> To allow use together with s/g, a different bit will be used.
->
-> #define VRING_DESC_F_BATCH_NEXT 0x0010
->
-> Batching works for both driver and device descriptors.
->
->
->
-> * Processing descriptors in and out of order
->
-> Device processing all descriptors in order can simply flip
-> the DESC_HW bit as it is done with descriptors.
->
-> Device can write descriptors out in order as they are used, overwriting
-> descriptors that are there.
->
-> Device must not use a descriptor until DESC_HW is set.
-> It is only required to look at the first descriptor
-> submitted.
->
-> Driver must not overwrite a descriptor until DESC_HW is clear.
-> It is only required to look at the first descriptor
-> submitted.
->
-> * Device specific descriptor flags
-> We have a lot of unused space in the descriptor.  This can be put to
-> good use by reserving some flag bits for device use.
-> For example, network device can set a bit to request
-> that header in the descriptor is suppressed
-> (in case it's all 0s anyway). This reduces cache utilization.
->
-> Note: this feature can be supported in virtio 1.0 as well,
-> as we have unused bits in both descriptor and used ring there.
->
-> * Descriptor length in device descriptors
->
-> virtio 1.0 places strict requirements on descriptor length. For example
-> it must be 0 in used ring of TX VQ of a network device since nothing is
-> written.  In practice guests do not seem to use this, so we can simplify
-> devices a bit by removing this requirement - if length is unused it
-> should be ignored by driver.
->
-> Some devices use identically-sized buffers in all descriptors.
-> Ignoring length for driver descriptors there could be an option too.
->
-> * Writing at an offset
->
-> Some devices might want to write into some descriptors
-> at an offset, the offset would be in config space,
-> and a descriptor flag could indicate this:
->
-> #define VRING_DESC_F_OFFSET 0x0020
->
-> How exactly to use the offset would be device specific,
-> for example it can be used to align beginning of packet
-> in the 1st buffer for mergeable buffers to cache line boundary
-> while also aligning rest of buffers.
->
-> * Non power-of-2 ring sizes
->
-> As the ring simply wraps around, there's no reason to
-> require ring size to be power of two.
-> It can be made a separate feature though.
->
->
-> * Interrupt/event suppression
->
-> virtio 1.0 has two mechanisms for suppression but only
-> one can be used at a time. we pack them together
-> in a structure - one for interrupts, one for notifications:
->
-> struct event {
->         __le16 idx;
->         __le16 flags;
-> }
->
-> Both fields would be optional, with a feature bit:
-> VIRTIO_F_EVENT_IDX
-> VIRTIO_F_EVENT_FLAGS
->
-> * Flags can be used like in virtio 1.0, by storing a special
-> value there:
->
-> #define VRING_F_EVENT_ENABLE  0x0
->
-> #define VRING_F_EVENT_DISABLE 0x1
->
-> * Event index would be in the range 0 to 2 * Queue Size
-> (to detect wrap arounds) and wrap to 0 after that.
->
-> The assumption is that each side maintains an internal
-> descriptor counter 0 to 2 * Queue Size that wraps to 0.
-> In that case, interrupt triggers when counter reaches
-> the given value.
->
-> * If both features are negotiated, a special flags value
-> can be used to switch to event idx:
->
-> #define VRING_F_EVENT_IDX     0x2
->
->
-> * Prototype
->
-> A partial prototype can be found under
-> tools/virtio/ringtest/ring.c
->
-> Test run:
-> [mst@tuck ringtest]$ time ./ring
-> real    0m0.399s
-> user    0m0.791s
-> sys     0m0.000s
-> [mst@tuck ringtest]$ time ./virtio_ring_0_9
-> real    0m0.503s
-> user    0m0.999s
-> sys     0m0.000s
->
-> This seems to match the theoretical analysis showing marking
-> descriptors themselves as invalid works better than a head/tail design.
-> Future changes and enhancements can be tested against this prototype.
->
-> A dpdk based implementation can be found here:
->
-> git://dpdk.org/next/dpdk-next-virtio    for-testing
->
->
->
-> --
-> MST
->
->
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
->
->
-
---94eb2c1990687c77800555bd3832
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div>Michael,<br><br></div>I=C2=A0 have a question on s/g<=
-br><div><div><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">On T=
-hu, Apr 13, 2017 at 7:50 PM, Michael S. Tsirkin <span dir=3D"ltr">&lt;<a hr=
-ef=3D"mailto:mst@redhat.com" target=3D"_blank">mst@redhat.com</a>&gt;</span=
-> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;bo=
-rder-left:1px #ccc solid;padding-left:1ex">On Fri, Apr 14, 2017 at 05:42:58=
-AM +0300, Michael S. Tsirkin wrote:<br>
-&gt; Hi all, I wanted to raise the question of similarities between virtio<=
-br>
-&gt; and new zero copy af_packet interfaces.<br>
-&gt;<br>
-&gt; First I would like to mention that virtio device development isn&#39;t=
- spec<br>
-&gt; limited - spec is there to help interoperability and add peace of mind=
-<br>
-&gt; for people worried about IPR.<br>
-&gt;<br>
-&gt; So I tend to accept patches without requiring people write it up in th=
-e<br>
-&gt; spec as work on spec proceeds at its own pace - all I ask is that the<=
-br>
-&gt; virtio mailing list is copied, this requires contributor to subscribe<=
-br>
-&gt; and in the process contributor promises that it&#39;s ok for us to add=
- this<br>
-&gt; to spec in the future.<br>
-&gt;<br>
-&gt; There shouldn&#39;t thus be a fundamental problem preventing use of vi=
-rtio<br>
-&gt; format or reusing some of the code for af_packet, but it still might o=
-r<br>
-&gt; might not make sense - it was designed for CPU to CPU communication so=
-<br>
-&gt; it seems to make sense though.=C2=A0 So I would like that discussion t=
-o<br>
-&gt; happen even if we decide against.<br>
-&gt;<br>
-&gt; And even if people decide against, the problem space is very similar.=
-=C2=A0 You<br>
-&gt; can look up packed ring layout proposal v2 - should I repost here?=C2=
-=A0 Our<br>
-&gt; prototyping shows significant performance improvements from using it a=
-s<br>
-&gt; compared to head/tail layout.<br>
-&gt;<br>
-&gt; To start this discission I&#39;m going to reply to this email repostin=
-g a<br>
-&gt; copy of the simplified virtio layout that might be appropriate for<br>
-&gt; af_packet as well.<br>
-<br>
-Here&#39;s the repost (slightly cut down) sorry about the duplicates.<br>
-<br>
-The idea is to have a r/w descriptor in a ring structure,<br>
-replacing the used and available ring, index and descriptor<br>
-buffer.<br>
-<br>
-* Descriptor ring:<br>
-<br>
-Guest adds descriptors with unique index values and DESC_HW set in flags.<b=
-r>
-Host overwrites used descriptors with correct len, index, and DESC_HW<br>
-clear.=C2=A0 Flags are always set/cleared last.<br>
-<br>
-#define DESC_HW 0x0080<br>
-<br>
-struct desc {<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 __le64 addr;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 __le32 len;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 __le16 index;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 __le16 flags;<br>
-};<br>
-<br>
-When DESC_HW is set, descriptor belongs to device. When it is clear,<br>
-it belongs to the driver.<br>
-<br>
-We can use 1 bit to set direction<br>
-/* This marks a buffer as write-only (otherwise read-only). */<br>
-#define VRING_DESC_F_WRITE=C2=A0 =C2=A0 =C2=A0 2<br>
-<br>
-* Scatter/gather support<br>
-<br>
-We can use 1 bit to chain s/g entries in a request, same as virtio 1.0:<br>
-<br>
-/* This marks a buffer as continuing via the next field. */<br></blockquote=
-><div><br></div><div>This comment here is confusing to me. In 1.0, virtq_de=
-sc has the next field. When the flag VRING_DESC_F_NEXT is set, the next ent=
-ry to continue is specified in the next field.<br><br>Here in 1.1, struct d=
-esc does not have the next field, only addr, len, index, and flags. So when=
- VRING_DESC_F_NEXT is set in struct desc&#39;s flags field, where is the ne=
-xt entry to continue the current descriptor, the entry immediately followin=
-g the current entry? ie, if the current entry is at index 10 in the descrip=
-tor table and its flags is set for VRING_DESC_F_NEXT, is the entry continui=
-ng the current entry in index 11?<br><br></div><div>Steven<br></div><div>=
-=C2=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;bo=
-rder-left:1px #ccc solid;padding-left:1ex">
-#define VRING_DESC_F_NEXT=C2=A0 =C2=A0 =C2=A0 =C2=A01<br>
-<br>
-Unlike virtio 1.0, all descriptors must have distinct ID values.<br>
-<br>
-Also unlike virtio 1.0, use of this flag will be an optional feature<br>
-(e.g. VIRTIO_F_DESC_NEXT) so both devices and drivers can opt out of it.<br=
->
-<br>
-* Indirect buffers<br>
-<br>
-Can be marked like in virtio 1.0:<br>
-<br>
-/* This means the buffer contains a table of buffer descriptors. */<br>
-#define VRING_DESC_F_INDIRECT=C2=A0 =C2=A04<br>
-<br>
-Unlike virtio 1.0, this is a table, not a list:<br>
-struct indirect_descriptor_table {<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 /* The actual descriptors (16 bytes each) */<br=
->
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 struct virtq_desc desc[len / 16];<br>
-};<br>
-<br>
-The first descriptor is located at start of the indirect descriptor<br>
-table, additional indirect descriptors come immediately afterwards.<br>
-DESC_F_WRITE is the only valid flag for descriptors in the indirect<br>
-table. Others should be set to 0 and are ignored.=C2=A0 id is also set to 0=
-<br>
-and should be ignored.<br>
-<br>
-virtio 1.0 seems to allow a s/g entry followed by<br>
-an indirect descriptor. This does not seem useful,<br>
-so we do not allow that anymore.<br>
-<br>
-This support would be an optional feature, same as in virtio 1.0<br>
-<br>
-* Batching descriptors:<br>
-<br>
-virtio 1.0 allows passing a batch of descriptors in both directions, by<br>
-incrementing the used/avail index by values &gt; 1.=C2=A0 We can support th=
-is by<br>
-chaining a list of descriptors through a bit the flags field.<br>
-To allow use together with s/g, a different bit will be used.<br>
-<br>
-#define VRING_DESC_F_BATCH_NEXT 0x0010<br>
-<br>
-Batching works for both driver and device descriptors.<br>
-<br>
-<br>
-<br>
-* Processing descriptors in and out of order<br>
-<br>
-Device processing all descriptors in order can simply flip<br>
-the DESC_HW bit as it is done with descriptors.<br>
-<br>
-Device can write descriptors out in order as they are used, overwriting<br>
-descriptors that are there.<br>
-<br>
-Device must not use a descriptor until DESC_HW is set.<br>
-It is only required to look at the first descriptor<br>
-submitted.<br>
-<br>
-Driver must not overwrite a descriptor until DESC_HW is clear.<br>
-It is only required to look at the first descriptor<br>
-submitted.<br>
-<br>
-* Device specific descriptor flags<br>
-We have a lot of unused space in the descriptor.=C2=A0 This can be put to<b=
-r>
-good use by reserving some flag bits for device use.<br>
-For example, network device can set a bit to request<br>
-that header in the descriptor is suppressed<br>
-(in case it&#39;s all 0s anyway). This reduces cache utilization.<br>
-<br>
-Note: this feature can be supported in virtio 1.0 as well,<br>
-as we have unused bits in both descriptor and used ring there.<br>
-<br>
-* Descriptor length in device descriptors<br>
-<br>
-virtio 1.0 places strict requirements on descriptor length. For example<br>
-it must be 0 in used ring of TX VQ of a network device since nothing is<br>
-written.=C2=A0 In practice guests do not seem to use this, so we can simpli=
-fy<br>
-devices a bit by removing this requirement - if length is unused it<br>
-should be ignored by driver.<br>
-<br>
-Some devices use identically-sized buffers in all descriptors.<br>
-Ignoring length for driver descriptors there could be an option too.<br>
-<br>
-* Writing at an offset<br>
-<br>
-Some devices might want to write into some descriptors<br>
-at an offset, the offset would be in config space,<br>
-and a descriptor flag could indicate this:<br>
-<br>
-#define VRING_DESC_F_OFFSET 0x0020<br>
-<br>
-How exactly to use the offset would be device specific,<br>
-for example it can be used to align beginning of packet<br>
-in the 1st buffer for mergeable buffers to cache line boundary<br>
-while also aligning rest of buffers.<br>
-<br>
-* Non power-of-2 ring sizes<br>
-<br>
-As the ring simply wraps around, there&#39;s no reason to<br>
-require ring size to be power of two.<br>
-It can be made a separate feature though.<br>
-<br>
-<br>
-* Interrupt/event suppression<br>
-<br>
-virtio 1.0 has two mechanisms for suppression but only<br>
-one can be used at a time. we pack them together<br>
-in a structure - one for interrupts, one for notifications:<br>
-<br>
-struct event {<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 __le16 idx;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 __le16 flags;<br>
-}<br>
-<br>
-Both fields would be optional, with a feature bit:<br>
-VIRTIO_F_EVENT_IDX<br>
-VIRTIO_F_EVENT_FLAGS<br>
-<br>
-* Flags can be used like in virtio 1.0, by storing a special<br>
-value there:<br>
-<br>
-#define VRING_F_EVENT_ENABLE=C2=A0 0x0<br>
-<br>
-#define VRING_F_EVENT_DISABLE 0x1<br>
-<br>
-* Event index would be in the range 0 to 2 * Queue Size<br>
-(to detect wrap arounds) and wrap to 0 after that.<br>
-<br>
-The assumption is that each side maintains an internal<br>
-descriptor counter 0 to 2 * Queue Size that wraps to 0.<br>
-In that case, interrupt triggers when counter reaches<br>
-the given value.<br>
-<br>
-* If both features are negotiated, a special flags value<br>
-can be used to switch to event idx:<br>
-<br>
-#define VRING_F_EVENT_IDX=C2=A0 =C2=A0 =C2=A00x2<br>
-<br>
-<br>
-* Prototype<br>
-<br>
-A partial prototype can be found under<br>
-tools/virtio/ringtest/ring.c<br>
-<br>
-Test run:<br>
-[mst@tuck ringtest]$ time ./ring<br>
-real=C2=A0 =C2=A0 0m0.399s<br>
-user=C2=A0 =C2=A0 0m0.791s<br>
-sys=C2=A0 =C2=A0 =C2=A00m0.000s<br>
-[mst@tuck ringtest]$ time ./virtio_ring_0_9<br>
-real=C2=A0 =C2=A0 0m0.503s<br>
-user=C2=A0 =C2=A0 0m0.999s<br>
-sys=C2=A0 =C2=A0 =C2=A00m0.000s<br>
-<br>
-This seems to match the theoretical analysis showing marking<br>
-descriptors themselves as invalid works better than a head/tail design.<br>
-Future changes and enhancements can be tested against this prototype.<br>
-<br>
-A dpdk based implementation can be found here:<br>
-<br>
-git://<a href=3D"http://dpdk.org/next/dpdk-next-virtio" rel=3D"noreferrer" =
-target=3D"_blank">dpdk.org/next/dpdk-next-<wbr>virtio</a>=C2=A0 =C2=A0 for-=
-testing<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
-<br>
-<br>
---<br>
-MST<br>
-<br>
-<br>
-------------------------------<wbr>------------------------------<wbr>-----=
-----<br>
-To unsubscribe, e-mail: <a href=3D"mailto:virtio-dev-unsubscribe@lists.oasi=
-s-open.org">virtio-dev-unsubscribe@lists.<wbr>oasis-open.org</a><br>
-For additional commands, e-mail: <a href=3D"mailto:virtio-dev-help@lists.oa=
-sis-open.org">virtio-dev-help@lists.oasis-<wbr>open.org</a><br>
-<br>
-</font></span></blockquote></div><br></div></div></div></div>
-
---94eb2c1990687c77800555bd3832--
-
---===============0835082085402887668==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0835082085402887668==--
+SGVsbG8sCgp3aGVyZSBpIGNhbiBmb3VuZCB0aGUgcGF0Y2ggaW4gZ2l0Lmtlcm5lbC5vcmcgPwoK
+QmVzdCByZWdhcmRzCkRhbWlhbgoKCkFtIFNhbXN0YWcsIGRlbiAzMC4wOS4yMDE3LCAxMjowNSAr
+MDgwMCBzY2hyaWViIFdlaSBXYW5nOgo+IFRoaXMgcGF0Y2ggc2VyaWVzIGVuaGFuY2VzIHRoZSBl
+eGlzdGluZyB2aXJ0aW8tYmFsbG9vbiB3aXRoIHRoZQo+IGZvbGxvd2luZwo+IG5ldyBmZWF0dXJl
+czoKPiAxKSBmYXN0IGJhbGxvb25pbmc6IHRyYW5zZmVyIGJhbGxvb25lZCBwYWdlcyBiZXR3ZWVu
+IHRoZSBndWVzdCBhbmQKPiBob3N0IGluCj4gY2h1bmtzIHVzaW5nIHNncywgaW5zdGVhZCBvZiBv
+bmUgYXJyYXkgZWFjaCB0aW1lOyBhbmQKPiAyKSBmcmVlIHBhZ2UgYmxvY2sgcmVwb3J0aW5nOiBh
+IG5ldyB2aXJ0cXVldWUgdG8gcmVwb3J0IGd1ZXN0IGZyZWUKPiBwYWdlcwo+IHRvIHRoZSBob3N0
+Lgo+IAo+IFRoZSBzZWNvbmQgZmVhdHVyZSBjYW4gYmUgdXNlZCB0byBhY2NlbGVyYXRlIGxpdmUg
+bWlncmF0aW9uIG9mIFZNcy4KPiBIZXJlCj4gYXJlIHNvbWUgZGV0YWlsczoKPiAKPiBMaXZlIG1p
+Z3JhdGlvbiBuZWVkcyB0byB0cmFuc2ZlciB0aGUgVk0ncyBtZW1vcnkgZnJvbSB0aGUgc291cmNl
+Cj4gbWFjaGluZQo+IHRvIHRoZSBkZXN0aW5hdGlvbiByb3VuZCBieSByb3VuZC4gRm9yIHRoZSAx
+c3Qgcm91bmQsIGFsbCB0aGUgVk0ncwo+IG1lbW9yeQo+IGlzIHRyYW5zZmVycmVkLiBGcm9tIHRo
+ZSAybmQgcm91bmQsIG9ubHkgdGhlIHBpZWNlcyBvZiBtZW1vcnkgdGhhdAo+IHdlcmUKPiB3cml0
+dGVuIGJ5IHRoZSBndWVzdCAoYWZ0ZXIgdGhlIDFzdCByb3VuZCkgYXJlIHRyYW5zZmVycmVkLiBP
+bmUKPiBtZXRob2QKPiB0aGF0IGlzIHBvcHVsYXJseSB1c2VkIGJ5IHRoZSBoeXBlcnZpc29yIHRv
+IHRyYWNrIHdoaWNoIHBhcnQgb2YKPiBtZW1vcnkgaXMKPiB3cml0dGVuIGlzIHRvIHdyaXRlLXBy
+b3RlY3QgYWxsIHRoZSBndWVzdCBtZW1vcnkuCj4gCj4gVGhlIHNlY29uZCBmZWF0dXJlIGVuYWJs
+ZXMgdGhlIG9wdGltaXphdGlvbiBvZiB0aGUgMXN0IHJvdW5kIG1lbW9yeQo+IHRyYW5zZmVyIC0g
+dGhlIGh5cGVydmlzb3IgY2FuIHNraXAgdGhlIHRyYW5zZmVyIG9mIGd1ZXN0IGZyZWUgcGFnZXMK
+PiBpbiB0aGUKPiAxc3Qgcm91bmQuIEl0IGlzIG5vdCBjb25jZXJuZWQgdGhhdCB0aGUgbWVtb3J5
+IHBhZ2VzIGFyZSB1c2VkIGFmdGVyCj4gdGhleQo+IGFyZSBnaXZlbiB0byB0aGUgaHlwZXJ2aXNv
+ciBhcyBhIGhpbnQgb2YgdGhlIGZyZWUgcGFnZXMsIGJlY2F1c2UgdGhleQo+IHdpbGwKPiBiZSB0
+cmFja2VkIGJ5IHRoZSBoeXBlcnZpc29yIGFuZCB0cmFuc2ZlcnJlZCBpbiB0aGUgbmV4dCByb3Vu
+ZCBpZgo+IHRoZXkgYXJlCj4gdXNlZCBhbmQgd3JpdHRlbi4KPiAKPiBDaGFuZ2UgTG9nOgo+IHYx
+NS0+djE2Ogo+IDEpIG1tOiBzdG9wIHJlcG9ydGluZyB0aGUgZnJlZSBwZm4gcmFuZ2UgaWYgdGhl
+IGNhbGxiYWNrIHJldHVybnMKPiBmYWxzZTsKPiAyKSBtbTogbW92ZSBzb21lIGltcGxlbWVudGFp
+b24gb2Ygd2Fsa19mcmVlX21lbV9ibG9jayBpbnRvIGEgZnVuY3Rpb24KPiB0bwo+IG1ha2UgdGhl
+IGNvZGUgbGF5b3V0IGxvb2tzIGJldHRlcjsKPiAzKSB4Yml0bWFwOiBhZGRlZCBzb21lIG9wdGlt
+aXphdGlvbnMgc3VnZ2VzdGVkIGJ5IE1hdHRoZXcsIHBsZWFzZQo+IHJlZmVyIHRvCj4gdGhlIENo
+YW5nTG9nIGluIHRoZSB4Yml0bWFwIHBhdGNoIGZvciBkZXRhaWxzLgo+IDQpIHhiaXRtYXA6IGFk
+ZGVkIGEgdGVzdCBzdWl0ZQo+IDUpIHZpcnRpby1iYWxsb29uOiBiYWlsIG91dCB3aXRoIGEgd2Fy
+bmluZyB3aGVuIHZpcnRxdWV1ZV9hZGRfaW5idWYKPiByZXR1cm5zCj4gYW4gZXJyb3IKPiA2KSB2
+aXJ0aW8tYmFsbG9vbjogc29tZSBzbWFsbCBjb2RlIHJlLWFycmFuZ2VtZW50LCBlLmcuIGRldGFj
+aGluZgo+IHVzZWQgYnVmCj4gZnJvbSB0aGUgdnEgYmVmb3JlIGFkZGluZyBhIG5ldyBidWYKPiAK
+PiB2MTQtPnYxNToKPiAxKSBtbTogbWFrZSB0aGUgcmVwb3J0IGNhbGxiYWNrIHJldHVybiBhIGJv
+b2wgdmFsdWUgLSByZXR1cm5pbmcgMSB0bwo+IHN0b3AKPiB3YWxraW5nIHRocm91Z2ggdGhlIGZy
+ZWUgcGFnZSBsaXN0Lgo+IDIpIHZpcnRpby1iYWxsb29uOiBiYXRjaGluZyBzZ3Mgb2YgYmFsbG9v
+biBwYWdlcyB0aWxsIHRoZSB2cSBpcyBmdWxsCj4gMykgdmlydGlvLWJhbGxvb246IGNyZWF0ZSBh
+IG5ldyB3b3JrcXVldWUsIHJhdGhlciB0aGFuIHVzaW5nIHRoZQo+IGRlZmF1bHQKPiBzeXN0ZW1f
+d3EsIHRvIHF1ZXVlIHRoZSBmcmVlIHBhZ2UgcmVwb3J0aW5nIHdvcmsgaXRlbS4KPiA0KSB2aXJ0
+aW8tYmFsbG9vbjogYWRkIGEgY3RybF92cSB0byBiZSBhIGNlbnRyYWwgY29udHJvbCBwbGFuZSB3
+aGljaAo+IHdpbGwKPiBoYW5kbGUgYWxsIHRoZSBmdXR1cmUgY29udHJvbCByZWxhdGVkIGNvbW1h
+bmRzIGJldHdlZW4gdGhlIGhvc3QgYW5kCj4gZ3Vlc3QuCj4gQWRkIGZyZWUgcGFnZSByZXBvcnQg
+YXMgdGhlIGZpcnN0IGZlYXR1cmUgY29udHJvbGxlZCB1bmRlciBjdHJsX3ZxLAo+IGFuZAo+IHRo
+ZSBmcmVlX3BhZ2VfdnEgaXMgYSBkYXRhIHBsYW5lIHZxIGRlZGljYXRlZCB0byB0aGUgdHJhbnNt
+aXNzaW9uIG9mCj4gZnJlZQo+IHBhZ2UgYmxvY2tzLgo+IAo+IHYxMy0+djE0Ogo+IDEpIHhiaXRt
+YXA6IG1vdmUgdGhlIGNvZGUgZnJvbSBsaWIvcmFkaXgtdHJlZS5jIHRvIGxpYi94Yml0bWFwLmMu
+Cj4gMikgeGJpdG1hcDogY29uc29saWRhdGUgdGhlIGltcGxlbWVudGF0aW9uIG9mIHhiX2JpdF9z
+ZXQvY2xlYXIvdGVzdAo+IGludG8KPiBvbmUgeGJfYml0X29wcy4KPiAzKSB4Yml0bWFwOiBhZGQg
+ZG9jdW1lbnRzIGZvciB0aGUgZXhwb3J0ZWQgQVBJcy4KPiA0KSBtbTogcmV3cml0ZSB0aGUgZnVu
+Y3Rpb24gdG8gd2FsayB0aHJvdWdoIGZyZWUgcGFnZSBibG9ja3MuCj4gNSkgdmlydGlvLWJhbGxv
+b246IHdoZW4gcmVwb3J0aW5nIGEgZnJlZSBwYWdlIGJsY29rIHRvIHRoZSBkZXZpY2UsIGlmCj4g
+dGhlCj4gdnEgaXMgZnVsbCAobGVzcyBsaWtleSB0byBoYXBwZW4gaW4gcHJhY3RpY2UpLCBqdXN0
+IHNraXAgcmVwb3J0aW5nCj4gdGhpcwo+IGJsb2NrLCBpbnN0ZWFkIG9mIGJ1c3l3YWl0aW5nIHRp
+bGwgYW4gZW50cnkgZ2V0cyByZWxlYXNlZC4KPiA2KSB2aXJ0aW8tYmFsbG9vbjogZmFpbCB0aGUg
+cHJvYmUgZnVuY3Rpb24gaWYgYWRkaW5nIHRoZSBzaWduYWwgYnVmCj4gaW4KPiBpbml0X3ZxcyBm
+YWlscy4KPiAKPiB2MTItPnYxMzoKPiAxKSBtbTogdXNlIGEgY2FsbGJhY2sgZnVuY3Rpb24gdG8g
+aGFuZGxlIHRoZSB0aGUgZnJlZSBwYWdlIGJsb2Nrcwo+IGZyb20gdGhlCj4gcmVwb3J0IGZ1bmN0
+aW9uLiBUaGlzIGF2b2lkcyBleHBvc2luZyB0aGUgem9uZSBpbnRlcm5hbCB0byBhIGtlcm5lbAo+
+IG1vZHVsZS4KPiAyKSB2aXJ0aW8tYmFsbG9vbjogc2VuZCBiYWxsb29uIHBhZ2VzIG9yIGEgZnJl
+ZSBwYWdlIGJsb2NrIHVzaW5nIGEKPiBzaW5nbGUKPiBzZyBlYWNoIHRpbWUuIFRoaXMgaGFzIHRo
+ZSBiZW5lZml0cyBvZiBzaW1wbGVyIGltcGxlbWVudGF0aW9uIHdpdGggbm8KPiBuZXcKPiBBUElz
+Lgo+IDMpIHZpcnRpby1iYWxsb29uOiB0aGUgZnJlZV9wYWdlX3ZxIGlzIHVzZWQgdG8gcmVwb3J0
+IGZyZWUgcGFnZXMgb25seQo+IChubwo+IG11bHRpcGxlIHVzYWdlcyBpbnRlcmxlYXZpbmcpCj4g
+NCkgdmlydGlvLWJhbGxvb246IEJhbGxvb24gcGFnZXMgYW5kIGZyZWUgcGFnZSBibG9ja3MgYXJl
+IHNlbnQgdmlhCj4gaW5wdXQKPiBzZ3MsIGFuZCB0aGUgY29tcGxldGlvbiBzaWduYWwgdG8gdGhl
+IGhvc3QgaXMgc2VudCB2aWEgYW4gb3V0cHV0IHNnLgo+IAo+IHYxMS0+djEyOgo+IDEpIHhiaXRt
+YXA6IHVzZSB0aGUgeGJpdG1hcCBmcm9tIE1hdHRoZXcgV2lsY294IHRvIHJlY29yZCBiYWxsb29u
+ZWQKPiBwYWdlcy4KPiAyKSB2aXJ0aW8tcmluZzogZW5hYmxlIHRoZSBkcml2ZXIgdG8gYnVpbGQg
+dXAgYSBkZXNjIGNoYWluIHVzaW5nCj4gdnJpbmcKPiBkZXNjLgo+IDMpIHZpcnRpby1yaW5nOiBB
+ZGQgbG9ja2luZyB0byB0aGUgZXhpc3RpbmcgU1RBUlRfVVNFKCkgYW5kIEVORF9VU0UoKQo+IG1h
+Y3JvIHRvIGxvY2svdW5sb2NrIHRoZSB2cSB3aGVuIGEgdnEgb3BlcmF0aW9uIHN0YXJ0cy9lbmRz
+Lgo+IDQpIHZpcnRpby1yaW5nOiBhZGQgdmlydHF1ZXVlX2tpY2tfc3luYygpIGFuZCB2aXJ0cXVl
+dWVfa2lja19hc3luYygpCj4gNSkgdmlydGlvLWJhbGxvb246IGRlc2NyaWJlIGNodW5rcyBvZiBi
+YWxsb29uZWQgcGFnZXMgYW5kIGZyZWUgcGFnZXMKPiBibG9ja3MgZGlyZWN0bHkgdXNpbmcgb25l
+IG9yIG1vcmUgY2hhaW5zIG9mIGRlc2MgZnJvbSB0aGUgdnEuCj4gCj4gdjEwLT52MTE6Cj4gMSkg
+dmlydGlvX2JhbGxvb246IHVzZSB2cmluZ19kZXNjIHRvIGRlc2NyaWJlIGEgY2h1bms7Cj4gMikg
+dmlydGlvX3Jpbmc6IHN1cHBvcnQgdG8gYWRkIGFuIGluZGlyZWN0IGRlc2MgdGFibGUgdG8gdmly
+dHF1ZXVlOwo+IDMpwqDCoHZpcnRpb19iYWxsb29uOiB1c2UgY21kcSB0byByZXBvcnQgZ3Vlc3Qg
+bWVtb3J5IHN0YXRpc3RpY3MuCj4gCj4gdjktPnYxMDoKPiAxKSBtbTogcHV0IHJlcG9ydF91bnVz
+ZWRfcGFnZV9ibG9jaygpIHVuZGVyIENPTkZJR19WSVJUSU9fQkFMTE9PTjsKPiAyKSB2aXJ0aW8t
+YmFsbG9vbjogYWRkIHZpcnRiYWxsb29uX3ZhbGlkYXRlKCk7Cj4gMykgdmlydGlvLWJhbGxvb246
+IG1zZyBmb3JtYXQgY2hhbmdlOwo+IDQpIHZpcnRpby1iYWxsb29uOiBtb3ZlIG1pc2NxIGhhbmRs
+aW5nIHRvIGEgdGFzayBvbgo+IHN5c3RlbV9mcmVlemFibGVfd3E7Cj4gNSkgdmlydGlvLWJhbGxv
+b246IGNvZGUgY2xlYW51cC4KPiAKPiB2OC0+djk6Cj4gMSkgU3BsaXQgdGhlIHR3byBuZXcgZmVh
+dHVyZXMsIFZJUlRJT19CQUxMT09OX0ZfQkFMTE9PTl9DSFVOS1MgYW5kCj4gVklSVElPX0JBTExP
+T05fRl9NSVNDX1ZRLCB3aGljaCB3ZXJlIG1peGVkIHRvZ2V0aGVyIGluIHRoZSBwcmV2aW91cwo+
+IGltcGxlbWVudGF0aW9uOwo+IDIpIFNpbXBsZXIgZnVuY3Rpb24gdG8gZ2V0IHRoZSBmcmVlIHBh
+Z2UgYmxvY2suCj4gCj4gdjctPnY4Ogo+IDEpIFVzZSBvbmx5IG9uZSBjaHVuayBmb3JtYXQsIGlu
+c3RlYWQgb2YgdHdvLgo+IDIpIHJlLXdyaXRlIHRoZSB2aXJ0aW8tYmFsbG9vbiBpbXBsZW1lbnRh
+dGlvbiBwYXRjaC4KPiAzKSBjb21taXQgY2hhbmdlcwo+IDQpIHBhdGNoIHJlLW9yZwo+IAo+IE1h
+dHRoZXcgV2lsY294ICgyKToKPiDCoCBsaWIveGJpdG1hcDogSW50cm9kdWNlIHhiaXRtYXAKPiDC
+oCByYWRpeCB0cmVlIHRlc3Qgc3VpdGU6IGFkZCB0ZXN0cyBmb3IgeGJpdG1hcAo+IAo+IFdlaSBX
+YW5nICgzKToKPiDCoCB2aXJ0aW8tYmFsbG9vbjogVklSVElPX0JBTExPT05fRl9TRwo+IMKgIG1t
+OiBzdXBwb3J0IHJlcG9ydGluZyBmcmVlIHBhZ2UgYmxvY2tzCj4gwqAgdmlydGlvLWJhbGxvb246
+IFZJUlRJT19CQUxMT09OX0ZfQ1RSTF9WUQo+IAo+IMKgZHJpdmVycy92aXJ0aW8vdmlydGlvX2Jh
+bGxvb24uY8KgwqDCoMKgwqDCoMKgwqDCoHwgNDM3Cj4gKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKystLS0KPiDCoGluY2x1ZGUvbGludXgvbW0uaMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgfMKgwqDCoDYgKwo+IMKgaW5jbHVkZS9saW51eC9yYWRpeC10cmVl
+LmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfMKgwqDCoDIgKwo+IMKgaW5jbHVkZS9saW51
+eC94Yml0bWFwLmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfMKgwqA2NiArKysr
+Kwo+IMKgaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmjCoMKgwqDCoMKgfMKgwqAx
+NiArKwo+IMKgbGliL01ha2VmaWxlwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqB8wqDCoMKgMiArLQo+IMKgbGliL3JhZGl4LXRyZWUuY8KgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHzCoMKgNDIgKystCj4g
+wqBsaWIveGJpdG1hcC5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgfCAyNjQgKysrKysrKysrKysrKysrKysrKwo+IMKgbW0vcGFnZV9hbGxvYy5j
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB8wqDCoDkx
+ICsrKysrKysKPiDCoHRvb2xzL2luY2x1ZGUvbGludXgvYml0bWFwLmjCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqB8wqDCoDM0ICsrKwo+IMKgdG9vbHMvaW5jbHVkZS9saW51eC9rZXJuZWwuaMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoHzCoMKgwqAyICsKPiDCoHRvb2xzL3Rlc3RpbmcvcmFkaXgtdHJl
+ZS9NYWtlZmlsZcKgwqDCoMKgwqDCoMKgfMKgwqDCoDcgKy0KPiDCoHRvb2xzL3Rlc3RpbmcvcmFk
+aXgtdHJlZS9saW51eC9rZXJuZWwuaCB8wqDCoMKgMiAtCj4gwqB0b29scy90ZXN0aW5nL3JhZGl4
+LXRyZWUvbWFpbi5jwqDCoMKgwqDCoMKgwqDCoMKgfMKgwqDCoDUgKwo+IMKgdG9vbHMvdGVzdGlu
+Zy9yYWRpeC10cmVlL3Rlc3QuaMKgwqDCoMKgwqDCoMKgwqDCoHzCoMKgwqAxICsKPiDCoHRvb2xz
+L3Rlc3RpbmcvcmFkaXgtdHJlZS94Yml0bWFwLmPCoMKgwqDCoMKgwqB8IDI2OSArKysrKysrKysr
+KysrKysrKysrKwo+IMKgMTYgZmlsZXMgY2hhbmdlZCwgMTIwMyBpbnNlcnRpb25zKCspLCA0MyBk
+ZWxldGlvbnMoLSkKPiDCoGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2xpbnV4L3hiaXRtYXAu
+aAo+IMKgY3JlYXRlIG1vZGUgMTAwNjQ0IGxpYi94Yml0bWFwLmMKPiDCoGNyZWF0ZSBtb2RlIDEw
+MDY0NCB0b29scy90ZXN0aW5nL3JhZGl4LXRyZWUveGJpdG1hcC5jCj4gCl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
+bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
