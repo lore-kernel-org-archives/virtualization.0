@@ -1,19 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] packed ring layout proposal v3
-Date: Sun, 1 Oct 2017 07:08:29 +0300
-Message-ID: <20171001063817-mutt-send-email-mst@kernel.org>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
-	<20170926011826-mutt-send-email-mst@kernel.org>
-	<7A0DC0C9-F148-4161-B2D1-8D8D14D8B9A1@cisco.com>
-	<20170928023112-mutt-send-email-mst@kernel.org>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1AD49B@SHSMSX152.ccr.corp.intel.com>
+Subject: Re: [RFC] [PATCH] mm,oom: Offload OOM notify callback to a kernel
+	thread.
+Date: Mon, 2 Oct 2017 06:59:12 +0300
+Message-ID: <20171002065801-mutt-send-email-mst__48333.0282419503$1506916784$gmane$org@kernel.org>
+References: <201709111927.IDD00574.tFVJHLOSOOMQFF@I-love.SAKURA.ne.jp>
+	<20170929065654-mutt-send-email-mst@kernel.org>
+	<201709291344.FID60965.VHtMQFFJFSLOOO@I-love.SAKURA.ne.jp>
+	<201710011444.IBD05725.VJSFHOOMOFtLQF@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <D0158A423229094DA7ABF71CF2FA0DA34E1AD49B@SHSMSX152.ccr.corp.intel.com>
+In-Reply-To: <201710011444.IBD05725.VJSFHOOMOFtLQF@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,99 +22,186 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Liang, Cunming" <cunming.liang@intel.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Steven Luong (sluong)" <sluong@cisco.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: airlied@linux.ie, joonas.lahtinen@linux.intel.com, jiangshanlai@gmail.com, josh@joshtriplett.org, jani.nikula@linux.intel.com, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, mathieu.desnoyers@efficios.com, rostedt@goodmis.org, rodrigo.vivi@intel.com, paulmck@linux.vnet.ibm.com, intel-gfx@lists.freedesktop.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBTZXAgMjgsIDIwMTcgYXQgMDk6NDQ6MzVBTSArMDAwMCwgTGlhbmcsIEN1bm1pbmcg
-d3JvdGU6Cj4gCj4gR2V0IGl0IG5vdy4gUGxlYXNlIGNvcnJlY3QgbWUgaWYgSSBtaXNzaW5nIHNv
-bWV0aGluZy4KPiAKPiAKPiBGbGFncyBzdGF0dXMgaGludHMsCj4gCj4gLSBERVNDX0RSSVZFUiBv
-bmx5OiBkcml2ZXIgb3ducyB0aGUgZGVzY3JpcHRvciB3L28gYXZhaWxhYmxlIGluZm8gcmVhZHkg
-Zm9yIGRldmljZSB0byB1c2UKPiAKPiAtIERFU0NfRFJJVkVSIHwgREVTQ19XUkFQOiBkcml2ZXIg
-aGFzIHByZXBhcmVkIGFuIGF2YWlsYWJsZSBkZXNjcmlwdG9yLCBkZXZpY2UgaGFzbid0IHVzZWQg
-aXQgeWV0Cj4gCj4gLSBOb25lOiBkZXZpY2UgaGFzIHVzZWQgdGhlIGRlc2NyaXB0b3IsIGFuZCB3
-cml0ZSBkZXNjcmlwdG9yIG91dAo+IAo+IC0gREVTQ19XUkFQIG9ubHk6IHNoYWxsIG5vdCBoYXBw
-ZW4sIGRldmljZSBtYWtlIHN1cmUgdG8gY2xlYXIgaXQKPiAKPiAKPiBQb2xsaW5nIGJlaGF2aW9y
-IGlzLAo+IAo+IC0gRGV2aWNlIG1vbml0b3IgREVTQ19XUkFQIGJpdCBzZXQgb3Igbm90OyBJZiBz
-ZXQsIGdvIHRvIHVzZSBkZXNjcmlwdG9yIGFuZCBjbGVhciBERVNDX0RSSVZFUiBiaXQgaW4gdGhl
-IGVuZCAobm90ZTogYWx3YXlzIG5lZWQgdG8gY2xlYXIgREVTQ19XUkFQKQo+IAo+IC0gRHJpdmVy
-IG1vbml0b3IgREVTQ19EUklWRVIgYml0IGNsZWFyZWQgb3Igbm90OyBJZiBjbGVhcmVkLCByZWNs
-YWltIGRlc2NyaXB0b3Ioc2V0IERFU0NfRFJJVkVSKSBhbmQgc2V0IERFU0NfV1JBUCBvbmNlIG5l
-dyBhdmFpbGFibGUgZGVzY3JpcHRvciBnZXQgcmVhZHkgdG8gZ28KPiAKPiAKPiAtLQo+IFN0ZXZl
-CgoKSG1tIG5vLCBub3Qgd2hhdCBJIGhhZCBpbiBtaW5kLgoKREVTQ19EUklWRVI6IHVzZWQgYnkg
-ZHJpdmVyIHRvIHBvbGwuIERyaXZlciBzZXRzIGl0IHdoZW4gd3JpdGluZyBhCmRlc2NyaXB0b3Iu
-ICBEZXZpY2UgY2xlYXJzIGl0IHdoZW4gb3ZlcndyaXRpbmcgYSBkZXNjcmlwdG9yLgpUaHVzIGRy
-aXZlciB1c2VzIERFU0NfRFJJVkVSIHRvIGRldGVjdCB0aGF0IGRldmljZSBkYXRhIGluCmRlc2Ny
-aXB0b3IgaXMgdmFsaWQuCgoKCkRFU0NfV1JBUDogdXNlZCBieSBkZXZpY2UgdG8gcG9sbC4gRHJp
-dmVyIHNldHMgaXQgdG8gYSAqZGlmZmVyZW50Kgp2YWx1ZSBldmVyeSB0aW1lIGl0IG92ZXJ3cml0
-ZXMgYSBkZXNjcmlwdG9yLiBIb3cgdG8gYWNoaWV2ZSBpdD8Kc2luY2UgZGVzY3JpcHRvcnMgYXJl
-IHdyaXR0ZW4gb3V0IGluIHJpbmcgb3JkZXIsCnNpbXBseSBtYWludGFpbiB0aGUgY3VycmVudCB2
-YWx1ZSBpbnRlcm5hbGx5IChzdGFydCB2YWx1ZSAxKSBhbmQgZmxpcCBpdApldmVyeSB0aW1lIHlv
-dSBvdmVyd3JpdGUgdGhlIGZpcnN0IGRlc2NyaXB0b3IuCkRldmljZSBsZWF2ZXMgaXQgaW50YWN0
-IHdoZW4gb3ZlcndyaXRpbmcgYSBkZXNjcmlwdG9yLgoKCkFmdGVyIHdyaXRpbmcgZG93biB0aGlz
-IGV4cGxhbmF0aW9uLCBJIHRoaW5rIHRoZSBuYW1lcyBhcmVuJ3QKZ3JlYXQuCgoKCkxldCBtZSB0
-cnkgYW4gYWx0ZXJuYXRpdmUgZXhwbGFuYXRpb24uCgotLS0tLS0tLS0tLS0tLS0KQSB0d28tYml0
-IGZpZWxkLCBEUklWRVJfT1dORVIsIHNpZ25hbHMgdGhlIGJ1ZmZlciBvd25lcnNoaXAuCkl0IGhh
-cyA0IHBvc3NpYmxlIHZhbHVlczoKdmFsdWVzIDB4MSwgMHgxMSBhcmUgd3JpdHRlbiBieSBkcml2
-ZXIKdmFsdWVzIDB4MCwgMHgxMCBhcmUgd3JpdHRlbiBieSBkZXZpY2UKCmVhY2ggdGltZSBkcml2
-ZXIgd3JpdGVzIG91dCBhIGRlc2NyaXB0b3IsIGl0IG11c3QgbWFrZSBzdXJlCnRoYXQgdGhlIGhp
-Z2ggYml0IGluIE9XTkVSIGNoYW5nZXMuCgplYWNoIHRpbWUgZGV2aWNlIHdyaXRlcyBvdXQgYSBk
-ZXNjcmlwdG9yLCBpdCBtdXN0IG1ha2Ugc3VyZQp0aGF0IHRoZSBoaWdoIGJpdCBpbiBPV05FUiBk
-b2VzIG5vdCBjaGFuZ2UuCgoKCnRoaXMgaXMgZXhhY3RseSB0aGUgc2FtZSBmdW5jdGlvbmFsbHks
-IERSSVZFUiBpcyBoaWdoIGJpdCBhbmQKV1JBUCBpcyB0aGUgbG93IGJpdC4gIERvZXMgdGhpcyBt
-YWtlIHRoaW5ncyBjbGVhcmVyPwotLS0tLS0tLS0tLS0tLS0KCgoKTWF5YmUgdGhlIGRpZmZlcmVu
-Y2UgYmV0d2VlbiBkZXZpY2UgYW5kIGRyaXZlcgppcyBjb25mdXNpbmcuIFdlIGNhbiBmaXggdGhh
-dCBieSBjaGFuZ2luZyB0aGUgdmFsdWVzLgpIZXJlIGlzIGFuIGFsdGVybmF0aXZlLiBMZXQgbWUg
-a25vdyBpZiB5b3UgbGlrZSBpdCBiZXR0ZXIgLQpJIG5lZWQgdG8gdGhpbmsgYSBiaXQgbW9yZSB0
-byBtYWtlIHN1cmUgaXQgd29ya3MsCmJ1dCB0byBnaXZlIHlvdSBhbiBpZGVhOgoKCi0tLS0tLS0t
-LS0tLS0tLQpBIHR3by1iaXQgZmllbGQsIERSSVZFUl9PV05FUiwgc2lnbmFscyB0aGUgYnVmZmVy
-IG93bmVyc2hpcC4KSXQgaGFzIDQgcG9zc2libGUgdmFsdWVzOgp2YWx1ZXMgMHgxLCAweDEwIGFy
-ZSB3cml0dGVuIGJ5IGRyaXZlcgp2YWx1ZXMgMHgwLCAweDExIGFyZSB3cml0dGVuIGJ5IGRldmlj
-ZQoKZWFjaCB0aW1lIGRyaXZlciB3cml0ZXMgb3V0IGEgZGVzY3JpcHRvciwgaXQgbXVzdCBtYWtl
-IHN1cmUKdGhhdCB0aGUgaGlnaCBiaXQgaW4gT1dORVIgY2hhbmdlcy4gVGh1cyBmaXJzdCB0aW1l
-Cml0IHdyaXRlcyAweDEwLCBuZXh0IHRpbWUgMHgxLCB0aGVuIDB4MTAgYWdhaW4uCgplYWNoIHRp
-bWUgZGV2aWNlIHdyaXRlcyBvdXQgYSBkZXNjcmlwdG9yLCBpdCBtdXN0IG1ha2Ugc3VyZQp0aGF0
-IHRoZSBsb3cgYml0IGluIE9XTkVSIGNoYW5nZXMuICBUaHVzIGZpcnN0IHRpbWUKaXQgd3JpdGVz
-IDB4MTEsIG5leHQgdGltZSAweDAsIHRoZW4gMHgxMSBhZ2Fpbi4KCi0tLS0tLS0tLS0tLS0tLQoK
-CgoKCgoKCgoKCgoKCgoKCgoKPiA+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tCj4gPiBGcm9t
-OiBNaWNoYWVsIFMuIFRzaXJraW4gW21haWx0bzptc3RAcmVkaGF0LmNvbV0KPiA+IFNlbnQ6IFRo
-dXJzZGF5LCBTZXB0ZW1iZXIgMjgsIDIwMTcgNzo0OSBBTQo+ID4gVG86IFN0ZXZlbiBMdW9uZyAo
-c2x1b25nKQo+ID4gQ2M6IExpYW5nLCBDdW5taW5nOyB2aXJ0aW8tZGV2QGxpc3RzLm9hc2lzLW9w
-ZW4ub3JnOwo+ID4gdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKPiA+
-IFN1YmplY3Q6IFJlOiBbdmlydGlvLWRldl0gcGFja2VkIHJpbmcgbGF5b3V0IHByb3Bvc2FsIHYz
-Cj4gPiAKPiA+IE9uIFR1ZSwgU2VwIDI2LCAyMDE3IGF0IDExOjM4OjE4UE0gKzAwMDAsIFN0ZXZl
-biBMdW9uZyAoc2x1b25nKSB3cm90ZToKPiA+ID4gTWljaGFlbCwKPiA+ID4KPiA+ID4gV291bGQg
-eW91IHBsZWFzZSBnaXZlIGFuIGV4YW1wbGUgb3IgdHdvIGhvdyB0aGVzZSB0d28gZmxhZ3MKPiA+
-IERFU0NfRFJJVkVSIGFuZCBERVNDX1dSQVAgYXJlIHVzZWQgdG9nZXRoZXI/IExpa2Ugb3RoZXJz
-LCBJIGFtCj4gPiBjb25mdXNlZCBieSB0aGUgZGVzY3JpcHRpb24gYW5kIHN0aWxsIGRvbuKAmXQg
-cXVpdGUgZ3JvayBpdC4KPiA+ID4KPiA+ID4gU3RldmVuCj4gPiAKPiA+IE15IGJhZCwgSSB3aWxs
-IG5lZWQgdG8gd29yayBvbiBpdC4gSGVyZSBpcyBhbiBleGFtcGxlOgo+ID4gCj4gPiBMZXQncyBh
-c3N1bWUgZGV2aWNlIHByb21pc2VkIHRvIGNvbnN1bWUgcGFja2V0cyBpbiBvcmRlcgo+ID4gCj4g
-PiByaW5nIHNpemUgPSAyCj4gPiAKPiA+IFJpbmcgaXMgMCBpbml0aWFsaXplZC4KPiA+IAo+ID4g
-RGV2aWNlIGluaXRpYWxseSBwb2xscyBERVNDWzBdLmZsYWdzIGZvciBXUkFQIGJpdCB0byBjaGFu
-Z2UuCj4gPiAKPiA+IGRyaXZlciBhZGRzOgo+ID4gCj4gPiBERVNDWzBdLmFkZHIgPSAxMjM0Cj4g
-PiBERVNDWzBdLmlkID0gMAo+ID4gREVTQ1swXS5mbGFncyA9IERFU0NfRFJJVkVSIHwgREVTQ19O
-RVhUIHwgREVTQ19XUkFQCj4gPiAKPiA+IGFuZAo+ID4gCj4gPiBERVNDWzBdLmFkZHIgPSA1Njc4
-Cj4gPiBERVNDWzFdLmlkID0gMQo+ID4gREVTQ1sxXS5mbGFncyA9IERFU0NfRFJJVkVSIHwgREVT
-Q19XUkFQCj4gPiAKPiA+IAo+ID4gaXQgbm93IHN0YXJ0cyBwb2xsaW5nIERFU0NbMF0gZmxhZ3Mu
-Cj4gPiAKPiA+IAo+ID4gRGV2aWNlIHJlYWRzIDEyMzQsIGV4ZWN1dGVzIGl0LCBkb2VzIG5vdCB1
-c2UgaXQuCj4gPiAKPiA+IERldmljZSByZWFkcyA1Njc4LCBleGVjdXRlcyBpdCwgYW5kIHVzZXMg
-aXQ6Cj4gPiAKPiA+IERFU0NbMF0uaWQgPSAxCj4gPiBERVNDWzBdLmZsYWdzID0gMAo+ID4gCj4g
-PiBEZXZpY2Ugbm93IHBvbGxzIERFU0NbMF0uZmxhZ3MgZm9yIFdSQVAgYml0IHRvIGNoYW5nZS4K
-PiA+IAo+ID4gTm93IGRyaXZlciBzZWVzIHRoYXQgRFJJVkVSIGJpdCBoYXMgYmVlbiBjbGVhcmVk
-LCBzbyBpdCBub3dzIHRoYXQgaWQgaXMgdmFsaWQuIEkKPiA+IHNlZXMgaWQgMSwgdGhlcmVmb3Jl
-IGlkIDAgYW5kIDEgaGFzIGJlZW4gcmVhZCBhbmQgYXJlIHNhZmUgdG8gb3ZlcndyaXRlLgo+ID4g
-Cj4gPiBTbyBpdCB3cml0ZXMgaXQgb3V0LiBJdCB3cmFwcGVkIGFyb3VuZCB0byBiZWdpbm5pbmcg
-b2YgcmluZywgc28gaXQgZmxpcHMgdGhlCj4gPiBXUkFQIGJpdCB0byAwIG9uIGFsbCBkZXNjcmlw
-dG9ycyBub3c6Cj4gPiAKPiA+IERFU0NbMF0uYWRkciA9IDlBQkMKPiA+IERFU0NbMF0uaWQgPSAw
-Cj4gPiBERVNDWzBdLmZsYWdzID0gREVTQ19EUklWRVIgfCBERVNDX05FWFQKPiA+IAo+ID4gCj4g
-PiBERVNDWzBdLmFkZHIgPSBERUYwCj4gPiBERVNDWzBdLmlkID0gMQo+ID4gREVTQ1swXS5mbGFn
-cyA9IERFU0NfRFJJVkVSCj4gPiAKPiA+IAo+ID4gTmV4dCByb3VuZCB3cmFwIHdpbGwgYmUgMSBh
-Z2Fpbi4KPiA+IAo+ID4gCj4gPiBUbyBzdW1tYXJpc2U6Cj4gPiAKPiA+IERSSVZFUiBiaXQgaXMg
-dXNlZCBieSBkcml2ZXIgdG8gZGV0ZWN0IGRldmljZSBoYXMgdXNlZCBvbmUgb3IgbW9yZQo+ID4g
-ZGVzY3JpcHRvcnMuICBXUkFQIGlzIGlzIHVzZWQgYnkgZGV2aWNlIHRvIGRldGVjdCBkcml2ZXIg
-aGFzIG1hZGUgYSBuZXcKPiA+IGRlc2NyaXB0b3IgYXZhaWxhYmxlLgo+ID4gCj4gPiAKPiA+IC0t
-Cj4gPiBNU1QKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Sun, Oct 01, 2017 at 02:44:34PM +0900, Tetsuo Handa wrote:
+> Tetsuo Handa wrote:
+> > Michael S. Tsirkin wrote:
+> > > On Mon, Sep 11, 2017 at 07:27:19PM +0900, Tetsuo Handa wrote:
+> > > > Hello.
+> > > > 
+> > > > I noticed that virtio_balloon is using register_oom_notifier() and
+> > > > leak_balloon() from virtballoon_oom_notify() might depend on
+> > > > __GFP_DIRECT_RECLAIM memory allocation.
+> > > > 
+> > > > In leak_balloon(), mutex_lock(&vb->balloon_lock) is called in order to
+> > > > serialize against fill_balloon(). But in fill_balloon(),
+> > > > alloc_page(GFP_HIGHUSER[_MOVABLE] | __GFP_NOMEMALLOC | __GFP_NORETRY) is
+> > > > called with vb->balloon_lock mutex held. Since GFP_HIGHUSER[_MOVABLE] implies
+> > > > __GFP_DIRECT_RECLAIM | __GFP_IO | __GFP_FS, this allocation attempt might
+> > > > depend on somebody else's __GFP_DIRECT_RECLAIM | !__GFP_NORETRY memory
+> > > > allocation. Such __GFP_DIRECT_RECLAIM | !__GFP_NORETRY allocation can reach
+> > > > __alloc_pages_may_oom() and hold oom_lock mutex and call out_of_memory().
+> > > > And leak_balloon() is called by virtballoon_oom_notify() via
+> > > > blocking_notifier_call_chain() callback when vb->balloon_lock mutex is already
+> > > > held by fill_balloon(). As a result, despite __GFP_NORETRY is specified,
+> > > > fill_balloon() can indirectly get stuck waiting for vb->balloon_lock mutex
+> > > > at leak_balloon().
+> > > 
+> > > That would be tricky to fix. I guess we'll need to drop the lock
+> > > while allocating memory - not an easy fix.
+> > > 
+> > > > Also, in leak_balloon(), virtqueue_add_outbuf(GFP_KERNEL) is called via
+> > > > tell_host(). Reaching __alloc_pages_may_oom() from this virtqueue_add_outbuf()
+> > > > request from leak_balloon() from virtballoon_oom_notify() from
+> > > > blocking_notifier_call_chain() from out_of_memory() leads to OOM lockup
+> > > > because oom_lock mutex is already held before calling out_of_memory().
+> > > 
+> > > I guess we should just do
+> > > 
+> > > GFP_KERNEL & ~__GFP_DIRECT_RECLAIM there then?
+> > 
+> > Yes, but GFP_KERNEL & ~__GFP_DIRECT_RECLAIM will effectively be GFP_NOWAIT, for
+> > __GFP_IO and __GFP_FS won't make sense without __GFP_DIRECT_RECLAIM. It might
+> > significantly increases possibility of memory allocation failure.
+> > 
+> > > 
+> > > 
+> > > > 
+> > > > OOM notifier callback should not (directly or indirectly) depend on
+> > > > __GFP_DIRECT_RECLAIM memory allocation attempt. Can you fix this dependency?
+> > > 
+> > 
+> > Another idea would be to use a kernel thread (or workqueue) so that
+> > virtballoon_oom_notify() can wait with timeout.
+> > 
+> > We could offload entire blocking_notifier_call_chain(&oom_notify_list, 0, &freed)
+> > call to a kernel thread (or workqueue) with timeout if MM folks agree.
+> > 
+> 
+> Below is a patch which offloads blocking_notifier_call_chain() call. What do you think?
+> ----------------------------------------
+> [RFC] [PATCH] mm,oom: Offload OOM notify callback to a kernel thread.
+> 
+> Since oom_notify_list is traversed via blocking_notifier_call_chain(),
+> it is legal to sleep inside OOM notifier callback function.
+> 
+> However, since oom_notify_list is traversed with oom_lock held,
+> __GFP_DIRECT_RECLAIM && !__GFP_NORETRY memory allocation attempt cannot
+> fail when traversing oom_notify_list entries. Therefore, OOM notifier
+> callback function should not (directly or indirectly) depend on
+> __GFP_DIRECT_RECLAIM && !__GFP_NORETRY memory allocation attempt.
+> 
+> Currently there are 5 register_oom_notifier() users in the mainline kernel.
+> 
+>   arch/powerpc/platforms/pseries/cmm.c
+>   arch/s390/mm/cmm.c
+>   drivers/gpu/drm/i915/i915_gem_shrinker.c
+>   drivers/virtio/virtio_balloon.c
+>   kernel/rcu/tree_plugin.h
+> 
+> Among these users, at least virtio_balloon.c has possibility of OOM lockup
+> because it is using mutex which can depend on GFP_KERNEL memory allocations.
+> (Both cmm.c seem to be safe as they use spinlocks. I'm not sure about
+> tree_plugin.h and i915_gem_shrinker.c . Please check.)
+> 
+> But converting such allocations to use GFP_NOWAIT is not only prone to
+> allocation failures under memory pressure but also difficult to audit
+> whether all locations are converted to use GFP_NOWAIT.
+> 
+> Therefore, this patch offloads blocking_notifier_call_chain() call to a
+> dedicated kernel thread and wait for completion with timeout of 5 seconds
+> so that we can completely forget about possibility of OOM lockup due to
+> OOM notifier callback function.
+> 
+> (5 seconds is chosen from my guess that blocking_notifier_call_chain()
+> should not take long, for we are using mutex_trylock(&oom_lock) at
+> __alloc_pages_may_oom() based on an assumption that out_of_memory() should
+> reclaim memory shortly.)
+> 
+> The kernel thread is created upon first register_oom_notifier() call.
+> Thus, those environments which do not use register_oom_notifier() will
+> not waste resource for the dedicated kernel thread.
+> 
+> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> ---
+>  mm/oom_kill.c | 40 ++++++++++++++++++++++++++++++++++++----
+>  1 file changed, 36 insertions(+), 4 deletions(-)
+> 
+> diff --git a/mm/oom_kill.c b/mm/oom_kill.c
+> index dee0f75..d9744f7 100644
+> --- a/mm/oom_kill.c
+> +++ b/mm/oom_kill.c
+> @@ -981,9 +981,37 @@ static void check_panic_on_oom(struct oom_control *oc,
+>  }
+>  
+>  static BLOCKING_NOTIFIER_HEAD(oom_notify_list);
+> +static bool oom_notifier_requested;
+> +static unsigned long oom_notifier_freed;
+> +static struct task_struct *oom_notifier_th;
+> +static DECLARE_WAIT_QUEUE_HEAD(oom_notifier_request_wait);
+> +static DECLARE_WAIT_QUEUE_HEAD(oom_notifier_response_wait);
+> +
+> +static int oom_notifier(void *unused)
+> +{
+> +	while (true) {
+> +		wait_event_freezable(oom_notifier_request_wait,
+> +				     oom_notifier_requested);
+> +		blocking_notifier_call_chain(&oom_notify_list, 0,
+> +					     &oom_notifier_freed);
+> +		oom_notifier_requested = false;
+> +		wake_up(&oom_notifier_response_wait);
+> +	}
+> +	return 0;
+> +}
+>  
+>  int register_oom_notifier(struct notifier_block *nb)
+>  {
+> +	if (!oom_notifier_th) {
+> +		struct task_struct *th = kthread_run(oom_notifier, NULL,
+> +						     "oom_notifier");
+> +
+> +		if (IS_ERR(th)) {
+> +			pr_err("Unable to start OOM notifier thread.\n");
+> +			return (int) PTR_ERR(th);
+> +		}
+> +		oom_notifier_th = th;
+> +	}
+>  	return blocking_notifier_chain_register(&oom_notify_list, nb);
+>  }
+>  EXPORT_SYMBOL_GPL(register_oom_notifier);
+> @@ -1005,17 +1033,21 @@ int unregister_oom_notifier(struct notifier_block *nb)
+>   */
+>  bool out_of_memory(struct oom_control *oc)
+>  {
+> -	unsigned long freed = 0;
+>  	enum oom_constraint constraint = CONSTRAINT_NONE;
+>  
+>  	if (oom_killer_disabled)
+>  		return false;
+>  
+> -	if (!is_memcg_oom(oc)) {
+> -		blocking_notifier_call_chain(&oom_notify_list, 0, &freed);
+> -		if (freed > 0)
+> +	if (!is_memcg_oom(oc) && oom_notifier_th) {
+> +		oom_notifier_requested = true;
+> +		wake_up(&oom_notifier_request_wait);
+> +		wait_event_timeout(oom_notifier_response_wait,
+> +				   !oom_notifier_requested, 5 * HZ);
+
+I guess this means what was earlier a deadlock will free up after 5
+seconds, by a 5 sec downtime is still a lot, isn't it?
+
+
+> +		if (oom_notifier_freed) {
+> +			oom_notifier_freed = 0;
+>  			/* Got some memory back in the last second. */
+>  			return true;
+> +		}
+>  	}
+>  
+>  	/*
+> -- 
+> 1.8.3.1
