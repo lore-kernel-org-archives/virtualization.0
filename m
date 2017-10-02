@@ -1,15 +1,19 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm/virtio: Replace instances of reference/unreference
-	with get/put
-Date: Mon, 2 Oct 2017 09:49:07 +0200
-Message-ID: <20171002074907.hdhmnqkuo2deceoa__16923.824864398$1506930576$gmane$org@phenom.ffwll.local>
-References: <1506679419-7130-1-git-send-email-srishtishar@gmail.com>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [RFC] [PATCH] mm,oom: Offload OOM notify callback to a kernel
+	thread.
+Date: Mon, 2 Oct 2017 11:06:27 +0200
+Message-ID: <20171002090627.547gkmzvutrsamex__44054.2913544506$1506935220$gmane$org@dhcp22.suse.cz>
+References: <201709111927.IDD00574.tFVJHLOSOOMQFF@I-love.SAKURA.ne.jp>
+	<20170929065654-mutt-send-email-mst@kernel.org>
+	<201709291344.FID60965.VHtMQFFJFSLOOO@I-love.SAKURA.ne.jp>
+	<201710011444.IBD05725.VJSFHOOMOFtLQF@I-love.SAKURA.ne.jp>
+	<20171002065801-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1506679419-7130-1-git-send-email-srishtishar@gmail.com>
+In-Reply-To: <20171002065801-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,140 +23,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Srishti Sharma <srishtishar@gmail.com>
-Cc: daniel.vetter@ffwll.ch, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, outreachy-kernel@googlegroups.com, seanpaul@chromium.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-mm@kvack.org, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, joonas.lahtinen@linux.intel.com, jiangshanlai@gmail.com, josh@joshtriplett.org, jani.nikula@linux.intel.com, virtualization@lists.linux-foundation.org, airlied@linux.ie, mathieu.desnoyers@efficios.com, rostedt@goodmis.org, rodrigo.vivi@intel.com, paulmck@linux.vnet.ibm.com, intel-gfx@lists.freedesktop.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 29, 2017 at 03:33:39PM +0530, Srishti Sharma wrote:
-> Replace reference/unreference with get/put as it is consistent
-> with the kernel coding style. Done using the following semantic
-> patch by coccinelle.
-> 
-> @r@
-> expression e;
-> @@
-> 
-> -drm_gem_object_unreference_unlocked(e);
-> +drm_gem_object_put_unlocked(e);
-> 
-> Signed-off-by: Srishti Sharma <srishtishar@gmail.com>
+[Hmm, I do not see the original patch which this has been a reply to]
 
-Applied to drm-misc-next, thanks.
--Daniel
+On Mon 02-10-17 06:59:12, Michael S. Tsirkin wrote:
+> On Sun, Oct 01, 2017 at 02:44:34PM +0900, Tetsuo Handa wrote:
+> > Tetsuo Handa wrote:
+> > > Michael S. Tsirkin wrote:
+> > > > On Mon, Sep 11, 2017 at 07:27:19PM +0900, Tetsuo Handa wrote:
+> > > > > Hello.
+> > > > > 
+> > > > > I noticed that virtio_balloon is using register_oom_notifier() and
+> > > > > leak_balloon() from virtballoon_oom_notify() might depend on
+> > > > > __GFP_DIRECT_RECLAIM memory allocation.
+> > > > > 
+> > > > > In leak_balloon(), mutex_lock(&vb->balloon_lock) is called in order to
+> > > > > serialize against fill_balloon(). But in fill_balloon(),
+> > > > > alloc_page(GFP_HIGHUSER[_MOVABLE] | __GFP_NOMEMALLOC | __GFP_NORETRY) is
+> > > > > called with vb->balloon_lock mutex held. Since GFP_HIGHUSER[_MOVABLE] implies
+> > > > > __GFP_DIRECT_RECLAIM | __GFP_IO | __GFP_FS, this allocation attempt might
+> > > > > depend on somebody else's __GFP_DIRECT_RECLAIM | !__GFP_NORETRY memory
+> > > > > allocation. Such __GFP_DIRECT_RECLAIM | !__GFP_NORETRY allocation can reach
+> > > > > __alloc_pages_may_oom() and hold oom_lock mutex and call out_of_memory().
+> > > > > And leak_balloon() is called by virtballoon_oom_notify() via
+> > > > > blocking_notifier_call_chain() callback when vb->balloon_lock mutex is already
+> > > > > held by fill_balloon(). As a result, despite __GFP_NORETRY is specified,
+> > > > > fill_balloon() can indirectly get stuck waiting for vb->balloon_lock mutex
+> > > > > at leak_balloon().
 
-> ---
->  drivers/gpu/drm/virtio/virtgpu_display.c |  4 ++--
->  drivers/gpu/drm/virtio/virtgpu_gem.c     |  4 ++--
->  drivers/gpu/drm/virtio/virtgpu_ioctl.c   | 12 ++++++------
->  3 files changed, 10 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-> index b6d5205..41b0930 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-> @@ -53,7 +53,7 @@ static void virtio_gpu_user_framebuffer_destroy(struct drm_framebuffer *fb)
->  	struct virtio_gpu_framebuffer *virtio_gpu_fb
->  		= to_virtio_gpu_framebuffer(fb);
->  
-> -	drm_gem_object_unreference_unlocked(virtio_gpu_fb->obj);
-> +	drm_gem_object_put_unlocked(virtio_gpu_fb->obj);
->  	drm_framebuffer_cleanup(fb);
->  	kfree(virtio_gpu_fb);
->  }
-> @@ -327,7 +327,7 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
->  	ret = virtio_gpu_framebuffer_init(dev, virtio_gpu_fb, mode_cmd, obj);
->  	if (ret) {
->  		kfree(virtio_gpu_fb);
-> -		drm_gem_object_unreference_unlocked(obj);
-> +		drm_gem_object_put_unlocked(obj);
->  		return NULL;
->  	}
->  
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-> index 72ad7b1..92fb277 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-> @@ -72,7 +72,7 @@ int virtio_gpu_gem_create(struct drm_file *file,
->  	*obj_p = &obj->gem_base;
->  
->  	/* drop reference from allocate - handle holds it now */
-> -	drm_gem_object_unreference_unlocked(&obj->gem_base);
-> +	drm_gem_object_put_unlocked(&obj->gem_base);
->  
->  	*handle_p = handle;
->  	return 0;
-> @@ -130,7 +130,7 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
->  		return -ENOENT;
->  	obj = gem_to_virtio_gpu_obj(gobj);
->  	*offset_p = virtio_gpu_object_mmap_offset(obj);
-> -	drm_gem_object_unreference_unlocked(gobj);
-> +	drm_gem_object_put_unlocked(gobj);
->  	return 0;
->  }
->  
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> index b94bd54..0528edb 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> @@ -86,7 +86,7 @@ static void virtio_gpu_unref_list(struct list_head *head)
->  		bo = buf->bo;
->  		qobj = container_of(bo, struct virtio_gpu_object, tbo);
->  
-> -		drm_gem_object_unreference_unlocked(&qobj->gem_base);
-> +		drm_gem_object_put_unlocked(&qobj->gem_base);
->  	}
->  }
->  
-> @@ -304,7 +304,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
->  		}
->  		return ret;
->  	}
-> -	drm_gem_object_unreference_unlocked(obj);
-> +	drm_gem_object_put_unlocked(obj);
->  
->  	rc->res_handle = res_id; /* similiar to a VM address */
->  	rc->bo_handle = handle;
-> @@ -341,7 +341,7 @@ static int virtio_gpu_resource_info_ioctl(struct drm_device *dev, void *data,
->  
->  	ri->size = qobj->gem_base.size;
->  	ri->res_handle = qobj->hw_res_handle;
-> -	drm_gem_object_unreference_unlocked(gobj);
-> +	drm_gem_object_put_unlocked(gobj);
->  	return 0;
->  }
->  
-> @@ -389,7 +389,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
->  out_unres:
->  	virtio_gpu_object_unreserve(qobj);
->  out:
-> -	drm_gem_object_unreference_unlocked(gobj);
-> +	drm_gem_object_put_unlocked(gobj);
->  	return ret;
->  }
->  
-> @@ -439,7 +439,7 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
->  out_unres:
->  	virtio_gpu_object_unreserve(qobj);
->  out:
-> -	drm_gem_object_unreference_unlocked(gobj);
-> +	drm_gem_object_put_unlocked(gobj);
->  	return ret;
->  }
->  
-> @@ -462,7 +462,7 @@ static int virtio_gpu_wait_ioctl(struct drm_device *dev, void *data,
->  		nowait = true;
->  	ret = virtio_gpu_object_wait(qobj, nowait);
->  
-> -	drm_gem_object_unreference_unlocked(gobj);
-> +	drm_gem_object_put_unlocked(gobj);
->  	return ret;
->  }
->  
-> -- 
-> 2.7.4
-> 
+This is really nasty! And I would argue that this is an abuse of the oom
+notifier interface from the virtio code. OOM notifiers are an ugly hack
+on its own but all its users have to be really careful to not depend on
+any allocation request because that is a straight deadlock situation.
 
+I do not think that making oom notifier API more complex is the way to
+go. Can we simply change the lock to try_lock? If the lock is held we
+would simply fall back to the normal OOM handling. As a follow up it
+would be great if virtio could use some other form of aging e.g.
+shrinker.
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Michal Hocko
+SUSE Labs
