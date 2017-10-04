@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [RFC v3 12/27] x86/paravirt: Adapt assembly for PIE support
-Date: Wed,  4 Oct 2017 14:19:48 -0700
-Message-ID: <20171004212003.28296-13-thgarnie__31245.1802813031$1509079859$gmane$org@google.com>
+Subject: [RFC v3 13/27] x86/boot/64: Use _text in a global for PIE support
+Date: Wed,  4 Oct 2017 14:19:49 -0700
+Message-ID: <20171004212003.28296-14-thgarnie__29739.7165013992$1509079873$gmane$org@google.com>
 References: <20171004212003.28296-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -23,49 +23,47 @@ To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemlof
 Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-if PIE is enabled, switch the paravirt assembly constraints to be
-compatible. The %c/i constrains generate smaller code so is kept by
-default.
+By default PIE generated code create only relative references so _text
+points to the temporary virtual address. Instead use a global variable
+so the relocation is done as expected.
 
 Position Independent Executable (PIE) support will allow to extended the
 KASLR randomization range below the -2G memory limit.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/include/asm/paravirt_types.h | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/x86/kernel/head64.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 280d94c36dad..e6961f8a74aa 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -335,9 +335,17 @@ extern struct pv_lock_ops pv_lock_ops;
- #define PARAVIRT_PATCH(x)					\
- 	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index bab4fa579450..675f1dba3b21 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -45,8 +45,14 @@ static void __head *fixup_pointer(void *ptr, unsigned long physaddr)
+ 	return ptr - (void *)_text + (void *)physaddr;
+ }
  
-+#ifdef CONFIG_X86_PIE
-+#define paravirt_opptr_call "a"
-+#define paravirt_opptr_type "p"
-+#else
-+#define paravirt_opptr_call "c"
-+#define paravirt_opptr_type "i"
-+#endif
+-unsigned long __head __startup_64(unsigned long physaddr,
+-				  struct boot_params *bp)
++/*
++ * Use a global variable to properly calculate _text delta on PIE. By default
++ * a PIE binary do a RIP relative difference instead of the relocated address.
++ */
++unsigned long _text_offset = (unsigned long)(_text - __START_KERNEL_map);
 +
- #define paravirt_type(op)				\
- 	[paravirt_typenum] "i" (PARAVIRT_PATCH(op)),	\
--	[paravirt_opptr] "i" (&(op))
-+	[paravirt_opptr] paravirt_opptr_type (&(op))
- #define paravirt_clobber(clobber)		\
- 	[paravirt_clobber] "i" (clobber)
++unsigned long __head notrace __startup_64(unsigned long physaddr,
++					  struct boot_params *bp)
+ {
+ 	unsigned long load_delta, *p;
+ 	unsigned long pgtable_flags;
+@@ -65,7 +71,7 @@ unsigned long __head __startup_64(unsigned long physaddr,
+ 	 * Compute the delta between the address I am compiled to run at
+ 	 * and the address I am actually running at.
+ 	 */
+-	load_delta = physaddr - (unsigned long)(_text - __START_KERNEL_map);
++	load_delta = physaddr - _text_offset;
  
-@@ -391,7 +399,7 @@ int paravirt_disable_iospace(void);
-  * offset into the paravirt_patch_template structure, and can therefore be
-  * freely converted back into a structure offset.
-  */
--#define PARAVIRT_CALL	"call *%c[paravirt_opptr];"
-+#define PARAVIRT_CALL	"call *%" paravirt_opptr_call "[paravirt_opptr];"
- 
- /*
-  * These macros are intended to wrap calls through one of the paravirt
+ 	/* Is the address not 2M aligned? */
+ 	if (load_delta & ~PMD_PAGE_MASK)
 -- 
 2.14.2.920.gcf0c67979c-goog
