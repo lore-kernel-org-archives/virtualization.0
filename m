@@ -1,15 +1,21 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v16 4/5] mm: support reporting free page blocks
-Date: Tue, 3 Oct 2017 16:50:40 +0200
-Message-ID: <20171003145040.7d2v3hwypnmmm72e__8692.00232341445$1507042264$gmane$org@dhcp22.suse.cz>
-References: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>
-	<1506744354-20979-5-git-send-email-wei.w.wang@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] packed ring layout proposal v3
+Date: Wed, 4 Oct 2017 15:58:17 +0300
+Message-ID: <20171004155532-mutt-send-email-mst__28562.9233615056$1507121906$gmane$org@kernel.org>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+	<D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
+	<20170926011826-mutt-send-email-mst@kernel.org>
+	<7A0DC0C9-F148-4161-B2D1-8D8D14D8B9A1@cisco.com>
+	<20170928023112-mutt-send-email-mst@kernel.org>
+	<D0158A423229094DA7ABF71CF2FA0DA34E1AD49B@SHSMSX152.ccr.corp.intel.com>
+	<20171001063817-mutt-send-email-mst@kernel.org>
+	<20171004123901.oomueufqg52uhas4@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1506744354-20979-5-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20171004123901.oomueufqg52uhas4@localhost.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,158 +25,129 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: Jens Freimann <jfreimann@redhat.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Steven Luong (sluong)" <sluong@cisco.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat 30-09-17 12:05:53, Wei Wang wrote:
-> This patch adds support to walk through the free page blocks in the
-> system and report them via a callback function. Some page blocks may
-> leave the free list after zone->lock is released, so it is the caller's
-> responsibility to either detect or prevent the use of such pages.
+On Wed, Oct 04, 2017 at 02:39:01PM +0200, Jens Freimann wrote:
+> On Sun, Oct 01, 2017 at 04:08:29AM +0000, Michael S. Tsirkin wrote:
+> > On Thu, Sep 28, 2017 at 09:44:35AM +0000, Liang, Cunming wrote:
+> > > 
+> > > Get it now. Please correct me if I missing something.
+> > > 
+> > > 
+> > > Flags status hints,
+> > > 
+> > > - DESC_DRIVER only: driver owns the descriptor w/o available info ready for device to use
+> > > 
+> > > - DESC_DRIVER | DESC_WRAP: driver has prepared an available descriptor, device hasn't used it yet
+> > > 
+> > > - None: device has used the descriptor, and write descriptor out
+> > > 
+> > > - DESC_WRAP only: shall not happen, device make sure to clear it
+> > > 
+> > > 
+> > > Polling behavior is,
+> > > 
+> > > - Device monitor DESC_WRAP bit set or not; If set, go to use descriptor and clear DESC_DRIVER bit in the end (note: always need to clear DESC_WRAP)
+> > > 
+> > > - Driver monitor DESC_DRIVER bit cleared or not; If cleared, reclaim descriptor(set DESC_DRIVER) and set DESC_WRAP once new available descriptor get ready to go
+> > > 
+> > > 
+> > > --
+> > > Steve
+> > 
+> > 
+> > Hmm no, not what I had in mind.
+> > 
+> > DESC_DRIVER: used by driver to poll. Driver sets it when writing a
+> > descriptor.  Device clears it when overwriting a descriptor.
+> > Thus driver uses DESC_DRIVER to detect that device data in
+> > descriptor is valid.
 > 
-> One use example of this patch is to accelerate live migration by skipping
-> the transfer of free pages reported from the guest. A popular method used
-> by the hypervisor to track which part of memory is written during live
-> migration is to write-protect all the guest memory. So, those pages that
-> are reported as free pages but are written after the report function
-> returns will be captured by the hypervisor, and they will be added to the
-> next round of memory transfer.
+> Basically DESC_HW from v2 split in two?
+
+Yes in order to avoid overwriting all descriptors.
+
+> > 
+> > DESC_WRAP: used by device to poll. Driver sets it to a *different*
+> > value every time it overwrites a descriptor. How to achieve it?
+> > since descriptors are written out in ring order,
+> > simply maintain the current value internally (start value 1) and flip it
+> > every time you overwrite the first descriptor.
+> > Device leaves it intact when overwriting a descriptor.
 > 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Signed-off-by: Liang Li <liang.z.li@intel.com>
-> Cc: Michal Hocko <mhocko@kernel.org>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-
-Acked-by: Michal Hocko <mhocko@suse.com>
-
-> ---
->  include/linux/mm.h |  6 ++++
->  mm/page_alloc.c    | 91 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 97 insertions(+)
+> This is confusing me a bit.
 > 
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 46b9ac5..d9652c2 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -1835,6 +1835,12 @@ extern void free_area_init_node(int nid, unsigned long * zones_size,
->  		unsigned long zone_start_pfn, unsigned long *zholes_size);
->  extern void free_initmem(void);
->  
-> +extern void walk_free_mem_block(void *opaque,
-> +				int min_order,
-> +				bool (*report_pfn_range)(void *opaque,
-> +							 unsigned long pfn,
-> +							 unsigned long num));
-> +
->  /*
->   * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
->   * into the buddy system. The freed pages will be poisoned with pattern
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 6d00f74..c6bb874 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -4762,6 +4762,97 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
->  	show_swap_cache_info();
->  }
->  
-> +/*
-> + * Walk through a free page list and report the found pfn range via the
-> + * callback.
-> + *
-> + * Return false if the callback requests to stop reporting. Otherwise,
-> + * return true.
-> + */
-> +static bool walk_free_page_list(void *opaque,
-> +				struct zone *zone,
-> +				int order,
-> +				enum migratetype mt,
-> +				bool (*report_pfn_range)(void *,
-> +							 unsigned long,
-> +							 unsigned long))
-> +{
-> +	struct page *page;
-> +	struct list_head *list;
-> +	unsigned long pfn, flags;
-> +	bool ret;
-> +
-> +	spin_lock_irqsave(&zone->lock, flags);
-> +	list = &zone->free_area[order].free_list[mt];
-> +	list_for_each_entry(page, list, lru) {
-> +		pfn = page_to_pfn(page);
-> +		ret = report_pfn_range(opaque, pfn, 1 << order);
-> +		if (!ret)
-> +			break;
-> +	}
-> +	spin_unlock_irqrestore(&zone->lock, flags);
-> +
-> +	return ret;
-> +}
-> +
-> +/**
-> + * walk_free_mem_block - Walk through the free page blocks in the system
-> + * @opaque: the context passed from the caller
-> + * @min_order: the minimum order of free lists to check
-> + * @report_pfn_range: the callback to report the pfn range of the free pages
-> + *
-> + * If the callback returns false, stop iterating the list of free page blocks.
-> + * Otherwise, continue to report.
-> + *
-> + * Please note that there are no locking guarantees for the callback and
-> + * that the reported pfn range might be freed or disappear after the
-> + * callback returns so the caller has to be very careful how it is used.
-> + *
-> + * The callback itself must not sleep or perform any operations which would
-> + * require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
-> + * or via any lock dependency. It is generally advisable to implement
-> + * the callback as simple as possible and defer any heavy lifting to a
-> + * different context.
-> + *
-> + * There is no guarantee that each free range will be reported only once
-> + * during one walk_free_mem_block invocation.
-> + *
-> + * pfn_to_page on the given range is strongly discouraged and if there is
-> + * an absolute need for that make sure to contact MM people to discuss
-> + * potential problems.
-> + *
-> + * The function itself might sleep so it cannot be called from atomic
-> + * contexts.
-> + *
-> + * In general low orders tend to be very volatile and so it makes more
-> + * sense to query larger ones first for various optimizations which like
-> + * ballooning etc... This will reduce the overhead as well.
-> + */
-> +void walk_free_mem_block(void *opaque,
-> +			 int min_order,
-> +			 bool (*report_pfn_range)(void *opaque,
-> +						  unsigned long pfn,
-> +						  unsigned long num))
-> +{
-> +	struct zone *zone;
-> +	int order;
-> +	enum migratetype mt;
-> +	bool ret;
-> +
-> +	for_each_populated_zone(zone) {
-> +		for (order = MAX_ORDER - 1; order >= min_order; order--) {
-> +			for (mt = 0; mt < MIGRATE_TYPES; mt++) {
-> +				ret = walk_free_page_list(opaque, zone,
-> +							  order, mt,
-> +							  report_pfn_range);
-> +				if (!ret)
-> +					return;
-> +			}
-> +		}
-> +	}
-> +}
-> +EXPORT_SYMBOL_GPL(walk_free_mem_block);
-> +
->  static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
->  {
->  	zoneref->zone = zone;
-> -- 
-> 2.7.4
+> My understanding is: 1. the internally kept wrap value only flipped when the
+> first
+> descriptor is overwritten
+> 
+> 2. the moment the first descriptor is written the internal wrap value
+> is flipped 0->1 or 1->0 and this value is written to every descriptor
+> DESC_WRAP until we reach the first descriptor again
 
--- 
-Michal Hocko
-SUSE Labs
+Yes this is what I tried to say. Can you suggest a better wording then?
+
+> > 
+> > After writing down this explanation, I think the names aren't
+> > great.
+> > 
+> > Let me try an alternative explanation.
+> > 
+> > ---------------
+> > A two-bit field, DRIVER_OWNER, signals the buffer ownership.
+> > It has 4 possible values:
+> > values 0x1, 0x11 are written by driver
+> > values 0x0, 0x10 are written by device
+> 
+> The 0x prefix might add to the confusion here. It is really just two
+> bits, no?
+
+Ouch. Yes I meant 0b. Thanks!
+
+> > each time driver writes out a descriptor, it must make sure
+> > that the high bit in OWNER changes.
+> > 
+> > each time device writes out a descriptor, it must make sure
+> > that the high bit in OWNER does not change.
+> > 
+> > this is exactly the same functionally, DRIVER is high bit and
+> > WRAP is the low bit.  Does this make things clearer?
+> 
+> So far it makes sense to me.
+> > ---------------
+> > 
+> > 
+> > 
+> > Maybe the difference between device and driver
+> > is confusing. We can fix that by changing the values.
+> > Here is an alternative. Let me know if you like it better -
+> > I need to think a bit more to make sure it works,
+> > but to give you an idea:
+> > 
+> > 
+> > ---------------
+> > A two-bit field, DRIVER_OWNER, signals the buffer ownership.
+> > It has 4 possible values:
+> > values 0x1, 0x10 are written by driver
+> > values 0x0, 0x11 are written by device
+> > 
+> > each time driver writes out a descriptor, it must make sure
+> > that the high bit in OWNER changes. Thus first time
+> > it writes 0x10, next time 0x1, then 0x10 again.
+> > 
+> > each time device writes out a descriptor, it must make sure
+> > that the low bit in OWNER changes.  Thus first time
+> > it writes 0x11, next time 0x0, then 0x11 again.
+> 
+> DESC_WRAP is changed by the device now, so this would work differently
+> than in the scenario from above. This would mean we don't need the
+> internally kept wrap value, right?
+
+I think no but I did not complete simulating this yet so I don't
+yet know if it even works.
+
+> 
+> regards,
+> Jens
