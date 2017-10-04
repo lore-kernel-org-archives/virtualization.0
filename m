@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [RFC v3 09/27] x86/acpi: Adapt assembly for PIE support
-Date: Wed,  4 Oct 2017 14:19:45 -0700
-Message-ID: <20171004212003.28296-10-thgarnie__11333.3078021698$1509079834$gmane$org@google.com>
+Subject: [RFC v3 11/27] x86/power/64: Adapt assembly for PIE support
+Date: Wed,  4 Oct 2017 14:19:47 -0700
+Message-ID: <20171004212003.28296-12-thgarnie__10793.2233288468$1509079849$gmane$org@google.com>
 References: <20171004212003.28296-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -31,81 +31,30 @@ KASLR randomization range below the -2G memory limit.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/kernel/acpi/wakeup_64.S | 31 ++++++++++++++++---------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+ arch/x86/power/hibernate_asm_64.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/acpi/wakeup_64.S b/arch/x86/kernel/acpi/wakeup_64.S
-index 50b8ed0317a3..472659c0f811 100644
---- a/arch/x86/kernel/acpi/wakeup_64.S
-+++ b/arch/x86/kernel/acpi/wakeup_64.S
-@@ -14,7 +14,7 @@
- 	 * Hooray, we are in Long 64-bit mode (but still running in low memory)
- 	 */
- ENTRY(wakeup_long64)
--	movq	saved_magic, %rax
-+	movq	saved_magic(%rip), %rax
- 	movq	$0x123456789abcdef0, %rdx
- 	cmpq	%rdx, %rax
- 	jne	bogus_64_magic
-@@ -25,14 +25,14 @@ ENTRY(wakeup_long64)
- 	movw	%ax, %es
- 	movw	%ax, %fs
- 	movw	%ax, %gs
--	movq	saved_rsp, %rsp
-+	movq	saved_rsp(%rip), %rsp
+diff --git a/arch/x86/power/hibernate_asm_64.S b/arch/x86/power/hibernate_asm_64.S
+index ce8da3a0412c..6fdd7bbc3c33 100644
+--- a/arch/x86/power/hibernate_asm_64.S
++++ b/arch/x86/power/hibernate_asm_64.S
+@@ -24,7 +24,7 @@
+ #include <asm/frame.h>
  
--	movq	saved_rbx, %rbx
--	movq	saved_rdi, %rdi
--	movq	saved_rsi, %rsi
--	movq	saved_rbp, %rbp
-+	movq	saved_rbx(%rip), %rbx
-+	movq	saved_rdi(%rip), %rdi
-+	movq	saved_rsi(%rip), %rsi
-+	movq	saved_rbp(%rip), %rbp
- 
--	movq	saved_rip, %rax
-+	movq	saved_rip(%rip), %rax
- 	jmp	*%rax
- ENDPROC(wakeup_long64)
- 
-@@ -45,7 +45,7 @@ ENTRY(do_suspend_lowlevel)
- 	xorl	%eax, %eax
- 	call	save_processor_state
- 
+ ENTRY(swsusp_arch_suspend)
 -	movq	$saved_context, %rax
 +	leaq	saved_context(%rip), %rax
  	movq	%rsp, pt_regs_sp(%rax)
  	movq	%rbp, pt_regs_bp(%rax)
  	movq	%rsi, pt_regs_si(%rax)
-@@ -64,13 +64,14 @@ ENTRY(do_suspend_lowlevel)
- 	pushfq
- 	popq	pt_regs_flags(%rax)
+@@ -115,7 +115,7 @@ ENTRY(restore_registers)
+ 	movq	%rax, %cr4;  # turn PGE back on
  
--	movq	$.Lresume_point, saved_rip(%rip)
-+	leaq	.Lresume_point(%rip), %rax
-+	movq	%rax, saved_rip(%rip)
- 
--	movq	%rsp, saved_rsp
--	movq	%rbp, saved_rbp
--	movq	%rbx, saved_rbx
--	movq	%rdi, saved_rdi
--	movq	%rsi, saved_rsi
-+	movq	%rsp, saved_rsp(%rip)
-+	movq	%rbp, saved_rbp(%rip)
-+	movq	%rbx, saved_rbx(%rip)
-+	movq	%rdi, saved_rdi(%rip)
-+	movq	%rsi, saved_rsi(%rip)
- 
- 	addq	$8, %rsp
- 	movl	$3, %edi
-@@ -82,7 +83,7 @@ ENTRY(do_suspend_lowlevel)
- 	.align 4
- .Lresume_point:
  	/* We don't restore %rax, it must be 0 anyway */
 -	movq	$saved_context, %rax
 +	leaq	saved_context(%rip), %rax
- 	movq	saved_context_cr4(%rax), %rbx
- 	movq	%rbx, %cr4
- 	movq	saved_context_cr3(%rax), %rbx
+ 	movq	pt_regs_sp(%rax), %rsp
+ 	movq	pt_regs_bp(%rax), %rbp
+ 	movq	pt_regs_si(%rax), %rsi
 -- 
 2.14.2.920.gcf0c67979c-goog
