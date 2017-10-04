@@ -1,20 +1,12 @@
-From: Jens Freimann <jfreimann@redhat.com>
-Subject: Re: [virtio-dev] packed ring layout proposal v3
-Date: Wed, 4 Oct 2017 14:39:01 +0200
-Message-ID: <20171004123901.oomueufqg52uhas4@localhost.localdomain>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
-	<20170926011826-mutt-send-email-mst@kernel.org>
-	<7A0DC0C9-F148-4161-B2D1-8D8D14D8B9A1@cisco.com>
-	<20170928023112-mutt-send-email-mst@kernel.org>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1AD49B@SHSMSX152.ccr.corp.intel.com>
-	<20171001063817-mutt-send-email-mst@kernel.org>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH 00/13] x86/paravirt: Make pv ops code generation more closely
+	match reality
+Date: Wed,  4 Oct 2017 10:58:21 -0500
+Message-ID: <cover.1507128293.git.jpoimboe__48344.5874335759$1509079559$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20171001063817-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,120 +16,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Steven Luong (sluong)" <sluong@cisco.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: x86@kernel.org
+Cc: Juergen Gross <jgross@suse.com>, Rusty Russell <rusty@rustcorp.com.au>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Oct 01, 2017 at 04:08:29AM +0000, Michael S. Tsirkin wrote:
->On Thu, Sep 28, 2017 at 09:44:35AM +0000, Liang, Cunming wrote:
->>
->> Get it now. Please correct me if I missing something.
->>
->>
->> Flags status hints,
->>
->> - DESC_DRIVER only: driver owns the descriptor w/o available info ready for device to use
->>
->> - DESC_DRIVER | DESC_WRAP: driver has prepared an available descriptor, device hasn't used it yet
->>
->> - None: device has used the descriptor, and write descriptor out
->>
->> - DESC_WRAP only: shall not happen, device make sure to clear it
->>
->>
->> Polling behavior is,
->>
->> - Device monitor DESC_WRAP bit set or not; If set, go to use descriptor and clear DESC_DRIVER bit in the end (note: always need to clear DESC_WRAP)
->>
->> - Driver monitor DESC_DRIVER bit cleared or not; If cleared, reclaim descriptor(set DESC_DRIVER) and set DESC_WRAP once new available descriptor get ready to go
->>
->>
->> --
->> Steve
->
->
->Hmm no, not what I had in mind.
->
->DESC_DRIVER: used by driver to poll. Driver sets it when writing a
->descriptor.  Device clears it when overwriting a descriptor.
->Thus driver uses DESC_DRIVER to detect that device data in
->descriptor is valid.
+This changes the pv ops code generation to more closely match reality.
 
-Basically DESC_HW from v2 split in two?
+For example, instead of:
 
->
->DESC_WRAP: used by device to poll. Driver sets it to a *different*
->value every time it overwrites a descriptor. 
->How to achieve it?
->since descriptors are written out in ring order,
->simply maintain the current value internally (start value 1) and flip it
->every time you overwrite the first descriptor.
->Device leaves it intact when overwriting a descriptor.
+  callq  *0xffffffff81e3a400 (pv_irq_ops.save_fl)
 
-This is confusing me a bit.
+vmlinux will now show:
 
-My understanding is: 
-1. the internally kept wrap value only flipped when the first
-descriptor is overwritten
+  pushfq
+  pop    %rax
+  nop
+  nop
+  nop
+  nop
+  nop
 
-2. the moment the first descriptor is written the internal wrap value
-is flipped 0->1 or 1->0 and this value is written to every descriptor
-DESC_WRAP until we reach the first descriptor again
+which is what the runtime version of the code will show in most cases.
 
->
->After writing down this explanation, I think the names aren't
->great.
->
->Let me try an alternative explanation.
->
->---------------
->A two-bit field, DRIVER_OWNER, signals the buffer ownership.
->It has 4 possible values:
->values 0x1, 0x11 are written by driver
->values 0x0, 0x10 are written by device
+This idea was suggested by Andy Lutomirski.
 
-The 0x prefix might add to the confusion here. It is really just two
-bits, no?
+The benefits are:
 
->each time driver writes out a descriptor, it must make sure
->that the high bit in OWNER changes.
->
->each time device writes out a descriptor, it must make sure
->that the high bit in OWNER does not change.
->
->this is exactly the same functionally, DRIVER is high bit and
->WRAP is the low bit.  Does this make things clearer?
+- For the most common runtime cases (everything except Xen and vSMP),
+  vmlinux disassembly now matches what the actual runtime code looks
+  like.  This improves debuggability and kernel developer sanity (a
+  precious resource).
 
-So far it makes sense to me.
->---------------
->
->
->
->Maybe the difference between device and driver
->is confusing. We can fix that by changing the values.
->Here is an alternative. Let me know if you like it better -
->I need to think a bit more to make sure it works,
->but to give you an idea:
->
->
->---------------
->A two-bit field, DRIVER_OWNER, signals the buffer ownership.
->It has 4 possible values:
->values 0x1, 0x10 are written by driver
->values 0x0, 0x11 are written by device
->
->each time driver writes out a descriptor, it must make sure
->that the high bit in OWNER changes. Thus first time
->it writes 0x10, next time 0x1, then 0x10 again.
->
->each time device writes out a descriptor, it must make sure
->that the low bit in OWNER changes.  Thus first time
->it writes 0x11, next time 0x0, then 0x11 again.
+- It fixes a KASAN warning in the ORC unwinder due to objtool not
+  understanding the .parainstructions stuff.
 
-DESC_WRAP is changed by the device now, so this would work differently
-than in the scenario from above. 
-This would mean we don't need the internally kept wrap value, right?
+- It's hopefully a first step in simplifying paravirt patching by
+  getting rid of .parainstructions, pv ops, and apply_paravirt()
+  completely.  (I think Xen can be changed to set CPU feature bits to
+  specify which ops it needs during early boot, then those ops can be
+  patched in using early alternatives.)
 
+For more details, see the commit log in patch 11/13.
 
-regards,
-Jens 
+Josh Poimboeuf (13):
+  x86/paravirt: remove wbinvd() paravirt interface
+  x86/paravirt: Fix output constraint macro names
+  x86/paravirt: Convert native patch assembly code strings to macros
+  x86/paravirt: Convert DEF_NATIVE macro to GCC extended asm syntax
+  x86/paravirt: Move paravirt asm macros to paravirt-asm.h
+  x86/paravirt: Clean up paravirt-asm.h
+  x86/paravirt: Simplify ____PVOP_CALL()
+  x86/paravirt: Clean up paravirt_types.h
+  x86/asm: Convert ALTERNATIVE*() assembler macros to preprocessor
+    macros
+  x86/alternative: Support indirect call replacement
+  x86/paravirt: Add paravirt alternatives infrastructure
+  objtool: Add support for new .pv_altinstructions section
+  x86/paravirt: Convert natively patched pv ops to use paravirt
+    alternatives
+
+ arch/x86/entry/entry_32.S                |  13 +-
+ arch/x86/entry/entry_64.S                |  12 +-
+ arch/x86/entry/entry_64_compat.S         |   9 +-
+ arch/x86/entry/vdso/vdso32/system_call.S |  10 +-
+ arch/x86/include/asm/alternative-asm.h   |  71 ++++-----
+ arch/x86/include/asm/alternative.h       |  12 +-
+ arch/x86/include/asm/cpufeatures.h       |   1 +
+ arch/x86/include/asm/paravirt-asm.h      | 142 ++++++++++++++++++
+ arch/x86/include/asm/paravirt.h          | 174 ++++------------------
+ arch/x86/include/asm/paravirt_types.h    | 243 ++++++++++++++++++++-----------
+ arch/x86/include/asm/smap.h              |   4 +-
+ arch/x86/include/asm/special_insns.h     |  31 +++-
+ arch/x86/kernel/alternative.c            |  35 ++++-
+ arch/x86/kernel/cpu/hypervisor.c         |   2 +
+ arch/x86/kernel/head_64.S                |   2 +-
+ arch/x86/kernel/module.c                 |  11 +-
+ arch/x86/kernel/paravirt.c               |   1 -
+ arch/x86/kernel/paravirt_patch_32.c      |  21 +--
+ arch/x86/kernel/paravirt_patch_64.c      |  31 ++--
+ arch/x86/kernel/vmlinux.lds.S            |   6 +
+ arch/x86/lib/copy_page_64.S              |   2 +-
+ arch/x86/lib/memcpy_64.S                 |   4 +-
+ arch/x86/lib/memmove_64.S                |   3 +-
+ arch/x86/lib/memset_64.S                 |   4 +-
+ arch/x86/xen/enlighten_pv.c              |   3 +-
+ tools/objtool/special.c                  |  10 ++
+ 26 files changed, 516 insertions(+), 341 deletions(-)
+ create mode 100644 arch/x86/include/asm/paravirt-asm.h
+
+-- 
+2.13.6
