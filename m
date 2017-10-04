@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [RFC v3 06/27] x86/entry/64: Adapt assembly for PIE support
-Date: Wed,  4 Oct 2017 14:19:42 -0700
-Message-ID: <20171004212003.28296-7-thgarnie__26380.7135088884$1509079793$gmane$org@google.com>
+Subject: [RFC v3 07/27] x86: pm-trace - Adapt assembly for PIE support
+Date: Wed,  4 Oct 2017 14:19:43 -0700
+Message-ID: <20171004212003.28296-8-thgarnie__18311.9521978826$1509079809$gmane$org@google.com>
 References: <20171004212003.28296-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -23,91 +23,29 @@ To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemlof
 Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Change the assembly code to use only relative references of symbols for the
-kernel to be PIE compatible.
+Change assembly to use the new _ASM_GET_PTR macro instead of _ASM_MOV for
+the assembly to be PIE compatible.
 
 Position Independent Executable (PIE) support will allow to extended the
 KASLR randomization range below the -2G memory limit.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/entry/entry_64.S | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ arch/x86/include/asm/pm-trace.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index 49167258d587..15bd5530d2ae 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -194,12 +194,15 @@ entry_SYSCALL_64_fastpath:
- 	ja	1f				/* return -ENOSYS (already in pt_regs->ax) */
- 	movq	%r10, %rcx
- 
-+	/* Ensures the call is position independent */
-+	leaq	sys_call_table(%rip), %r11
-+
- 	/*
- 	 * This call instruction is handled specially in stub_ptregs_64.
- 	 * It might end up jumping to the slow path.  If it jumps, RAX
- 	 * and all argument registers are clobbered.
- 	 */
--	call	*sys_call_table(, %rax, 8)
-+	call	*(%r11, %rax, 8)
- .Lentry_SYSCALL_64_after_fastpath_call:
- 
- 	movq	%rax, RAX(%rsp)
-@@ -334,7 +337,8 @@ ENTRY(stub_ptregs_64)
- 	 * RAX stores a pointer to the C function implementing the syscall.
- 	 * IRQs are on.
- 	 */
--	cmpq	$.Lentry_SYSCALL_64_after_fastpath_call, (%rsp)
-+	leaq	.Lentry_SYSCALL_64_after_fastpath_call(%rip), %r11
-+	cmpq	%r11, (%rsp)
- 	jne	1f
- 
- 	/*
-@@ -1172,7 +1176,8 @@ ENTRY(error_entry)
- 	movl	%ecx, %eax			/* zero extend */
- 	cmpq	%rax, RIP+8(%rsp)
- 	je	.Lbstep_iret
--	cmpq	$.Lgs_change, RIP+8(%rsp)
-+	leaq	.Lgs_change(%rip), %rcx
-+	cmpq	%rcx, RIP+8(%rsp)
- 	jne	.Lerror_entry_done
- 
- 	/*
-@@ -1383,10 +1388,10 @@ ENTRY(nmi)
- 	 * resume the outer NMI.
- 	 */
- 
--	movq	$repeat_nmi, %rdx
-+	leaq	repeat_nmi(%rip), %rdx
- 	cmpq	8(%rsp), %rdx
- 	ja	1f
--	movq	$end_repeat_nmi, %rdx
-+	leaq	end_repeat_nmi(%rip), %rdx
- 	cmpq	8(%rsp), %rdx
- 	ja	nested_nmi_out
- 1:
-@@ -1440,7 +1445,8 @@ nested_nmi:
- 	pushq	%rdx
- 	pushfq
- 	pushq	$__KERNEL_CS
--	pushq	$repeat_nmi
-+	leaq	repeat_nmi(%rip), %rdx
-+	pushq	%rdx
- 
- 	/* Put stack back */
- 	addq	$(6*8), %rsp
-@@ -1479,7 +1485,9 @@ first_nmi:
- 	addq	$8, (%rsp)	/* Fix up RSP */
- 	pushfq			/* RFLAGS */
- 	pushq	$__KERNEL_CS	/* CS */
--	pushq	$1f		/* RIP */
-+	pushq	%rax		/* Support Position Independent Code */
-+	leaq	1f(%rip), %rax	/* RIP */
-+	xchgq	%rax, (%rsp)	/* Restore RAX, put 1f */
- 	INTERRUPT_RETURN	/* continues at repeat_nmi below */
- 	UNWIND_HINT_IRET_REGS
- 1:
+diff --git a/arch/x86/include/asm/pm-trace.h b/arch/x86/include/asm/pm-trace.h
+index 7b7ac42c3661..a3801261f0dd 100644
+--- a/arch/x86/include/asm/pm-trace.h
++++ b/arch/x86/include/asm/pm-trace.h
+@@ -7,7 +7,7 @@
+ do {								\
+ 	if (pm_trace_enabled) {					\
+ 		const void *tracedata;				\
+-		asm volatile(_ASM_MOV " $1f,%0\n"		\
++		asm volatile(_ASM_GET_PTR(1f, %0) "\n"		\
+ 			     ".section .tracedata,\"a\"\n"	\
+ 			     "1:\t.word %c1\n\t"		\
+ 			     _ASM_PTR " %c2\n"			\
 -- 
 2.14.2.920.gcf0c67979c-goog
