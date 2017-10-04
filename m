@@ -1,13 +1,20 @@
-From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [virtio-dev] [RFC] virtio-iommu version 0.4
-Date: Tue, 3 Oct 2017 15:04:47 +0200
-Message-ID: <0e0db2c0-86bc-a76a-05bd-0b41e00ba926__29343.3030522012$1509079549$gmane$org@redhat.com>
-References: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
+From: Jens Freimann <jfreimann@redhat.com>
+Subject: Re: [virtio-dev] packed ring layout proposal v3
+Date: Wed, 4 Oct 2017 14:39:01 +0200
+Message-ID: <20171004123901.oomueufqg52uhas4@localhost.localdomain>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+	<D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
+	<20170926011826-mutt-send-email-mst@kernel.org>
+	<7A0DC0C9-F148-4161-B2D1-8D8D14D8B9A1@cisco.com>
+	<20170928023112-mutt-send-email-mst@kernel.org>
+	<D0158A423229094DA7ABF71CF2FA0DA34E1AD49B@SHSMSX152.ccr.corp.intel.com>
+	<20171001063817-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170804181927.12148-1-jean-philippe.brucker@arm.com>
+Content-Disposition: inline
+In-Reply-To: <20171001063817-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,135 +24,120 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
-Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, marc.zyngier@arm.com, will.deacon@arm.com, robin.murphy@arm.com, eric.auger.pro@gmail.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Steven Luong (sluong)" <sluong@cisco.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jean,
+On Sun, Oct 01, 2017 at 04:08:29AM +0000, Michael S. Tsirkin wrote:
+>On Thu, Sep 28, 2017 at 09:44:35AM +0000, Liang, Cunming wrote:
+>>
+>> Get it now. Please correct me if I missing something.
+>>
+>>
+>> Flags status hints,
+>>
+>> - DESC_DRIVER only: driver owns the descriptor w/o available info ready for device to use
+>>
+>> - DESC_DRIVER | DESC_WRAP: driver has prepared an available descriptor, device hasn't used it yet
+>>
+>> - None: device has used the descriptor, and write descriptor out
+>>
+>> - DESC_WRAP only: shall not happen, device make sure to clear it
+>>
+>>
+>> Polling behavior is,
+>>
+>> - Device monitor DESC_WRAP bit set or not; If set, go to use descriptor and clear DESC_DRIVER bit in the end (note: always need to clear DESC_WRAP)
+>>
+>> - Driver monitor DESC_DRIVER bit cleared or not; If cleared, reclaim descriptor(set DESC_DRIVER) and set DESC_WRAP once new available descriptor get ready to go
+>>
+>>
+>> --
+>> Steve
+>
+>
+>Hmm no, not what I had in mind.
+>
+>DESC_DRIVER: used by driver to poll. Driver sets it when writing a
+>descriptor.  Device clears it when overwriting a descriptor.
+>Thus driver uses DESC_DRIVER to detect that device data in
+>descriptor is valid.
 
-On 04/08/2017 20:19, Jean-Philippe Brucker wrote:
-> This is the continuation of my proposal for virtio-iommu, the para-
-> virtualized IOMMU. Here is a summary of the changes since last time [1]:
-> 
-> * The virtio-iommu document now resembles an actual specification. It is
->   split into a formal description of the virtio device, and implementation
->   notes. Please find sources and binaries at [2].
-> 
-> * Added a probe request to describe to the guest different properties that
->   do not fit in firmware or in the virtio config space. This is a
->   necessary stepping stone for extending the virtio-iommu.
-> 
-> * There is a working Qemu prototype [3], thanks to Eric Auger and Bharat
->   Bhushan.
-> 
-> You can find the Linux driver and kvmtool device at [4] and [5]. I
-> plan to rework driver and kvmtool device slightly before sending the
-> patches.
-> 
-> To understand the virtio-iommu, I advise to first read introduction and
-> motivation, then skim through implementation notes and finally look at the
-> device specification.
-> 
-> I wasn't sure how to organize the review. For those who prefer to comment
-> inline, I attached v0.4 of device-operations.tex and topology.tex+MSI.tex
-> to this thread. They are the biggest chunks of the document. But LaTeX
-> isn't very pleasant to read, so you can simply send a list of comments in
-> relation to section numbers and a few words of context, we'll manage.
-> 
-> ---
-> Version numbers 0.1-0.4 are arbitrary. I'm hoping they allow to compare
-> more easily differences since the RFC (see [6]), but haven't been made
-> public so far. This is the first public posting since initial proposal
-> [1], and the following describes all changes.
-> 
-> ## v0.1 ##
-> 
-> Content is the same as the RFC, but formatted to LaTeX. 'make' generates
-> one PDF and one HTML document.
-> 
-> ## v0.2 ##
-> 
-> Add introductions, improve topology example and firmware description based
-> on feedback and a number of useful discussions.
-> 
-> ## v0.3 ##
-> 
-> Add normative sections (MUST, SHOULD, etc). Clarify some things, tighten
-> the device and driver behaviour. Unmap semantics are consolidated; they
-> are now closer to VFIO Type1 v2 semantics.
-> 
-> ## v0.4 ##
-> 
-> Introduce PROBE requests. They provide per-endpoint information to the
-> driver that couldn't be described otherwise.
-> 
-> For the moment, they allow to handle MSIs on x86 virtual platforms (see
-> 3.2). To do that we communicate reserved IOVA regions, that will also be
-> useful for describing regions that cannot be mapped for a given endpoint,
-> for instance addresses that correspond to a PCI bridge window.
-> 
-> Introducing such a large framework for this tiny feature may seem
-> overkill, but it is needed for future extensions of the virtio-iommu and I
-> believe it really is worth the effort.
-> 
-> ## Future ##
-> 
-> Other extensions are in preparation. I won't detail them here because v0.4
-> already is a lot to digest, but in short, building on top of PROBE:
-> 
-> * First, since the IOMMU is paravirtualized, the device can expose some
->   properties of the physical topology to the guest, and let it allocate
->   resources more efficiently. For example, when the virtio-iommu manages
->   both physical and emulated endpoints, with different underlying IOMMUs,
->   we now have a way to describe multiple page and block granularities,
->   instead of forcing the guest to use the most restricted one for all
->   endpoints. This will most likely be in v0.5.
-> 
-> * Then on top of that, a major improvement will describe hardware
->   acceleration features available to the guest. There is what I call "Page
->   Table Handover" (or simply, from the host POV, "Nested"), the ability
->   for the guest to manipulate its own page tables instead of sending
->   MAP/UNMAP requests to the host. This, along with IO Page Fault
->   reporting, will also permit SVM virtualization on different platforms.
-> 
-> Thanks,
-> Jean
-> 
-> [1] http://www.spinics.net/lists/kvm/msg147990.html
-> [2] git://linux-arm.org/virtio-iommu.git branch viommu/v0.4
->     http://www.linux-arm.org/git?p=virtio-iommu.git;a=blob;f=dist/v0.4/virtio-iommu-v0.4.pdf
->     I reiterate the disclaimers: don't use this document as a reference,
->     it's a draft. It's also not an OASIS document yet. It may be riddled
->     with mistakes. As this is a working draft, it is unstable and I do not
->     guarantee backward compatibility of future versions.
-> [3] https://lists.gnu.org/archive/html/qemu-arm/2017-08/msg00004.html
-> [4] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.4
->     Warning: UAPI headers have changed! They didn't follow the spec,
->     please update. (Use branch v0.1, that has the old headers, for the
->     Qemu prototype [3])
-When rebasing the v0.4 driver on master I observe a regression: commands
-are not received properly by QEMU (typically an attach command is
-received with a type of 0). After a bisection of the guest kernel the
-first commit the problem appears is:
+Basically DESC_HW from v2 split in two?
 
-commit e3067861ba6650a566a6273738c23c956ad55c02
-arm64: add basic VMAP_STACK support
+>
+>DESC_WRAP: used by device to poll. Driver sets it to a *different*
+>value every time it overwrites a descriptor. 
+>How to achieve it?
+>since descriptors are written out in ring order,
+>simply maintain the current value internally (start value 1) and flip it
+>every time you overwrite the first descriptor.
+>Device leaves it intact when overwriting a descriptor.
 
-After reverting this patch, things resume working.
+This is confusing me a bit.
 
-I observe the problem with a 4kB page guest kernel.
+My understanding is: 
+1. the internally kept wrap value only flipped when the first
+descriptor is overwritten
 
-Thanks
+2. the moment the first descriptor is written the internal wrap value
+is flipped 0->1 or 1->0 and this value is written to every descriptor
+DESC_WRAP until we reach the first descriptor again
 
-Eric
+>
+>After writing down this explanation, I think the names aren't
+>great.
+>
+>Let me try an alternative explanation.
+>
+>---------------
+>A two-bit field, DRIVER_OWNER, signals the buffer ownership.
+>It has 4 possible values:
+>values 0x1, 0x11 are written by driver
+>values 0x0, 0x10 are written by device
+
+The 0x prefix might add to the confusion here. It is really just two
+bits, no?
+
+>each time driver writes out a descriptor, it must make sure
+>that the high bit in OWNER changes.
+>
+>each time device writes out a descriptor, it must make sure
+>that the high bit in OWNER does not change.
+>
+>this is exactly the same functionally, DRIVER is high bit and
+>WRAP is the low bit.  Does this make things clearer?
+
+So far it makes sense to me.
+>---------------
+>
+>
+>
+>Maybe the difference between device and driver
+>is confusing. We can fix that by changing the values.
+>Here is an alternative. Let me know if you like it better -
+>I need to think a bit more to make sure it works,
+>but to give you an idea:
+>
+>
+>---------------
+>A two-bit field, DRIVER_OWNER, signals the buffer ownership.
+>It has 4 possible values:
+>values 0x1, 0x10 are written by driver
+>values 0x0, 0x11 are written by device
+>
+>each time driver writes out a descriptor, it must make sure
+>that the high bit in OWNER changes. Thus first time
+>it writes 0x10, next time 0x1, then 0x10 again.
+>
+>each time device writes out a descriptor, it must make sure
+>that the low bit in OWNER changes.  Thus first time
+>it writes 0x11, next time 0x0, then 0x11 again.
+
+DESC_WRAP is changed by the device now, so this would work differently
+than in the scenario from above. 
+This would mean we don't need the internally kept wrap value, right?
 
 
-> [5] git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.4
->     Warning: command-line has changed! Use --viommu vfio[,opts] and
->     --viommu virtio[,opts] to instantiate a device.
-> [6] http://www.linux-arm.org/git?p=virtio-iommu.git;a=tree;f=dist/diffs
-> 
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
-> 
+regards,
+Jens 
