@@ -1,12 +1,13 @@
 From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH 00/13] x86/paravirt: Make pv ops code generation more closely
-	match reality
-Date: Wed,  4 Oct 2017 10:58:21 -0500
-Message-ID: <cover.1507128293.git.jpoimboe__48344.5874335759$1509079559$gmane$org@redhat.com>
+Subject: [PATCH 01/13] x86/paravirt: remove wbinvd() paravirt interface
+Date: Wed,  4 Oct 2017 10:58:22 -0500
+Message-ID: <3f9bf17f6372ee92d984f6c7fd13e0cb14bc0e0a.1507128293.git.jpoimboe__14516.5254515179$1509079575$gmane$org@redhat.com>
+References: <cover.1507128293.git.jpoimboe@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1507128293.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,89 +21,116 @@ To: x86@kernel.org
 Cc: Juergen Gross <jgross@suse.com>, Rusty Russell <rusty@rustcorp.com.au>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This changes the pv ops code generation to more closely match reality.
+Since lguest was removed, only the native version of wbinvd() is used.
+The paravirt interface is no longer needed.
 
-For example, instead of:
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+---
+ arch/x86/include/asm/paravirt.h       | 5 -----
+ arch/x86/include/asm/paravirt_types.h | 1 -
+ arch/x86/include/asm/special_insns.h  | 7 +------
+ arch/x86/kernel/paravirt.c            | 1 -
+ arch/x86/kernel/paravirt_patch_64.c   | 2 --
+ arch/x86/xen/enlighten_pv.c           | 2 --
+ 6 files changed, 1 insertion(+), 17 deletions(-)
 
-  callq  *0xffffffff81e3a400 (pv_irq_ops.save_fl)
-
-vmlinux will now show:
-
-  pushfq
-  pop    %rax
-  nop
-  nop
-  nop
-  nop
-  nop
-
-which is what the runtime version of the code will show in most cases.
-
-This idea was suggested by Andy Lutomirski.
-
-The benefits are:
-
-- For the most common runtime cases (everything except Xen and vSMP),
-  vmlinux disassembly now matches what the actual runtime code looks
-  like.  This improves debuggability and kernel developer sanity (a
-  precious resource).
-
-- It fixes a KASAN warning in the ORC unwinder due to objtool not
-  understanding the .parainstructions stuff.
-
-- It's hopefully a first step in simplifying paravirt patching by
-  getting rid of .parainstructions, pv ops, and apply_paravirt()
-  completely.  (I think Xen can be changed to set CPU feature bits to
-  specify which ops it needs during early boot, then those ops can be
-  patched in using early alternatives.)
-
-For more details, see the commit log in patch 11/13.
-
-Josh Poimboeuf (13):
-  x86/paravirt: remove wbinvd() paravirt interface
-  x86/paravirt: Fix output constraint macro names
-  x86/paravirt: Convert native patch assembly code strings to macros
-  x86/paravirt: Convert DEF_NATIVE macro to GCC extended asm syntax
-  x86/paravirt: Move paravirt asm macros to paravirt-asm.h
-  x86/paravirt: Clean up paravirt-asm.h
-  x86/paravirt: Simplify ____PVOP_CALL()
-  x86/paravirt: Clean up paravirt_types.h
-  x86/asm: Convert ALTERNATIVE*() assembler macros to preprocessor
-    macros
-  x86/alternative: Support indirect call replacement
-  x86/paravirt: Add paravirt alternatives infrastructure
-  objtool: Add support for new .pv_altinstructions section
-  x86/paravirt: Convert natively patched pv ops to use paravirt
-    alternatives
-
- arch/x86/entry/entry_32.S                |  13 +-
- arch/x86/entry/entry_64.S                |  12 +-
- arch/x86/entry/entry_64_compat.S         |   9 +-
- arch/x86/entry/vdso/vdso32/system_call.S |  10 +-
- arch/x86/include/asm/alternative-asm.h   |  71 ++++-----
- arch/x86/include/asm/alternative.h       |  12 +-
- arch/x86/include/asm/cpufeatures.h       |   1 +
- arch/x86/include/asm/paravirt-asm.h      | 142 ++++++++++++++++++
- arch/x86/include/asm/paravirt.h          | 174 ++++------------------
- arch/x86/include/asm/paravirt_types.h    | 243 ++++++++++++++++++++-----------
- arch/x86/include/asm/smap.h              |   4 +-
- arch/x86/include/asm/special_insns.h     |  31 +++-
- arch/x86/kernel/alternative.c            |  35 ++++-
- arch/x86/kernel/cpu/hypervisor.c         |   2 +
- arch/x86/kernel/head_64.S                |   2 +-
- arch/x86/kernel/module.c                 |  11 +-
- arch/x86/kernel/paravirt.c               |   1 -
- arch/x86/kernel/paravirt_patch_32.c      |  21 +--
- arch/x86/kernel/paravirt_patch_64.c      |  31 ++--
- arch/x86/kernel/vmlinux.lds.S            |   6 +
- arch/x86/lib/copy_page_64.S              |   2 +-
- arch/x86/lib/memcpy_64.S                 |   4 +-
- arch/x86/lib/memmove_64.S                |   3 +-
- arch/x86/lib/memset_64.S                 |   4 +-
- arch/x86/xen/enlighten_pv.c              |   3 +-
- tools/objtool/special.c                  |  10 ++
- 26 files changed, 516 insertions(+), 341 deletions(-)
- create mode 100644 arch/x86/include/asm/paravirt-asm.h
-
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index 12deec722cf0..2f51fbf175da 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -98,11 +98,6 @@ static inline void halt(void)
+ 	PVOP_VCALL0(pv_irq_ops.halt);
+ }
+ 
+-static inline void wbinvd(void)
+-{
+-	PVOP_VCALL0(pv_cpu_ops.wbinvd);
+-}
+-
+ #define get_kernel_rpl()  (pv_info.kernel_rpl)
+ 
+ static inline u64 paravirt_read_msr(unsigned msr)
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 280d94c36dad..0e112f279514 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -137,7 +137,6 @@ struct pv_cpu_ops {
+ 
+ 	void (*set_iopl_mask)(unsigned mask);
+ 
+-	void (*wbinvd)(void);
+ 	void (*io_delay)(void);
+ 
+ 	/* cpuid emulation, mostly so that caps bits can be disabled */
+diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
+index a24dfcf79f4a..ac402c6fc24b 100644
+--- a/arch/x86/include/asm/special_insns.h
++++ b/arch/x86/include/asm/special_insns.h
+@@ -128,7 +128,7 @@ static inline void __write_pkru(u32 pkru)
+ }
+ #endif
+ 
+-static inline void native_wbinvd(void)
++static inline void wbinvd(void)
+ {
+ 	asm volatile("wbinvd": : :"memory");
+ }
+@@ -183,11 +183,6 @@ static inline void __write_cr4(unsigned long x)
+ 	native_write_cr4(x);
+ }
+ 
+-static inline void wbinvd(void)
+-{
+-	native_wbinvd();
+-}
+-
+ #ifdef CONFIG_X86_64
+ 
+ static inline unsigned long read_cr8(void)
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 19a3e8f961c7..3fead3a50723 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -332,7 +332,6 @@ __visible struct pv_cpu_ops pv_cpu_ops = {
+ 	.read_cr8 = native_read_cr8,
+ 	.write_cr8 = native_write_cr8,
+ #endif
+-	.wbinvd = native_wbinvd,
+ 	.read_msr = native_read_msr,
+ 	.write_msr = native_write_msr,
+ 	.read_msr_safe = native_read_msr_safe,
+diff --git a/arch/x86/kernel/paravirt_patch_64.c b/arch/x86/kernel/paravirt_patch_64.c
+index 11aaf1eaa0e4..0a1ba3f80cbf 100644
+--- a/arch/x86/kernel/paravirt_patch_64.c
++++ b/arch/x86/kernel/paravirt_patch_64.c
+@@ -10,7 +10,6 @@ DEF_NATIVE(pv_mmu_ops, read_cr2, "movq %cr2, %rax");
+ DEF_NATIVE(pv_mmu_ops, read_cr3, "movq %cr3, %rax");
+ DEF_NATIVE(pv_mmu_ops, write_cr3, "movq %rdi, %cr3");
+ DEF_NATIVE(pv_mmu_ops, flush_tlb_single, "invlpg (%rdi)");
+-DEF_NATIVE(pv_cpu_ops, wbinvd, "wbinvd");
+ 
+ DEF_NATIVE(pv_cpu_ops, usergs_sysret64, "swapgs; sysretq");
+ DEF_NATIVE(pv_cpu_ops, swapgs, "swapgs");
+@@ -60,7 +59,6 @@ unsigned native_patch(u8 type, u16 clobbers, void *ibuf,
+ 		PATCH_SITE(pv_mmu_ops, read_cr3);
+ 		PATCH_SITE(pv_mmu_ops, write_cr3);
+ 		PATCH_SITE(pv_mmu_ops, flush_tlb_single);
+-		PATCH_SITE(pv_cpu_ops, wbinvd);
+ #if defined(CONFIG_PARAVIRT_SPINLOCKS)
+ 		case PARAVIRT_PATCH(pv_lock_ops.queued_spin_unlock):
+ 			if (pv_is_native_spin_unlock()) {
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 73f809a6ca87..c0cb5c2bfd92 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1045,8 +1045,6 @@ static const struct pv_cpu_ops xen_cpu_ops __initconst = {
+ 	.write_cr8 = xen_write_cr8,
+ #endif
+ 
+-	.wbinvd = native_wbinvd,
+-
+ 	.read_msr = xen_read_msr,
+ 	.write_msr = xen_write_msr,
+ 
 -- 
 2.13.6
