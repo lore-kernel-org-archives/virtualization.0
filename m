@@ -1,15 +1,15 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH RFC 1/2] virtio_net: implement VIRTIO_CONFIG_S_NEEDS_RESET
-Date: Thu, 5 Oct 2017 12:18:41 -0400
-Message-ID: <CAF=yD-KHGg0Yay=qOFSOTYfD5tDQZvvC0WN19nyWb8OQgUOkNg__24090.4913437136$1507220389$gmane$org@mail.gmail.com>
-References: <20170829200759.13975-1-willemdebruijn.kernel@gmail.com>
-	<20170829200759.13975-2-willemdebruijn.kernel@gmail.com>
-	<20170829231739-mutt-send-email-mst@kernel.org>
+From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: Re: [PATCH 11/13] x86/paravirt: Add paravirt alternatives
+	infrastructure
+Date: Thu, 5 Oct 2017 16:35:03 -0400
+Message-ID: <3b9fd404-6912-3b58-db29-36202631b438@oracle.com>
+References: <cover.1507128293.git.jpoimboe@redhat.com>
+	<39743c79546ede3073586403d0836a4f93519b0a.1507128293.git.jpoimboe@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170829231739-mutt-send-email-mst@kernel.org>
+In-Reply-To: <39743c79546ede3073586403d0836a4f93519b0a.1507128293.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,199 +19,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Network Development <netdev@vger.kernel.org>, Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org
+To: Josh Poimboeuf <jpoimboe@redhat.com>, x86@kernel.org
+Cc: Juergen Gross <jgross@suse.com>, Rusty Russell <rusty@rustcorp.com.au>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 29, 2017 at 4:20 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Tue, Aug 29, 2017 at 04:07:58PM -0400, Willem de Bruijn wrote:
->> From: Willem de Bruijn <willemb@google.com>
->>
->> Implement the reset communication request defined in the VIRTIO 1.0
->> specification and introduces in Linux in commit c00bbcf862896 ("virtio:
->> add VIRTIO_CONFIG_S_NEEDS_RESET device status bit").
->>
->> Since that patch, the virtio-net driver has added a virtnet_reset
->> function that implements the requested behavior through calls to the
->> power management freeze and restore functions.
->>
->> That function has recently been reverted when its sole caller was
->> updated. Bring it back and listen for the request from the host on
->> the config channel.
->>
->> Implement the feature analogous to other config requests. In
->> particular, acknowledge the request in the same manner as the
->> NET_S_ANNOUNCE link announce request, by responding with a new
->> VIRTIO_NET_CTRL_${TYPE} command. On reception, the host must check
->> the config status register for success or failure.
->
->
-> Pls make it clearer why do you need these interface extensions.
->
->> The existing freeze handler verifies that no config changes are
->> running concurrently. Elide this check for reset. The request is
->> always handled from the config workqueue. No other config requests
->> can be active or scheduled concurrently on vi->config.
->
-> You need to prevent packet TX from being in progress.
 
-I had another look at this.
+>  #ifdef CONFIG_PARAVIRT
+> +/*
+> + * Paravirt alternatives are applied much earlier than normal alternatives.
+> + * They are only applied when running on a hypervisor.  They replace some
+> + * native instructions with calls to pv ops.
+> + */
+> +void __init apply_pv_alternatives(void)
+> +{
+> +	setup_force_cpu_cap(X86_FEATURE_PV_OPS);
 
-As of commit 713a98d90c5e ("virtio-net: serialize tx routine during reset")
-virtnet_freeze_down calls synchronize_net() after stopping the queues
-to quiesce the device before any further actions. This should suffice for
-virtnet_reset, too.
+Not for Xen HVM guests.
 
-The control path can indeed be much simpler than my initial patchset.
-The host can read vdev->status to observe when the reset went through.
-It adds flag VIRTIO_CONFIG_S_NEEDS_RESET to request the reset.
-This flag is cleared by the operation itself.
+> +	apply_alternatives(__pv_alt_instructions, __pv_alt_instructions_end);
+> +}
 
+
+This is a problem (at least for Xen PV guests):
+apply_alternatives()->text_poke_early()->local_irq_save()->...'cli'->death.
+
+It might be possible not to turn off/on the interrupts in this
+particular case since the guest probably won't be able to handle an
+interrupt at this point anyway.
+
+
+> +
+>  void __init_or_module apply_paravirt(struct paravirt_patch_site *start,
+>  				     struct paravirt_patch_site *end)
+>  {
+> diff --git a/arch/x86/kernel/cpu/hypervisor.c b/arch/x86/kernel/cpu/hypervisor.c
+> index 4fa90006ac68..17243fe0f5ce 100644
+> --- a/arch/x86/kernel/cpu/hypervisor.c
+> +++ b/arch/x86/kernel/cpu/hypervisor.c
+> @@ -71,6 +71,8 @@ void __init init_hypervisor_platform(void)
+>  	if (!x86_hyper)
+>  		return;
+>  
+> +	apply_pv_alternatives();
+
+Not for Xen PV guests who have already done this.
+
+-boris
+
+
+> +
+>  	if (x86_hyper->init_platform)
+>  		x86_hyper->init_platform();
+>  }
 >
->>
->> Signed-off-by: Willem de Bruijn <willemb@google.com>
->> ---
->>  drivers/net/virtio_net.c        | 69 +++++++++++++++++++++++++++++++++++------
->>  include/uapi/linux/virtio_net.h |  4 +++
->
-> virtio dev or another virtio TC list must be Cc'd on any proposed API changes.
->
->
->>  2 files changed, 64 insertions(+), 9 deletions(-)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index 52ae78ca3d38..5e349226f7c1 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -1458,12 +1458,11 @@ static void virtnet_netpoll(struct net_device *dev)
->>  }
->>  #endif
->>
->> -static void virtnet_ack_link_announce(struct virtnet_info *vi)
->> +static void virtnet_ack(struct virtnet_info *vi, u8 class, u8 cmd)
->>  {
->>       rtnl_lock();
->> -     if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_ANNOUNCE,
->> -                               VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL))
->> -             dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
->> +     if (!virtnet_send_command(vi, class, cmd, NULL))
->> +             dev_warn(&vi->dev->dev, "Failed to ack %u.%u\n", class, cmd);
->>       rtnl_unlock();
->>  }
->>
->> @@ -1857,13 +1856,16 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
->>       .set_link_ksettings = virtnet_set_link_ksettings,
->>  };
->>
->> -static void virtnet_freeze_down(struct virtio_device *vdev)
->> +static void virtnet_freeze_down(struct virtio_device *vdev, bool in_reset)
->>  {
->>       struct virtnet_info *vi = vdev->priv;
->>       int i;
->>
->> -     /* Make sure no work handler is accessing the device */
->> -     flush_work(&vi->config_work);
->> +     /* Make sure no work handler is accessing the device,
->> +      * unless this call is made from the reset work handler itself.
->> +      */
->> +     if (!in_reset)
->> +             flush_work(&vi->config_work);
->>
->>       netif_device_detach(vi->dev);
->>       netif_tx_disable(vi->dev);
->> @@ -1878,6 +1880,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
->>  }
->>
->>  static int init_vqs(struct virtnet_info *vi);
->> +static void remove_vq_common(struct virtnet_info *vi);
->>
->>  static int virtnet_restore_up(struct virtio_device *vdev)
->>  {
->> @@ -1906,6 +1909,45 @@ static int virtnet_restore_up(struct virtio_device *vdev)
->>       return err;
->>  }
->>
->> +static int virtnet_reset(struct virtnet_info *vi)
->> +{
->> +     struct virtio_device *dev = vi->vdev;
->> +     bool failed;
->> +     int ret;
->> +
->> +     virtio_config_disable(dev);
->> +     failed = dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED;
->> +     virtnet_freeze_down(dev, true);
->> +     remove_vq_common(vi);
->> +
->> +     virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
->> +     virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
->> +
->> +     /* Restore the failed status (see virtio_device_restore). */
->> +     if (failed)
->> +             virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
->> +
->> +     ret = virtio_finalize_features(dev);
->> +     if (ret)
->> +             goto err;
->> +
->> +     ret = virtnet_restore_up(dev);
->> +     if (ret)
->> +             goto err;
->> +
->> +     ret = virtnet_set_queues(vi, vi->curr_queue_pairs);
->> +     if (ret)
->> +             goto err;
->> +
->> +     virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
->> +     virtio_config_enable(dev);
->> +     return 0;
->> +
->> +err:
->> +     virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
->> +     return ret;
->> +}
->> +
->>  static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
->>  {
->>       struct scatterlist sg;
->> @@ -2085,7 +2127,16 @@ static void virtnet_config_changed_work(struct work_struct *work)
->>
->>       if (v & VIRTIO_NET_S_ANNOUNCE) {
->>               netdev_notify_peers(vi->dev);
->> -             virtnet_ack_link_announce(vi);
->> +             virtnet_ack(vi, VIRTIO_NET_CTRL_ANNOUNCE,
->> +                         VIRTIO_NET_CTRL_ANNOUNCE_ACK);
->> +     }
->> +
->> +     if (vi->vdev->config->get_status(vi->vdev) &
->> +         VIRTIO_CONFIG_S_NEEDS_RESET) {
->> +             virtnet_reset(vi);
->> +             virtnet_ack(vi, VIRTIO_NET_CTRL_RESET,
->> +                         VIRTIO_NET_CTRL_RESET_ACK);
->> +
->>       }
->>
->>       /* Ignore unknown (future) status bits */
->> @@ -2708,7 +2759,7 @@ static __maybe_unused int virtnet_freeze(struct virtio_device *vdev)
->>       struct virtnet_info *vi = vdev->priv;
->>
->>       virtnet_cpu_notif_remove(vi);
->> -     virtnet_freeze_down(vdev);
->> +     virtnet_freeze_down(vdev, false);
->>       remove_vq_common(vi);
->>
->>       return 0;
->> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
->> index fc353b518288..188fdc528f13 100644
->> --- a/include/uapi/linux/virtio_net.h
->> +++ b/include/uapi/linux/virtio_net.h
->> @@ -245,4 +245,8 @@ struct virtio_net_ctrl_mq {
->>  #define VIRTIO_NET_CTRL_GUEST_OFFLOADS   5
->>  #define VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET        0
->>
->> +/* Signal that the driver received and executed the reset command. */
->> +#define VIRTIO_NET_CTRL_RESET                        6
->> +#define VIRTIO_NET_CTRL_RESET_ACK            0
->> +
->>  #endif /* _UAPI_LINUX_VIRTIO_NET_H */
->> --
->> 2.14.1.342.g6490525c54-goog
