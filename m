@@ -1,14 +1,19 @@
-From: =?UTF-8?B?VG9tw6HFoSBHb2xlbWJpb3Zza8O9?= <tgolembi@redhat.com>
-Subject: Re: [PATCH v2 0/1] linux: Buffers/caches in VirtIO Balloon driver
-	stats
-Date: Thu, 5 Oct 2017 15:51:18 +0200
-Message-ID: <20171005155118.51a5bea3__28915.1467652575$1509080024$gmane$org@fiorina>
-References: <cover.1505998455.git.tgolembi@redhat.com>
+From: Thomas Garnier via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: Re: [RFC v3 20/27] x86/ftrace: Adapt function tracing for PIE support
+Date: Thu, 5 Oct 2017 09:14:25 -0700
+Message-ID: <CAJcbSZGOYsoaYJBMPrLx4AffRRdaWCzGXNAPTRgP1DWeAkBkWA__12392.0941180133$1509080043$gmane$org@mail.gmail.com>
+References: <20171004212003.28296-1-thgarnie@google.com>
+	<20171004212003.28296-21-thgarnie@google.com>
+	<20171005090633.5a6ce840@gandalf.local.home>
+	<CAJcbSZHa3SyCR8zEm-Yor9CmBUfcjr0eE_6HMnaeq83gitdJNQ@mail.gmail.com>
+	<20171005121132.7c1f4855@gandalf.local.home>
+Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1505998455.git.tgolembi@redhat.com>
+In-Reply-To: <20171005121132.7c1f4855@gandalf.local.home>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,20 +23,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-mm@kvack.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtio-dev@lists.oasis-open.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Shaohua Li <shli@fb.com>, Huang Ying <ying.huang@intel.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, Michal Hocko <mhocko@suse.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, linux-doc@vger.kernel.org, Daniel Micay <danielmicay@gmail.com>, Len Brown <len.brown@intel.com>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, =?UTF-8?B?SmFuIEggLiBTY2jDtm5oZXJy?= <jschoenh@amazon.de>, Alexei Starovoitov <ast@kernel.org>, Matthew Wilcox <mawilcox@microsoft.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Pavel Machek <pavel@ucw.cz>, "H . Peter Anvin" <hpa@zytor.com>, Kernel Hardening <kernel-hardening@lists.openwall.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Christoph Lameter <cl@linux.com>, Thomas Gleixner <tglx@linutronix.de>, Chris Metcalf <cmetcalf@mellanox.com>, the arch/x86 maintainers <x86@kernel.or>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCAyMSBTZXAgMjAxNyAxNDo1NTo0MCArMDIwMApUb23DocWhIEdvbGVtYmlvdnNrw70g
-PHRnb2xlbWJpQHJlZGhhdC5jb20+IHdyb3RlOgoKPiBMaW51eCBkcml2ZXIgcGFydAo+IAo+IHYy
-Ogo+IC0gZml4ZWQgdHlwb3MKPiAKPiBUb23DocWhIEdvbGVtYmlvdnNrw70gKDEpOgo+ICAgdmly
-dGlvX2JhbGxvb246IGluY2x1ZGUgYnVmZmVycyBhbmQgY2FjaGVkIG1lbW9yeSBzdGF0aXN0aWNz
-Cj4gCj4gIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgICAgIHwgMTEgKysrKysrKysr
-KysKPiAgaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmggfCAgNCArKystCj4gIG1t
-L3N3YXBfc3RhdGUuYyAgICAgICAgICAgICAgICAgICAgIHwgIDEgKwo+ICAzIGZpbGVzIGNoYW5n
-ZWQsIDE1IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPiAKPiAtLSAKPiAyLjE0LjEKPiAK
-CnBpbmcKCi0tIApUb23DocWhIEdvbGVtYmlvdnNrw70gPHRnb2xlbWJpQHJlZGhhdC5jb20+Cl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On Thu, Oct 5, 2017 at 9:11 AM, Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Thu, 5 Oct 2017 09:01:14 -0700
+> Thomas Garnier <thgarnie@google.com> wrote:
+>
+>> On Thu, Oct 5, 2017 at 6:06 AM, Steven Rostedt <rostedt@goodmis.org> wrote:
+>> > On Wed,  4 Oct 2017 14:19:56 -0700
+>> > Thomas Garnier <thgarnie@google.com> wrote:
+>> >
+>> >> When using -fPIE/PIC with function tracing, the compiler generates a
+>> >> call through the GOT (call *__fentry__@GOTPCREL). This instruction
+>> >> takes 6 bytes instead of 5 on the usual relative call.
+>> >>
+>> >> With this change, function tracing supports 6 bytes on traceable
+>> >> function and can still replace relative calls on the ftrace assembly
+>> >> functions.
+>> >>
+>> >> Position Independent Executable (PIE) support will allow to extended the
+>> >> KASLR randomization range below the -2G memory limit.
+>> >
+>> > Question: This 6 bytes is only the initial call that gcc creates. When
+>> > function tracing is enabled, the calls are back to the normal call to
+>> > the ftrace trampoline?
+>>
+>> That is correct.
+>>
+>
+> Then I think a better idea is to simply nop them out at compile time,
+> and have the code that updates them to nops to know about it.
+>
+> See scripts/recordmcount.c
+>
+> Could we simply add a 5 byte nop followed by a 1 byte nop, and treat it
+> the same as if it didn't exist? This code can be a little complex, and
+> can cause really nasty side effects if things go wrong. I would like to
+> keep from adding more variables to the changes here.
+
+Sure, I will simplify it for the next iteration.
+
+Thanks for the feedback.
+
+>
+> -- Steve
+
+
+
+-- 
+Thomas
