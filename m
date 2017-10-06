@@ -1,17 +1,16 @@
 From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: [PATCH 11/13] x86/paravirt: Add paravirt alternatives
-	infrastructure
-Date: Fri, 6 Oct 2017 09:32:59 -0500
-Message-ID: <20171006143259.rs3zh7k5tmsgesqy__32890.1692796082$1509080056$gmane$org@treble>
+Subject: Re: [Xen-devel] [PATCH 00/13] x86/paravirt: Make pv ops code
+	generation more closely match reality
+Date: Fri, 6 Oct 2017 09:36:06 -0500
+Message-ID: <20171006143606.tbv4y2te6jvqoach__49700.4074547023$1509080058$gmane$org@treble>
 References: <cover.1507128293.git.jpoimboe@redhat.com>
-	<39743c79546ede3073586403d0836a4f93519b0a.1507128293.git.jpoimboe@redhat.com>
-	<3b9fd404-6912-3b58-db29-36202631b438@oracle.com>
+	<87bmlkiv9n.fsf@vitty.brq.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <3b9fd404-6912-3b58-db29-36202631b438@oracle.com>
+In-Reply-To: <87bmlkiv9n.fsf@vitty.brq.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,63 +20,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>, Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, x86@kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Juergen Gross <jgross@suse.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>, Linus Torvalds <torvalds@linux-foundation.org>, Rusty Russell <rusty@rustcorp.com.au>, Alok Kataria <akataria@vmware.com>, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, live-patching@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Mike Galbraith <efault@gmx.de>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, virtualization@lists.linux-foundation.org, Jiri Slaby <jslaby@suse.cz>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 05, 2017 at 04:35:03PM -0400, Boris Ostrovsky wrote:
+On Fri, Oct 06, 2017 at 09:35:16AM +0200, Vitaly Kuznetsov wrote:
+> Josh Poimboeuf <jpoimboe@redhat.com> writes:
 > 
-> >  #ifdef CONFIG_PARAVIRT
-> > +/*
-> > + * Paravirt alternatives are applied much earlier than normal alternatives.
-> > + * They are only applied when running on a hypervisor.  They replace some
-> > + * native instructions with calls to pv ops.
-> > + */
-> > +void __init apply_pv_alternatives(void)
-> > +{
-> > +	setup_force_cpu_cap(X86_FEATURE_PV_OPS);
+> > - For the most common runtime cases (everything except Xen and vSMP),
+> >   vmlinux disassembly now matches what the actual runtime code looks
+> >   like.  This improves debuggability and kernel developer sanity (a
+> >   precious resource).
+> >
+> > ...
+> >
+> > - It's hopefully a first step in simplifying paravirt patching by
+> >   getting rid of .parainstructions, pv ops, and apply_paravirt()
+> >   completely.  (I think Xen can be changed to set CPU feature bits to
+> >   specify which ops it needs during early boot, then those ops can be
+> >   patched in using early alternatives.)
 > 
-> Not for Xen HVM guests.
+> JFYI starting 4.14 Xen PV is not the only user of pv_mmu_ops, Hyper-V
+> uses it for TLB shootdown now.
 
-From what I can tell, HVM guests still use pv_time_ops and
-pv_mmu_ops.exit_mmap, right?
-
-> > +	apply_alternatives(__pv_alt_instructions, __pv_alt_instructions_end);
-> > +}
-> 
-> 
-> This is a problem (at least for Xen PV guests):
-> apply_alternatives()->text_poke_early()->local_irq_save()->...'cli'->death.
-
-Ah, right.
-
-> It might be possible not to turn off/on the interrupts in this
-> particular case since the guest probably won't be able to handle an
-> interrupt at this point anyway.
-
-Yeah, that should work.  For Xen and for the other hypervisors, this is
-called well before irq init, so interrupts can't be handled yet anyway.
-
-> > +
-> >  void __init_or_module apply_paravirt(struct paravirt_patch_site *start,
-> >  				     struct paravirt_patch_site *end)
-> >  {
-> > diff --git a/arch/x86/kernel/cpu/hypervisor.c b/arch/x86/kernel/cpu/hypervisor.c
-> > index 4fa90006ac68..17243fe0f5ce 100644
-> > --- a/arch/x86/kernel/cpu/hypervisor.c
-> > +++ b/arch/x86/kernel/cpu/hypervisor.c
-> > @@ -71,6 +71,8 @@ void __init init_hypervisor_platform(void)
-> >  	if (!x86_hyper)
-> >  		return;
-> >  
-> > +	apply_pv_alternatives();
-> 
-> Not for Xen PV guests who have already done this.
-
-I think it would be harmless, but yeah, it's probably best to only write
-it once.
-
-Thanks for the review!
+Yeah, I saw that.  It should be fine because the pv_alternatives get
+patched before the Hyper-V code sets up pv_mmu_ops.
 
 -- 
 Josh
