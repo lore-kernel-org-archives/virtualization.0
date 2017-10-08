@@ -1,11 +1,13 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: [PATCH net-next v2] vhost_net: do not stall on zerocopy depletion
-Date: Fri,  6 Oct 2017 13:22:31 -0400
-Message-ID: <20171006172231.87435-1-willemdebruijn.kernel__2313.77828536115$1507310582$gmane$org@gmail.com>
+From: Ilya Lesokhin <ilyal@mellanox.com>
+Subject: RE: packed ring layout proposal v3
+Date: Sun, 8 Oct 2017 06:16:44 +0000
+Message-ID: <AM4PR0501MB27236B71E1B02176F1844ACBD4770__40034.4320376918$1507443434$gmane$org@AM4PR0501MB2723.eurprd05.prod.outlook.com>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,95 +17,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: Willem de Bruijn <willemb@google.com>, mst@redhat.com, den@klaipeden.com, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: "Michael S. Tsirkin" <mst@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Willem de Bruijn <willemb@google.com>
+> > -----Original Message-----
+> > From: virtualization-bounces@lists.linux-foundation.org
+> > [mailto:virtualization-bounces@lists.linux-foundation.org] On Behalf
+> > Of Michael S. Tsirkin
+> >
+> > This is an update from v2 version.
+>> ...
+> > When driver descriptors are chained in this way, multiple descriptors
+> > are treated as a part of a single transaction containing an optional
+> > write buffer followed by an optional read buffer.
+> > All descriptors in the chain must have the same ID.
+> >
 
-Vhost-net has a hard limit on the number of zerocopy skbs in flight.
-When reached, transmission stalls. Stalls cause latency, as well as
-head-of-line blocking of other flows that do not use zerocopy.
+I apologize for the repost, I didn't realize I have to be a member of the 
+virtio-dev mailing list.
 
-Instead of stalling, revert to copy-based transmission.
-
-Tested by sending two udp flows from guest to host, one with payload
-of VHOST_GOODCOPY_LEN, the other too small for zerocopy (1B). The
-large flow is redirected to a netem instance with 1MBps rate limit
-and deep 1000 entry queue.
-
-  modprobe ifb
-  ip link set dev ifb0 up
-  tc qdisc add dev ifb0 root netem limit 1000 rate 1MBit
-
-  tc qdisc add dev tap0 ingress
-  tc filter add dev tap0 parent ffff: protocol ip \
-      u32 match ip dport 8000 0xffff \
-      action mirred egress redirect dev ifb0
-
-Before the delay, both flows process around 80K pps. With the delay,
-before this patch, both process around 400. After this patch, the
-large flow is still rate limited, while the small reverts to its
-original rate. See also discussion in the first link, below.
-
-Without rate limiting, {1, 10, 100}x TCP_STREAM tests continued to
-send at 100% zerocopy.
-
-The limit in vhost_exceeds_maxpend must be carefully chosen. With
-vq->num >> 1, the flows remain correlated. This value happens to
-correspond to VHOST_MAX_PENDING for vq->num == 256. Allow smaller
-fractions and ensure correctness also for much smaller values of
-vq->num, by testing the min() of both explicitly. See also the
-discussion in the second link below.
-
-Changes
-  v1 -> v2
-    - replaced min with typed min_t
-    - avoid unnecessary whitespace change
-
-Link:http://lkml.kernel.org/r/CAF=yD-+Wk9sc9dXMUq1+x_hh=3ThTXa6BnZkygP3tgVpjbp93g@mail.gmail.com
-Link:http://lkml.kernel.org/r/20170819064129.27272-1-den@klaipeden.com
-Signed-off-by: Willem de Bruijn <willemb@google.com>
----
- drivers/vhost/net.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 58585ec8699e..68677d930e20 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -436,8 +436,8 @@ static bool vhost_exceeds_maxpend(struct vhost_net *net)
- 	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
- 	struct vhost_virtqueue *vq = &nvq->vq;
+I'm concerned about the "same ID" requirement in chained descriptors.
  
--	return (nvq->upend_idx + vq->num - VHOST_MAX_PEND) % UIO_MAXIOV
--		== nvq->done_idx;
-+	return (nvq->upend_idx + UIO_MAXIOV - nvq->done_idx) % UIO_MAXIOV >
-+	       min_t(unsigned int, VHOST_MAX_PEND, vq->num >> 2);
- }
+Assuming out of order execution, how is the driver supposed to re-assign
+unique IDs to the previously chained descriptor?
+Is the driver expected to copy original IDs somewhere else before the
+chaining and then restore the IDs after the chain is executed?
  
- /* Expects to be always run from workqueue - which acts as
-@@ -480,11 +480,6 @@ static void handle_tx(struct vhost_net *net)
- 		if (zcopy)
- 			vhost_zerocopy_signal_used(net, vq);
- 
--		/* If more outstanding DMAs, queue the work.
--		 * Handle upend_idx wrap around
--		 */
--		if (unlikely(vhost_exceeds_maxpend(net)))
--			break;
- 
- 		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
- 						ARRAY_SIZE(vq->iov),
-@@ -519,8 +514,7 @@ static void handle_tx(struct vhost_net *net)
- 		len = msg_data_left(&msg);
- 
- 		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
--				   && (nvq->upend_idx + 1) % UIO_MAXIOV !=
--				      nvq->done_idx
-+				   && !vhost_exceeds_maxpend(net)
- 				   && vhost_net_tx_select_zcopy(net);
- 
- 		/* use msg_control to pass vhost zerocopy ubuf info to skb */
--- 
-2.14.2.920.gcf0c67979c-goog
+Thanks,
+Ilya
