@@ -1,14 +1,17 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v16 3/5] virtio-balloon: VIRTIO_BALLOON_F_SG
-Date: Tue, 10 Oct 2017 20:32:41 +0800
-Message-ID: <59DCBDE9.4050404__39796.9682621353$1507638669$gmane$org@intel.com>
-References: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>	<1506744354-20979-4-git-send-email-wei.w.wang@intel.com>	<20171009181612-mutt-send-email-mst@kernel.org>	<59DC76BA.7070202@intel.com>
-	<201710102008.FIG57851.QFJLMtVOFOHFOS@I-love.SAKURA.ne.jp>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v16 5/5] virtio-balloon: VIRTIO_BALLOON_F_CTRL_VQ
+Date: Tue, 10 Oct 2017 18:15:54 +0300
+Message-ID: <20171010180636-mutt-send-email-mst__8993.06248543343$1507648583$gmane$org@kernel.org>
+References: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>
+	<1506744354-20979-6-git-send-email-wei.w.wang@intel.com>
+	<20171001060305-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F73932025A@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201710102008.FIG57851.QFJLMtVOFOHFOS@I-love.SAKURA.ne.jp>
+Content-Disposition: inline
+In-Reply-To: <286AC319A985734F985F78AFA26841F73932025A@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,119 +21,195 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, mst@redhat.com
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
+To: "Wang, Wei W" <wei.w.wang@intel.com>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "willy@infradead.org" <willy@infradead.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, mhocko@kernel.or
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/10/2017 07:08 PM, Tetsuo Handa wrote:
-> Wei Wang wrote:
->> On 10/09/2017 11:20 PM, Michael S. Tsirkin wrote:
->>> On Sat, Sep 30, 2017 at 12:05:52PM +0800, Wei Wang wrote:
->>>> +static inline void xb_set_page(struct virtio_balloon *vb,
->>>> +			       struct page *page,
->>>> +			       unsigned long *pfn_min,
->>>> +			       unsigned long *pfn_max)
->>>> +{
->>>> +	unsigned long pfn = page_to_pfn(page);
->>>> +
->>>> +	*pfn_min = min(pfn, *pfn_min);
->>>> +	*pfn_max = max(pfn, *pfn_max);
->>>> +	xb_preload(GFP_KERNEL);
->>>> +	xb_set_bit(&vb->page_xb, pfn);
->>>> +	xb_preload_end();
->>>> +}
->>>> +
->>> So, this will allocate memory
->>>
->>> ...
->>>
->>>> @@ -198,9 +327,12 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
->>>>    	struct page *page;
->>>>    	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
->>>>    	LIST_HEAD(pages);
->>>> +	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
->>>> +	unsigned long pfn_max = 0, pfn_min = ULONG_MAX;
->>>>    
->>>> -	/* We can only do one array worth at a time. */
->>>> -	num = min(num, ARRAY_SIZE(vb->pfns));
->>>> +	/* Traditionally, we can only do one array worth at a time. */
->>>> +	if (!use_sg)
->>>> +		num = min(num, ARRAY_SIZE(vb->pfns));
->>>>    
->>>>    	mutex_lock(&vb->balloon_lock);
->>>>    	/* We can't release more pages than taken */
->>> And is sometimes called on OOM.
->>>
->>>
->>> I suspect we need to
->>>
->>> 1. keep around some memory for leak on oom
->>>
->>> 2. for non oom allocate outside locks
->>>
->>>
->> I think maybe we can optimize the existing balloon logic, which could
->> remove the big balloon lock:
->>
->> It would not be necessary to have the inflating and deflating run at the
->> same time.
->> For example, 1st request to inflate 7G RAM, when 1GB has been given to
->> the host (so 6G left), the
->> 2nd request to deflate 5G is received. Instead of waiting for the 1st
->> request to inflate 6G and then
->> continuing with the 2nd request to deflate 5G, we can do a diff (6G to
->> inflate - 5G to deflate) immediately,
->> and got 1G to inflate. In this way, all that driver will do is to simply
->> inflate another 1G.
->>
->> Same for the OOM case: when OOM asks for 1G, while inflating 5G is in
->> progress, then the driver can
->> deduct 1G from the amount that needs to inflate, and as a result, it
->> will inflate 4G.
->>
->> In this case, we will never have the inflating and deflating task run at
->> the same time, so I think it is
->> possible to remove the lock, and therefore, we will not have that
->> deadlock issue.
->>
->> What would you guys think?
-> What is balloon_lock at virtballoon_migratepage() for?
->
->    e22504296d4f64fb "virtio_balloon: introduce migration primitives to balloon pages"
->    f68b992bbb474641 "virtio_balloon: fix race by fill and leak"
+On Mon, Oct 02, 2017 at 04:38:01PM +0000, Wang, Wei W wrote:
+> On Sunday, October 1, 2017 11:19 AM, Michael S. Tsirkin wrote:
+> > On Sat, Sep 30, 2017 at 12:05:54PM +0800, Wei Wang wrote:
+> > > +static void ctrlq_send_cmd(struct virtio_balloon *vb,
+> > > +			  struct virtio_balloon_ctrlq_cmd *cmd,
+> > > +			  bool inbuf)
+> > > +{
+> > > +	struct virtqueue *vq = vb->ctrl_vq;
+> > > +
+> > > +	ctrlq_add_cmd(vq, cmd, inbuf);
+> > > +	if (!inbuf) {
+> > > +		/*
+> > > +		 * All the input cmd buffers are replenished here.
+> > > +		 * This is necessary because the input cmd buffers are lost
+> > > +		 * after live migration. The device needs to rewind all of
+> > > +		 * them from the ctrl_vq.
+> > 
+> > Confused. Live migration somehow loses state? Why is that and why is it a good
+> > idea? And how do you know this is migration even?
+> > Looks like all you know is you got free page end. Could be any reason for this.
+> 
+> 
+> I think this would be something that the current live migration lacks - what the
+> device read from the vq is not transferred during live migration, an example is the 
+> stat_vq_elem: 
+> Line 476 at https://github.com/qemu/qemu/blob/master/hw/virtio/virtio-balloon.c
 
-I think that's the part we need to improve for the existing 
-implementation when going with the above direction.
+This does not touch guest memory though it just manipulates
+internal state to make it easier to migrate.
+It's transparent to guest as migration should be.
 
-As also stated in the commit log, the lock was proposed to synchronize 
-accesses to elements
-of struct virtio_balloon and its queue operation. To be more precise, 
-fill_balloon/leak_balloon/migrationpage
-share vb->pfns[] and vb->num_pfns, which can actually be changed to use 
-local variables of their own each.
+> For all the things that are added to the vq and need to be held by the device
+> to use later need to consider the situation that live migration might happen at any
+> time and they need to be re-taken from the vq by the device on the destination
+> machine.
+> 
+> So, even without this live migration optimization feature, I think all the things that are 
+> added to the vq for the device to hold, need a way for the device to rewind back from
+> the vq - re-adding all the elements to the vq is a trick to keep a record of all of them
+> on the vq so that the device side rewinding can work. 
+> 
+> Please let me know if anything is missed or if you have other suggestions.
 
-For example, for migratepage:
-+       __virtio32 pfn;
-...
--       vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
--       set_page_pfns(vb, vb->pfns, newpage);
--       tell_host(vb, vb->inflate_vq);
-+       set_page_pfns(vb, &pfn, newpage);
-+       tell_host(vb, vb->inflate_vq, &pfn, VIRTIO_BALLOON_PAGES_PER_PAGE);
+IMO migration should pass enough data source to destination for
+destination to continue where source left off without guest help.
 
-For the queue access, it could be a small lock for each queue access, 
-which I think won't cause the issue.
+> 
+> > > +static void ctrlq_handle(struct virtqueue *vq) {
+> > > +	struct virtio_balloon *vb = vq->vdev->priv;
+> > > +	struct virtio_balloon_ctrlq_cmd *msg;
+> > > +	unsigned int class, cmd, len;
+> > > +
+> > > +	msg = (struct virtio_balloon_ctrlq_cmd *)virtqueue_get_buf(vq, &len);
+> > > +	if (unlikely(!msg))
+> > > +		return;
+> > > +
+> > > +	/* The outbuf is sent by the host for recycling, so just return. */
+> > > +	if (msg == &vb->free_page_cmd_out)
+> > > +		return;
+> > > +
+> > > +	class = virtio32_to_cpu(vb->vdev, msg->class);
+> > > +	cmd =  virtio32_to_cpu(vb->vdev, msg->cmd);
+> > > +
+> > > +	switch (class) {
+> > > +	case VIRTIO_BALLOON_CTRLQ_CLASS_FREE_PAGE:
+> > > +		if (cmd == VIRTIO_BALLOON_FREE_PAGE_F_STOP) {
+> > > +			vb->report_free_page_stop = true;
+> > > +		} else if (cmd == VIRTIO_BALLOON_FREE_PAGE_F_START) {
+> > > +			vb->report_free_page_stop = false;
+> > > +			queue_work(vb->balloon_wq, &vb-
+> > >report_free_page_work);
+> > > +		}
+> > > +		vb->free_page_cmd_in.class =
+> > > +
+> > 	VIRTIO_BALLOON_CTRLQ_CLASS_FREE_PAGE;
+> > > +		ctrlq_send_cmd(vb, &vb->free_page_cmd_in, true);
+> > > +	break;
+> > > +	default:
+> > > +		dev_warn(&vb->vdev->dev, "%s: cmd class not supported\n",
+> > > +			 __func__);
+> > > +	}
+> > 
+> > Manipulating report_free_page_stop without any locks looks very suspicious.
+> 
+> > Also, what if we get two start commands? we should restart from beginning,
+> > should we not?
+> > 
+> 
+> 
+> Yes, it will start to report free pages from the beginning.
+> walk_free_mem_block() doesn't maintain any internal status, so the invoking of
+> it will always start from the beginning.
+
+Well yes but it will first complete the previous walk.
+
+> 
+> > > +/* Ctrlq commands related to VIRTIO_BALLOON_CTRLQ_CLASS_FREE_PAGE
+> > */
+> > > +#define VIRTIO_BALLOON_FREE_PAGE_F_STOP		0
+> > > +#define VIRTIO_BALLOON_FREE_PAGE_F_START	1
+> > > +
+> > >  #endif /* _LINUX_VIRTIO_BALLOON_H */
+> > 
+> > The stop command does not appear to be thought through.
+> > 
+> > Let's assume e.g. you started migration. You ask guest for free pages.
+> > Then you cancel it.  There are a bunch of pages in free vq and you are getting
+> > more.  You now want to start migration again. What to do?
+> > 
+> > A bunch of vq flushing and waiting will maybe do the trick, but waiting on guest
+> > is never a great idea.
+> > 
+> 
+> 
+> I think the device can flush (pop out what's left in the vq and push them back) the
+> vq right after the Stop command is sent to the guest, rather than doing the flush
+> when the 2nd initiation of live migration begins. The entries pushed back to the vq
+> will be in the used ring, what would the device need to wait for?
+
+You will be getting stale pages in available ring which were possibly
+taken out of free list since memory is not tracked when migration is not
+going on.
 
 
 
-> And even if we could remove balloon_lock, you still cannot use
-> __GFP_DIRECT_RECLAIM at xb_set_page(). I think you will need to use
-> "whether it is safe to wait" flag from
-> "[PATCH] virtio: avoid possible OOM lockup at virtballoon_oom_notify()" .
+> > I previously suggested pushing the stop/start commands from guest to host on
+> > the free page vq, and including an ID in host to guest and guest to host
+> > commands. This way ctrl vq is just for host to guest commands, and host
+> > matches commands and knows which command is a free page in response to.
+> > 
+> > I still think it's a good idea but go ahead and propose something else that works.
+> > 
+> 
+> Thanks for the suggestion. Probably I haven't fully understood it. Please see the example
+> below:
+> 
+> 1) host-to-guest ctrl_vq:
+> StartCMD, ID=1
+> 
+> 2) guest-to-host free_page_vq:
+> free_page, ID=1
+> free_page, ID=1
+> free_page, ID=1
+> free_page, ID=1
+> 
+> 3) host-to-guest ctrl_vq:
+> StopCMD, ID=1
+> 
+> 4) initiate the 2nd try of live migration via host-to-guest ctrl_vq:
+> StartCMD, ID=2
+> 
+> 5) the guest-to-host free_page_vq might look like this:
+> free_page, ID=1
+> free_page, ID=1
+> free_page, ID=2
+> free_page, ID=2
+> 
+> The device will need to drop (pop out the two entries and push them back)
+> the first 2 obsolete free pages which are sent by ID=1.
 
-Without the lock being held, why couldn't we use __GFP_DIRECT_RECLAIM at 
-xb_set_page()?
+yes. But you do not have to attach id to each page.
+
+It can be:
+
+ID=1
+free_page
+free_page
+ID=2
+free_page
+free_page
 
 
-Best,
-Wei
+
+> I haven't found the benefits above yet. The device will perform the same operations
+> to get rid of the old free pages. If we drop the old free pages after the StopCMD (
+> ID may also not be needed in this case), the overhead won't be added to the live
+> migration time.
+> Would you have any thought about this?
+> 
+> 
+> Best,
+> Wei
+> 
+
+As these are separate vqs there is not clean way to know whether
+free_page was queued before or after stop command.
+Sending the ID helps detect where the free pages for a given start
+command are.
