@@ -1,15 +1,14 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH] virtio: avoid possible OOM lockup at
-	virtballoon_oom_notify()
-Date: Tue, 10 Oct 2017 13:47:06 +0200
-Message-ID: <20171010114706.mp3hpuulze75av43__24713.0694952377$1507636058$gmane$org@dhcp22.suse.cz>
-References: <1507632457-4611-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v16 3/5] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Tue, 10 Oct 2017 20:32:41 +0800
+Message-ID: <59DCBDE9.4050404__39796.9682621353$1507638669$gmane$org@intel.com>
+References: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>	<1506744354-20979-4-git-send-email-wei.w.wang@intel.com>	<20171009181612-mutt-send-email-mst@kernel.org>	<59DC76BA.7070202@intel.com>
+	<201710102008.FIG57851.QFJLMtVOFOHFOS@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1507632457-4611-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
+In-Reply-To: <201710102008.FIG57851.QFJLMtVOFOHFOS@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,108 +18,119 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: linux-mm@kvack.org, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, mst@redhat.com
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue 10-10-17 19:47:37, Tetsuo Handa wrote:
-> In leak_balloon(), mutex_lock(&vb->balloon_lock) is called in order to
-> serialize against fill_balloon(). But in fill_balloon(),
-> alloc_page(GFP_HIGHUSER[_MOVABLE] | __GFP_NOMEMALLOC | __GFP_NORETRY) is
-> called with vb->balloon_lock mutex held. Since GFP_HIGHUSER[_MOVABLE]
-> implies __GFP_DIRECT_RECLAIM | __GFP_IO | __GFP_FS, despite __GFP_NORETRY
-> is specified, this allocation attempt might indirectly depend on somebody
-> else's __GFP_DIRECT_RECLAIM memory allocation. And such indirect
-> __GFP_DIRECT_RECLAIM memory allocation might call leak_balloon() via
-> virtballoon_oom_notify() via blocking_notifier_call_chain() callback via
-> out_of_memory() when it reached __alloc_pages_may_oom() and held oom_lock
-> mutex. Since vb->balloon_lock mutex is already held by fill_balloon(), it
-> will cause OOM lockup. Thus, do not wait for vb->balloon_lock mutex if
-> leak_balloon() is called from out_of_memory().
-> 
->   Thread1                                       Thread2
->     fill_balloon()
->       takes a balloon_lock
->       balloon_page_enqueue()
->         alloc_page(GFP_HIGHUSER_MOVABLE)
->           direct reclaim (__GFP_FS context)       takes a fs lock
->             waits for that fs lock                  alloc_page(GFP_NOFS)
->                                                       __alloc_pages_may_oom()
->                                                         takes the oom_lock
->                                                         out_of_memory()
->                                                           blocking_notifier_call_chain()
->                                                             leak_balloon()
->                                                               tries to take that balloon_lock and deadlocks
-> 
-> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+On 10/10/2017 07:08 PM, Tetsuo Handa wrote:
+> Wei Wang wrote:
+>> On 10/09/2017 11:20 PM, Michael S. Tsirkin wrote:
+>>> On Sat, Sep 30, 2017 at 12:05:52PM +0800, Wei Wang wrote:
+>>>> +static inline void xb_set_page(struct virtio_balloon *vb,
+>>>> +			       struct page *page,
+>>>> +			       unsigned long *pfn_min,
+>>>> +			       unsigned long *pfn_max)
+>>>> +{
+>>>> +	unsigned long pfn = page_to_pfn(page);
+>>>> +
+>>>> +	*pfn_min = min(pfn, *pfn_min);
+>>>> +	*pfn_max = max(pfn, *pfn_max);
+>>>> +	xb_preload(GFP_KERNEL);
+>>>> +	xb_set_bit(&vb->page_xb, pfn);
+>>>> +	xb_preload_end();
+>>>> +}
+>>>> +
+>>> So, this will allocate memory
+>>>
+>>> ...
+>>>
+>>>> @@ -198,9 +327,12 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+>>>>    	struct page *page;
+>>>>    	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
+>>>>    	LIST_HEAD(pages);
+>>>> +	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
+>>>> +	unsigned long pfn_max = 0, pfn_min = ULONG_MAX;
+>>>>    
+>>>> -	/* We can only do one array worth at a time. */
+>>>> -	num = min(num, ARRAY_SIZE(vb->pfns));
+>>>> +	/* Traditionally, we can only do one array worth at a time. */
+>>>> +	if (!use_sg)
+>>>> +		num = min(num, ARRAY_SIZE(vb->pfns));
+>>>>    
+>>>>    	mutex_lock(&vb->balloon_lock);
+>>>>    	/* We can't release more pages than taken */
+>>> And is sometimes called on OOM.
+>>>
+>>>
+>>> I suspect we need to
+>>>
+>>> 1. keep around some memory for leak on oom
+>>>
+>>> 2. for non oom allocate outside locks
+>>>
+>>>
+>> I think maybe we can optimize the existing balloon logic, which could
+>> remove the big balloon lock:
+>>
+>> It would not be necessary to have the inflating and deflating run at the
+>> same time.
+>> For example, 1st request to inflate 7G RAM, when 1GB has been given to
+>> the host (so 6G left), the
+>> 2nd request to deflate 5G is received. Instead of waiting for the 1st
+>> request to inflate 6G and then
+>> continuing with the 2nd request to deflate 5G, we can do a diff (6G to
+>> inflate - 5G to deflate) immediately,
+>> and got 1G to inflate. In this way, all that driver will do is to simply
+>> inflate another 1G.
+>>
+>> Same for the OOM case: when OOM asks for 1G, while inflating 5G is in
+>> progress, then the driver can
+>> deduct 1G from the amount that needs to inflate, and as a result, it
+>> will inflate 4G.
+>>
+>> In this case, we will never have the inflating and deflating task run at
+>> the same time, so I think it is
+>> possible to remove the lock, and therefore, we will not have that
+>> deadlock issue.
+>>
+>> What would you guys think?
+> What is balloon_lock at virtballoon_migratepage() for?
+>
+>    e22504296d4f64fb "virtio_balloon: introduce migration primitives to balloon pages"
+>    f68b992bbb474641 "virtio_balloon: fix race by fill and leak"
 
-FWIW this looks good to me from the deadlock POV. I cannot judge virtio
-internals and I would appreciate if it could move away from the oom
-notifier API to a more generic reclaim mechanism (e.g. shrinkers).
+I think that's the part we need to improve for the existing 
+implementation when going with the above direction.
 
-Reviewed-by: Michal Hocko <mhocko@suse.com>
-> ---
->  drivers/virtio/virtio_balloon.c | 16 +++++++++++-----
->  1 file changed, 11 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index f0b3a0b..03e6078 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -192,7 +192,7 @@ static void release_pages_balloon(struct virtio_balloon *vb,
->  	}
->  }
->  
-> -static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
-> +static unsigned leak_balloon(struct virtio_balloon *vb, size_t num, bool wait)
->  {
->  	unsigned num_freed_pages;
->  	struct page *page;
-> @@ -202,7 +202,13 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
->  	/* We can only do one array worth at a time. */
->  	num = min(num, ARRAY_SIZE(vb->pfns));
->  
-> -	mutex_lock(&vb->balloon_lock);
-> +	if (wait)
-> +		mutex_lock(&vb->balloon_lock);
-> +	else if (!mutex_trylock(&vb->balloon_lock)) {
-> +		pr_info("virtio_balloon: Unable to release %lu pages due to lock contention.\n",
-> +			(unsigned long) min(num, (size_t)vb->num_pages));
-> +		return 0;
-> +	}
->  	/* We can't release more pages than taken */
->  	num = min(num, (size_t)vb->num_pages);
->  	for (vb->num_pfns = 0; vb->num_pfns < num;
-> @@ -367,7 +373,7 @@ static int virtballoon_oom_notify(struct notifier_block *self,
->  		return NOTIFY_OK;
->  
->  	freed = parm;
-> -	num_freed_pages = leak_balloon(vb, oom_pages);
-> +	num_freed_pages = leak_balloon(vb, oom_pages, false);
->  	update_balloon_size(vb);
->  	*freed += num_freed_pages;
->  
-> @@ -395,7 +401,7 @@ static void update_balloon_size_func(struct work_struct *work)
->  	if (diff > 0)
->  		diff -= fill_balloon(vb, diff);
->  	else if (diff < 0)
-> -		diff += leak_balloon(vb, -diff);
-> +		diff += leak_balloon(vb, -diff, true);
->  	update_balloon_size(vb);
->  
->  	if (diff)
-> @@ -597,7 +603,7 @@ static void remove_common(struct virtio_balloon *vb)
->  {
->  	/* There might be pages left in the balloon: free them. */
->  	while (vb->num_pages)
-> -		leak_balloon(vb, vb->num_pages);
-> +		leak_balloon(vb, vb->num_pages, true);
->  	update_balloon_size(vb);
->  
->  	/* Now we reset the device so we can clean up the queues. */
-> -- 
-> 1.8.3.1
+As also stated in the commit log, the lock was proposed to synchronize 
+accesses to elements
+of struct virtio_balloon and its queue operation. To be more precise, 
+fill_balloon/leak_balloon/migrationpage
+share vb->pfns[] and vb->num_pfns, which can actually be changed to use 
+local variables of their own each.
 
--- 
-Michal Hocko
-SUSE Labs
+For example, for migratepage:
++       __virtio32 pfn;
+...
+-       vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
+-       set_page_pfns(vb, vb->pfns, newpage);
+-       tell_host(vb, vb->inflate_vq);
++       set_page_pfns(vb, &pfn, newpage);
++       tell_host(vb, vb->inflate_vq, &pfn, VIRTIO_BALLOON_PAGES_PER_PAGE);
+
+For the queue access, it could be a small lock for each queue access, 
+which I think won't cause the issue.
+
+
+
+> And even if we could remove balloon_lock, you still cannot use
+> __GFP_DIRECT_RECLAIM at xb_set_page(). I think you will need to use
+> "whether it is safe to wait" flag from
+> "[PATCH] virtio: avoid possible OOM lockup at virtballoon_oom_notify()" .
+
+Without the lock being held, why couldn't we use __GFP_DIRECT_RECLAIM at 
+xb_set_page()?
+
+
+Best,
+Wei
