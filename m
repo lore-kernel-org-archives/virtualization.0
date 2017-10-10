@@ -1,22 +1,15 @@
-From: "Liang, Cunming" <cunming.liang@intel.com>
-Subject: RE: [virtio-dev] packed ring layout proposal v3
-Date: Tue, 10 Oct 2017 09:56:44 +0000
-Message-ID: <D0158A423229094DA7ABF71CF2FA0DA34E7DE4D3__12832.5495440096$1507629422$gmane$org@SHSMSX104.ccr.corp.intel.com>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
-	<20170926011826-mutt-send-email-mst@kernel.org>
-	<7A0DC0C9-F148-4161-B2D1-8D8D14D8B9A1@cisco.com>
-	<20170928023112-mutt-send-email-mst@kernel.org>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1AD49B@SHSMSX152.ccr.corp.intel.com>
-	<20171001063817-mutt-send-email-mst@kernel.org>
-	<20171004123901.oomueufqg52uhas4@localhost.localdomain>
-	<20171004155532-mutt-send-email-mst@kernel.org>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH] virtio: avoid possible OOM lockup at
+	virtballoon_oom_notify()
+Date: Tue, 10 Oct 2017 13:47:06 +0200
+Message-ID: <20171010114706.mp3hpuulze75av43__24713.0694952377$1507636058$gmane$org@dhcp22.suse.cz>
+References: <1507632457-4611-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171004155532-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1507632457-4611-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,164 +19,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jens Freimann <jfreimann@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Steven Luong (sluong)" <sluong@cisco.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: linux-mm@kvack.org, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue 10-10-17 19:47:37, Tetsuo Handa wrote:
+> In leak_balloon(), mutex_lock(&vb->balloon_lock) is called in order to
+> serialize against fill_balloon(). But in fill_balloon(),
+> alloc_page(GFP_HIGHUSER[_MOVABLE] | __GFP_NOMEMALLOC | __GFP_NORETRY) is
+> called with vb->balloon_lock mutex held. Since GFP_HIGHUSER[_MOVABLE]
+> implies __GFP_DIRECT_RECLAIM | __GFP_IO | __GFP_FS, despite __GFP_NORETRY
+> is specified, this allocation attempt might indirectly depend on somebody
+> else's __GFP_DIRECT_RECLAIM memory allocation. And such indirect
+> __GFP_DIRECT_RECLAIM memory allocation might call leak_balloon() via
+> virtballoon_oom_notify() via blocking_notifier_call_chain() callback via
+> out_of_memory() when it reached __alloc_pages_may_oom() and held oom_lock
+> mutex. Since vb->balloon_lock mutex is already held by fill_balloon(), it
+> will cause OOM lockup. Thus, do not wait for vb->balloon_lock mutex if
+> leak_balloon() is called from out_of_memory().
+> 
+>   Thread1                                       Thread2
+>     fill_balloon()
+>       takes a balloon_lock
+>       balloon_page_enqueue()
+>         alloc_page(GFP_HIGHUSER_MOVABLE)
+>           direct reclaim (__GFP_FS context)       takes a fs lock
+>             waits for that fs lock                  alloc_page(GFP_NOFS)
+>                                                       __alloc_pages_may_oom()
+>                                                         takes the oom_lock
+>                                                         out_of_memory()
+>                                                           blocking_notifier_call_chain()
+>                                                             leak_balloon()
+>                                                               tries to take that balloon_lock and deadlocks
+> 
+> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
+FWIW this looks good to me from the deadlock POV. I cannot judge virtio
+internals and I would appreciate if it could move away from the oom
+notifier API to a more generic reclaim mechanism (e.g. shrinkers).
 
-> -----Original Message-----
-> From: virtio-dev@lists.oasis-open.org [mailto:virtio-dev@lists.oasis-open.org]
-> On Behalf Of Michael S. Tsirkin
-> Sent: Wednesday, October 4, 2017 8:58 PM
-> To: Jens Freimann <jfreimann@redhat.com>
-> Cc: Liang, Cunming <cunming.liang@intel.com>; Steven Luong (sluong)
-> <sluong@cisco.com>; virtio-dev@lists.oasis-open.org;
-> virtualization@lists.linux-foundation.org
-> Subject: Re: [virtio-dev] packed ring layout proposal v3
+Reviewed-by: Michal Hocko <mhocko@suse.com>
+> ---
+>  drivers/virtio/virtio_balloon.c | 16 +++++++++++-----
+>  1 file changed, 11 insertions(+), 5 deletions(-)
 > 
-> On Wed, Oct 04, 2017 at 02:39:01PM +0200, Jens Freimann wrote:
-> > On Sun, Oct 01, 2017 at 04:08:29AM +0000, Michael S. Tsirkin wrote:
-> > > On Thu, Sep 28, 2017 at 09:44:35AM +0000, Liang, Cunming wrote:
-> > > >
-> > > > Get it now. Please correct me if I missing something.
-> > > >
-> > > >
-> > > > Flags status hints,
-> > > >
-> > > > - DESC_DRIVER only: driver owns the descriptor w/o available info
-> > > > ready for device to use
-> > > >
-> > > > - DESC_DRIVER | DESC_WRAP: driver has prepared an available
-> > > > descriptor, device hasn't used it yet
-> > > >
-> > > > - None: device has used the descriptor, and write descriptor out
-> > > >
-> > > > - DESC_WRAP only: shall not happen, device make sure to clear it
-> > > >
-> > > >
-> > > > Polling behavior is,
-> > > >
-> > > > - Device monitor DESC_WRAP bit set or not; If set, go to use
-> > > > descriptor and clear DESC_DRIVER bit in the end (note: always need
-> > > > to clear DESC_WRAP)
-> > > >
-> > > > - Driver monitor DESC_DRIVER bit cleared or not; If cleared,
-> > > > reclaim descriptor(set DESC_DRIVER) and set DESC_WRAP once new
-> > > > available descriptor get ready to go
-> > > >
-> > > >
-> > > > --
-> > > > Steve
-> > >
-> > >
-> > > Hmm no, not what I had in mind.
-> > >
-> > > DESC_DRIVER: used by driver to poll. Driver sets it when writing a
-> > > descriptor.  Device clears it when overwriting a descriptor.
-> > > Thus driver uses DESC_DRIVER to detect that device data in
-> > > descriptor is valid.
-> >
-> > Basically DESC_HW from v2 split in two?
-> 
-> Yes in order to avoid overwriting all descriptors.
-> 
-> > >
-> > > DESC_WRAP: used by device to poll. Driver sets it to a *different*
-> > > value every time it overwrites a descriptor. How to achieve it?
-> > > since descriptors are written out in ring order, simply maintain the
-> > > current value internally (start value 1) and flip it every time you
-> > > overwrite the first descriptor.
-> > > Device leaves it intact when overwriting a descriptor.
-Ok, get it now.
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index f0b3a0b..03e6078 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -192,7 +192,7 @@ static void release_pages_balloon(struct virtio_balloon *vb,
+>  	}
+>  }
+>  
+> -static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+> +static unsigned leak_balloon(struct virtio_balloon *vb, size_t num, bool wait)
+>  {
+>  	unsigned num_freed_pages;
+>  	struct page *page;
+> @@ -202,7 +202,13 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+>  	/* We can only do one array worth at a time. */
+>  	num = min(num, ARRAY_SIZE(vb->pfns));
+>  
+> -	mutex_lock(&vb->balloon_lock);
+> +	if (wait)
+> +		mutex_lock(&vb->balloon_lock);
+> +	else if (!mutex_trylock(&vb->balloon_lock)) {
+> +		pr_info("virtio_balloon: Unable to release %lu pages due to lock contention.\n",
+> +			(unsigned long) min(num, (size_t)vb->num_pages));
+> +		return 0;
+> +	}
+>  	/* We can't release more pages than taken */
+>  	num = min(num, (size_t)vb->num_pages);
+>  	for (vb->num_pfns = 0; vb->num_pfns < num;
+> @@ -367,7 +373,7 @@ static int virtballoon_oom_notify(struct notifier_block *self,
+>  		return NOTIFY_OK;
+>  
+>  	freed = parm;
+> -	num_freed_pages = leak_balloon(vb, oom_pages);
+> +	num_freed_pages = leak_balloon(vb, oom_pages, false);
+>  	update_balloon_size(vb);
+>  	*freed += num_freed_pages;
+>  
+> @@ -395,7 +401,7 @@ static void update_balloon_size_func(struct work_struct *work)
+>  	if (diff > 0)
+>  		diff -= fill_balloon(vb, diff);
+>  	else if (diff < 0)
+> -		diff += leak_balloon(vb, -diff);
+> +		diff += leak_balloon(vb, -diff, true);
+>  	update_balloon_size(vb);
+>  
+>  	if (diff)
+> @@ -597,7 +603,7 @@ static void remove_common(struct virtio_balloon *vb)
+>  {
+>  	/* There might be pages left in the balloon: free them. */
+>  	while (vb->num_pages)
+> -		leak_balloon(vb, vb->num_pages);
+> +		leak_balloon(vb, vb->num_pages, true);
+>  	update_balloon_size(vb);
+>  
+>  	/* Now we reset the device so we can clean up the queues. */
+> -- 
+> 1.8.3.1
 
-> >
-> > This is confusing me a bit.
-> >
-> > My understanding is: 1. the internally kept wrap value only flipped
-> > when the first descriptor is overwritten
-> >
-> > 2. the moment the first descriptor is written the internal wrap value
-> > is flipped 0->1 or 1->0 and this value is written to every descriptor
-> > DESC_WRAP until we reach the first descriptor again
-That's right, it's also my take.
-DESC_WRAP is only used by driver, device does nothing with that flag.
-
-> 
-> Yes this is what I tried to say. Can you suggest a better wording then?
-The term of DESC_WRAP is fine to me.
-
-> 
-> > >
-> > > After writing down this explanation, I think the names aren't great.
-> > >
-> > > Let me try an alternative explanation.
-> > >
-> > > ---------------
-> > > A two-bit field, DRIVER_OWNER, signals the buffer ownership.
-> > > It has 4 possible values:
-> > > values 0x1, 0x11 are written by driver values 0x0, 0x10 are written
-> > > by device
-> >
-> > The 0x prefix might add to the confusion here. It is really just two
-> > bits, no?
-> 
-> Ouch. Yes I meant 0b. Thanks!
-0b00, 0b10 are written by device?
-I suppose device can only clear high bit, can keep low bit no change.
-Then the value written by device can be either 0b01 or 0b00, but 0b10 means to set high bit, no?
-
-> 
-> > > each time driver writes out a descriptor, it must make sure that the
-> > > high bit in OWNER changes.
-> > >
-> > > each time device writes out a descriptor, it must make sure that the
-> > > high bit in OWNER does not change.
-Typo here? It should be "..., it must make sure that the low bit in OWNER does not change."?
-For high bit in OWNER, each time devices writes out a descriptor, it must make sure to clear high bit in OWNER.
- 
-> > >
-> > > this is exactly the same functionally, DRIVER is high bit and WRAP
-> > > is the low bit.  Does this make things clearer?
-> >
-> > So far it makes sense to me.
-It sounds good.
-
-> > > ---------------
-> > >
-> > >
-> > >
-> > > Maybe the difference between device and driver is confusing. We can
-> > > fix that by changing the values.
-> > > Here is an alternative. Let me know if you like it better - I need
-> > > to think a bit more to make sure it works, but to give you an idea:
-> > >
-> > >
-> > > ---------------
-> > > A two-bit field, DRIVER_OWNER, signals the buffer ownership.
-> > > It has 4 possible values:
-> > > values 0x1, 0x10 are written by driver values 0x0, 0x11 are written
-> > > by device
-> > >
-> > > each time driver writes out a descriptor, it must make sure that the
-> > > high bit in OWNER changes. Thus first time it writes 0x10, next time
-> > > 0x1, then 0x10 again.
-> > >
-> > > each time device writes out a descriptor, it must make sure that the
-> > > low bit in OWNER changes.  Thus first time it writes 0x11, next time
-> > > 0x0, then 0x11 again.
-> >
-> > DESC_WRAP is changed by the device now, so this would work differently
-> > than in the scenario from above. This would mean we don't need the
-> > internally kept wrap value, right?
-> 
-> I think no but I did not complete simulating this yet so I don't yet know if it
-> even works.
-> 
-> >
-> > regards,
-> > Jens
-> 
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+-- 
+Michal Hocko
+SUSE Labs
