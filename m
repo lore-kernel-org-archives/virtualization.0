@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v1 03/27] x86: Use symbol name in jump table for PIE support
-Date: Wed, 11 Oct 2017 13:30:03 -0700
-Message-ID: <20171011203027.11248-4-thgarnie__3075.64532054148$1509080131$gmane$org@google.com>
+Subject: [PATCH v1 04/27] x86: Add macro to get symbol address for PIE support
+Date: Wed, 11 Oct 2017 13:30:04 -0700
+Message-ID: <20171011203027.11248-5-thgarnie__29072.6613523022$1509080147$gmane$org@google.com>
 References: <20171011203027.11248-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -23,44 +23,38 @@ To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemlof
 Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Replace the %c constraint with %P. The %c is incompatible with PIE
-because it implies an immediate value whereas %P reference a symbol.
-
-Position Independent Executable (PIE) support will allow to extended the
-KASLR randomization range below the -2G memory limit.
+Add a new _ASM_GET_PTR macro to fetch a symbol address. It will be used
+to replace "_ASM_MOV $<symbol>, %dst" code construct that are not compatible
+with PIE.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/include/asm/jump_label.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/asm.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/arch/x86/include/asm/jump_label.h b/arch/x86/include/asm/jump_label.h
-index adc54c12cbd1..6e558e4524dc 100644
---- a/arch/x86/include/asm/jump_label.h
-+++ b/arch/x86/include/asm/jump_label.h
-@@ -36,9 +36,9 @@ static __always_inline bool arch_static_branch(struct static_key *key, bool bran
- 		".byte " __stringify(STATIC_KEY_INIT_NOP) "\n\t"
- 		".pushsection __jump_table,  \"aw\" \n\t"
- 		_ASM_ALIGN "\n\t"
--		_ASM_PTR "1b, %l[l_yes], %c0 + %c1 \n\t"
-+		_ASM_PTR "1b, %l[l_yes], %P0 \n\t"
- 		".popsection \n\t"
--		: :  "i" (key), "i" (branch) : : l_yes);
-+		: :  "X" (&((char *)key)[branch]) : : l_yes);
+diff --git a/arch/x86/include/asm/asm.h b/arch/x86/include/asm/asm.h
+index b0dc91f4bedc..6de365b8e3fd 100644
+--- a/arch/x86/include/asm/asm.h
++++ b/arch/x86/include/asm/asm.h
+@@ -57,6 +57,19 @@
+ # define CC_OUT(c) [_cc_ ## c] "=qm"
+ #endif
  
- 	return false;
- l_yes:
-@@ -52,9 +52,9 @@ static __always_inline bool arch_static_branch_jump(struct static_key *key, bool
- 		"2:\n\t"
- 		".pushsection __jump_table,  \"aw\" \n\t"
- 		_ASM_ALIGN "\n\t"
--		_ASM_PTR "1b, %l[l_yes], %c0 + %c1 \n\t"
-+		_ASM_PTR "1b, %l[l_yes], %P0 \n\t"
- 		".popsection \n\t"
--		: :  "i" (key), "i" (branch) : : l_yes);
-+		: :  "X" (&((char *)key)[branch]) : : l_yes);
- 
- 	return false;
- l_yes:
++/* Macros to get a global variable address with PIE support on 64-bit */
++#ifdef CONFIG_X86_32
++#define __ASM_GET_PTR_PRE(_src) __ASM_FORM_COMMA(movl $##_src)
++#else
++#ifdef __ASSEMBLY__
++#define __ASM_GET_PTR_PRE(_src) __ASM_FORM_COMMA(leaq (_src)(%rip))
++#else
++#define __ASM_GET_PTR_PRE(_src) __ASM_FORM_COMMA(leaq (_src)(%%rip))
++#endif
++#endif
++#define _ASM_GET_PTR(_src, _dst) \
++		__ASM_GET_PTR_PRE(_src) __ASM_FORM(_dst)
++
+ /* Exception table entry */
+ #ifdef __ASSEMBLY__
+ # define _ASM_EXTABLE_HANDLE(from, to, handler)			\
 -- 
 2.15.0.rc0.271.g36b669edcc-goog
