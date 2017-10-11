@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v1 04/27] x86: Add macro to get symbol address for PIE support
-Date: Wed, 11 Oct 2017 13:30:04 -0700
-Message-ID: <20171011203027.11248-5-thgarnie__29072.6613523022$1509080147$gmane$org@google.com>
+Subject: [PATCH v1 05/27] x86: relocate_kernel - Adapt assembly for PIE support
+Date: Wed, 11 Oct 2017 13:30:05 -0700
+Message-ID: <20171011203027.11248-6-thgarnie__14911.9214773693$1509080165$gmane$org@google.com>
 References: <20171011203027.11248-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -23,38 +23,35 @@ To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemlof
 Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new _ASM_GET_PTR macro to fetch a symbol address. It will be used
-to replace "_ASM_MOV $<symbol>, %dst" code construct that are not compatible
-with PIE.
+Change the assembly code to use only relative references of symbols for the
+kernel to be PIE compatible.
+
+Position Independent Executable (PIE) support will allow to extended the
+KASLR randomization range below the -2G memory limit.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/include/asm/asm.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/x86/kernel/relocate_kernel_64.S | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/asm.h b/arch/x86/include/asm/asm.h
-index b0dc91f4bedc..6de365b8e3fd 100644
---- a/arch/x86/include/asm/asm.h
-+++ b/arch/x86/include/asm/asm.h
-@@ -57,6 +57,19 @@
- # define CC_OUT(c) [_cc_ ## c] "=qm"
- #endif
- 
-+/* Macros to get a global variable address with PIE support on 64-bit */
-+#ifdef CONFIG_X86_32
-+#define __ASM_GET_PTR_PRE(_src) __ASM_FORM_COMMA(movl $##_src)
-+#else
-+#ifdef __ASSEMBLY__
-+#define __ASM_GET_PTR_PRE(_src) __ASM_FORM_COMMA(leaq (_src)(%rip))
-+#else
-+#define __ASM_GET_PTR_PRE(_src) __ASM_FORM_COMMA(leaq (_src)(%%rip))
-+#endif
-+#endif
-+#define _ASM_GET_PTR(_src, _dst) \
-+		__ASM_GET_PTR_PRE(_src) __ASM_FORM(_dst)
+diff --git a/arch/x86/kernel/relocate_kernel_64.S b/arch/x86/kernel/relocate_kernel_64.S
+index 307d3bac5f04..2ecbdcbe985b 100644
+--- a/arch/x86/kernel/relocate_kernel_64.S
++++ b/arch/x86/kernel/relocate_kernel_64.S
+@@ -200,9 +200,11 @@ identity_mapped:
+ 	movq	%rax, %cr3
+ 	lea	PAGE_SIZE(%r8), %rsp
+ 	call	swap_pages
+-	movq	$virtual_mapped, %rax
+-	pushq	%rax
+-	ret
++	jmp	*virtual_mapped_addr(%rip)
 +
- /* Exception table entry */
- #ifdef __ASSEMBLY__
- # define _ASM_EXTABLE_HANDLE(from, to, handler)			\
++	/* Absolute value for PIE support */
++virtual_mapped_addr:
++	.quad virtual_mapped
+ 
+ virtual_mapped:
+ 	movq	RSP(%r8), %rsp
 -- 
 2.15.0.rc0.271.g36b669edcc-goog
