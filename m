@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v1 05/27] x86: relocate_kernel - Adapt assembly for PIE support
-Date: Wed, 11 Oct 2017 13:30:05 -0700
-Message-ID: <20171011203027.11248-6-thgarnie__14911.9214773693$1509080165$gmane$org@google.com>
+Subject: [PATCH v1 06/27] x86/entry/64: Adapt assembly for PIE support
+Date: Wed, 11 Oct 2017 13:30:06 -0700
+Message-ID: <20171011203027.11248-7-thgarnie__32178.8581474268$1509080168$gmane$org@google.com>
 References: <20171011203027.11248-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -31,27 +31,83 @@ KASLR randomization range below the -2G memory limit.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/kernel/relocate_kernel_64.S | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/x86/entry/entry_64.S | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kernel/relocate_kernel_64.S b/arch/x86/kernel/relocate_kernel_64.S
-index 307d3bac5f04..2ecbdcbe985b 100644
---- a/arch/x86/kernel/relocate_kernel_64.S
-+++ b/arch/x86/kernel/relocate_kernel_64.S
-@@ -200,9 +200,11 @@ identity_mapped:
- 	movq	%rax, %cr3
- 	lea	PAGE_SIZE(%r8), %rsp
- 	call	swap_pages
--	movq	$virtual_mapped, %rax
--	pushq	%rax
--	ret
-+	jmp	*virtual_mapped_addr(%rip)
-+
-+	/* Absolute value for PIE support */
-+virtual_mapped_addr:
-+	.quad virtual_mapped
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index 49167258d587..15bd5530d2ae 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -194,12 +194,15 @@ entry_SYSCALL_64_fastpath:
+ 	ja	1f				/* return -ENOSYS (already in pt_regs->ax) */
+ 	movq	%r10, %rcx
  
- virtual_mapped:
- 	movq	RSP(%r8), %rsp
++	/* Ensures the call is position independent */
++	leaq	sys_call_table(%rip), %r11
++
+ 	/*
+ 	 * This call instruction is handled specially in stub_ptregs_64.
+ 	 * It might end up jumping to the slow path.  If it jumps, RAX
+ 	 * and all argument registers are clobbered.
+ 	 */
+-	call	*sys_call_table(, %rax, 8)
++	call	*(%r11, %rax, 8)
+ .Lentry_SYSCALL_64_after_fastpath_call:
+ 
+ 	movq	%rax, RAX(%rsp)
+@@ -334,7 +337,8 @@ ENTRY(stub_ptregs_64)
+ 	 * RAX stores a pointer to the C function implementing the syscall.
+ 	 * IRQs are on.
+ 	 */
+-	cmpq	$.Lentry_SYSCALL_64_after_fastpath_call, (%rsp)
++	leaq	.Lentry_SYSCALL_64_after_fastpath_call(%rip), %r11
++	cmpq	%r11, (%rsp)
+ 	jne	1f
+ 
+ 	/*
+@@ -1172,7 +1176,8 @@ ENTRY(error_entry)
+ 	movl	%ecx, %eax			/* zero extend */
+ 	cmpq	%rax, RIP+8(%rsp)
+ 	je	.Lbstep_iret
+-	cmpq	$.Lgs_change, RIP+8(%rsp)
++	leaq	.Lgs_change(%rip), %rcx
++	cmpq	%rcx, RIP+8(%rsp)
+ 	jne	.Lerror_entry_done
+ 
+ 	/*
+@@ -1383,10 +1388,10 @@ ENTRY(nmi)
+ 	 * resume the outer NMI.
+ 	 */
+ 
+-	movq	$repeat_nmi, %rdx
++	leaq	repeat_nmi(%rip), %rdx
+ 	cmpq	8(%rsp), %rdx
+ 	ja	1f
+-	movq	$end_repeat_nmi, %rdx
++	leaq	end_repeat_nmi(%rip), %rdx
+ 	cmpq	8(%rsp), %rdx
+ 	ja	nested_nmi_out
+ 1:
+@@ -1440,7 +1445,8 @@ nested_nmi:
+ 	pushq	%rdx
+ 	pushfq
+ 	pushq	$__KERNEL_CS
+-	pushq	$repeat_nmi
++	leaq	repeat_nmi(%rip), %rdx
++	pushq	%rdx
+ 
+ 	/* Put stack back */
+ 	addq	$(6*8), %rsp
+@@ -1479,7 +1485,9 @@ first_nmi:
+ 	addq	$8, (%rsp)	/* Fix up RSP */
+ 	pushfq			/* RFLAGS */
+ 	pushq	$__KERNEL_CS	/* CS */
+-	pushq	$1f		/* RIP */
++	pushq	%rax		/* Support Position Independent Code */
++	leaq	1f(%rip), %rax	/* RIP */
++	xchgq	%rax, (%rsp)	/* Restore RAX, put 1f */
+ 	INTERRUPT_RETURN	/* continues at repeat_nmi below */
+ 	UNWIND_HINT_IRET_REGS
+ 1:
 -- 
 2.15.0.rc0.271.g36b669edcc-goog
