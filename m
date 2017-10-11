@@ -1,23 +1,14 @@
-From: Jens Freimann <jfreimann@redhat.com>
-Subject: Re: [virtio-dev] packed ring layout proposal v3
-Date: Wed, 11 Oct 2017 14:22:28 +0200
-Message-ID: <20171011122228.dah6jed2rjnjgsgr@dhcp-192-218.str.redhat.com>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1A46A6@SHSMSX152.ccr.corp.intel.com>
-	<20170926011826-mutt-send-email-mst@kernel.org>
-	<7A0DC0C9-F148-4161-B2D1-8D8D14D8B9A1@cisco.com>
-	<20170928023112-mutt-send-email-mst@kernel.org>
-	<D0158A423229094DA7ABF71CF2FA0DA34E1AD49B@SHSMSX152.ccr.corp.intel.com>
-	<20171001063817-mutt-send-email-mst@kernel.org>
-	<20171004123901.oomueufqg52uhas4@localhost.localdomain>
-	<20171004155532-mutt-send-email-mst@kernel.org>
-	<D0158A423229094DA7ABF71CF2FA0DA34E7DE4D3@SHSMSX104.ccr.corp.intel.com>
+From: Thomas Garnier via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: [PATCH v1 00/27] x86: PIE support and option to extend KASLR
+	randomization
+Date: Wed, 11 Oct 2017 13:30:00 -0700
+Message-ID: <20171011203027.11248-1-thgarnie__1452.71832957423$1509080097$gmane$org@google.com>
+Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <D0158A423229094DA7ABF71CF2FA0DA34E7DE4D3@SHSMSX104.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,119 +18,180 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Liang, Cunming" <cunming.liang@intel.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Steven Luong (sluong)" <sluong@cisco.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Thomas Garnier <thgarnie@google.com>, Kees Cook <keescook@chromium.org>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Matthias Kaehlcke <mka@chromium.org>, Tom Lendacky <thomas.lendacky@amd.com>, Andy Lutomirski <luto@kernel.org>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Borislav Petkov <bp@suse.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Juergen Gross <jgross@suse.com>, Chris Wright <chrisw@sous-sol.org>, Alok Kataria <akataria@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>, Tejun Heo <tj@kernel.>
+Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 10, 2017 at 09:56:44AM +0000, Liang, Cunming wrote:
->> > > DESC_WRAP: used by device to poll. Driver sets it to a *different*
->> > > value every time it overwrites a descriptor. How to achieve it?
->> > > since descriptors are written out in ring order, simply maintain the
->> > > current value internally (start value 1) and flip it every time you
->> > > overwrite the first descriptor.
->> > > Device leaves it intact when overwriting a descriptor.
->Ok, get it now.
->
->> >
->> > This is confusing me a bit.
->> >
->> > My understanding is: 1. the internally kept wrap value only flipped
->> > when the first descriptor is overwritten
->> >
->> > 2. the moment the first descriptor is written the internal wrap value
->> > is flipped 0->1 or 1->0 and this value is written to every descriptor
->> > DESC_WRAP until we reach the first descriptor again
->That's right, it's also my take.
->DESC_WRAP is only used by driver, device does nothing with that flag.
->
->>
->> Yes this is what I tried to say. Can you suggest a better wording then?
+Changes:
+ - patch v1:
+   - Simplify ftrace implementation.
+   - Use gcc mstack-protector-guard-reg=%gs with PIE when possible.
+ - rfc v3:
+   - Use --emit-relocs instead of -pie to reduce dynamic relocation space on
+     mapped memory. It also simplifies the relocation process.
+   - Move the start the module section next to the kernel. Remove the need for
+     -mcmodel=large on modules. Extends module space from 1 to 2G maximum.
+   - Support for XEN PVH as 32-bit relocations can be ignored with
+     --emit-relocs.
+   - Support for GOT relocations previously done automatically with -pie.
+   - Remove need for dynamic PLT in modules.
+   - Support dymamic GOT for modules.
+ - rfc v2:
+   - Add support for global stack cookie while compiler default to fs without
+     mcmodel=kernel
+   - Change patch 7 to correctly jump out of the identity mapping on kexec load
+     preserve.
 
-I'll give it a try.
+These patches make the changes necessary to build the kernel as Position
+Independent Executable (PIE) on x86_64. A PIE kernel can be relocated below
+the top 2G of the virtual address space. It allows to optionally extend the
+KASLR randomization range from 1G to 3G.
 
->The term of DESC_WRAP is fine to me.
+Thanks a lot to Ard Biesheuvel & Kees Cook on their feedback on compiler
+changes, PIE support and KASLR in general. Thanks to Roland McGrath on his
+feedback for using -pie versus --emit-relocs and details on compiler code
+generation.
 
-Couldn't think of a better name either. 
+The patches:
+ - 1-3, 5-1#, 17-18: Change in assembly code to be PIE compliant.
+ - 4: Add a new _ASM_GET_PTR macro to fetch a symbol address generically.
+ - 14: Adapt percpu design to work correctly when PIE is enabled.
+ - 15: Provide an option to default visibility to hidden except for key symbols.
+       It removes errors between compilation units.
+ - 16: Adapt relocation tool to handle PIE binary correctly.
+ - 19: Add support for global cookie.
+ - 20: Support ftrace with PIE (used on Ubuntu config).
+ - 21: Fix incorrect address marker on dump_pagetables.
+ - 22: Add option to move the module section just after the kernel.
+ - 23: Adapt module loading to support PIE with dynamic GOT.
+ - 24: Make the GOT read-only.
+ - 25: Add the CONFIG_X86_PIE option (off by default).
+ - 26: Adapt relocation tool to generate a 64-bit relocation table.
+ - 27: Add the CONFIG_RANDOMIZE_BASE_LARGE option to increase relocation range
+       from 1G to 3G (off by default).
 
->> > > After writing down this explanation, I think the names aren't great.
->> > >
->> > > Let me try an alternative explanation.
->> > >
->> > > ---------------
->> > > A two-bit field, DRIVER_OWNER, signals the buffer ownership.
->> > > It has 4 possible values:
->> > > values 0x1, 0x11 are written by driver values 0x0, 0x10 are written
->> > > by device
->> >
->> > The 0x prefix might add to the confusion here. It is really just two
->> > bits, no?
->>
->> Ouch. Yes I meant 0b. Thanks!
->0b00, 0b10 are written by device?
->I suppose device can only clear high bit, can keep low bit no change.
->Then the value written by device can be either 0b01 or 0b00, but 0b10 means to set high bit, no?
->
->>
->> > > each time driver writes out a descriptor, it must make sure that the
->> > > high bit in OWNER changes.
->> > >
->> > > each time device writes out a descriptor, it must make sure that the
->> > > high bit in OWNER does not change.
->Typo here? It should be "..., it must make sure that the low bit in OWNER does not change."?
->For high bit in OWNER, each time devices writes out a descriptor, it must make sure to clear high bit in OWNER.
->
->> > >
->> > > this is exactly the same functionally, DRIVER is high bit and WRAP
->> > > is the low bit.  Does this make things clearer?
->> >
->> > So far it makes sense to me.
->It sounds good.
+Performance/Size impact:
 
-So I implemented two ideas in the DPDK prototype code. The code is
-very rough and simple. I'll describe again how I understood the ideas.
+Size of vmlinux (Default configuration):
+ File size:
+ - PIE disabled: +0.000031%
+ - PIE enabled: -3.210% (less relocations)
+ .text section:
+ - PIE disabled: +0.000644%
+ - PIE enabled: +0.837%
 
-1. The one discussed in this thread: Adding two flags DESC_DRIVER and DESC_WRAP. 
+Size of vmlinux (Ubuntu configuration):
+ File size:
+ - PIE disabled: -0.201%
+ - PIE enabled: -0.082%
+ .text section:
+ - PIE disabled: same
+ - PIE enabled: +1.319%
 
-Driver code: keeps an internal wrap value. Every time we cross the ring
-boundary at descriptor 0 the wrap value is flipped. For all
-descriptors used from this point on we will set the DESC_WRAP flag if it wasn't
-set before or the other way round. Driver code looks at the
-DESC_DRIVER flag to check if the descriptor is available for it to
-use.  
+Size of vmlinux (Default configuration + ORC):
+ File size:
+ - PIE enabled: -3.167%
+ .text section:
+ - PIE enabled: +0.814%
 
-Device code: when dequeuing descriptors from the ring it keeps going
-until it sees a different value in the DESC_WRAP bit. Device only
-checks this bit but doesn't change it. Device clears DESC_DRIVER when
-done with descriptor to signal to driver that descriptor can be reused.
+Size of vmlinux (Ubuntu configuration + ORC):
+ File size:
+ - PIE enabled: -3.167%
+ .text section:
+ - PIE enabled: +1.26%
 
-https://github.com/jensfr/dpdk/tree/add-driver-and-wrap-flag
+The size increase is mainly due to not having access to the 32-bit signed
+relocation that can be used with mcmodel=kernel. A small part is due to reduced
+optimization for PIE code. This bug [1] was opened with gcc to provide a better
+code generation for kernel PIE.
 
-2. Driver writes ID of last written descriptor into index field of first
-descriptor and turns on a flag DESC_SKIP in the descriptor. (This idea is from Michael)
+Hackbench (50% and 1600% on thread/process for pipe/sockets):
+ - PIE disabled: no significant change (avg +0.1% on latest test).
+ - PIE enabled: between -0.50% to +0.86% in average (default and Ubuntu config).
 
-Driver code: Let's say driver adds 32 descriptors to the ring at once.
-It fills in starting at ring position 0 to 31. It will write 31 to the
-index field of descriptor 0. 
+slab_test (average of 10 runs):
+ - PIE disabled: no significant change (-2% on latest run, likely noise).
+ - PIE enabled: between -1% and +0.8% on latest runs.
 
-Device code: When dequeueing descriptors from the ring it looks into
-the first descriptor. For example, it looks at desc[0] and the index field is 31
-instead of 0. In addition to this the flag DESC_SKIP is set. The
-device can expect all descriptors in the ring from 0 to 31 to be ready
-for it to dequeue and doesn't have to check the DESC_HW flag.
+Kernbench (average of 10 Half and Optimal runs):
+ Elapsed Time:
+ - PIE disabled: no significant change (avg -0.239%)
+ - PIE enabled: average +0.07%
+ System Time:
+ - PIE disabled: no significant change (avg -0.277%)
+ - PIE enabled: average +0.7%
 
-https://github.com/jensfr/dpdk/tree/desc-hw-index-hint
+[1] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82303
 
-
-I tried implementing both ideas on top of the DPDK prototype code
-(without the DESC_WB code) and ran a quick test with two testpmd
-instances, one with a vhost-user interface and the other one with a
-virtio-user device. 
-
-From a performance point of view I saw no difference between both
-implementations. 
-
-I understand that DESC_DRIVER/DESC_WRAP would be better for virtio
-hardware implementations?
-
-regards,
-Jens 
+diffstat:
+ Documentation/x86/x86_64/mm.txt              |    3 
+ arch/x86/Kconfig                             |   43 ++++++
+ arch/x86/Makefile                            |   40 +++++
+ arch/x86/boot/boot.h                         |    2 
+ arch/x86/boot/compressed/Makefile            |    5 
+ arch/x86/boot/compressed/misc.c              |   10 +
+ arch/x86/crypto/aes-x86_64-asm_64.S          |   45 ++++--
+ arch/x86/crypto/aesni-intel_asm.S            |   14 +-
+ arch/x86/crypto/aesni-intel_avx-x86_64.S     |    6 
+ arch/x86/crypto/camellia-aesni-avx-asm_64.S  |   42 +++---
+ arch/x86/crypto/camellia-aesni-avx2-asm_64.S |   44 +++---
+ arch/x86/crypto/camellia-x86_64-asm_64.S     |    8 -
+ arch/x86/crypto/cast5-avx-x86_64-asm_64.S    |   50 ++++---
+ arch/x86/crypto/cast6-avx-x86_64-asm_64.S    |   44 +++---
+ arch/x86/crypto/des3_ede-asm_64.S            |   96 +++++++++-----
+ arch/x86/crypto/ghash-clmulni-intel_asm.S    |    4 
+ arch/x86/crypto/glue_helper-asm-avx.S        |    4 
+ arch/x86/crypto/glue_helper-asm-avx2.S       |    6 
+ arch/x86/entry/entry_32.S                    |    3 
+ arch/x86/entry/entry_64.S                    |   29 ++--
+ arch/x86/include/asm/asm.h                   |   13 +
+ arch/x86/include/asm/bug.h                   |    2 
+ arch/x86/include/asm/ftrace.h                |    6 
+ arch/x86/include/asm/jump_label.h            |    8 -
+ arch/x86/include/asm/kvm_host.h              |    6 
+ arch/x86/include/asm/module.h                |   11 +
+ arch/x86/include/asm/page_64_types.h         |    9 +
+ arch/x86/include/asm/paravirt_types.h        |   12 +
+ arch/x86/include/asm/percpu.h                |   25 ++-
+ arch/x86/include/asm/pgtable_64_types.h      |    6 
+ arch/x86/include/asm/pm-trace.h              |    2 
+ arch/x86/include/asm/processor.h             |   12 +
+ arch/x86/include/asm/sections.h              |    8 +
+ arch/x86/include/asm/setup.h                 |    2 
+ arch/x86/include/asm/stackprotector.h        |   19 ++
+ arch/x86/kernel/acpi/wakeup_64.S             |   31 ++--
+ arch/x86/kernel/asm-offsets.c                |    3 
+ arch/x86/kernel/asm-offsets_32.c             |    3 
+ arch/x86/kernel/asm-offsets_64.c             |    3 
+ arch/x86/kernel/cpu/common.c                 |    7 -
+ arch/x86/kernel/cpu/microcode/core.c         |    4 
+ arch/x86/kernel/ftrace.c                     |   42 +++++-
+ arch/x86/kernel/head64.c                     |   32 +++-
+ arch/x86/kernel/head_32.S                    |    3 
+ arch/x86/kernel/head_64.S                    |   41 +++++-
+ arch/x86/kernel/kvm.c                        |    6 
+ arch/x86/kernel/module.c                     |  182 ++++++++++++++++++++++++++-
+ arch/x86/kernel/module.lds                   |    3 
+ arch/x86/kernel/process.c                    |    5 
+ arch/x86/kernel/relocate_kernel_64.S         |    8 -
+ arch/x86/kernel/setup_percpu.c               |    2 
+ arch/x86/kernel/vmlinux.lds.S                |   13 +
+ arch/x86/kvm/svm.c                           |    4 
+ arch/x86/lib/cmpxchg16b_emu.S                |    8 -
+ arch/x86/mm/dump_pagetables.c                |   11 +
+ arch/x86/power/hibernate_asm_64.S            |    4 
+ arch/x86/tools/relocs.c                      |  170 +++++++++++++++++++++++--
+ arch/x86/tools/relocs.h                      |    4 
+ arch/x86/tools/relocs_common.c               |   15 +-
+ arch/x86/xen/xen-asm.S                       |   12 -
+ arch/x86/xen/xen-head.S                      |    9 -
+ arch/x86/xen/xen-pvh.S                       |   13 +
+ drivers/base/firmware_class.c                |    4 
+ include/asm-generic/sections.h               |    6 
+ include/asm-generic/vmlinux.lds.h            |   12 +
+ include/linux/compiler.h                     |    8 +
+ init/Kconfig                                 |    9 +
+ kernel/kallsyms.c                            |   16 +-
+ kernel/trace/trace.h                         |    4 
+ lib/dynamic_debug.c                          |    4 
+ 70 files changed, 1032 insertions(+), 308 deletions(-)
