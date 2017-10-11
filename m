@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v1 11/27] x86/power/64: Adapt assembly for PIE support
-Date: Wed, 11 Oct 2017 13:30:11 -0700
-Message-ID: <20171011203027.11248-12-thgarnie__11610.162506304$1509080225$gmane$org@google.com>
+Subject: [PATCH v1 13/27] x86/boot/64: Use _text in a global for PIE support
+Date: Wed, 11 Oct 2017 13:30:13 -0700
+Message-ID: <20171011203027.11248-14-thgarnie__21316.9291652322$1509080238$gmane$org@google.com>
 References: <20171011203027.11248-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -23,38 +23,47 @@ To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemlof
 Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Change the assembly code to use only relative references of symbols for the
-kernel to be PIE compatible.
+By default PIE generated code create only relative references so _text
+points to the temporary virtual address. Instead use a global variable
+so the relocation is done as expected.
 
 Position Independent Executable (PIE) support will allow to extended the
 KASLR randomization range below the -2G memory limit.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/power/hibernate_asm_64.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/head64.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/power/hibernate_asm_64.S b/arch/x86/power/hibernate_asm_64.S
-index ce8da3a0412c..6fdd7bbc3c33 100644
---- a/arch/x86/power/hibernate_asm_64.S
-+++ b/arch/x86/power/hibernate_asm_64.S
-@@ -24,7 +24,7 @@
- #include <asm/frame.h>
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index bab4fa579450..675f1dba3b21 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -45,8 +45,14 @@ static void __head *fixup_pointer(void *ptr, unsigned long physaddr)
+ 	return ptr - (void *)_text + (void *)physaddr;
+ }
  
- ENTRY(swsusp_arch_suspend)
--	movq	$saved_context, %rax
-+	leaq	saved_context(%rip), %rax
- 	movq	%rsp, pt_regs_sp(%rax)
- 	movq	%rbp, pt_regs_bp(%rax)
- 	movq	%rsi, pt_regs_si(%rax)
-@@ -115,7 +115,7 @@ ENTRY(restore_registers)
- 	movq	%rax, %cr4;  # turn PGE back on
+-unsigned long __head __startup_64(unsigned long physaddr,
+-				  struct boot_params *bp)
++/*
++ * Use a global variable to properly calculate _text delta on PIE. By default
++ * a PIE binary do a RIP relative difference instead of the relocated address.
++ */
++unsigned long _text_offset = (unsigned long)(_text - __START_KERNEL_map);
++
++unsigned long __head notrace __startup_64(unsigned long physaddr,
++					  struct boot_params *bp)
+ {
+ 	unsigned long load_delta, *p;
+ 	unsigned long pgtable_flags;
+@@ -65,7 +71,7 @@ unsigned long __head __startup_64(unsigned long physaddr,
+ 	 * Compute the delta between the address I am compiled to run at
+ 	 * and the address I am actually running at.
+ 	 */
+-	load_delta = physaddr - (unsigned long)(_text - __START_KERNEL_map);
++	load_delta = physaddr - _text_offset;
  
- 	/* We don't restore %rax, it must be 0 anyway */
--	movq	$saved_context, %rax
-+	leaq	saved_context(%rip), %rax
- 	movq	pt_regs_sp(%rax), %rsp
- 	movq	pt_regs_bp(%rax), %rbp
- 	movq	pt_regs_si(%rax), %rsi
+ 	/* Is the address not 2M aligned? */
+ 	if (load_delta & ~PMD_PAGE_MASK)
 -- 
 2.15.0.rc0.271.g36b669edcc-goog
