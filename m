@@ -1,15 +1,17 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v16 3/5] virtio-balloon: VIRTIO_BALLOON_F_SG
-Date: Wed, 11 Oct 2017 11:16:55 +0800
-Message-ID: <59DD8D27.5010601__21668.8275490471$1507691780$gmane$org@intel.com>
-References: <201710102209.DBE39528.MtFLOJQSFOFVOH@I-love.SAKURA.ne.jp>
-	<59DD7932.3070106@intel.com>
-	<201710110226.v9B2QGdx019779@www262.sakura.ne.jp>
+Subject: Re: [PATCH v16 5/5] virtio-balloon: VIRTIO_BALLOON_F_CTRL_VQ
+Date: Wed, 11 Oct 2017 14:03:20 +0800
+Message-ID: <59DDB428.4020208__37979.4713612229$1507701715$gmane$org@intel.com>
+References: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>
+	<1506744354-20979-6-git-send-email-wei.w.wang@intel.com>
+	<20171001060305-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F73932025A@shsmsx102.ccr.corp.intel.com>
+	<20171010180636-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201710110226.v9B2QGdx019779@www262.sakura.ne.jp>
+In-Reply-To: <20171010180636-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,91 +21,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, amit.shah@redhat.com, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, liliang.opensource@gmail.com, mawilcox@microsoft.com, qemu-devel@nongnu.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "willy@infradead.org" <willy@infradead.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, mhocko@kernel.or
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/11/2017 10:26 AM, Tetsuo Handa wrote:
-> Wei Wang wrote:
->> On 10/10/2017 09:09 PM, Tetsuo Handa wrote:
->>> Wei Wang wrote:
->>>>> And even if we could remove balloon_lock, you still cannot use
->>>>> __GFP_DIRECT_RECLAIM at xb_set_page(). I think you will need to use
->>>>> "whether it is safe to wait" flag from
->>>>> "[PATCH] virtio: avoid possible OOM lockup at virtballoon_oom_notify()" .
->>>> Without the lock being held, why couldn't we use __GFP_DIRECT_RECLAIM at
->>>> xb_set_page()?
->>> Because of dependency shown below.
->>>
->>> leak_balloon()
->>>    xb_set_page()
->>>      xb_preload(GFP_KERNEL)
->>>        kmalloc(GFP_KERNEL)
->>>          __alloc_pages_may_oom()
->>>            Takes oom_lock
->>>            out_of_memory()
->>>              blocking_notifier_call_chain()
->>>                leak_balloon()
->>>                  xb_set_page()
->>>                    xb_preload(GFP_KERNEL)
->>>                      kmalloc(GFP_KERNEL)
->>>                        __alloc_pages_may_oom()
->>>                          Fails to take oom_lock and loop forever
->> __alloc_pages_may_oom() uses mutex_trylock(&oom_lock).
-> Yes. But this mutex_trylock(&oom_lock) is semantically mutex_lock(&oom_lock)
-> because __alloc_pages_slowpath() will continue looping until
-> mutex_trylock(&oom_lock) succeeds (or somebody releases memory).
+On 10/10/2017 11:15 PM, Michael S. Tsirkin wrote:
+> On Mon, Oct 02, 2017 at 04:38:01PM +0000, Wang, Wei W wrote:
+>> On Sunday, October 1, 2017 11:19 AM, Michael S. Tsirkin wrote:
+>>> On Sat, Sep 30, 2017 at 12:05:54PM +0800, Wei Wang wrote:
+>>>> +static void ctrlq_send_cmd(struct virtio_balloon *vb,
+>>>> +			  struct virtio_balloon_ctrlq_cmd *cmd,
+>>>> +			  bool inbuf)
+>>>> +{
+>>>> +	struct virtqueue *vq = vb->ctrl_vq;
+>>>> +
+>>>> +	ctrlq_add_cmd(vq, cmd, inbuf);
+>>>> +	if (!inbuf) {
+>>>> +		/*
+>>>> +		 * All the input cmd buffers are replenished here.
+>>>> +		 * This is necessary because the input cmd buffers are lost
+>>>> +		 * after live migration. The device needs to rewind all of
+>>>> +		 * them from the ctrl_vq.
+>>> Confused. Live migration somehow loses state? Why is that and why is it a good
+>>> idea? And how do you know this is migration even?
+>>> Looks like all you know is you got free page end. Could be any reason for this.
+>>
+>> I think this would be something that the current live migration lacks - what the
+>> device read from the vq is not transferred during live migration, an example is the
+>> stat_vq_elem:
+>> Line 476 at https://github.com/qemu/qemu/blob/master/hw/virtio/virtio-balloon.c
+> This does not touch guest memory though it just manipulates
+> internal state to make it easier to migrate.
+> It's transparent to guest as migration should be.
 >
->> I think the second __alloc_pages_may_oom() will not continue since the
->> first one is in progress.
-> The second __alloc_pages_may_oom() will be called repeatedly because
-> __alloc_pages_slowpath() will continue looping (unless somebody releases
-> memory).
->
-
-OK, I see, thanks. So, the point is that the OOM code path should not
-have memory allocation, and the
-old leak_balloon (without the F_SG feature) don't need xb_preload(). I
-think one solution would be to let
-the OOM uses the old leak_balloon() code path, and we can add one more
-parameter to leak_balloon
-to control that:
-
-leak_balloon(struct virtio_balloon *vb, size_t num, bool oom)
-
-
-
->>> By the way, is xb_set_page() safe?
->>> Sleeping in the kernel with preemption disabled is a bug, isn't it?
->>> __radix_tree_preload() returns 0 with preemption disabled upon success.
->>> xb_preload() disables preemption if __radix_tree_preload() fails.
->>> Then, kmalloc() is called with preemption disabled, isn't it?
->>> But xb_set_page() calls xb_preload(GFP_KERNEL) which might sleep with
->>> preemption disabled.
->> Yes, I think that should not be expected, thanks.
+>> For all the things that are added to the vq and need to be held by the device
+>> to use later need to consider the situation that live migration might happen at any
+>> time and they need to be re-taken from the vq by the device on the destination
+>> machine.
 >>
->> I plan to change it like this:
+>> So, even without this live migration optimization feature, I think all the things that are
+>> added to the vq for the device to hold, need a way for the device to rewind back from
+>> the vq - re-adding all the elements to the vq is a trick to keep a record of all of them
+>> on the vq so that the device side rewinding can work.
 >>
->> bool xb_preload(gfp_t gfp)
->> {
->>         if (!this_cpu_read(ida_bitmap)) {
->>                 struct ida_bitmap *bitmap = kmalloc(sizeof(*bitmap), gfp);
->>
->>                 if (!bitmap)
->>                         return false;
->>                 bitmap = this_cpu_cmpxchg(ida_bitmap, NULL, bitmap);
->>                 kfree(bitmap);
->>         }
-> Excuse me, but you are allocating per-CPU memory when running CPU might
-> change at this line? What happens if running CPU has changed at this line?
-> Will it work even with new CPU's ida_bitmap == NULL ?
+>> Please let me know if anything is missed or if you have other suggestions.
+> IMO migration should pass enough data source to destination for
+> destination to continue where source left off without guest help.
 >
 
+I'm afraid it would be difficult to pass the entire VirtQueueElement to 
+the destination. I think
+that would also be the reason that stats_vq_elem chose to rewind from 
+the guest vq, which re-do the
+virtqueue_pop() --> virtqueue_map_desc() steps (the QEMU virtual address 
+to the guest physical
+address relationship may be changed on the destination).
 
-Yes, it will be detected in xb_set_bit(): when ida_bitmap = NULL on the
-new CPU, xb_set_bit() will
-return -EAGAIN to the caller, and the caller should restart from
-xb_preload().
+
+How about another direction which would be easier - using two 32-bit 
+device specific configuration registers,
+Host2Guest and Guest2Host command registers, to replace the ctrlq for 
+command exchange:
+
+The flow can be as follows:
+
+1) Before Host sending a StartCMD, it flushes the free_page_vq in case 
+any old free page hint is left there;
+
+2) Host writes StartCMD to the Host2Guest register, and notifies the guest;
+
+3) Upon receiving a configuration notification, Guest reads the 
+Host2Guest register, and detaches all the used buffers from free_page_vq;
+(then for each StartCMD, the free_page_vq will always have no obsolete 
+free page hints, right? )
+
+4) Guest start report free pages:
+     4.1) Host may actively write StopCMD to the Host2Guest register 
+before the guest finishes; or
+     4.2) Guest finishes reporting, write StopCMD  the Guest2HOST 
+register, which traps to QEMU, to stop.
+
 
 Best,
 Wei
