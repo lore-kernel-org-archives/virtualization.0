@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v1 17/27] xen: Adapt assembly for PIE support
-Date: Wed, 11 Oct 2017 13:30:17 -0700
-Message-ID: <20171011203027.11248-18-thgarnie__37198.9266983748$1509080280$gmane$org@google.com>
+Subject: [PATCH v1 18/27] kvm: Adapt assembly for PIE support
+Date: Wed, 11 Oct 2017 13:30:18 -0700
+Message-ID: <20171011203027.11248-19-thgarnie__38653.2096112662$1509080282$gmane$org@google.com>
 References: <20171011203027.11248-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -23,111 +23,73 @@ To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemlof
 Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Change the assembly code to use the new _ASM_GET_PTR macro which get a
-symbol reference while being PIE compatible. Adapt the relocation tool
-to ignore 32-bit Xen code.
+Change the assembly code to use only relative references of symbols for the
+kernel to be PIE compatible. The new __ASM_GET_PTR_PRE macro is used to
+get the address of a symbol on both 32 and 64-bit with PIE support.
 
 Position Independent Executable (PIE) support will allow to extended the
 KASLR randomization range below the -2G memory limit.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/tools/relocs.c | 16 +++++++++++++++-
- arch/x86/xen/xen-head.S |  9 +++++----
- arch/x86/xen/xen-pvh.S  | 13 +++++++++----
- 3 files changed, 29 insertions(+), 9 deletions(-)
+ arch/x86/include/asm/kvm_host.h | 6 ++++--
+ arch/x86/kernel/kvm.c           | 6 ++++--
+ arch/x86/kvm/svm.c              | 4 ++--
+ 3 files changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/tools/relocs.c b/arch/x86/tools/relocs.c
-index 5d3eb2760198..bc032ad88b22 100644
---- a/arch/x86/tools/relocs.c
-+++ b/arch/x86/tools/relocs.c
-@@ -831,6 +831,16 @@ static int is_percpu_sym(ElfW(Sym) *sym, const char *symname)
- 		strncmp(symname, "init_per_cpu_", 13);
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 9d7d856b2d89..14073fda75fb 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1342,9 +1342,11 @@ asmlinkage void kvm_spurious_fault(void);
+ 	".pushsection .fixup, \"ax\" \n" \
+ 	"667: \n\t" \
+ 	cleanup_insn "\n\t"		      \
+-	"cmpb $0, kvm_rebooting \n\t"	      \
++	"cmpb $0, kvm_rebooting" __ASM_SEL(,(%%rip)) " \n\t" \
+ 	"jne 668b \n\t"      		      \
+-	__ASM_SIZE(push) " $666b \n\t"	      \
++	__ASM_SIZE(push) "%%" _ASM_AX " \n\t"		\
++	__ASM_GET_PTR_PRE(666b) "%%" _ASM_AX "\n\t"	\
++	"xchg %%" _ASM_AX ", (%%" _ASM_SP ") \n\t"	\
+ 	"call kvm_spurious_fault \n\t"	      \
+ 	".popsection \n\t" \
+ 	_ASM_EXTABLE(666b, 667b)
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 8bb9594d0761..4464c3667831 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -627,8 +627,10 @@ asm(
+ ".global __raw_callee_save___kvm_vcpu_is_preempted;"
+ ".type __raw_callee_save___kvm_vcpu_is_preempted, @function;"
+ "__raw_callee_save___kvm_vcpu_is_preempted:"
+-"movq	__per_cpu_offset(,%rdi,8), %rax;"
+-"cmpb	$0, " __stringify(KVM_STEAL_TIME_preempted) "+steal_time(%rax);"
++"leaq	__per_cpu_offset(%rip), %rax;"
++"movq	(%rax,%rdi,8), %rax;"
++"addq	" __stringify(KVM_STEAL_TIME_preempted) "+steal_time(%rip), %rax;"
++"cmpb	$0, (%rax);"
+ "setne	%al;"
+ "ret;"
+ ".popsection");
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 0e68f0b3cbf7..364536080438 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -568,12 +568,12 @@ static u32 svm_msrpm_offset(u32 msr)
+ 
+ static inline void clgi(void)
+ {
+-	asm volatile (__ex(SVM_CLGI));
++	asm volatile (__ex(SVM_CLGI) : :);
  }
  
-+/*
-+ * Check if the 32-bit relocation is within the xenpvh 32-bit code.
-+ * If so, ignores it.
-+ */
-+static int is_in_xenpvh_assembly(ElfW(Addr) offset)
-+{
-+	ElfW(Sym) *sym = sym_lookup("pvh_start_xen");
-+	return sym && (offset >= sym->st_value) &&
-+		(offset < (sym->st_value + sym->st_size));
-+}
+ static inline void stgi(void)
+ {
+-	asm volatile (__ex(SVM_STGI));
++	asm volatile (__ex(SVM_STGI) : :);
+ }
  
- static int do_reloc64(struct section *sec, Elf_Rel *rel, ElfW(Sym) *sym,
- 		      const char *symname)
-@@ -892,8 +902,12 @@ static int do_reloc64(struct section *sec, Elf_Rel *rel, ElfW(Sym) *sym,
- 		 * the relocations are processed.
- 		 * Make sure that the offset will fit.
- 		 */
--		if (r_type != R_X86_64_64 && (int32_t)offset != (int64_t)offset)
-+		if (r_type != R_X86_64_64 &&
-+		    (int32_t)offset != (int64_t)offset) {
-+			if (is_in_xenpvh_assembly(offset))
-+				break;
- 			die("Relocation offset doesn't fit in 32 bits\n");
-+		}
- 
- 		if (r_type == R_X86_64_64)
- 			add_reloc(&relocs64, offset);
-diff --git a/arch/x86/xen/xen-head.S b/arch/x86/xen/xen-head.S
-index 124941d09b2b..e5b7b9566191 100644
---- a/arch/x86/xen/xen-head.S
-+++ b/arch/x86/xen/xen-head.S
-@@ -25,14 +25,15 @@ ENTRY(startup_xen)
- 
- 	/* Clear .bss */
- 	xor %eax,%eax
--	mov $__bss_start, %_ASM_DI
--	mov $__bss_stop, %_ASM_CX
-+	_ASM_GET_PTR(__bss_start, %_ASM_DI)
-+	_ASM_GET_PTR(__bss_stop, %_ASM_CX)
- 	sub %_ASM_DI, %_ASM_CX
- 	shr $__ASM_SEL(2, 3), %_ASM_CX
- 	rep __ASM_SIZE(stos)
- 
--	mov %_ASM_SI, xen_start_info
--	mov $init_thread_union+THREAD_SIZE, %_ASM_SP
-+	_ASM_GET_PTR(xen_start_info, %_ASM_AX)
-+	mov %_ASM_SI, (%_ASM_AX)
-+	_ASM_GET_PTR(init_thread_union+THREAD_SIZE, %_ASM_SP)
- 
- 	jmp xen_start_kernel
- END(startup_xen)
-diff --git a/arch/x86/xen/xen-pvh.S b/arch/x86/xen/xen-pvh.S
-index e1a5fbeae08d..43e234c7c2de 100644
---- a/arch/x86/xen/xen-pvh.S
-+++ b/arch/x86/xen/xen-pvh.S
-@@ -101,8 +101,8 @@ ENTRY(pvh_start_xen)
- 	call xen_prepare_pvh
- 
- 	/* startup_64 expects boot_params in %rsi. */
--	mov $_pa(pvh_bootparams), %rsi
--	mov $_pa(startup_64), %rax
-+	movabs $_pa(pvh_bootparams), %rsi
-+	movabs $_pa(startup_64), %rax
- 	jmp *%rax
- 
- #else /* CONFIG_X86_64 */
-@@ -137,10 +137,15 @@ END(pvh_start_xen)
- 
- 	.section ".init.data","aw"
- 	.balign 8
-+	/*
-+	 * Use a quad for _pa(gdt_start) because PIE does not understand a
-+	 * long is enough. The resulting value will still be in the lower long
-+	 * part.
-+	 */
- gdt:
- 	.word gdt_end - gdt_start
--	.long _pa(gdt_start)
--	.word 0
-+	.quad _pa(gdt_start)
-+	.balign 8
- gdt_start:
- 	.quad 0x0000000000000000            /* NULL descriptor */
- 	.quad 0x0000000000000000            /* reserved */
+ static inline void invlpga(unsigned long addr, u32 asid)
 -- 
 2.15.0.rc0.271.g36b669edcc-goog
