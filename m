@@ -1,19 +1,17 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v16 5/5] virtio-balloon: VIRTIO_BALLOON_F_CTRL_VQ
-Date: Thu, 12 Oct 2017 11:54:56 +0800
-Message-ID: <59DEE790.5040809__25217.0271509842$1507780398$gmane$org@intel.com>
-References: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>
-	<1506744354-20979-6-git-send-email-wei.w.wang@intel.com>
-	<20171001060305-mutt-send-email-mst@kernel.org>
-	<286AC319A985734F985F78AFA26841F73932025A@shsmsx102.ccr.corp.intel.com>
-	<20171010180636-mutt-send-email-mst@kernel.org>
-	<59DDB428.4020208@intel.com>
-	<20171011161912-mutt-send-email-mst@kernel.org>
+From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: Re: [PATCH 11/13] x86/paravirt: Add paravirt alternatives
+	infrastructure
+Date: Thu, 12 Oct 2017 15:11:00 -0400
+Message-ID: <5a49e43a-8d6b-512a-ec5a-641be7bae41d@oracle.com>
+References: <cover.1507128293.git.jpoimboe@redhat.com>
+	<39743c79546ede3073586403d0836a4f93519b0a.1507128293.git.jpoimboe@redhat.com>
+	<3b9fd404-6912-3b58-db29-36202631b438@oracle.com>
+	<20171006143259.rs3zh7k5tmsgesqy@treble>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171011161912-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20171006143259.rs3zh7k5tmsgesqy@treble>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,162 +21,102 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "willy@infradead.org" <willy@infradead.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, mhocko@kernel.or
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Juergen Gross <jgross@suse.com>, Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, x86@kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/11/2017 09:49 PM, Michael S. Tsirkin wrote:
-> On Wed, Oct 11, 2017 at 02:03:20PM +0800, Wei Wang wrote:
->> On 10/10/2017 11:15 PM, Michael S. Tsirkin wrote:
->>> On Mon, Oct 02, 2017 at 04:38:01PM +0000, Wang, Wei W wrote:
->>>> On Sunday, October 1, 2017 11:19 AM, Michael S. Tsirkin wrote:
->>>>> On Sat, Sep 30, 2017 at 12:05:54PM +0800, Wei Wang wrote:
->>>>>> +static void ctrlq_send_cmd(struct virtio_balloon *vb,
->>>>>> +			  struct virtio_balloon_ctrlq_cmd *cmd,
->>>>>> +			  bool inbuf)
->>>>>> +{
->>>>>> +	struct virtqueue *vq = vb->ctrl_vq;
->>>>>> +
->>>>>> +	ctrlq_add_cmd(vq, cmd, inbuf);
->>>>>> +	if (!inbuf) {
->>>>>> +		/*
->>>>>> +		 * All the input cmd buffers are replenished here.
->>>>>> +		 * This is necessary because the input cmd buffers are lost
->>>>>> +		 * after live migration. The device needs to rewind all of
->>>>>> +		 * them from the ctrl_vq.
->>>>> Confused. Live migration somehow loses state? Why is that and why is it a good
->>>>> idea? And how do you know this is migration even?
->>>>> Looks like all you know is you got free page end. Could be any reason for this.
->>>> I think this would be something that the current live migration lacks - what the
->>>> device read from the vq is not transferred during live migration, an example is the
->>>> stat_vq_elem:
->>>> Line 476 at https://github.com/qemu/qemu/blob/master/hw/virtio/virtio-balloon.c
->>> This does not touch guest memory though it just manipulates
->>> internal state to make it easier to migrate.
->>> It's transparent to guest as migration should be.
->>>
->>>> For all the things that are added to the vq and need to be held by the device
->>>> to use later need to consider the situation that live migration might happen at any
->>>> time and they need to be re-taken from the vq by the device on the destination
->>>> machine.
->>>>
->>>> So, even without this live migration optimization feature, I think all the things that are
->>>> added to the vq for the device to hold, need a way for the device to rewind back from
->>>> the vq - re-adding all the elements to the vq is a trick to keep a record of all of them
->>>> on the vq so that the device side rewinding can work.
->>>>
->>>> Please let me know if anything is missed or if you have other suggestions.
->>> IMO migration should pass enough data source to destination for
->>> destination to continue where source left off without guest help.
->>>
->> I'm afraid it would be difficult to pass the entire VirtQueueElement to the
->> destination. I think
->> that would also be the reason that stats_vq_elem chose to rewind from the
->> guest vq, which re-do the
->> virtqueue_pop() --> virtqueue_map_desc() steps (the QEMU virtual address to
->> the guest physical
->> address relationship may be changed on the destination).
-> Yes but note how that rewind does not involve modifying the ring.
-> It just rolls back some indices.
-
-Yes, it rolls back the indices, then the following 
-virtio_balloon_receive_stats()
-can re-pop out the previous entry given by the guest.
-
-Recall how stats_vq_elem works: there is only one stats buffer, which is 
-used by the
-guest to report stats, and also used by the host to ask the guest for 
-stats report.
-
-So the host can roll back one previous entry and what it gets will 
-always be stat_vq_elem.
-
-
-Our case is a little more complex than that - we have both free_page_cmd_in
-(for host to guest command) and free_page_cmd_out (for guest to host 
-command) buffer
-passed via ctrl_vq. When the host rolls back one entry, it may get the 
-free_page_cmd_out
-buffer which can't be used as the host to guest buffer (i.e. 
-free_page_elem held by the device).
-
-So a trick in the driver is to refill the free_page_cmd_in buffer every 
-time after the free_page_cmd_out
-was sent to the host, so that when the host rewind one previous entry, 
-it can always get the
-free_page_cmd_in buffer (may be not a very nice method).
-
-
-
+On 10/06/2017 10:32 AM, Josh Poimboeuf wrote:
+> On Thu, Oct 05, 2017 at 04:35:03PM -0400, Boris Ostrovsky wrote:
+>>>  #ifdef CONFIG_PARAVIRT
+>>> +/*
+>>> + * Paravirt alternatives are applied much earlier than normal alternatives.
+>>> + * They are only applied when running on a hypervisor.  They replace some
+>>> + * native instructions with calls to pv ops.
+>>> + */
+>>> +void __init apply_pv_alternatives(void)
+>>> +{
+>>> +	setup_force_cpu_cap(X86_FEATURE_PV_OPS);
+>> Not for Xen HVM guests.
+> From what I can tell, HVM guests still use pv_time_ops and
+> pv_mmu_ops.exit_mmap, right?
 >
->> How about another direction which would be easier - using two 32-bit device
->> specific configuration registers,
->> Host2Guest and Guest2Host command registers, to replace the ctrlq for
->> command exchange:
+>>> +	apply_alternatives(__pv_alt_instructions, __pv_alt_instructions_end);
+>>> +}
 >>
->> The flow can be as follows:
->>
->> 1) Before Host sending a StartCMD, it flushes the free_page_vq in case any
->> old free page hint is left there;
->> 2) Host writes StartCMD to the Host2Guest register, and notifies the guest;
->>
->> 3) Upon receiving a configuration notification, Guest reads the Host2Guest
->> register, and detaches all the used buffers from free_page_vq;
->> (then for each StartCMD, the free_page_vq will always have no obsolete free
->> page hints, right? )
->>
->> 4) Guest start report free pages:
->>      4.1) Host may actively write StopCMD to the Host2Guest register before
->> the guest finishes; or
->>      4.2) Guest finishes reporting, write StopCMD  the Guest2HOST register,
->> which traps to QEMU, to stop.
->>
->>
->> Best,
->> Wei
-> I am not sure it matters whether a VQ or the config are used to start/stop.
-
-
-Not matters, in terms of the flushing issue. The config method could 
-avoid the above rewind issue.
-
-
-> But I think flushing is very fragile. You will easily run into races
-> if one of the actors gets out of sync and keeps adding data.
-> I think adding an ID in the free vq stream is a more robust
-> approach.
+>> This is a problem (at least for Xen PV guests):
+>> apply_alternatives()->text_poke_early()->local_irq_save()->...'cli'->death.
+> Ah, right.
 >
+>> It might be possible not to turn off/on the interrupts in this
+>> particular case since the guest probably won't be able to handle an
+>> interrupt at this point anyway.
+> Yeah, that should work.  For Xen and for the other hypervisors, this is
+> called well before irq init, so interrupts can't be handled yet anyway.
 
-Adding ID to the free vq would need the device to distinguish whether it 
-receives an ID or a free page hint,
-so an extra protocol is needed for the two sides to talk. Currently, we 
-directly assign the free page
-address to desc->addr. With ID support, we would need to first allocate 
-buffer for the protocol header,
-and add the free page address to the header, then desc->addr = &header.
+There is also another problem:
 
-How about putting the ID to the command path? This would avoid the above 
-trouble.
+[    1.312425] general protection fault: 0000 [#1] SMP
+[    1.312901] Modules linked in:
+[    1.313389] CPU: 0 PID: 1 Comm: init Not tainted 4.14.0-rc4+ #6
+[    1.313878] task: ffff88003e2c0000 task.stack: ffffc9000038c000
+[    1.314360] RIP: 10000e030:entry_SYSCALL_64_fastpath+0x1/0xa5
+[    1.314854] RSP: e02b:ffffc9000038ff50 EFLAGS: 00010046
+[    1.315336] RAX: 000000000000000c RBX: 000055f550168040 RCX:
+00007fcfc959f59a
+[    1.315827] RDX: 0000000000000000 RSI: 0000000000000000 RDI:
+0000000000000000
+[    1.316315] RBP: 000000000000000a R08: 000000000000037f R09:
+0000000000000064
+[    1.316805] R10: 000000001f89cbf5 R11: ffff88003e2c0000 R12:
+00007fcfc958ad60
+[    1.317300] R13: 0000000000000000 R14: 000055f550185954 R15:
+0000000000001000
+[    1.317801] FS:  0000000000000000(0000) GS:ffff88003f800000(0000)
+knlGS:0000000000000000
+[    1.318267] CS:  e033 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.318750] CR2: 00007fcfc97ab218 CR3: 000000003c88e000 CR4:
+0000000000042660
+[    1.319235] Call Trace:
+[    1.319700] Code: 51 50 57 56 52 51 6a da 41 50 41 51 41 52 41 53 48
+83 ec 30 65 4c 8b 1c 25 c0 d2 00 00 41 f7 03 df 39 08 90 0f 85 a5 00 00
+00 50 <ff> 15 9c 95 d0 ff 58 48 3d 4c 01 00 00 77 0f 4c 89 d1 ff 14 c5
+[    1.321161] RIP: entry_SYSCALL_64_fastpath+0x1/0xa5 RSP: ffffc9000038ff50
+[    1.344255] ---[ end trace d7cb8cd6cd7c294c ]---
+[    1.345009] Kernel panic - not syncing: Attempted to kill init!
+exitcode=0x0000000b
 
-For example, using the 32-bit config registers:
-first 16-bit: Command field
-send 16-bit: ID field
 
-Then, the working flow would look like this:
+All code
+========
+   0:    51                       push   %rcx
+   1:    50                       push   %rax
+   2:    57                       push   %rdi
+   3:    56                       push   %rsi
+   4:    52                       push   %rdx
+   5:    51                       push   %rcx
+   6:    6a da                    pushq  $0xffffffffffffffda
+   8:    41 50                    push   %r8
+   a:    41 51                    push   %r9
+   c:    41 52                    push   %r10
+   e:    41 53                    push   %r11
+  10:    48 83 ec 30              sub    $0x30,%rsp
+  14:    65 4c 8b 1c 25 c0 d2     mov    %gs:0xd2c0,%r11
+  1b:    00 00
+  1d:    41 f7 03 df 39 08 90     testl  $0x900839df,(%r11)
+  24:    0f 85 a5 00 00 00        jne    0xcf
+  2a:    50                       push   %rax
+  2b:*    ff 15 9c 95 d0 ff        callq  *-0x2f6a64(%rip)        #
+0xffffffffffd095cd        <-- trapping instruction
+  31:    58                       pop    %rax
+  32:    48 3d 4c 01 00 00        cmp    $0x14c,%rax
+  38:    77 0f                    ja     0x49
+  3a:    4c 89 d1                 mov    %r10,%rcx
+  3d:    ff                       .byte 0xff
+  3e:    14 c5                    adc    $0xc5,%al
 
-1) Host writes "Start, 1" to the Host2Guest register and notify;
 
-2) Guest reads Host2Guest register, and ACKs by writing "Start, 1" to 
-Guest2Host register;
-
-3) Guest starts report free pages;
-
-4) Each time when the host receives a free page hint from the 
-free_page_vq, it compares the ID fields of
-the Host2Guest and Guest2Host register. If matching, then filter out the 
-free page from the migration dirty bitmap,
-otherwise, simply push back without doing the filtering.
+so the original 'cli' was replaced with the pv call but to me the offset
+looks a bit off, no? Shouldn't it always be positive?
 
 
-Best,
-Wei
+-boris
