@@ -1,19 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v16 5/5] virtio-balloon: VIRTIO_BALLOON_F_CTRL_VQ
-Date: Wed, 11 Oct 2017 16:49:16 +0300
-Message-ID: <20171011161912-mutt-send-email-mst__49.6996254243598$1507729789$gmane$org@kernel.org>
-References: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>
-	<1506744354-20979-6-git-send-email-wei.w.wang@intel.com>
-	<20171001060305-mutt-send-email-mst@kernel.org>
-	<286AC319A985734F985F78AFA26841F73932025A@shsmsx102.ccr.corp.intel.com>
-	<20171010180636-mutt-send-email-mst@kernel.org>
-	<59DDB428.4020208@intel.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH] virtio: avoid possible OOM lockup at
+	virtballoon_oom_notify()
+Date: Thu, 12 Oct 2017 10:36:00 +0800
+Message-ID: <59DED510.5000407__36692.6588387743$1507775673$gmane$org@intel.com>
+References: <1507632457-4611-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <59DDB428.4020208@intel.com>
+In-Reply-To: <1507632457-4611-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,97 +18,109 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "willy@infradead.org" <willy@infradead.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, mhocko@kernel.or
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, mst@redhat.com, mhocko@kernel.org
+Cc: linux-mm@kvack.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 11, 2017 at 02:03:20PM +0800, Wei Wang wrote:
-> On 10/10/2017 11:15 PM, Michael S. Tsirkin wrote:
-> > On Mon, Oct 02, 2017 at 04:38:01PM +0000, Wang, Wei W wrote:
-> > > On Sunday, October 1, 2017 11:19 AM, Michael S. Tsirkin wrote:
-> > > > On Sat, Sep 30, 2017 at 12:05:54PM +0800, Wei Wang wrote:
-> > > > > +static void ctrlq_send_cmd(struct virtio_balloon *vb,
-> > > > > +			  struct virtio_balloon_ctrlq_cmd *cmd,
-> > > > > +			  bool inbuf)
-> > > > > +{
-> > > > > +	struct virtqueue *vq = vb->ctrl_vq;
-> > > > > +
-> > > > > +	ctrlq_add_cmd(vq, cmd, inbuf);
-> > > > > +	if (!inbuf) {
-> > > > > +		/*
-> > > > > +		 * All the input cmd buffers are replenished here.
-> > > > > +		 * This is necessary because the input cmd buffers are lost
-> > > > > +		 * after live migration. The device needs to rewind all of
-> > > > > +		 * them from the ctrl_vq.
-> > > > Confused. Live migration somehow loses state? Why is that and why is it a good
-> > > > idea? And how do you know this is migration even?
-> > > > Looks like all you know is you got free page end. Could be any reason for this.
-> > > 
-> > > I think this would be something that the current live migration lacks - what the
-> > > device read from the vq is not transferred during live migration, an example is the
-> > > stat_vq_elem:
-> > > Line 476 at https://github.com/qemu/qemu/blob/master/hw/virtio/virtio-balloon.c
-> > This does not touch guest memory though it just manipulates
-> > internal state to make it easier to migrate.
-> > It's transparent to guest as migration should be.
-> > 
-> > > For all the things that are added to the vq and need to be held by the device
-> > > to use later need to consider the situation that live migration might happen at any
-> > > time and they need to be re-taken from the vq by the device on the destination
-> > > machine.
-> > > 
-> > > So, even without this live migration optimization feature, I think all the things that are
-> > > added to the vq for the device to hold, need a way for the device to rewind back from
-> > > the vq - re-adding all the elements to the vq is a trick to keep a record of all of them
-> > > on the vq so that the device side rewinding can work.
-> > > 
-> > > Please let me know if anything is missed or if you have other suggestions.
-> > IMO migration should pass enough data source to destination for
-> > destination to continue where source left off without guest help.
-> > 
-> 
-> I'm afraid it would be difficult to pass the entire VirtQueueElement to the
-> destination. I think
-> that would also be the reason that stats_vq_elem chose to rewind from the
-> guest vq, which re-do the
-> virtqueue_pop() --> virtqueue_map_desc() steps (the QEMU virtual address to
-> the guest physical
-> address relationship may be changed on the destination).
-
-Yes but note how that rewind does not involve modifying the ring.
-It just rolls back some indices.
+On 10/10/2017 06:47 PM, Tetsuo Handa wrote:
+> In leak_balloon(), mutex_lock(&vb->balloon_lock) is called in order to
+> serialize against fill_balloon(). But in fill_balloon(),
+> alloc_page(GFP_HIGHUSER[_MOVABLE] | __GFP_NOMEMALLOC | __GFP_NORETRY) is
+> called with vb->balloon_lock mutex held. Since GFP_HIGHUSER[_MOVABLE]
+> implies __GFP_DIRECT_RECLAIM | __GFP_IO | __GFP_FS, despite __GFP_NORETRY
+> is specified, this allocation attempt might indirectly depend on somebody
+> else's __GFP_DIRECT_RECLAIM memory allocation. And such indirect
+> __GFP_DIRECT_RECLAIM memory allocation might call leak_balloon() via
+> virtballoon_oom_notify() via blocking_notifier_call_chain() callback via
+> out_of_memory() when it reached __alloc_pages_may_oom() and held oom_lock
+> mutex. Since vb->balloon_lock mutex is already held by fill_balloon(), it
+> will cause OOM lockup. Thus, do not wait for vb->balloon_lock mutex if
+> leak_balloon() is called from out_of_memory().
+>
+>    Thread1                                       Thread2
+>      fill_balloon()
+>        takes a balloon_lock
+>        balloon_page_enqueue()
+>          alloc_page(GFP_HIGHUSER_MOVABLE)
+>            direct reclaim (__GFP_FS context)       takes a fs lock
+>              waits for that fs lock                  alloc_page(GFP_NOFS)
+>                                                        __alloc_pages_may_oom()
+>                                                          takes the oom_lock
+>                                                          out_of_memory()
+>                                                            blocking_notifier_call_chain()
+>                                                              leak_balloon()
+>                                                                tries to take that balloon_lock and deadlocks
+>
+> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
 
-> 
-> How about another direction which would be easier - using two 32-bit device
-> specific configuration registers,
-> Host2Guest and Guest2Host command registers, to replace the ctrlq for
-> command exchange:
-> 
-> The flow can be as follows:
-> 
-> 1) Before Host sending a StartCMD, it flushes the free_page_vq in case any
-> old free page hint is left there;
+I think we could also use 'bool wait' to let the OOM use the traditional 
+leak_balloon code path,
+which doesn't need memory allocation from xb_preload(). That is, inside 
+leak_balloon(), we can have
 
-> 2) Host writes StartCMD to the Host2Guest register, and notifies the guest;
-> 
-> 3) Upon receiving a configuration notification, Guest reads the Host2Guest
-> register, and detaches all the used buffers from free_page_vq;
-> (then for each StartCMD, the free_page_vq will always have no obsolete free
-> page hints, right? )
-> 
-> 4) Guest start report free pages:
->     4.1) Host may actively write StopCMD to the Host2Guest register before
-> the guest finishes; or
->     4.2) Guest finishes reporting, write StopCMD  the Guest2HOST register,
-> which traps to QEMU, to stop.
-> 
-> 
-> Best,
-> Wei
+use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG) & wait;
 
-I am not sure it matters whether a VQ or the config are used to start/stop.
-But I think flushing is very fragile. You will easily run into races
-if one of the actors gets out of sync and keeps adding data.
-I think adding an ID in the free vq stream is a more robust
-approach.
+
+Reviewed-by: Wei Wang <wei.w.wang@intel.com>
+
+
+> ---
+>   drivers/virtio/virtio_balloon.c | 16 +++++++++++-----
+>   1 file changed, 11 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index f0b3a0b..03e6078 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -192,7 +192,7 @@ static void release_pages_balloon(struct virtio_balloon *vb,
+>   	}
+>   }
+>   
+> -static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+> +static unsigned leak_balloon(struct virtio_balloon *vb, size_t num, bool wait)
+>   {
+>   	unsigned num_freed_pages;
+>   	struct page *page;
+> @@ -202,7 +202,13 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+>   	/* We can only do one array worth at a time. */
+>   	num = min(num, ARRAY_SIZE(vb->pfns));
+>   
+> -	mutex_lock(&vb->balloon_lock);
+> +	if (wait)
+> +		mutex_lock(&vb->balloon_lock);
+> +	else if (!mutex_trylock(&vb->balloon_lock)) {
+> +		pr_info("virtio_balloon: Unable to release %lu pages due to lock contention.\n",
+> +			(unsigned long) min(num, (size_t)vb->num_pages));
+> +		return 0;
+> +	}
+>   	/* We can't release more pages than taken */
+>   	num = min(num, (size_t)vb->num_pages);
+>   	for (vb->num_pfns = 0; vb->num_pfns < num;
+> @@ -367,7 +373,7 @@ static int virtballoon_oom_notify(struct notifier_block *self,
+>   		return NOTIFY_OK;
+>   
+>   	freed = parm;
+> -	num_freed_pages = leak_balloon(vb, oom_pages);
+> +	num_freed_pages = leak_balloon(vb, oom_pages, false);
+>   	update_balloon_size(vb);
+>   	*freed += num_freed_pages;
+>   
+> @@ -395,7 +401,7 @@ static void update_balloon_size_func(struct work_struct *work)
+>   	if (diff > 0)
+>   		diff -= fill_balloon(vb, diff);
+>   	else if (diff < 0)
+> -		diff += leak_balloon(vb, -diff);
+> +		diff += leak_balloon(vb, -diff, true);
+>   	update_balloon_size(vb);
+>   
+>   	if (diff)
+> @@ -597,7 +603,7 @@ static void remove_common(struct virtio_balloon *vb)
+>   {
+>   	/* There might be pages left in the balloon: free them. */
+>   	while (vb->num_pages)
+> -		leak_balloon(vb, vb->num_pages);
+> +		leak_balloon(vb, vb->num_pages, true);
+>   	update_balloon_size(vb);
+>   
+>   	/* Now we reset the device so we can clean up the queues. */
