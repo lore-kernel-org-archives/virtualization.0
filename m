@@ -1,13 +1,11 @@
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: Re: [PATCH] virtio_balloon: fix deadlock on OOM
-Date: Fri, 13 Oct 2017 23:06:23 +0900
-Message-ID: <201710132306.FBC78628.OJLHFVQSFOtOMF__11051.2743391611$1507903626$gmane$org@I-love.SAKURA.ne.jp>
-References: <1507900754-32239-1-git-send-email-mst@redhat.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: [PATCH net-next] virtio_net: implement VIRTIO_CONFIG_S_NEEDS_RESET
+Date: Fri, 13 Oct 2017 11:51:40 -0400
+Message-ID: <20171013155140.124530-1-willemdebruijn.kernel__29541.7403373451$1507909947$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1507900754-32239-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,90 +15,129 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, mhocko@suse.com, virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org
+Cc: Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org, davem@davemloft.net, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Michael S. Tsirkin wrote:
-> This is a replacement for
-> 	[PATCH] virtio: avoid possible OOM lockup at virtballoon_oom_notify()
-> but unlike that patch it actually deflates on oom even in presence of
-> lock contention.
+From: Willem de Bruijn <willemb@google.com>
 
-But Wei Wang is proposing VIRTIO_BALLOON_F_SG which will try to allocate
-memory, isn't he?
+Implement the reset communication request defined in the VIRTIO 1.0
+specification and introduces in Linux in commit c00bbcf862896 ("virtio:
+add VIRTIO_CONFIG_S_NEEDS_RESET device status bit").
 
-> 
->  drivers/virtio/virtio_balloon.c    | 30 ++++++++++++++++++++++--------
->  include/linux/balloon_compaction.h | 38 +++++++++++++++++++++++++++++++++++++-
->  mm/balloon_compaction.c            | 27 +++++++++++++++++++++------
->  3 files changed, 80 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index f0b3a0b..725e366 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -143,16 +143,14 @@ static void set_page_pfns(struct virtio_balloon *vb,
->  
->  static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
->  {
-> -	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
->  	unsigned num_allocated_pages;
-> +	unsigned num_pfns;
-> +	struct page *page;
-> +	LIST_HEAD(pages);
->  
-> -	/* We can only do one array worth at a time. */
-> -	num = min(num, ARRAY_SIZE(vb->pfns));
-> -
+Use the virtnet_reset function introduced in commit 2de2f7f40ef9
+("virtio_net: XDP support for adjust_head"). That was removed in
+commit 4941d472bf95 ("virtio-net: do not reset during XDP set"),
+because no longer used. Bring it back, minus the xdp specific code.
 
-I don't think moving this min() to later is correct, for
-"num" can be e.g. 1048576, can't it?
+Before tearing down any state, virtnet_freeze_down quiesces the
+device with netif_tx_disable. virtnet_reset also ensures that no
+other config operations can run concurrently.
 
-> -	mutex_lock(&vb->balloon_lock);
-> -	for (vb->num_pfns = 0; vb->num_pfns < num;
-> -	     vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
-> -		struct page *page = balloon_page_enqueue(vb_dev_info);
-> +	for (num_pfns = 0; num_pfns < num;
-> +	     num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
-> +		struct page *page = balloon_page_alloc();
->  
->  		if (!page) {
->  			dev_info_ratelimited(&vb->vdev->dev,
-> @@ -162,6 +160,22 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
->  			msleep(200);
->  			break;
->  		}
-> +
-> +		balloon_page_push(&pages, page);
-> +	}
+On successful reset, the host can observe that the flag has been
+cleared. There is no need for the explicit control flag introduced
+in the previous RFC of this patch.
 
-If balloon_page_alloc() did not fail, it will queue "num"
-(e.g. 1048576) pages into pages list, won't it?
+Changes
+  RFC -> v1
+  - drop VIRTIO_NET_CTRL_RESET_ACK message
+  - drop VIRTIO_F_CAN_RESET flag to notify guest support
 
-> +
-> +	/* We can only do one array worth at a time. */
-> +	num = min(num, ARRAY_SIZE(vb->pfns));
-> +
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+---
+ drivers/net/virtio_net.c | 48 ++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 44 insertions(+), 4 deletions(-)
 
-Now we cap "num" to VIRTIO_BALLOON_ARRAY_PFNS_MAX (which is 256), but
-
-> +	mutex_lock(&vb->balloon_lock);
-> +
-> +	vb->num_pfns = 0;
-> +
-> +	while ((page = balloon_page_pop(&pages))) {
-
-this loop will repeat for e.g. 1048576 times, and
-
-> +		balloon_page_enqueue(&vb->vb_dev_info, page);
-> +
-> +		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +
-
-we increment vb->num_pfns for e.g. 1048576 times which will go
-beyond VIRTIO_BALLOON_ARRAY_PFNS_MAX array index.
-
->  		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
->  		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
->  		if (!virtio_has_feature(vb->vdev,
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index fc059f193e7d..8e768b54844f 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1903,13 +1903,14 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+ 	.set_link_ksettings = virtnet_set_link_ksettings,
+ };
+ 
+-static void virtnet_freeze_down(struct virtio_device *vdev)
++static void virtnet_freeze_down(struct virtio_device *vdev, bool in_config)
+ {
+ 	struct virtnet_info *vi = vdev->priv;
+ 	int i;
+ 
+-	/* Make sure no work handler is accessing the device */
+-	flush_work(&vi->config_work);
++	/* Make sure no other work handler is accessing the device */
++	if (!in_config)
++		flush_work(&vi->config_work);
+ 
+ 	netif_device_detach(vi->dev);
+ 	netif_tx_disable(vi->dev);
+@@ -1924,6 +1925,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+ }
+ 
+ static int init_vqs(struct virtnet_info *vi);
++static void remove_vq_common(struct virtnet_info *vi);
+ 
+ static int virtnet_restore_up(struct virtio_device *vdev)
+ {
+@@ -1952,6 +1954,40 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+ 	return err;
+ }
+ 
++static int virtnet_reset(struct virtnet_info *vi)
++{
++	struct virtio_device *dev = vi->vdev;
++	int ret;
++
++	virtio_config_disable(dev);
++	dev->failed = dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED;
++	virtnet_freeze_down(dev, true);
++	remove_vq_common(vi);
++
++	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
++	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
++
++	ret = virtio_finalize_features(dev);
++	if (ret)
++		goto err;
++
++	ret = virtnet_restore_up(dev);
++	if (ret)
++		goto err;
++
++	ret = virtnet_set_queues(vi, vi->curr_queue_pairs);
++	if (ret)
++		goto err;
++
++	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
++	virtio_config_enable(dev);
++	return 0;
++
++err:
++	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
++	return ret;
++}
++
+ static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
+ {
+ 	struct scatterlist sg;
+@@ -2136,6 +2172,10 @@ static void virtnet_config_changed_work(struct work_struct *work)
+ 		virtnet_ack_link_announce(vi);
+ 	}
+ 
++	if (vi->vdev->config->get_status(vi->vdev) &
++	    VIRTIO_CONFIG_S_NEEDS_RESET)
++		virtnet_reset(vi);
++
+ 	/* Ignore unknown (future) status bits */
+ 	v &= VIRTIO_NET_S_LINK_UP;
+ 
+@@ -2756,7 +2796,7 @@ static __maybe_unused int virtnet_freeze(struct virtio_device *vdev)
+ 	struct virtnet_info *vi = vdev->priv;
+ 
+ 	virtnet_cpu_notif_remove(vi);
+-	virtnet_freeze_down(vdev);
++	virtnet_freeze_down(vdev, false);
+ 	remove_vq_common(vi);
+ 
+ 	return 0;
+-- 
+2.15.0.rc0.271.g36b669edcc-goog
