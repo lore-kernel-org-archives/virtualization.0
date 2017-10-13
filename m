@@ -1,13 +1,12 @@
-From: Michal Hocko <mhocko@kernel.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Subject: Re: [PATCH] virtio_balloon: fix deadlock on OOM
-Date: Fri, 13 Oct 2017 15:44:38 +0200
-Message-ID: <20171013134438.bdm2zaos22uvkb4s__29083.1185564914$1507902322$gmane$org@dhcp22.suse.cz>
+Date: Fri, 13 Oct 2017 23:06:23 +0900
+Message-ID: <201710132306.FBC78628.OJLHFVQSFOtOMF__11051.2743391611$1507903626$gmane$org@I-love.SAKURA.ne.jp>
 References: <1507900754-32239-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <1507900754-32239-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,60 +17,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: mst@redhat.com, linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, mhocko@suse.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri 13-10-17 16:21:22, Michael S. Tsirkin wrote:
-> fill_balloon doing memory allocations under balloon_lock
-> can cause a deadlock when leak_balloon is called from
-> virtballoon_oom_notify and tries to take same lock.
-> 
-> To fix, split page allocation and enqueue and do allocations outside the lock.
-
-OK, that sounds like a better fix. As long as there are no other
-allocations or indirect waiting for an allocation this should work
-correctly. Thanks!
-
-> Here's a detailed analysis of the deadlock by Tetsuo Handa:
-> 
-> In leak_balloon(), mutex_lock(&vb->balloon_lock) is called in order to
-> serialize against fill_balloon(). But in fill_balloon(),
-> alloc_page(GFP_HIGHUSER[_MOVABLE] | __GFP_NOMEMALLOC | __GFP_NORETRY) is
-> called with vb->balloon_lock mutex held. Since GFP_HIGHUSER[_MOVABLE]
-> implies __GFP_DIRECT_RECLAIM | __GFP_IO | __GFP_FS, despite __GFP_NORETRY
-> is specified, this allocation attempt might indirectly depend on somebody
-> else's __GFP_DIRECT_RECLAIM memory allocation. And such indirect
-> __GFP_DIRECT_RECLAIM memory allocation might call leak_balloon() via
-> virtballoon_oom_notify() via blocking_notifier_call_chain() callback via
-> out_of_memory() when it reached __alloc_pages_may_oom() and held oom_lock
-> mutex. Since vb->balloon_lock mutex is already held by fill_balloon(), it
-> will cause OOM lockup. Thus, do not wait for vb->balloon_lock mutex if
-> leak_balloon() is called from out_of_memory().
-> 
->   Thread1                                       Thread2
->     fill_balloon()
->       takes a balloon_lock
->       balloon_page_enqueue()
->         alloc_page(GFP_HIGHUSER_MOVABLE)
->           direct reclaim (__GFP_FS context)       takes a fs lock
->             waits for that fs lock                  alloc_page(GFP_NOFS)
->                                                       __alloc_pages_may_oom()
->                                                         takes the oom_lock
->                                                         out_of_memory()
->                                                           blocking_notifier_call_chain()
->                                                             leak_balloon()
->                                                               tries to take that balloon_lock and deadlocks
-> 
-> Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Wei Wang <wei.w.wang@intel.com>
-> ---
-> 
+Michael S. Tsirkin wrote:
 > This is a replacement for
 > 	[PATCH] virtio: avoid possible OOM lockup at virtballoon_oom_notify()
 > but unlike that patch it actually deflates on oom even in presence of
 > lock contention.
+
+But Wei Wang is proposing VIRTIO_BALLOON_F_SG which will try to allocate
+memory, isn't he?
+
 > 
 >  drivers/virtio/virtio_balloon.c    | 30 ++++++++++++++++++++++--------
 >  include/linux/balloon_compaction.h | 38 +++++++++++++++++++++++++++++++++++++-
@@ -95,6 +53,10 @@ correctly. Thanks!
 > -	/* We can only do one array worth at a time. */
 > -	num = min(num, ARRAY_SIZE(vb->pfns));
 > -
+
+I don't think moving this min() to later is correct, for
+"num" can be e.g. 1048576, can't it?
+
 > -	mutex_lock(&vb->balloon_lock);
 > -	for (vb->num_pfns = 0; vb->num_pfns < num;
 > -	     vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
@@ -112,138 +74,33 @@ correctly. Thanks!
 > +
 > +		balloon_page_push(&pages, page);
 > +	}
+
+If balloon_page_alloc() did not fail, it will queue "num"
+(e.g. 1048576) pages into pages list, won't it?
+
 > +
 > +	/* We can only do one array worth at a time. */
 > +	num = min(num, ARRAY_SIZE(vb->pfns));
 > +
+
+Now we cap "num" to VIRTIO_BALLOON_ARRAY_PFNS_MAX (which is 256), but
+
 > +	mutex_lock(&vb->balloon_lock);
 > +
 > +	vb->num_pfns = 0;
 > +
 > +	while ((page = balloon_page_pop(&pages))) {
+
+this loop will repeat for e.g. 1048576 times, and
+
 > +		balloon_page_enqueue(&vb->vb_dev_info, page);
 > +
 > +		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
 > +
+
+we increment vb->num_pfns for e.g. 1048576 times which will go
+beyond VIRTIO_BALLOON_ARRAY_PFNS_MAX array index.
+
 >  		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
 >  		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
 >  		if (!virtio_has_feature(vb->vdev,
-> diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
-> index 79542b2..88cfac4 100644
-> --- a/include/linux/balloon_compaction.h
-> +++ b/include/linux/balloon_compaction.h
-> @@ -49,6 +49,7 @@
->  #include <linux/gfp.h>
->  #include <linux/err.h>
->  #include <linux/fs.h>
-> +#include <linux/list.h>
->  
->  /*
->   * Balloon device information descriptor.
-> @@ -66,9 +67,14 @@ struct balloon_dev_info {
->  	struct inode *inode;
->  };
->  
-> -extern struct page *balloon_page_enqueue(struct balloon_dev_info *b_dev_info);
-> +extern struct page *balloon_page_alloc(void);
-> +extern void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
-> +				 struct page *page);
->  extern struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info);
->  
-> +extern void balloon_devinfo_splice(struct balloon_dev_info *to_add,
-> +				   struct balloon_dev_info *b_dev_info);
-> +
->  static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
->  {
->  	balloon->isolated_pages = 0;
-> @@ -88,6 +94,36 @@ extern int balloon_page_migrate(struct address_space *mapping,
->  				struct page *page, enum migrate_mode mode);
->  
->  /*
-> + * balloon_page_push - insert a page into a page list.
-> + * @head : pointer to list
-> + * @page : page to be added
-> + *
-> + * Caller must ensure the page is private and protect the list.
-> + */
-> +static inline void balloon_page_push(struct list_head *pages, struct page *page)
-> +{
-> +	list_add(&page->lru, pages);
-> +}
-> +
-> +/*
-> + * balloon_page_pop - remove a page from a page list.
-> + * @head : pointer to list
-> + * @page : page to be added
-> + *
-> + * Caller must ensure the page is private and protect the list.
-> + */
-> +static inline struct page *balloon_page_pop(struct list_head *pages)
-> +{
-> +	struct page *page = list_first_entry_or_null(pages, struct page, lru);
-> +
-> +	if (!page)
-> +		return NULL;
-> +
-> +	list_del(&page->lru);
-> +	return page;
-> +}
-> +
-> +/*
->   * balloon_page_insert - insert a page into the balloon's page list and make
->   *			 the page->private assignment accordingly.
->   * @balloon : pointer to balloon device
-> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-> index b06d9fe..cd605bf 100644
-> --- a/mm/balloon_compaction.c
-> +++ b/mm/balloon_compaction.c
-> @@ -11,22 +11,37 @@
->  #include <linux/balloon_compaction.h>
->  
->  /*
-> + * balloon_page_alloc - allocates a new page for insertion into the balloon
-> + *			  page list.
-> + *
-> + * Driver must call it to properly allocate a new enlisted balloon page.
-> + * Driver must call balloon_page_enqueue before definitively removing it from
-> + * the guest system.  This function returns the page address for the recently
-> + * allocated page or NULL in the case we fail to allocate a new page this turn.
-> + */
-> +struct page *balloon_page_alloc(void)
-> +{
-> +	struct page *page = alloc_page(balloon_mapping_gfp_mask() |
-> +				       __GFP_NOMEMALLOC | __GFP_NORETRY);
-> +	return page;
-> +}
-> +EXPORT_SYMBOL_GPL(balloon_page_alloc);
-> +
-> +/*
->   * balloon_page_enqueue - allocates a new page and inserts it into the balloon
->   *			  page list.
->   * @b_dev_info: balloon device descriptor where we will insert a new page to
-> + * @page: new page to enqueue - allocated using balloon_page_alloc.
->   *
-> - * Driver must call it to properly allocate a new enlisted balloon page
-> + * Driver must call it to properly enqueue a new allocated balloon page
->   * before definitively removing it from the guest system.
->   * This function returns the page address for the recently enqueued page or
->   * NULL in the case we fail to allocate a new page this turn.
->   */
-> -struct page *balloon_page_enqueue(struct balloon_dev_info *b_dev_info)
-> +void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
-> +			  struct page *page)
->  {
->  	unsigned long flags;
-> -	struct page *page = alloc_page(balloon_mapping_gfp_mask() |
-> -				       __GFP_NOMEMALLOC | __GFP_NORETRY);
-> -	if (!page)
-> -		return NULL;
->  
->  	/*
->  	 * Block others from accessing the 'page' when we get around to
-> -- 
-> MST
-
--- 
-Michal Hocko
-SUSE Labs
