@@ -1,11 +1,15 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: [PATCH net-next] virtio_net: implement VIRTIO_CONFIG_S_NEEDS_RESET
-Date: Fri, 13 Oct 2017 11:51:40 -0400
-Message-ID: <20171013155140.124530-1-willemdebruijn.kernel__29541.7403373451$1507909947$gmane$org@gmail.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: Re: [PATCH] virtio: avoid possible OOM lockup at
+	virtballoon_oom_notify()
+Date: Sat, 14 Oct 2017 01:41:14 +0900
+Message-ID: <201710140141.JFF26087.FLQHOFOOtFMVSJ__11269.0896647566$1507912899$gmane$org@I-love.SAKURA.ne.jp>
+References: <1507632457-4611-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
+	<20171013162134-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20171013162134-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,129 +19,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org, davem@davemloft.net, mst@redhat.com
+To: mst@redhat.com
+Cc: linux-mm@kvack.org, virtualization@lists.linux-foundation.org, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Willem de Bruijn <willemb@google.com>
+Michael S. Tsirkin wrote:
+> On Tue, Oct 10, 2017 at 07:47:37PM +0900, Tetsuo Handa wrote:
+> > In leak_balloon(), mutex_lock(&vb->balloon_lock) is called in order to
+> > serialize against fill_balloon(). But in fill_balloon(),
+> > alloc_page(GFP_HIGHUSER[_MOVABLE] | __GFP_NOMEMALLOC | __GFP_NORETRY) is
+> > called with vb->balloon_lock mutex held. Since GFP_HIGHUSER[_MOVABLE]
+> > implies __GFP_DIRECT_RECLAIM | __GFP_IO | __GFP_FS, despite __GFP_NORETRY
+> > is specified, this allocation attempt might indirectly depend on somebody
+> > else's __GFP_DIRECT_RECLAIM memory allocation. And such indirect
+> > __GFP_DIRECT_RECLAIM memory allocation might call leak_balloon() via
+> > virtballoon_oom_notify() via blocking_notifier_call_chain() callback via
+> > out_of_memory() when it reached __alloc_pages_may_oom() and held oom_lock
+> > mutex. Since vb->balloon_lock mutex is already held by fill_balloon(), it
+> > will cause OOM lockup. Thus, do not wait for vb->balloon_lock mutex if
+> > leak_balloon() is called from out_of_memory().
+> > 
+> >   Thread1                                       Thread2
+> >     fill_balloon()
+> >       takes a balloon_lock
+> >       balloon_page_enqueue()
+> >         alloc_page(GFP_HIGHUSER_MOVABLE)
+> >           direct reclaim (__GFP_FS context)       takes a fs lock
+> >             waits for that fs lock                  alloc_page(GFP_NOFS)
+> >                                                       __alloc_pages_may_oom()
+> >                                                         takes the oom_lock
+> >                                                         out_of_memory()
+> >                                                           blocking_notifier_call_chain()
+> >                                                             leak_balloon()
+> >                                                               tries to take that balloon_lock and deadlocks
+> > 
+> > Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> 
+> This doesn't deflate on oom if lock is contended, and we acked
+> DEFLATE_ON_OOM so host actually expects us to.
 
-Implement the reset communication request defined in the VIRTIO 1.0
-specification and introduces in Linux in commit c00bbcf862896 ("virtio:
-add VIRTIO_CONFIG_S_NEEDS_RESET device status bit").
+I still don't understand what is wrong with not deflating on OOM.
+According to https://lists.oasis-open.org/archives/virtio-dev/201504/msg00084.html ,
 
-Use the virtnet_reset function introduced in commit 2de2f7f40ef9
-("virtio_net: XDP support for adjust_head"). That was removed in
-commit 4941d472bf95 ("virtio-net: do not reset during XDP set"),
-because no longer used. Bring it back, minus the xdp specific code.
+  If VIRTIO_BALLOON_F_DEFLATE_ON_OOM has been negotiated, the
+  driver MAY use pages from the balloon when \field{num_pages}
+  is less than or equal to the actual number of pages in the
+  balloon if this is required for system stability
+  (e.g. if memory is required by applications running within
+  the guest).
 
-Before tearing down any state, virtnet_freeze_down quiesces the
-device with netif_tx_disable. virtnet_reset also ensures that no
-other config operations can run concurrently.
+it says "MAY" rather than "MUST". I think it is legal to be a no-op.
+Maybe I don't understand the difference between "deflate the balloon" and
+"use pages from the balloon" ?
 
-On successful reset, the host can observe that the flag has been
-cleared. There is no need for the explicit control flag introduced
-in the previous RFC of this patch.
+According to https://lists.linuxfoundation.org/pipermail/virtualization/2014-October/027807.html ,
+it seems to me that the expected behavior after deflating while inflating
+was not defined when VIRTIO_BALLOON_F_DEFLATE_ON_OOM was proposed.
 
-Changes
-  RFC -> v1
-  - drop VIRTIO_NET_CTRL_RESET_ACK message
-  - drop VIRTIO_F_CAN_RESET flag to notify guest support
+When the host increased "struct virtio_balloon_config"->num_pages and
+kicked the guest, the guest's update_balloon_size_func() starts calling
+fill_balloon() until "struct virtio_balloon"->num_pages reaches
+"struct virtio_balloon_config"->num_pages, doesn't it?
 
-Signed-off-by: Willem de Bruijn <willemb@google.com>
----
- drivers/net/virtio_net.c | 48 ++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 44 insertions(+), 4 deletions(-)
+  struct virtio_balloon_config {
+  	/* Number of pages host wants Guest to give up. */
+  	__u32 num_pages;
+  	/* Number of pages we've actually got in balloon. */
+  	__u32 actual;
+  };
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index fc059f193e7d..8e768b54844f 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1903,13 +1903,14 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.set_link_ksettings = virtnet_set_link_ksettings,
- };
- 
--static void virtnet_freeze_down(struct virtio_device *vdev)
-+static void virtnet_freeze_down(struct virtio_device *vdev, bool in_config)
- {
- 	struct virtnet_info *vi = vdev->priv;
- 	int i;
- 
--	/* Make sure no work handler is accessing the device */
--	flush_work(&vi->config_work);
-+	/* Make sure no other work handler is accessing the device */
-+	if (!in_config)
-+		flush_work(&vi->config_work);
- 
- 	netif_device_detach(vi->dev);
- 	netif_tx_disable(vi->dev);
-@@ -1924,6 +1925,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
- }
- 
- static int init_vqs(struct virtnet_info *vi);
-+static void remove_vq_common(struct virtnet_info *vi);
- 
- static int virtnet_restore_up(struct virtio_device *vdev)
- {
-@@ -1952,6 +1954,40 @@ static int virtnet_restore_up(struct virtio_device *vdev)
- 	return err;
- }
- 
-+static int virtnet_reset(struct virtnet_info *vi)
-+{
-+	struct virtio_device *dev = vi->vdev;
-+	int ret;
-+
-+	virtio_config_disable(dev);
-+	dev->failed = dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED;
-+	virtnet_freeze_down(dev, true);
-+	remove_vq_common(vi);
-+
-+	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-+	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
-+
-+	ret = virtio_finalize_features(dev);
-+	if (ret)
-+		goto err;
-+
-+	ret = virtnet_restore_up(dev);
-+	if (ret)
-+		goto err;
-+
-+	ret = virtnet_set_queues(vi, vi->curr_queue_pairs);
-+	if (ret)
-+		goto err;
-+
-+	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
-+	virtio_config_enable(dev);
-+	return 0;
-+
-+err:
-+	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
-+	return ret;
-+}
-+
- static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
- {
- 	struct scatterlist sg;
-@@ -2136,6 +2172,10 @@ static void virtnet_config_changed_work(struct work_struct *work)
- 		virtnet_ack_link_announce(vi);
- 	}
- 
-+	if (vi->vdev->config->get_status(vi->vdev) &
-+	    VIRTIO_CONFIG_S_NEEDS_RESET)
-+		virtnet_reset(vi);
-+
- 	/* Ignore unknown (future) status bits */
- 	v &= VIRTIO_NET_S_LINK_UP;
- 
-@@ -2756,7 +2796,7 @@ static __maybe_unused int virtnet_freeze(struct virtio_device *vdev)
- 	struct virtnet_info *vi = vdev->priv;
- 
- 	virtnet_cpu_notif_remove(vi);
--	virtnet_freeze_down(vdev);
-+	virtnet_freeze_down(vdev, false);
- 	remove_vq_common(vi);
- 
- 	return 0;
--- 
-2.15.0.rc0.271.g36b669edcc-goog
+If leak_balloon() is called via out_of_memory(), leak_balloon()
+will decrease "struct virtio_balloon"->num_pages.
+But, is "struct virtio_balloon_config"->num_pages updated when
+leak_balloon() is called via out_of_memory() ?
+If yes, update_balloon_size_func() would stop calling fill_balloon()
+when leak_balloon() was called via out_of_memory().
+If no, update_balloon_size_func() would continue calling fill_balloon()
+when leak_balloon() was called via out_of_memory() via fill_balloon()
+via update_balloon_size_func(). That is, when fill_balloon() tries to
+increase "struct virtio_balloon"->num_pages, leak_balloon() which
+decreases "struct virtio_balloon"->num_pages is called due to indirect
+__GFP_DIRECT_RECLAIM dependency via out_of_memory().
+As a result, fill_balloon() will continue trying to increase
+"struct virtio_balloon"->num_pages and leak_balloon() will continue
+decreasing "struct virtio_balloon"->num_pages when leak_balloon()
+is called via fill_balloon() via update_balloon_size_func() due to
+host increased "struct virtio_balloon_config"->num_pages and kicked
+the guest. We deflate the balloon in order to inflate the balloon.
+That is OOM lockup, isn't it? How is such situation better than
+invoking the OOM killer in order to inflate the balloon?
+
+> 
+> The proper fix isn't that hard - just avoid allocations under lock.
+> 
+> Patch posted, pls take a look.
+
+Your patch allocates pages in order to inflate the balloon, but
+your patch will allow leak_balloon() to deflate the balloon.
+How deflating the balloon (i.e. calling leak_balloon()) makes sense
+when allocating pages for inflating the balloon (i.e. calling
+fill_balloon()) ?
