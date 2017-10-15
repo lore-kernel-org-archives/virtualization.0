@@ -1,14 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next] virtio_net: implement VIRTIO_CONFIG_S_NEEDS_RESET
-Date: Sun, 15 Oct 2017 03:45:42 +0300
-Message-ID: <20171015034018-mutt-send-email-mst__43563.5156151422$1508028380$gmane$org@kernel.org>
-References: <20171013155140.124530-1-willemdebruijn.kernel@gmail.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: Re: [PATCH] virtio: avoid possible OOM lockup at
+	virtballoon_oom_notify()
+Date: Sun, 15 Oct 2017 14:38:48 +0900
+Message-ID: <201710151438.FAD86443.tOOFHVOSFQJLMF__39517.3679957681$1508045978$gmane$org@I-love.SAKURA.ne.jp>
+References: <1507632457-4611-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
+	<20171013162134-mutt-send-email-mst@kernel.org>
+	<201710140141.JFF26087.FLQHOFOOtFMVSJ@I-love.SAKURA.ne.jp>
+	<20171015030921-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20171013155140.124530-1-willemdebruijn.kernel@gmail.com>
+In-Reply-To: <20171015030921-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,141 +21,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org, davem@davemloft.net, virtualization@lists.linux-foundation.org
+To: mst@redhat.com
+Cc: linux-mm@kvack.org, virtualization@lists.linux-foundation.org, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 13, 2017 at 11:51:40AM -0400, Willem de Bruijn wrote:
-> From: Willem de Bruijn <willemb@google.com>
+Michael S. Tsirkin wrote:
+> > > 
+> > > The proper fix isn't that hard - just avoid allocations under lock.
+> > > 
+> > > Patch posted, pls take a look.
+> > 
+> > Your patch allocates pages in order to inflate the balloon, but
+> > your patch will allow leak_balloon() to deflate the balloon.
+> > How deflating the balloon (i.e. calling leak_balloon()) makes sense
+> > when allocating pages for inflating the balloon (i.e. calling
+> > fill_balloon()) ?
 > 
-> Implement the reset communication request defined in the VIRTIO 1.0
-> specification and introduces in Linux in commit c00bbcf862896 ("virtio:
-> add VIRTIO_CONFIG_S_NEEDS_RESET device status bit").
+> The idea is that fill_balloon is allocating memory with __GFP_NORETRY
+> so it will avoid disruptive actions like the OOM killer.
+> Under pressure it will normally fail and retry in half a second or so.
 > 
-> Use the virtnet_reset function introduced in commit 2de2f7f40ef9
-> ("virtio_net: XDP support for adjust_head"). That was removed in
-> commit 4941d472bf95 ("virtio-net: do not reset during XDP set"),
-> because no longer used. Bring it back, minus the xdp specific code.
+> Calling leak_balloon in that situation could benefit the system as a whole.
 > 
-> Before tearing down any state, virtnet_freeze_down quiesces the
-> device with netif_tx_disable. virtnet_reset also ensures that no
-> other config operations can run concurrently.
-> 
-> On successful reset, the host can observe that the flag has been
-> cleared. There is no need for the explicit control flag introduced
-> in the previous RFC of this patch.
-> 
-> Changes
->   RFC -> v1
->   - drop VIRTIO_NET_CTRL_RESET_ACK message
->   - drop VIRTIO_F_CAN_RESET flag to notify guest support
-> 
-> Signed-off-by: Willem de Bruijn <willemb@google.com>
-> ---
->  drivers/net/virtio_net.c | 48 ++++++++++++++++++++++++++++++++++++++++++++----
->  1 file changed, 44 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index fc059f193e7d..8e768b54844f 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1903,13 +1903,14 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
->  	.set_link_ksettings = virtnet_set_link_ksettings,
->  };
->  
-> -static void virtnet_freeze_down(struct virtio_device *vdev)
-> +static void virtnet_freeze_down(struct virtio_device *vdev, bool in_config)
->  {
->  	struct virtnet_info *vi = vdev->priv;
->  	int i;
->  
-> -	/* Make sure no work handler is accessing the device */
-> -	flush_work(&vi->config_work);
-> +	/* Make sure no other work handler is accessing the device */
-> +	if (!in_config)
-> +		flush_work(&vi->config_work);
->  
->  	netif_device_detach(vi->dev);
->  	netif_tx_disable(vi->dev);
-> @@ -1924,6 +1925,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
->  }
->  
->  static int init_vqs(struct virtnet_info *vi);
-> +static void remove_vq_common(struct virtnet_info *vi);
->  
->  static int virtnet_restore_up(struct virtio_device *vdev)
->  {
-> @@ -1952,6 +1954,40 @@ static int virtnet_restore_up(struct virtio_device *vdev)
->  	return err;
->  }
->  
-> +static int virtnet_reset(struct virtnet_info *vi)
-> +{
-> +	struct virtio_device *dev = vi->vdev;
-> +	int ret;
-> +
-> +	virtio_config_disable(dev);
-> +	dev->failed = dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED;
-> +	virtnet_freeze_down(dev, true);
-> +	remove_vq_common(vi);
-> +
-> +	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> +	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
-> +
-> +	ret = virtio_finalize_features(dev);
-> +	if (ret)
-> +		goto err;
-> +
-> +	ret = virtnet_restore_up(dev);
-> +	if (ret)
-> +		goto err;
-> +
-> +	ret = virtnet_set_queues(vi, vi->curr_queue_pairs);
-> +	if (ret)
-> +		goto err;
-> +
-> +	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
-> +	virtio_config_enable(dev);
-> +	return 0;
-> +
-> +err:
-> +	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
-> +	return ret;
-> +}
-> +
->  static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
->  {
->  	struct scatterlist sg;
+> I might be misunderstanding the meaning of the relevant GFP flags,
+> pls correct me if I'm wrong.
 
-I have a question here though. How do things like MAC address
-get restored?
+Would you answer to below question by "yes"/"no" ?
 
-What about the rx mode?
+  If leak_balloon() is called via out_of_memory(), leak_balloon()
+  will decrease "struct virtio_balloon"->num_pages.
+  But, is "struct virtio_balloon_config"->num_pages updated when
+  leak_balloon() is called via out_of_memory() ?
 
-vlans?
+Below explanation assumes that your answer is "no".
 
-Also, it seems that LINK_ANNOUNCE requests will get ignored
-even if they got set before the reset, leading to downtime.
+I consider that fill_balloon() is using __GFP_NORETRY is a bug.
+Consider an extreme situation that guest1 is started with 8192MB
+memory and then guest1's memory is reduced to 128MB by
 
-> @@ -2136,6 +2172,10 @@ static void virtnet_config_changed_work(struct work_struct *work)
->  		virtnet_ack_link_announce(vi);
->  	}
->  
-> +	if (vi->vdev->config->get_status(vi->vdev) &
-> +	    VIRTIO_CONFIG_S_NEEDS_RESET)
-> +		virtnet_reset(vi);
-> +
->  	/* Ignore unknown (future) status bits */
->  	v &= VIRTIO_NET_S_LINK_UP;
->  
-> @@ -2756,7 +2796,7 @@ static __maybe_unused int virtnet_freeze(struct virtio_device *vdev)
->  	struct virtnet_info *vi = vdev->priv;
->  
->  	virtnet_cpu_notif_remove(vi);
-> -	virtnet_freeze_down(vdev);
-> +	virtnet_freeze_down(vdev, false);
->  	remove_vq_common(vi);
->  
->  	return 0;
-> -- 
-> 2.15.0.rc0.271.g36b669edcc-goog
+  virsh qemu-monitor-command --domain guest1 --hmp 'balloon 128'
+
+when VIRTIO_BALLOON_F_DEFLATE_ON_OOM was not negotiated.
+Of course, 128MB would be too small to operate guest1 properly.
+Since update_balloon_size_func() continues calling fill_balloon()
+until guest1's memory is reduced to 128MB, you will see flooding of
+"puff" messages (and guest1 is practically unusable because all CPU
+resource will be wasted for unsuccessful memory reclaim attempts)
+unless the OOM killer is invoked.
+
+What this patch is trying to handle is a situation when
+VIRTIO_BALLOON_F_DEFLATE_ON_OOM was negotiated. Once
+update_balloon_size_func() started calling fill_balloon(),
+update_balloon_size_func() will continue calling fill_balloon()
+until guest1's memory is reduced to 128MB, won't it?
+
+Since fill_balloon() uses __GFP_IO | __GFP_FS, fill_balloon() can
+indirectly trigger out_of_memory() despite __GFP_NORETRY is specified.
+
+When update_balloon_size_func() is running for calling fill_balloon(),
+calling leak_balloon() will increase number of pages to fill which
+fill_balloon() is supposed to fill. Leaking some pages from leak_balloon()
+via blocking_notifier_call_chain() callback could avoid invocation of the
+OOM killer for that specific moment, but it bounces back to us later because
+number of pages to allocate later (note that update_balloon_size_func() is
+running for calling fill_balloon()) is increased by leak_balloon().
+
+Thus, I don't think that avoid invoking the OOM killer by calling leak_balloon()
+makes sense when update_balloon_size_func() is running for calling fill_balloon().
+And this patch tries to detect it by replacing mutex_lock() with mutex_trylock().
+
+> Well the point of this flag is that when it's acked,
+> host knows that it's safe to inflate the balloon
+> to a large portion of guest memory and this won't
+> cause an OOM situation.
+
+Assuming that your answer to the question is "no", I don't think it is
+safe to inflate the balloon to a large portion of guest memory, for once
+update_balloon_size_func() started calling fill_balloon(),
+update_balloon_size_func() can not stop calling fill_balloon() even when
+blocking_notifier_call_chain() callback called leak_balloon() because
+"struct virtio_balloon_config"->num_pages will not be updated when
+blocking_notifier_call_chain() callback called leak_balloon().
