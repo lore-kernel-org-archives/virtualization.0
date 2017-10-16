@@ -1,20 +1,18 @@
-From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: Re: [Xen-devel] [PATCH 11/13] x86/paravirt: Add paravirt alternatives
-	infrastructure
-Date: Mon, 16 Oct 2017 14:18:48 -0400
-Message-ID: <b9fdc3ec-87cd-da0e-47b7-67cdae8ffb97@oracle.com>
-References: <cover.1507128293.git.jpoimboe@redhat.com>
-	<39743c79546ede3073586403d0836a4f93519b0a.1507128293.git.jpoimboe@redhat.com>
-	<3b9fd404-6912-3b58-db29-36202631b438@oracle.com>
-	<20171006143259.rs3zh7k5tmsgesqy@treble>
-	<5a49e43a-8d6b-512a-ec5a-641be7bae41d@oracle.com>
-	<ed30216f-4b9e-2bc3-b1d2-36135b29d746@citrix.com>
-	<a6c3be0b-35f4-8d23-4ea2-ead94a3fc69e@oracle.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH net-next] virtio_net: implement VIRTIO_CONFIG_S_NEEDS_RESET
+Date: Mon, 16 Oct 2017 18:34:30 -0400
+Message-ID: <CAF=yD-KkUH6=S6Q=Tjtd2Wo=-ebDUt1or-DqjoRV4dTaD8G0WA__28833.8529914201$1508193345$gmane$org@mail.gmail.com>
+References: <20171013155140.124530-1-willemdebruijn.kernel@gmail.com>
+	<20171015034018-mutt-send-email-mst@kernel.org>
+	<CAF=yD-LdGiKuf=k2FDgFWbhvExVX8t+VVgTQetKTegjMeQ598g@mail.gmail.com>
+	<20171016180442-mutt-send-email-mst@kernel.org>
+	<CAF=yD-LW7f30V8Ci1SQUPZ-WBihqr93cWQP2QBFg2oQtytvAPg@mail.gmail.com>
+	<20171016191806-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <a6c3be0b-35f4-8d23-4ea2-ead94a3fc69e@oracle.com>
+In-Reply-To: <20171016191806-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,105 +22,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Cooper <andrew.cooper3@citrix.com>, Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Juergen Gross <jgross@suse.com>, Mike Galbraith <efault@gmx.de>, Peter Zijlstra <peterz@infradead.org>, Linus Torvalds <torvalds@linux-foundation.org>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, x86@kernel.org, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, live-patching@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, Sasha Levin <alexander.levin@verizon.com>, Jiri Slaby <jslaby@suse.cz>, Alok Kataria <akataria@vmware.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Willem de Bruijn <willemb@google.com>, Network Development <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/12/2017 03:53 PM, Boris Ostrovsky wrote:
-> On 10/12/2017 03:27 PM, Andrew Cooper wrote:
->> On 12/10/17 20:11, Boris Ostrovsky wrote:
->>> There is also another problem:
->>>
->>> [    1.312425] general protection fault: 0000 [#1] SMP
->>> [    1.312901] Modules linked in:
->>> [    1.313389] CPU: 0 PID: 1 Comm: init Not tainted 4.14.0-rc4+ #6
->>> [    1.313878] task: ffff88003e2c0000 task.stack: ffffc9000038c000
->>> [    1.314360] RIP: 10000e030:entry_SYSCALL_64_fastpath+0x1/0xa5
->>> [    1.314854] RSP: e02b:ffffc9000038ff50 EFLAGS: 00010046
->>> [    1.315336] RAX: 000000000000000c RBX: 000055f550168040 RCX:
->>> 00007fcfc959f59a
->>> [    1.315827] RDX: 0000000000000000 RSI: 0000000000000000 RDI:
->>> 0000000000000000
->>> [    1.316315] RBP: 000000000000000a R08: 000000000000037f R09:
->>> 0000000000000064
->>> [    1.316805] R10: 000000001f89cbf5 R11: ffff88003e2c0000 R12:
->>> 00007fcfc958ad60
->>> [    1.317300] R13: 0000000000000000 R14: 000055f550185954 R15:
->>> 0000000000001000
->>> [    1.317801] FS:  0000000000000000(0000) GS:ffff88003f800000(0000)
->>> knlGS:0000000000000000
->>> [    1.318267] CS:  e033 DS: 0000 ES: 0000 CR0: 0000000080050033
->>> [    1.318750] CR2: 00007fcfc97ab218 CR3: 000000003c88e000 CR4:
->>> 0000000000042660
->>> [    1.319235] Call Trace:
->>> [    1.319700] Code: 51 50 57 56 52 51 6a da 41 50 41 51 41 52 41 53 48
->>> 83 ec 30 65 4c 8b 1c 25 c0 d2 00 00 41 f7 03 df 39 08 90 0f 85 a5 00 00
->>> 00 50 <ff> 15 9c 95 d0 ff 58 48 3d 4c 01 00 00 77 0f 4c 89 d1 ff 14 c5
->>> [    1.321161] RIP: entry_SYSCALL_64_fastpath+0x1/0xa5 RSP: ffffc9000038ff50
->>> [    1.344255] ---[ end trace d7cb8cd6cd7c294c ]---
->>> [    1.345009] Kernel panic - not syncing: Attempted to kill init!
->>> exitcode=0x0000000b
->>>
->>>
->>> All code
->>> ========
->>>    0:    51                       push   %rcx
->>>    1:    50                       push   %rax
->>>    2:    57                       push   %rdi
->>>    3:    56                       push   %rsi
->>>    4:    52                       push   %rdx
->>>    5:    51                       push   %rcx
->>>    6:    6a da                    pushq  $0xffffffffffffffda
->>>    8:    41 50                    push   %r8
->>>    a:    41 51                    push   %r9
->>>    c:    41 52                    push   %r10
->>>    e:    41 53                    push   %r11
->>>   10:    48 83 ec 30              sub    $0x30,%rsp
->>>   14:    65 4c 8b 1c 25 c0 d2     mov    %gs:0xd2c0,%r11
->>>   1b:    00 00
->>>   1d:    41 f7 03 df 39 08 90     testl  $0x900839df,(%r11)
->>>   24:    0f 85 a5 00 00 00        jne    0xcf
->>>   2a:    50                       push   %rax
->>>   2b:*    ff 15 9c 95 d0 ff        callq  *-0x2f6a64(%rip)        #
->>> 0xffffffffffd095cd        <-- trapping instruction
->>>   31:    58                       pop    %rax
->>>   32:    48 3d 4c 01 00 00        cmp    $0x14c,%rax
->>>   38:    77 0f                    ja     0x49
->>>   3a:    4c 89 d1                 mov    %r10,%rcx
->>>   3d:    ff                       .byte 0xff
->>>   3e:    14 c5                    adc    $0xc5,%al
->>>
->>>
->>> so the original 'cli' was replaced with the pv call but to me the offset
->>> looks a bit off, no? Shouldn't it always be positive?
->> callq takes a 32bit signed displacement, so jumping back by up to 2G is
->> perfectly legitimate.
-> Yes, but
+On Mon, Oct 16, 2017 at 12:38 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Mon, Oct 16, 2017 at 12:04:57PM -0400, Willem de Bruijn wrote:
+>> On Mon, Oct 16, 2017 at 11:31 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>> > On Mon, Oct 16, 2017 at 11:03:18AM -0400, Willem de Bruijn wrote:
+>> >> >> +static int virtnet_reset(struct virtnet_info *vi)
+>> >> >> +{
+>> >> >> +     struct virtio_device *dev = vi->vdev;
+>> >> >> +     int ret;
+>> >> >> +
+>> >> >> +     virtio_config_disable(dev);
+>> >> >> +     dev->failed = dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED;
+>> >> >> +     virtnet_freeze_down(dev, true);
+>> >> >> +     remove_vq_common(vi);
+>> >> >> +
+>> >> >> +     virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+>> >> >> +     virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
+>> >> >> +
+>> >> >> +     ret = virtio_finalize_features(dev);
+>> >> >> +     if (ret)
+>> >> >> +             goto err;
+>> >> >> +
+>> >> >> +     ret = virtnet_restore_up(dev);
+>> >> >> +     if (ret)
+>> >> >> +             goto err;
+>> >> >> +
+>> >> >> +     ret = virtnet_set_queues(vi, vi->curr_queue_pairs);
+>> >> >> +     if (ret)
+>> >> >> +             goto err;
+>> >> >> +
+>> >> >> +     virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
+>> >> >> +     virtio_config_enable(dev);
+>> >> >> +     return 0;
+>> >> >> +
+>> >> >> +err:
+>> >> >> +     virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
+>> >> >> +     return ret;
+>> >> >> +}
+>> >> >> +
+>> >> >>  static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
+>> >> >>  {
+>> >> >>       struct scatterlist sg;
+>> >> >
+>> >> > I have a question here though. How do things like MAC address
+>> >> > get restored?
+>> >> >
+>> >> > What about the rx mode?
+>> >> >
+>> >> > vlans?
+>> >>
+>> >> The function as is releases and reinitializes only ring state.
+>> >> Device configuration such as mac and vlan persist across
+>> >> the reset.
+>> >
+>> > What gave you this impression? Take a look at e.g. this
+>> > code in qemu:
+>> >
+>> > static void virtio_net_reset(VirtIODevice *vdev)
+>> > {
+>> >     VirtIONet *n = VIRTIO_NET(vdev);
+>> >
+>> >     /* Reset back to compatibility mode */
+>> >     n->promisc = 1;
+>> >     n->allmulti = 0;
+>> >     n->alluni = 0;
+>> >     n->nomulti = 0;
+>> >     n->nouni = 0;
+>> >     n->nobcast = 0;
+>> >     /* multiqueue is disabled by default */
+>> >     n->curr_queues = 1;
+>> >     timer_del(n->announce_timer);
+>> >     n->announce_counter = 0;
+>> >     n->status &= ~VIRTIO_NET_S_ANNOUNCE;
+>> >
+>> >     /* Flush any MAC and VLAN filter table state */
+>> >     n->mac_table.in_use = 0;
+>> >     n->mac_table.first_multi = 0;
+>> >     n->mac_table.multi_overflow = 0;
+>> >     n->mac_table.uni_overflow = 0;
+>> >     memset(n->mac_table.macs, 0, MAC_TABLE_ENTRIES * ETH_ALEN);
+>> >     memcpy(&n->mac[0], &n->nic->conf->macaddr, sizeof(n->mac));
+>> >     qemu_format_nic_info_str(qemu_get_queue(n->nic), n->mac);
+>> >     memset(n->vlans, 0, MAX_VLAN >> 3);
+>> > }
+>> >
+>> > So device seems to lose all state, you have to re-program it.
+>>
+>> Oh, indeed! The guest does not reset its state, so it might
+>> be out of sync with the host after the operation. Was this not
+>> an issue when previously resetting in the context of xdp?
 >
-> ostr@workbase> nm vmlinux | grep entry_SYSCALL_64_fastpath
-> ffffffff817365dd t entry_SYSCALL_64_fastpath
-> ostr@workbase> nm vmlinux | grep " pv_irq_ops"
-> ffffffff81c2dbc0 D pv_irq_ops
-> ostr@workbase>
+> I suspect it was broken back then, too.
+
+Okay. I guess that in principle this is all programmable through
+virtnet_set_rx_mode, virtnet_vlan_rx_add_vid, etc. But it's a
+lot more complex than just restoring virtnet_reset. Will need to
+be careful about concurrency issues at the least. Similar to the
+ones you point out below.
+
 >
-> so pv_irq_ops.irq_disable is about 5MB ahead of where we are now. (I
-> didn't mean that x86 instruction set doesn't allow negative
-> displacement, I was trying to say that pv_irq_ops always live further down)
-
-I believe the problem is this:
-
-#define PV_INDIRECT(addr)       *addr(%rip)
-
-The displacement that the linker computes will be relative to the where
-this instruction is placed at the time of linking, which is in
-.pv_altinstructions (and not .text). So when we copy it into .text the
-displacement becomes bogus.
-
-Replacing the macro with
-
-#define PV_INDIRECT(addr)       *addr  // well, it's not so much
-indirect anymore
-
-makes things work. Or maybe it can be adjusted top be kept truly indirect.
-
--boris
+>> >> > Also, it seems that LINK_ANNOUNCE requests will get ignored
+>> >> > even if they got set before the reset, leading to downtime.
+>> >>
+>> >> Do you mean act on VIRTIO_NET_F_GUEST_ANNOUNCE
+>> >> requests? That flag is tested and netdev_notify_peers
+>> >> called before resetting virtio ring state.
+>> >
+>> > Yes but I wonder if there's a race where announce
+>> > is set after it is read but before NEED_RESET is read.
+>> >
+>> > Re-reading status from the config before reset
+>> > might be necessary.
+>>
+>> Thanks, I'll have a look. Perhaps a host should simply not
+>> request a reset while it is waiting for an announce ack.
+>
+> It's one option though we can't make this change for existing hosts.
+> We also have the reverse condition where announce is requested after
+> NEED_RESET is set.
