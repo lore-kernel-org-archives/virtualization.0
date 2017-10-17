@@ -1,8 +1,8 @@
 From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Subject: Re: [Xen-devel] [PATCH 11/13] x86/paravirt: Add paravirt alternatives
 	infrastructure
-Date: Tue, 17 Oct 2017 10:05:47 -0400
-Message-ID: <6f2a54e3-84f7-c04b-ae3c-cad6969d6652@oracle.com>
+Date: Tue, 17 Oct 2017 11:36:57 -0400
+Message-ID: <2e7890fb-3634-0f3b-003f-fc1772504b9a@oracle.com>
 References: <cover.1507128293.git.jpoimboe@redhat.com>
 	<39743c79546ede3073586403d0836a4f93519b0a.1507128293.git.jpoimboe@redhat.com>
 	<3b9fd404-6912-3b58-db29-36202631b438@oracle.com>
@@ -11,12 +11,14 @@ References: <cover.1507128293.git.jpoimboe@redhat.com>
 	<ed30216f-4b9e-2bc3-b1d2-36135b29d746@citrix.com>
 	<a6c3be0b-35f4-8d23-4ea2-ead94a3fc69e@oracle.com>
 	<b9fdc3ec-87cd-da0e-47b7-67cdae8ffb97@oracle.com>
-	<CAMzpN2j_6KzT22nLmYMM3RDxF0UkSQXCisb6umBka0T2ZHwDpQ@mail.gmail.com>
+	<20171017052413.nzbqniurzw7eim4b@treble>
+	<de621b0b-f767-222a-e1de-aabd0e9a0bf9@oracle.com>
+	<20171017143613.6i7auk3mqcqayx3o@treble>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAMzpN2j_6KzT22nLmYMM3RDxF0UkSQXCisb6umBka0T2ZHwDpQ@mail.gmail.com>
+In-Reply-To: <20171017143613.6i7auk3mqcqayx3o@treble>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,31 +28,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Brian Gerst <brgerst@gmail.com>
-Cc: Juergen Gross <jgross@suse.com>, Mike Galbraith <efault@gmx.de>, "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Rusty Russell <rusty@rustcorp.com.au>, Linux Virtualization <virtualization@lists.linux-foundation.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, live-patching@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Ingo Molnar <mingo@kernel.org>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, Sasha Levin <alexander.levin@verizon.com>, Jiri Slaby <jslaby@suse.cz>, Alok Kataria <akataria@vmware.com>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Juergen Gross <jgross@suse.com>, Mike Galbraith <efault@gmx.de>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, x86@kernel.org, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, live-patching@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, Sasha Levin <alexander.levin@verizon.com>, Jiri Slaby <jslaby@suse.cz>, Alok Kataria <akataria@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/17/2017 09:10 AM, Brian Gerst wrote:
-> On Mon, Oct 16, 2017 at 2:18 PM, Boris Ostrovsky
-> <boris.ostrovsky@oracle.com> wrote:
->>
->> Replacing the macro with
->>
->> #define PV_INDIRECT(addr)       *addr  // well, it's not so much
->> indirect anymore
->>
->> makes things work. Or maybe it can be adjusted top be kept truly indirect.
-> That is still an indirect call, just using absolute addressing for the
-> pointer instead of RIP-relative. 
+On 10/17/2017 10:36 AM, Josh Poimboeuf wrote:
+>
+> Maybe we can add a new field to the alternatives entry struct which
+> specifies the offset to the CALL instruction, so apply_alternatives()
+> can find it.
 
-Oh, right, I've got my terminology all wrong.
+We'd also have to assume that the restore part of an alternative entry
+is the same size as the save part. Which is true now.
 
 -boris
-
->  Alternatives has very limited
-> relocation capabilities.  It will only handle a single call or jmp
-> replacement. Using absolute addressing is slightly less efficient
-> (takes one extra byte to encode, and needs a relocation for KASLR),
-> but it works just as well.  You could also relocate the instruction
-> manually by adding the delta between the original and replacement code
-> to the displacement.
