@@ -1,21 +1,21 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next] virtio_net: implement VIRTIO_CONFIG_S_NEEDS_RESET
-Date: Tue, 17 Oct 2017 06:44:06 +0300
-Message-ID: <20171017064254-mutt-send-email-mst__42815.1281470948$1508211875$gmane$org@kernel.org>
-References: <20171013155140.124530-1-willemdebruijn.kernel@gmail.com>
-	<20171015034018-mutt-send-email-mst@kernel.org>
-	<CAF=yD-LdGiKuf=k2FDgFWbhvExVX8t+VVgTQetKTegjMeQ598g@mail.gmail.com>
-	<20171016180442-mutt-send-email-mst@kernel.org>
-	<CAF=yD-LW7f30V8Ci1SQUPZ-WBihqr93cWQP2QBFg2oQtytvAPg@mail.gmail.com>
-	<20171016191806-mutt-send-email-mst@kernel.org>
-	<CAF=yD-KkUH6=S6Q=Tjtd2Wo=-ebDUt1or-DqjoRV4dTaD8G0WA@mail.gmail.com>
-	<ecf3dde0-d4e6-23d5-22a7-05ce45bdafc9@redhat.com>
+From: Brian Gerst <brgerst@gmail.com>
+Subject: Re: [Xen-devel] [PATCH 11/13] x86/paravirt: Add paravirt alternatives
+	infrastructure
+Date: Tue, 17 Oct 2017 09:10:03 -0400
+Message-ID: <CAMzpN2j_6KzT22nLmYMM3RDxF0UkSQXCisb6umBka0T2ZHwDpQ__5711.58487950942$1508245855$gmane$org@mail.gmail.com>
+References: <cover.1507128293.git.jpoimboe@redhat.com>
+	<39743c79546ede3073586403d0836a4f93519b0a.1507128293.git.jpoimboe@redhat.com>
+	<3b9fd404-6912-3b58-db29-36202631b438@oracle.com>
+	<20171006143259.rs3zh7k5tmsgesqy@treble>
+	<5a49e43a-8d6b-512a-ec5a-641be7bae41d@oracle.com>
+	<ed30216f-4b9e-2bc3-b1d2-36135b29d746@citrix.com>
+	<a6c3be0b-35f4-8d23-4ea2-ead94a3fc69e@oracle.com>
+	<b9fdc3ec-87cd-da0e-47b7-67cdae8ffb97@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <ecf3dde0-d4e6-23d5-22a7-05ce45bdafc9@redhat.com>
+In-Reply-To: <b9fdc3ec-87cd-da0e-47b7-67cdae8ffb97@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,90 +25,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Willem de Bruijn <willemb@google.com>, Network Development <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>, Mike Galbraith <efault@gmx.de>, "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Rusty Russell <rusty@rustcorp.com.au>, Linux Virtualization <virtualization@lists.linux-foundation.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@sous-sol.org>, live-patching@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Ingo Molnar <mingo@kernel.org>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, Sasha Levin <alexander.levin@verizon.com>, Jiri Slaby <jslaby@suse.cz>, Alok Kataria <akataria@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBPY3QgMTcsIDIwMTcgYXQgMTE6MDU6MDdBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE35bm0MTDmnIgxN+aXpSAwNjozNCwgV2lsbGVtIGRlIEJydWlqbiB3
-cm90ZToKPiA+IE9uIE1vbiwgT2N0IDE2LCAyMDE3IGF0IDEyOjM4IFBNLCBNaWNoYWVsIFMuIFRz
-aXJraW4gPG1zdEByZWRoYXQuY29tPiB3cm90ZToKPiA+ID4gT24gTW9uLCBPY3QgMTYsIDIwMTcg
-YXQgMTI6MDQ6NTdQTSAtMDQwMCwgV2lsbGVtIGRlIEJydWlqbiB3cm90ZToKPiA+ID4gPiBPbiBN
-b24sIE9jdCAxNiwgMjAxNyBhdCAxMTozMSBBTSwgTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVk
-aGF0LmNvbT4gd3JvdGU6Cj4gPiA+ID4gPiBPbiBNb24sIE9jdCAxNiwgMjAxNyBhdCAxMTowMzox
-OEFNIC0wNDAwLCBXaWxsZW0gZGUgQnJ1aWpuIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gK3N0YXRp
-YyBpbnQgdmlydG5ldF9yZXNldChzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSkKPiA+ID4gPiA+ID4g
-PiA+ICt7Cj4gPiA+ID4gPiA+ID4gPiArICAgICBzdHJ1Y3QgdmlydGlvX2RldmljZSAqZGV2ID0g
-dmktPnZkZXY7Cj4gPiA+ID4gPiA+ID4gPiArICAgICBpbnQgcmV0Owo+ID4gPiA+ID4gPiA+ID4g
-Kwo+ID4gPiA+ID4gPiA+ID4gKyAgICAgdmlydGlvX2NvbmZpZ19kaXNhYmxlKGRldik7Cj4gPiA+
-ID4gPiA+ID4gPiArICAgICBkZXYtPmZhaWxlZCA9IGRldi0+Y29uZmlnLT5nZXRfc3RhdHVzKGRl
-dikgJiBWSVJUSU9fQ09ORklHX1NfRkFJTEVEOwo+ID4gPiA+ID4gPiA+ID4gKyAgICAgdmlydG5l
-dF9mcmVlemVfZG93bihkZXYsIHRydWUpOwo+ID4gPiA+ID4gPiA+ID4gKyAgICAgcmVtb3ZlX3Zx
-X2NvbW1vbih2aSk7Cj4gPiA+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ID4gPiArICAgICB2aXJ0
-aW9fYWRkX3N0YXR1cyhkZXYsIFZJUlRJT19DT05GSUdfU19BQ0tOT1dMRURHRSk7Cj4gPiA+ID4g
-PiA+ID4gPiArICAgICB2aXJ0aW9fYWRkX3N0YXR1cyhkZXYsIFZJUlRJT19DT05GSUdfU19EUklW
-RVIpOwo+ID4gPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiA+ID4gKyAgICAgcmV0ID0gdmlydGlv
-X2ZpbmFsaXplX2ZlYXR1cmVzKGRldik7Cj4gPiA+ID4gPiA+ID4gPiArICAgICBpZiAocmV0KQo+
-ID4gPiA+ID4gPiA+ID4gKyAgICAgICAgICAgICBnb3RvIGVycjsKPiA+ID4gPiA+ID4gPiA+ICsK
-PiA+ID4gPiA+ID4gPiA+ICsgICAgIHJldCA9IHZpcnRuZXRfcmVzdG9yZV91cChkZXYpOwo+ID4g
-PiA+ID4gPiA+ID4gKyAgICAgaWYgKHJldCkKPiA+ID4gPiA+ID4gPiA+ICsgICAgICAgICAgICAg
-Z290byBlcnI7Cj4gPiA+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ID4gPiArICAgICByZXQgPSB2
-aXJ0bmV0X3NldF9xdWV1ZXModmksIHZpLT5jdXJyX3F1ZXVlX3BhaXJzKTsKPiA+ID4gPiA+ID4g
-PiA+ICsgICAgIGlmIChyZXQpCj4gPiA+ID4gPiA+ID4gPiArICAgICAgICAgICAgIGdvdG8gZXJy
-Owo+ID4gPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiA+ID4gKyAgICAgdmlydGlvX2FkZF9zdGF0
-dXMoZGV2LCBWSVJUSU9fQ09ORklHX1NfRFJJVkVSX09LKTsKPiA+ID4gPiA+ID4gPiA+ICsgICAg
-IHZpcnRpb19jb25maWdfZW5hYmxlKGRldik7Cj4gPiA+ID4gPiA+ID4gPiArICAgICByZXR1cm4g
-MDsKPiA+ID4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gPiA+ICtlcnI6Cj4gPiA+ID4gPiA+ID4g
-PiArICAgICB2aXJ0aW9fYWRkX3N0YXR1cyhkZXYsIFZJUlRJT19DT05GSUdfU19GQUlMRUQpOwo+
-ID4gPiA+ID4gPiA+ID4gKyAgICAgcmV0dXJuIHJldDsKPiA+ID4gPiA+ID4gPiA+ICt9Cj4gPiA+
-ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ID4gPiAgIHN0YXRpYyBpbnQgdmlydG5ldF9zZXRfZ3Vl
-c3Rfb2ZmbG9hZHMoc3RydWN0IHZpcnRuZXRfaW5mbyAqdmksIHU2NCBvZmZsb2FkcykKPiA+ID4g
-PiA+ID4gPiA+ICAgewo+ID4gPiA+ID4gPiA+ID4gICAgICAgIHN0cnVjdCBzY2F0dGVybGlzdCBz
-ZzsKPiA+ID4gPiA+ID4gPiBJIGhhdmUgYSBxdWVzdGlvbiBoZXJlIHRob3VnaC4gSG93IGRvIHRo
-aW5ncyBsaWtlIE1BQyBhZGRyZXNzCj4gPiA+ID4gPiA+ID4gZ2V0IHJlc3RvcmVkPwo+ID4gPiA+
-ID4gPiA+IAo+ID4gPiA+ID4gPiA+IFdoYXQgYWJvdXQgdGhlIHJ4IG1vZGU/Cj4gPiA+ID4gPiA+
-ID4gCj4gPiA+ID4gPiA+ID4gdmxhbnM/Cj4gPiA+ID4gPiA+IFRoZSBmdW5jdGlvbiBhcyBpcyBy
-ZWxlYXNlcyBhbmQgcmVpbml0aWFsaXplcyBvbmx5IHJpbmcgc3RhdGUuCj4gPiA+ID4gPiA+IERl
-dmljZSBjb25maWd1cmF0aW9uIHN1Y2ggYXMgbWFjIGFuZCB2bGFuIHBlcnNpc3QgYWNyb3NzCj4g
-PiA+ID4gPiA+IHRoZSByZXNldC4KPiA+ID4gPiA+IFdoYXQgZ2F2ZSB5b3UgdGhpcyBpbXByZXNz
-aW9uPyBUYWtlIGEgbG9vayBhdCBlLmcuIHRoaXMKPiA+ID4gPiA+IGNvZGUgaW4gcWVtdToKPiA+
-ID4gPiA+IAo+ID4gPiA+ID4gc3RhdGljIHZvaWQgdmlydGlvX25ldF9yZXNldChWaXJ0SU9EZXZp
-Y2UgKnZkZXYpCj4gPiA+ID4gPiB7Cj4gPiA+ID4gPiAgICAgIFZpcnRJT05ldCAqbiA9IFZJUlRJ
-T19ORVQodmRldik7Cj4gPiA+ID4gPiAKPiA+ID4gPiA+ICAgICAgLyogUmVzZXQgYmFjayB0byBj
-b21wYXRpYmlsaXR5IG1vZGUgKi8KPiA+ID4gPiA+ICAgICAgbi0+cHJvbWlzYyA9IDE7Cj4gPiA+
-ID4gPiAgICAgIG4tPmFsbG11bHRpID0gMDsKPiA+ID4gPiA+ICAgICAgbi0+YWxsdW5pID0gMDsK
-PiA+ID4gPiA+ICAgICAgbi0+bm9tdWx0aSA9IDA7Cj4gPiA+ID4gPiAgICAgIG4tPm5vdW5pID0g
-MDsKPiA+ID4gPiA+ICAgICAgbi0+bm9iY2FzdCA9IDA7Cj4gPiA+ID4gPiAgICAgIC8qIG11bHRp
-cXVldWUgaXMgZGlzYWJsZWQgYnkgZGVmYXVsdCAqLwo+ID4gPiA+ID4gICAgICBuLT5jdXJyX3F1
-ZXVlcyA9IDE7Cj4gPiA+ID4gPiAgICAgIHRpbWVyX2RlbChuLT5hbm5vdW5jZV90aW1lcik7Cj4g
-PiA+ID4gPiAgICAgIG4tPmFubm91bmNlX2NvdW50ZXIgPSAwOwo+ID4gPiA+ID4gICAgICBuLT5z
-dGF0dXMgJj0gflZJUlRJT19ORVRfU19BTk5PVU5DRTsKPiA+ID4gPiA+IAo+ID4gPiA+ID4gICAg
-ICAvKiBGbHVzaCBhbnkgTUFDIGFuZCBWTEFOIGZpbHRlciB0YWJsZSBzdGF0ZSAqLwo+ID4gPiA+
-ID4gICAgICBuLT5tYWNfdGFibGUuaW5fdXNlID0gMDsKPiA+ID4gPiA+ICAgICAgbi0+bWFjX3Rh
-YmxlLmZpcnN0X211bHRpID0gMDsKPiA+ID4gPiA+ICAgICAgbi0+bWFjX3RhYmxlLm11bHRpX292
-ZXJmbG93ID0gMDsKPiA+ID4gPiA+ICAgICAgbi0+bWFjX3RhYmxlLnVuaV9vdmVyZmxvdyA9IDA7
-Cj4gPiA+ID4gPiAgICAgIG1lbXNldChuLT5tYWNfdGFibGUubWFjcywgMCwgTUFDX1RBQkxFX0VO
-VFJJRVMgKiBFVEhfQUxFTik7Cj4gPiA+ID4gPiAgICAgIG1lbWNweSgmbi0+bWFjWzBdLCAmbi0+
-bmljLT5jb25mLT5tYWNhZGRyLCBzaXplb2Yobi0+bWFjKSk7Cj4gPiA+ID4gPiAgICAgIHFlbXVf
-Zm9ybWF0X25pY19pbmZvX3N0cihxZW11X2dldF9xdWV1ZShuLT5uaWMpLCBuLT5tYWMpOwo+ID4g
-PiA+ID4gICAgICBtZW1zZXQobi0+dmxhbnMsIDAsIE1BWF9WTEFOID4+IDMpOwo+ID4gPiA+ID4g
-fQo+ID4gPiA+ID4gCj4gPiA+ID4gPiBTbyBkZXZpY2Ugc2VlbXMgdG8gbG9zZSBhbGwgc3RhdGUs
-IHlvdSBoYXZlIHRvIHJlLXByb2dyYW0gaXQuCj4gPiA+ID4gT2gsIGluZGVlZCEgVGhlIGd1ZXN0
-IGRvZXMgbm90IHJlc2V0IGl0cyBzdGF0ZSwgc28gaXQgbWlnaHQKPiA+ID4gPiBiZSBvdXQgb2Yg
-c3luYyB3aXRoIHRoZSBob3N0IGFmdGVyIHRoZSBvcGVyYXRpb24uIFdhcyB0aGlzIG5vdAo+ID4g
-PiA+IGFuIGlzc3VlIHdoZW4gcHJldmlvdXNseSByZXNldHRpbmcgaW4gdGhlIGNvbnRleHQgb2Yg
-eGRwPwo+ID4gPiBJIHN1c3BlY3QgaXQgd2FzIGJyb2tlbiBiYWNrIHRoZW4sIHRvby4KPiA+IE9r
-YXkuIEkgZ3Vlc3MgdGhhdCBpbiBwcmluY2lwbGUgdGhpcyBpcyBhbGwgcHJvZ3JhbW1hYmxlIHRo
-cm91Z2gKPiA+IHZpcnRuZXRfc2V0X3J4X21vZGUsIHZpcnRuZXRfdmxhbl9yeF9hZGRfdmlkLCBl
-dGMuIEJ1dCBpdCdzIGEKPiA+IGxvdCBtb3JlIGNvbXBsZXggdGhhbiBqdXN0IHJlc3RvcmluZyB2
-aXJ0bmV0X3Jlc2V0LiBXaWxsIG5lZWQgdG8KPiA+IGJlIGNhcmVmdWwgYWJvdXQgY29uY3VycmVu
-Y3kgaXNzdWVzIGF0IHRoZSBsZWFzdC4gU2ltaWxhciB0byB0aGUKPiA+IG9uZXMgeW91IHBvaW50
-IG91dCBiZWxvdy4KPiA+IAo+IAo+IFRoZSBwcm9ibGVtIGhhcyBiZWVuIHBvaW50ZWQgb3V0IGR1
-cmluZyBkZXZlbG9waW5nIHZpcnRpby1uZXQgWERQLiBCdXQgaXQKPiBtYXkgbm90IGJlIGEgYmln
-IGlzc3VlIHNpbmNlIHZob3N0X25ldCBpZ25vcmVzIGFsbCBraW5kcyBvZiB0aGUgZmlsdGVycyBu
-b3cuCj4gCj4gVGhhbmtzCgpJdCBtaWdodCBub3Qga2VlcCBkb2luZyB0aGF0IGluIHRoZSBmdXR1
-cmUgdGhvdWdoLgpBbmQgdmlydGlvLW5ldCBpbiB1c2Vyc3BhY2UgZG9lc24ndCBpZ25vcmUgdGhl
-IGZpbHRlcnMuCgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Mon, Oct 16, 2017 at 2:18 PM, Boris Ostrovsky
+<boris.ostrovsky@oracle.com> wrote:
+> On 10/12/2017 03:53 PM, Boris Ostrovsky wrote:
+>> On 10/12/2017 03:27 PM, Andrew Cooper wrote:
+>>> On 12/10/17 20:11, Boris Ostrovsky wrote:
+>>>> There is also another problem:
+>>>>
+>>>> [    1.312425] general protection fault: 0000 [#1] SMP
+>>>> [    1.312901] Modules linked in:
+>>>> [    1.313389] CPU: 0 PID: 1 Comm: init Not tainted 4.14.0-rc4+ #6
+>>>> [    1.313878] task: ffff88003e2c0000 task.stack: ffffc9000038c000
+>>>> [    1.314360] RIP: 10000e030:entry_SYSCALL_64_fastpath+0x1/0xa5
+>>>> [    1.314854] RSP: e02b:ffffc9000038ff50 EFLAGS: 00010046
+>>>> [    1.315336] RAX: 000000000000000c RBX: 000055f550168040 RCX:
+>>>> 00007fcfc959f59a
+>>>> [    1.315827] RDX: 0000000000000000 RSI: 0000000000000000 RDI:
+>>>> 0000000000000000
+>>>> [    1.316315] RBP: 000000000000000a R08: 000000000000037f R09:
+>>>> 0000000000000064
+>>>> [    1.316805] R10: 000000001f89cbf5 R11: ffff88003e2c0000 R12:
+>>>> 00007fcfc958ad60
+>>>> [    1.317300] R13: 0000000000000000 R14: 000055f550185954 R15:
+>>>> 0000000000001000
+>>>> [    1.317801] FS:  0000000000000000(0000) GS:ffff88003f800000(0000)
+>>>> knlGS:0000000000000000
+>>>> [    1.318267] CS:  e033 DS: 0000 ES: 0000 CR0: 0000000080050033
+>>>> [    1.318750] CR2: 00007fcfc97ab218 CR3: 000000003c88e000 CR4:
+>>>> 0000000000042660
+>>>> [    1.319235] Call Trace:
+>>>> [    1.319700] Code: 51 50 57 56 52 51 6a da 41 50 41 51 41 52 41 53 48
+>>>> 83 ec 30 65 4c 8b 1c 25 c0 d2 00 00 41 f7 03 df 39 08 90 0f 85 a5 00 00
+>>>> 00 50 <ff> 15 9c 95 d0 ff 58 48 3d 4c 01 00 00 77 0f 4c 89 d1 ff 14 c5
+>>>> [    1.321161] RIP: entry_SYSCALL_64_fastpath+0x1/0xa5 RSP: ffffc9000038ff50
+>>>> [    1.344255] ---[ end trace d7cb8cd6cd7c294c ]---
+>>>> [    1.345009] Kernel panic - not syncing: Attempted to kill init!
+>>>> exitcode=0x0000000b
+>>>>
+>>>>
+>>>> All code
+>>>> ========
+>>>>    0:    51                       push   %rcx
+>>>>    1:    50                       push   %rax
+>>>>    2:    57                       push   %rdi
+>>>>    3:    56                       push   %rsi
+>>>>    4:    52                       push   %rdx
+>>>>    5:    51                       push   %rcx
+>>>>    6:    6a da                    pushq  $0xffffffffffffffda
+>>>>    8:    41 50                    push   %r8
+>>>>    a:    41 51                    push   %r9
+>>>>    c:    41 52                    push   %r10
+>>>>    e:    41 53                    push   %r11
+>>>>   10:    48 83 ec 30              sub    $0x30,%rsp
+>>>>   14:    65 4c 8b 1c 25 c0 d2     mov    %gs:0xd2c0,%r11
+>>>>   1b:    00 00
+>>>>   1d:    41 f7 03 df 39 08 90     testl  $0x900839df,(%r11)
+>>>>   24:    0f 85 a5 00 00 00        jne    0xcf
+>>>>   2a:    50                       push   %rax
+>>>>   2b:*    ff 15 9c 95 d0 ff        callq  *-0x2f6a64(%rip)        #
+>>>> 0xffffffffffd095cd        <-- trapping instruction
+>>>>   31:    58                       pop    %rax
+>>>>   32:    48 3d 4c 01 00 00        cmp    $0x14c,%rax
+>>>>   38:    77 0f                    ja     0x49
+>>>>   3a:    4c 89 d1                 mov    %r10,%rcx
+>>>>   3d:    ff                       .byte 0xff
+>>>>   3e:    14 c5                    adc    $0xc5,%al
+>>>>
+>>>>
+>>>> so the original 'cli' was replaced with the pv call but to me the offset
+>>>> looks a bit off, no? Shouldn't it always be positive?
+>>> callq takes a 32bit signed displacement, so jumping back by up to 2G is
+>>> perfectly legitimate.
+>> Yes, but
+>>
+>> ostr@workbase> nm vmlinux | grep entry_SYSCALL_64_fastpath
+>> ffffffff817365dd t entry_SYSCALL_64_fastpath
+>> ostr@workbase> nm vmlinux | grep " pv_irq_ops"
+>> ffffffff81c2dbc0 D pv_irq_ops
+>> ostr@workbase>
+>>
+>> so pv_irq_ops.irq_disable is about 5MB ahead of where we are now. (I
+>> didn't mean that x86 instruction set doesn't allow negative
+>> displacement, I was trying to say that pv_irq_ops always live further down)
+>
+> I believe the problem is this:
+>
+> #define PV_INDIRECT(addr)       *addr(%rip)
+>
+> The displacement that the linker computes will be relative to the where
+> this instruction is placed at the time of linking, which is in
+> .pv_altinstructions (and not .text). So when we copy it into .text the
+> displacement becomes bogus.
+>
+> Replacing the macro with
+>
+> #define PV_INDIRECT(addr)       *addr  // well, it's not so much
+> indirect anymore
+>
+> makes things work. Or maybe it can be adjusted top be kept truly indirect.
+
+That is still an indirect call, just using absolute addressing for the
+pointer instead of RIP-relative.  Alternatives has very limited
+relocation capabilities.  It will only handle a single call or jmp
+replacement. Using absolute addressing is slightly less efficient
+(takes one extra byte to encode, and needs a relocation for KASLR),
+but it works just as well.  You could also relocate the instruction
+manually by adding the delta between the original and replacement code
+to the displacement.
+
+--
+Brian Gerst
