@@ -1,18 +1,20 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net-next] virtio_net: implement VIRTIO_CONFIG_S_NEEDS_RESET
-Date: Mon, 16 Oct 2017 18:34:30 -0400
-Message-ID: <CAF=yD-KkUH6=S6Q=Tjtd2Wo=-ebDUt1or-DqjoRV4dTaD8G0WA__28833.8529914201$1508193345$gmane$org@mail.gmail.com>
+Date: Tue, 17 Oct 2017 11:05:07 +0800
+Message-ID: <ecf3dde0-d4e6-23d5-22a7-05ce45bdafc9__17549.8026809239$1508209553$gmane$org@redhat.com>
 References: <20171013155140.124530-1-willemdebruijn.kernel@gmail.com>
 	<20171015034018-mutt-send-email-mst@kernel.org>
 	<CAF=yD-LdGiKuf=k2FDgFWbhvExVX8t+VVgTQetKTegjMeQ598g@mail.gmail.com>
 	<20171016180442-mutt-send-email-mst@kernel.org>
 	<CAF=yD-LW7f30V8Ci1SQUPZ-WBihqr93cWQP2QBFg2oQtytvAPg@mail.gmail.com>
 	<20171016191806-mutt-send-email-mst@kernel.org>
+	<CAF=yD-KkUH6=S6Q=Tjtd2Wo=-ebDUt1or-DqjoRV4dTaD8G0WA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171016191806-mutt-send-email-mst@kernel.org>
+In-Reply-To: <CAF=yD-KkUH6=S6Q=Tjtd2Wo=-ebDUt1or-DqjoRV4dTaD8G0WA@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,125 +24,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Willem de Bruijn <willemb@google.com>, Network Development <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Network Development <netdev@vger.kernel.org>, Willem de Bruijn <willemb@google.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 16, 2017 at 12:38 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Mon, Oct 16, 2017 at 12:04:57PM -0400, Willem de Bruijn wrote:
->> On Mon, Oct 16, 2017 at 11:31 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> > On Mon, Oct 16, 2017 at 11:03:18AM -0400, Willem de Bruijn wrote:
->> >> >> +static int virtnet_reset(struct virtnet_info *vi)
->> >> >> +{
->> >> >> +     struct virtio_device *dev = vi->vdev;
->> >> >> +     int ret;
->> >> >> +
->> >> >> +     virtio_config_disable(dev);
->> >> >> +     dev->failed = dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED;
->> >> >> +     virtnet_freeze_down(dev, true);
->> >> >> +     remove_vq_common(vi);
->> >> >> +
->> >> >> +     virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
->> >> >> +     virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
->> >> >> +
->> >> >> +     ret = virtio_finalize_features(dev);
->> >> >> +     if (ret)
->> >> >> +             goto err;
->> >> >> +
->> >> >> +     ret = virtnet_restore_up(dev);
->> >> >> +     if (ret)
->> >> >> +             goto err;
->> >> >> +
->> >> >> +     ret = virtnet_set_queues(vi, vi->curr_queue_pairs);
->> >> >> +     if (ret)
->> >> >> +             goto err;
->> >> >> +
->> >> >> +     virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
->> >> >> +     virtio_config_enable(dev);
->> >> >> +     return 0;
->> >> >> +
->> >> >> +err:
->> >> >> +     virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
->> >> >> +     return ret;
->> >> >> +}
->> >> >> +
->> >> >>  static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
->> >> >>  {
->> >> >>       struct scatterlist sg;
->> >> >
->> >> > I have a question here though. How do things like MAC address
->> >> > get restored?
->> >> >
->> >> > What about the rx mode?
->> >> >
->> >> > vlans?
->> >>
->> >> The function as is releases and reinitializes only ring state.
->> >> Device configuration such as mac and vlan persist across
->> >> the reset.
->> >
->> > What gave you this impression? Take a look at e.g. this
->> > code in qemu:
->> >
->> > static void virtio_net_reset(VirtIODevice *vdev)
->> > {
->> >     VirtIONet *n = VIRTIO_NET(vdev);
->> >
->> >     /* Reset back to compatibility mode */
->> >     n->promisc = 1;
->> >     n->allmulti = 0;
->> >     n->alluni = 0;
->> >     n->nomulti = 0;
->> >     n->nouni = 0;
->> >     n->nobcast = 0;
->> >     /* multiqueue is disabled by default */
->> >     n->curr_queues = 1;
->> >     timer_del(n->announce_timer);
->> >     n->announce_counter = 0;
->> >     n->status &= ~VIRTIO_NET_S_ANNOUNCE;
->> >
->> >     /* Flush any MAC and VLAN filter table state */
->> >     n->mac_table.in_use = 0;
->> >     n->mac_table.first_multi = 0;
->> >     n->mac_table.multi_overflow = 0;
->> >     n->mac_table.uni_overflow = 0;
->> >     memset(n->mac_table.macs, 0, MAC_TABLE_ENTRIES * ETH_ALEN);
->> >     memcpy(&n->mac[0], &n->nic->conf->macaddr, sizeof(n->mac));
->> >     qemu_format_nic_info_str(qemu_get_queue(n->nic), n->mac);
->> >     memset(n->vlans, 0, MAX_VLAN >> 3);
->> > }
->> >
->> > So device seems to lose all state, you have to re-program it.
->>
->> Oh, indeed! The guest does not reset its state, so it might
->> be out of sync with the host after the operation. Was this not
->> an issue when previously resetting in the context of xdp?
->
-> I suspect it was broken back then, too.
-
-Okay. I guess that in principle this is all programmable through
-virtnet_set_rx_mode, virtnet_vlan_rx_add_vid, etc. But it's a
-lot more complex than just restoring virtnet_reset. Will need to
-be careful about concurrency issues at the least. Similar to the
-ones you point out below.
-
->
->> >> > Also, it seems that LINK_ANNOUNCE requests will get ignored
->> >> > even if they got set before the reset, leading to downtime.
->> >>
->> >> Do you mean act on VIRTIO_NET_F_GUEST_ANNOUNCE
->> >> requests? That flag is tested and netdev_notify_peers
->> >> called before resetting virtio ring state.
->> >
->> > Yes but I wonder if there's a race where announce
->> > is set after it is read but before NEED_RESET is read.
->> >
->> > Re-reading status from the config before reset
->> > might be necessary.
->>
->> Thanks, I'll have a look. Perhaps a host should simply not
->> request a reset while it is waiting for an announce ack.
->
-> It's one option though we can't make this change for existing hosts.
-> We also have the reverse condition where announce is requested after
-> NEED_RESET is set.
+CgpPbiAyMDE35bm0MTDmnIgxN+aXpSAwNjozNCwgV2lsbGVtIGRlIEJydWlqbiB3cm90ZToKPiBP
+biBNb24sIE9jdCAxNiwgMjAxNyBhdCAxMjozOCBQTSwgTWljaGFlbCBTLiBUc2lya2luIDxtc3RA
+cmVkaGF0LmNvbT4gd3JvdGU6Cj4+IE9uIE1vbiwgT2N0IDE2LCAyMDE3IGF0IDEyOjA0OjU3UE0g
+LTA0MDAsIFdpbGxlbSBkZSBCcnVpam4gd3JvdGU6Cj4+PiBPbiBNb24sIE9jdCAxNiwgMjAxNyBh
+dCAxMTozMSBBTSwgTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4+
+Pj4gT24gTW9uLCBPY3QgMTYsIDIwMTcgYXQgMTE6MDM6MThBTSAtMDQwMCwgV2lsbGVtIGRlIEJy
+dWlqbiB3cm90ZToKPj4+Pj4+PiArc3RhdGljIGludCB2aXJ0bmV0X3Jlc2V0KHN0cnVjdCB2aXJ0
+bmV0X2luZm8gKnZpKQo+Pj4+Pj4+ICt7Cj4+Pj4+Pj4gKyAgICAgc3RydWN0IHZpcnRpb19kZXZp
+Y2UgKmRldiA9IHZpLT52ZGV2Owo+Pj4+Pj4+ICsgICAgIGludCByZXQ7Cj4+Pj4+Pj4gKwo+Pj4+
+Pj4+ICsgICAgIHZpcnRpb19jb25maWdfZGlzYWJsZShkZXYpOwo+Pj4+Pj4+ICsgICAgIGRldi0+
+ZmFpbGVkID0gZGV2LT5jb25maWctPmdldF9zdGF0dXMoZGV2KSAmIFZJUlRJT19DT05GSUdfU19G
+QUlMRUQ7Cj4+Pj4+Pj4gKyAgICAgdmlydG5ldF9mcmVlemVfZG93bihkZXYsIHRydWUpOwo+Pj4+
+Pj4+ICsgICAgIHJlbW92ZV92cV9jb21tb24odmkpOwo+Pj4+Pj4+ICsKPj4+Pj4+PiArICAgICB2
+aXJ0aW9fYWRkX3N0YXR1cyhkZXYsIFZJUlRJT19DT05GSUdfU19BQ0tOT1dMRURHRSk7Cj4+Pj4+
+Pj4gKyAgICAgdmlydGlvX2FkZF9zdGF0dXMoZGV2LCBWSVJUSU9fQ09ORklHX1NfRFJJVkVSKTsK
+Pj4+Pj4+PiArCj4+Pj4+Pj4gKyAgICAgcmV0ID0gdmlydGlvX2ZpbmFsaXplX2ZlYXR1cmVzKGRl
+dik7Cj4+Pj4+Pj4gKyAgICAgaWYgKHJldCkKPj4+Pj4+PiArICAgICAgICAgICAgIGdvdG8gZXJy
+Owo+Pj4+Pj4+ICsKPj4+Pj4+PiArICAgICByZXQgPSB2aXJ0bmV0X3Jlc3RvcmVfdXAoZGV2KTsK
+Pj4+Pj4+PiArICAgICBpZiAocmV0KQo+Pj4+Pj4+ICsgICAgICAgICAgICAgZ290byBlcnI7Cj4+
+Pj4+Pj4gKwo+Pj4+Pj4+ICsgICAgIHJldCA9IHZpcnRuZXRfc2V0X3F1ZXVlcyh2aSwgdmktPmN1
+cnJfcXVldWVfcGFpcnMpOwo+Pj4+Pj4+ICsgICAgIGlmIChyZXQpCj4+Pj4+Pj4gKyAgICAgICAg
+ICAgICBnb3RvIGVycjsKPj4+Pj4+PiArCj4+Pj4+Pj4gKyAgICAgdmlydGlvX2FkZF9zdGF0dXMo
+ZGV2LCBWSVJUSU9fQ09ORklHX1NfRFJJVkVSX09LKTsKPj4+Pj4+PiArICAgICB2aXJ0aW9fY29u
+ZmlnX2VuYWJsZShkZXYpOwo+Pj4+Pj4+ICsgICAgIHJldHVybiAwOwo+Pj4+Pj4+ICsKPj4+Pj4+
+PiArZXJyOgo+Pj4+Pj4+ICsgICAgIHZpcnRpb19hZGRfc3RhdHVzKGRldiwgVklSVElPX0NPTkZJ
+R19TX0ZBSUxFRCk7Cj4+Pj4+Pj4gKyAgICAgcmV0dXJuIHJldDsKPj4+Pj4+PiArfQo+Pj4+Pj4+
+ICsKPj4+Pj4+PiAgIHN0YXRpYyBpbnQgdmlydG5ldF9zZXRfZ3Vlc3Rfb2ZmbG9hZHMoc3RydWN0
+IHZpcnRuZXRfaW5mbyAqdmksIHU2NCBvZmZsb2FkcykKPj4+Pj4+PiAgIHsKPj4+Pj4+PiAgICAg
+ICAgc3RydWN0IHNjYXR0ZXJsaXN0IHNnOwo+Pj4+Pj4gSSBoYXZlIGEgcXVlc3Rpb24gaGVyZSB0
+aG91Z2guIEhvdyBkbyB0aGluZ3MgbGlrZSBNQUMgYWRkcmVzcwo+Pj4+Pj4gZ2V0IHJlc3RvcmVk
+Pwo+Pj4+Pj4KPj4+Pj4+IFdoYXQgYWJvdXQgdGhlIHJ4IG1vZGU/Cj4+Pj4+Pgo+Pj4+Pj4gdmxh
+bnM/Cj4+Pj4+IFRoZSBmdW5jdGlvbiBhcyBpcyByZWxlYXNlcyBhbmQgcmVpbml0aWFsaXplcyBv
+bmx5IHJpbmcgc3RhdGUuCj4+Pj4+IERldmljZSBjb25maWd1cmF0aW9uIHN1Y2ggYXMgbWFjIGFu
+ZCB2bGFuIHBlcnNpc3QgYWNyb3NzCj4+Pj4+IHRoZSByZXNldC4KPj4+PiBXaGF0IGdhdmUgeW91
+IHRoaXMgaW1wcmVzc2lvbj8gVGFrZSBhIGxvb2sgYXQgZS5nLiB0aGlzCj4+Pj4gY29kZSBpbiBx
+ZW11Ogo+Pj4+Cj4+Pj4gc3RhdGljIHZvaWQgdmlydGlvX25ldF9yZXNldChWaXJ0SU9EZXZpY2Ug
+KnZkZXYpCj4+Pj4gewo+Pj4+ICAgICAgVmlydElPTmV0ICpuID0gVklSVElPX05FVCh2ZGV2KTsK
+Pj4+Pgo+Pj4+ICAgICAgLyogUmVzZXQgYmFjayB0byBjb21wYXRpYmlsaXR5IG1vZGUgKi8KPj4+
+PiAgICAgIG4tPnByb21pc2MgPSAxOwo+Pj4+ICAgICAgbi0+YWxsbXVsdGkgPSAwOwo+Pj4+ICAg
+ICAgbi0+YWxsdW5pID0gMDsKPj4+PiAgICAgIG4tPm5vbXVsdGkgPSAwOwo+Pj4+ICAgICAgbi0+
+bm91bmkgPSAwOwo+Pj4+ICAgICAgbi0+bm9iY2FzdCA9IDA7Cj4+Pj4gICAgICAvKiBtdWx0aXF1
+ZXVlIGlzIGRpc2FibGVkIGJ5IGRlZmF1bHQgKi8KPj4+PiAgICAgIG4tPmN1cnJfcXVldWVzID0g
+MTsKPj4+PiAgICAgIHRpbWVyX2RlbChuLT5hbm5vdW5jZV90aW1lcik7Cj4+Pj4gICAgICBuLT5h
+bm5vdW5jZV9jb3VudGVyID0gMDsKPj4+PiAgICAgIG4tPnN0YXR1cyAmPSB+VklSVElPX05FVF9T
+X0FOTk9VTkNFOwo+Pj4+Cj4+Pj4gICAgICAvKiBGbHVzaCBhbnkgTUFDIGFuZCBWTEFOIGZpbHRl
+ciB0YWJsZSBzdGF0ZSAqLwo+Pj4+ICAgICAgbi0+bWFjX3RhYmxlLmluX3VzZSA9IDA7Cj4+Pj4g
+ICAgICBuLT5tYWNfdGFibGUuZmlyc3RfbXVsdGkgPSAwOwo+Pj4+ICAgICAgbi0+bWFjX3RhYmxl
+Lm11bHRpX292ZXJmbG93ID0gMDsKPj4+PiAgICAgIG4tPm1hY190YWJsZS51bmlfb3ZlcmZsb3cg
+PSAwOwo+Pj4+ICAgICAgbWVtc2V0KG4tPm1hY190YWJsZS5tYWNzLCAwLCBNQUNfVEFCTEVfRU5U
+UklFUyAqIEVUSF9BTEVOKTsKPj4+PiAgICAgIG1lbWNweSgmbi0+bWFjWzBdLCAmbi0+bmljLT5j
+b25mLT5tYWNhZGRyLCBzaXplb2Yobi0+bWFjKSk7Cj4+Pj4gICAgICBxZW11X2Zvcm1hdF9uaWNf
+aW5mb19zdHIocWVtdV9nZXRfcXVldWUobi0+bmljKSwgbi0+bWFjKTsKPj4+PiAgICAgIG1lbXNl
+dChuLT52bGFucywgMCwgTUFYX1ZMQU4gPj4gMyk7Cj4+Pj4gfQo+Pj4+Cj4+Pj4gU28gZGV2aWNl
+IHNlZW1zIHRvIGxvc2UgYWxsIHN0YXRlLCB5b3UgaGF2ZSB0byByZS1wcm9ncmFtIGl0Lgo+Pj4g
+T2gsIGluZGVlZCEgVGhlIGd1ZXN0IGRvZXMgbm90IHJlc2V0IGl0cyBzdGF0ZSwgc28gaXQgbWln
+aHQKPj4+IGJlIG91dCBvZiBzeW5jIHdpdGggdGhlIGhvc3QgYWZ0ZXIgdGhlIG9wZXJhdGlvbi4g
+V2FzIHRoaXMgbm90Cj4+PiBhbiBpc3N1ZSB3aGVuIHByZXZpb3VzbHkgcmVzZXR0aW5nIGluIHRo
+ZSBjb250ZXh0IG9mIHhkcD8KPj4gSSBzdXNwZWN0IGl0IHdhcyBicm9rZW4gYmFjayB0aGVuLCB0
+b28uCj4gT2theS4gSSBndWVzcyB0aGF0IGluIHByaW5jaXBsZSB0aGlzIGlzIGFsbCBwcm9ncmFt
+bWFibGUgdGhyb3VnaAo+IHZpcnRuZXRfc2V0X3J4X21vZGUsIHZpcnRuZXRfdmxhbl9yeF9hZGRf
+dmlkLCBldGMuIEJ1dCBpdCdzIGEKPiBsb3QgbW9yZSBjb21wbGV4IHRoYW4ganVzdCByZXN0b3Jp
+bmcgdmlydG5ldF9yZXNldC4gV2lsbCBuZWVkIHRvCj4gYmUgY2FyZWZ1bCBhYm91dCBjb25jdXJy
+ZW5jeSBpc3N1ZXMgYXQgdGhlIGxlYXN0LiBTaW1pbGFyIHRvIHRoZQo+IG9uZXMgeW91IHBvaW50
+IG91dCBiZWxvdy4KPgoKVGhlIHByb2JsZW0gaGFzIGJlZW4gcG9pbnRlZCBvdXQgZHVyaW5nIGRl
+dmVsb3BpbmcgdmlydGlvLW5ldCBYRFAuIEJ1dCAKaXQgbWF5IG5vdCBiZSBhIGJpZyBpc3N1ZSBz
+aW5jZSB2aG9zdF9uZXQgaWdub3JlcyBhbGwga2luZHMgb2YgdGhlIApmaWx0ZXJzIG5vdy4KClRo
+YW5rcwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
