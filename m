@@ -1,15 +1,22 @@
-From: "Luis R. Rodriguez" <mcgrof@kernel.org>
-Subject: Re: [PATCH v1 15/27] compiler: Option to default to hidden symbols
-Date: Thu, 12 Oct 2017 22:02:01 +0200
-Message-ID: <20171012200201.GW11645__42136.0082495541$1509080537$gmane$org@wotan.suse.de>
-References: <20171011203027.11248-1-thgarnie@google.com>
-	<20171011203027.11248-16-thgarnie@google.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: Re: [Xen-devel] [PATCH 11/13] x86/paravirt: Add paravirt
+	alternatives infrastructure
+Date: Tue, 17 Oct 2017 00:24:13 -0500
+Message-ID: <20171017052413.nzbqniurzw7eim4b__1780.18170777268$1509080549$gmane$org@treble>
+References: <cover.1507128293.git.jpoimboe@redhat.com>
+	<39743c79546ede3073586403d0836a4f93519b0a.1507128293.git.jpoimboe@redhat.com>
+	<3b9fd404-6912-3b58-db29-36202631b438@oracle.com>
+	<20171006143259.rs3zh7k5tmsgesqy@treble>
+	<5a49e43a-8d6b-512a-ec5a-641be7bae41d@oracle.com>
+	<ed30216f-4b9e-2bc3-b1d2-36135b29d746@citrix.com>
+	<a6c3be0b-35f4-8d23-4ea2-ead94a3fc69e@oracle.com>
+	<b9fdc3ec-87cd-da0e-47b7-67cdae8ffb97@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20171011203027.11248-16-thgarnie@google.com>
+In-Reply-To: <b9fdc3ec-87cd-da0e-47b7-67cdae8ffb97@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,112 +26,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Garnier <thgarnie@google.com>, Guenter Roeck <linux@roeck-us.net>, Nicholas Piggin <npiggin@gmail.com>
-Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, Michal Hocko <mhocko@suse.com>, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, linux-doc@vger.kernel.org, Daniel Micay <danielmicay@gmail.com>, Len Brown <len.brown@intel.com>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, Jan H =?iso-8859-1?Q?=2E_Sch=F6nherr?= <jschoenh@amazon.de>, Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Waiman Long <longman@redhat.com>, Pavel Machek <pavel@ucw.cz>, "H . Peter Anvin" <hpa@zytor.com>, kernel-hardening@lists.openwall.com, Christoph Lameter <cl@linux.com>, Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, Daniel Borkmann <daniel@iogearbox.net>, Jonathan Corbet <corbet@lwn.net>Peter Foley <pe>
+To: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>, Mike Galbraith <efault@gmx.de>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, x86@kernel.org, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, live-patching@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, Sasha Levin <alexander.levin@verizon.com>, Jiri Slaby <jslaby@suse.cz>, Alok Kataria <akataria@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 11, 2017 at 01:30:15PM -0700, Thomas Garnier wrote:
-> Provide an option to default visibility to hidden except for key
-> symbols. This option is disabled by default and will be used by x86_64
-> PIE support to remove errors between compilation units.
+On Mon, Oct 16, 2017 at 02:18:48PM -0400, Boris Ostrovsky wrote:
+> On 10/12/2017 03:53 PM, Boris Ostrovsky wrote:
+> > On 10/12/2017 03:27 PM, Andrew Cooper wrote:
+> >> On 12/10/17 20:11, Boris Ostrovsky wrote:
+> >>> There is also another problem:
+> >>>
+> >>> [    1.312425] general protection fault: 0000 [#1] SMP
+> >>> [    1.312901] Modules linked in:
+> >>> [    1.313389] CPU: 0 PID: 1 Comm: init Not tainted 4.14.0-rc4+ #6
+> >>> [    1.313878] task: ffff88003e2c0000 task.stack: ffffc9000038c000
+> >>> [    1.314360] RIP: 10000e030:entry_SYSCALL_64_fastpath+0x1/0xa5
+> >>> [    1.314854] RSP: e02b:ffffc9000038ff50 EFLAGS: 00010046
+> >>> [    1.315336] RAX: 000000000000000c RBX: 000055f550168040 RCX:
+> >>> 00007fcfc959f59a
+> >>> [    1.315827] RDX: 0000000000000000 RSI: 0000000000000000 RDI:
+> >>> 0000000000000000
+> >>> [    1.316315] RBP: 000000000000000a R08: 000000000000037f R09:
+> >>> 0000000000000064
+> >>> [    1.316805] R10: 000000001f89cbf5 R11: ffff88003e2c0000 R12:
+> >>> 00007fcfc958ad60
+> >>> [    1.317300] R13: 0000000000000000 R14: 000055f550185954 R15:
+> >>> 0000000000001000
+> >>> [    1.317801] FS:  0000000000000000(0000) GS:ffff88003f800000(0000)
+> >>> knlGS:0000000000000000
+> >>> [    1.318267] CS:  e033 DS: 0000 ES: 0000 CR0: 0000000080050033
+> >>> [    1.318750] CR2: 00007fcfc97ab218 CR3: 000000003c88e000 CR4:
+> >>> 0000000000042660
+> >>> [    1.319235] Call Trace:
+> >>> [    1.319700] Code: 51 50 57 56 52 51 6a da 41 50 41 51 41 52 41 53 48
+> >>> 83 ec 30 65 4c 8b 1c 25 c0 d2 00 00 41 f7 03 df 39 08 90 0f 85 a5 00 00
+> >>> 00 50 <ff> 15 9c 95 d0 ff 58 48 3d 4c 01 00 00 77 0f 4c 89 d1 ff 14 c5
+> >>> [    1.321161] RIP: entry_SYSCALL_64_fastpath+0x1/0xa5 RSP: ffffc9000038ff50
+> >>> [    1.344255] ---[ end trace d7cb8cd6cd7c294c ]---
+> >>> [    1.345009] Kernel panic - not syncing: Attempted to kill init!
+> >>> exitcode=0x0000000b
+> >>>
+> >>>
+> >>> All code
+> >>> ========
+> >>>    0:    51                       push   %rcx
+> >>>    1:    50                       push   %rax
+> >>>    2:    57                       push   %rdi
+> >>>    3:    56                       push   %rsi
+> >>>    4:    52                       push   %rdx
+> >>>    5:    51                       push   %rcx
+> >>>    6:    6a da                    pushq  $0xffffffffffffffda
+> >>>    8:    41 50                    push   %r8
+> >>>    a:    41 51                    push   %r9
+> >>>    c:    41 52                    push   %r10
+> >>>    e:    41 53                    push   %r11
+> >>>   10:    48 83 ec 30              sub    $0x30,%rsp
+> >>>   14:    65 4c 8b 1c 25 c0 d2     mov    %gs:0xd2c0,%r11
+> >>>   1b:    00 00
+> >>>   1d:    41 f7 03 df 39 08 90     testl  $0x900839df,(%r11)
+> >>>   24:    0f 85 a5 00 00 00        jne    0xcf
+> >>>   2a:    50                       push   %rax
+> >>>   2b:*    ff 15 9c 95 d0 ff        callq  *-0x2f6a64(%rip)        #
+> >>> 0xffffffffffd095cd        <-- trapping instruction
+> >>>   31:    58                       pop    %rax
+> >>>   32:    48 3d 4c 01 00 00        cmp    $0x14c,%rax
+> >>>   38:    77 0f                    ja     0x49
+> >>>   3a:    4c 89 d1                 mov    %r10,%rcx
+> >>>   3d:    ff                       .byte 0xff
+> >>>   3e:    14 c5                    adc    $0xc5,%al
+> >>>
+> >>>
+> >>> so the original 'cli' was replaced with the pv call but to me the offset
+> >>> looks a bit off, no? Shouldn't it always be positive?
+> >> callq takes a 32bit signed displacement, so jumping back by up to 2G is
+> >> perfectly legitimate.
+> > Yes, but
+> >
+> > ostr@workbase> nm vmlinux | grep entry_SYSCALL_64_fastpath
+> > ffffffff817365dd t entry_SYSCALL_64_fastpath
+> > ostr@workbase> nm vmlinux | grep " pv_irq_ops"
+> > ffffffff81c2dbc0 D pv_irq_ops
+> > ostr@workbase>
+> >
+> > so pv_irq_ops.irq_disable is about 5MB ahead of where we are now. (I
+> > didn't mean that x86 instruction set doesn't allow negative
+> > displacement, I was trying to say that pv_irq_ops always live further down)
 > 
-> The default visibility is also enabled for external symbols that are
-> compared as they maybe equals (start/end of sections). In this case,
-> older versions of GCC will remove the comparison if the symbols are
-> hidden. This issue exists at least on gcc 4.9 and before.
+> I believe the problem is this:
 > 
-> Signed-off-by: Thomas Garnier <thgarnie@google.com>
+> #define PV_INDIRECT(addr)       *addr(%rip)
+> 
+> The displacement that the linker computes will be relative to the where
+> this instruction is placed at the time of linking, which is in
+> .pv_altinstructions (and not .text). So when we copy it into .text the
+> displacement becomes bogus.
 
-<-- snip -->
+apply_alternatives() is supposed to adjust that displacement based on
+the new IP, though it could be messing that up somehow.  (See patch
+10/13.)
 
-> diff --git a/arch/x86/kernel/cpu/microcode/core.c b/arch/x86/kernel/cpu/microcode/core.c
-> index 86e8f0b2537b..8f021783a929 100644
-> --- a/arch/x86/kernel/cpu/microcode/core.c
-> +++ b/arch/x86/kernel/cpu/microcode/core.c
-> @@ -144,8 +144,8 @@ static bool __init check_loader_disabled_bsp(void)
->  	return *res;
->  }
->  
-> -extern struct builtin_fw __start_builtin_fw[];
-> -extern struct builtin_fw __end_builtin_fw[];
-> +extern struct builtin_fw __start_builtin_fw[] __default_visibility;
-> +extern struct builtin_fw __end_builtin_fw[] __default_visibility;
->  
->  bool get_builtin_firmware(struct cpio_data *cd, const char *name)
->  {
-
-<-- snip -->
-
-> diff --git a/include/asm-generic/sections.h b/include/asm-generic/sections.h
-> index e5da44eddd2f..1aa5d6dac9e1 100644
-> --- a/include/asm-generic/sections.h
-> +++ b/include/asm-generic/sections.h
-> @@ -30,6 +30,9 @@
->   *	__irqentry_text_start, __irqentry_text_end
->   *	__softirqentry_text_start, __softirqentry_text_end
->   */
-> +#ifdef CONFIG_DEFAULT_HIDDEN
-> +#pragma GCC visibility push(default)
-> +#endif
->  extern char _text[], _stext[], _etext[];
->  extern char _data[], _sdata[], _edata[];
->  extern char __bss_start[], __bss_stop[];
-> @@ -46,6 +49,9 @@ extern char __softirqentry_text_start[], __softirqentry_text_end[];
->  
->  /* Start and end of .ctors section - used for constructor calls. */
->  extern char __ctors_start[], __ctors_end[];
-> +#ifdef CONFIG_DEFAULT_HIDDEN
-> +#pragma GCC visibility pop
-> +#endif
->  
->  extern __visible const void __nosave_begin, __nosave_end;
->  
-> diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-> index e95a2631e545..6997716f73bf 100644
-> --- a/include/linux/compiler.h
-> +++ b/include/linux/compiler.h
-> @@ -78,6 +78,14 @@ extern void __chk_io_ptr(const volatile void __iomem *);
->  #include <linux/compiler-clang.h>
->  #endif
->  
-> +/* Useful for Position Independent Code to reduce global references */
-> +#ifdef CONFIG_DEFAULT_HIDDEN
-> +#pragma GCC visibility push(hidden)
-> +#define __default_visibility  __attribute__((visibility ("default")))
-
-Does this still work with CONFIG_LD_DEAD_CODE_DATA_ELIMINATION ?
-
-> +#else
-> +#define __default_visibility
-> +#endif
-> +
->  /*
->   * Generic compiler-dependent macros required for kernel
->   * build go below this comment. Actual compiler/compiler version
-> diff --git a/init/Kconfig b/init/Kconfig
-> index ccb1d8daf241..b640201fcff7 100644
-> --- a/init/Kconfig
-> +++ b/init/Kconfig
-> @@ -1649,6 +1649,13 @@ config PROFILING
->  config TRACEPOINTS
->  	bool
->  
-> +#
-> +# Default to hidden visibility for all symbols.
-> +# Useful for Position Independent Code to reduce global references.
-> +#
-> +config DEFAULT_HIDDEN
-> +	bool
-
-Note it is default.
-
-Has 0-day ran through this git tree? It should be easy to get it added for
-testing. Also, even though most changes are x86 based there are some generic
-changes and I'd love a warm fuzzy this won't break odd / random builds.
-Although 0-day does cover a lot of test cases, it only has limited run time
-tests. There are some other test beds which also cover some more obscure
-architectures. Having a test pass on Guenter's test bed would be nice to
-see. For that please coordinate with Guenter if he's willing to run this
-a test for you.
-
-  Luis
+-- 
+Josh
