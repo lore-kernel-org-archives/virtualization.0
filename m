@@ -1,24 +1,12 @@
-From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: Re: [Xen-devel] [PATCH 11/13] x86/paravirt: Add paravirt alternatives
-	infrastructure
-Date: Tue, 17 Oct 2017 16:59:41 -0400
-Message-ID: <5f62f099-c773-ae64-d685-f6db77406020@oracle.com>
-References: <5a49e43a-8d6b-512a-ec5a-641be7bae41d@oracle.com>
-	<ed30216f-4b9e-2bc3-b1d2-36135b29d746@citrix.com>
-	<a6c3be0b-35f4-8d23-4ea2-ead94a3fc69e@oracle.com>
-	<b9fdc3ec-87cd-da0e-47b7-67cdae8ffb97@oracle.com>
-	<20171017052413.nzbqniurzw7eim4b@treble>
-	<de621b0b-f767-222a-e1de-aabd0e9a0bf9@oracle.com>
-	<20171017143613.6i7auk3mqcqayx3o@treble>
-	<2e7890fb-3634-0f3b-003f-fc1772504b9a@oracle.com>
-	<20171017201743.tnw6wulu4gjvkqli@treble>
-	<44a2cbeb-7424-0a2a-7f9c-b669e049bded@oracle.com>
-	<20171017205037.rnqto2i2hul4q2s4@treble>
+From: "iceis@insticc.info" <iceis@insticc.info>
+Subject: CFP ICEIS 2018 - 20th Int.l Conf. on Enterprise Information Systems
+	(Funchal, Madeira/Portugal)
+Date: 18 Oct 2017 10:24:20 +0100
+Message-ID: <20171018092420.94740.5FA427BD479407DC@insticc.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171017205037.rnqto2i2hul4q2s4@treble>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,34 +16,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Juergen Gross <jgross@suse.com>, Mike Galbraith <efault@gmx.de>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, x86@kernel.org, linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>, live-patching@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, Sasha Levin <alexander.levin@verizon.com>, Jiri Slaby <jslaby@suse.cz>, Alok Kataria <akataria@vmware.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/17/2017 04:50 PM, Josh Poimboeuf wrote:
-> On Tue, Oct 17, 2017 at 04:36:00PM -0400, Boris Ostrovsky wrote:
->> On 10/17/2017 04:17 PM, Josh Poimboeuf wrote:
->>> On Tue, Oct 17, 2017 at 11:36:57AM -0400, Boris Ostrovsky wrote:
->>>> On 10/17/2017 10:36 AM, Josh Poimboeuf wrote:
->>>>> Maybe we can add a new field to the alternatives entry struct which
->>>>> specifies the offset to the CALL instruction, so apply_alternatives()
->>>>> can find it.
->>>> We'd also have to assume that the restore part of an alternative entry
->>>> is the same size as the save part. Which is true now.
->>> Why?
->>>
->> Don't you need to know the size of the instruction without save and
->> restore part?
->>
->> + if (a->replacementlen == 6 && *insnbuf == 0xff && *(insnbuf+1) == 0x15)
->>
->> Otherwise you'd need another field for the actual instruction length.
-> If we know where the CALL instruction starts, and can verify that it
-> starts with "ff 15", then we know the instruction length: 6 bytes.
-> Right?
->
-
-Oh, OK. Then you shouldn't need a->replacementlen test(s?) in
-apply_alternatives()?
-
--boris
+U1VCTUlTU0lPTiBERUFETElORSAKCjIwdGggSW50ZXJuYXRpb25hbCBDb25mZXJlbmNlIG9uIEVu
+dGVycHJpc2UgSW5mb3JtYXRpb24gU3lzdGVtcwoKU3VibWlzc2lvbiBEZWFkbGluZTogT2N0b2Jl
+ciAzMCwgMjAxNwoKaHR0cDovL3d3dy5pY2Vpcy5vcmcvCgpNYXJjaCAyMSAtIDI0LCAyMDE4CkZ1
+bmNoYWwsIE1hZGVpcmEsIFBvcnR1Z2FsLgoKIElDRUlTIGlzIG9yZ2FuaXplZCBpbiA2IG1ham9y
+IHRyYWNrczoKCiAtIERhdGFiYXNlcyBhbmQgSW5mb3JtYXRpb24gU3lzdGVtcyBJbnRlZ3JhdGlv
+bgogLSBBcnRpZmljaWFsIEludGVsbGlnZW5jZSBhbmQgRGVjaXNpb24gU3VwcG9ydCBTeXN0ZW1z
+CiAtIEluZm9ybWF0aW9uIFN5c3RlbXMgQW5hbHlzaXMgYW5kIFNwZWNpZmljYXRpb24KIC0gU29m
+dHdhcmUgQWdlbnRzIGFuZCBJbnRlcm5ldCBDb21wdXRpbmcKIC0gSHVtYW4tQ29tcHV0ZXIgSW50
+ZXJhY3Rpb24KIC0gRW50ZXJwcmlzZSBBcmNoaXRlY3R1cmUKCkluIENvb3BlcmF0aW9uIHdpdGgg
+U1dJTSwgQUFBSSwgQUNNIFNJR0FJLCBBQ00gU0lHQ0hJLCBBQ00gU0lHTUlTLgogCldpdGggdGhl
+IHByZXNlbmNlIG9mIGludGVybmF0aW9uYWxseSBkaXN0aW5ndWlzaGVkIGtleW5vdGUgc3BlYWtl
+cnM6CkFsZXhhbmRlciAgQnJvZHNreSwgR2VvcmdlIE1hc29uIFVuaXZlcnNpdHksIFVuaXRlZCBT
+dGF0ZXMKUGxhbWVuIEFuZ2Vsb3YsIExhbmNhc3RlciBVbml2ZXJzaXR5LCBVbml0ZWQgS2luZ2Rv
+bQpTYWx2YXRvcmUgRGlzdGVmYW5vLCBVbml2ZXJzaXTDoCBkZWdsaSBTdHVkaSBkaSBNZXNzaW5h
+LCBJdGFseQpEYXZpZCBBdmVpcm8sIFVuaXZlcnNpdHkgb2YgTWFkZWlyYSAvIE1hZGVpcmEtSVRJ
+LCBQb3J0dWdhbAoKCkEgc2hvcnQgbGlzdCBvZiBwcmVzZW50ZWQgcGFwZXJzIHdpbGwgYmUgc2Vs
+ZWN0ZWQgc28gdGhhdCByZXZpc2VkIGFuZCBleHRlbmRlZCB2ZXJzaW9ucyBvZiB0aGVzZSBwYXBl
+cnMgd2lsbCBiZSBwdWJsaXNoZWQgYnkgU3ByaW5nZXIuCiAKQWxsIHBhcGVycyBwcmVzZW50ZWQg
+YXQgdGhlIGNvbmdyZXNzIHZlbnVlIHdpbGwgYWxzbyBiZSBhdmFpbGFibGUgYXQgdGhlIFNDSVRF
+UFJFU1MgRGlnaXRhbCBMaWJyYXJ5IChodHRwOi8vd3d3LnNjaXRlcHJlc3Mub3JnL0RpZ2l0YWxM
+aWJyYXJ5LykuCiAgClNob3VsZCB5b3UgaGF2ZSBhbnkgcXVlc3Rpb24gcGxlYXNlIGRvbuKAmXQg
+aGVzaXRhdGUgY29udGFjdGluZyBtZS4KIAoKS2luZCByZWdhcmRzLApJQ0VJUyBTZWNyZXRhcmlh
+dAoKQWRkcmVzczogQXYuIEQuIE1hbnVlbCBJLCAyN0EsIDLCuiBlc3EuCjI5MTAtNTk1IFNldHVi
+YWwsIFBvcnR1Z2FsClRlbDogKzM1MSAyNjUgNTIwIDE4NApGYXg6ICszNTEgMjY1IDUyMCAxODYK
+V2ViOiBodHRwOi8vd3d3LmljZWlzLm9yZy8KZS1tYWlsOiBpY2Vpcy5zZWNyZXRhcmlhdEBpbnN0
+aWNjLm9yZwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
