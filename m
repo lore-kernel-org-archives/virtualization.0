@@ -1,20 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: avoid possible OOM lockup at
-	virtballoon_oom_notify()
-Date: Thu, 19 Oct 2017 16:00:16 +0300
-Message-ID: <20171019155312-mutt-send-email-mst__401.688871397887$1508418056$gmane$org@kernel.org>
-References: <201710151438.FAD86443.tOOFHVOSFQJLMF@I-love.SAKURA.ne.jp>
-	<201710161958.IAE65151.HFOLMQSFOVFJtO@I-love.SAKURA.ne.jp>
-	<20171016195317-mutt-send-email-mst@kernel.org>
-	<201710181959.ACI05296.JLMVQOOFtHSOFF@I-love.SAKURA.ne.jp>
-	<20171018201013-mutt-send-email-mst@kernel.org>
-	<201710192052.JCE26064.OFtOLSFJVFQOMH@I-love.SAKURA.ne.jp>
+Subject: Re: [PATCH v2 1/1] virtio_balloon: include buffers and cached memory
+	statistics
+Date: Thu, 19 Oct 2017 16:12:20 +0300
+Message-ID: <20171019160405-mutt-send-email-mst__45017.4869424247$1508418799$gmane$org@kernel.org>
+References: <cover.1505998455.git.tgolembi@redhat.com>
+	<b13f11c03ed394bd8ad367dc90996ed134ea98da.1505998455.git.tgolembi@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <201710192052.JCE26064.OFtOLSFJVFQOMH@I-love.SAKURA.ne.jp>
+In-Reply-To: <b13f11c03ed394bd8ad367dc90996ed134ea98da.1505998455.git.tgolembi@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,96 +20,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, rmaksudova@parallels.com, den@openvz.org, mhocko@kernel.org
+To: =?utf-8?B?VG9tw6HFoSBHb2xlbWJpb3Zza8O9?= <tgolembi@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Shaohua Li <shli@fb.com>, Huang Ying <ying.huang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 19, 2017 at 08:52:20PM +0900, Tetsuo Handa wrote:
-> Michael S. Tsirkin wrote:
-> > On Wed, Oct 18, 2017 at 07:59:23PM +0900, Tetsuo Handa wrote:
-> > > Do you see anything wrong with the patch I used for emulating
-> > > VIRTIO_BALLOON_F_DEFLATE_ON_OOM path (shown below) ?
-> > > 
-> > > ----------------------------------------
-> > > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> > > index f0b3a0b..a679ac2 100644
-> > > --- a/drivers/virtio/virtio_balloon.c
-> > > +++ b/drivers/virtio/virtio_balloon.c
-> > > @@ -164,7 +164,7 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
-> > >  		}
-> > >  		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-> > >  		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> > > -		if (!virtio_has_feature(vb->vdev,
-> > > +		if (virtio_has_feature(vb->vdev,
-> > >  					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> > >  			adjust_managed_page_count(page, -1);
-> > >  	}
-> > > @@ -184,7 +184,7 @@ static void release_pages_balloon(struct virtio_balloon *vb,
-> > >  	struct page *page, *next;
-> > >  
-> > >  	list_for_each_entry_safe(page, next, pages, lru) {
-> > > -		if (!virtio_has_feature(vb->vdev,
-> > > +		if (virtio_has_feature(vb->vdev,
-> > >  					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> > >  			adjust_managed_page_count(page, 1);
-> > >  		list_del(&page->lru);
-> > > @@ -363,7 +363,7 @@ static int virtballoon_oom_notify(struct notifier_block *self,
-> > >  	unsigned num_freed_pages;
-> > >  
-> > >  	vb = container_of(self, struct virtio_balloon, nb);
-> > > -	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> > > +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> > >  		return NOTIFY_OK;
-> > >  
-> > >  	freed = parm;
-> > > ----------------------------------------
-> > 
-> > Looks right but it's probably easier to configure qemu to set that
-> > feature bit. Basically you just add deflate-on-oom=on to the
-> > balloon device.
-> 
-> I'm using CentOS 7 where qemu does not recognize deflate-on-oom option. ;-)
-> 
-> > OK. Or if you use my patch, you can just set a flag and go
-> > 	if (vb->oom)
-> > 		msleep(1000);
-> > at beginning of fill_balloon.
-> 
-> I don't think it is a good manner to sleep for long from the point of view of
-> system_freezable_wq, for system_freezable_wq is expected to flush shortly
-> according to include/linux/workqueue.h . I think that using delayed_work is better.
-
-Well it's already using msleep, I'm fine with reworking it all to use
-delayed_work. That's unrelated to the OOM issues though.
-
-> 
-> > > While response was better than now, inflating again spoiled the effort.
-> > > Retrying to inflate until allocation fails is already too painful.
-> > > 
-> > > Michael S. Tsirkin wrote:
-> > > > I think that's the case. Question is, when can we inflate again?
-> > > 
-> > > I think that it is when the host explicitly asked again, for
-> > > VIRTIO_BALLOON_F_DEFLATE_ON_OOM path does not schedule for later inflation.
-> > 
-> > Problem is host has no idea when it's safe.
-> > If we expect host to ask again after X seconds we
-> > might just as well do it in the guest.
-> 
-> To me, fill_balloon() with VIRTIO_BALLOON_F_DEFLATE_ON_OOM sounds like
-> doing
-> 
->   echo 3 > /proc/sys/vm/drop_caches
-> 
-> where nobody knows whether it won't impact the system.
-> Thus, I don't think it is a problem. It will be up to administrator
-> who enters that command.
-
-Right now existing hypervisors do not send that interrupt.
-If you suggest a new feature where hypervisors send an interrupt,
-that might work but will need a new feature bit. Please send an email
-to virtio-dev@lists.oasis-open.org (subscriber only, sorry about that)
-so the bit can be reserved.
-
--- 
-MST
+T24gVGh1LCBTZXAgMjEsIDIwMTcgYXQgMDI6NTU6NDFQTSArMDIwMCwgVG9tw6HFoSBHb2xlbWJp
+b3Zza8O9IHdyb3RlOgo+IEFkZCBhIG5ldyBmaWVsZHMsIFZJUlRJT19CQUxMT09OX1NfQlVGRkVS
+UyBhbmQgVklSVElPX0JBTExPT05fU19DQUNIRUQsCj4gdG8gdmlydGlvX2JhbGxvb24gbWVtb3J5
+IHN0YXRpc3RpY3MgcHJvdG9jb2wuIFRoZSB2YWx1ZXMgY29ycmVzcG9uZCB0bwo+ICdCdWZmZXJz
+JyBhbmQgJ0NhY2hlZCcgaW4gL3Byb2MvbWVtaW5mby4KPiAKPiBUbyBiZSBhYmxlIHRvIGNvbXB1
+dGUgdGhlIHZhbHVlIG9mICdDYWNoZWQnIG1lbW9yeSBpdCBpcyBuZWNlc3NhcnkgdG8KPiBleHBv
+cnQgdG90YWxfc3dhcGNhY2hlX3BhZ2VzKCkgdG8gbW9kdWxlcy4KPiAKPiBTaWduZWQtb2ZmLWJ5
+OiBUb23DocWhIEdvbGVtYmlvdnNrw70gPHRnb2xlbWJpQHJlZGhhdC5jb20+CgpEb2VzICdCdWZm
+ZXJzJyBhY3R1YWxseSBtYWtlIHNlbnNlPyBJdCdzIGEgdGVtcG9yYXJ5IHN0b3JhZ2UgLQp3b3Vs
+ZG4ndCBpdCBiZSBzaWduaWZpY2FudGx5IG91dCBvZiBkYXRlIGJ5IHRoZSB0aW1lCmhvc3QgcmVj
+ZWl2ZXMgaXQ/Cgo+IC0tLQo+ICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jICAgICB8
+IDExICsrKysrKysrKysrCj4gIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5oIHwg
+IDQgKysrLQo+ICBtbS9zd2FwX3N0YXRlLmMgICAgICAgICAgICAgICAgICAgICB8ICAxICsKPiAg
+MyBmaWxlcyBjaGFuZ2VkLCAxNSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4gCj4gZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgYi9kcml2ZXJzL3ZpcnRp
+by92aXJ0aW9fYmFsbG9vbi5jCj4gaW5kZXggZjBiM2EwYjlkNDJmLi5jMjU1OGVjNDdhNjIgMTAw
+NjQ0Cj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+ICsrKyBiL2RyaXZl
+cnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPiBAQCAtMjQ0LDEyICsyNDQsMTkgQEAgc3RhdGlj
+IHVuc2lnbmVkIGludCB1cGRhdGVfYmFsbG9vbl9zdGF0cyhzdHJ1Y3QgdmlydGlvX2JhbGxvb24g
+KnZiKQo+ICAJc3RydWN0IHN5c2luZm8gaTsKPiAgCXVuc2lnbmVkIGludCBpZHggPSAwOwo+ICAJ
+bG9uZyBhdmFpbGFibGU7Cj4gKwlsb25nIGNhY2hlZDsKPiAgCj4gIAlhbGxfdm1fZXZlbnRzKGV2
+ZW50cyk7Cj4gIAlzaV9tZW1pbmZvKCZpKTsKPiAgCj4gIAlhdmFpbGFibGUgPSBzaV9tZW1fYXZh
+aWxhYmxlKCk7Cj4gIAo+ICsJY2FjaGVkID0gZ2xvYmFsX25vZGVfcGFnZV9zdGF0ZShOUl9GSUxF
+X1BBR0VTKSAtCj4gKwkJCXRvdGFsX3N3YXBjYWNoZV9wYWdlcygpIC0gaS5idWZmZXJyYW07Cj4g
+KwlpZiAoY2FjaGVkIDwgMCkKPiArCQljYWNoZWQgPSAwOwo+ICsKPiArCj4gICNpZmRlZiBDT05G
+SUdfVk1fRVZFTlRfQ09VTlRFUlMKPiAgCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JB
+TExPT05fU19TV0FQX0lOLAo+ICAJCQkJcGFnZXNfdG9fYnl0ZXMoZXZlbnRzW1BTV1BJTl0pKTsK
+PiBAQCAtMjY0LDYgKzI3MSwxMCBAQCBzdGF0aWMgdW5zaWduZWQgaW50IHVwZGF0ZV9iYWxsb29u
+X3N0YXRzKHN0cnVjdCB2aXJ0aW9fYmFsbG9vbiAqdmIpCj4gIAkJCQlwYWdlc190b19ieXRlcyhp
+LnRvdGFscmFtKSk7Cj4gIAl1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxMT09OX1Nf
+QVZBSUwsCj4gIAkJCQlwYWdlc190b19ieXRlcyhhdmFpbGFibGUpKTsKPiArCXVwZGF0ZV9zdGF0
+KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19CVUZGRVJTLAo+ICsJCQkJcGFnZXNfdG9fYnl0
+ZXMoaS5idWZmZXJyYW0pKTsKPiArCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExP
+T05fU19DQUNIRUQsCj4gKwkJCQlwYWdlc190b19ieXRlcyhjYWNoZWQpKTsKPiAgCj4gIAlyZXR1
+cm4gaWR4Owo+ICB9Cj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFs
+bG9vbi5oIGIvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmgKPiBpbmRleCAzNDNk
+N2RkZWZlMDQuLmQ1ZGM4YTU2YTQ5NyAxMDA2NDQKPiAtLS0gYS9pbmNsdWRlL3VhcGkvbGludXgv
+dmlydGlvX2JhbGxvb24uaAo+ICsrKyBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9v
+bi5oCj4gQEAgLTUyLDcgKzUyLDkgQEAgc3RydWN0IHZpcnRpb19iYWxsb29uX2NvbmZpZyB7Cj4g
+ICNkZWZpbmUgVklSVElPX0JBTExPT05fU19NRU1GUkVFICA0ICAgLyogVG90YWwgYW1vdW50IG9m
+IGZyZWUgbWVtb3J5ICovCj4gICNkZWZpbmUgVklSVElPX0JBTExPT05fU19NRU1UT1QgICA1ICAg
+LyogVG90YWwgYW1vdW50IG9mIG1lbW9yeSAqLwo+ICAjZGVmaW5lIFZJUlRJT19CQUxMT09OX1Nf
+QVZBSUwgICAgNiAgIC8qIEF2YWlsYWJsZSBtZW1vcnkgYXMgaW4gL3Byb2MgKi8KPiAtI2RlZmlu
+ZSBWSVJUSU9fQkFMTE9PTl9TX05SICAgICAgIDcKPiArI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9T
+X0JVRkZFUlMgIDcgICAvKiBCdWZmZXJzIG1lbW9yeSBhcyBpbiAvcHJvYyAqLwo+ICsjZGVmaW5l
+IFZJUlRJT19CQUxMT09OX1NfQ0FDSEVEICAgOCAgIC8qIENhY2hlZCBtZW1vcnkgYXMgaW4gL3By
+b2MgKi8KPiArI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX05SICAgICAgIDkKPiAgCj4gIC8qCj4g
+ICAqIE1lbW9yeSBzdGF0aXN0aWNzIHN0cnVjdHVyZS4KPiBkaWZmIC0tZ2l0IGEvbW0vc3dhcF9z
+dGF0ZS5jIGIvbW0vc3dhcF9zdGF0ZS5jCj4gaW5kZXggNzFjZTJkMWNjYmY3Li5mM2E0ZmY3ZDZj
+NTIgMTAwNjQ0Cj4gLS0tIGEvbW0vc3dhcF9zdGF0ZS5jCj4gKysrIGIvbW0vc3dhcF9zdGF0ZS5j
+Cj4gQEAgLTk1LDYgKzk1LDcgQEAgdW5zaWduZWQgbG9uZyB0b3RhbF9zd2FwY2FjaGVfcGFnZXMo
+dm9pZCkKPiAgCXJjdV9yZWFkX3VubG9jaygpOwo+ICAJcmV0dXJuIHJldDsKPiAgfQo+ICtFWFBP
+UlRfU1lNQk9MX0dQTCh0b3RhbF9zd2FwY2FjaGVfcGFnZXMpOwo+ICAKPiAgc3RhdGljIGF0b21p
+Y190IHN3YXBpbl9yZWFkYWhlYWRfaGl0cyA9IEFUT01JQ19JTklUKDQpOwoKTmVlZCBhbiBhY2sg
+ZnJvbSBNTSBjcm93ZCBvbiB0aGF0LgoKPiAtLSAKPiAyLjE0LjEKX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
