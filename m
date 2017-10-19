@@ -1,21 +1,18 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v16 5/5] virtio-balloon: VIRTIO_BALLOON_F_CTRL_VQ
-Date: Thu, 19 Oct 2017 16:07:06 +0800
-Message-ID: <59E85D2A.1060407__24836.912242654$1508400353$gmane$org@intel.com>
-References: <1506744354-20979-1-git-send-email-wei.w.wang@intel.com>
-	<1506744354-20979-6-git-send-email-wei.w.wang@intel.com>
-	<20171001060305-mutt-send-email-mst@kernel.org>
-	<286AC319A985734F985F78AFA26841F73932025A@shsmsx102.ccr.corp.intel.com>
-	<20171010180636-mutt-send-email-mst@kernel.org>
-	<59DDB428.4020208@intel.com>
-	<20171011161912-mutt-send-email-mst@kernel.org>
-	<59DEE790.5040809@intel.com>
-	<20171013163503-mutt-send-email-mst@kernel.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: Re: [PATCH] virtio: avoid possible OOM lockup at
+	virtballoon_oom_notify()
+Date: Thu, 19 Oct 2017 20:52:20 +0900
+Message-ID: <201710192052.JCE26064.OFtOLSFJVFQOMH__15825.1740890138$1508413993$gmane$org@I-love.SAKURA.ne.jp>
+References: <201710151438.FAD86443.tOOFHVOSFQJLMF@I-love.SAKURA.ne.jp>
+	<201710161958.IAE65151.HFOLMQSFOVFJtO@I-love.SAKURA.ne.jp>
+	<20171016195317-mutt-send-email-mst@kernel.org>
+	<201710181959.ACI05296.JLMVQOOFtHSOFF@I-love.SAKURA.ne.jp>
+	<20171018201013-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171013163503-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20171018201013-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,24 +22,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "willy@infradead.org" <willy@infradead.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, mhocko@kernel.or
+To: mst@redhat.com
+Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, rmaksudova@parallels.com, den@openvz.org, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/13/2017 09:38 PM, Michael S. Tsirkin wrote:
-> On Thu, Oct 12, 2017 at 11:54:56AM +0800, Wei Wang wrote:
->>> But I think flushing is very fragile. You will easily run into races
->>> if one of the actors gets out of sync and keeps adding data.
->>> I think adding an ID in the free vq stream is a more robust
->>> approach.
->>>
->> Adding ID to the free vq would need the device to distinguish whether it
->> receives an ID or a free page hint,
-> Not really.  It's pretty simple: a 64 bit buffer is an ID. A 4K and bigger one
-> is a page.
+Michael S. Tsirkin wrote:
+> On Wed, Oct 18, 2017 at 07:59:23PM +0900, Tetsuo Handa wrote:
+> > Do you see anything wrong with the patch I used for emulating
+> > VIRTIO_BALLOON_F_DEFLATE_ON_OOM path (shown below) ?
+> > 
+> > ----------------------------------------
+> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > index f0b3a0b..a679ac2 100644
+> > --- a/drivers/virtio/virtio_balloon.c
+> > +++ b/drivers/virtio/virtio_balloon.c
+> > @@ -164,7 +164,7 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+> >  		}
+> >  		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+> >  		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+> > -		if (!virtio_has_feature(vb->vdev,
+> > +		if (virtio_has_feature(vb->vdev,
+> >  					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+> >  			adjust_managed_page_count(page, -1);
+> >  	}
+> > @@ -184,7 +184,7 @@ static void release_pages_balloon(struct virtio_balloon *vb,
+> >  	struct page *page, *next;
+> >  
+> >  	list_for_each_entry_safe(page, next, pages, lru) {
+> > -		if (!virtio_has_feature(vb->vdev,
+> > +		if (virtio_has_feature(vb->vdev,
+> >  					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+> >  			adjust_managed_page_count(page, 1);
+> >  		list_del(&page->lru);
+> > @@ -363,7 +363,7 @@ static int virtballoon_oom_notify(struct notifier_block *self,
+> >  	unsigned num_freed_pages;
+> >  
+> >  	vb = container_of(self, struct virtio_balloon, nb);
+> > -	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+> > +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+> >  		return NOTIFY_OK;
+> >  
+> >  	freed = parm;
+> > ----------------------------------------
+> 
+> Looks right but it's probably easier to configure qemu to set that
+> feature bit. Basically you just add deflate-on-oom=on to the
+> balloon device.
 
-I think we can also use the previous method, free page via in_buf, and 
-id via out_buf.
+I'm using CentOS 7 where qemu does not recognize deflate-on-oom option. ;-)
 
-Best,
-Wei
+> OK. Or if you use my patch, you can just set a flag and go
+> 	if (vb->oom)
+> 		msleep(1000);
+> at beginning of fill_balloon.
+
+I don't think it is a good manner to sleep for long from the point of view of
+system_freezable_wq, for system_freezable_wq is expected to flush shortly
+according to include/linux/workqueue.h . I think that using delayed_work is better.
+
+> > While response was better than now, inflating again spoiled the effort.
+> > Retrying to inflate until allocation fails is already too painful.
+> > 
+> > Michael S. Tsirkin wrote:
+> > > I think that's the case. Question is, when can we inflate again?
+> > 
+> > I think that it is when the host explicitly asked again, for
+> > VIRTIO_BALLOON_F_DEFLATE_ON_OOM path does not schedule for later inflation.
+> 
+> Problem is host has no idea when it's safe.
+> If we expect host to ask again after X seconds we
+> might just as well do it in the guest.
+
+To me, fill_balloon() with VIRTIO_BALLOON_F_DEFLATE_ON_OOM sounds like
+doing
+
+  echo 3 > /proc/sys/vm/drop_caches
+
+where nobody knows whether it won't impact the system.
+Thus, I don't think it is a problem. It will be up to administrator
+who enters that command.
