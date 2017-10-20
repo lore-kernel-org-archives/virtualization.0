@@ -1,15 +1,11 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: Re: [PATCH v1 01/27] x86/crypto: Adapt assembly for PIE support
-Date: Fri, 20 Oct 2017 09:28:00 +0100
-Message-ID: <CAKv+Gu9XMnNA0UoGfFMQmC9=Ryh6dcOduxH+tq49bcdvBwhyQw@mail.gmail.com>
-References: <20171011203027.11248-1-thgarnie@google.com>
-	<20171011203027.11248-2-thgarnie@google.com>
-	<20171020082420.lsvu7mqjrgnahm5t@gmail.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: [PATCH v1 0/3] Virtio-balloon Improvement
+Date: Fri, 20 Oct 2017 19:54:23 +0800
+Message-ID: <1508500466-21165-1-git-send-email-wei.w.wang__31750.8779386573$1508501337$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171020082420.lsvu7mqjrgnahm5t@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,120 +15,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@kernel.org>
-Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, Michal Hocko <mhocko@suse.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Daniel Micay <danielmicay@gmail.com>, Len Brown <len.brown@intel.com>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, =?UTF-8?B?SmFuIEggLiBTY2jDtm5oZXJy?= <jschoenh@amazon.de>, Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Waiman Long <longman@redhat.com>, Pavel Machek <pavel@ucw.cz>, "H . Peter Anvin" <hpa@zytor.com>, Kernel Hardening <kernel-hardening@lists.openwall.com>, Christoph Lameter <cl@linux.com>, Thomas Gleixner <tglx@linutronix.de>, "x86@kernel.org" <x86@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, Daniel Borkmann <daniel@io>
+To: mst@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, mhocko@kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 20 October 2017 at 09:24, Ingo Molnar <mingo@kernel.org> wrote:
->
-> * Thomas Garnier <thgarnie@google.com> wrote:
->
->> Change the assembly code to use only relative references of symbols for the
->> kernel to be PIE compatible.
->>
->> Position Independent Executable (PIE) support will allow to extended the
->> KASLR randomization range below the -2G memory limit.
->
->> diff --git a/arch/x86/crypto/aes-x86_64-asm_64.S b/arch/x86/crypto/aes-x86_64-asm_64.S
->> index 8739cf7795de..86fa068e5e81 100644
->> --- a/arch/x86/crypto/aes-x86_64-asm_64.S
->> +++ b/arch/x86/crypto/aes-x86_64-asm_64.S
->> @@ -48,8 +48,12 @@
->>  #define R10  %r10
->>  #define R11  %r11
->>
->> +/* Hold global for PIE suport */
->> +#define RBASE        %r12
->> +
->>  #define prologue(FUNC,KEY,B128,B192,r1,r2,r5,r6,r7,r8,r9,r10,r11) \
->>       ENTRY(FUNC);                    \
->> +     pushq   RBASE;                  \
->>       movq    r1,r2;                  \
->>       leaq    KEY+48(r8),r9;          \
->>       movq    r10,r11;                \
->> @@ -74,54 +78,63 @@
->>       movl    r6 ## E,4(r9);          \
->>       movl    r7 ## E,8(r9);          \
->>       movl    r8 ## E,12(r9);         \
->> +     popq    RBASE;                  \
->>       ret;                            \
->>       ENDPROC(FUNC);
->>
->> +#define round_mov(tab_off, reg_i, reg_o) \
->> +     leaq    tab_off(%rip), RBASE; \
->> +     movl    (RBASE,reg_i,4), reg_o;
->> +
->> +#define round_xor(tab_off, reg_i, reg_o) \
->> +     leaq    tab_off(%rip), RBASE; \
->> +     xorl    (RBASE,reg_i,4), reg_o;
->> +
->>  #define round(TAB,OFFSET,r1,r2,r3,r4,r5,r6,r7,r8,ra,rb,rc,rd) \
->>       movzbl  r2 ## H,r5 ## E;        \
->>       movzbl  r2 ## L,r6 ## E;        \
->> -     movl    TAB+1024(,r5,4),r5 ## E;\
->> +     round_mov(TAB+1024, r5, r5 ## E)\
->>       movw    r4 ## X,r2 ## X;        \
->> -     movl    TAB(,r6,4),r6 ## E;     \
->> +     round_mov(TAB, r6, r6 ## E)     \
->>       roll    $16,r2 ## E;            \
->>       shrl    $16,r4 ## E;            \
->>       movzbl  r4 ## L,r7 ## E;        \
->>       movzbl  r4 ## H,r4 ## E;        \
->>       xorl    OFFSET(r8),ra ## E;     \
->>       xorl    OFFSET+4(r8),rb ## E;   \
->> -     xorl    TAB+3072(,r4,4),r5 ## E;\
->> -     xorl    TAB+2048(,r7,4),r6 ## E;\
->> +     round_xor(TAB+3072, r4, r5 ## E)\
->> +     round_xor(TAB+2048, r7, r6 ## E)\
->>       movzbl  r1 ## L,r7 ## E;        \
->>       movzbl  r1 ## H,r4 ## E;        \
->> -     movl    TAB+1024(,r4,4),r4 ## E;\
->> +     round_mov(TAB+1024, r4, r4 ## E)\
->>       movw    r3 ## X,r1 ## X;        \
->>       roll    $16,r1 ## E;            \
->>       shrl    $16,r3 ## E;            \
->> -     xorl    TAB(,r7,4),r5 ## E;     \
->> +     round_xor(TAB, r7, r5 ## E)     \
->>       movzbl  r3 ## L,r7 ## E;        \
->>       movzbl  r3 ## H,r3 ## E;        \
->> -     xorl    TAB+3072(,r3,4),r4 ## E;\
->> -     xorl    TAB+2048(,r7,4),r5 ## E;\
->> +     round_xor(TAB+3072, r3, r4 ## E)\
->> +     round_xor(TAB+2048, r7, r5 ## E)\
->>       movzbl  r1 ## L,r7 ## E;        \
->>       movzbl  r1 ## H,r3 ## E;        \
->>       shrl    $16,r1 ## E;            \
->> -     xorl    TAB+3072(,r3,4),r6 ## E;\
->> -     movl    TAB+2048(,r7,4),r3 ## E;\
->> +     round_xor(TAB+3072, r3, r6 ## E)\
->> +     round_mov(TAB+2048, r7, r3 ## E)\
->>       movzbl  r1 ## L,r7 ## E;        \
->>       movzbl  r1 ## H,r1 ## E;        \
->> -     xorl    TAB+1024(,r1,4),r6 ## E;\
->> -     xorl    TAB(,r7,4),r3 ## E;     \
->> +     round_xor(TAB+1024, r1, r6 ## E)\
->> +     round_xor(TAB, r7, r3 ## E)     \
->>       movzbl  r2 ## H,r1 ## E;        \
->>       movzbl  r2 ## L,r7 ## E;        \
->>       shrl    $16,r2 ## E;            \
->> -     xorl    TAB+3072(,r1,4),r3 ## E;\
->> -     xorl    TAB+2048(,r7,4),r4 ## E;\
->> +     round_xor(TAB+3072, r1, r3 ## E)\
->> +     round_xor(TAB+2048, r7, r4 ## E)\
->>       movzbl  r2 ## H,r1 ## E;        \
->>       movzbl  r2 ## L,r2 ## E;        \
->>       xorl    OFFSET+8(r8),rc ## E;   \
->>       xorl    OFFSET+12(r8),rd ## E;  \
->> -     xorl    TAB+1024(,r1,4),r3 ## E;\
->> -     xorl    TAB(,r2,4),r4 ## E;
->> +     round_xor(TAB+1024, r1, r3 ## E)\
->> +     round_xor(TAB, r2, r4 ## E)
->
-> This appears to be adding unconditional overhead to a function that was moved to
-> assembly to improve its performance.
->
+This patch series intends to summarize the recent contributions made by
+Michael S. Tsirkin, Tetsuo Handa, Michal Hocko etc. via reporting and
+discussing the related deadlock issues on the mailinglist. Please check
+each patch for details.
 
-I did some benchmarking on this code a while ago and, interestingly,
-it was slower than the generic C implementation (on a Pentium E2200),
-so we may want to consider whether we still need this driver in the
-first place.
+From a high-level point of view, this patch series achieves:
+1) eliminate the deadlock issue fundamentally caused by the inability
+to run leak_balloon and fill_balloon concurrently;
+2) enable OOM to release more than 256 inflated pages; and
+3) stop inflating when the guest is under severe memory pressure
+(i.e. OOM).
+
+Here is an example of the benefit brought by this patch series:
+The guest sets virtio_balloon.oom_pages=100000. When the host requests
+to inflate 7.9G of an 8G idle guest, the guest can still run normally
+since OOM can guarantee at least 100000 pages (400MB) for the guest.
+Without the above patches, the guest will kill all the killable
+processes and fall into kernel panic finally.
+
+Wei Wang (3):
+  virtio-balloon: replace the coarse-grained balloon_lock
+  virtio-balloon: deflate up to oom_pages on OOM
+  virtio-balloon: stop inflating when OOM occurs
+
+ drivers/virtio/virtio_balloon.c | 149 ++++++++++++++++++++++++----------------
+ 1 file changed, 91 insertions(+), 58 deletions(-)
+
+-- 
+2.7.4
