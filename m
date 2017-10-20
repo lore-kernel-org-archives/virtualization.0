@@ -1,11 +1,13 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v1 0/3] Virtio-balloon Improvement
-Date: Fri, 20 Oct 2017 19:54:23 +0800
-Message-ID: <1508500466-21165-1-git-send-email-wei.w.wang__31750.8779386573$1508501337$gmane$org@intel.com>
+Subject: [PATCH v1 3/3] virtio-balloon: stop inflating when OOM occurs
+Date: Fri, 20 Oct 2017 19:54:26 +0800
+Message-ID: <1508500466-21165-4-git-send-email-wei.w.wang__40850.5150735893$1508501340$gmane$org@intel.com>
+References: <1508500466-21165-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1508500466-21165-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,32 +20,117 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, mhocko@kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch series intends to summarize the recent contributions made by
-Michael S. Tsirkin, Tetsuo Handa, Michal Hocko etc. via reporting and
-discussing the related deadlock issues on the mailinglist. Please check
-each patch for details.
+This patch forces the cease of the inflating work when OOM occurs.
+The fundamental idea of memory ballooning is to take out some guest
+pages when the guest has low memory utilization, so it is sensible to
+inflate nothing when the guest is already under memory pressure.
 
-From a high-level point of view, this patch series achieves:
-1) eliminate the deadlock issue fundamentally caused by the inability
-to run leak_balloon and fill_balloon concurrently;
-2) enable OOM to release more than 256 inflated pages; and
-3) stop inflating when the guest is under severe memory pressure
-(i.e. OOM).
+On the other hand, the policy is determined by the admin or the
+orchestration layer from the host. That is, the host is expected to
+re-start the memory inflating request at a proper time later when
+the guest has enough memory to inflate, for example, by checking
+the memory stats reported by the balloon. If another inflating
+requests is sent to guest when the guest is still under memory
+pressure, still no pages will be inflated.
 
-Here is an example of the benefit brought by this patch series:
-The guest sets virtio_balloon.oom_pages=100000. When the host requests
-to inflate 7.9G of an 8G idle guest, the guest can still run normally
-since OOM can guarantee at least 100000 pages (400MB) for the guest.
-Without the above patches, the guest will kill all the killable
-processes and fall into kernel panic finally.
+Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Michal Hocko <mhocko@kernel.org>
+---
+ drivers/virtio/virtio_balloon.c | 33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
-Wei Wang (3):
-  virtio-balloon: replace the coarse-grained balloon_lock
-  virtio-balloon: deflate up to oom_pages on OOM
-  virtio-balloon: stop inflating when OOM occurs
-
- drivers/virtio/virtio_balloon.c | 149 ++++++++++++++++++++++++----------------
- 1 file changed, 91 insertions(+), 58 deletions(-)
-
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index ab55cf8..cf29663 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -63,6 +63,15 @@ struct virtio_balloon {
+ 	spinlock_t stop_update_lock;
+ 	bool stop_update;
+ 
++	/*
++	 * The balloon driver enters the oom mode if the oom notifier is
++	 * invoked. Entering the oom mode will force the exit of current
++	 * inflating work. When a later inflating request is received from
++	 * the host, the success of memory allocation via balloon_page_enqueue
++	 * will turn off the mode.
++	 */
++	bool oom_mode;
++
+ 	/* Waiting for host to ack the pages we released. */
+ 	wait_queue_head_t acked;
+ 
+@@ -142,22 +151,22 @@ static void set_page_pfns(struct virtio_balloon *vb,
+ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+ {
+ 	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
++	struct page *page;
++	size_t orig_num;
+ 	unsigned int num_pfns;
+ 	__virtio32 pfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
+ 
++	orig_num = num;
+ 	/* We can only do one array worth at a time. */
+ 	num = min_t(size_t, num, VIRTIO_BALLOON_ARRAY_PFNS_MAX);
+ 
+ 	for (num_pfns = 0; num_pfns < num;
+ 	     num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+-		struct page *page = balloon_page_enqueue(vb_dev_info);
+-
++		page = balloon_page_enqueue(vb_dev_info);
+ 		if (!page) {
+ 			dev_info_ratelimited(&vb->vdev->dev,
+ 					     "Out of puff! Can't get %u pages\n",
+ 					     VIRTIO_BALLOON_PAGES_PER_PAGE);
+-			/* Sleep for at least 1/5 of a second before retry. */
+-			msleep(200);
+ 			break;
+ 		}
+ 		set_page_pfns(vb, pfns + num_pfns, page);
+@@ -166,6 +175,13 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+ 			adjust_managed_page_count(page, -1);
+ 	}
+ 
++	/*
++	 * The oom_mode is set, but we've already been able to get some
++	 * pages, so it is time to turn it off here.
++	 */
++	if (unlikely(READ_ONCE(vb->oom_mode) && page))
++		WRITE_ONCE(vb->oom_mode, false);
++
+ 	mutex_lock(&vb->inflate_lock);
+ 	/* Did we get any? */
+ 	if (num_pfns != 0)
+@@ -173,6 +189,13 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+ 	mutex_unlock(&vb->inflate_lock);
+ 	atomic64_add(num_pfns, &vb->num_pages);
+ 
++	/*
++	 * If oom_mode is on, return the original @num passed by
++	 * update_balloon_size_func to stop the inflating.
++	 */
++	if (READ_ONCE(vb->oom_mode))
++		return orig_num;
++
+ 	return num_pfns;
+ }
+ 
+@@ -365,6 +388,7 @@ static int virtballoon_oom_notify(struct notifier_block *self,
+ 	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+ 		return NOTIFY_OK;
+ 
++	WRITE_ONCE(vb->oom_mode, true);
+ 	freed = parm;
+ 
+ 	/* Don't deflate more than the number of inflated pages */
+@@ -549,6 +573,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	INIT_WORK(&vb->update_balloon_size_work, update_balloon_size_func);
+ 	spin_lock_init(&vb->stop_update_lock);
+ 	vb->stop_update = false;
++	vb->oom_mode = false;
+ 	atomic64_set(&vb->num_pages, 0);
+ 	mutex_init(&vb->inflate_lock);
+ 	mutex_init(&vb->deflate_lock);
 -- 
 2.7.4
