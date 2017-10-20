@@ -1,17 +1,17 @@
-From: "Luis R. Rodriguez" <mcgrof@kernel.org>
-Subject: Re: [PATCH v1 15/27] compiler: Option to default to hidden symbols
-Date: Thu, 19 Oct 2017 21:38:08 +0200
-Message-ID: <20171019193808.GI17331__24188.8558645316$1509080643$gmane$org@wotan.suse.de>
+From: Thomas Garnier via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: Re: [PATCH v1 06/27] x86/entry/64: Adapt assembly for PIE support
+Date: Fri, 20 Oct 2017 07:47:44 -0700
+Message-ID: <CAJcbSZFScsqOORMGXFQdsqcN5xbfHWpzSHGdxQB=45zgSDryLw__2487.53874698213$1509080656$gmane$org@mail.gmail.com>
 References: <20171011203027.11248-1-thgarnie@google.com>
-	<20171011203027.11248-16-thgarnie@google.com>
-	<20171012200201.GW11645@wotan.suse.de>
-	<CAJcbSZEJ-kjcRQD3uHm0QZuOvbHpg9FV=wn7v4-RweDG7J3uqg@mail.gmail.com>
+	<20171011203027.11248-7-thgarnie@google.com>
+	<20171020082646.bkxrps35sb3gq2nr@gmail.com>
+Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAJcbSZEJ-kjcRQD3uHm0QZuOvbHpg9FV=wn7v4-RweDG7J3uqg@mail.gmail.com>
+In-Reply-To: <20171020082646.bkxrps35sb3gq2nr@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,80 +21,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Garnier <thgarnie@google.com>
-Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, Michal Hocko <mhocko@suse.com>, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, linux-doc@vger.kernel.org, Daniel Micay <danielmicay@gmail.com>, Len Brown <len.brown@intel.com>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, Jan H =?iso-8859-1?Q?=2E_Sch=F6nherr?= <jschoenh@amazon.de>, Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Waiman Long <longman@redhat.com>, Pavel Machek <pavel@ucw.cz>, "H . Peter Anvin" <hpa@zytor.com>, Kernel Hardening <kernel-hardening@lists.openwall.com>, Christoph Lameter <cl@linux.com>, Alok Kataria <akataria@vmware.com>, the arch/x86 maintainers <x86@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, Daniel Borkmann <daniel@iogearbox.net>, Jonat
+To: Ingo Molnar <mingo@kernel.org>
+Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, Michal Hocko <mhocko@suse.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, linux-doc@vger.kernel.org, Daniel Micay <danielmicay@gmail.com>, Len Brown <len.brown@intel.com>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, =?UTF-8?B?SmFuIEggLiBTY2jDtm5oZXJy?= <jschoenh@amazon.de>, Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Waiman Long <longman@redhat.com>, Pavel Machek <pavel@ucw.cz>, "H . Peter Anvin" <hpa@zytor.com>, Kernel Hardening <kernel-hardening@lists.openwall.com>, Christoph Lameter <cl@linux.com>, Thomas Gleixner <tglx@linutronix.de>, the arch/x86 maintainers <x86@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, Daniel Borkmann <daniel@iogearbox.net>, Jon
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 18, 2017 at 04:15:10PM -0700, Thomas Garnier wrote:
-> On Thu, Oct 12, 2017 at 1:02 PM, Luis R. Rodriguez <mcgrof@kernel.org> wrote:
-> > On Wed, Oct 11, 2017 at 01:30:15PM -0700, Thomas Garnier wrote:
-> >> diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-> >> index e95a2631e545..6997716f73bf 100644
-> >> --- a/include/linux/compiler.h
-> >> +++ b/include/linux/compiler.h
-> >> @@ -78,6 +78,14 @@ extern void __chk_io_ptr(const volatile void __iomem *);
-> >>  #include <linux/compiler-clang.h>
-> >>  #endif
-> >>
-> >> +/* Useful for Position Independent Code to reduce global references */
-> >> +#ifdef CONFIG_DEFAULT_HIDDEN
-> >> +#pragma GCC visibility push(hidden)
-> >> +#define __default_visibility  __attribute__((visibility ("default")))
-> >
-> > Does this still work with CONFIG_LD_DEAD_CODE_DATA_ELIMINATION ?
-> 
-> I cannot make it work with or without this change. How is it supposed
-> to be used?
+On Fri, Oct 20, 2017 at 1:26 AM, Ingo Molnar <mingo@kernel.org> wrote:
+>
+> * Thomas Garnier <thgarnie@google.com> wrote:
+>
+>> Change the assembly code to use only relative references of symbols for the
+>> kernel to be PIE compatible.
+>>
+>> Position Independent Executable (PIE) support will allow to extended the
+>> KASLR randomization range below the -2G memory limit.
+>>
+>> Signed-off-by: Thomas Garnier <thgarnie@google.com>
+>> ---
+>>  arch/x86/entry/entry_64.S | 22 +++++++++++++++-------
+>>  1 file changed, 15 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+>> index 49167258d587..15bd5530d2ae 100644
+>> --- a/arch/x86/entry/entry_64.S
+>> +++ b/arch/x86/entry/entry_64.S
+>> @@ -194,12 +194,15 @@ entry_SYSCALL_64_fastpath:
+>>       ja      1f                              /* return -ENOSYS (already in pt_regs->ax) */
+>>       movq    %r10, %rcx
+>>
+>> +     /* Ensures the call is position independent */
+>> +     leaq    sys_call_table(%rip), %r11
+>> +
+>>       /*
+>>        * This call instruction is handled specially in stub_ptregs_64.
+>>        * It might end up jumping to the slow path.  If it jumps, RAX
+>>        * and all argument registers are clobbered.
+>>        */
+>> -     call    *sys_call_table(, %rax, 8)
+>> +     call    *(%r11, %rax, 8)
+>>  .Lentry_SYSCALL_64_after_fastpath_call:
+>>
+>>       movq    %rax, RAX(%rsp)
+>> @@ -334,7 +337,8 @@ ENTRY(stub_ptregs_64)
+>>        * RAX stores a pointer to the C function implementing the syscall.
+>>        * IRQs are on.
+>>        */
+>> -     cmpq    $.Lentry_SYSCALL_64_after_fastpath_call, (%rsp)
+>> +     leaq    .Lentry_SYSCALL_64_after_fastpath_call(%rip), %r11
+>> +     cmpq    %r11, (%rsp)
+>>       jne     1f
+>>
+>>       /*
+>> @@ -1172,7 +1176,8 @@ ENTRY(error_entry)
+>>       movl    %ecx, %eax                      /* zero extend */
+>>       cmpq    %rax, RIP+8(%rsp)
+>>       je      .Lbstep_iret
+>> -     cmpq    $.Lgs_change, RIP+8(%rsp)
+>> +     leaq    .Lgs_change(%rip), %rcx
+>> +     cmpq    %rcx, RIP+8(%rsp)
+>>       jne     .Lerror_entry_done
+>>
+>>       /*
+>> @@ -1383,10 +1388,10 @@ ENTRY(nmi)
+>>        * resume the outer NMI.
+>>        */
+>>
+>> -     movq    $repeat_nmi, %rdx
+>> +     leaq    repeat_nmi(%rip), %rdx
+>>       cmpq    8(%rsp), %rdx
+>>       ja      1f
+>> -     movq    $end_repeat_nmi, %rdx
+>> +     leaq    end_repeat_nmi(%rip), %rdx
+>>       cmpq    8(%rsp), %rdx
+>>       ja      nested_nmi_out
+>>  1:
+>> @@ -1440,7 +1445,8 @@ nested_nmi:
+>>       pushq   %rdx
+>>       pushfq
+>>       pushq   $__KERNEL_CS
+>> -     pushq   $repeat_nmi
+>> +     leaq    repeat_nmi(%rip), %rdx
+>> +     pushq   %rdx
+>>
+>>       /* Put stack back */
+>>       addq    $(6*8), %rsp
+>> @@ -1479,7 +1485,9 @@ first_nmi:
+>>       addq    $8, (%rsp)      /* Fix up RSP */
+>>       pushfq                  /* RFLAGS */
+>>       pushq   $__KERNEL_CS    /* CS */
+>> -     pushq   $1f             /* RIP */
+>> +     pushq   %rax            /* Support Position Independent Code */
+>> +     leaq    1f(%rip), %rax  /* RIP */
+>> +     xchgq   %rax, (%rsp)    /* Restore RAX, put 1f */
+>>       INTERRUPT_RETURN        /* continues at repeat_nmi below */
+>>       UNWIND_HINT_IRET_REGS
+>
+> This patch seems to add extra overhead to the syscall fast-path even when PIE is
+> disabled, right?
 
-Sadly I don't think much documentation was really added as part of the Nick's
-commits about feature, even though commit b67067f1176 ("kbuild: allow archs to
-select link dead code/data elimination") *does* say this was documented.
+It does add extra instructions when one is not possible, I preferred
+that over ifdefing but I can change it.
 
-Side rant: the whole CONFIG_LTO removal was merged in the same commit without
-this having gone in as a separate atomic patch.
+>
+> Thanks,
+>
+>         Ingo
 
-Nick can you provide a bit more guidance about how to get this feature going or
-tested on an architecture? Or are you just sticking to assuming folks using the
-linker / compiler flags will know what to do? *Some* guidance could help.
 
-> For me with, it crashes with a bad consdev at:
-> http://elixir.free-electrons.com/linux/latest/source/drivers/tty/tty_io.c#L3194
 
-From my reading of the commit log he only had tested it with with powerpc64le,
-each other architecture would have to do work to get as far as even booting.
-
-It would require someone then testing Nick's patches against a working
-powerpc setup to ensure we don't regress there.
-
-> >> diff --git a/init/Kconfig b/init/Kconfig
-> >> index ccb1d8daf241..b640201fcff7 100644
-> >> --- a/init/Kconfig
-> >> +++ b/init/Kconfig
-> >> @@ -1649,6 +1649,13 @@ config PROFILING
-> >>  config TRACEPOINTS
-> >>       bool
-> >>
-> >> +#
-> >> +# Default to hidden visibility for all symbols.
-> >> +# Useful for Position Independent Code to reduce global references.
-> >> +#
-> >> +config DEFAULT_HIDDEN
-> >> +     bool
-> >
-> > Note it is default.
-> >
-> > Has 0-day ran through this git tree? It should be easy to get it added for
-> > testing. Also, even though most changes are x86 based there are some generic
-> > changes and I'd love a warm fuzzy this won't break odd / random builds.
-> > Although 0-day does cover a lot of test cases, it only has limited run time
-> > tests. There are some other test beds which also cover some more obscure
-> > architectures. Having a test pass on Guenter's test bed would be nice to
-> > see. For that please coordinate with Guenter if he's willing to run this
-> > a test for you.
-> 
-> Not yet, plan to give a v1.5 to Kees Cook to keep in one of his tree
-> for couple weeks. I expect it will identify interesting issues.
-
-I bet :)
-
-  Luis
+-- 
+Thomas
