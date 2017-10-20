@@ -1,7 +1,7 @@
 From: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: [PATCH v1 06/27] x86/entry/64: Adapt assembly for PIE support
-Date: Fri, 20 Oct 2017 18:27:24 +0200
-Message-ID: <1F0B8A18-092F-42AF-91B4-7A5D414ED83D__24188.0221329213$1508516902$gmane$org@amacapital.net>
+Date: Fri, 20 Oct 2017 19:52:17 +0200
+Message-ID: <3EA62B98-ED93-48BC-9113-05CA09E6FC5E__31815.2972301052$1508521984$gmane$org@amacapital.net>
 References: <20171011203027.11248-1-thgarnie@google.com>
 	<20171011203027.11248-7-thgarnie@google.com>
 	<20171020082646.bkxrps35sb3gq2nr@gmail.com>
@@ -49,12 +49,9 @@ List-Id: virtualization@lists.linuxfoundation.org
 > 
 > I have no good idea how to solve this.
 > 
-
-How about:
-
-.macro JMP_TO_LABEL ...
-
-
 > Thanks,
+
+Ugh, brain was off.  This is a bit messy. We could use a macro for this, too, I suppose.
+
 > 
 >    Ingo
