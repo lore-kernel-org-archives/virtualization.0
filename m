@@ -1,18 +1,16 @@
-From: Thomas Garnier via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH v1 01/27] x86/crypto: Adapt assembly for PIE support
-Date: Fri, 20 Oct 2017 07:48:57 -0700
-Message-ID: <CAJcbSZEhkdy9S3qtN4jFaj2doQsp1ORyHiNmzncDb2+bRatXmw__22212.1846084066$1509080656$gmane$org@mail.gmail.com>
-References: <20171011203027.11248-1-thgarnie@google.com>
-	<20171011203027.11248-2-thgarnie@google.com>
-	<20171020082420.lsvu7mqjrgnahm5t@gmail.com>
-	<CAKv+Gu9XMnNA0UoGfFMQmC9=Ryh6dcOduxH+tq49bcdvBwhyQw@mail.gmail.com>
-Reply-To: Thomas Garnier <thgarnie@google.com>
+From: =?UTF-8?B?VG9tw6HFoSBHb2xlbWJpb3Zza8O9?= <tgolembi@redhat.com>
+Subject: Re: [PATCH v2 1/1] virtio_balloon: include buffers and cached
+	memory statistics
+Date: Sun, 22 Oct 2017 20:05:57 +0200
+Message-ID: <20171022200557.02558e37__40061.1234632835$1509080659$gmane$org@fiorina>
+References: <cover.1505998455.git.tgolembi@redhat.com>
+	<b13f11c03ed394bd8ad367dc90996ed134ea98da.1505998455.git.tgolembi@redhat.com>
+	<20171019160405-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAKv+Gu9XMnNA0UoGfFMQmC9=Ryh6dcOduxH+tq49bcdvBwhyQw@mail.gmail.com>
+In-Reply-To: <20171019160405-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,132 +20,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, Michal Hocko <mhocko@suse.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Daniel Micay <danielmicay@gmail.com>, Len Brown <len.brown@intel.com>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, =?UTF-8?B?SmFuIEggLiBTY2jDtm5oZXJy?= <jschoenh@amazon.de>, Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Waiman Long <longman@redhat.com>, Pavel Machek <pavel@ucw.cz>, "H . Peter Anvin" <hpa@zytor.com>, Kernel Hardening <kernel-hardening@lists.openwall.com>, Christoph Lameter <cl@linux.com>, Ingo Molnar <mingo@kernel.org>, "x86@kernel.org" <x86@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, Daniel Borkmann <daniel@iogearbo>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Shaohua Li <shli@fb.com>, Huang Ying <ying.huang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 20, 2017 at 1:28 AM, Ard Biesheuvel
-<ard.biesheuvel@linaro.org> wrote:
-> On 20 October 2017 at 09:24, Ingo Molnar <mingo@kernel.org> wrote:
->>
->> * Thomas Garnier <thgarnie@google.com> wrote:
->>
->>> Change the assembly code to use only relative references of symbols for the
->>> kernel to be PIE compatible.
->>>
->>> Position Independent Executable (PIE) support will allow to extended the
->>> KASLR randomization range below the -2G memory limit.
->>
->>> diff --git a/arch/x86/crypto/aes-x86_64-asm_64.S b/arch/x86/crypto/aes-x86_64-asm_64.S
->>> index 8739cf7795de..86fa068e5e81 100644
->>> --- a/arch/x86/crypto/aes-x86_64-asm_64.S
->>> +++ b/arch/x86/crypto/aes-x86_64-asm_64.S
->>> @@ -48,8 +48,12 @@
->>>  #define R10  %r10
->>>  #define R11  %r11
->>>
->>> +/* Hold global for PIE suport */
->>> +#define RBASE        %r12
->>> +
->>>  #define prologue(FUNC,KEY,B128,B192,r1,r2,r5,r6,r7,r8,r9,r10,r11) \
->>>       ENTRY(FUNC);                    \
->>> +     pushq   RBASE;                  \
->>>       movq    r1,r2;                  \
->>>       leaq    KEY+48(r8),r9;          \
->>>       movq    r10,r11;                \
->>> @@ -74,54 +78,63 @@
->>>       movl    r6 ## E,4(r9);          \
->>>       movl    r7 ## E,8(r9);          \
->>>       movl    r8 ## E,12(r9);         \
->>> +     popq    RBASE;                  \
->>>       ret;                            \
->>>       ENDPROC(FUNC);
->>>
->>> +#define round_mov(tab_off, reg_i, reg_o) \
->>> +     leaq    tab_off(%rip), RBASE; \
->>> +     movl    (RBASE,reg_i,4), reg_o;
->>> +
->>> +#define round_xor(tab_off, reg_i, reg_o) \
->>> +     leaq    tab_off(%rip), RBASE; \
->>> +     xorl    (RBASE,reg_i,4), reg_o;
->>> +
->>>  #define round(TAB,OFFSET,r1,r2,r3,r4,r5,r6,r7,r8,ra,rb,rc,rd) \
->>>       movzbl  r2 ## H,r5 ## E;        \
->>>       movzbl  r2 ## L,r6 ## E;        \
->>> -     movl    TAB+1024(,r5,4),r5 ## E;\
->>> +     round_mov(TAB+1024, r5, r5 ## E)\
->>>       movw    r4 ## X,r2 ## X;        \
->>> -     movl    TAB(,r6,4),r6 ## E;     \
->>> +     round_mov(TAB, r6, r6 ## E)     \
->>>       roll    $16,r2 ## E;            \
->>>       shrl    $16,r4 ## E;            \
->>>       movzbl  r4 ## L,r7 ## E;        \
->>>       movzbl  r4 ## H,r4 ## E;        \
->>>       xorl    OFFSET(r8),ra ## E;     \
->>>       xorl    OFFSET+4(r8),rb ## E;   \
->>> -     xorl    TAB+3072(,r4,4),r5 ## E;\
->>> -     xorl    TAB+2048(,r7,4),r6 ## E;\
->>> +     round_xor(TAB+3072, r4, r5 ## E)\
->>> +     round_xor(TAB+2048, r7, r6 ## E)\
->>>       movzbl  r1 ## L,r7 ## E;        \
->>>       movzbl  r1 ## H,r4 ## E;        \
->>> -     movl    TAB+1024(,r4,4),r4 ## E;\
->>> +     round_mov(TAB+1024, r4, r4 ## E)\
->>>       movw    r3 ## X,r1 ## X;        \
->>>       roll    $16,r1 ## E;            \
->>>       shrl    $16,r3 ## E;            \
->>> -     xorl    TAB(,r7,4),r5 ## E;     \
->>> +     round_xor(TAB, r7, r5 ## E)     \
->>>       movzbl  r3 ## L,r7 ## E;        \
->>>       movzbl  r3 ## H,r3 ## E;        \
->>> -     xorl    TAB+3072(,r3,4),r4 ## E;\
->>> -     xorl    TAB+2048(,r7,4),r5 ## E;\
->>> +     round_xor(TAB+3072, r3, r4 ## E)\
->>> +     round_xor(TAB+2048, r7, r5 ## E)\
->>>       movzbl  r1 ## L,r7 ## E;        \
->>>       movzbl  r1 ## H,r3 ## E;        \
->>>       shrl    $16,r1 ## E;            \
->>> -     xorl    TAB+3072(,r3,4),r6 ## E;\
->>> -     movl    TAB+2048(,r7,4),r3 ## E;\
->>> +     round_xor(TAB+3072, r3, r6 ## E)\
->>> +     round_mov(TAB+2048, r7, r3 ## E)\
->>>       movzbl  r1 ## L,r7 ## E;        \
->>>       movzbl  r1 ## H,r1 ## E;        \
->>> -     xorl    TAB+1024(,r1,4),r6 ## E;\
->>> -     xorl    TAB(,r7,4),r3 ## E;     \
->>> +     round_xor(TAB+1024, r1, r6 ## E)\
->>> +     round_xor(TAB, r7, r3 ## E)     \
->>>       movzbl  r2 ## H,r1 ## E;        \
->>>       movzbl  r2 ## L,r7 ## E;        \
->>>       shrl    $16,r2 ## E;            \
->>> -     xorl    TAB+3072(,r1,4),r3 ## E;\
->>> -     xorl    TAB+2048(,r7,4),r4 ## E;\
->>> +     round_xor(TAB+3072, r1, r3 ## E)\
->>> +     round_xor(TAB+2048, r7, r4 ## E)\
->>>       movzbl  r2 ## H,r1 ## E;        \
->>>       movzbl  r2 ## L,r2 ## E;        \
->>>       xorl    OFFSET+8(r8),rc ## E;   \
->>>       xorl    OFFSET+12(r8),rd ## E;  \
->>> -     xorl    TAB+1024(,r1,4),r3 ## E;\
->>> -     xorl    TAB(,r2,4),r4 ## E;
->>> +     round_xor(TAB+1024, r1, r3 ## E)\
->>> +     round_xor(TAB, r2, r4 ## E)
->>
->> This appears to be adding unconditional overhead to a function that was moved to
->> assembly to improve its performance.
->>
-
-It adds couple extra instructions, how much overhead it creates is
-hard for me to tell. It would increase the code complexity if
-everything is ifdef.
-
->
-> I did some benchmarking on this code a while ago and, interestingly,
-> it was slower than the generic C implementation (on a Pentium E2200),
-> so we may want to consider whether we still need this driver in the
-> first place.
-
-Interesting.
-
--- 
-Thomas
+T24gVGh1LCAxOSBPY3QgMjAxNyAxNjoxMjoyMCArMDMwMAoiTWljaGFlbCBTLiBUc2lya2luIiA8
+bXN0QHJlZGhhdC5jb20+IHdyb3RlOgoKPiBPbiBUaHUsIFNlcCAyMSwgMjAxNyBhdCAwMjo1NTo0
+MVBNICswMjAwLCBUb23DocWhIEdvbGVtYmlvdnNrw70gd3JvdGU6Cj4gPiBBZGQgYSBuZXcgZmll
+bGRzLCBWSVJUSU9fQkFMTE9PTl9TX0JVRkZFUlMgYW5kIFZJUlRJT19CQUxMT09OX1NfQ0FDSEVE
+LAo+ID4gdG8gdmlydGlvX2JhbGxvb24gbWVtb3J5IHN0YXRpc3RpY3MgcHJvdG9jb2wuIFRoZSB2
+YWx1ZXMgY29ycmVzcG9uZCB0bwo+ID4gJ0J1ZmZlcnMnIGFuZCAnQ2FjaGVkJyBpbiAvcHJvYy9t
+ZW1pbmZvLgo+ID4gCj4gPiBUbyBiZSBhYmxlIHRvIGNvbXB1dGUgdGhlIHZhbHVlIG9mICdDYWNo
+ZWQnIG1lbW9yeSBpdCBpcyBuZWNlc3NhcnkgdG8KPiA+IGV4cG9ydCB0b3RhbF9zd2FwY2FjaGVf
+cGFnZXMoKSB0byBtb2R1bGVzLgo+ID4gCj4gPiBTaWduZWQtb2ZmLWJ5OiBUb23DocWhIEdvbGVt
+YmlvdnNrw70gPHRnb2xlbWJpQHJlZGhhdC5jb20+Cj4gCj4gRG9lcyAnQnVmZmVycycgYWN0dWFs
+bHkgbWFrZSBzZW5zZT8gSXQncyBhIHRlbXBvcmFyeSBzdG9yYWdlIC0KPiB3b3VsZG4ndCBpdCBi
+ZSBzaWduaWZpY2FudGx5IG91dCBvZiBkYXRlIGJ5IHRoZSB0aW1lCj4gaG9zdCByZWNlaXZlcyBp
+dD8KClRoYXQgd291bGQgYmUgYmVzdCBhbnN3ZXJlZCBieSBzb21lYm9keSBmcm9tIGtlcm5lbC4g
+QnV0IG15IHBlcnNvbmFsCm9waW5pb24gaXMgdGhhdCBpdCB3b3VsZCBub3QgYmUgb3V0IG9mIGRh
+dGUuIFRoZSBhbW91bnQgb2YgbWVtb3J5CmRlZGljYXRlZCB0byBCdWZmZXJzIGRvZXMgbm90IHNl
+ZW0gdG8gZmx1Y3R1YXRlIHRvbyBtdWNoLgoKICAgIFRvbWFzCgoKPiA+IC0tLQo+ID4gIGRyaXZl
+cnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgICAgIHwgMTEgKysrKysrKysrKysKPiA+ICBpbmNs
+dWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaCB8ICA0ICsrKy0KPiA+ICBtbS9zd2FwX3N0
+YXRlLmMgICAgICAgICAgICAgICAgICAgICB8ICAxICsKPiA+ICAzIGZpbGVzIGNoYW5nZWQsIDE1
+IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPiA+IAo+ID4gZGlmZiAtLWdpdCBhL2RyaXZl
+cnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9v
+bi5jCj4gPiBpbmRleCBmMGIzYTBiOWQ0MmYuLmMyNTU4ZWM0N2E2MiAxMDA2NDQKPiA+IC0tLSBh
+L2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlv
+L3ZpcnRpb19iYWxsb29uLmMKPiA+IEBAIC0yNDQsMTIgKzI0NCwxOSBAQCBzdGF0aWMgdW5zaWdu
+ZWQgaW50IHVwZGF0ZV9iYWxsb29uX3N0YXRzKHN0cnVjdCB2aXJ0aW9fYmFsbG9vbiAqdmIpCj4g
+PiAgCXN0cnVjdCBzeXNpbmZvIGk7Cj4gPiAgCXVuc2lnbmVkIGludCBpZHggPSAwOwo+ID4gIAls
+b25nIGF2YWlsYWJsZTsKPiA+ICsJbG9uZyBjYWNoZWQ7Cj4gPiAgCj4gPiAgCWFsbF92bV9ldmVu
+dHMoZXZlbnRzKTsKPiA+ICAJc2lfbWVtaW5mbygmaSk7Cj4gPiAgCj4gPiAgCWF2YWlsYWJsZSA9
+IHNpX21lbV9hdmFpbGFibGUoKTsKPiA+ICAKPiA+ICsJY2FjaGVkID0gZ2xvYmFsX25vZGVfcGFn
+ZV9zdGF0ZShOUl9GSUxFX1BBR0VTKSAtCj4gPiArCQkJdG90YWxfc3dhcGNhY2hlX3BhZ2VzKCkg
+LSBpLmJ1ZmZlcnJhbTsKPiA+ICsJaWYgKGNhY2hlZCA8IDApCj4gPiArCQljYWNoZWQgPSAwOwo+
+ID4gKwo+ID4gKwo+ID4gICNpZmRlZiBDT05GSUdfVk1fRVZFTlRfQ09VTlRFUlMKPiA+ICAJdXBk
+YXRlX3N0YXQodmIsIGlkeCsrLCBWSVJUSU9fQkFMTE9PTl9TX1NXQVBfSU4sCj4gPiAgCQkJCXBh
+Z2VzX3RvX2J5dGVzKGV2ZW50c1tQU1dQSU5dKSk7Cj4gPiBAQCAtMjY0LDYgKzI3MSwxMCBAQCBz
+dGF0aWMgdW5zaWduZWQgaW50IHVwZGF0ZV9iYWxsb29uX3N0YXRzKHN0cnVjdCB2aXJ0aW9fYmFs
+bG9vbiAqdmIpCj4gPiAgCQkJCXBhZ2VzX3RvX2J5dGVzKGkudG90YWxyYW0pKTsKPiA+ICAJdXBk
+YXRlX3N0YXQodmIsIGlkeCsrLCBWSVJUSU9fQkFMTE9PTl9TX0FWQUlMLAo+ID4gIAkJCQlwYWdl
+c190b19ieXRlcyhhdmFpbGFibGUpKTsKPiA+ICsJdXBkYXRlX3N0YXQodmIsIGlkeCsrLCBWSVJU
+SU9fQkFMTE9PTl9TX0JVRkZFUlMsCj4gPiArCQkJCXBhZ2VzX3RvX2J5dGVzKGkuYnVmZmVycmFt
+KSk7Cj4gPiArCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19DQUNIRUQs
+Cj4gPiArCQkJCXBhZ2VzX3RvX2J5dGVzKGNhY2hlZCkpOwo+ID4gIAo+ID4gIAlyZXR1cm4gaWR4
+Owo+ID4gIH0KPiA+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxv
+b24uaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5oCj4gPiBpbmRleCAzNDNk
+N2RkZWZlMDQuLmQ1ZGM4YTU2YTQ5NyAxMDA2NDQKPiA+IC0tLSBhL2luY2x1ZGUvdWFwaS9saW51
+eC92aXJ0aW9fYmFsbG9vbi5oCj4gPiArKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2Jh
+bGxvb24uaAo+ID4gQEAgLTUyLDcgKzUyLDkgQEAgc3RydWN0IHZpcnRpb19iYWxsb29uX2NvbmZp
+ZyB7Cj4gPiAgI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX01FTUZSRUUgIDQgICAvKiBUb3RhbCBh
+bW91bnQgb2YgZnJlZSBtZW1vcnkgKi8KPiA+ICAjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTUVN
+VE9UICAgNSAgIC8qIFRvdGFsIGFtb3VudCBvZiBtZW1vcnkgKi8KPiA+ICAjZGVmaW5lIFZJUlRJ
+T19CQUxMT09OX1NfQVZBSUwgICAgNiAgIC8qIEF2YWlsYWJsZSBtZW1vcnkgYXMgaW4gL3Byb2Mg
+Ki8KPiA+IC0jZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTlIgICAgICAgNwo+ID4gKyNkZWZpbmUg
+VklSVElPX0JBTExPT05fU19CVUZGRVJTICA3ICAgLyogQnVmZmVycyBtZW1vcnkgYXMgaW4gL3By
+b2MgKi8KPiA+ICsjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfQ0FDSEVEICAgOCAgIC8qIENhY2hl
+ZCBtZW1vcnkgYXMgaW4gL3Byb2MgKi8KPiA+ICsjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTlIg
+ICAgICAgOQo+ID4gIAo+ID4gIC8qCj4gPiAgICogTWVtb3J5IHN0YXRpc3RpY3Mgc3RydWN0dXJl
+Lgo+ID4gZGlmZiAtLWdpdCBhL21tL3N3YXBfc3RhdGUuYyBiL21tL3N3YXBfc3RhdGUuYwo+ID4g
+aW5kZXggNzFjZTJkMWNjYmY3Li5mM2E0ZmY3ZDZjNTIgMTAwNjQ0Cj4gPiAtLS0gYS9tbS9zd2Fw
+X3N0YXRlLmMKPiA+ICsrKyBiL21tL3N3YXBfc3RhdGUuYwo+ID4gQEAgLTk1LDYgKzk1LDcgQEAg
+dW5zaWduZWQgbG9uZyB0b3RhbF9zd2FwY2FjaGVfcGFnZXModm9pZCkKPiA+ICAJcmN1X3JlYWRf
+dW5sb2NrKCk7Cj4gPiAgCXJldHVybiByZXQ7Cj4gPiAgfQo+ID4gK0VYUE9SVF9TWU1CT0xfR1BM
+KHRvdGFsX3N3YXBjYWNoZV9wYWdlcyk7Cj4gPiAgCj4gPiAgc3RhdGljIGF0b21pY190IHN3YXBp
+bl9yZWFkYWhlYWRfaGl0cyA9IEFUT01JQ19JTklUKDQpOwo+IAo+IE5lZWQgYW4gYWNrIGZyb20g
+TU0gY3Jvd2Qgb24gdGhhdC4KPiAKPiA+IC0tIAo+ID4gMi4xNC4xCgoKLS0gClRvbcOhxaEgR29s
+ZW1iaW92c2vDvSA8dGdvbGVtYmlAcmVkaGF0LmNvbT4KX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
