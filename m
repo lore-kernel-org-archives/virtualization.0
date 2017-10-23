@@ -1,15 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v1 3/3] virtio-balloon: stop inflating when OOM occurs
-Date: Sun, 22 Oct 2017 20:13:59 +0300
-Message-ID: <20171022062159-mutt-send-email-mst__42194.0497392372$1508692457$gmane$org@kernel.org>
-References: <1508500466-21165-1-git-send-email-wei.w.wang@intel.com>
-	<1508500466-21165-4-git-send-email-wei.w.wang@intel.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: [RFC] virtio-iommu version 0.5
+Date: Mon, 23 Oct 2017 10:32:41 +0100
+Message-ID: <20171023093241.20113-1-jean-philippe.brucker__32135.9831178144$1508750862$gmane$org@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1508500466-21165-4-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,133 +15,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: penguin-kernel@I-love.SAKURA.ne.jp, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mhocko@kernel.org
+To: iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
+Cc: lorenzo.pieralisi@arm.com, ashok.raj@intel.com, mst@redhat.com, marc.zyngier@arm.com, will.deacon@arm.com, Jayachandran.Nair@cavium.com, eric.auger@redhat.com, robin.murphy@arm.com, eric.auger.pro@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 20, 2017 at 07:54:26PM +0800, Wei Wang wrote:
-> This patch forces the cease of the inflating work when OOM occurs.
-> The fundamental idea of memory ballooning is to take out some guest
-> pages when the guest has low memory utilization, so it is sensible to
-> inflate nothing when the guest is already under memory pressure.
-> 
-> On the other hand, the policy is determined by the admin or the
-> orchestration layer from the host. That is, the host is expected to
-> re-start the memory inflating request at a proper time later when
-> the guest has enough memory to inflate, for example, by checking
-> the memory stats reported by the balloon.
+This is version 0.5 of the virtio-iommu specification, the paravirtualized
+IOMMU. This version addresses feedback from v0.4 and adds an event virtqueue.
+Please find the specification, LaTeX sources and pdf, at:
+git://linux-arm.org/virtio-iommu.git viommu/v0.5
+http://linux-arm.org/git?p=virtio-iommu.git;a=blob;f=dist/v0.5/virtio-iommu-v0.5.pdf
 
-Is there any other way to do it? And if so can't we just have guest do
-it automatically? Maybe the issue is really that fill attempts to
-allocate memory aggressively instead of checking availability.
-Maybe with deflate on oom it should check availability?
+A detailed changelog since v0.4 follows. You can find the pdf diff at:
+http://linux-arm.org/git?p=virtio-iommu.git;a=blob;f=dist/diffs/virtio-iommu-pdf-diff-v0.4-v0.5.pdf
 
+* Add an event virtqueue for the device to report translation faults to
+  the driver. For the moment only unrecoverable faults are available but
+  future versions will extend it.
+* Simplify PROBE request by removing the ack part, and flattening RESV
+  properties.
+* Rename "address space" to "domain". The change might seem futile but
+  allows to introduce PASIDs and other features cleanly in the next
+  versions. In the same vein, the few remaining "device" occurrences were
+  replaced by "endpoint", to avoid any confusion with "the device"
+  referring to the virtio device across the document.
+* Add implementation notes for RESV_MEM properties.
+* Update ACPI table definition.
+* Fix typos and clarify a few things.
 
-> If another inflating
-> requests is sent to guest when the guest is still under memory
-> pressure, still no pages will be inflated.
+I will publish the Linux driver for v0.5 shortly. Then for next versions
+I'll focus on optimizations and adding support for hardware acceleration.
 
-Any such changes are hypervisor-visible and need a new feature bit.
+Existing implementations are simple and can certainly be optimized, even
+without architectural changes. But the architecture itself can also be
+improved in a number of ways. Currently it is designed to work well with
+VFIO. However, having explicit MAP requests is less efficient* than page
+tables for emulated and PV endpoints, and the current architecture doesn't
+address this. Binding page tables is an obvious way to improve throughput
+in that case, but we can explore cleverer (and possibly simpler) ways to
+do it.
 
+So first we'll work on getting the base device and driver merged, then
+we'll analyze and compare several ideas for improving performance.
 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-> Cc: Michal Hocko <mhocko@kernel.org>
-> ---
->  drivers/virtio/virtio_balloon.c | 33 +++++++++++++++++++++++++++++----
->  1 file changed, 29 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index ab55cf8..cf29663 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -63,6 +63,15 @@ struct virtio_balloon {
->  	spinlock_t stop_update_lock;
->  	bool stop_update;
->  
-> +	/*
-> +	 * The balloon driver enters the oom mode if the oom notifier is
-> +	 * invoked. Entering the oom mode will force the exit of current
-> +	 * inflating work. When a later inflating request is received from
-> +	 * the host, the success of memory allocation via balloon_page_enqueue
-> +	 * will turn off the mode.
-> +	 */
-> +	bool oom_mode;
-> +
->  	/* Waiting for host to ack the pages we released. */
->  	wait_queue_head_t acked;
->  
-> @@ -142,22 +151,22 @@ static void set_page_pfns(struct virtio_balloon *vb,
->  static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
->  {
->  	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
-> +	struct page *page;
-> +	size_t orig_num;
->  	unsigned int num_pfns;
->  	__virtio32 pfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
->  
-> +	orig_num = num;
->  	/* We can only do one array worth at a time. */
->  	num = min_t(size_t, num, VIRTIO_BALLOON_ARRAY_PFNS_MAX);
->  
->  	for (num_pfns = 0; num_pfns < num;
->  	     num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
-> -		struct page *page = balloon_page_enqueue(vb_dev_info);
-> -
-> +		page = balloon_page_enqueue(vb_dev_info);
->  		if (!page) {
->  			dev_info_ratelimited(&vb->vdev->dev,
->  					     "Out of puff! Can't get %u pages\n",
->  					     VIRTIO_BALLOON_PAGES_PER_PAGE);
-> -			/* Sleep for at least 1/5 of a second before retry. */
-> -			msleep(200);
->  			break;
->  		}
->  		set_page_pfns(vb, pfns + num_pfns, page);
-> @@ -166,6 +175,13 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
->  			adjust_managed_page_count(page, -1);
->  	}
->  
-> +	/*
-> +	 * The oom_mode is set, but we've already been able to get some
-> +	 * pages, so it is time to turn it off here.
-> +	 */
-> +	if (unlikely(READ_ONCE(vb->oom_mode) && page))
-> +		WRITE_ONCE(vb->oom_mode, false);
-> +
->  	mutex_lock(&vb->inflate_lock);
->  	/* Did we get any? */
->  	if (num_pfns != 0)
-> @@ -173,6 +189,13 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
->  	mutex_unlock(&vb->inflate_lock);
->  	atomic64_add(num_pfns, &vb->num_pages);
->  
-> +	/*
-> +	 * If oom_mode is on, return the original @num passed by
-> +	 * update_balloon_size_func to stop the inflating.
-> +	 */
-> +	if (READ_ONCE(vb->oom_mode))
-> +		return orig_num;
-> +
->  	return num_pfns;
->  }
->  
-> @@ -365,6 +388,7 @@ static int virtballoon_oom_notify(struct notifier_block *self,
->  	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
->  		return NOTIFY_OK;
->  
-> +	WRITE_ONCE(vb->oom_mode, true);
->  	freed = parm;
->  
->  	/* Don't deflate more than the number of inflated pages */
-> @@ -549,6 +573,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  	INIT_WORK(&vb->update_balloon_size_work, update_balloon_size_func);
->  	spin_lock_init(&vb->stop_update_lock);
->  	vb->stop_update = false;
-> +	vb->oom_mode = false;
->  	atomic64_set(&vb->num_pages, 0);
->  	mutex_init(&vb->inflate_lock);
->  	mutex_init(&vb->deflate_lock);
-> -- 
-> 2.7.4
+Thanks,
+Jean
+
+* I have yet to study this behaviour, and would be interested in any
+prior art on the subject of analyzing devices DMA patterns (virtio and
+others)
