@@ -1,16 +1,14 @@
-From: =?UTF-8?B?VG9tw6HFoSBHb2xlbWJpb3Zza8O9?= <tgolembi@redhat.com>
-Subject: Re: [PATCH v2 1/1] virtio_balloon: include buffers and cached
-	memory statistics
-Date: Sun, 22 Oct 2017 20:05:57 +0200
-Message-ID: <20171022200557.02558e37__40061.1234632835$1509080659$gmane$org@fiorina>
-References: <cover.1505998455.git.tgolembi@redhat.com>
-	<b13f11c03ed394bd8ad367dc90996ed134ea98da.1505998455.git.tgolembi@redhat.com>
-	<20171019160405-mutt-send-email-mst@kernel.org>
+From: Linu Cherian <linuc.decode@gmail.com>
+Subject: Re: [RFC] virtio-iommu version 0.5
+Date: Tue, 24 Oct 2017 11:57:04 +0530
+Message-ID: <20171024062704.GA23141__45178.2467113391$1509080682$gmane$org@virtx40>
+References: <20171023093241.20113-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171019160405-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171023093241.20113-1-jean-philippe.brucker@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,74 +18,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Shaohua Li <shli@fb.com>, Huang Ying <ying.huang@intel.com>
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, ashok.raj@intel.com, kvm@vger.kernel.org, mst@redhat.com, marc.zyngier@arm.com, will.deacon@arm.com, Jayachandran.Nair@cavium.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, sunil.goutham@cavium.com, linu.cherian@cavium.com, robin.murphy@arm.com, eric.auger.pro@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCAxOSBPY3QgMjAxNyAxNjoxMjoyMCArMDMwMAoiTWljaGFlbCBTLiBUc2lya2luIiA8
-bXN0QHJlZGhhdC5jb20+IHdyb3RlOgoKPiBPbiBUaHUsIFNlcCAyMSwgMjAxNyBhdCAwMjo1NTo0
-MVBNICswMjAwLCBUb23DocWhIEdvbGVtYmlvdnNrw70gd3JvdGU6Cj4gPiBBZGQgYSBuZXcgZmll
-bGRzLCBWSVJUSU9fQkFMTE9PTl9TX0JVRkZFUlMgYW5kIFZJUlRJT19CQUxMT09OX1NfQ0FDSEVE
-LAo+ID4gdG8gdmlydGlvX2JhbGxvb24gbWVtb3J5IHN0YXRpc3RpY3MgcHJvdG9jb2wuIFRoZSB2
-YWx1ZXMgY29ycmVzcG9uZCB0bwo+ID4gJ0J1ZmZlcnMnIGFuZCAnQ2FjaGVkJyBpbiAvcHJvYy9t
-ZW1pbmZvLgo+ID4gCj4gPiBUbyBiZSBhYmxlIHRvIGNvbXB1dGUgdGhlIHZhbHVlIG9mICdDYWNo
-ZWQnIG1lbW9yeSBpdCBpcyBuZWNlc3NhcnkgdG8KPiA+IGV4cG9ydCB0b3RhbF9zd2FwY2FjaGVf
-cGFnZXMoKSB0byBtb2R1bGVzLgo+ID4gCj4gPiBTaWduZWQtb2ZmLWJ5OiBUb23DocWhIEdvbGVt
-YmlvdnNrw70gPHRnb2xlbWJpQHJlZGhhdC5jb20+Cj4gCj4gRG9lcyAnQnVmZmVycycgYWN0dWFs
-bHkgbWFrZSBzZW5zZT8gSXQncyBhIHRlbXBvcmFyeSBzdG9yYWdlIC0KPiB3b3VsZG4ndCBpdCBi
-ZSBzaWduaWZpY2FudGx5IG91dCBvZiBkYXRlIGJ5IHRoZSB0aW1lCj4gaG9zdCByZWNlaXZlcyBp
-dD8KClRoYXQgd291bGQgYmUgYmVzdCBhbnN3ZXJlZCBieSBzb21lYm9keSBmcm9tIGtlcm5lbC4g
-QnV0IG15IHBlcnNvbmFsCm9waW5pb24gaXMgdGhhdCBpdCB3b3VsZCBub3QgYmUgb3V0IG9mIGRh
-dGUuIFRoZSBhbW91bnQgb2YgbWVtb3J5CmRlZGljYXRlZCB0byBCdWZmZXJzIGRvZXMgbm90IHNl
-ZW0gdG8gZmx1Y3R1YXRlIHRvbyBtdWNoLgoKICAgIFRvbWFzCgoKPiA+IC0tLQo+ID4gIGRyaXZl
-cnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgICAgIHwgMTEgKysrKysrKysrKysKPiA+ICBpbmNs
-dWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaCB8ICA0ICsrKy0KPiA+ICBtbS9zd2FwX3N0
-YXRlLmMgICAgICAgICAgICAgICAgICAgICB8ICAxICsKPiA+ICAzIGZpbGVzIGNoYW5nZWQsIDE1
-IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPiA+IAo+ID4gZGlmZiAtLWdpdCBhL2RyaXZl
-cnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9v
-bi5jCj4gPiBpbmRleCBmMGIzYTBiOWQ0MmYuLmMyNTU4ZWM0N2E2MiAxMDA2NDQKPiA+IC0tLSBh
-L2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlv
-L3ZpcnRpb19iYWxsb29uLmMKPiA+IEBAIC0yNDQsMTIgKzI0NCwxOSBAQCBzdGF0aWMgdW5zaWdu
-ZWQgaW50IHVwZGF0ZV9iYWxsb29uX3N0YXRzKHN0cnVjdCB2aXJ0aW9fYmFsbG9vbiAqdmIpCj4g
-PiAgCXN0cnVjdCBzeXNpbmZvIGk7Cj4gPiAgCXVuc2lnbmVkIGludCBpZHggPSAwOwo+ID4gIAls
-b25nIGF2YWlsYWJsZTsKPiA+ICsJbG9uZyBjYWNoZWQ7Cj4gPiAgCj4gPiAgCWFsbF92bV9ldmVu
-dHMoZXZlbnRzKTsKPiA+ICAJc2lfbWVtaW5mbygmaSk7Cj4gPiAgCj4gPiAgCWF2YWlsYWJsZSA9
-IHNpX21lbV9hdmFpbGFibGUoKTsKPiA+ICAKPiA+ICsJY2FjaGVkID0gZ2xvYmFsX25vZGVfcGFn
-ZV9zdGF0ZShOUl9GSUxFX1BBR0VTKSAtCj4gPiArCQkJdG90YWxfc3dhcGNhY2hlX3BhZ2VzKCkg
-LSBpLmJ1ZmZlcnJhbTsKPiA+ICsJaWYgKGNhY2hlZCA8IDApCj4gPiArCQljYWNoZWQgPSAwOwo+
-ID4gKwo+ID4gKwo+ID4gICNpZmRlZiBDT05GSUdfVk1fRVZFTlRfQ09VTlRFUlMKPiA+ICAJdXBk
-YXRlX3N0YXQodmIsIGlkeCsrLCBWSVJUSU9fQkFMTE9PTl9TX1NXQVBfSU4sCj4gPiAgCQkJCXBh
-Z2VzX3RvX2J5dGVzKGV2ZW50c1tQU1dQSU5dKSk7Cj4gPiBAQCAtMjY0LDYgKzI3MSwxMCBAQCBz
-dGF0aWMgdW5zaWduZWQgaW50IHVwZGF0ZV9iYWxsb29uX3N0YXRzKHN0cnVjdCB2aXJ0aW9fYmFs
-bG9vbiAqdmIpCj4gPiAgCQkJCXBhZ2VzX3RvX2J5dGVzKGkudG90YWxyYW0pKTsKPiA+ICAJdXBk
-YXRlX3N0YXQodmIsIGlkeCsrLCBWSVJUSU9fQkFMTE9PTl9TX0FWQUlMLAo+ID4gIAkJCQlwYWdl
-c190b19ieXRlcyhhdmFpbGFibGUpKTsKPiA+ICsJdXBkYXRlX3N0YXQodmIsIGlkeCsrLCBWSVJU
-SU9fQkFMTE9PTl9TX0JVRkZFUlMsCj4gPiArCQkJCXBhZ2VzX3RvX2J5dGVzKGkuYnVmZmVycmFt
-KSk7Cj4gPiArCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19DQUNIRUQs
-Cj4gPiArCQkJCXBhZ2VzX3RvX2J5dGVzKGNhY2hlZCkpOwo+ID4gIAo+ID4gIAlyZXR1cm4gaWR4
-Owo+ID4gIH0KPiA+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxv
-b24uaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5oCj4gPiBpbmRleCAzNDNk
-N2RkZWZlMDQuLmQ1ZGM4YTU2YTQ5NyAxMDA2NDQKPiA+IC0tLSBhL2luY2x1ZGUvdWFwaS9saW51
-eC92aXJ0aW9fYmFsbG9vbi5oCj4gPiArKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2Jh
-bGxvb24uaAo+ID4gQEAgLTUyLDcgKzUyLDkgQEAgc3RydWN0IHZpcnRpb19iYWxsb29uX2NvbmZp
-ZyB7Cj4gPiAgI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX01FTUZSRUUgIDQgICAvKiBUb3RhbCBh
-bW91bnQgb2YgZnJlZSBtZW1vcnkgKi8KPiA+ICAjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTUVN
-VE9UICAgNSAgIC8qIFRvdGFsIGFtb3VudCBvZiBtZW1vcnkgKi8KPiA+ICAjZGVmaW5lIFZJUlRJ
-T19CQUxMT09OX1NfQVZBSUwgICAgNiAgIC8qIEF2YWlsYWJsZSBtZW1vcnkgYXMgaW4gL3Byb2Mg
-Ki8KPiA+IC0jZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTlIgICAgICAgNwo+ID4gKyNkZWZpbmUg
-VklSVElPX0JBTExPT05fU19CVUZGRVJTICA3ICAgLyogQnVmZmVycyBtZW1vcnkgYXMgaW4gL3By
-b2MgKi8KPiA+ICsjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfQ0FDSEVEICAgOCAgIC8qIENhY2hl
-ZCBtZW1vcnkgYXMgaW4gL3Byb2MgKi8KPiA+ICsjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTlIg
-ICAgICAgOQo+ID4gIAo+ID4gIC8qCj4gPiAgICogTWVtb3J5IHN0YXRpc3RpY3Mgc3RydWN0dXJl
-Lgo+ID4gZGlmZiAtLWdpdCBhL21tL3N3YXBfc3RhdGUuYyBiL21tL3N3YXBfc3RhdGUuYwo+ID4g
-aW5kZXggNzFjZTJkMWNjYmY3Li5mM2E0ZmY3ZDZjNTIgMTAwNjQ0Cj4gPiAtLS0gYS9tbS9zd2Fw
-X3N0YXRlLmMKPiA+ICsrKyBiL21tL3N3YXBfc3RhdGUuYwo+ID4gQEAgLTk1LDYgKzk1LDcgQEAg
-dW5zaWduZWQgbG9uZyB0b3RhbF9zd2FwY2FjaGVfcGFnZXModm9pZCkKPiA+ICAJcmN1X3JlYWRf
-dW5sb2NrKCk7Cj4gPiAgCXJldHVybiByZXQ7Cj4gPiAgfQo+ID4gK0VYUE9SVF9TWU1CT0xfR1BM
-KHRvdGFsX3N3YXBjYWNoZV9wYWdlcyk7Cj4gPiAgCj4gPiAgc3RhdGljIGF0b21pY190IHN3YXBp
-bl9yZWFkYWhlYWRfaGl0cyA9IEFUT01JQ19JTklUKDQpOwo+IAo+IE5lZWQgYW4gYWNrIGZyb20g
-TU0gY3Jvd2Qgb24gdGhhdC4KPiAKPiA+IC0tIAo+ID4gMi4xNC4xCgoKLS0gClRvbcOhxaEgR29s
-ZW1iaW92c2vDvSA8dGdvbGVtYmlAcmVkaGF0LmNvbT4KX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi Jean,
+
+On Mon Oct 23, 2017 at 10:32:41AM +0100, Jean-Philippe Brucker wrote:
+> This is version 0.5 of the virtio-iommu specification, the paravirtualized
+> IOMMU. This version addresses feedback from v0.4 and adds an event virtqueue.
+> Please find the specification, LaTeX sources and pdf, at:
+> git://linux-arm.org/virtio-iommu.git viommu/v0.5
+> http://linux-arm.org/git?p=virtio-iommu.git;a=blob;f=dist/v0.5/virtio-iommu-v0.5.pdf
+> 
+> A detailed changelog since v0.4 follows. You can find the pdf diff at:
+> http://linux-arm.org/git?p=virtio-iommu.git;a=blob;f=dist/diffs/virtio-iommu-pdf-diff-v0.4-v0.5.pdf
+> 
+> * Add an event virtqueue for the device to report translation faults to
+>   the driver. For the moment only unrecoverable faults are available but
+>   future versions will extend it.
+> * Simplify PROBE request by removing the ack part, and flattening RESV
+>   properties.
+> * Rename "address space" to "domain". The change might seem futile but
+>   allows to introduce PASIDs and other features cleanly in the next
+>   versions. In the same vein, the few remaining "device" occurrences were
+>   replaced by "endpoint", to avoid any confusion with "the device"
+>   referring to the virtio device across the document.
+> * Add implementation notes for RESV_MEM properties.
+> * Update ACPI table definition.
+> * Fix typos and clarify a few things.
+> 
+> I will publish the Linux driver for v0.5 shortly. Then for next versions
+> I'll focus on optimizations and adding support for hardware acceleration.
+> 
+> Existing implementations are simple and can certainly be optimized, even
+> without architectural changes. But the architecture itself can also be
+> improved in a number of ways. Currently it is designed to work well with
+> VFIO. However, having explicit MAP requests is less efficient* than page
+> tables for emulated and PV endpoints, and the current architecture doesn't
+> address this. Binding page tables is an obvious way to improve throughput
+> in that case, but we can explore cleverer (and possibly simpler) ways to
+> do it.
+> 
+> So first we'll work on getting the base device and driver merged, then
+> we'll analyze and compare several ideas for improving performance.
+> 
+> Thanks,
+> Jean
+> 
+> * I have yet to study this behaviour, and would be interested in any
+> prior art on the subject of analyzing devices DMA patterns (virtio and
+> others)
+
+
+From the spec,
+Under future extensions.
+
+"Page Table Handover, to allow guests to manage their own page tables and share them with the MMU"
+
+Had few questions on this.
+
+1. Did you mean SVM support for vfio-pci devices attached to guest processes here.
+
+2. Can you give some hints on how this is going to work , since virtio-iommu guest kernel 
+   driver need to create stage 1 page table as required by hardware which is not the case now. 
+   CMIIW. 
+
+
+-- 
+Linu cherian
