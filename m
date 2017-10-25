@@ -1,14 +1,15 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH 08/13] x86/paravirt: Clean up paravirt_types.h
-Date: Wed, 25 Oct 2017 13:08:08 +0200
-Message-ID: <996d2a55-e6d9-32bf-10d5-0c993b6dd3a7@suse.com>
+Subject: Re: [PATCH 09/13] x86/asm: Convert ALTERNATIVE*() assembler macros to
+	preprocessor macros
+Date: Wed, 25 Oct 2017 13:14:36 +0200
+Message-ID: <f93169e3-cacf-13f4-ed62-dfb1248ff367@suse.com>
 References: <cover.1507128293.git.jpoimboe@redhat.com>
-	<38b16ecbfa88b41239e8a87ce1d8330fea7a2b3a.1507128293.git.jpoimboe@redhat.com>
+	<9e97ee7a68cab00993c7afa8e429fd8fe5a7015f.1507128293.git.jpoimboe@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <38b16ecbfa88b41239e8a87ce1d8330fea7a2b3a.1507128293.git.jpoimboe@redhat.com>
+In-Reply-To: <9e97ee7a68cab00993c7afa8e429fd8fe5a7015f.1507128293.git.jpoimboe@redhat.com>
 Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,12 +25,9 @@ Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>, Rusty Russell <rusty@rustcorp.
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 04/10/17 17:58, Josh Poimboeuf wrote:
-> Make paravirt_types.h more understandable:
-> 
-> - Use more consistent and logical naming
-> - Simplify interfaces
-> - Put related macros together
-> - Improve whitespace
+> The ALTERNATIVE() and ALTERNATIVE_2() macros are GNU assembler macros,
+> which makes them quite inflexible for future changes.  Convert them to
+> preprocessor macros.
 > 
 > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 
