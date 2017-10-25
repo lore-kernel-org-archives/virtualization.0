@@ -1,15 +1,15 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH 04/13] x86/paravirt: Convert DEF_NATIVE macro to GCC
-	extended asm syntax
-Date: Wed, 25 Oct 2017 12:03:48 +0200
-Message-ID: <b322ed01-c7d4-b14a-ac02-8c0778afb242__14629.8747313724$1508925866$gmane$org@suse.com>
+Subject: Re: [PATCH 05/13] x86/paravirt: Move paravirt asm macros to
+	paravirt-asm.h
+Date: Wed, 25 Oct 2017 12:32:52 +0200
+Message-ID: <dbb1f8d1-9d2f-9134-e689-7f66f1cdb74d__27909.6084450886$1508927599$gmane$org@suse.com>
 References: <cover.1507128293.git.jpoimboe@redhat.com>
-	<fc26aa39d00294fce9f669ea4757135ac02eae0a.1507128293.git.jpoimboe@redhat.com>
+	<4ce3349e19c5ea443cb33f76468adddcee685f89.1507128293.git.jpoimboe@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <fc26aa39d00294fce9f669ea4757135ac02eae0a.1507128293.git.jpoimboe@redhat.com>
+In-Reply-To: <4ce3349e19c5ea443cb33f76468adddcee685f89.1507128293.git.jpoimboe@redhat.com>
 Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,11 +25,9 @@ Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>, Rusty Russell <rusty@rustcorp.
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 04/10/17 17:58, Josh Poimboeuf wrote:
-> In a future patch, the NATIVE_* instruction string macros will be used
-> in GCC extended inline asm, which requires registers to have two '%'
-> instead of one in the asm template string.  Convert the DEF_NATIVE macro
-> to the GCC extended asm syntax so the NATIVE_* macros can be shared more
-> broadly.
+> The paravirt.h file is quite big and the asm interfaces for paravirt
+> don't need to be in the same file as the C interfaces.  Move the asm
+> interfaces to a dedicated header file.
 > 
 > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 
