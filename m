@@ -1,14 +1,14 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH 07/13] x86/paravirt: Simplify ____PVOP_CALL()
-Date: Wed, 25 Oct 2017 13:01:19 +0200
-Message-ID: <55500745-070e-1fa2-63e1-257c50edf436__32566.7955018163$1508929335$gmane$org@suse.com>
+Subject: Re: [PATCH 08/13] x86/paravirt: Clean up paravirt_types.h
+Date: Wed, 25 Oct 2017 13:08:08 +0200
+Message-ID: <996d2a55-e6d9-32bf-10d5-0c993b6dd3a7@suse.com>
 References: <cover.1507128293.git.jpoimboe@redhat.com>
-	<e09e6cb4f4717fc6d81ddb5fc38cd45504348ce1.1507128293.git.jpoimboe@redhat.com>
+	<38b16ecbfa88b41239e8a87ce1d8330fea7a2b3a.1507128293.git.jpoimboe@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <e09e6cb4f4717fc6d81ddb5fc38cd45504348ce1.1507128293.git.jpoimboe@redhat.com>
+In-Reply-To: <38b16ecbfa88b41239e8a87ce1d8330fea7a2b3a.1507128293.git.jpoimboe@redhat.com>
 Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,10 +24,12 @@ Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>, Rusty Russell <rusty@rustcorp.
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 04/10/17 17:58, Josh Poimboeuf wrote:
-> Remove the inline asm duplication in ____PVOP_CALL().
+> Make paravirt_types.h more understandable:
 > 
-> Also add 'IS_ENABLED(CONFIG_X86_32)' to the return variable logic,
-> making the code clearer and rendering the comment unnecessary.
+> - Use more consistent and logical naming
+> - Simplify interfaces
+> - Put related macros together
+> - Improve whitespace
 > 
 > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 
