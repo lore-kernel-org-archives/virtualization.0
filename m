@@ -1,7 +1,7 @@
 From: Linu Cherian <linu.cherian@cavium.com>
 Subject: Re: [RFC] virtio-iommu version 0.5
-Date: Wed, 25 Oct 2017 14:56:30 +0530
-Message-ID: <20171025092630.GB11873__9694.77675757862$1509080728$gmane$org@virtx40>
+Date: Wed, 25 Oct 2017 16:35:48 +0530
+Message-ID: <20171025110548.GA20548__26483.4987502129$1509080733$gmane$org@virtx40>
 References: <20171023093241.20113-1-jean-philippe.brucker@arm.com>
 	<20171024062704.GA23141@virtx40>
 	<b878c366-6e43-aacc-c7f6-cabb3f91211e@arm.com>
@@ -155,18 +155,24 @@ On Wed Oct 25, 2017 at 10:07:53AM +0100, Jean-Philippe Brucker wrote:
 > > and only TLB invalidates happens through a virtio-iommu channel.
 > 
 > Yes for non-SVM in SMMuv3, you still have a context table but with a
-> single descriptor, so the interface stays the same. But with the second
+> single descriptor, so the interface stays the same. 
+
+So for non SVM case, 
+guest virtio-iommu driver will program the context descriptor such a way that,
+ASID is not in shared set(ASET = 1b) and hence Physical IOMMU TLB invalidates would get triggered 
+from software for every viommu_unmap(in guest kernel) through Qemu(using vfio ioctls) ? 
+
+And for SVM case, ASID would be in shared set and explicit TLB invalidates 
+are not required from software ?
+
+But with the second
 > solution, nested with SMMUv2 isn't supported since it doesn't have context
 > tables. The second solution was considered simpler to implement, so we'll
 > first go with this one.
 > 
 > Thanks,
 > Jean
->
-
-Thanks a lot for the pointers and the explanation.
-
- 
+> 
 > >> It requires to factor the guest
 > >>> PASID handling code into a library, which is difficult for SMMU. Luckily
 > >>> I'm still working on adding PASID code for SMMUv3, so extracting it out of
