@@ -1,15 +1,19 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH 10/13] x86/alternative: Support indirect call replacement
-Date: Wed, 25 Oct 2017 13:25:02 +0200
-Message-ID: <c57fb310-141b-2262-7e17-bf37d3afdf82__11772.9538273581$1508930745$gmane$org@suse.com>
-References: <cover.1507128293.git.jpoimboe@redhat.com>
-	<efabcfb022d29fb0a9ccb39380623573555c2bcb.1507128293.git.jpoimboe@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [RFC] virtio-iommu version 0.5
+Date: Wed, 25 Oct 2017 13:05:33 +0100
+Message-ID: <b35e1825-a5c2-e8b3-081c-2f23ac2d627f__6699.49337975613$1508933135$gmane$org@arm.com>
+References: <20171023093241.20113-1-jean-philippe.brucker@arm.com>
+	<20171024062704.GA23141@virtx40>
+	<b878c366-6e43-aacc-c7f6-cabb3f91211e@arm.com>
+	<20171024165859.GA24369@virtx40> <20171025070704.GA10689@virtx40>
+	<6e5c3a23-9e00-1936-f80c-085faf42c420@arm.com>
+	<20171025110548.GA20548@virtx40>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <efabcfb022d29fb0a9ccb39380623573555c2bcb.1507128293.git.jpoimboe@redhat.com>
-Content-Language: de-DE
+In-Reply-To: <20171025110548.GA20548@virtx40>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,67 +23,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Josh Poimboeuf <jpoimboe@redhat.com>, x86@kernel.org
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>, Rusty Russell <rusty@rustcorp.com.au>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Linus Torvalds <torvalds@linux-foundation.org>, Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Jiri Slaby <jslaby@suse.cz>, Ingo Molnar <mingo@kernel.org>
+To: Linu Cherian <linu.cherian@cavium.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "ashok.raj@intel.com" <ashok.raj@intel.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "Jayachandran.Nair@cavium.com" <Jayachandran.Nair@cavium.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "sunil.goutham@cavium.com" <sunil.goutham@cavium.com>, Linu Cherian <linuc.decode@gmail.com>, Robin Murphy <Robin.Murphy@arm.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/10/17 17:58, Josh Poimboeuf wrote:
-> Add alternative patching support for replacing an instruction with an
-> indirect call.  This will be needed for the paravirt alternatives.
+On 25/10/17 12:05, Linu Cherian wrote:
+>>> Also does this solution intend to cover the page table sharing of non SVM 
+>>> cases. For example, if we need to share the IOMMU page table for 
+>>> a device used in guest kernel, so that map/unmap gets directly handled by the guest
+>>> and only TLB invalidates happens through a virtio-iommu channel.
+>>
+>> Yes for non-SVM in SMMuv3, you still have a context table but with a
+>> single descriptor, so the interface stays the same. 
 > 
-> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> ---
->  arch/x86/kernel/alternative.c | 22 +++++++++++++++-------
->  1 file changed, 15 insertions(+), 7 deletions(-)
-> 
-> diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-> index 3344d3382e91..81c577c7deba 100644
-> --- a/arch/x86/kernel/alternative.c
-> +++ b/arch/x86/kernel/alternative.c
-> @@ -410,20 +410,28 @@ void __init_or_module noinline apply_alternatives(struct alt_instr *start,
->  		insnbuf_sz = a->replacementlen;
->  
->  		/*
-> -		 * 0xe8 is a relative jump; fix the offset.
-> -		 *
-> -		 * Instruction length is checked before the opcode to avoid
-> -		 * accessing uninitialized bytes for zero-length replacements.
-> +		 * Fix the address offsets for call and jump instructions which
-> +		 * use PC-relative addressing.
->  		 */
->  		if (a->replacementlen == 5 && *insnbuf == 0xe8) {
-> +			/* direct call */
->  			*(s32 *)(insnbuf + 1) += replacement - instr;
-> -			DPRINTK("Fix CALL offset: 0x%x, CALL 0x%lx",
-> +			DPRINTK("Fix direct CALL offset: 0x%x, CALL 0x%lx",
->  				*(s32 *)(insnbuf + 1),
->  				(unsigned long)instr + *(s32 *)(insnbuf + 1) + 5);
-> -		}
->  
-> -		if (a->replacementlen && is_jmp(replacement[0]))
-> +		} else if (a->replacementlen == 6 && *insnbuf == 0xff &&
-> +			   *(insnbuf+1) == 0x15) {
-> +			/* indirect call */
-> +			*(s32 *)(insnbuf + 2) += replacement - instr;
-> +			DPRINTK("Fix indirect CALL offset: 0x%x, CALL *0x%lx",
-> +				*(s32 *)(insnbuf + 2),
-> +				(unsigned long)instr + *(s32 *)(insnbuf + 2) + 6);
-> +
-> +		} else if (a->replacementlen && is_jmp(replacement[0])) {
+> So for non SVM case, 
+> guest virtio-iommu driver will program the context descriptor such a way that,
+> ASID is not in shared set(ASET = 1b) and hence Physical IOMMU TLB invalidates would get triggered 
+> from software for every viommu_unmap(in guest kernel) through Qemu(using vfio ioctls) ? 
 
-Is this correct? Without your patch this was:
+That's right. viommu_unmap will send an INVALIDATE request on the virtio
+request queue, forwarded to the driver via a VFIO ioctl.
 
-if (*insnbuf == 0xe8) ...
-if (is_jmp(replacement[0])) ...
+> And for SVM case, ASID would be in shared set and explicit TLB invalidates 
+> are not required from software ?
 
-Now you have:
+Yes, although that's only true for integrated devices (non-PCI). On PCI,
+devices will have an ATC (a device IOTLB), in which case we still have to
+send an invalidation request through virtio and then VFIO, so that the
+SMMU driver sends an CMD_ATC_INV.
 
-if (*insnbuf == 0xe8) ...
-else if (*insnbuf == 0xff15) ...
-else if (is_jmp(replacement[0])) ...
-
-So only one or none of the three variants will be executed. In the past
-it could be none, one or both.
-
-
-Juergen
+Thanks,
+Jean
