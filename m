@@ -1,14 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio/ringtest: fix up need_event math
-Date: Thu, 26 Oct 2017 20:28:21 +0800
-Message-ID: <dd09fc5f-0cfe-b5d9-9222-dcdd1f9f0a4c__23680.2452862777$1509020926$gmane$org@redhat.com>
-References: <1508982452-27245-1-git-send-email-mst@redhat.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
+Subject: Re: BUG: unable to handle kernel paging request in vsock_diag_dump
+Date: Thu, 26 Oct 2017 11:27:57 -0700
+Message-ID: <CAM_iQpUvndPu1gV9OWB=FsEvR-RbgrQ5_RyYshLMsUYT72bkRw@mail.gmail.com>
+References: <001a113f99fe969d68055c4c63a3@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1508982452-27245-1-git-send-email-mst@redhat.com>
-Content-Language: en-US
+In-Reply-To: <001a113f99fe969d68055c4c63a3@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,39 +17,8 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+To: syzbot <bot+d6b6d5e0ac5609c835098f88c893a7bb3cfa0900@syzkaller.appspotmail.com>
+Cc: "kvm@vger.kernel.org list" <kvm@vger.kernel.org>, Linux Kernel Network Developers <netdev@vger.kernel.org>, syzkaller-bugs@googlegroups.com, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MTDmnIgyNuaXpSAwOTo0OCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IGxhc3Qga2lja2VkIGV2ZW50IGluZGV4IG11c3QgYmUgdXBkYXRlZCB1bmNvbmRpdGlvbmFsbHk6
-Cj4gZXZlbiBpZiB3ZSBkb24ndCBuZWVkIHRvIGtpY2ssIHdlIGRvIG5vdCB3YW50IHRvIHJlLWNo
-ZWNrCj4gdGhlIHNhbWUgZW50cnkgZm9yIGV2ZW50cy4KPgo+IFNpZ25lZC1vZmYtYnk6IE1pY2hh
-ZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4gLS0tCj4gICB0b29scy92aXJ0aW8vcmlu
-Z3Rlc3QvcmluZy5jIHwgMjQgKysrKysrKysrKysrKysrLS0tLS0tLS0tCj4gICAxIGZpbGUgY2hh
-bmdlZCwgMTUgaW5zZXJ0aW9ucygrKSwgOSBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS90
-b29scy92aXJ0aW8vcmluZ3Rlc3QvcmluZy5jIGIvdG9vbHMvdmlydGlvL3Jpbmd0ZXN0L3Jpbmcu
-Ywo+IGluZGV4IDZiNzBjNGUuLmQwNDRhODggMTAwNjQ0Cj4gLS0tIGEvdG9vbHMvdmlydGlvL3Jp
-bmd0ZXN0L3JpbmcuYwo+ICsrKyBiL3Rvb2xzL3ZpcnRpby9yaW5ndGVzdC9yaW5nLmMKPiBAQCAt
-MTk2LDE2ICsxOTYsMTggQEAgYm9vbCBlbmFibGVfY2FsbCgpCj4gICAKPiAgIHZvaWQga2lja19h
-dmFpbGFibGUodm9pZCkKPiAgIHsKPiArCWJvb2wgbmVlZDsKPiArCj4gICAJLyogRmx1c2ggaW4g
-cHJldmlvdXMgZmxhZ3Mgd3JpdGUgKi8KPiAgIAkvKiBCYXJyaWVyIEMgKGZvciBwYWlyaW5nKSAq
-Lwo+ICAgCXNtcF9tYigpOwo+IC0JaWYgKCFuZWVkX2V2ZW50KGV2ZW50LT5raWNrX2luZGV4LAo+
-IC0JCQlndWVzdC5hdmFpbF9pZHgsCj4gLQkJCWd1ZXN0LmtpY2tlZF9hdmFpbF9pZHgpKQo+IC0J
-CXJldHVybjsKPiArCW5lZWQgPSBuZWVkX2V2ZW50KGV2ZW50LT5raWNrX2luZGV4LAo+ICsJCQkg
-ICBndWVzdC5hdmFpbF9pZHgsCj4gKwkJCSAgIGd1ZXN0LmtpY2tlZF9hdmFpbF9pZHgpOwo+ICAg
-Cj4gICAJZ3Vlc3Qua2lja2VkX2F2YWlsX2lkeCA9IGd1ZXN0LmF2YWlsX2lkeDsKPiAtCWtpY2so
-KTsKPiArCWlmIChuZWVkKQo+ICsJCWtpY2soKTsKPiAgIH0KPiAgIAo+ICAgLyogaG9zdCBzaWRl
-ICovCj4gQEAgLTI2NSwxNCArMjY3LDE4IEBAIGJvb2wgdXNlX2J1Zih1bnNpZ25lZCAqbGVucCwg
-dm9pZCAqKmJ1ZnApCj4gICAKPiAgIHZvaWQgY2FsbF91c2VkKHZvaWQpCj4gICB7Cj4gKwlib29s
-IG5lZWQ7Cj4gKwo+ICAgCS8qIEZsdXNoIGluIHByZXZpb3VzIGZsYWdzIHdyaXRlICovCj4gICAJ
-LyogQmFycmllciBEIChmb3IgcGFpcmluZykgKi8KPiAgIAlzbXBfbWIoKTsKPiAtCWlmICghbmVl
-ZF9ldmVudChldmVudC0+Y2FsbF9pbmRleCwKPiArCj4gKwluZWVkID0gIW5lZWRfZXZlbnQoZXZl
-bnQtPmNhbGxfaW5kZXgsCj4gICAJCQlob3N0LnVzZWRfaWR4LAo+IC0JCQlob3N0LmNhbGxlZF91
-c2VkX2lkeCkpCj4gLQkJcmV0dXJuOwo+ICsJCQlob3N0LmNhbGxlZF91c2VkX2lkeCk7Cj4gICAK
-PiAgIAlob3N0LmNhbGxlZF91c2VkX2lkeCA9IGhvc3QudXNlZF9pZHg7Cj4gLQljYWxsKCk7Cj4g
-Kwo+ICsJaWYgKG5lZWQpCj4gKwkJY2FsbCgpOwo+ICAgfQoKQWNrZWQtYnk6IEphc29uIFdhbmcg
-PGphc293YW5nQHJlZGhhdC5jb20+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+#syz fix: vsock: always call vsock_init_tables()
