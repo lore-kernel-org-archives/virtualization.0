@@ -1,13 +1,13 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH] virtio/ringtest: fix up need_event math
-Date: Thu, 26 Oct 2017 10:36:47 +0200
-Message-ID: <20171026103647.588ac89b.cohuck__15668.2243956768$1509080745$gmane$org@redhat.com>
-References: <1508982452-27245-1-git-send-email-mst@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] maintainers: drop Chris Wright from pvops
+Date: Fri, 27 Oct 2017 08:47:16 +1030
+Message-ID: <87lgjxa70z.fsf__8388.64294714785$1509080758$gmane$org@rustcorp.com.au>
+References: <20171026103154.4590-1-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1508982452-27245-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20171026103154.4590-1-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,22 +17,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: chrisw@sous-sol.org, Juergen Gross <jgross@suse.com>, akataria@vmware.com, chrisw@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 26 Oct 2017 04:48:01 +0300
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+Chris CC'd: He wasn't that hard to find.
 
-> last kicked event index must be updated unconditionally:
-> even if we don't need to kick, we do not want to re-check
-> the same entry for events.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+(linkedin says he's CTO of RedHat now.  I feel like an underachiever!)
+
+Cheers,
+Rusty.
+
+Juergen Gross <jgross@suse.com> writes:
+
+> Mails to chrisw@sous-sol.org are not deliverable since several months.
+> Drop him as PARAVIRT_OPS maintainer.
+>
+> Signed-off-by: Juergen Gross <jgross@suse.com>
 > ---
->  tools/virtio/ringtest/ring.c | 24 +++++++++++++++---------
->  1 file changed, 15 insertions(+), 9 deletions(-)
-
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-
-I think virtio_ring_0_9 has the same issue?
+>  MAINTAINERS | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index d85c08956875..af0cb69f6a3e 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -10179,7 +10179,6 @@ F:	Documentation/parport*.txt
+>  
+>  PARAVIRT_OPS INTERFACE
+>  M:	Juergen Gross <jgross@suse.com>
+> -M:	Chris Wright <chrisw@sous-sol.org>
+>  M:	Alok Kataria <akataria@vmware.com>
+>  M:	Rusty Russell <rusty@rustcorp.com.au>
+>  L:	virtualization@lists.linux-foundation.org
+> -- 
+> 2.12.3
