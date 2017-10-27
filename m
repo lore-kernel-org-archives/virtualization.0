@@ -1,15 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio/ringtest: fix up need_event math
-Date: Fri, 27 Oct 2017 16:16:37 +0300
-Message-ID: <20171027161336-mutt-send-email-mst@kernel.org>
-References: <1508982452-27245-1-git-send-email-mst@redhat.com>
-	<20171026103647.588ac89b.cohuck@redhat.com>
+Subject: [PATCH v6] x86: use lock+addl for smp_mb()
+Date: Fri, 27 Oct 2017 19:14:31 +0300
+Message-ID: <1509118355-4890-1-git-send-email-mst__36745.7821652808$1509120934$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20171026103647.588ac89b.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +16,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: x86@kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@amacapital.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 26, 2017 at 10:36:47AM +0200, Cornelia Huck wrote:
-> On Thu, 26 Oct 2017 04:48:01 +0300
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > last kicked event index must be updated unconditionally:
-> > even if we don't need to kick, we do not want to re-check
-> > the same entry for events.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  tools/virtio/ringtest/ring.c | 24 +++++++++++++++---------
-> >  1 file changed, 15 insertions(+), 9 deletions(-)
-> 
-> Acked-by: Cornelia Huck <cohuck@redhat.com>
+mfence appears to be way slower than a locked instruction - let's use
+lock+add unconditionally, as we always did on old 32-bit.
 
-Actually it seems to sometimes trigger stalls when host and guest
-are on the same physical core. To trigger:
+Results:
+perf stat -r 10 -- ./virtio_ring_0_9 --sleep --host-affinity 0 --guest-affinity 0
+Before:
+       0.922565990 seconds time elapsed                                          ( +-  1.15% )
+After:
+       0.578667024 seconds time elapsed                                          ( +-  1.21% )
 
-./ring --sleep --host-affinity 0 --guest-affinity 0
+Just poking at SP would be the most natural, but if we then read the
+value from SP, we get a false dependency which will slow us down.
 
-This worries me since it's similar to what vhost does.
+This was noted in this article:
+http://shipilev.net/blog/2014/on-the-fence-with-dependencies/
 
-Still debugging - anyone see anything suspicious?
+And is easy to reproduce by sticking a barrier in a small non-inline
+function.
+
+So let's use a negative offset - which avoids this problem since we
+build with the red zone disabled.
+
+For userspace, use an address just below the redzone.
+
+The one difference between lock+add and mfence is that lock+addl does
+not affect clflush, previous patches converted all uses of clflush to
+call mb(), such that changes to smp_mb won't affect it.
+
+Update mb/rmb/wmb on 32 bit to use the negative offset, too, for
+consistency.
+
+As a follow-up, it might be worth considering switching users
+of clflush to another API (e.g. clflush_mb?) - we will
+then be able to convert mb to smp_mb.
+
+Also arguably, gcc should switch to use lock+add for __sync_synchronize.
+This might be worth pursuing separately.
+
+Suggested-by: Andy Lutomirski <luto@amacapital.net>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ arch/x86/include/asm/barrier.h | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+Changes from v5:
+- ringtest update
+- document mb() interaction with clflush
+- add micro-benchmark results
 
 
-> I think virtio_ring_0_9 has the same issue?
-
-I think it does, posted a patch.
-
+diff --git a/arch/x86/include/asm/barrier.h b/arch/x86/include/asm/barrier.h
+index bfb28ca..3c6ba1e 100644
+--- a/arch/x86/include/asm/barrier.h
++++ b/arch/x86/include/asm/barrier.h
+@@ -11,11 +11,11 @@
+  */
+ 
+ #ifdef CONFIG_X86_32
+-#define mb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "mfence", \
++#define mb() asm volatile(ALTERNATIVE("lock; addl $0,-4(%%esp)", "mfence", \
+ 				      X86_FEATURE_XMM2) ::: "memory", "cc")
+-#define rmb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "lfence", \
++#define rmb() asm volatile(ALTERNATIVE("lock; addl $0,-4(%%esp)", "lfence", \
+ 				       X86_FEATURE_XMM2) ::: "memory", "cc")
+-#define wmb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "sfence", \
++#define wmb() asm volatile(ALTERNATIVE("lock; addl $0,-4(%%esp)", "sfence", \
+ 				       X86_FEATURE_XMM2) ::: "memory", "cc")
+ #else
+ #define mb() 	asm volatile("mfence":::"memory")
+@@ -30,7 +30,11 @@
+ #endif
+ #define dma_wmb()	barrier()
+ 
+-#define __smp_mb()	mb()
++#ifdef CONFIG_X86_32
++#define __smp_mb()	asm volatile("lock; addl $0,-4(%%esp)" ::: "memory", "cc")
++#else
++#define __smp_mb()	asm volatile("lock; addl $0,-4(%%rsp)" ::: "memory", "cc")
++#endif
+ #define __smp_rmb()	dma_rmb()
+ #define __smp_wmb()	barrier()
+ #define __smp_store_mb(var, value) do { (void)xchg(&var, value); } while (0)
+diff --git a/tools/virtio/ringtest/main.h b/tools/virtio/ringtest/main.h
+index 90b0133..5706e07 100644
+--- a/tools/virtio/ringtest/main.h
++++ b/tools/virtio/ringtest/main.h
+@@ -110,11 +110,15 @@ static inline void busy_wait(void)
+ 		barrier();
+ } 
+ 
++#if defined(__x86_64__) || defined(__i386__)
++#define smp_mb()     asm volatile("lock; addl $0,-128(%%rsp)" ::: "memory", "cc")
++#else
+ /*
+  * Not using __ATOMIC_SEQ_CST since gcc docs say they are only synchronized
+  * with other __ATOMIC_SEQ_CST calls.
+  */
+ #define smp_mb() __sync_synchronize()
++#endif
+ 
+ /*
+  * This abuses the atomic builtins for thread fences, and
 -- 
 MST
