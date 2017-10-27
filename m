@@ -1,12 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio/ringtest: virtio_ring: fix up need_event math
-Date: Fri, 27 Oct 2017 16:11:13 +0300
-Message-ID: <1509109839-553-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH] virtio/ringtest: fix up need_event math
+Date: Fri, 27 Oct 2017 16:16:37 +0300
+Message-ID: <20171027161336-mutt-send-email-mst@kernel.org>
+References: <1508982452-27245-1-git-send-email-mst@redhat.com>
+	<20171026103647.588ac89b.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20171026103647.588ac89b.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,69 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-last kicked event index must be updated unconditionally:
-even if we don't need to kick, we do not want to re-check
-the same entry for events.
+On Thu, Oct 26, 2017 at 10:36:47AM +0200, Cornelia Huck wrote:
+> On Thu, 26 Oct 2017 04:48:01 +0300
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > last kicked event index must be updated unconditionally:
+> > even if we don't need to kick, we do not want to re-check
+> > the same entry for events.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  tools/virtio/ringtest/ring.c | 24 +++++++++++++++---------
+> >  1 file changed, 15 insertions(+), 9 deletions(-)
+> 
+> Acked-by: Cornelia Huck <cohuck@redhat.com>
 
-Reported-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- tools/virtio/ringtest/virtio_ring_0_9.c | 24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+Actually it seems to sometimes trigger stalls when host and guest
+are on the same physical core. To trigger:
 
-diff --git a/tools/virtio/ringtest/virtio_ring_0_9.c b/tools/virtio/ringtest/virtio_ring_0_9.c
-index bbc3043..5fd3fbc 100644
---- a/tools/virtio/ringtest/virtio_ring_0_9.c
-+++ b/tools/virtio/ringtest/virtio_ring_0_9.c
-@@ -225,16 +225,18 @@ bool enable_call()
- 
- void kick_available(void)
- {
-+	bool need;
-+
- 	/* Flush in previous flags write */
- 	/* Barrier C (for pairing) */
- 	smp_mb();
--	if (!vring_need_event(vring_avail_event(&ring),
--			      guest.avail_idx,
--			      guest.kicked_avail_idx))
--		return;
-+	need = vring_need_event(vring_avail_event(&ring),
-+				guest.avail_idx,
-+				guest.kicked_avail_idx);
- 
- 	guest.kicked_avail_idx = guest.avail_idx;
--	kick();
-+	if (need)
-+		kick();
- }
- 
- /* host side */
-@@ -316,14 +318,16 @@ bool use_buf(unsigned *lenp, void **bufp)
- 
- void call_used(void)
- {
-+	bool need;
-+
- 	/* Flush in previous flags write */
- 	/* Barrier D (for pairing) */
- 	smp_mb();
--	if (!vring_need_event(vring_used_event(&ring),
--			      host.used_idx,
--			      host.called_used_idx))
--		return;
-+	need = vring_need_event(vring_used_event(&ring),
-+				host.used_idx,
-+				host.called_used_idx);
- 
- 	host.called_used_idx = host.used_idx;
--	call();
-+	if (need)
-+		call();
- }
+./ring --sleep --host-affinity 0 --guest-affinity 0
+
+This worries me since it's similar to what vhost does.
+
+Still debugging - anyone see anything suspicious?
+
+
+> I think virtio_ring_0_9 has the same issue?
+
+I think it does, posted a patch.
+
 -- 
 MST
