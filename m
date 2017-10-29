@@ -1,12 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v6] x86: use lock+addl for smp_mb()
-Date: Fri, 27 Oct 2017 19:14:31 +0300
-Message-ID: <1509118355-4890-1-git-send-email-mst__36745.7821652808$1509120934$gmane$org@redhat.com>
+From: Ilya Lesokhin <ilyal@mellanox.com>
+Subject: RE: packed ring layout proposal v3
+Date: Sun, 29 Oct 2017 09:05:01 +0000
+Message-ID: <AM4PR0501MB2723177BF4E5EE32CC878E8CD4580__49887.4113000513$1509267914$gmane$org@AM4PR0501MB2723.eurprd05.prod.outlook.com>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+	<AM4PR0501MB27236B71E1B02176F1844ACBD4770@AM4PR0501MB2723.eurprd05.prod.outlook.com>
+	<20171025191346-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20171025191346-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,111 +20,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: x86@kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@amacapital.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-mfence appears to be way slower than a locked instruction - let's use
-lock+add unconditionally, as we always did on old 32-bit.
+My point was that if the driver is not required to change the IDs,
+it can initialized the ID's in all the descriptors when the ring is created
+and never write the ID field again.
 
-Results:
-perf stat -r 10 -- ./virtio_ring_0_9 --sleep --host-affinity 0 --guest-affinity 0
-Before:
-       0.922565990 seconds time elapsed                                          ( +-  1.15% )
-After:
-       0.578667024 seconds time elapsed                                          ( +-  1.21% )
-
-Just poking at SP would be the most natural, but if we then read the
-value from SP, we get a false dependency which will slow us down.
-
-This was noted in this article:
-http://shipilev.net/blog/2014/on-the-fence-with-dependencies/
-
-And is easy to reproduce by sticking a barrier in a small non-inline
-function.
-
-So let's use a negative offset - which avoids this problem since we
-build with the red zone disabled.
-
-For userspace, use an address just below the redzone.
-
-The one difference between lock+add and mfence is that lock+addl does
-not affect clflush, previous patches converted all uses of clflush to
-call mb(), such that changes to smp_mb won't affect it.
-
-Update mb/rmb/wmb on 32 bit to use the negative offset, too, for
-consistency.
-
-As a follow-up, it might be worth considering switching users
-of clflush to another API (e.g. clflush_mb?) - we will
-then be able to convert mb to smp_mb.
-
-Also arguably, gcc should switch to use lock+add for __sync_synchronize.
-This might be worth pursuing separately.
-
-Suggested-by: Andy Lutomirski <luto@amacapital.net>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- arch/x86/include/asm/barrier.h | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
-
-Changes from v5:
-- ringtest update
-- document mb() interaction with clflush
-- add micro-benchmark results
+A simple allocator for the IDs can solve the problem I presented but it is still more
+expensive then not doing ID allocation at all.
 
 
-diff --git a/arch/x86/include/asm/barrier.h b/arch/x86/include/asm/barrier.h
-index bfb28ca..3c6ba1e 100644
---- a/arch/x86/include/asm/barrier.h
-+++ b/arch/x86/include/asm/barrier.h
-@@ -11,11 +11,11 @@
-  */
- 
- #ifdef CONFIG_X86_32
--#define mb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "mfence", \
-+#define mb() asm volatile(ALTERNATIVE("lock; addl $0,-4(%%esp)", "mfence", \
- 				      X86_FEATURE_XMM2) ::: "memory", "cc")
--#define rmb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "lfence", \
-+#define rmb() asm volatile(ALTERNATIVE("lock; addl $0,-4(%%esp)", "lfence", \
- 				       X86_FEATURE_XMM2) ::: "memory", "cc")
--#define wmb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "sfence", \
-+#define wmb() asm volatile(ALTERNATIVE("lock; addl $0,-4(%%esp)", "sfence", \
- 				       X86_FEATURE_XMM2) ::: "memory", "cc")
- #else
- #define mb() 	asm volatile("mfence":::"memory")
-@@ -30,7 +30,11 @@
- #endif
- #define dma_wmb()	barrier()
- 
--#define __smp_mb()	mb()
-+#ifdef CONFIG_X86_32
-+#define __smp_mb()	asm volatile("lock; addl $0,-4(%%esp)" ::: "memory", "cc")
-+#else
-+#define __smp_mb()	asm volatile("lock; addl $0,-4(%%rsp)" ::: "memory", "cc")
-+#endif
- #define __smp_rmb()	dma_rmb()
- #define __smp_wmb()	barrier()
- #define __smp_store_mb(var, value) do { (void)xchg(&var, value); } while (0)
-diff --git a/tools/virtio/ringtest/main.h b/tools/virtio/ringtest/main.h
-index 90b0133..5706e07 100644
---- a/tools/virtio/ringtest/main.h
-+++ b/tools/virtio/ringtest/main.h
-@@ -110,11 +110,15 @@ static inline void busy_wait(void)
- 		barrier();
- } 
- 
-+#if defined(__x86_64__) || defined(__i386__)
-+#define smp_mb()     asm volatile("lock; addl $0,-128(%%rsp)" ::: "memory", "cc")
-+#else
- /*
-  * Not using __ATOMIC_SEQ_CST since gcc docs say they are only synchronized
-  * with other __ATOMIC_SEQ_CST calls.
-  */
- #define smp_mb() __sync_synchronize()
-+#endif
- 
- /*
-  * This abuses the atomic builtins for thread fences, and
--- 
-MST
+> -----Original Message-----
+> From: Michael S. Tsirkin [mailto:mst@redhat.com]
+> Sent: Wednesday, October 25, 2017 7:20 PM
+> To: Ilya Lesokhin <ilyal@mellanox.com>
+> Cc: virtio-dev@lists.oasis-open.org; virtualization@lists.linux-foundation.org
+> Subject: Re: packed ring layout proposal v3
+> 
+> On Sun, Oct 08, 2017 at 06:16:44AM +0000, Ilya Lesokhin wrote:
+> > > > -----Original Message-----
+> > > > From: virtualization-bounces@lists.linux-foundation.org
+> > > > [mailto:virtualization-bounces@lists.linux-foundation.org] On
+> > > > Behalf Of Michael S. Tsirkin
+> > > >
+> > > > This is an update from v2 version.
+> > >> ...
+> > > > When driver descriptors are chained in this way, multiple
+> > > > descriptors are treated as a part of a single transaction
+> > > > containing an optional write buffer followed by an optional read buffer.
+> > > > All descriptors in the chain must have the same ID.
+> > > >
+> >
+> > I apologize for the repost, I didn't realize I have to be a member of
+> > the virtio-dev mailing list.
+> >
+> > I'm concerned about the "same ID" requirement in chained descriptors.
+> 
+> It's there really just so we can remove the doubt about which descriptor's ID
+> should be used. My testing does not show a performance win from this, so I'm
+> fine with removing this requirement though I'd be curious to know why is it a
+> problem.
+> 
+> > Assuming out of order execution, how is the driver supposed to
+> > re-assign unique IDs to the previously chained descriptor?
+> 
+> For example, driver can have a simple allocator for the IDs.
+> 
+> 
+> > Is the driver expected to copy original IDs somewhere else before the
+> > chaining and then restore the IDs after the chain is executed?
+> >
+> > Thanks,
+> > Ilya
+> 
+> As device overwrites the ID, driver will have to write it out each time, that's true.
+> It's going to be a requirement even if descriptors on the chain do not need to
+> have the same ID.
+> 
+> --
+> MST
