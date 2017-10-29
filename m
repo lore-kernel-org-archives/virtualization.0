@@ -1,12 +1,17 @@
-From: Jens Freimann <jfreimann@redhat.com>
-Subject: Virtio BoF minutes from KVM Forum 2017
-Date: Sun, 29 Oct 2017 13:52:25 +0100
-Message-ID: <20171029125225.lx4ezpkbvjjsjv3x@localhost.localdomain>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: packed ring layout proposal v3
+Date: Sun, 29 Oct 2017 16:21:52 +0200
+Message-ID: <20171029162117-mutt-send-email-mst@kernel.org>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+	<AM4PR0501MB27236B71E1B02176F1844ACBD4770@AM4PR0501MB2723.eurprd05.prod.outlook.com>
+	<20171025191346-mutt-send-email-mst@kernel.org>
+	<AM4PR0501MB2723177BF4E5EE32CC878E8CD4580@AM4PR0501MB2723.eurprd05.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <AM4PR0501MB2723177BF4E5EE32CC878E8CD4580@AM4PR0501MB2723.eurprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,79 +21,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, virtio-comment@lists.oasis-open.org
+To: Ilya Lesokhin <ilyal@mellanox.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+If you do this whats the point of the id? Just use descriptor offset
+like virtio 0 did.
 
-Virtio BoF minutes KVM Forum 2017
-
-Attendees: Amnon Ilan, Maxime Coqueline, Vlad Yasevich, Malcolm Crossley,
-	   David Vrabel, Ilya Lesokhin, Cunming Lian, Jens Freimann
-
-Topics: packed ring layout with respect to hardware implementations
-
-References:
-https://lists.oasis-open.org/archives/virtio-dev/201702/msg00010.html
-https://lists.oasis-open.org/archives/virtio-dev/201709/msg00013.html
-
-Malcolm  Crossley, David Vrabel: 
-- keep in mind not to only optimize for network with small frame sizes.
-  Storage has much larger sizes
-- is there really no cacheline ping pong, because we are overwriting the same
-  cache line? 4 descs in one line, once we access two at the same time it will
-  cause cache coherency, messages, no?
-- interesting quirk, because we flip a bit, but intel doesn't support writing
-  single bytes, it will always be a full dword. will that be a problem? 
-- interesting to look into NVME protocols, it seems to solve some of the same
-  problems hardware-wise
-- vmware vmxnet3 has a separate data ring for when they have bigger amounts of
-  data. not to copy, but still interesting
-
-Steve: 
-- is the _MORE flag from packed ring layout proposal still in use? what is it's meaning?  
-
-Ilya: 
-- you might have more completions than descriptors available
-- partial descriptor chains are a problem for hardware because you might have
-  to read a bunch of conscriptors twice 
-- how would you do deal with a big buffer that cointains a large number of
-  small packets with respect to completions?
-- is one bit for completion enough? right now it means descriptor was actually
-  used. how to we signal when it was completed?
-- concerned about not being able to do scatter/gatter with the ring layout.
-  Network drivers heavily using indirect buffers.  
-- for a hardware implementation a completion ring is a very convenient form for
-  some use cases, so we want an efficient implementation for them. If we had an
-  inline descriptor then a completion ring is just a normal ring and we won't
-  need another ring type.
-- doesn't like the fact that we need to do a linear scan to find the length of
-  a descriptor chain. It would be nice if we could have the length of the chain
-  in the first descriptor (i.e. the number of chained descriptors, not the number
-  of posted descriptors which can be deduced from the id field)
-
-
-Vlad: 
-- there were discussions about having a bigger descriptor. then we would
-  have more space to put things like a vnet header into the descriptor. It would
-  also mean less conflicts with accessing the same cache line. (descriptors already
-  grew to 16 bytes, do we need more?)
-- was playing around with the idea of different ring types for different devices
-  e.g. scsi, net. starting with generic information then comes protocol
-  specific data. Ilya agrees. length of descriptor would be flexibla by adding a
-  descriptor length field.  
-
-How to continue / TODOs:
- - do benchmarking with bigger frame sizes on fast enough NICs
- - turn prototype code into a RFC series (work in progress)
- - more people interested to join monthly meetings
-
-Open questions:
-- Do we need an (optional) completion ring?
-- Is there a situation where 4 descriptors in a cache line is a problem because
-  we access the same cache line, causing cache ping-pong?
-- Interrupt suppression requires device to do a memory read after writing out
-  descriptors?  Will that be too costly? Let driver write out index?
-
-
-regards
-Jens
+On Sun, Oct 29, 2017 at 09:05:01AM +0000, Ilya Lesokhin wrote:
+> My point was that if the driver is not required to change the IDs,
+> it can initialized the ID's in all the descriptors when the ring is created
+> and never write the ID field again.
+> 
+> A simple allocator for the IDs can solve the problem I presented but it is still more
+> expensive then not doing ID allocation at all.
+> 
+> 
+> > -----Original Message-----
+> > From: Michael S. Tsirkin [mailto:mst@redhat.com]
+> > Sent: Wednesday, October 25, 2017 7:20 PM
+> > To: Ilya Lesokhin <ilyal@mellanox.com>
+> > Cc: virtio-dev@lists.oasis-open.org; virtualization@lists.linux-foundation.org
+> > Subject: Re: packed ring layout proposal v3
+> > 
+> > On Sun, Oct 08, 2017 at 06:16:44AM +0000, Ilya Lesokhin wrote:
+> > > > > -----Original Message-----
+> > > > > From: virtualization-bounces@lists.linux-foundation.org
+> > > > > [mailto:virtualization-bounces@lists.linux-foundation.org] On
+> > > > > Behalf Of Michael S. Tsirkin
+> > > > >
+> > > > > This is an update from v2 version.
+> > > >> ...
+> > > > > When driver descriptors are chained in this way, multiple
+> > > > > descriptors are treated as a part of a single transaction
+> > > > > containing an optional write buffer followed by an optional read buffer.
+> > > > > All descriptors in the chain must have the same ID.
+> > > > >
+> > >
+> > > I apologize for the repost, I didn't realize I have to be a member of
+> > > the virtio-dev mailing list.
+> > >
+> > > I'm concerned about the "same ID" requirement in chained descriptors.
+> > 
+> > It's there really just so we can remove the doubt about which descriptor's ID
+> > should be used. My testing does not show a performance win from this, so I'm
+> > fine with removing this requirement though I'd be curious to know why is it a
+> > problem.
+> > 
+> > > Assuming out of order execution, how is the driver supposed to
+> > > re-assign unique IDs to the previously chained descriptor?
+> > 
+> > For example, driver can have a simple allocator for the IDs.
+> > 
+> > 
+> > > Is the driver expected to copy original IDs somewhere else before the
+> > > chaining and then restore the IDs after the chain is executed?
+> > >
+> > > Thanks,
+> > > Ilya
+> > 
+> > As device overwrites the ID, driver will have to write it out each time, that's true.
+> > It's going to be a requirement even if descriptors on the chain do not need to
+> > have the same ID.
+> > 
+> > --
+> > MST
