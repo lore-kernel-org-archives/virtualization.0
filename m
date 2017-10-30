@@ -1,18 +1,13 @@
-From: Fengguang Wu <fengguang.wu@intel.com>
-Subject: Re: [locking/paravirt] static_key_disable_cpuslocked(): static key
-	'virt_spin_lock_key+0x0/0x20' used before call to jump_label_init()
-Date: Mon, 30 Oct 2017 09:38:35 +0100
-Message-ID: <20171030083835.kirbygtl3qneg6ab@wfg-t540p.sh.intel.com>
-References: <CA+55aFxSJGeN=2X-uX-on1Uq2Nb8+v1aiMDz5H1+tKW_N5Q+6g@mail.gmail.com>
-	<20171029225155.qcum5i75awrt5tzm@wfg-t540p.sh.intel.com>
-	<20171030073509.23xtazsqrjuduqq5@wfg-t540p.sh.intel.com>
-	<f542f9af-70e1-b3e9-fdda-4a83af71fc99@suse.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH] virtio_balloon: fix deadlock on OOM
+Date: Mon, 30 Oct 2017 17:48:58 +0800
+Message-ID: <59F6F58A.2030000__22246.9713575721$1509356822$gmane$org@intel.com>
+References: <1507900754-32239-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <f542f9af-70e1-b3e9-fdda-4a83af71fc99@suse.com>
+In-Reply-To: <1507900754-32239-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,41 +17,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: boris.ostrovsky@oracle.com, jeremy@goop.org, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, rusty@rustcorp.com.au, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, hpa@zytor.com, Waiman Long <longman@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, akataria@vmware.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 30, 2017 at 08:47:08AM +0100, Juergen Gross wrote:
->On 30/10/17 08:35, Fengguang Wu wrote:
->> On Sun, Oct 29, 2017 at 11:51:55PM +0100, Fengguang Wu wrote:
->>> Hi Linus,
->>>
->>> Up to now we see the below boot error/warnings when testing v4.14-rc6.
->>>
->>> They hit the RC release mainly due to various imperfections in 0day's
->>> auto bisection. So I manually list them here and CC the likely easy to
->>> debug ones to the corresponding maintainers in the followup emails.
->>>
->>> boot_successes: 4700
->>> boot_failures: 247
->>
->> [...]
->>
->>> WARNING:at_kernel/jump_label.c:#static_key_disable_cpuslocked: 7
+On 10/13/2017 09:21 PM, Michael S. Tsirkin wrote:
+> fill_balloon doing memory allocations under balloon_lock
+> can cause a deadlock when leak_balloon is called from
+> virtballoon_oom_notify and tries to take same lock.
 >
->This patch is in the tip tree only, it will be merged in 4.15. So I
->don't understand why you are reporting this for 4.14-rc6.
-
-Ah sorry, I simply checked recent bisects for that warning.
-Then I'll need to carry out some new bisect on 4.14-rc6.
-
->There is a patch by Dou Liyang pending since 28th October addressing
->that issue:
+> To fix, split page allocation and enqueue and do allocations outside the lock.
 >
->[PATCH tip v2] x86/paravirt: Make the virt_spin_lock_key setup after
->jump_label_init()
+> Here's a detailed analysis of the deadlock by Tetsuo Handa:
+>
+> In leak_balloon(), mutex_lock(&vb->balloon_lock) is called in order to
+> serialize against fill_balloon(). But in fill_balloon(),
+> alloc_page(GFP_HIGHUSER[_MOVABLE] | __GFP_NOMEMALLOC | __GFP_NORETRY) is
+> called with vb->balloon_lock mutex held. Since GFP_HIGHUSER[_MOVABLE]
+> implies __GFP_DIRECT_RECLAIM | __GFP_IO | __GFP_FS, despite __GFP_NORETRY
+> is specified, this allocation attempt might indirectly depend on somebody
+> else's __GFP_DIRECT_RECLAIM memory allocation. And such indirect
+> __GFP_DIRECT_RECLAIM memory allocation might call leak_balloon() via
+> virtballoon_oom_notify() via blocking_notifier_call_chain() callback via
+> out_of_memory() when it reached __alloc_pages_may_oom() and held oom_lock
+> mutex. Since vb->balloon_lock mutex is already held by fill_balloon(), it
+> will cause OOM lockup. Thus, do not wait for vb->balloon_lock mutex if
+> leak_balloon() is called from out_of_memory().
+>
+>    Thread1                                       Thread2
+>      fill_balloon()
+>        takes a balloon_lock
+>        balloon_page_enqueue()
+>          alloc_page(GFP_HIGHUSER_MOVABLE)
+>            direct reclaim (__GFP_FS context)       takes a fs lock
+>              waits for that fs lock                  alloc_page(GFP_NOFS)
+>                                                        __alloc_pages_may_oom()
+>                                                          takes the oom_lock
+>                                                          out_of_memory()
+>                                                            blocking_notifier_call_chain()
+>                                                              leak_balloon()
+>                                                                tries to take that balloon_lock and deadlocks
+>
+> Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Wei Wang <wei.w.wang@intel.com>
+> ---
 
-Excellent!
+The "virtio-balloon enhancement" series has a dependency on this patch.
+Could you send out a new version soon? Or I can include it in the series 
+if you want.
 
-Thanks,
-Fengguang
+
+Best,
+Wei
