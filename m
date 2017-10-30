@@ -1,14 +1,21 @@
-From: Jens Freimann <jfreimann@redhat.com>
-Subject: Re: [PATCH] virtio/ringtest: virtio_ring: fix up need_event math
-Date: Mon, 30 Oct 2017 14:00:25 +0100
-Message-ID: <20171030130025.vmhzygf2cmwozhg3__10839.5244497389$1509368465$gmane$org@localhost.localdomain>
-References: <1509109839-553-1-git-send-email-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: packed ring layout proposal v3
+Date: Mon, 30 Oct 2017 18:30:57 +0200
+Message-ID: <20171030182950-mutt-send-email-mst@kernel.org>
+References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
+	<AM4PR0501MB27236B71E1B02176F1844ACBD4770@AM4PR0501MB2723.eurprd05.prod.outlook.com>
+	<20171025191346-mutt-send-email-mst@kernel.org>
+	<AM4PR0501MB2723177BF4E5EE32CC878E8CD4580@AM4PR0501MB2723.eurprd05.prod.outlook.com>
+	<20171029162117-mutt-send-email-mst@kernel.org>
+	<AM4PR0501MB272332C92A384C97D6975D8DD4580@AM4PR0501MB2723.eurprd05.prod.outlook.com>
+	<20171030040341-mutt-send-email-mst@kernel.org>
+	<AM4PR0501MB27233D93937CA1F2E5AD13DBD4590@AM4PR0501MB2723.eurprd05.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1509109839-553-1-git-send-email-mst@redhat.com>
+In-Reply-To: <AM4PR0501MB27233D93937CA1F2E5AD13DBD4590@AM4PR0501MB2723.eurprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,20 +25,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ilya Lesokhin <ilyal@mellanox.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 27, 2017 at 01:11:13PM +0000, Michael S. Tsirkin wrote:
->last kicked event index must be updated unconditionally:
->even if we don't need to kick, we do not want to re-check
->the same entry for events.
->
->Reported-by: Cornelia Huck <cohuck@redhat.com>
->Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->---
-> tools/virtio/ringtest/virtio_ring_0_9.c | 24 ++++++++++++++----------
-> 1 file changed, 14 insertions(+), 10 deletions(-)
->
+On Mon, Oct 30, 2017 at 06:30:56AM +0000, Ilya Lesokhin wrote:
+> > -----Original Message-----
+> > From: Michael S. Tsirkin [mailto:mst@redhat.com]
+> > Sent: Monday, October 30, 2017 4:09 AM
+> > To: Ilya Lesokhin <ilyal@mellanox.com>
+> > Cc: virtio-dev@lists.oasis-open.org; virtualization@lists.linux-foundation.org
+> > Subject: Re: packed ring layout proposal v3
+> > 
+> > On Sun, Oct 29, 2017 at 02:34:56PM +0000, Ilya Lesokhin wrote:
+> > > > -----Original Message-----
+> > > > From: Michael S. Tsirkin [mailto:mst@redhat.com]
+> > > > Sent: Sunday, October 29, 2017 4:22 PM
+> > > > To: Ilya Lesokhin <ilyal@mellanox.com>
+> > > > Cc: virtio-dev@lists.oasis-open.org; virtualization@lists.linux-foundation.org
+> > > > Subject: Re: packed ring layout proposal v3
+> > > >
+> > > > If you do this whats the point of the id? Just use descriptor offset like virtio 0
+> > did.
+> > > >
+> > >
+> > > I agree that ID is pointless when requests are completed in order.
+> > >
+> > > But I'm not sure what you mean by descriptor offset?
+> > 
+> > Where the descriptor is within the ring.
+> > 
+> 
+> Using descriptor offset like virtio 0, won't work.
+> In virtio 0, there was no reordering in the descriptor ring, so the offset was always unique.
+> In the new spec, if descriptor in offset 2 completes before the descriptor in offset 1,
+> It can be put in offset 1, but reusing offset 1 is not yet safe.
+> 
+> Also, please ignore my earlier comment about in-order completion,
+> It invalidates the entire discussion.
+> 
+> 
 
-Reviewed-by: Jens Freimann <jfreimann@redhat.com>
+Yes, using offsets only works if all descriptors are used and written back in
+order. If they are, descriptor ID isn't necessary. If they aren't,
+it's necessary.
+
+-- 
+MST
