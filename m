@@ -1,15 +1,16 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH 08/13] x86/paravirt: Clean up paravirt_types.h
-Date: Wed, 22 Nov 2017 21:46:10 +0100
-Message-ID: <20171122204610.mtpjea2wbeuey5mp__276.647069449787$1511383605$gmane$org@pd.tnic>
-References: <cover.1507128293.git.jpoimboe@redhat.com>
-	<38b16ecbfa88b41239e8a87ce1d8330fea7a2b3a.1507128293.git.jpoimboe@redhat.com>
+From: Dou Liyang <douly.fnst@cn.fujitsu.com>
+Subject: Re: [locking/paravirt] static_key_disable_cpuslocked(): static key
+	'virt_spin_lock_key+0x0/0x20' used before call to jump_label_init()
+Date: Mon, 30 Oct 2017 16:43:33 +0800
+Message-ID: <e2fc62e3-934c-5c24-da99-8efa706051d7__41576.7762613997$1511414645$gmane$org@cn.fujitsu.com>
+References: <CA+55aFxSJGeN=2X-uX-on1Uq2Nb8+v1aiMDz5H1+tKW_N5Q+6g@mail.gmail.com>
+	<20171029225155.qcum5i75awrt5tzm@wfg-t540p.sh.intel.com>
+	<20171030073509.23xtazsqrjuduqq5@wfg-t540p.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <38b16ecbfa88b41239e8a87ce1d8330fea7a2b3a.1507128293.git.jpoimboe@redhat.com>
+In-Reply-To: <20171030073509.23xtazsqrjuduqq5@wfg-t540p.sh.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,136 +20,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Juergen Gross <jgross@suse.com>, Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, x86@kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: Fengguang Wu <fengguang.wu@intel.com>, Juergen Gross <jgross@suse.com>
+Cc: boris.ostrovsky@oracle.com, jeremy@goop.org, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, rusty@rustcorp.com.au, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, chrisw@sous-sol.org, hpa@zytor.com, Waiman Long <longman@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, akataria@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 04, 2017 at 10:58:29AM -0500, Josh Poimboeuf wrote:
-> Make paravirt_types.h more understandable:
-> 
-> - Use more consistent and logical naming
-> - Simplify interfaces
-> - Put related macros together
-> - Improve whitespace
-> 
-> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> ---
->  arch/x86/include/asm/paravirt_types.h | 104 ++++++++++++++++++----------------
->  1 file changed, 54 insertions(+), 50 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-> index 01f9e10983c1..5656aea79412 100644
-> --- a/arch/x86/include/asm/paravirt_types.h
-> +++ b/arch/x86/include/asm/paravirt_types.h
+Hi Fengguang,
 
-...
+There are two different warning.
 
-> @@ -388,13 +361,46 @@ unsigned native_patch(u8 type, u16 clobbers, void *ibuf,
->  
->  int paravirt_disable_iospace(void);
->  
-> +
->  /*
-> - * This generates an indirect call based on the operation type number.
-> - * The type number, computed in PARAVIRT_PATCH, is derived from the
-> - * offset into the paravirt_patch_template structure, and can therefore be
-> - * freely converted back into a structure offset.
-> + * Generate some code, and mark it as patchable by apply_paravirt().
->   */
-> -#define PARAVIRT_CALL	"call *%c[paravirt_opptr];"
-> +#define _PV_SITE(insn_string, type, clobber)				\
-> +	"771:\n\t" insn_string "\n" "772:\n"				\
+At 10/30/2017 03:35 PM, Fengguang Wu wrote:
+> On Sun, Oct 29, 2017 at 11:51:55PM +0100, Fengguang Wu wrote:
+>> Hi Linus,
+>>
+>> Up to now we see the below boot error/warnings when testing v4.14-rc6.
+>>
 
-You can merge the last two strings into one.
+The original warning:
 
-Also, s/insn_string/insns/ so that it is the same as in paravirt-asm.h
-PV_SITE definition. Ditto for s/clobber/clobbers/ I.e., in general,
-have the same parameter names in the respective macros so that they can
-be parsed visually quickly and reader can say, aha, I see, that's that
-param from the asm version of the macro.
+WARNING:at_arch/x86/events/intel/core.c:#intel_pmu_handle_irq: 1
 
-> +	".pushsection .parainstructions,\"a\"\n"			\
-> +	_ASM_ALIGN "\n"							\
-> +	_ASM_PTR " 771b\n"						\
-> +	"  .byte " type "\n"						\
-> +	"  .byte 772b-771b\n"						\
-> +	"  .short " clobber "\n"					\
-> +	".popsection\n"
-> +
-> +#define PARAVIRT_PATCH(x)						\
+in v4.14-rc6, which happens rarely.
 
-Btw, that macro's name doesn't tell me anything: it should be
-PV_INSN_TYPE or so.
+>> They hit the RC release mainly due to various imperfections in 0day's
+>> auto bisection. So I manually list them here and CC the likely easy to
+>> debug ones to the corresponding maintainers in the followup emails.
+>>
+>> boot_successes: 4700
+>> boot_failures: 247
+>
+> [...]
+>
+>> WARNING:at_kernel/jump_label.c:#static_key_disable_cpuslocked: 7
+>
 
-> +	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
-> +
-> +#define PV_STRINGIFY(constraint)	"%c[" __stringify(constraint) "]"
-> +
-> +#define PV_CALL_CONSTRAINT		pv_op_ptr
-> +#define PV_TYPE_CONSTRAINT		pv_typenum
-> +#define PV_CLBR_CONSTRAINT		pv_clobber
-> +
-> +#define PV_CALL_CONSTRAINT_STR		PV_STRINGIFY(PV_CALL_CONSTRAINT)
-> +#define PV_TYPE_CONSTRAINT_STR		PV_STRINGIFY(PV_TYPE_CONSTRAINT)
-> +#define PV_CLBR_CONSTRAINT_STR		PV_STRINGIFY(PV_CLBR_CONSTRAINT)
-> +
-> +#define PV_CALL_STR			"call *" PV_CALL_CONSTRAINT_STR ";"
-> +
-> +#define PV_INPUT_CONSTRAINTS(op, clobber)				\
-> +	[PV_TYPE_CONSTRAINT] "i" (PARAVIRT_PATCH(op)),			\
-> +	[PV_CALL_CONSTRAINT] "i" (&(op)),				\
-> +	[PV_CLBR_CONSTRAINT] "i" (clobber)
-> +
-> +#define PV_SITE(insn_string)						\
-> +	_PV_SITE(insn_string, PV_TYPE_CONSTRAINT_STR, PV_CLBR_CONSTRAINT_STR)
-> +
-> +#define PV_ALT_SITE(oldinstr, newinstr)					\
-> +	_PV_ALT_SITE(oldinstr, newinstr, PV_TYPE_CONSTRAINT_STR,	\
-> +		     PV_CLBR_CONSTRAINT_STR)
->  
->  /*
->   * These macros are intended to wrap calls through one of the paravirt
-> @@ -525,25 +531,24 @@ int paravirt_disable_iospace(void);
->  
->  #define ____PVOP_CALL(rettype, op, clbr, call_clbr, extra_clbr,		\
->  		      pre, post, ...)					\
-> -	({								\
-> -		rettype __ret;						\
-> -		PVOP_CALL_ARGS;						\
-> -		PVOP_TEST_NULL(op);					\
-> +({									\
-> +	rettype __ret;							\
-> +	PVOP_CALL_ARGS;							\
-> +	PVOP_TEST_NULL(op);						\
->  		asm volatile(pre					\
-> -			     paravirt_alt(PARAVIRT_CALL)		\
-> +			     PV_SITE(PV_CALL_STR)			\
->  			     post					\
->  			     : call_clbr, ASM_CALL_CONSTRAINT		\
-> -			     : paravirt_type(op),			\
-> -			       paravirt_clobber(clbr),			\
-> +			     : PV_INPUT_CONSTRAINTS(op, clbr),		\
->  			       ##__VA_ARGS__				\
->  			     : "memory", "cc" extra_clbr);		\
-> -		if (IS_ENABLED(CONFIG_X86_32) &&			\
-> -		    sizeof(rettype) > sizeof(unsigned long))		\
-> -			__ret = (rettype)((((u64)__edx) << 32) | __eax);\
-> -		else							\
-> -			__ret = (rettype)(__eax & PVOP_RETMASK(rettype));\
-> -		__ret;							\
-> -	})
+This is a new warning in tip tree, and the patch has sent[1].
 
-<---- newline here.
+[1]https://lkml.org/lkml/2017/10/28/4
 
-> +	if (IS_ENABLED(CONFIG_X86_32) &&				\
-> +	    sizeof(rettype) > sizeof(unsigned long))			\
-> +		__ret = (rettype)((((u64)__edx) << 32) | __eax);	\
-> +	else								\
-> +		__ret = (rettype)(__eax & PVOP_RETMASK(rettype));	\
-> +	__ret;								\
-> +})
--- 
-Regards/Gruss,
-    Boris.
+we may need do it in v4.14-rc6, not in tip tree directly.
 
-Good mailing practices for 400: avoid top-posting and trim the reply.
+Thanks,
+	dou.
