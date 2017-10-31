@@ -1,18 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 1/1] virtio_balloon: include buffers and cached memory
-	statistics
-Date: Tue, 31 Oct 2017 18:15:48 +0200
-Message-ID: <20171031180315-mutt-send-email-mst__16688.2464582615$1509466571$gmane$org@kernel.org>
-References: <cover.1505998455.git.tgolembi@redhat.com>
-	<b13f11c03ed394bd8ad367dc90996ed134ea98da.1505998455.git.tgolembi@redhat.com>
-	<20171019160405-mutt-send-email-mst@kernel.org>
-	<20171022200557.02558e37@fiorina> <20171031132019.76197945@fiorina>
+Subject: Re: [PATCH net-next] vhost_net: conditionally enable tx polling
+Date: Tue, 31 Oct 2017 18:36:00 +0200
+Message-ID: <20171031182637-mutt-send-email-mst__24400.0190440149$1509467779$gmane$org@kernel.org>
+References: <1509445640-4085-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20171031132019.76197945@fiorina>
+In-Reply-To: <1509445640-4085-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,93 +18,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?utf-8?B?VG9tw6HFoSBHb2xlbWJpb3Zza8O9?= <tgolembi@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, riel@redhat.com, kvm@vger.kernel.org, Gal Hammer <ghammer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Shaohua Li <shli@fb.com>, Huang Ying <ying.huang@intel.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Matthew Rosato <mjrosato@linux.vnet.ibm.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Wei Xu <wexu@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBPY3QgMzEsIDIwMTcgYXQgMDE6MjA6MTlQTSArMDEwMCwgVG9tw6HFoSBHb2xlbWJp
-b3Zza8O9IHdyb3RlOgo+IHBpbmcKPiAKPiArR2lsLCArQW1ub24uLi4gY291bGQgeW91IG1heWJl
-IGFpZCBpbiByZXZpZXdpbmcgdGhlIHBhdGNoLCBwbGVhc2U/Cj4gCj4gCj4gICAgIFRvbWFzCj4g
-Cj4gT24gU3VuLCAyMiBPY3QgMjAxNyAyMDowNTo1NyArMDIwMAo+IFRvbcOhxaEgR29sZW1iaW92
-c2vDvSA8dGdvbGVtYmlAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gCj4gPiBPbiBUaHUsIDE5IE9jdCAy
-MDE3IDE2OjEyOjIwICswMzAwCj4gPiAiTWljaGFlbCBTLiBUc2lya2luIiA8bXN0QHJlZGhhdC5j
-b20+IHdyb3RlOgo+ID4gCj4gPiA+IE9uIFRodSwgU2VwIDIxLCAyMDE3IGF0IDAyOjU1OjQxUE0g
-KzAyMDAsIFRvbcOhxaEgR29sZW1iaW92c2vDvSB3cm90ZTogIAo+ID4gPiA+IEFkZCBhIG5ldyBm
-aWVsZHMsIFZJUlRJT19CQUxMT09OX1NfQlVGRkVSUyBhbmQgVklSVElPX0JBTExPT05fU19DQUNI
-RUQsCj4gPiA+ID4gdG8gdmlydGlvX2JhbGxvb24gbWVtb3J5IHN0YXRpc3RpY3MgcHJvdG9jb2wu
-IFRoZSB2YWx1ZXMgY29ycmVzcG9uZCB0bwo+ID4gPiA+ICdCdWZmZXJzJyBhbmQgJ0NhY2hlZCcg
-aW4gL3Byb2MvbWVtaW5mby4KPiA+ID4gPiAKPiA+ID4gPiBUbyBiZSBhYmxlIHRvIGNvbXB1dGUg
-dGhlIHZhbHVlIG9mICdDYWNoZWQnIG1lbW9yeSBpdCBpcyBuZWNlc3NhcnkgdG8KPiA+ID4gPiBl
-eHBvcnQgdG90YWxfc3dhcGNhY2hlX3BhZ2VzKCkgdG8gbW9kdWxlcy4KPiA+ID4gPiAKPiA+ID4g
-PiBTaWduZWQtb2ZmLWJ5OiBUb23DocWhIEdvbGVtYmlvdnNrw70gPHRnb2xlbWJpQHJlZGhhdC5j
-b20+ICAKPiA+ID4gCj4gPiA+IERvZXMgJ0J1ZmZlcnMnIGFjdHVhbGx5IG1ha2Ugc2Vuc2U/IEl0
-J3MgYSB0ZW1wb3Jhcnkgc3RvcmFnZSAtCj4gPiA+IHdvdWxkbid0IGl0IGJlIHNpZ25pZmljYW50
-bHkgb3V0IG9mIGRhdGUgYnkgdGhlIHRpbWUKPiA+ID4gaG9zdCByZWNlaXZlcyBpdD8gIAo+ID4g
-Cj4gPiBUaGF0IHdvdWxkIGJlIGJlc3QgYW5zd2VyZWQgYnkgc29tZWJvZHkgZnJvbSBrZXJuZWwu
-IEJ1dCBteSBwZXJzb25hbAo+ID4gb3BpbmlvbiBpcyB0aGF0IGl0IHdvdWxkIG5vdCBiZSBvdXQg
-b2YgZGF0ZS4gVGhlIGFtb3VudCBvZiBtZW1vcnkKPiA+IGRlZGljYXRlZCB0byBCdWZmZXJzIGRv
-ZXMgbm90IHNlZW0gdG8gZmx1Y3R1YXRlIHRvbyBtdWNoLgo+ID4gCj4gPiAgICAgVG9tYXMKPiA+
-IAoKSSB3b3VsZCBiZSBpbmNsaW5lZCB0byBzYXksIGp1c3QgcmVwb3J0Cmdsb2JhbF9ub2RlX3Bh
-Z2Vfc3RhdGUoTlJfRklMRV9QQUdFUykuCk1heWJlIHN1YnRyYWN0IGJ1ZmZlciByYW0uCgpJdCdz
-IG5vdCBjbGVhciBob3N0IGNhcmVzIGFib3V0IHRoZSBkaXN0aW5jdGlvbiwKaXQncyBhbGwgbWVt
-b3J5IHRoYXQgY2FuIHNocmluayBpbiByZXNwb25zZSB0bwptZW1vcnkgcHJlc3N1cmUgc3VjaCBh
-cyBpbmZsYXRpbmcgdGhlIGJhbGxvb24uCgpUaGlzIHN0YXRpc3RpYyBpcyBwb3J0YWJsZSBhcyB3
-ZWxsIEkgdGhpbmssIG1vc3QgZ3Vlc3RzIGhhdmUKc3RvcmFnZSBjYWNoZS4KCgo+ID4gPiA+IC0t
-LQo+ID4gPiA+ICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jICAgICB8IDExICsrKysr
-KysrKysrCj4gPiA+ID4gIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5oIHwgIDQg
-KysrLQo+ID4gPiA+ICBtbS9zd2FwX3N0YXRlLmMgICAgICAgICAgICAgICAgICAgICB8ICAxICsK
-PiA+ID4gPiAgMyBmaWxlcyBjaGFuZ2VkLCAxNSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0p
-Cj4gPiA+ID4gCj4gPiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxs
-b29uLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jCj4gPiA+ID4gaW5kZXggZjBi
-M2EwYjlkNDJmLi5jMjU1OGVjNDdhNjIgMTAwNjQ0Cj4gPiA+ID4gLS0tIGEvZHJpdmVycy92aXJ0
-aW8vdmlydGlvX2JhbGxvb24uYwo+ID4gPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19i
-YWxsb29uLmMKPiA+ID4gPiBAQCAtMjQ0LDEyICsyNDQsMTkgQEAgc3RhdGljIHVuc2lnbmVkIGlu
-dCB1cGRhdGVfYmFsbG9vbl9zdGF0cyhzdHJ1Y3QgdmlydGlvX2JhbGxvb24gKnZiKQo+ID4gPiA+
-ICAJc3RydWN0IHN5c2luZm8gaTsKPiA+ID4gPiAgCXVuc2lnbmVkIGludCBpZHggPSAwOwo+ID4g
-PiA+ICAJbG9uZyBhdmFpbGFibGU7Cj4gPiA+ID4gKwlsb25nIGNhY2hlZDsKPiA+ID4gPiAgCj4g
-PiA+ID4gIAlhbGxfdm1fZXZlbnRzKGV2ZW50cyk7Cj4gPiA+ID4gIAlzaV9tZW1pbmZvKCZpKTsK
-PiA+ID4gPiAgCj4gPiA+ID4gIAlhdmFpbGFibGUgPSBzaV9tZW1fYXZhaWxhYmxlKCk7Cj4gPiA+
-ID4gIAo+ID4gPiA+ICsJY2FjaGVkID0gZ2xvYmFsX25vZGVfcGFnZV9zdGF0ZShOUl9GSUxFX1BB
-R0VTKSAtCj4gPiA+ID4gKwkJCXRvdGFsX3N3YXBjYWNoZV9wYWdlcygpIC0gaS5idWZmZXJyYW07
-Cj4gPiA+ID4gKwlpZiAoY2FjaGVkIDwgMCkKPiA+ID4gPiArCQljYWNoZWQgPSAwOwo+ID4gPiA+
-ICsKPiA+ID4gPiArCj4gPiA+ID4gICNpZmRlZiBDT05GSUdfVk1fRVZFTlRfQ09VTlRFUlMKPiA+
-ID4gPiAgCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19TV0FQX0lOLAo+
-ID4gPiA+ICAJCQkJcGFnZXNfdG9fYnl0ZXMoZXZlbnRzW1BTV1BJTl0pKTsKPiA+ID4gPiBAQCAt
-MjY0LDYgKzI3MSwxMCBAQCBzdGF0aWMgdW5zaWduZWQgaW50IHVwZGF0ZV9iYWxsb29uX3N0YXRz
-KHN0cnVjdCB2aXJ0aW9fYmFsbG9vbiAqdmIpCj4gPiA+ID4gIAkJCQlwYWdlc190b19ieXRlcyhp
-LnRvdGFscmFtKSk7Cj4gPiA+ID4gIAl1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxM
-T09OX1NfQVZBSUwsCj4gPiA+ID4gIAkJCQlwYWdlc190b19ieXRlcyhhdmFpbGFibGUpKTsKPiA+
-ID4gPiArCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19CVUZGRVJTLAo+
-ID4gPiA+ICsJCQkJcGFnZXNfdG9fYnl0ZXMoaS5idWZmZXJyYW0pKTsKPiA+ID4gPiArCXVwZGF0
-ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19DQUNIRUQsCj4gPiA+ID4gKwkJCQlw
-YWdlc190b19ieXRlcyhjYWNoZWQpKTsKPiA+ID4gPiAgCj4gPiA+ID4gIAlyZXR1cm4gaWR4Owo+
-ID4gPiA+ICB9Cj4gPiA+ID4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9f
-YmFsbG9vbi5oIGIvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmgKPiA+ID4gPiBp
-bmRleCAzNDNkN2RkZWZlMDQuLmQ1ZGM4YTU2YTQ5NyAxMDA2NDQKPiA+ID4gPiAtLS0gYS9pbmNs
-dWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaAo+ID4gPiA+ICsrKyBiL2luY2x1ZGUvdWFw
-aS9saW51eC92aXJ0aW9fYmFsbG9vbi5oCj4gPiA+ID4gQEAgLTUyLDcgKzUyLDkgQEAgc3RydWN0
-IHZpcnRpb19iYWxsb29uX2NvbmZpZyB7Cj4gPiA+ID4gICNkZWZpbmUgVklSVElPX0JBTExPT05f
-U19NRU1GUkVFICA0ICAgLyogVG90YWwgYW1vdW50IG9mIGZyZWUgbWVtb3J5ICovCj4gPiA+ID4g
-ICNkZWZpbmUgVklSVElPX0JBTExPT05fU19NRU1UT1QgICA1ICAgLyogVG90YWwgYW1vdW50IG9m
-IG1lbW9yeSAqLwo+ID4gPiA+ICAjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfQVZBSUwgICAgNiAg
-IC8qIEF2YWlsYWJsZSBtZW1vcnkgYXMgaW4gL3Byb2MgKi8KPiA+ID4gPiAtI2RlZmluZSBWSVJU
-SU9fQkFMTE9PTl9TX05SICAgICAgIDcKPiA+ID4gPiArI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9T
-X0JVRkZFUlMgIDcgICAvKiBCdWZmZXJzIG1lbW9yeSBhcyBpbiAvcHJvYyAqLwo+ID4gPiA+ICsj
-ZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfQ0FDSEVEICAgOCAgIC8qIENhY2hlZCBtZW1vcnkgYXMg
-aW4gL3Byb2MgKi8KPiA+ID4gPiArI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX05SICAgICAgIDkK
-PiA+ID4gPiAgCj4gPiA+ID4gIC8qCj4gPiA+ID4gICAqIE1lbW9yeSBzdGF0aXN0aWNzIHN0cnVj
-dHVyZS4KPiA+ID4gPiBkaWZmIC0tZ2l0IGEvbW0vc3dhcF9zdGF0ZS5jIGIvbW0vc3dhcF9zdGF0
-ZS5jCj4gPiA+ID4gaW5kZXggNzFjZTJkMWNjYmY3Li5mM2E0ZmY3ZDZjNTIgMTAwNjQ0Cj4gPiA+
-ID4gLS0tIGEvbW0vc3dhcF9zdGF0ZS5jCj4gPiA+ID4gKysrIGIvbW0vc3dhcF9zdGF0ZS5jCj4g
-PiA+ID4gQEAgLTk1LDYgKzk1LDcgQEAgdW5zaWduZWQgbG9uZyB0b3RhbF9zd2FwY2FjaGVfcGFn
-ZXModm9pZCkKPiA+ID4gPiAgCXJjdV9yZWFkX3VubG9jaygpOwo+ID4gPiA+ICAJcmV0dXJuIHJl
-dDsKPiA+ID4gPiAgfQo+ID4gPiA+ICtFWFBPUlRfU1lNQk9MX0dQTCh0b3RhbF9zd2FwY2FjaGVf
-cGFnZXMpOwo+ID4gPiA+ICAKPiA+ID4gPiAgc3RhdGljIGF0b21pY190IHN3YXBpbl9yZWFkYWhl
-YWRfaGl0cyA9IEFUT01JQ19JTklUKDQpOyAgCj4gPiA+IAo+ID4gPiBOZWVkIGFuIGFjayBmcm9t
-IE1NIGNyb3dkIG9uIHRoYXQuCj4gPiA+ICAgCj4gPiA+ID4gLS0gCj4gPiA+ID4gMi4xNC4xICAK
-PiA+IAo+ID4gCj4gPiAtLSAKPiA+IFRvbcOhxaEgR29sZW1iaW92c2vDvSA8dGdvbGVtYmlAcmVk
-aGF0LmNvbT4KPiAKPiAKPiAtLSAKPiBUb23DocWhIEdvbGVtYmlvdnNrw70gPHRnb2xlbWJpQHJl
-ZGhhdC5jb20+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Tue, Oct 31, 2017 at 06:27:20PM +0800, Jason Wang wrote:
+> We always poll tx for socket, this is sub optimal since:
+> 
+> - we only want to be notified when sndbuf is available
+> - this will slightly increase the waitqueue traversing time and more
+>   important, vhost could not benefit from commit
+>   commit 9e641bdcfa4e
+>   ("net-tun: restructure tun_do_read for better sleep/wakeup efficiency")
+>   even if we've stopped rx polling during handle_rx() since tx poll
+>   were still left in the waitqueue.
+> 
+> Pktgen from a remote host to VM over mlx4 shows 5.5% improvements on
+> rx PPS. (from 1.27Mpps to 1.34Mpps)
+> 
+> Cc: Wei Xu <wexu@redhat.com>
+> Cc: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+
+Now that vhost_poll_stop happens on data path
+a lot, I'd say
+        if (poll->wqh)
+there should be unlikely().
+
+
+>  drivers/vhost/net.c | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 68677d9..286c3e4 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -471,6 +471,7 @@ static void handle_tx(struct vhost_net *net)
+>  		goto out;
+>  
+>  	vhost_disable_notify(&net->dev, vq);
+> +	vhost_net_disable_vq(net, vq);
+>  
+>  	hdr_size = nvq->vhost_hlen;
+>  	zcopy = nvq->ubufs;
+> @@ -556,6 +557,8 @@ static void handle_tx(struct vhost_net *net)
+>  					% UIO_MAXIOV;
+>  			}
+>  			vhost_discard_vq_desc(vq, 1);
+> +			if (err == -EAGAIN)
+> +				vhost_net_enable_vq(net, vq);
+>  			break;
+>  		}
+>  		if (err != len)
+
+I would probably just enable it unconditionally here. Why not?
+
+
+> @@ -1145,9 +1148,11 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+>  		r = vhost_vq_init_access(vq);
+>  		if (r)
+>  			goto err_used;
+> -		r = vhost_net_enable_vq(n, vq);
+> -		if (r)
+> -			goto err_used;
+> +		if (index == VHOST_NET_VQ_RX) {
+> +			r = vhost_net_enable_vq(n, vq);
+> +			if (r)
+> +				goto err_used;
+> +		}
+>  
+>  		oldubufs = nvq->ubufs;
+>  		nvq->ubufs = ubufs;
+
+This last chunk seems questionable. If queue has stuff in it
+when we connect the backend, we'll miss a wakeup.
+I suspect this can happen during migration.
+
+
+> -- 
+> 2.7.4
