@@ -1,11 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next] vhost_net: conditionally enable tx polling
-Date: Tue, 31 Oct 2017 18:27:20 +0800
-Message-ID: <1509445640-4085-1-git-send-email-jasowang__12496.9892939136$1509445658$gmane$org@redhat.com>
+From: =?UTF-8?B?VG9tw6HFoSBHb2xlbWJpb3Zza8O9?= <tgolembi@redhat.com>
+Subject: Re: [PATCH v2 1/1] virtio_balloon: include buffers and cached
+	memory statistics
+Date: Tue, 31 Oct 2017 13:20:19 +0100
+Message-ID: <20171031132019.76197945__5707.32885175875$1509452441$gmane$org@fiorina>
+References: <cover.1505998455.git.tgolembi@redhat.com>
+	<b13f11c03ed394bd8ad367dc90996ed134ea98da.1505998455.git.tgolembi@redhat.com>
+	<20171019160405-mutt-send-email-mst@kernel.org>
+	<20171022200557.02558e37@fiorina>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20171022200557.02558e37@fiorina>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,65 +21,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: Matthew Rosato <mjrosato@linux.vnet.ibm.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Wei Xu <wexu@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, Gal Hammer <ghammer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Shaohua Li <shli@fb.com>, Huang Ying <ying.huang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We always poll tx for socket, this is sub optimal since:
-
-- we only want to be notified when sndbuf is available
-- this will slightly increase the waitqueue traversing time and more
-  important, vhost could not benefit from commit
-  commit 9e641bdcfa4e
-  ("net-tun: restructure tun_do_read for better sleep/wakeup efficiency")
-  even if we've stopped rx polling during handle_rx() since tx poll
-  were still left in the waitqueue.
-
-Pktgen from a remote host to VM over mlx4 shows 5.5% improvements on
-rx PPS. (from 1.27Mpps to 1.34Mpps)
-
-Cc: Wei Xu <wexu@redhat.com>
-Cc: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 68677d9..286c3e4 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -471,6 +471,7 @@ static void handle_tx(struct vhost_net *net)
- 		goto out;
- 
- 	vhost_disable_notify(&net->dev, vq);
-+	vhost_net_disable_vq(net, vq);
- 
- 	hdr_size = nvq->vhost_hlen;
- 	zcopy = nvq->ubufs;
-@@ -556,6 +557,8 @@ static void handle_tx(struct vhost_net *net)
- 					% UIO_MAXIOV;
- 			}
- 			vhost_discard_vq_desc(vq, 1);
-+			if (err == -EAGAIN)
-+				vhost_net_enable_vq(net, vq);
- 			break;
- 		}
- 		if (err != len)
-@@ -1145,9 +1148,11 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
- 		r = vhost_vq_init_access(vq);
- 		if (r)
- 			goto err_used;
--		r = vhost_net_enable_vq(n, vq);
--		if (r)
--			goto err_used;
-+		if (index == VHOST_NET_VQ_RX) {
-+			r = vhost_net_enable_vq(n, vq);
-+			if (r)
-+				goto err_used;
-+		}
- 
- 		oldubufs = nvq->ubufs;
- 		nvq->ubufs = ubufs;
--- 
-2.7.4
+cGluZwoKK0dpbCwgK0Ftbm9uLi4uIGNvdWxkIHlvdSBtYXliZSBhaWQgaW4gcmV2aWV3aW5nIHRo
+ZSBwYXRjaCwgcGxlYXNlPwoKCiAgICBUb21hcwoKT24gU3VuLCAyMiBPY3QgMjAxNyAyMDowNTo1
+NyArMDIwMApUb23DocWhIEdvbGVtYmlvdnNrw70gPHRnb2xlbWJpQHJlZGhhdC5jb20+IHdyb3Rl
+OgoKPiBPbiBUaHUsIDE5IE9jdCAyMDE3IDE2OjEyOjIwICswMzAwCj4gIk1pY2hhZWwgUy4gVHNp
+cmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cm90ZToKPiAKPiA+IE9uIFRodSwgU2VwIDIxLCAyMDE3
+IGF0IDAyOjU1OjQxUE0gKzAyMDAsIFRvbcOhxaEgR29sZW1iaW92c2vDvSB3cm90ZTogIAo+ID4g
+PiBBZGQgYSBuZXcgZmllbGRzLCBWSVJUSU9fQkFMTE9PTl9TX0JVRkZFUlMgYW5kIFZJUlRJT19C
+QUxMT09OX1NfQ0FDSEVELAo+ID4gPiB0byB2aXJ0aW9fYmFsbG9vbiBtZW1vcnkgc3RhdGlzdGlj
+cyBwcm90b2NvbC4gVGhlIHZhbHVlcyBjb3JyZXNwb25kIHRvCj4gPiA+ICdCdWZmZXJzJyBhbmQg
+J0NhY2hlZCcgaW4gL3Byb2MvbWVtaW5mby4KPiA+ID4gCj4gPiA+IFRvIGJlIGFibGUgdG8gY29t
+cHV0ZSB0aGUgdmFsdWUgb2YgJ0NhY2hlZCcgbWVtb3J5IGl0IGlzIG5lY2Vzc2FyeSB0bwo+ID4g
+PiBleHBvcnQgdG90YWxfc3dhcGNhY2hlX3BhZ2VzKCkgdG8gbW9kdWxlcy4KPiA+ID4gCj4gPiA+
+IFNpZ25lZC1vZmYtYnk6IFRvbcOhxaEgR29sZW1iaW92c2vDvSA8dGdvbGVtYmlAcmVkaGF0LmNv
+bT4gIAo+ID4gCj4gPiBEb2VzICdCdWZmZXJzJyBhY3R1YWxseSBtYWtlIHNlbnNlPyBJdCdzIGEg
+dGVtcG9yYXJ5IHN0b3JhZ2UgLQo+ID4gd291bGRuJ3QgaXQgYmUgc2lnbmlmaWNhbnRseSBvdXQg
+b2YgZGF0ZSBieSB0aGUgdGltZQo+ID4gaG9zdCByZWNlaXZlcyBpdD8gIAo+IAo+IFRoYXQgd291
+bGQgYmUgYmVzdCBhbnN3ZXJlZCBieSBzb21lYm9keSBmcm9tIGtlcm5lbC4gQnV0IG15IHBlcnNv
+bmFsCj4gb3BpbmlvbiBpcyB0aGF0IGl0IHdvdWxkIG5vdCBiZSBvdXQgb2YgZGF0ZS4gVGhlIGFt
+b3VudCBvZiBtZW1vcnkKPiBkZWRpY2F0ZWQgdG8gQnVmZmVycyBkb2VzIG5vdCBzZWVtIHRvIGZs
+dWN0dWF0ZSB0b28gbXVjaC4KPiAKPiAgICAgVG9tYXMKPiAKPiAKPiA+ID4gLS0tCj4gPiA+ICBk
+cml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jICAgICB8IDExICsrKysrKysrKysrCj4gPiA+
+ICBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaCB8ICA0ICsrKy0KPiA+ID4gIG1t
+L3N3YXBfc3RhdGUuYyAgICAgICAgICAgICAgICAgICAgIHwgIDEgKwo+ID4gPiAgMyBmaWxlcyBj
+aGFuZ2VkLCAxNSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4gPiA+IAo+ID4gPiBkaWZm
+IC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYyBiL2RyaXZlcnMvdmlydGlv
+L3ZpcnRpb19iYWxsb29uLmMKPiA+ID4gaW5kZXggZjBiM2EwYjlkNDJmLi5jMjU1OGVjNDdhNjIg
+MTAwNjQ0Cj4gPiA+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPiA+ID4g
+KysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+ID4gPiBAQCAtMjQ0LDEyICsy
+NDQsMTkgQEAgc3RhdGljIHVuc2lnbmVkIGludCB1cGRhdGVfYmFsbG9vbl9zdGF0cyhzdHJ1Y3Qg
+dmlydGlvX2JhbGxvb24gKnZiKQo+ID4gPiAgCXN0cnVjdCBzeXNpbmZvIGk7Cj4gPiA+ICAJdW5z
+aWduZWQgaW50IGlkeCA9IDA7Cj4gPiA+ICAJbG9uZyBhdmFpbGFibGU7Cj4gPiA+ICsJbG9uZyBj
+YWNoZWQ7Cj4gPiA+ICAKPiA+ID4gIAlhbGxfdm1fZXZlbnRzKGV2ZW50cyk7Cj4gPiA+ICAJc2lf
+bWVtaW5mbygmaSk7Cj4gPiA+ICAKPiA+ID4gIAlhdmFpbGFibGUgPSBzaV9tZW1fYXZhaWxhYmxl
+KCk7Cj4gPiA+ICAKPiA+ID4gKwljYWNoZWQgPSBnbG9iYWxfbm9kZV9wYWdlX3N0YXRlKE5SX0ZJ
+TEVfUEFHRVMpIC0KPiA+ID4gKwkJCXRvdGFsX3N3YXBjYWNoZV9wYWdlcygpIC0gaS5idWZmZXJy
+YW07Cj4gPiA+ICsJaWYgKGNhY2hlZCA8IDApCj4gPiA+ICsJCWNhY2hlZCA9IDA7Cj4gPiA+ICsK
+PiA+ID4gKwo+ID4gPiAgI2lmZGVmIENPTkZJR19WTV9FVkVOVF9DT1VOVEVSUwo+ID4gPiAgCXVw
+ZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19TV0FQX0lOLAo+ID4gPiAgCQkJ
+CXBhZ2VzX3RvX2J5dGVzKGV2ZW50c1tQU1dQSU5dKSk7Cj4gPiA+IEBAIC0yNjQsNiArMjcxLDEw
+IEBAIHN0YXRpYyB1bnNpZ25lZCBpbnQgdXBkYXRlX2JhbGxvb25fc3RhdHMoc3RydWN0IHZpcnRp
+b19iYWxsb29uICp2YikKPiA+ID4gIAkJCQlwYWdlc190b19ieXRlcyhpLnRvdGFscmFtKSk7Cj4g
+PiA+ICAJdXBkYXRlX3N0YXQodmIsIGlkeCsrLCBWSVJUSU9fQkFMTE9PTl9TX0FWQUlMLAo+ID4g
+PiAgCQkJCXBhZ2VzX3RvX2J5dGVzKGF2YWlsYWJsZSkpOwo+ID4gPiArCXVwZGF0ZV9zdGF0KHZi
+LCBpZHgrKywgVklSVElPX0JBTExPT05fU19CVUZGRVJTLAo+ID4gPiArCQkJCXBhZ2VzX3RvX2J5
+dGVzKGkuYnVmZmVycmFtKSk7Cj4gPiA+ICsJdXBkYXRlX3N0YXQodmIsIGlkeCsrLCBWSVJUSU9f
+QkFMTE9PTl9TX0NBQ0hFRCwKPiA+ID4gKwkJCQlwYWdlc190b19ieXRlcyhjYWNoZWQpKTsKPiA+
+ID4gIAo+ID4gPiAgCXJldHVybiBpZHg7Cj4gPiA+ICB9Cj4gPiA+IGRpZmYgLS1naXQgYS9pbmNs
+dWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0
+aW9fYmFsbG9vbi5oCj4gPiA+IGluZGV4IDM0M2Q3ZGRlZmUwNC4uZDVkYzhhNTZhNDk3IDEwMDY0
+NAo+ID4gPiAtLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaAo+ID4gPiAr
+KysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaAo+ID4gPiBAQCAtNTIsNyAr
+NTIsOSBAQCBzdHJ1Y3QgdmlydGlvX2JhbGxvb25fY29uZmlnIHsKPiA+ID4gICNkZWZpbmUgVklS
+VElPX0JBTExPT05fU19NRU1GUkVFICA0ICAgLyogVG90YWwgYW1vdW50IG9mIGZyZWUgbWVtb3J5
+ICovCj4gPiA+ICAjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTUVNVE9UICAgNSAgIC8qIFRvdGFs
+IGFtb3VudCBvZiBtZW1vcnkgKi8KPiA+ID4gICNkZWZpbmUgVklSVElPX0JBTExPT05fU19BVkFJ
+TCAgICA2ICAgLyogQXZhaWxhYmxlIG1lbW9yeSBhcyBpbiAvcHJvYyAqLwo+ID4gPiAtI2RlZmlu
+ZSBWSVJUSU9fQkFMTE9PTl9TX05SICAgICAgIDcKPiA+ID4gKyNkZWZpbmUgVklSVElPX0JBTExP
+T05fU19CVUZGRVJTICA3ICAgLyogQnVmZmVycyBtZW1vcnkgYXMgaW4gL3Byb2MgKi8KPiA+ID4g
+KyNkZWZpbmUgVklSVElPX0JBTExPT05fU19DQUNIRUQgICA4ICAgLyogQ2FjaGVkIG1lbW9yeSBh
+cyBpbiAvcHJvYyAqLwo+ID4gPiArI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX05SICAgICAgIDkK
+PiA+ID4gIAo+ID4gPiAgLyoKPiA+ID4gICAqIE1lbW9yeSBzdGF0aXN0aWNzIHN0cnVjdHVyZS4K
+PiA+ID4gZGlmZiAtLWdpdCBhL21tL3N3YXBfc3RhdGUuYyBiL21tL3N3YXBfc3RhdGUuYwo+ID4g
+PiBpbmRleCA3MWNlMmQxY2NiZjcuLmYzYTRmZjdkNmM1MiAxMDA2NDQKPiA+ID4gLS0tIGEvbW0v
+c3dhcF9zdGF0ZS5jCj4gPiA+ICsrKyBiL21tL3N3YXBfc3RhdGUuYwo+ID4gPiBAQCAtOTUsNiAr
+OTUsNyBAQCB1bnNpZ25lZCBsb25nIHRvdGFsX3N3YXBjYWNoZV9wYWdlcyh2b2lkKQo+ID4gPiAg
+CXJjdV9yZWFkX3VubG9jaygpOwo+ID4gPiAgCXJldHVybiByZXQ7Cj4gPiA+ICB9Cj4gPiA+ICtF
+WFBPUlRfU1lNQk9MX0dQTCh0b3RhbF9zd2FwY2FjaGVfcGFnZXMpOwo+ID4gPiAgCj4gPiA+ICBz
+dGF0aWMgYXRvbWljX3Qgc3dhcGluX3JlYWRhaGVhZF9oaXRzID0gQVRPTUlDX0lOSVQoNCk7ICAK
+PiA+IAo+ID4gTmVlZCBhbiBhY2sgZnJvbSBNTSBjcm93ZCBvbiB0aGF0Lgo+ID4gICAKPiA+ID4g
+LS0gCj4gPiA+IDIuMTQuMSAgCj4gCj4gCj4gLS0gCj4gVG9tw6HFoSBHb2xlbWJpb3Zza8O9IDx0
+Z29sZW1iaUByZWRoYXQuY29tPgoKCi0tIApUb23DocWhIEdvbGVtYmlvdnNrw70gPHRnb2xlbWJp
+QHJlZGhhdC5jb20+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
+bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
