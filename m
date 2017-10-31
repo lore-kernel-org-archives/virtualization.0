@@ -1,21 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: packed ring layout proposal v3
-Date: Mon, 30 Oct 2017 18:30:57 +0200
-Message-ID: <20171030182950-mutt-send-email-mst@kernel.org>
-References: <20160915223915.qjlnlvf2w7u37bu3@redhat.com>
-	<AM4PR0501MB27236B71E1B02176F1844ACBD4770@AM4PR0501MB2723.eurprd05.prod.outlook.com>
-	<20171025191346-mutt-send-email-mst@kernel.org>
-	<AM4PR0501MB2723177BF4E5EE32CC878E8CD4580@AM4PR0501MB2723.eurprd05.prod.outlook.com>
-	<20171029162117-mutt-send-email-mst@kernel.org>
-	<AM4PR0501MB272332C92A384C97D6975D8DD4580@AM4PR0501MB2723.eurprd05.prod.outlook.com>
-	<20171030040341-mutt-send-email-mst@kernel.org>
-	<AM4PR0501MB27233D93937CA1F2E5AD13DBD4590@AM4PR0501MB2723.eurprd05.prod.outlook.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next] vhost_net: conditionally enable tx polling
+Date: Tue, 31 Oct 2017 18:27:20 +0800
+Message-ID: <1509445640-4085-1-git-send-email-jasowang__12496.9892939136$1509445658$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <AM4PR0501MB27233D93937CA1F2E5AD13DBD4590@AM4PR0501MB2723.eurprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,50 +15,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ilya Lesokhin <ilyal@mellanox.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: mst@redhat.com, jasowang@redhat.com
+Cc: Matthew Rosato <mjrosato@linux.vnet.ibm.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Wei Xu <wexu@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 30, 2017 at 06:30:56AM +0000, Ilya Lesokhin wrote:
-> > -----Original Message-----
-> > From: Michael S. Tsirkin [mailto:mst@redhat.com]
-> > Sent: Monday, October 30, 2017 4:09 AM
-> > To: Ilya Lesokhin <ilyal@mellanox.com>
-> > Cc: virtio-dev@lists.oasis-open.org; virtualization@lists.linux-foundation.org
-> > Subject: Re: packed ring layout proposal v3
-> > 
-> > On Sun, Oct 29, 2017 at 02:34:56PM +0000, Ilya Lesokhin wrote:
-> > > > -----Original Message-----
-> > > > From: Michael S. Tsirkin [mailto:mst@redhat.com]
-> > > > Sent: Sunday, October 29, 2017 4:22 PM
-> > > > To: Ilya Lesokhin <ilyal@mellanox.com>
-> > > > Cc: virtio-dev@lists.oasis-open.org; virtualization@lists.linux-foundation.org
-> > > > Subject: Re: packed ring layout proposal v3
-> > > >
-> > > > If you do this whats the point of the id? Just use descriptor offset like virtio 0
-> > did.
-> > > >
-> > >
-> > > I agree that ID is pointless when requests are completed in order.
-> > >
-> > > But I'm not sure what you mean by descriptor offset?
-> > 
-> > Where the descriptor is within the ring.
-> > 
-> 
-> Using descriptor offset like virtio 0, won't work.
-> In virtio 0, there was no reordering in the descriptor ring, so the offset was always unique.
-> In the new spec, if descriptor in offset 2 completes before the descriptor in offset 1,
-> It can be put in offset 1, but reusing offset 1 is not yet safe.
-> 
-> Also, please ignore my earlier comment about in-order completion,
-> It invalidates the entire discussion.
-> 
-> 
+We always poll tx for socket, this is sub optimal since:
 
-Yes, using offsets only works if all descriptors are used and written back in
-order. If they are, descriptor ID isn't necessary. If they aren't,
-it's necessary.
+- we only want to be notified when sndbuf is available
+- this will slightly increase the waitqueue traversing time and more
+  important, vhost could not benefit from commit
+  commit 9e641bdcfa4e
+  ("net-tun: restructure tun_do_read for better sleep/wakeup efficiency")
+  even if we've stopped rx polling during handle_rx() since tx poll
+  were still left in the waitqueue.
 
+Pktgen from a remote host to VM over mlx4 shows 5.5% improvements on
+rx PPS. (from 1.27Mpps to 1.34Mpps)
+
+Cc: Wei Xu <wexu@redhat.com>
+Cc: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/net.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 68677d9..286c3e4 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -471,6 +471,7 @@ static void handle_tx(struct vhost_net *net)
+ 		goto out;
+ 
+ 	vhost_disable_notify(&net->dev, vq);
++	vhost_net_disable_vq(net, vq);
+ 
+ 	hdr_size = nvq->vhost_hlen;
+ 	zcopy = nvq->ubufs;
+@@ -556,6 +557,8 @@ static void handle_tx(struct vhost_net *net)
+ 					% UIO_MAXIOV;
+ 			}
+ 			vhost_discard_vq_desc(vq, 1);
++			if (err == -EAGAIN)
++				vhost_net_enable_vq(net, vq);
+ 			break;
+ 		}
+ 		if (err != len)
+@@ -1145,9 +1148,11 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+ 		r = vhost_vq_init_access(vq);
+ 		if (r)
+ 			goto err_used;
+-		r = vhost_net_enable_vq(n, vq);
+-		if (r)
+-			goto err_used;
++		if (index == VHOST_NET_VQ_RX) {
++			r = vhost_net_enable_vq(n, vq);
++			if (r)
++				goto err_used;
++		}
+ 
+ 		oldubufs = nvq->ubufs;
+ 		nvq->ubufs = ubufs;
 -- 
-MST
+2.7.4
