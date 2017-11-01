@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net-next] vhost_net: conditionally enable tx polling
-Date: Tue, 31 Oct 2017 18:36:00 +0200
-Message-ID: <20171031182637-mutt-send-email-mst__24400.0190440149$1509467779$gmane$org@kernel.org>
+Date: Wed, 1 Nov 2017 20:51:36 +0800
+Message-ID: <c69accc4-4a35-0501-8a99-ab7821365cd8@redhat.com>
 References: <1509445640-4085-1-git-send-email-jasowang@redhat.com>
+	<20171031182637-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1509445640-4085-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20171031182637-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,83 +19,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Matthew Rosato <mjrosato@linux.vnet.ibm.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Wei Xu <wexu@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 31, 2017 at 06:27:20PM +0800, Jason Wang wrote:
-> We always poll tx for socket, this is sub optimal since:
-> 
-> - we only want to be notified when sndbuf is available
-> - this will slightly increase the waitqueue traversing time and more
->   important, vhost could not benefit from commit
->   commit 9e641bdcfa4e
->   ("net-tun: restructure tun_do_read for better sleep/wakeup efficiency")
->   even if we've stopped rx polling during handle_rx() since tx poll
->   were still left in the waitqueue.
-> 
-> Pktgen from a remote host to VM over mlx4 shows 5.5% improvements on
-> rx PPS. (from 1.27Mpps to 1.34Mpps)
-> 
-> Cc: Wei Xu <wexu@redhat.com>
-> Cc: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-
-Now that vhost_poll_stop happens on data path
-a lot, I'd say
-        if (poll->wqh)
-there should be unlikely().
-
-
->  drivers/vhost/net.c | 11 ++++++++---
->  1 file changed, 8 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 68677d9..286c3e4 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -471,6 +471,7 @@ static void handle_tx(struct vhost_net *net)
->  		goto out;
->  
->  	vhost_disable_notify(&net->dev, vq);
-> +	vhost_net_disable_vq(net, vq);
->  
->  	hdr_size = nvq->vhost_hlen;
->  	zcopy = nvq->ubufs;
-> @@ -556,6 +557,8 @@ static void handle_tx(struct vhost_net *net)
->  					% UIO_MAXIOV;
->  			}
->  			vhost_discard_vq_desc(vq, 1);
-> +			if (err == -EAGAIN)
-> +				vhost_net_enable_vq(net, vq);
->  			break;
->  		}
->  		if (err != len)
-
-I would probably just enable it unconditionally here. Why not?
-
-
-> @@ -1145,9 +1148,11 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  		r = vhost_vq_init_access(vq);
->  		if (r)
->  			goto err_used;
-> -		r = vhost_net_enable_vq(n, vq);
-> -		if (r)
-> -			goto err_used;
-> +		if (index == VHOST_NET_VQ_RX) {
-> +			r = vhost_net_enable_vq(n, vq);
-> +			if (r)
-> +				goto err_used;
-> +		}
->  
->  		oldubufs = nvq->ubufs;
->  		nvq->ubufs = ubufs;
-
-This last chunk seems questionable. If queue has stuff in it
-when we connect the backend, we'll miss a wakeup.
-I suspect this can happen during migration.
-
-
-> -- 
-> 2.7.4
+CgpPbiAyMDE35bm0MTHmnIgwMeaXpSAwMDozNiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFR1ZSwgT2N0IDMxLCAyMDE3IGF0IDA2OjI3OjIwUE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+IFdlIGFsd2F5cyBwb2xsIHR4IGZvciBzb2NrZXQsIHRoaXMgaXMgc3ViIG9wdGltYWwg
+c2luY2U6Cj4+Cj4+IC0gd2Ugb25seSB3YW50IHRvIGJlIG5vdGlmaWVkIHdoZW4gc25kYnVmIGlz
+IGF2YWlsYWJsZQo+PiAtIHRoaXMgd2lsbCBzbGlnaHRseSBpbmNyZWFzZSB0aGUgd2FpdHF1ZXVl
+IHRyYXZlcnNpbmcgdGltZSBhbmQgbW9yZQo+PiAgICBpbXBvcnRhbnQsIHZob3N0IGNvdWxkIG5v
+dCBiZW5lZml0IGZyb20gY29tbWl0Cj4+ICAgIGNvbW1pdCA5ZTY0MWJkY2ZhNGUKPj4gICAgKCJu
+ZXQtdHVuOiByZXN0cnVjdHVyZSB0dW5fZG9fcmVhZCBmb3IgYmV0dGVyIHNsZWVwL3dha2V1cCBl
+ZmZpY2llbmN5IikKPj4gICAgZXZlbiBpZiB3ZSd2ZSBzdG9wcGVkIHJ4IHBvbGxpbmcgZHVyaW5n
+IGhhbmRsZV9yeCgpIHNpbmNlIHR4IHBvbGwKPj4gICAgd2VyZSBzdGlsbCBsZWZ0IGluIHRoZSB3
+YWl0cXVldWUuCj4+Cj4+IFBrdGdlbiBmcm9tIGEgcmVtb3RlIGhvc3QgdG8gVk0gb3ZlciBtbHg0
+IHNob3dzIDUuNSUgaW1wcm92ZW1lbnRzIG9uCj4+IHJ4IFBQUy4gKGZyb20gMS4yN01wcHMgdG8g
+MS4zNE1wcHMpCj4+Cj4+IENjOiBXZWkgWHUgPHdleHVAcmVkaGF0LmNvbT4KPj4gQ2M6IE1hdHRo
+ZXcgUm9zYXRvIDxtanJvc2F0b0BsaW51eC52bmV0LmlibS5jb20+Cj4+IFNpZ25lZC1vZmYtYnk6
+IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4+IC0tLQo+IE5vdyB0aGF0IHZob3N0
+X3BvbGxfc3RvcCBoYXBwZW5zIG9uIGRhdGEgcGF0aAo+IGEgbG90LCBJJ2Qgc2F5Cj4gICAgICAg
+ICAgaWYgKHBvbGwtPndxaCkKPiB0aGVyZSBzaG91bGQgYmUgdW5saWtlbHkoKS4KCkl0IGhhcyBi
+ZWVuIHRoZXJlIHNpbmNlIDgyNDFhMWU0NjZjZCAoInZob3N0X25ldDogc3RvcCBwb2xsaW5nIHNv
+Y2tldCAKZHVyaW5nIHJ4IHByb2Nlc3NpbmciKS4gU28gaXQgd2lsbCBiZSB1c2VkIGZvciByeCBw
+YXRoIHRvbyB3aGljaCAKdW5saWtlbHkoKSBkb2VzIG5vdCB3b3JrIGFzIHdlbGwgYXMgdGhlIGNh
+c2UgaW4gdHguCgoKPgo+Cj4+ICAgZHJpdmVycy92aG9zdC9uZXQuYyB8IDExICsrKysrKysrLS0t
+Cj4+ICAgMSBmaWxlIGNoYW5nZWQsIDggaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkKPj4K
+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvbmV0LmMgYi9kcml2ZXJzL3Zob3N0L25ldC5j
+Cj4+IGluZGV4IDY4Njc3ZDkuLjI4NmMzZTQgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvdmhvc3Qv
+bmV0LmMKPj4gKysrIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+PiBAQCAtNDcxLDYgKzQ3MSw3IEBA
+IHN0YXRpYyB2b2lkIGhhbmRsZV90eChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQpCj4+ICAgCQlnb3Rv
+IG91dDsKPj4gICAKPj4gICAJdmhvc3RfZGlzYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB2cSk7Cj4+
+ICsJdmhvc3RfbmV0X2Rpc2FibGVfdnEobmV0LCB2cSk7Cj4+ICAgCj4+ICAgCWhkcl9zaXplID0g
+bnZxLT52aG9zdF9obGVuOwo+PiAgIAl6Y29weSA9IG52cS0+dWJ1ZnM7Cj4+IEBAIC01NTYsNiAr
+NTU3LDggQEAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkKPj4g
+ICAJCQkJCSUgVUlPX01BWElPVjsKPj4gICAJCQl9Cj4+ICAgCQkJdmhvc3RfZGlzY2FyZF92cV9k
+ZXNjKHZxLCAxKTsKPj4gKwkJCWlmIChlcnIgPT0gLUVBR0FJTikKPj4gKwkJCQl2aG9zdF9uZXRf
+ZW5hYmxlX3ZxKG5ldCwgdnEpOwo+PiAgIAkJCWJyZWFrOwo+PiAgIAkJfQo+PiAgIAkJaWYgKGVy
+ciAhPSBsZW4pCj4gSSB3b3VsZCBwcm9iYWJseSBqdXN0IGVuYWJsZSBpdCB1bmNvbmRpdGlvbmFs
+bHkgaGVyZS4gV2h5IG5vdD8KPgoKSSB0aG91Z2h0IHdlIG9ubHkgY2FyZSBhYm91dCB0aGUgY2Fz
+ZSBvZiB0dW5fc29ja193cml0ZV9zcGFjZSgpIGFuZCBmb3IgCnRoZSBlcnJvcnMgb3RoZXIgdGhh
+biAtRUFHQUlOLCB0aGV5IGhhdmUgbm90aGluZyB0byBkbyB3aXRoIHBvbGxpbmcuCgo+PiBAQCAt
+MTE0NSw5ICsxMTQ4LDExIEBAIHN0YXRpYyBsb25nIHZob3N0X25ldF9zZXRfYmFja2VuZChzdHJ1
+Y3Qgdmhvc3RfbmV0ICpuLCB1bnNpZ25lZCBpbmRleCwgaW50IGZkKQo+PiAgIAkJciA9IHZob3N0
+X3ZxX2luaXRfYWNjZXNzKHZxKTsKPj4gICAJCWlmIChyKQo+PiAgIAkJCWdvdG8gZXJyX3VzZWQ7
+Cj4+IC0JCXIgPSB2aG9zdF9uZXRfZW5hYmxlX3ZxKG4sIHZxKTsKPj4gLQkJaWYgKHIpCj4+IC0J
+CQlnb3RvIGVycl91c2VkOwo+PiArCQlpZiAoaW5kZXggPT0gVkhPU1RfTkVUX1ZRX1JYKSB7Cj4+
+ICsJCQlyID0gdmhvc3RfbmV0X2VuYWJsZV92cShuLCB2cSk7Cj4+ICsJCQlpZiAocikKPj4gKwkJ
+CQlnb3RvIGVycl91c2VkOwo+PiArCQl9Cj4+ICAgCj4+ICAgCQlvbGR1YnVmcyA9IG52cS0+dWJ1
+ZnM7Cj4+ICAgCQludnEtPnVidWZzID0gdWJ1ZnM7Cj4gVGhpcyBsYXN0IGNodW5rIHNlZW1zIHF1
+ZXN0aW9uYWJsZS4gSWYgcXVldWUgaGFzIHN0dWZmIGluIGl0Cj4gd2hlbiB3ZSBjb25uZWN0IHRo
+ZSBiYWNrZW5kLCB3ZSdsbCBtaXNzIGEgd2FrZXVwLgo+IEkgc3VzcGVjdCB0aGlzIGNhbiBoYXBw
+ZW4gZHVyaW5nIG1pZ3JhdGlvbi4KClVubGVzcyBxZW11IHBhc3MgYSB0YXAgd2hpY2ggcyBhbHJl
+YWR5IGhhZCBwZW5kaW5nIHR4IHBhY2tldHMuCgpJIGNhbiByZW1vdmUgdGhpcyBjaHVjaywgYnV0
+IGlmIGd1ZXN0IGRvZXMgbm90IHRyYW5zbWl0IGFueSBwYWNrZXQsIHJ4IApjYW4ndCBiZW5lZml0
+IGZyb20gdGhpcy4KClRoYW5rcwoKPgo+Cj4+IC0tIAo+PiAyLjcuNAoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
