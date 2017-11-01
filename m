@@ -1,14 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: Virtio BoF minutes from KVM Forum 2017
-Date: Wed, 1 Nov 2017 16:59:25 +0200
-Message-ID: <20171101162357-mutt-send-email-mst__38678.5343326212$1509548373$gmane$org@kernel.org>
-References: <20171029125225.lx4ezpkbvjjsjv3x@localhost.localdomain>
+Subject: Re: [PATCH net-next] vhost_net: conditionally enable tx polling
+Date: Wed, 1 Nov 2017 17:03:37 +0200
+Message-ID: <20171101165953-mutt-send-email-mst__40334.3773134567$1509548636$gmane$org@kernel.org>
+References: <1509445640-4085-1-git-send-email-jasowang@redhat.com>
+	<20171031182637-mutt-send-email-mst@kernel.org>
+	<c69accc4-4a35-0501-8a99-ab7821365cd8@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20171029125225.lx4ezpkbvjjsjv3x@localhost.localdomain>
+In-Reply-To: <c69accc4-4a35-0501-8a99-ab7821365cd8@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +20,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Freimann <jfreimann@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, virtio-comment@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: Matthew Rosato <mjrosato@linux.vnet.ibm.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Wei Xu <wexu@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Oct 29, 2017 at 01:52:25PM +0100, Jens Freimann wrote:
-> Ilya: - you might have more completions than descriptors available
-> - partial descriptor chains are a problem for hardware because you might have
->  to read a bunch of conscriptors twice - how would you do deal with a big
-> buffer that cointains a large number of
->  small packets with respect to completions?
-> - is one bit for completion enough? right now it means descriptor was actually
->  used. how to we signal when it was completed?
-
-I am not sure I understand the difference. Under virtio, driver makes a
-descriptor available, then device reads/writes memory depending on
-descriptor type, then marks it as used.
-
-What does completed mean?
-
-> - concerned about not being able to do scatter/gatter with the ring layout.
->  Network drivers heavily using indirect buffers.  - for a hardware
-> implementation a completion ring is a very convenient form for
->  some use cases, so we want an efficient implementation for them. If we had an
->  inline descriptor then a completion ring is just a normal ring and we won't
->  need another ring type.
-> - doesn't like the fact that we need to do a linear scan to find the length of
->  a descriptor chain. It would be nice if we could have the length of the chain
->  in the first descriptor (i.e. the number of chained descriptors, not the number
->  of posted descriptors which can be deduced from the id field)
-
-Not responding to rest of points since I don't understand the basic
-assumption above yet.
-
--- 
-MST
+T24gV2VkLCBOb3YgMDEsIDIwMTcgYXQgMDg6NTE6MzZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE35bm0MTHmnIgwMeaXpSAwMDozNiwgTWljaGFlbCBTLiBUc2lya2lu
+IHdyb3RlOgo+ID4gT24gVHVlLCBPY3QgMzEsIDIwMTcgYXQgMDY6Mjc6MjBQTSArMDgwMCwgSmFz
+b24gV2FuZyB3cm90ZToKPiA+ID4gV2UgYWx3YXlzIHBvbGwgdHggZm9yIHNvY2tldCwgdGhpcyBp
+cyBzdWIgb3B0aW1hbCBzaW5jZToKPiA+ID4gCj4gPiA+IC0gd2Ugb25seSB3YW50IHRvIGJlIG5v
+dGlmaWVkIHdoZW4gc25kYnVmIGlzIGF2YWlsYWJsZQo+ID4gPiAtIHRoaXMgd2lsbCBzbGlnaHRs
+eSBpbmNyZWFzZSB0aGUgd2FpdHF1ZXVlIHRyYXZlcnNpbmcgdGltZSBhbmQgbW9yZQo+ID4gPiAg
+ICBpbXBvcnRhbnQsIHZob3N0IGNvdWxkIG5vdCBiZW5lZml0IGZyb20gY29tbWl0Cj4gPiA+ICAg
+IGNvbW1pdCA5ZTY0MWJkY2ZhNGUKPiA+ID4gICAgKCJuZXQtdHVuOiByZXN0cnVjdHVyZSB0dW5f
+ZG9fcmVhZCBmb3IgYmV0dGVyIHNsZWVwL3dha2V1cCBlZmZpY2llbmN5IikKPiA+ID4gICAgZXZl
+biBpZiB3ZSd2ZSBzdG9wcGVkIHJ4IHBvbGxpbmcgZHVyaW5nIGhhbmRsZV9yeCgpIHNpbmNlIHR4
+IHBvbGwKPiA+ID4gICAgd2VyZSBzdGlsbCBsZWZ0IGluIHRoZSB3YWl0cXVldWUuCj4gPiA+IAo+
+ID4gPiBQa3RnZW4gZnJvbSBhIHJlbW90ZSBob3N0IHRvIFZNIG92ZXIgbWx4NCBzaG93cyA1LjUl
+IGltcHJvdmVtZW50cyBvbgo+ID4gPiByeCBQUFMuIChmcm9tIDEuMjdNcHBzIHRvIDEuMzRNcHBz
+KQo+ID4gPiAKPiA+ID4gQ2M6IFdlaSBYdSA8d2V4dUByZWRoYXQuY29tPgo+ID4gPiBDYzogTWF0
+dGhldyBSb3NhdG8gPG1qcm9zYXRvQGxpbnV4LnZuZXQuaWJtLmNvbT4KPiA+ID4gU2lnbmVkLW9m
+Zi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiA+ID4gLS0tCj4gPiBOb3cg
+dGhhdCB2aG9zdF9wb2xsX3N0b3AgaGFwcGVucyBvbiBkYXRhIHBhdGgKPiA+IGEgbG90LCBJJ2Qg
+c2F5Cj4gPiAgICAgICAgICBpZiAocG9sbC0+d3FoKQo+ID4gdGhlcmUgc2hvdWxkIGJlIHVubGlr
+ZWx5KCkuCj4gCj4gSXQgaGFzIGJlZW4gdGhlcmUgc2luY2UgODI0MWExZTQ2NmNkICgidmhvc3Rf
+bmV0OiBzdG9wIHBvbGxpbmcgc29ja2V0IGR1cmluZwo+IHJ4IHByb2Nlc3NpbmciKS4gU28gaXQg
+d2lsbCBiZSB1c2VkIGZvciByeCBwYXRoIHRvbyB3aGljaCB1bmxpa2VseSgpIGRvZXMKPiBub3Qg
+d29yayBhcyB3ZWxsIGFzIHRoZSBjYXNlIGluIHR4LgoKV29ydGggdGVzdGluZywgZG9lcyBub3Qg
+aGF2ZSB0byBibG9jayB0aGlzIHBhdGNoLgoKPiAKPiA+IAo+ID4gCj4gPiA+ICAgZHJpdmVycy92
+aG9zdC9uZXQuYyB8IDExICsrKysrKysrLS0tCj4gPiA+ICAgMSBmaWxlIGNoYW5nZWQsIDggaW5z
+ZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkKPiA+ID4gCj4gPiA+IGRpZmYgLS1naXQgYS9kcml2
+ZXJzL3Zob3N0L25ldC5jIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+ID4gPiBpbmRleCA2ODY3N2Q5
+Li4yODZjM2U0IDEwMDY0NAo+ID4gPiAtLS0gYS9kcml2ZXJzL3Zob3N0L25ldC5jCj4gPiA+ICsr
+KyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiA+ID4gQEAgLTQ3MSw2ICs0NzEsNyBAQCBzdGF0aWMg
+dm9pZCBoYW5kbGVfdHgoc3RydWN0IHZob3N0X25ldCAqbmV0KQo+ID4gPiAgIAkJZ290byBvdXQ7
+Cj4gPiA+ICAgCXZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwgdnEpOwo+ID4gPiArCXZo
+b3N0X25ldF9kaXNhYmxlX3ZxKG5ldCwgdnEpOwo+ID4gPiAgIAloZHJfc2l6ZSA9IG52cS0+dmhv
+c3RfaGxlbjsKPiA+ID4gICAJemNvcHkgPSBudnEtPnVidWZzOwo+ID4gPiBAQCAtNTU2LDYgKzU1
+Nyw4IEBAIHN0YXRpYyB2b2lkIGhhbmRsZV90eChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQpCj4gPiA+
+ICAgCQkJCQklIFVJT19NQVhJT1Y7Cj4gPiA+ICAgCQkJfQo+ID4gPiAgIAkJCXZob3N0X2Rpc2Nh
+cmRfdnFfZGVzYyh2cSwgMSk7Cj4gPiA+ICsJCQlpZiAoZXJyID09IC1FQUdBSU4pCj4gPiA+ICsJ
+CQkJdmhvc3RfbmV0X2VuYWJsZV92cShuZXQsIHZxKTsKPiA+ID4gICAJCQlicmVhazsKPiA+ID4g
+ICAJCX0KPiA+ID4gICAJCWlmIChlcnIgIT0gbGVuKQo+ID4gSSB3b3VsZCBwcm9iYWJseSBqdXN0
+IGVuYWJsZSBpdCB1bmNvbmRpdGlvbmFsbHkgaGVyZS4gV2h5IG5vdD8KPiA+IAo+IAo+IEkgdGhv
+dWdodCB3ZSBvbmx5IGNhcmUgYWJvdXQgdGhlIGNhc2Ugb2YgdHVuX3NvY2tfd3JpdGVfc3BhY2Uo
+KSBhbmQgZm9yIHRoZQo+IGVycm9ycyBvdGhlciB0aGFuIC1FQUdBSU4sIHRoZXkgaGF2ZSBub3Ro
+aW5nIHRvIGRvIHdpdGggcG9sbGluZy4KCldlIGNvdWxkIHRoaW5rYWJseSBnZXQgRU5PTUVNIEkg
+Z3Vlc3MuIElmIHdlIG1pc3MgYSBjb2RlIHRoaW5ncwpnZXQgc3R1Y2sgLSBJdCdzIGp1c3QgZWFz
+aWVyIG5vdCB0byBhZGQgZXh0cmEgY29kZSBJTUhPLgoKPiA+ID4gQEAgLTExNDUsOSArMTE0OCwx
+MSBAQCBzdGF0aWMgbG9uZyB2aG9zdF9uZXRfc2V0X2JhY2tlbmQoc3RydWN0IHZob3N0X25ldCAq
+biwgdW5zaWduZWQgaW5kZXgsIGludCBmZCkKPiA+ID4gICAJCXIgPSB2aG9zdF92cV9pbml0X2Fj
+Y2Vzcyh2cSk7Cj4gPiA+ICAgCQlpZiAocikKPiA+ID4gICAJCQlnb3RvIGVycl91c2VkOwo+ID4g
+PiAtCQlyID0gdmhvc3RfbmV0X2VuYWJsZV92cShuLCB2cSk7Cj4gPiA+IC0JCWlmIChyKQo+ID4g
+PiAtCQkJZ290byBlcnJfdXNlZDsKPiA+ID4gKwkJaWYgKGluZGV4ID09IFZIT1NUX05FVF9WUV9S
+WCkgewo+ID4gPiArCQkJciA9IHZob3N0X25ldF9lbmFibGVfdnEobiwgdnEpOwo+ID4gPiArCQkJ
+aWYgKHIpCj4gPiA+ICsJCQkJZ290byBlcnJfdXNlZDsKPiA+ID4gKwkJfQo+ID4gPiAgIAkJb2xk
+dWJ1ZnMgPSBudnEtPnVidWZzOwo+ID4gPiAgIAkJbnZxLT51YnVmcyA9IHVidWZzOwo+ID4gVGhp
+cyBsYXN0IGNodW5rIHNlZW1zIHF1ZXN0aW9uYWJsZS4gSWYgcXVldWUgaGFzIHN0dWZmIGluIGl0
+Cj4gPiB3aGVuIHdlIGNvbm5lY3QgdGhlIGJhY2tlbmQsIHdlJ2xsIG1pc3MgYSB3YWtldXAuCj4g
+PiBJIHN1c3BlY3QgdGhpcyBjYW4gaGFwcGVuIGR1cmluZyBtaWdyYXRpb24uCj4gCj4gVW5sZXNz
+IHFlbXUgcGFzcyBhIHRhcCB3aGljaCBzIGFscmVhZHkgaGFkIHBlbmRpbmcgdHggcGFja2V0cy4K
+PiAKPiBJIGNhbiByZW1vdmUgdGhpcyBjaHVjaywgYnV0IGlmIGd1ZXN0IGRvZXMgbm90IHRyYW5z
+bWl0IGFueSBwYWNrZXQsIHJ4IGNhbid0Cj4gYmVuZWZpdCBmcm9tIHRoaXMuCj4gCj4gVGhhbmtz
+CgpOb3Qgc3VyZSBJIHVuZGVyc3RhbmQgdGhlIGxhc3Qgc2VudGVuY2UuIHZob3N0IHdpbGwgc3Rh
+eQpwb2xsaW5nIHRoZSBzb2NrZXQgLSB3aHkgaXMgdGhhdCBhIHByb2JsZW0/CgoKPiA+IAo+ID4g
+Cj4gPiA+IC0tIAo+ID4gPiAyLjcuNAo+IAo+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fCj4gVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0Cj4gVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKPiBodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
