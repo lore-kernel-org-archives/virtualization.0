@@ -1,19 +1,14 @@
-From: Ilya Lesokhin <ilyal@mellanox.com>
-Subject: RE: Virtio BoF minutes from KVM Forum 2017
-Date: Thu, 2 Nov 2017 08:18:28 +0000
-Message-ID: <VI1PR0501MB2734983F5079B3FE5B9FCE60D45C0@VI1PR0501MB2734.eurprd05.prod.outlook.com>
-References: <20171029125225.lx4ezpkbvjjsjv3x@localhost.localdomain>
-	<20171101162357-mutt-send-email-mst@kernel.org>
-	<AM4PR0501MB2723D56ED113A7B98D3785F0D45F0@AM4PR0501MB2723.eurprd05.prod.outlook.com>
-	<20171101190219-mutt-send-email-mst@kernel.org>
-	<AM4PR0501MB2723A2C058045E70A66959B3D45F0@AM4PR0501MB2723.eurprd05.prod.outlook.com>
-	<20171101214417-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: Possible unsafe usage of skb->cb in virtio-net
+Date: Thu, 2 Nov 2017 15:01:11 +0200
+Message-ID: <20171102142758-mutt-send-email-mst__4599.78203657574$1509627693$gmane$org@kernel.org>
+References: <VI1PR0501MB2734AAE4311FE84881F622A2D45C0@VI1PR0501MB2734.eurprd05.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171101214417-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <VI1PR0501MB2734AAE4311FE84881F622A2D45C0@VI1PR0501MB2734.eurprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,116 +18,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Ilya Lesokhin <ilyal@mellanox.com>
+Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday, November 02, 2017 5:40 AM, Michael S. Tsirkin wrote:
+On Thu, Nov 02, 2017 at 11:40:36AM +0000, Ilya Lesokhin wrote:
+> Hi,
+> I've noticed that the virtio-net uses skb->cb.
+> 
+> I don't know all the detail by my understanding is it caused problem with the mlx5 driver
+> and was fixed here:
+> https://github.com/torvalds/linux/commit/34802a42b3528b0e18ea4517c8b23e1214a09332
+> 
+> Thanks,
+> Ilya
 
-> > [I.L] In the current proposal descriptor size == SGE (scatter gather entry) size.
-> > I'm not sure that's a good idea.
-> > For example we are considering having an RX ring were you just post a
-> > list of PFN's so a sge is only 8 bytes.
-> 
-> You mean without length, flags etc?  So when you are concerned about memory
-> usage because you have many users for buffers (like e.g. with Linux
-> networking), then sizing buffers dynamically helps a lot. Single user cases like
-> DPDK or more recently XDP are different and they can afford making all buffers
-> same size.
-> 
-[I.L] Yes, no length or flags, we just fill it with packets back to back, so 
-Memory usage wise it quite efficient.
+Thanks a lot for the pointer.
 
-> For sure 8 byte entries would reduce cache pressure.  Question is how to we
-> handle so much variety in the ring layouts. Thoughts?
-> 
-[I.L] I agree that there are downsides to too much variety in the ring layouts.
-
-It does seem that to get to most out of the ring layout I suggested
-will require changing to the vring API to work with descriptors (== work requests) 
-rather than sg lists.
-
-I guess I need to think about it a bit more.
-
-> I don't think we focused on DPDK limitations.  For sure, lots of people use LSO or
-> other buffers with many s/g entries. But it also works pretty well more or less
-> whatever you do as you are able to pass a single large packet then - so the per-
-> packet overhead is generally amortized.
-> 
-[I.L] I see you point, I'll have to think about it some more.
-
-> > And the storage guys also complained about this issue.
-> 
-> Interesting. What was the complaint exactly.
-> 
-[I.L]  That scatter gather is Important and that we shouldn't
-Optimize for the single SGE case.
-But the point you made earlier about amortization also applies here.
-
-
-> > [I.L] The device can do a single large read and do the parsing afterword's.
-> 
-> For sure but that wastes some pcie bandwidth.
-> 
-> > You could also use the doorbell to tell the device how much to read.
-> 
-> We currently use that to pass address of last descriptor.
-[I.L] If you read up to the last descriptor you don't waste any pcie bandwidth.
+I think this was in response to this:
+https://patchwork.ozlabs.org/patch/558324/
 
 > >
-> > > Seems to look like the avail bit in the kvm forum presentation.
-> > >
-> > [I.L] I don't want to argue over the name. The main difference in my
-> > proposal is that the device doesn't need to write to the descriptor.
-> > If it wants to you can define a separate bit for that.
-> 
-> A theoretical analysis shows less cache line bounces if device writes and driver
-> writes go to same location.
-> A micro-benchmark and dpdk tests seem to match that.
-> 
-> If you want to split them, how about a test showing either a benefit for software
-> or an explanation about why it's significantly different for hardware than
-> software?
-> 
-[I.L]  The separate bit can be in the same cacheline.
-
-> > I don't remember seeing an option to write used entries in a separate
-> > address, I'll appreciate it if you can point me to the right direction.
-> 
-> It wasn't described in the talk.
-> 
-> But it's simply this: driver detects used entry by detecting a used bit flip.  If
-> device does not use the option to skip writing back some used entries then
-> there's no need for used entries written by device and by driver to overlap. If
-> device does skip then we need them to overlap as driver also needs to reset the
-> used flag so used != avail.
-> 
-[I.L]  I don't follow, how does the device inform the driver the a descriptor has been
-Processed?
-
-> > Regarding the shared ring vs separate ring, I can't really argue with
-> > you as I haven't done the relevant measurement.
-> > I'm just saying it might not always be optimal in all use case, So you
-> > should consider leaving both options open.
+> > +     skb_push(skb, skb->data - skb_data_orig);
+> >       sq->skb[pi] = skb;
 > >
-> > It's entirely possible that for virtio-net you want a single ring,
-> > Where for PV-RDMA you want separate rings.
+> >       MLX5E_TX_SKB_CB(skb)->num_wqebbs = DIV_ROUND_UP(ds_cnt,
 > 
-> Well RDMA consortium decided a low-level API for cards will help application
-> portability, and that spec has a concept of completion queues which are shared
-> between request queues.  So the combined ring optimization kind of goes out
-> the window for that kind of device :) I'm not sure just splitting out used rings will
-> be enough though.
+> And in the middle of this we have:
 > 
-I didn't say the splitting the used ring is going to be enough. I suggested two things:
-1. don't force the device to write to the request queue.
-2. Allow efficient implementation of completion queues 
-Through support for inline descriptors.
+>                 skb_pull_inline(skb, ihs);
+> 
+> This is looks illegal.
+> 
+> You must not modify the data pointers of any SKB that you receive for
+> sending via ->ndo_start_xmit() unless you know that absolutely you are
+> the one and only reference that exists to that SKB.
+> 
+> And exactly for the case you are trying to "fix" here, you do not.  If
+> the SKB is cloned, or has an elevated users count, someone else can be
+> looking at it exactly at the same time you are messing with the data
+> pointers.
+> 
+> I bet mlx4 has this bug too.
+> 
+> You must fix this properly, by keeping track of an offset or similar
+> internally to your driver, rather than changing the SKB data pointers.
+
+What virtio does is this:
+
+        can_push = vi->any_header_sg &&
+                !((unsigned long)skb->data & (__alignof__(*hdr) - 1)) &&
+                !skb_header_cloned(skb) && skb_headroom(skb) >= hdr_len;
+        /* Even if we can, don't push here yet as this would skew
+         * csum_start offset below. */
+        if (can_push)
+                hdr = (struct virtio_net_hdr_mrg_rxbuf *)(skb->data - hdr_len);
+        else
+                hdr = skb_vnet_hdr(skb);
 
 
-In any case, You've given me some valuable feedback
-and I have better understanding of why you went with the
-current ring layout.
+This doesn't change the data pointers in a cloned skb but it does change the cb.
+Is it true that it's illegal to touch the cb in a cloned skb then?
 
-Thanks,
-Ilya
+-- 
+MST
