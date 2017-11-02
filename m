@@ -1,14 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: Possible unsafe usage of skb->cb in virtio-net
-Date: Thu, 2 Nov 2017 15:01:11 +0200
-Message-ID: <20171102142758-mutt-send-email-mst__4599.78203657574$1509627693$gmane$org@kernel.org>
-References: <VI1PR0501MB2734AAE4311FE84881F622A2D45C0@VI1PR0501MB2734.eurprd05.prod.outlook.com>
+From: Waiman Long <longman@redhat.com>
+Subject: Re: [PATCH-tip v2 2/2] x86/xen: Deprecate xen_nopvspin
+Date: Thu, 2 Nov 2017 09:25:36 -0400
+Message-ID: <2fb79da7-4c95-160a-a626-670c536f490a__34824.1133652211$1509629173$gmane$org@redhat.com>
+References: <1509569934-4919-1-git-send-email-longman@redhat.com>
+	<1509569934-4919-3-git-send-email-longman@redhat.com>
+	<5c36ed18-e59e-1ea3-28e0-414f88965761@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <VI1PR0501MB2734AAE4311FE84881F622A2D45C0@VI1PR0501MB2734.eurprd05.prod.outlook.com>
+In-Reply-To: <5c36ed18-e59e-1ea3-28e0-414f88965761@oracle.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,67 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ilya Lesokhin <ilyal@mellanox.com>
-Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: Boris Ostrovsky <boris.ostrovsky@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Juergen Gross <jgross@suse.com>, Rusty Russell <rusty@rustcorp.com.au>, kvm@vger.kernel.org, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, xen-devel@lists.xenproject.org, Alok Kataria <akataria@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 02, 2017 at 11:40:36AM +0000, Ilya Lesokhin wrote:
-> Hi,
-> I've noticed that the virtio-net uses skb->cb.
-> 
-> I don't know all the detail by my understanding is it caused problem with the mlx5 driver
-> and was fixed here:
-> https://github.com/torvalds/linux/commit/34802a42b3528b0e18ea4517c8b23e1214a09332
-> 
-> Thanks,
-> Ilya
+On 11/01/2017 06:01 PM, Boris Ostrovsky wrote:
+> On 11/01/2017 04:58 PM, Waiman Long wrote:
+>> +/* TODO: To be removed in a future kernel version */
+>>  static __init int xen_parse_nopvspin(char *arg)
+>>  {
+>> -	xen_pvspin = false;
+>> +	pr_warn("xen_nopvspin is deprecated, replace it with \"pvlock_type=queued\"!\n");
+>> +	if (!pv_spinlock_type)
+>> +		pv_spinlock_type = locktype_queued;
+> Since we currently end up using unfair locks and because you are
+> deprecating xen_nopvspin I wonder whether it would be better to set this
+> to locktype_unfair so that current behavior doesn't change. (Sorry, I
+> haven't responded to your earlier message before you posted this). Juergen?
 
-Thanks a lot for the pointer.
+I think the latest patch from Juergen in tip is to use native qspinlock
+when xen_nopvspin is specified. Right? That is why I made the current
+choice. I can certainly change to unfair if it is what you guys want.
 
-I think this was in response to this:
-https://patchwork.ozlabs.org/patch/558324/
+> I am also not sure I agree with making pv_spinlock an enum *and* a
+> bitmask at the same time. I understand that it makes checks easier but I
+> think not assuming a value or a pattern would be better, especially
+> since none of the uses is on a critical path.
+>
+> (For example, !pv_spinlock_type is the same as locktype_auto, which is
+> defined but never used)
 
-> >
-> > +     skb_push(skb, skb->data - skb_data_orig);
-> >       sq->skb[pi] = skb;
-> >
-> >       MLX5E_TX_SKB_CB(skb)->num_wqebbs = DIV_ROUND_UP(ds_cnt,
-> 
-> And in the middle of this we have:
-> 
->                 skb_pull_inline(skb, ihs);
-> 
-> This is looks illegal.
-> 
-> You must not modify the data pointers of any SKB that you receive for
-> sending via ->ndo_start_xmit() unless you know that absolutely you are
-> the one and only reference that exists to that SKB.
-> 
-> And exactly for the case you are trying to "fix" here, you do not.  If
-> the SKB is cloned, or has an elevated users count, someone else can be
-> looking at it exactly at the same time you are messing with the data
-> pointers.
-> 
-> I bet mlx4 has this bug too.
-> 
-> You must fix this properly, by keeping track of an offset or similar
-> internally to your driver, rather than changing the SKB data pointers.
+OK, I will take out the enum and make explicit use of locktype_auto.
 
-What virtio does is this:
-
-        can_push = vi->any_header_sg &&
-                !((unsigned long)skb->data & (__alignof__(*hdr) - 1)) &&
-                !skb_header_cloned(skb) && skb_headroom(skb) >= hdr_len;
-        /* Even if we can, don't push here yet as this would skew
-         * csum_start offset below. */
-        if (can_push)
-                hdr = (struct virtio_net_hdr_mrg_rxbuf *)(skb->data - hdr_len);
-        else
-                hdr = skb_vnet_hdr(skb);
-
-
-This doesn't change the data pointers in a cloned skb but it does change the cb.
-Is it true that it's illegal to touch the cb in a cloned skb then?
-
--- 
-MST
+Cheers,
+Longman
