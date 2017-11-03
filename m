@@ -1,14 +1,18 @@
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: Re: [PATCH v17 4/6] virtio-balloon: VIRTIO_BALLOON_F_SG
-Date: Fri, 3 Nov 2017 20:25:32 +0900
-Message-ID: <201711032025.HJC78622.SFFOMLOtFQHVJO__42329.8620655716$1509708383$gmane$org@I-love.SAKURA.ne.jp>
-References: <1509696786-1597-1-git-send-email-wei.w.wang@intel.com>
-	<1509696786-1597-5-git-send-email-wei.w.wang@intel.com>
+From: =?UTF-8?B?VG9tw6HFoSBHb2xlbWJpb3Zza8O9?= <tgolembi@redhat.com>
+Subject: Re: [PATCH v2 1/1] virtio_balloon: include buffers and cached
+	memory statistics
+Date: Fri, 3 Nov 2017 12:27:14 +0100
+Message-ID: <20171103122714.1e2da10d__32677.9729257852$1509708444$gmane$org@fiorina>
+References: <cover.1505998455.git.tgolembi@redhat.com>
+	<b13f11c03ed394bd8ad367dc90996ed134ea98da.1505998455.git.tgolembi@redhat.com>
+	<20171019160405-mutt-send-email-mst@kernel.org>
+	<20171022200557.02558e37@fiorina> <20171031132019.76197945@fiorina>
+	<20171031180315-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1509696786-1597-5-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20171031180315-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,67 +22,105 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: wei.w.wang@intel.com, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, mawilcox@microsoft.com
-Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, mgorman@techsingularity.net
+To: Martin Sivak <msivak@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, riel@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Gal Hammer <ghammer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Shaohua Li <shli@fb.com>, Huang Ying <ying.huang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Wei Wang wrote:
-> @@ -164,6 +284,8 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
->  			break;
->  		}
->  
-> +		if (use_sg && xb_set_page(vb, page, &pfn_min, &pfn_max) < 0)
-
-Isn't this leaking "page" ?
-
-> +			break;
->  		balloon_page_push(&pages, page);
->  	}
->  
-
-
-
-> @@ -184,8 +307,12 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
->  
->  	num_allocated_pages = vb->num_pfns;
->  	/* Did we get any? */
-> -	if (vb->num_pfns != 0)
-> -		tell_host(vb, vb->inflate_vq);
-> +	if (vb->num_pfns) {
-> +		if (use_sg)
-> +			tell_host_sgs(vb, vb->inflate_vq, pfn_min, pfn_max);
-
-Please describe why tell_host_sgs() can work without __GFP_DIRECT_RECLAIM allocation,
-for tell_host_sgs() is called with vb->balloon_lock mutex held.
-
-> +		else
-> +			tell_host(vb, vb->inflate_vq);
-> +	}
->  	mutex_unlock(&vb->balloon_lock);
->  
->  	return num_allocated_pages;
-
-
-
-> @@ -223,7 +353,13 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
->  		page = balloon_page_dequeue(vb_dev_info);
->  		if (!page)
->  			break;
-> -		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-> +		if (use_sg) {
-> +			if (xb_set_page(vb, page, &pfn_min, &pfn_max) < 0)
-
-Isn't this leaking "page" ?
-
-If this is inside vb->balloon_lock mutex (isn't this?), xb_set_page() must not
-use __GFP_DIRECT_RECLAIM allocation, for leak_balloon_sg_oom() will be blocked
-on vb->balloon_lock mutex.
-
-> +				break;
-> +		} else {
-> +			set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-> +		}
-> +
->  		list_add(&page->lru, &pages);
->  		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
->  	}
+T24gVHVlLCAzMSBPY3QgMjAxNyAxODoxNTo0OCArMDIwMAoiTWljaGFlbCBTLiBUc2lya2luIiA8
+bXN0QHJlZGhhdC5jb20+IHdyb3RlOgoKPiBPbiBUdWUsIE9jdCAzMSwgMjAxNyBhdCAwMToyMDox
+OVBNICswMTAwLCBUb23DocWhIEdvbGVtYmlvdnNrw70gd3JvdGU6Cj4gPiBwaW5nCj4gPiAKPiA+
+ICtHaWwsICtBbW5vbi4uLiBjb3VsZCB5b3UgbWF5YmUgYWlkIGluIHJldmlld2luZyB0aGUgcGF0
+Y2gsIHBsZWFzZT8KPiA+IAo+ID4gCj4gPiAgICAgVG9tYXMKPiA+IAo+ID4gT24gU3VuLCAyMiBP
+Y3QgMjAxNyAyMDowNTo1NyArMDIwMAo+ID4gVG9tw6HFoSBHb2xlbWJpb3Zza8O9IDx0Z29sZW1i
+aUByZWRoYXQuY29tPiB3cm90ZToKPiA+IAo+ID4gPiBPbiBUaHUsIDE5IE9jdCAyMDE3IDE2OjEy
+OjIwICswMzAwCj4gPiA+ICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0LmNvbT4gd3Jv
+dGU6Cj4gPiA+IAo+ID4gPiA+IE9uIFRodSwgU2VwIDIxLCAyMDE3IGF0IDAyOjU1OjQxUE0gKzAy
+MDAsIFRvbcOhxaEgR29sZW1iaW92c2vDvSB3cm90ZTogIAo+ID4gPiA+ID4gQWRkIGEgbmV3IGZp
+ZWxkcywgVklSVElPX0JBTExPT05fU19CVUZGRVJTIGFuZCBWSVJUSU9fQkFMTE9PTl9TX0NBQ0hF
+RCwKPiA+ID4gPiA+IHRvIHZpcnRpb19iYWxsb29uIG1lbW9yeSBzdGF0aXN0aWNzIHByb3RvY29s
+LiBUaGUgdmFsdWVzIGNvcnJlc3BvbmQgdG8KPiA+ID4gPiA+ICdCdWZmZXJzJyBhbmQgJ0NhY2hl
+ZCcgaW4gL3Byb2MvbWVtaW5mby4KPiA+ID4gPiA+IAo+ID4gPiA+ID4gVG8gYmUgYWJsZSB0byBj
+b21wdXRlIHRoZSB2YWx1ZSBvZiAnQ2FjaGVkJyBtZW1vcnkgaXQgaXMgbmVjZXNzYXJ5IHRvCj4g
+PiA+ID4gPiBleHBvcnQgdG90YWxfc3dhcGNhY2hlX3BhZ2VzKCkgdG8gbW9kdWxlcy4KPiA+ID4g
+PiA+IAo+ID4gPiA+ID4gU2lnbmVkLW9mZi1ieTogVG9tw6HFoSBHb2xlbWJpb3Zza8O9IDx0Z29s
+ZW1iaUByZWRoYXQuY29tPiAgCj4gPiA+ID4gCj4gPiA+ID4gRG9lcyAnQnVmZmVycycgYWN0dWFs
+bHkgbWFrZSBzZW5zZT8gSXQncyBhIHRlbXBvcmFyeSBzdG9yYWdlIC0KPiA+ID4gPiB3b3VsZG4n
+dCBpdCBiZSBzaWduaWZpY2FudGx5IG91dCBvZiBkYXRlIGJ5IHRoZSB0aW1lCj4gPiA+ID4gaG9z
+dCByZWNlaXZlcyBpdD8gIAo+ID4gPiAKPiA+ID4gVGhhdCB3b3VsZCBiZSBiZXN0IGFuc3dlcmVk
+IGJ5IHNvbWVib2R5IGZyb20ga2VybmVsLiBCdXQgbXkgcGVyc29uYWwKPiA+ID4gb3BpbmlvbiBp
+cyB0aGF0IGl0IHdvdWxkIG5vdCBiZSBvdXQgb2YgZGF0ZS4gVGhlIGFtb3VudCBvZiBtZW1vcnkK
+PiA+ID4gZGVkaWNhdGVkIHRvIEJ1ZmZlcnMgZG9lcyBub3Qgc2VlbSB0byBmbHVjdHVhdGUgdG9v
+IG11Y2guCj4gPiA+IAo+ID4gPiAgICAgVG9tYXMKPiA+ID4gCj4gCj4gSSB3b3VsZCBiZSBpbmNs
+aW5lZCB0byBzYXksIGp1c3QgcmVwb3J0Cj4gZ2xvYmFsX25vZGVfcGFnZV9zdGF0ZShOUl9GSUxF
+X1BBR0VTKS4KPiBNYXliZSBzdWJ0cmFjdCBidWZmZXIgcmFtLgo+IAo+IEl0J3Mgbm90IGNsZWFy
+IGhvc3QgY2FyZXMgYWJvdXQgdGhlIGRpc3RpbmN0aW9uLAo+IGl0J3MgYWxsIG1lbW9yeSB0aGF0
+IGNhbiBzaHJpbmsgaW4gcmVzcG9uc2UgdG8KPiBtZW1vcnkgcHJlc3N1cmUgc3VjaCBhcyBpbmZs
+YXRpbmcgdGhlIGJhbGxvb24uCgpTbyBpbiBwcm9jZnMgdGVybXMgd2UnZCBiZSBzZW5kaW5nIHN1
+bSBDYWNoZWQrU3dhcENhaGNlZC4KTWFydGluLCB3b3VsZCB0aGF0IGJlIGdvb2QgZW5vdWdoPwoK
+SSB3b25kZXIgd2hldGhlciBpdCB3b3VsZCBzdGlsbCBtYWtlIHNlbnNlIHRvIHNlbmQgQnVmZmVy
+cyBhcyBhIHNlcGFyYXRlCnZhbHVlIHRob3VnaC4gTWF5YmUgd2Ugc2hvdWxkIGZvcmdldCBhYm91
+dCBoYXZpbmcgc29tZSBncmFudWxhcml0eSBoZXJlCmFuZCBqdXN0IHJlcG9ydCBhbGwgdGhlIGRp
+c2sgY2FjaGVzIGFzIG9uZSB2YWx1ZS4KCiAgICBUb21hcwoKPiAKPiBUaGlzIHN0YXRpc3RpYyBp
+cyBwb3J0YWJsZSBhcyB3ZWxsIEkgdGhpbmssIG1vc3QgZ3Vlc3RzIGhhdmUKPiBzdG9yYWdlIGNh
+Y2hlLgo+IAo+IAo+ID4gPiA+ID4gLS0tCj4gPiA+ID4gPiAgZHJpdmVycy92aXJ0aW8vdmlydGlv
+X2JhbGxvb24uYyAgICAgfCAxMSArKysrKysrKysrKwo+ID4gPiA+ID4gIGluY2x1ZGUvdWFwaS9s
+aW51eC92aXJ0aW9fYmFsbG9vbi5oIHwgIDQgKysrLQo+ID4gPiA+ID4gIG1tL3N3YXBfc3RhdGUu
+YyAgICAgICAgICAgICAgICAgICAgIHwgIDEgKwo+ID4gPiA+ID4gIDMgZmlsZXMgY2hhbmdlZCwg
+MTUgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+ID4gPiA+ID4gCj4gPiA+ID4gPiBkaWZm
+IC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYyBiL2RyaXZlcnMvdmlydGlv
+L3ZpcnRpb19iYWxsb29uLmMKPiA+ID4gPiA+IGluZGV4IGYwYjNhMGI5ZDQyZi4uYzI1NThlYzQ3
+YTYyIDEwMDY0NAo+ID4gPiA+ID4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24u
+Ywo+ID4gPiA+ID4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+ID4gPiA+
+ID4gQEAgLTI0NCwxMiArMjQ0LDE5IEBAIHN0YXRpYyB1bnNpZ25lZCBpbnQgdXBkYXRlX2JhbGxv
+b25fc3RhdHMoc3RydWN0IHZpcnRpb19iYWxsb29uICp2YikKPiA+ID4gPiA+ICAJc3RydWN0IHN5
+c2luZm8gaTsKPiA+ID4gPiA+ICAJdW5zaWduZWQgaW50IGlkeCA9IDA7Cj4gPiA+ID4gPiAgCWxv
+bmcgYXZhaWxhYmxlOwo+ID4gPiA+ID4gKwlsb25nIGNhY2hlZDsKPiA+ID4gPiA+ICAKPiA+ID4g
+PiA+ICAJYWxsX3ZtX2V2ZW50cyhldmVudHMpOwo+ID4gPiA+ID4gIAlzaV9tZW1pbmZvKCZpKTsK
+PiA+ID4gPiA+ICAKPiA+ID4gPiA+ICAJYXZhaWxhYmxlID0gc2lfbWVtX2F2YWlsYWJsZSgpOwo+
+ID4gPiA+ID4gIAo+ID4gPiA+ID4gKwljYWNoZWQgPSBnbG9iYWxfbm9kZV9wYWdlX3N0YXRlKE5S
+X0ZJTEVfUEFHRVMpIC0KPiA+ID4gPiA+ICsJCQl0b3RhbF9zd2FwY2FjaGVfcGFnZXMoKSAtIGku
+YnVmZmVycmFtOwo+ID4gPiA+ID4gKwlpZiAoY2FjaGVkIDwgMCkKPiA+ID4gPiA+ICsJCWNhY2hl
+ZCA9IDA7Cj4gPiA+ID4gPiArCj4gPiA+ID4gPiArCj4gPiA+ID4gPiAgI2lmZGVmIENPTkZJR19W
+TV9FVkVOVF9DT1VOVEVSUwo+ID4gPiA+ID4gIAl1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJ
+T19CQUxMT09OX1NfU1dBUF9JTiwKPiA+ID4gPiA+ICAJCQkJcGFnZXNfdG9fYnl0ZXMoZXZlbnRz
+W1BTV1BJTl0pKTsKPiA+ID4gPiA+IEBAIC0yNjQsNiArMjcxLDEwIEBAIHN0YXRpYyB1bnNpZ25l
+ZCBpbnQgdXBkYXRlX2JhbGxvb25fc3RhdHMoc3RydWN0IHZpcnRpb19iYWxsb29uICp2YikKPiA+
+ID4gPiA+ICAJCQkJcGFnZXNfdG9fYnl0ZXMoaS50b3RhbHJhbSkpOwo+ID4gPiA+ID4gIAl1cGRh
+dGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxMT09OX1NfQVZBSUwsCj4gPiA+ID4gPiAgCQkJ
+CXBhZ2VzX3RvX2J5dGVzKGF2YWlsYWJsZSkpOwo+ID4gPiA+ID4gKwl1cGRhdGVfc3RhdCh2Yiwg
+aWR4KyssIFZJUlRJT19CQUxMT09OX1NfQlVGRkVSUywKPiA+ID4gPiA+ICsJCQkJcGFnZXNfdG9f
+Ynl0ZXMoaS5idWZmZXJyYW0pKTsKPiA+ID4gPiA+ICsJdXBkYXRlX3N0YXQodmIsIGlkeCsrLCBW
+SVJUSU9fQkFMTE9PTl9TX0NBQ0hFRCwKPiA+ID4gPiA+ICsJCQkJcGFnZXNfdG9fYnl0ZXMoY2Fj
+aGVkKSk7Cj4gPiA+ID4gPiAgCj4gPiA+ID4gPiAgCXJldHVybiBpZHg7Cj4gPiA+ID4gPiAgfQo+
+ID4gPiA+ID4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5o
+IGIvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmgKPiA+ID4gPiA+IGluZGV4IDM0
+M2Q3ZGRlZmUwNC4uZDVkYzhhNTZhNDk3IDEwMDY0NAo+ID4gPiA+ID4gLS0tIGEvaW5jbHVkZS91
+YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmgKPiA+ID4gPiA+ICsrKyBiL2luY2x1ZGUvdWFwaS9s
+aW51eC92aXJ0aW9fYmFsbG9vbi5oCj4gPiA+ID4gPiBAQCAtNTIsNyArNTIsOSBAQCBzdHJ1Y3Qg
+dmlydGlvX2JhbGxvb25fY29uZmlnIHsKPiA+ID4gPiA+ICAjZGVmaW5lIFZJUlRJT19CQUxMT09O
+X1NfTUVNRlJFRSAgNCAgIC8qIFRvdGFsIGFtb3VudCBvZiBmcmVlIG1lbW9yeSAqLwo+ID4gPiA+
+ID4gICNkZWZpbmUgVklSVElPX0JBTExPT05fU19NRU1UT1QgICA1ICAgLyogVG90YWwgYW1vdW50
+IG9mIG1lbW9yeSAqLwo+ID4gPiA+ID4gICNkZWZpbmUgVklSVElPX0JBTExPT05fU19BVkFJTCAg
+ICA2ICAgLyogQXZhaWxhYmxlIG1lbW9yeSBhcyBpbiAvcHJvYyAqLwo+ID4gPiA+ID4gLSNkZWZp
+bmUgVklSVElPX0JBTExPT05fU19OUiAgICAgICA3Cj4gPiA+ID4gPiArI2RlZmluZSBWSVJUSU9f
+QkFMTE9PTl9TX0JVRkZFUlMgIDcgICAvKiBCdWZmZXJzIG1lbW9yeSBhcyBpbiAvcHJvYyAqLwo+
+ID4gPiA+ID4gKyNkZWZpbmUgVklSVElPX0JBTExPT05fU19DQUNIRUQgICA4ICAgLyogQ2FjaGVk
+IG1lbW9yeSBhcyBpbiAvcHJvYyAqLwo+ID4gPiA+ID4gKyNkZWZpbmUgVklSVElPX0JBTExPT05f
+U19OUiAgICAgICA5Cj4gPiA+ID4gPiAgCj4gPiA+ID4gPiAgLyoKPiA+ID4gPiA+ICAgKiBNZW1v
+cnkgc3RhdGlzdGljcyBzdHJ1Y3R1cmUuCj4gPiA+ID4gPiBkaWZmIC0tZ2l0IGEvbW0vc3dhcF9z
+dGF0ZS5jIGIvbW0vc3dhcF9zdGF0ZS5jCj4gPiA+ID4gPiBpbmRleCA3MWNlMmQxY2NiZjcuLmYz
+YTRmZjdkNmM1MiAxMDA2NDQKPiA+ID4gPiA+IC0tLSBhL21tL3N3YXBfc3RhdGUuYwo+ID4gPiA+
+ID4gKysrIGIvbW0vc3dhcF9zdGF0ZS5jCj4gPiA+ID4gPiBAQCAtOTUsNiArOTUsNyBAQCB1bnNp
+Z25lZCBsb25nIHRvdGFsX3N3YXBjYWNoZV9wYWdlcyh2b2lkKQo+ID4gPiA+ID4gIAlyY3VfcmVh
+ZF91bmxvY2soKTsKPiA+ID4gPiA+ICAJcmV0dXJuIHJldDsKPiA+ID4gPiA+ICB9Cj4gPiA+ID4g
+PiArRVhQT1JUX1NZTUJPTF9HUEwodG90YWxfc3dhcGNhY2hlX3BhZ2VzKTsKPiA+ID4gPiA+ICAK
+PiA+ID4gPiA+ICBzdGF0aWMgYXRvbWljX3Qgc3dhcGluX3JlYWRhaGVhZF9oaXRzID0gQVRPTUlD
+X0lOSVQoNCk7ICAKPiA+ID4gPiAKPiA+ID4gPiBOZWVkIGFuIGFjayBmcm9tIE1NIGNyb3dkIG9u
+IHRoYXQuCj4gPiA+ID4gICAKPiA+ID4gPiA+IC0tIAo+ID4gPiA+ID4gMi4xNC4xICAKPiA+ID4g
+Cj4gPiA+IAo+ID4gPiAtLSAKPiA+ID4gVG9tw6HFoSBHb2xlbWJpb3Zza8O9IDx0Z29sZW1iaUBy
+ZWRoYXQuY29tPgo+ID4gCj4gPiAKPiA+IC0tIAo+ID4gVG9tw6HFoSBHb2xlbWJpb3Zza8O9IDx0
+Z29sZW1iaUByZWRoYXQuY29tPgoKCi0tIApUb23DocWhIEdvbGVtYmlvdnNrw70gPHRnb2xlbWJp
+QHJlZGhhdC5jb20+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
+bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
