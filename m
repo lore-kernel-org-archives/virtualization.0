@@ -1,14 +1,14 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v1 0/3] Virtio-balloon Improvement
-Date: Fri, 03 Nov 2017 16:35:19 +0800
-Message-ID: <59FC2A47.3020103__42057.7980265536$1509697994$gmane$org@intel.com>
-References: <1508500466-21165-1-git-send-email-wei.w.wang@intel.com>
-	<20171022061307-mutt-send-email-mst@kernel.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: Re: [PATCH v17 1/6] lib/xbitmap: Introduce xbitmap
+Date: Fri, 3 Nov 2017 19:55:43 +0900
+Message-ID: <201711031955.FFE57823.VFLMFtFJSOOQHO__14161.4598258913$1509706604$gmane$org@I-love.SAKURA.ne.jp>
+References: <1509696786-1597-1-git-send-email-wei.w.wang@intel.com>
+	<1509696786-1597-2-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171022061307-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1509696786-1597-2-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,35 +18,191 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: penguin-kernel@I-love.SAKURA.ne.jp, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mhocko@kernel.org
+To: wei.w.wang@intel.com, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, mawilcox@microsoft.com
+Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/22/2017 11:19 AM, Michael S. Tsirkin wrote:
-> On Fri, Oct 20, 2017 at 07:54:23PM +0800, Wei Wang wrote:
->> This patch series intends to summarize the recent contributions made by
->> Michael S. Tsirkin, Tetsuo Handa, Michal Hocko etc. via reporting and
->> discussing the related deadlock issues on the mailinglist. Please check
->> each patch for details.
->>
->> >From a high-level point of view, this patch series achieves:
->> 1) eliminate the deadlock issue fundamentally caused by the inability
->> to run leak_balloon and fill_balloon concurrently;
-> We need to think about this carefully. Is it an issue that
-> leak can now bypass fill? It seems that we can now
-> try to leak a page before fill was seen by host,
-> but I did not look into it deeply.
->
-> I really like my patch for this better at least for
-> current kernel. I agree we need to work more on 2+3.
->
+I'm commenting without understanding the logic.
 
-Since we have many customers interested in the "Virtio-balloon 
-Enhancement" series,
-please review the v17 patches first (it has a dependency on your patch 
-for that deadlock fix,
-so I included it there too), and we can get back to 2+3 here after that 
-series is done. Thanks.
+Wei Wang wrote:
+> +
+> +bool xb_preload(gfp_t gfp);
+> +
 
-Best,
-Wei
+Want __must_check annotation, for __radix_tree_preload() is marked
+with __must_check annotation. By error failing to check result of
+xb_preload() will lead to preemption kept disabled unexpectedly.
+
+
+
+> +int xb_set_bit(struct xb *xb, unsigned long bit)
+> +{
+> +	int err;
+> +	unsigned long index = bit / IDA_BITMAP_BITS;
+> +	struct radix_tree_root *root = &xb->xbrt;
+> +	struct radix_tree_node *node;
+> +	void **slot;
+> +	struct ida_bitmap *bitmap;
+> +	unsigned long ebit;
+> +
+> +	bit %= IDA_BITMAP_BITS;
+> +	ebit = bit + 2;
+> +
+> +	err = __radix_tree_create(root, index, 0, &node, &slot);
+> +	if (err)
+> +		return err;
+> +	bitmap = rcu_dereference_raw(*slot);
+> +	if (radix_tree_exception(bitmap)) {
+> +		unsigned long tmp = (unsigned long)bitmap;
+> +
+> +		if (ebit < BITS_PER_LONG) {
+> +			tmp |= 1UL << ebit;
+> +			rcu_assign_pointer(*slot, (void *)tmp);
+> +			return 0;
+> +		}
+> +		bitmap = this_cpu_xchg(ida_bitmap, NULL);
+> +		if (!bitmap)
+
+Please write locking rules, in order to explain how memory
+allocated by __radix_tree_create() will not leak.
+
+> +			return -EAGAIN;
+> +		memset(bitmap, 0, sizeof(*bitmap));
+> +		bitmap->bitmap[0] = tmp >> RADIX_TREE_EXCEPTIONAL_SHIFT;
+> +		rcu_assign_pointer(*slot, bitmap);
+> +	}
+> +
+> +	if (!bitmap) {
+> +		if (ebit < BITS_PER_LONG) {
+> +			bitmap = (void *)((1UL << ebit) |
+> +					RADIX_TREE_EXCEPTIONAL_ENTRY);
+> +			__radix_tree_replace(root, node, slot, bitmap, NULL,
+> +						NULL);
+> +			return 0;
+> +		}
+> +		bitmap = this_cpu_xchg(ida_bitmap, NULL);
+> +		if (!bitmap)
+
+Same here.
+
+> +			return -EAGAIN;
+> +		memset(bitmap, 0, sizeof(*bitmap));
+> +		__radix_tree_replace(root, node, slot, bitmap, NULL, NULL);
+> +	}
+> +
+> +	__set_bit(bit, bitmap->bitmap);
+> +	return 0;
+> +}
+
+
+
+> +void xb_clear_bit(struct xb *xb, unsigned long bit)
+> +{
+> +	unsigned long index = bit / IDA_BITMAP_BITS;
+> +	struct radix_tree_root *root = &xb->xbrt;
+> +	struct radix_tree_node *node;
+> +	void **slot;
+> +	struct ida_bitmap *bitmap;
+> +	unsigned long ebit;
+> +
+> +	bit %= IDA_BITMAP_BITS;
+> +	ebit = bit + 2;
+> +
+> +	bitmap = __radix_tree_lookup(root, index, &node, &slot);
+> +	if (radix_tree_exception(bitmap)) {
+> +		unsigned long tmp = (unsigned long)bitmap;
+> +
+> +		if (ebit >= BITS_PER_LONG)
+> +			return;
+> +		tmp &= ~(1UL << ebit);
+> +		if (tmp == RADIX_TREE_EXCEPTIONAL_ENTRY)
+> +			__radix_tree_delete(root, node, slot);
+> +		else
+> +			rcu_assign_pointer(*slot, (void *)tmp);
+> +		return;
+> +	}
+> +
+> +	if (!bitmap)
+> +		return;
+> +
+> +	__clear_bit(bit, bitmap->bitmap);
+> +	if (bitmap_empty(bitmap->bitmap, IDA_BITMAP_BITS)) {
+
+Please write locking rules, in order to explain how double kfree() and/or
+use-after-free can be avoided.
+
+> +		kfree(bitmap);
+> +		__radix_tree_delete(root, node, slot);
+> +	}
+> +}
+
+
+
+> +void xb_clear_bit_range(struct xb *xb, unsigned long start, unsigned long end)
+> +{
+> +	struct radix_tree_root *root = &xb->xbrt;
+> +	struct radix_tree_node *node;
+> +	void **slot;
+> +	struct ida_bitmap *bitmap;
+> +	unsigned int nbits;
+> +
+> +	for (; start < end; start = (start | (IDA_BITMAP_BITS - 1)) + 1) {
+> +		unsigned long index = start / IDA_BITMAP_BITS;
+> +		unsigned long bit = start % IDA_BITMAP_BITS;
+> +
+> +		bitmap = __radix_tree_lookup(root, index, &node, &slot);
+> +		if (radix_tree_exception(bitmap)) {
+> +			unsigned long ebit = bit + 2;
+> +			unsigned long tmp = (unsigned long)bitmap;
+> +
+> +			nbits = min(end - start + 1, BITS_PER_LONG - ebit);
+> +
+> +			if (ebit >= BITS_PER_LONG)
+> +				continue;
+> +			bitmap_clear(&tmp, ebit, nbits);
+> +			if (tmp == RADIX_TREE_EXCEPTIONAL_ENTRY)
+> +				__radix_tree_delete(root, node, slot);
+> +			else
+> +				rcu_assign_pointer(*slot, (void *)tmp);
+> +		} else if (bitmap) {
+> +			nbits = min(end - start + 1, IDA_BITMAP_BITS - bit);
+> +
+> +			if (nbits != IDA_BITMAP_BITS)
+> +				bitmap_clear(bitmap->bitmap, bit, nbits);
+> +
+> +			if (nbits == IDA_BITMAP_BITS ||
+> +				bitmap_empty(bitmap->bitmap, IDA_BITMAP_BITS)) {
+
+Same here.
+
+> +				kfree(bitmap);
+> +				__radix_tree_delete(root, node, slot);
+> +			}
+> +		}
+> +	}
+> +}
+
+
+
+> +bool xb_test_bit(struct xb *xb, unsigned long bit)
+> +{
+> +	unsigned long index = bit / IDA_BITMAP_BITS;
+> +	const struct radix_tree_root *root = &xb->xbrt;
+> +	struct ida_bitmap *bitmap = radix_tree_lookup(root, index);
+> +
+> +	bit %= IDA_BITMAP_BITS;
+> +
+> +	if (!bitmap)
+> +		return false;
+> +	if (radix_tree_exception(bitmap)) {
+> +		bit += RADIX_TREE_EXCEPTIONAL_SHIFT;
+> +		if (bit > BITS_PER_LONG)
+
+Why not bit >= BITS_PER_LONG here?
+
+> +			return false;
+> +		return (unsigned long)bitmap & (1UL << bit);
+> +	}
+> +
+> +	return test_bit(bit, bitmap->bitmap);
+> +}
