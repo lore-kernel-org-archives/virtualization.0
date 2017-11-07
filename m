@@ -1,15 +1,12 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v17 2/6] radix tree test suite: add tests for xbitmap
-Date: Mon, 6 Nov 2017 09:00:00 -0800
-Message-ID: <20171106170000.GA1195__1341.10486037589$1509987617$gmane$org@bombadil.infradead.org>
-References: <1509696786-1597-1-git-send-email-wei.w.wang@intel.com>
-	<1509696786-1597-3-git-send-email-wei.w.wang@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] virtio: last minute bugfix
+Date: Tue, 7 Nov 2017 17:28:01 +0200
+Message-ID: <20171107172801-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1509696786-1597-3-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,39 +16,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net, liliang.opensource@gmail.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: mhocko@suse.com, kvm@vger.kernel.org, mst@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 03, 2017 at 04:13:02PM +0800, Wei Wang wrote:
-> From: Matthew Wilcox <mawilcox@microsoft.com>
-> 
-> Add the following tests for xbitmap:
-> 1) single bit test: single bit set/clear/find;
-> 2) bit range test: set/clear a range of bits and find a 0 or 1 bit in
-> the range.
-> 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Cc: Matthew Wilcox <mawilcox@microsoft.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  tools/include/linux/bitmap.h            |  34 ++++
->  tools/include/linux/kernel.h            |   2 +
->  tools/testing/radix-tree/Makefile       |   7 +-
->  tools/testing/radix-tree/linux/kernel.h |   2 -
->  tools/testing/radix-tree/main.c         |   5 +
->  tools/testing/radix-tree/test.h         |   1 +
->  tools/testing/radix-tree/xbitmap.c      | 278 ++++++++++++++++++++++++++++++++
+We had a lot of trouble agreeing on a fix, but apparently there's
+finally a consensus.
 
-Umm.  No.  You've duplicated xbitmap.c into the test framework, so now it can
-slowly get out of sync with the one in lib/.  That's not OK.
+The following changes since commit 39dae59d66acd86d1de24294bd2f343fd5e7a625:
 
-Put it back the way it was, with the patch I gave you as patch 1/n
-(relocating xbitmap.c from tools/testing/radix-tree to lib/).
-Then add your enhancements as patch 2/n.  All you should need to
-change in your 1/n from
-http://git.infradead.org/users/willy/linux-dax.git/commit/727e401bee5ad7d37e0077291d90cc17475c6392
-is a bit of Makefile tooling.  Leave the test suite embedded in the file;
-that way people might remember to update the test suite when adding
-new functionality.
+  Linux 4.14-rc8 (2017-11-05 13:05:14 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 823b45b4f154384941d57e124ed726847e293b36:
+
+  virtio_balloon: fix deadlock on OOM (2017-11-07 17:24:59 +0200)
+
+----------------------------------------------------------------
+virtio: bugfix
+
+Fixes a deadlock encountered with the virtio balloon.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Michael S. Tsirkin (1):
+      virtio_balloon: fix deadlock on OOM
+
+ drivers/virtio/virtio_balloon.c    | 30 ++++++++++++++++++++++--------
+ include/linux/balloon_compaction.h | 38 +++++++++++++++++++++++++++++++++++++-
+ mm/balloon_compaction.c            | 27 +++++++++++++++++++++------
+ 3 files changed, 80 insertions(+), 15 deletions(-)
