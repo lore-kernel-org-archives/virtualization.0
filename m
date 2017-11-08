@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2] virtio_balloon: fix deadlock on OOM
-Date: Wed, 8 Nov 2017 07:24:46 +0200
-Message-ID: <1510118632-18412-1-git-send-email-mst__38784.4071411111$1510118705$gmane$org@redhat.com>
+Subject: [PATCH v3] virtio_balloon: fix deadlock on OOM
+Date: Wed, 8 Nov 2017 17:17:29 +0200
+Message-ID: <1510154064-9709-1-git-send-email-mst__11823.4415109784$1510154266$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -61,13 +61,15 @@ Cc: Wei Wang <wei.w.wang@intel.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
 
-Fixed a build warning.
-Fixed buffer overflow when num > array size.
+Changes since v2:
+	drop an unused declaration, reported by Tetsuo Hocko
+Changes from v1:
+	fix a build warning
 
  drivers/virtio/virtio_balloon.c    | 24 +++++++++++++++++++-----
- include/linux/balloon_compaction.h | 38 +++++++++++++++++++++++++++++++++++++-
+ include/linux/balloon_compaction.h | 35 ++++++++++++++++++++++++++++++++++-
  mm/balloon_compaction.c            | 28 +++++++++++++++++++++-------
- 3 files changed, 77 insertions(+), 13 deletions(-)
+ 3 files changed, 74 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
 index f0b3a0b..7960746 100644
@@ -117,7 +119,7 @@ index f0b3a0b..7960746 100644
  		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
  		if (!virtio_has_feature(vb->vdev,
 diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
-index fbbe6da..36734ff 100644
+index fbbe6da..c4c8df9 100644
 --- a/include/linux/balloon_compaction.h
 +++ b/include/linux/balloon_compaction.h
 @@ -50,6 +50,7 @@
@@ -128,7 +130,7 @@ index fbbe6da..36734ff 100644
  
  /*
   * Balloon device information descriptor.
-@@ -67,9 +68,14 @@ struct balloon_dev_info {
+@@ -67,7 +68,9 @@ struct balloon_dev_info {
  	struct inode *inode;
  };
  
@@ -138,13 +140,8 @@ index fbbe6da..36734ff 100644
 +				 struct page *page);
  extern struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info);
  
-+extern void balloon_devinfo_splice(struct balloon_dev_info *to_add,
-+				   struct balloon_dev_info *b_dev_info);
-+
  static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
- {
- 	balloon->isolated_pages = 0;
-@@ -89,6 +95,36 @@ extern int balloon_page_migrate(struct address_space *mapping,
+@@ -89,6 +92,36 @@ extern int balloon_page_migrate(struct address_space *mapping,
  				struct page *page, enum migrate_mode mode);
  
  /*
