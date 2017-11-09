@@ -1,14 +1,12 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v6] x86: use lock+addl for smp_mb()
-Date: Thu, 9 Nov 2017 10:32:00 +0100
-Message-ID: <20171109093200.2562ek7ebdz45gj2@hirez.programming.kicks-ass.net>
-References: <1509118355-4890-1-git-send-email-mst@redhat.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: [PATCH v2 0/5] x86/xen: support booting PVH guest via standard boot
+	path
+Date: Thu,  9 Nov 2017 14:27:34 +0100
+Message-ID: <20171109132739.23465-1-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1509118355-4890-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,63 +16,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: qemu-devel@nongnu.org, x86@kernel.org, linux-kernel@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, rkrcmar@redhat.com, pv-drivers@vmware.com, akataria@vmware.com, virtualization@lists.linux-foundation.org, pavel@ucw.cz, hpa@zytor.com, tglx@linutronix.de, sthemmin@microsoft.com, x86@kernel.org, moltmann@vmware.com, mingo@redhat.com, linux-graphics-maintainer@vmware.com, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, len.brown@intel.com, arnd@arndb.de, linux-pm@vger.kernel.org, xdeguillard@vmware.com, haiyangz@microsoft.com, rusty@rustcorp.com.au, pbonzini@redhat.com, boris.ostrovsky@oracle.com, Juergen Gross <jgross@suse.com>, gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, rjw@rjwysocki.net, devel@linuxdriverproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 27, 2017 at 07:14:31PM +0300, Michael S. Tsirkin wrote:
+Booting a Xen PVH guest requires a special boot entry as it is
+mandatory to setup some Xen-specific interfaces rather early. When grub
+or OVMF are used as boot loaders, however, those will fill the boot
+parameters in zeropage and there is no longer a need to do something
+PVH specific in the early boot path.
 
-> The one difference between lock+add and mfence is that lock+addl does
-> not affect clflush, previous patches converted all uses of clflush to
-> call mb(), such that changes to smp_mb won't affect it.
-> 
-> Update mb/rmb/wmb on 32 bit to use the negative offset, too, for
-> consistency.
+This patch series adds support for that scenario by identifying PVH
+environment and doing the required init steps via Xen hooks instead of
+using a dedicated boot entry.
 
-So I briefly spoke to hpa about this patch in Prague, and yes, we should
-do this.
+The dedicated entry is still mandatory for support of Dom0 running in
+PVH mode as in this case there is no grub or OVMF involved for filling
+in the boot parameters.
 
-By the very simple argument that we already rely on all LOCK prefixed
-instructions to fully imply smp_mb().
+Changes in V2:
+- added new patches 1 and 2
 
-And yes, there are differences between MFENCE and LOCK prefix, but as
-already noted above, those should not have been using smp_mb() in the
-first place and should be converted to mb()
+Cc: kys@microsoft.com
+Cc: haiyangz@microsoft.com
+Cc: sthemmin@microsoft.com
+Cc: akataria@vmware.com
+Cc: pbonzini@redhat.com
+Cc: rkrcmar@redhat.com
+Cc: boris.ostrovsky@oracle.com
+Cc: rusty@rustcorp.com.au
+Cc: devel@linuxdriverproject.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org
+Cc: xen-devel@lists.xenproject.org
+Cc: linux-graphics-maintainer@vmware.com
+Cc: pv-drivers@vmware.com
+Cc: dmitry.torokhov@gmail.com
+Cc: xdeguillard@vmware.com
+Cc: moltmann@vmware.com
+Cc: arnd@arndb.de
+Cc: gregkh@linuxfoundation.org
+Cc: linux-input@vger.kernel.org
+Cc: rjw@rjwysocki.net
+Cc: len.brown@intel.com
+Cc: pavel@ucw.cz
+Cc: linux-pm@vger.kernel.org
 
-So:
+Juergen Gross (5):
+  x86: merge x86_hyper into x86_platform and x86_init
+  x86: add enum for hypervisors to replace x86_hyper
+  x86/acpi: add test for ACPI_FADT_NO_VGA
+  x86: add guest_late_init hook to hypervisor_x86 structure
+  x86/xen: use guest_late_init to detect Xen PVH guest
 
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+ arch/x86/hyperv/hv_init.c         |  2 +-
+ arch/x86/include/asm/hypervisor.h | 46 +++++++++++-----------------
+ arch/x86/include/asm/kvm_para.h   |  2 --
+ arch/x86/include/asm/x86_init.h   | 27 +++++++++++++++++
+ arch/x86/kernel/acpi/boot.c       |  5 +++
+ arch/x86/kernel/apic/apic.c       |  2 +-
+ arch/x86/kernel/cpu/hypervisor.c  | 64 +++++++++++++++++++++------------------
+ arch/x86/kernel/cpu/mshyperv.c    |  6 ++--
+ arch/x86/kernel/cpu/vmware.c      |  8 ++---
+ arch/x86/kernel/kvm.c             |  9 +++---
+ arch/x86/kernel/setup.c           |  2 +-
+ arch/x86/kernel/x86_init.c        | 10 ++++++
+ arch/x86/mm/init.c                |  2 +-
+ arch/x86/xen/enlighten_hvm.c      | 36 +++++++++++++++++-----
+ arch/x86/xen/enlighten_pv.c       |  6 ++--
+ arch/x86/xen/enlighten_pvh.c      |  9 ------
+ drivers/hv/vmbus_drv.c            |  2 +-
+ drivers/input/mouse/vmmouse.c     | 10 +++---
+ drivers/misc/vmw_balloon.c        |  2 +-
+ include/linux/hypervisor.h        |  8 +++--
+ 20 files changed, 153 insertions(+), 105 deletions(-)
 
-
-> diff --git a/arch/x86/include/asm/barrier.h b/arch/x86/include/asm/barrier.h
-> index bfb28ca..3c6ba1e 100644
-> --- a/arch/x86/include/asm/barrier.h
-> +++ b/arch/x86/include/asm/barrier.h
-> @@ -11,11 +11,11 @@
->   */
->  
->  #ifdef CONFIG_X86_32
-> -#define mb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "mfence", \
-> +#define mb() asm volatile(ALTERNATIVE("lock; addl $0,-4(%%esp)", "mfence", \
->  				      X86_FEATURE_XMM2) ::: "memory", "cc")
-> -#define rmb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "lfence", \
-> +#define rmb() asm volatile(ALTERNATIVE("lock; addl $0,-4(%%esp)", "lfence", \
->  				       X86_FEATURE_XMM2) ::: "memory", "cc")
-> -#define wmb() asm volatile(ALTERNATIVE("lock; addl $0,0(%%esp)", "sfence", \
-> +#define wmb() asm volatile(ALTERNATIVE("lock; addl $0,-4(%%esp)", "sfence", \
->  				       X86_FEATURE_XMM2) ::: "memory", "cc")
->  #else
->  #define mb() 	asm volatile("mfence":::"memory")
-> @@ -30,7 +30,11 @@
->  #endif
->  #define dma_wmb()	barrier()
->  
-> -#define __smp_mb()	mb()
-> +#ifdef CONFIG_X86_32
-> +#define __smp_mb()	asm volatile("lock; addl $0,-4(%%esp)" ::: "memory", "cc")
-> +#else
-> +#define __smp_mb()	asm volatile("lock; addl $0,-4(%%rsp)" ::: "memory", "cc")
-> +#endif
->  #define __smp_rmb()	dma_rmb()
->  #define __smp_wmb()	barrier()
->  #define __smp_store_mb(var, value) do { (void)xchg(&var, value); } while (0)
+-- 
+2.12.3
