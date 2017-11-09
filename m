@@ -1,12 +1,13 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v2 0/5] x86/xen: support booting PVH guest via standard boot
-	path
-Date: Thu,  9 Nov 2017 14:27:34 +0100
-Message-ID: <20171109132739.23465-1-jgross@suse.com>
+Subject: [PATCH v2 1/5] x86: merge x86_hyper into x86_platform and x86_init
+Date: Thu,  9 Nov 2017 14:27:35 +0100
+Message-ID: <20171109132739.23465-2-jgross__10153.3175948591$1510234114$gmane$org@suse.com>
+References: <20171109132739.23465-1-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20171109132739.23465-1-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,25 +18,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, rkrcmar@redhat.com, pv-drivers@vmware.com, akataria@vmware.com, virtualization@lists.linux-foundation.org, pavel@ucw.cz, hpa@zytor.com, tglx@linutronix.de, sthemmin@microsoft.com, x86@kernel.org, moltmann@vmware.com, mingo@redhat.com, linux-graphics-maintainer@vmware.com, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, len.brown@intel.com, arnd@arndb.de, linux-pm@vger.kernel.org, xdeguillard@vmware.com, haiyangz@microsoft.com, rusty@rustcorp.com.au, pbonzini@redhat.com, boris.ostrovsky@oracle.com, Juergen Gross <jgross@suse.com>, gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, rjw@rjwysocki.net, devel@linuxdriverproject.org
+Cc: Juergen Gross <jgross@suse.com>, rusty@rustcorp.com.au, sthemmin@microsoft.com, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, rkrcmar@redhat.com, boris.ostrovsky@oracle.com, haiyangz@microsoft.com, x86@kernel.org, devel@linuxdriverproject.org, mingo@redhat.com, hpa@zytor.com, pbonzini@redhat.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, akataria@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Booting a Xen PVH guest requires a special boot entry as it is
-mandatory to setup some Xen-specific interfaces rather early. When grub
-or OVMF are used as boot loaders, however, those will fill the boot
-parameters in zeropage and there is no longer a need to do something
-PVH specific in the early boot path.
+Instead of x86_hyper being either NULL on bare metal or a pointer to a
+struct hypervisor_x86 in case of the kernel running as a guest merge
+the struct into x86_platform and x86_init.
 
-This patch series adds support for that scenario by identifying PVH
-environment and doing the required init steps via Xen hooks instead of
-using a dedicated boot entry.
-
-The dedicated entry is still mandatory for support of Dom0 running in
-PVH mode as in this case there is no grub or OVMF involved for filling
-in the boot parameters.
-
-Changes in V2:
-- added new patches 1 and 2
+This will remove the need for wrappers making it hard to find out what
+is being called. With dummy functions added for all callbacks testing
+for a NULL function pointer can be removed, too.
 
 Cc: kys@microsoft.com
 Cc: haiyangz@microsoft.com
@@ -49,47 +41,368 @@ Cc: devel@linuxdriverproject.org
 Cc: virtualization@lists.linux-foundation.org
 Cc: kvm@vger.kernel.org
 Cc: xen-devel@lists.xenproject.org
-Cc: linux-graphics-maintainer@vmware.com
-Cc: pv-drivers@vmware.com
-Cc: dmitry.torokhov@gmail.com
-Cc: xdeguillard@vmware.com
-Cc: moltmann@vmware.com
-Cc: arnd@arndb.de
-Cc: gregkh@linuxfoundation.org
-Cc: linux-input@vger.kernel.org
-Cc: rjw@rjwysocki.net
-Cc: len.brown@intel.com
-Cc: pavel@ucw.cz
-Cc: linux-pm@vger.kernel.org
 
-Juergen Gross (5):
-  x86: merge x86_hyper into x86_platform and x86_init
-  x86: add enum for hypervisors to replace x86_hyper
-  x86/acpi: add test for ACPI_FADT_NO_VGA
-  x86: add guest_late_init hook to hypervisor_x86 structure
-  x86/xen: use guest_late_init to detect Xen PVH guest
-
- arch/x86/hyperv/hv_init.c         |  2 +-
- arch/x86/include/asm/hypervisor.h | 46 +++++++++++-----------------
- arch/x86/include/asm/kvm_para.h   |  2 --
- arch/x86/include/asm/x86_init.h   | 27 +++++++++++++++++
- arch/x86/kernel/acpi/boot.c       |  5 +++
+Suggested-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ arch/x86/include/asm/hypervisor.h | 25 ++++--------------
+ arch/x86/include/asm/x86_init.h   | 24 +++++++++++++++++
  arch/x86/kernel/apic/apic.c       |  2 +-
- arch/x86/kernel/cpu/hypervisor.c  | 64 +++++++++++++++++++++------------------
- arch/x86/kernel/cpu/mshyperv.c    |  6 ++--
- arch/x86/kernel/cpu/vmware.c      |  8 ++---
- arch/x86/kernel/kvm.c             |  9 +++---
- arch/x86/kernel/setup.c           |  2 +-
- arch/x86/kernel/x86_init.c        | 10 ++++++
+ arch/x86/kernel/cpu/hypervisor.c  | 54 +++++++++++++++++++--------------------
+ arch/x86/kernel/cpu/mshyperv.c    |  2 +-
+ arch/x86/kernel/cpu/vmware.c      |  4 +--
+ arch/x86/kernel/kvm.c             |  2 +-
+ arch/x86/kernel/x86_init.c        |  9 +++++++
  arch/x86/mm/init.c                |  2 +-
- arch/x86/xen/enlighten_hvm.c      | 36 +++++++++++++++++-----
- arch/x86/xen/enlighten_pv.c       |  6 ++--
- arch/x86/xen/enlighten_pvh.c      |  9 ------
- drivers/hv/vmbus_drv.c            |  2 +-
- drivers/input/mouse/vmmouse.c     | 10 +++---
- drivers/misc/vmw_balloon.c        |  2 +-
- include/linux/hypervisor.h        |  8 +++--
- 20 files changed, 153 insertions(+), 105 deletions(-)
+ arch/x86/xen/enlighten_hvm.c      |  8 +++---
+ arch/x86/xen/enlighten_pv.c       |  2 +-
+ include/linux/hypervisor.h        |  8 ++++--
+ 12 files changed, 81 insertions(+), 61 deletions(-)
 
+diff --git a/arch/x86/include/asm/hypervisor.h b/arch/x86/include/asm/hypervisor.h
+index 0ead9dbb9130..0eca7239a7aa 100644
+--- a/arch/x86/include/asm/hypervisor.h
++++ b/arch/x86/include/asm/hypervisor.h
+@@ -23,6 +23,7 @@
+ #ifdef CONFIG_HYPERVISOR_GUEST
+ 
+ #include <asm/kvm_para.h>
++#include <asm/x86_init.h>
+ #include <asm/xen/hypervisor.h>
+ 
+ /*
+@@ -35,17 +36,11 @@ struct hypervisor_x86 {
+ 	/* Detection routine */
+ 	uint32_t	(*detect)(void);
+ 
+-	/* Platform setup (run once per boot) */
+-	void		(*init_platform)(void);
++	/* init time callbacks */
++	struct x86_hyper_init init;
+ 
+-	/* X2APIC detection (run once per boot) */
+-	bool		(*x2apic_available)(void);
+-
+-	/* pin current vcpu to specified physical cpu (run rarely) */
+-	void		(*pin_vcpu)(int);
+-
+-	/* called during init_mem_mapping() to setup early mappings. */
+-	void		(*init_mem_mapping)(void);
++	/* runtime callbacks */
++	struct x86_hyper_runtime runtime;
+ };
+ 
+ extern const struct hypervisor_x86 *x86_hyper;
+@@ -58,17 +53,7 @@ extern const struct hypervisor_x86 x86_hyper_xen_hvm;
+ extern const struct hypervisor_x86 x86_hyper_kvm;
+ 
+ extern void init_hypervisor_platform(void);
+-extern bool hypervisor_x2apic_available(void);
+-extern void hypervisor_pin_vcpu(int cpu);
+-
+-static inline void hypervisor_init_mem_mapping(void)
+-{
+-	if (x86_hyper && x86_hyper->init_mem_mapping)
+-		x86_hyper->init_mem_mapping();
+-}
+ #else
+ static inline void init_hypervisor_platform(void) { }
+-static inline bool hypervisor_x2apic_available(void) { return false; }
+-static inline void hypervisor_init_mem_mapping(void) { }
+ #endif /* CONFIG_HYPERVISOR_GUEST */
+ #endif /* _ASM_X86_HYPERVISOR_H */
+diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
+index 8a1ebf9540dd..ad15a0fda917 100644
+--- a/arch/x86/include/asm/x86_init.h
++++ b/arch/x86/include/asm/x86_init.h
+@@ -115,6 +115,18 @@ struct x86_init_pci {
+ };
+ 
+ /**
++ * struct x86_hyper_init - x86 hypervisor init functions
++ * @init_platform:		platform setup
++ * @x2apic_available:		X2APIC detection
++ * @init_mem_mapping:		setup early mappings during init_mem_mapping()
++ */
++struct x86_hyper_init {
++	void (*init_platform)(void);
++	bool (*x2apic_available)(void);
++	void (*init_mem_mapping)(void);
++};
++
++/**
+  * struct x86_init_ops - functions for platform specific setup
+  *
+  */
+@@ -127,6 +139,7 @@ struct x86_init_ops {
+ 	struct x86_init_timers		timers;
+ 	struct x86_init_iommu		iommu;
+ 	struct x86_init_pci		pci;
++	struct x86_hyper_init		hyper;
+ };
+ 
+ /**
+@@ -200,6 +213,15 @@ struct x86_legacy_features {
+ };
+ 
+ /**
++ * struct x86_hyper_runtime - x86 hypervisor specific runtime callbacks
++ *
++ * @pin_vcpu:		pin current vcpu to specified physical cpu (run rarely)
++ */
++struct x86_hyper_runtime {
++	void (*pin_vcpu)(int cpu);
++};
++
++/**
+  * struct x86_platform_ops - platform specific runtime functions
+  * @calibrate_cpu:		calibrate CPU
+  * @calibrate_tsc:		calibrate TSC, if different from CPU
+@@ -218,6 +240,7 @@ struct x86_legacy_features {
+  * 				possible in x86_early_init_platform_quirks() by
+  * 				only using the current x86_hardware_subarch
+  * 				semantics.
++ * @hyper:			x86 hypervisor specific runtime callbacks
+  */
+ struct x86_platform_ops {
+ 	unsigned long (*calibrate_cpu)(void);
+@@ -233,6 +256,7 @@ struct x86_platform_ops {
+ 	void (*apic_post_init)(void);
+ 	struct x86_legacy_features legacy;
+ 	void (*set_legacy_features)(void);
++	struct x86_hyper_runtime hyper;
+ };
+ 
+ struct pci_dev;
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index ff891772c9f8..89c7c8569e5e 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1645,7 +1645,7 @@ static __init void try_to_enable_x2apic(int remap_mode)
+ 		 * under KVM
+ 		 */
+ 		if (max_physical_apicid > 255 ||
+-		    !hypervisor_x2apic_available()) {
++		    !x86_init.hyper.x2apic_available()) {
+ 			pr_info("x2apic: IRQ remapping doesn't support X2APIC mode\n");
+ 			x2apic_disable();
+ 			return;
+diff --git a/arch/x86/kernel/cpu/hypervisor.c b/arch/x86/kernel/cpu/hypervisor.c
+index 4fa90006ac68..22226c1bf092 100644
+--- a/arch/x86/kernel/cpu/hypervisor.c
++++ b/arch/x86/kernel/cpu/hypervisor.c
+@@ -44,51 +44,49 @@ static const __initconst struct hypervisor_x86 * const hypervisors[] =
+ const struct hypervisor_x86 *x86_hyper;
+ EXPORT_SYMBOL(x86_hyper);
+ 
+-static inline void __init
++static inline const struct hypervisor_x86 * __init
+ detect_hypervisor_vendor(void)
+ {
+-	const struct hypervisor_x86 *h, * const *p;
++	const struct hypervisor_x86 *h = NULL, * const *p;
+ 	uint32_t pri, max_pri = 0;
+ 
+ 	for (p = hypervisors; p < hypervisors + ARRAY_SIZE(hypervisors); p++) {
+-		h = *p;
+-		pri = h->detect();
+-		if (pri != 0 && pri > max_pri) {
++		pri = (*p)->detect();
++		if (pri > max_pri) {
+ 			max_pri = pri;
+-			x86_hyper = h;
++			h = *p;
+ 		}
+ 	}
+ 
+-	if (max_pri)
+-		pr_info("Hypervisor detected: %s\n", x86_hyper->name);
++	if (h)
++		pr_info("Hypervisor detected: %s\n", h->name);
++
++	return h;
+ }
+ 
+-void __init init_hypervisor_platform(void)
++static void __init copy_array(const void *src, void *target, unsigned int size)
+ {
++	unsigned int i, n = size / sizeof(void *);
++	const void * const *from = (const void * const *)src;
++	const void **to = (const void **)target;
+ 
+-	detect_hypervisor_vendor();
+-
+-	if (!x86_hyper)
+-		return;
+-
+-	if (x86_hyper->init_platform)
+-		x86_hyper->init_platform();
++	for (i = 0; i < n; i++)
++		if (from[i])
++			to[i] = from[i];
+ }
+ 
+-bool __init hypervisor_x2apic_available(void)
++void __init init_hypervisor_platform(void)
+ {
+-	return x86_hyper                   &&
+-	       x86_hyper->x2apic_available &&
+-	       x86_hyper->x2apic_available();
+-}
++	const struct hypervisor_x86 *h;
+ 
+-void hypervisor_pin_vcpu(int cpu)
+-{
+-	if (!x86_hyper)
++	h = detect_hypervisor_vendor();
++
++	if (!h)
+ 		return;
+ 
+-	if (x86_hyper->pin_vcpu)
+-		x86_hyper->pin_vcpu(cpu);
+-	else
+-		WARN_ONCE(1, "vcpu pinning requested but not supported!\n");
++	copy_array(&h->init, &x86_init.hyper, sizeof(h->init));
++	copy_array(&h->runtime, &x86_platform.hyper, sizeof(h->runtime));
++
++	x86_hyper = h;
++	x86_init.hyper.init_platform();
+ }
+diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+index 236324e83a3a..6bb84d655e4b 100644
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -257,6 +257,6 @@ static void __init ms_hyperv_init_platform(void)
+ const __refconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
+ 	.name			= "Microsoft Hyper-V",
+ 	.detect			= ms_hyperv_platform,
+-	.init_platform		= ms_hyperv_init_platform,
++	.init.init_platform	= ms_hyperv_init_platform,
+ };
+ EXPORT_SYMBOL(x86_hyper_ms_hyperv);
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index 40ed26852ebd..4804c1d063c8 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -208,7 +208,7 @@ static bool __init vmware_legacy_x2apic_available(void)
+ const __refconst struct hypervisor_x86 x86_hyper_vmware = {
+ 	.name			= "VMware",
+ 	.detect			= vmware_platform,
+-	.init_platform		= vmware_platform_setup,
+-	.x2apic_available	= vmware_legacy_x2apic_available,
++	.init.init_platform	= vmware_platform_setup,
++	.init.x2apic_available	= vmware_legacy_x2apic_available,
+ };
+ EXPORT_SYMBOL(x86_hyper_vmware);
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 8bb9594d0761..9dca8437c795 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -547,7 +547,7 @@ static uint32_t __init kvm_detect(void)
+ const struct hypervisor_x86 x86_hyper_kvm __refconst = {
+ 	.name			= "KVM",
+ 	.detect			= kvm_detect,
+-	.x2apic_available	= kvm_para_available,
++	.init.x2apic_available	= kvm_para_available,
+ };
+ EXPORT_SYMBOL_GPL(x86_hyper_kvm);
+ 
+diff --git a/arch/x86/kernel/x86_init.c b/arch/x86/kernel/x86_init.c
+index a088b2c47f73..5b2d10c1973a 100644
+--- a/arch/x86/kernel/x86_init.c
++++ b/arch/x86/kernel/x86_init.c
+@@ -28,6 +28,8 @@ void x86_init_noop(void) { }
+ void __init x86_init_uint_noop(unsigned int unused) { }
+ int __init iommu_init_noop(void) { return 0; }
+ void iommu_shutdown_noop(void) { }
++bool __init bool_x86_init_noop(void) { return false; }
++void x86_op_int_noop(int cpu) { }
+ 
+ /*
+  * The platform setup functions are preset with the default functions
+@@ -81,6 +83,12 @@ struct x86_init_ops x86_init __initdata = {
+ 		.init_irq		= x86_default_pci_init_irq,
+ 		.fixup_irqs		= x86_default_pci_fixup_irqs,
+ 	},
++
++	.hyper = {
++		.init_platform		= x86_init_noop,
++		.x2apic_available	= bool_x86_init_noop,
++		.init_mem_mapping	= x86_init_noop,
++	},
+ };
+ 
+ struct x86_cpuinit_ops x86_cpuinit = {
+@@ -101,6 +109,7 @@ struct x86_platform_ops x86_platform __ro_after_init = {
+ 	.get_nmi_reason			= default_get_nmi_reason,
+ 	.save_sched_clock_state 	= tsc_save_sched_clock_state,
+ 	.restore_sched_clock_state 	= tsc_restore_sched_clock_state,
++	.hyper.pin_vcpu			= x86_op_int_noop,
+ };
+ 
+ EXPORT_SYMBOL_GPL(x86_platform);
+diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
+index af5c1ed21d43..a22c2b95e513 100644
+--- a/arch/x86/mm/init.c
++++ b/arch/x86/mm/init.c
+@@ -671,7 +671,7 @@ void __init init_mem_mapping(void)
+ 	load_cr3(swapper_pg_dir);
+ 	__flush_tlb_all();
+ 
+-	hypervisor_init_mem_mapping();
++	x86_init.hyper.init_mem_mapping();
+ 
+ 	early_memtest(0, max_pfn_mapped << PAGE_SHIFT);
+ }
+diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
+index de503c225ae1..7b1622089f96 100644
+--- a/arch/x86/xen/enlighten_hvm.c
++++ b/arch/x86/xen/enlighten_hvm.c
+@@ -229,9 +229,9 @@ static uint32_t __init xen_platform_hvm(void)
+ const struct hypervisor_x86 x86_hyper_xen_hvm = {
+ 	.name                   = "Xen HVM",
+ 	.detect                 = xen_platform_hvm,
+-	.init_platform          = xen_hvm_guest_init,
+-	.pin_vcpu               = xen_pin_vcpu,
+-	.x2apic_available       = xen_x2apic_para_available,
+-	.init_mem_mapping	= xen_hvm_init_mem_mapping,
++	.init.init_platform     = xen_hvm_guest_init,
++	.init.x2apic_available  = xen_x2apic_para_available,
++	.init.init_mem_mapping	= xen_hvm_init_mem_mapping,
++	.runtime.pin_vcpu       = xen_pin_vcpu,
+ };
+ EXPORT_SYMBOL(x86_hyper_xen_hvm);
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index d4396e27b1fb..69d1a7054ddb 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1463,6 +1463,6 @@ static uint32_t __init xen_platform_pv(void)
+ const struct hypervisor_x86 x86_hyper_xen_pv = {
+ 	.name                   = "Xen PV",
+ 	.detect                 = xen_platform_pv,
+-	.pin_vcpu               = xen_pin_vcpu,
++	.runtime.pin_vcpu       = xen_pin_vcpu,
+ };
+ EXPORT_SYMBOL(x86_hyper_xen_pv);
+diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
+index b4054fd5b6f6..b19563f9a8eb 100644
+--- a/include/linux/hypervisor.h
++++ b/include/linux/hypervisor.h
+@@ -7,8 +7,12 @@
+  *		Juergen Gross <jgross@suse.com>
+  */
+ 
+-#ifdef CONFIG_HYPERVISOR_GUEST
+-#include <asm/hypervisor.h>
++#ifdef CONFIG_X86
++#include <asm/x86_init.h>
++static inline void hypervisor_pin_vcpu(int cpu)
++{
++	x86_platform.hyper.pin_vcpu(cpu);
++}
+ #else
+ static inline void hypervisor_pin_vcpu(int cpu)
+ {
 -- 
 2.12.3
