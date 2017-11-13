@@ -1,11 +1,15 @@
-From: Quan Xu <quan.xu04@gmail.com>
-Subject: [PATCH RFC v3 0/6] x86/idle: add halt poll support
-Date: Mon, 13 Nov 2017 19:01:40 +0800
-Message-ID: <1510570901-6373-1-git-send-email-quan.xu0@gmail.com>
+From: Wanpeng Li <wanpeng.li@hotmail.com>
+Subject: Re: [PATCH RFC v3 4/6] Documentation: Add three sysctls for smart
+	idle poll
+Date: Mon, 13 Nov 2017 21:44:28 +0000
+Message-ID: <SG2PR02MB131219745E956D480B3CAF17802B0@SG2PR02MB1312.apcprd02.prod.outlook.com>
+References: <1510570064-6178-1-git-send-email-quan.xu0@gmail.com>
+	<20171113150842.epdffyxhlu5nq37u@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6139490442024711331=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20171113150842.epdffyxhlu5nq37u@gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,144 +19,171 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org
-Cc: peterz@infradead.org, pbonzini@redhat.com, tglx@linutronix.de, Quan Xu <quan.xu0@gmail.com>, yang.zhang.wz@gmail.com
+To: Ingo Molnar <mingo@kernel.org>, Quan Xu <quan.xu04@gmail.com>
+Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Quan Xu <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Quan Xu <quan.xu0@gmail.com>
+--===============6139490442024711331==
+Content-Language: en-US
+Content-Type: multipart/alternative;
+	boundary="_000_SG2PR02MB131219745E956D480B3CAF17802B0SG2PR02MB1312apcp_"
 
-Some latency-intensive workload have seen obviously performance
-drop when running inside VM. The main reason is that the overhead
-is amplified when running inside VM. The most cost I have seen is
-inside idle path.
+--_000_SG2PR02MB131219745E956D480B3CAF17802B0SG2PR02MB1312apcp_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 
-This patch introduces a new mechanism to poll for a while before
-entering idle state. If schedule is needed during poll, then we
-don't need to goes through the heavy overhead path.
+SGkgSW5nbywNCg0KT24gMTEvMTMvMTcgMTE6MDggUE0sIEluZ28gTW9sbmFyIHdyb3RlOg0KDQoN
+CiogUXVhbiBYdSA8cXVhbi54dTA0QGdtYWlsLmNvbT48bWFpbHRvOnF1YW4ueHUwNEBnbWFpbC5j
+b20+IHdyb3RlOg0KDQoNCg0KRnJvbTogUXVhbiBYdSA8cXVhbi54dTBAZ21haWwuY29tPjxtYWls
+dG86cXVhbi54dTBAZ21haWwuY29tPg0KDQpUbyByZWR1Y2UgdGhlIGNvc3Qgb2YgcG9sbCwgd2Ug
+aW50cm9kdWNlIHRocmVlIHN5c2N0bCB0byBjb250cm9sIHRoZQ0KcG9sbCB0aW1lIHdoZW4gcnVu
+bmluZyBhcyBhIHZpcnR1YWwgbWFjaGluZSB3aXRoIHBhcmF2aXJ0Lg0KDQpTaWduZWQtb2ZmLWJ5
+OiBZYW5nIFpoYW5nIDx5YW5nLnpoYW5nLnd6QGdtYWlsLmNvbT48bWFpbHRvOnlhbmcuemhhbmcu
+d3pAZ21haWwuY29tPg0KU2lnbmVkLW9mZi1ieTogUXVhbiBYdSA8cXVhbi54dTBAZ21haWwuY29t
+PjxtYWlsdG86cXVhbi54dTBAZ21haWwuY29tPg0KLS0tDQogRG9jdW1lbnRhdGlvbi9zeXNjdGwv
+a2VybmVsLnR4dCB8ICAgMzUgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysNCiBh
+cmNoL3g4Ni9rZXJuZWwvcGFyYXZpcnQuYyAgICAgIHwgICAgNCArKysrDQogaW5jbHVkZS9saW51
+eC9rZXJuZWwuaCAgICAgICAgICB8ICAgIDYgKysrKysrDQoga2VybmVsL3N5c2N0bC5jICAgICAg
+ICAgICAgICAgICB8ICAgMzQgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKw0KIDQg
+ZmlsZXMgY2hhbmdlZCwgNzkgaW5zZXJ0aW9ucygrKSwgMCBkZWxldGlvbnMoLSkNCg0KZGlmZiAt
+LWdpdCBhL0RvY3VtZW50YXRpb24vc3lzY3RsL2tlcm5lbC50eHQgYi9Eb2N1bWVudGF0aW9uL3N5
+c2N0bC9rZXJuZWwudHh0DQppbmRleCA2OTQ5NjhjLi4zMGMyNWZiIDEwMDY0NA0KLS0tIGEvRG9j
+dW1lbnRhdGlvbi9zeXNjdGwva2VybmVsLnR4dA0KKysrIGIvRG9jdW1lbnRhdGlvbi9zeXNjdGwv
+a2VybmVsLnR4dA0KQEAgLTcxNCw2ICs3MTQsNDEgQEAga2VybmVsIHRyaWVzIHRvIGFsbG9jYXRl
+IGEgbnVtYmVyIHN0YXJ0aW5nIGZyb20gdGhpcyBvbmUuDQoNCiA9PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KDQorcGFyYXZpcnRf
+cG9sbF9ncm93OiAoWDg2IG9ubHkpDQorDQorTXVsdGlwbGllZCB2YWx1ZSB0byBpbmNyZWFzZSB0
+aGUgcG9sbCB0aW1lLiBUaGlzIGlzIGV4cGVjdGVkIHRvIHRha2UNCitlZmZlY3Qgb25seSB3aGVu
+IHJ1bm5pbmcgYXMgYSB2aXJ0dWFsIG1hY2hpbmUgd2l0aCBDT05GSUdfUEFSQVZJUlQNCitlbmFi
+bGVkLiBUaGlzIGNhbid0IGJyaW5nIGFueSBiZW5pZml0IG9uIGJhcmUgbWVudGFsIGV2ZW4gd2l0
+aA0KK0NPTkZJR19QQVJBVklSVCBlbmFibGVkLg0KKw0KK0J5IGRlZmF1bHQgdGhpcyB2YWx1ZSBp
+cyAyLiBQb3NzaWJsZSB2YWx1ZXMgdG8gc2V0IGFyZSBpbiByYW5nZSB7Mi4uMTZ9Lg0KKw0KKz09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09DQorDQorcGFyYXZpcnRfcG9sbF9zaHJpbms6IChYODYgb25seSkNCisNCitEaXZpZGVkIHZh
+bHVlIHRvIHJlZHVjZSB0aGUgcG9sbCB0aW1lLiBUaGlzIGlzIGV4cGVjdGVkIHRvIHRha2UgZWZm
+ZWN0DQorb25seSB3aGVuIHJ1bm5pbmcgYXMgYSB2aXJ0dWFsIG1hY2hpbmUgd2l0aCBDT05GSUdf
+UEFSQVZJUlQgZW5hYmxlZC4NCitUaGlzIGNhbid0IGJyaW5nIGFueSBiZW5pZml0IG9uIGJhcmUg
+bWVudGFsIGV2ZW4gd2l0aCBDT05GSUdfUEFSQVZJUlQNCitlbmFibGVkLg0KKw0KK0J5IGRlZmF1
+bHQgdGhpcyB2YWx1ZSBpcyAyLiBQb3NzaWJsZSB2YWx1ZXMgdG8gc2V0IGFyZSBpbiByYW5nZSB7
+Mi4uMTZ9Lg0KKw0KKz09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09DQorDQorcGFyYXZpcnRfcG9sbF90aHJlc2hvbGRfbnM6IChYODYg
+b25seSkNCisNCitDb250cm9scyB0aGUgbWF4aW11bSBwb2xsIHRpbWUgYmVmb3JlIGVudGVyaW5n
+IHJlYWwgaWRsZSBwYXRoLiBUaGlzIGlzDQorZXhwZWN0ZWQgdG8gdGFrZSBlZmZlY3Qgb25seSB3
+aGVuIHJ1bm5pbmcgYXMgYSB2aXJ0dWFsIG1hY2hpbmUgd2l0aA0KK0NPTkZJR19QQVJBVklSVCBl
+bmFibGVkLiBUaGlzIGNhbid0IGJyaW5nIGFueSBiZW5pZml0IG9uIGJhcmUgbWVudGFsDQorZXZl
+biB3aXRoIENPTkZJR19QQVJBVklSVCBlbmFibGVkLg0KKw0KK0J5IGRlZmF1bHQsIHRoaXMgdmFs
+dWUgaXMgMCBtZWFucyBub3QgdG8gcG9sbC4gUG9zc2libGUgdmFsdWVzIHRvIHNldA0KK2FyZSBp
+biByYW5nZSB7MC4uNTAwMDAwfS4gQ2hhbmdlIHRoZSB2YWx1ZSB0byBub24temVybyBpZiBydW5u
+aW5nDQorbGF0ZW5jeS1ib3VuZCB3b3JrbG9hZHMgaW4gYSB2aXJ0dWFsIG1hY2hpbmUuDQoNCg0K
+DQpJIGFic29sdXRlbHkgaGF0ZSBpdCBob3cgdGhpcyBoeWJyaWQgaWRsZSBsb29wIHBvbGxpbmcg
+bWVjaGFuaXNtIGlzIG5vdA0Kc2VsZi10dW5pbmchDQoNClBsZWFzZSBtYWtlIGl0IGFsbCB3b3Jr
+IGZpbmUgYnkgZGVmYXVsdCwgYW5kIGF1dG9tYXRpY2FsbHkgc28sIGluc3RlYWQgb2YgYWRkaW5n
+DQp0aHJlZSByYW5kb20gcGFyYW1ldGVycy4uLg0KDQpBbmQgaWYgaXQgY2Fubm90IGJlIGRvbmUg
+YXV0b21hdGljYWxseSB0aGVuIHdlIHNob3VsZCByYXRoZXIgbm90IGRvIGl0IGF0IGFsbC4NCg0K
+DQpPbmUgb2YgdGhlIG1haW4gYmVuZWZpdCBvZiB0aGlzIHBhdGNoc2V0IGlzIHRoZSBjdXN0b21l
+cnMgd2hvIHVzZSB0aGUgVk0gY2FuIHR1bmUgdGhlIG1lY2hhbmlzbSBieSB0aGVtc2VsZi4gSSBy
+ZW1lbWJlciBBbmRpIGFsc28gaGFzIHRoZSBjb25jZXJuIGFib3V0IHR3byBtdWNoIHJhbmRvbSBw
+YXJhbWV0ZXJzLiBJbiBhZGRpdGlvbiwgdGhlcmUgaXMgYSAiQWRhcHRpdmUgaGFsdC1wb2xsaW5n
+IiB3aGljaCBhcmUgbWVyZ2VkIHRvIHVwc3RyZWFtIG1vcmUgdGhhbiB0d28geWVhcnMgYWdvIGlu
+IGt2bSB3aGljaCBpcyBzZWxmLXR1bmluZywgaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTUvOS8z
+LzYxNQ0KDQpSZWdhcmRzLA0KV2FucGVuZyBMaQ0K
 
-Here is the data we get when running benchmark contextswitch to measure
-the latency(lower is better):
+--_000_SG2PR02MB131219745E956D480B3CAF17802B0SG2PR02MB1312apcp_
+Content-Type: text/html; charset="utf-8"
+Content-ID: <BE1555B77F4E0543B05E96440977E8B9@apcprd02.prod.outlook.com>
+Content-Transfer-Encoding: base64
 
-   1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
-     3402.9 ns/ctxsw -- 199.8 %CPU
+PGh0bWw+DQo8aGVhZD4NCjxtZXRhIGh0dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIgY29udGVudD0i
+dGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjwvaGVhZD4NCjxib2R5IHRleHQ9IiMwMDAwMDAi
+IGJnY29sb3I9IiNGRkZGRkYiPg0KPHA+SGkgSW5nbyw8YnI+DQo8L3A+DQo8cD5PbiAxMS8xMy8x
+NyAxMTowOCBQTSwgSW5nbyBNb2xuYXIgd3JvdGU6PGJyPg0KPC9wPg0KPGJsb2NrcXVvdGUgdHlw
+ZT0iY2l0ZSIgY2l0ZT0ibWlkOjIwMTcxMTEzMTUwODQyLmVwZGZmeXhobHU1bnEzN3VAZ21haWwu
+Y29tIj4NCjxwcmUgd3JhcD0iIj4NCiogUXVhbiBYdSA8YSBjbGFzcz0ibW96LXR4dC1saW5rLXJm
+YzIzOTZFIiBocmVmPSJtYWlsdG86cXVhbi54dTA0QGdtYWlsLmNvbSI+Jmx0O3F1YW4ueHUwNEBn
+bWFpbC5jb20mZ3Q7PC9hPiB3cm90ZToNCg0KPC9wcmU+DQo8YmxvY2txdW90ZSB0eXBlPSJjaXRl
+Ij4NCjxwcmUgd3JhcD0iIj5Gcm9tOiBRdWFuIFh1IDxhIGNsYXNzPSJtb3otdHh0LWxpbmstcmZj
+MjM5NkUiIGhyZWY9Im1haWx0bzpxdWFuLnh1MEBnbWFpbC5jb20iPiZsdDtxdWFuLnh1MEBnbWFp
+bC5jb20mZ3Q7PC9hPg0KDQpUbyByZWR1Y2UgdGhlIGNvc3Qgb2YgcG9sbCwgd2UgaW50cm9kdWNl
+IHRocmVlIHN5c2N0bCB0byBjb250cm9sIHRoZQ0KcG9sbCB0aW1lIHdoZW4gcnVubmluZyBhcyBh
+IHZpcnR1YWwgbWFjaGluZSB3aXRoIHBhcmF2aXJ0Lg0KDQpTaWduZWQtb2ZmLWJ5OiBZYW5nIFpo
+YW5nIDxhIGNsYXNzPSJtb3otdHh0LWxpbmstcmZjMjM5NkUiIGhyZWY9Im1haWx0bzp5YW5nLnpo
+YW5nLnd6QGdtYWlsLmNvbSI+Jmx0O3lhbmcuemhhbmcud3pAZ21haWwuY29tJmd0OzwvYT4NClNp
+Z25lZC1vZmYtYnk6IFF1YW4gWHUgPGEgY2xhc3M9Im1vei10eHQtbGluay1yZmMyMzk2RSIgaHJl
+Zj0ibWFpbHRvOnF1YW4ueHUwQGdtYWlsLmNvbSI+Jmx0O3F1YW4ueHUwQGdtYWlsLmNvbSZndDs8
+L2E+DQotLS0NCiBEb2N1bWVudGF0aW9uL3N5c2N0bC9rZXJuZWwudHh0IHwgICAzNSAmIzQzOyYj
+NDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQz
+OyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0Mzsm
+IzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7DQog
+YXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMgICAgICB8ICAgIDQgJiM0MzsmIzQzOyYjNDM7JiM0
+MzsNCiBpbmNsdWRlL2xpbnV4L2tlcm5lbC5oICAgICAgICAgIHwgICAgNiAmIzQzOyYjNDM7JiM0
+MzsmIzQzOyYjNDM7JiM0MzsNCiBrZXJuZWwvc3lzY3RsLmMgICAgICAgICAgICAgICAgIHwgICAz
+NCAmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7
+JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYj
+NDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQz
+Ow0KIDQgZmlsZXMgY2hhbmdlZCwgNzkgaW5zZXJ0aW9ucygmIzQzOyksIDAgZGVsZXRpb25zKC0p
+DQoNCmRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL3N5c2N0bC9rZXJuZWwudHh0IGIvRG9jdW1l
+bnRhdGlvbi9zeXNjdGwva2VybmVsLnR4dA0KaW5kZXggNjk0OTY4Yy4uMzBjMjVmYiAxMDA2NDQN
+Ci0tLSBhL0RvY3VtZW50YXRpb24vc3lzY3RsL2tlcm5lbC50eHQNCiYjNDM7JiM0MzsmIzQzOyBi
+L0RvY3VtZW50YXRpb24vc3lzY3RsL2tlcm5lbC50eHQNCkBAIC03MTQsNiAmIzQzOzcxNCw0MSBA
+QCBrZXJuZWwgdHJpZXMgdG8gYWxsb2NhdGUgYSBudW1iZXIgc3RhcnRpbmcgZnJvbSB0aGlzIG9u
+ZS4NCiANCiA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PQ0KIA0KJiM0MztwYXJhdmlydF9wb2xsX2dyb3c6IChYODYgb25seSkNCiYj
+NDM7DQomIzQzO011bHRpcGxpZWQgdmFsdWUgdG8gaW5jcmVhc2UgdGhlIHBvbGwgdGltZS4gVGhp
+cyBpcyBleHBlY3RlZCB0byB0YWtlDQomIzQzO2VmZmVjdCBvbmx5IHdoZW4gcnVubmluZyBhcyBh
+IHZpcnR1YWwgbWFjaGluZSB3aXRoIENPTkZJR19QQVJBVklSVA0KJiM0MztlbmFibGVkLiBUaGlz
+IGNhbid0IGJyaW5nIGFueSBiZW5pZml0IG9uIGJhcmUgbWVudGFsIGV2ZW4gd2l0aA0KJiM0MztD
+T05GSUdfUEFSQVZJUlQgZW5hYmxlZC4NCiYjNDM7DQomIzQzO0J5IGRlZmF1bHQgdGhpcyB2YWx1
+ZSBpcyAyLiBQb3NzaWJsZSB2YWx1ZXMgdG8gc2V0IGFyZSBpbiByYW5nZSB7Mi4uMTZ9Lg0KJiM0
+MzsNCiYjNDM7PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT0NCiYjNDM7DQomIzQzO3BhcmF2aXJ0X3BvbGxfc2hyaW5rOiAoWDg2IG9u
+bHkpDQomIzQzOw0KJiM0MztEaXZpZGVkIHZhbHVlIHRvIHJlZHVjZSB0aGUgcG9sbCB0aW1lLiBU
+aGlzIGlzIGV4cGVjdGVkIHRvIHRha2UgZWZmZWN0DQomIzQzO29ubHkgd2hlbiBydW5uaW5nIGFz
+IGEgdmlydHVhbCBtYWNoaW5lIHdpdGggQ09ORklHX1BBUkFWSVJUIGVuYWJsZWQuDQomIzQzO1Ro
+aXMgY2FuJ3QgYnJpbmcgYW55IGJlbmlmaXQgb24gYmFyZSBtZW50YWwgZXZlbiB3aXRoIENPTkZJ
+R19QQVJBVklSVA0KJiM0MztlbmFibGVkLg0KJiM0MzsNCiYjNDM7QnkgZGVmYXVsdCB0aGlzIHZh
+bHVlIGlzIDIuIFBvc3NpYmxlIHZhbHVlcyB0byBzZXQgYXJlIGluIHJhbmdlIHsyLi4xNn0uDQom
+IzQzOw0KJiM0Mzs9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PQ0KJiM0MzsNCiYjNDM7cGFyYXZpcnRfcG9sbF90aHJlc2hvbGRfbnM6
+IChYODYgb25seSkNCiYjNDM7DQomIzQzO0NvbnRyb2xzIHRoZSBtYXhpbXVtIHBvbGwgdGltZSBi
+ZWZvcmUgZW50ZXJpbmcgcmVhbCBpZGxlIHBhdGguIFRoaXMgaXMNCiYjNDM7ZXhwZWN0ZWQgdG8g
+dGFrZSBlZmZlY3Qgb25seSB3aGVuIHJ1bm5pbmcgYXMgYSB2aXJ0dWFsIG1hY2hpbmUgd2l0aA0K
+JiM0MztDT05GSUdfUEFSQVZJUlQgZW5hYmxlZC4gVGhpcyBjYW4ndCBicmluZyBhbnkgYmVuaWZp
+dCBvbiBiYXJlIG1lbnRhbA0KJiM0MztldmVuIHdpdGggQ09ORklHX1BBUkFWSVJUIGVuYWJsZWQu
+DQomIzQzOw0KJiM0MztCeSBkZWZhdWx0LCB0aGlzIHZhbHVlIGlzIDAgbWVhbnMgbm90IHRvIHBv
+bGwuIFBvc3NpYmxlIHZhbHVlcyB0byBzZXQNCiYjNDM7YXJlIGluIHJhbmdlIHswLi41MDAwMDB9
+LiBDaGFuZ2UgdGhlIHZhbHVlIHRvIG5vbi16ZXJvIGlmIHJ1bm5pbmcNCiYjNDM7bGF0ZW5jeS1i
+b3VuZCB3b3JrbG9hZHMgaW4gYSB2aXJ0dWFsIG1hY2hpbmUuDQo8L3ByZT4NCjwvYmxvY2txdW90
+ZT4NCjxwcmUgd3JhcD0iIj4NCkkgYWJzb2x1dGVseSBoYXRlIGl0IGhvdyB0aGlzIGh5YnJpZCBp
+ZGxlIGxvb3AgcG9sbGluZyBtZWNoYW5pc20gaXMgbm90IA0Kc2VsZi10dW5pbmchDQoNClBsZWFz
+ZSBtYWtlIGl0IGFsbCB3b3JrIGZpbmUgYnkgZGVmYXVsdCwgYW5kIGF1dG9tYXRpY2FsbHkgc28s
+IGluc3RlYWQgb2YgYWRkaW5nIA0KdGhyZWUgcmFuZG9tIHBhcmFtZXRlcnMuLi4NCg0KQW5kIGlm
+IGl0IGNhbm5vdCBiZSBkb25lIGF1dG9tYXRpY2FsbHkgdGhlbiB3ZSBzaG91bGQgcmF0aGVyIG5v
+dCBkbyBpdCBhdCBhbGwuIA0KPC9wcmU+DQo8L2Jsb2NrcXVvdGU+DQo8YnI+DQpPbmUgb2YgdGhl
+IG1haW4gYmVuZWZpdCBvZiB0aGlzIHBhdGNoc2V0IGlzIHRoZSBjdXN0b21lcnMgd2hvIHVzZSB0
+aGUgVk0gY2FuIHR1bmUgdGhlIG1lY2hhbmlzbSBieSB0aGVtc2VsZi4gSSByZW1lbWJlciBBbmRp
+IGFsc28gaGFzIHRoZSBjb25jZXJuIGFib3V0IHR3byBtdWNoIHJhbmRvbSBwYXJhbWV0ZXJzLiBJ
+biBhZGRpdGlvbiw8c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IDE3
+cHg7Ij4gdGhlcmUgaXMgYSAmcXVvdDtBZGFwdGl2ZQ0KIGhhbHQtcG9sbGluZyZxdW90OyB3aGlj
+aCBhcmUgbWVyZ2VkIHRvIHVwc3RyZWFtIG1vcmU8L3NwYW4+PHNwYW4gc3R5bGU9ImZvbnQtZmFt
+aWx5OiBBcmlhbDsgZm9udC1zaXplOiAxN3B4OyI+IHRoYW4gdHdvIHllYXJzIGFnbyBpbiBrdm0g
+d2hpY2ggaXMgc2VsZi10dW5pbmcsPC9zcGFuPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseToNCiAg
+ICAgIEFyaWFsOyBmb250LXNpemU6IDE3cHg7Ij48L3NwYW4+PHNwYW4gc3R5bGU9ImZvbnQtZmFt
+aWx5OiBBcmlhbDsNCiAgICAgIGZvbnQtc2l6ZTogMTdweDsiPjwvc3Bhbj4NCjxhIGhyZWY9Imh0
+dHBzOi8vbGttbC5vcmcvbGttbC8yMDE1LzkvMy82MTUiIHN0eWxlPSJmb250LWZhbWlseToNCiAg
+ICAgIEFyaWFsOyBmb250LXNpemU6IDE3cHg7Ij4NCmh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE1
+LzkvMy82MTUgPC9hPjxicj4NCjxicj4NClJlZ2FyZHMsPGJyPg0KV2FucGVuZyBMaSA8YnI+DQo8
+L2JvZHk+DQo8L2h0bWw+DQo=
 
-   2. w/ patch and disable kvm dynamic poll (halt_poll_ns=0):
-      halt_poll_threshold=10000  -- 1151.4 ns/ctxsw -- 200.1 %CPU
-      halt_poll_threshold=20000  -- 1149.7 ns/ctxsw -- 199.9 %CPU
-      halt_poll_threshold=30000  -- 1151.0 ns/ctxsw -- 199.9 %CPU
-      halt_poll_threshold=40000  -- 1155.4 ns/ctxsw -- 199.3 %CPU
-      halt_poll_threshold=50000  -- 1161.0 ns/ctxsw -- 200.0 %CPU
-      halt_poll_threshold=100000 -- 1163.8 ns/ctxsw -- 200.4 %CPU
-      halt_poll_threshold=300000 -- 1159.4 ns/ctxsw -- 201.9 %CPU
-      halt_poll_threshold=500000 -- 1163.5 ns/ctxsw -- 205.5 %CPU
+--_000_SG2PR02MB131219745E956D480B3CAF17802B0SG2PR02MB1312apcp_--
 
-   3. w/ kvm dynamic poll:
-      halt_poll_ns=10000  -- 3470.5 ns/ctxsw -- 199.6 %CPU
-      halt_poll_ns=20000  -- 3273.0 ns/ctxsw -- 199.7 %CPU
-      halt_poll_ns=30000  -- 3628.7 ns/ctxsw -- 199.4 %CPU
-      halt_poll_ns=40000  -- 2280.6 ns/ctxsw -- 199.5 %CPU
-      halt_poll_ns=50000  -- 3200.3 ns/ctxsw -- 199.7 %CPU
-      halt_poll_ns=100000 -- 2186.6 ns/ctxsw -- 199.6 %CPU
-      halt_poll_ns=300000 -- 3178.7 ns/ctxsw -- 199.6 %CPU
-      halt_poll_ns=500000 -- 3505.4 ns/ctxsw -- 199.7 %CPU
+--===============6139490442024711331==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-   4. w/patch and w/ kvm dynamic poll:
-
-      halt_poll_ns=10000 & halt_poll_threshold=10000  -- 1155.5 ns/ctxsw -- 199.8 %CPU
-      halt_poll_ns=10000 & halt_poll_threshold=20000  -- 1165.6 ns/ctxsw -- 199.8 %CPU
-      halt_poll_ns=10000 & halt_poll_threshold=30000  -- 1161.1 ns/ctxsw -- 200.0 %CPU
-
-      halt_poll_ns=20000 & halt_poll_threshold=10000  -- 1158.1 ns/ctxsw -- 199.8 %CPU
-      halt_poll_ns=20000 & halt_poll_threshold=20000  -- 1161.0 ns/ctxsw -- 199.7 %CPU
-      halt_poll_ns=20000 & halt_poll_threshold=30000  -- 1163.7 ns/ctxsw -- 199.9 %CPU
-
-      halt_poll_ns=30000 & halt_poll_threshold=10000  -- 1158.7 ns/ctxsw -- 199.7 %CPU
-      halt_poll_ns=30000 & halt_poll_threshold=20000  -- 1153.8 ns/ctxsw -- 199.8 %CPU
-      halt_poll_ns=30000 & halt_poll_threshold=30000  -- 1155.1 ns/ctxsw -- 199.8 %CPU
-
-   5. idle=poll
-      3957.57 ns/ctxsw --  999.4%CPU
-
-Here is the data we get when running benchmark netperf:
-
-   1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
-      29031.6 bit/s -- 76.1 %CPU
-
-   2. w/ patch and disable kvm dynamic poll (halt_poll_ns=0):
-      halt_poll_threshold=10000  -- 29021.7 bit/s -- 105.1 %CPU
-      halt_poll_threshold=20000  -- 33463.5 bit/s -- 128.2 %CPU
-      halt_poll_threshold=30000  -- 34436.4 bit/s -- 127.8 %CPU
-      halt_poll_threshold=40000  -- 35563.3 bit/s -- 129.6 %CPU
-      halt_poll_threshold=50000  -- 35787.7 bit/s -- 129.4 %CPU
-      halt_poll_threshold=100000 -- 35477.7 bit/s -- 130.0 %CPU
-      halt_poll_threshold=300000 -- 35730.0 bit/s -- 132.4 %CPU
-      halt_poll_threshold=500000 -- 34978.4 bit/s -- 134.2 %CPU
-
-   3. w/ kvm dynamic poll:
-      halt_poll_ns=10000  -- 28849.8 bit/s -- 75.2  %CPU
-      halt_poll_ns=20000  -- 29004.8 bit/s -- 76.1  %CPU
-      halt_poll_ns=30000  -- 35662.0 bit/s -- 199.7 %CPU
-      halt_poll_ns=40000  -- 35874.8 bit/s -- 187.5 %CPU
-      halt_poll_ns=50000  -- 35603.1 bit/s -- 199.8 %CPU
-      halt_poll_ns=100000 -- 35588.8 bit/s -- 200.0 %CPU
-      halt_poll_ns=300000 -- 35912.4 bit/s -- 200.0 %CPU
-      halt_poll_ns=500000 -- 35735.6 bit/s -- 200.0 %CPU
-
-   4. w/patch and w/ kvm dynamic poll:
-
-      halt_poll_ns=10000 & halt_poll_threshold=10000  -- 29427.9 bit/s -- 107.8 %CPU
-      halt_poll_ns=10000 & halt_poll_threshold=20000  -- 33048.4 bit/s -- 128.1 %CPU
-      halt_poll_ns=10000 & halt_poll_threshold=30000  -- 35129.8 bit/s -- 129.1 %CPU
-
-      halt_poll_ns=20000 & halt_poll_threshold=10000  -- 31091.3 bit/s -- 130.3 %CPU
-      halt_poll_ns=20000 & halt_poll_threshold=20000  -- 33587.9 bit/s -- 128.9 %CPU
-      halt_poll_ns=20000 & halt_poll_threshold=30000  -- 35532.9 bit/s -- 129.1 %CPU
-
-      halt_poll_ns=30000 & halt_poll_threshold=10000  -- 35633.1 bit/s -- 199.4 %CPU
-      halt_poll_ns=30000 & halt_poll_threshold=20000  -- 42225.3 bit/s -- 198.7 %CPU
-      halt_poll_ns=30000 & halt_poll_threshold=30000  -- 42210.7 bit/s -- 200.3 %CPU
-
-   5. idle=poll
-      37081.7 bit/s -- 998.1 %CPU
-
----
-V2 -> V3:
-- move poll update into arch/. in v3, poll update is based on duration of the
-  last idle loop which is from tick_nohz_idle_enter to tick_nohz_idle_exit,
-  and try our best not to interfere with scheduler/idle code. (This seems
-  not to follow Peter's v2 comment, however we had a f2f discussion about it
-  in Prague.)
-- enhance patch desciption.
-- enhance Documentation and sysctls.
-- test with IRQ_TIMINGS related code, which seems not working so far.
-
-V1 -> V2:
-- integrate the smart halt poll into paravirt code
-- use idle_stamp instead of check_poll
-- since it hard to get whether vcpu is the only task in pcpu, so we
-  don't consider it in this series.(May improve it in future)
-
----
-Quan Xu (4):
-  x86/paravirt: Add pv_idle_ops to paravirt ops
-  KVM guest: register kvm_idle_poll for pv_idle_ops
-  Documentation: Add three sysctls for smart idle poll
-  tick: get duration of the last idle loop
-
-Yang Zhang (2):
-  sched/idle: Add a generic poll before enter real idle path
-  KVM guest: introduce smart idle poll algorithm
-
- Documentation/sysctl/kernel.txt       |   35 ++++++++++++++++
- arch/x86/include/asm/paravirt.h       |    5 ++
- arch/x86/include/asm/paravirt_types.h |    6 +++
- arch/x86/kernel/kvm.c                 |   73 +++++++++++++++++++++++++++++++++
- arch/x86/kernel/paravirt.c            |   10 +++++
- arch/x86/kernel/process.c             |    7 +++
- include/linux/kernel.h                |    6 +++
- include/linux/tick.h                  |    2 +
- kernel/sched/idle.c                   |    2 +
- kernel/sysctl.c                       |   34 +++++++++++++++
- kernel/time/tick-sched.c              |   11 +++++
- kernel/time/tick-sched.h              |    3 +
- 12 files changed, 194 insertions(+), 0 deletions(-)
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6139490442024711331==--
