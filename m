@@ -1,11 +1,13 @@
 From: Quan Xu <quan.xu03@gmail.com>
-Subject: [PATCH RFC v3 0/6] x86/idle: add halt poll support
-Date: Mon, 13 Nov 2017 18:05:59 +0800
-Message-ID: <1510567565-5118-1-git-send-email-quan.xu0__46285.3455720053$1511414704$gmane$org@gmail.com>
+Subject: [PATCH RFC v3 2/6] KVM guest: register kvm_idle_poll for pv_idle_ops
+Date: Mon, 13 Nov 2017 18:06:01 +0800
+Message-ID: <1510567565-5118-3-git-send-email-quan.xu0__38378.5718623132$1511414721$gmane$org@gmail.com>
+References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,143 +18,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>
+Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Quan Xu <quan.xu0@gmail.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Yang Zhang <yang.zhang.wz@gmail.com>
-
-Some latency-intensive workload have seen obviously performance
-drop when running inside VM. The main reason is that the overhead
-is amplified when running inside VM. The most cost I have seen is
-inside idle path.
-
-This patch introduces a new mechanism to poll for a while before
-entering idle state. If schedule is needed during poll, then we
-don't need to goes through the heavy overhead path.
-
-Here is the data we get when running benchmark contextswitch to measure
-the latency(lower is better):
-
-   1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
-     3402.9 ns/ctxsw -- 199.8 %CPU
-
-   2. w/ patch and disable kvm dynamic poll (halt_poll_ns=0):
-      halt_poll_threshold=10000  -- 1151.4 ns/ctxsw -- 200.1 %CPU
-      halt_poll_threshold=20000  -- 1149.7 ns/ctxsw -- 199.9 %CPU
-      halt_poll_threshold=30000  -- 1151.0 ns/ctxsw -- 199.9 %CPU
-      halt_poll_threshold=40000  -- 1155.4 ns/ctxsw -- 199.3 %CPU
-      halt_poll_threshold=50000  -- 1161.0 ns/ctxsw -- 200.0 %CPU
-      halt_poll_threshold=100000 -- 1163.8 ns/ctxsw -- 200.4 %CPU
-      halt_poll_threshold=300000 -- 1159.4 ns/ctxsw -- 201.9 %CPU
-      halt_poll_threshold=500000 -- 1163.5 ns/ctxsw -- 205.5 %CPU
-
-   3. w/ kvm dynamic poll:
-      halt_poll_ns=10000  -- 3470.5 ns/ctxsw -- 199.6 %CPU
-      halt_poll_ns=20000  -- 3273.0 ns/ctxsw -- 199.7 %CPU
-      halt_poll_ns=30000  -- 3628.7 ns/ctxsw -- 199.4 %CPU
-      halt_poll_ns=40000  -- 2280.6 ns/ctxsw -- 199.5 %CPU
-      halt_poll_ns=50000  -- 3200.3 ns/ctxsw -- 199.7 %CPU
-      halt_poll_ns=100000 -- 2186.6 ns/ctxsw -- 199.6 %CPU
-      halt_poll_ns=300000 -- 3178.7 ns/ctxsw -- 199.6 %CPU
-      halt_poll_ns=500000 -- 3505.4 ns/ctxsw -- 199.7 %CPU
-
-   4. w/patch and w/ kvm dynamic poll:
-
-      halt_poll_ns=10000 & halt_poll_threshold=10000  -- 1155.5 ns/ctxsw -- 199.8 %CPU
-      halt_poll_ns=10000 & halt_poll_threshold=20000  -- 1165.6 ns/ctxsw -- 199.8 %CPU
-      halt_poll_ns=10000 & halt_poll_threshold=30000  -- 1161.1 ns/ctxsw -- 200.0 %CPU
-
-      halt_poll_ns=20000 & halt_poll_threshold=10000  -- 1158.1 ns/ctxsw -- 199.8 %CPU
-      halt_poll_ns=20000 & halt_poll_threshold=20000  -- 1161.0 ns/ctxsw -- 199.7 %CPU
-      halt_poll_ns=20000 & halt_poll_threshold=30000  -- 1163.7 ns/ctxsw -- 199.9 %CPU
-
-      halt_poll_ns=30000 & halt_poll_threshold=10000  -- 1158.7 ns/ctxsw -- 199.7 %CPU
-      halt_poll_ns=30000 & halt_poll_threshold=20000  -- 1153.8 ns/ctxsw -- 199.8 %CPU
-      halt_poll_ns=30000 & halt_poll_threshold=30000  -- 1155.1 ns/ctxsw -- 199.8 %CPU
-
-   5. idle=poll
-      3957.57 ns/ctxsw --  999.4%CPU
-
-Here is the data we get when running benchmark netperf:
-
-   1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
-      29031.6 bit/s -- 76.1 %CPU
-
-   2. w/ patch and disable kvm dynamic poll (halt_poll_ns=0):
-      halt_poll_threshold=10000  -- 29021.7 bit/s -- 105.1 %CPU
-      halt_poll_threshold=20000  -- 33463.5 bit/s -- 128.2 %CPU
-      halt_poll_threshold=30000  -- 34436.4 bit/s -- 127.8 %CPU
-      halt_poll_threshold=40000  -- 35563.3 bit/s -- 129.6 %CPU
-      halt_poll_threshold=50000  -- 35787.7 bit/s -- 129.4 %CPU
-      halt_poll_threshold=100000 -- 35477.7 bit/s -- 130.0 %CPU
-      halt_poll_threshold=300000 -- 35730.0 bit/s -- 132.4 %CPU
-      halt_poll_threshold=500000 -- 34978.4 bit/s -- 134.2 %CPU
-
-   3. w/ kvm dynamic poll:
-      halt_poll_ns=10000  -- 28849.8 bit/s -- 75.2  %CPU
-      halt_poll_ns=20000  -- 29004.8 bit/s -- 76.1  %CPU
-      halt_poll_ns=30000  -- 35662.0 bit/s -- 199.7 %CPU
-      halt_poll_ns=40000  -- 35874.8 bit/s -- 187.5 %CPU
-      halt_poll_ns=50000  -- 35603.1 bit/s -- 199.8 %CPU
-      halt_poll_ns=100000 -- 35588.8 bit/s -- 200.0 %CPU
-      halt_poll_ns=300000 -- 35912.4 bit/s -- 200.0 %CPU
-      halt_poll_ns=500000 -- 35735.6 bit/s -- 200.0 %CPU
-
-   4. w/patch and w/ kvm dynamic poll:
-
-      halt_poll_ns=10000 & halt_poll_threshold=10000  -- 29427.9 bit/s -- 107.8 %CPU
-      halt_poll_ns=10000 & halt_poll_threshold=20000  -- 33048.4 bit/s -- 128.1 %CPU
-      halt_poll_ns=10000 & halt_poll_threshold=30000  -- 35129.8 bit/s -- 129.1 %CPU
-
-      halt_poll_ns=20000 & halt_poll_threshold=10000  -- 31091.3 bit/s -- 130.3 %CPU
-      halt_poll_ns=20000 & halt_poll_threshold=20000  -- 33587.9 bit/s -- 128.9 %CPU
-      halt_poll_ns=20000 & halt_poll_threshold=30000  -- 35532.9 bit/s -- 129.1 %CPU
-
-      halt_poll_ns=30000 & halt_poll_threshold=10000  -- 35633.1 bit/s -- 199.4 %CPU
-      halt_poll_ns=30000 & halt_poll_threshold=20000  -- 42225.3 bit/s -- 198.7 %CPU
-      halt_poll_ns=30000 & halt_poll_threshold=30000  -- 42210.7 bit/s -- 200.3 %CPU
-
-   5. idle=poll
-      37081.7 bit/s -- 998.1 %CPU
-
----
-V2 -> V3:
-- move poll update into arch/. in v3, poll update is based on duration of the
-  last idle loop which is from tick_nohz_idle_enter to tick_nohz_idle_exit,
-  and try our best not to interfere with scheduler/idle code. (This seems
-  not to follow Peter's v2 comment, however we had a f2f discussion about it
-  in Prague.)
-- enhance patch desciption.
-- enhance Documentation and sysctls.
-- test with IRQ_TIMINGS related code, which seems not working so far.
-
-V1 -> V2:
-- integrate the smart halt poll into paravirt code
-- use idle_stamp instead of check_poll
-- since it hard to get whether vcpu is the only task in pcpu, so we
-  don't consider it in this series.(May improve it in future)
-
----
-Quan Xu (4):
-  x86/paravirt: Add pv_idle_ops to paravirt ops
-  KVM guest: register kvm_idle_poll for pv_idle_ops
-  Documentation: Add three sysctls for smart idle poll
-  tick: get duration of the last idle loop
-
-Yang Zhang (2):
-  sched/idle: Add a generic poll before enter real idle path
-  KVM guest: introduce smart idle poll algorithm
-
- Documentation/sysctl/kernel.txt       |   35 ++++++++++++++++
- arch/x86/include/asm/paravirt.h       |    5 ++
- arch/x86/include/asm/paravirt_types.h |    6 +++
- arch/x86/kernel/kvm.c                 |   73 +++++++++++++++++++++++++++++++++
- arch/x86/kernel/paravirt.c            |   10 +++++
- arch/x86/kernel/process.c             |    7 +++
- include/linux/kernel.h                |    6 +++
- include/linux/tick.h                  |    2 +
- kernel/sched/idle.c                   |    2 +
- kernel/sysctl.c                       |   34 +++++++++++++++
- kernel/time/tick-sched.c              |   11 +++++
- kernel/time/tick-sched.h              |    3 +
- 12 files changed, 194 insertions(+), 0 deletions(-)
+RnJvbTogUXVhbiBYdSA8cXVhbi54dTBAZ21haWwuY29tPgoKQWx0aG91Z2ggc21hcnQgaWRsZSBw
+b2xsIGhhcyBub3RoaW5nIHRvIGRvIHdpdGggcGFyYXZpcnQsIGl0IGNhbgpub3QgYnJpbmcgYW55
+IGJlbmlmaXQgdG8gbmF0aXZlLiBTbyB3ZSBvbmx5IGVuYWJsZSBpdCB3aGVuIExpbnV4CnJ1bnMg
+YXMgYSBLVk0gZ3Vlc3QoIGFsc28gaXQgY2FuIGV4dGVuZCB0byBvdGhlciBoeXBlcnZpc29yIGxp
+a2UKWGVuLCBIeXBlclYgYW5kIFZNd2FyZSkuCgpJbnRyb2R1Y2UgcGVyLUNQVSB2YXJpYWJsZSBw
+b2xsX2R1cmF0aW9uX25zIHRvIGNvbnRyb2wgdGhlIG1heApwb2xsIHRpbWUuCgpTaWduZWQtb2Zm
+LWJ5OiBZYW5nIFpoYW5nIDx5YW5nLnpoYW5nLnd6QGdtYWlsLmNvbT4KU2lnbmVkLW9mZi1ieTog
+UXVhbiBYdSA8cXVhbi54dTBAZ21haWwuY29tPgpDYzogUGFvbG8gQm9uemluaSA8cGJvbnppbmlA
+cmVkaGF0LmNvbT4KQ2M6ICJSYWRpbSBLcsSNbcOhxZkiIDxya3JjbWFyQHJlZGhhdC5jb20+CkNj
+OiBUaG9tYXMgR2xlaXhuZXIgPHRnbHhAbGludXRyb25peC5kZT4KQ2M6IEluZ28gTW9sbmFyIDxt
+aW5nb0ByZWRoYXQuY29tPgpDYzogIkguIFBldGVyIEFudmluIiA8aHBhQHp5dG9yLmNvbT4KQ2M6
+IHg4NkBrZXJuZWwub3JnCkNjOiBrdm1Admdlci5rZXJuZWwub3JnCkNjOiBsaW51eC1rZXJuZWxA
+dmdlci5rZXJuZWwub3JnCi0tLQogYXJjaC94ODYva2VybmVsL2t2bS5jIHwgICAyNiArKysrKysr
+KysrKysrKysrKysrKysrKysrKwogMSBmaWxlcyBjaGFuZ2VkLCAyNiBpbnNlcnRpb25zKCspLCAw
+IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2FyY2gveDg2L2tlcm5lbC9rdm0uYyBiL2FyY2gv
+eDg2L2tlcm5lbC9rdm0uYwppbmRleCA4YmI5NTk0Li4yYTZlNDAyIDEwMDY0NAotLS0gYS9hcmNo
+L3g4Ni9rZXJuZWwva3ZtLmMKKysrIGIvYXJjaC94ODYva2VybmVsL2t2bS5jCkBAIC03NSw2ICs3
+NSw3IEBAIHN0YXRpYyBpbnQgcGFyc2Vfbm9fa3ZtY2xvY2tfdnN5c2NhbGwoY2hhciAqYXJnKQog
+CiBlYXJseV9wYXJhbSgibm8ta3ZtY2xvY2stdnN5c2NhbGwiLCBwYXJzZV9ub19rdm1jbG9ja192
+c3lzY2FsbCk7CiAKK3N0YXRpYyBERUZJTkVfUEVSX0NQVSh1bnNpZ25lZCBsb25nLCBwb2xsX2R1
+cmF0aW9uX25zKTsKIHN0YXRpYyBERUZJTkVfUEVSX0NQVShzdHJ1Y3Qga3ZtX3ZjcHVfcHZfYXBm
+X2RhdGEsIGFwZl9yZWFzb24pIF9fYWxpZ25lZCg2NCk7CiBzdGF0aWMgREVGSU5FX1BFUl9DUFUo
+c3RydWN0IGt2bV9zdGVhbF90aW1lLCBzdGVhbF90aW1lKSBfX2FsaWduZWQoNjQpOwogc3RhdGlj
+IGludCBoYXNfc3RlYWxfY2xvY2sgPSAwOwpAQCAtMzY0LDYgKzM2NSwyOSBAQCBzdGF0aWMgdm9p
+ZCBrdm1fZ3Vlc3RfY3B1X2luaXQodm9pZCkKIAkJa3ZtX3JlZ2lzdGVyX3N0ZWFsX3RpbWUoKTsK
+IH0KIAorc3RhdGljIHZvaWQga3ZtX2lkbGVfcG9sbCh2b2lkKQoreworCXVuc2lnbmVkIGxvbmcg
+cG9sbF9kdXJhdGlvbiA9IHRoaXNfY3B1X3JlYWQocG9sbF9kdXJhdGlvbl9ucyk7CisJa3RpbWVf
+dCBzdGFydCwgY3VyLCBzdG9wOworCisJc3RhcnQgPSBjdXIgPSBrdGltZV9nZXQoKTsKKwlzdG9w
+ID0ga3RpbWVfYWRkX25zKGt0aW1lX2dldCgpLCBwb2xsX2R1cmF0aW9uKTsKKworCWRvIHsKKwkJ
+aWYgKG5lZWRfcmVzY2hlZCgpKQorCQkJYnJlYWs7CisJCWN1ciA9IGt0aW1lX2dldCgpOworCX0g
+d2hpbGUgKGt0aW1lX2JlZm9yZShjdXIsIHN0b3ApKTsKK30KKworc3RhdGljIHZvaWQga3ZtX2d1
+ZXN0X2lkbGVfaW5pdCh2b2lkKQoreworCWlmICgha3ZtX3BhcmFfYXZhaWxhYmxlKCkpCisJCXJl
+dHVybjsKKworCXB2X2lkbGVfb3BzLnBvbGwgPSBrdm1faWRsZV9wb2xsOworfQorCiBzdGF0aWMg
+dm9pZCBrdm1fcHZfZGlzYWJsZV9hcGYodm9pZCkKIHsKIAlpZiAoIV9fdGhpc19jcHVfcmVhZChh
+cGZfcmVhc29uLmVuYWJsZWQpKQpAQCAtNDk5LDYgKzUyMyw4IEBAIHZvaWQgX19pbml0IGt2bV9n
+dWVzdF9pbml0KHZvaWQpCiAJa3ZtX2d1ZXN0X2NwdV9pbml0KCk7CiAjZW5kaWYKIAorCWt2bV9n
+dWVzdF9pZGxlX2luaXQoKTsKKwogCS8qCiAJICogSGFyZCBsb2NrdXAgZGV0ZWN0aW9uIGlzIGVu
+YWJsZWQgYnkgZGVmYXVsdC4gRGlzYWJsZSBpdCwgYXMgZ3Vlc3RzCiAJICogY2FuIGdldCBmYWxz
+ZSBwb3NpdGl2ZXMgdG9vIGVhc2lseSwgZm9yIGV4YW1wbGUgaWYgdGhlIGhvc3QgaXMKLS0gCjEu
+Ny4xCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
