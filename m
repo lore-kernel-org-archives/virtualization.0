@@ -1,15 +1,14 @@
-From: Wanpeng Li <wanpeng.li@hotmail.com>
-Subject: Re: [PATCH RFC v3 4/6] Documentation: Add three sysctls for smart
-	idle poll
-Date: Mon, 13 Nov 2017 21:44:28 +0000
-Message-ID: <SG2PR02MB131219745E956D480B3CAF17802B0@SG2PR02MB1312.apcprd02.prod.outlook.com>
-References: <1510570064-6178-1-git-send-email-quan.xu0@gmail.com>
-	<20171113150842.epdffyxhlu5nq37u@gmail.com>
+From: lepton <ytht.net@gmail.com>
+Subject: Re: [PATCH] drm/virtio: add create_handle support.
+Date: Mon, 13 Nov 2017 14:19:29 -0800
+Message-ID: <CALqoU4y=w8m5g_vCHTRmiBYg1g8W1xcJ5qih2pj+HQeQ2tNo2Q__38466.3654295311$1511414801$gmane$org@mail.gmail.com>
+References: <20171108125659.oyjzylx26zmz7753@phenom.ffwll.local>
+	<20171108184209.46211-1-ytht.net@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6139490442024711331=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171113150842.epdffyxhlu5nq37u@gmail.com>
-Content-Language: en-US
+In-Reply-To: <20171108184209.46211-1-ytht.net@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,171 +18,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@kernel.org>, Quan Xu <quan.xu04@gmail.com>
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Quan Xu <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+To: airlied@linux.ie, kraxel@redhat.com
+Cc: Lepton Wu <ytht.net@gmail.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============6139490442024711331==
-Content-Language: en-US
-Content-Type: multipart/alternative;
-	boundary="_000_SG2PR02MB131219745E956D480B3CAF17802B0SG2PR02MB1312apcp_"
+Ping.
 
---_000_SG2PR02MB131219745E956D480B3CAF17802B0SG2PR02MB1312apcp_
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-
-SGkgSW5nbywNCg0KT24gMTEvMTMvMTcgMTE6MDggUE0sIEluZ28gTW9sbmFyIHdyb3RlOg0KDQoN
-CiogUXVhbiBYdSA8cXVhbi54dTA0QGdtYWlsLmNvbT48bWFpbHRvOnF1YW4ueHUwNEBnbWFpbC5j
-b20+IHdyb3RlOg0KDQoNCg0KRnJvbTogUXVhbiBYdSA8cXVhbi54dTBAZ21haWwuY29tPjxtYWls
-dG86cXVhbi54dTBAZ21haWwuY29tPg0KDQpUbyByZWR1Y2UgdGhlIGNvc3Qgb2YgcG9sbCwgd2Ug
-aW50cm9kdWNlIHRocmVlIHN5c2N0bCB0byBjb250cm9sIHRoZQ0KcG9sbCB0aW1lIHdoZW4gcnVu
-bmluZyBhcyBhIHZpcnR1YWwgbWFjaGluZSB3aXRoIHBhcmF2aXJ0Lg0KDQpTaWduZWQtb2ZmLWJ5
-OiBZYW5nIFpoYW5nIDx5YW5nLnpoYW5nLnd6QGdtYWlsLmNvbT48bWFpbHRvOnlhbmcuemhhbmcu
-d3pAZ21haWwuY29tPg0KU2lnbmVkLW9mZi1ieTogUXVhbiBYdSA8cXVhbi54dTBAZ21haWwuY29t
-PjxtYWlsdG86cXVhbi54dTBAZ21haWwuY29tPg0KLS0tDQogRG9jdW1lbnRhdGlvbi9zeXNjdGwv
-a2VybmVsLnR4dCB8ICAgMzUgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysNCiBh
-cmNoL3g4Ni9rZXJuZWwvcGFyYXZpcnQuYyAgICAgIHwgICAgNCArKysrDQogaW5jbHVkZS9saW51
-eC9rZXJuZWwuaCAgICAgICAgICB8ICAgIDYgKysrKysrDQoga2VybmVsL3N5c2N0bC5jICAgICAg
-ICAgICAgICAgICB8ICAgMzQgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKw0KIDQg
-ZmlsZXMgY2hhbmdlZCwgNzkgaW5zZXJ0aW9ucygrKSwgMCBkZWxldGlvbnMoLSkNCg0KZGlmZiAt
-LWdpdCBhL0RvY3VtZW50YXRpb24vc3lzY3RsL2tlcm5lbC50eHQgYi9Eb2N1bWVudGF0aW9uL3N5
-c2N0bC9rZXJuZWwudHh0DQppbmRleCA2OTQ5NjhjLi4zMGMyNWZiIDEwMDY0NA0KLS0tIGEvRG9j
-dW1lbnRhdGlvbi9zeXNjdGwva2VybmVsLnR4dA0KKysrIGIvRG9jdW1lbnRhdGlvbi9zeXNjdGwv
-a2VybmVsLnR4dA0KQEAgLTcxNCw2ICs3MTQsNDEgQEAga2VybmVsIHRyaWVzIHRvIGFsbG9jYXRl
-IGEgbnVtYmVyIHN0YXJ0aW5nIGZyb20gdGhpcyBvbmUuDQoNCiA9PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KDQorcGFyYXZpcnRf
-cG9sbF9ncm93OiAoWDg2IG9ubHkpDQorDQorTXVsdGlwbGllZCB2YWx1ZSB0byBpbmNyZWFzZSB0
-aGUgcG9sbCB0aW1lLiBUaGlzIGlzIGV4cGVjdGVkIHRvIHRha2UNCitlZmZlY3Qgb25seSB3aGVu
-IHJ1bm5pbmcgYXMgYSB2aXJ0dWFsIG1hY2hpbmUgd2l0aCBDT05GSUdfUEFSQVZJUlQNCitlbmFi
-bGVkLiBUaGlzIGNhbid0IGJyaW5nIGFueSBiZW5pZml0IG9uIGJhcmUgbWVudGFsIGV2ZW4gd2l0
-aA0KK0NPTkZJR19QQVJBVklSVCBlbmFibGVkLg0KKw0KK0J5IGRlZmF1bHQgdGhpcyB2YWx1ZSBp
-cyAyLiBQb3NzaWJsZSB2YWx1ZXMgdG8gc2V0IGFyZSBpbiByYW5nZSB7Mi4uMTZ9Lg0KKw0KKz09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09DQorDQorcGFyYXZpcnRfcG9sbF9zaHJpbms6IChYODYgb25seSkNCisNCitEaXZpZGVkIHZh
-bHVlIHRvIHJlZHVjZSB0aGUgcG9sbCB0aW1lLiBUaGlzIGlzIGV4cGVjdGVkIHRvIHRha2UgZWZm
-ZWN0DQorb25seSB3aGVuIHJ1bm5pbmcgYXMgYSB2aXJ0dWFsIG1hY2hpbmUgd2l0aCBDT05GSUdf
-UEFSQVZJUlQgZW5hYmxlZC4NCitUaGlzIGNhbid0IGJyaW5nIGFueSBiZW5pZml0IG9uIGJhcmUg
-bWVudGFsIGV2ZW4gd2l0aCBDT05GSUdfUEFSQVZJUlQNCitlbmFibGVkLg0KKw0KK0J5IGRlZmF1
-bHQgdGhpcyB2YWx1ZSBpcyAyLiBQb3NzaWJsZSB2YWx1ZXMgdG8gc2V0IGFyZSBpbiByYW5nZSB7
-Mi4uMTZ9Lg0KKw0KKz09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09DQorDQorcGFyYXZpcnRfcG9sbF90aHJlc2hvbGRfbnM6IChYODYg
-b25seSkNCisNCitDb250cm9scyB0aGUgbWF4aW11bSBwb2xsIHRpbWUgYmVmb3JlIGVudGVyaW5n
-IHJlYWwgaWRsZSBwYXRoLiBUaGlzIGlzDQorZXhwZWN0ZWQgdG8gdGFrZSBlZmZlY3Qgb25seSB3
-aGVuIHJ1bm5pbmcgYXMgYSB2aXJ0dWFsIG1hY2hpbmUgd2l0aA0KK0NPTkZJR19QQVJBVklSVCBl
-bmFibGVkLiBUaGlzIGNhbid0IGJyaW5nIGFueSBiZW5pZml0IG9uIGJhcmUgbWVudGFsDQorZXZl
-biB3aXRoIENPTkZJR19QQVJBVklSVCBlbmFibGVkLg0KKw0KK0J5IGRlZmF1bHQsIHRoaXMgdmFs
-dWUgaXMgMCBtZWFucyBub3QgdG8gcG9sbC4gUG9zc2libGUgdmFsdWVzIHRvIHNldA0KK2FyZSBp
-biByYW5nZSB7MC4uNTAwMDAwfS4gQ2hhbmdlIHRoZSB2YWx1ZSB0byBub24temVybyBpZiBydW5u
-aW5nDQorbGF0ZW5jeS1ib3VuZCB3b3JrbG9hZHMgaW4gYSB2aXJ0dWFsIG1hY2hpbmUuDQoNCg0K
-DQpJIGFic29sdXRlbHkgaGF0ZSBpdCBob3cgdGhpcyBoeWJyaWQgaWRsZSBsb29wIHBvbGxpbmcg
-bWVjaGFuaXNtIGlzIG5vdA0Kc2VsZi10dW5pbmchDQoNClBsZWFzZSBtYWtlIGl0IGFsbCB3b3Jr
-IGZpbmUgYnkgZGVmYXVsdCwgYW5kIGF1dG9tYXRpY2FsbHkgc28sIGluc3RlYWQgb2YgYWRkaW5n
-DQp0aHJlZSByYW5kb20gcGFyYW1ldGVycy4uLg0KDQpBbmQgaWYgaXQgY2Fubm90IGJlIGRvbmUg
-YXV0b21hdGljYWxseSB0aGVuIHdlIHNob3VsZCByYXRoZXIgbm90IGRvIGl0IGF0IGFsbC4NCg0K
-DQpPbmUgb2YgdGhlIG1haW4gYmVuZWZpdCBvZiB0aGlzIHBhdGNoc2V0IGlzIHRoZSBjdXN0b21l
-cnMgd2hvIHVzZSB0aGUgVk0gY2FuIHR1bmUgdGhlIG1lY2hhbmlzbSBieSB0aGVtc2VsZi4gSSBy
-ZW1lbWJlciBBbmRpIGFsc28gaGFzIHRoZSBjb25jZXJuIGFib3V0IHR3byBtdWNoIHJhbmRvbSBw
-YXJhbWV0ZXJzLiBJbiBhZGRpdGlvbiwgdGhlcmUgaXMgYSAiQWRhcHRpdmUgaGFsdC1wb2xsaW5n
-IiB3aGljaCBhcmUgbWVyZ2VkIHRvIHVwc3RyZWFtIG1vcmUgdGhhbiB0d28geWVhcnMgYWdvIGlu
-IGt2bSB3aGljaCBpcyBzZWxmLXR1bmluZywgaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTUvOS8z
-LzYxNQ0KDQpSZWdhcmRzLA0KV2FucGVuZyBMaQ0K
-
---_000_SG2PR02MB131219745E956D480B3CAF17802B0SG2PR02MB1312apcp_
-Content-Type: text/html; charset="utf-8"
-Content-ID: <BE1555B77F4E0543B05E96440977E8B9@apcprd02.prod.outlook.com>
-Content-Transfer-Encoding: base64
-
-PGh0bWw+DQo8aGVhZD4NCjxtZXRhIGh0dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIgY29udGVudD0i
-dGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjwvaGVhZD4NCjxib2R5IHRleHQ9IiMwMDAwMDAi
-IGJnY29sb3I9IiNGRkZGRkYiPg0KPHA+SGkgSW5nbyw8YnI+DQo8L3A+DQo8cD5PbiAxMS8xMy8x
-NyAxMTowOCBQTSwgSW5nbyBNb2xuYXIgd3JvdGU6PGJyPg0KPC9wPg0KPGJsb2NrcXVvdGUgdHlw
-ZT0iY2l0ZSIgY2l0ZT0ibWlkOjIwMTcxMTEzMTUwODQyLmVwZGZmeXhobHU1bnEzN3VAZ21haWwu
-Y29tIj4NCjxwcmUgd3JhcD0iIj4NCiogUXVhbiBYdSA8YSBjbGFzcz0ibW96LXR4dC1saW5rLXJm
-YzIzOTZFIiBocmVmPSJtYWlsdG86cXVhbi54dTA0QGdtYWlsLmNvbSI+Jmx0O3F1YW4ueHUwNEBn
-bWFpbC5jb20mZ3Q7PC9hPiB3cm90ZToNCg0KPC9wcmU+DQo8YmxvY2txdW90ZSB0eXBlPSJjaXRl
-Ij4NCjxwcmUgd3JhcD0iIj5Gcm9tOiBRdWFuIFh1IDxhIGNsYXNzPSJtb3otdHh0LWxpbmstcmZj
-MjM5NkUiIGhyZWY9Im1haWx0bzpxdWFuLnh1MEBnbWFpbC5jb20iPiZsdDtxdWFuLnh1MEBnbWFp
-bC5jb20mZ3Q7PC9hPg0KDQpUbyByZWR1Y2UgdGhlIGNvc3Qgb2YgcG9sbCwgd2UgaW50cm9kdWNl
-IHRocmVlIHN5c2N0bCB0byBjb250cm9sIHRoZQ0KcG9sbCB0aW1lIHdoZW4gcnVubmluZyBhcyBh
-IHZpcnR1YWwgbWFjaGluZSB3aXRoIHBhcmF2aXJ0Lg0KDQpTaWduZWQtb2ZmLWJ5OiBZYW5nIFpo
-YW5nIDxhIGNsYXNzPSJtb3otdHh0LWxpbmstcmZjMjM5NkUiIGhyZWY9Im1haWx0bzp5YW5nLnpo
-YW5nLnd6QGdtYWlsLmNvbSI+Jmx0O3lhbmcuemhhbmcud3pAZ21haWwuY29tJmd0OzwvYT4NClNp
-Z25lZC1vZmYtYnk6IFF1YW4gWHUgPGEgY2xhc3M9Im1vei10eHQtbGluay1yZmMyMzk2RSIgaHJl
-Zj0ibWFpbHRvOnF1YW4ueHUwQGdtYWlsLmNvbSI+Jmx0O3F1YW4ueHUwQGdtYWlsLmNvbSZndDs8
-L2E+DQotLS0NCiBEb2N1bWVudGF0aW9uL3N5c2N0bC9rZXJuZWwudHh0IHwgICAzNSAmIzQzOyYj
-NDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQz
-OyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0Mzsm
-IzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7DQog
-YXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMgICAgICB8ICAgIDQgJiM0MzsmIzQzOyYjNDM7JiM0
-MzsNCiBpbmNsdWRlL2xpbnV4L2tlcm5lbC5oICAgICAgICAgIHwgICAgNiAmIzQzOyYjNDM7JiM0
-MzsmIzQzOyYjNDM7JiM0MzsNCiBrZXJuZWwvc3lzY3RsLmMgICAgICAgICAgICAgICAgIHwgICAz
-NCAmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7
-JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYj
-NDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQzOyYjNDM7JiM0MzsmIzQz
-Ow0KIDQgZmlsZXMgY2hhbmdlZCwgNzkgaW5zZXJ0aW9ucygmIzQzOyksIDAgZGVsZXRpb25zKC0p
-DQoNCmRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL3N5c2N0bC9rZXJuZWwudHh0IGIvRG9jdW1l
-bnRhdGlvbi9zeXNjdGwva2VybmVsLnR4dA0KaW5kZXggNjk0OTY4Yy4uMzBjMjVmYiAxMDA2NDQN
-Ci0tLSBhL0RvY3VtZW50YXRpb24vc3lzY3RsL2tlcm5lbC50eHQNCiYjNDM7JiM0MzsmIzQzOyBi
-L0RvY3VtZW50YXRpb24vc3lzY3RsL2tlcm5lbC50eHQNCkBAIC03MTQsNiAmIzQzOzcxNCw0MSBA
-QCBrZXJuZWwgdHJpZXMgdG8gYWxsb2NhdGUgYSBudW1iZXIgc3RhcnRpbmcgZnJvbSB0aGlzIG9u
-ZS4NCiANCiA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PQ0KIA0KJiM0MztwYXJhdmlydF9wb2xsX2dyb3c6IChYODYgb25seSkNCiYj
-NDM7DQomIzQzO011bHRpcGxpZWQgdmFsdWUgdG8gaW5jcmVhc2UgdGhlIHBvbGwgdGltZS4gVGhp
-cyBpcyBleHBlY3RlZCB0byB0YWtlDQomIzQzO2VmZmVjdCBvbmx5IHdoZW4gcnVubmluZyBhcyBh
-IHZpcnR1YWwgbWFjaGluZSB3aXRoIENPTkZJR19QQVJBVklSVA0KJiM0MztlbmFibGVkLiBUaGlz
-IGNhbid0IGJyaW5nIGFueSBiZW5pZml0IG9uIGJhcmUgbWVudGFsIGV2ZW4gd2l0aA0KJiM0MztD
-T05GSUdfUEFSQVZJUlQgZW5hYmxlZC4NCiYjNDM7DQomIzQzO0J5IGRlZmF1bHQgdGhpcyB2YWx1
-ZSBpcyAyLiBQb3NzaWJsZSB2YWx1ZXMgdG8gc2V0IGFyZSBpbiByYW5nZSB7Mi4uMTZ9Lg0KJiM0
-MzsNCiYjNDM7PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT0NCiYjNDM7DQomIzQzO3BhcmF2aXJ0X3BvbGxfc2hyaW5rOiAoWDg2IG9u
-bHkpDQomIzQzOw0KJiM0MztEaXZpZGVkIHZhbHVlIHRvIHJlZHVjZSB0aGUgcG9sbCB0aW1lLiBU
-aGlzIGlzIGV4cGVjdGVkIHRvIHRha2UgZWZmZWN0DQomIzQzO29ubHkgd2hlbiBydW5uaW5nIGFz
-IGEgdmlydHVhbCBtYWNoaW5lIHdpdGggQ09ORklHX1BBUkFWSVJUIGVuYWJsZWQuDQomIzQzO1Ro
-aXMgY2FuJ3QgYnJpbmcgYW55IGJlbmlmaXQgb24gYmFyZSBtZW50YWwgZXZlbiB3aXRoIENPTkZJ
-R19QQVJBVklSVA0KJiM0MztlbmFibGVkLg0KJiM0MzsNCiYjNDM7QnkgZGVmYXVsdCB0aGlzIHZh
-bHVlIGlzIDIuIFBvc3NpYmxlIHZhbHVlcyB0byBzZXQgYXJlIGluIHJhbmdlIHsyLi4xNn0uDQom
-IzQzOw0KJiM0Mzs9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PQ0KJiM0MzsNCiYjNDM7cGFyYXZpcnRfcG9sbF90aHJlc2hvbGRfbnM6
-IChYODYgb25seSkNCiYjNDM7DQomIzQzO0NvbnRyb2xzIHRoZSBtYXhpbXVtIHBvbGwgdGltZSBi
-ZWZvcmUgZW50ZXJpbmcgcmVhbCBpZGxlIHBhdGguIFRoaXMgaXMNCiYjNDM7ZXhwZWN0ZWQgdG8g
-dGFrZSBlZmZlY3Qgb25seSB3aGVuIHJ1bm5pbmcgYXMgYSB2aXJ0dWFsIG1hY2hpbmUgd2l0aA0K
-JiM0MztDT05GSUdfUEFSQVZJUlQgZW5hYmxlZC4gVGhpcyBjYW4ndCBicmluZyBhbnkgYmVuaWZp
-dCBvbiBiYXJlIG1lbnRhbA0KJiM0MztldmVuIHdpdGggQ09ORklHX1BBUkFWSVJUIGVuYWJsZWQu
-DQomIzQzOw0KJiM0MztCeSBkZWZhdWx0LCB0aGlzIHZhbHVlIGlzIDAgbWVhbnMgbm90IHRvIHBv
-bGwuIFBvc3NpYmxlIHZhbHVlcyB0byBzZXQNCiYjNDM7YXJlIGluIHJhbmdlIHswLi41MDAwMDB9
-LiBDaGFuZ2UgdGhlIHZhbHVlIHRvIG5vbi16ZXJvIGlmIHJ1bm5pbmcNCiYjNDM7bGF0ZW5jeS1i
-b3VuZCB3b3JrbG9hZHMgaW4gYSB2aXJ0dWFsIG1hY2hpbmUuDQo8L3ByZT4NCjwvYmxvY2txdW90
-ZT4NCjxwcmUgd3JhcD0iIj4NCkkgYWJzb2x1dGVseSBoYXRlIGl0IGhvdyB0aGlzIGh5YnJpZCBp
-ZGxlIGxvb3AgcG9sbGluZyBtZWNoYW5pc20gaXMgbm90IA0Kc2VsZi10dW5pbmchDQoNClBsZWFz
-ZSBtYWtlIGl0IGFsbCB3b3JrIGZpbmUgYnkgZGVmYXVsdCwgYW5kIGF1dG9tYXRpY2FsbHkgc28s
-IGluc3RlYWQgb2YgYWRkaW5nIA0KdGhyZWUgcmFuZG9tIHBhcmFtZXRlcnMuLi4NCg0KQW5kIGlm
-IGl0IGNhbm5vdCBiZSBkb25lIGF1dG9tYXRpY2FsbHkgdGhlbiB3ZSBzaG91bGQgcmF0aGVyIG5v
-dCBkbyBpdCBhdCBhbGwuIA0KPC9wcmU+DQo8L2Jsb2NrcXVvdGU+DQo8YnI+DQpPbmUgb2YgdGhl
-IG1haW4gYmVuZWZpdCBvZiB0aGlzIHBhdGNoc2V0IGlzIHRoZSBjdXN0b21lcnMgd2hvIHVzZSB0
-aGUgVk0gY2FuIHR1bmUgdGhlIG1lY2hhbmlzbSBieSB0aGVtc2VsZi4gSSByZW1lbWJlciBBbmRp
-IGFsc28gaGFzIHRoZSBjb25jZXJuIGFib3V0IHR3byBtdWNoIHJhbmRvbSBwYXJhbWV0ZXJzLiBJ
-biBhZGRpdGlvbiw8c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IDE3
-cHg7Ij4gdGhlcmUgaXMgYSAmcXVvdDtBZGFwdGl2ZQ0KIGhhbHQtcG9sbGluZyZxdW90OyB3aGlj
-aCBhcmUgbWVyZ2VkIHRvIHVwc3RyZWFtIG1vcmU8L3NwYW4+PHNwYW4gc3R5bGU9ImZvbnQtZmFt
-aWx5OiBBcmlhbDsgZm9udC1zaXplOiAxN3B4OyI+IHRoYW4gdHdvIHllYXJzIGFnbyBpbiBrdm0g
-d2hpY2ggaXMgc2VsZi10dW5pbmcsPC9zcGFuPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseToNCiAg
-ICAgIEFyaWFsOyBmb250LXNpemU6IDE3cHg7Ij48L3NwYW4+PHNwYW4gc3R5bGU9ImZvbnQtZmFt
-aWx5OiBBcmlhbDsNCiAgICAgIGZvbnQtc2l6ZTogMTdweDsiPjwvc3Bhbj4NCjxhIGhyZWY9Imh0
-dHBzOi8vbGttbC5vcmcvbGttbC8yMDE1LzkvMy82MTUiIHN0eWxlPSJmb250LWZhbWlseToNCiAg
-ICAgIEFyaWFsOyBmb250LXNpemU6IDE3cHg7Ij4NCmh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE1
-LzkvMy82MTUgPC9hPjxicj4NCjxicj4NClJlZ2FyZHMsPGJyPg0KV2FucGVuZyBMaSA8YnI+DQo8
-L2JvZHk+DQo8L2h0bWw+DQo=
-
---_000_SG2PR02MB131219745E956D480B3CAF17802B0SG2PR02MB1312apcp_--
-
---===============6139490442024711331==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6139490442024711331==--
+On Wed, Nov 8, 2017 at 10:42 AM, Lepton Wu <ytht.net@gmail.com> wrote:
+> Add create_handle support to virtio fb. Without this, screenshot tool
+> in chromium OS can't work.
+>
+> Signed-off-by: Lepton Wu <ytht.net@gmail.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_display.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+> index b6d52055a11f..274b4206ca96 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+> @@ -71,7 +71,19 @@ virtio_gpu_framebuffer_surface_dirty(struct drm_framebuffer *fb,
+>         return virtio_gpu_surface_dirty(virtio_gpu_fb, clips, num_clips);
+>  }
+>
+> +static int
+> +virtio_gpu_framebuffer_create_handle(struct drm_framebuffer *fb,
+> +                                    struct drm_file *file_priv,
+> +                                    unsigned int *handle)
+> +{
+> +       struct virtio_gpu_framebuffer *virtio_gpu_fb =
+> +               to_virtio_gpu_framebuffer(fb);
+> +
+> +       return drm_gem_handle_create(file_priv, virtio_gpu_fb->obj, handle);
+> +}
+> +
+>  static const struct drm_framebuffer_funcs virtio_gpu_fb_funcs = {
+> +       .create_handle = virtio_gpu_framebuffer_create_handle,
+>         .destroy = virtio_gpu_user_framebuffer_destroy,
+>         .dirty = virtio_gpu_framebuffer_surface_dirty,
+>  };
+> --
+> 2.15.0.403.gc27cc4dac6-goog
+>
