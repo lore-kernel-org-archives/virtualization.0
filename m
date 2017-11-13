@@ -1,11 +1,11 @@
 From: Quan Xu <quan.xu03@gmail.com>
-Subject: [PATCH RFC v3 2/6] KVM guest: register kvm_idle_poll for pv_idle_ops
-Date: Mon, 13 Nov 2017 18:06:01 +0800
-Message-ID: <1510567565-5118-3-git-send-email-quan.xu0__38378.5718623132$1511414721$gmane$org@gmail.com>
+Subject: [PATCH RFC v3 1/6] x86/paravirt: Add pv_idle_ops to paravirt ops
+Date: Mon, 13 Nov 2017 18:06:00 +0800
+Message-ID: <1510567565-5118-2-git-send-email-quan.xu0__42382.4179255918$1511414731$gmane$org@gmail.com>
 References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -18,49 +18,118 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Quan Xu <quan.xu0@gmail.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>
+Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Juergen Gross <jgross@suse.com>, Quan Xu <quan.xu0@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogUXVhbiBYdSA8cXVhbi54dTBAZ21haWwuY29tPgoKQWx0aG91Z2ggc21hcnQgaWRsZSBw
-b2xsIGhhcyBub3RoaW5nIHRvIGRvIHdpdGggcGFyYXZpcnQsIGl0IGNhbgpub3QgYnJpbmcgYW55
-IGJlbmlmaXQgdG8gbmF0aXZlLiBTbyB3ZSBvbmx5IGVuYWJsZSBpdCB3aGVuIExpbnV4CnJ1bnMg
-YXMgYSBLVk0gZ3Vlc3QoIGFsc28gaXQgY2FuIGV4dGVuZCB0byBvdGhlciBoeXBlcnZpc29yIGxp
-a2UKWGVuLCBIeXBlclYgYW5kIFZNd2FyZSkuCgpJbnRyb2R1Y2UgcGVyLUNQVSB2YXJpYWJsZSBw
-b2xsX2R1cmF0aW9uX25zIHRvIGNvbnRyb2wgdGhlIG1heApwb2xsIHRpbWUuCgpTaWduZWQtb2Zm
-LWJ5OiBZYW5nIFpoYW5nIDx5YW5nLnpoYW5nLnd6QGdtYWlsLmNvbT4KU2lnbmVkLW9mZi1ieTog
-UXVhbiBYdSA8cXVhbi54dTBAZ21haWwuY29tPgpDYzogUGFvbG8gQm9uemluaSA8cGJvbnppbmlA
-cmVkaGF0LmNvbT4KQ2M6ICJSYWRpbSBLcsSNbcOhxZkiIDxya3JjbWFyQHJlZGhhdC5jb20+CkNj
-OiBUaG9tYXMgR2xlaXhuZXIgPHRnbHhAbGludXRyb25peC5kZT4KQ2M6IEluZ28gTW9sbmFyIDxt
-aW5nb0ByZWRoYXQuY29tPgpDYzogIkguIFBldGVyIEFudmluIiA8aHBhQHp5dG9yLmNvbT4KQ2M6
-IHg4NkBrZXJuZWwub3JnCkNjOiBrdm1Admdlci5rZXJuZWwub3JnCkNjOiBsaW51eC1rZXJuZWxA
-dmdlci5rZXJuZWwub3JnCi0tLQogYXJjaC94ODYva2VybmVsL2t2bS5jIHwgICAyNiArKysrKysr
-KysrKysrKysrKysrKysrKysrKwogMSBmaWxlcyBjaGFuZ2VkLCAyNiBpbnNlcnRpb25zKCspLCAw
-IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2FyY2gveDg2L2tlcm5lbC9rdm0uYyBiL2FyY2gv
-eDg2L2tlcm5lbC9rdm0uYwppbmRleCA4YmI5NTk0Li4yYTZlNDAyIDEwMDY0NAotLS0gYS9hcmNo
-L3g4Ni9rZXJuZWwva3ZtLmMKKysrIGIvYXJjaC94ODYva2VybmVsL2t2bS5jCkBAIC03NSw2ICs3
-NSw3IEBAIHN0YXRpYyBpbnQgcGFyc2Vfbm9fa3ZtY2xvY2tfdnN5c2NhbGwoY2hhciAqYXJnKQog
-CiBlYXJseV9wYXJhbSgibm8ta3ZtY2xvY2stdnN5c2NhbGwiLCBwYXJzZV9ub19rdm1jbG9ja192
-c3lzY2FsbCk7CiAKK3N0YXRpYyBERUZJTkVfUEVSX0NQVSh1bnNpZ25lZCBsb25nLCBwb2xsX2R1
-cmF0aW9uX25zKTsKIHN0YXRpYyBERUZJTkVfUEVSX0NQVShzdHJ1Y3Qga3ZtX3ZjcHVfcHZfYXBm
-X2RhdGEsIGFwZl9yZWFzb24pIF9fYWxpZ25lZCg2NCk7CiBzdGF0aWMgREVGSU5FX1BFUl9DUFUo
-c3RydWN0IGt2bV9zdGVhbF90aW1lLCBzdGVhbF90aW1lKSBfX2FsaWduZWQoNjQpOwogc3RhdGlj
-IGludCBoYXNfc3RlYWxfY2xvY2sgPSAwOwpAQCAtMzY0LDYgKzM2NSwyOSBAQCBzdGF0aWMgdm9p
-ZCBrdm1fZ3Vlc3RfY3B1X2luaXQodm9pZCkKIAkJa3ZtX3JlZ2lzdGVyX3N0ZWFsX3RpbWUoKTsK
-IH0KIAorc3RhdGljIHZvaWQga3ZtX2lkbGVfcG9sbCh2b2lkKQoreworCXVuc2lnbmVkIGxvbmcg
-cG9sbF9kdXJhdGlvbiA9IHRoaXNfY3B1X3JlYWQocG9sbF9kdXJhdGlvbl9ucyk7CisJa3RpbWVf
-dCBzdGFydCwgY3VyLCBzdG9wOworCisJc3RhcnQgPSBjdXIgPSBrdGltZV9nZXQoKTsKKwlzdG9w
-ID0ga3RpbWVfYWRkX25zKGt0aW1lX2dldCgpLCBwb2xsX2R1cmF0aW9uKTsKKworCWRvIHsKKwkJ
-aWYgKG5lZWRfcmVzY2hlZCgpKQorCQkJYnJlYWs7CisJCWN1ciA9IGt0aW1lX2dldCgpOworCX0g
-d2hpbGUgKGt0aW1lX2JlZm9yZShjdXIsIHN0b3ApKTsKK30KKworc3RhdGljIHZvaWQga3ZtX2d1
-ZXN0X2lkbGVfaW5pdCh2b2lkKQoreworCWlmICgha3ZtX3BhcmFfYXZhaWxhYmxlKCkpCisJCXJl
-dHVybjsKKworCXB2X2lkbGVfb3BzLnBvbGwgPSBrdm1faWRsZV9wb2xsOworfQorCiBzdGF0aWMg
-dm9pZCBrdm1fcHZfZGlzYWJsZV9hcGYodm9pZCkKIHsKIAlpZiAoIV9fdGhpc19jcHVfcmVhZChh
-cGZfcmVhc29uLmVuYWJsZWQpKQpAQCAtNDk5LDYgKzUyMyw4IEBAIHZvaWQgX19pbml0IGt2bV9n
-dWVzdF9pbml0KHZvaWQpCiAJa3ZtX2d1ZXN0X2NwdV9pbml0KCk7CiAjZW5kaWYKIAorCWt2bV9n
-dWVzdF9pZGxlX2luaXQoKTsKKwogCS8qCiAJICogSGFyZCBsb2NrdXAgZGV0ZWN0aW9uIGlzIGVu
-YWJsZWQgYnkgZGVmYXVsdC4gRGlzYWJsZSBpdCwgYXMgZ3Vlc3RzCiAJICogY2FuIGdldCBmYWxz
-ZSBwb3NpdGl2ZXMgdG9vIGVhc2lseSwgZm9yIGV4YW1wbGUgaWYgdGhlIGhvc3QgaXMKLS0gCjEu
-Ny4xCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+From: Quan Xu <quan.xu0@gmail.com>
+
+So far, pv_idle_ops.poll is the only ops for pv_idle. .poll is called
+in idle path which will poll for a while before we enter the real idle
+state.
+
+In virtualization, idle path includes several heavy operations
+includes timer access(LAPIC timer or TSC deadline timer) which will
+hurt performance especially for latency intensive workload like message
+passing task. The cost is mainly from the vmexit which is a hardware
+context switch between virtual machine and hypervisor. Our solution is
+to poll for a while and do not enter real idle path if we can get the
+schedule event during polling.
+
+Poll may cause the CPU waste so we adopt a smart polling mechanism to
+reduce the useless poll.
+
+Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
+Signed-off-by: Quan Xu <quan.xu0@gmail.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Alok Kataria <akataria@vmware.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org
+Cc: xen-devel@lists.xenproject.org
+---
+ arch/x86/include/asm/paravirt.h       |    5 +++++
+ arch/x86/include/asm/paravirt_types.h |    6 ++++++
+ arch/x86/kernel/paravirt.c            |    6 ++++++
+ 3 files changed, 17 insertions(+), 0 deletions(-)
+
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index fd81228..3c83727 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -198,6 +198,11 @@ static inline unsigned long long paravirt_read_pmc(int counter)
+ 
+ #define rdpmcl(counter, val) ((val) = paravirt_read_pmc(counter))
+ 
++static inline void paravirt_idle_poll(void)
++{
++	PVOP_VCALL0(pv_idle_ops.poll);
++}
++
+ static inline void paravirt_alloc_ldt(struct desc_struct *ldt, unsigned entries)
+ {
+ 	PVOP_VCALL2(pv_cpu_ops.alloc_ldt, ldt, entries);
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 10cc3b9..95c0e3e 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -313,6 +313,10 @@ struct pv_lock_ops {
+ 	struct paravirt_callee_save vcpu_is_preempted;
+ } __no_randomize_layout;
+ 
++struct pv_idle_ops {
++	void (*poll)(void);
++} __no_randomize_layout;
++
+ /* This contains all the paravirt structures: we get a convenient
+  * number for each function using the offset which we use to indicate
+  * what to patch. */
+@@ -323,6 +327,7 @@ struct paravirt_patch_template {
+ 	struct pv_irq_ops pv_irq_ops;
+ 	struct pv_mmu_ops pv_mmu_ops;
+ 	struct pv_lock_ops pv_lock_ops;
++	struct pv_idle_ops pv_idle_ops;
+ } __no_randomize_layout;
+ 
+ extern struct pv_info pv_info;
+@@ -332,6 +337,7 @@ struct paravirt_patch_template {
+ extern struct pv_irq_ops pv_irq_ops;
+ extern struct pv_mmu_ops pv_mmu_ops;
+ extern struct pv_lock_ops pv_lock_ops;
++extern struct pv_idle_ops pv_idle_ops;
+ 
+ #define PARAVIRT_PATCH(x)					\
+ 	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 19a3e8f..67cab22 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -128,6 +128,7 @@ unsigned paravirt_patch_jmp(void *insnbuf, const void *target,
+ #ifdef CONFIG_PARAVIRT_SPINLOCKS
+ 		.pv_lock_ops = pv_lock_ops,
+ #endif
++		.pv_idle_ops = pv_idle_ops,
+ 	};
+ 	return *((void **)&tmpl + type);
+ }
+@@ -312,6 +313,10 @@ struct pv_time_ops pv_time_ops = {
+ 	.steal_clock = native_steal_clock,
+ };
+ 
++struct pv_idle_ops pv_idle_ops = {
++	.poll = paravirt_nop,
++};
++
+ __visible struct pv_irq_ops pv_irq_ops = {
+ 	.save_fl = __PV_IS_CALLEE_SAVE(native_save_fl),
+ 	.restore_fl = __PV_IS_CALLEE_SAVE(native_restore_fl),
+@@ -463,3 +468,4 @@ struct pv_mmu_ops pv_mmu_ops __ro_after_init = {
+ EXPORT_SYMBOL    (pv_mmu_ops);
+ EXPORT_SYMBOL_GPL(pv_info);
+ EXPORT_SYMBOL    (pv_irq_ops);
++EXPORT_SYMBOL    (pv_idle_ops);
+-- 
+1.7.1
