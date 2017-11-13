@@ -1,12 +1,13 @@
 From: Quan Xu <quan.xu04@gmail.com>
-Subject: [PATCH RFC v3 4/6] Documentation: Add three sysctls for smart idle
-	poll
-Date: Mon, 13 Nov 2017 18:47:44 +0800
-Message-ID: <1510570064-6178-1-git-send-email-quan.xu0@gmail.com>
+Subject: [PATCH RFC v3 6/6] KVM guest: introduce smart idle poll algorithm
+Date: Mon, 13 Nov 2017 18:27:09 +0800
+Message-ID: <1510568829-5645-3-git-send-email-quan.xu0__23301.5008074746$1511414769$gmane$org@gmail.com>
+References: <1510568829-5645-1-git-send-email-quan.xu0@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1510568829-5645-1-git-send-email-quan.xu0@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,153 +17,96 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Quan Xu <quan.xu0@gmail.com>
+To: kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
+Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Quan Xu <quan.xu0@gmail.com>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Quan Xu <quan.xu0@gmail.com>
+From: Yang Zhang <yang.zhang.wz@gmail.com>
 
-To reduce the cost of poll, we introduce three sysctl to control the
-poll time when running as a virtual machine with paravirt.
+using smart idle poll to reduce the useless poll when system is idle.
 
-Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
 Signed-off-by: Quan Xu <quan.xu0@gmail.com>
+Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: kvm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 ---
- Documentation/sysctl/kernel.txt |   35 +++++++++++++++++++++++++++++++++++
- arch/x86/kernel/paravirt.c      |    4 ++++
- include/linux/kernel.h          |    6 ++++++
- kernel/sysctl.c                 |   34 ++++++++++++++++++++++++++++++++++
- 4 files changed, 79 insertions(+), 0 deletions(-)
+ arch/x86/kernel/kvm.c |   47 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 47 insertions(+), 0 deletions(-)
 
-diff --git a/Documentation/sysctl/kernel.txt b/Documentation/sysctl/kernel.txt
-index 694968c..30c25fb 100644
---- a/Documentation/sysctl/kernel.txt
-+++ b/Documentation/sysctl/kernel.txt
-@@ -714,6 +714,41 @@ kernel tries to allocate a number starting from this one.
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 2a6e402..8bb6d55 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -37,6 +37,7 @@
+ #include <linux/debugfs.h>
+ #include <linux/nmi.h>
+ #include <linux/swait.h>
++#include <linux/tick.h>
+ #include <asm/timer.h>
+ #include <asm/cpu.h>
+ #include <asm/traps.h>
+@@ -365,11 +366,57 @@ static void kvm_guest_cpu_init(void)
+ 		kvm_register_steal_time();
+ }
  
- ==============================================================
++static unsigned int grow_poll_ns(unsigned int old, unsigned int grow,
++				 unsigned int max)
++{
++	unsigned int val;
++
++	/* set base poll time to 10000ns */
++	if (old == 0 && grow)
++		return 10000;
++
++	val = old * grow;
++	if (val > max)
++		val = max;
++
++	return val;
++}
++
++static unsigned int shrink_poll_ns(unsigned int old, unsigned int shrink)
++{
++	if (shrink == 0)
++		return 0;
++
++	return old / shrink;
++}
++
++static void kvm_idle_update_poll_duration(ktime_t idle)
++{
++	unsigned long poll_duration = this_cpu_read(poll_duration_ns);
++
++	/* so far poll duration is based on nohz */
++	if (idle == -1ULL)
++		return;
++
++	if (poll_duration && idle > paravirt_poll_threshold_ns)
++		poll_duration = shrink_poll_ns(poll_duration,
++					       paravirt_poll_shrink);
++	else if (poll_duration < paravirt_poll_threshold_ns &&
++		 idle < paravirt_poll_threshold_ns)
++		poll_duration = grow_poll_ns(poll_duration, paravirt_poll_grow,
++					     paravirt_poll_threshold_ns);
++
++	this_cpu_write(poll_duration_ns, poll_duration);
++}
++
+ static void kvm_idle_poll(void)
+ {
+ 	unsigned long poll_duration = this_cpu_read(poll_duration_ns);
++	ktime_t idle = tick_nohz_get_last_idle_length();
+ 	ktime_t start, cur, stop;
  
-+paravirt_poll_grow: (X86 only)
++	kvm_idle_update_poll_duration(idle);
 +
-+Multiplied value to increase the poll time. This is expected to take
-+effect only when running as a virtual machine with CONFIG_PARAVIRT
-+enabled. This can't bring any benifit on bare mental even with
-+CONFIG_PARAVIRT enabled.
-+
-+By default this value is 2. Possible values to set are in range {2..16}.
-+
-+==============================================================
-+
-+paravirt_poll_shrink: (X86 only)
-+
-+Divided value to reduce the poll time. This is expected to take effect
-+only when running as a virtual machine with CONFIG_PARAVIRT enabled.
-+This can't bring any benifit on bare mental even with CONFIG_PARAVIRT
-+enabled.
-+
-+By default this value is 2. Possible values to set are in range {2..16}.
-+
-+==============================================================
-+
-+paravirt_poll_threshold_ns: (X86 only)
-+
-+Controls the maximum poll time before entering real idle path. This is
-+expected to take effect only when running as a virtual machine with
-+CONFIG_PARAVIRT enabled. This can't bring any benifit on bare mental
-+even with CONFIG_PARAVIRT enabled.
-+
-+By default, this value is 0 means not to poll. Possible values to set
-+are in range {0..500000}. Change the value to non-zero if running
-+latency-bound workloads in a virtual machine.
-+
-+==============================================================
-+
- powersave-nap: (PPC only)
- 
- If set, Linux-PPC will use the 'nap' mode of powersaving,
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 67cab22..28c74ca 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -317,6 +317,10 @@ struct pv_idle_ops pv_idle_ops = {
- 	.poll = paravirt_nop,
- };
- 
-+unsigned long paravirt_poll_threshold_ns;
-+unsigned int paravirt_poll_shrink = 2;
-+unsigned int paravirt_poll_grow = 2;
-+
- __visible struct pv_irq_ops pv_irq_ops = {
- 	.save_fl = __PV_IS_CALLEE_SAVE(native_save_fl),
- 	.restore_fl = __PV_IS_CALLEE_SAVE(native_restore_fl),
-diff --git a/include/linux/kernel.h b/include/linux/kernel.h
-index 4b484ab..0f46846 100644
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -491,6 +491,12 @@ extern __scanf(2, 0)
- 
- extern bool crash_kexec_post_notifiers;
- 
-+#ifdef CONFIG_PARAVIRT
-+extern unsigned long paravirt_poll_threshold_ns;
-+extern unsigned int paravirt_poll_shrink;
-+extern unsigned int paravirt_poll_grow;
-+#endif
-+
- /*
-  * panic_cpu is used for synchronizing panic() and crash_kexec() execution. It
-  * holds a CPU number which is executing panic() currently. A value of
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index d9c31bc..9f194dc 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -135,6 +135,11 @@
- static int six_hundred_forty_kb = 640 * 1024;
- #endif
- 
-+#ifdef CONFIG_PARAVIRT
-+static int sixteen = 16;
-+static int five_hundred_thousand = 500000;
-+#endif
-+
- /* this is needed for the proc_doulongvec_minmax of vm_dirty_bytes */
- static unsigned long dirty_bytes_min = 2 * PAGE_SIZE;
- 
-@@ -1226,6 +1231,35 @@ static int sysrq_sysctl_handler(struct ctl_table *table, int write,
- 		.extra2		= &one,
- 	},
- #endif
-+#ifdef CONFIG_PARAVIRT
-+	{
-+		.procname       = "paravirt_halt_poll_threshold",
-+		.data           = &paravirt_poll_threshold_ns,
-+		.maxlen         = sizeof(unsigned long),
-+		.mode           = 0644,
-+		.proc_handler   = proc_dointvec_minmax,
-+		.extra1         = &zero,
-+		.extra2         = &five_hundred_thousand,
-+	},
-+	{
-+		.procname       = "paravirt_halt_poll_grow",
-+		.data           = &paravirt_poll_grow,
-+		.maxlen         = sizeof(unsigned int),
-+		.mode           = 0644,
-+		.proc_handler   = proc_dointvec_minmax,
-+		.extra1         = &two,
-+		.extra2         = &sixteen,
-+	},
-+	{
-+		.procname       = "paravirt_halt_poll_shrink",
-+		.data           = &paravirt_poll_shrink,
-+		.maxlen         = sizeof(unsigned int),
-+		.mode           = 0644,
-+		.proc_handler   = proc_dointvec_minmax,
-+		.extra1         = &two,
-+		.extra2         = &sixteen,
-+	},
-+#endif
- 	{ }
- };
+ 	start = cur = ktime_get();
+ 	stop = ktime_add_ns(ktime_get(), poll_duration);
  
 -- 
 1.7.1
