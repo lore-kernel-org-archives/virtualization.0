@@ -1,10 +1,10 @@
-From: =?UTF-8?q?Tom=C3=A1=C5=A1=20Golembiovsk=C3=BD?= <tgolembi@redhat.com>
-Subject: [PATCH v3] virtio_balloon: include disk/file caches memory statistics
-Date: Sun, 12 Nov 2017 13:05:38 +0100
-Message-ID: <2e8c12f5242bcf755a33ee3a0e9ef94339d1808c.1510487579.git.tgolembi__10585.2434914143$1510488348$gmane$org@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next V2] vhost_net: conditionally enable tx polling
+Date: Mon, 13 Nov 2017 11:45:34 +0800
+Message-ID: <1510544734-6142-1-git-send-email-jasowang__42201.1818890043$1510544746$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,45 +15,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Rik van Riel <riel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Gal Hammer <ghammer@redhat.com>, =?UTF-8?q?Tom=C3=A1=C5=A1=20Golembiovsk=C3=BD?= <tgolembi@redhat.com>, Shaohua Li <shli@fb.com>, Huang Ying <ying.huang@intel.com>
+To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Matthew Rosato <mjrosato@linux.vnet.ibm.com>, Wei Xu <wexu@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-QWRkIGEgbmV3IGZpZWxkIFZJUlRJT19CQUxMT09OX1NfQ0FDSEVTIHRvIHZpcnRpb19iYWxsb29u
-IG1lbW9yeQpzdGF0aXN0aWNzIHByb3RvY29sLiBUaGUgdmFsdWUgcmVwcmVzZW50cyBhbGwgZGlz
-ay9maWxlIGNhY2hlcy4KCkluIHRoaXMgY2FzZSBpdCBjb3JyZXNwb25kcyB0byB0aGUgc3VtIG9m
-IHZhbHVlcwpCdWZmZXJzK0NhY2hlZCtTd2FwQ2FjaGVkIGZyb20gL3Byb2MvbWVtaW5mby4KClNp
-Z25lZC1vZmYtYnk6IFRvbcOhxaEgR29sZW1iaW92c2vDvSA8dGdvbGVtYmlAcmVkaGF0LmNvbT4K
-LS0tCiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jICAgICB8IDQgKysrKwogaW5jbHVk
-ZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmggfCAzICsrLQogMiBmaWxlcyBjaGFuZ2VkLCA2
-IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRp
-by92aXJ0aW9fYmFsbG9vbi5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwppbmRl
-eCBmMGIzYTBiOWQ0MmYuLmQyYmQxM2JiYWY5ZiAxMDA2NDQKLS0tIGEvZHJpdmVycy92aXJ0aW8v
-dmlydGlvX2JhbGxvb24uYworKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jCkBA
-IC0yNDQsMTEgKzI0NCwxMyBAQCBzdGF0aWMgdW5zaWduZWQgaW50IHVwZGF0ZV9iYWxsb29uX3N0
-YXRzKHN0cnVjdCB2aXJ0aW9fYmFsbG9vbiAqdmIpCiAJc3RydWN0IHN5c2luZm8gaTsKIAl1bnNp
-Z25lZCBpbnQgaWR4ID0gMDsKIAlsb25nIGF2YWlsYWJsZTsKKwl1bnNpZ25lZCBsb25nIGNhY2hl
-czsKIAogCWFsbF92bV9ldmVudHMoZXZlbnRzKTsKIAlzaV9tZW1pbmZvKCZpKTsKIAogCWF2YWls
-YWJsZSA9IHNpX21lbV9hdmFpbGFibGUoKTsKKwljYWNoZXMgPSBnbG9iYWxfbm9kZV9wYWdlX3N0
-YXRlKE5SX0ZJTEVfUEFHRVMpOwogCiAjaWZkZWYgQ09ORklHX1ZNX0VWRU5UX0NPVU5URVJTCiAJ
-dXBkYXRlX3N0YXQodmIsIGlkeCsrLCBWSVJUSU9fQkFMTE9PTl9TX1NXQVBfSU4sCkBAIC0yNjQs
-NiArMjY2LDggQEAgc3RhdGljIHVuc2lnbmVkIGludCB1cGRhdGVfYmFsbG9vbl9zdGF0cyhzdHJ1
-Y3QgdmlydGlvX2JhbGxvb24gKnZiKQogCQkJCXBhZ2VzX3RvX2J5dGVzKGkudG90YWxyYW0pKTsK
-IAl1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxMT09OX1NfQVZBSUwsCiAJCQkJcGFn
-ZXNfdG9fYnl0ZXMoYXZhaWxhYmxlKSk7CisJdXBkYXRlX3N0YXQodmIsIGlkeCsrLCBWSVJUSU9f
-QkFMTE9PTl9TX0NBQ0hFUywKKwkJCQlwYWdlc190b19ieXRlcyhjYWNoZXMpKTsKIAogCXJldHVy
-biBpZHg7CiB9CmRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24u
-aCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5oCmluZGV4IDM0M2Q3ZGRlZmUw
-NC4uNGU4YjgzMDRiNzkzIDEwMDY0NAotLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2Jh
-bGxvb24uaAorKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaApAQCAtNTIs
-NyArNTIsOCBAQCBzdHJ1Y3QgdmlydGlvX2JhbGxvb25fY29uZmlnIHsKICNkZWZpbmUgVklSVElP
-X0JBTExPT05fU19NRU1GUkVFICA0ICAgLyogVG90YWwgYW1vdW50IG9mIGZyZWUgbWVtb3J5ICov
-CiAjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTUVNVE9UICAgNSAgIC8qIFRvdGFsIGFtb3VudCBv
-ZiBtZW1vcnkgKi8KICNkZWZpbmUgVklSVElPX0JBTExPT05fU19BVkFJTCAgICA2ICAgLyogQXZh
-aWxhYmxlIG1lbW9yeSBhcyBpbiAvcHJvYyAqLwotI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX05S
-ICAgICAgIDcKKyNkZWZpbmUgVklSVElPX0JBTExPT05fU19DQUNIRVMgICA3ICAgLyogRGlzayBj
-YWNoZXMgKi8KKyNkZWZpbmUgVklSVElPX0JBTExPT05fU19OUiAgICAgICA4CiAKIC8qCiAgKiBN
-ZW1vcnkgc3RhdGlzdGljcyBzdHJ1Y3R1cmUuCi0tIAoyLjE1LjAKCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
-dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
-LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+We always poll tx for socket, this is sub optimal since this will
+slightly increase the waitqueue traversing time and more important,
+vhost could not benefit from commit 9e641bdcfa4e ("net-tun:
+restructure tun_do_read for better sleep/wakeup efficiency") even if
+we've stopped rx polling during handle_rx(), tx poll were still left
+in the waitqueue.
+
+Pktgen from a remote host to VM over mlx4 on two 2.00GHz Xeon E5-2650
+shows 11.7% improvements on rx PPS. (from 1.28Mpps to 1.44Mpps)
+
+Cc: Wei Xu <wexu@redhat.com>
+Cc: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+Changes from V1:
+- don't try to disable tx polling during start
+- poll tx on error unconditonally
+---
+ drivers/vhost/net.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 68677d9..8d626d7 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -471,6 +471,7 @@ static void handle_tx(struct vhost_net *net)
+ 		goto out;
+ 
+ 	vhost_disable_notify(&net->dev, vq);
++	vhost_net_disable_vq(net, vq);
+ 
+ 	hdr_size = nvq->vhost_hlen;
+ 	zcopy = nvq->ubufs;
+@@ -556,6 +557,7 @@ static void handle_tx(struct vhost_net *net)
+ 					% UIO_MAXIOV;
+ 			}
+ 			vhost_discard_vq_desc(vq, 1);
++			vhost_net_enable_vq(net, vq);
+ 			break;
+ 		}
+ 		if (err != len)
+-- 
+2.7.4
