@@ -1,7 +1,7 @@
-From: Quan Xu <quan.xu3@gmail.com>
+From: Quan Xu <quan.xu03@gmail.com>
 Subject: [PATCH RFC v3 0/6] x86/idle: add halt poll support
-Date: Mon, 13 Nov 2017 16:16:14 +0800
-Message-ID: <1510560980-3382-1-git-send-email-quan.xu0__33229.6275686987$1511414698$gmane$org@gmail.com>
+Date: Mon, 13 Nov 2017 18:05:59 +0800
+Message-ID: <1510567565-5118-1-git-send-email-quan.xu0__46285.3455720053$1511414704$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
