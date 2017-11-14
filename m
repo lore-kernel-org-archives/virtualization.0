@@ -1,17 +1,17 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH RFC v3 1/6] x86/paravirt: Add pv_idle_ops to paravirt ops
-Date: Tue, 14 Nov 2017 08:30:40 +0100
-Message-ID: <fe6eeed1-4eee-eaaa-df3b-8979af8a3891__13273.0922582143$1510644652$gmane$org@suse.com>
-References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
-	<1510567565-5118-2-git-send-email-quan.xu0@gmail.com>
-	<07fac696-e3d4-8f35-8f3d-764d7ab41204@suse.com>
-	<902da704-1e4f-583b-91c3-1a62ccd6e73d@gmail.com>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH RFC v3 4/6] Documentation: Add three sysctls for smart
+	idle poll
+Date: Tue, 14 Nov 2017 08:44:10 +0100
+Message-ID: <20171114074410.c5h5zg43xtcmelez__21711.4700506956$1510645463$gmane$org@gmail.com>
+References: <1510570064-6178-1-git-send-email-quan.xu0@gmail.com>
+	<20171113150842.epdffyxhlu5nq37u@gmail.com>
+	<35da8c93-95fb-8bf0-8538-4e1ef5f126f4@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <902da704-1e4f-583b-91c3-1a62ccd6e73d@gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <35da8c93-95fb-8bf0-8538-4e1ef5f126f4@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,66 +21,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Quan Xu <quan.xu0@gmail.com>, Quan Xu <quan.xu03@gmail.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Quan Xu <quan.xu0@gmail.com>
+Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Quan Xu <quan.xu04@gmail.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTQvMTEvMTcgMDg6MDIsIFF1YW4gWHUgd3JvdGU6Cj4gCj4gCj4gT24gMjAxNy8xMS8xMyAx
-ODo1MywgSnVlcmdlbiBHcm9zcyB3cm90ZToKPj4gT24gMTMvMTEvMTcgMTE6MDYsIFF1YW4gWHUg
-d3JvdGU6Cj4+PiBGcm9tOiBRdWFuIFh1IDxxdWFuLnh1MEBnbWFpbC5jb20+Cj4+Pgo+Pj4gU28g
-ZmFyLCBwdl9pZGxlX29wcy5wb2xsIGlzIHRoZSBvbmx5IG9wcyBmb3IgcHZfaWRsZS4gLnBvbGwg
-aXMgY2FsbGVkCj4+PiBpbiBpZGxlIHBhdGggd2hpY2ggd2lsbCBwb2xsIGZvciBhIHdoaWxlIGJl
-Zm9yZSB3ZSBlbnRlciB0aGUgcmVhbCBpZGxlCj4+PiBzdGF0ZS4KPj4+Cj4+PiBJbiB2aXJ0dWFs
-aXphdGlvbiwgaWRsZSBwYXRoIGluY2x1ZGVzIHNldmVyYWwgaGVhdnkgb3BlcmF0aW9ucwo+Pj4g
-aW5jbHVkZXMgdGltZXIgYWNjZXNzKExBUElDIHRpbWVyIG9yIFRTQyBkZWFkbGluZSB0aW1lcikg
-d2hpY2ggd2lsbAo+Pj4gaHVydCBwZXJmb3JtYW5jZSBlc3BlY2lhbGx5IGZvciBsYXRlbmN5IGlu
-dGVuc2l2ZSB3b3JrbG9hZCBsaWtlIG1lc3NhZ2UKPj4+IHBhc3NpbmcgdGFzay4gVGhlIGNvc3Qg
-aXMgbWFpbmx5IGZyb20gdGhlIHZtZXhpdCB3aGljaCBpcyBhIGhhcmR3YXJlCj4+PiBjb250ZXh0
-IHN3aXRjaCBiZXR3ZWVuIHZpcnR1YWwgbWFjaGluZSBhbmQgaHlwZXJ2aXNvci4gT3VyIHNvbHV0
-aW9uIGlzCj4+PiB0byBwb2xsIGZvciBhIHdoaWxlIGFuZCBkbyBub3QgZW50ZXIgcmVhbCBpZGxl
-IHBhdGggaWYgd2UgY2FuIGdldCB0aGUKPj4+IHNjaGVkdWxlIGV2ZW50IGR1cmluZyBwb2xsaW5n
-Lgo+Pj4KPj4+IFBvbGwgbWF5IGNhdXNlIHRoZSBDUFUgd2FzdGUgc28gd2UgYWRvcHQgYSBzbWFy
-dCBwb2xsaW5nIG1lY2hhbmlzbSB0bwo+Pj4gcmVkdWNlIHRoZSB1c2VsZXNzIHBvbGwuCj4+Pgo+
-Pj4gU2lnbmVkLW9mZi1ieTogWWFuZyBaaGFuZyA8eWFuZy56aGFuZy53ekBnbWFpbC5jb20+Cj4+
-PiBTaWduZWQtb2ZmLWJ5OiBRdWFuIFh1IDxxdWFuLnh1MEBnbWFpbC5jb20+Cj4+PiBDYzogSnVl
-cmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPgo+Pj4gQ2M6IEFsb2sgS2F0YXJpYSA8YWthdGFy
-aWFAdm13YXJlLmNvbT4KPj4+IENjOiBSdXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20u
-YXU+Cj4+PiBDYzogVGhvbWFzIEdsZWl4bmVyIDx0Z2x4QGxpbnV0cm9uaXguZGU+Cj4+PiBDYzog
-SW5nbyBNb2xuYXIgPG1pbmdvQHJlZGhhdC5jb20+Cj4+PiBDYzogIkguIFBldGVyIEFudmluIiA8
-aHBhQHp5dG9yLmNvbT4KPj4+IENjOiB4ODZAa2VybmVsLm9yZwo+Pj4gQ2M6IHZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCj4+PiBDYzogbGludXgta2VybmVsQHZnZXIu
-a2VybmVsLm9yZwo+Pj4gQ2M6IHhlbi1kZXZlbEBsaXN0cy54ZW5wcm9qZWN0Lm9yZwo+PiBIbW0s
-IGlzIHRoZSBpZGxlIGVudHJ5IHBhdGggcmVhbGx5IHNvIGNyaXRpY2FsIHRvIHBlcmZvcm1hbmNl
-IHRoYXQgYSBuZXcKPj4gcHZvcHMgZnVuY3Rpb24gaXMgbmVjZXNzYXJ5Pwo+IEp1ZXJnZW4sIEhl
-cmUgaXMgdGhlIGRhdGEgd2UgZ2V0IHdoZW4gcnVubmluZyBiZW5jaG1hcmsgbmV0cGVyZjoKPiDC
-oDEuIHcvbyBwYXRjaCBhbmQgZGlzYWJsZSBrdm0gZHluYW1pYyBwb2xsIChoYWx0X3BvbGxfbnM9
-MCk6Cj4gwqDCoMKgIDI5MDMxLjYgYml0L3MgLS0gNzYuMSAlQ1BVCj4gCj4gwqAyLiB3LyBwYXRj
-aCBhbmQgZGlzYWJsZSBrdm0gZHluYW1pYyBwb2xsIChoYWx0X3BvbGxfbnM9MCk6Cj4gwqDCoMKg
-IDM1Nzg3LjcgYml0L3MgLS0gMTI5LjQgJUNQVQo+IAo+IMKgMy4gdy8ga3ZtIGR5bmFtaWMgcG9s
-bDoKPiDCoMKgwqAgMzU3MzUuNiBiaXQvcyAtLSAyMDAuMCAlQ1BVCj4gCj4gwqA0LiB3L3BhdGNo
-IGFuZCB3LyBrdm0gZHluYW1pYyBwb2xsOgo+IMKgwqDCoCA0MjIyNS4zIGJpdC9zIC0tIDE5OC43
-ICVDUFUKPiAKPiDCoDUuIGlkbGU9cG9sbAo+IMKgwqDCoCAzNzA4MS43IGJpdC9zIC0tIDk5OC4x
-ICVDUFUKPiAKPiAKPiAKPiDCoHcvIHRoaXMgcGF0Y2gsIHdlIHdpbGwgaW1wcm92ZSBwZXJmb3Jt
-YW5jZSBieSAyMyUuLiBldmVuIHdlIGNvdWxkIGltcHJvdmUKPiDCoHBlcmZvcm1hbmNlIGJ5IDQ1
-LjQlLCBpZiB3ZSB1c2Ugdy9wYXRjaCBhbmQgdy8ga3ZtIGR5bmFtaWMgcG9sbC4gYWxzbyB0aGUK
-PiDCoGNvc3Qgb2YgQ1BVIGlzIG11Y2ggbG93ZXIgdGhhbiAnaWRsZT1wb2xsJyBjYXNlLi4KCkkg
-ZG9uJ3QgcXVlc3Rpb24gdGhlIGdlbmVyYWwgaWRlYS4gSSBqdXN0IHRoaW5rIHB2b3BzIGlzbid0
-IHRoZSBiZXN0IHdheQp0byBpbXBsZW1lbnQgaXQuCgo+PiBXb3VsZG4ndCBhIGZ1bmN0aW9uIHBv
-aW50ZXIsIG1heWJlIGd1YXJkZWQKPj4gYnkgYSBzdGF0aWMga2V5LCBiZSBlbm91Z2g/IEEgZnVy
-dGhlciBhZHZhbnRhZ2Ugd291bGQgYmUgdGhhdCB0aGlzIHdvdWxkCj4+IHdvcmsgb24gb3RoZXIg
-YXJjaGl0ZWN0dXJlcywgdG9vLgo+IAo+IEkgYXNzdW1lIHRoaXMgZmVhdHVyZSB3aWxsIGJlIHBv
-cnRlZCB0byBvdGhlciBhcmNocy4uIGEgbmV3IHB2b3BzIG1ha2VzCj4gY29kZQo+IGNsZWFuIGFu
-ZCBlYXN5IHRvIG1haW50YWluLiBhbHNvIEkgdHJpZWQgdG8gYWRkIGl0IGludG8gZXhpc3RlZCBw
-dm9wcywKPiBidXQgaXQKPiBkb2Vzbid0IG1hdGNoLgoKWW91IGFyZSBhd2FyZSB0aGF0IHB2b3Bz
-IGlzIHg4NiBvbmx5PwoKSSByZWFsbHkgZG9uJ3Qgc2VlIHRoZSBiaWcgZGlmZmVyZW5jZSBpbiBt
-YWludGFpbmFiaWxpdHkgY29tcGFyZWQgdG8gdGhlCnN0YXRpYyBrZXkgLyBmdW5jdGlvbiBwb2lu
-dGVyIHZhcmlhbnQ6Cgp2b2lkICgqZ3Vlc3RfaWRsZV9wb2xsX2Z1bmMpKHZvaWQpOwpzdHJ1Y3Qg
-c3RhdGljX2tleSBndWVzdF9pZGxlX3BvbGxfa2V5IF9fcmVhZF9tb3N0bHk7CgpzdGF0aWMgaW5s
-aW5lIHZvaWQgZ3Vlc3RfaWRsZV9wb2xsKHZvaWQpCnsKCWlmIChzdGF0aWNfa2V5X2ZhbHNlKCZn
-dWVzdF9pZGxlX3BvbGxfa2V5KSkKCQlndWVzdF9pZGxlX3BvbGxfZnVuYygpOwp9CgpBbmQgS1ZN
-IHdvdWxkIGp1c3QgbmVlZCB0byBzZXQgZ3Vlc3RfaWRsZV9wb2xsX2Z1bmMgYW5kIGVuYWJsZSB0
-aGUKc3RhdGljIGtleS4gV29ya3Mgb24gbm9uLXg4NiBhcmNoaXRlY3R1cmVzLCB0b28uCgoKSnVl
-cmdlbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+
+* Quan Xu <quan.xu0@gmail.com> wrote:
+
+> 
+> 
+> On 2017/11/13 23:08, Ingo Molnar wrote:
+> > * Quan Xu <quan.xu04@gmail.com> wrote:
+> > 
+> > > From: Quan Xu <quan.xu0@gmail.com>
+> > > 
+> > > To reduce the cost of poll, we introduce three sysctl to control the
+> > > poll time when running as a virtual machine with paravirt.
+> > > 
+> > > Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
+> > > Signed-off-by: Quan Xu <quan.xu0@gmail.com>
+> > > ---
+> > >   Documentation/sysctl/kernel.txt |   35 +++++++++++++++++++++++++++++++++++
+> > >   arch/x86/kernel/paravirt.c      |    4 ++++
+> > >   include/linux/kernel.h          |    6 ++++++
+> > >   kernel/sysctl.c                 |   34 ++++++++++++++++++++++++++++++++++
+> > >   4 files changed, 79 insertions(+), 0 deletions(-)
+> > > 
+> > > diff --git a/Documentation/sysctl/kernel.txt b/Documentation/sysctl/kernel.txt
+> > > index 694968c..30c25fb 100644
+> > > --- a/Documentation/sysctl/kernel.txt
+> > > +++ b/Documentation/sysctl/kernel.txt
+> > > @@ -714,6 +714,41 @@ kernel tries to allocate a number starting from this one.
+> > >   ==============================================================
+> > > +paravirt_poll_grow: (X86 only)
+> > > +
+> > > +Multiplied value to increase the poll time. This is expected to take
+> > > +effect only when running as a virtual machine with CONFIG_PARAVIRT
+> > > +enabled. This can't bring any benifit on bare mental even with
+> > > +CONFIG_PARAVIRT enabled.
+> > > +
+> > > +By default this value is 2. Possible values to set are in range {2..16}.
+> > > +
+> > > +==============================================================
+> > > +
+> > > +paravirt_poll_shrink: (X86 only)
+> > > +
+> > > +Divided value to reduce the poll time. This is expected to take effect
+> > > +only when running as a virtual machine with CONFIG_PARAVIRT enabled.
+> > > +This can't bring any benifit on bare mental even with CONFIG_PARAVIRT
+> > > +enabled.
+> > > +
+> > > +By default this value is 2. Possible values to set are in range {2..16}.
+> > > +
+> > > +==============================================================
+> > > +
+> > > +paravirt_poll_threshold_ns: (X86 only)
+> > > +
+> > > +Controls the maximum poll time before entering real idle path. This is
+> > > +expected to take effect only when running as a virtual machine with
+> > > +CONFIG_PARAVIRT enabled. This can't bring any benifit on bare mental
+> > > +even with CONFIG_PARAVIRT enabled.
+> > > +
+> > > +By default, this value is 0 means not to poll. Possible values to set
+> > > +are in range {0..500000}. Change the value to non-zero if running
+> > > +latency-bound workloads in a virtual machine.
+> > I absolutely hate it how this hybrid idle loop polling mechanism is not
+> > self-tuning!
+> 
+> Ingo, actually it is self-tuning..
+
+Then why the hell does it touch the syscall ABI?
+
+> could I only leave paravirt_poll_threshold_ns parameter (the maximum poll time), 
+> which is as similar as "adaptive halt-polling" Wanpeng mentioned.. then user can 
+> turn it off, or find an appropriate threshold for some odd scenario..
+
+That way lies utter madness. Maybe add it as a debugfs knob, but exposing it to 
+userspace: NAK.
+
+Thanks,
+
+	Ingo
