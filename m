@@ -1,16 +1,19 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/virtio: add create_handle support.
-Date: Tue, 14 Nov 2017 11:11:49 +0100
-Message-ID: <20171114101149.ms5ck33kzxymg7nu__46403.4561221071$1510654325$gmane$org@sirius.home.kraxel.org>
-References: <20171108125659.oyjzylx26zmz7753@phenom.ffwll.local>
-	<20171108184209.46211-1-ytht.net@gmail.com>
-	<CALqoU4y=w8m5g_vCHTRmiBYg1g8W1xcJ5qih2pj+HQeQ2tNo2Q@mail.gmail.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH RFC v3 1/6] x86/paravirt: Add pv_idle_ops to paravirt ops
+Date: Tue, 14 Nov 2017 11:27:52 +0100
+Message-ID: <9a4f53f3-225f-0e99-d9b2-d89656b8fb31__44697.7391875864$1510655285$gmane$org@suse.com>
+References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
+	<1510567565-5118-2-git-send-email-quan.xu0@gmail.com>
+	<07fac696-e3d4-8f35-8f3d-764d7ab41204@suse.com>
+	<902da704-1e4f-583b-91c3-1a62ccd6e73d@gmail.com>
+	<fe6eeed1-4eee-eaaa-df3b-8979af8a3891@suse.com>
+	<79dad15c-2d26-bcf3-7283-293e42a161ea@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CALqoU4y=w8m5g_vCHTRmiBYg1g8W1xcJ5qih2pj+HQeQ2tNo2Q@mail.gmail.com>
+In-Reply-To: <79dad15c-2d26-bcf3-7283-293e42a161ea@gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,18 +23,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: lepton <ytht.net@gmail.com>
-Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: Quan Xu <quan.xu0@gmail.com>, Quan Xu <quan.xu03@gmail.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
+Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 13, 2017 at 02:19:29PM -0800, lepton wrote:
-> Ping.
-> 
-> On Wed, Nov 8, 2017 at 10:42 AM, Lepton Wu <ytht.net@gmail.com> wrote:
-> > Add create_handle support to virtio fb. Without this, screenshot tool
-> > in chromium OS can't work.
-
-Already queued up in drm-misc-next (the cirrus patch too).
-
-cheers,
-  Gerd
+T24gMTQvMTEvMTcgMTA6MzgsIFF1YW4gWHUgd3JvdGU6Cj4gCj4gCj4gT24gMjAxNy8xMS8xNCAx
+NTozMCwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPj4gT24gMTQvMTEvMTcgMDg6MDIsIFF1YW4gWHUg
+d3JvdGU6Cj4+Pgo+Pj4gT24gMjAxNy8xMS8xMyAxODo1MywgSnVlcmdlbiBHcm9zcyB3cm90ZToK
+Pj4+PiBPbiAxMy8xMS8xNyAxMTowNiwgUXVhbiBYdSB3cm90ZToKPj4+Pj4gRnJvbTogUXVhbiBY
+dSA8cXVhbi54dTBAZ21haWwuY29tPgo+Pj4+Pgo+Pj4+PiBTbyBmYXIsIHB2X2lkbGVfb3BzLnBv
+bGwgaXMgdGhlIG9ubHkgb3BzIGZvciBwdl9pZGxlLiAucG9sbCBpcyBjYWxsZWQKPj4+Pj4gaW4g
+aWRsZSBwYXRoIHdoaWNoIHdpbGwgcG9sbCBmb3IgYSB3aGlsZSBiZWZvcmUgd2UgZW50ZXIgdGhl
+IHJlYWwgaWRsZQo+Pj4+PiBzdGF0ZS4KPj4+Pj4KPj4+Pj4gSW4gdmlydHVhbGl6YXRpb24sIGlk
+bGUgcGF0aCBpbmNsdWRlcyBzZXZlcmFsIGhlYXZ5IG9wZXJhdGlvbnMKPj4+Pj4gaW5jbHVkZXMg
+dGltZXIgYWNjZXNzKExBUElDIHRpbWVyIG9yIFRTQyBkZWFkbGluZSB0aW1lcikgd2hpY2ggd2ls
+bAo+Pj4+PiBodXJ0IHBlcmZvcm1hbmNlIGVzcGVjaWFsbHkgZm9yIGxhdGVuY3kgaW50ZW5zaXZl
+IHdvcmtsb2FkIGxpa2UKPj4+Pj4gbWVzc2FnZQo+Pj4+PiBwYXNzaW5nIHRhc2suIFRoZSBjb3N0
+IGlzIG1haW5seSBmcm9tIHRoZSB2bWV4aXQgd2hpY2ggaXMgYSBoYXJkd2FyZQo+Pj4+PiBjb250
+ZXh0IHN3aXRjaCBiZXR3ZWVuIHZpcnR1YWwgbWFjaGluZSBhbmQgaHlwZXJ2aXNvci4gT3VyIHNv
+bHV0aW9uIGlzCj4+Pj4+IHRvIHBvbGwgZm9yIGEgd2hpbGUgYW5kIGRvIG5vdCBlbnRlciByZWFs
+IGlkbGUgcGF0aCBpZiB3ZSBjYW4gZ2V0IHRoZQo+Pj4+PiBzY2hlZHVsZSBldmVudCBkdXJpbmcg
+cG9sbGluZy4KPj4+Pj4KPj4+Pj4gUG9sbCBtYXkgY2F1c2UgdGhlIENQVSB3YXN0ZSBzbyB3ZSBh
+ZG9wdCBhIHNtYXJ0IHBvbGxpbmcgbWVjaGFuaXNtIHRvCj4+Pj4+IHJlZHVjZSB0aGUgdXNlbGVz
+cyBwb2xsLgo+Pj4+Pgo+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBZYW5nIFpoYW5nIDx5YW5nLnpoYW5n
+Lnd6QGdtYWlsLmNvbT4KPj4+Pj4gU2lnbmVkLW9mZi1ieTogUXVhbiBYdSA8cXVhbi54dTBAZ21h
+aWwuY29tPgo+Pj4+PiBDYzogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPgo+Pj4+PiBD
+YzogQWxvayBLYXRhcmlhIDxha2F0YXJpYUB2bXdhcmUuY29tPgo+Pj4+PiBDYzogUnVzdHkgUnVz
+c2VsbCA8cnVzdHlAcnVzdGNvcnAuY29tLmF1Pgo+Pj4+PiBDYzogVGhvbWFzIEdsZWl4bmVyIDx0
+Z2x4QGxpbnV0cm9uaXguZGU+Cj4+Pj4+IENjOiBJbmdvIE1vbG5hciA8bWluZ29AcmVkaGF0LmNv
+bT4KPj4+Pj4gQ2M6ICJILiBQZXRlciBBbnZpbiIgPGhwYUB6eXRvci5jb20+Cj4+Pj4+IENjOiB4
+ODZAa2VybmVsLm9yZwo+Pj4+PiBDYzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKPj4+Pj4gQ2M6IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcKPj4+Pj4gQ2M6
+IHhlbi1kZXZlbEBsaXN0cy54ZW5wcm9qZWN0Lm9yZwo+Pj4+IEhtbSwgaXMgdGhlIGlkbGUgZW50
+cnkgcGF0aCByZWFsbHkgc28gY3JpdGljYWwgdG8gcGVyZm9ybWFuY2UgdGhhdCBhCj4+Pj4gbmV3
+Cj4+Pj4gcHZvcHMgZnVuY3Rpb24gaXMgbmVjZXNzYXJ5Pwo+Pj4gSnVlcmdlbiwgSGVyZSBpcyB0
+aGUgZGF0YSB3ZSBnZXQgd2hlbiBydW5uaW5nIGJlbmNobWFyayBuZXRwZXJmOgo+Pj4gwqDCoDEu
+IHcvbyBwYXRjaCBhbmQgZGlzYWJsZSBrdm0gZHluYW1pYyBwb2xsIChoYWx0X3BvbGxfbnM9MCk6
+Cj4+PiDCoMKgwqDCoCAyOTAzMS42IGJpdC9zIC0tIDc2LjEgJUNQVQo+Pj4KPj4+IMKgwqAyLiB3
+LyBwYXRjaCBhbmQgZGlzYWJsZSBrdm0gZHluYW1pYyBwb2xsIChoYWx0X3BvbGxfbnM9MCk6Cj4+
+PiDCoMKgwqDCoCAzNTc4Ny43IGJpdC9zIC0tIDEyOS40ICVDUFUKPj4+Cj4+PiDCoMKgMy4gdy8g
+a3ZtIGR5bmFtaWMgcG9sbDoKPj4+IMKgwqDCoMKgIDM1NzM1LjYgYml0L3MgLS0gMjAwLjAgJUNQ
+VQo+Pj4KPj4+IMKgwqA0LiB3L3BhdGNoIGFuZCB3LyBrdm0gZHluYW1pYyBwb2xsOgo+Pj4gwqDC
+oMKgwqAgNDIyMjUuMyBiaXQvcyAtLSAxOTguNyAlQ1BVCj4+Pgo+Pj4gwqDCoDUuIGlkbGU9cG9s
+bAo+Pj4gwqDCoMKgwqAgMzcwODEuNyBiaXQvcyAtLSA5OTguMSAlQ1BVCj4+Pgo+Pj4KPj4+Cj4+
+PiDCoMKgdy8gdGhpcyBwYXRjaCwgd2Ugd2lsbCBpbXByb3ZlIHBlcmZvcm1hbmNlIGJ5IDIzJS4u
+IGV2ZW4gd2UgY291bGQKPj4+IGltcHJvdmUKPj4+IMKgwqBwZXJmb3JtYW5jZSBieSA0NS40JSwg
+aWYgd2UgdXNlIHcvcGF0Y2ggYW5kIHcvIGt2bSBkeW5hbWljIHBvbGwuCj4+PiBhbHNvIHRoZQo+
+Pj4gwqDCoGNvc3Qgb2YgQ1BVIGlzIG11Y2ggbG93ZXIgdGhhbiAnaWRsZT1wb2xsJyBjYXNlLi4K
+Pj4gSSBkb24ndCBxdWVzdGlvbiB0aGUgZ2VuZXJhbCBpZGVhLiBJIGp1c3QgdGhpbmsgcHZvcHMg
+aXNuJ3QgdGhlIGJlc3Qgd2F5Cj4+IHRvIGltcGxlbWVudCBpdC4KPj4KPj4+PiBXb3VsZG4ndCBh
+IGZ1bmN0aW9uIHBvaW50ZXIsIG1heWJlIGd1YXJkZWQKPj4+PiBieSBhIHN0YXRpYyBrZXksIGJl
+IGVub3VnaD8gQSBmdXJ0aGVyIGFkdmFudGFnZSB3b3VsZCBiZSB0aGF0IHRoaXMKPj4+PiB3b3Vs
+ZAo+Pj4+IHdvcmsgb24gb3RoZXIgYXJjaGl0ZWN0dXJlcywgdG9vLgo+Pj4gSSBhc3N1bWUgdGhp
+cyBmZWF0dXJlIHdpbGwgYmUgcG9ydGVkIHRvIG90aGVyIGFyY2hzLi4gYSBuZXcgcHZvcHMgbWFr
+ZXMKPiAKPiDCoMKgwqDCoMKgIHNvcnJ5LCBhIHR5cG8uLiAvb3RoZXIgYXJjaHMvb3RoZXIgaHlw
+ZXJ2aXNvcnMvCj4gwqDCoMKgwqDCoCBpdCByZWZlcnMgaHlwZXJ2aXNvciBsaWtlIFhlbiwgSHlw
+ZXJWIGFuZCBWTXdhcmUpLi4KPiAKPj4+IGNvZGUKPj4+IGNsZWFuIGFuZCBlYXN5IHRvIG1haW50
+YWluLiBhbHNvIEkgdHJpZWQgdG8gYWRkIGl0IGludG8gZXhpc3RlZCBwdm9wcywKPj4+IGJ1dCBp
+dAo+Pj4gZG9lc24ndCBtYXRjaC4KPj4gWW91IGFyZSBhd2FyZSB0aGF0IHB2b3BzIGlzIHg4NiBv
+bmx5Pwo+IAo+IHllcywgSSdtIGF3YXJlLi4KPiAKPj4gSSByZWFsbHkgZG9uJ3Qgc2VlIHRoZSBi
+aWcgZGlmZmVyZW5jZSBpbiBtYWludGFpbmFiaWxpdHkgY29tcGFyZWQgdG8gdGhlCj4+IHN0YXRp
+YyBrZXkgLyBmdW5jdGlvbiBwb2ludGVyIHZhcmlhbnQ6Cj4+Cj4+IHZvaWQgKCpndWVzdF9pZGxl
+X3BvbGxfZnVuYykodm9pZCk7Cj4+IHN0cnVjdCBzdGF0aWNfa2V5IGd1ZXN0X2lkbGVfcG9sbF9r
+ZXkgX19yZWFkX21vc3RseTsKPj4KPj4gc3RhdGljIGlubGluZSB2b2lkIGd1ZXN0X2lkbGVfcG9s
+bCh2b2lkKQo+PiB7Cj4+IMKgwqDCoMKgaWYgKHN0YXRpY19rZXlfZmFsc2UoJmd1ZXN0X2lkbGVf
+cG9sbF9rZXkpKQo+PiDCoMKgwqDCoMKgwqDCoCBndWVzdF9pZGxlX3BvbGxfZnVuYygpOwo+PiB9
+Cj4gCj4gCj4gCj4gdGhhbmsgeW91IGZvciB5b3VyIHNhbXBsZSBjb2RlIDopCj4gSSBhZ3JlZSB0
+aGVyZSBpcyBubyBiaWcgZGlmZmVyZW5jZS4uIEkgdGhpbmsgd2UgYXJlIGRpc2N1c3Npb24gZm9y
+IHR3bwo+IHRoaW5nczoKPiDCoDEpIHg4NiBWTSBvbiBkaWZmZXJlbnQgaHlwZXJ2aXNvcnMKPiDC
+oDIpIGRpZmZlcmVudCBhcmNocyBWTSBvbiBrdm0gaHlwZXJ2aXNvcgo+IAo+IFdoYXQgSSB3YW50
+IHRvIGRvIGlzIHg4NiBWTSBvbiBkaWZmZXJlbnQgaHlwZXJ2aXNvcnMsIHN1Y2ggYXMga3ZtIC8g
+eGVuCj4gLyBoeXBlcnYgLi4KCldoeSBsaW1pdCB0aGUgc29sdXRpb24gdG8geDg2IGlmIHRoZSBt
+b3JlIGdlbmVyYWwgc29sdXRpb24gaXNuJ3QKaGFyZGVyPwoKQXMgeW91IGRpZG4ndCBnaXZlIGFu
+eSByZWFzb24gd2h5IHRoZSBwdm9wcyBhcHByb2FjaCBpcyBiZXR0ZXIgb3RoZXIKdGhhbiB5b3Ug
+ZG9uJ3QgY2FyZSBmb3Igbm9uLXg4NiBwbGF0Zm9ybXMgeW91IHdvbid0IGdldCBhbiAiQWNrIiBm
+cm9tCm1lIGZvciB0aGlzIHBhdGNoLgoKPiAKPj4gQW5kIEtWTSB3b3VsZCBqdXN0IG5lZWQgdG8g
+c2V0IGd1ZXN0X2lkbGVfcG9sbF9mdW5jIGFuZCBlbmFibGUgdGhlCj4+IHN0YXRpYyBrZXkuIFdv
+cmtzIG9uIG5vbi14ODYgYXJjaGl0ZWN0dXJlcywgdG9vLgo+Pgo+IAo+IC4uIHJlZmVycmVkIHRv
+ICdwdl9tbXVfb3BzJywgSHlwZXJWIGFuZCBYZW4gY2FuIGltcGxlbWVudCB0aGVpciBvd24KPiBm
+dW5jdGlvbnMgZm9yICdwdl9tbXVfb3BzJy4KPiBJIHRoaW5rIGl0IGlzIHRoZSBzYW1lIHRvIHB2
+X2lkbGVfb3BzLgo+IAo+IHdpdGggYWJvdmUgZXhwbGFpbmF0aW9uLCBkbyB5b3Ugc3RpbGwgdGhp
+bmsgSSBuZWVkIHRvIGRlZmluZSB0aGUgc3RhdGljCj4ga2V5L2Z1bmN0aW9uIHBvaW50ZXIgdmFy
+aWFudD8KPiAKPiBidHcsIGFueSBpbnRlcmVzdCB0byBwb3J0IGl0IHRvIFhlbiBIVk0gZ3Vlc3Q/
+IDopCgpNYXliZS4gQnV0IHRoaXMgc2hvdWxkIHdvcmsgZm9yIFhlbiBvbiBBUk0sIHRvby4KCgpK
+dWVyZ2VuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
