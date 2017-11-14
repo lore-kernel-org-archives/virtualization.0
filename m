@@ -1,15 +1,15 @@
 From: Quan Xu <quan.xu0@gmail.com>
-Subject: Re: [PATCH RFC v3 4/6] Documentation: Add three sysctls for smart
-	idle poll
-Date: Tue, 14 Nov 2017 12:05:16 +0800
-Message-ID: <35da8c93-95fb-8bf0-8538-4e1ef5f126f4__3291.57968885756$1511414809$gmane$org@gmail.com>
-References: <1510570064-6178-1-git-send-email-quan.xu0@gmail.com>
-	<20171113150842.epdffyxhlu5nq37u@gmail.com>
+Subject: Re: [PATCH RFC v3 1/6] x86/paravirt: Add pv_idle_ops to paravirt ops
+Date: Tue, 14 Nov 2017 15:02:41 +0800
+Message-ID: <902da704-1e4f-583b-91c3-1a62ccd6e73d__7579.37110397524$1511414816$gmane$org@gmail.com>
+References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
+	<1510567565-5118-2-git-send-email-quan.xu0@gmail.com>
+	<07fac696-e3d4-8f35-8f3d-764d7ab41204@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171113150842.epdffyxhlu5nq37u@gmail.com>
+In-Reply-To: <07fac696-e3d4-8f35-8f3d-764d7ab41204@suse.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,91 +20,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@kernel.org>, Quan Xu <quan.xu04@gmail.com>
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org
+To: Juergen Gross <jgross@suse.com>, Quan Xu <quan.xu03@gmail.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
+Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 2017/11/13 23:08, Ingo Molnar wrote:
-> * Quan Xu <quan.xu04@gmail.com> wrote:
->
->> From: Quan Xu <quan.xu0@gmail.com>
->>
->> To reduce the cost of poll, we introduce three sysctl to control the
->> poll time when running as a virtual machine with paravirt.
->>
->> Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
->> Signed-off-by: Quan Xu <quan.xu0@gmail.com>
->> ---
->>   Documentation/sysctl/kernel.txt |   35 +++++++++++++++++++++++++++++++++++
->>   arch/x86/kernel/paravirt.c      |    4 ++++
->>   include/linux/kernel.h          |    6 ++++++
->>   kernel/sysctl.c                 |   34 ++++++++++++++++++++++++++++++++++
->>   4 files changed, 79 insertions(+), 0 deletions(-)
->>
->> diff --git a/Documentation/sysctl/kernel.txt b/Documentation/sysctl/kernel.txt
->> index 694968c..30c25fb 100644
->> --- a/Documentation/sysctl/kernel.txt
->> +++ b/Documentation/sysctl/kernel.txt
->> @@ -714,6 +714,41 @@ kernel tries to allocate a number starting from this one.
->>   
->>   ==============================================================
->>   
->> +paravirt_poll_grow: (X86 only)
->> +
->> +Multiplied value to increase the poll time. This is expected to take
->> +effect only when running as a virtual machine with CONFIG_PARAVIRT
->> +enabled. This can't bring any benifit on bare mental even with
->> +CONFIG_PARAVIRT enabled.
->> +
->> +By default this value is 2. Possible values to set are in range {2..16}.
->> +
->> +==============================================================
->> +
->> +paravirt_poll_shrink: (X86 only)
->> +
->> +Divided value to reduce the poll time. This is expected to take effect
->> +only when running as a virtual machine with CONFIG_PARAVIRT enabled.
->> +This can't bring any benifit on bare mental even with CONFIG_PARAVIRT
->> +enabled.
->> +
->> +By default this value is 2. Possible values to set are in range {2..16}.
->> +
->> +==============================================================
->> +
->> +paravirt_poll_threshold_ns: (X86 only)
->> +
->> +Controls the maximum poll time before entering real idle path. This is
->> +expected to take effect only when running as a virtual machine with
->> +CONFIG_PARAVIRT enabled. This can't bring any benifit on bare mental
->> +even with CONFIG_PARAVIRT enabled.
->> +
->> +By default, this value is 0 means not to poll. Possible values to set
->> +are in range {0..500000}. Change the value to non-zero if running
->> +latency-bound workloads in a virtual machine.
-> I absolutely hate it how this hybrid idle loop polling mechanism is not
-> self-tuning!
-
-Ingo, actually it is self-tuning..
-> Please make it all work fine by default, and automatically so, instead of adding
-> three random parameters...
-.. I will make it all fine by default. howerver cloud environment is of 
-diversity,
-
-could I only leave paravirt_poll_threshold_ns parameter (the maximum 
-poll time),
-which is as similar as "adaptive halt-polling" Wanpeng mentioned.. then 
-user can turn
-it off, or find an appropriate threshold for some odd scenario..
-
-thanks for your comments!!
-Quan
-Alibaba Cloud
-> And if it cannot be done automatically then we should rather not do it at all.
-> Maybe the next submitter of a similar feature can think of a better approach.
->
-> Thanks,
->
-> 	Ingo
->
+CgpPbiAyMDE3LzExLzEzIDE4OjUzLCBKdWVyZ2VuIEdyb3NzIHdyb3RlOgo+IE9uIDEzLzExLzE3
+IDExOjA2LCBRdWFuIFh1IHdyb3RlOgo+PiBGcm9tOiBRdWFuIFh1IDxxdWFuLnh1MEBnbWFpbC5j
+b20+Cj4+Cj4+IFNvIGZhciwgcHZfaWRsZV9vcHMucG9sbCBpcyB0aGUgb25seSBvcHMgZm9yIHB2
+X2lkbGUuIC5wb2xsIGlzIGNhbGxlZAo+PiBpbiBpZGxlIHBhdGggd2hpY2ggd2lsbCBwb2xsIGZv
+ciBhIHdoaWxlIGJlZm9yZSB3ZSBlbnRlciB0aGUgcmVhbCBpZGxlCj4+IHN0YXRlLgo+Pgo+PiBJ
+biB2aXJ0dWFsaXphdGlvbiwgaWRsZSBwYXRoIGluY2x1ZGVzIHNldmVyYWwgaGVhdnkgb3BlcmF0
+aW9ucwo+PiBpbmNsdWRlcyB0aW1lciBhY2Nlc3MoTEFQSUMgdGltZXIgb3IgVFNDIGRlYWRsaW5l
+IHRpbWVyKSB3aGljaCB3aWxsCj4+IGh1cnQgcGVyZm9ybWFuY2UgZXNwZWNpYWxseSBmb3IgbGF0
+ZW5jeSBpbnRlbnNpdmUgd29ya2xvYWQgbGlrZSBtZXNzYWdlCj4+IHBhc3NpbmcgdGFzay4gVGhl
+IGNvc3QgaXMgbWFpbmx5IGZyb20gdGhlIHZtZXhpdCB3aGljaCBpcyBhIGhhcmR3YXJlCj4+IGNv
+bnRleHQgc3dpdGNoIGJldHdlZW4gdmlydHVhbCBtYWNoaW5lIGFuZCBoeXBlcnZpc29yLiBPdXIg
+c29sdXRpb24gaXMKPj4gdG8gcG9sbCBmb3IgYSB3aGlsZSBhbmQgZG8gbm90IGVudGVyIHJlYWwg
+aWRsZSBwYXRoIGlmIHdlIGNhbiBnZXQgdGhlCj4+IHNjaGVkdWxlIGV2ZW50IGR1cmluZyBwb2xs
+aW5nLgo+Pgo+PiBQb2xsIG1heSBjYXVzZSB0aGUgQ1BVIHdhc3RlIHNvIHdlIGFkb3B0IGEgc21h
+cnQgcG9sbGluZyBtZWNoYW5pc20gdG8KPj4gcmVkdWNlIHRoZSB1c2VsZXNzIHBvbGwuCj4+Cj4+
+IFNpZ25lZC1vZmYtYnk6IFlhbmcgWmhhbmcgPHlhbmcuemhhbmcud3pAZ21haWwuY29tPgo+PiBT
+aWduZWQtb2ZmLWJ5OiBRdWFuIFh1IDxxdWFuLnh1MEBnbWFpbC5jb20+Cj4+IENjOiBKdWVyZ2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+Cj4+IENjOiBBbG9rIEthdGFyaWEgPGFrYXRhcmlhQHZt
+d2FyZS5jb20+Cj4+IENjOiBSdXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20uYXU+Cj4+
+IENjOiBUaG9tYXMgR2xlaXhuZXIgPHRnbHhAbGludXRyb25peC5kZT4KPj4gQ2M6IEluZ28gTW9s
+bmFyIDxtaW5nb0ByZWRoYXQuY29tPgo+PiBDYzogIkguIFBldGVyIEFudmluIiA8aHBhQHp5dG9y
+LmNvbT4KPj4gQ2M6IHg4NkBrZXJuZWwub3JnCj4+IENjOiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZwo+PiBDYzogbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZwo+
+PiBDYzogeGVuLWRldmVsQGxpc3RzLnhlbnByb2plY3Qub3JnCj4gSG1tLCBpcyB0aGUgaWRsZSBl
+bnRyeSBwYXRoIHJlYWxseSBzbyBjcml0aWNhbCB0byBwZXJmb3JtYW5jZSB0aGF0IGEgbmV3Cj4g
+cHZvcHMgZnVuY3Rpb24gaXMgbmVjZXNzYXJ5PwpKdWVyZ2VuLCBIZXJlIGlzIHRoZSBkYXRhIHdl
+IGdldCB3aGVuIHJ1bm5pbmcgYmVuY2htYXJrIG5ldHBlcmY6CiDCoDEuIHcvbyBwYXRjaCBhbmQg
+ZGlzYWJsZSBrdm0gZHluYW1pYyBwb2xsIChoYWx0X3BvbGxfbnM9MCk6CiDCoMKgwqAgMjkwMzEu
+NiBiaXQvcyAtLSA3Ni4xICVDUFUKCiDCoDIuIHcvIHBhdGNoIGFuZCBkaXNhYmxlIGt2bSBkeW5h
+bWljIHBvbGwgKGhhbHRfcG9sbF9ucz0wKToKIMKgwqDCoCAzNTc4Ny43IGJpdC9zIC0tIDEyOS40
+ICVDUFUKCiDCoDMuIHcvIGt2bSBkeW5hbWljIHBvbGw6CiDCoMKgwqAgMzU3MzUuNiBiaXQvcyAt
+LSAyMDAuMCAlQ1BVCgogwqA0LiB3L3BhdGNoIGFuZCB3LyBrdm0gZHluYW1pYyBwb2xsOgogwqDC
+oMKgIDQyMjI1LjMgYml0L3MgLS0gMTk4LjcgJUNQVQoKIMKgNS4gaWRsZT1wb2xsCiDCoMKgwqAg
+MzcwODEuNyBiaXQvcyAtLSA5OTguMSAlQ1BVCgoKCiDCoHcvIHRoaXMgcGF0Y2gsIHdlIHdpbGwg
+aW1wcm92ZSBwZXJmb3JtYW5jZSBieSAyMyUuLiBldmVuIHdlIGNvdWxkIGltcHJvdmUKIMKgcGVy
+Zm9ybWFuY2UgYnkgNDUuNCUsIGlmIHdlIHVzZSB3L3BhdGNoIGFuZCB3LyBrdm0gZHluYW1pYyBw
+b2xsLiBhbHNvIHRoZQogwqBjb3N0IG9mIENQVSBpcyBtdWNoIGxvd2VyIHRoYW4gJ2lkbGU9cG9s
+bCcgY2FzZS4uCgo+IFdvdWxkbid0IGEgZnVuY3Rpb24gcG9pbnRlciwgbWF5YmUgZ3VhcmRlZAo+
+IGJ5IGEgc3RhdGljIGtleSwgYmUgZW5vdWdoPyBBIGZ1cnRoZXIgYWR2YW50YWdlIHdvdWxkIGJl
+IHRoYXQgdGhpcyB3b3VsZAo+IHdvcmsgb24gb3RoZXIgYXJjaGl0ZWN0dXJlcywgdG9vLgoKSSBh
+c3N1bWUgdGhpcyBmZWF0dXJlIHdpbGwgYmUgcG9ydGVkIHRvIG90aGVyIGFyY2hzLi4gYSBuZXcg
+cHZvcHMgbWFrZXMgY29kZQpjbGVhbiBhbmQgZWFzeSB0byBtYWludGFpbi4gYWxzbyBJIHRyaWVk
+IHRvIGFkZCBpdCBpbnRvIGV4aXN0ZWQgcHZvcHMsIApidXQgaXQKZG9lc24ndCBtYXRjaC4KCgoK
+UXVhbgpBbGliYWJhIENsb3VkCj4KPiBKdWVyZ2VuCj4KCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
