@@ -1,18 +1,16 @@
-From: Wanpeng Li <kernellwp@gmail.com>
-Subject: Re: [PATCH RFC v3 1/6] x86/paravirt: Add pv_idle_ops to paravirt ops
-Date: Tue, 14 Nov 2017 16:22:35 +0800
-Message-ID: <CANRm+Cycx3ewegOXR7c70kpdsaJA-=M5QztDt4J2L=VqpeCsfQ@mail.gmail.com>
-References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
-	<1510567565-5118-2-git-send-email-quan.xu0@gmail.com>
-	<07fac696-e3d4-8f35-8f3d-764d7ab41204@suse.com>
-	<902da704-1e4f-583b-91c3-1a62ccd6e73d@gmail.com>
-	<CANRm+CxirO0aSAQnOfPG0+KPCOnXf3SEASwBiprLmtncZE53pA@mail.gmail.com>
-	<d233b179-9815-0134-ef04-c492f9523121@gmail.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH] drm/virtio: add create_handle support.
+Date: Tue, 14 Nov 2017 11:11:49 +0100
+Message-ID: <20171114101149.ms5ck33kzxymg7nu__46403.4561221071$1510654325$gmane$org@sirius.home.kraxel.org>
+References: <20171108125659.oyjzylx26zmz7753@phenom.ffwll.local>
+	<20171108184209.46211-1-ytht.net@gmail.com>
+	<CALqoU4y=w8m5g_vCHTRmiBYg1g8W1xcJ5qih2pj+HQeQ2tNo2Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <d233b179-9815-0134-ef04-c492f9523121@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <CALqoU4y=w8m5g_vCHTRmiBYg1g8W1xcJ5qih2pj+HQeQ2tNo2Q@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,107 +20,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Quan Xu <quan.xu0@gmail.com>
-Cc: Juergen Gross <jgross@suse.com>, Yang Zhang <yang.zhang.wz@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, kvm <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Quan Xu <quan.xu03@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, "open list:FILESYSTEMS (VFS and infrastructure)" <linux-fsdevel@vger.kernel.org>, xen-devel <xen-devel@lists.xenproject.org>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
+To: lepton <ytht.net@gmail.com>
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-2017-11-14 16:15 GMT+08:00 Quan Xu <quan.xu0@gmail.com>:
->
->
-> On 2017/11/14 15:12, Wanpeng Li wrote:
->>
->> 2017-11-14 15:02 GMT+08:00 Quan Xu <quan.xu0@gmail.com>:
->>>
->>>
->>> On 2017/11/13 18:53, Juergen Gross wrote:
->>>>
->>>> On 13/11/17 11:06, Quan Xu wrote:
->>>>>
->>>>> From: Quan Xu <quan.xu0@gmail.com>
->>>>>
->>>>> So far, pv_idle_ops.poll is the only ops for pv_idle. .poll is called
->>>>> in idle path which will poll for a while before we enter the real idle
->>>>> state.
->>>>>
->>>>> In virtualization, idle path includes several heavy operations
->>>>> includes timer access(LAPIC timer or TSC deadline timer) which will
->>>>> hurt performance especially for latency intensive workload like message
->>>>> passing task. The cost is mainly from the vmexit which is a hardware
->>>>> context switch between virtual machine and hypervisor. Our solution is
->>>>> to poll for a while and do not enter real idle path if we can get the
->>>>> schedule event during polling.
->>>>>
->>>>> Poll may cause the CPU waste so we adopt a smart polling mechanism to
->>>>> reduce the useless poll.
->>>>>
->>>>> Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
->>>>> Signed-off-by: Quan Xu <quan.xu0@gmail.com>
->>>>> Cc: Juergen Gross <jgross@suse.com>
->>>>> Cc: Alok Kataria <akataria@vmware.com>
->>>>> Cc: Rusty Russell <rusty@rustcorp.com.au>
->>>>> Cc: Thomas Gleixner <tglx@linutronix.de>
->>>>> Cc: Ingo Molnar <mingo@redhat.com>
->>>>> Cc: "H. Peter Anvin" <hpa@zytor.com>
->>>>> Cc: x86@kernel.org
->>>>> Cc: virtualization@lists.linux-foundation.org
->>>>> Cc: linux-kernel@vger.kernel.org
->>>>> Cc: xen-devel@lists.xenproject.org
->>>>
->>>> Hmm, is the idle entry path really so critical to performance that a new
->>>> pvops function is necessary?
->>>
->>> Juergen, Here is the data we get when running benchmark netperf:
->>>   1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
->>>      29031.6 bit/s -- 76.1 %CPU
->>>
->>>   2. w/ patch and disable kvm dynamic poll (halt_poll_ns=0):
->>>      35787.7 bit/s -- 129.4 %CPU
->>>
->>>   3. w/ kvm dynamic poll:
->>>      35735.6 bit/s -- 200.0 %CPU
->>
->> Actually we can reduce the CPU utilization by sleeping a period of
->> time as what has already been done in the poll logic of IO subsystem,
->> then we can improve the algorithm in kvm instead of introduing another
->> duplicate one in the kvm guest.
->
-> We really appreciate upstream's kvm dynamic poll mechanism, which is
-> really helpful for a lot of scenario..
->
-> However, as description said, in virtualization, idle path includes
-> several heavy operations includes timer access (LAPIC timer or TSC
-> deadline timer) which will hurt performance especially for latency
-> intensive workload like message passing task. The cost is mainly from
-> the vmexit which is a hardware context switch between virtual machine
-> and hypervisor.
->
-> for upstream's kvm dynamic poll mechanism, even you could provide a
-> better algorism, how could you bypass timer access (LAPIC timer or TSC
-> deadline timer), or a hardware context switch between virtual machine
-> and hypervisor. I know these is a tradeoff.
->
-> Furthermore, here is the data we get when running benchmark contextswitch
-> to measure the latency(lower is better):
->
-> 1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
->   3402.9 ns/ctxsw -- 199.8 %CPU
->
-> 2. w/ patch and disable kvm dynamic poll:
->   1163.5 ns/ctxsw -- 205.5 %CPU
->
-> 3. w/ kvm dynamic poll:
->   2280.6 ns/ctxsw -- 199.5 %CPU
->
-> so, these tow solution are quite similar, but not duplicate..
->
-> that's also why to add a generic idle poll before enter real idle path.
-> When a reschedule event is pending, we can bypass the real idle path.
->
+On Mon, Nov 13, 2017 at 02:19:29PM -0800, lepton wrote:
+> Ping.
+> 
+> On Wed, Nov 8, 2017 at 10:42 AM, Lepton Wu <ytht.net@gmail.com> wrote:
+> > Add create_handle support to virtio fb. Without this, screenshot tool
+> > in chromium OS can't work.
 
-There is a similar logic in the idle governor/driver, so how this
-patchset influence the decision in the idle governor/driver when
-running on bare-metal(power managment is not exposed to the guest so
-we will not enter into idle driver in the guest)?
+Already queued up in drm-misc-next (the cirrus patch too).
 
-Regards,
-Wanpeng Li
+cheers,
+  Gerd
