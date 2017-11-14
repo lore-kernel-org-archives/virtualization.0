@@ -1,21 +1,16 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH RFC v3 1/6] x86/paravirt: Add pv_idle_ops to paravirt ops
-Date: Tue, 14 Nov 2017 12:58:46 +0100
-Message-ID: <52c04d5b-1ec8-feed-e928-194ae5738e5a@suse.com>
-References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
-	<1510567565-5118-2-git-send-email-quan.xu0@gmail.com>
-	<07fac696-e3d4-8f35-8f3d-764d7ab41204@suse.com>
-	<902da704-1e4f-583b-91c3-1a62ccd6e73d@gmail.com>
-	<fe6eeed1-4eee-eaaa-df3b-8979af8a3891@suse.com>
-	<79dad15c-2d26-bcf3-7283-293e42a161ea@gmail.com>
-	<9a4f53f3-225f-0e99-d9b2-d89656b8fb31@suse.com>
-	<41403bbb-bfa9-0618-abf7-dd871a7b783a@gmail.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v17 6/6] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
+Date: Tue, 14 Nov 2017 20:02:03 +0800
+Message-ID: <5A0ADB3B.4070407__29297.7096666165$1510660792$gmane$org@intel.com>
+References: <1509696786-1597-1-git-send-email-wei.w.wang@intel.com>
+	<1509696786-1597-7-git-send-email-wei.w.wang@intel.com>
+	<5A097548.8000608@intel.com>
+	<20171113192309-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <41403bbb-bfa9-0618-abf7-dd871a7b783a@gmail.com>
-Content-Language: en-US
+In-Reply-To: <20171113192309-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,110 +20,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Quan Xu <quan.xu0@gmail.com>, Quan Xu <quan.xu03@gmail.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, Nitesh Narayan Lal <nilal@redhat.com>, Rik van Riel <riel@redhat.com>, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTQvMTEvMTcgMTI6NDMsIFF1YW4gWHUgd3JvdGU6Cj4gCj4gCj4gT24gMjAxNy8xMS8xNCAx
-ODoyNywgSnVlcmdlbiBHcm9zcyB3cm90ZToKPj4gT24gMTQvMTEvMTcgMTA6MzgsIFF1YW4gWHUg
-d3JvdGU6Cj4+Pgo+Pj4gT24gMjAxNy8xMS8xNCAxNTozMCwgSnVlcmdlbiBHcm9zcyB3cm90ZToK
-Pj4+PiBPbiAxNC8xMS8xNyAwODowMiwgUXVhbiBYdSB3cm90ZToKPj4+Pj4gT24gMjAxNy8xMS8x
-MyAxODo1MywgSnVlcmdlbiBHcm9zcyB3cm90ZToKPj4+Pj4+IE9uIDEzLzExLzE3IDExOjA2LCBR
-dWFuIFh1IHdyb3RlOgo+Pj4+Pj4+IEZyb206IFF1YW4gWHUgPHF1YW4ueHUwQGdtYWlsLmNvbT4K
-Pj4+Pj4+Pgo+Pj4+Pj4+IFNvIGZhciwgcHZfaWRsZV9vcHMucG9sbCBpcyB0aGUgb25seSBvcHMg
-Zm9yIHB2X2lkbGUuIC5wb2xsIGlzCj4+Pj4+Pj4gY2FsbGVkCj4+Pj4+Pj4gaW4gaWRsZSBwYXRo
-IHdoaWNoIHdpbGwgcG9sbCBmb3IgYSB3aGlsZSBiZWZvcmUgd2UgZW50ZXIgdGhlIHJlYWwKPj4+
-Pj4+PiBpZGxlCj4+Pj4+Pj4gc3RhdGUuCj4+Pj4+Pj4KPj4+Pj4+PiBJbiB2aXJ0dWFsaXphdGlv
-biwgaWRsZSBwYXRoIGluY2x1ZGVzIHNldmVyYWwgaGVhdnkgb3BlcmF0aW9ucwo+Pj4+Pj4+IGlu
-Y2x1ZGVzIHRpbWVyIGFjY2VzcyhMQVBJQyB0aW1lciBvciBUU0MgZGVhZGxpbmUgdGltZXIpIHdo
-aWNoIHdpbGwKPj4+Pj4+PiBodXJ0IHBlcmZvcm1hbmNlIGVzcGVjaWFsbHkgZm9yIGxhdGVuY3kg
-aW50ZW5zaXZlIHdvcmtsb2FkIGxpa2UKPj4+Pj4+PiBtZXNzYWdlCj4+Pj4+Pj4gcGFzc2luZyB0
-YXNrLiBUaGUgY29zdCBpcyBtYWlubHkgZnJvbSB0aGUgdm1leGl0IHdoaWNoIGlzIGEgaGFyZHdh
-cmUKPj4+Pj4+PiBjb250ZXh0IHN3aXRjaCBiZXR3ZWVuIHZpcnR1YWwgbWFjaGluZSBhbmQgaHlw
-ZXJ2aXNvci4gT3VyCj4+Pj4+Pj4gc29sdXRpb24gaXMKPj4+Pj4+PiB0byBwb2xsIGZvciBhIHdo
-aWxlIGFuZCBkbyBub3QgZW50ZXIgcmVhbCBpZGxlIHBhdGggaWYgd2UgY2FuIGdldAo+Pj4+Pj4+
-IHRoZQo+Pj4+Pj4+IHNjaGVkdWxlIGV2ZW50IGR1cmluZyBwb2xsaW5nLgo+Pj4+Pj4+Cj4+Pj4+
-Pj4gUG9sbCBtYXkgY2F1c2UgdGhlIENQVSB3YXN0ZSBzbyB3ZSBhZG9wdCBhIHNtYXJ0IHBvbGxp
-bmcKPj4+Pj4+PiBtZWNoYW5pc20gdG8KPj4+Pj4+PiByZWR1Y2UgdGhlIHVzZWxlc3MgcG9sbC4K
-Pj4+Pj4+Pgo+Pj4+Pj4+IFNpZ25lZC1vZmYtYnk6IFlhbmcgWmhhbmcgPHlhbmcuemhhbmcud3pA
-Z21haWwuY29tPgo+Pj4+Pj4+IFNpZ25lZC1vZmYtYnk6IFF1YW4gWHUgPHF1YW4ueHUwQGdtYWls
-LmNvbT4KPj4+Pj4+PiBDYzogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPgo+Pj4+Pj4+
-IENjOiBBbG9rIEthdGFyaWEgPGFrYXRhcmlhQHZtd2FyZS5jb20+Cj4+Pj4+Pj4gQ2M6IFJ1c3R5
-IFJ1c3NlbGwgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4KPj4+Pj4+PiBDYzogVGhvbWFzIEdsZWl4
-bmVyIDx0Z2x4QGxpbnV0cm9uaXguZGU+Cj4+Pj4+Pj4gQ2M6IEluZ28gTW9sbmFyIDxtaW5nb0By
-ZWRoYXQuY29tPgo+Pj4+Pj4+IENjOiAiSC4gUGV0ZXIgQW52aW4iIDxocGFAenl0b3IuY29tPgo+
-Pj4+Pj4+IENjOiB4ODZAa2VybmVsLm9yZwo+Pj4+Pj4+IENjOiB2aXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwo+Pj4+Pj4+IENjOiBsaW51eC1rZXJuZWxAdmdlci5rZXJu
-ZWwub3JnCj4+Pj4+Pj4gQ2M6IHhlbi1kZXZlbEBsaXN0cy54ZW5wcm9qZWN0Lm9yZwo+Pj4+Pj4g
-SG1tLCBpcyB0aGUgaWRsZSBlbnRyeSBwYXRoIHJlYWxseSBzbyBjcml0aWNhbCB0byBwZXJmb3Jt
-YW5jZSB0aGF0IGEKPj4+Pj4+IG5ldwo+Pj4+Pj4gcHZvcHMgZnVuY3Rpb24gaXMgbmVjZXNzYXJ5
-Pwo+Pj4+PiBKdWVyZ2VuLCBIZXJlIGlzIHRoZSBkYXRhIHdlIGdldCB3aGVuIHJ1bm5pbmcgYmVu
-Y2htYXJrIG5ldHBlcmY6Cj4+Pj4+IMKgwqDCoDEuIHcvbyBwYXRjaCBhbmQgZGlzYWJsZSBrdm0g
-ZHluYW1pYyBwb2xsIChoYWx0X3BvbGxfbnM9MCk6Cj4+Pj4+IMKgwqDCoMKgwqAgMjkwMzEuNiBi
-aXQvcyAtLSA3Ni4xICVDUFUKPj4+Pj4KPj4+Pj4gwqDCoMKgMi4gdy8gcGF0Y2ggYW5kIGRpc2Fi
-bGUga3ZtIGR5bmFtaWMgcG9sbCAoaGFsdF9wb2xsX25zPTApOgo+Pj4+PiDCoMKgwqDCoMKgIDM1
-Nzg3LjcgYml0L3MgLS0gMTI5LjQgJUNQVQo+Pj4+Pgo+Pj4+PiDCoMKgwqAzLiB3LyBrdm0gZHlu
-YW1pYyBwb2xsOgo+Pj4+PiDCoMKgwqDCoMKgIDM1NzM1LjYgYml0L3MgLS0gMjAwLjAgJUNQVQo+
-Pj4+Pgo+Pj4+PiDCoMKgwqA0LiB3L3BhdGNoIGFuZCB3LyBrdm0gZHluYW1pYyBwb2xsOgo+Pj4+
-PiDCoMKgwqDCoMKgIDQyMjI1LjMgYml0L3MgLS0gMTk4LjcgJUNQVQo+Pj4+Pgo+Pj4+PiDCoMKg
-wqA1LiBpZGxlPXBvbGwKPj4+Pj4gwqDCoMKgwqDCoCAzNzA4MS43IGJpdC9zIC0tIDk5OC4xICVD
-UFUKPj4+Pj4KPj4+Pj4KPj4+Pj4KPj4+Pj4gwqDCoMKgdy8gdGhpcyBwYXRjaCwgd2Ugd2lsbCBp
-bXByb3ZlIHBlcmZvcm1hbmNlIGJ5IDIzJS4uIGV2ZW4gd2UgY291bGQKPj4+Pj4gaW1wcm92ZQo+
-Pj4+PiDCoMKgwqBwZXJmb3JtYW5jZSBieSA0NS40JSwgaWYgd2UgdXNlIHcvcGF0Y2ggYW5kIHcv
-IGt2bSBkeW5hbWljIHBvbGwuCj4+Pj4+IGFsc28gdGhlCj4+Pj4+IMKgwqDCoGNvc3Qgb2YgQ1BV
-IGlzIG11Y2ggbG93ZXIgdGhhbiAnaWRsZT1wb2xsJyBjYXNlLi4KPj4+PiBJIGRvbid0IHF1ZXN0
-aW9uIHRoZSBnZW5lcmFsIGlkZWEuIEkganVzdCB0aGluayBwdm9wcyBpc24ndCB0aGUgYmVzdAo+
-Pj4+IHdheQo+Pj4+IHRvIGltcGxlbWVudCBpdC4KPj4+Pgo+Pj4+Pj4gV291bGRuJ3QgYSBmdW5j
-dGlvbiBwb2ludGVyLCBtYXliZSBndWFyZGVkCj4+Pj4+PiBieSBhIHN0YXRpYyBrZXksIGJlIGVu
-b3VnaD8gQSBmdXJ0aGVyIGFkdmFudGFnZSB3b3VsZCBiZSB0aGF0IHRoaXMKPj4+Pj4+IHdvdWxk
-Cj4+Pj4+PiB3b3JrIG9uIG90aGVyIGFyY2hpdGVjdHVyZXMsIHRvby4KPj4+Pj4gSSBhc3N1bWUg
-dGhpcyBmZWF0dXJlIHdpbGwgYmUgcG9ydGVkIHRvIG90aGVyIGFyY2hzLi4gYSBuZXcgcHZvcHMK
-Pj4+Pj4gbWFrZXMKPj4+IMKgwqDCoMKgwqDCoCBzb3JyeSwgYSB0eXBvLi4gL290aGVyIGFyY2hz
-L290aGVyIGh5cGVydmlzb3JzLwo+Pj4gwqDCoMKgwqDCoMKgIGl0IHJlZmVycyBoeXBlcnZpc29y
-IGxpa2UgWGVuLCBIeXBlclYgYW5kIFZNd2FyZSkuLgo+Pj4KPj4+Pj4gY29kZQo+Pj4+PiBjbGVh
-biBhbmQgZWFzeSB0byBtYWludGFpbi4gYWxzbyBJIHRyaWVkIHRvIGFkZCBpdCBpbnRvIGV4aXN0
-ZWQgcHZvcHMsCj4+Pj4+IGJ1dCBpdAo+Pj4+PiBkb2Vzbid0IG1hdGNoLgo+Pj4+IFlvdSBhcmUg
-YXdhcmUgdGhhdCBwdm9wcyBpcyB4ODYgb25seT8KPj4+IHllcywgSSdtIGF3YXJlLi4KPj4+Cj4+
-Pj4gSSByZWFsbHkgZG9uJ3Qgc2VlIHRoZSBiaWcgZGlmZmVyZW5jZSBpbiBtYWludGFpbmFiaWxp
-dHkgY29tcGFyZWQgdG8KPj4+PiB0aGUKPj4+PiBzdGF0aWMga2V5IC8gZnVuY3Rpb24gcG9pbnRl
-ciB2YXJpYW50Ogo+Pj4+Cj4+Pj4gdm9pZCAoKmd1ZXN0X2lkbGVfcG9sbF9mdW5jKSh2b2lkKTsK
-Pj4+PiBzdHJ1Y3Qgc3RhdGljX2tleSBndWVzdF9pZGxlX3BvbGxfa2V5IF9fcmVhZF9tb3N0bHk7
-Cj4+Pj4KPj4+PiBzdGF0aWMgaW5saW5lIHZvaWQgZ3Vlc3RfaWRsZV9wb2xsKHZvaWQpCj4+Pj4g
-ewo+Pj4+IMKgwqDCoMKgwqBpZiAoc3RhdGljX2tleV9mYWxzZSgmZ3Vlc3RfaWRsZV9wb2xsX2tl
-eSkpCj4+Pj4gwqDCoMKgwqDCoMKgwqDCoCBndWVzdF9pZGxlX3BvbGxfZnVuYygpOwo+Pj4+IH0K
-Pj4+Cj4+Pgo+Pj4gdGhhbmsgeW91IGZvciB5b3VyIHNhbXBsZSBjb2RlIDopCj4+PiBJIGFncmVl
-IHRoZXJlIGlzIG5vIGJpZyBkaWZmZXJlbmNlLi4gSSB0aGluayB3ZSBhcmUgZGlzY3Vzc2lvbiBm
-b3IgdHdvCj4+PiB0aGluZ3M6Cj4+PiDCoMKgMSkgeDg2IFZNIG9uIGRpZmZlcmVudCBoeXBlcnZp
-c29ycwo+Pj4gwqDCoDIpIGRpZmZlcmVudCBhcmNocyBWTSBvbiBrdm0gaHlwZXJ2aXNvcgo+Pj4K
-Pj4+IFdoYXQgSSB3YW50IHRvIGRvIGlzIHg4NiBWTSBvbiBkaWZmZXJlbnQgaHlwZXJ2aXNvcnMs
-IHN1Y2ggYXMga3ZtIC8geGVuCj4+PiAvIGh5cGVydiAuLgo+PiBXaHkgbGltaXQgdGhlIHNvbHV0
-aW9uIHRvIHg4NiBpZiB0aGUgbW9yZSBnZW5lcmFsIHNvbHV0aW9uIGlzbid0Cj4+IGhhcmRlcj8K
-Pj4KPj4gQXMgeW91IGRpZG4ndCBnaXZlIGFueSByZWFzb24gd2h5IHRoZSBwdm9wcyBhcHByb2Fj
-aCBpcyBiZXR0ZXIgb3RoZXIKPj4gdGhhbiB5b3UgZG9uJ3QgY2FyZSBmb3Igbm9uLXg4NiBwbGF0
-Zm9ybXMgeW91IHdvbid0IGdldCBhbiAiQWNrIiBmcm9tCj4+IG1lIGZvciB0aGlzIHBhdGNoLgo+
-IAo+IAo+IEl0IGp1c3QgbG9va3MgYSBsaXR0bGUgb2RkZXIgdG8gbWUuIEkgdW5kZXJzdGFuZCB5
-b3UgY2FyZSBhYm91dCBuby14ODYKPiBhcmNoLgo+IAo+IEFyZSB5b3UgYXdhcmUgJ3B2X3RpbWVf
-b3BzJyBmb3IgYXJtNjQvYXJtL3g4NiBhcmNocywgZGVmaW5lZCBpbgo+IMKgwqAgLSBhcmNoL2Fy
-bTY0L2luY2x1ZGUvYXNtL3BhcmF2aXJ0LmgKPiDCoMKgIC0gYXJjaC94ODYvaW5jbHVkZS9hc20v
-cGFyYXZpcnRfdHlwZXMuaAo+IMKgwqAgLSBhcmNoL2FybS9pbmNsdWRlL2FzbS9wYXJhdmlydC5o
-CgpZZXMsIEkga25vdy4gVGhpcyBpcyBqdXN0IGEgaGFjayB0byBtYWtlIGl0IGNvbXBpbGUuIE90
-aGVyIHRoYW4gdGhlCnNhbWUgbmFtZXMgdGhpcyBoYXMgbm90aGluZyB0byBkbyB3aXRoIHB2b3Bz
-LCBidXQgaXMganVzdCBhIGZ1bmN0aW9uCnZlY3Rvci4KCj4gSSBhbSB1bmZhbWlsYXIgd2l0aCBh
-cm0gY29kZS4gSUlVQywgaWYgeW91J2QgaW1wbGVtZW50IHB2X2lkbGVfb3BzCj4gZm9yIGFybS9h
-cm02NCBhcmNoLCB5b3UnZCBkZWZpbmUgYSBzYW1lIHN0cnVjdHVyZSBpbgo+IMKgwqAgLSBhcmNo
-L2FybTY0L2luY2x1ZGUvYXNtL3BhcmF2aXJ0LmjCoMKgwqDCoCBvcgo+IMKgwqAgLSBhcmNoL2Fy
-bS9pbmNsdWRlL2FzbS9wYXJhdmlydC5oCj4gCj4gLi4gaW5zdGVhZCBvZiBzdGF0aWMga2V5IC8g
-ZnVjdGlvbi4KPiAKPiB0aGVuIGltcGxlbWVudCBhIHJlYWwgZnVuY3Rpb24gaW4KPiDCoMKgIC0g
-YXJjaC9hcm0va2VybmVsL3BhcmF2aXJ0LmMuCgpTbyBqdXN0IHRvIHVzZSBwdm9wcyB5b3Ugd2Fu
-dCB0byBpbXBsZW1lbnQgaXQgaW4gZWFjaCBhcmNoIGluc3RlYWQKb2YgdXNpbmcgYSBtZWNoYW5p
-c20gYXZhaWxhYmxlIGV2ZXJ5d2hlcmU/Cgo+IEFsc28gSSB3b25kZXIgSE9XL1dIRVJFIHRvIGRl
-ZmluZSBhIHN0YXRpYyBrZXkvZnVuY3Rpb24sIHRoZW4gdG8gYmVuaWZpdAo+IHg4Ni9uby14ODYg
-YXJjaHM/CgpXaGF0PyBUaGVyZSBhcmUgcGxlbnR5IG9mIGV4YW1wbGVzIGluIHRoZSBrZXJuZWwu
-CgpQbGVhc2Ugc3RvcCB3YXN0aW5nIG15IHRpbWUuIEVpdGhlciB3cml0ZSBhIHBhdGNoIHdoaWNo
-IGlzIGFjY2VwdGFibGUKb3IgbGV0IGl0IGJlLiBJIHdvbid0IHRha2UgeW91ciBwdm9wcyBhcHBy
-b2FjaCB3aXRob3V0IGEgcmVhbGx5IGdvb2QKcmVhc29uIHRvIGRvIHNvLiBBbmQgc28gZmFyIHlv
-dSBoYXZlbid0IGdpdmVuIGFueSByZWFzb24gb3RoZXIgdGhhbgp5b3UgYXJlIHRvbyBsYXp5IHRv
-IHdyaXRlIGEgcHJvcGVyIHBhdGNoLCBzb3JyeS4KCgpKdWVyZ2VuCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
-dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
-LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 11/14/2017 01:32 AM, Michael S. Tsirkin wrote:
+>> - guest2host_cmd: written by the guest to ACK to the host about the
+>> commands that have been received. The host will clear the corresponding
+>> bits on the host2guest_cmd register. The guest also uses this register
+>> to send commands to the host (e.g. when finish free page reporting).
+> I am not sure what is the role of guest2host_cmd. Reporting of
+> the correct cmd id seems sufficient indication that guest
+> received the start command. Not getting any more seems sufficient
+> to detect stop.
+>
+
+I think the issue is when the host is waiting for the guest to report 
+pages, it does not know whether the guest is going to report more or the 
+report is done already. That's why we need a way to let the guest tell 
+the host "the report is done, don't wait for more", then the host 
+continues to the next step - sending the non-free pages to the 
+destination. The following method is a conclusion of other comments, 
+with some new thought. Please have a check if it is good.
+
+Two new configuration registers in total:
+- cmd_reg: the command register, combined from the previous host2guest 
+and guest2host. I think we can use the same register for host requesting 
+and guest ACKing, since the guest writing will trap to QEMU, that is, 
+all the writes to the register are performed in QEMU, and we can keep 
+things work in a correct way there.
+- cmd_id_reg: the sequence id of the free page report command.
+
+-- free page report:
+     - host requests the guest to start reporting by "cmd_reg | 
+REPORT_START";
+     - guest ACKs to the host about receiving the start reporting 
+request by "cmd_reg | REPORT_START", host will clear the flag bit once 
+receiving the ACK.
+     - host requests the guest to stop reporting by "cmd_reg | REPORT_STOP";
+     - guest ACKs to the host about receiving the stop reporting request 
+by "cmd_reg | REPORT_STOP", host will clear the flag once receiving the ACK.
+     - guest tells the host about the start of the reporting by writing 
+"cmd id" into an outbuf, which is added to the free page vq.
+     - guest tells the host about the end of the reporting by writing 
+"0" into an outbuf, which is added to the free page vq. (we reserve 
+"id=0" as the stop sign)
+
+-- ballooning:
+     - host requests the guest to start ballooning by "cmd_reg | 
+BALLOONING";
+     - guest ACKs to the host about receiving the request by "cmd_reg | 
+BALLOONING", host will clear the flag once receiving the ACK.
+
+
+Some more explanations:
+-- Why not let the host request the guest to start the free page 
+reporting simply by writing a new cmd id to the cmd_id_reg?
+The configuration interrupt is shared among all the features - 
+ballooning, free page reporting, and future feature extensions which 
+need host-to-guest requests. Some features may need to add other feature 
+specific configuration registers, like free page reporting need the 
+cmd_id_reg, which is not used by ballooning. The rule here is that the 
+feature specific registers are read only when that feature is requested 
+via the cmd_reg. For example, the cmd_id_reg is read only when "cmd_reg 
+| REPORT_START" is true. Otherwise, when the driver receives a 
+configuration interrupt, it has to read both cmd_reg and cmd_id 
+registers to know what are requested by the host - think about the case 
+that ballooning requests are sent frequently while free page reporting 
+isn't requested, the guest has to read the cmd_id register every time a 
+ballooning request is sent by the host, which is not necessary. If 
+future new features follow this style, there will be more unnecessary 
+VMexits to read the unused feature specific registers.
+So I think it is good to have a central control of the feature request 
+via only one cmd register - reading that one is enough to know what is 
+requested by the host.
+
+
+Best,
+Wei
