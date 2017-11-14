@@ -1,16 +1,17 @@
-From: Wanpeng Li <kernellwp@gmail.com>
+From: Juergen Gross <jgross@suse.com>
 Subject: Re: [PATCH RFC v3 1/6] x86/paravirt: Add pv_idle_ops to paravirt ops
-Date: Tue, 14 Nov 2017 15:12:56 +0800
-Message-ID: <CANRm+CxirO0aSAQnOfPG0+KPCOnXf3SEASwBiprLmtncZE53pA__40899.925484746$1510643588$gmane$org@mail.gmail.com>
+Date: Tue, 14 Nov 2017 08:30:40 +0100
+Message-ID: <fe6eeed1-4eee-eaaa-df3b-8979af8a3891__13273.0922582143$1510644652$gmane$org@suse.com>
 References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
 	<1510567565-5118-2-git-send-email-quan.xu0@gmail.com>
 	<07fac696-e3d4-8f35-8f3d-764d7ab41204@suse.com>
 	<902da704-1e4f-583b-91c3-1a62ccd6e73d@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <902da704-1e4f-583b-91c3-1a62ccd6e73d@gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,97 +21,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Quan Xu <quan.xu0@gmail.com>
-Cc: Juergen Gross <jgross@suse.com>, Yang Zhang <yang.zhang.wz@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, kvm <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Quan Xu <quan.xu03@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, "open list:FILESYSTEMS (VFS and infrastructure)" <linux-fsdevel@vger.kernel.org>, xen-devel <xen-devel@lists.xenproject.org>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Quan Xu <quan.xu0@gmail.com>, Quan Xu <quan.xu03@gmail.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
+Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-2017-11-14 15:02 GMT+08:00 Quan Xu <quan.xu0@gmail.com>:
->
->
-> On 2017/11/13 18:53, Juergen Gross wrote:
->>
->> On 13/11/17 11:06, Quan Xu wrote:
->>>
->>> From: Quan Xu <quan.xu0@gmail.com>
->>>
->>> So far, pv_idle_ops.poll is the only ops for pv_idle. .poll is called
->>> in idle path which will poll for a while before we enter the real idle
->>> state.
->>>
->>> In virtualization, idle path includes several heavy operations
->>> includes timer access(LAPIC timer or TSC deadline timer) which will
->>> hurt performance especially for latency intensive workload like message
->>> passing task. The cost is mainly from the vmexit which is a hardware
->>> context switch between virtual machine and hypervisor. Our solution is
->>> to poll for a while and do not enter real idle path if we can get the
->>> schedule event during polling.
->>>
->>> Poll may cause the CPU waste so we adopt a smart polling mechanism to
->>> reduce the useless poll.
->>>
->>> Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
->>> Signed-off-by: Quan Xu <quan.xu0@gmail.com>
->>> Cc: Juergen Gross <jgross@suse.com>
->>> Cc: Alok Kataria <akataria@vmware.com>
->>> Cc: Rusty Russell <rusty@rustcorp.com.au>
->>> Cc: Thomas Gleixner <tglx@linutronix.de>
->>> Cc: Ingo Molnar <mingo@redhat.com>
->>> Cc: "H. Peter Anvin" <hpa@zytor.com>
->>> Cc: x86@kernel.org
->>> Cc: virtualization@lists.linux-foundation.org
->>> Cc: linux-kernel@vger.kernel.org
->>> Cc: xen-devel@lists.xenproject.org
->>
->> Hmm, is the idle entry path really so critical to performance that a new
->> pvops function is necessary?
->
-> Juergen, Here is the data we get when running benchmark netperf:
->  1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
->     29031.6 bit/s -- 76.1 %CPU
->
->  2. w/ patch and disable kvm dynamic poll (halt_poll_ns=0):
->     35787.7 bit/s -- 129.4 %CPU
->
->  3. w/ kvm dynamic poll:
->     35735.6 bit/s -- 200.0 %CPU
-
-Actually we can reduce the CPU utilization by sleeping a period of
-time as what has already been done in the poll logic of IO subsystem,
-then we can improve the algorithm in kvm instead of introduing another
-duplicate one in the kvm guest.
-
-Regards,
-Wanpeng Li
-
->
->  4. w/patch and w/ kvm dynamic poll:
->     42225.3 bit/s -- 198.7 %CPU
->
->  5. idle=poll
->     37081.7 bit/s -- 998.1 %CPU
->
->
->
->  w/ this patch, we will improve performance by 23%.. even we could improve
->  performance by 45.4%, if we use w/patch and w/ kvm dynamic poll. also the
->  cost of CPU is much lower than 'idle=poll' case..
->
->> Wouldn't a function pointer, maybe guarded
->> by a static key, be enough? A further advantage would be that this would
->> work on other architectures, too.
->
->
-> I assume this feature will be ported to other archs.. a new pvops makes code
-> clean and easy to maintain. also I tried to add it into existed pvops, but
-> it
-> doesn't match.
->
->
->
-> Quan
-> Alibaba Cloud
->>
->>
->> Juergen
->>
->
+T24gMTQvMTEvMTcgMDg6MDIsIFF1YW4gWHUgd3JvdGU6Cj4gCj4gCj4gT24gMjAxNy8xMS8xMyAx
+ODo1MywgSnVlcmdlbiBHcm9zcyB3cm90ZToKPj4gT24gMTMvMTEvMTcgMTE6MDYsIFF1YW4gWHUg
+d3JvdGU6Cj4+PiBGcm9tOiBRdWFuIFh1IDxxdWFuLnh1MEBnbWFpbC5jb20+Cj4+Pgo+Pj4gU28g
+ZmFyLCBwdl9pZGxlX29wcy5wb2xsIGlzIHRoZSBvbmx5IG9wcyBmb3IgcHZfaWRsZS4gLnBvbGwg
+aXMgY2FsbGVkCj4+PiBpbiBpZGxlIHBhdGggd2hpY2ggd2lsbCBwb2xsIGZvciBhIHdoaWxlIGJl
+Zm9yZSB3ZSBlbnRlciB0aGUgcmVhbCBpZGxlCj4+PiBzdGF0ZS4KPj4+Cj4+PiBJbiB2aXJ0dWFs
+aXphdGlvbiwgaWRsZSBwYXRoIGluY2x1ZGVzIHNldmVyYWwgaGVhdnkgb3BlcmF0aW9ucwo+Pj4g
+aW5jbHVkZXMgdGltZXIgYWNjZXNzKExBUElDIHRpbWVyIG9yIFRTQyBkZWFkbGluZSB0aW1lcikg
+d2hpY2ggd2lsbAo+Pj4gaHVydCBwZXJmb3JtYW5jZSBlc3BlY2lhbGx5IGZvciBsYXRlbmN5IGlu
+dGVuc2l2ZSB3b3JrbG9hZCBsaWtlIG1lc3NhZ2UKPj4+IHBhc3NpbmcgdGFzay4gVGhlIGNvc3Qg
+aXMgbWFpbmx5IGZyb20gdGhlIHZtZXhpdCB3aGljaCBpcyBhIGhhcmR3YXJlCj4+PiBjb250ZXh0
+IHN3aXRjaCBiZXR3ZWVuIHZpcnR1YWwgbWFjaGluZSBhbmQgaHlwZXJ2aXNvci4gT3VyIHNvbHV0
+aW9uIGlzCj4+PiB0byBwb2xsIGZvciBhIHdoaWxlIGFuZCBkbyBub3QgZW50ZXIgcmVhbCBpZGxl
+IHBhdGggaWYgd2UgY2FuIGdldCB0aGUKPj4+IHNjaGVkdWxlIGV2ZW50IGR1cmluZyBwb2xsaW5n
+Lgo+Pj4KPj4+IFBvbGwgbWF5IGNhdXNlIHRoZSBDUFUgd2FzdGUgc28gd2UgYWRvcHQgYSBzbWFy
+dCBwb2xsaW5nIG1lY2hhbmlzbSB0bwo+Pj4gcmVkdWNlIHRoZSB1c2VsZXNzIHBvbGwuCj4+Pgo+
+Pj4gU2lnbmVkLW9mZi1ieTogWWFuZyBaaGFuZyA8eWFuZy56aGFuZy53ekBnbWFpbC5jb20+Cj4+
+PiBTaWduZWQtb2ZmLWJ5OiBRdWFuIFh1IDxxdWFuLnh1MEBnbWFpbC5jb20+Cj4+PiBDYzogSnVl
+cmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPgo+Pj4gQ2M6IEFsb2sgS2F0YXJpYSA8YWthdGFy
+aWFAdm13YXJlLmNvbT4KPj4+IENjOiBSdXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20u
+YXU+Cj4+PiBDYzogVGhvbWFzIEdsZWl4bmVyIDx0Z2x4QGxpbnV0cm9uaXguZGU+Cj4+PiBDYzog
+SW5nbyBNb2xuYXIgPG1pbmdvQHJlZGhhdC5jb20+Cj4+PiBDYzogIkguIFBldGVyIEFudmluIiA8
+aHBhQHp5dG9yLmNvbT4KPj4+IENjOiB4ODZAa2VybmVsLm9yZwo+Pj4gQ2M6IHZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCj4+PiBDYzogbGludXgta2VybmVsQHZnZXIu
+a2VybmVsLm9yZwo+Pj4gQ2M6IHhlbi1kZXZlbEBsaXN0cy54ZW5wcm9qZWN0Lm9yZwo+PiBIbW0s
+IGlzIHRoZSBpZGxlIGVudHJ5IHBhdGggcmVhbGx5IHNvIGNyaXRpY2FsIHRvIHBlcmZvcm1hbmNl
+IHRoYXQgYSBuZXcKPj4gcHZvcHMgZnVuY3Rpb24gaXMgbmVjZXNzYXJ5Pwo+IEp1ZXJnZW4sIEhl
+cmUgaXMgdGhlIGRhdGEgd2UgZ2V0IHdoZW4gcnVubmluZyBiZW5jaG1hcmsgbmV0cGVyZjoKPiDC
+oDEuIHcvbyBwYXRjaCBhbmQgZGlzYWJsZSBrdm0gZHluYW1pYyBwb2xsIChoYWx0X3BvbGxfbnM9
+MCk6Cj4gwqDCoMKgIDI5MDMxLjYgYml0L3MgLS0gNzYuMSAlQ1BVCj4gCj4gwqAyLiB3LyBwYXRj
+aCBhbmQgZGlzYWJsZSBrdm0gZHluYW1pYyBwb2xsIChoYWx0X3BvbGxfbnM9MCk6Cj4gwqDCoMKg
+IDM1Nzg3LjcgYml0L3MgLS0gMTI5LjQgJUNQVQo+IAo+IMKgMy4gdy8ga3ZtIGR5bmFtaWMgcG9s
+bDoKPiDCoMKgwqAgMzU3MzUuNiBiaXQvcyAtLSAyMDAuMCAlQ1BVCj4gCj4gwqA0LiB3L3BhdGNo
+IGFuZCB3LyBrdm0gZHluYW1pYyBwb2xsOgo+IMKgwqDCoCA0MjIyNS4zIGJpdC9zIC0tIDE5OC43
+ICVDUFUKPiAKPiDCoDUuIGlkbGU9cG9sbAo+IMKgwqDCoCAzNzA4MS43IGJpdC9zIC0tIDk5OC4x
+ICVDUFUKPiAKPiAKPiAKPiDCoHcvIHRoaXMgcGF0Y2gsIHdlIHdpbGwgaW1wcm92ZSBwZXJmb3Jt
+YW5jZSBieSAyMyUuLiBldmVuIHdlIGNvdWxkIGltcHJvdmUKPiDCoHBlcmZvcm1hbmNlIGJ5IDQ1
+LjQlLCBpZiB3ZSB1c2Ugdy9wYXRjaCBhbmQgdy8ga3ZtIGR5bmFtaWMgcG9sbC4gYWxzbyB0aGUK
+PiDCoGNvc3Qgb2YgQ1BVIGlzIG11Y2ggbG93ZXIgdGhhbiAnaWRsZT1wb2xsJyBjYXNlLi4KCkkg
+ZG9uJ3QgcXVlc3Rpb24gdGhlIGdlbmVyYWwgaWRlYS4gSSBqdXN0IHRoaW5rIHB2b3BzIGlzbid0
+IHRoZSBiZXN0IHdheQp0byBpbXBsZW1lbnQgaXQuCgo+PiBXb3VsZG4ndCBhIGZ1bmN0aW9uIHBv
+aW50ZXIsIG1heWJlIGd1YXJkZWQKPj4gYnkgYSBzdGF0aWMga2V5LCBiZSBlbm91Z2g/IEEgZnVy
+dGhlciBhZHZhbnRhZ2Ugd291bGQgYmUgdGhhdCB0aGlzIHdvdWxkCj4+IHdvcmsgb24gb3RoZXIg
+YXJjaGl0ZWN0dXJlcywgdG9vLgo+IAo+IEkgYXNzdW1lIHRoaXMgZmVhdHVyZSB3aWxsIGJlIHBv
+cnRlZCB0byBvdGhlciBhcmNocy4uIGEgbmV3IHB2b3BzIG1ha2VzCj4gY29kZQo+IGNsZWFuIGFu
+ZCBlYXN5IHRvIG1haW50YWluLiBhbHNvIEkgdHJpZWQgdG8gYWRkIGl0IGludG8gZXhpc3RlZCBw
+dm9wcywKPiBidXQgaXQKPiBkb2Vzbid0IG1hdGNoLgoKWW91IGFyZSBhd2FyZSB0aGF0IHB2b3Bz
+IGlzIHg4NiBvbmx5PwoKSSByZWFsbHkgZG9uJ3Qgc2VlIHRoZSBiaWcgZGlmZmVyZW5jZSBpbiBt
+YWludGFpbmFiaWxpdHkgY29tcGFyZWQgdG8gdGhlCnN0YXRpYyBrZXkgLyBmdW5jdGlvbiBwb2lu
+dGVyIHZhcmlhbnQ6Cgp2b2lkICgqZ3Vlc3RfaWRsZV9wb2xsX2Z1bmMpKHZvaWQpOwpzdHJ1Y3Qg
+c3RhdGljX2tleSBndWVzdF9pZGxlX3BvbGxfa2V5IF9fcmVhZF9tb3N0bHk7CgpzdGF0aWMgaW5s
+aW5lIHZvaWQgZ3Vlc3RfaWRsZV9wb2xsKHZvaWQpCnsKCWlmIChzdGF0aWNfa2V5X2ZhbHNlKCZn
+dWVzdF9pZGxlX3BvbGxfa2V5KSkKCQlndWVzdF9pZGxlX3BvbGxfZnVuYygpOwp9CgpBbmQgS1ZN
+IHdvdWxkIGp1c3QgbmVlZCB0byBzZXQgZ3Vlc3RfaWRsZV9wb2xsX2Z1bmMgYW5kIGVuYWJsZSB0
+aGUKc3RhdGljIGtleS4gV29ya3Mgb24gbm9uLXg4NiBhcmNoaXRlY3R1cmVzLCB0b28uCgoKSnVl
+cmdlbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
