@@ -1,17 +1,18 @@
-From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH RFC v3 4/6] Documentation: Add three sysctls for smart
-	idle poll
-Date: Tue, 14 Nov 2017 08:44:10 +0100
-Message-ID: <20171114074410.c5h5zg43xtcmelez__21711.4700506956$1510645463$gmane$org@gmail.com>
-References: <1510570064-6178-1-git-send-email-quan.xu0@gmail.com>
-	<20171113150842.epdffyxhlu5nq37u@gmail.com>
-	<35da8c93-95fb-8bf0-8538-4e1ef5f126f4@gmail.com>
+From: Wanpeng Li <kernellwp@gmail.com>
+Subject: Re: [PATCH RFC v3 1/6] x86/paravirt: Add pv_idle_ops to paravirt ops
+Date: Tue, 14 Nov 2017 16:22:35 +0800
+Message-ID: <CANRm+Cycx3ewegOXR7c70kpdsaJA-=M5QztDt4J2L=VqpeCsfQ@mail.gmail.com>
+References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
+	<1510567565-5118-2-git-send-email-quan.xu0@gmail.com>
+	<07fac696-e3d4-8f35-8f3d-764d7ab41204@suse.com>
+	<902da704-1e4f-583b-91c3-1a62ccd6e73d@gmail.com>
+	<CANRm+CxirO0aSAQnOfPG0+KPCOnXf3SEASwBiprLmtncZE53pA@mail.gmail.com>
+	<d233b179-9815-0134-ef04-c492f9523121@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <35da8c93-95fb-8bf0-8538-4e1ef5f126f4@gmail.com>
+In-Reply-To: <d233b179-9815-0134-ef04-c492f9523121@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,83 +23,106 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Quan Xu <quan.xu0@gmail.com>
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Quan Xu <quan.xu04@gmail.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org
+Cc: Juergen Gross <jgross@suse.com>, Yang Zhang <yang.zhang.wz@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, kvm <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Quan Xu <quan.xu03@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, "open list:FILESYSTEMS (VFS and infrastructure)" <linux-fsdevel@vger.kernel.org>, xen-devel <xen-devel@lists.xenproject.org>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
+2017-11-14 16:15 GMT+08:00 Quan Xu <quan.xu0@gmail.com>:
+>
+>
+> On 2017/11/14 15:12, Wanpeng Li wrote:
+>>
+>> 2017-11-14 15:02 GMT+08:00 Quan Xu <quan.xu0@gmail.com>:
+>>>
+>>>
+>>> On 2017/11/13 18:53, Juergen Gross wrote:
+>>>>
+>>>> On 13/11/17 11:06, Quan Xu wrote:
+>>>>>
+>>>>> From: Quan Xu <quan.xu0@gmail.com>
+>>>>>
+>>>>> So far, pv_idle_ops.poll is the only ops for pv_idle. .poll is called
+>>>>> in idle path which will poll for a while before we enter the real idle
+>>>>> state.
+>>>>>
+>>>>> In virtualization, idle path includes several heavy operations
+>>>>> includes timer access(LAPIC timer or TSC deadline timer) which will
+>>>>> hurt performance especially for latency intensive workload like message
+>>>>> passing task. The cost is mainly from the vmexit which is a hardware
+>>>>> context switch between virtual machine and hypervisor. Our solution is
+>>>>> to poll for a while and do not enter real idle path if we can get the
+>>>>> schedule event during polling.
+>>>>>
+>>>>> Poll may cause the CPU waste so we adopt a smart polling mechanism to
+>>>>> reduce the useless poll.
+>>>>>
+>>>>> Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
+>>>>> Signed-off-by: Quan Xu <quan.xu0@gmail.com>
+>>>>> Cc: Juergen Gross <jgross@suse.com>
+>>>>> Cc: Alok Kataria <akataria@vmware.com>
+>>>>> Cc: Rusty Russell <rusty@rustcorp.com.au>
+>>>>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>>>>> Cc: Ingo Molnar <mingo@redhat.com>
+>>>>> Cc: "H. Peter Anvin" <hpa@zytor.com>
+>>>>> Cc: x86@kernel.org
+>>>>> Cc: virtualization@lists.linux-foundation.org
+>>>>> Cc: linux-kernel@vger.kernel.org
+>>>>> Cc: xen-devel@lists.xenproject.org
+>>>>
+>>>> Hmm, is the idle entry path really so critical to performance that a new
+>>>> pvops function is necessary?
+>>>
+>>> Juergen, Here is the data we get when running benchmark netperf:
+>>>   1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
+>>>      29031.6 bit/s -- 76.1 %CPU
+>>>
+>>>   2. w/ patch and disable kvm dynamic poll (halt_poll_ns=0):
+>>>      35787.7 bit/s -- 129.4 %CPU
+>>>
+>>>   3. w/ kvm dynamic poll:
+>>>      35735.6 bit/s -- 200.0 %CPU
+>>
+>> Actually we can reduce the CPU utilization by sleeping a period of
+>> time as what has already been done in the poll logic of IO subsystem,
+>> then we can improve the algorithm in kvm instead of introduing another
+>> duplicate one in the kvm guest.
+>
+> We really appreciate upstream's kvm dynamic poll mechanism, which is
+> really helpful for a lot of scenario..
+>
+> However, as description said, in virtualization, idle path includes
+> several heavy operations includes timer access (LAPIC timer or TSC
+> deadline timer) which will hurt performance especially for latency
+> intensive workload like message passing task. The cost is mainly from
+> the vmexit which is a hardware context switch between virtual machine
+> and hypervisor.
+>
+> for upstream's kvm dynamic poll mechanism, even you could provide a
+> better algorism, how could you bypass timer access (LAPIC timer or TSC
+> deadline timer), or a hardware context switch between virtual machine
+> and hypervisor. I know these is a tradeoff.
+>
+> Furthermore, here is the data we get when running benchmark contextswitch
+> to measure the latency(lower is better):
+>
+> 1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
+>   3402.9 ns/ctxsw -- 199.8 %CPU
+>
+> 2. w/ patch and disable kvm dynamic poll:
+>   1163.5 ns/ctxsw -- 205.5 %CPU
+>
+> 3. w/ kvm dynamic poll:
+>   2280.6 ns/ctxsw -- 199.5 %CPU
+>
+> so, these tow solution are quite similar, but not duplicate..
+>
+> that's also why to add a generic idle poll before enter real idle path.
+> When a reschedule event is pending, we can bypass the real idle path.
+>
 
-* Quan Xu <quan.xu0@gmail.com> wrote:
+There is a similar logic in the idle governor/driver, so how this
+patchset influence the decision in the idle governor/driver when
+running on bare-metal(power managment is not exposed to the guest so
+we will not enter into idle driver in the guest)?
 
-> 
-> 
-> On 2017/11/13 23:08, Ingo Molnar wrote:
-> > * Quan Xu <quan.xu04@gmail.com> wrote:
-> > 
-> > > From: Quan Xu <quan.xu0@gmail.com>
-> > > 
-> > > To reduce the cost of poll, we introduce three sysctl to control the
-> > > poll time when running as a virtual machine with paravirt.
-> > > 
-> > > Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
-> > > Signed-off-by: Quan Xu <quan.xu0@gmail.com>
-> > > ---
-> > >   Documentation/sysctl/kernel.txt |   35 +++++++++++++++++++++++++++++++++++
-> > >   arch/x86/kernel/paravirt.c      |    4 ++++
-> > >   include/linux/kernel.h          |    6 ++++++
-> > >   kernel/sysctl.c                 |   34 ++++++++++++++++++++++++++++++++++
-> > >   4 files changed, 79 insertions(+), 0 deletions(-)
-> > > 
-> > > diff --git a/Documentation/sysctl/kernel.txt b/Documentation/sysctl/kernel.txt
-> > > index 694968c..30c25fb 100644
-> > > --- a/Documentation/sysctl/kernel.txt
-> > > +++ b/Documentation/sysctl/kernel.txt
-> > > @@ -714,6 +714,41 @@ kernel tries to allocate a number starting from this one.
-> > >   ==============================================================
-> > > +paravirt_poll_grow: (X86 only)
-> > > +
-> > > +Multiplied value to increase the poll time. This is expected to take
-> > > +effect only when running as a virtual machine with CONFIG_PARAVIRT
-> > > +enabled. This can't bring any benifit on bare mental even with
-> > > +CONFIG_PARAVIRT enabled.
-> > > +
-> > > +By default this value is 2. Possible values to set are in range {2..16}.
-> > > +
-> > > +==============================================================
-> > > +
-> > > +paravirt_poll_shrink: (X86 only)
-> > > +
-> > > +Divided value to reduce the poll time. This is expected to take effect
-> > > +only when running as a virtual machine with CONFIG_PARAVIRT enabled.
-> > > +This can't bring any benifit on bare mental even with CONFIG_PARAVIRT
-> > > +enabled.
-> > > +
-> > > +By default this value is 2. Possible values to set are in range {2..16}.
-> > > +
-> > > +==============================================================
-> > > +
-> > > +paravirt_poll_threshold_ns: (X86 only)
-> > > +
-> > > +Controls the maximum poll time before entering real idle path. This is
-> > > +expected to take effect only when running as a virtual machine with
-> > > +CONFIG_PARAVIRT enabled. This can't bring any benifit on bare mental
-> > > +even with CONFIG_PARAVIRT enabled.
-> > > +
-> > > +By default, this value is 0 means not to poll. Possible values to set
-> > > +are in range {0..500000}. Change the value to non-zero if running
-> > > +latency-bound workloads in a virtual machine.
-> > I absolutely hate it how this hybrid idle loop polling mechanism is not
-> > self-tuning!
-> 
-> Ingo, actually it is self-tuning..
-
-Then why the hell does it touch the syscall ABI?
-
-> could I only leave paravirt_poll_threshold_ns parameter (the maximum poll time), 
-> which is as similar as "adaptive halt-polling" Wanpeng mentioned.. then user can 
-> turn it off, or find an appropriate threshold for some odd scenario..
-
-That way lies utter madness. Maybe add it as a debugfs knob, but exposing it to 
-userspace: NAK.
-
-Thanks,
-
-	Ingo
+Regards,
+Wanpeng Li
