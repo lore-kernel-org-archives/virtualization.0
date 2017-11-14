@@ -1,19 +1,19 @@
 From: Quan Xu <quan.xu0@gmail.com>
 Subject: Re: [PATCH RFC v3 1/6] x86/paravirt: Add pv_idle_ops to paravirt ops
-Date: Tue, 14 Nov 2017 19:43:07 +0800
-Message-ID: <41403bbb-bfa9-0618-abf7-dd871a7b783a__11706.2204787091$1511414858$gmane$org@gmail.com>
+Date: Tue, 14 Nov 2017 18:23:30 +0800
+Message-ID: <a3e93939-0458-5182-464e-3de788f448d4__16979.3117013343$1511414871$gmane$org@gmail.com>
 References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
 	<1510567565-5118-2-git-send-email-quan.xu0@gmail.com>
 	<07fac696-e3d4-8f35-8f3d-764d7ab41204@suse.com>
 	<902da704-1e4f-583b-91c3-1a62ccd6e73d@gmail.com>
-	<fe6eeed1-4eee-eaaa-df3b-8979af8a3891@suse.com>
-	<79dad15c-2d26-bcf3-7283-293e42a161ea@gmail.com>
-	<9a4f53f3-225f-0e99-d9b2-d89656b8fb31@suse.com>
+	<CANRm+CxirO0aSAQnOfPG0+KPCOnXf3SEASwBiprLmtncZE53pA@mail.gmail.com>
+	<d233b179-9815-0134-ef04-c492f9523121@gmail.com>
+	<CANRm+Cycx3ewegOXR7c70kpdsaJA-=M5QztDt4J2L=VqpeCsfQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <9a4f53f3-225f-0e99-d9b2-d89656b8fb31@suse.com>
+In-Reply-To: <CANRm+Cycx3ewegOXR7c70kpdsaJA-=M5QztDt4J2L=VqpeCsfQ@mail.gmail.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,105 +24,105 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>, Quan Xu <quan.xu03@gmail.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Wanpeng Li <kernellwp@gmail.com>
+Cc: Juergen Gross <jgross@suse.com>, Yang Zhang <yang.zhang.wz@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, kvm <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Quan Xu <quan.xu03@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, "open list:FILESYSTEMS (VFS and infrastructure)" <linux-fsdevel@vger.kernel.org>, xen-devel <xen-devel@lists.xenproject.org>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE3LzExLzE0IDE4OjI3LCBKdWVyZ2VuIEdyb3NzIHdyb3RlOgo+IE9uIDE0LzExLzE3
-IDEwOjM4LCBRdWFuIFh1IHdyb3RlOgo+Pgo+PiBPbiAyMDE3LzExLzE0IDE1OjMwLCBKdWVyZ2Vu
-IEdyb3NzIHdyb3RlOgo+Pj4gT24gMTQvMTEvMTcgMDg6MDIsIFF1YW4gWHUgd3JvdGU6Cj4+Pj4g
-T24gMjAxNy8xMS8xMyAxODo1MywgSnVlcmdlbiBHcm9zcyB3cm90ZToKPj4+Pj4gT24gMTMvMTEv
-MTcgMTE6MDYsIFF1YW4gWHUgd3JvdGU6Cj4+Pj4+PiBGcm9tOiBRdWFuIFh1IDxxdWFuLnh1MEBn
-bWFpbC5jb20+Cj4+Pj4+Pgo+Pj4+Pj4gU28gZmFyLCBwdl9pZGxlX29wcy5wb2xsIGlzIHRoZSBv
-bmx5IG9wcyBmb3IgcHZfaWRsZS4gLnBvbGwgaXMgY2FsbGVkCj4+Pj4+PiBpbiBpZGxlIHBhdGgg
-d2hpY2ggd2lsbCBwb2xsIGZvciBhIHdoaWxlIGJlZm9yZSB3ZSBlbnRlciB0aGUgcmVhbCBpZGxl
-Cj4+Pj4+PiBzdGF0ZS4KPj4+Pj4+Cj4+Pj4+PiBJbiB2aXJ0dWFsaXphdGlvbiwgaWRsZSBwYXRo
-IGluY2x1ZGVzIHNldmVyYWwgaGVhdnkgb3BlcmF0aW9ucwo+Pj4+Pj4gaW5jbHVkZXMgdGltZXIg
-YWNjZXNzKExBUElDIHRpbWVyIG9yIFRTQyBkZWFkbGluZSB0aW1lcikgd2hpY2ggd2lsbAo+Pj4+
-Pj4gaHVydCBwZXJmb3JtYW5jZSBlc3BlY2lhbGx5IGZvciBsYXRlbmN5IGludGVuc2l2ZSB3b3Jr
-bG9hZCBsaWtlCj4+Pj4+PiBtZXNzYWdlCj4+Pj4+PiBwYXNzaW5nIHRhc2suIFRoZSBjb3N0IGlz
-IG1haW5seSBmcm9tIHRoZSB2bWV4aXQgd2hpY2ggaXMgYSBoYXJkd2FyZQo+Pj4+Pj4gY29udGV4
-dCBzd2l0Y2ggYmV0d2VlbiB2aXJ0dWFsIG1hY2hpbmUgYW5kIGh5cGVydmlzb3IuIE91ciBzb2x1
-dGlvbiBpcwo+Pj4+Pj4gdG8gcG9sbCBmb3IgYSB3aGlsZSBhbmQgZG8gbm90IGVudGVyIHJlYWwg
-aWRsZSBwYXRoIGlmIHdlIGNhbiBnZXQgdGhlCj4+Pj4+PiBzY2hlZHVsZSBldmVudCBkdXJpbmcg
-cG9sbGluZy4KPj4+Pj4+Cj4+Pj4+PiBQb2xsIG1heSBjYXVzZSB0aGUgQ1BVIHdhc3RlIHNvIHdl
-IGFkb3B0IGEgc21hcnQgcG9sbGluZyBtZWNoYW5pc20gdG8KPj4+Pj4+IHJlZHVjZSB0aGUgdXNl
-bGVzcyBwb2xsLgo+Pj4+Pj4KPj4+Pj4+IFNpZ25lZC1vZmYtYnk6IFlhbmcgWmhhbmcgPHlhbmcu
-emhhbmcud3pAZ21haWwuY29tPgo+Pj4+Pj4gU2lnbmVkLW9mZi1ieTogUXVhbiBYdSA8cXVhbi54
-dTBAZ21haWwuY29tPgo+Pj4+Pj4gQ2M6IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4K
-Pj4+Pj4+IENjOiBBbG9rIEthdGFyaWEgPGFrYXRhcmlhQHZtd2FyZS5jb20+Cj4+Pj4+PiBDYzog
-UnVzdHkgUnVzc2VsbCA8cnVzdHlAcnVzdGNvcnAuY29tLmF1Pgo+Pj4+Pj4gQ2M6IFRob21hcyBH
-bGVpeG5lciA8dGdseEBsaW51dHJvbml4LmRlPgo+Pj4+Pj4gQ2M6IEluZ28gTW9sbmFyIDxtaW5n
-b0ByZWRoYXQuY29tPgo+Pj4+Pj4gQ2M6ICJILiBQZXRlciBBbnZpbiIgPGhwYUB6eXRvci5jb20+
-Cj4+Pj4+PiBDYzogeDg2QGtlcm5lbC5vcmcKPj4+Pj4+IENjOiB2aXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwo+Pj4+Pj4gQ2M6IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5l
-bC5vcmcKPj4+Pj4+IENjOiB4ZW4tZGV2ZWxAbGlzdHMueGVucHJvamVjdC5vcmcKPj4+Pj4gSG1t
-LCBpcyB0aGUgaWRsZSBlbnRyeSBwYXRoIHJlYWxseSBzbyBjcml0aWNhbCB0byBwZXJmb3JtYW5j
-ZSB0aGF0IGEKPj4+Pj4gbmV3Cj4+Pj4+IHB2b3BzIGZ1bmN0aW9uIGlzIG5lY2Vzc2FyeT8KPj4+
-PiBKdWVyZ2VuLCBIZXJlIGlzIHRoZSBkYXRhIHdlIGdldCB3aGVuIHJ1bm5pbmcgYmVuY2htYXJr
-IG5ldHBlcmY6Cj4+Pj4gIMKgwqAxLiB3L28gcGF0Y2ggYW5kIGRpc2FibGUga3ZtIGR5bmFtaWMg
-cG9sbCAoaGFsdF9wb2xsX25zPTApOgo+Pj4+ICDCoMKgwqDCoCAyOTAzMS42IGJpdC9zIC0tIDc2
-LjEgJUNQVQo+Pj4+Cj4+Pj4gIMKgwqAyLiB3LyBwYXRjaCBhbmQgZGlzYWJsZSBrdm0gZHluYW1p
-YyBwb2xsIChoYWx0X3BvbGxfbnM9MCk6Cj4+Pj4gIMKgwqDCoMKgIDM1Nzg3LjcgYml0L3MgLS0g
-MTI5LjQgJUNQVQo+Pj4+Cj4+Pj4gIMKgwqAzLiB3LyBrdm0gZHluYW1pYyBwb2xsOgo+Pj4+ICDC
-oMKgwqDCoCAzNTczNS42IGJpdC9zIC0tIDIwMC4wICVDUFUKPj4+Pgo+Pj4+ICDCoMKgNC4gdy9w
-YXRjaCBhbmQgdy8ga3ZtIGR5bmFtaWMgcG9sbDoKPj4+PiAgwqDCoMKgwqAgNDIyMjUuMyBiaXQv
-cyAtLSAxOTguNyAlQ1BVCj4+Pj4KPj4+PiAgwqDCoDUuIGlkbGU9cG9sbAo+Pj4+ICDCoMKgwqDC
-oCAzNzA4MS43IGJpdC9zIC0tIDk5OC4xICVDUFUKPj4+Pgo+Pj4+Cj4+Pj4KPj4+PiAgwqDCoHcv
-IHRoaXMgcGF0Y2gsIHdlIHdpbGwgaW1wcm92ZSBwZXJmb3JtYW5jZSBieSAyMyUuLiBldmVuIHdl
-IGNvdWxkCj4+Pj4gaW1wcm92ZQo+Pj4+ICDCoMKgcGVyZm9ybWFuY2UgYnkgNDUuNCUsIGlmIHdl
-IHVzZSB3L3BhdGNoIGFuZCB3LyBrdm0gZHluYW1pYyBwb2xsLgo+Pj4+IGFsc28gdGhlCj4+Pj4g
-IMKgwqBjb3N0IG9mIENQVSBpcyBtdWNoIGxvd2VyIHRoYW4gJ2lkbGU9cG9sbCcgY2FzZS4uCj4+
-PiBJIGRvbid0IHF1ZXN0aW9uIHRoZSBnZW5lcmFsIGlkZWEuIEkganVzdCB0aGluayBwdm9wcyBp
-c24ndCB0aGUgYmVzdCB3YXkKPj4+IHRvIGltcGxlbWVudCBpdC4KPj4+Cj4+Pj4+IFdvdWxkbid0
-IGEgZnVuY3Rpb24gcG9pbnRlciwgbWF5YmUgZ3VhcmRlZAo+Pj4+PiBieSBhIHN0YXRpYyBrZXks
-IGJlIGVub3VnaD8gQSBmdXJ0aGVyIGFkdmFudGFnZSB3b3VsZCBiZSB0aGF0IHRoaXMKPj4+Pj4g
-d291bGQKPj4+Pj4gd29yayBvbiBvdGhlciBhcmNoaXRlY3R1cmVzLCB0b28uCj4+Pj4gSSBhc3N1
-bWUgdGhpcyBmZWF0dXJlIHdpbGwgYmUgcG9ydGVkIHRvIG90aGVyIGFyY2hzLi4gYSBuZXcgcHZv
-cHMgbWFrZXMKPj4gIMKgwqDCoMKgwqAgc29ycnksIGEgdHlwby4uIC9vdGhlciBhcmNocy9vdGhl
-ciBoeXBlcnZpc29ycy8KPj4gIMKgwqDCoMKgwqAgaXQgcmVmZXJzIGh5cGVydmlzb3IgbGlrZSBY
-ZW4sIEh5cGVyViBhbmQgVk13YXJlKS4uCj4+Cj4+Pj4gY29kZQo+Pj4+IGNsZWFuIGFuZCBlYXN5
-IHRvIG1haW50YWluLiBhbHNvIEkgdHJpZWQgdG8gYWRkIGl0IGludG8gZXhpc3RlZCBwdm9wcywK
-Pj4+PiBidXQgaXQKPj4+PiBkb2Vzbid0IG1hdGNoLgo+Pj4gWW91IGFyZSBhd2FyZSB0aGF0IHB2
-b3BzIGlzIHg4NiBvbmx5Pwo+PiB5ZXMsIEknbSBhd2FyZS4uCj4+Cj4+PiBJIHJlYWxseSBkb24n
-dCBzZWUgdGhlIGJpZyBkaWZmZXJlbmNlIGluIG1haW50YWluYWJpbGl0eSBjb21wYXJlZCB0byB0
-aGUKPj4+IHN0YXRpYyBrZXkgLyBmdW5jdGlvbiBwb2ludGVyIHZhcmlhbnQ6Cj4+Pgo+Pj4gdm9p
-ZCAoKmd1ZXN0X2lkbGVfcG9sbF9mdW5jKSh2b2lkKTsKPj4+IHN0cnVjdCBzdGF0aWNfa2V5IGd1
-ZXN0X2lkbGVfcG9sbF9rZXkgX19yZWFkX21vc3RseTsKPj4+Cj4+PiBzdGF0aWMgaW5saW5lIHZv
-aWQgZ3Vlc3RfaWRsZV9wb2xsKHZvaWQpCj4+PiB7Cj4+PiAgwqDCoMKgwqBpZiAoc3RhdGljX2tl
-eV9mYWxzZSgmZ3Vlc3RfaWRsZV9wb2xsX2tleSkpCj4+PiAgwqDCoMKgwqDCoMKgwqAgZ3Vlc3Rf
-aWRsZV9wb2xsX2Z1bmMoKTsKPj4+IH0KPj4KPj4KPj4gdGhhbmsgeW91IGZvciB5b3VyIHNhbXBs
-ZSBjb2RlIDopCj4+IEkgYWdyZWUgdGhlcmUgaXMgbm8gYmlnIGRpZmZlcmVuY2UuLiBJIHRoaW5r
-IHdlIGFyZSBkaXNjdXNzaW9uIGZvciB0d28KPj4gdGhpbmdzOgo+PiAgwqAxKSB4ODYgVk0gb24g
-ZGlmZmVyZW50IGh5cGVydmlzb3JzCj4+ICDCoDIpIGRpZmZlcmVudCBhcmNocyBWTSBvbiBrdm0g
-aHlwZXJ2aXNvcgo+Pgo+PiBXaGF0IEkgd2FudCB0byBkbyBpcyB4ODYgVk0gb24gZGlmZmVyZW50
-IGh5cGVydmlzb3JzLCBzdWNoIGFzIGt2bSAvIHhlbgo+PiAvIGh5cGVydiAuLgo+IFdoeSBsaW1p
-dCB0aGUgc29sdXRpb24gdG8geDg2IGlmIHRoZSBtb3JlIGdlbmVyYWwgc29sdXRpb24gaXNuJ3QK
-PiBoYXJkZXI/Cj4KPiBBcyB5b3UgZGlkbid0IGdpdmUgYW55IHJlYXNvbiB3aHkgdGhlIHB2b3Bz
-IGFwcHJvYWNoIGlzIGJldHRlciBvdGhlcgo+IHRoYW4geW91IGRvbid0IGNhcmUgZm9yIG5vbi14
-ODYgcGxhdGZvcm1zIHlvdSB3b24ndCBnZXQgYW4gIkFjayIgZnJvbQo+IG1lIGZvciB0aGlzIHBh
-dGNoLgoKCkl0IGp1c3QgbG9va3MgYSBsaXR0bGUgb2RkZXIgdG8gbWUuIEkgdW5kZXJzdGFuZCB5
-b3UgY2FyZSBhYm91dCBuby14ODYgYXJjaC4KCkFyZSB5b3UgYXdhcmUgJ3B2X3RpbWVfb3BzJyBm
-b3IgYXJtNjQvYXJtL3g4NiBhcmNocywgZGVmaW5lZCBpbgogwqDCoCAtIGFyY2gvYXJtNjQvaW5j
-bHVkZS9hc20vcGFyYXZpcnQuaAogwqDCoCAtIGFyY2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0
-X3R5cGVzLmgKIMKgwqAgLSBhcmNoL2FybS9pbmNsdWRlL2FzbS9wYXJhdmlydC5oCgpJIGFtIHVu
-ZmFtaWxhciB3aXRoIGFybSBjb2RlLiBJSVVDLCBpZiB5b3UnZCBpbXBsZW1lbnQgcHZfaWRsZV9v
-cHMKZm9yIGFybS9hcm02NCBhcmNoLCB5b3UnZCBkZWZpbmUgYSBzYW1lIHN0cnVjdHVyZSBpbgog
-wqDCoCAtIGFyY2gvYXJtNjQvaW5jbHVkZS9hc20vcGFyYXZpcnQuaMKgwqDCoMKgIG9yCiDCoMKg
-IC0gYXJjaC9hcm0vaW5jbHVkZS9hc20vcGFyYXZpcnQuaAoKLi4gaW5zdGVhZCBvZiBzdGF0aWMg
-a2V5IC8gZnVjdGlvbi4KCnRoZW4gaW1wbGVtZW50IGEgcmVhbCBmdW5jdGlvbiBpbgogwqDCoCAt
-IGFyY2gvYXJtL2tlcm5lbC9wYXJhdmlydC5jLgoKQWxzbyBJIHdvbmRlciBIT1cvV0hFUkUgdG8g
-ZGVmaW5lIGEgc3RhdGljIGtleS9mdW5jdGlvbiwgdGhlbiB0byBiZW5pZml0Cng4Ni9uby14ODYg
-YXJjaHM/CgpRdWFuCkFsaWJhYmEgQ2xvdWQKCj4+PiBBbmQgS1ZNIHdvdWxkIGp1c3QgbmVlZCB0
-byBzZXQgZ3Vlc3RfaWRsZV9wb2xsX2Z1bmMgYW5kIGVuYWJsZSB0aGUKPj4+IHN0YXRpYyBrZXku
-IFdvcmtzIG9uIG5vbi14ODYgYXJjaGl0ZWN0dXJlcywgdG9vLgo+Pj4KPj4gLi4gcmVmZXJyZWQg
-dG8gJ3B2X21tdV9vcHMnLCBIeXBlclYgYW5kIFhlbiBjYW4gaW1wbGVtZW50IHRoZWlyIG93bgo+
-PiBmdW5jdGlvbnMgZm9yICdwdl9tbXVfb3BzJy4KPj4gSSB0aGluayBpdCBpcyB0aGUgc2FtZSB0
-byBwdl9pZGxlX29wcy4KPj4KPj4gd2l0aCBhYm92ZSBleHBsYWluYXRpb24sIGRvIHlvdSBzdGls
-bCB0aGluayBJIG5lZWQgdG8gZGVmaW5lIHRoZSBzdGF0aWMKPj4ga2V5L2Z1bmN0aW9uIHBvaW50
-ZXIgdmFyaWFudD8KPj4KPj4gYnR3LCBhbnkgaW50ZXJlc3QgdG8gcG9ydCBpdCB0byBYZW4gSFZN
-IGd1ZXN0PyA6KQo+IE1heWJlLiBCdXQgdGhpcyBzaG91bGQgd29yayBmb3IgWGVuIG9uIEFSTSwg
-dG9vLgo+Cj4KPiBKdWVyZ2VuCj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+
+On 2017/11/14 16:22, Wanpeng Li wrote:
+> 2017-11-14 16:15 GMT+08:00 Quan Xu <quan.xu0@gmail.com>:
+>>
+>> On 2017/11/14 15:12, Wanpeng Li wrote:
+>>> 2017-11-14 15:02 GMT+08:00 Quan Xu <quan.xu0@gmail.com>:
+>>>>
+>>>> On 2017/11/13 18:53, Juergen Gross wrote:
+>>>>> On 13/11/17 11:06, Quan Xu wrote:
+>>>>>> From: Quan Xu <quan.xu0@gmail.com>
+>>>>>>
+>>>>>> So far, pv_idle_ops.poll is the only ops for pv_idle. .poll is called
+>>>>>> in idle path which will poll for a while before we enter the real idle
+>>>>>> state.
+>>>>>>
+>>>>>> In virtualization, idle path includes several heavy operations
+>>>>>> includes timer access(LAPIC timer or TSC deadline timer) which will
+>>>>>> hurt performance especially for latency intensive workload like message
+>>>>>> passing task. The cost is mainly from the vmexit which is a hardware
+>>>>>> context switch between virtual machine and hypervisor. Our solution is
+>>>>>> to poll for a while and do not enter real idle path if we can get the
+>>>>>> schedule event during polling.
+>>>>>>
+>>>>>> Poll may cause the CPU waste so we adopt a smart polling mechanism to
+>>>>>> reduce the useless poll.
+>>>>>>
+>>>>>> Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
+>>>>>> Signed-off-by: Quan Xu <quan.xu0@gmail.com>
+>>>>>> Cc: Juergen Gross <jgross@suse.com>
+>>>>>> Cc: Alok Kataria <akataria@vmware.com>
+>>>>>> Cc: Rusty Russell <rusty@rustcorp.com.au>
+>>>>>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>>>>>> Cc: Ingo Molnar <mingo@redhat.com>
+>>>>>> Cc: "H. Peter Anvin" <hpa@zytor.com>
+>>>>>> Cc: x86@kernel.org
+>>>>>> Cc: virtualization@lists.linux-foundation.org
+>>>>>> Cc: linux-kernel@vger.kernel.org
+>>>>>> Cc: xen-devel@lists.xenproject.org
+>>>>> Hmm, is the idle entry path really so critical to performance that a new
+>>>>> pvops function is necessary?
+>>>> Juergen, Here is the data we get when running benchmark netperf:
+>>>>    1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
+>>>>       29031.6 bit/s -- 76.1 %CPU
+>>>>
+>>>>    2. w/ patch and disable kvm dynamic poll (halt_poll_ns=0):
+>>>>       35787.7 bit/s -- 129.4 %CPU
+>>>>
+>>>>    3. w/ kvm dynamic poll:
+>>>>       35735.6 bit/s -- 200.0 %CPU
+>>> Actually we can reduce the CPU utilization by sleeping a period of
+>>> time as what has already been done in the poll logic of IO subsystem,
+>>> then we can improve the algorithm in kvm instead of introduing another
+>>> duplicate one in the kvm guest.
+>> We really appreciate upstream's kvm dynamic poll mechanism, which is
+>> really helpful for a lot of scenario..
+>>
+>> However, as description said, in virtualization, idle path includes
+>> several heavy operations includes timer access (LAPIC timer or TSC
+>> deadline timer) which will hurt performance especially for latency
+>> intensive workload like message passing task. The cost is mainly from
+>> the vmexit which is a hardware context switch between virtual machine
+>> and hypervisor.
+>>
+>> for upstream's kvm dynamic poll mechanism, even you could provide a
+>> better algorism, how could you bypass timer access (LAPIC timer or TSC
+>> deadline timer), or a hardware context switch between virtual machine
+>> and hypervisor. I know these is a tradeoff.
+>>
+>> Furthermore, here is the data we get when running benchmark contextswitch
+>> to measure the latency(lower is better):
+>>
+>> 1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
+>>    3402.9 ns/ctxsw -- 199.8 %CPU
+>>
+>> 2. w/ patch and disable kvm dynamic poll:
+>>    1163.5 ns/ctxsw -- 205.5 %CPU
+>>
+>> 3. w/ kvm dynamic poll:
+>>    2280.6 ns/ctxsw -- 199.5 %CPU
+>>
+>> so, these tow solution are quite similar, but not duplicate..
+>>
+>> that's also why to add a generic idle poll before enter real idle path.
+>> When a reschedule event is pending, we can bypass the real idle path.
+>>
+> There is a similar logic in the idle governor/driver, so how this
+> patchset influence the decision in the idle governor/driver when
+> running on bare-metal(power managment is not exposed to the guest so
+> we will not enter into idle driver in the guest)?
+>
+
+This is expected to take effect only when running as a virtual machine with
+proper CONFIG_* enabled. This can not work on bare mental even with proper
+CONFIG_* enabled.
+
+Quan
+Alibaba Cloud
