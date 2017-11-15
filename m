@@ -1,13 +1,15 @@
-From: Xu Quan <quan.xu04@gmail.com>
-Subject: Re: [PATCH RFC v3 0/6] x86/idle: add halt poll support
-Date: Wed, 15 Nov 2017 21:04:55 +0800
-Message-ID: <CACbSEunLCNw2mqcVGYVCEaaMzPAmdqsXcODuiwMPsNimoNH-kg@mail.gmail.com>
-References: <1510570901-6373-1-git-send-email-quan.xu0@gmail.com>
-	<20171115121314.s7hhcb6f36uasrku@hirez.programming.kicks-ass.net>
+From: Byungchul Park <byungchul.park@lge.com>
+Subject: Re: [PATCH] vhost/scsi: Use safe iteration in
+	vhost_scsi_complete_cmd_work()
+Date: Thu, 16 Nov 2017 08:52:39 +0900
+Message-ID: <20171115235239.GA4394__9652.62515605918$1511414881$gmane$org@X58A-UD3R>
+References: <1510186649-9765-1-git-send-email-byungchul.park@lge.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0902361427260581360=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171115121314.s7hhcb6f36uasrku@hirez.programming.kicks-ass.net>
+Content-Disposition: inline
+In-Reply-To: <1510186649-9765-1-git-send-email-byungchul.park@lge.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,99 +19,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Quan Xu <quan.xu0@gmail.com>, kvm <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>
+To: nab@linux-iscsi.org, mst@redhat.com, jasowang@redhat.com
+Cc: kernel-team@lge.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0902361427260581360==
-Content-Type: multipart/alternative; boundary="94eb2c1402ce63aa93055e05263d"
+On Thu, Nov 09, 2017 at 09:17:29AM +0900, Byungchul Park wrote:
+> I am sorry for having made a mistake on it.
 
---94eb2c1402ce63aa93055e05263d
-Content-Type: text/plain; charset="UTF-8"
+Hello Nicholas,
 
-2017-11-15 20:13 GMT+08:00 Peter Zijlstra <peterz@infradead.org>:
+Please consider this patch urgently. I'm sorry for having changed the
+original behavior with the previous patch.
 
-> On Mon, Nov 13, 2017 at 07:01:40PM +0800, Quan Xu wrote:
-> >  Documentation/sysctl/kernel.txt       |   35 ++++++++++++++++
-> >  arch/x86/include/asm/paravirt.h       |    5 ++
-> >  arch/x86/include/asm/paravirt_types.h |    6 +++
-> >  arch/x86/kernel/kvm.c                 |   73
-> +++++++++++++++++++++++++++++++++
-> >  arch/x86/kernel/paravirt.c            |   10 +++++
-> >  arch/x86/kernel/process.c             |    7 +++
-> >  include/linux/kernel.h                |    6 +++
-> >  include/linux/tick.h                  |    2 +
-> >  kernel/sched/idle.c                   |    2 +
-> >  kernel/sysctl.c                       |   34 +++++++++++++++
-> >  kernel/time/tick-sched.c              |   11 +++++
-> >  kernel/time/tick-sched.h              |    3 +
-> >  12 files changed, 194 insertions(+), 0 deletions(-)
->
-> You seem to have forgotten to CC me on the actual patches, but no. Not
-> going to happen.
->
+The safe version of llist API should be used to keep the original
+behavior.
 
-sorry, I will forward  patch 5 / patch 6 to you .. I have some problems
-with Gmail on unbuntu.
+Thanks,
+Byungchul
 
-Quan
-
---94eb2c1402ce63aa93055e05263d
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
-te">2017-11-15 20:13 GMT+08:00 Peter Zijlstra <span dir=3D"ltr">&lt;<a href=
-=3D"mailto:peterz@infradead.org" target=3D"_blank">peterz@infradead.org</a>=
-&gt;</span>:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8e=
-x;border-left:1px #ccc solid;padding-left:1ex"><span class=3D"">On Mon, Nov=
- 13, 2017 at 07:01:40PM +0800, Quan Xu wrote:<br>
-&gt;=C2=A0 Documentation/sysctl/kernel.<wbr>txt=C2=A0 =C2=A0 =C2=A0 =C2=A0|=
-=C2=A0 =C2=A035 ++++++++++++++++<br>
-&gt;=C2=A0 arch/x86/include/asm/paravirt.<wbr>h=C2=A0 =C2=A0 =C2=A0 =C2=A0|=
-=C2=A0 =C2=A0 5 ++<br>
-&gt;=C2=A0 arch/x86/include/asm/paravirt_<wbr>types.h |=C2=A0 =C2=A0 6 +++<=
-br>
-&gt;=C2=A0 arch/x86/kernel/kvm.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0|=C2=A0 =C2=A073 ++++++++++++++++++++++++++++++<wbr>+++=
-<br>
-&gt;=C2=A0 arch/x86/kernel/paravirt.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 |=C2=A0 =C2=A010 +++++<br>
-&gt;=C2=A0 arch/x86/kernel/process.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0|=C2=A0 =C2=A0 7 +++<br>
-&gt;=C2=A0 include/linux/kernel.h=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 |=C2=A0 =C2=A0 6 +++<br>
-&gt;=C2=A0 include/linux/tick.h=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 |=C2=A0 =C2=A0 2 +<br>
-&gt;=C2=A0 kernel/sched/idle.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0|=C2=A0 =C2=A0 2 +<br>
-&gt;=C2=A0 kernel/sysctl.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0|=C2=A0 =C2=A034 +++++++++++++++<br>
-&gt;=C2=A0 kernel/time/tick-sched.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 |=C2=A0 =C2=A011 +++++<br>
-&gt;=C2=A0 kernel/time/tick-sched.h=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 |=C2=A0 =C2=A0 3 +<br>
-&gt;=C2=A0 12 files changed, 194 insertions(+), 0 deletions(-)<br>
-<br>
-</span>You seem to have forgotten to CC me on the actual patches, but no. N=
-ot<br>
-going to happen.<br>
-</blockquote></div></div><div class=3D"gmail_extra"><br></div><div class=3D=
-"gmail_extra">sorry, I will forward=C2=A0 patch 5 / patch 6 to you .. I hav=
-e some problems with Gmail on unbuntu.</div><div class=3D"gmail_extra"><br>=
-</div><div class=3D"gmail_extra">Quan<br></div><div class=3D"gmail_extra"><=
-br></div><div class=3D"gmail_extra"><br></div></div>
-
---94eb2c1402ce63aa93055e05263d--
-
---===============0902361427260581360==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0902361427260581360==--
+> -----8<-----
+> >From ba9a0f76dffceffa4fa3aa2d9be49cdb0d9b7d4f Mon Sep 17 00:00:00 2001
+> From: Byungchul Park <byungchul.park@lge.com>
+> Date: Thu, 9 Nov 2017 09:00:21 +0900
+> Subject: [PATCH] vhost/scsi: Use safe iteration in vhost_scsi_complete_cmd_work()
+> 
+> The following patch changed the behavior which originally did safe
+> iteration. Make it safe as it was.
+> 
+>    12bdcbd539c6327c09da0503c674733cb2d82cb5
+>    vhost/scsi: Don't reinvent the wheel but use existing llist API
+> 
+> Signed-off-by: Byungchul Park <byungchul.park@lge.com>
+> ---
+>  drivers/vhost/scsi.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> index 046f6d2..46539ca 100644
+> --- a/drivers/vhost/scsi.c
+> +++ b/drivers/vhost/scsi.c
+> @@ -519,7 +519,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
+>  					vs_completion_work);
+>  	DECLARE_BITMAP(signal, VHOST_SCSI_MAX_VQ);
+>  	struct virtio_scsi_cmd_resp v_rsp;
+> -	struct vhost_scsi_cmd *cmd;
+> +	struct vhost_scsi_cmd *cmd, *t;
+>  	struct llist_node *llnode;
+>  	struct se_cmd *se_cmd;
+>  	struct iov_iter iov_iter;
+> @@ -527,7 +527,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
+>  
+>  	bitmap_zero(signal, VHOST_SCSI_MAX_VQ);
+>  	llnode = llist_del_all(&vs->vs_completion_list);
+> -	llist_for_each_entry(cmd, llnode, tvc_completion_list) {
+> +	llist_for_each_entry_safe(cmd, t, llnode, tvc_completion_list) {
+>  		se_cmd = &cmd->tvc_se_cmd;
+>  
+>  		pr_debug("%s tv_cmd %p resid %u status %#02x\n", __func__,
+> -- 
+> 1.9.1
