@@ -1,20 +1,13 @@
-From: Quan Xu <quan.xu0@gmail.com>
-Subject: Re: [PATCH RFC v3 1/6] x86/paravirt: Add pv_idle_ops to paravirt ops
-Date: Tue, 14 Nov 2017 18:23:30 +0800
-Message-ID: <a3e93939-0458-5182-464e-3de788f448d4__16979.3117013343$1511414871$gmane$org@gmail.com>
-References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
-	<1510567565-5118-2-git-send-email-quan.xu0@gmail.com>
-	<07fac696-e3d4-8f35-8f3d-764d7ab41204@suse.com>
-	<902da704-1e4f-583b-91c3-1a62ccd6e73d@gmail.com>
-	<CANRm+CxirO0aSAQnOfPG0+KPCOnXf3SEASwBiprLmtncZE53pA@mail.gmail.com>
-	<d233b179-9815-0134-ef04-c492f9523121@gmail.com>
-	<CANRm+Cycx3ewegOXR7c70kpdsaJA-=M5QztDt4J2L=VqpeCsfQ@mail.gmail.com>
+From: Xu Quan <quan.xu04@gmail.com>
+Subject: Re: [PATCH RFC v3 0/6] x86/idle: add halt poll support
+Date: Wed, 15 Nov 2017 21:04:55 +0800
+Message-ID: <CACbSEunLCNw2mqcVGYVCEaaMzPAmdqsXcODuiwMPsNimoNH-kg@mail.gmail.com>
+References: <1510570901-6373-1-git-send-email-quan.xu0@gmail.com>
+	<20171115121314.s7hhcb6f36uasrku@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0902361427260581360=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CANRm+Cycx3ewegOXR7c70kpdsaJA-=M5QztDt4J2L=VqpeCsfQ@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <20171115121314.s7hhcb6f36uasrku@hirez.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,105 +17,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanpeng Li <kernellwp@gmail.com>
-Cc: Juergen Gross <jgross@suse.com>, Yang Zhang <yang.zhang.wz@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, kvm <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Quan Xu <quan.xu03@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, "open list:FILESYSTEMS (VFS and infrastructure)" <linux-fsdevel@vger.kernel.org>, xen-devel <xen-devel@lists.xenproject.org>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Quan Xu <quan.xu0@gmail.com>, kvm <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
+--===============0902361427260581360==
+Content-Type: multipart/alternative; boundary="94eb2c1402ce63aa93055e05263d"
 
+--94eb2c1402ce63aa93055e05263d
+Content-Type: text/plain; charset="UTF-8"
 
-On 2017/11/14 16:22, Wanpeng Li wrote:
-> 2017-11-14 16:15 GMT+08:00 Quan Xu <quan.xu0@gmail.com>:
->>
->> On 2017/11/14 15:12, Wanpeng Li wrote:
->>> 2017-11-14 15:02 GMT+08:00 Quan Xu <quan.xu0@gmail.com>:
->>>>
->>>> On 2017/11/13 18:53, Juergen Gross wrote:
->>>>> On 13/11/17 11:06, Quan Xu wrote:
->>>>>> From: Quan Xu <quan.xu0@gmail.com>
->>>>>>
->>>>>> So far, pv_idle_ops.poll is the only ops for pv_idle. .poll is called
->>>>>> in idle path which will poll for a while before we enter the real idle
->>>>>> state.
->>>>>>
->>>>>> In virtualization, idle path includes several heavy operations
->>>>>> includes timer access(LAPIC timer or TSC deadline timer) which will
->>>>>> hurt performance especially for latency intensive workload like message
->>>>>> passing task. The cost is mainly from the vmexit which is a hardware
->>>>>> context switch between virtual machine and hypervisor. Our solution is
->>>>>> to poll for a while and do not enter real idle path if we can get the
->>>>>> schedule event during polling.
->>>>>>
->>>>>> Poll may cause the CPU waste so we adopt a smart polling mechanism to
->>>>>> reduce the useless poll.
->>>>>>
->>>>>> Signed-off-by: Yang Zhang <yang.zhang.wz@gmail.com>
->>>>>> Signed-off-by: Quan Xu <quan.xu0@gmail.com>
->>>>>> Cc: Juergen Gross <jgross@suse.com>
->>>>>> Cc: Alok Kataria <akataria@vmware.com>
->>>>>> Cc: Rusty Russell <rusty@rustcorp.com.au>
->>>>>> Cc: Thomas Gleixner <tglx@linutronix.de>
->>>>>> Cc: Ingo Molnar <mingo@redhat.com>
->>>>>> Cc: "H. Peter Anvin" <hpa@zytor.com>
->>>>>> Cc: x86@kernel.org
->>>>>> Cc: virtualization@lists.linux-foundation.org
->>>>>> Cc: linux-kernel@vger.kernel.org
->>>>>> Cc: xen-devel@lists.xenproject.org
->>>>> Hmm, is the idle entry path really so critical to performance that a new
->>>>> pvops function is necessary?
->>>> Juergen, Here is the data we get when running benchmark netperf:
->>>>    1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
->>>>       29031.6 bit/s -- 76.1 %CPU
->>>>
->>>>    2. w/ patch and disable kvm dynamic poll (halt_poll_ns=0):
->>>>       35787.7 bit/s -- 129.4 %CPU
->>>>
->>>>    3. w/ kvm dynamic poll:
->>>>       35735.6 bit/s -- 200.0 %CPU
->>> Actually we can reduce the CPU utilization by sleeping a period of
->>> time as what has already been done in the poll logic of IO subsystem,
->>> then we can improve the algorithm in kvm instead of introduing another
->>> duplicate one in the kvm guest.
->> We really appreciate upstream's kvm dynamic poll mechanism, which is
->> really helpful for a lot of scenario..
->>
->> However, as description said, in virtualization, idle path includes
->> several heavy operations includes timer access (LAPIC timer or TSC
->> deadline timer) which will hurt performance especially for latency
->> intensive workload like message passing task. The cost is mainly from
->> the vmexit which is a hardware context switch between virtual machine
->> and hypervisor.
->>
->> for upstream's kvm dynamic poll mechanism, even you could provide a
->> better algorism, how could you bypass timer access (LAPIC timer or TSC
->> deadline timer), or a hardware context switch between virtual machine
->> and hypervisor. I know these is a tradeoff.
->>
->> Furthermore, here is the data we get when running benchmark contextswitch
->> to measure the latency(lower is better):
->>
->> 1. w/o patch and disable kvm dynamic poll (halt_poll_ns=0):
->>    3402.9 ns/ctxsw -- 199.8 %CPU
->>
->> 2. w/ patch and disable kvm dynamic poll:
->>    1163.5 ns/ctxsw -- 205.5 %CPU
->>
->> 3. w/ kvm dynamic poll:
->>    2280.6 ns/ctxsw -- 199.5 %CPU
->>
->> so, these tow solution are quite similar, but not duplicate..
->>
->> that's also why to add a generic idle poll before enter real idle path.
->> When a reschedule event is pending, we can bypass the real idle path.
->>
-> There is a similar logic in the idle governor/driver, so how this
-> patchset influence the decision in the idle governor/driver when
-> running on bare-metal(power managment is not exposed to the guest so
-> we will not enter into idle driver in the guest)?
+2017-11-15 20:13 GMT+08:00 Peter Zijlstra <peterz@infradead.org>:
+
+> On Mon, Nov 13, 2017 at 07:01:40PM +0800, Quan Xu wrote:
+> >  Documentation/sysctl/kernel.txt       |   35 ++++++++++++++++
+> >  arch/x86/include/asm/paravirt.h       |    5 ++
+> >  arch/x86/include/asm/paravirt_types.h |    6 +++
+> >  arch/x86/kernel/kvm.c                 |   73
+> +++++++++++++++++++++++++++++++++
+> >  arch/x86/kernel/paravirt.c            |   10 +++++
+> >  arch/x86/kernel/process.c             |    7 +++
+> >  include/linux/kernel.h                |    6 +++
+> >  include/linux/tick.h                  |    2 +
+> >  kernel/sched/idle.c                   |    2 +
+> >  kernel/sysctl.c                       |   34 +++++++++++++++
+> >  kernel/time/tick-sched.c              |   11 +++++
+> >  kernel/time/tick-sched.h              |    3 +
+> >  12 files changed, 194 insertions(+), 0 deletions(-)
+>
+> You seem to have forgotten to CC me on the actual patches, but no. Not
+> going to happen.
 >
 
-This is expected to take effect only when running as a virtual machine with
-proper CONFIG_* enabled. This can not work on bare mental even with proper
-CONFIG_* enabled.
+sorry, I will forward  patch 5 / patch 6 to you .. I have some problems
+with Gmail on unbuntu.
 
 Quan
-Alibaba Cloud
+
+--94eb2c1402ce63aa93055e05263d
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
+te">2017-11-15 20:13 GMT+08:00 Peter Zijlstra <span dir=3D"ltr">&lt;<a href=
+=3D"mailto:peterz@infradead.org" target=3D"_blank">peterz@infradead.org</a>=
+&gt;</span>:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8e=
+x;border-left:1px #ccc solid;padding-left:1ex"><span class=3D"">On Mon, Nov=
+ 13, 2017 at 07:01:40PM +0800, Quan Xu wrote:<br>
+&gt;=C2=A0 Documentation/sysctl/kernel.<wbr>txt=C2=A0 =C2=A0 =C2=A0 =C2=A0|=
+=C2=A0 =C2=A035 ++++++++++++++++<br>
+&gt;=C2=A0 arch/x86/include/asm/paravirt.<wbr>h=C2=A0 =C2=A0 =C2=A0 =C2=A0|=
+=C2=A0 =C2=A0 5 ++<br>
+&gt;=C2=A0 arch/x86/include/asm/paravirt_<wbr>types.h |=C2=A0 =C2=A0 6 +++<=
+br>
+&gt;=C2=A0 arch/x86/kernel/kvm.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0|=C2=A0 =C2=A073 ++++++++++++++++++++++++++++++<wbr>+++=
+<br>
+&gt;=C2=A0 arch/x86/kernel/paravirt.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 |=C2=A0 =C2=A010 +++++<br>
+&gt;=C2=A0 arch/x86/kernel/process.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0|=C2=A0 =C2=A0 7 +++<br>
+&gt;=C2=A0 include/linux/kernel.h=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 |=C2=A0 =C2=A0 6 +++<br>
+&gt;=C2=A0 include/linux/tick.h=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 |=C2=A0 =C2=A0 2 +<br>
+&gt;=C2=A0 kernel/sched/idle.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0|=C2=A0 =C2=A0 2 +<br>
+&gt;=C2=A0 kernel/sysctl.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0|=C2=A0 =C2=A034 +++++++++++++++<br>
+&gt;=C2=A0 kernel/time/tick-sched.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 |=C2=A0 =C2=A011 +++++<br>
+&gt;=C2=A0 kernel/time/tick-sched.h=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 |=C2=A0 =C2=A0 3 +<br>
+&gt;=C2=A0 12 files changed, 194 insertions(+), 0 deletions(-)<br>
+<br>
+</span>You seem to have forgotten to CC me on the actual patches, but no. N=
+ot<br>
+going to happen.<br>
+</blockquote></div></div><div class=3D"gmail_extra"><br></div><div class=3D=
+"gmail_extra">sorry, I will forward=C2=A0 patch 5 / patch 6 to you .. I hav=
+e some problems with Gmail on unbuntu.</div><div class=3D"gmail_extra"><br>=
+</div><div class=3D"gmail_extra">Quan<br></div><div class=3D"gmail_extra"><=
+br></div><div class=3D"gmail_extra"><br></div></div>
+
+--94eb2c1402ce63aa93055e05263d--
+
+--===============0902361427260581360==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0902361427260581360==--
