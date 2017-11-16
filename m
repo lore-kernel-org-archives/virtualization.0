@@ -1,16 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost/scsi: Use safe iteration in
-	vhost_scsi_complete_cmd_work()
-Date: Thu, 16 Nov 2017 03:30:52 +0200
-Message-ID: <20171116033036-mutt-send-email-mst@kernel.org>
-References: <1510186649-9765-1-git-send-email-byungchul.park@lge.com>
-	<20171115235239.GA4394@X58A-UD3R>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH RFC v3 3/6] sched/idle: Add a generic poll before enter
+	real idle path
+Date: Thu, 16 Nov 2017 09:45:55 +0100
+Message-ID: <20171116084555.it2hqajxxd6ld5tq@hirez.programming.kicks-ass.net>
+References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
+	<1510567565-5118-4-git-send-email-quan.xu0@gmail.com>
+	<20171115121152.gqug5wzerlo3eimd@hirez.programming.kicks-ass.net>
+	<alpine.DEB.2.20.1711152240010.2146@nanos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20171115235239.GA4394@X58A-UD3R>
+In-Reply-To: <alpine.DEB.2.20.1711152240010.2146@nanos>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,65 +22,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Byungchul Park <byungchul.park@lge.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kernel-team@lge.com
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Len Brown <len.brown@intel.com>, Quan Xu <quan.xu0@gmail.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Kyle Huey <me@kylehuey.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Quan Xu <quan.xu03@gmail.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, linux-fsdevel@vger.kernel.org, xen-devel@lists.xenproject.org, Tom Lendacky <thomas.lendacky@amd.com>, Tobias Klauser <tklauser@distanz.ch>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 16, 2017 at 08:52:39AM +0900, Byungchul Park wrote:
-> On Thu, Nov 09, 2017 at 09:17:29AM +0900, Byungchul Park wrote:
-> > I am sorry for having made a mistake on it.
-> 
-> Hello Nicholas,
-> 
-> Please consider this patch urgently. I'm sorry for having changed the
-> original behavior with the previous patch.
-> 
-> The safe version of llist API should be used to keep the original
-> behavior.
-> 
-> Thanks,
-> Byungchul
+On Wed, Nov 15, 2017 at 11:03:08PM +0100, Thomas Gleixner wrote:
+> If I understand the problem correctly then he wants to avoid the heavy
+> lifting in tick_nohz_idle_enter() in the first place, but there is already
+> an interesting quirk there which makes it exit early. 
 
-I have included this patch in my tree.
+Sure. And there are people who want to do the same for native.
 
-> > -----8<-----
-> > >From ba9a0f76dffceffa4fa3aa2d9be49cdb0d9b7d4f Mon Sep 17 00:00:00 2001
-> > From: Byungchul Park <byungchul.park@lge.com>
-> > Date: Thu, 9 Nov 2017 09:00:21 +0900
-> > Subject: [PATCH] vhost/scsi: Use safe iteration in vhost_scsi_complete_cmd_work()
-> > 
-> > The following patch changed the behavior which originally did safe
-> > iteration. Make it safe as it was.
-> > 
-> >    12bdcbd539c6327c09da0503c674733cb2d82cb5
-> >    vhost/scsi: Don't reinvent the wheel but use existing llist API
-> > 
-> > Signed-off-by: Byungchul Park <byungchul.park@lge.com>
-> > ---
-> >  drivers/vhost/scsi.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> > index 046f6d2..46539ca 100644
-> > --- a/drivers/vhost/scsi.c
-> > +++ b/drivers/vhost/scsi.c
-> > @@ -519,7 +519,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
-> >  					vs_completion_work);
-> >  	DECLARE_BITMAP(signal, VHOST_SCSI_MAX_VQ);
-> >  	struct virtio_scsi_cmd_resp v_rsp;
-> > -	struct vhost_scsi_cmd *cmd;
-> > +	struct vhost_scsi_cmd *cmd, *t;
-> >  	struct llist_node *llnode;
-> >  	struct se_cmd *se_cmd;
-> >  	struct iov_iter iov_iter;
-> > @@ -527,7 +527,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
-> >  
-> >  	bitmap_zero(signal, VHOST_SCSI_MAX_VQ);
-> >  	llnode = llist_del_all(&vs->vs_completion_list);
-> > -	llist_for_each_entry(cmd, llnode, tvc_completion_list) {
-> > +	llist_for_each_entry_safe(cmd, t, llnode, tvc_completion_list) {
-> >  		se_cmd = &cmd->tvc_se_cmd;
-> >  
-> >  		pr_debug("%s tv_cmd %p resid %u status %#02x\n", __func__,
-> > -- 
-> > 1.9.1
+Adding more ugly and special cases just isn't the way to go about doing
+that.
+
+I'm fairly sure I've told the various groups that want to tinker with
+this to work together on this. I've also in fairly significant detail
+sketched how to rework the idle code and idle predictors.
+
+At this point I'm too tired to dig any of that up, so I'll just keep
+saying no to patches that don't even attempt to go in the right
+direction.
