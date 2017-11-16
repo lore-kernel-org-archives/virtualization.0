@@ -1,16 +1,17 @@
 From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: [PATCH 02/13] x86/paravirt: Fix output constraint macro names
-Date: Thu, 16 Nov 2017 14:50:42 -0600
-Message-ID: <20171116205042.wyl6x2q5tjwmoyeg@treble>
+Subject: Re: [PATCH 03/13] x86/paravirt: Convert native patch assembly code
+	strings to macros
+Date: Thu, 16 Nov 2017 15:04:05 -0600
+Message-ID: <20171116210405.xzagz5o5sphivldt@treble>
 References: <cover.1507128293.git.jpoimboe@redhat.com>
-	<f8aad6bc7bcdb606b89f3d5dc5fb2303019cb3d0.1507128293.git.jpoimboe@redhat.com>
-	<5d2799f9-fb5d-381e-a576-15098626201f@suse.com>
+	<e4cea2b8aa8ca23122d9c807784ca62ee6cbbff8.1507128293.git.jpoimboe@redhat.com>
+	<a1c4f192-f141-7488-ae6e-ad07101ba8da@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5d2799f9-fb5d-381e-a576-15098626201f@suse.com>
+In-Reply-To: <a1c4f192-f141-7488-ae6e-ad07101ba8da@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,22 +25,24 @@ To: Juergen Gross <jgross@suse.com>
 Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>, Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, x86@kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 25, 2017 at 11:33:43AM +0200, Juergen Gross wrote:
+On Wed, Oct 25, 2017 at 11:46:18AM +0200, Juergen Gross wrote:
 > On 04/10/17 17:58, Josh Poimboeuf wrote:
-> > Some of the paravirt '*_CLOBBERS' macros refer to output constraints
-> > instead of clobbers, which makes the code extra confusing.  Rename the
-> > output constraint related macros to '*_OUTPUTS'.
+> > Convert the hard-coded native patch assembly code strings to macros to
+> > facilitate sharing common code between 32-bit and 64-bit.
+> > 
+> > These macros will also be used by a future patch which requires the GCC
+> > extended asm syntax of two '%' characters instead of one when specifying
+> > a register name.
 > > 
 > > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 > 
-> I'm fine with the changes, but you might want to rename the "call_clbr"
-> parameter of ____PVOP_[V]CALL, too, e.g. to "outputs".
+> Reviewed-by: Juergen Gross <jgross@suse.com>
+> 
+> Mind adding another patch to merge the now nearly identical
+> paravirt_patch_32.c and paravirt_patch_64.c either into paravirt.c
+> or paravirt_patch.c? This would require only very few #ifdef.
 
-Yeah, good catch.
-
-> You could then drop the "CALL_" from the macros, too.
-
-Hm, which macros are you referring to, and why?
+Good idea, will do.
 
 -- 
 Josh
