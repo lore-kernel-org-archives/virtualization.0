@@ -1,20 +1,16 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v17 6/6] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
-Date: Thu, 16 Nov 2017 19:59:22 +0800
-Message-ID: <5A0D7D9A.1060509__2344.67783379859$1510833441$gmane$org@intel.com>
+Subject: Re: [virtio-dev] Re: [PATCH v17 6/6] virtio-balloon:
+	VIRTIO_BALLOON_F_FREE_PAGE_VQ
+Date: Thu, 16 Nov 2017 21:27:24 +0800
+Message-ID: <5A0D923C.4020807__7914.14397904209$1510838718$gmane$org@intel.com>
 References: <1509696786-1597-1-git-send-email-wei.w.wang@intel.com>
 	<1509696786-1597-7-git-send-email-wei.w.wang@intel.com>
-	<5A097548.8000608@intel.com>
-	<20171113192309-mutt-send-email-mst@kernel.org>
-	<5A0ADB3B.4070407@intel.com>
-	<20171114230805-mutt-send-email-mst@kernel.org>
-	<5A0BB8EE.4050402@intel.com>
-	<20171115152307-mutt-send-email-mst@kernel.org>
+	<20171115220743-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171115152307-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20171115220743-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,97 +21,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, Nitesh Narayan Lal <nilal@redhat.com>, Rik van Riel <riel@redhat.com>, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net, liliang.opensource@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/15/2017 09:26 PM, Michael S. Tsirkin wrote:
-> On Wed, Nov 15, 2017 at 11:47:58AM +0800, Wei Wang wrote:
->> On 11/15/2017 05:21 AM, Michael S. Tsirkin wrote:
->>> On Tue, Nov 14, 2017 at 08:02:03PM +0800, Wei Wang wrote:
->>>> On 11/14/2017 01:32 AM, Michael S. Tsirkin wrote:
->>>>>> - guest2host_cmd: written by the guest to ACK to the host about the
->>>>>> commands that have been received. The host will clear the corresponding
->>>>>> bits on the host2guest_cmd register. The guest also uses this register
->>>>>> to send commands to the host (e.g. when finish free page reporting).
->>>>> I am not sure what is the role of guest2host_cmd. Reporting of
->>>>> the correct cmd id seems sufficient indication that guest
->>>>> received the start command. Not getting any more seems sufficient
->>>>> to detect stop.
->>>>>
->>>> I think the issue is when the host is waiting for the guest to report pages,
->>>> it does not know whether the guest is going to report more or the report is
->>>> done already. That's why we need a way to let the guest tell the host "the
->>>> report is done, don't wait for more", then the host continues to the next
->>>> step - sending the non-free pages to the destination. The following method
->>>> is a conclusion of other comments, with some new thought. Please have a
->>>> check if it is good.
->>> config won't work well for this IMHO.
->>> Writes to config register are hard to synchronize with the VQ.
->>> For example, guest sends free pages, host says stop, meanwhile
->>> guest sends stop for 1st set of pages.
->> I still don't see an issue with this. Please see below:
->> (before jumping into the discussion, just make sure I've well explained this
->> point: now host-to-guest commands are done via config, and guest-to-host
->> commands are done via the free page vq)
-> This is fine by me actually. But right now you have guest to host
-> not going through vq, going through command register instead -
-> this is how sending stop to host seems to happen.
-> If you make it go through vq then I think all will be well.
+On 11/16/2017 04:32 AM, Michael S. Tsirkin wrote:
+> On Fri, Nov 03, 2017 at 04:13:06PM +0800, Wei Wang wrote:
+>> Negotiation of the VIRTIO_BALLOON_F_FREE_PAGE_VQ feature indicates the
+>> support of reporting hints of guest free pages to the host via
+>> virtio-balloon. The host requests the guest to report the free pages by
+>> sending commands via the virtio-balloon configuration registers.
+>>
+>> When the guest starts to report, the first element added to the free page
+>> vq is a sequence id of the start reporting command. The id is given by
+>> the host, and it indicates whether the following free pages correspond
+>> to the command. For example, the host may stop the report and start again
+>> with a new command id. The obsolete pages for the previous start command
+>> can be detected by the id dismatching on the host. The id is added to the
+>> vq using an output buffer, and the free pages are added to the vq using
+>> input buffer.
+>>
+>> Here are some explainations about the added configuration registers:
+>> - host2guest_cmd: a register used by the host to send commands to the
+>> guest.
+>> - guest2host_cmd: written by the guest to ACK to the host about the
+>> commands that have been received. The host will clear the corresponding
+>> bits on the host2guest_cmd register. The guest also uses this register
+>> to send commands to the host (e.g. when finish free page reporting).
+>> - free_page_cmd_id: the sequence id of the free page report command
+>> given by the host.
+>>
+>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+>> Signed-off-by: Liang Li <liang.z.li@intel.com>
+>> Cc: Michael S. Tsirkin <mst@redhat.com>
+>> Cc: Michal Hocko <mhocko@kernel.org>
+>> ---
+>>
+>> +
+>> +static void report_free_page(struct work_struct *work)
+>> +{
+>> +	struct virtio_balloon *vb;
+>> +
+>> +	vb = container_of(work, struct virtio_balloon, report_free_page_work);
+>> +	report_free_page_cmd_id(vb);
+>> +	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
+>> +	/*
+>> +	 * The last few free page blocks that were added may not reach the
+>> +	 * batch size, but need a kick to notify the device to handle them.
+>> +	 */
+>> +	virtqueue_kick(vb->free_page_vq);
+>> +	report_free_page_end(vb);
+>> +}
+>> +
+> I think there's an issue here: if pages are poisoned and hypervisor
+> subsequently drops them, testing them after allocation will
+> trigger a false positive.
 >
->> Case: Host starts to request the reporting with cmd_id=1. Some time later,
->> Host writes "stop" to config, meantime guest happens to finish the reporting
->> and plan to actively send a "stop" command from the free_page_vq().
->>            Essentially, this is like a sync between two threads - if we view
->> the config interrupt handler as one thread, another is the free page
->> reporting worker thread.
->>
->>          - what the config handler does is simply:
->>                1.1:  WRITE_ONCE(vb->reporting_stop, true);
->>
->>          - what the reporting thread will do is
->>                2.1:  WRITE_ONCE(vb->reporting_stop, true);
->>                2.2:  send_stop_to_host_via_vq();
->>
->>  From the guest point of view, no matter 1.1 is executed first or 2.1 first,
->> it doesn't make a difference to the end result - vb->reporting_stop is set.
->>
->>  From the host point of view, it knows that cmd_id=1 has truly stopped the
->> reporting when it receives a "stop" sign via the vq.
->>
->>
->>> How about adding a buffer with "stop" in the VQ instead?
->>> Wastes a VQ entry which you will need to reserve for this
->>> but is it a big deal?
->> The free page vq is guest-to-host direction.
-> Yes, for guest to host stop sign.
+> The specific configuration:
 >
->> Using it for host-to-guest
->> requests will make it bidirectional, which will result in the same issue
->> described before: https://lkml.org/lkml/2017/10/11/1009 (the first response)
->>
->> On the other hand, I think adding another new vq for host-to-guest
->> requesting doesn't make a difference in essence, compared to using config
->> (same 1.1, 2.1, 2.2 above), but will be more complicated.
-> I agree with this. Host to guest can just incremenent the "free command id"
-> register.
+> PAGE_POISONING on
+> PAGE_POISONING_NO_SANITY off
+> PAGE_POISONING_ZERO off
+>
+>
+> Solutions:
+> 1. disable the feature in that configuration
+> 	suggested as an initial step
+
+Thanks for the finding.
+Similar to this option: I'm thinking could we make walk_free_mem_block() 
+simply return if that option is on?
+That is, at the beginning of the function:
+     if (!page_poisoning_enabled())
+                 return;
+
+I think in most usages, people would not choose to use the poisoning 
+option due to the added overhead.
 
 
-OK, thanks for the suggestions. I think one more issue left here:
+Probably we could make it a separate fix patch of this report following 
+patch 5 to explain the above reasons in the commit.
 
-Previously, when the guest receives a config interrupt, it blindly adds 
-the balloon work item to the workqueue in virtballoon_changed(), because 
-only ballooning uses the config.
-Now, free page reporting is requested via config, too.
+> 2. pass poison value to host so it can validate page content
+>     before it drops it
+> 3. pass poison value to host so it can init allocated pages with that value
+>
+> In fact one nice side effect would be that unmap
+> becomes safe even though free list is not locked anymore.
 
-We have the following two options:
+I haven't got this point yet,  how would it bring performance benefit?
 
-Option 1: add "diff = towards_target()" to virtballoon_changed(), and if 
-diff = 0, it will not add the balloon work item to the wq.
-
-Option 2: add "cmd" for the host-to-guest request, and add the item when 
-"cmd | CMD_BALLOON" is true.
-
-I'm inclined to take option 1 now. Which one would you prefer?
+> It would be interesting to see whether this last has
+> any value performance-wise.
+>
 
 Best,
 Wei
