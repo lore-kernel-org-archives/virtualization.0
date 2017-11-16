@@ -1,12 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost/virtio/qemu: cleanups and fixes
-Date: Thu, 16 Nov 2017 20:51:54 +0200
-Message-ID: <20171116205154-mutt-send-email-mst@kernel.org>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: Re: [PATCH 02/13] x86/paravirt: Fix output constraint macro names
+Date: Thu, 16 Nov 2017 14:50:42 -0600
+Message-ID: <20171116205042.wyl6x2q5tjwmoyeg@treble>
+References: <cover.1507128293.git.jpoimboe@redhat.com>
+	<f8aad6bc7bcdb606b89f3d5dc5fb2303019cb3d0.1507128293.git.jpoimboe@redhat.com>
+	<5d2799f9-fb5d-381e-a576-15098626201f@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <5d2799f9-fb5d-381e-a576-15098626201f@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,41 +20,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: mhocko@suse.com, kvm@vger.kernel.org, mst@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, netdev@vger.kernel.org, somlo@cmu.edu, linux-kernel@vger.kernel.org, den@klaipeden.com, virtualization@lists.linux-foundation.org, byungchul.park@lge.com, stefanha@redhat.com, marcandre.lureau@redhat.com
+To: Juergen Gross <jgross@suse.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>, Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, x86@kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RE1BIHN1cHBvcnQgaW4gRlcgQ0ZHIGhhZCB0byBiZSBwdXNoZWQgb3V0IGFzIGl0IGNhdXNlZCBs
-dHAgZmFpbHVyZXMgLQpsaWtlbHkgYSBjb21wYXRpYmlsaXR5IGlzc3VlLCBhbmQgY291bGQgYmUg
-YSBoeXBlcnZpc29yIGJ1ZywgYnV0IHdlIG5lZWQKdG8gZmlndXJlIGl0IG91dCBmaXJzdC4gVGhl
-cmUncyBzdGlsbCBhIHNtYWxsIGNoYW5jZSBpdCdsbCBoYXBwZW4Kc2hvcnRseSwgdGhlbiBJIG1p
-Z2h0IGRvIGFub3RoZXIgcHVsbCByZXF1ZXN0IGp1c3QgZm9yIHRoYXQuCgpUaGUgZm9sbG93aW5n
-IGNoYW5nZXMgc2luY2UgY29tbWl0IGJlYmM2MDgyZGEwYTlmNWQ0N2ExZWEyZWRjMDk5YmY2NzEw
-NThiZDQ6CgogIExpbnV4IDQuMTQgKDIwMTctMTEtMTIgMTA6NDY6MTMgLTA4MDApCgphcmUgYXZh
-aWxhYmxlIGluIHRoZSBHaXQgcmVwb3NpdG9yeSBhdDoKCiAgZ2l0Oi8vZ2l0Lmtlcm5lbC5vcmcv
-cHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L21zdC92aG9zdC5naXQgdGFncy9mb3JfbGludXMKCmZv
-ciB5b3UgdG8gZmV0Y2ggY2hhbmdlcyB1cCB0byBjMWQwYzNmNjIzYWRhODA4OTA0ZGVjNjc2ZGEw
-MTI2ZjViODAwNjMwOgoKICBmd19jZmc6IGZpeCB0aGUgY29tbWFuZCBsaW5lIG1vZHVsZSBuYW1l
-ICgyMDE3LTExLTE0IDIzOjU3OjQwICswMjAwKQoKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp2aXJ0aW8sIHZob3N0LCBxZW11
-OiBidWdmaXhlcywgY2xlYW51cHMKCkZpeGVzIGluIHFlbXUsIHZob3N0IGFuZCB2aXJ0aW8uCgpT
-aWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgoKLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LQpCeXVuZ2NodWwgUGFyayAoMSk6CiAgICAgIHZob3N0L3Njc2k6IFVzZSBzYWZlIGl0ZXJhdGlv
-biBpbiB2aG9zdF9zY3NpX2NvbXBsZXRlX2NtZF93b3JrKCkKCk1hcmMtQW5kcsOpIEx1cmVhdSAo
-MSk6CiAgICAgIGZ3X2NmZzogZml4IHRoZSBjb21tYW5kIGxpbmUgbW9kdWxlIG5hbWUKCk1pY2hh
-ZWwgUy4gVHNpcmtpbiAoMik6CiAgICAgIHZpcnRpb19iYWxsb29uOiBmaXggZGVhZGxvY2sgb24g
-T09NCiAgICAgIHZob3N0OiBmaXggZW5kIG9mIHJhbmdlIGZvciBhY2Nlc3Nfb2sKClN0ZWZhbiBI
-YWpub2N6aSAoMSk6CiAgICAgIHZob3N0L3Zzb2NrOiBmaXggdW5pbml0aWFsaXplZCB2aG9zdF92
-c29jay0+Z3Vlc3RfY2lkCgogZHJpdmVycy9maXJtd2FyZS9xZW11X2Z3X2NmZy5jICAgICB8ICA4
-ICsrKystLS0tCiBkcml2ZXJzL3Zob3N0L3Njc2kuYyAgICAgICAgICAgICAgIHwgIDQgKystLQog
-ZHJpdmVycy92aG9zdC92aG9zdC5jICAgICAgICAgICAgICB8ICA0ICsrLS0KIGRyaXZlcnMvdmhv
-c3QvdnNvY2suYyAgICAgICAgICAgICAgfCAgMiArKwogZHJpdmVycy92aXJ0aW8vdmlydGlvX2Jh
-bGxvb24uYyAgICB8IDI0ICsrKysrKysrKysrKysrKysrKystLS0tLQogaW5jbHVkZS9saW51eC9i
-YWxsb29uX2NvbXBhY3Rpb24uaCB8IDM1ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KystCiBtbS9iYWxsb29uX2NvbXBhY3Rpb24uYyAgICAgICAgICAgIHwgMjggKysrKysrKysrKysr
-KysrKysrKysrLS0tLS0tLQogNyBmaWxlcyBjaGFuZ2VkLCA4NCBpbnNlcnRpb25zKCspLCAyMSBk
-ZWxldGlvbnMoLSkKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Oct 25, 2017 at 11:33:43AM +0200, Juergen Gross wrote:
+> On 04/10/17 17:58, Josh Poimboeuf wrote:
+> > Some of the paravirt '*_CLOBBERS' macros refer to output constraints
+> > instead of clobbers, which makes the code extra confusing.  Rename the
+> > output constraint related macros to '*_OUTPUTS'.
+> > 
+> > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> 
+> I'm fine with the changes, but you might want to rename the "call_clbr"
+> parameter of ____PVOP_[V]CALL, too, e.g. to "outputs".
+
+Yeah, good catch.
+
+> You could then drop the "CALL_" from the macros, too.
+
+Hm, which macros are you referring to, and why?
+
+-- 
+Josh
