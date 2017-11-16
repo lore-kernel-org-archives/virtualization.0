@@ -1,16 +1,12 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [virtio-dev] Re: [PATCH v17 6/6] virtio-balloon:
-	VIRTIO_BALLOON_F_FREE_PAGE_VQ
-Date: Thu, 16 Nov 2017 21:27:24 +0800
-Message-ID: <5A0D923C.4020807__7914.14397904209$1510838718$gmane$org@intel.com>
-References: <1509696786-1597-1-git-send-email-wei.w.wang@intel.com>
-	<1509696786-1597-7-git-send-email-wei.w.wang@intel.com>
-	<20171115220743-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost/virtio/qemu: cleanups and fixes
+Date: Thu, 16 Nov 2017 20:51:54 +0200
+Message-ID: <20171116205154-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171115220743-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,99 +16,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mawilcox@microsoft.com, qemu-devel@nongnu.org, amit.shah@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, linux-kernel@vger.kernel.org, willy@infradead.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net, liliang.opensource@gmail.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: mhocko@suse.com, kvm@vger.kernel.org, mst@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, netdev@vger.kernel.org, somlo@cmu.edu, linux-kernel@vger.kernel.org, den@klaipeden.com, virtualization@lists.linux-foundation.org, byungchul.park@lge.com, stefanha@redhat.com, marcandre.lureau@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/16/2017 04:32 AM, Michael S. Tsirkin wrote:
-> On Fri, Nov 03, 2017 at 04:13:06PM +0800, Wei Wang wrote:
->> Negotiation of the VIRTIO_BALLOON_F_FREE_PAGE_VQ feature indicates the
->> support of reporting hints of guest free pages to the host via
->> virtio-balloon. The host requests the guest to report the free pages by
->> sending commands via the virtio-balloon configuration registers.
->>
->> When the guest starts to report, the first element added to the free page
->> vq is a sequence id of the start reporting command. The id is given by
->> the host, and it indicates whether the following free pages correspond
->> to the command. For example, the host may stop the report and start again
->> with a new command id. The obsolete pages for the previous start command
->> can be detected by the id dismatching on the host. The id is added to the
->> vq using an output buffer, and the free pages are added to the vq using
->> input buffer.
->>
->> Here are some explainations about the added configuration registers:
->> - host2guest_cmd: a register used by the host to send commands to the
->> guest.
->> - guest2host_cmd: written by the guest to ACK to the host about the
->> commands that have been received. The host will clear the corresponding
->> bits on the host2guest_cmd register. The guest also uses this register
->> to send commands to the host (e.g. when finish free page reporting).
->> - free_page_cmd_id: the sequence id of the free page report command
->> given by the host.
->>
->> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
->> Signed-off-by: Liang Li <liang.z.li@intel.com>
->> Cc: Michael S. Tsirkin <mst@redhat.com>
->> Cc: Michal Hocko <mhocko@kernel.org>
->> ---
->>
->> +
->> +static void report_free_page(struct work_struct *work)
->> +{
->> +	struct virtio_balloon *vb;
->> +
->> +	vb = container_of(work, struct virtio_balloon, report_free_page_work);
->> +	report_free_page_cmd_id(vb);
->> +	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
->> +	/*
->> +	 * The last few free page blocks that were added may not reach the
->> +	 * batch size, but need a kick to notify the device to handle them.
->> +	 */
->> +	virtqueue_kick(vb->free_page_vq);
->> +	report_free_page_end(vb);
->> +}
->> +
-> I think there's an issue here: if pages are poisoned and hypervisor
-> subsequently drops them, testing them after allocation will
-> trigger a false positive.
->
-> The specific configuration:
->
-> PAGE_POISONING on
-> PAGE_POISONING_NO_SANITY off
-> PAGE_POISONING_ZERO off
->
->
-> Solutions:
-> 1. disable the feature in that configuration
-> 	suggested as an initial step
-
-Thanks for the finding.
-Similar to this option: I'm thinking could we make walk_free_mem_block() 
-simply return if that option is on?
-That is, at the beginning of the function:
-     if (!page_poisoning_enabled())
-                 return;
-
-I think in most usages, people would not choose to use the poisoning 
-option due to the added overhead.
-
-
-Probably we could make it a separate fix patch of this report following 
-patch 5 to explain the above reasons in the commit.
-
-> 2. pass poison value to host so it can validate page content
->     before it drops it
-> 3. pass poison value to host so it can init allocated pages with that value
->
-> In fact one nice side effect would be that unmap
-> becomes safe even though free list is not locked anymore.
-
-I haven't got this point yet,  how would it bring performance benefit?
-
-> It would be interesting to see whether this last has
-> any value performance-wise.
->
-
-Best,
-Wei
+RE1BIHN1cHBvcnQgaW4gRlcgQ0ZHIGhhZCB0byBiZSBwdXNoZWQgb3V0IGFzIGl0IGNhdXNlZCBs
+dHAgZmFpbHVyZXMgLQpsaWtlbHkgYSBjb21wYXRpYmlsaXR5IGlzc3VlLCBhbmQgY291bGQgYmUg
+YSBoeXBlcnZpc29yIGJ1ZywgYnV0IHdlIG5lZWQKdG8gZmlndXJlIGl0IG91dCBmaXJzdC4gVGhl
+cmUncyBzdGlsbCBhIHNtYWxsIGNoYW5jZSBpdCdsbCBoYXBwZW4Kc2hvcnRseSwgdGhlbiBJIG1p
+Z2h0IGRvIGFub3RoZXIgcHVsbCByZXF1ZXN0IGp1c3QgZm9yIHRoYXQuCgpUaGUgZm9sbG93aW5n
+IGNoYW5nZXMgc2luY2UgY29tbWl0IGJlYmM2MDgyZGEwYTlmNWQ0N2ExZWEyZWRjMDk5YmY2NzEw
+NThiZDQ6CgogIExpbnV4IDQuMTQgKDIwMTctMTEtMTIgMTA6NDY6MTMgLTA4MDApCgphcmUgYXZh
+aWxhYmxlIGluIHRoZSBHaXQgcmVwb3NpdG9yeSBhdDoKCiAgZ2l0Oi8vZ2l0Lmtlcm5lbC5vcmcv
+cHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L21zdC92aG9zdC5naXQgdGFncy9mb3JfbGludXMKCmZv
+ciB5b3UgdG8gZmV0Y2ggY2hhbmdlcyB1cCB0byBjMWQwYzNmNjIzYWRhODA4OTA0ZGVjNjc2ZGEw
+MTI2ZjViODAwNjMwOgoKICBmd19jZmc6IGZpeCB0aGUgY29tbWFuZCBsaW5lIG1vZHVsZSBuYW1l
+ICgyMDE3LTExLTE0IDIzOjU3OjQwICswMjAwKQoKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp2aXJ0aW8sIHZob3N0LCBxZW11
+OiBidWdmaXhlcywgY2xlYW51cHMKCkZpeGVzIGluIHFlbXUsIHZob3N0IGFuZCB2aXJ0aW8uCgpT
+aWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgoKLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LQpCeXVuZ2NodWwgUGFyayAoMSk6CiAgICAgIHZob3N0L3Njc2k6IFVzZSBzYWZlIGl0ZXJhdGlv
+biBpbiB2aG9zdF9zY3NpX2NvbXBsZXRlX2NtZF93b3JrKCkKCk1hcmMtQW5kcsOpIEx1cmVhdSAo
+MSk6CiAgICAgIGZ3X2NmZzogZml4IHRoZSBjb21tYW5kIGxpbmUgbW9kdWxlIG5hbWUKCk1pY2hh
+ZWwgUy4gVHNpcmtpbiAoMik6CiAgICAgIHZpcnRpb19iYWxsb29uOiBmaXggZGVhZGxvY2sgb24g
+T09NCiAgICAgIHZob3N0OiBmaXggZW5kIG9mIHJhbmdlIGZvciBhY2Nlc3Nfb2sKClN0ZWZhbiBI
+YWpub2N6aSAoMSk6CiAgICAgIHZob3N0L3Zzb2NrOiBmaXggdW5pbml0aWFsaXplZCB2aG9zdF92
+c29jay0+Z3Vlc3RfY2lkCgogZHJpdmVycy9maXJtd2FyZS9xZW11X2Z3X2NmZy5jICAgICB8ICA4
+ICsrKystLS0tCiBkcml2ZXJzL3Zob3N0L3Njc2kuYyAgICAgICAgICAgICAgIHwgIDQgKystLQog
+ZHJpdmVycy92aG9zdC92aG9zdC5jICAgICAgICAgICAgICB8ICA0ICsrLS0KIGRyaXZlcnMvdmhv
+c3QvdnNvY2suYyAgICAgICAgICAgICAgfCAgMiArKwogZHJpdmVycy92aXJ0aW8vdmlydGlvX2Jh
+bGxvb24uYyAgICB8IDI0ICsrKysrKysrKysrKysrKysrKystLS0tLQogaW5jbHVkZS9saW51eC9i
+YWxsb29uX2NvbXBhY3Rpb24uaCB8IDM1ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KystCiBtbS9iYWxsb29uX2NvbXBhY3Rpb24uYyAgICAgICAgICAgIHwgMjggKysrKysrKysrKysr
+KysrKysrKysrLS0tLS0tLQogNyBmaWxlcyBjaGFuZ2VkLCA4NCBpbnNlcnRpb25zKCspLCAyMSBk
+ZWxldGlvbnMoLSkKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
