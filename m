@@ -1,17 +1,20 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH RFC v3 3/6] sched/idle: Add a generic poll before enter
-	real idle path
-Date: Thu, 16 Nov 2017 10:53:41 +0100 (CET)
-Message-ID: <alpine.DEB.2.20.1711161048000.2191__48505.9228995398$1510826038$gmane$org@nanos>
-References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
-	<1510567565-5118-4-git-send-email-quan.xu0@gmail.com>
-	<20171115121152.gqug5wzerlo3eimd@hirez.programming.kicks-ass.net>
-	<alpine.DEB.2.20.1711152240010.2146@nanos>
-	<46086489-5a01-16e1-9314-70ae53c01952@gmail.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v17 6/6] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
+Date: Thu, 16 Nov 2017 19:59:22 +0800
+Message-ID: <5A0D7D9A.1060509__2344.67783379859$1510833441$gmane$org@intel.com>
+References: <1509696786-1597-1-git-send-email-wei.w.wang@intel.com>
+	<1509696786-1597-7-git-send-email-wei.w.wang@intel.com>
+	<5A097548.8000608@intel.com>
+	<20171113192309-mutt-send-email-mst@kernel.org>
+	<5A0ADB3B.4070407@intel.com>
+	<20171114230805-mutt-send-email-mst@kernel.org>
+	<5A0BB8EE.4050402@intel.com>
+	<20171115152307-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="8323329-2002752408-1510826021=:2191"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46086489-5a01-16e1-9314-70ae53c01952@gmail.com>
+In-Reply-To: <20171115152307-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,61 +24,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Quan Xu <quan.xu0@gmail.com>
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Len Brown <len.brown@intel.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Kyle Huey <me@kylehuey.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Quan Xu <quan.xu03@gmail.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, linux-fsdevel@vger.kernel.org, xen-devel@lists.xenproject.org, Tom Lendacky <thomas.lendacky@amd.com>, Tobias Klauser <tklauser@distanz.ch>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, Nitesh Narayan Lal <nilal@redhat.com>, Rik van Riel <riel@redhat.com>, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On 11/15/2017 09:26 PM, Michael S. Tsirkin wrote:
+> On Wed, Nov 15, 2017 at 11:47:58AM +0800, Wei Wang wrote:
+>> On 11/15/2017 05:21 AM, Michael S. Tsirkin wrote:
+>>> On Tue, Nov 14, 2017 at 08:02:03PM +0800, Wei Wang wrote:
+>>>> On 11/14/2017 01:32 AM, Michael S. Tsirkin wrote:
+>>>>>> - guest2host_cmd: written by the guest to ACK to the host about the
+>>>>>> commands that have been received. The host will clear the corresponding
+>>>>>> bits on the host2guest_cmd register. The guest also uses this register
+>>>>>> to send commands to the host (e.g. when finish free page reporting).
+>>>>> I am not sure what is the role of guest2host_cmd. Reporting of
+>>>>> the correct cmd id seems sufficient indication that guest
+>>>>> received the start command. Not getting any more seems sufficient
+>>>>> to detect stop.
+>>>>>
+>>>> I think the issue is when the host is waiting for the guest to report pages,
+>>>> it does not know whether the guest is going to report more or the report is
+>>>> done already. That's why we need a way to let the guest tell the host "the
+>>>> report is done, don't wait for more", then the host continues to the next
+>>>> step - sending the non-free pages to the destination. The following method
+>>>> is a conclusion of other comments, with some new thought. Please have a
+>>>> check if it is good.
+>>> config won't work well for this IMHO.
+>>> Writes to config register are hard to synchronize with the VQ.
+>>> For example, guest sends free pages, host says stop, meanwhile
+>>> guest sends stop for 1st set of pages.
+>> I still don't see an issue with this. Please see below:
+>> (before jumping into the discussion, just make sure I've well explained this
+>> point: now host-to-guest commands are done via config, and guest-to-host
+>> commands are done via the free page vq)
+> This is fine by me actually. But right now you have guest to host
+> not going through vq, going through command register instead -
+> this is how sending stop to host seems to happen.
+> If you make it go through vq then I think all will be well.
+>
+>> Case: Host starts to request the reporting with cmd_id=1. Some time later,
+>> Host writes "stop" to config, meantime guest happens to finish the reporting
+>> and plan to actively send a "stop" command from the free_page_vq().
+>>            Essentially, this is like a sync between two threads - if we view
+>> the config interrupt handler as one thread, another is the free page
+>> reporting worker thread.
+>>
+>>          - what the config handler does is simply:
+>>                1.1:  WRITE_ONCE(vb->reporting_stop, true);
+>>
+>>          - what the reporting thread will do is
+>>                2.1:  WRITE_ONCE(vb->reporting_stop, true);
+>>                2.2:  send_stop_to_host_via_vq();
+>>
+>>  From the guest point of view, no matter 1.1 is executed first or 2.1 first,
+>> it doesn't make a difference to the end result - vb->reporting_stop is set.
+>>
+>>  From the host point of view, it knows that cmd_id=1 has truly stopped the
+>> reporting when it receives a "stop" sign via the vq.
+>>
+>>
+>>> How about adding a buffer with "stop" in the VQ instead?
+>>> Wastes a VQ entry which you will need to reserve for this
+>>> but is it a big deal?
+>> The free page vq is guest-to-host direction.
+> Yes, for guest to host stop sign.
+>
+>> Using it for host-to-guest
+>> requests will make it bidirectional, which will result in the same issue
+>> described before: https://lkml.org/lkml/2017/10/11/1009 (the first response)
+>>
+>> On the other hand, I think adding another new vq for host-to-guest
+>> requesting doesn't make a difference in essence, compared to using config
+>> (same 1.1, 2.1, 2.2 above), but will be more complicated.
+> I agree with this. Host to guest can just incremenent the "free command id"
+> register.
 
---8323329-2002752408-1510826021=:2191
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
 
-On Thu, 16 Nov 2017, Quan Xu wrote:
-> On 2017-11-16 06:03, Thomas Gleixner wrote:
-> --- a/drivers/cpuidle/cpuidle.c
-> +++ b/drivers/cpuidle/cpuidle.c
-> @@ -210,6 +210,13 @@ int cpuidle_enter_state(struct cpuidle_device *dev,
-> struct cpuidle_driver *drv,
->                 target_state = &drv->states[index];
->         }
-> 
-> +#ifdef CONFIG_PARAVIRT
-> +       paravirt_idle_poll();
-> +
-> +       if (need_resched())
-> +               return -EBUSY;
-> +#endif
+OK, thanks for the suggestions. I think one more issue left here:
 
-That's just plain wrong. We don't want to see any of this PARAVIRT crap in
-anything outside the architecture/hypervisor interfacing code which really
-needs it.
+Previously, when the guest receives a config interrupt, it blindly adds 
+the balloon work item to the workqueue in virtballoon_changed(), because 
+only ballooning uses the config.
+Now, free page reporting is requested via config, too.
 
-The problem can and must be solved at the generic level in the first place
-to gather the data which can be used to make such decisions.
+We have the following two options:
 
-How that information is used might be either completely generic or requires
-system specific variants. But as long as we don't have any information at
-all we cannot discuss that.
+Option 1: add "diff = towards_target()" to virtballoon_changed(), and if 
+diff = 0, it will not add the balloon work item to the wq.
 
-Please sit down and write up which data needs to be considered to make
-decisions about probabilistic polling. Then we need to compare and contrast
-that with the data which is necessary to make power/idle state decisions.
+Option 2: add "cmd" for the host-to-guest request, and add the item when 
+"cmd | CMD_BALLOON" is true.
 
-I would be very surprised if this data would not overlap by at least 90%.
+I'm inclined to take option 1 now. Which one would you prefer?
 
-Thanks,
-
-	tglx
---8323329-2002752408-1510826021=:2191
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---8323329-2002752408-1510826021=:2191--
+Best,
+Wei
