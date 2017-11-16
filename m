@@ -1,15 +1,17 @@
 From: Byungchul Park <byungchul.park@lge.com>
 Subject: Re: [PATCH] vhost/scsi: Use safe iteration in
 	vhost_scsi_complete_cmd_work()
-Date: Thu, 16 Nov 2017 08:52:39 +0900
-Message-ID: <20171115235239.GA4394__9652.62515605918$1511414881$gmane$org@X58A-UD3R>
+Date: Thu, 16 Nov 2017 10:33:32 +0900
+Message-ID: <55bbb1fd-894a-2309-4dfe-ed9ca19e7c4d__11567.7380505533$1511414915$gmane$org@lge.com>
 References: <1510186649-9765-1-git-send-email-byungchul.park@lge.com>
+	<20171115235239.GA4394@X58A-UD3R>
+	<20171116033036-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1510186649-9765-1-git-send-email-byungchul.park@lge.com>
+In-Reply-To: <20171116033036-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,62 +21,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: nab@linux-iscsi.org, mst@redhat.com, jasowang@redhat.com
-Cc: kernel-team@lge.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kernel-team@lge.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 09, 2017 at 09:17:29AM +0900, Byungchul Park wrote:
-> I am sorry for having made a mistake on it.
+On 11/16/2017 10:30 AM, Michael S. Tsirkin wrote:
+> On Thu, Nov 16, 2017 at 08:52:39AM +0900, Byungchul Park wrote:
+>> On Thu, Nov 09, 2017 at 09:17:29AM +0900, Byungchul Park wrote:
+>>> I am sorry for having made a mistake on it.
+>>
+>> Hello Nicholas,
+>>
+>> Please consider this patch urgently. I'm sorry for having changed the
+>> original behavior with the previous patch.
+>>
+>> The safe version of llist API should be used to keep the original
+>> behavior.
+>>
+>> Thanks,
+>> Byungchul
+> 
+> I have included this patch in my tree.
 
-Hello Nicholas,
+Thank you.
 
-Please consider this patch urgently. I'm sorry for having changed the
-original behavior with the previous patch.
-
-The safe version of llist API should be used to keep the original
-behavior.
-
+-- 
 Thanks,
 Byungchul
-
-> -----8<-----
-> >From ba9a0f76dffceffa4fa3aa2d9be49cdb0d9b7d4f Mon Sep 17 00:00:00 2001
-> From: Byungchul Park <byungchul.park@lge.com>
-> Date: Thu, 9 Nov 2017 09:00:21 +0900
-> Subject: [PATCH] vhost/scsi: Use safe iteration in vhost_scsi_complete_cmd_work()
-> 
-> The following patch changed the behavior which originally did safe
-> iteration. Make it safe as it was.
-> 
->    12bdcbd539c6327c09da0503c674733cb2d82cb5
->    vhost/scsi: Don't reinvent the wheel but use existing llist API
-> 
-> Signed-off-by: Byungchul Park <byungchul.park@lge.com>
-> ---
->  drivers/vhost/scsi.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> index 046f6d2..46539ca 100644
-> --- a/drivers/vhost/scsi.c
-> +++ b/drivers/vhost/scsi.c
-> @@ -519,7 +519,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
->  					vs_completion_work);
->  	DECLARE_BITMAP(signal, VHOST_SCSI_MAX_VQ);
->  	struct virtio_scsi_cmd_resp v_rsp;
-> -	struct vhost_scsi_cmd *cmd;
-> +	struct vhost_scsi_cmd *cmd, *t;
->  	struct llist_node *llnode;
->  	struct se_cmd *se_cmd;
->  	struct iov_iter iov_iter;
-> @@ -527,7 +527,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
->  
->  	bitmap_zero(signal, VHOST_SCSI_MAX_VQ);
->  	llnode = llist_del_all(&vs->vs_completion_list);
-> -	llist_for_each_entry(cmd, llnode, tvc_completion_list) {
-> +	llist_for_each_entry_safe(cmd, t, llnode, tvc_completion_list) {
->  		se_cmd = &cmd->tvc_se_cmd;
->  
->  		pr_debug("%s tv_cmd %p resid %u status %#02x\n", __func__,
-> -- 
-> 1.9.1
