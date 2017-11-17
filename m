@@ -1,19 +1,11 @@
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: Re: [PATCH RFC v3 3/6] sched/idle: Add a generic poll before enter
-	real idle path
-Date: Thu, 16 Nov 2017 10:45:03 +0100
-Message-ID: <93a26005-aa37-82e1-5c04-a82c9027bac8__33216.2534039982$1511414930$gmane$org@linaro.org>
-References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
-	<1510567565-5118-4-git-send-email-quan.xu0@gmail.com>
-	<20171115121152.gqug5wzerlo3eimd@hirez.programming.kicks-ass.net>
-	<alpine.DEB.2.20.1711152240010.2146@nanos>
-	<46086489-5a01-16e1-9314-70ae53c01952@gmail.com>
+From: Joel Stanley <joel@jms.id.au>
+Subject: [PATCH] virto_net: remove empty file 'virtio_net.'
+Date: Fri, 17 Nov 2017 13:16:36 +1030
+Message-ID: <20171117024636.15515-1-joel__5629.12426325983$1511414949$gmane$org@jms.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <46086489-5a01-16e1-9314-70ae53c01952@gmail.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,63 +15,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Quan Xu <quan.xu0@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Peter Zijlstra <peterz@infradead.org>
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Len Brown <len.brown@intel.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Kyle Huey <me@kylehuey.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Quan Xu <quan.xu03@gmail.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, linux-fsdevel@vger.kernel.org, xen-devel@lists.xenproject.org, Tom Lendacky <thomas.lendacky@amd.com>, Tobias Klauser <tklauser@distanz.ch>
+To: Jason Wang <jasowang@redhat.com>, "David S . Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTYvMTEvMjAxNyAxMDoxMiwgUXVhbiBYdSB3cm90ZToKPiAKPiAKPiBPbiAyMDE3LTExLTE2
-IDA2OjAzLCBUaG9tYXMgR2xlaXhuZXIgd3JvdGU6Cj4+IE9uIFdlZCwgMTUgTm92IDIwMTcsIFBl
-dGVyIFppamxzdHJhIHdyb3RlOgo+Pgo+Pj4gT24gTW9uLCBOb3YgMTMsIDIwMTcgYXQgMDY6MDY6
-MDJQTSArMDgwMCwgUXVhbiBYdSB3cm90ZToKPj4+PiBGcm9tOiBZYW5nIFpoYW5nIDx5YW5nLnpo
-YW5nLnd6QGdtYWlsLmNvbT4KPj4+Pgo+Pj4+IEltcGxlbWVudCBhIGdlbmVyaWMgaWRsZSBwb2xs
-IHdoaWNoIHJlc2VtYmxlcyB0aGUgZnVuY3Rpb25hbGl0eQo+Pj4+IGZvdW5kIGluIGFyY2gvLiBQ
-cm92aWRlIHdlYWsgYXJjaF9jcHVfaWRsZV9wb2xsIGZ1bmN0aW9uIHdoaWNoCj4+Pj4gY2FuIGJl
-IG92ZXJyaWRkZW4gYnkgdGhlIGFyY2hpdGVjdHVyZSBjb2RlIGlmIG5lZWRlZC4KPj4+IE5vLCB3
-ZSB3YW50IGxlc3Mgb2YgdGhvc2UgbWFnaWMgaG9va3MsIG5vdCBtb3JlLgo+Pj4KPj4+PiBJbnRl
-cnJ1cHRzIGFycml2ZSB3aGljaCBtYXkgbm90IGNhdXNlIGEgcmVzY2hlZHVsZSBpbiBpZGxlIGxv
-b3BzLgo+Pj4+IEluIEtWTSBndWVzdCwgdGhpcyBjb3N0cyBzZXZlcmFsIFZNLWV4aXQvVk0tZW50
-cnkgY3ljbGVzLCBWTS1lbnRyeQo+Pj4+IGZvciBpbnRlcnJ1cHRzIGFuZCBWTS1leGl0IGltbWVk
-aWF0ZWx5LiBBbHNvIHRoaXMgYmVjb21lcyBtb3JlCj4+Pj4gZXhwZW5zaXZlIHRoYW4gYmFyZSBt
-ZXRhbC4gQWRkIGEgZ2VuZXJpYyBpZGxlIHBvbGwgYmVmb3JlIGVudGVyCj4+Pj4gcmVhbCBpZGxl
-IHBhdGguIFdoZW4gYSByZXNjaGVkdWxlIGV2ZW50IGlzIHBlbmRpbmcsIHdlIGNhbiBieXBhc3MK
-Pj4+PiB0aGUgcmVhbCBpZGxlIHBhdGguCj4+PiBXaHkgbm90IGRvIGEgSFYgc3BlY2lmaWMgaWRs
-ZSBkcml2ZXI/Cj4+IElmIEkgdW5kZXJzdGFuZCB0aGUgcHJvYmxlbSBjb3JyZWN0bHkgdGhlbiBo
-ZSB3YW50cyB0byBhdm9pZCB0aGUgaGVhdnkKPj4gbGlmdGluZyBpbiB0aWNrX25vaHpfaWRsZV9l
-bnRlcigpIGluIHRoZSBmaXJzdCBwbGFjZSwgYnV0IHRoZXJlIGlzCj4+IGFscmVhZHkKPj4gYW4g
-aW50ZXJlc3RpbmcgcXVpcmsgdGhlcmUgd2hpY2ggbWFrZXMgaXQgZXhpdCBlYXJseS7CoCBTZWUg
-Y29tbWl0Cj4+IDNjNWQ5MmEwY2ZiNSAoIm5vaHo6IEludHJvZHVjZSBhcmNoX25lZWRzX2NwdSIp
-LiBUaGUgcmVhc29uIGZvciB0aGlzCj4+IGNvbW1pdAo+PiBsb29rcyBzaW1pbGFyLiBCdXQgbGV0
-cyBub3QgcHJvbGlmZXJhdGUgdGhhdC4gSSdkIHJhdGhlciBzZWUgdGhhdCBnbwo+PiBhd2F5Lgo+
-IAo+IGFncmVlZC4KPiAKPiBFdmVuIHdlIGNhbiBnZXQgbW9yZSBiZW5pZml0IHRoYW4gY29tbWl0
-IDNjNWQ5MmEwY2ZiNSAoIm5vaHo6IEludHJvZHVjZQo+IGFyY2hfbmVlZHNfY3B1IikKPiBpbiBr
-dm0gZ3Vlc3QuIEkgd29uJ3QgcHJvbGlmZXJhdGUgdGhhdC4uCj4gCj4+IEJ1dCB0aGUgaXJxX3Rp
-bWluZ3Mgc3R1ZmYgaXMgaGVhZGluZyBpbnRvIHRoZSBzYW1lIGRpcmVjdGlvbiwgd2l0aCBhIG1v
-cmUKPj4gY29tcGxleCBwcmVkaWN0aW9uIGxvZ2ljIHdoaWNoIHNob3VsZCB0ZWxsIHlvdSBwcmV0
-dHkgZ29vZCBob3cgbG9uZyB0aGF0Cj4+IGlkbGUgcGVyaW9kIGlzIGdvaW5nIHRvIGJlIGFuZCBp
-biBjYXNlIG9mIGFuIGludGVycnVwdCBoZWF2eSB3b3JrbG9hZAo+PiB0aGlzCj4+IHdvdWxkIHNr
-aXAgdGhlIGV4dHJhIHdvcmsgb2Ygc3RvcHBpbmcgYW5kIHJlc3RhcnRpbmcgdGhlIHRpY2sgYW5k
-Cj4+IHByb3ZpZGUgYQo+PiB2ZXJ5IGdvb2QgaW5wdXQgaW50byBhIHBvbGxpbmcgZGVjaXNpb24u
-Cj4gCj4gCj4gaW50ZXJlc3RpbmcuIEkgaGF2ZSB0ZXN0ZWQgd2l0aCBJUlFfVElNSU5HUyByZWxh
-dGVkIGNvZGUsIHdoaWNoIHNlZW1zCj4gbm90IHdvcmtpbmcgc28gZmFyLgoKSSBkb24ndCBrbm93
-IGhvdyB5b3UgdGVzdGVkIGl0LCBjYW4geW91IGVsYWJvcmF0ZSB3aGF0IHlvdSBtZWFudCBieQoi
-c2VlbXMgbm90IHdvcmtpbmcgc28gZmFyIiA/CgpUaGVyZSBhcmUgc3RpbGwgc29tZSB3b3JrIHRv
-IGRvIHRvIGJlIG1vcmUgZWZmaWNpZW50LiBUaGUgcHJlZGljdGlvbgpiYXNlZCBvbiB0aGUgaXJx
-IHRpbWluZ3MgaXMgYWxsIHJpZ2h0IGlmIHRoZSBpbnRlcnJ1cHRzIGhhdmUgYSBzaW1wbGUKcGVy
-aW9kaWNpdHkuIEJ1dCBhcyBzb29uIGFzIHRoZXJlIGlzIGEgcGF0dGVybiwgdGhlIGN1cnJlbnQg
-Y29kZSBjYW4ndApoYW5kbGUgaXQgcHJvcGVybHkgYW5kIGRvZXMgYmFkIHByZWRpY3Rpb25zLgoK
-SSdtIHdvcmtpbmcgb24gYSBzZWxmLWxlYXJuaW5nIHBhdHRlcm4gZGV0ZWN0aW9uIHdoaWNoIGlz
-IHRvbyBoZWF2eSBmb3IKdGhlIGtlcm5lbCwgYW5kIHdpdGggaXQgd2Ugc2hvdWxkIGJlIGFibGUg
-dG8gZGV0ZWN0IHByb3Blcmx5IHRoZQpwYXR0ZXJucyBhbmQgcmUtYWp1c3QgdGhlIHBlcmlvZCBp
-ZiBpdCBjaGFuZ2VzLiBJJ20gaW4gdGhlIHByb2Nlc3Mgb2YKbWFraW5nIGl0IHN1aXRhYmxlIGZv
-ciBrZXJuZWwgY29kZSAoYm90aCBtYXRoIGFuZCBwZXJmKS4KCk9uZSBpbXByb3ZlbWVudCB3aGlj
-aCBjYW4gYmUgZG9uZSByaWdodCBub3cgYW5kIHdoaWNoIGNhbiBoZWxwIHlvdSBpcwp0aGUgaW50
-ZXJydXB0cyByYXRlIG9uIHRoZSBDUFUuIEl0IGlzIHBvc3NpYmxlIHRvIGNvbXB1dGUgaXQgYW5k
-IHRoYXQKd2lsbCBnaXZlIGFuIGFjY3VyYXRlIGluZm9ybWF0aW9uIGZvciB0aGUgcG9sbGluZyBk
-ZWNpc2lvbi4KCgoKLS0gCiA8aHR0cDovL3d3dy5saW5hcm8ub3JnLz4gTGluYXJvLm9yZyDilIIg
-T3BlbiBzb3VyY2Ugc29mdHdhcmUgZm9yIEFSTSBTb0NzCgpGb2xsb3cgTGluYXJvOiAgPGh0dHA6
-Ly93d3cuZmFjZWJvb2suY29tL3BhZ2VzL0xpbmFybz4gRmFjZWJvb2sgfAo8aHR0cDovL3R3aXR0
-ZXIuY29tLyMhL2xpbmFyb29yZz4gVHdpdHRlciB8CjxodHRwOi8vd3d3LmxpbmFyby5vcmcvbGlu
-YXJvLWJsb2cvPiBCbG9nCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Looks like this was mistakenly added to the tree as part of
+commit 186b3c998c50 ("virtio-net: support XDP_REDIRECT").
+
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+---
+ drivers/net/virtio_net. | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ delete mode 100644 drivers/net/virtio_net.
+
+diff --git a/drivers/net/virtio_net. b/drivers/net/virtio_net.
+deleted file mode 100644
+index e69de29bb2d1..000000000000
+-- 
+2.14.1
