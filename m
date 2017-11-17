@@ -1,16 +1,14 @@
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: [PATCH 10/13] x86/alternative: Support indirect call replacement
-Date: Thu, 16 Nov 2017 15:19:29 -0600
-Message-ID: <20171116211929.g4q5wa52sq64nhe5@treble>
-References: <cover.1507128293.git.jpoimboe@redhat.com>
-	<efabcfb022d29fb0a9ccb39380623573555c2bcb.1507128293.git.jpoimboe@redhat.com>
-	<c57fb310-141b-2262-7e17-bf37d3afdf82@suse.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virto_net: remove empty file 'virtio_net.'
+Date: Fri, 17 Nov 2017 10:55:44 +0800
+Message-ID: <05f54295-af35-6105-69fd-065e6cd6e19c__30893.5918882073$1510887377$gmane$org@redhat.com>
+References: <20171117024636.15515-1-joel@jms.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <c57fb310-141b-2262-7e17-bf37d3afdf82@suse.com>
+In-Reply-To: <20171117024636.15515-1-joel@jms.id.au>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,75 +18,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>, Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, x86@kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: Joel Stanley <joel@jms.id.au>, "David S . Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 25, 2017 at 01:25:02PM +0200, Juergen Gross wrote:
-> On 04/10/17 17:58, Josh Poimboeuf wrote:
-> > Add alternative patching support for replacing an instruction with an
-> > indirect call.  This will be needed for the paravirt alternatives.
-> > 
-> > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> > ---
-> >  arch/x86/kernel/alternative.c | 22 +++++++++++++++-------
-> >  1 file changed, 15 insertions(+), 7 deletions(-)
-> > 
-> > diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-> > index 3344d3382e91..81c577c7deba 100644
-> > --- a/arch/x86/kernel/alternative.c
-> > +++ b/arch/x86/kernel/alternative.c
-> > @@ -410,20 +410,28 @@ void __init_or_module noinline apply_alternatives(struct alt_instr *start,
-> >  		insnbuf_sz = a->replacementlen;
-> >  
-> >  		/*
-> > -		 * 0xe8 is a relative jump; fix the offset.
-> > -		 *
-> > -		 * Instruction length is checked before the opcode to avoid
-> > -		 * accessing uninitialized bytes for zero-length replacements.
-> > +		 * Fix the address offsets for call and jump instructions which
-> > +		 * use PC-relative addressing.
-> >  		 */
-> >  		if (a->replacementlen == 5 && *insnbuf == 0xe8) {
-> > +			/* direct call */
-> >  			*(s32 *)(insnbuf + 1) += replacement - instr;
-> > -			DPRINTK("Fix CALL offset: 0x%x, CALL 0x%lx",
-> > +			DPRINTK("Fix direct CALL offset: 0x%x, CALL 0x%lx",
-> >  				*(s32 *)(insnbuf + 1),
-> >  				(unsigned long)instr + *(s32 *)(insnbuf + 1) + 5);
-> > -		}
-> >  
-> > -		if (a->replacementlen && is_jmp(replacement[0]))
-> > +		} else if (a->replacementlen == 6 && *insnbuf == 0xff &&
-> > +			   *(insnbuf+1) == 0x15) {
-> > +			/* indirect call */
-> > +			*(s32 *)(insnbuf + 2) += replacement - instr;
-> > +			DPRINTK("Fix indirect CALL offset: 0x%x, CALL *0x%lx",
-> > +				*(s32 *)(insnbuf + 2),
-> > +				(unsigned long)instr + *(s32 *)(insnbuf + 2) + 6);
-> > +
-> > +		} else if (a->replacementlen && is_jmp(replacement[0])) {
-> 
-> Is this correct? Without your patch this was:
-> 
-> if (*insnbuf == 0xe8) ...
-> if (is_jmp(replacement[0])) ...
-> 
-> Now you have:
-> 
-> if (*insnbuf == 0xe8) ...
-> else if (*insnbuf == 0xff15) ...
-> else if (is_jmp(replacement[0])) ...
-> 
-> So only one or none of the three variants will be executed. In the past
-> it could be none, one or both.
-
-It can't be a call *and* a jump.  It's either one or the other.
-
-Maybe it's a little confusing that the jump check uses replacement[0]
-while the other checks use *insnbuf?  They have the same value, so the
-same variable should probably be used everywhere for consistency.  I can
-make them more consistent.
-
--- 
-Josh
+CgpPbiAyMDE35bm0MTHmnIgxN+aXpSAxMDo0NiwgSm9lbCBTdGFubGV5IHdyb3RlOgo+IExvb2tz
+IGxpa2UgdGhpcyB3YXMgbWlzdGFrZW5seSBhZGRlZCB0byB0aGUgdHJlZSBhcyBwYXJ0IG9mCj4g
+Y29tbWl0IDE4NmIzYzk5OGM1MCAoInZpcnRpby1uZXQ6IHN1cHBvcnQgWERQX1JFRElSRUNUIiku
+Cj4KPiBTaWduZWQtb2ZmLWJ5OiBKb2VsIFN0YW5sZXkgPGpvZWxAam1zLmlkLmF1Pgo+IC0tLQo+
+ICAgZHJpdmVycy9uZXQvdmlydGlvX25ldC4gfCAwCj4gICAxIGZpbGUgY2hhbmdlZCwgMCBpbnNl
+cnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQo+ICAgZGVsZXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMv
+bmV0L3ZpcnRpb19uZXQuCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC4g
+Yi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0Lgo+IGRlbGV0ZWQgZmlsZSBtb2RlIDEwMDY0NAo+IGlu
+ZGV4IGU2OWRlMjliYjJkMS4uMDAwMDAwMDAwMDAwCgpNeSBiYWQsIGRvbid0IGtub3cgd2hhdCBo
+YXBwZW5zIGF0IHRoYXQgdGltZS4KClRoaXMgaXMgZm9yIC1uZXQuCgpBY2tlZC1ieTogSmFzb24g
+V2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KClRoYW5rcwpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
