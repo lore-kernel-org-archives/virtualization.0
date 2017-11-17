@@ -1,18 +1,15 @@
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: [PATCH 03/13] x86/paravirt: Convert native patch assembly code
-	strings to macros
-Date: Fri, 17 Nov 2017 13:42:31 -0600
-Message-ID: <20171117194231.576qqr3wnkgowdln@treble>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH 10/13] x86/alternative: Support indirect call replacement
+Date: Fri, 17 Nov 2017 11:52:10 -0800
+Message-ID: <5993ab2e-c877-b566-c860-00a405a823e1@zytor.com>
 References: <cover.1507128293.git.jpoimboe@redhat.com>
-	<e4cea2b8aa8ca23122d9c807784ca62ee6cbbff8.1507128293.git.jpoimboe@redhat.com>
-	<20171117180713.e4up3dwrszpatka6@pd.tnic>
-	<a9531df0-0a48-e695-a05a-56e654f9dfbb@suse.com>
+	<efabcfb022d29fb0a9ccb39380623573555c2bcb.1507128293.git.jpoimboe@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <a9531df0-0a48-e695-a05a-56e654f9dfbb@suse.com>
+In-Reply-To: <efabcfb022d29fb0a9ccb39380623573555c2bcb.1507128293.git.jpoimboe@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,77 +19,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>, Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>, Thomas Gleixner <tglx@linutronix.de>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, x86@kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: Josh Poimboeuf <jpoimboe@redhat.com>, x86@kernel.org
+Cc: Juergen Gross <jgross@suse.com>, Rusty Russell <rusty@rustcorp.com.au>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, xen-devel@lists.xenproject.org, Borislav Petkov <bp@alien8.de>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 17, 2017 at 08:10:13PM +0100, Juergen Gross wrote:
-> On 17/11/17 19:07, Borislav Petkov wrote:
-> > On Wed, Oct 04, 2017 at 10:58:24AM -0500, Josh Poimboeuf wrote:
-> >> Convert the hard-coded native patch assembly code strings to macros to
-> >> facilitate sharing common code between 32-bit and 64-bit.
-> >>
-> >> These macros will also be used by a future patch which requires the GCC
-> >> extended asm syntax of two '%' characters instead of one when specifying
-> >> a register name.
-> >>
-> >> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> >> ---
-> >>  arch/x86/include/asm/special_insns.h | 24 ++++++++++++++++++++++++
-> >>  arch/x86/kernel/paravirt_patch_32.c  | 21 +++++++++++----------
-> >>  arch/x86/kernel/paravirt_patch_64.c  | 29 +++++++++++++++--------------
-> >>  3 files changed, 50 insertions(+), 24 deletions(-)
-> >>
-> >> diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
-> >> index ac402c6fc24b..0549c5f2c1b3 100644
-> >> --- a/arch/x86/include/asm/special_insns.h
-> >> +++ b/arch/x86/include/asm/special_insns.h
-> >> @@ -6,6 +6,30 @@
-> >>  
-> >>  #include <asm/nops.h>
-> >>  
-> >> +#ifdef CONFIG_X86_64
-> >> +# define _REG_ARG1			"%rdi"
-> >> +# define NATIVE_IDENTITY_32		"mov %edi, %eax"
-> > 
-> > Yeah, that "identity" looks strange. How about NATIVE_NOOP and
-> > NATIVE_NOOP_32 ?
-> 
-> Those are not NOPs. They return the identical value which was passed to
-> them. So identity isn't a bad name after all.
+On 10/04/17 08:58, Josh Poimboeuf wrote:
+> Add alternative patching support for replacing an instruction with an
+> indirect call.  This will be needed for the paravirt alternatives.
 
-Right, like the math identity function:
+I have a patchset that generalizes the alternatives in what I think is a
+more robust way.  I really, really want to get rid of these hacks.  Let
+me clean it up an post it...
 
-  https://en.wikipedia.org/wiki/Identity_function
-
-> >> +# define NATIVE_USERGS_SYSRET64		"swapgs; sysretq"
-> >> +#else
-> >> +# define _REG_ARG1			"%eax"
-> >> +#endif
-> >> +
-> >> +#define _REG_RET			"%" _ASM_AX
-> >> +
-> >> +#define NATIVE_ZERO			"xor " _REG_ARG1 ", " _REG_ARG1
-> > 
-> > NATIVE_ZERO_OUT
-> > 
-> > I guess. NATIVE_ZERO reads like the native representation of 0 :-)
-> 
-> NATIVE_ZERO_ARG1?
-
-On a slight tangent, does anybody know why it zeros the arg?
-
-The only place it's used is here:
-
-#if defined(CONFIG_PARAVIRT_SPINLOCKS)
-DEF_NATIVE(pv_lock_ops,	queued_spin_unlock,	NATIVE_QUEUED_SPIN_UNLOCK);
-DEF_NATIVE(pv_lock_ops,	vcpu_is_preempted,	NATIVE_ZERO);
-#endif
-
-Isn't that a bug?  Seems like it should _return_ zero.  Zeroing the arg
-shouldn't have any effect.
-
-If I'm right, we could call it NATIVE_FALSE.
-
--- 
-Josh
+	-hpa
