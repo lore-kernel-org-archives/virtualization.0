@@ -1,17 +1,17 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH 10/13] x86/alternative: Support indirect call replacement
-Date: Fri, 17 Nov 2017 06:46:59 +0100
-Message-ID: <360d5f88-d840-837a-4520-81bc087a9444@suse.com>
+Subject: Re: [PATCH 02/13] x86/paravirt: Fix output constraint macro names
+Date: Fri, 17 Nov 2017 07:55:07 +0100
+Message-ID: <edf5d220-26a1-997c-ee16-8e6607a3a013@suse.com>
 References: <cover.1507128293.git.jpoimboe@redhat.com>
-	<efabcfb022d29fb0a9ccb39380623573555c2bcb.1507128293.git.jpoimboe@redhat.com>
-	<c57fb310-141b-2262-7e17-bf37d3afdf82@suse.com>
-	<20171116211929.g4q5wa52sq64nhe5@treble>
+	<f8aad6bc7bcdb606b89f3d5dc5fb2303019cb3d0.1507128293.git.jpoimboe@redhat.com>
+	<5d2799f9-fb5d-381e-a576-15098626201f@suse.com>
+	<20171116205042.wyl6x2q5tjwmoyeg@treble>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171116211929.g4q5wa52sq64nhe5@treble>
-Content-Language: de-DE
+In-Reply-To: <20171116205042.wyl6x2q5tjwmoyeg@treble>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,78 +25,26 @@ To: Josh Poimboeuf <jpoimboe@redhat.com>
 Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>, Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, x86@kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 16/11/17 22:19, Josh Poimboeuf wrote:
-> On Wed, Oct 25, 2017 at 01:25:02PM +0200, Juergen Gross wrote:
+On 16/11/17 21:50, Josh Poimboeuf wrote:
+> On Wed, Oct 25, 2017 at 11:33:43AM +0200, Juergen Gross wrote:
 >> On 04/10/17 17:58, Josh Poimboeuf wrote:
->>> Add alternative patching support for replacing an instruction with an
->>> indirect call.  This will be needed for the paravirt alternatives.
+>>> Some of the paravirt '*_CLOBBERS' macros refer to output constraints
+>>> instead of clobbers, which makes the code extra confusing.  Rename the
+>>> output constraint related macros to '*_OUTPUTS'.
 >>>
 >>> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
->>> ---
->>>  arch/x86/kernel/alternative.c | 22 +++++++++++++++-------
->>>  1 file changed, 15 insertions(+), 7 deletions(-)
->>>
->>> diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
->>> index 3344d3382e91..81c577c7deba 100644
->>> --- a/arch/x86/kernel/alternative.c
->>> +++ b/arch/x86/kernel/alternative.c
->>> @@ -410,20 +410,28 @@ void __init_or_module noinline apply_alternatives(struct alt_instr *start,
->>>  		insnbuf_sz = a->replacementlen;
->>>  
->>>  		/*
->>> -		 * 0xe8 is a relative jump; fix the offset.
->>> -		 *
->>> -		 * Instruction length is checked before the opcode to avoid
->>> -		 * accessing uninitialized bytes for zero-length replacements.
->>> +		 * Fix the address offsets for call and jump instructions which
->>> +		 * use PC-relative addressing.
->>>  		 */
->>>  		if (a->replacementlen == 5 && *insnbuf == 0xe8) {
->>> +			/* direct call */
->>>  			*(s32 *)(insnbuf + 1) += replacement - instr;
->>> -			DPRINTK("Fix CALL offset: 0x%x, CALL 0x%lx",
->>> +			DPRINTK("Fix direct CALL offset: 0x%x, CALL 0x%lx",
->>>  				*(s32 *)(insnbuf + 1),
->>>  				(unsigned long)instr + *(s32 *)(insnbuf + 1) + 5);
->>> -		}
->>>  
->>> -		if (a->replacementlen && is_jmp(replacement[0]))
->>> +		} else if (a->replacementlen == 6 && *insnbuf == 0xff &&
->>> +			   *(insnbuf+1) == 0x15) {
->>> +			/* indirect call */
->>> +			*(s32 *)(insnbuf + 2) += replacement - instr;
->>> +			DPRINTK("Fix indirect CALL offset: 0x%x, CALL *0x%lx",
->>> +				*(s32 *)(insnbuf + 2),
->>> +				(unsigned long)instr + *(s32 *)(insnbuf + 2) + 6);
->>> +
->>> +		} else if (a->replacementlen && is_jmp(replacement[0])) {
 >>
->> Is this correct? Without your patch this was:
->>
->> if (*insnbuf == 0xe8) ...
->> if (is_jmp(replacement[0])) ...
->>
->> Now you have:
->>
->> if (*insnbuf == 0xe8) ...
->> else if (*insnbuf == 0xff15) ...
->> else if (is_jmp(replacement[0])) ...
->>
->> So only one or none of the three variants will be executed. In the past
->> it could be none, one or both.
+>> I'm fine with the changes, but you might want to rename the "call_clbr"
+>> parameter of ____PVOP_[V]CALL, too, e.g. to "outputs".
 > 
-> It can't be a call *and* a jump.  It's either one or the other.
+> Yeah, good catch.
 > 
-> Maybe it's a little confusing that the jump check uses replacement[0]
-> while the other checks use *insnbuf?  They have the same value, so the
-
-Right, I was fooled by that.
-
-> same variable should probably be used everywhere for consistency.  I can
-> make them more consistent.
+>> You could then drop the "CALL_" from the macros, too.
 > 
+> Hm, which macros are you referring to, and why?
 
-I'd appreciate that. :-)
+Good question. I think I didn't take the *CALLEE* macros into account.
+So please ignore this remark.
 
 
 Juergen
