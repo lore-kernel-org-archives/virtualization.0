@@ -1,19 +1,21 @@
 From: Quan Xu <quan.xu0@gmail.com>
 Subject: Re: [PATCH RFC v3 3/6] sched/idle: Add a generic poll before enter
 	real idle path
-Date: Fri, 17 Nov 2017 19:23:43 +0800
-Message-ID: <564b8a6e-8ddd-4e3d-c670-10f1697e6c06__20856.7083850086$1511414950$gmane$org@gmail.com>
+Date: Fri, 17 Nov 2017 20:21:42 +0800
+Message-ID: <a9f02b7f-04e2-41e9-38c5-f770f40f6faf__49631.5736593262$1511414964$gmane$org@gmail.com>
 References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
 	<1510567565-5118-4-git-send-email-quan.xu0@gmail.com>
 	<20171115121152.gqug5wzerlo3eimd@hirez.programming.kicks-ass.net>
 	<alpine.DEB.2.20.1711152240010.2146@nanos>
 	<46086489-5a01-16e1-9314-70ae53c01952@gmail.com>
 	<alpine.DEB.2.20.1711161048000.2191@nanos>
+	<564b8a6e-8ddd-4e3d-c670-10f1697e6c06@gmail.com>
+	<alpine.DEB.2.20.1711171229100.7700@nanos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-15"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.20.1711161048000.2191@nanos>
+In-Reply-To: <alpine.DEB.2.20.1711171229100.7700@nanos>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,88 +26,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>, Peter Zijlstra <peterz@infradead.org>
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Len Brown <len.brown@intel.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Kyle Huey <me@kylehuey.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Quan Xu <quan.xu03@gmail.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, linux-fsdevel@vger.kernel.org, xen-devel@lists.xenproject.org, Tom Lendacky <thomas.lendacky@amd.com>, Tobias Klauser <tklauser@distanz.ch>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Len Brown <len.brown@intel.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Kyle Huey <me@kylehuey.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Quan Xu <quan.xu03@gmail.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, linux-fsdevel@vger.kernel.org, xen-devel@lists.xenproject.org, Tom Lendacky <thomas.lendacky@amd.com>, Tobias Klauser <tklauser@distanz.ch>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE3LTExLTE2IDE3OjUzLCBUaG9tYXMgR2xlaXhuZXIgd3JvdGU6Cj4gT24gVGh1LCAx
-NiBOb3YgMjAxNywgUXVhbiBYdSB3cm90ZToKPj4gT24gMjAxNy0xMS0xNiAwNjowMywgVGhvbWFz
-IEdsZWl4bmVyIHdyb3RlOgo+PiAtLS0gYS9kcml2ZXJzL2NwdWlkbGUvY3B1aWRsZS5jCj4+ICsr
-KyBiL2RyaXZlcnMvY3B1aWRsZS9jcHVpZGxlLmMKPj4gQEAgLTIxMCw2ICsyMTAsMTMgQEAgaW50
-IGNwdWlkbGVfZW50ZXJfc3RhdGUoc3RydWN0IGNwdWlkbGVfZGV2aWNlICpkZXYsCj4+IHN0cnVj
-dCBjcHVpZGxlX2RyaXZlciAqZHJ2LAo+PiAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IHRhcmdldF9zdGF0ZSA9ICZkcnYtPnN0YXRlc1tpbmRleF07Cj4+ICDCoMKgwqDCoMKgwqDCoCB9
-Cj4+Cj4+ICsjaWZkZWYgQ09ORklHX1BBUkFWSVJUCj4+ICvCoMKgwqDCoMKgwqAgcGFyYXZpcnRf
-aWRsZV9wb2xsKCk7Cj4+ICsKPj4gK8KgwqDCoMKgwqDCoCBpZiAobmVlZF9yZXNjaGVkKCkpCj4+
-ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJldHVybiAtRUJVU1k7Cj4+ICsjZW5kaWYK
-PiBUaGF0J3MganVzdCBwbGFpbiB3cm9uZy4gV2UgZG9uJ3Qgd2FudCB0byBzZWUgYW55IG9mIHRo
-aXMgUEFSQVZJUlQgY3JhcCBpbgo+IGFueXRoaW5nIG91dHNpZGUgdGhlIGFyY2hpdGVjdHVyZS9o
-eXBlcnZpc29yIGludGVyZmFjaW5nIGNvZGUgd2hpY2ggcmVhbGx5Cj4gbmVlZHMgaXQuCj4KPiBU
-aGUgcHJvYmxlbSBjYW4gYW5kIG11c3QgYmUgc29sdmVkIGF0IHRoZSBnZW5lcmljIGxldmVsIGlu
-IHRoZSBmaXJzdCBwbGFjZQo+IHRvIGdhdGhlciB0aGUgZGF0YSB3aGljaCBjYW4gYmUgdXNlZCB0
-byBtYWtlIHN1Y2ggZGVjaXNpb25zLgo+Cj4gSG93IHRoYXQgaW5mb3JtYXRpb24gaXMgdXNlZCBt
-aWdodCBiZSBlaXRoZXIgY29tcGxldGVseSBnZW5lcmljIG9yIHJlcXVpcmVzCj4gc3lzdGVtIHNw
-ZWNpZmljIHZhcmlhbnRzLiBCdXQgYXMgbG9uZyBhcyB3ZSBkb24ndCBoYXZlIGFueSBpbmZvcm1h
-dGlvbiBhdAo+IGFsbCB3ZSBjYW5ub3QgZGlzY3VzcyB0aGF0Lgo+Cj4gUGxlYXNlIHNpdCBkb3du
-IGFuZCB3cml0ZSB1cCB3aGljaCBkYXRhIG5lZWRzIHRvIGJlIGNvbnNpZGVyZWQgdG8gbWFrZQo+
-IGRlY2lzaW9ucyBhYm91dCBwcm9iYWJpbGlzdGljIHBvbGxpbmcuIFRoZW4gd2UgbmVlZCB0byBj
-b21wYXJlIGFuZCBjb250cmFzdAo+IHRoYXQgd2l0aCB0aGUgZGF0YSB3aGljaCBpcyBuZWNlc3Nh
-cnkgdG8gbWFrZSBwb3dlci9pZGxlIHN0YXRlIGRlY2lzaW9ucy4KPgo+IEkgd291bGQgYmUgdmVy
-eSBzdXJwcmlzZWQgaWYgdGhpcyBkYXRhIHdvdWxkIG5vdCBvdmVybGFwIGJ5IGF0IGxlYXN0IDkw
-JS4KPgoKUGV0ZXIsIHRnbHgKVGhhbmtzIGZvciB5b3VyIGNvbW1lbnRzLi4KCnJldGhpbmsgb2Yg
-dGhpcyBwYXRjaCBzZXQsCgoxLiB3aGljaCBkYXRhIG5lZWRzIHRvIGNvbnNpZGVyZCB0byBtYWtl
-IGRlY2lzaW9ucyBhYm91dCBwcm9iYWJpbGlzdGljIApwb2xsaW5nCgpJIHJlYWxseSBuZWVkIHRv
-IHdyaXRlIHVwIHdoaWNoIGRhdGEgbmVlZHMgdG8gY29uc2lkZXJkIHRvIG1ha2UKZGVjaXNpb25z
-IGFib3V0IHByb2JhYmlsaXN0aWMgcG9sbGluZy4gQXQgbGFzdCBzZXZlcmFsIG1vbnRocywKSSBh
-bHdheXMgZm9jdXNlZCBvbiB0aGUgZGF0YSBfZnJvbSBpZGxlIHRvIHJlc2NoZWR1bGVfLCB0aGVu
-IHRvIGJ5cGFzcwp0aGUgaWRsZSBsb29wcy4gdW5mb3J0dW5hdGVseSwgdGhpcyBtYWtlcyBtZSB0
-b3VjaCBzY2hlZHVsZXIvaWRsZS9ub2h6CmNvZGUgaW5ldml0YWJseS4KCndpdGggdGdseCdzIHN1
-Z2dlc3Rpb24sIHRoZSBkYXRhIHdoaWNoIGlzIG5lY2Vzc2FyeSB0byBtYWtlIHBvd2VyL2lkbGUK
-c3RhdGUgZGVjaXNpb25zLCBpcyB0aGUgbGFzdCBpZGxlIHN0YXRlJ3MgcmVzaWRlbmN5IHRpbWUu
-IElJVUMgdGhpcyBkYXRhCmlzIGR1cmF0aW9uIGZyb20gaWRsZSB0byB3YWtldXAsIHdoaWNoIG1h
-eWJlIGJ5IHJlc2NoZWR1bGUgaXJxIG9yIG90aGVyIGlycS4KCkkgYWxzbyB0ZXN0IHRoYXQgdGhl
-IHJlc2NoZWR1bGUgaXJxIG92ZXJsYXAgYnkgbW9yZSB0aGFuIDkwJSAodHJhY2UgdGhlCm5lZWRf
-cmVzY2hlZCBzdGF0dXMgYWZ0ZXIgY3B1aWRsZV9pZGxlX2NhbGwpLCB3aGVuIEkgcnVuIGN0eHN3
-L25ldHBlcmYgZm9yCm9uZSBtaW51dGUuCgphcyB0aGUgb3ZlcmxhcCwgSSB0aGluayBJIGNhbiBp
-bnB1dCB0aGUgbGFzdCBpZGxlIHN0YXRlJ3MgcmVzaWRlbmN5IHRpbWUKdG8gbWFrZSBkZWNpc2lv
-bnMgYWJvdXQgcHJvYmFiaWxpc3RpYyBwb2xsaW5nLCBhcyBAZGV2LT5sYXN0X3Jlc2lkZW5jeSBk
-b2VzLgppdCBpcyBtdWNoIGVhc2llciB0byBnZXQgZGF0YS4KCgoyLiBkbyBhIEhWIHNwZWNpZmlj
-IGlkbGUgZHJpdmVyIChmdW5jdGlvbikKCnNvIGZhciwgcG93ZXIgbWFuYWdlbWVudCBpcyBub3Qg
-ZXhwb3NlZCB0byBndWVzdC4uIGlkbGUgaXMgc2ltcGxlIGZvciAKS1ZNIGd1ZXN0LApjYWxsaW5n
-ICJzdGkiIC8gImhsdCIoY3B1aWRsZV9pZGxlX2NhbGwoKSAtLT4gZGVmYXVsdF9pZGxlX2NhbGwo
-KSkuLgp0aGFua3MgWGVuIGd1eXMsIHdobyBoYXMgaW1wbGVtZW50ZWQgdGhlIHBhcmF2aXJ0IGZy
-YW1ld29yay4gSSBjYW4gCmltcGxlbWVudCBpdAphcyBlYXN5IGFzIGZvbGxvd2luZzoKCiDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgLS0tIGEvYXJjaC94ODYva2VybmVsL2t2bS5jCiDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgKysrIGIvYXJjaC94ODYva2VybmVsL2t2bS5jCiDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqAgQEAgLTQ2NSw2ICs0NjUsMTIgQEAgc3RhdGljIHZvaWQgX19pbml0IApr
-dm1fYXBmX3RyYXBfaW5pdCh2b2lkKQogwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoCB1cGRhdGVfaW50cl9nYXRlKFg4Nl9UUkFQX1BGLCBhc3luY19wYWdlX2ZhdWx0KTsK
-IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIH0KCiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
-K3N0YXRpYyBfX2NwdWlkbGUgdm9pZCBrdm1fc2FmZV9oYWx0KHZvaWQpCiDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqAgK3sKIMKgwqDCoCDCoMKgwqDCoCArwqDCoMKgwqDCoMKgwqAgLyogMS4gUE9M
-TCwgaWYgbmVlZF9yZXNjaGVkKCkgLS0+IHJldHVybiAqLwogwqDCoMKgIMKgwqDCoMKgICsKIMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCArwqDCoMKgwqDCoMKgwqAgYXNtIHZvbGF0aWxlKCJzdGk7
-IGhsdCI6IDogOiJtZW1vcnkiKTsgLyogMi4gaGFsdCAqLwogwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgICsKIMKgwqDCoCDCoMKgwqDCoCArwqDCoMKgwqDCoMKgwqAgLyogMy4gZ2V0IHRoZSBsYXN0
-IGlkbGUgc3RhdGUncyByZXNpZGVuY3kgdGltZSAqLwogwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-ICsKIMKgwqDCoCDCoMKgwqDCoCArwqDCoMKgwqDCoMKgwqAgLyogNC4gdXBkYXRlIHBvbGwgZHVy
-YXRpb24gYmFzZWQgb24gbGFzdCBpZGxlIHN0YXRlJ3MgCnJlc2lkZW5jeSB0aW1lICovCiDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgK30KIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCArCiDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB2b2lkIF9faW5pdCBrdm1fZ3Vlc3RfaW5pdCh2b2lkKQog
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgewogwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCBpbnQgaTsKIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBAQCAtNDkwLDYg
-KzQ5Niw4IEBAIHZvaWQgX19pbml0IGt2bV9ndWVzdF9pbml0KHZvaWQpCiDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGlmIChrdm1jbG9ja192c3lzY2FsbCkKIMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGt2bV9z
-ZXR1cF92c3lzY2FsbF90aW1laW5mbygpOwoKIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCArwqDC
-oMKgwqDCoMKgIHB2X2lycV9vcHMuc2FmZV9oYWx0ID0ga3ZtX3NhZmVfaGFsdDsKIMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoCArCiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAjaWZkZWYgQ09O
-RklHX1NNUAoKCgoKdGhlbiwgSSBhbSBubyBuZWVkIHRvIGludHJvZHVjZSBhIG5ldyBwdm9wcywg
-YW5kIG5ldmVyIG1vZGlmeSAKc2NoZWR1bGUvaWRsZS9ub2h6IGNvZGUgYWdhaW4uCmFsc28gSSBj
-YW4gbmFycm93IGFsbCBvZiB0aGUgY29kZSBkb3duIGluIGFyY2gveDg2L2tlcm5lbC9rdm0uYy4K
-CklmIHRoaXMgaXMgaW4gdGhlIHJpZ2h0IGRpcmVjdGlvbiwgSSB3aWxsIHNlbmQgYSBuZXcgcGF0
-Y2ggc2V0IG5leHQgd2Vlay4uCgp0aGFua3MsCgpRdWFuCkFsaWJhYmEgQ2xvdWQKCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+
+
+On 2017-11-17 19:36, Thomas Gleixner wrote:
+> On Fri, 17 Nov 2017, Quan Xu wrote:
+>> On 2017-11-16 17:53, Thomas Gleixner wrote:
+>>> That's just plain wrong. We don't want to see any of this PARAVIRT crap=
+ in
+>>> anything outside the architecture/hypervisor interfacing code which rea=
+lly
+>>> needs it.
+>>>
+>>> The problem can and must be solved at the generic level in the first pl=
+ace
+>>> to gather the data which can be used to make such decisions.
+>>>
+>>> How that information is used might be either completely generic or requ=
+ires
+>>> system specific variants. But as long as we don't have any information =
+at
+>>> all we cannot discuss that.
+>>>
+>>> Please sit down and write up which data needs to be considered to make
+>>> decisions about probabilistic polling. Then we need to compare and cont=
+rast
+>>> that with the data which is necessary to make power/idle state decision=
+s.
+>>>
+>>> I would be very surprised if this data would not overlap by at least 90=
+%.
+>>>
+>> 1. which data needs to considerd to make decisions about probabilistic p=
+olling
+>>
+>> I really need to write up which data needs to considerd to make
+>> decisions about probabilistic polling. At last several months,
+>> I always focused on the data _from idle to reschedule_, then to bypass
+>> the idle loops. unfortunately, this makes me touch scheduler/idle/nohz
+>> code inevitably.
+>>
+>> with tglx's suggestion, the data which is necessary to make power/idle
+>> state decisions, is the last idle state's residency time. IIUC this data
+>> is duration from idle to wakeup, which maybe by reschedule irq or other =
+irq.
+> That's part of the picture, but not complete.
+
+tglx, could you share more? I am very curious about it..
+
+>> I also test that the reschedule irq overlap by more than 90% (trace the
+>> need_resched status after cpuidle_idle_call), when I run ctxsw/netperf f=
+or
+>> one minute.
+>>
+>> as the overlap, I think I can input the last idle state's residency time
+>> to make decisions about probabilistic polling, as @dev->last_residency d=
+oes.
+>> it is much easier to get data.
+> That's only true for your particular use case.
+>
+>> 2. do a HV specific idle driver (function)
+>>
+>> so far, power management is not exposed to guest.. idle is simple for KVM
+>> guest,
+>> calling "sti" / "hlt"(cpuidle_idle_call() --> default_idle_call())..
+>> thanks Xen guys, who has implemented the paravirt framework. I can imple=
+ment
+>> it
+>> as easy as following:
+>>
+>>  =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 --- a/arch/x86/kernel/kvm.c
+> Your email client is using a very strange formatting.
+
+my bad, I insert space to highlight these code.
+
+> This is definitely better than what you proposed so far and implementing =
+it
+> as a prove of concept seems to be worthwhile.
+>
+> But I doubt that this is the final solution. It's not generic and not
+> necessarily suitable for all use case scenarios.
+>
+>
+yes, I am exhausted :):)
+
+
+could you tell me the gap to be generic and necessarily suitable for
+all use case scenarios? as lack of irq/idle predictors?
+
+ =A0I really want to upstream it for all of public cloud users/providers..
+
+as kvm host has a similar one, is it possible to upstream with following =
+
+conditions? :
+ =A0=A0=A0 1). add a QEMU configuration, whether enable or not, by default =
+
+disable.
+ =A0=A0=A0 2). add some "TODO" comments near the code.
+ =A0=A0=A0 3). ...
+
+
+anyway, thanks for your help..
+
+Quan
+ =A0Alibaba Cloud
