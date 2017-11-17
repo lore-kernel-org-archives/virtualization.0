@@ -1,16 +1,11 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH 03/13] x86/paravirt: Convert native patch assembly code
-	strings to macros
-Date: Fri, 17 Nov 2017 19:07:13 +0100
-Message-ID: <20171117180713.e4up3dwrszpatka6@pd.tnic>
-References: <cover.1507128293.git.jpoimboe@redhat.com>
-	<e4cea2b8aa8ca23122d9c807784ca62ee6cbbff8.1507128293.git.jpoimboe@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: [RFC PATCH v2 0/5] Add virtio-iommu driver
+Date: Fri, 17 Nov 2017 18:52:06 +0000
+Message-ID: <20171117185211.32593-1-jean-philippe.brucker__22424.9448314824$1510944781$gmane$org@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <e4cea2b8aa8ca23122d9c807784ca62ee6cbbff8.1507128293.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,57 +15,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Juergen Gross <jgross@suse.com>, Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, x86@kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: iommu@lists.linux-foundation.org, devel@acpica.org, linux-acpi@vger.kernel.org, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
+Cc: Jayachandran.Nair@cavium.com, lorenzo.pieralisi@arm.com, ashok.raj@intel.com, mst@redhat.com, marc.zyngier@arm.com, will.deacon@arm.com, rjw@rjwysocki.net, robert.moore@intel.com, eric.auger@redhat.com, lv.zheng@intel.com, sudeep.holla@arm.com, lenb@kernel.org, robin.murphy@arm.com, joro@8bytes.org, hanjun.guo@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 04, 2017 at 10:58:24AM -0500, Josh Poimboeuf wrote:
-> Convert the hard-coded native patch assembly code strings to macros to
-> facilitate sharing common code between 32-bit and 64-bit.
-> 
-> These macros will also be used by a future patch which requires the GCC
-> extended asm syntax of two '%' characters instead of one when specifying
-> a register name.
-> 
-> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> ---
->  arch/x86/include/asm/special_insns.h | 24 ++++++++++++++++++++++++
->  arch/x86/kernel/paravirt_patch_32.c  | 21 +++++++++++----------
->  arch/x86/kernel/paravirt_patch_64.c  | 29 +++++++++++++++--------------
->  3 files changed, 50 insertions(+), 24 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
-> index ac402c6fc24b..0549c5f2c1b3 100644
-> --- a/arch/x86/include/asm/special_insns.h
-> +++ b/arch/x86/include/asm/special_insns.h
-> @@ -6,6 +6,30 @@
->  
->  #include <asm/nops.h>
->  
-> +#ifdef CONFIG_X86_64
-> +# define _REG_ARG1			"%rdi"
-> +# define NATIVE_IDENTITY_32		"mov %edi, %eax"
+Implement the virtio-iommu driver following version 0.5 of the
+specification [1]. Previous version of this code was sent back in April
+[2], implementing the first public RFC. Since then there has been lots of
+progress and discussion on the specification side, and I think the driver
+is in a good shape now.
 
-Yeah, that "identity" looks strange. How about NATIVE_NOOP and
-NATIVE_NOOP_32 ?
+The reason patches 1-3 are only RFC is that I'm waiting on feedback from
+the Virtio TC to reserve a device ID.
 
-> +# define NATIVE_USERGS_SYSRET64		"swapgs; sysretq"
-> +#else
-> +# define _REG_ARG1			"%eax"
-> +#endif
-> +
-> +#define _REG_RET			"%" _ASM_AX
-> +
-> +#define NATIVE_ZERO			"xor " _REG_ARG1 ", " _REG_ARG1
+List of changes since previous RFC:
+* Add per-endpoint probe request, for hardware MSI and reserved regions.
+* Add a virtqueue for the device to report translation faults. Only
+  non-recoverable ones at the moment.
+* Removed the iommu_map_sg specialization for now, because none of the
+  device drivers I use for testing (virtio, ixgbe and internal DMA
+  engines) seem to use map_sg. This kind of feature is a lot more
+  interesting when accompanied by benchmark numbers, and can be added back
+  during future optimization work.
+* Many fixes and cleanup
 
-NATIVE_ZERO_OUT
+The driver works out of the box on DT-based systems, but ACPI support
+still needs to be tested and discussed. In the specification I proposed
+IORT tables as a nice candidate for describing the virtual topology.
+Patches 4 and 5 propose small changes to the IORT driver for
+instantiating a paravirtualized IOMMU. The IORT node is described in the
+specification [1]. x86 support will also require some hacks since the
+driver is based on the IOMMU DMA ops, that x86 doesn't use.
 
-I guess. NATIVE_ZERO reads like the native representation of 0 :-)
+Eric's latest QEMU device [3] works with v0.4. For the moment you can use
+the kvmtool device [4] to test v0.5 on arm64, and inject arbitrary fault
+with the debug tool. The driver can also be pulled from my Linux tree [5].
 
-...
+[1] https://www.spinics.net/lists/kvm/msg157402.html
+[2] https://patchwork.kernel.org/patch/9670273/
+[3] https://lists.gnu.org/archive/html/qemu-arm/2017-09/msg00413.html
+[4] git://linux-arm.org/kvmtool-jpb.git virtio-iommu/base
+[5] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.5-dev
+
+Jean-Philippe Brucker (5):
+  iommu: Add virtio-iommu driver
+  iommu/virtio-iommu: Add probe request
+  iommu/virtio-iommu: Add event queue
+  ACPI/IORT: Support paravirtualized IOMMU
+  ACPI/IORT: Move IORT to the ACPI folder
+
+ drivers/acpi/Kconfig              |    3 +
+ drivers/acpi/Makefile             |    1 +
+ drivers/acpi/arm64/Kconfig        |    3 -
+ drivers/acpi/arm64/Makefile       |    1 -
+ drivers/acpi/{arm64 => }/iort.c   |   95 ++-
+ drivers/iommu/Kconfig             |   12 +
+ drivers/iommu/Makefile            |    1 +
+ drivers/iommu/virtio-iommu.c      | 1219 +++++++++++++++++++++++++++++++++++++
+ include/acpi/actbl2.h             |   18 +-
+ include/uapi/linux/virtio_ids.h   |    1 +
+ include/uapi/linux/virtio_iommu.h |  195 ++++++
+ 11 files changed, 1537 insertions(+), 12 deletions(-)
+ rename drivers/acpi/{arm64 => }/iort.c (92%)
+ create mode 100644 drivers/iommu/virtio-iommu.c
+ create mode 100644 include/uapi/linux/virtio_iommu.h
 
 -- 
-Regards/Gruss,
-    Boris.
-
-Good mailing practices for 400: avoid top-posting and trim the reply.
+2.14.3
