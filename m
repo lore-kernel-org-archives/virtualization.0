@@ -1,19 +1,19 @@
-From: "Wang, Wei W" <wei.w.wang@intel.com>
-Subject: RE: [virtio-dev] Re: [PATCH v17 6/6] virtio-balloon:
-	VIRTIO_BALLOON_F_FREE_PAGE_VQ
-Date: Sat, 18 Nov 2017 05:22:28 +0000
-Message-ID: <286AC319A985734F985F78AFA26841F73936A8E7__48712.6959058971$1510982563$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1509696786-1597-1-git-send-email-wei.w.wang@intel.com>
-	<1509696786-1597-7-git-send-email-wei.w.wang@intel.com>
-	<20171115220743-mutt-send-email-mst@kernel.org>
-	<5A0D923C.4020807@intel.com> <5A0EC967.5090407@intel.com>
-	<20171117144253-mutt-send-email-mst@kernel.org>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH 03/13] x86/paravirt: Convert native patch assembly code
+	strings to macros
+Date: Sat, 18 Nov 2017 11:20:06 +0100
+Message-ID: <4022805e-38b2-869c-a766-b7e5026a263e@suse.com>
+References: <cover.1507128293.git.jpoimboe@redhat.com>
+	<e4cea2b8aa8ca23122d9c807784ca62ee6cbbff8.1507128293.git.jpoimboe@redhat.com>
+	<20171117180713.e4up3dwrszpatka6@pd.tnic>
+	<a9531df0-0a48-e695-a05a-56e654f9dfbb@suse.com>
+	<20171117194231.576qqr3wnkgowdln@treble>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171117144253-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <20171117194231.576qqr3wnkgowdln@treble>
+Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,118 +23,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "penguin-kernel@I-love.SAKURA.ne.jp" <penguin-kernel@I-love.SAKURA.ne.jp>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "willy@infradead.org" <willy@infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>"virtualization@lists.linux-foundation.org" <vi>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>, Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>, Thomas Gleixner <tglx@linutronix.de>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, x86@kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday, November 17, 2017 8:45 PM, Michael S. Tsirkin wrote:
-> On Fri, Nov 17, 2017 at 07:35:03PM +0800, Wei Wang wrote:
-> > On 11/16/2017 09:27 PM, Wei Wang wrote:
-> > > On 11/16/2017 04:32 AM, Michael S. Tsirkin wrote:
-> > > > On Fri, Nov 03, 2017 at 04:13:06PM +0800, Wei Wang wrote:
-> > > > > Negotiation of the VIRTIO_BALLOON_F_FREE_PAGE_VQ feature
-> > > > > indicates the support of reporting hints of guest free pages to
-> > > > > the host via virtio-balloon. The host requests the guest to
-> > > > > report the free pages by sending commands via the virtio-balloon
-> configuration registers.
-> > > > >
-> > > > > When the guest starts to report, the first element added to the
-> > > > > free page vq is a sequence id of the start reporting command.
-> > > > > The id is given by the host, and it indicates whether the
-> > > > > following free pages correspond to the command. For example, the
-> > > > > host may stop the report and start again with a new command id.
-> > > > > The obsolete pages for the previous start command can be
-> > > > > detected by the id dismatching on the host. The id is added to
-> > > > > the vq using an output buffer, and the free pages are added to
-> > > > > the vq using input buffer.
-> > > > >
-> > > > > Here are some explainations about the added configuration registers:
-> > > > > - host2guest_cmd: a register used by the host to send commands
-> > > > > to the guest.
-> > > > > - guest2host_cmd: written by the guest to ACK to the host about
-> > > > > the commands that have been received. The host will clear the
-> > > > > corresponding bits on the host2guest_cmd register. The guest
-> > > > > also uses this register to send commands to the host (e.g. when finish
-> free page reporting).
-> > > > > - free_page_cmd_id: the sequence id of the free page report
-> > > > > command given by the host.
-> > > > >
-> > > > > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> > > > > Signed-off-by: Liang Li <liang.z.li@intel.com>
-> > > > > Cc: Michael S. Tsirkin <mst@redhat.com>
-> > > > > Cc: Michal Hocko <mhocko@kernel.org>
-> > > > > ---
-> > > > >
-> > > > > +
-> > > > > +static void report_free_page(struct work_struct *work) {
-> > > > > +    struct virtio_balloon *vb;
-> > > > > +
-> > > > > +    vb = container_of(work, struct virtio_balloon,
-> > > > > report_free_page_work);
-> > > > > +    report_free_page_cmd_id(vb);
-> > > > > +    walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
-> > > > > +    /*
-> > > > > +     * The last few free page blocks that were added may not reach the
-> > > > > +     * batch size, but need a kick to notify the device to
-> > > > > handle them.
-> > > > > +     */
-> > > > > +    virtqueue_kick(vb->free_page_vq);
-> > > > > +    report_free_page_end(vb);
-> > > > > +}
-> > > > > +
-> > > > I think there's an issue here: if pages are poisoned and
-> > > > hypervisor subsequently drops them, testing them after allocation
-> > > > will trigger a false positive.
-> > > >
-> > > > The specific configuration:
-> > > >
-> > > > PAGE_POISONING on
-> > > > PAGE_POISONING_NO_SANITY off
-> > > > PAGE_POISONING_ZERO off
-> > > >
-> > > >
-> > > > Solutions:
-> > > > 1. disable the feature in that configuration
-> > > >     suggested as an initial step
-> > >
-> > > Thanks for the finding.
-> > > Similar to this option: I'm thinking could we make
-> > > walk_free_mem_block() simply return if that option is on?
-> > > That is, at the beginning of the function:
-> > >     if (!page_poisoning_enabled())
-> > >                 return;
-> > >
-> >
-> >
-> > Thought about it more, I think it would be better to put this logic to
-> > virtio_balloon:
-> >
-> >         send_free_page_cmd_id(vb, &vb->start_cmd_id);
-> >         if (page_poisoning_enabled() &&
-> >             !IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY))
-> >                 walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
-> >         send_free_page_cmd_id(vb, &vb->stop_cmd_id);
-> >
-> >
-> > walk_free_mem_block() should be a more generic API, and this potential
-> > page poisoning issue is specific to live migration which is only one
-> > use case of this function, so I think it is better to handle it in the
-> > special use case itself.
-> >
-> > Best,
-> > Wei
-> >
+On 17/11/17 20:42, Josh Poimboeuf wrote:
+> On Fri, Nov 17, 2017 at 08:10:13PM +0100, Juergen Gross wrote:
+>> On 17/11/17 19:07, Borislav Petkov wrote:
+>>> On Wed, Oct 04, 2017 at 10:58:24AM -0500, Josh Poimboeuf wrote:
+>>>> Convert the hard-coded native patch assembly code strings to macros to
+>>>> facilitate sharing common code between 32-bit and 64-bit.
+>>>>
+>>>> These macros will also be used by a future patch which requires the GCC
+>>>> extended asm syntax of two '%' characters instead of one when specifying
+>>>> a register name.
+>>>>
+>>>> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+>>>> ---
+>>>>  arch/x86/include/asm/special_insns.h | 24 ++++++++++++++++++++++++
+>>>>  arch/x86/kernel/paravirt_patch_32.c  | 21 +++++++++++----------
+>>>>  arch/x86/kernel/paravirt_patch_64.c  | 29 +++++++++++++++--------------
+>>>>  3 files changed, 50 insertions(+), 24 deletions(-)
+>>>>
+>>>> diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
+>>>> index ac402c6fc24b..0549c5f2c1b3 100644
+>>>> --- a/arch/x86/include/asm/special_insns.h
+>>>> +++ b/arch/x86/include/asm/special_insns.h
+>>>> @@ -6,6 +6,30 @@
+>>>>  
+>>>>  #include <asm/nops.h>
+>>>>  
+>>>> +#ifdef CONFIG_X86_64
+>>>> +# define _REG_ARG1			"%rdi"
+>>>> +# define NATIVE_IDENTITY_32		"mov %edi, %eax"
+>>>
+>>> Yeah, that "identity" looks strange. How about NATIVE_NOOP and
+>>> NATIVE_NOOP_32 ?
+>>
+>> Those are not NOPs. They return the identical value which was passed to
+>> them. So identity isn't a bad name after all.
 > 
-> It's a quick work-around but it doesn't make me very happy.
+> Right, like the math identity function:
 > 
-> AFAIK e.g. RHEL has a debug kernel with poisoning enabled.
-> If this never uses free page hinting at all, it will be much less useful for
-> debugging guests.
+>   https://en.wikipedia.org/wiki/Identity_function
 > 
+>>>> +# define NATIVE_USERGS_SYSRET64		"swapgs; sysretq"
+>>>> +#else
+>>>> +# define _REG_ARG1			"%eax"
+>>>> +#endif
+>>>> +
+>>>> +#define _REG_RET			"%" _ASM_AX
+>>>> +
+>>>> +#define NATIVE_ZERO			"xor " _REG_ARG1 ", " _REG_ARG1
+>>>
+>>> NATIVE_ZERO_OUT
+>>>
+>>> I guess. NATIVE_ZERO reads like the native representation of 0 :-)
+>>
+>> NATIVE_ZERO_ARG1?
+> 
+> On a slight tangent, does anybody know why it zeros the arg?
 
-I understand your concern. I think people who use debugging guests don't regard performance as the first priority, and most vendors usually wouldn't use debugging guests for their products.
+Why are _you_ asking? You've introduced it.
 
-How about taking it as the initial solution? We can exploit more solutions after this series is done.
+> The only place it's used is here:
+> 
+> #if defined(CONFIG_PARAVIRT_SPINLOCKS)
+> DEF_NATIVE(pv_lock_ops,	queued_spin_unlock,	NATIVE_QUEUED_SPIN_UNLOCK);
+> DEF_NATIVE(pv_lock_ops,	vcpu_is_preempted,	NATIVE_ZERO);
+> #endif
+> 
+> Isn't that a bug?  Seems like it should _return_ zero.  Zeroing the arg
+> shouldn't have any effect.
 
-Best,
-Wei
+Right. Before that patch it _did_ return zero instead of zeroing arg1.
+
+> If I'm right, we could call it NATIVE_FALSE.
+
+I'd prefer NATIVE_ZERO, as it will be usable for non-boolean cases, too.
+
+
+Juergen
