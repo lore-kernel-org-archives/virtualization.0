@@ -1,11 +1,20 @@
-From: "MarLe" <marialemos72@gmail.com>
-Subject: Call for papers - MICRADS 2018 - Salinas, Ecuador
-Date: Sun, 19 Nov 2017 00:47:08 +0000
-Message-ID: <20171119004713.E1E4A8E2@mail.linuxfoundation.org>
-Reply-To: micrads18@gmail.com
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH v17 6/6] virtio-balloon:
+	VIRTIO_BALLOON_F_FREE_PAGE_VQ
+Date: Sun, 19 Nov 2017 17:11:24 +0200
+Message-ID: <20171119170319-mutt-send-email-mst__28831.32878128$1511104361$gmane$org@kernel.org>
+References: <1509696786-1597-1-git-send-email-wei.w.wang@intel.com>
+	<1509696786-1597-7-git-send-email-wei.w.wang@intel.com>
+	<20171115220743-mutt-send-email-mst@kernel.org>
+	<5A0D923C.4020807@intel.com> <5A0EC967.5090407@intel.com>
+	<20171117144253-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F73936A8E7@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7655936408172827232=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <286AC319A985734F985F78AFA26841F73936A8E7@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,167 +24,135 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "Wang, Wei W" <wei.w.wang@intel.com>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "penguin-kernel@I-love.SAKURA.ne.jp" <penguin-kernel@I-love.SAKURA.ne.jp>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "willy@infradead.org" <willy@infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>"virtualization@lists.linux-foundation.org" <vi>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============7655936408172827232==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Sat, Nov 18, 2017 at 05:22:28AM +0000, Wang, Wei W wrote:
+> On Friday, November 17, 2017 8:45 PM, Michael S. Tsirkin wrote:
+> > On Fri, Nov 17, 2017 at 07:35:03PM +0800, Wei Wang wrote:
+> > > On 11/16/2017 09:27 PM, Wei Wang wrote:
+> > > > On 11/16/2017 04:32 AM, Michael S. Tsirkin wrote:
+> > > > > On Fri, Nov 03, 2017 at 04:13:06PM +0800, Wei Wang wrote:
+> > > > > > Negotiation of the VIRTIO_BALLOON_F_FREE_PAGE_VQ feature
+> > > > > > indicates the support of reporting hints of guest free pages to
+> > > > > > the host via virtio-balloon. The host requests the guest to
+> > > > > > report the free pages by sending commands via the virtio-balloon
+> > configuration registers.
+> > > > > >
+> > > > > > When the guest starts to report, the first element added to the
+> > > > > > free page vq is a sequence id of the start reporting command.
+> > > > > > The id is given by the host, and it indicates whether the
+> > > > > > following free pages correspond to the command. For example, the
+> > > > > > host may stop the report and start again with a new command id.
+> > > > > > The obsolete pages for the previous start command can be
+> > > > > > detected by the id dismatching on the host. The id is added to
+> > > > > > the vq using an output buffer, and the free pages are added to
+> > > > > > the vq using input buffer.
+> > > > > >
+> > > > > > Here are some explainations about the added configuration registers:
+> > > > > > - host2guest_cmd: a register used by the host to send commands
+> > > > > > to the guest.
+> > > > > > - guest2host_cmd: written by the guest to ACK to the host about
+> > > > > > the commands that have been received. The host will clear the
+> > > > > > corresponding bits on the host2guest_cmd register. The guest
+> > > > > > also uses this register to send commands to the host (e.g. when finish
+> > free page reporting).
+> > > > > > - free_page_cmd_id: the sequence id of the free page report
+> > > > > > command given by the host.
+> > > > > >
+> > > > > > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> > > > > > Signed-off-by: Liang Li <liang.z.li@intel.com>
+> > > > > > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > > > > > Cc: Michal Hocko <mhocko@kernel.org>
+> > > > > > ---
+> > > > > >
+> > > > > > +
+> > > > > > +static void report_free_page(struct work_struct *work) {
+> > > > > > +    struct virtio_balloon *vb;
+> > > > > > +
+> > > > > > +    vb = container_of(work, struct virtio_balloon,
+> > > > > > report_free_page_work);
+> > > > > > +    report_free_page_cmd_id(vb);
+> > > > > > +    walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
+> > > > > > +    /*
+> > > > > > +     * The last few free page blocks that were added may not reach the
+> > > > > > +     * batch size, but need a kick to notify the device to
+> > > > > > handle them.
+> > > > > > +     */
+> > > > > > +    virtqueue_kick(vb->free_page_vq);
+> > > > > > +    report_free_page_end(vb);
+> > > > > > +}
+> > > > > > +
+> > > > > I think there's an issue here: if pages are poisoned and
+> > > > > hypervisor subsequently drops them, testing them after allocation
+> > > > > will trigger a false positive.
+> > > > >
+> > > > > The specific configuration:
+> > > > >
+> > > > > PAGE_POISONING on
+> > > > > PAGE_POISONING_NO_SANITY off
+> > > > > PAGE_POISONING_ZERO off
+> > > > >
+> > > > >
+> > > > > Solutions:
+> > > > > 1. disable the feature in that configuration
+> > > > >     suggested as an initial step
+> > > >
+> > > > Thanks for the finding.
+> > > > Similar to this option: I'm thinking could we make
+> > > > walk_free_mem_block() simply return if that option is on?
+> > > > That is, at the beginning of the function:
+> > > >     if (!page_poisoning_enabled())
+> > > >                 return;
+> > > >
+> > >
+> > >
+> > > Thought about it more, I think it would be better to put this logic to
+> > > virtio_balloon:
+> > >
+> > >         send_free_page_cmd_id(vb, &vb->start_cmd_id);
+> > >         if (page_poisoning_enabled() &&
+> > >             !IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY))
+> > >                 walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
+> > >         send_free_page_cmd_id(vb, &vb->stop_cmd_id);
+> > >
+> > >
+> > > walk_free_mem_block() should be a more generic API, and this potential
+> > > page poisoning issue is specific to live migration which is only one
+> > > use case of this function, so I think it is better to handle it in the
+> > > special use case itself.
+> > >
+> > > Best,
+> > > Wei
+> > >
+> > 
+> > It's a quick work-around but it doesn't make me very happy.
+> > 
+> > AFAIK e.g. RHEL has a debug kernel with poisoning enabled.
+> > If this never uses free page hinting at all, it will be much less useful for
+> > debugging guests.
+> > 
+> 
+> I understand your concern. I think people who use debugging guests
+> don't regard performance as the first priority, and most vendors
+> usually wouldn't use debugging guests for their products.
 
-* Proceedings by Springer and indexed by Scopus, etc.
+And when one of these crashes but only after migration what do you do?  A
+very common step is for Red Hat support is to ask people to try
+reproducing with a debug build.
 
+IOT being able to debug guests is important, if a debugging guest takes
+a significantly different path from non-debug one, we have a problem.
 
----------------------------------------------------------------------------=
-------------------------------------------------
-MICRADS=B418 - The 2018 Multidisciplinary International Conference of Resea=
-rch Applied to Defense and Security
-                                    Salinas, Ecuador, 18 - 20 April 2018
-                                          http://www.micrads.org/
----------------------------------------------------------------------------=
----------------------------------------------------------
+> 
+> How about taking it as the initial solution? We can exploit more
+> solutions after this series is done.
+> 
+> Best,
+> Wei
 
+I think it's fine as a separate patch.
 
-
-SCOPE
-
-MICRADS=B418 - The 2018 Multidisciplinary International Conference of Resea=
-rch Applied to Defense and Security, to be held at Salinas, Ecuador, 18 - 2=
-0 April 2018, is an international forum for researchers and practitioners t=
-o present and discuss the most recent innovations, trends, results, experie=
-nces and concerns in the several perspectives of Defense and Security.
-
-We are pleased to invite you to submit your papers to MICRADS=B418. They ca=
-n be written in English, Spanish or Portuguese. All submissions will be rev=
-iewed on the basis of relevance, originality, importance and clarity.
-
- 
-
-TOPICS
-
-Submitted papers should be related with one or more of the main themes prop=
-osed for the Conference:
-
-A) Information and Communication Technology in Education;
-
-B) Computer vision in military applications;
-
-C) Engineering Analysis and Signal Processing;
-
-D) Cybersecurity and Cyberdefense;
-
-E) Maritime Security and Safety;
-
-F) Strategy, geopolitics and Oceanopolitics;
-
-G) Defense planning;
-
-H) Leadership (e-leadership);
-
-I) Defense Economics;
-
-J) Defense Logistics;
-
-K) Health informatics in military applications;
-
-L) Simulation in Military Application;
-
-M) Computer Networks, Mobility and Pervasive Systems;
-
-N) Military Marketing;
-
-O) Military Physical Training;
-
-P) Assistive Devices and Wearable Technology;
-
-Q) Naval and Military Engineering;
-
-R) Weapons and Combat Systems;
-
-S) Operational Oceanography.
-
-  
-
-SUBMISSION AND DECISION
-
-Submitted papers (until 6-page limit) must comply with the format standard =
-(http://www.micrads.org/images/Templates.rar), be written in English, Spani=
-sh or Portuguese, must not have been published before, not be under review =
-for any other conference or publication and not include any information lea=
-ding to the authors=92 identification. Therefore, the authors=92 names, aff=
-iliations and bibliographic references should not be included in the versio=
-n for evaluation by the Scientific Committee. This information should only =
-be included in the camera-ready version, saved in Word format and uploaded =
-at the conference management system.
-
-All papers will be subjected to a =93double-blind review=94 by at least two=
- members of the Scientific Committee.
-
-Based on Scientific Committee evaluation, a paper can be rejected or accept=
-ed by the Conference Chairs. In the later case, it can be accepted as paper=
- or poster.
-
-The authors of papers accepted as posters must build and print a poster to =
-be exhibited during the Conference. This poster must follow an A1 or A2 ver=
-tical format. The Conference can includes Work Sessions where these posters=
- are presented and orally discussed, with a 7 minute limit per poster.
-
-The authors of accepted papers will have 15 minutes to present their work i=
-n a Conference Work Session; approximately 5 minutes of discussion will fol=
-low each presentation.
-
- 
-
-PUBLICATION AND INDEXING
-
-To ensure that an accepted paper is published, at least one of the authors =
-must be fully registered by the 3 of February 2018, and the paper must comp=
-ly with the suggested layout and page-limit (until 10 pages). Additionally,=
- all recommended changes must be addressed by the authors before they submi=
-t the camera-ready version.
-
-No more than one paper per registration will be published. An extra fee mus=
-t be paid for publication of additional papers, with a maximum of one addit=
-ional paper per registration. One registration permits only the participati=
-on of one author in the conference.
-
-Papers can be written in English, Spanish or Portuguese. Accepted and regis=
-tered papers will be published in Proceedings by Springer, in a book of its=
- SIST series, and will be submitted for indexing by ISI, SCOPUS, EI-Compend=
-ex, SpingerLink, and Google Scholar.
-
- 
-
-IMPORTANT DATES
-
-Paper Submission: January 14, 2018
-
-Notification of Acceptance: February 14, 2018
-
-Payment of Registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: February 18, 2018.
-
-Camera-ready Submission: February 21, 2018
-
-
-
--
-Website o MICRADS'18: http://www.micrads.org/
--------
-
-
----
-This email has been checked for viruses by AVG.
-http://www.avg.com
-
-
---===============7655936408172827232==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7655936408172827232==--
+-- 
+MST
