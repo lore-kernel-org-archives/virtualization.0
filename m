@@ -1,13 +1,23 @@
-From: Jorgen Hansen <jhansen@vmware.com>
-Subject: [PATCH] VSOCK: Don't call vsock_stream_has_data in atomic context
-Date: Tue, 21 Nov 2017 02:46:24 -0800
-Message-ID: <1511261184-45913-1-git-send-email-jhansen@vmware.com>
-References: <y>
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: 4.14: WARNING: CPU: 4 PID: 2895 at block/blk-mq.c:1144 with
+	virtio-blk (also 4.12 stable)
+Date: Tue, 21 Nov 2017 10:27:04 -0700
+Message-ID: <b7b3cf4b-837e-f9ba-61c0-4f9ddd8b9a95__13722.9930064224$1511285233$gmane$org@kernel.dk>
+References: <9c5eec5d-f542-4d76-6933-6fe31203ce09@de.ibm.com>
+	<1511205644.2396.32.camel@wdc.com>
+	<04526c98-ffc5-1eca-3aa8-50f9212c4323@de.ibm.com>
+	<5c9f2228-0a8b-8225-7038-e6cb3f31ca0b@kernel.dk>
+	<2e44dbd3-2f90-c267-560c-91d1d4b0e892@de.ibm.com>
+	<823b9dd5-7781-5a72-03ff-bc931433fc19@kernel.dk>
+	<bd928410-4d38-603e-00c9-4c4db20d8e86@de.ibm.com>
+	<15f232d2-2aaa-df7c-57e8-2f710e051e84@de.ibm.com>
+	<c8bd769e-9742-205d-11b0-469428a8579c@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <y>
+In-Reply-To: <c8bd769e-9742-205d-11b0-469428a8579c@de.ibm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,62 +27,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, davem@davemloft.net, Jorgen Hansen <jhansen@vmware.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Bart Van Assche <Bart.VanAssche@wdc.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "jasowang@redhat.com" <jasowang@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When using the host personality, VMCI will grab a mutex for any
-queue pair access. In the detach callback for the vmci vsock
-transport, we call vsock_stream_has_data while holding a spinlock,
-and vsock_stream_has_data will access a queue pair.
+On 11/21/2017 03:14 AM, Christian Borntraeger wrote:
+> Bisect points to
+> 
+> 1b5a7455d345b223d3a4658a9e5fce985b7998c1 is the first bad commit
+> commit 1b5a7455d345b223d3a4658a9e5fce985b7998c1
+> Author: Christoph Hellwig <hch@lst.de>
+> Date:   Mon Jun 26 12:20:57 2017 +0200
+> 
+>     blk-mq: Create hctx for each present CPU
+>     
+>     commit 4b855ad37194f7bdbb200ce7a1c7051fecb56a08 upstream.
+>     
+>     Currently we only create hctx for online CPUs, which can lead to a lot
+>     of churn due to frequent soft offline / online operations.  Instead
+>     allocate one for each present CPU to avoid this and dramatically simplify
+>     the code.
+>     
+>     Signed-off-by: Christoph Hellwig <hch@lst.de>
+>     Reviewed-by: Jens Axboe <axboe@kernel.dk>
+>     Cc: Keith Busch <keith.busch@intel.com>
+>     Cc: linux-block@vger.kernel.org
+>     Cc: linux-nvme@lists.infradead.org
+>     Link: http://lkml.kernel.org/r/20170626102058.10200-3-hch@lst.de
+>     Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+>     Cc: Oleksandr Natalenko <oleksandr@natalenko.name>
+>     Cc: Mike Galbraith <efault@gmx.de>
+>     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-To avoid this, we can simply omit calling vsock_stream_has_data
-for host side queue pairs, since the QPs are empty per default
-when the guest has detached.
+I wonder if we're simply not getting the masks updated correctly. I'll
+take a look.
 
-This bug affects users of VMware Workstation using kernel version
-4.4 and later.
-
-Testing: Ran vsock tests between guest and host, and verified that
-with this change, the host isn't calling vsock_stream_has_data
-during detach. Ran mixedTest between guest and host using both
-guest and host as server.
-
-Reviewed-by: Adit Ranadive <aditr@vmware.com>
-Reviewed-by: Aditya Sarwade <asarwade@vmware.com>
-Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
----
- net/vmw_vsock/vmci_transport.c |   10 +++++++---
- 1 files changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 10ae782..90bc1a7 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -798,9 +798,13 @@ static void vmci_transport_handle_detach(struct sock *sk)
- 
- 		/* We should not be sending anymore since the peer won't be
- 		 * there to receive, but we can still receive if there is data
--		 * left in our consume queue.
-+		 * left in our consume queue. If the local endpoint is a host,
-+		 * we can't call vsock_stream_has_data, since that may block,
-+		 * but a host endpoint can't read data once the VM has
-+		 * detached, so there is no available data in that case.
- 		 */
--		if (vsock_stream_has_data(vsk) <= 0) {
-+		if (vsk->local_addr.svm_cid == VMADDR_CID_HOST ||
-+		    vsock_stream_has_data(vsk) <= 0) {
- 			if (sk->sk_state == SS_CONNECTING) {
- 				/* The peer may detach from a queue pair while
- 				 * we are still in the connecting state, i.e.,
-@@ -2145,7 +2149,7 @@ static void __exit vmci_transport_exit(void)
- 
- MODULE_AUTHOR("VMware, Inc.");
- MODULE_DESCRIPTION("VMCI transport for Virtual Sockets");
--MODULE_VERSION("1.0.4.0-k");
-+MODULE_VERSION("1.0.5.0-k");
- MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("vmware_vsock");
- MODULE_ALIAS_NETPROTO(PF_VSOCK);
 -- 
-1.7.0
+Jens Axboe
