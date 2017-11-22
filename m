@@ -1,25 +1,15 @@
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: 4.14: WARNING: CPU: 4 PID: 2895 at block/blk-mq.c:1144 with
-	virtio-blk (also 4.12 stable)
-Date: Wed, 22 Nov 2017 07:46:10 -0700
-Message-ID: <a1d51b13-c034-e0c8-9428-e360b2c898c3__17485.9036379077$1511361983$gmane$org@kernel.dk>
-References: <8fedc2ad-d775-7789-742c-92ca928a3aee@kernel.dk>
-	<ebf96f76-3f53-283d-042d-8ea3f5eddb3d@kernel.dk>
-	<ba994ec6-8db6-f77e-ac73-92e3f6b0135a@de.ibm.com>
-	<ae02b9c5-9a2e-cb8b-7828-475b3c0b1cb9@kernel.dk>
-	<c438db5f-f4f1-69f8-37f3-e91eae29fa25@de.ibm.com>
-	<d8dbde03-f528-1cac-03dd-bcc724fcd5c8@kernel.dk>
-	<276625a9-44fb-719d-9281-caacefdbb99f@de.ibm.com>
-	<eceae481-cf9a-0429-7a15-c363a8e7bc2a@kernel.dk>
-	<1ddd1cd4-2862-849e-7849-82544bcb86be@de.ibm.com>
-	<08e6f35a-4f49-973e-99f7-6087b44337c4@kernel.dk>
-	<20171122072857.GA19338@lst.de>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH 07/13] x86/paravirt: Simplify ____PVOP_CALL()
+Date: Wed, 22 Nov 2017 17:35:46 +0100
+Message-ID: <20171122163546.ikjzkyzg3n5fyi6z__8218.08693367547$1511368578$gmane$org@pd.tnic>
+References: <cover.1507128293.git.jpoimboe@redhat.com>
+	<e09e6cb4f4717fc6d81ddb5fc38cd45504348ce1.1507128293.git.jpoimboe@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171122072857.GA19338@lst.de>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <e09e6cb4f4717fc6d81ddb5fc38cd45504348ce1.1507128293.git.jpoimboe@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,18 +19,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: "mst@redhat.com" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, stable@vger.kernel.org, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, Bart Van Assche <Bart.VanAssche@wdc.com>
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Juergen Gross <jgross@suse.com>, Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>, xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, x86@kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <alexander.levin@verizon.com>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, live-patching@vger.kernel.org, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/22/2017 12:28 AM, Christoph Hellwig wrote:
-> Jens, please don't just revert the commit in your for-linus tree.
+On Wed, Oct 04, 2017 at 10:58:28AM -0500, Josh Poimboeuf wrote:
+> Remove the inline asm duplication in ____PVOP_CALL().
 > 
-> On its own this will totally mess up the interrupt assignments.  Give
-> me a bit of time to sort this out properly.
+> Also add 'IS_ENABLED(CONFIG_X86_32)' to the return variable logic,
+> making the code clearer and rendering the comment unnecessary.
+> 
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> ---
+>  arch/x86/include/asm/paravirt_types.h | 36 +++++++++++++----------------------
+>  1 file changed, 13 insertions(+), 23 deletions(-)
+> 
+> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+> index ab7aabe6b668..01f9e10983c1 100644
+> --- a/arch/x86/include/asm/paravirt_types.h
+> +++ b/arch/x86/include/asm/paravirt_types.h
+> @@ -529,29 +529,19 @@ int paravirt_disable_iospace(void);
+>  		rettype __ret;						\
+>  		PVOP_CALL_ARGS;						\
+>  		PVOP_TEST_NULL(op);					\
 
-I wasn't going to push it until I heard otherwise. I'll just pop it
-off, for-linus isn't a stable branch.
+Newline here...
+
+> -		/* This is 32-bit specific, but is okay in 64-bit */	\
+> -		/* since this condition will never hold */		\
+> -		if (sizeof(rettype) > sizeof(unsigned long)) {		\
+> -			asm volatile(pre				\
+> -				     paravirt_alt(PARAVIRT_CALL)	\
+> -				     post				\
+> -				     : call_clbr, ASM_CALL_CONSTRAINT	\
+> -				     : paravirt_type(op),		\
+> -				       paravirt_clobber(clbr),		\
+> -				       ##__VA_ARGS__			\
+> -				     : "memory", "cc" extra_clbr);	\
+> -			__ret = (rettype)((((u64)__edx) << 32) | __eax); \
+> -		} else {						\
+> -			asm volatile(pre				\
+> -				     paravirt_alt(PARAVIRT_CALL)	\
+> -				     post				\
+> -				     : call_clbr, ASM_CALL_CONSTRAINT	\
+> -				     : paravirt_type(op),		\
+> -				       paravirt_clobber(clbr),		\
+> -				       ##__VA_ARGS__			\
+> -				     : "memory", "cc" extra_clbr);	\
+> -			__ret = (rettype)(__eax & PVOP_RETMASK(rettype));	\
+> -		}							\
+> +		asm volatile(pre					\
+> +			     paravirt_alt(PARAVIRT_CALL)		\
+> +			     post					\
+> +			     : call_clbr, ASM_CALL_CONSTRAINT		\
+> +			     : paravirt_type(op),			\
+> +			       paravirt_clobber(clbr),			\
+> +			       ##__VA_ARGS__				\
+> +			     : "memory", "cc" extra_clbr);		\
+
+... and here goes a long way towards readability. :)
+
+> +		if (IS_ENABLED(CONFIG_X86_32) &&			\
+> +		    sizeof(rettype) > sizeof(unsigned long))		\
+> +			__ret = (rettype)((((u64)__edx) << 32) | __eax);\
+> +		else							\
+> +			__ret = (rettype)(__eax & PVOP_RETMASK(rettype));\
+>  		__ret;							\
+>  	})
 
 -- 
-Jens Axboe
+Regards/Gruss,
+    Boris.
+
+Good mailing practices for 400: avoid top-posting and trim the reply.
