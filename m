@@ -1,21 +1,13 @@
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: Re: [PATCH RFC v3 3/6] sched/idle: Add a generic poll before enter
-	real idle path
-Date: Mon, 20 Nov 2017 19:01:14 +0100
-Message-ID: <365f1aaa-0cda-ef58-5574-27810ec1789a__12000.9314305664$1511415004$gmane$org@linaro.org>
-References: <1510567565-5118-1-git-send-email-quan.xu0@gmail.com>
-	<1510567565-5118-4-git-send-email-quan.xu0@gmail.com>
-	<20171115121152.gqug5wzerlo3eimd@hirez.programming.kicks-ass.net>
-	<alpine.DEB.2.20.1711152240010.2146@nanos>
-	<46086489-5a01-16e1-9314-70ae53c01952@gmail.com>
-	<93a26005-aa37-82e1-5c04-a82c9027bac8@linaro.org>
-	<5deab1e9-cef2-0511-09d8-cef8e4323f02@gmail.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH] VSOCK: Don't call vsock_stream_has_data in atomic context
+Date: Thu, 23 Nov 2017 10:02:05 +0000
+Message-ID: <CAJSP0QXFknaZboxeEwJmxri2Vjo1GfwK5JwDyWPgEKyi5cJp1g__16123.1575570584$1511431385$gmane$org@mail.gmail.com>
+References: <1511261184-45913-1-git-send-email-jhansen@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5deab1e9-cef2-0511-09d8-cef8e4323f02@gmail.com>
-Content-Language: en-US
+In-Reply-To: <1511261184-45913-1-git-send-email-jhansen@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,63 +17,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Quan Xu <quan.xu0@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Peter Zijlstra <peterz@infradead.org>
-Cc: Yang Zhang <yang.zhang.wz@gmail.com>, Len Brown <len.brown@intel.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Kyle Huey <me@kylehuey.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Quan Xu <quan.xu03@gmail.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, linux-fsdevel@vger.kernel.org, xen-devel@lists.xenproject.org, Tom Lendacky <thomas.lendacky@amd.com>, Tobias Klauser <tklauser@distanz.ch>
+To: Jorgen Hansen <jhansen@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAvMTEvMjAxNyAwODowNSwgUXVhbiBYdSB3cm90ZToKClsgLi4uIF0KCj4+Pj4gQnV0IHRo
-ZSBpcnFfdGltaW5ncyBzdHVmZiBpcyBoZWFkaW5nIGludG8gdGhlIHNhbWUgZGlyZWN0aW9uLCB3
-aXRoIGEKPj4+PiBtb3JlCj4+Pj4gY29tcGxleCBwcmVkaWN0aW9uIGxvZ2ljIHdoaWNoIHNob3Vs
-ZCB0ZWxsIHlvdSBwcmV0dHkgZ29vZCBob3cgbG9uZwo+Pj4+IHRoYXQKPj4+PiBpZGxlIHBlcmlv
-ZCBpcyBnb2luZyB0byBiZSBhbmQgaW4gY2FzZSBvZiBhbiBpbnRlcnJ1cHQgaGVhdnkgd29ya2xv
-YWQKPj4+PiB0aGlzCj4+Pj4gd291bGQgc2tpcCB0aGUgZXh0cmEgd29yayBvZiBzdG9wcGluZyBh
-bmQgcmVzdGFydGluZyB0aGUgdGljayBhbmQKPj4+PiBwcm92aWRlIGEKPj4+PiB2ZXJ5IGdvb2Qg
-aW5wdXQgaW50byBhIHBvbGxpbmcgZGVjaXNpb24uCj4+Pgo+Pj4gaW50ZXJlc3RpbmcuIEkgaGF2
-ZSB0ZXN0ZWQgd2l0aCBJUlFfVElNSU5HUyByZWxhdGVkIGNvZGUsIHdoaWNoIHNlZW1zCj4+PiBu
-b3Qgd29ya2luZyBzbyBmYXIuCj4+IEkgZG9uJ3Qga25vdyBob3cgeW91IHRlc3RlZCBpdCwgY2Fu
-IHlvdSBlbGFib3JhdGUgd2hhdCB5b3UgbWVhbnQgYnkKPj4gInNlZW1zIG5vdCB3b3JraW5nIHNv
-IGZhciIgPwo+IAo+IERhbmllbCwgSSB0cmllZCB0byBlbmFibGUgSVJRX1RJTUlOR1MqIG1hbnVh
-bGx5LiB1c2VkCj4gaXJxX3RpbWluZ3NfbmV4dF9ldmVudCgpCj4gdG8gcmV0dXJuIGVzdGltYXRp
-b24gb2YgdGhlIGVhcmxpZXN0IGludGVycnVwdC4gSG93ZXZlciBJIGdvdCBhIGNvbnN0YW50LgoK
-VGhlIGlycSB0aW1pbmdzIGdpdmVzIHlvdSBhbiBpbmRpY2F0aW9uIG9mIHRoZSBuZXh0IGludGVy
-cnVwdCBkZWFkbGluZS4KClRoaXMgaW5mb3JtYXRpb24gaXMgYSBwaWVjZSBvZiB0aGUgcHV6emxl
-LCB5b3UgbmVlZCB0byBjb21iaW5lIGl0IHdpdGgKdGhlIG5leHQgdGltZXIgZXhwaXJhdGlvbiwg
-YW5kIHRoZSBuZXh0IHNjaGVkdWxpbmcgZXZlbnQuIFRoZW4gdGFrZSB0aGUKZWFybGllc3QgZXZl
-bnQgaW4gYSB0aW1lbGluZSBiYXNpcy4KClVzaW5nIHRoZSB0cml2aWFsIHNjaGVtZSBhYm92ZSB3
-aWxsIHdvcmsgd2VsbCB3aXRoIHdvcmtsb2FkIGxpa2UgdmlkZW9zCm9yIG1wMyBidXQgd2lsbCBm
-YWlsIGFzIHNvb24gYXMgdGhlIGludGVycnVwdHMgYXJlIG5vdCBjb21pbmcgaW4gYQpyZWd1bGFy
-IGJhc2lzIGFuZCB0aGlzIGlzIHdoZXJlIHRoZSBwYXR0ZXJuIHJlY29nbml0aW9uIGFsZ29yaXRo
-bSBtdXN0IGFjdC4KCj4+IFRoZXJlIGFyZSBzdGlsbCBzb21lIHdvcmsgdG8gZG8gdG8gYmUgbW9y
-ZSBlZmZpY2llbnQuIFRoZSBwcmVkaWN0aW9uCj4+IGJhc2VkIG9uIHRoZSBpcnEgdGltaW5ncyBp
-cyBhbGwgcmlnaHQgaWYgdGhlIGludGVycnVwdHMgaGF2ZSBhIHNpbXBsZQo+PiBwZXJpb2RpY2l0
-eS4gQnV0IGFzIHNvb24gYXMgdGhlcmUgaXMgYSBwYXR0ZXJuLCB0aGUgY3VycmVudCBjb2RlIGNh
-bid0Cj4+IGhhbmRsZSBpdCBwcm9wZXJseSBhbmQgZG9lcyBiYWQgcHJlZGljdGlvbnMuCj4+Cj4+
-IEknbSB3b3JraW5nIG9uIGEgc2VsZi1sZWFybmluZyBwYXR0ZXJuIGRldGVjdGlvbiB3aGljaCBp
-cyB0b28gaGVhdnkgZm9yCj4+IHRoZSBrZXJuZWwsIGFuZCB3aXRoIGl0IHdlIHNob3VsZCBiZSBh
-YmxlIHRvIGRldGVjdCBwcm9wZXJseSB0aGUKPj4gcGF0dGVybnMgYW5kIHJlLWFqdXN0IHRoZSBw
-ZXJpb2QgaWYgaXQgY2hhbmdlcy4gSSdtIGluIHRoZSBwcm9jZXNzIG9mCj4+IG1ha2luZyBpdCBz
-dWl0YWJsZSBmb3Iga2VybmVsIGNvZGUgKGJvdGggbWF0aCBhbmQgcGVyZikuCj4+Cj4+IE9uZSBp
-bXByb3ZlbWVudCB3aGljaCBjYW4gYmUgZG9uZSByaWdodCBub3cgYW5kIHdoaWNoIGNhbiBoZWxw
-IHlvdSBpcwo+PiB0aGUgaW50ZXJydXB0cyByYXRlIG9uIHRoZSBDUFUuIEl0IGlzIHBvc3NpYmxl
-IHRvIGNvbXB1dGUgaXQgYW5kIHRoYXQKPj4gd2lsbCBnaXZlIGFuIGFjY3VyYXRlIGluZm9ybWF0
-aW9uIGZvciB0aGUgcG9sbGluZyBkZWNpc2lvbi4KPj4KPj4KPiBBcyB0Z2x4IHNhaWQsIHRhbGsg
-dG8gZWFjaCBvdGhlciAvIHdvcmsgdG9nZXRoZXIgdG8gbWFrZSBpdCB1c2FibGUgZm9yCj4gYWxs
-IHVzZSBjYXNlcy4KPiBjb3VsZCB5b3Ugc2hhcmUgaG93IHRvIGVuYWJsZSBpdCB0byBnZXQgdGhl
-IGludGVycnVwdHMgcmF0ZSBvbiB0aGUgQ1BVPwo+IEkgY2FuIHRyeSBpdAo+IGluIGNsb3VkIHNj
-ZW5hcmlvLiBvZiBjb3Vyc2UsIEknZCBsaWtlIHRvIHdvcmsgd2l0aCB5b3UgdG8gaW1wcm92ZSBp
-dC4KClN1cmUsIEkgd2lsbCBiZSBnbGFkIGlmIHdlIGNhbiBjb2xsYWJvcmF0ZS4gSSBoYXZlIHNv
-bWUgZHJhZnQgY29kZSBidXQKYmVmb3JlIHNoYXJpbmcgaXQgSSB3b3VsZCBsaWtlIHdlIGRlZmlu
-ZSB3aGF0IGlzIHRoZSByYXRlIGFuZCB3aGF0IGtpbmQKb2YgaW5mb3JtYXRpb24gd2UgZXhwZWN0
-IHRvIGluZmVyIGZyb20gaXQuIEZyb20gbXkgcG9pbnQgb2YgdmlldyBpdCBpcyBhCnZhbHVlIGlu
-ZGljYXRpbmcgdGhlIGludGVycnVwdCBwZXJpb2QgcGVyIENQVSwgYSBzaG9ydCB2YWx1ZSBpbmRp
-Y2F0ZXMgYQpoaWdoIG51bWJlciBvZiBpbnRlcnJ1cHRzIG9uIHRoZSBDUFUuCgpUaGlzIHZhbHVl
-IG11c3QgZGVjYXkgd2l0aCB0aGUgdGltZSwgdGhlIHF1ZXN0aW9uIGhlcmUgaXMgd2hhdCBkZWNh
-eQpmdW5jdGlvbiB3ZSBhcHBseSB0byB0aGUgcmF0ZSBmcm9tIHRoZSBsYXN0IHRpbWVzdGFtcCA/
-CgoKCgotLSAKIDxodHRwOi8vd3d3LmxpbmFyby5vcmcvPiBMaW5hcm8ub3JnIOKUgiBPcGVuIHNv
-dXJjZSBzb2Z0d2FyZSBmb3IgQVJNIFNvQ3MKCkZvbGxvdyBMaW5hcm86ICA8aHR0cDovL3d3dy5m
-YWNlYm9vay5jb20vcGFnZXMvTGluYXJvPiBGYWNlYm9vayB8CjxodHRwOi8vdHdpdHRlci5jb20v
-IyEvbGluYXJvb3JnPiBUd2l0dGVyIHwKPGh0dHA6Ly93d3cubGluYXJvLm9yZy9saW5hcm8tYmxv
-Zy8+IEJsb2cKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Tue, Nov 21, 2017 at 10:46 AM, Jorgen Hansen <jhansen@vmware.com> wrote:
+> When using the host personality, VMCI will grab a mutex for any
+> queue pair access. In the detach callback for the vmci vsock
+> transport, we call vsock_stream_has_data while holding a spinlock,
+> and vsock_stream_has_data will access a queue pair.
+>
+> To avoid this, we can simply omit calling vsock_stream_has_data
+> for host side queue pairs, since the QPs are empty per default
+> when the guest has detached.
+>
+> This bug affects users of VMware Workstation using kernel version
+> 4.4 and later.
+>
+> Testing: Ran vsock tests between guest and host, and verified that
+> with this change, the host isn't calling vsock_stream_has_data
+> during detach. Ran mixedTest between guest and host using both
+> guest and host as server.
+>
+> Reviewed-by: Adit Ranadive <aditr@vmware.com>
+> Reviewed-by: Aditya Sarwade <asarwade@vmware.com>
+> Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
+> ---
+>  net/vmw_vsock/vmci_transport.c |   10 +++++++---
+>  1 files changed, 7 insertions(+), 3 deletions(-)
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
