@@ -1,14 +1,12 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] VSOCK: Don't call vsock_stream_has_data in atomic context
-Date: Fri, 24 Nov 2017 01:29:23 +0900 (KST)
-Message-ID: <20171124.012923.129711433515883419.davem__25391.1664979116$1511454593$gmane$org@davemloft.net>
-References: <y>
-	<1511261184-45913-1-git-send-email-jhansen@vmware.com>
+From: "icete@insticc.info" <icete@insticc.info>
+Subject: CFP DCNET 2018 - 9th Int.l Conf. on Data Communication Networking
+	(Porto/Portugal)
+Date: 23 Nov 2017 18:03:57 +0000
+Message-ID: <20171123180357.45290.8D5E53AEBFF51C3C@insticc.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1511261184-45913-1-git-send-email-jhansen@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,32 +16,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jhansen@vmware.com
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jorgen Hansen <jhansen@vmware.com>
-Date: Tue, 21 Nov 2017 02:46:24 -0800
-
-> When using the host personality, VMCI will grab a mutex for any
-> queue pair access. In the detach callback for the vmci vsock
-> transport, we call vsock_stream_has_data while holding a spinlock,
-> and vsock_stream_has_data will access a queue pair.
-> 
-> To avoid this, we can simply omit calling vsock_stream_has_data
-> for host side queue pairs, since the QPs are empty per default
-> when the guest has detached.
-> 
-> This bug affects users of VMware Workstation using kernel version
-> 4.4 and later.
-> 
-> Testing: Ran vsock tests between guest and host, and verified that
-> with this change, the host isn't calling vsock_stream_has_data
-> during detach. Ran mixedTest between guest and host using both
-> guest and host as server.
-> 
-> Reviewed-by: Adit Ranadive <aditr@vmware.com>
-> Reviewed-by: Aditya Sarwade <asarwade@vmware.com>
-> Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
-
-This doesn't apply cleanly to the current 'net' GIT tree.
+U1VCTUlTU0lPTiBERUFETElORSAKCjl0aCBJbnRlcm5hdGlvbmFsIENvbmZlcmVuY2Ugb24gRGF0
+YSBDb21tdW5pY2F0aW9uIE5ldHdvcmtpbmcKClN1Ym1pc3Npb24gRGVhZGxpbmU6IE1hcmNoIDEz
+LCAyMDE4CgpodHRwOi8vd3d3LmRjbmV0LmljZXRlLm9yZy8KCkp1bHkgMjYgLSAyOCwgMjAxOApQ
+b3J0bywgUG9ydHVnYWwuCgogCgoKIApBIHNob3J0IGxpc3Qgb2YgcHJlc2VudGVkIHBhcGVycyB3
+aWxsIGJlIHNlbGVjdGVkIHNvIHRoYXQgcmV2aXNlZCBhbmQgZXh0ZW5kZWQgdmVyc2lvbnMgb2Yg
+dGhlc2UgcGFwZXJzIHdpbGwgYmUgcHVibGlzaGVkIGJ5IFNwcmluZ2VyLgogCkFsbCBwYXBlcnMg
+cHJlc2VudGVkIGF0IHRoZSBjb25ncmVzcyB2ZW51ZSB3aWxsIGFsc28gYmUgYXZhaWxhYmxlIGF0
+IHRoZSBTQ0lURVBSRVNTIERpZ2l0YWwgTGlicmFyeSAoaHR0cDovL3d3dy5zY2l0ZXByZXNzLm9y
+Zy9EaWdpdGFsTGlicmFyeS8pLgogIApTaG91bGQgeW91IGhhdmUgYW55IHF1ZXN0aW9uIHBsZWFz
+ZSBkb27igJl0IGhlc2l0YXRlIGNvbnRhY3RpbmcgbWUuCiAKCktpbmQgcmVnYXJkcywKRENORVQg
+U2VjcmV0YXJpYXQKCkFkZHJlc3M6IEF2LiBELiBNYW51ZWwgSSwgMjdBLCAywrogZXNxLgoyOTEw
+LTU5NSBTZXR1YmFsLCBQb3J0dWdhbApUZWw6ICszNTEgMjY1IDUyMCAxODUKRmF4OiArMzUxIDI2
+NSA1MjAgMTg2CldlYjogaHR0cDovL3d3dy5kY25ldC5pY2V0ZS5vcmcvCmUtbWFpbDogZGNuZXQu
+c2VjcmV0YXJpYXRAaW5zdGljYy5vcmcKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
