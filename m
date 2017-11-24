@@ -1,14 +1,11 @@
-From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH 08/13] drm/virtio: use simpler
-	remove_conflicting_pci_framebuffers()
-Date: Fri, 24 Nov 2017 18:53:33 +0100
-Message-ID: <914a949fabaae1bef56a5248c0e73a38911153f9.1511544782.git.mirq-linux@rere.qmqm.pl>
-References: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: [PATCH] uapi: add SPDX identifier to vm_sockets_diag.h
+Date: Fri, 24 Nov 2017 12:08:40 -0800
+Message-ID: <20171124200840.5551-1-sthemmin__49432.1000566289$1511554158$gmane$org@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +15,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, virtualization@lists.linux-foundation.org
+To: stefanha@redhat.com
+Cc: netdev@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2lnbmVkLW9mZi1ieTogTWljaGHFgiBNaXJvc8WCYXcgPG1pcnEtbGludXhAcmVyZS5xbXFtLnBs
-PgotLS0KIGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kcm1fYnVzLmMgfCAyNCArKyst
-LS0tLS0tLS0tLS0tLS0tLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAzIGluc2VydGlvbnMoKyksIDIx
-IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdw
-dV9kcm1fYnVzLmMgYi9kcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZHJtX2J1cy5jCmlu
-ZGV4IDdkZjhkMGM5MDI2YS4uMTE1ZWQ1NDZjYTRlIDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9k
-cm0vdmlydGlvL3ZpcnRncHVfZHJtX2J1cy5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8v
-dmlydGdwdV9kcm1fYnVzLmMKQEAgLTI4LDI2ICsyOCw2IEBACiAKICNpbmNsdWRlICJ2aXJ0Z3B1
-X2Rydi5oIgogCi1zdGF0aWMgdm9pZCB2aXJ0aW9fcGNpX2tpY2tfb3V0X2Zpcm13YXJlX2ZiKHN0
-cnVjdCBwY2lfZGV2ICpwY2lfZGV2KQotewotCXN0cnVjdCBhcGVydHVyZXNfc3RydWN0ICphcDsK
-LQlib29sIHByaW1hcnk7Ci0KLQlhcCA9IGFsbG9jX2FwZXJ0dXJlcygxKTsKLQlpZiAoIWFwKQot
-CQlyZXR1cm47Ci0KLQlhcC0+cmFuZ2VzWzBdLmJhc2UgPSBwY2lfcmVzb3VyY2Vfc3RhcnQocGNp
-X2RldiwgMCk7Ci0JYXAtPnJhbmdlc1swXS5zaXplID0gcGNpX3Jlc291cmNlX2xlbihwY2lfZGV2
-LCAwKTsKLQotCXByaW1hcnkgPSBwY2lfZGV2LT5yZXNvdXJjZVtQQ0lfUk9NX1JFU09VUkNFXS5m
-bGFncwotCQkmIElPUkVTT1VSQ0VfUk9NX1NIQURPVzsKLQotCWRybV9mYl9oZWxwZXJfcmVtb3Zl
-X2NvbmZsaWN0aW5nX2ZyYW1lYnVmZmVycyhhcCwgInZpcnRpb2RybWZiIiwgcHJpbWFyeSk7Ci0K
-LQlrZnJlZShhcCk7Ci19Ci0KIGludCBkcm1fdmlydGlvX2luaXQoc3RydWN0IGRybV9kcml2ZXIg
-KmRyaXZlciwgc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCiB7CiAJc3RydWN0IGRybV9kZXZp
-Y2UgKmRldjsKQEAgLTY5LDcgKzQ5LDkgQEAgaW50IGRybV92aXJ0aW9faW5pdChzdHJ1Y3QgZHJt
-X2RyaXZlciAqZHJpdmVyLCBzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKIAkJCSBwbmFtZSk7
-CiAJCWRldi0+cGRldiA9IHBkZXY7CiAJCWlmICh2Z2EpCi0JCQl2aXJ0aW9fcGNpX2tpY2tfb3V0
-X2Zpcm13YXJlX2ZiKHBkZXYpOworCQkJZHJtX2ZiX2hlbHBlcl9yZW1vdmVfY29uZmxpY3Rpbmdf
-cGNpX2ZyYW1lYnVmZmVycyhwZGV2LAorCQkJCQkJCQkJICAwLAorCQkJCQkJCQkJICAidmlydGlv
-ZHJtZmIiKTsKIAogCQlzbnByaW50Zih1bmlxdWUsIHNpemVvZih1bmlxdWUpLCAicGNpOiVzIiwg
-cG5hbWUpOwogCQlyZXQgPSBkcm1fZGV2X3NldF91bmlxdWUoZGV2LCB1bmlxdWUpOwotLSAKMi4x
-MS4wCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+New file seems to have missed the SPDX license scan and update.
+
+Signed-off-by: Stephen Hemminger <sthemmin@microsoft.com>
+---
+ include/uapi/linux/vm_sockets_diag.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/uapi/linux/vm_sockets_diag.h b/include/uapi/linux/vm_sockets_diag.h
+index 14cd7dc5a187..0b4dd54f3d1e 100644
+--- a/include/uapi/linux/vm_sockets_diag.h
++++ b/include/uapi/linux/vm_sockets_diag.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+ /* AF_VSOCK sock_diag(7) interface for querying open sockets */
+ 
+ #ifndef _UAPI__VM_SOCKETS_DIAG_H__
+-- 
+2.11.0
