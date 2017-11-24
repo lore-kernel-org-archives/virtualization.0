@@ -1,11 +1,14 @@
-From: Jorgen Hansen <jhansen@vmware.com>
-Subject: [PATCH v2] VSOCK: Don't call vsock_stream_has_data in atomic context
-Date: Fri, 24 Nov 2017 06:25:28 -0800
-Message-ID: <1511533528-5253-1-git-send-email-jhansen__42618.2873001837$1511533549$gmane$org@vmware.com>
+From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Subject: [PATCH 05/13] drm/cirrus: use simpler
+	remove_conflicting_pci_framebuffers()
+Date: Fri, 24 Nov 2017 18:53:32 +0100
+Message-ID: <04cbfa76a891823ad957e4018124856eb02d38cf.1511544782.git.mirq-linux@rere.qmqm.pl>
+References: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,64 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, davem@davemloft.net, Jorgen Hansen <jhansen@vmware.com>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When using the host personality, VMCI will grab a mutex for any
-queue pair access. In the detach callback for the vmci vsock
-transport, we call vsock_stream_has_data while holding a spinlock,
-and vsock_stream_has_data will access a queue pair.
-
-To avoid this, we can simply omit calling vsock_stream_has_data
-for host side queue pairs, since the QPs are empty per default
-when the guest has detached.
-
-This bug affects users of VMware Workstation using kernel version
-4.4 and later.
-
-Testing: Ran vsock tests between guest and host, and verified that
-with this change, the host isn't calling vsock_stream_has_data
-during detach. Ran mixedTest between guest and host using both
-guest and host as server.
-
-v2: Rebased on top of recent change to sk_state values
-Reviewed-by: Adit Ranadive <aditr@vmware.com>
-Reviewed-by: Aditya Sarwade <asarwade@vmware.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
----
- net/vmw_vsock/vmci_transport.c |   10 +++++++---
- 1 files changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 391775e..56573dc 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -797,9 +797,13 @@ static void vmci_transport_handle_detach(struct sock *sk)
- 
- 		/* We should not be sending anymore since the peer won't be
- 		 * there to receive, but we can still receive if there is data
--		 * left in our consume queue.
-+		 * left in our consume queue. If the local endpoint is a host,
-+		 * we can't call vsock_stream_has_data, since that may block,
-+		 * but a host endpoint can't read data once the VM has
-+		 * detached, so there is no available data in that case.
- 		 */
--		if (vsock_stream_has_data(vsk) <= 0) {
-+		if (vsk->local_addr.svm_cid == VMADDR_CID_HOST ||
-+		    vsock_stream_has_data(vsk) <= 0) {
- 			sk->sk_state = TCP_CLOSE;
- 
- 			if (sk->sk_state == TCP_SYN_SENT) {
-@@ -2144,7 +2148,7 @@ static void __exit vmci_transport_exit(void)
- 
- MODULE_AUTHOR("VMware, Inc.");
- MODULE_DESCRIPTION("VMCI transport for Virtual Sockets");
--MODULE_VERSION("1.0.4.0-k");
-+MODULE_VERSION("1.0.5.0-k");
- MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("vmware_vsock");
- MODULE_ALIAS_NETPROTO(PF_VSOCK);
--- 
-1.7.0
+U2lnbmVkLW9mZi1ieTogTWljaGHFgiBNaXJvc8WCYXcgPG1pcnEtbGludXhAcmVyZS5xbXFtLnBs
+PgotLS0KIGRyaXZlcnMvZ3B1L2RybS9jaXJydXMvY2lycnVzX2Rydi5jIHwgMjMgKy0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMjIgZGVsZXRp
+b25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2NpcnJ1cy9jaXJydXNfZHJ2LmMg
+Yi9kcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1c19kcnYuYwppbmRleCA2OWM0ZTM1MmRkNzgu
+Ljg1ZWQ4NjU3Yzg2MiAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL2NpcnJ1cy9jaXJydXNf
+ZHJ2LmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL2NpcnJ1cy9jaXJydXNfZHJ2LmMKQEAgLTQyLDMz
+ICs0MiwxMiBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IHBjaV9kZXZpY2VfaWQgcGNpaWRsaXN0W10g
+PSB7CiB9OwogCiAKLXN0YXRpYyBpbnQgY2lycnVzX2tpY2tfb3V0X2Zpcm13YXJlX2ZiKHN0cnVj
+dCBwY2lfZGV2ICpwZGV2KQotewotCXN0cnVjdCBhcGVydHVyZXNfc3RydWN0ICphcDsKLQlib29s
+IHByaW1hcnkgPSBmYWxzZTsKLQotCWFwID0gYWxsb2NfYXBlcnR1cmVzKDEpOwotCWlmICghYXAp
+Ci0JCXJldHVybiAtRU5PTUVNOwotCi0JYXAtPnJhbmdlc1swXS5iYXNlID0gcGNpX3Jlc291cmNl
+X3N0YXJ0KHBkZXYsIDApOwotCWFwLT5yYW5nZXNbMF0uc2l6ZSA9IHBjaV9yZXNvdXJjZV9sZW4o
+cGRldiwgMCk7Ci0KLSNpZmRlZiBDT05GSUdfWDg2Ci0JcHJpbWFyeSA9IHBkZXYtPnJlc291cmNl
+W1BDSV9ST01fUkVTT1VSQ0VdLmZsYWdzICYgSU9SRVNPVVJDRV9ST01fU0hBRE9XOwotI2VuZGlm
+Ci0JZHJtX2ZiX2hlbHBlcl9yZW1vdmVfY29uZmxpY3RpbmdfZnJhbWVidWZmZXJzKGFwLCAiY2ly
+cnVzZHJtZmIiLCBwcmltYXJ5KTsKLQlrZnJlZShhcCk7Ci0KLQlyZXR1cm4gMDsKLX0KLQogc3Rh
+dGljIGludCBjaXJydXNfcGNpX3Byb2JlKHN0cnVjdCBwY2lfZGV2ICpwZGV2LAogCQkJICAgIGNv
+bnN0IHN0cnVjdCBwY2lfZGV2aWNlX2lkICplbnQpCiB7CiAJaW50IHJldDsKIAotCXJldCA9IGNp
+cnJ1c19raWNrX291dF9maXJtd2FyZV9mYihwZGV2KTsKKwlyZXQgPSBkcm1fZmJfaGVscGVyX3Jl
+bW92ZV9jb25mbGljdGluZ19wY2lfZnJhbWVidWZmZXJzKHBkZXYsIDAsICJjaXJydXNkcm1mYiIp
+OwogCWlmIChyZXQpCiAJCXJldHVybiByZXQ7CiAKLS0gCjIuMTEuMAoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
