@@ -1,14 +1,11 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 00/13] remove_conflicting_framebuffers() cleanup
-Date: Mon, 27 Nov 2017 11:30:44 +0100
-Message-ID: <20171127103044.faakzch7ehlkc3or__16637.3564316475$1511778676$gmane$org@phenom.ffwll.local>
-References: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
+From: Jorgen Hansen <jhansen@vmware.com>
+Subject: [PATCH] VSOCK: Don't set sk_state to TCP_CLOSE before testing it
+Date: Mon, 27 Nov 2017 05:29:32 -0800
+Message-ID: <1511789372-12672-1-git-send-email-jhansen__29074.5939979844$1511789386$gmane$org@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,59 +15,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, David Airlie <airlied@linux.ie>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Alex Deucher <alexander.deucher@amd.com>, Chen-Yu Tsai <wens@csie.org>, Thierry Reding <thierry.reding@gmail.com>, amd-gfx@lists.freedesktop.org, linux-tegra@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Jonathan Hunter <jonathanh@nvidia.com>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, Jorgen Hansen <jhansen@vmware.com>, davem@davemloft.net, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBOb3YgMjQsIDIwMTcgYXQgMDY6NTM6MjVQTSArMDEwMCwgTWljaGHFgiBNaXJvc8WC
-YXcgd3JvdGU6Cj4gVGhpcyBzZXJpZXMgY2xlYW5zIHVwIGR1cGxpY2F0ZWQgY29kZSBmb3IgcmVw
-bGFjaW5nIGZpcm13YXJlIEZCCj4gZHJpdmVyIHdpdGggcHJvcGVyIERSSSBkcml2ZXIgYW5kIGFk
-ZHMgaGFuZG92ZXIgc3VwcG9ydCB0bwo+IFRlZ3JhIGRyaXZlci4KPiAKPiBUaGUgbGFzdCBwYXRj
-aCBpcyBoZXJlIGJlY2F1c2UgaXQgdXNlcyBuZXcgc2VtYW50aWNzIG9mCj4gcmVtb3ZlX2NvbmZs
-aWN0aW5nX2ZyYW1lYnVmZmVycygpIGZyb20gdGhpcyBzZXJpZXMuIFRoaXMKPiBjYW4gYmUgY29u
-c2lkZXJlZCBpbmRlcGVuZGVudGx5LCB0aG91Z2guCgpFeGNlcHQgZm9yIHRoYXQgcGF0Y2hlcyBJ
-J3ZlIGNvbW1lbnRlZCBvbjoKCkFja2VkLWJ5OiBEYW5pZWwgVmV0dGVyIDxkYW5pZWwudmV0dGVy
-QGZmd2xsLmNoPgoKU2luY2UgdGhpcyBpcyBmb3IgdGVncmEgYW5kIFRoaWVycnkgaGFzIGRybS1t
-aXNjIGNvbW1pdCByaWdodHMsIGl0J3MKcHJvYmFibHkgc2ltcGxlc3Qgd2hlbiBUaGllcnJ5IHB1
-c2hlcyB0aGlzIGFsbCB0byBkcm0tbWlzYyBvbmNlIGRyaXZlcgptYWludGFpbmVycyBoYWQgYSBj
-aGFuY2UgdG8gbG9vayBhdCBpdC4gQWxzbyBuZWVkcyBhbmQgYWNrIGZyb20gQmFydCBmb3IKdGhl
-IGZiZGV2IHNpZGVzLgotRGFuaWVsCgo+IAo+IC0tLQo+IAo+IE1pY2hhxYIgTWlyb3PFgmF3ICgx
-Myk6Cj4gICBmYmRldjogc2hvdyBmYmRldiBudW1iZXIgZm9yIGRlYnVnZ2luZwo+ICAgZmJkZXY6
-IGFkZCByZW1vdmVfY29uZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpCj4gICBkcm0vYW1kZ3B1
-OiB1c2Ugc2ltcGxlciByZW1vdmVfY29uZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpCj4gICBk
-cm0vYm9jaHM6IHVzZSBzaW1wbGVyIHJlbW92ZV9jb25mbGljdGluZ19wY2lfZnJhbWVidWZmZXJz
-KCkKPiAgIGRybS9jaXJydXM6IHVzZSBzaW1wbGVyIHJlbW92ZV9jb25mbGljdGluZ19wY2lfZnJh
-bWVidWZmZXJzKCkKPiAgIGRybS9tZ2FnMjAwOiB1c2Ugc2ltcGxlciByZW1vdmVfY29uZmxpY3Rp
-bmdfcGNpX2ZyYW1lYnVmZmVycygpCj4gICBkcm0vcmFkZW9uOiB1c2Ugc2ltcGxlciByZW1vdmVf
-Y29uZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpCj4gICBkcm0vdmlydGlvOiB1c2Ugc2ltcGxl
-ciByZW1vdmVfY29uZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpCj4gICBzdGFnaW5nOiBzbTc1
-MGZiOiB1c2Ugc2ltcGxlciByZW1vdmVfY29uZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpCj4g
-ICBmYmRldjogYWxsb3cgYXBlcnR1cmVzID09IE5VTEwgaW4gcmVtb3ZlX2NvbmZsaWN0aW5nX2Zy
-YW1lYnVmZmVycygpCj4gICBkcm0vdmM0OiB1c2Ugc2ltcGxlciByZW1vdmVfY29uZmxpY3Rpbmdf
-ZnJhbWVidWZmZXJzKE5VTEwpCj4gICBkcm0vc3VuNGk6IHVzZSBzaW1wbGVyIHJlbW92ZV9jb25m
-bGljdGluZ19mcmFtZWJ1ZmZlcnMoTlVMTCkKPiAgIGRybS90ZWdyYToga2ljayBvdXQgc2ltcGxl
-ZmIKPiAKPiAgZHJpdmVycy9ncHUvZHJtL2FtZC9hbWRncHUvYW1kZ3B1X2Rydi5jICB8IDIzICst
-LS0tLS0tLS0tLS0tLS0tLQo+ICBkcml2ZXJzL2dwdS9kcm0vYm9jaHMvYm9jaHNfZHJ2LmMgICAg
-ICAgIHwgMTggKy0tLS0tLS0tLS0tLS0KPiAgZHJpdmVycy9ncHUvZHJtL2NpcnJ1cy9jaXJydXNf
-ZHJ2LmMgICAgICB8IDIzICstLS0tLS0tLS0tLS0tLS0tLQo+ICBkcml2ZXJzL2dwdS9kcm0vbWdh
-ZzIwMC9tZ2FnMjAwX2Rydi5jICAgIHwgMjEgKy0tLS0tLS0tLS0tLS0tLS0KPiAgZHJpdmVycy9n
-cHUvZHJtL21nYWcyMDAvbWdhZzIwMF9tYWluLmMgICB8ICA5IC0tLS0tLS0KPiAgZHJpdmVycy9n
-cHUvZHJtL3JhZGVvbi9yYWRlb25fZHJ2LmMgICAgICB8IDIzICstLS0tLS0tLS0tLS0tLS0tLQo+
-ICBkcml2ZXJzL2dwdS9kcm0vc3VuNGkvc3VuNGlfZHJ2LmMgICAgICAgIHwgMTggKy0tLS0tLS0t
-LS0tLS0KPiAgZHJpdmVycy9ncHUvZHJtL3RlZ3JhL2RybS5jICAgICAgICAgICAgICB8ICA0ICsr
-KysKPiAgZHJpdmVycy9ncHUvZHJtL3ZjNC92YzRfZHJ2LmMgICAgICAgICAgICB8IDIwICstLS0t
-LS0tLS0tLS0tLS0KPiAgZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2RybV9idXMuYyB8
-IDI0ICsrKy0tLS0tLS0tLS0tLS0tLS0KPiAgZHJpdmVycy9zdGFnaW5nL3NtNzUwZmIvc203NTAu
-YyAgICAgICAgICB8IDIyICstLS0tLS0tLS0tLS0tLS0tLQo+ICBkcml2ZXJzL3ZpZGVvL2ZiZGV2
-L2NvcmUvZmJtZW0uYyAgICAgICAgIHwgNDAgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-LS0KPiAgaW5jbHVkZS9kcm0vZHJtX2ZiX2hlbHBlci5oICAgICAgICAgICAgICB8IDEyICsrKysr
-KysrKysKPiAgaW5jbHVkZS9saW51eC9mYi5oICAgICAgICAgICAgICAgICAgICAgICB8ICAyICsr
-Cj4gIDE0IGZpbGVzIGNoYW5nZWQsIDY3IGluc2VydGlvbnMoKyksIDE5MiBkZWxldGlvbnMoLSkK
-PiAKPiAtLSAKPiAyLjExLjAKPiAKPiBfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwo+IGRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKPiBkcmktZGV2ZWxAbGlzdHMu
-ZnJlZWRlc2t0b3Aub3JnCj4gaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9s
-aXN0aW5mby9kcmktZGV2ZWwKCi0tIApEYW5pZWwgVmV0dGVyClNvZnR3YXJlIEVuZ2luZWVyLCBJ
-bnRlbCBDb3Jwb3JhdGlvbgpodHRwOi8vYmxvZy5mZndsbC5jaApfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+A recent commit (3b4477d2dcf2) converted the sk_state to use
+TCP constants. In that change, vmci_transport_handle_detach
+was changed such that sk->sk_state was set to TCP_CLOSE before
+we test whether it is TCP_SYN_SENT. This change moves the
+sk_state change back to the original locations in that function.
+
+Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
+---
+ net/vmw_vsock/vmci_transport.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 56573dc..a7a73ff 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -804,8 +804,6 @@ static void vmci_transport_handle_detach(struct sock *sk)
+ 		 */
+ 		if (vsk->local_addr.svm_cid == VMADDR_CID_HOST ||
+ 		    vsock_stream_has_data(vsk) <= 0) {
+-			sk->sk_state = TCP_CLOSE;
+-
+ 			if (sk->sk_state == TCP_SYN_SENT) {
+ 				/* The peer may detach from a queue pair while
+ 				 * we are still in the connecting state, i.e.,
+@@ -815,10 +813,12 @@ static void vmci_transport_handle_detach(struct sock *sk)
+ 				 * event like a reset.
+ 				 */
+ 
++				sk->sk_state = TCP_CLOSE;
+ 				sk->sk_err = ECONNRESET;
+ 				sk->sk_error_report(sk);
+ 				return;
+ 			}
++			sk->sk_state = TCP_CLOSE;
+ 		}
+ 		sk->sk_state_change(sk);
+ 	}
+-- 
+2.6.2
