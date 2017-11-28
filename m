@@ -1,16 +1,17 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+From: Daniel Vetter <daniel@ffwll.ch>
 Subject: Re: [PATCH 02/13] fbdev: add remove_conflicting_pci_framebuffers()
-Date: Mon, 27 Nov 2017 20:52:19 +0000
-Message-ID: <20171127205219.GA3537__37313.7507508092$1511815967$gmane$org@sudip-laptop>
+Date: Tue, 28 Nov 2017 11:22:17 +0100
+Message-ID: <20171128102217.b7ynyqarwzkdvmdq__44300.6265712485$1511864561$gmane$org@phenom.ffwll.local>
 References: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
 	<1738dbed0239bffc886f126fd3091daa39cd14c9.1511544782.git.mirq-linux@rere.qmqm.pl>
 	<20171127102758.y7c6yzyey6wfntxh@phenom.ffwll.local>
+	<20171127205219.GA3537@sudip-laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20171127102758.y7c6yzyey6wfntxh@phenom.ffwll.local>
+In-Reply-To: <20171127205219.GA3537@sudip-laptop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,27 +21,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>, David Airlie <airlied@linux.ie>, amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org, Alex Deucher <alexander.deucher@amd.com>, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Greg KH <gregkh@linuxfoundation.org>
+Cc: Teddy Wang <teddy.wang@siliconmotion.com>, David Airlie <airlied@linux.ie>, amd-gfx@lists.freedesktop.org, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, dri-devel@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>, virtualization@lists.linux-foundation.org, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBOb3YgMjcsIDIwMTcgYXQgMTE6Mjc6NTlBTSArMDEwMCwgRGFuaWVsIFZldHRlciB3
-cm90ZToKPiBPbiBGcmksIE5vdiAyNCwgMjAxNyBhdCAwNjo1MzozMVBNICswMTAwLCBNaWNoYcWC
-IE1pcm9zxYJhdyB3cm90ZToKPiA+IEFsbW9zdCBhbGwgZHJpdmVycyB1c2luZyByZW1vdmVfY29u
-ZmxpY3RpbmdfZnJhbWVidWZmZXJzKCkgd3JhcCBpdCB3aXRoCj4gPiB0aGUgc2FtZSBjb2RlLiBF
-eHRyYWN0IGNvbW1vbiBwYXJ0IGZyb20gUENJIGRyaXZlcnMgaW50byBzZXBhcmF0ZQo+ID4gcmVt
-b3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1ZmZlcnMoKS4KPiA+IAo+ID4gU2lnbmVkLW9mZi1i
-eTogTWljaGHFgiBNaXJvc8WCYXcgPG1pcnEtbGludXhAcmVyZS5xbXFtLnBsPgo+IAo+IFNpbmNl
-IHRoZSBvbmx5IGRyaXZlciB0aGF0IHNlZW1zIHRvIHVzZSB0aGlzIGlzIHRoZSBzdGFnaW5nIG9u
-ZSwgd2hpY2ggaW1vCj4gaXMgYSBET0EgcHJvamVjdCwgbm90IHN1cmUgaXQncyB3b3J0aCB0byBi
-b3RoZXIgd2l0aCB0aGlzIGhlcmUuCgphZmFpaywgdGhpcyBkZXZpY2UgaXMgdXNlZCBpbiBwcm9k
-dWN0aW9uIGJ5IGZldyBtYW51ZmFjdHVyZXJzIGFuZCBpdCBpcwp1c2VmdWxsIGZvciB0aGVtIHRv
-IGhhdmUgaXQgaW4gdGhlIHRyZWUgYW5kIHRoZSBvbmx5IHJlYXNvbiBpdCBpcyBzdGlsbAppbiBz
-dGFnaW5nIGlzIGJlY2F1c2UgVG9taSBhbm5vdW5jZWQgaGUgd2lsbCBub3QgdGFrZSBhbnkgbmV3
-IGRyaXZlcnMgaW4KZmJkZXYuIEFuZCwgc28gSSBoYXZlIG5vdCB0YWtlbiB0aGUgaW5pdGlhdGl2
-ZSB0byBwcm9wZXJseSBtb3ZlIGl0IG91dApvZiBzdGFnaW5nLiBJIHRoaW5rIEJhcnRsb21pZWog
-d2lsbCBhbHNvIG5vdCBhY2NlcHQgbmV3IGRyaXZlcnMgaW4gZmJkZXYuCgoKLS0KUmVnYXJkcwpT
-dWRpcCAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+T24gTW9uLCBOb3YgMjcsIDIwMTcgYXQgMDg6NTI6MTlQTSArMDAwMCwgU3VkaXAgTXVraGVyamVl
+IHdyb3RlOgo+IE9uIE1vbiwgTm92IDI3LCAyMDE3IGF0IDExOjI3OjU5QU0gKzAxMDAsIERhbmll
+bCBWZXR0ZXIgd3JvdGU6Cj4gPiBPbiBGcmksIE5vdiAyNCwgMjAxNyBhdCAwNjo1MzozMVBNICsw
+MTAwLCBNaWNoYcWCIE1pcm9zxYJhdyB3cm90ZToKPiA+ID4gQWxtb3N0IGFsbCBkcml2ZXJzIHVz
+aW5nIHJlbW92ZV9jb25mbGljdGluZ19mcmFtZWJ1ZmZlcnMoKSB3cmFwIGl0IHdpdGgKPiA+ID4g
+dGhlIHNhbWUgY29kZS4gRXh0cmFjdCBjb21tb24gcGFydCBmcm9tIFBDSSBkcml2ZXJzIGludG8g
+c2VwYXJhdGUKPiA+ID4gcmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1ZmZlcnMoKS4KPiA+
+ID4gCj4gPiA+IFNpZ25lZC1vZmYtYnk6IE1pY2hhxYIgTWlyb3PFgmF3IDxtaXJxLWxpbnV4QHJl
+cmUucW1xbS5wbD4KPiA+IAo+ID4gU2luY2UgdGhlIG9ubHkgZHJpdmVyIHRoYXQgc2VlbXMgdG8g
+dXNlIHRoaXMgaXMgdGhlIHN0YWdpbmcgb25lLCB3aGljaCBpbW8KPiA+IGlzIGEgRE9BIHByb2pl
+Y3QsIG5vdCBzdXJlIGl0J3Mgd29ydGggdG8gYm90aGVyIHdpdGggdGhpcyBoZXJlLgo+IAo+IGFm
+YWlrLCB0aGlzIGRldmljZSBpcyB1c2VkIGluIHByb2R1Y3Rpb24gYnkgZmV3IG1hbnVmYWN0dXJl
+cnMgYW5kIGl0IGlzCj4gdXNlZnVsbCBmb3IgdGhlbSB0byBoYXZlIGl0IGluIHRoZSB0cmVlIGFu
+ZCB0aGUgb25seSByZWFzb24gaXQgaXMgc3RpbGwKPiBpbiBzdGFnaW5nIGlzIGJlY2F1c2UgVG9t
+aSBhbm5vdW5jZWQgaGUgd2lsbCBub3QgdGFrZSBhbnkgbmV3IGRyaXZlcnMgaW4KPiBmYmRldi4g
+QW5kLCBzbyBJIGhhdmUgbm90IHRha2VuIHRoZSBpbml0aWF0aXZlIHRvIHByb3Blcmx5IG1vdmUg
+aXQgb3V0Cj4gb2Ygc3RhZ2luZy4gSSB0aGluayBCYXJ0bG9taWVqIHdpbGwgYWxzbyBub3QgYWNj
+ZXB0IG5ldyBkcml2ZXJzIGluIGZiZGV2LgoKSW1vLCBpZiBubyBvbmUgY2FyZXMgYWJvdXQgcG9y
+dGluZyBpdCB0byBrbXMgKHdoaWNoIHdpbGwgZ2l2ZSB5b3UgYW4gZmJkZXYKZHJpdmVyIGZvciBm
+cmVlKSwgdGhlbiB3ZSBzaG91bGQgdGhyb3cgaXQgb3V0LiBBdCBsZWFzdCBJIHRob3VnaHQgc3Rh
+Z2luZwp3YXMgb25seSBmb3Igc3R1ZmYgdGhhdCBoYWQgYSByZWFzb25hYmxlIGNoYW5jZSB0byBn
+ZXQgbWFpbmxpbmVkLiBOb3QgYXMgYQpkdW1waW5nIGdyb3VuZCBmb3IgZHJpdmVycyB0aGF0IHBl
+b3BsZSB1c2UsIGJ1dCBkb24ndCBib3RoZXIgdG8gZ2V0IHJlYWR5CmZvciBtYWlubGluZS4KCkdy
+ZWc/Ci1EYW5pZWwKLS0gCkRhbmllbCBWZXR0ZXIKU29mdHdhcmUgRW5naW5lZXIsIEludGVsIENv
+cnBvcmF0aW9uCmh0dHA6Ly9ibG9nLmZmd2xsLmNoCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
