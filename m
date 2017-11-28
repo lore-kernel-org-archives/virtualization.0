@@ -1,12 +1,18 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH] VSOCK: Don't set sk_state to TCP_CLOSE before testing it
-Date: Tue, 28 Nov 2017 10:35:42 +0000
-Message-ID: <20171128103542.GC17146@stefanha-x1.localdomain>
-References: <1511789372-12672-1-git-send-email-jhansen@vmware.com>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 02/13] fbdev: add remove_conflicting_pci_framebuffers()
+Date: Tue, 28 Nov 2017 12:32:38 +0100
+Message-ID: <20171128113238.GA29456__33665.7044747428$1511868786$gmane$org@kroah.com>
+References: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
+	<1738dbed0239bffc886f126fd3091daa39cd14c9.1511544782.git.mirq-linux@rere.qmqm.pl>
+	<20171127102758.y7c6yzyey6wfntxh@phenom.ffwll.local>
+	<20171127205219.GA3537@sudip-laptop>
+	<20171128102217.b7ynyqarwzkdvmdq@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6242003544860366337=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1511789372-12672-1-git-send-email-jhansen@vmware.com>
+Content-Disposition: inline
+In-Reply-To: <20171128102217.b7ynyqarwzkdvmdq@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,62 +22,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jorgen Hansen <jhansen@vmware.com>
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: Teddy Wang <teddy.wang@siliconmotion.com>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>, David Airlie <airlied@linux.ie>, amd-gfx@lists.freedesktop.org, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, dri-devel@lists.freedesktop.org, Alex Deucher <alexander.deucher@amd.com>, virtualization@lists.linux-foundation.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============6242003544860366337==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+nBD6E3TurpgldQp"
-Content-Disposition: inline
-
-
---+nBD6E3TurpgldQp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Nov 27, 2017 at 05:29:32AM -0800, Jorgen Hansen wrote:
-> A recent commit (3b4477d2dcf2) converted the sk_state to use
-> TCP constants. In that change, vmci_transport_handle_detach
-> was changed such that sk->sk_state was set to TCP_CLOSE before
-> we test whether it is TCP_SYN_SENT. This change moves the
-> sk_state change back to the original locations in that function.
->=20
-> Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
-> ---
->  net/vmw_vsock/vmci_transport.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-
-Sorry, silly bug on my part!
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---+nBD6E3TurpgldQp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJaHTv+AAoJEJykq7OBq3PIEAwH/iKcvvOLxGvjT6mIJK+mqfiJ
-8+Ve54Wn2Ca3ogzBnf8lJvyv2pKpo08LK2BkGimS0A9WdY5IzB2Er3wFAbX+877p
-+vXS48lL4Qy+eJpOVFYwE8wDdrcmmpG432IOoZfwMQp84ovNyjm01kwGpDFgoj4v
-5/3qdNWsBkB3q9PO/HSoYgu3l1wWVuPDLyLoZSbyLmS162n8uDHSk9MMlbI3WpYj
-Xu9HG4fTYk0/UGRowvS3CajARDYApBPM45HahYQ6b2mO4sdpAJs09GI361HVr/ll
-4nw42YT0hDKfIPwtuYDVOp6oVnbYNzkTOxb+paZe/YoqoTdJodrNIMxsgruu7hc=
-=lqK1
------END PGP SIGNATURE-----
-
---+nBD6E3TurpgldQp--
-
---===============6242003544860366337==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6242003544860366337==--
+T24gVHVlLCBOb3YgMjgsIDIwMTcgYXQgMTE6MjI6MTdBTSArMDEwMCwgRGFuaWVsIFZldHRlciB3
+cm90ZToKPiBPbiBNb24sIE5vdiAyNywgMjAxNyBhdCAwODo1MjoxOVBNICswMDAwLCBTdWRpcCBN
+dWtoZXJqZWUgd3JvdGU6Cj4gPiBPbiBNb24sIE5vdiAyNywgMjAxNyBhdCAxMToyNzo1OUFNICsw
+MTAwLCBEYW5pZWwgVmV0dGVyIHdyb3RlOgo+ID4gPiBPbiBGcmksIE5vdiAyNCwgMjAxNyBhdCAw
+Njo1MzozMVBNICswMTAwLCBNaWNoYcWCIE1pcm9zxYJhdyB3cm90ZToKPiA+ID4gPiBBbG1vc3Qg
+YWxsIGRyaXZlcnMgdXNpbmcgcmVtb3ZlX2NvbmZsaWN0aW5nX2ZyYW1lYnVmZmVycygpIHdyYXAg
+aXQgd2l0aAo+ID4gPiA+IHRoZSBzYW1lIGNvZGUuIEV4dHJhY3QgY29tbW9uIHBhcnQgZnJvbSBQ
+Q0kgZHJpdmVycyBpbnRvIHNlcGFyYXRlCj4gPiA+ID4gcmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9m
+cmFtZWJ1ZmZlcnMoKS4KPiA+ID4gPiAKPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYcWCIE1p
+cm9zxYJhdyA8bWlycS1saW51eEByZXJlLnFtcW0ucGw+Cj4gPiA+IAo+ID4gPiBTaW5jZSB0aGUg
+b25seSBkcml2ZXIgdGhhdCBzZWVtcyB0byB1c2UgdGhpcyBpcyB0aGUgc3RhZ2luZyBvbmUsIHdo
+aWNoIGltbwo+ID4gPiBpcyBhIERPQSBwcm9qZWN0LCBub3Qgc3VyZSBpdCdzIHdvcnRoIHRvIGJv
+dGhlciB3aXRoIHRoaXMgaGVyZS4KPiA+IAo+ID4gYWZhaWssIHRoaXMgZGV2aWNlIGlzIHVzZWQg
+aW4gcHJvZHVjdGlvbiBieSBmZXcgbWFudWZhY3R1cmVycyBhbmQgaXQgaXMKPiA+IHVzZWZ1bGwg
+Zm9yIHRoZW0gdG8gaGF2ZSBpdCBpbiB0aGUgdHJlZSBhbmQgdGhlIG9ubHkgcmVhc29uIGl0IGlz
+IHN0aWxsCj4gPiBpbiBzdGFnaW5nIGlzIGJlY2F1c2UgVG9taSBhbm5vdW5jZWQgaGUgd2lsbCBu
+b3QgdGFrZSBhbnkgbmV3IGRyaXZlcnMgaW4KPiA+IGZiZGV2LiBBbmQsIHNvIEkgaGF2ZSBub3Qg
+dGFrZW4gdGhlIGluaXRpYXRpdmUgdG8gcHJvcGVybHkgbW92ZSBpdCBvdXQKPiA+IG9mIHN0YWdp
+bmcuIEkgdGhpbmsgQmFydGxvbWllaiB3aWxsIGFsc28gbm90IGFjY2VwdCBuZXcgZHJpdmVycyBp
+biBmYmRldi4KPiAKPiBJbW8sIGlmIG5vIG9uZSBjYXJlcyBhYm91dCBwb3J0aW5nIGl0IHRvIGtt
+cyAod2hpY2ggd2lsbCBnaXZlIHlvdSBhbiBmYmRldgo+IGRyaXZlciBmb3IgZnJlZSksIHRoZW4g
+d2Ugc2hvdWxkIHRocm93IGl0IG91dC4gQXQgbGVhc3QgSSB0aG91Z2h0IHN0YWdpbmcKPiB3YXMg
+b25seSBmb3Igc3R1ZmYgdGhhdCBoYWQgYSByZWFzb25hYmxlIGNoYW5jZSB0byBnZXQgbWFpbmxp
+bmVkLiBOb3QgYXMgYQo+IGR1bXBpbmcgZ3JvdW5kIGZvciBkcml2ZXJzIHRoYXQgcGVvcGxlIHVz
+ZSwgYnV0IGRvbid0IGJvdGhlciB0byBnZXQgcmVhZHkKPiBmb3IgbWFpbmxpbmUuCj4gCj4gR3Jl
+Zz8KClllcywgaWYgbm8gb25lIGlzIHdvcmtpbmcgdG8gZ2V0IGl0IG91dCBvZiBzdGFnaW5nLCB0
+aGF0IG1lYW5zIG5vIG9uZQpjYXJlcyBhYm91dCBpdCwgYW5kIGl0IG5lZWRzIHRvIGJlIHJlbW92
+ZWQgZnJvbSB0aGUgdHJlZS4KCnRoYW5rcywKCmdyZWcgay1oCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
