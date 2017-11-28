@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net,stable] vhost: fix skb leak in handle_rx()
-Date: Tue, 28 Nov 2017 19:53:33 +0200
-Message-ID: <20171128195140-mutt-send-email-mst__41619.9188483462$1511891622$gmane$org@kernel.org>
-References: <1511889436-12876-1-git-send-email-wexu@redhat.com>
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Subject: [RFC] virtio-net: help live migrate SR-IOV devices
+Date: Tue, 28 Nov 2017 11:27:22 -0800
+Message-ID: <20171128112722.00003716@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1511889436-12876-1-git-send-email-wexu@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,67 +15,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: wexu@redhat.com
-Cc: mjrosato@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Jakub Kicinski <jakub.kicinski@netronome.com>, mst@redhat.com, Sridhar Samudrala <sridhar.samudrala@intel.com>, Achiad <achiad@mellanox.com>, Peter Waskiewicz Jr <peter.waskiewicz.jr@intel.com>, "Singhai,
+	Anjali" <anjali.singhai@intel.com>, Andy Gospodarek <gospo@broadcom.com>, Or Gerlitz <gerlitz.or@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 28, 2017 at 12:17:16PM -0500, wexu@redhat.com wrote:
-> From: Wei Xu <wexu@redhat.com>
-> 
-> Matthew found a roughly 40% tcp throughput regression with commit
-> c67df11f(vhost_net: try batch dequing from skb array) as discussed
-> in the following thread:
-> https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
-> 
-> Eventually we figured out that it was a skb leak in handle_rx()
-> when sending packets to the VM. This usually happens when a guest
-> can not drain out vq as fast as vhost fills in, afterwards it sets
-> off the traffic jam and leaks skb(s) which occurs as no headcount
-> to send on the vq from vhost side.
-> 
-> This can be avoided by making sure we have got enough headcount
-> before actually consuming a skb from the batched rx array while
-> transmitting, which is simply done by deferring it a moment later
-> in this patch.
-> 
-> Signed-off-by: Wei Xu <wexu@redhat.com>
+Hi, I'd like to get some feedback on a proposal to enhance virtio-net
+to ease configuration of a VM and that would enable live migration of
+passthrough network SR-IOV devices. 
 
-Given the amount of effort Matthew has put into this,
-you definitely want
+Today we have SR-IOV network devices (VFs) that can be passed into a VM
+in order to enable high performance networking direct within the VM.
+The problem I am trying to address is that this configuration is
+generally difficult to live-migrate.  There is documentation [1]
+indicating that some OS/Hypervisor vendors will support live migration
+of a system with a direct assigned networking device.  The problem I
+see with these implementations is that the network configuration
+requirements that are passed on to the owner of the VM are quite
+complicated.  You have to set up bonding, you have to configure it to
+enslave two interfaces, those interfaces (one is virtio-net, the other
+is SR-IOV device/driver like ixgbevf) must support MAC address changes
+requested in the VM, and on and on...
 
-Reported-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
+So, on to the proposal:
+Modify virtio-net driver to be a single VM network device that
+enslaves an SR-IOV network device (inside the VM) with the same MAC
+address. This would cause the virtio-net driver to appear and work like
+a simplified bonding/team driver.  The live migration problem would be
+solved just like today's bonding solution, but the VM user's networking
+config would be greatly simplified.
 
-here.
+At it's simplest, it would appear something like this in the VM.
 
-Let's give credit where credit is due.
+==========
+= vnet0  =
+         =============
+(virtio- =       |
+ net)    =       |
+         =  ==========
+         =  = ixgbef =
+==========  ==========
 
-Thanks a lot Matthew!
+(forgive the ASCII art)
 
-> ---
->  drivers/vhost/net.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 8d626d7..e76535e 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -778,8 +778,6 @@ static void handle_rx(struct vhost_net *net)
->  		/* On error, stop handling until the next kick. */
->  		if (unlikely(headcount < 0))
->  			goto out;
-> -		if (nvq->rx_array)
-> -			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
->  		/* On overrun, truncate and discard */
->  		if (unlikely(headcount > UIO_MAXIOV)) {
->  			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
-> @@ -809,6 +807,8 @@ static void handle_rx(struct vhost_net *net)
->  			 */
->  			iov_iter_advance(&msg.msg_iter, vhost_hlen);
->  		}
-> +		if (nvq->rx_array)
-> +			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
->  		err = sock->ops->recvmsg(sock, &msg,
->  					 sock_len, MSG_DONTWAIT | MSG_TRUNC);
->  		/* Userspace might have consumed the packet meanwhile:
-> -- 
-> 1.8.3.1
+The fast path traffic would prefer the ixgbevf or other SR-IOV device
+path, and fall back to virtio's transmit/receive when migrating.
+
+Compared to today's options this proposal would
+1) make virtio-net more sticky, allow fast path traffic at SR-IOV
+   speeds 
+2) simplify end user configuration in the VM (most if not all of the
+   set up to enable migration would be done in the hypervisor)
+3) allow live migration via a simple link down and maybe a PCI
+   hot-unplug of the SR-IOV device, with failover to the virtio-net
+   driver core
+4) allow vendor agnostic hardware acceleration, and live migration 
+   between vendors if the VM os has driver support for all the required
+   SR-IOV devices.
+
+Runtime operation proposed:
+- <in either order> virtio-net driver loads, SR-IOV driver loads
+- virtio-net finds other NICs that match it's MAC address by 
+  both examining existing interfaces, and sets up a new device notifier
+- virtio-net enslaves the first NIC with the same MAC address
+- virtio-net brings up the slave, and makes it the "preferred" path
+- virtio-net follows the behavior of an active backup bond/team
+- virtio-net acts as the interface to the VM
+- live migration initiates
+- link goes down on SR-IOV, or SR-IOV device is removed
+- failover to virtio-net as primary path
+- migration continues to new host
+- new host is started with virio-net as primary
+- if no SR-IOV, virtio-net stays primary
+- hypervisor can hot-add SR-IOV NIC, with same MAC addr as virtio
+- virtio-net notices new NIC and starts over at enslave step above
+
+Future ideas (brainstorming):
+- Optimize Fast east-west by having special rules to direct east-west
+  traffic through virtio-net traffic path
+
+Thanks for reading!
+Jesse
+
+[1]
+https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.1/html/virtual_machine_management_guide/sect-migrating_virtual_machines_between_hosts
