@@ -1,12 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v4] s390/virtio: add BSD license to virtio-ccw
-Date: Tue, 28 Nov 2017 16:11:29 +0200
-Message-ID: <1511874948-27609-1-git-send-email-mst__11058.1352645115$1511878336$gmane$org@redhat.com>
+Subject: Re: [PATCH net,stable] vhost: fix skb leak in handle_rx()
+Date: Tue, 28 Nov 2017 19:50:58 +0200
+Message-ID: <20171128193713-mutt-send-email-mst@kernel.org>
+References: <1511889436-12876-1-git-send-email-wexu@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1511889436-12876-1-git-send-email-wexu@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,44 +18,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: wexu@redhat.com
+Cc: mjrosato@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The original intent of the virtio header relicensing
-from 2008 was to make sure anyone can implement compatible
-devices/drivers. The virtio-ccw was omitted by mistake.
+On Tue, Nov 28, 2017 at 12:17:16PM -0500, wexu@redhat.com wrote:
+> From: Wei Xu <wexu@redhat.com>
+> 
+> Matthew found a roughly 40% tcp throughput regression with commit
+> c67df11f(vhost_net: try batch dequing from skb array) as discussed
+> in the following thread:
+> https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
+> 
+> Eventually we figured out that it was a skb leak in handle_rx()
+> when sending packets to the VM. This usually happens when a guest
+> can not drain out vq as fast as vhost fills in, afterwards it sets
+> off the traffic jam and leaks skb(s) which occurs as no headcount
+> to send on the vq from vhost side.
+> 
+> This can be avoided by making sure we have got enough headcount
+> before actually consuming a skb from the batched rx array while
+> transmitting, which is simply done by deferring it a moment later
+> in this patch.
+> 
+> Signed-off-by: Wei Xu <wexu@redhat.com>
 
-We have an ack from the only contributor as well as the
-maintainer from IBM, so it's not too late to fix that.
+Looks like a good way to fix it, but it will still leak if recvmsg
+returns a wrong length (I'm not sure this can happen in practice, but
+best to keep it simple).
 
-Make it dual-licensed with GPLv2, as the whole kernel is GPL2.
+Also, we need to add this before each recvmsg, including overrun,
+and discard on error.
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- arch/s390/include/uapi/asm/virtio-ccw.h | 6 +-----
- 1 files changed, 1 insertion(+), 5 deletions(-)
-
-diff --git a/arch/s390/include/uapi/asm/virtio-ccw.h b/arch/s390/include/uapi/asm/virtio-ccw.h
-index 967aad3..2b605f7 100644
---- a/arch/s390/include/uapi/asm/virtio-ccw.h
-+++ b/arch/s390/include/uapi/asm/virtio-ccw.h
-@@ -1,13 +1,9 @@
--/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-+/* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause) */
- /*
-  * Definitions for virtio-ccw devices.
-  *
-  * Copyright IBM Corp. 2013
-  *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License (version 2 only)
-- * as published by the Free Software Foundation.
-- *
-  *  Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
-  */
- #ifndef __KVM_VIRTIO_CCW_H
--- 
-MST
+> ---
+>  drivers/vhost/net.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 8d626d7..e76535e 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -778,8 +778,6 @@ static void handle_rx(struct vhost_net *net)
+>  		/* On error, stop handling until the next kick. */
+>  		if (unlikely(headcount < 0))
+>  			goto out;
+> -		if (nvq->rx_array)
+> -			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
+>  		/* On overrun, truncate and discard */
+>  		if (unlikely(headcount > UIO_MAXIOV)) {
+>  			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
+> @@ -809,6 +807,8 @@ static void handle_rx(struct vhost_net *net)
+>  			 */
+>  			iov_iter_advance(&msg.msg_iter, vhost_hlen);
+>  		}
+> +		if (nvq->rx_array)
+> +			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
+>  		err = sock->ops->recvmsg(sock, &msg,
+>  					 sock_len, MSG_DONTWAIT | MSG_TRUNC);
+>  		/* Userspace might have consumed the packet meanwhile:
+> -- 
+> 1.8.3.1
