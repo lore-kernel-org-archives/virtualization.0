@@ -1,20 +1,12 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 02/13] fbdev: add remove_conflicting_pci_framebuffers()
-Date: Tue, 28 Nov 2017 14:06:14 +0100
-Message-ID: <20171128130614.GB12216@kroah.com>
-References: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
-	<1738dbed0239bffc886f126fd3091daa39cd14c9.1511544782.git.mirq-linux@rere.qmqm.pl>
-	<20171127102758.y7c6yzyey6wfntxh@phenom.ffwll.local>
-	<20171127205219.GA3537@sudip-laptop>
-	<20171128102217.b7ynyqarwzkdvmdq@phenom.ffwll.local>
-	<20171128113238.GA29456@kroah.com>
-	<20171128123008.GA12986@sudip-tp>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v3] s390/virtio: add BSD license to virtio-ccw
+Date: Tue, 28 Nov 2017 15:17:52 +0200
+Message-ID: <1511874948-27609-1-git-send-email-mst__13368.9201590188$1511875113$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20171128123008.GA12986@sudip-tp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,51 +16,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>, David Airlie <airlied@linux.ie>, amd-gfx@lists.freedesktop.org, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, dri-devel@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>, virtualization@lists.linux-foundation.org, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBOb3YgMjgsIDIwMTcgYXQgMTI6MzA6MzBQTSArMDAwMCwgU3VkaXAgTXVraGVyamVl
-IHdyb3RlOgo+IE9uIFR1ZSwgTm92IDI4LCAyMDE3IGF0IDEyOjMyOjM4UE0gKzAxMDAsIEdyZWcg
-S0ggd3JvdGU6Cj4gPiBPbiBUdWUsIE5vdiAyOCwgMjAxNyBhdCAxMToyMjoxN0FNICswMTAwLCBE
-YW5pZWwgVmV0dGVyIHdyb3RlOgo+ID4gPiBPbiBNb24sIE5vdiAyNywgMjAxNyBhdCAwODo1Mjox
-OVBNICswMDAwLCBTdWRpcCBNdWtoZXJqZWUgd3JvdGU6Cj4gPiA+ID4gT24gTW9uLCBOb3YgMjcs
-IDIwMTcgYXQgMTE6Mjc6NTlBTSArMDEwMCwgRGFuaWVsIFZldHRlciB3cm90ZToKPiA+ID4gPiA+
-IE9uIEZyaSwgTm92IDI0LCAyMDE3IGF0IDA2OjUzOjMxUE0gKzAxMDAsIE1pY2hhxYIgTWlyb3PF
-gmF3IHdyb3RlOgo+ID4gPiA+ID4gPiBBbG1vc3QgYWxsIGRyaXZlcnMgdXNpbmcgcmVtb3ZlX2Nv
-bmZsaWN0aW5nX2ZyYW1lYnVmZmVycygpIHdyYXAgaXQgd2l0aAo+ID4gPiA+ID4gPiB0aGUgc2Ft
-ZSBjb2RlLiBFeHRyYWN0IGNvbW1vbiBwYXJ0IGZyb20gUENJIGRyaXZlcnMgaW50byBzZXBhcmF0
-ZQo+ID4gPiA+ID4gPiByZW1vdmVfY29uZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpLgo+ID4g
-PiA+ID4gPiAKPiA+ID4gPiA+ID4gU2lnbmVkLW9mZi1ieTogTWljaGHFgiBNaXJvc8WCYXcgPG1p
-cnEtbGludXhAcmVyZS5xbXFtLnBsPgo+ID4gPiA+ID4gCj4gPiA+ID4gPiBTaW5jZSB0aGUgb25s
-eSBkcml2ZXIgdGhhdCBzZWVtcyB0byB1c2UgdGhpcyBpcyB0aGUgc3RhZ2luZyBvbmUsIHdoaWNo
-IGltbwo+ID4gPiA+ID4gaXMgYSBET0EgcHJvamVjdCwgbm90IHN1cmUgaXQncyB3b3J0aCB0byBi
-b3RoZXIgd2l0aCB0aGlzIGhlcmUuCj4gPiA+ID4gCj4gPiA+ID4gYWZhaWssIHRoaXMgZGV2aWNl
-IGlzIHVzZWQgaW4gcHJvZHVjdGlvbiBieSBmZXcgbWFudWZhY3R1cmVycyBhbmQgaXQgaXMKPiA+
-ID4gPiB1c2VmdWxsIGZvciB0aGVtIHRvIGhhdmUgaXQgaW4gdGhlIHRyZWUgYW5kIHRoZSBvbmx5
-IHJlYXNvbiBpdCBpcyBzdGlsbAo+ID4gPiA+IGluIHN0YWdpbmcgaXMgYmVjYXVzZSBUb21pIGFu
-bm91bmNlZCBoZSB3aWxsIG5vdCB0YWtlIGFueSBuZXcgZHJpdmVycyBpbgo+ID4gPiA+IGZiZGV2
-LiBBbmQsIHNvIEkgaGF2ZSBub3QgdGFrZW4gdGhlIGluaXRpYXRpdmUgdG8gcHJvcGVybHkgbW92
-ZSBpdCBvdXQKPiA+ID4gPiBvZiBzdGFnaW5nLiBJIHRoaW5rIEJhcnRsb21pZWogd2lsbCBhbHNv
-IG5vdCBhY2NlcHQgbmV3IGRyaXZlcnMgaW4gZmJkZXYuCj4gPiA+IAo+ID4gPiBJbW8sIGlmIG5v
-IG9uZSBjYXJlcyBhYm91dCBwb3J0aW5nIGl0IHRvIGttcyAod2hpY2ggd2lsbCBnaXZlIHlvdSBh
-biBmYmRldgo+ID4gPiBkcml2ZXIgZm9yIGZyZWUpLCB0aGVuIHdlIHNob3VsZCB0aHJvdyBpdCBv
-dXQuIEF0IGxlYXN0IEkgdGhvdWdodCBzdGFnaW5nCj4gPiA+IHdhcyBvbmx5IGZvciBzdHVmZiB0
-aGF0IGhhZCBhIHJlYXNvbmFibGUgY2hhbmNlIHRvIGdldCBtYWlubGluZWQuIE5vdCBhcyBhCj4g
-PiA+IGR1bXBpbmcgZ3JvdW5kIGZvciBkcml2ZXJzIHRoYXQgcGVvcGxlIHVzZSwgYnV0IGRvbid0
-IGJvdGhlciB0byBnZXQgcmVhZHkKPiA+ID4gZm9yIG1haW5saW5lLgo+ID4gPiAKPiA+ID4gR3Jl
-Zz8KPiA+IAo+ID4gWWVzLCBpZiBubyBvbmUgaXMgd29ya2luZyB0byBnZXQgaXQgb3V0IG9mIHN0
-YWdpbmcsIHRoYXQgbWVhbnMgbm8gb25lCj4gPiBjYXJlcyBhYm91dCBpdCwgYW5kIGl0IG5lZWRz
-IHRvIGJlIHJlbW92ZWQgZnJvbSB0aGUgdHJlZS4KPiAKPiBBZ3JlZWQuIEkgd2FzIG5vdCB3b3Jr
-aW5nIG9uIGdldHRpbmcgaXQgb3V0IG9mIHN0YWdpbmcgYXMgdGhlcmUgaXMgbm8KPiBwbGFjZSBm
-b3IgaXQgdG8gZ28uCj4gQnV0LCBUZWRkeSBXYW5nIHRvbGQgbWUgdGhhdCB0aGV5IGhhdmUgYSB3
-b3JraW5nIGRybSBkcml2ZXIgZm9yIGl0LCBidXQKPiBpdCBpcyBub3QgYXRvbWljIGxpa2UgRGFu
-aWVsIHdhcyBhc2tpbmcgZm9yLiBJZiBpdCBpcyBvaywgdGhlbiBJIGNhbiBzZW5kCj4gaW4gYSBw
-YXRjaCB0byByZW1vdmUgdGhlIGV4aXN0aW5nIHNtNzUwIGZyb20gc3RhZ2luZyBhbmQgYWRkIHRo
-ZSBuZXcgc203NTAKPiBkcm0gZHJpdmVyIHRvIHN0YWdpbmcuIEFuZCBhZnRlciBpdCBpcyByZWFk
-eSwgd2UgY2FuIGdvIGFoZWFkIHdpdGggbW92aW5nCj4gaXQgb3V0IG9mIHN0YWdpbmcgdG8gZHJt
-Lgo+IAo+IEdyZWc/IERhbmllbD8KCkknbGwgYWx3YXlzIHRha2UgcGF0Y2hlcyB0aGF0IGRlbGV0
-ZSBjb2RlIGZyb20gc3RhZ2luZyA6KQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+The original intent of the virtio header relicensing
+from 2008 was to make sure anyone can implement compatible
+devices/drivers. The virtio-ccw was omitted by mistake.
+
+We have an ack from the only contributor as well as the
+maintainer from IBM, so it's not too late to fix that.
+
+Make it dual-licensed with GPLv2, as the whole kernel is GPL2.
+
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ arch/s390/include/uapi/asm/virtio-ccw.h | 6 +-----
+ arch/s390/kernel/setup.c                | 1 -
+ 2 files changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/arch/s390/include/uapi/asm/virtio-ccw.h b/arch/s390/include/uapi/asm/virtio-ccw.h
+index 967aad3..2b605f7 100644
+--- a/arch/s390/include/uapi/asm/virtio-ccw.h
++++ b/arch/s390/include/uapi/asm/virtio-ccw.h
+@@ -1,13 +1,9 @@
+-/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
++/* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause) */
+ /*
+  * Definitions for virtio-ccw devices.
+  *
+  * Copyright IBM Corp. 2013
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License (version 2 only)
+- * as published by the Free Software Foundation.
+- *
+  *  Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
+  */
+ #ifndef __KVM_VIRTIO_CCW_H
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 164a1e1..c022007 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -60,7 +60,6 @@
+ #include <asm/ptrace.h>
+ #include <asm/sections.h>
+ #include <asm/ebcdic.h>
+-#include <asm/kvm_virtio.h>
+ #include <asm/diag.h>
+ #include <asm/os_info.h>
+ #include <asm/sclp.h>
+-- 
+MST
