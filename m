@@ -1,17 +1,12 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 02/13] fbdev: add remove_conflicting_pci_framebuffers()
-Date: Tue, 28 Nov 2017 11:22:17 +0100
-Message-ID: <20171128102217.b7ynyqarwzkdvmdq__44300.6265712485$1511864561$gmane$org@phenom.ffwll.local>
-References: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
-	<1738dbed0239bffc886f126fd3091daa39cd14c9.1511544782.git.mirq-linux@rere.qmqm.pl>
-	<20171127102758.y7c6yzyey6wfntxh@phenom.ffwll.local>
-	<20171127205219.GA3537@sudip-laptop>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH] VSOCK: Don't set sk_state to TCP_CLOSE before testing it
+Date: Tue, 28 Nov 2017 10:35:42 +0000
+Message-ID: <20171128103542.GC17146@stefanha-x1.localdomain>
+References: <1511789372-12672-1-git-send-email-jhansen@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============6242003544860366337=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20171127205219.GA3537@sudip-laptop>
+In-Reply-To: <1511789372-12672-1-git-send-email-jhansen@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,35 +16,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Greg KH <gregkh@linuxfoundation.org>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>, David Airlie <airlied@linux.ie>, amd-gfx@lists.freedesktop.org, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, dri-devel@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>, virtualization@lists.linux-foundation.org, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+To: Jorgen Hansen <jhansen@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBOb3YgMjcsIDIwMTcgYXQgMDg6NTI6MTlQTSArMDAwMCwgU3VkaXAgTXVraGVyamVl
-IHdyb3RlOgo+IE9uIE1vbiwgTm92IDI3LCAyMDE3IGF0IDExOjI3OjU5QU0gKzAxMDAsIERhbmll
-bCBWZXR0ZXIgd3JvdGU6Cj4gPiBPbiBGcmksIE5vdiAyNCwgMjAxNyBhdCAwNjo1MzozMVBNICsw
-MTAwLCBNaWNoYcWCIE1pcm9zxYJhdyB3cm90ZToKPiA+ID4gQWxtb3N0IGFsbCBkcml2ZXJzIHVz
-aW5nIHJlbW92ZV9jb25mbGljdGluZ19mcmFtZWJ1ZmZlcnMoKSB3cmFwIGl0IHdpdGgKPiA+ID4g
-dGhlIHNhbWUgY29kZS4gRXh0cmFjdCBjb21tb24gcGFydCBmcm9tIFBDSSBkcml2ZXJzIGludG8g
-c2VwYXJhdGUKPiA+ID4gcmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1ZmZlcnMoKS4KPiA+
-ID4gCj4gPiA+IFNpZ25lZC1vZmYtYnk6IE1pY2hhxYIgTWlyb3PFgmF3IDxtaXJxLWxpbnV4QHJl
-cmUucW1xbS5wbD4KPiA+IAo+ID4gU2luY2UgdGhlIG9ubHkgZHJpdmVyIHRoYXQgc2VlbXMgdG8g
-dXNlIHRoaXMgaXMgdGhlIHN0YWdpbmcgb25lLCB3aGljaCBpbW8KPiA+IGlzIGEgRE9BIHByb2pl
-Y3QsIG5vdCBzdXJlIGl0J3Mgd29ydGggdG8gYm90aGVyIHdpdGggdGhpcyBoZXJlLgo+IAo+IGFm
-YWlrLCB0aGlzIGRldmljZSBpcyB1c2VkIGluIHByb2R1Y3Rpb24gYnkgZmV3IG1hbnVmYWN0dXJl
-cnMgYW5kIGl0IGlzCj4gdXNlZnVsbCBmb3IgdGhlbSB0byBoYXZlIGl0IGluIHRoZSB0cmVlIGFu
-ZCB0aGUgb25seSByZWFzb24gaXQgaXMgc3RpbGwKPiBpbiBzdGFnaW5nIGlzIGJlY2F1c2UgVG9t
-aSBhbm5vdW5jZWQgaGUgd2lsbCBub3QgdGFrZSBhbnkgbmV3IGRyaXZlcnMgaW4KPiBmYmRldi4g
-QW5kLCBzbyBJIGhhdmUgbm90IHRha2VuIHRoZSBpbml0aWF0aXZlIHRvIHByb3Blcmx5IG1vdmUg
-aXQgb3V0Cj4gb2Ygc3RhZ2luZy4gSSB0aGluayBCYXJ0bG9taWVqIHdpbGwgYWxzbyBub3QgYWNj
-ZXB0IG5ldyBkcml2ZXJzIGluIGZiZGV2LgoKSW1vLCBpZiBubyBvbmUgY2FyZXMgYWJvdXQgcG9y
-dGluZyBpdCB0byBrbXMgKHdoaWNoIHdpbGwgZ2l2ZSB5b3UgYW4gZmJkZXYKZHJpdmVyIGZvciBm
-cmVlKSwgdGhlbiB3ZSBzaG91bGQgdGhyb3cgaXQgb3V0LiBBdCBsZWFzdCBJIHRob3VnaHQgc3Rh
-Z2luZwp3YXMgb25seSBmb3Igc3R1ZmYgdGhhdCBoYWQgYSByZWFzb25hYmxlIGNoYW5jZSB0byBn
-ZXQgbWFpbmxpbmVkLiBOb3QgYXMgYQpkdW1waW5nIGdyb3VuZCBmb3IgZHJpdmVycyB0aGF0IHBl
-b3BsZSB1c2UsIGJ1dCBkb24ndCBib3RoZXIgdG8gZ2V0IHJlYWR5CmZvciBtYWlubGluZS4KCkdy
-ZWc/Ci1EYW5pZWwKLS0gCkRhbmllbCBWZXR0ZXIKU29mdHdhcmUgRW5naW5lZXIsIEludGVsIENv
-cnBvcmF0aW9uCmh0dHA6Ly9ibG9nLmZmd2xsLmNoCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+--===============6242003544860366337==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+nBD6E3TurpgldQp"
+Content-Disposition: inline
+
+
+--+nBD6E3TurpgldQp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Nov 27, 2017 at 05:29:32AM -0800, Jorgen Hansen wrote:
+> A recent commit (3b4477d2dcf2) converted the sk_state to use
+> TCP constants. In that change, vmci_transport_handle_detach
+> was changed such that sk->sk_state was set to TCP_CLOSE before
+> we test whether it is TCP_SYN_SENT. This change moves the
+> sk_state change back to the original locations in that function.
+>=20
+> Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
+> ---
+>  net/vmw_vsock/vmci_transport.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+
+Sorry, silly bug on my part!
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--+nBD6E3TurpgldQp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJaHTv+AAoJEJykq7OBq3PIEAwH/iKcvvOLxGvjT6mIJK+mqfiJ
+8+Ve54Wn2Ca3ogzBnf8lJvyv2pKpo08LK2BkGimS0A9WdY5IzB2Er3wFAbX+877p
++vXS48lL4Qy+eJpOVFYwE8wDdrcmmpG432IOoZfwMQp84ovNyjm01kwGpDFgoj4v
+5/3qdNWsBkB3q9PO/HSoYgu3l1wWVuPDLyLoZSbyLmS162n8uDHSk9MMlbI3WpYj
+Xu9HG4fTYk0/UGRowvS3CajARDYApBPM45HahYQ6b2mO4sdpAJs09GI361HVr/ll
+4nw42YT0hDKfIPwtuYDVOp6oVnbYNzkTOxb+paZe/YoqoTdJodrNIMxsgruu7hc=
+=lqK1
+-----END PGP SIGNATURE-----
+
+--+nBD6E3TurpgldQp--
+
+--===============6242003544860366337==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6242003544860366337==--
