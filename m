@@ -1,11 +1,12 @@
-From: wexu@redhat.com
-Subject: [PATCH net,stable] vhost: fix skb leak in handle_rx()
-Date: Tue, 28 Nov 2017 12:17:16 -0500
-Message-ID: <1511889436-12876-1-git-send-email-wexu__44794.8861438364$1512195403$gmane$org@redhat.com>
+From: weiping zhang <zhangweiping@didichuxing.com>
+Subject: [PATCH] virtio: release virtio index when fail to device_register
+Date: Tue, 28 Nov 2017 23:43:43 +0800
+Message-ID: <20171128154337.GA39549@localhost.didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,54 +16,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: mjrosato@linux.vnet.ibm.com, wexu@redhat.com, mst@redhat.com
+To: mst@redhat.com, jasowang@redhat.com
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Wei Xu <wexu@redhat.com>
+index can be reused by other virtio device.
 
-Matthew found a roughly 40% tcp throughput regression with commit
-c67df11f(vhost_net: try batch dequing from skb array) as discussed
-in the following thread:
-https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
-
-Eventually we figured out that it was a skb leak in handle_rx()
-when sending packets to the VM. This usually happens when a guest
-can not drain out vq as fast as vhost fills in, afterwards it sets
-off the traffic jam and leaks skb(s) which occurs as no headcount
-to send on the vq from vhost side.
-
-This can be avoided by making sure we have got enough headcount
-before actually consuming a skb from the batched rx array while
-transmitting, which is simply done by deferring it a moment later
-in this patch.
-
-Signed-off-by: Wei Xu <wexu@redhat.com>
+Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
 ---
- drivers/vhost/net.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/virtio/virtio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 8d626d7..e76535e 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -778,8 +778,6 @@ static void handle_rx(struct vhost_net *net)
- 		/* On error, stop handling until the next kick. */
- 		if (unlikely(headcount < 0))
- 			goto out;
--		if (nvq->rx_array)
--			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
- 		/* On overrun, truncate and discard */
- 		if (unlikely(headcount > UIO_MAXIOV)) {
- 			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
-@@ -809,6 +807,8 @@ static void handle_rx(struct vhost_net *net)
- 			 */
- 			iov_iter_advance(&msg.msg_iter, vhost_hlen);
- 		}
-+		if (nvq->rx_array)
-+			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
- 		err = sock->ops->recvmsg(sock, &msg,
- 					 sock_len, MSG_DONTWAIT | MSG_TRUNC);
- 		/* Userspace might have consumed the packet meanwhile:
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 48230a5..bf7ff39 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -333,6 +333,8 @@ int register_virtio_device(struct virtio_device *dev)
+ 	/* device_register() causes the bus infrastructure to look for a
+ 	 * matching driver. */
+ 	err = device_register(&dev->dev);
++	if (err)
++		ida_simple_remove(&virtio_index_ida, dev->index);
+ out:
+ 	if (err)
+ 		virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
 -- 
-1.8.3.1
+2.9.4
