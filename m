@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net,stable] vhost: fix skb leak in handle_rx()
-Date: Tue, 28 Nov 2017 19:50:58 +0200
-Message-ID: <20171128193713-mutt-send-email-mst@kernel.org>
+Date: Tue, 28 Nov 2017 19:53:33 +0200
+Message-ID: <20171128195140-mutt-send-email-mst__41619.9188483462$1511891622$gmane$org@kernel.org>
 References: <1511889436-12876-1-git-send-email-wexu@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -43,12 +43,16 @@ On Tue, Nov 28, 2017 at 12:17:16PM -0500, wexu@redhat.com wrote:
 > 
 > Signed-off-by: Wei Xu <wexu@redhat.com>
 
-Looks like a good way to fix it, but it will still leak if recvmsg
-returns a wrong length (I'm not sure this can happen in practice, but
-best to keep it simple).
+Given the amount of effort Matthew has put into this,
+you definitely want
 
-Also, we need to add this before each recvmsg, including overrun,
-and discard on error.
+Reported-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
+
+here.
+
+Let's give credit where credit is due.
+
+Thanks a lot Matthew!
 
 > ---
 >  drivers/vhost/net.c | 4 ++--
