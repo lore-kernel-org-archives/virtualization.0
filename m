@@ -1,7 +1,7 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: [PATCH] drm/virtio: Don't return invalid caps on timeout
-Date: Mon, 27 Nov 2017 15:21:25 +0100
-Message-ID: <20171127142126.25765-1-tomeu.vizoso__29222.2054479227$1512195391$gmane$org@collabora.com>
+From: wexu@redhat.com
+Subject: [PATCH net,stable] vhost: fix skb leak in handle_rx()
+Date: Tue, 28 Nov 2017 12:17:16 -0500
+Message-ID: <1511889436-12876-1-git-send-email-wexu__44794.8861438364$1512195403$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,30 +15,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: mjrosato@linux.vnet.ibm.com, wexu@redhat.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-If the wait timeouts, the caps are probably invalid and we shouldn't be
-passing them to userspace.
+From: Wei Xu <wexu@redhat.com>
 
-Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Matthew found a roughly 40% tcp throughput regression with commit
+c67df11f(vhost_net: try batch dequing from skb array) as discussed
+in the following thread:
+https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
+
+Eventually we figured out that it was a skb leak in handle_rx()
+when sending packets to the VM. This usually happens when a guest
+can not drain out vq as fast as vhost fills in, afterwards it sets
+off the traffic jam and leaks skb(s) which occurs as no headcount
+to send on the vq from vhost side.
+
+This can be avoided by making sure we have got enough headcount
+before actually consuming a skb from the batched rx array while
+transmitting, which is simply done by deferring it a moment later
+in this patch.
+
+Signed-off-by: Wei Xu <wexu@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/vhost/net.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index b94bd5440e57..902120ad4a6d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -517,6 +517,8 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
- 
- 	ret = wait_event_timeout(vgdev->resp_wq,
- 				 atomic_read(&cache_ent->is_valid), 5 * HZ);
-+	if (!ret)
-+		return -EBUSY;
- 
- 	ptr = cache_ent->caps_cache;
- 
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 8d626d7..e76535e 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -778,8 +778,6 @@ static void handle_rx(struct vhost_net *net)
+ 		/* On error, stop handling until the next kick. */
+ 		if (unlikely(headcount < 0))
+ 			goto out;
+-		if (nvq->rx_array)
+-			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
+ 		/* On overrun, truncate and discard */
+ 		if (unlikely(headcount > UIO_MAXIOV)) {
+ 			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
+@@ -809,6 +807,8 @@ static void handle_rx(struct vhost_net *net)
+ 			 */
+ 			iov_iter_advance(&msg.msg_iter, vhost_hlen);
+ 		}
++		if (nvq->rx_array)
++			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
+ 		err = sock->ops->recvmsg(sock, &msg,
+ 					 sock_len, MSG_DONTWAIT | MSG_TRUNC);
+ 		/* Userspace might have consumed the packet meanwhile:
 -- 
-2.14.3
+1.8.3.1
