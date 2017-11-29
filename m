@@ -1,15 +1,14 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v17 2/6] radix tree test suite: add tests for xbitmap
-Date: Wed, 29 Nov 2017 22:20:42 +0800
-Message-ID: <5A1EC23A.5090900__48593.9026614234$1511965161$gmane$org@intel.com>
-References: <1509696786-1597-1-git-send-email-wei.w.wang@intel.com>
-	<1509696786-1597-3-git-send-email-wei.w.wang@intel.com>
-	<20171106170000.GA1195@bombadil.infradead.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net,stable v2] vhost: fix skb leak in handle_rx()
+Date: Wed, 29 Nov 2017 22:43:33 +0800
+Message-ID: <6eb987d4-dac1-3da8-a748-11fab1da0100@redhat.com>
+References: <1511965404-23289-1-git-send-email-wexu@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171106170000.GA1195@bombadil.infradead.org>
+In-Reply-To: <1511965404-23289-1-git-send-email-wexu@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,48 +18,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <willy@infradead.org>
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net, liliang.opensource@gmail.com
+To: wexu@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: mjrosato@linux.vnet.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/07/2017 01:00 AM, Matthew Wilcox wrote:
-> On Fri, Nov 03, 2017 at 04:13:02PM +0800, Wei Wang wrote:
->> From: Matthew Wilcox <mawilcox@microsoft.com>
->>
->> Add the following tests for xbitmap:
->> 1) single bit test: single bit set/clear/find;
->> 2) bit range test: set/clear a range of bits and find a 0 or 1 bit in
->> the range.
->>
->> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
->> Cc: Matthew Wilcox <mawilcox@microsoft.com>
->> Cc: Andrew Morton <akpm@linux-foundation.org>
->> Cc: Michael S. Tsirkin <mst@redhat.com>
->> ---
->>   tools/include/linux/bitmap.h            |  34 ++++
->>   tools/include/linux/kernel.h            |   2 +
->>   tools/testing/radix-tree/Makefile       |   7 +-
->>   tools/testing/radix-tree/linux/kernel.h |   2 -
->>   tools/testing/radix-tree/main.c         |   5 +
->>   tools/testing/radix-tree/test.h         |   1 +
->>   tools/testing/radix-tree/xbitmap.c      | 278 ++++++++++++++++++++++++++++++++
-> Umm.  No.  You've duplicated xbitmap.c into the test framework, so now it can
-> slowly get out of sync with the one in lib/.  That's not OK.
->
-> Put it back the way it was, with the patch I gave you as patch 1/n
-> (relocating xbitmap.c from tools/testing/radix-tree to lib/).
-> Then add your enhancements as patch 2/n.  All you should need to
-> change in your 1/n from
-> http://git.infradead.org/users/willy/linux-dax.git/commit/727e401bee5ad7d37e0077291d90cc17475c6392
-> is a bit of Makefile tooling.  Leave the test suite embedded in the file;
-> that way people might remember to update the test suite when adding
-> new functionality.
->
-
-Thanks for you suggestions. Please have a check the v18 patches:
-The original implementation is put in patch 4, and the proposed changes 
-are separated into patch 5 (we can merge them to patch 4 later if they 
-look good to you), and the new APIs are in patch 6.
-
-Best,
-Wei
+CgpPbiAyMDE35bm0MTHmnIgyOeaXpSAyMjoyMywgd2V4dUByZWRoYXQuY29tIHdyb3RlOgo+IEZy
+b206IFdlaSBYdSA8d2V4dUByZWRoYXQuY29tPgo+Cj4gTWF0dGhldyBmb3VuZCBhIHJvdWdobHkg
+NDAlIHRjcCB0aHJvdWdocHV0IHJlZ3Jlc3Npb24gd2l0aCBjb21taXQKPiBjNjdkZjExZih2aG9z
+dF9uZXQ6IHRyeSBiYXRjaCBkZXF1aW5nIGZyb20gc2tiIGFycmF5KSBhcyBkaXNjdXNzZWQKPiBp
+biB0aGUgZm9sbG93aW5nIHRocmVhZDoKPiBodHRwczovL3d3dy5tYWlsLWFyY2hpdmUuY29tL25l
+dGRldkB2Z2VyLmtlcm5lbC5vcmcvbXNnMTg3OTM2Lmh0bWwKPgo+IEV2ZW50dWFsbHkgd2UgZmln
+dXJlZCBvdXQgdGhhdCBpdCB3YXMgYSBza2IgbGVhayBpbiBoYW5kbGVfcngoKQo+IHdoZW4gc2Vu
+ZGluZyBwYWNrZXRzIHRvIHRoZSBWTS4gVGhpcyB1c3VhbGx5IGhhcHBlbnMgd2hlbiBhIGd1ZXN0
+Cj4gY2FuIG5vdCBkcmFpbiBvdXQgdnEgYXMgZmFzdCBhcyB2aG9zdCBmaWxscyBpbiwgYWZ0ZXJ3
+YXJkcyBpdCBzZXRzCj4gb2ZmIHRoZSB0cmFmZmljIGphbSBhbmQgbGVha3Mgc2tiKHMpIHdoaWNo
+IG9jY3VycyBhcyBubyBoZWFkY291bnQKPiB0byBzZW5kIG9uIHRoZSB2cSBmcm9tIHZob3N0IHNp
+ZGUuCj4KPiBUaGlzIGNhbiBiZSBhdm9pZGVkIGJ5IG1ha2luZyBzdXJlIHdlIGhhdmUgZ290IGVu
+b3VnaCBoZWFkY291bnQKPiBiZWZvcmUgYWN0dWFsbHkgY29uc3VtaW5nIGEgc2tiIGZyb20gdGhl
+IGJhdGNoZWQgcnggYXJyYXkgd2hpbGUKPiB0cmFuc21pdHRpbmcsIHdoaWNoIGlzIHNpbXBseSBk
+b25lIGJ5IG1vdmluZyBjaGVja2luZyB0aGUgemVybwo+IGhlYWRjb3VudCBhIGJpdCBhaGVhZC4K
+Pgo+IEFsc28gc3RyZW5ndGhlbiB0aGUgc21hbGwgcG9zc2liaWxpdHkgb2YgbGVhayBpbiBjYXNl
+IG9mIHJlY3Ztc2coKQo+IGZhaWxzIGJ5IGZyZWVpbmcgdGhlIHNrYi4KPgo+IFNpZ25lZC1vZmYt
+Ynk6IFdlaSBYdSA8d2V4dUByZWRoYXQuY29tPgo+IFJlcG9ydGVkLWJ5OiBNYXR0aGV3IFJvc2F0
+byA8bWpyb3NhdG9AbGludXgudm5ldC5pYm0uY29tPgo+IC0tLQo+ICAgZHJpdmVycy92aG9zdC9u
+ZXQuYyB8IDIzICsrKysrKysrKysrKystLS0tLS0tLS0tCj4gICAxIGZpbGUgY2hhbmdlZCwgMTMg
+aW5zZXJ0aW9ucygrKSwgMTAgZGVsZXRpb25zKC0pCj4KPiB2MjoKPiAtIGFkZCBNYXR0aGV3IGFz
+IHRoZSByZXBvcnRlciwgdGhhbmtzIG1hdHRoZXcuCj4gLSBtb3ZpbmcgemVybyBoZWFkY291bnQg
+Y2hlY2sgYWhlYWQgaW5zdGVhZCBvZiBkZWZlciBjb25zdW1pbmcgc2tiCj4gICAgZHVlIHRvIGph
+c29uIGFuZCBtc3QncyBjb21tZW50Lgo+IC0gYWRkIGZyZWVpbmcgc2tiIGluIGZhdm9yIG9mIHJl
+Y3Ztc2coKSBmYWlscy4KPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L25ldC5jIGIvZHJp
+dmVycy92aG9zdC9uZXQuYwo+IGluZGV4IDhkNjI2ZDcuLmUzMDJlMDggMTAwNjQ0Cj4gLS0tIGEv
+ZHJpdmVycy92aG9zdC9uZXQuYwo+ICsrKyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiBAQCAtNzc4
+LDE2ICs3NzgsNiBAQCBzdGF0aWMgdm9pZCBoYW5kbGVfcngoc3RydWN0IHZob3N0X25ldCAqbmV0
+KQo+ICAgCQkvKiBPbiBlcnJvciwgc3RvcCBoYW5kbGluZyB1bnRpbCB0aGUgbmV4dCBraWNrLiAq
+Lwo+ICAgCQlpZiAodW5saWtlbHkoaGVhZGNvdW50IDwgMCkpCj4gICAJCQlnb3RvIG91dDsKPiAt
+CQlpZiAobnZxLT5yeF9hcnJheSkKPiAtCQkJbXNnLm1zZ19jb250cm9sID0gdmhvc3RfbmV0X2J1
+Zl9jb25zdW1lKCZudnEtPnJ4cSk7Cj4gLQkJLyogT24gb3ZlcnJ1biwgdHJ1bmNhdGUgYW5kIGRp
+c2NhcmQgKi8KPiAtCQlpZiAodW5saWtlbHkoaGVhZGNvdW50ID4gVUlPX01BWElPVikpIHsKPiAt
+CQkJaW92X2l0ZXJfaW5pdCgmbXNnLm1zZ19pdGVyLCBSRUFELCB2cS0+aW92LCAxLCAxKTsKPiAt
+CQkJZXJyID0gc29jay0+b3BzLT5yZWN2bXNnKHNvY2ssICZtc2csCj4gLQkJCQkJCSAxLCBNU0df
+RE9OVFdBSVQgfCBNU0dfVFJVTkMpOwo+IC0JCQlwcl9kZWJ1ZygiRGlzY2FyZGVkIHJ4IHBhY2tl
+dDogbGVuICV6ZFxuIiwgc29ja19sZW4pOwo+IC0JCQljb250aW51ZTsKPiAtCQl9Cj4gICAJCS8q
+IE9LLCBub3cgd2UgbmVlZCB0byBrbm93IGFib3V0IGFkZGVkIGRlc2NyaXB0b3JzLiAqLwo+ICAg
+CQlpZiAoIWhlYWRjb3VudCkgewo+ICAgCQkJaWYgKHVubGlrZWx5KHZob3N0X2VuYWJsZV9ub3Rp
+ZnkoJm5ldC0+ZGV2LCB2cSkpKSB7Cj4gQEAgLTgwMCw2ICs3OTAsMTggQEAgc3RhdGljIHZvaWQg
+aGFuZGxlX3J4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkKPiAgIAkJCSAqIHRoZXkgcmVmaWxsZWQu
+ICovCj4gICAJCQlnb3RvIG91dDsKPiAgIAkJfQo+ICsJCWlmIChudnEtPnJ4X2FycmF5KQo+ICsJ
+CQltc2cubXNnX2NvbnRyb2wgPSB2aG9zdF9uZXRfYnVmX2NvbnN1bWUoJm52cS0+cnhxKTsKPiAr
+CQkvKiBPbiBvdmVycnVuLCB0cnVuY2F0ZSBhbmQgZGlzY2FyZCAqLwo+ICsJCWlmICh1bmxpa2Vs
+eShoZWFkY291bnQgPiBVSU9fTUFYSU9WKSkgewo+ICsJCQlpb3ZfaXRlcl9pbml0KCZtc2cubXNn
+X2l0ZXIsIFJFQUQsIHZxLT5pb3YsIDEsIDEpOwo+ICsJCQllcnIgPSBzb2NrLT5vcHMtPnJlY3Zt
+c2coc29jaywgJm1zZywKPiArCQkJCQkJIDEsIE1TR19ET05UV0FJVCB8IE1TR19UUlVOQyk7Cj4g
+KwkJCWlmICh1bmxpa2VseShlcnIgIT0gMSkpCj4gKwkJCQlrZnJlZV9za2IoKHN0cnVjdCBza19i
+dWZmICopbXNnLm1zZ19jb250cm9sKTsKCkkgdGhpbmsgd2UnZCBiZXR0ZXIgZml4IHRoaXMgaW4g
+dHVuL3RhcCAoYmV0dGVyIGluIGFub3RoZXIgcGF0Y2gpIApvdGhlcndpc2UgaXQgbGVhZCB0byBh
+biBvZGQgQVBJOiBzb21lIGNhc2Ugc2tiIHdlcmUgZnJlZWQgaW4gcmVjdm1zZygpIApidXQgY2Fs
+bGVyIHN0aWxsIG5lZWQgdG8gZGVhbCB3aXRoIHRoZSByZXN0IGNhc2UuCgpUaGFua3MKCj4gKwkJ
+CXByX2RlYnVnKCJEaXNjYXJkZWQgcnggcGFja2V0OiBsZW4gJXpkXG4iLCBzb2NrX2xlbik7Cj4g
+KwkJCWNvbnRpbnVlOwo+ICsJCX0KPiAgIAkJLyogV2UgZG9uJ3QgbmVlZCB0byBiZSBub3RpZmll
+ZCBhZ2Fpbi4gKi8KPiAgIAkJaW92X2l0ZXJfaW5pdCgmbXNnLm1zZ19pdGVyLCBSRUFELCB2cS0+
+aW92LCBpbiwgdmhvc3RfbGVuKTsKPiAgIAkJZml4dXAgPSBtc2cubXNnX2l0ZXI7Cj4gQEAgLTgx
+OCw2ICs4MjAsNyBAQCBzdGF0aWMgdm9pZCBoYW5kbGVfcngoc3RydWN0IHZob3N0X25ldCAqbmV0
+KQo+ICAgCQkJcHJfZGVidWcoIkRpc2NhcmRlZCByeCBwYWNrZXQ6ICIKPiAgIAkJCQkgIiBsZW4g
+JWQsIGV4cGVjdGVkICV6ZFxuIiwgZXJyLCBzb2NrX2xlbik7Cj4gICAJCQl2aG9zdF9kaXNjYXJk
+X3ZxX2Rlc2ModnEsIGhlYWRjb3VudCk7Cj4gKwkJCWtmcmVlX3NrYigoc3RydWN0IHNrX2J1ZmYg
+Kiltc2cubXNnX2NvbnRyb2wpOwo+ICAgCQkJY29udGludWU7Cj4gICAJCX0KPiAgIAkJLyogU3Vw
+cGx5IHZpcnRpb19uZXRfaGRyIGlmIFZIT1NUX05FVF9GX1ZJUlRJT19ORVRfSERSICovCgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
