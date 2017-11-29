@@ -1,15 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net,stable] vhost: fix skb leak in handle_rx()
-Date: Wed, 29 Nov 2017 13:06:28 +0800
-Message-ID: <37f16bef-4a59-b895-c61b-e3f473617411__18319.2037781284$1511932023$gmane$org@redhat.com>
-References: <1511889436-12876-1-git-send-email-wexu@redhat.com>
-	<9b234fdd-baa3-f919-6c72-f6768265f1ca@redhat.com>
+From: Corentin Labbe <clabbe.montjoie@gmail.com>
+Subject: [PATCH RFC 0/4] crypto: engine - Permit to enqueue all async requests
+Date: Wed, 29 Nov 2017 09:41:17 +0100
+Message-ID: <20171129084121.9385-1-clabbe.montjoie__792.589868842874$1511945055$gmane$org@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <9b234fdd-baa3-f919-6c72-f6768265f1ca@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,45 +15,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: wexu@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: mjrosato@linux.vnet.ibm.com, mst@redhat.com
+To: herbert@gondor.apana.org.au, alexandre.torgue@st.com, arei.gonglei@huawei.com, davem@davemloft.net, jasowang@redhat.com, mcoquelin.stm32@gmail.com, mst@redhat.com, fabien.dessenne@st.com
+Cc: virtualization@lists.linux-foundation.org, Corentin Labbe <clabbe.montjoie@gmail.com>, linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MTHmnIgyOeaXpSAwOTo1MywgSmFzb24gV2FuZyB3cm90ZToKPgo+Cj4gT24g
-MjAxN8OlwrnCtDExw6bFk8uGMjnDpuKAlMKlIDAxOjE3LCB3ZXh1QHJlZGhhdC5jb20gd3JvdGU6
-Cj4+IEZyb206IFdlaSBYdSA8d2V4dUByZWRoYXQuY29tPgo+Pgo+PiBNYXR0aGV3IGZvdW5kIGEg
-cm91Z2hseSA0MCUgdGNwIHRocm91Z2hwdXQgcmVncmVzc2lvbiB3aXRoIGNvbW1pdAo+PiBjNjdk
-ZjExZih2aG9zdF9uZXQ6IHRyeSBiYXRjaCBkZXF1aW5nIGZyb20gc2tiIGFycmF5KSBhcyBkaXNj
-dXNzZWQKPj4gaW4gdGhlIGZvbGxvd2luZyB0aHJlYWQ6Cj4+IGh0dHBzOi8vd3d3Lm1haWwtYXJj
-aGl2ZS5jb20vbmV0ZGV2QHZnZXIua2VybmVsLm9yZy9tc2cxODc5MzYuaHRtbAo+Pgo+PiBFdmVu
-dHVhbGx5IHdlIGZpZ3VyZWQgb3V0IHRoYXQgaXQgd2FzIGEgc2tiIGxlYWsgaW4gaGFuZGxlX3J4
-KCkKPj4gd2hlbiBzZW5kaW5nIHBhY2tldHMgdG8gdGhlIFZNLiBUaGlzIHVzdWFsbHkgaGFwcGVu
-cyB3aGVuIGEgZ3Vlc3QKPj4gY2FuIG5vdCBkcmFpbiBvdXQgdnEgYXMgZmFzdCBhcyB2aG9zdCBm
-aWxscyBpbiwgYWZ0ZXJ3YXJkcyBpdCBzZXRzCj4+IG9mZiB0aGUgdHJhZmZpYyBqYW0gYW5kIGxl
-YWtzIHNrYihzKSB3aGljaCBvY2N1cnMgYXMgbm8gaGVhZGNvdW50Cj4+IHRvIHNlbmQgb24gdGhl
-IHZxIGZyb20gdmhvc3Qgc2lkZS4KPj4KPj4gVGhpcyBjYW4gYmUgYXZvaWRlZCBieSBtYWtpbmcg
-c3VyZSB3ZSBoYXZlIGdvdCBlbm91Z2ggaGVhZGNvdW50Cj4+IGJlZm9yZSBhY3R1YWxseSBjb25z
-dW1pbmcgYSBza2IgZnJvbSB0aGUgYmF0Y2hlZCByeCBhcnJheSB3aGlsZQo+PiB0cmFuc21pdHRp
-bmcsIHdoaWNoIGlzIHNpbXBseSBkb25lIGJ5IGRlZmVycmluZyBpdCBhIG1vbWVudCBsYXRlcgo+
-PiBpbiB0aGlzIHBhdGNoLgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBXZWkgWHUgPHdleHVAcmVkaGF0
-LmNvbT4KPj4gLS0tCj4+IMKgIGRyaXZlcnMvdmhvc3QvbmV0LmMgfCA0ICsrLS0KPj4gwqAgMSBm
-aWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKPj4KPj4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvdmhvc3QvbmV0LmMgYi9kcml2ZXJzL3Zob3N0L25ldC5jCj4+IGluZGV4
-IDhkNjI2ZDcuLmU3NjUzNWUgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMKPj4g
-KysrIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+PiBAQCAtNzc4LDggKzc3OCw2IEBAIHN0YXRpYyB2
-b2lkIGhhbmRsZV9yeChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQpCj4+IMKgwqDCoMKgwqDCoMKgwqDC
-oCAvKiBPbiBlcnJvciwgc3RvcCBoYW5kbGluZyB1bnRpbCB0aGUgbmV4dCBraWNrLiAqLwo+PiDC
-oMKgwqDCoMKgwqDCoMKgwqAgaWYgKHVubGlrZWx5KGhlYWRjb3VudCA8IDApKQo+PiDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoCBnb3RvIG91dDsKPj4gLcKgwqDCoMKgwqDCoMKgIGlmIChudnEt
-PnJ4X2FycmF5KQo+PiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBtc2cubXNnX2NvbnRyb2wgPSB2
-aG9zdF9uZXRfYnVmX2NvbnN1bWUoJm52cS0+cnhxKTsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgIC8q
-IE9uIG92ZXJydW4sIHRydW5jYXRlIGFuZCBkaXNjYXJkICovCj4+IMKgwqDCoMKgwqDCoMKgwqDC
-oCBpZiAodW5saWtlbHkoaGVhZGNvdW50ID4gVUlPX01BWElPVikpIHsKPgo+IFlvdSBuZWVkIGRv
-IG1zZy5tc2dfY29udHJvbCA9IHZob3N0X25ldF9idWZfY29uc3VtZSgpIGhlcmUgdG9vLCAKPiBv
-dGhlcndpc2Ugd2UgbWF5IHN0aWxsIGdldCBpdCBsZWFrZWQuCj4KPiBUaGFua3MgCgpOb3QgYSBs
-ZWFrIGFjdHVhbGx5LCBidXQgdGhlIHBhY2tldCB3b24ndCBiZSBjb25zdW1lZCBhbmQgd2Ugd2ls
-bCBoaXQgClVJT19NQVhJT1YgZm9yZXZlciBpbiB0aGlzIGNhc2UuCgpUaGFua3MKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
-aW9u
+Hello
+
+The current crypto_engine support only ahash and ablkcipher.
+My first patch which try to add skcipher was Nacked, it will add too many functions
+and adding other algs(aead, asymetric_key) will make the situation worst.
+
+This patchset remove all algs specific stuff and now only process generic crypto_async_request.
+
+The requests handler function pointer are now moved out of struct engine and
+are now stored directly in a crypto_engine_reqctx.
+
+The original proposal of Herbert [1] cannot be done completly since the crypto_engine
+could only dequeue crypto_async_request and it is impossible to access any request_ctx
+without knowing the underlying request type.
+
+So I do something near that was requested: adding crypto_engine_reqctx in TFM context.
+Note that the current implementation expect that crypto_engine_reqctx
+is the first member of the context.
+
+The first patch convert the crypto engine with the new way,
+while the following patchs convert the 3 existing users of crypto_engine.
+Note that this split break bisection, so probably the final commit will be all merged.
+
+The 3 latest patch were compile tested only, but the first is tested successfully
+with my new sun8i-ce driver.
+
+Regards
+
+[1] https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1474434.html
+
+Corentin Labbe (4):
+  crypto: engine - Permit to enqueue all async requests
+  crypto: omap: convert to new crypto engine API
+  crypto: virtio: convert to new crypto engine API
+  crypto: stm32: convert to the new crypto engine API
+
+ crypto/crypto_engine.c                       | 188 ++++++---------------------
+ drivers/crypto/omap-aes.c                    |  21 ++-
+ drivers/crypto/omap-aes.h                    |   3 +
+ drivers/crypto/omap-des.c                    |  24 +++-
+ drivers/crypto/stm32/stm32-hash.c            |  22 +++-
+ drivers/crypto/virtio/virtio_crypto_algs.c   |  15 ++-
+ drivers/crypto/virtio/virtio_crypto_common.h |   2 +-
+ drivers/crypto/virtio/virtio_crypto_core.c   |   3 -
+ include/crypto/engine.h                      |  46 +++----
+ 9 files changed, 122 insertions(+), 202 deletions(-)
+
+-- 
+2.13.6
