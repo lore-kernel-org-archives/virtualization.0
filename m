@@ -1,16 +1,15 @@
 From: Wei Xu <wexu@redhat.com>
 Subject: Re: [PATCH net,stable] vhost: fix skb leak in handle_rx()
-Date: Wed, 29 Nov 2017 13:44:22 +0800
-Message-ID: <20171129054422.qmhjvc2tn3tn5gm7__32412.6838859685$1512195418$gmane$org@Wei-Dev>
+Date: Wed, 29 Nov 2017 14:12:40 +0800
+Message-ID: <20171129061240.mhlw5uwi4hf57nf3__21552.3985367783$1512195423$gmane$org@Wei-Dev>
 References: <1511889436-12876-1-git-send-email-wexu@redhat.com>
-	<9b234fdd-baa3-f919-6c72-f6768265f1ca@redhat.com>
-	<37f16bef-4a59-b895-c61b-e3f473617411@redhat.com>
+	<20171128193713-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <37f16bef-4a59-b895-c61b-e3f473617411@redhat.com>
+In-Reply-To: <20171128193713-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,49 +19,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mjrosato@linux.vnet.ibm.com, netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: mjrosato@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBOb3YgMjksIDIwMTcgYXQgMDE6MDY6MjhQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE35bm0MTHmnIgyOeaXpSAwOTo1MywgSmFzb24gV2FuZyB3cm90ZToK
-PiA+IAo+ID4gCj4gPiBPbiAyMDE3w6XCucK0MTHDpsWTy4YyOcOm4oCUwqUgMDE6MTcsIHdleHVA
-cmVkaGF0LmNvbSB3cm90ZToKPiA+ID4gRnJvbTogV2VpIFh1IDx3ZXh1QHJlZGhhdC5jb20+Cj4g
-PiA+IAo+ID4gPiBNYXR0aGV3IGZvdW5kIGEgcm91Z2hseSA0MCUgdGNwIHRocm91Z2hwdXQgcmVn
-cmVzc2lvbiB3aXRoIGNvbW1pdAo+ID4gPiBjNjdkZjExZih2aG9zdF9uZXQ6IHRyeSBiYXRjaCBk
-ZXF1aW5nIGZyb20gc2tiIGFycmF5KSBhcyBkaXNjdXNzZWQKPiA+ID4gaW4gdGhlIGZvbGxvd2lu
-ZyB0aHJlYWQ6Cj4gPiA+IGh0dHBzOi8vd3d3Lm1haWwtYXJjaGl2ZS5jb20vbmV0ZGV2QHZnZXIu
-a2VybmVsLm9yZy9tc2cxODc5MzYuaHRtbAo+ID4gPiAKPiA+ID4gRXZlbnR1YWxseSB3ZSBmaWd1
-cmVkIG91dCB0aGF0IGl0IHdhcyBhIHNrYiBsZWFrIGluIGhhbmRsZV9yeCgpCj4gPiA+IHdoZW4g
-c2VuZGluZyBwYWNrZXRzIHRvIHRoZSBWTS4gVGhpcyB1c3VhbGx5IGhhcHBlbnMgd2hlbiBhIGd1
-ZXN0Cj4gPiA+IGNhbiBub3QgZHJhaW4gb3V0IHZxIGFzIGZhc3QgYXMgdmhvc3QgZmlsbHMgaW4s
-IGFmdGVyd2FyZHMgaXQgc2V0cwo+ID4gPiBvZmYgdGhlIHRyYWZmaWMgamFtIGFuZCBsZWFrcyBz
-a2Iocykgd2hpY2ggb2NjdXJzIGFzIG5vIGhlYWRjb3VudAo+ID4gPiB0byBzZW5kIG9uIHRoZSB2
-cSBmcm9tIHZob3N0IHNpZGUuCj4gPiA+IAo+ID4gPiBUaGlzIGNhbiBiZSBhdm9pZGVkIGJ5IG1h
-a2luZyBzdXJlIHdlIGhhdmUgZ290IGVub3VnaCBoZWFkY291bnQKPiA+ID4gYmVmb3JlIGFjdHVh
-bGx5IGNvbnN1bWluZyBhIHNrYiBmcm9tIHRoZSBiYXRjaGVkIHJ4IGFycmF5IHdoaWxlCj4gPiA+
-IHRyYW5zbWl0dGluZywgd2hpY2ggaXMgc2ltcGx5IGRvbmUgYnkgZGVmZXJyaW5nIGl0IGEgbW9t
-ZW50IGxhdGVyCj4gPiA+IGluIHRoaXMgcGF0Y2guCj4gPiA+IAo+ID4gPiBTaWduZWQtb2ZmLWJ5
-OiBXZWkgWHUgPHdleHVAcmVkaGF0LmNvbT4KPiA+ID4gLS0tCj4gPiA+IMKgIGRyaXZlcnMvdmhv
-c3QvbmV0LmMgfCA0ICsrLS0KPiA+ID4gwqAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygr
-KSwgMiBkZWxldGlvbnMoLSkKPiA+ID4gCj4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0
-L25ldC5jIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+ID4gPiBpbmRleCA4ZDYyNmQ3Li5lNzY1MzVl
-IDEwMDY0NAo+ID4gPiAtLS0gYS9kcml2ZXJzL3Zob3N0L25ldC5jCj4gPiA+ICsrKyBiL2RyaXZl
-cnMvdmhvc3QvbmV0LmMKPiA+ID4gQEAgLTc3OCw4ICs3NzgsNiBAQCBzdGF0aWMgdm9pZCBoYW5k
-bGVfcngoc3RydWN0IHZob3N0X25ldCAqbmV0KQo+ID4gPiDCoMKgwqDCoMKgwqDCoMKgwqAgLyog
-T24gZXJyb3IsIHN0b3AgaGFuZGxpbmcgdW50aWwgdGhlIG5leHQga2ljay4gKi8KPiA+ID4gwqDC
-oMKgwqDCoMKgwqDCoMKgIGlmICh1bmxpa2VseShoZWFkY291bnQgPCAwKSkKPiA+ID4gwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgZ290byBvdXQ7Cj4gPiA+IC3CoMKgwqDCoMKgwqDCoCBpZiAo
-bnZxLT5yeF9hcnJheSkKPiA+ID4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgbXNnLm1zZ19jb250
-cm9sID0gdmhvc3RfbmV0X2J1Zl9jb25zdW1lKCZudnEtPnJ4cSk7Cj4gPiA+IMKgwqDCoMKgwqDC
-oMKgwqDCoCAvKiBPbiBvdmVycnVuLCB0cnVuY2F0ZSBhbmQgZGlzY2FyZCAqLwo+ID4gPiDCoMKg
-wqDCoMKgwqDCoMKgwqAgaWYgKHVubGlrZWx5KGhlYWRjb3VudCA+IFVJT19NQVhJT1YpKSB7Cj4g
-PiAKPiA+IFlvdSBuZWVkIGRvIG1zZy5tc2dfY29udHJvbCA9IHZob3N0X25ldF9idWZfY29uc3Vt
-ZSgpIGhlcmUgdG9vLAo+ID4gb3RoZXJ3aXNlIHdlIG1heSBzdGlsbCBnZXQgaXQgbGVha2VkLgo+
-ID4gCj4gPiBUaGFua3MKPiAKPiBOb3QgYSBsZWFrIGFjdHVhbGx5LCBidXQgdGhlIHBhY2tldCB3
-b24ndCBiZSBjb25zdW1lZCBhbmQgd2Ugd2lsbCBoaXQKPiBVSU9fTUFYSU9WIGZvcmV2ZXIgaW4g
-dGhpcyBjYXNlLgoKSSBzZWUsIHRoYW5rcywgd2lsbCBtYWtlIGEgdjIuCgo+IAo+IFRoYW5rcwpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+On Tue, Nov 28, 2017 at 07:50:58PM +0200, Michael S. Tsirkin wrote:
+> On Tue, Nov 28, 2017 at 12:17:16PM -0500, wexu@redhat.com wrote:
+> > From: Wei Xu <wexu@redhat.com>
+> > 
+> > Matthew found a roughly 40% tcp throughput regression with commit
+> > c67df11f(vhost_net: try batch dequing from skb array) as discussed
+> > in the following thread:
+> > https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
+> > 
+> > Eventually we figured out that it was a skb leak in handle_rx()
+> > when sending packets to the VM. This usually happens when a guest
+> > can not drain out vq as fast as vhost fills in, afterwards it sets
+> > off the traffic jam and leaks skb(s) which occurs as no headcount
+> > to send on the vq from vhost side.
+> > 
+> > This can be avoided by making sure we have got enough headcount
+> > before actually consuming a skb from the batched rx array while
+> > transmitting, which is simply done by deferring it a moment later
+> > in this patch.
+> > 
+> > Signed-off-by: Wei Xu <wexu@redhat.com>
+> 
+> Looks like a good way to fix it, but it will still leak if recvmsg
+> returns a wrong length (I'm not sure this can happen in practice, but
+> best to keep it simple).
+
+Right, it is better to defend this case, will include it in v2.
+
+> 
+> Also, we need to add this before each recvmsg, including overrun,
+> and discard on error.
+
+OK.
+
+Wei
+
+> 
+> > ---
+> >  drivers/vhost/net.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> > index 8d626d7..e76535e 100644
+> > --- a/drivers/vhost/net.c
+> > +++ b/drivers/vhost/net.c
+> > @@ -778,8 +778,6 @@ static void handle_rx(struct vhost_net *net)
+> >  		/* On error, stop handling until the next kick. */
+> >  		if (unlikely(headcount < 0))
+> >  			goto out;
+> > -		if (nvq->rx_array)
+> > -			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
+> >  		/* On overrun, truncate and discard */
+> >  		if (unlikely(headcount > UIO_MAXIOV)) {
+> >  			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
+> > @@ -809,6 +807,8 @@ static void handle_rx(struct vhost_net *net)
+> >  			 */
+> >  			iov_iter_advance(&msg.msg_iter, vhost_hlen);
+> >  		}
+> > +		if (nvq->rx_array)
+> > +			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
+> >  		err = sock->ops->recvmsg(sock, &msg,
+> >  					 sock_len, MSG_DONTWAIT | MSG_TRUNC);
+> >  		/* Userspace might have consumed the packet meanwhile:
+> > -- 
+> > 1.8.3.1
