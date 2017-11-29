@@ -1,15 +1,13 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH v3] s390/virtio: add BSD license to virtio-ccw
-Date: Wed, 29 Nov 2017 10:22:55 +0100
-Message-ID: <20171129092255.GB4061__20717.2331902713$1511947414$gmane$org@osiris>
-References: <1511874948-27609-1-git-send-email-mst@redhat.com>
-	<20171128145119.2866d7a7.cohuck@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH] virtio: release virtio index when fail to device_register
+Date: Wed, 29 Nov 2017 10:50:44 +0100
+Message-ID: <20171129105044.3a4b0ab3.cohuck@redhat.com>
+References: <20171129012301.GA6637@localhost.didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20171128145119.2866d7a7.cohuck@redhat.com>
+In-Reply-To: <20171129012301.GA6637@localhost.didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,66 +17,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: weiping zhang <zwp10758@gmail.com>
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 28, 2017 at 02:51:19PM +0100, Cornelia Huck wrote:
-> On Tue, 28 Nov 2017 15:17:52 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > The original intent of the virtio header relicensing
-> > from 2008 was to make sure anyone can implement compatible
-> > devices/drivers. The virtio-ccw was omitted by mistake.
-> > 
-> > We have an ack from the only contributor as well as the
-> > maintainer from IBM, so it's not too late to fix that.
-> > 
-> > Make it dual-licensed with GPLv2, as the whole kernel is GPL2.
-> > 
-> > Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> > Acked-by: Cornelia Huck <cohuck@redhat.com>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  arch/s390/include/uapi/asm/virtio-ccw.h | 6 +-----
-> >  arch/s390/kernel/setup.c                | 1 -
-> >  2 files changed, 1 insertion(+), 6 deletions(-)
-> > 
-> > diff --git a/arch/s390/include/uapi/asm/virtio-ccw.h b/arch/s390/include/uapi/asm/virtio-ccw.h
-> > index 967aad3..2b605f7 100644
-> > --- a/arch/s390/include/uapi/asm/virtio-ccw.h
-> > +++ b/arch/s390/include/uapi/asm/virtio-ccw.h
-> > @@ -1,13 +1,9 @@
-> > -/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-> > +/* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause) */
-> >  /*
-> >   * Definitions for virtio-ccw devices.
-> >   *
-> >   * Copyright IBM Corp. 2013
-> >   *
-> > - * This program is free software; you can redistribute it and/or modify
-> > - * it under the terms of the GNU General Public License (version 2 only)
-> > - * as published by the Free Software Foundation.
-> > - *
-> >   *  Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
-> >   */
-> >  #ifndef __KVM_VIRTIO_CCW_H
-> > diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-> > index 164a1e1..c022007 100644
-> > --- a/arch/s390/kernel/setup.c
-> > +++ b/arch/s390/kernel/setup.c
-> > @@ -60,7 +60,6 @@
-> >  #include <asm/ptrace.h>
-> >  #include <asm/sections.h>
-> >  #include <asm/ebcdic.h>
-> > -#include <asm/kvm_virtio.h>
-> >  #include <asm/diag.h>
-> >  #include <asm/os_info.h>
-> >  #include <asm/sclp.h>
-> 
-> Shouldn't the second hunk already be in master?
-> 
-> Still ack otherwise.
+On Wed, 29 Nov 2017 09:23:01 +0800
+weiping zhang <zwp10758@gmail.com> wrote:
 
-The removal of the license text is also already in linux-next, however no
-need to send an updated version. I'll fix it up ;)
+> index can be reused by other virtio device.
+> 
+> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+
+> ---
+>  drivers/virtio/virtio.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index 48230a5..bf7ff39 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -333,6 +333,8 @@ int register_virtio_device(struct virtio_device *dev)
+>  	/* device_register() causes the bus infrastructure to look for a
+>  	 * matching driver. */
+>  	err = device_register(&dev->dev);
+> +	if (err)
+> +		ida_simple_remove(&virtio_index_ida, dev->index);
+>  out:
+>  	if (err)
+>  		virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
+
+I think your patch is correct (giving up the index if we failed to
+register), but this made me look at our error handling if a virtio
+device failed to register.
+
+We hold an extra reference to the struct device, even after a failed
+register, and it is the responsibility of the caller to give up that
+reference once no longer needed. As callers toregister_virtio_device()
+embed the struct virtio_device, it needs to be their responsibility.
+Looking at the existing callers,
+
+- ccw does a put_device
+- pci, mmio and remoteproc do nothing, causing a leak
+- vop does a free on the embedding structure, which is a big no-no
+
+Thoughts?
