@@ -1,13 +1,12 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] VSOCK: Don't set sk_state to TCP_CLOSE before testing it
-Date: Tue, 28 Nov 2017 16:02:04 -0500 (EST)
-Message-ID: <20171128.160204.772077471252633195.davem__6579.56237341768$1511902948$gmane$org@davemloft.net>
-References: <1511789372-12672-1-git-send-email-jhansen@vmware.com>
+From: weiping zhang <zwp10758@gmail.com>
+Subject: [PATCH] virtio: release virtio index when fail to device_register
+Date: Wed, 29 Nov 2017 09:23:01 +0800
+Message-ID: <20171129012301.GA6637@localhost.didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1511789372-12672-1-git-send-email-jhansen@vmware.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,19 +16,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jhansen@vmware.com
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, gregkh@linuxfoundation.org
+To: mst@redhat.com, jasowang@redhat.com
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jorgen Hansen <jhansen@vmware.com>
-Date: Mon, 27 Nov 2017 05:29:32 -0800
+index can be reused by other virtio device.
 
-> A recent commit (3b4477d2dcf2) converted the sk_state to use
-> TCP constants. In that change, vmci_transport_handle_detach
-> was changed such that sk->sk_state was set to TCP_CLOSE before
-> we test whether it is TCP_SYN_SENT. This change moves the
-> sk_state change back to the original locations in that function.
-> 
-> Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
+Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+---
+ drivers/virtio/virtio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Applied.
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 48230a5..bf7ff39 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -333,6 +333,8 @@ int register_virtio_device(struct virtio_device *dev)
+ 	/* device_register() causes the bus infrastructure to look for a
+ 	 * matching driver. */
+ 	err = device_register(&dev->dev);
++	if (err)
++		ida_simple_remove(&virtio_index_ida, dev->index);
+ out:
+ 	if (err)
+ 		virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
+-- 
+2.9.4
