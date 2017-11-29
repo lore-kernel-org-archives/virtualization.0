@@ -1,13 +1,15 @@
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
-Subject: [PATCH RFC 4/4] crypto: stm32: convert to the new crypto engine API
-Date: Wed, 29 Nov 2017 09:41:21 +0100
-Message-ID: <20171129084121.9385-5-clabbe.montjoie__35584.5496560962$1511945081$gmane$org@gmail.com>
-References: <20171129084121.9385-1-clabbe.montjoie@gmail.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH v3] s390/virtio: add BSD license to virtio-ccw
+Date: Wed, 29 Nov 2017 10:22:55 +0100
+Message-ID: <20171129092255.GB4061__20717.2331902713$1511947414$gmane$org@osiris>
+References: <1511874948-27609-1-git-send-email-mst@redhat.com>
+	<20171128145119.2866d7a7.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171129084121.9385-1-clabbe.montjoie@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20171128145119.2866d7a7.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,92 +19,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: herbert@gondor.apana.org.au, alexandre.torgue@st.com, arei.gonglei@huawei.com, davem@davemloft.net, jasowang@redhat.com, mcoquelin.stm32@gmail.com, mst@redhat.com, fabien.dessenne@st.com
-Cc: virtualization@lists.linux-foundation.org, Corentin Labbe <clabbe.montjoie@gmail.com>, linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch convert the driver to the new crypto engine API.
+On Tue, Nov 28, 2017 at 02:51:19PM +0100, Cornelia Huck wrote:
+> On Tue, 28 Nov 2017 15:17:52 +0200
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > The original intent of the virtio header relicensing
+> > from 2008 was to make sure anyone can implement compatible
+> > devices/drivers. The virtio-ccw was omitted by mistake.
+> > 
+> > We have an ack from the only contributor as well as the
+> > maintainer from IBM, so it's not too late to fix that.
+> > 
+> > Make it dual-licensed with GPLv2, as the whole kernel is GPL2.
+> > 
+> > Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > Acked-by: Cornelia Huck <cohuck@redhat.com>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  arch/s390/include/uapi/asm/virtio-ccw.h | 6 +-----
+> >  arch/s390/kernel/setup.c                | 1 -
+> >  2 files changed, 1 insertion(+), 6 deletions(-)
+> > 
+> > diff --git a/arch/s390/include/uapi/asm/virtio-ccw.h b/arch/s390/include/uapi/asm/virtio-ccw.h
+> > index 967aad3..2b605f7 100644
+> > --- a/arch/s390/include/uapi/asm/virtio-ccw.h
+> > +++ b/arch/s390/include/uapi/asm/virtio-ccw.h
+> > @@ -1,13 +1,9 @@
+> > -/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+> > +/* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause) */
+> >  /*
+> >   * Definitions for virtio-ccw devices.
+> >   *
+> >   * Copyright IBM Corp. 2013
+> >   *
+> > - * This program is free software; you can redistribute it and/or modify
+> > - * it under the terms of the GNU General Public License (version 2 only)
+> > - * as published by the Free Software Foundation.
+> > - *
+> >   *  Author(s): Cornelia Huck <cornelia.huck@de.ibm.com>
+> >   */
+> >  #ifndef __KVM_VIRTIO_CCW_H
+> > diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+> > index 164a1e1..c022007 100644
+> > --- a/arch/s390/kernel/setup.c
+> > +++ b/arch/s390/kernel/setup.c
+> > @@ -60,7 +60,6 @@
+> >  #include <asm/ptrace.h>
+> >  #include <asm/sections.h>
+> >  #include <asm/ebcdic.h>
+> > -#include <asm/kvm_virtio.h>
+> >  #include <asm/diag.h>
+> >  #include <asm/os_info.h>
+> >  #include <asm/sclp.h>
+> 
+> Shouldn't the second hunk already be in master?
+> 
+> Still ack otherwise.
 
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
----
- drivers/crypto/stm32/stm32-hash.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/crypto/stm32/stm32-hash.c b/drivers/crypto/stm32/stm32-hash.c
-index 4ca4a264a833..e3f9f7b04ce2 100644
---- a/drivers/crypto/stm32/stm32-hash.c
-+++ b/drivers/crypto/stm32/stm32-hash.c
-@@ -122,6 +122,7 @@ enum stm32_hash_data_format {
- #define HASH_DMA_THRESHOLD		50
- 
- struct stm32_hash_ctx {
-+	struct crypto_engine_reqctx enginectx;
- 	struct stm32_hash_dev	*hdev;
- 	unsigned long		flags;
- 
-@@ -811,7 +812,7 @@ static void stm32_hash_finish_req(struct ahash_request *req, int err)
- 		rctx->flags |= HASH_FLAGS_ERRORS;
- 	}
- 
--	crypto_finalize_hash_request(hdev->engine, req, err);
-+	crypto_finalize_request(hdev->engine, &req->base, err);
- }
- 
- static int stm32_hash_hw_init(struct stm32_hash_dev *hdev,
-@@ -828,15 +829,21 @@ static int stm32_hash_hw_init(struct stm32_hash_dev *hdev,
- 	return 0;
- }
- 
-+static int stm32_hash_one_request(struct crypto_engine *engine,
-+				  struct crypto_async_request *areq);
-+static int stm32_hash_prepare_req(struct crypto_engine *engine,
-+				  struct crypto_async_request *areq);
-+
- static int stm32_hash_handle_queue(struct stm32_hash_dev *hdev,
- 				   struct ahash_request *req)
- {
--	return crypto_transfer_hash_request_to_engine(hdev->engine, req);
-+	return crypto_transfer_request_to_engine(hdev->engine, &req->base);
- }
- 
- static int stm32_hash_prepare_req(struct crypto_engine *engine,
--				  struct ahash_request *req)
-+				  struct crypto_async_request *areq)
- {
-+	struct ahash_request *req = ahash_request_cast(areq);
- 	struct stm32_hash_ctx *ctx = crypto_ahash_ctx(crypto_ahash_reqtfm(req));
- 	struct stm32_hash_dev *hdev = stm32_hash_find_dev(ctx);
- 	struct stm32_hash_request_ctx *rctx;
-@@ -855,8 +862,9 @@ static int stm32_hash_prepare_req(struct crypto_engine *engine,
- }
- 
- static int stm32_hash_one_request(struct crypto_engine *engine,
--				  struct ahash_request *req)
-+				  struct crypto_async_request *areq)
- {
-+	struct ahash_request *req = ahash_request_cast(areq);
- 	struct stm32_hash_ctx *ctx = crypto_ahash_ctx(crypto_ahash_reqtfm(req));
- 	struct stm32_hash_dev *hdev = stm32_hash_find_dev(ctx);
- 	struct stm32_hash_request_ctx *rctx;
-@@ -1033,6 +1041,9 @@ static int stm32_hash_cra_init_algs(struct crypto_tfm *tfm,
- 	if (algs_hmac_name)
- 		ctx->flags |= HASH_FLAGS_HMAC;
- 
-+	ctx->enginectx.op.do_one_request = stm32_hash_one_request;
-+	ctx->enginectx.op.prepare_request = stm32_hash_prepare_req;
-+	ctx->enginectx.op.unprepare_request = NULL;
- 	return 0;
- }
- 
-@@ -1493,9 +1504,6 @@ static int stm32_hash_probe(struct platform_device *pdev)
- 		goto err_engine;
- 	}
- 
--	hdev->engine->prepare_hash_request = stm32_hash_prepare_req;
--	hdev->engine->hash_one_request = stm32_hash_one_request;
--
- 	ret = crypto_engine_start(hdev->engine);
- 	if (ret)
- 		goto err_engine_start;
--- 
-2.13.6
+The removal of the license text is also already in linux-next, however no
+need to send an updated version. I'll fix it up ;)
