@@ -1,13 +1,20 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH] virtio: release virtio index when fail to device_register
-Date: Wed, 29 Nov 2017 10:50:44 +0100
-Message-ID: <20171129105044.3a4b0ab3.cohuck@redhat.com>
-References: <20171129012301.GA6637@localhost.didichuxing.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH 02/13] fbdev: add remove_conflicting_pci_framebuffers()
+Date: Wed, 29 Nov 2017 10:56:34 +0100
+Message-ID: <20171129095634.ymeld4l7zaehbuvn__6224.31312590397$1511949454$gmane$org@phenom.ffwll.local>
+References: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
+	<1738dbed0239bffc886f126fd3091daa39cd14c9.1511544782.git.mirq-linux@rere.qmqm.pl>
+	<20171127102758.y7c6yzyey6wfntxh@phenom.ffwll.local>
+	<20171127205219.GA3537@sudip-laptop>
+	<20171128102217.b7ynyqarwzkdvmdq@phenom.ffwll.local>
+	<20171128113238.GA29456@kroah.com>
+	<20171128123008.GA12986@sudip-tp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171129012301.GA6637@localhost.didichuxing.com>
+Content-Disposition: inline
+In-Reply-To: <20171128123008.GA12986@sudip-tp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,49 +24,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: weiping zhang <zwp10758@gmail.com>
-Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Teddy Wang <teddy.wang@siliconmotion.com>, David Airlie <airlied@linux.ie>, Greg KH <gregkh@linuxfoundation.org>, dri-devel@lists.freedesktop.org, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, amd-gfx@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>, virtualization@lists.linux-foundation.org, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 29 Nov 2017 09:23:01 +0800
-weiping zhang <zwp10758@gmail.com> wrote:
-
-> index can be reused by other virtio device.
-> 
-> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-
-> ---
->  drivers/virtio/virtio.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 48230a5..bf7ff39 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -333,6 +333,8 @@ int register_virtio_device(struct virtio_device *dev)
->  	/* device_register() causes the bus infrastructure to look for a
->  	 * matching driver. */
->  	err = device_register(&dev->dev);
-> +	if (err)
-> +		ida_simple_remove(&virtio_index_ida, dev->index);
->  out:
->  	if (err)
->  		virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
-
-I think your patch is correct (giving up the index if we failed to
-register), but this made me look at our error handling if a virtio
-device failed to register.
-
-We hold an extra reference to the struct device, even after a failed
-register, and it is the responsibility of the caller to give up that
-reference once no longer needed. As callers toregister_virtio_device()
-embed the struct virtio_device, it needs to be their responsibility.
-Looking at the existing callers,
-
-- ccw does a put_device
-- pci, mmio and remoteproc do nothing, causing a leak
-- vop does a free on the embedding structure, which is a big no-no
-
-Thoughts?
+T24gVHVlLCBOb3YgMjgsIDIwMTcgYXQgMTI6MzA6MzBQTSArMDAwMCwgU3VkaXAgTXVraGVyamVl
+IHdyb3RlOgo+IE9uIFR1ZSwgTm92IDI4LCAyMDE3IGF0IDEyOjMyOjM4UE0gKzAxMDAsIEdyZWcg
+S0ggd3JvdGU6Cj4gPiBPbiBUdWUsIE5vdiAyOCwgMjAxNyBhdCAxMToyMjoxN0FNICswMTAwLCBE
+YW5pZWwgVmV0dGVyIHdyb3RlOgo+ID4gPiBPbiBNb24sIE5vdiAyNywgMjAxNyBhdCAwODo1Mjox
+OVBNICswMDAwLCBTdWRpcCBNdWtoZXJqZWUgd3JvdGU6Cj4gPiA+ID4gT24gTW9uLCBOb3YgMjcs
+IDIwMTcgYXQgMTE6Mjc6NTlBTSArMDEwMCwgRGFuaWVsIFZldHRlciB3cm90ZToKPiA+ID4gPiA+
+IE9uIEZyaSwgTm92IDI0LCAyMDE3IGF0IDA2OjUzOjMxUE0gKzAxMDAsIE1pY2hhxYIgTWlyb3PF
+gmF3IHdyb3RlOgo+ID4gPiA+ID4gPiBBbG1vc3QgYWxsIGRyaXZlcnMgdXNpbmcgcmVtb3ZlX2Nv
+bmZsaWN0aW5nX2ZyYW1lYnVmZmVycygpIHdyYXAgaXQgd2l0aAo+ID4gPiA+ID4gPiB0aGUgc2Ft
+ZSBjb2RlLiBFeHRyYWN0IGNvbW1vbiBwYXJ0IGZyb20gUENJIGRyaXZlcnMgaW50byBzZXBhcmF0
+ZQo+ID4gPiA+ID4gPiByZW1vdmVfY29uZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpLgo+ID4g
+PiA+ID4gPiAKPiA+ID4gPiA+ID4gU2lnbmVkLW9mZi1ieTogTWljaGHFgiBNaXJvc8WCYXcgPG1p
+cnEtbGludXhAcmVyZS5xbXFtLnBsPgo+ID4gPiA+ID4gCj4gPiA+ID4gPiBTaW5jZSB0aGUgb25s
+eSBkcml2ZXIgdGhhdCBzZWVtcyB0byB1c2UgdGhpcyBpcyB0aGUgc3RhZ2luZyBvbmUsIHdoaWNo
+IGltbwo+ID4gPiA+ID4gaXMgYSBET0EgcHJvamVjdCwgbm90IHN1cmUgaXQncyB3b3J0aCB0byBi
+b3RoZXIgd2l0aCB0aGlzIGhlcmUuCj4gPiA+ID4gCj4gPiA+ID4gYWZhaWssIHRoaXMgZGV2aWNl
+IGlzIHVzZWQgaW4gcHJvZHVjdGlvbiBieSBmZXcgbWFudWZhY3R1cmVycyBhbmQgaXQgaXMKPiA+
+ID4gPiB1c2VmdWxsIGZvciB0aGVtIHRvIGhhdmUgaXQgaW4gdGhlIHRyZWUgYW5kIHRoZSBvbmx5
+IHJlYXNvbiBpdCBpcyBzdGlsbAo+ID4gPiA+IGluIHN0YWdpbmcgaXMgYmVjYXVzZSBUb21pIGFu
+bm91bmNlZCBoZSB3aWxsIG5vdCB0YWtlIGFueSBuZXcgZHJpdmVycyBpbgo+ID4gPiA+IGZiZGV2
+LiBBbmQsIHNvIEkgaGF2ZSBub3QgdGFrZW4gdGhlIGluaXRpYXRpdmUgdG8gcHJvcGVybHkgbW92
+ZSBpdCBvdXQKPiA+ID4gPiBvZiBzdGFnaW5nLiBJIHRoaW5rIEJhcnRsb21pZWogd2lsbCBhbHNv
+IG5vdCBhY2NlcHQgbmV3IGRyaXZlcnMgaW4gZmJkZXYuCj4gPiA+IAo+ID4gPiBJbW8sIGlmIG5v
+IG9uZSBjYXJlcyBhYm91dCBwb3J0aW5nIGl0IHRvIGttcyAod2hpY2ggd2lsbCBnaXZlIHlvdSBh
+biBmYmRldgo+ID4gPiBkcml2ZXIgZm9yIGZyZWUpLCB0aGVuIHdlIHNob3VsZCB0aHJvdyBpdCBv
+dXQuIEF0IGxlYXN0IEkgdGhvdWdodCBzdGFnaW5nCj4gPiA+IHdhcyBvbmx5IGZvciBzdHVmZiB0
+aGF0IGhhZCBhIHJlYXNvbmFibGUgY2hhbmNlIHRvIGdldCBtYWlubGluZWQuIE5vdCBhcyBhCj4g
+PiA+IGR1bXBpbmcgZ3JvdW5kIGZvciBkcml2ZXJzIHRoYXQgcGVvcGxlIHVzZSwgYnV0IGRvbid0
+IGJvdGhlciB0byBnZXQgcmVhZHkKPiA+ID4gZm9yIG1haW5saW5lLgo+ID4gPiAKPiA+ID4gR3Jl
+Zz8KPiA+IAo+ID4gWWVzLCBpZiBubyBvbmUgaXMgd29ya2luZyB0byBnZXQgaXQgb3V0IG9mIHN0
+YWdpbmcsIHRoYXQgbWVhbnMgbm8gb25lCj4gPiBjYXJlcyBhYm91dCBpdCwgYW5kIGl0IG5lZWRz
+IHRvIGJlIHJlbW92ZWQgZnJvbSB0aGUgdHJlZS4KPiAKPiBBZ3JlZWQuIEkgd2FzIG5vdCB3b3Jr
+aW5nIG9uIGdldHRpbmcgaXQgb3V0IG9mIHN0YWdpbmcgYXMgdGhlcmUgaXMgbm8KPiBwbGFjZSBm
+b3IgaXQgdG8gZ28uCj4gQnV0LCBUZWRkeSBXYW5nIHRvbGQgbWUgdGhhdCB0aGV5IGhhdmUgYSB3
+b3JraW5nIGRybSBkcml2ZXIgZm9yIGl0LCBidXQKPiBpdCBpcyBub3QgYXRvbWljIGxpa2UgRGFu
+aWVsIHdhcyBhc2tpbmcgZm9yLiBJZiBpdCBpcyBvaywgdGhlbiBJIGNhbiBzZW5kCj4gaW4gYSBw
+YXRjaCB0byByZW1vdmUgdGhlIGV4aXN0aW5nIHNtNzUwIGZyb20gc3RhZ2luZyBhbmQgYWRkIHRo
+ZSBuZXcgc203NTAKPiBkcm0gZHJpdmVyIHRvIHN0YWdpbmcuIEFuZCBhZnRlciBpdCBpcyByZWFk
+eSwgd2UgY2FuIGdvIGFoZWFkIHdpdGggbW92aW5nCj4gaXQgb3V0IG9mIHN0YWdpbmcgdG8gZHJt
+LgoKUGxlYXNlIGtlZXAgdGhlIHRvZG8gaXRlbSB0aGF0IGl0IG5lZWRzIHRvIGJlIGNvbnZlcnRl
+ZCB0byBhdG9taWMuIEFuZAp0YmgsIGl0J3MgcHJvYmFibHkgZmFzdGVyIGlmIHlvdSBqdXN0IHN1
+Ym1pdCBpdCB0byBkcmktZGV2ZWwsIGFzc3VtaW5nIHlvdQpoYXZlIHRpbWUgdG8gd29yayBvbiBp
+dC4gRm9yIHNtYWxsIGRyaXZlcnMgd2UgdGVuZCB0byBiZSBmYWlybHkgcXVpY2sgaW4KZ2V0dGlu
+ZyB0aGVtIGludG8gZ29vZCBlbm91Z2ggc2hhcGUuCgpTdGFnaW5nIGlzIGFsc28gYSBtYWpvciBw
+YWluIGZvciBkcm0gc3Vic3lzdGVtIHJlZmFjdG9yaW5ncywgSSByZWFsbHksCnJlYWxseSwgcmVh
+bGx5IHByZWZlciB3ZSBkb24ndCBhZGQgbW9yZSB0aGFuIHRoZSB2Ym94IHBhaW4gd2UgaGF2ZQph
+bHJlYWR5LgotRGFuaWVsCi0tIApEYW5pZWwgVmV0dGVyClNvZnR3YXJlIEVuZ2luZWVyLCBJbnRl
+bCBDb3Jwb3JhdGlvbgpodHRwOi8vYmxvZy5mZndsbC5jaApfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
