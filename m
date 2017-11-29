@@ -1,7 +1,7 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v18 07/10] virtio-balloon: VIRTIO_BALLOON_F_SG
-Date: Wed, 29 Nov 2017 21:55:23 +0800
-Message-ID: <1511963726-34070-8-git-send-email-wei.w.wang__44948.2933654965$1511964782$gmane$org@intel.com>
+Subject: [PATCH v18 09/10] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
+Date: Wed, 29 Nov 2017 21:55:25 +0800
+Message-ID: <1511963726-34070-10-git-send-email-wei.w.wang__46282.7325951823$1511964799$gmane$org@intel.com>
 References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,398 +21,375 @@ To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@no
 Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, riel@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, nilal@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new feature, VIRTIO_BALLOON_F_SG, which enables the transfer of
-balloon (i.e. inflated/deflated) pages using scatter-gather lists to the
-host. A scatter-gather list is described by a vring desc.
+Negotiation of the VIRTIO_BALLOON_F_FREE_PAGE_VQ feature indicates the
+support of reporting hints of guest free pages to host via virtio-balloon.
 
-The implementation of the previous virtio-balloon is not very efficient,
-because the balloon pages are transferred to the host by one array each
-time. Here is the breakdown of the time in percentage spent on each step
-of the balloon inflating process (inflating 7GB of an 8GB idle guest).
+Host requests the guest to report free pages by sending a new cmd
+id to the guest via the free_page_report_cmd_id configuration register.
 
-1) allocating pages (6.5%)
-2) sending PFNs to host (68.3%)
-3) address translation (6.1%)
-4) madvise (19%)
-
-It takes about 4126ms for the inflating process to complete. The above
-profiling shows that the bottlenecks are stage 2) and stage 4).
-
-This patch optimizes step 2) by transferring pages to host in sgs. An sg
-describes a chunk of guest physically continuous pages. With this
-mechanism, step 4) can also be optimized by doing address translation and
-madvise() in chunks rather than page by page.
-
-With this new feature, the above ballooning process takes ~440ms resulting
-in an improvement of ~89%.
-
-TODO: optimize stage 1) by allocating/freeing a chunk of pages instead of
-a single page each time.
+When the guest starts to report, the first element added to the free page
+vq is the cmd id given by host. When the guest finishes the reporting
+of all the free pages, VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID is added
+to the vq to tell host that the reporting is done. Host may also requests
+the guest to stop the reporting in advance by sending the stop cmd id to
+the guest via the configuration register.
 
 Signed-off-by: Wei Wang <wei.w.wang@intel.com>
 Signed-off-by: Liang Li <liang.z.li@intel.com>
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Michal Hocko <mhocko@kernel.org>
 ---
- drivers/virtio/virtio_balloon.c     | 230 +++++++++++++++++++++++++++++++++---
- include/uapi/linux/virtio_balloon.h |   1 +
- 2 files changed, 212 insertions(+), 19 deletions(-)
+ drivers/virtio/virtio_balloon.c     | 202 +++++++++++++++++++++++++++++-------
+ include/uapi/linux/virtio_balloon.h |   4 +
+ 2 files changed, 167 insertions(+), 39 deletions(-)
 
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 7960746..2c21c5a 100644
+index 2c21c5a..035bd3a 100644
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -32,6 +32,8 @@
- #include <linux/mm.h>
- #include <linux/mount.h>
- #include <linux/magic.h>
-+#include <linux/xbitmap.h>
-+#include <asm/page.h>
+@@ -55,7 +55,12 @@ static struct vfsmount *balloon_mnt;
+ 
+ struct virtio_balloon {
+ 	struct virtio_device *vdev;
+-	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
++	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *free_page_vq;
++
++	/* Balloon's own wq for cpu-intensive work items */
++	struct workqueue_struct *balloon_wq;
++	/* The free page reporting work item submitted to the balloon wq */
++	struct work_struct report_free_page_work;
+ 
+ 	/* The balloon servicing is delegated to a freezable workqueue. */
+ 	struct work_struct update_balloon_stats_work;
+@@ -65,6 +70,13 @@ struct virtio_balloon {
+ 	spinlock_t stop_update_lock;
+ 	bool stop_update;
+ 
++	/* Start to report free pages */
++	bool report_free_page;
++	/* Stores the cmd id given by host to start the free page reporting */
++	uint32_t start_cmd_id;
++	/* Stores STOP_ID as a sign to tell host that the reporting is done */
++	uint32_t stop_cmd_id;
++
+ 	/* Waiting for host to ack the pages we released. */
+ 	wait_queue_head_t acked;
+ 
+@@ -159,7 +171,8 @@ static void send_one_desc(struct virtio_balloon *vb,
+ 			  uint64_t addr,
+ 			  uint32_t len,
+ 			  bool inbuf,
+-			  bool batch)
++			  bool batch,
++			  bool wait)
+ {
+ 	int err;
+ 	unsigned int size;
+@@ -178,8 +191,12 @@ static void send_one_desc(struct virtio_balloon *vb,
+ 	BUG_ON(err);
+ 
+ 	/* If batching is requested, we batch till the vq is full */
+-	if (!batch || !vq->num_free)
+-		kick_and_wait(vq, vb->acked);
++	if (!batch || !vq->num_free) {
++		if (wait)
++			kick_and_wait(vq, vb->acked);
++		else
++			virtqueue_kick(vq);
++	}
+ }
  
  /*
-  * Balloon device works in 4K page units.  So each page is pointed to by
-@@ -79,6 +81,9 @@ struct virtio_balloon {
- 	/* Synchronize access/update to this struct virtio_balloon elements */
- 	struct mutex balloon_lock;
+@@ -212,11 +229,11 @@ static void tell_host_sgs(struct virtio_balloon *vb,
+ 		addr = pfn_start << PAGE_SHIFT;
+ 		len = (pfn_end - pfn_start) << PAGE_SHIFT;
+ 		while (len > max_len) {
+-			send_one_desc(vb, vq, addr, max_len, true, true);
++			send_one_desc(vb, vq, addr, max_len, true, true, true);
+ 			addr += max_len;
+ 			len -= max_len;
+ 		}
+-		send_one_desc(vb, vq, addr, len, true, true);
++		send_one_desc(vb, vq, addr, len, true, true, true);
+ 		pfn_start = pfn_end + 1;
+ 	}
  
-+	/* The xbitmap used to record balloon pages */
-+	struct xb page_xb;
-+
- 	/* The array of pfns we tell the Host about. */
- 	unsigned int num_pfns;
- 	__virtio32 pfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
-@@ -141,15 +146,121 @@ static void set_page_pfns(struct virtio_balloon *vb,
- 					  page_to_balloon_pfn(page) + i);
- }
- 
-+static void kick_and_wait(struct virtqueue *vq, wait_queue_head_t wq_head)
-+{
-+	unsigned int len;
-+
-+	virtqueue_kick(vq);
-+	wait_event(wq_head, virtqueue_get_buf(vq, &len));
-+}
-+
-+static void send_one_desc(struct virtio_balloon *vb,
-+			  struct virtqueue *vq,
-+			  uint64_t addr,
-+			  uint32_t len,
-+			  bool inbuf,
-+			  bool batch)
-+{
-+	int err;
-+	unsigned int size;
-+
-+	/* Detach all the used buffers from the vq */
-+	while (virtqueue_get_buf(vq, &size))
-+		;
-+
-+	err = virtqueue_add_one_desc(vq, addr, len, inbuf, vq);
-+	/*
-+	 * This is expected to never fail: there is always at least 1 entry
-+	 * available on the vq, because when the vq is full the worker thread
-+	 * that adds the desc will be put into sleep until at least 1 entry is
-+	 * available to use.
-+	 */
-+	BUG_ON(err);
-+
-+	/* If batching is requested, we batch till the vq is full */
-+	if (!batch || !vq->num_free)
-+		kick_and_wait(vq, vb->acked);
-+}
-+
-+/*
-+ * Send balloon pages in sgs to host. The balloon pages are recorded in the
-+ * page xbitmap. Each bit in the bitmap corresponds to a page of PAGE_SIZE.
-+ * The page xbitmap is searched for continuous "1" bits, which correspond
-+ * to continuous pages, to chunk into sgs.
-+ *
-+ * @page_xb_start and @page_xb_end form the range of bits in the xbitmap that
-+ * need to be searched.
-+ */
-+static void tell_host_sgs(struct virtio_balloon *vb,
-+			  struct virtqueue *vq,
-+			  unsigned long page_xb_start,
-+			  unsigned long page_xb_end)
-+{
-+	unsigned long pfn_start, pfn_end;
-+	uint64_t addr;
-+	uint32_t len, max_len = round_down(UINT_MAX, PAGE_SIZE);
-+
-+	pfn_start = page_xb_start;
-+	while (pfn_start < page_xb_end) {
-+		pfn_start = xb_find_next_set_bit(&vb->page_xb, pfn_start,
-+						 page_xb_end);
-+		if (pfn_start == page_xb_end + 1)
-+			break;
-+		pfn_end = xb_find_next_zero_bit(&vb->page_xb,
-+						pfn_start + 1,
-+						page_xb_end);
-+		addr = pfn_start << PAGE_SHIFT;
-+		len = (pfn_end - pfn_start) << PAGE_SHIFT;
-+		while (len > max_len) {
-+			send_one_desc(vb, vq, addr, max_len, true, true);
-+			addr += max_len;
-+			len -= max_len;
-+		}
-+		send_one_desc(vb, vq, addr, len, true, true);
-+		pfn_start = pfn_end + 1;
-+	}
-+
-+	/*
-+	 * The last few desc-s may not reach the batch size, but need a kick to
-+	 * notify the device to handle them.
-+	 */
-+	if (vq->num_free != virtqueue_get_vring_size(vq))
-+		kick_and_wait(vq, vb->acked);
-+
-+	xb_clear_bit_range(&vb->page_xb, page_xb_start, page_xb_end);
-+}
-+
-+static inline int xb_set_page(struct virtio_balloon *vb,
-+			       struct page *page,
-+			       unsigned long *pfn_min,
-+			       unsigned long *pfn_max)
-+{
-+	unsigned long pfn = page_to_pfn(page);
-+	int ret;
-+
-+	*pfn_min = min(pfn, *pfn_min);
-+	*pfn_max = max(pfn, *pfn_max);
-+
-+	do {
-+		ret = xb_preload_and_set_bit(&vb->page_xb, pfn,
-+					     GFP_NOWAIT | __GFP_NOWARN);
-+	} while (unlikely(ret == -EAGAIN));
-+
-+	return ret;
-+}
-+
- static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
- {
- 	unsigned num_allocated_pages;
- 	unsigned num_pfns;
- 	struct page *page;
- 	LIST_HEAD(pages);
-+	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
-+	unsigned long pfn_max = 0, pfn_min = ULONG_MAX;
- 
- 	/* We can only do one array worth at a time. */
--	num = min(num, ARRAY_SIZE(vb->pfns));
-+	if (!use_sg)
-+		num = min(num, ARRAY_SIZE(vb->pfns));
- 
- 	for (num_pfns = 0; num_pfns < num;
- 	     num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
-@@ -172,11 +283,18 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
- 	vb->num_pfns = 0;
- 
- 	while ((page = balloon_page_pop(&pages))) {
-+		if (use_sg) {
-+			if (xb_set_page(vb, page, &pfn_min, &pfn_max) < 0) {
-+				__free_page(page);
-+				break;
-+			}
-+		} else {
-+			set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-+		}
-+
- 		balloon_page_enqueue(&vb->vb_dev_info, page);
- 
- 		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
--
--		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
- 		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
- 		if (!virtio_has_feature(vb->vdev,
- 					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-@@ -185,8 +303,12 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
- 
- 	num_allocated_pages = vb->num_pfns;
- 	/* Did we get any? */
--	if (vb->num_pfns != 0)
--		tell_host(vb, vb->inflate_vq);
-+	if (vb->num_pfns) {
-+		if (use_sg)
-+			tell_host_sgs(vb, vb->inflate_vq, pfn_min, pfn_max);
-+		else
-+			tell_host(vb, vb->inflate_vq);
-+	}
- 	mutex_unlock(&vb->balloon_lock);
- 
- 	return num_allocated_pages;
-@@ -212,9 +334,12 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
- 	struct page *page;
- 	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
- 	LIST_HEAD(pages);
-+	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
-+	unsigned long pfn_max = 0, pfn_min = ULONG_MAX;
- 
--	/* We can only do one array worth at a time. */
--	num = min(num, ARRAY_SIZE(vb->pfns));
-+	/* Traditionally, we can only do one array worth at a time. */
-+	if (!use_sg)
-+		num = min(num, ARRAY_SIZE(vb->pfns));
- 
- 	mutex_lock(&vb->balloon_lock);
- 	/* We can't release more pages than taken */
-@@ -224,7 +349,14 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
- 		page = balloon_page_dequeue(vb_dev_info);
- 		if (!page)
- 			break;
--		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-+		if (use_sg) {
-+			if (xb_set_page(vb, page, &pfn_min, &pfn_max) < 0) {
-+				balloon_page_enqueue(&vb->vb_dev_info, page);
-+				break;
-+			}
-+		} else {
-+			set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-+		}
+@@ -401,7 +418,7 @@ static unsigned int leak_balloon_sg_oom(struct virtio_balloon *vb)
  		list_add(&page->lru, &pages);
  		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 		send_one_desc(vb, vq, virt_to_phys(page_address(page)),
+-			      PAGE_SIZE, true, true);
++			      PAGE_SIZE, true, true, true);
+ 		release_pages_balloon(vb, &pages);
  	}
-@@ -235,13 +367,55 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
- 	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
- 	 * is true, we *have* to do it in this order
- 	 */
--	if (vb->num_pfns != 0)
--		tell_host(vb, vb->deflate_vq);
-+	if (vb->num_pfns) {
-+		if (use_sg)
-+			tell_host_sgs(vb, vb->deflate_vq, pfn_min, pfn_max);
-+		else
-+			tell_host(vb, vb->deflate_vq);
-+	}
- 	release_pages_balloon(vb, &pages);
- 	mutex_unlock(&vb->balloon_lock);
- 	return num_freed_pages;
+ 
+@@ -491,17 +508,6 @@ static void stats_handle_request(struct virtio_balloon *vb)
+ 	virtqueue_kick(vq);
  }
  
-+/*
-+ * The regular leak_balloon() with VIRTIO_BALLOON_F_SG needs memory allocation
-+ * for xbitmap, which is not suitable for the oom case. This function does not
-+ * use xbitmap to chunk pages, so it can be used by oom notifier to deflate
-+ * pages when VIRTIO_BALLOON_F_SG is negotiated.
-+ */
-+static unsigned int leak_balloon_sg_oom(struct virtio_balloon *vb)
+-static void virtballoon_changed(struct virtio_device *vdev)
+-{
+-	struct virtio_balloon *vb = vdev->priv;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&vb->stop_update_lock, flags);
+-	if (!vb->stop_update)
+-		queue_work(system_freezable_wq, &vb->update_balloon_size_work);
+-	spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+-}
+-
+ static inline s64 towards_target(struct virtio_balloon *vb)
+ {
+ 	s64 target;
+@@ -518,6 +524,36 @@ static inline s64 towards_target(struct virtio_balloon *vb)
+ 	return target - vb->num_pages;
+ }
+ 
++static void virtballoon_changed(struct virtio_device *vdev)
 +{
-+	unsigned int n;
-+	struct page *page;
-+	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
-+	struct virtqueue *vq = vb->deflate_vq;
-+	LIST_HEAD(pages);
++	struct virtio_balloon *vb = vdev->priv;
++	unsigned long flags;
++	__u32 cmd_id;
++	s64 diff = towards_target(vb);
 +
-+	mutex_lock(&vb->balloon_lock);
-+	for (n = 0; n < oom_pages; n++) {
-+		page = balloon_page_dequeue(vb_dev_info);
-+		if (!page)
-+			break;
-+
-+		list_add(&page->lru, &pages);
-+		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
-+		send_one_desc(vb, vq, virt_to_phys(page_address(page)),
-+			      PAGE_SIZE, true, true);
-+		release_pages_balloon(vb, &pages);
++	if (diff) {
++		spin_lock_irqsave(&vb->stop_update_lock, flags);
++		if (!vb->stop_update)
++			queue_work(system_freezable_wq,
++				   &vb->update_balloon_size_work);
++		spin_unlock_irqrestore(&vb->stop_update_lock, flags);
 +	}
 +
-+	/*
-+	 * The last few sgs may not reach the batch size, but need a kick to
-+	 * notify the device to handle them.
-+	 */
-+	if (vq->num_free != virtqueue_get_vring_size(vq))
-+		kick_and_wait(vq, vb->acked);
-+	mutex_unlock(&vb->balloon_lock);
-+
-+	return n;
++	virtio_cread(vb->vdev, struct virtio_balloon_config,
++		     free_page_report_cmd_id, &cmd_id);
++	if (cmd_id == VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID) {
++		WRITE_ONCE(vb->report_free_page, false);
++	} else if (cmd_id != vb->start_cmd_id) {
++		/*
++		 * Host requests to start the reporting by sending a new cmd
++		 * id.
++		 */
++		WRITE_ONCE(vb->report_free_page, true);
++		vb->start_cmd_id = cmd_id;
++		queue_work(vb->balloon_wq, &vb->report_free_page_work);
++	}
 +}
 +
- static inline void update_stat(struct virtio_balloon *vb, int idx,
- 			       u16 tag, u64 val)
+ static void update_balloon_size(struct virtio_balloon *vb)
  {
-@@ -381,7 +555,10 @@ static int virtballoon_oom_notify(struct notifier_block *self,
- 		return NOTIFY_OK;
+ 	u32 actual = vb->num_pages;
+@@ -593,42 +629,121 @@ static void update_balloon_size_func(struct work_struct *work)
+ 		queue_work(system_freezable_wq, work);
+ }
  
- 	freed = parm;
--	num_freed_pages = leak_balloon(vb, oom_pages);
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG))
-+		num_freed_pages = leak_balloon_sg_oom(vb);
-+	else
-+		num_freed_pages = leak_balloon(vb, oom_pages);
- 	update_balloon_size(vb);
- 	*freed += num_freed_pages;
- 
-@@ -478,6 +655,7 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+-static int init_vqs(struct virtio_balloon *vb)
++static bool virtio_balloon_send_free_pages(void *opaque, unsigned long pfn,
++					   unsigned long nr_pages)
  {
- 	struct virtio_balloon *vb = container_of(vb_dev_info,
- 			struct virtio_balloon, vb_dev_info);
-+	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
- 	unsigned long flags;
+-	struct virtqueue *vqs[3];
+-	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
+-	static const char * const names[] = { "inflate", "deflate", "stats" };
+-	int err, nvqs;
++	struct virtio_balloon *vb = (struct virtio_balloon *)opaque;
++	uint64_t addr = pfn << PAGE_SHIFT;
++	uint32_t len = nr_pages << PAGE_SHIFT;
++
++	if (!READ_ONCE(vb->report_free_page))
++		return false;
  
++	send_one_desc(vb, vb->free_page_vq, addr, len, true, true, false);
++
++	return true;
++}
++
++static void report_free_page(struct work_struct *work)
++{
++	struct virtio_balloon *vb;
++
++	vb = container_of(work, struct virtio_balloon, report_free_page_work);
++	/* Start by sending the obtained cmd id to the host with an outbuf */
++	send_one_desc(vb, vb->free_page_vq, virt_to_phys(&vb->start_cmd_id),
++		      sizeof(uint32_t), false, true, false);
++	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
  	/*
-@@ -499,16 +677,26 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
- 	vb_dev_info->isolated_pages--;
- 	__count_vm_event(BALLOON_MIGRATE);
- 	spin_unlock_irqrestore(&vb_dev_info->pages_lock, flags);
--	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
--	set_page_pfns(vb, vb->pfns, newpage);
--	tell_host(vb, vb->inflate_vq);
--
-+	if (use_sg) {
-+		send_one_desc(vb, vb->inflate_vq,
-+			      virt_to_phys(page_address(newpage)),
-+			      PAGE_SIZE, true, false);
-+	} else {
-+		vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
-+		set_page_pfns(vb, vb->pfns, newpage);
-+		tell_host(vb, vb->inflate_vq);
+-	 * We expect two virtqueues: inflate and deflate, and
+-	 * optionally stat.
++	 * End by sending the stop id to the host with an outbuf. Use the
++	 * non-batching mode here to trigger a kick after adding the stop id.
+ 	 */
+-	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
+-	err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
++	send_one_desc(vb, vb->free_page_vq, virt_to_phys(&vb->stop_cmd_id),
++		      sizeof(uint32_t), false, false, false);
++}
++
++static int init_vqs(struct virtio_balloon *vb)
++{
++	struct virtqueue **vqs;
++	vq_callback_t **callbacks;
++	const char **names;
++	struct scatterlist sg;
++	int i, nvqs, err = -ENOMEM;
++
++	/* Inflateq and deflateq are used unconditionally */
++	nvqs = 2;
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ))
++		nvqs++;
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ))
++		nvqs++;
++
++	/* Allocate space for find_vqs parameters */
++	vqs = kcalloc(nvqs, sizeof(*vqs), GFP_KERNEL);
++	if (!vqs)
++		goto err_vq;
++	callbacks = kmalloc_array(nvqs, sizeof(*callbacks), GFP_KERNEL);
++	if (!callbacks)
++		goto err_callback;
++	names = kmalloc_array(nvqs, sizeof(*names), GFP_KERNEL);
++	if (!names)
++		goto err_names;
++
++	callbacks[0] = balloon_ack;
++	names[0] = "inflate";
++	callbacks[1] = balloon_ack;
++	names[1] = "deflate";
++
++	i = 2;
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
++		callbacks[i] = stats_request;
++		names[i] = "stats";
++		i++;
 +	}
- 	/* balloon's page migration 2nd step -- deflate "page" */
- 	balloon_page_delete(page);
--	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
--	set_page_pfns(vb, vb->pfns, page);
--	tell_host(vb, vb->deflate_vq);
--
-+	if (use_sg) {
-+		send_one_desc(vb, vb->inflate_vq,
-+			      virt_to_phys(page_address(page)),
-+			      PAGE_SIZE, true, false);
-+	} else {
-+		vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
-+		set_page_pfns(vb, vb->pfns, page);
-+		tell_host(vb, vb->deflate_vq);
++
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ)) {
++		callbacks[i] = NULL;
++		names[i] = "free_page_vq";
 +	}
- 	mutex_unlock(&vb->balloon_lock);
- 
- 	put_page(page); /* balloon reference */
-@@ -567,6 +755,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
++
++	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks, names,
++					 NULL, NULL);
  	if (err)
- 		goto out_free_vb;
+-		return err;
++		goto err_find;
  
-+	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_SG))
-+		xb_init(&vb->page_xb);
+ 	vb->inflate_vq = vqs[0];
+ 	vb->deflate_vq = vqs[1];
++	i = 2;
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+-		struct scatterlist sg;
+-		unsigned int num_stats;
+-		vb->stats_vq = vqs[2];
+-
++		vb->stats_vq = vqs[i++];
+ 		/*
+ 		 * Prime this virtqueue with one buffer so the hypervisor can
+ 		 * use it to signal us later (it can't be broken yet!).
+ 		 */
+-		num_stats = update_balloon_stats(vb);
+-
+-		sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
++		sg_init_one(&sg, vb->stats, sizeof(vb->stats));
+ 		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
+-		    < 0)
+-			BUG();
++		    < 0) {
++			dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
++				 __func__);
++			goto err_find;
++		}
+ 		virtqueue_kick(vb->stats_vq);
+ 	}
++
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ))
++		vb->free_page_vq = vqs[i];
++
++	kfree(names);
++	kfree(callbacks);
++	kfree(vqs);
+ 	return 0;
++
++err_find:
++	kfree(names);
++err_names:
++	kfree(callbacks);
++err_callback:
++	kfree(vqs);
++err_vq:
++	return err;
+ }
+ 
+ #ifdef CONFIG_BALLOON_COMPACTION
+@@ -680,7 +795,7 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+ 	if (use_sg) {
+ 		send_one_desc(vb, vb->inflate_vq,
+ 			      virt_to_phys(page_address(newpage)),
+-			      PAGE_SIZE, true, false);
++			      PAGE_SIZE, true, false, true);
+ 	} else {
+ 		vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 		set_page_pfns(vb, vb->pfns, newpage);
+@@ -691,7 +806,7 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+ 	if (use_sg) {
+ 		send_one_desc(vb, vb->inflate_vq,
+ 			      virt_to_phys(page_address(page)),
+-			      PAGE_SIZE, true, false);
++			      PAGE_SIZE, true, false, true);
+ 	} else {
+ 		vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 		set_page_pfns(vb, vb->pfns, page);
+@@ -758,6 +873,13 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_SG))
+ 		xb_init(&vb->page_xb);
+ 
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ)) {
++		vb->balloon_wq = alloc_workqueue("balloon-wq",
++					WQ_FREEZABLE | WQ_CPU_INTENSIVE, 0);
++		INIT_WORK(&vb->report_free_page_work, report_free_page);
++		vb->stop_cmd_id = VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID;
++	}
 +
  	vb->nb.notifier_call = virtballoon_oom_notify;
  	vb->nb.priority = VIRTBALLOON_OOM_NOTIFY_PRIORITY;
  	err = register_oom_notifier(&vb->nb);
-@@ -683,6 +874,7 @@ static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_MUST_TELL_HOST,
+@@ -822,6 +944,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
+ 	spin_unlock_irq(&vb->stop_update_lock);
+ 	cancel_work_sync(&vb->update_balloon_size_work);
+ 	cancel_work_sync(&vb->update_balloon_stats_work);
++	cancel_work_sync(&vb->report_free_page_work);
+ 
+ 	remove_common(vb);
+ #ifdef CONFIG_BALLOON_COMPACTION
+@@ -875,6 +998,7 @@ static unsigned int features[] = {
  	VIRTIO_BALLOON_F_STATS_VQ,
  	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
-+	VIRTIO_BALLOON_F_SG,
+ 	VIRTIO_BALLOON_F_SG,
++	VIRTIO_BALLOON_F_FREE_PAGE_VQ,
  };
  
  static struct virtio_driver virtio_balloon_driver = {
 diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index 343d7dd..37780a7 100644
+index 37780a7..58f1274 100644
 --- a/include/uapi/linux/virtio_balloon.h
 +++ b/include/uapi/linux/virtio_balloon.h
-@@ -34,6 +34,7 @@
- #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
+@@ -35,15 +35,19 @@
  #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
  #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
-+#define VIRTIO_BALLOON_F_SG		3 /* Use sg instead of PFN lists */
+ #define VIRTIO_BALLOON_F_SG		3 /* Use sg instead of PFN lists */
++#define VIRTIO_BALLOON_F_FREE_PAGE_VQ	4 /* VQ to report free pages */
  
  /* Size of a PFN in the balloon interface. */
  #define VIRTIO_BALLOON_PFN_SHIFT 12
+ 
++#define VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID		0
+ struct virtio_balloon_config {
+ 	/* Number of pages host wants Guest to give up. */
+ 	__u32 num_pages;
+ 	/* Number of pages we've actually got in balloon. */
+ 	__u32 actual;
++	/* Free page report command id, readonly by guest */
++	__u32 free_page_report_cmd_id;
+ };
+ 
+ #define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
 -- 
 2.7.4
