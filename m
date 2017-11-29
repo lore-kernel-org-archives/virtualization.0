@@ -1,12 +1,15 @@
-From: weiping zhang <zwp10758@gmail.com>
-Subject: [PATCH] virtio: release virtio index when fail to device_register
-Date: Wed, 29 Nov 2017 09:23:01 +0800
-Message-ID: <20171129012301.GA6637@localhost.didichuxing.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3] virtio_balloon: include disk/file caches memory
+	statistics
+Date: Wed, 29 Nov 2017 03:24:02 +0200
+Message-ID: <20171129032348-mutt-send-email-mst__28919.3474957303$1511918651$gmane$org@kernel.org>
+References: <2e8c12f5242bcf755a33ee3a0e9ef94339d1808c.1510487579.git.tgolembi@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <2e8c12f5242bcf755a33ee3a0e9ef94339d1808c.1510487579.git.tgolembi@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,29 +19,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: virtualization@lists.linux-foundation.org
+To: =?utf-8?B?VG9tw6HFoSBHb2xlbWJpb3Zza8O9?= <tgolembi@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, Rik van Riel <riel@redhat.com>, kvm@vger.kernel.org, Gal Hammer <ghammer@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Shaohua Li <shli@fb.com>, Huang Ying <ying.huang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-index can be reused by other virtio device.
-
-Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
----
- drivers/virtio/virtio.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 48230a5..bf7ff39 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -333,6 +333,8 @@ int register_virtio_device(struct virtio_device *dev)
- 	/* device_register() causes the bus infrastructure to look for a
- 	 * matching driver. */
- 	err = device_register(&dev->dev);
-+	if (err)
-+		ida_simple_remove(&virtio_index_ida, dev->index);
- out:
- 	if (err)
- 		virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
--- 
-2.9.4
+T24gU3VuLCBOb3YgMTIsIDIwMTcgYXQgMDE6MDU6MzhQTSArMDEwMCwgVG9tw6HFoSBHb2xlbWJp
+b3Zza8O9IHdyb3RlOgo+IEFkZCBhIG5ldyBmaWVsZCBWSVJUSU9fQkFMTE9PTl9TX0NBQ0hFUyB0
+byB2aXJ0aW9fYmFsbG9vbiBtZW1vcnkKPiBzdGF0aXN0aWNzIHByb3RvY29sLiBUaGUgdmFsdWUg
+cmVwcmVzZW50cyBhbGwgZGlzay9maWxlIGNhY2hlcy4KPiAKPiBJbiB0aGlzIGNhc2UgaXQgY29y
+cmVzcG9uZHMgdG8gdGhlIHN1bSBvZiB2YWx1ZXMKPiBCdWZmZXJzK0NhY2hlZCtTd2FwQ2FjaGVk
+IGZyb20gL3Byb2MvbWVtaW5mby4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBUb23DocWhIEdvbGVtYmlv
+dnNrw70gPHRnb2xlbWJpQHJlZGhhdC5jb20+CgoKSSBwYXJrZWQgdGhpcyBvbiB2aG9zdCBicmFu
+Y2gsIHBhcnQgb2YgbGludXggbmV4dC4KCj4gLS0tCj4gIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19i
+YWxsb29uLmMgICAgIHwgNCArKysrCj4gIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9v
+bi5oIHwgMyArKy0KPiAgMiBmaWxlcyBjaGFuZ2VkLCA2IGluc2VydGlvbnMoKyksIDEgZGVsZXRp
+b24oLSkKPiAKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYyBi
+L2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPiBpbmRleCBmMGIzYTBiOWQ0MmYuLmQy
+YmQxM2JiYWY5ZiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5j
+Cj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+IEBAIC0yNDQsMTEgKzI0
+NCwxMyBAQCBzdGF0aWMgdW5zaWduZWQgaW50IHVwZGF0ZV9iYWxsb29uX3N0YXRzKHN0cnVjdCB2
+aXJ0aW9fYmFsbG9vbiAqdmIpCj4gIAlzdHJ1Y3Qgc3lzaW5mbyBpOwo+ICAJdW5zaWduZWQgaW50
+IGlkeCA9IDA7Cj4gIAlsb25nIGF2YWlsYWJsZTsKPiArCXVuc2lnbmVkIGxvbmcgY2FjaGVzOwo+
+ICAKPiAgCWFsbF92bV9ldmVudHMoZXZlbnRzKTsKPiAgCXNpX21lbWluZm8oJmkpOwo+ICAKPiAg
+CWF2YWlsYWJsZSA9IHNpX21lbV9hdmFpbGFibGUoKTsKPiArCWNhY2hlcyA9IGdsb2JhbF9ub2Rl
+X3BhZ2Vfc3RhdGUoTlJfRklMRV9QQUdFUyk7Cj4gIAo+ICAjaWZkZWYgQ09ORklHX1ZNX0VWRU5U
+X0NPVU5URVJTCj4gIAl1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxMT09OX1NfU1dB
+UF9JTiwKPiBAQCAtMjY0LDYgKzI2Niw4IEBAIHN0YXRpYyB1bnNpZ25lZCBpbnQgdXBkYXRlX2Jh
+bGxvb25fc3RhdHMoc3RydWN0IHZpcnRpb19iYWxsb29uICp2YikKPiAgCQkJCXBhZ2VzX3RvX2J5
+dGVzKGkudG90YWxyYW0pKTsKPiAgCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExP
+T05fU19BVkFJTCwKPiAgCQkJCXBhZ2VzX3RvX2J5dGVzKGF2YWlsYWJsZSkpOwo+ICsJdXBkYXRl
+X3N0YXQodmIsIGlkeCsrLCBWSVJUSU9fQkFMTE9PTl9TX0NBQ0hFUywKPiArCQkJCXBhZ2VzX3Rv
+X2J5dGVzKGNhY2hlcykpOwo+ICAKPiAgCXJldHVybiBpZHg7Cj4gIH0KPiBkaWZmIC0tZ2l0IGEv
+aW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmggYi9pbmNsdWRlL3VhcGkvbGludXgv
+dmlydGlvX2JhbGxvb24uaAo+IGluZGV4IDM0M2Q3ZGRlZmUwNC4uNGU4YjgzMDRiNzkzIDEwMDY0
+NAo+IC0tLSBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5oCj4gKysrIGIvaW5j
+bHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmgKPiBAQCAtNTIsNyArNTIsOCBAQCBzdHJ1
+Y3QgdmlydGlvX2JhbGxvb25fY29uZmlnIHsKPiAgI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX01F
+TUZSRUUgIDQgICAvKiBUb3RhbCBhbW91bnQgb2YgZnJlZSBtZW1vcnkgKi8KPiAgI2RlZmluZSBW
+SVJUSU9fQkFMTE9PTl9TX01FTVRPVCAgIDUgICAvKiBUb3RhbCBhbW91bnQgb2YgbWVtb3J5ICov
+Cj4gICNkZWZpbmUgVklSVElPX0JBTExPT05fU19BVkFJTCAgICA2ICAgLyogQXZhaWxhYmxlIG1l
+bW9yeSBhcyBpbiAvcHJvYyAqLwo+IC0jZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTlIgICAgICAg
+Nwo+ICsjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfQ0FDSEVTICAgNyAgIC8qIERpc2sgY2FjaGVz
+ICovCj4gKyNkZWZpbmUgVklSVElPX0JBTExPT05fU19OUiAgICAgICA4Cj4gIAo+ICAvKgo+ICAg
+KiBNZW1vcnkgc3RhdGlzdGljcyBzdHJ1Y3R1cmUuCj4gLS0gCj4gMi4xNS4wCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
