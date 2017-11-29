@@ -1,15 +1,15 @@
 From: Wei Xu <wexu@redhat.com>
 Subject: Re: [PATCH net,stable] vhost: fix skb leak in handle_rx()
-Date: Wed, 29 Nov 2017 14:12:40 +0800
-Message-ID: <20171129061240.mhlw5uwi4hf57nf3__21552.3985367783$1512195423$gmane$org@Wei-Dev>
+Date: Wed, 29 Nov 2017 14:32:18 +0800
+Message-ID: <20171129063218.772bbousd6mk6vkg__34495.3806874857$1512195439$gmane$org@Wei-Dev>
 References: <1511889436-12876-1-git-send-email-wexu@redhat.com>
-	<20171128193713-mutt-send-email-mst@kernel.org>
+	<20171128195140-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20171128193713-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20171128195140-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,7 +23,7 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: mjrosato@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 28, 2017 at 07:50:58PM +0200, Michael S. Tsirkin wrote:
+On Tue, Nov 28, 2017 at 07:53:33PM +0200, Michael S. Tsirkin wrote:
 > On Tue, Nov 28, 2017 at 12:17:16PM -0500, wexu@redhat.com wrote:
 > > From: Wei Xu <wexu@redhat.com>
 > > 
@@ -45,20 +45,25 @@ On Tue, Nov 28, 2017 at 07:50:58PM +0200, Michael S. Tsirkin wrote:
 > > 
 > > Signed-off-by: Wei Xu <wexu@redhat.com>
 > 
-> Looks like a good way to fix it, but it will still leak if recvmsg
-> returns a wrong length (I'm not sure this can happen in practice, but
-> best to keep it simple).
-
-Right, it is better to defend this case, will include it in v2.
-
+> Given the amount of effort Matthew has put into this,
+> you definitely want
 > 
-> Also, we need to add this before each recvmsg, including overrun,
-> and discard on error.
+> Reported-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
+> 
+> here.
+> 
 
-OK.
+Absolutely we want that, sorry for missed you here, Matthew. It is more
+like you have figured out this issue independently all by yourself with
+a wide assortment of extremely quick tests(tools, throughput, slub leak,
+etc), and I am happy that I have the opportunity to do the paperwork on
+behalf of you.:) Thanks a lot Matthew.
 
 Wei
 
+> Let's give credit where credit is due.
+> 
+> Thanks a lot Matthew!
 > 
 > > ---
 > >  drivers/vhost/net.c | 4 ++--
