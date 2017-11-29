@@ -1,14 +1,15 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v18 10/10] virtio-balloon: don't report free pages when page
-	poisoning is enabled
-Date: Wed, 29 Nov 2017 21:55:26 +0800
-Message-ID: <1511963726-34070-11-git-send-email-wei.w.wang__47130.3780250766$1511964832$gmane$org@intel.com>
-References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
+Subject: Re: [PATCH v17 2/6] radix tree test suite: add tests for xbitmap
+Date: Wed, 29 Nov 2017 22:20:42 +0800
+Message-ID: <5A1EC23A.5090900__48593.9026614234$1511965161$gmane$org@intel.com>
+References: <1509696786-1597-1-git-send-email-wei.w.wang@intel.com>
+	<1509696786-1597-3-git-send-email-wei.w.wang@intel.com>
+	<20171106170000.GA1195@bombadil.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20171106170000.GA1195@bombadil.infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,37 +19,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, mawilcox@microsoft.com
-Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, riel@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, nilal@redhat.com, mgorman@techsingularity.net
+To: Matthew Wilcox <willy@infradead.org>
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net, liliang.opensource@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The guest free pages should not be discarded by the live migration thread
-when page poisoning is enabled with PAGE_POISONING_NO_SANITY=n, because
-skipping the transfer of such poisoned free pages will trigger false
-positive when new pages are allocated and checked on the destination.
-This patch skips the reporting of free pages in the above case.
+On 11/07/2017 01:00 AM, Matthew Wilcox wrote:
+> On Fri, Nov 03, 2017 at 04:13:02PM +0800, Wei Wang wrote:
+>> From: Matthew Wilcox <mawilcox@microsoft.com>
+>>
+>> Add the following tests for xbitmap:
+>> 1) single bit test: single bit set/clear/find;
+>> 2) bit range test: set/clear a range of bits and find a 0 or 1 bit in
+>> the range.
+>>
+>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+>> Cc: Matthew Wilcox <mawilcox@microsoft.com>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: Michael S. Tsirkin <mst@redhat.com>
+>> ---
+>>   tools/include/linux/bitmap.h            |  34 ++++
+>>   tools/include/linux/kernel.h            |   2 +
+>>   tools/testing/radix-tree/Makefile       |   7 +-
+>>   tools/testing/radix-tree/linux/kernel.h |   2 -
+>>   tools/testing/radix-tree/main.c         |   5 +
+>>   tools/testing/radix-tree/test.h         |   1 +
+>>   tools/testing/radix-tree/xbitmap.c      | 278 ++++++++++++++++++++++++++++++++
+> Umm.  No.  You've duplicated xbitmap.c into the test framework, so now it can
+> slowly get out of sync with the one in lib/.  That's not OK.
+>
+> Put it back the way it was, with the patch I gave you as patch 1/n
+> (relocating xbitmap.c from tools/testing/radix-tree to lib/).
+> Then add your enhancements as patch 2/n.  All you should need to
+> change in your 1/n from
+> http://git.infradead.org/users/willy/linux-dax.git/commit/727e401bee5ad7d37e0077291d90cc17475c6392
+> is a bit of Makefile tooling.  Leave the test suite embedded in the file;
+> that way people might remember to update the test suite when adding
+> new functionality.
+>
 
-Reported-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Cc: Michal Hocko <mhocko@suse.com>
----
- drivers/virtio/virtio_balloon.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Thanks for you suggestions. Please have a check the v18 patches:
+The original implementation is put in patch 4, and the proposed changes 
+are separated into patch 5 (we can merge them to patch 4 later if they 
+look good to you), and the new APIs are in patch 6.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 035bd3a..6ac4cff 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -652,7 +652,9 @@ static void report_free_page(struct work_struct *work)
- 	/* Start by sending the obtained cmd id to the host with an outbuf */
- 	send_one_desc(vb, vb->free_page_vq, virt_to_phys(&vb->start_cmd_id),
- 		      sizeof(uint32_t), false, true, false);
--	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
-+	if (!(page_poisoning_enabled() &&
-+	    !IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY)))
-+		walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
- 	/*
- 	 * End by sending the stop id to the host with an outbuf. Use the
- 	 * non-batching mode here to trigger a kick after adding the stop id.
--- 
-2.7.4
+Best,
+Wei
