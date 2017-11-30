@@ -1,15 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] virtio-net: help live migrate SR-IOV devices
-Date: Thu, 30 Nov 2017 16:14:37 +0200
-Message-ID: <20171130161125-mutt-send-email-mst__7686.3681468696$1512051305$gmane$org@kernel.org>
-References: <20171128112722.00003716@intel.com>
-	<0fb552d4-1bfc-e130-4fc1-87b83873916d@redhat.com>
+From: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH v18 05/10] xbitmap: add more operations
+Date: Thu, 30 Nov 2017 06:39:52 -0800
+Message-ID: <20171130143952.GB12684__30841.0025005744$1512052833$gmane$org@bombadil.infradead.org>
+References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
+	<1511963726-34070-6-git-send-email-wei.w.wang@intel.com>
+	<201711301934.CDC21800.FSLtJFFOOVQHMO@I-love.SAKURA.ne.jp>
+	<201711302235.FAJ57385.OFJHOVQOFtMSFL@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <0fb552d4-1bfc-e130-4fc1-87b83873916d@redhat.com>
+In-Reply-To: <201711302235.FAJ57385.OFJHOVQOFtMSFL@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +21,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Jakub Kicinski <jakub.kicinski@netronome.com>, Hannes Frederic Sowa <hannes@redhat.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Achiad <achiad@mellanox.com>, Peter Waskiewicz Jr <peter.waskiewicz.jr@intel.com>, "Singhai,
-	Anjali" <anjali.singhai@intel.com>, Andy Gospodarek <gospo@broadcom.com>, Or Gerlitz <gerlitz.or@gmail.com>
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 30, 2017 at 11:29:56AM +0800, Jason Wang wrote:
-> If my understanding is correct there's no need to for any extension of
-> virtio spec.
+On Thu, Nov 30, 2017 at 10:35:03PM +0900, Tetsuo Handa wrote:
+> According to xb_set_bit(), it seems to me that we are trying to avoid memory allocation
+> for "struct ida_bitmap" when all set bits within a 1024-bits bitmap reside in the first
+> 61 bits.
+> 
+> But does such saving help? Is there characteristic bias that majority of set bits resides
+> in the first 61 bits, for "bit" is "unsigned long" which holds a page number (isn't it)?
+> If no such bias, wouldn't eliminating radix_tree_exception() case and always storing
+> "struct ida_bitmap" simplifies the code (and make the processing faster)?
 
-There appears to be a concern that some existing configurations
-might use same MAC for an unrelated reason. Not sure what
-that could be, but for sure, we could add a feature flag.
-That needs to be approved by the virtio TC, but it's
-just a single line in the spec no big deal, we can help here.
+It happens all the time.  The vast majority of users of the IDA set
+low bits.  Also, it's the first 62 bits -- going up to 63 bits with the
+XArray rewrite.
 
-> If this is true, maybe you can start to prepare the patch?
-
-Yes, please do. We can add a safeguard of a feature bit on top.
-
--- 
-MST
+I do plan to redo the xbitmap on top of the XArray; I'm just trying to
+get the XArray merged first.  The IDA and xbitmap code will share much
+more code when that happens.
