@@ -1,15 +1,21 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH v18 01/10] idr: add #include <linux/bug.h>
-Date: Thu, 30 Nov 2017 13:49:24 -0800
-Message-ID: <20171130134924.e842ccd01e34eaf8834f4033__23963.5214595639$1512078589$gmane$org@linux-foundation.org>
-References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
-	<1511963726-34070-2-git-send-email-wei.w.wang@intel.com>
-	<20171130005817.GA14785@bombadil.infradead.org>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH 02/13] fbdev: add remove_conflicting_pci_framebuffers()
+Date: Thu, 30 Nov 2017 23:49:53 +0000
+Message-ID: <20171130234953.GA5542__44407.1282087409$1512085828$gmane$org@sudip-laptop>
+References: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
+	<1738dbed0239bffc886f126fd3091daa39cd14c9.1511544782.git.mirq-linux@rere.qmqm.pl>
+	<20171127102758.y7c6yzyey6wfntxh@phenom.ffwll.local>
+	<20171127205219.GA3537@sudip-laptop>
+	<20171128102217.b7ynyqarwzkdvmdq@phenom.ffwll.local>
+	<20171128113238.GA29456@kroah.com>
+	<20171128123008.GA12986@sudip-tp>
+	<20171129095634.ymeld4l7zaehbuvn@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171130005817.GA14785@bombadil.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20171129095634.ymeld4l7zaehbuvn@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,33 +25,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <willy@infradead.org>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, mgorman@techsingularity.net
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: Teddy Wang <teddy.wang@siliconmotion.com>, David Airlie <airlied@linux.ie>, Greg KH <gregkh@linuxfoundation.org>, amd-gfx@lists.freedesktop.org, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, dri-devel@lists.freedesktop.org, Alex Deucher <alexander.deucher@amd.com>, virtualization@lists.linux-foundation.org, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 29 Nov 2017 16:58:17 -0800 Matthew Wilcox <willy@infradead.org> wrote:
-
-> On Wed, Nov 29, 2017 at 09:55:17PM +0800, Wei Wang wrote:
-> > The <linux/bug.h> was removed from radix-tree.h by the following commit:
-> > f5bba9d11a256ad2a1c2f8e7fc6aabe6416b7890.
-> > 
-> > Since that commit, tools/testing/radix-tree/ couldn't pass compilation
-> > due to: tools/testing/radix-tree/idr.c:17: undefined reference to
-> > WARN_ON_ONCE. This patch adds the bug.h header to idr.h to solve the
-> > issue.
-> 
-> Thanks; I sent this same patch out yesterday.
-> 
-> Unfortunately, you didn't cc the author of this breakage, Masahiro Yamada.
-> I want to highlight that these kinds of header cleanups are risky,
-> and very low reward.  I really don't want to see patches going all over
-> the tree randomly touching header files.  If we've got a real problem
-> to solve, then sure.  But I want to see a strong justification for any
-> more header file cleanups.
-
-I tend to disagree.  We accumulate more and more cruft over time so it
-is good to be continually hacking away at it.  These little build
-breaks happen occasionally but they are trivially and quickly fixed. 
-If a small minority of these cleanups require a followup patch which
-consumes a global ten person minutes then that seems an acceptable
-price to pay.  Says the guy who pays most of that price :)
+SGkgRGFuaWVsLAoKT24gV2VkLCBOb3YgMjksIDIwMTcgYXQgMTA6NTY6MzRBTSArMDEwMCwgRGFu
+aWVsIFZldHRlciB3cm90ZToKPiBPbiBUdWUsIE5vdiAyOCwgMjAxNyBhdCAxMjozMDozMFBNICsw
+MDAwLCBTdWRpcCBNdWtoZXJqZWUgd3JvdGU6Cj4gPiBPbiBUdWUsIE5vdiAyOCwgMjAxNyBhdCAx
+MjozMjozOFBNICswMTAwLCBHcmVnIEtIIHdyb3RlOgo+ID4gPiBPbiBUdWUsIE5vdiAyOCwgMjAx
+NyBhdCAxMToyMjoxN0FNICswMTAwLCBEYW5pZWwgVmV0dGVyIHdyb3RlOgo+ID4gPiA+IE9uIE1v
+biwgTm92IDI3LCAyMDE3IGF0IDA4OjUyOjE5UE0gKzAwMDAsIFN1ZGlwIE11a2hlcmplZSB3cm90
+ZToKPiA+ID4gPiA+IE9uIE1vbiwgTm92IDI3LCAyMDE3IGF0IDExOjI3OjU5QU0gKzAxMDAsIERh
+bmllbCBWZXR0ZXIgd3JvdGU6Cj4gPiA+ID4gPiA+IE9uIEZyaSwgTm92IDI0LCAyMDE3IGF0IDA2
+OjUzOjMxUE0gKzAxMDAsIE1pY2hhxYIgTWlyb3PFgmF3IHdyb3RlOgo+ID4gPiA+ID4gPiA+IEFs
+bW9zdCBhbGwgZHJpdmVycyB1c2luZyByZW1vdmVfY29uZmxpY3RpbmdfZnJhbWVidWZmZXJzKCkg
+d3JhcCBpdCB3aXRoCj4gPiA+ID4gPiA+ID4gdGhlIHNhbWUgY29kZS4gRXh0cmFjdCBjb21tb24g
+cGFydCBmcm9tIFBDSSBkcml2ZXJzIGludG8gc2VwYXJhdGUKPiA+ID4gPiA+ID4gPiByZW1vdmVf
+Y29uZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpLgo+ID4gPiA+ID4gPiA+IAoKPHNuaXA+Cgo+
+ID4gPiA+IAo+ID4gPiA+IEdyZWc/Cj4gPiA+IAo+ID4gPiBZZXMsIGlmIG5vIG9uZSBpcyB3b3Jr
+aW5nIHRvIGdldCBpdCBvdXQgb2Ygc3RhZ2luZywgdGhhdCBtZWFucyBubyBvbmUKPiA+ID4gY2Fy
+ZXMgYWJvdXQgaXQsIGFuZCBpdCBuZWVkcyB0byBiZSByZW1vdmVkIGZyb20gdGhlIHRyZWUuCj4g
+PiAKPiA+IEFncmVlZC4gSSB3YXMgbm90IHdvcmtpbmcgb24gZ2V0dGluZyBpdCBvdXQgb2Ygc3Rh
+Z2luZyBhcyB0aGVyZSBpcyBubwo+ID4gcGxhY2UgZm9yIGl0IHRvIGdvLgo+ID4gQnV0LCBUZWRk
+eSBXYW5nIHRvbGQgbWUgdGhhdCB0aGV5IGhhdmUgYSB3b3JraW5nIGRybSBkcml2ZXIgZm9yIGl0
+LCBidXQKPiA+IGl0IGlzIG5vdCBhdG9taWMgbGlrZSBEYW5pZWwgd2FzIGFza2luZyBmb3IuIElm
+IGl0IGlzIG9rLCB0aGVuIEkgY2FuIHNlbmQKPiA+IGluIGEgcGF0Y2ggdG8gcmVtb3ZlIHRoZSBl
+eGlzdGluZyBzbTc1MCBmcm9tIHN0YWdpbmcgYW5kIGFkZCB0aGUgbmV3IHNtNzUwCj4gPiBkcm0g
+ZHJpdmVyIHRvIHN0YWdpbmcuIEFuZCBhZnRlciBpdCBpcyByZWFkeSwgd2UgY2FuIGdvIGFoZWFk
+IHdpdGggbW92aW5nCj4gPiBpdCBvdXQgb2Ygc3RhZ2luZyB0byBkcm0uCj4gCj4gUGxlYXNlIGtl
+ZXAgdGhlIHRvZG8gaXRlbSB0aGF0IGl0IG5lZWRzIHRvIGJlIGNvbnZlcnRlZCB0byBhdG9taWMu
+IEFuZAo+IHRiaCwgaXQncyBwcm9iYWJseSBmYXN0ZXIgaWYgeW91IGp1c3Qgc3VibWl0IGl0IHRv
+IGRyaS1kZXZlbCwgYXNzdW1pbmcgeW91Cj4gaGF2ZSB0aW1lIHRvIHdvcmsgb24gaXQuIEZvciBz
+bWFsbCBkcml2ZXJzIHdlIHRlbmQgdG8gYmUgZmFpcmx5IHF1aWNrIGluCj4gZ2V0dGluZyB0aGVt
+IGludG8gZ29vZCBlbm91Z2ggc2hhcGUuCgpJIGhhdmUgcmVjZWl2ZWQgdGhlIGRyaXZlciBmcm9t
+IFRlZGR5IGFuZCBwdXNoZWQgaXQgdG8KaHR0cHM6Ly9naXRodWIuY29tL3N1ZGlwbS1tdWtoZXJq
+ZWUvcGFycG9ydC90cmVlL2RybV9zbWkgZm9yIHlvdXIgZmlyc3QKbG9vayBpbnRvIGl0LiBJdCBp
+cyBub3QgZXZlbiBidWlsZGluZyB3aXRoIG5leHQtMjAxNzExMzAgYW5kIGhhcyBsb3RzIG9mCmJ1
+aWxkIHdhcm5pbmdzLiBJIHdpbGwgaGF2ZSB0byBkbyBhIGxvdCBvZiB3b3JrIG9uIGl0IGJlZm9y
+ZSBJIGNhbiBldmVuCnN1Ym1pdCBpdCB0byBkcmktZGV2ZWwuCgpUaW1lIHdpbGwgYmUgdGhlIHBy
+b2JsZW0sIGFzIHRoaXMgaXMgbm90IHBhcnQgb2YgbXkgZGF5IGpvYi4KCj4gCj4gU3RhZ2luZyBp
+cyBhbHNvIGEgbWFqb3IgcGFpbiBmb3IgZHJtIHN1YnN5c3RlbSByZWZhY3RvcmluZ3MsIEkgcmVh
+bGx5LAo+IHJlYWxseSwgcmVhbGx5IHByZWZlciB3ZSBkb24ndCBhZGQgbW9yZSB0aGFuIHRoZSB2
+Ym94IHBhaW4gd2UgaGF2ZQo+IGFscmVhZHkuCgpJIGFtIGhvcGluZyB0aGF0IGFmdGVyIHNlZWlu
+ZyBpdCwgeW91IHdpbGwgYWdyZWUgdG8gaGF2ZSBpdCBpbiBzdGFnaW5nLiA6KQoKLS0KUmVnYXJk
+cwpTdWRpcApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
+dGluZm8vdmlydHVhbGl6YXRpb24=
