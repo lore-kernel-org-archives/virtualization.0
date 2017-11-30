@@ -1,16 +1,16 @@
-From: "Wang, Wei W" <wei.w.wang@intel.com>
-Subject: RE: [PATCH v18 07/10] virtio-balloon: VIRTIO_BALLOON_F_SG
-Date: Thu, 30 Nov 2017 16:25:09 +0000
-Message-ID: <286AC319A985734F985F78AFA26841F739376336__44802.1019845784$1512059147$gmane$org@shsmsx102.ccr.corp.intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v18 06/10] virtio_ring: add a new API,
+	virtqueue_add_one_desc
+Date: Thu, 30 Nov 2017 21:38:37 +0200
+Message-ID: <20171130213231-mutt-send-email-mst__39476.0442119606$1512070754$gmane$org@kernel.org>
 References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
-	<1511963726-34070-8-git-send-email-wei.w.wang@intel.com>
-	<201711301935.EHF86450.MSFLOOHFJtFOQV@I-love.SAKURA.ne.jp>
+	<1511963726-34070-7-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201711301935.EHF86450.MSFLOOHFJtFOQV@I-love.SAKURA.ne.jp>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1511963726-34070-7-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,121 +20,176 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "willy@infradead.org" <willy@infradead.org>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "nilal@redhat.com" <nilal@redhat.com>, "riel@redhat.com" <riel@redhat.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, amit.shah@red
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday, November 30, 2017 6:36 PM, Tetsuo Handa wrote:
-> Wei Wang wrote:
-> > +static inline int xb_set_page(struct virtio_balloon *vb,
-> > +			       struct page *page,
-> > +			       unsigned long *pfn_min,
-> > +			       unsigned long *pfn_max)
-> > +{
-> > +	unsigned long pfn = page_to_pfn(page);
-> > +	int ret;
-> > +
-> > +	*pfn_min = min(pfn, *pfn_min);
-> > +	*pfn_max = max(pfn, *pfn_max);
-> > +
-> > +	do {
-> > +		ret = xb_preload_and_set_bit(&vb->page_xb, pfn,
-> > +					     GFP_NOWAIT | __GFP_NOWARN);
+On Wed, Nov 29, 2017 at 09:55:22PM +0800, Wei Wang wrote:
+> Current virtqueue_add API implementation is based on the scatterlist
+> struct, which uses kaddr. This is inadequate to all the use case of
+> vring. For example:
+> - Some usages don't use IOMMU, in this case the user can directly pass
+>   in a physical address in hand, instead of going through the sg
+>   implementation (e.g. the VIRTIO_BALLOON_F_SG feature)
+> - Sometimes, a guest physical page may not have a kaddr (e.g. high
+>   memory) but need to use vring (e.g. the VIRTIO_BALLOON_F_FREE_PAGE_VQ
+>   feature)
 > 
-> It is a bit of pity that __GFP_NOWARN here is applied to only xb_preload().
-> Memory allocation by xb_set_bit() will after all emit warnings. Maybe
+> The new API virtqueue_add_one_desc enables the caller to assign a vring
+> desc with a physical address and len. Also, factor out the common code
+> with virtqueue_add in vring_set_avail.
 > 
->   xb_init(&vb->page_xb);
->   vb->page_xb.gfp_mask |= __GFP_NOWARN;
+> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+
+You previously managed without this patch, and it's preferable
+IMHO since this patchset is already too big.
+
+I don't really understand what is wrong with virtio_add_sgs + sg_set_page.
+I don't think is assumes a kaddr.
+
+> ---
+>  drivers/virtio/virtio_ring.c | 94 +++++++++++++++++++++++++++++++++++---------
+>  include/linux/virtio.h       |  6 +++
+>  2 files changed, 81 insertions(+), 19 deletions(-)
 > 
-> is tolerable? Or, unconditionally apply __GFP_NOWARN at xb_init()?
-> 
-
-
-
-Please have a check this one: radix_tree_node_alloc()
-
-In our case, I think the code path goes to 
-
-if (!gfpflags_allow_blocking(gfp_mask) && !in_interrupt()) {
-...
-ret = kmem_cache_alloc(radix_tree_node_cachep,
-                                       gfp_mask | __GFP_NOWARN);
-...
-goto out;
-}
-
-So I think the __GFP_NOWARN is already there.
-
-
-
->   static inline void xb_init(struct xb *xb)
->   {
->           INIT_RADIX_TREE(&xb->xbrt, IDR_RT_MARKER | GFP_NOWAIT);
->   }
-> 
-> > +	} while (unlikely(ret == -EAGAIN));
-> > +
-> > +	return ret;
-> > +}
-> > +
-> 
-> 
-> 
-> > @@ -172,11 +283,18 @@ static unsigned fill_balloon(struct virtio_balloon
-> *vb, size_t num)
-> >  	vb->num_pfns = 0;
-> >
-> >  	while ((page = balloon_page_pop(&pages))) {
-> > +		if (use_sg) {
-> > +			if (xb_set_page(vb, page, &pfn_min, &pfn_max) < 0) {
-> > +				__free_page(page);
-> > +				break;
-> 
-> You cannot "break;" without consuming all pages in "pages".
-
-
-Right, I think it should be "continue" here. Thanks. 
-
-> 
-> > +			}
-> > +		} else {
-> > +			set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-> > +		}
-> > +
-> >  		balloon_page_enqueue(&vb->vb_dev_info, page);
-> >
-> >  		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> > -
-> > -		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-> >  		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> >  		if (!virtio_has_feature(vb->vdev,
-> >
-> 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> 
-> 
-> 
-> > @@ -212,9 +334,12 @@ static unsigned leak_balloon(struct virtio_balloon
-> *vb, size_t num)
-> >  	struct page *page;
-> >  	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
-> >  	LIST_HEAD(pages);
-> > +	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
-> 
-> You can pass use_sg as an argument to leak_balloon(). Then, you won't need
-> to define leak_balloon_sg_oom(). Since xbitmap allocation does not use
-> __GFP_DIRECT_RECLAIM, it is safe to reuse leak_balloon() for OOM path.
-> Just be sure to pass use_sg == false because memory allocation for use_sg ==
-> true likely fails when called from OOM path. (But trying use_sg == true for
-> OOM path and then fallback to use_sg == false is not bad?)
-> 
-
-
-But once the SG mechanism is in use, we cannot use the non-SG mechanism, because the interface between the guest and host is not the same for SG and non-SG. Methods to make the host support both mechanisms at the same time would complicate the interface and implementation. 
-
-I also think the old non-SG mechanism should be deprecated to use since its implementation isn't perfect in some sense, e.g. it balloons pages using outbuf which implies that no changes are allowed to the balloon pages and this isn't true for ballooning. The new mechanism (SG) has changed it to use inbuf.
-
-So I think using leak_balloon_sg_oom() would be better. Is there any reason that we couldn't use it?
-
-Best,
-Wei
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index eb30f3e..0b87123 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -257,6 +257,79 @@ static struct vring_desc *alloc_indirect(struct virtqueue *_vq,
+>  	return desc;
+>  }
+>  
+> +static void vring_set_avail(struct virtqueue *_vq,
+> +			    unsigned int i)
+> +{
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	unsigned int avail;
+> +
+> +	avail = vq->avail_idx_shadow & (vq->vring.num - 1);
+> +	vq->vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, i);
+> +
+> +	/*
+> +	 * Descriptors and available array need to be set before we expose the
+> +	 * new available array entries.
+> +	 */
+> +	virtio_wmb(vq->weak_barriers);
+> +	vq->avail_idx_shadow++;
+> +	vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+> +					       vq->avail_idx_shadow);
+> +	vq->num_added++;
+> +
+> +	pr_debug("Added buffer head %i to %p\n", i, vq);
+> +
+> +	/*
+> +	 * This is very unlikely, but theoretically possible.  Kick
+> +	 * just in case.
+> +	 */
+> +	if (unlikely(vq->num_added == (1 << 16) - 1))
+> +		virtqueue_kick(_vq);
+> +}
+> +
+> +int virtqueue_add_one_desc(struct virtqueue *_vq,
+> +			   uint64_t addr,
+> +			   uint32_t len,
+> +			   bool in_desc,
+> +			   void *data)
+> +{
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	struct vring_desc *desc;
+> +	unsigned int i;
+> +
+> +	START_USE(vq);
+> +	BUG_ON(data == NULL);
+> +
+> +	if (unlikely(vq->broken)) {
+> +		END_USE(vq);
+> +		return -EIO;
+> +	}
+> +
+> +	if (_vq->num_free < 1) {
+> +		END_USE(vq);
+> +		return -ENOSPC;
+> +	}
+> +
+> +	i = vq->free_head;
+> +	desc = &vq->vring.desc[i];
+> +	desc->addr = cpu_to_virtio64(_vq->vdev, addr);
+> +	desc->len = cpu_to_virtio32(_vq->vdev, len);
+> +	if (in_desc)
+> +		desc->flags = cpu_to_virtio16(_vq->vdev, VRING_DESC_F_WRITE);
+> +	else
+> +		desc->flags = 0;
+> +	vq->desc_state[i].data = data;
+> +	vq->desc_state[i].indir_desc = NULL;
+> +	vq->free_head = virtio16_to_cpu(_vq->vdev, vq->vring.desc[i].next);
+> +	_vq->num_free--;
+> +
+> +	vring_set_avail(_vq, i);
+> +
+> +	END_USE(vq);
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(virtqueue_add_one_desc);
+> +
+>  static inline int virtqueue_add(struct virtqueue *_vq,
+>  				struct scatterlist *sgs[],
+>  				unsigned int total_sg,
+> @@ -269,7 +342,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  	struct scatterlist *sg;
+>  	struct vring_desc *desc;
+> -	unsigned int i, n, avail, descs_used, uninitialized_var(prev), err_idx;
+> +	unsigned int i, n, descs_used, uninitialized_var(prev), err_idx;
+>  	int head;
+>  	bool indirect;
+>  
+> @@ -395,26 +468,9 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+>  	else
+>  		vq->desc_state[head].indir_desc = ctx;
+>  
+> -	/* Put entry in available array (but don't update avail->idx until they
+> -	 * do sync). */
+> -	avail = vq->avail_idx_shadow & (vq->vring.num - 1);
+> -	vq->vring.avail->ring[avail] = cpu_to_virtio16(_vq->vdev, head);
+> -
+> -	/* Descriptors and available array need to be set before we expose the
+> -	 * new available array entries. */
+> -	virtio_wmb(vq->weak_barriers);
+> -	vq->avail_idx_shadow++;
+> -	vq->vring.avail->idx = cpu_to_virtio16(_vq->vdev, vq->avail_idx_shadow);
+> -	vq->num_added++;
+> -
+> -	pr_debug("Added buffer head %i to %p\n", head, vq);
+> +	vring_set_avail(_vq, head);
+>  	END_USE(vq);
+>  
+> -	/* This is very unlikely, but theoretically possible.  Kick
+> -	 * just in case. */
+> -	if (unlikely(vq->num_added == (1 << 16) - 1))
+> -		virtqueue_kick(_vq);
+> -
+>  	return 0;
+>  
+>  unmap_release:
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 988c735..1d89996 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -35,6 +35,12 @@ struct virtqueue {
+>  	void *priv;
+>  };
+>  
+> +int virtqueue_add_one_desc(struct virtqueue *_vq,
+> +			   uint64_t addr,
+> +			   uint32_t len,
+> +			   bool in_desc,
+> +			   void *data);
+> +
+>  int virtqueue_add_outbuf(struct virtqueue *vq,
+>  			 struct scatterlist sg[], unsigned int num,
+>  			 void *data,
+> -- 
+> 2.7.4
