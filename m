@@ -1,16 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [RFC] virtio-net: help live migrate SR-IOV devices
-Date: Thu, 30 Nov 2017 15:54:40 +0200
-Message-ID: <20171130153522-mutt-send-email-mst__17575.3125492067$1512050114$gmane$org@kernel.org>
+Date: Thu, 30 Nov 2017 16:11:04 +0200
+Message-ID: <20171130155612-mutt-send-email-mst__19645.7597347491$1512051098$gmane$org@kernel.org>
 References: <20171128112722.00003716@intel.com>
 	<0fb552d4-1bfc-e130-4fc1-87b83873916d@redhat.com>
-	<20171129195138.63512ead@cakuba.netronome.com>
+	<CAEHy93LneRXNWo64uyN2dfyDX6t18WN+YwVF2RXXLRnr0=Jhww@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20171129195138.63512ead@cakuba.netronome.com>
+In-Reply-To: <CAEHy93LneRXNWo64uyN2dfyDX6t18WN+YwVF2RXXLRnr0=Jhww@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,139 +20,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jakub Kicinski <jakub.kicinski@netronome.com>
-Cc: Sridhar Samudrala <sridhar.samudrala@intel.com>, netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Achiad <achiad@mellanox.com>, Peter Waskiewicz Jr <peter.waskiewicz.jr@intel.com>, Hannes Frederic Sowa <hannes@stressinduktion.org>, "Singhai,
+To: achiad shochat <achiad.mellanox@gmail.com>
+Cc: Jakub Kicinski <jakub.kicinski@netronome.com>, Hannes Frederic Sowa <hannes@redhat.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Achiad <achiad@mellanox.com>, Peter Waskiewicz Jr <peter.waskiewicz.jr@intel.com>, "Singhai,
 	Anjali" <anjali.singhai@intel.com>, Andy Gospodarek <gospo@broadcom.com>, Or Gerlitz <gerlitz.or@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBOb3YgMjksIDIwMTcgYXQgMDc6NTE6MzhQTSAtMDgwMCwgSmFrdWIgS2ljaW5za2kg
-d3JvdGU6Cj4gT24gVGh1LCAzMCBOb3YgMjAxNyAxMToyOTo1NiArMDgwMCwgSmFzb24gV2FuZyB3
-cm90ZToKPiA+IE9uIDIwMTflubQxMeaciDI55pelIDAzOjI3LCBKZXNzZSBCcmFuZGVidXJnIHdy
-b3RlOgo+ID4gPiBIaSwgSSdkIGxpa2UgdG8gZ2V0IHNvbWUgZmVlZGJhY2sgb24gYSBwcm9wb3Nh
-bCB0byBlbmhhbmNlIHZpcnRpby1uZXQKPiA+ID4gdG8gZWFzZSBjb25maWd1cmF0aW9uIG9mIGEg
-Vk0gYW5kIHRoYXQgd291bGQgZW5hYmxlIGxpdmUgbWlncmF0aW9uIG9mCj4gPiA+IHBhc3N0aHJv
-dWdoIG5ldHdvcmsgU1ItSU9WIGRldmljZXMuCj4gPiA+Cj4gPiA+IFRvZGF5IHdlIGhhdmUgU1It
-SU9WIG5ldHdvcmsgZGV2aWNlcyAoVkZzKSB0aGF0IGNhbiBiZSBwYXNzZWQgaW50byBhIFZNCj4g
-PiA+IGluIG9yZGVyIHRvIGVuYWJsZSBoaWdoIHBlcmZvcm1hbmNlIG5ldHdvcmtpbmcgZGlyZWN0
-IHdpdGhpbiB0aGUgVk0uCj4gPiA+IFRoZSBwcm9ibGVtIEkgYW0gdHJ5aW5nIHRvIGFkZHJlc3Mg
-aXMgdGhhdCB0aGlzIGNvbmZpZ3VyYXRpb24gaXMKPiA+ID4gZ2VuZXJhbGx5IGRpZmZpY3VsdCB0
-byBsaXZlLW1pZ3JhdGUuICBUaGVyZSBpcyBkb2N1bWVudGF0aW9uIFsxXQo+ID4gPiBpbmRpY2F0
-aW5nIHRoYXQgc29tZSBPUy9IeXBlcnZpc29yIHZlbmRvcnMgd2lsbCBzdXBwb3J0IGxpdmUgbWln
-cmF0aW9uCj4gPiA+IG9mIGEgc3lzdGVtIHdpdGggYSBkaXJlY3QgYXNzaWduZWQgbmV0d29ya2lu
-ZyBkZXZpY2UuICBUaGUgcHJvYmxlbSBJCj4gPiA+IHNlZSB3aXRoIHRoZXNlIGltcGxlbWVudGF0
-aW9ucyBpcyB0aGF0IHRoZSBuZXR3b3JrIGNvbmZpZ3VyYXRpb24KPiA+ID4gcmVxdWlyZW1lbnRz
-IHRoYXQgYXJlIHBhc3NlZCBvbiB0byB0aGUgb3duZXIgb2YgdGhlIFZNIGFyZSBxdWl0ZQo+ID4g
-PiBjb21wbGljYXRlZC4gIFlvdSBoYXZlIHRvIHNldCB1cCBib25kaW5nLCB5b3UgaGF2ZSB0byBj
-b25maWd1cmUgaXQgdG8KPiA+ID4gZW5zbGF2ZSB0d28gaW50ZXJmYWNlcywgdGhvc2UgaW50ZXJm
-YWNlcyAob25lIGlzIHZpcnRpby1uZXQsIHRoZSBvdGhlcgo+ID4gPiBpcyBTUi1JT1YgZGV2aWNl
-L2RyaXZlciBsaWtlIGl4Z2JldmYpIG11c3Qgc3VwcG9ydCBNQUMgYWRkcmVzcyBjaGFuZ2VzCj4g
-PiA+IHJlcXVlc3RlZCBpbiB0aGUgVk0sIGFuZCBvbiBhbmQgb24uLi4KPiA+ID4KPiA+ID4gU28s
-IG9uIHRvIHRoZSBwcm9wb3NhbDoKPiA+ID4gTW9kaWZ5IHZpcnRpby1uZXQgZHJpdmVyIHRvIGJl
-IGEgc2luZ2xlIFZNIG5ldHdvcmsgZGV2aWNlIHRoYXQKPiA+ID4gZW5zbGF2ZXMgYW4gU1ItSU9W
-IG5ldHdvcmsgZGV2aWNlIChpbnNpZGUgdGhlIFZNKSB3aXRoIHRoZSBzYW1lIE1BQwo+ID4gPiBh
-ZGRyZXNzLiBUaGlzIHdvdWxkIGNhdXNlIHRoZSB2aXJ0aW8tbmV0IGRyaXZlciB0byBhcHBlYXIg
-YW5kIHdvcmsgbGlrZQo+ID4gPiBhIHNpbXBsaWZpZWQgYm9uZGluZy90ZWFtIGRyaXZlci4gIFRo
-ZSBsaXZlIG1pZ3JhdGlvbiBwcm9ibGVtIHdvdWxkIGJlCj4gPiA+IHNvbHZlZCBqdXN0IGxpa2Ug
-dG9kYXkncyBib25kaW5nIHNvbHV0aW9uLCBidXQgdGhlIFZNIHVzZXIncyBuZXR3b3JraW5nCj4g
-PiA+IGNvbmZpZyB3b3VsZCBiZSBncmVhdGx5IHNpbXBsaWZpZWQuCj4gPiA+Cj4gPiA+IEF0IGl0
-J3Mgc2ltcGxlc3QsIGl0IHdvdWxkIGFwcGVhciBzb21ldGhpbmcgbGlrZSB0aGlzIGluIHRoZSBW
-TS4KPiA+ID4KPiA+ID4gPT09PT09PT09PQo+ID4gPiA9IHZuZXQwICA9Cj4gPiA+ICAgICAgICAg
-ICA9PT09PT09PT09PT09Cj4gPiA+ICh2aXJ0aW8tID0gICAgICAgfAo+ID4gPiAgIG5ldCkgICAg
-PSAgICAgICB8Cj4gPiA+ICAgICAgICAgICA9ICA9PT09PT09PT09Cj4gPiA+ICAgICAgICAgICA9
-ICA9IGl4Z2JlZiA9Cj4gPiA+ID09PT09PT09PT0gID09PT09PT09PT0KPiA+ID4KPiA+ID4gKGZv
-cmdpdmUgdGhlIEFTQ0lJIGFydCkKPiA+ID4KPiA+ID4gVGhlIGZhc3QgcGF0aCB0cmFmZmljIHdv
-dWxkIHByZWZlciB0aGUgaXhnYmV2ZiBvciBvdGhlciBTUi1JT1YgZGV2aWNlCj4gPiA+IHBhdGgs
-IGFuZCBmYWxsIGJhY2sgdG8gdmlydGlvJ3MgdHJhbnNtaXQvcmVjZWl2ZSB3aGVuIG1pZ3JhdGlu
-Zy4KPiA+ID4KPiA+ID4gQ29tcGFyZWQgdG8gdG9kYXkncyBvcHRpb25zIHRoaXMgcHJvcG9zYWwg
-d291bGQKPiA+ID4gMSkgbWFrZSB2aXJ0aW8tbmV0IG1vcmUgc3RpY2t5LCBhbGxvdyBmYXN0IHBh
-dGggdHJhZmZpYyBhdCBTUi1JT1YKPiA+ID4gICAgIHNwZWVkcwo+ID4gPiAyKSBzaW1wbGlmeSBl
-bmQgdXNlciBjb25maWd1cmF0aW9uIGluIHRoZSBWTSAobW9zdCBpZiBub3QgYWxsIG9mIHRoZQo+
-ID4gPiAgICAgc2V0IHVwIHRvIGVuYWJsZSBtaWdyYXRpb24gd291bGQgYmUgZG9uZSBpbiB0aGUg
-aHlwZXJ2aXNvcikKPiA+ID4gMykgYWxsb3cgbGl2ZSBtaWdyYXRpb24gdmlhIGEgc2ltcGxlIGxp
-bmsgZG93biBhbmQgbWF5YmUgYSBQQ0kKPiA+ID4gICAgIGhvdC11bnBsdWcgb2YgdGhlIFNSLUlP
-ViBkZXZpY2UsIHdpdGggZmFpbG92ZXIgdG8gdGhlIHZpcnRpby1uZXQKPiA+ID4gICAgIGRyaXZl
-ciBjb3JlCj4gPiA+IDQpIGFsbG93IHZlbmRvciBhZ25vc3RpYyBoYXJkd2FyZSBhY2NlbGVyYXRp
-b24sIGFuZCBsaXZlIG1pZ3JhdGlvbgo+ID4gPiAgICAgYmV0d2VlbiB2ZW5kb3JzIGlmIHRoZSBW
-TSBvcyBoYXMgZHJpdmVyIHN1cHBvcnQgZm9yIGFsbCB0aGUgcmVxdWlyZWQKPiA+ID4gICAgIFNS
-LUlPViBkZXZpY2VzLgo+ID4gPgo+ID4gPiBSdW50aW1lIG9wZXJhdGlvbiBwcm9wb3NlZDoKPiA+
-ID4gLSA8aW4gZWl0aGVyIG9yZGVyPiB2aXJ0aW8tbmV0IGRyaXZlciBsb2FkcywgU1ItSU9WIGRy
-aXZlciBsb2Fkcwo+ID4gPiAtIHZpcnRpby1uZXQgZmluZHMgb3RoZXIgTklDcyB0aGF0IG1hdGNo
-IGl0J3MgTUFDIGFkZHJlc3MgYnkKPiA+ID4gICAgYm90aCBleGFtaW5pbmcgZXhpc3RpbmcgaW50
-ZXJmYWNlcywgYW5kIHNldHMgdXAgYSBuZXcgZGV2aWNlIG5vdGlmaWVyCj4gPiA+IC0gdmlydGlv
-LW5ldCBlbnNsYXZlcyB0aGUgZmlyc3QgTklDIHdpdGggdGhlIHNhbWUgTUFDIGFkZHJlc3MKPiA+
-ID4gLSB2aXJ0aW8tbmV0IGJyaW5ncyB1cCB0aGUgc2xhdmUsIGFuZCBtYWtlcyBpdCB0aGUgInBy
-ZWZlcnJlZCIgcGF0aAo+ID4gPiAtIHZpcnRpby1uZXQgZm9sbG93cyB0aGUgYmVoYXZpb3Igb2Yg
-YW4gYWN0aXZlIGJhY2t1cCBib25kL3RlYW0KPiA+ID4gLSB2aXJ0aW8tbmV0IGFjdHMgYXMgdGhl
-IGludGVyZmFjZSB0byB0aGUgVk0KPiA+ID4gLSBsaXZlIG1pZ3JhdGlvbiBpbml0aWF0ZXMKPiA+
-ID4gLSBsaW5rIGdvZXMgZG93biBvbiBTUi1JT1YsIG9yIFNSLUlPViBkZXZpY2UgaXMgcmVtb3Zl
-ZAo+ID4gPiAtIGZhaWxvdmVyIHRvIHZpcnRpby1uZXQgYXMgcHJpbWFyeSBwYXRoCj4gPiA+IC0g
-bWlncmF0aW9uIGNvbnRpbnVlcyB0byBuZXcgaG9zdAo+ID4gPiAtIG5ldyBob3N0IGlzIHN0YXJ0
-ZWQgd2l0aCB2aXJpby1uZXQgYXMgcHJpbWFyeQo+ID4gPiAtIGlmIG5vIFNSLUlPViwgdmlydGlv
-LW5ldCBzdGF5cyBwcmltYXJ5Cj4gPiA+IC0gaHlwZXJ2aXNvciBjYW4gaG90LWFkZCBTUi1JT1Yg
-TklDLCB3aXRoIHNhbWUgTUFDIGFkZHIgYXMgdmlydGlvCj4gPiA+IC0gdmlydGlvLW5ldCBub3Rp
-Y2VzIG5ldyBOSUMgYW5kIHN0YXJ0cyBvdmVyIGF0IGVuc2xhdmUgc3RlcCBhYm92ZQo+ID4gPgo+
-ID4gPiBGdXR1cmUgaWRlYXMgKGJyYWluc3Rvcm1pbmcpOgo+ID4gPiAtIE9wdGltaXplIEZhc3Qg
-ZWFzdC13ZXN0IGJ5IGhhdmluZyBzcGVjaWFsIHJ1bGVzIHRvIGRpcmVjdCBlYXN0LXdlc3QKPiA+
-ID4gICAgdHJhZmZpYyB0aHJvdWdoIHZpcnRpby1uZXQgdHJhZmZpYyBwYXRoCj4gPiA+Cj4gPiA+
-IFRoYW5rcyBmb3IgcmVhZGluZyEKPiA+ID4gSmVzc2UgIAo+ID4gCj4gPiBDYyBuZXRkZXYuCj4g
-PiAKPiA+IEludGVyZXN0aW5nLCBhbmQgdGhpcyBtZXRob2QgaXMgYWN0dWFsbHkgdXNlZCBieSBu
-ZXR2c2Mgbm93Ogo+ID4gCj4gPiBjb21taXQgMGMxOTU1NjdhOGY2ZTgyZWE1NTM1Y2Q5ZjFkNTRh
-MTYyNmRkMjMzZQo+ID4gQXV0aG9yOiBzdGVwaGVuIGhlbW1pbmdlciA8c3RlcGhlbkBuZXR3b3Jr
-cGx1bWJlci5vcmc+Cj4gPiBEYXRlOsKgwqAgVHVlIEF1ZyAxIDE5OjU4OjUzIDIwMTcgLTA3MDAK
-PiA+IAo+ID4gIMKgwqDCoCBuZXR2c2M6IHRyYW5zcGFyZW50IFZGIG1hbmFnZW1lbnQKPiA+IAo+
-ID4gIMKgwqDCoCBUaGlzIHBhdGNoIGltcGxlbWVudHMgdHJhbnNwYXJlbnQgZmFpbCBvdmVyIGZy
-b20gc3ludGhldGljIE5JQyB0bwo+ID4gIMKgwqDCoCBTUi1JT1YgdmlydHVhbCBmdW5jdGlvbiBO
-SUMgaW4gSHlwZXItViBlbnZpcm9ubWVudC4gSXQgaXMgYSBiZXR0ZXIKPiA+ICDCoMKgwqAgYWx0
-ZXJuYXRpdmUgdG8gdXNpbmcgYm9uZGluZyBhcyBpcyBkb25lIG5vdy4gSW5zdGVhZCwgdGhlIHJl
-Y2VpdmUgYW5kCj4gPiAgwqDCoMKgIHRyYW5zbWl0IGZhaWwgb3ZlciBpcyBkb25lIGludGVybmFs
-bHkgaW5zaWRlIHRoZSBkcml2ZXIuCj4gPiAKPiA+ICDCoMKgwqAgVXNpbmcgYm9uZGluZyBkcml2
-ZXIgaGFzIGxvdHMgb2YgaXNzdWVzIGJlY2F1c2UgaXQgZGVwZW5kcyBvbiB0aGUKPiA+ICDCoMKg
-wqAgc2NyaXB0IGJlaW5nIHJ1biBlYXJseSBlbm91Z2ggaW4gdGhlIGJvb3QgcHJvY2VzcyBhbmQg
-d2l0aCBzdWZmaWNpZW50Cj4gPiAgwqDCoMKgIGluZm9ybWF0aW9uIHRvIG1ha2UgdGhlIGFzc29j
-aWF0aW9uLiBUaGlzIHBhdGNoIG1vdmVzIGFsbCB0aGF0Cj4gPiAgwqDCoMKgIGZ1bmN0aW9uYWxp
-dHkgaW50byB0aGUga2VybmVsLgo+ID4gCj4gPiAgwqDCoMKgIFNpZ25lZC1vZmYtYnk6IFN0ZXBo
-ZW4gSGVtbWluZ2VyIDxzdGhlbW1pbkBtaWNyb3NvZnQuY29tPgo+ID4gIMKgwqDCoCBTaWduZWQt
-b2ZmLWJ5OiBEYXZpZCBTLiBNaWxsZXIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+Cj4gPiAKPiA+IElm
-IG15IHVuZGVyc3RhbmRpbmcgaXMgY29ycmVjdCB0aGVyZSdzIG5vIG5lZWQgdG8gZm9yIGFueSBl
-eHRlbnNpb24gb2YgCj4gPiB2aXJ0aW8gc3BlYy4gSWYgdGhpcyBpcyB0cnVlLCBtYXliZSB5b3Ug
-Y2FuIHN0YXJ0IHRvIHByZXBhcmUgdGhlIHBhdGNoPwo+Cj4gSU1ITyB0aGlzIGlzIGFzIGNsb3Nl
-IHRvIHBvbGljeSBpbiB0aGUga2VybmVsIGFzIG9uZSBjYW4gZ2V0LiAgVXNlcgo+IGxhbmQgaGFz
-IGFsbCB0aGUgaW5mb3JtYXRpb24gaXQgbmVlZHMgdG8gaW5zdGFudGlhdGUgdGhhdCBib25kL3Rl
-YW0KPiBhdXRvbWF0aWNhbGx5LgoKSXQgZG9lcyBoYXZlIHRoaXMgaW5mbyAoTUFDIGFkZHJlc3Nl
-cyBtYXRjaCkgYnV0IHdoZXJlJ3MgdGhlIHBvbGljeQpoZXJlPyBJTUhPIHRoZSBwb2xpY3kgaGFz
-IGJlZW4gc2V0IGJ5IHRoZSBoeXBlcnZpc29yIGFscmVhZHkuCkZyb20gaHlwZXJ2aXNvciBQT1Yg
-YWRkaW5nIHBhc3N0aHJvdWdoIGlzIGEgY29tbWl0bWVudCBub3QgdG8gbWlncmF0ZQp1bnRpbCBn
-dWVzdCBzdG9wcyB1c2luZyB0aGUgcGFzc3Rocm91Z2ggZGV2aWNlLgoKV2l0aGluIHRoZSBndWVz
-dCwgdGhlIGJvbmQgaXMgcmVxdWlyZWQgZm9yIHB1cmVseSBmdW5jdGlvbmFsIHJlYXNvbnMgLSBq
-dXN0IHRvCm1haW50YWluIGEgbGluayB1cCBzaW5jZSB3ZSBrbm93IFNSSU9WIHdpbGwgd2lsbCBn
-byBhd2F5LiBNYWludGFpbmluZyBhbgp1bmludGVycnVwdGVkIGNvbm5lY3Rpb24gaXMgbm90IGEg
-cG9saWN5IC0gaXQncyB3aGF0IG5ldHdvcmtpbmcgaXMKYWJvdXQuCgo+ICBJbiBmYWN0IEknbSB0
-cnlpbmcgdG8gZGlzY3VzcyB0aGlzIHdpdGggTmV0d29ya01hbmFnZXIKPiBmb2xrcyBhbmQgUmVk
-IEhhdCByaWdodCBub3c6Cj4gCj4gaHR0cHM6Ly9tYWlsLmdub21lLm9yZy9hcmNoaXZlcy9uZXR3
-b3JrbWFuYWdlci1saXN0LzIwMTctTm92ZW1iZXIvbXNnMDAwMzguaHRtbAoKSSB0aG91Z2h0IHdl
-IHNob3VsZCBkbyBpdCB0b28sIGZvciBhIHdoaWxlLgoKQnV0IG5vdywgSSB0aGluayB0aGF0IHRo
-ZSByZWFsIGlzc3VlIGlzIHRoaXM6IGtlcm5lbCBleHBvc2VzIHdoYXQgbG9va3MKbGlrZSB0d28g
-bmV0d29yayBkZXZpY2VzIHRvIHVzZXJzcGFjZSwgYnV0IGluIGZhY3QgaXQgaXMganVzdCBvbmUK
-YmFja2VuZCBkZXZpY2UsIGp1c3QgZXhwb3NlZCBieSBoeXBlcnZpc29yIGluIGEgd2VpcmQgd2F5
-IGZvcgpjb21wYXRpYmlsaXR5IHJlYXNvbnMuCgpGb3IgZXhhbXBsZSB5b3Ugd2lsbCBub3QgZ2V0
-IGEgYmV0dGVyIHJlbGlhYmlsaXR5IG9yIHRocm91Z2hwdXQgYnkgdXNpbmcKYm90aCBvZiB0aGVt
-IC0gdGhlIG9ubHkgYm9uZGluZyBtb2RlIHRoYXQgbWFrZXMgc2Vuc2UgaXMgZmFpbCBvdmVyLiBB
-cwphbm90aGVyIGV4YW1wbGUsIGlmIHRoZSB1bmRlcmx5aW5nIHBoeXNpY2FsIGRldmljZSBsb3N0
-IGl0cyBsaW5rLCB0cnlpbmcKdG8gdXNlIHZpcnRpbyB3b24ndCBoZWxwIC0gaXQncyBvbmx5IHVz
-ZWZ1bCB3aGVuIHRoZSBwYXNzdGhyb3VnaCBkZXZpY2UKaXMgZ29uZSBmb3IgZ29vZC4gIEFzIGFu
-b3RoZXIgZXhhbXBsZSwgdGhlcmUgaXMgbm8gcG9pbnQgaW4gbm90CmNvbmZpZ3VyaW5nIGEgYm9u
-ZC4gQXMgYSBsYXN0IGV4YW1wbGUsIGRlcGVuZGluZyBvbiBob3cgdGhlIGJhY2tlbmQgaXMKY29u
-ZmlndXJlZCwgdmlydGlvIG1pZ2h0IG5vdCBldmVuIHdvcmsgd2hlbiB0aGUgcGFzcy10aHJvdWdo
-IGRldmljZSBpcwphY3RpdmUuCgpTbyBmcm9tIHRoYXQgcG9pbnQgb2Ygdmlldywgc2hvd2luZyB0
-d28gbmV0d29yayBkZXZpY2VzIHRvIHVzZXJzcGFjZSBpcwphIGJ1ZyB0aGF0IHdlIGFyZSBhc2tp
-bmcgdXNlcnNwYWNlIHRvIHdvcmsgYXJvdW5kLgoKPiBDYW4gd2UgZmxpcCB0aGUgYXJndW1lbnQg
-YW5kIGFzayB3aHkgaXMgdGhlIGtlcm5lbCBzdXBwb3NlZCB0byBiZQo+IHJlc3BvbnNpYmxlIGZv
-ciB0aGlzPwoKQmVjYXVzZSBpZiB3ZSBzaG93IGEgc2luZ2xlIGRldmljZSB0byB1c2Vyc3BhY2Ug
-dGhlIG51bWJlciBvZgptaXNjb25maWd1cmVkIGd1ZXN0cyB3aWxsIGdvIGRvd24sIGFuZCB3ZSB3
-b24ndCBsb3NlIGFueSB1c2VmdWwKZmxleGliaWxpdHkuCgo+ICBJdCdzIG5vdCBsaWtlIHdlIHJ1
-biBESENQIG91dCBvZiB0aGUga2VybmVsCj4gb24gbmV3IGludGVyZmFjZXMuLi4gCgpCZWNhdXNl
-IG9uZSBjYW4gc2V0IHVwIGEgc3RhdGljIElQLCBJUHY2IGRvZXNuJ3QgYWx3YXlzIG5lZWQgREhD
-UCwgZXRjLgoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, Nov 30, 2017 at 10:08:45AM +0200, achiad shochat wrote:
+> Re. problem #2:
+> Indeed the best way to address it seems to be to enslave the VF driver
+> netdev under a persistent anchor netdev.
+> And it's indeed desired to allow (but not enforce) PV netdev and VF
+> netdev to work in conjunction.
+> And it's indeed desired that this enslavement logic work out-of-the box.
+> But in case of PV+VF some configurable policies must be in place (and
+> they'd better be generic rather than differ per PV technology).
+> For example - based on which characteristics should the PV+VF coupling
+> be done? netvsc uses MAC address, but that might not always be the
+> desire.
+
+It's a policy but not guest userspace policy.
+
+The hypervisor certainly knows.
+
+Are you concerned that someone might want to create two devices with the
+same MAC for an unrelated reason?  If so, hypervisor could easily set a
+flag in the virtio device to say "this is a backup, use MAC to find
+another device".
+
+> Another example - when to use PV and when to use VF? One may want to
+> use PV only if VF is gone/down, while others may want to use PV also
+> when VF is up, e.g for multicasting.
+
+There are a bunch of configurations where these two devices share
+the same physical backend. In that case there is no point
+in multicasting through both devices, in fact, PV might
+not even work at all when passthrough is active.
+
+IMHO these cases are what's worth handling in the kernel.
+
+When there are two separate backends, we are getting into policy and
+it's best to leave this to userspace (and it's unlikely network manager
+will automatically do the right thing here, either).
+
+
+> I think the right way to address it is to have a new dedicated module
+> for this purpose.
+> Have it automatically enslave PV and VF netdevs according to user
+> configured policy. Enslave the VF even if there is no PV device at
+> all.
+> 
+> This way we get:
+> 1) Optimal migration performance
+
+This remains to be proved.
+
+> 2) A PV agnostic (VM may be migrated even from one PV technology to
+> another)
+
+Yes - in theory kvm could expose both a virtio and a hyperv device. But what
+would be the point? Just do the abstraction in the hypervisor.
+
+> and HW device agnostic solution
+
+That's useful but I don't think we need to involve userspace for that.
+HW abstraction is kernel's job.
+
+>     A dedicated generic module will also enforce a lower common
+> denominator of guest netdev features, preventing migration dependency
+> on source/guest machine capabilities.
+
+If all we are discussing is where this code should live, then I
+do not really care. Let's implement it in virtio, then if we
+find we have a lot of common we can factor it out.
+
+> 3) Out-of-the box solution yet with generic methods for policy setting
+> 
+> 
+> Thanks
+
+There's no real policy that guest can set though. All setting happens
+on the hypervisor side.
+
+-- 
+MST
