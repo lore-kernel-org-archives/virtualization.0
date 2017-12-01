@@ -1,16 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v18 10/10] virtio-balloon: don't report free pages when
-	page poisoning is enabled
-Date: Fri, 1 Dec 2017 17:49:36 +0200
-Message-ID: <20171201173951-mutt-send-email-mst__23778.1341108077$1512143490$gmane$org@kernel.org>
-References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
-	<1511963726-34070-11-git-send-email-wei.w.wang@intel.com>
+From: weiping zhang <zwp10758@gmail.com>
+Subject: Re: [PATCH] virtio: release virtio index when fail to device_register
+Date: Sat, 2 Dec 2017 00:55:39 +0800
+Message-ID: <20171201165539.GA11865@localhost.didichuxing.com>
+References: <20171129012301.GA6637@localhost.didichuxing.com>
+	<20171129105044.3a4b0ab3.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1511963726-34070-11-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20171129105044.3a4b0ab3.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,53 +19,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 29, 2017 at 09:55:26PM +0800, Wei Wang wrote:
-> The guest free pages should not be discarded by the live migration thread
-> when page poisoning is enabled with PAGE_POISONING_NO_SANITY=n, because
-> skipping the transfer of such poisoned free pages will trigger false
-> positive when new pages are allocated and checked on the destination.
-> This patch skips the reporting of free pages in the above case.
+On Wed, Nov 29, 2017 at 10:50:44AM +0100, Cornelia Huck wrote:
+> On Wed, 29 Nov 2017 09:23:01 +0800
+> weiping zhang <zwp10758@gmail.com> wrote:
 > 
-> Reported-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Cc: Michal Hocko <mhocko@suse.com>
-> ---
->  drivers/virtio/virtio_balloon.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+> > index can be reused by other virtio device.
+> > 
+> > Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 035bd3a..6ac4cff 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -652,7 +652,9 @@ static void report_free_page(struct work_struct *work)
->  	/* Start by sending the obtained cmd id to the host with an outbuf */
->  	send_one_desc(vb, vb->free_page_vq, virt_to_phys(&vb->start_cmd_id),
->  		      sizeof(uint32_t), false, true, false);
-> -	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
-> +	if (!(page_poisoning_enabled() &&
-> +	    !IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY)))
-> +		walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
->  	/*
->  	 * End by sending the stop id to the host with an outbuf. Use the
->  	 * non-batching mode here to trigger a kick after adding the stop id.
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> 
+> > ---
+> >  drivers/virtio/virtio.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > index 48230a5..bf7ff39 100644
+> > --- a/drivers/virtio/virtio.c
+> > +++ b/drivers/virtio/virtio.c
+> > @@ -333,6 +333,8 @@ int register_virtio_device(struct virtio_device *dev)
+> >  	/* device_register() causes the bus infrastructure to look for a
+> >  	 * matching driver. */
+> >  	err = device_register(&dev->dev);
+> > +	if (err)
+> > +		ida_simple_remove(&virtio_index_ida, dev->index);
+> >  out:
+> >  	if (err)
+> >  		virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
+> 
+> I think your patch is correct (giving up the index if we failed to
+> register), but this made me look at our error handling if a virtio
+> device failed to register.
+> 
+> We hold an extra reference to the struct device, even after a failed
+> register, and it is the responsibility of the caller to give up that
+> reference once no longer needed. As callers toregister_virtio_device()
+> embed the struct virtio_device, it needs to be their responsibility.
+> Looking at the existing callers,
+> 
+> - ccw does a put_device
+> - pci, mmio and remoteproc do nothing, causing a leak
+> - vop does a free on the embedding structure, which is a big no-no
+> 
+> Thoughts?
+Sorry to relay late and thanks for your review.
+Do you mean the "extra reference to the struct device" caused by the
+following code?
+ 
+err = device_register(&dev->dev);
+	device_add(dev)
+		get_device(dev)
+If I'm understand right, I think there is no extra reference if we fail
+virtio_register_device, because if device_register we don't get a
+reference.
 
-PAGE_POISONING_ZERO is actually OK.
-
-But I really would prefer it that we still send pages to host,
-otherwise debugging becomes much harder.
-
-And it does not have to be completely useless, even though
-you can not discard them as they would be zero-filled then.
-
-How about a config field telling host what should be there in the free
-pages? This way even though host can not discard them, host can send
-them out without reading them, still a win.
-
-
-
-> -- 
-> 2.7.4
+--
+Thanks
+weiping
