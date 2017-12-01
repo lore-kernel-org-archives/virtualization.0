@@ -1,18 +1,16 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v18 05/10] xbitmap: add more operations
-Date: Fri, 1 Dec 2017 06:13:07 -0800
-Message-ID: <20171201141307.GA4722__33892.2474919402$1512137616$gmane$org@bombadil.infradead.org>
-References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
-	<1511963726-34070-6-git-send-email-wei.w.wang@intel.com>
-	<201711301934.CDC21800.FSLtJFFOOVQHMO@I-love.SAKURA.ne.jp>
-	<5A210C96.8050208@intel.com>
-	<201712012202.BDE13557.MJFQLtOOHVOFSF@I-love.SAKURA.ne.jp>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 2/3] tun: free skb in early errors
+Date: Fri, 1 Dec 2017 16:36:49 +0200
+Message-ID: <20171201163220-mutt-send-email-mst__39581.7061923028$1512139030$gmane$org@kernel.org>
+References: <1512107669-27572-1-git-send-email-wexu@redhat.com>
+	<1512107669-27572-3-git-send-email-wexu@redhat.com>
+	<a079ad24-cf20-66bc-2f57-9d0df9534f22@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <201712012202.BDE13557.MJFQLtOOHVOFSF@I-love.SAKURA.ne.jp>
+In-Reply-To: <a079ad24-cf20-66bc-2f57-9d0df9534f22@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,15 +20,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: Jason Wang <jasowang@redhat.com>
+Cc: mjrosato@linux.vnet.ibm.com, netdev@vger.kernel.org, wexu@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 01, 2017 at 10:02:01PM +0900, Tetsuo Handa wrote:
-> If start == end is legal,
-> 
->    for (; start < end; start = (start | (IDA_BITMAP_BITS - 1)) + 1) {
-> 
-> makes this loop do nothing because 10 < 10 is false.
-
-... and this is why we add tests to the test-suite!
+T24gRnJpLCBEZWMgMDEsIDIwMTcgYXQgMDM6MDc6NDRQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE35bm0MTLmnIgwMeaXpSAxMzo1NCwgd2V4dUByZWRoYXQuY29tIHdy
+b3RlOgo+ID4gRnJvbTogV2VpIFh1IDx3ZXh1QHJlZGhhdC5jb20+Cj4gPiAKPiA+IHR1bl9yZWN2
+bXNnKCkgc3VwcG9ydHMgYWNjZXB0aW5nIHNrYiBieSBtc2dfY29udHJvbCBhZnRlcgo+ID4gY29t
+bWl0IGFjNzdjZmQ0MjU4ZiAoInR1bjogc3VwcG9ydCByZWNlaXZpbmcgc2tiIHRocm91Z2ggbXNn
+X2NvbnRyb2wiKSwKPiA+IHRoZSBza2IgaWYgcHJlc2VudGVkIHNob3VsZCBiZSBmcmVlZCB3aXRo
+aW4gdGhlIGZ1bmN0aW9uLCBvdGhlcndpc2UgaXQKPiA+IHdvdWxkIGJlIGxlYWtlZC4KPiA+IAo+
+ID4gU2lnbmVkLW9mZi1ieTogV2VpIFh1IDx3ZXh1QHJlZGhhdC5jb20+Cj4gPiBSZXBvcnRlZC1i
+eTogTWF0dGhldyBSb3NhdG8gPG1qcm9zYXRvQGxpbnV4LnZuZXQuaWJtLmNvbT4KPiA+IC0tLQo+
+ID4gICBkcml2ZXJzL25ldC90dW4uYyB8IDE0ICsrKysrKysrKysrLS0tCj4gPiAgIDEgZmlsZSBj
+aGFuZ2VkLCAxMSBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQo+ID4gCj4gPiBkaWZmIC0t
+Z2l0IGEvZHJpdmVycy9uZXQvdHVuLmMgYi9kcml2ZXJzL25ldC90dW4uYwo+ID4gaW5kZXggNmE3
+YmRlOS4uNTU2MzQzMCAxMDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMvbmV0L3R1bi5jCj4gPiArKysg
+Yi9kcml2ZXJzL25ldC90dW4uYwo+ID4gQEAgLTIwNjcsMTQgKzIwNjcsMTcgQEAgc3RhdGljIGlu
+dCB0dW5fcmVjdm1zZyhzdHJ1Y3Qgc29ja2V0ICpzb2NrLCBzdHJ1Y3QgbXNnaGRyICptLCBzaXpl
+X3QgdG90YWxfbGVuLAo+ID4gICB7Cj4gPiAgIAlzdHJ1Y3QgdHVuX2ZpbGUgKnRmaWxlID0gY29u
+dGFpbmVyX29mKHNvY2ssIHN0cnVjdCB0dW5fZmlsZSwgc29ja2V0KTsKPiA+ICAgCXN0cnVjdCB0
+dW5fc3RydWN0ICp0dW4gPSB0dW5fZ2V0KHRmaWxlKTsKPiA+ICsJc3RydWN0IHNrX2J1ZmYgKnNr
+YiA9IG0tPm1zZ19jb250cm9sOwo+ID4gICAJaW50IHJldDsKPiA+IC0JaWYgKCF0dW4pCj4gPiAt
+CQlyZXR1cm4gLUVCQURGRDsKPiA+ICsJaWYgKCF0dW4pIHsKPiA+ICsJCXJldCA9IC1FQkFERkQ7
+Cj4gPiArCQlnb3RvIG91dF9mcmVlX3NrYjsKPiAKPiBVbmZvcnR1bmF0ZWx5LCB5b3UgY2FuJ3Qg
+dG8gdGhlcmUgc2luY2UgdHVuIGlzIE5VTEwuCgpSaWdodCwgdGhpcyBzaG91bGQganVzdCBiZSBr
+ZnJlZV9za2Ioc2tiKTsgcmV0dXJuIC1FQkFERkQ7Cgo+IAo+ID4gKwl9Cj4gPiAgIAlpZiAoZmxh
+Z3MgJiB+KE1TR19ET05UV0FJVHxNU0dfVFJVTkN8TVNHX0VSUlFVRVVFKSkgewo+ID4gICAJCXJl
+dCA9IC1FSU5WQUw7Cj4gPiAtCQlnb3RvIG91dDsKPiA+ICsJCWdvdG8gb3V0X2ZyZWVfc2tiOwo+
+ID4gICAJfQo+ID4gICAJaWYgKGZsYWdzICYgTVNHX0VSUlFVRVVFKSB7Cj4gPiAgIAkJcmV0ID0g
+c29ja19yZWN2X2VycnF1ZXVlKHNvY2stPnNrLCBtLCB0b3RhbF9sZW4sCj4gPiBAQCAtMjA4Nyw2
+ICsyMDkwLDExIEBAIHN0YXRpYyBpbnQgdHVuX3JlY3Ztc2coc3RydWN0IHNvY2tldCAqc29jaywg
+c3RydWN0IG1zZ2hkciAqbSwgc2l6ZV90IHRvdGFsX2xlbiwKPiA+ICAgCQltLT5tc2dfZmxhZ3Mg
+fD0gTVNHX1RSVU5DOwo+ID4gICAJCXJldCA9IGZsYWdzICYgTVNHX1RSVU5DID8gcmV0IDogdG90
+YWxfbGVuOwo+ID4gICAJfQo+ID4gKwlnb3RvIG91dDsKPiAKPiBXZSB1c3VhbGx5IGRvbid0IHVz
+ZSBnb3RvIGluIHRoZSBjYXNlIG9mIHN1Y2Nlc3MsIGFuZCB5b3UgbmVlZCBkZWFsIHdpdGggdGhl
+Cj4gY2FzZSBza2IgIT0gTlVMTCBidXQgaW92X2l0ZXJfY291bnQodG8pID09IDAgaW4gdHVuX2Rv
+X3JlYWQoKS4KPiAKPiBUaGFua3MKCkkgYWdyZWUsIHRoZSB3YXkgdG8gbGF5IHRoaXMgb3V0IGlz
+OgoKCgl0dW5fcHV0KHR1bik7CglyZXR1cm4gcmV0OwoKZXJyOgoJdHVuX3B1dCh0dW4pOwplcnJf
+dHVuOgoJaWYgKHNrYikKCQlrZnJlZV9za2Ioc2tiKTsKCXJldHVybiByZXQ7CgoKCgo+ID4gKwo+
+ID4gK291dF9mcmVlX3NrYjoKPiA+ICsJaWYgKHNrYikKPiA+ICsJCWtmcmVlX3NrYihza2IpOwo+
+ID4gICBvdXQ6Cj4gPiAgIAl0dW5fcHV0KHR1bik7Cj4gPiAgIAlyZXR1cm4gcmV0OwpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
