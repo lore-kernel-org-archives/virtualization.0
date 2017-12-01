@@ -1,7 +1,7 @@
 From: wexu@redhat.com
-Subject: [PATCH 1/3] vhost: fix skb leak in handle_rx()
-Date: Fri,  1 Dec 2017 00:54:27 -0500
-Message-ID: <1512107669-27572-2-git-send-email-wexu__33328.2561427497$1512195569$gmane$org@redhat.com>
+Subject: [PATCH 3/3] tap: free skb if flags error
+Date: Fri,  1 Dec 2017 00:54:29 -0500
+Message-ID: <1512107669-27572-4-git-send-email-wexu__31333.5087536418$1512195569$gmane$org@redhat.com>
 References: <1512107669-27572-1-git-send-email-wexu@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,65 +23,35 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Wei Xu <wexu@redhat.com>
 
-Matthew found a roughly 40% tcp throughput regression with commit
-c67df11f(vhost_net: try batch dequing from skb array) as discussed
-in the following thread:
-https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
-
-Eventually we figured out that it was a skb leak in handle_rx()
-when sending packets to the VM. This usually happens when a guest
-can not drain out vq as fast as vhost fills in, afterwards it sets
-off the traffic jam and leaks skb(s) which occurs as no headcount
-to send on the vq from vhost side.
-
-This can be avoided by making sure we have got enough headcount
-before actually consuming a skb from the batched rx array while
-transmitting, which is simply done by moving checking the zero
-headcount a bit ahead.
+tap_recvmsg() supports accepting skb by msg_control after
+commit 3b4ba04acca8 ("tap: support receiving skb from msg_control"),
+the skb if presented should be freed within the function, otherwise
+it would be leaked.
 
 Signed-off-by: Wei Xu <wexu@redhat.com>
 Reported-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
 ---
- drivers/vhost/net.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/net/tap.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 8d626d7..c7bdeb6 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -778,16 +778,6 @@ static void handle_rx(struct vhost_net *net)
- 		/* On error, stop handling until the next kick. */
- 		if (unlikely(headcount < 0))
- 			goto out;
--		if (nvq->rx_array)
--			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
--		/* On overrun, truncate and discard */
--		if (unlikely(headcount > UIO_MAXIOV)) {
--			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
--			err = sock->ops->recvmsg(sock, &msg,
--						 1, MSG_DONTWAIT | MSG_TRUNC);
--			pr_debug("Discarded rx packet: len %zd\n", sock_len);
--			continue;
--		}
- 		/* OK, now we need to know about added descriptors. */
- 		if (!headcount) {
- 			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
-@@ -800,6 +790,16 @@ static void handle_rx(struct vhost_net *net)
- 			 * they refilled. */
- 			goto out;
- 		}
-+		if (nvq->rx_array)
-+			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
-+		/* On overrun, truncate and discard */
-+		if (unlikely(headcount > UIO_MAXIOV)) {
-+			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
-+			err = sock->ops->recvmsg(sock, &msg,
-+						 1, MSG_DONTWAIT | MSG_TRUNC);
-+			pr_debug("Discarded rx packet: len %zd\n", sock_len);
-+			continue;
-+		}
- 		/* We don't need to be notified again. */
- 		iov_iter_init(&msg.msg_iter, READ, vq->iov, in, vhost_len);
- 		fixup = msg.msg_iter;
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index e9489b8..1c66b75 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -1154,9 +1154,13 @@ static int tap_recvmsg(struct socket *sock, struct msghdr *m,
+ 		       size_t total_len, int flags)
+ {
+ 	struct tap_queue *q = container_of(sock, struct tap_queue, sock);
++	struct sk_buff *skb = m->msg_control;
+ 	int ret;
+-	if (flags & ~(MSG_DONTWAIT|MSG_TRUNC))
++	if (flags & ~(MSG_DONTWAIT|MSG_TRUNC)) {
++		if (skb)
++			kfree_skb(skb);
+ 		return -EINVAL;
++	}
+ 	ret = tap_do_read(q, &m->msg_iter, flags & MSG_DONTWAIT,
+ 			  m->msg_control);
+ 	if (ret > total_len) {
 -- 
 1.8.3.1
