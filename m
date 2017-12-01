@@ -1,21 +1,16 @@
-From: Emil Velikov <emil.l.velikov@gmail.com>
-Subject: Re: [PATCH 02/13] fbdev: add remove_conflicting_pci_framebuffers()
-Date: Fri, 1 Dec 2017 14:40:11 +0000
-Message-ID: <CACvgo52NmpWv4DdwMuu3b9fZx++Wd2zvCvtvN75LxPqmycpCtQ__2458.76853955469$1512139245$gmane$org@mail.gmail.com>
-References: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
-	<1738dbed0239bffc886f126fd3091daa39cd14c9.1511544782.git.mirq-linux@rere.qmqm.pl>
-	<20171127102758.y7c6yzyey6wfntxh@phenom.ffwll.local>
-	<20171127205219.GA3537@sudip-laptop>
-	<20171128102217.b7ynyqarwzkdvmdq@phenom.ffwll.local>
-	<20171128113238.GA29456@kroah.com>
-	<20171128123008.GA12986@sudip-tp>
-	<20171129095634.ymeld4l7zaehbuvn@phenom.ffwll.local>
-	<20171130234953.GA5542@sudip-laptop>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: Memory corruption in powerpc guests with virtio_balloon (was Re:
+	[PATCH v3] virtio_balloon: fix deadlock on OOM)
+Date: Fri, 1 Dec 2017 16:42:01 +0200
+Message-ID: <20171201164129-mutt-send-email-mst__30755.9601533741$1512139333$gmane$org@kernel.org>
+References: <1510154064-9709-1-git-send-email-mst@redhat.com>
+	<87o9nid3zn.fsf@concordia.ellerman.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171130234953.GA5542@sudip-laptop>
+Content-Disposition: inline
+In-Reply-To: <87o9nid3zn.fsf@concordia.ellerman.id.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,59 +20,261 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>, David Airlie <airlied@linux.ie>, Greg KH <gregkh@linuxfoundation.org>, amd-gfx mailing list <amd-gfx@lists.freedesktop.org>, =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, ML dri-devel <dri-devel@lists.freedesktop.org>, Daniel Vetter <daniel@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+To: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Hocko <mhocko@suse.com>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMzAgTm92ZW1iZXIgMjAxNyBhdCAyMzo0OSwgU3VkaXAgTXVraGVyamVlCjxzdWRpcG0ubXVr
-aGVyamVlQGdtYWlsLmNvbT4gd3JvdGU6Cj4gSGkgRGFuaWVsLAo+Cj4gT24gV2VkLCBOb3YgMjks
-IDIwMTcgYXQgMTA6NTY6MzRBTSArMDEwMCwgRGFuaWVsIFZldHRlciB3cm90ZToKPj4gT24gVHVl
-LCBOb3YgMjgsIDIwMTcgYXQgMTI6MzA6MzBQTSArMDAwMCwgU3VkaXAgTXVraGVyamVlIHdyb3Rl
-Ogo+PiA+IE9uIFR1ZSwgTm92IDI4LCAyMDE3IGF0IDEyOjMyOjM4UE0gKzAxMDAsIEdyZWcgS0gg
-d3JvdGU6Cj4+ID4gPiBPbiBUdWUsIE5vdiAyOCwgMjAxNyBhdCAxMToyMjoxN0FNICswMTAwLCBE
-YW5pZWwgVmV0dGVyIHdyb3RlOgo+PiA+ID4gPiBPbiBNb24sIE5vdiAyNywgMjAxNyBhdCAwODo1
-MjoxOVBNICswMDAwLCBTdWRpcCBNdWtoZXJqZWUgd3JvdGU6Cj4+ID4gPiA+ID4gT24gTW9uLCBO
-b3YgMjcsIDIwMTcgYXQgMTE6Mjc6NTlBTSArMDEwMCwgRGFuaWVsIFZldHRlciB3cm90ZToKPj4g
-PiA+ID4gPiA+IE9uIEZyaSwgTm92IDI0LCAyMDE3IGF0IDA2OjUzOjMxUE0gKzAxMDAsIE1pY2hh
-xYIgTWlyb3PFgmF3IHdyb3RlOgo+PiA+ID4gPiA+ID4gPiBBbG1vc3QgYWxsIGRyaXZlcnMgdXNp
-bmcgcmVtb3ZlX2NvbmZsaWN0aW5nX2ZyYW1lYnVmZmVycygpIHdyYXAgaXQgd2l0aAo+PiA+ID4g
-PiA+ID4gPiB0aGUgc2FtZSBjb2RlLiBFeHRyYWN0IGNvbW1vbiBwYXJ0IGZyb20gUENJIGRyaXZl
-cnMgaW50byBzZXBhcmF0ZQo+PiA+ID4gPiA+ID4gPiByZW1vdmVfY29uZmxpY3RpbmdfcGNpX2Zy
-YW1lYnVmZmVycygpLgo+PiA+ID4gPiA+ID4gPgo+Cj4gPHNuaXA+Cj4KPj4gPiA+ID4KPj4gPiA+
-ID4gR3JlZz8KPj4gPiA+Cj4+ID4gPiBZZXMsIGlmIG5vIG9uZSBpcyB3b3JraW5nIHRvIGdldCBp
-dCBvdXQgb2Ygc3RhZ2luZywgdGhhdCBtZWFucyBubyBvbmUKPj4gPiA+IGNhcmVzIGFib3V0IGl0
-LCBhbmQgaXQgbmVlZHMgdG8gYmUgcmVtb3ZlZCBmcm9tIHRoZSB0cmVlLgo+PiA+Cj4+ID4gQWdy
-ZWVkLiBJIHdhcyBub3Qgd29ya2luZyBvbiBnZXR0aW5nIGl0IG91dCBvZiBzdGFnaW5nIGFzIHRo
-ZXJlIGlzIG5vCj4+ID4gcGxhY2UgZm9yIGl0IHRvIGdvLgo+PiA+IEJ1dCwgVGVkZHkgV2FuZyB0
-b2xkIG1lIHRoYXQgdGhleSBoYXZlIGEgd29ya2luZyBkcm0gZHJpdmVyIGZvciBpdCwgYnV0Cj4+
-ID4gaXQgaXMgbm90IGF0b21pYyBsaWtlIERhbmllbCB3YXMgYXNraW5nIGZvci4gSWYgaXQgaXMg
-b2ssIHRoZW4gSSBjYW4gc2VuZAo+PiA+IGluIGEgcGF0Y2ggdG8gcmVtb3ZlIHRoZSBleGlzdGlu
-ZyBzbTc1MCBmcm9tIHN0YWdpbmcgYW5kIGFkZCB0aGUgbmV3IHNtNzUwCj4+ID4gZHJtIGRyaXZl
-ciB0byBzdGFnaW5nLiBBbmQgYWZ0ZXIgaXQgaXMgcmVhZHksIHdlIGNhbiBnbyBhaGVhZCB3aXRo
-IG1vdmluZwo+PiA+IGl0IG91dCBvZiBzdGFnaW5nIHRvIGRybS4KPj4KPj4gUGxlYXNlIGtlZXAg
-dGhlIHRvZG8gaXRlbSB0aGF0IGl0IG5lZWRzIHRvIGJlIGNvbnZlcnRlZCB0byBhdG9taWMuIEFu
-ZAo+PiB0YmgsIGl0J3MgcHJvYmFibHkgZmFzdGVyIGlmIHlvdSBqdXN0IHN1Ym1pdCBpdCB0byBk
-cmktZGV2ZWwsIGFzc3VtaW5nIHlvdQo+PiBoYXZlIHRpbWUgdG8gd29yayBvbiBpdC4gRm9yIHNt
-YWxsIGRyaXZlcnMgd2UgdGVuZCB0byBiZSBmYWlybHkgcXVpY2sgaW4KPj4gZ2V0dGluZyB0aGVt
-IGludG8gZ29vZCBlbm91Z2ggc2hhcGUuCj4KPiBJIGhhdmUgcmVjZWl2ZWQgdGhlIGRyaXZlciBm
-cm9tIFRlZGR5IGFuZCBwdXNoZWQgaXQgdG8KPiBodHRwczovL2dpdGh1Yi5jb20vc3VkaXBtLW11
-a2hlcmplZS9wYXJwb3J0L3RyZWUvZHJtX3NtaSBmb3IgeW91ciBmaXJzdAo+IGxvb2sgaW50byBp
-dC4gSXQgaXMgbm90IGV2ZW4gYnVpbGRpbmcgd2l0aCBuZXh0LTIwMTcxMTMwIGFuZCBoYXMgbG90
-cyBvZgo+IGJ1aWxkIHdhcm5pbmdzLiBJIHdpbGwgaGF2ZSB0byBkbyBhIGxvdCBvZiB3b3JrIG9u
-IGl0IGJlZm9yZSBJIGNhbiBldmVuCj4gc3VibWl0IGl0IHRvIGRyaS1kZXZlbC4KPgpBIGNyYXp5
-IGlkZWEsIG1vc3RseSB0b3dhcmRzIFRlZGQgYW5kIFN1ZGlwOgoKU3RhcnQgc21hbGwgYW5kIGJ1
-aWxkIGdyYWR1YWxseS4gQW4gZXhhbXBsZSBzcGxpdCBmb3Igc2VwYXJhdGUgcGF0Y2ggc2VyaWVz
-OgoKIC0gb25lIEhXLCBiYXNpYyBzZXR1cCArIGF0b21pYyBLTVMKIC0gYWRkIHNlY29uZCBIVwog
-LSBtb3JlIEtNUyBmZWF0dXJlcwogLSBmYW5jeSBtZW1vcnkgbWFuYWdlbWVudAogLSAyRC8zRC9v
-dGhlciBhY2NlbGVyYXRpb24KClRoZSBkcml2ZXIgYXMgc2VlbiBhYm92ZSB0cmllcyB0byBkbyBh
-bGwgb2YgdGhlIGFib3ZlIChhbG1vc3QsIGl0J3Mgbm90IGF0b21pYykKYXQgb25jZSAtIDQwayBs
-b2MuCgpTb21lb25lIGZhbWlsaWFyIHdpdGggdGhlIGNvZGUgY2FuIHF1aWNrbHkgc3BsaXQgaXQg
-dXAgYW5kIHdoaWxlIGRvaW5nCnNvLCBmZWVkIGl0IHRocm91Z2ggY2hlY2twYXRjaC4KQ3VycmVu
-dCBjb2RlIGlzIF92ZXJ5XyBmYXIgZnJvbSBrZXJuZWwgY29kaW5nIHN0eWxlLCBwbHVzIHRoZQpj
-b3B5cmlnaHQgYmx1cnAgaXMgdmVyeSBkaXN0dXJiaW5nOgoKKiBBbGwgcmlnaHRzIGFyZSByZXNl
-cnZlZC4gUmVwcm9kdWN0aW9uIG9yIGluIHBhcnQgaXMgcHJvaGliaXRlZAoqIHdpdGhvdXQgdGhl
-IHdyaXR0ZW4gY29uc2VudCBvZiB0aGUgY29weXJpZ2h0IG93bmVyLgoKSFRICkVtaWwKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+On Fri, Dec 01, 2017 at 11:31:08PM +1100, Michael Ellerman wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> 
+> > fill_balloon doing memory allocations under balloon_lock
+> > can cause a deadlock when leak_balloon is called from
+> > virtballoon_oom_notify and tries to take same lock.
+> >
+> > To fix, split page allocation and enqueue and do allocations outside the lock.
+> >
+> > Here's a detailed analysis of the deadlock by Tetsuo Handa:
+> >
+> > In leak_balloon(), mutex_lock(&vb->balloon_lock) is called in order to
+> > serialize against fill_balloon(). But in fill_balloon(),
+> > alloc_page(GFP_HIGHUSER[_MOVABLE] | __GFP_NOMEMALLOC | __GFP_NORETRY) is
+> > called with vb->balloon_lock mutex held. Since GFP_HIGHUSER[_MOVABLE]
+> > implies __GFP_DIRECT_RECLAIM | __GFP_IO | __GFP_FS, despite __GFP_NORETRY
+> > is specified, this allocation attempt might indirectly depend on somebody
+> > else's __GFP_DIRECT_RECLAIM memory allocation. And such indirect
+> > __GFP_DIRECT_RECLAIM memory allocation might call leak_balloon() via
+> > virtballoon_oom_notify() via blocking_notifier_call_chain() callback via
+> > out_of_memory() when it reached __alloc_pages_may_oom() and held oom_lock
+> > mutex. Since vb->balloon_lock mutex is already held by fill_balloon(), it
+> > will cause OOM lockup.
+> >
+> >   Thread1                                       Thread2
+> >     fill_balloon()
+> >       takes a balloon_lock
+> >       balloon_page_enqueue()
+> >         alloc_page(GFP_HIGHUSER_MOVABLE)
+> >           direct reclaim (__GFP_FS context)       takes a fs lock
+> >             waits for that fs lock                  alloc_page(GFP_NOFS)
+> >                                                       __alloc_pages_may_oom()
+> >                                                         takes the oom_lock
+> >                                                         out_of_memory()
+> >                                                           blocking_notifier_call_chain()
+> >                                                             leak_balloon()
+> >                                                               tries to take that balloon_lock and deadlocks
+> >
+> > Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> > Cc: Michal Hocko <mhocko@suse.com>
+> > Cc: Wei Wang <wei.w.wang@intel.com>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> >
+> >  drivers/virtio/virtio_balloon.c    | 24 +++++++++++++++++++-----
+> >  include/linux/balloon_compaction.h | 35 ++++++++++++++++++++++++++++++++++-
+> >  mm/balloon_compaction.c            | 28 +++++++++++++++++++++-------
+> >  3 files changed, 74 insertions(+), 13 deletions(-)
+> 
+> 
+> Somehow this commit seems to be killing powerpc guests.
+> 
+> The symptom is that the first page (64K) of the guests memory gets over
+> written with zeroes, which is where our interrupt handlers are, so the
+> system rapidly locks up due to illegal instructions in the illegal
+> instruction handler.
+> 
+> There seems to be some element of a race, because it doesn't always
+> crash. Sometimes I can boot to a shell, but not often. When it does
+> happen it's fairly late in boot, but before I get to a shell.
+> 
+> I had a few bisects go off into the weeds due to the intermittent
+> nature. But once I realised that I changed my script to boot 5 times
+> before declaring a kernel good, and that bisected straight here.
+> 
+> I can also revert this commit on v4.15-rc1 and everything's fine again -
+> I got through ~250 boots with that kernel.
+> 
+> So I'm pretty sure this commit is triggering/exposing/causing the bug.
+> 
+> The other data point is that the page that's overwritten is mapped read
+> only in the guest kernel. So either the guest kernel is writing to it in
+> real mode (MMU off), or the hypervisor/DMA is doing it.
+> 
+> I haven't isolated if it's host kernel/qemu version dependent, at the
+> moment I'm just using distro packaged versions of both.
+> 
+> Anyway I'll try and dig further into it on Monday, but I thought I'd let
+> you know in case this is a known bug with a fix in the pipeline, or
+> rings any bells or whatever.
+> 
+> cheers
+
+Thanks for the report!
+A fix was just posted:
+virtio_balloon: fix increment of vb->num_pfns in fill_balloon()
+
+Would appreciate testing.
+
+> 
+> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > index f0b3a0b..7960746 100644
+> > --- a/drivers/virtio/virtio_balloon.c
+> > +++ b/drivers/virtio/virtio_balloon.c
+> > @@ -143,16 +143,17 @@ static void set_page_pfns(struct virtio_balloon *vb,
+> >  
+> >  static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+> >  {
+> > -	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
+> >  	unsigned num_allocated_pages;
+> > +	unsigned num_pfns;
+> > +	struct page *page;
+> > +	LIST_HEAD(pages);
+> >  
+> >  	/* We can only do one array worth at a time. */
+> >  	num = min(num, ARRAY_SIZE(vb->pfns));
+> >  
+> > -	mutex_lock(&vb->balloon_lock);
+> > -	for (vb->num_pfns = 0; vb->num_pfns < num;
+> > -	     vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+> > -		struct page *page = balloon_page_enqueue(vb_dev_info);
+> > +	for (num_pfns = 0; num_pfns < num;
+> > +	     num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+> > +		struct page *page = balloon_page_alloc();
+> >  
+> >  		if (!page) {
+> >  			dev_info_ratelimited(&vb->vdev->dev,
+> > @@ -162,6 +163,19 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+> >  			msleep(200);
+> >  			break;
+> >  		}
+> > +
+> > +		balloon_page_push(&pages, page);
+> > +	}
+> > +
+> > +	mutex_lock(&vb->balloon_lock);
+> > +
+> > +	vb->num_pfns = 0;
+> > +
+> > +	while ((page = balloon_page_pop(&pages))) {
+> > +		balloon_page_enqueue(&vb->vb_dev_info, page);
+> > +
+> > +		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
+> > +
+> >  		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+> >  		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+> >  		if (!virtio_has_feature(vb->vdev,
+> > diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
+> > index fbbe6da..c4c8df9 100644
+> > --- a/include/linux/balloon_compaction.h
+> > +++ b/include/linux/balloon_compaction.h
+> > @@ -50,6 +50,7 @@
+> >  #include <linux/gfp.h>
+> >  #include <linux/err.h>
+> >  #include <linux/fs.h>
+> > +#include <linux/list.h>
+> >  
+> >  /*
+> >   * Balloon device information descriptor.
+> > @@ -67,7 +68,9 @@ struct balloon_dev_info {
+> >  	struct inode *inode;
+> >  };
+> >  
+> > -extern struct page *balloon_page_enqueue(struct balloon_dev_info *b_dev_info);
+> > +extern struct page *balloon_page_alloc(void);
+> > +extern void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
+> > +				 struct page *page);
+> >  extern struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info);
+> >  
+> >  static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
+> > @@ -89,6 +92,36 @@ extern int balloon_page_migrate(struct address_space *mapping,
+> >  				struct page *page, enum migrate_mode mode);
+> >  
+> >  /*
+> > + * balloon_page_push - insert a page into a page list.
+> > + * @head : pointer to list
+> > + * @page : page to be added
+> > + *
+> > + * Caller must ensure the page is private and protect the list.
+> > + */
+> > +static inline void balloon_page_push(struct list_head *pages, struct page *page)
+> > +{
+> > +	list_add(&page->lru, pages);
+> > +}
+> > +
+> > +/*
+> > + * balloon_page_pop - remove a page from a page list.
+> > + * @head : pointer to list
+> > + * @page : page to be added
+> > + *
+> > + * Caller must ensure the page is private and protect the list.
+> > + */
+> > +static inline struct page *balloon_page_pop(struct list_head *pages)
+> > +{
+> > +	struct page *page = list_first_entry_or_null(pages, struct page, lru);
+> > +
+> > +	if (!page)
+> > +		return NULL;
+> > +
+> > +	list_del(&page->lru);
+> > +	return page;
+> > +}
+> > +
+> > +/*
+> >   * balloon_page_insert - insert a page into the balloon's page list and make
+> >   *			 the page->private assignment accordingly.
+> >   * @balloon : pointer to balloon device
+> > diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+> > index 68d2892..ef858d5 100644
+> > --- a/mm/balloon_compaction.c
+> > +++ b/mm/balloon_compaction.c
+> > @@ -11,22 +11,37 @@
+> >  #include <linux/balloon_compaction.h>
+> >  
+> >  /*
+> > + * balloon_page_alloc - allocates a new page for insertion into the balloon
+> > + *			  page list.
+> > + *
+> > + * Driver must call it to properly allocate a new enlisted balloon page.
+> > + * Driver must call balloon_page_enqueue before definitively removing it from
+> > + * the guest system.  This function returns the page address for the recently
+> > + * allocated page or NULL in the case we fail to allocate a new page this turn.
+> > + */
+> > +struct page *balloon_page_alloc(void)
+> > +{
+> > +	struct page *page = alloc_page(balloon_mapping_gfp_mask() |
+> > +				       __GFP_NOMEMALLOC | __GFP_NORETRY);
+> > +	return page;
+> > +}
+> > +EXPORT_SYMBOL_GPL(balloon_page_alloc);
+> > +
+> > +/*
+> >   * balloon_page_enqueue - allocates a new page and inserts it into the balloon
+> >   *			  page list.
+> >   * @b_dev_info: balloon device descriptor where we will insert a new page to
+> > + * @page: new page to enqueue - allocated using balloon_page_alloc.
+> >   *
+> > - * Driver must call it to properly allocate a new enlisted balloon page
+> > + * Driver must call it to properly enqueue a new allocated balloon page
+> >   * before definitively removing it from the guest system.
+> >   * This function returns the page address for the recently enqueued page or
+> >   * NULL in the case we fail to allocate a new page this turn.
+> >   */
+> > -struct page *balloon_page_enqueue(struct balloon_dev_info *b_dev_info)
+> > +void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
+> > +			  struct page *page)
+> >  {
+> >  	unsigned long flags;
+> > -	struct page *page = alloc_page(balloon_mapping_gfp_mask() |
+> > -				       __GFP_NOMEMALLOC | __GFP_NORETRY);
+> > -	if (!page)
+> > -		return NULL;
+> >  
+> >  	/*
+> >  	 * Block others from accessing the 'page' when we get around to
+> > @@ -39,7 +54,6 @@ struct page *balloon_page_enqueue(struct balloon_dev_info *b_dev_info)
+> >  	__count_vm_event(BALLOON_INFLATE);
+> >  	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+> >  	unlock_page(page);
+> > -	return page;
+> >  }
+> >  EXPORT_SYMBOL_GPL(balloon_page_enqueue);
+> >  
+> > -- 
+> > MST
