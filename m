@@ -1,15 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/3] vhost: fix skb leak in handle_rx()
-Date: Fri, 1 Dec 2017 16:48:07 +0200
-Message-ID: <20171201164803-mutt-send-email-mst__22384.3060121455$1512139727$gmane$org@kernel.org>
+Subject: Re: [PATCH net,stable v4 0/3] vhost: fix a few skb leaks
+Date: Fri, 1 Dec 2017 16:58:24 +0200
+Message-ID: <20171201165635-mutt-send-email-mst__47298.2462765232$1512140340$gmane$org@kernel.org>
 References: <1512123038-15773-1-git-send-email-wexu@redhat.com>
-	<1512123038-15773-2-git-send-email-wexu@redhat.com>
+	<20171201164731-mutt-send-email-mst@kernel.org>
+	<9ef31370-4042-b701-e983-90b8f20a2a39@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1512123038-15773-2-git-send-email-wexu@redhat.com>
+In-Reply-To: <9ef31370-4042-b701-e983-90b8f20a2a39@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,75 +20,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: wexu@redhat.com
-Cc: mjrosato@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 01, 2017 at 05:10:36AM -0500, wexu@redhat.com wrote:
-> From: Wei Xu <wexu@redhat.com>
+On Fri, Dec 01, 2017 at 09:54:02AM -0500, Matthew Rosato wrote:
+> On 12/01/2017 09:47 AM, Michael S. Tsirkin wrote:
+> > On Fri, Dec 01, 2017 at 05:10:35AM -0500, wexu@redhat.com wrote:
+> >> From: Wei Xu <wexu@redhat.com>
+> >>
+> >> Matthew found a roughly 40% tcp throughput regression with commit
+> >> c67df11f(vhost_net: try batch dequing from skb array) as discussed
+> >> in the following thread:
+> >> https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
+> > 
+> > Series
+> > 
+> > Acked-by: Michael S. Tsirkin <mst@redhat.com>
 > 
-> Matthew found a roughly 40% tcp throughput regression with commit
-> c67df11f(vhost_net: try batch dequing from skb array) as discussed
-> in the following thread:
-> https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
+> Tested this series on a z13 (s390x) on top of net-next using 4GB/4vcpu
+> guests.  Verified that both the reported TCP throughput regression and
+> memory leak are resolved.
 > 
-> Eventually we figured out that it was a skb leak in handle_rx()
-> when sending packets to the VM. This usually happens when a guest
-> can not drain out vq as fast as vhost fills in, afterwards it sets
-> off the traffic jam and leaks skb(s) which occurs as no headcount
-> to send on the vq from vhost side.
+> net-next:  19.83 Gb/s
+> net-next+: 35.02 Gb/s
 > 
-> This can be avoided by making sure we have got enough headcount
-> before actually consuming a skb from the batched rx array while
-> transmitting, which is simply done by moving checking the zero
-> headcount a bit ahead.
+> Thanks all!
 > 
-> Signed-off-by: Wei Xu <wexu@redhat.com>
-> Reported-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
+> Matt
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+So we can also add
+Tested-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
 
-> ---
->  drivers/vhost/net.c | 20 ++++++++++----------
->  1 file changed, 10 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 8d626d7..c7bdeb6 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -778,16 +778,6 @@ static void handle_rx(struct vhost_net *net)
->  		/* On error, stop handling until the next kick. */
->  		if (unlikely(headcount < 0))
->  			goto out;
-> -		if (nvq->rx_array)
-> -			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
-> -		/* On overrun, truncate and discard */
-> -		if (unlikely(headcount > UIO_MAXIOV)) {
-> -			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
-> -			err = sock->ops->recvmsg(sock, &msg,
-> -						 1, MSG_DONTWAIT | MSG_TRUNC);
-> -			pr_debug("Discarded rx packet: len %zd\n", sock_len);
-> -			continue;
-> -		}
->  		/* OK, now we need to know about added descriptors. */
->  		if (!headcount) {
->  			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
-> @@ -800,6 +790,16 @@ static void handle_rx(struct vhost_net *net)
->  			 * they refilled. */
->  			goto out;
->  		}
-> +		if (nvq->rx_array)
-> +			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
-> +		/* On overrun, truncate and discard */
-> +		if (unlikely(headcount > UIO_MAXIOV)) {
-> +			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
-> +			err = sock->ops->recvmsg(sock, &msg,
-> +						 1, MSG_DONTWAIT | MSG_TRUNC);
-> +			pr_debug("Discarded rx packet: len %zd\n", sock_len);
-> +			continue;
-> +		}
->  		/* We don't need to be notified again. */
->  		iov_iter_init(&msg.msg_iter, READ, vq->iov, in, vhost_len);
->  		fixup = msg.msg_iter;
-> -- 
-> 1.8.3.1
+Dave, pls take this through the net tree as most changes are
+in tun/tap.
+
+Thanks!
+
+> > 
+> > 
+> >> v4:
+> >> - fix zero iov iterator count in tap/tap_do_read()(Jason)
+> >> - don't put tun in case of EBADFD(Jason)
+> >> - Replace msg->msg_control with new 'skb' when calling tun/tap_do_read()
+> >>
+> >> v3:
+> >> - move freeing skb from vhost to tun/tap recvmsg() to not
+> >>   confuse the callers.
+> >>
+> >> v2:
+> >> - add Matthew as the reporter, thanks matthew.
+> >> - moving zero headcount check ahead instead of defer consuming skb
+> >>   due to jason and mst's comment.
+> >> - add freeing skb in favor of recvmsg() fails.
+> >>
+> >> Wei Xu (3):
+> >>   vhost: fix skb leak in handle_rx()
+> >>   tun: free skb in early errors
+> >>   tap: free skb if flags error
+> >>
+> >>  drivers/net/tap.c   | 14 ++++++++++----
+> >>  drivers/net/tun.c   | 24 ++++++++++++++++++------
+> >>  drivers/vhost/net.c | 20 ++++++++++----------
+> >>  3 files changed, 38 insertions(+), 20 deletions(-)
+> >>
+> >> -- 
+> >> 1.8.3.1
+> > 
