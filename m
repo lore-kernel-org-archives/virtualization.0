@@ -1,7 +1,7 @@
 From: wexu@redhat.com
-Subject: [PATCH 2/3] tun: free skb in early errors
-Date: Fri,  1 Dec 2017 00:54:28 -0500
-Message-ID: <1512107669-27572-3-git-send-email-wexu__36230.428753379$1512195564$gmane$org@redhat.com>
+Subject: [PATCH 1/3] vhost: fix skb leak in handle_rx()
+Date: Fri,  1 Dec 2017 00:54:27 -0500
+Message-ID: <1512107669-27572-2-git-send-email-wexu__33328.2561427497$1512195569$gmane$org@redhat.com>
 References: <1512107669-27572-1-git-send-email-wexu@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,53 +23,65 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Wei Xu <wexu@redhat.com>
 
-tun_recvmsg() supports accepting skb by msg_control after
-commit ac77cfd4258f ("tun: support receiving skb through msg_control"),
-the skb if presented should be freed within the function, otherwise it
-would be leaked.
+Matthew found a roughly 40% tcp throughput regression with commit
+c67df11f(vhost_net: try batch dequing from skb array) as discussed
+in the following thread:
+https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
+
+Eventually we figured out that it was a skb leak in handle_rx()
+when sending packets to the VM. This usually happens when a guest
+can not drain out vq as fast as vhost fills in, afterwards it sets
+off the traffic jam and leaks skb(s) which occurs as no headcount
+to send on the vq from vhost side.
+
+This can be avoided by making sure we have got enough headcount
+before actually consuming a skb from the batched rx array while
+transmitting, which is simply done by moving checking the zero
+headcount a bit ahead.
 
 Signed-off-by: Wei Xu <wexu@redhat.com>
 Reported-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
 ---
- drivers/net/tun.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/vhost/net.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 6a7bde9..5563430 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -2067,14 +2067,17 @@ static int tun_recvmsg(struct socket *sock, struct msghdr *m, size_t total_len,
- {
- 	struct tun_file *tfile = container_of(sock, struct tun_file, socket);
- 	struct tun_struct *tun = tun_get(tfile);
-+	struct sk_buff *skb = m->msg_control;
- 	int ret;
- 
--	if (!tun)
--		return -EBADFD;
-+	if (!tun) {
-+		ret = -EBADFD;
-+		goto out_free_skb;
-+	}
- 
- 	if (flags & ~(MSG_DONTWAIT|MSG_TRUNC|MSG_ERRQUEUE)) {
- 		ret = -EINVAL;
--		goto out;
-+		goto out_free_skb;
- 	}
- 	if (flags & MSG_ERRQUEUE) {
- 		ret = sock_recv_errqueue(sock->sk, m, total_len,
-@@ -2087,6 +2090,11 @@ static int tun_recvmsg(struct socket *sock, struct msghdr *m, size_t total_len,
- 		m->msg_flags |= MSG_TRUNC;
- 		ret = flags & MSG_TRUNC ? ret : total_len;
- 	}
-+	goto out;
-+
-+out_free_skb:
-+	if (skb)
-+		kfree_skb(skb);
- out:
- 	tun_put(tun);
- 	return ret;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 8d626d7..c7bdeb6 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -778,16 +778,6 @@ static void handle_rx(struct vhost_net *net)
+ 		/* On error, stop handling until the next kick. */
+ 		if (unlikely(headcount < 0))
+ 			goto out;
+-		if (nvq->rx_array)
+-			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
+-		/* On overrun, truncate and discard */
+-		if (unlikely(headcount > UIO_MAXIOV)) {
+-			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
+-			err = sock->ops->recvmsg(sock, &msg,
+-						 1, MSG_DONTWAIT | MSG_TRUNC);
+-			pr_debug("Discarded rx packet: len %zd\n", sock_len);
+-			continue;
+-		}
+ 		/* OK, now we need to know about added descriptors. */
+ 		if (!headcount) {
+ 			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
+@@ -800,6 +790,16 @@ static void handle_rx(struct vhost_net *net)
+ 			 * they refilled. */
+ 			goto out;
+ 		}
++		if (nvq->rx_array)
++			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
++		/* On overrun, truncate and discard */
++		if (unlikely(headcount > UIO_MAXIOV)) {
++			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
++			err = sock->ops->recvmsg(sock, &msg,
++						 1, MSG_DONTWAIT | MSG_TRUNC);
++			pr_debug("Discarded rx packet: len %zd\n", sock_len);
++			continue;
++		}
+ 		/* We don't need to be notified again. */
+ 		iov_iter_init(&msg.msg_iter, READ, vq->iov, in, vhost_len);
+ 		fixup = msg.msg_iter;
 -- 
 1.8.3.1
