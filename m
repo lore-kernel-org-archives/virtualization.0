@@ -1,12 +1,14 @@
-From: weiping zhang <zwp10758@gmail.com>
-Subject: [PATCH] virtio_mmio: add cleanup for virtio_mmio_probe
-Date: Sat, 2 Dec 2017 01:51:40 +0800
-Message-ID: <20171201175140.GA19140@localhost.didichuxing.com>
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: [PATCH tip/core/rcu 21/21] drivers/vhost: Remove now-redundant
+	read_barrier_depends()
+Date: Fri,  1 Dec 2017 11:51:16 -0800
+Message-ID: <1512157876-24665-21-git-send-email-paulmck@linux.vnet.ibm.com>
+References: <20171201195053.GA23494@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20171201195053.GA23494@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,94 +18,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com
-Cc: virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: tglx@linutronix.de, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, peterz@infradead.org, fweisbec@gmail.com, jiangshanlai@gmail.com, josh@joshtriplett.org, rostedt@goodmis.org, oleg@redhat.com, dhowells@redhat.com, edumazet@google.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, dipankar@in.ibm.com, akpm@linux-foundation.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-cleanup all resource allocated by virtio_mmio_probe.
+Because READ_ONCE() now implies read_barrier_depends(), the
+read_barrier_depends() in next_desc() is now redundant.  This commit
+therefore removes it and the related comments.
 
-Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: <kvm@vger.kernel.org>
+Cc: <virtualization@lists.linux-foundation.org>
+Cc: <netdev@vger.kernel.org>
 ---
- drivers/virtio/virtio_mmio.c | 34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ drivers/vhost/vhost.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 74dc717..3fd0e66 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -513,8 +513,10 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 		return -EBUSY;
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 33ac2b186b85..78b5940a415a 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1877,12 +1877,7 @@ static unsigned next_desc(struct vhost_virtqueue *vq, struct vring_desc *desc)
+ 		return -1U;
  
- 	vm_dev = devm_kzalloc(&pdev->dev, sizeof(*vm_dev), GFP_KERNEL);
--	if (!vm_dev)
--		return  -ENOMEM;
-+	if (!vm_dev) {
-+		rc =  -ENOMEM;
-+		goto free_mem;
-+	}
- 
- 	vm_dev->vdev.dev.parent = &pdev->dev;
- 	vm_dev->vdev.dev.release = virtio_mmio_release_dev_empty;
-@@ -524,14 +526,17 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 	spin_lock_init(&vm_dev->lock);
- 
- 	vm_dev->base = devm_ioremap(&pdev->dev, mem->start, resource_size(mem));
--	if (vm_dev->base == NULL)
--		return -EFAULT;
-+	if (vm_dev->base == NULL) {
-+		rc = -EFAULT;
-+		goto free_vmdev;
-+	}
- 
- 	/* Check magic value */
- 	magic = readl(vm_dev->base + VIRTIO_MMIO_MAGIC_VALUE);
- 	if (magic != ('v' | 'i' << 8 | 'r' << 16 | 't' << 24)) {
- 		dev_warn(&pdev->dev, "Wrong magic value 0x%08lx!\n", magic);
--		return -ENODEV;
-+		rc = -ENODEV;
-+		goto unmap;
- 	}
- 
- 	/* Check device version */
-@@ -539,7 +544,8 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 	if (vm_dev->version < 1 || vm_dev->version > 2) {
- 		dev_err(&pdev->dev, "Version %ld not supported!\n",
- 				vm_dev->version);
--		return -ENXIO;
-+		rc = -ENXIO;
-+		goto unmap;
- 	}
- 
- 	vm_dev->vdev.id.device = readl(vm_dev->base + VIRTIO_MMIO_DEVICE_ID);
-@@ -548,7 +554,8 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 		 * virtio-mmio device with an ID 0 is a (dummy) placeholder
- 		 * with no function. End probing now with no error reported.
- 		 */
--		return -ENODEV;
-+		rc = -ENODEV;
-+		goto unmap;
- 	}
- 	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
- 
-@@ -573,7 +580,18 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, vm_dev);
- 
--	return register_virtio_device(&vm_dev->vdev);
-+	rc = register_virtio_device(&vm_dev->vdev);
-+	if (rc)
-+		goto unmap;
-+	return 0;
-+unmap:
-+	iounmap(vm_dev->base);
-+free_mem:
-+	devm_release_mem_region(&pdev->dev, mem->start,
-+			resource_size(mem));
-+free_vmdev:
-+	devm_kfree(&pdev->dev, vm_dev);
-+	return rc;
+ 	/* Check they're not leading us off end of descriptors. */
+-	next = vhost16_to_cpu(vq, desc->next);
+-	/* Make sure compiler knows to grab that: we don't want it changing! */
+-	/* We will use the result as an index in an array, so most
+-	 * architectures only need a compiler barrier here. */
+-	read_barrier_depends();
+-
++	next = vhost16_to_cpu(vq, READ_ONCE(desc->next));
+ 	return next;
  }
  
- static int virtio_mmio_remove(struct platform_device *pdev)
 -- 
-2.9.4
+2.5.2
