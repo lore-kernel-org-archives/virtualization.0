@@ -1,11 +1,13 @@
 From: wexu@redhat.com
-Subject: [PATCH net,stable v4 0/3]  vhost: fix a few skb leaks
-Date: Fri,  1 Dec 2017 05:10:35 -0500
-Message-ID: <1512123038-15773-1-git-send-email-wexu__38531.9835077555$1512195592$gmane$org@redhat.com>
+Subject: [PATCH 1/3] vhost: fix skb leak in handle_rx()
+Date: Fri,  1 Dec 2017 05:10:36 -0500
+Message-ID: <1512123038-15773-2-git-send-email-wexu__30384.5777213157$1512195599$gmane$org@redhat.com>
+References: <1512123038-15773-1-git-send-email-wexu@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1512123038-15773-1-git-send-email-wexu@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,30 +28,60 @@ c67df11f(vhost_net: try batch dequing from skb array) as discussed
 in the following thread:
 https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
 
-v4:
-- fix zero iov iterator count in tap/tap_do_read()(Jason)
-- don't put tun in case of EBADFD(Jason)
-- Replace msg->msg_control with new 'skb' when calling tun/tap_do_read()
+Eventually we figured out that it was a skb leak in handle_rx()
+when sending packets to the VM. This usually happens when a guest
+can not drain out vq as fast as vhost fills in, afterwards it sets
+off the traffic jam and leaks skb(s) which occurs as no headcount
+to send on the vq from vhost side.
 
-v3:
-- move freeing skb from vhost to tun/tap recvmsg() to not
-  confuse the callers.
+This can be avoided by making sure we have got enough headcount
+before actually consuming a skb from the batched rx array while
+transmitting, which is simply done by moving checking the zero
+headcount a bit ahead.
 
-v2:
-- add Matthew as the reporter, thanks matthew.
-- moving zero headcount check ahead instead of defer consuming skb
-  due to jason and mst's comment.
-- add freeing skb in favor of recvmsg() fails.
-
-Wei Xu (3):
-  vhost: fix skb leak in handle_rx()
-  tun: free skb in early errors
-  tap: free skb if flags error
-
- drivers/net/tap.c   | 14 ++++++++++----
- drivers/net/tun.c   | 24 ++++++++++++++++++------
+Signed-off-by: Wei Xu <wexu@redhat.com>
+Reported-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
+---
  drivers/vhost/net.c | 20 ++++++++++----------
- 3 files changed, 38 insertions(+), 20 deletions(-)
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 8d626d7..c7bdeb6 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -778,16 +778,6 @@ static void handle_rx(struct vhost_net *net)
+ 		/* On error, stop handling until the next kick. */
+ 		if (unlikely(headcount < 0))
+ 			goto out;
+-		if (nvq->rx_array)
+-			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
+-		/* On overrun, truncate and discard */
+-		if (unlikely(headcount > UIO_MAXIOV)) {
+-			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
+-			err = sock->ops->recvmsg(sock, &msg,
+-						 1, MSG_DONTWAIT | MSG_TRUNC);
+-			pr_debug("Discarded rx packet: len %zd\n", sock_len);
+-			continue;
+-		}
+ 		/* OK, now we need to know about added descriptors. */
+ 		if (!headcount) {
+ 			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
+@@ -800,6 +790,16 @@ static void handle_rx(struct vhost_net *net)
+ 			 * they refilled. */
+ 			goto out;
+ 		}
++		if (nvq->rx_array)
++			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
++		/* On overrun, truncate and discard */
++		if (unlikely(headcount > UIO_MAXIOV)) {
++			iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
++			err = sock->ops->recvmsg(sock, &msg,
++						 1, MSG_DONTWAIT | MSG_TRUNC);
++			pr_debug("Discarded rx packet: len %zd\n", sock_len);
++			continue;
++		}
+ 		/* We don't need to be notified again. */
+ 		iov_iter_init(&msg.msg_iter, READ, vq->iov, in, vhost_len);
+ 		fixup = msg.msg_iter;
 -- 
 1.8.3.1
