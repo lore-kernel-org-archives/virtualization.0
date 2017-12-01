@@ -1,13 +1,17 @@
-From: wexu@redhat.com
-Subject: [PATCH 3/3] tap: free skb if flags error
-Date: Fri,  1 Dec 2017 05:10:38 -0500
-Message-ID: <1512123038-15773-4-git-send-email-wexu__15621.6414332905$1512195642$gmane$org@redhat.com>
-References: <1512123038-15773-1-git-send-email-wexu@redhat.com>
+From: Shannon Nelson <shannon.nelson@oracle.com>
+Subject: Re: [RFC] virtio-net: help live migrate SR-IOV devices
+Date: Fri, 1 Dec 2017 12:08:59 -0800
+Message-ID: <780cf854-83e1-b2a4-0f07-74372a972ca6__29856.3591823497$1512195647$gmane$org@oracle.com>
+References: <20171128112722.00003716@intel.com>
+	<0fb552d4-1bfc-e130-4fc1-87b83873916d@redhat.com>
+	<CAEHy93LneRXNWo64uyN2dfyDX6t18WN+YwVF2RXXLRnr0=Jhww@mail.gmail.com>
+	<20171130155612-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1512123038-15773-1-git-send-email-wexu@redhat.com>
+In-Reply-To: <20171130155612-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,58 +21,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: mjrosato@linux.vnet.ibm.com, wexu@redhat.com, mst@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, achiad shochat <achiad.mellanox@gmail.com>
+Cc: Jakub Kicinski <jakub.kicinski@netronome.com>, Hannes Frederic Sowa <hannes@redhat.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Achiad <achiad@mellanox.com>, Peter Waskiewicz Jr <peter.waskiewicz.jr@intel.com>, "Singhai,
+	Anjali" <anjali.singhai@intel.com>, Andy Gospodarek <gospo@broadcom.com>, Or Gerlitz <gerlitz.or@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Wei Xu <wexu@redhat.com>
+On 11/30/2017 6:11 AM, Michael S. Tsirkin wrote:
+> On Thu, Nov 30, 2017 at 10:08:45AM +0200, achiad shochat wrote:
+>> Re. problem #2:
+>> Indeed the best way to address it seems to be to enslave the VF driver
+>> netdev under a persistent anchor netdev.
+>> And it's indeed desired to allow (but not enforce) PV netdev and VF
+>> netdev to work in conjunction.
+>> And it's indeed desired that this enslavement logic work out-of-the box.
+>> But in case of PV+VF some configurable policies must be in place (and
+>> they'd better be generic rather than differ per PV technology).
+>> For example - based on which characteristics should the PV+VF coupling
+>> be done? netvsc uses MAC address, but that might not always be the
+>> desire.
+> 
+> It's a policy but not guest userspace policy.
+> 
+> The hypervisor certainly knows.
+> 
+> Are you concerned that someone might want to create two devices with the
+> same MAC for an unrelated reason?  If so, hypervisor could easily set a
+> flag in the virtio device to say "this is a backup, use MAC to find
+> another device".
 
-tap_recvmsg() supports accepting skb by msg_control after
-commit 3b4ba04acca8 ("tap: support receiving skb from msg_control"),
-the skb if presented should be freed within the function, otherwise
-it would be leaked.
+This is something I was going to suggest: a flag or other configuration 
+on the virtio device to help control how this new feature is used.  I 
+can imagine this might be useful to control from either the hypervisor 
+side or the VM side.
 
-Signed-off-by: Wei Xu <wexu@redhat.com>
-Reported-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
+The hypervisor might want to (1) disable it (force it off), (2) enable 
+it for VM choice, or (3) force it on for the VM.  In case (2), the VM 
+might be able to chose whether it wants to make use of the feature, or 
+stick with the bonding solution.
 
----
- drivers/net/tap.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+Either way, the kernel is making a feature available, and the user (VM 
+or hypervisor) is able to control it by selecting the feature based on 
+the policy desired.
 
-diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-index e9489b8..0a886fda 100644
---- a/drivers/net/tap.c
-+++ b/drivers/net/tap.c
-@@ -829,8 +829,11 @@ static ssize_t tap_do_read(struct tap_queue *q,
- 	DEFINE_WAIT(wait);
- 	ssize_t ret = 0;
- 
--	if (!iov_iter_count(to))
-+	if (!iov_iter_count(to)) {
-+		if (skb)
-+			kfree_skb(skb);
- 		return 0;
-+	}
- 
- 	if (skb)
- 		goto put;
-@@ -1154,11 +1157,14 @@ static int tap_recvmsg(struct socket *sock, struct msghdr *m,
- 		       size_t total_len, int flags)
- {
- 	struct tap_queue *q = container_of(sock, struct tap_queue, sock);
-+	struct sk_buff *skb = m->msg_control;
- 	int ret;
--	if (flags & ~(MSG_DONTWAIT|MSG_TRUNC))
-+	if (flags & ~(MSG_DONTWAIT|MSG_TRUNC)) {
-+		if (skb)
-+			kfree_skb(skb);
- 		return -EINVAL;
--	ret = tap_do_read(q, &m->msg_iter, flags & MSG_DONTWAIT,
--			  m->msg_control);
-+	}
-+	ret = tap_do_read(q, &m->msg_iter, flags & MSG_DONTWAIT, skb);
- 	if (ret > total_len) {
- 		m->msg_flags |= MSG_TRUNC;
- 		ret = flags & MSG_TRUNC ? ret : total_len;
--- 
-1.8.3.1
+sln
