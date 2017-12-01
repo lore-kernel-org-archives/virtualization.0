@@ -1,19 +1,15 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v18 05/10] xbitmap: add more operations
-Date: Fri, 1 Dec 2017 09:25:19 -0800
-Message-ID: <20171201172519.GA27192__29487.9804169343$1512149189$gmane$org@bombadil.infradead.org>
-References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
-	<1511963726-34070-6-git-send-email-wei.w.wang@intel.com>
-	<201711301934.CDC21800.FSLtJFFOOVQHMO@I-love.SAKURA.ne.jp>
-	<5A210C96.8050208@intel.com>
-	<201712012202.BDE13557.MJFQLtOOHVOFSF@I-love.SAKURA.ne.jp>
-	<286AC319A985734F985F78AFA26841F739376DA1@shsmsx102.ccr.corp.intel.com>
+From: weiping zhang <zwp10758@gmail.com>
+Subject: Re: [PATCH] virtio: release virtio index when fail to device_register
+Date: Sat, 2 Dec 2017 01:30:13 +0800
+Message-ID: <CAA70yB7HvocQdLWnCWMRe5vLW_pJwx+2M4vrU+kv=NYQPUJm-w@mail.gmail.com>
+References: <20171129012301.GA6637@localhost.didichuxing.com>
+	<20171129105044.3a4b0ab3.cohuck@redhat.com>
+	<20171201165539.GA11865@localhost.didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <286AC319A985734F985F78AFA26841F739376DA1@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <20171201165539.GA11865@localhost.didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,18 +19,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Wang, Wei W" <wei.w.wang@intel.com>
-Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "nilal@redhat.com" <nilal@redhat.com>, "riel@redhat.com" <riel@redhat.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, amit.sh
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 01, 2017 at 03:09:08PM +0000, Wang, Wei W wrote:
-> On Friday, December 1, 2017 9:02 PM, Tetsuo Handa wrote:
-> > If start == end is legal,
-> > 
-> >    for (; start < end; start = (start | (IDA_BITMAP_BITS - 1)) + 1) {
-> > 
-> > makes this loop do nothing because 10 < 10 is false.
-> 
-> How about "start <= end "?
+2017-12-02 0:55 GMT+08:00 weiping zhang <zwp10758@gmail.com>:
+> On Wed, Nov 29, 2017 at 10:50:44AM +0100, Cornelia Huck wrote:
+>> On Wed, 29 Nov 2017 09:23:01 +0800
+>> weiping zhang <zwp10758@gmail.com> wrote:
+>>
+>> > index can be reused by other virtio device.
+>> >
+>> > Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+>>
+>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>>
+>> > ---
+>> >  drivers/virtio/virtio.c | 2 ++
+>> >  1 file changed, 2 insertions(+)
+>> >
+>> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+>> > index 48230a5..bf7ff39 100644
+>> > --- a/drivers/virtio/virtio.c
+>> > +++ b/drivers/virtio/virtio.c
+>> > @@ -333,6 +333,8 @@ int register_virtio_device(struct virtio_device *dev)
+>> >     /* device_register() causes the bus infrastructure to look for a
+>> >      * matching driver. */
+>> >     err = device_register(&dev->dev);
+>> > +   if (err)
+>> > +           ida_simple_remove(&virtio_index_ida, dev->index);
+>> >  out:
+>> >     if (err)
+>> >             virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
+>>
+>> I think your patch is correct (giving up the index if we failed to
+>> register), but this made me look at our error handling if a virtio
+>> device failed to register.
+>>
+>> We hold an extra reference to the struct device, even after a failed
+>> register, and it is the responsibility of the caller to give up that
+>> reference once no longer needed. As callers toregister_virtio_device()
+>> embed the struct virtio_device, it needs to be their responsibility.
+>> Looking at the existing callers,
+>>
+>> - ccw does a put_device
+>> - pci, mmio and remoteproc do nothing, causing a leak
+>> - vop does a free on the embedding structure, which is a big no-no
+>>
+>> Thoughts?
+> Sorry to relay late and thanks for your review.
+> Do you mean the "extra reference to the struct device" caused by the
+> following code?
+>
+> err = device_register(&dev->dev);
+>         device_add(dev)
+>                 get_device(dev)
+> If I'm understand right, I think there is no extra reference if we fail
+> virtio_register_device, because if device_register we don't get a
+> reference.
 
-Don't ask Tetsuo for his opinion, write some userspace code that uses it.
+I go through these callers,  virtio_mmio_probe should do more cleanup.
+I'll sent a patch fix that.
+
+> --
+> Thanks
+> weiping
