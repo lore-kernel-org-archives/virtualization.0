@@ -1,22 +1,14 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 02/13] fbdev: add remove_conflicting_pci_framebuffers()
-Date: Fri, 1 Dec 2017 08:19:16 +0100
-Message-ID: <20171201071916.jpl5ucxq4glduho4__31060.1007695825$1512112926$gmane$org@phenom.ffwll.local>
-References: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
-	<1738dbed0239bffc886f126fd3091daa39cd14c9.1511544782.git.mirq-linux@rere.qmqm.pl>
-	<20171127102758.y7c6yzyey6wfntxh@phenom.ffwll.local>
-	<20171127205219.GA3537@sudip-laptop>
-	<20171128102217.b7ynyqarwzkdvmdq@phenom.ffwll.local>
-	<20171128113238.GA29456@kroah.com>
-	<20171128123008.GA12986@sudip-tp>
-	<20171129095634.ymeld4l7zaehbuvn@phenom.ffwll.local>
-	<20171130234953.GA5542@sudip-laptop>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v18 05/10] xbitmap: add more operations
+Date: Fri, 01 Dec 2017 16:02:30 +0800
+Message-ID: <5A210C96.8050208__37770.5023660839$1512115245$gmane$org@intel.com>
+References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>	<1511963726-34070-6-git-send-email-wei.w.wang@intel.com>
+	<201711301934.CDC21800.FSLtJFFOOVQHMO@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20171130234953.GA5542@sudip-laptop>
+In-Reply-To: <201711301934.CDC21800.FSLtJFFOOVQHMO@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,75 +18,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>, David Airlie <airlied@linux.ie>, Greg KH <gregkh@linuxfoundation.org>, dri-devel@lists.freedesktop.org, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, amd-gfx@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>, virtualization@lists.linux-foundation.org, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBOb3YgMzAsIDIwMTcgYXQgMTE6NDk6NTNQTSArMDAwMCwgU3VkaXAgTXVraGVyamVl
-IHdyb3RlOgo+IEhpIERhbmllbCwKPiAKPiBPbiBXZWQsIE5vdiAyOSwgMjAxNyBhdCAxMDo1Njoz
-NEFNICswMTAwLCBEYW5pZWwgVmV0dGVyIHdyb3RlOgo+ID4gT24gVHVlLCBOb3YgMjgsIDIwMTcg
-YXQgMTI6MzA6MzBQTSArMDAwMCwgU3VkaXAgTXVraGVyamVlIHdyb3RlOgo+ID4gPiBPbiBUdWUs
-IE5vdiAyOCwgMjAxNyBhdCAxMjozMjozOFBNICswMTAwLCBHcmVnIEtIIHdyb3RlOgo+ID4gPiA+
-IE9uIFR1ZSwgTm92IDI4LCAyMDE3IGF0IDExOjIyOjE3QU0gKzAxMDAsIERhbmllbCBWZXR0ZXIg
-d3JvdGU6Cj4gPiA+ID4gPiBPbiBNb24sIE5vdiAyNywgMjAxNyBhdCAwODo1MjoxOVBNICswMDAw
-LCBTdWRpcCBNdWtoZXJqZWUgd3JvdGU6Cj4gPiA+ID4gPiA+IE9uIE1vbiwgTm92IDI3LCAyMDE3
-IGF0IDExOjI3OjU5QU0gKzAxMDAsIERhbmllbCBWZXR0ZXIgd3JvdGU6Cj4gPiA+ID4gPiA+ID4g
-T24gRnJpLCBOb3YgMjQsIDIwMTcgYXQgMDY6NTM6MzFQTSArMDEwMCwgTWljaGHFgiBNaXJvc8WC
-YXcgd3JvdGU6Cj4gPiA+ID4gPiA+ID4gPiBBbG1vc3QgYWxsIGRyaXZlcnMgdXNpbmcgcmVtb3Zl
-X2NvbmZsaWN0aW5nX2ZyYW1lYnVmZmVycygpIHdyYXAgaXQgd2l0aAo+ID4gPiA+ID4gPiA+ID4g
-dGhlIHNhbWUgY29kZS4gRXh0cmFjdCBjb21tb24gcGFydCBmcm9tIFBDSSBkcml2ZXJzIGludG8g
-c2VwYXJhdGUKPiA+ID4gPiA+ID4gPiA+IHJlbW92ZV9jb25mbGljdGluZ19wY2lfZnJhbWVidWZm
-ZXJzKCkuCj4gPiA+ID4gPiA+ID4gPiAKPiAKPiA8c25pcD4KPiAKPiA+ID4gPiA+IAo+ID4gPiA+
-ID4gR3JlZz8KPiA+ID4gPiAKPiA+ID4gPiBZZXMsIGlmIG5vIG9uZSBpcyB3b3JraW5nIHRvIGdl
-dCBpdCBvdXQgb2Ygc3RhZ2luZywgdGhhdCBtZWFucyBubyBvbmUKPiA+ID4gPiBjYXJlcyBhYm91
-dCBpdCwgYW5kIGl0IG5lZWRzIHRvIGJlIHJlbW92ZWQgZnJvbSB0aGUgdHJlZS4KPiA+ID4gCj4g
-PiA+IEFncmVlZC4gSSB3YXMgbm90IHdvcmtpbmcgb24gZ2V0dGluZyBpdCBvdXQgb2Ygc3RhZ2lu
-ZyBhcyB0aGVyZSBpcyBubwo+ID4gPiBwbGFjZSBmb3IgaXQgdG8gZ28uCj4gPiA+IEJ1dCwgVGVk
-ZHkgV2FuZyB0b2xkIG1lIHRoYXQgdGhleSBoYXZlIGEgd29ya2luZyBkcm0gZHJpdmVyIGZvciBp
-dCwgYnV0Cj4gPiA+IGl0IGlzIG5vdCBhdG9taWMgbGlrZSBEYW5pZWwgd2FzIGFza2luZyBmb3Iu
-IElmIGl0IGlzIG9rLCB0aGVuIEkgY2FuIHNlbmQKPiA+ID4gaW4gYSBwYXRjaCB0byByZW1vdmUg
-dGhlIGV4aXN0aW5nIHNtNzUwIGZyb20gc3RhZ2luZyBhbmQgYWRkIHRoZSBuZXcgc203NTAKPiA+
-ID4gZHJtIGRyaXZlciB0byBzdGFnaW5nLiBBbmQgYWZ0ZXIgaXQgaXMgcmVhZHksIHdlIGNhbiBn
-byBhaGVhZCB3aXRoIG1vdmluZwo+ID4gPiBpdCBvdXQgb2Ygc3RhZ2luZyB0byBkcm0uCj4gPiAK
-PiA+IFBsZWFzZSBrZWVwIHRoZSB0b2RvIGl0ZW0gdGhhdCBpdCBuZWVkcyB0byBiZSBjb252ZXJ0
-ZWQgdG8gYXRvbWljLiBBbmQKPiA+IHRiaCwgaXQncyBwcm9iYWJseSBmYXN0ZXIgaWYgeW91IGp1
-c3Qgc3VibWl0IGl0IHRvIGRyaS1kZXZlbCwgYXNzdW1pbmcgeW91Cj4gPiBoYXZlIHRpbWUgdG8g
-d29yayBvbiBpdC4gRm9yIHNtYWxsIGRyaXZlcnMgd2UgdGVuZCB0byBiZSBmYWlybHkgcXVpY2sg
-aW4KPiA+IGdldHRpbmcgdGhlbSBpbnRvIGdvb2QgZW5vdWdoIHNoYXBlLgo+IAo+IEkgaGF2ZSBy
-ZWNlaXZlZCB0aGUgZHJpdmVyIGZyb20gVGVkZHkgYW5kIHB1c2hlZCBpdCB0bwo+IGh0dHBzOi8v
-Z2l0aHViLmNvbS9zdWRpcG0tbXVraGVyamVlL3BhcnBvcnQvdHJlZS9kcm1fc21pIGZvciB5b3Vy
-IGZpcnN0Cj4gbG9vayBpbnRvIGl0LiBJdCBpcyBub3QgZXZlbiBidWlsZGluZyB3aXRoIG5leHQt
-MjAxNzExMzAgYW5kIGhhcyBsb3RzIG9mCj4gYnVpbGQgd2FybmluZ3MuIEkgd2lsbCBoYXZlIHRv
-IGRvIGEgbG90IG9mIHdvcmsgb24gaXQgYmVmb3JlIEkgY2FuIGV2ZW4KPiBzdWJtaXQgaXQgdG8g
-ZHJpLWRldmVsLgo+IAo+IFRpbWUgd2lsbCBiZSB0aGUgcHJvYmxlbSwgYXMgdGhpcyBpcyBub3Qg
-cGFydCBvZiBteSBkYXkgam9iLgo+IAo+ID4gCj4gPiBTdGFnaW5nIGlzIGFsc28gYSBtYWpvciBw
-YWluIGZvciBkcm0gc3Vic3lzdGVtIHJlZmFjdG9yaW5ncywgSSByZWFsbHksCj4gPiByZWFsbHks
-IHJlYWxseSBwcmVmZXIgd2UgZG9uJ3QgYWRkIG1vcmUgdGhhbiB0aGUgdmJveCBwYWluIHdlIGhh
-dmUKPiA+IGFscmVhZHkuCj4gCj4gSSBhbSBob3BpbmcgdGhhdCBhZnRlciBzZWVpbmcgaXQsIHlv
-dSB3aWxsIGFncmVlIHRvIGhhdmUgaXQgaW4gc3RhZ2luZy4gOikKClNvIEkga25vdyBHcmVnIGlz
-IHdpbGxpbmcgdG8gdGFrZSBhbnl0aGluZyBpbnRvIHN0YWdpbmcsIGJ1dCBJJ20gbm8gZmFuLgpX
-ZSByZWZhY3RvciBhbmQgaW1wcm92ZSBkcm0gYSBsb3QsIHdpdGggYSBsb3Qgb2YgY3Jvc3MtZHJp
-dmVyIGNoYW5nZXMKbmVjZXNzYXJ5IHRvIG1vdmUgdGhpbmdzIGZvcndhcmQuIFdlIGNhbiBkbyB0
-aGF0IHNpbmNlIHdlIGhhdmUgYSBnZW5lcmFsbHkKcmF0aGVyIGFjdGl2ZSBkZXZlbG9wbWVudCBj
-b21tdW5pdHksIGFuZCB3ZSB0cnkgaGFyZCB0byBrZWVwIG1vc3QgZHJpdmVycwppbiByZWFzb25h
-YmxlIGdvb2Qgc2hhcGUgYW5kIHNvIGVhc3kgdG8gbWFpbnRhaW4uCgpJZiB5b3Uga25vdyB0aHJv
-dyBhIHBpbGUgb2YgdW5tYWludGFpbmFibGUgc3R1ZmYgaW50byBzdGFnaW5nLCBidXQgd2l0aG91
-dAp3b3JraW5nIG9uIGl0LCB0aGVuIHRoYXQncyBqdXN0IGNvc3QsIG5vIGJlbmVmaXQgdG8gdGhl
-IGRyaS1kZXZlbApjb21tdW5pdHkuIE9uIHRvcCwgc3RhZ2luZyB0cmVlIGlzIHNlcGFyYXRlIGZy
-b20gZHJtIHRyZWVzLCBzbyBtb3JlIHBhaW4KdG8gc3luY2hyb25pemUgdHJlZXMgKGFuZCB3ZSBo
-YXZlIHRvIGRvIHRoYXQgYSBmZXcgdGltZXMgcGVyIHJlbGVhc2UgY3ljbGUKb3IgZHJpdmVycyBz
-aW1wbHkgc3RvcCBjb21waWxpbmcpLiBXaGVyZSdzIHRoZSB1cHNpZGUgb2YgdGFraW5nIHRoaXMK
-ZHJpdmVyIGludG8gc3RhZ2luZz8KCk9uZSBpcyB1c2VycywgYnV0IGltZSBmb3Igc29jIGRpc3Bs
-YXkgZHJpdmVycyB1c3VhbGx5IGV2ZXJ5dGhpbmcgZWxzZSBpcwppbiB3b3JzZSBzaGFwZSAoZS5n
-LiBldmVuIGdyZWF0IGRyaXZlcnMgbGlrZSB0aGUgb25lIGZvciBxdWFsY29tIG11c3QgYmUKdGVz
-dGVkIG9uIHNvbWUgdmVuZG9yIHRyZWUgYmVjYXVzZSBjcml0aWNhbCBjb3JlIGJpdHMgYXJlIG1p
-c3NpbmcgaW4KdXBzdHJlYW0pLCBzbyAibW9yZSB1c2VycyIgaXMgbm90IHRoZSBnb29kIHJlYXNv
-bi4gQW5kIGl0J3MgY2xlYXJseSBub3QKIm1vcmUgZGV2ZWxvcGVycyIsIGJlY2F1c2Ugbm8gdGlt
-ZSB0byBjbGVhbiB0aGluZ3MgdXAuIFNvIHdoYXQgZXhhY3RseSBpcwp0aGUgZ29vZCByZWFzb24g
-dG8gcHV0IHRoaXMgaW50byBzdGFnaW5nIGluc3RlYWQgb2YganVzdCB3YWl0aW5nIHVudGlsCnNv
-bWVvbmUgaGFzIHRoZSB0aW1lIHRvIGNsZWFuIGl0IHVwIHF1aWNrbHk/CgpUaGFua3MsIERhbmll
-bAotLSAKRGFuaWVsIFZldHRlcgpTb2Z0d2FyZSBFbmdpbmVlciwgSW50ZWwgQ29ycG9yYXRpb24K
-aHR0cDovL2Jsb2cuZmZ3bGwuY2gKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 11/30/2017 06:34 PM, Tetsuo Handa wrote:
+> Wei Wang wrote:
+>> + * @start: the start of the bit range, inclusive
+>> + * @end: the end of the bit range, inclusive
+>> + *
+>> + * This function is used to clear a bit in the xbitmap. If all the bits of the
+>> + * bitmap are 0, the bitmap will be freed.
+>> + */
+>> +void xb_clear_bit_range(struct xb *xb, unsigned long start, unsigned long end)
+>> +{
+>> +	struct radix_tree_root *root = &xb->xbrt;
+>> +	struct radix_tree_node *node;
+>> +	void **slot;
+>> +	struct ida_bitmap *bitmap;
+>> +	unsigned int nbits;
+>> +
+>> +	for (; start < end; start = (start | (IDA_BITMAP_BITS - 1)) + 1) {
+>> +		unsigned long index = start / IDA_BITMAP_BITS;
+>> +		unsigned long bit = start % IDA_BITMAP_BITS;
+>> +
+>> +		bitmap = __radix_tree_lookup(root, index, &node, &slot);
+>> +		if (radix_tree_exception(bitmap)) {
+>> +			unsigned long ebit = bit + 2;
+>> +			unsigned long tmp = (unsigned long)bitmap;
+>> +
+>> +			nbits = min(end - start + 1, BITS_PER_LONG - ebit);
+> "nbits = min(end - start + 1," seems to expect that start == end is legal
+> for clearing only 1 bit. But this function is no-op if start == end.
+> Please clarify what "inclusive" intended.
+
+If xb_clear_bit_range(xb,10,10), then it is effectively the same as 
+xb_clear_bit(10). Why would it be illegal?
+
+"@start inclusive" means that the @start will also be included to be 
+cleared.
+
+>
+>> +static inline __always_inline void bitmap_clear(unsigned long *map,
+>> +						unsigned int start,
+>> +						unsigned int nbits)
+>> +{
+>> +	if (__builtin_constant_p(nbits) && nbits == 1)
+>> +		__clear_bit(start, map);
+>> +	else if (__builtin_constant_p(start & 7) && IS_ALIGNED(start, 8) &&
+>> +		 __builtin_constant_p(nbits & 7) && IS_ALIGNED(nbits, 8))
+> It looks strange to apply __builtin_constant_p test to variables after "& 7".
+>
+
+I think this is normal - if the variables are known at compile time, the 
+calculation will be done at compile time (termed constant folding).
+
+
+Best,
+Wei
