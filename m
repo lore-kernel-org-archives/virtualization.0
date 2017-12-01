@@ -1,13 +1,12 @@
-From: wexu@redhat.com
-Subject: [PATCH 3/3] tap: free skb if flags error
-Date: Fri,  1 Dec 2017 00:54:29 -0500
-Message-ID: <1512107669-27572-4-git-send-email-wexu__31333.5087536418$1512195569$gmane$org@redhat.com>
-References: <1512107669-27572-1-git-send-email-wexu@redhat.com>
+From: Jan Stancek <jstancek@redhat.com>
+Subject: [PATCH] virtio_balloon: fix increment of vb->num_pfns in
+	fill_balloon()
+Date: Fri,  1 Dec 2017 10:50:28 +0100
+Message-ID: <65e5cdb45d2532f9b99e2f412d9169322f778239.1512121454.git.jstancek__31921.2645445534$1512195575$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1512107669-27572-1-git-send-email-wexu@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,41 +16,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: mjrosato@linux.vnet.ibm.com, wexu@redhat.com, mst@redhat.com
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org
+Cc: penguin-kernel@I-love.SAKURA.ne.jp, mhocko@suse.com, linux-kernel@vger.kernel.org, jstancek@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Wei Xu <wexu@redhat.com>
+commit c7cdff0e8647 ("virtio_balloon: fix deadlock on OOM")
+changed code to increment vb->num_pfns before call to
+set_page_pfns(), which used to happen only after.
 
-tap_recvmsg() supports accepting skb by msg_control after
-commit 3b4ba04acca8 ("tap: support receiving skb from msg_control"),
-the skb if presented should be freed within the function, otherwise
-it would be leaked.
+This patch fixes boot hang for me on ppc64le KVM guests.
 
-Signed-off-by: Wei Xu <wexu@redhat.com>
-Reported-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
+Fixes: c7cdff0e8647 ("virtio_balloon: fix deadlock on OOM")
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Wei Wang <wei.w.wang@intel.com>
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
 ---
- drivers/net/tap.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_balloon.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-index e9489b8..1c66b75 100644
---- a/drivers/net/tap.c
-+++ b/drivers/net/tap.c
-@@ -1154,9 +1154,13 @@ static int tap_recvmsg(struct socket *sock, struct msghdr *m,
- 		       size_t total_len, int flags)
- {
- 	struct tap_queue *q = container_of(sock, struct tap_queue, sock);
-+	struct sk_buff *skb = m->msg_control;
- 	int ret;
--	if (flags & ~(MSG_DONTWAIT|MSG_TRUNC))
-+	if (flags & ~(MSG_DONTWAIT|MSG_TRUNC)) {
-+		if (skb)
-+			kfree_skb(skb);
- 		return -EINVAL;
-+	}
- 	ret = tap_do_read(q, &m->msg_iter, flags & MSG_DONTWAIT,
- 			  m->msg_control);
- 	if (ret > total_len) {
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 7960746f7597..a1fb52cb3f0a 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -174,13 +174,12 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+ 	while ((page = balloon_page_pop(&pages))) {
+ 		balloon_page_enqueue(&vb->vb_dev_info, page);
+ 
+-		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
+-
+ 		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+ 		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 		if (!virtio_has_feature(vb->vdev,
+ 					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+ 			adjust_managed_page_count(page, -1);
++		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 	}
+ 
+ 	num_allocated_pages = vb->num_pfns;
 -- 
 1.8.3.1
