@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v18 07/10] virtio-balloon: VIRTIO_BALLOON_F_SG
-Date: Fri, 1 Dec 2017 17:38:06 +0200
-Message-ID: <20171201171746-mutt-send-email-mst__40151.9320359968$1512142713$gmane$org@kernel.org>
-References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
-	<1511963726-34070-8-git-send-email-wei.w.wang@intel.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [RFC] virtio-iommu version 0.5
+Date: Fri, 1 Dec 2017 15:46:10 +0000
+Message-ID: <a70bca26-778a-c917-357f-0717466d843f__12211.554501164$1512143009$gmane$org@arm.com>
+References: <20171023093241.20113-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1511963726-34070-8-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20171023093241.20113-1-jean-philippe.brucker@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,431 +19,281 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "ashok.raj@intel.com" <ashok.raj@intel.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "Jayachandran.Nair@cavium.com" <Jayachandran.Nair@cavium.com>, "eric.auger@redhat.com" <eric.auger@redhat.com>, Robin Murphy <Robin.Murphy@arm.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 29, 2017 at 09:55:23PM +0800, Wei Wang wrote:
-> Add a new feature, VIRTIO_BALLOON_F_SG, which enables the transfer of
-> balloon (i.e. inflated/deflated) pages using scatter-gather lists to the
-> host. A scatter-gather list is described by a vring desc.
-> 
-> The implementation of the previous virtio-balloon is not very efficient,
-> because the balloon pages are transferred to the host by one array each
-> time. Here is the breakdown of the time in percentage spent on each step
-> of the balloon inflating process (inflating 7GB of an 8GB idle guest).
-> 
-> 1) allocating pages (6.5%)
-> 2) sending PFNs to host (68.3%)
-> 3) address translation (6.1%)
-> 4) madvise (19%)
-> 
-> It takes about 4126ms for the inflating process to complete. The above
-> profiling shows that the bottlenecks are stage 2) and stage 4).
-> 
-> This patch optimizes step 2) by transferring pages to host in sgs. An sg
-> describes a chunk of guest physically continuous pages. With this
-> mechanism, step 4) can also be optimized by doing address translation and
-> madvise() in chunks rather than page by page.
-> 
-> With this new feature, the above ballooning process takes ~440ms resulting
-> in an improvement of ~89%.
-> 
-> TODO: optimize stage 1) by allocating/freeing a chunk of pages instead of
-> a single page each time.
-> 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Signed-off-by: Liang Li <liang.z.li@intel.com>
-> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-> ---
->  drivers/virtio/virtio_balloon.c     | 230 +++++++++++++++++++++++++++++++++---
->  include/uapi/linux/virtio_balloon.h |   1 +
->  2 files changed, 212 insertions(+), 19 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 7960746..2c21c5a 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -32,6 +32,8 @@
->  #include <linux/mm.h>
->  #include <linux/mount.h>
->  #include <linux/magic.h>
-> +#include <linux/xbitmap.h>
-> +#include <asm/page.h>
->  
->  /*
->   * Balloon device works in 4K page units.  So each page is pointed to by
-> @@ -79,6 +81,9 @@ struct virtio_balloon {
->  	/* Synchronize access/update to this struct virtio_balloon elements */
->  	struct mutex balloon_lock;
->  
-> +	/* The xbitmap used to record balloon pages */
-> +	struct xb page_xb;
-> +
->  	/* The array of pfns we tell the Host about. */
->  	unsigned int num_pfns;
->  	__virtio32 pfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
-> @@ -141,15 +146,121 @@ static void set_page_pfns(struct virtio_balloon *vb,
->  					  page_to_balloon_pfn(page) + i);
->  }
->  
-> +static void kick_and_wait(struct virtqueue *vq, wait_queue_head_t wq_head)
-> +{
-> +	unsigned int len;
-> +
-> +	virtqueue_kick(vq);
-> +	wait_event(wq_head, virtqueue_get_buf(vq, &len));
-> +}
-> +
-> +static void send_one_desc(struct virtio_balloon *vb,
-> +			  struct virtqueue *vq,
-> +			  uint64_t addr,
-> +			  uint32_t len,
-> +			  bool inbuf,
-> +			  bool batch)
-> +{
-> +	int err;
-> +	unsigned int size;
-> +
-> +	/* Detach all the used buffers from the vq */
-> +	while (virtqueue_get_buf(vq, &size))
-> +		;
-> +
-> +	err = virtqueue_add_one_desc(vq, addr, len, inbuf, vq);
-> +	/*
-> +	 * This is expected to never fail: there is always at least 1 entry
-> +	 * available on the vq, because when the vq is full the worker thread
-> +	 * that adds the desc will be put into sleep until at least 1 entry is
-> +	 * available to use.
-> +	 */
-> +	BUG_ON(err);
-> +
-> +	/* If batching is requested, we batch till the vq is full */
-> +	if (!batch || !vq->num_free)
-> +		kick_and_wait(vq, vb->acked);
-> +}
-> +
+Hello,
 
-This internal kick complicates callers. I suggest that instead,
-you move this to callers, just return a "kick required" boolean.
-This way callers do not need to play with num_free at all.
+Since we still have time to introduce disruptive changes, I'm
+considering changing the UNMAP parameters slightly. Behavior stays the
+same, but instead of passing virt_addr and size, we pass virt_start and
+virt_end:
 
-> +/*
-> + * Send balloon pages in sgs to host. The balloon pages are recorded in the
-> + * page xbitmap. Each bit in the bitmap corresponds to a page of PAGE_SIZE.
-> + * The page xbitmap is searched for continuous "1" bits, which correspond
-> + * to continuous pages, to chunk into sgs.
-> + *
-> + * @page_xb_start and @page_xb_end form the range of bits in the xbitmap that
-> + * need to be searched.
-> + */
-> +static void tell_host_sgs(struct virtio_balloon *vb,
-> +			  struct virtqueue *vq,
-> +			  unsigned long page_xb_start,
-> +			  unsigned long page_xb_end)
-> +{
-> +	unsigned long pfn_start, pfn_end;
-> +	uint64_t addr;
-> +	uint32_t len, max_len = round_down(UINT_MAX, PAGE_SIZE);
-> +
-> +	pfn_start = page_xb_start;
-> +	while (pfn_start < page_xb_end) {
-> +		pfn_start = xb_find_next_set_bit(&vb->page_xb, pfn_start,
-> +						 page_xb_end);
-> +		if (pfn_start == page_xb_end + 1)
-> +			break;
-> +		pfn_end = xb_find_next_zero_bit(&vb->page_xb,
-> +						pfn_start + 1,
-> +						page_xb_end);
-> +		addr = pfn_start << PAGE_SHIFT;
-> +		len = (pfn_end - pfn_start) << PAGE_SHIFT;
+struct virtio_iommu_req_unmap {
+        le32    domain;
+        le64    virt_start;
+        le64    virt_end;
+        le32    reserved;
+};
 
-This assugnment can overflow. Next line compares with UINT_MAX but by
-that time it is too late.  I think you should do all math in 64 bit to
-avoid surprises, then truncate to max_len and then it's safe to assign
-to sg.
+And for symmetry, also change MAP:
 
-> +		while (len > max_len) {
-> +			send_one_desc(vb, vq, addr, max_len, true, true);
-> +			addr += max_len;
-> +			len -= max_len;
-> +		}
-> +		send_one_desc(vb, vq, addr, len, true, true);
-> +		pfn_start = pfn_end + 1;
-> +	}
-> +
-> +	/*
-> +	 * The last few desc-s may not reach the batch size, but need a kick to
-> +	 * notify the device to handle them.
-> +	 */
-> +	if (vq->num_free != virtqueue_get_vring_size(vq))
-> +		kick_and_wait(vq, vb->acked);
+struct virtio_iommu_req_map {
+        le32    domain;
+        le64    phys_start;
+        le64    virt_start;
+        le64    virt_end;
+        le32    flags;
+};
 
-the actual trigger for kick is if we did not kick after
-the last send_one_desc. If kick is moved out of send_one_desc,
-you can test for that explicitly.
+This would allow to express the full 64-bit range in MAP and UNMAP
+requests. Currently the MAP description dismisses this case with "just
+use VIRTIO_IOMMU_F_BYPASS if you need an identity mapping", and I think
+it still holds. But for UNMAP it can be useful to send a single request
+covering the full address space instead of lots of individual requests.
 
-> +
-> +	xb_clear_bit_range(&vb->page_xb, page_xb_start, page_xb_end);
-> +}
-> +
-> +static inline int xb_set_page(struct virtio_balloon *vb,
-> +			       struct page *page,
-> +			       unsigned long *pfn_min,
-> +			       unsigned long *pfn_max)
-> +{
-> +	unsigned long pfn = page_to_pfn(page);
-> +	int ret;
-> +
-> +	*pfn_min = min(pfn, *pfn_min);
-> +	*pfn_max = max(pfn, *pfn_max);
-> +
-> +	do {
-> +		ret = xb_preload_and_set_bit(&vb->page_xb, pfn,
-> +					     GFP_NOWAIT | __GFP_NOWARN);
-> +	} while (unlikely(ret == -EAGAIN));
+I had this problem when implementing ATTACH/DETACH in kvmtool, because
+VFIO doesn't have an explicit unmap-all command (and kvmtool doesn't
+keep track of the mappings). When changing a device's domain, I had to
+send two unmap commands, one for each half of the address space. It's
+not a huge problem, just a bit inconvenient.
 
-what exactly does this loop do? Does this wait
-forever until there is some free memory? why GFP_NOWAIT?
+I don't see how unmap-all would be useful for virtio-iommu at the moment
+(since detaching the domain unmaps all) but just like it turns out to be
+desirable in VFIO, I'm sure someone will need it in virtio-iommu one
+day.
 
-> +
-> +	return ret;
-> +}
-> +
->  static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
->  {
->  	unsigned num_allocated_pages;
->  	unsigned num_pfns;
->  	struct page *page;
->  	LIST_HEAD(pages);
-> +	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
-> +	unsigned long pfn_max = 0, pfn_min = ULONG_MAX;
->  
->  	/* We can only do one array worth at a time. */
-> -	num = min(num, ARRAY_SIZE(vb->pfns));
-> +	if (!use_sg)
-> +		num = min(num, ARRAY_SIZE(vb->pfns));
->  
->  	for (num_pfns = 0; num_pfns < num;
->  	     num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
-> @@ -172,11 +283,18 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
->  	vb->num_pfns = 0;
->  
->  	while ((page = balloon_page_pop(&pages))) {
-> +		if (use_sg) {
-> +			if (xb_set_page(vb, page, &pfn_min, &pfn_max) < 0) {
-> +				__free_page(page);
-> +				break;
-> +			}
-> +		} else {
-> +			set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-> +		}
-> +
->  		balloon_page_enqueue(&vb->vb_dev_info, page);
->  
->  		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> -
-> -		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
->  		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
->  		if (!virtio_has_feature(vb->vdev,
->  					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> @@ -185,8 +303,12 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
->  
->  	num_allocated_pages = vb->num_pfns;
->  	/* Did we get any? */
-> -	if (vb->num_pfns != 0)
-> -		tell_host(vb, vb->inflate_vq);
-> +	if (vb->num_pfns) {
-> +		if (use_sg)
-> +			tell_host_sgs(vb, vb->inflate_vq, pfn_min, pfn_max);
-> +		else
-> +			tell_host(vb, vb->inflate_vq);
-> +	}
->  	mutex_unlock(&vb->balloon_lock);
->  
->  	return num_allocated_pages;
-> @@ -212,9 +334,12 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
->  	struct page *page;
->  	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
->  	LIST_HEAD(pages);
-> +	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
-> +	unsigned long pfn_max = 0, pfn_min = ULONG_MAX;
->  
-> -	/* We can only do one array worth at a time. */
-> -	num = min(num, ARRAY_SIZE(vb->pfns));
-> +	/* Traditionally, we can only do one array worth at a time. */
-> +	if (!use_sg)
-> +		num = min(num, ARRAY_SIZE(vb->pfns));
->  
->  	mutex_lock(&vb->balloon_lock);
->  	/* We can't release more pages than taken */
-> @@ -224,7 +349,14 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
->  		page = balloon_page_dequeue(vb_dev_info);
->  		if (!page)
->  			break;
-> -		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-> +		if (use_sg) {
-> +			if (xb_set_page(vb, page, &pfn_min, &pfn_max) < 0) {
-> +				balloon_page_enqueue(&vb->vb_dev_info, page);
-> +				break;
-> +			}
-> +		} else {
-> +			set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-> +		}
->  		list_add(&page->lru, &pages);
->  		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
->  	}
-> @@ -235,13 +367,55 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
->  	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
->  	 * is true, we *have* to do it in this order
->  	 */
-> -	if (vb->num_pfns != 0)
-> -		tell_host(vb, vb->deflate_vq);
-> +	if (vb->num_pfns) {
-> +		if (use_sg)
-> +			tell_host_sgs(vb, vb->deflate_vq, pfn_min, pfn_max);
-> +		else
-> +			tell_host(vb, vb->deflate_vq);
-> +	}
->  	release_pages_balloon(vb, &pages);
->  	mutex_unlock(&vb->balloon_lock);
->  	return num_freed_pages;
->  }
->  
-> +/*
-> + * The regular leak_balloon() with VIRTIO_BALLOON_F_SG needs memory allocation
-> + * for xbitmap, which is not suitable for the oom case. This function does not
-> + * use xbitmap to chunk pages, so it can be used by oom notifier to deflate
-> + * pages when VIRTIO_BALLOON_F_SG is negotiated.
-> + */
+Alternatively we could change \field{reserved} of the unmap request into
+\field{flags} and add an UNMAP_ALL flag. This is backward-compatible and
+less invasive. Introducing a new UNMAP_ALL request would probably be
+cleaner though. In any case, I personally prefer start and end
+parameter, it looks nicer. The changeset below looks scary, but it's
+mostly reformatting.
 
-I guess we can live with this for now.
+Please let me know if you have any objection, or other comment for 0.5.
 
-Two things to consider
-- adding support for pre-allocating indirect buffers
-- sorting the internal page queue (how?)
+Thanks,
+Jean
 
+--- 8< ---
+Subject: [PATCH] Change MAP and UNMAP parameters
 
-> +static unsigned int leak_balloon_sg_oom(struct virtio_balloon *vb)
-> +{
-> +	unsigned int n;
-> +	struct page *page;
-> +	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
-> +	struct virtqueue *vq = vb->deflate_vq;
-> +	LIST_HEAD(pages);
-> +
-> +	mutex_lock(&vb->balloon_lock);
-> +	for (n = 0; n < oom_pages; n++) {
-> +		page = balloon_page_dequeue(vb_dev_info);
-> +		if (!page)
-> +			break;
-> +
-> +		list_add(&page->lru, &pages);
-> +		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +		send_one_desc(vb, vq, virt_to_phys(page_address(page)),
-> +			      PAGE_SIZE, true, true);
-> +		release_pages_balloon(vb, &pages);
-> +	}
-> +
-> +	/*
-> +	 * The last few sgs may not reach the batch size, but need a kick to
-> +	 * notify the device to handle them.
-> +	 */
-> +	if (vq->num_free != virtqueue_get_vring_size(vq))
-> +		kick_and_wait(vq, vb->acked);
-> +	mutex_unlock(&vb->balloon_lock);
-> +
-> +	return n;
-> +}
-> +
->  static inline void update_stat(struct virtio_balloon *vb, int idx,
->  			       u16 tag, u64 val)
->  {
-> @@ -381,7 +555,10 @@ static int virtballoon_oom_notify(struct notifier_block *self,
->  		return NOTIFY_OK;
->  
->  	freed = parm;
-> -	num_freed_pages = leak_balloon(vb, oom_pages);
-> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG))
-> +		num_freed_pages = leak_balloon_sg_oom(vb);
-> +	else
-> +		num_freed_pages = leak_balloon(vb, oom_pages);
->  	update_balloon_size(vb);
->  	*freed += num_freed_pages;
->  
-> @@ -478,6 +655,7 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
->  {
->  	struct virtio_balloon *vb = container_of(vb_dev_info,
->  			struct virtio_balloon, vb_dev_info);
-> +	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
->  	unsigned long flags;
->  
->  	/*
-> @@ -499,16 +677,26 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
->  	vb_dev_info->isolated_pages--;
->  	__count_vm_event(BALLOON_MIGRATE);
->  	spin_unlock_irqrestore(&vb_dev_info->pages_lock, flags);
-> -	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
-> -	set_page_pfns(vb, vb->pfns, newpage);
-> -	tell_host(vb, vb->inflate_vq);
-> -
-> +	if (use_sg) {
-> +		send_one_desc(vb, vb->inflate_vq,
-> +			      virt_to_phys(page_address(newpage)),
-> +			      PAGE_SIZE, true, false);
-> +	} else {
-> +		vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +		set_page_pfns(vb, vb->pfns, newpage);
-> +		tell_host(vb, vb->inflate_vq);
-> +	}
->  	/* balloon's page migration 2nd step -- deflate "page" */
->  	balloon_page_delete(page);
-> -	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
-> -	set_page_pfns(vb, vb->pfns, page);
-> -	tell_host(vb, vb->deflate_vq);
-> -
-> +	if (use_sg) {
-> +		send_one_desc(vb, vb->inflate_vq,
-> +			      virt_to_phys(page_address(page)),
-> +			      PAGE_SIZE, true, false);
-> +	} else {
-> +		vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +		set_page_pfns(vb, vb->pfns, page);
-> +		tell_host(vb, vb->deflate_vq);
-> +	}
->  	mutex_unlock(&vb->balloon_lock);
->  
->  	put_page(page); /* balloon reference */
-> @@ -567,6 +755,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  	if (err)
->  		goto out_free_vb;
->  
-> +	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_SG))
-> +		xb_init(&vb->page_xb);
-> +
->  	vb->nb.notifier_call = virtballoon_oom_notify;
->  	vb->nb.priority = VIRTBALLOON_OOM_NOTIFY_PRIORITY;
->  	err = register_oom_notifier(&vb->nb);
-> @@ -683,6 +874,7 @@ static unsigned int features[] = {
->  	VIRTIO_BALLOON_F_MUST_TELL_HOST,
->  	VIRTIO_BALLOON_F_STATS_VQ,
->  	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
-> +	VIRTIO_BALLOON_F_SG,
->  };
->  
->  static struct virtio_driver virtio_balloon_driver = {
-> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> index 343d7dd..37780a7 100644
-> --- a/include/uapi/linux/virtio_balloon.h
-> +++ b/include/uapi/linux/virtio_balloon.h
-> @@ -34,6 +34,7 @@
->  #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
->  #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
->  #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
-> +#define VIRTIO_BALLOON_F_SG		3 /* Use sg instead of PFN lists */
->  
->  /* Size of a PFN in the balloon interface. */
->  #define VIRTIO_BALLOON_PFN_SHIFT 12
-> -- 
-> 2.7.4
+Passing start/end instead of start/size to MAP and UNMAP offers more
+flexibility. UNMAP can now be used to unmap the whole address space in
+one go. UNMAP(domain, 0, ~0ULL) should now remove all mappings.
+
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+---
+ device-operations.tex | 124 +++++++++++++++++++++++++-------------------------
+ 1 file changed, 61 insertions(+), 63 deletions(-)
+
+diff --git a/device-operations.tex b/device-operations.tex
+index 9b35283..3ecafd3 100644
+--- a/device-operations.tex
++++ b/device-operations.tex
+@@ -21,15 +21,15 @@ types:
+   \texttt{attach(device = 0x104, domain = 1)}
+ \item Create a mapping between a range of guest-virtual and guest-physical
+   address. \\
+-  \texttt{map(domain = 1, virt = 0x1000, phys = 0xa000,
+-          size = 0x1000, flags = READ)}
++  \texttt{map(domain = 1, virt_start = 0x1000, virt_end = 0x1fff,
++          phys = 0xa000, flags = READ)}
+
+   Endpoint 0x104, for example a hardware PCI endpoint, can now read at
+   addresses 0x1000-0x1fff. These accesses are translated into
+   system-physical addresses by the IOMMU.
+
+ \item Remove the mapping.\\
+-  \texttt{unmap(domain = 1, virt = 0x1000, size = 0x1000)}
++  \texttt{unmap(domain = 1, virt_start= 0x1000, virt_end = 0x1fff)}
+
+   Any access to addresses 0x1000-0x1fff by endpoint 0x104 would now be
+   rejected.
+@@ -286,8 +286,9 @@ written to it, the driver SHOULD interpret it as a failure from the device
+ to parse the request.
+
+ If the VIRTIO_IOMMU_F_INPUT_RANGE feature is offered, the driver SHOULD
+-NOT send requests with \field{virt_addr} less than
+-\field{input_range.start} or greater than \field{input_range.end}.
++NOT send requests with \field{virt_start} less than
++\field{input_range.start} or \field{virt_end} greater than
++\field{input_range.end}.
+
+ If the VIRTIO_IOMMU_F_DOMAIN_BITS feature is offered, the driver SHOULD
+ NOT send requests with \field{domain} greater than the size described by
+@@ -321,7 +322,7 @@ The device MUST ignore reserved fields of the head and the tail of a
+ request.
+
+ If the VIRTIO_IOMMU_F_INPUT_RANGE feature is offered, the device MUST
+-truncate the range described by \field{virt_addr} and \field{size} in
++truncate the range described by \field{virt_start} and \field{virt_end} in
+ requests to fit in the range described by \field{input_range}.
+
+ If the VIRTIO_IOMMU_F_DOMAIN_BITS is offered, the device MUST ignore bits
+@@ -446,9 +447,9 @@ endpoint cannot access any mapping from that domain.
+ \begin{lstlisting}
+ struct virtio_iommu_req_map {
+ 	le32	domain;
+-	le64	phys_addr;
+-	le64	virt_addr;
+-	le64	size;
++	le64	phys_start;
++	le64	virt_start;
++	le64	virt_end;
+ 	le32	flags;
+ };
+
+@@ -461,30 +462,21 @@ struct virtio_iommu_req_map {
+ Map a range of virtually-contiguous addresses to a range of
+ physically-contiguous addresses of the same size. After the request
+ succeeds, all endpoints attached to this domain can access memory in the
+-range $[phys\_addr; phys\_addr + size[$. For example, if an endpoint
+-accesses address $VA \in [virt\_addr; virt\_addr + size[$, the device (or
+-the physical IOMMU) translates the address: $PA = VA - virt\_addr +
+-phys\_addr$. If the access parameters are compatible with \field{flags}
+-(for instance, the access is write and \field{flags} are
+-VIRTIO_IOMMU_MAP_F_READ | VIRTIO_IOMMU_MAP_F_WRITE) then the IOMMU allows
+-the access to reach $PA$.
+-
+-The range defined by (\field{virt_addr}, \field{size}) must be within the
+-limits specified by \field{input_range}. The range defined by
+-(\field{phys_addr}, \field{size}) must be within the guest-physical
+-address space. This includes upper and lower limits, as well as any
+-carving of guest-physical addresses for use by the host (for instance MSI
+-doorbells). Guest physical boundaries are set by the host using a firmware
+-mechanism outside the scope of this specification.
+-
+-\begin{note}
+-This format prevents from creating the identity mapping in a single
+-request \texttt{[0x0; 0xfff....fff] $\rightarrow$ [0x0; 0xfff...fff]},
+-since it would result in a size of zero. Hopefully allowing
+-VIRTIO_IOMMU_F_BYPASS eliminates the need for issuing such request. It
+-would also be unlikely to conform to the physical range restrictions
+-from the previous paragraph.
+-\end{note}
++range $[virt\_start; virt\_end]$. For example, if an endpoint accesses
++address $VA \in [virt\_start; virt\_end]$, the device (or the physical
++IOMMU) translates the address: $PA = VA - virt\_start + phys\_start$. If
++the access parameters are compatible with \field{flags} (for instance, the
++access is write and \field{flags} are VIRTIO_IOMMU_MAP_F_READ |
++VIRTIO_IOMMU_MAP_F_WRITE) then the IOMMU allows the access to reach $PA$.
++
++The range defined by \field{virt_start} and \field{virt_end} should be
++within the limits specified by \field{input_range}. Given $phys\_end =
++phys\_start + virt\_end - virt\_start$, the range defined by
++\field{phys_start} and phys_end should be within the guest-physical address
++space. This includes upper and lower limits, as well as any carving of
++guest-physical addresses for use by the host (for instance MSI doorbells).
++Guest physical boundaries are set by the host using a firmware mechanism
++outside the scope of this specification.
+
+ \begin{note}
+ On flags: it is unlikely that all possible combinations of flags will be
+@@ -503,11 +495,13 @@ negotiated.
+
+ The driver SHOULD set undefined \field{flags} bits to zero.
+
++\field{virt_end} MUST be strictly greater than \field{virt_start}.
++
+ \devicenormative{\paragraph}{MAP request}{Device Types / IOMMU Device / Device operations / MAP request}
+
+-If \field{virt_addr}, \field{phys_addr} or \field{size} is not aligned on
+-the page granularity, the device SHOULD set the request \field{status} to
+-VIRTIO_IOMMU_S_RANGE and SHOULD NOT create the mapping.
++If \field{virt_start}, \field{phys_start} or (\field{virt_end} + 1) is
++not aligned on the page granularity, the device SHOULD set the request
++\field{status} to VIRTIO_IOMMU_S_RANGE and SHOULD NOT create the mapping.
+
+ If the device doesn't recognize a \field{flags} bit, it SHOULD set the
+ request \field{status} to VIRTIO_IOMMU_S_INVAL. In this case the device
+@@ -524,45 +518,49 @@ If \field{domain} does not exist, the device SHOULD set the request
+ \begin{lstlisting}
+ struct virtio_iommu_req_unmap {
+ 	le32	domain;
+-	le64	virt_addr;
+-	le64	size;
++	le64	virt_start;
++	le64	virt_end;
+ 	le32	reserved;
+ };
+ \end{lstlisting}
+
+ Unmap a range of addresses mapped with VIRTIO_IOMMU_T_MAP. We define here
+ a mapping as a virtual region created with a single MAP request. All
+-mappings covered by the range $[virt\_addr; virt\_addr + size [$ are
+-removed.
++mappings covered by the range $[virt\_start; virt\_end]$ are removed.
+
+-The semantics of unmapping are specified below, and illustrated with the
+-following requests, assuming each example sequence starts with a blank
+-address space. We define two pseudocode functions \texttt{map(virt\_addr,
+-size) -> mapping} and \texttt{unmap(virt\_addr, size)}.
++The semantics of unmapping are specified in \ref{drivernormative:Device
++Types / IOMMU Device / Device operations / UNMAP request} and
++\ref{devicenormative:Device Types / IOMMU Device / Device operations /
++UNMAP request}, and illustrated with the following requests, assuming each
++example sequence starts with a blank address space. We define two
++pseudocode functions \texttt{map(virt_start, virt_end) -> mapping} and
++\texttt{unmap(virt_start, virt_end)}.
+
+ \begin{lstlisting}
+-(1) unmap(addr=0, size=5)        -> succeeds, doesn't unmap anything
++(1) unmap(virt_start=0,
++          virt_end=4)            -> succeeds, doesn't unmap anything
+
+-(2) a = map(addr=0, size=10);
+-    unmap(0, 10)                 -> succeeds, unmaps a
++(2) a = map(virt_start=0,
++            virt_end=9);
++    unmap(0, 9)                  -> succeeds, unmaps a
+
+-(3) a = map(0, 5);
+-    b = map(5, 5);
+-    unmap(0, 10)                 -> succeeds, unmaps a and b
++(3) a = map(0, 4);
++    b = map(5, 9);
++    unmap(0, 9)                  -> succeeds, unmaps a and b
+
+-(4) a = map(0, 10);
+-    unmap(0, 5)                  -> faults, doesn't unmap anything
++(4) a = map(0, 9);
++    unmap(0, 4)                  -> faults, doesn't unmap anything
+
+-(5) a = map(0, 5);
+-    b = map(5, 5);
+-    unmap(0, 5)                  -> succeeds, unmaps a
++(5) a = map(0, 4);
++    b = map(5, 9);
++    unmap(0, 4)                  -> succeeds, unmaps a
+
+-(6) a = map(0, 5);
+-    unmap(0, 10)                 -> succeeds, unmaps a
++(6) a = map(0, 4);
++    unmap(0, 9)                  -> succeeds, unmaps a
+
+-(7) a = map(0, 5);
+-    b = map(10, 5);
+-    unmap(0, 15)                 -> succeeds, unmaps a and b
++(7) a = map(0, 4);
++    b = map(10, 14);
++    unmap(0, 14)                 -> succeeds, unmaps a and b
+ \end{lstlisting}
+
+ This request is only available when VIRTIO_IOMMU_F_MAP_UNMAP has been
+@@ -572,9 +570,9 @@ negotiated.
+
+ The driver SHOULD set the \field{reserved} field to zero.
+
+-The range, defined by \field{virt_addr} and \field{size}, SHOULD cover one
+-or more contiguous mappings created with MAP requests. The range MAY spill
+-over unmapped virtual addresses.
++The range, defined by \field{virt_start} and \field{virt_end}, SHOULD
++cover one or more contiguous mappings created with MAP requests. The range
++MAY spill over unmapped virtual addresses.
+
+ The first address of a range SHOULD either be the first address of a
+ mapping or be outside any mapping. The last address of a range SHOULD
+--
+2.14.2
