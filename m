@@ -1,11 +1,13 @@
 From: wexu@redhat.com
-Subject: [PATCH net,stable v3] vhost: fix a few skb leaks
-Date: Fri,  1 Dec 2017 00:54:26 -0500
-Message-ID: <1512107669-27572-1-git-send-email-wexu__36579.8930674375$1512195553$gmane$org@redhat.com>
+Subject: [PATCH 2/3] tun: free skb in early errors
+Date: Fri,  1 Dec 2017 00:54:28 -0500
+Message-ID: <1512107669-27572-3-git-send-email-wexu__36230.428753379$1512195564$gmane$org@redhat.com>
+References: <1512107669-27572-1-git-send-email-wexu@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1512107669-27572-1-git-send-email-wexu@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,32 +23,53 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Wei Xu <wexu@redhat.com>
 
-Matthew found a roughly 40% tcp throughput regression with commit
-c67df11f(vhost_net: try batch dequing from skb array) as discussed
-in the following thread:
-https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
+tun_recvmsg() supports accepting skb by msg_control after
+commit ac77cfd4258f ("tun: support receiving skb through msg_control"),
+the skb if presented should be freed within the function, otherwise it
+would be leaked.
 
-This is v3.
+Signed-off-by: Wei Xu <wexu@redhat.com>
+Reported-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
+---
+ drivers/net/tun.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-v3:
-- move freeing skb from vhost to tun/tap recvmsg() to not
-  confuse the callers.
-
-v2:
-- add Matthew as the reporter, thanks matthew.
-- moving zero headcount check ahead instead of defer consuming skb
-  due to jason and mst's comment.
-- add freeing skb in favor of recvmsg() fails.
-
-Wei Xu (3):
-  vhost: fix skb leak in handle_rx()
-  tun: free skb in early errors
-  tap: free skb if flags error
-
- drivers/net/tap.c   |  6 +++++-
- drivers/net/tun.c   | 14 +++++++++++---
- drivers/vhost/net.c | 20 ++++++++++----------
- 3 files changed, 26 insertions(+), 14 deletions(-)
-
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index 6a7bde9..5563430 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -2067,14 +2067,17 @@ static int tun_recvmsg(struct socket *sock, struct msghdr *m, size_t total_len,
+ {
+ 	struct tun_file *tfile = container_of(sock, struct tun_file, socket);
+ 	struct tun_struct *tun = tun_get(tfile);
++	struct sk_buff *skb = m->msg_control;
+ 	int ret;
+ 
+-	if (!tun)
+-		return -EBADFD;
++	if (!tun) {
++		ret = -EBADFD;
++		goto out_free_skb;
++	}
+ 
+ 	if (flags & ~(MSG_DONTWAIT|MSG_TRUNC|MSG_ERRQUEUE)) {
+ 		ret = -EINVAL;
+-		goto out;
++		goto out_free_skb;
+ 	}
+ 	if (flags & MSG_ERRQUEUE) {
+ 		ret = sock_recv_errqueue(sock->sk, m, total_len,
+@@ -2087,6 +2090,11 @@ static int tun_recvmsg(struct socket *sock, struct msghdr *m, size_t total_len,
+ 		m->msg_flags |= MSG_TRUNC;
+ 		ret = flags & MSG_TRUNC ? ret : total_len;
+ 	}
++	goto out;
++
++out_free_skb:
++	if (skb)
++		kfree_skb(skb);
+ out:
+ 	tun_put(tun);
+ 	return ret;
 -- 
 1.8.3.1
