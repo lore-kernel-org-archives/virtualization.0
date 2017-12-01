@@ -1,16 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net,stable v4 0/3] vhost: fix a few skb leaks
-Date: Fri, 1 Dec 2017 16:58:24 +0200
-Message-ID: <20171201165635-mutt-send-email-mst__47298.2462765232$1512140340$gmane$org@kernel.org>
-References: <1512123038-15773-1-git-send-email-wexu@redhat.com>
-	<20171201164731-mutt-send-email-mst@kernel.org>
-	<9ef31370-4042-b701-e983-90b8f20a2a39@linux.vnet.ibm.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v18 05/10] xbitmap: add more operations
+Date: Fri, 1 Dec 2017 15:09:08 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F739376DA1__47943.4458110065$1512140962$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
+	<1511963726-34070-6-git-send-email-wei.w.wang@intel.com>
+	<201711301934.CDC21800.FSLtJFFOOVQHMO@I-love.SAKURA.ne.jp>
+	<5A210C96.8050208@intel.com>
+	<201712012202.BDE13557.MJFQLtOOHVOFSF@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <9ef31370-4042-b701-e983-90b8f20a2a39@linux.vnet.ibm.com>
+In-Reply-To: <201712012202.BDE13557.MJFQLtOOHVOFSF@I-love.SAKURA.ne.jp>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,70 +22,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com, David Miller <davem@davemloft.net>
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "willy@infradead.org" <willy@infradead.org>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "nilal@redhat.com" <nilal@redhat.com>, "riel@redhat.com" <riel@redhat.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, amit.shah@red
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 01, 2017 at 09:54:02AM -0500, Matthew Rosato wrote:
-> On 12/01/2017 09:47 AM, Michael S. Tsirkin wrote:
-> > On Fri, Dec 01, 2017 at 05:10:35AM -0500, wexu@redhat.com wrote:
-> >> From: Wei Xu <wexu@redhat.com>
-> >>
-> >> Matthew found a roughly 40% tcp throughput regression with commit
-> >> c67df11f(vhost_net: try batch dequing from skb array) as discussed
-> >> in the following thread:
-> >> https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
-> > 
-> > Series
-> > 
-> > Acked-by: Michael S. Tsirkin <mst@redhat.com>
+On Friday, December 1, 2017 9:02 PM, Tetsuo Handa wrote:
+> Wei Wang wrote:
+> > On 11/30/2017 06:34 PM, Tetsuo Handa wrote:
+> > > Wei Wang wrote:
+> > >> + * @start: the start of the bit range, inclusive
+> > >> + * @end: the end of the bit range, inclusive
+> > >> + *
+> > >> + * This function is used to clear a bit in the xbitmap. If all the
+> > >> +bits of the
+> > >> + * bitmap are 0, the bitmap will be freed.
+> > >> + */
+> > >> +void xb_clear_bit_range(struct xb *xb, unsigned long start,
+> > >> +unsigned long end) {
+> > >> +	struct radix_tree_root *root = &xb->xbrt;
+> > >> +	struct radix_tree_node *node;
+> > >> +	void **slot;
+> > >> +	struct ida_bitmap *bitmap;
+> > >> +	unsigned int nbits;
+> > >> +
+> > >> +	for (; start < end; start = (start | (IDA_BITMAP_BITS - 1)) + 1) {
+> > >> +		unsigned long index = start / IDA_BITMAP_BITS;
+> > >> +		unsigned long bit = start % IDA_BITMAP_BITS;
+> > >> +
+> > >> +		bitmap = __radix_tree_lookup(root, index, &node, &slot);
+> > >> +		if (radix_tree_exception(bitmap)) {
+> > >> +			unsigned long ebit = bit + 2;
+> > >> +			unsigned long tmp = (unsigned long)bitmap;
+> > >> +
+> > >> +			nbits = min(end - start + 1, BITS_PER_LONG - ebit);
+> > > "nbits = min(end - start + 1," seems to expect that start == end is
+> > > legal for clearing only 1 bit. But this function is no-op if start == end.
+> > > Please clarify what "inclusive" intended.
+> >
+> > If xb_clear_bit_range(xb,10,10), then it is effectively the same as
+> > xb_clear_bit(10). Why would it be illegal?
+> >
+> > "@start inclusive" means that the @start will also be included to be
+> > cleared.
 > 
-> Tested this series on a z13 (s390x) on top of net-next using 4GB/4vcpu
-> guests.  Verified that both the reported TCP throughput regression and
-> memory leak are resolved.
+> If start == end is legal,
 > 
-> net-next:  19.83 Gb/s
-> net-next+: 35.02 Gb/s
+>    for (; start < end; start = (start | (IDA_BITMAP_BITS - 1)) + 1) {
 > 
-> Thanks all!
-> 
-> Matt
+> makes this loop do nothing because 10 < 10 is false.
 
-So we can also add
-Tested-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
 
-Dave, pls take this through the net tree as most changes are
-in tun/tap.
+How about "start <= end "?
 
-Thanks!
-
-> > 
-> > 
-> >> v4:
-> >> - fix zero iov iterator count in tap/tap_do_read()(Jason)
-> >> - don't put tun in case of EBADFD(Jason)
-> >> - Replace msg->msg_control with new 'skb' when calling tun/tap_do_read()
-> >>
-> >> v3:
-> >> - move freeing skb from vhost to tun/tap recvmsg() to not
-> >>   confuse the callers.
-> >>
-> >> v2:
-> >> - add Matthew as the reporter, thanks matthew.
-> >> - moving zero headcount check ahead instead of defer consuming skb
-> >>   due to jason and mst's comment.
-> >> - add freeing skb in favor of recvmsg() fails.
-> >>
-> >> Wei Xu (3):
-> >>   vhost: fix skb leak in handle_rx()
-> >>   tun: free skb in early errors
-> >>   tap: free skb if flags error
-> >>
-> >>  drivers/net/tap.c   | 14 ++++++++++----
-> >>  drivers/net/tun.c   | 24 ++++++++++++++++++------
-> >>  drivers/vhost/net.c | 20 ++++++++++----------
-> >>  3 files changed, 38 insertions(+), 20 deletions(-)
-> >>
-> >> -- 
-> >> 1.8.3.1
-> > 
+Best,
+Wei
