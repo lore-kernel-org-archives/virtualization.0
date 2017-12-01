@@ -1,14 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net,stable v4 0/3]  vhost: fix a few skb leaks
-Date: Fri, 1 Dec 2017 16:47:59 +0200
-Message-ID: <20171201164731-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH 2/3] tun: free skb in early errors
+Date: Fri, 1 Dec 2017 16:48:17 +0200
+Message-ID: <20171201164812-mutt-send-email-mst__38581.2532892034$1512139721$gmane$org@kernel.org>
 References: <1512123038-15773-1-git-send-email-wexu@redhat.com>
+	<1512123038-15773-3-git-send-email-wexu@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1512123038-15773-1-git-send-email-wexu@redhat.com>
+In-Reply-To: <1512123038-15773-3-git-send-email-wexu@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,43 +23,86 @@ To: wexu@redhat.com
 Cc: mjrosato@linux.vnet.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 01, 2017 at 05:10:35AM -0500, wexu@redhat.com wrote:
+On Fri, Dec 01, 2017 at 05:10:37AM -0500, wexu@redhat.com wrote:
 > From: Wei Xu <wexu@redhat.com>
 > 
-> Matthew found a roughly 40% tcp throughput regression with commit
-> c67df11f(vhost_net: try batch dequing from skb array) as discussed
-> in the following thread:
-> https://www.mail-archive.com/netdev@vger.kernel.org/msg187936.html
+> tun_recvmsg() supports accepting skb by msg_control after
+> commit ac77cfd4258f ("tun: support receiving skb through msg_control"),
+> the skb if presented should be freed no matter how far it can go
+> along, otherwise it would be leaked.
+> 
+> This patch fixes several missed cases.
+> 
+> Signed-off-by: Wei Xu <wexu@redhat.com>
+> Reported-by: Matthew Rosato <mjrosato@linux.vnet.ibm.com>
 
-Series
 
 Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-
-> v4:
-> - fix zero iov iterator count in tap/tap_do_read()(Jason)
-> - don't put tun in case of EBADFD(Jason)
-> - Replace msg->msg_control with new 'skb' when calling tun/tap_do_read()
+> ---
+>  drivers/net/tun.c | 24 ++++++++++++++++++------
+>  1 file changed, 18 insertions(+), 6 deletions(-)
 > 
-> v3:
-> - move freeing skb from vhost to tun/tap recvmsg() to not
->   confuse the callers.
-> 
-> v2:
-> - add Matthew as the reporter, thanks matthew.
-> - moving zero headcount check ahead instead of defer consuming skb
->   due to jason and mst's comment.
-> - add freeing skb in favor of recvmsg() fails.
-> 
-> Wei Xu (3):
->   vhost: fix skb leak in handle_rx()
->   tun: free skb in early errors
->   tap: free skb if flags error
-> 
->  drivers/net/tap.c   | 14 ++++++++++----
->  drivers/net/tun.c   | 24 ++++++++++++++++++------
->  drivers/vhost/net.c | 20 ++++++++++----------
->  3 files changed, 38 insertions(+), 20 deletions(-)
-> 
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index 9574900..4f4a842 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -1952,8 +1952,11 @@ static ssize_t tun_do_read(struct tun_struct *tun, struct tun_file *tfile,
+>  
+>  	tun_debug(KERN_INFO, tun, "tun_do_read\n");
+>  
+> -	if (!iov_iter_count(to))
+> +	if (!iov_iter_count(to)) {
+> +		if (skb)
+> +			kfree_skb(skb);
+>  		return 0;
+> +	}
+>  
+>  	if (!skb) {
+>  		/* Read frames from ring */
+> @@ -2069,22 +2072,24 @@ static int tun_recvmsg(struct socket *sock, struct msghdr *m, size_t total_len,
+>  {
+>  	struct tun_file *tfile = container_of(sock, struct tun_file, socket);
+>  	struct tun_struct *tun = tun_get(tfile);
+> +	struct sk_buff *skb = m->msg_control;
+>  	int ret;
+>  
+> -	if (!tun)
+> -		return -EBADFD;
+> +	if (!tun) {
+> +		ret = -EBADFD;
+> +		goto out_free_skb;
+> +	}
+>  
+>  	if (flags & ~(MSG_DONTWAIT|MSG_TRUNC|MSG_ERRQUEUE)) {
+>  		ret = -EINVAL;
+> -		goto out;
+> +		goto out_put_tun;
+>  	}
+>  	if (flags & MSG_ERRQUEUE) {
+>  		ret = sock_recv_errqueue(sock->sk, m, total_len,
+>  					 SOL_PACKET, TUN_TX_TIMESTAMP);
+>  		goto out;
+>  	}
+> -	ret = tun_do_read(tun, tfile, &m->msg_iter, flags & MSG_DONTWAIT,
+> -			  m->msg_control);
+> +	ret = tun_do_read(tun, tfile, &m->msg_iter, flags & MSG_DONTWAIT, skb);
+>  	if (ret > (ssize_t)total_len) {
+>  		m->msg_flags |= MSG_TRUNC;
+>  		ret = flags & MSG_TRUNC ? ret : total_len;
+> @@ -2092,6 +2097,13 @@ static int tun_recvmsg(struct socket *sock, struct msghdr *m, size_t total_len,
+>  out:
+>  	tun_put(tun);
+>  	return ret;
+> +
+> +out_put_tun:
+> +	tun_put(tun);
+> +out_free_skb:
+> +	if (skb)
+> +		kfree_skb(skb);
+> +	return ret;
+>  }
+>  
+>  static int tun_peek_len(struct socket *sock)
 > -- 
 > 1.8.3.1
