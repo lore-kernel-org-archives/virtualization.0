@@ -1,17 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 1/3] vhost: fix skb leak in handle_rx()
-Date: Mon, 4 Dec 2017 15:18:32 +0800
-Message-ID: <a0787049-3f44-92cb-9aa1-c21374a4ffd9__47005.9333405972$1512371927$gmane$org@redhat.com>
-References: <1512107669-27572-1-git-send-email-wexu@redhat.com>
-	<1512107669-27572-2-git-send-email-wexu@redhat.com>
-	<09e75683-4c49-7446-e13e-93b316ed270c@redhat.com>
-	<20171201163728-mutt-send-email-mst@kernel.org>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH] virtio: release virtio index when fail to device_register
+Date: Mon, 4 Dec 2017 10:38:42 +0100
+Message-ID: <20171204103842.3d8709a8.cohuck@redhat.com>
+References: <20171129012301.GA6637@localhost.didichuxing.com>
+	<20171129105044.3a4b0ab3.cohuck@redhat.com>
+	<20171201165539.GA11865@localhost.didichuxing.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171201163728-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <20171201165539.GA11865@localhost.didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,65 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: mjrosato@linux.vnet.ibm.com, netdev@vger.kernel.org, wexu@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: weiping zhang <zwp10758@gmail.com>
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MTLmnIgwMeaXpSAyMjozNywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIEZyaSwgRGVjIDAxLCAyMDE3IGF0IDAzOjExOjA1UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Cj4+IE9uIDIwMTflubQxMuaciDAx5pelIDEzOjU0LCB3ZXh1QHJlZGhhdC5jb20gd3Jv
-dGU6Cj4+PiBGcm9tOiBXZWkgWHUgPHdleHVAcmVkaGF0LmNvbT4KPj4+Cj4+PiBNYXR0aGV3IGZv
-dW5kIGEgcm91Z2hseSA0MCUgdGNwIHRocm91Z2hwdXQgcmVncmVzc2lvbiB3aXRoIGNvbW1pdAo+
-Pj4gYzY3ZGYxMWYodmhvc3RfbmV0OiB0cnkgYmF0Y2ggZGVxdWluZyBmcm9tIHNrYiBhcnJheSkg
-YXMgZGlzY3Vzc2VkCj4+PiBpbiB0aGUgZm9sbG93aW5nIHRocmVhZDoKPj4+IGh0dHBzOi8vd3d3
-Lm1haWwtYXJjaGl2ZS5jb20vbmV0ZGV2QHZnZXIua2VybmVsLm9yZy9tc2cxODc5MzYuaHRtbAo+
-Pj4KPj4+IEV2ZW50dWFsbHkgd2UgZmlndXJlZCBvdXQgdGhhdCBpdCB3YXMgYSBza2IgbGVhayBp
-biBoYW5kbGVfcngoKQo+Pj4gd2hlbiBzZW5kaW5nIHBhY2tldHMgdG8gdGhlIFZNLiBUaGlzIHVz
-dWFsbHkgaGFwcGVucyB3aGVuIGEgZ3Vlc3QKPj4+IGNhbiBub3QgZHJhaW4gb3V0IHZxIGFzIGZh
-c3QgYXMgdmhvc3QgZmlsbHMgaW4sIGFmdGVyd2FyZHMgaXQgc2V0cwo+Pj4gb2ZmIHRoZSB0cmFm
-ZmljIGphbSBhbmQgbGVha3Mgc2tiKHMpIHdoaWNoIG9jY3VycyBhcyBubyBoZWFkY291bnQKPj4+
-IHRvIHNlbmQgb24gdGhlIHZxIGZyb20gdmhvc3Qgc2lkZS4KPj4+Cj4+PiBUaGlzIGNhbiBiZSBh
-dm9pZGVkIGJ5IG1ha2luZyBzdXJlIHdlIGhhdmUgZ290IGVub3VnaCBoZWFkY291bnQKPj4+IGJl
-Zm9yZSBhY3R1YWxseSBjb25zdW1pbmcgYSBza2IgZnJvbSB0aGUgYmF0Y2hlZCByeCBhcnJheSB3
-aGlsZQo+Pj4gdHJhbnNtaXR0aW5nLCB3aGljaCBpcyBzaW1wbHkgZG9uZSBieSBtb3ZpbmcgY2hl
-Y2tpbmcgdGhlIHplcm8KPj4+IGhlYWRjb3VudCBhIGJpdCBhaGVhZC4KPj4+Cj4+PiBTaWduZWQt
-b2ZmLWJ5OiBXZWkgWHUgPHdleHVAcmVkaGF0LmNvbT4KPj4+IFJlcG9ydGVkLWJ5OiBNYXR0aGV3
-IFJvc2F0byA8bWpyb3NhdG9AbGludXgudm5ldC5pYm0uY29tPgo+Pj4gLS0tCj4+PiAgICBkcml2
-ZXJzL3Zob3N0L25ldC5jIHwgMjAgKysrKysrKysrKy0tLS0tLS0tLS0KPj4+ICAgIDEgZmlsZSBj
-aGFuZ2VkLCAxMCBpbnNlcnRpb25zKCspLCAxMCBkZWxldGlvbnMoLSkKPj4+Cj4+PiBkaWZmIC0t
-Z2l0IGEvZHJpdmVycy92aG9zdC9uZXQuYyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPj4+IGluZGV4
-IDhkNjI2ZDcuLmM3YmRlYjYgMTAwNjQ0Cj4+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L25ldC5jCj4+
-PiArKysgYi9kcml2ZXJzL3Zob3N0L25ldC5jCj4+PiBAQCAtNzc4LDE2ICs3NzgsNiBAQCBzdGF0
-aWMgdm9pZCBoYW5kbGVfcngoc3RydWN0IHZob3N0X25ldCAqbmV0KQo+Pj4gICAgCQkvKiBPbiBl
-cnJvciwgc3RvcCBoYW5kbGluZyB1bnRpbCB0aGUgbmV4dCBraWNrLiAqLwo+Pj4gICAgCQlpZiAo
-dW5saWtlbHkoaGVhZGNvdW50IDwgMCkpCj4+PiAgICAJCQlnb3RvIG91dDsKPj4+IC0JCWlmIChu
-dnEtPnJ4X2FycmF5KQo+Pj4gLQkJCW1zZy5tc2dfY29udHJvbCA9IHZob3N0X25ldF9idWZfY29u
-c3VtZSgmbnZxLT5yeHEpOwo+Pj4gLQkJLyogT24gb3ZlcnJ1biwgdHJ1bmNhdGUgYW5kIGRpc2Nh
-cmQgKi8KPj4+IC0JCWlmICh1bmxpa2VseShoZWFkY291bnQgPiBVSU9fTUFYSU9WKSkgewo+Pj4g
-LQkJCWlvdl9pdGVyX2luaXQoJm1zZy5tc2dfaXRlciwgUkVBRCwgdnEtPmlvdiwgMSwgMSk7Cj4+
-PiAtCQkJZXJyID0gc29jay0+b3BzLT5yZWN2bXNnKHNvY2ssICZtc2csCj4+PiAtCQkJCQkJIDEs
-IE1TR19ET05UV0FJVCB8IE1TR19UUlVOQyk7Cj4+PiAtCQkJcHJfZGVidWcoIkRpc2NhcmRlZCBy
-eCBwYWNrZXQ6IGxlbiAlemRcbiIsIHNvY2tfbGVuKTsKPj4+IC0JCQljb250aW51ZTsKPj4+IC0J
-CX0KPj4+ICAgIAkJLyogT0ssIG5vdyB3ZSBuZWVkIHRvIGtub3cgYWJvdXQgYWRkZWQgZGVzY3Jp
-cHRvcnMuICovCj4+PiAgICAJCWlmICghaGVhZGNvdW50KSB7Cj4+PiAgICAJCQlpZiAodW5saWtl
-bHkodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKSkpIHsKPj4+IEBAIC04MDAsNiAr
-NzkwLDE2IEBAIHN0YXRpYyB2b2lkIGhhbmRsZV9yeChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQpCj4+
-PiAgICAJCQkgKiB0aGV5IHJlZmlsbGVkLiAqLwo+Pj4gICAgCQkJZ290byBvdXQ7Cj4+PiAgICAJ
-CX0KPj4+ICsJCWlmIChudnEtPnJ4X2FycmF5KQo+Pj4gKwkJCW1zZy5tc2dfY29udHJvbCA9IHZo
-b3N0X25ldF9idWZfY29uc3VtZSgmbnZxLT5yeHEpOwo+Pj4gKwkJLyogT24gb3ZlcnJ1biwgdHJ1
-bmNhdGUgYW5kIGRpc2NhcmQgKi8KPj4+ICsJCWlmICh1bmxpa2VseShoZWFkY291bnQgPiBVSU9f
-TUFYSU9WKSkgewo+Pj4gKwkJCWlvdl9pdGVyX2luaXQoJm1zZy5tc2dfaXRlciwgUkVBRCwgdnEt
-PmlvdiwgMSwgMSk7Cj4+PiArCQkJZXJyID0gc29jay0+b3BzLT5yZWN2bXNnKHNvY2ssICZtc2cs
-Cj4+PiArCQkJCQkJIDEsIE1TR19ET05UV0FJVCB8IE1TR19UUlVOQyk7Cj4+PiArCQkJcHJfZGVi
-dWcoIkRpc2NhcmRlZCByeCBwYWNrZXQ6IGxlbiAlemRcbiIsIHNvY2tfbGVuKTsKPj4+ICsJCQlj
-b250aW51ZTsKPj4+ICsJCX0KPj4+ICAgIAkJLyogV2UgZG9uJ3QgbmVlZCB0byBiZSBub3RpZmll
-ZCBhZ2Fpbi4gKi8KPj4+ICAgIAkJaW92X2l0ZXJfaW5pdCgmbXNnLm1zZ19pdGVyLCBSRUFELCB2
-cS0+aW92LCBpbiwgdmhvc3RfbGVuKTsKPj4+ICAgIAkJZml4dXAgPSBtc2cubXNnX2l0ZXI7Cj4+
-IEkgc3VnZ2VzdCB0byByZW9yZGVyIHRoaXMgcGF0Y2ggdG8gMy8zLgo+Pgo+PiBUaGFua3MKPiBX
-aHk/IFRoaXMgZG9lc24ndCBjYXVzZSBhbnkgbmV3IGxlYWtzLCBkb2VzIGl0Pwo+CgpJdCBkb2Vz
-bid0LCBqdXN0IHRoaW5rIGl0IGNhbiBlYXNlIHRoZSBkb3duc3RyZWFtIGJhY2sgcG9ydGluZyBp
-biBjYXNlIApwYXRjaCAyLTMgd2VyZSBtaXNzZWQgaWYgc29tZWJvZHkgZGlkIGEgYmlzZWN0IGFu
-ZCBqdXN0IGJhY2twb3J0IHBhdGNoIDEuCgpUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Sat, 2 Dec 2017 00:55:39 +0800
+weiping zhang <zwp10758@gmail.com> wrote:
+
+> On Wed, Nov 29, 2017 at 10:50:44AM +0100, Cornelia Huck wrote:
+
+> > We hold an extra reference to the struct device, even after a failed
+> > register, and it is the responsibility of the caller to give up that
+> > reference once no longer needed. As callers toregister_virtio_device()
+> > embed the struct virtio_device, it needs to be their responsibility.
+> > Looking at the existing callers,
+> > 
+> > - ccw does a put_device
+> > - pci, mmio and remoteproc do nothing, causing a leak
+> > - vop does a free on the embedding structure, which is a big no-no
+> > 
+> > Thoughts?  
+> Sorry to relay late and thanks for your review.
+> Do you mean the "extra reference to the struct device" caused by the
+> following code?
+>  
+> err = device_register(&dev->dev);
+> 	device_add(dev)
+> 		get_device(dev)
+> If I'm understand right, I think there is no extra reference if we fail
+> virtio_register_device, because if device_register we don't get a
+> reference.
+
+The device_initialize() already gives you a reference. If device_add()
+fails, it has cleaned up any additional reference it might have
+obtained, but the initial reference is still there and needs to be
+released by the caller.
