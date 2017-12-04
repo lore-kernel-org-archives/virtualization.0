@@ -1,13 +1,12 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH] virtio_mmio: add cleanup for virtio_mmio_probe
-Date: Mon, 4 Dec 2017 11:24:55 +0100
-Message-ID: <20171204112455.33dad9c2.cohuck@redhat.com>
-References: <20171201175140.GA19140@localhost.didichuxing.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Mon, 4 Dec 2017 15:25:48 +0200
+Message-ID: <20171204152548-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171201175140.GA19140@localhost.didichuxing.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,73 +16,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: weiping zhang <zwp10758@gmail.com>
-Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: mhocko@suse.com, kvm@vger.kernel.org, mst@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, zhangweiping@didichuxing.com, marcandre.lureau@redhat.com, jstancek@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2 Dec 2017 01:51:40 +0800
-weiping zhang <zwp10758@gmail.com> wrote:
+The following changes since commit c1d0c3f623ada808904dec676da0126f5b800630:
 
-> cleanup all resource allocated by virtio_mmio_probe.
-> 
-> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
-> ---
->  drivers/virtio/virtio_mmio.c | 34 ++++++++++++++++++++++++++--------
->  1 file changed, 26 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 74dc717..3fd0e66 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -513,8 +513,10 @@ static int virtio_mmio_probe(struct platform_device *pdev)
->  		return -EBUSY;
->  
->  	vm_dev = devm_kzalloc(&pdev->dev, sizeof(*vm_dev), GFP_KERNEL);
-> -	if (!vm_dev)
-> -		return  -ENOMEM;
-> +	if (!vm_dev) {
-> +		rc =  -ENOMEM;
+  fw_cfg: fix the command line module name (2017-11-14 23:57:40 +0200)
 
-Touching this would be a good time to remove the extra space in front
-of the -ENOMEM :)
+are available in the Git repository at:
 
-> +		goto free_mem;
-> +	}
->  
->  	vm_dev->vdev.dev.parent = &pdev->dev;
->  	vm_dev->vdev.dev.release = virtio_mmio_release_dev_empty;
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-(...)
+for you to fetch changes up to d9e427f6ab8142d6868eb719e6a7851aafea56b6:
 
-> @@ -573,7 +580,18 @@ static int virtio_mmio_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, vm_dev);
->  
-> -	return register_virtio_device(&vm_dev->vdev);
-> +	rc = register_virtio_device(&vm_dev->vdev);
-> +	if (rc)
-> +		goto unmap;
-> +	return 0;
-> +unmap:
-> +	iounmap(vm_dev->base);
-> +free_mem:
-> +	devm_release_mem_region(&pdev->dev, mem->start,
-> +			resource_size(mem));
-> +free_vmdev:
-> +	devm_kfree(&pdev->dev, vm_dev);
+  virtio_balloon: fix increment of vb->num_pfns in fill_balloon() (2017-12-=
+01 16:55:45 +0200)
 
-I think this is problematic as vm_dev embeds a struct device (via
-embedding a struct virtio_device). I think the right way to do this is
-- call this only if register_virtio_device() has not been called
-- put the devm_kfree() into the ->release callback for the
-  virtio_device (IOW, replace virtio_mmio_release_dev_empty() with a
-  function that calls this)
-- do a put_device() if register_virtio_device() failed
+----------------------------------------------------------------
+virtio,qemu: bugfixes
 
-I might be missing some interaction between the usual driver model
-handling and devm resources, though.
+A couple of bugfixes that just became ready.
 
-> +	return rc;
->  }
->  
->  static int virtio_mmio_remove(struct platform_device *pdev)
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Jan Stancek (1):
+      virtio_balloon: fix increment of vb->num_pfns in fill_balloon()
+
+Marc-Andr=E9 Lureau (1):
+      fw_cfg: fix driver remove
+
+weiping zhang (1):
+      virtio: release virtio index when fail to device_register
+
+ drivers/firmware/qemu_fw_cfg.c  | 3 ++-
+ drivers/virtio/virtio.c         | 2 ++
+ drivers/virtio/virtio_balloon.c | 3 +--
+ 3 files changed, 5 insertions(+), 3 deletions(-)
