@@ -1,15 +1,21 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCHv2] virtio_mmio: fix devm cleanup
-Date: Wed, 13 Dec 2017 14:34:14 +0000
-Message-ID: <20171213143413.e3efqns53333uf5g__32301.5885115185$1513175691$gmane$org@lakrids.cambridge.arm.com>
-References: <20171212134550.18378-1-mark.rutland@arm.com>
-	<20171212180223.2dfb3b40.cohuck@redhat.com>
+From: Alexander Duyck <alexander.duyck@gmail.com>
+Subject: Re: [RFC] virtio-net: help live migrate SR-IOV devices
+Date: Mon, 4 Dec 2017 08:30:30 -0800
+Message-ID: <CAKgT0Uf5gta+CNM3ReybV3qNMJXqoT9BHvMjKRbd=PYOPQrQaA__27681.5354278826$1513195047$gmane$org@mail.gmail.com>
+References: <20171128112722.00003716@intel.com>
+	<0fb552d4-1bfc-e130-4fc1-87b83873916d@redhat.com>
+	<CAEHy93LneRXNWo64uyN2dfyDX6t18WN+YwVF2RXXLRnr0=Jhww@mail.gmail.com>
+	<20171130155612-mutt-send-email-mst@kernel.org>
+	<780cf854-83e1-b2a4-0f07-74372a972ca6@oracle.com>
+	<20171203065759-mutt-send-email-mst@kernel.org>
+	<CAEHy93+yhRtTQub0xk5W1jKRNisrcRBtNexcwRfWdSKPm5a4Gw@mail.gmail.com>
+	<20171203093524.26491cd0@xeon-e3>
+	<CAEHy93LEr5h81KGfJBr5Z4ZKaeWEWwQL1LYfZNXoVF_HB6TQGw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20171212180223.2dfb3b40.cohuck@redhat.com>
+In-Reply-To: <CAEHy93LEr5h81KGfJBr5Z4ZKaeWEWwQL1LYfZNXoVF_HB6TQGw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,86 +25,139 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>
-Cc: weiping zhang <zhangweiping@didichuxing.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: achiad shochat <achiad.mellanox@gmail.com>
+Cc: Jakub Kicinski <jakub.kicinski@netronome.com>, Hannes Frederic Sowa <hannes@redhat.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Shannon Nelson <shannon.nelson@oracle.com>, Achiad <achiad@mellanox.com>, Peter Waskiewicz Jr <peter.waskiewicz.jr@intel.com>, netdev <netdev@vger.kernel.org>, "Singhai,
+	Anjali" <anjali.singhai@intel.com>, Andy Gospodarek <gospo@broadcom.com>, Or Gerlitz <gerlitz.or@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 12, 2017 at 06:02:23PM +0100, Cornelia Huck wrote:
-> On Tue, 12 Dec 2017 13:45:50 +0000
-> Mark Rutland <mark.rutland@arm.com> wrote:
-> 
-> > Recent rework of the virtio_mmio probe/remove paths balanced a
-> > devm_ioremap() with an iounmap() rather than its devm variant. This ends
-> > up corrupting the devm datastructures, and results in the following
-> > boot-time splat on arm64 under QEMU 2.9.0:
-> > 
-> > [    3.450397] ------------[ cut here ]------------
-> > [    3.453822] Trying to vfree() nonexistent vm area (00000000c05b4844)
-> > [    3.460534] WARNING: CPU: 1 PID: 1 at mm/vmalloc.c:1525 __vunmap+0x1b8/0x220
-> > [    3.475898] Kernel panic - not syncing: panic_on_warn set ...
-> > [    3.475898]
-> > [    3.493933] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 4.15.0-rc3 #1
-> > [    3.513109] Hardware name: linux,dummy-virt (DT)
-> > [    3.525382] Call trace:
-> > [    3.531683]  dump_backtrace+0x0/0x368
-> > [    3.543921]  show_stack+0x20/0x30
-> > [    3.547767]  dump_stack+0x108/0x164
-> > [    3.559584]  panic+0x25c/0x51c
-> > [    3.569184]  __warn+0x29c/0x31c
-> > [    3.576023]  report_bug+0x1d4/0x290
-> > [    3.586069]  bug_handler.part.2+0x40/0x100
-> > [    3.597820]  bug_handler+0x4c/0x88
-> > [    3.608400]  brk_handler+0x11c/0x218
-> > [    3.613430]  do_debug_exception+0xe8/0x318
-> > [    3.627370]  el1_dbg+0x18/0x78
-> > [    3.634037]  __vunmap+0x1b8/0x220
-> > [    3.648747]  vunmap+0x6c/0xc0
-> > [    3.653864]  __iounmap+0x44/0x58
-> > [    3.659771]  devm_ioremap_release+0x34/0x68
-> > [    3.672983]  release_nodes+0x404/0x880
-> > [    3.683543]  devres_release_all+0x6c/0xe8
-> > [    3.695692]  driver_probe_device+0x250/0x828
-> > [    3.706187]  __driver_attach+0x190/0x210
-> > [    3.717645]  bus_for_each_dev+0x14c/0x1f0
-> > [    3.728633]  driver_attach+0x48/0x78
-> > [    3.740249]  bus_add_driver+0x26c/0x5b8
-> > [    3.752248]  driver_register+0x16c/0x398
-> > [    3.757211]  __platform_driver_register+0xd8/0x128
-> > [    3.770860]  virtio_mmio_init+0x1c/0x24
-> > [    3.782671]  do_one_initcall+0xe0/0x398
-> > [    3.791890]  kernel_init_freeable+0x594/0x660
-> > [    3.798514]  kernel_init+0x18/0x190
-> > [    3.810220]  ret_from_fork+0x10/0x18
-> > 
-> > To fix this, we can simply rip out the explicit cleanup that the devm
-> > infrastructure will do for us when our probe function returns an error
-> > code, or when our remove function returns.
-> > 
-> > We only need to ensure that we call put_device() if a call to
-> > register_virtio_device() fails in the probe path.
-> > 
-> > Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-> > Fixes: 7eb781b1bbb7136f ("virtio_mmio: add cleanup for virtio_mmio_probe")
-> > Fixes: 25f32223bce5c580 ("virtio_mmio: add cleanup for virtio_mmio_remove")
-> > Cc: Cornelia Huck <cohuck@redhat.com>
-> > Cc: Michael S. Tsirkin <mst@redhat.com>
-> > Cc: weiping zhang <zhangweiping@didichuxing.com>
-> > Cc: virtualization@lists.linux-foundation.org
-> > ---
-> >  drivers/virtio/virtio_mmio.c | 43 +++++++++----------------------------------
-> >  1 file changed, 9 insertions(+), 34 deletions(-)
-> 
-> In the hope that I have grokked the devm_* interface by now,
-> 
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+On Mon, Dec 4, 2017 at 1:51 AM, achiad shochat
+<achiad.mellanox@gmail.com> wrote:
+> On 3 December 2017 at 19:35, Stephen Hemminger
+> <stephen@networkplumber.org> wrote:
+>> On Sun, 3 Dec 2017 11:14:37 +0200
+>> achiad shochat <achiad.mellanox@gmail.com> wrote:
+>>
+>>> On 3 December 2017 at 07:05, Michael S. Tsirkin <mst@redhat.com> wrote:
+>>> > On Fri, Dec 01, 2017 at 12:08:59PM -0800, Shannon Nelson wrote:
+>>> >> On 11/30/2017 6:11 AM, Michael S. Tsirkin wrote:
+>>> >> > On Thu, Nov 30, 2017 at 10:08:45AM +0200, achiad shochat wrote:
+>>> >> > > Re. problem #2:
+>>> >> > > Indeed the best way to address it seems to be to enslave the VF driver
+>>> >> > > netdev under a persistent anchor netdev.
+>>> >> > > And it's indeed desired to allow (but not enforce) PV netdev and VF
+>>> >> > > netdev to work in conjunction.
+>>> >> > > And it's indeed desired that this enslavement logic work out-of-the box.
+>>> >> > > But in case of PV+VF some configurable policies must be in place (and
+>>> >> > > they'd better be generic rather than differ per PV technology).
+>>> >> > > For example - based on which characteristics should the PV+VF coupling
+>>> >> > > be done? netvsc uses MAC address, but that might not always be the
+>>> >> > > desire.
+>>> >> >
+>>> >> > It's a policy but not guest userspace policy.
+>>> >> >
+>>> >> > The hypervisor certainly knows.
+>>> >> >
+>>> >> > Are you concerned that someone might want to create two devices with the
+>>> >> > same MAC for an unrelated reason?  If so, hypervisor could easily set a
+>>> >> > flag in the virtio device to say "this is a backup, use MAC to find
+>>> >> > another device".
+>>> >>
+>>> >> This is something I was going to suggest: a flag or other configuration on
+>>> >> the virtio device to help control how this new feature is used.  I can
+>>> >> imagine this might be useful to control from either the hypervisor side or
+>>> >> the VM side.
+>>> >>
+>>> >> The hypervisor might want to (1) disable it (force it off), (2) enable it
+>>> >> for VM choice, or (3) force it on for the VM.  In case (2), the VM might be
+>>> >> able to chose whether it wants to make use of the feature, or stick with the
+>>> >> bonding solution.
+>>> >>
+>>> >> Either way, the kernel is making a feature available, and the user (VM or
+>>> >> hypervisor) is able to control it by selecting the feature based on the
+>>> >> policy desired.
+>>> >>
+>>> >> sln
+>>> >
+>>> > I'm not sure what's the feature that is available here.
+>>> >
+>>> > I saw this as a flag that says "this device shares backend with another
+>>> > network device which can be found using MAC, and that backend should be
+>>> > preferred".  kernel then forces configuration which uses that other
+>>> > backend - as long as it exists.
+>>> >
+>>> > However, please Cc virtio-dev mailing list if we are doing this since
+>>> > this is a spec extension.
+>>> >
+>>> > --
+>>> > MST
+>>>
+>>>
+>>> Can someone please explain why assume a virtio device is there at all??
+>>> I specified a case where there isn't any.
 
-Thanks!
+Migrating without any virtual device is going to be extremely
+challenging, especially in any kind of virtualization setup where the
+hosts are not homogeneous. By providing a virtio interface you can
+guarantee that at least 1 network interface is available on any given
+host, and then fail over to that as the least common denominator for
+any migration.
 
-Michael, could you please queue this as a fix for v4.15?
+>>> I second Jacob - having a netdev of one device driver enslave a netdev
+>>> of another device driver is an awkward a-symmetric model.
+>>> Regardless of whether they share the same backend device.
+>>> Only I am not sure the Linux Bond is the right choice.
+>>> e.g one may well want to use the virtio device also when the
+>>> pass-through device is available, e.g for multicasts, east-west
+>>> traffic, etc.
+>>> I'm not sure the Linux Bond fits that functionality.
+>>> And, as I hear in this thread, it is hard to make it work out of the box.
+>>> So I think the right thing would be to write a new dedicated module
+>>> for this purpose.
 
-This regressed arm64 VMs booting between v4.15-rc1 and v4-15-rc2,
-impacting our automated regression testing, and I'd very much like to
-get back to testing pure mainline rather than mainline + local fixes.
+This part I can sort of agree with. What if we were to look at
+providing a way to somehow advertise that the two devices were meant
+to be boded for virtualization purposes? For now lets call it a
+"virt-bond". Basically we could look at providing a means for virtio
+and VF drivers to advertise that they want this sort of bond. Then it
+would just be a matter of providing some sort of side channel to
+indicate where you want things like multicast/broadcast/east-west
+traffic to go.
 
-Thanks,
-Mark.
+>>> Re policy -
+>>> Indeed the HV can request a policy from the guest but that's not a
+>>> claim for the virtio device enslaving the pass-through device.
+>>> Any policy can be queried by the upper enslaving device.
+>>>
+>>> Bottom line - I do not see a single reason to have the virtio netdev
+>>> (nor netvsc or any other PV netdev) enslave another netdev by itself.
+>>> If we'd do it right with netvsc from the beginning we wouldn't need
+>>> this discussion at all...
+>>
+>> There are several issues with transparent migration.
+>> The first is that the SR-IOV device needs to be shut off for earlier
+>> in the migration process.
+>
+> That's not a given fact.
+> It's due to the DMA and it should be solve anyway.
+> Please read my first reply in this thread.
+
+For now it is a fact. We would need to do a drastic rewrite of the DMA
+API in the guest/host/QEMU/IOMMU in order to avoid it for now. So as a
+first step I would say we should look at using this bonding type
+solution. Being able to defer the VF eviction could be a next step for
+all this as it would allow for much better performance, but we still
+have too many cases where the VF might not be there after a migration.
+
+>> Next, the SR-IOV device in the migrated go guest environment maybe different.
+>> It might not exist at all, it might be at a different PCI address, or it
+>> could even be a different vendor/speed/model.
+>> Keeping a virtual network device around allows persisting the connectivity,
+>> during the process.
+>
+> Right, but that virtual device must not relate to any para-virt
+> specific technology (not netvsc, nor virtio).
+> Again, it seems you did not read my first reply.
+
+I would agree with the need to make this agnostic. Maybe we could look
+at the current netvsc solution and find a way to make it generic so it
+could be applied to any combination of paravirtual interface and PF.
