@@ -1,16 +1,17 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v18 10/10] virtio-balloon: don't report free pages when
-	page poisoning is enabled
-Date: Mon, 04 Dec 2017 13:39:28 +0800
-Message-ID: <5A24DF90.5070401__11486.6707161584$1512365858$gmane$org@intel.com>
-References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
-	<1511963726-34070-11-git-send-email-wei.w.wang@intel.com>
-	<20171201173951-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 1/3] vhost: fix skb leak in handle_rx()
+Date: Mon, 4 Dec 2017 15:18:32 +0800
+Message-ID: <a0787049-3f44-92cb-9aa1-c21374a4ffd9__47005.9333405972$1512371927$gmane$org@redhat.com>
+References: <1512107669-27572-1-git-send-email-wexu@redhat.com>
+	<1512107669-27572-2-git-send-email-wexu@redhat.com>
+	<09e75683-4c49-7446-e13e-93b316ed270c@redhat.com>
+	<20171201163728-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171201173951-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20171201163728-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,69 +22,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+Cc: mjrosato@linux.vnet.ibm.com, netdev@vger.kernel.org, wexu@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/01/2017 11:49 PM, Michael S. Tsirkin wrote:
-> On Wed, Nov 29, 2017 at 09:55:26PM +0800, Wei Wang wrote:
->> The guest free pages should not be discarded by the live migration thread
->> when page poisoning is enabled with PAGE_POISONING_NO_SANITY=n, because
->> skipping the transfer of such poisoned free pages will trigger false
->> positive when new pages are allocated and checked on the destination.
->> This patch skips the reporting of free pages in the above case.
->>
->> Reported-by: Michael S. Tsirkin <mst@redhat.com>
->> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
->> Cc: Michal Hocko <mhocko@suse.com>
->> ---
->>   drivers/virtio/virtio_balloon.c | 4 +++-
->>   1 file changed, 3 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
->> index 035bd3a..6ac4cff 100644
->> --- a/drivers/virtio/virtio_balloon.c
->> +++ b/drivers/virtio/virtio_balloon.c
->> @@ -652,7 +652,9 @@ static void report_free_page(struct work_struct *work)
->>   	/* Start by sending the obtained cmd id to the host with an outbuf */
->>   	send_one_desc(vb, vb->free_page_vq, virt_to_phys(&vb->start_cmd_id),
->>   		      sizeof(uint32_t), false, true, false);
->> -	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
->> +	if (!(page_poisoning_enabled() &&
->> +	    !IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY)))
->> +		walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
->>   	/*
->>   	 * End by sending the stop id to the host with an outbuf. Use the
->>   	 * non-batching mode here to trigger a kick after adding the stop id.
-> PAGE_POISONING_ZERO is actually OK.
-
-I think the 0-filled pages still need to be sent. If the host on the 
-destination doesn't use PAGE_POISONING_ZERO, then the pages it offers to 
-the guest on the destination may have non-0 values.
-
-
-
->
-> But I really would prefer it that we still send pages to host,
-> otherwise debugging becomes much harder.
->
-> And it does not have to be completely useless, even though
-> you can not discard them as they would be zero-filled then.
->
-> How about a config field telling host what should be there in the free
-> pages? This way even though host can not discard them, host can send
-> them out without reading them, still a win.
->
->
-
-OK, but I think we would need two 32-bit config registers:
-
-__u32 page_poison_val; // stores the PAGE_POISON VALUE, but it couldn't 
-indicate if page poisoning is in use
-
-__u32 special_features; // set bit 0 to indicate page poisoning is in use
-
-#define VIRTIO_BALLOON_SF_PAGE_POISON (1 << 0)
-
-
-Best,
-Wei
+CgpPbiAyMDE35bm0MTLmnIgwMeaXpSAyMjozNywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIEZyaSwgRGVjIDAxLCAyMDE3IGF0IDAzOjExOjA1UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+Cj4+IE9uIDIwMTflubQxMuaciDAx5pelIDEzOjU0LCB3ZXh1QHJlZGhhdC5jb20gd3Jv
+dGU6Cj4+PiBGcm9tOiBXZWkgWHUgPHdleHVAcmVkaGF0LmNvbT4KPj4+Cj4+PiBNYXR0aGV3IGZv
+dW5kIGEgcm91Z2hseSA0MCUgdGNwIHRocm91Z2hwdXQgcmVncmVzc2lvbiB3aXRoIGNvbW1pdAo+
+Pj4gYzY3ZGYxMWYodmhvc3RfbmV0OiB0cnkgYmF0Y2ggZGVxdWluZyBmcm9tIHNrYiBhcnJheSkg
+YXMgZGlzY3Vzc2VkCj4+PiBpbiB0aGUgZm9sbG93aW5nIHRocmVhZDoKPj4+IGh0dHBzOi8vd3d3
+Lm1haWwtYXJjaGl2ZS5jb20vbmV0ZGV2QHZnZXIua2VybmVsLm9yZy9tc2cxODc5MzYuaHRtbAo+
+Pj4KPj4+IEV2ZW50dWFsbHkgd2UgZmlndXJlZCBvdXQgdGhhdCBpdCB3YXMgYSBza2IgbGVhayBp
+biBoYW5kbGVfcngoKQo+Pj4gd2hlbiBzZW5kaW5nIHBhY2tldHMgdG8gdGhlIFZNLiBUaGlzIHVz
+dWFsbHkgaGFwcGVucyB3aGVuIGEgZ3Vlc3QKPj4+IGNhbiBub3QgZHJhaW4gb3V0IHZxIGFzIGZh
+c3QgYXMgdmhvc3QgZmlsbHMgaW4sIGFmdGVyd2FyZHMgaXQgc2V0cwo+Pj4gb2ZmIHRoZSB0cmFm
+ZmljIGphbSBhbmQgbGVha3Mgc2tiKHMpIHdoaWNoIG9jY3VycyBhcyBubyBoZWFkY291bnQKPj4+
+IHRvIHNlbmQgb24gdGhlIHZxIGZyb20gdmhvc3Qgc2lkZS4KPj4+Cj4+PiBUaGlzIGNhbiBiZSBh
+dm9pZGVkIGJ5IG1ha2luZyBzdXJlIHdlIGhhdmUgZ290IGVub3VnaCBoZWFkY291bnQKPj4+IGJl
+Zm9yZSBhY3R1YWxseSBjb25zdW1pbmcgYSBza2IgZnJvbSB0aGUgYmF0Y2hlZCByeCBhcnJheSB3
+aGlsZQo+Pj4gdHJhbnNtaXR0aW5nLCB3aGljaCBpcyBzaW1wbHkgZG9uZSBieSBtb3ZpbmcgY2hl
+Y2tpbmcgdGhlIHplcm8KPj4+IGhlYWRjb3VudCBhIGJpdCBhaGVhZC4KPj4+Cj4+PiBTaWduZWQt
+b2ZmLWJ5OiBXZWkgWHUgPHdleHVAcmVkaGF0LmNvbT4KPj4+IFJlcG9ydGVkLWJ5OiBNYXR0aGV3
+IFJvc2F0byA8bWpyb3NhdG9AbGludXgudm5ldC5pYm0uY29tPgo+Pj4gLS0tCj4+PiAgICBkcml2
+ZXJzL3Zob3N0L25ldC5jIHwgMjAgKysrKysrKysrKy0tLS0tLS0tLS0KPj4+ICAgIDEgZmlsZSBj
+aGFuZ2VkLCAxMCBpbnNlcnRpb25zKCspLCAxMCBkZWxldGlvbnMoLSkKPj4+Cj4+PiBkaWZmIC0t
+Z2l0IGEvZHJpdmVycy92aG9zdC9uZXQuYyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPj4+IGluZGV4
+IDhkNjI2ZDcuLmM3YmRlYjYgMTAwNjQ0Cj4+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L25ldC5jCj4+
+PiArKysgYi9kcml2ZXJzL3Zob3N0L25ldC5jCj4+PiBAQCAtNzc4LDE2ICs3NzgsNiBAQCBzdGF0
+aWMgdm9pZCBoYW5kbGVfcngoc3RydWN0IHZob3N0X25ldCAqbmV0KQo+Pj4gICAgCQkvKiBPbiBl
+cnJvciwgc3RvcCBoYW5kbGluZyB1bnRpbCB0aGUgbmV4dCBraWNrLiAqLwo+Pj4gICAgCQlpZiAo
+dW5saWtlbHkoaGVhZGNvdW50IDwgMCkpCj4+PiAgICAJCQlnb3RvIG91dDsKPj4+IC0JCWlmIChu
+dnEtPnJ4X2FycmF5KQo+Pj4gLQkJCW1zZy5tc2dfY29udHJvbCA9IHZob3N0X25ldF9idWZfY29u
+c3VtZSgmbnZxLT5yeHEpOwo+Pj4gLQkJLyogT24gb3ZlcnJ1biwgdHJ1bmNhdGUgYW5kIGRpc2Nh
+cmQgKi8KPj4+IC0JCWlmICh1bmxpa2VseShoZWFkY291bnQgPiBVSU9fTUFYSU9WKSkgewo+Pj4g
+LQkJCWlvdl9pdGVyX2luaXQoJm1zZy5tc2dfaXRlciwgUkVBRCwgdnEtPmlvdiwgMSwgMSk7Cj4+
+PiAtCQkJZXJyID0gc29jay0+b3BzLT5yZWN2bXNnKHNvY2ssICZtc2csCj4+PiAtCQkJCQkJIDEs
+IE1TR19ET05UV0FJVCB8IE1TR19UUlVOQyk7Cj4+PiAtCQkJcHJfZGVidWcoIkRpc2NhcmRlZCBy
+eCBwYWNrZXQ6IGxlbiAlemRcbiIsIHNvY2tfbGVuKTsKPj4+IC0JCQljb250aW51ZTsKPj4+IC0J
+CX0KPj4+ICAgIAkJLyogT0ssIG5vdyB3ZSBuZWVkIHRvIGtub3cgYWJvdXQgYWRkZWQgZGVzY3Jp
+cHRvcnMuICovCj4+PiAgICAJCWlmICghaGVhZGNvdW50KSB7Cj4+PiAgICAJCQlpZiAodW5saWtl
+bHkodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKSkpIHsKPj4+IEBAIC04MDAsNiAr
+NzkwLDE2IEBAIHN0YXRpYyB2b2lkIGhhbmRsZV9yeChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQpCj4+
+PiAgICAJCQkgKiB0aGV5IHJlZmlsbGVkLiAqLwo+Pj4gICAgCQkJZ290byBvdXQ7Cj4+PiAgICAJ
+CX0KPj4+ICsJCWlmIChudnEtPnJ4X2FycmF5KQo+Pj4gKwkJCW1zZy5tc2dfY29udHJvbCA9IHZo
+b3N0X25ldF9idWZfY29uc3VtZSgmbnZxLT5yeHEpOwo+Pj4gKwkJLyogT24gb3ZlcnJ1biwgdHJ1
+bmNhdGUgYW5kIGRpc2NhcmQgKi8KPj4+ICsJCWlmICh1bmxpa2VseShoZWFkY291bnQgPiBVSU9f
+TUFYSU9WKSkgewo+Pj4gKwkJCWlvdl9pdGVyX2luaXQoJm1zZy5tc2dfaXRlciwgUkVBRCwgdnEt
+PmlvdiwgMSwgMSk7Cj4+PiArCQkJZXJyID0gc29jay0+b3BzLT5yZWN2bXNnKHNvY2ssICZtc2cs
+Cj4+PiArCQkJCQkJIDEsIE1TR19ET05UV0FJVCB8IE1TR19UUlVOQyk7Cj4+PiArCQkJcHJfZGVi
+dWcoIkRpc2NhcmRlZCByeCBwYWNrZXQ6IGxlbiAlemRcbiIsIHNvY2tfbGVuKTsKPj4+ICsJCQlj
+b250aW51ZTsKPj4+ICsJCX0KPj4+ICAgIAkJLyogV2UgZG9uJ3QgbmVlZCB0byBiZSBub3RpZmll
+ZCBhZ2Fpbi4gKi8KPj4+ICAgIAkJaW92X2l0ZXJfaW5pdCgmbXNnLm1zZ19pdGVyLCBSRUFELCB2
+cS0+aW92LCBpbiwgdmhvc3RfbGVuKTsKPj4+ICAgIAkJZml4dXAgPSBtc2cubXNnX2l0ZXI7Cj4+
+IEkgc3VnZ2VzdCB0byByZW9yZGVyIHRoaXMgcGF0Y2ggdG8gMy8zLgo+Pgo+PiBUaGFua3MKPiBX
+aHk/IFRoaXMgZG9lc24ndCBjYXVzZSBhbnkgbmV3IGxlYWtzLCBkb2VzIGl0Pwo+CgpJdCBkb2Vz
+bid0LCBqdXN0IHRoaW5rIGl0IGNhbiBlYXNlIHRoZSBkb3duc3RyZWFtIGJhY2sgcG9ydGluZyBp
+biBjYXNlIApwYXRjaCAyLTMgd2VyZSBtaXNzZWQgaWYgc29tZWJvZHkgZGlkIGEgYmlzZWN0IGFu
+ZCBqdXN0IGJhY2twb3J0IHBhdGNoIDEuCgpUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
