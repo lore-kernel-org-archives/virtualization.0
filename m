@@ -1,16 +1,25 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] ptr_ring: add barriers
-Date: Wed, 6 Dec 2017 11:21:54 +0800
-Message-ID: <4de6d61a-6c49-9298-ca11-9b53aa5254ba__22151.1346208446$1512565635$gmane$org@redhat.com>
-References: <1512501990-30029-1-git-send-email-mst@redhat.com>
-	<96e8cec4-37db-b41d-b02b-767a21d9efba@redhat.com>
-	<20171206045247-mutt-send-email-mst@kernel.org>
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: Re: [PATCH tip/core/rcu 21/21] drivers/vhost: Remove now-redundant
+	read_barrier_depends()
+Date: Tue, 5 Dec 2017 15:39:55 -0800
+Message-ID: <20171205233955.GW7829__1331.20523901216$1512566713$gmane$org@linux.vnet.ibm.com>
+References: <20171205183946.GP3165@worktop.lehotels.local>
+	<20171205204928-mutt-send-email-mst@kernel.org>
+	<20171205191733.GQ3165@worktop.lehotels.local>
+	<20171205212053-mutt-send-email-mst@kernel.org>
+	<20171205193339.GP7829@linux.vnet.ibm.com>
+	<20171205215020-mutt-send-email-mst@kernel.org>
+	<20171205200801.GR7829@linux.vnet.ibm.com>
+	<20171205222857-mutt-send-email-mst@kernel.org>
+	<20171205215700.GV3165@worktop.lehotels.local>
+	<20171206000541-mutt-send-email-mst@kernel.org>
+Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171206045247-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20171206000541-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,60 +30,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: George Cherian <george.cherian@cavium.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, davem@davemloft.net
+Cc: tglx@linutronix.de, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, fweisbec@gmail.com, jiangshanlai@gmail.com, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, edumazet@google.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, oleg@redhat.com, dipankar@in.ibm.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MTLmnIgwNuaXpSAxMDo1MywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFdlZCwgRGVjIDA2LCAyMDE3IGF0IDEwOjMxOjM5QU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Cj4+IE9uIDIwMTflubQxMuaciDA25pelIDAzOjI5LCBNaWNoYWVsIFMuIFRzaXJraW4g
-d3JvdGU6Cj4+PiBVc2VycyBvZiBwdHJfcmluZyBleHBlY3QgdGhhdCBpdCdzIHNhZmUgdG8gZ2l2
-ZSB0aGUKPj4+IGRhdGEgc3RydWN0dXJlIGEgcG9pbnRlciBhbmQgaGF2ZSBpdCBiZSBhdmFpbGFi
-bGUKPj4+IHRvIGNvbnN1bWVycywgYnV0IHRoYXQgYWN0dWFsbHkgcmVxdWlyZXMgYW4gc21iX3dt
-Ygo+Pj4gb3IgYSBzdHJvbmdlciBiYXJyaWVyLgo+Pj4KPj4+IEluIGFic2VuY2Ugb2Ygc3VjaCBi
-YXJyaWVycyBhbmQgb24gYXJjaGl0ZWN0dXJlcyB0aGF0IHJlb3JkZXIgd3JpdGVzLAo+Pj4gY29u
-c3VtZXIgbWlnaHQgcmVhZCBhbiB1bj1pbml0aWFsaXplZCB2YWx1ZSBmcm9tIGFuIHNrYiBwb2lu
-dGVyIHN0b3JlZAo+Pj4gaW4gdGhlIHNrYiBhcnJheS4gIFRoaXMgd2FzIG9ic2VydmVkIGNhdXNp
-bmcgY3Jhc2hlcy4KPj4+Cj4+PiBUbyBmaXgsIGFkZCBtZW1vcnkgYmFycmllcnMuICBUaGUgYmFy
-cmllciB3ZSB1c2UgaXMgYSB3bWIsIHRoZQo+Pj4gYXNzdW1wdGlvbiBiZWluZyB0aGF0IHByb2R1
-Y2VycyBkbyBub3QgbmVlZCB0byByZWFkIHRoZSB2YWx1ZSBzbyB3ZSBkbwo+Pj4gbm90IG5lZWQg
-dG8gb3JkZXIgdGhlc2UgcmVhZHMuCj4+Pgo+Pj4gUmVwb3J0ZWQtYnk6IEdlb3JnZSBDaGVyaWFu
-IDxnZW9yZ2UuY2hlcmlhbkBjYXZpdW0uY29tPgo+Pj4gU3VnZ2VzdGVkLWJ5OiBKYXNvbiBXYW5n
-IDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+Pj4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2ly
-a2luIDxtc3RAcmVkaGF0LmNvbT4KPj4+IC0tLQo+Pj4KPj4+IEdlb3JnZSwgY291bGQgeW91IHBs
-cyByZXBvcnQgd2hldGhlciB0aGlzIHBhdGNoIGZpeGVzCj4+PiB0aGUgaXNzdWUgZm9yIHlvdT8K
-Pj4+Cj4+PiBUaGlzIHNlZW1zIHRvIGJlIG5lZWRlZCBpbiBzdGFibGUgYXMgd2VsbC4KPj4+Cj4+
-Pgo+Pj4KPj4+Cj4+PiAgICBpbmNsdWRlL2xpbnV4L3B0cl9yaW5nLmggfCA5ICsrKysrKysrKwo+
-Pj4gICAgMSBmaWxlIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKQo+Pj4KPj4+IGRpZmYgLS1naXQg
-YS9pbmNsdWRlL2xpbnV4L3B0cl9yaW5nLmggYi9pbmNsdWRlL2xpbnV4L3B0cl9yaW5nLmgKPj4+
-IGluZGV4IDM3YjRiYjIuLjY4NjZkZjQgMTAwNjQ0Cj4+PiAtLS0gYS9pbmNsdWRlL2xpbnV4L3B0
-cl9yaW5nLmgKPj4+ICsrKyBiL2luY2x1ZGUvbGludXgvcHRyX3JpbmcuaAo+Pj4gQEAgLTEwMSwx
-MiArMTAxLDE4IEBAIHN0YXRpYyBpbmxpbmUgYm9vbCBwdHJfcmluZ19mdWxsX2JoKHN0cnVjdCBw
-dHJfcmluZyAqcikKPj4+ICAgIC8qIE5vdGU6IGNhbGxlcnMgaW52b2tpbmcgdGhpcyBpbiBhIGxv
-b3AgbXVzdCB1c2UgYSBjb21waWxlciBiYXJyaWVyLAo+Pj4gICAgICogZm9yIGV4YW1wbGUgY3B1
-X3JlbGF4KCkuIENhbGxlcnMgbXVzdCBob2xkIHByb2R1Y2VyX2xvY2suCj4+PiArICogQ2FsbGVy
-cyBhcmUgcmVzcG9uc2libGUgZm9yIG1ha2luZyBzdXJlIHBvaW50ZXIgdGhhdCBpcyBiZWluZyBx
-dWV1ZWQKPj4+ICsgKiBwb2ludHMgdG8gYSB2YWxpZCBkYXRhLgo+Pj4gICAgICovCj4+PiAgICBz
-dGF0aWMgaW5saW5lIGludCBfX3B0cl9yaW5nX3Byb2R1Y2Uoc3RydWN0IHB0cl9yaW5nICpyLCB2
-b2lkICpwdHIpCj4+PiAgICB7Cj4+PiAgICAJaWYgKHVubGlrZWx5KCFyLT5zaXplKSB8fCByLT5x
-dWV1ZVtyLT5wcm9kdWNlcl0pCj4+PiAgICAJCXJldHVybiAtRU5PU1BDOwo+Pj4gKwkvKiBNYWtl
-IHN1cmUgdGhlIHBvaW50ZXIgd2UgYXJlIHN0b3JpbmcgcG9pbnRzIHRvIGEgdmFsaWQgZGF0YS4g
-Ki8KPj4+ICsJLyogUGFpcnMgd2l0aCBzbXBfcmVhZF9iYXJyaWVyX2RlcGVuZHMgaW4gX19wdHJf
-cmluZ19jb25zdW1lLiAqLwo+Pj4gKwlzbXBfd21iKCk7Cj4+PiArCj4+PiAgICAJci0+cXVldWVb
-ci0+cHJvZHVjZXIrK10gPSBwdHI7Cj4+PiAgICAJaWYgKHVubGlrZWx5KHItPnByb2R1Y2VyID49
-IHItPnNpemUpKQo+Pj4gICAgCQlyLT5wcm9kdWNlciA9IDA7Cj4+PiBAQCAtMjc1LDYgKzI4MSw5
-IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCAqX19wdHJfcmluZ19jb25zdW1lKHN0cnVjdCBwdHJfcmlu
-ZyAqcikKPj4+ICAgIAlpZiAocHRyKQo+Pj4gICAgCQlfX3B0cl9yaW5nX2Rpc2NhcmRfb25lKHIp
-Owo+Pj4gKwkvKiBNYWtlIHN1cmUgYW55b25lIGFjY2Vzc2luZyBkYXRhIHRocm91Z2ggdGhlIHBv
-aW50ZXIgaXMgdXAgdG8gZGF0ZS4gKi8KPj4+ICsJLyogUGFpcnMgd2l0aCBzbXBfd21iIGluIF9f
-cHRyX3JpbmdfcHJvZHVjZS4gKi8KPj4+ICsJc21wX3JlYWRfYmFycmllcl9kZXBlbmRzKCk7Cj4+
-PiAgICAJcmV0dXJuIHB0cjsKPj4+ICAgIH0KPj4gSSB3YXMgdGhpbmtpbmcgd2hldGhlciBvciBu
-b3QgaXQncyBiZXR0ZXIgdG8gbW92ZSB0aG9zZSB0byB0aGUgY2FsbGVycy4gVGhlbgo+PiB3ZSBj
-YW4gc2F2ZSBsb3RzIG9mIGJhcnJpZXJzIGluIGUuZyBiYXRjaCBjb25zdW1pbmcuCj4+Cj4+IFRo
-YW5rcwo+IEJhdGNoIGNvbnN1bWVycyBvbmx5IGRvIHNtcF9yZWFkX2JhcnJpZXJfZGVwZW5kcyB3
-aGljaCBpcyBmcmVlIG9uCj4gbm9uLWFscGhhLiBJIHN1Z2dlc3Qgd2UgZG8gdGhlIHNpbXBsZSB0
-aGluZyBmb3Igc3RhYmxlIGFuZCByZXNlcnZlCj4gb3B0aW1pemF0aW9ucyBmb3IgbGF0ZXIuCj4K
-ClJpZ2h0LgoKQWNrZWQtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+CgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+On Wed, Dec 06, 2017 at 12:09:36AM +0200, Michael S. Tsirkin wrote:
+> On Tue, Dec 05, 2017 at 10:57:00PM +0100, Peter Zijlstra wrote:
+> > On Tue, Dec 05, 2017 at 11:24:49PM +0200, Michael S. Tsirkin wrote:
+> > > READ_ONCE is really all over the place (some code literally replaced all
+> > > memory accesses with READ/WRITE ONCE).
+> > 
+> > Yeah, so?
+> 
+> Oh my point was I can't just look for READ_ONCE and go
+> *that's the pair*. there are too many of these.
+> At Paul's suggestion I will document the pairing *this read once has a
+> barrier that is paired with that barrier*.
+> 
+> > Complain to the compiler people for forcing us into that.
+> 
+> In some cases when you end up with all accesses
+> going through read/write once volatile just might better.
+
+That is in fact what the jiffies counter does.  But you lose READ_ONCE()'s
+automatic handling of DEC Alpha when you take that approach.
+
+> > > Would an API like WRITE_POINTER()/smp_store_pointer make sense,
+> > > and READ_POINTER for symmetry?
+> > 
+> > No, the whole point of the exercise was to get away from the fact that
+> > dependent loads are special.
+> 
+> It's a pity that dependent stores are still special.
+
+We can make READ_ONCE() not be special at zero cost on non-Alpha
+systems, but both smp_wmb() and smp_store_release() are decidedly
+not free of added overhead.
+
+							Thanx, Paul
