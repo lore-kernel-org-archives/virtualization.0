@@ -1,8 +1,8 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH tip/core/rcu 21/21] drivers/vhost: Remove now-redundant
 	read_barrier_depends()
-Date: Tue, 5 Dec 2017 12:08:01 -0800
-Message-ID: <20171205200801.GR7829__36850.7387153388$1512504513$gmane$org@linux.vnet.ibm.com>
+Date: Tue, 5 Dec 2017 22:28:38 +0200
+Message-ID: <20171205222757-mutt-send-email-mst__3633.41059205613$1512505736$gmane$org@kernel.org>
 References: <20171201195053.GA23494@linux.vnet.ibm.com>
 	<1512157876-24665-21-git-send-email-paulmck@linux.vnet.ibm.com>
 	<20171205202928-mutt-send-email-mst@kernel.org>
@@ -12,13 +12,13 @@ References: <20171201195053.GA23494@linux.vnet.ibm.com>
 	<20171205212053-mutt-send-email-mst@kernel.org>
 	<20171205193339.GP7829@linux.vnet.ibm.com>
 	<20171205215020-mutt-send-email-mst@kernel.org>
-Reply-To: paulmck@linux.vnet.ibm.com
+	<20171205195752.GS3165@worktop.lehotels.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20171205215020-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20171205195752.GS3165@worktop.lehotels.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,31 +28,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: tglx@linutronix.de, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, fweisbec@gmail.com, jiangshanlai@gmail.com, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, edumazet@google.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, oleg@redhat.com, dipankar@in.ibm.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@kernel.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: tglx@linutronix.de, kvm@vger.kernel.org, fweisbec@gmail.com, jiangshanlai@gmail.com, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, edumazet@google.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, oleg@redhat.com, dipankar@in.ibm.com, akpm@linux-foundation.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 05, 2017 at 09:51:48PM +0200, Michael S. Tsirkin wrote:
-> On Tue, Dec 05, 2017 at 11:33:39AM -0800, Paul E. McKenney wrote:
-> > On Tue, Dec 05, 2017 at 09:24:21PM +0200, Michael S. Tsirkin wrote:
-
-[ . . . ]
-
-> > > and this barrier is no longer paired with anything until
-> > > you realize there's a dependency barrier within READ_ONCE.
+On Tue, Dec 05, 2017 at 08:57:52PM +0100, Peter Zijlstra wrote:
+> On Tue, Dec 05, 2017 at 09:51:48PM +0200, Michael S. Tsirkin wrote:
+> > > > WRITE_ONCE(obj->val, 1);
+> > > > smp_wmb();
+> > > > WRITE_ONCE(*foo, obj);
 > > > 
-> > > Barrier pairing was a useful tool to check code validity,
-> > > maybe there are other, better tools now.
+> > > I believe Peter was instead suggesting:
+> > > 
+> > > WRITE_ONCE(obj->val, 1);
+> > > smp_store_release(foo, obj);
 > > 
-> > There are quite a few people who say that smp_store_release() is
-> > easier for the tools to analyze than is smp_wmb().  My experience with
-> > smp_read_barrier_depends() and rcu_dereference() leads me to believe
-> > that they are correct.
+> > Isn't that more expensive though?
 > 
-> OK, but smp_store_release is still not paired with anything since we
-> rely on READ_ONCE to include the implicit dpendendency barrier.
+> Depends on the architecture. The only architecture where it is more
+> expensive and people actually still care about is ARM I think.
 
-Why wouldn't you consider the smp_store_release() to be paired with
-the new improved READ_ONCE()?
+Right. Why should I use the more expensive smp_store_release then?
 
-							Thanx, Paul
+-- 
+MST
