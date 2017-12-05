@@ -1,12 +1,22 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] ptr_ring: add barriers
-Date: Tue, 5 Dec 2017 21:29:37 +0200
-Message-ID: <1512501990-30029-1-git-send-email-mst@redhat.com>
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: Re: [PATCH tip/core/rcu 21/21] drivers/vhost: Remove now-redundant
+	read_barrier_depends()
+Date: Tue, 5 Dec 2017 11:33:39 -0800
+Message-ID: <20171205193339.GP7829@linux.vnet.ibm.com>
+References: <20171201195053.GA23494@linux.vnet.ibm.com>
+	<1512157876-24665-21-git-send-email-paulmck@linux.vnet.ibm.com>
+	<20171205202928-mutt-send-email-mst@kernel.org>
+	<20171205183946.GP3165@worktop.lehotels.local>
+	<20171205204928-mutt-send-email-mst@kernel.org>
+	<20171205191733.GQ3165@worktop.lehotels.local>
+	<20171205212053-mutt-send-email-mst@kernel.org>
+Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20171205212053-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,71 +26,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: George Cherian <george.cherian@cavium.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, davem@davemloft.net
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: tglx@linutronix.de, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, fweisbec@gmail.com, jiangshanlai@gmail.com, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, edumazet@google.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, oleg@redhat.com, dipankar@in.ibm.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Users of ptr_ring expect that it's safe to give the
-data structure a pointer and have it be available
-to consumers, but that actually requires an smb_wmb
-or a stronger barrier.
+On Tue, Dec 05, 2017 at 09:24:21PM +0200, Michael S. Tsirkin wrote:
+> On Tue, Dec 05, 2017 at 08:17:33PM +0100, Peter Zijlstra wrote:
+> > On Tue, Dec 05, 2017 at 08:57:46PM +0200, Michael S. Tsirkin wrote:
+> > 
+> > > I don't see WRITE_ONCE inserting any barriers, release or
+> > > write.
+> > 
+> > Correct, never claimed there was.
+> > 
+> > Just saying that:
+> > 
+> > 	obj = READ_ONCE(*foo);
+> > 	val = READ_ONCE(obj->val);
+> > 
+> > Never needs a barrier (except on Alpha and we want to make that go
+> > away). Simply because a CPU needs to complete the load of @obj before it
+> > can compute the address &obj->val. Thus the second load _must_ come
+> > after the first load and we get LOAD-LOAD ordering.
+> > 
+> > Alpha messing that up is a royal pain, and Alpha not being an
+> > active/living architecture is just not worth the pain of keeping this in
+> > the generic model.
+> > 
+> 
+> Right. What I am saying is that for writes you need
+> 
+> WRITE_ONCE(obj->val, 1);
+> smp_wmb();
+> WRITE_ONCE(*foo, obj);
 
-In absence of such barriers and on architectures that reorder writes,
-consumer might read an un=initialized value from an skb pointer stored
-in the skb array.  This was observed causing crashes.
+I believe Peter was instead suggesting:
 
-To fix, add memory barriers.  The barrier we use is a wmb, the
-assumption being that producers do not need to read the value so we do
-not need to order these reads.
+WRITE_ONCE(obj->val, 1);
+smp_store_release(foo, obj);
 
-Reported-by: George Cherian <george.cherian@cavium.com>
-Suggested-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+> and this barrier is no longer paired with anything until
+> you realize there's a dependency barrier within READ_ONCE.
+> 
+> Barrier pairing was a useful tool to check code validity,
+> maybe there are other, better tools now.
 
-George, could you pls report whether this patch fixes
-the issue for you?
+There are quite a few people who say that smp_store_release() is
+easier for the tools to analyze than is smp_wmb().  My experience with
+smp_read_barrier_depends() and rcu_dereference() leads me to believe
+that they are correct.
 
-This seems to be needed in stable as well.
-
-
-
-
- include/linux/ptr_ring.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
-index 37b4bb2..6866df4 100644
---- a/include/linux/ptr_ring.h
-+++ b/include/linux/ptr_ring.h
-@@ -101,12 +101,18 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r)
- 
- /* Note: callers invoking this in a loop must use a compiler barrier,
-  * for example cpu_relax(). Callers must hold producer_lock.
-+ * Callers are responsible for making sure pointer that is being queued
-+ * points to a valid data.
-  */
- static inline int __ptr_ring_produce(struct ptr_ring *r, void *ptr)
- {
- 	if (unlikely(!r->size) || r->queue[r->producer])
- 		return -ENOSPC;
- 
-+	/* Make sure the pointer we are storing points to a valid data. */
-+	/* Pairs with smp_read_barrier_depends in __ptr_ring_consume. */
-+	smp_wmb();
-+
- 	r->queue[r->producer++] = ptr;
- 	if (unlikely(r->producer >= r->size))
- 		r->producer = 0;
-@@ -275,6 +281,9 @@ static inline void *__ptr_ring_consume(struct ptr_ring *r)
- 	if (ptr)
- 		__ptr_ring_discard_one(r);
- 
-+	/* Make sure anyone accessing data through the pointer is up to date. */
-+	/* Pairs with smp_wmb in __ptr_ring_produce. */
-+	smp_read_barrier_depends();
- 	return ptr;
- }
- 
--- 
-MST
+							Thanx, Paul
