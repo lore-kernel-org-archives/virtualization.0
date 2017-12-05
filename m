@@ -1,23 +1,20 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] virtio-net: help live migrate SR-IOV devices
-Date: Tue, 5 Dec 2017 21:20:07 +0200
-Message-ID: <20171205211603-mutt-send-email-mst__3002.96363789148$1512501623$gmane$org@kernel.org>
-References: <0fb552d4-1bfc-e130-4fc1-87b83873916d@redhat.com>
-	<CAEHy93LneRXNWo64uyN2dfyDX6t18WN+YwVF2RXXLRnr0=Jhww@mail.gmail.com>
-	<20171130155612-mutt-send-email-mst@kernel.org>
-	<780cf854-83e1-b2a4-0f07-74372a972ca6@oracle.com>
-	<20171203065759-mutt-send-email-mst@kernel.org>
-	<CAEHy93+yhRtTQub0xk5W1jKRNisrcRBtNexcwRfWdSKPm5a4Gw@mail.gmail.com>
-	<20171203093524.26491cd0@xeon-e3>
-	<CAEHy93LEr5h81KGfJBr5Z4ZKaeWEWwQL1LYfZNXoVF_HB6TQGw@mail.gmail.com>
-	<CAKgT0Uf5gta+CNM3ReybV3qNMJXqoT9BHvMjKRbd=PYOPQrQaA@mail.gmail.com>
-	<CAEHy93Kw-GePsraaAkVZNbOwt=rDPMVjmwuU22004LHCAoSSFA@mail.gmail.com>
+Subject: Re: [PATCH tip/core/rcu 21/21] drivers/vhost: Remove now-redundant
+	read_barrier_depends()
+Date: Tue, 5 Dec 2017 21:24:21 +0200
+Message-ID: <20171205212053-mutt-send-email-mst@kernel.org>
+References: <20171201195053.GA23494@linux.vnet.ibm.com>
+	<1512157876-24665-21-git-send-email-paulmck@linux.vnet.ibm.com>
+	<20171205202928-mutt-send-email-mst@kernel.org>
+	<20171205183946.GP3165@worktop.lehotels.local>
+	<20171205204928-mutt-send-email-mst@kernel.org>
+	<20171205191733.GQ3165@worktop.lehotels.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAEHy93Kw-GePsraaAkVZNbOwt=rDPMVjmwuU22004LHCAoSSFA@mail.gmail.com>
+In-Reply-To: <20171205191733.GQ3165@worktop.lehotels.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,24 +24,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: achiad shochat <achiad.mellanox@gmail.com>
-Cc: Jakub Kicinski <jakub.kicinski@netronome.com>, Hannes Frederic Sowa <hannes@redhat.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Shannon Nelson <shannon.nelson@oracle.com>, Achiad <achiad@mellanox.com>, Peter Waskiewicz Jr <peter.waskiewicz.jr@intel.com>, netdev <netdev@vger.kernel.org>, "Singhai,
-	Anjali" <anjali.singhai@intel.com>, Andy Gospodarek <gospo@broadcom.com>, Or Gerlitz <gerlitz.or@gmail.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: tglx@linutronix.de, kvm@vger.kernel.org, fweisbec@gmail.com, jiangshanlai@gmail.com, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, edumazet@google.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, oleg@redhat.com, dipankar@in.ibm.com, akpm@linux-foundation.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 05, 2017 at 11:59:17AM +0200, achiad shochat wrote:
-> Then we'll have a single solution for both netvsc and virtio (and any
-> other PV device).
-> And we could handle the VF DMA dirt issue agnostically.
+On Tue, Dec 05, 2017 at 08:17:33PM +0100, Peter Zijlstra wrote:
+> On Tue, Dec 05, 2017 at 08:57:46PM +0200, Michael S. Tsirkin wrote:
+> 
+> > I don't see WRITE_ONCE inserting any barriers, release or
+> > write.
+> 
+> Correct, never claimed there was.
+> 
+> Just saying that:
+> 
+> 	obj = READ_ONCE(*foo);
+> 	val = READ_ONCE(obj->val);
+> 
+> Never needs a barrier (except on Alpha and we want to make that go
+> away). Simply because a CPU needs to complete the load of @obj before it
+> can compute the address &obj->val. Thus the second load _must_ come
+> after the first load and we get LOAD-LOAD ordering.
+> 
+> Alpha messing that up is a royal pain, and Alpha not being an
+> active/living architecture is just not worth the pain of keeping this in
+> the generic model.
+> 
 
-For the record, I won't block patches adding this kist to virtio
-on the basis that they must be generic. It's not a lot
-of code, implementation can come first, prettify later.
+Right. What I am saying is that for writes you need
 
-But we do need to have a discussion about how devices are paired.
-I am not sure using just MAC works. E.g. some passthrough
-devices don't give host ability to set the MAC.
-Are these worth worrying about?
+WRITE_ONCE(obj->val, 1);
+smp_wmb();
+WRITE_ONCE(*foo, obj);
+
+and this barrier is no longer paired with anything until
+you realize there's a dependency barrier within READ_ONCE.
+
+Barrier pairing was a useful tool to check code validity,
+maybe there are other, better tools now.
+
 
 -- 
 MST
