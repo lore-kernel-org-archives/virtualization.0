@@ -1,14 +1,24 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v2 1/2] virtio_mmio: add cleanup for virtio_mmio_probe
-Date: Wed, 6 Dec 2017 12:11:53 +0100
-Message-ID: <20171206121153.5f075096.cohuck@redhat.com>
-References: <cover.1512445595.git.zhangweiping@didichuxing.com>
-	<40b3946d54c4a08b2ce3741f4d27bff99ec2f6c8.1512445595.git.zhangweiping@didichuxing.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH tip/core/rcu 21/21] drivers/vhost: Remove now-redundant
+	read_barrier_depends()
+Date: Tue, 5 Dec 2017 23:42:44 +0200
+Message-ID: <20171205232516-mutt-send-email-mst__13246.7092284516$1512560255$gmane$org@kernel.org>
+References: <20171205202928-mutt-send-email-mst@kernel.org>
+	<20171205183946.GP3165@worktop.lehotels.local>
+	<20171205204928-mutt-send-email-mst@kernel.org>
+	<20171205191733.GQ3165@worktop.lehotels.local>
+	<20171205212053-mutt-send-email-mst@kernel.org>
+	<20171205193339.GP7829@linux.vnet.ibm.com>
+	<20171205215020-mutt-send-email-mst@kernel.org>
+	<20171205195752.GS3165@worktop.lehotels.local>
+	<20171205222757-mutt-send-email-mst@kernel.org>
+	<20171205211735.GT3165@worktop.lehotels.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <40b3946d54c4a08b2ce3741f4d27bff99ec2f6c8.1512445595.git.zhangweiping@didichuxing.com>
+Content-Disposition: inline
+In-Reply-To: <20171205211735.GT3165@worktop.lehotels.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,81 +28,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: weiping zhang <zhangweiping@didichuxing.com>
-Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: tglx@linutronix.de, kvm@vger.kernel.org, fweisbec@gmail.com, jiangshanlai@gmail.com, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, edumazet@google.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, oleg@redhat.com, dipankar@in.ibm.com, akpm@linux-foundation.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 5 Dec 2017 19:57:10 +0800
-weiping zhang <zhangweiping@didichuxing.com> wrote:
-
-> As mentioned at drivers/base/core.c:
-> /*
->  * NOTE: _Never_ directly free @dev after calling this function, even
->  * if it returned an error! Always use put_device() to give up the
->  * reference initialized in this function instead.
->  */
+On Tue, Dec 05, 2017 at 10:17:35PM +0100, Peter Zijlstra wrote:
+> On Tue, Dec 05, 2017 at 10:28:38PM +0200, Michael S. Tsirkin wrote:
+> > On Tue, Dec 05, 2017 at 08:57:52PM +0100, Peter Zijlstra wrote:
+> > > On Tue, Dec 05, 2017 at 09:51:48PM +0200, Michael S. Tsirkin wrote:
+> > > > > > WRITE_ONCE(obj->val, 1);
+> > > > > > smp_wmb();
+> > > > > > WRITE_ONCE(*foo, obj);
+> > > > > 
+> > > > > I believe Peter was instead suggesting:
+> > > > > 
+> > > > > WRITE_ONCE(obj->val, 1);
+> > > > > smp_store_release(foo, obj);
+> > > > 
+> > > > Isn't that more expensive though?
+> > > 
+> > > Depends on the architecture. The only architecture where it is more
+> > > expensive and people actually still care about is ARM I think.
+> > 
+> > Right. Why should I use the more expensive smp_store_release then?
 > 
-> Normal we do cleanup for @vm_dev by contianer_of(@dev), but in this case
-> we need release @mem resource from @pdev and vm_dev->base. It make
-> @pdev->vm_dev.dev.release() too complicated, so put_device just put the
-> reference of register_virtio_device->device_register->device_initialize
-> and release all resource in virtio_mmio_probe.
+> Because it makes more sense. Memory ordering is hard enough, don't make
+> it harder still if you don't have to.
 
-Releasing the resources when unwinding on error can work, but I think
-there still are some issues (more below). This is all very tangly
-code :(
+I suspect I have to -  ptr_ring is a very low level construct used by
+netowrking on data path so making it a bit more complicated for
+a bit of performance is probably justified.
 
-> 
-> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
-> ---
->  drivers/virtio/virtio_mmio.c | 36 ++++++++++++++++++++++++++++--------
->  1 file changed, 28 insertions(+), 8 deletions(-)
-> 
-
-> @@ -573,7 +580,20 @@ static int virtio_mmio_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, vm_dev);
->  
-> -	return register_virtio_device(&vm_dev->vdev);
-> +	rc = register_virtio_device(&vm_dev->vdev);
-> +	if (rc)
-> +		goto put_dev;
-> +	return 0;
-> +put_dev:
-> +	put_device(&vm_dev->vdev.dev);
-
-Here you give up the extra reference from device_initialize(), which
-may or may not be the last reference (since you don't know if
-device_add() had already exposed the struct device to other code that
-might have acquired a reference). As the device has an empty release
-function, touching the device structure after that is not a real
-problem, but...
-
-> +unmap:
-> +	iounmap(vm_dev->base);
-> +free_mem:
-> +	devm_release_mem_region(&pdev->dev, mem->start,
-> +			resource_size(mem));
-> +free_vmdev:
-> +	devm_kfree(&pdev->dev, vm_dev);
-
-...unconditionally freeing the device here would be a problem if other
-code had acquired a reference above. (Unlikely, but we should try to
-get this right.)
-
-> +	return rc;
->  }
->  
->  static int virtio_mmio_remove(struct platform_device *pdev)
-
-So, I think there are basically two ways of doing that:
-- Move the cleanup into the currently empty release callback. Then, you
-  won't need to touch the remove function. The problem with that is
-  that you can't trigger a cleanup via put_device() if you did not call
-  register_virtio_device() yet.
-- Move just devm_kfree() into the release function. Cleanup the
-  resources here, do the put_device() last thing if had you called
-  register_virtio_device() before and devm_kfree() if you didn't.
-
-[Of course, I still might be missing some devm subtility, so other
-comments are welcome.]
+-- 
+MST
