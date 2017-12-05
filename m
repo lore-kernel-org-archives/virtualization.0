@@ -1,16 +1,14 @@
 From: weiping zhang <zwp10758@gmail.com>
-Subject: Re: [PATCH] virtio: release virtio index when fail to device_register
-Date: Tue, 5 Dec 2017 09:30:41 +0800
-Message-ID: <CAA70yB56O4cTdORgV9QKFRGtWe8N6Tr4WzTD2EoW6RQnWosekQ@mail.gmail.com>
-References: <20171129012301.GA6637@localhost.didichuxing.com>
-	<20171129105044.3a4b0ab3.cohuck@redhat.com>
-	<20171201165539.GA11865@localhost.didichuxing.com>
-	<20171204103842.3d8709a8.cohuck@redhat.com>
+Subject: Re: [PATCH] virtio_mmio: add cleanup for virtio_mmio_probe
+Date: Tue, 5 Dec 2017 09:36:43 +0800
+Message-ID: <CAA70yB6-Sp4mD=evkRQZJ=iUk3kY3TgBkYKFqr1GMfnHOhAbhw@mail.gmail.com>
+References: <20171201175140.GA19140@localhost.didichuxing.com>
+	<20171204112455.33dad9c2.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171204103842.3d8709a8.cohuck@redhat.com>
+In-Reply-To: <20171204112455.33dad9c2.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,46 +22,75 @@ To: Cornelia Huck <cohuck@redhat.com>
 Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-2017-12-04 17:38 GMT+08:00 Cornelia Huck <cohuck@redhat.com>:
-> On Sat, 2 Dec 2017 00:55:39 +0800
+2017-12-04 18:24 GMT+08:00 Cornelia Huck <cohuck@redhat.com>:
+> On Sat, 2 Dec 2017 01:51:40 +0800
 > weiping zhang <zwp10758@gmail.com> wrote:
 >
->> On Wed, Nov 29, 2017 at 10:50:44AM +0100, Cornelia Huck wrote:
->
->> > We hold an extra reference to the struct device, even after a failed
->> > register, and it is the responsibility of the caller to give up that
->> > reference once no longer needed. As callers toregister_virtio_device()
->> > embed the struct virtio_device, it needs to be their responsibility.
->> > Looking at the existing callers,
->> >
->> > - ccw does a put_device
->> > - pci, mmio and remoteproc do nothing, causing a leak
->> > - vop does a free on the embedding structure, which is a big no-no
->> >
->> > Thoughts?
->> Sorry to relay late and thanks for your review.
->> Do you mean the "extra reference to the struct device" caused by the
->> following code?
+>> cleanup all resource allocated by virtio_mmio_probe.
 >>
->> err = device_register(&dev->dev);
->>       device_add(dev)
->>               get_device(dev)
->> If I'm understand right, I think there is no extra reference if we fail
->> virtio_register_device, because if device_register we don't get a
->> reference.
+>> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+>> ---
+>>  drivers/virtio/virtio_mmio.c | 34 ++++++++++++++++++++++++++--------
+>>  1 file changed, 26 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+>> index 74dc717..3fd0e66 100644
+>> --- a/drivers/virtio/virtio_mmio.c
+>> +++ b/drivers/virtio/virtio_mmio.c
+>> @@ -513,8 +513,10 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+>>               return -EBUSY;
+>>
+>>       vm_dev = devm_kzalloc(&pdev->dev, sizeof(*vm_dev), GFP_KERNEL);
+>> -     if (!vm_dev)
+>> -             return  -ENOMEM;
+>> +     if (!vm_dev) {
+>> +             rc =  -ENOMEM;
 >
-> The device_initialize() already gives you a reference. If device_add()
-> fails, it has cleaned up any additional reference it might have
-> obtained, but the initial reference is still there and needs to be
-> released by the caller.
-
-Thanks your clarify, I also notice the comments at device_register,
-device_initialize, device_add,
-
- * NOTE: _Never_ directly free @dev after calling this function, even
- * if it returned an error! Always use put_device() to give up the
- * reference initialized in this function instead.
+> Touching this would be a good time to remove the extra space in front
+> of the -ENOMEM :)
+Thanks, I fix this at V2.
+>
+>> +             goto free_mem;
+>> +     }
+>>
+>>       vm_dev->vdev.dev.parent = &pdev->dev;
+>>       vm_dev->vdev.dev.release = virtio_mmio_release_dev_empty;
+>
+> (...)
+>
+>> @@ -573,7 +580,18 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+>>
+>>       platform_set_drvdata(pdev, vm_dev);
+>>
+>> -     return register_virtio_device(&vm_dev->vdev);
+>> +     rc = register_virtio_device(&vm_dev->vdev);
+>> +     if (rc)
+>> +             goto unmap;
+>> +     return 0;
+>> +unmap:
+>> +     iounmap(vm_dev->base);
+>> +free_mem:
+>> +     devm_release_mem_region(&pdev->dev, mem->start,
+>> +                     resource_size(mem));
+>> +free_vmdev:
+>> +     devm_kfree(&pdev->dev, vm_dev);
+>
+> I think this is problematic as vm_dev embeds a struct device (via
+> embedding a struct virtio_device). I think the right way to do this is
+> - call this only if register_virtio_device() has not been called
+> - put the devm_kfree() into the ->release callback for the
+>   virtio_device (IOW, replace virtio_mmio_release_dev_empty() with a
+>   function that calls this)
+> - do a put_device() if register_virtio_device() failed
+>
+> I might be missing some interaction between the usual driver model
+> handling and devm resources, though.
+>
+if fail in virtio_mmio_probe, we need free @mem of @pdev, vdev->base,
+so I prefer clean all this resource in virtio_mmio_probe itself, keep
+vdev.dev.release do nothing.
+also we need release these resources at virtio_mmio_remove.
+I'll send V2.
 
 --
-Thanks
-weiping
+thanks a ton
