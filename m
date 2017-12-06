@@ -1,15 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] ptr_ring: add barriers
-Date: Wed, 6 Dec 2017 04:53:56 +0200
-Message-ID: <20171206045247-mutt-send-email-mst__24449.9246626676$1512563946$gmane$org@kernel.org>
+Date: Wed, 6 Dec 2017 14:46:54 +0200
+Message-ID: <20171206144633-mutt-send-email-mst@kernel.org>
 References: <1512501990-30029-1-git-send-email-mst@redhat.com>
-	<96e8cec4-37db-b41d-b02b-767a21d9efba@redhat.com>
+	<7d1ce1b5-edba-b017-3131-37405f1b0c24@caviumnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <96e8cec4-37db-b41d-b02b-767a21d9efba@redhat.com>
+In-Reply-To: <7d1ce1b5-edba-b017-3131-37405f1b0c24@caviumnetworks.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,59 +19,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: George Cherian <gcherian@caviumnetworks.com>
 Cc: George Cherian <george.cherian@cavium.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBEZWMgMDYsIDIwMTcgYXQgMTA6MzE6MzlBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE35bm0MTLmnIgwNuaXpSAwMzoyOSwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gVXNlcnMgb2YgcHRyX3JpbmcgZXhwZWN0IHRoYXQgaXQncyBzYWZlIHRvIGdp
-dmUgdGhlCj4gPiBkYXRhIHN0cnVjdHVyZSBhIHBvaW50ZXIgYW5kIGhhdmUgaXQgYmUgYXZhaWxh
-YmxlCj4gPiB0byBjb25zdW1lcnMsIGJ1dCB0aGF0IGFjdHVhbGx5IHJlcXVpcmVzIGFuIHNtYl93
-bWIKPiA+IG9yIGEgc3Ryb25nZXIgYmFycmllci4KPiA+IAo+ID4gSW4gYWJzZW5jZSBvZiBzdWNo
-IGJhcnJpZXJzIGFuZCBvbiBhcmNoaXRlY3R1cmVzIHRoYXQgcmVvcmRlciB3cml0ZXMsCj4gPiBj
-b25zdW1lciBtaWdodCByZWFkIGFuIHVuPWluaXRpYWxpemVkIHZhbHVlIGZyb20gYW4gc2tiIHBv
-aW50ZXIgc3RvcmVkCj4gPiBpbiB0aGUgc2tiIGFycmF5LiAgVGhpcyB3YXMgb2JzZXJ2ZWQgY2F1
-c2luZyBjcmFzaGVzLgo+ID4gCj4gPiBUbyBmaXgsIGFkZCBtZW1vcnkgYmFycmllcnMuICBUaGUg
-YmFycmllciB3ZSB1c2UgaXMgYSB3bWIsIHRoZQo+ID4gYXNzdW1wdGlvbiBiZWluZyB0aGF0IHBy
-b2R1Y2VycyBkbyBub3QgbmVlZCB0byByZWFkIHRoZSB2YWx1ZSBzbyB3ZSBkbwo+ID4gbm90IG5l
-ZWQgdG8gb3JkZXIgdGhlc2UgcmVhZHMuCj4gPiAKPiA+IFJlcG9ydGVkLWJ5OiBHZW9yZ2UgQ2hl
-cmlhbiA8Z2VvcmdlLmNoZXJpYW5AY2F2aXVtLmNvbT4KPiA+IFN1Z2dlc3RlZC1ieTogSmFzb24g
-V2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiA+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4g
-VHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4gPiAtLS0KPiA+IAo+ID4gR2VvcmdlLCBjb3VsZCB5
-b3UgcGxzIHJlcG9ydCB3aGV0aGVyIHRoaXMgcGF0Y2ggZml4ZXMKPiA+IHRoZSBpc3N1ZSBmb3Ig
-eW91Pwo+ID4gCj4gPiBUaGlzIHNlZW1zIHRvIGJlIG5lZWRlZCBpbiBzdGFibGUgYXMgd2VsbC4K
-PiA+IAo+ID4gCj4gPiAKPiA+IAo+ID4gICBpbmNsdWRlL2xpbnV4L3B0cl9yaW5nLmggfCA5ICsr
-KysrKysrKwo+ID4gICAxIGZpbGUgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCspCj4gPiAKPiA+IGRp
-ZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L3B0cl9yaW5nLmggYi9pbmNsdWRlL2xpbnV4L3B0cl9y
-aW5nLmgKPiA+IGluZGV4IDM3YjRiYjIuLjY4NjZkZjQgMTAwNjQ0Cj4gPiAtLS0gYS9pbmNsdWRl
-L2xpbnV4L3B0cl9yaW5nLmgKPiA+ICsrKyBiL2luY2x1ZGUvbGludXgvcHRyX3JpbmcuaAo+ID4g
-QEAgLTEwMSwxMiArMTAxLDE4IEBAIHN0YXRpYyBpbmxpbmUgYm9vbCBwdHJfcmluZ19mdWxsX2Jo
-KHN0cnVjdCBwdHJfcmluZyAqcikKPiA+ICAgLyogTm90ZTogY2FsbGVycyBpbnZva2luZyB0aGlz
-IGluIGEgbG9vcCBtdXN0IHVzZSBhIGNvbXBpbGVyIGJhcnJpZXIsCj4gPiAgICAqIGZvciBleGFt
-cGxlIGNwdV9yZWxheCgpLiBDYWxsZXJzIG11c3QgaG9sZCBwcm9kdWNlcl9sb2NrLgo+ID4gKyAq
-IENhbGxlcnMgYXJlIHJlc3BvbnNpYmxlIGZvciBtYWtpbmcgc3VyZSBwb2ludGVyIHRoYXQgaXMg
-YmVpbmcgcXVldWVkCj4gPiArICogcG9pbnRzIHRvIGEgdmFsaWQgZGF0YS4KPiA+ICAgICovCj4g
-PiAgIHN0YXRpYyBpbmxpbmUgaW50IF9fcHRyX3JpbmdfcHJvZHVjZShzdHJ1Y3QgcHRyX3Jpbmcg
-KnIsIHZvaWQgKnB0cikKPiA+ICAgewo+ID4gICAJaWYgKHVubGlrZWx5KCFyLT5zaXplKSB8fCBy
-LT5xdWV1ZVtyLT5wcm9kdWNlcl0pCj4gPiAgIAkJcmV0dXJuIC1FTk9TUEM7Cj4gPiArCS8qIE1h
-a2Ugc3VyZSB0aGUgcG9pbnRlciB3ZSBhcmUgc3RvcmluZyBwb2ludHMgdG8gYSB2YWxpZCBkYXRh
-LiAqLwo+ID4gKwkvKiBQYWlycyB3aXRoIHNtcF9yZWFkX2JhcnJpZXJfZGVwZW5kcyBpbiBfX3B0
-cl9yaW5nX2NvbnN1bWUuICovCj4gPiArCXNtcF93bWIoKTsKPiA+ICsKPiA+ICAgCXItPnF1ZXVl
-W3ItPnByb2R1Y2VyKytdID0gcHRyOwo+ID4gICAJaWYgKHVubGlrZWx5KHItPnByb2R1Y2VyID49
-IHItPnNpemUpKQo+ID4gICAJCXItPnByb2R1Y2VyID0gMDsKPiA+IEBAIC0yNzUsNiArMjgxLDkg
-QEAgc3RhdGljIGlubGluZSB2b2lkICpfX3B0cl9yaW5nX2NvbnN1bWUoc3RydWN0IHB0cl9yaW5n
-ICpyKQo+ID4gICAJaWYgKHB0cikKPiA+ICAgCQlfX3B0cl9yaW5nX2Rpc2NhcmRfb25lKHIpOwo+
-ID4gKwkvKiBNYWtlIHN1cmUgYW55b25lIGFjY2Vzc2luZyBkYXRhIHRocm91Z2ggdGhlIHBvaW50
-ZXIgaXMgdXAgdG8gZGF0ZS4gKi8KPiA+ICsJLyogUGFpcnMgd2l0aCBzbXBfd21iIGluIF9fcHRy
-X3JpbmdfcHJvZHVjZS4gKi8KPiA+ICsJc21wX3JlYWRfYmFycmllcl9kZXBlbmRzKCk7Cj4gPiAg
-IAlyZXR1cm4gcHRyOwo+ID4gICB9Cj4gCj4gSSB3YXMgdGhpbmtpbmcgd2hldGhlciBvciBub3Qg
-aXQncyBiZXR0ZXIgdG8gbW92ZSB0aG9zZSB0byB0aGUgY2FsbGVycy4gVGhlbgo+IHdlIGNhbiBz
-YXZlIGxvdHMgb2YgYmFycmllcnMgaW4gZS5nIGJhdGNoIGNvbnN1bWluZy4KPiAKPiBUaGFua3MK
-CkJhdGNoIGNvbnN1bWVycyBvbmx5IGRvIHNtcF9yZWFkX2JhcnJpZXJfZGVwZW5kcyB3aGljaCBp
-cyBmcmVlIG9uCm5vbi1hbHBoYS4gSSBzdWdnZXN0IHdlIGRvIHRoZSBzaW1wbGUgdGhpbmcgZm9y
-IHN0YWJsZSBhbmQgcmVzZXJ2ZQpvcHRpbWl6YXRpb25zIGZvciBsYXRlci4KCi0tIApNU1QKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+On Wed, Dec 06, 2017 at 02:51:41PM +0530, George Cherian wrote:
+> Hi Michael,
+> 
+> 
+> On 12/06/2017 12:59 AM, Michael S. Tsirkin wrote:
+> > Users of ptr_ring expect that it's safe to give the
+> > data structure a pointer and have it be available
+> > to consumers, but that actually requires an smb_wmb
+> > or a stronger barrier.
+> This is not the exact situation we are seeing.
+
+Could you test the patch pls?
+
+> Let me try to explain the situation
+> 
+> Affected on ARM64 platform.
+> 1) tun_net_xmit calls skb_array_produce, which pushes the skb to the
+> ptr_ring, this push is protected by a producer_lock.
+> 
+> 2)Prior to this call the tun_net_xmit calls skb_orphan which calls the
+> skb->destructor and sets skb->destructor and skb->sk as NULL.
+> 
+> 2.a) These 2 writes are getting reordered
+> 
+> 3) At the same time in the receive side (tun_ring_recv), which gets executed
+> in another core calls skb_array_consume which pulls the skb from  ptr ring,
+> this pull is protected by a consumer lock.
+> 
+> 4) eventually calling the skb->destructor (sock_wfree) with stale values.
+> 
+> Also note that this issue is reproducible in a long run and doesn't happen
+> immediately after the launch of multiple VM's (infact the particular test
+> cases launches 56 VM's which does iperf back and forth)
+> 
+> > 
+> > In absence of such barriers and on architectures that reorder writes,
+> > consumer might read an un=initialized value from an skb pointer stored
+> > in the skb array.  This was observed causing crashes.
+> > 
+> > To fix, add memory barriers.  The barrier we use is a wmb, the
+> > assumption being that producers do not need to read the value so we do
+> > not need to order these reads.
+> It is not the case that producer is reading the value, but the consumer
+> reading stale value. So we need to have a strict rmb in place .
+> 
+> > 
+> > Reported-by: George Cherian <george.cherian@cavium.com>
+> > Suggested-by: Jason Wang <jasowang@redhat.com>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> > 
+> > George, could you pls report whether this patch fixes
+> > the issue for you?
+> > 
+> > This seems to be needed in stable as well.
+> > 
+> > 
+> > 
+> > 
+> >   include/linux/ptr_ring.h | 9 +++++++++
+> >   1 file changed, 9 insertions(+)
+> > 
+> > diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
+> > index 37b4bb2..6866df4 100644
+> > --- a/include/linux/ptr_ring.h
+> > +++ b/include/linux/ptr_ring.h
+> > @@ -101,12 +101,18 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r)
+> >   /* Note: callers invoking this in a loop must use a compiler barrier,
+> >    * for example cpu_relax(). Callers must hold producer_lock.
+> > + * Callers are responsible for making sure pointer that is being queued
+> > + * points to a valid data.
+> >    */
+> >   static inline int __ptr_ring_produce(struct ptr_ring *r, void *ptr)
+> >   {
+> >   	if (unlikely(!r->size) || r->queue[r->producer])
+> >   		return -ENOSPC;
+> > +	/* Make sure the pointer we are storing points to a valid data. */
+> > +	/* Pairs with smp_read_barrier_depends in __ptr_ring_consume. */
+> > +	smp_wmb();
+> > +
+> >   	r->queue[r->producer++] = ptr;
+> >   	if (unlikely(r->producer >= r->size))
+> >   		r->producer = 0;
+> > @@ -275,6 +281,9 @@ static inline void *__ptr_ring_consume(struct ptr_ring *r)
+> >   	if (ptr)
+> >   		__ptr_ring_discard_one(r);
+> > +	/* Make sure anyone accessing data through the pointer is up to date. */
+> > +	/* Pairs with smp_wmb in __ptr_ring_produce. */
+> > +	smp_read_barrier_depends();
+> >   	return ptr;
+> >   }
+> > 
