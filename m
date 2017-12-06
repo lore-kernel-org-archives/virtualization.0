@@ -1,14 +1,16 @@
-From: George Cherian <gcherian@caviumnetworks.com>
-Subject: Re: [PATCH] ptr_ring: add barriers
-Date: Wed, 6 Dec 2017 14:51:41 +0530
-Message-ID: <7d1ce1b5-edba-b017-3131-37405f1b0c24__25903.2535869212$1513195085$gmane$org@caviumnetworks.com>
-References: <1512501990-30029-1-git-send-email-mst@redhat.com>
+From: Fabien DESSENNE <fabien.dessenne@st.com>
+Subject: Re: [PATCH RFC 0/4] crypto: engine - Permit to enqueue all async
+	requests
+Date: Wed, 6 Dec 2017 10:59:47 +0000
+Message-ID: <4d58a1fc-8577-3fdb-ae6b-e1fade7c6582__25499.5649135255$1513195100$gmane$org@st.com>
+References: <20171129084121.9385-1-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1512501990-30029-1-git-send-email-mst@redhat.com>
+In-Reply-To: <20171129084121.9385-1-clabbe.montjoie@gmail.com>
 Content-Language: en-US
+Content-ID: <F96E4AD9C0156349A90A477D7327A9EF@st.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,99 +20,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: George Cherian <george.cherian@cavium.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, davem@davemloft.net
+To: Corentin Labbe <clabbe.montjoie@gmail.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, Alexandre TORGUE <alexandre.torgue@st.com>, "arei.gonglei@huawei.com" <arei.gonglei@huawei.com>, "davem@davemloft.net" <davem@davemloft.net>, "jasowang@redhat.com" <jasowang@redhat.com>, "mcoquelin.stm32@gmail.com" <mcoquelin.stm32@gmail.com>, "mst@redhat.com" <mst@redhat.com>, Lionel DEBIEVE <lionel.debieve@st.com>, Benjamin GAIGNARD <benjamin.gaignard@st.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
+Hi Corentin,
 
 
-On 12/06/2017 12:59 AM, Michael S. Tsirkin wrote:
-> Users of ptr_ring expect that it's safe to give the
-> data structure a pointer and have it be available
-> to consumers, but that actually requires an smb_wmb
-> or a stronger barrier.
-This is not the exact situation we are seeing.
-Let me try to explain the situation
+I am fine with this proposal: it is generic enough and I have been able 
+to test and run the crypto engine with aead_request without changing any 
+single line of code.
 
-Affected on ARM64 platform.
-1) tun_net_xmit calls skb_array_produce, which pushes the skb to the 
-ptr_ring, this push is protected by a producer_lock.
+This is what I need to be able to send the AEAD extension of the 
+stm32-cryp driver (successfully tested with your engine upgrade proposal).
 
-2)Prior to this call the tun_net_xmit calls skb_orphan which calls the 
-skb->destructor and sets skb->destructor and skb->sk as NULL.
 
-2.a) These 2 writes are getting reordered
+I have also tested the stm32-hash patch.
 
-3) At the same time in the receive side (tun_ring_recv), which gets 
-executed in another core calls skb_array_consume which pulls the skb 
-from  ptr ring, this pull is protected by a consumer lock.
+Note that stm32-cryp (new driver applied by Herbert recently 
+[https://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git/commit/?id=9e054ec21ef8344345b28603fb272fe999f735db]) 
+would also need to be converted to the new crypto engine API : this is a 
+trivial patch.
 
-4) eventually calling the skb->destructor (sock_wfree) with stale values.
+Thank you for your proposal, I hope that this proposal is fine for 
+Herbert too.
 
-Also note that this issue is reproducible in a long run and doesn't 
-happen immediately after the launch of multiple VM's (infact the 
-particular test cases launches 56 VM's which does iperf back and forth)
+BR
 
-> 
-> In absence of such barriers and on architectures that reorder writes,
-> consumer might read an un=initialized value from an skb pointer stored
-> in the skb array.  This was observed causing crashes.
-> 
-> To fix, add memory barriers.  The barrier we use is a wmb, the
-> assumption being that producers do not need to read the value so we do
-> not need to order these reads.
-It is not the case that producer is reading the value, but the consumer 
-reading stale value. So we need to have a strict rmb in place .
 
-> 
-> Reported-by: George Cherian <george.cherian@cavium.com>
-> Suggested-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> 
-> George, could you pls report whether this patch fixes
-> the issue for you?
-> 
-> This seems to be needed in stable as well.
-> 
-> 
-> 
-> 
->   include/linux/ptr_ring.h | 9 +++++++++
->   1 file changed, 9 insertions(+)
-> 
-> diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
-> index 37b4bb2..6866df4 100644
-> --- a/include/linux/ptr_ring.h
-> +++ b/include/linux/ptr_ring.h
-> @@ -101,12 +101,18 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r)
->   
->   /* Note: callers invoking this in a loop must use a compiler barrier,
->    * for example cpu_relax(). Callers must hold producer_lock.
-> + * Callers are responsible for making sure pointer that is being queued
-> + * points to a valid data.
->    */
->   static inline int __ptr_ring_produce(struct ptr_ring *r, void *ptr)
->   {
->   	if (unlikely(!r->size) || r->queue[r->producer])
->   		return -ENOSPC;
->   
-> +	/* Make sure the pointer we are storing points to a valid data. */
-> +	/* Pairs with smp_read_barrier_depends in __ptr_ring_consume. */
-> +	smp_wmb();
-> +
->   	r->queue[r->producer++] = ptr;
->   	if (unlikely(r->producer >= r->size))
->   		r->producer = 0;
-> @@ -275,6 +281,9 @@ static inline void *__ptr_ring_consume(struct ptr_ring *r)
->   	if (ptr)
->   		__ptr_ring_discard_one(r);
->   
-> +	/* Make sure anyone accessing data through the pointer is up to date. */
-> +	/* Pairs with smp_wmb in __ptr_ring_produce. */
-> +	smp_read_barrier_depends();
->   	return ptr;
->   }
->   
-> 
+Fabien
+
+
+On 29/11/17 09:41, Corentin Labbe wrote:
+> Hello
+>
+> The current crypto_engine support only ahash and ablkcipher.
+> My first patch which try to add skcipher was Nacked, it will add too many functions
+> and adding other algs(aead, asymetric_key) will make the situation worst.
+>
+> This patchset remove all algs specific stuff and now only process generic crypto_async_request.
+>
+> The requests handler function pointer are now moved out of struct engine and
+> are now stored directly in a crypto_engine_reqctx.
+>
+> The original proposal of Herbert [1] cannot be done completly since the crypto_engine
+> could only dequeue crypto_async_request and it is impossible to access any request_ctx
+> without knowing the underlying request type.
+>
+> So I do something near that was requested: adding crypto_engine_reqctx in TFM context.
+> Note that the current implementation expect that crypto_engine_reqctx
+> is the first member of the context.
+>
+> The first patch convert the crypto engine with the new way,
+> while the following patchs convert the 3 existing users of crypto_engine.
+> Note that this split break bisection, so probably the final commit will be all merged.
+>
+> The 3 latest patch were compile tested only, but the first is tested successfully
+> with my new sun8i-ce driver.
+>
+> Regards
+>
+> [1] https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1474434.html
+>
+> Corentin Labbe (4):
+>    crypto: engine - Permit to enqueue all async requests
+>    crypto: omap: convert to new crypto engine API
+>    crypto: virtio: convert to new crypto engine API
+>    crypto: stm32: convert to the new crypto engine API
+>
+>   crypto/crypto_engine.c                       | 188 ++++++---------------------
+>   drivers/crypto/omap-aes.c                    |  21 ++-
+>   drivers/crypto/omap-aes.h                    |   3 +
+>   drivers/crypto/omap-des.c                    |  24 +++-
+>   drivers/crypto/stm32/stm32-hash.c            |  22 +++-
+>   drivers/crypto/virtio/virtio_crypto_algs.c   |  15 ++-
+>   drivers/crypto/virtio/virtio_crypto_common.h |   2 +-
+>   drivers/crypto/virtio/virtio_crypto_core.c   |   3 -
+>   include/crypto/engine.h                      |  46 +++----
+>   9 files changed, 122 insertions(+), 202 deletions(-)
+>
