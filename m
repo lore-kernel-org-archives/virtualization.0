@@ -1,24 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH tip/core/rcu 21/21] drivers/vhost: Remove now-redundant
-	read_barrier_depends()
-Date: Tue, 5 Dec 2017 23:24:49 +0200
-Message-ID: <20171205222857-mutt-send-email-mst__16338.7800603688$1512573006$gmane$org@kernel.org>
-References: <20171201195053.GA23494@linux.vnet.ibm.com>
-	<1512157876-24665-21-git-send-email-paulmck@linux.vnet.ibm.com>
-	<20171205202928-mutt-send-email-mst@kernel.org>
-	<20171205183946.GP3165@worktop.lehotels.local>
-	<20171205204928-mutt-send-email-mst@kernel.org>
-	<20171205191733.GQ3165@worktop.lehotels.local>
-	<20171205212053-mutt-send-email-mst@kernel.org>
-	<20171205193339.GP7829@linux.vnet.ibm.com>
-	<20171205215020-mutt-send-email-mst@kernel.org>
-	<20171205200801.GR7829@linux.vnet.ibm.com>
+Subject: Re: [PATCH] ptr_ring: Add barriers to fix NULL-pointer exception
+Date: Wed, 6 Dec 2017 17:57:25 +0200
+Message-ID: <20171206175023-mutt-send-email-mst@kernel.org>
+References: <1512554261-5030-1-git-send-email-george.cherian@cavium.com>
+	<20171206153349-mutt-send-email-mst@kernel.org>
+	<BN3PR0701MB1702F47F81C945950E284DE0F9320@BN3PR0701MB1702.namprd07.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20171205200801.GR7829@linux.vnet.ibm.com>
+In-Reply-To: <BN3PR0701MB1702F47F81C945950E284DE0F9320@BN3PR0701MB1702.namprd07.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,43 +20,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Cc: tglx@linutronix.de, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, fweisbec@gmail.com, jiangshanlai@gmail.com, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, edumazet@google.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, oleg@redhat.com, dipankar@in.ibm.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@kernel.org
+To: "Cherian, George" <George.Cherian@cavium.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "edumazet@google.com" <edumazet@google.com>, "davem@davemloft.net" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 05, 2017 at 12:08:01PM -0800, Paul E. McKenney wrote:
-> On Tue, Dec 05, 2017 at 09:51:48PM +0200, Michael S. Tsirkin wrote:
-> > On Tue, Dec 05, 2017 at 11:33:39AM -0800, Paul E. McKenney wrote:
-> > > On Tue, Dec 05, 2017 at 09:24:21PM +0200, Michael S. Tsirkin wrote:
+On Wed, Dec 06, 2017 at 02:08:54PM +0000, Cherian, George wrote:
+> > @@ -275,6 +281,13 @@ static inline void *__ptr_ring_consume(struct ptr_ring
+> *r)
+> > if (ptr)
+> > __ptr_ring_discard_one(r);
+> >
+> > + /*
+> > + * This barrier is necessary in order to prevent race condition with
+> > + * with __ptr_ring_produce(). Make sure all the elements of ptr is
+> > + * in sync with the earlier writes which was done prior to pushing
+> > + * it to ring
+> > + */
+> > + rmb();
+> > return ptr;
+> > }
 > 
-> [ . . . ]
+> You are trying to synchronise two CPUs so non-smp barriers make no
+> sense. wmb/rmb are for synchronising with MMIO.
 > 
-> > > > and this barrier is no longer paired with anything until
-> > > > you realize there's a dependency barrier within READ_ONCE.
-> > > > 
-> > > > Barrier pairing was a useful tool to check code validity,
-> > > > maybe there are other, better tools now.
-> > > 
-> > > There are quite a few people who say that smp_store_release() is
-> > > easier for the tools to analyze than is smp_wmb().  My experience with
-> > > smp_read_barrier_depends() and rcu_dereference() leads me to believe
-> > > that they are correct.
-> > 
-> > OK, but smp_store_release is still not paired with anything since we
-> > rely on READ_ONCE to include the implicit dpendendency barrier.
-> 
-> Why wouldn't you consider the smp_store_release() to be paired with
-> the new improved READ_ONCE()?
-> 
-> 							Thanx, Paul
+> What happens when CONFIG_SMP is not set. smp_wmb/rmb becomes compiler barriers
+> (atleast for arm64).
 
-READ_ONCE is really all over the place (some code literally replaced all
-memory accesses with READ/WRITE ONCE).
+And that is because all read and writes always appear in order when done
+from the same CPU.
 
-And I also prefer smp_wmb as it seems to be cheaper on ARM.
+In case of reads, we do not need a barrier at all (except on dec alpha)
+because a read through a pointer can't bypass a read of a pointer.
 
-Would an API like WRITE_POINTER()/smp_store_pointer make sense,
-and READ_POINTER for symmetry?
+> I guess that is not what we need.
+
+Maybe, but I don't yet see why not.
+
+> An SMP barrier cannot
+> replace a mandatory barrier, but a mandatory barrier can replace an SMP
+> barrier.
+
+This does imply that you can always replace a weak barrier with a strong
+one, but does not mean you should.
+
+> I will try out your patch too and update the results.
+> But I would need couple of days time. Sorry for the delay.
+
+Thanks for the testing.
 
 -- 
 MST
