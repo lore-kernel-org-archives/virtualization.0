@@ -1,25 +1,14 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Subject: Re: [PATCH tip/core/rcu 21/21] drivers/vhost: Remove now-redundant
-	read_barrier_depends()
-Date: Tue, 5 Dec 2017 13:36:44 -0800
-Message-ID: <20171205213644.GU7829__37634.4901313589$1512559688$gmane$org@linux.vnet.ibm.com>
-References: <1512157876-24665-21-git-send-email-paulmck@linux.vnet.ibm.com>
-	<20171205202928-mutt-send-email-mst@kernel.org>
-	<20171205183946.GP3165@worktop.lehotels.local>
-	<20171205204928-mutt-send-email-mst@kernel.org>
-	<20171205191733.GQ3165@worktop.lehotels.local>
-	<20171205212053-mutt-send-email-mst@kernel.org>
-	<20171205193339.GP7829@linux.vnet.ibm.com>
-	<20171205215020-mutt-send-email-mst@kernel.org>
-	<20171205200801.GR7829@linux.vnet.ibm.com>
-	<20171205222857-mutt-send-email-mst@kernel.org>
-Reply-To: paulmck@linux.vnet.ibm.com
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2 1/2] virtio_mmio: add cleanup for virtio_mmio_probe
+Date: Wed, 6 Dec 2017 12:11:53 +0100
+Message-ID: <20171206121153.5f075096.cohuck@redhat.com>
+References: <cover.1512445595.git.zhangweiping@didichuxing.com>
+	<40b3946d54c4a08b2ce3741f4d27bff99ec2f6c8.1512445595.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20171205222857-mutt-send-email-mst@kernel.org>
+In-Reply-To: <40b3946d54c4a08b2ce3741f4d27bff99ec2f6c8.1512445595.git.zhangweiping@didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,44 +18,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: tglx@linutronix.de, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, fweisbec@gmail.com, jiangshanlai@gmail.com, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, edumazet@google.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, oleg@redhat.com, dipankar@in.ibm.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@kernel.org
+To: weiping zhang <zhangweiping@didichuxing.com>
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 05, 2017 at 11:24:49PM +0200, Michael S. Tsirkin wrote:
-> On Tue, Dec 05, 2017 at 12:08:01PM -0800, Paul E. McKenney wrote:
-> > On Tue, Dec 05, 2017 at 09:51:48PM +0200, Michael S. Tsirkin wrote:
-> > > On Tue, Dec 05, 2017 at 11:33:39AM -0800, Paul E. McKenney wrote:
-> > > > On Tue, Dec 05, 2017 at 09:24:21PM +0200, Michael S. Tsirkin wrote:
-> > 
-> > [ . . . ]
-> > 
-> > > > > and this barrier is no longer paired with anything until
-> > > > > you realize there's a dependency barrier within READ_ONCE.
-> > > > > 
-> > > > > Barrier pairing was a useful tool to check code validity,
-> > > > > maybe there are other, better tools now.
-> > > > 
-> > > > There are quite a few people who say that smp_store_release() is
-> > > > easier for the tools to analyze than is smp_wmb().  My experience with
-> > > > smp_read_barrier_depends() and rcu_dereference() leads me to believe
-> > > > that they are correct.
-> > > 
-> > > OK, but smp_store_release is still not paired with anything since we
-> > > rely on READ_ONCE to include the implicit dpendendency barrier.
-> > 
-> > Why wouldn't you consider the smp_store_release() to be paired with
-> > the new improved READ_ONCE()?
-> 
-> READ_ONCE is really all over the place (some code literally replaced all
-> memory accesses with READ/WRITE ONCE).
-> 
-> And I also prefer smp_wmb as it seems to be cheaper on ARM.
-> 
-> Would an API like WRITE_POINTER()/smp_store_pointer make sense,
-> and READ_POINTER for symmetry?
+On Tue, 5 Dec 2017 19:57:10 +0800
+weiping zhang <zhangweiping@didichuxing.com> wrote:
 
-What we do in some code is to comment the pairings, allowing the other
-side of the pairing to be easily located.  Would that work for you?
+> As mentioned at drivers/base/core.c:
+> /*
+>  * NOTE: _Never_ directly free @dev after calling this function, even
+>  * if it returned an error! Always use put_device() to give up the
+>  * reference initialized in this function instead.
+>  */
+> 
+> Normal we do cleanup for @vm_dev by contianer_of(@dev), but in this case
+> we need release @mem resource from @pdev and vm_dev->base. It make
+> @pdev->vm_dev.dev.release() too complicated, so put_device just put the
+> reference of register_virtio_device->device_register->device_initialize
+> and release all resource in virtio_mmio_probe.
 
-							Thanx, Paul
+Releasing the resources when unwinding on error can work, but I think
+there still are some issues (more below). This is all very tangly
+code :(
+
+> 
+> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+> ---
+>  drivers/virtio/virtio_mmio.c | 36 ++++++++++++++++++++++++++++--------
+>  1 file changed, 28 insertions(+), 8 deletions(-)
+> 
+
+> @@ -573,7 +580,20 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+>  
+>  	platform_set_drvdata(pdev, vm_dev);
+>  
+> -	return register_virtio_device(&vm_dev->vdev);
+> +	rc = register_virtio_device(&vm_dev->vdev);
+> +	if (rc)
+> +		goto put_dev;
+> +	return 0;
+> +put_dev:
+> +	put_device(&vm_dev->vdev.dev);
+
+Here you give up the extra reference from device_initialize(), which
+may or may not be the last reference (since you don't know if
+device_add() had already exposed the struct device to other code that
+might have acquired a reference). As the device has an empty release
+function, touching the device structure after that is not a real
+problem, but...
+
+> +unmap:
+> +	iounmap(vm_dev->base);
+> +free_mem:
+> +	devm_release_mem_region(&pdev->dev, mem->start,
+> +			resource_size(mem));
+> +free_vmdev:
+> +	devm_kfree(&pdev->dev, vm_dev);
+
+...unconditionally freeing the device here would be a problem if other
+code had acquired a reference above. (Unlikely, but we should try to
+get this right.)
+
+> +	return rc;
+>  }
+>  
+>  static int virtio_mmio_remove(struct platform_device *pdev)
+
+So, I think there are basically two ways of doing that:
+- Move the cleanup into the currently empty release callback. Then, you
+  won't need to touch the remove function. The problem with that is
+  that you can't trigger a cleanup via put_device() if you did not call
+  register_virtio_device() yet.
+- Move just devm_kfree() into the release function. Cleanup the
+  resources here, do the put_device() last thing if had you called
+  register_virtio_device() before and devm_kfree() if you didn't.
+
+[Of course, I still might be missing some devm subtility, so other
+comments are welcome.]
