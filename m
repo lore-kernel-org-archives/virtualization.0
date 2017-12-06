@@ -1,14 +1,17 @@
-From: Philippe Ombredanne <pombredanne@nexb.com>
-Subject: Re: [PATCH v19 1/7] xbitmap: Introduce xbitmap
-Date: Tue, 12 Dec 2017 13:53:53 +0100
-Message-ID: <CAOFm3uH29ZQSo92c_JXcffsonwh3PscdRe1p6vZCwinfauiYBw__43053.6415814005$1513195179$gmane$org@mail.gmail.com>
-References: <1513079759-14169-1-git-send-email-wei.w.wang@intel.com>
-	<1513079759-14169-2-git-send-email-wei.w.wang@intel.com>
+From: Fabien DESSENNE <fabien.dessenne@st.com>
+Subject: Re: [PATCH RFC 4/4] crypto: stm32: convert to the new crypto engine
+	API
+Date: Wed, 6 Dec 2017 11:03:23 +0000
+Message-ID: <5835a2df-64d2-1363-15a3-eec4db955d58__29677.9388482266$1513195298$gmane$org@st.com>
+References: <20171129084121.9385-1-clabbe.montjoie@gmail.com>
+	<20171129084121.9385-5-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1513079759-14169-2-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20171129084121.9385-5-clabbe.montjoie@gmail.com>
+Content-Language: en-US
+Content-ID: <53C74EB7E53A664B9ADDA336340EDC82@st.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,67 +21,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>, mawilcox@microsoft.com
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, penguin-kernel@i-love.sakura.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, willy@infradead.org, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, LKML <linux-kernel@vger.kernel.org>, amit.shah@redhat.com, Paolo Bonzini <pbonzini@redhat.com>, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: Corentin Labbe <clabbe.montjoie@gmail.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, Alexandre TORGUE <alexandre.torgue@st.com>, "arei.gonglei@huawei.com" <arei.gonglei@huawei.com>, "davem@davemloft.net" <davem@davemloft.net>, "jasowang@redhat.com" <jasowang@redhat.com>, "mcoquelin.stm32@gmail.com" <mcoquelin.stm32@gmail.com>, "mst@redhat.com" <mst@redhat.com>, Lionel DEBIEVE <lionel.debieve@st.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Matthew, Wei,
+Hi,
 
-On Tue, Dec 12, 2017 at 12:55 PM, Wei Wang <wei.w.wang@intel.com> wrote:
-> From: Matthew Wilcox <mawilcox@microsoft.com>
+
+On 29/11/17 09:41, Corentin Labbe wrote:
+> This patch convert the driver to the new crypto engine API.
 >
-> The eXtensible Bitmap is a sparse bitmap representation which is
-> efficient for set bits which tend to cluster.  It supports up to
-> 'unsigned long' worth of bits, and this commit adds the bare bones --
-> xb_set_bit(), xb_clear_bit() and xb_test_bit().
+> Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+
+Tested-by: Fabien Dessenne <fabien.dessenne@st.com>
+
+> ---
+>   drivers/crypto/stm32/stm32-hash.c | 22 +++++++++++++++-------
+>   1 file changed, 15 insertions(+), 7 deletions(-)
 >
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Cc: Matthew Wilcox <mawilcox@microsoft.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Michal Hocko <mhocko@kernel.org>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-
-[...]
-
-> --- /dev/null
-> +++ b/include/linux/xbitmap.h
-> @@ -0,0 +1,52 @@
-> +/*
-> + * eXtensible Bitmaps
-> + * Copyright (c) 2017 Microsoft Corporation <mawilcox@microsoft.com>
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License as
-> + * published by the Free Software Foundation; either version 2 of the
-> + * License, or (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * eXtensible Bitmaps provide an unlimited-size sparse bitmap facility.
-> + * All bits are initially zero.
-> + */
-
-Have you considered using the new SPDX ids here instead? eg. this
-would come out as a top line this way:
-
-> +/* SPDX-License-Identifer: GPL-2.0+ */
-
-Overall you get less boilerplate comment and more code, so this is a
-win-win for everyone. This would nicely remove the legalese
-boilerplate with the same effect, unless you are a legalese lover of
-course. See Thomas doc patches for extra details.... and while you are
-it if you could spread the words in your team and use it for all past,
-present and future contributions, that would be much appreciated.
-
-And as a side benefit to me, it will help me save on paper and ink
-ribbons supplies for my dot matrix line printer each time I print the
-source code of the whole kernel. ;)
-
-Thanks for your consideration there.
--- 
-Cordially
-Philippe Ombredanne
+> diff --git a/drivers/crypto/stm32/stm32-hash.c b/drivers/crypto/stm32/stm32-hash.c
+> index 4ca4a264a833..e3f9f7b04ce2 100644
+> --- a/drivers/crypto/stm32/stm32-hash.c
+> +++ b/drivers/crypto/stm32/stm32-hash.c
+> @@ -122,6 +122,7 @@ enum stm32_hash_data_format {
+>   #define HASH_DMA_THRESHOLD		50
+>   
+>   struct stm32_hash_ctx {
+> +	struct crypto_engine_reqctx enginectx;
+>   	struct stm32_hash_dev	*hdev;
+>   	unsigned long		flags;
+>   
+> @@ -811,7 +812,7 @@ static void stm32_hash_finish_req(struct ahash_request *req, int err)
+>   		rctx->flags |= HASH_FLAGS_ERRORS;
+>   	}
+>   
+> -	crypto_finalize_hash_request(hdev->engine, req, err);
+> +	crypto_finalize_request(hdev->engine, &req->base, err);
+>   }
+>   
+>   static int stm32_hash_hw_init(struct stm32_hash_dev *hdev,
+> @@ -828,15 +829,21 @@ static int stm32_hash_hw_init(struct stm32_hash_dev *hdev,
+>   	return 0;
+>   }
+>   
+> +static int stm32_hash_one_request(struct crypto_engine *engine,
+> +				  struct crypto_async_request *areq);
+> +static int stm32_hash_prepare_req(struct crypto_engine *engine,
+> +				  struct crypto_async_request *areq);
+> +
+>   static int stm32_hash_handle_queue(struct stm32_hash_dev *hdev,
+>   				   struct ahash_request *req)
+>   {
+> -	return crypto_transfer_hash_request_to_engine(hdev->engine, req);
+> +	return crypto_transfer_request_to_engine(hdev->engine, &req->base);
+>   }
+>   
+>   static int stm32_hash_prepare_req(struct crypto_engine *engine,
+> -				  struct ahash_request *req)
+> +				  struct crypto_async_request *areq)
+>   {
+> +	struct ahash_request *req = ahash_request_cast(areq);
+>   	struct stm32_hash_ctx *ctx = crypto_ahash_ctx(crypto_ahash_reqtfm(req));
+>   	struct stm32_hash_dev *hdev = stm32_hash_find_dev(ctx);
+>   	struct stm32_hash_request_ctx *rctx;
+> @@ -855,8 +862,9 @@ static int stm32_hash_prepare_req(struct crypto_engine *engine,
+>   }
+>   
+>   static int stm32_hash_one_request(struct crypto_engine *engine,
+> -				  struct ahash_request *req)
+> +				  struct crypto_async_request *areq)
+>   {
+> +	struct ahash_request *req = ahash_request_cast(areq);
+>   	struct stm32_hash_ctx *ctx = crypto_ahash_ctx(crypto_ahash_reqtfm(req));
+>   	struct stm32_hash_dev *hdev = stm32_hash_find_dev(ctx);
+>   	struct stm32_hash_request_ctx *rctx;
+> @@ -1033,6 +1041,9 @@ static int stm32_hash_cra_init_algs(struct crypto_tfm *tfm,
+>   	if (algs_hmac_name)
+>   		ctx->flags |= HASH_FLAGS_HMAC;
+>   
+> +	ctx->enginectx.op.do_one_request = stm32_hash_one_request;
+> +	ctx->enginectx.op.prepare_request = stm32_hash_prepare_req;
+> +	ctx->enginectx.op.unprepare_request = NULL;
+>   	return 0;
+>   }
+>   
+> @@ -1493,9 +1504,6 @@ static int stm32_hash_probe(struct platform_device *pdev)
+>   		goto err_engine;
+>   	}
+>   
+> -	hdev->engine->prepare_hash_request = stm32_hash_prepare_req;
+> -	hdev->engine->hash_one_request = stm32_hash_one_request;
+> -
+>   	ret = crypto_engine_start(hdev->engine);
+>   	if (ret)
+>   		goto err_engine_start;
