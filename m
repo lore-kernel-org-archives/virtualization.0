@@ -1,24 +1,14 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH tip/core/rcu 21/21] drivers/vhost: Remove now-redundant
-	read_barrier_depends()
-Date: Tue, 5 Dec 2017 23:09:02 +0100
-Message-ID: <20171205220902.GY3165__22536.6378938363$1512562228$gmane$org@worktop.lehotels.local>
-References: <20171205202928-mutt-send-email-mst@kernel.org>
-	<20171205183946.GP3165@worktop.lehotels.local>
-	<20171205204928-mutt-send-email-mst@kernel.org>
-	<20171205191733.GQ3165@worktop.lehotels.local>
-	<20171205212053-mutt-send-email-mst@kernel.org>
-	<20171205193339.GP7829@linux.vnet.ibm.com>
-	<20171205215020-mutt-send-email-mst@kernel.org>
-	<20171205200801.GR7829@linux.vnet.ibm.com>
-	<20171205222857-mutt-send-email-mst@kernel.org>
-	<20171205213644.GU7829@linux.vnet.ibm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] ptr_ring: add barriers
+Date: Wed, 6 Dec 2017 10:31:39 +0800
+Message-ID: <96e8cec4-37db-b41d-b02b-767a21d9efba__30889.5265953199$1512562657$gmane$org@redhat.com>
+References: <1512501990-30029-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20171205213644.GU7829@linux.vnet.ibm.com>
+In-Reply-To: <1512501990-30029-1-git-send-email-mst@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,12 +18,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Cc: tglx@linutronix.de, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, fweisbec@gmail.com, jiangshanlai@gmail.com, linux-kernel@vger.kernel.org, rostedt@goodmis.org, josh@joshtriplett.org, dhowells@redhat.com, edumazet@google.com, netdev@vger.kernel.org, mathieu.desnoyers@efficios.com, oleg@redhat.com, dipankar@in.ibm.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, mingo@kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, George Cherian <george.cherian@cavium.com>, davem@davemloft.net, edumazet@google.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 05, 2017 at 01:36:44PM -0800, Paul E. McKenney wrote:
-> What we do in some code is to comment the pairings, allowing the other
-> side of the pairing to be easily located.  Would that work for you?
-
-I would say that that is mandatory for any memory ordering code ;-)
+CgpPbiAyMDE35bm0MTLmnIgwNuaXpSAwMzoyOSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IFVzZXJzIG9mIHB0cl9yaW5nIGV4cGVjdCB0aGF0IGl0J3Mgc2FmZSB0byBnaXZlIHRoZQo+IGRh
+dGEgc3RydWN0dXJlIGEgcG9pbnRlciBhbmQgaGF2ZSBpdCBiZSBhdmFpbGFibGUKPiB0byBjb25z
+dW1lcnMsIGJ1dCB0aGF0IGFjdHVhbGx5IHJlcXVpcmVzIGFuIHNtYl93bWIKPiBvciBhIHN0cm9u
+Z2VyIGJhcnJpZXIuCj4KPiBJbiBhYnNlbmNlIG9mIHN1Y2ggYmFycmllcnMgYW5kIG9uIGFyY2hp
+dGVjdHVyZXMgdGhhdCByZW9yZGVyIHdyaXRlcywKPiBjb25zdW1lciBtaWdodCByZWFkIGFuIHVu
+PWluaXRpYWxpemVkIHZhbHVlIGZyb20gYW4gc2tiIHBvaW50ZXIgc3RvcmVkCj4gaW4gdGhlIHNr
+YiBhcnJheS4gIFRoaXMgd2FzIG9ic2VydmVkIGNhdXNpbmcgY3Jhc2hlcy4KPgo+IFRvIGZpeCwg
+YWRkIG1lbW9yeSBiYXJyaWVycy4gIFRoZSBiYXJyaWVyIHdlIHVzZSBpcyBhIHdtYiwgdGhlCj4g
+YXNzdW1wdGlvbiBiZWluZyB0aGF0IHByb2R1Y2VycyBkbyBub3QgbmVlZCB0byByZWFkIHRoZSB2
+YWx1ZSBzbyB3ZSBkbwo+IG5vdCBuZWVkIHRvIG9yZGVyIHRoZXNlIHJlYWRzLgo+Cj4gUmVwb3J0
+ZWQtYnk6IEdlb3JnZSBDaGVyaWFuIDxnZW9yZ2UuY2hlcmlhbkBjYXZpdW0uY29tPgo+IFN1Z2dl
+c3RlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiBTaWduZWQtb2ZmLWJ5
+OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+IC0tLQo+Cj4gR2VvcmdlLCBj
+b3VsZCB5b3UgcGxzIHJlcG9ydCB3aGV0aGVyIHRoaXMgcGF0Y2ggZml4ZXMKPiB0aGUgaXNzdWUg
+Zm9yIHlvdT8KPgo+IFRoaXMgc2VlbXMgdG8gYmUgbmVlZGVkIGluIHN0YWJsZSBhcyB3ZWxsLgo+
+Cj4KPgo+Cj4gICBpbmNsdWRlL2xpbnV4L3B0cl9yaW5nLmggfCA5ICsrKysrKysrKwo+ICAgMSBm
+aWxlIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKQo+Cj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGlu
+dXgvcHRyX3JpbmcuaCBiL2luY2x1ZGUvbGludXgvcHRyX3JpbmcuaAo+IGluZGV4IDM3YjRiYjIu
+LjY4NjZkZjQgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS9saW51eC9wdHJfcmluZy5oCj4gKysrIGIv
+aW5jbHVkZS9saW51eC9wdHJfcmluZy5oCj4gQEAgLTEwMSwxMiArMTAxLDE4IEBAIHN0YXRpYyBp
+bmxpbmUgYm9vbCBwdHJfcmluZ19mdWxsX2JoKHN0cnVjdCBwdHJfcmluZyAqcikKPiAgIAo+ICAg
+LyogTm90ZTogY2FsbGVycyBpbnZva2luZyB0aGlzIGluIGEgbG9vcCBtdXN0IHVzZSBhIGNvbXBp
+bGVyIGJhcnJpZXIsCj4gICAgKiBmb3IgZXhhbXBsZSBjcHVfcmVsYXgoKS4gQ2FsbGVycyBtdXN0
+IGhvbGQgcHJvZHVjZXJfbG9jay4KPiArICogQ2FsbGVycyBhcmUgcmVzcG9uc2libGUgZm9yIG1h
+a2luZyBzdXJlIHBvaW50ZXIgdGhhdCBpcyBiZWluZyBxdWV1ZWQKPiArICogcG9pbnRzIHRvIGEg
+dmFsaWQgZGF0YS4KPiAgICAqLwo+ICAgc3RhdGljIGlubGluZSBpbnQgX19wdHJfcmluZ19wcm9k
+dWNlKHN0cnVjdCBwdHJfcmluZyAqciwgdm9pZCAqcHRyKQo+ICAgewo+ICAgCWlmICh1bmxpa2Vs
+eSghci0+c2l6ZSkgfHwgci0+cXVldWVbci0+cHJvZHVjZXJdKQo+ICAgCQlyZXR1cm4gLUVOT1NQ
+QzsKPiAgIAo+ICsJLyogTWFrZSBzdXJlIHRoZSBwb2ludGVyIHdlIGFyZSBzdG9yaW5nIHBvaW50
+cyB0byBhIHZhbGlkIGRhdGEuICovCj4gKwkvKiBQYWlycyB3aXRoIHNtcF9yZWFkX2JhcnJpZXJf
+ZGVwZW5kcyBpbiBfX3B0cl9yaW5nX2NvbnN1bWUuICovCj4gKwlzbXBfd21iKCk7Cj4gKwo+ICAg
+CXItPnF1ZXVlW3ItPnByb2R1Y2VyKytdID0gcHRyOwo+ICAgCWlmICh1bmxpa2VseShyLT5wcm9k
+dWNlciA+PSByLT5zaXplKSkKPiAgIAkJci0+cHJvZHVjZXIgPSAwOwo+IEBAIC0yNzUsNiArMjgx
+LDkgQEAgc3RhdGljIGlubGluZSB2b2lkICpfX3B0cl9yaW5nX2NvbnN1bWUoc3RydWN0IHB0cl9y
+aW5nICpyKQo+ICAgCWlmIChwdHIpCj4gICAJCV9fcHRyX3JpbmdfZGlzY2FyZF9vbmUocik7Cj4g
+ICAKPiArCS8qIE1ha2Ugc3VyZSBhbnlvbmUgYWNjZXNzaW5nIGRhdGEgdGhyb3VnaCB0aGUgcG9p
+bnRlciBpcyB1cCB0byBkYXRlLiAqLwo+ICsJLyogUGFpcnMgd2l0aCBzbXBfd21iIGluIF9fcHRy
+X3JpbmdfcHJvZHVjZS4gKi8KPiArCXNtcF9yZWFkX2JhcnJpZXJfZGVwZW5kcygpOwo+ICAgCXJl
+dHVybiBwdHI7Cj4gICB9Cj4gICAKCkkgd2FzIHRoaW5raW5nIHdoZXRoZXIgb3Igbm90IGl0J3Mg
+YmV0dGVyIHRvIG1vdmUgdGhvc2UgdG8gdGhlIGNhbGxlcnMuIApUaGVuIHdlIGNhbiBzYXZlIGxv
+dHMgb2YgYmFycmllcnMgaW4gZS5nIGJhdGNoIGNvbnN1bWluZy4KClRoYW5rcwpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
