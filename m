@@ -1,16 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] ptr_ring: Add barriers to fix NULL-pointer exception
-Date: Wed, 6 Dec 2017 17:57:25 +0200
-Message-ID: <20171206175023-mutt-send-email-mst@kernel.org>
-References: <1512554261-5030-1-git-send-email-george.cherian@cavium.com>
-	<20171206153349-mutt-send-email-mst@kernel.org>
-	<BN3PR0701MB1702F47F81C945950E284DE0F9320@BN3PR0701MB1702.namprd07.prod.outlook.com>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Subject: [PATCH net-next] virtio_net: Disable interrupts if napi_complete_done
+	rescheduled napi
+Date: Thu,  7 Dec 2017 13:15:15 +0900
+Message-ID: <1512620115-7569-1-git-send-email-makita.toshiaki__9434.95551259748$1512620234$gmane$org@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <BN3PR0701MB1702F47F81C945950E284DE0F9320@BN3PR0701MB1702.namprd07.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,53 +16,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Cherian, George" <George.Cherian@cavium.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "edumazet@google.com" <edumazet@google.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: "David S . Miller" <davem@davemloft.net>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 06, 2017 at 02:08:54PM +0000, Cherian, George wrote:
-> > @@ -275,6 +281,13 @@ static inline void *__ptr_ring_consume(struct ptr_ring
-> *r)
-> > if (ptr)
-> > __ptr_ring_discard_one(r);
-> >
-> > + /*
-> > + * This barrier is necessary in order to prevent race condition with
-> > + * with __ptr_ring_produce(). Make sure all the elements of ptr is
-> > + * in sync with the earlier writes which was done prior to pushing
-> > + * it to ring
-> > + */
-> > + rmb();
-> > return ptr;
-> > }
-> 
-> You are trying to synchronise two CPUs so non-smp barriers make no
-> sense. wmb/rmb are for synchronising with MMIO.
-> 
-> What happens when CONFIG_SMP is not set. smp_wmb/rmb becomes compiler barriers
-> (atleast for arm64).
+Since commit 39e6c8208d7b ("net: solve a NAPI race") napi has been able
+to be rescheduled within napi_complete_done() even in non-busypoll case,
+but virtnet_poll() always enabled interrupts before complete, and when
+napi was rescheduled within napi_complete_done() it did not disable
+interrupts.
+This caused more interrupts when event idx is disabled.
 
-And that is because all read and writes always appear in order when done
-from the same CPU.
+According to commit cbdadbbf0c79 ("virtio_net: fix race in RX VQ
+processing") we cannot place virtqueue_enable_cb_prepare() after
+NAPI_STATE_SCHED is cleared, so disable interrupts again if
+napi_complete_done() returned false.
 
-In case of reads, we do not need a barrier at all (except on dec alpha)
-because a read through a pointer can't bypass a read of a pointer.
+Tested with vhost-user of OVS 2.7 on host, which does not have the event
+idx feature.
 
-> I guess that is not what we need.
+* Before patch:
 
-Maybe, but I don't yet see why not.
+$ netperf -t UDP_STREAM -H 192.168.150.253 -l 60 -- -m 1472
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.150.253 () port 0 AF_INET
+Socket  Message  Elapsed      Messages
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
 
-> An SMP barrier cannot
-> replace a mandatory barrier, but a mandatory barrier can replace an SMP
-> barrier.
+212992    1472   60.00     32763206      0    6430.32
+212992           60.00     23384299           4589.56
 
-This does imply that you can always replace a weak barrier with a strong
-one, but does not mean you should.
+Interrupts on guest: 9872369
+Packets/interrupt:   2.37
 
-> I will try out your patch too and update the results.
-> But I would need couple of days time. Sorry for the delay.
+* After patch
 
-Thanks for the testing.
+$ netperf -t UDP_STREAM -H 192.168.150.253 -l 60 -- -m 1472
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.150.253 () port 0 AF_INET
+Socket  Message  Elapsed      Messages
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
 
+212992    1472   60.00     32794646      0    6436.49
+212992           60.00     32793501           6436.27
+
+Interrupts on guest: 4941299
+Packets/interrupt:   6.64
+
+Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+---
+ drivers/net/virtio_net.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 19a985e..c0db48d 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -261,9 +261,12 @@ static void virtqueue_napi_complete(struct napi_struct *napi,
+ 	int opaque;
+ 
+ 	opaque = virtqueue_enable_cb_prepare(vq);
+-	if (napi_complete_done(napi, processed) &&
+-	    unlikely(virtqueue_poll(vq, opaque)))
+-		virtqueue_napi_schedule(napi, vq);
++	if (napi_complete_done(napi, processed)) {
++		if (unlikely(virtqueue_poll(vq, opaque)))
++			virtqueue_napi_schedule(napi, vq);
++	} else {
++		virtqueue_disable_cb(vq);
++	}
+ }
+ 
+ static void skb_xmit_done(struct virtqueue *vq)
 -- 
-MST
+1.8.3.1
