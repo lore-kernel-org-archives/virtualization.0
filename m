@@ -1,14 +1,11 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v18 05/10] xbitmap: add more operations
-Date: Thu, 07 Dec 2017 20:01:24 +0800
-Message-ID: <5A292D94.5000700__39090.2395164177$1512647970$gmane$org@intel.com>
-References: <201711301934.CDC21800.FSLtJFFOOVQHMO@I-love.SAKURA.ne.jp>	<5A210C96.8050208@intel.com>	<201712012202.BDE13557.MJFQLtOOHVOFSF@I-love.SAKURA.ne.jp>	<286AC319A985734F985F78AFA26841F739376DA1@shsmsx102.ccr.corp.intel.com>	<20171201172519.GA27192@bombadil.infradead.org>
-	<201712031050.IAC64520.QVLFFOOJOSFtHM@I-love.SAKURA.ne.jp>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 0/1] suspend/resume for virtio_ccw
+Date: Thu,  7 Dec 2017 15:11:01 +0100
+Message-ID: <20171207141102.70190-1-borntraeger@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201712031050.IAC64520.QVLFFOOJOSFtHM@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +15,135 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, willy@infradead.org
-Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, nilal@redhat.com, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
+To: Halil Pasic <pasic@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/03/2017 09:50 AM, Tetsuo Handa wrote:
-> Matthew Wilcox wrote:
->> On Fri, Dec 01, 2017 at 03:09:08PM +0000, Wang, Wei W wrote:
->>> On Friday, December 1, 2017 9:02 PM, Tetsuo Handa wrote:
->>>> If start == end is legal,
->>>>
->>>>     for (; start < end; start = (start | (IDA_BITMAP_BITS - 1)) + 1) {
->>>>
->>>> makes this loop do nothing because 10 < 10 is false.
->>> How about "start <= end "?
->> Don't ask Tetsuo for his opinion, write some userspace code that uses it.
->>
-> Please be sure to prepare for "end == -1UL" case, for "start < end" will become
-> true when "start = (start | (IDA_BITMAP_BITS - 1)) + 1" made "start == 0" due to
-> overflow.
+With this patch I can suspend/resume a KVM guest.
 
-I think there is one more corner case with this API: searching for bit 
-"1" from [0, ULONG_MAX] while no bit is set in the range, there appear 
-to be no possible value that we can return (returning "end + 1" will be 
-"ULONG_MAX + 1", which is 0)
-I plan to make the "end" be exclusive of the searching, that is, [start, 
-end), and return "end" if no such bit is found.
+[root@test ~]# cd /sys/power/
+[root@test power]# echo test_resume > disk
+[root@test power]# lscss 
+Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs           
+----------------------------------------------------------------------
+0.0.0003 0.0.0000  0000/00 3832/03 yes  80  80  ff   00000000 00000000
+0.0.0000 0.0.0001  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0001 0.0.0002  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0004 0.0.0003  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0005 0.0.0004  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0006 0.0.0005  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0007 0.0.0006  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0008 0.0.0007  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0009 0.0.0008  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.000a 0.0.0009  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.000b 0.0.000a  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.000c 0.0.000b  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.000e 0.0.000c  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.000f 0.0.000d  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0010 0.0.000e  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0011 0.0.000f  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0012 0.0.0010  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0013 0.0.0011  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0014 0.0.0012  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0002 0.0.0013  0000/00 3832/09 yes  80  80  ff   00000000 00000000
+0.0.000d 0.0.0014  0000/00 3832/01 yes  80  80  ff   00000000 00000000
+0.0.0015 0.0.0015  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0016 0.0.0016  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0017 0.0.0017  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0018 0.0.0018  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0019 0.0.0019  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.3.ffba 0.3.0000  0000/00 3832/05 yes  80  80  ff   00000000 00000000
+[root@test power]# echo disk > state
+[  195.854629] PM: hibernation entry
+[  195.854780] PM: Syncing filesystems ... 
+[  195.855837] PM: done.
+[  195.855839] Freezing user space processes ... (elapsed 0.001 seconds) done.
+[  195.856927] OOM killer disabled.
+[  195.856941] PM: Preallocating image memory... done (allocated 182918 pages)
+[  196.229494] PM: Allocated 731672 kbytes in 0.37 seconds (1977.49 MB/s)
+[  196.229495] Freezing remaining freezable tasks ... (elapsed 0.002 seconds) done.
+[  196.231772] Suspending console(s) (use no_console_suspend to debug)
+[  196.238620] Disabling non-boot CPUs ...
+[  196.238632] PM: Creating hibernation image:
+[  196.267113] PM: Need to copy 182169 pages
+[  196.892074] PM: Hibernation image created (182169 pages copied)
+[  196.905127] PM: Using 1 thread(s) for compression.
+[  196.905127] PM: Compressing and saving image data (182525 pages)...
+[  197.358550] PM: Image saving progress:   0%
+[  197.595283] PM: Image saving progress:  10%
+[  197.740148] PM: Image saving progress:  20%
+[  197.859172] PM: Image saving progress:  30%
+[  197.989838] PM: Image saving progress:  40%
+[  198.100692] PM: Image saving progress:  50%
+[  198.205154] PM: Image saving progress:  60%
+[  198.308987] PM: Image saving progress:  70%
+[  198.412584] PM: Image saving progress:  80%
+[  198.516285] PM: Image saving progress:  90%
+[  198.620025] PM: Image saving progress: 100%
+[  198.620176] PM: Image saving done.
+[  198.620178] PM: Wrote 730100 kbytes in 1.71 seconds (426.95 MB/s)
+[  198.620256] PM: S
+[  198.620323] |
+[  198.650677] PM: Using 1 thread(s) for decompression.
+[  198.650677] PM: Loading and decompressing image data (182525 pages)...
+[  198.663329] PM: Image loading progress:   0%
+[  198.990431] PM: Image loading progress:  10%
+[  199.155921] PM: Image loading progress:  20%
+[  199.317973] PM: Image loading progress:  30%
+[  199.457977] PM: Image loading progress:  40%
+[  199.614798] PM: Image loading progress:  50%
+[  199.843670] PM: Image loading progress:  60%
+[  200.075105] PM: Image loading progress:  70%
+[  200.307333] PM: Image loading progress:  80%
+[  200.540000] PM: Image loading progress:  90%
+[  195.856941] PM: Preallocating image memory... done (allocated 182918 pages)
+[  196.229494] PM: Allocated 731672 kbytes in 0.37 seconds (1977.49 MB/s)
+[  196.229495] Freezing remaining freezable tasks ... (elapsed 0.002 seconds) done.
+[  196.231772] Suspending console(s) (use no_console_suspend to debug)
+[  196.238620] Disabling non-boot CPUs ...
+[  196.238632] PM: Creating hibernation image:
+[  196.267113] PM: Need to copy 182169 pages
+[  201.314326] OOM killer enabled.
+[  201.314327] Restarting tasks ... done.
+[  201.315976] PM: hibernation exit
+[root@test power]# lscss 
+Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs           
+----------------------------------------------------------------------
+0.0.0003 0.0.0000  0000/00 3832/03 yes  80  80  ff   00000000 00000000
+0.0.0000 0.0.0001  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0001 0.0.0002  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0004 0.0.0003  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0005 0.0.0004  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0006 0.0.0005  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0007 0.0.0006  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0008 0.0.0007  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0009 0.0.0008  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.000a 0.0.0009  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.000b 0.0.000a  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.000c 0.0.000b  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.000e 0.0.000c  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.000f 0.0.000d  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0010 0.0.000e  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0011 0.0.000f  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0012 0.0.0010  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0013 0.0.0011  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0014 0.0.0012  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0002 0.0.0013  0000/00 3832/09 yes  80  80  ff   00000000 00000000
+0.0.000d 0.0.0014  0000/00 3832/01 yes  80  80  ff   00000000 00000000
+0.0.0015 0.0.0015  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0016 0.0.0016  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0017 0.0.0017  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0018 0.0.0018  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.0.0019 0.0.0019  0000/00 3832/02 yes  80  80  ff   00000000 00000000
+0.3.ffba 0.3.0000  0000/00 3832/05 yes  80  80  ff   00000000 00000000
+[root@test power]# 
 
-For cases like [16, 16), returning 16 doesn't mean bit 16 is 1 or 0, it 
-simply means there is no bits to search in the given range, since 16 is 
-exclusive.
 
-Please let me know if you have a different thought.
+Christian Borntraeger (1):
+  virtio/s390: implement PM operations for virtio_ccw
 
-Best,
-Wei
+ drivers/s390/virtio/virtio_ccw.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+-- 
+2.9.4
