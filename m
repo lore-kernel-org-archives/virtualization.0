@@ -1,20 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v18 05/10] xbitmap: add more operations
-Date: Thu, 7 Dec 2017 17:41:18 +0200
-Message-ID: <20171207174055-mutt-send-email-mst__24589.1185048551$1512661295$gmane$org@kernel.org>
-References: <201711301934.CDC21800.FSLtJFFOOVQHMO@I-love.SAKURA.ne.jp>
-	<5A210C96.8050208@intel.com>
-	<201712012202.BDE13557.MJFQLtOOHVOFSF@I-love.SAKURA.ne.jp>
-	<286AC319A985734F985F78AFA26841F739376DA1@shsmsx102.ccr.corp.intel.com>
-	<20171201172519.GA27192@bombadil.infradead.org>
-	<201712031050.IAC64520.QVLFFOOJOSFtHM@I-love.SAKURA.ne.jp>
-	<5A292D94.5000700@intel.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH 1/1] virtio/s390: implement PM operations for virtio_ccw
+Date: Thu, 7 Dec 2017 16:48:19 +0100
+Message-ID: <07d71303-ebb5-a0ca-a526-21fb90e2ea77__16404.1602555246$1512661704$gmane$org@redhat.com>
+References: <20171207141102.70190-1-borntraeger@de.ibm.com>
+	<20171207141102.70190-2-borntraeger@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5A292D94.5000700@intel.com>
+In-Reply-To: <20171207141102.70190-2-borntraeger@de.ibm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,42 +19,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Halil Pasic <pasic@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 07, 2017 at 08:01:24PM +0800, Wei Wang wrote:
-> On 12/03/2017 09:50 AM, Tetsuo Handa wrote:
-> > Matthew Wilcox wrote:
-> > > On Fri, Dec 01, 2017 at 03:09:08PM +0000, Wang, Wei W wrote:
-> > > > On Friday, December 1, 2017 9:02 PM, Tetsuo Handa wrote:
-> > > > > If start == end is legal,
-> > > > > 
-> > > > >     for (; start < end; start = (start | (IDA_BITMAP_BITS - 1)) + 1) {
-> > > > > 
-> > > > > makes this loop do nothing because 10 < 10 is false.
-> > > > How about "start <= end "?
-> > > Don't ask Tetsuo for his opinion, write some userspace code that uses it.
-> > > 
-> > Please be sure to prepare for "end == -1UL" case, for "start < end" will become
-> > true when "start = (start | (IDA_BITMAP_BITS - 1)) + 1" made "start == 0" due to
-> > overflow.
+On 07.12.2017 15:11, Christian Borntraeger wrote:
+> Suspend/Resume to/from disk currently fails. Let us wire
+> up the necessary callbacks. This is mostly just forwarding
+> the requests to the virtio drivers. The only thing that
+> has to be done in virtio_ccw itself is to re-set the
+> virtio revision.
 > 
-> I think there is one more corner case with this API: searching for bit "1"
-> from [0, ULONG_MAX] while no bit is set in the range, there appear to be no
-> possible value that we can return (returning "end + 1" will be "ULONG_MAX +
-> 1", which is 0)
-> I plan to make the "end" be exclusive of the searching, that is, [start,
-> end), and return "end" if no such bit is found.
+> Suggested-by: Thomas Huth <thuth@redhat.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
 > 
-> For cases like [16, 16), returning 16 doesn't mean bit 16 is 1 or 0, it
-> simply means there is no bits to search in the given range, since 16 is
-> exclusive.
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index b18fe201..330b3fa 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -1300,6 +1300,9 @@ static int virtio_ccw_cio_notify(struct ccw_device *cdev, int event)
+>  		vcdev->device_lost = true;
+>  		rc = NOTIFY_DONE;
+>  		break;
+> +	case CIO_OPER:
+> +		rc = NOTIFY_OK;
+> +		break;
+>  	default:
+>  		rc = NOTIFY_DONE;
+>  		break;
+> @@ -1312,6 +1315,25 @@ static struct ccw_device_id virtio_ids[] = {
+>  	{},
+>  };
+>  
+> +static int virtio_ccw_freeze(struct ccw_device *cdev)
+> +{
+> +	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+> +
+> +	return virtio_device_freeze(&vcdev->vdev);
+> +}
+> +
+> +static int virtio_ccw_restore(struct ccw_device *cdev)
+> +{
+> +	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+> +	int ret;
+> +
+> +	ret = virtio_ccw_set_transport_rev(vcdev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return virtio_device_restore(&vcdev->vdev);
+> +}
+> +
+>  static struct ccw_driver virtio_ccw_driver = {
+>  	.driver = {
+>  		.owner = THIS_MODULE,
+> @@ -1324,6 +1346,9 @@ static struct ccw_driver virtio_ccw_driver = {
+>  	.set_online = virtio_ccw_online,
+>  	.notify = virtio_ccw_cio_notify,
+>  	.int_class = IRQIO_VIR,
+> +	.freeze = virtio_ccw_freeze,
+> +	.thaw = virtio_ccw_restore,
+> +	.restore = virtio_ccw_restore,
+>  };
+>  
+>  static int __init pure_hex(char **cp, unsigned int *val, int min_digit,
 > 
-> Please let me know if you have a different thought.
-> 
-> Best,
-> Wei
 
-Matthew is right though - you want to include tests for all
-these corner cases.
+Really neat, hope we haven't forgotten to reinitialize anything. (guess
+if it works, we should be 99.9% fine)
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+
+Thanks,
+
+David / dhildenb
