@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net-next] virtio_net: Disable interrupts if
 	napi_complete_done rescheduled napi
-Date: Thu, 7 Dec 2017 07:09:37 +0200
-Message-ID: <20171207070618-mutt-send-email-mst@kernel.org>
+Date: Thu, 7 Dec 2017 15:08:45 +0800
+Message-ID: <ffcf1aa3-403e-9ff0-bd51-c507d5a52991__31997.2206293189$1512630544$gmane$org@redhat.com>
 References: <1512620115-7569-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<20171207070618-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1512620115-7569-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <20171207070618-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,86 +20,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Cc: netdev@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Cc: netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>, "David S . Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 07, 2017 at 01:15:15PM +0900, Toshiaki Makita wrote:
-> Since commit 39e6c8208d7b ("net: solve a NAPI race") napi has been able
-> to be rescheduled within napi_complete_done() even in non-busypoll case,
-> but virtnet_poll() always enabled interrupts before complete, and when
-> napi was rescheduled within napi_complete_done() it did not disable
-> interrupts.
-> This caused more interrupts when event idx is disabled.
-> 
-> According to commit cbdadbbf0c79 ("virtio_net: fix race in RX VQ
-> processing") we cannot place virtqueue_enable_cb_prepare() after
-> NAPI_STATE_SCHED is cleared, so disable interrupts again if
-> napi_complete_done() returned false.
-> 
-> Tested with vhost-user of OVS 2.7 on host, which does not have the event
-> idx feature.
-> 
-> * Before patch:
-> 
-> $ netperf -t UDP_STREAM -H 192.168.150.253 -l 60 -- -m 1472
-> MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.150.253 () port 0 AF_INET
-> Socket  Message  Elapsed      Messages
-> Size    Size     Time         Okay Errors   Throughput
-> bytes   bytes    secs            #      #   10^6bits/sec
-> 
-> 212992    1472   60.00     32763206      0    6430.32
-> 212992           60.00     23384299           4589.56
-> 
-> Interrupts on guest: 9872369
-> Packets/interrupt:   2.37
-> 
-> * After patch
-> 
-> $ netperf -t UDP_STREAM -H 192.168.150.253 -l 60 -- -m 1472
-> MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.150.253 () port 0 AF_INET
-> Socket  Message  Elapsed      Messages
-> Size    Size     Time         Okay Errors   Throughput
-> bytes   bytes    secs            #      #   10^6bits/sec
-> 
-> 212992    1472   60.00     32794646      0    6436.49
-> 212992           60.00     32793501           6436.27
-> 
-> Interrupts on guest: 4941299
-> Packets/interrupt:   6.64
-> 
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-it might make sense in net and not -next since tx napi regressed performance
-in some configs, this might bring it back at least partially.
-Jason - what do you think?
-
-> ---
->  drivers/net/virtio_net.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 19a985e..c0db48d 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -261,9 +261,12 @@ static void virtqueue_napi_complete(struct napi_struct *napi,
->  	int opaque;
->  
->  	opaque = virtqueue_enable_cb_prepare(vq);
-> -	if (napi_complete_done(napi, processed) &&
-> -	    unlikely(virtqueue_poll(vq, opaque)))
-> -		virtqueue_napi_schedule(napi, vq);
-> +	if (napi_complete_done(napi, processed)) {
-> +		if (unlikely(virtqueue_poll(vq, opaque)))
-> +			virtqueue_napi_schedule(napi, vq);
-> +	} else {
-> +		virtqueue_disable_cb(vq);
-> +	}
->  }
->  
->  static void skb_xmit_done(struct virtqueue *vq)
-> -- 
-> 1.8.3.1
-> 
+CgpPbiAyMDE35bm0MTLmnIgwN+aXpSAxMzowOSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFRodSwgRGVjIDA3LCAyMDE3IGF0IDAxOjE1OjE1UE0gKzA5MDAsIFRvc2hpYWtpIE1ha2l0
+YSB3cm90ZToKPj4gU2luY2UgY29tbWl0IDM5ZTZjODIwOGQ3YiAoIm5ldDogc29sdmUgYSBOQVBJ
+IHJhY2UiKSBuYXBpIGhhcyBiZWVuIGFibGUKPj4gdG8gYmUgcmVzY2hlZHVsZWQgd2l0aGluIG5h
+cGlfY29tcGxldGVfZG9uZSgpIGV2ZW4gaW4gbm9uLWJ1c3lwb2xsIGNhc2UsCj4+IGJ1dCB2aXJ0
+bmV0X3BvbGwoKSBhbHdheXMgZW5hYmxlZCBpbnRlcnJ1cHRzIGJlZm9yZSBjb21wbGV0ZSwgYW5k
+IHdoZW4KPj4gbmFwaSB3YXMgcmVzY2hlZHVsZWQgd2l0aGluIG5hcGlfY29tcGxldGVfZG9uZSgp
+IGl0IGRpZCBub3QgZGlzYWJsZQo+PiBpbnRlcnJ1cHRzLgo+PiBUaGlzIGNhdXNlZCBtb3JlIGlu
+dGVycnVwdHMgd2hlbiBldmVudCBpZHggaXMgZGlzYWJsZWQuCj4+Cj4+IEFjY29yZGluZyB0byBj
+b21taXQgY2JkYWRiYmYwYzc5ICgidmlydGlvX25ldDogZml4IHJhY2UgaW4gUlggVlEKPj4gcHJv
+Y2Vzc2luZyIpIHdlIGNhbm5vdCBwbGFjZSB2aXJ0cXVldWVfZW5hYmxlX2NiX3ByZXBhcmUoKSBh
+ZnRlcgo+PiBOQVBJX1NUQVRFX1NDSEVEIGlzIGNsZWFyZWQsIHNvIGRpc2FibGUgaW50ZXJydXB0
+cyBhZ2FpbiBpZgo+PiBuYXBpX2NvbXBsZXRlX2RvbmUoKSByZXR1cm5lZCBmYWxzZS4KPj4KPj4g
+VGVzdGVkIHdpdGggdmhvc3QtdXNlciBvZiBPVlMgMi43IG9uIGhvc3QsIHdoaWNoIGRvZXMgbm90
+IGhhdmUgdGhlIGV2ZW50Cj4+IGlkeCBmZWF0dXJlLgo+Pgo+PiAqIEJlZm9yZSBwYXRjaDoKPj4K
+Pj4gJCBuZXRwZXJmIC10IFVEUF9TVFJFQU0gLUggMTkyLjE2OC4xNTAuMjUzIC1sIDYwIC0tIC1t
+IDE0NzIKPj4gTUlHUkFURUQgVURQIFNUUkVBTSBURVNUIGZyb20gMC4wLjAuMCAoMC4wLjAuMCkg
+cG9ydCAwIEFGX0lORVQgdG8gMTkyLjE2OC4xNTAuMjUzICgpIHBvcnQgMCBBRl9JTkVUCj4+IFNv
+Y2tldCAgTWVzc2FnZSAgRWxhcHNlZCAgICAgIE1lc3NhZ2VzCj4+IFNpemUgICAgU2l6ZSAgICAg
+VGltZSAgICAgICAgIE9rYXkgRXJyb3JzICAgVGhyb3VnaHB1dAo+PiBieXRlcyAgIGJ5dGVzICAg
+IHNlY3MgICAgICAgICAgICAjICAgICAgIyAgIDEwXjZiaXRzL3NlYwo+Pgo+PiAyMTI5OTIgICAg
+MTQ3MiAgIDYwLjAwICAgICAzMjc2MzIwNiAgICAgIDAgICAgNjQzMC4zMgo+PiAyMTI5OTIgICAg
+ICAgICAgIDYwLjAwICAgICAyMzM4NDI5OSAgICAgICAgICAgNDU4OS41Ngo+Pgo+PiBJbnRlcnJ1
+cHRzIG9uIGd1ZXN0OiA5ODcyMzY5Cj4+IFBhY2tldHMvaW50ZXJydXB0OiAgIDIuMzcKPj4KPj4g
+KiBBZnRlciBwYXRjaAo+Pgo+PiAkIG5ldHBlcmYgLXQgVURQX1NUUkVBTSAtSCAxOTIuMTY4LjE1
+MC4yNTMgLWwgNjAgLS0gLW0gMTQ3Mgo+PiBNSUdSQVRFRCBVRFAgU1RSRUFNIFRFU1QgZnJvbSAw
+LjAuMC4wICgwLjAuMC4wKSBwb3J0IDAgQUZfSU5FVCB0byAxOTIuMTY4LjE1MC4yNTMgKCkgcG9y
+dCAwIEFGX0lORVQKPj4gU29ja2V0ICBNZXNzYWdlICBFbGFwc2VkICAgICAgTWVzc2FnZXMKPj4g
+U2l6ZSAgICBTaXplICAgICBUaW1lICAgICAgICAgT2theSBFcnJvcnMgICBUaHJvdWdocHV0Cj4+
+IGJ5dGVzICAgYnl0ZXMgICAgc2VjcyAgICAgICAgICAgICMgICAgICAjICAgMTBeNmJpdHMvc2Vj
+Cj4+Cj4+IDIxMjk5MiAgICAxNDcyICAgNjAuMDAgICAgIDMyNzk0NjQ2ICAgICAgMCAgICA2NDM2
+LjQ5Cj4+IDIxMjk5MiAgICAgICAgICAgNjAuMDAgICAgIDMyNzkzNTAxICAgICAgICAgICA2NDM2
+LjI3Cj4+Cj4+IEludGVycnVwdHMgb24gZ3Vlc3Q6IDQ5NDEyOTkKPj4gUGFja2V0cy9pbnRlcnJ1
+cHQ6ICAgNi42NAo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBUb3NoaWFraSBNYWtpdGEgPG1ha2l0YS50
+b3NoaWFraUBsYWIubnR0LmNvLmpwPgo+IEFja2VkLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1z
+dEByZWRoYXQuY29tPgo+Cj4gaXQgbWlnaHQgbWFrZSBzZW5zZSBpbiBuZXQgYW5kIG5vdCAtbmV4
+dCBzaW5jZSB0eCBuYXBpIHJlZ3Jlc3NlZCBwZXJmb3JtYW5jZQo+IGluIHNvbWUgY29uZmlncywg
+dGhpcyBtaWdodCBicmluZyBpdCBiYWNrIGF0IGxlYXN0IHBhcnRpYWxseS4KPiBKYXNvbiAtIHdo
+YXQgZG8geW91IHRoaW5rPwoKTm8gc3VyZSwgdGhlIHJlZ3Jlc3Npb24gSSBzYXcgd2FzIHRlc3Rl
+ZCB3aXRoIGV2ZW50IGlkeCBvbi4gQW5kIAp2aXJ0cXVldWVfZGlzYWJsZV9jYigpIGRvZXMgYWxt
+b3N0IG5vdGhpbmcgZm9yIGV2ZW50IGlkeCAob3IgZXZlbiBhIApsaXR0bGUgYml0IHNsb3dlciku
+CgpUaGUgcGF0Y2ggbG9va3MgZ29vZC4KCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
+ZWRoYXQuY29tPgoKCj4KPj4gLS0tCj4+ICAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIHwgOSAr
+KysrKystLS0KPj4gICAxIGZpbGUgY2hhbmdlZCwgNiBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9u
+cygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVy
+cy9uZXQvdmlydGlvX25ldC5jCj4+IGluZGV4IDE5YTk4NWUuLmMwZGI0OGQgMTAwNjQ0Cj4+IC0t
+LSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+PiArKysgYi9kcml2ZXJzL25ldC92aXJ0aW9f
+bmV0LmMKPj4gQEAgLTI2MSw5ICsyNjEsMTIgQEAgc3RhdGljIHZvaWQgdmlydHF1ZXVlX25hcGlf
+Y29tcGxldGUoc3RydWN0IG5hcGlfc3RydWN0ICpuYXBpLAo+PiAgIAlpbnQgb3BhcXVlOwo+PiAg
+IAo+PiAgIAlvcGFxdWUgPSB2aXJ0cXVldWVfZW5hYmxlX2NiX3ByZXBhcmUodnEpOwo+PiAtCWlm
+IChuYXBpX2NvbXBsZXRlX2RvbmUobmFwaSwgcHJvY2Vzc2VkKSAmJgo+PiAtCSAgICB1bmxpa2Vs
+eSh2aXJ0cXVldWVfcG9sbCh2cSwgb3BhcXVlKSkpCj4+IC0JCXZpcnRxdWV1ZV9uYXBpX3NjaGVk
+dWxlKG5hcGksIHZxKTsKPj4gKwlpZiAobmFwaV9jb21wbGV0ZV9kb25lKG5hcGksIHByb2Nlc3Nl
+ZCkpIHsKPj4gKwkJaWYgKHVubGlrZWx5KHZpcnRxdWV1ZV9wb2xsKHZxLCBvcGFxdWUpKSkKPj4g
+KwkJCXZpcnRxdWV1ZV9uYXBpX3NjaGVkdWxlKG5hcGksIHZxKTsKPj4gKwl9IGVsc2Ugewo+PiAr
+CQl2aXJ0cXVldWVfZGlzYWJsZV9jYih2cSk7Cj4+ICsJfQo+PiAgIH0KPj4gICAKPj4gICBzdGF0
+aWMgdm9pZCBza2JfeG1pdF9kb25lKHN0cnVjdCB2aXJ0cXVldWUgKnZxKQo+PiAtLSAKPj4gMS44
+LjMuMQo+PgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
