@@ -1,11 +1,12 @@
-From: "ML" <marialemos72@gmail.com>
-Subject: CISTI'2018 -- Doctoral Symposium -- Call for contributions
-Date: Fri, 8 Dec 2017 11:57:29 +0000
-Message-ID: <20171208115732.6BD3BC16@mail.linuxfoundation.org>
-Reply-To: cistimail@gmail.com
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Fri, 8 Dec 2017 17:47:51 +0200
+Message-ID: <20171208174751-mutt-send-email-mst__7565.72130271724$1512748113$gmane$org@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2699478907723633647=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,90 +16,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, wangyunjian@huawei.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhangweiping@didichuxing.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============2699478907723633647==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The following changes since commit d9e427f6ab8142d6868eb719e6a7851aafea56b6:
 
-------------------------------------------------------------------
-Doctoral Symposium of CISTI'2018
-13th Iberian Conference on Information Systems and Technologies
-13 - 16 June 2018, Caceres, Spain
-http://www.cisti.eu/
----------------------------------------------------------------------------=
+  virtio_balloon: fix increment of vb->num_pfns in fill_balloon() (2017-12-01 16:55:45 +0200)
 
+are available in the Git repository at:
 
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-The purpose of CISTI'2018=92s Doctoral Symposium is to provide graduate stu=
-dents a setting where they can, informally, expose and discuss their work, =
-collecting valuable expert opinions and sharing new ideas, methods and appl=
-ications. The Doctoral Symposium is an excellent opportunity for PhD studen=
-ts to present and discuss their work in a Workshop format. Each presentatio=
-n will be evaluated by a panel composed by at least three Information Syste=
-ms and Technologies experts.
+for you to fetch changes up to 03e9f8a05bce7330bcd9c5cc54c8e42d0fcbf993:
 
+  virtio_net: fix return value check in receive_mergeable() (2017-12-07 18:34:52 +0200)
 
-CONTRIBUTIONS AND SUBMISSION
+----------------------------------------------------------------
+virtio: bugfixes
 
-The Doctoral Symposium is opened to PhD students whose research area includ=
-es the themes proposed for this Conference. Submissions must include an ext=
-ended abstract (maximum 4 pages), following the Conference style guide. All=
- selected contributions will be handed out along with the Conference Procee=
-dings, in CD with an ISBN. These contributions will be available in the IEE=
-E Xplore Digital Library and will be sent for indexing in ISI, Scopus, EI-C=
-ompendex, INSPEC and Google Scholar.
+A couple of minor bugfixes.
 
-Submissions must include the field, the PhD institution and the number of m=
-onths devoted to the development of the work. Additionally, they should inc=
-lude in a clear and succinct manner:
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-    =95    The problem approached and its significance or relevance
-    =95    The research objectives and related investigation topics
-    =95    A brief display of what is already known
-    =95    A proposed solution methodology for the problem
-    =95    Expected results
- 
+----------------------------------------------------------------
+Yunjian Wang (1):
+      virtio_net: fix return value check in receive_mergeable()
 
-IMPORTANT DATES
+weiping zhang (2):
+      virtio_mmio: add cleanup for virtio_mmio_probe
+      virtio_mmio: add cleanup for virtio_mmio_remove
 
-Paper submission: February 4, 2018
-
-Notification of acceptance: March 18, 2018
-
-Submission of accepted papers: March 30, 2018
-
-Payment of registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: April 1, 2018
-
-
-Webpage of the CISTI'2018 Doctoral Symposium: http://cisti.eu/index.php?opt=
-ion=3Dcom_content&view=3Darticle&id=3D35&Itemid=3D119&lang=3Den
-
--
-
-Regards,
-
-CISTI'2018 Team
-http://www.cisti.eu/
------------------------
-
-
-
----
-This email has been checked for viruses by AVG.
-http://www.avg.com
-
-
---===============2699478907723633647==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2699478907723633647==--
+ drivers/net/virtio_net.c     |  2 +-
+ drivers/virtio/virtio_mmio.c | 57 ++++++++++++++++++++++++++++++++++++--------
+ 2 files changed, 48 insertions(+), 11 deletions(-)
