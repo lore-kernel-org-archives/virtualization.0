@@ -1,13 +1,16 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] ptr_ring: add barriers
-Date: Fri, 08 Dec 2017 13:08:48 -0500 (EST)
-Message-ID: <20171208.130848.1881550210595407116.davem__22522.5286245861$1512756538$gmane$org@davemloft.net>
-References: <1512501990-30029-1-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH net-next] virtio_net: Disable interrupts if
+	napi_complete_done rescheduled napi
+Date: Fri, 08 Dec 2017 13:19:23 -0500 (EST)
+Message-ID: <20171208.131923.1211894626989773629.davem__30783.3777893849$1512757200$gmane$org@davemloft.net>
+References: <1512620115-7569-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<20171207070618-mutt-send-email-mst@kernel.org>
+	<ffcf1aa3-403e-9ff0-bd51-c507d5a52991@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="iso-2022-jp"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1512501990-30029-1-git-send-email-mst@redhat.com>
+In-Reply-To: <ffcf1aa3-403e-9ff0-bd51-c507d5a52991@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,37 +20,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: george.cherian@cavium.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, edumazet@google.com, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Tue, 5 Dec 2017 21:29:37 +0200
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 7 Dec 2017 15:08:45 +0800
 
-> Users of ptr_ring expect that it's safe to give the
-> data structure a pointer and have it be available
-> to consumers, but that actually requires an smb_wmb
-> or a stronger barrier.
 > 
-> In absence of such barriers and on architectures that reorder writes,
-> consumer might read an un=initialized value from an skb pointer stored
-> in the skb array.  This was observed causing crashes.
 > 
-> To fix, add memory barriers.  The barrier we use is a wmb, the
-> assumption being that producers do not need to read the value so we do
-> not need to order these reads.
+> On 2017年12月07日 13:09, Michael S. Tsirkin wrote:
+>> On Thu, Dec 07, 2017 at 01:15:15PM +0900, Toshiaki Makita wrote:
+>>> Since commit 39e6c8208d7b ("net: solve a NAPI race") napi has been
+>>> able
+>>> to be rescheduled within napi_complete_done() even in non-busypoll
+>>> case,
+>>> but virtnet_poll() always enabled interrupts before complete, and when
+>>> napi was rescheduled within napi_complete_done() it did not disable
+>>> interrupts.
+>>> This caused more interrupts when event idx is disabled.
+>>>
+>>> According to commit cbdadbbf0c79 ("virtio_net: fix race in RX VQ
+>>> processing") we cannot place virtqueue_enable_cb_prepare() after
+>>> NAPI_STATE_SCHED is cleared, so disable interrupts again if
+>>> napi_complete_done() returned false.
+>>>
+>>> Tested with vhost-user of OVS 2.7 on host, which does not have the
+>>> event
+>>> idx feature.
+...
+>>> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+>>
+>> it might make sense in net and not -next since tx napi regressed
+>> performance
+>> in some configs, this might bring it back at least partially.
+>> Jason - what do you think?
 > 
-> Reported-by: George Cherian <george.cherian@cavium.com>
-> Suggested-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
+> No sure, the regression I saw was tested with event idx on. And
+> virtqueue_disable_cb() does almost nothing for event idx (or even a
+> little bit slower).
 > 
-> George, could you pls report whether this patch fixes
-> the issue for you?
+> The patch looks good.
 > 
-> This seems to be needed in stable as well.
+> Acked-by: Jason Wang <jasowang@redhat.com>
 
-I really need some testing feedback for this before I apply it
-and queue it up for -stable.
-
-George?
+I'm going to put this into net-next for now.
