@@ -1,18 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v18 10/10] virtio-balloon: don't report free pages when
-	page poisoning is enabled
-Date: Mon, 11 Dec 2017 15:24:38 +0200
-Message-ID: <20171211152258-mutt-send-email-mst__27237.7354711809$1512998745$gmane$org@kernel.org>
-References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
-	<1511963726-34070-11-git-send-email-wei.w.wang@intel.com>
-	<20171201173951-mutt-send-email-mst@kernel.org>
-	<5A2E27F5.2010703@intel.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] ptr_ring: add barriers
+Date: Mon, 11 Dec 2017 10:53:08 -0500 (EST)
+Message-ID: <20171211.105308.1899676147655539775.davem__29096.4637803429$1513007625$gmane$org@davemloft.net>
+References: <1512501990-30029-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5A2E27F5.2010703@intel.com>
+In-Reply-To: <1512501990-30029-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,80 +17,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: mst@redhat.com
+Cc: george.cherian@cavium.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 11, 2017 at 02:38:45PM +0800, Wei Wang wrote:
-> On 12/01/2017 11:49 PM, Michael S. Tsirkin wrote:
-> > On Wed, Nov 29, 2017 at 09:55:26PM +0800, Wei Wang wrote:
-> > > The guest free pages should not be discarded by the live migration thread
-> > > when page poisoning is enabled with PAGE_POISONING_NO_SANITY=n, because
-> > > skipping the transfer of such poisoned free pages will trigger false
-> > > positive when new pages are allocated and checked on the destination.
-> > > This patch skips the reporting of free pages in the above case.
-> > > 
-> > > Reported-by: Michael S. Tsirkin <mst@redhat.com>
-> > > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> > > Cc: Michal Hocko <mhocko@suse.com>
-> > > ---
-> > >   drivers/virtio/virtio_balloon.c | 4 +++-
-> > >   1 file changed, 3 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> > > index 035bd3a..6ac4cff 100644
-> > > --- a/drivers/virtio/virtio_balloon.c
-> > > +++ b/drivers/virtio/virtio_balloon.c
-> > > @@ -652,7 +652,9 @@ static void report_free_page(struct work_struct *work)
-> > >   	/* Start by sending the obtained cmd id to the host with an outbuf */
-> > >   	send_one_desc(vb, vb->free_page_vq, virt_to_phys(&vb->start_cmd_id),
-> > >   		      sizeof(uint32_t), false, true, false);
-> > > -	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
-> > > +	if (!(page_poisoning_enabled() &&
-> > > +	    !IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY)))
-> > > +		walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
-> > >   	/*
-> > >   	 * End by sending the stop id to the host with an outbuf. Use the
-> > >   	 * non-batching mode here to trigger a kick after adding the stop id.
-> > PAGE_POISONING_ZERO is actually OK.
-> > 
-> > But I really would prefer it that we still send pages to host,
-> > otherwise debugging becomes much harder.
-> > 
-> > And it does not have to be completely useless, even though
-> > you can not discard them as they would be zero-filled then.
-> > 
-> > How about a config field telling host what should be there in the free
-> > pages? This way even though host can not discard them, host can send
-> > them out without reading them, still a win.
-> > 
-> > 
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Tue, 5 Dec 2017 21:29:37 +0200
+
+> Users of ptr_ring expect that it's safe to give the
+> data structure a pointer and have it be available
+> to consumers, but that actually requires an smb_wmb
+> or a stronger barrier.
 > 
-> Since this poison value comes with the free page reporting feature, how
-> about sending the poison value via the free_page_vq, along with the cmd id
-> in the outbuf? That is, use the following interface:
+> In absence of such barriers and on architectures that reorder writes,
+> consumer might read an un=initialized value from an skb pointer stored
+> in the skb array.  This was observed causing crashes.
 > 
-> struct virtio_balloon_free_page_vq_hdr {
->     bool page_poisoning;
->     __virtio32 poison_value;
->     __virtio32 cmd_id;
-> }
-
-Can we put the value in config space instead?
-
-> We need "bool page_poisoning" because "poison_value=0" doesn't tell whether
-> page poising is in use by the guest.
-
-Can we use a feature bit for this?
-
-> PAGE_POISONING_ZERO sets
-> "page_poisoning=true, poisoning_value=0", and the host will send the
-> 0-filled pages to the destination (if not sending 0-filled pages, the
-> destination host would offer non-zero pages to the guest)
-
-Why would it? Linux zeroes all pages on alloc.
-
-> The host can discard free pages only when "page_poisoning=false".
+> To fix, add memory barriers.  The barrier we use is a wmb, the
+> assumption being that producers do not need to read the value so we do
+> not need to order these reads.
 > 
-> Best,
-> Wei
+> Reported-by: George Cherian <george.cherian@cavium.com>
+> Suggested-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+I'm asked for asking for testing feedback and did not get it in a
+reasonable amount of time.
+
+So I'm applying this as-is, and queueing it up for -stable.
+
+Thank you.
