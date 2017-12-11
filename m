@@ -1,7 +1,7 @@
 From: weiping zhang <zhangweiping@didichuxing.com>
-Subject: [PATCH 2/3] virtio: use put_device instead of kfree
-Date: Mon, 11 Dec 2017 23:55:26 +0800
-Message-ID: <3c3ed58013b0266886e72dc11424e0b93a745e18.1513007310.git.zhangweiping@didichuxing.com>
+Subject: [PATCH 1/3] virtio_pci: use put_device instead of kfree
+Date: Mon, 11 Dec 2017 23:55:16 +0800
+Message-ID: <0657b3e821f7c9f95ecf93e0286fa0b48a3e1289.1513007310.git.zhangweiping@didichuxing.com>
 References: <cover.1513007310.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,53 +22,42 @@ To: cohuck@redhat.com, mst@redhat.com, jasowang@redhat.com
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-don't free vp_vdev until vp_vdev.dev.release be called.
+don't free vp_dev until vp_dev->vdev.dev.release be called.
 
 Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
 ---
- drivers/misc/mic/vop/vop_main.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/virtio/virtio_pci_common.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
-index a341938..8c716a0 100644
---- a/drivers/misc/mic/vop/vop_main.c
-+++ b/drivers/misc/mic/vop/vop_main.c
-@@ -452,10 +452,12 @@ static irqreturn_t vop_virtio_intr_handler(int irq, void *data)
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 1c4797e..91d20f7 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -551,16 +551,17 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ 	pci_set_master(pci_dev);
  
- static void vop_virtio_release_dev(struct device *_d)
- {
--	/*
--	 * No need for a release method similar to virtio PCI.
--	 * Provide an empty one to avoid getting a warning from core.
--	 */
-+	struct virtio_device *vdev =
-+			container_of(_d, struct virtio_device, dev);
-+	struct _vop_vdev *vop_vdev =
-+			container_of(vdev, struct _vop_vdev, vdev);
-+
-+	kfree(vop_vdev);
- }
+ 	rc = register_virtio_device(&vp_dev->vdev);
+-	if (rc)
+-		goto err_register;
++	if (rc) {
++		if (vp_dev->ioaddr)
++		     virtio_pci_legacy_remove(vp_dev);
++		else
++		     virtio_pci_modern_remove(vp_dev);
++		pci_disable_device(pci_dev);
++		put_device(&vp_dev->vdev.dev);
++	}
  
- /*
-@@ -501,7 +503,9 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
- 		dev_err(_vop_dev(vdev),
- 			"Failed to register vop device %u type %u\n",
- 			offset, type);
--		goto free_irq;
-+		vpdev->hw_ops->free_irq(vpdev, vdev->virtio_cookie, vdev);
-+		put_device(&vdev->vdev.dev);
-+		return ret;
- 	}
- 	writeq((u64)vdev, &vdev->dc->vdev);
- 	dev_dbg(_vop_dev(vdev), "%s: registered vop device %u type %u vdev %p\n",
-@@ -509,8 +513,6 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
+-	return 0;
++	return rc;
  
- 	return 0;
- 
--free_irq:
--	vpdev->hw_ops->free_irq(vpdev, vdev->virtio_cookie, vdev);
- kfree:
- 	kfree(vdev);
- 	return ret;
+-err_register:
+-	if (vp_dev->ioaddr)
+-	     virtio_pci_legacy_remove(vp_dev);
+-	else
+-	     virtio_pci_modern_remove(vp_dev);
+ err_probe:
+ 	pci_disable_device(pci_dev);
+ err_enable_device:
 -- 
 2.9.4
