@@ -1,7 +1,7 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v19 3/7] xbitmap: add more operations
-Date: Tue, 12 Dec 2017 19:55:55 +0800
-Message-ID: <1513079759-14169-4-git-send-email-wei.w.wang__17992.2423013069$1513080855$gmane$org@intel.com>
+Subject: [PATCH v19 5/7] mm: support reporting free page blocks
+Date: Tue, 12 Dec 2017 19:55:57 +0800
+Message-ID: <1513079759-14169-6-git-send-email-wei.w.wang__23047.1897557893$1513080869$gmane$org@intel.com>
 References: <1513079759-14169-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,381 +21,147 @@ To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@no
 Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, riel@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, nilal@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds support to find next 1 or 0 bit in a xbmitmap range and
-clear a range of bits.
+This patch adds support to walk through the free page blocks in the
+system and report them via a callback function. Some page blocks may
+leave the free list after zone->lock is released, so it is the caller's
+responsibility to either detect or prevent the use of such pages.
 
-More possible optimizations to add in the future:
-1) xb_set_bit_range: set a range of bits.
-2) when searching a bit, if the bit is not found in the slot, move on to
-the next slot directly.
-3) add tags to help searching.
+One use example of this patch is to accelerate live migration by skipping
+the transfer of free pages reported from the guest. A popular method used
+by the hypervisor to track which part of memory is written during live
+migration is to write-protect all the guest memory. So, those pages that
+are reported as free pages but are written after the report function
+returns will be captured by the hypervisor, and they will be added to the
+next round of memory transfer.
 
 Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Cc: Matthew Wilcox <mawilcox@microsoft.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Liang Li <liang.z.li@intel.com>
 Cc: Michal Hocko <mhocko@kernel.org>
 Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Suggested-by: Matthew Wilcox <mawilcox@microsoft.com>
+Acked-by: Michal Hocko <mhocko@kernel.org>
 ---
- include/linux/xbitmap.h      |   8 +-
- lib/xbitmap.c                | 229 +++++++++++++++++++++++++++++++++++++++++++
- tools/include/linux/bitmap.h |  34 +++++++
- tools/include/linux/kernel.h |   2 +
- 4 files changed, 272 insertions(+), 1 deletion(-)
+ include/linux/mm.h |  6 ++++
+ mm/page_alloc.c    | 91 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 97 insertions(+)
 
-diff --git a/include/linux/xbitmap.h b/include/linux/xbitmap.h
-index b4d8375..eddf0d5e 100644
---- a/include/linux/xbitmap.h
-+++ b/include/linux/xbitmap.h
-@@ -33,8 +33,14 @@ static inline void xb_init(struct xb *xb)
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index ea818ff..b3077dd 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1938,6 +1938,12 @@ extern void free_area_init_node(int nid, unsigned long * zones_size,
+ 		unsigned long zone_start_pfn, unsigned long *zholes_size);
+ extern void free_initmem(void);
+ 
++extern void walk_free_mem_block(void *opaque,
++				int min_order,
++				bool (*report_pfn_range)(void *opaque,
++							 unsigned long pfn,
++							 unsigned long num));
++
+ /*
+  * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
+  * into the buddy system. The freed pages will be poisoned with pattern
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 73f5d45..0de461d 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4888,6 +4888,97 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
+ 	show_swap_cache_info();
  }
- 
- int xb_set_bit(struct xb *xb, unsigned long bit);
-+int xb_preload_and_set_bit(struct xb *xb, unsigned long bit, gfp_t gfp);
- bool xb_test_bit(const struct xb *xb, unsigned long bit);
--int xb_clear_bit(struct xb *xb, unsigned long bit);
-+void xb_clear_bit(struct xb *xb, unsigned long bit);
-+unsigned long xb_find_next_set_bit(struct xb *xb, unsigned long start,
-+				   unsigned long end);
-+unsigned long xb_find_next_zero_bit(struct xb *xb, unsigned long start,
-+				    unsigned long end);
-+void xb_clear_bit_range(struct xb *xb, unsigned long start, unsigned long end);
- 
- static inline bool xb_empty(const struct xb *xb)
- {
-diff --git a/lib/xbitmap.c b/lib/xbitmap.c
-index 182aa29..10df879 100644
---- a/lib/xbitmap.c
-+++ b/lib/xbitmap.c
-@@ -3,6 +3,13 @@
- #include <linux/bitmap.h>
- #include <linux/slab.h>
  
 +/*
-+ * Developer notes: locks are required to gurantee there is no concurrent
-+ * calls of xb_set_bit, xb_clear_bit, xb_clear_bit_range, xb_test_bit,
-+ * xb_find_next_set_bit, or xb_find_next_clear_bit to operate on the same
-+ * ida bitamp.
-+ */
-+
- /**
-  *  xb_set_bit - set a bit in the xbitmap
-  *  @xb: the xbitmap tree used to record the bit
-@@ -70,6 +77,28 @@ int xb_set_bit(struct xb *xb, unsigned long bit)
- EXPORT_SYMBOL(xb_set_bit);
- 
- /**
-+ *  xb_preload_and_set_bit - preload the memory and set a bit in the xbitmap
-+ *  @xb: the xbitmap tree used to record the bit
-+ *  @bit: index of the bit to set
++ * Walk through a free page list and report the found pfn range via the
++ * callback.
 + *
-+ * A wrapper of the xb_preload() and xb_set_bit().
-+ * Returns: 0 on success; -EAGAIN or -ENOMEM on error.
++ * Return false if the callback requests to stop reporting. Otherwise,
++ * return true.
 + */
-+int xb_preload_and_set_bit(struct xb *xb, unsigned long bit, gfp_t gfp)
++static bool walk_free_page_list(void *opaque,
++				struct zone *zone,
++				int order,
++				enum migratetype mt,
++				bool (*report_pfn_range)(void *,
++							 unsigned long,
++							 unsigned long))
 +{
-+	int ret = 0;
++	struct page *page;
++	struct list_head *list;
++	unsigned long pfn, flags;
++	bool ret;
 +
-+	if (!xb_preload(gfp))
-+		return -ENOMEM;
-+
-+	ret = xb_set_bit(xb, bit);
-+	xb_preload_end();
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(xb_preload_and_set_bit);
-+
-+/**
-  * xb_clear_bit - clear a bit in the xbitmap
-  * @xb: the xbitmap tree used to record the bit
-  * @bit: index of the bit to clear
-@@ -115,6 +144,63 @@ void xb_clear_bit(struct xb *xb, unsigned long bit)
- EXPORT_SYMBOL(xb_clear_bit);
- 
- /**
-+ * xb_clear_bit_range - clear a range of bits in the xbitmap
-+ * @start: the start of the bit range, inclusive
-+ * @end: the end of the bit range, exclusive
-+ *
-+ * This function is used to clear a bit in the xbitmap. If all the bits of the
-+ * bitmap are 0, the bitmap will be freed.
-+ */
-+void xb_clear_bit_range(struct xb *xb, unsigned long start, unsigned long end)
-+{
-+	struct radix_tree_root *root = &xb->xbrt;
-+	struct radix_tree_node *node;
-+	void **slot;
-+	struct ida_bitmap *bitmap;
-+	unsigned int nbits;
-+
-+	for (; start < end; start = (start | (IDA_BITMAP_BITS - 1)) + 1) {
-+		unsigned long index = start / IDA_BITMAP_BITS;
-+		unsigned long bit = start % IDA_BITMAP_BITS;
-+
-+		bitmap = __radix_tree_lookup(root, index, &node, &slot);
-+		if (radix_tree_exception(bitmap)) {
-+			unsigned long ebit = bit + 2;
-+			unsigned long tmp = (unsigned long)bitmap;
-+
-+			nbits = min(end - start + 1, BITS_PER_LONG - ebit);
-+
-+			if (ebit >= BITS_PER_LONG)
-+				continue;
-+			bitmap_clear(&tmp, ebit, nbits);
-+			if (tmp == RADIX_TREE_EXCEPTIONAL_ENTRY)
-+				__radix_tree_delete(root, node, slot);
-+			else
-+				rcu_assign_pointer(*slot, (void *)tmp);
-+		} else if (bitmap) {
-+			nbits = min(end - start + 1, IDA_BITMAP_BITS - bit);
-+
-+			if (nbits != IDA_BITMAP_BITS)
-+				bitmap_clear(bitmap->bitmap, bit, nbits);
-+
-+			if (nbits == IDA_BITMAP_BITS ||
-+			    bitmap_empty(bitmap->bitmap, IDA_BITMAP_BITS)) {
-+				kfree(bitmap);
-+				__radix_tree_delete(root, node, slot);
-+			}
-+		}
-+
-+		/*
-+		 * Already reached the last usable ida bitmap, so just return,
-+		 * otherwise overflow will happen.
-+		 */
-+		if (index == ULONG_MAX / IDA_BITMAP_BITS)
++	spin_lock_irqsave(&zone->lock, flags);
++	list = &zone->free_area[order].free_list[mt];
++	list_for_each_entry(page, list, lru) {
++		pfn = page_to_pfn(page);
++		ret = report_pfn_range(opaque, pfn, 1 << order);
++		if (!ret)
 +			break;
 +	}
-+}
-+EXPORT_SYMBOL(xb_clear_bit_range);
-+
-+/**
-  * xb_test_bit - test a bit in the xbitmap
-  * @xb: the xbitmap tree used to record the bit
-  * @bit: index of the bit to test
-@@ -143,6 +229,87 @@ bool xb_test_bit(const struct xb *xb, unsigned long bit)
- }
- EXPORT_SYMBOL(xb_test_bit);
- 
-+static unsigned long xb_find_next_bit(struct xb *xb, unsigned long start,
-+				      unsigned long end, bool set)
-+{
-+	struct radix_tree_root *root = &xb->xbrt;
-+	struct radix_tree_node *node;
-+	void **slot;
-+	struct ida_bitmap *bmap;
-+	unsigned long ret = end;
-+
-+	for (; start < end; start = (start | (IDA_BITMAP_BITS - 1)) + 1) {
-+		unsigned long index = start / IDA_BITMAP_BITS;
-+		unsigned long bit = start % IDA_BITMAP_BITS;
-+
-+		bmap = __radix_tree_lookup(root, index, &node, &slot);
-+		if (radix_tree_exception(bmap)) {
-+			unsigned long tmp = (unsigned long)bmap;
-+			unsigned long ebit = bit + 2;
-+
-+			if (ebit >= BITS_PER_LONG)
-+				continue;
-+			if (set)
-+				ret = find_next_bit(&tmp, BITS_PER_LONG, ebit);
-+			else
-+				ret = find_next_zero_bit(&tmp, BITS_PER_LONG,
-+							 ebit);
-+			if (ret < BITS_PER_LONG)
-+				return ret - 2 + IDA_BITMAP_BITS * index;
-+		} else if (bmap) {
-+			if (set)
-+				ret = find_next_bit(bmap->bitmap,
-+						    IDA_BITMAP_BITS, bit);
-+			else
-+				ret = find_next_zero_bit(bmap->bitmap,
-+							 IDA_BITMAP_BITS, bit);
-+			if (ret < IDA_BITMAP_BITS)
-+				return ret + index * IDA_BITMAP_BITS;
-+		} else if (!bmap && !set) {
-+			return start;
-+		}
-+
-+		/*
-+		 * Already reached the last searchable ida bitmap. Return
-+		 * ULONG_MAX, otherwise overflow will happen.
-+		 */
-+		if (index == ULONG_MAX / IDA_BITMAP_BITS)
-+			return ULONG_MAX;
-+	}
++	spin_unlock_irqrestore(&zone->lock, flags);
 +
 +	return ret;
 +}
 +
 +/**
-+ * xb_find_next_set_bit - find the next set bit in a range
-+ * @xb: the xbitmap to search
-+ * @start: the start of the range, inclusive
-+ * @end: the end of the range, exclusive
++ * walk_free_mem_block - Walk through the free page blocks in the system
++ * @opaque: the context passed from the caller
++ * @min_order: the minimum order of free lists to check
++ * @report_pfn_range: the callback to report the pfn range of the free pages
 + *
-+ * Returns: the index of the found bit, or @end + 1 if no such bit is found.
-+ */
-+unsigned long xb_find_next_set_bit(struct xb *xb, unsigned long start,
-+				   unsigned long end)
-+{
-+	return xb_find_next_bit(xb, start, end, 1);
-+}
-+EXPORT_SYMBOL(xb_find_next_set_bit);
-+
-+/**
-+ * xb_find_next_zero_bit - find the next zero bit in a range
-+ * @xb: the xbitmap to search
-+ * @start: the start of the range, inclusive
-+ * @end: the end of the range, exclusive
++ * If the callback returns false, stop iterating the list of free page blocks.
++ * Otherwise, continue to report.
 + *
-+ * Returns: the index of the found bit, or @end + 1 if no such bit is found.
++ * Please note that there are no locking guarantees for the callback and
++ * that the reported pfn range might be freed or disappear after the
++ * callback returns so the caller has to be very careful how it is used.
++ *
++ * The callback itself must not sleep or perform any operations which would
++ * require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
++ * or via any lock dependency. It is generally advisable to implement
++ * the callback as simple as possible and defer any heavy lifting to a
++ * different context.
++ *
++ * There is no guarantee that each free range will be reported only once
++ * during one walk_free_mem_block invocation.
++ *
++ * pfn_to_page on the given range is strongly discouraged and if there is
++ * an absolute need for that make sure to contact MM people to discuss
++ * potential problems.
++ *
++ * The function itself might sleep so it cannot be called from atomic
++ * contexts.
++ *
++ * In general low orders tend to be very volatile and so it makes more
++ * sense to query larger ones first for various optimizations which like
++ * ballooning etc... This will reduce the overhead as well.
 + */
-+unsigned long xb_find_next_zero_bit(struct xb *xb, unsigned long start,
-+				    unsigned long end)
++void walk_free_mem_block(void *opaque,
++			 int min_order,
++			 bool (*report_pfn_range)(void *opaque,
++						  unsigned long pfn,
++						  unsigned long num))
 +{
-+	return xb_find_next_bit(xb, start, end, 0);
-+}
-+EXPORT_SYMBOL(xb_find_next_zero_bit);
++	struct zone *zone;
++	int order;
++	enum migratetype mt;
++	bool ret;
 +
- #ifndef __KERNEL__
- 
- static DEFINE_XB(xb1);
-@@ -160,6 +327,66 @@ void xbitmap_check_bit(unsigned long bit)
- 	xb_preload_end();
- }
- 
-+static void xbitmap_check_bit_range(void)
-+{
-+	/*
-+	 * Regular tests
-+	 * ebit tests: set 1030, 1031, 1034, 1035
-+	 * Next 1 in [0, 10000)    --> 1030
-+	 * Next 1 in [1030, 1034)  --> 1030
-+	 * Next 1 in [1032, 1034)  --> none (1034)
-+	 * Next 0 in [1030, 1032)  --> none (1032)
-+	 * Next 0 in [1030, 1033)  --> 1032
-+	 *
-+	 * ida bitmap tests: set 8260, 8261, 8264, 8265
-+	 * Next 1 in [2000, 10000) --> 8260
-+	 * Next 1 in [8260, 8264)  --> 8260
-+	 * Next 1 in [8262, 8264)  --> none (8264)
-+	 * Next 0 in [8260, 8262)  --> none (8262)
-+	 * Next 0 in [8260, 8263)  --> 8262
-+	 */
-+	assert(!xb_preload_and_set_bit(&xb1, 1030, GFP_KERNEL));
-+	assert(!xb_preload_and_set_bit(&xb1, 1031, GFP_KERNEL));
-+	assert(!xb_preload_and_set_bit(&xb1, 1034, GFP_KERNEL));
-+	assert(!xb_preload_and_set_bit(&xb1, 1035, GFP_KERNEL));
-+	assert(!xb_preload_and_set_bit(&xb1, 8260, GFP_KERNEL));
-+	assert(!xb_preload_and_set_bit(&xb1, 8261, GFP_KERNEL));
-+	assert(!xb_preload_and_set_bit(&xb1, 8264, GFP_KERNEL));
-+	assert(!xb_preload_and_set_bit(&xb1, 8265, GFP_KERNEL));
-+
-+	assert(xb_find_next_set_bit(&xb1, 0, 10000) == 1030);
-+	assert(xb_find_next_set_bit(&xb1, 1030, 1034) == 1030);
-+	assert(xb_find_next_set_bit(&xb1, 1032, 1034) == 1034);
-+	assert(xb_find_next_zero_bit(&xb1, 1030, 1032) == 1032);
-+	assert(xb_find_next_zero_bit(&xb1, 1030, 1033) == 1032);
-+
-+	assert(xb_find_next_set_bit(&xb1, 2000, 10000) == 8260);
-+	assert(xb_find_next_set_bit(&xb1, 8260, 8264) == 8260);
-+	assert(xb_find_next_set_bit(&xb1, 8262, 8264) == 8264);
-+	assert(xb_find_next_zero_bit(&xb1, 8260, 8262) == 8262);
-+	assert(xb_find_next_zero_bit(&xb1, 8260, 8263) == 8262);
-+
-+	xb_clear_bit_range(&xb1, 0, 10000);
-+	assert(xb_find_next_set_bit(&xb1, 0, 10000) == 10000);
-+
-+	/*
-+	 * Overflow tests:
-+	 * Next 1 in [0, ULONG_MAX)		--> none (ULONG_MAX)
-+	 * Set ULONG_MAX - 4
-+	 * Next 1 in [0, ULONG_MAX)		--> ULONG_MAX - 4
-+	 * Next 1 in [ULONG_MAX - 3, ULONG_MAX)	--> none (ULONG_MAX)
-+	 * Next 0 in [ULONG_MAX - 4, ULONG_MAX)	--> ULONG_MAX - 3
-+	 */
-+	assert(!xb_preload_and_set_bit(&xb1, ULONG_MAX - 4, GFP_KERNEL));
-+	assert(xb_find_next_set_bit(&xb1, ULONG_MAX - 10, ULONG_MAX) ==
-+	       ULONG_MAX - 4);
-+	assert(xb_find_next_set_bit(&xb1, ULONG_MAX - 3, ULONG_MAX) ==
-+	       ULONG_MAX);
-+	assert(xb_find_next_zero_bit(&xb1, ULONG_MAX - 4, ULONG_MAX) ==
-+	       ULONG_MAX - 3);
-+	xb_clear_bit_range(&xb1, ULONG_MAX - 10, ULONG_MAX);
-+}
-+
- void xbitmap_checks(void)
- {
- 	xb_init(&xb1);
-@@ -171,6 +398,8 @@ void xbitmap_checks(void)
- 	xbitmap_check_bit(1025);
- 	xbitmap_check_bit((1UL << 63) | (1UL << 24));
- 	xbitmap_check_bit((1UL << 63) | (1UL << 24) | 70);
-+
-+	xbitmap_check_bit_range();
- }
- 
- int __weak main(void)
-diff --git a/tools/include/linux/bitmap.h b/tools/include/linux/bitmap.h
-index ca16027..8d0bc1b 100644
---- a/tools/include/linux/bitmap.h
-+++ b/tools/include/linux/bitmap.h
-@@ -37,6 +37,40 @@ static inline void bitmap_zero(unsigned long *dst, int nbits)
- 	}
- }
- 
-+static inline void __bitmap_clear(unsigned long *map, unsigned int start,
-+				  int len)
-+{
-+	unsigned long *p = map + BIT_WORD(start);
-+	const unsigned int size = start + len;
-+	int bits_to_clear = BITS_PER_LONG - (start % BITS_PER_LONG);
-+	unsigned long mask_to_clear = BITMAP_FIRST_WORD_MASK(start);
-+
-+	while (len - bits_to_clear >= 0) {
-+		*p &= ~mask_to_clear;
-+		len -= bits_to_clear;
-+		bits_to_clear = BITS_PER_LONG;
-+		mask_to_clear = ~0UL;
-+		p++;
-+	}
-+	if (len) {
-+		mask_to_clear &= BITMAP_LAST_WORD_MASK(size);
-+		*p &= ~mask_to_clear;
++	for_each_populated_zone(zone) {
++		for (order = MAX_ORDER - 1; order >= min_order; order--) {
++			for (mt = 0; mt < MIGRATE_TYPES; mt++) {
++				ret = walk_free_page_list(opaque, zone,
++							  order, mt,
++							  report_pfn_range);
++				if (!ret)
++					return;
++			}
++		}
 +	}
 +}
++EXPORT_SYMBOL_GPL(walk_free_mem_block);
 +
-+static inline __always_inline void bitmap_clear(unsigned long *map,
-+						unsigned int start,
-+						unsigned int nbits)
-+{
-+	if (__builtin_constant_p(nbits) && nbits == 1)
-+		__clear_bit(start, map);
-+	else if (__builtin_constant_p(start & 7) && IS_ALIGNED(start, 8) &&
-+		 __builtin_constant_p(nbits & 7) && IS_ALIGNED(nbits, 8))
-+		memset((char *)map + start / 8, 0, nbits / 8);
-+	else
-+		__bitmap_clear(map, start, nbits);
-+}
-+
- static inline void bitmap_fill(unsigned long *dst, unsigned int nbits)
+ static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
  {
- 	unsigned int nlongs = BITS_TO_LONGS(nbits);
-diff --git a/tools/include/linux/kernel.h b/tools/include/linux/kernel.h
-index 0ad8844..3c992ae 100644
---- a/tools/include/linux/kernel.h
-+++ b/tools/include/linux/kernel.h
-@@ -13,6 +13,8 @@
- #define UINT_MAX	(~0U)
- #endif
- 
-+#define IS_ALIGNED(x, a)	(((x) & ((typeof(x))(a) - 1)) == 0)
-+
- #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
- 
- #define PERF_ALIGN(x, a)	__PERF_ALIGN_MASK(x, (typeof(x))(a)-1)
+ 	zoneref->zone = zone;
 -- 
 2.7.4
