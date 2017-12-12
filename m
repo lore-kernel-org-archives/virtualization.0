@@ -1,14 +1,18 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v19 7/7] virtio-balloon: don't report free pages when page
-	poisoning is enabled
-Date: Tue, 12 Dec 2017 19:55:59 +0800
-Message-ID: <1513079759-14169-8-git-send-email-wei.w.wang__47249.7093178847$1513080902$gmane$org@intel.com>
-References: <1513079759-14169-1-git-send-email-wei.w.wang@intel.com>
+Subject: Re: [PATCH v18 10/10] virtio-balloon: don't report free pages when
+	page poisoning is enabled
+Date: Tue, 12 Dec 2017 20:21:31 +0800
+Message-ID: <5A2FC9CB.7030508__26262.2509887025$1513081224$gmane$org@intel.com>
+References: <1511963726-34070-1-git-send-email-wei.w.wang@intel.com>
+	<1511963726-34070-11-git-send-email-wei.w.wang@intel.com>
+	<20171201173951-mutt-send-email-mst@kernel.org>
+	<5A2E27F5.2010703@intel.com>
+	<20171211152258-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1513079759-14169-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20171211152258-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,67 +22,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, mawilcox@microsoft.com
-Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, riel@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, nilal@redhat.com, mgorman@techsingularity.net
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-The guest free pages should not be discarded by the live migration thread
-when page poisoning is enabled with PAGE_POISONING_NO_SANITY=n, because
-skipping the transfer of such poisoned free pages will trigger false
-positive when new pages are allocated and checked on the destination.
-This patch adds a config field, poison_val. Guest writes to the config
-field to tell the host about the poisoning value. The value will be 0 in
-the following cases:
-1) PAGE_POISONING_NO_SANITY is enabled;
-2) page poisoning is disabled; or
-3) PAGE_POISONING_ZERO is enabled.
+On 12/11/2017 09:24 PM, Michael S. Tsirkin wrote:
+> On Mon, Dec 11, 2017 at 02:38:45PM +0800, Wei Wang wrote:
+>> On 12/01/2017 11:49 PM, Michael S. Tsirkin wrote:
+>>> On Wed, Nov 29, 2017 at 09:55:26PM +0800, Wei Wang wrote:
+>>>> The guest free pages should not be discarded by the live migration thread
+>>>> when page poisoning is enabled with PAGE_POISONING_NO_SANITY=n, because
+>>>> skipping the transfer of such poisoned free pages will trigger false
+>>>> positive when new pages are allocated and checked on the destination.
+>>>> This patch skips the reporting of free pages in the above case.
+>>>>
+>>>> Reported-by: Michael S. Tsirkin <mst@redhat.com>
+>>>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+>>>> Cc: Michal Hocko <mhocko@suse.com>
+>>>> ---
+>>>>    drivers/virtio/virtio_balloon.c | 4 +++-
+>>>>    1 file changed, 3 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+>>>> index 035bd3a..6ac4cff 100644
+>>>> --- a/drivers/virtio/virtio_balloon.c
+>>>> +++ b/drivers/virtio/virtio_balloon.c
+>>>> @@ -652,7 +652,9 @@ static void report_free_page(struct work_struct *work)
+>>>>    	/* Start by sending the obtained cmd id to the host with an outbuf */
+>>>>    	send_one_desc(vb, vb->free_page_vq, virt_to_phys(&vb->start_cmd_id),
+>>>>    		      sizeof(uint32_t), false, true, false);
+>>>> -	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
+>>>> +	if (!(page_poisoning_enabled() &&
+>>>> +	    !IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY)))
+>>>> +		walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
+>>>>    	/*
+>>>>    	 * End by sending the stop id to the host with an outbuf. Use the
+>>>>    	 * non-batching mode here to trigger a kick after adding the stop id.
+>>> PAGE_POISONING_ZERO is actually OK.
+>>>
+>>> But I really would prefer it that we still send pages to host,
+>>> otherwise debugging becomes much harder.
+>>>
+>>> And it does not have to be completely useless, even though
+>>> you can not discard them as they would be zero-filled then.
+>>>
+>>> How about a config field telling host what should be there in the free
+>>> pages? This way even though host can not discard them, host can send
+>>> them out without reading them, still a win.
+>>>
+>>>
+>> Since this poison value comes with the free page reporting feature, how
+>> about sending the poison value via the free_page_vq, along with the cmd id
+>> in the outbuf? That is, use the following interface:
+>>
+>> struct virtio_balloon_free_page_vq_hdr {
+>>      bool page_poisoning;
+>>      __virtio32 poison_value;
+>>      __virtio32 cmd_id;
+>> }
+> Can we put the value in config space instead?
+>
+>> We need "bool page_poisoning" because "poison_value=0" doesn't tell whether
+>> page poising is in use by the guest.
+> Can we use a feature bit for this?
+>
+>> PAGE_POISONING_ZERO sets
+>> "page_poisoning=true, poisoning_value=0", and the host will send the
+>> 0-filled pages to the destination (if not sending 0-filled pages, the
+>> destination host would offer non-zero pages to the guest)
+> Why would it? Linux zeroes all pages on alloc.
+>
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
----
- drivers/virtio/virtio_balloon.c     | 8 ++++++++
- include/uapi/linux/virtio_balloon.h | 2 ++
- 2 files changed, 10 insertions(+)
+Thanks, that is the case. I think we don't need a feature bit then. 
+Please have a check the v19 patches.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 6e4f359..3050c9f 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -858,6 +858,7 @@ static struct file_system_type balloon_fs = {
- static int virtballoon_probe(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb;
-+	__u32 poison_val;
- 	int err;
- 
- 	if (!vdev->config->get) {
-@@ -895,6 +896,13 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 					WQ_FREEZABLE | WQ_CPU_INTENSIVE, 0);
- 		INIT_WORK(&vb->report_free_page_work, report_free_page);
- 		vb->stop_cmd_id = VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID;
-+		if (IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY) ||
-+		    !page_poisoning_enabled())
-+			poison_val = 0;
-+		else
-+			poison_val = PAGE_POISON;
-+		virtio_cwrite(vb->vdev, struct virtio_balloon_config,
-+			      poison_val, &poison_val);
- 	}
- 
- 	vb->nb.notifier_call = virtballoon_oom_notify;
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index 58f1274..f270e9e 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -48,6 +48,8 @@ struct virtio_balloon_config {
- 	__u32 actual;
- 	/* Free page report command id, readonly by guest */
- 	__u32 free_page_report_cmd_id;
-+	/* Stores PAGE_POISON if page poisoning with sanity check is in use */
-+	__u32 poison_val;
- };
- 
- #define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
--- 
-2.7.4
+Best,
+Wei
