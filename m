@@ -1,7 +1,7 @@
 From: weiping zhang <zhangweiping@didichuxing.com>
-Subject: [PATCH v2 2/3] virtio: use put_device instead of kfree
-Date: Tue, 12 Dec 2017 21:24:33 +0800
-Message-ID: <11026fc88be1033d7ce5bc8ecb9b355d27d82075.1513083885.git.zhangweiping@didichuxing.com>
+Subject: [PATCH v2 3/3] virtio: put reference count of virtio_device.dev
+Date: Tue, 12 Dec 2017 21:25:45 +0800
+Message-ID: <8fb80df2727d222e47860bcc6f1939b61a442687.1513083885.git.zhangweiping@didichuxing.com>
 References: <cover.1513083885.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,68 +22,28 @@ To: cohuck@redhat.com, mst@redhat.com, jasowang@redhat.com
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-As mentioned at drivers/base/core.c:
-/*
- * NOTE: _Never_ directly free @dev after calling this function, even
- * if it returned an error! Always use put_device() to give up the
- * reference initialized in this function instead.
- */
-so we don't free vp_vdev until vp_vdev.dev.release be called.
+rproc_virtio_dev_release will be called iff virtio_device.dev's
+refer count became to 0. Here we should put vdev.dev, and then
+rproc->dev's cleanup will be done in rproc_virtio_dev_release.
 
 Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/misc/mic/vop/vop_main.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/remoteproc/remoteproc_virtio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
-index a341938..456e969 100644
---- a/drivers/misc/mic/vop/vop_main.c
-+++ b/drivers/misc/mic/vop/vop_main.c
-@@ -452,10 +452,12 @@ static irqreturn_t vop_virtio_intr_handler(int irq, void *data)
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index 2946348..b0633fd 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -327,7 +327,7 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
  
- static void vop_virtio_release_dev(struct device *_d)
- {
--	/*
--	 * No need for a release method similar to virtio PCI.
--	 * Provide an empty one to avoid getting a warning from core.
--	 */
-+	struct virtio_device *vdev =
-+			container_of(_d, struct virtio_device, dev);
-+	struct _vop_vdev *vop_vdev =
-+			container_of(vdev, struct _vop_vdev, vdev);
-+
-+	kfree(vop_vdev);
- }
- 
- /*
-@@ -501,7 +503,9 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
- 		dev_err(_vop_dev(vdev),
- 			"Failed to register vop device %u type %u\n",
- 			offset, type);
--		goto free_irq;
-+		vpdev->hw_ops->free_irq(vpdev, vdev->virtio_cookie, vdev);
-+		put_device(&vdev->vdev.dev);
-+		return ret;
+ 	ret = register_virtio_device(vdev);
+ 	if (ret) {
+-		put_device(&rproc->dev);
++		put_device(&vdev->dev);
+ 		dev_err(dev, "failed to register vdev: %d\n", ret);
+ 		goto out;
  	}
- 	writeq((u64)vdev, &vdev->dc->vdev);
- 	dev_dbg(_vop_dev(vdev), "%s: registered vop device %u type %u vdev %p\n",
-@@ -509,8 +513,6 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
- 
- 	return 0;
- 
--free_irq:
--	vpdev->hw_ops->free_irq(vpdev, vdev->virtio_cookie, vdev);
- kfree:
- 	kfree(vdev);
- 	return ret;
-@@ -568,7 +570,7 @@ static int _vop_remove_device(struct mic_device_desc __iomem *d,
- 		iowrite8(-1, &dc->h2c_vdev_db);
- 		if (status & VIRTIO_CONFIG_S_DRIVER_OK)
- 			wait_for_completion(&vdev->reset_done);
--		kfree(vdev);
-+		put_device(&vdev->vdev.dev);
- 		iowrite8(1, &dc->guest_ack);
- 		dev_dbg(&vpdev->dev, "%s %d guest_ack %d\n",
- 			__func__, __LINE__, ioread8(&dc->guest_ack));
 -- 
 2.9.4
