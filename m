@@ -1,15 +1,14 @@
-From: George Cherian <gcherian@caviumnetworks.com>
-Subject: Re: [PATCH] ptr_ring: add barriers
-Date: Tue, 12 Dec 2017 11:58:52 +0530
-Message-ID: <93ed1559-74d4-d72f-0969-12bfaf370cc1__29011.2672410489$1513195162$gmane$org@caviumnetworks.com>
-References: <1512501990-30029-1-git-send-email-mst@redhat.com>
-	<20171211.105308.1899676147655539775.davem@davemloft.net>
+From: Philippe Ombredanne <pombredanne@nexb.com>
+Subject: Re: [PATCH v19 1/7] xbitmap: Introduce xbitmap
+Date: Tue, 12 Dec 2017 13:53:53 +0100
+Message-ID: <CAOFm3uH29ZQSo92c_JXcffsonwh3PscdRe1p6vZCwinfauiYBw__43053.6415814005$1513195179$gmane$org@mail.gmail.com>
+References: <1513079759-14169-1-git-send-email-wei.w.wang@intel.com>
+	<1513079759-14169-2-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171211.105308.1899676147655539775.davem@davemloft.net>
-Content-Language: en-US
+In-Reply-To: <1513079759-14169-2-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,43 +18,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>, mst@redhat.com
-Cc: george.cherian@cavium.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com
+To: Wei Wang <wei.w.wang@intel.com>, mawilcox@microsoft.com
+Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, penguin-kernel@i-love.sakura.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, willy@infradead.org, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, LKML <linux-kernel@vger.kernel.org>, amit.shah@redhat.com, Paolo Bonzini <pbonzini@redhat.com>, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi David,
+Matthew, Wei,
 
-On 12/11/2017 09:23 PM, David Miller wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> Date: Tue, 5 Dec 2017 21:29:37 +0200
-> 
->> Users of ptr_ring expect that it's safe to give the
->> data structure a pointer and have it be available
->> to consumers, but that actually requires an smb_wmb
->> or a stronger barrier.
->>
->> In absence of such barriers and on architectures that reorder writes,
->> consumer might read an un=initialized value from an skb pointer stored
->> in the skb array.  This was observed causing crashes.
->>
->> To fix, add memory barriers.  The barrier we use is a wmb, the
->> assumption being that producers do not need to read the value so we do
->> not need to order these reads.
->>
->> Reported-by: George Cherian <george.cherian@cavium.com>
->> Suggested-by: Jason Wang <jasowang@redhat.com>
->> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> I'm asked for asking for testing feedback and did not get it in a
-> reasonable amount of time.
-> 
-The tests have completed more than 48 hours without any failures.
-I won't interrupt the same and run for longer time.
-In case of any issue I will report the same.
-> So I'm applying this as-is, and queueing it up for -stable.
-> 
-> Thank you.
+On Tue, Dec 12, 2017 at 12:55 PM, Wei Wang <wei.w.wang@intel.com> wrote:
+> From: Matthew Wilcox <mawilcox@microsoft.com>
+>
+> The eXtensible Bitmap is a sparse bitmap representation which is
+> efficient for set bits which tend to cluster.  It supports up to
+> 'unsigned long' worth of bits, and this commit adds the bare bones --
+> xb_set_bit(), xb_clear_bit() and xb_test_bit().
+>
+> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> Cc: Matthew Wilcox <mawilcox@microsoft.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-Regards,
--George
-> 
+[...]
+
+> --- /dev/null
+> +++ b/include/linux/xbitmap.h
+> @@ -0,0 +1,52 @@
+> +/*
+> + * eXtensible Bitmaps
+> + * Copyright (c) 2017 Microsoft Corporation <mawilcox@microsoft.com>
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License as
+> + * published by the Free Software Foundation; either version 2 of the
+> + * License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * eXtensible Bitmaps provide an unlimited-size sparse bitmap facility.
+> + * All bits are initially zero.
+> + */
+
+Have you considered using the new SPDX ids here instead? eg. this
+would come out as a top line this way:
+
+> +/* SPDX-License-Identifer: GPL-2.0+ */
+
+Overall you get less boilerplate comment and more code, so this is a
+win-win for everyone. This would nicely remove the legalese
+boilerplate with the same effect, unless you are a legalese lover of
+course. See Thomas doc patches for extra details.... and while you are
+it if you could spread the words in your team and use it for all past,
+present and future contributions, that would be much appreciated.
+
+And as a side benefit to me, it will help me save on paper and ink
+ribbons supplies for my dot matrix line printer each time I print the
+source code of the whole kernel. ;)
+
+Thanks for your consideration there.
+-- 
+Cordially
+Philippe Ombredanne
