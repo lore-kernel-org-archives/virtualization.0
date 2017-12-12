@@ -1,14 +1,14 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 2/3] virtio: use put_device instead of kfree
-Date: Tue, 12 Dec 2017 11:17:42 +0100
-Message-ID: <20171212111742.4249c49e.cohuck@redhat.com>
+Subject: Re: [PATCH 3/3] virtio: put reference count of virtio_device.dev
+Date: Tue, 12 Dec 2017 11:33:58 +0100
+Message-ID: <20171212113358.17ecfd7b.cohuck@redhat.com>
 References: <cover.1513007310.git.zhangweiping@didichuxing.com>
-	<3c3ed58013b0266886e72dc11424e0b93a745e18.1513007310.git.zhangweiping@didichuxing.com>
+	<f761f1f5a032b7233288bc6e6ae45e44867a31bc.1513007310.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <3c3ed58013b0266886e72dc11424e0b93a745e18.1513007310.git.zhangweiping@didichuxing.com>
+In-Reply-To: <f761f1f5a032b7233288bc6e6ae45e44867a31bc.1513007310.git.zhangweiping@didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,60 +22,34 @@ To: weiping zhang <zhangweiping@didichuxing.com>
 Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 11 Dec 2017 23:55:26 +0800
+On Mon, 11 Dec 2017 23:55:38 +0800
 weiping zhang <zhangweiping@didichuxing.com> wrote:
 
-> don't free vp_vdev until vp_vdev.dev.release be called.
-
-Same comment as for the virtio_pci patch.
-
+> rproc_virtio_dev_release will be called iff virtio_device.dev's
+> refer count became to 0. Here we should put vdev.dev, and then
+> rproc->dev's cleanup will be done in rproc_virtio_dev_release.
 > 
 > Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
 > ---
->  drivers/misc/mic/vop/vop_main.c | 16 +++++++++-------
->  1 file changed, 9 insertions(+), 7 deletions(-)
+>  drivers/remoteproc/remoteproc_virtio.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
-> index a341938..8c716a0 100644
-> --- a/drivers/misc/mic/vop/vop_main.c
-> +++ b/drivers/misc/mic/vop/vop_main.c
-> @@ -452,10 +452,12 @@ static irqreturn_t vop_virtio_intr_handler(int irq, void *data)
+> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+> index 2946348..b0633fd 100644
+> --- a/drivers/remoteproc/remoteproc_virtio.c
+> +++ b/drivers/remoteproc/remoteproc_virtio.c
+> @@ -327,7 +327,7 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
 >  
->  static void vop_virtio_release_dev(struct device *_d)
->  {
-> -	/*
-> -	 * No need for a release method similar to virtio PCI.
-> -	 * Provide an empty one to avoid getting a warning from core.
-> -	 */
-> +	struct virtio_device *vdev =
-> +			container_of(_d, struct virtio_device, dev);
-> +	struct _vop_vdev *vop_vdev =
-> +			container_of(vdev, struct _vop_vdev, vdev);
-> +
-> +	kfree(vop_vdev);
->  }
->  
->  /*
-> @@ -501,7 +503,9 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
->  		dev_err(_vop_dev(vdev),
->  			"Failed to register vop device %u type %u\n",
->  			offset, type);
-> -		goto free_irq;
-> +		vpdev->hw_ops->free_irq(vpdev, vdev->virtio_cookie, vdev);
-> +		put_device(&vdev->vdev.dev);
-> +		return ret;
+>  	ret = register_virtio_device(vdev);
+>  	if (ret) {
+> -		put_device(&rproc->dev);
+> +		put_device(&vdev->dev);
+>  		dev_err(dev, "failed to register vdev: %d\n", ret);
+>  		goto out;
 >  	}
->  	writeq((u64)vdev, &vdev->dc->vdev);
->  	dev_dbg(_vop_dev(vdev), "%s: registered vop device %u type %u vdev %p\n",
-> @@ -509,8 +513,6 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
->  
->  	return 0;
->  
-> -free_irq:
-> -	vpdev->hw_ops->free_irq(vpdev, vdev->virtio_cookie, vdev);
->  kfree:
->  	kfree(vdev);
->  	return ret;
 
-BTW, the kfree(vdev) in _vop_remove_device() is also wrong (needs to be
-a put_device() as well).
+Uh, rproc_vdev is really weird. It embeds a struct virtio_device, and
+in addition a struct kref. At a glance, it seems to be correct, though.
+Your change is more obviously sane.
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
