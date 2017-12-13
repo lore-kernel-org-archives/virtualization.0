@@ -1,13 +1,14 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCHv2] virtio_mmio: fix devm cleanup
-Date: Tue, 12 Dec 2017 18:02:23 +0100
-Message-ID: <20171212180223.2dfb3b40.cohuck__844.18411502174$1513098185$gmane$org@redhat.com>
-References: <20171212134550.18378-1-mark.rutland@arm.com>
+Subject: Re: [PATCH v2 2/3] virtio: use put_device instead of kfree
+Date: Wed, 13 Dec 2017 09:27:27 +0100
+Message-ID: <20171213092727.78c4432f.cohuck@redhat.com>
+References: <cover.1513083885.git.zhangweiping@didichuxing.com>
+	<11026fc88be1033d7ce5bc8ecb9b355d27d82075.1513083885.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171212134550.18378-1-mark.rutland@arm.com>
+In-Reply-To: <11026fc88be1033d7ce5bc8ecb9b355d27d82075.1513083885.git.zhangweiping@didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,74 +18,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: virtualization@lists.linux-foundation.org, weiping zhang <zhangweiping@didichuxing.com>, linux-kernel@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>
+To: weiping zhang <zhangweiping@didichuxing.com>
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 12 Dec 2017 13:45:50 +0000
-Mark Rutland <mark.rutland@arm.com> wrote:
+On Tue, 12 Dec 2017 21:24:33 +0800
+weiping zhang <zhangweiping@didichuxing.com> wrote:
 
-> Recent rework of the virtio_mmio probe/remove paths balanced a
-> devm_ioremap() with an iounmap() rather than its devm variant. This ends
-> up corrupting the devm datastructures, and results in the following
-> boot-time splat on arm64 under QEMU 2.9.0:
+> As mentioned at drivers/base/core.c:
+> /*
+>  * NOTE: _Never_ directly free @dev after calling this function, even
+>  * if it returned an error! Always use put_device() to give up the
+>  * reference initialized in this function instead.
+>  */
+> so we don't free vp_vdev until vp_vdev.dev.release be called.
 > 
-> [    3.450397] ------------[ cut here ]------------
-> [    3.453822] Trying to vfree() nonexistent vm area (00000000c05b4844)
-> [    3.460534] WARNING: CPU: 1 PID: 1 at mm/vmalloc.c:1525 __vunmap+0x1b8/0x220
-> [    3.475898] Kernel panic - not syncing: panic_on_warn set ...
-> [    3.475898]
-> [    3.493933] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 4.15.0-rc3 #1
-> [    3.513109] Hardware name: linux,dummy-virt (DT)
-> [    3.525382] Call trace:
-> [    3.531683]  dump_backtrace+0x0/0x368
-> [    3.543921]  show_stack+0x20/0x30
-> [    3.547767]  dump_stack+0x108/0x164
-> [    3.559584]  panic+0x25c/0x51c
-> [    3.569184]  __warn+0x29c/0x31c
-> [    3.576023]  report_bug+0x1d4/0x290
-> [    3.586069]  bug_handler.part.2+0x40/0x100
-> [    3.597820]  bug_handler+0x4c/0x88
-> [    3.608400]  brk_handler+0x11c/0x218
-> [    3.613430]  do_debug_exception+0xe8/0x318
-> [    3.627370]  el1_dbg+0x18/0x78
-> [    3.634037]  __vunmap+0x1b8/0x220
-> [    3.648747]  vunmap+0x6c/0xc0
-> [    3.653864]  __iounmap+0x44/0x58
-> [    3.659771]  devm_ioremap_release+0x34/0x68
-> [    3.672983]  release_nodes+0x404/0x880
-> [    3.683543]  devres_release_all+0x6c/0xe8
-> [    3.695692]  driver_probe_device+0x250/0x828
-> [    3.706187]  __driver_attach+0x190/0x210
-> [    3.717645]  bus_for_each_dev+0x14c/0x1f0
-> [    3.728633]  driver_attach+0x48/0x78
-> [    3.740249]  bus_add_driver+0x26c/0x5b8
-> [    3.752248]  driver_register+0x16c/0x398
-> [    3.757211]  __platform_driver_register+0xd8/0x128
-> [    3.770860]  virtio_mmio_init+0x1c/0x24
-> [    3.782671]  do_one_initcall+0xe0/0x398
-> [    3.791890]  kernel_init_freeable+0x594/0x660
-> [    3.798514]  kernel_init+0x18/0x190
-> [    3.810220]  ret_from_fork+0x10/0x18
-> 
-> To fix this, we can simply rip out the explicit cleanup that the devm
-> infrastructure will do for us when our probe function returns an error
-> code, or when our remove function returns.
-> 
-> We only need to ensure that we call put_device() if a call to
-> register_virtio_device() fails in the probe path.
-> 
-> Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-> Fixes: 7eb781b1bbb7136f ("virtio_mmio: add cleanup for virtio_mmio_probe")
-> Fixes: 25f32223bce5c580 ("virtio_mmio: add cleanup for virtio_mmio_remove")
-> Cc: Cornelia Huck <cohuck@redhat.com>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: weiping zhang <zhangweiping@didichuxing.com>
-> Cc: virtualization@lists.linux-foundation.org
+> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
 > ---
->  drivers/virtio/virtio_mmio.c | 43 +++++++++----------------------------------
->  1 file changed, 9 insertions(+), 34 deletions(-)
-
-In the hope that I have grokked the devm_* interface by now,
+>  drivers/misc/mic/vop/vop_main.c | 18 ++++++++++--------
+>  1 file changed, 10 insertions(+), 8 deletions(-)
 
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
