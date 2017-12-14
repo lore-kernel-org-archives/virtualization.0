@@ -1,19 +1,16 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v19 3/7] xbitmap: add more operations
-Date: Thu, 14 Dec 2017 10:12:19 -0800
-Message-ID: <20171214181219.GA26124__14685.2654325359$1513275172$gmane$org@bombadil.infradead.org>
-References: <1513079759-14169-4-git-send-email-wei.w.wang@intel.com>
-	<201712122220.IFH05261.LtJOFFSFHVMQOO@I-love.SAKURA.ne.jp>
-	<5A311C5E.7000304@intel.com>
-	<201712132316.EJJ57332.MFOSJHOFFVLtQO@I-love.SAKURA.ne.jp>
-	<5A31F445.6070504@intel.com>
-	<201712150129.BFC35949.FFtFOLSOJOQHVM@I-love.SAKURA.ne.jp>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv2] virtio_mmio: fix devm cleanup
+Date: Thu, 14 Dec 2017 20:48:43 +0200
+Message-ID: <20171214204808-mutt-send-email-mst__36674.885164439$1513277354$gmane$org@kernel.org>
+References: <20171212134550.18378-1-mark.rutland@arm.com>
+	<20171212180223.2dfb3b40.cohuck@redhat.com>
+	<20171213143413.e3efqns53333uf5g@lakrids.cambridge.arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <201712150129.BFC35949.FFtFOLSOJOQHVM@I-love.SAKURA.ne.jp>
+In-Reply-To: <20171213143413.e3efqns53333uf5g@lakrids.cambridge.arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,44 +20,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, weiping zhang <zhangweiping@didichuxing.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 15, 2017 at 01:29:45AM +0900, Tetsuo Handa wrote:
-> > > Also, one more thing you need to check. Have you checked how long does
-> > > xb_find_next_set_bit(xb, 0, ULONG_MAX) on an empty xbitmap takes?
-> > > If it causes soft lockup warning, should we add cond_resched() ?
-> > > If yes, you have to document that this API might sleep. If no, you
-> > > have to document that the caller of this API is responsible for
-> > > not to pass such a large value range.
+On Wed, Dec 13, 2017 at 02:34:14PM +0000, Mark Rutland wrote:
+> On Tue, Dec 12, 2017 at 06:02:23PM +0100, Cornelia Huck wrote:
+> > On Tue, 12 Dec 2017 13:45:50 +0000
+> > Mark Rutland <mark.rutland@arm.com> wrote:
 > > 
-> > Yes, that will take too long time. Probably we can document some 
-> > comments as a reminder for the callers.
+> > > Recent rework of the virtio_mmio probe/remove paths balanced a
+> > > devm_ioremap() with an iounmap() rather than its devm variant. This ends
+> > > up corrupting the devm datastructures, and results in the following
+> > > boot-time splat on arm64 under QEMU 2.9.0:
+> > > 
+> > > [    3.450397] ------------[ cut here ]------------
+> > > [    3.453822] Trying to vfree() nonexistent vm area (00000000c05b4844)
+> > > [    3.460534] WARNING: CPU: 1 PID: 1 at mm/vmalloc.c:1525 __vunmap+0x1b8/0x220
+> > > [    3.475898] Kernel panic - not syncing: panic_on_warn set ...
+> > > [    3.475898]
+> > > [    3.493933] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 4.15.0-rc3 #1
+> > > [    3.513109] Hardware name: linux,dummy-virt (DT)
+> > > [    3.525382] Call trace:
+> > > [    3.531683]  dump_backtrace+0x0/0x368
+> > > [    3.543921]  show_stack+0x20/0x30
+> > > [    3.547767]  dump_stack+0x108/0x164
+> > > [    3.559584]  panic+0x25c/0x51c
+> > > [    3.569184]  __warn+0x29c/0x31c
+> > > [    3.576023]  report_bug+0x1d4/0x290
+> > > [    3.586069]  bug_handler.part.2+0x40/0x100
+> > > [    3.597820]  bug_handler+0x4c/0x88
+> > > [    3.608400]  brk_handler+0x11c/0x218
+> > > [    3.613430]  do_debug_exception+0xe8/0x318
+> > > [    3.627370]  el1_dbg+0x18/0x78
+> > > [    3.634037]  __vunmap+0x1b8/0x220
+> > > [    3.648747]  vunmap+0x6c/0xc0
+> > > [    3.653864]  __iounmap+0x44/0x58
+> > > [    3.659771]  devm_ioremap_release+0x34/0x68
+> > > [    3.672983]  release_nodes+0x404/0x880
+> > > [    3.683543]  devres_release_all+0x6c/0xe8
+> > > [    3.695692]  driver_probe_device+0x250/0x828
+> > > [    3.706187]  __driver_attach+0x190/0x210
+> > > [    3.717645]  bus_for_each_dev+0x14c/0x1f0
+> > > [    3.728633]  driver_attach+0x48/0x78
+> > > [    3.740249]  bus_add_driver+0x26c/0x5b8
+> > > [    3.752248]  driver_register+0x16c/0x398
+> > > [    3.757211]  __platform_driver_register+0xd8/0x128
+> > > [    3.770860]  virtio_mmio_init+0x1c/0x24
+> > > [    3.782671]  do_one_initcall+0xe0/0x398
+> > > [    3.791890]  kernel_init_freeable+0x594/0x660
+> > > [    3.798514]  kernel_init+0x18/0x190
+> > > [    3.810220]  ret_from_fork+0x10/0x18
+> > > 
+> > > To fix this, we can simply rip out the explicit cleanup that the devm
+> > > infrastructure will do for us when our probe function returns an error
+> > > code, or when our remove function returns.
+> > > 
+> > > We only need to ensure that we call put_device() if a call to
+> > > register_virtio_device() fails in the probe path.
+> > > 
+> > > Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+> > > Fixes: 7eb781b1bbb7136f ("virtio_mmio: add cleanup for virtio_mmio_probe")
+> > > Fixes: 25f32223bce5c580 ("virtio_mmio: add cleanup for virtio_mmio_remove")
+> > > Cc: Cornelia Huck <cohuck@redhat.com>
+> > > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > > Cc: weiping zhang <zhangweiping@didichuxing.com>
+> > > Cc: virtualization@lists.linux-foundation.org
+> > > ---
+> > >  drivers/virtio/virtio_mmio.c | 43 +++++++++----------------------------------
+> > >  1 file changed, 9 insertions(+), 34 deletions(-)
+> > 
+> > In the hope that I have grokked the devm_* interface by now,
+> > 
+> > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 > 
-> Then, I feel that API is poorly implemented. There is no need to brute-force
-> when scanning [0, ULONG_MAX] range. If you eliminate exception path and
-> redesign the data structure, xbitmap will become as simple as a sample
-> implementation shown below. Not tested yet, but I think that this will be
-> sufficient for what virtio-baloon wants to do; i.e. find consecutive "1" bits
-> quickly. I didn't test whether finding "struct ulong_list_data" using radix
-> tree can improve performance.
+> Thanks!
+> 
+> Michael, could you please queue this as a fix for v4.15?
+> 
+> This regressed arm64 VMs booting between v4.15-rc1 and v4-15-rc2,
+> impacting our automated regression testing, and I'd very much like to
+> get back to testing pure mainline rather than mainline + local fixes.
+> 
+> Thanks,
+> Mark.
 
-find_next_set_bit() is just badly implemented.  There is no need to
-redesign the data structure.  It should be a simple matter of:
-
- - look at ->head, see it is NULL, return false.
-
-If bit 100 is set and you call find_next_set_bit(101, ULONG_MAX), it
-should look at block 0, see there is a pointer to it, scan the block,
-see there are no bits set above 100, then realise we're at the end of
-the tree and stop.
-
-If bit 2000 is set, and you call find_next_set_bit(2001, ULONG_MAX)
-tit should look at block 1, see there's no bit set after bit 2001, then
-look at the other blocks in the node, see that all the pointers are NULL
-and stop.
-
-This isn't rocket science, we already do something like this in the radix
-tree and it'll be even easier to do in the XArray.  Which I'm going back
-to working on now.
+Yep, plan to.
+Thanks!
