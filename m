@@ -1,13 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 1/1] virtio/s390: implement PM operations for virtio_ccw
-Date: Thu, 14 Dec 2017 10:59:54 +0100
-Message-ID: <20171214095954.7615-2-cohuck__32292.1709776439$1513245654$gmane$org@redhat.com>
-References: <20171214095954.7615-1-cohuck@redhat.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [virtio-dev] Re: [PATCH v19 3/7] xbitmap: add more operations
+Date: Thu, 14 Dec 2017 19:47:29 +0800
+Message-ID: <5A3264D1.8090405__29883.2819601104$1513251951$gmane$org@intel.com>
+References: <1513079759-14169-1-git-send-email-wei.w.wang@intel.com>	<1513079759-14169-4-git-send-email-wei.w.wang@intel.com>	<201712122220.IFH05261.LtJOFFSFHVMQOO@I-love.SAKURA.ne.jp>	<5A311C5E.7000304@intel.com>
+	<201712132316.EJJ57332.MFOSJHOFFVLtQO@I-love.SAKURA.ne.jp>
+	<5A31F445.6070504@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171214095954.7615-1-cohuck@redhat.com>
+In-Reply-To: <5A31F445.6070504@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,76 +19,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, virtualization@lists.linux-foundation.org
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+On 12/14/2017 11:47 AM, Wei Wang wrote:
+> On 12/13/2017 10:16 PM, Tetsuo Handa wrote:
+>
+>
+>>
+>>>                           if (set)
+>>>                                   ret = find_next_bit(&tmp,
+>>> BITS_PER_LONG, ebit);
+>>>                           else
+>>>                                   ret = find_next_zero_bit(&tmp,
+>>> BITS_PER_LONG,
+>>> ebit);
+>>>                           if (ret < BITS_PER_LONG)
+>>>                                   return ret - 2 + ida_start;
+>>>                   } else if (bitmap) {
+>>>                           if (set)
+>>>                                   ret = find_next_bit(bitmap->bitmap,
+>>> IDA_BITMAP_BITS, bit);
+>>>                           else
+>>>                                   ret = 
+>>> find_next_zero_bit(bitmap->bitmap,
+>>> IDA_BITMAP_BITS, bit);
+>> "bit" may not be 0 for the first round and "bit" is always 0 afterwords.
+>> But where is the guaranteed that "end" is a multiple of 
+>> IDA_BITMAP_BITS ?
+>> Please explain why it is correct to use IDA_BITMAP_BITS unconditionally
+>> for the last round.
+>
+> There missed something here, it will be:
+>
+> nbits = min(end - ida_start + 1, IDA_BITMAP_BITS - bit);
 
-Suspend/Resume to/from disk currently fails. Let us wire
-up the necessary callbacks. This is mostly just forwarding
-the requests to the virtio drivers. The only thing that
-has to be done in virtio_ccw itself is to re-set the
-virtio revision.
 
-Suggested-by: Thomas Huth <thuth@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-Id: <20171207141102.70190-2-borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/virtio/virtio_ccw.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+captured a bug here, should be:
+nbits = min(end - ida_start + 1, (unsigned long)IDA_BITMAP_BITS);
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index b18fe2014cf2..330b3fa3430a 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -1300,6 +1300,9 @@ static int virtio_ccw_cio_notify(struct ccw_device *cdev, int event)
- 		vcdev->device_lost = true;
- 		rc = NOTIFY_DONE;
- 		break;
-+	case CIO_OPER:
-+		rc = NOTIFY_OK;
-+		break;
- 	default:
- 		rc = NOTIFY_DONE;
- 		break;
-@@ -1312,6 +1315,25 @@ static struct ccw_device_id virtio_ids[] = {
- 	{},
- };
- 
-+static int virtio_ccw_freeze(struct ccw_device *cdev)
-+{
-+	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
-+
-+	return virtio_device_freeze(&vcdev->vdev);
-+}
-+
-+static int virtio_ccw_restore(struct ccw_device *cdev)
-+{
-+	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
-+	int ret;
-+
-+	ret = virtio_ccw_set_transport_rev(vcdev);
-+	if (ret)
-+		return ret;
-+
-+	return virtio_device_restore(&vcdev->vdev);
-+}
-+
- static struct ccw_driver virtio_ccw_driver = {
- 	.driver = {
- 		.owner = THIS_MODULE,
-@@ -1324,6 +1346,9 @@ static struct ccw_driver virtio_ccw_driver = {
- 	.set_online = virtio_ccw_online,
- 	.notify = virtio_ccw_cio_notify,
- 	.int_class = IRQIO_VIR,
-+	.freeze = virtio_ccw_freeze,
-+	.thaw = virtio_ccw_restore,
-+	.restore = virtio_ccw_restore,
- };
- 
- static int __init pure_hex(char **cp, unsigned int *val, int min_digit,
--- 
-2.13.6
+
+> if (set)
+>     ret = find_next_bit(bitmap->bitmap, nbits, bit);
+> else
+>     ret = find_next_zero_bit(bitmap->bitmap,
+>                                            nbits, bit);
+> if (ret < nbits)
+>     return ret + ida_start;
+>
+>
+
+Best,
+Wei
