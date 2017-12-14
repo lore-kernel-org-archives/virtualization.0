@@ -1,16 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv2] virtio_mmio: fix devm cleanup
-Date: Thu, 14 Dec 2017 20:48:43 +0200
-Message-ID: <20171214204808-mutt-send-email-mst__36674.885164439$1513277354$gmane$org@kernel.org>
-References: <20171212134550.18378-1-mark.rutland@arm.com>
-	<20171212180223.2dfb3b40.cohuck@redhat.com>
-	<20171213143413.e3efqns53333uf5g@lakrids.cambridge.arm.com>
+Subject: Re: [PATCH v2 1/3] virtio_pci: use put_device instead of kfree
+Date: Thu, 14 Dec 2017 21:13:28 +0200
+Message-ID: <20171214205538-mutt-send-email-mst@kernel.org>
+References: <cover.1513083885.git.zhangweiping@didichuxing.com>
+	<e397f504c0a796481d8aaf0e558cc8425286012c.1513083885.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20171213143413.e3efqns53333uf5g@lakrids.cambridge.arm.com>
+In-Reply-To: <e397f504c0a796481d8aaf0e558cc8425286012c.1513083885.git.zhangweiping@didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,90 +19,116 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Cornelia Huck <cohuck@redhat.com>, weiping zhang <zhangweiping@didichuxing.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: weiping zhang <zhangweiping@didichuxing.com>
+Cc: cohuck@redhat.com, Greg Kroah-Hartman <gregkh@suse.de>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 13, 2017 at 02:34:14PM +0000, Mark Rutland wrote:
-> On Tue, Dec 12, 2017 at 06:02:23PM +0100, Cornelia Huck wrote:
-> > On Tue, 12 Dec 2017 13:45:50 +0000
-> > Mark Rutland <mark.rutland@arm.com> wrote:
-> > 
-> > > Recent rework of the virtio_mmio probe/remove paths balanced a
-> > > devm_ioremap() with an iounmap() rather than its devm variant. This ends
-> > > up corrupting the devm datastructures, and results in the following
-> > > boot-time splat on arm64 under QEMU 2.9.0:
-> > > 
-> > > [    3.450397] ------------[ cut here ]------------
-> > > [    3.453822] Trying to vfree() nonexistent vm area (00000000c05b4844)
-> > > [    3.460534] WARNING: CPU: 1 PID: 1 at mm/vmalloc.c:1525 __vunmap+0x1b8/0x220
-> > > [    3.475898] Kernel panic - not syncing: panic_on_warn set ...
-> > > [    3.475898]
-> > > [    3.493933] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 4.15.0-rc3 #1
-> > > [    3.513109] Hardware name: linux,dummy-virt (DT)
-> > > [    3.525382] Call trace:
-> > > [    3.531683]  dump_backtrace+0x0/0x368
-> > > [    3.543921]  show_stack+0x20/0x30
-> > > [    3.547767]  dump_stack+0x108/0x164
-> > > [    3.559584]  panic+0x25c/0x51c
-> > > [    3.569184]  __warn+0x29c/0x31c
-> > > [    3.576023]  report_bug+0x1d4/0x290
-> > > [    3.586069]  bug_handler.part.2+0x40/0x100
-> > > [    3.597820]  bug_handler+0x4c/0x88
-> > > [    3.608400]  brk_handler+0x11c/0x218
-> > > [    3.613430]  do_debug_exception+0xe8/0x318
-> > > [    3.627370]  el1_dbg+0x18/0x78
-> > > [    3.634037]  __vunmap+0x1b8/0x220
-> > > [    3.648747]  vunmap+0x6c/0xc0
-> > > [    3.653864]  __iounmap+0x44/0x58
-> > > [    3.659771]  devm_ioremap_release+0x34/0x68
-> > > [    3.672983]  release_nodes+0x404/0x880
-> > > [    3.683543]  devres_release_all+0x6c/0xe8
-> > > [    3.695692]  driver_probe_device+0x250/0x828
-> > > [    3.706187]  __driver_attach+0x190/0x210
-> > > [    3.717645]  bus_for_each_dev+0x14c/0x1f0
-> > > [    3.728633]  driver_attach+0x48/0x78
-> > > [    3.740249]  bus_add_driver+0x26c/0x5b8
-> > > [    3.752248]  driver_register+0x16c/0x398
-> > > [    3.757211]  __platform_driver_register+0xd8/0x128
-> > > [    3.770860]  virtio_mmio_init+0x1c/0x24
-> > > [    3.782671]  do_one_initcall+0xe0/0x398
-> > > [    3.791890]  kernel_init_freeable+0x594/0x660
-> > > [    3.798514]  kernel_init+0x18/0x190
-> > > [    3.810220]  ret_from_fork+0x10/0x18
-> > > 
-> > > To fix this, we can simply rip out the explicit cleanup that the devm
-> > > infrastructure will do for us when our probe function returns an error
-> > > code, or when our remove function returns.
-> > > 
-> > > We only need to ensure that we call put_device() if a call to
-> > > register_virtio_device() fails in the probe path.
-> > > 
-> > > Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-> > > Fixes: 7eb781b1bbb7136f ("virtio_mmio: add cleanup for virtio_mmio_probe")
-> > > Fixes: 25f32223bce5c580 ("virtio_mmio: add cleanup for virtio_mmio_remove")
-> > > Cc: Cornelia Huck <cohuck@redhat.com>
-> > > Cc: Michael S. Tsirkin <mst@redhat.com>
-> > > Cc: weiping zhang <zhangweiping@didichuxing.com>
-> > > Cc: virtualization@lists.linux-foundation.org
-> > > ---
-> > >  drivers/virtio/virtio_mmio.c | 43 +++++++++----------------------------------
-> > >  1 file changed, 9 insertions(+), 34 deletions(-)
-> > 
-> > In the hope that I have grokked the devm_* interface by now,
-> > 
-> > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> 
-> Thanks!
-> 
-> Michael, could you please queue this as a fix for v4.15?
-> 
-> This regressed arm64 VMs booting between v4.15-rc1 and v4-15-rc2,
-> impacting our automated regression testing, and I'd very much like to
-> get back to testing pure mainline rather than mainline + local fixes.
-> 
-> Thanks,
-> Mark.
+On Tue, Dec 12, 2017 at 09:24:02PM +0800, weiping zhang wrote:
+> As mentioned at drivers/base/core.c:
+> /*
+>  * NOTE: _Never_ directly free @dev after calling this function, even
+>  * if it returned an error! Always use put_device() to give up the
+>  * reference initialized in this function instead.
+>  */
+> so we don't free vp_dev until vp_dev->vdev.dev.release be called.
 
-Yep, plan to.
-Thanks!
+seeing as 5739411acbaa63a6c22c91e340fdcdbcc7d82a51 adding these
+annotations went to stable, should this go there too?
+
+> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+
+OK but this relies on users knowing that register_virtio_device
+calls device_register. I think we want to add a comment
+to register_virtio_device.
+
+Also the cleanup is uglified.
+
+I really think the right thing would be to change device_register making
+it safe to kfree. People have the right to expect register on failure to
+have no effect.
+
+That just might be too hard to implement though.
+
+For now, my suggestion - add a variable.
+
+> ---
+>  drivers/virtio/virtio_pci_common.c | 17 +++++++++--------
+>  1 file changed, 9 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index 1c4797e..91d20f7 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -551,16 +551,17 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+>  	pci_set_master(pci_dev);
+>  
+>  	rc = register_virtio_device(&vp_dev->vdev);
+> -	if (rc)
+> -		goto err_register;
+> +	if (rc) {
+> +		if (vp_dev->ioaddr)
+> +		     virtio_pci_legacy_remove(vp_dev);
+> +		else
+> +		     virtio_pci_modern_remove(vp_dev);
+> +		pci_disable_device(pci_dev);
+> +		put_device(&vp_dev->vdev.dev);
+> +	}
+>  
+> -	return 0;
+> +	return rc;
+>  
+> -err_register:
+> -	if (vp_dev->ioaddr)
+> -	     virtio_pci_legacy_remove(vp_dev);
+> -	else
+> -	     virtio_pci_modern_remove(vp_dev);
+>  err_probe:
+>  	pci_disable_device(pci_dev);
+>  err_enable_device:
+> -- 
+> 2.9.4
+
+I'd prefer something like the below.
+
+--->
+
+virtio_pci: don't kfree device on register failure
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+---
+
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 1c4797e..995ab03 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -513,7 +513,7 @@ static void virtio_pci_release_dev(struct device *_d)
+ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ 			    const struct pci_device_id *id)
+ {
+-	struct virtio_pci_device *vp_dev;
++	struct virtio_pci_device *vp_dev, *reg_dev = NULL;
+ 	int rc;
+ 
+ 	/* allocate our structure and fill it out */
+@@ -551,6 +551,8 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ 	pci_set_master(pci_dev);
+ 
+ 	rc = register_virtio_device(&vp_dev->vdev);
++	/* NOTE: device is considered registered even if register failed. */
++	reg_dev = vp_dev;
+ 	if (rc)
+ 		goto err_register;
+ 
+@@ -564,7 +566,10 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ err_probe:
+ 	pci_disable_device(pci_dev);
+ err_enable_device:
+-	kfree(vp_dev);
++	if (reg_dev)
++		put_device(dev);
++	else
++		kfree(vp_dev);
+ 	return rc;
+ }
