@@ -1,14 +1,15 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH v19 1/7] xbitmap: Introduce xbitmap
-Date: Fri, 15 Dec 2017 19:05:07 +0800
-Message-ID: <201712151837.MQq7hdgk%fengguang.wu__35899.5881899775$1513335977$gmane$org@intel.com>
-References: <1513079759-14169-2-git-send-email-wei.w.wang@intel.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2 1/3] virtio_pci: use put_device instead of kfree
+Date: Fri, 15 Dec 2017 13:21:27 +0100
+Message-ID: <20171215132127.71c33352.cohuck@redhat.com>
+References: <cover.1513083885.git.zhangweiping@didichuxing.com>
+	<e397f504c0a796481d8aaf0e558cc8425286012c.1513083885.git.zhangweiping@didichuxing.com>
+	<20171214205538-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1513079759-14169-2-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20171214205538-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,94 +19,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, quan.xu@aliyun.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, linux-kernel@vger.kernel.org, kbuild-all@01.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, weiping zhang <zhangweiping@didichuxing.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Matthew,
+On Thu, 14 Dec 2017 21:13:28 +0200
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-I love your patch! Perhaps something to improve:
+> On Tue, Dec 12, 2017 at 09:24:02PM +0800, weiping zhang wrote:
+> > As mentioned at drivers/base/core.c:
+> > /*
+> >  * NOTE: _Never_ directly free @dev after calling this function, even
+> >  * if it returned an error! Always use put_device() to give up the
+> >  * reference initialized in this function instead.
+> >  */
+> > so we don't free vp_dev until vp_dev->vdev.dev.release be called.  
+> 
+> seeing as 5739411acbaa63a6c22c91e340fdcdbcc7d82a51 adding these
+> annotations went to stable, should this go there too?
+> 
+> > Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+> > Reviewed-by: Cornelia Huck <cohuck@redhat.com>  
+> 
+> OK but this relies on users knowing that register_virtio_device
+> calls device_register. I think we want to add a comment
+> to register_virtio_device.
+> 
+> Also the cleanup is uglified.
+> 
+> I really think the right thing would be to change device_register making
+> it safe to kfree. People have the right to expect register on failure to
+> have no effect.
+> 
+> That just might be too hard to implement though.
 
-[auto build test WARNING on linus/master]
-[also build test WARNING on v4.15-rc3]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+Yes. The main problem is that device_register() at some point makes the
+structure visible to others, at which point they may obtain a
+reference. If that happened, you cannot clean up unless that other
+party gave up their reference -- which means your only chance to get
+this right is the current put_device() approach.
 
-url:    https://github.com/0day-ci/linux/commits/Wei-Wang/Virtio-balloon-Enhancement/20171215-100525
-reproduce:
-        # apt-get install sparse
-        make ARCH=x86_64 allmodconfig
-        make C=1 CF=-D__CHECK_ENDIAN__
+It *is* problematic if all of that stuff is hidden behind too many
+calling layers. If you have the device_initialize() -> device_add()
+calling sequence, having to do a put_device() on failure is much more
+obvious. But as you usually don't pass in a pure struct device but
+something embedding it, the put_device() needs to be done on the
+outermost level.
 
-
-sparse warnings: (new ones prefixed by >>)
-
-
-vim +29 lib/xbitmap.c
-
-     5	
-     6	/**
-     7	 *  xb_set_bit - set a bit in the xbitmap
-     8	 *  @xb: the xbitmap tree used to record the bit
-     9	 *  @bit: index of the bit to set
-    10	 *
-    11	 * This function is used to set a bit in the xbitmap. If the bitmap that @bit
-    12	 * resides in is not there, the per-cpu ida_bitmap will be taken.
-    13	 *
-    14	 * Returns: 0 on success. %-EAGAIN indicates that @bit was not set.
-    15	 */
-    16	int xb_set_bit(struct xb *xb, unsigned long bit)
-    17	{
-    18		int err;
-    19		unsigned long index = bit / IDA_BITMAP_BITS;
-    20		struct radix_tree_root *root = &xb->xbrt;
-    21		struct radix_tree_node *node;
-    22		void **slot;
-    23		struct ida_bitmap *bitmap;
-    24		unsigned long ebit;
-    25	
-    26		bit %= IDA_BITMAP_BITS;
-    27		ebit = bit + 2;
-    28	
-  > 29		err = __radix_tree_create(root, index, 0, &node, &slot);
-    30		if (err)
-    31			return err;
-    32		bitmap = rcu_dereference_raw(*slot);
-    33		if (radix_tree_exception(bitmap)) {
-    34			unsigned long tmp = (unsigned long)bitmap;
-    35	
-    36			if (ebit < BITS_PER_LONG) {
-    37				tmp |= 1UL << ebit;
-    38				rcu_assign_pointer(*slot, (void *)tmp);
-    39				return 0;
-    40			}
-    41			bitmap = this_cpu_xchg(ida_bitmap, NULL);
-    42			if (!bitmap)
-    43				return -EAGAIN;
-    44			memset(bitmap, 0, sizeof(*bitmap));
-    45			bitmap->bitmap[0] = tmp >> RADIX_TREE_EXCEPTIONAL_SHIFT;
-    46			rcu_assign_pointer(*slot, bitmap);
-    47		}
-    48	
-    49		if (!bitmap) {
-    50			if (ebit < BITS_PER_LONG) {
-    51				bitmap = (void *)((1UL << ebit) |
-    52						RADIX_TREE_EXCEPTIONAL_ENTRY);
-  > 53				__radix_tree_replace(root, node, slot, bitmap, NULL);
-    54				return 0;
-    55			}
-    56			bitmap = this_cpu_xchg(ida_bitmap, NULL);
-    57			if (!bitmap)
-    58				return -EAGAIN;
-    59			memset(bitmap, 0, sizeof(*bitmap));
-    60			__radix_tree_replace(root, node, slot, bitmap, NULL);
-    61		}
-    62	
-    63		__set_bit(bit, bitmap->bitmap);
-    64		return 0;
-    65	}
-    66	EXPORT_SYMBOL(xb_set_bit);
-    67	
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+Commenting can help here, as would probably a static checker for that
+code pattern.
