@@ -1,17 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 1/3] virtio_pci: use put_device instead of kfree
-Date: Sun, 17 Dec 2017 00:13:38 +0200
-Message-ID: <20171215170147-mutt-send-email-mst@kernel.org>
-References: <cover.1513083885.git.zhangweiping@didichuxing.com>
-	<e397f504c0a796481d8aaf0e558cc8425286012c.1513083885.git.zhangweiping@didichuxing.com>
-	<20171214205538-mutt-send-email-mst@kernel.org>
-	<20171215132127.71c33352.cohuck@redhat.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v19 3/7] xbitmap: add more operations
+Date: Sun, 17 Dec 2017 13:24:25 +0800
+Message-ID: <5A35FF89.8040500__11458.9371522472$1513488053$gmane$org@intel.com>
+References: <1513079759-14169-1-git-send-email-wei.w.wang@intel.com>	<1513079759-14169-4-git-send-email-wei.w.wang@intel.com>	<20171215184256.GA27160@bombadil.infradead.org>	<5A34F193.5040700@intel.com>
+	<201712162028.FEB87079.FOJFMQHVOSLtFO@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20171215132127.71c33352.cohuck@redhat.com>
+In-Reply-To: <201712162028.FEB87079.FOJFMQHVOSLtFO@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,58 +18,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, weiping zhang <zhangweiping@didichuxing.com>, virtualization@lists.linux-foundation.org
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, willy@infradead.org
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, nilal@redhat.com, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, quan.xu@aliyun.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 15, 2017 at 01:21:27PM +0100, Cornelia Huck wrote:
-> On Thu, 14 Dec 2017 21:13:28 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Tue, Dec 12, 2017 at 09:24:02PM +0800, weiping zhang wrote:
-> > > As mentioned at drivers/base/core.c:
-> > > /*
-> > >  * NOTE: _Never_ directly free @dev after calling this function, even
-> > >  * if it returned an error! Always use put_device() to give up the
-> > >  * reference initialized in this function instead.
-> > >  */
-> > > so we don't free vp_dev until vp_dev->vdev.dev.release be called.  
-> > 
-> > seeing as 5739411acbaa63a6c22c91e340fdcdbcc7d82a51 adding these
-> > annotations went to stable, should this go there too?
-> > 
-> > > Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
-> > > Reviewed-by: Cornelia Huck <cohuck@redhat.com>  
-> > 
-> > OK but this relies on users knowing that register_virtio_device
-> > calls device_register. I think we want to add a comment
-> > to register_virtio_device.
-> > 
-> > Also the cleanup is uglified.
-> > 
-> > I really think the right thing would be to change device_register making
-> > it safe to kfree. People have the right to expect register on failure to
-> > have no effect.
-> > 
-> > That just might be too hard to implement though.
-> 
-> Yes. The main problem is that device_register() at some point makes the
-> structure visible to others, at which point they may obtain a
-> reference. If that happened, you cannot clean up unless that other
-> party gave up their reference -- which means your only chance to get
-> this right is the current put_device() approach.
-> 
-> It *is* problematic if all of that stuff is hidden behind too many
-> calling layers. If you have the device_initialize() -> device_add()
-> calling sequence, having to do a put_device() on failure is much more
-> obvious. But as you usually don't pass in a pure struct device but
-> something embedding it, the put_device() needs to be done on the
-> outermost level.
-> 
-> Commenting can help here, as would probably a static checker for that
-> code pattern.
+On 12/16/2017 07:28 PM, Tetsuo Handa wrote:
+> Wei Wang wrote:
+>> On 12/16/2017 02:42 AM, Matthew Wilcox wrote:
+>>> On Tue, Dec 12, 2017 at 07:55:55PM +0800, Wei Wang wrote:
+>>>> +int xb_preload_and_set_bit(struct xb *xb, unsigned long bit, gfp_t gfp);
+>>> I'm struggling to understand when one would use this.  The xb_ API
+>>> requires you to handle your own locking.  But specifying GFP flags
+>>> here implies you can sleep.  So ... um ... there's no locking?
+>> In the regular use cases, people would do xb_preload() before taking the
+>> lock, and the xb_set/clear within the lock.
+>>
+>> In the virtio-balloon usage, we have a large number of bits to set with
+>> the balloon_lock being held (we're not unlocking for each bit), so we
+>> used the above wrapper to do preload and set within the balloon_lock,
+>> and passed in GFP_NOWAIT to avoid sleeping. Probably we can change to
+>> put this wrapper implementation to virtio-balloon, since it would not be
+>> useful for the regular cases.
+> GFP_NOWAIT is chosen in order not to try to OOM-kill something, isn't it?
 
-A semantic patch is probably the best we can do here.
+Yes, I think that's right the issue we are discussing here (also 
+discussed in the deadlock patch before): Suppose we use a sleep-able 
+flag GFP_KERNEL, which gets the caller (fill_balloon or leak_balloon) 
+into sleep with balloon_lock being held, and the memory reclaiming from 
+GFP_KERNEL would fall into the OOM code path which first invokes the 
+oom_notify-->leak_balloon to release some balloon memory, which needs to 
+take the balloon_lock that is being held by the task who is sleeping.
 
--- 
-MST
+So, using GFP_NOWAIT avoids sleeping to get memory through directly 
+memory reclaiming, which could fall into that OOM code path that needs 
+to take the balloon_lock.
+
+
+> But passing GFP_NOWAIT means that we can handle allocation failure. There is
+> no need to use preload approach when we can handle allocation failure.
+
+I think the reason we need xb_preload is because radix tree insertion 
+needs the memory being preallocated already (it couldn't suffer from 
+memory failure during the process of inserting, probably because 
+handling the failure there isn't easy, Matthew may know the backstory of 
+this)
+
+So, I think we can handle the memory failure with xb_preload, which 
+stops going into the radix tree APIs, but shouldn't call radix tree APIs 
+without the related memory preallocated.
+
+Best,
+Wei
