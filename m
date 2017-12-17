@@ -1,7 +1,7 @@
 From: weiping zhang <zwp10758@gmail.com>
-Subject: [PATCH v3 2/5] virtio_pci: don't kfree device on register failure
-Date: Sun, 17 Dec 2017 21:46:16 +0800
-Message-ID: <9308e1baef36c5f8c217aef0f074980984f7f913.1513517240.git.zhangweiping@didichuxing.com>
+Subject: [PATCH v3 3/5] virtio_vop: don't kfree device on register failure
+Date: Sun, 17 Dec 2017 21:47:09 +0800
+Message-ID: <b88c60110467f1c5c516bf8d185a0df2ca262bab.1513517240.git.zhangweiping@didichuxing.com>
 References: <cover.1513517240.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -28,28 +28,54 @@ As mentioned at drivers/base/core.c:
  * if it returned an error! Always use put_device() to give up the
  * reference initialized in this function instead.
  */
-so we don't free vp_dev until vp_dev->vdev.dev.release be called.
+so we don't free vdev until vdev->vdev.dev.release be called.
 
 Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
 ---
- drivers/virtio/virtio_pci_common.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/misc/mic/vop/vop_main.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 1c4797e..21a2ce0 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -564,7 +564,10 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- err_probe:
- 	pci_disable_device(pci_dev);
- err_enable_device:
--	kfree(vp_dev);
-+	if (VIRTIO_CONFIG_S_ACKNOWLEDGE & virtio_get_status(&vp_dev->vdev))
-+		put_device(&vp_dev->vdev.dev);
-+	else
-+		kfree(vp_dev);
- 	return rc;
+diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
+index a341938..53eaa9d 100644
+--- a/drivers/misc/mic/vop/vop_main.c
++++ b/drivers/misc/mic/vop/vop_main.c
+@@ -452,10 +452,12 @@ static irqreturn_t vop_virtio_intr_handler(int irq, void *data)
+ 
+ static void vop_virtio_release_dev(struct device *_d)
+ {
+-	/*
+-	 * No need for a release method similar to virtio PCI.
+-	 * Provide an empty one to avoid getting a warning from core.
+-	 */
++	struct virtio_device *vdev =
++			container_of(_d, struct virtio_device, dev);
++	struct _vop_vdev *vop_vdev =
++			container_of(vdev, struct _vop_vdev, vdev);
++
++	kfree(vop_vdev);
  }
  
+ /*
+@@ -512,7 +514,10 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
+ free_irq:
+ 	vpdev->hw_ops->free_irq(vpdev, vdev->virtio_cookie, vdev);
+ kfree:
+-	kfree(vdev);
++	if (VIRTIO_CONFIG_S_ACKNOWLEDGE & virtio_get_status(&vdev->vdev))
++		put_device(&vdev->vdev.dev);
++	else
++		kfree(vdev);
+ 	return ret;
+ }
+ 
+@@ -568,7 +573,7 @@ static int _vop_remove_device(struct mic_device_desc __iomem *d,
+ 		iowrite8(-1, &dc->h2c_vdev_db);
+ 		if (status & VIRTIO_CONFIG_S_DRIVER_OK)
+ 			wait_for_completion(&vdev->reset_done);
+-		kfree(vdev);
++		put_device(&vdev->vdev.dev);
+ 		iowrite8(1, &dc->guest_ack);
+ 		dev_dbg(&vpdev->dev, "%s %d guest_ack %d\n",
+ 			__func__, __LINE__, ioread8(&dc->guest_ack));
 -- 
 2.9.4
