@@ -1,7 +1,7 @@
 From: weiping zhang <zwp10758@gmail.com>
-Subject: [PATCH v3 1/5] virtio: add helper virtio_get_status
-Date: Sun, 17 Dec 2017 21:45:49 +0800
-Message-ID: <2348dc6e8a318f1ba64c2f0cad998ae0c2d48a1c.1513517240.git.zhangweiping@didichuxing.com>
+Subject: [PATCH v3 2/5] virtio_pci: don't kfree device on register failure
+Date: Sun, 17 Dec 2017 21:46:16 +0800
+Message-ID: <9308e1baef36c5f8c217aef0f074980984f7f913.1513517240.git.zhangweiping@didichuxing.com>
 References: <cover.1513517240.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,43 +22,34 @@ To: cohuck@redhat.com, mst@redhat.com, jasowang@redhat.com
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-add helper function to simplify dev->config->get_status().
+As mentioned at drivers/base/core.c:
+/*
+ * NOTE: _Never_ directly free @dev after calling this function, even
+ * if it returned an error! Always use put_device() to give up the
+ * reference initialized in this function instead.
+ */
+so we don't free vp_dev until vp_dev->vdev.dev.release be called.
 
 Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
 ---
- drivers/virtio/virtio.c       | 6 ++++++
- include/linux/virtio_config.h | 2 ++
- 2 files changed, 8 insertions(+)
+ drivers/virtio/virtio_pci_common.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index bf7ff39..c5b057bd 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -165,6 +165,12 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
- }
- EXPORT_SYMBOL_GPL(virtio_add_status);
- 
-+unsigned int virtio_get_status(struct virtio_device *dev)
-+{
-+	return dev->config->get_status(dev);
-+}
-+EXPORT_SYMBOL_GPL(virtio_get_status);
-+
- int virtio_finalize_features(struct virtio_device *dev)
- {
- 	int ret = dev->config->finalize_features(dev);
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 5559a2d..30972c4 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -429,6 +429,8 @@ static inline void virtio_cwrite64(struct virtio_device *vdev,
- 	vdev->config->set(vdev, offset, &val, sizeof(val));
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 1c4797e..21a2ce0 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -564,7 +564,10 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ err_probe:
+ 	pci_disable_device(pci_dev);
+ err_enable_device:
+-	kfree(vp_dev);
++	if (VIRTIO_CONFIG_S_ACKNOWLEDGE & virtio_get_status(&vp_dev->vdev))
++		put_device(&vp_dev->vdev.dev);
++	else
++		kfree(vp_dev);
+ 	return rc;
  }
  
-+unsigned int virtio_get_status(struct virtio_device *dev);
-+
- /* Conditional config space accessors. */
- #define virtio_cread_feature(vdev, fbit, structname, member, ptr)	\
- 	({								\
 -- 
 2.9.4
