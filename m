@@ -1,14 +1,21 @@
-From: weiping zhang <zwp10758@gmail.com>
-Subject: [PATCH v3 3/5] virtio_vop: don't kfree device on register failure
-Date: Sun, 17 Dec 2017 21:47:09 +0800
-Message-ID: <b88c60110467f1c5c516bf8d185a0df2ca262bab.1513517240.git.zhangweiping@didichuxing.com>
-References: <cover.1513517240.git.zhangweiping@didichuxing.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v19 3/7] xbitmap: add more operations
+Date: Sun, 17 Dec 2017 13:47:21 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F739387C1D__41745.3094305985$1513518334$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <5A311C5E.7000304@intel.com>
+	<201712132316.EJJ57332.MFOSJHOFFVLtQO@I-love.SAKURA.ne.jp>
+	<5A31F445.6070504@intel.com>
+	<201712150129.BFC35949.FFtFOLSOJOQHVM@I-love.SAKURA.ne.jp>
+	<20171214181219.GA26124@bombadil.infradead.org>
+	<201712160121.BEJ26052.HOFFOOQFMLtSVJ@I-love.SAKURA.ne.jp>
+	<20171215184915.GB27160@bombadil.infradead.org>
+	<20171215192203.GC27160@bombadil.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1513517240.git.zhangweiping@didichuxing.com>
+In-Reply-To: <20171215192203.GC27160@bombadil.infradead.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,64 +25,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: cohuck@redhat.com, mst@redhat.com, jasowang@redhat.com
-Cc: virtualization@lists.linux-foundation.org
+To: Matthew Wilcox <willy@infradead.org>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "nilal@redhat.com" <nilal@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "amit.shah@redhat.com" <amit.shah@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "quan.xu@aliyun.com" <quan.xu@aliyun.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, akpm@li
 List-Id: virtualization@lists.linuxfoundation.org
 
-As mentioned at drivers/base/core.c:
-/*
- * NOTE: _Never_ directly free @dev after calling this function, even
- * if it returned an error! Always use put_device() to give up the
- * reference initialized in this function instead.
- */
-so we don't free vdev until vdev->vdev.dev.release be called.
+On Saturday, December 16, 2017 3:22 AM, Matthew Wilcox wrote:
+> On Fri, Dec 15, 2017 at 10:49:15AM -0800, Matthew Wilcox wrote:
+> > Here's the API I'm looking at right now.  The user need take no lock;
+> > the locking (spinlock) is handled internally to the implementation.
 
-Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
----
- drivers/misc/mic/vop/vop_main.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+Another place I saw your comment " The xb_ API requires you to handle your own locking" which seems conflict with the above "the user need take no lock".
+Doesn't the caller need a lock to avoid concurrent accesses to the ida bitmap?
 
-diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
-index a341938..53eaa9d 100644
---- a/drivers/misc/mic/vop/vop_main.c
-+++ b/drivers/misc/mic/vop/vop_main.c
-@@ -452,10 +452,12 @@ static irqreturn_t vop_virtio_intr_handler(int irq, void *data)
- 
- static void vop_virtio_release_dev(struct device *_d)
- {
--	/*
--	 * No need for a release method similar to virtio PCI.
--	 * Provide an empty one to avoid getting a warning from core.
--	 */
-+	struct virtio_device *vdev =
-+			container_of(_d, struct virtio_device, dev);
-+	struct _vop_vdev *vop_vdev =
-+			container_of(vdev, struct _vop_vdev, vdev);
-+
-+	kfree(vop_vdev);
- }
- 
- /*
-@@ -512,7 +514,10 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
- free_irq:
- 	vpdev->hw_ops->free_irq(vpdev, vdev->virtio_cookie, vdev);
- kfree:
--	kfree(vdev);
-+	if (VIRTIO_CONFIG_S_ACKNOWLEDGE & virtio_get_status(&vdev->vdev))
-+		put_device(&vdev->vdev.dev);
-+	else
-+		kfree(vdev);
- 	return ret;
- }
- 
-@@ -568,7 +573,7 @@ static int _vop_remove_device(struct mic_device_desc __iomem *d,
- 		iowrite8(-1, &dc->h2c_vdev_db);
- 		if (status & VIRTIO_CONFIG_S_DRIVER_OK)
- 			wait_for_completion(&vdev->reset_done);
--		kfree(vdev);
-+		put_device(&vdev->vdev.dev);
- 		iowrite8(1, &dc->guest_ack);
- 		dev_dbg(&vpdev->dev, "%s %d guest_ack %d\n",
- 			__func__, __LINE__, ioread8(&dc->guest_ack));
--- 
-2.9.4
+
+> I looked at the API some more and found some flaws:
+>  - how does xbit_alloc communicate back which bit it allocated?
+>  - What if xbit_find_set() is called on a completely empty array with
+>    a range of 0, ULONG_MAX -- there's no invalid number to return.
+
+We'll change it to "bool xb_find_set(.., unsigned long *result)", returning false indicates no "1" bit is found.
+
+
+>  - xbit_clear() can't return an error.  Neither can xbit_zero().
+
+I found the current xbit_clear implementation only returns 0, and there isn't an error to be returned from this function. In this case, is it better to make the function "void"?
+
+
+>  - Need to add __must_check to various return values to discourage sloppy
+>    programming
+> 
+> So I modify the proposed API we compete with thusly:
+> 
+> bool xbit_test(struct xbitmap *, unsigned long bit); int __must_check
+> xbit_set(struct xbitmap *, unsigned long bit, gfp_t); void xbit_clear(struct
+> xbitmap *, unsigned long bit); int __must_check xbit_alloc(struct xbitmap *,
+> unsigned long *bit, gfp_t);
+> 
+> int __must_check xbit_fill(struct xbitmap *, unsigned long start,
+>                         unsigned long nbits, gfp_t); void xbit_zero(struct xbitmap *,
+> unsigned long start, unsigned long nbits); int __must_check
+> xbit_alloc_range(struct xbitmap *, unsigned long *bit,
+>                         unsigned long nbits, gfp_t);
+> 
+> bool xbit_find_clear(struct xbitmap *, unsigned long *start, unsigned long
+> max); bool xbit_find_set(struct xbitmap *, unsigned long *start, unsigned
+> long max);
+> 
+> (I'm a little sceptical about the API accepting 'max' for the find functions and
+> 'nbits' in the fill/zero/alloc_range functions, but I think that matches how
+> people want to use it, and it matches how bitmap.h works)
+
+Are you suggesting to rename the current xb_ APIs to the above xbit_ names (with parameter changes)? 
+
+Why would we need xbit_alloc, which looks like ida_get_new, I think set/clear should be adequate to the current usages.
+
+Best,
+Wei
