@@ -1,7 +1,8 @@
 From: weiping zhang <zwp10758@gmail.com>
-Subject: [PATCH v3 5/5] virtio: add comments for virtio_register_device
-Date: Sun, 17 Dec 2017 21:48:05 +0800
-Message-ID: <56d8ecc6f11b7580f3d38adcc0fd71ac60f72b02.1513517240.git.zhangweiping@didichuxing.com>
+Subject: [PATCH v3 4/5] virtio_remoteproc: don't kfree device on register
+	failure
+Date: Sun, 17 Dec 2017 21:47:32 +0800
+Message-ID: <ae7a136b31f0c38024311ad9aaf285b8b4ca8b34.1513517240.git.zhangweiping@didichuxing.com>
 References: <cover.1513517240.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,47 +23,43 @@ To: cohuck@redhat.com, mst@redhat.com, jasowang@redhat.com
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-As mentioned at drivers/base/core.c:
-/*
-* NOTE: _Never_ directly free @dev after calling this function, even
-* if it returned an error! Always use put_device() to give up the
-* reference initialized in this function instead.
-*/
-virtio_register_device may fail before/after call device_register, the
-caller should do a proper cleanup. Caller cann't use kfree directly,
-if virtio_register_device has already called device_register. Caller
-cann't use put_device directly, if virtio_register_device has not yet
-call device_register, because kobject_put may give a warning cause
-dev->kobj has not been initialized.
+rproc_virtio_dev_release will be called iff virtio_device.dev's
+refer count became to 0. Here we should check if we call device_register
+or not, if called, put vdev.dev, and then rproc->dev's cleanup will be
+done in rproc_virtio_dev_release, otherwise we do cleanup directly.
 
 Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
 ---
- drivers/virtio/virtio.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/remoteproc/remoteproc_virtio.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index c5b057bd..4f0718b 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -309,6 +309,19 @@ void unregister_virtio_driver(struct virtio_driver *driver)
- }
- EXPORT_SYMBOL_GPL(unregister_virtio_driver);
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index 2946348..ad5d6d1 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -327,14 +327,22 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
  
-+/**
-+ * register_virtio_device - register virtio device
-+ *
-+ * @dev	: virtio device interested
-+ *
-+ * This funciton may fail after call device_register, as mentioned at
-+ * drivers/base/core.c we must use put_device(), _never_ directly free @dev.
-+ * The caller should take care of the status of @dev and determine to use
-+ * put_device or kfree. If @dev in VIRTIO_CONFIG_S_ACKNOWLEDGE status that
-+ * means caller should use put_device otherwise use kfree directly.
-+ *
-+ * Returns: 0 on success, error on failure.
-+ */
- int register_virtio_device(struct virtio_device *dev)
- {
- 	int err;
+ 	ret = register_virtio_device(vdev);
+ 	if (ret) {
+-		put_device(&rproc->dev);
+ 		dev_err(dev, "failed to register vdev: %d\n", ret);
+ 		goto out;
+ 	}
+ 
+ 	dev_info(dev, "registered %s (type %d)\n", dev_name(&vdev->dev), id);
+ 
++	return 0;
++
+ out:
++	if (VIRTIO_CONFIG_S_ACKNOWLEDGE & virtio_get_status(vdev))
++		put_device(&vdev->dev);
++	else {
++		kref_put(&rvdev->refcount, rproc_vdev_release);
++		put_device(&rproc->dev);
++	}
++
+ 	return ret;
+ }
+ 
 -- 
 2.9.4
