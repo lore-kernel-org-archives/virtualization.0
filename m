@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: [PATCH v2] virtio/ringtest: fix up need_event math
-Date: Mon, 18 Dec 2017 08:15:22 +0200
-Message-ID: <1513577626-1220-1-git-send-email-mst__31078.0728738338$1513577667$gmane$org@redhat.com>
+Date: Mon, 18 Dec 2017 08:16:30 +0200
+Message-ID: <1513577626-1220-1-git-send-email-mst__40155.273237224$1513577682$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
