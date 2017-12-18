@@ -1,13 +1,13 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH] virtio/s390: fixup for implement PM operations for virtio_ccw
-Date: Mon, 18 Dec 2017 09:37:06 +0100
-Message-ID: <20171218083706.223836-1-borntraeger__21372.0515756451$1513586124$gmane$org@de.ibm.com>
-References: <201712171200.w6OAf5Jm%fengguang.wu@intel.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PULL 0/1] s390/virtio update
+Date: Mon, 18 Dec 2017 09:47:16 +0100
+Message-ID: <20171218094716.29f85004.cohuck__41019.6728924804$1513586786$gmane$org@redhat.com>
+References: <20171214095954.7615-1-cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201712171200.w6OAf5Jm%fengguang.wu@intel.com>
+In-Reply-To: <20171214095954.7615-1-cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,50 +17,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, kbuild-all@01.org, kbuild test robot <fengguang.wu@intel.com>
+To: mst@redhat.com
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We need to disable the pm callbacks if CONFIG_PM is not set.
+On Thu, 14 Dec 2017 10:59:53 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
-Cornelia, you might want to squash this into the original commit.
+> The following changes since commit e073f74a5a39c6dc45f28a5006c21aa94490d9b8:
+> 
+>   Merge branch 'this' into vhost (2017-12-07 18:39:24 +0200)
+> 
+> are available in the git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/virtio-s390-20171214
+> 
+> for you to fetch changes up to 619b4b0ba832144d4be899640a2047f9675df849:
+> 
+>   virtio/s390: implement PM operations for virtio_ccw (2017-12-14 10:32:21 +0100)
+> 
+> ----------------------------------------------------------------
+> Hibernation support for virtio-ccw.
+> 
+> ----------------------------------------------------------------
+> 
+> Christian Borntraeger (1):
+>   virtio/s390: implement PM operations for virtio_ccw
+> 
+>  drivers/s390/virtio/virtio_ccw.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+> 
 
- drivers/s390/virtio/virtio_ccw.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 330b3fa3430a..985184ebda45 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -1315,6 +1315,7 @@ static struct ccw_device_id virtio_ids[] = {
- 	{},
- };
- 
-+#ifdef CONFIG_PM_SLEEP
- static int virtio_ccw_freeze(struct ccw_device *cdev)
- {
- 	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
-@@ -1333,6 +1334,7 @@ static int virtio_ccw_restore(struct ccw_device *cdev)
- 
- 	return virtio_device_restore(&vcdev->vdev);
- }
-+#endif
- 
- static struct ccw_driver virtio_ccw_driver = {
- 	.driver = {
-@@ -1346,9 +1348,11 @@ static struct ccw_driver virtio_ccw_driver = {
- 	.set_online = virtio_ccw_online,
- 	.notify = virtio_ccw_cio_notify,
- 	.int_class = IRQIO_VIR,
-+#ifdef CONFIG_PM_SLEEP
- 	.freeze = virtio_ccw_freeze,
- 	.thaw = virtio_ccw_restore,
- 	.restore = virtio_ccw_restore,
-+#endif
- };
- 
- static int __init pure_hex(char **cp, unsigned int *val, int min_digit,
--- 
-2.13.4
+Self-NAK; this needs a fixup for !CONFIG_PM.
