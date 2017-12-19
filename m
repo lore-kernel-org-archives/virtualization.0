@@ -1,18 +1,16 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [RFC PATCH] virtio_net: Extend virtio to use VF datapath when
 	available
-Date: Tue, 19 Dec 2017 10:13:45 -0800
-Message-ID: <20171219101345.7bf43a8d__26952.7145581835$1513707146$gmane$org@xeon-e3>
+Date: Tue, 19 Dec 2017 13:20:17 -0500 (EST)
+Message-ID: <20171219.132017.1652469595167726292.davem__27989.3871666447$1513707539$gmane$org@davemloft.net>
 References: <1513644036-45230-1-git-send-email-sridhar.samudrala@intel.com>
 	<20171219174259-mutt-send-email-mst@kernel.org>
 	<ca709329-a47a-2e76-b1fc-38fc665d7c0b@intel.com>
-	<20171219095548.61d70d10@xeon-e3>
-	<20171219200611-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171219200611-mutt-send-email-mst@kernel.org>
+In-Reply-To: <ca709329-a47a-2e76-b1fc-38fc665d7c0b@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,40 +20,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, alexander.duyck@gmail.com, netdev@vger.kernel.org
+To: sridhar.samudrala@intel.com
+Cc: mst@redhat.com, netdev@vger.kernel.org, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCAxOSBEZWMgMjAxNyAyMDowNzowMSArMDIwMAoiTWljaGFlbCBTLiBUc2lya2luIiA8
-bXN0QHJlZGhhdC5jb20+IHdyb3RlOgoKPiBPbiBUdWUsIERlYyAxOSwgMjAxNyBhdCAwOTo1NTo0
-OEFNIC0wODAwLCBTdGVwaGVuIEhlbW1pbmdlciB3cm90ZToKPiA+IE9uIFR1ZSwgMTkgRGVjIDIw
-MTcgMDk6NDE6MzkgLTA4MDAKPiA+ICJTYW11ZHJhbGEsIFNyaWRoYXIiIDxzcmlkaGFyLnNhbXVk
-cmFsYUBpbnRlbC5jb20+IHdyb3RlOgo+ID4gICAKPiA+ID4gT24gMTIvMTkvMjAxNyA3OjQ3IEFN
-LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6ICAKPiA+ID4gPiBJJ2xsIG5lZWQgdG8gbG9vayBh
-dCB0aGlzIG1vcmUsIGluIHBhcnRpY3VsYXIgdGhlIGZlYXR1cmUKPiA+ID4gPiBiaXQgaXMgbWlz
-c2luZyBoZXJlLiBGb3Igbm93IG9uZSBxdWVzdGlvbjoKPiA+ID4gPgo+ID4gPiA+IE9uIE1vbiwg
-RGVjIDE4LCAyMDE3IGF0IDA0OjQwOjM2UE0gLTA4MDAsIFNyaWRoYXIgU2FtdWRyYWxhIHdyb3Rl
-OiAgICAKPiA+ID4gPj4gQEAgLTU2LDYgKzU4LDggQEAgbW9kdWxlX3BhcmFtKG5hcGlfdHgsIGJv
-b2wsIDA2NDQpOwo+ID4gPiA+PiAgICAqLwo+ID4gPiA+PiAgIERFQ0xBUkVfRVdNQShwa3RfbGVu
-LCAwLCA2NCkKPiA+ID4gPj4gICAKPiA+ID4gPj4gKyNkZWZpbmUgVkZfVEFLRU9WRVJfSU5UCShI
-WiAvIDEwKQo+ID4gPiA+PiArCj4gPiA+ID4+ICAgI2RlZmluZSBWSVJUTkVUX0RSSVZFUl9WRVJT
-SU9OICIxLjAuMCIKPiA+ID4gPj4gICAKPiA+ID4gPj4gICBzdGF0aWMgY29uc3QgdW5zaWduZWQg
-bG9uZyBndWVzdF9vZmZsb2Fkc1tdID0geyAgICAKPiA+ID4gPiBXaHkgaXMgdGhpcyBkZWxheSBu
-ZWNlc3Nhcnk/IEFuZCB3aHkgYnkgMTAwbXM/ICAgIAo+ID4gPiAKPiA+ID4gVGhpcyBpcyBiYXNl
-ZCBvbiBuZXR2c2MgaW1wbGVtZW50YXRpb24gYW5kIGhlcmUgaXMgdGhlIGNvbW1pdCB0aGF0Cj4g
-PiA+IGFkZGVkIHRoaXMgZGVsYXkuwqAgTm90IHN1cmUgaWYgdGhpcyBuZWVkcyB0byBiZSAxMDBt
-cy4KPiA+ID4gCj4gPiA+IGNvbW1pdCA2MTIzYzY2ODU0YzE3NGU0OTgyZjk4MTk1MTAwYzFkOTkw
-ZjllNWU2Cj4gPiA+IEF1dGhvcjogc3RlcGhlbiBoZW1taW5nZXIgPHN0ZXBoZW5AbmV0d29ya3Bs
-dW1iZXIub3JnPgo+ID4gPiBEYXRlOsKgwqAgV2VkIEF1ZyA5IDE3OjQ2OjAzIDIwMTcgLTA3MDAK
-PiA+ID4gCj4gPiA+ICDCoMKgwqAgbmV0dnNjOiBkZWxheSBzZXR1cCBvZiBWRiBkZXZpY2UKPiA+
-ID4gCj4gPiA+ICDCoMKgwqAgV2hlbiBWRiBkZXZpY2UgaXMgZGlzY292ZXJlZCwgZGVsYXkgYnJp
-bmcgaXQgYXV0b21hdGljYWxseSB1cCBpbgo+ID4gPiAgwqDCoMKgIG9yZGVyIHRvIGFsbG93IHVz
-ZXJzcGFjZSB0byBzb21lIHNpbXBsZSBjaGFuZ2VzIChsaWtlIHJlbmFtaW5nKS4KPiA+ID4gCj4g
-PiA+IAo+ID4gPiAgIAo+ID4gCj4gPiBjb3VsZCBiZSAxMG1zLCBqdXN0IGVub3VnaCB0byBsZXQg
-dWRldiBkbyBpdHMgcmVuYW1pbmcgIAo+IAo+IElzbid0IHRoZXJlIGEgd2F5IG5vdCB0byBkZXBl
-bmQgb24gdWRldiBjb21wbGV0aW5nIGl0cyB0aGluZyB3aXRoaW4gYSBnaXZlbiB0aW1lZnJhbWU/
-CgpOb3QgdGhhdCBJIGtub3cuIHRoZSBwYXRoIGlzIHF1aXRlIGluZGlyZWN0LgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Date: Tue, 19 Dec 2017 09:41:39 -0800
+
+> This is based on netvsc implementation and here is the commit that
+> added this delay.=A0 Not sure if this needs to be 100ms.
+> =
+
+> commit 6123c66854c174e4982f98195100c1d990f9e5e6
+> Author: stephen hemminger <stephen@networkplumber.org>
+> Date:=A0=A0 Wed Aug 9 17:46:03 2017 -0700
+> =
+
+> =A0=A0=A0 netvsc: delay setup of VF device
+> =
+
+> =A0=A0=A0 When VF device is discovered, delay bring it automatically up in
+> =A0=A0=A0 order to allow userspace to some simple changes (like renaming).
+
+This is kind of bogus, I should have called this out when the patch
+was posted.
+
+Any delay is wrong, there needs to be tight synchronization if a
+userspace operation must occur before proceeding.  If something
+happens and userspace is delayed, this whole thing doesn't work.
