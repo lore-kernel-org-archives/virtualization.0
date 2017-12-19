@@ -1,16 +1,16 @@
 From: David Miller <davem@davemloft.net>
 Subject: Re: [RFC PATCH] virtio_net: Extend virtio to use VF datapath when
 	available
-Date: Tue, 19 Dec 2017 13:20:17 -0500 (EST)
-Message-ID: <20171219.132017.1652469595167726292.davem__27989.3871666447$1513707539$gmane$org@davemloft.net>
-References: <1513644036-45230-1-git-send-email-sridhar.samudrala@intel.com>
-	<20171219174259-mutt-send-email-mst@kernel.org>
+Date: Tue, 19 Dec 2017 13:21:17 -0500 (EST)
+Message-ID: <20171219.132117.666798483874609477.davem__39828.7710304887$1513707597$gmane$org@davemloft.net>
+References: <20171219174259-mutt-send-email-mst@kernel.org>
 	<ca709329-a47a-2e76-b1fc-38fc665d7c0b@intel.com>
+	<20171219095548.61d70d10@xeon-e3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <ca709329-a47a-2e76-b1fc-38fc665d7c0b@intel.com>
+In-Reply-To: <20171219095548.61d70d10@xeon-e3>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,31 +20,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: sridhar.samudrala@intel.com
-Cc: mst@redhat.com, netdev@vger.kernel.org, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org
+To: stephen@networkplumber.org
+Cc: mst@redhat.com, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Date: Tue, 19 Dec 2017 09:41:39 -0800
+From: Stephen Hemminger <stephen@networkplumber.org>
+Date: Tue, 19 Dec 2017 09:55:48 -0800
 
-> This is based on netvsc implementation and here is the commit that
-> added this delay.=A0 Not sure if this needs to be 100ms.
-> =
+> could be 10ms, just enough to let udev do its renaming
 
-> commit 6123c66854c174e4982f98195100c1d990f9e5e6
-> Author: stephen hemminger <stephen@networkplumber.org>
-> Date:=A0=A0 Wed Aug 9 17:46:03 2017 -0700
-> =
+Please, move to some kind of notification or event based handling of
+this problem.
 
-> =A0=A0=A0 netvsc: delay setup of VF device
-> =
-
-> =A0=A0=A0 When VF device is discovered, delay bring it automatically up in
-> =A0=A0=A0 order to allow userspace to some simple changes (like renaming).
-
-This is kind of bogus, I should have called this out when the patch
-was posted.
-
-Any delay is wrong, there needs to be tight synchronization if a
-userspace operation must occur before proceeding.  If something
-happens and userspace is delayed, this whole thing doesn't work.
+No delay is safe, what if userspace gets swapped out or whatever
+else might make userspace stall unexpectedly?
