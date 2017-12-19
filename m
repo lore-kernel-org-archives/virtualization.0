@@ -1,13 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL v2 1/1] virtio/s390: implement PM operations for virtio_ccw
-Date: Mon, 18 Dec 2017 17:21:23 +0100
-Message-ID: <20171218162123.963-2-cohuck__22114.5497788259$1513614119$gmane$org@redhat.com>
-References: <20171218162123.963-1-cohuck@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: Possible unsafe usage of skb->cb in virtio-net
+Date: Tue, 19 Dec 2017 17:06:25 +0800
+Message-ID: <2cb1512d-2db5-34a5-21c0-dd3fa2db8ad1@redhat.com>
+References: <VI1PR0501MB2734AAE4311FE84881F622A2D45C0@VI1PR0501MB2734.eurprd05.prod.outlook.com>
+	<20171102142758-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171218162123.963-1-cohuck@redhat.com>
+In-Reply-To: <20171102142758-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,82 +19,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Ilya Lesokhin <ilyal@mellanox.com>
+Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-
-Suspend/Resume to/from disk currently fails. Let us wire
-up the necessary callbacks. This is mostly just forwarding
-the requests to the virtio drivers. The only thing that
-has to be done in virtio_ccw itself is to re-set the
-virtio revision.
-
-Suggested-by: Thomas Huth <thuth@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-Id: <20171207141102.70190-2-borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-[CH: merged <20171218083706.223836-1-borntraeger@de.ibm.com> to fix
-!CONFIG_PM configs]
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/virtio/virtio_ccw.c | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
-
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index b18fe2014cf2..985184ebda45 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -1300,6 +1300,9 @@ static int virtio_ccw_cio_notify(struct ccw_device *cdev, int event)
- 		vcdev->device_lost = true;
- 		rc = NOTIFY_DONE;
- 		break;
-+	case CIO_OPER:
-+		rc = NOTIFY_OK;
-+		break;
- 	default:
- 		rc = NOTIFY_DONE;
- 		break;
-@@ -1312,6 +1315,27 @@ static struct ccw_device_id virtio_ids[] = {
- 	{},
- };
- 
-+#ifdef CONFIG_PM_SLEEP
-+static int virtio_ccw_freeze(struct ccw_device *cdev)
-+{
-+	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
-+
-+	return virtio_device_freeze(&vcdev->vdev);
-+}
-+
-+static int virtio_ccw_restore(struct ccw_device *cdev)
-+{
-+	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
-+	int ret;
-+
-+	ret = virtio_ccw_set_transport_rev(vcdev);
-+	if (ret)
-+		return ret;
-+
-+	return virtio_device_restore(&vcdev->vdev);
-+}
-+#endif
-+
- static struct ccw_driver virtio_ccw_driver = {
- 	.driver = {
- 		.owner = THIS_MODULE,
-@@ -1324,6 +1348,11 @@ static struct ccw_driver virtio_ccw_driver = {
- 	.set_online = virtio_ccw_online,
- 	.notify = virtio_ccw_cio_notify,
- 	.int_class = IRQIO_VIR,
-+#ifdef CONFIG_PM_SLEEP
-+	.freeze = virtio_ccw_freeze,
-+	.thaw = virtio_ccw_restore,
-+	.restore = virtio_ccw_restore,
-+#endif
- };
- 
- static int __init pure_hex(char **cp, unsigned int *val, int min_digit,
--- 
-2.13.6
+CgpPbiAyMDE35bm0MTHmnIgwMuaXpSAyMTowMSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFRodSwgTm92IDAyLCAyMDE3IGF0IDExOjQwOjM2QU0gKzAwMDAsIElseWEgTGVzb2toaW4g
+d3JvdGU6Cj4+IEhpLAo+PiBJJ3ZlIG5vdGljZWQgdGhhdCB0aGUgdmlydGlvLW5ldCB1c2VzIHNr
+Yi0+Y2IuCj4+Cj4+IEkgZG9uJ3Qga25vdyBhbGwgdGhlIGRldGFpbCBieSBteSB1bmRlcnN0YW5k
+aW5nIGlzIGl0IGNhdXNlZCBwcm9ibGVtIHdpdGggdGhlIG1seDUgZHJpdmVyCj4+IGFuZCB3YXMg
+Zml4ZWQgaGVyZToKPj4gaHR0cHM6Ly9naXRodWIuY29tL3RvcnZhbGRzL2xpbnV4L2NvbW1pdC8z
+NDgwMmE0MmIzNTI4YjBlMThlYTQ1MTdjOGIyM2UxMjE0YTA5MzMyCj4+Cj4+IFRoYW5rcywKPj4g
+SWx5YQo+IFRoYW5rcyBhIGxvdCBmb3IgdGhlIHBvaW50ZXIuCj4KPiBJIHRoaW5rIHRoaXMgd2Fz
+IGluIHJlc3BvbnNlIHRvIHRoaXM6Cj4gaHR0cHM6Ly9wYXRjaHdvcmsub3psYWJzLm9yZy9wYXRj
+aC81NTgzMjQvCj4KPj4+ICsgICAgIHNrYl9wdXNoKHNrYiwgc2tiLT5kYXRhIC0gc2tiX2RhdGFf
+b3JpZyk7Cj4+PiAgICAgICAgc3EtPnNrYltwaV0gPSBza2I7Cj4+Pgo+Pj4gICAgICAgIE1MWDVF
+X1RYX1NLQl9DQihza2IpLT5udW1fd3FlYmJzID0gRElWX1JPVU5EX1VQKGRzX2NudCwKPj4gQW5k
+IGluIHRoZSBtaWRkbGUgb2YgdGhpcyB3ZSBoYXZlOgo+Pgo+PiAgICAgICAgICAgICAgICAgIHNr
+Yl9wdWxsX2lubGluZShza2IsIGlocyk7Cj4+Cj4+IFRoaXMgaXMgbG9va3MgaWxsZWdhbC4KPj4K
+Pj4gWW91IG11c3Qgbm90IG1vZGlmeSB0aGUgZGF0YSBwb2ludGVycyBvZiBhbnkgU0tCIHRoYXQg
+eW91IHJlY2VpdmUgZm9yCj4+IHNlbmRpbmcgdmlhIC0+bmRvX3N0YXJ0X3htaXQoKSB1bmxlc3Mg
+eW91IGtub3cgdGhhdCBhYnNvbHV0ZWx5IHlvdSBhcmUKPj4gdGhlIG9uZSBhbmQgb25seSByZWZl
+cmVuY2UgdGhhdCBleGlzdHMgdG8gdGhhdCBTS0IuCj4+Cj4+IEFuZCBleGFjdGx5IGZvciB0aGUg
+Y2FzZSB5b3UgYXJlIHRyeWluZyB0byAiZml4IiBoZXJlLCB5b3UgZG8gbm90LiAgSWYKPj4gdGhl
+IFNLQiBpcyBjbG9uZWQsIG9yIGhhcyBhbiBlbGV2YXRlZCB1c2VycyBjb3VudCwgc29tZW9uZSBl
+bHNlIGNhbiBiZQo+PiBsb29raW5nIGF0IGl0IGV4YWN0bHkgYXQgdGhlIHNhbWUgdGltZSB5b3Ug
+YXJlIG1lc3Npbmcgd2l0aCB0aGUgZGF0YQo+PiBwb2ludGVycy4KPj4KPj4gSSBiZXQgbWx4NCBo
+YXMgdGhpcyBidWcgdG9vLgo+Pgo+PiBZb3UgbXVzdCBmaXggdGhpcyBwcm9wZXJseSwgYnkga2Vl
+cGluZyB0cmFjayBvZiBhbiBvZmZzZXQgb3Igc2ltaWxhcgo+PiBpbnRlcm5hbGx5IHRvIHlvdXIg
+ZHJpdmVyLCByYXRoZXIgdGhhbiBjaGFuZ2luZyB0aGUgU0tCIGRhdGEgcG9pbnRlcnMuCj4gV2hh
+dCB2aXJ0aW8gZG9lcyBpcyB0aGlzOgo+Cj4gICAgICAgICAgY2FuX3B1c2ggPSB2aS0+YW55X2hl
+YWRlcl9zZyAmJgo+ICAgICAgICAgICAgICAgICAgISgodW5zaWduZWQgbG9uZylza2ItPmRhdGEg
+JiAoX19hbGlnbm9mX18oKmhkcikgLSAxKSkgJiYKPiAgICAgICAgICAgICAgICAgICFza2JfaGVh
+ZGVyX2Nsb25lZChza2IpICYmIHNrYl9oZWFkcm9vbShza2IpID49IGhkcl9sZW47Cj4gICAgICAg
+ICAgLyogRXZlbiBpZiB3ZSBjYW4sIGRvbid0IHB1c2ggaGVyZSB5ZXQgYXMgdGhpcyB3b3VsZCBz
+a2V3Cj4gICAgICAgICAgICogY3N1bV9zdGFydCBvZmZzZXQgYmVsb3cuICovCj4gICAgICAgICAg
+aWYgKGNhbl9wdXNoKQo+ICAgICAgICAgICAgICAgICAgaGRyID0gKHN0cnVjdCB2aXJ0aW9fbmV0
+X2hkcl9tcmdfcnhidWYgKikoc2tiLT5kYXRhIC0gaGRyX2xlbik7Cj4gICAgICAgICAgZWxzZQo+
+ICAgICAgICAgICAgICAgICAgaGRyID0gc2tiX3ZuZXRfaGRyKHNrYik7Cj4KPgo+IFRoaXMgZG9l
+c24ndCBjaGFuZ2UgdGhlIGRhdGEgcG9pbnRlcnMgaW4gYSBjbG9uZWQgc2tiIGJ1dCBpdCBkb2Vz
+IGNoYW5nZSB0aGUgY2IuCj4gSXMgaXQgdHJ1ZSB0aGF0IGl0J3MgaWxsZWdhbCB0byB0b3VjaCB0
+aGUgY2IgaW4gYSBjbG9uZWQgc2tiIHRoZW4/Cj4KCkkgdGhpbmsgbm90LgoKc2tiX2Nsb25lKCkg
+Y2FsbCBfX3NrYl9jb3B5X2hlYWRlcigpIHdoaWNoIGRpZDoKCiDCoMKgwqAgbWVtY3B5KG5ldy0+
+Y2IsIG9sZC0+Y2IsIHNpemVvZihvbGQtPmNiKSk7CgpUaGFua3MKX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
