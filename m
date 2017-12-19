@@ -1,15 +1,15 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v20 0/7] Virtio-balloon Enhancement
-Date: Tue, 19 Dec 2017 06:40:20 -0800
-Message-ID: <20171219144020.GA30842__10561.5718327046$1513694348$gmane$org@bombadil.infradead.org>
-References: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
-	<201712192305.AAE21882.MtQHJOFFSFVOLO@I-love.SAKURA.ne.jp>
+From: weiping zhang <zwp10758@gmail.com>
+Subject: Re: [PATCH v3 5/5] virtio: add comments for virtio_register_device
+Date: Tue, 19 Dec 2017 23:23:10 +0800
+Message-ID: <CAA70yB5e-dVLhLej5TyLA5mQkXjDehXwG195MkwvBMnQoK5feQ@mail.gmail.com>
+References: <cover.1513517240.git.zhangweiping@didichuxing.com>
+	<56d8ecc6f11b7580f3d38adcc0fd71ac60f72b02.1513517240.git.zhangweiping@didichuxing.com>
+	<20171219121159.17b8c060.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <201712192305.AAE21882.MtQHJOFFSFVOLO@I-love.SAKURA.ne.jp>
+In-Reply-To: <20171219121159.17b8c060.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +19,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, quan.xu0@gmail.com, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 19, 2017 at 11:05:11PM +0900, Tetsuo Handa wrote:
-> Removing exceptional path made this patch easier to read.
-> But what I meant is
-> 
->   Can you eliminate exception path and fold all xbitmap patches into one, and
->   post only one xbitmap patch without virtio-balloon changes? 
-> 
-> .
-> 
-> I still think we don't need xb_preload()/xb_preload_end().
-> I think xb_find_set() has a bug in !node path.
-
-Don't think.  Write a test-case.  Please.  If it shows a bug, then great,
-Wei has an example of what the bug is to fix.  If it doesn't show a bug,
-then we can add it to the test suite anyway, to ensure that case continues
-to work in the future.
-
-> Also, please avoid unconditionally adding to builtin modules.
-> There are users who want to save even few KB.
-> 
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-mm' in
-> the body to majordomo@kvack.org.  For more info on Linux MM,
-> see: http://www.linux-mm.org/ .
-> Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+2017-12-19 19:11 GMT+08:00 Cornelia Huck <cohuck@redhat.com>:
+> On Sun, 17 Dec 2017 21:48:05 +0800
+> weiping zhang <zwp10758@gmail.com> wrote:
+>
+>> As mentioned at drivers/base/core.c:
+>> /*
+>> * NOTE: _Never_ directly free @dev after calling this function, even
+>> * if it returned an error! Always use put_device() to give up the
+>> * reference initialized in this function instead.
+>> */
+>> virtio_register_device may fail before/after call device_register, the
+>> caller should do a proper cleanup. Caller cann't use kfree directly,
+>> if virtio_register_device has already called device_register. Caller
+>> cann't use put_device directly, if virtio_register_device has not yet
+>> call device_register, because kobject_put may give a warning cause
+>> dev->kobj has not been initialized.
+>
+> This comment makes me inclined to think that we should also rethink
+> register_virtio_device(). On failure, we cannot do kfree() due to
+> driver core interaction; but we cannot do a put_device() either, since
+> the refcount may not yet have been initialized -- unless we check the
+> device status, which triggers I/O (at least on s390).
+>
+> We really want to do the same cleanup on error in every case. What
+> about splitting device_register() into device_initialize() and
+> device_add()? If we move device_initialize() before getting an index,
+> we should be fine with doing put_device() on error in every case.
+>
+Good idea (^_^), I''ll apply it at V4.
