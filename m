@@ -1,15 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: Possible unsafe usage of skb->cb in virtio-net
-Date: Tue, 19 Dec 2017 17:06:25 +0800
-Message-ID: <2cb1512d-2db5-34a5-21c0-dd3fa2db8ad1@redhat.com>
-References: <VI1PR0501MB2734AAE4311FE84881F622A2D45C0@VI1PR0501MB2734.eurprd05.prod.outlook.com>
-	<20171102142758-mutt-send-email-mst@kernel.org>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 5/5] virtio: add comments for virtio_register_device
+Date: Tue, 19 Dec 2017 12:11:59 +0100
+Message-ID: <20171219121159.17b8c060.cohuck@redhat.com>
+References: <cover.1513517240.git.zhangweiping@didichuxing.com>
+	<56d8ecc6f11b7580f3d38adcc0fd71ac60f72b02.1513517240.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171102142758-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <56d8ecc6f11b7580f3d38adcc0fd71ac60f72b02.1513517240.git.zhangweiping@didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,49 +18,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Ilya Lesokhin <ilyal@mellanox.com>
-Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: weiping zhang <zwp10758@gmail.com>
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MTHmnIgwMuaXpSAyMTowMSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFRodSwgTm92IDAyLCAyMDE3IGF0IDExOjQwOjM2QU0gKzAwMDAsIElseWEgTGVzb2toaW4g
-d3JvdGU6Cj4+IEhpLAo+PiBJJ3ZlIG5vdGljZWQgdGhhdCB0aGUgdmlydGlvLW5ldCB1c2VzIHNr
-Yi0+Y2IuCj4+Cj4+IEkgZG9uJ3Qga25vdyBhbGwgdGhlIGRldGFpbCBieSBteSB1bmRlcnN0YW5k
-aW5nIGlzIGl0IGNhdXNlZCBwcm9ibGVtIHdpdGggdGhlIG1seDUgZHJpdmVyCj4+IGFuZCB3YXMg
-Zml4ZWQgaGVyZToKPj4gaHR0cHM6Ly9naXRodWIuY29tL3RvcnZhbGRzL2xpbnV4L2NvbW1pdC8z
-NDgwMmE0MmIzNTI4YjBlMThlYTQ1MTdjOGIyM2UxMjE0YTA5MzMyCj4+Cj4+IFRoYW5rcywKPj4g
-SWx5YQo+IFRoYW5rcyBhIGxvdCBmb3IgdGhlIHBvaW50ZXIuCj4KPiBJIHRoaW5rIHRoaXMgd2Fz
-IGluIHJlc3BvbnNlIHRvIHRoaXM6Cj4gaHR0cHM6Ly9wYXRjaHdvcmsub3psYWJzLm9yZy9wYXRj
-aC81NTgzMjQvCj4KPj4+ICsgICAgIHNrYl9wdXNoKHNrYiwgc2tiLT5kYXRhIC0gc2tiX2RhdGFf
-b3JpZyk7Cj4+PiAgICAgICAgc3EtPnNrYltwaV0gPSBza2I7Cj4+Pgo+Pj4gICAgICAgIE1MWDVF
-X1RYX1NLQl9DQihza2IpLT5udW1fd3FlYmJzID0gRElWX1JPVU5EX1VQKGRzX2NudCwKPj4gQW5k
-IGluIHRoZSBtaWRkbGUgb2YgdGhpcyB3ZSBoYXZlOgo+Pgo+PiAgICAgICAgICAgICAgICAgIHNr
-Yl9wdWxsX2lubGluZShza2IsIGlocyk7Cj4+Cj4+IFRoaXMgaXMgbG9va3MgaWxsZWdhbC4KPj4K
-Pj4gWW91IG11c3Qgbm90IG1vZGlmeSB0aGUgZGF0YSBwb2ludGVycyBvZiBhbnkgU0tCIHRoYXQg
-eW91IHJlY2VpdmUgZm9yCj4+IHNlbmRpbmcgdmlhIC0+bmRvX3N0YXJ0X3htaXQoKSB1bmxlc3Mg
-eW91IGtub3cgdGhhdCBhYnNvbHV0ZWx5IHlvdSBhcmUKPj4gdGhlIG9uZSBhbmQgb25seSByZWZl
-cmVuY2UgdGhhdCBleGlzdHMgdG8gdGhhdCBTS0IuCj4+Cj4+IEFuZCBleGFjdGx5IGZvciB0aGUg
-Y2FzZSB5b3UgYXJlIHRyeWluZyB0byAiZml4IiBoZXJlLCB5b3UgZG8gbm90LiAgSWYKPj4gdGhl
-IFNLQiBpcyBjbG9uZWQsIG9yIGhhcyBhbiBlbGV2YXRlZCB1c2VycyBjb3VudCwgc29tZW9uZSBl
-bHNlIGNhbiBiZQo+PiBsb29raW5nIGF0IGl0IGV4YWN0bHkgYXQgdGhlIHNhbWUgdGltZSB5b3Ug
-YXJlIG1lc3Npbmcgd2l0aCB0aGUgZGF0YQo+PiBwb2ludGVycy4KPj4KPj4gSSBiZXQgbWx4NCBo
-YXMgdGhpcyBidWcgdG9vLgo+Pgo+PiBZb3UgbXVzdCBmaXggdGhpcyBwcm9wZXJseSwgYnkga2Vl
-cGluZyB0cmFjayBvZiBhbiBvZmZzZXQgb3Igc2ltaWxhcgo+PiBpbnRlcm5hbGx5IHRvIHlvdXIg
-ZHJpdmVyLCByYXRoZXIgdGhhbiBjaGFuZ2luZyB0aGUgU0tCIGRhdGEgcG9pbnRlcnMuCj4gV2hh
-dCB2aXJ0aW8gZG9lcyBpcyB0aGlzOgo+Cj4gICAgICAgICAgY2FuX3B1c2ggPSB2aS0+YW55X2hl
-YWRlcl9zZyAmJgo+ICAgICAgICAgICAgICAgICAgISgodW5zaWduZWQgbG9uZylza2ItPmRhdGEg
-JiAoX19hbGlnbm9mX18oKmhkcikgLSAxKSkgJiYKPiAgICAgICAgICAgICAgICAgICFza2JfaGVh
-ZGVyX2Nsb25lZChza2IpICYmIHNrYl9oZWFkcm9vbShza2IpID49IGhkcl9sZW47Cj4gICAgICAg
-ICAgLyogRXZlbiBpZiB3ZSBjYW4sIGRvbid0IHB1c2ggaGVyZSB5ZXQgYXMgdGhpcyB3b3VsZCBz
-a2V3Cj4gICAgICAgICAgICogY3N1bV9zdGFydCBvZmZzZXQgYmVsb3cuICovCj4gICAgICAgICAg
-aWYgKGNhbl9wdXNoKQo+ICAgICAgICAgICAgICAgICAgaGRyID0gKHN0cnVjdCB2aXJ0aW9fbmV0
-X2hkcl9tcmdfcnhidWYgKikoc2tiLT5kYXRhIC0gaGRyX2xlbik7Cj4gICAgICAgICAgZWxzZQo+
-ICAgICAgICAgICAgICAgICAgaGRyID0gc2tiX3ZuZXRfaGRyKHNrYik7Cj4KPgo+IFRoaXMgZG9l
-c24ndCBjaGFuZ2UgdGhlIGRhdGEgcG9pbnRlcnMgaW4gYSBjbG9uZWQgc2tiIGJ1dCBpdCBkb2Vz
-IGNoYW5nZSB0aGUgY2IuCj4gSXMgaXQgdHJ1ZSB0aGF0IGl0J3MgaWxsZWdhbCB0byB0b3VjaCB0
-aGUgY2IgaW4gYSBjbG9uZWQgc2tiIHRoZW4/Cj4KCkkgdGhpbmsgbm90LgoKc2tiX2Nsb25lKCkg
-Y2FsbCBfX3NrYl9jb3B5X2hlYWRlcigpIHdoaWNoIGRpZDoKCiDCoMKgwqAgbWVtY3B5KG5ldy0+
-Y2IsIG9sZC0+Y2IsIHNpemVvZihvbGQtPmNiKSk7CgpUaGFua3MKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Sun, 17 Dec 2017 21:48:05 +0800
+weiping zhang <zwp10758@gmail.com> wrote:
+
+> As mentioned at drivers/base/core.c:
+> /*
+> * NOTE: _Never_ directly free @dev after calling this function, even
+> * if it returned an error! Always use put_device() to give up the
+> * reference initialized in this function instead.
+> */
+> virtio_register_device may fail before/after call device_register, the
+> caller should do a proper cleanup. Caller cann't use kfree directly,
+> if virtio_register_device has already called device_register. Caller
+> cann't use put_device directly, if virtio_register_device has not yet
+> call device_register, because kobject_put may give a warning cause
+> dev->kobj has not been initialized.
+
+This comment makes me inclined to think that we should also rethink
+register_virtio_device(). On failure, we cannot do kfree() due to
+driver core interaction; but we cannot do a put_device() either, since
+the refcount may not yet have been initialized -- unless we check the
+device status, which triggers I/O (at least on s390).
+
+We really want to do the same cleanup on error in every case. What
+about splitting device_register() into device_initialize() and
+device_add()? If we move device_initialize() before getting an index,
+we should be fine with doing put_device() on error in every case.
+
+> 
+> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+> ---
+>  drivers/virtio/virtio.c | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index c5b057bd..4f0718b 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -309,6 +309,19 @@ void unregister_virtio_driver(struct virtio_driver *driver)
+>  }
+>  EXPORT_SYMBOL_GPL(unregister_virtio_driver);
+>  
+> +/**
+> + * register_virtio_device - register virtio device
+> + *
+> + * @dev	: virtio device interested
+> + *
+> + * This funciton may fail after call device_register, as mentioned at
+> + * drivers/base/core.c we must use put_device(), _never_ directly free @dev.
+> + * The caller should take care of the status of @dev and determine to use
+> + * put_device or kfree. If @dev in VIRTIO_CONFIG_S_ACKNOWLEDGE status that
+> + * means caller should use put_device otherwise use kfree directly.
+> + *
+> + * Returns: 0 on success, error on failure.
+> + */
+>  int register_virtio_device(struct virtio_device *dev)
+>  {
+>  	int err;
