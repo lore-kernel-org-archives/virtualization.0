@@ -1,7 +1,7 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v20 6/7] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
-Date: Tue, 19 Dec 2017 20:17:58 +0800
-Message-ID: <1513685879-21823-7-git-send-email-wei.w.wang__35444.1985175528$1513686849$gmane$org@intel.com>
+Subject: [PATCH v20 3/7] xbitmap: add more operations
+Date: Tue, 19 Dec 2017 20:17:55 +0800
+Message-ID: <1513685879-21823-4-git-send-email-wei.w.wang__28426.0998516858$1513686850$gmane$org@intel.com>
 References: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,334 +21,340 @@ To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@no
 Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, nilal@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Negotiation of the VIRTIO_BALLOON_F_FREE_PAGE_VQ feature indicates the
-support of reporting hints of guest free pages to host via virtio-balloon.
+This patch adds support to find next 1 or 0 bit in a xbmitmap range and
+clear a range of bits.
 
-Host requests the guest to report free pages by sending a new cmd
-id to the guest via the free_page_report_cmd_id configuration register.
-
-When the guest starts to report, the first element added to the free page
-vq is the cmd id given by host. When the guest finishes the reporting
-of all the free pages, VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID is added
-to the vq to tell host that the reporting is done. Host may also requests
-the guest to stop the reporting in advance by sending the stop cmd id to
-the guest via the configuration register.
+More possible optimizations to add in the future:
+1) xb_set_bit_range: set a range of bits.
+2) when searching a bit, if the bit is not found in the slot, move on to
+the next slot directly.
+3) add tags to help searching.
 
 Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Signed-off-by: Liang Li <liang.z.li@intel.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Matthew Wilcox <mawilcox@microsoft.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Suggested-by: Matthew Wilcox <mawilcox@microsoft.com>
 ---
- drivers/virtio/virtio_balloon.c     | 202 ++++++++++++++++++++++++++++++------
- include/uapi/linux/virtio_balloon.h |   4 +
- 2 files changed, 174 insertions(+), 32 deletions(-)
+ include/linux/xbitmap.h      |   6 ++
+ lib/xbitmap.c                | 198 +++++++++++++++++++++++++++++++++++++++++++
+ tools/include/linux/bitmap.h |  34 ++++++++
+ tools/include/linux/kernel.h |   2 +
+ 4 files changed, 240 insertions(+)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index fff0a3f..eae65c1 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -55,7 +55,12 @@ static struct vfsmount *balloon_mnt;
+diff --git a/include/linux/xbitmap.h b/include/linux/xbitmap.h
+index 108f929..ede1029 100644
+--- a/include/linux/xbitmap.h
++++ b/include/linux/xbitmap.h
+@@ -35,6 +35,12 @@ static inline void xb_init(struct xb *xb)
+ int xb_set_bit(struct xb *xb, unsigned long bit);
+ bool xb_test_bit(const struct xb *xb, unsigned long bit);
+ void xb_clear_bit(struct xb *xb, unsigned long bit);
++void xb_clear_bit_range(struct xb *xb, unsigned long start,
++			unsigned long nbits);
++unsigned long xb_find_set(struct xb *xb, unsigned long size,
++			  unsigned long offset);
++unsigned long xb_find_zero(struct xb *xb, unsigned long size,
++			   unsigned long offset);
  
- struct virtio_balloon {
- 	struct virtio_device *vdev;
--	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
-+	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *free_page_vq;
-+
-+	/* Balloon's own wq for cpu-intensive work items */
-+	struct workqueue_struct *balloon_wq;
-+	/* The free page reporting work item submitted to the balloon wq */
-+	struct work_struct report_free_page_work;
- 
- 	/* The balloon servicing is delegated to a freezable workqueue. */
- 	struct work_struct update_balloon_stats_work;
-@@ -65,6 +70,13 @@ struct virtio_balloon {
- 	spinlock_t stop_update_lock;
- 	bool stop_update;
- 
-+	/* Start to report free pages */
-+	bool report_free_page;
-+	/* Stores the cmd id given by host to start the free page reporting */
-+	uint32_t start_cmd_id;
-+	/* Stores STOP_ID as a sign to tell host that the reporting is done */
-+	uint32_t stop_cmd_id;
-+
- 	/* Waiting for host to ack the pages we released. */
- 	wait_queue_head_t acked;
- 
-@@ -189,6 +201,28 @@ static void batch_balloon_page_sg(struct virtio_balloon *vb,
- 		kick_and_wait(vq, vb->acked);
- }
- 
-+static void batch_free_page_sg(struct virtqueue *vq,
-+			       unsigned long pfn,
-+			       uint32_t len)
-+{
-+	add_one_sg(vq, pfn, len);
-+
-+	/* Batch till the vq is full */
-+	if (!vq->num_free)
-+		virtqueue_kick(vq);
-+}
-+
-+static void send_cmd_id(struct virtio_balloon *vb, void *addr)
-+{
-+	struct scatterlist sg;
-+	int err;
-+
-+	sg_init_one(&sg, addr, sizeof(uint32_t));
-+	err = virtqueue_add_outbuf(vb->free_page_vq, &sg, 1, vb, GFP_KERNEL);
-+	BUG_ON(err);
-+	virtqueue_kick(vb->free_page_vq);
-+}
-+
- /*
-  * Send balloon pages in sgs to host. The balloon pages are recorded in the
-  * page xbitmap. Each bit in the bitmap corresponds to a page of PAGE_SIZE.
-@@ -498,17 +532,6 @@ static void stats_handle_request(struct virtio_balloon *vb)
- 	virtqueue_kick(vq);
- }
- 
--static void virtballoon_changed(struct virtio_device *vdev)
--{
--	struct virtio_balloon *vb = vdev->priv;
--	unsigned long flags;
--
--	spin_lock_irqsave(&vb->stop_update_lock, flags);
--	if (!vb->stop_update)
--		queue_work(system_freezable_wq, &vb->update_balloon_size_work);
--	spin_unlock_irqrestore(&vb->stop_update_lock, flags);
--}
--
- static inline s64 towards_target(struct virtio_balloon *vb)
+ static inline bool xb_empty(const struct xb *xb)
  {
- 	s64 target;
-@@ -525,6 +548,36 @@ static inline s64 towards_target(struct virtio_balloon *vb)
- 	return target - vb->num_pages;
- }
+diff --git a/lib/xbitmap.c b/lib/xbitmap.c
+index 2dcfad5..bb0a5b2 100644
+--- a/lib/xbitmap.c
++++ b/lib/xbitmap.c
+@@ -3,6 +3,16 @@
+ #include <linux/bitmap.h>
+ #include <linux/slab.h>
  
-+static void virtballoon_changed(struct virtio_device *vdev)
++/*
++ * Developer notes:
++ * - locks are required to gurantee there is no concurrent
++ *   calls of xb_set_bit, xb_clear_bit, xb_clear_bit_range, xb_test_bit,
++ *   xb_find_set, or xb_find_clear to operate on the same ida bitmap.
++ * - The current implementation of xb_clear_bit_range, xb_find_set and
++ *   xb_find_clear may cause long latency when the bit range to operate
++ *   on is super large (e.g. [0, ULONG_MAX)).
++ */
++
+ /**
+  *  xb_set_bit - set a bit in the xbitmap
+  *  @xb: the xbitmap tree used to record the bit
+@@ -72,6 +82,49 @@ void xb_clear_bit(struct xb *xb, unsigned long bit)
+ EXPORT_SYMBOL(xb_clear_bit);
+ 
+ /**
++ * xb_clear_bit_range - clear a range of bits in the xbitmap
++ * @start: the start of the bit range, inclusive
++ * @nbits: number of bits to clear
++ *
++ * This function is used to clear a range of bits in the xbitmap. If all the
++ * bits in the bitmap are 0, the bitmap will be freed.
++ */
++void xb_clear_bit_range(struct xb *xb, unsigned long start,
++			unsigned long nbits)
 +{
-+	struct virtio_balloon *vb = vdev->priv;
-+	unsigned long flags;
-+	__u32 cmd_id;
-+	s64 diff = towards_target(vb);
++	struct radix_tree_root *root = &xb->xbrt;
++	struct radix_tree_node *node;
++	void __rcu **slot;
++	struct ida_bitmap *bitmap;
++	unsigned long index = start / IDA_BITMAP_BITS;
++	unsigned long bit = start % IDA_BITMAP_BITS;
 +
-+	if (diff) {
-+		spin_lock_irqsave(&vb->stop_update_lock, flags);
-+		if (!vb->stop_update)
-+			queue_work(system_freezable_wq,
-+				   &vb->update_balloon_size_work);
-+		spin_unlock_irqrestore(&vb->stop_update_lock, flags);
-+	}
++	if (nbits > ULONG_MAX - start)
++		nbits = ULONG_MAX - start;
 +
-+	virtio_cread(vb->vdev, struct virtio_balloon_config,
-+		     free_page_report_cmd_id, &cmd_id);
-+	if (cmd_id == VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID) {
-+		WRITE_ONCE(vb->report_free_page, false);
-+	} else if (cmd_id != vb->start_cmd_id) {
-+		/*
-+		 * Host requests to start the reporting by sending a new cmd
-+		 * id.
-+		 */
-+		WRITE_ONCE(vb->report_free_page, true);
-+		vb->start_cmd_id = cmd_id;
-+		queue_work(vb->balloon_wq, &vb->report_free_page_work);
-+	}
-+}
++	while (nbits) {
++		unsigned int __nbits = min(nbits,
++					(unsigned long)IDA_BITMAP_BITS - bit);
 +
- static void update_balloon_size(struct virtio_balloon *vb)
- {
- 	u32 actual = vb->num_pages;
-@@ -602,40 +655,116 @@ static void update_balloon_size_func(struct work_struct *work)
- 
- static int init_vqs(struct virtio_balloon *vb)
- {
--	struct virtqueue *vqs[3];
--	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
--	static const char * const names[] = { "inflate", "deflate", "stats" };
--	int err, nvqs;
-+	struct virtqueue **vqs;
-+	vq_callback_t **callbacks;
-+	const char **names;
-+	struct scatterlist sg;
-+	int i, nvqs, err = -ENOMEM;
++		bitmap = __radix_tree_lookup(root, index, &node, &slot);
++		if (bitmap) {
++			if (__nbits != IDA_BITMAP_BITS)
++				bitmap_clear(bitmap->bitmap, bit, __nbits);
 +
-+	/* Inflateq and deflateq are used unconditionally */
-+	nvqs = 2;
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ))
-+		nvqs++;
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ))
-+		nvqs++;
-+
-+	/* Allocate space for find_vqs parameters */
-+	vqs = kcalloc(nvqs, sizeof(*vqs), GFP_KERNEL);
-+	if (!vqs)
-+		goto err_vq;
-+	callbacks = kmalloc_array(nvqs, sizeof(*callbacks), GFP_KERNEL);
-+	if (!callbacks)
-+		goto err_callback;
-+	names = kmalloc_array(nvqs, sizeof(*names), GFP_KERNEL);
-+	if (!names)
-+		goto err_names;
-+
-+	callbacks[0] = balloon_ack;
-+	names[0] = "inflate";
-+	callbacks[1] = balloon_ack;
-+	names[1] = "deflate";
-+
-+	i = 2;
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-+		callbacks[i] = stats_request;
-+		names[i] = "stats";
-+		i++;
-+	}
- 
--	/*
--	 * We expect two virtqueues: inflate and deflate, and
--	 * optionally stat.
--	 */
--	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
--	err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ)) {
-+		callbacks[i] = NULL;
-+		names[i] = "free_page_vq";
-+	}
-+
-+	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks, names,
-+					 NULL, NULL);
- 	if (err)
--		return err;
-+		goto err_find;
- 
- 	vb->inflate_vq = vqs[0];
- 	vb->deflate_vq = vqs[1];
-+	i = 2;
- 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
--		struct scatterlist sg;
--		unsigned int num_stats;
--		vb->stats_vq = vqs[2];
--
-+		vb->stats_vq = vqs[i++];
- 		/*
- 		 * Prime this virtqueue with one buffer so the hypervisor can
- 		 * use it to signal us later (it can't be broken yet!).
- 		 */
--		num_stats = update_balloon_stats(vb);
--
--		sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
-+		sg_init_one(&sg, vb->stats, sizeof(vb->stats));
- 		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
--		    < 0)
--			BUG();
-+		    < 0) {
-+			dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
-+				 __func__);
-+			goto err_find;
++			if (__nbits == IDA_BITMAP_BITS ||
++			    bitmap_empty(bitmap->bitmap, IDA_BITMAP_BITS)) {
++				kfree(bitmap);
++				__radix_tree_delete(root, node, slot);
++			}
 +		}
- 		virtqueue_kick(vb->stats_vq);
- 	}
-+
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ))
-+		vb->free_page_vq = vqs[i];
-+
-+	kfree(names);
-+	kfree(callbacks);
-+	kfree(vqs);
- 	return 0;
-+
-+err_find:
-+	kfree(names);
-+err_names:
-+	kfree(callbacks);
-+err_callback:
-+	kfree(vqs);
-+err_vq:
-+	return err;
++		bit = 0;
++		index++;
++		nbits -= __nbits;
++	}
 +}
++EXPORT_SYMBOL(xb_clear_bit_range);
 +
-+static bool virtio_balloon_send_free_pages(void *opaque, unsigned long pfn,
-+					   unsigned long nr_pages)
-+{
-+	struct virtio_balloon *vb = (struct virtio_balloon *)opaque;
-+	uint32_t len = nr_pages << PAGE_SHIFT;
-+
-+	if (!READ_ONCE(vb->report_free_page))
-+		return false;
-+
-+	batch_free_page_sg(vb->free_page_vq, pfn, len);
-+
-+	return true;
-+}
-+
-+static void report_free_page(struct work_struct *work)
-+{
-+	struct virtio_balloon *vb;
-+
-+	vb = container_of(work, struct virtio_balloon, report_free_page_work);
-+	/* Start by sending the obtained cmd id to the host with an outbuf */
-+	send_cmd_id(vb, &vb->start_cmd_id);
-+	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
-+	/*
-+	 * End by sending the stop id to the host with an outbuf. Use the
-+	 * non-batching mode here to trigger a kick after adding the stop id.
-+	 */
-+	send_cmd_id(vb, &vb->stop_cmd_id);
++/**
+  * xb_test_bit - test a bit in the xbitmap
+  * @xb: the xbitmap tree used to record the bit
+  * @bit: index of the bit to test
+@@ -94,6 +147,99 @@ bool xb_test_bit(const struct xb *xb, unsigned long bit)
  }
+ EXPORT_SYMBOL(xb_test_bit);
  
- #ifdef CONFIG_BALLOON_COMPACTION
-@@ -763,6 +892,13 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_SG))
- 		xb_init(&vb->page_xb);
- 
-+	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ)) {
-+		vb->balloon_wq = alloc_workqueue("balloon-wq",
-+					WQ_FREEZABLE | WQ_CPU_INTENSIVE, 0);
-+		INIT_WORK(&vb->report_free_page_work, report_free_page);
-+		vb->stop_cmd_id = VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID;
++/**
++ * xb_find_set - find the next set bit in a range of bits
++ * @xb: the xbitmap to search from
++ * @offset: the offset in the range to start searching
++ * @size: the size of the range
++ *
++ * Returns: the found bit or, @size if no set bit is found.
++ */
++unsigned long xb_find_set(struct xb *xb, unsigned long size,
++			  unsigned long offset)
++{
++	struct radix_tree_root *root = &xb->xbrt;
++	struct radix_tree_node *node;
++	void __rcu **slot;
++	struct ida_bitmap *bitmap;
++	unsigned long index = offset / IDA_BITMAP_BITS;
++	unsigned long index_end = size / IDA_BITMAP_BITS;
++	unsigned long bit = offset % IDA_BITMAP_BITS;
++
++	if (unlikely(offset >= size))
++		return size;
++
++	while (index <= index_end) {
++		unsigned long ret;
++		unsigned int nbits = size - index * IDA_BITMAP_BITS;
++
++		bitmap = __radix_tree_lookup(root, index, &node, &slot);
++		if (!node) {
++			index = (index | RADIX_TREE_MAP_MASK) + 1;
++			continue;
++		}
++
++		if (bitmap) {
++			if (nbits > IDA_BITMAP_BITS)
++				nbits = IDA_BITMAP_BITS;
++
++			ret = find_next_bit(bitmap->bitmap, nbits, bit);
++			if (ret != nbits)
++				return ret + index * IDA_BITMAP_BITS;
++		}
++		bit = 0;
++		index++;
 +	}
 +
- 	vb->nb.notifier_call = virtballoon_oom_notify;
- 	vb->nb.priority = VIRTBALLOON_OOM_NOTIFY_PRIORITY;
- 	err = register_oom_notifier(&vb->nb);
-@@ -827,6 +963,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
- 	spin_unlock_irq(&vb->stop_update_lock);
- 	cancel_work_sync(&vb->update_balloon_size_work);
- 	cancel_work_sync(&vb->update_balloon_stats_work);
-+	cancel_work_sync(&vb->report_free_page_work);
++	return size;
++}
++EXPORT_SYMBOL(xb_find_set);
++
++/**
++ * xb_find_zero - find the next zero bit in a range of bits
++ * @xb: the xbitmap to search from
++ * @offset: the offset in the range to start searching
++ * @size: the size of the range
++ *
++ * Returns: the found bit or, @size if no zero bit is found.
++ */
++unsigned long xb_find_zero(struct xb *xb, unsigned long size,
++			   unsigned long offset)
++{
++	struct radix_tree_root *root = &xb->xbrt;
++	struct radix_tree_node *node;
++	void __rcu **slot;
++	struct ida_bitmap *bitmap;
++	unsigned long index = offset / IDA_BITMAP_BITS;
++	unsigned long index_end = size / IDA_BITMAP_BITS;
++	unsigned long bit = offset % IDA_BITMAP_BITS;
++
++	if (unlikely(offset >= size))
++		return size;
++
++	while (index <= index_end) {
++		unsigned long ret;
++		unsigned int nbits = size - index * IDA_BITMAP_BITS;
++
++		bitmap = __radix_tree_lookup(root, index, &node, &slot);
++		if (bitmap) {
++			if (nbits > IDA_BITMAP_BITS)
++				nbits = IDA_BITMAP_BITS;
++
++			ret = find_next_zero_bit(bitmap->bitmap, nbits, bit);
++			if (ret != nbits)
++				return ret + index * IDA_BITMAP_BITS;
++		} else {
++			return bit + index * IDA_BITMAP_BITS;
++		}
++		bit = 0;
++		index++;
++	}
++
++	return size;
++}
++EXPORT_SYMBOL(xb_find_zero);
++
+ #ifndef __KERNEL__
  
- 	remove_common(vb);
- #ifdef CONFIG_BALLOON_COMPACTION
-@@ -880,6 +1017,7 @@ static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_STATS_VQ,
- 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
- 	VIRTIO_BALLOON_F_SG,
-+	VIRTIO_BALLOON_F_FREE_PAGE_VQ,
- };
+ static DEFINE_XB(xb1);
+@@ -111,6 +257,56 @@ void xbitmap_check_bit(unsigned long bit)
+ 	xb_preload_end();
+ }
  
- static struct virtio_driver virtio_balloon_driver = {
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index 37780a7..58f1274 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -35,15 +35,19 @@
- #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
- #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
- #define VIRTIO_BALLOON_F_SG		3 /* Use sg instead of PFN lists */
-+#define VIRTIO_BALLOON_F_FREE_PAGE_VQ	4 /* VQ to report free pages */
++static void xbitmap_check_bit_range(void)
++{
++	/*
++	 * Regular tests
++	 * set bit 2000, 2001, 2040
++	 * Next 1 in [0, 2048)		--> 2000
++	 * Next 1 in [2000, 2002)	--> 2000
++	 * Next 1 in [2002, 2041)	--> 2040
++	 * Next 1 in [2002, 2040)	--> none
++	 * Next 0 in [2000, 2048)	--> 2002
++	 * Next 0 in [2048, 2060)	--> 2048
++	 */
++	xb_preload(GFP_KERNEL);
++	assert(!xb_set_bit(&xb1, 2000));
++	assert(!xb_set_bit(&xb1, 2001));
++	assert(!xb_set_bit(&xb1, 2040));
++	assert(xb_find_set(&xb1, 2048, 0) == 2000);
++	assert(xb_find_set(&xb1, 2002, 2000) == 2000);
++	assert(xb_find_set(&xb1, 2041, 2002) == 2040);
++	assert(xb_find_set(&xb1, 2040, 2002) == 2040);
++	assert(xb_find_zero(&xb1, 2048, 2000) == 2002);
++	assert(xb_find_zero(&xb1, 2060, 2048) == 2048);
++	xb_clear_bit_range(&xb1, 0, 2048);
++	assert(xb_find_set(&xb1, 2048, 0) == 2048);
++	xb_preload_end();
++
++	/*
++	 * Overflow tests:
++	 * Set bit 1 and ULONG_MAX - 4
++	 * Next 1 in [ULONG_MAX - 4, ULONG_MAX)		--> ULONG_MAX - 4
++	 * Next 1 [ULONG_MAX - 3, ULONG_MAX + 4)	--> none
++	 * Next 0 [ULONG_MAX - 4, ULONG_MAX + 4)	--> none
++	 */
++	xb_preload(GFP_KERNEL);
++	assert(!xb_set_bit(&xb1, 1));
++	xb_preload_end();
++	xb_preload(GFP_KERNEL);
++	assert(!xb_set_bit(&xb1, ULONG_MAX - 4));
++	assert(xb_find_set(&xb1, ULONG_MAX, ULONG_MAX - 4) == ULONG_MAX - 4);
++	assert(xb_find_set(&xb1, ULONG_MAX + 4, ULONG_MAX - 3) ==
++	       ULONG_MAX + 4);
++	assert(xb_find_zero(&xb1, ULONG_MAX + 4, ULONG_MAX - 4) ==
++	       ULONG_MAX + 4);
++	xb_clear_bit_range(&xb1, ULONG_MAX - 4, 4);
++	assert(xb_find_set(&xb1, ULONG_MAX, ULONG_MAX - 10) == ULONG_MAX);
++	xb_clear_bit_range(&xb1, 0, 2);
++	assert(xb_find_set(&xb1, 2, 0) == 2);
++	xb_preload_end();
++}
++
+ void xbitmap_checks(void)
+ {
+ 	xb_init(&xb1);
+@@ -122,6 +318,8 @@ void xbitmap_checks(void)
+ 	xbitmap_check_bit(1025);
+ 	xbitmap_check_bit((1UL << 63) | (1UL << 24));
+ 	xbitmap_check_bit((1UL << 63) | (1UL << 24) | 70);
++
++	xbitmap_check_bit_range();
+ }
  
- /* Size of a PFN in the balloon interface. */
- #define VIRTIO_BALLOON_PFN_SHIFT 12
+ int __weak main(void)
+diff --git a/tools/include/linux/bitmap.h b/tools/include/linux/bitmap.h
+index ca16027..8d0bc1b 100644
+--- a/tools/include/linux/bitmap.h
++++ b/tools/include/linux/bitmap.h
+@@ -37,6 +37,40 @@ static inline void bitmap_zero(unsigned long *dst, int nbits)
+ 	}
+ }
  
-+#define VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID		0
- struct virtio_balloon_config {
- 	/* Number of pages host wants Guest to give up. */
- 	__u32 num_pages;
- 	/* Number of pages we've actually got in balloon. */
- 	__u32 actual;
-+	/* Free page report command id, readonly by guest */
-+	__u32 free_page_report_cmd_id;
- };
++static inline void __bitmap_clear(unsigned long *map, unsigned int start,
++				  int len)
++{
++	unsigned long *p = map + BIT_WORD(start);
++	const unsigned int size = start + len;
++	int bits_to_clear = BITS_PER_LONG - (start % BITS_PER_LONG);
++	unsigned long mask_to_clear = BITMAP_FIRST_WORD_MASK(start);
++
++	while (len - bits_to_clear >= 0) {
++		*p &= ~mask_to_clear;
++		len -= bits_to_clear;
++		bits_to_clear = BITS_PER_LONG;
++		mask_to_clear = ~0UL;
++		p++;
++	}
++	if (len) {
++		mask_to_clear &= BITMAP_LAST_WORD_MASK(size);
++		*p &= ~mask_to_clear;
++	}
++}
++
++static inline __always_inline void bitmap_clear(unsigned long *map,
++						unsigned int start,
++						unsigned int nbits)
++{
++	if (__builtin_constant_p(nbits) && nbits == 1)
++		__clear_bit(start, map);
++	else if (__builtin_constant_p(start & 7) && IS_ALIGNED(start, 8) &&
++		 __builtin_constant_p(nbits & 7) && IS_ALIGNED(nbits, 8))
++		memset((char *)map + start / 8, 0, nbits / 8);
++	else
++		__bitmap_clear(map, start, nbits);
++}
++
+ static inline void bitmap_fill(unsigned long *dst, unsigned int nbits)
+ {
+ 	unsigned int nlongs = BITS_TO_LONGS(nbits);
+diff --git a/tools/include/linux/kernel.h b/tools/include/linux/kernel.h
+index 0ad8844..3c992ae 100644
+--- a/tools/include/linux/kernel.h
++++ b/tools/include/linux/kernel.h
+@@ -13,6 +13,8 @@
+ #define UINT_MAX	(~0U)
+ #endif
  
- #define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
++#define IS_ALIGNED(x, a)	(((x) & ((typeof(x))(a) - 1)) == 0)
++
+ #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+ 
+ #define PERF_ALIGN(x, a)	__PERF_ALIGN_MASK(x, (typeof(x))(a)-1)
 -- 
 2.7.4
