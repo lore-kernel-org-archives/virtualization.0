@@ -1,14 +1,16 @@
-From: Philippe Ombredanne <pombredanne@nexb.com>
-Subject: Re: [PATCH v20 1/7] xbitmap: Introduce xbitmap
-Date: Tue, 19 Dec 2017 16:58:10 +0100
-Message-ID: <CAOFm3uHJF1X93iALES6njXrkpsk5bSsuXqcKQMWP4HGT0S8qeg__41820.263877935$1513699073$gmane$org@mail.gmail.com>
-References: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
-	<1513685879-21823-2-git-send-email-wei.w.wang@intel.com>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: Re: [RFC PATCH] virtio_net: Extend virtio to use VF datapath when
+	available
+Date: Tue, 19 Dec 2017 09:55:48 -0800
+Message-ID: <20171219095548.61d70d10__42191.7896056131$1513706093$gmane$org@xeon-e3>
+References: <1513644036-45230-1-git-send-email-sridhar.samudrala@intel.com>
+	<20171219174259-mutt-send-email-mst@kernel.org>
+	<ca709329-a47a-2e76-b1fc-38fc665d7c0b@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1513685879-21823-2-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <ca709329-a47a-2e76-b1fc-38fc665d7c0b@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,52 +20,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mawilcox@microsoft.com
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, penguin-kernel@i-love.sakura.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, willy@infradead.org, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, quan.xu0@gmail.com, LKML <linux-kernel@vger.kernel.org>, amit.shah@redhat.com, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, mgorman@techsingularity.net
+To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, alexander.duyck@gmail.com, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Matthew,
-
-On Tue, Dec 19, 2017 at 1:17 PM, Wei Wang <wei.w.wang@intel.com> wrote:
-> From: Matthew Wilcox <mawilcox@microsoft.com>
->
-> The eXtensible Bitmap is a sparse bitmap representation which is
-> efficient for set bits which tend to cluster.  It supports up to
-> 'unsigned long' worth of bits, and this commit adds the bare bones --
-> xb_set_bit(), xb_clear_bit() and xb_test_bit().
-
-<snip>
-
-> --- /dev/null
-> +++ b/include/linux/xbitmap.h
-> @@ -0,0 +1,49 @@
-> +/*
-> + * eXtensible Bitmaps
-> + * Copyright (c) 2017 Microsoft Corporation <mawilcox@microsoft.com>
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License as
-> + * published by the Free Software Foundation; either version 2 of the
-> + * License, or (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * eXtensible Bitmaps provide an unlimited-size sparse bitmap facility.
-> + * All bits are initially zero.
-> + */
-
-Would you mind using the new SPDX tags documented in Thomas patch set
-[1] rather than this fine but longer legalese?
-
-And if you could spread the word to others in your team this would be very nice.
-
-Thank you!
-
-[1] https://lkml.org/lkml/2017/12/4/934
-
--- 
-Cordially
-Philippe Ombredanne
+T24gVHVlLCAxOSBEZWMgMjAxNyAwOTo0MTozOSAtMDgwMAoiU2FtdWRyYWxhLCBTcmlkaGFyIiA8
+c3JpZGhhci5zYW11ZHJhbGFAaW50ZWwuY29tPiB3cm90ZToKCj4gT24gMTIvMTkvMjAxNyA3OjQ3
+IEFNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiBJJ2xsIG5lZWQgdG8gbG9vayBhdCB0
+aGlzIG1vcmUsIGluIHBhcnRpY3VsYXIgdGhlIGZlYXR1cmUKPiA+IGJpdCBpcyBtaXNzaW5nIGhl
+cmUuIEZvciBub3cgb25lIHF1ZXN0aW9uOgo+ID4KPiA+IE9uIE1vbiwgRGVjIDE4LCAyMDE3IGF0
+IDA0OjQwOjM2UE0gLTA4MDAsIFNyaWRoYXIgU2FtdWRyYWxhIHdyb3RlOiAgCj4gPj4gQEAgLTU2
+LDYgKzU4LDggQEAgbW9kdWxlX3BhcmFtKG5hcGlfdHgsIGJvb2wsIDA2NDQpOwo+ID4+ICAgICov
+Cj4gPj4gICBERUNMQVJFX0VXTUEocGt0X2xlbiwgMCwgNjQpCj4gPj4gICAKPiA+PiArI2RlZmlu
+ZSBWRl9UQUtFT1ZFUl9JTlQJKEhaIC8gMTApCj4gPj4gKwo+ID4+ICAgI2RlZmluZSBWSVJUTkVU
+X0RSSVZFUl9WRVJTSU9OICIxLjAuMCIKPiA+PiAgIAo+ID4+ICAgc3RhdGljIGNvbnN0IHVuc2ln
+bmVkIGxvbmcgZ3Vlc3Rfb2ZmbG9hZHNbXSA9IHsgIAo+ID4gV2h5IGlzIHRoaXMgZGVsYXkgbmVj
+ZXNzYXJ5PyBBbmQgd2h5IGJ5IDEwMG1zPyAgCj4gCj4gVGhpcyBpcyBiYXNlZCBvbiBuZXR2c2Mg
+aW1wbGVtZW50YXRpb24gYW5kIGhlcmUgaXMgdGhlIGNvbW1pdCB0aGF0Cj4gYWRkZWQgdGhpcyBk
+ZWxheS7CoCBOb3Qgc3VyZSBpZiB0aGlzIG5lZWRzIHRvIGJlIDEwMG1zLgo+IAo+IGNvbW1pdCA2
+MTIzYzY2ODU0YzE3NGU0OTgyZjk4MTk1MTAwYzFkOTkwZjllNWU2Cj4gQXV0aG9yOiBzdGVwaGVu
+IGhlbW1pbmdlciA8c3RlcGhlbkBuZXR3b3JrcGx1bWJlci5vcmc+Cj4gRGF0ZTrCoMKgIFdlZCBB
+dWcgOSAxNzo0NjowMyAyMDE3IC0wNzAwCj4gCj4gIMKgwqDCoCBuZXR2c2M6IGRlbGF5IHNldHVw
+IG9mIFZGIGRldmljZQo+IAo+ICDCoMKgwqAgV2hlbiBWRiBkZXZpY2UgaXMgZGlzY292ZXJlZCwg
+ZGVsYXkgYnJpbmcgaXQgYXV0b21hdGljYWxseSB1cCBpbgo+ICDCoMKgwqAgb3JkZXIgdG8gYWxs
+b3cgdXNlcnNwYWNlIHRvIHNvbWUgc2ltcGxlIGNoYW5nZXMgKGxpa2UgcmVuYW1pbmcpLgo+IAo+
+IAo+IAoKY291bGQgYmUgMTBtcywganVzdCBlbm91Z2ggdG8gbGV0IHVkZXYgZG8gaXRzIHJlbmFt
+aW5nCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
