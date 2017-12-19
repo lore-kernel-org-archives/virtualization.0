@@ -1,15 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH] virtio_net: Extend virtio to use VF datapath when
-	available
-Date: Tue, 19 Dec 2017 17:47:07 +0200
-Message-ID: <20171219174259-mutt-send-email-mst__26179.9063919627$1513698329$gmane$org@kernel.org>
-References: <1513644036-45230-1-git-send-email-sridhar.samudrala@intel.com>
+From: Philippe Ombredanne <pombredanne@nexb.com>
+Subject: Re: [PATCH v20 1/7] xbitmap: Introduce xbitmap
+Date: Tue, 19 Dec 2017 16:58:10 +0100
+Message-ID: <CAOFm3uHJF1X93iALES6njXrkpsk5bSsuXqcKQMWP4HGT0S8qeg__41820.263877935$1513699073$gmane$org@mail.gmail.com>
+References: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
+	<1513685879-21823-2-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1513644036-45230-1-git-send-email-sridhar.samudrala@intel.com>
+In-Reply-To: <1513685879-21823-2-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,22 +18,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sridhar Samudrala <sridhar.samudrala@intel.com>
-Cc: netdev@vger.kernel.org, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org
+To: mawilcox@microsoft.com
+Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, penguin-kernel@i-love.sakura.ne.jp, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, willy@infradead.org, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, quan.xu0@gmail.com, LKML <linux-kernel@vger.kernel.org>, amit.shah@redhat.com, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-I'll need to look at this more, in particular the feature
-bit is missing here. For now one question:
+Matthew,
 
-On Mon, Dec 18, 2017 at 04:40:36PM -0800, Sridhar Samudrala wrote:
-> @@ -56,6 +58,8 @@ module_param(napi_tx, bool, 0644);
->   */
->  DECLARE_EWMA(pkt_len, 0, 64)
->  
-> +#define VF_TAKEOVER_INT	(HZ / 10)
-> +
->  #define VIRTNET_DRIVER_VERSION "1.0.0"
->  
->  static const unsigned long guest_offloads[] = {
+On Tue, Dec 19, 2017 at 1:17 PM, Wei Wang <wei.w.wang@intel.com> wrote:
+> From: Matthew Wilcox <mawilcox@microsoft.com>
+>
+> The eXtensible Bitmap is a sparse bitmap representation which is
+> efficient for set bits which tend to cluster.  It supports up to
+> 'unsigned long' worth of bits, and this commit adds the bare bones --
+> xb_set_bit(), xb_clear_bit() and xb_test_bit().
 
-Why is this delay necessary? And why by 100ms?
+<snip>
+
+> --- /dev/null
+> +++ b/include/linux/xbitmap.h
+> @@ -0,0 +1,49 @@
+> +/*
+> + * eXtensible Bitmaps
+> + * Copyright (c) 2017 Microsoft Corporation <mawilcox@microsoft.com>
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License as
+> + * published by the Free Software Foundation; either version 2 of the
+> + * License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * eXtensible Bitmaps provide an unlimited-size sparse bitmap facility.
+> + * All bits are initially zero.
+> + */
+
+Would you mind using the new SPDX tags documented in Thomas patch set
+[1] rather than this fine but longer legalese?
+
+And if you could spread the word to others in your team this would be very nice.
+
+Thank you!
+
+[1] https://lkml.org/lkml/2017/12/4/934
+
+-- 
+Cordially
+Philippe Ombredanne
