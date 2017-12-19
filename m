@@ -1,14 +1,15 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v20 7/7] virtio-balloon: don't report free pages when page
-	poisoning is enabled
-Date: Tue, 19 Dec 2017 20:17:59 +0800
-Message-ID: <1513685879-21823-8-git-send-email-wei.w.wang__33109.2427987189$1513686895$gmane$org@intel.com>
+From: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH v20 0/7] Virtio-balloon Enhancement
+Date: Tue, 19 Dec 2017 06:40:20 -0800
+Message-ID: <20171219144020.GA30842__10561.5718327046$1513694348$gmane$org@bombadil.infradead.org>
 References: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
+	<201712192305.AAE21882.MtQHJOFFSFVOLO@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
+Content-Disposition: inline
+In-Reply-To: <201712192305.AAE21882.MtQHJOFFSFVOLO@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,67 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, mawilcox@microsoft.com
-Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, nilal@redhat.com, mgorman@techsingularity.net
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, quan.xu0@gmail.com, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-The guest free pages should not be discarded by the live migration thread
-when page poisoning is enabled with PAGE_POISONING_NO_SANITY=n, because
-skipping the transfer of such poisoned free pages will trigger false
-positive when new pages are allocated and checked on the destination.
-This patch adds a config field, poison_val. Guest writes to the config
-field to tell the host about the poisoning value. The value will be 0 in
-the following cases:
-1) PAGE_POISONING_NO_SANITY is enabled;
-2) page poisoning is disabled; or
-3) PAGE_POISONING_ZERO is enabled.
+On Tue, Dec 19, 2017 at 11:05:11PM +0900, Tetsuo Handa wrote:
+> Removing exceptional path made this patch easier to read.
+> But what I meant is
+> 
+>   Can you eliminate exception path and fold all xbitmap patches into one, and
+>   post only one xbitmap patch without virtio-balloon changes? 
+> 
+> .
+> 
+> I still think we don't need xb_preload()/xb_preload_end().
+> I think xb_find_set() has a bug in !node path.
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
----
- drivers/virtio/virtio_balloon.c     | 8 ++++++++
- include/uapi/linux/virtio_balloon.h | 2 ++
- 2 files changed, 10 insertions(+)
+Don't think.  Write a test-case.  Please.  If it shows a bug, then great,
+Wei has an example of what the bug is to fix.  If it doesn't show a bug,
+then we can add it to the test suite anyway, to ensure that case continues
+to work in the future.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index eae65c1..1fa8598 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -860,6 +860,7 @@ static struct file_system_type balloon_fs = {
- static int virtballoon_probe(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb;
-+	__u32 poison_val;
- 	int err;
- 
- 	if (!vdev->config->get) {
-@@ -897,6 +898,13 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 					WQ_FREEZABLE | WQ_CPU_INTENSIVE, 0);
- 		INIT_WORK(&vb->report_free_page_work, report_free_page);
- 		vb->stop_cmd_id = VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID;
-+		if (IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY) ||
-+		    !page_poisoning_enabled())
-+			poison_val = 0;
-+		else
-+			poison_val = PAGE_POISON;
-+		virtio_cwrite(vb->vdev, struct virtio_balloon_config,
-+			      poison_val, &poison_val);
- 	}
- 
- 	vb->nb.notifier_call = virtballoon_oom_notify;
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index 58f1274..f270e9e 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -48,6 +48,8 @@ struct virtio_balloon_config {
- 	__u32 actual;
- 	/* Free page report command id, readonly by guest */
- 	__u32 free_page_report_cmd_id;
-+	/* Stores PAGE_POISON if page poisoning with sanity check is in use */
-+	__u32 poison_val;
- };
- 
- #define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
--- 
-2.7.4
+> Also, please avoid unconditionally adding to builtin modules.
+> There are users who want to save even few KB.
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+> the body to majordomo@kvack.org.  For more info on Linux MM,
+> see: http://www.linux-mm.org/ .
+> Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
