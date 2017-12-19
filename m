@@ -1,7 +1,7 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v20 1/7] xbitmap: Introduce xbitmap
-Date: Tue, 19 Dec 2017 20:17:53 +0800
-Message-ID: <1513685879-21823-2-git-send-email-wei.w.wang__34756.4492178664$1513686807$gmane$org@intel.com>
+Subject: [PATCH v20 4/7] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Tue, 19 Dec 2017 20:17:56 +0800
+Message-ID: <1513685879-21823-5-git-send-email-wei.w.wang__13022.5249486559$1513686826$gmane$org@intel.com>
 References: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,393 +21,402 @@ To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@no
 Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, nilal@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Matthew Wilcox <mawilcox@microsoft.com>
+Add a new feature, VIRTIO_BALLOON_F_SG, which enables the transfer of
+balloon (i.e. inflated/deflated) pages using scatter-gather lists to the
+host.
 
-The eXtensible Bitmap is a sparse bitmap representation which is
-efficient for set bits which tend to cluster.  It supports up to
-'unsigned long' worth of bits, and this commit adds the bare bones --
-xb_set_bit(), xb_clear_bit() and xb_test_bit().
+The implementation of the previous virtio-balloon is not very efficient,
+because the balloon pages are transferred to the host by one array each
+time. Here is the breakdown of the time in percentage spent on each step
+of the balloon inflating process (inflating 7GB of an 8GB idle guest).
+
+1) allocating pages (6.5%)
+2) sending PFNs to host (68.3%)
+3) address translation (6.1%)
+4) madvise (19%)
+
+It takes about 4126ms for the inflating process to complete. The above
+profiling shows that the bottlenecks are stage 2) and stage 4).
+
+This patch optimizes step 2) by transferring pages to host in sgs. An sg
+describes a chunk of guest physically continuous pages. With this
+mechanism, step 4) can also be optimized by doing address translation and
+madvise() in chunks rather than page by page.
+
+With this new feature, the above ballooning process takes ~460ms resulting
+in an improvement of ~89%.
+
+TODO:
+- optimize stage 1) by allocating/freeing a chunk of pages instead of a
+single page each time.
+- sort the internal balloon page queue.
 
 Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Cc: Matthew Wilcox <mawilcox@microsoft.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Liang Li <liang.z.li@intel.com>
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
 Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 ---
- include/linux/radix-tree.h               |   2 +
- include/linux/xbitmap.h                  |  49 ++++++++++++
- lib/Makefile                             |   2 +-
- lib/radix-tree.c                         |  25 +++++-
- lib/xbitmap.c                            | 130 +++++++++++++++++++++++++++++++
- tools/testing/radix-tree/Makefile        |  12 ++-
- tools/testing/radix-tree/linux/xbitmap.h |   1 +
- tools/testing/radix-tree/main.c          |   4 +
- tools/testing/radix-tree/test.h          |   1 +
- 9 files changed, 221 insertions(+), 5 deletions(-)
- create mode 100644 include/linux/xbitmap.h
- create mode 100644 lib/xbitmap.c
- create mode 100644 tools/testing/radix-tree/linux/xbitmap.h
+ drivers/virtio/virtio_balloon.c     | 234 +++++++++++++++++++++++++++++++++---
+ include/uapi/linux/virtio_balloon.h |   1 +
+ 2 files changed, 217 insertions(+), 18 deletions(-)
 
-diff --git a/include/linux/radix-tree.h b/include/linux/radix-tree.h
-index 23a9c89..5c16179a 100644
---- a/include/linux/radix-tree.h
-+++ b/include/linux/radix-tree.h
-@@ -315,6 +315,8 @@ void radix_tree_iter_delete(struct radix_tree_root *,
- 			struct radix_tree_iter *iter, void __rcu **slot);
- void *radix_tree_delete_item(struct radix_tree_root *, unsigned long, void *);
- void *radix_tree_delete(struct radix_tree_root *, unsigned long);
-+bool __radix_tree_delete(struct radix_tree_root *r, struct radix_tree_node *n,
-+				void __rcu **slot);
- void radix_tree_clear_tags(struct radix_tree_root *, struct radix_tree_node *,
- 			   void __rcu **slot);
- unsigned int radix_tree_gang_lookup(const struct radix_tree_root *,
-diff --git a/include/linux/xbitmap.h b/include/linux/xbitmap.h
-new file mode 100644
-index 0000000..4ac2b8d
---- /dev/null
-+++ b/include/linux/xbitmap.h
-@@ -0,0 +1,49 @@
-+/*
-+ * eXtensible Bitmaps
-+ * Copyright (c) 2017 Microsoft Corporation <mawilcox@microsoft.com>
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation; either version 2 of the
-+ * License, or (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * eXtensible Bitmaps provide an unlimited-size sparse bitmap facility.
-+ * All bits are initially zero.
-+ */
-+
-+#include <linux/idr.h>
-+
-+struct xb {
-+	struct radix_tree_root xbrt;
-+};
-+
-+#define XB_INIT {							\
-+	.xbrt = RADIX_TREE_INIT(IDR_RT_MARKER | GFP_NOWAIT),		\
-+}
-+#define DEFINE_XB(name)		struct xb name = XB_INIT
-+
-+static inline void xb_init(struct xb *xb)
-+{
-+	INIT_RADIX_TREE(&xb->xbrt, IDR_RT_MARKER | GFP_NOWAIT);
-+}
-+
-+int xb_set_bit(struct xb *xb, unsigned long bit);
-+bool xb_test_bit(const struct xb *xb, unsigned long bit);
-+void xb_clear_bit(struct xb *xb, unsigned long bit);
-+
-+static inline bool xb_empty(const struct xb *xb)
-+{
-+	return radix_tree_empty(&xb->xbrt);
-+}
-+
-+void xb_preload(gfp_t);
-+
-+static inline void xb_preload_end(void)
-+{
-+	preempt_enable();
-+}
-diff --git a/lib/Makefile b/lib/Makefile
-index d11c48e..08a8183 100644
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -19,7 +19,7 @@ KCOV_INSTRUMENT_dynamic_debug.o := n
- 
- lib-y := ctype.o string.o vsprintf.o cmdline.o \
- 	 rbtree.o radix-tree.o dump_stack.o timerqueue.o\
--	 idr.o int_sqrt.o extable.o \
-+	 idr.o xbitmap.o int_sqrt.o extable.o \
- 	 sha1.o chacha20.o irq_regs.o argv_split.o \
- 	 flex_proportions.o ratelimit.o show_mem.o \
- 	 is_single_threaded.o plist.o decompress.o kobject_uevent.o \
-diff --git a/lib/radix-tree.c b/lib/radix-tree.c
-index c8d5556..2650e9e 100644
---- a/lib/radix-tree.c
-+++ b/lib/radix-tree.c
-@@ -37,7 +37,7 @@
- #include <linux/rcupdate.h>
- #include <linux/slab.h>
- #include <linux/string.h>
--
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index a1fb52c..fff0a3f 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -32,6 +32,8 @@
+ #include <linux/mm.h>
+ #include <linux/mount.h>
+ #include <linux/magic.h>
 +#include <linux/xbitmap.h>
++#include <asm/page.h>
  
- /* Number of nodes in fully populated tree of given height */
- static unsigned long height_to_maxnodes[RADIX_TREE_MAX_PATH + 1] __read_mostly;
-@@ -77,6 +77,11 @@ static struct kmem_cache *radix_tree_node_cachep;
- 						RADIX_TREE_MAP_SHIFT))
- #define IDA_PRELOAD_SIZE	(IDA_MAX_PATH * 2 - 1)
- 
-+#define XB_INDEX_BITS		(BITS_PER_LONG - ilog2(IDA_BITMAP_BITS))
-+#define XB_MAX_PATH		(DIV_ROUND_UP(XB_INDEX_BITS, \
-+						RADIX_TREE_MAP_SHIFT))
-+#define XB_PRELOAD_SIZE		(XB_MAX_PATH * 2 - 1)
-+
  /*
-  * Per-cpu pool of preloaded nodes
-  */
-@@ -839,6 +844,8 @@ int __radix_tree_create(struct radix_tree_root *root, unsigned long index,
- 							offset, 0, 0);
- 			if (!child)
- 				return -ENOMEM;
-+			if (is_idr(root))
-+				all_tag_set(child, IDR_FREE);
- 			rcu_assign_pointer(*slot, node_to_entry(child));
- 			if (node)
- 				node->count++;
-@@ -1982,7 +1989,7 @@ void __radix_tree_delete_node(struct radix_tree_root *root,
- 	delete_node(root, node, update_node);
- }
+  * Balloon device works in 4K page units.  So each page is pointed to by
+@@ -79,6 +81,9 @@ struct virtio_balloon {
+ 	/* Synchronize access/update to this struct virtio_balloon elements */
+ 	struct mutex balloon_lock;
  
--static bool __radix_tree_delete(struct radix_tree_root *root,
-+bool __radix_tree_delete(struct radix_tree_root *root,
- 				struct radix_tree_node *node, void __rcu **slot)
- {
- 	void *old = rcu_dereference_raw(*slot);
-@@ -2135,6 +2142,20 @@ int ida_pre_get(struct ida *ida, gfp_t gfp)
- }
- EXPORT_SYMBOL(ida_pre_get);
- 
-+void xb_preload(gfp_t gfp)
-+{
-+	__radix_tree_preload(gfp, XB_PRELOAD_SIZE);
-+	if (!this_cpu_read(ida_bitmap)) {
-+		struct ida_bitmap *bitmap = kmalloc(sizeof(*bitmap), gfp);
++	/* The xbitmap used to record balloon pages */
++	struct xb page_xb;
 +
-+		if (!bitmap)
-+			return;
-+		bitmap = this_cpu_cmpxchg(ida_bitmap, NULL, bitmap);
-+		kfree(bitmap);
-+	}
+ 	/* The array of pfns we tell the Host about. */
+ 	unsigned int num_pfns;
+ 	__virtio32 pfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
+@@ -141,15 +146,129 @@ static void set_page_pfns(struct virtio_balloon *vb,
+ 					  page_to_balloon_pfn(page) + i);
+ }
+ 
++static void kick_and_wait(struct virtqueue *vq, wait_queue_head_t wq_head)
++{
++	unsigned int len;
++
++	virtqueue_kick(vq);
++	wait_event(wq_head, virtqueue_get_buf(vq, &len));
 +}
-+EXPORT_SYMBOL(xb_preload);
 +
- void __rcu **idr_get_free_cmn(struct radix_tree_root *root,
- 			      struct radix_tree_iter *iter, gfp_t gfp,
- 			      unsigned long max)
-diff --git a/lib/xbitmap.c b/lib/xbitmap.c
-new file mode 100644
-index 0000000..236afa9
---- /dev/null
-+++ b/lib/xbitmap.c
-@@ -0,0 +1,130 @@
-+#include <linux/export.h>
-+#include <linux/xbitmap.h>
-+#include <linux/bitmap.h>
-+#include <linux/slab.h>
-+
-+/**
-+ *  xb_set_bit - set a bit in the xbitmap
-+ *  @xb: the xbitmap tree used to record the bit
-+ *  @bit: index of the bit to set
-+ *
-+ * This function is used to set a bit in the xbitmap. If the bitmap that @bit
-+ * resides in is not there, the per-cpu ida_bitmap will be taken.
-+ *
-+ * Returns: 0 on success. -EAGAIN or -ENOMEM indicates that @bit is not set.
-+ */
-+int xb_set_bit(struct xb *xb, unsigned long bit)
++static void add_one_sg(struct virtqueue *vq, unsigned long pfn, uint32_t len)
 +{
++	struct scatterlist sg;
++	unsigned int unused;
 +	int err;
-+	unsigned long index = bit / IDA_BITMAP_BITS;
-+	struct radix_tree_root *root = &xb->xbrt;
-+	struct radix_tree_node *node;
-+	void __rcu **slot;
-+	struct ida_bitmap *bitmap;
 +
-+	bit %= IDA_BITMAP_BITS;
-+	err = __radix_tree_create(root, index, 0, &node, &slot);
-+	if (err)
-+		return err;
-+	bitmap = rcu_dereference_raw(*slot);
-+	if (!bitmap) {
-+		bitmap = this_cpu_xchg(ida_bitmap, NULL);
-+		if (!bitmap)
-+			return -EAGAIN;
-+		memset(bitmap, 0, sizeof(*bitmap));
-+		__radix_tree_replace(root, node, slot, bitmap, NULL);
++	sg_init_table(&sg, 1);
++	sg_set_page(&sg, pfn_to_page(pfn), len, 0);
++
++	/* Detach all the used buffers from the vq */
++	while (virtqueue_get_buf(vq, &unused))
++		;
++
++	err = virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
++	/*
++	 * This is expected to never fail: there is always at least 1 entry
++	 * available on the vq, because when the vq is full the worker thread
++	 * that adds the sg will be put into sleep until at least 1 entry is
++	 * available to use.
++	 */
++	BUG_ON(err);
++}
++
++static void batch_balloon_page_sg(struct virtio_balloon *vb,
++				  struct virtqueue *vq,
++				  unsigned long pfn,
++				  uint32_t len)
++{
++	add_one_sg(vq, pfn, len);
++
++	/* Batch till the vq is full */
++	if (!vq->num_free)
++		kick_and_wait(vq, vb->acked);
++}
++
++/*
++ * Send balloon pages in sgs to host. The balloon pages are recorded in the
++ * page xbitmap. Each bit in the bitmap corresponds to a page of PAGE_SIZE.
++ * The page xbitmap is searched for continuous "1" bits, which correspond
++ * to continuous pages, to chunk into sgs.
++ *
++ * @page_xb_start and @page_xb_end form the range of bits in the xbitmap that
++ * need to be searched.
++ */
++static void tell_host_sgs(struct virtio_balloon *vb,
++			  struct virtqueue *vq,
++			  unsigned long page_xb_start,
++			  unsigned long page_xb_end)
++{
++	unsigned long pfn_start, pfn_end;
++	uint32_t max_len = round_down(UINT_MAX, PAGE_SIZE);
++	uint64_t len;
++
++	pfn_start = page_xb_start;
++	while (pfn_start < page_xb_end) {
++		pfn_start = xb_find_set(&vb->page_xb, page_xb_end + 1,
++					pfn_start);
++		if (pfn_start == page_xb_end + 1)
++			break;
++		pfn_end = xb_find_zero(&vb->page_xb, page_xb_end + 1,
++				       pfn_start);
++		len = (pfn_end - pfn_start) << PAGE_SHIFT;
++		while (len > max_len) {
++			batch_balloon_page_sg(vb, vq, pfn_start, max_len);
++			pfn_start += max_len >> PAGE_SHIFT;
++			len -= max_len;
++		}
++		batch_balloon_page_sg(vb, vq, pfn_start, (uint32_t)len);
++		pfn_start = pfn_end + 1;
 +	}
 +
-+	__set_bit(bit, bitmap->bitmap);
-+	return 0;
++	/*
++	 * The last few sgs may not reach the batch size, but need a kick to
++	 * notify the device to handle them.
++	 */
++	if (vq->num_free != virtqueue_get_vring_size(vq))
++		kick_and_wait(vq, vb->acked);
++
++	xb_clear_bit_range(&vb->page_xb, page_xb_start, page_xb_end);
 +}
-+EXPORT_SYMBOL(xb_set_bit);
 +
-+/**
-+ * xb_clear_bit - clear a bit in the xbitmap
-+ * @xb: the xbitmap tree used to record the bit
-+ * @bit: index of the bit to clear
-+ *
-+ * This function is used to clear a bit in the xbitmap. If all the bits of the
-+ * bitmap are 0, the bitmap will be freed.
-+ */
-+void xb_clear_bit(struct xb *xb, unsigned long bit)
++static inline int xb_set_page(struct virtio_balloon *vb,
++			       struct page *page,
++			       unsigned long *pfn_min,
++			       unsigned long *pfn_max)
 +{
-+	unsigned long index = bit / IDA_BITMAP_BITS;
-+	struct radix_tree_root *root = &xb->xbrt;
-+	struct radix_tree_node *node;
-+	void __rcu **slot;
-+	struct ida_bitmap *bitmap;
++	unsigned long pfn = page_to_pfn(page);
++	int ret;
 +
-+	bit %= IDA_BITMAP_BITS;
-+	bitmap = __radix_tree_lookup(root, index, &node, &slot);
-+	if (!bitmap)
-+		return;
++	*pfn_min = min(pfn, *pfn_min);
++	*pfn_max = max(pfn, *pfn_max);
 +
-+	__clear_bit(bit, bitmap->bitmap);
-+	if (bitmap_empty(bitmap->bitmap, IDA_BITMAP_BITS)) {
-+		kfree(bitmap);
-+		__radix_tree_delete(root, node, slot);
++	do {
++		if (xb_preload(GFP_NOWAIT | __GFP_NOWARN) < 0)
++			return -ENOMEM;
++
++		ret = xb_set_bit(&vb->page_xb, pfn);
++		xb_preload_end();
++	} while (unlikely(ret == -EAGAIN));
++
++	return ret;
++}
++
+ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+ {
+ 	unsigned num_allocated_pages;
+ 	unsigned num_pfns;
+ 	struct page *page;
+ 	LIST_HEAD(pages);
++	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
++	unsigned long pfn_max = 0, pfn_min = ULONG_MAX;
+ 
+ 	/* We can only do one array worth at a time. */
+-	num = min(num, ARRAY_SIZE(vb->pfns));
++	if (!use_sg)
++		num = min(num, ARRAY_SIZE(vb->pfns));
+ 
+ 	for (num_pfns = 0; num_pfns < num;
+ 	     num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+@@ -173,8 +292,15 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+ 
+ 	while ((page = balloon_page_pop(&pages))) {
+ 		balloon_page_enqueue(&vb->vb_dev_info, page);
++		if (use_sg) {
++			if (xb_set_page(vb, page, &pfn_min, &pfn_max) < 0) {
++				__free_page(page);
++				continue;
++			}
++		} else {
++			set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
++		}
+ 
+-		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+ 		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 		if (!virtio_has_feature(vb->vdev,
+ 					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+@@ -184,8 +310,12 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+ 
+ 	num_allocated_pages = vb->num_pfns;
+ 	/* Did we get any? */
+-	if (vb->num_pfns != 0)
+-		tell_host(vb, vb->inflate_vq);
++	if (vb->num_pfns) {
++		if (use_sg)
++			tell_host_sgs(vb, vb->inflate_vq, pfn_min, pfn_max);
++		else
++			tell_host(vb, vb->inflate_vq);
 +	}
-+}
-+EXPORT_SYMBOL(xb_clear_bit);
-+
-+/**
-+ * xb_test_bit - test a bit in the xbitmap
-+ * @xb: the xbitmap tree used to record the bit
-+ * @bit: index of the bit to test
-+ *
-+ * This function is used to test a bit in the xbitmap.
-+ *
-+ * Returns: true if the bit is set, or false otherwise.
+ 	mutex_unlock(&vb->balloon_lock);
+ 
+ 	return num_allocated_pages;
+@@ -211,9 +341,12 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+ 	struct page *page;
+ 	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
+ 	LIST_HEAD(pages);
++	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
++	unsigned long pfn_max = 0, pfn_min = ULONG_MAX;
+ 
+-	/* We can only do one array worth at a time. */
+-	num = min(num, ARRAY_SIZE(vb->pfns));
++	/* Traditionally, we can only do one array worth at a time. */
++	if (!use_sg)
++		num = min(num, ARRAY_SIZE(vb->pfns));
+ 
+ 	mutex_lock(&vb->balloon_lock);
+ 	/* We can't release more pages than taken */
+@@ -223,7 +356,14 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+ 		page = balloon_page_dequeue(vb_dev_info);
+ 		if (!page)
+ 			break;
+-		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
++		if (use_sg) {
++			if (xb_set_page(vb, page, &pfn_min, &pfn_max) < 0) {
++				balloon_page_enqueue(&vb->vb_dev_info, page);
++				break;
++			}
++		} else {
++			set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
++		}
+ 		list_add(&page->lru, &pages);
+ 		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 	}
+@@ -234,13 +374,55 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+ 	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+ 	 * is true, we *have* to do it in this order
+ 	 */
+-	if (vb->num_pfns != 0)
+-		tell_host(vb, vb->deflate_vq);
++	if (vb->num_pfns) {
++		if (use_sg)
++			tell_host_sgs(vb, vb->deflate_vq, pfn_min, pfn_max);
++		else
++			tell_host(vb, vb->deflate_vq);
++	}
+ 	release_pages_balloon(vb, &pages);
+ 	mutex_unlock(&vb->balloon_lock);
+ 	return num_freed_pages;
+ }
+ 
++/*
++ * The regular leak_balloon() with VIRTIO_BALLOON_F_SG needs memory allocation
++ * for xbitmap, which is not suitable for the oom case. This function does not
++ * use xbitmap to chunk pages, so it can be used by oom notifier to deflate
++ * pages when VIRTIO_BALLOON_F_SG is negotiated.
 + */
-+bool xb_test_bit(const struct xb *xb, unsigned long bit)
++static unsigned int leak_balloon_sg_oom(struct virtio_balloon *vb)
 +{
-+	unsigned long index = bit / IDA_BITMAP_BITS;
-+	const struct radix_tree_root *root = &xb->xbrt;
-+	struct ida_bitmap *bitmap = radix_tree_lookup(root, index);
++	unsigned int n;
++	struct page *page;
++	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
++	struct virtqueue *vq = vb->deflate_vq;
++	LIST_HEAD(pages);
 +
-+	bit %= IDA_BITMAP_BITS;
++	mutex_lock(&vb->balloon_lock);
++	for (n = 0; n < oom_pages; n++) {
++		page = balloon_page_dequeue(vb_dev_info);
++		if (!page)
++			break;
 +
-+	if (!bitmap)
-+		return false;
-+	return test_bit(bit, bitmap->bitmap);
-+}
-+EXPORT_SYMBOL(xb_test_bit);
++		list_add(&page->lru, &pages);
++		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
++		batch_balloon_page_sg(vb, vb->deflate_vq, page_to_pfn(page),
++				      PAGE_SIZE);
++		release_pages_balloon(vb, &pages);
++	}
 +
-+#ifndef __KERNEL__
++	/*
++	 * The last few sgs may not reach the batch size, but need a kick to
++	 * notify the device to handle them.
++	 */
++	if (vq->num_free != virtqueue_get_vring_size(vq))
++		kick_and_wait(vq, vb->acked);
++	mutex_unlock(&vb->balloon_lock);
 +
-+static DEFINE_XB(xb1);
-+
-+void xbitmap_check_bit(unsigned long bit)
-+{
-+	xb_preload(GFP_KERNEL);
-+	assert(!xb_test_bit(&xb1, bit));
-+	assert(xb_set_bit(&xb1, bit) == 0);
-+	assert(xb_test_bit(&xb1, bit));
-+	assert(xb_clear_bit(&xb1, bit) == 0);
-+	assert(xb_empty(&xb1));
-+	assert(xb_clear_bit(&xb1, bit) == 0);
-+	assert(xb_empty(&xb1));
-+	xb_preload_end();
-+}
-+
-+void xbitmap_checks(void)
-+{
-+	xb_init(&xb1);
-+	xbitmap_check_bit(0);
-+	xbitmap_check_bit(30);
-+	xbitmap_check_bit(31);
-+	xbitmap_check_bit(1023);
-+	xbitmap_check_bit(1024);
-+	xbitmap_check_bit(1025);
-+	xbitmap_check_bit((1UL << 63) | (1UL << 24));
-+	xbitmap_check_bit((1UL << 63) | (1UL << 24) | 70);
++	return n;
 +}
 +
-+int __weak main(void)
-+{
-+	radix_tree_init();
-+	xbitmap_checks();
-+}
-+#endif
-diff --git a/tools/testing/radix-tree/Makefile b/tools/testing/radix-tree/Makefile
-index fa7ee36..34ece78 100644
---- a/tools/testing/radix-tree/Makefile
-+++ b/tools/testing/radix-tree/Makefile
-@@ -6,7 +6,8 @@ LDLIBS+= -lpthread -lurcu
- TARGETS = main idr-test multiorder
- CORE_OFILES := radix-tree.o idr.o linux.o test.o find_bit.o
- OFILES = main.o $(CORE_OFILES) regression1.o regression2.o regression3.o \
--	 tag_check.o multiorder.o idr-test.o iteration_check.o benchmark.o
-+	 tag_check.o multiorder.o idr-test.o iteration_check.o benchmark.o \
-+	 xbitmap.o
+ static inline void update_stat(struct virtio_balloon *vb, int idx,
+ 			       u16 tag, u64 val)
+ {
+@@ -380,7 +562,10 @@ static int virtballoon_oom_notify(struct notifier_block *self,
+ 		return NOTIFY_OK;
  
- ifndef SHIFT
- 	SHIFT=3
-@@ -25,8 +26,11 @@ idr-test: idr-test.o $(CORE_OFILES)
+ 	freed = parm;
+-	num_freed_pages = leak_balloon(vb, oom_pages);
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG))
++		num_freed_pages = leak_balloon_sg_oom(vb);
++	else
++		num_freed_pages = leak_balloon(vb, oom_pages);
+ 	update_balloon_size(vb);
+ 	*freed += num_freed_pages;
  
- multiorder: multiorder.o $(CORE_OFILES)
+@@ -477,6 +662,7 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+ {
+ 	struct virtio_balloon *vb = container_of(vb_dev_info,
+ 			struct virtio_balloon, vb_dev_info);
++	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
+ 	unsigned long flags;
  
-+xbitmap: xbitmap.o $(CORE_OFILES)
-+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o xbitmap
+ 	/*
+@@ -498,16 +684,24 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+ 	vb_dev_info->isolated_pages--;
+ 	__count_vm_event(BALLOON_MIGRATE);
+ 	spin_unlock_irqrestore(&vb_dev_info->pages_lock, flags);
+-	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
+-	set_page_pfns(vb, vb->pfns, newpage);
+-	tell_host(vb, vb->inflate_vq);
+-
++	if (use_sg) {
++		add_one_sg(vb->inflate_vq, page_to_pfn(newpage), PAGE_SIZE);
++		kick_and_wait(vb->inflate_vq, vb->acked);
++	} else {
++		vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
++		set_page_pfns(vb, vb->pfns, newpage);
++		tell_host(vb, vb->inflate_vq);
++	}
+ 	/* balloon's page migration 2nd step -- deflate "page" */
+ 	balloon_page_delete(page);
+-	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
+-	set_page_pfns(vb, vb->pfns, page);
+-	tell_host(vb, vb->deflate_vq);
+-
++	if (use_sg) {
++		add_one_sg(vb->deflate_vq, page_to_pfn(page), PAGE_SIZE);
++		kick_and_wait(vb->deflate_vq, vb->acked);
++	} else {
++		vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
++		set_page_pfns(vb, vb->pfns, page);
++		tell_host(vb, vb->deflate_vq);
++	}
+ 	mutex_unlock(&vb->balloon_lock);
+ 
+ 	put_page(page); /* balloon reference */
+@@ -566,6 +760,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	if (err)
+ 		goto out_free_vb;
+ 
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_SG))
++		xb_init(&vb->page_xb);
 +
- clean:
--	$(RM) $(TARGETS) *.o radix-tree.c idr.c generated/map-shift.h
-+	$(RM) $(TARGETS) *.o radix-tree.c idr.c xbitmap.c generated/map-shift.h
+ 	vb->nb.notifier_call = virtballoon_oom_notify;
+ 	vb->nb.priority = VIRTBALLOON_OOM_NOTIFY_PRIORITY;
+ 	err = register_oom_notifier(&vb->nb);
+@@ -682,6 +879,7 @@ static unsigned int features[] = {
+ 	VIRTIO_BALLOON_F_MUST_TELL_HOST,
+ 	VIRTIO_BALLOON_F_STATS_VQ,
+ 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
++	VIRTIO_BALLOON_F_SG,
+ };
  
- vpath %.c ../../lib
+ static struct virtio_driver virtio_balloon_driver = {
+diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+index 343d7dd..37780a7 100644
+--- a/include/uapi/linux/virtio_balloon.h
++++ b/include/uapi/linux/virtio_balloon.h
+@@ -34,6 +34,7 @@
+ #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
+ #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
+ #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
++#define VIRTIO_BALLOON_F_SG		3 /* Use sg instead of PFN lists */
  
-@@ -34,6 +38,7 @@ $(OFILES): Makefile *.h */*.h generated/map-shift.h \
- 	../../include/linux/*.h \
- 	../../include/asm/*.h \
- 	../../../include/linux/radix-tree.h \
-+	../../../include/linux/xbitmap.h \
- 	../../../include/linux/idr.h
- 
- radix-tree.c: ../../../lib/radix-tree.c
-@@ -42,6 +47,9 @@ radix-tree.c: ../../../lib/radix-tree.c
- idr.c: ../../../lib/idr.c
- 	sed -e 's/^static //' -e 's/__always_inline //' -e 's/inline //' < $< > $@
- 
-+xbitmap.c: ../../../lib/xbitmap.c
-+	sed -e 's/^static //' -e 's/__always_inline //' -e 's/inline //' < $< > $@
-+
- .PHONY: mapshift
- 
- mapshift:
-diff --git a/tools/testing/radix-tree/linux/xbitmap.h b/tools/testing/radix-tree/linux/xbitmap.h
-new file mode 100644
-index 0000000..61de214
---- /dev/null
-+++ b/tools/testing/radix-tree/linux/xbitmap.h
-@@ -0,0 +1 @@
-+#include "../../../../include/linux/xbitmap.h"
-diff --git a/tools/testing/radix-tree/main.c b/tools/testing/radix-tree/main.c
-index 257f3f8..d112363 100644
---- a/tools/testing/radix-tree/main.c
-+++ b/tools/testing/radix-tree/main.c
-@@ -326,6 +326,10 @@ static void single_thread_tests(bool long_run)
- 	rcu_barrier();
- 	printv(2, "after idr_checks: %d allocated, preempt %d\n",
- 		nr_allocated, preempt_count);
-+	xbitmap_checks();
-+	rcu_barrier();
-+	printv(2, "after xbitmap_checks: %d allocated, preempt %d\n",
-+			nr_allocated, preempt_count);
- 	big_gang_check(long_run);
- 	rcu_barrier();
- 	printv(2, "after big_gang_check: %d allocated, preempt %d\n",
-diff --git a/tools/testing/radix-tree/test.h b/tools/testing/radix-tree/test.h
-index d9c031d..8175d6b 100644
---- a/tools/testing/radix-tree/test.h
-+++ b/tools/testing/radix-tree/test.h
-@@ -38,6 +38,7 @@ void benchmark(void);
- void idr_checks(void);
- void ida_checks(void);
- void ida_thread_tests(void);
-+void xbitmap_checks(void);
- 
- struct item *
- item_tag_set(struct radix_tree_root *root, unsigned long index, int tag);
+ /* Size of a PFN in the balloon interface. */
+ #define VIRTIO_BALLOON_PFN_SHIFT 12
 -- 
 2.7.4
