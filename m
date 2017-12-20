@@ -1,14 +1,15 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v4 3/4] virtio_vop: don't kfree device on register failure
-Date: Wed, 20 Dec 2017 16:57:21 +0100
-Message-ID: <20171220165721.60d0d71c.cohuck@redhat.com>
+Subject: Re: [PATCH v4 4/4] virtio_remoteproc: don't kfree device on
+	register failure
+Date: Wed, 20 Dec 2017 17:12:01 +0100
+Message-ID: <20171220171201.6aa2b68f.cohuck@redhat.com>
 References: <cover.1513700444.git.zhangweiping@didichuxing.com>
-	<3602a1fa10a90d3d52ad7fa26f29e36b0127d970.1513700444.git.zhangweiping@didichuxing.com>
+	<443858dfab89720b846aa9c656679ff6ad20d0af.1513700444.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <3602a1fa10a90d3d52ad7fa26f29e36b0127d970.1513700444.git.zhangweiping@didichuxing.com>
+In-Reply-To: <443858dfab89720b846aa9c656679ff6ad20d0af.1513700444.git.zhangweiping@didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,83 +23,68 @@ To: weiping zhang <zwp10758@gmail.com>
 Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 20 Dec 2017 12:27:04 +0800
+On Wed, 20 Dec 2017 12:27:33 +0800
 weiping zhang <zwp10758@gmail.com> wrote:
 
-> As mentioned at drivers/base/core.c:
-> /*
->  * NOTE: _Never_ directly free @dev after calling this function, even
->  * if it returned an error! Always use put_device() to give up the
->  * reference initialized in this function instead.
->  */
-> so we don't free vdev until vdev->vdev.dev.release be called.
+> rproc_virtio_dev_release will be called iff virtio_device.dev's
+> refer count became to 0. Here we should check if we call device_register
+
+"reference count drops to 0"
+
+s/call/called/
+
+> or not, if called, put vdev.dev, and then rproc->dev's cleanup will be
+> done in rproc_virtio_dev_release, otherwise we do cleanup directly.
 > 
 > Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
 > ---
->  drivers/misc/mic/vop/vop_main.c | 20 +++++++++++++-------
->  1 file changed, 13 insertions(+), 7 deletions(-)
+>  drivers/remoteproc/remoteproc_virtio.c | 13 +++++++++++--
+>  1 file changed, 11 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
-> index a341938..3633202 100644
-> --- a/drivers/misc/mic/vop/vop_main.c
-> +++ b/drivers/misc/mic/vop/vop_main.c
-> @@ -452,10 +452,12 @@ static irqreturn_t vop_virtio_intr_handler(int irq, void *data)
->  
->  static void vop_virtio_release_dev(struct device *_d)
+> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+> index 2946348..1073ea3 100644
+> --- a/drivers/remoteproc/remoteproc_virtio.c
+> +++ b/drivers/remoteproc/remoteproc_virtio.c
+> @@ -304,7 +304,7 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
 >  {
-> -	/*
-> -	 * No need for a release method similar to virtio PCI.
-> -	 * Provide an empty one to avoid getting a warning from core.
-> -	 */
-> +	struct virtio_device *vdev =
-> +			container_of(_d, struct virtio_device, dev);
-> +	struct _vop_vdev *vop_vdev =
-> +			container_of(vdev, struct _vop_vdev, vdev);
-> +
-> +	kfree(vop_vdev);
->  }
->  
->  /*
-> @@ -466,7 +468,7 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
->  			   unsigned int offset, struct vop_device *vpdev,
->  			   int dnode)
->  {
-> -	struct _vop_vdev *vdev;
-> +	struct _vop_vdev *vdev, *reg_dev = NULL;
-
-Similarly, not a fan of that pointer variable, but it's fine.
-
+>  	struct rproc *rproc = rvdev->rproc;
+>  	struct device *dev = &rproc->dev;
+> -	struct virtio_device *vdev = &rvdev->vdev;
+> +	struct virtio_device *vdev = &rvdev->vdev, *reg_dev = NULL;
 >  	int ret;
->  	u8 type = ioread8(&d->type);
 >  
-> @@ -497,6 +499,7 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
->  	vdev->c2h_vdev_db = ioread8(&vdev->dc->c2h_vdev_db);
+>  	vdev->id.device	= id,
+> @@ -326,15 +326,24 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
+>  	kref_get(&rvdev->refcount);
 >  
->  	ret = register_virtio_device(&vdev->vdev);
+>  	ret = register_virtio_device(vdev);
 > +	reg_dev = vdev;
 >  	if (ret) {
->  		dev_err(_vop_dev(vdev),
->  			"Failed to register vop device %u type %u\n",
-> @@ -512,7 +515,10 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
->  free_irq:
->  	vpdev->hw_ops->free_irq(vpdev, vdev->virtio_cookie, vdev);
->  kfree:
-> -	kfree(vdev);
+> -		put_device(&rproc->dev);
+>  		dev_err(dev, "failed to register vdev: %d\n", ret);
+>  		goto out;
+>  	}
+>  
+>  	dev_info(dev, "registered %s (type %d)\n", dev_name(&vdev->dev), id);
+>  
+> +	return 0;
+> +
+>  out:
 > +	if (reg_dev)
-> +		put_device(&vdev->vdev.dev);
-> +	else
-> +		kfree(vdev);
+> +		put_device(&vdev->dev);
+> +	else {
+> +		kref_put(&rvdev->refcount, rproc_vdev_release);
+> +		put_device(&rproc->dev);
+> +	}
+> +
 >  	return ret;
 >  }
 >  
-> @@ -568,7 +574,7 @@ static int _vop_remove_device(struct mic_device_desc __iomem *d,
->  		iowrite8(-1, &dc->h2c_vdev_db);
->  		if (status & VIRTIO_CONFIG_S_DRIVER_OK)
->  			wait_for_completion(&vdev->reset_done);
-> -		kfree(vdev);
-> +		put_device(&vdev->vdev.dev);
->  		iowrite8(1, &dc->guest_ack);
->  		dev_dbg(&vpdev->dev, "%s %d guest_ack %d\n",
->  			__func__, __LINE__, ioread8(&dc->guest_ack));
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+I think in this case using the marker makes a straightforward cleanup
+way too complicated. There's a single way we can get to the out label,
+and that's when register_virtio_device() failed. Switching
+put_device(&rproc->dev) to put_device(@vdev->dev) (what your first
+patch did) seems like the way to go.
+
+(It also may be good to cc: the maintainers for this driver.)
