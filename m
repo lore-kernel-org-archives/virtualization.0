@@ -1,15 +1,17 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v4 4/4] virtio_remoteproc: don't kfree device on
-	register failure
-Date: Wed, 20 Dec 2017 17:12:01 +0100
-Message-ID: <20171220171201.6aa2b68f.cohuck@redhat.com>
-References: <cover.1513700444.git.zhangweiping@didichuxing.com>
-	<443858dfab89720b846aa9c656679ff6ad20d0af.1513700444.git.zhangweiping@didichuxing.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v20 0/7] Virtio-balloon Enhancement
+Date: Wed, 20 Dec 2017 16:13:16 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73938CC3E__21184.2824741781$1513786335$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
+	<201712192305.AAE21882.MtQHJOFFSFVOLO@I-love.SAKURA.ne.jp>
+	<5A3A3CBC.4030202@intel.com>
+	<20171220122547.GA1654@bombadil.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <443858dfab89720b846aa9c656679ff6ad20d0af.1513700444.git.zhangweiping@didichuxing.com>
+In-Reply-To: <20171220122547.GA1654@bombadil.infradead.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,72 +21,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: weiping zhang <zwp10758@gmail.com>
-Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Matthew Wilcox <willy@infradead.org>
+Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "nilal@redhat.com" <nilal@redhat.com>, "riel@redhat.com" <riel@redhat.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, amit.sh
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 20 Dec 2017 12:27:33 +0800
-weiping zhang <zwp10758@gmail.com> wrote:
-
-> rproc_virtio_dev_release will be called iff virtio_device.dev's
-> refer count became to 0. Here we should check if we call device_register
-
-"reference count drops to 0"
-
-s/call/called/
-
-> or not, if called, put vdev.dev, and then rproc->dev's cleanup will be
-> done in rproc_virtio_dev_release, otherwise we do cleanup directly.
+On Wednesday, December 20, 2017 8:26 PM, Matthew Wilcox wrote:
+> On Wed, Dec 20, 2017 at 06:34:36PM +0800, Wei Wang wrote:
+> > On 12/19/2017 10:05 PM, Tetsuo Handa wrote:
+> > > I think xb_find_set() has a bug in !node path.
+> >
+> > I think we can probably remove the "!node" path for now. It would be
+> > good to get the fundamental part in first, and leave optimization to
+> > come as separate patches with corresponding test cases in the future.
 > 
-> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
-> ---
->  drivers/remoteproc/remoteproc_virtio.c | 13 +++++++++++--
->  1 file changed, 11 insertions(+), 2 deletions(-)
+> You can't remove the !node path.  You'll see !node when the highest set bit
+> is less than 1024.  So do something like this:
 > 
-> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-> index 2946348..1073ea3 100644
-> --- a/drivers/remoteproc/remoteproc_virtio.c
-> +++ b/drivers/remoteproc/remoteproc_virtio.c
-> @@ -304,7 +304,7 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
->  {
->  	struct rproc *rproc = rvdev->rproc;
->  	struct device *dev = &rproc->dev;
-> -	struct virtio_device *vdev = &rvdev->vdev;
-> +	struct virtio_device *vdev = &rvdev->vdev, *reg_dev = NULL;
->  	int ret;
->  
->  	vdev->id.device	= id,
-> @@ -326,15 +326,24 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
->  	kref_get(&rvdev->refcount);
->  
->  	ret = register_virtio_device(vdev);
-> +	reg_dev = vdev;
->  	if (ret) {
-> -		put_device(&rproc->dev);
->  		dev_err(dev, "failed to register vdev: %d\n", ret);
->  		goto out;
->  	}
->  
->  	dev_info(dev, "registered %s (type %d)\n", dev_name(&vdev->dev), id);
->  
-> +	return 0;
-> +
->  out:
-> +	if (reg_dev)
-> +		put_device(&vdev->dev);
-> +	else {
-> +		kref_put(&rvdev->refcount, rproc_vdev_release);
-> +		put_device(&rproc->dev);
-> +	}
-> +
->  	return ret;
->  }
->  
+> 	unsigned long bit;
+> 	xb_preload(GFP_KERNEL);
+> 	xb_set_bit(xb, 700);
+> 	xb_preload_end();
+> 	bit = xb_find_set(xb, ULONG_MAX, 0);
+> 	assert(bit == 700);
 
-I think in this case using the marker makes a straightforward cleanup
-way too complicated. There's a single way we can get to the out label,
-and that's when register_virtio_device() failed. Switching
-put_device(&rproc->dev) to put_device(@vdev->dev) (what your first
-patch did) seems like the way to go.
+This above test will result in "!node with bitmap !=NULL", and it goes to the regular "if (bitmap)" path, which finds 700.
 
-(It also may be good to cc: the maintainers for this driver.)
+A better test would be
+...
+xb_set_bit(xb, 700);
+assert(xb_find_set(xb, ULONG_MAX, 800) == ULONG_MAX);
+...
+
+The first try with the "if (bitmap)" path doesn't find a set bit, and the remaining tries will always result in "!node && !bitmap", which implies no set bit anymore and no need to try in this case.
+
+So, I think we can change it to
+
+If (!node && !bitmap)
+	return size;
+
+
+Best,
+Wei
