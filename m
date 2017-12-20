@@ -1,21 +1,12 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: Re: [RFC PATCH] virtio_net: Extend virtio to use VF datapath when
-	available
-Date: Tue, 19 Dec 2017 14:53:45 -0800
-Message-ID: <20171219145345.3c261273__25430.5162271068$1513723944$gmane$org@xeon-e3>
-References: <20171219174259-mutt-send-email-mst@kernel.org>
-	<ca709329-a47a-2e76-b1fc-38fc665d7c0b@intel.com>
-	<20171219095548.61d70d10@xeon-e3>
-	<20171219.132117.666798483874609477.davem@davemloft.net>
-	<20171219104159.30d9caaf@xeon-e3>
-	<344f0afc-b4aa-9f1a-15b8-166ba97d270b@intel.com>
-	<20171219114627.76dac732@xeon-e3>
-	<ddef3208-3cf5-faa2-7572-a561a6b35e2f@intel.com>
+From: weiping zhang <zwp10758@gmail.com>
+Subject: [PATCH v4 0/4] use put_device to cleanup resource
+Date: Wed, 20 Dec 2017 12:26:10 +0800
+Message-ID: <cover.1513700444.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <ddef3208-3cf5-faa2-7572-a561a6b35e2f@intel.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,48 +16,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: cohuck@redhat.com, mst@redhat.com, jasowang@redhat.com
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCAxOSBEZWMgMjAxNyAxNDozNzo1MCAtMDgwMAoiU2FtdWRyYWxhLCBTcmlkaGFyIiA8
-c3JpZGhhci5zYW11ZHJhbGFAaW50ZWwuY29tPiB3cm90ZToKCj4gT24gMTIvMTkvMjAxNyAxMTo0
-NiBBTSwgU3RlcGhlbiBIZW1taW5nZXIgd3JvdGU6Cj4gPiBPbiBUdWUsIDE5IERlYyAyMDE3IDEx
-OjQyOjMzIC0wODAwCj4gPiAiU2FtdWRyYWxhLCBTcmlkaGFyIiA8c3JpZGhhci5zYW11ZHJhbGFA
-aW50ZWwuY29tPiB3cm90ZToKPiA+ICAKPiA+PiBPbiAxMi8xOS8yMDE3IDEwOjQxIEFNLCBTdGVw
-aGVuIEhlbW1pbmdlciB3cm90ZTogIAo+ID4+PiBPbiBUdWUsIDE5IERlYyAyMDE3IDEzOjIxOjE3
-IC0wNTAwIChFU1QpCj4gPj4+IERhdmlkIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4gd3Jv
-dGU6Cj4gPj4+ICAgICAKPiA+Pj4+IEZyb206IFN0ZXBoZW4gSGVtbWluZ2VyIDxzdGVwaGVuQG5l
-dHdvcmtwbHVtYmVyLm9yZz4KPiA+Pj4+IERhdGU6IFR1ZSwgMTkgRGVjIDIwMTcgMDk6NTU6NDgg
-LTA4MDAKPiA+Pj4+ICAgICAKPiA+Pj4+PiBjb3VsZCBiZSAxMG1zLCBqdXN0IGVub3VnaCB0byBs
-ZXQgdWRldiBkbyBpdHMgcmVuYW1pbmcgIAo+ID4+Pj4gUGxlYXNlLCBtb3ZlIHRvIHNvbWUga2lu
-ZCBvZiBub3RpZmljYXRpb24gb3IgZXZlbnQgYmFzZWQgaGFuZGxpbmcgb2YKPiA+Pj4+IHRoaXMg
-cHJvYmxlbS4KPiA+Pj4+Cj4gPj4+PiBObyBkZWxheSBpcyBzYWZlLCB3aGF0IGlmIHVzZXJzcGFj
-ZSBnZXRzIHN3YXBwZWQgb3V0IG9yIHdoYXRldmVyCj4gPj4+PiBlbHNlIG1pZ2h0IG1ha2UgdXNl
-cnNwYWNlIHN0YWxsIHVuZXhwZWN0ZWRseT8KPiA+Pj4+ICAgICAKPiA+Pj4gVGhlIHBsYW4gaXMg
-dG8gcmVtb3ZlIHRoZSBkZWxheSBhbmQgZG8gdGhlIG5hbWluZyBpbiB0aGUga2VybmVsLgo+ID4+
-PiBUaGlzIHdhcyBzdWdnZXN0ZWQgYnkgTGVubmFydCBzaW5jZSB1ZGV2IGlzIG9ubHkgZG9pbmcg
-bmFtaW5nIHBvbGljeQo+ID4+PiBiZWNhdXNlIGtlcm5lbCBuYW1lcyB3ZXJlIG5vdCByZXBlYXRh
-YmxlLgo+ID4+Pgo+ID4+PiBUaGlzIG1ha2VzIHRoZSBWRiBzaG93IHVwIGFzICJldGhOX3ZmIiBv
-biBIeXBlci1WIHdoaWNoIGlzIHVzZXIgZnJpZW5kbHkuCj4gPj4+Cj4gPj4+IFBhdGNoIGlzIHBl
-bmRpbmcuICAKPiA+PiBEbyB3ZSByZWFsbHkgbmVlZCB0byBkZWxheSB0aGUgc2V0dXAgdW50aWwg
-dGhlIG5hbWUgaXMgY2hhbmdlZD8KPiA+PiBDYW4ndCB3ZSBjYWxsIGRldl9zZXRfbXR1KCkgYW5k
-IGRldl9vcGVuKCkgdW50aWwgZGV2X2NoYW5nZV9uYW1lKCkgaXMgZG9uZT8KPiA+Pgo+ID4+IFRo
-YW5rcwo+ID4+IFNyaWRoYXIgIAo+ID4gWW91IGNhbiBjYWxsIGRldl9zZXRfbXR1LCBidXQgd2hl
-biBkZXZfb3BlbiBpcyBkb25lIHRoZSBkZXZpY2UgbmFtZQo+ID4gY2FuIG5vdCBiZSBjaGFuZ2Vk
-IGJ5IHVzZXJzcGFjZS4gIAo+IEkgZGlkIGEgcXVpY2sgdGVzdCB0byByZW1vdmUgdGhlIGRlbGF5
-IGFuZCBhbHNvIHRoZSBkZXZfb3BlbigpIGNhbGwgYW5kIAo+IGkgZG9uJ3Qgc2VlCj4gYW55IGlz
-c3VlcyB3aXRoIHZpcnRpbyB0YWtpbmcgb3ZlciB0aGUgVkYgZGF0YXBhdGguCj4gT25seSB0aGUg
-bmV0ZGV2X2luZm8oKSBtZXNzYWdlcyBtYXkgc2hvdyBvbGQgZGV2aWNlIG5hbWUuCj4gCj4gQW55
-IHNwZWNpZmljIHNjZW5hcmlvIHdoZXJlIHdlIG5lZWQgdG8gZXhwbGljaXRseSBjYWxswqAgVkYn
-cyBkZXZfb3BlbigpIAo+IGluIHRoZSBWRiBzZXR1cCBwcm9jZXNzPwo+IEkgdHJpZWQgaTQwZXZm
-IGRyaXZlciBsb2FkZWQgYWZ0ZXIgdmlydGlvX25ldMKgIEFORMKgIHZpcnRpb19uZXQgbG9hZGlu
-ZyAKPiBhZnRlciBpNDBldmYuCj4gCj4gVGhhbmtzCj4gU3JpZGhhcgoKSXQgaGFwcGVucyB3aXRo
-IGhvdHBsdWcuIEl0IGlzIHBvc3NpYmxlIG9uIEh5cGVyLVYgdG8gaG90cGx1ZyBTUi1JT1Ygb24K
-YW5kIG9mZiB3aGlsZSBndWVzdCBpcyBydW5uaW5nLiBJZiBTUi1JT1YgaXMgZGlzYWJsZWQgaW4g
-aG9zdCB0aGVuIHRoZQpWRiBkZXZpY2UgaXMgcmVtb3ZlZCAoaG90cGx1ZykgYW5kIHRoZSBpbnZl
-cnNlLiBJZiB0aGUgbWFzdGVyIGRldmljZSBpcwp1cCB0aGVuIHRoZSBWRiBkZXZpY2Ugc2hvdWxk
-IGJlIGJyb3VnaHQgdXAgYnkgdGhlIG1hc3RlciBkZXZpY2UuCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi,
+
+The main change is split device_register into 2 sperate calls:
+device_initalize() and device_add, and then the caller can use
+put_device safety when fail to register_virtio_device.
+
+v3->v4:
+ * split device_register into device_initialize and devicea_add that
+   the caller can always use put_device when fail to register virtio
+   device.
+
+v2->v3:
+ * virtio: add new helper do get device's status then determine use
+   put_device or kfree.
+
+v1->v2:
+ * virtio_pci: add comments in commit message for why using put_device
+ * virtio_vop: also use put_device int _vop_remove_device
+weiping zhang (4):
+  virtio: split device_register into device_initialize and device_add
+  virtio_pci: don't kfree device on register failure
+  virtio_vop: don't kfree device on register failure
+  virtio_remoteproc: don't kfree device on register failure
+
+ drivers/misc/mic/vop/vop_main.c        | 20 +++++++++++++-------
+ drivers/remoteproc/remoteproc_virtio.c | 13 +++++++++++--
+ drivers/virtio/virtio.c                | 18 +++++++++++++++---
+ drivers/virtio/virtio_pci_common.c     |  8 ++++++--
+ 4 files changed, 45 insertions(+), 14 deletions(-)
+
+-- 
+2.9.4
