@@ -1,18 +1,22 @@
 From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Subject: Re: [RFC PATCH] virtio_net: Extend virtio to use VF datapath when
 	available
-Date: Tue, 19 Dec 2017 11:42:33 -0800
-Message-ID: <344f0afc-b4aa-9f1a-15b8-166ba97d270b__46570.6074414358$1515606411$gmane$org@intel.com>
+Date: Tue, 19 Dec 2017 16:26:02 -0800
+Message-ID: <ec3471ba-7255-d7a2-b79a-f5590cd26b59__36755.914372816$1515606447$gmane$org@intel.com>
 References: <20171219174259-mutt-send-email-mst@kernel.org>
 	<ca709329-a47a-2e76-b1fc-38fc665d7c0b@intel.com>
 	<20171219095548.61d70d10@xeon-e3>
 	<20171219.132117.666798483874609477.davem@davemloft.net>
 	<20171219104159.30d9caaf@xeon-e3>
+	<344f0afc-b4aa-9f1a-15b8-166ba97d270b@intel.com>
+	<20171219114627.76dac732@xeon-e3>
+	<ddef3208-3cf5-faa2-7572-a561a6b35e2f@intel.com>
+	<20171219145345.3c261273@xeon-e3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171219104159.30d9caaf@xeon-e3>
+In-Reply-To: <20171219145345.3c261273@xeon-e3>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,35 +27,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>, David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, alexander.duyck@gmail.com, mst@redhat.com
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: mst@redhat.com, netdev@vger.kernel.org, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 12/19/2017 10:41 AM, Stephen Hemminger wrote:
-> On Tue, 19 Dec 2017 13:21:17 -0500 (EST)
-> David Miller <davem@davemloft.net> wrote:
->
->> From: Stephen Hemminger <stephen@networkplumber.org>
->> Date: Tue, 19 Dec 2017 09:55:48 -0800
->>
->>> could be 10ms, just enough to let udev do its renaming
->> Please, move to some kind of notification or event based handling of
->> this problem.
->>
->> No delay is safe, what if userspace gets swapped out or whatever
->> else might make userspace stall unexpectedly?
->>
-> The plan is to remove the delay and do the naming in the kernel.
-> This was suggested by Lennart since udev is only doing naming policy
-> because kernel names were not repeatable.
->
-> This makes the VF show up as "ethN_vf" on Hyper-V which is user friendly.
->
-> Patch is pending.
-Do we really need to delay the setup until the name is changed?
-Can't we call dev_set_mtu() and dev_open() until dev_change_name() is done?
-
-Thanks
-Sridhar
+T24gMTIvMTkvMjAxNyAyOjUzIFBNLCBTdGVwaGVuIEhlbW1pbmdlciB3cm90ZToKPiBPbiBUdWUs
+IDE5IERlYyAyMDE3IDE0OjM3OjUwIC0wODAwCj4gIlNhbXVkcmFsYSwgU3JpZGhhciIgPHNyaWRo
+YXIuc2FtdWRyYWxhQGludGVsLmNvbT4gd3JvdGU6Cj4KPj4gT24gMTIvMTkvMjAxNyAxMTo0NiBB
+TSwgU3RlcGhlbiBIZW1taW5nZXIgd3JvdGU6Cj4+PiBPbiBUdWUsIDE5IERlYyAyMDE3IDExOjQy
+OjMzIC0wODAwCj4+PiAiU2FtdWRyYWxhLCBTcmlkaGFyIiA8c3JpZGhhci5zYW11ZHJhbGFAaW50
+ZWwuY29tPiB3cm90ZToKPj4+ICAgCj4+Pj4gT24gMTIvMTkvMjAxNyAxMDo0MSBBTSwgU3RlcGhl
+biBIZW1taW5nZXIgd3JvdGU6Cj4+Pj4+IE9uIFR1ZSwgMTkgRGVjIDIwMTcgMTM6MjE6MTcgLTA1
+MDAgKEVTVCkKPj4+Pj4gRGF2aWQgTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0PiB3cm90ZToK
+Pj4+Pj4gICAgICAKPj4+Pj4+IEZyb206IFN0ZXBoZW4gSGVtbWluZ2VyIDxzdGVwaGVuQG5ldHdv
+cmtwbHVtYmVyLm9yZz4KPj4+Pj4+IERhdGU6IFR1ZSwgMTkgRGVjIDIwMTcgMDk6NTU6NDggLTA4
+MDAKPj4+Pj4+ICAgICAgCj4+Pj4+Pj4gY291bGQgYmUgMTBtcywganVzdCBlbm91Z2ggdG8gbGV0
+IHVkZXYgZG8gaXRzIHJlbmFtaW5nCj4+Pj4+PiBQbGVhc2UsIG1vdmUgdG8gc29tZSBraW5kIG9m
+IG5vdGlmaWNhdGlvbiBvciBldmVudCBiYXNlZCBoYW5kbGluZyBvZgo+Pj4+Pj4gdGhpcyBwcm9i
+bGVtLgo+Pj4+Pj4KPj4+Pj4+IE5vIGRlbGF5IGlzIHNhZmUsIHdoYXQgaWYgdXNlcnNwYWNlIGdl
+dHMgc3dhcHBlZCBvdXQgb3Igd2hhdGV2ZXIKPj4+Pj4+IGVsc2UgbWlnaHQgbWFrZSB1c2Vyc3Bh
+Y2Ugc3RhbGwgdW5leHBlY3RlZGx5Pwo+Pj4+Pj4gICAgICAKPj4+Pj4gVGhlIHBsYW4gaXMgdG8g
+cmVtb3ZlIHRoZSBkZWxheSBhbmQgZG8gdGhlIG5hbWluZyBpbiB0aGUga2VybmVsLgo+Pj4+PiBU
+aGlzIHdhcyBzdWdnZXN0ZWQgYnkgTGVubmFydCBzaW5jZSB1ZGV2IGlzIG9ubHkgZG9pbmcgbmFt
+aW5nIHBvbGljeQo+Pj4+PiBiZWNhdXNlIGtlcm5lbCBuYW1lcyB3ZXJlIG5vdCByZXBlYXRhYmxl
+Lgo+Pj4+Pgo+Pj4+PiBUaGlzIG1ha2VzIHRoZSBWRiBzaG93IHVwIGFzICJldGhOX3ZmIiBvbiBI
+eXBlci1WIHdoaWNoIGlzIHVzZXIgZnJpZW5kbHkuCj4+Pj4+Cj4+Pj4+IFBhdGNoIGlzIHBlbmRp
+bmcuCj4+Pj4gRG8gd2UgcmVhbGx5IG5lZWQgdG8gZGVsYXkgdGhlIHNldHVwIHVudGlsIHRoZSBu
+YW1lIGlzIGNoYW5nZWQ/Cj4+Pj4gQ2FuJ3Qgd2UgY2FsbCBkZXZfc2V0X210dSgpIGFuZCBkZXZf
+b3BlbigpIHVudGlsIGRldl9jaGFuZ2VfbmFtZSgpIGlzIGRvbmU/Cj4+Pj4KPj4+PiBUaGFua3MK
+Pj4+PiBTcmlkaGFyCj4+PiBZb3UgY2FuIGNhbGwgZGV2X3NldF9tdHUsIGJ1dCB3aGVuIGRldl9v
+cGVuIGlzIGRvbmUgdGhlIGRldmljZSBuYW1lCj4+PiBjYW4gbm90IGJlIGNoYW5nZWQgYnkgdXNl
+cnNwYWNlLgo+PiBJIGRpZCBhIHF1aWNrIHRlc3QgdG8gcmVtb3ZlIHRoZSBkZWxheSBhbmQgYWxz
+byB0aGUgZGV2X29wZW4oKSBjYWxsIGFuZAo+PiBpIGRvbid0IHNlZQo+PiBhbnkgaXNzdWVzIHdp
+dGggdmlydGlvIHRha2luZyBvdmVyIHRoZSBWRiBkYXRhcGF0aC4KPj4gT25seSB0aGUgbmV0ZGV2
+X2luZm8oKSBtZXNzYWdlcyBtYXkgc2hvdyBvbGQgZGV2aWNlIG5hbWUuCj4+Cj4+IEFueSBzcGVj
+aWZpYyBzY2VuYXJpbyB3aGVyZSB3ZSBuZWVkIHRvIGV4cGxpY2l0bHkgY2FsbMKgIFZGJ3MgZGV2
+X29wZW4oKQo+PiBpbiB0aGUgVkYgc2V0dXAgcHJvY2Vzcz8KPj4gSSB0cmllZCBpNDBldmYgZHJp
+dmVyIGxvYWRlZCBhZnRlciB2aXJ0aW9fbmV0wqAgQU5EwqAgdmlydGlvX25ldCBsb2FkaW5nCj4+
+IGFmdGVyIGk0MGV2Zi4KPj4KPiBJdCBoYXBwZW5zIHdpdGggaG90cGx1Zy4gSXQgaXMgcG9zc2li
+bGUgb24gSHlwZXItViB0byBob3RwbHVnIFNSLUlPViBvbgo+IGFuZCBvZmYgd2hpbGUgZ3Vlc3Qg
+aXMgcnVubmluZy4gSWYgU1ItSU9WIGlzIGRpc2FibGVkIGluIGhvc3QgdGhlbiB0aGUKPiBWRiBk
+ZXZpY2UgaXMgcmVtb3ZlZCAoaG90cGx1ZykgYW5kIHRoZSBpbnZlcnNlLiBJZiB0aGUgbWFzdGVy
+IGRldmljZSBpcwo+IHVwIHRoZW4gdGhlIFZGIGRldmljZSBzaG91bGQgYmUgYnJvdWdodCB1cCBi
+eSB0aGUgbWFzdGVyIGRldmljZS4KCkV2ZW4gd2l0aCBLVk0sIHdlIG5lZWQgdG8gaG90IHVucGx1
+ZyBTUi1JT1YgZGV2aWNlIG9uIHRoZSBzb3VyY2UgaG9zdCAKYW5kwqAgcGx1ZyBpdApiYWNrIG9u
+IHRoZSBkZXN0aW5hdGlvbiBob3N0IHRvIGVuYWJsZSBsaXZlIG1pZ3JhdGlvbi4gSXQgYWxsIHdv
+cmtzIGZvciAKbWUgZXZlbiB3aXRob3V0CnRoZSBkZXZfb3BlbigpIG9mIHRoZSBsb3dlciBkZXZp
+Y2XCoCBmcm9tIHRoZSBWRiBzZXR1cCByb3V0aW5lLiBXaWxsIHNlbmQgCm91dCBhIHYyIHZlcnNp
+b24Kb2YgdGhpcyBwYXRjaCB3aXRob3V0IHRoZSBkZWxheWVkIFZGIHNldHVwIGFmdGVyIHNvbWUg
+bW9yZSB0ZXN0aW5nIG5leHQgCndlZWsuCgpUaGFua3MKU3JpZGhhcgoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
