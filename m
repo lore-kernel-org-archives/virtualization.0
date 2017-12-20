@@ -1,7 +1,8 @@
 From: weiping zhang <zwp10758@gmail.com>
-Subject: [PATCH v4 2/4] virtio_pci: don't kfree device on register failure
-Date: Wed, 20 Dec 2017 12:26:43 +0800
-Message-ID: <dbd2c99ac7063a7905205c845c89b561537e1581.1513700444.git.zhangweiping@didichuxing.com>
+Subject: [PATCH v4 4/4] virtio_remoteproc: don't kfree device on register
+	failure
+Date: Wed, 20 Dec 2017 12:27:33 +0800
+Message-ID: <443858dfab89720b846aa9c656679ff6ad20d0af.1513700444.git.zhangweiping@didichuxing.com>
 References: <cover.1513700444.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,50 +23,53 @@ To: cohuck@redhat.com, mst@redhat.com, jasowang@redhat.com
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-As mentioned at drivers/base/core.c:
-/*
- * NOTE: _Never_ directly free @dev after calling this function, even
- * if it returned an error! Always use put_device() to give up the
- * reference initialized in this function instead.
- */
-so we don't free vp_dev until vp_dev->vdev.dev.release be called.
+rproc_virtio_dev_release will be called iff virtio_device.dev's
+refer count became to 0. Here we should check if we call device_register
+or not, if called, put vdev.dev, and then rproc->dev's cleanup will be
+done in rproc_virtio_dev_release, otherwise we do cleanup directly.
 
 Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
 ---
- drivers/virtio/virtio_pci_common.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/remoteproc/remoteproc_virtio.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 1c4797e..48d4d1c 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -513,7 +513,7 @@ static void virtio_pci_release_dev(struct device *_d)
- static int virtio_pci_probe(struct pci_dev *pci_dev,
- 			    const struct pci_device_id *id)
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index 2946348..1073ea3 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -304,7 +304,7 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
  {
--	struct virtio_pci_device *vp_dev;
-+	struct virtio_pci_device *vp_dev, *reg_dev = NULL;
- 	int rc;
+ 	struct rproc *rproc = rvdev->rproc;
+ 	struct device *dev = &rproc->dev;
+-	struct virtio_device *vdev = &rvdev->vdev;
++	struct virtio_device *vdev = &rvdev->vdev, *reg_dev = NULL;
+ 	int ret;
  
- 	/* allocate our structure and fill it out */
-@@ -551,6 +551,7 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- 	pci_set_master(pci_dev);
+ 	vdev->id.device	= id,
+@@ -326,15 +326,24 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
+ 	kref_get(&rvdev->refcount);
  
- 	rc = register_virtio_device(&vp_dev->vdev);
-+	reg_dev = vp_dev;
- 	if (rc)
- 		goto err_register;
+ 	ret = register_virtio_device(vdev);
++	reg_dev = vdev;
+ 	if (ret) {
+-		put_device(&rproc->dev);
+ 		dev_err(dev, "failed to register vdev: %d\n", ret);
+ 		goto out;
+ 	}
  
-@@ -564,7 +565,10 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- err_probe:
- 	pci_disable_device(pci_dev);
- err_enable_device:
--	kfree(vp_dev);
+ 	dev_info(dev, "registered %s (type %d)\n", dev_name(&vdev->dev), id);
+ 
++	return 0;
++
+ out:
 +	if (reg_dev)
-+		put_device(&vp_dev->vdev.dev);
-+	else
-+		kfree(vp_dev);
- 	return rc;
++		put_device(&vdev->dev);
++	else {
++		kref_put(&rvdev->refcount, rproc_vdev_release);
++		put_device(&rproc->dev);
++	}
++
+ 	return ret;
  }
  
 -- 
