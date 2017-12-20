@@ -1,14 +1,14 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v4 2/4] virtio_pci: don't kfree device on register failure
-Date: Wed, 20 Dec 2017 16:55:34 +0100
-Message-ID: <20171220165534.605df5de.cohuck@redhat.com>
+Subject: Re: [PATCH v4 3/4] virtio_vop: don't kfree device on register failure
+Date: Wed, 20 Dec 2017 16:57:21 +0100
+Message-ID: <20171220165721.60d0d71c.cohuck@redhat.com>
 References: <cover.1513700444.git.zhangweiping@didichuxing.com>
-	<dbd2c99ac7063a7905205c845c89b561537e1581.1513700444.git.zhangweiping@didichuxing.com>
+	<3602a1fa10a90d3d52ad7fa26f29e36b0127d970.1513700444.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <dbd2c99ac7063a7905205c845c89b561537e1581.1513700444.git.zhangweiping@didichuxing.com>
+In-Reply-To: <3602a1fa10a90d3d52ad7fa26f29e36b0127d970.1513700444.git.zhangweiping@didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,7 +22,7 @@ To: weiping zhang <zwp10758@gmail.com>
 Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 20 Dec 2017 12:26:43 +0800
+On Wed, 20 Dec 2017 12:27:04 +0800
 weiping zhang <zwp10758@gmail.com> wrote:
 
 > As mentioned at drivers/base/core.c:
@@ -31,49 +31,74 @@ weiping zhang <zwp10758@gmail.com> wrote:
 >  * if it returned an error! Always use put_device() to give up the
 >  * reference initialized in this function instead.
 >  */
-> so we don't free vp_dev until vp_dev->vdev.dev.release be called.
+> so we don't free vdev until vdev->vdev.dev.release be called.
 > 
 > Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
 > ---
->  drivers/virtio/virtio_pci_common.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
+>  drivers/misc/mic/vop/vop_main.c | 20 +++++++++++++-------
+>  1 file changed, 13 insertions(+), 7 deletions(-)
 > 
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index 1c4797e..48d4d1c 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -513,7 +513,7 @@ static void virtio_pci_release_dev(struct device *_d)
->  static int virtio_pci_probe(struct pci_dev *pci_dev,
->  			    const struct pci_device_id *id)
+> diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
+> index a341938..3633202 100644
+> --- a/drivers/misc/mic/vop/vop_main.c
+> +++ b/drivers/misc/mic/vop/vop_main.c
+> @@ -452,10 +452,12 @@ static irqreturn_t vop_virtio_intr_handler(int irq, void *data)
+>  
+>  static void vop_virtio_release_dev(struct device *_d)
 >  {
-> -	struct virtio_pci_device *vp_dev;
-> +	struct virtio_pci_device *vp_dev, *reg_dev = NULL;
-
-Not sure if I would have used a pointer for this purpose, but as that
-is what Michael had proposed...
-
->  	int rc;
->  
->  	/* allocate our structure and fill it out */
-> @@ -551,6 +551,7 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
->  	pci_set_master(pci_dev);
->  
->  	rc = register_virtio_device(&vp_dev->vdev);
-> +	reg_dev = vp_dev;
->  	if (rc)
->  		goto err_register;
->  
-> @@ -564,7 +565,10 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
->  err_probe:
->  	pci_disable_device(pci_dev);
->  err_enable_device:
-> -	kfree(vp_dev);
-> +	if (reg_dev)
-> +		put_device(&vp_dev->vdev.dev);
-> +	else
-> +		kfree(vp_dev);
->  	return rc;
+> -	/*
+> -	 * No need for a release method similar to virtio PCI.
+> -	 * Provide an empty one to avoid getting a warning from core.
+> -	 */
+> +	struct virtio_device *vdev =
+> +			container_of(_d, struct virtio_device, dev);
+> +	struct _vop_vdev *vop_vdev =
+> +			container_of(vdev, struct _vop_vdev, vdev);
+> +
+> +	kfree(vop_vdev);
 >  }
 >  
+>  /*
+> @@ -466,7 +468,7 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
+>  			   unsigned int offset, struct vop_device *vpdev,
+>  			   int dnode)
+>  {
+> -	struct _vop_vdev *vdev;
+> +	struct _vop_vdev *vdev, *reg_dev = NULL;
+
+Similarly, not a fan of that pointer variable, but it's fine.
+
+>  	int ret;
+>  	u8 type = ioread8(&d->type);
+>  
+> @@ -497,6 +499,7 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
+>  	vdev->c2h_vdev_db = ioread8(&vdev->dc->c2h_vdev_db);
+>  
+>  	ret = register_virtio_device(&vdev->vdev);
+> +	reg_dev = vdev;
+>  	if (ret) {
+>  		dev_err(_vop_dev(vdev),
+>  			"Failed to register vop device %u type %u\n",
+> @@ -512,7 +515,10 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
+>  free_irq:
+>  	vpdev->hw_ops->free_irq(vpdev, vdev->virtio_cookie, vdev);
+>  kfree:
+> -	kfree(vdev);
+> +	if (reg_dev)
+> +		put_device(&vdev->vdev.dev);
+> +	else
+> +		kfree(vdev);
+>  	return ret;
+>  }
+>  
+> @@ -568,7 +574,7 @@ static int _vop_remove_device(struct mic_device_desc __iomem *d,
+>  		iowrite8(-1, &dc->h2c_vdev_db);
+>  		if (status & VIRTIO_CONFIG_S_DRIVER_OK)
+>  			wait_for_completion(&vdev->reset_done);
+> -		kfree(vdev);
+> +		put_device(&vdev->vdev.dev);
+>  		iowrite8(1, &dc->guest_ack);
+>  		dev_dbg(&vpdev->dev, "%s %d guest_ack %d\n",
+>  			__func__, __LINE__, ioread8(&dc->guest_ack));
 
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
