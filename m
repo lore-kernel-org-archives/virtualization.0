@@ -1,14 +1,18 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v20 0/7] Virtio-balloon Enhancement
-Date: Wed, 20 Dec 2017 18:34:36 +0800
-Message-ID: <5A3A3CBC.4030202__27574.0129560747$1513765859$gmane$org@intel.com>
-References: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
-	<201712192305.AAE21882.MtQHJOFFSFVOLO@I-love.SAKURA.ne.jp>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+Subject: Re: [RFC PATCH] virtio_net: Extend virtio to use VF datapath when
+	available
+Date: Wed, 20 Dec 2017 11:51:26 +0100
+Message-ID: <87efnplljl.fsf__8495.04382717914$1513767001$gmane$org@vitty.brq.redhat.com>
+References: <1513644036-45230-1-git-send-email-sridhar.samudrala@intel.com>
+	<20171219174259-mutt-send-email-mst@kernel.org>
+	<ca709329-a47a-2e76-b1fc-38fc665d7c0b@intel.com>
+	<20171219.132017.1652469595167726292.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <201712192305.AAE21882.MtQHJOFFSFVOLO@I-love.SAKURA.ne.jp>
+In-Reply-To: <20171219.132017.1652469595167726292.davem@davemloft.net> (David
+	Miller's message of "Tue, 19 Dec 2017 13:20:17 -0500 (EST)")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,54 +22,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, willy@infradead.org, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, quan.xu0@gmail.com, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: David Miller <davem@davemloft.net>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>, mst@redhat.com, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/19/2017 10:05 PM, Tetsuo Handa wrote:
-> Wei Wang wrote:
->> ChangeLog:
->> v19->v20:
->> 1) patch 1: xbitmap
->> 	- add __rcu to "void **slot";
->> 	- remove the exceptional path.
->> 2) patch 3: xbitmap
->> 	- DeveloperNotes: add an item to comment that the current bit range
->> 	  related APIs operating on extremely large ranges (e.g.
->>            [0, ULONG_MAX)) will take too long time. This can be optimized in
->> 	  the future.
->> 	- remove the exceptional path;
->> 	- remove xb_preload_and_set();
->> 	- reimplement xb_clear_bit_range to make its usage close to
->> 	  bitmap_clear;
->> 	- rename xb_find_next_set_bit to xb_find_set, and re-implement it
->> 	  in a style close to find_next_bit;
->> 	- rename xb_find_next_zero_bit to xb_find_clear, and re-implement
->> 	  it in a stytle close to find_next_zero_bit;
->> 	- separate the implementation of xb_find_set and xb_find_clear for
->> 	  the convenience of future updates.
-> Removing exceptional path made this patch easier to read.
-> But what I meant is
->
->    Can you eliminate exception path and fold all xbitmap patches into one, and
->    post only one xbitmap patch without virtio-balloon changes?
->
-> .
->
-> I still think we don't need xb_preload()/xb_preload_end().
-
-Why would you think preload is not needed?
-
-The bitmap is allocated via preload "bitmap = 
-this_cpu_cmpxchg(ida_bitmap, NULL, bitmap);", this allocated bitmap 
-would be used in xb_set_bit().
-
-
-> I think xb_find_set() has a bug in !node path.
-
-I think we can probably remove the "!node" path for now. It would be 
-good to get the fundamental part in first, and leave optimization to 
-come as separate patches with corresponding test cases in the future.
-
-Best,
-Wei
+RGF2aWQgTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0PiB3cml0ZXM6Cgo+IEZyb206ICJTYW11
+ZHJhbGEsIFNyaWRoYXIiIDxzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5jb20+Cj4gRGF0ZTogVHVl
+LCAxOSBEZWMgMjAxNyAwOTo0MTozOSAtMDgwMAo+Cj4+IFRoaXMgaXMgYmFzZWQgb24gbmV0dnNj
+IGltcGxlbWVudGF0aW9uIGFuZCBoZXJlIGlzIHRoZSBjb21taXQgdGhhdAo+PiBhZGRlZCB0aGlz
+IGRlbGF5LsKgIE5vdCBzdXJlIGlmIHRoaXMgbmVlZHMgdG8gYmUgMTAwbXMuCj4+IAo+PiBjb21t
+aXQgNjEyM2M2Njg1NGMxNzRlNDk4MmY5ODE5NTEwMGMxZDk5MGY5ZTVlNgo+PiBBdXRob3I6IHN0
+ZXBoZW4gaGVtbWluZ2VyIDxzdGVwaGVuQG5ldHdvcmtwbHVtYmVyLm9yZz4KPj4gRGF0ZTrCoMKg
+IFdlZCBBdWcgOSAxNzo0NjowMyAyMDE3IC0wNzAwCj4+IAo+PiDCoMKgwqAgbmV0dnNjOiBkZWxh
+eSBzZXR1cCBvZiBWRiBkZXZpY2UKPj4gCj4+IMKgwqDCoCBXaGVuIFZGIGRldmljZSBpcyBkaXNj
+b3ZlcmVkLCBkZWxheSBicmluZyBpdCBhdXRvbWF0aWNhbGx5IHVwIGluCj4+IMKgwqDCoCBvcmRl
+ciB0byBhbGxvdyB1c2Vyc3BhY2UgdG8gc29tZSBzaW1wbGUgY2hhbmdlcyAobGlrZSByZW5hbWlu
+ZykuCj4KPiBUaGlzIGlzIGtpbmQgb2YgYm9ndXMsIEkgc2hvdWxkIGhhdmUgY2FsbGVkIHRoaXMg
+b3V0IHdoZW4gdGhlIHBhdGNoCj4gd2FzIHBvc3RlZC4KPgo+IEFueSBkZWxheSBpcyB3cm9uZywg
+dGhlcmUgbmVlZHMgdG8gYmUgdGlnaHQgc3luY2hyb25pemF0aW9uIGlmIGEKPiB1c2Vyc3BhY2Ug
+b3BlcmF0aW9uIG11c3Qgb2NjdXIgYmVmb3JlIHByb2NlZWRpbmcuICBJZiBzb21ldGhpbmcKPiBo
+YXBwZW5zIGFuZCB1c2Vyc3BhY2UgaXMgZGVsYXllZCwgdGhpcyB3aG9sZSB0aGluZyBkb2Vzbid0
+IHdvcmsuCgpIeXBlci1WJ3MgbmV0dnNjIGRvZXMgZXhhY3RseSB0aGUgc2FtZSBhbmQgd2hlbiB0
+aGlzIHdhcyBmaXJzdCBkaXNjdXNzZWQKSSBzdWdnZXN0ZWQgdG8gYWxsb3cgcmVuYW1pbmcgb2Yg
+SUZGX1VQIGludGVyZmFjZXM6Cmh0dHBzOi8vcGF0Y2h3b3JrLmtlcm5lbC5vcmcvcGF0Y2gvOTg5
+MDI5OS8KCmJ1dCBhcyBmYXIgYXMgSSB1bmRlcnN0YW5kIGl0IHdhcyBkZWNpZGVkIHRoYXQgaXQn
+cyB0b28gcmlza3kgYW5kIG5vdAp3b3J0aCBpdC4gTWF5YmUgd2UgbmVlZCB0byByZWNvbnNpZGVy
+IHRoaXMsIGF0IGxlYXN0IGZvciBzbGF2ZQppbnRlcmZhY2VzIChhcyBzY3JpcHRzIGFyZSBub3Qg
+c3VwcG9zZWQgdG8gb3BlcmF0ZSBvbiB0aGVtKS4KCi0tIAogIFZpdGFseQpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
+IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
+aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
