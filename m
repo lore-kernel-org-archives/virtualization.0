@@ -1,8 +1,7 @@
 From: weiping zhang <zwp10758@gmail.com>
-Subject: [PATCH v4 1/4] virtio: split device_register into device_initialize
-	and device_add
-Date: Wed, 20 Dec 2017 12:26:25 +0800
-Message-ID: <95ad7cb52d9e65b27f09a23c7f330128388502fa.1513700444.git.zhangweiping@didichuxing.com>
+Subject: [PATCH v4 3/4] virtio_vop: don't kfree device on register failure
+Date: Wed, 20 Dec 2017 12:27:04 +0800
+Message-ID: <3602a1fa10a90d3d52ad7fa26f29e36b0127d970.1513700444.git.zhangweiping@didichuxing.com>
 References: <cover.1513700444.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,57 +22,77 @@ To: cohuck@redhat.com, mst@redhat.com, jasowang@redhat.com
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-In order to make caller do a simple cleanup, we split device_register
-into device_initialize and device_add. device_initialize always sucess,
-the caller can always use put_device when fail to register virtio_device
-no matter fail at ida_simple_get or at device_add.
+As mentioned at drivers/base/core.c:
+/*
+ * NOTE: _Never_ directly free @dev after calling this function, even
+ * if it returned an error! Always use put_device() to give up the
+ * reference initialized in this function instead.
+ */
+so we don't free vdev until vdev->vdev.dev.release be called.
 
 Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
-Suggested-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/virtio/virtio.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/misc/mic/vop/vop_main.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index bf7ff39..3c9f211 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -303,11 +303,21 @@ void unregister_virtio_driver(struct virtio_driver *driver)
- }
- EXPORT_SYMBOL_GPL(unregister_virtio_driver);
+diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
+index a341938..3633202 100644
+--- a/drivers/misc/mic/vop/vop_main.c
++++ b/drivers/misc/mic/vop/vop_main.c
+@@ -452,10 +452,12 @@ static irqreturn_t vop_virtio_intr_handler(int irq, void *data)
  
-+/**
-+ * register_virtio_device - register virtio device
-+ * @dev        : virtio device interested
-+ *
-+ * If an error occurs, the caller must use put_device, instead of kfree, because
-+ * device_initialize and device_add will increase @dev->dev's reference count.
-+ *
-+ * Returns: 0 on suceess, -error on failure
-+ */
- int register_virtio_device(struct virtio_device *dev)
+ static void vop_virtio_release_dev(struct device *_d)
  {
- 	int err;
+-	/*
+-	 * No need for a release method similar to virtio PCI.
+-	 * Provide an empty one to avoid getting a warning from core.
+-	 */
++	struct virtio_device *vdev =
++			container_of(_d, struct virtio_device, dev);
++	struct _vop_vdev *vop_vdev =
++			container_of(vdev, struct _vop_vdev, vdev);
++
++	kfree(vop_vdev);
+ }
  
- 	dev->dev.bus = &virtio_bus;
-+	device_initialize(&dev->dev);
+ /*
+@@ -466,7 +468,7 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
+ 			   unsigned int offset, struct vop_device *vpdev,
+ 			   int dnode)
+ {
+-	struct _vop_vdev *vdev;
++	struct _vop_vdev *vdev, *reg_dev = NULL;
+ 	int ret;
+ 	u8 type = ioread8(&d->type);
  
- 	/* Assign a unique device index and hence name. */
- 	err = ida_simple_get(&virtio_index_ida, 0, 0, GFP_KERNEL);
-@@ -330,9 +340,11 @@ int register_virtio_device(struct virtio_device *dev)
+@@ -497,6 +499,7 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
+ 	vdev->c2h_vdev_db = ioread8(&vdev->dc->c2h_vdev_db);
  
- 	INIT_LIST_HEAD(&dev->vqs);
+ 	ret = register_virtio_device(&vdev->vdev);
++	reg_dev = vdev;
+ 	if (ret) {
+ 		dev_err(_vop_dev(vdev),
+ 			"Failed to register vop device %u type %u\n",
+@@ -512,7 +515,10 @@ static int _vop_add_device(struct mic_device_desc __iomem *d,
+ free_irq:
+ 	vpdev->hw_ops->free_irq(vpdev, vdev->virtio_cookie, vdev);
+ kfree:
+-	kfree(vdev);
++	if (reg_dev)
++		put_device(&vdev->vdev.dev);
++	else
++		kfree(vdev);
+ 	return ret;
+ }
  
--	/* device_register() causes the bus infrastructure to look for a
--	 * matching driver. */
--	err = device_register(&dev->dev);
-+	/*
-+	 * device_add() causes the bus infrastructure to look for a matching
-+	 * driver.
-+	 */
-+	err = device_add(&dev->dev);
- 	if (err)
- 		ida_simple_remove(&virtio_index_ida, dev->index);
- out:
+@@ -568,7 +574,7 @@ static int _vop_remove_device(struct mic_device_desc __iomem *d,
+ 		iowrite8(-1, &dc->h2c_vdev_db);
+ 		if (status & VIRTIO_CONFIG_S_DRIVER_OK)
+ 			wait_for_completion(&vdev->reset_done);
+-		kfree(vdev);
++		put_device(&vdev->vdev.dev);
+ 		iowrite8(1, &dc->guest_ack);
+ 		dev_dbg(&vpdev->dev, "%s %d guest_ack %d\n",
+ 			__func__, __LINE__, ioread8(&dc->guest_ack));
 -- 
 2.9.4
