@@ -1,16 +1,15 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v20 0/7] Virtio-balloon Enhancement
-Date: Wed, 20 Dec 2017 04:25:47 -0800
-Message-ID: <20171220122547.GA1654__43443.0195637562$1513772697$gmane$org@bombadil.infradead.org>
-References: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
-	<201712192305.AAE21882.MtQHJOFFSFVOLO@I-love.SAKURA.ne.jp>
-	<5A3A3CBC.4030202@intel.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v4 1/4] virtio: split device_register into
+	device_initialize and device_add
+Date: Wed, 20 Dec 2017 16:53:16 +0100
+Message-ID: <20171220165316.5545b24c.cohuck@redhat.com>
+References: <cover.1513700444.git.zhangweiping@didichuxing.com>
+	<95ad7cb52d9e65b27f09a23c7f330128388502fa.1513700444.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5A3A3CBC.4030202@intel.com>
+In-Reply-To: <95ad7cb52d9e65b27f09a23c7f330128388502fa.1513700444.git.zhangweiping@didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,24 +19,94 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, quan.xu0@gmail.com, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+To: weiping zhang <zwp10758@gmail.com>
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 20, 2017 at 06:34:36PM +0800, Wei Wang wrote:
-> On 12/19/2017 10:05 PM, Tetsuo Handa wrote:
-> > I think xb_find_set() has a bug in !node path.
+On Wed, 20 Dec 2017 12:26:25 +0800
+weiping zhang <zwp10758@gmail.com> wrote:
+
+[you used a different mail address in your From: than in your s-o-b:;
+same for the other patches]
+
+> In order to make caller do a simple cleanup, we split device_register
+> into device_initialize and device_add. device_initialize always sucess,
+
+s/success/succeeds/
+
+> the caller can always use put_device when fail to register virtio_device
+
+"so the caller can always use put_device when register_virtio_device
+failed,"
+
+> no matter fail at ida_simple_get or at device_add.
+
+"no matter whether it failed..."
+
 > 
-> I think we can probably remove the "!node" path for now. It would be good to
-> get the fundamental part in first, and leave optimization to come as
-> separate patches with corresponding test cases in the future.
+> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+> Suggested-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  drivers/virtio/virtio.c | 18 +++++++++++++++---
+>  1 file changed, 15 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index bf7ff39..3c9f211 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -303,11 +303,21 @@ void unregister_virtio_driver(struct virtio_driver *driver)
+>  }
+>  EXPORT_SYMBOL_GPL(unregister_virtio_driver);
+>  
+> +/**
+> + * register_virtio_device - register virtio device
+> + * @dev        : virtio device interested
 
-You can't remove the !node path.  You'll see !node when the highest set
-bit is less than 1024.  So do something like this:
+"virtio device to be registered"
 
-	unsigned long bit;
-	xb_preload(GFP_KERNEL);
-	xb_set_bit(xb, 700);
-	xb_preload_end();
-	bit = xb_find_set(xb, ULONG_MAX, 0);
-	assert(bit == 700);
+> + *
+> + * If an error occurs, the caller must use put_device, instead of kfree, because
+> + * device_initialize and device_add will increase @dev->dev's reference count.
+
+That's not correct: It's not because of device_add increasing the
+reference count (it releases it again on failure), but because another
+code path may have obtained a reference.
+
+What about:
+
+"On error, the caller must call put_device on &@dev->dev (and not
+kfree), as another code path may have obtained a reference to @dev."
+
+> + *
+> + * Returns: 0 on suceess, -error on failure
+> + */
+>  int register_virtio_device(struct virtio_device *dev)
+>  {
+>  	int err;
+>  
+>  	dev->dev.bus = &virtio_bus;
+> +	device_initialize(&dev->dev);
+>  
+>  	/* Assign a unique device index and hence name. */
+>  	err = ida_simple_get(&virtio_index_ida, 0, 0, GFP_KERNEL);
+> @@ -330,9 +340,11 @@ int register_virtio_device(struct virtio_device *dev)
+>  
+>  	INIT_LIST_HEAD(&dev->vqs);
+>  
+> -	/* device_register() causes the bus infrastructure to look for a
+> -	 * matching driver. */
+> -	err = device_register(&dev->dev);
+> +	/*
+> +	 * device_add() causes the bus infrastructure to look for a matching
+> +	 * driver.
+
+FWIW, I would just have done s/device_register/device_add/ in the
+comment, but this is ok as well.
+
+> +	 */
+> +	err = device_add(&dev->dev);
+>  	if (err)
+>  		ida_simple_remove(&virtio_index_ida, dev->index);
+>  out:
+
+Your code change is fine.
