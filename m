@@ -1,18 +1,14 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [RFC PATCH] virtio_net: Extend virtio to use VF datapath when
-	available
-Date: Wed, 20 Dec 2017 18:16:30 -0800
-Message-ID: <CADGSJ22mDyC0Sw2EPW96ZWvMPLnzif+Y9MMouhM-6T03ZaKA0Q__34842.7723897204$1515606477$gmane$org@mail.gmail.com>
-References: <20171219174259-mutt-send-email-mst@kernel.org>
-	<ca709329-a47a-2e76-b1fc-38fc665d7c0b@intel.com>
-	<20171219095548.61d70d10@xeon-e3>
-	<20171219.132117.666798483874609477.davem@davemloft.net>
-	<20171219104159.30d9caaf@xeon-e3>
+From: Andrei Vagin <avagin@virtuozzo.com>
+Subject: Re: virtio: make VIRTIO a menuconfig to ease disabling it all
+Date: Wed, 20 Dec 2017 22:44:27 -0800
+Message-ID: <20171221064426.GA24940__41166.0663703971$1515606482$gmane$org@outlook.office365.com>
+References: <20171209152657.4762-1-vincent.legoll@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171219104159.30d9caaf@xeon-e3>
+Content-Disposition: inline
+In-Reply-To: <20171209152657.4762-1-vincent.legoll@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,46 +18,106 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: mst@redhat.com, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, David Miller <davem@davemloft.net>
+To: Vincent Legoll <vincent.legoll@gmail.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 19, 2017 at 10:41 AM, Stephen Hemminger
-<stephen@networkplumber.org> wrote:
-> On Tue, 19 Dec 2017 13:21:17 -0500 (EST)
-> David Miller <davem@davemloft.net> wrote:
->
->> From: Stephen Hemminger <stephen@networkplumber.org>
->> Date: Tue, 19 Dec 2017 09:55:48 -0800
->>
->> > could be 10ms, just enough to let udev do its renaming
->>
->> Please, move to some kind of notification or event based handling of
->> this problem.
->>
->> No delay is safe, what if userspace gets swapped out or whatever
->> else might make userspace stall unexpectedly?
->>
->
-> The plan is to remove the delay and do the naming in the kernel.
-> This was suggested by Lennart since udev is only doing naming policy
-> because kernel names were not repeatable.
->
-> This makes the VF show up as "ethN_vf" on Hyper-V which is user friendly.
->
-> Patch is pending.
+On Sat, Dec 09, 2017 at 04:26:57PM +0100, Vincent Legoll wrote:
+> No need to get into the submenu to disable all VIRTIO-related
+> config entries.
+> 
+> This makes it easier to disable all VIRTIO config options
+> without entering the submenu. It will also enable one
+> to see that en/dis-abled state from the outside menu.
+> 
+> This is only intended to change menuconfig UI, not change
+> the config dependencies.
+> 
+> Signed-off-by: Vincent Legoll <vincent.legoll@gmail.com>
+> ---
+>  drivers/virtio/Kconfig | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+> index cff773f15b7e..d485a63a8233 100644
+> --- a/drivers/virtio/Kconfig
+> +++ b/drivers/virtio/Kconfig
+> @@ -5,7 +5,10 @@ config VIRTIO
+>  	  bus, such as CONFIG_VIRTIO_PCI, CONFIG_VIRTIO_MMIO, CONFIG_RPMSG
+>  	  or CONFIG_S390_GUEST.
+>  
+> -menu "Virtio drivers"
+> +menuconfig VIRTIO_MENU
+> +	bool "Virtio drivers"
 
-While it's good to show VF with specific naming to indicate
-enslavement, I wonder wouldn't it be better to hide this netdev at all
-from the user space? IMHO this extra device is useless when being
-enslaved and we may delegate controls (e.g. ethtool) over to the
-para-virtual device instead? That way it's possible to eliminate the
-possibility of additional udev setup or modification?
+Hi Vincent,
 
-I'm not sure if this  is consistent with Windows guest or not, but I
-don't find it _Linux_ user friendly that ethtool doesn't work on the
-composite interface any more, and I have to end up with finding out
-the correct enslaved VF I must operate on.
+make localyesconfig and make localmodconfig doesn't work with this
+patch.
 
-Regards,
--Siwei
+My scenario looks like this:
+* Create a virtual machine with Ubuntu 14.04 in GCE
+* git clone git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+* cd linux-next
+* curl -o .config https://raw.githubusercontent.com/avagin/criu/linux-next/scripts/linux-next-config
+* make localyesconfig
+
+Without this patch:
+
+$ cat .config | grep VIRTIO
+CONFIG_BLK_MQ_VIRTIO=y
+CONFIG_VIRTIO_BLK=y
+# CONFIG_VIRTIO_BLK_SCSI is not set
+CONFIG_SCSI_VIRTIO=y
+CONFIG_VIRTIO_NET=y
+CONFIG_VIRTIO_CONSOLE=y
+# CONFIG_HW_RANDOM_VIRTIO is not set
+CONFIG_VIRTIO=y
+CONFIG_VIRTIO_PCI=y
+CONFIG_VIRTIO_PCI_LEGACY=y
+CONFIG_VIRTIO_BALLOON=y
+# CONFIG_VIRTIO_INPUT is not set
+CONFIG_VIRTIO_MMIO=y
+CONFIG_VIRTIO_MMIO_CMDLINE_DEVICES=y
+# CONFIG_RPMSG_VIRTIO is not set
+# CONFIG_CRYPTO_DEV_VIRTIO is not set
+
+
+With this patch:
+
+$ cat .config | grep VIRTIO
+CONFIG_BLK_MQ_VIRTIO=y
+# CONFIG_VIRTIO_BLK is not set
+CONFIG_SCSI_VIRTIO=y
+# CONFIG_VIRTIO_NET is not set
+CONFIG_CAIF_VIRTIO=y
+# CONFIG_VIRTIO_CONSOLE is not set
+# CONFIG_HW_RANDOM_VIRTIO is not set
+CONFIG_VIRTIO=y
+# CONFIG_VIRTIO_MENU is not set
+# CONFIG_RPMSG_VIRTIO is not set
+# CONFIG_CRYPTO_DEV_VIRTIO is not set
+
+
+You can see that with this patch CONFIG_VIRTIO_BLK is not set.
+It is wrong, and the kernel with this config will not be able to boot.
+
+We can add "default y" to fix this problem.
+
+https://travis-ci.org/avagin/linux/jobs/313348334
+https://travis-ci.org/avagin/linux/jobs/318491188
+
+Thanks,
+Andrei
+
+> +
+> +if VIRTIO_MENU
+>  
+>  config VIRTIO_PCI
+>  	tristate "PCI driver for virtio devices"
+> @@ -79,4 +82,4 @@ config VIRTIO_MMIO_CMDLINE_DEVICES
+>  
+>  	 If unsure, say 'N'.
+>  
+> -endmenu
+> +endif # VIRTIO_MENU
