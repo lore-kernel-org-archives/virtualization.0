@@ -1,18 +1,16 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v20 0/7] Virtio-balloon Enhancement
-Date: Thu, 21 Dec 2017 10:49:44 +0800
-Message-ID: <5A3B2148.8050306__5910.37210911072$1513824397$gmane$org@intel.com>
-References: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
-	<201712192305.AAE21882.MtQHJOFFSFVOLO@I-love.SAKURA.ne.jp>
-	<5A3A3CBC.4030202@intel.com>
-	<20171220122547.GA1654@bombadil.infradead.org>
-	<286AC319A985734F985F78AFA26841F73938CC3E@shsmsx102.ccr.corp.intel.com>
-	<20171220171019.GA12236@bombadil.infradead.org>
+From: weiping zhang <zwp10758@gmail.com>
+Subject: Re: [PATCH v4 4/4] virtio_remoteproc: don't kfree device on register
+	failure
+Date: Thu, 21 Dec 2017 11:08:42 +0800
+Message-ID: <CAA70yB58XrppbSJzNxnFbqTpVQngsxxGOh61ojR-mDOGKicqbA@mail.gmail.com>
+References: <cover.1513700444.git.zhangweiping@didichuxing.com>
+	<443858dfab89720b846aa9c656679ff6ad20d0af.1513700444.git.zhangweiping@didichuxing.com>
+	<20171220171201.6aa2b68f.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171220171019.GA12236@bombadil.infradead.org>
+In-Reply-To: <20171220171201.6aa2b68f.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,48 +20,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <willy@infradead.org>
-Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "aarcange@redhat.com" <aarcange@redhat.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mawilcox@microsoft.com" <mawilcox@microsoft.com>, "nilal@redhat.com" <nilal@redhat.com>, "riel@redhat.com" <riel@redhat.com>, "cornelia.huck@de.ibm.com" <cornelia.huck@de.ibm.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, amit.sh
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/21/2017 01:10 AM, Matthew Wilcox wrote:
-> On Wed, Dec 20, 2017 at 04:13:16PM +0000, Wang, Wei W wrote:
->> On Wednesday, December 20, 2017 8:26 PM, Matthew Wilcox wrote:
->>> 	unsigned long bit;
->>> 	xb_preload(GFP_KERNEL);
->>> 	xb_set_bit(xb, 700);
->>> 	xb_preload_end();
->>> 	bit = xb_find_set(xb, ULONG_MAX, 0);
->>> 	assert(bit == 700);
->> This above test will result in "!node with bitmap !=NULL", and it goes to the regular "if (bitmap)" path, which finds 700.
+2017-12-21 0:12 GMT+08:00 Cornelia Huck <cohuck@redhat.com>:
+> On Wed, 20 Dec 2017 12:27:33 +0800
+> weiping zhang <zwp10758@gmail.com> wrote:
+>
+>> rproc_virtio_dev_release will be called iff virtio_device.dev's
+>> refer count became to 0. Here we should check if we call device_register
+>
+> "reference count drops to 0"
+>
+> s/call/called/
+rproc_add_virtio_dev is not like other virtio driver, it always call
+register_virtio_device,
+so commit message would be:
+
+virtio_remoteproc: correct put_device virtio_device.dev
+
+rproc_virtio_dev_release will be called iff virtio_device.dev's
+reference count drops to 0. Here we just put vdev.dev, and then
+rproc->dev's cleanup will be done in rproc_virtio_dev_release.
+
+
+>> or not, if called, put vdev.dev, and then rproc->dev's cleanup will be
+>> done in rproc_virtio_dev_release, otherwise we do cleanup directly.
 >>
->> A better test would be
->> ...
->> xb_set_bit(xb, 700);
->> assert(xb_find_set(xb, ULONG_MAX, 800) == ULONG_MAX);
->> ...
-> I decided to write a test case to show you what I meant, then I discovered
-> the test suite didn't build, then the test I wrote took forever to run, so
-> I rewrote xb_find_set() using the radix tree iterators.  So I have no idea
-> what bugs may be in your implementation, but at least this function passes
-> the current test suite.  Of course, there may be gaps in the test suite.
-> And since I changed the API to not have the ambiguous return value, I
-> also changed the test suite, and maybe I introduced a bug.
-
-Thanks for the effort. That's actually caused by the previous "!node" 
-path, which incorrectly changed "index = (index | RADIX_TREE_MAP_MASK) + 
-1". With the change below, it will run pretty well with the test cases.
-
-if (!node && !bitmap)
-     return size;
-
-Would you mind to have a try with the v20 RESEND patch that was just 
-shared? It makes the above change and added the test case you suggested?
-
-One more question is about the return value, why would it be ambiguous? 
-I think it is the same as find_next_bit() which returns the found bit or 
-size if not found.
-
-
-Best,
-Wei
+>> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+>> ---
+>>  drivers/remoteproc/remoteproc_virtio.c | 13 +++++++++++--
+>>  1 file changed, 11 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+>> index 2946348..1073ea3 100644
+>> --- a/drivers/remoteproc/remoteproc_virtio.c
+>> +++ b/drivers/remoteproc/remoteproc_virtio.c
+>> @@ -304,7 +304,7 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
+>>  {
+>>       struct rproc *rproc = rvdev->rproc;
+>>       struct device *dev = &rproc->dev;
+>> -     struct virtio_device *vdev = &rvdev->vdev;
+>> +     struct virtio_device *vdev = &rvdev->vdev, *reg_dev = NULL;
+>>       int ret;
+>>
+>>       vdev->id.device = id,
+>> @@ -326,15 +326,24 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
+>>       kref_get(&rvdev->refcount);
+>>
+>>       ret = register_virtio_device(vdev);
+>> +     reg_dev = vdev;
+>>       if (ret) {
+>> -             put_device(&rproc->dev);
+>>               dev_err(dev, "failed to register vdev: %d\n", ret);
+>>               goto out;
+>>       }
+>>
+>>       dev_info(dev, "registered %s (type %d)\n", dev_name(&vdev->dev), id);
+>>
+>> +     return 0;
+>> +
+>>  out:
+>> +     if (reg_dev)
+>> +             put_device(&vdev->dev);
+>> +     else {
+>> +             kref_put(&rvdev->refcount, rproc_vdev_release);
+>> +             put_device(&rproc->dev);
+>> +     }
+>> +
+>>       return ret;
+>>  }
+>>
+>
+> I think in this case using the marker makes a straightforward cleanup
+> way too complicated. There's a single way we can get to the out label,
+> and that's when register_virtio_device() failed. Switching
+> put_device(&rproc->dev) to put_device(@vdev->dev) (what your first
+> patch did) seems like the way to go.
+OK, put it directly at v5.
+> (It also may be good to cc: the maintainers for this driver.)
+OK, thanks
