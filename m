@@ -1,16 +1,15 @@
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: Re: [RFC PATCH] virtio_net: Extend virtio to use VF datapath when
-	available
-Date: Wed, 20 Dec 2017 16:29:19 -0800
-Message-ID: <20171220162919.5618baa9__10906.2369484038$1513816080$gmane$org@cakuba.netronome.com>
-References: <1513644036-45230-1-git-send-email-sridhar.samudrala@intel.com>
-	<20171220143140.0a3dc7f1@cakuba.netronome.com>
-	<20171221021450-mutt-send-email-mst@kernel.org>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Subject: Re: [PATCH net-next] virtio_net: Add ethtool stats
+Date: Thu, 21 Dec 2017 11:12:39 +0900
+Message-ID: <d73dbd67-cc60-366c-7ec5-1f9818d70bd5__1884.60834692723$1513822328$gmane$org@lab.ntt.co.jp>
+References: <1513744837-2672-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<ff4eb1b4-e49f-2c5d-8e99-810093643c5c@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171221021450-mutt-send-email-mst@kernel.org>
+In-Reply-To: <ff4eb1b4-e49f-2c5d-8e99-810093643c5c@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,46 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, alexander.duyck@gmail.com, netdev@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, "David S . Miller" <davem@davemloft.net>, "Michael S . Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 21 Dec 2017 02:15:31 +0200, Michael S. Tsirkin wrote:
-> On Wed, Dec 20, 2017 at 02:33:34PM -0800, Jakub Kicinski wrote:
-> > On Mon, 18 Dec 2017 16:40:36 -0800, Sridhar Samudrala wrote:  
-> > > +static int virtio_netdev_event(struct notifier_block *this,
-> > > +			       unsigned long event, void *ptr)
-> > > +{
-> > > +	struct net_device *event_dev = netdev_notifier_info_to_dev(ptr);
-> > > +
-> > > +	/* Skip our own events */
-> > > +	if (event_dev->netdev_ops == &virtnet_netdev)
-> > > +		return NOTIFY_DONE;  
-> > 
-> > I wonder how does this work WRT loop prevention.  What if I have two
-> > virtio devices with the same MAC, what is preventing them from claiming
-> > each other?  Is it only the check above (not sure what is "own" in
-> > comment referring to)?  
-> 
-> I expect we will add a feature bit (VIRTIO_NET_F_MASTER) and it will
-> be host's responsibility not to add more than 1 such device.
-
-Do you mean a virtio_net feature bit?  That won't stop the loop with
-a hyperv device.  Unless we want every paravirt device to have such
-bit and enforce there can be only one magic bond enslavement active in
-the system.
-
-Making the bonding information separate from the slaves seems so much
-cleaner...  No limitation on device types, or how many bonds user
-chooses to create.  No MAC matching...
-
-> > I'm worried the check above will not stop virtio from enslaving hyperv
-> > interfaces and vice versa, potentially leading to a loop, no?  There is
-> > also the fact that it would be preferable to share the code between
-> > paravirt drivers, to avoid duplicated bugs.
-> > 
-> > My suggestion during the previous discussion was to create a paravirt
-> > bond device, which will explicitly tell the OS which interfaces to
-> > bond, regardless of which driver they're using.  Could be some form of
-> > ACPI/FW driver too, I don't know enough about x86 FW to suggest
-> > something fully fleshed :(  
+T24gMjAxNy8xMi8yMCAxNzoxMywgSmFzb24gV2FuZyB3cm90ZToKPiBPbiAyMDE35bm0MTLmnIgy
+MOaXpSAxMjo0MCwgVG9zaGlha2kgTWFraXRhIHdyb3RlOgo+PiBUaGUgbWFpbiBwdXJwb3NlIG9m
+IHRoaXMgcGF0Y2ggaXMgYWRkaW5nIGEgd2F5IG9mIGNoZWNraW5nIHBlci1xdWV1ZQo+PiBzdGF0
+cy4KPj4gSXQncyB1c2VmdWwgdG8gZGVidWcgcGVyZm9ybWFuY2UgcHJvYmxlbXMgb24gbXVsdGlx
+dWV1ZSBlbnZpcm9ubWVudC4KPj4KPj4gJCBldGh0b29sIC1TIGVuczEwCj4+IE5JQyBzdGF0aXN0
+aWNzOgo+PiDCoMKgwqDCoMKgIHJ4X3BhY2tldHM6IDQxNzI5MzkKPj4gwqDCoMKgwqDCoCB0eF9w
+YWNrZXRzOiA1ODU1NTM4Cj4+IMKgwqDCoMKgwqAgcnhfYnl0ZXM6IDYzMTc3NTc0MDgKPj4gwqDC
+oMKgwqDCoCB0eF9ieXRlczogODg2NTE1MTg0Ngo+PiDCoMKgwqDCoMKgIHJ4X2Ryb3BwZWQ6IDAK
+Pj4gwqDCoMKgwqDCoCByeF9sZW5ndGhfZXJyb3JzOiAwCj4+IMKgwqDCoMKgwqAgcnhfZnJhbWVf
+ZXJyb3JzOiAwCj4+IMKgwqDCoMKgwqAgdHhfZHJvcHBlZDogMAo+PiDCoMKgwqDCoMKgIHR4X2Zp
+Zm9fZXJyb3JzOiAwCj4+IMKgwqDCoMKgwqAgcnhfcXVldWVfMF9wYWNrZXRzOiAyMDkwNDA4Cj4+
+IMKgwqDCoMKgwqAgcnhfcXVldWVfMF9ieXRlczogMzE2NDgyNTA5NAo+PiDCoMKgwqDCoMKgIHJ4
+X3F1ZXVlXzFfcGFja2V0czogMjA4MjUzMQo+PiDCoMKgwqDCoMKgIHJ4X3F1ZXVlXzFfYnl0ZXM6
+IDMxNTI5MzIzMTQKPj4gwqDCoMKgwqDCoCB0eF9xdWV1ZV8wX3BhY2tldHM6IDI3NzA4NDEKPj4g
+wqDCoMKgwqDCoCB0eF9xdWV1ZV8wX2J5dGVzOiA0MTk0OTU1NDc0Cj4+IMKgwqDCoMKgwqAgdHhf
+cXVldWVfMV9wYWNrZXRzOiAzMDg0Njk3Cj4+IMKgwqDCoMKgwqAgdHhfcXVldWVfMV9ieXRlczog
+NDY3MDE5NjM3Mgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBUb3NoaWFraSBNYWtpdGE8bWFraXRhLnRv
+c2hpYWtpQGxhYi5udHQuY28uanA+Cj4gCj4gVGhhbmtzIGZvciB0aGUgcGF0Y2guIFRoaXMgaXMg
+bm90IHRoZSBmaXJzdCBwYXRjaCB0aGF0IHdhbnRzIHRvIGRvIHRoaXMuCj4gTWF5YmUgeW91IGNh
+biBnbyB0aHJvdWdoIHRoZSBwcmV2aW91cyBjb21tZW50cyAoRS5nIHRoZXJlJ3Mgb25lIGluCj4g
+aHR0cHM6Ly9wYXRjaHdvcmsub3psYWJzLm9yZy9wYXRjaC8yNDQ0MTMvKS4KClRoYW5rcyBmb3Ig
+cG9pbnRpbmcgaXQuIEkgd2FzIG5vdCBhd2FyZSBvZiBpdC4KSSBjaGVja2VkIHRoZSBwcmV2aW91
+cyBjb21tZW50cyBidXQgbm90IHN1cmUgaWYgdGhlcmUgaXMgYW55dGhpbmcgdG8gZG8uClRoZSBt
+YWluIGxvZ2ljIGlzIGNvaW5jaWRlbnRhbGx5IHRoZSBzYW1lIC0gc3BsaXR0aW5nIHBlcmNwdSBz
+dGF0cyBkYXRhCnN0cnVjdHVyZSBpbnRvIHJ4IGFuZCB0eCBvbmVzIGluIHJlY2VpdmVfcXVldWUg
+YW5kIHNlbmRfcXVldWUsIHdoaWNoIGhhcwpiZWVuIGFja2VkLgpDb21tZW50cyBmcm9tIEJlbiBI
+dXRjaGluZ3MgaXMgYWJvdXQgc3RhdHMgb3JkZXJpbmcgYnV0IGl0IHNlZW1zIG5vCmNvbnNlbnN1
+cyBoYXMgYmVlbiBmb3JtZWQgc2luY2UgdGhlbi4KRmVlZGJhY2sgZnJvbSBNaWNoYWVsIGlzIGtp
+bmQgb2Ygbml0LXBpY2tpbmcgb25lcyBhbmQgZG9lcyBub3QgYXBwbHkgdG8KbWluZS4gSGUgYWxz
+byByZXF1ZXN0ZWQgb3RoZXIgc3RhdHMgaXRlbXMgbGlrZSB2bS1leGl0LCBidXQgbm90IGluIHRo
+ZQpzYW1lIHBhdGNoLgpZb3UgcmVxdWVzdGVkIHBlcmZvcm1hbmNlIG51bWJlcnMuIFdvdWxkIHlv
+dSBsaWtlIHRvIGhhdmUgaXQgZm9yIHRoaXMKcGF0Y2ggYXMgd2VsbD8KCj4gRm9yIG1lLCBJJ2Qg
+ZXhwZWN0IHRvIGFkZCBzb21lIFhEUCBjb3VudGVycyBsaWtlIG90aGVyIGRldmljZSBkaWQuCgpO
+aWNlIHRvIGhhdmUgaXQuIEkgZ3Vlc3MgaXQgd291bGQgYmUgYW5vdGhlciBwYXRjaC4KCi0tIApU
+b3NoaWFraSBNYWtpdGEKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
+bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
