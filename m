@@ -1,15 +1,16 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [PATCH net-next] virtio_net: Add ethtool stats
-Date: Thu, 21 Dec 2017 11:12:39 +0900
-Message-ID: <d73dbd67-cc60-366c-7ec5-1f9818d70bd5__1884.60834692723$1513822328$gmane$org@lab.ntt.co.jp>
-References: <1513744837-2672-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<ff4eb1b4-e49f-2c5d-8e99-810093643c5c@redhat.com>
+From: weiping zhang <zwp10758@gmail.com>
+Subject: Re: [PATCH v4 1/4] virtio: split device_register into
+	device_initialize and device_add
+Date: Thu, 21 Dec 2017 10:37:56 +0800
+Message-ID: <CAA70yB4e6Qp_2D+6-RCSVLKvSVxJ_vSeBi8Day7b1pCOzvfD_g@mail.gmail.com>
+References: <cover.1513700444.git.zhangweiping@didichuxing.com>
+	<95ad7cb52d9e65b27f09a23c7f330128388502fa.1513700444.git.zhangweiping@didichuxing.com>
+	<20171220165316.5545b24c.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <ff4eb1b4-e49f-2c5d-8e99-810093643c5c@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20171220165316.5545b24c.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,45 +20,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, "David S . Miller" <davem@davemloft.net>, "Michael S . Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxNy8xMi8yMCAxNzoxMywgSmFzb24gV2FuZyB3cm90ZToKPiBPbiAyMDE35bm0MTLmnIgy
-MOaXpSAxMjo0MCwgVG9zaGlha2kgTWFraXRhIHdyb3RlOgo+PiBUaGUgbWFpbiBwdXJwb3NlIG9m
-IHRoaXMgcGF0Y2ggaXMgYWRkaW5nIGEgd2F5IG9mIGNoZWNraW5nIHBlci1xdWV1ZQo+PiBzdGF0
-cy4KPj4gSXQncyB1c2VmdWwgdG8gZGVidWcgcGVyZm9ybWFuY2UgcHJvYmxlbXMgb24gbXVsdGlx
-dWV1ZSBlbnZpcm9ubWVudC4KPj4KPj4gJCBldGh0b29sIC1TIGVuczEwCj4+IE5JQyBzdGF0aXN0
-aWNzOgo+PiDCoMKgwqDCoMKgIHJ4X3BhY2tldHM6IDQxNzI5MzkKPj4gwqDCoMKgwqDCoCB0eF9w
-YWNrZXRzOiA1ODU1NTM4Cj4+IMKgwqDCoMKgwqAgcnhfYnl0ZXM6IDYzMTc3NTc0MDgKPj4gwqDC
-oMKgwqDCoCB0eF9ieXRlczogODg2NTE1MTg0Ngo+PiDCoMKgwqDCoMKgIHJ4X2Ryb3BwZWQ6IDAK
-Pj4gwqDCoMKgwqDCoCByeF9sZW5ndGhfZXJyb3JzOiAwCj4+IMKgwqDCoMKgwqAgcnhfZnJhbWVf
-ZXJyb3JzOiAwCj4+IMKgwqDCoMKgwqAgdHhfZHJvcHBlZDogMAo+PiDCoMKgwqDCoMKgIHR4X2Zp
-Zm9fZXJyb3JzOiAwCj4+IMKgwqDCoMKgwqAgcnhfcXVldWVfMF9wYWNrZXRzOiAyMDkwNDA4Cj4+
-IMKgwqDCoMKgwqAgcnhfcXVldWVfMF9ieXRlczogMzE2NDgyNTA5NAo+PiDCoMKgwqDCoMKgIHJ4
-X3F1ZXVlXzFfcGFja2V0czogMjA4MjUzMQo+PiDCoMKgwqDCoMKgIHJ4X3F1ZXVlXzFfYnl0ZXM6
-IDMxNTI5MzIzMTQKPj4gwqDCoMKgwqDCoCB0eF9xdWV1ZV8wX3BhY2tldHM6IDI3NzA4NDEKPj4g
-wqDCoMKgwqDCoCB0eF9xdWV1ZV8wX2J5dGVzOiA0MTk0OTU1NDc0Cj4+IMKgwqDCoMKgwqAgdHhf
-cXVldWVfMV9wYWNrZXRzOiAzMDg0Njk3Cj4+IMKgwqDCoMKgwqAgdHhfcXVldWVfMV9ieXRlczog
-NDY3MDE5NjM3Mgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBUb3NoaWFraSBNYWtpdGE8bWFraXRhLnRv
-c2hpYWtpQGxhYi5udHQuY28uanA+Cj4gCj4gVGhhbmtzIGZvciB0aGUgcGF0Y2guIFRoaXMgaXMg
-bm90IHRoZSBmaXJzdCBwYXRjaCB0aGF0IHdhbnRzIHRvIGRvIHRoaXMuCj4gTWF5YmUgeW91IGNh
-biBnbyB0aHJvdWdoIHRoZSBwcmV2aW91cyBjb21tZW50cyAoRS5nIHRoZXJlJ3Mgb25lIGluCj4g
-aHR0cHM6Ly9wYXRjaHdvcmsub3psYWJzLm9yZy9wYXRjaC8yNDQ0MTMvKS4KClRoYW5rcyBmb3Ig
-cG9pbnRpbmcgaXQuIEkgd2FzIG5vdCBhd2FyZSBvZiBpdC4KSSBjaGVja2VkIHRoZSBwcmV2aW91
-cyBjb21tZW50cyBidXQgbm90IHN1cmUgaWYgdGhlcmUgaXMgYW55dGhpbmcgdG8gZG8uClRoZSBt
-YWluIGxvZ2ljIGlzIGNvaW5jaWRlbnRhbGx5IHRoZSBzYW1lIC0gc3BsaXR0aW5nIHBlcmNwdSBz
-dGF0cyBkYXRhCnN0cnVjdHVyZSBpbnRvIHJ4IGFuZCB0eCBvbmVzIGluIHJlY2VpdmVfcXVldWUg
-YW5kIHNlbmRfcXVldWUsIHdoaWNoIGhhcwpiZWVuIGFja2VkLgpDb21tZW50cyBmcm9tIEJlbiBI
-dXRjaGluZ3MgaXMgYWJvdXQgc3RhdHMgb3JkZXJpbmcgYnV0IGl0IHNlZW1zIG5vCmNvbnNlbnN1
-cyBoYXMgYmVlbiBmb3JtZWQgc2luY2UgdGhlbi4KRmVlZGJhY2sgZnJvbSBNaWNoYWVsIGlzIGtp
-bmQgb2Ygbml0LXBpY2tpbmcgb25lcyBhbmQgZG9lcyBub3QgYXBwbHkgdG8KbWluZS4gSGUgYWxz
-byByZXF1ZXN0ZWQgb3RoZXIgc3RhdHMgaXRlbXMgbGlrZSB2bS1leGl0LCBidXQgbm90IGluIHRo
-ZQpzYW1lIHBhdGNoLgpZb3UgcmVxdWVzdGVkIHBlcmZvcm1hbmNlIG51bWJlcnMuIFdvdWxkIHlv
-dSBsaWtlIHRvIGhhdmUgaXQgZm9yIHRoaXMKcGF0Y2ggYXMgd2VsbD8KCj4gRm9yIG1lLCBJJ2Qg
-ZXhwZWN0IHRvIGFkZCBzb21lIFhEUCBjb3VudGVycyBsaWtlIG90aGVyIGRldmljZSBkaWQuCgpO
-aWNlIHRvIGhhdmUgaXQuIEkgZ3Vlc3MgaXQgd291bGQgYmUgYW5vdGhlciBwYXRjaC4KCi0tIApU
-b3NoaWFraSBNYWtpdGEKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
-aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
-bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+2017-12-20 23:53 GMT+08:00 Cornelia Huck <cohuck@redhat.com>:
+> On Wed, 20 Dec 2017 12:26:25 +0800
+> weiping zhang <zwp10758@gmail.com> wrote:
+>
+> [you used a different mail address in your From: than in your s-o-b:;
+> same for the other patches]
+>
+>> In order to make caller do a simple cleanup, we split device_register
+>> into device_initialize and device_add. device_initialize always sucess,
+>
+> s/success/succeeds/
+>
+>> the caller can always use put_device when fail to register virtio_device
+>
+> "so the caller can always use put_device when register_virtio_device
+> failed,"
+>
+>> no matter fail at ida_simple_get or at device_add.
+>
+> "no matter whether it failed..."
+>
+>> + *
+>> + * If an error occurs, the caller must use put_device, instead of kfree, because
+>> + * device_initialize and device_add will increase @dev->dev's reference count.
+>
+> That's not correct: It's not because of device_add increasing the
+> reference count (it releases it again on failure), but because another
+> code path may have obtained a reference.
+>
+> What about:
+>
+> "On error, the caller must call put_device on &@dev->dev (and not
+> kfree), as another code path may have obtained a reference to @dev."
+>
+It's good to understand, further more dev->name may has a bit mem leak.
+anyway, I'll correct all comments at V5. Thanks very much.
+>> + *
+>> + * Returns: 0 on suceess, -error on failure
+>> + */
+>>  int register_virtio_device(struct virtio_device *dev)
