@@ -1,21 +1,17 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+From: Siwei Liu <loseweigh@gmail.com>
 Subject: Re: [RFC PATCH] virtio_net: Extend virtio to use VF datapath when
 	available
-Date: Tue, 19 Dec 2017 14:37:50 -0800
-Message-ID: <ddef3208-3cf5-faa2-7572-a561a6b35e2f__30037.9587607042$1515606449$gmane$org@intel.com>
+Date: Wed, 20 Dec 2017 17:31:07 -0800
+Message-ID: <CADGSJ23XuaGtBt2AY95nbHVMQ-mAhDsTDLFtg=3o_09HAH9mtg@mail.gmail.com>
 References: <20171219174259-mutt-send-email-mst@kernel.org>
 	<ca709329-a47a-2e76-b1fc-38fc665d7c0b@intel.com>
 	<20171219095548.61d70d10@xeon-e3>
 	<20171219.132117.666798483874609477.davem@davemloft.net>
 	<20171219104159.30d9caaf@xeon-e3>
-	<344f0afc-b4aa-9f1a-15b8-166ba97d270b@intel.com>
-	<20171219114627.76dac732@xeon-e3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============3111808510489425058=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171219114627.76dac732@xeon-e3>
-Content-Language: en-US
+In-Reply-To: <20171219104159.30d9caaf@xeon-e3>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,39 +22,118 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: mst@redhat.com, netdev@vger.kernel.org, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+Cc: mst@redhat.com, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTIvMTkvMjAxNyAxMTo0NiBBTSwgU3RlcGhlbiBIZW1taW5nZXIgd3JvdGU6Cj4gT24gVHVl
-LCAxOSBEZWMgMjAxNyAxMTo0MjozMyAtMDgwMAo+ICJTYW11ZHJhbGEsIFNyaWRoYXIiIDxzcmlk
-aGFyLnNhbXVkcmFsYUBpbnRlbC5jb20+IHdyb3RlOgo+Cj4+IE9uIDEyLzE5LzIwMTcgMTA6NDEg
-QU0sIFN0ZXBoZW4gSGVtbWluZ2VyIHdyb3RlOgo+Pj4gT24gVHVlLCAxOSBEZWMgMjAxNyAxMzoy
-MToxNyAtMDUwMCAoRVNUKQo+Pj4gRGF2aWQgTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0PiB3
-cm90ZToKPj4+ICAgCj4+Pj4gRnJvbTogU3RlcGhlbiBIZW1taW5nZXIgPHN0ZXBoZW5AbmV0d29y
-a3BsdW1iZXIub3JnPgo+Pj4+IERhdGU6IFR1ZSwgMTkgRGVjIDIwMTcgMDk6NTU6NDggLTA4MDAK
-Pj4+PiAgIAo+Pj4+PiBjb3VsZCBiZSAxMG1zLCBqdXN0IGVub3VnaCB0byBsZXQgdWRldiBkbyBp
-dHMgcmVuYW1pbmcKPj4+PiBQbGVhc2UsIG1vdmUgdG8gc29tZSBraW5kIG9mIG5vdGlmaWNhdGlv
-biBvciBldmVudCBiYXNlZCBoYW5kbGluZyBvZgo+Pj4+IHRoaXMgcHJvYmxlbS4KPj4+Pgo+Pj4+
-IE5vIGRlbGF5IGlzIHNhZmUsIHdoYXQgaWYgdXNlcnNwYWNlIGdldHMgc3dhcHBlZCBvdXQgb3Ig
-d2hhdGV2ZXIKPj4+PiBlbHNlIG1pZ2h0IG1ha2UgdXNlcnNwYWNlIHN0YWxsIHVuZXhwZWN0ZWRs
-eT8KPj4+PiAgIAo+Pj4gVGhlIHBsYW4gaXMgdG8gcmVtb3ZlIHRoZSBkZWxheSBhbmQgZG8gdGhl
-IG5hbWluZyBpbiB0aGUga2VybmVsLgo+Pj4gVGhpcyB3YXMgc3VnZ2VzdGVkIGJ5IExlbm5hcnQg
-c2luY2UgdWRldiBpcyBvbmx5IGRvaW5nIG5hbWluZyBwb2xpY3kKPj4+IGJlY2F1c2Uga2VybmVs
-IG5hbWVzIHdlcmUgbm90IHJlcGVhdGFibGUuCj4+Pgo+Pj4gVGhpcyBtYWtlcyB0aGUgVkYgc2hv
-dyB1cCBhcyAiZXRoTl92ZiIgb24gSHlwZXItViB3aGljaCBpcyB1c2VyIGZyaWVuZGx5Lgo+Pj4K
-Pj4+IFBhdGNoIGlzIHBlbmRpbmcuCj4+IERvIHdlIHJlYWxseSBuZWVkIHRvIGRlbGF5IHRoZSBz
-ZXR1cCB1bnRpbCB0aGUgbmFtZSBpcyBjaGFuZ2VkPwo+PiBDYW4ndCB3ZSBjYWxsIGRldl9zZXRf
-bXR1KCkgYW5kIGRldl9vcGVuKCkgdW50aWwgZGV2X2NoYW5nZV9uYW1lKCkgaXMgZG9uZT8KPj4K
-Pj4gVGhhbmtzCj4+IFNyaWRoYXIKPiBZb3UgY2FuIGNhbGwgZGV2X3NldF9tdHUsIGJ1dCB3aGVu
-IGRldl9vcGVuIGlzIGRvbmUgdGhlIGRldmljZSBuYW1lCj4gY2FuIG5vdCBiZSBjaGFuZ2VkIGJ5
-IHVzZXJzcGFjZS4KSSBkaWQgYSBxdWljayB0ZXN0IHRvIHJlbW92ZSB0aGUgZGVsYXkgYW5kIGFs
-c28gdGhlIGRldl9vcGVuKCkgY2FsbCBhbmQgCmkgZG9uJ3Qgc2VlCmFueSBpc3N1ZXMgd2l0aCB2
-aXJ0aW8gdGFraW5nIG92ZXIgdGhlIFZGIGRhdGFwYXRoLgpPbmx5IHRoZSBuZXRkZXZfaW5mbygp
-IG1lc3NhZ2VzIG1heSBzaG93IG9sZCBkZXZpY2UgbmFtZS4KCkFueSBzcGVjaWZpYyBzY2VuYXJp
-byB3aGVyZSB3ZSBuZWVkIHRvIGV4cGxpY2l0bHkgY2FsbMKgIFZGJ3MgZGV2X29wZW4oKSAKaW4g
-dGhlIFZGIHNldHVwIHByb2Nlc3M/CkkgdHJpZWQgaTQwZXZmIGRyaXZlciBsb2FkZWQgYWZ0ZXIg
-dmlydGlvX25ldMKgIEFORMKgIHZpcnRpb19uZXQgbG9hZGluZyAKYWZ0ZXIgaTQwZXZmLgoKVGhh
-bmtzClNyaWRoYXIKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+--===============3111808510489425058==
+Content-Type: multipart/alternative; boundary="001a1140228681bb650560cfa78d"
+
+--001a1140228681bb650560cfa78d
+Content-Type: text/plain; charset="UTF-8"
+
+On Tue, Dec 19, 2017 at 10:41 AM, Stephen Hemminger <
+stephen@networkplumber.org> wrote:
+
+> On Tue, 19 Dec 2017 13:21:17 -0500 (EST)
+> David Miller <davem@davemloft.net> wrote:
+>
+> > From: Stephen Hemminger <stephen@networkplumber.org>
+> > Date: Tue, 19 Dec 2017 09:55:48 -0800
+> >
+> > > could be 10ms, just enough to let udev do its renaming
+> >
+> > Please, move to some kind of notification or event based handling of
+> > this problem.
+> >
+> > No delay is safe, what if userspace gets swapped out or whatever
+> > else might make userspace stall unexpectedly?
+> >
+>
+> The plan is to remove the delay and do the naming in the kernel.
+> This was suggested by Lennart since udev is only doing naming policy
+> because kernel names were not repeatable.
+>
+> This makes the VF show up as "ethN_vf" on Hyper-V which is user friendly.
+>
+> Patch is pending.
+>
+
+While it's good to show VF with specific naming to indicate enslavement, I
+wonder wouldn't it be better to hide this netdev at all from the user
+space? IMHO this extra device is useless when being enslaved and we may
+delegate controls (e.g. ethtool) over to the para-virtual device instead?
+That way it's possible to eliminate the possibility of additional udev
+setup or modification?
+
+I'm not sure if this  is consistent with Windows guest or not, but I don't
+find it _Linux_ user friendly that ethtool doesn't work on the composite
+interface any more, and I have to end up with finding out the correct
+enslaved VF I must operate on.
+
+Regards,
+-Siwei
+
+--001a1140228681bb650560cfa78d
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
+te">On Tue, Dec 19, 2017 at 10:41 AM, Stephen Hemminger <span dir=3D"ltr">&=
+lt;<a href=3D"mailto:stephen@networkplumber.org" target=3D"_blank">stephen@=
+networkplumber.org</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quot=
+e" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">=
+<div class=3D"HOEnZb"><div class=3D"h5">On Tue, 19 Dec 2017 13:21:17 -0500 =
+(EST)<br>
+David Miller &lt;<a href=3D"mailto:davem@davemloft.net">davem@davemloft.net=
+</a>&gt; wrote:<br>
+<br>
+&gt; From: Stephen Hemminger &lt;<a href=3D"mailto:stephen@networkplumber.o=
+rg">stephen@networkplumber.org</a>&gt;<br>
+&gt; Date: Tue, 19 Dec 2017 09:55:48 -0800<br>
+&gt;<br>
+&gt; &gt; could be 10ms, just enough to let udev do its renaming<br>
+&gt;<br>
+&gt; Please, move to some kind of notification or event based handling of<b=
+r>
+&gt; this problem.<br>
+&gt;<br>
+&gt; No delay is safe, what if userspace gets swapped out or whatever<br>
+&gt; else might make userspace stall unexpectedly?<br>
+&gt;<br>
+<br>
+</div></div>The plan is to remove the delay and do the naming in the kernel=
+.<br>
+This was suggested by Lennart since udev is only doing naming policy<br>
+because kernel names were not repeatable.<br>
+<br>
+This makes the VF show up as &quot;ethN_vf&quot; on Hyper-V which is user f=
+riendly.<br>
+<br>
+Patch is pending.<br>
+</blockquote></div><div class=3D"gmail_extra"><br></div>While it&#39;s good=
+ to show VF with specific naming to indicate enslavement, I wonder wouldn&#=
+39;t it be better to hide this netdev at all from the user space? IMHO this=
+ extra device is useless when being enslaved and we may delegate controls (=
+e.g. ethtool) over to the para-virtual device instead? That way it&#39;s po=
+ssible to eliminate the possibility of additional udev setup or modificatio=
+n?</div><div class=3D"gmail_extra"><br></div><div class=3D"gmail_extra">I&#=
+39;m not sure if this=C2=A0 is consistent with Windows guest or not, but I =
+don&#39;t find it _Linux_ user friendly that ethtool doesn&#39;t work on th=
+e composite interface any more, and I have to end up with finding out the c=
+orrect enslaved VF I must operate on.=C2=A0</div><div class=3D"gmail_extra"=
+><br></div><div class=3D"gmail_extra">Regards,</div><div class=3D"gmail_ext=
+ra">-Siwei</div><div class=3D"gmail_extra"><br></div></div>
+
+--001a1140228681bb650560cfa78d--
+
+--===============3111808510489425058==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3111808510489425058==--
