@@ -1,15 +1,16 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH] virtio: make VIRTIO a menuconfig to ease disabling it all
-Date: Fri, 22 Dec 2017 13:12:30 +1100
-Message-ID: <87h8sjpl2p.fsf@concordia.ellerman.id.au>
-References: <20171209152657.4762-1-vincent.legoll@gmail.com>
-	<87tvwkfj2f.fsf@concordia.ellerman.id.au>
-	<CAEwRq=pVCUPGq4=JLOHQ4gQE0FC+Fotci8+DR_VupgB1BJJB1w@mail.gmail.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH RFC 1/4] crypto: engine - Permit to enqueue all async
+	requests
+Date: Fri, 22 Dec 2017 17:57:24 +1100
+Message-ID: <20171222065724.GA27149__15976.1975323365$1513927653$gmane$org@gondor.apana.org.au>
+References: <20171129084121.9385-1-clabbe.montjoie@gmail.com>
+	<20171129084121.9385-2-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAEwRq=pVCUPGq4=JLOHQ4gQE0FC+Fotci8+DR_VupgB1BJJB1w@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20171129084121.9385-2-clabbe.montjoie@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,25 +20,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vincent Legoll <vincent.legoll@gmail.com>
-Cc: virtualization@lists.linux-foundation.org, Linux Kernel ML <linux-kernel@vger.kernel.org>, mst@redhat.com
+To: Corentin Labbe <clabbe.montjoie@gmail.com>
+Cc: alexandre.torgue@st.com, mst@redhat.com, linux-kernel@vger.kernel.org, fabien.dessenne@st.com, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, mcoquelin.stm32@gmail.com, davem@davemloft.net, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Vincent Legoll <vincent.legoll@gmail.com> writes:
+On Wed, Nov 29, 2017 at 09:41:18AM +0100, Corentin Labbe wrote:
+> The crypto engine could actually only enqueue hash and ablkcipher request.
+> This patch permit it to enqueue any type of crypto_async_request.
+> 
+> Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
 
-> Hello,
->
-> thanks for the help, and sorry for the poor patch,
->
-> On Thu, Dec 21, 2017 at 11:53 AM, Michael Ellerman <mpe@ellerman.id.au> wrote:
->> This breaks all existing .configs *and* defconfigs that use VIRTIO.
->>
->> Please don't do that.
->>
->> If you make it default y then everything will continue to work.
->
-> Do you want me to respin it with the added default ?
+This is going the wrong way.  We do not want to expose any of the
+base types such as crypto_alg, crypto_async_request to end-users
+and that includes drivers.  Only core API code should touch these
+base types.
 
-Yes please, either that or revert it.
-
-cheers
+Cheers,
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
