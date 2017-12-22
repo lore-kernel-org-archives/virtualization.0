@@ -1,14 +1,15 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v20 3/7 RESEND] xbitmap: add more operations
-Date: Fri, 22 Dec 2017 16:49:11 +0800
-Message-ID: <5A3CC707.9070708__44031.537397723$1513932334$gmane$org@intel.com>
-References: <1513823406-43632-1-git-send-email-wei.w.wang@intel.com>
-	<20171221210327.GB25009@bombadil.infradead.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.14 064/159] x86/virt,
+	x86/platform: Merge struct x86_hyper into struct x86_platform and
+	struct x86_init
+Date: Fri, 22 Dec 2017 09:45:49 +0100
+Message-ID: <20171222084627.211254426@linuxfoundation.org>
+References: <20171222084623.668990192@linuxfoundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171221210327.GB25009@bombadil.infradead.org>
+In-Reply-To: <20171222084623.668990192@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,122 +19,381 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <willy@infradead.org>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, penguin-kernel@I-love.SAKURA.ne.jp, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Juergen Gross <jgross@suse.com>, sthemmin@microsoft.com, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, rkrcmar@redhat.com, Peter Zijlstra <peterz@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, boris.ostrovsky@oracle.com, rusty@rustcorp.com.au, akataria@vmware.com, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, haiyangz@microsoft.com, pbonzini@redhat.com, devel@linuxdriverproject.org, Thomas Gleixner <tglx@linutronix.de>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/22/2017 05:03 AM, Matthew Wilcox wrote:
-> OK, here's a rewrite of xbitmap.
->
-> Compared to the version you sent:
->   - xb_find_set() is the rewrite I sent out yesterday.
->   - xb_find_clear() is a new implementation.  I use the IDR_FREE tag to find
->     clear bits.  This led to me finding a bug in radix_tree_for_each_tagged().
->   - xb_zero() is also a new implementation (replacing xb_clear_bit_range).
->     It should also be more efficient in deep trees.
->   - Did not accept your change to xb_set_bit(); I think it's important to
->     leave the radix tree node in place, so we're guaranteed to make progress
->     in low-memory situations.  We're expecting the caller to retry, so the
->     memory should not leak.
->   - Redid a lot of the kernel-doc.  Thanks for adding it!  I removed mentions
->     of implementation details, leaving only information useful to those who
->     are using it.
->
-> Compared to the version I put out back in February:
->   - Accepted your change to xb_preload(); I think it's an improvement.
->   - Rewrote xb_set_bit() to use the radix_tree_iter_ family of functions.
->     Should improve performance for deep trees.
->   - Rewrote xb_clear_bit() for the same reason.
->   - Left out the use of radix tree exceptional entries.  Thanks for taking
->     them out!  Keeps it clearer for now; if they prove useful, we can put
->     them back in.
->   - Removed the use of __radix_tree_delete and __radix_tree_create, so drop
->     the changes to those functions.
->
-> Other miscellaneous notes
->   - I left xb_fill() in the header file, even though there's no implementation
->     yet.  Wouldn't be hard to add once we have a user.
->   - Used SPDX tags instead of a license notice.
->
-> I think we need more test cases ... in reviewing this to send out,
-> I found a bug in xb_zero(), which I've only fixed because I don't have
-> time to write a test case for it.
+4.14-stable review patch.  If anyone has any objections, please let me know.
 
-Thanks for the improvement. I also found a small bug in xb_zero. With 
-the following changes, it has passed the current test cases and tested 
-with the virtio-balloon usage without any issue.
+------------------
 
+From: Juergen Gross <jgross@suse.com>
 
-> +
-> +/**
-> + * xb_zero() - Clear a range of bits in the XBitmap.
-> + * @xb: The XBitmap.
-> + * @min: The first bit to clear.
-> + * @max: The last bit to clear.
-> + *
-> + * This function is used to clear a range of bits in the xbitmap.
-> + */
-> +void xb_zero(struct xb *xb, unsigned long min, unsigned long max)
-> +{
-> +	struct radix_tree_root *root = &xb->xbrt;
-> +	struct radix_tree_iter iter;
-> +	void __rcu **slot;
-> +	struct ida_bitmap *bitmap;
-> +	unsigned long index = min / IDA_BITMAP_BITS;
-> +	unsigned long first = min % IDA_BITMAP_BITS;
-> +	unsigned long maxindex = max / IDA_BITMAP_BITS;
-> +
-> +	radix_tree_for_each_slot(slot, root, &iter, index) {
-> +		unsigned long nbits = IDA_BITMAP_BITS;
-> +		if (index > maxindex)
-> +			break;
-> +		bitmap = radix_tree_deref_slot(slot);
-> +		if (!bitmap)
-> +			continue;
-> +		radix_tree_iter_tag_set(root, &iter, IDR_FREE);
-> +
-> +		if (!first && iter.index < maxindex)
-> +			goto delete;
-> +		if (iter.index == maxindex)
-> +			nbits = max % IDA_BITMAP_BITS + 1;
-> +		bitmap_clear(bitmap->bitmap, first, nbits);
+commit f72e38e8ec8869ac0ba5a75d7d2f897d98a1454e upstream.
 
-It should be: bitmap_clear(.., first, nbits - first);
+Instead of x86_hyper being either NULL on bare metal or a pointer to a
+struct hypervisor_x86 in case of the kernel running as a guest merge
+the struct into x86_platform and x86_init.
 
+This will remove the need for wrappers making it hard to find out what
+is being called. With dummy functions added for all callbacks testing
+for a NULL function pointer can be removed, too.
 
-> diff --git a/tools/testing/radix-tree/Makefile b/tools/testing/radix-tree/Makefile
-> index fa7ee369b3c9..adf36e34dd77 100644
-> --- a/tools/testing/radix-tree/Makefile
-> +++ b/tools/testing/radix-tree/Makefile
-> @@ -1,12 +1,13 @@
->   # SPDX-License-Identifier: GPL-2.0
->   
->   CFLAGS += -I. -I../../include -g -O2 -Wall -D_LGPL_SOURCE -fsanitize=address
-> -LDFLAGS += -fsanitize=address
-> -LDLIBS+= -lpthread -lurcu
-> -TARGETS = main idr-test multiorder
-> +LDFLAGS += -fsanitize=address $(LDLIBS)
-> +LDLIBS := -lpthread -lurcu
-> +TARGETS = main idr-test multiorder xbitmap
->   CORE_OFILES := radix-tree.o idr.o linux.o test.o find_bit.o
->   OFILES = main.o $(CORE_OFILES) regression1.o regression2.o regression3.o \
-> -	 tag_check.o multiorder.o idr-test.o iteration_check.o benchmark.o
-> +	 tag_check.o multiorder.o idr-test.o iteration_check.o benchmark.o \
-> +	 xbitmap.o
->   
->   ifndef SHIFT
->   	SHIFT=3
-> @@ -25,8 +26,11 @@ idr-test: idr-test.o $(CORE_OFILES)
->   
->   multiorder: multiorder.o $(CORE_OFILES)
->   
-> +xbitmap: xbitmap.o $(CORE_OFILES)
-> +	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o xbitmap
-> +
+Suggested-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: akataria@vmware.com
+Cc: boris.ostrovsky@oracle.com
+Cc: devel@linuxdriverproject.org
+Cc: haiyangz@microsoft.com
+Cc: kvm@vger.kernel.org
+Cc: kys@microsoft.com
+Cc: pbonzini@redhat.com
+Cc: rkrcmar@redhat.com
+Cc: rusty@rustcorp.com.au
+Cc: sthemmin@microsoft.com
+Cc: virtualization@lists.linux-foundation.org
+Cc: xen-devel@lists.xenproject.org
+Link: http://lkml.kernel.org/r/20171109132739.23465-2-jgross@suse.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-I think the "$(CC).." line should be removed, which will fix the build 
-error when adding "xbitmap" to TARGET.
+---
+ arch/x86/include/asm/hypervisor.h |   25 +++-------------
+ arch/x86/include/asm/x86_init.h   |   24 ++++++++++++++++
+ arch/x86/kernel/apic/apic.c       |    2 -
+ arch/x86/kernel/cpu/hypervisor.c  |   56 ++++++++++++++++++--------------------
+ arch/x86/kernel/cpu/mshyperv.c    |    2 -
+ arch/x86/kernel/cpu/vmware.c      |    4 +-
+ arch/x86/kernel/kvm.c             |    2 -
+ arch/x86/kernel/x86_init.c        |    9 ++++++
+ arch/x86/mm/init.c                |    2 -
+ arch/x86/xen/enlighten_hvm.c      |    8 ++---
+ arch/x86/xen/enlighten_pv.c       |    2 -
+ include/linux/hypervisor.h        |    8 ++++-
+ 12 files changed, 82 insertions(+), 62 deletions(-)
 
-
-Best,
-Wei
+--- a/arch/x86/include/asm/hypervisor.h
++++ b/arch/x86/include/asm/hypervisor.h
+@@ -23,6 +23,7 @@
+ #ifdef CONFIG_HYPERVISOR_GUEST
+ 
+ #include <asm/kvm_para.h>
++#include <asm/x86_init.h>
+ #include <asm/xen/hypervisor.h>
+ 
+ /*
+@@ -35,17 +36,11 @@ struct hypervisor_x86 {
+ 	/* Detection routine */
+ 	uint32_t	(*detect)(void);
+ 
+-	/* Platform setup (run once per boot) */
+-	void		(*init_platform)(void);
++	/* init time callbacks */
++	struct x86_hyper_init init;
+ 
+-	/* X2APIC detection (run once per boot) */
+-	bool		(*x2apic_available)(void);
+-
+-	/* pin current vcpu to specified physical cpu (run rarely) */
+-	void		(*pin_vcpu)(int);
+-
+-	/* called during init_mem_mapping() to setup early mappings. */
+-	void		(*init_mem_mapping)(void);
++	/* runtime callbacks */
++	struct x86_hyper_runtime runtime;
+ };
+ 
+ extern const struct hypervisor_x86 *x86_hyper;
+@@ -58,17 +53,7 @@ extern const struct hypervisor_x86 x86_h
+ extern const struct hypervisor_x86 x86_hyper_kvm;
+ 
+ extern void init_hypervisor_platform(void);
+-extern bool hypervisor_x2apic_available(void);
+-extern void hypervisor_pin_vcpu(int cpu);
+-
+-static inline void hypervisor_init_mem_mapping(void)
+-{
+-	if (x86_hyper && x86_hyper->init_mem_mapping)
+-		x86_hyper->init_mem_mapping();
+-}
+ #else
+ static inline void init_hypervisor_platform(void) { }
+-static inline bool hypervisor_x2apic_available(void) { return false; }
+-static inline void hypervisor_init_mem_mapping(void) { }
+ #endif /* CONFIG_HYPERVISOR_GUEST */
+ #endif /* _ASM_X86_HYPERVISOR_H */
+--- a/arch/x86/include/asm/x86_init.h
++++ b/arch/x86/include/asm/x86_init.h
+@@ -115,6 +115,18 @@ struct x86_init_pci {
+ };
+ 
+ /**
++ * struct x86_hyper_init - x86 hypervisor init functions
++ * @init_platform:		platform setup
++ * @x2apic_available:		X2APIC detection
++ * @init_mem_mapping:		setup early mappings during init_mem_mapping()
++ */
++struct x86_hyper_init {
++	void (*init_platform)(void);
++	bool (*x2apic_available)(void);
++	void (*init_mem_mapping)(void);
++};
++
++/**
+  * struct x86_init_ops - functions for platform specific setup
+  *
+  */
+@@ -127,6 +139,7 @@ struct x86_init_ops {
+ 	struct x86_init_timers		timers;
+ 	struct x86_init_iommu		iommu;
+ 	struct x86_init_pci		pci;
++	struct x86_hyper_init		hyper;
+ };
+ 
+ /**
+@@ -200,6 +213,15 @@ struct x86_legacy_features {
+ };
+ 
+ /**
++ * struct x86_hyper_runtime - x86 hypervisor specific runtime callbacks
++ *
++ * @pin_vcpu:		pin current vcpu to specified physical cpu (run rarely)
++ */
++struct x86_hyper_runtime {
++	void (*pin_vcpu)(int cpu);
++};
++
++/**
+  * struct x86_platform_ops - platform specific runtime functions
+  * @calibrate_cpu:		calibrate CPU
+  * @calibrate_tsc:		calibrate TSC, if different from CPU
+@@ -218,6 +240,7 @@ struct x86_legacy_features {
+  * 				possible in x86_early_init_platform_quirks() by
+  * 				only using the current x86_hardware_subarch
+  * 				semantics.
++ * @hyper:			x86 hypervisor specific runtime callbacks
+  */
+ struct x86_platform_ops {
+ 	unsigned long (*calibrate_cpu)(void);
+@@ -233,6 +256,7 @@ struct x86_platform_ops {
+ 	void (*apic_post_init)(void);
+ 	struct x86_legacy_features legacy;
+ 	void (*set_legacy_features)(void);
++	struct x86_hyper_runtime hyper;
+ };
+ 
+ struct pci_dev;
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1645,7 +1645,7 @@ static __init void try_to_enable_x2apic(
+ 		 * under KVM
+ 		 */
+ 		if (max_physical_apicid > 255 ||
+-		    !hypervisor_x2apic_available()) {
++		    !x86_init.hyper.x2apic_available()) {
+ 			pr_info("x2apic: IRQ remapping doesn't support X2APIC mode\n");
+ 			x2apic_disable();
+ 			return;
+--- a/arch/x86/kernel/cpu/hypervisor.c
++++ b/arch/x86/kernel/cpu/hypervisor.c
+@@ -44,51 +44,49 @@ static const __initconst struct hypervis
+ const struct hypervisor_x86 *x86_hyper;
+ EXPORT_SYMBOL(x86_hyper);
+ 
+-static inline void __init
++static inline const struct hypervisor_x86 * __init
+ detect_hypervisor_vendor(void)
+ {
+-	const struct hypervisor_x86 *h, * const *p;
++	const struct hypervisor_x86 *h = NULL, * const *p;
+ 	uint32_t pri, max_pri = 0;
+ 
+ 	for (p = hypervisors; p < hypervisors + ARRAY_SIZE(hypervisors); p++) {
+-		h = *p;
+-		pri = h->detect();
+-		if (pri != 0 && pri > max_pri) {
++		pri = (*p)->detect();
++		if (pri > max_pri) {
+ 			max_pri = pri;
+-			x86_hyper = h;
++			h = *p;
+ 		}
+ 	}
+ 
+-	if (max_pri)
+-		pr_info("Hypervisor detected: %s\n", x86_hyper->name);
+-}
+-
+-void __init init_hypervisor_platform(void)
+-{
+-
+-	detect_hypervisor_vendor();
++	if (h)
++		pr_info("Hypervisor detected: %s\n", h->name);
+ 
+-	if (!x86_hyper)
+-		return;
+-
+-	if (x86_hyper->init_platform)
+-		x86_hyper->init_platform();
++	return h;
+ }
+ 
+-bool __init hypervisor_x2apic_available(void)
++static void __init copy_array(const void *src, void *target, unsigned int size)
+ {
+-	return x86_hyper                   &&
+-	       x86_hyper->x2apic_available &&
+-	       x86_hyper->x2apic_available();
++	unsigned int i, n = size / sizeof(void *);
++	const void * const *from = (const void * const *)src;
++	const void **to = (const void **)target;
++
++	for (i = 0; i < n; i++)
++		if (from[i])
++			to[i] = from[i];
+ }
+ 
+-void hypervisor_pin_vcpu(int cpu)
++void __init init_hypervisor_platform(void)
+ {
+-	if (!x86_hyper)
++	const struct hypervisor_x86 *h;
++
++	h = detect_hypervisor_vendor();
++
++	if (!h)
+ 		return;
+ 
+-	if (x86_hyper->pin_vcpu)
+-		x86_hyper->pin_vcpu(cpu);
+-	else
+-		WARN_ONCE(1, "vcpu pinning requested but not supported!\n");
++	copy_array(&h->init, &x86_init.hyper, sizeof(h->init));
++	copy_array(&h->runtime, &x86_platform.hyper, sizeof(h->runtime));
++
++	x86_hyper = h;
++	x86_init.hyper.init_platform();
+ }
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -257,6 +257,6 @@ static void __init ms_hyperv_init_platfo
+ const __refconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
+ 	.name			= "Microsoft Hyper-V",
+ 	.detect			= ms_hyperv_platform,
+-	.init_platform		= ms_hyperv_init_platform,
++	.init.init_platform	= ms_hyperv_init_platform,
+ };
+ EXPORT_SYMBOL(x86_hyper_ms_hyperv);
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -208,7 +208,7 @@ static bool __init vmware_legacy_x2apic_
+ const __refconst struct hypervisor_x86 x86_hyper_vmware = {
+ 	.name			= "VMware",
+ 	.detect			= vmware_platform,
+-	.init_platform		= vmware_platform_setup,
+-	.x2apic_available	= vmware_legacy_x2apic_available,
++	.init.init_platform	= vmware_platform_setup,
++	.init.x2apic_available	= vmware_legacy_x2apic_available,
+ };
+ EXPORT_SYMBOL(x86_hyper_vmware);
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -547,7 +547,7 @@ static uint32_t __init kvm_detect(void)
+ const struct hypervisor_x86 x86_hyper_kvm __refconst = {
+ 	.name			= "KVM",
+ 	.detect			= kvm_detect,
+-	.x2apic_available	= kvm_para_available,
++	.init.x2apic_available	= kvm_para_available,
+ };
+ EXPORT_SYMBOL_GPL(x86_hyper_kvm);
+ 
+--- a/arch/x86/kernel/x86_init.c
++++ b/arch/x86/kernel/x86_init.c
+@@ -28,6 +28,8 @@ void x86_init_noop(void) { }
+ void __init x86_init_uint_noop(unsigned int unused) { }
+ int __init iommu_init_noop(void) { return 0; }
+ void iommu_shutdown_noop(void) { }
++bool __init bool_x86_init_noop(void) { return false; }
++void x86_op_int_noop(int cpu) { }
+ 
+ /*
+  * The platform setup functions are preset with the default functions
+@@ -81,6 +83,12 @@ struct x86_init_ops x86_init __initdata
+ 		.init_irq		= x86_default_pci_init_irq,
+ 		.fixup_irqs		= x86_default_pci_fixup_irqs,
+ 	},
++
++	.hyper = {
++		.init_platform		= x86_init_noop,
++		.x2apic_available	= bool_x86_init_noop,
++		.init_mem_mapping	= x86_init_noop,
++	},
+ };
+ 
+ struct x86_cpuinit_ops x86_cpuinit = {
+@@ -101,6 +109,7 @@ struct x86_platform_ops x86_platform __r
+ 	.get_nmi_reason			= default_get_nmi_reason,
+ 	.save_sched_clock_state 	= tsc_save_sched_clock_state,
+ 	.restore_sched_clock_state 	= tsc_restore_sched_clock_state,
++	.hyper.pin_vcpu			= x86_op_int_noop,
+ };
+ 
+ EXPORT_SYMBOL_GPL(x86_platform);
+--- a/arch/x86/mm/init.c
++++ b/arch/x86/mm/init.c
+@@ -671,7 +671,7 @@ void __init init_mem_mapping(void)
+ 	load_cr3(swapper_pg_dir);
+ 	__flush_tlb_all();
+ 
+-	hypervisor_init_mem_mapping();
++	x86_init.hyper.init_mem_mapping();
+ 
+ 	early_memtest(0, max_pfn_mapped << PAGE_SHIFT);
+ }
+--- a/arch/x86/xen/enlighten_hvm.c
++++ b/arch/x86/xen/enlighten_hvm.c
+@@ -229,9 +229,9 @@ static uint32_t __init xen_platform_hvm(
+ const struct hypervisor_x86 x86_hyper_xen_hvm = {
+ 	.name                   = "Xen HVM",
+ 	.detect                 = xen_platform_hvm,
+-	.init_platform          = xen_hvm_guest_init,
+-	.pin_vcpu               = xen_pin_vcpu,
+-	.x2apic_available       = xen_x2apic_para_available,
+-	.init_mem_mapping	= xen_hvm_init_mem_mapping,
++	.init.init_platform     = xen_hvm_guest_init,
++	.init.x2apic_available  = xen_x2apic_para_available,
++	.init.init_mem_mapping	= xen_hvm_init_mem_mapping,
++	.runtime.pin_vcpu       = xen_pin_vcpu,
+ };
+ EXPORT_SYMBOL(x86_hyper_xen_hvm);
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1462,6 +1462,6 @@ static uint32_t __init xen_platform_pv(v
+ const struct hypervisor_x86 x86_hyper_xen_pv = {
+ 	.name                   = "Xen PV",
+ 	.detect                 = xen_platform_pv,
+-	.pin_vcpu               = xen_pin_vcpu,
++	.runtime.pin_vcpu       = xen_pin_vcpu,
+ };
+ EXPORT_SYMBOL(x86_hyper_xen_pv);
+--- a/include/linux/hypervisor.h
++++ b/include/linux/hypervisor.h
+@@ -7,8 +7,12 @@
+  *		Juergen Gross <jgross@suse.com>
+  */
+ 
+-#ifdef CONFIG_HYPERVISOR_GUEST
+-#include <asm/hypervisor.h>
++#ifdef CONFIG_X86
++#include <asm/x86_init.h>
++static inline void hypervisor_pin_vcpu(int cpu)
++{
++	x86_platform.hyper.pin_vcpu(cpu);
++}
+ #else
+ static inline void hypervisor_pin_vcpu(int cpu)
+ {
