@@ -1,20 +1,15 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [RFC PATCH] virtio_net: Extend virtio to use VF datapath when
-	available
-Date: Fri, 22 Dec 2017 00:42:03 -0800
-Message-ID: <CADGSJ229oZiPrJQ1BiDo8nitpqMDMi2fRb2iea2_0insQtkyfg__49114.7793167785$1515606535$gmane$org@mail.gmail.com>
-References: <20171219174259-mutt-send-email-mst@kernel.org>
-	<ca709329-a47a-2e76-b1fc-38fc665d7c0b@intel.com>
-	<20171219095548.61d70d10@xeon-e3>
-	<20171219.132117.666798483874609477.davem@davemloft.net>
-	<20171219104159.30d9caaf@xeon-e3>
-	<CADGSJ22mDyC0Sw2EPW96ZWvMPLnzif+Y9MMouhM-6T03ZaKA0Q@mail.gmail.com>
-	<20171220205204.4853f1d1@cakuba.netronome.com>
+From: Jason Baron via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: [PATCH 2/3] qemu: use 64-bit values for feature flags in virtio-net
+Date: Fri, 22 Dec 2017 16:53:58 -0500
+Message-ID: <1513979641-7999-1-git-send-email-jbaron__21946.4337955744$1515606536$gmane$org@akamai.com>
+References: <cover.1513974243.git.jbaron@akamai.com>
+Reply-To: Jason Baron <jbaron@akamai.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171220205204.4853f1d1@cakuba.netronome.com>
+In-Reply-To: <cover.1513974243.git.jbaron@akamai.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,53 +19,137 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jakub Kicinski <kubakici@wp.pl>
-Cc: mst@redhat.com, sridhar.samudrala@intel.com, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, David Miller <davem@davemloft.net>
+To: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
+Cc: mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 20, 2017 at 8:52 PM, Jakub Kicinski <kubakici@wp.pl> wrote:
-> On Wed, 20 Dec 2017 18:16:30 -0800, Siwei Liu wrote:
->> > The plan is to remove the delay and do the naming in the kernel.
->> > This was suggested by Lennart since udev is only doing naming policy
->> > because kernel names were not repeatable.
->> >
->> > This makes the VF show up as "ethN_vf" on Hyper-V which is user friendly.
->> >
->> > Patch is pending.
->>
->> While it's good to show VF with specific naming to indicate
->> enslavement, I wonder wouldn't it be better to hide this netdev at all
->> from the user space? IMHO this extra device is useless when being
->> enslaved and we may delegate controls (e.g. ethtool) over to the
->> para-virtual device instead? That way it's possible to eliminate the
->> possibility of additional udev setup or modification?
->>
->> I'm not sure if this  is consistent with Windows guest or not, but I
->> don't find it _Linux_ user friendly that ethtool doesn't work on the
->> composite interface any more, and I have to end up with finding out
->> the correct enslaved VF I must operate on.
->
-> Hiding "low level" netdevs comes up from time to time, and is more
-> widely applicable than just to VF bonds.  We should find a generic
-> solution to that problem.
+In prepartion for using some of the high order feature bits, make sure that
+virtio-net uses 64-bit values everywhere.
 
-Wholeheartedly agreed.
+Signed-off-by: Jason Baron <jbaron@akamai.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+---
+ hw/net/virtio-net.c            | 54 +++++++++++++++++++++---------------------
+ include/hw/virtio/virtio-net.h |  2 +-
+ 2 files changed, 28 insertions(+), 28 deletions(-)
 
-Be it a generic virtual bond or virtio-net specific one, there should
-be some common code between netvsc and virtio for this type of work.
-For avoiding duplicated bugs, consistent (Linux) user experience,
-future code refactoring/management, and whatever...
-
-One thing worth to note is that, unlike the Hyper-V netvsc backend
-there's currently no equivalent (fine-grained) Linux ndo_* driver
-interface that is able to move around MAC address/VLAN filters at
-run-time specifically. The OID_RECEIVE_FILTER_MOVE_FILTER request I
-mean. That translates to one substantial difference in VF
-plumbing/unplumbing sequence: you cannot move the MAC address around
-to paravirt device until VF is fully unplugged out of the guest OS. I
-don't know what backend changes to be proposed for virtio-net as
-helper, but the common code needs to work with both flavors of data
-path switching backends and do its job correctly.
-
-Regards,
--Siwei
+diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
+index 38674b0..adc20df 100644
+--- a/hw/net/virtio-net.c
++++ b/hw/net/virtio-net.c
+@@ -48,18 +48,18 @@
+     (offsetof(container, field) + sizeof(((container *)0)->field))
+ 
+ typedef struct VirtIOFeature {
+-    uint32_t flags;
++    uint64_t flags;
+     size_t end;
+ } VirtIOFeature;
+ 
+ static VirtIOFeature feature_sizes[] = {
+-    {.flags = 1 << VIRTIO_NET_F_MAC,
++    {.flags = 1ULL << VIRTIO_NET_F_MAC,
+      .end = endof(struct virtio_net_config, mac)},
+-    {.flags = 1 << VIRTIO_NET_F_STATUS,
++    {.flags = 1ULL << VIRTIO_NET_F_STATUS,
+      .end = endof(struct virtio_net_config, status)},
+-    {.flags = 1 << VIRTIO_NET_F_MQ,
++    {.flags = 1ULL << VIRTIO_NET_F_MQ,
+      .end = endof(struct virtio_net_config, max_virtqueue_pairs)},
+-    {.flags = 1 << VIRTIO_NET_F_MTU,
++    {.flags = 1ULL << VIRTIO_NET_F_MTU,
+      .end = endof(struct virtio_net_config, mtu)},
+     {}
+ };
+@@ -1938,7 +1938,7 @@ static void virtio_net_device_realize(DeviceState *dev, Error **errp)
+     int i;
+ 
+     if (n->net_conf.mtu) {
+-        n->host_features |= (0x1 << VIRTIO_NET_F_MTU);
++        n->host_features |= (1ULL << VIRTIO_NET_F_MTU);
+     }
+ 
+     virtio_net_set_config_size(n, n->host_features);
+@@ -2109,45 +2109,45 @@ static const VMStateDescription vmstate_virtio_net = {
+ };
+ 
+ static Property virtio_net_properties[] = {
+-    DEFINE_PROP_BIT("csum", VirtIONet, host_features, VIRTIO_NET_F_CSUM, true),
+-    DEFINE_PROP_BIT("guest_csum", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("csum", VirtIONet, host_features, VIRTIO_NET_F_CSUM, true),
++    DEFINE_PROP_BIT64("guest_csum", VirtIONet, host_features,
+                     VIRTIO_NET_F_GUEST_CSUM, true),
+-    DEFINE_PROP_BIT("gso", VirtIONet, host_features, VIRTIO_NET_F_GSO, true),
+-    DEFINE_PROP_BIT("guest_tso4", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("gso", VirtIONet, host_features, VIRTIO_NET_F_GSO, true),
++    DEFINE_PROP_BIT64("guest_tso4", VirtIONet, host_features,
+                     VIRTIO_NET_F_GUEST_TSO4, true),
+-    DEFINE_PROP_BIT("guest_tso6", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("guest_tso6", VirtIONet, host_features,
+                     VIRTIO_NET_F_GUEST_TSO6, true),
+-    DEFINE_PROP_BIT("guest_ecn", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("guest_ecn", VirtIONet, host_features,
+                     VIRTIO_NET_F_GUEST_ECN, true),
+-    DEFINE_PROP_BIT("guest_ufo", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("guest_ufo", VirtIONet, host_features,
+                     VIRTIO_NET_F_GUEST_UFO, true),
+-    DEFINE_PROP_BIT("guest_announce", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("guest_announce", VirtIONet, host_features,
+                     VIRTIO_NET_F_GUEST_ANNOUNCE, true),
+-    DEFINE_PROP_BIT("host_tso4", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("host_tso4", VirtIONet, host_features,
+                     VIRTIO_NET_F_HOST_TSO4, true),
+-    DEFINE_PROP_BIT("host_tso6", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("host_tso6", VirtIONet, host_features,
+                     VIRTIO_NET_F_HOST_TSO6, true),
+-    DEFINE_PROP_BIT("host_ecn", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("host_ecn", VirtIONet, host_features,
+                     VIRTIO_NET_F_HOST_ECN, true),
+-    DEFINE_PROP_BIT("host_ufo", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("host_ufo", VirtIONet, host_features,
+                     VIRTIO_NET_F_HOST_UFO, true),
+-    DEFINE_PROP_BIT("mrg_rxbuf", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("mrg_rxbuf", VirtIONet, host_features,
+                     VIRTIO_NET_F_MRG_RXBUF, true),
+-    DEFINE_PROP_BIT("status", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("status", VirtIONet, host_features,
+                     VIRTIO_NET_F_STATUS, true),
+-    DEFINE_PROP_BIT("ctrl_vq", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("ctrl_vq", VirtIONet, host_features,
+                     VIRTIO_NET_F_CTRL_VQ, true),
+-    DEFINE_PROP_BIT("ctrl_rx", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("ctrl_rx", VirtIONet, host_features,
+                     VIRTIO_NET_F_CTRL_RX, true),
+-    DEFINE_PROP_BIT("ctrl_vlan", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("ctrl_vlan", VirtIONet, host_features,
+                     VIRTIO_NET_F_CTRL_VLAN, true),
+-    DEFINE_PROP_BIT("ctrl_rx_extra", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("ctrl_rx_extra", VirtIONet, host_features,
+                     VIRTIO_NET_F_CTRL_RX_EXTRA, true),
+-    DEFINE_PROP_BIT("ctrl_mac_addr", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("ctrl_mac_addr", VirtIONet, host_features,
+                     VIRTIO_NET_F_CTRL_MAC_ADDR, true),
+-    DEFINE_PROP_BIT("ctrl_guest_offloads", VirtIONet, host_features,
++    DEFINE_PROP_BIT64("ctrl_guest_offloads", VirtIONet, host_features,
+                     VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, true),
+-    DEFINE_PROP_BIT("mq", VirtIONet, host_features, VIRTIO_NET_F_MQ, false),
++    DEFINE_PROP_BIT64("mq", VirtIONet, host_features, VIRTIO_NET_F_MQ, false),
+     DEFINE_NIC_PROPERTIES(VirtIONet, nic_conf),
+     DEFINE_PROP_UINT32("x-txtimer", VirtIONet, net_conf.txtimer,
+                        TX_TIMER_INTERVAL),
+diff --git a/include/hw/virtio/virtio-net.h b/include/hw/virtio/virtio-net.h
+index b81b6a4..e7634c9 100644
+--- a/include/hw/virtio/virtio-net.h
++++ b/include/hw/virtio/virtio-net.h
+@@ -67,7 +67,7 @@ typedef struct VirtIONet {
+     uint32_t has_vnet_hdr;
+     size_t host_hdr_len;
+     size_t guest_hdr_len;
+-    uint32_t host_features;
++    uint64_t host_features;
+     uint8_t has_ufo;
+     uint32_t mergeable_rx_bufs;
+     uint8_t promisc;
+-- 
+2.6.1
