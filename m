@@ -1,17 +1,14 @@
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
-Subject: Re: [PATCH RFC 1/4] crypto: engine - Permit to enqueue all async
-	requests
-Date: Fri, 22 Dec 2017 09:41:48 +0100
-Message-ID: <20171222084148.GA3024__14063.7625045658$1513932025$gmane$org@Red>
-References: <20171129084121.9385-1-clabbe.montjoie@gmail.com>
-	<20171129084121.9385-2-clabbe.montjoie@gmail.com>
-	<20171222065724.GA27149@gondor.apana.org.au>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v20 3/7 RESEND] xbitmap: add more operations
+Date: Fri, 22 Dec 2017 16:45:33 +0800
+Message-ID: <5A3CC62D.6020001__27614.0249254697$1513932116$gmane$org@intel.com>
+References: <1513823406-43632-1-git-send-email-wei.w.wang@intel.com>	<20171221141805.GA27695@bombadil.infradead.org>
+	<201712212337.JFC57368.tLFOJFVSFHMOOQ@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20171222065724.GA27149@gondor.apana.org.au>
+In-Reply-To: <201712212337.JFC57368.tLFOJFVSFHMOOQ@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,32 +18,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: alexandre.torgue@st.com, mst@redhat.com, linux-kernel@vger.kernel.org, fabien.dessenne@st.com, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, mcoquelin.stm32@gmail.com, davem@davemloft.net, linux-arm-kernel@lists.infradead.org
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, willy@infradead.org
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 22, 2017 at 05:57:24PM +1100, Herbert Xu wrote:
-> On Wed, Nov 29, 2017 at 09:41:18AM +0100, Corentin Labbe wrote:
-> > The crypto engine could actually only enqueue hash and ablkcipher request.
-> > This patch permit it to enqueue any type of crypto_async_request.
-> > 
-> > Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-> 
-> This is going the wrong way.  We do not want to expose any of the
-> base types such as crypto_alg, crypto_async_request to end-users
-> and that includes drivers.  Only core API code should touch these
-> base types.
-> 
+On 12/21/2017 10:37 PM, Tetsuo Handa wrote:
+> Matthew Wilcox wrote:
+>>> +/**
+>>> + * xb_find_set - find the next set bit in a range of bits
+>>> + * @xb: the xbitmap to search from
+>>> + * @offset: the offset in the range to start searching
+>>> + * @size: the size of the range
+>>> + *
+>>> + * Returns: the found bit or, @size if no set bit is found.
+>>> + */
+>>> +unsigned long xb_find_set(struct xb *xb, unsigned long size,
+>>> +			  unsigned long offset)
+>>> +{
+>>> +	struct radix_tree_root *root = &xb->xbrt;
+>>> +	struct radix_tree_node *node;
+>>> +	void __rcu **slot;
+>>> +	struct ida_bitmap *bitmap;
+>>> +	unsigned long index = offset / IDA_BITMAP_BITS;
+>>> +	unsigned long index_end = size / IDA_BITMAP_BITS;
+>>> +	unsigned long bit = offset % IDA_BITMAP_BITS;
+>>> +
+>>> +	if (unlikely(offset >= size))
+>>> +		return size;
+>>> +
+>>> +	while (index <= index_end) {
+>>> +		unsigned long ret;
+>>> +		unsigned int nbits = size - index * IDA_BITMAP_BITS;
+>>> +
+>>> +		bitmap = __radix_tree_lookup(root, index, &node, &slot);
+>>> +
+>>> +		if (!node && !bitmap)
+>>> +			return size;
+>>> +
+>>> +		if (bitmap) {
+>>> +			if (nbits > IDA_BITMAP_BITS)
+>>> +				nbits = IDA_BITMAP_BITS;
+>>> +
+>>> +			ret = find_next_bit(bitmap->bitmap, nbits, bit);
+>>> +			if (ret != nbits)
+>>> +				return ret + index * IDA_BITMAP_BITS;
+>>> +		}
+>>> +		bit = 0;
+>>> +		index++;
+>>> +	}
+>>> +
+>>> +	return size;
+>>> +}
+>>> +EXPORT_SYMBOL(xb_find_set);
+>> This is going to be slower than the implementation I sent yesterday.  If I
+>> call:
+>> 	xb_init(xb);
+>> 	xb_set_bit(xb, ULONG_MAX);
+>> 	xb_find_set(xb, ULONG_MAX, 0);
+>>
+>> it's going to call __radix_tree_lookup() 16 quadrillion times.
+>> My implementation will walk the tree precisely once.
+>>
+> Yes. Wei's patch still can not work.
+> We should start reviewing Matthew's implementation.
 
-Hello
+It runs without any issue on my machine. I didn't generate an "xbitmap" 
+executable (I just found adding xbitmap executable causes a build error 
+due to a Makefile error), instead, I tested it within "main" and it 
+passed all the tests.
 
-It's you that was suggesting using crypto_async_request:
-https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1474434.html
-"The only wart with this scheme is that the drivers end up seeing
-struct crypto_async_request and will need to convert that to the
-respective request types but I couldn't really find a better way."
+Matthew has implemented a new version, let's start from there.
 
-So I wait for any suggestion.
-
-Regards
-Corentin Labbe
+Best,
+Wei
