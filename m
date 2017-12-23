@@ -1,13 +1,16 @@
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-Subject: [bpf-next V2 PATCH 11/14] virtio_net: setup xdp_rxq_info
-Date: Fri, 22 Dec 2017 18:12:31 +0100
-Message-ID: <151396275093.20006.9684557344807016870.stgit__1137.84651407531$1513962672$gmane$org@firesoul>
-References: <151396262289.20006.1429172971820409456.stgit@firesoul>
+From: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH v20 3/7 RESEND] xbitmap: add more operations
+Date: Fri, 22 Dec 2017 19:29:59 -0800
+Message-ID: <20171223032959.GA11578__4180.08065685189$1513999721$gmane$org@bombadil.infradead.org>
+References: <1513823406-43632-1-git-send-email-wei.w.wang@intel.com>
+	<20171221210327.GB25009@bombadil.infradead.org>
+	<201712231159.ECI73411.tFFFJOHOVMOLQS@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <151396262289.20006.1429172971820409456.stgit@firesoul>
+Content-Disposition: inline
+In-Reply-To: <201712231159.ECI73411.tFFFJOHOVMOLQS@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,82 +20,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Borkmann <borkmann@iogearbox.net>, Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>, virtualization@lists.linux-foundation.org, dsahern@gmail.com, gospo@broadcom.com, bjorn.topel@intel.com, michael.chan@broadcom.com
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The virtio_net driver doesn't dynamically change the RX-ring queue
-layout and backing pages, but instead reject XDP setup if all the
-conditions for XDP is not meet.  Thus, the xdp_rxq_info also remains
-fairly static.  This allow us to simply add the reg/unreg to
-net_device open/close functions.
+On Sat, Dec 23, 2017 at 11:59:54AM +0900, Tetsuo Handa wrote:
+> Matthew Wilcox wrote:
+> > +	bit %= IDA_BITMAP_BITS;
+> > +	radix_tree_iter_init(&iter, index);
+> > +	slot = idr_get_free_cmn(root, &iter, GFP_NOWAIT | __GFP_NOWARN, index);
+> > +	if (IS_ERR(slot)) {
+> > +		if (slot == ERR_PTR(-ENOSPC))
+> > +			return 0;	/* Already set */
+> 
+> Why already set? I guess something is there, but is it guaranteed that
+> there is a bitmap with the "bit" set?
 
-Driver hook points for xdp_rxq_info:
- * reg  : virtnet_open
- * unreg: virtnet_close
+Yes.  For radix trees tagged with IDR_RT_MARKER, newly created slots
+have the IDR_FREE tag set.  We only clear the IDR_FREE tag once the
+bitmap is full.  So if we try to find a free slot and the tag is clear,
+we know the bitmap is full.
 
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
----
- drivers/net/virtio_net.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+> > +	bitmap = rcu_dereference_raw(*slot);
+> > +	if (!bitmap) {
+> > +		bitmap = this_cpu_xchg(ida_bitmap, NULL);
+> > +		if (!bitmap)
+> > +			return -ENOMEM;
+> 
+> I can't understand this. I can understand if it were
+> 
+>   BUG_ON(!bitmap);
+> 
+> because you called xb_preload().
+> 
+> But
+> 
+> 	/*
+> 	 * Regular test 2
+> 	 * set bit 2000, 2001, 2040
+> 	 * Next 1 in [0, 2048)		--> 2000
+> 	 * Next 1 in [2000, 2002)	--> 2000
+> 	 * Next 1 in [2002, 2041)	--> 2040
+> 	 * Next 1 in [2002, 2040)	--> none
+> 	 * Next 0 in [2000, 2048)	--> 2002
+> 	 * Next 0 in [2048, 2060)	--> 2048
+> 	 */
+> 	xb_preload(GFP_KERNEL);
+> 	assert(!xb_set_bit(&xb1, 2000));
+> 	assert(!xb_set_bit(&xb1, 2001));
+> 	assert(!xb_set_bit(&xb1, 2040));
+[...]
+> 	xb_preload_end();
+> 
+> you are not calling xb_preload() prior to each xb_set_bit() call.
+> This means that, if each xb_set_bit() is not surrounded with
+> xb_preload()/xb_preload_end(), there is possibility of hitting
+> this_cpu_xchg(ida_bitmap, NULL) == NULL.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 6fb7b658a6cc..6d45d687ec6a 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -31,6 +31,7 @@
- #include <linux/average.h>
- #include <linux/filter.h>
- #include <net/route.h>
-+#include <net/xdp.h>
- 
- static int napi_weight = NAPI_POLL_WEIGHT;
- module_param(napi_weight, int, 0444);
-@@ -115,6 +116,8 @@ struct receive_queue {
- 
- 	/* Name of this receive queue: input.$index */
- 	char name[40];
-+
-+	struct xdp_rxq_info xdp_rxq;
- };
- 
- struct virtnet_info {
-@@ -559,6 +562,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 		xdp.data = xdp.data_hard_start + xdp_headroom;
- 		xdp_set_data_meta_invalid(&xdp);
- 		xdp.data_end = xdp.data + len;
-+		xdp.rxq = &rq->xdp_rxq;
- 		orig_data = xdp.data;
- 		act = bpf_prog_run_xdp(xdp_prog, &xdp);
- 
-@@ -1225,13 +1229,18 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
- static int virtnet_open(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	int i;
-+	int i, err;
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		if (i < vi->curr_queue_pairs)
- 			/* Make sure we have some buffers: if oom use wq. */
- 			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
- 				schedule_delayed_work(&vi->refill, 0);
-+
-+		err = xdp_rxq_info_reg(&vi->rq[i].xdp_rxq, dev, i);
-+		if (err < 0)
-+			return err;
-+
- 		virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
- 		virtnet_napi_tx_enable(vi, vi->sq[i].vq, &vi->sq[i].napi);
- 	}
-@@ -1560,6 +1569,7 @@ static int virtnet_close(struct net_device *dev)
- 	cancel_delayed_work_sync(&vi->refill);
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
-+		xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
- 		napi_disable(&vi->rq[i].napi);
- 		virtnet_napi_tx_disable(&vi->sq[i].napi);
- 	}
+This is just a lazy test.  We "know" that the bits in the range 1024-2047
+will all land in the same bitmap, so there's no need to preload for each
+of them.
+
+> If bitmap == NULL at this_cpu_xchg(ida_bitmap, NULL) is allowed,
+> you can use kzalloc(sizeof(*bitmap), GFP_NOWAIT | __GFP_NOWARN)
+> and get rid of xb_preload()/xb_preload_end().
+
+No, we can't.  GFP_NOWAIT | __GFP_NOWARN won't try very hard to allocate
+memory.  There's no reason to fail the call if the user is in a context
+where they can try harder to free memory.
+
+> You are using idr_get_free_cmn(GFP_NOWAIT | __GFP_NOWARN), which
+> means that the caller has to be prepared for allocation failure
+> when calling xb_set_bit(). Thus, there is no need to use preload
+> in order to avoid failing to allocate "bitmap".
+
+xb_preload also preloads radix tree nodes.
+
+> Also, please clarify why it is OK to just return here.
+> I don't know what
+> 
+>   radix_tree_iter_replace(root, &iter, slot, bitmap);
+> 
+> is doing. If you created a slot but did not assign "bitmap",
+> what the caller of xb_test_bit() etc. will find? If there is an
+> assumption about this slot, won't this cause a problem?
+
+xb_test_bit will find NULL if bitmap wasn't assigned.  That doesn't
+harm anything.
