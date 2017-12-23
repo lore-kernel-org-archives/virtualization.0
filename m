@@ -1,16 +1,18 @@
 From: Matthew Wilcox <willy@infradead.org>
 Subject: Re: [PATCH v20 3/7 RESEND] xbitmap: add more operations
-Date: Fri, 22 Dec 2017 19:29:59 -0800
-Message-ID: <20171223032959.GA11578__4180.08065685189$1513999721$gmane$org@bombadil.infradead.org>
+Date: Sat, 23 Dec 2017 06:58:59 -0800
+Message-ID: <20171223145859.GA24464__8157.16105648807$1514041038$gmane$org@bombadil.infradead.org>
 References: <1513823406-43632-1-git-send-email-wei.w.wang@intel.com>
 	<20171221210327.GB25009@bombadil.infradead.org>
 	<201712231159.ECI73411.tFFFJOHOVMOLQS@I-love.SAKURA.ne.jp>
+	<20171223032959.GA11578@bombadil.infradead.org>
+	<201712232333.BAH82874.FFFtOMHSLVQOOJ@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <201712231159.ECI73411.tFFFJOHOVMOLQS@I-love.SAKURA.ne.jp>
+In-Reply-To: <201712232333.BAH82874.FFFtOMHSLVQOOJ@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,86 +26,86 @@ To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Dec 23, 2017 at 11:59:54AM +0900, Tetsuo Handa wrote:
+On Sat, Dec 23, 2017 at 11:33:45PM +0900, Tetsuo Handa wrote:
 > Matthew Wilcox wrote:
-> > +	bit %= IDA_BITMAP_BITS;
-> > +	radix_tree_iter_init(&iter, index);
-> > +	slot = idr_get_free_cmn(root, &iter, GFP_NOWAIT | __GFP_NOWARN, index);
-> > +	if (IS_ERR(slot)) {
-> > +		if (slot == ERR_PTR(-ENOSPC))
-> > +			return 0;	/* Already set */
+> > On Sat, Dec 23, 2017 at 11:59:54AM +0900, Tetsuo Handa wrote:
+> > > Matthew Wilcox wrote:
+> > > > +	bit %= IDA_BITMAP_BITS;
+> > > > +	radix_tree_iter_init(&iter, index);
+> > > > +	slot = idr_get_free_cmn(root, &iter, GFP_NOWAIT | __GFP_NOWARN, index);
+> > > > +	if (IS_ERR(slot)) {
+> > > > +		if (slot == ERR_PTR(-ENOSPC))
+> > > > +			return 0;	/* Already set */
+> > > 
+> > > Why already set? I guess something is there, but is it guaranteed that
+> > > there is a bitmap with the "bit" set?
+> > 
+> > Yes.  For radix trees tagged with IDR_RT_MARKER, newly created slots
+> > have the IDR_FREE tag set.  We only clear the IDR_FREE tag once the
+> > bitmap is full.  So if we try to find a free slot and the tag is clear,
+> > we know the bitmap is full.
+> > 
 > 
-> Why already set? I guess something is there, but is it guaranteed that
-> there is a bitmap with the "bit" set?
-
-Yes.  For radix trees tagged with IDR_RT_MARKER, newly created slots
-have the IDR_FREE tag set.  We only clear the IDR_FREE tag once the
-bitmap is full.  So if we try to find a free slot and the tag is clear,
-we know the bitmap is full.
-
-> > +	bitmap = rcu_dereference_raw(*slot);
-> > +	if (!bitmap) {
-> > +		bitmap = this_cpu_xchg(ida_bitmap, NULL);
-> > +		if (!bitmap)
-> > +			return -ENOMEM;
+> OK. But does using IDR_FREE tag have more benefit than cost?
+> You are doing
 > 
-> I can't understand this. I can understand if it were
+> 	if (bitmap_full(bitmap->bitmap, IDA_BITMAP_BITS))
+> 		radix_tree_iter_tag_clear(root, &iter, IDR_FREE);
 > 
->   BUG_ON(!bitmap);
+> for each xb_set_bit() call. How likely do we hit ERR_PTR(-ENOSPC) path?
+> Isn't removing both bitmap_full() and ERR_PTR(-ENOSPC) better?
+
+You're assuming that the purpose of using IDR_FREE is to save xb_set_bit
+from walking the tree unnecessarily.  It isn't; that's just a happy
+side-effect.  Its main purpose is to make xb_find_zero() efficient.  If
+we have large ranges of set bits, xb_find_zero() will be able to skip them.
+
+> > This is just a lazy test.  We "know" that the bits in the range 1024-2047
+> > will all land in the same bitmap, so there's no need to preload for each
+> > of them.
 > 
-> because you called xb_preload().
+> Testcases also serves as how to use that API.
+> Assuming such thing leads to incorrect usage.
+
+Sure.  Would you like to submit a patch?
+
+> > > If bitmap == NULL at this_cpu_xchg(ida_bitmap, NULL) is allowed,
+> > > you can use kzalloc(sizeof(*bitmap), GFP_NOWAIT | __GFP_NOWARN)
+> > > and get rid of xb_preload()/xb_preload_end().
+> > 
+> > No, we can't.  GFP_NOWAIT | __GFP_NOWARN won't try very hard to allocate
+> > memory.  There's no reason to fail the call if the user is in a context
+> > where they can try harder to free memory.
 > 
-> But
+> But there is no reason to use GFP_NOWAIT at idr_get_free_cmn() if it is
+> safe to use GFP_KERNEL. If we don't require xb_preload() which forces
+> idr_get_free_cmn() to use GFP_NOWAIT due to possibility of preemption
+> disabled by xb_preload(), we can allow passing gfp flags to xb_set_bit().
+
+The assumption is that the user has done:
+
+	xb_preload(GFP_KERNEL);
+	spin_lock(my_lock);
+	xb_set_bit(xb, bit);
+	spin_unlock(my_lock);
+	xb_preload_end();
+
+This is not the world's greatest interface.  Once I have the XArray
+finished, we'll be able to ditch the external spinlock and the preload
+interface and be able to call:
+
+	xb_set_bit(xb, bit, GFP_KERNEL);
+
+> > xb_preload also preloads radix tree nodes.
 > 
-> 	/*
-> 	 * Regular test 2
-> 	 * set bit 2000, 2001, 2040
-> 	 * Next 1 in [0, 2048)		--> 2000
-> 	 * Next 1 in [2000, 2002)	--> 2000
-> 	 * Next 1 in [2002, 2041)	--> 2040
-> 	 * Next 1 in [2002, 2040)	--> none
-> 	 * Next 0 in [2000, 2048)	--> 2002
-> 	 * Next 0 in [2048, 2060)	--> 2048
-> 	 */
-> 	xb_preload(GFP_KERNEL);
-> 	assert(!xb_set_bit(&xb1, 2000));
-> 	assert(!xb_set_bit(&xb1, 2001));
-> 	assert(!xb_set_bit(&xb1, 2040));
-[...]
-> 	xb_preload_end();
-> 
-> you are not calling xb_preload() prior to each xb_set_bit() call.
-> This means that, if each xb_set_bit() is not surrounded with
-> xb_preload()/xb_preload_end(), there is possibility of hitting
-> this_cpu_xchg(ida_bitmap, NULL) == NULL.
+> But it after all forces idr_get_free_cmn() to use GFP_NOWAIT, doesn't it?
 
-This is just a lazy test.  We "know" that the bits in the range 1024-2047
-will all land in the same bitmap, so there's no need to preload for each
-of them.
+I think you don't understand how the radix tree allocates nodes.  preloading
+means that it will be able to access the nodes which were allocated earlier.
 
-> If bitmap == NULL at this_cpu_xchg(ida_bitmap, NULL) is allowed,
-> you can use kzalloc(sizeof(*bitmap), GFP_NOWAIT | __GFP_NOWARN)
-> and get rid of xb_preload()/xb_preload_end().
+> Speak of initial user (i.e. virtio-balloon), xb_preload() won't be able to
+> use GFP_KERNEL in order to avoid OOM lockup. Therefore, I don't see
+> advantages with using xb_preload(). If xb_set_bit() receives gfp flags,
+> the caller can pass GFP_KERNEL if it is safe to use GFP_KERNEL.
 
-No, we can't.  GFP_NOWAIT | __GFP_NOWARN won't try very hard to allocate
-memory.  There's no reason to fail the call if the user is in a context
-where they can try harder to free memory.
-
-> You are using idr_get_free_cmn(GFP_NOWAIT | __GFP_NOWARN), which
-> means that the caller has to be prepared for allocation failure
-> when calling xb_set_bit(). Thus, there is no need to use preload
-> in order to avoid failing to allocate "bitmap".
-
-xb_preload also preloads radix tree nodes.
-
-> Also, please clarify why it is OK to just return here.
-> I don't know what
-> 
->   radix_tree_iter_replace(root, &iter, slot, bitmap);
-> 
-> is doing. If you created a slot but did not assign "bitmap",
-> what the caller of xb_test_bit() etc. will find? If there is an
-> assumption about this slot, won't this cause a problem?
-
-xb_test_bit will find NULL if bitmap wasn't assigned.  That doesn't
-harm anything.
+I haven't reviewed how virtio-balloon is using the interfaces.
