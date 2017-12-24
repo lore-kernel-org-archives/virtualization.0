@@ -1,17 +1,11 @@
-From: Jason Baron via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH 3/3] qemu: add linkspeed and duplex settings to virtio-net
-Date: Fri, 22 Dec 2017 16:53:59 -0500
-Message-ID: <1513979641-7999-2-git-send-email-jbaron__23352.8032470078$1515606565$gmane$org@akamai.com>
-References: <1513979641-7999-1-git-send-email-jbaron@akamai.com>
-Reply-To: Jason Baron <jbaron@akamai.com>
+From: "=?UTF-8?B?5aS35YiZKENhc3Bhcik=?=" <jinli.zjl@alibaba-inc.com>
+Subject: [PATCH] vhost: remove unused lock check flag in vhost_dev_cleanup()
+Date: Mon, 25 Dec 2017 00:08:58 +0800
+Message-ID: <57a32eb1fd105b2aacc96b7caae0d8336c010fe0.1514130393.git.jinli.zjl__11695.5723301091$1515606579$gmane$org@alibaba-inc.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1513979641-7999-1-git-send-email-jbaron@akamai.com>
-In-Reply-To: <cover.1513974243.git.jbaron@akamai.com> 
-References: <cover.1513974243.git.jbaron@akamai.com>       
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,133 +15,113 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
-Cc: mst@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: =?UTF-8?B?5aS35YiZKENhc3Bhcik=?= <jinli.zjl@alibaba-inc.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Although linkspeed and duplex can be set in a linux guest via 'ethtool -s',
-this requires custom ethtool commands for virtio-net by default.
+In commit ea5d404655ba ("vhost: fix release path lockdep checks"),
+Michael added a flag to check whether we should hold a lock in
+vhost_dev_cleanup(), however, in commit 47283bef7ed3 ("vhost: move
+memory pointer to VQs"), RCU operations have been replaced by
+mutex, we can remove the no-longer-used `locked' parameter now.
 
-Introduce a new feature flag, VIRTIO_NET_F_SPEED_DUPLEX, which allows
-the hypervisor to export a linkspeed and duplex setting. The user can
-subsequently overwrite it later if desired via: 'ethtool -s'.
-
-Linkspeed and duplex settings can be set as:
-'-device virtio-net,speed=10000,duplex=full'
-
-where speed is [-1...INT_MAX], and duplex is ["half"|"full"].
-
-Signed-off-by: Jason Baron <jbaron@akamai.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Caspar Zhang <jinli.zjl@alibaba-inc.com>
 ---
- hw/net/virtio-net.c                         | 29 +++++++++++++++++++++++++++++
- include/hw/virtio/virtio-net.h              |  3 +++
- include/standard-headers/linux/virtio_net.h |  4 ++++
- 3 files changed, 36 insertions(+)
- create mode 160000 pixman
+ drivers/vhost/net.c   | 2 +-
+ drivers/vhost/scsi.c  | 2 +-
+ drivers/vhost/test.c  | 2 +-
+ drivers/vhost/vhost.c | 5 ++---
+ drivers/vhost/vhost.h | 2 +-
+ drivers/vhost/vsock.c | 2 +-
+ 6 files changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-index adc20df..7fafe6e 100644
---- a/hw/net/virtio-net.c
-+++ b/hw/net/virtio-net.c
-@@ -40,6 +40,12 @@
- #define VIRTIO_NET_RX_QUEUE_MIN_SIZE VIRTIO_NET_RX_QUEUE_DEFAULT_SIZE
- #define VIRTIO_NET_TX_QUEUE_MIN_SIZE VIRTIO_NET_TX_QUEUE_DEFAULT_SIZE
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index c7bdeb655646..a354d8d731e3 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -996,7 +996,7 @@ static int vhost_net_release(struct inode *inode, struct file *f)
+ 	vhost_net_stop(n, &tx_sock, &rx_sock);
+ 	vhost_net_flush(n);
+ 	vhost_dev_stop(&n->dev);
+-	vhost_dev_cleanup(&n->dev, false);
++	vhost_dev_cleanup(&n->dev);
+ 	vhost_net_vq_reset(n);
+ 	if (tx_sock)
+ 		sockfd_put(tx_sock);
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 71517b3c5558..797d08916553 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1420,7 +1420,7 @@ static int vhost_scsi_release(struct inode *inode, struct file *f)
+ 	mutex_unlock(&vs->dev.mutex);
+ 	vhost_scsi_clear_endpoint(vs, &t);
+ 	vhost_dev_stop(&vs->dev);
+-	vhost_dev_cleanup(&vs->dev, false);
++	vhost_dev_cleanup(&vs->dev);
+ 	/* Jobs can re-queue themselves in evt kick handler. Do extra flush. */
+ 	vhost_scsi_flush(vs);
+ 	kfree(vs->dev.vqs);
+diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+index 3cc98c07dcd3..906b8f0f19f7 100644
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -157,7 +157,7 @@ static int vhost_test_release(struct inode *inode, struct file *f)
  
-+/* duplex and speed defines */
-+#define DUPLEX_UNKNOWN          0xff
-+#define DUPLEX_HALF             0x00
-+#define DUPLEX_FULL             0x01
-+#define SPEED_UNKNOWN           -1
-+
- /*
-  * Calculate the number of bytes up to and including the given 'field' of
-  * 'container'.
-@@ -61,6 +67,8 @@ static VirtIOFeature feature_sizes[] = {
-      .end = endof(struct virtio_net_config, max_virtqueue_pairs)},
-     {.flags = 1ULL << VIRTIO_NET_F_MTU,
-      .end = endof(struct virtio_net_config, mtu)},
-+    {.flags = 1ULL << VIRTIO_NET_F_SPEED_DUPLEX,
-+     .end = endof(struct virtio_net_config, duplex)},
-     {}
- };
+ 	vhost_test_stop(n, &private);
+ 	vhost_test_flush(n);
+-	vhost_dev_cleanup(&n->dev, false);
++	vhost_dev_cleanup(&n->dev);
+ 	/* We do an extra flush before freeing memory,
+ 	 * since jobs can re-queue themselves. */
+ 	vhost_test_flush(n);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 33ac2b186b85..014675c3d569 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -544,7 +544,7 @@ void vhost_dev_reset_owner(struct vhost_dev *dev, struct vhost_umem *umem)
+ {
+ 	int i;
  
-@@ -88,6 +96,8 @@ static void virtio_net_get_config(VirtIODevice *vdev, uint8_t *config)
-     virtio_stw_p(vdev, &netcfg.status, n->status);
-     virtio_stw_p(vdev, &netcfg.max_virtqueue_pairs, n->max_queues);
-     virtio_stw_p(vdev, &netcfg.mtu, n->net_conf.mtu);
-+    virtio_stl_p(vdev, &netcfg.speed, n->net_conf.speed);
-+    netcfg.duplex = n->net_conf.duplex;
-     memcpy(netcfg.mac, n->mac, ETH_ALEN);
-     memcpy(config, &netcfg, n->config_size);
+-	vhost_dev_cleanup(dev, true);
++	vhost_dev_cleanup(dev);
+ 
+ 	/* Restore memory to default empty mapping. */
+ 	INIT_LIST_HEAD(&umem->umem_list);
+@@ -611,8 +611,7 @@ static void vhost_clear_msg(struct vhost_dev *dev)
+ 	spin_unlock(&dev->iotlb_lock);
  }
-@@ -1941,6 +1951,23 @@ static void virtio_net_device_realize(DeviceState *dev, Error **errp)
-         n->host_features |= (1ULL << VIRTIO_NET_F_MTU);
-     }
  
-+    n->host_features |= (1ULL << VIRTIO_NET_F_SPEED_DUPLEX);
-+    if (n->net_conf.duplex_str) {
-+        if (strncmp(n->net_conf.duplex_str, "half", 5) == 0) {
-+            n->net_conf.duplex = DUPLEX_HALF;
-+        } else if (strncmp(n->net_conf.duplex_str, "full", 5) == 0) {
-+            n->net_conf.duplex = DUPLEX_FULL;
-+        } else {
-+            error_setg(errp, "'duplex' must be 'half' or 'full'");
-+        }
-+    } else {
-+        n->net_conf.duplex = DUPLEX_UNKNOWN;
-+    }
-+    if (n->net_conf.speed < SPEED_UNKNOWN) {
-+            error_setg(errp, "'speed' must be between -1 (SPEED_UNKOWN) and "
-+                       "INT_MAX");
-+    }
-+
-     virtio_net_set_config_size(n, n->host_features);
-     virtio_init(vdev, "virtio-net", VIRTIO_ID_NET, n->config_size);
+-/* Caller should have device mutex if and only if locked is set */
+-void vhost_dev_cleanup(struct vhost_dev *dev, bool locked)
++void vhost_dev_cleanup(struct vhost_dev *dev)
+ {
+ 	int i;
  
-@@ -2160,6 +2187,8 @@ static Property virtio_net_properties[] = {
-     DEFINE_PROP_UINT16("host_mtu", VirtIONet, net_conf.mtu, 0),
-     DEFINE_PROP_BOOL("x-mtu-bypass-backend", VirtIONet, mtu_bypass_backend,
-                      true),
-+    DEFINE_PROP_INT32("speed", VirtIONet, net_conf.speed, SPEED_UNKNOWN),
-+    DEFINE_PROP_STRING("duplex", VirtIONet, net_conf.duplex_str),
-     DEFINE_PROP_END_OF_LIST(),
- };
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 79c6e7a60a5e..ff4d918e3e0a 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -181,7 +181,7 @@ bool vhost_dev_has_owner(struct vhost_dev *dev);
+ long vhost_dev_check_owner(struct vhost_dev *);
+ struct vhost_umem *vhost_dev_reset_owner_prepare(void);
+ void vhost_dev_reset_owner(struct vhost_dev *, struct vhost_umem *);
+-void vhost_dev_cleanup(struct vhost_dev *, bool locked);
++void vhost_dev_cleanup(struct vhost_dev *);
+ void vhost_dev_stop(struct vhost_dev *);
+ long vhost_dev_ioctl(struct vhost_dev *, unsigned int ioctl, void __user *argp);
+ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp);
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 5a5e981bd8e4..0d14e2ff19f1 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -599,7 +599,7 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
+ 	}
+ 	spin_unlock_bh(&vsock->send_pkt_list_lock);
  
-diff --git a/include/hw/virtio/virtio-net.h b/include/hw/virtio/virtio-net.h
-index e7634c9..02484dc 100644
---- a/include/hw/virtio/virtio-net.h
-+++ b/include/hw/virtio/virtio-net.h
-@@ -38,6 +38,9 @@ typedef struct virtio_net_conf
-     uint16_t rx_queue_size;
-     uint16_t tx_queue_size;
-     uint16_t mtu;
-+    int32_t speed;
-+    char *duplex_str;
-+    uint8_t duplex;
- } virtio_net_conf;
- 
- /* Maximum packet size we can receive from tap device: header + 64k */
-diff --git a/include/standard-headers/linux/virtio_net.h b/include/standard-headers/linux/virtio_net.h
-index 30ff249..0ff1447 100644
---- a/include/standard-headers/linux/virtio_net.h
-+++ b/include/standard-headers/linux/virtio_net.h
-@@ -36,6 +36,7 @@
- #define VIRTIO_NET_F_GUEST_CSUM	1	/* Guest handles pkts w/ partial csum */
- #define VIRTIO_NET_F_CTRL_GUEST_OFFLOADS 2 /* Dynamic offload configuration. */
- #define VIRTIO_NET_F_MTU	3	/* Initial MTU advice */
-+#define VIRTIO_NET_F_SPEED_DUPLEX 4	/* Host set linkspeed and duplex */
- #define VIRTIO_NET_F_MAC	5	/* Host has given MAC address. */
- #define VIRTIO_NET_F_GUEST_TSO4	7	/* Guest can handle TSOv4 in. */
- #define VIRTIO_NET_F_GUEST_TSO6	8	/* Guest can handle TSOv6 in. */
-@@ -76,6 +77,9 @@ struct virtio_net_config {
- 	uint16_t max_virtqueue_pairs;
- 	/* Default maximum transmit unit advice */
- 	uint16_t mtu;
-+	/* Host exported linkspeed and duplex */
-+	uint32_t speed;
-+	uint8_t duplex;
- } QEMU_PACKED;
- 
- /*
+-	vhost_dev_cleanup(&vsock->dev, false);
++	vhost_dev_cleanup(&vsock->dev);
+ 	kfree(vsock->dev.vqs);
+ 	vhost_vsock_free(vsock);
+ 	return 0;
+-- 
+2.15.1
