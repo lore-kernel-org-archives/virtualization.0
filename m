@@ -1,17 +1,14 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [PATCH net-next] virtio_net: Add ethtool stats
-Date: Tue, 26 Dec 2017 15:41:18 +0900
-Message-ID: <ddac431f-9545-4ec7-8da4-804aea76d184__10569.5150247358$1514270422$gmane$org@lab.ntt.co.jp>
-References: <1513744837-2672-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<20171224101640.4b14002f@xeon-e3>
-	<be339a85-4368-257e-5f23-d0e35c77cd5b@lab.ntt.co.jp>
-	<25B612A0-B4BD-4CE9-A166-8630F7F4BD76@gmail.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
+Subject: Re: [bpf-next V2 PATCH 11/14] virtio_net: setup xdp_rxq_info
+Date: Tue, 26 Dec 2017 12:20:50 +0100
+Message-ID: <20171226122050.3a453cd7__48178.3897187144$1514287174$gmane$org@redhat.com>
+References: <151396262289.20006.1429172971820409456.stgit@firesoul>
+	<151396275093.20006.9684557344807016870.stgit@firesoul>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <25B612A0-B4BD-4CE9-A166-8630F7F4BD76@gmail.com>
-Content-Language: en-US
+In-Reply-To: <151396275093.20006.9684557344807016870.stgit@firesoul>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +18,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Florian Fainelli <f.fainelli@gmail.com>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>, "Michael S . Tsirkin" <mst@redhat.com>
+To: Daniel Borkmann <borkmann@iogearbox.net>, Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, brouer@redhat.com, virtualization@lists.linux-foundation.org, dsahern@gmail.com, gospo@broadcom.com, bjorn.topel@intel.com, michael.chan@broadcom.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2017/12/26 1:47, Florian Fainelli wrote:
-> On December 25, 2017 3:45:36 AM PST, Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp> wrote:
->> On 2017/12/25 3:16, Stephen Hemminger wrote:
->>> On Wed, 20 Dec 2017 13:40:37 +0900
->>> Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp> wrote:
->>>
->>>> +
->>>> +static const struct virtnet_gstats virtnet_gstrings_stats[] = {
->>>> +	{ "rx_packets",		VIRTNET_NETDEV_STAT(rx_packets) },
->>>> +	{ "tx_packets",		VIRTNET_NETDEV_STAT(tx_packets) },
->>>> +	{ "rx_bytes",		VIRTNET_NETDEV_STAT(rx_bytes) },
->>>> +	{ "tx_bytes",		VIRTNET_NETDEV_STAT(tx_bytes) },
->>>> +	{ "rx_dropped",		VIRTNET_NETDEV_STAT(rx_dropped) },
->>>> +	{ "rx_length_errors",	VIRTNET_NETDEV_STAT(rx_length_errors) },
->>>> +	{ "rx_frame_errors",	VIRTNET_NETDEV_STAT(rx_frame_errors) },
->>>> +	{ "tx_dropped",		VIRTNET_NETDEV_STAT(tx_dropped) },
->>>> +	{ "tx_fifo_errors",	VIRTNET_NETDEV_STAT(tx_fifo_errors) },
->>>> +};
->>>> +
->>>
->>> Please do not merge pre-existing global stats into ethtool.
->>> It just duplicates existing functionality.
->>
->> Thanks for the feedback.
->> I thought it's handy to be able to check stats like this in ethtool as
->> well. Some drivers like ixgbe and mlx5 do similar thing.
->> I can remove these duplicate stats (unless anyone has objection).
+On Fri, 22 Dec 2017 18:12:31 +0100
+Jesper Dangaard Brouer <brouer@redhat.com> wrote:
+
+> The virtio_net driver doesn't dynamically change the RX-ring queue
+> layout and backing pages, but instead reject XDP setup if all the
+> conditions for XDP is not meet.  Thus, the xdp_rxq_info also remains
+> fairly static.  This allow us to simply add the reg/unreg to
+> net_device open/close functions.
 > 
-> For existing drivers, ethtool stats are kind of user ABI, so once these stats get in, we should not consider removing them. For new drivers or existing drivers without ethtool stats, we can do things a bit better as Stephen suggested.
+> Driver hook points for xdp_rxq_info:
+>  * reg  : virtnet_open
+>  * unreg: virtnet_close
+> 
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: virtualization@lists.linux-foundation.org
+> Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+> ---
+>  drivers/net/virtio_net.c |   12 +++++++++++-
 
-OK. will remove them in v2.
+Found a bug while testing this... I forgot to update receive_mergeable() too.
 
-Thanks,
-Toshiaki Makita
+I'll send a V3
+
+-- 
+Best regards,
+  Jesper Dangaard Brouer
+  MSc.CS, Principal Kernel Engineer at Red Hat
+  LinkedIn: http://www.linkedin.com/in/brouer
