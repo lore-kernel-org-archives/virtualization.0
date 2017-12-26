@@ -1,14 +1,14 @@
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-Subject: Re: [bpf-next V2 PATCH 11/14] virtio_net: setup xdp_rxq_info
-Date: Tue, 26 Dec 2017 12:20:50 +0100
-Message-ID: <20171226122050.3a453cd7__48178.3897187144$1514287174$gmane$org@redhat.com>
-References: <151396262289.20006.1429172971820409456.stgit@firesoul>
-	<151396275093.20006.9684557344807016870.stgit@firesoul>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v20 4/7] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Tue, 26 Dec 2017 19:36:31 +0800
+Message-ID: <5A42343F.4060409__35273.5599539757$1514287973$gmane$org@intel.com>
+References: <201712241345.DIG21823.SLFOOJtQFOMVFH@I-love.SAKURA.ne.jp>	<5A3F5A4A.1070009@intel.com>	<5A3F6254.7070306@intel.com>	<201712252351.FBE81721.HFOtFOJQSOFLVM@I-love.SAKURA.ne.jp>	<5A41BCC1.5010004@intel.com>
+	<201712261938.IFF64061.LtFMOVJFHOSFQO@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <151396275093.20006.9684557344807016870.stgit@firesoul>
+In-Reply-To: <201712261938.IFF64061.LtFMOVJFHOSFQO@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +18,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Borkmann <borkmann@iogearbox.net>, Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, brouer@redhat.com, virtualization@lists.linux-foundation.org, dsahern@gmail.com, gospo@broadcom.com, bjorn.topel@intel.com, michael.chan@broadcom.com
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, willy@infradead.org
+Cc: aarcange@redhat.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, amit.shah@redhat.com, liliang.opensource@gmail.com, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, yang.zhang.wz@gmail.com, nilal@redhat.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 22 Dec 2017 18:12:31 +0100
-Jesper Dangaard Brouer <brouer@redhat.com> wrote:
+On 12/26/2017 06:38 PM, Tetsuo Handa wrote:
+> Wei Wang wrote:
+>> On 12/25/2017 10:51 PM, Tetsuo Handa wrote:
+>>> Wei Wang wrote:
+>>>
+>> What we are doing here is to free the pages that were just allocated in
+>> this round of inflating. Next round will be sometime later when the
+>> balloon work item gets its turn to run. Yes, it will then continue to
+>> inflate.
+>> Here are the two cases that will happen then:
+>> 1) the guest is still under memory pressure, the inflate will fail at
+>> memory allocation, which results in a msleep(200), and then it exists
+>> for another time to run.
+>> 2) the guest isn't under memory pressure any more (e.g. the task which
+>> consumes the huge amount of memory is gone), it will continue to inflate
+>> as normal till the requested size.
+>>
+> How likely does 2) occur? It is not so likely. msleep(200) is enough to spam
+> the guest with puff messages. Next round is starting too quickly.
 
-> The virtio_net driver doesn't dynamically change the RX-ring queue
-> layout and backing pages, but instead reject XDP setup if all the
-> conditions for XDP is not meet.  Thus, the xdp_rxq_info also remains
-> fairly static.  This allow us to simply add the reg/unreg to
-> net_device open/close functions.
-> 
-> Driver hook points for xdp_rxq_info:
->  * reg  : virtnet_open
->  * unreg: virtnet_close
-> 
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
-> Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
-> ---
->  drivers/net/virtio_net.c |   12 +++++++++++-
+I meant one of the two cases, 1) or 2), would happen, rather than 2) 
+happens after 1).
 
-Found a bug while testing this... I forgot to update receive_mergeable() too.
+If 2) doesn't happen, then 1) happens. It will continue to try to 
+inflate round by round. But the memory allocation won't succeed, so 
+there will be no pages to inflate to the host. That is, the inflating is 
+simply a code path to the msleep(200) as long as the guest is under 
+memory pressure.
 
-I'll send a V3
+Back to our code change, it doesn't result in incorrect behavior as 
+explained above.
 
--- 
-Best regards,
-  Jesper Dangaard Brouer
-  MSc.CS, Principal Kernel Engineer at Red Hat
-  LinkedIn: http://www.linkedin.com/in/brouer
+>> I think what we are doing is a quite sensible behavior, except a small
+>> change I plan to make:
+>>
+>>           while ((page = balloon_page_pop(&pages))) {
+>> -               balloon_page_enqueue(&vb->vb_dev_info, page);
+>>                   if (use_sg) {
+>>                           if (xb_set_page(vb, page, &pfn_min, &pfn_max) <
+>> 0) {
+>>                                   __free_page(page);
+>>                                   continue;
+>>                           }
+>>                   } else {
+>>                           set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+>>                   }
+>> +             balloon_page_enqueue(&vb->vb_dev_info, page);
+>>
+>>> Also, as of Linux 4.15, only up to VIRTIO_BALLOON_ARRAY_PFNS_MAX pages (i.e.
+>>> 1MB) are invisible from deflate request. That amount would be an acceptable
+>>> error. But your patch makes more pages being invisible, for pages allocated
+>>> by balloon_page_alloc() without holding balloon_lock are stored into a local
+>>> variable "LIST_HEAD(pages)" (which means that balloon_page_dequeue() with
+>>> balloon_lock held won't be able to find pages not yet queued by
+>>> balloon_page_enqueue()), doesn't it? What if all memory pages were held in
+>>> "LIST_HEAD(pages)" and balloon_page_dequeue() was called before
+>>> balloon_page_enqueue() is called?
+>>>
+>> If we think of the balloon driver just as a regular driver or
+>> application, that will be a pretty nature thing. A regular driver can
+>> eat a huge amount of memory for its own usages, would this amount of
+>> memory be treated as an error as they are invisible to the
+>> balloon_page_enqueue?
+>>
+> No. Memory used by applications which consumed a lot of memory in their
+> mm_struct is reclaimed by the OOM killer/reaper. Drivers try to avoid
+> allocating more memory than they need. If drivers allocate more memory
+> than they need, they have a hook for releasing unused memory (i.e.
+> register_shrinker() or OOM notifier). What I'm saying here is that
+> the hook for releasing unused memory does not work unless memory held in
+> LIST_HEAD(pages) becomes visible to balloon_page_dequeue().
+>
+> If a system has 128GB of memory, and 127GB of memory was stored into
+> LIST_HEAD(pages) upon first fill_balloon() request, and somebody held
+> balloon_lock from OOM notifier path from out_of_memory() before
+> fill_balloon() holds balloon_lock, leak_balloon_sg_oom() finds that
+> no memory can be freed because balloon_page_enqueue() was never called,
+> and allows the caller of out_of_memory() to invoke the OOM killer despite
+> there is 127GB of memory which can be freed if fill_balloon() was able
+> to hold balloon_lock before leak_balloon_sg_oom() holds balloon_lock.
+> I don't think that that amount is an acceptable error.
+
+I understand you are worried that OOM couldn't get balloon pages while 
+there are some in the local list. This is a debatable issue, and it may 
+lead to a long discussion. If this is considered to be a big issue, we 
+can make the local list to be global in vb, and accessed by oom 
+notifier, this won't affect this patch, and can be achieved with an 
+add-on patch. How about leaving this discussion as a second step outside 
+this series? Balloon has something more that can be improved, and this 
+patch series is already big.
+
+Best,
+Wei
