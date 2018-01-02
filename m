@@ -1,13 +1,15 @@
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-Subject: [bpf-next V3 PATCH 11/14] virtio_net: setup xdp_rxq_info
-Date: Sun, 31 Dec 2017 12:01:50 +0100
-Message-ID: <151471811006.30703.5247549257959215999.stgit__19499.1271281198$1514718031$gmane$org@firesoul>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [bpf-next V3 PATCH 11/14] virtio_net: setup xdp_rxq_info
+Date: Tue, 2 Jan 2018 11:38:48 +0800
+Message-ID: <373fdca0-0f3e-af4b-536b-b0d30c3f20fc@redhat.com>
 References: <151471801977.30703.3258796879718706203.stgit@firesoul>
+	<151471811006.30703.5247549257959215999.stgit@firesoul>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <151471801977.30703.3258796879718706203.stgit@firesoul>
+In-Reply-To: <151471811006.30703.5247549257959215999.stgit@firesoul>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,95 +19,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Borkmann <borkmann@iogearbox.net>, Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>, virtualization@lists.linux-foundation.org, dsahern@gmail.com, gospo@broadcom.com, bjorn.topel@intel.com, michael.chan@broadcom.com
+To: Jesper Dangaard Brouer <brouer@redhat.com>, Daniel Borkmann <borkmann@iogearbox.net>, Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, dsahern@gmail.com, gospo@broadcom.com, bjorn.topel@intel.com, michael.chan@broadcom.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The virtio_net driver doesn't dynamically change the RX-ring queue
-layout and backing pages, but instead reject XDP setup if all the
-conditions for XDP is not meet.  Thus, the xdp_rxq_info also remains
-fairly static.  This allow us to simply add the reg/unreg to
-net_device open/close functions.
-
-Driver hook points for xdp_rxq_info:
- * reg  : virtnet_open
- * unreg: virtnet_close
-
-V3:
- - bugfix, also setup xdp.rxq in receive_mergeable()
- - Tested bpf-sample prog inside guest on a virtio_net device
-
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
----
- drivers/net/virtio_net.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 6fb7b658a6cc..ed8299343728 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -31,6 +31,7 @@
- #include <linux/average.h>
- #include <linux/filter.h>
- #include <net/route.h>
-+#include <net/xdp.h>
- 
- static int napi_weight = NAPI_POLL_WEIGHT;
- module_param(napi_weight, int, 0444);
-@@ -115,6 +116,8 @@ struct receive_queue {
- 
- 	/* Name of this receive queue: input.$index */
- 	char name[40];
-+
-+	struct xdp_rxq_info xdp_rxq;
- };
- 
- struct virtnet_info {
-@@ -559,6 +562,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 		xdp.data = xdp.data_hard_start + xdp_headroom;
- 		xdp_set_data_meta_invalid(&xdp);
- 		xdp.data_end = xdp.data + len;
-+		xdp.rxq = &rq->xdp_rxq;
- 		orig_data = xdp.data;
- 		act = bpf_prog_run_xdp(xdp_prog, &xdp);
- 
-@@ -692,6 +696,8 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 		xdp.data = data + vi->hdr_len;
- 		xdp_set_data_meta_invalid(&xdp);
- 		xdp.data_end = xdp.data + (len - vi->hdr_len);
-+		xdp.rxq = &rq->xdp_rxq;
-+
- 		act = bpf_prog_run_xdp(xdp_prog, &xdp);
- 
- 		if (act != XDP_PASS)
-@@ -1225,13 +1231,18 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
- static int virtnet_open(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	int i;
-+	int i, err;
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		if (i < vi->curr_queue_pairs)
- 			/* Make sure we have some buffers: if oom use wq. */
- 			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
- 				schedule_delayed_work(&vi->refill, 0);
-+
-+		err = xdp_rxq_info_reg(&vi->rq[i].xdp_rxq, dev, i);
-+		if (err < 0)
-+			return err;
-+
- 		virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
- 		virtnet_napi_tx_enable(vi, vi->sq[i].vq, &vi->sq[i].napi);
- 	}
-@@ -1560,6 +1571,7 @@ static int virtnet_close(struct net_device *dev)
- 	cancel_delayed_work_sync(&vi->refill);
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
-+		xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
- 		napi_disable(&vi->rq[i].napi);
- 		virtnet_napi_tx_disable(&vi->sq[i].napi);
- 	}
+CgpPbiAyMDE35bm0MTLmnIgzMeaXpSAxOTowMSwgSmVzcGVyIERhbmdhYXJkIEJyb3VlciB3cm90
+ZToKPiBUaGUgdmlydGlvX25ldCBkcml2ZXIgZG9lc24ndCBkeW5hbWljYWxseSBjaGFuZ2UgdGhl
+IFJYLXJpbmcgcXVldWUKPiBsYXlvdXQgYW5kIGJhY2tpbmcgcGFnZXMsIGJ1dCBpbnN0ZWFkIHJl
+amVjdCBYRFAgc2V0dXAgaWYgYWxsIHRoZQo+IGNvbmRpdGlvbnMgZm9yIFhEUCBpcyBub3QgbWVl
+dC4gIFRodXMsIHRoZSB4ZHBfcnhxX2luZm8gYWxzbyByZW1haW5zCj4gZmFpcmx5IHN0YXRpYy4g
+IFRoaXMgYWxsb3cgdXMgdG8gc2ltcGx5IGFkZCB0aGUgcmVnL3VucmVnIHRvCj4gbmV0X2Rldmlj
+ZSBvcGVuL2Nsb3NlIGZ1bmN0aW9ucy4KPgo+IERyaXZlciBob29rIHBvaW50cyBmb3IgeGRwX3J4
+cV9pbmZvOgo+ICAgKiByZWcgIDogdmlydG5ldF9vcGVuCj4gICAqIHVucmVnOiB2aXJ0bmV0X2Ns
+b3NlCj4KPiBWMzoKPiAgIC0gYnVnZml4LCBhbHNvIHNldHVwIHhkcC5yeHEgaW4gcmVjZWl2ZV9t
+ZXJnZWFibGUoKQo+ICAgLSBUZXN0ZWQgYnBmLXNhbXBsZSBwcm9nIGluc2lkZSBndWVzdCBvbiBh
+IHZpcnRpb19uZXQgZGV2aWNlCj4KPiBDYzogIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRo
+YXQuY29tPgo+IENjOiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+IENjOiB2aXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwo+IFNpZ25lZC1vZmYtYnk6IEpl
+c3BlciBEYW5nYWFyZCBCcm91ZXIgPGJyb3VlckByZWRoYXQuY29tPgo+IC0tLQo+ICAgZHJpdmVy
+cy9uZXQvdmlydGlvX25ldC5jIHwgICAxNCArKysrKysrKysrKysrLQo+ICAgMSBmaWxlIGNoYW5n
+ZWQsIDEzIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2
+ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBpbmRleCA2
+ZmI3YjY1OGE2Y2MuLmVkODI5OTM0MzcyOCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0
+aW9fbmV0LmMKPiArKysgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBAQCAtMzEsNiArMzEs
+NyBAQAo+ICAgI2luY2x1ZGUgPGxpbnV4L2F2ZXJhZ2UuaD4KPiAgICNpbmNsdWRlIDxsaW51eC9m
+aWx0ZXIuaD4KPiAgICNpbmNsdWRlIDxuZXQvcm91dGUuaD4KPiArI2luY2x1ZGUgPG5ldC94ZHAu
+aD4KPiAgIAo+ICAgc3RhdGljIGludCBuYXBpX3dlaWdodCA9IE5BUElfUE9MTF9XRUlHSFQ7Cj4g
+ICBtb2R1bGVfcGFyYW0obmFwaV93ZWlnaHQsIGludCwgMDQ0NCk7Cj4gQEAgLTExNSw2ICsxMTYs
+OCBAQCBzdHJ1Y3QgcmVjZWl2ZV9xdWV1ZSB7Cj4gICAKPiAgIAkvKiBOYW1lIG9mIHRoaXMgcmVj
+ZWl2ZSBxdWV1ZTogaW5wdXQuJGluZGV4ICovCj4gICAJY2hhciBuYW1lWzQwXTsKPiArCj4gKwlz
+dHJ1Y3QgeGRwX3J4cV9pbmZvIHhkcF9yeHE7Cj4gICB9Owo+ICAgCj4gICBzdHJ1Y3QgdmlydG5l
+dF9pbmZvIHsKPiBAQCAtNTU5LDYgKzU2Miw3IEBAIHN0YXRpYyBzdHJ1Y3Qgc2tfYnVmZiAqcmVj
+ZWl2ZV9zbWFsbChzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ICAgCQl4ZHAuZGF0YSA9IHhkcC5k
+YXRhX2hhcmRfc3RhcnQgKyB4ZHBfaGVhZHJvb207Cj4gICAJCXhkcF9zZXRfZGF0YV9tZXRhX2lu
+dmFsaWQoJnhkcCk7Cj4gICAJCXhkcC5kYXRhX2VuZCA9IHhkcC5kYXRhICsgbGVuOwo+ICsJCXhk
+cC5yeHEgPSAmcnEtPnhkcF9yeHE7Cj4gICAJCW9yaWdfZGF0YSA9IHhkcC5kYXRhOwo+ICAgCQlh
+Y3QgPSBicGZfcHJvZ19ydW5feGRwKHhkcF9wcm9nLCAmeGRwKTsKPiAgIAo+IEBAIC02OTIsNiAr
+Njk2LDggQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZlX21lcmdlYWJsZShzdHJ1Y3Qg
+bmV0X2RldmljZSAqZGV2LAo+ICAgCQl4ZHAuZGF0YSA9IGRhdGEgKyB2aS0+aGRyX2xlbjsKPiAg
+IAkJeGRwX3NldF9kYXRhX21ldGFfaW52YWxpZCgmeGRwKTsKPiAgIAkJeGRwLmRhdGFfZW5kID0g
+eGRwLmRhdGEgKyAobGVuIC0gdmktPmhkcl9sZW4pOwo+ICsJCXhkcC5yeHEgPSAmcnEtPnhkcF9y
+eHE7Cj4gKwo+ICAgCQlhY3QgPSBicGZfcHJvZ19ydW5feGRwKHhkcF9wcm9nLCAmeGRwKTsKPiAg
+IAo+ICAgCQlpZiAoYWN0ICE9IFhEUF9QQVNTKQo+IEBAIC0xMjI1LDEzICsxMjMxLDE4IEBAIHN0
+YXRpYyBpbnQgdmlydG5ldF9wb2xsKHN0cnVjdCBuYXBpX3N0cnVjdCAqbmFwaSwgaW50IGJ1ZGdl
+dCkKPiAgIHN0YXRpYyBpbnQgdmlydG5ldF9vcGVuKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYpCj4g
+ICB7Cj4gICAJc3RydWN0IHZpcnRuZXRfaW5mbyAqdmkgPSBuZXRkZXZfcHJpdihkZXYpOwo+IC0J
+aW50IGk7Cj4gKwlpbnQgaSwgZXJyOwo+ICAgCj4gICAJZm9yIChpID0gMDsgaSA8IHZpLT5tYXhf
+cXVldWVfcGFpcnM7IGkrKykgewo+ICAgCQlpZiAoaSA8IHZpLT5jdXJyX3F1ZXVlX3BhaXJzKQo+
+ICAgCQkJLyogTWFrZSBzdXJlIHdlIGhhdmUgc29tZSBidWZmZXJzOiBpZiBvb20gdXNlIHdxLiAq
+Lwo+ICAgCQkJaWYgKCF0cnlfZmlsbF9yZWN2KHZpLCAmdmktPnJxW2ldLCBHRlBfS0VSTkVMKSkK
+PiAgIAkJCQlzY2hlZHVsZV9kZWxheWVkX3dvcmsoJnZpLT5yZWZpbGwsIDApOwo+ICsKPiArCQll
+cnIgPSB4ZHBfcnhxX2luZm9fcmVnKCZ2aS0+cnFbaV0ueGRwX3J4cSwgZGV2LCBpKTsKPiArCQlp
+ZiAoZXJyIDwgMCkKPiArCQkJcmV0dXJuIGVycjsKPiArCj4gICAJCXZpcnRuZXRfbmFwaV9lbmFi
+bGUodmktPnJxW2ldLnZxLCAmdmktPnJxW2ldLm5hcGkpOwo+ICAgCQl2aXJ0bmV0X25hcGlfdHhf
+ZW5hYmxlKHZpLCB2aS0+c3FbaV0udnEsICZ2aS0+c3FbaV0ubmFwaSk7Cj4gICAJfQo+IEBAIC0x
+NTYwLDYgKzE1NzEsNyBAQCBzdGF0aWMgaW50IHZpcnRuZXRfY2xvc2Uoc3RydWN0IG5ldF9kZXZp
+Y2UgKmRldikKPiAgIAljYW5jZWxfZGVsYXllZF93b3JrX3N5bmMoJnZpLT5yZWZpbGwpOwo+ICAg
+Cj4gICAJZm9yIChpID0gMDsgaSA8IHZpLT5tYXhfcXVldWVfcGFpcnM7IGkrKykgewo+ICsJCXhk
+cF9yeHFfaW5mb191bnJlZygmdmktPnJxW2ldLnhkcF9yeHEpOwo+ICAgCQluYXBpX2Rpc2FibGUo
+JnZpLT5ycVtpXS5uYXBpKTsKPiAgIAkJdmlydG5ldF9uYXBpX3R4X2Rpc2FibGUoJnZpLT5zcVtp
+XS5uYXBpKTsKPiAgIAl9Cj4KClJldmlld2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
