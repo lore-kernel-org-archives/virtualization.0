@@ -1,15 +1,16 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH v5 4/4] virtio_remoteproc: correct put_device
-	virtio_device.dev
-Date: Tue, 2 Jan 2018 09:34:00 -0800
-Message-ID: <20180102173400.GX17344@builder>
-References: <742b7e56647f9a1c9fbf0bbc0dc5b93742382371.1513825904.git.zhangweiping@didichuxing.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH] virtio: make VIRTIO a menuconfig to ease disabling it all
+Date: Wed, 03 Jan 2018 09:40:08 +1100
+Message-ID: <871sj7dgvr.fsf@concordia.ellerman.id.au>
+References: <20171209152657.4762-1-vincent.legoll@gmail.com>
+	<87tvwkfj2f.fsf@concordia.ellerman.id.au>
+	<CAEwRq=pVCUPGq4=JLOHQ4gQE0FC+Fotci8+DR_VupgB1BJJB1w@mail.gmail.com>
+	<87h8sjpl2p.fsf@concordia.ellerman.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <742b7e56647f9a1c9fbf0bbc0dc5b93742382371.1513825904.git.zhangweiping@didichuxing.com>
+In-Reply-To: <87h8sjpl2p.fsf@concordia.ellerman.id.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +20,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: weiping zhang <zhangweiping@didichuxing.com>
-Cc: cohuck@redhat.com, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Vincent Legoll <vincent.legoll@gmail.com>
+Cc: virtualization@lists.linux-foundation.org, Linux Kernel ML <linux-kernel@vger.kernel.org>, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu 21 Dec 04:40 PST 2017, weiping zhang wrote:
+Michael Ellerman <mpe@ellerman.id.au> writes:
 
-> rproc_virtio_dev_release will be called iff virtio_device.dev's
-> reference count drops to 0. Here we just put vdev.dev, and then
-> rproc->dev's cleanup will be done in rproc_virtio_dev_release.
-> 
-> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+> Vincent Legoll <vincent.legoll@gmail.com> writes:
+>
+>> Hello,
+>>
+>> thanks for the help, and sorry for the poor patch,
+>>
+>> On Thu, Dec 21, 2017 at 11:53 AM, Michael Ellerman <mpe@ellerman.id.au> wrote:
+>>> This breaks all existing .configs *and* defconfigs that use VIRTIO.
+>>>
+>>> Please don't do that.
+>>>
+>>> If you make it default y then everything will continue to work.
+>>
+>> Do you want me to respin it with the added default ?
+>
+> Yes please, either that or revert it.
 
-Thanks weiping and Cornelia, applied.
+This still seems to be broken.
 
-Regards,
-Bjorn
-
-> ---
->  drivers/remoteproc/remoteproc_virtio.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-> index 2946348..b0633fd 100644
-> --- a/drivers/remoteproc/remoteproc_virtio.c
-> +++ b/drivers/remoteproc/remoteproc_virtio.c
-> @@ -327,7 +327,7 @@ int rproc_add_virtio_dev(struct rproc_vdev *rvdev, int id)
->  
->  	ret = register_virtio_device(vdev);
->  	if (ret) {
-> -		put_device(&rproc->dev);
-> +		put_device(&vdev->dev);
->  		dev_err(dev, "failed to register vdev: %d\n", ret);
->  		goto out;
->  	}
-> -- 
-> 2.9.4
-> 
+cheers
