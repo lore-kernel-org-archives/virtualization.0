@@ -1,18 +1,16 @@
 From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v20 4/7] virtio-balloon: VIRTIO_BALLOON_F_SG
-Date: Tue, 2 Jan 2018 05:24:19 -0800
-Message-ID: <20180102132419.GB8222__30231.1231186197$1514899391$gmane$org@bombadil.infradead.org>
-References: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
-	<1513685879-21823-5-git-send-email-wei.w.wang@intel.com>
-	<20171224032121.GA5273@bombadil.infradead.org>
-	<201712241345.DIG21823.SLFOOJtQFOMVFH@I-love.SAKURA.ne.jp>
-	<5A3F5A4A.1070009@intel.com>
+Subject: Re: [PATCH v20 3/7 RESEND] xbitmap: add more operations
+Date: Tue, 2 Jan 2018 06:09:06 -0800
+Message-ID: <20180102140906.GC8222__47484.2772972353$1514902067$gmane$org@bombadil.infradead.org>
+References: <1513823406-43632-1-git-send-email-wei.w.wang@intel.com>
+	<20171221210327.GB25009@bombadil.infradead.org>
+	<5A3CC707.9070708@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5A3F5A4A.1070009@intel.com>
+In-Reply-To: <5A3CC707.9070708@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,57 +21,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, quan.xu0@gmail.com, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, penguin-kernel@I-love.SAKURA.ne.jp, mawilcox@microsoft.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Dec 24, 2017 at 03:42:02PM +0800, Wei Wang wrote:
-> On 12/24/2017 12:45 PM, Tetsuo Handa wrote:
-> > Matthew Wilcox wrote:
-> > > If you can't preload with anything better than that, I think that
-> > > xb_set_bit() should attempt an allocation with GFP_NOWAIT | __GFP_NOWARN,
-> > > and then you can skip the preload; it has no value for you.
-> > Yes, that's why I suggest directly using kzalloc() at xb_set_bit().
-> 
-> It has some possibilities to remove that preload if we also do the bitmap
-> allocation in the xb_set_bit():
-> 
-> bitmap = rcu_dereference_raw(*slot);
-> if (!bitmap) {
->     bitmap = this_cpu_xchg(ida_bitmap, NULL);
->     if (!bitmap) {
->         bitmap = kmalloc(sizeof(*bitmap), gfp);
->         if (!bitmap)
->             return -ENOMEM;
->     }
-> }
-> 
-> But why not just follow the radix tree implementation style that puts the
-> allocation in preload, which would be invoked with a more relaxed gfp in
-> other use cases?
+On Fri, Dec 22, 2017 at 04:49:11PM +0800, Wei Wang wrote:
+> Thanks for the improvement. I also found a small bug in xb_zero. With the
+> following changes, it has passed the current test cases and tested with the
+> virtio-balloon usage without any issue.
 
-Actually, the radix tree does attempt allocation, and falls back to the
-preload.  The IDA was the odd one out that doesn't attempt allocation,
-and that was where I copied the code from.  For other users, the preload
-API is beneficial, so I will leave it in.
+Thanks; I applied the change.  Can you supply a test-case for testing
+xb_zero please?
 
-> Its usage in virtio_balloon is just a little special that we need to put the
-> allocation within the balloon_lock, which doesn't give us the benefit of
-> using a relaxed gfp in preload, but it doesn't prevent us from living with
-> the current APIs (i.e. the preload + xb_set pattern).
-> On the other side, if we do it as above, we have more things that need to
-> consider. For example, what if the a use case just want the radix tree
-> implementation style, which means it doesn't want allocation within
-> xb_set(), then would we be troubled with how to avoid the allocation path in
-> that case?
+> > @@ -25,8 +26,11 @@ idr-test: idr-test.o $(CORE_OFILES)
+> >   multiorder: multiorder.o $(CORE_OFILES)
+> > +xbitmap: xbitmap.o $(CORE_OFILES)
+> > +	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o xbitmap
+> > +
 > 
-> So, I think it is better to stick with the convention by putting the
-> allocation in preload. Breaking the convention should show obvious
-> advantages, IMHO.
+> I think the "$(CC).." line should be removed, which will fix the build error
+> when adding "xbitmap" to TARGET.
 
-The radix tree convention is objectively awful, which is why I'm working
-to change it.  Specifying the GFP flags at radix tree initialisation time
-rather than allocation time leads to all kinds of confusion.  The preload
-API is a pretty awful workaround, and it will go away once the XArray
-is working correctly.  That said, there's no alternative to it without
-making XBitmap depend on XArray, and I don't want to hold you up there.
-So there's an xb_preload for the moment.
+Not sure what build error you're talking about, but yes that CC line
+should go.  Thanks, deleted.
