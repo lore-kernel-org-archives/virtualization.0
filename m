@@ -1,15 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [bpf-next V3 PATCH 11/14] virtio_net: setup xdp_rxq_info
-Date: Tue, 2 Jan 2018 11:38:48 +0800
-Message-ID: <373fdca0-0f3e-af4b-536b-b0d30c3f20fc@redhat.com>
-References: <151471801977.30703.3258796879718706203.stgit@firesoul>
-	<151471811006.30703.5247549257959215999.stgit@firesoul>
+From: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH v20 4/7] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Tue, 2 Jan 2018 05:24:19 -0800
+Message-ID: <20180102132419.GB8222__30231.1231186197$1514899391$gmane$org@bombadil.infradead.org>
+References: <1513685879-21823-1-git-send-email-wei.w.wang@intel.com>
+	<1513685879-21823-5-git-send-email-wei.w.wang@intel.com>
+	<20171224032121.GA5273@bombadil.infradead.org>
+	<201712241345.DIG21823.SLFOOJtQFOMVFH@I-love.SAKURA.ne.jp>
+	<5A3F5A4A.1070009@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <151471811006.30703.5247549257959215999.stgit@firesoul>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <5A3F5A4A.1070009@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,67 +22,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jesper Dangaard Brouer <brouer@redhat.com>, Daniel Borkmann <borkmann@iogearbox.net>, Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, dsahern@gmail.com, gospo@broadcom.com, bjorn.topel@intel.com, michael.chan@broadcom.com
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang.zhang.wz@gmail.com, kvm@vger.kernel.org, mst@redhat.com, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, liliang.opensource@gmail.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, aarcange@redhat.com, virtio-dev@lists.oasis-open.org, mawilcox@microsoft.com, nilal@redhat.com, riel@redhat.com, cornelia.huck@de.ibm.com, mhocko@kernel.org, quan.xu0@gmail.com, linux-kernel@vger.kernel.org, amit.shah@redhat.com, pbonzini@redhat.com, akpm@linux-foundation.org, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MTLmnIgzMeaXpSAxOTowMSwgSmVzcGVyIERhbmdhYXJkIEJyb3VlciB3cm90
-ZToKPiBUaGUgdmlydGlvX25ldCBkcml2ZXIgZG9lc24ndCBkeW5hbWljYWxseSBjaGFuZ2UgdGhl
-IFJYLXJpbmcgcXVldWUKPiBsYXlvdXQgYW5kIGJhY2tpbmcgcGFnZXMsIGJ1dCBpbnN0ZWFkIHJl
-amVjdCBYRFAgc2V0dXAgaWYgYWxsIHRoZQo+IGNvbmRpdGlvbnMgZm9yIFhEUCBpcyBub3QgbWVl
-dC4gIFRodXMsIHRoZSB4ZHBfcnhxX2luZm8gYWxzbyByZW1haW5zCj4gZmFpcmx5IHN0YXRpYy4g
-IFRoaXMgYWxsb3cgdXMgdG8gc2ltcGx5IGFkZCB0aGUgcmVnL3VucmVnIHRvCj4gbmV0X2Rldmlj
-ZSBvcGVuL2Nsb3NlIGZ1bmN0aW9ucy4KPgo+IERyaXZlciBob29rIHBvaW50cyBmb3IgeGRwX3J4
-cV9pbmZvOgo+ICAgKiByZWcgIDogdmlydG5ldF9vcGVuCj4gICAqIHVucmVnOiB2aXJ0bmV0X2Ns
-b3NlCj4KPiBWMzoKPiAgIC0gYnVnZml4LCBhbHNvIHNldHVwIHhkcC5yeHEgaW4gcmVjZWl2ZV9t
-ZXJnZWFibGUoKQo+ICAgLSBUZXN0ZWQgYnBmLXNhbXBsZSBwcm9nIGluc2lkZSBndWVzdCBvbiBh
-IHZpcnRpb19uZXQgZGV2aWNlCj4KPiBDYzogIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRo
-YXQuY29tPgo+IENjOiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+IENjOiB2aXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwo+IFNpZ25lZC1vZmYtYnk6IEpl
-c3BlciBEYW5nYWFyZCBCcm91ZXIgPGJyb3VlckByZWRoYXQuY29tPgo+IC0tLQo+ICAgZHJpdmVy
-cy9uZXQvdmlydGlvX25ldC5jIHwgICAxNCArKysrKysrKysrKysrLQo+ICAgMSBmaWxlIGNoYW5n
-ZWQsIDEzIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBpbmRleCA2
-ZmI3YjY1OGE2Y2MuLmVkODI5OTM0MzcyOCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0
-aW9fbmV0LmMKPiArKysgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBAQCAtMzEsNiArMzEs
-NyBAQAo+ICAgI2luY2x1ZGUgPGxpbnV4L2F2ZXJhZ2UuaD4KPiAgICNpbmNsdWRlIDxsaW51eC9m
-aWx0ZXIuaD4KPiAgICNpbmNsdWRlIDxuZXQvcm91dGUuaD4KPiArI2luY2x1ZGUgPG5ldC94ZHAu
-aD4KPiAgIAo+ICAgc3RhdGljIGludCBuYXBpX3dlaWdodCA9IE5BUElfUE9MTF9XRUlHSFQ7Cj4g
-ICBtb2R1bGVfcGFyYW0obmFwaV93ZWlnaHQsIGludCwgMDQ0NCk7Cj4gQEAgLTExNSw2ICsxMTYs
-OCBAQCBzdHJ1Y3QgcmVjZWl2ZV9xdWV1ZSB7Cj4gICAKPiAgIAkvKiBOYW1lIG9mIHRoaXMgcmVj
-ZWl2ZSBxdWV1ZTogaW5wdXQuJGluZGV4ICovCj4gICAJY2hhciBuYW1lWzQwXTsKPiArCj4gKwlz
-dHJ1Y3QgeGRwX3J4cV9pbmZvIHhkcF9yeHE7Cj4gICB9Owo+ICAgCj4gICBzdHJ1Y3QgdmlydG5l
-dF9pbmZvIHsKPiBAQCAtNTU5LDYgKzU2Miw3IEBAIHN0YXRpYyBzdHJ1Y3Qgc2tfYnVmZiAqcmVj
-ZWl2ZV9zbWFsbChzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ICAgCQl4ZHAuZGF0YSA9IHhkcC5k
-YXRhX2hhcmRfc3RhcnQgKyB4ZHBfaGVhZHJvb207Cj4gICAJCXhkcF9zZXRfZGF0YV9tZXRhX2lu
-dmFsaWQoJnhkcCk7Cj4gICAJCXhkcC5kYXRhX2VuZCA9IHhkcC5kYXRhICsgbGVuOwo+ICsJCXhk
-cC5yeHEgPSAmcnEtPnhkcF9yeHE7Cj4gICAJCW9yaWdfZGF0YSA9IHhkcC5kYXRhOwo+ICAgCQlh
-Y3QgPSBicGZfcHJvZ19ydW5feGRwKHhkcF9wcm9nLCAmeGRwKTsKPiAgIAo+IEBAIC02OTIsNiAr
-Njk2LDggQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZlX21lcmdlYWJsZShzdHJ1Y3Qg
-bmV0X2RldmljZSAqZGV2LAo+ICAgCQl4ZHAuZGF0YSA9IGRhdGEgKyB2aS0+aGRyX2xlbjsKPiAg
-IAkJeGRwX3NldF9kYXRhX21ldGFfaW52YWxpZCgmeGRwKTsKPiAgIAkJeGRwLmRhdGFfZW5kID0g
-eGRwLmRhdGEgKyAobGVuIC0gdmktPmhkcl9sZW4pOwo+ICsJCXhkcC5yeHEgPSAmcnEtPnhkcF9y
-eHE7Cj4gKwo+ICAgCQlhY3QgPSBicGZfcHJvZ19ydW5feGRwKHhkcF9wcm9nLCAmeGRwKTsKPiAg
-IAo+ICAgCQlpZiAoYWN0ICE9IFhEUF9QQVNTKQo+IEBAIC0xMjI1LDEzICsxMjMxLDE4IEBAIHN0
-YXRpYyBpbnQgdmlydG5ldF9wb2xsKHN0cnVjdCBuYXBpX3N0cnVjdCAqbmFwaSwgaW50IGJ1ZGdl
-dCkKPiAgIHN0YXRpYyBpbnQgdmlydG5ldF9vcGVuKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYpCj4g
-ICB7Cj4gICAJc3RydWN0IHZpcnRuZXRfaW5mbyAqdmkgPSBuZXRkZXZfcHJpdihkZXYpOwo+IC0J
-aW50IGk7Cj4gKwlpbnQgaSwgZXJyOwo+ICAgCj4gICAJZm9yIChpID0gMDsgaSA8IHZpLT5tYXhf
-cXVldWVfcGFpcnM7IGkrKykgewo+ICAgCQlpZiAoaSA8IHZpLT5jdXJyX3F1ZXVlX3BhaXJzKQo+
-ICAgCQkJLyogTWFrZSBzdXJlIHdlIGhhdmUgc29tZSBidWZmZXJzOiBpZiBvb20gdXNlIHdxLiAq
-Lwo+ICAgCQkJaWYgKCF0cnlfZmlsbF9yZWN2KHZpLCAmdmktPnJxW2ldLCBHRlBfS0VSTkVMKSkK
-PiAgIAkJCQlzY2hlZHVsZV9kZWxheWVkX3dvcmsoJnZpLT5yZWZpbGwsIDApOwo+ICsKPiArCQll
-cnIgPSB4ZHBfcnhxX2luZm9fcmVnKCZ2aS0+cnFbaV0ueGRwX3J4cSwgZGV2LCBpKTsKPiArCQlp
-ZiAoZXJyIDwgMCkKPiArCQkJcmV0dXJuIGVycjsKPiArCj4gICAJCXZpcnRuZXRfbmFwaV9lbmFi
-bGUodmktPnJxW2ldLnZxLCAmdmktPnJxW2ldLm5hcGkpOwo+ICAgCQl2aXJ0bmV0X25hcGlfdHhf
-ZW5hYmxlKHZpLCB2aS0+c3FbaV0udnEsICZ2aS0+c3FbaV0ubmFwaSk7Cj4gICAJfQo+IEBAIC0x
-NTYwLDYgKzE1NzEsNyBAQCBzdGF0aWMgaW50IHZpcnRuZXRfY2xvc2Uoc3RydWN0IG5ldF9kZXZp
-Y2UgKmRldikKPiAgIAljYW5jZWxfZGVsYXllZF93b3JrX3N5bmMoJnZpLT5yZWZpbGwpOwo+ICAg
-Cj4gICAJZm9yIChpID0gMDsgaSA8IHZpLT5tYXhfcXVldWVfcGFpcnM7IGkrKykgewo+ICsJCXhk
-cF9yeHFfaW5mb191bnJlZygmdmktPnJxW2ldLnhkcF9yeHEpOwo+ICAgCQluYXBpX2Rpc2FibGUo
-JnZpLT5ycVtpXS5uYXBpKTsKPiAgIAkJdmlydG5ldF9uYXBpX3R4X2Rpc2FibGUoJnZpLT5zcVtp
-XS5uYXBpKTsKPiAgIAl9Cj4KClJldmlld2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
-YXQuY29tPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Sun, Dec 24, 2017 at 03:42:02PM +0800, Wei Wang wrote:
+> On 12/24/2017 12:45 PM, Tetsuo Handa wrote:
+> > Matthew Wilcox wrote:
+> > > If you can't preload with anything better than that, I think that
+> > > xb_set_bit() should attempt an allocation with GFP_NOWAIT | __GFP_NOWARN,
+> > > and then you can skip the preload; it has no value for you.
+> > Yes, that's why I suggest directly using kzalloc() at xb_set_bit().
+> 
+> It has some possibilities to remove that preload if we also do the bitmap
+> allocation in the xb_set_bit():
+> 
+> bitmap = rcu_dereference_raw(*slot);
+> if (!bitmap) {
+>     bitmap = this_cpu_xchg(ida_bitmap, NULL);
+>     if (!bitmap) {
+>         bitmap = kmalloc(sizeof(*bitmap), gfp);
+>         if (!bitmap)
+>             return -ENOMEM;
+>     }
+> }
+> 
+> But why not just follow the radix tree implementation style that puts the
+> allocation in preload, which would be invoked with a more relaxed gfp in
+> other use cases?
+
+Actually, the radix tree does attempt allocation, and falls back to the
+preload.  The IDA was the odd one out that doesn't attempt allocation,
+and that was where I copied the code from.  For other users, the preload
+API is beneficial, so I will leave it in.
+
+> Its usage in virtio_balloon is just a little special that we need to put the
+> allocation within the balloon_lock, which doesn't give us the benefit of
+> using a relaxed gfp in preload, but it doesn't prevent us from living with
+> the current APIs (i.e. the preload + xb_set pattern).
+> On the other side, if we do it as above, we have more things that need to
+> consider. For example, what if the a use case just want the radix tree
+> implementation style, which means it doesn't want allocation within
+> xb_set(), then would we be troubled with how to avoid the allocation path in
+> that case?
+> 
+> So, I think it is better to stick with the convention by putting the
+> allocation in preload. Breaking the convention should show obvious
+> advantages, IMHO.
+
+The radix tree convention is objectively awful, which is why I'm working
+to change it.  Specifying the GFP flags at radix tree initialisation time
+rather than allocation time leads to all kinds of confusion.  The preload
+API is a pretty awful workaround, and it will go away once the XArray
+is working correctly.  That said, there's no alternative to it without
+making XBitmap depend on XArray, and I don't want to hold you up there.
+So there's an xb_preload for the moment.
