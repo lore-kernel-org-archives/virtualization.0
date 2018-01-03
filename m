@@ -1,8 +1,8 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net-next v2 1/3] virtio_net: propagate linkspeed/duplex
 	settings from the hypervisor
-Date: Wed, 3 Jan 2018 16:01:55 +0200
-Message-ID: <20180103155026-mutt-send-email-mst__15037.1608128355$1514988029$gmane$org@kernel.org>
+Date: Wed, 3 Jan 2018 16:03:01 +0200
+Message-ID: <20180103160203-mutt-send-email-mst__36091.9023667977$1514988095$gmane$org@kernel.org>
 References: <cover.1513974243.git.jbaron@akamai.com>
 	<44da522ecee60792ec918234ee4d61a84e4574f0.1513974243.git.jbaron@akamai.com>
 Mime-Version: 1.0
@@ -40,6 +40,10 @@ On Fri, Dec 22, 2017 at 04:54:01PM -0500, Jason Baron wrote:
 > Signed-off-by: Jason Baron <jbaron@akamai.com>
 > Cc: "Michael S. Tsirkin" <mst@redhat.com>
 > Cc: Jason Wang <jasowang@redhat.com>
+
+Same as any host/guest API change, please send a copy to the virtio TC
+to make sure we avoid conflicts.
+
 > ---
 >  drivers/net/virtio_net.c        | 17 ++++++++++++++++-
 >  include/uapi/linux/virtio_net.h |  5 +++++
@@ -70,10 +74,6 @@ On Fri, Dec 22, 2017 at 04:54:01PM -0500, Jason Baron wrote:
 >  
 >  	err = register_netdev(dev);
 >  	if (err) {
-
-It would seem that speed/duplex can change at link up time.
-Update it from virtnet_config_changed_work please.
-
 > @@ -2746,7 +2760,8 @@ static struct virtio_device_id id_table[] = {
 >  	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN, \
 >  	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
@@ -94,9 +94,6 @@ Update it from virtnet_config_changed_work please.
 >  
 > +#define VIRTIO_NET_F_SPEED_DUPLEX 63	/* Host set linkspeed and duplex */
 > +
-
-Host -> device, to match virtio spec terminology.
-
 >  #ifndef VIRTIO_NET_NO_LEGACY
 >  #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
 >  #endif /* VIRTIO_NET_NO_LEGACY */
@@ -105,25 +102,8 @@ Host -> device, to match virtio spec terminology.
 >  	/* Default maximum transmit unit advice */
 >  	__u16 mtu;
 > +	/* Host exported linkspeed and duplex */
-
-I would rather drop this and document each field.
-
-/*
-speed, in units of 1Mb. All values 0 to INT_MAX are legal.
-Any other value stands for unknown.
-*/
-
 > +	__u32 speed;
-
-/*
-0x00 - half duplex
-0x01 - full duplex
-Any other value stands for unknown.
-*/
-
 > +	__u8 duplex;
-
-
 >  } __attribute__((packed));
 >  
 >  /*
