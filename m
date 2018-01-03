@@ -1,11 +1,17 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [PATCH] virtio_blk: print capacity at probe time
-Date: Wed,  3 Jan 2018 16:03:39 +0000
-Message-ID: <20180103160339.21300-1-stefanha@redhat.com>
+From: "tip-bot for Paul E. McKenney" <tipbot@zytor.com>
+Subject: [tip:core/rcu] drivers/vhost: Remove now-redundant
+	read_barrier_depends()
+Date: Wed, 3 Jan 2018 08:08:47 -0800
+Message-ID: <tip-3a5db0b108e0a40f08c2bcff6a675dbf632b91e0__33513.5190784515$1514995712$gmane$org@git.kernel.org>
+Reply-To: virtualization@lists.linux-foundation.org, paulmck@linux.vnet.ibm.com,
+	tglx@linutronix.de, linux-kernel@vger.kernel.org, mst@redhat.com,
+	hpa@zytor.com, netdev@vger.kernel.org, mingo@kernel.org,
+	kvm@vger.kernel.org, jasowang@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,110 +21,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Rodrigo A B Freire <rfreire@redhat.com>, linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, hpa@zytor.com, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Print the capacity of the block device when the driver is probed.  Many
-users expect this since SCSI disks (sd) do it.  Moreover, kernel dmesg
-output is the primary source of troubleshooting information so it's
-helpful to include the disk size there.
+Commit-ID:  3a5db0b108e0a40f08c2bcff6a675dbf632b91e0
+Gitweb:     https://git.kernel.org/tip/3a5db0b108e0a40f08c2bcff6a675dbf632b91e0
+Author:     Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+AuthorDate: Mon, 27 Nov 2017 09:45:10 -0800
+Committer:  Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+CommitDate: Tue, 5 Dec 2017 11:57:55 -0800
 
-The capacity is already printed by virtio_blk when a resize event
-occurs.  Extract the code and reuse it from virtblk_probe().
+drivers/vhost: Remove now-redundant read_barrier_depends()
 
-This patch also adds the block device name to the message so it can be
-correlated with a specific device:
+Because READ_ONCE() now implies read_barrier_depends(), the
+read_barrier_depends() in next_desc() is now redundant.  This commit
+therefore removes it and the related comments.
 
-  virtio_blk virtio0: [vda] 20971520 512-byte logical blocks (10.7 GB/10.0 GiB)
-
-Cc: Rodrigo A B Freire <rfreire@redhat.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: <kvm@vger.kernel.org>
+Cc: <virtualization@lists.linux-foundation.org>
+Cc: <netdev@vger.kernel.org>
 ---
- drivers/block/virtio_blk.c | 32 +++++++++++++++-----------------
- 1 file changed, 15 insertions(+), 17 deletions(-)
+ drivers/vhost/vhost.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 68846897d213..787cd2a10b0b 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -373,14 +373,12 @@ static ssize_t virtblk_serial_show(struct device *dev,
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 33ac2b1..78b5940 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1877,12 +1877,7 @@ static unsigned next_desc(struct vhost_virtqueue *vq, struct vring_desc *desc)
+ 		return -1U;
  
- static DEVICE_ATTR(serial, S_IRUGO, virtblk_serial_show, NULL);
- 
--static void virtblk_config_changed_work(struct work_struct *work)
-+/* The queue's logical block size must be set before calling this */
-+static void virtblk_update_capacity(struct virtio_blk *vblk, bool resize)
- {
--	struct virtio_blk *vblk =
--		container_of(work, struct virtio_blk, config_work);
- 	struct virtio_device *vdev = vblk->vdev;
- 	struct request_queue *q = vblk->disk->queue;
- 	char cap_str_2[10], cap_str_10[10];
--	char *envp[] = { "RESIZE=1", NULL };
- 	unsigned long long nblocks;
- 	u64 capacity;
- 
-@@ -402,13 +400,24 @@ static void virtblk_config_changed_work(struct work_struct *work)
- 			STRING_UNITS_10, cap_str_10, sizeof(cap_str_10));
- 
- 	dev_notice(&vdev->dev,
--		   "new size: %llu %d-byte logical blocks (%s/%s)\n",
-+		   "[%s] %s%llu %d-byte logical blocks (%s/%s)\n",
-+		   vblk->disk->disk_name,
-+		   resize ? "new size: " : "",
- 		   nblocks,
- 		   queue_logical_block_size(q),
- 		   cap_str_10,
- 		   cap_str_2);
- 
- 	set_capacity(vblk->disk, capacity);
-+}
-+
-+static void virtblk_config_changed_work(struct work_struct *work)
-+{
-+	struct virtio_blk *vblk =
-+		container_of(work, struct virtio_blk, config_work);
-+	char *envp[] = { "RESIZE=1", NULL };
-+
-+	virtblk_update_capacity(vblk, true);
- 	revalidate_disk(vblk->disk);
- 	kobject_uevent_env(&disk_to_dev(vblk->disk)->kobj, KOBJ_CHANGE, envp);
+ 	/* Check they're not leading us off end of descriptors. */
+-	next = vhost16_to_cpu(vq, desc->next);
+-	/* Make sure compiler knows to grab that: we don't want it changing! */
+-	/* We will use the result as an index in an array, so most
+-	 * architectures only need a compiler barrier here. */
+-	read_barrier_depends();
+-
++	next = vhost16_to_cpu(vq, READ_ONCE(desc->next));
+ 	return next;
  }
-@@ -621,7 +630,6 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	struct request_queue *q;
- 	int err, index;
- 
--	u64 cap;
- 	u32 v, blk_size, sg_elems, opt_io_size;
- 	u16 min_io_size;
- 	u8 physical_block_exp, alignment_offset;
-@@ -719,17 +727,6 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_BLK_F_RO))
- 		set_disk_ro(vblk->disk, 1);
- 
--	/* Host must always specify the capacity. */
--	virtio_cread(vdev, struct virtio_blk_config, capacity, &cap);
--
--	/* If capacity is too big, truncate with warning. */
--	if ((sector_t)cap != cap) {
--		dev_warn(&vdev->dev, "Capacity %llu too large: truncating\n",
--			 (unsigned long long)cap);
--		cap = (sector_t)-1;
--	}
--	set_capacity(vblk->disk, cap);
--
- 	/* We can handle whatever the host told us to handle. */
- 	blk_queue_max_segments(q, vblk->sg_elems-2);
- 
-@@ -780,6 +777,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	if (!err && opt_io_size)
- 		blk_queue_io_opt(q, blk_size * opt_io_size);
- 
-+	virtblk_update_capacity(vblk, false);
- 	virtio_device_ready(vdev);
- 
- 	device_add_disk(&vdev->dev, vblk->disk);
--- 
-2.14.3
