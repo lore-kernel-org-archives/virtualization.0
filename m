@@ -1,16 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v2 1/3] virtio_net: propagate linkspeed/duplex
-	settings from the hypervisor
-Date: Wed, 3 Jan 2018 16:03:01 +0200
-Message-ID: <20180103160203-mutt-send-email-mst__36091.9023667977$1514988095$gmane$org@kernel.org>
-References: <cover.1513974243.git.jbaron@akamai.com>
-	<44da522ecee60792ec918234ee4d61a84e4574f0.1513974243.git.jbaron@akamai.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [PATCH] virtio_blk: print capacity at probe time
+Date: Wed,  3 Jan 2018 16:03:39 +0000
+Message-ID: <20180103160339.21300-1-stefanha@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <44da522ecee60792ec918234ee4d61a84e4574f0.1513974243.git.jbaron@akamai.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,92 +15,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Baron <jbaron@akamai.com>
-Cc: netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Rodrigo A B Freire <rfreire@redhat.com>, linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 22, 2017 at 04:54:01PM -0500, Jason Baron wrote:
-> The ability to set speed and duplex for virtio_net in useful in various
-> scenarios as described here:
-> 
-> 16032be virtio_net: add ethtool support for set and get of settings
-> 
-> However, it would be nice to be able to set this from the hypervisor,
-> such that virtio_net doesn't require custom guest ethtool commands.
-> 
-> Introduce a new feature flag, VIRTIO_NET_F_SPEED_DUPLEX, which allows
-> the hypervisor to export a linkspeed and duplex setting. The user can
-> subsequently overwrite it later if desired via: 'ethtool -s'.
-> 
-> Signed-off-by: Jason Baron <jbaron@akamai.com>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
+Print the capacity of the block device when the driver is probed.  Many
+users expect this since SCSI disks (sd) do it.  Moreover, kernel dmesg
+output is the primary source of troubleshooting information so it's
+helpful to include the disk size there.
 
-Same as any host/guest API change, please send a copy to the virtio TC
-to make sure we avoid conflicts.
+The capacity is already printed by virtio_blk when a resize event
+occurs.  Extract the code and reuse it from virtblk_probe().
 
-> ---
->  drivers/net/virtio_net.c        | 17 ++++++++++++++++-
->  include/uapi/linux/virtio_net.h |  5 +++++
->  2 files changed, 21 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 511f833..4168d82 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2621,6 +2621,20 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	netif_set_real_num_rx_queues(dev, vi->curr_queue_pairs);
->  
->  	virtnet_init_settings(dev);
-> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_SPEED_DUPLEX)) {
-> +		u32 speed;
-> +		u8 duplex;
-> +
-> +		speed = virtio_cread32(vdev, offsetof(struct virtio_net_config,
-> +				       speed));
-> +		if (ethtool_validate_speed(speed))
-> +			vi->speed = speed;
-> +		duplex = virtio_cread8(vdev,
-> +				       offsetof(struct virtio_net_config,
-> +				       duplex));
-> +		if (ethtool_validate_duplex(duplex))
-> +			vi->duplex = duplex;
-> +	}
->  
->  	err = register_netdev(dev);
->  	if (err) {
-> @@ -2746,7 +2760,8 @@ static struct virtio_device_id id_table[] = {
->  	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN, \
->  	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
->  	VIRTIO_NET_F_CTRL_MAC_ADDR, \
-> -	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS
-> +	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
-> +	VIRTIO_NET_F_SPEED_DUPLEX
->  
->  static unsigned int features[] = {
->  	VIRTNET_FEATURES,
-> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> index fc353b5..0f1548e 100644
-> --- a/include/uapi/linux/virtio_net.h
-> +++ b/include/uapi/linux/virtio_net.h
-> @@ -57,6 +57,8 @@
->  					 * Steering */
->  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
->  
-> +#define VIRTIO_NET_F_SPEED_DUPLEX 63	/* Host set linkspeed and duplex */
-> +
->  #ifndef VIRTIO_NET_NO_LEGACY
->  #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
->  #endif /* VIRTIO_NET_NO_LEGACY */
-> @@ -76,6 +78,9 @@ struct virtio_net_config {
->  	__u16 max_virtqueue_pairs;
->  	/* Default maximum transmit unit advice */
->  	__u16 mtu;
-> +	/* Host exported linkspeed and duplex */
-> +	__u32 speed;
-> +	__u8 duplex;
->  } __attribute__((packed));
->  
->  /*
-> -- 
-> 2.6.1
+This patch also adds the block device name to the message so it can be
+correlated with a specific device:
+
+  virtio_blk virtio0: [vda] 20971520 512-byte logical blocks (10.7 GB/10.0 GiB)
+
+Cc: Rodrigo A B Freire <rfreire@redhat.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+---
+ drivers/block/virtio_blk.c | 32 +++++++++++++++-----------------
+ 1 file changed, 15 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 68846897d213..787cd2a10b0b 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -373,14 +373,12 @@ static ssize_t virtblk_serial_show(struct device *dev,
+ 
+ static DEVICE_ATTR(serial, S_IRUGO, virtblk_serial_show, NULL);
+ 
+-static void virtblk_config_changed_work(struct work_struct *work)
++/* The queue's logical block size must be set before calling this */
++static void virtblk_update_capacity(struct virtio_blk *vblk, bool resize)
+ {
+-	struct virtio_blk *vblk =
+-		container_of(work, struct virtio_blk, config_work);
+ 	struct virtio_device *vdev = vblk->vdev;
+ 	struct request_queue *q = vblk->disk->queue;
+ 	char cap_str_2[10], cap_str_10[10];
+-	char *envp[] = { "RESIZE=1", NULL };
+ 	unsigned long long nblocks;
+ 	u64 capacity;
+ 
+@@ -402,13 +400,24 @@ static void virtblk_config_changed_work(struct work_struct *work)
+ 			STRING_UNITS_10, cap_str_10, sizeof(cap_str_10));
+ 
+ 	dev_notice(&vdev->dev,
+-		   "new size: %llu %d-byte logical blocks (%s/%s)\n",
++		   "[%s] %s%llu %d-byte logical blocks (%s/%s)\n",
++		   vblk->disk->disk_name,
++		   resize ? "new size: " : "",
+ 		   nblocks,
+ 		   queue_logical_block_size(q),
+ 		   cap_str_10,
+ 		   cap_str_2);
+ 
+ 	set_capacity(vblk->disk, capacity);
++}
++
++static void virtblk_config_changed_work(struct work_struct *work)
++{
++	struct virtio_blk *vblk =
++		container_of(work, struct virtio_blk, config_work);
++	char *envp[] = { "RESIZE=1", NULL };
++
++	virtblk_update_capacity(vblk, true);
+ 	revalidate_disk(vblk->disk);
+ 	kobject_uevent_env(&disk_to_dev(vblk->disk)->kobj, KOBJ_CHANGE, envp);
+ }
+@@ -621,7 +630,6 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	struct request_queue *q;
+ 	int err, index;
+ 
+-	u64 cap;
+ 	u32 v, blk_size, sg_elems, opt_io_size;
+ 	u16 min_io_size;
+ 	u8 physical_block_exp, alignment_offset;
+@@ -719,17 +727,6 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	if (virtio_has_feature(vdev, VIRTIO_BLK_F_RO))
+ 		set_disk_ro(vblk->disk, 1);
+ 
+-	/* Host must always specify the capacity. */
+-	virtio_cread(vdev, struct virtio_blk_config, capacity, &cap);
+-
+-	/* If capacity is too big, truncate with warning. */
+-	if ((sector_t)cap != cap) {
+-		dev_warn(&vdev->dev, "Capacity %llu too large: truncating\n",
+-			 (unsigned long long)cap);
+-		cap = (sector_t)-1;
+-	}
+-	set_capacity(vblk->disk, cap);
+-
+ 	/* We can handle whatever the host told us to handle. */
+ 	blk_queue_max_segments(q, vblk->sg_elems-2);
+ 
+@@ -780,6 +777,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	if (!err && opt_io_size)
+ 		blk_queue_io_opt(q, blk_size * opt_io_size);
+ 
++	virtblk_update_capacity(vblk, false);
+ 	virtio_device_ready(vdev);
+ 
+ 	device_add_disk(&vdev->dev, vblk->disk);
+-- 
+2.14.3
