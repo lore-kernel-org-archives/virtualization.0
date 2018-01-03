@@ -1,15 +1,12 @@
-From: Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH net-next] virtio_net: Add ethtool stats
-Date: Mon, 25 Dec 2017 08:47:12 -0800
-Message-ID: <25B612A0-B4BD-4CE9-A166-8630F7F4BD76__5278.49891591376$1515606620$gmane$org@gmail.com>
-References: <1513744837-2672-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<20171224101640.4b14002f@xeon-e3>
-	<be339a85-4368-257e-5f23-d0e35c77cd5b@lab.ntt.co.jp>
+From: Sridhar Samudrala <sridhar.samudrala@intel.com>
+Subject: [PATCH net-next 0/2] Enable virtio to act as a master for a passthru
+	device
+Date: Tue,  2 Jan 2018 16:35:36 -0800
+Message-ID: <1514939738-22423-1-git-send-email-sridhar.samudrala__26294.23591211$1515606626$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <be339a85-4368-257e-5f23-d0e35c77cd5b@lab.ntt.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +16,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>, "Michael S . Tsirkin" <mst@redhat.com>
+To: mst@redhat.com, stephen@networkplumber.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, sridhar.samudrala@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On December 25, 2017 3:45:36 AM PST, Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp> wrote:
->On 2017/12/25 3:16, Stephen Hemminger wrote:
->> On Wed, 20 Dec 2017 13:40:37 +0900
->> Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp> wrote:
->> 
->>> +
->>> +static const struct virtnet_gstats virtnet_gstrings_stats[] = {
->>> +	{ "rx_packets",		VIRTNET_NETDEV_STAT(rx_packets) },
->>> +	{ "tx_packets",		VIRTNET_NETDEV_STAT(tx_packets) },
->>> +	{ "rx_bytes",		VIRTNET_NETDEV_STAT(rx_bytes) },
->>> +	{ "tx_bytes",		VIRTNET_NETDEV_STAT(tx_bytes) },
->>> +	{ "rx_dropped",		VIRTNET_NETDEV_STAT(rx_dropped) },
->>> +	{ "rx_length_errors",	VIRTNET_NETDEV_STAT(rx_length_errors) },
->>> +	{ "rx_frame_errors",	VIRTNET_NETDEV_STAT(rx_frame_errors) },
->>> +	{ "tx_dropped",		VIRTNET_NETDEV_STAT(tx_dropped) },
->>> +	{ "tx_fifo_errors",	VIRTNET_NETDEV_STAT(tx_fifo_errors) },
->>> +};
->>> +
->> 
->> Please do not merge pre-existing global stats into ethtool.
->> It just duplicates existing functionality.
->
->Thanks for the feedback.
->I thought it's handy to be able to check stats like this in ethtool as
->well. Some drivers like ixgbe and mlx5 do similar thing.
->I can remove these duplicate stats (unless anyone has objection).
+This patch series enables virtio to switch over to a VF datapath when a VF
+netdev is present with the same MAC address. It allows live migration of a VM
+with a direct attached VF without the need to setup a bond/team between a
+VF and virtio net device in the guest.
 
-For existing drivers, ethtool stats are kind of user ABI, so once these stats get in, we should not consider removing them. For new drivers or existing drivers without ethtool stats, we can do things a bit better as Stephen suggested.
+The hypervisor needs to unplug the VF device from the guest on the source
+host and reset the MAC filter of the VF to initiate failover of datapath to
+virtio before starting the migration. After the migration is completed, the
+destination hypervisor sets the MAC filter on the VF and plugs it back to
+the guest to switch over to VF datapath.
+
+It is based on netvsc implementation and it may be possible to make this code 
+generic and move it to a common location that can be shared by netvsc and virtio.
+
+This patch series is based on the discussion initiated by Jesse on this thread.
+https://marc.info/?l=linux-virtualization&m=151189725224231&w=2
+
+Sridhar Samudrala (2):
+  virtio_net: Introduce VIRTIO_NET_F_MASTER feature bit
+  virtio_net: Extend virtio to use VF datapath when available
+
+ drivers/net/virtio_net.c        | 308 +++++++++++++++++++++++++++++++++++++++-
+ include/uapi/linux/virtio_net.h |   1 +
+ 2 files changed, 306 insertions(+), 3 deletions(-)
 
 -- 
-Florian
+2.14.3
