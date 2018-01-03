@@ -1,13 +1,19 @@
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-Subject: [bpf-next V4 PATCH 11/14] virtio_net: setup xdp_rxq_info
-Date: Wed, 03 Jan 2018 11:26:04 +0100
-Message-ID: <151497516458.18176.3036145292442370270.stgit__46146.6647139334$1514975077$gmane$org@firesoul>
-References: <151497504273.18176.10177133999720101758.stgit@firesoul>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next v2 1/3] virtio_net: propagate linkspeed/duplex
+	settings from the hypervisor
+Date: Wed, 3 Jan 2018 15:49:21 +0200
+Message-ID: <20180103154824-mutt-send-email-mst@kernel.org>
+References: <1513979641-7999-1-git-send-email-jbaron@akamai.com>
+	<cover.1513974243.git.jbaron@akamai.com>
+	<44da522ecee60792ec918234ee4d61a84e4574f0.1513974243.git.jbaron@akamai.com>
+	<20171227.164334.2079471466039224265.davem@davemloft.net>
+	<93b66082-f37c-0463-e977-d4b430a44008@akamai.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <151497504273.18176.10177133999720101758.stgit@firesoul>
+Content-Disposition: inline
+In-Reply-To: <93b66082-f37c-0463-e977-d4b430a44008@akamai.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,96 +23,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Borkmann <borkmann@iogearbox.net>, Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>, virtualization@lists.linux-foundation.org, dsahern@gmail.com, gospo@broadcom.com, bjorn.topel@intel.com, michael.chan@broadcom.com
+To: Jason Baron <jbaron@akamai.com>
+Cc: qemu-devel@nongnu.org, netdev@vger.kernel.org, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The virtio_net driver doesn't dynamically change the RX-ring queue
-layout and backing pages, but instead reject XDP setup if all the
-conditions for XDP is not meet.  Thus, the xdp_rxq_info also remains
-fairly static.  This allow us to simply add the reg/unreg to
-net_device open/close functions.
+On Thu, Dec 28, 2017 at 10:53:54AM -0500, Jason Baron wrote:
+> 
+> 
+> On 12/27/2017 04:43 PM, David Miller wrote:
+> > From: Jason Baron <jbaron@akamai.com>
+> > Date: Fri, 22 Dec 2017 16:54:01 -0500
+> > 
+> >> The ability to set speed and duplex for virtio_net in useful in various
+> >> scenarios as described here:
+> >>
+> >> 16032be virtio_net: add ethtool support for set and get of settings
+> >>
+> >> However, it would be nice to be able to set this from the hypervisor,
+> >> such that virtio_net doesn't require custom guest ethtool commands.
+> >>
+> >> Introduce a new feature flag, VIRTIO_NET_F_SPEED_DUPLEX, which allows
+> >> the hypervisor to export a linkspeed and duplex setting. The user can
+> >> subsequently overwrite it later if desired via: 'ethtool -s'.
+> >>
+> >> Signed-off-by: Jason Baron <jbaron@akamai.com>
+> >> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> >> Cc: Jason Wang <jasowang@redhat.com>
+> > 
+> > Looks mostly fine to me but need some virtio_net reviewers on this one.
+> > 
+> >> @@ -57,6 +57,8 @@
+> >>  					 * Steering */
+> >>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+> >>  
+> >> +#define VIRTIO_NET_F_SPEED_DUPLEX 63	/* Host set linkspeed and duplex */
+> >> +
+> > 
+> > Why use a value so far away from the largest existing one?
+> > 
+> > Just curious.
+> > 
+> 
+> So that came from a discussion with Michael about which bit to use for
+> this, and he suggested using 63:
+> 
+> "
+> Transports started from bit 24 and are growing up.
+> So I would say devices should start from bit 63 and grow down.
+> "
+> 
+> https://patchwork.ozlabs.org/patch/848814/#1826669
+> 
+> I will add a comment to explain it.
 
-Driver hook points for xdp_rxq_info:
- * reg  : virtnet_open
- * unreg: virtnet_close
+Maybe in the commit log. I don't think we need it in the header.
 
-V3:
- - bugfix, also setup xdp.rxq in receive_mergeable()
- - Tested bpf-sample prog inside guest on a virtio_net device
-
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Reviewed-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 6fb7b658a6cc..ed8299343728 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -31,6 +31,7 @@
- #include <linux/average.h>
- #include <linux/filter.h>
- #include <net/route.h>
-+#include <net/xdp.h>
- 
- static int napi_weight = NAPI_POLL_WEIGHT;
- module_param(napi_weight, int, 0444);
-@@ -115,6 +116,8 @@ struct receive_queue {
- 
- 	/* Name of this receive queue: input.$index */
- 	char name[40];
-+
-+	struct xdp_rxq_info xdp_rxq;
- };
- 
- struct virtnet_info {
-@@ -559,6 +562,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 		xdp.data = xdp.data_hard_start + xdp_headroom;
- 		xdp_set_data_meta_invalid(&xdp);
- 		xdp.data_end = xdp.data + len;
-+		xdp.rxq = &rq->xdp_rxq;
- 		orig_data = xdp.data;
- 		act = bpf_prog_run_xdp(xdp_prog, &xdp);
- 
-@@ -692,6 +696,8 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 		xdp.data = data + vi->hdr_len;
- 		xdp_set_data_meta_invalid(&xdp);
- 		xdp.data_end = xdp.data + (len - vi->hdr_len);
-+		xdp.rxq = &rq->xdp_rxq;
-+
- 		act = bpf_prog_run_xdp(xdp_prog, &xdp);
- 
- 		if (act != XDP_PASS)
-@@ -1225,13 +1231,18 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
- static int virtnet_open(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	int i;
-+	int i, err;
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		if (i < vi->curr_queue_pairs)
- 			/* Make sure we have some buffers: if oom use wq. */
- 			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
- 				schedule_delayed_work(&vi->refill, 0);
-+
-+		err = xdp_rxq_info_reg(&vi->rq[i].xdp_rxq, dev, i);
-+		if (err < 0)
-+			return err;
-+
- 		virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
- 		virtnet_napi_tx_enable(vi, vi->sq[i].vq, &vi->sq[i].napi);
- 	}
-@@ -1560,6 +1571,7 @@ static int virtnet_close(struct net_device *dev)
- 	cancel_delayed_work_sync(&vi->refill);
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
-+		xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
- 		napi_disable(&vi->rq[i].napi);
- 		virtnet_napi_tx_disable(&vi->sq[i].napi);
- 	}
+> Thanks,
+> 
+> -Jason
