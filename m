@@ -1,15 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost: remove unused lock check flag in
-	vhost_dev_cleanup()
-Date: Wed, 3 Jan 2018 17:14:12 +0800
-Message-ID: <7e82b0a2-09f2-0571-a595-ebc76f4308c5@redhat.com>
-References: <57a32eb1fd105b2aacc96b7caae0d8336c010fe0.1514130393.git.jinli.zjl@alibaba-inc.com>
+From: Vincent Legoll <vincent.legoll@gmail.com>
+Subject: [PATCH] [PATCH] virtio: make VIRTIO a menuconfig to ease disabling it
+	all
+Date: Wed,  3 Jan 2018 10:49:18 +0100
+Message-ID: <20180103094918.6106-2-vincent.legoll__10666.6188607507$1514972889$gmane$org@gmail.com>
+References: <871sj7dgvr.fsf@concordia.ellerman.id.au>
+	<20180103094918.6106-1-vincent.legoll@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <57a32eb1fd105b2aacc96b7caae0d8336c010fe0.1514130393.git.jinli.zjl@alibaba-inc.com>
-Content-Language: en-US
+In-Reply-To: <20180103094918.6106-1-vincent.legoll@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,86 +19,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?UTF-8?B?5aS35YiZKENhc3Bhcik=?= <jinli.zjl@alibaba-inc.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: Vincent Legoll <vincent.legoll@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE35bm0MTLmnIgyNeaXpSAwMDowOCwg5aS35YiZKENhc3Bhcikgd3JvdGU6Cj4gSW4g
-Y29tbWl0IGVhNWQ0MDQ2NTViYSAoInZob3N0OiBmaXggcmVsZWFzZSBwYXRoIGxvY2tkZXAgY2hl
-Y2tzIiksCj4gTWljaGFlbCBhZGRlZCBhIGZsYWcgdG8gY2hlY2sgd2hldGhlciB3ZSBzaG91bGQg
-aG9sZCBhIGxvY2sgaW4KPiB2aG9zdF9kZXZfY2xlYW51cCgpLCBob3dldmVyLCBpbiBjb21taXQg
-NDcyODNiZWY3ZWQzICgidmhvc3Q6IG1vdmUKPiBtZW1vcnkgcG9pbnRlciB0byBWUXMiKSwgUkNV
-IG9wZXJhdGlvbnMgaGF2ZSBiZWVuIHJlcGxhY2VkIGJ5Cj4gbXV0ZXgsIHdlIGNhbiByZW1vdmUg
-dGhlIG5vLWxvbmdlci11c2VkIGBsb2NrZWQnIHBhcmFtZXRlciBub3cuCj4KPiBTaWduZWQtb2Zm
-LWJ5OiBDYXNwYXIgWmhhbmcgPGppbmxpLnpqbEBhbGliYWJhLWluYy5jb20+Cj4gLS0tCj4gICBk
-cml2ZXJzL3Zob3N0L25ldC5jICAgfCAyICstCj4gICBkcml2ZXJzL3Zob3N0L3Njc2kuYyAgfCAy
-ICstCj4gICBkcml2ZXJzL3Zob3N0L3Rlc3QuYyAgfCAyICstCj4gICBkcml2ZXJzL3Zob3N0L3Zo
-b3N0LmMgfCA1ICsrLS0tCj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggfCAyICstCj4gICBkcml2
-ZXJzL3Zob3N0L3Zzb2NrLmMgfCAyICstCj4gICA2IGZpbGVzIGNoYW5nZWQsIDcgaW5zZXJ0aW9u
-cygrKSwgOCBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L25ldC5j
-IGIvZHJpdmVycy92aG9zdC9uZXQuYwo+IGluZGV4IGM3YmRlYjY1NTY0Ni4uYTM1NGQ4ZDczMWUz
-IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiArKysgYi9kcml2ZXJzL3Zob3N0
-L25ldC5jCj4gQEAgLTk5Niw3ICs5OTYsNyBAQCBzdGF0aWMgaW50IHZob3N0X25ldF9yZWxlYXNl
-KHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBmaWxlICpmKQo+ICAgCXZob3N0X25ldF9zdG9w
-KG4sICZ0eF9zb2NrLCAmcnhfc29jayk7Cj4gICAJdmhvc3RfbmV0X2ZsdXNoKG4pOwo+ICAgCXZo
-b3N0X2Rldl9zdG9wKCZuLT5kZXYpOwo+IC0Jdmhvc3RfZGV2X2NsZWFudXAoJm4tPmRldiwgZmFs
-c2UpOwo+ICsJdmhvc3RfZGV2X2NsZWFudXAoJm4tPmRldik7Cj4gICAJdmhvc3RfbmV0X3ZxX3Jl
-c2V0KG4pOwo+ICAgCWlmICh0eF9zb2NrKQo+ICAgCQlzb2NrZmRfcHV0KHR4X3NvY2spOwo+IGRp
-ZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Njc2kuYyBiL2RyaXZlcnMvdmhvc3Qvc2NzaS5jCj4g
-aW5kZXggNzE1MTdiM2M1NTU4Li43OTdkMDg5MTY1NTMgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92
-aG9zdC9zY3NpLmMKPiArKysgYi9kcml2ZXJzL3Zob3N0L3Njc2kuYwo+IEBAIC0xNDIwLDcgKzE0
-MjAsNyBAQCBzdGF0aWMgaW50IHZob3N0X3Njc2lfcmVsZWFzZShzdHJ1Y3QgaW5vZGUgKmlub2Rl
-LCBzdHJ1Y3QgZmlsZSAqZikKPiAgIAltdXRleF91bmxvY2soJnZzLT5kZXYubXV0ZXgpOwo+ICAg
-CXZob3N0X3Njc2lfY2xlYXJfZW5kcG9pbnQodnMsICZ0KTsKPiAgIAl2aG9zdF9kZXZfc3RvcCgm
-dnMtPmRldik7Cj4gLQl2aG9zdF9kZXZfY2xlYW51cCgmdnMtPmRldiwgZmFsc2UpOwo+ICsJdmhv
-c3RfZGV2X2NsZWFudXAoJnZzLT5kZXYpOwo+ICAgCS8qIEpvYnMgY2FuIHJlLXF1ZXVlIHRoZW1z
-ZWx2ZXMgaW4gZXZ0IGtpY2sgaGFuZGxlci4gRG8gZXh0cmEgZmx1c2guICovCj4gICAJdmhvc3Rf
-c2NzaV9mbHVzaCh2cyk7Cj4gICAJa2ZyZWUodnMtPmRldi52cXMpOwo+IGRpZmYgLS1naXQgYS9k
-cml2ZXJzL3Zob3N0L3Rlc3QuYyBiL2RyaXZlcnMvdmhvc3QvdGVzdC5jCj4gaW5kZXggM2NjOThj
-MDdkY2QzLi45MDZiOGYwZjE5ZjcgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aG9zdC90ZXN0LmMK
-PiArKysgYi9kcml2ZXJzL3Zob3N0L3Rlc3QuYwo+IEBAIC0xNTcsNyArMTU3LDcgQEAgc3RhdGlj
-IGludCB2aG9zdF90ZXN0X3JlbGVhc2Uoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGUg
-KmYpCj4gICAKPiAgIAl2aG9zdF90ZXN0X3N0b3AobiwgJnByaXZhdGUpOwo+ICAgCXZob3N0X3Rl
-c3RfZmx1c2gobik7Cj4gLQl2aG9zdF9kZXZfY2xlYW51cCgmbi0+ZGV2LCBmYWxzZSk7Cj4gKwl2
-aG9zdF9kZXZfY2xlYW51cCgmbi0+ZGV2KTsKPiAgIAkvKiBXZSBkbyBhbiBleHRyYSBmbHVzaCBi
-ZWZvcmUgZnJlZWluZyBtZW1vcnksCj4gICAJICogc2luY2Ugam9icyBjYW4gcmUtcXVldWUgdGhl
-bXNlbHZlcy4gKi8KPiAgIAl2aG9zdF90ZXN0X2ZsdXNoKG4pOwo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiBpbmRleCAzM2FjMmIx
-ODZiODUuLjAxNDY3NWMzZDU2OSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMK
-PiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiBAQCAtNTQ0LDcgKzU0NCw3IEBAIHZvaWQg
-dmhvc3RfZGV2X3Jlc2V0X293bmVyKHN0cnVjdCB2aG9zdF9kZXYgKmRldiwgc3RydWN0IHZob3N0
-X3VtZW0gKnVtZW0pCj4gICB7Cj4gICAJaW50IGk7Cj4gICAKPiAtCXZob3N0X2Rldl9jbGVhbnVw
-KGRldiwgdHJ1ZSk7Cj4gKwl2aG9zdF9kZXZfY2xlYW51cChkZXYpOwo+ICAgCj4gICAJLyogUmVz
-dG9yZSBtZW1vcnkgdG8gZGVmYXVsdCBlbXB0eSBtYXBwaW5nLiAqLwo+ICAgCUlOSVRfTElTVF9I
-RUFEKCZ1bWVtLT51bWVtX2xpc3QpOwo+IEBAIC02MTEsOCArNjExLDcgQEAgc3RhdGljIHZvaWQg
-dmhvc3RfY2xlYXJfbXNnKHN0cnVjdCB2aG9zdF9kZXYgKmRldikKPiAgIAlzcGluX3VubG9jaygm
-ZGV2LT5pb3RsYl9sb2NrKTsKPiAgIH0KPiAgIAo+IC0vKiBDYWxsZXIgc2hvdWxkIGhhdmUgZGV2
-aWNlIG11dGV4IGlmIGFuZCBvbmx5IGlmIGxvY2tlZCBpcyBzZXQgKi8KPiAtdm9pZCB2aG9zdF9k
-ZXZfY2xlYW51cChzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsIGJvb2wgbG9ja2VkKQo+ICt2b2lkIHZo
-b3N0X2Rldl9jbGVhbnVwKHN0cnVjdCB2aG9zdF9kZXYgKmRldikKPiAgIHsKPiAgIAlpbnQgaTsK
-PiAgIAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmggYi9kcml2ZXJzL3Zob3N0
-L3Zob3N0LmgKPiBpbmRleCA3OWM2ZTdhNjBhNWUuLmZmNGQ5MThlM2UwYSAxMDA2NDQKPiAtLS0g
-YS9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiBA
-QCAtMTgxLDcgKzE4MSw3IEBAIGJvb2wgdmhvc3RfZGV2X2hhc19vd25lcihzdHJ1Y3Qgdmhvc3Rf
-ZGV2ICpkZXYpOwo+ICAgbG9uZyB2aG9zdF9kZXZfY2hlY2tfb3duZXIoc3RydWN0IHZob3N0X2Rl
-diAqKTsKPiAgIHN0cnVjdCB2aG9zdF91bWVtICp2aG9zdF9kZXZfcmVzZXRfb3duZXJfcHJlcGFy
-ZSh2b2lkKTsKPiAgIHZvaWQgdmhvc3RfZGV2X3Jlc2V0X293bmVyKHN0cnVjdCB2aG9zdF9kZXYg
-Kiwgc3RydWN0IHZob3N0X3VtZW0gKik7Cj4gLXZvaWQgdmhvc3RfZGV2X2NsZWFudXAoc3RydWN0
-IHZob3N0X2RldiAqLCBib29sIGxvY2tlZCk7Cj4gK3ZvaWQgdmhvc3RfZGV2X2NsZWFudXAoc3Ry
-dWN0IHZob3N0X2RldiAqKTsKPiAgIHZvaWQgdmhvc3RfZGV2X3N0b3Aoc3RydWN0IHZob3N0X2Rl
-diAqKTsKPiAgIGxvbmcgdmhvc3RfZGV2X2lvY3RsKHN0cnVjdCB2aG9zdF9kZXYgKiwgdW5zaWdu
-ZWQgaW50IGlvY3RsLCB2b2lkIF9fdXNlciAqYXJncCk7Cj4gICBsb25nIHZob3N0X3ZyaW5nX2lv
-Y3RsKHN0cnVjdCB2aG9zdF9kZXYgKmQsIGludCBpb2N0bCwgdm9pZCBfX3VzZXIgKmFyZ3ApOwo+
-IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zzb2NrLmMgYi9kcml2ZXJzL3Zob3N0L3Zzb2Nr
-LmMKPiBpbmRleCA1YTVlOTgxYmQ4ZTQuLjBkMTRlMmZmMTlmMSAxMDA2NDQKPiAtLS0gYS9kcml2
-ZXJzL3Zob3N0L3Zzb2NrLmMKPiArKysgYi9kcml2ZXJzL3Zob3N0L3Zzb2NrLmMKPiBAQCAtNTk5
-LDcgKzU5OSw3IEBAIHN0YXRpYyBpbnQgdmhvc3RfdnNvY2tfZGV2X3JlbGVhc2Uoc3RydWN0IGlu
-b2RlICppbm9kZSwgc3RydWN0IGZpbGUgKmZpbGUpCj4gICAJfQo+ICAgCXNwaW5fdW5sb2NrX2Jo
-KCZ2c29jay0+c2VuZF9wa3RfbGlzdF9sb2NrKTsKPiAgIAo+IC0Jdmhvc3RfZGV2X2NsZWFudXAo
-JnZzb2NrLT5kZXYsIGZhbHNlKTsKPiArCXZob3N0X2Rldl9jbGVhbnVwKCZ2c29jay0+ZGV2KTsK
-PiAgIAlrZnJlZSh2c29jay0+ZGV2LnZxcyk7Cj4gICAJdmhvc3RfdnNvY2tfZnJlZSh2c29jayk7
-Cj4gICAJcmV0dXJuIDA7CgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNv
-bT4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+No need to get into the submenu to disable all VIRTIO-related
+config entries.
+
+This makes it easier to disable all VIRTIO config options
+without entering the submenu. It will also enable one
+to see that en/dis-abled state from the outside menu.
+
+This is only intended to change menuconfig UI, not change
+the config dependencies.
+
+v2: add "default y" to avoid breaking existing configs
+
+Signed-off-by: Vincent Legoll <vincent.legoll@gmail.com>
+---
+ drivers/virtio/Kconfig | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index cff773f15b7e..290a1875e1d3 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -5,7 +5,11 @@ config VIRTIO
+ 	  bus, such as CONFIG_VIRTIO_PCI, CONFIG_VIRTIO_MMIO, CONFIG_RPMSG
+ 	  or CONFIG_S390_GUEST.
+ 
+-menu "Virtio drivers"
++menuconfig VIRTIO_MENU
++	  bool "Virtio drivers"
++	  default y
++
++if VIRTIO_MENU
+ 
+ config VIRTIO_PCI
+ 	tristate "PCI driver for virtio devices"
+@@ -79,4 +83,4 @@ config VIRTIO_MMIO_CMDLINE_DEVICES
+ 
+ 	 If unsure, say 'N'.
+ 
+-endmenu
++endif # VIRTIO_MENU
+-- 
+2.11.0
