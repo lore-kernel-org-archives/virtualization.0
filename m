@@ -1,13 +1,16 @@
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
-Subject: [PATCH 6/6] crypto: stm32-cryp: convert to the new crypto engine API
-Date: Wed,  3 Jan 2018 21:11:09 +0100
-Message-ID: <20180103201109.16077-7-clabbe.montjoie@gmail.com>
-References: <20180103201109.16077-1-clabbe.montjoie@gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next v3 1/3] virtio_net: propagate linkspeed/duplex
+	settings from the hypervisor
+Date: Thu, 4 Jan 2018 18:27:49 +0200
+Message-ID: <20180104182602-mutt-send-email-mst__19255.9514580809$1515083188$gmane$org@kernel.org>
+References: <cover.1515041373.git.jbaron@akamai.com>
+	<e185a03168d0ab68150d21770bf0d02c5ef537c2.1515041373.git.jbaron@akamai.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180103201109.16077-1-clabbe.montjoie@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <e185a03168d0ab68150d21770bf0d02c5ef537c2.1515041373.git.jbaron@akamai.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,78 +20,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: alexandre.torgue@st.com, arei.gonglei@huawei.com, corbet@lwn.net, davem@davemloft.net, herbert@gondor.apana.org.au, jasowang@redhat.com, mcoquelin.stm32@gmail.com, mst@redhat.com
-Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, fabien.dessenne@st.com, virtualization@lists.linux-foundation.org, Corentin Labbe <clabbe.montjoie@gmail.com>, linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Jason Baron <jbaron@akamai.com>
+Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch convert the stm32-cryp driver to the new crypto engine API.
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
----
- drivers/crypto/stm32/stm32-cryp.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+On Thu, Jan 04, 2018 at 12:16:44AM -0500, Jason Baron wrote:
+> The ability to set speed and duplex for virtio_net is useful in various
+> scenarios as described here:
+> 
+> 16032be virtio_net: add ethtool support for set and get of settings
+> 
+> However, it would be nice to be able to set this from the hypervisor,
+> such that virtio_net doesn't require custom guest ethtool commands.
+> 
+> Introduce a new feature flag, VIRTIO_NET_F_SPEED_DUPLEX, which allows
+> the hypervisor to export a linkspeed and duplex setting. The user can
+> subsequently overwrite it later if desired via: 'ethtool -s'.
+> 
+> Note that VIRTIO_NET_F_SPEED_DUPLEX is defined as bit 63, the intention
+> is that device feature bits are to grow down from bit 63, since the
+> transports are starting from bit 24 and growing up.
+> 
+> Signed-off-by: Jason Baron <jbaron@akamai.com>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: virtio-dev@lists.oasis-open.org
+> ---
+>  drivers/net/virtio_net.c        | 19 ++++++++++++++++++-
+>  include/uapi/linux/virtio_net.h | 13 +++++++++++++
+>  2 files changed, 31 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 6fb7b65..0b2d314 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2146,6 +2146,22 @@ static void virtnet_config_changed_work(struct work_struct *work)
+>  
+>  	vi->status = v;
+>  
+> +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX)) {
+> +		u32 speed;
+> +		u8 duplex;
+> +
+> +		speed = virtio_cread32(vi->vdev,
+> +				       offsetof(struct virtio_net_config,
+> +						speed));
+> +		if (ethtool_validate_speed(speed))
+> +			vi->speed = speed;
+> +		duplex = virtio_cread8(vi->vdev,
+> +				       offsetof(struct virtio_net_config,
+> +						duplex));
+> +		if (ethtool_validate_duplex(duplex))
+> +			vi->duplex = duplex;
+> +	}
+> +
+>  	if (vi->status & VIRTIO_NET_S_LINK_UP) {
+>  		netif_carrier_on(vi->dev);
+>  		netif_tx_wake_all_queues(vi->dev);
+> @@ -2796,7 +2812,8 @@ static struct virtio_device_id id_table[] = {
+>  	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN, \
+>  	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
+>  	VIRTIO_NET_F_CTRL_MAC_ADDR, \
+> -	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS
+> +	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
+> +	VIRTIO_NET_F_SPEED_DUPLEX
+>  
+>  static unsigned int features[] = {
+>  	VIRTNET_FEATURES,
 
-diff --git a/drivers/crypto/stm32/stm32-cryp.c b/drivers/crypto/stm32/stm32-cryp.c
-index cf1dddbeaa2c..99e0473ef247 100644
---- a/drivers/crypto/stm32/stm32-cryp.c
-+++ b/drivers/crypto/stm32/stm32-cryp.c
-@@ -91,6 +91,7 @@
- #define _walked_out             (cryp->out_walk.offset - cryp->out_sg->offset)
- 
- struct stm32_cryp_ctx {
-+	struct crypto_engine_reqctx enginectx;
- 	struct stm32_cryp       *cryp;
- 	int                     keylen;
- 	u32                     key[AES_KEYSIZE_256 / sizeof(u32)];
-@@ -494,10 +495,20 @@ static int stm32_cryp_cpu_start(struct stm32_cryp *cryp)
- 	return 0;
- }
- 
-+static int stm32_cryp_cipher_one_req(struct crypto_engine *engine,
-+				     void *areq);
-+static int stm32_cryp_prepare_cipher_req(struct crypto_engine *engine,
-+					 void *areq);
-+
- static int stm32_cryp_cra_init(struct crypto_tfm *tfm)
- {
-+	struct stm32_cryp_ctx *ctx = crypto_tfm_ctx(tfm);
-+
- 	tfm->crt_ablkcipher.reqsize = sizeof(struct stm32_cryp_reqctx);
- 
-+	ctx->enginectx.op.do_one_request = stm32_cryp_cipher_one_req;
-+	ctx->enginectx.op.prepare_request = stm32_cryp_prepare_cipher_req;
-+	ctx->enginectx.op.unprepare_request = NULL;
- 	return 0;
- }
- 
-@@ -695,14 +706,17 @@ static int stm32_cryp_prepare_req(struct crypto_engine *engine,
- }
- 
- static int stm32_cryp_prepare_cipher_req(struct crypto_engine *engine,
--					 struct ablkcipher_request *req)
-+					 void *areq)
- {
-+	struct ablkcipher_request *req = container_of(areq, struct ablkcipher_request, base);
-+
- 	return stm32_cryp_prepare_req(engine, req);
- }
- 
- static int stm32_cryp_cipher_one_req(struct crypto_engine *engine,
--				     struct ablkcipher_request *req)
-+				     void *areq)
- {
-+	struct ablkcipher_request *req = container_of(areq, struct ablkcipher_request, base);
- 	struct stm32_cryp_ctx *ctx = crypto_ablkcipher_ctx(
- 			crypto_ablkcipher_reqtfm(req));
- 	struct stm32_cryp *cryp = ctx->cryp;
-@@ -1104,9 +1118,6 @@ static int stm32_cryp_probe(struct platform_device *pdev)
- 		goto err_engine1;
- 	}
- 
--	cryp->engine->prepare_cipher_request = stm32_cryp_prepare_cipher_req;
--	cryp->engine->cipher_one_request = stm32_cryp_cipher_one_req;
--
- 	ret = crypto_engine_start(cryp->engine);
- 	if (ret) {
- 		dev_err(dev, "Could not start crypto engine\n");
--- 
-2.13.6
+Still missing the update from virtnet_config_changed_work, and I think
+it's important to reflex host changes within guest when the
+feature bit has been acked.
+
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index fc353b5..5de6ed3 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -57,6 +57,8 @@
+>  					 * Steering */
+>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+>  
+> +#define VIRTIO_NET_F_SPEED_DUPLEX 63	/* Device set linkspeed and duplex */
+> +
+>  #ifndef VIRTIO_NET_NO_LEGACY
+>  #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
+>  #endif /* VIRTIO_NET_NO_LEGACY */
+> @@ -76,6 +78,17 @@ struct virtio_net_config {
+>  	__u16 max_virtqueue_pairs;
+>  	/* Default maximum transmit unit advice */
+>  	__u16 mtu;
+> +	/*
+> +	 * speed, in units of 1Mb. All values 0 to INT_MAX are legal.
+> +	 * Any other value stands for unknown.
+> +	 */
+> +	__u32 speed;
+> +	/*
+> +	 * 0x00 - half duplex
+> +	 * 0x01 - full duplex
+> +	 * Any other value stands for unknown.
+> +	 */
+> +	__u8 duplex;
+>  } __attribute__((packed));
+>  
+>  /*
+> -- 
+> 2.6.1
