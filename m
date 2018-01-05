@@ -1,8 +1,8 @@
 From: Jason Baron via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v4 2/3] qemu: virtio-net: use 64-bit values for feature flags
-Date: Fri,  5 Jan 2018 17:44:53 -0500
-Message-ID: <50e16b79a79d81f1890f6d836b7c1a656ff3d2a9.1515190612.git.jbaron__20758.2365292639$1515606871$gmane$org@akamai.com>
+Subject: [PATCH v4 3/3] qemu: add linkspeed and duplex settings to virtio-net
+Date: Fri,  5 Jan 2018 17:44:55 -0500
+Message-ID: <cb116634b45b4da0c437ca54cd979c703fc6b920.1515190612.git.jbaron__45441.6183675223$1515606899$gmane$org@akamai.com>
 References: <cover.1515190238.git.jbaron@akamai.com>
 Reply-To: Jason Baron <jbaron@akamai.com>
 Mime-Version: 1.0
@@ -24,135 +24,150 @@ To: mst@redhat.com
 Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-In prepartion for using some of the high order feature bits, make sure that
-virtio-net uses 64-bit values everywhere.
+Although linkspeed and duplex can be set in a linux guest via 'ethtool -s',
+this requires custom ethtool commands for virtio-net by default.
+
+Introduce a new feature flag, VIRTIO_NET_F_SPEED_DUPLEX, which allows
+the hypervisor to export a linkspeed and duplex setting. The user can
+subsequently overwrite it later if desired via: 'ethtool -s'.
+
+Linkspeed and duplex settings can be set as:
+'-device virtio-net,speed=10000,duplex=full'
+
+where speed is [-1...INT_MAX], and duplex is ["half"|"full"].
 
 Signed-off-by: Jason Baron <jbaron@akamai.com>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Jason Wang <jasowang@redhat.com>
 Cc: virtio-dev@lists.oasis-open.org
 ---
- hw/net/virtio-net.c            | 55 +++++++++++++++++++++---------------------
- include/hw/virtio/virtio-net.h |  2 +-
- 2 files changed, 29 insertions(+), 28 deletions(-)
+ hw/net/virtio-net.c                         | 32 +++++++++++++++++++++++++++++
+ include/hw/virtio/virtio-net.h              |  3 +++
+ include/standard-headers/linux/virtio_net.h | 13 ++++++++++++
+ 3 files changed, 48 insertions(+)
 
 diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-index 38674b0..54823af 100644
+index 54823af..cd63659 100644
 --- a/hw/net/virtio-net.c
 +++ b/hw/net/virtio-net.c
-@@ -48,18 +48,18 @@
-     (offsetof(container, field) + sizeof(((container *)0)->field))
+@@ -40,6 +40,12 @@
+ #define VIRTIO_NET_RX_QUEUE_MIN_SIZE VIRTIO_NET_RX_QUEUE_DEFAULT_SIZE
+ #define VIRTIO_NET_TX_QUEUE_MIN_SIZE VIRTIO_NET_TX_QUEUE_DEFAULT_SIZE
  
- typedef struct VirtIOFeature {
--    uint32_t flags;
-+    uint64_t flags;
-     size_t end;
- } VirtIOFeature;
- 
- static VirtIOFeature feature_sizes[] = {
--    {.flags = 1 << VIRTIO_NET_F_MAC,
-+    {.flags = 1ULL << VIRTIO_NET_F_MAC,
-      .end = endof(struct virtio_net_config, mac)},
--    {.flags = 1 << VIRTIO_NET_F_STATUS,
-+    {.flags = 1ULL << VIRTIO_NET_F_STATUS,
-      .end = endof(struct virtio_net_config, status)},
--    {.flags = 1 << VIRTIO_NET_F_MQ,
-+    {.flags = 1ULL << VIRTIO_NET_F_MQ,
++/* duplex and speed */
++#define DUPLEX_UNKNOWN          0xff
++#define DUPLEX_HALF             0x00
++#define DUPLEX_FULL             0x01
++#define SPEED_UNKNOWN           -1
++
+ /*
+  * Calculate the number of bytes up to and including the given 'field' of
+  * 'container'.
+@@ -61,6 +67,8 @@ static VirtIOFeature feature_sizes[] = {
       .end = endof(struct virtio_net_config, max_virtqueue_pairs)},
--    {.flags = 1 << VIRTIO_NET_F_MTU,
-+    {.flags = 1ULL << VIRTIO_NET_F_MTU,
+     {.flags = 1ULL << VIRTIO_NET_F_MTU,
       .end = endof(struct virtio_net_config, mtu)},
++    {.flags = 1ULL << VIRTIO_NET_F_SPEED_DUPLEX,
++     .end = endof(struct virtio_net_config, duplex)},
      {}
  };
-@@ -1938,7 +1938,7 @@ static void virtio_net_device_realize(DeviceState *dev, Error **errp)
-     int i;
  
-     if (n->net_conf.mtu) {
--        n->host_features |= (0x1 << VIRTIO_NET_F_MTU);
-+        n->host_features |= (1ULL << VIRTIO_NET_F_MTU);
+@@ -89,6 +97,8 @@ static void virtio_net_get_config(VirtIODevice *vdev, uint8_t *config)
+     virtio_stw_p(vdev, &netcfg.max_virtqueue_pairs, n->max_queues);
+     virtio_stw_p(vdev, &netcfg.mtu, n->net_conf.mtu);
+     memcpy(netcfg.mac, n->mac, ETH_ALEN);
++    virtio_stl_p(vdev, &netcfg.speed, n->net_conf.speed);
++    netcfg.duplex = n->net_conf.duplex;
+     memcpy(config, &netcfg, n->config_size);
+ }
+ 
+@@ -1941,6 +1951,26 @@ static void virtio_net_device_realize(DeviceState *dev, Error **errp)
+         n->host_features |= (1ULL << VIRTIO_NET_F_MTU);
      }
  
++    if (n->net_conf.duplex_str) {
++        if (strncmp(n->net_conf.duplex_str, "half", 5) == 0) {
++            n->net_conf.duplex = DUPLEX_HALF;
++        } else if (strncmp(n->net_conf.duplex_str, "full", 5) == 0) {
++            n->net_conf.duplex = DUPLEX_FULL;
++        } else {
++            error_setg(errp, "'duplex' must be 'half' or 'full'");
++        }
++        n->host_features |= (1ULL << VIRTIO_NET_F_SPEED_DUPLEX);
++    } else {
++        n->net_conf.duplex = DUPLEX_UNKNOWN;
++    }
++
++    if (n->net_conf.speed < SPEED_UNKNOWN) {
++        error_setg(errp, "'speed' must be between -1 (SPEED_UNKOWN) and "
++                   "INT_MAX");
++    } else if (n->net_conf.speed >= 0) {
++        n->host_features |= (1ULL << VIRTIO_NET_F_SPEED_DUPLEX);
++    }
++
      virtio_net_set_config_size(n, n->host_features);
-@@ -2109,45 +2109,46 @@ static const VMStateDescription vmstate_virtio_net = {
+     virtio_init(vdev, "virtio-net", VIRTIO_ID_NET, n->config_size);
+ 
+@@ -2161,6 +2191,8 @@ static Property virtio_net_properties[] = {
+     DEFINE_PROP_UINT16("host_mtu", VirtIONet, net_conf.mtu, 0),
+     DEFINE_PROP_BOOL("x-mtu-bypass-backend", VirtIONet, mtu_bypass_backend,
+                      true),
++    DEFINE_PROP_INT32("speed", VirtIONet, net_conf.speed, SPEED_UNKNOWN),
++    DEFINE_PROP_STRING("duplex", VirtIONet, net_conf.duplex_str),
+     DEFINE_PROP_END_OF_LIST(),
  };
  
- static Property virtio_net_properties[] = {
--    DEFINE_PROP_BIT("csum", VirtIONet, host_features, VIRTIO_NET_F_CSUM, true),
--    DEFINE_PROP_BIT("guest_csum", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("csum", VirtIONet, host_features,
-+                    VIRTIO_NET_F_CSUM, true),
-+    DEFINE_PROP_BIT64("guest_csum", VirtIONet, host_features,
-                     VIRTIO_NET_F_GUEST_CSUM, true),
--    DEFINE_PROP_BIT("gso", VirtIONet, host_features, VIRTIO_NET_F_GSO, true),
--    DEFINE_PROP_BIT("guest_tso4", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("gso", VirtIONet, host_features, VIRTIO_NET_F_GSO, true),
-+    DEFINE_PROP_BIT64("guest_tso4", VirtIONet, host_features,
-                     VIRTIO_NET_F_GUEST_TSO4, true),
--    DEFINE_PROP_BIT("guest_tso6", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("guest_tso6", VirtIONet, host_features,
-                     VIRTIO_NET_F_GUEST_TSO6, true),
--    DEFINE_PROP_BIT("guest_ecn", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("guest_ecn", VirtIONet, host_features,
-                     VIRTIO_NET_F_GUEST_ECN, true),
--    DEFINE_PROP_BIT("guest_ufo", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("guest_ufo", VirtIONet, host_features,
-                     VIRTIO_NET_F_GUEST_UFO, true),
--    DEFINE_PROP_BIT("guest_announce", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("guest_announce", VirtIONet, host_features,
-                     VIRTIO_NET_F_GUEST_ANNOUNCE, true),
--    DEFINE_PROP_BIT("host_tso4", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("host_tso4", VirtIONet, host_features,
-                     VIRTIO_NET_F_HOST_TSO4, true),
--    DEFINE_PROP_BIT("host_tso6", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("host_tso6", VirtIONet, host_features,
-                     VIRTIO_NET_F_HOST_TSO6, true),
--    DEFINE_PROP_BIT("host_ecn", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("host_ecn", VirtIONet, host_features,
-                     VIRTIO_NET_F_HOST_ECN, true),
--    DEFINE_PROP_BIT("host_ufo", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("host_ufo", VirtIONet, host_features,
-                     VIRTIO_NET_F_HOST_UFO, true),
--    DEFINE_PROP_BIT("mrg_rxbuf", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("mrg_rxbuf", VirtIONet, host_features,
-                     VIRTIO_NET_F_MRG_RXBUF, true),
--    DEFINE_PROP_BIT("status", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("status", VirtIONet, host_features,
-                     VIRTIO_NET_F_STATUS, true),
--    DEFINE_PROP_BIT("ctrl_vq", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("ctrl_vq", VirtIONet, host_features,
-                     VIRTIO_NET_F_CTRL_VQ, true),
--    DEFINE_PROP_BIT("ctrl_rx", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("ctrl_rx", VirtIONet, host_features,
-                     VIRTIO_NET_F_CTRL_RX, true),
--    DEFINE_PROP_BIT("ctrl_vlan", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("ctrl_vlan", VirtIONet, host_features,
-                     VIRTIO_NET_F_CTRL_VLAN, true),
--    DEFINE_PROP_BIT("ctrl_rx_extra", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("ctrl_rx_extra", VirtIONet, host_features,
-                     VIRTIO_NET_F_CTRL_RX_EXTRA, true),
--    DEFINE_PROP_BIT("ctrl_mac_addr", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("ctrl_mac_addr", VirtIONet, host_features,
-                     VIRTIO_NET_F_CTRL_MAC_ADDR, true),
--    DEFINE_PROP_BIT("ctrl_guest_offloads", VirtIONet, host_features,
-+    DEFINE_PROP_BIT64("ctrl_guest_offloads", VirtIONet, host_features,
-                     VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, true),
--    DEFINE_PROP_BIT("mq", VirtIONet, host_features, VIRTIO_NET_F_MQ, false),
-+    DEFINE_PROP_BIT64("mq", VirtIONet, host_features, VIRTIO_NET_F_MQ, false),
-     DEFINE_NIC_PROPERTIES(VirtIONet, nic_conf),
-     DEFINE_PROP_UINT32("x-txtimer", VirtIONet, net_conf.txtimer,
-                        TX_TIMER_INTERVAL),
 diff --git a/include/hw/virtio/virtio-net.h b/include/hw/virtio/virtio-net.h
-index b81b6a4..e7634c9 100644
+index e7634c9..02484dc 100644
 --- a/include/hw/virtio/virtio-net.h
 +++ b/include/hw/virtio/virtio-net.h
-@@ -67,7 +67,7 @@ typedef struct VirtIONet {
-     uint32_t has_vnet_hdr;
-     size_t host_hdr_len;
-     size_t guest_hdr_len;
--    uint32_t host_features;
-+    uint64_t host_features;
-     uint8_t has_ufo;
-     uint32_t mergeable_rx_bufs;
-     uint8_t promisc;
+@@ -38,6 +38,9 @@ typedef struct virtio_net_conf
+     uint16_t rx_queue_size;
+     uint16_t tx_queue_size;
+     uint16_t mtu;
++    int32_t speed;
++    char *duplex_str;
++    uint8_t duplex;
+ } virtio_net_conf;
+ 
+ /* Maximum packet size we can receive from tap device: header + 64k */
+diff --git a/include/standard-headers/linux/virtio_net.h b/include/standard-headers/linux/virtio_net.h
+index 30ff249..17c8531 100644
+--- a/include/standard-headers/linux/virtio_net.h
++++ b/include/standard-headers/linux/virtio_net.h
+@@ -57,6 +57,8 @@
+ 					 * Steering */
+ #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+ 
++#define VIRTIO_NET_F_SPEED_DUPLEX 63   /* Device set linkspeed and duplex */
++
+ #ifndef VIRTIO_NET_NO_LEGACY
+ #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
+ #endif /* VIRTIO_NET_NO_LEGACY */
+@@ -76,6 +78,17 @@ struct virtio_net_config {
+ 	uint16_t max_virtqueue_pairs;
+ 	/* Default maximum transmit unit advice */
+ 	uint16_t mtu;
++	/*
++	 * speed, in units of 1Mb. All values 0 to INT_MAX are legal.
++	 * Any other value stands for unknown.
++	 */
++	uint32_t speed;
++	/*
++	 * 0x00 - half duplex
++	 * 0x01 - full duplex
++	 * Any other value stands for unknown.
++	 */
++	uint8_t duplex;
+ } QEMU_PACKED;
+ 
+ /*
+diff --git a/pixman b/pixman
+new file mode 160000
+index 0000000..87eea99
+--- /dev/null
++++ b/pixman
+@@ -0,0 +1 @@
++Subproject commit 87eea99e443b389c978cf37efc52788bf03a0ee0
 -- 
 2.6.1
