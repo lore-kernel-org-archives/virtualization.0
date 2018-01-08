@@ -1,13 +1,13 @@
-From: Vincent Legoll <vincent.legoll@gmail.com>
-Subject: [PATCH] virtio: make VIRTIO a menuconfig to ease disabling it all
-Date: Sun,  7 Jan 2018 12:33:56 +0100
-Message-ID: <20180107113356.2806-1-vincent.legoll__28366.466650232$1515324768$gmane$org@gmail.com>
-References: <459e2097-f20a-18f8-17d9-2d9ed011211d@infradead.org>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC PATCH] virtio: add space for device features show
+Date: Mon, 8 Jan 2018 13:50:37 +0100
+Message-ID: <20180108135037.5f29c10b.cohuck@redhat.com>
+References: <20171226133539.GA15965@localhost.didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <459e2097-f20a-18f8-17d9-2d9ed011211d@infradead.org>
+In-Reply-To: <20171226133539.GA15965@localhost.didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,52 +17,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: Vincent Legoll <vincent.legoll@gmail.com>, Randy Dunlap <rdunlap@infradead.org>
+To: weiping zhang <zhangweiping@didichuxing.com>
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-No need to get into the submenu to disable all VIRTIO-related
-config entries.
+On Tue, 26 Dec 2017 21:35:44 +0800
+weiping zhang <zhangweiping@didichuxing.com> wrote:
 
-This makes it easier to disable all VIRTIO config options
-without entering the submenu. It will also enable one
-to see that en/dis-abled state from the outside menu.
+> make features string more readable, add space every 8bit.
+> example:
+> 00101010 01110000 00000000 00001100
+> 
+> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
+> ---
+>  drivers/virtio/virtio.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index 59e36ef..d7d2db1 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -50,9 +50,12 @@ static ssize_t features_show(struct device *_d,
+>  
+>  	/* We actually represent this as a bitstring, as it could be
+>  	 * arbitrary length in future. */
+> -	for (i = 0; i < sizeof(dev->features)*8; i++)
+> -		len += sprintf(buf+len, "%c",
+> +	for (i = 0; i < sizeof(dev->features) * 8; i++) {
+> +		len += sprintf(buf + len, "%c",
+>  			       __virtio_test_bit(dev, i) ? '1' : '0');
+> +		if (i % 8 == 7)
+> +			len += sprintf(buf + len, " ");
+> +	}
+>  	len += sprintf(buf+len, "\n");
+>  	return len;
+>  }
 
-This is only intended to change menuconfig UI, not change
-the config dependencies.
+This might break consumers of this attribute.
 
-v2: Added "default y" to avoid breaking existing configs
-v3: Fixed wrong indentation, added *-by from Randy
-
-Signed-off-by: Vincent Legoll <vincent.legoll@gmail.com>
-Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org> # works for me
----
- drivers/virtio/Kconfig | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index cff773f15b7e..35897649c24f 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -5,7 +5,11 @@ config VIRTIO
- 	  bus, such as CONFIG_VIRTIO_PCI, CONFIG_VIRTIO_MMIO, CONFIG_RPMSG
- 	  or CONFIG_S390_GUEST.
- 
--menu "Virtio drivers"
-+menuconfig VIRTIO_MENU
-+	bool "Virtio drivers"
-+	default y
-+
-+if VIRTIO_MENU
- 
- config VIRTIO_PCI
- 	tristate "PCI driver for virtio devices"
-@@ -79,4 +83,4 @@ config VIRTIO_MMIO_CMDLINE_DEVICES
- 
- 	 If unsure, say 'N'.
- 
--endmenu
-+endif # VIRTIO_MENU
--- 
-2.14.1
+I think the better approach is to write a userspace tool that can do
+additional helpful stuff (like decoding the feature bits).
