@@ -1,7 +1,8 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v21 3/5] mm: support reporting free page blocks
-Date: Tue,  9 Jan 2018 19:11:00 +0800
-Message-ID: <1515496262-7533-4-git-send-email-wei.w.wang__5117.38058780811$1515497310$gmane$org@intel.com>
+Subject: [PATCH v21 5/5] virtio-balloon: don't report free pages when page
+	poisoning is enabled
+Date: Tue,  9 Jan 2018 19:11:02 +0800
+Message-ID: <1515496262-7533-6-git-send-email-wei.w.wang__40801.6957495876$1515497319$gmane$org@intel.com>
 References: <1515496262-7533-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,147 +22,63 @@ To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@no
 Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, nilal@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds support to walk through the free page blocks in the
-system and report them via a callback function. Some page blocks may
-leave the free list after zone->lock is released, so it is the caller's
-responsibility to either detect or prevent the use of such pages.
-
-One use example of this patch is to accelerate live migration by skipping
-the transfer of free pages reported from the guest. A popular method used
-by the hypervisor to track which part of memory is written during live
-migration is to write-protect all the guest memory. So, those pages that
-are reported as free pages but are written after the report function
-returns will be captured by the hypervisor, and they will be added to the
-next round of memory transfer.
+The guest free pages should not be discarded by the live migration thread
+when page poisoning is enabled with PAGE_POISONING_NO_SANITY=n, because
+skipping the transfer of such poisoned free pages will trigger false
+positive when new pages are allocated and checked on the destination.
+This patch adds a config field, poison_val. Guest writes to the config
+field to tell the host about the poisoning value. The value will be 0 in
+the following cases:
+1) PAGE_POISONING_NO_SANITY is enabled;
+2) page poisoning is disabled; or
+3) PAGE_POISONING_ZERO is enabled.
 
 Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Signed-off-by: Liang Li <liang.z.li@intel.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Michal Hocko <mhocko@kernel.org>
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: Michal Hocko <mhocko@suse.com>
 ---
- include/linux/mm.h |  6 ++++
- mm/page_alloc.c    | 91 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 97 insertions(+)
+ drivers/virtio/virtio_balloon.c     | 8 ++++++++
+ include/uapi/linux/virtio_balloon.h | 2 ++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index ea818ff..b3077dd 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1938,6 +1938,12 @@ extern void free_area_init_node(int nid, unsigned long * zones_size,
- 		unsigned long zone_start_pfn, unsigned long *zholes_size);
- extern void free_initmem(void);
- 
-+extern void walk_free_mem_block(void *opaque,
-+				int min_order,
-+				bool (*report_pfn_range)(void *opaque,
-+							 unsigned long pfn,
-+							 unsigned long num));
-+
- /*
-  * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
-  * into the buddy system. The freed pages will be poisoned with pattern
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 76c9688..705de22 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -4899,6 +4899,97 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
- 	show_swap_cache_info();
- }
- 
-+/*
-+ * Walk through a free page list and report the found pfn range via the
-+ * callback.
-+ *
-+ * Return false if the callback requests to stop reporting. Otherwise,
-+ * return true.
-+ */
-+static bool walk_free_page_list(void *opaque,
-+				struct zone *zone,
-+				int order,
-+				enum migratetype mt,
-+				bool (*report_pfn_range)(void *,
-+							 unsigned long,
-+							 unsigned long))
-+{
-+	struct page *page;
-+	struct list_head *list;
-+	unsigned long pfn, flags;
-+	bool ret;
-+
-+	spin_lock_irqsave(&zone->lock, flags);
-+	list = &zone->free_area[order].free_list[mt];
-+	list_for_each_entry(page, list, lru) {
-+		pfn = page_to_pfn(page);
-+		ret = report_pfn_range(opaque, pfn, 1 << order);
-+		if (!ret)
-+			break;
-+	}
-+	spin_unlock_irqrestore(&zone->lock, flags);
-+
-+	return ret;
-+}
-+
-+/**
-+ * walk_free_mem_block - Walk through the free page blocks in the system
-+ * @opaque: the context passed from the caller
-+ * @min_order: the minimum order of free lists to check
-+ * @report_pfn_range: the callback to report the pfn range of the free pages
-+ *
-+ * If the callback returns false, stop iterating the list of free page blocks.
-+ * Otherwise, continue to report.
-+ *
-+ * Please note that there are no locking guarantees for the callback and
-+ * that the reported pfn range might be freed or disappear after the
-+ * callback returns so the caller has to be very careful how it is used.
-+ *
-+ * The callback itself must not sleep or perform any operations which would
-+ * require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
-+ * or via any lock dependency. It is generally advisable to implement
-+ * the callback as simple as possible and defer any heavy lifting to a
-+ * different context.
-+ *
-+ * There is no guarantee that each free range will be reported only once
-+ * during one walk_free_mem_block invocation.
-+ *
-+ * pfn_to_page on the given range is strongly discouraged and if there is
-+ * an absolute need for that make sure to contact MM people to discuss
-+ * potential problems.
-+ *
-+ * The function itself might sleep so it cannot be called from atomic
-+ * contexts.
-+ *
-+ * In general low orders tend to be very volatile and so it makes more
-+ * sense to query larger ones first for various optimizations which like
-+ * ballooning etc... This will reduce the overhead as well.
-+ */
-+void walk_free_mem_block(void *opaque,
-+			 int min_order,
-+			 bool (*report_pfn_range)(void *opaque,
-+						  unsigned long pfn,
-+						  unsigned long num))
-+{
-+	struct zone *zone;
-+	int order;
-+	enum migratetype mt;
-+	bool ret;
-+
-+	for_each_populated_zone(zone) {
-+		for (order = MAX_ORDER - 1; order >= min_order; order--) {
-+			for (mt = 0; mt < MIGRATE_TYPES; mt++) {
-+				ret = walk_free_page_list(opaque, zone,
-+							  order, mt,
-+							  report_pfn_range);
-+				if (!ret)
-+					return;
-+			}
-+		}
-+	}
-+}
-+EXPORT_SYMBOL_GPL(walk_free_mem_block);
-+
- static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index f7e8830..7429894 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -859,6 +859,7 @@ static struct file_system_type balloon_fs = {
+ static int virtballoon_probe(struct virtio_device *vdev)
  {
- 	zoneref->zone = zone;
+ 	struct virtio_balloon *vb;
++	__u32 poison_val;
+ 	int err;
+ 
+ 	if (!vdev->config->get) {
+@@ -896,6 +897,13 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 					WQ_FREEZABLE | WQ_CPU_INTENSIVE, 0);
+ 		INIT_WORK(&vb->report_free_page_work, report_free_page);
+ 		vb->stop_cmd_id = VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID;
++		if (IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY) ||
++		    !page_poisoning_enabled())
++			poison_val = 0;
++		else
++			poison_val = PAGE_POISON;
++		virtio_cwrite(vb->vdev, struct virtio_balloon_config,
++			      poison_val, &poison_val);
+ 	}
+ 
+ 	vb->nb.notifier_call = virtballoon_oom_notify;
+diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+index 58f1274..f270e9e 100644
+--- a/include/uapi/linux/virtio_balloon.h
++++ b/include/uapi/linux/virtio_balloon.h
+@@ -48,6 +48,8 @@ struct virtio_balloon_config {
+ 	__u32 actual;
+ 	/* Free page report command id, readonly by guest */
+ 	__u32 free_page_report_cmd_id;
++	/* Stores PAGE_POISON if page poisoning with sanity check is in use */
++	__u32 poison_val;
+ };
+ 
+ #define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
 -- 
 2.7.4
