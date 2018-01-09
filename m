@@ -1,14 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost: Remove the unused variable.
-Date: Tue, 9 Jan 2018 11:02:19 +0800
-Message-ID: <b26a2b6e-9fbb-7f12-0ea3-91c105f80b15@redhat.com>
-References: <1515462393-13354-1-git-send-email-xiangxia.m.yue@gmail.com>
+Subject: [PATCH net-next] vhost_net: batch used ring update in rx
+Date: Tue,  9 Jan 2018 18:27:45 +0800
+Message-ID: <1515493665-35306-1-git-send-email-jasowang__14959.9418430173$1515494241$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1515462393-13354-1-git-send-email-xiangxia.m.yue@gmail.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +15,175 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tonghao Zhang <xiangxia.m.yue@gmail.com>, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: willemb@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDHmnIgwOeaXpSAwOTo0NiwgVG9uZ2hhbyBaaGFuZyB3cm90ZToKPiBUaGUg
-cGF0Y2ggKDcyMzVhY2RiMSkgY2hhbmdlZCB0aGUgd2F5IG9mIHRoZSB3b3JrCj4gZmx1c2hpbmcg
-aW4gd2hpY2ggdGhlIHF1ZXVlZCBzZXEsIGRvbmUgc2VxLCBhbmQgdGhlCj4gZmx1c2hpbmcgYXJl
-IG5vdCB1c2VkIGFueW1vcmUuIFRoZW4gcmVtb3ZlIHRoZW0gbm93Lgo+Cj4gRml4ZXM6IDcyMzVh
-Y2RiMSAoInZob3N0OiBzaW1wbGlmeSB3b3JrIGZsdXNoaW5nIikKPiBDYzogSmFzb24gV2FuZyA8
-amFzb3dhbmdAcmVkaGF0LmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBUb25naGFvIFpoYW5nIDx4aWFu
-Z3hpYS5tLnl1ZUBnbWFpbC5jb20+Cj4gLS0tCj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAx
-IC0KPiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuaCB8IDQgLS0tLQo+ICAgMiBmaWxlcyBjaGFuZ2Vk
-LCA1IGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBi
-L2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+IGluZGV4IDMzYWMyYjE4NmI4NS4uOWIwNGNhZDkxZDY1
-IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+ICsrKyBiL2RyaXZlcnMvdmhv
-c3Qvdmhvc3QuYwo+IEBAIC0xODEsNyArMTgxLDYgQEAgdm9pZCB2aG9zdF93b3JrX2luaXQoc3Ry
-dWN0IHZob3N0X3dvcmsgKndvcmssIHZob3N0X3dvcmtfZm5fdCBmbikKPiAgIHsKPiAgIAljbGVh
-cl9iaXQoVkhPU1RfV09SS19RVUVVRUQsICZ3b3JrLT5mbGFncyk7Cj4gICAJd29yay0+Zm4gPSBm
-bjsKPiAtCWluaXRfd2FpdHF1ZXVlX2hlYWQoJndvcmstPmRvbmUpOwo+ICAgfQo+ICAgRVhQT1JU
-X1NZTUJPTF9HUEwodmhvc3Rfd29ya19pbml0KTsKPiAgIAo+IGRpZmYgLS1naXQgYS9kcml2ZXJz
-L3Zob3N0L3Zob3N0LmggYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiBpbmRleCA3OWM2ZTdhNjBh
-NWUuLjc0OWZlMTNlMDYxYyAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiAr
-KysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiBAQCAtMjAsMTAgKzIwLDYgQEAgdHlwZWRlZiB2
-b2lkICgqdmhvc3Rfd29ya19mbl90KShzdHJ1Y3Qgdmhvc3Rfd29yayAqd29yayk7Cj4gICBzdHJ1
-Y3Qgdmhvc3Rfd29yayB7Cj4gICAJc3RydWN0IGxsaXN0X25vZGUJICBub2RlOwo+ICAgCXZob3N0
-X3dvcmtfZm5fdAkJICBmbjsKPiAtCXdhaXRfcXVldWVfaGVhZF90CSAgZG9uZTsKPiAtCWludAkJ
-CSAgZmx1c2hpbmc7Cj4gLQl1bnNpZ25lZAkJICBxdWV1ZV9zZXE7Cj4gLQl1bnNpZ25lZAkJICBk
-b25lX3NlcTsKPiAgIAl1bnNpZ25lZCBsb25nCQkgIGZsYWdzOwo+ICAgfTsKPiAgIAoKVGhhbmtz
-IGZvciB0aGUgcGF0Y2gsIGJ1dCBwbGVhc2UgdXNlIGdldF9tYWludGFpbmVyLnBsIHRvIGNjIGNv
-cnJlY3QgCmxpc3QgYW5kIG1haW50YWluZXJzLgoKWW91IGNhbiBhZGQgbXkgQWNrZWQtYnkgd2hl
-biByZXBvc3RpbmcuCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
-YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+This patch tries to batched used ring update during RX. This is pretty
+fit for the case when guest is much faster (e.g dpdk based
+backend). In this case, used ring is almost empty:
+
+- we may get serious cache line misses/contending on both used ring
+  and used idx.
+- at most 1 packet could be dequeued at one time, batching in guest
+  does not make much effect.
+
+Update used ring in a batch can help since guest won't access the used
+ring until used idx was advanced for several descriptors and since we
+advance used ring for every N packets, guest will only need to access
+used idx for every N packet since it can cache the used idx. To have a
+better interaction for both batch dequeuing and dpdk batching,
+VHOST_RX_BATCH was used as the maximum number of descriptors that
+could be batched.
+
+Test were done between two machines with 2.40GHz Intel(R) Xeon(R) CPU
+E5-2630 connected back to back through ixgbe. Traffic were generated
+on one remote ixgbe through MoonGen and measure the RX pps through
+testpmd in guest when do xdp_redirect_map from local ixgbe to
+tap. RX pps were increased from 3.05 Mpps to 4.00 Mpps (about 31%
+improvement).
+
+One possible concern for this is the implications for TCP (especially
+latency sensitive workload). Result[1] does not show obvious changes
+for most of the netperf test (RR, TX, and RX). And we do get some
+improvements for RX on some specific size.
+
+Guest RX:
+
+size/sessions/+thu%/+normalize%
+   64/     1/   +2%/   +2%
+   64/     2/   +2%/   -1%
+   64/     4/   +1%/   +1%
+   64/     8/    0%/    0%
+  256/     1/   +6%/   -3%
+  256/     2/   -3%/   +2%
+  256/     4/  +11%/  +11%
+  256/     8/    0%/    0%
+  512/     1/   +4%/    0%
+  512/     2/   +2%/   +2%
+  512/     4/    0%/   -1%
+  512/     8/   -8%/   -8%
+ 1024/     1/   -7%/  -17%
+ 1024/     2/   -8%/   -7%
+ 1024/     4/   +1%/    0%
+ 1024/     8/    0%/    0%
+ 2048/     1/  +30%/  +14%
+ 2048/     2/  +46%/  +40%
+ 2048/     4/    0%/    0%
+ 2048/     8/    0%/    0%
+ 4096/     1/  +23%/  +22%
+ 4096/     2/  +26%/  +23%
+ 4096/     4/    0%/   +1%
+ 4096/     8/    0%/    0%
+16384/     1/   -2%/   -3%
+16384/     2/   +1%/   -4%
+16384/     4/   -1%/   -3%
+16384/     8/    0%/   -1%
+65535/     1/  +15%/   +7%
+65535/     2/   +4%/   +7%
+65535/     4/    0%/   +1%
+65535/     8/    0%/    0%
+
+TCP_RR:
+
+size/sessions/+thu%/+normalize%
+    1/     1/    0%/   +1%
+    1/    25/   +2%/   +1%
+    1/    50/   +4%/   +1%
+   64/     1/    0%/   -4%
+   64/    25/   +2%/   +1%
+   64/    50/    0%/   -1%
+  256/     1/    0%/    0%
+  256/    25/    0%/    0%
+  256/    50/   +4%/   +2%
+
+Guest TX:
+
+size/sessions/+thu%/+normalize%
+   64/     1/   +4%/   -2%
+   64/     2/   -6%/   -5%
+   64/     4/   +3%/   +6%
+   64/     8/    0%/   +3%
+  256/     1/  +15%/  +16%
+  256/     2/  +11%/  +12%
+  256/     4/   +1%/    0%
+  256/     8/   +5%/   +5%
+  512/     1/   -1%/   -6%
+  512/     2/    0%/   -8%
+  512/     4/   -2%/   +4%
+  512/     8/   +6%/   +9%
+ 1024/     1/   +3%/   +1%
+ 1024/     2/   +3%/   +9%
+ 1024/     4/    0%/   +7%
+ 1024/     8/    0%/   +7%
+ 2048/     1/   +8%/   +2%
+ 2048/     2/   +3%/   -1%
+ 2048/     4/   -1%/  +11%
+ 2048/     8/   +3%/   +9%
+ 4096/     1/   +8%/   +8%
+ 4096/     2/    0%/   -7%
+ 4096/     4/   +4%/   +4%
+ 4096/     8/   +2%/   +5%
+16384/     1/   -3%/   +1%
+16384/     2/   -1%/  -12%
+16384/     4/   -1%/   +5%
+16384/     8/    0%/   +1%
+65535/     1/    0%/   -3%
+65535/     2/   +5%/  +16%
+65535/     4/   +1%/   +2%
+65535/     8/   +1%/   -1%
+
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/net.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index c7bdeb6..988af72 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -744,7 +744,7 @@ static void handle_rx(struct vhost_net *net)
+ 	};
+ 	size_t total_len = 0;
+ 	int err, mergeable;
+-	s16 headcount;
++	s16 headcount, nheads = 0;
+ 	size_t vhost_hlen, sock_hlen;
+ 	size_t vhost_len, sock_len;
+ 	struct socket *sock;
+@@ -772,7 +772,7 @@ static void handle_rx(struct vhost_net *net)
+ 	while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk))) {
+ 		sock_len += sock_hlen;
+ 		vhost_len = sock_len + vhost_hlen;
+-		headcount = get_rx_bufs(vq, vq->heads, vhost_len,
++		headcount = get_rx_bufs(vq, vq->heads + nheads, vhost_len,
+ 					&in, vq_log, &log,
+ 					likely(mergeable) ? UIO_MAXIOV : 1);
+ 		/* On error, stop handling until the next kick. */
+@@ -844,8 +844,12 @@ static void handle_rx(struct vhost_net *net)
+ 			vhost_discard_vq_desc(vq, headcount);
+ 			goto out;
+ 		}
+-		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
+-					    headcount);
++		nheads += headcount;
++		if (nheads > VHOST_RX_BATCH) {
++			vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
++						    nheads);
++			nheads = 0;
++		}
+ 		if (unlikely(vq_log))
+ 			vhost_log_write(vq, vq_log, log, vhost_len);
+ 		total_len += vhost_len;
+@@ -856,6 +860,9 @@ static void handle_rx(struct vhost_net *net)
+ 	}
+ 	vhost_net_enable_vq(net, vq);
+ out:
++	if (nheads)
++		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
++					    nheads);
+ 	mutex_unlock(&vq->mutex);
+ }
+ 
+-- 
+1.8.3.1
