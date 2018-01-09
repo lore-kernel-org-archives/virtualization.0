@@ -1,7 +1,7 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next] vhost_net: batch used ring update in rx
-Date: Tue,  9 Jan 2018 18:27:45 +0800
-Message-ID: <1515493665-35306-1-git-send-email-jasowang__14959.9418430173$1515494241$gmane$org@redhat.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: [PATCH v21 0/5] Virtio-balloon Enhancement
+Date: Tue,  9 Jan 2018 19:10:57 +0800
+Message-ID: <1515496262-7533-1-git-send-email-wei.w.wang__17729.0743602954$1515497251$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,175 +15,229 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: willemb@google.com
+To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, mawilcox@microsoft.com
+Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, nilal@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch tries to batched used ring update during RX. This is pretty
-fit for the case when guest is much faster (e.g dpdk based
-backend). In this case, used ring is almost empty:
+This patch series enhances the existing virtio-balloon with the following
+new features:
+1) fast ballooning: transfer ballooned pages between the guest and host in
+chunks using sgs, instead of one array each time; and
+2) free page block reporting: a new virtqueue to report guest free pages
+to the host.
 
-- we may get serious cache line misses/contending on both used ring
-  and used idx.
-- at most 1 packet could be dequeued at one time, batching in guest
-  does not make much effect.
+The second feature can be used to accelerate live migration of VMs. Here
+are some details:
 
-Update used ring in a batch can help since guest won't access the used
-ring until used idx was advanced for several descriptors and since we
-advance used ring for every N packets, guest will only need to access
-used idx for every N packet since it can cache the used idx. To have a
-better interaction for both batch dequeuing and dpdk batching,
-VHOST_RX_BATCH was used as the maximum number of descriptors that
-could be batched.
+Live migration needs to transfer the VM's memory from the source machine
+to the destination round by round. For the 1st round, all the VM's memory
+is transferred. From the 2nd round, only the pieces of memory that were
+written by the guest (after the 1st round) are transferred. One method
+that is popularly used by the hypervisor to track which part of memory is
+written is to write-protect all the guest memory.
 
-Test were done between two machines with 2.40GHz Intel(R) Xeon(R) CPU
-E5-2630 connected back to back through ixgbe. Traffic were generated
-on one remote ixgbe through MoonGen and measure the RX pps through
-testpmd in guest when do xdp_redirect_map from local ixgbe to
-tap. RX pps were increased from 3.05 Mpps to 4.00 Mpps (about 31%
-improvement).
+The second feature enables the optimization of the 1st round memory
+transfer - the hypervisor can skip the transfer of guest free pages in the
+1st round. It is not concerned that the memory pages are used after they
+are given to the hypervisor as a hint of the free pages, because they will
+be tracked by the hypervisor and transferred in the next round if they are
+used and written.
 
-One possible concern for this is the implications for TCP (especially
-latency sensitive workload). Result[1] does not show obvious changes
-for most of the netperf test (RR, TX, and RX). And we do get some
-improvements for RX on some specific size.
+ChangeLog:
+v20 (RESEND)->v21:
+1) patch 1:
+	- xb_zero: fix the bug related to bitmap_clear;
+	- testing/radix-tree/Makefile: removed the "$CC.." line;
+	- added a test case for xbitmap_check_zero_bits;
+2) patch 2: virtio-balloon
+	- changed the usage of the xb_ related APIs
 
-Guest RX:
+v19->v20:
+1) patch 1: xbitmap
+	- add __rcu to "void **slot";
+	- remove the exceptional path.
+2) patch 3: xbitmap
+	- DeveloperNotes: add an item to comment that the current bit range
+	  related APIs operating on extremely large ranges (e.g.
+          [0, ULONG_MAX)) will take too long time. This can be optimized in
+	  the future.
+	- remove the exceptional path;
+	- remove xb_preload_and_set();
+	- reimplement xb_clear_bit_range to make its usage close to
+	  bitmap_clear;
+	- rename xb_find_next_set_bit to xb_find_set, and re-implement it
+	  in a style close to find_next_bit;
+	- rename xb_find_next_zero_bit to xb_find_clear, and re-implement
+	  it in a stytle close to find_next_zero_bit;
+	- separate the implementation of xb_find_set and xb_find_clear for
+	  the convenience of future updates.
+3) patch 4: virtio-balloon
+	- xb_set_page: change the way to call xb_ related APIs
 
-size/sessions/+thu%/+normalize%
-   64/     1/   +2%/   +2%
-   64/     2/   +2%/   -1%
-   64/     4/   +1%/   +1%
-   64/     8/    0%/    0%
-  256/     1/   +6%/   -3%
-  256/     2/   -3%/   +2%
-  256/     4/  +11%/  +11%
-  256/     8/    0%/    0%
-  512/     1/   +4%/    0%
-  512/     2/   +2%/   +2%
-  512/     4/    0%/   -1%
-  512/     8/   -8%/   -8%
- 1024/     1/   -7%/  -17%
- 1024/     2/   -8%/   -7%
- 1024/     4/   +1%/    0%
- 1024/     8/    0%/    0%
- 2048/     1/  +30%/  +14%
- 2048/     2/  +46%/  +40%
- 2048/     4/    0%/    0%
- 2048/     8/    0%/    0%
- 4096/     1/  +23%/  +22%
- 4096/     2/  +26%/  +23%
- 4096/     4/    0%/   +1%
- 4096/     8/    0%/    0%
-16384/     1/   -2%/   -3%
-16384/     2/   +1%/   -4%
-16384/     4/   -1%/   -3%
-16384/     8/    0%/   -1%
-65535/     1/  +15%/   +7%
-65535/     2/   +4%/   +7%
-65535/     4/    0%/   +1%
-65535/     8/    0%/    0%
+v18->v19:
+1) patch 3:
+	- xb_clear_bit_range and xb_find_next_bit will deal with range [start,
+	  end), where end is changed to be exclusive of the range.
+	- add overflow checks at the end of xb_clear_bit_range and
+	  xb_find_next_bit 
+	- add overflow related test cases
+2) patch 4:
+	- change back to the previous add_one_sg methond, which is based on the
+	  scatterlist struct
+        - tell_host_sgs: use "uint64_t len" to avoid overflow
+	- batch_balloon_page_sg: a simpler function to implement the batching of
+	  sgs
+3) patch 6: batch_free_page_sg: batch sgs using the previous scatterlist struct
+4) patch 7: add a config field, poison_val, to tell the host about the poison
+	    value
+v17->v18:
+1) patch 1-2: new to solve some tools related compilation issues
+2) patch 3: revert to the original xbitmap implementation from Matthew
+Wilcox with some minor changes (e.g. comments added to the exported
+functions)
+3) patch 4: summarize the changes we want to make to patch 3
+4) patch 5: add the developer notes as a reminder for users to avoid
+concurrent accesses to the ida bitmap
+5) patch 6: a new vring API to allow users to directly pass in a physical
+address to a vring desc
+6) patch 7: ballooning time is reduced from ~490ms to ~440ms with the new
+implementation
+	- use the new API from patch 6 to send balloon pages
+	- xb_preload with "GFP_NOWAIT | __GFP_NOWARN" flag;
+	- handle the case when xb_set_page() fails to avoid memory leak;
+	- put xb_set_page() under the balloon lock
+7) patch 9: simper implementation
+	- start free page reporting by sending a new cmd id from the host
+	- guest acks the start or stop via adding a cmd id to the free page vq
+	- use vb->report_free_page, instead of vb->report_free_page_stop
+	- use WRITE_ONCE/READ_ONCE to access vb->report_free_page
+	- use the new API from patch 6 to send free pages to avoid the
+	  unnecessary use of kaddr.
+8) patch 10: new patch to solve the page posioning issue reported by
+Michael S. Tsirkin 
 
-TCP_RR:
+v16->v17:
+1) patch 1: please check the commit log there;
+2) patch 3: included Michael S. Tsirkin patch to fix the potential
+deadlock issue;
+3) patch 4: use BUG_ON if virtqueue_add_ returns error, which is
+expected never to happen;
+4) patch 4: add leak_balloon_sg_oom, which is used in the oom case when
+VIRTIO_BALLOON_F_SG is in use;
+5) patch 6: use config registers, instead of a vq, as the command channel
+between the host and guest;
+6) patch 6: add the command sequence id support.
 
-size/sessions/+thu%/+normalize%
-    1/     1/    0%/   +1%
-    1/    25/   +2%/   +1%
-    1/    50/   +4%/   +1%
-   64/     1/    0%/   -4%
-   64/    25/   +2%/   +1%
-   64/    50/    0%/   -1%
-  256/     1/    0%/    0%
-  256/    25/    0%/    0%
-  256/    50/   +4%/   +2%
+v15->v16:
+1) mm: stop reporting the free pfn range if the callback returns false;
+2) mm: move some implementaion of walk_free_mem_block into a function to
+make the code layout looks better;
+3) xbitmap: added some optimizations suggested by Matthew, please refer to
+the ChangLog in the xbitmap patch for details.
+4) xbitmap: added a test suite
+5) virtio-balloon: bail out with a warning when virtqueue_add_inbuf returns
+an error
+6) virtio-balloon: some small code re-arrangement, e.g. detachinf used buf
+from the vq before adding a new buf
 
-Guest TX:
+v14->v15:
+1) mm: make the report callback return a bool value - returning 1 to stop
+walking through the free page list.
+2) virtio-balloon: batching sgs of balloon pages till the vq is full
+3) virtio-balloon: create a new workqueue, rather than using the default
+system_wq, to queue the free page reporting work item.
+4) virtio-balloon: add a ctrl_vq to be a central control plane which will
+handle all the future control related commands between the host and guest.
+Add free page report as the first feature controlled under ctrl_vq, and
+the free_page_vq is a data plane vq dedicated to the transmission of free
+page blocks.
 
-size/sessions/+thu%/+normalize%
-   64/     1/   +4%/   -2%
-   64/     2/   -6%/   -5%
-   64/     4/   +3%/   +6%
-   64/     8/    0%/   +3%
-  256/     1/  +15%/  +16%
-  256/     2/  +11%/  +12%
-  256/     4/   +1%/    0%
-  256/     8/   +5%/   +5%
-  512/     1/   -1%/   -6%
-  512/     2/    0%/   -8%
-  512/     4/   -2%/   +4%
-  512/     8/   +6%/   +9%
- 1024/     1/   +3%/   +1%
- 1024/     2/   +3%/   +9%
- 1024/     4/    0%/   +7%
- 1024/     8/    0%/   +7%
- 2048/     1/   +8%/   +2%
- 2048/     2/   +3%/   -1%
- 2048/     4/   -1%/  +11%
- 2048/     8/   +3%/   +9%
- 4096/     1/   +8%/   +8%
- 4096/     2/    0%/   -7%
- 4096/     4/   +4%/   +4%
- 4096/     8/   +2%/   +5%
-16384/     1/   -3%/   +1%
-16384/     2/   -1%/  -12%
-16384/     4/   -1%/   +5%
-16384/     8/    0%/   +1%
-65535/     1/    0%/   -3%
-65535/     2/   +5%/  +16%
-65535/     4/   +1%/   +2%
-65535/     8/   +1%/   -1%
+v13->v14:
+1) xbitmap: move the code from lib/radix-tree.c to lib/xbitmap.c.
+2) xbitmap: consolidate the implementation of xb_bit_set/clear/test into
+one xb_bit_ops.
+3) xbitmap: add documents for the exported APIs.
+4) mm: rewrite the function to walk through free page blocks.
+5) virtio-balloon: when reporting a free page blcok to the device, if the
+vq is full (less likey to happen in practice), just skip reporting this
+block, instead of busywaiting till an entry gets released.
+6) virtio-balloon: fail the probe function if adding the signal buf in
+init_vqs fails.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+v12->v13:
+1) mm: use a callback function to handle the the free page blocks from the
+report function. This avoids exposing the zone internal to a kernel
+module.
+2) virtio-balloon: send balloon pages or a free page block using a single
+sg each time. This has the benefits of simpler implementation with no new
+APIs.
+3) virtio-balloon: the free_page_vq is used to report free pages only (no
+multiple usages interleaving)
+4) virtio-balloon: Balloon pages and free page blocks are sent via input
+sgs, and the completion signal to the host is sent via an output sg.
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index c7bdeb6..988af72 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -744,7 +744,7 @@ static void handle_rx(struct vhost_net *net)
- 	};
- 	size_t total_len = 0;
- 	int err, mergeable;
--	s16 headcount;
-+	s16 headcount, nheads = 0;
- 	size_t vhost_hlen, sock_hlen;
- 	size_t vhost_len, sock_len;
- 	struct socket *sock;
-@@ -772,7 +772,7 @@ static void handle_rx(struct vhost_net *net)
- 	while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk))) {
- 		sock_len += sock_hlen;
- 		vhost_len = sock_len + vhost_hlen;
--		headcount = get_rx_bufs(vq, vq->heads, vhost_len,
-+		headcount = get_rx_bufs(vq, vq->heads + nheads, vhost_len,
- 					&in, vq_log, &log,
- 					likely(mergeable) ? UIO_MAXIOV : 1);
- 		/* On error, stop handling until the next kick. */
-@@ -844,8 +844,12 @@ static void handle_rx(struct vhost_net *net)
- 			vhost_discard_vq_desc(vq, headcount);
- 			goto out;
- 		}
--		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
--					    headcount);
-+		nheads += headcount;
-+		if (nheads > VHOST_RX_BATCH) {
-+			vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
-+						    nheads);
-+			nheads = 0;
-+		}
- 		if (unlikely(vq_log))
- 			vhost_log_write(vq, vq_log, log, vhost_len);
- 		total_len += vhost_len;
-@@ -856,6 +860,9 @@ static void handle_rx(struct vhost_net *net)
- 	}
- 	vhost_net_enable_vq(net, vq);
- out:
-+	if (nheads)
-+		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
-+					    nheads);
- 	mutex_unlock(&vq->mutex);
- }
- 
+v11->v12:
+1) xbitmap: use the xbitmap from Matthew Wilcox to record ballooned pages.
+2) virtio-ring: enable the driver to build up a desc chain using vring
+desc.
+3) virtio-ring: Add locking to the existing START_USE() and END_USE()
+macro to lock/unlock the vq when a vq operation starts/ends.
+4) virtio-ring: add virtqueue_kick_sync() and virtqueue_kick_async()
+5) virtio-balloon: describe chunks of ballooned pages and free pages
+blocks directly using one or more chains of desc from the vq.
+
+v10->v11:
+1) virtio_balloon: use vring_desc to describe a chunk;
+2) virtio_ring: support to add an indirect desc table to virtqueue;
+3)  virtio_balloon: use cmdq to report guest memory statistics.
+
+v9->v10:
+1) mm: put report_unused_page_block() under CONFIG_VIRTIO_BALLOON;
+2) virtio-balloon: add virtballoon_validate();
+3) virtio-balloon: msg format change;
+4) virtio-balloon: move miscq handling to a task on system_freezable_wq;
+5) virtio-balloon: code cleanup.
+
+v8->v9:
+1) Split the two new features, VIRTIO_BALLOON_F_BALLOON_CHUNKS and
+VIRTIO_BALLOON_F_MISC_VQ, which were mixed together in the previous
+implementation;
+2) Simpler function to get the free page block.
+
+v7->v8:
+1) Use only one chunk format, instead of two.
+2) re-write the virtio-balloon implementation patch.
+3) commit changes
+4) patch re-org
+
+Matthew Wilcox (1):
+  xbitmap: Introduce xbitmap
+
+Wei Wang (4):
+  virtio-balloon: VIRTIO_BALLOON_F_SG
+  mm: support reporting free page blocks
+  virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
+  virtio-balloon: don't report free pages when page poisoning is enabled
+
+ drivers/virtio/virtio_balloon.c          | 443 ++++++++++++++++++++++++++----
+ include/linux/mm.h                       |   6 +
+ include/linux/xbitmap.h                  |  48 ++++
+ include/uapi/linux/virtio_balloon.h      |   7 +
+ lib/Makefile                             |   2 +-
+ lib/radix-tree.c                         |  38 ++-
+ lib/xbitmap.c                            | 444 +++++++++++++++++++++++++++++++
+ mm/page_alloc.c                          |  91 +++++++
+ tools/include/linux/bitmap.h             |  34 +++
+ tools/include/linux/kernel.h             |   2 +
+ tools/testing/radix-tree/Makefile        |  17 +-
+ tools/testing/radix-tree/linux/kernel.h  |   2 -
+ tools/testing/radix-tree/linux/xbitmap.h |   1 +
+ tools/testing/radix-tree/main.c          |   4 +
+ tools/testing/radix-tree/test.h          |   1 +
+ 15 files changed, 1080 insertions(+), 60 deletions(-)
+ create mode 100644 include/linux/xbitmap.h
+ create mode 100644 lib/xbitmap.c
+ create mode 100644 tools/testing/radix-tree/linux/xbitmap.h
+
 -- 
-1.8.3.1
+2.7.4
