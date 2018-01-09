@@ -1,11 +1,14 @@
-From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Subject: [PATCH] vhost: Remove the unused variable.
-Date: Mon,  8 Jan 2018 17:46:33 -0800
-Message-ID: <1515462393-13354-1-git-send-email-xiangxia.m.yue@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost: Remove the unused variable.
+Date: Tue, 9 Jan 2018 11:02:19 +0800
+Message-ID: <b26a2b6e-9fbb-7f12-0ea3-91c105f80b15@redhat.com>
+References: <1515462393-13354-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1515462393-13354-1-git-send-email-xiangxia.m.yue@gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,47 +18,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com, virtualization@lists.linux-foundation.org
+To: Tonghao Zhang <xiangxia.m.yue@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The patch (7235acdb1) changed the way of the work
-flushing in which the queued seq, done seq, and the
-flushing are not used anymore. Then remove them now.
-
-Fixes: 7235acdb1 ("vhost: simplify work flushing")
-Cc: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
----
- drivers/vhost/vhost.c | 1 -
- drivers/vhost/vhost.h | 4 ----
- 2 files changed, 5 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 33ac2b186b85..9b04cad91d65 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -181,7 +181,6 @@ void vhost_work_init(struct vhost_work *work, vhost_work_fn_t fn)
- {
- 	clear_bit(VHOST_WORK_QUEUED, &work->flags);
- 	work->fn = fn;
--	init_waitqueue_head(&work->done);
- }
- EXPORT_SYMBOL_GPL(vhost_work_init);
- 
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 79c6e7a60a5e..749fe13e061c 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -20,10 +20,6 @@ typedef void (*vhost_work_fn_t)(struct vhost_work *work);
- struct vhost_work {
- 	struct llist_node	  node;
- 	vhost_work_fn_t		  fn;
--	wait_queue_head_t	  done;
--	int			  flushing;
--	unsigned		  queue_seq;
--	unsigned		  done_seq;
- 	unsigned long		  flags;
- };
- 
--- 
-2.13.6
+CgpPbiAyMDE45bm0MDHmnIgwOeaXpSAwOTo0NiwgVG9uZ2hhbyBaaGFuZyB3cm90ZToKPiBUaGUg
+cGF0Y2ggKDcyMzVhY2RiMSkgY2hhbmdlZCB0aGUgd2F5IG9mIHRoZSB3b3JrCj4gZmx1c2hpbmcg
+aW4gd2hpY2ggdGhlIHF1ZXVlZCBzZXEsIGRvbmUgc2VxLCBhbmQgdGhlCj4gZmx1c2hpbmcgYXJl
+IG5vdCB1c2VkIGFueW1vcmUuIFRoZW4gcmVtb3ZlIHRoZW0gbm93Lgo+Cj4gRml4ZXM6IDcyMzVh
+Y2RiMSAoInZob3N0OiBzaW1wbGlmeSB3b3JrIGZsdXNoaW5nIikKPiBDYzogSmFzb24gV2FuZyA8
+amFzb3dhbmdAcmVkaGF0LmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBUb25naGFvIFpoYW5nIDx4aWFu
+Z3hpYS5tLnl1ZUBnbWFpbC5jb20+Cj4gLS0tCj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAx
+IC0KPiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuaCB8IDQgLS0tLQo+ICAgMiBmaWxlcyBjaGFuZ2Vk
+LCA1IGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBi
+L2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+IGluZGV4IDMzYWMyYjE4NmI4NS4uOWIwNGNhZDkxZDY1
+IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+ICsrKyBiL2RyaXZlcnMvdmhv
+c3Qvdmhvc3QuYwo+IEBAIC0xODEsNyArMTgxLDYgQEAgdm9pZCB2aG9zdF93b3JrX2luaXQoc3Ry
+dWN0IHZob3N0X3dvcmsgKndvcmssIHZob3N0X3dvcmtfZm5fdCBmbikKPiAgIHsKPiAgIAljbGVh
+cl9iaXQoVkhPU1RfV09SS19RVUVVRUQsICZ3b3JrLT5mbGFncyk7Cj4gICAJd29yay0+Zm4gPSBm
+bjsKPiAtCWluaXRfd2FpdHF1ZXVlX2hlYWQoJndvcmstPmRvbmUpOwo+ICAgfQo+ICAgRVhQT1JU
+X1NZTUJPTF9HUEwodmhvc3Rfd29ya19pbml0KTsKPiAgIAo+IGRpZmYgLS1naXQgYS9kcml2ZXJz
+L3Zob3N0L3Zob3N0LmggYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiBpbmRleCA3OWM2ZTdhNjBh
+NWUuLjc0OWZlMTNlMDYxYyAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiAr
+KysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiBAQCAtMjAsMTAgKzIwLDYgQEAgdHlwZWRlZiB2
+b2lkICgqdmhvc3Rfd29ya19mbl90KShzdHJ1Y3Qgdmhvc3Rfd29yayAqd29yayk7Cj4gICBzdHJ1
+Y3Qgdmhvc3Rfd29yayB7Cj4gICAJc3RydWN0IGxsaXN0X25vZGUJICBub2RlOwo+ICAgCXZob3N0
+X3dvcmtfZm5fdAkJICBmbjsKPiAtCXdhaXRfcXVldWVfaGVhZF90CSAgZG9uZTsKPiAtCWludAkJ
+CSAgZmx1c2hpbmc7Cj4gLQl1bnNpZ25lZAkJICBxdWV1ZV9zZXE7Cj4gLQl1bnNpZ25lZAkJICBk
+b25lX3NlcTsKPiAgIAl1bnNpZ25lZCBsb25nCQkgIGZsYWdzOwo+ICAgfTsKPiAgIAoKVGhhbmtz
+IGZvciB0aGUgcGF0Y2gsIGJ1dCBwbGVhc2UgdXNlIGdldF9tYWludGFpbmVyLnBsIHRvIGNjIGNv
+cnJlY3QgCmxpc3QgYW5kIG1haW50YWluZXJzLgoKWW91IGNhbiBhZGQgbXkgQWNrZWQtYnkgd2hl
+biByZXBvc3RpbmcuCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
