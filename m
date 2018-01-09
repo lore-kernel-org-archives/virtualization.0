@@ -1,13 +1,11 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH] virtio: add space for device features show
-Date: Mon, 8 Jan 2018 13:50:37 +0100
-Message-ID: <20180108135037.5f29c10b.cohuck@redhat.com>
-References: <20171226133539.GA15965@localhost.didichuxing.com>
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Subject: [PATCH] vhost: Remove the unused variable.
+Date: Mon,  8 Jan 2018 17:46:33 -0800
+Message-ID: <1515462393-13354-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171226133539.GA15965@localhost.didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,43 +15,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: weiping zhang <zhangweiping@didichuxing.com>
-Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
+To: jasowang@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 26 Dec 2017 21:35:44 +0800
-weiping zhang <zhangweiping@didichuxing.com> wrote:
+The patch (7235acdb1) changed the way of the work
+flushing in which the queued seq, done seq, and the
+flushing are not used anymore. Then remove them now.
 
-> make features string more readable, add space every 8bit.
-> example:
-> 00101010 01110000 00000000 00001100
-> 
-> Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
-> ---
->  drivers/virtio/virtio.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 59e36ef..d7d2db1 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -50,9 +50,12 @@ static ssize_t features_show(struct device *_d,
->  
->  	/* We actually represent this as a bitstring, as it could be
->  	 * arbitrary length in future. */
-> -	for (i = 0; i < sizeof(dev->features)*8; i++)
-> -		len += sprintf(buf+len, "%c",
-> +	for (i = 0; i < sizeof(dev->features) * 8; i++) {
-> +		len += sprintf(buf + len, "%c",
->  			       __virtio_test_bit(dev, i) ? '1' : '0');
-> +		if (i % 8 == 7)
-> +			len += sprintf(buf + len, " ");
-> +	}
->  	len += sprintf(buf+len, "\n");
->  	return len;
->  }
+Fixes: 7235acdb1 ("vhost: simplify work flushing")
+Cc: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+---
+ drivers/vhost/vhost.c | 1 -
+ drivers/vhost/vhost.h | 4 ----
+ 2 files changed, 5 deletions(-)
 
-This might break consumers of this attribute.
-
-I think the better approach is to write a userspace tool that can do
-additional helpful stuff (like decoding the feature bits).
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 33ac2b186b85..9b04cad91d65 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -181,7 +181,6 @@ void vhost_work_init(struct vhost_work *work, vhost_work_fn_t fn)
+ {
+ 	clear_bit(VHOST_WORK_QUEUED, &work->flags);
+ 	work->fn = fn;
+-	init_waitqueue_head(&work->done);
+ }
+ EXPORT_SYMBOL_GPL(vhost_work_init);
+ 
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 79c6e7a60a5e..749fe13e061c 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -20,10 +20,6 @@ typedef void (*vhost_work_fn_t)(struct vhost_work *work);
+ struct vhost_work {
+ 	struct llist_node	  node;
+ 	vhost_work_fn_t		  fn;
+-	wait_queue_head_t	  done;
+-	int			  flushing;
+-	unsigned		  queue_seq;
+-	unsigned		  done_seq;
+ 	unsigned long		  flags;
+ };
+ 
+-- 
+2.13.6
