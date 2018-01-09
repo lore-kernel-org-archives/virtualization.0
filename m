@@ -1,13 +1,11 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: Re: [PATCH] drm/virtio: Add window server support
-Date: Tue, 9 Jan 2018 13:56:53 +0100
-Message-ID: <CAAObsKBqWEgaPRgM6a=QwY1sqeL8DsBGG+_=S5ObhOV-S8d_Eg__77.2337582477078$1515502554$gmane$org@mail.gmail.com>
-References: <20171228115333.12289-1-tomeu.vizoso@collabora.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: [PATCH v21 2/5 RESEND] virtio-balloon: VIRTIO_BALLOON_F_SG
+Date: Tue,  9 Jan 2018 20:41:27 +0800
+Message-ID: <1515501687-7874-1-git-send-email-wei.w.wang__3477.55803163654$1515502675$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171228115333.12289-1-tomeu.vizoso@collabora.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,917 +15,411 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Zach Reizner <zachr@google.com>
+To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, mawilcox@microsoft.com
+Cc: aarcange@redhat.com, yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, penguin-kernel@I-love.SAKURA.ne.jp, liliang.opensource@gmail.com, willy@infradead.org, amit.shah@redhat.com, cornelia.huck@de.ibm.com, pbonzini@redhat.com, nilal@redhat.com, mgorman@techsingularity.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 28 December 2017 at 12:53, Tomeu Vizoso <tomeu.vizoso@collabora.com> wrote:
-> This is to allow clients running within VMs to be able to communicate
-> with a compositor in the host. Clients will use the communication
-> protocol that the compositor supports, and virtio-gpu will assist with
-> making buffers available in both sides, and copying content as needed.
+Add a new feature, VIRTIO_BALLOON_F_SG, which enables the transfer of
+balloon (i.e. inflated/deflated) pages using scatter-gather lists to the
+host.
 
-Here is the qemu side, a bit hackier atm:
+The implementation of the previous virtio-balloon is not very efficient,
+because the balloon pages are transferred to the host by one array each
+time. Here is the breakdown of the time in percentage spent on each step
+of the balloon inflating process (inflating 7GB of an 8GB idle guest).
 
-https://gitlab.collabora.com/tomeu/qemu/commits/winsrv-wip
+1) allocating pages (6.5%)
+2) sending PFNs to host (68.3%)
+3) address translation (6.1%)
+4) madvise (19%)
 
-Regards,
+It takes about 4126ms for the inflating process to complete. The above
+profiling shows that the bottlenecks are stage 2) and stage 4).
 
-Tomeu
+This patch optimizes step 2) by transferring pages to host in sgs. An sg
+describes a chunk of guest physically continuous pages. With this
+mechanism, step 4) can also be optimized by doing address translation and
+madvise() in chunks rather than page by page.
 
-> It is expected that a service in the guest will act as a proxy,
-> interacting with virtio-gpu to support unmodified clients. For some
-> features of the protocol, the hypervisor might have to intervene and
-> also parse the protocol data to properly bridge resources. The following
-> IOCTLs have been added to this effect:
->
-> *_WINSRV_CONNECT: Opens a connection to the compositor in the host,
-> returns a FD that represents this connection and on which the following
-> IOCTLs can be used. Callers are expected to poll this FD for new
-> messages from the compositor.
->
-> *_WINSRV_TX: Asks the hypervisor to forward a message to the compositor
->
-> *_WINSRV_RX: Returns all queued messages
->
-> Alongside protocol data that is opaque to the kernel, the client can
-> send file descriptors that reference GEM buffers allocated by
-> virtio-gpu. The guest proxy is expected to figure out when a client is
-> passing a FD that refers to shared memory in the guest and allocate a
-> virtio-gpu buffer of the same size with DRM_VIRTGPU_RESOURCE_CREATE.
->
-> When the client notifies the compositor that it can read from that buffer,
-> the proxy should copy the contents from the SHM region to the virtio-gpu
-> resource and call DRM_VIRTGPU_TRANSFER_TO_HOST.
->
-> This has been tested with Wayland clients that make use of wl_shm to
-> pass buffers to the compositor, but is expected to work similarly for X
-> clients that make use of MIT-SHM with FD passing.
->
-> v2: * Add padding to two virtio command structs
->     * Properly cast two __user pointers (kbuild test robot)
->
-> Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-> Cc: Zach Reizner <zachr@google.com>
->
-> ---
->
-> Hi,
->
-> this work is based on the virtio_wl driver in the ChromeOS kernel by
-> Zach Reizner, currently at:
->
-> https://chromium.googlesource.com/chromiumos/third_party/kernel/+/chromeos-4.4/drivers/virtio/virtio_wl.c
->
-> There's two features missing in this patch when compared with virtio_wl:
->
-> * Allow the guest access directly host memory, without having to resort
-> to TRANSFER_TO_HOST
->
-> * Pass FDs from host to guest (Wayland specifies that the compositor
-> shares keyboard data with the guest via a shared buffer)
->
-> I plan to work on this next, but I would like to get some comments on
-> the general approach so I can better choose which patch to follow.
->
-> Thanks,
->
-> Tomeu
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h   |  39 ++++-
->  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 168 +++++++++++++++++++
->  drivers/gpu/drm/virtio/virtgpu_kms.c   |  58 +++++--
->  drivers/gpu/drm/virtio/virtgpu_vq.c    | 285 ++++++++++++++++++++++++++++++++-
->  include/uapi/drm/virtgpu_drm.h         |  29 ++++
->  include/uapi/linux/virtio_gpu.h        |  41 +++++
->  6 files changed, 605 insertions(+), 15 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index da2fb585fea4..268b386e1232 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -178,6 +178,8 @@ struct virtio_gpu_device {
->
->         struct virtio_gpu_queue ctrlq;
->         struct virtio_gpu_queue cursorq;
-> +       struct virtio_gpu_queue winsrv_rxq;
-> +       struct virtio_gpu_queue winsrv_txq;
->         struct kmem_cache *vbufs;
->         bool vqs_ready;
->
-> @@ -205,10 +207,32 @@ struct virtio_gpu_device {
->
->  struct virtio_gpu_fpriv {
->         uint32_t ctx_id;
-> +
-> +       struct list_head winsrv_conns; /* list of virtio_gpu_winsrv_conn */
-> +       spinlock_t winsrv_lock;
-> +};
-> +
-> +struct virtio_gpu_winsrv_rx_qentry {
-> +       struct virtio_gpu_winsrv_rx *cmd;
-> +       struct list_head next;
-> +};
-> +
-> +struct virtio_gpu_winsrv_conn {
-> +       struct virtio_gpu_device *vgdev;
-> +
-> +       spinlock_t lock;
-> +
-> +       int fd;
-> +       struct drm_file *drm_file;
-> +
-> +       struct list_head cmdq; /* queue of virtio_gpu_winsrv_rx_qentry */
-> +       wait_queue_head_t cmdwq;
-> +
-> +       struct list_head next;
->  };
->
->  /* virtio_ioctl.c */
-> -#define DRM_VIRTIO_NUM_IOCTLS 10
-> +#define DRM_VIRTIO_NUM_IOCTLS 11
->  extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
->
->  /* virtio_kms.c */
-> @@ -318,9 +342,22 @@ virtio_gpu_cmd_resource_create_3d(struct virtio_gpu_device *vgdev,
->  void virtio_gpu_ctrl_ack(struct virtqueue *vq);
->  void virtio_gpu_cursor_ack(struct virtqueue *vq);
->  void virtio_gpu_fence_ack(struct virtqueue *vq);
-> +void virtio_gpu_winsrv_tx_ack(struct virtqueue *vq);
-> +void virtio_gpu_winsrv_rx_read(struct virtqueue *vq);
->  void virtio_gpu_dequeue_ctrl_func(struct work_struct *work);
->  void virtio_gpu_dequeue_cursor_func(struct work_struct *work);
-> +void virtio_gpu_dequeue_winsrv_rx_func(struct work_struct *work);
-> +void virtio_gpu_dequeue_winsrv_tx_func(struct work_struct *work);
->  void virtio_gpu_dequeue_fence_func(struct work_struct *work);
-> +void virtio_gpu_fill_winsrv_rx(struct virtio_gpu_device *vgdev);
-> +void virtio_gpu_queue_winsrv_rx_in(struct virtio_gpu_device *vgdev,
-> +                                  struct virtio_gpu_winsrv_rx *cmd);
-> +int virtio_gpu_cmd_winsrv_connect(struct virtio_gpu_device *vgdev, int fd);
-> +void virtio_gpu_cmd_winsrv_disconnect(struct virtio_gpu_device *vgdev, int fd);
-> +int virtio_gpu_cmd_winsrv_tx(struct virtio_gpu_device *vgdev,
-> +                            const char __user *buffer, u32 len,
-> +                            int *fds, struct virtio_gpu_winsrv_conn *conn,
-> +                            bool nonblock);
->
->  /* virtio_gpu_display.c */
->  int virtio_gpu_framebuffer_init(struct drm_device *dev,
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> index 0528edb4a2bf..630ed16d5f74 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> @@ -25,6 +25,9 @@
->   * OTHER DEALINGS IN THE SOFTWARE.
->   */
->
-> +#include <linux/anon_inodes.h>
-> +#include <linux/syscalls.h>
-> +
->  #include <drm/drmP.h>
->  #include <drm/virtgpu_drm.h>
->  #include <drm/ttm/ttm_execbuf_util.h>
-> @@ -527,6 +530,168 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
->         return 0;
->  }
->
-> +static unsigned int winsrv_poll(struct file *filp,
-> +                               struct poll_table_struct *wait)
-> +{
-> +       struct virtio_gpu_winsrv_conn *conn = filp->private_data;
-> +       unsigned int mask = 0;
-> +
-> +       spin_lock(&conn->lock);
-> +       poll_wait(filp, &conn->cmdwq, wait);
-> +       if (!list_empty(&conn->cmdq))
-> +               mask |= POLLIN | POLLRDNORM;
-> +       spin_unlock(&conn->lock);
-> +
-> +       return mask;
-> +}
-> +
-> +static int winsrv_ioctl_rx(struct virtio_gpu_device *vgdev,
-> +                          struct virtio_gpu_winsrv_conn *conn,
-> +                          struct drm_virtgpu_winsrv *cmd)
-> +{
-> +       struct virtio_gpu_winsrv_rx_qentry *qentry, *tmp;
-> +       struct virtio_gpu_winsrv_rx *virtio_cmd;
-> +       int available_len = cmd->len;
-> +       int read_count = 0;
-> +
-> +       list_for_each_entry_safe(qentry, tmp, &conn->cmdq, next) {
-> +               virtio_cmd = qentry->cmd;
-> +               if (virtio_cmd->len > available_len)
-> +                       return 0;
-> +
-> +               if (copy_to_user((void __user *)cmd->data + read_count,
-> +                                virtio_cmd->data,
-> +                                virtio_cmd->len)) {
-> +                       /* return error unless we have some data to return */
-> +                       if (read_count == 0)
-> +                               return -EFAULT;
-> +               }
-> +
-> +               /*
-> +                * here we could export resource IDs to FDs, but no protocol
-> +                * as of today requires it
-> +                */
-> +
-> +               available_len -= virtio_cmd->len;
-> +               read_count += virtio_cmd->len;
-> +
-> +               virtio_gpu_queue_winsrv_rx_in(vgdev, virtio_cmd);
-> +
-> +               list_del(&qentry->next);
-> +               kfree(qentry);
-> +       }
-> +
-> +       cmd->len = read_count;
-> +
-> +       return 0;
-> +}
-> +
-> +static long winsrv_ioctl(struct file *filp, unsigned int cmd,
-> +                        unsigned long arg)
-> +{
-> +       struct virtio_gpu_winsrv_conn *conn = filp->private_data;
-> +       struct virtio_gpu_device *vgdev = conn->vgdev;
-> +       struct drm_virtgpu_winsrv winsrv_cmd;
-> +       int ret;
-> +
-> +       if (_IOC_SIZE(cmd) > sizeof(winsrv_cmd))
-> +               return -EINVAL;
-> +
-> +       if (copy_from_user(&winsrv_cmd, (void __user *)arg,
-> +                          _IOC_SIZE(cmd)) != 0)
-> +               return -EFAULT;
-> +
-> +       switch (cmd) {
-> +       case DRM_IOCTL_VIRTGPU_WINSRV_RX:
-> +               ret = winsrv_ioctl_rx(vgdev, conn, &winsrv_cmd);
-> +               if (copy_to_user((void __user *)arg, &winsrv_cmd,
-> +                                _IOC_SIZE(cmd)) != 0)
-> +                       return -EFAULT;
-> +
-> +               break;
-> +
-> +       case DRM_IOCTL_VIRTGPU_WINSRV_TX:
-> +               ret = virtio_gpu_cmd_winsrv_tx(vgdev,
-> +                               u64_to_user_ptr(winsrv_cmd.data),
-> +                               winsrv_cmd.len,
-> +                               winsrv_cmd.fds,
-> +                               conn,
-> +                               filp->f_flags & O_NONBLOCK);
-> +               break;
-> +       default:
-> +               ret = -EINVAL;
-> +       }
-> +
-> +       return ret;
-> +}
-> +
-> +static int winsrv_release(struct inode *inodep, struct file *filp)
-> +{
-> +       struct virtio_gpu_winsrv_conn *conn = filp->private_data;
-> +       struct virtio_gpu_device *vgdev = conn->vgdev;
-> +
-> +       virtio_gpu_cmd_winsrv_disconnect(vgdev, conn->fd);
-> +
-> +       list_del(&conn->next);
-> +       kfree(conn);
-> +
-> +       return 0;
-> +}
-> +
-> +static const struct file_operations winsrv_fops = {
-> +
-> +       .poll = winsrv_poll,
-> +       .unlocked_ioctl = winsrv_ioctl,
-> +       .release = winsrv_release,
-> +};
-> +
-> +static int virtio_gpu_winsrv_connect(struct drm_device *dev, void *data,
-> +                                    struct drm_file *file)
-> +{
-> +       struct virtio_gpu_device *vgdev = dev->dev_private;
-> +       struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
-> +       struct drm_virtgpu_winsrv_connect *args = data;
-> +       struct virtio_gpu_winsrv_conn *conn;
-> +       int ret;
-> +
-> +       conn = kzalloc(sizeof(*conn), GFP_KERNEL);
-> +       if (!conn)
-> +               return -ENOMEM;
-> +
-> +       conn->vgdev = vgdev;
-> +       conn->drm_file = file;
-> +       spin_lock_init(&conn->lock);
-> +       INIT_LIST_HEAD(&conn->cmdq);
-> +       init_waitqueue_head(&conn->cmdwq);
-> +
-> +       ret = anon_inode_getfd("[virtgpu_winsrv]", &winsrv_fops, conn,
-> +                              O_CLOEXEC | O_RDWR);
-> +       if (ret < 0)
-> +               goto free_conn;
-> +
-> +       conn->fd = ret;
-> +
-> +       ret = virtio_gpu_cmd_winsrv_connect(vgdev, conn->fd);
-> +       if (ret < 0)
-> +               goto close_fd;
-> +
-> +       spin_lock(&vfpriv->winsrv_lock);
-> +       list_add_tail(&conn->next, &vfpriv->winsrv_conns);
-> +       spin_unlock(&vfpriv->winsrv_lock);
-> +
-> +       args->fd = conn->fd;
-> +
-> +       return 0;
-> +
-> +close_fd:
-> +       sys_close(conn->fd);
-> +
-> +free_conn:
-> +       kfree(conn);
-> +
-> +       return ret;
-> +}
-> +
->  struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS] = {
->         DRM_IOCTL_DEF_DRV(VIRTGPU_MAP, virtio_gpu_map_ioctl,
->                           DRM_AUTH|DRM_UNLOCKED|DRM_RENDER_ALLOW),
-> @@ -558,4 +723,7 @@ struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS] = {
->
->         DRM_IOCTL_DEF_DRV(VIRTGPU_GET_CAPS, virtio_gpu_get_caps_ioctl,
->                           DRM_AUTH|DRM_UNLOCKED|DRM_RENDER_ALLOW),
-> +
-> +       DRM_IOCTL_DEF_DRV(VIRTGPU_WINSRV_CONNECT, virtio_gpu_winsrv_connect,
-> +                         DRM_AUTH|DRM_UNLOCKED|DRM_RENDER_ALLOW),
->  };
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> index 6400506a06b0..ad7872037982 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> @@ -128,13 +128,15 @@ static void virtio_gpu_get_capsets(struct virtio_gpu_device *vgdev,
->  int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
->  {
->         static vq_callback_t *callbacks[] = {
-> -               virtio_gpu_ctrl_ack, virtio_gpu_cursor_ack
-> +               virtio_gpu_ctrl_ack, virtio_gpu_cursor_ack,
-> +               virtio_gpu_winsrv_rx_read, virtio_gpu_winsrv_tx_ack
->         };
-> -       static const char * const names[] = { "control", "cursor" };
-> +       static const char * const names[] = { "control", "cursor",
-> +                                             "winsrv-rx", "winsrv-tx" };
->
->         struct virtio_gpu_device *vgdev;
->         /* this will expand later */
-> -       struct virtqueue *vqs[2];
-> +       struct virtqueue *vqs[4];
->         u32 num_scanouts, num_capsets;
->         int ret;
->
-> @@ -158,6 +160,10 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
->         init_waitqueue_head(&vgdev->resp_wq);
->         virtio_gpu_init_vq(&vgdev->ctrlq, virtio_gpu_dequeue_ctrl_func);
->         virtio_gpu_init_vq(&vgdev->cursorq, virtio_gpu_dequeue_cursor_func);
-> +       virtio_gpu_init_vq(&vgdev->winsrv_rxq,
-> +                          virtio_gpu_dequeue_winsrv_rx_func);
-> +       virtio_gpu_init_vq(&vgdev->winsrv_txq,
-> +                          virtio_gpu_dequeue_winsrv_tx_func);
->
->         vgdev->fence_drv.context = dma_fence_context_alloc(1);
->         spin_lock_init(&vgdev->fence_drv.lock);
-> @@ -175,13 +181,15 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
->         DRM_INFO("virgl 3d acceleration not supported by guest\n");
->  #endif
->
-> -       ret = virtio_find_vqs(vgdev->vdev, 2, vqs, callbacks, names, NULL);
-> +       ret = virtio_find_vqs(vgdev->vdev, 4, vqs, callbacks, names, NULL);
->         if (ret) {
->                 DRM_ERROR("failed to find virt queues\n");
->                 goto err_vqs;
->         }
->         vgdev->ctrlq.vq = vqs[0];
->         vgdev->cursorq.vq = vqs[1];
-> +       vgdev->winsrv_rxq.vq = vqs[2];
-> +       vgdev->winsrv_txq.vq = vqs[3];
->         ret = virtio_gpu_alloc_vbufs(vgdev);
->         if (ret) {
->                 DRM_ERROR("failed to alloc vbufs\n");
-> @@ -215,6 +223,9 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
->                 goto err_modeset;
->
->         virtio_device_ready(vgdev->vdev);
-> +
-> +       virtio_gpu_fill_winsrv_rx(vgdev);
-> +
->         vgdev->vqs_ready = true;
->
->         if (num_capsets)
-> @@ -256,6 +267,8 @@ void virtio_gpu_driver_unload(struct drm_device *dev)
->         vgdev->vqs_ready = false;
->         flush_work(&vgdev->ctrlq.dequeue_work);
->         flush_work(&vgdev->cursorq.dequeue_work);
-> +       flush_work(&vgdev->winsrv_rxq.dequeue_work);
-> +       flush_work(&vgdev->winsrv_txq.dequeue_work);
->         flush_work(&vgdev->config_changed_work);
->         vgdev->vdev->config->del_vqs(vgdev->vdev);
->
-> @@ -274,25 +287,43 @@ int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file)
->         uint32_t id;
->         char dbgname[64], tmpname[TASK_COMM_LEN];
->
-> -       /* can't create contexts without 3d renderer */
-> -       if (!vgdev->has_virgl_3d)
-> -               return 0;
-> -
-> -       get_task_comm(tmpname, current);
-> -       snprintf(dbgname, sizeof(dbgname), "%s", tmpname);
-> -       dbgname[63] = 0;
->         /* allocate a virt GPU context for this opener */
->         vfpriv = kzalloc(sizeof(*vfpriv), GFP_KERNEL);
->         if (!vfpriv)
->                 return -ENOMEM;
->
-> -       virtio_gpu_context_create(vgdev, strlen(dbgname), dbgname, &id);
-> +       /* can't create contexts without 3d renderer */
-> +       if (vgdev->has_virgl_3d) {
-> +               get_task_comm(tmpname, current);
-> +               snprintf(dbgname, sizeof(dbgname), "%s", tmpname);
-> +               dbgname[63] = 0;
-> +
-> +               virtio_gpu_context_create(vgdev, strlen(dbgname), dbgname, &id);
-> +
-> +               vfpriv->ctx_id = id;
-> +       }
-> +
-> +       spin_lock_init(&vfpriv->winsrv_lock);
-> +       INIT_LIST_HEAD(&vfpriv->winsrv_conns);
->
-> -       vfpriv->ctx_id = id;
->         file->driver_priv = vfpriv;
-> +
->         return 0;
->  }
->
-> +static void virtio_gpu_cleanup_conns(struct virtio_gpu_fpriv *vfpriv)
-> +{
-> +       struct virtio_gpu_winsrv_conn *conn, *tmp;
-> +       struct virtio_gpu_winsrv_rx_qentry *qentry, *tmp2;
-> +
-> +       list_for_each_entry_safe(conn, tmp, &vfpriv->winsrv_conns, next) {
-> +               list_for_each_entry_safe(qentry, tmp2, &conn->cmdq, next) {
-> +                       kfree(qentry);
-> +               }
-> +               kfree(conn);
-> +       }
-> +}
-> +
->  void virtio_gpu_driver_postclose(struct drm_device *dev, struct drm_file *file)
->  {
->         struct virtio_gpu_device *vgdev = dev->dev_private;
-> @@ -303,6 +334,7 @@ void virtio_gpu_driver_postclose(struct drm_device *dev, struct drm_file *file)
->
->         vfpriv = file->driver_priv;
->
-> +       virtio_gpu_cleanup_conns(vfpriv);
->         virtio_gpu_context_destroy(vgdev, vfpriv->ctx_id);
->         kfree(vfpriv);
->         file->driver_priv = NULL;
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index 9eb96fb2c147..ea5f9352d364 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -32,7 +32,7 @@
->  #include <linux/virtio_config.h>
->  #include <linux/virtio_ring.h>
->
-> -#define MAX_INLINE_CMD_SIZE   96
-> +#define MAX_INLINE_CMD_SIZE   144
->  #define MAX_INLINE_RESP_SIZE  24
->  #define VBUFFER_SIZE          (sizeof(struct virtio_gpu_vbuffer) \
->                                + MAX_INLINE_CMD_SIZE             \
-> @@ -72,6 +72,67 @@ void virtio_gpu_cursor_ack(struct virtqueue *vq)
->         schedule_work(&vgdev->cursorq.dequeue_work);
->  }
->
-> +void virtio_gpu_winsrv_rx_read(struct virtqueue *vq)
-> +{
-> +       struct drm_device *dev = vq->vdev->priv;
-> +       struct virtio_gpu_device *vgdev = dev->dev_private;
-> +
-> +       schedule_work(&vgdev->winsrv_rxq.dequeue_work);
-> +}
-> +
-> +void virtio_gpu_winsrv_tx_ack(struct virtqueue *vq)
-> +{
-> +       struct drm_device *dev = vq->vdev->priv;
-> +       struct virtio_gpu_device *vgdev = dev->dev_private;
-> +
-> +       schedule_work(&vgdev->winsrv_txq.dequeue_work);
-> +}
-> +
-> +void virtio_gpu_queue_winsrv_rx_in(struct virtio_gpu_device *vgdev,
-> +                                  struct virtio_gpu_winsrv_rx *cmd)
-> +{
-> +       struct virtqueue *vq = vgdev->winsrv_rxq.vq;
-> +       struct scatterlist sg[1];
-> +       int ret;
-> +
-> +       sg_init_one(sg, cmd, sizeof(*cmd));
-> +
-> +       spin_lock(&vgdev->winsrv_rxq.qlock);
-> +retry:
-> +       ret = virtqueue_add_inbuf(vq, sg, 1, cmd, GFP_KERNEL);
-> +       if (ret == -ENOSPC) {
-> +               spin_unlock(&vgdev->winsrv_rxq.qlock);
-> +               wait_event(vgdev->winsrv_rxq.ack_queue, vq->num_free);
-> +               spin_lock(&vgdev->winsrv_rxq.qlock);
-> +               goto retry;
-> +       }
-> +       virtqueue_kick(vq);
-> +       spin_unlock(&vgdev->winsrv_rxq.qlock);
-> +}
-> +
-> +void virtio_gpu_fill_winsrv_rx(struct virtio_gpu_device *vgdev)
-> +{
-> +       struct virtqueue *vq = vgdev->winsrv_rxq.vq;
-> +       struct virtio_gpu_winsrv_rx *cmd;
-> +       int ret = 0;
-> +
-> +       while (vq->num_free > 0) {
-> +               cmd = kmalloc(sizeof(*cmd), GFP_KERNEL);
-> +               if (!cmd) {
-> +                       ret = -ENOMEM;
-> +                       goto clear_queue;
-> +               }
-> +
-> +               virtio_gpu_queue_winsrv_rx_in(vgdev, cmd);
-> +       }
-> +
-> +       return;
-> +
-> +clear_queue:
-> +       while ((cmd = virtqueue_detach_unused_buf(vq)))
-> +               kfree(cmd);
-> +}
-> +
->  int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev)
->  {
->         vgdev->vbufs = kmem_cache_create("virtio-gpu-vbufs",
-> @@ -258,6 +319,96 @@ void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
->         wake_up(&vgdev->cursorq.ack_queue);
->  }
->
-> +void virtio_gpu_dequeue_winsrv_tx_func(struct work_struct *work)
-> +{
-> +       struct virtio_gpu_device *vgdev =
-> +               container_of(work, struct virtio_gpu_device,
-> +                            winsrv_txq.dequeue_work);
-> +       struct virtio_gpu_vbuffer *vbuf;
-> +       int len;
-> +
-> +       spin_lock(&vgdev->winsrv_txq.qlock);
-> +       do {
-> +               while ((vbuf = virtqueue_get_buf(vgdev->winsrv_txq.vq, &len)))
-> +                       free_vbuf(vgdev, vbuf);
-> +       } while (!virtqueue_enable_cb(vgdev->winsrv_txq.vq));
-> +       spin_unlock(&vgdev->winsrv_txq.qlock);
-> +
-> +       wake_up(&vgdev->winsrv_txq.ack_queue);
-> +}
-> +
-> +static struct virtio_gpu_winsrv_conn *find_conn(struct virtio_gpu_device *vgdev,
-> +                                               int fd)
-> +{
-> +       struct virtio_gpu_winsrv_conn *conn;
-> +       struct drm_device *ddev = vgdev->ddev;
-> +       struct drm_file *file;
-> +       struct virtio_gpu_fpriv *vfpriv;
-> +
-> +       mutex_lock(&ddev->filelist_mutex);
-> +       list_for_each_entry(file, &ddev->filelist, lhead) {
-> +               vfpriv = file->driver_priv;
-> +               spin_lock(&vfpriv->winsrv_lock);
-> +               list_for_each_entry(conn, &vfpriv->winsrv_conns, next) {
-> +                       if (conn->fd == fd) {
-> +                               spin_lock(&conn->lock);
-> +                               spin_unlock(&vfpriv->winsrv_lock);
-> +                               mutex_unlock(&ddev->filelist_mutex);
-> +                               return conn;
-> +                       }
-> +               }
-> +               spin_unlock(&vfpriv->winsrv_lock);
-> +       }
-> +       mutex_unlock(&ddev->filelist_mutex);
-> +
-> +       return NULL;
-> +}
-> +
-> +static void handle_rx_cmd(struct virtio_gpu_device *vgdev,
-> +                         struct virtio_gpu_winsrv_rx *cmd)
-> +{
-> +       struct virtio_gpu_winsrv_conn *conn;
-> +       struct virtio_gpu_winsrv_rx_qentry *qentry;
-> +
-> +       conn = find_conn(vgdev, cmd->client_fd);
-> +       if (!conn) {
-> +               DRM_DEBUG("recv for unknown client fd %u\n", cmd->client_fd);
-> +               return;
-> +       }
-> +
-> +       qentry = kzalloc(sizeof(*qentry), GFP_KERNEL);
-> +       if (!qentry) {
-> +               spin_unlock(&conn->lock);
-> +               DRM_DEBUG("failed to allocate qentry for winsrv connection\n");
-> +               return;
-> +       }
-> +
-> +       qentry->cmd = cmd;
-> +
-> +       list_add_tail(&qentry->next, &conn->cmdq);
-> +       wake_up_interruptible(&conn->cmdwq);
-> +       spin_unlock(&conn->lock);
-> +}
-> +
-> +void virtio_gpu_dequeue_winsrv_rx_func(struct work_struct *work)
-> +{
-> +       struct virtio_gpu_device *vgdev =
-> +               container_of(work, struct virtio_gpu_device,
-> +                            winsrv_rxq.dequeue_work);
-> +       struct virtio_gpu_winsrv_rx *cmd;
-> +       unsigned int len;
-> +
-> +       spin_lock(&vgdev->winsrv_rxq.qlock);
-> +       while ((cmd = virtqueue_get_buf(vgdev->winsrv_rxq.vq, &len)) != NULL) {
-> +               spin_unlock(&vgdev->winsrv_rxq.qlock);
-> +               handle_rx_cmd(vgdev, cmd);
-> +               spin_lock(&vgdev->winsrv_rxq.qlock);
-> +       }
-> +       spin_unlock(&vgdev->winsrv_rxq.qlock);
-> +
-> +       virtqueue_kick(vgdev->winsrv_rxq.vq);
-> +}
-> +
->  static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
->                                                struct virtio_gpu_vbuffer *vbuf)
->                 __releases(&vgdev->ctrlq.qlock)
-> @@ -380,6 +531,41 @@ static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
->         return ret;
->  }
->
-> +static int virtio_gpu_queue_winsrv_tx(struct virtio_gpu_device *vgdev,
-> +                                     struct virtio_gpu_vbuffer *vbuf)
-> +{
-> +       struct virtqueue *vq = vgdev->winsrv_txq.vq;
-> +       struct scatterlist *sgs[2], vcmd, vout;
-> +       int ret;
-> +
-> +       if (!vgdev->vqs_ready)
-> +               return -ENODEV;
-> +
-> +       sg_init_one(&vcmd, vbuf->buf, vbuf->size);
-> +       sgs[0] = &vcmd;
-> +
-> +       sg_init_one(&vout, vbuf->data_buf, vbuf->data_size);
-> +       sgs[1] = &vout;
-> +
-> +       spin_lock(&vgdev->winsrv_txq.qlock);
-> +retry:
-> +       ret = virtqueue_add_sgs(vq, sgs, 2, 0, vbuf, GFP_ATOMIC);
-> +       if (ret == -ENOSPC) {
-> +               spin_unlock(&vgdev->winsrv_txq.qlock);
-> +               wait_event(vgdev->winsrv_txq.ack_queue, vq->num_free);
-> +               spin_lock(&vgdev->winsrv_txq.qlock);
-> +               goto retry;
-> +       }
-> +
-> +       virtqueue_kick(vq);
-> +
-> +       spin_unlock(&vgdev->winsrv_txq.qlock);
-> +
-> +       if (!ret)
-> +               ret = vq->num_free;
-> +       return ret;
-> +}
-> +
->  /* just create gem objects for userspace and long lived objects,
->     just use dma_alloced pages for the queue objects? */
->
-> @@ -890,3 +1076,100 @@ void virtio_gpu_cursor_ping(struct virtio_gpu_device *vgdev,
->         memcpy(cur_p, &output->cursor, sizeof(output->cursor));
->         virtio_gpu_queue_cursor(vgdev, vbuf);
->  }
-> +
-> +int virtio_gpu_cmd_winsrv_connect(struct virtio_gpu_device *vgdev, int fd)
-> +{
-> +       struct virtio_gpu_winsrv_connect *cmd_p;
-> +       struct virtio_gpu_vbuffer *vbuf;
-> +
-> +       cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
-> +       memset(cmd_p, 0, sizeof(*cmd_p));
-> +
-> +       cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_WINSRV_CONNECT);
-> +       cmd_p->client_fd = cpu_to_le32(fd);
-> +       return virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-> +}
-> +
-> +void virtio_gpu_cmd_winsrv_disconnect(struct virtio_gpu_device *vgdev, int fd)
-> +{
-> +       struct virtio_gpu_winsrv_disconnect *cmd_p;
-> +       struct virtio_gpu_vbuffer *vbuf;
-> +
-> +       cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
-> +       memset(cmd_p, 0, sizeof(*cmd_p));
-> +
-> +       cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_WINSRV_DISCONNECT);
-> +       cmd_p->client_fd = cpu_to_le32(fd);
-> +       virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-> +}
-> +
-> +int virtio_gpu_cmd_winsrv_tx(struct virtio_gpu_device *vgdev,
-> +                            const char __user *buffer, u32 len,
-> +                            int *fds, struct virtio_gpu_winsrv_conn *conn,
-> +                            bool nonblock)
-> +{
-> +       int client_fd = conn->fd;
-> +       struct drm_file *file = conn->drm_file;
-> +       struct virtio_gpu_winsrv_tx *cmd_p;
-> +       struct virtio_gpu_vbuffer *vbuf;
-> +       uint32_t gem_handle;
-> +       struct drm_gem_object *gobj = NULL;
-> +       struct virtio_gpu_object *qobj = NULL;
-> +       int ret, i, fd;
-> +
-> +       cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
-> +       memset(cmd_p, 0, sizeof(*cmd_p));
-> +
-> +       cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_WINSRV_TX);
-> +
-> +       for (i = 0; i < VIRTIO_GPU_WINSRV_MAX_ALLOCS; i++) {
-> +               cmd_p->resource_ids[i] = -1;
-> +
-> +               fd = fds[i];
-> +               if (fd < 0)
-> +                       break;
-> +
-> +               ret = drm_gem_prime_fd_to_handle(vgdev->ddev, file, fd,
-> +                                                &gem_handle);
-> +               if (ret != 0)
-> +                       goto err_free_vbuf;
-> +
-> +               gobj = drm_gem_object_lookup(file, gem_handle);
-> +               if (gobj == NULL) {
-> +                       ret = -ENOENT;
-> +                       goto err_free_vbuf;
-> +               }
-> +
-> +               qobj = gem_to_virtio_gpu_obj(gobj);
-> +               cmd_p->resource_ids[i] = qobj->hw_res_handle;
-> +       }
-> +
-> +       cmd_p->client_fd = client_fd;
-> +       cmd_p->len = cpu_to_le32(len);
-> +
-> +       /* gets freed when the ring has consumed it */
-> +       vbuf->data_buf = kmalloc(cmd_p->len, GFP_KERNEL);
-> +       if (!vbuf->data_buf) {
-> +               DRM_ERROR("failed to allocate winsrv tx buffer\n");
-> +               ret = -ENOMEM;
-> +               goto err_free_vbuf;
-> +       }
-> +
-> +       vbuf->data_size = cmd_p->len;
-> +
-> +       if (copy_from_user(vbuf->data_buf, buffer, cmd_p->len)) {
-> +               ret = -EFAULT;
-> +               goto err_free_databuf;
-> +       }
-> +
-> +       virtio_gpu_queue_winsrv_tx(vgdev, vbuf);
-> +
-> +       return 0;
-> +
-> +err_free_databuf:
-> +       kfree(vbuf->data_buf);
-> +err_free_vbuf:
-> +       free_vbuf(vgdev, vbuf);
-> +
-> +       return ret;
-> +}
-> diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_drm.h
-> index 91a31ffed828..89b0a1a707a7 100644
-> --- a/include/uapi/drm/virtgpu_drm.h
-> +++ b/include/uapi/drm/virtgpu_drm.h
-> @@ -46,6 +46,11 @@ extern "C" {
->  #define DRM_VIRTGPU_TRANSFER_TO_HOST 0x07
->  #define DRM_VIRTGPU_WAIT     0x08
->  #define DRM_VIRTGPU_GET_CAPS  0x09
-> +#define DRM_VIRTGPU_WINSRV_CONNECT  0x0a
-> +#define DRM_VIRTGPU_WINSRV_TX  0x0b
-> +#define DRM_VIRTGPU_WINSRV_RX  0x0c
-> +
-> +#define VIRTGPU_WINSRV_MAX_ALLOCS 28
->
->  struct drm_virtgpu_map {
->         __u64 offset; /* use for mmap system call */
-> @@ -132,6 +137,18 @@ struct drm_virtgpu_get_caps {
->         __u32 pad;
->  };
->
-> +struct drm_virtgpu_winsrv {
-> +       __s32 fds[VIRTGPU_WINSRV_MAX_ALLOCS];
-> +       __u64 data;
-> +       __u32 len;
-> +       __u32 pad;
-> +};
-> +
-> +struct drm_virtgpu_winsrv_connect {
-> +       __u32 fd;   /* returned by kernel */
-> +       __u32 pad;
-> +};
-> +
->  #define DRM_IOCTL_VIRTGPU_MAP \
->         DRM_IOWR(DRM_COMMAND_BASE + DRM_VIRTGPU_MAP, struct drm_virtgpu_map)
->
-> @@ -167,6 +184,18 @@ struct drm_virtgpu_get_caps {
->         DRM_IOWR(DRM_COMMAND_BASE + DRM_VIRTGPU_GET_CAPS, \
->         struct drm_virtgpu_get_caps)
->
-> +#define DRM_IOCTL_VIRTGPU_WINSRV_CONNECT \
-> +       DRM_IOWR(DRM_COMMAND_BASE + DRM_VIRTGPU_WINSRV_CONNECT, \
-> +               struct drm_virtgpu_winsrv_connect)
-> +
-> +#define DRM_IOCTL_VIRTGPU_WINSRV_TX \
-> +       DRM_IOWR(DRM_COMMAND_BASE + DRM_VIRTGPU_WINSRV_TX, \
-> +               struct drm_virtgpu_winsrv)
-> +
-> +#define DRM_IOCTL_VIRTGPU_WINSRV_RX \
-> +       DRM_IOWR(DRM_COMMAND_BASE + DRM_VIRTGPU_WINSRV_RX, \
-> +               struct drm_virtgpu_winsrv)
-> +
->  #if defined(__cplusplus)
->  }
->  #endif
-> diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
-> index 4b04ead26cd9..afe830bb8d00 100644
-> --- a/include/uapi/linux/virtio_gpu.h
-> +++ b/include/uapi/linux/virtio_gpu.h
-> @@ -71,6 +71,12 @@ enum virtio_gpu_ctrl_type {
->         VIRTIO_GPU_CMD_UPDATE_CURSOR = 0x0300,
->         VIRTIO_GPU_CMD_MOVE_CURSOR,
->
-> +       /* window server commands */
-> +       VIRTIO_GPU_CMD_WINSRV_CONNECT = 0x0400,
-> +       VIRTIO_GPU_CMD_WINSRV_DISCONNECT,
-> +       VIRTIO_GPU_CMD_WINSRV_TX,
-> +       VIRTIO_GPU_CMD_WINSRV_RX,
-> +
->         /* success responses */
->         VIRTIO_GPU_RESP_OK_NODATA = 0x1100,
->         VIRTIO_GPU_RESP_OK_DISPLAY_INFO,
-> @@ -290,6 +296,41 @@ struct virtio_gpu_resp_capset {
->         __u8 capset_data[];
->  };
->
-> +/* VIRTIO_GPU_CMD_WINSRV_CONNECT */
-> +struct virtio_gpu_winsrv_connect {
-> +       struct virtio_gpu_ctrl_hdr hdr;
-> +       __le32 client_fd;
-> +       __le32 padding;
-> +};
-> +
-> +/* VIRTIO_GPU_CMD_WINSRV_DISCONNECT */
-> +struct virtio_gpu_winsrv_disconnect {
-> +       struct virtio_gpu_ctrl_hdr hdr;
-> +       __le32 client_fd;
-> +       __le32 padding;
-> +};
-> +
-> +#define VIRTIO_GPU_WINSRV_MAX_ALLOCS 28
-> +#define VIRTIO_GPU_WINSRV_TX_MAX_DATA 4096
-> +
-> +/* VIRTIO_GPU_CMD_WINSRV_TX */
-> +/* these commands are followed in the queue descriptor by protocol buffers */
-> +struct virtio_gpu_winsrv_tx {
-> +       struct virtio_gpu_ctrl_hdr hdr;
-> +       __le32 client_fd;
-> +       __le32 len;
-> +       __le32 resource_ids[VIRTIO_GPU_WINSRV_MAX_ALLOCS];
-> +};
-> +
-> +/* VIRTIO_GPU_CMD_WINSRV_RX */
-> +struct virtio_gpu_winsrv_rx {
-> +       struct virtio_gpu_ctrl_hdr hdr;
-> +       __le32 client_fd;
-> +       __u8 data[VIRTIO_GPU_WINSRV_TX_MAX_DATA];
-> +       __le32 len;
-> +       __le32 resource_ids[VIRTIO_GPU_WINSRV_MAX_ALLOCS];
-> +};
-> +
->  #define VIRTIO_GPU_EVENT_DISPLAY (1 << 0)
->
->  struct virtio_gpu_config {
-> --
-> 2.14.3
->
+With this new feature, the above ballooning process takes ~460ms resulting
+in an improvement of ~89%.
+
+TODO:
+- optimize stage 1) by allocating/freeing a chunk of pages instead of a
+single page each time.
+- sort the internal balloon page queue.
+- enable OOM to free inflated pages maintained in the local temporary
+  list.
+
+Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+Signed-off-by: Liang Li <liang.z.li@intel.com>
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+---
+ drivers/virtio/virtio_balloon.c     | 233 +++++++++++++++++++++++++++++++++---
+ include/uapi/linux/virtio_balloon.h |   1 +
+ 2 files changed, 216 insertions(+), 18 deletions(-)
+
+RESEND ChangeLog:
+- fill_balloon(): move xb_set_page before balloon_page_enqueue
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index a1fb52c..d0b8ea0 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -32,6 +32,8 @@
+ #include <linux/mm.h>
+ #include <linux/mount.h>
+ #include <linux/magic.h>
++#include <linux/xbitmap.h>
++#include <asm/page.h>
+ 
+ /*
+  * Balloon device works in 4K page units.  So each page is pointed to by
+@@ -79,6 +81,9 @@ struct virtio_balloon {
+ 	/* Synchronize access/update to this struct virtio_balloon elements */
+ 	struct mutex balloon_lock;
+ 
++	/* The xbitmap used to record balloon pages */
++	struct xb page_xb;
++
+ 	/* The array of pfns we tell the Host about. */
+ 	unsigned int num_pfns;
+ 	__virtio32 pfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
+@@ -141,15 +146,128 @@ static void set_page_pfns(struct virtio_balloon *vb,
+ 					  page_to_balloon_pfn(page) + i);
+ }
+ 
++static void kick_and_wait(struct virtqueue *vq, wait_queue_head_t wq_head)
++{
++	unsigned int len;
++
++	virtqueue_kick(vq);
++	wait_event(wq_head, virtqueue_get_buf(vq, &len));
++}
++
++static void add_one_sg(struct virtqueue *vq, unsigned long pfn, uint32_t len)
++{
++	struct scatterlist sg;
++	unsigned int unused;
++	int err;
++
++	sg_init_table(&sg, 1);
++	sg_set_page(&sg, pfn_to_page(pfn), len, 0);
++
++	/* Detach all the used buffers from the vq */
++	while (virtqueue_get_buf(vq, &unused))
++		;
++
++	err = virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
++	/*
++	 * This is expected to never fail: there is always at least 1 entry
++	 * available on the vq, because when the vq is full the worker thread
++	 * that adds the sg will be put into sleep until at least 1 entry is
++	 * available to use.
++	 */
++	BUG_ON(err);
++}
++
++static void batch_balloon_page_sg(struct virtio_balloon *vb,
++				  struct virtqueue *vq,
++				  unsigned long pfn,
++				  uint32_t len)
++{
++	add_one_sg(vq, pfn, len);
++
++	/* Batch till the vq is full */
++	if (!vq->num_free)
++		kick_and_wait(vq, vb->acked);
++}
++
++/*
++ * Send balloon pages in sgs to host. The balloon pages are recorded in the
++ * page xbitmap. Each bit in the bitmap corresponds to a page of PAGE_SIZE.
++ * The page xbitmap is searched for continuous "1" bits, which correspond
++ * to continuous pages, to chunk into sgs.
++ *
++ * @page_xb_start and @page_xb_end form the range of bits in the xbitmap that
++ * need to be searched.
++ */
++static void tell_host_sgs(struct virtio_balloon *vb,
++			  struct virtqueue *vq,
++			  unsigned long page_xb_start,
++			  unsigned long page_xb_end)
++{
++	unsigned long pfn_start, pfn_end;
++	uint32_t max_len = round_down(UINT_MAX, PAGE_SIZE);
++	uint64_t len;
++
++	pfn_start = page_xb_start;
++	while (pfn_start < page_xb_end) {
++		if (!xb_find_set(&vb->page_xb, page_xb_end, &pfn_start))
++			break;
++		pfn_end = pfn_start + 1;
++		if (!xb_find_zero(&vb->page_xb, page_xb_end, &pfn_end))
++			pfn_end = page_xb_end + 1;
++		len = (pfn_end - pfn_start) << PAGE_SHIFT;
++		while (len > max_len) {
++			batch_balloon_page_sg(vb, vq, pfn_start, max_len);
++			pfn_start += max_len >> PAGE_SHIFT;
++			len -= max_len;
++		}
++		batch_balloon_page_sg(vb, vq, pfn_start, (uint32_t)len);
++		pfn_start = pfn_end + 1;
++	}
++
++	/*
++	 * The last few sgs may not reach the batch size, but need a kick to
++	 * notify the device to handle them.
++	 */
++	if (vq->num_free != virtqueue_get_vring_size(vq))
++		kick_and_wait(vq, vb->acked);
++
++	xb_zero(&vb->page_xb, page_xb_start, page_xb_end);
++}
++
++static inline int xb_set_page(struct virtio_balloon *vb,
++			       struct page *page,
++			       unsigned long *pfn_min,
++			       unsigned long *pfn_max)
++{
++	unsigned long pfn = page_to_pfn(page);
++	int ret;
++
++	*pfn_min = min(pfn, *pfn_min);
++	*pfn_max = max(pfn, *pfn_max);
++
++	do {
++		if (xb_preload(GFP_NOWAIT | __GFP_NOWARN) < 0)
++			return -ENOMEM;
++
++		ret = xb_set_bit(&vb->page_xb, pfn);
++		xb_preload_end();
++	} while (unlikely(ret == -EAGAIN));
++
++	return ret;
++}
++
+ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+ {
+ 	unsigned num_allocated_pages;
+ 	unsigned num_pfns;
+ 	struct page *page;
+ 	LIST_HEAD(pages);
++	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
++	unsigned long pfn_max = 0, pfn_min = ULONG_MAX;
+ 
+ 	/* We can only do one array worth at a time. */
+-	num = min(num, ARRAY_SIZE(vb->pfns));
++	if (!use_sg)
++		num = min(num, ARRAY_SIZE(vb->pfns));
+ 
+ 	for (num_pfns = 0; num_pfns < num;
+ 	     num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+@@ -172,9 +290,16 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+ 	vb->num_pfns = 0;
+ 
+ 	while ((page = balloon_page_pop(&pages))) {
++		if (use_sg) {
++			if (xb_set_page(vb, page, &pfn_min, &pfn_max) < 0) {
++				__free_page(page);
++				continue;
++			}
++		} else {
++			set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
++		}
+ 		balloon_page_enqueue(&vb->vb_dev_info, page);
+ 
+-		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+ 		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 		if (!virtio_has_feature(vb->vdev,
+ 					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+@@ -184,8 +309,12 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+ 
+ 	num_allocated_pages = vb->num_pfns;
+ 	/* Did we get any? */
+-	if (vb->num_pfns != 0)
+-		tell_host(vb, vb->inflate_vq);
++	if (vb->num_pfns) {
++		if (use_sg)
++			tell_host_sgs(vb, vb->inflate_vq, pfn_min, pfn_max);
++		else
++			tell_host(vb, vb->inflate_vq);
++	}
+ 	mutex_unlock(&vb->balloon_lock);
+ 
+ 	return num_allocated_pages;
+@@ -211,9 +340,12 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+ 	struct page *page;
+ 	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
+ 	LIST_HEAD(pages);
++	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
++	unsigned long pfn_max = 0, pfn_min = ULONG_MAX;
+ 
+-	/* We can only do one array worth at a time. */
+-	num = min(num, ARRAY_SIZE(vb->pfns));
++	/* Traditionally, we can only do one array worth at a time. */
++	if (!use_sg)
++		num = min(num, ARRAY_SIZE(vb->pfns));
+ 
+ 	mutex_lock(&vb->balloon_lock);
+ 	/* We can't release more pages than taken */
+@@ -223,7 +355,14 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+ 		page = balloon_page_dequeue(vb_dev_info);
+ 		if (!page)
+ 			break;
+-		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
++		if (use_sg) {
++			if (xb_set_page(vb, page, &pfn_min, &pfn_max) < 0) {
++				balloon_page_enqueue(&vb->vb_dev_info, page);
++				break;
++			}
++		} else {
++			set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
++		}
+ 		list_add(&page->lru, &pages);
+ 		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 	}
+@@ -234,13 +373,55 @@ static unsigned leak_balloon(struct virtio_balloon *vb, size_t num)
+ 	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+ 	 * is true, we *have* to do it in this order
+ 	 */
+-	if (vb->num_pfns != 0)
+-		tell_host(vb, vb->deflate_vq);
++	if (vb->num_pfns) {
++		if (use_sg)
++			tell_host_sgs(vb, vb->deflate_vq, pfn_min, pfn_max);
++		else
++			tell_host(vb, vb->deflate_vq);
++	}
+ 	release_pages_balloon(vb, &pages);
+ 	mutex_unlock(&vb->balloon_lock);
+ 	return num_freed_pages;
+ }
+ 
++/*
++ * The regular leak_balloon() with VIRTIO_BALLOON_F_SG needs memory allocation
++ * for xbitmap, which is not suitable for the oom case. This function does not
++ * use xbitmap to chunk pages, so it can be used by oom notifier to deflate
++ * pages when VIRTIO_BALLOON_F_SG is negotiated.
++ */
++static unsigned int leak_balloon_sg_oom(struct virtio_balloon *vb)
++{
++	unsigned int n;
++	struct page *page;
++	struct balloon_dev_info *vb_dev_info = &vb->vb_dev_info;
++	struct virtqueue *vq = vb->deflate_vq;
++	LIST_HEAD(pages);
++
++	mutex_lock(&vb->balloon_lock);
++	for (n = 0; n < oom_pages; n++) {
++		page = balloon_page_dequeue(vb_dev_info);
++		if (!page)
++			break;
++
++		list_add(&page->lru, &pages);
++		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
++		batch_balloon_page_sg(vb, vb->deflate_vq, page_to_pfn(page),
++				      PAGE_SIZE);
++		release_pages_balloon(vb, &pages);
++	}
++
++	/*
++	 * The last few sgs may not reach the batch size, but need a kick to
++	 * notify the device to handle them.
++	 */
++	if (vq->num_free != virtqueue_get_vring_size(vq))
++		kick_and_wait(vq, vb->acked);
++	mutex_unlock(&vb->balloon_lock);
++
++	return n;
++}
++
+ static inline void update_stat(struct virtio_balloon *vb, int idx,
+ 			       u16 tag, u64 val)
+ {
+@@ -380,7 +561,10 @@ static int virtballoon_oom_notify(struct notifier_block *self,
+ 		return NOTIFY_OK;
+ 
+ 	freed = parm;
+-	num_freed_pages = leak_balloon(vb, oom_pages);
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG))
++		num_freed_pages = leak_balloon_sg_oom(vb);
++	else
++		num_freed_pages = leak_balloon(vb, oom_pages);
+ 	update_balloon_size(vb);
+ 	*freed += num_freed_pages;
+ 
+@@ -477,6 +661,7 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+ {
+ 	struct virtio_balloon *vb = container_of(vb_dev_info,
+ 			struct virtio_balloon, vb_dev_info);
++	bool use_sg = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_SG);
+ 	unsigned long flags;
+ 
+ 	/*
+@@ -498,16 +683,24 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+ 	vb_dev_info->isolated_pages--;
+ 	__count_vm_event(BALLOON_MIGRATE);
+ 	spin_unlock_irqrestore(&vb_dev_info->pages_lock, flags);
+-	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
+-	set_page_pfns(vb, vb->pfns, newpage);
+-	tell_host(vb, vb->inflate_vq);
+-
++	if (use_sg) {
++		add_one_sg(vb->inflate_vq, page_to_pfn(newpage), PAGE_SIZE);
++		kick_and_wait(vb->inflate_vq, vb->acked);
++	} else {
++		vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
++		set_page_pfns(vb, vb->pfns, newpage);
++		tell_host(vb, vb->inflate_vq);
++	}
+ 	/* balloon's page migration 2nd step -- deflate "page" */
+ 	balloon_page_delete(page);
+-	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
+-	set_page_pfns(vb, vb->pfns, page);
+-	tell_host(vb, vb->deflate_vq);
+-
++	if (use_sg) {
++		add_one_sg(vb->deflate_vq, page_to_pfn(page), PAGE_SIZE);
++		kick_and_wait(vb->deflate_vq, vb->acked);
++	} else {
++		vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
++		set_page_pfns(vb, vb->pfns, page);
++		tell_host(vb, vb->deflate_vq);
++	}
+ 	mutex_unlock(&vb->balloon_lock);
+ 
+ 	put_page(page); /* balloon reference */
+@@ -566,6 +759,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	if (err)
+ 		goto out_free_vb;
+ 
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_SG))
++		xb_init(&vb->page_xb);
++
+ 	vb->nb.notifier_call = virtballoon_oom_notify;
+ 	vb->nb.priority = VIRTBALLOON_OOM_NOTIFY_PRIORITY;
+ 	err = register_oom_notifier(&vb->nb);
+@@ -682,6 +878,7 @@ static unsigned int features[] = {
+ 	VIRTIO_BALLOON_F_MUST_TELL_HOST,
+ 	VIRTIO_BALLOON_F_STATS_VQ,
+ 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
++	VIRTIO_BALLOON_F_SG,
+ };
+ 
+ static struct virtio_driver virtio_balloon_driver = {
+diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+index 343d7dd..37780a7 100644
+--- a/include/uapi/linux/virtio_balloon.h
++++ b/include/uapi/linux/virtio_balloon.h
+@@ -34,6 +34,7 @@
+ #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
+ #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
+ #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
++#define VIRTIO_BALLOON_F_SG		3 /* Use sg instead of PFN lists */
+ 
+ /* Size of a PFN in the balloon interface. */
+ #define VIRTIO_BALLOON_PFN_SHIFT 12
+-- 
+2.7.4
