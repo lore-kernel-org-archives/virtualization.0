@@ -1,16 +1,14 @@
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
-Subject: Re: [PATCH 1/6] Documentation: crypto: document crypto engine API
-Date: Wed, 10 Jan 2018 20:14:50 +0100
-Message-ID: <20180110191450.GB12214__21313.715450424$1515611591$gmane$org@Red>
-References: <20180103201109.16077-1-clabbe.montjoie@gmail.com>
-	<20180103201109.16077-2-clabbe.montjoie@gmail.com>
-	<849600f6-3082-c090-205d-75e3d14b38f9@st.com>
+From: Hannes Reinecke <hare@suse.de>
+Subject: Re: Question about eliminating virtio-scsi 30s timeout and hot-unplug
+Date: Wed, 10 Jan 2018 20:39:19 +0100
+Message-ID: <c54b7d64-958d-eb22-8542-918c5b8922e6@suse.de>
+References: <CAMmhGq+9qZhJRdaeXZtdu6AyJUPBKkbL4F2=NeXhvjUbxEoyow@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <849600f6-3082-c090-205d-75e3d14b38f9@st.com>
+In-Reply-To: <CAMmhGq+9qZhJRdaeXZtdu6AyJUPBKkbL4F2=NeXhvjUbxEoyow@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,99 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Fabien DESSENNE <fabien.dessenne@st.com>
-Cc: Benjamin GAIGNARD <benjamin.gaignard@st.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "corbet@lwn.net" <corbet@lwn.net>, "mst@redhat.com" <mst@redhat.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "mcoquelin.stm32@gmail.com" <mcoquelin.stm32@gmail.com>, "davem@davemloft.net" <davem@davemloft.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Alexandre TORGUE <alexandre.torgue@st.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 10, 2018 at 02:13:13PM +0000, Fabien DESSENNE wrote:
-> Hi Corentin,
-> 
-> 
-> Thank you for this new version which I have testes successfully with the 
-> stm32 hash & cryp drivers.
-> 
-> As a general comment on this patchset, I would say that it does not 
-> cover all async requests: typically I need (for the pending stm32 cryp 
-> driver uprade) to use CryptoEngine to process AEAD requests which is not 
-> covered here.
-> 
-> Could you please consider adding the 'transfer' and 'finalize' EXPORTed 
-> functions for aead requests? (the implementation is quite trivial)
-> 
-> Have also a look at struct acomp_req (acompress.h) and struct 
-> kpp_request (kpp.h) which also use "struct crypto_async_request base"
-> 
-> 
-> BR
-> 
-> Fabien
-> 
-
-Hello
-
-Thanks for your review and test (could I add your tested-by ?).
-I didn't add aead (and kpp/acompress), since I do not have any way to test it.
-Since you have a way to test aead, I will add it to the next release.
-
-Regards
-
-> 
-> On 03/01/18 21:11, Corentin Labbe wrote:
-> > Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-> > ---
-> >   Documentation/crypto/crypto_engine.rst | 46 ++++++++++++++++++++++++++++++++++
-> >   1 file changed, 46 insertions(+)
-> >   create mode 100644 Documentation/crypto/crypto_engine.rst
-> >
-> > diff --git a/Documentation/crypto/crypto_engine.rst b/Documentation/crypto/crypto_engine.rst
-> > new file mode 100644
-> > index 000000000000..b0ed37f9fb0c
-> > --- /dev/null
-> > +++ b/Documentation/crypto/crypto_engine.rst
-> > @@ -0,0 +1,46 @@
-> > +=============
-> > +CRYPTO ENGINE
-> > +=============
-> > +
-> > +Overview
-> > +--------
-> > +The crypto engine API (CE), is a crypto queue manager.
-> > +
-> > +Requirement
-> > +-----------
-> > +You have to put at start of your tfm_ctx the struct crypto_engine_reqctx
-> > +struct your_tfm_ctx {
-> > +        struct crypto_engine_reqctx enginectx;
-> > +        ...
-> > +};
-> > +Why: Since CE manage only crypto_async_request, it cannot know the underlying
-> > +request_type and so have access only on the TFM.
-> > +So using container_of for accessing __ctx is impossible.
-> > +Furthermore, the crypto engine cannot know the "struct your_tfm_ctx",
-> > +so it must assume that crypto_engine_reqctx is at start of it.
-> > +
-> > +Order of operations
-> > +-------------------
-> > +You have to obtain a struct crypto_engine via crypto_engine_alloc_init().
-> > +And start it via crypto_engine_start().
-> > +
-> > +Before transferring any request, you have to fill the enginectx.
-> > +- prepare_request: (taking a function pointer) If you need to do some processing before doing the request
-> > +- unprepare_request: (taking a function pointer) Undoing what's done in prepare_request
-> > +- do_one_request: (taking a function pointer) Do encryption for current request
-> > +
-> > +Note: that those three functions get the crypto_async_request associated with the received request.
-> > +So your need to get the original request via container_of(areq, struct yourrequesttype_request, base);
-> > +
-> > +When your driver receive a crypto_request, you have to transfer it to
-> > +the cryptoengine via one of:
-> > +- crypto_transfer_cipher_request_to_engine()
-> > +- crypto_transfer_skcipher_request_to_engine()
-> > +- crypto_transfer_akcipher_request_to_engine()
-> > +- crypto_transfer_hash_request_to_engine()
-> > +
-> > +At the end of the request process, a call to one of the following function is needed:
-> > +- crypto_finalize_cipher_request
-> > +- crypto_finalize_skcipher_request
-> > +- crypto_finalize_akcipher_request
-> > +- crypto_finalize_hash_request
+T24gMTIvMjEvMjAxNyAwODoyOSBQTSwgSmFzb24gQmVobWVyIHZpYSBWaXJ0dWFsaXphdGlvbiB3
+cm90ZToKPiBIaSBQYW9sbywKPiBJIGhhZCBhIHF1ZXN0aW9uIGFib3V0IHRoaXMgcGF0Y2ggdGhh
+dCBlbGltaW5hdGVzIHZpcnRpby1zY3NpIHRpbWVvdXQgb24KPiBJT3MgLSBodHRwczovL3BhdGNo
+d29yay5rZXJuZWwub3JnL3BhdGNoLzk4MDIwNDcvLsKgIEhvdyBkb2VzIHRoaXMgd29yawo+IHdo
+ZW4gd2UgaGF2ZSBJT3Mgb3V0c3RhbmRpbmcgdG8gYSBkZXZpY2UgdGhhdCBpcyB0aGVuIGhvdC11
+bnBsdWdnZWQuwqAKPiBJJ20gdW5kZXIgdGhlIGltcHJlc3Npb24gdGhhdCB0aG9zZSBJT3Mgd2ls
+bCBuZXZlciBnZXQgcmV0dXJuZWQgd2l0aCBhbnkKPiBzdGF0dXMgKHBsZWFzZSBjb3JyZWN0IG1l
+IGlmIEknbSB3cm9uZyksIGFuZCB3ZSB3aWxsIHRoZW4gZW5kIHVwIHdhaXRpbmcKPiBvbiB0aGVt
+IGZvcmV2ZXIgd2l0aCB0aGlzIHBhdGNoLgo+IApJdCdzIG5vIGRpZmZlcmVudCBmcm9tIHRoZSB2
+aXJ0aW8tYmxvY2sgcGF0aDsgdGhlIEkvTyBpcyBwZW5kaW5nIGluIHRoZQpxZW11IHByb2Nlc3Mu
+IFdoZW4gYSBkZXZpY2UgaXMgaG90LXVucGx1Z2dlZCB0aGUgSS9PIHdpbGwgYmUgcmV0dXJuZWQg
+dG8KdGhlIHFlbXUgcHJvY2Vzcywgd2hpY2ggdGhlbiB3aWxsIHJldHVybiB0aGUgZmluYWwgc3Rh
+dHVzIHRvIHRoZSBndWVzdC4KCkNoZWVycywKCkhhbm5lcwotLSAKRHIuIEhhbm5lcyBSZWluZWNr
+ZQkJICAgVGVhbWxlYWQgU3RvcmFnZSAmIE5ldHdvcmtpbmcKaGFyZUBzdXNlLmRlCQkJICAgICAg
+ICAgICAgICAgKzQ5IDkxMSA3NDA1MyA2ODgKU1VTRSBMSU5VWCBHbWJILCBNYXhmZWxkc3RyLiA1
+LCA5MDQwOSBOw7xybmJlcmcKR0Y6IEYuIEltZW5kw7ZyZmZlciwgSi4gU21pdGhhcmQsIEouIEd1
+aWxkLCBELiBVcG1hbnl1LCBHLiBOb3J0b24KSFJCIDIxMjg0IChBRyBOw7xybmJlcmcpCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
