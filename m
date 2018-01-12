@@ -1,14 +1,12 @@
 From: Sridhar Samudrala <sridhar.samudrala@intel.com>
-Subject: [RFC PATCH 1/1] qemu: Introduce VIRTIO_NET_F_BACKUP feature bit to
-	virtio_net
-Date: Thu, 11 Jan 2018 21:58:40 -0800
-Message-ID: <1515736720-39368-4-git-send-email-sridhar.samudrala__21671.9488417313$1515736637$gmane$org@intel.com>
-References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
+Subject: [RFC PATCH net-next v2 0/2] Enable virtio to act as a backup for a
+	passthru device
+Date: Thu, 11 Jan 2018 21:58:37 -0800
+Message-ID: <1515736720-39368-1-git-send-email-sridhar.samudrala__5042.46892310238$1515736645$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,35 +19,63 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, kubakici@wp.pl, sridhar.samudrala@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This feature bit can be used by hypervisor to indicate virtio_net device to
-act as a backup for another device with the same MAC address.
-    
-Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+This patch series extends virtio_net to take over VF datapath by
+simulating a transparent bond without creating any additional netdev.
 
-diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-index cd63659140..fa47e723b9 100644
---- a/hw/net/virtio-net.c
-+++ b/hw/net/virtio-net.c
-@@ -2193,6 +2193,8 @@ static Property virtio_net_properties[] = {
-                      true),
-     DEFINE_PROP_INT32("speed", VirtIONet, net_conf.speed, SPEED_UNKNOWN),
-     DEFINE_PROP_STRING("duplex", VirtIONet, net_conf.duplex_str),
-+    DEFINE_PROP_BIT64("backup", VirtIONet, host_features,
-+                    VIRTIO_NET_F_BACKUP, false),
-     DEFINE_PROP_END_OF_LIST(),
- };
- 
-diff --git a/include/standard-headers/linux/virtio_net.h b/include/standard-headers/linux/virtio_net.h
-index 17c8531a22..6afca6dcaf 100644
---- a/include/standard-headers/linux/virtio_net.h
-+++ b/include/standard-headers/linux/virtio_net.h
-@@ -57,6 +57,9 @@
- 					 * Steering */
- #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
- 
-+#define VIRTIO_NET_F_BACKUP	  62   /* Act as backup for another device
-+					* with the same MAC.
-+					*/
- #define VIRTIO_NET_F_SPEED_DUPLEX 63   /* Device set linkspeed and duplex */
- 
- #ifndef VIRTIO_NET_NO_LEGACY
+I understand that there are some comments suggesting an alternate model
+that is based on 3 driver model(virtio_net, VF driver, a new driver 
+virt_bond that acts as a master to virtio_net and VF).
+
+Would like to get some feedback on the right way to solve the live
+migration problem with direct attached devices in KVM environment.
+
+Stephen,
+Is the netvsc transparent bond implemenation robust enough and deployed
+in real environments? Or would netvsc switch over to a 3-driver model if
+that solution becomes available?
+
+Can we start with this implementation that is similar to netvsc and if
+needed we can move to the 3 driver model later?
+
+This patch series enables virtio to switch over to a VF datapath when a 
+VF netdev is present with the same MAC address. It allows live migration 
+of a VM with a direct attached VF without the need to setup a bond/team
+between a VF and virtio net device in the guest.
+
+The hypervisor needs to unplug the VF device from the guest on the source
+host and reset the MAC filter of the VF to initiate failover of datapath
+to virtio before starting the migration. After the migration is completed,
+the destination hypervisor sets the MAC filter on the VF and plugs it back
+to the guest to switch over to VF datapath.
+
+It is based on netvsc implementation and it should be possible to make this
+code generic and move it to a common location that can be shared by netvsc
+and virtio.
+
+This patch series is based on the discussion initiated by Jesse on this thread.
+https://marc.info/?l=linux-virtualization&m=151189725224231&w=2
+
+v2:
+- Changed VIRTIO_NET_F_MASTER to VIRTIO_NET_F_BACKUP (mst)
+- made a small change to the virtio-net xmit path to only use VF datapath
+  for unicasts. Broadcasts/multicasts use virtio datapath. This avoids
+  east-west broadcasts to go over the PCI link.
+- added suppport for the feature bit in qemu
+
+Sridhar Samudrala (2):
+  virtio_net: Introduce VIRTIO_NET_F_BACKUP feature bit
+  virtio_net: Extend virtio to use VF datapath when available
+
+ drivers/net/virtio_net.c        | 309 +++++++++++++++++++++++++++++++++++++++-
+ include/uapi/linux/virtio_net.h |   3 +
+ 2 files changed, 309 insertions(+), 3 deletions(-)
+
+Sridhar Samudrala (1):
+  qemu: Introduce VIRTIO_NET_F_BACKUP feature bit to virtio_net
+
+ hw/net/virtio-net.c                         | 2 ++
+ include/standard-headers/linux/virtio_net.h | 3 +++
+ 2 files changed, 5 insertions(+)
+
+-- 
+2.14.3
