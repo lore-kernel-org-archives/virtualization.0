@@ -1,15 +1,15 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH 2/6] crypto: engine - Permit to enqueue all async requests
-Date: Fri, 12 Jan 2018 18:14:44 +1100
-Message-ID: <20180112071444.GA18698__20430.6415319026$1515741243$gmane$org@gondor.apana.org.au>
-References: <20180103201109.16077-1-clabbe.montjoie@gmail.com>
-	<20180103201109.16077-3-clabbe.montjoie@gmail.com>
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: Re: [PATCH] drm/virtio: Add window server support
+Date: Fri, 12 Jan 2018 08:59:35 +0100
+Message-ID: <c25f1abf-d00d-c1ed-0aea-9a701c61a570__33101.8175966621$1515744314$gmane$org@collabora.com>
+References: <20171228115333.12289-1-tomeu.vizoso@collabora.com>
+	<CAPM=9twT_jtfJteuUpRvu1Xn3nNfxG-5oLfcbHYVnHVeS9TzcA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180103201109.16077-3-clabbe.montjoie@gmail.com>
+In-Reply-To: <CAPM=9twT_jtfJteuUpRvu1Xn3nNfxG-5oLfcbHYVnHVeS9TzcA@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,50 +19,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Corentin Labbe <clabbe.montjoie@gmail.com>
-Cc: alexandre.torgue@st.com, corbet@lwn.net, mst@redhat.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, fabien.dessenne@st.com, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, mcoquelin.stm32@gmail.com, davem@davemloft.net, linux-arm-kernel@lists.infradead.org
+To: Dave Airlie <airlied@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 03, 2018 at 09:11:05PM +0100, Corentin Labbe wrote:
-> The crypto engine could actually only enqueue hash and ablkcipher request.
-> This patch permit it to enqueue any type of crypto_async_request.
+On 01/12/2018 05:11 AM, Dave Airlie wrote:
+>>
+>> this work is based on the virtio_wl driver in the ChromeOS kernel by
+>> Zach Reizner, currently at:
+>>
+>> https://chromium.googlesource.com/chromiumos/third_party/kernel/+/chromeos-4.4/drivers/virtio/virtio_wl.c
+>>
+>> There's two features missing in this patch when compared with virtio_wl:
+>>
+>> * Allow the guest access directly host memory, without having to resort
+>> to TRANSFER_TO_HOST
+>>
+>> * Pass FDs from host to guest (Wayland specifies that the compositor
+>> shares keyboard data with the guest via a shared buffer)
+>>
+>> I plan to work on this next, but I would like to get some comments on
+>> the general approach so I can better choose which patch to follow.
 > 
-> Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-> ---
->  crypto/crypto_engine.c  | 230 ++++++++++++++++++++++++------------------------
->  include/crypto/engine.h |  59 +++++++------
->  2 files changed, 148 insertions(+), 141 deletions(-)
-> 
-> diff --git a/crypto/crypto_engine.c b/crypto/crypto_engine.c
-> index 61e7c4e02fd2..036270b61648 100644
-> --- a/crypto/crypto_engine.c
-> +++ b/crypto/crypto_engine.c
-> @@ -15,7 +15,6 @@
->  #include <linux/err.h>
->  #include <linux/delay.h>
->  #include <crypto/engine.h>
-> -#include <crypto/internal/hash.h>
->  #include <uapi/linux/sched/types.h>
->  #include "internal.h"
->  
-> @@ -34,11 +33,10 @@ static void crypto_pump_requests(struct crypto_engine *engine,
->  				 bool in_kthread)
->  {
->  	struct crypto_async_request *async_req, *backlog;
-> -	struct ahash_request *hreq;
-> -	struct ablkcipher_request *breq;
->  	unsigned long flags;
->  	bool was_busy = false;
-> -	int ret, rtype;
-> +	int ret;
-> +	struct crypto_engine_reqctx *enginectx;
+> Shouldn't qemu expose some kind of capability to enable this so we know to
+> look for the extra vqs?
 
-This all looks very good.  Just one minor nit, since you're storing
-this in the tfm ctx as opposed to the request ctx (which is indeed
-an improvement), you should remove the "req" from its name.
+Sounds good. I'm unsure though on whether it should be done 
+unconditionally if the hypervisor's code supports this, or if only if 
+the user pass the -proxy-wayland switch and the hypervisor was able to 
+open the socket to the compositor. I'm leaning towards the latter.
 
-Thanks!
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+> What happens if you run this on plain qemu, does it fallback correctly?
+
+Will work on this.
+
+> Are there any scenarios where we don't want to expose this API because there
+> is nothing to back it.
+
+I'm not sure what the overhead of the extra queues is, but I guess the 
+ioctls could immediately return -ENODEV if the hypervisor doesn't have 
+that capability.
+
+Happy to see that there aren't any major concerns with the general approach.
+
+Thanks,
+
+Tomeu
