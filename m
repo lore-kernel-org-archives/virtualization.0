@@ -1,14 +1,17 @@
-From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [RFC PATCH v2 3/5] iommu/virtio-iommu: Add event queue
-Date: Tue, 16 Jan 2018 11:10:46 +0100
-Message-ID: <3061e653-38bb-bffa-0f16-43047724a0ae__46798.6710639254$1516097357$gmane$org@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [RFC PATCH v2 1/5] iommu: Add virtio-iommu driver
+Date: Tue, 16 Jan 2018 17:45:05 +0000
+Message-ID: <5011918c-0893-8098-a0d2-e340bd740871__22429.2952138514$1516124462$gmane$org@arm.com>
 References: <20171117185211.32593-1-jean-philippe.brucker@arm.com>
-	<20171117185211.32593-4-jean-philippe.brucker@arm.com>
+	<20171117185211.32593-2-jean-philippe.brucker@arm.com>
+	<54320f26-05a5-9a09-f6cf-ae610c41e077@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20171117185211.32593-4-jean-philippe.brucker@arm.com>
+Content-Disposition: inline
+In-Reply-To: <54320f26-05a5-9a09-f6cf-ae610c41e077@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,286 +21,172 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, iommu@lists.linux-foundation.org, devel@acpica.org, linux-acpi@vger.kernel.org, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org
-Cc: Jayachandran.Nair@cavium.com, lorenzo.pieralisi@arm.com, ashok.raj@intel.com, mst@redhat.com, marc.zyngier@arm.com, will.deacon@arm.com, rjw@rjwysocki.net, robert.moore@intel.com, lv.zheng@intel.com, sudeep.holla@arm.com, lenb@kernel.org, robin.murphy@arm.com, joro@8bytes.org, hanjun.guo@linaro.org
+To: Auger Eric <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "devel@acpica.org" <devel@acpica.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: "Jayachandran.Nair@cavium.com" <Jayachandran.Nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "ashok.raj@intel.com" <ashok.raj@intel.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "robert.moore@intel.com" <robert.moore@intel.com>, "lv.zheng@intel.com" <lv.zheng@intel.com>, Sudeep Holla <Sudeep.Holla@arm.com>, "lenb@kernel.org" <lenb@kernel.org>, Robin Murphy <Robin.Murphy@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "hanjun.guo@linaro.org" <hanjun.guo@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
-
-On 17/11/17 19:52, Jean-Philippe Brucker wrote:
-> The event queue offers a way for the device to report access faults from
-> devices.
-end points?
- It is implemented on virtqueue #1, whenever the host needs to
-> signal a fault it fills one of the buffers offered by the guest and
-> interrupts it.
-> 
-> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-> ---
->  drivers/iommu/virtio-iommu.c      | 138 ++++++++++++++++++++++++++++++++++----
->  include/uapi/linux/virtio_iommu.h |  18 +++++
->  2 files changed, 142 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 79e0add94e05..fe0d449bf489 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -30,6 +30,12 @@
->  #define MSI_IOVA_BASE			0x8000000
->  #define MSI_IOVA_LENGTH			0x100000
->  
-> +enum viommu_vq_idx {
-> +	VIOMMU_REQUEST_VQ	= 0,
-> +	VIOMMU_EVENT_VQ		= 1,
-> +	VIOMMU_NUM_VQS		= 2,
-> +};
-> +
->  struct viommu_dev {
->  	struct iommu_device		iommu;
->  	struct device			*dev;
-> @@ -37,7 +43,7 @@ struct viommu_dev {
->  
->  	struct ida			domain_ids;
->  
-> -	struct virtqueue		*vq;
-> +	struct virtqueue		*vqs[VIOMMU_NUM_VQS];
->  	/* Serialize anything touching the request queue */
->  	spinlock_t			request_lock;
->  
-> @@ -84,6 +90,15 @@ struct viommu_request {
->  	struct list_head		list;
->  };
->  
-> +#define VIOMMU_FAULT_RESV_MASK		0xffffff00
-> +
-> +struct viommu_event {
-> +	union {
-> +		u32			head;
-> +		struct virtio_iommu_fault fault;
-> +	};
-> +};
-> +
->  #define to_viommu_domain(domain) container_of(domain, struct viommu_domain, domain)
->  
->  /* Virtio transport */
-> @@ -160,12 +175,13 @@ static int viommu_receive_resp(struct viommu_dev *viommu, int nr_sent,
->  	unsigned int len;
->  	int nr_received = 0;
->  	struct viommu_request *req, *pending;
-> +	struct virtqueue *vq = viommu->vqs[VIOMMU_REQUEST_VQ];
->  
->  	pending = list_first_entry_or_null(sent, struct viommu_request, list);
->  	if (WARN_ON(!pending))
->  		return 0;
->  
-> -	while ((req = virtqueue_get_buf(viommu->vq, &len)) != NULL) {
-> +	while ((req = virtqueue_get_buf(vq, &len)) != NULL) {
->  		if (req != pending) {
->  			dev_warn(viommu->dev, "discarding stale request\n");
->  			continue;
-> @@ -202,6 +218,7 @@ static int _viommu_send_reqs_sync(struct viommu_dev *viommu,
->  	 * dies.
->  	 */
->  	unsigned long timeout_ms = 1000;
-> +	struct virtqueue *vq = viommu->vqs[VIOMMU_REQUEST_VQ];
->  
->  	*nr_sent = 0;
->  
-> @@ -211,15 +228,14 @@ static int _viommu_send_reqs_sync(struct viommu_dev *viommu,
->  		sg[0] = &req->top;
->  		sg[1] = &req->bottom;
->  
-> -		ret = virtqueue_add_sgs(viommu->vq, sg, 1, 1, req,
-> -					GFP_ATOMIC);
-> +		ret = virtqueue_add_sgs(vq, sg, 1, 1, req, GFP_ATOMIC);
->  		if (ret)
->  			break;
->  
->  		list_add_tail(&req->list, &pending);
->  	}
->  
-> -	if (i && !virtqueue_kick(viommu->vq))
-> +	if (i && !virtqueue_kick(vq))
->  		return -EPIPE;
->  
->  	timeout = ktime_add_ms(ktime_get(), timeout_ms * i);
-> @@ -554,6 +570,70 @@ static int viommu_probe_endpoint(struct viommu_dev *viommu, struct device *dev)
->  	return 0;
->  }
->  
-> +static int viommu_fault_handler(struct viommu_dev *viommu,
-> +				struct virtio_iommu_fault *fault)
-> +{
-> +	char *reason_str;
-> +
-> +	u8 reason	= fault->reason;
-> +	u32 flags	= le32_to_cpu(fault->flags);
-> +	u32 endpoint	= le32_to_cpu(fault->endpoint);
-> +	u64 address	= le64_to_cpu(fault->address);
-> +
-> +	switch (reason) {
-> +	case VIRTIO_IOMMU_FAULT_R_DOMAIN:
-> +		reason_str = "domain";
-> +		break;
-> +	case VIRTIO_IOMMU_FAULT_R_MAPPING:
-> +		reason_str = "page";
-> +		break;
-> +	case VIRTIO_IOMMU_FAULT_R_UNKNOWN:
-> +	default:
-> +		reason_str = "unknown";
-> +		break;
-> +	}
-> +
-> +	/* TODO: find EP by ID and report_iommu_fault */
-> +	if (flags & VIRTIO_IOMMU_FAULT_F_ADDRESS)
-> +		dev_err_ratelimited(viommu->dev, "%s fault from EP %u at %#llx [%s%s%s]\n",
-> +				    reason_str, endpoint, address,
-> +				    flags & VIRTIO_IOMMU_FAULT_F_READ ? "R" : "",
-> +				    flags & VIRTIO_IOMMU_FAULT_F_WRITE ? "W" : "",
-> +				    flags & VIRTIO_IOMMU_FAULT_F_EXEC ? "X" : "");
-> +	else
-> +		dev_err_ratelimited(viommu->dev, "%s fault from EP %u\n",
-> +				    reason_str, endpoint);
-> +
-> +	return 0;
-> +}
-> +
-> +static void viommu_event_handler(struct virtqueue *vq)
-> +{
-> +	int ret;
-> +	unsigned int len;
-> +	struct scatterlist sg[1];
-> +	struct viommu_event *evt;
-> +	struct viommu_dev *viommu = vq->vdev->priv;
-> +
-> +	while ((evt = virtqueue_get_buf(vq, &len)) != NULL) {
-> +		if (len > sizeof(*evt)) {
-> +			dev_err(viommu->dev,
-> +				"invalid event buffer (len %u != %zu)\n",
-> +				len, sizeof(*evt));
-> +		} else if (!(evt->head & VIOMMU_FAULT_RESV_MASK)) {
-> +			viommu_fault_handler(viommu, &evt->fault);
-> +		}
-> +
-> +		sg_init_one(sg, evt, sizeof(*evt));
-in case of above error case, ie. len > sizeof(*evt), is it safe to push
-evt again?
-> +		ret = virtqueue_add_inbuf(vq, sg, 1, evt, GFP_ATOMIC);
-> +		if (ret)
-> +			dev_err(viommu->dev, "could not add event buffer\n");
-> +	}
-> +
-> +	if (!virtqueue_kick(vq))
-> +		dev_err(viommu->dev, "kick failed\n");
-> +}
-> +
->  /* IOMMU API */
->  
->  static bool viommu_capable(enum iommu_cap cap)
-> @@ -938,19 +1018,44 @@ static struct iommu_ops viommu_ops = {
->  	.put_resv_regions	= viommu_put_resv_regions,
->  };
->  
-> -static int viommu_init_vq(struct viommu_dev *viommu)
-> +static int viommu_init_vqs(struct viommu_dev *viommu)
->  {
->  	struct virtio_device *vdev = dev_to_virtio(viommu->dev);
-> -	const char *name = "request";
-> -	void *ret;
-> +	const char *names[] = { "request", "event" };
-> +	vq_callback_t *callbacks[] = {
-> +		NULL, /* No async requests */
-> +		viommu_event_handler,
-> +	};
-> +
-> +	return virtio_find_vqs(vdev, VIOMMU_NUM_VQS, viommu->vqs, callbacks,
-> +			       names, NULL);
-> +}
->  
-> -	ret = virtio_find_single_vq(vdev, NULL, name);
-> -	if (IS_ERR(ret)) {
-> -		dev_err(viommu->dev, "cannot find VQ\n");
-> -		return PTR_ERR(ret);
-> +static int viommu_fill_evtq(struct viommu_dev *viommu)
-> +{
-> +	int i, ret;
-> +	struct scatterlist sg[1];
-> +	struct viommu_event *evts;
-> +	struct virtqueue *vq = viommu->vqs[VIOMMU_EVENT_VQ];
-> +	size_t nr_evts = min_t(size_t, PAGE_SIZE / sizeof(struct viommu_event),
-> +			       viommu->vqs[VIOMMU_EVENT_VQ]->num_free);
-> +
-> +	evts = devm_kmalloc_array(viommu->dev, nr_evts, sizeof(*evts),
-> +				  GFP_KERNEL);
-> +	if (!evts)
-> +		return -ENOMEM;
-> +
-> +	for (i = 0; i < nr_evts; i++) {
-> +		sg_init_one(sg, &evts[i], sizeof(*evts));
-> +		ret = virtqueue_add_inbuf(vq, sg, 1, &evts[i], GFP_KERNEL);
-who does the deallocation of evts?
-
-Thanks
-
-Eric
-> +		if (ret)
-> +			return ret;
->  	}
->  
-> -	viommu->vq = ret;
-> +	if (!virtqueue_kick(vq))
-> +		return -EPIPE;
-> +
-> +	dev_info(viommu->dev, "%zu event buffers\n", nr_evts);
->  
->  	return 0;
->  }
-> @@ -973,7 +1078,7 @@ static int viommu_probe(struct virtio_device *vdev)
->  	viommu->dev = dev;
->  	viommu->vdev = vdev;
->  
-> -	ret = viommu_init_vq(viommu);
-> +	ret = viommu_init_vqs(viommu);
->  	if (ret)
->  		goto err_free_viommu;
->  
-> @@ -1014,6 +1119,11 @@ static int viommu_probe(struct virtio_device *vdev)
->  
->  	virtio_device_ready(vdev);
->  
-> +	/* Populate the event queue with buffers */
-> +	ret = viommu_fill_evtq(viommu);
-> +	if (ret)
-> +		goto err_free_viommu;
-> +
->  	ret = iommu_device_sysfs_add(&viommu->iommu, dev, NULL, "%s",
->  				     virtio_bus_name(vdev));
->  	if (ret)
-> diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
-> index eec90a2ab547..b57543b4145b 100644
-> --- a/include/uapi/linux/virtio_iommu.h
-> +++ b/include/uapi/linux/virtio_iommu.h
-> @@ -174,4 +174,22 @@ union virtio_iommu_req {
->  	struct virtio_iommu_req_probe		probe;
->  };
->  
-> +/* Fault types */
-> +#define VIRTIO_IOMMU_FAULT_R_UNKNOWN		0
-> +#define VIRTIO_IOMMU_FAULT_R_DOMAIN		1
-> +#define VIRTIO_IOMMU_FAULT_R_MAPPING		2
-> +
-> +#define VIRTIO_IOMMU_FAULT_F_READ		(1 << 0)
-> +#define VIRTIO_IOMMU_FAULT_F_WRITE		(1 << 1)
-> +#define VIRTIO_IOMMU_FAULT_F_EXEC		(1 << 2)
-> +#define VIRTIO_IOMMU_FAULT_F_ADDRESS		(1 << 8)
-> +
-> +struct virtio_iommu_fault {
-> +	__u8					reason;
-> +	__u8					padding[3];
-> +	__le32					flags;
-> +	__le32					endpoint;
-> +	__le64					address;
-> +} __packed;
-> +
->  #endif
-> 
+T24gMTUvMDEvMTggMTU6MTIsIEF1Z2VyIEVyaWMgd3JvdGU6ClsuLi5dCj4+ICsvKgo+PiArICog
+dmlvbW11X2dldF9yZXFfc2l6ZSAtIGNvbXB1dGUgcmVxdWVzdCBzaXplCj4+ICsgKgo+PiArICog
+QSB2aXJ0aW8taW9tbXUgcmVxdWVzdCBpcyBzcGxpdCBpbnRvIG9uZSBkZXZpY2UtcmVhZC1vbmx5
+IHBhcnQgKHRvcCkgYW5kIG9uZQo+PiArICogZGV2aWNlLXdyaXRlLW9ubHkgcGFydCAoYm90dG9t
+KS4gR2l2ZW4gYSByZXF1ZXN0LCByZXR1cm4gdGhlIHNpemVzIG9mIHRoZSB0d28KPj4gKyAqIHBh
+cnRzIGluIEB0b3AgYW5kIEBib3R0b20uCj4gZm9yIGFsbCBidXQgdmlydGlvX2lvbW11X3JlcV9w
+cm9iZSwgd2hpY2ggaGFzIGEgdmFyaWFibGUgYm90dG9tIHNpemUKClRoZSBjb21tZW50IHN0aWxs
+IHN0YW5kcyBmb3IgdGhlIHByb2JlIHJlcXVlc3QsIHZpb21tdV9nZXRfcmVxX3NpemUgd2lsbApy
+ZXR1cm4gQGJvdHRvbSBkZXBlbmRpbmcgb24gdmlvbW11LT5wcm9iZV9zaXplLgoKWy4uLl0KPj4g
+Ky8qIE11c3QgYmUgY2FsbGVkIHdpdGggcmVxdWVzdF9sb2NrIGhlbGQgKi8KPj4gK3N0YXRpYyBp
+bnQgX3Zpb21tdV9zZW5kX3JlcXNfc3luYyhzdHJ1Y3QgdmlvbW11X2RldiAqdmlvbW11LAo+PiAr
+CQkJCSAgc3RydWN0IHZpb21tdV9yZXF1ZXN0ICpyZXEsIGludCBuciwKPj4gKwkJCQkgIGludCAq
+bnJfc2VudCkKPj4gK3sKPj4gKwlpbnQgaSwgcmV0Owo+PiArCWt0aW1lX3QgdGltZW91dDsKPj4g
+KwlMSVNUX0hFQUQocGVuZGluZyk7Cj4+ICsJaW50IG5yX3JlY2VpdmVkID0gMDsKPj4gKwlzdHJ1
+Y3Qgc2NhdHRlcmxpc3QgKnNnWzJdOwo+PiArCS8qCj4+ICsJICogWWVzLCAxcyB0aW1lb3V0LiBB
+cyBhIGd1ZXN0LCB3ZSBkb24ndCBuZWNlc3NhcmlseSBoYXZlIGEgcHJlY2lzZQo+PiArCSAqIG5v
+dGlvbiBvZiB0aW1lIGFuZCB0aGlzIGp1c3QgcHJldmVudHMgbG9ja2luZyB1cCBhIENQVSBpZiB0
+aGUgZGV2aWNlCj4+ICsJICogZGllcy4KPj4gKwkgKi8KPj4gKwl1bnNpZ25lZCBsb25nIHRpbWVv
+dXRfbXMgPSAxMDAwOwo+PiArCj4+ICsJKm5yX3NlbnQgPSAwOwo+PiArCj4+ICsJZm9yIChpID0g
+MDsgaSA8IG5yOyBpKyssIHJlcSsrKSB7Cj4+ICsJCXJlcS0+d3JpdHRlbiA9IDA7Cj4+ICsKPj4g
+KwkJc2dbMF0gPSAmcmVxLT50b3A7Cj4+ICsJCXNnWzFdID0gJnJlcS0+Ym90dG9tOwo+PiArCj4+
+ICsJCXJldCA9IHZpcnRxdWV1ZV9hZGRfc2dzKHZpb21tdS0+dnEsIHNnLCAxLCAxLCByZXEsCj4+
+ICsJCQkJCUdGUF9BVE9NSUMpOwo+PiArCQlpZiAocmV0KQo+PiArCQkJYnJlYWs7Cj4+ICsKPj4g
+KwkJbGlzdF9hZGRfdGFpbCgmcmVxLT5saXN0LCAmcGVuZGluZyk7Cj4+ICsJfQo+PiArCj4+ICsJ
+aWYgKGkgJiYgIXZpcnRxdWV1ZV9raWNrKHZpb21tdS0+dnEpKQo+PiArCQlyZXR1cm4gLUVQSVBF
+Owo+PiArCj4+ICsJdGltZW91dCA9IGt0aW1lX2FkZF9tcyhrdGltZV9nZXQoKSwgdGltZW91dF9t
+cyAqIGkpOwo+IEkgZG9uJ3QgcmVhbGx5IHVuZGVyc3RhbmQgaG93IHlvdSBjaG9vc2UgeW91ciB0
+aW1lb3V0IHZhbHVlOiAxcyBwZXIgc2VudAo+IHJlcXVlc3QuCgoxcyBpc24ndCBhIGdvb2QgdGlt
+ZW91dCB2YWx1ZSwgYnV0IEkgZG9uJ3Qga25vdyB3aGF0J3MgZ29vZC4gSW4gYQpwcm90b3R5cGUg
+SSBoYXZlLCBldmVuIDFzIGlzbid0IGVub3VnaC4gVGhlIGF0dGFjaCByZXF1ZXN0IChmb3IgbmVz
+dGVkCm1vZGUpIHJlcXVpcmVzIG15IGRldmljZSB0byBwaW4gZG93biB0aGUgd2hvbGUgZ3Vlc3Qg
+bWVtb3J5LCBhbmQgdGhlIGd1ZXN0CmVuZHMgdXAgdGltaW5nIG91dCBvbiB0aGUgZmFzdG1vZGVs
+IGJlY2F1c2UgdGhlIHJlcXVlc3QgdGFrZXMgdG9vIGxvbmcgYW5kCnRoZSBtb2RlbCB0aW1lciBy
+dW5zIHRvbyBmYXN0Li4uCgpJIHdhcyB0ZW1wdGVkIHRvIHNpbXBseSByZW1vdmUgdGhpcyB0aW1l
+b3V0LCBidXQgSSBzdGlsbCB0aGluayBoYXZpbmcgYQp3YXkgb3V0IHdoZW4gdGhlIGhvc3QgZGV2
+aWNlIGZhaWxzIGlzIHByZWZlcmFibGUuIE90aGVyd2lzZSB0aGlzCmNvbXBsZXRlbHkgbG9ja3Mg
+dXAgdGhlIENQVS4KCj4+ICsJd2hpbGUgKG5yX3JlY2VpdmVkIDwgaSAmJiBrdGltZV9iZWZvcmUo
+a3RpbWVfZ2V0KCksIHRpbWVvdXQpKSB7Cj4+ICsJCW5yX3JlY2VpdmVkICs9IHZpb21tdV9yZWNl
+aXZlX3Jlc3AodmlvbW11LCBpIC0gbnJfcmVjZWl2ZWQsCj4+ICsJCQkJCQkgICAmcGVuZGluZyk7
+Cj4+ICsJCWlmIChucl9yZWNlaXZlZCA8IGkpIHsKPj4gKwkJCS8qCj4+ICsJCQkgKiBGSVhNRTog
+d2hhdCdzIGEgZ29vZCB3YXkgdG8geWllbGQgdG8gaG9zdD8gQSBzZWNvbmQKPj4gKwkJCSAqIHZp
+cnRxdWV1ZV9raWNrIHdvbid0IGhhdmUgYW55IGVmZmVjdCBzaW5jZSB3ZSBoYXZlbid0Cj4+ICsJ
+CQkgKiBhZGRlZCBhbnkgZGVzY3JpcHRvci4KPj4gKwkJCSAqLwo+PiArCQkJdWRlbGF5KDEwKTsK
+PiBjb3VsZCB5b3UgZXhwbGFpbiB3aHkgdWRlbGF5IGdldHMgdXNlZCBoZXJlPwoKSSB3YXMgaG9w
+aW5nIHRoaXMgY291bGQgc3dpdGNoIHRvIHRoZSBob3N0IHF1aWNrZXIgdGhhbiBjcHVfcmVsYXgo
+KSwKYWxsb3dpbmcgaXQgdG8gaGFuZGxlIHRoZSByZXF1ZXN0IGZhc3RlciAob24gQVJNIHVkZWxh
+eSBjb3VsZCBkbyBXRkUKaW5zdGVhZCBvZiBZSUVMRCkuIFRoZSB2YWx1ZSBpcyBjb21wbGV0ZWx5
+IGFyYml0cmFyeS4KCk1heWJlIEkgY2FuIHJlcGxhY2UgdGhpcyB3aXRoIGNwdV9yZWxheCBmb3Ig
+bm93LiBJJ2QgbGlrZSB0byByZWZpbmUgdGhpcwpmdW5jdGlvbiBhbnl3YXkgd2hlbiB3b3JraW5n
+IG9uIHBlcmZvcm1hbmNlIGltcHJvdmVtZW50cywgYnV0IEknbSBub3QgdG9vCmhvcGVmdWwgd2Un
+bGwgZ2V0IHNvbWV0aGluZyBuaWNlciBoZXJlLgoKWy4uLl0KPj4gKy8qCj4+ICsgKiB2aW9tbXVf
+c2VuZF9yZXFfc3luYyAtIHNlbmQgb25lIHJlcXVlc3QgYW5kIHdhaXQgZm9yIHJlcGx5Cj4+ICsg
+Kgo+PiArICogQHRvcDogcG9pbnRlciB0byBhIHZpcnRpb19pb21tdV9yZXFfKiBzdHJ1Y3R1cmUK
+Pj4gKyAqCj4+ICsgKiBSZXR1cm5zIDAgaWYgdGhlIHJlcXVlc3Qgd2FzIHN1Y2Nlc3NmdWwsIG9y
+IGFuIGVycm9yIG51bWJlciBvdGhlcndpc2UuIE5vCj4+ICsgKiBkaXN0aW5jdGlvbiBpcyBkb25l
+IGJldHdlZW4gdHJhbnNwb3J0IGFuZCByZXF1ZXN0IGVycm9ycy4KPj4gKyAqLwo+PiArc3RhdGlj
+IGludCB2aW9tbXVfc2VuZF9yZXFfc3luYyhzdHJ1Y3QgdmlvbW11X2RldiAqdmlvbW11LCB2b2lk
+ICp0b3ApCj4+ICt7Cj4+ICsJaW50IHJldDsKPj4gKwlpbnQgbnJfc2VudDsKPj4gKwl2b2lkICpi
+b3R0b207Cj4+ICsJc3RydWN0IHZpb21tdV9yZXF1ZXN0IHJlcSA9IHswfTsKPiAgICAgICAgICBe
+Cj4gZHJpdmVycy9pb21tdS92aXJ0aW8taW9tbXUuYzozMjY6OTogd2FybmluZzogKG5lYXIgaW5p
+dGlhbGl6YXRpb24gZm9yCj4g4oCYcmVxLnRvcOKAmSkgWy1XbWlzc2luZy1icmFjZXNdCgpPawoK
+Wy4uLl0KPj4gKy8qCj4+ICsgKiB2aW9tbXVfZGVsX21hcHBpbmdzIC0gcmVtb3ZlIG1hcHBpbmdz
+IGZyb20gdGhlIGludGVybmFsIHRyZWUKPj4gKyAqCj4+ICsgKiBAdmRvbWFpbjogdGhlIGRvbWFp
+bgo+PiArICogQGlvdmE6IHN0YXJ0IG9mIHRoZSByYW5nZQo+PiArICogQHNpemU6IHNpemUgb2Yg
+dGhlIHJhbmdlLiBBIHNpemUgb2YgMCBjb3JyZXNwb25kcyB0byB0aGUgZW50aXJlIGFkZHJlc3MK
+Pj4gKyAqCXNwYWNlLgo+PiArICogQG91dF9tYXBwaW5nOiBpZiBub3QgTlVMTCwgdGhlIGZpcnN0
+IHJlbW92ZWQgbWFwcGluZyBpcyByZXR1cm5lZCBpbiB0aGVyZS4KPj4gKyAqCVRoaXMgYWxsb3dz
+IHRoZSBjYWxsZXIgdG8gcmV1c2UgdGhlIGJ1ZmZlciBmb3IgdGhlIHVubWFwIHJlcXVlc3QuIENh
+bGxlcgo+PiArICoJbXVzdCBhbHdheXMgZnJlZSB0aGUgcmV0dXJuZWQgbWFwcGluZywgd2hldGhl
+ciB0aGUgZnVuY3Rpb24gc3VjY2VlZHMgb3IKPj4gKyAqCW5vdC4KPiBpZiB1bm1hcHBlZCA+IDA/
+CgpPawoKPj4gKyAqCj4+ICsgKiBPbiBzdWNjZXNzLCByZXR1cm5zIHRoZSBudW1iZXIgb2YgdW5t
+YXBwZWQgYnl0ZXMgKD49IHNpemUpCj4+ICsgKi8KPj4gK3N0YXRpYyBzaXplX3QgdmlvbW11X2Rl
+bF9tYXBwaW5ncyhzdHJ1Y3QgdmlvbW11X2RvbWFpbiAqdmRvbWFpbiwKPj4gKwkJCQkgdW5zaWdu
+ZWQgbG9uZyBpb3ZhLCBzaXplX3Qgc2l6ZSwKPj4gKwkJCQkgc3RydWN0IHZpb21tdV9tYXBwaW5n
+ICoqb3V0X21hcHBpbmcpCj4+ICt7Cj4+ICsJc2l6ZV90IHVubWFwcGVkID0gMDsKPj4gKwl1bnNp
+Z25lZCBsb25nIGZsYWdzOwo+PiArCXVuc2lnbmVkIGxvbmcgbGFzdCA9IGlvdmEgKyBzaXplIC0g
+MTsKPj4gKwlzdHJ1Y3QgdmlvbW11X21hcHBpbmcgKm1hcHBpbmcgPSBOVUxMOwo+PiArCXN0cnVj
+dCBpbnRlcnZhbF90cmVlX25vZGUgKm5vZGUsICpuZXh0Owo+PiArCj4+ICsJc3Bpbl9sb2NrX2ly
+cXNhdmUoJnZkb21haW4tPm1hcHBpbmdzX2xvY2ssIGZsYWdzKTsKPj4gKwluZXh0ID0gaW50ZXJ2
+YWxfdHJlZV9pdGVyX2ZpcnN0KCZ2ZG9tYWluLT5tYXBwaW5ncywgaW92YSwgbGFzdCk7Cj4+ICsK
+Pj4gKwlpZiAobmV4dCkgewo+PiArCQltYXBwaW5nID0gY29udGFpbmVyX29mKG5leHQsIHN0cnVj
+dCB2aW9tbXVfbWFwcGluZywgaW92YSk7Cj4+ICsJCS8qIFRyeWluZyB0byBzcGxpdCBhIG1hcHBp
+bmc/ICovCj4+ICsJCWlmIChXQVJOX09OKG1hcHBpbmctPmlvdmEuc3RhcnQgPCBpb3ZhKSkKPj4g
+KwkJCW5leHQgPSBOVUxMOwo+PiArCX0KPj4gKwo+PiArCXdoaWxlIChuZXh0KSB7Cj4+ICsJCW5v
+ZGUgPSBuZXh0Owo+PiArCQltYXBwaW5nID0gY29udGFpbmVyX29mKG5vZGUsIHN0cnVjdCB2aW9t
+bXVfbWFwcGluZywgaW92YSk7Cj4+ICsKPj4gKwkJbmV4dCA9IGludGVydmFsX3RyZWVfaXRlcl9u
+ZXh0KG5vZGUsIGlvdmEsIGxhc3QpOwo+PiArCj4+ICsJCS8qCj4+ICsJCSAqIE5vdGUgdGhhdCBm
+b3IgYSBwYXJ0aWFsIHJhbmdlLCB0aGlzIHdpbGwgcmV0dXJuIHRoZSBmdWxsCj4+ICsJCSAqIG1h
+cHBpbmcgc28gd2UgYXZvaWQgc2VuZGluZyBzcGxpdCByZXF1ZXN0cyB0byB0aGUgZGV2aWNlLgo+
+PiArCQkgKi8KPj4gKwkJdW5tYXBwZWQgKz0gbWFwcGluZy0+aW92YS5sYXN0IC0gbWFwcGluZy0+
+aW92YS5zdGFydCArIDE7Cj4+ICsKPj4gKwkJaW50ZXJ2YWxfdHJlZV9yZW1vdmUobm9kZSwgJnZk
+b21haW4tPm1hcHBpbmdzKTsKPj4gKwo+PiArCQlpZiAob3V0X21hcHBpbmcgJiYgISgqb3V0X21h
+cHBpbmcpKQo+PiArCQkJKm91dF9tYXBwaW5nID0gbWFwcGluZzsKPj4gKwkJZWxzZQo+PiArCQkJ
+a2ZyZWUobWFwcGluZyk7Cj4+ICsJfQo+PiArCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJnZkb21h
+aW4tPm1hcHBpbmdzX2xvY2ssIGZsYWdzKTsKPj4gKwo+PiArCXJldHVybiB1bm1hcHBlZDsKPj4g
+K30KPj4gKwo+PiArLyoKPj4gKyAqIHZpb21tdV9yZXBsYXlfbWFwcGluZ3MgLSByZS1zZW5kIE1B
+UCByZXF1ZXN0cwo+PiArICoKPj4gKyAqIFdoZW4gcmVhdHRhY2hpbmcgYSBkb21haW4gdGhhdCB3
+YXMgcHJldmlvdXNseSBkZXRhY2hlZCBmcm9tIGFsbCBkZXZpY2VzLAo+PiArICogbWFwcGluZ3Mg
+d2VyZSBkZWxldGVkIGZyb20gdGhlIGRldmljZS4gUmUtY3JlYXRlIHRoZSBtYXBwaW5ncyBhdmFp
+bGFibGUgaW4KPj4gKyAqIHRoZSBpbnRlcm5hbCB0cmVlLgo+PiArICoKPj4gKyAqIENhbGxlciBz
+aG91bGQgaG9sZCB0aGUgbWFwcGluZyBsb2NrIGlmIG5lY2Vzc2FyeS4KPiB0aGUgb25seSBjYWxs
+ZXIgZG9lcyBub3QgaG9sZCB0aGUgbG9jay4gQXQgdGhpcyBwb2ludCB3ZSBhcmUgYXR0YWNoaW5n
+Cj4gb3VyIGZpc3J0IGVwIHRvIHRoZSBkb21haW4uIEkgdGhpbmsgaXQgd291bGQgYmUgd29ydGgg
+YSBjb21tZW50IGluIHRoZQo+IGNhbGxlci4KClJpZ2h0CgpbLi4uXQo+PiArCS8qCj4+ICsJICog
+V2hlbiBhdHRhY2hpbmcgdGhlIGRldmljZSB0byBhIG5ldyBkb21haW4sIGl0IHdpbGwgYmUgZGV0
+YWNoZWQgZnJvbQo+PiArCSAqIHRoZSBvbGQgb25lIGFuZCwgaWYgYXMgYXMgYSByZXN1bHQgdGhl
+IG9sZCBkb21haW4gaXNuJ3QgYXR0YWNoZWQgdG8KPiBhcyBhcwo+PiArCSAqIGFueSBkZXZpY2Us
+IGFsbCBtYXBwaW5ncyBhcmUgcmVtb3ZlZCBmcm9tIHRoZSBvbGQgZG9tYWluIGFuZCBpdCBpcwo+
+PiArCSAqIGZyZWVkLiAoTm90ZSB0aGF0IHdlIGNhbid0IHVzZSBnZXRfZG9tYWluX2Zvcl9kZXYg
+aGVyZSwgaXQgcmV0dXJucwo+PiArCSAqIHRoZSBkZWZhdWx0IGRvbWFpbiBkdXJpbmcgaW5pdGlh
+bCBhdHRhY2guKQo+IEkgZG9uJ3Qgc2VlIHdoZXJlIHRoZSBvbGQgZG9tYWluIGlzIGZyZWVkLiBJ
+IHNlZSB5b3UgZGVzY3JlbWVudCB0aGUKPiBlbmRwb2ludHMgcmVmIGNvdW50LiBBbHNvIGlmIHlv
+dSByZXBsYXkgdGhlIG1hcHBpbmcsIEkgZ3Vlc3MgdGhlCj4gbWFwcGluZ3Mgd2VyZSBub3QgZGVz
+dHJveWVkPwoKVGhhdCBjb21tZW50IGFwcGxpZXMgdG8gdGhlIHZpcnRpby1pb21tdSBkb21haW4g
+LSB0aGUgdmlydGlvLWlvbW11CmRldmljZSBuZWVkcyB0byBkZXN0cm95IHRoZSBvbGQgZG9tYWlu
+IHdoZW4gYXR0YWNoaW5nIHRvIGEgbmV3IGRvbWFpbiwKdG8gYXZvaWQgYW55IG1hcHBpbmcgbGVh
+ay4gSSdsbCBjaGFuZ2UgdGhlIGNvbW1lbnQgdG8gY2xhcmlmeSB0aGlzLgoKSW4gdGhlIGtlcm5l
+bCB0aGUgZG9tYWluIGxpZmV0aW1lIGRpZmZlcnMgZnJvbSB0aGUgdmlydGlvLWlvbW11IGRvbWFp
+biwKdGhlIGRldGFjaGVkIGRvbWFpbiBpc24ndCBmcmVlZCB1bnRpbCBzb21lb25lIGNhbGxzIGZy
+ZWVfZG9tYWluKCkKZXhwbGljaXRseToKCi0gSW5pdGlhbGx5IGVhY2ggZGV2aWNlIGlzIGF0dGFj
+aGVkIHRvIHRoZSBkZWZhdWx0IGRvbWFpbiwgdXNlZCBmb3IKICBrZXJuZWwgRE1BLgotIFRoZW4g
+VkZJTyBhdHRhY2hlcyB0aGUgZ3JvdXAgdG8gYSBuZXcgZG9tYWluLiBUaGUgSU9NTVUgY29yZSBj
+YWxscwogIGF0dGFjaF9kZXYoKS4gRGVmYXVsdCBkb21haW4gaXMgZGV0YWNoZWQgYW5kIHRoZSBW
+RklPIGRvbWFpbiBpcwogIGF0dGFjaGVkLgotIFdoZW4gVkZJTyByZW1vdmVzIHRoZSBkZXZpY2Ug
+ZnJvbSBpdHMgY29udGFpbmVyLCB0aGUgSU9NTVUgY29yZQogIGF0dGFjaGVzIHRoZSBkZWZhdWx0
+IGRvbWFpbiBhZ2Fpbi4gVGhlIGRlZmF1bHQgZG9tYWluIG1heSBzdGlsbCBoYXZlCiAgbWFwcGlu
+Z3MgKFNXX01TSSBmb3IgaW5zdGFuY2UpIGJ1dCB0aGUgZGV2aWNlIGRlbGV0ZWQgdGhlbSwgc28g
+dGhleQogIG5lZWQgdG8gYmUgcmVwbGF5ZWQgYWZ0ZXIgdGhlIGF0dGFjaCByZXF1ZXN0LgotIFZG
+SU8gaXNzdWVzIGlvbW11X2RvbWFpbl9mcmVlIHdoZW4gbm8gZ3JvdXAgaXMgYXR0YWNoZWQgdG8g
+dGhlIFZGSU8KICBkb21haW4gYW55bW9yZS4KCj4+ICsJICoKPj4gKwkgKiBUYWtlIG5vdGUgb2Yg
+dGhlIGRldmljZSBkaXNhcHBlYXJpbmcsIHNvIHdlIGNhbiBpZ25vcmUgdW5tYXAgcmVxdWVzdAo+
+PiArCSAqIG9uIHN0YWxlIGRvbWFpbnMgKHRoYXQgaXMsIGJldHdlZW4gdGhpcyBkZXRhY2ggYW5k
+IHRoZSB1cGNvbWluZwo+PiArCSAqIGZyZWUuKQo+PiArCSAqCj4+ICsJICogdmRldi0+dmRvbWFp
+biBpcyBwcm90ZWN0ZWQgYnkgZ3JvdXAtPm11dGV4Cj4+ICsJICovCj4+ICsJaWYgKHZkZXYtPnZk
+b21haW4pCj4+ICsJCXJlZmNvdW50X2RlYygmdmRldi0+dmRvbWFpbi0+ZW5kcG9pbnRzKTsKPj4g
+Kwo+PiArCS8qIERNQSB0byB0aGUgc3RhY2sgaXMgZm9yYmlkZGVuLCBzdG9yZSByZXF1ZXN0IG9u
+IHRoZSBoZWFwICovCj4+ICsJcmVxID0ga3phbGxvYyhzaXplb2YoKnJlcSksIEdGUF9LRVJORUwp
+Owo+PiArCWlmICghcmVxKQo+PiArCQlyZXR1cm4gLUVOT01FTTsKPj4gKwo+PiArCSpyZXEgPSAo
+c3RydWN0IHZpcnRpb19pb21tdV9yZXFfYXR0YWNoKSB7Cj4+ICsJCS5oZWFkLnR5cGUJPSBWSVJU
+SU9fSU9NTVVfVF9BVFRBQ0gsCj4+ICsJCS5kb21haW4JCT0gY3B1X3RvX2xlMzIodmRvbWFpbi0+
+aWQpLAo+PiArCX07Cj4+ICsKPj4gKwlmb3IgKGkgPSAwOyBpIDwgZndzcGVjLT5udW1faWRzOyBp
+KyspIHsKPj4gKwkJcmVxLT5lbmRwb2ludCA9IGNwdV90b19sZTMyKGZ3c3BlYy0+aWRzW2ldKTsK
+Pj4gKwo+PiArCQlyZXQgPSB2aW9tbXVfc2VuZF9yZXFfc3luYyh2ZG9tYWluLT52aW9tbXUsIHJl
+cSk7Cj4+ICsJCWlmIChyZXQpCj4+ICsJCQlicmVhazsKPj4gKwl9Cj4+ICsKPj4gKwlrZnJlZShy
+ZXEpOwo+PiArCj4+ICsJaWYgKHJldCkKPj4gKwkJcmV0dXJuIHJldDsKPj4gKwo+PiArCWlmICgh
+cmVmY291bnRfcmVhZCgmdmRvbWFpbi0+ZW5kcG9pbnRzKSkgewo+PiArCQkvKgo+PiArCQkgKiBU
+aGlzIGVuZHBvaW50IGlzIHRoZSBmaXJzdCB0byBiZSBhdHRhY2hlZCB0byB0aGUgZG9tYWluLgo+
+PiArCQkgKiBSZXBsYXkgZXhpc3RpbmcgbWFwcGluZ3MgaWYgYW55Lgo+PiArCQkgKi8KPj4gKwkJ
+cmV0ID0gdmlvbW11X3JlcGxheV9tYXBwaW5ncyh2ZG9tYWluKTsKPj4gKwkJaWYgKHJldCkKPj4g
+KwkJCXJldHVybiByZXQ7Cj4+ICsJfQo+PiArCj4+ICsJcmVmY291bnRfaW5jKCZ2ZG9tYWluLT5l
+bmRwb2ludHMpOwo+IFRoaXMgZG9lcyBub3Qgd29yayBmb3IgbWUgYXMgdGhlIHJlZiBjb3VudGVy
+IGlzIGluaXRpYWxpemVkIHRvIDAgYW5kCj4gcmVmX2NvdW50IGRvZXMgbm90IHdvcmsgaWYgdGhl
+IGNvdW50ZXIgaXMgMC4gSXQgZW1pdHMgYSBXQVJOX09OIGFuZAo+IHN0YXlzIGF0IDAuIEkgd29y
+a2VkIGFyb3VuZCB0aGUgaXNzdWUgYnkgZXhwbGljaXRseSBzZXR0aW5nCj4gcmVjb3VudF9zZXQo
+JnZkb21haW4tPmVuZHBvaW50cywgMSkgaWYgaXQgd2FzIDAgYW5kIHJlZmZvdW50X2luYyBvdGhl
+cndpc2UuCgpZZXMsIEkgd2VudCBiYWNrIHRvIGEgc2ltcGxlIGludCBpbnN0ZWFkIG9mIHJlZmNv
+dW50CgpbLi4uXQo+PiArCj4+ICtzdHJ1Y3QgdmlydGlvX2lvbW11X2NvbmZpZyB7Cj4+ICsJLyog
+U3VwcG9ydGVkIHBhZ2Ugc2l6ZXMgKi8KPj4gKwlfX3U2NAkJCQkJcGFnZV9zaXplX21hc2s7Cj4g
+R2V0IGEgd2FybmluZwo+IC4vdXNyL2luY2x1ZGUvbGludXgvdmlydGlvX2lvbW11Lmg6NDU6IGZv
+dW5kIF9fW3VzXXs4LDE2LDMyLDY0fSB0eXBlCj4gd2l0aG91dCAjaW5jbHVkZSA8bGludXgvdHlw
+ZXMuaD4KClJpZ2h0LCBhZGRpbmcgSEVBREVSU19DSEVDSyB0byBteSBjb25maWcgOikKClRoYW5r
+cyBhIGxvdCB0aGUgcmV2aWV3LApKZWFuCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
