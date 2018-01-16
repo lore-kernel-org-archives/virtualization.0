@@ -1,16 +1,16 @@
 From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [RFC PATCH v2 2/5] iommu/virtio-iommu: Add probe request
-Date: Tue, 16 Jan 2018 17:46:40 +0000
-Message-ID: <5dbd05b0-aeb2-dcd5-f134-692957db0b39__40023.9239134409$1516124553$gmane$org@arm.com>
+Subject: Re: [RFC PATCH v2 3/5] iommu/virtio-iommu: Add event queue
+Date: Tue, 16 Jan 2018 17:48:15 +0000
+Message-ID: <874c9d45-d2a0-d77b-8606-bd1c13b63032__32193.7237786644$1516124650$gmane$org@arm.com>
 References: <20171117185211.32593-1-jean-philippe.brucker@arm.com>
-	<20171117185211.32593-3-jean-philippe.brucker@arm.com>
-	<d4640ecc-8029-413b-1485-a6062c3b8ece@redhat.com>
+	<20171117185211.32593-4-jean-philippe.brucker@arm.com>
+	<3061e653-38bb-bffa-0f16-43047724a0ae@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <d4640ecc-8029-413b-1485-a6062c3b8ece@redhat.com>
+In-Reply-To: <3061e653-38bb-bffa-0f16-43047724a0ae@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,53 +25,100 @@ To: Auger Eric <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iomm
 Cc: "Jayachandran.Nair@cavium.com" <Jayachandran.Nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "ashok.raj@intel.com" <ashok.raj@intel.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "robert.moore@intel.com" <robert.moore@intel.com>, "lv.zheng@intel.com" <lv.zheng@intel.com>, Sudeep Holla <Sudeep.Holla@arm.com>, "lenb@kernel.org" <lenb@kernel.org>, Robin Murphy <Robin.Murphy@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "hanjun.guo@linaro.org" <hanjun.guo@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTYvMDEvMTggMDk6MjUsIEF1Z2VyIEVyaWMgd3JvdGU6ClsuLi5dCj4+ICtzdGF0aWMgaW50
-IHZpb21tdV9hZGRfcmVzdl9tZW0oc3RydWN0IHZpb21tdV9lbmRwb2ludCAqdmRldiwKPj4gKwkJ
-CSAgICAgICBzdHJ1Y3QgdmlydGlvX2lvbW11X3Byb2JlX3Jlc3ZfbWVtICptZW0sCj4+ICsJCQkg
-ICAgICAgc2l6ZV90IGxlbikKPj4gK3sKPj4gKwlzdHJ1Y3QgaW9tbXVfcmVzdl9yZWdpb24gKnJl
-Z2lvbiA9IE5VTEw7Cj4+ICsJdW5zaWduZWQgbG9uZyBwcm90ID0gSU9NTVVfV1JJVEUgfCBJT01N
-VV9OT0VYRUMgfCBJT01NVV9NTUlPOwo+PiArCj4+ICsJdTY0IGFkZHIgPSBsZTY0X3RvX2NwdSht
-ZW0tPmFkZHIpOwo+PiArCXU2NCBzaXplID0gbGU2NF90b19jcHUobWVtLT5zaXplKTsKPj4gKwo+
-PiArCWlmIChsZW4gPCBzaXplb2YoKm1lbSkpCj4+ICsJCXJldHVybiAtRUlOVkFMOwo+PiArCj4+
-ICsJc3dpdGNoIChtZW0tPnN1YnR5cGUpIHsKPj4gKwljYXNlIFZJUlRJT19JT01NVV9SRVNWX01F
-TV9UX01TSToKPj4gKwkJcmVnaW9uID0gaW9tbXVfYWxsb2NfcmVzdl9yZWdpb24oYWRkciwgc2l6
-ZSwgcHJvdCwKPj4gKwkJCQkJCSBJT01NVV9SRVNWX01TSSk7Cj4+ICsJCWJyZWFrOwo+PiArCWNh
-c2UgVklSVElPX0lPTU1VX1JFU1ZfTUVNX1RfUkVTRVJWRUQ6Cj4+ICsJZGVmYXVsdDoKPj4gKwkJ
-cmVnaW9uID0gaW9tbXVfYWxsb2NfcmVzdl9yZWdpb24oYWRkciwgc2l6ZSwgMCwKPj4gKwkJCQkJ
-CSBJT01NVV9SRVNWX1JFU0VSVkVEKTsKPj4gKwkJYnJlYWs7Cj4+ICsJfQo+PiArCj4+ICsJbGlz
-dF9hZGQoJnZkZXYtPnJlc3ZfcmVnaW9ucywgJnJlZ2lvbi0+bGlzdCk7Cj4+ICsKPj4gKwlpZiAo
-bWVtLT5zdWJ0eXBlICE9IFZJUlRJT19JT01NVV9SRVNWX01FTV9UX1JFU0VSVkVEICYmCj4+ICsJ
-ICAgIG1lbS0+c3VidHlwZSAhPSBWSVJUSU9fSU9NTVVfUkVTVl9NRU1fVF9NU0kpIHsKPj4gKwkJ
-LyogUGxlYXNlIHVwZGF0ZSB5b3VyIGRyaXZlci4gKi8KPj4gKwkJcHJfd2FybigidW5rbm93biBy
-ZXN2IG1lbSBzdWJ0eXBlIDB4JXhcbiIsIG1lbS0+c3VidHlwZSk7Cj4+ICsJCXJldHVybiAtRUlO
-VkFMOwo+PiArCX0KPiB3aHkgbm90IGFkZGluZyB0aGlzIGluIHRoZSBzd2l0Y2ggZGVmYXVsdCBj
-YXNlIGFuZCBkbyBub3QgY2FsbCBsaXN0X2FkZAo+IGluIGNhc2UgdGhlIHN1YnR5cGUgcmVnaW9u
-IGlzIG5vdCByZWNvZ25pemVkPwoKRXZlbiBpZiB0aGUgc3VidHlwZSBpc24ndCByZWNvZ25pemVk
-LCBJIHRoaW5rIHRoZSByYW5nZSBzaG91bGQgc3RpbGwgYmUKcmVzZXJ2ZWQsIHNvIHRoYXQgdGhl
-IGd1ZXN0IGtlcm5lbCBkb2Vzbid0IG1hcCBpdCBhbmQgYnJlYWsgc29tZXRoaW5nLgpUaGF0J3Mg
-d2h5IEkgcHV0IHRoZSBmb2xsb3dpbmcgaW4gdGhlIHNwZWMsIDIuNi44LjIuMSBEcml2ZXIKUmVx
-dWlyZW1lbnRzOiBQcm9wZXJ0eSBSRVNWX01FTToKCiIiIgpUaGUgZHJpdmVyIFNIT1VMRCB0cmVh
-dCBhbnkgc3VidHlwZSBpdCBkb2VzbuKAmXQgcmVjb2duaXplIGFzIGlmIGl0IHdhcwpWSVJUSU9f
-SU9NTVVfUkVTVl9NRU1fVF9SRVNFUlZFRC4KIiIiCgo+PiArCj4+ICsJcmV0dXJuIDA7Cj4+ICt9
-Cj4+ICsKPj4gK3N0YXRpYyBpbnQgdmlvbW11X3Byb2JlX2VuZHBvaW50KHN0cnVjdCB2aW9tbXVf
-ZGV2ICp2aW9tbXUsIHN0cnVjdCBkZXZpY2UgKmRldikKPj4gK3sKPj4gKwlpbnQgcmV0Owo+PiAr
-CXUxNiB0eXBlLCBsZW47Cj4+ICsJc2l6ZV90IGN1ciA9IDA7Cj4+ICsJc3RydWN0IHZpcnRpb19p
-b21tdV9yZXFfcHJvYmUgKnByb2JlOwo+PiArCXN0cnVjdCB2aXJ0aW9faW9tbXVfcHJvYmVfcHJv
-cGVydHkgKnByb3A7Cj4+ICsJc3RydWN0IGlvbW11X2Z3c3BlYyAqZndzcGVjID0gZGV2LT5pb21t
-dV9md3NwZWM7Cj4+ICsJc3RydWN0IHZpb21tdV9lbmRwb2ludCAqdmRldiA9IGZ3c3BlYy0+aW9t
-bXVfcHJpdjsKPj4gKwo+PiArCWlmICghZndzcGVjLT5udW1faWRzKQo+PiArCQkvKiBUcm91Ymxl
-IGFoZWFkLiAqLwo+PiArCQlyZXR1cm4gLUVJTlZBTDsKPj4gKwo+PiArCXByb2JlID0ga3phbGxv
-YyhzaXplb2YoKnByb2JlKSArIHZpb21tdS0+cHJvYmVfc2l6ZSArCj4+ICsJCQlzaXplb2Yoc3Ry
-dWN0IHZpcnRpb19pb21tdV9yZXFfdGFpbCksIEdGUF9LRVJORUwpOwo+PiArCWlmICghcHJvYmUp
-Cj4+ICsJCXJldHVybiAtRU5PTUVNOwo+PiArCj4+ICsJcHJvYmUtPmhlYWQudHlwZSA9IFZJUlRJ
-T19JT01NVV9UX1BST0JFOwo+PiArCS8qCj4+ICsJICogRm9yIG5vdywgYXNzdW1lIHRoYXQgcHJv
-cGVydGllcyBvZiBhbiBlbmRwb2ludCB0aGF0IG91dHB1dHMgbXVsdGlwbGUKPj4gKwkgKiBJRHMg
-YXJlIGNvbnNpc3RlbnQuIE9ubHkgcHJvYmUgdGhlIGZpcnN0IG9uZS4KPj4gKwkgKi8KPj4gKwlw
-cm9iZS0+ZW5kcG9pbnQgPSBjcHVfdG9fbGUzMihmd3NwZWMtPmlkc1swXSk7Cj4+ICsKPj4gKwly
-ZXQgPSB2aW9tbXVfc2VuZF9yZXFfc3luYyh2aW9tbXUsIHByb2JlKTsKPj4gKwlpZiAocmV0KSB7
-Cj4gZ290byBvdXQ/CgpPawoKWy4uLl0KPj4gKwo+PiArCWlvbW11X2RtYV9nZXRfcmVzdl9yZWdp
-b25zKGRldiwgaGVhZCk7Cj4gdGhpcyBjaGFuZ2UgbWF5IGJlbG9uZyB0byB0aGUgMXN0IHBhdGNo
-LgoKSW5kZWVkCgpUaGFua3MsCkplYW4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 16/01/18 10:10, Auger Eric wrote:
+> Hi,
+> 
+> On 17/11/17 19:52, Jean-Philippe Brucker wrote:
+>> The event queue offers a way for the device to report access faults from
+>> devices.
+> end points?
+
+Yes
+
+[...]
+>> +static void viommu_event_handler(struct virtqueue *vq)
+>> +{
+>> +	int ret;
+>> +	unsigned int len;
+>> +	struct scatterlist sg[1];
+>> +	struct viommu_event *evt;
+>> +	struct viommu_dev *viommu = vq->vdev->priv;
+>> +
+>> +	while ((evt = virtqueue_get_buf(vq, &len)) != NULL) {
+>> +		if (len > sizeof(*evt)) {
+>> +			dev_err(viommu->dev,
+>> +				"invalid event buffer (len %u != %zu)\n",
+>> +				len, sizeof(*evt));
+>> +		} else if (!(evt->head & VIOMMU_FAULT_RESV_MASK)) {
+>> +			viommu_fault_handler(viommu, &evt->fault);
+>> +		}
+>> +
+>> +		sg_init_one(sg, evt, sizeof(*evt));
+> in case of above error case, ie. len > sizeof(*evt), is it safe to push
+> evt again?
+
+I think it is, len is just what the device reports as written. The above
+error would be a device bug, very unlikely and not worth a special
+treatment (freeing the buffer), maybe not even worth the dev_err()
+actually.
+
+>> +		ret = virtqueue_add_inbuf(vq, sg, 1, evt, GFP_ATOMIC);
+>> +		if (ret)
+>> +			dev_err(viommu->dev, "could not add event buffer\n");
+>> +	}
+>> +
+>> +	if (!virtqueue_kick(vq))
+>> +		dev_err(viommu->dev, "kick failed\n");
+>> +}
+>> +
+>>  /* IOMMU API */
+>>  
+>>  static bool viommu_capable(enum iommu_cap cap)
+>> @@ -938,19 +1018,44 @@ static struct iommu_ops viommu_ops = {
+>>  	.put_resv_regions	= viommu_put_resv_regions,
+>>  };
+>>  
+>> -static int viommu_init_vq(struct viommu_dev *viommu)
+>> +static int viommu_init_vqs(struct viommu_dev *viommu)
+>>  {
+>>  	struct virtio_device *vdev = dev_to_virtio(viommu->dev);
+>> -	const char *name = "request";
+>> -	void *ret;
+>> +	const char *names[] = { "request", "event" };
+>> +	vq_callback_t *callbacks[] = {
+>> +		NULL, /* No async requests */
+>> +		viommu_event_handler,
+>> +	};
+>> +
+>> +	return virtio_find_vqs(vdev, VIOMMU_NUM_VQS, viommu->vqs, callbacks,
+>> +			       names, NULL);
+>> +}
+>>  
+>> -	ret = virtio_find_single_vq(vdev, NULL, name);
+>> -	if (IS_ERR(ret)) {
+>> -		dev_err(viommu->dev, "cannot find VQ\n");
+>> -		return PTR_ERR(ret);
+>> +static int viommu_fill_evtq(struct viommu_dev *viommu)
+>> +{
+>> +	int i, ret;
+>> +	struct scatterlist sg[1];
+>> +	struct viommu_event *evts;
+>> +	struct virtqueue *vq = viommu->vqs[VIOMMU_EVENT_VQ];
+>> +	size_t nr_evts = min_t(size_t, PAGE_SIZE / sizeof(struct viommu_event),
+>> +			       viommu->vqs[VIOMMU_EVENT_VQ]->num_free);
+>> +
+>> +	evts = devm_kmalloc_array(viommu->dev, nr_evts, sizeof(*evts),
+>> +				  GFP_KERNEL);
+>> +	if (!evts)
+>> +		return -ENOMEM;
+>> +
+>> +	for (i = 0; i < nr_evts; i++) {
+>> +		sg_init_one(sg, &evts[i], sizeof(*evts));
+>> +		ret = virtqueue_add_inbuf(vq, sg, 1, &evts[i], GFP_KERNEL);
+> who does the deallocation of evts?
+
+I think it should be viommu_remove, which should also remove the
+virtqueues. I'll add this.
+
+Thanks,
+Jean
