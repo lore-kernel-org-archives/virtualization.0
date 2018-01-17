@@ -1,11 +1,14 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: [PATCH v2 net-next] virtio_net: Add ethtool stats
-Date: Wed, 17 Jan 2018 15:38:25 +0900
-Message-ID: <1516171105-2483-1-git-send-email-makita.toshiaki__45785.6531757445$1516171172$gmane$org@lab.ntt.co.jp>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [PATCH v22 2/3] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
+Date: Wed, 17 Jan 2018 03:21:11 -0500 (EST)
+Message-ID: <1003745745.1007975.1516177271163.JavaMail.zimbra__6312.04797323353$1516177183$gmane$org@redhat.com>
+References: <1516165812-3995-1-git-send-email-wei.w.wang@intel.com>
+	<1516165812-3995-3-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1516165812-3995-3-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,381 +18,396 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "David S . Miller" <davem@davemloft.net>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Florian Fainelli <f.fainelli@gmail.com>
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang zhang wz <yang.zhang.wz@gmail.com>, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan xu0 <quan.xu0@gmail.com>, kvm@vger.kernel.org, mst@redhat.com, nilal@redhat.com, liliang opensource <liliang.opensource@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The main purpose of this patch is adding a way of checking per-queue stats.
-It's useful to debug performance problems on multiqueue environment.
 
-$ ethtool -S ens10
-NIC statistics:
-     rx_queue_0_packets: 2090408
-     rx_queue_0_bytes: 3164825094
-     rx_queue_1_packets: 2082531
-     rx_queue_1_bytes: 3152932314
-     tx_queue_0_packets: 2770841
-     tx_queue_0_bytes: 4194955474
-     tx_queue_1_packets: 3084697
-     tx_queue_1_bytes: 4670196372
-
-This change converts existing per-cpu stats structure into per-queue one.
-This should not impact on performance since each queue counter is not
-updated concurrently by multiple cpus.
-
-Performance numbers:
- - Guest has 2 vcpus and 2 queues
- - Guest runs netserver
- - Host runs 100-flow super_netperf
-
-                     Before      After       Diff
-UDP_STREAM 18byte        86.22       87.00   +0.90%
-UDP_STREAM 1472byte    4055.27     4042.18   -0.32%
-TCP_STREAM            16956.32    16890.63   -0.39%
-UDP_RR               178667.11   185862.70   +4.03%
-TCP_RR               128473.04   124985.81   -2.71%
-
-Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
----
-v2:
-- Removed redundant counters which can be obtained from dev_get_stats.
-- Made queue counter structure different for tx and rx so they can be
-  easily extended separately, as some additional counters are expected
-  like XDP related ones and VM-Exit event.
-- Added performance numbers in commitlog.
-
- drivers/net/virtio_net.c | 191 ++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 141 insertions(+), 50 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 12dfc5f..626c273 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -66,16 +66,39 @@
- 	VIRTIO_NET_F_GUEST_UFO
- };
+> 
+> Negotiation of the VIRTIO_BALLOON_F_FREE_PAGE_VQ feature indicates the
+> support of reporting hints of guest free pages to host via virtio-balloon.
+> 
+> Host requests the guest to report free pages by sending a new cmd
+> id to the guest via the free_page_report_cmd_id configuration register.
+> 
+> When the guest starts to report, the first element added to the free page
+> vq is the cmd id given by host. When the guest finishes the reporting
+> of all the free pages, VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID is added
+> to the vq to tell host that the reporting is done. Host may also requests
+> the guest to stop the reporting in advance by sending the stop cmd id to
+> the guest via the configuration register.
+> 
+> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> Signed-off-by: Liang Li <liang.z.li@intel.com>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> ---
+>  drivers/virtio/virtio_balloon.c     | 242
+>  +++++++++++++++++++++++++++++++-----
+>  include/uapi/linux/virtio_balloon.h |   4 +
+>  2 files changed, 214 insertions(+), 32 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c
+> b/drivers/virtio/virtio_balloon.c
+> index a1fb52c..b9561a5 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -53,7 +53,12 @@ static struct vfsmount *balloon_mnt;
+>  
+>  struct virtio_balloon {
+>  	struct virtio_device *vdev;
+> -	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
+> +	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *free_page_vq;
+> +
+> +	/* Balloon's own wq for cpu-intensive work items */
+> +	struct workqueue_struct *balloon_wq;
+> +	/* The free page reporting work item submitted to the balloon wq */
+> +	struct work_struct report_free_page_work;
+>  
+>  	/* The balloon servicing is delegated to a freezable workqueue. */
+>  	struct work_struct update_balloon_stats_work;
+> @@ -63,6 +68,13 @@ struct virtio_balloon {
+>  	spinlock_t stop_update_lock;
+>  	bool stop_update;
+>  
+> +	/* Start to report free pages */
+> +	bool report_free_page;
+> +	/* Stores the cmd id given by host to start the free page reporting */
+> +	uint32_t start_cmd_id;
+> +	/* Stores STOP_ID as a sign to tell host that the reporting is done */
+> +	uint32_t stop_cmd_id;
+> +
+>  	/* Waiting for host to ack the pages we released. */
+>  	wait_queue_head_t acked;
+>  
+> @@ -281,6 +293,71 @@ static unsigned int update_balloon_stats(struct
+> virtio_balloon *vb)
+>  	return idx;
+>  }
+>  
+> +static void add_one_sg(struct virtqueue *vq, unsigned long pfn, uint32_t
+> len)
+> +{
+> +	struct scatterlist sg;
+> +	unsigned int unused;
+> +	int err;
+> +
+> +	sg_init_table(&sg, 1);
+> +	sg_set_page(&sg, pfn_to_page(pfn), len, 0);
+> +
+> +	/* Detach all the used buffers from the vq */
+> +	while (virtqueue_get_buf(vq, &unused))
+> +		;
+> +
+> +	/*
+> +	 * Since this is an optimization feature, losing a couple of free
+> +	 * pages to report isn't important. We simply resturn without adding
+> +	 * the page if the vq is full. We are adding one entry each time,
+> +	 * which essentially results in no memory allocation, so the
+> +	 * GFP_KERNEL flag below can be ignored.
+> +	 */
+> +	if (vq->num_free) {
+> +		err = virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
+> +		/*
+> +		 * This is expected to never fail, because there is always an
+> +		 * entry available on the vq.
+> +		 */
+> +		BUG_ON(err);
+> +	}
+> +}
+> +
+> +static void batch_free_page_sg(struct virtqueue *vq,
+> +			       unsigned long pfn,
+> +			       uint32_t len)
+> +{
+> +	add_one_sg(vq, pfn, len);
+> +
+> +	/* Batch till the vq is full */
+> +	if (!vq->num_free)
+> +		virtqueue_kick(vq);
+> +}
+> +
+> +static void send_cmd_id(struct virtqueue *vq, void *addr)
+> +{
+> +	struct scatterlist sg;
+> +	unsigned int unused;
+> +	int err;
+> +
+> +	sg_init_one(&sg, addr, sizeof(uint32_t));
+> +
+> +	/*
+> +	 * This handles the cornercase that the vq happens to be full when
+> +	 * adding a cmd id. Rarely happen in practice.
+> +	 */
+> +	while (!vq->num_free)
+> +		virtqueue_get_buf(vq, &unused);
+> +
+> +	err = virtqueue_add_outbuf(vq, &sg, 1, vq, GFP_KERNEL);
+> +	/*
+> +	 * This is expected to never fail, because there is always an
+> +	 * entry available on the vq.
+> +	 */
+> +	BUG_ON(err);
+> +	virtqueue_kick(vq);
+> +}
+> +
+>  /*
+>   * While most virtqueues communicate guest-initiated requests to the
+>   hypervisor,
+>   * the stats queue operates in reverse.  The driver initializes the
+>   virtqueue
+> @@ -316,17 +393,6 @@ static void stats_handle_request(struct virtio_balloon
+> *vb)
+>  	virtqueue_kick(vq);
+>  }
+>  
+> -static void virtballoon_changed(struct virtio_device *vdev)
+> -{
+> -	struct virtio_balloon *vb = vdev->priv;
+> -	unsigned long flags;
+> -
+> -	spin_lock_irqsave(&vb->stop_update_lock, flags);
+> -	if (!vb->stop_update)
+> -		queue_work(system_freezable_wq, &vb->update_balloon_size_work);
+> -	spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+> -}
+> -
+>  static inline s64 towards_target(struct virtio_balloon *vb)
+>  {
+>  	s64 target;
+> @@ -343,6 +409,36 @@ static inline s64 towards_target(struct virtio_balloon
+> *vb)
+>  	return target - vb->num_pages;
+>  }
+>  
+> +static void virtballoon_changed(struct virtio_device *vdev)
+> +{
+> +	struct virtio_balloon *vb = vdev->priv;
+> +	unsigned long flags;
+> +	__u32 cmd_id;
+> +	s64 diff = towards_target(vb);
+> +
+> +	if (diff) {
+> +		spin_lock_irqsave(&vb->stop_update_lock, flags);
+> +		if (!vb->stop_update)
+> +			queue_work(system_freezable_wq,
+> +				   &vb->update_balloon_size_work);
+> +		spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+> +	}
+> +
+> +	virtio_cread(vb->vdev, struct virtio_balloon_config,
+> +		     free_page_report_cmd_id, &cmd_id);
+> +	if (cmd_id == VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID) {
+> +		WRITE_ONCE(vb->report_free_page, false);
+> +	} else if (cmd_id != vb->start_cmd_id) {
+> +		/*
+> +		 * Host requests to start the reporting by sending a new cmd
+> +		 * id.
+> +		 */
+> +		WRITE_ONCE(vb->report_free_page, true);
+> +		vb->start_cmd_id = cmd_id;
+> +		queue_work(vb->balloon_wq, &vb->report_free_page_work);
+> +	}
+> +}
+> +
+>  static void update_balloon_size(struct virtio_balloon *vb)
+>  {
+>  	u32 actual = vb->num_pages;
+> @@ -417,40 +513,113 @@ static void update_balloon_size_func(struct
+> work_struct *work)
+>  
+>  static int init_vqs(struct virtio_balloon *vb)
+>  {
+> -	struct virtqueue *vqs[3];
+> -	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
+> -	static const char * const names[] = { "inflate", "deflate", "stats" };
+> -	int err, nvqs;
+> +	struct virtqueue **vqs;
+> +	vq_callback_t **callbacks;
+> +	const char **names;
+> +	struct scatterlist sg;
+> +	int i, nvqs, err = -ENOMEM;
+> +
+> +	/* Inflateq and deflateq are used unconditionally */
+> +	nvqs = 2;
+> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ))
+> +		nvqs++;
+> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ))
+> +		nvqs++;
+> +
+> +	/* Allocate space for find_vqs parameters */
+> +	vqs = kcalloc(nvqs, sizeof(*vqs), GFP_KERNEL);
+> +	if (!vqs)
+> +		goto err_vq;
+> +	callbacks = kmalloc_array(nvqs, sizeof(*callbacks), GFP_KERNEL);
+> +	if (!callbacks)
+> +		goto err_callback;
+> +	names = kmalloc_array(nvqs, sizeof(*names), GFP_KERNEL);
+> +	if (!names)
+> +		goto err_names;
+> +
+> +	callbacks[0] = balloon_ack;
+> +	names[0] = "inflate";
+> +	callbacks[1] = balloon_ack;
+> +	names[1] = "deflate";
+> +
+> +	i = 2;
+> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+> +		callbacks[i] = stats_request;
+> +		names[i] = "stats";
+> +		i++;
+> +	}
+>  
+> -	/*
+> -	 * We expect two virtqueues: inflate and deflate, and
+> -	 * optionally stat.
+> -	 */
+> -	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
+> -	err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
+> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ)) {
+> +		callbacks[i] = NULL;
+> +		names[i] = "free_page_vq";
+> +	}
+> +
+> +	err = vb->vdev->config->find_vqs(vb->vdev, nvqs, vqs, callbacks, names,
+> +					 NULL, NULL);
+>  	if (err)
+> -		return err;
+> +		goto err_find;
+>  
+>  	vb->inflate_vq = vqs[0];
+>  	vb->deflate_vq = vqs[1];
+> +	i = 2;
+>  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+> -		struct scatterlist sg;
+> -		unsigned int num_stats;
+> -		vb->stats_vq = vqs[2];
+> -
+> +		vb->stats_vq = vqs[i++];
+>  		/*
+>  		 * Prime this virtqueue with one buffer so the hypervisor can
+>  		 * use it to signal us later (it can't be broken yet!).
+>  		 */
+> -		num_stats = update_balloon_stats(vb);
+> -
+> -		sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
+> +		sg_init_one(&sg, vb->stats, sizeof(vb->stats));
+>  		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
+> -		    < 0)
+> -			BUG();
+> +		    < 0) {
+> +			dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
+> +				 __func__);
+> +			goto err_find;
+> +		}
+>  		virtqueue_kick(vb->stats_vq);
+>  	}
+> +
+> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ))
+> +		vb->free_page_vq = vqs[i];
+> +
+> +	kfree(names);
+> +	kfree(callbacks);
+> +	kfree(vqs);
+>  	return 0;
  
--struct virtnet_stats {
--	struct u64_stats_sync tx_syncp;
--	struct u64_stats_sync rx_syncp;
--	u64 tx_bytes;
--	u64 tx_packets;
--
--	u64 rx_bytes;
--	u64 rx_packets;
-+struct virtnet_stat_desc {
-+	char desc[ETH_GSTRING_LEN];
-+	size_t offset;
- };
+We can assign err=0 and remove above duplicate code?
  
-+struct virtnet_sq_stats {
-+	struct u64_stats_sync syncp;
-+	u64 packets;
-+	u64 bytes;
-+};
-+
-+struct virtnet_rq_stats {
-+	struct u64_stats_sync syncp;
-+	u64 packets;
-+	u64 bytes;
-+};
-+
-+#define VIRTNET_SQ_STAT(m)	offsetof(struct virtnet_sq_stats, m)
-+#define VIRTNET_RQ_STAT(m)	offsetof(struct virtnet_rq_stats, m)
-+
-+static const struct virtnet_stat_desc virtnet_sq_stats_desc[] = {
-+	{ "packets",	VIRTNET_SQ_STAT(packets) },
-+	{ "bytes",	VIRTNET_SQ_STAT(bytes) },
-+};
-+
-+static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
-+	{ "packets",	VIRTNET_RQ_STAT(packets) },
-+	{ "bytes",	VIRTNET_RQ_STAT(bytes) },
-+};
-+
-+#define VIRTNET_SQ_STATS_LEN	ARRAY_SIZE(virtnet_sq_stats_desc)
-+#define VIRTNET_RQ_STATS_LEN	ARRAY_SIZE(virtnet_rq_stats_desc)
-+
- /* Internal representation of a send virtqueue */
- struct send_queue {
- 	/* Virtqueue associated with this send _queue */
-@@ -87,6 +110,8 @@ struct send_queue {
- 	/* Name of the send queue: output.$index */
- 	char name[40];
- 
-+	struct virtnet_sq_stats stats;
-+
- 	struct napi_struct napi;
- };
- 
-@@ -99,6 +124,8 @@ struct receive_queue {
- 
- 	struct bpf_prog __rcu *xdp_prog;
- 
-+	struct virtnet_rq_stats stats;
-+
- 	/* Chain pages by the private ptr. */
- 	struct page *pages;
- 
-@@ -152,9 +179,6 @@ struct virtnet_info {
- 	/* Packet virtio header size */
- 	u8 hdr_len;
- 
--	/* Active statistics */
--	struct virtnet_stats __percpu *stats;
--
- 	/* Work struct for refilling if we run low on memory. */
- 	struct delayed_work refill;
- 
-@@ -1127,7 +1151,6 @@ static int virtnet_receive(struct receive_queue *rq, int budget, bool *xdp_xmit)
- 	struct virtnet_info *vi = rq->vq->vdev->priv;
- 	unsigned int len, received = 0, bytes = 0;
- 	void *buf;
--	struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
- 
- 	if (!vi->big_packets || vi->mergeable_rx_bufs) {
- 		void *ctx;
-@@ -1150,10 +1173,10 @@ static int virtnet_receive(struct receive_queue *rq, int budget, bool *xdp_xmit)
- 			schedule_delayed_work(&vi->refill, 0);
- 	}
- 
--	u64_stats_update_begin(&stats->rx_syncp);
--	stats->rx_bytes += bytes;
--	stats->rx_packets += received;
--	u64_stats_update_end(&stats->rx_syncp);
-+	u64_stats_update_begin(&rq->stats.syncp);
-+	rq->stats.bytes += bytes;
-+	rq->stats.packets += received;
-+	u64_stats_update_end(&rq->stats.syncp);
- 
- 	return received;
- }
-@@ -1162,8 +1185,6 @@ static void free_old_xmit_skbs(struct send_queue *sq)
- {
- 	struct sk_buff *skb;
- 	unsigned int len;
--	struct virtnet_info *vi = sq->vq->vdev->priv;
--	struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
- 	unsigned int packets = 0;
- 	unsigned int bytes = 0;
- 
-@@ -1182,10 +1203,10 @@ static void free_old_xmit_skbs(struct send_queue *sq)
- 	if (!packets)
- 		return;
- 
--	u64_stats_update_begin(&stats->tx_syncp);
--	stats->tx_bytes += bytes;
--	stats->tx_packets += packets;
--	u64_stats_update_end(&stats->tx_syncp);
-+	u64_stats_update_begin(&sq->stats.syncp);
-+	sq->stats.bytes += bytes;
-+	sq->stats.packets += packets;
-+	u64_stats_update_end(&sq->stats.syncp);
- }
- 
- static void virtnet_poll_cleantx(struct receive_queue *rq)
-@@ -1474,24 +1495,25 @@ static void virtnet_stats(struct net_device *dev,
- 			  struct rtnl_link_stats64 *tot)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	int cpu;
- 	unsigned int start;
-+	int i;
- 
--	for_each_possible_cpu(cpu) {
--		struct virtnet_stats *stats = per_cpu_ptr(vi->stats, cpu);
-+	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		u64 tpackets, tbytes, rpackets, rbytes;
-+		struct receive_queue *rq = &vi->rq[i];
-+		struct send_queue *sq = &vi->sq[i];
- 
- 		do {
--			start = u64_stats_fetch_begin_irq(&stats->tx_syncp);
--			tpackets = stats->tx_packets;
--			tbytes   = stats->tx_bytes;
--		} while (u64_stats_fetch_retry_irq(&stats->tx_syncp, start));
-+			start = u64_stats_fetch_begin_irq(&sq->stats.syncp);
-+			tpackets = sq->stats.packets;
-+			tbytes   = sq->stats.bytes;
-+		} while (u64_stats_fetch_retry_irq(&sq->stats.syncp, start));
- 
- 		do {
--			start = u64_stats_fetch_begin_irq(&stats->rx_syncp);
--			rpackets = stats->rx_packets;
--			rbytes   = stats->rx_bytes;
--		} while (u64_stats_fetch_retry_irq(&stats->rx_syncp, start));
-+			start = u64_stats_fetch_begin_irq(&rq->stats.syncp);
-+			rpackets = rq->stats.packets;
-+			rbytes   = rq->stats.bytes;
-+		} while (u64_stats_fetch_retry_irq(&rq->stats.syncp, start));
- 
- 		tot->rx_packets += rpackets;
- 		tot->tx_packets += tpackets;
-@@ -1829,6 +1851,83 @@ static int virtnet_set_channels(struct net_device *dev,
- 	return err;
- }
- 
-+static void virtnet_get_strings(struct net_device *dev, u32 stringset, u8 *data)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	char *p = (char *)data;
-+	unsigned int i, j;
-+
-+	switch (stringset) {
-+	case ETH_SS_STATS:
-+		for (i = 0; i < vi->curr_queue_pairs; i++) {
-+			for (j = 0; j < VIRTNET_RQ_STATS_LEN; j++) {
-+				snprintf(p, ETH_GSTRING_LEN, "rx_queue_%u_%s",
-+					 i, virtnet_rq_stats_desc[j].desc);
-+				p += ETH_GSTRING_LEN;
-+			}
-+		}
-+
-+		for (i = 0; i < vi->curr_queue_pairs; i++) {
-+			for (j = 0; j < VIRTNET_SQ_STATS_LEN; j++) {
-+				snprintf(p, ETH_GSTRING_LEN, "tx_queue_%u_%s",
-+					 i, virtnet_sq_stats_desc[j].desc);
-+				p += ETH_GSTRING_LEN;
-+			}
-+		}
-+		break;
-+	}
-+}
-+
-+static int virtnet_get_sset_count(struct net_device *dev, int sset)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+
-+	switch (sset) {
-+	case ETH_SS_STATS:
-+		return vi->curr_queue_pairs * (VIRTNET_RQ_STATS_LEN +
-+					       VIRTNET_SQ_STATS_LEN);
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+}
-+
-+static void virtnet_get_ethtool_stats(struct net_device *dev,
-+				      struct ethtool_stats *stats, u64 *data)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	unsigned int idx = 0, start, i, j;
-+	const u8 *stats_base;
-+	size_t offset;
-+
-+	for (i = 0; i < vi->curr_queue_pairs; i++) {
-+		struct receive_queue *rq = &vi->rq[i];
-+
-+		stats_base = (u8 *)&rq->stats;
-+		do {
-+			start = u64_stats_fetch_begin_irq(&rq->stats.syncp);
-+			for (j = 0; j < VIRTNET_RQ_STATS_LEN; j++) {
-+				offset = virtnet_rq_stats_desc[j].offset;
-+				data[idx + j] = *(u64 *)(stats_base + offset);
-+			}
-+		} while (u64_stats_fetch_retry_irq(&rq->stats.syncp, start));
-+		idx += VIRTNET_RQ_STATS_LEN;
-+	}
-+
-+	for (i = 0; i < vi->curr_queue_pairs; i++) {
-+		struct send_queue *sq = &vi->sq[i];
-+
-+		stats_base = (u8 *)&sq->stats;
-+		do {
-+			start = u64_stats_fetch_begin_irq(&sq->stats.syncp);
-+			for (j = 0; j < VIRTNET_SQ_STATS_LEN; j++) {
-+				offset = virtnet_sq_stats_desc[j].offset;
-+				data[idx + j] = *(u64 *)(stats_base + offset);
-+			}
-+		} while (u64_stats_fetch_retry_irq(&sq->stats.syncp, start));
-+		idx += VIRTNET_SQ_STATS_LEN;
-+	}
-+}
-+
- static void virtnet_get_channels(struct net_device *dev,
- 				 struct ethtool_channels *channels)
- {
-@@ -1928,6 +2027,9 @@ static void virtnet_update_settings(struct virtnet_info *vi)
- 	.get_drvinfo = virtnet_get_drvinfo,
- 	.get_link = ethtool_op_get_link,
- 	.get_ringparam = virtnet_get_ringparam,
-+	.get_strings = virtnet_get_strings,
-+	.get_sset_count = virtnet_get_sset_count,
-+	.get_ethtool_stats = virtnet_get_ethtool_stats,
- 	.set_channels = virtnet_set_channels,
- 	.get_channels = virtnet_get_channels,
- 	.get_ts_info = ethtool_op_get_ts_info,
-@@ -2420,6 +2522,9 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
- 		sg_init_table(vi->rq[i].sg, ARRAY_SIZE(vi->rq[i].sg));
- 		ewma_pkt_len_init(&vi->rq[i].mrg_avg_pkt_len);
- 		sg_init_table(vi->sq[i].sg, ARRAY_SIZE(vi->sq[i].sg));
-+
-+		u64_stats_init(&vi->rq[i].stats.syncp);
-+		u64_stats_init(&vi->sq[i].stats.syncp);
- 	}
- 
- 	return 0;
-@@ -2544,7 +2649,7 @@ static int virtnet_validate(struct virtio_device *vdev)
- 
- static int virtnet_probe(struct virtio_device *vdev)
- {
--	int i, err;
-+	int i, err = -ENOMEM;
- 	struct net_device *dev;
- 	struct virtnet_info *vi;
- 	u16 max_queue_pairs;
-@@ -2621,17 +2726,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	vi->dev = dev;
- 	vi->vdev = vdev;
- 	vdev->priv = vi;
--	vi->stats = alloc_percpu(struct virtnet_stats);
--	err = -ENOMEM;
--	if (vi->stats == NULL)
--		goto free;
--
--	for_each_possible_cpu(i) {
--		struct virtnet_stats *virtnet_stats;
--		virtnet_stats = per_cpu_ptr(vi->stats, i);
--		u64_stats_init(&virtnet_stats->tx_syncp);
--		u64_stats_init(&virtnet_stats->rx_syncp);
--	}
- 
- 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
- 
-@@ -2668,7 +2762,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 			 */
- 			dev_err(&vdev->dev, "device MTU appears to have changed "
- 				"it is now %d < %d", mtu, dev->min_mtu);
--			goto free_stats;
-+			goto free;
- 		}
- 
- 		dev->mtu = mtu;
-@@ -2692,7 +2786,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
- 	err = init_vqs(vi);
- 	if (err)
--		goto free_stats;
-+		goto free;
- 
- #ifdef CONFIG_SYSFS
- 	if (vi->mergeable_rx_bufs)
-@@ -2747,8 +2841,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	cancel_delayed_work_sync(&vi->refill);
- 	free_receive_page_frags(vi);
- 	virtnet_del_vqs(vi);
--free_stats:
--	free_percpu(vi->stats);
- free:
- 	free_netdev(dev);
- 	return err;
-@@ -2781,7 +2873,6 @@ static void virtnet_remove(struct virtio_device *vdev)
- 
- 	remove_vq_common(vi);
- 
--	free_percpu(vi->stats);
- 	free_netdev(vi->dev);
- }
- 
--- 
-1.8.3.1
+> +
+> +err_find:
+> +	kfree(names);
+> +err_names:
+> +	kfree(callbacks);
+> +err_callback:
+> +	kfree(vqs);
+> +err_vq:
+> +	return err;
+> +}
+> +
+> +static bool virtio_balloon_send_free_pages(void *opaque, unsigned long pfn,
+> +					   unsigned long nr_pages)
+> +{
+> +	struct virtio_balloon *vb = (struct virtio_balloon *)opaque;
+> +	uint32_t len = nr_pages << PAGE_SHIFT;
+> +
+> +	if (!READ_ONCE(vb->report_free_page))
+> +		return false;
+> +
+> +	batch_free_page_sg(vb->free_page_vq, pfn, len);
+> +
+> +	return true;
+> +}
+> +
+> +static void report_free_page_func(struct work_struct *work)
+> +{
+> +	struct virtio_balloon *vb;
+> +
+> +	vb = container_of(work, struct virtio_balloon, report_free_page_work);
+> +	/* Start by sending the obtained cmd id to the host with an outbuf */
+> +	send_cmd_id(vb->free_page_vq, &vb->start_cmd_id);
+> +	walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
+> +	/* End by sending the stop id to the host with an outbuf */
+> +	send_cmd_id(vb->free_page_vq, &vb->stop_cmd_id);
+>  }
+>  
+>  #ifdef CONFIG_BALLOON_COMPACTION
+> @@ -566,6 +735,13 @@ static int virtballoon_probe(struct virtio_device *vdev)
+>  	if (err)
+>  		goto out_free_vb;
+>  
+> +	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ)) {
+> +		vb->balloon_wq = alloc_workqueue("balloon-wq",
+> +					WQ_FREEZABLE | WQ_CPU_INTENSIVE, 0);
+> +		INIT_WORK(&vb->report_free_page_work, report_free_page_func);
+> +		vb->stop_cmd_id = VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID;
+> +	}
+> +
+>  	vb->nb.notifier_call = virtballoon_oom_notify;
+>  	vb->nb.priority = VIRTBALLOON_OOM_NOTIFY_PRIORITY;
+>  	err = register_oom_notifier(&vb->nb);
+> @@ -630,6 +806,7 @@ static void virtballoon_remove(struct virtio_device
+> *vdev)
+>  	spin_unlock_irq(&vb->stop_update_lock);
+>  	cancel_work_sync(&vb->update_balloon_size_work);
+>  	cancel_work_sync(&vb->update_balloon_stats_work);
+> +	cancel_work_sync(&vb->report_free_page_work);
+>  
+>  	remove_common(vb);
+>  #ifdef CONFIG_BALLOON_COMPACTION
+> @@ -682,6 +859,7 @@ static unsigned int features[] = {
+>  	VIRTIO_BALLOON_F_MUST_TELL_HOST,
+>  	VIRTIO_BALLOON_F_STATS_VQ,
+>  	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
+> +	VIRTIO_BALLOON_F_FREE_PAGE_VQ,
+>  };
+>  
+>  static struct virtio_driver virtio_balloon_driver = {
+> diff --git a/include/uapi/linux/virtio_balloon.h
+> b/include/uapi/linux/virtio_balloon.h
+> index 343d7dd..55e2456 100644
+> --- a/include/uapi/linux/virtio_balloon.h
+> +++ b/include/uapi/linux/virtio_balloon.h
+> @@ -34,15 +34,19 @@
+>  #define VIRTIO_BALLOON_F_MUST_TELL_HOST	0 /* Tell before reclaiming pages */
+>  #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
+>  #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
+> +#define VIRTIO_BALLOON_F_FREE_PAGE_VQ	3 /* VQ to report free pages */
+>  
+>  /* Size of a PFN in the balloon interface. */
+>  #define VIRTIO_BALLOON_PFN_SHIFT 12
+>  
+> +#define VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID		0
+>  struct virtio_balloon_config {
+>  	/* Number of pages host wants Guest to give up. */
+>  	__u32 num_pages;
+>  	/* Number of pages we've actually got in balloon. */
+>  	__u32 actual;
+> +	/* Free page report command id, readonly by guest */
+> +	__u32 free_page_report_cmd_id;
+>  };
+>  
+>  #define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
+> --
+> 2.7.4
+> 
+> 
