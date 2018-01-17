@@ -1,17 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Subject: Re: [virtio-dev] [RFC PATCH net-next v2 1/2] virtio_net: Introduce
 	VIRTIO_NET_F_BACKUP feature bit
-Date: Wed, 17 Jan 2018 21:02:00 +0200
-Message-ID: <20180117203757-mutt-send-email-mst__13568.1649590426$1516215646$gmane$org@kernel.org>
+Date: Wed, 17 Jan 2018 11:25:41 -0800
+Message-ID: <058068e5-febd-92c8-e5a9-faf262b82335__28664.4585351043$1516217049$gmane$org@intel.com>
 References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
 	<1515736720-39368-2-git-send-email-sridhar.samudrala@intel.com>
 	<CAKgT0Uc8bRoAsXYSr7k27gf5+vh7rF2Dd_kWNB1d38tpZAeRGg@mail.gmail.com>
+	<20180117203757-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAKgT0Uc8bRoAsXYSr7k27gf5+vh7rF2Dd_kWNB1d38tpZAeRGg@mail.gmail.com>
+In-Reply-To: <20180117203757-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,83 +22,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Duyck <alexander.duyck@gmail.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Alexander Duyck <alexander.duyck@gmail.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 17, 2018 at 10:15:52AM -0800, Alexander Duyck wrote:
-> On Thu, Jan 11, 2018 at 9:58 PM, Sridhar Samudrala
-> <sridhar.samudrala@intel.com> wrote:
-> > This feature bit can be used by hypervisor to indicate virtio_net device to
-> > act as a backup for another device with the same MAC address.
-> >
-> > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
-> > ---
-> >  drivers/net/virtio_net.c        | 2 +-
-> >  include/uapi/linux/virtio_net.h | 3 +++
-> >  2 files changed, 4 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 12dfc5fee58e..f149a160a8c5 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -2829,7 +2829,7 @@ static struct virtio_device_id id_table[] = {
-> >         VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
-> >         VIRTIO_NET_F_CTRL_MAC_ADDR, \
-> >         VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
-> > -       VIRTIO_NET_F_SPEED_DUPLEX
-> > +       VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_BACKUP
-> >
-> >  static unsigned int features[] = {
-> >         VIRTNET_FEATURES,
-> > diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> > index 5de6ed37695b..c7c35fd1a5ed 100644
-> > --- a/include/uapi/linux/virtio_net.h
-> > +++ b/include/uapi/linux/virtio_net.h
-> > @@ -57,6 +57,9 @@
-> >                                          * Steering */
-> >  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23  /* Set MAC address */
-> >
-> > +#define VIRTIO_NET_F_BACKUP      62    /* Act as backup for another device
-> > +                                        * with the same MAC.
-> > +                                        */
-> >  #define VIRTIO_NET_F_SPEED_DUPLEX 63   /* Device set linkspeed and duplex */
-> >
-> >  #ifndef VIRTIO_NET_NO_LEGACY
-> 
-> I'm not a huge fan of the name "backup" since that implies that the
-> Virtio interface is only used if the VF is not present, and there are
-> multiple instances such as dealing with east/west or
-> broadcast/multicast traffic where it may be desirable to use the
-> para-virtual interface rather then deal with PCI overhead/bottleneck
-> to send the packet.
-
-Right now hypervisors mostly expect that yes, only one at a time is
-used.  E.g. if you try to do multicast sending packets on both VF and
-virtio then you will end up with two copies of each packet.
-
-To me the east/west scenario looks like you want something
-more similar to a bridge on top of the virtio/PT pair.
-
-So I suspect that use-case will need a separate configuration bit,
-and possibly that's when you will want something more powerful
-such as a full bridge.
-
-
-> What if instead of BACKUP we used the name SIDE_CHANNEL? Basically it
-> is a bit of double entendre as we are using the physical MAC address
-> to provide configuration information, and then in addition this
-> interface acts as a secondary channel for passing frames to and from
-> the guest rather than just using the VF.
-> 
-> Just a thought.
-> 
-> Thanks.
-> 
-> - Alex
-
-I just feel that's a very generic name, not conveying enough information
-about how they hypervisor expects the pair of devices to be used.
-
--- 
-MST
+CgpPbiAxLzE3LzIwMTggMTE6MDIgQU0sIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBX
+ZWQsIEphbiAxNywgMjAxOCBhdCAxMDoxNTo1MkFNIC0wODAwLCBBbGV4YW5kZXIgRHV5Y2sgd3Jv
+dGU6Cj4+IE9uIFRodSwgSmFuIDExLCAyMDE4IGF0IDk6NTggUE0sIFNyaWRoYXIgU2FtdWRyYWxh
+Cj4+IDxzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5jb20+IHdyb3RlOgo+Pj4gVGhpcyBmZWF0dXJl
+IGJpdCBjYW4gYmUgdXNlZCBieSBoeXBlcnZpc29yIHRvIGluZGljYXRlIHZpcnRpb19uZXQgZGV2
+aWNlIHRvCj4+PiBhY3QgYXMgYSBiYWNrdXAgZm9yIGFub3RoZXIgZGV2aWNlIHdpdGggdGhlIHNh
+bWUgTUFDIGFkZHJlc3MuCj4+Pgo+Pj4gU2lnbmVkLW9mZi1ieTogU3JpZGhhciBTYW11ZHJhbGEg
+PHNyaWRoYXIuc2FtdWRyYWxhQGludGVsLmNvbT4KPj4+IC0tLQo+Pj4gICBkcml2ZXJzL25ldC92
+aXJ0aW9fbmV0LmMgICAgICAgIHwgMiArLQo+Pj4gICBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlv
+X25ldC5oIHwgMyArKysKPj4+ICAgMiBmaWxlcyBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKyksIDEg
+ZGVsZXRpb24oLSkKPj4+Cj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5j
+IGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4+PiBpbmRleCAxMmRmYzVmZWU1OGUuLmYxNDlh
+MTYwYThjNSAxMDA2NDQKPj4+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+Pj4gKysr
+IGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4+PiBAQCAtMjgyOSw3ICsyODI5LDcgQEAgc3Rh
+dGljIHN0cnVjdCB2aXJ0aW9fZGV2aWNlX2lkIGlkX3RhYmxlW10gPSB7Cj4+PiAgICAgICAgICBW
+SVJUSU9fTkVUX0ZfR1VFU1RfQU5OT1VOQ0UsIFZJUlRJT19ORVRfRl9NUSwgXAo+Pj4gICAgICAg
+ICAgVklSVElPX05FVF9GX0NUUkxfTUFDX0FERFIsIFwKPj4+ICAgICAgICAgIFZJUlRJT19ORVRf
+Rl9NVFUsIFZJUlRJT19ORVRfRl9DVFJMX0dVRVNUX09GRkxPQURTLCBcCj4+PiAtICAgICAgIFZJ
+UlRJT19ORVRfRl9TUEVFRF9EVVBMRVgKPj4+ICsgICAgICAgVklSVElPX05FVF9GX1NQRUVEX0RV
+UExFWCwgVklSVElPX05FVF9GX0JBQ0tVUAo+Pj4KPj4+ICAgc3RhdGljIHVuc2lnbmVkIGludCBm
+ZWF0dXJlc1tdID0gewo+Pj4gICAgICAgICAgVklSVE5FVF9GRUFUVVJFUywKPj4+IGRpZmYgLS1n
+aXQgYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX25ldC5oIGIvaW5jbHVkZS91YXBpL2xpbnV4
+L3ZpcnRpb19uZXQuaAo+Pj4gaW5kZXggNWRlNmVkMzc2OTViLi5jN2MzNWZkMWE1ZWQgMTAwNjQ0
+Cj4+PiAtLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX25ldC5oCj4+PiArKysgYi9pbmNs
+dWRlL3VhcGkvbGludXgvdmlydGlvX25ldC5oCj4+PiBAQCAtNTcsNiArNTcsOSBAQAo+Pj4gICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKiBTdGVlcmluZyAqLwo+Pj4g
+ICAjZGVmaW5lIFZJUlRJT19ORVRfRl9DVFJMX01BQ19BRERSIDIzICAvKiBTZXQgTUFDIGFkZHJl
+c3MgKi8KPj4+Cj4+PiArI2RlZmluZSBWSVJUSU9fTkVUX0ZfQkFDS1VQICAgICAgNjIgICAgLyog
+QWN0IGFzIGJhY2t1cCBmb3IgYW5vdGhlciBkZXZpY2UKPj4+ICsgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgKiB3aXRoIHRoZSBzYW1lIE1BQy4KPj4+ICsgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKi8KPj4+ICAgI2RlZmluZSBWSVJUSU9fTkVU
+X0ZfU1BFRURfRFVQTEVYIDYzICAgLyogRGV2aWNlIHNldCBsaW5rc3BlZWQgYW5kIGR1cGxleCAq
+Lwo+Pj4KPj4+ICAgI2lmbmRlZiBWSVJUSU9fTkVUX05PX0xFR0FDWQo+PiBJJ20gbm90IGEgaHVn
+ZSBmYW4gb2YgdGhlIG5hbWUgImJhY2t1cCIgc2luY2UgdGhhdCBpbXBsaWVzIHRoYXQgdGhlCj4+
+IFZpcnRpbyBpbnRlcmZhY2UgaXMgb25seSB1c2VkIGlmIHRoZSBWRiBpcyBub3QgcHJlc2VudCwg
+YW5kIHRoZXJlIGFyZQo+PiBtdWx0aXBsZSBpbnN0YW5jZXMgc3VjaCBhcyBkZWFsaW5nIHdpdGgg
+ZWFzdC93ZXN0IG9yCj4+IGJyb2FkY2FzdC9tdWx0aWNhc3QgdHJhZmZpYyB3aGVyZSBpdCBtYXkg
+YmUgZGVzaXJhYmxlIHRvIHVzZSB0aGUKPj4gcGFyYS12aXJ0dWFsIGludGVyZmFjZSByYXRoZXIg
+dGhlbiBkZWFsIHdpdGggUENJIG92ZXJoZWFkL2JvdHRsZW5lY2sKPj4gdG8gc2VuZCB0aGUgcGFj
+a2V0Lgo+IFJpZ2h0IG5vdyBoeXBlcnZpc29ycyBtb3N0bHkgZXhwZWN0IHRoYXQgeWVzLCBvbmx5
+IG9uZSBhdCBhIHRpbWUgaXMKPiB1c2VkLiAgRS5nLiBpZiB5b3UgdHJ5IHRvIGRvIG11bHRpY2Fz
+dCBzZW5kaW5nIHBhY2tldHMgb24gYm90aCBWRiBhbmQKPiB2aXJ0aW8gdGhlbiB5b3Ugd2lsbCBl
+bmQgdXAgd2l0aCB0d28gY29waWVzIG9mIGVhY2ggcGFja2V0LgoKSSB0aGluayB3ZSB3YW50IHRv
+IHVzZSBvbmx5IDEgaW50ZXJmYWNlIHRvwqAgc2VuZCBvdXQgYW55IHBhY2tldC4gSW4gY2FzZSBv
+Zgpicm9hZGNhc3QvbXVsdGljYXN0cyBpdCB3b3VsZCBiZSBhbiBvcHRpbWl6YXRpb24gdG8gc2Vu
+ZCB0aGVtIHZpYSB2aXJ0aW8gYW5kCnRoaXMgcGF0Y2ggc2VyaWVzIGFkZHMgdGhhdCBvcHRpbWl6
+YXRpb24uCgpJbiB0aGUgcmVjZWl2ZSBwYXRoLMKgIHRoZSBicm9hZGNhc3RzIHNob3VsZCBvbmx5
+IGdvIHRoZSBQRiBhbmQgcmVhY2ggdGhlIFZNCnZpYSB2aXRpbyBzbyB0aGF0IHRoZSBWTSBkb2Vz
+bid0IHNlZSBkdXBsaWNhdGUgYnJvYWRjYXN0cy4KCgo+Cj4gVG8gbWUgdGhlIGVhc3Qvd2VzdCBz
+Y2VuYXJpbyBsb29rcyBsaWtlIHlvdSB3YW50IHNvbWV0aGluZwo+IG1vcmUgc2ltaWxhciB0byBh
+IGJyaWRnZSBvbiB0b3Agb2YgdGhlIHZpcnRpby9QVCBwYWlyLgo+Cj4gU28gSSBzdXNwZWN0IHRo
+YXQgdXNlLWNhc2Ugd2lsbCBuZWVkIGEgc2VwYXJhdGUgY29uZmlndXJhdGlvbiBiaXQsCj4gYW5k
+IHBvc3NpYmx5IHRoYXQncyB3aGVuIHlvdSB3aWxsIHdhbnQgc29tZXRoaW5nIG1vcmUgcG93ZXJm
+dWwKPiBzdWNoIGFzIGEgZnVsbCBicmlkZ2UuCgplYXN0LXdlc3Qgb3B0aW1pemF0aW9uIG9mIHVu
+aWNhc3RzIHdvdWxkIGJlIGEgaGFyZGVyIHByb2JsZW0gdG8gc29sdmUgYXMKc29tZWhvdyB0aGUg
+aHlwZXJ2aXNvciBuZWVkcyB0byBpbmRpY2F0ZSB0aGUgVk0gYWJvdXQgdGhlIGxvY2FsIGRlc3Qu
+IG1hY3MKCj4KPgo+PiBXaGF0IGlmIGluc3RlYWQgb2YgQkFDS1VQIHdlIHVzZWQgdGhlIG5hbWUg
+U0lERV9DSEFOTkVMPyBCYXNpY2FsbHkgaXQKPj4gaXMgYSBiaXQgb2YgZG91YmxlIGVudGVuZHJl
+IGFzIHdlIGFyZSB1c2luZyB0aGUgcGh5c2ljYWwgTUFDIGFkZHJlc3MKPj4gdG8gcHJvdmlkZSBj
+b25maWd1cmF0aW9uIGluZm9ybWF0aW9uLCBhbmQgdGhlbiBpbiBhZGRpdGlvbiB0aGlzCj4+IGlu
+dGVyZmFjZSBhY3RzIGFzIGEgc2Vjb25kYXJ5IGNoYW5uZWwgZm9yIHBhc3NpbmcgZnJhbWVzIHRv
+IGFuZCBmcm9tCj4+IHRoZSBndWVzdCByYXRoZXIgdGhhbiBqdXN0IHVzaW5nIHRoZSBWRi4KPj4K
+Pj4gSnVzdCBhIHRob3VnaHQuCj4+Cj4+IFRoYW5rcy4KPj4KPj4gLSBBbGV4Cj4gSSBqdXN0IGZl
+ZWwgdGhhdCdzIGEgdmVyeSBnZW5lcmljIG5hbWUsIG5vdCBjb252ZXlpbmcgZW5vdWdoIGluZm9y
+bWF0aW9uCj4gYWJvdXQgaG93IHRoZXkgaHlwZXJ2aXNvciBleHBlY3RzIHRoZSBwYWlyIG9mIGRl
+dmljZXMgdG8gYmUgdXNlZC4KPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
