@@ -1,13 +1,12 @@
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
-Subject: [BUG] skcipher: Test 1 failed (invalid result) on encryption for
-	cts(virtio_crypto_aes_cbc)
-Date: Thu, 18 Jan 2018 10:08:04 +0100
-Message-ID: <20180118090804.GB1988@Red>
+From: "webist@insticc.info" <webist@insticc.info>
+Subject: CFP WEBIST 2018 - 14th Int.l Conf. on Web Information Systems and
+	Technologies (Seville/Spain)
+Date: 18 Jan 2018 17:17:59 +0000
+Message-ID: <20180118171801.1.1CD27E7ED65F9E93@insticc.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,14 +16,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, arei.gonglei@huawei.com, herbert@gondor.apana.org.au, davem@davemloft.net
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello
-
-When modprobing tcrypt on a qemu virtual machine, I get the following trace in dmesg:
-skcipher: Test 1 failed (invalid result) on encryption for cts(virtio_crypto_aes_cbc)
-
-Regards
-Corentin Labbe
+U1VCTUlTU0lPTiBERUFETElORSAKCjE0dGggSW50ZXJuYXRpb25hbCBDb25mZXJlbmNlIG9uIFdl
+YiBJbmZvcm1hdGlvbiBTeXN0ZW1zIGFuZCBUZWNobm9sb2dpZXMKClN1Ym1pc3Npb24gRGVhZGxp
+bmU6IE1heSAyLCAyMDE4CgpodHRwOi8vd3d3LndlYmlzdC5vcmcvCgpTZXB0ZW1iZXIgMTggLSAy
+MCwgMjAxOApTZXZpbGxlLCBTcGFpbi4KCiBXRUJJU1QgaXMgb3JnYW5pemVkIGluIDUgbWFqb3Ig
+dHJhY2tzOgoKIC0gSW50ZXJuZXQgVGVjaG5vbG9neQogLSBNb2JpbGUgYW5kIE5MUCBJbmZvcm1h
+dGlvbiBTeXN0ZW1zCiAtIFNlcnZpY2UgQmFzZWQgSW5mb3JtYXRpb24gU3lzdGVtcywgUGxhdGZv
+cm1zIGFuZCBFY28tU3lzdGVtcwogLSBXZWIgSW50ZWxsaWdlbmNlCiAtIFdlYiBJbnRlcmZhY2Vz
+CgoKIApBIHNob3J0IGxpc3Qgb2YgcHJlc2VudGVkIHBhcGVycyB3aWxsIGJlIHNlbGVjdGVkIHNv
+IHRoYXQgcmV2aXNlZCBhbmQgZXh0ZW5kZWQgdmVyc2lvbnMgb2YgdGhlc2UgcGFwZXJzIHdpbGwg
+YmUgcHVibGlzaGVkIGJ5IFNwcmluZ2VyLgogCkFsbCBwYXBlcnMgcHJlc2VudGVkIGF0IHRoZSBj
+b25ncmVzcyB2ZW51ZSB3aWxsIGFsc28gYmUgYXZhaWxhYmxlIGF0IHRoZSBTQ0lURVBSRVNTIERp
+Z2l0YWwgTGlicmFyeSAoaHR0cDovL3d3dy5zY2l0ZXByZXNzLm9yZy9EaWdpdGFsTGlicmFyeS8p
+LgogIApTaG91bGQgeW91IGhhdmUgYW55IHF1ZXN0aW9uIHBsZWFzZSBkb27igJl0IGhlc2l0YXRl
+IGNvbnRhY3RpbmcgbWUuCiAKCktpbmQgcmVnYXJkcywKV0VCSVNUIFNlY3JldGFyaWF0CgpBZGRy
+ZXNzOiBBdi4gRC4gTWFudWVsIEksIDI3QSwgMsK6IGVzcS4KMjkxMC01OTUgU2V0dWJhbCwgUG9y
+dHVnYWwKVGVsOiArMzUxIDI2NSAxMDAgMDMzCkZheDogKzM1MSAyNjUgNTIwIDE4NgpXZWI6IGh0
+dHA6Ly93d3cud2ViaXN0Lm9yZy8KZS1tYWlsOiB3ZWJpc3Quc2VjcmV0YXJpYXRAaW5zdGljYy5v
+cmcKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
