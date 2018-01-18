@@ -1,12 +1,17 @@
-From: "phycs@insticc.info" <phycs@insticc.info>
-Subject: CFP PhyCS 2018 - 5th Int.l Conf. on Physiological Computing Systems
-	(Seville/Spain)
-Date: 18 Jan 2018 17:18:18 +0000
-Message-ID: <20180118171820.1.28CE6F41931C1D4E@insticc.info>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v22 2/3] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
+Date: Thu, 18 Jan 2018 21:09:08 +0200
+Message-ID: <20180118210239-mutt-send-email-mst@kernel.org>
+References: <1516165812-3995-1-git-send-email-wei.w.wang@intel.com>
+	<1516165812-3995-3-git-send-email-wei.w.wang@intel.com>
+	<20180117180337-mutt-send-email-mst@kernel.org>
+	<2bb0e3d9-1679-9ad3-b402-f0781f6cf094@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <2bb0e3d9-1679-9ad3-b402-f0781f6cf094@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,28 +21,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U1VCTUlTU0lPTiBERUFETElORSAKCjV0aCBJbnRlcm5hdGlvbmFsIENvbmZlcmVuY2Ugb24gUGh5
-c2lvbG9naWNhbCBDb21wdXRpbmcgU3lzdGVtcwoKU3VibWlzc2lvbiBEZWFkbGluZTogTWF5IDIs
-IDIwMTgKCmh0dHA6Ly93d3cucGh5Y3Mub3JnLwoKU2VwdGVtYmVyIDE5IC0gMjEsIDIwMTgKU2V2
-aWxsZSwgU3BhaW4uCgogUGh5Q1MgaXMgb3JnYW5pemVkIGluIDQgbWFqb3IgdHJhY2tzOgoKIC0g
-RGV2aWNlcwogLSBNZXRob2RvbG9naWVzIGFuZCBNZXRob2RzCiAtIEh1bWFuIEZhY3RvcnMKIC0g
-QXBwbGljYXRpb25zCgoKIApXaXRoIHRoZSBwcmVzZW5jZSBvZiBpbnRlcm5hdGlvbmFsbHkgZGlz
-dGluZ3Vpc2hlZCBrZXlub3RlIHNwZWFrZXJzOgpFZHVhcmRvIFJvY29uLCBDb25zZWpvIFN1cGVy
-aW9yIGRlIEludmVzdGlnYWNpb25lcyBDaWVudMOtZmljYXMsIFNwYWluCkx1Y2FzIE5vbGR1cywg
-Tm9sZHVzIEluZm9ybWF0aW9uIFRlY2hub2xvZ3kgYnYsIE5ldGhlcmxhbmRzCgoKQSBzaG9ydCBs
-aXN0IG9mIHByZXNlbnRlZCBwYXBlcnMgd2lsbCBiZSBzZWxlY3RlZCBzbyB0aGF0IHJldmlzZWQg
-YW5kIGV4dGVuZGVkIHZlcnNpb25zIG9mIHRoZXNlIHBhcGVycyB3aWxsIGJlIHB1Ymxpc2hlZCBi
-eSBTcHJpbmdlci4KIApBbGwgcGFwZXJzIHByZXNlbnRlZCBhdCB0aGUgY29uZ3Jlc3MgdmVudWUg
-d2lsbCBhbHNvIGJlIGF2YWlsYWJsZSBhdCB0aGUgU0NJVEVQUkVTUyBEaWdpdGFsIExpYnJhcnkg
-KGh0dHA6Ly93d3cuc2NpdGVwcmVzcy5vcmcvRGlnaXRhbExpYnJhcnkvKS4KICAKU2hvdWxkIHlv
-dSBoYXZlIGFueSBxdWVzdGlvbiBwbGVhc2UgZG9u4oCZdCBoZXNpdGF0ZSBjb250YWN0aW5nIG1l
-LgogCgpLaW5kIHJlZ2FyZHMsClBoeUNTIFNlY3JldGFyaWF0CgpBZGRyZXNzOiBBdi4gRC4gTWFu
-dWVsIEksIDI3QSwgMsK6IGVzcS4KMjkxMC01OTUgU2V0dWJhbCwgUG9ydHVnYWwKVGVsOiArMzUx
-IDI2NSA1MjAgMTg0CkZheDogKzM1MSAyNjUgNTIwIDE4NgpXZWI6IGh0dHA6Ly93d3cucGh5Y3Mu
-b3JnLwplLW1haWw6IHBoeWNzLnNlY3JldGFyaWF0QGluc3RpY2Mub3JnCgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, Jan 18, 2018 at 10:30:18PM +0900, Tetsuo Handa wrote:
+> On 2018/01/18 1:44, Michael S. Tsirkin wrote:
+> >> +static void add_one_sg(struct virtqueue *vq, unsigned long pfn, uint32_t len)
+> >> +{
+> >> +	struct scatterlist sg;
+> >> +	unsigned int unused;
+> >> +	int err;
+> >> +
+> >> +	sg_init_table(&sg, 1);
+> >> +	sg_set_page(&sg, pfn_to_page(pfn), len, 0);
+> >> +
+> >> +	/* Detach all the used buffers from the vq */
+> >> +	while (virtqueue_get_buf(vq, &unused))
+> >> +		;
+> >> +
+> >> +	/*
+> >> +	 * Since this is an optimization feature, losing a couple of free
+> >> +	 * pages to report isn't important.
+> >> We simply resturn
+> > 
+> > return
+> > 
+> >> without adding
+> >> +	 * the page if the vq is full. We are adding one entry each time,
+> >> +	 * which essentially results in no memory allocation, so the
+> >> +	 * GFP_KERNEL flag below can be ignored.
+> >> +	 */
+> >> +	if (vq->num_free) {
+> >> +		err = virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
+> > 
+> > Should we kick here? At least when ring is close to
+> > being full. Kick at half way full?
+> > Otherwise it's unlikely ring will
+> > ever be cleaned until we finish the scan.
+> 
+> Since this add_one_sg() is called between spin_lock_irqsave(&zone->lock, flags)
+> and spin_unlock_irqrestore(&zone->lock, flags), it is not permitted to sleep.
+
+kick takes a while sometimes but it doesn't sleep.
+
+> And walk_free_mem_block() is not ready to handle resume.
+> 
+> By the way, specifying GFP_KERNEL here is confusing even though it is never used.
+> walk_free_mem_block() says:
+> 
+>   * The callback itself must not sleep or perform any operations which would
+>   * require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
+>   * or via any lock dependency. 
+
+Yea, GFP_ATOMIC would do just as well. But I think any allocation
+on this path would be problematic.
+
+How about a flag to make all allocations fail?
+
+E.g. 
+
+#define GFP_FORBIDDEN (___GFP_DMA | ___GFP_HIGHMEM)
+
+Still this is not a blocker, we can worry about this later.
+
+
+> > 
+> >> +		/*
+> >> +		 * This is expected to never fail, because there is always an
+> >> +		 * entry available on the vq.
+> >> +		 */
+> >> +		BUG_ON(err);
+> >> +	}
+> >> +}
