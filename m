@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v22 2/3] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
-Date: Fri, 19 Jan 2018 14:39:27 +0200
-Message-ID: <20180119143517-mutt-send-email-mst__45168.2808962234$1516365484$gmane$org@kernel.org>
-References: <1516165812-3995-1-git-send-email-wei.w.wang@intel.com>
-	<1516165812-3995-3-git-send-email-wei.w.wang@intel.com>
-	<20180117180337-mutt-send-email-mst@kernel.org>
-	<5A616995.4050702@intel.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [RFC PATCH v2 2/5] iommu/virtio-iommu: Add probe request
+Date: Fri, 19 Jan 2018 16:21:52 +0000
+Message-ID: <b9ede9e9-25a6-2848-e152-ffc61d560be8__40648.3955834576$1516378662$gmane$org@arm.com>
+References: <20171117185211.32593-1-jean-philippe.brucker@arm.com>
+	<20171117185211.32593-3-jean-philippe.brucker@arm.com>
+	<5b236aaa-4abb-2cac-1c74-f8137a0c2244@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5A616995.4050702@intel.com>
+In-Reply-To: <5b236aaa-4abb-2cac-1c74-f8137a0c2244@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,258 +20,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org
+To: Auger Eric <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "devel@acpica.org" <devel@acpica.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
+Cc: "Jayachandran.Nair@cavium.com" <Jayachandran.Nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "ashok.raj@intel.com" <ashok.raj@intel.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "robert.moore@intel.com" <robert.moore@intel.com>, "lv.zheng@intel.com" <lv.zheng@intel.com>, Sudeep Holla <Sudeep.Holla@arm.com>, "lenb@kernel.org" <lenb@kernel.org>, Robin Murphy <Robin.Murphy@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "hanjun.guo@linaro.org" <hanjun.guo@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 19, 2018 at 11:44:21AM +0800, Wei Wang wrote:
-> On 01/18/2018 12:44 AM, Michael S. Tsirkin wrote:
-> > On Wed, Jan 17, 2018 at 01:10:11PM +0800, Wei Wang wrote:
-> > 
-> 
-> > 
-> > > +{
-> > > +	struct scatterlist sg;
-> > > +	unsigned int unused;
-> > > +	int err;
-> > > +
-> > > +	sg_init_one(&sg, addr, sizeof(uint32_t));
-> > This passes a guest-endian value to host. This is a problem:
-> > should always pass LE values.
-> 
-> I think the endianness is handled when virtqueue_add_outbuf():
-> 
-> desc[i].addr = cpu_to_virtio64(_vq->vdev, addr);
-> 
-> right?
+On 16/01/18 23:26, Auger Eric wrote:
+[...]
+>> +	switch (mem->subtype) {
+>> +	case VIRTIO_IOMMU_RESV_MEM_T_MSI:
+>> +		region = iommu_alloc_resv_region(addr, size, prot,
+>> +						 IOMMU_RESV_MSI);
+> if (!region)
+> 	return -ENOMEM;
+>> +		break;
+>> +	case VIRTIO_IOMMU_RESV_MEM_T_RESERVED:
+>> +	default:
+>> +		region = iommu_alloc_resv_region(addr, size, 0,
+>> +						 IOMMU_RESV_RESERVED);
+> same.
 
+I'll add them, thanks
 
-No - that handles the address, not the value you pass in.
+> There is another issue related to the exclusion of iovas belonging to
+> reserved regions. Typically on x86, when attempting to run
+> virtio-blk-pci with iommu I eventually saw the driver using iova
+> belonging to the IOAPIC regions to map phys addr and this stalled qemu
+> with a drown trace:
+> 
+> "virtio: bogus descriptor or out of resources"
+> 
+> those regions need to be excluded from the iova allocator. This was
+> resolved by adding
+> if (iommu_dma_init_domain(domain,
+> 			  vdev->viommu->geometry.aperture_start,
+> 			  vdev->viommu->geometry.aperture_end,
+> 			  dev))
+> in viommu_attach_dev()
 
+The most recent hack for x86 [1] does call iommu_dma_init_domain() in
+attach_dev(). Is it buggy?
 
-> > 
-> > > +
-> > > +	/*
-> > > +	 * This handles the cornercase that the vq happens to be full when
-> > > +	 * adding a cmd id. Rarely happen in practice.
-> > > +	 */
-> > > +	while (!vq->num_free)
-> > > +		virtqueue_get_buf(vq, &unused);
-> > I dislike this busy-waiting. It's a hint after all -
-> > why not just retry later - hopefully after getting an
-> > interrupt?
-> > 
-> > Alternatively, stop adding more entries when we have a single
-> > ring entry left, making sure we have space for the command.
-> 
-> I think the second one looks good. Thanks.
-> 
-> > > +			queue_work(system_freezable_wq,
-> > > +				   &vb->update_balloon_size_work);
-> > > +		spin_unlock_irqrestore(&vb->stop_update_lock, flags);
-> > > +	}
-> > > +
-> > > +	virtio_cread(vb->vdev, struct virtio_balloon_config,
-> > > +		     free_page_report_cmd_id, &cmd_id);
-> > You want virtio_cread_feature, don't access the new field
-> > if the feature has not been negotiated.
-> 
-> Right. We probably need to put all the following cmd id related things under
-> the feature check,
-> 
-> How about
-> 
-> if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ)) {
->     virtio_cread(..);
->     if (cmd_id == VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID) {
->     ....
-> }
-> 
-that's ok too.
+We probably shouldn't call iommu_dma_init_domain() unconditionally
+(outside of CONFIG_X86 that is), since it's normally done by the arch
+(arch/arm64/mm/dma-mapping.c)
 
-> > 
-> > 
-> > > +	if (cmd_id == VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID) {
-> > > +		WRITE_ONCE(vb->report_free_page, false);
-> > > +	} else if (cmd_id != vb->start_cmd_id) {
-> > > +		/*
-> > > +		 * Host requests to start the reporting by sending a new cmd
-> > > +		 * id.
-> > > +		 */
-> > > +		WRITE_ONCE(vb->report_free_page, true);
-> > I don't know why we bother with WRITE_ONCE here.  The point of
-> > report_free_page being used lockless is that that it's not a big deal if
-> > it's wrong occasionally, right?
-> 
-> Actually the main reason is that "vb->report_free_page" is a value shared by
-> two threads:
-> Written by the config_change here, and read by the worker thread that
-> reports the free pages.
+Thanks,
+Jean
 
-Right but what's wrong if it's read or written twice and not once?
-
-> Alternatively, we could let the two sides access to the shared variable with
-> "volatile" pointers.
-> 
-> 
-> > 
-> > 
-> > 
-> > > +		vb->start_cmd_id = cmd_id;
-> > > +		queue_work(vb->balloon_wq, &vb->report_free_page_work);
-> > It seems that if a command was already queued (with a different id),
-> > this will result in new command id being sent to host twice, which will
-> > likely confuse the host.
-> 
-> I think that case won't happen, because
-> - the host sends a cmd id to the guest via the config, while the guest acks
-> back the received cmd id via the virtqueue;
-> - the guest ack back a cmd id only when a new cmd id is received from the
-> host, that is the above check:
-> 
->     if (cmd_id != vb->start_cmd_id) { --> the driver only queues the
-> reporting work only when a new cmd id is received
->                         /*
->                          * Host requests to start the reporting by sending a
->                          * new cmd id.
->                          */
->                         WRITE_ONCE(vb->report_free_page, true);
->                         vb->start_cmd_id = cmd_id;
->                         queue_work(vb->balloon_wq,
-> &vb->report_free_page_work);
->     }
-> 
-> So the same cmd id wouldn't queue the reporting work twice.
-> 
-
-Like this:
-
-		vb->start_cmd_id = cmd_id;
-		queue_work(vb->balloon_wq, &vb->report_free_page_work);
-
-command id changes
-
-		vb->start_cmd_id = cmd_id;
-
-work executes
-
-		queue_work(vb->balloon_wq, &vb->report_free_page_work);
-
-work executes again
-
-
-> > 
-> > 
-> > 
-> > > +	}
-> > > +}
-> > > +
-> > >   static void update_balloon_size(struct virtio_balloon *vb)
-> > >   {
-> > >   	u32 actual = vb->num_pages;
-> > > @@ -417,40 +513,113 @@ static void update_balloon_size_func(struct work_struct *work)
-> > >   static int init_vqs(struct virtio_balloon *vb)
-> > >   {
-> > > -	struct virtqueue *vqs[3];
-> > > -	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
-> > > -	static const char * const names[] = { "inflate", "deflate", "stats" };
-> > > -	int err, nvqs;
-> > > +	struct virtqueue **vqs;
-> > > +	vq_callback_t **callbacks;
-> > > +	const char **names;
-> > > +	struct scatterlist sg;
-> > > +	int i, nvqs, err = -ENOMEM;
-> > > +
-> > > +	/* Inflateq and deflateq are used unconditionally */
-> > > +	nvqs = 2;
-> > > +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ))
-> > > +		nvqs++;
-> > > +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ))
-> > > +		nvqs++;
-> > > +
-> > > +	/* Allocate space for find_vqs parameters */
-> > > +	vqs = kcalloc(nvqs, sizeof(*vqs), GFP_KERNEL);
-> > > +	if (!vqs)
-> > > +		goto err_vq;
-> > > +	callbacks = kmalloc_array(nvqs, sizeof(*callbacks), GFP_KERNEL);
-> > > +	if (!callbacks)
-> > > +		goto err_callback;
-> > > +	names = kmalloc_array(nvqs, sizeof(*names), GFP_KERNEL);
-> > > +	if (!names)
-> > > +		goto err_names;
-> > Why not just keep these 3 arrays on stack? they aren't large.
-> 
-> Sounds good. Here is the new implementation:
-> 
-> static int init_vqs(struct virtio_balloon *vb)
-> {
->         struct virtqueue *vqs[4];
->         vq_callback_t *callbacks[4];
->         const char *names[4];
->         struct scatterlist sg;
->         int ret;
-> 
-> 
->         /*
->          * Inflateq and deflateq are used unconditionally. stats_vq and
->          * free_page_vq uses names[2] and names[3], respectively. The
-> names[]
->          * will be NULL if the related feature is not enabled, which will
->          * cause no allocation for the corresponding virtqueue in find_vqs.
->          */
->         callbacks[0] = balloon_ack;
->         names[0] = "inflate";
->         callbacks[1] = balloon_ack;
->         names[1] = "deflate";
->         names[2] = NULL;
->         names[3] = NULL;
-> 
->         if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
->                 names[2] = "stats";
->                 callbacks[2] = stats_request;
->         }
->         if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ)) {
->                 names[3] = "free_page_vq";
->                 callbacks[3] = NULL;
->         }
-> 
->         ret = vb->vdev->config->find_vqs(vb->vdev, 4, vqs, callbacks, names,
->                                          NULL, NULL);
->         if (ret)
->                 return ret;
-> 
->         vb->inflate_vq = vqs[0];
->         vb->deflate_vq = vqs[1];
-> 
->         if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
->                 vb->stats_vq = vqs[2];
->                 /*
->                  * Prime this virtqueue with one buffer so the hypervisor
-> can
->                  * use it to signal us later (it can't be broken yet!).
->                  */
->                 sg_init_one(&sg, vb->stats, sizeof(vb->stats));
->                 ret = virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb,
->                                            GFP_KERNEL);
->                 if (ret) {
->                         dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
->                                  __func__);
->                         return ret;
->                 }
->                 virtqueue_kick(vb->stats_vq);
->         }
-> 
->         if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_VQ))
->                 vb->free_page_vq = vqs[3];
-> 
->         return 0;
-> }
-> 
-> 
-> Btw, the QEMU side doesn't have an option to disable STATS_VQ currently, we
-> may need to add that later.
-> 
-> Best,
-> Wei
-
-why not
+[1]
+http://www.linux-arm.org/git?p=linux-jpb.git;a=commitdiff;h=e910e224b58712151dda06df595a53ff07edef63
+on branch virtio-iommu/v0.5-x86
