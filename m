@@ -1,16 +1,13 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [RFC PATCH v2 2/5] iommu/virtio-iommu: Add probe request
-Date: Fri, 19 Jan 2018 16:21:52 +0000
-Message-ID: <b9ede9e9-25a6-2848-e152-ffc61d560be8__40648.3955834576$1516378662$gmane$org@arm.com>
-References: <20171117185211.32593-1-jean-philippe.brucker@arm.com>
-	<20171117185211.32593-3-jean-philippe.brucker@arm.com>
-	<5b236aaa-4abb-2cac-1c74-f8137a0c2244@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH] virtio_blk: print capacity at probe time
+Date: Fri, 19 Jan 2018 16:44:05 +0000
+Message-ID: <CAJSP0QWoNNU3wbsD6mbmqWdhiueutK1r0PbmR=UO0-2vQhim6Q__14567.4499603503$1516380155$gmane$org@mail.gmail.com>
+References: <20180103160339.21300-1-stefanha@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5b236aaa-4abb-2cac-1c74-f8137a0c2244@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20180103160339.21300-1-stefanha@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,53 +17,118 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Auger Eric <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "devel@acpica.org" <devel@acpica.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
-Cc: "Jayachandran.Nair@cavium.com" <Jayachandran.Nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "ashok.raj@intel.com" <ashok.raj@intel.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "robert.moore@intel.com" <robert.moore@intel.com>, "lv.zheng@intel.com" <lv.zheng@intel.com>, Sudeep Holla <Sudeep.Holla@arm.com>, "lenb@kernel.org" <lenb@kernel.org>, Robin Murphy <Robin.Murphy@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "hanjun.guo@linaro.org" <hanjun.guo@linaro.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, Rodrigo A B Freire <rfreire@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 16/01/18 23:26, Auger Eric wrote:
-[...]
->> +	switch (mem->subtype) {
->> +	case VIRTIO_IOMMU_RESV_MEM_T_MSI:
->> +		region = iommu_alloc_resv_region(addr, size, prot,
->> +						 IOMMU_RESV_MSI);
-> if (!region)
-> 	return -ENOMEM;
->> +		break;
->> +	case VIRTIO_IOMMU_RESV_MEM_T_RESERVED:
->> +	default:
->> +		region = iommu_alloc_resv_region(addr, size, 0,
->> +						 IOMMU_RESV_RESERVED);
-> same.
+On Wed, Jan 3, 2018 at 4:03 PM, Stefan Hajnoczi <stefanha@redhat.com> wrote:
+> Print the capacity of the block device when the driver is probed.  Many
+> users expect this since SCSI disks (sd) do it.  Moreover, kernel dmesg
+> output is the primary source of troubleshooting information so it's
+> helpful to include the disk size there.
+>
+> The capacity is already printed by virtio_blk when a resize event
+> occurs.  Extract the code and reuse it from virtblk_probe().
+>
+> This patch also adds the block device name to the message so it can be
+> correlated with a specific device:
+>
+>   virtio_blk virtio0: [vda] 20971520 512-byte logical blocks (10.7 GB/10.0 GiB)
+>
+> Cc: Rodrigo A B Freire <rfreire@redhat.com>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+> ---
+>  drivers/block/virtio_blk.c | 32 +++++++++++++++-----------------
+>  1 file changed, 15 insertions(+), 17 deletions(-)
 
-I'll add them, thanks
+Ping?
 
-> There is another issue related to the exclusion of iovas belonging to
-> reserved regions. Typically on x86, when attempting to run
-> virtio-blk-pci with iommu I eventually saw the driver using iova
-> belonging to the IOAPIC regions to map phys addr and this stalled qemu
-> with a drown trace:
-> 
-> "virtio: bogus descriptor or out of resources"
-> 
-> those regions need to be excluded from the iova allocator. This was
-> resolved by adding
-> if (iommu_dma_init_domain(domain,
-> 			  vdev->viommu->geometry.aperture_start,
-> 			  vdev->viommu->geometry.aperture_end,
-> 			  dev))
-> in viommu_attach_dev()
-
-The most recent hack for x86 [1] does call iommu_dma_init_domain() in
-attach_dev(). Is it buggy?
-
-We probably shouldn't call iommu_dma_init_domain() unconditionally
-(outside of CONFIG_X86 that is), since it's normally done by the arch
-(arch/arm64/mm/dma-mapping.c)
-
-Thanks,
-Jean
-
-[1]
-http://www.linux-arm.org/git?p=linux-jpb.git;a=commitdiff;h=e910e224b58712151dda06df595a53ff07edef63
-on branch virtio-iommu/v0.5-x86
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 68846897d213..787cd2a10b0b 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -373,14 +373,12 @@ static ssize_t virtblk_serial_show(struct device *dev,
+>
+>  static DEVICE_ATTR(serial, S_IRUGO, virtblk_serial_show, NULL);
+>
+> -static void virtblk_config_changed_work(struct work_struct *work)
+> +/* The queue's logical block size must be set before calling this */
+> +static void virtblk_update_capacity(struct virtio_blk *vblk, bool resize)
+>  {
+> -       struct virtio_blk *vblk =
+> -               container_of(work, struct virtio_blk, config_work);
+>         struct virtio_device *vdev = vblk->vdev;
+>         struct request_queue *q = vblk->disk->queue;
+>         char cap_str_2[10], cap_str_10[10];
+> -       char *envp[] = { "RESIZE=1", NULL };
+>         unsigned long long nblocks;
+>         u64 capacity;
+>
+> @@ -402,13 +400,24 @@ static void virtblk_config_changed_work(struct work_struct *work)
+>                         STRING_UNITS_10, cap_str_10, sizeof(cap_str_10));
+>
+>         dev_notice(&vdev->dev,
+> -                  "new size: %llu %d-byte logical blocks (%s/%s)\n",
+> +                  "[%s] %s%llu %d-byte logical blocks (%s/%s)\n",
+> +                  vblk->disk->disk_name,
+> +                  resize ? "new size: " : "",
+>                    nblocks,
+>                    queue_logical_block_size(q),
+>                    cap_str_10,
+>                    cap_str_2);
+>
+>         set_capacity(vblk->disk, capacity);
+> +}
+> +
+> +static void virtblk_config_changed_work(struct work_struct *work)
+> +{
+> +       struct virtio_blk *vblk =
+> +               container_of(work, struct virtio_blk, config_work);
+> +       char *envp[] = { "RESIZE=1", NULL };
+> +
+> +       virtblk_update_capacity(vblk, true);
+>         revalidate_disk(vblk->disk);
+>         kobject_uevent_env(&disk_to_dev(vblk->disk)->kobj, KOBJ_CHANGE, envp);
+>  }
+> @@ -621,7 +630,6 @@ static int virtblk_probe(struct virtio_device *vdev)
+>         struct request_queue *q;
+>         int err, index;
+>
+> -       u64 cap;
+>         u32 v, blk_size, sg_elems, opt_io_size;
+>         u16 min_io_size;
+>         u8 physical_block_exp, alignment_offset;
+> @@ -719,17 +727,6 @@ static int virtblk_probe(struct virtio_device *vdev)
+>         if (virtio_has_feature(vdev, VIRTIO_BLK_F_RO))
+>                 set_disk_ro(vblk->disk, 1);
+>
+> -       /* Host must always specify the capacity. */
+> -       virtio_cread(vdev, struct virtio_blk_config, capacity, &cap);
+> -
+> -       /* If capacity is too big, truncate with warning. */
+> -       if ((sector_t)cap != cap) {
+> -               dev_warn(&vdev->dev, "Capacity %llu too large: truncating\n",
+> -                        (unsigned long long)cap);
+> -               cap = (sector_t)-1;
+> -       }
+> -       set_capacity(vblk->disk, cap);
+> -
+>         /* We can handle whatever the host told us to handle. */
+>         blk_queue_max_segments(q, vblk->sg_elems-2);
+>
+> @@ -780,6 +777,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+>         if (!err && opt_io_size)
+>                 blk_queue_io_opt(q, blk_size * opt_io_size);
+>
+> +       virtblk_update_capacity(vblk, false);
+>         virtio_device_ready(vdev);
+>
+>         device_add_disk(&vdev->dev, vblk->disk);
+> --
+> 2.14.3
+>
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
