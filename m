@@ -1,16 +1,15 @@
-From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [RFC PATCH v2 2/5] iommu/virtio-iommu: Add probe request
-Date: Fri, 19 Jan 2018 18:22:30 +0100
-Message-ID: <bfefc181-4c25-8798-b304-dce2c68b1ba8__6325.59163864261$1516382493$gmane$org@redhat.com>
-References: <20171117185211.32593-1-jean-philippe.brucker@arm.com>
-	<20171117185211.32593-3-jean-philippe.brucker@arm.com>
-	<5b236aaa-4abb-2cac-1c74-f8137a0c2244@redhat.com>
-	<b9ede9e9-25a6-2848-e152-ffc61d560be8@arm.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Subject: [PATCH 1/6] jailhouse: Provide detection for non-x86 systems
+Date: Mon, 22 Jan 2018 07:12:45 +0100
+Message-ID: <5541843651e0232ac90f347f638e486d2ddda237.1516601570.git.jan.kiszka__2893.58757804639$1516601507$gmane$org@siemens.com>
+References: <cover.1516601570.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <b9ede9e9-25a6-2848-e152-ffc61d560be8@arm.com>
+In-Reply-To: <cover.1516601570.git.jan.kiszka@siemens.com>
+In-Reply-To: <cover.1516601570.git.jan.kiszka@siemens.com>
+References: <cover.1516601570.git.jan.kiszka@siemens.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,66 +19,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "devel@acpica.org" <devel@acpica.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>
-Cc: "Jayachandran.Nair@cavium.com" <Jayachandran.Nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "ashok.raj@intel.com" <ashok.raj@intel.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "robert.moore@intel.com" <robert.moore@intel.com>, "lv.zheng@intel.com" <lv.zheng@intel.com>, Sudeep Holla <Sudeep.Holla@arm.com>, "lenb@kernel.org" <lenb@kernel.org>, Robin Murphy <Robin.Murphy@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "hanjun.guo@linaro.org" <hanjun.guo@linaro.org>
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
+Cc: jailhouse-dev@googlegroups.com, Mark Rutland <mark.rutland@arm.com>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Rob Herring <robh+dt@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jean-Philippe,
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
-On 19/01/18 17:21, Jean-Philippe Brucker wrote:
-> On 16/01/18 23:26, Auger Eric wrote:
-> [...]
->>> +	switch (mem->subtype) {
->>> +	case VIRTIO_IOMMU_RESV_MEM_T_MSI:
->>> +		region = iommu_alloc_resv_region(addr, size, prot,
->>> +						 IOMMU_RESV_MSI);
->> if (!region)
->> 	return -ENOMEM;
->>> +		break;
->>> +	case VIRTIO_IOMMU_RESV_MEM_T_RESERVED:
->>> +	default:
->>> +		region = iommu_alloc_resv_region(addr, size, 0,
->>> +						 IOMMU_RESV_RESERVED);
->> same.
-> 
-> I'll add them, thanks
-> 
->> There is another issue related to the exclusion of iovas belonging to
->> reserved regions. Typically on x86, when attempting to run
->> virtio-blk-pci with iommu I eventually saw the driver using iova
->> belonging to the IOAPIC regions to map phys addr and this stalled qemu
->> with a drown trace:
->>
->> "virtio: bogus descriptor or out of resources"
->>
->> those regions need to be excluded from the iova allocator. This was
->> resolved by adding
->> if (iommu_dma_init_domain(domain,
->> 			  vdev->viommu->geometry.aperture_start,
->> 			  vdev->viommu->geometry.aperture_end,
->> 			  dev))
->> in viommu_attach_dev()
-> 
-> The most recent hack for x86 [1] does call iommu_dma_init_domain() in
-> attach_dev(). Is it buggy?
+Implement jailhouse_paravirt() via device tree probing on architectures
+!= x86. Will be used by the PCI core.
 
-Oh OK. Actually I have never used that branch and in my version the last
-arg of iommu_dma_init_domain was NULL hence the issue. But I was
-thinking more generally that care must be taken to exclude all those
-regions.
+CC: Rob Herring <robh+dt@kernel.org>
+CC: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ Documentation/devicetree/bindings/jailhouse.txt |  8 ++++++++
+ arch/x86/include/asm/jailhouse_para.h           |  2 +-
+ include/linux/hypervisor.h                      | 17 +++++++++++++++--
+ 3 files changed, 24 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/jailhouse.txt
 
-Thanks
-
-Eric
-> 
-> We probably shouldn't call iommu_dma_init_domain() unconditionally
-> (outside of CONFIG_X86 that is), since it's normally done by the arch
-> (arch/arm64/mm/dma-mapping.c)
-> 
-> Thanks,
-> Jean
-> 
-> [1]
-> http://www.linux-arm.org/git?p=linux-jpb.git;a=commitdiff;h=e910e224b58712151dda06df595a53ff07edef63
-> on branch virtio-iommu/v0.5-x86
-> 
+diff --git a/Documentation/devicetree/bindings/jailhouse.txt b/Documentation/devicetree/bindings/jailhouse.txt
+new file mode 100644
+index 000000000000..2901c25ff340
+--- /dev/null
++++ b/Documentation/devicetree/bindings/jailhouse.txt
+@@ -0,0 +1,8 @@
++Jailhouse non-root cell device tree bindings
++--------------------------------------------
++
++When running in a non-root Jailhouse cell (partition), the device tree of this
++platform shall have a top-level "hypervisor" node with the following
++properties:
++
++- compatible = "jailhouse,cell"
+diff --git a/arch/x86/include/asm/jailhouse_para.h b/arch/x86/include/asm/jailhouse_para.h
+index 875b54376689..b885a961a150 100644
+--- a/arch/x86/include/asm/jailhouse_para.h
++++ b/arch/x86/include/asm/jailhouse_para.h
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: GPL2.0 */
+ 
+ /*
+- * Jailhouse paravirt_ops implementation
++ * Jailhouse paravirt detection
+  *
+  * Copyright (c) Siemens AG, 2015-2017
+  *
+diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
+index b19563f9a8eb..fc08b433c856 100644
+--- a/include/linux/hypervisor.h
++++ b/include/linux/hypervisor.h
+@@ -8,15 +8,28 @@
+  */
+ 
+ #ifdef CONFIG_X86
++
++#include <asm/jailhouse_para.h>
+ #include <asm/x86_init.h>
++
+ static inline void hypervisor_pin_vcpu(int cpu)
+ {
+ 	x86_platform.hyper.pin_vcpu(cpu);
+ }
+-#else
++
++#else /* !CONFIG_X86 */
++
++#include <linux/of.h>
++
+ static inline void hypervisor_pin_vcpu(int cpu)
+ {
+ }
+-#endif
++
++static inline bool jailhouse_paravirt(void)
++{
++	return of_find_compatible_node(NULL, NULL, "jailhouse,cell");
++}
++
++#endif /* !CONFIG_X86 */
+ 
+ #endif /* __LINUX_HYPEVISOR_H */
+-- 
+2.13.6
