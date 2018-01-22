@@ -1,7 +1,8 @@
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [PATCH 5/6] x86/jailhouse: Allow to use PCI_MMCONFIG without ACPI
-Date: Mon, 22 Jan 2018 07:12:49 +0100
-Message-ID: <825040fe16c7d19b7fb48ed90c5e133412d55cc3.1516601570.git.jan.kiszka__16371.9177981422$1516601511$gmane$org@siemens.com>
+Subject: [PATCH 2/6] pci: Scan all functions when probing while running over
+	Jailhouse
+Date: Mon, 22 Jan 2018 07:12:46 +0100
+Message-ID: <66bfcfc6dc1832baa3fbd8e4879764d36aa9c1e7.1516601570.git.jan.kiszka__28570.5359922305$1516601518$gmane$org@siemens.com>
 References: <cover.1516601570.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,73 +21,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
-Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+Cc: jailhouse-dev@googlegroups.com, Benedikt Spranger <b.spranger@linutronix.de>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jan Kiszka <jan.kiszka@siemens.com>
 
-Jailhouse does not use ACPI, but it does support MMCONFIG. Make sure the
-latter can be built without having to enable ACPI as well. Primarily, we
-need to make the AMD mmconf-fam10h_64 depend upon MMCONFIG and ACPI,
-instead of just the former.
+PCI and PCIBIOS probing only scans devices at function number 0/8/16/...
+Subdevices (e.g. multiqueue) have function numbers which are not a
+multiple of 8.
 
-Saves some bytes in the Jailhouse non-root kernel.
+The simple hypervisor Jailhouse passes subdevices directly w/o providing
+a virtual PCI topology like KVM. As a consequence a PCI passthrough from
+Jailhouse to a guest will not be detected by Linux.
 
+Based on patch by Benedikt Spranger, adding Jailhouse probing to avoid
+changing the behavior in the absence of the hypervisor.
+
+CC: Benedikt Spranger <b.spranger@linutronix.de>
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
- arch/x86/Kconfig          | 6 +++++-
- arch/x86/kernel/Makefile  | 2 +-
- arch/x86/kernel/cpu/amd.c | 2 +-
- 3 files changed, 7 insertions(+), 3 deletions(-)
+ arch/x86/pci/legacy.c | 4 +++-
+ drivers/pci/probe.c   | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index f2038417a590..77ba0eb0a258 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -2597,7 +2597,7 @@ config PCI_DIRECT
- config PCI_MMCONFIG
- 	bool "Support mmconfig PCI config space access" if X86_64
- 	default y
--	depends on PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY || X86_64)
-+	depends on PCI && (ACPI || SFI || JAILHOUSE_GUEST) && (PCI_GOMMCONFIG || PCI_GOANY || X86_64)
+diff --git a/arch/x86/pci/legacy.c b/arch/x86/pci/legacy.c
+index 1cb01abcb1be..a7b0476b4f44 100644
+--- a/arch/x86/pci/legacy.c
++++ b/arch/x86/pci/legacy.c
+@@ -5,6 +5,7 @@
+ #include <linux/export.h>
+ #include <linux/pci.h>
+ #include <asm/pci_x86.h>
++#include <asm/jailhouse_para.h>
  
- config PCI_OLPC
- 	def_bool y
-@@ -2612,6 +2612,10 @@ config PCI_DOMAINS
- 	def_bool y
- 	depends on PCI
+ /*
+  * Discover remaining PCI buses in case there are peer host bridges.
+@@ -34,13 +35,14 @@ int __init pci_legacy_init(void)
  
-+config MMCONF_FAM10H
-+	def_bool y
-+	depends on PCI_MMCONFIG && ACPI
-+
- config PCI_CNB20LE_QUIRK
- 	bool "Read CNB20LE Host Bridge Windows" if EXPERT
- 	depends on PCI
-diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
-index aed9296dccd3..b2c9e230e2fe 100644
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -143,6 +143,6 @@ ifeq ($(CONFIG_X86_64),y)
- 	obj-$(CONFIG_GART_IOMMU)	+= amd_gart_64.o aperture_64.o
- 	obj-$(CONFIG_CALGARY_IOMMU)	+= pci-calgary_64.o tce_64.o
- 
--	obj-$(CONFIG_PCI_MMCONFIG)	+= mmconf-fam10h_64.o
-+	obj-$(CONFIG_MMCONF_FAM10H)	+= mmconf-fam10h_64.o
- 	obj-y				+= vsmp_64.o
- endif
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index ea831c858195..47edf599f6fd 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -690,7 +690,7 @@ static void init_amd_k8(struct cpuinfo_x86 *c)
- 
- static void init_amd_gh(struct cpuinfo_x86 *c)
+ void pcibios_scan_specific_bus(int busn)
  {
--#ifdef CONFIG_X86_64
-+#ifdef CONFIG_MMCONF_FAM10H
- 	/* do this for boot cpu */
- 	if (c == &boot_cpu_data)
- 		check_enable_amd_mmconf_dmi();
++	int stride = jailhouse_paravirt() ? 1 : 8;
+ 	int devfn;
+ 	u32 l;
+ 
+ 	if (pci_find_bus(0, busn))
+ 		return;
+ 
+-	for (devfn = 0; devfn < 256; devfn += 8) {
++	for (devfn = 0; devfn < 256; devfn += stride) {
+ 		if (!raw_pci_read(0, busn, devfn, PCI_VENDOR_ID, 2, &l) &&
+ 		    l != 0x0000 && l != 0xffff) {
+ 			DBG("Found device at %02x:%02x [%04x]\n", busn, devfn, l);
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index 14e0ea1ff38b..60ad14c8245f 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -17,6 +17,7 @@
+ #include <linux/acpi.h>
+ #include <linux/irqdomain.h>
+ #include <linux/pm_runtime.h>
++#include <linux/hypervisor.h>
+ #include "pci.h"
+ 
+ #define CARDBUS_LATENCY_TIMER	176	/* secondary latency timer */
+@@ -2454,6 +2455,7 @@ static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
+ 					      unsigned int available_buses)
+ {
+ 	unsigned int used_buses, normal_bridges = 0, hotplug_bridges = 0;
++	unsigned int stride = jailhouse_paravirt() ? 1 : 8;
+ 	unsigned int start = bus->busn_res.start;
+ 	unsigned int devfn, cmax, max = start;
+ 	struct pci_dev *dev;
+@@ -2461,7 +2463,7 @@ static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
+ 	dev_dbg(&bus->dev, "scanning bus\n");
+ 
+ 	/* Go find them, Rover! */
+-	for (devfn = 0; devfn < 0x100; devfn += 8)
++	for (devfn = 0; devfn < 0x100; devfn += stride)
+ 		pci_scan_slot(bus, devfn);
+ 
+ 	/* Reserve buses for SR-IOV capability. */
 -- 
 2.13.6
