@@ -1,24 +1,17 @@
-From: Jakub Kicinski <kubakici@wp.pl>
-Subject: Re: [virtio-dev] [RFC PATCH net-next v2 1/2] virtio_net: Introduce
-	VIRTIO_NET_F_BACKUP feature bit
-Date: Tue, 23 Jan 2018 11:21:33 -0800
-Message-ID: <20180123112133.688379d7__35786.2743702301$1516735212$gmane$org@cakuba.netronome.com>
-References: <20180117203757-mutt-send-email-mst@kernel.org>
-	<058068e5-febd-92c8-e5a9-faf262b82335@intel.com>
-	<20180117213527-mutt-send-email-mst@kernel.org>
-	<CAKgT0UeyNvVQc11KXc3updJfa9p7a9NcfRC=gP6=ktkjrSkOag@mail.gmail.com>
-	<20180122231713-mutt-send-email-mst@kernel.org>
-	<7edf772b-627c-6121-3332-479caed524da@intel.com>
-	<20180123020332-mutt-send-email-mst@kernel.org>
-	<20180122161623.22b6e151@cakuba.netronome.com>
-	<20180123023810-mutt-send-email-mst@kernel.org>
-	<20180122171301.3463156b@cakuba.netronome.com>
-	<20180123031348-mutt-send-email-mst@kernel.org>
+From: Siwei Liu <loseweigh@gmail.com>
+Subject: Re: [RFC PATCH net-next v2 2/2] virtio_net: Extend virtio to use VF
+	datapath when available
+Date: Tue, 23 Jan 2018 12:24:47 -0800
+Message-ID: <CADGSJ209vrdjnEAweLg84FwN3sf+1W+APmvB=NjFkMNAhsOyrg__23265.565504744$1516739017$gmane$org@mail.gmail.com>
+References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
+	<1515736720-39368-3-git-send-email-sridhar.samudrala@intel.com>
+	<CADGSJ22BsdB-hDb0xebSyWrwDuBJaFACjb26PDoqAd2Ah+tsQg@mail.gmail.com>
+	<20180122233205-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180123031348-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180122233205-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,31 +22,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, achiad shochat <achiad.mellanox@gmail.com>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Achiad Shochat <achiad@mellanox.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 23 Jan 2018 03:23:57 +0200, Michael S. Tsirkin wrote:
-> > > > b. next-gen silicon may be able to disguise as virtio device, and the
-> > > >    loop check in virtio driver will prevent the legitimate bond it such
-> > > >    case.  AFAIU that's one of the goals of next-gen virtio spec as well.    
-> > > 
-> > > In fact we have a virtio feature bit for the fallback.
-> > > So this part does not depend on how software in guest works
-> > > and does not need software solutions.  
-> > 
-> > You mean in the new spec?  Nice.  Still I think people will try to
-> > implement the old one too given sufficiently capable HW.  
-> 
-> Existing HW won't have the BACKUP feature so the new functionality
-> won't be activated. So no problem I think.
+On Mon, Jan 22, 2018 at 1:41 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Mon, Jan 22, 2018 at 12:27:14PM -0800, Siwei Liu wrote:
+>> First off, as mentioned in another thread, the model of stacking up
+>> virt-bond functionality over virtio seems a wrong direction to me.
+>> Essentially the migration process would need to carry over all guest
+>> side configurations previously done on the VF/PT and get them moved to
+>> the new device being it virtio or VF/PT.
+>
+> I might be wrong but I don't see why we should worry about this usecase.
+> Whoever has a bond configured already has working config for migration.
+> We are trying to help people who don't, not convert existig users.
 
-I meant code that compares of netdev_ops, e.g.:
+That has been placed in the view of cloud providers that the imported
+images from the store must be able to run unmodified thus no
+additional setup script is allowed (just as Stephen mentioned in
+another mail). Cloud users don't care about live migration themselves
+but the providers are required to implement such automation mechanism
+to make this process transparent if at all possible. The user does not
+care about the device underneath being VF or not, but they do care
+about consistency all across and the resulting performance
+acceleration in making VF the prefered datapath. It is not quite
+peculiar user cases but IMHO *any* approach proposed for live
+migration should be able to persist the state including network config
+e.g. as simple as MTU. Actually this requirement has nothing to do
+with virtio but our target users are live migration agnostic, being it
+tracking DMA through dirty pages, using virtio as the helper, or
+whatsoever, the goal of persisting configs across remains same.
 
-+	/* Skip our own events */
-+	if (event_dev->netdev_ops == &virtnet_netdev)
-+		return NOTIFY_DONE;
+>
+>> Without the help of a new
+>> upper layer bond driver that enslaves virtio and VF/PT devices
+>> underneath, virtio will be overloaded with too much specifics being a
+>> VF/PT backup in the future.
+>
+> So this paragraph already includes at least two conflicting
+> proposals. On the one hand you want a separate device for
+> the virtual bond, on the other you are saying a separate
+> driver.
 
-Would be an obstacle to bonding virtio_nets.  But that's just one of
-the thoughts, perhaps of disputable value.  Anyway, separate netdev and
-netdev_ops will solve this, and I think we agree that's preferable :)
+Just to be crystal clear: separate virtual bond device (netdev ops,
+not necessarily bus device) for VM migration specifically with a
+separate driver.
+
+>
+> Further, the reason to have a separate *driver* was that
+> some people wanted to share code with netvsc - and that
+> one does not create a separate device, which you can't
+> change without breaking existing configs.
+
+I'm not sure I understand this statement. netvsc is already another
+netdev being created than the enslaved VF netdev, why it bothers? In
+the Azure case, the stock image to be imported does not bind to a
+specific driver but only MAC address. And people just deal with the
+new virt-bond netdev rather than the underlying virtio and VF. And
+both these two underlying netdevs should be made invisible to prevent
+userspace script from getting them misconfigured IMHO.
+
+A separate driver was for code sharing for sure, only just netvsc but
+could be other para-virtual devices floating around: any PV can serve
+as the side channel and the backup path for VF/PT. Once we get the new
+driver working atop virtio we may define ops and/or protocol needed to
+talk to various other PV frontend that may implement the side channel
+of its own for datapath switching (e.g. virtio is one of them, Xen PV
+frontend can be another). I just don't like to limit the function to
+virtio only and we have to duplicate code then it starts to scatter
+around all over the places.
+
+I understand right now we start it as simple so it may just be fine
+that the initial development activities center around virtio. However,
+from cloud provider/vendor perspective I don't see the proposed scheme
+limits to virtio only. Any other PV driver which has the plan to
+support the same scheme can benefit. The point is that we shouldn't be
+limiting the scheme to virtio specifics so early which is hard to have
+it promoted to a common driver once we get there.
+
+>
+> So some people want a fully userspace-configurable switchdev, and that
+> already exists at some level, and maybe it makes sense to add more
+> features for performance.
+>
+> But the point was that some host configurations are very simple,
+> and it probably makes sense to pass this information to the guest
+> and have guest act on it directly. Let's not conflate the two.
+
+It may be fine to push some of the configurations from host but that
+perhaps doesn't cover all the cases: how is it possible for the host
+to save all network states and configs done by the guest before
+migration. Some of the configs might come from future guest which is
+unknown to host. Anyhow the bottom line is that the guest must be able
+to act on those configuration request changes automatically without
+involving users intervention.
+
+Regards,
+-Siwei
+
+>
+> --
+> MST
