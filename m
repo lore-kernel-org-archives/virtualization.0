@@ -1,15 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net 1/2] vhost: use mutex_lock_nested() in
-	vhost_dev_lock_vqs()
-Date: Tue, 23 Jan 2018 17:57:58 +0200
-Message-ID: <20180123175752-mutt-send-email-mst@kernel.org>
-References: <1516699646-7321-1-git-send-email-jasowang@redhat.com>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [RFC PATCH net-next v2 2/2] virtio_net: Extend virtio to use VF
+	datapath when available
+Date: Tue, 23 Jan 2018 08:03:08 -0800
+Message-ID: <f6d80eca-8f95-861c-6717-7df53af870fe__39988.53961607$1516723297$gmane$org@intel.com>
+References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
+	<1515736720-39368-3-git-send-email-sridhar.samudrala@intel.com>
+	<afd11f19-6906-2a7e-1b82-e3138c4d9530@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1516699646-7321-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <afd11f19-6906-2a7e-1b82-e3138c4d9530@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +21,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, kubakici@wp.pl
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 23, 2018 at 05:27:25PM +0800, Jason Wang wrote:
-> We used to call mutex_lock() in vhost_dev_lock_vqs() which tries to
-> hold mutexes of all virtqueues. This may confuse lockdep to report a
-> possible deadlock because of trying to hold locks belong to same
-> class. Switch to use mutex_lock_nested() to avoid false positive.
-> 
-> Fixes: 6b1e6cc7855b0 ("vhost: new device IOTLB API")
-> Reported-by: syzbot+dbb7c1161485e61b0241@syzkaller.appspotmail.com
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-> ---
->  drivers/vhost/vhost.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 33ac2b1..549771a 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -904,7 +904,7 @@ static void vhost_dev_lock_vqs(struct vhost_dev *d)
->  {
->  	int i = 0;
->  	for (i = 0; i < d->nvqs; ++i)
-> -		mutex_lock(&d->vqs[i]->mutex);
-> +		mutex_lock_nested(&d->vqs[i]->mutex, i);
->  }
->  
->  static void vhost_dev_unlock_vqs(struct vhost_dev *d)
-> -- 
-> 2.7.4
+CgpPbiAxLzIzLzIwMTggMjozMyBBTSwgSmFzb24gV2FuZyB3cm90ZToKPgo+Cj4gT24gMjAxOOW5
+tDAx5pyIMTLml6UgMTM6NTgsIFNyaWRoYXIgU2FtdWRyYWxhIHdyb3RlOgo+PiDCoCBzdGF0aWMg
+bmV0ZGV2X3R4X3Qgc3RhcnRfeG1pdChzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdHJ1Y3QgCj4+IG5l
+dF9kZXZpY2UgKmRldikKPj4gwqAgewo+PiDCoMKgwqDCoMKgIHN0cnVjdCB2aXJ0bmV0X2luZm8g
+KnZpID0gbmV0ZGV2X3ByaXYoZGV2KTsKPj4gwqDCoMKgwqDCoCBpbnQgcW51bSA9IHNrYl9nZXRf
+cXVldWVfbWFwcGluZyhza2IpOwo+PiDCoMKgwqDCoMKgIHN0cnVjdCBzZW5kX3F1ZXVlICpzcSA9
+ICZ2aS0+c3FbcW51bV07Cj4+ICvCoMKgwqAgc3RydWN0IG5ldF9kZXZpY2UgKnZmX25ldGRldjsK
+Pj4gwqDCoMKgwqDCoCBpbnQgZXJyOwo+PiDCoMKgwqDCoMKgIHN0cnVjdCBuZXRkZXZfcXVldWUg
+KnR4cSA9IG5ldGRldl9nZXRfdHhfcXVldWUoZGV2LCBxbnVtKTsKPj4gwqDCoMKgwqDCoCBib29s
+IGtpY2sgPSAhc2tiLT54bWl0X21vcmU7Cj4+IMKgwqDCoMKgwqAgYm9vbCB1c2VfbmFwaSA9IHNx
+LT5uYXBpLndlaWdodDsKPj4gwqAgK8KgwqDCoCAvKiBJZiBWRiBpcyBwcmVzZW50IGFuZCB1cCB0
+aGVuIHJlZGlyZWN0IHBhY2tldHMKPj4gK8KgwqDCoMKgICogY2FsbGVkIHdpdGggcmN1X3JlYWRf
+bG9ja19iaAo+PiArwqDCoMKgwqAgKi8KPj4gK8KgwqDCoCB2Zl9uZXRkZXYgPSByY3VfZGVyZWZl
+cmVuY2VfYmgodmktPnZmX25ldGRldik7Cj4+ICvCoMKgwqAgaWYgKHZmX25ldGRldiAmJiBuZXRp
+Zl9ydW5uaW5nKHZmX25ldGRldikgJiYKPj4gK8KgwqDCoMKgwqDCoMKgICFuZXRwb2xsX3R4X3J1
+bm5pbmcoZGV2KSAmJgo+PiArwqDCoMKgwqDCoMKgwqAgaXNfdW5pY2FzdF9ldGhlcl9hZGRyKGV0
+aF9oZHIoc2tiKS0+aF9kZXN0KSkKPj4gK8KgwqDCoMKgwqDCoMKgIHJldHVybiB2aXJ0bmV0X3Zm
+X3htaXQoZGV2LCB2Zl9uZXRkZXYsIHNrYik7Cj4+ICsKPgo+IEEgcXVlc3Rpb24gaGVyZS4KPgo+
+IElmIEkgcmVhZCB0aGUgY29kZSBjb3JyZWN0bHksIGFsbCBmZWF0dXJlcyB3ZXJlIHZhbGlkYXRl
+ZCBhZ2FpbnN0IAo+IHZpcnRpbyBpbnN0ZWFkIFZGIGJlZm9yZSB0cmFuc21pdHRpbmcuIFRoaXMg
+YXNzdW1lcyBWRidzIGZlYXR1cmUgaXMgYSAKPiBzdXBlcnNldCBvZiB2aXJ0aW8sIGRvZXMgdGhp
+cyByZWFsbHkgd29yaz8gRG8gd2UgbmVlZCB0byBzYW5pdGl6ZSB0aGUgCj4gZmVhdHVyZSBiZWZv
+cmUgam9pbmluZz8gKGUuZyBhdCBsYXN0IE5FVElGX1JfR1NPX1JPQlVTVCBuZWVkcyB0byBiZSAK
+PiByZW1vdmVkKS4KCkFjdHVhbGx5LCB2aXJ0bmV0X3ZmX3htaXQoKSBjYWxscyBkZXZfcXVldWVf
+eG1pdCgpIGFmdGVyIHVwZGF0aW5nIApza2ItPmRldiB0byB2ZiBuZXRkZXYuClNvIHRoZSBmZWF0
+dXJlcyBnZXQgdmFsaWRhdGVkIGFnYWluc3QgVkYgZmVhdHVyZXMgYW5kIHRoZSByaWdodCB0eCBx
+dWV1ZSAKaXMgc2VsZWN0ZWQKYmVmb3JlIHRoZSByZWFsIHRyYW5zbWl0LgoKVGhhbmtzClNyaWRo
+YXIKCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
