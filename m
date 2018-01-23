@@ -1,17 +1,24 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [RFC PATCH net-next v2 2/2] virtio_net: Extend virtio to use VF
-	datapath when available
-Date: Tue, 23 Jan 2018 08:03:08 -0800
-Message-ID: <f6d80eca-8f95-861c-6717-7df53af870fe__39988.53961607$1516723297$gmane$org@intel.com>
-References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
-	<1515736720-39368-3-git-send-email-sridhar.samudrala@intel.com>
-	<afd11f19-6906-2a7e-1b82-e3138c4d9530@redhat.com>
+From: Jakub Kicinski <kubakici@wp.pl>
+Subject: Re: [virtio-dev] [RFC PATCH net-next v2 1/2] virtio_net: Introduce
+	VIRTIO_NET_F_BACKUP feature bit
+Date: Tue, 23 Jan 2018 11:21:33 -0800
+Message-ID: <20180123112133.688379d7__35786.2743702301$1516735212$gmane$org@cakuba.netronome.com>
+References: <20180117203757-mutt-send-email-mst@kernel.org>
+	<058068e5-febd-92c8-e5a9-faf262b82335@intel.com>
+	<20180117213527-mutt-send-email-mst@kernel.org>
+	<CAKgT0UeyNvVQc11KXc3updJfa9p7a9NcfRC=gP6=ktkjrSkOag@mail.gmail.com>
+	<20180122231713-mutt-send-email-mst@kernel.org>
+	<7edf772b-627c-6121-3332-479caed524da@intel.com>
+	<20180123020332-mutt-send-email-mst@kernel.org>
+	<20180122161623.22b6e151@cakuba.netronome.com>
+	<20180123023810-mutt-send-email-mst@kernel.org>
+	<20180122171301.3463156b@cakuba.netronome.com>
+	<20180123031348-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <afd11f19-6906-2a7e-1b82-e3138c4d9530@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20180123031348-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,37 +28,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, kubakici@wp.pl
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, achiad shochat <achiad.mellanox@gmail.com>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Achiad Shochat <achiad@mellanox.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAxLzIzLzIwMTggMjozMyBBTSwgSmFzb24gV2FuZyB3cm90ZToKPgo+Cj4gT24gMjAxOOW5
-tDAx5pyIMTLml6UgMTM6NTgsIFNyaWRoYXIgU2FtdWRyYWxhIHdyb3RlOgo+PiDCoCBzdGF0aWMg
-bmV0ZGV2X3R4X3Qgc3RhcnRfeG1pdChzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdHJ1Y3QgCj4+IG5l
-dF9kZXZpY2UgKmRldikKPj4gwqAgewo+PiDCoMKgwqDCoMKgIHN0cnVjdCB2aXJ0bmV0X2luZm8g
-KnZpID0gbmV0ZGV2X3ByaXYoZGV2KTsKPj4gwqDCoMKgwqDCoCBpbnQgcW51bSA9IHNrYl9nZXRf
-cXVldWVfbWFwcGluZyhza2IpOwo+PiDCoMKgwqDCoMKgIHN0cnVjdCBzZW5kX3F1ZXVlICpzcSA9
-ICZ2aS0+c3FbcW51bV07Cj4+ICvCoMKgwqAgc3RydWN0IG5ldF9kZXZpY2UgKnZmX25ldGRldjsK
-Pj4gwqDCoMKgwqDCoCBpbnQgZXJyOwo+PiDCoMKgwqDCoMKgIHN0cnVjdCBuZXRkZXZfcXVldWUg
-KnR4cSA9IG5ldGRldl9nZXRfdHhfcXVldWUoZGV2LCBxbnVtKTsKPj4gwqDCoMKgwqDCoCBib29s
-IGtpY2sgPSAhc2tiLT54bWl0X21vcmU7Cj4+IMKgwqDCoMKgwqAgYm9vbCB1c2VfbmFwaSA9IHNx
-LT5uYXBpLndlaWdodDsKPj4gwqAgK8KgwqDCoCAvKiBJZiBWRiBpcyBwcmVzZW50IGFuZCB1cCB0
-aGVuIHJlZGlyZWN0IHBhY2tldHMKPj4gK8KgwqDCoMKgICogY2FsbGVkIHdpdGggcmN1X3JlYWRf
-bG9ja19iaAo+PiArwqDCoMKgwqAgKi8KPj4gK8KgwqDCoCB2Zl9uZXRkZXYgPSByY3VfZGVyZWZl
-cmVuY2VfYmgodmktPnZmX25ldGRldik7Cj4+ICvCoMKgwqAgaWYgKHZmX25ldGRldiAmJiBuZXRp
-Zl9ydW5uaW5nKHZmX25ldGRldikgJiYKPj4gK8KgwqDCoMKgwqDCoMKgICFuZXRwb2xsX3R4X3J1
-bm5pbmcoZGV2KSAmJgo+PiArwqDCoMKgwqDCoMKgwqAgaXNfdW5pY2FzdF9ldGhlcl9hZGRyKGV0
-aF9oZHIoc2tiKS0+aF9kZXN0KSkKPj4gK8KgwqDCoMKgwqDCoMKgIHJldHVybiB2aXJ0bmV0X3Zm
-X3htaXQoZGV2LCB2Zl9uZXRkZXYsIHNrYik7Cj4+ICsKPgo+IEEgcXVlc3Rpb24gaGVyZS4KPgo+
-IElmIEkgcmVhZCB0aGUgY29kZSBjb3JyZWN0bHksIGFsbCBmZWF0dXJlcyB3ZXJlIHZhbGlkYXRl
-ZCBhZ2FpbnN0IAo+IHZpcnRpbyBpbnN0ZWFkIFZGIGJlZm9yZSB0cmFuc21pdHRpbmcuIFRoaXMg
-YXNzdW1lcyBWRidzIGZlYXR1cmUgaXMgYSAKPiBzdXBlcnNldCBvZiB2aXJ0aW8sIGRvZXMgdGhp
-cyByZWFsbHkgd29yaz8gRG8gd2UgbmVlZCB0byBzYW5pdGl6ZSB0aGUgCj4gZmVhdHVyZSBiZWZv
-cmUgam9pbmluZz8gKGUuZyBhdCBsYXN0IE5FVElGX1JfR1NPX1JPQlVTVCBuZWVkcyB0byBiZSAK
-PiByZW1vdmVkKS4KCkFjdHVhbGx5LCB2aXJ0bmV0X3ZmX3htaXQoKSBjYWxscyBkZXZfcXVldWVf
-eG1pdCgpIGFmdGVyIHVwZGF0aW5nIApza2ItPmRldiB0byB2ZiBuZXRkZXYuClNvIHRoZSBmZWF0
-dXJlcyBnZXQgdmFsaWRhdGVkIGFnYWluc3QgVkYgZmVhdHVyZXMgYW5kIHRoZSByaWdodCB0eCBx
-dWV1ZSAKaXMgc2VsZWN0ZWQKYmVmb3JlIHRoZSByZWFsIHRyYW5zbWl0LgoKVGhhbmtzClNyaWRo
-YXIKCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+On Tue, 23 Jan 2018 03:23:57 +0200, Michael S. Tsirkin wrote:
+> > > > b. next-gen silicon may be able to disguise as virtio device, and the
+> > > >    loop check in virtio driver will prevent the legitimate bond it such
+> > > >    case.  AFAIU that's one of the goals of next-gen virtio spec as well.    
+> > > 
+> > > In fact we have a virtio feature bit for the fallback.
+> > > So this part does not depend on how software in guest works
+> > > and does not need software solutions.  
+> > 
+> > You mean in the new spec?  Nice.  Still I think people will try to
+> > implement the old one too given sufficiently capable HW.  
+> 
+> Existing HW won't have the BACKUP feature so the new functionality
+> won't be activated. So no problem I think.
+
+I meant code that compares of netdev_ops, e.g.:
+
++	/* Skip our own events */
++	if (event_dev->netdev_ops == &virtnet_netdev)
++		return NOTIFY_DONE;
+
+Would be an obstacle to bonding virtio_nets.  But that's just one of
+the thoughts, perhaps of disputable value.  Anyway, separate netdev and
+netdev_ops will solve this, and I think we agree that's preferable :)
