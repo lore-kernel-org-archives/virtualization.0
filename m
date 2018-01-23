@@ -1,8 +1,8 @@
 From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Subject: Re: [virtio-dev] [RFC PATCH net-next v2 1/2] virtio_net: Introduce
 	VIRTIO_NET_F_BACKUP feature bit
-Date: Mon, 22 Jan 2018 17:34:37 -0800
-Message-ID: <be3864b4-f108-6a7d-8628-204d4d4ae278__44207.0539495491$1516671192$gmane$org@intel.com>
+Date: Mon, 22 Jan 2018 17:37:20 -0800
+Message-ID: <f44e28d8-d96e-e8b5-594a-2a66957a902d__44032.7466851615$1516671427$gmane$org@intel.com>
 References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
 	<1515736720-39368-2-git-send-email-sridhar.samudrala@intel.com>
 	<CAKgT0Uc8bRoAsXYSr7k27gf5+vh7rF2Dd_kWNB1d38tpZAeRGg@mail.gmail.com>
@@ -12,12 +12,12 @@ References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
 	<CAKgT0UeyNvVQc11KXc3updJfa9p7a9NcfRC=gP6=ktkjrSkOag@mail.gmail.com>
 	<20180122231713-mutt-send-email-mst@kernel.org>
 	<7edf772b-627c-6121-3332-479caed524da@intel.com>
-	<20180123020332-mutt-send-email-mst@kernel.org>
+	<20180122160204.130451f2@xeon-e3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180123020332-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180122160204.130451f2@xeon-e3>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,42 +28,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, achiad shochat <achiad.mellanox@gmail.com>, Achiad Shochat <achiad@mellanox.com>, David Miller <davem@davemloft.net>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, achiad shochat <achiad.mellanox@gmail.com>, Achiad Shochat <achiad@mellanox.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMS8yMi8yMDE4IDQ6MDUgUE0sIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBNb24s
-IEphbiAyMiwgMjAxOCBhdCAwMzoyNzo0MFBNIC0wODAwLCBTYW11ZHJhbGEsIFNyaWRoYXIgd3Jv
-dGU6Cj4+Pj4gWW91IGNvdWxkIHByb2JhYmx5Cj4+Pj4gZXZlbiBoYW5kbGUgdGhlIFR4IHF1ZXVl
-IHNlbGVjdGlvbiB2aWEgYSBzaW1wbGUgZUJQRiBwcm9ncmFtIGFuZCBtYXAKPj4+PiBzaW5jZSB0
-aGUgaW5wdXQgZm9yIHdoYXRldmVyIGlzIHVzZWQgdG8gc2VsZWN0IFR4IHNob3VsZCBiZSBwcmV0
-dHkKPj4+PiBzaW1wbGUsIGRlc3RpbmF0aW9uIE1BQywgc291cmNlIE5VTUEgbm9kZSwgZXRjLCBh
-bmQgdGhlIGRhdGEtc2V0Cj4+Pj4gc2hvdWxkbid0IGJlIHRvbyBsYXJnZS4KPj4+IFRoYXQgc291
-bmRzIGludGVyZXN0aW5nLiBBIHNlcGFyYXRlIGRldmljZSBtaWdodCBtYWtlIHRoaXMga2luZCBv
-ZiBzZXR1cAo+Pj4gYSBiaXQgZWFzaWVyLiAgU3JpZGhhciwgZGlkIHlvdSBsb29rIGludG8gY3Jl
-YXRpbmcgYSBzZXBhcmF0ZSBkZXZpY2UgZm9yCj4+PiB0aGUgdmlydHVhbCBib25kIGRldmljZSBh
-dCBhbGw/ICBJdCBkb2VzIG5vdCBoYXZlIHRvIGJlIGluIGEgc2VwYXJhdGUKPj4+IG1vZHVsZSwg
-dGhhdCBraW5kIG9mIHJlZmFjdG9yaW5nIGNhbiBjb21lIGxhdGVyLCBidXQgb25jZSB3ZSBjb21t
-aXQgdG8KPj4+IHVzaW5nIHRoZSBzYW1lIHNpbmdsZSBkZXZpY2UgYXMgdmlydGlvLCB3ZSBjYW4n
-dCBjaGFuZ2UgdGhhdC4KPj4gTm8uIEkgaGF2ZW4ndCBsb29rZWQgaW50byBjcmVhdGluZyBhIHNl
-cGFyYXRlIGRldmljZS4gSWYgd2UgYXJlIGdvaW5nIHRvCj4+IGNyZWF0ZSBhIG5ldwo+PiBkZXZp
-Y2UsIGkgZ3Vlc3MgaXQgaGFzIHRvIGJlIG9mIGEgbmV3IGRldmljZSB0eXBlIHdpdGggaXRzIG93
-biBkcml2ZXIuCj4gV2VsbCBub3QgbmVjZXNzYXJpbHkgLSBqdXN0IGEgc2VwYXJhdGUgbmV0ZGV2
-IG9wcy4KPiBLaW5kIG9mIGxpa2UgZS5nLiB2bGFucyBzaGFyZSBhIGRyaXZlciB3aXRoIHRoZSBt
-YWluIGRyaXZlci4KCk5vdCBzdXJlIHdoYXQgeW91IG1lYW50IGJ5IHZsYW5zIHNoYXJpbmcgYSBk
-cml2ZXIgd2l0aCB0aGUgbWFpbiBkcml2ZXIuCklJVUMsIHZsYW5zIGFyZSBzdXBwb3J0ZWQgdmlh
-IDgwMi4xcSBkcml2ZXIgYW5kwqAgY3JlYXRlcyBhIG5ldGRldiBvZiAKdHlwZSAndmxhbicKd2l0
-aCB2bGFuX25ldGRldl9vcHMKPgo+PiBBcyB3ZSBhcmUgdXNpbmcgdmlydGlvX25ldCB0byBjb250
-cm9sIGFuZCBtYW5hZ2UgdGhlIFZGIGRhdGEgcGF0aCwgaXQgaXMgbm90Cj4+IGNsZWFyIHRvIG1l
-Cj4+IHdoYXQgaXMgdGhlIGFkdmFudGFnZSBvZiBjcmVhdGluZyBhIG5ldyBkZXZpY2UgcmF0aGVy
-IHRoYW4gZXh0ZW5kaW5nCj4+IHZpcnRpb19uZXQgdG8gbWFuYWdlCj4+IHRoZSBWRiBkYXRhcGF0
-aCB2aWEgdHJhbnNwYXJlbnQgYm9uZCBtZWNoYW5pc20uCj4+Cj4+IFRoYW5rcwo+PiBTcmlkaGFy
-Cj4gU28gdGhhdCBYRFAgcmVkaXJlY3QgYWN0aW9ucyBjYW4gZGlmZmVyZW50aWF0ZSBiZXR3ZWVu
-IHZpcnRpbywgUFQKPiBkZXZpY2UgYW5kIHRoZSBib25kLiBXaXRob3V0IGl0IHRoZXJlJ3Mgbm8g
-d2F5IHRvIHJlZGlyZWN0Cj4gdG8gdmlydGlvIHNwZWNpZmljYWxseS4KSSBndWVzcyB0aGlzIHVz
-ZWNhc2UgaXMgZm9yIGEgZ3Vlc3QgYWRtaW4gdG8gYWRkIGJwZiBwcm9ncmFtcyB0byBWRiAKbmV0
-ZGV2IGFuZApyZWRpcmVjdCBmcmFtZXMgdG8gdmlydGlvLsKgIEhvdyBkb2VzIGJvbmQgZW5hYmxl
-IHRoaXMgZmVhdHVyZT8KCgpUaGFua3MKU3JpZGhhcgpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+On 1/22/2018 4:02 PM, Stephen Hemminger wrote:
+>
+>>>   
+>>>> In the case of SwitchDev it
+>>>> should be possible for the port representors and the switch to provide
+>>>> data on which interfaces are bonded on the host side and which aren't.
+>>>> With that data it would be pretty easy to just put together a list of
+>>>> addresses that would prefer to go the para-virtual route instead of
+>>>> being transmitted through physical hardware.
+>>>>
+>>>> In addition a bridge implies much more overhead since normally a
+>>>> bridge can receive a packet in on one interface and transmit it on
+>>>> another. We don't really need that. This is more of a VEPA type setup
+>>>> and doesn't need to be anything all that complex. You could probably
+>>>> even handle the Tx queue selection via a simple eBPF program and map
+>>>> since the input for whatever is used to select Tx should be pretty
+>>>> simple, destination MAC, source NUMA node, etc, and the data-set
+>>>> shouldn't be too large.
+>>> That sounds interesting. A separate device might make this kind of setup
+>>> a bit easier.  Sridhar, did you look into creating a separate device for
+>>> the virtual bond device at all?  It does not have to be in a separate
+>>> module, that kind of refactoring can come later, but once we commit to
+>>> using the same single device as virtio, we can't change that.
+>> No. I haven't looked into creating a separate device. If we are going to
+>> create a new
+>> device, i guess it has to be of a new device type with its own driver.
+>>
+>> As we are using virtio_net to control and manage the VF data path, it is
+>> not clear to me
+>> what is the advantage of creating a new device rather than extending
+>> virtio_net to manage
+>> the VF datapath via transparent bond mechanism.
+>>
+>> Thanks
+>> Sridhar
+>>
+>>
+> The requirement with Azure accelerated network was that a stock distribution image from the
+> store must be able to run unmodified and get accelerated networking.
+> Not sure if other environments need to work the same, but it would be nice.
+>
+> That meant no additional setup scripts (aka no bonding) and also it must
+> work transparently with hot-plug. Also there are diverse set of environments:
+> openstack, cloudinit, network manager and systemd. The solution had to not depend
+> on any one of them, but also not break any of them.
+Yes. Cloud Service Providers using KVM as hypervisor have a similar 
+requirement to provide accelerated
+networking with VM images that support virtio_net.
+
+Thanks
+Sridhar
