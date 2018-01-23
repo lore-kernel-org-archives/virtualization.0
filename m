@@ -1,8 +1,8 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jakub Kicinski <kubakici@wp.pl>
 Subject: Re: [virtio-dev] [RFC PATCH net-next v2 1/2] virtio_net: Introduce
 	VIRTIO_NET_F_BACKUP feature bit
-Date: Tue, 23 Jan 2018 02:47:57 +0200
-Message-ID: <20180123023810-mutt-send-email-mst__6288.18252957917$1516668397$gmane$org@kernel.org>
+Date: Mon, 22 Jan 2018 17:13:01 -0800
+Message-ID: <20180122171301.3463156b__15956.8102717914$1516669924$gmane$org@cakuba.netronome.com>
 References: <1515736720-39368-2-git-send-email-sridhar.samudrala@intel.com>
 	<CAKgT0Uc8bRoAsXYSr7k27gf5+vh7rF2Dd_kWNB1d38tpZAeRGg@mail.gmail.com>
 	<20180117203757-mutt-send-email-mst@kernel.org>
@@ -13,12 +13,12 @@ References: <1515736720-39368-2-git-send-email-sridhar.samudrala@intel.com>
 	<7edf772b-627c-6121-3332-479caed524da@intel.com>
 	<20180123020332-mutt-send-email-mst@kernel.org>
 	<20180122161623.22b6e151@cakuba.netronome.com>
+	<20180123023810-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180122161623.22b6e151@cakuba.netronome.com>
+In-Reply-To: <20180123023810-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,82 +28,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jakub Kicinski <kubakici@wp.pl>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, achiad shochat <achiad.mellanox@gmail.com>, "Samudrala,
 	Sridhar" <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Achiad Shochat <achiad@mellanox.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 22, 2018 at 04:16:23PM -0800, Jakub Kicinski wrote:
-> On Tue, 23 Jan 2018 02:05:48 +0200, Michael S. Tsirkin wrote:
-> > > As we are using virtio_net to control and manage the VF data path, it is not
-> > > clear to me
-> > > what is the advantage of creating a new device rather than extending
-> > > virtio_net to manage
-> > > the VF datapath via transparent bond mechanism.
+On Tue, 23 Jan 2018 02:47:57 +0200, Michael S. Tsirkin wrote:
+> On Mon, Jan 22, 2018 at 04:16:23PM -0800, Jakub Kicinski wrote:
+> > On Tue, 23 Jan 2018 02:05:48 +0200, Michael S. Tsirkin wrote:  
+> > > > As we are using virtio_net to control and manage the VF data path, it is not
+> > > > clear to me
+> > > > what is the advantage of creating a new device rather than extending
+> > > > virtio_net to manage
+> > > > the VF datapath via transparent bond mechanism.  
+> > > 
+> > > So that XDP redirect actions can differentiate between virtio, PT
+> > > device and the bond. Without it there's no way to redirect
+> > > to virtio specifically.  
 > > 
-> > So that XDP redirect actions can differentiate between virtio, PT
-> > device and the bond. Without it there's no way to redirect
-> > to virtio specifically.
+> > Let's make a list :P
+> > 
+> > separate netdev:
+> > 1. virtio device being a bond master is confusing/unexpected.
+> > 2. virtio device being both a master and a slave is confusing.  
 > 
-> Let's make a list :P
+> vlans are like this too, aren't they?
+
+Perhaps a bad wording.  Both master and member would be better.
+
+> > 3. configuration of a master may have different semantics than
+> >    configuration of a slave.
+> > 4. two para-virt devices may create a loop (or rather will be bound 
+> >    to each other indeterministically, depending on which spawns first).  
 > 
-> separate netdev:
-> 1. virtio device being a bond master is confusing/unexpected.
-> 2. virtio device being both a master and a slave is confusing.
+> For 2 virtio devices, we can disable the bond to make it deterministic.
 
-vlans are like this too, aren't they?
+Do you mean the hypervisor can or is there a knob in virtio_net to mask
+off features?  Would that require re-probe of the virtio device?
 
-> 3. configuration of a master may have different semantics than
->    configuration of a slave.
-> 4. two para-virt devices may create a loop (or rather will be bound 
->    to each other indeterministically, depending on which spawns first).
-
-For 2 virtio devices, we can disable the bond to make it deterministic.
-
-> 5. there is no user configuration AFAIR in existing patch, VM admin
->    won't be able to prevent the bond.  Separate netdev we can make 
->    removable even if it's spawned automatically.
-
-That's more or less a feature. If you want configurability, just use
-any of the existing generic solutions (team,bond,bridge,...).
-
-> 6. XDP redirect use-case (or any explicit use of the virtio slave)
->    (from MST)
+> > 5. there is no user configuration AFAIR in existing patch, VM admin
+> >    won't be able to prevent the bond.  Separate netdev we can make 
+> >    removable even if it's spawned automatically.  
 > 
-> independent driver:
-> 7. code reuse.
+> That's more or less a feature. If you want configurability, just use
+> any of the existing generic solutions (team,bond,bridge,...).
 
-With netvsc? That precludes a separate device though because of
-compatibility.
+The use case in mind is that VM admin wants to troubleshoot a problem
+and temporarily disable the auto-bond without touching the hypervisor 
+(and either member preferably).
 
+> > 6. XDP redirect use-case (or any explicit use of the virtio slave)
+> >    (from MST)
+> > 
+> > independent driver:
+> > 7. code reuse.  
 > 
-> separate device:
+> With netvsc? That precludes a separate device though because of
+> compatibility.
 
-I'm not sure I understand how "separate device" is different from
-"separate netdev". Do you advocate for a special device who's job is
-just to tell the guest "bind these two devices together"?
+Hopefully with one of the established bonding drivers (fingers
+crossed).  We may see proliferation of special bonds (see Achiad's
+presentation from last netdev about NIC-NUMA-node-bonds).
 
-Yea, sure, that works. However for sure it's more work to
-implement and manage at all levels. Further
+> > separate device:  
+> 
+> I'm not sure I understand how "separate device" is different from
+> "separate netdev". Do you advocate for a special device who's job is
+> just to tell the guest "bind these two devices together"?
+> 
+> Yea, sure, that works. However for sure it's more work to
+> implement and manage at all levels. Further
+> 
+> - it doesn't answer the question
+> - a feature bit in a virtio device is cheap enough that
+>   I wouldn't worry too much about this feature
+>   going unused later.
 
-- it doesn't answer the question
-- a feature bit in a virtio device is cheap enough that
-  I wouldn't worry too much about this feature
-  going unused later.
+Right, I think we are referring to different things as device.  I mean
+a bus device/struct device, but no strong preference on that one.  I'll
+be happy as long as there is a separate netdev, really :)
 
-> 8. bond any netdev with any netdev.
-> 9. reuse well-known device driver model.
-> a. natural anchor for hypervisor configuration (switchdev etc.)
+> > 8. bond any netdev with any netdev.
+> > 9. reuse well-known device driver model.
+> > a. natural anchor for hypervisor configuration (switchdev etc.)  
+> 
+> saparate netdev has the same property
+>
+> > b. next-gen silicon may be able to disguise as virtio device, and the
+> >    loop check in virtio driver will prevent the legitimate bond it such
+> >    case.  AFAIU that's one of the goals of next-gen virtio spec as well.  
+> 
+> In fact we have a virtio feature bit for the fallback.
+> So this part does not depend on how software in guest works
+> and does not need software solutions.
 
-saparate netdev has the same property
-
-> b. next-gen silicon may be able to disguise as virtio device, and the
->    loop check in virtio driver will prevent the legitimate bond it such
->    case.  AFAIU that's one of the goals of next-gen virtio spec as well.
-
-In fact we have a virtio feature bit for the fallback.
-So this part does not depend on how software in guest works
-and does not need software solutions.
-
--- 
-MST
+You mean in the new spec?  Nice.  Still I think people will try to
+implement the old one too given sufficiently capable HW.
