@@ -1,16 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net 2/2] vhost: do not try to access device IOTLB when
-	not initialized
-Date: Tue, 23 Jan 2018 17:58:10 +0200
-Message-ID: <20180123175804-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH net 1/2] vhost: use mutex_lock_nested() in
+	vhost_dev_lock_vqs()
+Date: Tue, 23 Jan 2018 17:57:58 +0200
+Message-ID: <20180123175752-mutt-send-email-mst@kernel.org>
 References: <1516699646-7321-1-git-send-email-jasowang@redhat.com>
-	<1516699646-7321-2-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1516699646-7321-2-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1516699646-7321-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,34 +23,34 @@ To: Jason Wang <jasowang@redhat.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 23, 2018 at 05:27:26PM +0800, Jason Wang wrote:
-> The code will try to access dev->iotlb when processing
-> VHOST_IOTLB_INVALIDATE even if it was not initialized which may lead
-> to NULL pointer dereference. Fixes this by check dev->iotlb before.
+On Tue, Jan 23, 2018 at 05:27:25PM +0800, Jason Wang wrote:
+> We used to call mutex_lock() in vhost_dev_lock_vqs() which tries to
+> hold mutexes of all virtqueues. This may confuse lockdep to report a
+> possible deadlock because of trying to hold locks belong to same
+> class. Switch to use mutex_lock_nested() to avoid false positive.
 > 
 > Fixes: 6b1e6cc7855b0 ("vhost: new device IOTLB API")
+> Reported-by: syzbot+dbb7c1161485e61b0241@syzkaller.appspotmail.com
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
 Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
 > ---
->  drivers/vhost/vhost.c | 4 ++++
->  1 file changed, 4 insertions(+)
+>  drivers/vhost/vhost.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
 > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 549771a..5727b18 100644
+> index 33ac2b1..549771a 100644
 > --- a/drivers/vhost/vhost.c
 > +++ b/drivers/vhost/vhost.c
-> @@ -1015,6 +1015,10 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
->  		vhost_iotlb_notify_vq(dev, msg);
->  		break;
->  	case VHOST_IOTLB_INVALIDATE:
-> +		if (!dev->iotlb) {
-> +			ret = -EFAULT;
-> +			break;
-> +		}
->  		vhost_vq_meta_reset(dev);
->  		vhost_del_umem_range(dev->iotlb, msg->iova,
->  				     msg->iova + msg->size - 1);
+> @@ -904,7 +904,7 @@ static void vhost_dev_lock_vqs(struct vhost_dev *d)
+>  {
+>  	int i = 0;
+>  	for (i = 0; i < d->nvqs; ++i)
+> -		mutex_lock(&d->vqs[i]->mutex);
+> +		mutex_lock_nested(&d->vqs[i]->mutex, i);
+>  }
+>  
+>  static void vhost_dev_unlock_vqs(struct vhost_dev *d)
 > -- 
 > 2.7.4
