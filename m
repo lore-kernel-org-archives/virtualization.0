@@ -1,13 +1,15 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v23 1/2] mm: support reporting free page blocks
-Date: Wed, 24 Jan 2018 10:50:26 +0800
-Message-ID: <1516762227-36346-2-git-send-email-wei.w.wang__949.308885219757$1516763306$gmane$org@intel.com>
-References: <1516762227-36346-1-git-send-email-wei.w.wang@intel.com>
+Subject: Re: [virtio-dev] Re: [PATCH v22 2/3] virtio-balloon:
+	VIRTIO_BALLOON_F_FREE_PAGE_VQ
+Date: Wed, 24 Jan 2018 11:18:40 +0800
+Message-ID: <5A67FB10.2050201@intel.com>
+References: <1516165812-3995-1-git-send-email-wei.w.wang@intel.com>	<1516165812-3995-3-git-send-email-wei.w.wang@intel.com>	<20180117180337-mutt-send-email-mst@kernel.org>	<5A616995.4050702@intel.com>	<20180119143517-mutt-send-email-mst@kernel.org>
+	<5A65CA39.2070906@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1516762227-36346-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <5A65CA39.2070906@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,151 +19,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org
-Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, pbonzini@redhat.com, nilal@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, nilal@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds support to walk through the free page blocks in the
-system and report them via a callback function. Some page blocks may
-leave the free list after zone->lock is released, so it is the caller's
-responsibility to either detect or prevent the use of such pages.
+On 01/22/2018 07:25 PM, Wei Wang wrote:
+> On 01/19/2018 08:39 PM, Michael S. Tsirkin wrote:
+>> On Fri, Jan 19, 2018 at 11:44:21AM +0800, Wei Wang wrote:
+>>> On 01/18/2018 12:44 AM, Michael S. Tsirkin wrote:
+>>>> On Wed, Jan 17, 2018 at 01:10:11PM +0800, Wei Wang wrote:
+>>>>
+>>>>> +        vb->start_cmd_id = cmd_id;
+>>>>> +        queue_work(vb->balloon_wq, &vb->report_free_page_work);
+>>>> It seems that if a command was already queued (with a different id),
+>>>> this will result in new command id being sent to host twice, which 
+>>>> will
+>>>> likely confuse the host.
+>>> I think that case won't happen, because
+>>> - the host sends a cmd id to the guest via the config, while the 
+>>> guest acks
+>>> back the received cmd id via the virtqueue;
+>>> - the guest ack back a cmd id only when a new cmd id is received 
+>>> from the
+>>> host, that is the above check:
+>>>
+>>>      if (cmd_id != vb->start_cmd_id) { --> the driver only queues the
+>>> reporting work only when a new cmd id is received
+>>>                          /*
+>>>                           * Host requests to start the reporting by 
+>>> sending a
+>>>                           * new cmd id.
+>>>                           */
+>>>                          WRITE_ONCE(vb->report_free_page, true);
+>>>                          vb->start_cmd_id = cmd_id;
+>>>                          queue_work(vb->balloon_wq,
+>>> &vb->report_free_page_work);
+>>>      }
+>>>
+>>> So the same cmd id wouldn't queue the reporting work twice.
+>>>
+>> Like this:
+>>
+>>         vb->start_cmd_id = cmd_id;
+>>         queue_work(vb->balloon_wq, &vb->report_free_page_work);
+>>
+>> command id changes
+>>
+>>         vb->start_cmd_id = cmd_id;
+>>
+>> work executes
+>>
+>>         queue_work(vb->balloon_wq, &vb->report_free_page_work);
+>>
+>> work executes again
+>>
+>
+> If we think about the whole working flow, I think this case couldn't 
+> happen:
+>
+> 1) device send cmd_id=1 to driver;
+> 2) driver receives cmd_id=1 in the config and acks cmd_id=1 to the 
+> device via the vq;
+> 3) device revives cmd_id=1;
+> 4) device wants to stop the reporting by sending cmd_id=STOP;
+> 5) driver receives cmd_id=STOP from the config, and acks cmd_id=STOP 
+> to the device via the vq;
+> 6) device sends cmd_id=2 to driver;
+> ...
+>
+> cmd_id=2 won't come after cmd_id=1, there will be a STOP cmd in 
+> between them (STOP won't queue the work).
+>
+> How about defining the correct device behavior in the spec:
+> The device Should NOT send a second cmd id to the driver until a STOP 
+> cmd ack for the previous cmd id has been received from the guest.
 
-One use example of this patch is to accelerate live migration by skipping
-the transfer of free pages reported from the guest. A popular method used
-by the hypervisor to track which part of memory is written during live
-migration is to write-protect all the guest memory. So, those pages that
-are reported as free pages but are written after the report function
-returns will be captured by the hypervisor, and they will be added to the
-next round of memory transfer.
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Signed-off-by: Liang Li <liang.z.li@intel.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Michal Hocko <mhocko@kernel.org>
----
- include/linux/mm.h |  6 ++++
- mm/page_alloc.c    | 91 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 97 insertions(+)
+Thanks for the comments, and I adopted most of them in the new posted 
+v23 patches. The above discussion is the one that I haven't included. If 
+you could still see issues in the above analysis, please let me know. 
+Thanks.
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index ea818ff..b3077dd 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1938,6 +1938,12 @@ extern void free_area_init_node(int nid, unsigned long * zones_size,
- 		unsigned long zone_start_pfn, unsigned long *zholes_size);
- extern void free_initmem(void);
- 
-+extern void walk_free_mem_block(void *opaque,
-+				int min_order,
-+				bool (*report_pfn_range)(void *opaque,
-+							 unsigned long pfn,
-+							 unsigned long num));
-+
- /*
-  * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
-  * into the buddy system. The freed pages will be poisoned with pattern
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 76c9688..705de22 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -4899,6 +4899,97 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
- 	show_swap_cache_info();
- }
- 
-+/*
-+ * Walk through a free page list and report the found pfn range via the
-+ * callback.
-+ *
-+ * Return false if the callback requests to stop reporting. Otherwise,
-+ * return true.
-+ */
-+static bool walk_free_page_list(void *opaque,
-+				struct zone *zone,
-+				int order,
-+				enum migratetype mt,
-+				bool (*report_pfn_range)(void *,
-+							 unsigned long,
-+							 unsigned long))
-+{
-+	struct page *page;
-+	struct list_head *list;
-+	unsigned long pfn, flags;
-+	bool ret;
-+
-+	spin_lock_irqsave(&zone->lock, flags);
-+	list = &zone->free_area[order].free_list[mt];
-+	list_for_each_entry(page, list, lru) {
-+		pfn = page_to_pfn(page);
-+		ret = report_pfn_range(opaque, pfn, 1 << order);
-+		if (!ret)
-+			break;
-+	}
-+	spin_unlock_irqrestore(&zone->lock, flags);
-+
-+	return ret;
-+}
-+
-+/**
-+ * walk_free_mem_block - Walk through the free page blocks in the system
-+ * @opaque: the context passed from the caller
-+ * @min_order: the minimum order of free lists to check
-+ * @report_pfn_range: the callback to report the pfn range of the free pages
-+ *
-+ * If the callback returns false, stop iterating the list of free page blocks.
-+ * Otherwise, continue to report.
-+ *
-+ * Please note that there are no locking guarantees for the callback and
-+ * that the reported pfn range might be freed or disappear after the
-+ * callback returns so the caller has to be very careful how it is used.
-+ *
-+ * The callback itself must not sleep or perform any operations which would
-+ * require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
-+ * or via any lock dependency. It is generally advisable to implement
-+ * the callback as simple as possible and defer any heavy lifting to a
-+ * different context.
-+ *
-+ * There is no guarantee that each free range will be reported only once
-+ * during one walk_free_mem_block invocation.
-+ *
-+ * pfn_to_page on the given range is strongly discouraged and if there is
-+ * an absolute need for that make sure to contact MM people to discuss
-+ * potential problems.
-+ *
-+ * The function itself might sleep so it cannot be called from atomic
-+ * contexts.
-+ *
-+ * In general low orders tend to be very volatile and so it makes more
-+ * sense to query larger ones first for various optimizations which like
-+ * ballooning etc... This will reduce the overhead as well.
-+ */
-+void walk_free_mem_block(void *opaque,
-+			 int min_order,
-+			 bool (*report_pfn_range)(void *opaque,
-+						  unsigned long pfn,
-+						  unsigned long num))
-+{
-+	struct zone *zone;
-+	int order;
-+	enum migratetype mt;
-+	bool ret;
-+
-+	for_each_populated_zone(zone) {
-+		for (order = MAX_ORDER - 1; order >= min_order; order--) {
-+			for (mt = 0; mt < MIGRATE_TYPES; mt++) {
-+				ret = walk_free_page_list(opaque, zone,
-+							  order, mt,
-+							  report_pfn_range);
-+				if (!ret)
-+					return;
-+			}
-+		}
-+	}
-+}
-+EXPORT_SYMBOL_GPL(walk_free_mem_block);
-+
- static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
- {
- 	zoneref->zone = zone;
--- 
-2.7.4
+Best,
+Wei
