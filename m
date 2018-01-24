@@ -1,24 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] [RFC PATCH net-next v2 1/2] virtio_net: Introduce
-	VIRTIO_NET_F_BACKUP feature bit
-Date: Wed, 24 Jan 2018 01:01:03 +0200
-Message-ID: <20180124010051-mutt-send-email-mst__14787.2047652074$1516748364$gmane$org@kernel.org>
-References: <20180117203757-mutt-send-email-mst@kernel.org>
-	<058068e5-febd-92c8-e5a9-faf262b82335@intel.com>
-	<20180117213527-mutt-send-email-mst@kernel.org>
-	<CAKgT0UeyNvVQc11KXc3updJfa9p7a9NcfRC=gP6=ktkjrSkOag@mail.gmail.com>
-	<20180122231713-mutt-send-email-mst@kernel.org>
-	<7edf772b-627c-6121-3332-479caed524da@intel.com>
-	<20180123020332-mutt-send-email-mst@kernel.org>
-	<be3864b4-f108-6a7d-8628-204d4d4ae278@intel.com>
-	<20180123035619-mutt-send-email-mst@kernel.org>
-	<CAKgT0UfaKG7=E5ciarE3fSUp-Ke-oDNodGe_baEAGbZqWV4Qug@mail.gmail.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: [PATCH v23 0/2] Virtio-balloon: support free page reporting
+Date: Wed, 24 Jan 2018 10:50:25 +0800
+Message-ID: <1516762227-36346-1-git-send-email-wei.w.wang__7784.32510928742$1516763272$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAKgT0UfaKG7=E5ciarE3fSUp-Ke-oDNodGe_baEAGbZqWV4Qug@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,50 +15,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Duyck <alexander.duyck@gmail.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, achiad shochat <achiad.mellanox@gmail.com>, Achiad Shochat <achiad@mellanox.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org
+Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, pbonzini@redhat.com, nilal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 22, 2018 at 07:36:32PM -0800, Alexander Duyck wrote:
-> On Mon, Jan 22, 2018 at 6:04 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Mon, Jan 22, 2018 at 05:34:37PM -0800, Samudrala, Sridhar wrote:
-> >> On 1/22/2018 4:05 PM, Michael S. Tsirkin wrote:
-> >> > On Mon, Jan 22, 2018 at 03:27:40PM -0800, Samudrala, Sridhar wrote:
-> >> > > > > You could probably
-> >> > > > > even handle the Tx queue selection via a simple eBPF program and map
-> >> > > > > since the input for whatever is used to select Tx should be pretty
-> >> > > > > simple, destination MAC, source NUMA node, etc, and the data-set
-> >> > > > > shouldn't be too large.
-> >> > > > That sounds interesting. A separate device might make this kind of setup
-> >> > > > a bit easier.  Sridhar, did you look into creating a separate device for
-> >> > > > the virtual bond device at all?  It does not have to be in a separate
-> >> > > > module, that kind of refactoring can come later, but once we commit to
-> >> > > > using the same single device as virtio, we can't change that.
-> >> > > No. I haven't looked into creating a separate device. If we are going to
-> >> > > create a new
-> >> > > device, i guess it has to be of a new device type with its own driver.
-> >> > Well not necessarily - just a separate netdev ops.
-> >> > Kind of like e.g. vlans share a driver with the main driver.
-> >>
-> >> Not sure what you meant by vlans sharing a driver with the main driver.
-> >> IIUC, vlans are supported via 802.1q driver and  creates a netdev of type
-> >> 'vlan'
-> >> with vlan_netdev_ops
-> >
-> > But nothing prevents a single module from registering
-> > multiple ops.
-> 
-> Just to clarify, it seems like what you are suggesting is just adding
-> the "master" as a separate set of netdev ops or netdevice and to have
-> virtio spawn two network devices, one slave and one master, if the
-> BACKUP bit is set. Do I have that right?
+This patch series is separated from the previous "Virtio-balloon
+Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_VQ,  
+implemented by this series enables the virtio-balloon driver to report
+hints of guest free pages to the host. It can be used to accelerate live
+migration of VMs. Here is an introduction of this usage:
 
-Yes, that was my idea.
+Live migration needs to transfer the VM's memory from the source machine
+to the destination round by round. For the 1st round, all the VM's memory
+is transferred. From the 2nd round, only the pieces of memory that were
+written by the guest (after the 1st round) are transferred. One method
+that is popularly used by the hypervisor to track which part of memory is
+written is to write-protect all the guest memory.
 
-> I am good with the code still living in the virtio driver and
-> consolidation with other similar implementations and further
-> improvement could probably happen later as part of some refactor.
-> 
-> Thanks.
-> 
-> - Alex
+The second feature enables the optimization of the 1st round memory
+transfer - the hypervisor can skip the transfer of guest free pages in the
+1st round. It is not concerned that the memory pages are used after they
+are given to the hypervisor as a hint of the free pages, because they will
+be tracked by the hypervisor and transferred in the next round if they are
+used and written.
+
+ChangeLog:
+v22->v23:
+    - change to kick the device when the vq is half-way full;
+    - open-code batch_free_page_sg into add_one_sg;
+    - change cmd_id from "uint32_t" to "__virtio32";
+    - reserver one entry in the vq for teh driver to send cmd_id, instead
+      of busywaiting for an available entry;
+    - add "stop_update" check before queue_work for prudence purpose for
+      now, will have a separate patch to discuss this flag check later;
+    - init_vqs: change to put some variables on stack to have simpler
+      implementation;
+    - add destroy_workqueue(vb->balloon_wq);
+
+v21->v22:
+    - add_one_sg: some code and comment re-arrangement
+    - send_cmd_id: handle a cornercase
+
+For previous ChangeLog, please reference
+https://lwn.net/Articles/743660/
+
+Wei Wang (2):
+  mm: support reporting free page blocks
+  virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
+
+ drivers/virtio/virtio_balloon.c     | 228 ++++++++++++++++++++++++++++++------
+ include/linux/mm.h                  |   6 +
+ include/uapi/linux/virtio_balloon.h |   6 +
+ mm/page_alloc.c                     |  91 ++++++++++++++
+ 4 files changed, 298 insertions(+), 33 deletions(-)
+
+-- 
+2.7.4
