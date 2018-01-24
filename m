@@ -1,17 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v23 2/2] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_VQ
-Date: Wed, 24 Jan 2018 19:32:59 +0200
-Message-ID: <20180124193217-mutt-send-email-mst__15654.4070262045$1516815116$gmane$org@kernel.org>
-References: <1516762227-36346-1-git-send-email-wei.w.wang@intel.com>
-	<1516762227-36346-3-git-send-email-wei.w.wang@intel.com>
-	<20180124064923-mutt-send-email-mst@kernel.org>
-	<5A681E03.1030007@intel.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net 1/2] vhost: use mutex_lock_nested() in
+	vhost_dev_lock_vqs()
+Date: Wed, 24 Jan 2018 16:38:30 -0500 (EST)
+Message-ID: <20180124.163830.2180124252515802160.davem__24413.6296598755$1516829824$gmane$org@davemloft.net>
+References: <1516699646-7321-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5A681E03.1030007@intel.com>
+In-Reply-To: <1516699646-7321-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,31 +18,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 24, 2018 at 01:47:47PM +0800, Wei Wang wrote:
-> On 01/24/2018 01:01 PM, Michael S. Tsirkin wrote:
-> > On Wed, Jan 24, 2018 at 10:50:27AM +0800, Wei Wang wrote:
-> > This will not DTRT in all cases. It's quite possible
-> > that host does not need the kick when ring is half full but
-> > does need it later when ring is full.
-> > You can kick at ring half full as optimization but you absolutely
-> > still must kick on ring full. Something like:
-> > 
-> > if (vq->num_free == virtqueue_get_vring_size(vq) / 2 ||
-> > 	vq->num_free <= 2)
-> 
-> Right. Would "if (vq->num_free < virtqueue_get_vring_size(vq) / 2" be
-> better?
-> 
-> 
-> Best,
-> Wei
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 23 Jan 2018 17:27:25 +0800
 
-It gives more kicks ... this reminds me, you need to validate
-that vring size is at least 2, otherwise fail probe.
+> We used to call mutex_lock() in vhost_dev_lock_vqs() which tries to
+> hold mutexes of all virtqueues. This may confuse lockdep to report a
+> possible deadlock because of trying to hold locks belong to same
+> class. Switch to use mutex_lock_nested() to avoid false positive.
+> 
+> Fixes: 6b1e6cc7855b0 ("vhost: new device IOTLB API")
+> Reported-by: syzbot+dbb7c1161485e61b0241@syzkaller.appspotmail.com
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
--- 
-MST
+Michael, I see you ACK'd this, meaning that you're OK with these two
+fixes going via my net tree?
+
+Thanks.
