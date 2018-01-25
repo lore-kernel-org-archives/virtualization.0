@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH net-next 10/12] tools/virtio: more stubs to fix tools build
-Date: Fri, 26 Jan 2018 01:36:40 +0200
-Message-ID: <1516923320-16959-13-git-send-email-mst@redhat.com>
+Subject: [PATCH net-next 09/12] tools/virtio: switch to __ptr_ring_empty
+Date: Fri, 26 Jan 2018 01:36:39 +0200
+Message-ID: <1516923320-16959-12-git-send-email-mst__21079.3282989927$1516923322$gmane$org@redhat.com>
 References: <1516923320-16959-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,32 +22,26 @@ To: linux-kernel@vger.kernel.org
 Cc: netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+We don't rely on lockless guarantees, but it
+seems cleaner than inverting __ptr_ring_peek.
+
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- tools/virtio/linux/kernel.h      | 2 +-
- tools/virtio/linux/thread_info.h | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
- create mode 100644 tools/virtio/linux/thread_info.h
+ tools/virtio/ringtest/ptr_ring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
-index 395521a..fca8381 100644
---- a/tools/virtio/linux/kernel.h
-+++ b/tools/virtio/linux/kernel.h
-@@ -118,7 +118,7 @@ static inline void free_page(unsigned long addr)
- #define dev_err(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
- #define dev_warn(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
+diff --git a/tools/virtio/ringtest/ptr_ring.c b/tools/virtio/ringtest/ptr_ring.c
+index e6e8130..477899c 100644
+--- a/tools/virtio/ringtest/ptr_ring.c
++++ b/tools/virtio/ringtest/ptr_ring.c
+@@ -187,7 +187,7 @@ bool enable_kick()
  
--#define WARN_ON_ONCE(cond) ((cond) && fprintf (stderr, "WARNING\n"))
-+#define WARN_ON_ONCE(cond) ((cond) ? fprintf (stderr, "WARNING\n") : 0)
+ bool avail_empty()
+ {
+-	return !__ptr_ring_peek(&array);
++	return __ptr_ring_empty(&array);
+ }
  
- #define min(x, y) ({				\
- 	typeof(x) _min1 = (x);			\
-diff --git a/tools/virtio/linux/thread_info.h b/tools/virtio/linux/thread_info.h
-new file mode 100644
-index 0000000..e0f610d
---- /dev/null
-+++ b/tools/virtio/linux/thread_info.h
-@@ -0,0 +1 @@
-+#define check_copy_size(A, B, C) (1)
+ bool use_buf(unsigned *lenp, void **bufp)
 -- 
 MST
