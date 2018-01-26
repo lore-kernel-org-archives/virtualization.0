@@ -1,11 +1,13 @@
 From: Corentin Labbe <clabbe.montjoie@gmail.com>
-Subject: [PATCH v2 0/6] crypto: engine - Permit to enqueue all async requests
-Date: Fri, 26 Jan 2018 20:15:28 +0100
-Message-ID: <20180126191534.17569-1-clabbe.montjoie__11125.4138443202$1516994223$gmane$org@gmail.com>
+Subject: [PATCH v2 4/6] crypto: virtio: convert to new crypto engine API
+Date: Fri, 26 Jan 2018 20:15:32 +0100
+Message-ID: <20180126191534.17569-5-clabbe.montjoie__34983.5088979036$1516994227$gmane$org@gmail.com>
+References: <20180126191534.17569-1-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180126191534.17569-1-clabbe.montjoie@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,72 +21,105 @@ To: alexandre.torgue@st.com, arei.gonglei@huawei.com, corbet@lwn.net, davem@dave
 Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sunxi@googlegroups.com, Corentin Labbe <clabbe.montjoie@gmail.com>, linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello
+This patch convert the driver to the new crypto engine API.
 
-The current crypto_engine support only ahash and ablkcipher request.
-My first patch which try to add skcipher was Nacked, it will add too many functions
-and adding other algs(aead, asymetric_key) will make the situation worst.
+Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+---
+ drivers/crypto/virtio/virtio_crypto_algs.c   | 16 ++++++++++------
+ drivers/crypto/virtio/virtio_crypto_common.h |  3 +--
+ drivers/crypto/virtio/virtio_crypto_core.c   |  3 ---
+ 3 files changed, 11 insertions(+), 11 deletions(-)
 
-This patchset remove all algs specific stuff and now only process generic crypto_async_request.
-
-The requests handler function pointer are now moved out of struct engine and
-are now stored directly in a crypto_engine_reqctx.
-
-The original proposal of Herbert [1] cannot be done completly since the crypto_engine
-could only dequeue crypto_async_request and it is impossible to access any request_ctx
-without knowing the underlying request type.
-
-So I do something near that was requested: adding crypto_engine_reqctx in TFM context.
-Note that the current implementation expect that crypto_engine_reqctx
-is the first member of the context.
-
-The first patch is a try to document the crypto engine API.
-The second patch convert the crypto engine with the new way,
-while the following patchs convert the 4 existing users of crypto_engine.
-Note that this split break bisection, so probably the final commit will be all merged.
-
-Appart from virtio, all 4 latest patch were compile tested only.
-But the crypto engine is tested with my new sun8i-ce driver.
-
-Regards
-
-[1] https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1474434.html
-
-Changes since V1:
-- renamed crypto_engine_reqctx to crypto_engine_ctx
-- indentation fix in function parameter
-- do not export crypto_transfer_request
-- Add aead support
-- crypto_finalize_request is now static
-
-Changes since RFC:
-- Added a documentation patch
-- Added patch for stm32-cryp
-- Changed parameter of all crypto_engine_op functions from
-	crypto_async_request to void*
-- Reintroduced crypto_transfer_xxx_request_to_engine functions
-
-Corentin Labbe (6):
-  Documentation: crypto: document crypto engine API
-  crypto: engine - Permit to enqueue all async requests
-  crypto: omap: convert to new crypto engine API
-  crypto: virtio: convert to new crypto engine API
-  crypto: stm32-hash: convert to the new crypto engine API
-  crypto: stm32-cryp: convert to the new crypto engine API
-
- Documentation/crypto/crypto_engine.rst       |  48 +++++
- crypto/crypto_engine.c                       | 301 +++++++++++++++------------
- drivers/crypto/omap-aes.c                    |  21 +-
- drivers/crypto/omap-aes.h                    |   3 +
- drivers/crypto/omap-des.c                    |  24 ++-
- drivers/crypto/stm32/stm32-cryp.c            |  29 ++-
- drivers/crypto/stm32/stm32-hash.c            |  20 +-
- drivers/crypto/virtio/virtio_crypto_algs.c   |  16 +-
- drivers/crypto/virtio/virtio_crypto_common.h |   3 +-
- drivers/crypto/virtio/virtio_crypto_core.c   |   3 -
- include/crypto/engine.h                      |  68 +++---
- 11 files changed, 332 insertions(+), 204 deletions(-)
- create mode 100644 Documentation/crypto/crypto_engine.rst
-
+diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
+index abe8c15450df..ba190cfa7aa1 100644
+--- a/drivers/crypto/virtio/virtio_crypto_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+@@ -29,6 +29,7 @@
+ 
+ 
+ struct virtio_crypto_ablkcipher_ctx {
++	struct crypto_engine_ctx enginectx;
+ 	struct virtio_crypto *vcrypto;
+ 	struct crypto_tfm *tfm;
+ 
+@@ -491,7 +492,7 @@ static int virtio_crypto_ablkcipher_encrypt(struct ablkcipher_request *req)
+ 	vc_sym_req->ablkcipher_req = req;
+ 	vc_sym_req->encrypt = true;
+ 
+-	return crypto_transfer_cipher_request_to_engine(data_vq->engine, req);
++	return crypto_transfer_ablkcipher_request_to_engine(data_vq->engine, req);
+ }
+ 
+ static int virtio_crypto_ablkcipher_decrypt(struct ablkcipher_request *req)
+@@ -511,7 +512,7 @@ static int virtio_crypto_ablkcipher_decrypt(struct ablkcipher_request *req)
+ 	vc_sym_req->ablkcipher_req = req;
+ 	vc_sym_req->encrypt = false;
+ 
+-	return crypto_transfer_cipher_request_to_engine(data_vq->engine, req);
++	return crypto_transfer_ablkcipher_request_to_engine(data_vq->engine, req);
+ }
+ 
+ static int virtio_crypto_ablkcipher_init(struct crypto_tfm *tfm)
+@@ -521,6 +522,9 @@ static int virtio_crypto_ablkcipher_init(struct crypto_tfm *tfm)
+ 	tfm->crt_ablkcipher.reqsize = sizeof(struct virtio_crypto_sym_request);
+ 	ctx->tfm = tfm;
+ 
++	ctx->enginectx.op.do_one_request = virtio_crypto_ablkcipher_crypt_req;
++	ctx->enginectx.op.prepare_request = NULL;
++	ctx->enginectx.op.unprepare_request = NULL;
+ 	return 0;
+ }
+ 
+@@ -538,9 +542,9 @@ static void virtio_crypto_ablkcipher_exit(struct crypto_tfm *tfm)
+ }
+ 
+ int virtio_crypto_ablkcipher_crypt_req(
+-	struct crypto_engine *engine,
+-	struct ablkcipher_request *req)
++	struct crypto_engine *engine, void *vreq)
+ {
++	struct ablkcipher_request *req = container_of(vreq, struct ablkcipher_request, base);
+ 	struct virtio_crypto_sym_request *vc_sym_req =
+ 				ablkcipher_request_ctx(req);
+ 	struct virtio_crypto_request *vc_req = &vc_sym_req->base;
+@@ -561,8 +565,8 @@ static void virtio_crypto_ablkcipher_finalize_req(
+ 	struct ablkcipher_request *req,
+ 	int err)
+ {
+-	crypto_finalize_cipher_request(vc_sym_req->base.dataq->engine,
+-					req, err);
++	crypto_finalize_ablkcipher_request(vc_sym_req->base.dataq->engine,
++					   req, err);
+ 	kzfree(vc_sym_req->iv);
+ 	virtcrypto_clear_request(&vc_sym_req->base);
+ }
+diff --git a/drivers/crypto/virtio/virtio_crypto_common.h b/drivers/crypto/virtio/virtio_crypto_common.h
+index e976539a05d9..72621bd67211 100644
+--- a/drivers/crypto/virtio/virtio_crypto_common.h
++++ b/drivers/crypto/virtio/virtio_crypto_common.h
+@@ -107,8 +107,7 @@ struct virtio_crypto *virtcrypto_get_dev_node(int node);
+ int virtcrypto_dev_start(struct virtio_crypto *vcrypto);
+ void virtcrypto_dev_stop(struct virtio_crypto *vcrypto);
+ int virtio_crypto_ablkcipher_crypt_req(
+-	struct crypto_engine *engine,
+-	struct ablkcipher_request *req);
++	struct crypto_engine *engine, void *vreq);
+ 
+ void
+ virtcrypto_clear_request(struct virtio_crypto_request *vc_req);
+diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
+index ff1410a32c2b..83326986c113 100644
+--- a/drivers/crypto/virtio/virtio_crypto_core.c
++++ b/drivers/crypto/virtio/virtio_crypto_core.c
+@@ -111,9 +111,6 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
+ 			ret = -ENOMEM;
+ 			goto err_engine;
+ 		}
+-
+-		vi->data_vq[i].engine->cipher_one_request =
+-			virtio_crypto_ablkcipher_crypt_req;
+ 	}
+ 
+ 	kfree(names);
 -- 
 2.13.6
