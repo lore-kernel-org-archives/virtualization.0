@@ -1,8 +1,8 @@
 From: Corentin Labbe <clabbe.montjoie@gmail.com>
-Subject: [PATCH v2 5/6] crypto: stm32-hash: convert to the new crypto engine
+Subject: [PATCH v2 6/6] crypto: stm32-cryp: convert to the new crypto engine
 	API
-Date: Fri, 26 Jan 2018 20:15:33 +0100
-Message-ID: <20180126191534.17569-6-clabbe.montjoie__36456.3651070513$1516994237$gmane$org@gmail.com>
+Date: Fri, 26 Jan 2018 20:15:34 +0100
+Message-ID: <20180126191534.17569-7-clabbe.montjoie__6508.62622210315$1516994282$gmane$org@gmail.com>
 References: <20180126191534.17569-1-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,80 +22,96 @@ To: alexandre.torgue@st.com, arei.gonglei@huawei.com, corbet@lwn.net, davem@dave
 Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sunxi@googlegroups.com, Corentin Labbe <clabbe.montjoie@gmail.com>, linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch convert the stm32-hash driver to the new crypto engine API.
-
+This patch convert the stm32-cryp driver to the new crypto engine API.
 Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
 Tested-by: Fabien Dessenne <fabien.dessenne@st.com>
 ---
- drivers/crypto/stm32/stm32-hash.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/crypto/stm32/stm32-cryp.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/crypto/stm32/stm32-hash.c b/drivers/crypto/stm32/stm32-hash.c
-index 4ca4a264a833..89b0c2490d80 100644
---- a/drivers/crypto/stm32/stm32-hash.c
-+++ b/drivers/crypto/stm32/stm32-hash.c
-@@ -122,6 +122,7 @@ enum stm32_hash_data_format {
- #define HASH_DMA_THRESHOLD		50
+diff --git a/drivers/crypto/stm32/stm32-cryp.c b/drivers/crypto/stm32/stm32-cryp.c
+index cf1dddbeaa2c..a816b2ffcaad 100644
+--- a/drivers/crypto/stm32/stm32-cryp.c
++++ b/drivers/crypto/stm32/stm32-cryp.c
+@@ -91,6 +91,7 @@
+ #define _walked_out             (cryp->out_walk.offset - cryp->out_sg->offset)
  
- struct stm32_hash_ctx {
+ struct stm32_cryp_ctx {
 +	struct crypto_engine_ctx enginectx;
- 	struct stm32_hash_dev	*hdev;
- 	unsigned long		flags;
+ 	struct stm32_cryp       *cryp;
+ 	int                     keylen;
+ 	u32                     key[AES_KEYSIZE_256 / sizeof(u32)];
+@@ -478,7 +479,7 @@ static void stm32_cryp_finish_req(struct stm32_cryp *cryp)
+ 		free_pages((unsigned long)buf_out, pages);
+ 	}
  
-@@ -828,15 +829,19 @@ static int stm32_hash_hw_init(struct stm32_hash_dev *hdev,
+-	crypto_finalize_cipher_request(cryp->engine, cryp->req, err);
++	crypto_finalize_ablkcipher_request(cryp->engine, cryp->req, err);
+ 	cryp->req = NULL;
+ 
+ 	memset(cryp->ctx->key, 0, cryp->ctx->keylen);
+@@ -494,10 +495,19 @@ static int stm32_cryp_cpu_start(struct stm32_cryp *cryp)
  	return 0;
  }
  
-+static int stm32_hash_one_request(struct crypto_engine *engine, void *areq);
-+static int stm32_hash_prepare_req(struct crypto_engine *engine, void *areq);
++static int stm32_cryp_cipher_one_req(struct crypto_engine *engine, void *areq);
++static int stm32_cryp_prepare_cipher_req(struct crypto_engine *engine,
++					 void *areq);
 +
- static int stm32_hash_handle_queue(struct stm32_hash_dev *hdev,
- 				   struct ahash_request *req)
+ static int stm32_cryp_cra_init(struct crypto_tfm *tfm)
  {
- 	return crypto_transfer_hash_request_to_engine(hdev->engine, req);
- }
++	struct stm32_cryp_ctx *ctx = crypto_tfm_ctx(tfm);
++
+ 	tfm->crt_ablkcipher.reqsize = sizeof(struct stm32_cryp_reqctx);
  
--static int stm32_hash_prepare_req(struct crypto_engine *engine,
--				  struct ahash_request *req)
-+static int stm32_hash_prepare_req(struct crypto_engine *engine, void *areq)
- {
-+	struct ahash_request *req = container_of(areq, struct ahash_request,
-+						 base);
- 	struct stm32_hash_ctx *ctx = crypto_ahash_ctx(crypto_ahash_reqtfm(req));
- 	struct stm32_hash_dev *hdev = stm32_hash_find_dev(ctx);
- 	struct stm32_hash_request_ctx *rctx;
-@@ -854,9 +859,10 @@ static int stm32_hash_prepare_req(struct crypto_engine *engine,
- 	return stm32_hash_hw_init(hdev, rctx);
- }
- 
--static int stm32_hash_one_request(struct crypto_engine *engine,
--				  struct ahash_request *req)
-+static int stm32_hash_one_request(struct crypto_engine *engine, void *areq)
- {
-+	struct ahash_request *req = container_of(areq, struct ahash_request,
-+						 base);
- 	struct stm32_hash_ctx *ctx = crypto_ahash_ctx(crypto_ahash_reqtfm(req));
- 	struct stm32_hash_dev *hdev = stm32_hash_find_dev(ctx);
- 	struct stm32_hash_request_ctx *rctx;
-@@ -1033,6 +1039,9 @@ static int stm32_hash_cra_init_algs(struct crypto_tfm *tfm,
- 	if (algs_hmac_name)
- 		ctx->flags |= HASH_FLAGS_HMAC;
- 
-+	ctx->enginectx.op.do_one_request = stm32_hash_one_request;
-+	ctx->enginectx.op.prepare_request = stm32_hash_prepare_req;
++	ctx->enginectx.op.do_one_request = stm32_cryp_cipher_one_req;
++	ctx->enginectx.op.prepare_request = stm32_cryp_prepare_cipher_req;
 +	ctx->enginectx.op.unprepare_request = NULL;
  	return 0;
  }
  
-@@ -1493,9 +1502,6 @@ static int stm32_hash_probe(struct platform_device *pdev)
- 		goto err_engine;
+@@ -513,7 +523,7 @@ static int stm32_cryp_crypt(struct ablkcipher_request *req, unsigned long mode)
+ 
+ 	rctx->mode = mode;
+ 
+-	return crypto_transfer_cipher_request_to_engine(cryp->engine, req);
++	return crypto_transfer_ablkcipher_request_to_engine(cryp->engine, req);
+ }
+ 
+ static int stm32_cryp_setkey(struct crypto_ablkcipher *tfm, const u8 *key,
+@@ -695,14 +705,20 @@ static int stm32_cryp_prepare_req(struct crypto_engine *engine,
+ }
+ 
+ static int stm32_cryp_prepare_cipher_req(struct crypto_engine *engine,
+-					 struct ablkcipher_request *req)
++					 void *areq)
+ {
++	struct ablkcipher_request *req = container_of(areq,
++						      struct ablkcipher_request,
++						      base);
++
+ 	return stm32_cryp_prepare_req(engine, req);
+ }
+ 
+-static int stm32_cryp_cipher_one_req(struct crypto_engine *engine,
+-				     struct ablkcipher_request *req)
++static int stm32_cryp_cipher_one_req(struct crypto_engine *engine, void *areq)
+ {
++	struct ablkcipher_request *req = container_of(areq,
++						      struct ablkcipher_request,
++						      base);
+ 	struct stm32_cryp_ctx *ctx = crypto_ablkcipher_ctx(
+ 			crypto_ablkcipher_reqtfm(req));
+ 	struct stm32_cryp *cryp = ctx->cryp;
+@@ -1104,9 +1120,6 @@ static int stm32_cryp_probe(struct platform_device *pdev)
+ 		goto err_engine1;
  	}
  
--	hdev->engine->prepare_hash_request = stm32_hash_prepare_req;
--	hdev->engine->hash_one_request = stm32_hash_one_request;
+-	cryp->engine->prepare_cipher_request = stm32_cryp_prepare_cipher_req;
+-	cryp->engine->cipher_one_request = stm32_cryp_cipher_one_req;
 -
- 	ret = crypto_engine_start(hdev->engine);
- 	if (ret)
- 		goto err_engine_start;
+ 	ret = crypto_engine_start(cryp->engine);
+ 	if (ret) {
+ 		dev_err(dev, "Could not start crypto engine\n");
 -- 
 2.13.6
