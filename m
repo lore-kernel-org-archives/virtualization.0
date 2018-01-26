@@ -1,17 +1,21 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v24 1/2] mm: support reporting free page blocks
-Date: Fri, 26 Jan 2018 17:00:09 +0200
-Message-ID: <20180126155224-mutt-send-email-mst__26099.8335354545$1516978751$gmane$org@kernel.org>
-References: <1516790562-37889-1-git-send-email-wei.w.wang@intel.com>
-	<1516790562-37889-2-git-send-email-wei.w.wang@intel.com>
-	<20180125152933-mutt-send-email-mst@kernel.org>
-	<5A6AA08B.2080508@intel.com>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [virtio-dev] Re: [RFC PATCH net-next v2 2/2] virtio_net: Extend
+	virtio to use VF datapath when available
+Date: Fri, 26 Jan 2018 08:51:44 -0800
+Message-ID: <731db0a0-85e7-a88e-6e0e-c540086347b5__41634.9127227024$1516985392$gmane$org@intel.com>
+References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
+	<1515736720-39368-3-git-send-email-sridhar.samudrala@intel.com>
+	<CADGSJ22BsdB-hDb0xebSyWrwDuBJaFACjb26PDoqAd2Ah+tsQg@mail.gmail.com>
+	<20180122233205-mutt-send-email-mst@kernel.org>
+	<CADGSJ209vrdjnEAweLg84FwN3sf+1W+APmvB=NjFkMNAhsOyrg@mail.gmail.com>
+	<20180124004556-mutt-send-email-mst@kernel.org>
+	<CADGSJ2308J=tb1B1zrPi0bFzqYSoLfJsRZxBg6wT+wuCfRO6vw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5A6AA08B.2080508@intel.com>
+In-Reply-To: <CADGSJ2308J=tb1B1zrPi0bFzqYSoLfJsRZxBg6wT+wuCfRO6vw@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,230 +25,236 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org
+To: Siwei Liu <loseweigh@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 26, 2018 at 11:29:15AM +0800, Wei Wang wrote:
-> On 01/25/2018 09:41 PM, Michael S. Tsirkin wrote:
-> > On Wed, Jan 24, 2018 at 06:42:41PM +0800, Wei Wang wrote:
-> > > This patch adds support to walk through the free page blocks in the
-> > > system and report them via a callback function. Some page blocks may
-> > > leave the free list after zone->lock is released, so it is the caller's
-> > > responsibility to either detect or prevent the use of such pages.
-> > > 
-> > > One use example of this patch is to accelerate live migration by skipping
-> > > the transfer of free pages reported from the guest. A popular method used
-> > > by the hypervisor to track which part of memory is written during live
-> > > migration is to write-protect all the guest memory. So, those pages that
-> > > are reported as free pages but are written after the report function
-> > > returns will be captured by the hypervisor, and they will be added to the
-> > > next round of memory transfer.
-> > > 
-> > > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> > > Signed-off-by: Liang Li <liang.z.li@intel.com>
-> > > Cc: Michal Hocko <mhocko@kernel.org>
-> > > Cc: Michael S. Tsirkin <mst@redhat.com>
-> > > Acked-by: Michal Hocko <mhocko@kernel.org>
-> > > ---
-> > >   include/linux/mm.h |  6 ++++
-> > >   mm/page_alloc.c    | 91 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
-> > >   2 files changed, 97 insertions(+)
-> > > 
-> > > diff --git a/include/linux/mm.h b/include/linux/mm.h
-> > > index ea818ff..b3077dd 100644
-> > > --- a/include/linux/mm.h
-> > > +++ b/include/linux/mm.h
-> > > @@ -1938,6 +1938,12 @@ extern void free_area_init_node(int nid, unsigned long * zones_size,
-> > >   		unsigned long zone_start_pfn, unsigned long *zholes_size);
-> > >   extern void free_initmem(void);
-> > > +extern void walk_free_mem_block(void *opaque,
-> > > +				int min_order,
-> > > +				bool (*report_pfn_range)(void *opaque,
-> > > +							 unsigned long pfn,
-> > > +							 unsigned long num));
-> > > +
-> > >   /*
-> > >    * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
-> > >    * into the buddy system. The freed pages will be poisoned with pattern
-> > > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> > > index 76c9688..705de22 100644
-> > > --- a/mm/page_alloc.c
-> > > +++ b/mm/page_alloc.c
-> > > @@ -4899,6 +4899,97 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
-> > >   	show_swap_cache_info();
-> > >   }
-> > > +/*
-> > > + * Walk through a free page list and report the found pfn range via the
-> > > + * callback.
-> > > + *
-> > > + * Return false if the callback requests to stop reporting. Otherwise,
-> > > + * return true.
-> > > + */
-> > > +static bool walk_free_page_list(void *opaque,
-> > > +				struct zone *zone,
-> > > +				int order,
-> > > +				enum migratetype mt,
-> > > +				bool (*report_pfn_range)(void *,
-> > > +							 unsigned long,
-> > > +							 unsigned long))
-> > > +{
-> > > +	struct page *page;
-> > > +	struct list_head *list;
-> > > +	unsigned long pfn, flags;
-> > > +	bool ret;
-> > > +
-> > > +	spin_lock_irqsave(&zone->lock, flags);
-> > > +	list = &zone->free_area[order].free_list[mt];
-> > > +	list_for_each_entry(page, list, lru) {
-> > > +		pfn = page_to_pfn(page);
-> > > +		ret = report_pfn_range(opaque, pfn, 1 << order);
-> > > +		if (!ret)
-> > > +			break;
-> > > +	}
-> > > +	spin_unlock_irqrestore(&zone->lock, flags);
-> > > +
-> > > +	return ret;
-> > > +}
-> > There are two issues with this API. One is that it is not
-> > restarteable: if you return false, you start from the
-> > beginning. So no way to drop lock, do something slow
-> > and then proceed.
-> > 
-> > Another is that you are using it to report free page hints. Presumably
-> > the point is to drop these pages - keeping them near head of the list
-> > and reusing the reported ones will just make everything slower
-> > invalidating the hint.
-> > 
-> > How about rotating these pages towards the end of the list?
-> > Probably not on each call, callect reported pages and then
-> > move them to tail when we exit.
-> 
-> 
-> I'm not sure how this would help. For example, we have a list of 2M free
-> page blocks:
-> A-->B-->C-->D-->E-->F-->G--H
-> 
-> After reporting A and B, and put them to the end and exit, when the caller
-> comes back,
-> 1) if the list remains unchanged, then it will be
-> C-->D-->E-->F-->G-->H-->A-->B
-
-Right. So here we can just scan until we see A, right?  It's a harder
-question what to do if A and only A has been consumed.  We don't want B
-to be sent twice ideally. OTOH maybe that isn't a big deal if it's only
-twice. Host might know page is already gone - how about host gives us a
-hint after using the buffer?
-
-> 2) If worse, all the blocks have been split into smaller blocks and used
-> after the caller comes back.
-> 
-> where could we continue?
-
-I'm not sure. But an alternative appears to be to hold a lock
-and just block whoever wanted to use any pages.  Yes we are sending
-hints faster but apparently something wanted these pages, and holding
-the lock is interfering with this something.
-
-> 
-> The reason to think about "restart" is the worry about the virtqueue is
-> full, right? But we've agreed that losing some hints to report isn't
-> important, and in practice, the virtqueue won't be full as the host side is
-> faster.
-
-It would be more convincing if we sent e.g. higher order pages
-first. As it is - it won't take long to stuff ring full of
-4K pages and it seems highly unlikely that host won't ever
-be scheduled out.
-
-Can we maybe agree on what kind of benchmark makes sense for
-this work? I'm concerned that we are laser focused on just
-how long does it take to migrate ignoring e.g. slowdowns
-after migration.
-
-> I'm concerned that actions on the free list may cause more controversy
-> though it might be safe to do from some aspect, and would be hard to end
-> debating. If possible, we could go with the most prudent approach for now,
-> and have more discussions in future improvement patches. What would you
-> think?
-
-Well I'm not 100% about restartability. But keeping pages
-freed by host near head of the list looks kind of wrong.
-Try to float a patch on top for the rotation and see what happens?
-
-> 
-> 
-> > 
-> > 
-> > > +
-> > > +/**
-> > > + * walk_free_mem_block - Walk through the free page blocks in the system
-> > > + * @opaque: the context passed from the caller
-> > > + * @min_order: the minimum order of free lists to check
-> > > + * @report_pfn_range: the callback to report the pfn range of the free pages
-> > > + *
-> > > + * If the callback returns false, stop iterating the list of free page blocks.
-> > > + * Otherwise, continue to report.
-> > > + *
-> > > + * Please note that there are no locking guarantees for the callback and
-> > > + * that the reported pfn range might be freed or disappear after the
-> > > + * callback returns so the caller has to be very careful how it is used.
-> > > + *
-> > > + * The callback itself must not sleep or perform any operations which would
-> > > + * require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
-> > > + * or via any lock dependency. It is generally advisable to implement
-> > > + * the callback as simple as possible and defer any heavy lifting to a
-> > > + * different context.
-> > > + *
-> > > + * There is no guarantee that each free range will be reported only once
-> > > + * during one walk_free_mem_block invocation.
-> > > + *
-> > > + * pfn_to_page on the given range is strongly discouraged and if there is
-> > > + * an absolute need for that make sure to contact MM people to discuss
-> > > + * potential problems.
-> > > + *
-> > > + * The function itself might sleep so it cannot be called from atomic
-> > > + * contexts.
-> > > + *
-> > > + * In general low orders tend to be very volatile and so it makes more
-> > > + * sense to query larger ones first for various optimizations which like
-> > > + * ballooning etc... This will reduce the overhead as well.
-> > > + */
-> > > +void walk_free_mem_block(void *opaque,
-> > > +			 int min_order,
-> > > +			 bool (*report_pfn_range)(void *opaque,
-> > > +						  unsigned long pfn,
-> > > +						  unsigned long num))
-> > > +{
-> > > +	struct zone *zone;
-> > > +	int order;
-> > > +	enum migratetype mt;
-> > > +	bool ret;
-> > > +
-> > > +	for_each_populated_zone(zone) {
-> > > +		for (order = MAX_ORDER - 1; order >= min_order; order--) {
-> > > +			for (mt = 0; mt < MIGRATE_TYPES; mt++) {
-> > > +				ret = walk_free_page_list(opaque, zone,
-> > > +							  order, mt,
-> > > +							  report_pfn_range);
-> > > +				if (!ret)
-> > > +					return;
-> > > +			}
-> > > +		}
-> > > +	}
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(walk_free_mem_block);
-> > > +
-> > I think callers need a way to
-> > 1. distinguish between completion and exit on error
-> 
-> The first one here has actually been achieved by v25, where
-> walk_free_mem_block returns 0 on completing the reporting, or a non-zero
-> value which is returned from the callback.
-> So the caller will detect errors via letting the callback to return
-> something.
-> 
-> Best,
-> Wei
-> 
-> 
+CgpPbiAxLzI2LzIwMTggMTI6MTQgQU0sIFNpd2VpIExpdSB3cm90ZToKPiBPbiBUdWUsIEphbiAy
+MywgMjAxOCBhdCAyOjU4IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPiB3
+cm90ZToKPj4gT24gVHVlLCBKYW4gMjMsIDIwMTggYXQgMTI6MjQ6NDdQTSAtMDgwMCwgU2l3ZWkg
+TGl1IHdyb3RlOgo+Pj4gT24gTW9uLCBKYW4gMjIsIDIwMTggYXQgMTo0MSBQTSwgTWljaGFlbCBT
+LiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4+Pj4gT24gTW9uLCBKYW4gMjIsIDIw
+MTggYXQgMTI6Mjc6MTRQTSAtMDgwMCwgU2l3ZWkgTGl1IHdyb3RlOgo+Pj4+PiBGaXJzdCBvZmYs
+IGFzIG1lbnRpb25lZCBpbiBhbm90aGVyIHRocmVhZCwgdGhlIG1vZGVsIG9mIHN0YWNraW5nIHVw
+Cj4+Pj4+IHZpcnQtYm9uZCBmdW5jdGlvbmFsaXR5IG92ZXIgdmlydGlvIHNlZW1zIGEgd3Jvbmcg
+ZGlyZWN0aW9uIHRvIG1lLgo+Pj4+PiBFc3NlbnRpYWxseSB0aGUgbWlncmF0aW9uIHByb2Nlc3Mg
+d291bGQgbmVlZCB0byBjYXJyeSBvdmVyIGFsbCBndWVzdAo+Pj4+PiBzaWRlIGNvbmZpZ3VyYXRp
+b25zIHByZXZpb3VzbHkgZG9uZSBvbiB0aGUgVkYvUFQgYW5kIGdldCB0aGVtIG1vdmVkIHRvCj4+
+Pj4+IHRoZSBuZXcgZGV2aWNlIGJlaW5nIGl0IHZpcnRpbyBvciBWRi9QVC4KPj4+PiBJIG1pZ2h0
+IGJlIHdyb25nIGJ1dCBJIGRvbid0IHNlZSB3aHkgd2Ugc2hvdWxkIHdvcnJ5IGFib3V0IHRoaXMg
+dXNlY2FzZS4KPj4+PiBXaG9ldmVyIGhhcyBhIGJvbmQgY29uZmlndXJlZCBhbHJlYWR5IGhhcyB3
+b3JraW5nIGNvbmZpZyBmb3IgbWlncmF0aW9uLgo+Pj4+IFdlIGFyZSB0cnlpbmcgdG8gaGVscCBw
+ZW9wbGUgd2hvIGRvbid0LCBub3QgY29udmVydCBleGlzdGlnIHVzZXJzLgo+Pj4gVGhhdCBoYXMg
+YmVlbiBwbGFjZWQgaW4gdGhlIHZpZXcgb2YgY2xvdWQgcHJvdmlkZXJzIHRoYXQgdGhlIGltcG9y
+dGVkCj4+PiBpbWFnZXMgZnJvbSB0aGUgc3RvcmUgbXVzdCBiZSBhYmxlIHRvIHJ1biB1bm1vZGlm
+aWVkIHRodXMgbm8KPj4+IGFkZGl0aW9uYWwgc2V0dXAgc2NyaXB0IGlzIGFsbG93ZWQgKGp1c3Qg
+YXMgU3RlcGhlbiBtZW50aW9uZWQgaW4KPj4+IGFub3RoZXIgbWFpbCkuIENsb3VkIHVzZXJzIGRv
+bid0IGNhcmUgYWJvdXQgbGl2ZSBtaWdyYXRpb24gdGhlbXNlbHZlcwo+Pj4gYnV0IHRoZSBwcm92
+aWRlcnMgYXJlIHJlcXVpcmVkIHRvIGltcGxlbWVudCBzdWNoIGF1dG9tYXRpb24gbWVjaGFuaXNt
+Cj4+PiB0byBtYWtlIHRoaXMgcHJvY2VzcyB0cmFuc3BhcmVudCBpZiBhdCBhbGwgcG9zc2libGUu
+IFRoZSB1c2VyIGRvZXMgbm90Cj4+PiBjYXJlIGFib3V0IHRoZSBkZXZpY2UgdW5kZXJuZWF0aCBi
+ZWluZyBWRiBvciBub3QsIGJ1dCB0aGV5IGRvIGNhcmUKPj4+IGFib3V0IGNvbnNpc3RlbmN5IGFs
+bCBhY3Jvc3MgYW5kIHRoZSByZXN1bHRpbmcgcGVyZm9ybWFuY2UKPj4+IGFjY2VsZXJhdGlvbiBp
+biBtYWtpbmcgVkYgdGhlIHByZWZlcmVkIGRhdGFwYXRoLiBJdCBpcyBub3QgcXVpdGUKPj4+IHBl
+Y3VsaWFyIHVzZXIgY2FzZXMgYnV0IElNSE8gKmFueSogYXBwcm9hY2ggcHJvcG9zZWQgZm9yIGxp
+dmUKPj4+IG1pZ3JhdGlvbiBzaG91bGQgYmUgYWJsZSB0byBwZXJzaXN0IHRoZSBzdGF0ZSBpbmNs
+dWRpbmcgbmV0d29yayBjb25maWcKPj4+IGUuZy4gYXMgc2ltcGxlIGFzIE1UVS4gQWN0dWFsbHkg
+dGhpcyByZXF1aXJlbWVudCBoYXMgbm90aGluZyB0byBkbwo+Pj4gd2l0aCB2aXJ0aW8gYnV0IG91
+ciB0YXJnZXQgdXNlcnMgYXJlIGxpdmUgbWlncmF0aW9uIGFnbm9zdGljLCBiZWluZyBpdAo+Pj4g
+dHJhY2tpbmcgRE1BIHRocm91Z2ggZGlydHkgcGFnZXMsIHVzaW5nIHZpcnRpbyBhcyB0aGUgaGVs
+cGVyLCBvcgo+Pj4gd2hhdHNvZXZlciwgdGhlIGdvYWwgb2YgcGVyc2lzdGluZyBjb25maWdzIGFj
+cm9zcyByZW1haW5zIHNhbWUuCj4+IFNvIHRoZSBwYXRjaGluZyBiZWluZyBkaXNjdXNzZWQgaGVy
+ZSB3aWxsIG1vc3RseSBkbyBleGFjdGx5IHRoYXQgaWYgeW91cgo+PiBvcmlnaW5hbCBjb25maWcg
+d2FzIHNpbXBseSBhIHNpbmdsZSB2aXJ0aW8gbmV0IGRldmljZS4KPj4KPiBUcnVlLCBidXQgSSBk
+b24ndCBzZWUgdGhlIHBhdGNoIGJlaW5nIGRpc2N1c3NlZCBzdGFydHMgd2l0aCBnb29kCj4gZm91
+bmRhdGlvbiBvZiBzdXBwb3J0aW5nIHRoZSBzYW1lIGZvciBWRi9QVCBkZXZpY2UuIFRoYXQgaXMg
+dGhlIGNvcmUKPiBvZiB0aGUgaXNzdWUuCgo+PiBXaGF0IGtpbmQgb2YgY29uZmlncyBkbyB5b3Vy
+IHVzZXJzIGhhdmUgcmlnaHQgbm93Pwo+IEFueSBjb25maWdzIGJlIGl0IGdlbmVyaWMgb3IgZHJp
+dmVyIHNwZWNpZmljIHRoYXQgdGhlIFZGL1BUIGRldmljZQo+IHN1cHBvcnRzIGFuZCBoYXZlIGJl
+ZW4gZW5hYmxlZC9jb25maWd1cmVkLiBHZW5lcmFsIG5ldHdvcmsgY29uZmlncwo+IChNQUMsIElQ
+IGFkZHJlc3MsIFZMQU4sIE1UVSwgaXB0YWJsZXMgcnVsZXMpLCBldGh0b29sIHNldHRpbmdzCj4g
+KGhhcmR3YXJlIG9mZmxvYWQsICMgb2YgcXVldWVzIGFuZCByaW5nIGVudHJpcywgUlNDIG9wdGlv
+bnMsIHJzcwo+IHJ4ZmgtaW5kaXIgdGFibGUsIHJ4LWZsb3ctaGFzaCwgZXQgYWwpICwgYnBmL1hE
+UCBwcm9ncmFtIGJlaW5nIHJ1biwgdGMKPiBmbG93ZXIgb2ZmbG9hZCwganVzdCB0byBuYW1lIGEg
+ZmV3LiBBcyBjbG91ZCBwcm92aWRlcnMgd2UgZG9uJ3QgbGltaXQKPiB1c2VycyBmcm9tIGFwcGx5
+aW5nIGRyaXZlciBzcGVjaWZpYyB0dW5pbmcgdG8gdGhlIE5JQy9WRiwgYW5kCj4gc29tZXRpbWVz
+IHRoaXMgaXMgZXNzZW50aWFsIHRvIGFjaGlldmluZyBiZXN0IHBlcmZvcm1hbmNlIGZvciB0aGVp
+cgo+IHdvcmtsb2FkLiBXZSd2ZSBzZWVuIGNhc2VzIGxpa2UgdHVuaW5nIGNvYWxlc2NpbmcgcGFy
+YW1ldGVycyBmb3IKPiBnZXR0aW5nIGxvdyBsYXRlbmN5LCBjaGFuZ2luZyByeC1mbG93LWhhc2gg
+ZnVuY3Rpb24gZm9yIGJldHRlciBWWExBTgo+IHRocm91Z2hwdXQsIG9yIGV2ZW4gYWRvcHRpbmcg
+cXVpdGUgYWR2YW5jZWQgTklDIGZlYXR1cmVzIHN1Y2ggYXMgZmxvdwo+IGRpcmVjdG9yIG9yIGNs
+b3VkIGZpbHRlci4gV2UgZG9uJ3QgZXhwZWN0IHVzZXJzIHRvIGNvbXByb21pc2UgZXZlbiBhCj4g
+bGl0dGxlIGJpdCBvbiB0aGVzZS4gVGhhdCBpcyBvbmNlIHdlIHR1cm4gb24gbGl2ZSBtaWdyYXRp
+b24gZm9yIHRoZSBWRgo+IG9yIHBhc3MgdGhyb3VnaCBkZXZpY2VzIGluIHRoZSBWTSwgaXQgYWxs
+IHRha2VzIHBsYWNlIHVuZGVyIHRoZSBob29kLAo+IHVzZXJzIChndWVzdCBhZG1pbnMsIGFwcGxp
+Y2F0aW9ucykgZG9uJ3QgaGF2ZSB0byByZWFjdCB1cG9uIGl0IG9yIGV2ZW4KPiBub3RpY2UgdGhl
+IGNoYW5nZS4gSSBzaG91bGQgbm90ZSB0aGF0IHRoZSBtYWpvcml0eSBvZiBsaXZlIG1pZ3JhdGlv
+bnMKPiB0YWtlIHBsYWNlIGJldHdlZW4gbWFjaGluZXMgd2l0aCBjb21wbGV0ZWx5IGlkZW50aWNh
+bCBoYXJkd2FyZSwgaXQncwo+IG1vcmUgY3JpdGljYWwgdGhhbiBuZWNlc3NhcnkgdG8ga2VlcCB0
+aGUgY29uZmlnIGFzLWlzIGFjcm9zcyB0aGUgbW92ZSwKPiBzdGVhbHRoIHdoaWxlIHF1aWV0LgoK
+VGhpcyB1c2VjYXNlIGlzIG11Y2ggbW9yZSBjb21wbGljYXRlZCBhbmQgZGlmZmVyZW50IHRoYW4g
+d2hhdCB0aGlzIHBhdGNoIAppcyB0cnlpbmcKdG8gYWRkcmVzcy7CoCBBbHNvIHlvdXIgdXNlY2Fz
+ZSBzZWVtcyB0byBiZSBhc3N1bWluZyB0aGF0IHNvdXJjZSBhbmQgCmRlc3RpbmF0aW9uCmhvc3Rz
+IGFyZSBpZGVudGljYWwgYW5kIGhhdmUgdGhlIHNhbWUgSFcuCgpJdCBtYWtlcyBpdCBwcmV0dHkg
+aGFyZCB0byB0cmFuc3BhcmVudGx5IG1pZ3JhdGUgYWxsIHRoZXNlIHNldHRpbmdzIHdpdGggCmxp
+dmUKbWlncmF0aW9uIHdoZW4gd2UgYXJlIGxvb2tpbmcgYXQgYSBzb2x1dGlvbiB0aGF0IHVucGx1
+Z3MgdGhlIFZGIAppbnRlcmZhY2UgZnJvbQp0aGUgaG9zdCBhbmQgdGhlIFZGIGRyaXZlciBpcyB1
+bmxvYWRlZC4KCj4gQXMgeW91IHNlZSBnZW5lcmljIGJvbmQgb3IgYnJpZGdlIGNhbm5vdCBzdWZm
+aWNlIHRoZSBuZWVkLiBUaGF0J3Mgd2h5Cj4gd2UgbmVlZCBhIG5ldyBjdXN0b21pemVkIHZpcnQg
+Ym9uZCBkcml2ZXIsIGFuZCB0YWlsb3IgaXQgZm9yIFZNIGxpdmUKPiBtaWdyYXRpb24gc3BlY2lm
+aWNhbGx5LiBMZXZlcmFnaW5nIHBhcmEtdmlydHVhbCBlLmcuIHZpcnRpbyBuZXQgZGV2aWNlCj4g
+YXMgdGhlIGJhY2t1cCBwYXRoIGlzIG9uZSB0aGluZywgdHJhY2tpbmcgdGhyb3VnaCBkcml2ZXIg
+Y29uZmlnCj4gY2hhbmdlcyBpbiBvcmRlciB0byByZS1jb25maWcgYXMgbmVjZXNzYXJ5IGlzIGFu
+b3RoZXIuIEkgd291bGQgdGhpbmsKPiB3aXRob3V0IGNvbnNpZGVyaW5nIHRoZSBsYXR0ZXIsIHRo
+ZSBwcm9wb3NhbCBiZWluZyBkaXNjdXNzZWQgaXMgcmF0aGVyCj4gaW5jb21wbGV0ZSwgYW5kIHJl
+bW90ZSB0byBiZSB1c2VmdWwgaW4gcHJvZHVjdGlvbi4KPgo+Pgo+Pj4+PiBXaXRob3V0IHRoZSBo
+ZWxwIG9mIGEgbmV3Cj4+Pj4+IHVwcGVyIGxheWVyIGJvbmQgZHJpdmVyIHRoYXQgZW5zbGF2ZXMg
+dmlydGlvIGFuZCBWRi9QVCBkZXZpY2VzCj4+Pj4+IHVuZGVybmVhdGgsIHZpcnRpbyB3aWxsIGJl
+IG92ZXJsb2FkZWQgd2l0aCB0b28gbXVjaCBzcGVjaWZpY3MgYmVpbmcgYQo+Pj4+PiBWRi9QVCBi
+YWNrdXAgaW4gdGhlIGZ1dHVyZS4KPj4+PiBTbyB0aGlzIHBhcmFncmFwaCBhbHJlYWR5IGluY2x1
+ZGVzIGF0IGxlYXN0IHR3byBjb25mbGljdGluZwo+Pj4+IHByb3Bvc2Fscy4gT24gdGhlIG9uZSBo
+YW5kIHlvdSB3YW50IGEgc2VwYXJhdGUgZGV2aWNlIGZvcgo+Pj4+IHRoZSB2aXJ0dWFsIGJvbmQs
+IG9uIHRoZSBvdGhlciB5b3UgYXJlIHNheWluZyBhIHNlcGFyYXRlCj4+Pj4gZHJpdmVyLgo+Pj4g
+SnVzdCB0byBiZSBjcnlzdGFsIGNsZWFyOiBzZXBhcmF0ZSB2aXJ0dWFsIGJvbmQgZGV2aWNlIChu
+ZXRkZXYgb3BzLAo+Pj4gbm90IG5lY2Vzc2FyaWx5IGJ1cyBkZXZpY2UpIGZvciBWTSBtaWdyYXRp
+b24gc3BlY2lmaWNhbGx5IHdpdGggYQo+Pj4gc2VwYXJhdGUgZHJpdmVyLgo+PiBPa2F5LCBidXQg
+bm90ZSB0aGF0IGFueSBjb25maWcgc29tZW9uZSBoYWQgb24gYSB2aXJ0aW8gZGV2aWNlIHdvbid0
+Cj4+IHByb3BhZ2F0ZSB0byB0aGF0IGJvbmQuCj4+Cj4+Pj4gRnVydGhlciwgdGhlIHJlYXNvbiB0
+byBoYXZlIGEgc2VwYXJhdGUgKmRyaXZlciogd2FzIHRoYXQKPj4+PiBzb21lIHBlb3BsZSB3YW50
+ZWQgdG8gc2hhcmUgY29kZSB3aXRoIG5ldHZzYyAtIGFuZCB0aGF0Cj4+Pj4gb25lIGRvZXMgbm90
+IGNyZWF0ZSBhIHNlcGFyYXRlIGRldmljZSwgd2hpY2ggeW91IGNhbid0Cj4+Pj4gY2hhbmdlIHdp
+dGhvdXQgYnJlYWtpbmcgZXhpc3RpbmcgY29uZmlncy4KPj4+IEknbSBub3Qgc3VyZSBJIHVuZGVy
+c3RhbmQgdGhpcyBzdGF0ZW1lbnQuIG5ldHZzYyBpcyBhbHJlYWR5IGFub3RoZXIKPj4+IG5ldGRl
+diBiZWluZyBjcmVhdGVkIHRoYW4gdGhlIGVuc2xhdmVkIFZGIG5ldGRldiwgd2h5IGl0IGJvdGhl
+cnM/Cj4+IEJlY2F1c2UgaXQgc2hpcHBlZCwgc28gdXNlcnNwYWNlIEFCSSBpcyBmcm96ZW4uICBZ
+b3UgY2FuJ3QgcmVhbGx5IGFkZCBhCj4+IG5ldGRldmljZSBhbmQgZW5zbGF2ZSBhbiBleGlzdGlu
+ZyBvbmUgd2l0aG91dCBhIHJpc2sgb2YgYnJlYWtpbmcgc29tZQo+PiB1c2Vyc3BhY2UgY29uZmln
+cy4KPj4KPiBJIHN0aWxsIGRvbid0IHVuZGVyc3RhbmQgdGhpcyBjb25jZXJuLiBMaWtlIHNhaWQs
+IGJlZm9yZSB0aGlzIHBhdGNoCj4gYmVjb21lcyByZWFsaXR5LCB1c2VycyBpbnRlcmFjdCB3aXRo
+IHJhdyBWRiBpbnRlcmZhY2UgYWxsIHRoZSB0aW1lLgo+IE5vdyB0aGlzIHBhdGNoIGludHJvZHVj
+ZXMgYSB2aXJ0aW8gbmV0IGRldml2ZSBhbmQgZW5zbGF2ZSB0aGUgVkYuCj4gVXNlcnMgaGF2ZSB0
+byBpbnRlcmFjdCB3aXRoIHR3byBpbnRlcmZhY2VzIC0gSVAgYWRkcmVzcyBhbmQgZnJpZW5kcwo+
+IGNvbmZpZ3VyZWQgb24gdGhlIFZGIHdpbGwgZ2V0IGxvc3QgYW5kIHVzZXJzIGhhdmUgdG8gcmVj
+b25maWd1cmUKPiB2aXJ0aW8gYWxsIG92ZXIgYWdhaW4uIEJ1dCBzb21lIG90aGVyIGNvbmZpZ3Mg
+ZS5nLiBldGh0b29sIG5lZWRzIHRvCj4gcmVtYWluIG9uIHRoZSBWRi4gSG93IGRvZXMgaXQgZ3Vh
+cmFudGVlIGV4aXN0aW5nIGNvbmZpZ3Mgd29uJ3QgYnJva2VuPwo+IEFwcGVhcnMgdG8gbWUgdGhp
+cyBpcyBub3RoaW5nIGRpZmZlcmVudCB0aGFuIGhhdmluZyBib3RoIHZpcnRpbyBhbmQgVkYKPiBu
+ZXRkZXZzIGVuc2xhdmVkIGFuZCB1c2VycyBvcGVyYXRlcyBvbiB0aGUgdmlydC1ib25kIGludGVy
+ZmFjZQo+IGRpcmVjdGx5LgoKWWVzLiBUaGlzIHBhdGNoIGRvZXNuJ3QgdHJhbnNwYXJlbnRseSBw
+cm92aWRlIGxpdmUgbWlncmF0aW9uIHN1cHBvcnQgdG8gCmV4aXN0aW5nCm5ldHdvcmsgY29uZmln
+dXJhdGlvbnMgdGhhdCBvbmx5IHVzZSBhIFZGLsKgIEluIG9yZGVyIHRvIGdldCBsaXZlIAptaWdy
+YXRpb24gc3VwcG9ydCwKZm9yIGEgVkYgb25seSBpbWFnZSwgdGhlIG5ldHdvcmsgY29uZmlndXJh
+dGlvbiBoYXMgdG8gY2hhbmdlLgoKSXQgcHJvdmlkZXMgaHlwZXJ2aXNvciBjb250cm9sbGVkIFZG
+IGFjY2VsZXJhdGlvbiB0byBleGlzdGluZyB2aXJ0aW9fbmV0IApiYXNlZCBuZXR3b3JrCmNvbmZp
+Z3VyYXRpb25zIGluIGEgdHJhbnNwYXJlbnQgbWFubmVyLgoKPgo+IE9uZSB0aGluZyBJJ2QgbGlr
+ZSB0byBwb2ludCBvdXQgaXMgdGhlIGNvbmZpZ3MgYXJlIG1vc3RseSBkb25lIGluIHRoZQo+IGNv
+bnRyb2wgcGxhbmUuIEl0J3MgZW50aXJlbHkgcG9zc2libGUgdG8gc2VwYXJhdGUgdGhlIGRhdGEg
+YW5kIGNvbnRyb2wKPiBwYXRocyBpbiB0aGUgbmV3IHZpcnQtYm9uZCBkcml2ZXI6IGluIHRoZSBk
+YXRhIHBsYW5lLCBpdCBtYXkgYnlwYXNzCj4gdGhlIHZpcnQtYm9uZCBsYXllciBhbmQgcXVpY2ts
+eSBmYWxsIHRocm91Z2ggdG8gdGhlIGRhdGEgcGF0aCBvZgo+IHZpcnRpbyBvciBWRiBzbGF2ZTsg
+d2hpbGUgaW4gdGhlIGNvbnRyb2wgcGxhbmUsIHRoZSB2aXJ0LWJvbmQgbWF5Cj4gZGlzZ3Vpc2Ug
+aXRzZWxmIGFzIHRoZSBhY3RpdmUgc2xhdmUsIGRlbGVnYXRlIHRoZSBjb25maWcgY2hhbmdlcyB0
+bwo+IHRoZSByZWFsIGRyaXZlciwgcmVsYXkgYW5kIGV4cG9zZSBkcml2ZXIgY29uZmlnL3N0YXRl
+IHRvIHRoZSB1c2VyLiBCeQo+IGRvaW5nIHRoYXQgdGhlIHVzZXJzIGFuZCB1c2Vyc3BhY2UgYXBw
+bGljYXRpb25zIGp1c3QgaW50ZXJhY3Qgd2l0aCBvbmUKPiBzaW5nbGUgaW50ZXJmYWNlLCB0aGUg
+c2FtZSB3YXkgdGhleSBpbnRlcmFjdGVkIHdpdGggdGhlIFZGIGludGVyZmFjZQo+IGFzIGJlZm9y
+ZS4gVXNlcnMgZG9uJ3QgaGF2ZSB0byBkZWFsIHdpdGggdGhlIG90aGVyIHR3byBlbnNsYXZlZAo+
+IGludGVyZmFjZXMgZGlyZWN0bHkgLSB0aG9zZSBhdXRvbWF0aWNhbGx5IGVuc2xhdmVkIGRldmlj
+ZXMgc2hvdWxkIGJlCj4gbWFkZSBpbnZpc2libGUgZnJvbSB1c2Vyc3BhY2UgYXBwbGljYXRpb25z
+IGFuZCBhZG1pbnMsIGFuZC9vciBiZQo+IG1hc2tlZCBvdXQgZnJvbSByZWd1bGFyIGFjY2VzcyBi
+eSBleGlzdGluZyBrZXJuZWwgQVBJcy4KPgo+IEkgZG9uJ3QgZmluZCBpdCBhIGdvb2QgcmVhc29u
+IHRvIHJlamVjdCB0aGUgaWRlYSBpZiB3ZSBjYW4gc29ydCBvdXQKPiB3YXlzIG5vdCB0byBicmVh
+ayBleGlzdGluZyBBQkkgb3IgQVBJcy4KPgo+Cj4+PiBJbgo+Pj4gdGhlIEF6dXJlIGNhc2UsIHRo
+ZSBzdG9jayBpbWFnZSB0byBiZSBpbXBvcnRlZCBkb2VzIG5vdCBiaW5kIHRvIGEKPj4+IHNwZWNp
+ZmljIGRyaXZlciBidXQgb25seSBNQUMgYWRkcmVzcy4KPj4gSSdsbCBsZXQgbmV0dnNjIGRldmVs
+b3BlcnMgZGVjaWRlIHRoaXMsIG9uIHRoZSBzdXJmYWNlIEkgZG9uJ3QgdGhpbmsKPj4gaXQncyBy
+ZWFzb25hYmxlIHRvIGFzc3VtZSBldmVyeW9uZSBvbmx5IGJpbmRzIHRvIGEgTUFDLgo+IFN1cmUu
+IFRoZSBwb2ludCBJIHdhbnRlZCB0byBtYWtlIHdhcyB0aGF0IGNsb3VkIHByb3ZpZGVycyBhcmUg
+c3VwZXIKPiBlbGFzdGljIGluIHByb3Zpc2lvbmluZyBpbWFnZXMgLSB0aG9zZSBkcml2ZXIgb3Ig
+ZGV2aWNlIHNwZWNpZmljcwo+IHNob3VsZCBoYXZlIGJlZW4gZGVoeWRyYXRlZCBmcm9tIHRoZSBv
+cmlnaW5hbCBpbWFnZXMgdGh1cyBtYWtlIGl0Cj4gZmxleGlibGUgZW5vdWdoIHRvIGRlcGxveSB0
+byBtYWNoaW5lcyB3aXRoIHZhc3QgdmFyaWV0aWVzIG9mIGhhcmR3YXJlLgo+IEFsdGhvdWdoIGl0
+J3Mgbm90IG5lY2Vzc2FyaWx5IHRoZSBjYXNlIGV2ZXJ5b25lIGJpbmRzIHRvIGEgTUFDLCBpdCdz
+Cj4gd29ydGggdGFraW5nIGEgbG9vayBhdCB3aGF0IHRoZSB0YXJnZXQgdXNlcnMgYXJlIGRvaW5n
+IGFuZCB3aGF0IHRoZQo+IHBhaW4gcG9pbnRzIHJlYWxseSBhcmUgYW5kIHVuZGVyc3RhbmQgd2hh
+dCBjb3VsZCBiZSBkb25lIHRvIHNvbHZlIGNvcmUKPiBwcm9ibGVtcy4gSHlwZXItViBuZXR2c2Mg
+Y2FuIGFsc28gYmVuZWZpdCBvbmNlIG1vdmVkIHRvIGl0LCBJJ2QKPiBiZWxpZXZlLgo+Cj4+Cj4+
+PiBBbmQgcGVvcGxlIGp1c3QgZGVhbCB3aXRoIHRoZQo+Pj4gbmV3IHZpcnQtYm9uZCBuZXRkZXYg
+cmF0aGVyIHRoYW4gdGhlIHVuZGVybHlpbmcgdmlydGlvIGFuZCBWRi4gQW5kCj4+PiBib3RoIHRo
+ZXNlIHR3byB1bmRlcmx5aW5nIG5ldGRldnMgc2hvdWxkIGJlIG1hZGUgaW52aXNpYmxlIHRvIHBy
+ZXZlbnQKPj4+IHVzZXJzcGFjZSBzY3JpcHQgZnJvbSBnZXR0aW5nIHRoZW0gbWlzY29uZmlndXJl
+ZCBJTUhPLgo+Pj4KPj4+IEEgc2VwYXJhdGUgZHJpdmVyIHdhcyBmb3IgY29kZSBzaGFyaW5nIGZv
+ciBzdXJlLCBvbmx5IGp1c3QgbmV0dnNjIGJ1dAo+Pj4gY291bGQgYmUgb3RoZXIgcGFyYS12aXJ0
+dWFsIGRldmljZXMgZmxvYXRpbmcgYXJvdW5kOiBhbnkgUFYgY2FuIHNlcnZlCj4+PiBhcyB0aGUg
+c2lkZSBjaGFubmVsIGFuZCB0aGUgYmFja3VwIHBhdGggZm9yIFZGL1BULiBPbmNlIHdlIGdldCB0
+aGUgbmV3Cj4+PiBkcml2ZXIgd29ya2luZyBhdG9wIHZpcnRpbyB3ZSBtYXkgZGVmaW5lIG9wcyBh
+bmQvb3IgcHJvdG9jb2wgbmVlZGVkIHRvCj4+PiB0YWxrIHRvIHZhcmlvdXMgb3RoZXIgUFYgZnJv
+bnRlbmQgdGhhdCBtYXkgaW1wbGVtZW50IHRoZSBzaWRlIGNoYW5uZWwKPj4+IG9mIGl0cyBvd24g
+Zm9yIGRhdGFwYXRoIHN3aXRjaGluZyAoZS5nLiB2aXJ0aW8gaXMgb25lIG9mIHRoZW0sIFhlbiBQ
+Vgo+Pj4gZnJvbnRlbmQgY2FuIGJlIGFub3RoZXIpLiBJIGp1c3QgZG9uJ3QgbGlrZSB0byBsaW1p
+dCB0aGUgZnVuY3Rpb24gdG8KPj4+IHZpcnRpbyBvbmx5IGFuZCB3ZSBoYXZlIHRvIGR1cGxpY2F0
+ZSBjb2RlIHRoZW4gaXQgc3RhcnRzIHRvIHNjYXR0ZXIKPj4+IGFyb3VuZCBhbGwgb3ZlciB0aGUg
+cGxhY2VzLgo+Pj4KPj4+IEkgdW5kZXJzdGFuZCByaWdodCBub3cgd2Ugc3RhcnQgaXQgYXMgc2lt
+cGxlIHNvIGl0IG1heSBqdXN0IGJlIGZpbmUKPj4+IHRoYXQgdGhlIGluaXRpYWwgZGV2ZWxvcG1l
+bnQgYWN0aXZpdGllcyBjZW50ZXIgYXJvdW5kIHZpcnRpby4gSG93ZXZlciwKPj4+IGZyb20gY2xv
+dWQgcHJvdmlkZXIvdmVuZG9yIHBlcnNwZWN0aXZlIEkgZG9uJ3Qgc2VlIHRoZSBwcm9wb3NlZCBz
+Y2hlbWUKPj4+IGxpbWl0cyB0byB2aXJ0aW8gb25seS4gQW55IG90aGVyIFBWIGRyaXZlciB3aGlj
+aCBoYXMgdGhlIHBsYW4gdG8KPj4+IHN1cHBvcnQgdGhlIHNhbWUgc2NoZW1lIGNhbiBiZW5lZml0
+LiBUaGUgcG9pbnQgaXMgdGhhdCB3ZSBzaG91bGRuJ3QgYmUKPj4+IGxpbWl0aW5nIHRoZSBzY2hl
+bWUgdG8gdmlydGlvIHNwZWNpZmljcyBzbyBlYXJseSB3aGljaCBpcyBoYXJkIHRvIGhhdmUKPj4+
+IGl0IHByb21vdGVkIHRvIGEgY29tbW9uIGRyaXZlciBvbmNlIHdlIGdldCB0aGVyZS4KPj4gVGhl
+IHdob2xlIGlkZWEgaGFzIGJlZW4gZmxvYXRpbmcgYXJvdW5kIGZvciB5ZWFycy4gSXQgd291bGQg
+YWx3YXlzCj4+IGdldCBiZWluZyBkcm93bmVkIGluIHRoaXMga2luZCBvZiAibGV0cyB0cnkgdG8g
+Y292ZXIgYWxsIHVzZS1jYXNlcyIKPj4gZGlzY3Vzc2lvbnMsIGFuZCBuZXZlciBtYWtlIHByb2dy
+ZXNzLgo+PiBTbyBsZXQncyBzZWUgc29tZSB3b3JraW5nIGNvZGUgbWVyZ2VkLiBJZiBpdCB3b3Jr
+cyBmaW5lIGZvciB2aXJ0aW8KPj4gYW5kIHR1cm5zIG91dCB0byBiZSBhIGdvb2QgZml0IGZvciBu
+ZXR2c2MsIHdlIGNhbiBzaGFyZSBjb2RlLgo+IEkgdGhpbmsgd2UgYXQgbGVhc3Qgc2hvdWxkIHN0
+YXJ0IHdpdGggYSBzZXBhcmF0ZSBuZXRkZXYgb3RoZXIgdGhhbgo+IHZpcnRpby4gVGhhdCBpcyB3
+aGF0IHdlIG1heSBhZ3JlZSB0byBoYXZlIHRvIGRvIHdpdGhvdXQgY29tcHJpc2UgSSdkCj4gaG9w
+ZS4KSSB0aGluayB0aGUgdXNlY2FzZSB0aGF0IHlvdSBhcmUgdGFyZ2V0aW5nIGRvZXMgcmVxdWly
+ZSBhIG5ldyBwYXJhIHZpcnQgCmJvbmQgZHJpdmVyCmFuZCBhIG5ldyB0eXBlIG9mIG5ldGRldmlj
+ZS4KCkZvciB0aGUgdXNlY2FzZSB3aGVyZSB0aGUgaG9zdCBpcyBkb2luZyBhbGwgdGhlIGd1ZXN0
+IG5ldHdvcmsgCnR1bmluZy9vcHRpbWl6YXRpb25zCmFuZCB0aGUgVk0gaXMgbm90IGV4cGVjdGVk
+IHRvIGRvIGFueSB0dW5pbmcvb3B0aW1pemF0aW9ucyBvbiB0aGUgVkYgCmRyaXZlciBkaXJlY3Rs
+eSwKaSB0aGluayB0aGUgY3VycmVudCBwYXRjaCB0aGF0IGZvbGxvd3MgdGhlIG5ldHZzYyBtb2Rl
+bCBvZiAyIApuZXRkZXZzKHZpcnRpbyBhbmQgdmYpIHNob3VsZAp3b3JrIGZpbmUuCj4+Cj4+Pj4g
+U28gc29tZSBwZW9wbGUgd2FudCBhIGZ1bGx5IHVzZXJzcGFjZS1jb25maWd1cmFibGUgc3dpdGNo
+ZGV2LCBhbmQgdGhhdAo+Pj4+IGFscmVhZHkgZXhpc3RzIGF0IHNvbWUgbGV2ZWwsIGFuZCBtYXli
+ZSBpdCBtYWtlcyBzZW5zZSB0byBhZGQgbW9yZQo+Pj4+IGZlYXR1cmVzIGZvciBwZXJmb3JtYW5j
+ZS4KPj4+Pgo+Pj4+IEJ1dCB0aGUgcG9pbnQgd2FzIHRoYXQgc29tZSBob3N0IGNvbmZpZ3VyYXRp
+b25zIGFyZSB2ZXJ5IHNpbXBsZSwKPj4+PiBhbmQgaXQgcHJvYmFibHkgbWFrZXMgc2Vuc2UgdG8g
+cGFzcyB0aGlzIGluZm9ybWF0aW9uIHRvIHRoZSBndWVzdAo+Pj4+IGFuZCBoYXZlIGd1ZXN0IGFj
+dCBvbiBpdCBkaXJlY3RseS4gTGV0J3Mgbm90IGNvbmZsYXRlIHRoZSB0d28uCj4+PiBJdCBtYXkg
+YmUgZmluZSB0byBwdXNoIHNvbWUgb2YgdGhlIGNvbmZpZ3VyYXRpb25zIGZyb20gaG9zdCBidXQg
+dGhhdAo+Pj4gcGVyaGFwcyBkb2Vzbid0IGNvdmVyIGFsbCB0aGUgY2FzZXM6IGhvdyBpcyBpdCBw
+b3NzaWJsZSBmb3IgdGhlIGhvc3QKPj4+IHRvIHNhdmUgYWxsIG5ldHdvcmsgc3RhdGVzIGFuZCBj
+b25maWdzIGRvbmUgYnkgdGhlIGd1ZXN0IGJlZm9yZQo+Pj4gbWlncmF0aW9uLiBTb21lIG9mIHRo
+ZSBjb25maWdzIG1pZ2h0IGNvbWUgZnJvbSBmdXR1cmUgZ3Vlc3Qgd2hpY2ggaXMKPj4+IHVua25v
+d24gdG8gaG9zdC4gQW55aG93IHRoZSBib3R0b20gbGluZSBpcyB0aGF0IHRoZSBndWVzdCBtdXN0
+IGJlIGFibGUKPj4+IHRvIGFjdCBvbiB0aG9zZSBjb25maWd1cmF0aW9uIHJlcXVlc3QgY2hhbmdl
+cyBhdXRvbWF0aWNhbGx5IHdpdGhvdXQKPj4+IGludm9sdmluZyB1c2VycyBpbnRlcnZlbnRpb24u
+Cj4+Pgo+Pj4gUmVnYXJkcywKPj4+IC1TaXdlaQo+PiBBbGwgdXNlLWNhc2VzIGFyZSAqYWxyZWFk
+eSogY292ZXJlZCBieSBleGlzdGluZyBrZXJuZWwgQVBJcy4gIEp1c3QgdXNlIGEKPj4gYm9uZCwg
+b3IgYSBicmlkZ2UsIG9yIHdoYXRldmVyLiBJdCdzIGp1c3QgdGhhdCB0aGV5IGFyZSBzbyBnZW5l
+cmljIGFuZAo+PiBoYXJkIHRvIHVzZSwgdGhhdCB1c2Vyc3BhY2UgdG8gZG8gaXQgbmV2ZXIgc3Vy
+ZmFjZWQuCj4gQXMgbWVudGlvbmVkIGVhcmxpZXIsIGZvciB3aGljaCBJIGNhbm5vdCBzdHJlc3Mg
+ZW5vdWdoLCB0aGUgZXhpc3RpbmcKPiBnZW5lcmljIGJvbmQgb3IgYnJpZGdlIGRvZXNuJ3Qgd29y
+ay4gV2UgbmVlZCBhIG5ldyBuZXQgZGV2aWNlIHRoYXQKPiB3b3JrcyBmb3IgbGl2ZSBtaWdyYXRp
+b24gc3BlY2lmaWNhbGx5IGFuZCBmaXRzIGl0IHdlbGwuCj4KPj4gU28gSSBhbSBpbnRlcmVzdGVk
+IGluIHNvbWUgY29kZSB0aGF0IGhhbmRsZXMgc29tZSBzaW1wbGUgdXNlLWNhc2VzCj4+IGluIHRo
+ZSBrZXJuZWwsIHdpdGggYSBzaW1wbGUga2VybmVsIEFQSS4KPiBJdCBzaG91bGQgYmUgZmluZSwg
+SSBsaWtlIHNpbXBsZSBzdHVmZnMgdG9vIGFuZCB3b3VsZG4ndCBsaWtlIHRvIG1ha2UKPiBjb21w
+bGljYXRpb25zLiBUaGUgY29uY2VwdCBvZiBoaWRpbmcgYXV0by1tYW5hZ2VkIGludGVyZmFjZXMg
+aXMgbm90Cj4gbmV3IGFuZCBoYXMgZXZlbiBiZWVuIGltcGxlbWVudGVkIGJ5IG90aGVyIG9wZXJh
+dGluZyBzeXN0ZW1zIGFscmVhZHkuCj4gTm90IHN1cmUgaWYgdGhhdCBpcyB5b3VyIGNvbXBhdGli
+aWxpdHkgY29uY2Vybi4gV2Ugc3RhcnQgd2l0aCBzaW1wbGUKPiBmb3Igc3VyZSwgYnV0IHNpbXBs
+ZSAhPSBpbi1leHBhbmRhYmxlIHRoZW4gbWFrZSBwb3RlbnRpYWwgdXNlcnMKPiBpbXBvc3NpYmxl
+IHRvIHVzZSBhdCBhbGwuCj4KPgo+IFRoYW5rcywKPiAtU2l3ZWkKPgo+Pj4+IC0tCj4+Pj4gTVNU
+Cj4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tCj4gVG8gdW5zdWJzY3JpYmUsIGUtbWFpbDogdmlydGlvLWRldi11bnN1
+YnNjcmliZUBsaXN0cy5vYXNpcy1vcGVuLm9yZwo+IEZvciBhZGRpdGlvbmFsIGNvbW1hbmRzLCBl
+LW1haWw6IHZpcnRpby1kZXYtaGVscEBsaXN0cy5vYXNpcy1vcGVuLm9yZwo+CgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
