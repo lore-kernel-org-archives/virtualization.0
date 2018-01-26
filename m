@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Subject: Re: [RFC PATCH net-next v2 2/2] virtio_net: Extend virtio to use VF
 	datapath when available
-Date: Fri, 26 Jan 2018 18:58:50 +0200
-Message-ID: <20180126185617-mutt-send-email-mst@kernel.org>
+Date: Fri, 26 Jan 2018 10:15:13 -0800
+Message-ID: <dcebb89c-dff9-c499-a5ff-39aee79ce985@intel.com>
 References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
 	<1515736720-39368-3-git-send-email-sridhar.samudrala@intel.com>
+	<20180126185617-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1515736720-39368-3-git-send-email-sridhar.samudrala@intel.com>
+In-Reply-To: <20180126185617-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,75 +21,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sridhar Samudrala <sridhar.samudrala@intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 11, 2018 at 09:58:39PM -0800, Sridhar Samudrala wrote:
-> @@ -2859,6 +3123,42 @@ static struct virtio_driver virtio_net_driver = {
->  #endif
->  };
->  
-> +static int virtio_netdev_event(struct notifier_block *this,
-> +			       unsigned long event, void *ptr)
-> +{
-> +	struct net_device *event_dev = netdev_notifier_info_to_dev(ptr);
-> +
-> +	/* Skip our own events */
-> +	if (event_dev->netdev_ops == &virtnet_netdev)
-> +		return NOTIFY_DONE;
-> +
-> +	/* Avoid non-Ethernet type devices */
-> +	if (event_dev->type != ARPHRD_ETHER)
-> +		return NOTIFY_DONE;
-> +
-> +	/* Avoid Vlan dev with same MAC registering as VF */
-> +	if (is_vlan_dev(event_dev))
-> +		return NOTIFY_DONE;
-> +
-> +	/* Avoid Bonding master dev with same MAC registering as VF */
-> +	if ((event_dev->priv_flags & IFF_BONDING) &&
-> +	    (event_dev->flags & IFF_MASTER))
-> +		return NOTIFY_DONE;
-> +
-> +	switch (event) {
-> +	case NETDEV_REGISTER:
-> +		return virtnet_register_vf(event_dev);
-> +	case NETDEV_UNREGISTER:
-> +		return virtnet_unregister_vf(event_dev);
-> +	default:
-> +		return NOTIFY_DONE;
-> +	}
-> +}
-> +
-> +static struct notifier_block virtio_netdev_notifier = {
-> +	.notifier_call = virtio_netdev_event,
-> +};
-> +
->  static __init int virtio_net_driver_init(void)
->  {
->  	int ret;
-> @@ -2877,6 +3177,8 @@ static __init int virtio_net_driver_init(void)
->          ret = register_virtio_driver(&virtio_net_driver);
->  	if (ret)
->  		goto err_virtio;
-> +
-> +	register_netdevice_notifier(&virtio_netdev_notifier);
->  	return 0;
->  err_virtio:
->  	cpuhp_remove_multi_state(CPUHP_VIRT_NET_DEAD);
-> @@ -2889,6 +3191,7 @@ module_init(virtio_net_driver_init);
->  
->  static __exit void virtio_net_driver_exit(void)
->  {
-> +	unregister_netdevice_notifier(&virtio_netdev_notifier);
->  	unregister_virtio_driver(&virtio_net_driver);
->  	cpuhp_remove_multi_state(CPUHP_VIRT_NET_DEAD);
->  	cpuhp_remove_multi_state(virtionet_online);
-
-I have a question here: what if PT device driver module loads
-and creates a device before virtio?
-
-
-> -- 
-> 2.14.3
+CgpPbiAxLzI2LzIwMTggODo1OCBBTSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9uIFRo
+dSwgSmFuIDExLCAyMDE4IGF0IDA5OjU4OjM5UE0gLTA4MDAsIFNyaWRoYXIgU2FtdWRyYWxhIHdy
+b3RlOgo+PiBAQCAtMjg1OSw2ICszMTIzLDQyIEBAIHN0YXRpYyBzdHJ1Y3QgdmlydGlvX2RyaXZl
+ciB2aXJ0aW9fbmV0X2RyaXZlciA9IHsKPj4gICAjZW5kaWYKPj4gICB9Owo+PiAgIAo+PiArc3Rh
+dGljIGludCB2aXJ0aW9fbmV0ZGV2X2V2ZW50KHN0cnVjdCBub3RpZmllcl9ibG9jayAqdGhpcywK
+Pj4gKwkJCSAgICAgICB1bnNpZ25lZCBsb25nIGV2ZW50LCB2b2lkICpwdHIpCj4+ICt7Cj4+ICsJ
+c3RydWN0IG5ldF9kZXZpY2UgKmV2ZW50X2RldiA9IG5ldGRldl9ub3RpZmllcl9pbmZvX3RvX2Rl
+dihwdHIpOwo+PiArCj4+ICsJLyogU2tpcCBvdXIgb3duIGV2ZW50cyAqLwo+PiArCWlmIChldmVu
+dF9kZXYtPm5ldGRldl9vcHMgPT0gJnZpcnRuZXRfbmV0ZGV2KQo+PiArCQlyZXR1cm4gTk9USUZZ
+X0RPTkU7Cj4+ICsKPj4gKwkvKiBBdm9pZCBub24tRXRoZXJuZXQgdHlwZSBkZXZpY2VzICovCj4+
+ICsJaWYgKGV2ZW50X2Rldi0+dHlwZSAhPSBBUlBIUkRfRVRIRVIpCj4+ICsJCXJldHVybiBOT1RJ
+RllfRE9ORTsKPj4gKwo+PiArCS8qIEF2b2lkIFZsYW4gZGV2IHdpdGggc2FtZSBNQUMgcmVnaXN0
+ZXJpbmcgYXMgVkYgKi8KPj4gKwlpZiAoaXNfdmxhbl9kZXYoZXZlbnRfZGV2KSkKPj4gKwkJcmV0
+dXJuIE5PVElGWV9ET05FOwo+PiArCj4+ICsJLyogQXZvaWQgQm9uZGluZyBtYXN0ZXIgZGV2IHdp
+dGggc2FtZSBNQUMgcmVnaXN0ZXJpbmcgYXMgVkYgKi8KPj4gKwlpZiAoKGV2ZW50X2Rldi0+cHJp
+dl9mbGFncyAmIElGRl9CT05ESU5HKSAmJgo+PiArCSAgICAoZXZlbnRfZGV2LT5mbGFncyAmIElG
+Rl9NQVNURVIpKQo+PiArCQlyZXR1cm4gTk9USUZZX0RPTkU7Cj4+ICsKPj4gKwlzd2l0Y2ggKGV2
+ZW50KSB7Cj4+ICsJY2FzZSBORVRERVZfUkVHSVNURVI6Cj4+ICsJCXJldHVybiB2aXJ0bmV0X3Jl
+Z2lzdGVyX3ZmKGV2ZW50X2Rldik7Cj4+ICsJY2FzZSBORVRERVZfVU5SRUdJU1RFUjoKPj4gKwkJ
+cmV0dXJuIHZpcnRuZXRfdW5yZWdpc3Rlcl92ZihldmVudF9kZXYpOwo+PiArCWRlZmF1bHQ6Cj4+
+ICsJCXJldHVybiBOT1RJRllfRE9ORTsKPj4gKwl9Cj4+ICt9Cj4+ICsKPj4gK3N0YXRpYyBzdHJ1
+Y3Qgbm90aWZpZXJfYmxvY2sgdmlydGlvX25ldGRldl9ub3RpZmllciA9IHsKPj4gKwkubm90aWZp
+ZXJfY2FsbCA9IHZpcnRpb19uZXRkZXZfZXZlbnQsCj4+ICt9Owo+PiArCj4+ICAgc3RhdGljIF9f
+aW5pdCBpbnQgdmlydGlvX25ldF9kcml2ZXJfaW5pdCh2b2lkKQo+PiAgIHsKPj4gICAJaW50IHJl
+dDsKPj4gQEAgLTI4NzcsNiArMzE3Nyw4IEBAIHN0YXRpYyBfX2luaXQgaW50IHZpcnRpb19uZXRf
+ZHJpdmVyX2luaXQodm9pZCkKPj4gICAgICAgICAgIHJldCA9IHJlZ2lzdGVyX3ZpcnRpb19kcml2
+ZXIoJnZpcnRpb19uZXRfZHJpdmVyKTsKPj4gICAJaWYgKHJldCkKPj4gICAJCWdvdG8gZXJyX3Zp
+cnRpbzsKPj4gKwo+PiArCXJlZ2lzdGVyX25ldGRldmljZV9ub3RpZmllcigmdmlydGlvX25ldGRl
+dl9ub3RpZmllcik7Cj4+ICAgCXJldHVybiAwOwo+PiAgIGVycl92aXJ0aW86Cj4+ICAgCWNwdWhw
+X3JlbW92ZV9tdWx0aV9zdGF0ZShDUFVIUF9WSVJUX05FVF9ERUFEKTsKPj4gQEAgLTI4ODksNiAr
+MzE5MSw3IEBAIG1vZHVsZV9pbml0KHZpcnRpb19uZXRfZHJpdmVyX2luaXQpOwo+PiAgIAo+PiAg
+IHN0YXRpYyBfX2V4aXQgdm9pZCB2aXJ0aW9fbmV0X2RyaXZlcl9leGl0KHZvaWQpCj4+ICAgewo+
+PiArCXVucmVnaXN0ZXJfbmV0ZGV2aWNlX25vdGlmaWVyKCZ2aXJ0aW9fbmV0ZGV2X25vdGlmaWVy
+KTsKPj4gICAJdW5yZWdpc3Rlcl92aXJ0aW9fZHJpdmVyKCZ2aXJ0aW9fbmV0X2RyaXZlcik7Cj4+
+ICAgCWNwdWhwX3JlbW92ZV9tdWx0aV9zdGF0ZShDUFVIUF9WSVJUX05FVF9ERUFEKTsKPj4gICAJ
+Y3B1aHBfcmVtb3ZlX211bHRpX3N0YXRlKHZpcnRpb25ldF9vbmxpbmUpOwo+IEkgaGF2ZSBhIHF1
+ZXN0aW9uIGhlcmU6IHdoYXQgaWYgUFQgZGV2aWNlIGRyaXZlciBtb2R1bGUgbG9hZHMKPiBhbmQg
+Y3JlYXRlcyBhIGRldmljZSBiZWZvcmUgdmlydGlvPwo+Cj4KSW5pdGlhbGx5IGkgYWxzbyBoYWQg
+dGhpcyBxdWVzdGlvbiBpZiB3ZSBnZXQgTkVUREVWX1JFR0lTVEVSIGV2ZW50cyBmb3IgCm5ldGRl
+dnMKdGhhdCBhcmUgYWxyZWFkeSBwcmVzZW50LiBCdXQgaXQgbG9va3MgbGlrZSAKcmVnaXN0ZXJf
+bmV0ZGV2aWNlX25vdGlmaWVyKCkgd2lsbCBjYXVzZQpyZXBsYXkgb2YgYWxsIHRoZSByZWdpc3Ry
+YXRpb24gYW5kIHVwIGV2ZW50cyBvZiBleGlzdGluZyBkZXZpY2VzLgoKLyoqCiDCoCogcmVnaXN0
+ZXJfbmV0ZGV2aWNlX25vdGlmaWVyIC0gcmVnaXN0ZXIgYSBuZXR3b3JrIG5vdGlmaWVyIGJsb2Nr
+CiDCoCogQG5iOiBub3RpZmllcgogwqAqCiDCoCogUmVnaXN0ZXIgYSBub3RpZmllciB0byBiZSBj
+YWxsZWQgd2hlbiBuZXR3b3JrIGRldmljZSBldmVudHMgb2NjdXIuCiDCoCogVGhlIG5vdGlmaWVy
+IHBhc3NlZCBpcyBsaW5rZWQgaW50byB0aGUga2VybmVsIHN0cnVjdHVyZXMgYW5kIG11c3QKIMKg
+KiBub3QgYmUgcmV1c2VkIHVudGlsIGl0IGhhcyBiZWVuIHVucmVnaXN0ZXJlZC4gQSBuZWdhdGl2
+ZSBlcnJubyBjb2RlCiDCoCogaXMgcmV0dXJuZWQgb24gYSBmYWlsdXJlLgogwqAqCiDCoCogV2hl
+biByZWdpc3RlcmVkIGFsbCByZWdpc3RyYXRpb24gYW5kIHVwIGV2ZW50cyBhcmUgcmVwbGF5ZWQK
+IMKgKiB0byB0aGUgbmV3IG5vdGlmaWVyIHRvIGFsbG93IGRldmljZSB0byBoYXZlIGEgcmFjZSBm
+cmVlCiDCoCogdmlldyBvZiB0aGUgbmV0d29yayBkZXZpY2UgbGlzdC4KIMKgKi8KClRoYW5rcwpT
+cmlkaGFyCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
