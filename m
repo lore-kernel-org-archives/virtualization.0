@@ -1,8 +1,8 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jakub Kicinski <kubakici@wp.pl>
 Subject: Re: [virtio-dev] Re: [RFC PATCH net-next v2 2/2] virtio_net: Extend
 	virtio to use VF datapath when available
-Date: Sat, 27 Jan 2018 00:14:20 +0200
-Message-ID: <20180127000831-mutt-send-email-mst__5028.32020069963$1517004770$gmane$org@kernel.org>
+Date: Fri, 26 Jan 2018 14:47:04 -0800
+Message-ID: <20180126144704.6e1a9628__26282.7515289702$1517006766$gmane$org@cakuba.netronome.com>
 References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
 	<1515736720-39368-3-git-send-email-sridhar.samudrala@intel.com>
 	<CADGSJ22BsdB-hDb0xebSyWrwDuBJaFACjb26PDoqAd2Ah+tsQg@mail.gmail.com>
@@ -12,12 +12,12 @@ References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
 	<CADGSJ2308J=tb1B1zrPi0bFzqYSoLfJsRZxBg6wT+wuCfRO6vw@mail.gmail.com>
 	<731db0a0-85e7-a88e-6e0e-c540086347b5@intel.com>
 	<CADGSJ205yeyGV2nJ9Cr=FwPypxAHb12jx3WitS6UmWSJ9VP42Q@mail.gmail.com>
+	<20180127000831-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CADGSJ205yeyGV2nJ9Cr=FwPypxAHb12jx3WitS6UmWSJ9VP42Q@mail.gmail.com>
+In-Reply-To: <20180127000831-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,33 +27,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 26, 2018 at 01:46:42PM -0800, Siwei Liu wrote:
-> > and the VM is not expected to do any tuning/optimizations on the VF driver
-> > directly,
-> > i think the current patch that follows the netvsc model of 2 netdevs(virtio
-> > and vf) should
-> > work fine.
+On Sat, 27 Jan 2018 00:14:20 +0200, Michael S. Tsirkin wrote:
+> On Fri, Jan 26, 2018 at 01:46:42PM -0800, Siwei Liu wrote:
+> > > and the VM is not expected to do any tuning/optimizations on the VF driver
+> > > directly,
+> > > i think the current patch that follows the netvsc model of 2 netdevs(virtio
+> > > and vf) should
+> > > work fine.  
+> > 
+> > OK. For your use case that's fine. But that's too specific scenario
+> > with lots of restrictions IMHO, perhaps very few users will benefit
+> > from it, I'm not sure. If you're unwilling to move towards it, we'd
+> > take this one and come back with a generic solution that is able to
+> > address general use cases for VF/PT live migration .  
 > 
-> OK. For your use case that's fine. But that's too specific scenario
-> with lots of restrictions IMHO, perhaps very few users will benefit
-> from it, I'm not sure. If you're unwilling to move towards it, we'd
-> take this one and come back with a generic solution that is able to
-> address general use cases for VF/PT live migration .
+> I think that's a fine approach. Scratch your own itch!  I imagine a very
+> generic virtio-switchdev providing host routing info to guests could
+> address lots of usecases. A driver could bind to that one and enslave
+> arbitrary other devices.  Sounds reasonable.
+> 
+> But given the fundamental idea of a failover was floated at least as
+> early as 2013, and made 0 progress since precisely because it kept
+> trying to address more and more features, and given netvsc is already
+> using the basic solution with some success, I'm not inclined to block
+> this specific effort waiting for the generic one.
 
-I think that's a fine approach. Scratch your own itch!  I imagine a very
-generic virtio-switchdev providing host routing info to guests could
-address lots of usecases. A driver could bind to that one and enslave
-arbitrary other devices.  Sounds reasonable.
-
-But given the fundamental idea of a failover was floated at least as
-early as 2013, and made 0 progress since precisely because it kept
-trying to address more and more features, and given netvsc is already
-using the basic solution with some success, I'm not inclined to block
-this specific effort waiting for the generic one.
-
--- 
-MST
+I think there is an agreement that the extra netdev will be useful for
+more advanced use cases, and is generally preferable.  What is the
+argument for not doing that from the start?  If it was made I must have
+missed it.  Is it just unwillingness to write the extra 300 lines of
+code?  Sounds like a pretty weak argument when adding kernel ABI is at
+stake...
