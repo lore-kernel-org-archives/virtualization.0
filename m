@@ -1,8 +1,8 @@
-From: Jakub Kicinski <kubakici@wp.pl>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Subject: Re: [virtio-dev] Re: [RFC PATCH net-next v2 2/2] virtio_net: Extend
 	virtio to use VF datapath when available
-Date: Fri, 26 Jan 2018 14:47:04 -0800
-Message-ID: <20180126144704.6e1a9628__26282.7515289702$1517006766$gmane$org@cakuba.netronome.com>
+Date: Fri, 26 Jan 2018 15:30:35 -0800
+Message-ID: <5fa8c6c6-4a94-91fa-fdbb-ee7b624d703f@intel.com>
 References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
 	<1515736720-39368-3-git-send-email-sridhar.samudrala@intel.com>
 	<CADGSJ22BsdB-hDb0xebSyWrwDuBJaFACjb26PDoqAd2Ah+tsQg@mail.gmail.com>
@@ -13,11 +13,13 @@ References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
 	<731db0a0-85e7-a88e-6e0e-c540086347b5@intel.com>
 	<CADGSJ205yeyGV2nJ9Cr=FwPypxAHb12jx3WitS6UmWSJ9VP42Q@mail.gmail.com>
 	<20180127000831-mutt-send-email-mst@kernel.org>
+	<20180126144704.6e1a9628@cakuba.netronome.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180127000831-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180126144704.6e1a9628@cakuba.netronome.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,39 +29,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, David Miller <davem@davemloft.net>
+To: Jakub Kicinski <kubakici@wp.pl>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 27 Jan 2018 00:14:20 +0200, Michael S. Tsirkin wrote:
-> On Fri, Jan 26, 2018 at 01:46:42PM -0800, Siwei Liu wrote:
-> > > and the VM is not expected to do any tuning/optimizations on the VF driver
-> > > directly,
-> > > i think the current patch that follows the netvsc model of 2 netdevs(virtio
-> > > and vf) should
-> > > work fine.  
-> > 
-> > OK. For your use case that's fine. But that's too specific scenario
-> > with lots of restrictions IMHO, perhaps very few users will benefit
-> > from it, I'm not sure. If you're unwilling to move towards it, we'd
-> > take this one and come back with a generic solution that is able to
-> > address general use cases for VF/PT live migration .  
-> 
-> I think that's a fine approach. Scratch your own itch!  I imagine a very
-> generic virtio-switchdev providing host routing info to guests could
-> address lots of usecases. A driver could bind to that one and enslave
-> arbitrary other devices.  Sounds reasonable.
-> 
-> But given the fundamental idea of a failover was floated at least as
-> early as 2013, and made 0 progress since precisely because it kept
-> trying to address more and more features, and given netvsc is already
-> using the basic solution with some success, I'm not inclined to block
-> this specific effort waiting for the generic one.
-
-I think there is an agreement that the extra netdev will be useful for
-more advanced use cases, and is generally preferable.  What is the
-argument for not doing that from the start?  If it was made I must have
-missed it.  Is it just unwillingness to write the extra 300 lines of
-code?  Sounds like a pretty weak argument when adding kernel ABI is at
-stake...
+Ck9uIDEvMjYvMjAxOCAyOjQ3IFBNLCBKYWt1YiBLaWNpbnNraSB3cm90ZToKPiBPbiBTYXQsIDI3
+IEphbiAyMDE4IDAwOjE0OjIwICswMjAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+IE9u
+IEZyaSwgSmFuIDI2LCAyMDE4IGF0IDAxOjQ2OjQyUE0gLTA4MDAsIFNpd2VpIExpdSB3cm90ZToK
+Pj4+PiBhbmQgdGhlIFZNIGlzIG5vdCBleHBlY3RlZCB0byBkbyBhbnkgdHVuaW5nL29wdGltaXph
+dGlvbnMgb24gdGhlIFZGIGRyaXZlcgo+Pj4+IGRpcmVjdGx5LAo+Pj4+IGkgdGhpbmsgdGhlIGN1
+cnJlbnQgcGF0Y2ggdGhhdCBmb2xsb3dzIHRoZSBuZXR2c2MgbW9kZWwgb2YgMiBuZXRkZXZzKHZp
+cnRpbwo+Pj4+IGFuZCB2Zikgc2hvdWxkCj4+Pj4gd29yayBmaW5lLgo+Pj4gT0suIEZvciB5b3Vy
+IHVzZSBjYXNlIHRoYXQncyBmaW5lLiBCdXQgdGhhdCdzIHRvbyBzcGVjaWZpYyBzY2VuYXJpbwo+
+Pj4gd2l0aCBsb3RzIG9mIHJlc3RyaWN0aW9ucyBJTUhPLCBwZXJoYXBzIHZlcnkgZmV3IHVzZXJz
+IHdpbGwgYmVuZWZpdAo+Pj4gZnJvbSBpdCwgSSdtIG5vdCBzdXJlLiBJZiB5b3UncmUgdW53aWxs
+aW5nIHRvIG1vdmUgdG93YXJkcyBpdCwgd2UnZAo+Pj4gdGFrZSB0aGlzIG9uZSBhbmQgY29tZSBi
+YWNrIHdpdGggYSBnZW5lcmljIHNvbHV0aW9uIHRoYXQgaXMgYWJsZSB0bwo+Pj4gYWRkcmVzcyBn
+ZW5lcmFsIHVzZSBjYXNlcyBmb3IgVkYvUFQgbGl2ZSBtaWdyYXRpb24gLgo+PiBJIHRoaW5rIHRo
+YXQncyBhIGZpbmUgYXBwcm9hY2guIFNjcmF0Y2ggeW91ciBvd24gaXRjaCEgIEkgaW1hZ2luZSBh
+IHZlcnkKPj4gZ2VuZXJpYyB2aXJ0aW8tc3dpdGNoZGV2IHByb3ZpZGluZyBob3N0IHJvdXRpbmcg
+aW5mbyB0byBndWVzdHMgY291bGQKPj4gYWRkcmVzcyBsb3RzIG9mIHVzZWNhc2VzLiBBIGRyaXZl
+ciBjb3VsZCBiaW5kIHRvIHRoYXQgb25lIGFuZCBlbnNsYXZlCj4+IGFyYml0cmFyeSBvdGhlciBk
+ZXZpY2VzLiAgU291bmRzIHJlYXNvbmFibGUuCj4+Cj4+IEJ1dCBnaXZlbiB0aGUgZnVuZGFtZW50
+YWwgaWRlYSBvZiBhIGZhaWxvdmVyIHdhcyBmbG9hdGVkIGF0IGxlYXN0IGFzCj4+IGVhcmx5IGFz
+IDIwMTMsIGFuZCBtYWRlIDAgcHJvZ3Jlc3Mgc2luY2UgcHJlY2lzZWx5IGJlY2F1c2UgaXQga2Vw
+dAo+PiB0cnlpbmcgdG8gYWRkcmVzcyBtb3JlIGFuZCBtb3JlIGZlYXR1cmVzLCBhbmQgZ2l2ZW4g
+bmV0dnNjIGlzIGFscmVhZHkKPj4gdXNpbmcgdGhlIGJhc2ljIHNvbHV0aW9uIHdpdGggc29tZSBz
+dWNjZXNzLCBJJ20gbm90IGluY2xpbmVkIHRvIGJsb2NrCj4+IHRoaXMgc3BlY2lmaWMgZWZmb3J0
+IHdhaXRpbmcgZm9yIHRoZSBnZW5lcmljIG9uZS4KPiBJIHRoaW5rIHRoZXJlIGlzIGFuIGFncmVl
+bWVudCB0aGF0IHRoZSBleHRyYSBuZXRkZXYgd2lsbCBiZSB1c2VmdWwgZm9yCj4gbW9yZSBhZHZh
+bmNlZCB1c2UgY2FzZXMsIGFuZCBpcyBnZW5lcmFsbHkgcHJlZmVyYWJsZS4gIFdoYXQgaXMgdGhl
+Cj4gYXJndW1lbnQgZm9yIG5vdCBkb2luZyB0aGF0IGZyb20gdGhlIHN0YXJ0PyAgSWYgaXQgd2Fz
+IG1hZGUgSSBtdXN0IGhhdmUKPiBtaXNzZWQgaXQuICBJcyBpdCBqdXN0IHVud2lsbGluZ25lc3Mg
+dG8gd3JpdGUgdGhlIGV4dHJhIDMwMCBsaW5lcyBvZgo+IGNvZGU/ICBTb3VuZHMgbGlrZSBhIHBy
+ZXR0eSB3ZWFrIGFyZ3VtZW50IHdoZW4gYWRkaW5nIGtlcm5lbCBBQkkgaXMgYXQKPiBzdGFrZS4u
+LgoKSSBhbSBzdGlsbCBub3QgY2xlYXIgb24gdGhlIG5lZWQgZm9yIHRoZSBleHRyYSBuZXRkZXYg
+Y3JlYXRlZCBieSAKdmlydGlvX25ldC4gVGhlIG9ubHkgYWR2YW50YWdlCmkgY2FuIHNlZSBpcyB0
+aGF0IHRoZSBzdGF0cyBjYW4gYmUgYnJva2VuIGJldHdlZW4gVkYgYW5kIHZpcnRpbyAKZGF0YXBh
+dGhzIGNvbXBhcmVkCnRvIHRoZSBhZ2dyZWdyYXRlZCBzdGF0cyBvbiB2aXJ0aW8gbmV0ZGV2IGFz
+IHNlZW4gd2l0aCB0aGUgMiBuZXRkZXYgCmFwcHJvYWNoLgoKV2l0aCAyIG5ldGRldiBtb2RlbCwg
+YW55IFZNIGltYWdlIHRoYXQgaGFzIGEgd29ya2luZyBuZXR3b3JrIApjb25maWd1cmF0aW9uIHdp
+bGwgdHJhbnNwYXJlbnRseSBnZXQKVkYgYmFzZWQgYWNjZWxlcmF0aW9uIHdpdGhvdXQgYW55IGNo
+YW5nZXMuIDMgbmV0ZGV2IG1vZGVsIGJyZWFrcyB0aGlzIApjb25maWd1cmF0aW9uIHN0YXJ0aW5n
+IHdpdGggdGhlCmNyZWF0aW9uIGFuZCBuYW1pbmcgb2YgdGhlIDIgZGV2aWNlcyB0byB1ZGV2IG5l
+ZWRpbmcgdG8gYmUgYXdhcmUgb2YgCm1hc3RlciBhbmQgc2xhdmUgdmlydGlvLW5ldCBkZXZpY2Vz
+LgpBbHNvLCBmcm9tIGEgdXNlciBleHBlcmllbmNlIHBvaW50IG9mIHZpZXcsIGxvYWRpbmcgYSB2
+aXJ0aW8tbmV0IHdpdGggCkJBQ0tVUCBmZWF0dXJlCmVuYWJsZWQgd2lsbMKgIG5vdyBzaG93IDIg
+dmlydGlvLW5ldCBuZXRkZXZzLgoKRm9yIGxpdmUgbWlncmF0aW9uIHdpdGggYWR2YW5jZWQgdXNl
+Y2FzZXMgdGhhdCBTaXdlaSBpcyBzdWdnZXN0aW5nLCBpIAp0aGluayB3ZSBuZWVkIGEgbmV3IGRy
+aXZlcgp3aXRoIGEgbmV3IGRldmljZSB0eXBlIHRoYXQgY2FuIHRyYWNrIHRoZSBWRiBzcGVjaWZp
+YyBmZWF0dXJlIHNldHRpbmdzIApldmVuIHdoZW4gdGhlIFZGIGRyaXZlciBpcyB1bmxvYWRlZC4K
+ClRoYW5rcwpTcmlkaGFyCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
+YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
