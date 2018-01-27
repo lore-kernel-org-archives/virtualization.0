@@ -1,27 +1,19 @@
-From: Jakub Kicinski <kubakici@wp.pl>
-Subject: Re: [virtio-dev] Re: [RFC PATCH net-next v2 2/2] virtio_net: Extend
-	virtio to use VF datapath when available
-Date: Fri, 26 Jan 2018 21:58:29 -0800
-Message-ID: <20180126215829.7b3c6bac@cakuba.netronome.com>
-References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
-	<1515736720-39368-3-git-send-email-sridhar.samudrala@intel.com>
-	<CADGSJ22BsdB-hDb0xebSyWrwDuBJaFACjb26PDoqAd2Ah+tsQg@mail.gmail.com>
-	<20180122233205-mutt-send-email-mst@kernel.org>
-	<CADGSJ209vrdjnEAweLg84FwN3sf+1W+APmvB=NjFkMNAhsOyrg@mail.gmail.com>
-	<20180124004556-mutt-send-email-mst@kernel.org>
-	<CADGSJ2308J=tb1B1zrPi0bFzqYSoLfJsRZxBg6wT+wuCfRO6vw@mail.gmail.com>
-	<731db0a0-85e7-a88e-6e0e-c540086347b5@intel.com>
-	<CADGSJ205yeyGV2nJ9Cr=FwPypxAHb12jx3WitS6UmWSJ9VP42Q@mail.gmail.com>
-	<20180127000831-mutt-send-email-mst@kernel.org>
-	<20180126144704.6e1a9628@cakuba.netronome.com>
-	<5fa8c6c6-4a94-91fa-fdbb-ee7b624d703f@intel.com>
-	<20180126183003.591cd5c5@cakuba.netronome.com>
-	<e02e21a1-ab5d-132a-fb33-5e0ba42fc9ac@intel.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v24 1/2] mm: support reporting free page blocks
+Date: Sat, 27 Jan 2018 13:13:05 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F7393ED398__8970.24176451868$1517058714$gmane$org@SHSMSX101.ccr.corp.intel.com>
+References: <1516790562-37889-1-git-send-email-wei.w.wang@intel.com>
+	<1516790562-37889-2-git-send-email-wei.w.wang@intel.com>
+	<20180125152933-mutt-send-email-mst@kernel.org>
+	<5A6AA08B.2080508@intel.com>
+	<20180126155224-mutt-send-email-mst@kernel.org>
+	<20180126233950-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <e02e21a1-ab5d-132a-fb33-5e0ba42fc9ac@intel.com>
+In-Reply-To: <20180126233950-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -31,40 +23,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "nilal@redhat.com" <nilal@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCAyNiBKYW4gMjAxOCAyMTozMzowMSAtMDgwMCwgU2FtdWRyYWxhLCBTcmlkaGFyIHdy
-b3RlOgo+ID4+IDMgbmV0ZGV2IG1vZGVsIGJyZWFrcyB0aGlzIGNvbmZpZ3VyYXRpb24gc3RhcnRp
-bmcgd2l0aCB0aGUgY3JlYXRpb24KPiA+PiBhbmQgbmFtaW5nIG9mIHRoZSAyIGRldmljZXMgdG8g
-dWRldiBuZWVkaW5nIHRvIGJlIGF3YXJlIG9mIG1hc3RlciBhbmQKPiA+PiBzbGF2ZSB2aXJ0aW8t
-bmV0IGRldmljZXMuICAKPiA+IEkgZG9uJ3QgdW5kZXJzdGFuZCB0aGlzIGNvbW1lbnQuICBUaGVy
-ZSBpcyBvbmUgdmlydGlvLW5ldCBkZXZpY2UgYW5kCj4gPiBvbmUgInZpcnRpby1ib25kIiBuZXRk
-ZXYuICBBbmQgdXNlciBzcGFjZSBoYXMgdG8gYmUgYXdhcmUgb2YgdGhlIHNwZWNpYWwKPiA+IGF1
-dG9tYXRpYyBhcnJhbmdlbWVudCBhbnl3YXksIGJlY2F1c2UgaXQgY2FuJ3QgdG91Y2ggdGhlIFZG
-LiAgSXQKPiA+IGRvZXNuJ3QgbWFrZSBhbnkgZGlmZmVyZW5jZSB3aGV0aGVyIGl0IGlnbm9yZXMg
-dGhlIFZGIG9yIFBWIGFuZCBWRi4KPiA+IEl0IHNpbXBseSBjYW4ndCB0b3VjaCB0aGUgc2xhdmVz
-LCBubyBtYXR0ZXIgaG93IG1hbnkgdGhlcmUgYXJlLiAgCj4gCj4gSWYgdGhlIHVzZXJzcGFjZSBp
-cyBub3QgZXhwZWN0ZWQgdG8gdG91Y2ggdGhlIHNsYXZlcywgdGhlbiB3aHkgZG8gd2UgbmVlZCB0
-bwo+IHRha2UgZXh0cmEgZWZmb3J0IHRvIGV4cG9zZSBhIG5ldGRldiB0aGF0IGlzIGp1c3Qgbm90
-IHJlYWxseSB1c2VmdWwuCgpZb3Ugc2FpZDoKIlt1c2VyIHNwYWNlXSBuZWVkcyB0byBiZSBhd2Fy
-ZSBvZiBtYXN0ZXIgYW5kIHNsYXZlIHZpcnRpby1uZXQgZGV2aWNlcy4iCgpJJ20gc2F5aW5nOgpJ
-dCBoYXMgdG8gYmUgYXdhcmUgb2YgdGhlIHNwZWNpYWwgYXJyYW5nZW1lbnQgd2hldGhlciB0aGVy
-ZSBpcyBhbgpleHBsaWNpdCBib25kIG5ldGRldiBvciBub3QuCgo+ID4+IEFsc28sIGZyb20gYSB1
-c2VyIGV4cGVyaWVuY2UgcG9pbnQgb2YgdmlldywgbG9hZGluZyBhIHZpcnRpby1uZXQgd2l0aAo+
-ID4+IEJBQ0tVUCBmZWF0dXJlIGVuYWJsZWQgd2lsbMKgbm93IHNob3cgMiB2aXJ0aW8tbmV0IG5l
-dGRldnMuICAKPiA+IE9uZSB2aXJ0aW8tbmV0IGFuZCBvbmUgdmlydGlvLWJvbmQsIHdoaWNoIHJl
-cHJlc2VudHMgd2hhdCdzIGhhcHBlbmluZy4gIAo+IFRoaXMgYWdhaW4gYXNzdW1lcyB0aGF0IHdl
-IHdhbnQgdG8gcmVwcmVzZW50IGEgYm9uZCBzZXR1cC4gQ2FuJ3Qgd2UgCj4gdHJlYXQgdGhpcwo+
-IGFzIHZpcnRpby1uZXQgcHJvdmlkaW5nIGFuIGFsdGVybmF0ZSBsb3ctbGF0ZW5jeSBkYXRhcGF0
-aCBieSB0YWtpbmcgb3ZlciAKPiBWRiBkYXRhcGF0aD8KCkJvbmQgaXMganVzdCBhIGZhbWlsaWFy
-IG5hbWUsIHdlIGNhbiBjYWxsIGl0IHNvbWV0aGluZyBlbHNlIGlmIHlvdQpwcmVmZXIuICBUaGUg
-cG9pbnQgaXMgdGhlcmUgYXJlIHR3byBkYXRhIHBhdGhzIHdoaWNoIGNhbiBoYXZlCmluZGVwZW5k
-ZW50IGxvdy1sZXZlbCBzZXR0aW5ncyBhbmQgYSBoaWdoZXIgbGV2ZWwgZW50aXR5IHdpdGgKZ2xv
-YmFsIHNldHRpbmdzIHdoaWNoIHJlcHJlc2VudHMgYW55IHBhdGggdG8gdGhlIG91dHNpZGUgd29y
-bGQuCgpIaWRpbmcgbG93LWxldmVsIG5ldGRldnMgZnJvbSBhIGxheSB1c2VyIHJlcXVpcmVzIGEg
-Z2VuZXJpYyBzb2x1dGlvbi4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
-LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
-YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Saturday, January 27, 2018 5:44 AM, Michael S. Tsirkin wrote:
+> On Fri, Jan 26, 2018 at 05:00:09PM +0200, Michael S. Tsirkin wrote:
+> > On Fri, Jan 26, 2018 at 11:29:15AM +0800, Wei Wang wrote:
+> > > On 01/25/2018 09:41 PM, Michael S. Tsirkin wrote:
+> > > > On Wed, Jan 24, 2018 at 06:42:41PM +0800, Wei Wang wrote:
+> > > 2) If worse, all the blocks have been split into smaller blocks and
+> > > used after the caller comes back.
+> > >
+> > > where could we continue?
+> >
+> > I'm not sure. But an alternative appears to be to hold a lock and just
+> > block whoever wanted to use any pages.  Yes we are sending hints
+> > faster but apparently something wanted these pages, and holding the
+> > lock is interfering with this something.
+> 
+> I've been thinking about it. How about the following scheme:
+> 1. register balloon to get a (new) callback when free list runs empty 2. take
+> pages off the free list, add them to the balloon specific list 3. report to host 4.
+> readd to free list at tail 5. if callback triggers, interrupt balloon reporting to
+> host,
+>    and readd to free list at tail
+
+So in step 2, when we walk through the free page list, take each block, and add them to the balloon specific list, is this performed under the mm lock? If it is still under the lock, then what would be the difference compared to walking through the free list, and add each block to virtqueue? 
+
+Best,
+Wei
