@@ -1,17 +1,14 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: Ping Re: [PATCH] virtio: make VIRTIO a menuconfig to ease
-	disabling it all
-Date: Sun, 28 Jan 2018 21:14:15 +1100
-Message-ID: <877es22sug.fsf@concordia.ellerman.id.au>
-References: <459e2097-f20a-18f8-17d9-2d9ed011211d@infradead.org>
-	<20180107113356.2806-1-vincent.legoll@gmail.com>
-	<87h8rdp55n.fsf@concordia.ellerman.id.au>
-	<CAEwRq=oJ0apphUFDheoX5d-BB5yjG3rZD8m4yhK75eZcm6eqVg@mail.gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 4/6] x86: Consolidate PCI_MMCONFIG configs
+Date: Sun, 28 Jan 2018 19:26:44 +0200
+Message-ID: <CAHp75Vd3AsdOayA0FSaug6L4K+Xx5pk=Eeh4F5mZQsKiV3RxwA__46434.6987697811$1517160326$gmane$org@mail.gmail.com>
+References: <cover.1516601570.git.jan.kiszka@siemens.com>
+	<5dcaec50bb59140c1cb63c35ce566ccc02188bcb.1516601570.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAEwRq=oJ0apphUFDheoX5d-BB5yjG3rZD8m4yhK75eZcm6eqVg@mail.gmail.com>
+In-Reply-To: <5dcaec50bb59140c1cb63c35ce566ccc02188bcb.1516601570.git.jan.kiszka@siemens.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,18 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Vincent Legoll <vincent.legoll@gmail.com>, sfr@canb.auug.org.au
-Cc: Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Vincent Legoll <vincent.legoll@gmail.com> writes:
-> On 1/23/18, Michael Ellerman <mpe@ellerman.id.au> wrote:
->> This has been broken in linux-next for ~6 weeks now, can we please merge
->> this and get it fixed.
+On Mon, Jan 22, 2018 at 8:12 AM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
+> From: Jan Kiszka <jan.kiszka@siemens.com>
 >
-> Added Stephen Rothwell to cc
+> Not sure if those two worked by design or just by chance so far. In any
+> case, it's at least cleaner and clearer to express this in a single
+> config statement.
 
-It should be fixed in the virtio tree, which the other Michael and Jason
-maintain AFAIK.
+Congrats! You found by the way a bug in
 
-cheers
+commit e279b6c1d329e50b766bce96aacc197eae8a053b
+Author: Sam Ravnborg <sam@ravnborg.org>
+Date:   Tue Nov 6 20:41:05 2007 +0100
+
+   x86: start unification of arch/x86/Kconfig.*
+
+...and proper fix seems to split PCI stuff to common + X86_32 only + X86_64 only
+
+-- 
+With Best Regards,
+Andy Shevchenko
