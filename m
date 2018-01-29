@@ -1,13 +1,18 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net] vhost_net: stop device during reset owner
-Date: Mon, 29 Jan 2018 12:35:54 -0500 (EST)
-Message-ID: <20180129.123554.366362754710512867.davem__2507.65864407203$1517257181$gmane$org@davemloft.net>
-References: <1516889032-23510-1-git-send-email-jasowang@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH net-next v2 2/2] virtio_net: Extend virtio to use VF
+	datapath when available
+Date: Mon, 29 Jan 2018 11:32:53 +0800
+Message-ID: <5f830324-08af-4141-5e64-4905b969d088__12192.0178215534$1517258403$gmane$org@redhat.com>
+References: <1515736720-39368-1-git-send-email-sridhar.samudrala@intel.com>
+	<1515736720-39368-3-git-send-email-sridhar.samudrala@intel.com>
+	<afd11f19-6906-2a7e-1b82-e3138c4d9530@redhat.com>
+	<f6d80eca-8f95-861c-6717-7df53af870fe@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1516889032-23510-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <f6d80eca-8f95-861c-6717-7df53af870fe@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,20 +22,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, kubakici@wp.pl
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 25 Jan 2018 22:03:52 +0800
-
-> We don't stop device before reset owner, this means we could try to
-> serve any virtqueue kick before reset dev->worker. This will result a
-> warn since the work was pending at llist during owner resetting. Fix
-> this by stopping device during owner reset.
-> 
-> Reported-by: syzbot+eb17c6162478cc50632c@syzkaller.appspotmail.com
-> Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-Applied and queued up for -stable.
+CgpPbiAyMDE45bm0MDHmnIgyNOaXpSAwMDowMywgU2FtdWRyYWxhLCBTcmlkaGFyIHdyb3RlOgo+
+Cj4KPiBPbiAxLzIzLzIwMTggMjozMyBBTSwgSmFzb24gV2FuZyB3cm90ZToKPj4KPj4KPj4gT24g
+MjAxOOW5tDAx5pyIMTLml6UgMTM6NTgsIFNyaWRoYXIgU2FtdWRyYWxhIHdyb3RlOgo+Pj4gwqAg
+c3RhdGljIG5ldGRldl90eF90IHN0YXJ0X3htaXQoc3RydWN0IHNrX2J1ZmYgKnNrYiwgc3RydWN0
+IAo+Pj4gbmV0X2RldmljZSAqZGV2KQo+Pj4gwqAgewo+Pj4gwqDCoMKgwqDCoCBzdHJ1Y3Qgdmly
+dG5ldF9pbmZvICp2aSA9IG5ldGRldl9wcml2KGRldik7Cj4+PiDCoMKgwqDCoMKgIGludCBxbnVt
+ID0gc2tiX2dldF9xdWV1ZV9tYXBwaW5nKHNrYik7Cj4+PiDCoMKgwqDCoMKgIHN0cnVjdCBzZW5k
+X3F1ZXVlICpzcSA9ICZ2aS0+c3FbcW51bV07Cj4+PiArwqDCoMKgIHN0cnVjdCBuZXRfZGV2aWNl
+ICp2Zl9uZXRkZXY7Cj4+PiDCoMKgwqDCoMKgIGludCBlcnI7Cj4+PiDCoMKgwqDCoMKgIHN0cnVj
+dCBuZXRkZXZfcXVldWUgKnR4cSA9IG5ldGRldl9nZXRfdHhfcXVldWUoZGV2LCBxbnVtKTsKPj4+
+IMKgwqDCoMKgwqAgYm9vbCBraWNrID0gIXNrYi0+eG1pdF9tb3JlOwo+Pj4gwqDCoMKgwqDCoCBi
+b29sIHVzZV9uYXBpID0gc3EtPm5hcGkud2VpZ2h0Owo+Pj4gwqAgK8KgwqDCoCAvKiBJZiBWRiBp
+cyBwcmVzZW50IGFuZCB1cCB0aGVuIHJlZGlyZWN0IHBhY2tldHMKPj4+ICvCoMKgwqDCoCAqIGNh
+bGxlZCB3aXRoIHJjdV9yZWFkX2xvY2tfYmgKPj4+ICvCoMKgwqDCoCAqLwo+Pj4gK8KgwqDCoCB2
+Zl9uZXRkZXYgPSByY3VfZGVyZWZlcmVuY2VfYmgodmktPnZmX25ldGRldik7Cj4+PiArwqDCoMKg
+IGlmICh2Zl9uZXRkZXYgJiYgbmV0aWZfcnVubmluZyh2Zl9uZXRkZXYpICYmCj4+PiArwqDCoMKg
+wqDCoMKgwqAgIW5ldHBvbGxfdHhfcnVubmluZyhkZXYpICYmCj4+PiArwqDCoMKgwqDCoMKgwqAg
+aXNfdW5pY2FzdF9ldGhlcl9hZGRyKGV0aF9oZHIoc2tiKS0+aF9kZXN0KSkKPj4+ICvCoMKgwqDC
+oMKgwqDCoCByZXR1cm4gdmlydG5ldF92Zl94bWl0KGRldiwgdmZfbmV0ZGV2LCBza2IpOwo+Pj4g
+Kwo+Pgo+PiBBIHF1ZXN0aW9uIGhlcmUuCj4+Cj4+IElmIEkgcmVhZCB0aGUgY29kZSBjb3JyZWN0
+bHksIGFsbCBmZWF0dXJlcyB3ZXJlIHZhbGlkYXRlZCBhZ2FpbnN0IAo+PiB2aXJ0aW8gaW5zdGVh
+ZCBWRiBiZWZvcmUgdHJhbnNtaXR0aW5nLiBUaGlzIGFzc3VtZXMgVkYncyBmZWF0dXJlIGlzIGEg
+Cj4+IHN1cGVyc2V0IG9mIHZpcnRpbywgZG9lcyB0aGlzIHJlYWxseSB3b3JrPyBEbyB3ZSBuZWVk
+IHRvIHNhbml0aXplIHRoZSAKPj4gZmVhdHVyZSBiZWZvcmUgam9pbmluZz8gKGUuZyBhdCBsYXN0
+IE5FVElGX1JfR1NPX1JPQlVTVCBuZWVkcyB0byBiZSAKPj4gcmVtb3ZlZCkuCj4KPiBBY3R1YWxs
+eSwgdmlydG5ldF92Zl94bWl0KCkgY2FsbHMgZGV2X3F1ZXVlX3htaXQoKSBhZnRlciB1cGRhdGlu
+ZyAKPiBza2ItPmRldiB0byB2ZiBuZXRkZXYuCj4gU28gdGhlIGZlYXR1cmVzIGdldCB2YWxpZGF0
+ZWQgYWdhaW5zdCBWRiBmZWF0dXJlcyBhbmQgdGhlIHJpZ2h0IHR4IAo+IHF1ZXVlIGlzIHNlbGVj
+dGVkCj4gYmVmb3JlIHRoZSByZWFsIHRyYW5zbWl0LgoKSSBzZWUsIHRoZSB0aGUgcGFja2V0IHdp
+bGwgZ28gdGhyb3VnaCBxZGlzY3MgdHdpY2Ugd2hpY2ggaXMgc3Vib3B0aW1hbC4gCkFuZCB0aGUg
+ZGV2aWNlIG1heSBsb3NlIHNvbWUgYWJpbGl0eSBvZiBWRiBsaWtlIHR1bm5lbCBHU08uCgpUaGFu
+a3MKCj4KPiBUaGFua3MKPiBTcmlkaGFyCj4KPgo+CgpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
