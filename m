@@ -1,24 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [RFC PATCH net-next v2 2/2] virtio_net: Extend
-	virtio to use VF datapath when available
-Date: Mon, 29 Jan 2018 20:24:43 +0200
-Message-ID: <20180129202113-mutt-send-email-mst__27925.878580618$1517256844$gmane$org@kernel.org>
-References: <20180124004556-mutt-send-email-mst@kernel.org>
-	<CADGSJ2308J=tb1B1zrPi0bFzqYSoLfJsRZxBg6wT+wuCfRO6vw@mail.gmail.com>
-	<731db0a0-85e7-a88e-6e0e-c540086347b5@intel.com>
-	<CADGSJ205yeyGV2nJ9Cr=FwPypxAHb12jx3WitS6UmWSJ9VP42Q@mail.gmail.com>
-	<20180127000831-mutt-send-email-mst@kernel.org>
-	<20180126144704.6e1a9628@cakuba.netronome.com>
-	<5fa8c6c6-4a94-91fa-fdbb-ee7b624d703f@intel.com>
-	<20180126183003.591cd5c5@cakuba.netronome.com>
-	<20180128150237.35237d84@xeon-e3>
-	<CAKgT0UfEHc6T4MbAwFjx4c2TK1hL-_eGDpSiBEY_ryN_4UaPoQ@mail.gmail.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net] vhost_net: stop device during reset owner
+Date: Mon, 29 Jan 2018 12:35:54 -0500 (EST)
+Message-ID: <20180129.123554.366362754710512867.davem__2507.65864407203$1517257181$gmane$org@davemloft.net>
+References: <1516889032-23510-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAKgT0UfEHc6T4MbAwFjx4c2TK1hL-_eGDpSiBEY_ryN_4UaPoQ@mail.gmail.com>
+In-Reply-To: <1516889032-23510-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,66 +17,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Duyck <alexander.duyck@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, David Miller <davem@davemloft.net>
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jan 28, 2018 at 08:26:53PM -0800, Alexander Duyck wrote:
-> >> > For live migration with advanced usecases that Siwei is suggesting, i
-> >> > think we need a new driver with a new device type that can track the
-> >> > VF specific feature settings even when the VF driver is unloaded.
-> >
-> > I see no added value of the 3 netdev model, there is no need for a bond
-> > device.
-> 
-> I agree a full-blown bond isn't what is needed. However, just forking
-> traffic out from virtio to a VF doesn't really solve things either.
-> 
-> One of the issues as I see it is the fact that the qdisc model with
-> the merged device gets to be pretty ugly. There is the fact that every
-> packet that goes to the VF has to pass through the qdisc code twice.
-> There is the dual nature of the 2 netdev solution that also introduces
-> the potential for head-of-line blocking since the virtio could put
-> back pressure on the upper qdisc layer which could stall the VF
-> traffic when switching over. I hope we could avoid issues like that by
-> maintaining qdiscs per device queue instead of on an upper device that
-> is half software interface and half not. Ideally the virtio-bond
-> device could operate without a qdisc and without needing any
-> additional locks so there shouldn't be head of line blocking occurring
-> between the two interfaces and overhead could be kept minimal.
-> 
-> Also in the case of virtio there is support for in-driver XDP. As
-> Sridhar stated, when using the 2 netdev model "we cannot support XDP
-> in this model and it needs to be disabled". That sounds like a step
-> backwards instead of forwards. I would much rather leave the XDP
-> enabled at the lower dev level, and then if we want we can use the
-> generic XDP at the virtio-bond level to capture traffic on both
-> interfaces at the same time.
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 25 Jan 2018 22:03:52 +0800
 
-I agree dropping XDP makes everything very iffy.
-
-> In the case of netvsc you have control of both sides of a given link
-> so you can match up the RSS tables, queue configuration and everything
-> is somewhat symmetric since you are running the PF and all the HyperV
-> subchannels. Most of the complexity is pushed down into the host and
-> your subchannel management is synchronized there if I am not mistaken.
-> We don't have this in the case of this virtio-bond setup. Instead a
-> single bit is set indicating "backup" without indicating what that
-> means to topology other than the fact that this virtio interface is
-> the backup for some other interface. We are essentially blind other
-> than having the link status for the VF and virtio and knowing that the
-> virtio is intended to be the backup.
-
-Would you be interested in posting at least a proof of concept
-patch for this approach? It's OK if there are some TODO stubs.
-It would be much easier to compare code to code rather than
-a high level description to code.
-
-> We might be able to get to a 2 or maybe even a 1 netdev solution at
-> some point in the future, but  I don't think that time is now. For now
-> a virtio-bond type solution would allow us to address most of the use
-> cases with minimal modification to the existing virtio and can deal
-> with feature and/or resource asymmetry.
+> We don't stop device before reset owner, this means we could try to
+> serve any virtqueue kick before reset dev->worker. This will result a
+> warn since the work was pending at llist during owner resetting. Fix
+> this by stopping device during owner reset.
 > 
-> - Alex
+> Reported-by: syzbot+eb17c6162478cc50632c@syzkaller.appspotmail.com
+> Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+
+Applied and queued up for -stable.
