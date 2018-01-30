@@ -1,24 +1,20 @@
-From: Alexander Duyck <alexander.duyck@gmail.com>
-Subject: Re: [virtio-dev] Re: [RFC PATCH net-next v2 2/2] virtio_net: Extend
-	virtio to use VF datapath when available
-Date: Mon, 29 Jan 2018 12:09:16 -0800
-Message-ID: <CAKgT0UdV_Vppykx7TVeRoOSmc+6E1eBPYoF0+8eP3qXfWgH0gw__15707.0027235479$1517259793$gmane$org@mail.gmail.com>
-References: <20180124004556-mutt-send-email-mst@kernel.org>
-	<CADGSJ2308J=tb1B1zrPi0bFzqYSoLfJsRZxBg6wT+wuCfRO6vw@mail.gmail.com>
-	<731db0a0-85e7-a88e-6e0e-c540086347b5@intel.com>
-	<CADGSJ205yeyGV2nJ9Cr=FwPypxAHb12jx3WitS6UmWSJ9VP42Q@mail.gmail.com>
-	<20180127000831-mutt-send-email-mst@kernel.org>
-	<20180126144704.6e1a9628@cakuba.netronome.com>
-	<5fa8c6c6-4a94-91fa-fdbb-ee7b624d703f@intel.com>
-	<20180126183003.591cd5c5@cakuba.netronome.com>
-	<20180128150237.35237d84@xeon-e3>
-	<CAKgT0UfEHc6T4MbAwFjx4c2TK1hL-_eGDpSiBEY_ryN_4UaPoQ@mail.gmail.com>
-	<20180129202113-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH v25 2/2] virtio-balloon:
+	VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Wed, 31 Jan 2018 01:44:14 +0200
+Message-ID: <20180131011423-mutt-send-email-mst__33213.3095049814$1517356240$gmane$org@kernel.org>
+References: <1516871646-22741-1-git-send-email-wei.w.wang@intel.com>
+	<1516871646-22741-3-git-send-email-wei.w.wang@intel.com>
+	<20180125154708-mutt-send-email-mst@kernel.org>
+	<5A6A871C.6040408@intel.com>
+	<20180126042649-mutt-send-email-mst@kernel.org>
+	<5A6AA107.3000607@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180129202113-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <5A6AA107.3000607@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,77 +24,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, David Miller <davem@davemloft.net>
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 29, 2018 at 10:24 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Sun, Jan 28, 2018 at 08:26:53PM -0800, Alexander Duyck wrote:
->> >> > For live migration with advanced usecases that Siwei is suggesting, i
->> >> > think we need a new driver with a new device type that can track the
->> >> > VF specific feature settings even when the VF driver is unloaded.
->> >
->> > I see no added value of the 3 netdev model, there is no need for a bond
->> > device.
->>
->> I agree a full-blown bond isn't what is needed. However, just forking
->> traffic out from virtio to a VF doesn't really solve things either.
->>
->> One of the issues as I see it is the fact that the qdisc model with
->> the merged device gets to be pretty ugly. There is the fact that every
->> packet that goes to the VF has to pass through the qdisc code twice.
->> There is the dual nature of the 2 netdev solution that also introduces
->> the potential for head-of-line blocking since the virtio could put
->> back pressure on the upper qdisc layer which could stall the VF
->> traffic when switching over. I hope we could avoid issues like that by
->> maintaining qdiscs per device queue instead of on an upper device that
->> is half software interface and half not. Ideally the virtio-bond
->> device could operate without a qdisc and without needing any
->> additional locks so there shouldn't be head of line blocking occurring
->> between the two interfaces and overhead could be kept minimal.
->>
->> Also in the case of virtio there is support for in-driver XDP. As
->> Sridhar stated, when using the 2 netdev model "we cannot support XDP
->> in this model and it needs to be disabled". That sounds like a step
->> backwards instead of forwards. I would much rather leave the XDP
->> enabled at the lower dev level, and then if we want we can use the
->> generic XDP at the virtio-bond level to capture traffic on both
->> interfaces at the same time.
->
-> I agree dropping XDP makes everything very iffy.
->
->> In the case of netvsc you have control of both sides of a given link
->> so you can match up the RSS tables, queue configuration and everything
->> is somewhat symmetric since you are running the PF and all the HyperV
->> subchannels. Most of the complexity is pushed down into the host and
->> your subchannel management is synchronized there if I am not mistaken.
->> We don't have this in the case of this virtio-bond setup. Instead a
->> single bit is set indicating "backup" without indicating what that
->> means to topology other than the fact that this virtio interface is
->> the backup for some other interface. We are essentially blind other
->> than having the link status for the VF and virtio and knowing that the
->> virtio is intended to be the backup.
->
-> Would you be interested in posting at least a proof of concept
-> patch for this approach? It's OK if there are some TODO stubs.
-> It would be much easier to compare code to code rather than
-> a high level description to code.
+On Fri, Jan 26, 2018 at 11:31:19AM +0800, Wei Wang wrote:
+> On 01/26/2018 10:42 AM, Michael S. Tsirkin wrote:
+> > On Fri, Jan 26, 2018 at 09:40:44AM +0800, Wei Wang wrote:
+> > > On 01/25/2018 09:49 PM, Michael S. Tsirkin wrote:
+> > > > On Thu, Jan 25, 2018 at 05:14:06PM +0800, Wei Wang wrote:
+> > > > 
+> 
+> > > The controversy is that the free list is not static
+> > > once the lock is dropped, so everything is dynamically changing, including
+> > > the state that was recorded. The method we are using is more prudent, IMHO.
+> > > How about taking the fundamental solution, and seek to improve incrementally
+> > > in the future?
+> > > 
+> > > 
+> > > Best,
+> > > Wei
+> > I'd like to see kicks happen outside the spinlock. kick with a spinlock
+> > taken looks like a scalability issue that won't be easy to
+> > reproduce but hurt workloads at random unexpected times.
+> > 
+> 
+> Is that "kick inside the spinlock" the only concern you have? I think we can
+> remove the kick actually. If we check how the host side works, it is
+> worthwhile to let the host poll the virtqueue after it receives the cmd id
+> from the guest (kick for cmd id isn't within the lock).
+> 
+> 
+> Best,
+> Wei
 
-That is the general idea. I was hoping to go the bonding route last
-week but I got too snarled up trying to untangle the features we
-didn't need. I have some code I am working on but don't have an ETA
-for when it will be done.
+So really there are different ways to put free page hints to use.
 
-At this point I am hoping we can build something based on Sridhar's
-original patch that can addresses the items I brought up and shifts to
-more of a 3 netdev model. If I am not mistaken we might be able to do
-it as a separate driver that has a pair of calls that allow for
-adding/removing a virt-bond that is provided with a MAC address and a
-device pointer so that we can do the bits necessary to get ourselves
-swapped with the original virtio device and identify the virtio as the
-backup channel.
+The current interface requires host to do dirty tracking
+for all memory, and it's more or less useless for
+things like freeing host memory.
 
-Thanks.
+So while your project's needs seem to be addressed, I'm
+still a bit disappointed that so little collaboration
+happened with e.g. Nitesh's project, to the point where
+you don't even CC him on patches.
 
-- Alex
+So I'm kind of trying to bridge this a bit - I would
+like the interfaces that we build to at least superficially
+look like they might be reusable for other uses of hinting.
+
+Imagine that you don't have dirty tracking on the host.
+What would it take to still use hinting information,
+e.g. to call MADV_FREE on the pages guest gives us?
+
+I think you need to kick and you need to wait for
+host to consume the hint before page is reused.
+And we know madvise takes a lot of time sometimes,
+so locking out the free list does not sound like a
+good idea.
+
+That's why I was talking about kick out of lock,
+so that eventually we can reuse that for hinting
+and actually wait for an interrupt.
+
+So how about we take a bunch of pages out of the free list, move them to
+the balloon, kick (and optionally wait for host to consume), them move
+them back? Preferably to end of the list? This will also make things
+like sorting them much easier as you can just put them in a binary tree
+or something.
+
+For when we need to be careful to make sure we don't
+create an OOM situation with this out of thin air,
+and for when you can't give everything to host in one go,
+you might want some kind of notifier that tells you
+that you need to return pages to the free list ASAP.
+
+How'd this sound?
+
+-- 
+MST
