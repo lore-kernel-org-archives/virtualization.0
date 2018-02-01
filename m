@@ -1,15 +1,18 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
-Date: Thu, 1 Feb 2018 17:36:23 +0100
-Message-ID: <20180201163623.5cs2ysykg5wgulf4__46335.5105057873$1517502937$gmane$org@sirius.home.kraxel.org>
-References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
-	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v24 2/2] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Thu, 1 Feb 2018 21:14:25 +0200
+Message-ID: <20180201211114-mutt-send-email-mst__11297.3140123815$1517512431$gmane$org@kernel.org>
+References: <1516790562-37889-1-git-send-email-wei.w.wang@intel.com>
+	<1516790562-37889-3-git-send-email-wei.w.wang@intel.com>
+	<20180124183349-mutt-send-email-mst@kernel.org>
+	<5A694FB5.5090803@intel.com>
+	<17068749-d2c7-61bb-4637-a1aee5a0d0fb@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180126135803.29781-2-tomeu.vizoso@collabora.com>
+In-Reply-To: <17068749-d2c7-61bb-4637-a1aee5a0d0fb@I-love.SAKURA.ne.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +22,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+On Thu, Jan 25, 2018 at 08:28:52PM +0900, Tetsuo Handa wrote:
+> On 2018/01/25 12:32, Wei Wang wrote:
+> > On 01/25/2018 01:15 AM, Michael S. Tsirkin wrote:
+> >> On Wed, Jan 24, 2018 at 06:42:42PM +0800, Wei Wang wrote:
+> >> +
+> >> +static void report_free_page_func(struct work_struct *work)
+> >> +{
+> >> +    struct virtio_balloon *vb;
+> >> +    unsigned long flags;
+> >> +
+> >> +    vb = container_of(work, struct virtio_balloon, report_free_page_work);
+> >> +
+> >> +    /* Start by sending the obtained cmd id to the host with an outbuf */
+> >> +    send_cmd_id(vb, &vb->start_cmd_id);
+> >> +
+> >> +    /*
+> >> +     * Set start_cmd_id to VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID to
+> >> +     * indicate a new request can be queued.
+> >> +     */
+> >> +    spin_lock_irqsave(&vb->stop_update_lock, flags);
+> >> +    vb->start_cmd_id = cpu_to_virtio32(vb->vdev,
+> >> +                VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID);
+> >> +    spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+> >> +
+> >> +    walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
+> >> Can you teach walk_free_mem_block to return the && of all
+> >> return calls, so caller knows whether it completed?
+> > 
+> > There will be two cases that can cause walk_free_mem_block to return without completing:
+> > 1) host requests to stop in advance
+> > 2) vq->broken
+> > 
+> > How about letting walk_free_mem_block simply return the value returned by its callback (i.e. virtio_balloon_send_free_pages)?
+> > 
+> > For host requests to stop, it returns "1", and the above only bails out when walk_free_mem_block return a "< 0" value.
+> 
+> I feel that virtio_balloon_send_free_pages is doing too heavy things.
+> 
+> It can be called for many times with IRQ disabled. Number of times
+> it is called depends on amount of free pages (and fragmentation state).
+> Generally, more free pages, more calls.
+> 
+> Then, why don't you allocate some pages for holding all pfn values
+> and then call walk_free_mem_block() only for storing pfn values
+> and then send pfn values without disabling IRQ?
 
-Sorry for joining the party late.  Had a broken finger and was offline
-for a bunch of weeks (and a buif backlog afterwards ...).
+So going over it, at some level we are talking about optimizations here.
 
-> This is to allow clients running within VMs to be able to communicate
-> with a compositor in the host. Clients will use the communication
-> protocol that the compositor supports, and virtio-gpu will assist with
-> making buffers available in both sides, and copying content as needed.
+I'll go over it one last time but at some level we might
+be able to make progress faster if we start by enabling
+the functionality in question.
+If there are no other issues, I'm inclined to merge.
 
-Why not use virtio-vsock to run the wayland protocol?  I don't like the
-idea to duplicate something with very simliar functionality in
-virtio-gpu.
+If nothing else, this
+will make it possible for people to experiment and
+report sources of overhead.
 
-> It is expected that a service in the guest will act as a proxy,
-> interacting with virtio-gpu to support unmodified clients.
-
-If you have a guest proxy anyway using virtio-sock for the protocol
-stream and virtio-gpu for buffer sharing (and some day 3d rendering too)
-should work fine I think.
-
-> When the client notifies the compositor that it can read from that buffer,
-> the proxy should copy the contents from the SHM region to the virtio-gpu
-> resource and call DRM_VIRTGPU_TRANSFER_TO_HOST.
-
-What is the plan for the host side?  I see basically two options.
-Either implement the host wayland proxy directly in qemu.  Or implement
-it as separate process, which then needs some help from qemu to get
-access to the buffers.  The later would allow qemu running independant
-from the desktop session.
-
-cheers,
-  Gerd
+-- 
+MST
