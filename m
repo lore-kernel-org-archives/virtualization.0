@@ -1,22 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [PATCH v25 2/2] virtio-balloon:
-	VIRTIO_BALLOON_F_FREE_PAGE_HINT
-Date: Thu, 1 Feb 2018 18:03:52 +0200
-Message-ID: <20180201175115-mutt-send-email-mst__27560.2132235237$1517500976$gmane$org@kernel.org>
-References: <1516871646-22741-1-git-send-email-wei.w.wang@intel.com>
-	<1516871646-22741-3-git-send-email-wei.w.wang@intel.com>
-	<20180125154708-mutt-send-email-mst@kernel.org>
-	<5A6A871C.6040408@intel.com>
-	<20180126042649-mutt-send-email-mst@kernel.org>
-	<5A6AA107.3000607@intel.com>
-	<20180131011423-mutt-send-email-mst@kernel.org>
-	<5A72E13A.9030701@intel.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
+Date: Thu, 1 Feb 2018 17:36:23 +0100
+Message-ID: <20180201163623.5cs2ysykg5wgulf4__46335.5105057873$1517502937$gmane$org@sirius.home.kraxel.org>
+References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
+	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5A72E13A.9030701@intel.com>
+In-Reply-To: <20180126135803.29781-2-tomeu.vizoso@collabora.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,17 +19,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "nilal@redhat.com" <nilal@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 01, 2018 at 05:43:22PM +0800, Wei Wang wrote:
-> 3) Hints means the pages are quite likely to be free pages (no guarantee).
-> If the pages given to host are going to be freed, then we really couldn't
-> call them hints, they are true free pages. Ballooning needs true free pages,
-> while live migration needs hints, would you agree with this?
+  Hi,
 
-It's an interesting point, I'm convinced by it.
+Sorry for joining the party late.  Had a broken finger and was offline
+for a bunch of weeks (and a buif backlog afterwards ...).
 
--- 
-MST
+> This is to allow clients running within VMs to be able to communicate
+> with a compositor in the host. Clients will use the communication
+> protocol that the compositor supports, and virtio-gpu will assist with
+> making buffers available in both sides, and copying content as needed.
+
+Why not use virtio-vsock to run the wayland protocol?  I don't like the
+idea to duplicate something with very simliar functionality in
+virtio-gpu.
+
+> It is expected that a service in the guest will act as a proxy,
+> interacting with virtio-gpu to support unmodified clients.
+
+If you have a guest proxy anyway using virtio-sock for the protocol
+stream and virtio-gpu for buffer sharing (and some day 3d rendering too)
+should work fine I think.
+
+> When the client notifies the compositor that it can read from that buffer,
+> the proxy should copy the contents from the SHM region to the virtio-gpu
+> resource and call DRM_VIRTGPU_TRANSFER_TO_HOST.
+
+What is the plan for the host side?  I see basically two options.
+Either implement the host wayland proxy directly in qemu.  Or implement
+it as separate process, which then needs some help from qemu to get
+access to the buffers.  The later would allow qemu running independant
+from the desktop session.
+
+cheers,
+  Gerd
