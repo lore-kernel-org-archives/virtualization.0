@@ -1,13 +1,16 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v26 1/2] mm: support reporting free page blocks
-Date: Sun,  4 Feb 2018 20:41:07 +0800
-Message-ID: <1517748068-25499-2-git-send-email-wei.w.wang__11393.9831885093$1517749170$gmane$org@intel.com>
-References: <1517748068-25499-1-git-send-email-wei.w.wang@intel.com>
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
+Date: Mon, 5 Feb 2018 09:19:20 +0100
+Message-ID: <49785e0d-936a-c3b4-62dd-aafc7083a942__22745.6191591502$1517818677$gmane$org@collabora.com>
+References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
+	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
+	<20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1517748068-25499-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,156 +20,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org
-Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, huangzhichao@huawei.com, pbonzini@redhat.com, nilal@redhat.com
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds support to walk through the free page blocks in the
-system and report them via a callback function. Some page blocks may
-leave the free list after zone->lock is released, so it is the caller's
-responsibility to either detect or prevent the use of such pages.
+On 1 February 2018 at 17:36, Gerd Hoffmann <kraxel@redhat.com> wrote:
+> Hi,
+> 
+> Sorry for joining the party late. Had a broken finger and was
+> offline for a bunch of weeks (and a buif backlog afterwards ...).
 
-One use example of this patch is to accelerate live migration by skipping
-the transfer of free pages reported from the guest. A popular method used
-by the hypervisor to track which part of memory is written during live
-migration is to write-protect all the guest memory. So, those pages that
-are reported as free pages but are written after the report function
-returns will be captured by the hypervisor, and they will be added to the
-next round of memory transfer.
+Hi, no problem, hope it's fine now.
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Signed-off-by: Liang Li <liang.z.li@intel.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Michal Hocko <mhocko@kernel.org>
----
- include/linux/mm.h |  6 ++++
- mm/page_alloc.c    | 96 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 102 insertions(+)
+>> This is to allow clients running within VMs to be able to
+>> communicate with a compositor in the host. Clients will use the
+>> communication protocol that the compositor supports, and virtio-gpu
+>> will assist with making buffers available in both sides, and
+>> copying content as needed.
+> 
+> Why not use virtio-vsock to run the wayland protocol? I don't like
+> the idea to duplicate something with very simliar functionality in 
+> virtio-gpu.
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index ea818ff..e65ae2e 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1938,6 +1938,12 @@ extern void free_area_init_node(int nid, unsigned long * zones_size,
- 		unsigned long zone_start_pfn, unsigned long *zholes_size);
- extern void free_initmem(void);
- 
-+extern int walk_free_mem_block(void *opaque,
-+			       int min_order,
-+			       int (*report_pfn_range)(void *opaque,
-+						       unsigned long pfn,
-+						       unsigned long num));
-+
- /*
-  * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
-  * into the buddy system. The freed pages will be poisoned with pattern
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 76c9688..0dc0853 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -4899,6 +4899,102 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
- 	show_swap_cache_info();
- }
- 
-+/*
-+ * Walk through a free page list and report the found pfn range via the
-+ * callback.
-+ *
-+ * Return 0 if it completes the reporting. Otherwise, return the non-zero
-+ * value returned from the callback.
-+ */
-+static int walk_free_page_list(void *opaque,
-+			       struct zone *zone,
-+			       int order,
-+			       enum migratetype mt,
-+			       int (*report_pfn_range)(void *,
-+						       unsigned long,
-+						       unsigned long))
-+{
-+	struct page *page;
-+	struct list_head *list;
-+	unsigned long pfn, flags;
-+	int ret = 0;
-+
-+	spin_lock_irqsave(&zone->lock, flags);
-+	list = &zone->free_area[order].free_list[mt];
-+	list_for_each_entry(page, list, lru) {
-+		pfn = page_to_pfn(page);
-+		ret = report_pfn_range(opaque, pfn, 1 << order);
-+		if (ret)
-+			break;
-+	}
-+	spin_unlock_irqrestore(&zone->lock, flags);
-+
-+	return ret;
-+}
-+
-+/**
-+ * walk_free_mem_block - Walk through the free page blocks in the system
-+ * @opaque: the context passed from the caller
-+ * @min_order: the minimum order of free lists to check
-+ * @report_pfn_range: the callback to report the pfn range of the free pages
-+ *
-+ * If the callback returns a non-zero value, stop iterating the list of free
-+ * page blocks. Otherwise, continue to report.
-+ *
-+ * Please note that there are no locking guarantees for the callback and
-+ * that the reported pfn range might be freed or disappear after the
-+ * callback returns so the caller has to be very careful how it is used.
-+ *
-+ * The callback itself must not sleep or perform any operations which would
-+ * require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
-+ * or via any lock dependency. It is generally advisable to implement
-+ * the callback as simple as possible and defer any heavy lifting to a
-+ * different context.
-+ *
-+ * There is no guarantee that each free range will be reported only once
-+ * during one walk_free_mem_block invocation.
-+ *
-+ * pfn_to_page on the given range is strongly discouraged and if there is
-+ * an absolute need for that make sure to contact MM people to discuss
-+ * potential problems.
-+ *
-+ * The function itself might sleep so it cannot be called from atomic
-+ * contexts.
-+ *
-+ * In general low orders tend to be very volatile and so it makes more
-+ * sense to query larger ones first for various optimizations which like
-+ * ballooning etc... This will reduce the overhead as well.
-+ *
-+ * Return 0 if it completes the reporting. Otherwise, return the non-zero
-+ * value returned from the callback.
-+ */
-+int walk_free_mem_block(void *opaque,
-+			int min_order,
-+			int (*report_pfn_range)(void *opaque,
-+			unsigned long pfn,
-+			unsigned long num))
-+{
-+	struct zone *zone;
-+	int order;
-+	enum migratetype mt;
-+	int ret;
-+
-+	for_each_populated_zone(zone) {
-+		for (order = MAX_ORDER - 1; order >= min_order; order--) {
-+			for (mt = 0; mt < MIGRATE_TYPES; mt++) {
-+				ret = walk_free_page_list(opaque, zone,
-+							  order, mt,
-+							  report_pfn_range);
-+				if (ret)
-+					return ret;
-+			}
-+		}
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(walk_free_mem_block);
-+
- static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
- {
- 	zoneref->zone = zone;
--- 
-2.7.4
+The reason for abandoning that approach was the type of objects that
+could be shared via virtio-vsock would be extremely limited. Besides
+that being potentially confusing to users, it would mean from the
+implementation side that either virtio-vsock would gain a dependency on
+the drm subsystem, or an appropriate abstraction for shareable buffers
+would need to be added for little gain.
+
+Another factor that was taken into account was that the complexity
+required for implementing passing protocol data around was very small
+when compared with the buffer sharing mechanism.
+
+>> It is expected that a service in the guest will act as a proxy, 
+>> interacting with virtio-gpu to support unmodified clients.
+> 
+> If you have a guest proxy anyway using virtio-sock for the protocol 
+> stream and virtio-gpu for buffer sharing (and some day 3d rendering
+> too) should work fine I think.
+
+If I understand correctly your proposal, virtio-gpu would be used for
+creating buffers that could be shared across domains, but something
+equivalent to SCM_RIGHTS would still be needed in virtio-vsock?
+
+If so, that's what was planned initially, with the concern being that we
+would be adding a bunch of complexity to virtio-vsock that would be only
+used in this specific use case. Then we would also need to figure out
+how virtio-vsock would be able to work with buffers from virtio-gpu
+(either direct dependency or a new abstraction).
+
+If the mechanics of passing presentation data were very complex, I think
+this approach would have more merit. But as you can see from the code,
+it isn't that bad.
+
+>> When the client notifies the compositor that it can read from that
+buffer,
+>> the proxy should copy the contents from the SHM region to the
+>> virtio-gpu resource and call DRM_VIRTGPU_TRANSFER_TO_HOST.
+> 
+> What is the plan for the host side? I see basically two options. 
+> Either implement the host wayland proxy directly in qemu. Or
+> implement it as separate process, which then needs some help from
+> qemu to get access to the buffers. The later would allow qemu running
+> independant from the desktop session.
+
+Regarding synchronizing buffers, this will stop becoming needed in
+subsequent commits as all shared memory is allocated in the host and
+mapped to the guest via KVM_SET_USER_MEMORY_REGION.
+
+This is already the case for buffers passed from the compositor to the
+clients (see patch 2/2), and I'm working on the equivalent for buffers
+from the guest to the host (clients still have to create buffers with
+DRM_VIRTGPU_RESOURCE_CREATE but they will be only backend by host memory
+so no calls to DRM_VIRTGPU_TRANSFER_TO_HOST are needed).
+
+But in the case that we still need a proxy for some reason on the host
+side, I think it would be better to have it in the same process where
+virtio-gpu is implemented. In crosvm's case it would be in a process
+separate from the main VMM, as device processes are isolated from each
+other with minijail (see
+https://chromium.googlesource.com/chromiumos/platform/crosvm/ ).
+
+Regards,
+
+Tomeu
