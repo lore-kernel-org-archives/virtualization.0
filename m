@@ -1,7 +1,7 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Pekka Paalanen <ppaalanen@gmail.com>
 Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
-Date: Tue, 6 Feb 2018 15:23:02 +0100
-Message-ID: <20180206142302.vdjyqmnoypydci4t__21625.8057197139$1517926914$gmane$org@sirius.home.kraxel.org>
+Date: Tue, 6 Feb 2018 17:00:13 +0200
+Message-ID: <20180206170013.7e2b08bb__12801.4305294075$1517929127$gmane$org@eldfell>
 References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
 	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
 	<20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
@@ -9,13 +9,10 @@ References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
 	<20180205122017.4vb5nlpodkq2uhxa@sirius.home.kraxel.org>
 	<f07a5347-13fe-76c2-f971-3f02abebd3c9@collabora.com>
 	<20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
-	<fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7255212266594128920=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
+In-Reply-To: <20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,88 +22,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kernel@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+--===============7255212266594128920==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/YRXYvEnENKe9OWQMruDI4Eh"; protocol="application/pgp-signature"
 
-> > Hmm?  I'm assuming the wayland client (in the guest) talks to the
-> > wayland proxy, using the wayland protocol, like it would talk to a
-> > wayland display server.  Buffers must be passed from client to
-> > server/proxy somehow, probably using fd passing, so where is the
-> > problem?
-> > 
-> > Or did I misunderstand the role of the proxy?
-> 
-> Hi Gerd,
-> 
-> it's starting to look to me that we're talking a bit past the other, so I
-> have pasted below a few words describing my current plan regarding the 3 key
-> scenarios that I'm addressing.
+--Sig_/YRXYvEnENKe9OWQMruDI4Eh
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-You are describing the details, but I'm missing the big picture ...
+On Mon, 5 Feb 2018 17:03:22 +0100
+Gerd Hoffmann <kraxel@redhat.com> wrote:
 
-So, virtualization aside, how do buffers work in wayland?  As far I know
-it goes like this:
+> On Mon, Feb 05, 2018 at 03:46:17PM +0100, Tomeu Vizoso wrote:
+> > On 02/05/2018 01:20 PM, Gerd Hoffmann wrote: =20
+> > >    Hi,
+> > >  =20
+>=20
+> Hmm.  I allways assumed the wayland client allocates the buffers, not
+> the server.  Is that wrong?
 
-  (a) software rendering: client allocates shared memory buffer, renders
-      into it, then passes a file handle for that shmem block together
-      with some meta data (size, format, ...) to the wayland server.
+Hi Gerd,
 
-  (b) gpu rendering: client opens a render node, allocates a buffer,
-      asks the cpu to renders into it, exports the buffer as dma-buf
-      (DRM_IOCTL_PRIME_HANDLE_TO_FD), passes this to the wayland server
-      (again including meta data of course).
+a fly-by comment here:
 
-Is that correct?
+The standard operation mode on Wayland indeed is that the client
+allocates any pixel buffers. It is not the whole story though.
 
-Now, with virtualization added to the mix it becomes a bit more
-complicated.  Client and server are unmodified.  The client talks to the
-guest proxy (wayland protocol).  The guest proxy talks to the host proxy
-(protocol to be defined). The host proxy talks to the server (wayland
-protocol).
+Server allocated buffers passed to a client also exist:
+- core protocol uses this to pass keymaps to clients
+- people are not forbidden from writing Wayland extensions that do this
+  for whatever reason
 
-Buffers must be managed along the way, and we want avoid copying around
-the buffers.  The host proxy could be implemented directly in qemu, or
-as separate process which cooperates with qemu for buffer management.
+The latter server-allocated case could probably be overlooked, but the
+keymap case not really. Furthermore, copy&paste and drag&drop protocol
+pass pipe file descriptors via Wayland to establish client-to-client
+pipes.
 
-Fine so far?
 
-> I really think that whatever we come up with needs to support 3D clients as
-> well.
+Thanks,
+pq
 
-Lets start with 3d clients, I think these are easier.  They simply use
-virtio-gpu for 3d rendering as usual.  When they are done the rendered
-buffer already lives in a host drm buffer (because virgl runs the actual
-rendering on the host gpu).  So the client passes the dma-buf to the
-guest proxy, the guest proxy imports it to look up the resource-id,
-passes the resource-id to the host proxy, the host proxy looks up the
-drm buffer and exports it as dma-buf, then passes it to the server.
-Done, without any extra data copies.
+--Sig_/YRXYvEnENKe9OWQMruDI4Eh
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
 
-> Creation of shareable buffer by guest
-> -------------------------------------------------
-> 
-> 1. Client requests virtio driver to create a buffer suitable for sharing
-> with host (DRM_VIRTGPU_RESOURCE_CREATE)
+-----BEGIN PGP SIGNATURE-----
 
-client or guest proxy?
+iQIzBAEBCAAdFiEEJQjwWQChkWOYOIONI1/ltBGqqqcFAlp5wv4ACgkQI1/ltBGq
+qqc8Cg//aFIZhRaCKo+sjSb+GvUO/L9rb23445t/y+iV6X1JbMw3GlmL7IBPqcB2
+3jveY+iKuIIOlof7l5qtJpl3SNIWCoiz2aQbhICif++TyYQUJQkWbPYthxsdNBrS
+b4oXg22xhXriFy8G7QaLfMEfBM2Tq8j+kNscgZRlPaYrMrkcF24Q2sNGk4SUIT3P
+DFMV2oKFlYphNYrSlZ7n5cq8g+jvd19KG6NshtHAT5T8ECn5Z1hM31sCQZi53+6n
+jhtEu6EN9cuQxaIzMLdWw4+/ZUKlFKopoXqLr1PL5K6vVlxRZlm4d6WmJSD8C975
+l04vhwR2TqXrp9xjLb5Uh9ZbVAk/vBdiWaXtTFJ+8MTM+dbZhBze2jqvjm9D6CCd
+/Vnd3v44JpnhPRW4A4yQ3OF/3tyfgfhvb/nmRJrzNKywn7bLiBhBXdLgW7oKqd+4
+zl00Zcx0HLAiKcM2wywdzaJNJ2q5SPQb9cwz1YLnxlTrTGM8F1KGZXqQQ32J2jiQ
+6Lur+aD6AsxNO3R9I7gHr47QWDHxnujxzPVFxXsEYPXCAbxrNe3G05YD321aL+jB
+g0NNRNm+Tg4Zi+SaOvojqEC0p5UAWhdBSQolyJJJ5EcSewXbUdvprJjXEjLdYRRv
+n186vTIF9TatR+uL0ucMbdjakymmsV/KU+Icl4iIiXfm+srNulE=
+=X1pM
+-----END PGP SIGNATURE-----
 
-> 4. QEMU maps that buffer to the guest's address space
-> (KVM_SET_USER_MEMORY_REGION), passes the guest PFN to the virtio driver
+--Sig_/YRXYvEnENKe9OWQMruDI4Eh--
 
-That part is problematic.  The host can't simply allocate something in
-the physical address space, because most physical address space
-management is done by the guest.  All pci bars are mapped by the guest
-firmware for example (or by the guest OS in case of hotplug).
+--===============7255212266594128920==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> 4. QEMU pops data+buffers from the virtqueue, looks up shmem FD for each
-> resource, sends data + FDs to the compositor with SCM_RIGHTS
-
-BTW: Is there a 1:1 relationship between buffers and shmem blocks?  Or
-does the wayland protocol allow for offsets in buffer meta data, so you
-can place multiple buffers in a single shmem block?
-
-cheers,
-  Gerd
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7255212266594128920==--
