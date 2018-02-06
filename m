@@ -1,7 +1,7 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
 Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
-Date: Tue, 6 Feb 2018 13:41:52 +0100
-Message-ID: <fd557eb7-f539-2ecf-142c-8313b9f7ddb3__26098.8581962467$1517920830$gmane$org@collabora.com>
+Date: Tue, 6 Feb 2018 15:23:02 +0100
+Message-ID: <20180206142302.vdjyqmnoypydci4t__21625.8057197139$1517926914$gmane$org@sirius.home.kraxel.org>
 References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
 	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
 	<20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
@@ -9,12 +9,13 @@ References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
 	<20180205122017.4vb5nlpodkq2uhxa@sirius.home.kraxel.org>
 	<f07a5347-13fe-76c2-f971-3f02abebd3c9@collabora.com>
 	<20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
+	<fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,215 +25,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
+To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/05/2018 05:03 PM, Gerd Hoffmann wrote:
-> On Mon, Feb 05, 2018 at 03:46:17PM +0100, Tomeu Vizoso wrote:
->> On 02/05/2018 01:20 PM, Gerd Hoffmann wrote:
->>>     Hi,
->>>
->>>>> Why not use virtio-vsock to run the wayland protocol? I don't like
->>>>> the idea to duplicate something with very simliar functionality in
->>>>> virtio-gpu.
->>>>
->>>> The reason for abandoning that approach was the type of objects that
->>>> could be shared via virtio-vsock would be extremely limited. Besides
->>>> that being potentially confusing to users, it would mean from the
->>>> implementation side that either virtio-vsock would gain a dependency on
->>>> the drm subsystem, or an appropriate abstraction for shareable buffers
->>>> would need to be added for little gain.
->>>
->>> Well, no.  The idea is that virtio-vsock and virtio-gpu are used largely
->>> as-is, without knowing about each other.  The guest wayland proxy which
->>> does the buffer management talks to both devices.
->>
->> Note that the proxy won't know anything about buffers if clients opt-in for
->> zero-copy support (they allocate the buffers in a way that allows for
->> sharing with the host).
+  Hi,
+
+> > Hmm?  I'm assuming the wayland client (in the guest) talks to the
+> > wayland proxy, using the wayland protocol, like it would talk to a
+> > wayland display server.  Buffers must be passed from client to
+> > server/proxy somehow, probably using fd passing, so where is the
+> > problem?
+> > 
+> > Or did I misunderstand the role of the proxy?
 > 
-> Hmm?  I'm assuming the wayland client (in the guest) talks to the
-> wayland proxy, using the wayland protocol, like it would talk to a
-> wayland display server.  Buffers must be passed from client to
-> server/proxy somehow, probably using fd passing, so where is the
-> problem?
+> Hi Gerd,
 > 
-> Or did I misunderstand the role of the proxy?
+> it's starting to look to me that we're talking a bit past the other, so I
+> have pasted below a few words describing my current plan regarding the 3 key
+> scenarios that I'm addressing.
 
-Hi Gerd,
+You are describing the details, but I'm missing the big picture ...
 
-it's starting to look to me that we're talking a bit past the other, so 
-I have pasted below a few words describing my current plan regarding the 
-3 key scenarios that I'm addressing.
+So, virtualization aside, how do buffers work in wayland?  As far I know
+it goes like this:
 
-I mention below KVM_SET_USER_MEMORY_REGION, but I guess we can discuss 
-alternatives such as the one you are proposing using PCI BARs at a later 
-stage.
+  (a) software rendering: client allocates shared memory buffer, renders
+      into it, then passes a file handle for that shmem block together
+      with some meta data (size, format, ...) to the wayland server.
 
-I really think that whatever we come up with needs to support 3D clients 
-as well.
+  (b) gpu rendering: client opens a render node, allocates a buffer,
+      asks the cpu to renders into it, exports the buffer as dma-buf
+      (DRM_IOCTL_PRIME_HANDLE_TO_FD), passes this to the wayland server
+      (again including meta data of course).
 
+Is that correct?
 
-Creation of shareable buffer by guest
--------------------------------------------------
+Now, with virtualization added to the mix it becomes a bit more
+complicated.  Client and server are unmodified.  The client talks to the
+guest proxy (wayland protocol).  The guest proxy talks to the host proxy
+(protocol to be defined). The host proxy talks to the server (wayland
+protocol).
 
-1. Client requests virtio driver to create a buffer suitable for sharing 
-with host (DRM_VIRTGPU_RESOURCE_CREATE)
+Buffers must be managed along the way, and we want avoid copying around
+the buffers.  The host proxy could be implemented directly in qemu, or
+as separate process which cooperates with qemu for buffer management.
 
-2. Virtio driver creates a new resource ID and passes the request to 
-QEMU (VIRTIO_GPU_CMD_RESOURCE_CREATE_2D)
+Fine so far?
 
-3. QEMU creates a shmem file (for example with mkostemp), associates 
-that FD with the ID of this resource
+> I really think that whatever we come up with needs to support 3D clients as
+> well.
 
-4. QEMU maps that buffer to the guest's address space 
-(KVM_SET_USER_MEMORY_REGION), passes the guest PFN to the virtio driver
+Lets start with 3d clients, I think these are easier.  They simply use
+virtio-gpu for 3d rendering as usual.  When they are done the rendered
+buffer already lives in a host drm buffer (because virgl runs the actual
+rendering on the host gpu).  So the client passes the dma-buf to the
+guest proxy, the guest proxy imports it to look up the resource-id,
+passes the resource-id to the host proxy, the host proxy looks up the
+drm buffer and exports it as dma-buf, then passes it to the server.
+Done, without any extra data copies.
 
-5. DRM_VIRTGPU_RESOURCE_CREATE returns the resource id just created
-
-6. Client mmaps it with DRM_IOCTL_VIRTGPU_MAP+mmap and can render to it
-
-7. Gets a FD with DRM_IOCTL_PRIME_HANDLE_TO_FD that can be sent around
-
-
-Send of shareable buffer by guest
----------------------------------------------
-
-1. Client sends the host a message that refers to this buffer, passing 
-the FD using SCM_RIGHTS
-
-2. Guest proxy passes the message (serialized data + FDs) on to the 
-virtio driver responsable for winsrv support
-
-3. virtio driver puts the data and the resource ids corresponding to the 
-FDs in a virtqueue, kicks it
-
-4. QEMU pops data+buffers from the virtqueue, looks up shmem FD for each 
-resource, sends data + FDs to the compositor with SCM_RIGHTS
-
-
-Reception of buffer from the compositor
------------------------------------------------------
-
-1. QEMU reads from the socket and gets a FD via SCM_RIGHTS
-
-2. QEMU mmaps the FD and maps the resulting pointer to the guest via 
-KVM_SET_USER_MEMORY_REGION
-
-3. QEMU sends the guest PFN along the presentation data to the virtio 
-driver (VIRTIO_GPU_CMD_WINSRV_RX)
-
-4. Virtio driver wraps a FD around that PFN, puts it in a queue
-
-5. Guest proxy calls DRM_IOCTL_VIRTGPU_WINSRV_RX and gets data plus that FD
-
-6. Guest proxy sends that data + FD to the client via SCM_RIGHTS
-
-7. Client gets FD, mmaps it and reads the data from the compositor
-
-
-
-Thanks,
-
-Tomeu
-
-
->>>>> If you have a guest proxy anyway using virtio-sock for the protocol
->>>>> stream and virtio-gpu for buffer sharing (and some day 3d rendering
->>>>> too) should work fine I think.
->>>>
->>>> If I understand correctly your proposal, virtio-gpu would be used for
->>>> creating buffers that could be shared across domains, but something
->>>> equivalent to SCM_RIGHTS would still be needed in virtio-vsock?
->>>
->>> Yes, the proxy would send a reference to the buffer over virtio-vsock.
->>> I was more thinking about a struct specifying something like
->>> "ressource-id 42 on virtio-gpu-pci device in slot 1:23.0" instead of
->>> using SCM_RIGHTS.
->>
->> Can you extend on this? I'm having trouble figuring out how this could work
->> in a way that keeps protocol data together with the resources it refers to.
+> Creation of shareable buffer by guest
+> -------------------------------------------------
 > 
-> Don't know much about the wayland protocol.  Assuming you are passing
-> buffers as file handles, together with some information what kind of
-> buffer this is (sysv shm, dma-buf, ...).
-> 
-> We have a proxy on both ends.  One running in the guest, one on the host
-> (be it qemu or some external one).  So these two have to agree on how to
-> pass buffers from one to the other.  One way would be to have them talk
-> a simple meta protocol to each other, with "here comes a chunk wayland
-> protocol to pass along" and "here is a buffer mgmt message".  Possibly
-> it is better to extend the wayland protocol to also cover this new kind
-> of buffer, so you don't need the meta protocol.
-> 
-> The proxies would talk normal wayland protocol to the client (in the
-> guest) and the server (on the host).  They will have to transform the
-> buffer into something they can pass along using the wayland protocol.
-> 
->>>>> What is the plan for the host side? I see basically two options. Either
->>>>> implement the host wayland proxy directly in qemu. Or
->>>>> implement it as separate process, which then needs some help from
->>>>> qemu to get access to the buffers. The later would allow qemu running
->>>>> independant from the desktop session.
->>>>
->>>> Regarding synchronizing buffers, this will stop becoming needed in
->>>> subsequent commits as all shared memory is allocated in the host and
->>>> mapped to the guest via KVM_SET_USER_MEMORY_REGION.
->>>
->>> --verbose please.  The qemu patches linked from the cover letter not
->>> exactly helpful in understanding how all this is supposed to work.
->>
->> A client will allocate a buffer with DRM_VIRTGPU_RESOURCE_CREATE, export it
->> and pass the FD to the compositor (via the proxy).
->>
->> During resource creation, QEMU would allocate a shmem buffer and map it into
->> the guest with KVM_SET_USER_MEMORY_REGION.
-> 
-> So the buffer magically shows up somewhere in the physical address space
-> of the guest?  That kind if magic usually isn't a very good idea.
-> 
->> When a FD comes from the compositor, QEMU mmaps it and maps that virtual
->> address to the guest via KVM_SET_USER_MEMORY_REGION.
->>
->> When the guest proxy reads from the winsrv socket, it will get a FD that
->> wraps the buffer referenced above.
->>
->> When the client reads from the guest proxy, it would get a FD that
->> references that same buffer and would mmap it. At that point, the client is
->> reading from the same physical pages where the compositor wrote to.
-> 
-> Hmm.  I allways assumed the wayland client allocates the buffers, not
-> the server.  Is that wrong?
-> 
-> What is your plan for 3d acceleration support?
-> 
->> To be clear, I'm not against solving this via some form of restricted FD
->> passing in virtio-vsock, but Stefan (added to CC) thought that it would be
->> cleaner to do it all within virtio-gpu.
-> 
-> Well, when targeting 3d acceleration it makes alot of sense to use
-> virtio-gpu.  And it makes sense to have 2d and 3d modes work as simliar
-> as possible.  That is not the direction you are taking with your
-> proposal though ...
-> 
-> If you don't plan for 3d support I'm wondering whenever virtio-gpu is a
-> good pick.  Mapping trickery aside, you wouldn't get linear buffers
-> which can easily be shared between host and guest, because guest buffers
-> are not required to be linear in guest physical memory.  One copy will
-> be needed, from (scattered) guest physical memory buffer to (linear)
-> host buffer.
-> 
-> One possible alternative would be to build on stdvga.  It has a pci
-> memory bar, it has a drm driver (bochs) which allows allocating drm
-> buffers in that bar.  They are linear buffers in both guest physical and
-> host virtual memory.  If we add an option to qemu to allocate the memory
-> bar in sysv shared memory it can easily be exported to other processes
-> on the host.  The wayland client in the guest can map it directly too,
-> it only needs to create a drm buffer and mmap it.  You can get zero-copy
-> without having to play mapping tricks.
-> 
-> cheers,
->    Gerd
-> 
-> 
+> 1. Client requests virtio driver to create a buffer suitable for sharing
+> with host (DRM_VIRTGPU_RESOURCE_CREATE)
+
+client or guest proxy?
+
+> 4. QEMU maps that buffer to the guest's address space
+> (KVM_SET_USER_MEMORY_REGION), passes the guest PFN to the virtio driver
+
+That part is problematic.  The host can't simply allocate something in
+the physical address space, because most physical address space
+management is done by the guest.  All pci bars are mapped by the guest
+firmware for example (or by the guest OS in case of hotplug).
+
+> 4. QEMU pops data+buffers from the virtqueue, looks up shmem FD for each
+> resource, sends data + FDs to the compositor with SCM_RIGHTS
+
+BTW: Is there a 1:1 relationship between buffers and shmem blocks?  Or
+does the wayland protocol allow for offsets in buffer meta data, so you
+can place multiple buffers in a single shmem block?
+
+cheers,
+  Gerd
