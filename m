@@ -1,15 +1,23 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v26 2/2 RESEND] virtio-balloon:
-	VIRTIO_BALLOON_F_FREE_PAGE_HINT
-Date: Wed, 07 Feb 2018 15:26:38 +0800
-Message-ID: <5A7AAA2E.5090809__42999.4711689234$1517988143$gmane$org@intel.com>
-References: <1517972467-14352-1-git-send-email-wei.w.wang@intel.com>
-	<20180207062846-mutt-send-email-mst@kernel.org>
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
+Date: Wed, 7 Feb 2018 08:41:47 +0100
+Message-ID: <1b7ff044-23c8-1bf7-004e-dd6ea1a7006e@collabora.com>
+References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
+	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
+	<20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
+	<49785e0d-936a-c3b4-62dd-aafc7083a942@collabora.com>
+	<20180205122017.4vb5nlpodkq2uhxa@sirius.home.kraxel.org>
+	<f07a5347-13fe-76c2-f971-3f02abebd3c9@collabora.com>
+	<20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
+	<fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
+	<20180206142302.vdjyqmnoypydci4t@sirius.home.kraxel.org>
+	<20180207030636-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180207062846-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180207030636-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,51 +27,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, huangzhichao@huawei.com, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/07/2018 12:34 PM, Michael S. Tsirkin wrote:
-> On Wed, Feb 07, 2018 at 11:01:06AM +0800, Wei Wang wrote:
->> Negotiation of the VIRTIO_BALLOON_F_FREE_PAGE_HINT feature indicates the
->> support of reporting hints of guest free pages to host via virtio-balloon.
+On 02/07/2018 02:09 AM, Michael S. Tsirkin wrote:
+> On Tue, Feb 06, 2018 at 03:23:02PM +0100, Gerd Hoffmann wrote:
+>>> Creation of shareable buffer by guest
+>>> -------------------------------------------------
+>>>
+>>> 1. Client requests virtio driver to create a buffer suitable for sharing
+>>> with host (DRM_VIRTGPU_RESOURCE_CREATE)
 >>
->> Host requests the guest to report free page hints by sending a new cmd
->> id to the guest via the free_page_report_cmd_id configuration register.
+>> client or guest proxy?
 >>
->> When the guest starts to report, the first element added to the free page
->> vq is the cmd id given by host. When the guest finishes the reporting
->> of all the free pages, VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID is added
->> to the vq to tell host that the reporting is done. Host polls the free
->> page vq after sending the starting cmd id, so the guest doesn't need to
->> kick after filling an element to the vq.
+>>> 4. QEMU maps that buffer to the guest's address space
+>>> (KVM_SET_USER_MEMORY_REGION), passes the guest PFN to the virtio driver
 >>
->> Host may also requests the guest to stop the reporting in advance by
->> sending the stop cmd id to the guest via the configuration register.
+>> That part is problematic.  The host can't simply allocate something in
+>> the physical address space, because most physical address space
+>> management is done by the guest.  All pci bars are mapped by the guest
+>> firmware for example (or by the guest OS in case of hotplug).
 >>
->> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
->> Signed-off-by: Liang Li <liang.z.li@intel.com>
->> Cc: Michael S. Tsirkin <mst@redhat.com>
->> Cc: Michal Hocko <mhocko@kernel.org>
->> ---
->>   drivers/virtio/virtio_balloon.c     | 255 +++++++++++++++++++++++++++++++-----
->>   include/uapi/linux/virtio_balloon.h |   7 +
->>   mm/page_poison.c                    |   6 +
->>   3 files changed, 232 insertions(+), 36 deletions(-)
->>
->> Resend Change:
->> 	- Expose page_poisoning_enabled to kernel modules
-> RESEND tag is for reposting unchanged patches.
-> you want to post a v27, and you want the mm patch
-> as a separate one, so you can get an ack on it from
-> someone on linux-mm.
->
-> In fact, I would probably add reporting the poison value as
-> a separate feature/couple of patches.
->
+>>> 4. QEMU pops data+buffers from the virtqueue, looks up shmem FD for each
+>>> resource, sends data + FDs to the compositor with SCM_RIGHTS
+> 
+> If you squint hard, this sounds a bit like a use-case for vhost-user-gpu, does it not?
 
-OK. I have made them separate patches in v27. Thanks a lot for reviewing 
-so many versions, I learned a lot from the comments and discussion.
+Can you extend on what makes you think that?
 
-Best,
-Wei
+As an aside, crosvm runs the virtio-gpu device in a separate, jailed
+process, among other virtual devices.
+
+https://chromium.googlesource.com/chromiumos/platform/crosvm/
+
+Regards,
+
+Tomeu
