@@ -1,11 +1,22 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: [RFC] virtio-iommu version 0.6
-Date: Tue,  6 Feb 2018 18:11:06 +0000
-Message-ID: <20180206181106.21815-1-jean-philippe.brucker@arm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
+Date: Wed, 7 Feb 2018 03:09:19 +0200
+Message-ID: <20180207030636-mutt-send-email-mst__37706.7621717744$1517966170$gmane$org@kernel.org>
+References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
+	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
+	<20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
+	<49785e0d-936a-c3b4-62dd-aafc7083a942@collabora.com>
+	<20180205122017.4vb5nlpodkq2uhxa@sirius.home.kraxel.org>
+	<f07a5347-13fe-76c2-f971-3f02abebd3c9@collabora.com>
+	<20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
+	<fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
+	<20180206142302.vdjyqmnoypydci4t@sirius.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20180206142302.vdjyqmnoypydci4t@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,39 +26,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
-Cc: eric.auger@redhat.com, eric.auger.pro@gmail.com
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Please find version 0.6 of the virtio-iommu specification at the following
-locations.
+On Tue, Feb 06, 2018 at 03:23:02PM +0100, Gerd Hoffmann wrote:
+> > Creation of shareable buffer by guest
+> > -------------------------------------------------
+> > 
+> > 1. Client requests virtio driver to create a buffer suitable for sharing
+> > with host (DRM_VIRTGPU_RESOURCE_CREATE)
+> 
+> client or guest proxy?
+> 
+> > 4. QEMU maps that buffer to the guest's address space
+> > (KVM_SET_USER_MEMORY_REGION), passes the guest PFN to the virtio driver
+> 
+> That part is problematic.  The host can't simply allocate something in
+> the physical address space, because most physical address space
+> management is done by the guest.  All pci bars are mapped by the guest
+> firmware for example (or by the guest OS in case of hotplug).
+> 
+> > 4. QEMU pops data+buffers from the virtqueue, looks up shmem FD for each
+> > resource, sends data + FDs to the compositor with SCM_RIGHTS
 
-Document: http://jpbrucker.net/virtio-iommu/spec/virtio-iommu.pdf
-          http://jpbrucker.net/virtio-iommu/spec/virtio-iommu.html
+If you squint hard, this sounds a bit like a use-case for vhost-user-gpu, does it not?
 
-Sources: git://linux-arm.org/virtio-iommu.git viommu/v0.6
-
-I didn't receive any comment for v0.5 [1], so this update is fairly light:
-* Changed range definition in map and unmap requests
-* Use virtio-iommu device ID
-* Update IORT node ID and simplify layout
-
-The following document shows the difference between v0.5 and v0.6:
-http://jpbrucker.net/virtio-iommu/spec/diffs/virtio-iommu-pdf-diff-v0.5-v0.6.pdf
-
-Next version will hopefully add vSVA (PASID+PRI) and/or architectural
-optimizations, but I can't provide a timeline yet. I'll probably send a
-small draft first.
-
-I will send the Linux driver soon. In the meantime you can fetch it on my
-development branches, based on next-20180206.
-
-git://linux-arm.org/linux-jpb.git virtio-iommu/devel
-git://linux-arm.org/kvmtool-jpb.git virtio-iommu/devel
-
-Any comments welcome!
-
-Thanks,
-Jean
-
-[1] https://www.spinics.net/lists/kvm/msg157402.html
+> BTW: Is there a 1:1 relationship between buffers and shmem blocks?  Or
+> does the wayland protocol allow for offsets in buffer meta data, so you
+> can place multiple buffers in a single shmem block?
+> 
+> cheers,
+>   Gerd
