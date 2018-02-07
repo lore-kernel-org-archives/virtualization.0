@@ -1,13 +1,15 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v27 4/4] virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
-Date: Wed,  7 Feb 2018 14:54:31 +0800
-Message-ID: <1517986471-15185-5-git-send-email-wei.w.wang__26968.9572196969$1517987594$gmane$org@intel.com>
-References: <1517986471-15185-1-git-send-email-wei.w.wang@intel.com>
+Subject: Re: [PATCH v26 2/2 RESEND] virtio-balloon:
+	VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Wed, 07 Feb 2018 15:26:38 +0800
+Message-ID: <5A7AAA2E.5090809__42999.4711689234$1517988143$gmane$org@intel.com>
+References: <1517972467-14352-1-git-send-email-wei.w.wang@intel.com>
+	<20180207062846-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1517986471-15185-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20180207062846-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,86 +19,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org
-Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, huangzhichao@huawei.com, pbonzini@redhat.com, nilal@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, huangzhichao@huawei.com, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The VIRTIO_BALLOON_F_PAGE_POISON feature bit is used to indicate if the
-guest is using page poisoning. Guest writes to the poison_val config
-field to tell host about the page poisoning value in use.
+On 02/07/2018 12:34 PM, Michael S. Tsirkin wrote:
+> On Wed, Feb 07, 2018 at 11:01:06AM +0800, Wei Wang wrote:
+>> Negotiation of the VIRTIO_BALLOON_F_FREE_PAGE_HINT feature indicates the
+>> support of reporting hints of guest free pages to host via virtio-balloon.
+>>
+>> Host requests the guest to report free page hints by sending a new cmd
+>> id to the guest via the free_page_report_cmd_id configuration register.
+>>
+>> When the guest starts to report, the first element added to the free page
+>> vq is the cmd id given by host. When the guest finishes the reporting
+>> of all the free pages, VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID is added
+>> to the vq to tell host that the reporting is done. Host polls the free
+>> page vq after sending the starting cmd id, so the guest doesn't need to
+>> kick after filling an element to the vq.
+>>
+>> Host may also requests the guest to stop the reporting in advance by
+>> sending the stop cmd id to the guest via the configuration register.
+>>
+>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+>> Signed-off-by: Liang Li <liang.z.li@intel.com>
+>> Cc: Michael S. Tsirkin <mst@redhat.com>
+>> Cc: Michal Hocko <mhocko@kernel.org>
+>> ---
+>>   drivers/virtio/virtio_balloon.c     | 255 +++++++++++++++++++++++++++++++-----
+>>   include/uapi/linux/virtio_balloon.h |   7 +
+>>   mm/page_poison.c                    |   6 +
+>>   3 files changed, 232 insertions(+), 36 deletions(-)
+>>
+>> Resend Change:
+>> 	- Expose page_poisoning_enabled to kernel modules
+> RESEND tag is for reposting unchanged patches.
+> you want to post a v27, and you want the mm patch
+> as a separate one, so you can get an ack on it from
+> someone on linux-mm.
+>
+> In fact, I would probably add reporting the poison value as
+> a separate feature/couple of patches.
+>
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
----
- drivers/virtio/virtio_balloon.c     | 10 ++++++++++
- include/uapi/linux/virtio_balloon.h |  3 +++
- 2 files changed, 13 insertions(+)
+OK. I have made them separate patches in v27. Thanks a lot for reviewing 
+so many versions, I learned a lot from the comments and discussion.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 39ecce3..76b4853 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -685,6 +685,7 @@ static struct file_system_type balloon_fs = {
- static int virtballoon_probe(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb;
-+	__u32 poison_val;
- 	int err;
- 
- 	if (!vdev->config->get) {
-@@ -728,6 +729,11 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 			goto out_del_vqs;
- 		}
- 		INIT_WORK(&vb->report_free_page_work, report_free_page_func);
-+		if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON)) {
-+			memset(&poison_val, PAGE_POISON, sizeof(poison_val));
-+			virtio_cwrite(vb->vdev, struct virtio_balloon_config,
-+				      poison_val, &poison_val);
-+		}
- 	}
- 
- 	vb->nb.notifier_call = virtballoon_oom_notify;
-@@ -846,6 +852,9 @@ static int virtballoon_restore(struct virtio_device *vdev)
- 
- static int virtballoon_validate(struct virtio_device *vdev)
- {
-+	if (!page_poisoning_enabled())
-+		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
-+
- 	__virtio_clear_bit(vdev, VIRTIO_F_IOMMU_PLATFORM);
- 	return 0;
- }
-@@ -855,6 +864,7 @@ static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_STATS_VQ,
- 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
- 	VIRTIO_BALLOON_F_FREE_PAGE_HINT,
-+	VIRTIO_BALLOON_F_PAGE_POISON,
- };
- 
- static struct virtio_driver virtio_balloon_driver = {
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index 0c654db..3f97067 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -35,6 +35,7 @@
- #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
- #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
- #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
-+#define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
- 
- /* Size of a PFN in the balloon interface. */
- #define VIRTIO_BALLOON_PFN_SHIFT 12
-@@ -47,6 +48,8 @@ struct virtio_balloon_config {
- 	__u32 actual;
- 	/* Free page report command id, readonly by guest */
- 	__u32 free_page_report_cmd_id;
-+	/* Stores PAGE_POISON if page poisoning is in use */
-+	__u32 poison_val;
- };
- 
- #define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
--- 
-2.7.4
+Best,
+Wei
