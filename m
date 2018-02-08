@@ -1,16 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v27 3/4] mm/page_poison: expose page_poisoning_enabled to
-	kernel modules
-Date: Wed, 7 Feb 2018 20:34:16 +0200
-Message-ID: <20180207203004-mutt-send-email-mst__35699.229516513$1518028366$gmane$org@kernel.org>
-References: <1517986471-15185-1-git-send-email-wei.w.wang@intel.com>
-	<1517986471-15185-4-git-send-email-wei.w.wang@intel.com>
+Subject: Re: [vhost:vhost 19/20] Warning: arch/x86/tools/test_get_len found
+	difference at <pm_restore_gfp_mask>:ffffffff811aa5f0
+Date: Thu, 8 Feb 2018 02:09:41 +0200
+Message-ID: <20180207203512-mutt-send-email-mst@kernel.org>
+References: <201802071553.fDlNxEKX%fengguang.wu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1517986471-15185-4-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <201802071553.fDlNxEKX%fengguang.wu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,53 +19,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, huangzhichao@huawei.com, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org
+To: kbuild test robot <fengguang.wu@intel.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, Liang Li <liang.z.li@intel.com>, virtualization@lists.linux-foundation.org, kbuild-all@01.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 07, 2018 at 02:54:30PM +0800, Wei Wang wrote:
-> In some usages, e.g. virtio-balloon, a kernel module needs to know if
-> page poisoning is in use. This patch exposes the page_poisoning_enabled
-> function to kernel modules.
+On Wed, Feb 07, 2018 at 03:02:57PM +0800, kbuild test robot wrote:
+> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
+> head:   96bcd04462b99e2c80e09f6537770a0ca6b288d0
+> commit: cc1d1dc07885803981520a5303ef5b130f2ca2e8 [19/20] mm: support reporting free page blocks
+> config: x86_64-rhel
+> compiler: gcc-7 (Debian 7.3.0-1) 7.3.0
+> reproduce:
+>         git checkout cc1d1dc07885803981520a5303ef5b130f2ca2e8
+>         # save the attached .config to linux build tree
+>         make ARCH=x86_64 
 > 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Michal Hocko <mhocko@kernel.org>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
+> All warnings (new ones prefixed by >>):
+
+I'm sorry, what exactly does this mean?
+
 > ---
->  mm/page_poison.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/mm/page_poison.c b/mm/page_poison.c
-> index e83fd44..c08d02a 100644
-> --- a/mm/page_poison.c
-> +++ b/mm/page_poison.c
-> @@ -30,6 +30,11 @@ bool page_poisoning_enabled(void)
->  		debug_pagealloc_enabled()));
->  }
->  
-> +/**
-> + * page_poisoning_enabled - check if page poisoning is enabled
-> + *
-> + * Return true if page poisoning is enabled, or false if not.
-> + */
->  static void poison_page(struct page *page)
->  {
->  	void *addr = kmap_atomic(page);
-> @@ -37,6 +42,7 @@ static void poison_page(struct page *page)
->  	memset(addr, PAGE_POISON, PAGE_SIZE);
->  	kunmap_atomic(addr);
->  }
-> +EXPORT_SYMBOL_GPL(page_poisoning_enabled);
->  
->  static void poison_pages(struct page *page, int n)
->  {
-
-Looks like both the comment and the export are in the wrong place.
-I'm a bit concerned that callers also in fact poke at the
-PAGE_POISON - exporting that seems to be more of an accident
-as it's only used without page_poisoning.c - it might be
-better to have page_poisoning_enabled get u8 * and set it.
-
-> -- 
-> 2.7.4
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
