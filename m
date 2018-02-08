@@ -1,16 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 3/3] qemu: add linkspeed and duplex settings to
-	virtio-net
-Date: Thu, 8 Feb 2018 18:39:55 +0200
-Message-ID: <20180208183635-mutt-send-email-mst__44916.171875275$1518107911$gmane$org@kernel.org>
-References: <cover.1515190238.git.jbaron@akamai.com>
-	<cb116634b45b4da0c437ca54cd979c703fc6b920.1515190612.git.jbaron@akamai.com>
+Subject: Re: [PATCH v28 4/4] virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
+Date: Thu, 8 Feb 2018 21:25:10 +0200
+Message-ID: <20180208212414-mutt-send-email-mst__5406.44368525154$1518117830$gmane$org@kernel.org>
+References: <1518083420-11108-1-git-send-email-wei.w.wang@intel.com>
+	<1518083420-11108-5-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <cb116634b45b4da0c437ca54cd979c703fc6b920.1515190612.git.jbaron@akamai.com>
+In-Reply-To: <1518083420-11108-5-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,167 +19,94 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Baron <jbaron@akamai.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, huangzhichao@huawei.com, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 05, 2018 at 05:44:55PM -0500, Jason Baron wrote:
-> Although linkspeed and duplex can be set in a linux guest via 'ethtool -s',
-> this requires custom ethtool commands for virtio-net by default.
+On Thu, Feb 08, 2018 at 05:50:20PM +0800, Wei Wang wrote:
+> The VIRTIO_BALLOON_F_PAGE_POISON feature bit is used to indicate if the
+> guest is using page poisoning. Guest writes to the poison_val config
+> field to tell host about the page poisoning value in use.
 > 
-> Introduce a new feature flag, VIRTIO_NET_F_SPEED_DUPLEX, which allows
-> the hypervisor to export a linkspeed and duplex setting. The user can
-> subsequently overwrite it later if desired via: 'ethtool -s'.
-> 
-> Linkspeed and duplex settings can be set as:
-> '-device virtio-net,speed=10000,duplex=full'
-> 
-> where speed is [-1...INT_MAX], and duplex is ["half"|"full"].
-> 
-> Signed-off-by: Jason Baron <jbaron@akamai.com>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: virtio-dev@lists.oasis-open.org
+> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
 > ---
->  hw/net/virtio-net.c                         | 32 +++++++++++++++++++++++++++++
->  include/hw/virtio/virtio-net.h              |  3 +++
->  include/standard-headers/linux/virtio_net.h | 13 ++++++++++++
->  3 files changed, 48 insertions(+)
+>  drivers/virtio/virtio_balloon.c     | 13 +++++++++++++
+>  include/uapi/linux/virtio_balloon.h |  3 +++
+>  2 files changed, 16 insertions(+)
 > 
-> diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-> index 54823af..cd63659 100644
-> --- a/hw/net/virtio-net.c
-> +++ b/hw/net/virtio-net.c
-> @@ -40,6 +40,12 @@
->  #define VIRTIO_NET_RX_QUEUE_MIN_SIZE VIRTIO_NET_RX_QUEUE_DEFAULT_SIZE
->  #define VIRTIO_NET_TX_QUEUE_MIN_SIZE VIRTIO_NET_TX_QUEUE_DEFAULT_SIZE
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 39ecce3..9fa7fcf 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -685,6 +685,7 @@ static struct file_system_type balloon_fs = {
+>  static int virtballoon_probe(struct virtio_device *vdev)
+>  {
+>  	struct virtio_balloon *vb;
+> +	__u32 poison_val;
+>  	int err;
 >  
-> +/* duplex and speed */
-> +#define DUPLEX_UNKNOWN          0xff
-> +#define DUPLEX_HALF             0x00
-> +#define DUPLEX_FULL             0x01
-> +#define SPEED_UNKNOWN           -1
+>  	if (!vdev->config->get) {
+> @@ -728,6 +729,12 @@ static int virtballoon_probe(struct virtio_device *vdev)
+>  			goto out_del_vqs;
+>  		}
+>  		INIT_WORK(&vb->report_free_page_work, report_free_page_func);
+> +		if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON)) {
+> +			page_poison_val_get((u8 *)&poison_val);
+> +			memset(&poison_val, poison_val, sizeof(poison_val));
+
+This will not DTRT on big-endian platforms.
+Just use a local u8 variable.
+
+> +			virtio_cwrite(vb->vdev, struct virtio_balloon_config,
+> +				      poison_val, &poison_val);
+> +		}
+>  	}
+>  
+>  	vb->nb.notifier_call = virtballoon_oom_notify;
+> @@ -846,6 +853,11 @@ static int virtballoon_restore(struct virtio_device *vdev)
+>  
+>  static int virtballoon_validate(struct virtio_device *vdev)
+>  {
+> +	uint8_t unused;
 > +
->  /*
->   * Calculate the number of bytes up to and including the given 'field' of
->   * 'container'.
-
-Please import ethtool.h with these macros from linux using scripts/update-linux-headers.sh
-machinery.
-
-> @@ -61,6 +67,8 @@ static VirtIOFeature feature_sizes[] = {
->       .end = endof(struct virtio_net_config, max_virtqueue_pairs)},
->      {.flags = 1ULL << VIRTIO_NET_F_MTU,
->       .end = endof(struct virtio_net_config, mtu)},
-> +    {.flags = 1ULL << VIRTIO_NET_F_SPEED_DUPLEX,
-> +     .end = endof(struct virtio_net_config, duplex)},
->      {}
->  };
->  
-> @@ -89,6 +97,8 @@ static void virtio_net_get_config(VirtIODevice *vdev, uint8_t *config)
->      virtio_stw_p(vdev, &netcfg.max_virtqueue_pairs, n->max_queues);
->      virtio_stw_p(vdev, &netcfg.mtu, n->net_conf.mtu);
->      memcpy(netcfg.mac, n->mac, ETH_ALEN);
-> +    virtio_stl_p(vdev, &netcfg.speed, n->net_conf.speed);
-> +    netcfg.duplex = n->net_conf.duplex;
->      memcpy(config, &netcfg, n->config_size);
+> +	if (!page_poison_val_get(&unused))
+> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
+> +
+>  	__virtio_clear_bit(vdev, VIRTIO_F_IOMMU_PLATFORM);
+>  	return 0;
 >  }
->  
-> @@ -1941,6 +1951,26 @@ static void virtio_net_device_realize(DeviceState *dev, Error **errp)
->          n->host_features |= (1ULL << VIRTIO_NET_F_MTU);
->      }
->  
-> +    if (n->net_conf.duplex_str) {
-> +        if (strncmp(n->net_conf.duplex_str, "half", 5) == 0) {
-> +            n->net_conf.duplex = DUPLEX_HALF;
-> +        } else if (strncmp(n->net_conf.duplex_str, "full", 5) == 0) {
-> +            n->net_conf.duplex = DUPLEX_FULL;
-> +        } else {
-> +            error_setg(errp, "'duplex' must be 'half' or 'full'");
-> +        }
-> +        n->host_features |= (1ULL << VIRTIO_NET_F_SPEED_DUPLEX);
-> +    } else {
-> +        n->net_conf.duplex = DUPLEX_UNKNOWN;
-> +    }
-> +
-> +    if (n->net_conf.speed < SPEED_UNKNOWN) {
-> +        error_setg(errp, "'speed' must be between -1 (SPEED_UNKOWN) and "
-> +                   "INT_MAX");
-> +    } else if (n->net_conf.speed >= 0) {
-> +        n->host_features |= (1ULL << VIRTIO_NET_F_SPEED_DUPLEX);
-> +    }
-> +
->      virtio_net_set_config_size(n, n->host_features);
->      virtio_init(vdev, "virtio-net", VIRTIO_ID_NET, n->config_size);
->  
-> @@ -2161,6 +2191,8 @@ static Property virtio_net_properties[] = {
->      DEFINE_PROP_UINT16("host_mtu", VirtIONet, net_conf.mtu, 0),
->      DEFINE_PROP_BOOL("x-mtu-bypass-backend", VirtIONet, mtu_bypass_backend,
->                       true),
-> +    DEFINE_PROP_INT32("speed", VirtIONet, net_conf.speed, SPEED_UNKNOWN),
-> +    DEFINE_PROP_STRING("duplex", VirtIONet, net_conf.duplex_str),
->      DEFINE_PROP_END_OF_LIST(),
+> @@ -855,6 +867,7 @@ static unsigned int features[] = {
+>  	VIRTIO_BALLOON_F_STATS_VQ,
+>  	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
+>  	VIRTIO_BALLOON_F_FREE_PAGE_HINT,
+> +	VIRTIO_BALLOON_F_PAGE_POISON,
 >  };
 >  
-> diff --git a/include/hw/virtio/virtio-net.h b/include/hw/virtio/virtio-net.h
-> index e7634c9..02484dc 100644
-> --- a/include/hw/virtio/virtio-net.h
-> +++ b/include/hw/virtio/virtio-net.h
-> @@ -38,6 +38,9 @@ typedef struct virtio_net_conf
->      uint16_t rx_queue_size;
->      uint16_t tx_queue_size;
->      uint16_t mtu;
-> +    int32_t speed;
-> +    char *duplex_str;
-> +    uint8_t duplex;
->  } virtio_net_conf;
+>  static struct virtio_driver virtio_balloon_driver = {
+> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+> index 0c654db..3f97067 100644
+> --- a/include/uapi/linux/virtio_balloon.h
+> +++ b/include/uapi/linux/virtio_balloon.h
+> @@ -35,6 +35,7 @@
+>  #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
+>  #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
+>  #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
+> +#define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
 >  
->  /* Maximum packet size we can receive from tap device: header + 64k */
-> diff --git a/include/standard-headers/linux/virtio_net.h b/include/standard-headers/linux/virtio_net.h
-> index 30ff249..17c8531 100644
-> --- a/include/standard-headers/linux/virtio_net.h
-> +++ b/include/standard-headers/linux/virtio_net.h
-> @@ -57,6 +57,8 @@
->  					 * Steering */
->  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+>  /* Size of a PFN in the balloon interface. */
+>  #define VIRTIO_BALLOON_PFN_SHIFT 12
+> @@ -47,6 +48,8 @@ struct virtio_balloon_config {
+>  	__u32 actual;
+>  	/* Free page report command id, readonly by guest */
+>  	__u32 free_page_report_cmd_id;
+> +	/* Stores PAGE_POISON if page poisoning is in use */
+> +	__u32 poison_val;
+>  };
 >  
-> +#define VIRTIO_NET_F_SPEED_DUPLEX 63   /* Device set linkspeed and duplex */
-> +
->  #ifndef VIRTIO_NET_NO_LEGACY
->  #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
->  #endif /* VIRTIO_NET_NO_LEGACY */
-> @@ -76,6 +78,17 @@ struct virtio_net_config {
->  	uint16_t max_virtqueue_pairs;
->  	/* Default maximum transmit unit advice */
->  	uint16_t mtu;
-> +	/*
-> +	 * speed, in units of 1Mb. All values 0 to INT_MAX are legal.
-> +	 * Any other value stands for unknown.
-> +	 */
-> +	uint32_t speed;
-> +	/*
-> +	 * 0x00 - half duplex
-> +	 * 0x01 - full duplex
-> +	 * Any other value stands for unknown.
-> +	 */
-> +	uint8_t duplex;
->  } QEMU_PACKED;
->  
->  /*
-
-This should be done as a separate patch by running the abovementioned
-update script.
-
-
-> diff --git a/pixman b/pixman
-> new file mode 160000
-> index 0000000..87eea99
-> --- /dev/null
-> +++ b/pixman
-> @@ -0,0 +1 @@
-> +Subproject commit 87eea99e443b389c978cf37efc52788bf03a0ee0
-
-I don't think we need this part.
-
+>  #define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
 > -- 
-> 2.6.1
+> 2.7.4
