@@ -1,12 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio, vhost: fixes, cleanups, features
-Date: Thu, 8 Feb 2018 18:13:27 +0200
-Message-ID: <20180208181327-mutt-send-email-mst__30370.7619118088$1518106336$gmane$org@kernel.org>
+Subject: Re: [PATCH v4 3/3] qemu: add linkspeed and duplex settings to
+	virtio-net
+Date: Thu, 8 Feb 2018 18:39:55 +0200
+Message-ID: <20180208183635-mutt-send-email-mst__44916.171875275$1518107911$gmane$org@kernel.org>
+References: <cover.1515190238.git.jbaron@akamai.com>
+	<cb116634b45b4da0c437ca54cd979c703fc6b920.1515190612.git.jbaron@akamai.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <cb116634b45b4da0c437ca54cd979c703fc6b920.1515190612.git.jbaron@akamai.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,63 +20,167 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: somlo@cmu.edu, tgolembi@redhat.com, gomonovych@gmail.com, rdunlap@infradead.org, stefanha@redhat.com, kvm@vger.kernel.org, ebiggers@google.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhangweiping@didichuxing.com, jinli.zjl@alibaba-inc.com, mst@redhat.com, rfreire@redhat.com, vincent.legoll@gmail.com, arvind.yadav.cs@gmail.com, elfring@users.sourceforge.net, peter.malone@gmail.com
+To: Jason Baron <jbaron@akamai.com>
+Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCBkOGE1YjgwNTY4YTljYjY2ODEwZTc1
-YjE4MjAxOGU5ZWRiNjhlOGZmOgoKICBMaW51eCA0LjE1ICgyMDE4LTAxLTI4IDEzOjIwOjMzIC0w
-ODAwKQoKYXJlIGF2YWlsYWJsZSBpbiB0aGUgR2l0IHJlcG9zaXRvcnkgYXQ6CgogIGdpdDovL2dp
-dC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9tc3Qvdmhvc3QuZ2l0IHRhZ3Mv
-Zm9yX2xpbnVzCgpmb3IgeW91IHRvIGZldGNoIGNoYW5nZXMgdXAgdG8gZDI1Y2M0M2M2Nzc1YmZm
-NmI4ZTNkYWQ5N2M3NDc5NTRiODA1ZTQyMToKCiAgdmhvc3Q6IGRvbid0IGhvbGQgb250byBmaWxl
-IHBvaW50ZXIgZm9yIFZIT1NUX1NFVF9MT0dfRkQgKDIwMTgtMDItMDEgMTY6MjY6NDcgKzAyMDAp
-CgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tCnZpcnRpbywgdmhvc3Q6IGZpeGVzLCBjbGVhbnVwcywgZmVhdHVyZXMKClRoaXMg
-aW5jbHVkZXMgdGhlIGRpc2svY2FjaGUgbWVtb3J5IHN0YXRzIGZvciBmb3IgdGhlIHZpcnRpbyBi
-YWxsb29uLAphcyB3ZWxsIGFzIG11bHRpcGxlIGZpeGVzIGFuZCBjbGVhbnVwcy4KClNpZ25lZC1v
-ZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+CgotLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCkFydmlu
-ZCBZYWRhdiAoMSk6CiAgICAgIHZpcnRpbzogdmlydGlvX21taW86IG1ha2Ugb2ZfZGV2aWNlX2lk
-cyBjb25zdC4KCkVyaWMgQmlnZ2VycyAoMyk6CiAgICAgIHZob3N0OiBkb24ndCBob2xkIG9udG8g
-ZmlsZSBwb2ludGVyIGZvciBWSE9TVF9TRVRfVlJJTkdfQ0FMTAogICAgICB2aG9zdDogZG9uJ3Qg
-aG9sZCBvbnRvIGZpbGUgcG9pbnRlciBmb3IgVkhPU1RfU0VUX1ZSSU5HX0VSUgogICAgICB2aG9z
-dDogZG9uJ3QgaG9sZCBvbnRvIGZpbGUgcG9pbnRlciBmb3IgVkhPU1RfU0VUX0xPR19GRAoKTWFy
-a3VzIEVsZnJpbmcgKDEpOgogICAgICB2aG9zdC9zY3NpOiBJbXByb3ZlIGEgc2l6ZSBkZXRlcm1p
-bmF0aW9uIGluIGZvdXIgZnVuY3Rpb25zCgpNaWNoYWVsIFMuIFRzaXJraW4gKDIpOgogICAgICB2
-aXJ0aW8vcmluZ3Rlc3Q6IGZpeCB1cCBuZWVkX2V2ZW50IG1hdGgKICAgICAgdmlydGlvL3Jpbmd0
-ZXN0OiB2aXJ0aW9fcmluZzogZml4IHVwIG5lZWRfZXZlbnQgbWF0aAoKUGV0ZXIgTWFsb25lICgx
-KToKICAgICAgcmluZ3Rlc3Q6IHJpbmcuYyBtYWxsb2MgJiBtZW1zZXQgdG8gY2FsbG9jCgpTdGVm
-YW4gSGFqbm9jemkgKDEpOgogICAgICB2aXJ0aW9fYmxrOiBwcmludCBjYXBhY2l0eSBhdCBwcm9i
-ZSB0aW1lCgpUb23DocWhIEdvbGVtYmlvdnNrw70gKDEpOgogICAgICB2aXJ0aW9fYmFsbG9vbjog
-aW5jbHVkZSBkaXNrL2ZpbGUgY2FjaGVzIG1lbW9yeSBzdGF0aXN0aWNzCgpUb25naGFvIFpoYW5n
-ICgxKToKICAgICAgdmhvc3Q6IFJlbW92ZSB0aGUgdW51c2VkIHZhcmlhYmxlLgoKVmFzeWwgR29t
-b25vdnljaCAoMik6CiAgICAgIHZpcnRpby1tbWlvOiBVc2UgUFRSX0VSUl9PUl9aRVJPKCkKICAg
-ICAgZmlybXdhcmU6IFVzZSBQVFJfRVJSX09SX1pFUk8oKQoKVmluY2VudCBMZWdvbGwgKDEpOgog
-ICAgICB2aXJ0aW86IG1ha2UgVklSVElPIGEgbWVudWNvbmZpZyB0byBlYXNlIGRpc2FibGluZyBp
-dCBhbGwKCndlaXBpbmcgemhhbmcgKDMpOgogICAgICB2aXJ0aW86IHNwbGl0IGRldmljZV9yZWdp
-c3RlciBpbnRvIGRldmljZV9pbml0aWFsaXplIGFuZCBkZXZpY2VfYWRkCiAgICAgIHZpcnRpb19w
-Y2k6IGRvbid0IGtmcmVlIGRldmljZSBvbiByZWdpc3RlciBmYWlsdXJlCiAgICAgIHZpcnRpb192
-b3A6IGRvbid0IGtmcmVlIGRldmljZSBvbiByZWdpc3RlciBmYWlsdXJlCgrlpLfliJkoQ2FzcGFy
-KSAoMSk6CiAgICAgIHZob3N0OiByZW1vdmUgdW51c2VkIGxvY2sgY2hlY2sgZmxhZyBpbiB2aG9z
-dF9kZXZfY2xlYW51cCgpCgogZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMgICAgICAgICAgICAg
-IHwgMzIgKysrKysrKystLS0tLS0tLQogZHJpdmVycy9maXJtd2FyZS9xZW11X2Z3X2NmZy5jICAg
-ICAgICAgIHwgIDQgKy0KIGRyaXZlcnMvbWlzYy9taWMvdm9wL3ZvcF9tYWluLmMgICAgICAgICB8
-IDIwICsrKysrKy0tLS0KIGRyaXZlcnMvdmhvc3QvbmV0LmMgICAgICAgICAgICAgICAgICAgICB8
-ICAyICstCiBkcml2ZXJzL3Zob3N0L3Njc2kuYyAgICAgICAgICAgICAgICAgICAgfCAxMSArKyst
-LS0KIGRyaXZlcnMvdmhvc3QvdGVzdC5jICAgICAgICAgICAgICAgICAgICB8ICAyICstCiBkcml2
-ZXJzL3Zob3N0L3Zob3N0LmMgICAgICAgICAgICAgICAgICAgfCA2OCArKysrKysrKy0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0KIGRyaXZlcnMvdmhvc3Qvdmhvc3QuaCAgICAgICAgICAgICAgICAg
-ICB8ICA5ICstLS0tCiBkcml2ZXJzL3Zob3N0L3Zzb2NrLmMgICAgICAgICAgICAgICAgICAgfCAg
-MiArLQogZHJpdmVycy92aXJ0aW8vS2NvbmZpZyAgICAgICAgICAgICAgICAgIHwgIDggKysrLQog
-ZHJpdmVycy92aXJ0aW8vdmlydGlvLmMgICAgICAgICAgICAgICAgIHwgMTggKysrKysrKy0tCiBk
-cml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jICAgICAgICAgfCAgNCArKwogZHJpdmVycy92
-aXJ0aW8vdmlydGlvX21taW8uYyAgICAgICAgICAgIHwgIDYgKy0tCiBkcml2ZXJzL3ZpcnRpby92
-aXJ0aW9fcGNpX2NvbW1vbi5jICAgICAgfCAgOCArKystCiBpbmNsdWRlL3VhcGkvbGludXgvdmly
-dGlvX2JhbGxvb24uaCAgICAgfCAgMyArLQogdG9vbHMvdmlydGlvL3Jpbmd0ZXN0L3JpbmcuYyAg
-ICAgICAgICAgIHwgMzAgKysrKysrKystLS0tLS0tCiB0b29scy92aXJ0aW8vcmluZ3Rlc3Qvdmly
-dGlvX3JpbmdfMF85LmMgfCAyNCArKysrKysrLS0tLS0KIDE3IGZpbGVzIGNoYW5nZWQsIDEyMCBp
-bnNlcnRpb25zKCspLCAxMzEgZGVsZXRpb25zKC0pCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Fri, Jan 05, 2018 at 05:44:55PM -0500, Jason Baron wrote:
+> Although linkspeed and duplex can be set in a linux guest via 'ethtool -s',
+> this requires custom ethtool commands for virtio-net by default.
+> 
+> Introduce a new feature flag, VIRTIO_NET_F_SPEED_DUPLEX, which allows
+> the hypervisor to export a linkspeed and duplex setting. The user can
+> subsequently overwrite it later if desired via: 'ethtool -s'.
+> 
+> Linkspeed and duplex settings can be set as:
+> '-device virtio-net,speed=10000,duplex=full'
+> 
+> where speed is [-1...INT_MAX], and duplex is ["half"|"full"].
+> 
+> Signed-off-by: Jason Baron <jbaron@akamai.com>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: virtio-dev@lists.oasis-open.org
+> ---
+>  hw/net/virtio-net.c                         | 32 +++++++++++++++++++++++++++++
+>  include/hw/virtio/virtio-net.h              |  3 +++
+>  include/standard-headers/linux/virtio_net.h | 13 ++++++++++++
+>  3 files changed, 48 insertions(+)
+> 
+> diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
+> index 54823af..cd63659 100644
+> --- a/hw/net/virtio-net.c
+> +++ b/hw/net/virtio-net.c
+> @@ -40,6 +40,12 @@
+>  #define VIRTIO_NET_RX_QUEUE_MIN_SIZE VIRTIO_NET_RX_QUEUE_DEFAULT_SIZE
+>  #define VIRTIO_NET_TX_QUEUE_MIN_SIZE VIRTIO_NET_TX_QUEUE_DEFAULT_SIZE
+>  
+> +/* duplex and speed */
+> +#define DUPLEX_UNKNOWN          0xff
+> +#define DUPLEX_HALF             0x00
+> +#define DUPLEX_FULL             0x01
+> +#define SPEED_UNKNOWN           -1
+> +
+>  /*
+>   * Calculate the number of bytes up to and including the given 'field' of
+>   * 'container'.
+
+Please import ethtool.h with these macros from linux using scripts/update-linux-headers.sh
+machinery.
+
+> @@ -61,6 +67,8 @@ static VirtIOFeature feature_sizes[] = {
+>       .end = endof(struct virtio_net_config, max_virtqueue_pairs)},
+>      {.flags = 1ULL << VIRTIO_NET_F_MTU,
+>       .end = endof(struct virtio_net_config, mtu)},
+> +    {.flags = 1ULL << VIRTIO_NET_F_SPEED_DUPLEX,
+> +     .end = endof(struct virtio_net_config, duplex)},
+>      {}
+>  };
+>  
+> @@ -89,6 +97,8 @@ static void virtio_net_get_config(VirtIODevice *vdev, uint8_t *config)
+>      virtio_stw_p(vdev, &netcfg.max_virtqueue_pairs, n->max_queues);
+>      virtio_stw_p(vdev, &netcfg.mtu, n->net_conf.mtu);
+>      memcpy(netcfg.mac, n->mac, ETH_ALEN);
+> +    virtio_stl_p(vdev, &netcfg.speed, n->net_conf.speed);
+> +    netcfg.duplex = n->net_conf.duplex;
+>      memcpy(config, &netcfg, n->config_size);
+>  }
+>  
+> @@ -1941,6 +1951,26 @@ static void virtio_net_device_realize(DeviceState *dev, Error **errp)
+>          n->host_features |= (1ULL << VIRTIO_NET_F_MTU);
+>      }
+>  
+> +    if (n->net_conf.duplex_str) {
+> +        if (strncmp(n->net_conf.duplex_str, "half", 5) == 0) {
+> +            n->net_conf.duplex = DUPLEX_HALF;
+> +        } else if (strncmp(n->net_conf.duplex_str, "full", 5) == 0) {
+> +            n->net_conf.duplex = DUPLEX_FULL;
+> +        } else {
+> +            error_setg(errp, "'duplex' must be 'half' or 'full'");
+> +        }
+> +        n->host_features |= (1ULL << VIRTIO_NET_F_SPEED_DUPLEX);
+> +    } else {
+> +        n->net_conf.duplex = DUPLEX_UNKNOWN;
+> +    }
+> +
+> +    if (n->net_conf.speed < SPEED_UNKNOWN) {
+> +        error_setg(errp, "'speed' must be between -1 (SPEED_UNKOWN) and "
+> +                   "INT_MAX");
+> +    } else if (n->net_conf.speed >= 0) {
+> +        n->host_features |= (1ULL << VIRTIO_NET_F_SPEED_DUPLEX);
+> +    }
+> +
+>      virtio_net_set_config_size(n, n->host_features);
+>      virtio_init(vdev, "virtio-net", VIRTIO_ID_NET, n->config_size);
+>  
+> @@ -2161,6 +2191,8 @@ static Property virtio_net_properties[] = {
+>      DEFINE_PROP_UINT16("host_mtu", VirtIONet, net_conf.mtu, 0),
+>      DEFINE_PROP_BOOL("x-mtu-bypass-backend", VirtIONet, mtu_bypass_backend,
+>                       true),
+> +    DEFINE_PROP_INT32("speed", VirtIONet, net_conf.speed, SPEED_UNKNOWN),
+> +    DEFINE_PROP_STRING("duplex", VirtIONet, net_conf.duplex_str),
+>      DEFINE_PROP_END_OF_LIST(),
+>  };
+>  
+> diff --git a/include/hw/virtio/virtio-net.h b/include/hw/virtio/virtio-net.h
+> index e7634c9..02484dc 100644
+> --- a/include/hw/virtio/virtio-net.h
+> +++ b/include/hw/virtio/virtio-net.h
+> @@ -38,6 +38,9 @@ typedef struct virtio_net_conf
+>      uint16_t rx_queue_size;
+>      uint16_t tx_queue_size;
+>      uint16_t mtu;
+> +    int32_t speed;
+> +    char *duplex_str;
+> +    uint8_t duplex;
+>  } virtio_net_conf;
+>  
+>  /* Maximum packet size we can receive from tap device: header + 64k */
+> diff --git a/include/standard-headers/linux/virtio_net.h b/include/standard-headers/linux/virtio_net.h
+> index 30ff249..17c8531 100644
+> --- a/include/standard-headers/linux/virtio_net.h
+> +++ b/include/standard-headers/linux/virtio_net.h
+> @@ -57,6 +57,8 @@
+>  					 * Steering */
+>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+>  
+> +#define VIRTIO_NET_F_SPEED_DUPLEX 63   /* Device set linkspeed and duplex */
+> +
+>  #ifndef VIRTIO_NET_NO_LEGACY
+>  #define VIRTIO_NET_F_GSO	6	/* Host handles pkts w/ any GSO type */
+>  #endif /* VIRTIO_NET_NO_LEGACY */
+> @@ -76,6 +78,17 @@ struct virtio_net_config {
+>  	uint16_t max_virtqueue_pairs;
+>  	/* Default maximum transmit unit advice */
+>  	uint16_t mtu;
+> +	/*
+> +	 * speed, in units of 1Mb. All values 0 to INT_MAX are legal.
+> +	 * Any other value stands for unknown.
+> +	 */
+> +	uint32_t speed;
+> +	/*
+> +	 * 0x00 - half duplex
+> +	 * 0x01 - full duplex
+> +	 * Any other value stands for unknown.
+> +	 */
+> +	uint8_t duplex;
+>  } QEMU_PACKED;
+>  
+>  /*
+
+This should be done as a separate patch by running the abovementioned
+update script.
+
+
+> diff --git a/pixman b/pixman
+> new file mode 160000
+> index 0000000..87eea99
+> --- /dev/null
+> +++ b/pixman
+> @@ -0,0 +1 @@
+> +Subproject commit 87eea99e443b389c978cf37efc52788bf03a0ee0
+
+I don't think we need this part.
+
+> -- 
+> 2.6.1
