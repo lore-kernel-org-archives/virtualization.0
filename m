@@ -1,8 +1,7 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v28 3/4] mm/page_poison: add a function to expose page poison
-	val to kernel modules
-Date: Thu,  8 Feb 2018 17:50:19 +0800
-Message-ID: <1518083420-11108-4-git-send-email-wei.w.wang__12937.1147639633$1518084486$gmane$org@intel.com>
+Subject: [PATCH v28 1/4] mm: support reporting free page blocks
+Date: Thu,  8 Feb 2018 17:50:17 +0800
+Message-ID: <1518083420-11108-2-git-send-email-wei.w.wang__39541.6702646346$1518084488$gmane$org@intel.com>
 References: <1518083420-11108-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,98 +21,152 @@ To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualizatio
 Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, huangzhichao@huawei.com, pbonzini@redhat.com, nilal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Move the PAGE_POISON value to page_poison.c and add a function to enable
-callers from a kernel module to get the poison value if the page poisoning
-feature is in use. This also avoids callers directly checking PAGE_POISON
-regardless of whether the feature is enabled.
+This patch adds support to walk through the free page blocks in the
+system and report them via a callback function. Some page blocks may
+leave the free list after zone->lock is released, so it is the caller's
+responsibility to either detect or prevent the use of such pages.
+
+One use example of this patch is to accelerate live migration by skipping
+the transfer of free pages reported from the guest. A popular method used
+by the hypervisor to track which part of memory is written during live
+migration is to write-protect all the guest memory. So, those pages that
+are reported as free pages but are written after the report function
+returns will be captured by the hypervisor, and they will be added to the
+next round of memory transfer.
 
 Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Liang Li <liang.z.li@intel.com>
 Cc: Michal Hocko <mhocko@kernel.org>
 Cc: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Michal Hocko <mhocko@kernel.org>
 ---
- include/linux/mm.h     |  2 ++
- include/linux/poison.h |  7 -------
- mm/page_poison.c       | 24 ++++++++++++++++++++++++
- 3 files changed, 26 insertions(+), 7 deletions(-)
+ include/linux/mm.h |  6 ++++
+ mm/page_alloc.c    | 96 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 102 insertions(+)
 
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 1c77d88..d95e5d3 100644
+index 173d248..1c77d88 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
-@@ -2469,11 +2469,13 @@ extern int apply_to_page_range(struct mm_struct *mm, unsigned long address,
- extern bool page_poisoning_enabled(void);
- extern void kernel_poison_pages(struct page *page, int numpages, int enable);
- extern bool page_is_poisoned(struct page *page);
-+extern bool page_poison_val_get(u8 *val);
- #else
- static inline bool page_poisoning_enabled(void) { return false; }
- static inline void kernel_poison_pages(struct page *page, int numpages,
- 					int enable) { }
- static inline bool page_is_poisoned(struct page *page) { return false; }
-+static inline bool page_poison_val_get(u8 *val) { return false; };
- #endif
+@@ -1944,6 +1944,12 @@ extern void free_area_init_node(int nid, unsigned long * zones_size,
+ 		unsigned long zone_start_pfn, unsigned long *zholes_size);
+ extern void free_initmem(void);
  
- #ifdef CONFIG_DEBUG_PAGEALLOC
-diff --git a/include/linux/poison.h b/include/linux/poison.h
-index 15927eb..348bf67 100644
---- a/include/linux/poison.h
-+++ b/include/linux/poison.h
-@@ -30,13 +30,6 @@
-  */
- #define TIMER_ENTRY_STATIC	((void *) 0x300 + POISON_POINTER_DELTA)
- 
--/********** mm/debug-pagealloc.c **********/
--#ifdef CONFIG_PAGE_POISONING_ZERO
--#define PAGE_POISON 0x00
--#else
--#define PAGE_POISON 0xaa
--#endif
--
- /********** mm/page_alloc.c ************/
- 
- #define TAIL_MAPPING	((void *) 0x400 + POISON_POINTER_DELTA)
-diff --git a/mm/page_poison.c b/mm/page_poison.c
-index e83fd44..9a07973 100644
---- a/mm/page_poison.c
-+++ b/mm/page_poison.c
-@@ -7,6 +7,13 @@
- #include <linux/poison.h>
- #include <linux/ratelimit.h>
- 
-+/********** mm/debug-pagealloc.c **********/
-+#ifdef CONFIG_PAGE_POISONING_ZERO
-+#define PAGE_POISON 0x00
-+#else
-+#define PAGE_POISON 0xaa
-+#endif
++extern int walk_free_mem_block(void *opaque,
++			       int min_order,
++			       int (*report_pfn_range)(void *opaque,
++						       unsigned long pfn,
++						       unsigned long num));
 +
- static bool want_page_poisoning __read_mostly;
- 
- static int early_page_poison_param(char *buf)
-@@ -30,6 +37,23 @@ bool page_poisoning_enabled(void)
- 		debug_pagealloc_enabled()));
+ /*
+  * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
+  * into the buddy system. The freed pages will be poisoned with pattern
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index c7dd9c8..995ff01 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4906,6 +4906,102 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
+ 	show_swap_cache_info();
  }
  
-+/**
-+ * page_poison_val_get - get the page poison value if page poisoning is enabled
-+ * @val: the caller's memory to get the page poison value
++/*
++ * Walk through a free page list and report the found pfn range via the
++ * callback.
 + *
-+ * Return true with @val stores the poison value if page poisoning is enabled.
-+ * Otherwise, return false with @val unchanged.
++ * Return 0 if it completes the reporting. Otherwise, return the non-zero
++ * value returned from the callback.
 + */
-+bool page_poison_val_get(u8 *val)
++static int walk_free_page_list(void *opaque,
++			       struct zone *zone,
++			       int order,
++			       enum migratetype mt,
++			       int (*report_pfn_range)(void *,
++						       unsigned long,
++						       unsigned long))
 +{
-+	if (!page_poisoning_enabled())
-+		return false;
++	struct page *page;
++	struct list_head *list;
++	unsigned long pfn, flags;
++	int ret = 0;
 +
-+	*val = PAGE_POISON;
-+	return true;
++	spin_lock_irqsave(&zone->lock, flags);
++	list = &zone->free_area[order].free_list[mt];
++	list_for_each_entry(page, list, lru) {
++		pfn = page_to_pfn(page);
++		ret = report_pfn_range(opaque, pfn, 1 << order);
++		if (ret)
++			break;
++	}
++	spin_unlock_irqrestore(&zone->lock, flags);
++
++	return ret;
 +}
-+EXPORT_SYMBOL_GPL(page_poison_val_get);
 +
- static void poison_page(struct page *page)
++/**
++ * walk_free_mem_block - Walk through the free page blocks in the system
++ * @opaque: the context passed from the caller
++ * @min_order: the minimum order of free lists to check
++ * @report_pfn_range: the callback to report the pfn range of the free pages
++ *
++ * If the callback returns a non-zero value, stop iterating the list of free
++ * page blocks. Otherwise, continue to report.
++ *
++ * Please note that there are no locking guarantees for the callback and
++ * that the reported pfn range might be freed or disappear after the
++ * callback returns so the caller has to be very careful how it is used.
++ *
++ * The callback itself must not sleep or perform any operations which would
++ * require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
++ * or via any lock dependency. It is generally advisable to implement
++ * the callback as simple as possible and defer any heavy lifting to a
++ * different context.
++ *
++ * There is no guarantee that each free range will be reported only once
++ * during one walk_free_mem_block invocation.
++ *
++ * pfn_to_page on the given range is strongly discouraged and if there is
++ * an absolute need for that make sure to contact MM people to discuss
++ * potential problems.
++ *
++ * The function itself might sleep so it cannot be called from atomic
++ * contexts.
++ *
++ * In general low orders tend to be very volatile and so it makes more
++ * sense to query larger ones first for various optimizations which like
++ * ballooning etc... This will reduce the overhead as well.
++ *
++ * Return 0 if it completes the reporting. Otherwise, return the non-zero
++ * value returned from the callback.
++ */
++int walk_free_mem_block(void *opaque,
++			int min_order,
++			int (*report_pfn_range)(void *opaque,
++			unsigned long pfn,
++			unsigned long num))
++{
++	struct zone *zone;
++	int order;
++	enum migratetype mt;
++	int ret;
++
++	for_each_populated_zone(zone) {
++		for (order = MAX_ORDER - 1; order >= min_order; order--) {
++			for (mt = 0; mt < MIGRATE_TYPES; mt++) {
++				ret = walk_free_page_list(opaque, zone,
++							  order, mt,
++							  report_pfn_range);
++				if (ret)
++					return ret;
++			}
++		}
++	}
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(walk_free_mem_block);
++
+ static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
  {
- 	void *addr = kmap_atomic(page);
+ 	zoneref->zone = zone;
 -- 
 2.7.4
