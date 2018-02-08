@@ -1,11 +1,14 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v28 0/4] Virtio-balloon: support free page reporting
-Date: Thu,  8 Feb 2018 17:50:16 +0800
-Message-ID: <1518083420-11108-1-git-send-email-wei.w.wang__2371.5959200219$1518084478$gmane$org@intel.com>
+Subject: [PATCH v28 3/4] mm/page_poison: add a function to expose page poison
+	val to kernel modules
+Date: Thu,  8 Feb 2018 17:50:19 +0800
+Message-ID: <1518083420-11108-4-git-send-email-wei.w.wang__12937.1147639633$1518084486$gmane$org@intel.com>
+References: <1518083420-11108-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1518083420-11108-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,112 +22,98 @@ To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualizatio
 Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, huangzhichao@huawei.com, pbonzini@redhat.com, nilal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch series is separated from the previous "Virtio-balloon
-Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,  
-implemented by this series enables the virtio-balloon driver to report
-hints of guest free pages to the host. It can be used to accelerate live
-migration of VMs. Here is an introduction of this usage:
+Move the PAGE_POISON value to page_poison.c and add a function to enable
+callers from a kernel module to get the poison value if the page poisoning
+feature is in use. This also avoids callers directly checking PAGE_POISON
+regardless of whether the feature is enabled.
 
-Live migration needs to transfer the VM's memory from the source machine
-to the destination round by round. For the 1st round, all the VM's memory
-is transferred. From the 2nd round, only the pieces of memory that were
-written by the guest (after the 1st round) are transferred. One method
-that is popularly used by the hypervisor to track which part of memory is
-written is to write-protect all the guest memory.
+Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+---
+ include/linux/mm.h     |  2 ++
+ include/linux/poison.h |  7 -------
+ mm/page_poison.c       | 24 ++++++++++++++++++++++++
+ 3 files changed, 26 insertions(+), 7 deletions(-)
 
-This feature enables the optimization of the 1st round memory transfer -
-the hypervisor can skip the transfer of guest free pages in the 1st round.
-It is not concerned that the memory pages are used after they are given
-to the hypervisor as a hint of the free pages, because they will be
-tracked by the hypervisor and transferred in the next round if they are
-used and written.
-
-* Tests
-- Migration time improvement
-Result:
-Live migration time is reduced to 14% with this optimization.
-Details:
-Local live migration of 8GB idle guest, the legacy live migration takes
-~1817ms. With this optimization, it takes ~254ms, which reduces the time
-to 14%.
-- Workload tests
-Results:
-Running this feature has no impact on the linux compilation workload
-running inside the guest.
-Details:
-Set up a Ping-Pong local live migration, where the guest ceaselessy
-migrates between the source and destination. Linux compilation,
-i.e. make bzImage -j4, is performed during the Ping-Pong migration. The
-legacy case takes 5min14s to finish the compilation. With this
-optimization patched, it takes 5min12s.
-
-ChangeLog:
-v27->v28:
-    - mm/page_poison: Move PAGE_POISON to page_poison.c and add a function
-      to expose page poison val to kernel modules.
-v26->v27:
-    - add a new patch to expose page_poisoning_enabled to kernel modules
-    - virtio-balloon: set poison_val to 0xaaaaaaaa, instead of 0xaa
-v25->v26: virtio-balloon changes only
-    - remove kicking free page vq since the host now polls the vq after
-      initiating the reporting
-    - report_free_page_func: detach all the used buffers after sending
-      the stop cmd id. This avoids leaving the detaching burden (i.e.
-      overhead) to the next cmd id. Detaching here isn't considered
-      overhead since the stop cmd id has been sent, and host has already
-      moved formard.
-v24->v25:
-    - mm: change walk_free_mem_block to return 0 (instead of true) on
-          completing the report, and return a non-zero value from the
-          callabck, which stops the reporting.
-    - virtio-balloon:
-        - use enum instead of define for VIRTIO_BALLOON_VQ_INFLATE etc.
-        - avoid __virtio_clear_bit when bailing out;
-        - a new method to avoid reporting the some cmd id to host twice
-        - destroy_workqueue can cancel free page work when the feature is
-          negotiated;
-        - fail probe when the free page vq size is less than 2.
-v23->v24:
-    - change feature name VIRTIO_BALLOON_F_FREE_PAGE_VQ to
-      VIRTIO_BALLOON_F_FREE_PAGE_HINT
-    - kick when vq->num_free < half full, instead of "= half full"
-    - replace BUG_ON with bailing out
-    - check vb->balloon_wq in probe(), if null, bail out
-    - add a new feature bit for page poisoning
-    - solve the corner case that one cmd id being sent to host twice
-v22->v23:
-    - change to kick the device when the vq is half-way full;
-    - open-code batch_free_page_sg into add_one_sg;
-    - change cmd_id from "uint32_t" to "__virtio32";
-    - reserver one entry in the vq for the driver to send cmd_id, instead
-      of busywaiting for an available entry;
-    - add "stop_update" check before queue_work for prudence purpose for
-      now, will have a separate patch to discuss this flag check later;
-    - init_vqs: change to put some variables on stack to have simpler
-      implementation;
-    - add destroy_workqueue(vb->balloon_wq);
-
-v21->v22:
-    - add_one_sg: some code and comment re-arrangement
-    - send_cmd_id: handle a cornercase
-
-For previous ChangeLog, please reference
-https://lwn.net/Articles/743660/
-
-Wei Wang (4):
-  mm: support reporting free page blocks
-  virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
-  mm/page_poison: add a function to expose page poison val to kernel
-    modules
-  virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
-
- drivers/virtio/virtio_balloon.c     | 258 +++++++++++++++++++++++++++++++-----
- include/linux/mm.h                  |   8 ++
- include/linux/poison.h              |   7 -
- include/uapi/linux/virtio_balloon.h |   7 +
- mm/page_alloc.c                     |  96 ++++++++++++++
- mm/page_poison.c                    |  24 ++++
- 6 files changed, 357 insertions(+), 43 deletions(-)
-
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 1c77d88..d95e5d3 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2469,11 +2469,13 @@ extern int apply_to_page_range(struct mm_struct *mm, unsigned long address,
+ extern bool page_poisoning_enabled(void);
+ extern void kernel_poison_pages(struct page *page, int numpages, int enable);
+ extern bool page_is_poisoned(struct page *page);
++extern bool page_poison_val_get(u8 *val);
+ #else
+ static inline bool page_poisoning_enabled(void) { return false; }
+ static inline void kernel_poison_pages(struct page *page, int numpages,
+ 					int enable) { }
+ static inline bool page_is_poisoned(struct page *page) { return false; }
++static inline bool page_poison_val_get(u8 *val) { return false; };
+ #endif
+ 
+ #ifdef CONFIG_DEBUG_PAGEALLOC
+diff --git a/include/linux/poison.h b/include/linux/poison.h
+index 15927eb..348bf67 100644
+--- a/include/linux/poison.h
++++ b/include/linux/poison.h
+@@ -30,13 +30,6 @@
+  */
+ #define TIMER_ENTRY_STATIC	((void *) 0x300 + POISON_POINTER_DELTA)
+ 
+-/********** mm/debug-pagealloc.c **********/
+-#ifdef CONFIG_PAGE_POISONING_ZERO
+-#define PAGE_POISON 0x00
+-#else
+-#define PAGE_POISON 0xaa
+-#endif
+-
+ /********** mm/page_alloc.c ************/
+ 
+ #define TAIL_MAPPING	((void *) 0x400 + POISON_POINTER_DELTA)
+diff --git a/mm/page_poison.c b/mm/page_poison.c
+index e83fd44..9a07973 100644
+--- a/mm/page_poison.c
++++ b/mm/page_poison.c
+@@ -7,6 +7,13 @@
+ #include <linux/poison.h>
+ #include <linux/ratelimit.h>
+ 
++/********** mm/debug-pagealloc.c **********/
++#ifdef CONFIG_PAGE_POISONING_ZERO
++#define PAGE_POISON 0x00
++#else
++#define PAGE_POISON 0xaa
++#endif
++
+ static bool want_page_poisoning __read_mostly;
+ 
+ static int early_page_poison_param(char *buf)
+@@ -30,6 +37,23 @@ bool page_poisoning_enabled(void)
+ 		debug_pagealloc_enabled()));
+ }
+ 
++/**
++ * page_poison_val_get - get the page poison value if page poisoning is enabled
++ * @val: the caller's memory to get the page poison value
++ *
++ * Return true with @val stores the poison value if page poisoning is enabled.
++ * Otherwise, return false with @val unchanged.
++ */
++bool page_poison_val_get(u8 *val)
++{
++	if (!page_poisoning_enabled())
++		return false;
++
++	*val = PAGE_POISON;
++	return true;
++}
++EXPORT_SYMBOL_GPL(page_poison_val_get);
++
+ static void poison_page(struct page *page)
+ {
+ 	void *addr = kmap_atomic(page);
 -- 
 2.7.4
