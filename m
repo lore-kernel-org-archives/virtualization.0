@@ -1,13 +1,12 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v28 4/4] virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
-Date: Thu,  8 Feb 2018 17:50:20 +0800
-Message-ID: <1518083420-11108-5-git-send-email-wei.w.wang__2100.60045724294$1518084510$gmane$org@intel.com>
-References: <1518083420-11108-1-git-send-email-wei.w.wang@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] virtio, vhost: fixes, cleanups, features
+Date: Thu, 8 Feb 2018 18:13:27 +0200
+Message-ID: <20180208181327-mutt-send-email-mst__30370.7619118088$1518106336$gmane$org@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1518083420-11108-1-git-send-email-wei.w.wang@intel.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,89 +16,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org
-Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, huangzhichao@huawei.com, pbonzini@redhat.com, nilal@redhat.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: somlo@cmu.edu, tgolembi@redhat.com, gomonovych@gmail.com, rdunlap@infradead.org, stefanha@redhat.com, kvm@vger.kernel.org, ebiggers@google.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhangweiping@didichuxing.com, jinli.zjl@alibaba-inc.com, mst@redhat.com, rfreire@redhat.com, vincent.legoll@gmail.com, arvind.yadav.cs@gmail.com, elfring@users.sourceforge.net, peter.malone@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The VIRTIO_BALLOON_F_PAGE_POISON feature bit is used to indicate if the
-guest is using page poisoning. Guest writes to the poison_val config
-field to tell host about the page poisoning value in use.
-
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
----
- drivers/virtio/virtio_balloon.c     | 13 +++++++++++++
- include/uapi/linux/virtio_balloon.h |  3 +++
- 2 files changed, 16 insertions(+)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 39ecce3..9fa7fcf 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -685,6 +685,7 @@ static struct file_system_type balloon_fs = {
- static int virtballoon_probe(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb;
-+	__u32 poison_val;
- 	int err;
- 
- 	if (!vdev->config->get) {
-@@ -728,6 +729,12 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 			goto out_del_vqs;
- 		}
- 		INIT_WORK(&vb->report_free_page_work, report_free_page_func);
-+		if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON)) {
-+			page_poison_val_get((u8 *)&poison_val);
-+			memset(&poison_val, poison_val, sizeof(poison_val));
-+			virtio_cwrite(vb->vdev, struct virtio_balloon_config,
-+				      poison_val, &poison_val);
-+		}
- 	}
- 
- 	vb->nb.notifier_call = virtballoon_oom_notify;
-@@ -846,6 +853,11 @@ static int virtballoon_restore(struct virtio_device *vdev)
- 
- static int virtballoon_validate(struct virtio_device *vdev)
- {
-+	uint8_t unused;
-+
-+	if (!page_poison_val_get(&unused))
-+		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
-+
- 	__virtio_clear_bit(vdev, VIRTIO_F_IOMMU_PLATFORM);
- 	return 0;
- }
-@@ -855,6 +867,7 @@ static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_STATS_VQ,
- 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
- 	VIRTIO_BALLOON_F_FREE_PAGE_HINT,
-+	VIRTIO_BALLOON_F_PAGE_POISON,
- };
- 
- static struct virtio_driver virtio_balloon_driver = {
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index 0c654db..3f97067 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -35,6 +35,7 @@
- #define VIRTIO_BALLOON_F_STATS_VQ	1 /* Memory Stats virtqueue */
- #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
- #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
-+#define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
- 
- /* Size of a PFN in the balloon interface. */
- #define VIRTIO_BALLOON_PFN_SHIFT 12
-@@ -47,6 +48,8 @@ struct virtio_balloon_config {
- 	__u32 actual;
- 	/* Free page report command id, readonly by guest */
- 	__u32 free_page_report_cmd_id;
-+	/* Stores PAGE_POISON if page poisoning is in use */
-+	__u32 poison_val;
- };
- 
- #define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
--- 
-2.7.4
+VGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCBkOGE1YjgwNTY4YTljYjY2ODEwZTc1
+YjE4MjAxOGU5ZWRiNjhlOGZmOgoKICBMaW51eCA0LjE1ICgyMDE4LTAxLTI4IDEzOjIwOjMzIC0w
+ODAwKQoKYXJlIGF2YWlsYWJsZSBpbiB0aGUgR2l0IHJlcG9zaXRvcnkgYXQ6CgogIGdpdDovL2dp
+dC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9tc3Qvdmhvc3QuZ2l0IHRhZ3Mv
+Zm9yX2xpbnVzCgpmb3IgeW91IHRvIGZldGNoIGNoYW5nZXMgdXAgdG8gZDI1Y2M0M2M2Nzc1YmZm
+NmI4ZTNkYWQ5N2M3NDc5NTRiODA1ZTQyMToKCiAgdmhvc3Q6IGRvbid0IGhvbGQgb250byBmaWxl
+IHBvaW50ZXIgZm9yIFZIT1NUX1NFVF9MT0dfRkQgKDIwMTgtMDItMDEgMTY6MjY6NDcgKzAyMDAp
+CgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tCnZpcnRpbywgdmhvc3Q6IGZpeGVzLCBjbGVhbnVwcywgZmVhdHVyZXMKClRoaXMg
+aW5jbHVkZXMgdGhlIGRpc2svY2FjaGUgbWVtb3J5IHN0YXRzIGZvciBmb3IgdGhlIHZpcnRpbyBi
+YWxsb29uLAphcyB3ZWxsIGFzIG11bHRpcGxlIGZpeGVzIGFuZCBjbGVhbnVwcy4KClNpZ25lZC1v
+ZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+CgotLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCkFydmlu
+ZCBZYWRhdiAoMSk6CiAgICAgIHZpcnRpbzogdmlydGlvX21taW86IG1ha2Ugb2ZfZGV2aWNlX2lk
+cyBjb25zdC4KCkVyaWMgQmlnZ2VycyAoMyk6CiAgICAgIHZob3N0OiBkb24ndCBob2xkIG9udG8g
+ZmlsZSBwb2ludGVyIGZvciBWSE9TVF9TRVRfVlJJTkdfQ0FMTAogICAgICB2aG9zdDogZG9uJ3Qg
+aG9sZCBvbnRvIGZpbGUgcG9pbnRlciBmb3IgVkhPU1RfU0VUX1ZSSU5HX0VSUgogICAgICB2aG9z
+dDogZG9uJ3QgaG9sZCBvbnRvIGZpbGUgcG9pbnRlciBmb3IgVkhPU1RfU0VUX0xPR19GRAoKTWFy
+a3VzIEVsZnJpbmcgKDEpOgogICAgICB2aG9zdC9zY3NpOiBJbXByb3ZlIGEgc2l6ZSBkZXRlcm1p
+bmF0aW9uIGluIGZvdXIgZnVuY3Rpb25zCgpNaWNoYWVsIFMuIFRzaXJraW4gKDIpOgogICAgICB2
+aXJ0aW8vcmluZ3Rlc3Q6IGZpeCB1cCBuZWVkX2V2ZW50IG1hdGgKICAgICAgdmlydGlvL3Jpbmd0
+ZXN0OiB2aXJ0aW9fcmluZzogZml4IHVwIG5lZWRfZXZlbnQgbWF0aAoKUGV0ZXIgTWFsb25lICgx
+KToKICAgICAgcmluZ3Rlc3Q6IHJpbmcuYyBtYWxsb2MgJiBtZW1zZXQgdG8gY2FsbG9jCgpTdGVm
+YW4gSGFqbm9jemkgKDEpOgogICAgICB2aXJ0aW9fYmxrOiBwcmludCBjYXBhY2l0eSBhdCBwcm9i
+ZSB0aW1lCgpUb23DocWhIEdvbGVtYmlvdnNrw70gKDEpOgogICAgICB2aXJ0aW9fYmFsbG9vbjog
+aW5jbHVkZSBkaXNrL2ZpbGUgY2FjaGVzIG1lbW9yeSBzdGF0aXN0aWNzCgpUb25naGFvIFpoYW5n
+ICgxKToKICAgICAgdmhvc3Q6IFJlbW92ZSB0aGUgdW51c2VkIHZhcmlhYmxlLgoKVmFzeWwgR29t
+b25vdnljaCAoMik6CiAgICAgIHZpcnRpby1tbWlvOiBVc2UgUFRSX0VSUl9PUl9aRVJPKCkKICAg
+ICAgZmlybXdhcmU6IFVzZSBQVFJfRVJSX09SX1pFUk8oKQoKVmluY2VudCBMZWdvbGwgKDEpOgog
+ICAgICB2aXJ0aW86IG1ha2UgVklSVElPIGEgbWVudWNvbmZpZyB0byBlYXNlIGRpc2FibGluZyBp
+dCBhbGwKCndlaXBpbmcgemhhbmcgKDMpOgogICAgICB2aXJ0aW86IHNwbGl0IGRldmljZV9yZWdp
+c3RlciBpbnRvIGRldmljZV9pbml0aWFsaXplIGFuZCBkZXZpY2VfYWRkCiAgICAgIHZpcnRpb19w
+Y2k6IGRvbid0IGtmcmVlIGRldmljZSBvbiByZWdpc3RlciBmYWlsdXJlCiAgICAgIHZpcnRpb192
+b3A6IGRvbid0IGtmcmVlIGRldmljZSBvbiByZWdpc3RlciBmYWlsdXJlCgrlpLfliJkoQ2FzcGFy
+KSAoMSk6CiAgICAgIHZob3N0OiByZW1vdmUgdW51c2VkIGxvY2sgY2hlY2sgZmxhZyBpbiB2aG9z
+dF9kZXZfY2xlYW51cCgpCgogZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMgICAgICAgICAgICAg
+IHwgMzIgKysrKysrKystLS0tLS0tLQogZHJpdmVycy9maXJtd2FyZS9xZW11X2Z3X2NmZy5jICAg
+ICAgICAgIHwgIDQgKy0KIGRyaXZlcnMvbWlzYy9taWMvdm9wL3ZvcF9tYWluLmMgICAgICAgICB8
+IDIwICsrKysrKy0tLS0KIGRyaXZlcnMvdmhvc3QvbmV0LmMgICAgICAgICAgICAgICAgICAgICB8
+ICAyICstCiBkcml2ZXJzL3Zob3N0L3Njc2kuYyAgICAgICAgICAgICAgICAgICAgfCAxMSArKyst
+LS0KIGRyaXZlcnMvdmhvc3QvdGVzdC5jICAgICAgICAgICAgICAgICAgICB8ICAyICstCiBkcml2
+ZXJzL3Zob3N0L3Zob3N0LmMgICAgICAgICAgICAgICAgICAgfCA2OCArKysrKysrKy0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0KIGRyaXZlcnMvdmhvc3Qvdmhvc3QuaCAgICAgICAgICAgICAgICAg
+ICB8ICA5ICstLS0tCiBkcml2ZXJzL3Zob3N0L3Zzb2NrLmMgICAgICAgICAgICAgICAgICAgfCAg
+MiArLQogZHJpdmVycy92aXJ0aW8vS2NvbmZpZyAgICAgICAgICAgICAgICAgIHwgIDggKysrLQog
+ZHJpdmVycy92aXJ0aW8vdmlydGlvLmMgICAgICAgICAgICAgICAgIHwgMTggKysrKysrKy0tCiBk
+cml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jICAgICAgICAgfCAgNCArKwogZHJpdmVycy92
+aXJ0aW8vdmlydGlvX21taW8uYyAgICAgICAgICAgIHwgIDYgKy0tCiBkcml2ZXJzL3ZpcnRpby92
+aXJ0aW9fcGNpX2NvbW1vbi5jICAgICAgfCAgOCArKystCiBpbmNsdWRlL3VhcGkvbGludXgvdmly
+dGlvX2JhbGxvb24uaCAgICAgfCAgMyArLQogdG9vbHMvdmlydGlvL3Jpbmd0ZXN0L3JpbmcuYyAg
+ICAgICAgICAgIHwgMzAgKysrKysrKystLS0tLS0tCiB0b29scy92aXJ0aW8vcmluZ3Rlc3Qvdmly
+dGlvX3JpbmdfMF85LmMgfCAyNCArKysrKysrLS0tLS0KIDE3IGZpbGVzIGNoYW5nZWQsIDEyMCBp
+bnNlcnRpb25zKCspLCAxMzEgZGVsZXRpb25zKC0pCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
