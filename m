@@ -1,23 +1,14 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
-Date: Fri, 9 Feb 2018 12:14:37 +0100
-Message-ID: <38880e66-b676-1170-c2ca-5a5603c5b521@collabora.com>
-References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
-	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
-	<20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
-	<49785e0d-936a-c3b4-62dd-aafc7083a942@collabora.com>
-	<20180205122017.4vb5nlpodkq2uhxa@sirius.home.kraxel.org>
-	<f07a5347-13fe-76c2-f971-3f02abebd3c9@collabora.com>
-	<20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
-	<fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
-	<20180206142302.vdjyqmnoypydci4t@sirius.home.kraxel.org>
-	<04687943-847b-25a7-42ef-a21b4c7ef0cf@collabora.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] mm/page_poison: move PAGE_POISON to page_poison.c
+Date: Fri, 9 Feb 2018 18:23:53 +0200
+Message-ID: <20180209180755-mutt-send-email-mst__22831.2613828622$1518193340$gmane$org@kernel.org>
+References: <1518163694-27155-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <04687943-847b-25a7-42ef-a21b4c7ef0cf@collabora.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1518163694-27155-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,106 +18,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgR2VyZCBhbmQgU3RlZmFuLAoKY2FuIHdlIHJlYWNoIGFncmVlbWVudCBvbiB3aGV0aGVyIHZz
-b2NrIHNob3VsZCBiZSBpbnZvbHZlZCBpbiB0aGlzPwoKVGhhbmtzLAoKVG9tZXUKCk9uIDAyLzA3
-LzIwMTggMTA6NDkgQU0sIFRvbWV1IFZpem9zbyB3cm90ZToKPiBPbiAwMi8wNi8yMDE4IDAzOjIz
-IFBNLCBHZXJkIEhvZmZtYW5uIHdyb3RlOgo+PiDCoMKgIEhpLAo+Pgo+Pj4+IEhtbT/CoCBJJ20g
-YXNzdW1pbmcgdGhlIHdheWxhbmQgY2xpZW50IChpbiB0aGUgZ3Vlc3QpIHRhbGtzIHRvIHRoZQo+
-Pj4+IHdheWxhbmQgcHJveHksIHVzaW5nIHRoZSB3YXlsYW5kIHByb3RvY29sLCBsaWtlIGl0IHdv
-dWxkIHRhbGsgdG8gYQo+Pj4+IHdheWxhbmQgZGlzcGxheSBzZXJ2ZXIuwqAgQnVmZmVycyBtdXN0
-IGJlIHBhc3NlZCBmcm9tIGNsaWVudCB0bwo+Pj4+IHNlcnZlci9wcm94eSBzb21laG93LCBwcm9i
-YWJseSB1c2luZyBmZCBwYXNzaW5nLCBzbyB3aGVyZSBpcyB0aGUKPj4+PiBwcm9ibGVtPwo+Pj4+
-Cj4+Pj4gT3IgZGlkIEkgbWlzdW5kZXJzdGFuZCB0aGUgcm9sZSBvZiB0aGUgcHJveHk/Cj4+Pgo+
-Pj4gSGkgR2VyZCwKPj4+Cj4+PiBpdCdzIHN0YXJ0aW5nIHRvIGxvb2sgdG8gbWUgdGhhdCB3ZSdy
-ZSB0YWxraW5nIGEgYml0IHBhc3QgdGhlIG90aGVyLCBzbyBJCj4+PiBoYXZlIHBhc3RlZCBiZWxv
-dyBhIGZldyB3b3JkcyBkZXNjcmliaW5nIG15IGN1cnJlbnQgcGxhbiByZWdhcmRpbmcgdGhlIAo+
-Pj4gMyBrZXkKPj4+IHNjZW5hcmlvcyB0aGF0IEknbSBhZGRyZXNzaW5nLgo+Pgo+PiBZb3UgYXJl
-IGRlc2NyaWJpbmcgdGhlIGRldGFpbHMsIGJ1dCBJJ20gbWlzc2luZyB0aGUgYmlnIHBpY3R1cmUg
-Li4uCj4+Cj4+IFNvLCB2aXJ0dWFsaXphdGlvbiBhc2lkZSwgaG93IGRvIGJ1ZmZlcnMgd29yayBp
-biB3YXlsYW5kP8KgIEFzIGZhciBJIGtub3cKPj4gaXQgZ29lcyBsaWtlIHRoaXM6Cj4+Cj4+IMKg
-wqAgKGEpIHNvZnR3YXJlIHJlbmRlcmluZzogY2xpZW50IGFsbG9jYXRlcyBzaGFyZWQgbWVtb3J5
-IGJ1ZmZlciwgcmVuZGVycwo+PiDCoMKgwqDCoMKgwqAgaW50byBpdCwgdGhlbiBwYXNzZXMgYSBm
-aWxlIGhhbmRsZSBmb3IgdGhhdCBzaG1lbSBibG9jayB0b2dldGhlcgo+PiDCoMKgwqDCoMKgwqAg
-d2l0aCBzb21lIG1ldGEgZGF0YSAoc2l6ZSwgZm9ybWF0LCAuLi4pIHRvIHRoZSB3YXlsYW5kIHNl
-cnZlci4KPj4KPj4gwqDCoCAoYikgZ3B1IHJlbmRlcmluZzogY2xpZW50IG9wZW5zIGEgcmVuZGVy
-IG5vZGUsIGFsbG9jYXRlcyBhIGJ1ZmZlciwKPj4gwqDCoMKgwqDCoMKgIGFza3MgdGhlIGNwdSB0
-byByZW5kZXJzIGludG8gaXQsIGV4cG9ydHMgdGhlIGJ1ZmZlciBhcyBkbWEtYnVmCj4+IMKgwqDC
-oMKgwqDCoCAoRFJNX0lPQ1RMX1BSSU1FX0hBTkRMRV9UT19GRCksIHBhc3NlcyB0aGlzIHRvIHRo
-ZSB3YXlsYW5kIHNlcnZlcgo+PiDCoMKgwqDCoMKgwqAgKGFnYWluIGluY2x1ZGluZyBtZXRhIGRh
-dGEgb2YgY291cnNlKS4KPj4KPj4gSXMgdGhhdCBjb3JyZWN0Pwo+IAo+IEJvdGggYXJlIGNvcnJl
-Y3QgZGVzY3JpcHRpb25zIG9mIHR5cGljYWwgYmVoYXZpb3JzLiBCdXQgaXQgaXNuJ3Qgc3BlYydl
-ZCAKPiBhbnl3aGVyZSB3aG8gaGFzIHRvIGRvIHRoZSBidWZmZXIgYWxsb2NhdGlvbi4KPiAKPiBJ
-biBwcmFjdGljYWwgdGVybXMsIHRoZSBidWZmZXIgYWxsb2NhdGlvbiBoYXBwZW5zIGluIGVpdGhl
-ciB0aGUgMkQgR1VJIAo+IHRvb2xraXQgKGd0ayssIGZvciBleGFtcGxlKSwgb3IgdGhlIEVHTCBp
-bXBsZW1lbnRhdGlvbi4gU29tZW9uZSB1c2luZyAKPiB0aGlzIGluIGEgcmVhbCBwcm9kdWN0IHdv
-dWxkIG1vc3QgcHJvYmFibHkgYmUgaW50ZXJlc3RlZCBpbiBhdm9pZGluZyBhbnkgCj4gZXh0cmEg
-Y29waWVzIGFuZCBtYWtlIHN1cmUgdGhhdCBib3RoIGFsbG9jYXRlIGJ1ZmZlcnMgdmlhIHZpcnRp
-by1ncHUsIGZvciAKPiBleGFtcGxlLgo+IAo+IERlcGVuZGluZyBvbiB0aGUgdXNlIGNhc2UsIHRo
-ZXkgY291bGQgYmUgYWxzbyBpbnRlcmVzdGVkIGluIHN1cHBvcnRpbmcgCj4gdW5tb2RpZmllZCBj
-bGllbnRzIHdpdGggYW4gZXh0cmEgY29weSBwZXIgYnVmZmVyIHByZXNlbnRhdGlvbi4KPiAKPiBU
-aGF0J3MgdG8gc2F5IHRoYXQgaWYgd2UgY2Fubm90IGNvbWUgdXAgd2l0aCBhIHplcm8tY29weSBz
-b2x1dGlvbiBmb3IgCj4gdW5tb2RpZmllZCBjbGllbnRzLCB3ZSBzaG91bGQgYXQgbGVhc3Qgc3Vw
-cG9ydCB6ZXJvLWNvcHkgZm9yIGNvb3BlcmF0aXZlIAo+IGNsaWVudHMuCj4gCj4+IE5vdywgd2l0
-aCB2aXJ0dWFsaXphdGlvbiBhZGRlZCB0byB0aGUgbWl4IGl0IGJlY29tZXMgYSBiaXQgbW9yZQo+
-PiBjb21wbGljYXRlZC7CoCBDbGllbnQgYW5kIHNlcnZlciBhcmUgdW5tb2RpZmllZC7CoCBUaGUg
-Y2xpZW50IHRhbGtzIHRvIHRoZQo+PiBndWVzdCBwcm94eSAod2F5bGFuZCBwcm90b2NvbCkuwqAg
-VGhlIGd1ZXN0IHByb3h5IHRhbGtzIHRvIHRoZSBob3N0IHByb3h5Cj4+IChwcm90b2NvbCB0byBi
-ZSBkZWZpbmVkKS4gVGhlIGhvc3QgcHJveHkgdGFsa3MgdG8gdGhlIHNlcnZlciAod2F5bGFuZAo+
-PiBwcm90b2NvbCkuCj4+Cj4+IEJ1ZmZlcnMgbXVzdCBiZSBtYW5hZ2VkIGFsb25nIHRoZSB3YXks
-IGFuZCB3ZSB3YW50IGF2b2lkIGNvcHlpbmcgYXJvdW5kCj4+IHRoZSBidWZmZXJzLsKgIFRoZSBo
-b3N0IHByb3h5IGNvdWxkIGJlIGltcGxlbWVudGVkIGRpcmVjdGx5IGluIHFlbXUsIG9yCj4+IGFz
-IHNlcGFyYXRlIHByb2Nlc3Mgd2hpY2ggY29vcGVyYXRlcyB3aXRoIHFlbXUgZm9yIGJ1ZmZlciBt
-YW5hZ2VtZW50Lgo+Pgo+PiBGaW5lIHNvIGZhcj8KPiAKPiBZZXAuCj4gCj4+PiBJIHJlYWxseSB0
-aGluayB0aGF0IHdoYXRldmVyIHdlIGNvbWUgdXAgd2l0aCBuZWVkcyB0byBzdXBwb3J0IDNEIAo+
-Pj4gY2xpZW50cyBhcwo+Pj4gd2VsbC4KPj4KPj4gTGV0cyBzdGFydCB3aXRoIDNkIGNsaWVudHMs
-IEkgdGhpbmsgdGhlc2UgYXJlIGVhc2llci7CoCBUaGV5IHNpbXBseSB1c2UKPj4gdmlydGlvLWdw
-dSBmb3IgM2QgcmVuZGVyaW5nIGFzIHVzdWFsLsKgIFdoZW4gdGhleSBhcmUgZG9uZSB0aGUgcmVu
-ZGVyZWQKPj4gYnVmZmVyIGFscmVhZHkgbGl2ZXMgaW4gYSBob3N0IGRybSBidWZmZXIgKGJlY2F1
-c2UgdmlyZ2wgcnVucyB0aGUgYWN0dWFsCj4+IHJlbmRlcmluZyBvbiB0aGUgaG9zdCBncHUpLsKg
-IFNvIHRoZSBjbGllbnQgcGFzc2VzIHRoZSBkbWEtYnVmIHRvIHRoZQo+PiBndWVzdCBwcm94eSwg
-dGhlIGd1ZXN0IHByb3h5IGltcG9ydHMgaXQgdG8gbG9vayB1cCB0aGUgcmVzb3VyY2UtaWQsCj4+
-IHBhc3NlcyB0aGUgcmVzb3VyY2UtaWQgdG8gdGhlIGhvc3QgcHJveHksIHRoZSBob3N0IHByb3h5
-IGxvb2tzIHVwIHRoZQo+PiBkcm0gYnVmZmVyIGFuZCBleHBvcnRzIGl0IGFzIGRtYS1idWYsIHRo
-ZW4gcGFzc2VzIGl0IHRvIHRoZSBzZXJ2ZXIuCj4+IERvbmUsIHdpdGhvdXQgYW55IGV4dHJhIGRh
-dGEgY29waWVzLgo+IAo+IFllcC4KPiAKPj4+IENyZWF0aW9uIG9mIHNoYXJlYWJsZSBidWZmZXIg
-YnkgZ3Vlc3QKPj4+IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0KPj4+Cj4+PiAxLiBDbGllbnQgcmVxdWVzdHMgdmlydGlvIGRyaXZlciB0byBjcmVhdGUg
-YSBidWZmZXIgc3VpdGFibGUgZm9yIHNoYXJpbmcKPj4+IHdpdGggaG9zdCAoRFJNX1ZJUlRHUFVf
-UkVTT1VSQ0VfQ1JFQVRFKQo+Pgo+PiBjbGllbnQgb3IgZ3Vlc3QgcHJveHk/Cj4gCj4gQXMgcGVy
-IHRoZSBhYm92ZSwgdGhlIEdVSSB0b29sa2l0IGNvdWxkIGhhdmUgYmVlbiBtb2RpZmllZCBzbyB0
-aGUgY2xpZW50IAo+IGRpcmVjdGx5IGNyZWF0ZXMgYSBzaGFyZWFibGUgYnVmZmVyLCBhbmQgcmVu
-ZGVycyBkaXJlY3RseSB0byBpdCB3aXRob3V0IAo+IGFueSBleHRyYSBjb3BpZXMuCj4gCj4gSWYg
-Y2xpZW50cyBjYW5ub3QgYmUgbW9kaWZpZWQsIHRoZW4gaXQncyB0aGUgZ3Vlc3QgcHJveHkgd2hh
-dCBoYXMgdG8gCj4gY3JlYXRlIHRoZSBzaGFyZWFibGUgYnVmZmVyIGFuZCBrZWVwIGl0IGluIHN5
-bmMgd2l0aCB0aGUgY2xpZW50J3MgCj4gbm9uLXNoYXJlYWJsZSBidWZmZXIgYXQgdGhlIHJpZ2h0
-IHRpbWVzLCBieSBpbnRlcmNlcHRpbmcgCj4gd2xfc3VyZmFjZS5jb21taXQgbWVzc2FnZXMgYW5k
-IGNvcHlpbmcgYnVmZmVyIGNvbnRlbnRzLgo+IAo+Pj4gNC4gUUVNVSBtYXBzIHRoYXQgYnVmZmVy
-IHRvIHRoZSBndWVzdCdzIGFkZHJlc3Mgc3BhY2UKPj4+IChLVk1fU0VUX1VTRVJfTUVNT1JZX1JF
-R0lPTiksIHBhc3NlcyB0aGUgZ3Vlc3QgUEZOIHRvIHRoZSB2aXJ0aW8gZHJpdmVyCj4+Cj4+IFRo
-YXQgcGFydCBpcyBwcm9ibGVtYXRpYy7CoCBUaGUgaG9zdCBjYW4ndCBzaW1wbHkgYWxsb2NhdGUg
-c29tZXRoaW5nIGluCj4+IHRoZSBwaHlzaWNhbCBhZGRyZXNzIHNwYWNlLCBiZWNhdXNlIG1vc3Qg
-cGh5c2ljYWwgYWRkcmVzcyBzcGFjZQo+PiBtYW5hZ2VtZW50IGlzIGRvbmUgYnkgdGhlIGd1ZXN0
-LsKgIEFsbCBwY2kgYmFycyBhcmUgbWFwcGVkIGJ5IHRoZSBndWVzdAo+PiBmaXJtd2FyZSBmb3Ig
-ZXhhbXBsZSAob3IgYnkgdGhlIGd1ZXN0IE9TIGluIGNhc2Ugb2YgaG90cGx1ZykuCj4gCj4gSG93
-IGNhbiBLVk1fU0VUX1VTRVJfTUVNT1JZX1JFR0lPTiBldmVyIGJlIHNhZmVseSB1c2VkIHRoZW4/
-IEkgd291bGQgaGF2ZSAKPiBleHBlY3RlZCB0aGF0IGNhbGxlcnMgb2YgdGhhdCBpb2N0bCBoYXZl
-IGVub3VnaCBrbm93bGVkZ2UgdG8gYmUgYWJsZSB0byAKPiBjaG9vc2UgYSBwaHlzaWNhbCBhZGRy
-ZXNzIHRoYXQgd29uJ3QgY29uZmxpY3Qgd2l0aCB0aGUgZ3Vlc3QncyBrZXJuZWwuCj4gCj4gSSBz
-ZWUgdGhhdCB0aGUgaXZzaG1lbSBkZXZpY2UgaW4gUUVNVSByZWdpc3RlcnMgdGhlIG1lbW9yeSBy
-ZWdpb24gaW4gQkFSIAo+IDIgb2YgYSBQQ0kgZGV2aWNlIGluc3RlYWQuIFdvdWxkIHRoYXQgYmUg
-YmV0dGVyIGluIHlvdXIgb3Bpbmlvbj8KPiAKPj4+IDQuIFFFTVUgcG9wcyBkYXRhK2J1ZmZlcnMg
-ZnJvbSB0aGUgdmlydHF1ZXVlLCBsb29rcyB1cCBzaG1lbSBGRCBmb3IgZWFjaAo+Pj4gcmVzb3Vy
-Y2UsIHNlbmRzIGRhdGEgKyBGRHMgdG8gdGhlIGNvbXBvc2l0b3Igd2l0aCBTQ01fUklHSFRTCj4+
-Cj4+IEJUVzogSXMgdGhlcmUgYSAxOjEgcmVsYXRpb25zaGlwIGJldHdlZW4gYnVmZmVycyBhbmQg
-c2htZW0gYmxvY2tzP8KgIE9yCj4+IGRvZXMgdGhlIHdheWxhbmQgcHJvdG9jb2wgYWxsb3cgZm9y
-IG9mZnNldHMgaW4gYnVmZmVyIG1ldGEgZGF0YSwgc28geW91Cj4+IGNhbiBwbGFjZSBtdWx0aXBs
-ZSBidWZmZXJzIGluIGEgc2luZ2xlIHNobWVtIGJsb2NrPwo+IAo+IFRoZSBsYXR0ZXI6IAo+IGh0
-dHBzOi8vd2F5bGFuZC5mcmVlZGVza3RvcC5vcmcvZG9jcy9odG1sL2FwYS5odG1sI3Byb3RvY29s
-LXNwZWMtd2xfc2htX3Bvb2wKPiAKPiBSZWdhcmRzLAo+IAo+IFRvbWV1Cl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Fri, Feb 09, 2018 at 04:08:14PM +0800, Wei Wang wrote:
+> The PAGE_POISON macro is used in page_poison.c only, so avoid exporting
+> it. Also remove the "mm/debug-pagealloc.c" related comment, which is
+> obsolete.
+> 
+> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  include/linux/poison.h | 7 -------
+>  mm/page_poison.c       | 6 ++++++
+>  2 files changed, 6 insertions(+), 7 deletions(-)
+> 
+> diff --git a/include/linux/poison.h b/include/linux/poison.h
+> index 15927eb..348bf67 100644
+> --- a/include/linux/poison.h
+> +++ b/include/linux/poison.h
+> @@ -30,13 +30,6 @@
+>   */
+>  #define TIMER_ENTRY_STATIC	((void *) 0x300 + POISON_POINTER_DELTA)
+>  
+> -/********** mm/debug-pagealloc.c **********/
+> -#ifdef CONFIG_PAGE_POISONING_ZERO
+> -#define PAGE_POISON 0x00
+> -#else
+> -#define PAGE_POISON 0xaa
+> -#endif
+> -
+>  /********** mm/page_alloc.c ************/
+>  
+>  #define TAIL_MAPPING	((void *) 0x400 + POISON_POINTER_DELTA)
+
+
+My question is, why are these macros kept in a single header.
+Is it so it's easy to figure out source of a crash by
+looking at the data and locating it in the file?
+If so we should keep it in the header, but fix the comment.
+If no there are more macros to move out, like flex array ones.
+
+> diff --git a/mm/page_poison.c b/mm/page_poison.c
+> index e83fd44..8aaf076 100644
+> --- a/mm/page_poison.c
+> +++ b/mm/page_poison.c
+> @@ -7,6 +7,12 @@
+>  #include <linux/poison.h>
+>  #include <linux/ratelimit.h>
+>  
+> +#ifdef CONFIG_PAGE_POISONING_ZERO
+> +#define PAGE_POISON 0x00
+> +#else
+> +#define PAGE_POISON 0xaa
+> +#endif
+> +
+>  static bool want_page_poisoning __read_mostly;
+>  
+>  static int early_page_poison_param(char *buf)
+> -- 
+> 2.7.4
