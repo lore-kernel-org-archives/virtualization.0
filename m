@@ -1,10 +1,10 @@
-From: Solen win <solenwin2@gmail.com>
-Subject: hong_en@solenw.org
-Date: Fri, 9 Feb 2018 15:17:18 +0700
-Message-ID: <CALfDnQ--Ww649vZYe_8VqShLrgz3fitKBA4SSp9oVp14ApNSpA@mail.gmail.com>
-Reply-To: solenwin2@gmail.com
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: [PATCH] mm/page_poison: move PAGE_POISON to page_poison.c
+Date: Fri,  9 Feb 2018 16:08:14 +0800
+Message-ID: <1518163694-27155-1-git-send-email-wei.w.wang__20250.708613503$1518164756$gmane$org@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0465658219613959789=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,32 +15,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0465658219613959789==
-Content-Type: multipart/alternative; boundary="f4f5e807cf0032225c0564c328fb"
+The PAGE_POISON macro is used in page_poison.c only, so avoid exporting
+it. Also remove the "mm/debug-pagealloc.c" related comment, which is
+obsolete.
 
---f4f5e807cf0032225c0564c328fb
-Content-Type: text/plain; charset="UTF-8"
+Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+---
+ include/linux/poison.h | 7 -------
+ mm/page_poison.c       | 6 ++++++
+ 2 files changed, 6 insertions(+), 7 deletions(-)
 
-
-
---f4f5e807cf0032225c0564c328fb
-Content-Type: text/html; charset="UTF-8"
-
-
-
---f4f5e807cf0032225c0564c328fb--
-
---===============0465658219613959789==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0465658219613959789==--
+diff --git a/include/linux/poison.h b/include/linux/poison.h
+index 15927eb..348bf67 100644
+--- a/include/linux/poison.h
++++ b/include/linux/poison.h
+@@ -30,13 +30,6 @@
+  */
+ #define TIMER_ENTRY_STATIC	((void *) 0x300 + POISON_POINTER_DELTA)
+ 
+-/********** mm/debug-pagealloc.c **********/
+-#ifdef CONFIG_PAGE_POISONING_ZERO
+-#define PAGE_POISON 0x00
+-#else
+-#define PAGE_POISON 0xaa
+-#endif
+-
+ /********** mm/page_alloc.c ************/
+ 
+ #define TAIL_MAPPING	((void *) 0x400 + POISON_POINTER_DELTA)
+diff --git a/mm/page_poison.c b/mm/page_poison.c
+index e83fd44..8aaf076 100644
+--- a/mm/page_poison.c
++++ b/mm/page_poison.c
+@@ -7,6 +7,12 @@
+ #include <linux/poison.h>
+ #include <linux/ratelimit.h>
+ 
++#ifdef CONFIG_PAGE_POISONING_ZERO
++#define PAGE_POISON 0x00
++#else
++#define PAGE_POISON 0xaa
++#endif
++
+ static bool want_page_poisoning __read_mostly;
+ 
+ static int early_page_poison_param(char *buf)
+-- 
+2.7.4
