@@ -1,23 +1,15 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
-Date: Mon, 12 Feb 2018 16:29:03 +0100
-Message-ID: <20180212152903.24t6sdgthg2aptnn__162.98145424134$1518449241$gmane$org@sirius.home.kraxel.org>
-References: <f07a5347-13fe-76c2-f971-3f02abebd3c9@collabora.com>
-	<20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
-	<fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
-	<20180206142302.vdjyqmnoypydci4t@sirius.home.kraxel.org>
-	<04687943-847b-25a7-42ef-a21b4c7ef0cf@collabora.com>
-	<38880e66-b676-1170-c2ca-5a5603c5b521@collabora.com>
-	<20180212115242.z3qv5uejbnhgvd6o@sirius.home.kraxel.org>
-	<eea72b9d-d180-6a57-81ce-4366dc0f2bcc@collabora.com>
-	<20180212142730.g2646v77qsvzd5ff@sirius.home.kraxel.org>
-	<6cf0c06a-b884-3251-166b-6ff3dec3ebc7@collabora.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH] headers: untangle kmemleak.h from mm.h
+Date: Mon, 12 Feb 2018 11:40:56 -0800
+Message-ID: <f119a273-2e86-1b7f-346f-7627ad8b51ed@infradead.org>
+References: <a4629db7-194d-3c7c-c8fd-24f61b220a70@infradead.org>
+	<87zi4ev1d2.fsf@concordia.ellerman.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <6cf0c06a-b884-3251-166b-6ff3dec3ebc7@collabora.com>
+In-Reply-To: <87zi4ev1d2.fsf@concordia.ellerman.id.au>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,43 +19,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
+To: Michael Ellerman <mpe@ellerman.id.au>, LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, Fengguang Wu <fengguang.wu@intel.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, John Johansen <john.johansen@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, X86 ML <x86@kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Dmitry Kasatkin <dmitry.kasatkin@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > I was more thinking about a struct containing enough info to allow the
-> > proxy on the host side find the buffer, something like:
-> > 
-> >     struct {
-> >        enum type { stdvga, virtio-cpu, ... }
-> >        pcislot device;
-> >        union {
-> >           int stdvga_pcibar_offset;
-> >           int virtio_gpu_resource_id;
-> >        }
-> >     }
-> > 
-> > So when the guest proxy gets a message with a fd referencing a buffer it
-> > would have to figure where the buffer is, rewrite the message into the
-> > struct above for the host proxy.  The host proxy would rewrite the
-> > message again for the server.
+On 02/12/2018 04:28 AM, Michael Ellerman wrote:
+> Randy Dunlap <rdunlap@infradead.org> writes:
 > 
-> What I don't understand yet is how we can keep the buffer descriptions
-> together with the protocol data that references them.
+>> From: Randy Dunlap <rdunlap@infradead.org>
+>>
+>> Currently <linux/slab.h> #includes <linux/kmemleak.h> for no obvious
+>> reason. It looks like it's only a convenience, so remove kmemleak.h
+>> from slab.h and add <linux/kmemleak.h> to any users of kmemleak_*
+>> that don't already #include it.
+>> Also remove <linux/kmemleak.h> from source files that do not use it.
+>>
+>> This is tested on i386 allmodconfig and x86_64 allmodconfig. It
+>> would be good to run it through the 0day bot for other $ARCHes.
+>> I have neither the horsepower nor the storage space for the other
+>> $ARCHes.
+>>
+>> [slab.h is the second most used header file after module.h; kernel.h
+>> is right there with slab.h. There could be some minor error in the
+>> counting due to some #includes having comments after them and I
+>> didn't combine all of those.]
+>>
+>> This is Lingchi patch #1 (death by a thousand cuts, applied to kernel
+>> header files).
+>>
+>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 > 
-> With SCM_RIGHTS, the FDs are placed in the ancillary data that "travels"
-> together with the protocol data that references them.
+> I threw it at a random selection of configs and so far the only failures
+> I'm seeing are:
+> 
+>   lib/test_firmware.c:134:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]                                                                                                          
+>   lib/test_firmware.c:620:25: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
+>   lib/test_firmware.c:620:2: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
+>   security/integrity/digsig.c:146:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]
+> 
 
-Place the buffer description into the wayland extension protocol messages?
+Both of those source files need to #include <linux/vmalloc.h>.
 
-i.e. have some wl_virt_proxy protocol extension.  Then, for the stdvga case:
+> Full results trickling in here, not all the failures there are caused by
+> this patch, ie. some configs are broken in mainline:
+> 
+>   http://kisskb.ellerman.id.au/kisskb/head/13396/
+> 
+> cheers
 
-  (1) client sends wl_drm/create_prime_buffer request to the guest proxy
-  (2) guest proxy rewrites this into wl_virt_proxy/create_buffer, or
-      maybe a create_stdvga_buffer request, carrying all the information
-      listed above, and sends it to the host proxy.
-  (3) host proxy rewrites it again into a wl_shm_pool/create_buffer and
-      forwards it to the server.
+:)
 
-cheers,
-  Gerd
+-- 
+~Randy
