@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] mm/page_poison: move PAGE_POISON to page_poison.c
-Date: Fri, 9 Feb 2018 18:23:53 +0200
-Message-ID: <20180209180755-mutt-send-email-mst__22831.2613828622$1518193340$gmane$org@kernel.org>
-References: <1518163694-27155-1-git-send-email-wei.w.wang@intel.com>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH] headers: untangle kmemleak.h from mm.h
+Date: Mon, 12 Feb 2018 08:27:27 +0100
+Message-ID: <20180212072727.saupl35jvwex6hbe__36808.5534814329$1518420372$gmane$org@gmail.com>
+References: <a4629db7-194d-3c7c-c8fd-24f61b220a70@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1518163694-27155-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <a4629db7-194d-3c7c-c8fd-24f61b220a70@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,66 +18,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, John Johansen <john.johansen@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, X86 ML <x86@kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Linux MM <linux-mm@kvack.org>, iommu@lists.linux-foundation.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sparclinux@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Fengguang Wu <fengguang.wu@intel.com>, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 09, 2018 at 04:08:14PM +0800, Wei Wang wrote:
-> The PAGE_POISON macro is used in page_poison.c only, so avoid exporting
-> it. Also remove the "mm/debug-pagealloc.c" related comment, which is
-> obsolete.
+
+* Randy Dunlap <rdunlap@infradead.org> wrote:
+
+> From: Randy Dunlap <rdunlap@infradead.org>
 > 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Michal Hocko <mhocko@kernel.org>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  include/linux/poison.h | 7 -------
->  mm/page_poison.c       | 6 ++++++
->  2 files changed, 6 insertions(+), 7 deletions(-)
+> Currently <linux/slab.h> #includes <linux/kmemleak.h> for no obvious
+> reason. It looks like it's only a convenience, so remove kmemleak.h
+> from slab.h and add <linux/kmemleak.h> to any users of kmemleak_*
+> that don't already #include it.
+> Also remove <linux/kmemleak.h> from source files that do not use it.
 > 
-> diff --git a/include/linux/poison.h b/include/linux/poison.h
-> index 15927eb..348bf67 100644
-> --- a/include/linux/poison.h
-> +++ b/include/linux/poison.h
-> @@ -30,13 +30,6 @@
->   */
->  #define TIMER_ENTRY_STATIC	((void *) 0x300 + POISON_POINTER_DELTA)
->  
-> -/********** mm/debug-pagealloc.c **********/
-> -#ifdef CONFIG_PAGE_POISONING_ZERO
-> -#define PAGE_POISON 0x00
-> -#else
-> -#define PAGE_POISON 0xaa
-> -#endif
-> -
->  /********** mm/page_alloc.c ************/
->  
->  #define TAIL_MAPPING	((void *) 0x400 + POISON_POINTER_DELTA)
+> This is tested on i386 allmodconfig and x86_64 allmodconfig. It
+> would be good to run it through the 0day bot for other $ARCHes.
+> I have neither the horsepower nor the storage space for the other
+> $ARCHes.
+> 
+> [slab.h is the second most used header file after module.h; kernel.h
+> is right there with slab.h. There could be some minor error in the
+> counting due to some #includes having comments after them and I
+> didn't combine all of those.]
+> 
+> This is Lingchi patch #1 (death by a thousand cuts, applied to kernel
+> header files).
+> 
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 
+Nice find:
 
-My question is, why are these macros kept in a single header.
-Is it so it's easy to figure out source of a crash by
-looking at the data and locating it in the file?
-If so we should keep it in the header, but fix the comment.
-If no there are more macros to move out, like flex array ones.
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
 
-> diff --git a/mm/page_poison.c b/mm/page_poison.c
-> index e83fd44..8aaf076 100644
-> --- a/mm/page_poison.c
-> +++ b/mm/page_poison.c
-> @@ -7,6 +7,12 @@
->  #include <linux/poison.h>
->  #include <linux/ratelimit.h>
->  
-> +#ifdef CONFIG_PAGE_POISONING_ZERO
-> +#define PAGE_POISON 0x00
-> +#else
-> +#define PAGE_POISON 0xaa
-> +#endif
-> +
->  static bool want_page_poisoning __read_mostly;
->  
->  static int early_page_poison_param(char *buf)
-> -- 
-> 2.7.4
+I agree that it needs to go through 0-day to find any hidden dependencies we might 
+have grown due to this.
+
+Thanks,
+
+	Ingo
