@@ -1,23 +1,16 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
-Date: Tue, 13 Feb 2018 15:27:54 +0100
-Message-ID: <37179029-8ccb-8eb2-0901-04b64cef3608__14555.6281241172$1518532012$gmane$org@collabora.com>
-References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
-	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
-	<20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
-	<49785e0d-936a-c3b4-62dd-aafc7083a942@collabora.com>
-	<20180205122017.4vb5nlpodkq2uhxa@sirius.home.kraxel.org>
-	<f07a5347-13fe-76c2-f971-3f02abebd3c9@collabora.com>
-	<20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
-	<fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
-	<20180206142302.vdjyqmnoypydci4t@sirius.home.kraxel.org>
-	<04687943-847b-25a7-42ef-a21b4c7ef0cf@collabora.com>
-	<20180212114540.iygbha554busy4ip@sirius.home.kraxel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH] headers: untangle kmemleak.h from mm.h
+Date: Tue, 13 Feb 2018 09:51:09 -0800
+Message-ID: <1f96a3c7-0bb3-6c06-0b44-ca47e5a5d127__37430.349228862$1518552156$gmane$org@infradead.org>
+References: <a4629db7-194d-3c7c-c8fd-24f61b220a70@infradead.org>
+	<87zi4ev1d2.fsf@concordia.ellerman.id.au>
+	<f119a273-2e86-1b7f-346f-7627ad8b51ed@infradead.org>
+	<87fu652oce.fsf@concordia.ellerman.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180212114540.iygbha554busy4ip@sirius.home.kraxel.org>
+In-Reply-To: <87fu652oce.fsf@concordia.ellerman.id.au>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,114 +21,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
+To: Michael Ellerman <mpe@ellerman.id.au>, LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, Fengguang Wu <fengguang.wu@intel.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, John Johansen <john.johansen@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, X86 ML <x86@kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Dmitry Kasatkin <dmitry.kasatkin@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/12/2018 12:45 PM, Gerd Hoffmann wrote:
->    Hi,
+On 02/13/2018 02:09 AM, Michael Ellerman wrote:
+> Randy Dunlap <rdunlap@infradead.org> writes:
 > 
->>>     (a) software rendering: client allocates shared memory buffer, renders
->>>         into it, then passes a file handle for that shmem block together
->>>         with some meta data (size, format, ...) to the wayland server.
+>> On 02/12/2018 04:28 AM, Michael Ellerman wrote:
+>>> Randy Dunlap <rdunlap@infradead.org> writes:
 >>>
->>>     (b) gpu rendering: client opens a render node, allocates a buffer,
->>>         asks the cpu to renders into it, exports the buffer as dma-buf
->>>         (DRM_IOCTL_PRIME_HANDLE_TO_FD), passes this to the wayland server
->>>         (again including meta data of course).
+>>>> From: Randy Dunlap <rdunlap@infradead.org>
+>>>>
+>>>> Currently <linux/slab.h> #includes <linux/kmemleak.h> for no obvious
+>>>> reason. It looks like it's only a convenience, so remove kmemleak.h
+>>>> from slab.h and add <linux/kmemleak.h> to any users of kmemleak_*
+>>>> that don't already #include it.
+>>>> Also remove <linux/kmemleak.h> from source files that do not use it.
+>>>>
+>>>> This is tested on i386 allmodconfig and x86_64 allmodconfig. It
+>>>> would be good to run it through the 0day bot for other $ARCHes.
+>>>> I have neither the horsepower nor the storage space for the other
+>>>> $ARCHes.
+>>>>
+>>>> [slab.h is the second most used header file after module.h; kernel.h
+>>>> is right there with slab.h. There could be some minor error in the
+>>>> counting due to some #includes having comments after them and I
+>>>> didn't combine all of those.]
+>>>>
+>>>> This is Lingchi patch #1 (death by a thousand cuts, applied to kernel
+>>>> header files).
+>>>>
+>>>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 >>>
->>> Is that correct?
+>>> I threw it at a random selection of configs and so far the only failures
+>>> I'm seeing are:
+>>>
+>>>   lib/test_firmware.c:134:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]                                                                                                          
+>>>   lib/test_firmware.c:620:25: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
+>>>   lib/test_firmware.c:620:2: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
+>>>   security/integrity/digsig.c:146:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]
 >>
->> Both are correct descriptions of typical behaviors. But it isn't spec'ed
->> anywhere who has to do the buffer allocation.
+>> Both of those source files need to #include <linux/vmalloc.h>.
 > 
-> Well, according to Pekka's reply it is spec'ed that way, for the
-> existing buffer types.  So for server allocated buffers you need
-> (a) a wayland protocol extension and (b) support for the extension
-> in the clients.
-> 
->> That's to say that if we cannot come up with a zero-copy solution for
->> unmodified clients, we should at least support zero-copy for cooperative
->> clients.
-> 
-> "cooperative clients" == "client which has support for the wayland
-> protocol extension", correct?
+> Yep, I added those and rebuilt. I don't see any more failures that look
+> related to your patch.
 
-Guess it could be that, but I was rather thinking of clients that would 
-allocate the buffer for wl_shm_pool with DRM_VIRTGPU_RESOURCE_CREATE or 
-equivalent. Then that buffer would be exported and the fd passed using 
-the standard wl_shm protocol.
+Great, thanks.
 
->>>> 4. QEMU maps that buffer to the guest's address space
->>>> (KVM_SET_USER_MEMORY_REGION), passes the guest PFN to the virtio driver
->>>
->>> That part is problematic.  The host can't simply allocate something in
->>> the physical address space, because most physical address space
->>> management is done by the guest.  All pci bars are mapped by the guest
->>> firmware for example (or by the guest OS in case of hotplug).
->>
->> How can KVM_SET_USER_MEMORY_REGION ever be safely used then? I would have
->> expected that callers of that ioctl have enough knowledge to be able to
->> choose a physical address that won't conflict with the guest's kernel.
+I also sent patches for both of those.
+
+>   http://kisskb.ellerman.id.au/kisskb/head/13399/
 > 
-> Depends on the kind of region.  Guest RAM is allocated and mapped by
-> qemu, guest firmware can query qemu about RAM mappings using a special
-> interface, then create a e820 memory map for the guest os.  PCI device
-> bars are mapped according to the pci config space registers, which in
-> turn are initialized by the guest firmware, so it is basically in the
-> guests hand where they show up.
 > 
->> I see that the ivshmem device in QEMU registers the memory region in BAR 2
->> of a PCI device instead. Would that be better in your opinion?
-> 
-> Yes.
+> I haven't gone through the defconfigs I have enabled for a while, so
+> it's possible I have some missing but it's still a reasonable cross
+> section.
 
-Would it make sense for virtio-gpu to map buffers to the guest via PCI 
-BARs? So we can use a single drm driver for both 2d and 3d.
 
->>>> 4. QEMU pops data+buffers from the virtqueue, looks up shmem FD for each
->>>> resource, sends data + FDs to the compositor with SCM_RIGHTS
->>>
->>> BTW: Is there a 1:1 relationship between buffers and shmem blocks?  Or
->>> does the wayland protocol allow for offsets in buffer meta data, so you
->>> can place multiple buffers in a single shmem block?
->>
->> The latter:
->> https://wayland.freedesktop.org/docs/html/apa.html#protocol-spec-wl_shm_pool
-> 
-> Ah, good, that makes it alot easier.
-> 
-> So, yes, using ivshmem would be one option.  Tricky part here is the
-> buffer management though.  It's just a raw piece of memory.  The guest
-> proxy could mmap the pci bar and manage it.  But then it is again either
-> unmodified guest + copying the data, or modified client (which requests
-> buffers from guest proxy) for zero-copy.
-> 
-> Another idea would be extending stdvga.  Basically qemu would have to
-> use shmem as backing storage for vga memory instead of anonymous memory,
-> so it would be very  simliar to ivshmem on the host side.  But on the
-> guest side we have a drm driver for it (bochs-drm).  So clients can
-> allocate dumb drm buffers for software rendering, and the buffer would
-> already be backed by a host shmem segment.  Given that wayland already
-> supports drm buffers for 3d rendering that could work without extending
-> the wayland protocol.  The client proxy would have to translate the drm
-> buffer into an pci bar offset and pass it to the host side.  The host
-> proxy could register the pci bar as wl_shm_pool, then just pass through
-> the offset to reference the individual buffers.
-> 
-> Drawback of both approaches would be that software rendering and gpu
-> rendering would use quite different code paths.
-
-Yeah, would be great if we could find a way to avoid that.
-
-> We also need a solution for the keymap shmem block.  I guess the keymap
-> doesn't change all that often, so maybe it is easiest to just copy it
-> over (host proxy -> guest proxy) instead of trying to map the host shmem
-> into the guest?
-
-I think that should be fine for now. Something similar will have to 
-happen for the clipboard, which currently uses pipes to exchange data.
-
-Thanks,
-
-Tomeu
+-- 
+~Randy
