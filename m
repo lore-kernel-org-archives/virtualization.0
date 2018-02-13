@@ -1,14 +1,12 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH] mm/page_poison: move PAGE_POISON to page_poison.c
-Date: Tue, 13 Feb 2018 11:16:15 +0100
-Message-ID: <20180213101615.GO3443__46644.46806205$1518516887$gmane$org@dhcp22.suse.cz>
-References: <1518163694-27155-1-git-send-email-wei.w.wang@intel.com>
+From: Solen win <solenwin2@gmail.com>
+Subject: (unknown)
+Date: Tue, 13 Feb 2018 18:58:07 +0700
+Message-ID: <CALfDnQ_OCbBOfwLbTHE5XzvooEOmwvwQxmEtZ-ys-NjZD1CnKQ@mail.gmail.com>
+Reply-To: solenwin2@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0992404010798923221=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1518163694-27155-1-git-send-email-wei.w.wang@intel.com>
+Subject: 
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,66 +16,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri 09-02-18 16:08:14, Wei Wang wrote:
-> The PAGE_POISON macro is used in page_poison.c only, so avoid exporting
-> it. Also remove the "mm/debug-pagealloc.c" related comment, which is
-> obsolete.
+--===============0992404010798923221==
+Content-Type: multipart/alternative; boundary="089e0827b8c845cbd8056516b5d7"
 
-Why is this an improvement? I thought the whole point of poison.h is to
-keep all the poison value at a single place to make them obviously
-unique.
+--089e0827b8c845cbd8056516b5d7
+Content-Type: text/plain; charset="UTF-8"
 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Michal Hocko <mhocko@kernel.org>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  include/linux/poison.h | 7 -------
->  mm/page_poison.c       | 6 ++++++
->  2 files changed, 6 insertions(+), 7 deletions(-)
-> 
-> diff --git a/include/linux/poison.h b/include/linux/poison.h
-> index 15927eb..348bf67 100644
-> --- a/include/linux/poison.h
-> +++ b/include/linux/poison.h
-> @@ -30,13 +30,6 @@
->   */
->  #define TIMER_ENTRY_STATIC	((void *) 0x300 + POISON_POINTER_DELTA)
->  
-> -/********** mm/debug-pagealloc.c **********/
-> -#ifdef CONFIG_PAGE_POISONING_ZERO
-> -#define PAGE_POISON 0x00
-> -#else
-> -#define PAGE_POISON 0xaa
-> -#endif
-> -
->  /********** mm/page_alloc.c ************/
->  
->  #define TAIL_MAPPING	((void *) 0x400 + POISON_POINTER_DELTA)
-> diff --git a/mm/page_poison.c b/mm/page_poison.c
-> index e83fd44..8aaf076 100644
-> --- a/mm/page_poison.c
-> +++ b/mm/page_poison.c
-> @@ -7,6 +7,12 @@
->  #include <linux/poison.h>
->  #include <linux/ratelimit.h>
->  
-> +#ifdef CONFIG_PAGE_POISONING_ZERO
-> +#define PAGE_POISON 0x00
-> +#else
-> +#define PAGE_POISON 0xaa
-> +#endif
-> +
->  static bool want_page_poisoning __read_mostly;
->  
->  static int early_page_poison_param(char *buf)
-> -- 
-> 2.7.4
+solenwin2.zendesk.com
 
--- 
-Michal Hocko
-SUSE Labs
+--089e0827b8c845cbd8056516b5d7
+Content-Type: text/html; charset="UTF-8"
+
+<div dir="auto"><br><br><div data-smartmail="gmail_signature"><a href="http://solenwin2.zendesk.com">solenwin2.zendesk.com</a></div></div>
+
+--089e0827b8c845cbd8056516b5d7--
+
+--===============0992404010798923221==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0992404010798923221==--
