@@ -1,12 +1,24 @@
-From: Solen win <solenwin2@gmail.com>
-Subject: (unknown)
-Date: Tue, 13 Feb 2018 18:58:07 +0700
-Message-ID: <CALfDnQ_OCbBOfwLbTHE5XzvooEOmwvwQxmEtZ-ys-NjZD1CnKQ@mail.gmail.com>
-Reply-To: solenwin2@gmail.com
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
+Date: Tue, 13 Feb 2018 15:27:54 +0100
+Message-ID: <37179029-8ccb-8eb2-0901-04b64cef3608__14555.6281241172$1518532012$gmane$org@collabora.com>
+References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
+	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
+	<20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
+	<49785e0d-936a-c3b4-62dd-aafc7083a942@collabora.com>
+	<20180205122017.4vb5nlpodkq2uhxa@sirius.home.kraxel.org>
+	<f07a5347-13fe-76c2-f971-3f02abebd3c9@collabora.com>
+	<20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
+	<fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
+	<20180206142302.vdjyqmnoypydci4t@sirius.home.kraxel.org>
+	<04687943-847b-25a7-42ef-a21b4c7ef0cf@collabora.com>
+	<20180212114540.iygbha554busy4ip@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0992404010798923221=="
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Subject: 
+In-Reply-To: <20180212114540.iygbha554busy4ip@sirius.home.kraxel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,32 +28,114 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0992404010798923221==
-Content-Type: multipart/alternative; boundary="089e0827b8c845cbd8056516b5d7"
+On 02/12/2018 12:45 PM, Gerd Hoffmann wrote:
+>    Hi,
+> 
+>>>     (a) software rendering: client allocates shared memory buffer, renders
+>>>         into it, then passes a file handle for that shmem block together
+>>>         with some meta data (size, format, ...) to the wayland server.
+>>>
+>>>     (b) gpu rendering: client opens a render node, allocates a buffer,
+>>>         asks the cpu to renders into it, exports the buffer as dma-buf
+>>>         (DRM_IOCTL_PRIME_HANDLE_TO_FD), passes this to the wayland server
+>>>         (again including meta data of course).
+>>>
+>>> Is that correct?
+>>
+>> Both are correct descriptions of typical behaviors. But it isn't spec'ed
+>> anywhere who has to do the buffer allocation.
+> 
+> Well, according to Pekka's reply it is spec'ed that way, for the
+> existing buffer types.  So for server allocated buffers you need
+> (a) a wayland protocol extension and (b) support for the extension
+> in the clients.
+> 
+>> That's to say that if we cannot come up with a zero-copy solution for
+>> unmodified clients, we should at least support zero-copy for cooperative
+>> clients.
+> 
+> "cooperative clients" == "client which has support for the wayland
+> protocol extension", correct?
 
---089e0827b8c845cbd8056516b5d7
-Content-Type: text/plain; charset="UTF-8"
+Guess it could be that, but I was rather thinking of clients that would 
+allocate the buffer for wl_shm_pool with DRM_VIRTGPU_RESOURCE_CREATE or 
+equivalent. Then that buffer would be exported and the fd passed using 
+the standard wl_shm protocol.
 
-solenwin2.zendesk.com
+>>>> 4. QEMU maps that buffer to the guest's address space
+>>>> (KVM_SET_USER_MEMORY_REGION), passes the guest PFN to the virtio driver
+>>>
+>>> That part is problematic.  The host can't simply allocate something in
+>>> the physical address space, because most physical address space
+>>> management is done by the guest.  All pci bars are mapped by the guest
+>>> firmware for example (or by the guest OS in case of hotplug).
+>>
+>> How can KVM_SET_USER_MEMORY_REGION ever be safely used then? I would have
+>> expected that callers of that ioctl have enough knowledge to be able to
+>> choose a physical address that won't conflict with the guest's kernel.
+> 
+> Depends on the kind of region.  Guest RAM is allocated and mapped by
+> qemu, guest firmware can query qemu about RAM mappings using a special
+> interface, then create a e820 memory map for the guest os.  PCI device
+> bars are mapped according to the pci config space registers, which in
+> turn are initialized by the guest firmware, so it is basically in the
+> guests hand where they show up.
+> 
+>> I see that the ivshmem device in QEMU registers the memory region in BAR 2
+>> of a PCI device instead. Would that be better in your opinion?
+> 
+> Yes.
 
---089e0827b8c845cbd8056516b5d7
-Content-Type: text/html; charset="UTF-8"
+Would it make sense for virtio-gpu to map buffers to the guest via PCI 
+BARs? So we can use a single drm driver for both 2d and 3d.
 
-<div dir="auto"><br><br><div data-smartmail="gmail_signature"><a href="http://solenwin2.zendesk.com">solenwin2.zendesk.com</a></div></div>
+>>>> 4. QEMU pops data+buffers from the virtqueue, looks up shmem FD for each
+>>>> resource, sends data + FDs to the compositor with SCM_RIGHTS
+>>>
+>>> BTW: Is there a 1:1 relationship between buffers and shmem blocks?  Or
+>>> does the wayland protocol allow for offsets in buffer meta data, so you
+>>> can place multiple buffers in a single shmem block?
+>>
+>> The latter:
+>> https://wayland.freedesktop.org/docs/html/apa.html#protocol-spec-wl_shm_pool
+> 
+> Ah, good, that makes it alot easier.
+> 
+> So, yes, using ivshmem would be one option.  Tricky part here is the
+> buffer management though.  It's just a raw piece of memory.  The guest
+> proxy could mmap the pci bar and manage it.  But then it is again either
+> unmodified guest + copying the data, or modified client (which requests
+> buffers from guest proxy) for zero-copy.
+> 
+> Another idea would be extending stdvga.  Basically qemu would have to
+> use shmem as backing storage for vga memory instead of anonymous memory,
+> so it would be very  simliar to ivshmem on the host side.  But on the
+> guest side we have a drm driver for it (bochs-drm).  So clients can
+> allocate dumb drm buffers for software rendering, and the buffer would
+> already be backed by a host shmem segment.  Given that wayland already
+> supports drm buffers for 3d rendering that could work without extending
+> the wayland protocol.  The client proxy would have to translate the drm
+> buffer into an pci bar offset and pass it to the host side.  The host
+> proxy could register the pci bar as wl_shm_pool, then just pass through
+> the offset to reference the individual buffers.
+> 
+> Drawback of both approaches would be that software rendering and gpu
+> rendering would use quite different code paths.
 
---089e0827b8c845cbd8056516b5d7--
+Yeah, would be great if we could find a way to avoid that.
 
---===============0992404010798923221==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> We also need a solution for the keymap shmem block.  I guess the keymap
+> doesn't change all that often, so maybe it is easiest to just copy it
+> over (host proxy -> guest proxy) instead of trying to map the host shmem
+> into the guest?
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0992404010798923221==--
+I think that should be fine for now. Something similar will have to 
+happen for the clipboard, which currently uses pipes to exchange data.
+
+Thanks,
+
+Tomeu
