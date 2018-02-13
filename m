@@ -1,15 +1,14 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH] headers: untangle kmemleak.h from mm.h
-Date: Tue, 13 Feb 2018 21:09:05 +1100
-Message-ID: <87fu652oce.fsf__5155.54995877228$1518516453$gmane$org@concordia.ellerman.id.au>
-References: <a4629db7-194d-3c7c-c8fd-24f61b220a70@infradead.org>
-	<87zi4ev1d2.fsf@concordia.ellerman.id.au>
-	<f119a273-2e86-1b7f-346f-7627ad8b51ed@infradead.org>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH] mm/page_poison: move PAGE_POISON to page_poison.c
+Date: Tue, 13 Feb 2018 11:16:15 +0100
+Message-ID: <20180213101615.GO3443__46644.46806205$1518516887$gmane$org@dhcp22.suse.cz>
+References: <1518163694-27155-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f119a273-2e86-1b7f-346f-7627ad8b51ed@infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1518163694-27155-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,56 +18,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Randy Dunlap <rdunlap@infradead.org>, LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, Fengguang Wu <fengguang.wu@intel.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, John Johansen <john.johansen@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, X86 ML <x86@kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Dmitry Kasatkin <dmitry.kasatkin@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Randy Dunlap <rdunlap@infradead.org> writes:
+On Fri 09-02-18 16:08:14, Wei Wang wrote:
+> The PAGE_POISON macro is used in page_poison.c only, so avoid exporting
+> it. Also remove the "mm/debug-pagealloc.c" related comment, which is
+> obsolete.
 
-> On 02/12/2018 04:28 AM, Michael Ellerman wrote:
->> Randy Dunlap <rdunlap@infradead.org> writes:
->> 
->>> From: Randy Dunlap <rdunlap@infradead.org>
->>>
->>> Currently <linux/slab.h> #includes <linux/kmemleak.h> for no obvious
->>> reason. It looks like it's only a convenience, so remove kmemleak.h
->>> from slab.h and add <linux/kmemleak.h> to any users of kmemleak_*
->>> that don't already #include it.
->>> Also remove <linux/kmemleak.h> from source files that do not use it.
->>>
->>> This is tested on i386 allmodconfig and x86_64 allmodconfig. It
->>> would be good to run it through the 0day bot for other $ARCHes.
->>> I have neither the horsepower nor the storage space for the other
->>> $ARCHes.
->>>
->>> [slab.h is the second most used header file after module.h; kernel.h
->>> is right there with slab.h. There could be some minor error in the
->>> counting due to some #includes having comments after them and I
->>> didn't combine all of those.]
->>>
->>> This is Lingchi patch #1 (death by a thousand cuts, applied to kernel
->>> header files).
->>>
->>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
->> 
->> I threw it at a random selection of configs and so far the only failures
->> I'm seeing are:
->> 
->>   lib/test_firmware.c:134:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]                                                                                                          
->>   lib/test_firmware.c:620:25: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
->>   lib/test_firmware.c:620:2: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
->>   security/integrity/digsig.c:146:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]
->
-> Both of those source files need to #include <linux/vmalloc.h>.
+Why is this an improvement? I thought the whole point of poison.h is to
+keep all the poison value at a single place to make them obviously
+unique.
 
-Yep, I added those and rebuilt. I don't see any more failures that look
-related to your patch.
+> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  include/linux/poison.h | 7 -------
+>  mm/page_poison.c       | 6 ++++++
+>  2 files changed, 6 insertions(+), 7 deletions(-)
+> 
+> diff --git a/include/linux/poison.h b/include/linux/poison.h
+> index 15927eb..348bf67 100644
+> --- a/include/linux/poison.h
+> +++ b/include/linux/poison.h
+> @@ -30,13 +30,6 @@
+>   */
+>  #define TIMER_ENTRY_STATIC	((void *) 0x300 + POISON_POINTER_DELTA)
+>  
+> -/********** mm/debug-pagealloc.c **********/
+> -#ifdef CONFIG_PAGE_POISONING_ZERO
+> -#define PAGE_POISON 0x00
+> -#else
+> -#define PAGE_POISON 0xaa
+> -#endif
+> -
+>  /********** mm/page_alloc.c ************/
+>  
+>  #define TAIL_MAPPING	((void *) 0x400 + POISON_POINTER_DELTA)
+> diff --git a/mm/page_poison.c b/mm/page_poison.c
+> index e83fd44..8aaf076 100644
+> --- a/mm/page_poison.c
+> +++ b/mm/page_poison.c
+> @@ -7,6 +7,12 @@
+>  #include <linux/poison.h>
+>  #include <linux/ratelimit.h>
+>  
+> +#ifdef CONFIG_PAGE_POISONING_ZERO
+> +#define PAGE_POISON 0x00
+> +#else
+> +#define PAGE_POISON 0xaa
+> +#endif
+> +
+>  static bool want_page_poisoning __read_mostly;
+>  
+>  static int early_page_poison_param(char *buf)
+> -- 
+> 2.7.4
 
-  http://kisskb.ellerman.id.au/kisskb/head/13399/
-
-
-I haven't gone through the defconfigs I have enabled for a while, so
-it's possible I have some missing but it's still a reasonable cross
-section.
-
-cheers
+-- 
+Michal Hocko
+SUSE Labs
