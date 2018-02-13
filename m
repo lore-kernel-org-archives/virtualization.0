@@ -1,15 +1,22 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH] headers: untangle kmemleak.h from mm.h
-Date: Mon, 12 Feb 2018 13:16:10 -0800
-Message-ID: <2b44ef68-126a-b20a-a50f-48c337fa6d0b__18963.0499030047$1518475138$gmane$org@infradead.org>
-References: <a4629db7-194d-3c7c-c8fd-24f61b220a70@infradead.org>
-	<87zi4ev1d2.fsf@concordia.ellerman.id.au>
+From: Pekka Paalanen <ppaalanen@gmail.com>
+Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
+Date: Tue, 13 Feb 2018 09:41:22 +0200
+Message-ID: <20180213094122.5675d5f9__1855.39330491356$1518507604$gmane$org@eldfell>
+References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
+	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
+	<20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
+	<49785e0d-936a-c3b4-62dd-aafc7083a942@collabora.com>
+	<20180205122017.4vb5nlpodkq2uhxa@sirius.home.kraxel.org>
+	<f07a5347-13fe-76c2-f971-3f02abebd3c9@collabora.com>
+	<20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
+	<fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
+	<20180206142302.vdjyqmnoypydci4t@sirius.home.kraxel.org>
+	<04687943-847b-25a7-42ef-a21b4c7ef0cf@collabora.com>
+	<20180212114540.iygbha554busy4ip@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0154576344872127086=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87zi4ev1d2.fsf@concordia.ellerman.id.au>
-Content-Language: en-US
+In-Reply-To: <20180212114540.iygbha554busy4ip@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,52 +26,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael Ellerman <mpe@ellerman.id.au>, LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, Fengguang Wu <fengguang.wu@intel.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, John Johansen <john.johansen@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, X86 ML <x86@kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kernel@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/12/2018 04:28 AM, Michael Ellerman wrote:
-> Randy Dunlap <rdunlap@infradead.org> writes:
-> 
->> From: Randy Dunlap <rdunlap@infradead.org>
->>
->> Currently <linux/slab.h> #includes <linux/kmemleak.h> for no obvious
->> reason. It looks like it's only a convenience, so remove kmemleak.h
->> from slab.h and add <linux/kmemleak.h> to any users of kmemleak_*
->> that don't already #include it.
->> Also remove <linux/kmemleak.h> from source files that do not use it.
->>
->> This is tested on i386 allmodconfig and x86_64 allmodconfig. It
->> would be good to run it through the 0day bot for other $ARCHes.
->> I have neither the horsepower nor the storage space for the other
->> $ARCHes.
->>
->> [slab.h is the second most used header file after module.h; kernel.h
->> is right there with slab.h. There could be some minor error in the
->> counting due to some #includes having comments after them and I
->> didn't combine all of those.]
->>
->> This is Lingchi patch #1 (death by a thousand cuts, applied to kernel
->> header files).
->>
->> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> 
-> I threw it at a random selection of configs and so far the only failures
-> I'm seeing are:
-> 
->   lib/test_firmware.c:134:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]                                                                                                          
->   lib/test_firmware.c:620:25: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
->   lib/test_firmware.c:620:2: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
->   security/integrity/digsig.c:146:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]
-> 
-> Full results trickling in here, not all the failures there are caused by
-> this patch, ie. some configs are broken in mainline:
-> 
->   http://kisskb.ellerman.id.au/kisskb/head/13396/
+--===============0154576344872127086==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/S6BabFRhENcv38d7GI_W2Bn"; protocol="application/pgp-signature"
 
-That's very useful, thanks.
+--Sig_/S6BabFRhENcv38d7GI_W2Bn
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-I'll send a few patches for those.
+On Mon, 12 Feb 2018 12:45:40 +0100
+Gerd Hoffmann <kraxel@redhat.com> wrote:
 
--- 
-~Randy
+>   Hi,
+>=20
+> > >    (a) software rendering: client allocates shared memory buffer, ren=
+ders
+> > >        into it, then passes a file handle for that shmem block togeth=
+er
+> > >        with some meta data (size, format, ...) to the wayland server.
+> > >=20
+> > >    (b) gpu rendering: client opens a render node, allocates a buffer,
+> > >        asks the cpu to renders into it, exports the buffer as dma-buf
+> > >        (DRM_IOCTL_PRIME_HANDLE_TO_FD), passes this to the wayland ser=
+ver
+> > >        (again including meta data of course).
+> > >=20
+> > > Is that correct? =20
+> >=20
+> > Both are correct descriptions of typical behaviors. But it isn't spec'ed
+> > anywhere who has to do the buffer allocation. =20
+>=20
+> Well, according to Pekka's reply it is spec'ed that way, for the
+> existing buffer types.  So for server allocated buffers you need
+> (a) a wayland protocol extension and (b) support for the extension
+> in the clients.
+
+Correct. Or simply a libEGL that uses such Wayland extension behind
+everyone's back. I believe such things did at least exist, but are
+probably not relevant for this discussion.
+
+(If there is a standard library, like libEGL, loaded and used by both a
+server and a client, that library can advertise custom private Wayland
+protocol extensions and the client side can take advantage of them,
+both without needing any code changes on either the server or the
+client.)
+
+> We also need a solution for the keymap shmem block.  I guess the keymap
+> doesn't change all that often, so maybe it is easiest to just copy it
+> over (host proxy -> guest proxy) instead of trying to map the host shmem
+> into the guest?
+
+Yes, I believe that would be a perfectly valid solution for that
+particular case.
+
+
+Thanks,
+pq
+
+--Sig_/S6BabFRhENcv38d7GI_W2Bn
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEJQjwWQChkWOYOIONI1/ltBGqqqcFAlqClqIACgkQI1/ltBGq
+qqcPag/+KR7kWEABD7egQVQqfbX0wcPINa9SBMPaCP+L/yorn0Uv/CuctYa+zAMb
+MirWq1cz1Ssm1Yewy2Jotmlwmlxr79U7diwkpBQ8Aj/a2Da4y9O4EVg+wNfRz61x
+hH2Vs6Ygtzrq+xaJXRRBHUvQrqmeIAqd3dLT/3q8XiFLPsEj4p8mBpZUZJ5f/Fs+
+l06ne5wo2VJUKJxtlRQEDLiPNi0/nq9B3+6fF+/d5VqUvrv8lR/2cVFGQ1saeRnT
+mJxU+xilloGqyPTu9CEZjYZjAYw37HXxuotZEedvbn0YsUMl50JkNX/o4SiKDzVU
+UQ3OJaTkzUgsfYKTtCTEeWAkhFH45D9vper1LrrWQmwEXEJ1Z57Z7+p2WuOSnv0A
+ruQo1OsKmS1mEqXsPCQcH7PVEzRIU1gF89My2CAM2KL8C+i/pV8n2zpkshka1QGL
+bOn7qSfY9KZZ8NjEdOIA1829vBtx1FLQbw+nGMpeyxUh/L0G4Oja4ik1BYdePfzS
+eXF5IrPgdIjy5ZjKeOOE3WBtPS/Jp+FbU6jlrnvnjEOJijBdlnoWnYaxkZ1OkMPB
+KfjwBwjNRxwi8R8CYT0+yvAwMhpHHhrUlL1ucj6TIPGfDw1Mrwd4bFmvOInAkC5G
+wXdbld2Nxa9GWmD6F3H3wlWCCV/VxeZKnAzev8lFAiy+Wmsx/lI=
+=JNFH
+-----END PGP SIGNATURE-----
+
+--Sig_/S6BabFRhENcv38d7GI_W2Bn--
+
+--===============0154576344872127086==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0154576344872127086==--
