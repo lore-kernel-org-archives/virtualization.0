@@ -1,13 +1,14 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH RFC 1/2] virtio: introduce packed ring defines
-Date: Wed, 14 Feb 2018 10:37:08 +0800
-Message-ID: <1518575829-1431-2-git-send-email-jasowang@redhat.com>
+Subject: Re: [PATCH RFC 0/2] Packed ring for vhost
+Date: Wed, 14 Feb 2018 10:43:29 +0800
+Message-ID: <1c200171-5d72-f410-7637-1ade5f41b550@redhat.com>
 References: <1518575829-1431-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <1518575829-1431-1-git-send-email-jasowang@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,71 +22,32 @@ To: mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger
 Cc: wexu@redhat.com, tiwei.bie@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- include/uapi/linux/virtio_config.h |  9 +++++++++
- include/uapi/linux/virtio_ring.h   | 17 +++++++++++++++++
- 2 files changed, 26 insertions(+)
-
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index 308e209..5903d51 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -71,4 +71,13 @@
-  * this is for compatibility with legacy systems.
-  */
- #define VIRTIO_F_IOMMU_PLATFORM		33
-+
-+#define VIRTIO_F_RING_PACKED		34
-+
-+/*
-+ * This feature indicates that all buffers are used by the device in
-+ * the same order in which they have been made available.
-+ */
-+#define VIRTIO_F_IN_ORDER		35
-+
- #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
-diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-index 6d5d5fa..a169b53 100644
---- a/include/uapi/linux/virtio_ring.h
-+++ b/include/uapi/linux/virtio_ring.h
-@@ -43,6 +43,8 @@
- #define VRING_DESC_F_WRITE	2
- /* This means the buffer contains a list of buffer descriptors. */
- #define VRING_DESC_F_INDIRECT	4
-+#define VRING_DESC_F_AVAIL      7
-+#define VRING_DESC_F_USED	15
- 
- /* The Host uses this in used->flags to advise the Guest: don't kick me when
-  * you add a buffer.  It's unreliable, so it's simply an optimization.  Guest
-@@ -62,6 +64,17 @@
-  * at the end of the used ring. Guest should ignore the used->flags field. */
- #define VIRTIO_RING_F_EVENT_IDX		29
- 
-+struct vring_desc_packed {
-+	/* Buffer Address. */
-+	__virtio64 addr;
-+	/* Buffer Length. */
-+	__virtio32 len;
-+	/* Buffer ID. */
-+	__virtio16 id;
-+	/* The flags depending on descriptor type. */
-+	__virtio16 flags;
-+};
-+
- /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
- struct vring_desc {
- 	/* Address (guest-physical). */
-@@ -86,6 +99,10 @@ struct vring_used_elem {
- 	__virtio32 id;
- 	/* Total length of the descriptor chain which was used (written to) */
- 	__virtio32 len;
-+	/* Index of the descriptor that needs to write, used by packed ring. */
-+	u16 idx;
-+	/* Wrap counter for this used desc, used by packed ring. */
-+	bool wrap_counter;
- };
- 
- struct vring_used {
--- 
-2.7.4
+CgpPbiAyMDE45bm0MDLmnIgxNOaXpSAxMDozNywgSmFzb24gV2FuZyB3cm90ZToKPiBIaSBhbGw6
+Cj4KPiBUaGlzIFJGQyBpbXBsZW1lbnQgYSBzdWJzZXQgb2YgcGFja2VkIHJpbmcgd2hpY2ggd2Fz
+IGRlc2NyaWJlZCBhdAo+IGh0dHBzOi8vZ2l0aHViLmNvbS9vYXNpcy10Y3MvdmlydGlvLWRvY3Mv
+YmxvYi9tYXN0ZXIvdmlydGlvLXYxLjEtcGFja2VkLXdkMDcucGRmCj4gLiBUaGUgY29kZSB3ZXJl
+IHRlc3RlZCB3aXRoIHBtZCBpbXBsZW1lbnQgYnkgSmVucyBhdAo+IGh0dHA6Ly9kcGRrLm9yZy9t
+bC9hcmNoaXZlcy9kZXYvMjAxOC1KYW51YXJ5LzA4OTQxNy5odG1sLiBNaW5vcgo+IGNoYW5nZSB3
+YXMgbmVlZGVkIGZvciBwbWQgY29kZXMgdG8ga2ljayB2aXJ0cXVldWUgc2luY2UgaXQgYXNzdW1l
+cyBhCj4gYnVzeSBwb2xsaW5nIGJhY2tlbmQuCj4KPiBUZXN0IHdlcmUgZG9uZSBiZXR3ZWVuIGxv
+Y2FsaG9zdCBhbmQgZ3Vlc3QuIFRlc3RwbWQgKHJ4b25seSkgaW4gZ3Vlc3QKPiByZXBvcnRzIDIu
+NE1wcHMuIFRlc3RwbWQgKHR4b25seSkgcmVwb3RzIGFib3V0IDIuMU1wcHMuCj4KPiBJdCdzIG5v
+dCBhIGNvbXBsZXRlIGltcGxlbWVudGlvbiwgaGVyZSdzIHdoYXQgd2VyZSBtaXNzZWQ6Cj4KPiAt
+IERldmljZSBBcmVhCj4gLSBEcml2ZXIgQXJlYQo+IC0gRGVzY3JpcHRvciBpbmRpcmVjdGlvbgo+
+IC0gWmVyb2NvcHkgbWF5IG5vdCBiZSBmdW5jdGlvbmFsCj4gLSBNaWdyYXRpb24gcGF0aCBpcyBu
+b3QgdGVzdGVkCj4gLSBWaG9zdCBkZXZpY2VzIGV4Y2VwdCBmb3IgbmV0Cj4gLSB2SU9NTVUgY2Fu
+IG5vdCB3b3JrIChtYWlubHkgYmVjYXVzZSB0aGUgbWV0YWRhdGEgcHJlZmV0Y2ggaXMgbm90Cj4g
+ICAgaW1wbGVtZW50ZWQpLgo+IC0gU2VlIEZJWE1FL1RPRE8gaW4gdGhlIGNvZGVzIGZvciBtb3Jl
+IGRldGFpbHMKPiAtIE5vIGJhdGNoaW5nIG9yIG90aGVyIG9wdGltaXphdGlvbnMgd2VyZSBpbXBs
+ZW1lbnRlZAo+Cj4gRm9yIGEgcXVpY2sgcHJvdG90eXBlLCB0aGlzIHNlcmllcyBvcGVuIGNvZGUg
+dGhlIHRyYWNraW5nIG9mIHdhcnAKPiBjb3VudGVyIGFuZCBkZXNjcmlwdG9yIGluZGV4IGF0IG5l
+dCBkZXZpY2UuIFRoaXMgd2lsbCBiZSBhZGRyZXNzZWQgaW4KPiB0aGUgZnV0dXJlIGJ5Ogo+Cj4g
+LSBNb3ZlIGdldF9yeF9idWZzKCkgZnJvbSBuZXQuYyB0byB2aG9zdC5jCj4gLSBMZXQgdmhvc3Rf
+Z2V0X3ZxX2Rlc2MoKSByZXR1cm5zIHZyaW5nX3VzZWRfZWxlbSBpbnN0YWQgb2YgaGVhZCBpZAo+
+Cj4gV2l0aCB0aGUgYWJvdmUsIHdlIGNhbiBoaWRlIHRoZSBpbnRlcm5hbCAoYXQgbGVhc3QgcGFy
+dCBvZikgdnJpbmcKPiBsYXlvdXQgZnJvbSBzcGVjaWZpYyBkZXZpY2UuCj4KPiBQbGVhc2UgcmV2
+aWV3Lgo+Cj4gVGhhbmtzCgpJdCdzIG5lYXIgc3ByaW5nIGZlc3RpdmFsIGluIENoaW5hLCB3aWxs
+IHByb2JhYmx5IHJlcGx5IGFmdGVyIHRoZSBob2xpZGF5LgoKVGhhbmtzCl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
+bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
