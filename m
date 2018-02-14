@@ -1,17 +1,13 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH] headers: untangle kmemleak.h from mm.h
-Date: Tue, 13 Feb 2018 09:51:09 -0800
-Message-ID: <1f96a3c7-0bb3-6c06-0b44-ca47e5a5d127__37430.349228862$1518552156$gmane$org@infradead.org>
-References: <a4629db7-194d-3c7c-c8fd-24f61b220a70@infradead.org>
-	<87zi4ev1d2.fsf@concordia.ellerman.id.au>
-	<f119a273-2e86-1b7f-346f-7627ad8b51ed@infradead.org>
-	<87fu652oce.fsf@concordia.ellerman.id.au>
+From: kbuild test robot <fengguang.wu@intel.com>
+Subject: [vhost:vhost 22/23] drivers/firmware/qemu_fw_cfg.c:130:36: sparse:
+	incorrect type in initializer (different base types)
+Date: Wed, 14 Feb 2018 08:46:46 +0800
+Message-ID: <201802140843.NMqq2jAs%fengguang.wu__3315.02663107148$1518569172$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87fu652oce.fsf@concordia.ellerman.id.au>
-Content-Language: en-US
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,63 +17,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael Ellerman <mpe@ellerman.id.au>, LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, Fengguang Wu <fengguang.wu@intel.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, John Johansen <john.johansen@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, X86 ML <x86@kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Dmitry Kasatkin <dmitry.kasatkin@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: =?iso-8859-1?Q?Marc-Andr=E9?= Lureau <marcandre.lureau@redhat.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, kbuild-all@01.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/13/2018 02:09 AM, Michael Ellerman wrote:
-> Randy Dunlap <rdunlap@infradead.org> writes:
-> 
->> On 02/12/2018 04:28 AM, Michael Ellerman wrote:
->>> Randy Dunlap <rdunlap@infradead.org> writes:
->>>
->>>> From: Randy Dunlap <rdunlap@infradead.org>
->>>>
->>>> Currently <linux/slab.h> #includes <linux/kmemleak.h> for no obvious
->>>> reason. It looks like it's only a convenience, so remove kmemleak.h
->>>> from slab.h and add <linux/kmemleak.h> to any users of kmemleak_*
->>>> that don't already #include it.
->>>> Also remove <linux/kmemleak.h> from source files that do not use it.
->>>>
->>>> This is tested on i386 allmodconfig and x86_64 allmodconfig. It
->>>> would be good to run it through the 0day bot for other $ARCHes.
->>>> I have neither the horsepower nor the storage space for the other
->>>> $ARCHes.
->>>>
->>>> [slab.h is the second most used header file after module.h; kernel.h
->>>> is right there with slab.h. There could be some minor error in the
->>>> counting due to some #includes having comments after them and I
->>>> didn't combine all of those.]
->>>>
->>>> This is Lingchi patch #1 (death by a thousand cuts, applied to kernel
->>>> header files).
->>>>
->>>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
->>>
->>> I threw it at a random selection of configs and so far the only failures
->>> I'm seeing are:
->>>
->>>   lib/test_firmware.c:134:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]                                                                                                          
->>>   lib/test_firmware.c:620:25: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
->>>   lib/test_firmware.c:620:2: error: implicit declaration of function 'vzalloc' [-Werror=implicit-function-declaration]
->>>   security/integrity/digsig.c:146:2: error: implicit declaration of function 'vfree' [-Werror=implicit-function-declaration]
->>
->> Both of those source files need to #include <linux/vmalloc.h>.
-> 
-> Yep, I added those and rebuilt. I don't see any more failures that look
-> related to your patch.
-
-Great, thanks.
-
-I also sent patches for both of those.
-
->   http://kisskb.ellerman.id.au/kisskb/head/13399/
-> 
-> 
-> I haven't gone through the defconfigs I have enabled for a while, so
-> it's possible I have some missing but it's still a reasonable cross
-> section.
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
+head:   3d22d7c1190db3209b644b8a13a75a9802b4587f
+commit: b3a8771f409b74c42deee28aee3092fc5d2c8dab [22/23] fw_cfg: write vmcoreinfo details
+reproduce:
+        # apt-get install sparse
+        git checkout b3a8771f409b74c42deee28aee3092fc5d2c8dab
+        make ARCH=x86_64 allmodconfig
+        make C=1 CF=-D__CHECK_ENDIAN__
 
 
--- 
-~Randy
+sparse warnings: (new ones prefixed by >>)
+
+   drivers/firmware/qemu_fw_cfg.c:108:28: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:108:28: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:108:28: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:108:28: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:108:28: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:108:28: sparse: cast to restricted __be32
+>> drivers/firmware/qemu_fw_cfg.c:130:36: sparse: incorrect type in initializer (different base types) @@ expected unsigned long long address @@ got gned] address @@
+   drivers/firmware/qemu_fw_cfg.c:130:36: expected unsigned long long address
+   drivers/firmware/qemu_fw_cfg.c:130:36: got restricted __be64
+   drivers/firmware/qemu_fw_cfg.c:131:27: sparse: incorrect type in initializer (different base types) @@ expected unsigned int length @@ got ed int length @@
+   drivers/firmware/qemu_fw_cfg.c:131:27: expected unsigned int length
+   drivers/firmware/qemu_fw_cfg.c:131:27: got restricted __be32 <noident>
+   drivers/firmware/qemu_fw_cfg.c:132:28: sparse: incorrect type in initializer (different base types) @@ expected unsigned int control @@ got ed int control @@
+   drivers/firmware/qemu_fw_cfg.c:132:28: expected unsigned int control
+   drivers/firmware/qemu_fw_cfg.c:132:28: got restricted __be32 <noident>
+   drivers/firmware/qemu_fw_cfg.c:142:13: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:142:13: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:142:13: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:142:13: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:142:13: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:142:13: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:96:33: sparse: restricted __be16 degrades to integer
+   drivers/firmware/qemu_fw_cfg.c:96:52: sparse: restricted __le16 degrades to integer
+   drivers/firmware/qemu_fw_cfg.c:96:33: sparse: restricted __be16 degrades to integer
+   drivers/firmware/qemu_fw_cfg.c:96:52: sparse: restricted __le16 degrades to integer
+   drivers/firmware/qemu_fw_cfg.c:96:33: sparse: restricted __be16 degrades to integer
+   drivers/firmware/qemu_fw_cfg.c:96:52: sparse: restricted __le16 degrades to integer
+   drivers/firmware/qemu_fw_cfg.c:96:33: sparse: restricted __be16 degrades to integer
+   drivers/firmware/qemu_fw_cfg.c:96:52: sparse: restricted __le16 degrades to integer
+   drivers/firmware/qemu_fw_cfg.c:660:17: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:660:17: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:660:17: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:660:17: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:660:17: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:660:17: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:96:33: sparse: restricted __be16 degrades to integer
+   drivers/firmware/qemu_fw_cfg.c:96:52: sparse: restricted __le16 degrades to integer
+   drivers/firmware/qemu_fw_cfg.c:670:31: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:670:31: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:670:31: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:670:31: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:670:31: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:670:31: sparse: cast to restricted __be32
+   drivers/firmware/qemu_fw_cfg.c:671:33: sparse: cast to restricted __be16
+   drivers/firmware/qemu_fw_cfg.c:671:33: sparse: cast to restricted __be16
+   drivers/firmware/qemu_fw_cfg.c:671:33: sparse: cast to restricted __be16
+   drivers/firmware/qemu_fw_cfg.c:671:33: sparse: cast to restricted __be16
+   drivers/firmware/qemu_fw_cfg.c:96:33: sparse: restricted __be16 degrades to integer
+   drivers/firmware/qemu_fw_cfg.c:96:52: sparse: restricted __le16 degrades to integer
+   drivers/firmware/qemu_fw_cfg.c:717:22: sparse: cast to restricted __le32
+
+vim +130 drivers/firmware/qemu_fw_cfg.c
+
+   103	
+   104	/* qemu fw_cfg device is sync today, but spec says it may become async */
+   105	static void fw_cfg_wait_for_control(struct fw_cfg_dma *d)
+   106	{
+   107		do {
+ > 108			u32 ctrl = be32_to_cpu(READ_ONCE(d->control));
+   109	
+   110			if ((ctrl & ~FW_CFG_DMA_CTL_ERROR) == 0)
+   111				return;
+   112	
+   113			usleep_range(50, 100);
+   114		} while (true);
+   115	}
+   116	
+   117	static ssize_t fw_cfg_dma_transfer(void *address, u32 length, u32 control)
+   118	{
+   119		phys_addr_t dma;
+   120		struct fw_cfg_dma *d = NULL;
+   121		ssize_t ret = length;
+   122	
+   123		d = kmalloc(sizeof(*d), GFP_KERNEL);
+   124		if (!d) {
+   125			ret = -ENOMEM;
+   126			goto end;
+   127		}
+   128	
+   129		*d = (struct fw_cfg_dma) {
+ > 130			.address = address ? cpu_to_be64(virt_to_phys(address)) : 0,
+   131			.length = cpu_to_be32(length),
+   132			.control = cpu_to_be32(control)
+   133		};
+   134	
+   135		dma = virt_to_phys(d);
+   136	
+   137		iowrite32be((u64)dma >> 32, fw_cfg_reg_dma);
+   138		iowrite32be(dma, fw_cfg_reg_dma + 4);
+   139	
+   140		fw_cfg_wait_for_control(d);
+   141	
+   142		if (be32_to_cpu(READ_ONCE(d->control)) & FW_CFG_DMA_CTL_ERROR) {
+   143			ret = -EIO;
+   144		}
+   145	
+   146	end:
+   147		kfree(d);
+   148	
+   149		return ret;
+   150	}
+   151	
+
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
