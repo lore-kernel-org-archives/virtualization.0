@@ -1,15 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC 0/2] Packed ring for vhost
-Date: Wed, 14 Feb 2018 11:48:08 +0800
-Message-ID: <97e20ab7-a73c-e911-f5ae-38359f68d4f4__20821.8304593631$1518580019$gmane$org@redhat.com>
-References: <1518575829-1431-1-git-send-email-jasowang@redhat.com>
-	<20180214044634-mutt-send-email-mst@kernel.org>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PULL v2 1/1] virtio/s390: implement PM operations for virtio_ccw
+Date: Wed, 14 Feb 2018 13:16:52 +0100
+Message-ID: <20180214131652.1908763e.cohuck__36645.7865959548$1518610529$gmane$org@redhat.com>
+References: <20171218162123.963-1-cohuck@redhat.com>
+	<20171218162123.963-2-cohuck@redhat.com>
+	<1e030d8d-0185-ee75-eda4-5551412db096@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180214044634-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <1e030d8d-0185-ee75-eda4-5551412db096@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,34 +19,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: tiwei.bie@intel.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: mst@redhat.com
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDLmnIgxNOaXpSAxMDo0NywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFdlZCwgRmViIDE0LCAyMDE4IGF0IDEwOjM3OjA3QU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+IEhpIGFsbDoKPj4KPj4gVGhpcyBSRkMgaW1wbGVtZW50IGEgc3Vic2V0IG9mIHBhY2tl
-ZCByaW5nIHdoaWNoIHdhcyBkZXNjcmliZWQgYXQKPj4gaHR0cHM6Ly9naXRodWIuY29tL29hc2lz
-LXRjcy92aXJ0aW8tZG9jcy9ibG9iL21hc3Rlci92aXJ0aW8tdjEuMS1wYWNrZWQtd2QwNy5wZGYK
-Pj4gLiBUaGUgY29kZSB3ZXJlIHRlc3RlZCB3aXRoIHBtZCBpbXBsZW1lbnQgYnkgSmVucyBhdAo+
-PiBodHRwOi8vZHBkay5vcmcvbWwvYXJjaGl2ZXMvZGV2LzIwMTgtSmFudWFyeS8wODk0MTcuaHRt
-bC4gTWlub3IKPj4gY2hhbmdlIHdhcyBuZWVkZWQgZm9yIHBtZCBjb2RlcyB0byBraWNrIHZpcnRx
-dWV1ZSBzaW5jZSBpdCBhc3N1bWVzIGEKPj4gYnVzeSBwb2xsaW5nIGJhY2tlbmQuCj4+Cj4+IFRl
-c3Qgd2VyZSBkb25lIGJldHdlZW4gbG9jYWxob3N0IGFuZCBndWVzdC4gVGVzdHBtZCAocnhvbmx5
-KSBpbiBndWVzdAo+PiByZXBvcnRzIDIuNE1wcHMuIFRlc3RwbWQgKHR4b25seSkgcmVwb3RzIGFi
-b3V0IDIuMU1wcHMuCj4gSG93IGRvZXMgdGhpcyBjb21wYXJlIHdpdGggdGhlIHNwbGl0IHJpbmcg
-ZGVzaWduPwoKTm8gb2J2aW91cyBkaWZmZXJlbmNlICgrLTUlKS4gSSBiZWxpZXZlIHdlIHJlYWNo
-IHRoZSBib3R0bGVuZWNrIG9mIHZob3N0LgoKPgo+PiBJdCdzIG5vdCBhIGNvbXBsZXRlIGltcGxl
-bWVudGlvbiwgaGVyZSdzIHdoYXQgd2VyZSBtaXNzZWQ6Cj4+Cj4+IC0gRGV2aWNlIEFyZWEKPj4g
-LSBEcml2ZXIgQXJlYQo+PiAtIERlc2NyaXB0b3IgaW5kaXJlY3Rpb24KPj4gLSBaZXJvY29weSBt
-YXkgbm90IGJlIGZ1bmN0aW9uYWwKPj4gLSBNaWdyYXRpb24gcGF0aCBpcyBub3QgdGVzdGVkCj4+
-IC0gVmhvc3QgZGV2aWNlcyBleGNlcHQgZm9yIG5ldAo+PiAtIHZJT01NVSBjYW4gbm90IHdvcmsg
-KG1haW5seSBiZWNhdXNlIHRoZSBtZXRhZGF0YSBwcmVmZXRjaCBpcyBub3QKPj4gICAgaW1wbGVt
-ZW50ZWQpLgo+PiAtIFNlZSBGSVhNRS9UT0RPIGluIHRoZSBjb2RlcyBmb3IgbW9yZSBkZXRhaWxz
-Cj4+IC0gTm8gYmF0Y2hpbmcgb3Igb3RoZXIgb3B0aW1pemF0aW9ucyB3ZXJlIGltcGxlbWVudGVk
-Cj4gaW9ldmVudGZkIGZvciBQSU8vbW1pby9zMzkwLgo+CgpQcm9iYWJseSwgYnV0IHRoaXMgaXMg
-bm90IHRoZSBzdHVmZnMgb2YgcGFja2VkIHJpbmcgSSB0aGluay4KClRoYW5rcwpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+On Mon, 12 Feb 2018 09:52:00 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+
+> Michael, Conny,
+> it seems that this patch did not make it into 4.16-rc1.
+
+Michael, please let me know what you plan to do with the
+virtio-s390-20171218-v2 pull request.
+
+> 
+> 
+> 
+> On 12/18/2017 05:21 PM, Cornelia Huck wrote:
+> > From: Christian Borntraeger <borntraeger@de.ibm.com>
+> > 
+> > Suspend/Resume to/from disk currently fails. Let us wire
+> > up the necessary callbacks. This is mostly just forwarding
+> > the requests to the virtio drivers. The only thing that
+> > has to be done in virtio_ccw itself is to re-set the
+> > virtio revision.
+> > 
+> > Suggested-by: Thomas Huth <thuth@redhat.com>
+> > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > Message-Id: <20171207141102.70190-2-borntraeger@de.ibm.com>
+> > Reviewed-by: David Hildenbrand <david@redhat.com>
+> > [CH: merged <20171218083706.223836-1-borntraeger@de.ibm.com> to fix
+> > !CONFIG_PM configs]
+> > Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> > ---
+> >  drivers/s390/virtio/virtio_ccw.c | 29 +++++++++++++++++++++++++++++
+> >  1 file changed, 29 insertions(+)
+> > 
+> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> > index b18fe2014cf2..985184ebda45 100644
+> > --- a/drivers/s390/virtio/virtio_ccw.c
+> > +++ b/drivers/s390/virtio/virtio_ccw.c
+> > @@ -1300,6 +1300,9 @@ static int virtio_ccw_cio_notify(struct ccw_device *cdev, int event)
+> >  		vcdev->device_lost = true;
+> >  		rc = NOTIFY_DONE;
+> >  		break;
+> > +	case CIO_OPER:
+> > +		rc = NOTIFY_OK;
+> > +		break;
+> >  	default:
+> >  		rc = NOTIFY_DONE;
+> >  		break;
+> > @@ -1312,6 +1315,27 @@ static struct ccw_device_id virtio_ids[] = {
+> >  	{},
+> >  };
+> > 
+> > +#ifdef CONFIG_PM_SLEEP
+> > +static int virtio_ccw_freeze(struct ccw_device *cdev)
+> > +{
+> > +	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+> > +
+> > +	return virtio_device_freeze(&vcdev->vdev);
+> > +}
+> > +
+> > +static int virtio_ccw_restore(struct ccw_device *cdev)
+> > +{
+> > +	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+> > +	int ret;
+> > +
+> > +	ret = virtio_ccw_set_transport_rev(vcdev);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	return virtio_device_restore(&vcdev->vdev);
+> > +}
+> > +#endif
+> > +
+> >  static struct ccw_driver virtio_ccw_driver = {
+> >  	.driver = {
+> >  		.owner = THIS_MODULE,
+> > @@ -1324,6 +1348,11 @@ static struct ccw_driver virtio_ccw_driver = {
+> >  	.set_online = virtio_ccw_online,
+> >  	.notify = virtio_ccw_cio_notify,
+> >  	.int_class = IRQIO_VIR,
+> > +#ifdef CONFIG_PM_SLEEP
+> > +	.freeze = virtio_ccw_freeze,
+> > +	.thaw = virtio_ccw_restore,
+> > +	.restore = virtio_ccw_restore,
+> > +#endif
+> >  };
+> > 
+> >  static int __init pure_hex(char **cp, unsigned int *val, int min_digit,
+> >   
+> 
