@@ -1,17 +1,15 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [PATCH 4/4] vfio: Allow type-1 IOMMU instantiation with a
-	virtio-iommu
-Date: Wed, 14 Feb 2018 15:35:05 +0000
-Message-ID: <9f98aa85-3160-e285-cacd-2f429c58a775__49870.862279977$1518622412$gmane$org@arm.com>
-References: <20180214145340.1223-1-jean-philippe.brucker@arm.com>
-	<20180214145340.1223-5-jean-philippe.brucker@arm.com>
-	<20180214082639.54556efb@w520.home>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 4/6] crypto: virtio: convert to new crypto engine API
+Date: Wed, 14 Feb 2018 17:51:59 +0200
+Message-ID: <20180214175137-mutt-send-email-mst@kernel.org>
+References: <20180126191534.17569-1-clabbe.montjoie@gmail.com>
+	<20180126191534.17569-5-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180214082639.54556efb@w520.home>
-Content-Language: en-GB
+Content-Disposition: inline
+In-Reply-To: <20180126191534.17569-5-clabbe.montjoie@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,44 +19,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alex Williamson <alex.williamson@redhat.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: virtio-dev@lists.oasis-open.org, jayachandran.nair@cavium.com, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, kvm@vger.kernel.org, mst@redhat.com, joro@8bytes.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, marc.zyngier@arm.com, iommu@lists.linux-foundation.org, jintack@cs.columbia.edu, eric.auger@redhat.com, kvmarm@lists.cs.columbia.edu, eric.auger.pro@gmail.com
+To: Corentin Labbe <clabbe.montjoie@gmail.com>
+Cc: herbert@gondor.apana.org.au, corbet@lwn.net, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, fabien.dessenne@st.com, virtualization@lists.linux-foundation.org, linux-sunxi@googlegroups.com, linux-crypto@vger.kernel.org, mcoquelin.stm32@gmail.com, davem@davemloft.net, linux-arm-kernel@lists.infradead.org, alexandre.torgue@st.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 14/02/18 15:26, Alex Williamson wrote:
-> On Wed, 14 Feb 2018 14:53:40 +0000
-> Jean-Philippe Brucker <jean-philippe.brucker@arm.com> wrote:
+On Fri, Jan 26, 2018 at 08:15:32PM +0100, Corentin Labbe wrote:
+> This patch convert the driver to the new crypto engine API.
 > 
->> When enabling both VFIO and VIRTIO_IOMMU modules, automatically select
->> VFIO_IOMMU_TYPE1 as well.
->>
->> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
->> ---
->>   drivers/vfio/Kconfig | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/vfio/Kconfig b/drivers/vfio/Kconfig
->> index c84333eb5eb5..65a1e691110c 100644
->> --- a/drivers/vfio/Kconfig
->> +++ b/drivers/vfio/Kconfig
->> @@ -21,7 +21,7 @@ config VFIO_VIRQFD
->>   menuconfig VFIO
->>   	tristate "VFIO Non-Privileged userspace driver framework"
->>   	depends on IOMMU_API
->> -	select VFIO_IOMMU_TYPE1 if (X86 || S390 || ARM_SMMU || ARM_SMMU_V3)
->> +	select VFIO_IOMMU_TYPE1 if (X86 || S390 || ARM_SMMU || ARM_SMMU_V3 || VIRTIO_IOMMU)
->>   	select ANON_INODES
->>   	help
->>   	  VFIO provides a framework for secure userspace device drivers.
+> Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+Pls queue when/if rest of changes go in.
+
+> ---
+>  drivers/crypto/virtio/virtio_crypto_algs.c   | 16 ++++++++++------
+>  drivers/crypto/virtio/virtio_crypto_common.h |  3 +--
+>  drivers/crypto/virtio/virtio_crypto_core.c   |  3 ---
+>  3 files changed, 11 insertions(+), 11 deletions(-)
 > 
-> Why are we basing this on specific IOMMU drivers in the first place?
-> Only ARM is doing that.  Shouldn't IOMMU_API only be enabled for ARM
-> targets that support it and therefore we can forget about the specific
-> IOMMU drivers?  Thanks,
-
-Makes sense - the majority of ARM systems (and mobile/embedded ARM64 
-ones) making use of IOMMU_API won't actually support VFIO, but it can't 
-hurt to allow them to select the type 1 driver regardless. Especially as 
-multiplatform configs are liable to be pulling in the SMMU driver(s) anyway.
-
-Robin.
+> diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
+> index abe8c15450df..ba190cfa7aa1 100644
+> --- a/drivers/crypto/virtio/virtio_crypto_algs.c
+> +++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+> @@ -29,6 +29,7 @@
+>  
+>  
+>  struct virtio_crypto_ablkcipher_ctx {
+> +	struct crypto_engine_ctx enginectx;
+>  	struct virtio_crypto *vcrypto;
+>  	struct crypto_tfm *tfm;
+>  
+> @@ -491,7 +492,7 @@ static int virtio_crypto_ablkcipher_encrypt(struct ablkcipher_request *req)
+>  	vc_sym_req->ablkcipher_req = req;
+>  	vc_sym_req->encrypt = true;
+>  
+> -	return crypto_transfer_cipher_request_to_engine(data_vq->engine, req);
+> +	return crypto_transfer_ablkcipher_request_to_engine(data_vq->engine, req);
+>  }
+>  
+>  static int virtio_crypto_ablkcipher_decrypt(struct ablkcipher_request *req)
+> @@ -511,7 +512,7 @@ static int virtio_crypto_ablkcipher_decrypt(struct ablkcipher_request *req)
+>  	vc_sym_req->ablkcipher_req = req;
+>  	vc_sym_req->encrypt = false;
+>  
+> -	return crypto_transfer_cipher_request_to_engine(data_vq->engine, req);
+> +	return crypto_transfer_ablkcipher_request_to_engine(data_vq->engine, req);
+>  }
+>  
+>  static int virtio_crypto_ablkcipher_init(struct crypto_tfm *tfm)
+> @@ -521,6 +522,9 @@ static int virtio_crypto_ablkcipher_init(struct crypto_tfm *tfm)
+>  	tfm->crt_ablkcipher.reqsize = sizeof(struct virtio_crypto_sym_request);
+>  	ctx->tfm = tfm;
+>  
+> +	ctx->enginectx.op.do_one_request = virtio_crypto_ablkcipher_crypt_req;
+> +	ctx->enginectx.op.prepare_request = NULL;
+> +	ctx->enginectx.op.unprepare_request = NULL;
+>  	return 0;
+>  }
+>  
+> @@ -538,9 +542,9 @@ static void virtio_crypto_ablkcipher_exit(struct crypto_tfm *tfm)
+>  }
+>  
+>  int virtio_crypto_ablkcipher_crypt_req(
+> -	struct crypto_engine *engine,
+> -	struct ablkcipher_request *req)
+> +	struct crypto_engine *engine, void *vreq)
+>  {
+> +	struct ablkcipher_request *req = container_of(vreq, struct ablkcipher_request, base);
+>  	struct virtio_crypto_sym_request *vc_sym_req =
+>  				ablkcipher_request_ctx(req);
+>  	struct virtio_crypto_request *vc_req = &vc_sym_req->base;
+> @@ -561,8 +565,8 @@ static void virtio_crypto_ablkcipher_finalize_req(
+>  	struct ablkcipher_request *req,
+>  	int err)
+>  {
+> -	crypto_finalize_cipher_request(vc_sym_req->base.dataq->engine,
+> -					req, err);
+> +	crypto_finalize_ablkcipher_request(vc_sym_req->base.dataq->engine,
+> +					   req, err);
+>  	kzfree(vc_sym_req->iv);
+>  	virtcrypto_clear_request(&vc_sym_req->base);
+>  }
+> diff --git a/drivers/crypto/virtio/virtio_crypto_common.h b/drivers/crypto/virtio/virtio_crypto_common.h
+> index e976539a05d9..72621bd67211 100644
+> --- a/drivers/crypto/virtio/virtio_crypto_common.h
+> +++ b/drivers/crypto/virtio/virtio_crypto_common.h
+> @@ -107,8 +107,7 @@ struct virtio_crypto *virtcrypto_get_dev_node(int node);
+>  int virtcrypto_dev_start(struct virtio_crypto *vcrypto);
+>  void virtcrypto_dev_stop(struct virtio_crypto *vcrypto);
+>  int virtio_crypto_ablkcipher_crypt_req(
+> -	struct crypto_engine *engine,
+> -	struct ablkcipher_request *req);
+> +	struct crypto_engine *engine, void *vreq);
+>  
+>  void
+>  virtcrypto_clear_request(struct virtio_crypto_request *vc_req);
+> diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
+> index ff1410a32c2b..83326986c113 100644
+> --- a/drivers/crypto/virtio/virtio_crypto_core.c
+> +++ b/drivers/crypto/virtio/virtio_crypto_core.c
+> @@ -111,9 +111,6 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
+>  			ret = -ENOMEM;
+>  			goto err_engine;
+>  		}
+> -
+> -		vi->data_vq[i].engine->cipher_one_request =
+> -			virtio_crypto_ablkcipher_crypt_req;
+>  	}
+>  
+>  	kfree(names);
+> -- 
+> 2.13.6
