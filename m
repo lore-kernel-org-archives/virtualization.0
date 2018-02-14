@@ -1,14 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH RFC 0/2] Packed ring for vhost
-Date: Wed, 14 Feb 2018 10:43:29 +0800
-Message-ID: <1c200171-5d72-f410-7637-1ade5f41b550@redhat.com>
+Date: Wed, 14 Feb 2018 04:47:34 +0200
+Message-ID: <20180214044634-mutt-send-email-mst__40700.1978405335$1518576428$gmane$org@kernel.org>
 References: <1518575829-1431-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1518575829-1431-1-git-send-email-jasowang@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +18,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: wexu@redhat.com, tiwei.bie@intel.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: tiwei.bie@intel.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDLmnIgxNOaXpSAxMDozNywgSmFzb24gV2FuZyB3cm90ZToKPiBIaSBhbGw6
-Cj4KPiBUaGlzIFJGQyBpbXBsZW1lbnQgYSBzdWJzZXQgb2YgcGFja2VkIHJpbmcgd2hpY2ggd2Fz
-IGRlc2NyaWJlZCBhdAo+IGh0dHBzOi8vZ2l0aHViLmNvbS9vYXNpcy10Y3MvdmlydGlvLWRvY3Mv
-YmxvYi9tYXN0ZXIvdmlydGlvLXYxLjEtcGFja2VkLXdkMDcucGRmCj4gLiBUaGUgY29kZSB3ZXJl
-IHRlc3RlZCB3aXRoIHBtZCBpbXBsZW1lbnQgYnkgSmVucyBhdAo+IGh0dHA6Ly9kcGRrLm9yZy9t
-bC9hcmNoaXZlcy9kZXYvMjAxOC1KYW51YXJ5LzA4OTQxNy5odG1sLiBNaW5vcgo+IGNoYW5nZSB3
-YXMgbmVlZGVkIGZvciBwbWQgY29kZXMgdG8ga2ljayB2aXJ0cXVldWUgc2luY2UgaXQgYXNzdW1l
-cyBhCj4gYnVzeSBwb2xsaW5nIGJhY2tlbmQuCj4KPiBUZXN0IHdlcmUgZG9uZSBiZXR3ZWVuIGxv
-Y2FsaG9zdCBhbmQgZ3Vlc3QuIFRlc3RwbWQgKHJ4b25seSkgaW4gZ3Vlc3QKPiByZXBvcnRzIDIu
-NE1wcHMuIFRlc3RwbWQgKHR4b25seSkgcmVwb3RzIGFib3V0IDIuMU1wcHMuCj4KPiBJdCdzIG5v
-dCBhIGNvbXBsZXRlIGltcGxlbWVudGlvbiwgaGVyZSdzIHdoYXQgd2VyZSBtaXNzZWQ6Cj4KPiAt
-IERldmljZSBBcmVhCj4gLSBEcml2ZXIgQXJlYQo+IC0gRGVzY3JpcHRvciBpbmRpcmVjdGlvbgo+
-IC0gWmVyb2NvcHkgbWF5IG5vdCBiZSBmdW5jdGlvbmFsCj4gLSBNaWdyYXRpb24gcGF0aCBpcyBu
-b3QgdGVzdGVkCj4gLSBWaG9zdCBkZXZpY2VzIGV4Y2VwdCBmb3IgbmV0Cj4gLSB2SU9NTVUgY2Fu
-IG5vdCB3b3JrIChtYWlubHkgYmVjYXVzZSB0aGUgbWV0YWRhdGEgcHJlZmV0Y2ggaXMgbm90Cj4g
-ICAgaW1wbGVtZW50ZWQpLgo+IC0gU2VlIEZJWE1FL1RPRE8gaW4gdGhlIGNvZGVzIGZvciBtb3Jl
-IGRldGFpbHMKPiAtIE5vIGJhdGNoaW5nIG9yIG90aGVyIG9wdGltaXphdGlvbnMgd2VyZSBpbXBs
-ZW1lbnRlZAo+Cj4gRm9yIGEgcXVpY2sgcHJvdG90eXBlLCB0aGlzIHNlcmllcyBvcGVuIGNvZGUg
-dGhlIHRyYWNraW5nIG9mIHdhcnAKPiBjb3VudGVyIGFuZCBkZXNjcmlwdG9yIGluZGV4IGF0IG5l
-dCBkZXZpY2UuIFRoaXMgd2lsbCBiZSBhZGRyZXNzZWQgaW4KPiB0aGUgZnV0dXJlIGJ5Ogo+Cj4g
-LSBNb3ZlIGdldF9yeF9idWZzKCkgZnJvbSBuZXQuYyB0byB2aG9zdC5jCj4gLSBMZXQgdmhvc3Rf
-Z2V0X3ZxX2Rlc2MoKSByZXR1cm5zIHZyaW5nX3VzZWRfZWxlbSBpbnN0YWQgb2YgaGVhZCBpZAo+
-Cj4gV2l0aCB0aGUgYWJvdmUsIHdlIGNhbiBoaWRlIHRoZSBpbnRlcm5hbCAoYXQgbGVhc3QgcGFy
-dCBvZikgdnJpbmcKPiBsYXlvdXQgZnJvbSBzcGVjaWZpYyBkZXZpY2UuCj4KPiBQbGVhc2UgcmV2
-aWV3Lgo+Cj4gVGhhbmtzCgpJdCdzIG5lYXIgc3ByaW5nIGZlc3RpdmFsIGluIENoaW5hLCB3aWxs
-IHByb2JhYmx5IHJlcGx5IGFmdGVyIHRoZSBob2xpZGF5LgoKVGhhbmtzCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, Feb 14, 2018 at 10:37:07AM +0800, Jason Wang wrote:
+> Hi all:
+> 
+> This RFC implement a subset of packed ring which was described at
+> https://github.com/oasis-tcs/virtio-docs/blob/master/virtio-v1.1-packed-wd07.pdf
+> . The code were tested with pmd implement by Jens at
+> http://dpdk.org/ml/archives/dev/2018-January/089417.html. Minor
+> change was needed for pmd codes to kick virtqueue since it assumes a
+> busy polling backend.
+> 
+> Test were done between localhost and guest. Testpmd (rxonly) in guest
+> reports 2.4Mpps. Testpmd (txonly) repots about 2.1Mpps.
+
+How does this compare with the split ring design?
+
+> It's not a complete implemention, here's what were missed:
+> 
+> - Device Area
+> - Driver Area
+> - Descriptor indirection
+> - Zerocopy may not be functional
+> - Migration path is not tested
+> - Vhost devices except for net
+> - vIOMMU can not work (mainly because the metadata prefetch is not
+>   implemented).
+> - See FIXME/TODO in the codes for more details
+> - No batching or other optimizations were implemented
+
+ioeventfd for PIO/mmio/s390.
+
+> For a quick prototype, this series open code the tracking of warp
+> counter and descriptor index at net device. This will be addressed in
+> the future by:
+> 
+> - Move get_rx_bufs() from net.c to vhost.c
+> - Let vhost_get_vq_desc() returns vring_used_elem instad of head id
+> 
+> With the above, we can hide the internal (at least part of) vring
+> layout from specific device.
+> 
+> Please review.
+> 
+> Thanks
+> 
+> Jason Wang (2):
+>   virtio: introduce packed ring defines
+>   vhost: packed ring support
+> 
+>  drivers/vhost/net.c                |  14 +-
+>  drivers/vhost/vhost.c              | 351 ++++++++++++++++++++++++++++++++++---
+>  drivers/vhost/vhost.h              |   6 +-
+>  include/uapi/linux/virtio_config.h |   9 +
+>  include/uapi/linux/virtio_ring.h   |  17 ++
+>  5 files changed, 369 insertions(+), 28 deletions(-)
+> 
+> -- 
+> 2.7.4
