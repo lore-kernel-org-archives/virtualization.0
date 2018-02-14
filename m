@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH RFC 0/2] Packed ring for vhost
-Date: Wed, 14 Feb 2018 04:47:34 +0200
-Message-ID: <20180214044634-mutt-send-email-mst__40700.1978405335$1518576428$gmane$org@kernel.org>
+Date: Wed, 14 Feb 2018 11:48:08 +0800
+Message-ID: <97e20ab7-a73c-e911-f5ae-38359f68d4f4__20821.8304593631$1518580019$gmane$org@redhat.com>
 References: <1518575829-1431-1-git-send-email-jasowang@redhat.com>
+	<20180214044634-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1518575829-1431-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20180214044634-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,64 +19,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: tiwei.bie@intel.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 14, 2018 at 10:37:07AM +0800, Jason Wang wrote:
-> Hi all:
-> 
-> This RFC implement a subset of packed ring which was described at
-> https://github.com/oasis-tcs/virtio-docs/blob/master/virtio-v1.1-packed-wd07.pdf
-> . The code were tested with pmd implement by Jens at
-> http://dpdk.org/ml/archives/dev/2018-January/089417.html. Minor
-> change was needed for pmd codes to kick virtqueue since it assumes a
-> busy polling backend.
-> 
-> Test were done between localhost and guest. Testpmd (rxonly) in guest
-> reports 2.4Mpps. Testpmd (txonly) repots about 2.1Mpps.
-
-How does this compare with the split ring design?
-
-> It's not a complete implemention, here's what were missed:
-> 
-> - Device Area
-> - Driver Area
-> - Descriptor indirection
-> - Zerocopy may not be functional
-> - Migration path is not tested
-> - Vhost devices except for net
-> - vIOMMU can not work (mainly because the metadata prefetch is not
->   implemented).
-> - See FIXME/TODO in the codes for more details
-> - No batching or other optimizations were implemented
-
-ioeventfd for PIO/mmio/s390.
-
-> For a quick prototype, this series open code the tracking of warp
-> counter and descriptor index at net device. This will be addressed in
-> the future by:
-> 
-> - Move get_rx_bufs() from net.c to vhost.c
-> - Let vhost_get_vq_desc() returns vring_used_elem instad of head id
-> 
-> With the above, we can hide the internal (at least part of) vring
-> layout from specific device.
-> 
-> Please review.
-> 
-> Thanks
-> 
-> Jason Wang (2):
->   virtio: introduce packed ring defines
->   vhost: packed ring support
-> 
->  drivers/vhost/net.c                |  14 +-
->  drivers/vhost/vhost.c              | 351 ++++++++++++++++++++++++++++++++++---
->  drivers/vhost/vhost.h              |   6 +-
->  include/uapi/linux/virtio_config.h |   9 +
->  include/uapi/linux/virtio_ring.h   |  17 ++
->  5 files changed, 369 insertions(+), 28 deletions(-)
-> 
-> -- 
-> 2.7.4
+CgpPbiAyMDE45bm0MDLmnIgxNOaXpSAxMDo0NywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFdlZCwgRmViIDE0LCAyMDE4IGF0IDEwOjM3OjA3QU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+IEhpIGFsbDoKPj4KPj4gVGhpcyBSRkMgaW1wbGVtZW50IGEgc3Vic2V0IG9mIHBhY2tl
+ZCByaW5nIHdoaWNoIHdhcyBkZXNjcmliZWQgYXQKPj4gaHR0cHM6Ly9naXRodWIuY29tL29hc2lz
+LXRjcy92aXJ0aW8tZG9jcy9ibG9iL21hc3Rlci92aXJ0aW8tdjEuMS1wYWNrZWQtd2QwNy5wZGYK
+Pj4gLiBUaGUgY29kZSB3ZXJlIHRlc3RlZCB3aXRoIHBtZCBpbXBsZW1lbnQgYnkgSmVucyBhdAo+
+PiBodHRwOi8vZHBkay5vcmcvbWwvYXJjaGl2ZXMvZGV2LzIwMTgtSmFudWFyeS8wODk0MTcuaHRt
+bC4gTWlub3IKPj4gY2hhbmdlIHdhcyBuZWVkZWQgZm9yIHBtZCBjb2RlcyB0byBraWNrIHZpcnRx
+dWV1ZSBzaW5jZSBpdCBhc3N1bWVzIGEKPj4gYnVzeSBwb2xsaW5nIGJhY2tlbmQuCj4+Cj4+IFRl
+c3Qgd2VyZSBkb25lIGJldHdlZW4gbG9jYWxob3N0IGFuZCBndWVzdC4gVGVzdHBtZCAocnhvbmx5
+KSBpbiBndWVzdAo+PiByZXBvcnRzIDIuNE1wcHMuIFRlc3RwbWQgKHR4b25seSkgcmVwb3RzIGFi
+b3V0IDIuMU1wcHMuCj4gSG93IGRvZXMgdGhpcyBjb21wYXJlIHdpdGggdGhlIHNwbGl0IHJpbmcg
+ZGVzaWduPwoKTm8gb2J2aW91cyBkaWZmZXJlbmNlICgrLTUlKS4gSSBiZWxpZXZlIHdlIHJlYWNo
+IHRoZSBib3R0bGVuZWNrIG9mIHZob3N0LgoKPgo+PiBJdCdzIG5vdCBhIGNvbXBsZXRlIGltcGxl
+bWVudGlvbiwgaGVyZSdzIHdoYXQgd2VyZSBtaXNzZWQ6Cj4+Cj4+IC0gRGV2aWNlIEFyZWEKPj4g
+LSBEcml2ZXIgQXJlYQo+PiAtIERlc2NyaXB0b3IgaW5kaXJlY3Rpb24KPj4gLSBaZXJvY29weSBt
+YXkgbm90IGJlIGZ1bmN0aW9uYWwKPj4gLSBNaWdyYXRpb24gcGF0aCBpcyBub3QgdGVzdGVkCj4+
+IC0gVmhvc3QgZGV2aWNlcyBleGNlcHQgZm9yIG5ldAo+PiAtIHZJT01NVSBjYW4gbm90IHdvcmsg
+KG1haW5seSBiZWNhdXNlIHRoZSBtZXRhZGF0YSBwcmVmZXRjaCBpcyBub3QKPj4gICAgaW1wbGVt
+ZW50ZWQpLgo+PiAtIFNlZSBGSVhNRS9UT0RPIGluIHRoZSBjb2RlcyBmb3IgbW9yZSBkZXRhaWxz
+Cj4+IC0gTm8gYmF0Y2hpbmcgb3Igb3RoZXIgb3B0aW1pemF0aW9ucyB3ZXJlIGltcGxlbWVudGVk
+Cj4gaW9ldmVudGZkIGZvciBQSU8vbW1pby9zMzkwLgo+CgpQcm9iYWJseSwgYnV0IHRoaXMgaXMg
+bm90IHRoZSBzdHVmZnMgb2YgcGFja2VkIHJpbmcgSSB0aGluay4KClRoYW5rcwpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
