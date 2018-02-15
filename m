@@ -1,18 +1,23 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [PATCH 4/4] vfio: Allow type-1 IOMMU instantiation with a
-	virtio-iommu
-Date: Thu, 15 Feb 2018 13:53:20 +0000
-Message-ID: <7cd2a302-b3ba-8c77-c721-d54938f2568a__33320.2989808798$1518702578$gmane$org@arm.com>
-References: <20180214145340.1223-1-jean-philippe.brucker@arm.com>
-	<20180214145340.1223-5-jean-philippe.brucker@arm.com>
-	<20180214082639.54556efb@w520.home>
-	<9f98aa85-3160-e285-cacd-2f429c58a775@arm.com>
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
+Date: Thu, 15 Feb 2018 16:28:41 +0100
+Message-ID: <5ca446c7-582c-6871-c13f-9fc44c535ebc__28739.2340870158$1518708449$gmane$org@collabora.com>
+References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
+	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
+	<20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
+	<49785e0d-936a-c3b4-62dd-aafc7083a942@collabora.com>
+	<20180205122017.4vb5nlpodkq2uhxa@sirius.home.kraxel.org>
+	<f07a5347-13fe-76c2-f971-3f02abebd3c9@collabora.com>
+	<20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
+	<fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
+	<20180206142302.vdjyqmnoypydci4t@sirius.home.kraxel.org>
+	<04687943-847b-25a7-42ef-a21b4c7ef0cf@collabora.com>
+	<20180212114540.iygbha554busy4ip@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <9f98aa85-3160-e285-cacd-2f429c58a775@arm.com>
+In-Reply-To: <20180212114540.iygbha554busy4ip@sirius.home.kraxel.org>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,50 +28,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Robin Murphy <Robin.Murphy@arm.com>, Alex Williamson <alex.williamson@redhat.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "joro@8bytes.org" <joro@8bytes.org>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Marc Zyngier <Marc.Zyngier@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "jintack@cs.columbia.edu" <jintack@cs.columbia.edu>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 14/02/18 15:35, Robin Murphy wrote:
-> On 14/02/18 15:26, Alex Williamson wrote:
->> On Wed, 14 Feb 2018 14:53:40 +0000
->> Jean-Philippe Brucker <jean-philippe.brucker@arm.com> wrote:
->>
->>> When enabling both VFIO and VIRTIO_IOMMU modules, automatically select
->>> VFIO_IOMMU_TYPE1 as well.
->>>
->>> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
->>> ---
->>>   drivers/vfio/Kconfig | 2 +-
->>>   1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/vfio/Kconfig b/drivers/vfio/Kconfig
->>> index c84333eb5eb5..65a1e691110c 100644
->>> --- a/drivers/vfio/Kconfig
->>> +++ b/drivers/vfio/Kconfig
->>> @@ -21,7 +21,7 @@ config VFIO_VIRQFD
->>>   menuconfig VFIO
->>>   	tristate "VFIO Non-Privileged userspace driver framework"
->>>   	depends on IOMMU_API
->>> -	select VFIO_IOMMU_TYPE1 if (X86 || S390 || ARM_SMMU || ARM_SMMU_V3)
->>> +	select VFIO_IOMMU_TYPE1 if (X86 || S390 || ARM_SMMU || ARM_SMMU_V3 || VIRTIO_IOMMU)
->>>   	select ANON_INODES
->>>   	help
->>>   	  VFIO provides a framework for secure userspace device drivers.
->>
->> Why are we basing this on specific IOMMU drivers in the first place?
->> Only ARM is doing that.  Shouldn't IOMMU_API only be enabled for ARM
->> targets that support it and therefore we can forget about the specific
->> IOMMU drivers?  Thanks,
-> 
-> Makes sense - the majority of ARM systems (and mobile/embedded ARM64 
-> ones) making use of IOMMU_API won't actually support VFIO, but it can't 
-> hurt to allow them to select the type 1 driver regardless. Especially as 
-> multiplatform configs are liable to be pulling in the SMMU driver(s) anyway.
+On 02/12/2018 12:45 PM, Gerd Hoffmann wrote:>>>> 4. QEMU pops 
+data+buffers from the virtqueue, looks up shmem FD for each
+ >>>> resource, sends data + FDs to the compositor with SCM_RIGHTS
+ >>>
+ >>> BTW: Is there a 1:1 relationship between buffers and shmem blocks?  Or
+ >>> does the wayland protocol allow for offsets in buffer meta data, so you
+ >>> can place multiple buffers in a single shmem block?
+ >>
+ >> The latter:
+ >> 
+https://wayland.freedesktop.org/docs/html/apa.html#protocol-spec-wl_shm_pool
+ >
+ > Ah, good, that makes it alot easier.
+ >
+ > So, yes, using ivshmem would be one option.  Tricky part here is the
+ > buffer management though.  It's just a raw piece of memory.  The guest
+ > proxy could mmap the pci bar and manage it.  But then it is again either
+ > unmodified guest + copying the data, or modified client (which requests
+ > buffers from guest proxy) for zero-copy.
 
-Cool, then I'll change that line to:
+What if at VIRTIO_GPU_CMD_RESOURCE_CREATE_2D time we created a ivshmem 
+device to back that resource. The ivshmem device would in turn be backed 
+by a hostmem device that wraps a shmem FD.
 
-+	select VFIO_IOMMU_TYPE1 if (X86 || S390 || ARM || ARM64)
+The guest client can then export that resource/BO and pass the FD to the 
+guest proxy. The guest proxy would import it and put the resource_id in 
+the equivalent message in our protocol extension.
 
-Thanks,
-Jean
+QEMU would get that resource id from vsock, look up which hostmem device 
+is associated with that resource, and pass its FD to the compositor.
+
+ > We also need a solution for the keymap shmem block.  I guess the keymap
+ > doesn't change all that often, so maybe it is easiest to just copy it
+ > over (host proxy -> guest proxy) instead of trying to map the host shmem
+ > into the guest?
+
+Not sure if that would be much simpler than creating a ivshmem+hostmem 
+combo that wraps the incoming shmem FD and then having virtio-gpu create 
+a BO that imports it.
+
+Regards,
+
+Tomeu
