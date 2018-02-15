@@ -1,24 +1,15 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
-Date: Thu, 15 Feb 2018 16:28:41 +0100
-Message-ID: <5ca446c7-582c-6871-c13f-9fc44c535ebc__28739.2340870158$1518708449$gmane$org@collabora.com>
-References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
-	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
-	<20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
-	<49785e0d-936a-c3b4-62dd-aafc7083a942@collabora.com>
-	<20180205122017.4vb5nlpodkq2uhxa@sirius.home.kraxel.org>
-	<f07a5347-13fe-76c2-f971-3f02abebd3c9@collabora.com>
-	<20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
-	<fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
-	<20180206142302.vdjyqmnoypydci4t@sirius.home.kraxel.org>
-	<04687943-847b-25a7-42ef-a21b4c7ef0cf@collabora.com>
-	<20180212114540.iygbha554busy4ip@sirius.home.kraxel.org>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH v2 0/6] crypto: engine - Permit to enqueue all async
+	requests
+Date: Thu, 15 Feb 2018 23:51:00 +0800
+Message-ID: <20180215155100.GJ7352__13833.4469906569$1518712000$gmane$org@gondor.apana.org.au>
+References: <20180126191534.17569-1-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180212114540.iygbha554busy4ip@sirius.home.kraxel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180126191534.17569-1-clabbe.montjoie@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,50 +19,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
+To: Corentin Labbe <clabbe.montjoie@gmail.com>
+Cc: alexandre.torgue@st.com, corbet@lwn.net, mst@redhat.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, fabien.dessenne@st.com, virtualization@lists.linux-foundation.org, linux-sunxi@googlegroups.com, linux-crypto@vger.kernel.org, mcoquelin.stm32@gmail.com, davem@davemloft.net, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/12/2018 12:45 PM, Gerd Hoffmann wrote:>>>> 4. QEMU pops 
-data+buffers from the virtqueue, looks up shmem FD for each
- >>>> resource, sends data + FDs to the compositor with SCM_RIGHTS
- >>>
- >>> BTW: Is there a 1:1 relationship between buffers and shmem blocks?  Or
- >>> does the wayland protocol allow for offsets in buffer meta data, so you
- >>> can place multiple buffers in a single shmem block?
- >>
- >> The latter:
- >> 
-https://wayland.freedesktop.org/docs/html/apa.html#protocol-spec-wl_shm_pool
- >
- > Ah, good, that makes it alot easier.
- >
- > So, yes, using ivshmem would be one option.  Tricky part here is the
- > buffer management though.  It's just a raw piece of memory.  The guest
- > proxy could mmap the pci bar and manage it.  But then it is again either
- > unmodified guest + copying the data, or modified client (which requests
- > buffers from guest proxy) for zero-copy.
+On Fri, Jan 26, 2018 at 08:15:28PM +0100, Corentin Labbe wrote:
+> Hello
+> 
+> The current crypto_engine support only ahash and ablkcipher request.
+> My first patch which try to add skcipher was Nacked, it will add too many functions
+> and adding other algs(aead, asymetric_key) will make the situation worst.
+> 
+> This patchset remove all algs specific stuff and now only process generic crypto_async_request.
+> 
+> The requests handler function pointer are now moved out of struct engine and
+> are now stored directly in a crypto_engine_reqctx.
+> 
+> The original proposal of Herbert [1] cannot be done completly since the crypto_engine
+> could only dequeue crypto_async_request and it is impossible to access any request_ctx
+> without knowing the underlying request type.
+> 
+> So I do something near that was requested: adding crypto_engine_reqctx in TFM context.
+> Note that the current implementation expect that crypto_engine_reqctx
+> is the first member of the context.
+> 
+> The first patch is a try to document the crypto engine API.
+> The second patch convert the crypto engine with the new way,
+> while the following patchs convert the 4 existing users of crypto_engine.
+> Note that this split break bisection, so probably the final commit will be all merged.
+> 
+> Appart from virtio, all 4 latest patch were compile tested only.
+> But the crypto engine is tested with my new sun8i-ce driver.
+> 
+> Regards
+> 
+> [1] https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1474434.html
+> 
+> Changes since V1:
+> - renamed crypto_engine_reqctx to crypto_engine_ctx
+> - indentation fix in function parameter
+> - do not export crypto_transfer_request
+> - Add aead support
+> - crypto_finalize_request is now static
+> 
+> Changes since RFC:
+> - Added a documentation patch
+> - Added patch for stm32-cryp
+> - Changed parameter of all crypto_engine_op functions from
+> 	crypto_async_request to void*
+> - Reintroduced crypto_transfer_xxx_request_to_engine functions
+> 
+> Corentin Labbe (6):
+>   Documentation: crypto: document crypto engine API
+>   crypto: engine - Permit to enqueue all async requests
+>   crypto: omap: convert to new crypto engine API
+>   crypto: virtio: convert to new crypto engine API
+>   crypto: stm32-hash: convert to the new crypto engine API
+>   crypto: stm32-cryp: convert to the new crypto engine API
 
-What if at VIRTIO_GPU_CMD_RESOURCE_CREATE_2D time we created a ivshmem 
-device to back that resource. The ivshmem device would in turn be backed 
-by a hostmem device that wraps a shmem FD.
-
-The guest client can then export that resource/BO and pass the FD to the 
-guest proxy. The guest proxy would import it and put the resource_id in 
-the equivalent message in our protocol extension.
-
-QEMU would get that resource id from vsock, look up which hostmem device 
-is associated with that resource, and pass its FD to the compositor.
-
- > We also need a solution for the keymap shmem block.  I guess the keymap
- > doesn't change all that often, so maybe it is easiest to just copy it
- > over (host proxy -> guest proxy) instead of trying to map the host shmem
- > into the guest?
-
-Not sure if that would be much simpler than creating a ivshmem+hostmem 
-combo that wraps the incoming shmem FD and then having virtio-gpu create 
-a BO that imports it.
-
-Regards,
-
-Tomeu
+All applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
