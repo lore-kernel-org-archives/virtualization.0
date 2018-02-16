@@ -1,12 +1,23 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio: cleanups and fixes
-Date: Thu, 15 Feb 2018 20:27:44 +0200
-Message-ID: <20180215202744-mutt-send-email-mst@kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
+Date: Fri, 16 Feb 2018 11:48:40 +0100
+Message-ID: <20180216104840.wtqblyrrhwek6ox7__29426.4294942424$1518778032$gmane$org@sirius.home.kraxel.org>
+References: <20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
+	<49785e0d-936a-c3b4-62dd-aafc7083a942@collabora.com>
+	<20180205122017.4vb5nlpodkq2uhxa@sirius.home.kraxel.org>
+	<f07a5347-13fe-76c2-f971-3f02abebd3c9@collabora.com>
+	<20180205160322.sntv5uoqp5o7flnh@sirius.home.kraxel.org>
+	<fd557eb7-f539-2ecf-142c-8313b9f7ddb3@collabora.com>
+	<20180206142302.vdjyqmnoypydci4t@sirius.home.kraxel.org>
+	<04687943-847b-25a7-42ef-a21b4c7ef0cf@collabora.com>
+	<20180212114540.iygbha554busy4ip@sirius.home.kraxel.org>
+	<37179029-8ccb-8eb2-0901-04b64cef3608@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <37179029-8ccb-8eb2-0901-04b64cef3608@collabora.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,37 +27,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, groug@kaod.org
+To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit d25cc43c6775bff6b8e3dad97c747954b805e421:
+> > Yes.
+> 
+> Would it make sense for virtio-gpu to map buffers to the guest via PCI BARs?
+> So we can use a single drm driver for both 2d and 3d.
 
-  vhost: don't hold onto file pointer for VHOST_SET_LOG_FD (2018-02-01 16:26:47 +0200)
+Should be doable.
 
-are available in the Git repository at:
+I'm wondering two things though:
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+(1) Will shmem actually help avoiding a copy?
 
-for you to fetch changes up to fa08a3b4eba59429cf7e241a7af089103e79160f:
+virtio-gpu with virgl will (even if the guest doesn't use opengl) store
+the resources in gpu memory.  So the VIRTIO_GPU_CMD_TRANSFER_TO_HOST_2D
+copy goes from guest memory directly to gpu memory, and if we export
+that as dma-buf and pass it to the wayland server it should be able to
+render it without doing another copy.
 
-  virtio/s390: implement PM operations for virtio_ccw (2018-02-14 14:34:09 +0200)
+How does the wl_shm_pool workflow look like inside the wayland server?
+Can it ask the gpu to render directly from the pool?  Or is a copy to
+gpu memory needed here?  If the latter we would effectively trade one
+copy for another ...
 
-----------------------------------------------------------------
-virtio: bugfixes
+(2) Could we handle the mapping without needing shmem?
 
-This includes a bugfix for virtio 9p fs.
-It also fixes hybernation for s390 guests with virtio devices.
+Possibly we could extend the vgem driver.  So we pass in a iov (which
+qemu gets from guest via VIRTIO_GPU_CMD_RESOURCE_ATTACH_BACKING), get
+back a drm object.  Which effectively creates drm objects on the host
+which match the drm object in the guest (both backed by the same set of
+physical pages).
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Christian Borntraeger (1):
-      virtio/s390: implement PM operations for virtio_ccw
-
-Greg Kurz (1):
-      9p/trans_virtio: discard zero-length reply
-
- drivers/s390/virtio/virtio_ccw.c | 29 +++++++++++++++++++++++++++++
- net/9p/trans_virtio.c            |  3 ++-
- 2 files changed, 31 insertions(+), 1 deletion(-)
+cheers,
+  Gerd
