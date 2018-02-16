@@ -1,13 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 3/4] qxl: hook monitors_config updates into crtc, not encoder.
-Date: Fri, 16 Feb 2018 14:28:30 +0100
-Message-ID: <20180216132832.5374-4-kraxel__3628.99927790767$1518787648$gmane$org@redhat.com>
-References: <20180216132832.5374-1-kraxel@redhat.com>
+From: Corentin Labbe <clabbe.montjoie@gmail.com>
+Subject: Re: [PATCH v2 0/6] crypto: engine - Permit to enqueue all async
+	requests
+Date: Fri, 16 Feb 2018 16:36:56 +0100
+Message-ID: <20180216153656.GA22492__49210.8649145395$1518795338$gmane$org@Red>
+References: <20180126191534.17569-1-clabbe.montjoie@gmail.com>
+	<20180215155100.GJ7352@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180216132832.5374-1-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20180215155100.GJ7352@gondor.apana.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,253 +20,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: alexandre.torgue@st.com, corbet@lwn.net, mst@redhat.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, fabien.dessenne@st.com, virtualization@lists.linux-foundation.org, linux-sunxi@googlegroups.com, linux-crypto@vger.kernel.org, mcoquelin.stm32@gmail.com, davem@davemloft.net, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The encoder callbacks are only called in case the video mode changes.
-So any layout changes without mode changes will go unnoticed.
+On Thu, Feb 15, 2018 at 11:51:00PM +0800, Herbert Xu wrote:
+> On Fri, Jan 26, 2018 at 08:15:28PM +0100, Corentin Labbe wrote:
+> > Hello
+> > 
+> > The current crypto_engine support only ahash and ablkcipher request.
+> > My first patch which try to add skcipher was Nacked, it will add too many functions
+> > and adding other algs(aead, asymetric_key) will make the situation worst.
+> > 
+> > This patchset remove all algs specific stuff and now only process generic crypto_async_request.
+> > 
+> > The requests handler function pointer are now moved out of struct engine and
+> > are now stored directly in a crypto_engine_reqctx.
+> > 
+> > The original proposal of Herbert [1] cannot be done completly since the crypto_engine
+> > could only dequeue crypto_async_request and it is impossible to access any request_ctx
+> > without knowing the underlying request type.
+> > 
+> > So I do something near that was requested: adding crypto_engine_reqctx in TFM context.
+> > Note that the current implementation expect that crypto_engine_reqctx
+> > is the first member of the context.
+> > 
+> > The first patch is a try to document the crypto engine API.
+> > The second patch convert the crypto engine with the new way,
+> > while the following patchs convert the 4 existing users of crypto_engine.
+> > Note that this split break bisection, so probably the final commit will be all merged.
+> > 
+> > Appart from virtio, all 4 latest patch were compile tested only.
+> > But the crypto engine is tested with my new sun8i-ce driver.
+> > 
+> > Regards
+> > 
+> > [1] https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1474434.html
+> > 
+> > Changes since V1:
+> > - renamed crypto_engine_reqctx to crypto_engine_ctx
+> > - indentation fix in function parameter
+> > - do not export crypto_transfer_request
+> > - Add aead support
+> > - crypto_finalize_request is now static
+> > 
+> > Changes since RFC:
+> > - Added a documentation patch
+> > - Added patch for stm32-cryp
+> > - Changed parameter of all crypto_engine_op functions from
+> > 	crypto_async_request to void*
+> > - Reintroduced crypto_transfer_xxx_request_to_engine functions
+> > 
+> > Corentin Labbe (6):
+> >   Documentation: crypto: document crypto engine API
+> >   crypto: engine - Permit to enqueue all async requests
+> >   crypto: omap: convert to new crypto engine API
+> >   crypto: virtio: convert to new crypto engine API
+> >   crypto: stm32-hash: convert to the new crypto engine API
+> >   crypto: stm32-cryp: convert to the new crypto engine API
+> 
+> All applied.  Thanks.
 
-Add qxl_crtc_update_monitors_config(), based on the old
-qxl_write_monitors_config_for_encoder() function.  Hook it into the
-enable, disable and flush atomic crtc callbacks.  Remove monitors_config
-updates from all other places.
+Hello
 
-Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1544322
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/qxl/qxl_cmd.c     |   2 +
- drivers/gpu/drm/qxl/qxl_display.c | 156 ++++++++++++++++----------------------
- 2 files changed, 66 insertions(+), 92 deletions(-)
+As mentionned in the cover letter, all patchs (except documentation one) should be squashed.
+A kbuild robot reported a build error on cryptodev due to this.
 
-diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
-index 850f8d7d37..95db20f214 100644
---- a/drivers/gpu/drm/qxl/qxl_cmd.c
-+++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-@@ -371,6 +371,7 @@ void qxl_io_flush_surfaces(struct qxl_device *qdev)
- void qxl_io_destroy_primary(struct qxl_device *qdev)
- {
- 	wait_for_io_cmd(qdev, 0, QXL_IO_DESTROY_PRIMARY_ASYNC);
-+	qdev->primary_created = false;
- }
- 
- void qxl_io_create_primary(struct qxl_device *qdev,
-@@ -396,6 +397,7 @@ void qxl_io_create_primary(struct qxl_device *qdev,
- 	create->type = QXL_SURF_TYPE_PRIMARY;
- 
- 	wait_for_io_cmd(qdev, 0, QXL_IO_CREATE_PRIMARY_ASYNC);
-+	qdev->primary_created = true;
- }
- 
- void qxl_io_memslot_add(struct qxl_device *qdev, uint8_t id)
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 8efd07f677..b7dac01f5e 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -281,6 +281,66 @@ static void qxl_send_monitors_config(struct qxl_device *qdev)
- 	qxl_io_monitors_config(qdev);
- }
- 
-+static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
-+					    const char *reason)
-+{
-+	struct drm_device *dev = crtc->dev;
-+	struct qxl_device *qdev = dev->dev_private;
-+	struct qxl_crtc *qcrtc = to_qxl_crtc(crtc);
-+	struct qxl_head head;
-+	int oldcount, i = qcrtc->index;
-+
-+	if (!qdev->primary_created) {
-+		DRM_DEBUG_KMS("no primary surface, skip (%s)\n", reason);
-+		return;
-+	}
-+
-+	if (!qdev->monitors_config ||
-+	    qdev->monitors_config->max_allowed <= i)
-+		return;
-+
-+	head.id = i;
-+	head.flags = 0;
-+	oldcount = qdev->monitors_config->count;
-+	if (crtc->state->active) {
-+		struct drm_display_mode *mode = &crtc->mode;
-+		head.width = mode->hdisplay;
-+		head.height = mode->vdisplay;
-+		head.x = crtc->x;
-+		head.y = crtc->y;
-+		if (qdev->monitors_config->count < i + 1)
-+			qdev->monitors_config->count = i + 1;
-+	} else if (i > 0) {
-+		head.width = 0;
-+		head.height = 0;
-+		head.x = 0;
-+		head.y = 0;
-+		if (qdev->monitors_config->count == i + 1)
-+			qdev->monitors_config->count = i;
-+	} else {
-+		DRM_DEBUG_KMS("inactive head 0, skip (%s)\n", reason);
-+		return;
-+	}
-+
-+	if (head.width  == qdev->monitors_config->heads[i].width  &&
-+	    head.height == qdev->monitors_config->heads[i].height &&
-+	    head.x      == qdev->monitors_config->heads[i].x      &&
-+	    head.y      == qdev->monitors_config->heads[i].y      &&
-+	    oldcount    == qdev->monitors_config->count)
-+		return;
-+
-+	DRM_DEBUG_KMS("head %d, %dx%d, at +%d+%d, %s (%s)\n",
-+		      i, head.width, head.height, head.x, head.y,
-+		      crtc->state->active ? "on" : "off", reason);
-+	if (oldcount != qdev->monitors_config->count)
-+		DRM_DEBUG_KMS("active heads %d -> %d (%d total)\n",
-+			      oldcount, qdev->monitors_config->count,
-+			      qdev->monitors_config->max_allowed);
-+
-+	qdev->monitors_config->heads[i] = head;
-+	qxl_send_monitors_config(qdev);
-+}
-+
- static void qxl_crtc_atomic_flush(struct drm_crtc *crtc,
- 				  struct drm_crtc_state *old_crtc_state)
- {
-@@ -296,6 +356,8 @@ static void qxl_crtc_atomic_flush(struct drm_crtc *crtc,
- 		drm_crtc_send_vblank_event(crtc, event);
- 		spin_unlock_irqrestore(&dev->event_lock, flags);
- 	}
-+
-+	qxl_crtc_update_monitors_config(crtc, "flush");
- }
- 
- static void qxl_crtc_destroy(struct drm_crtc *crtc)
-@@ -401,55 +463,20 @@ static bool qxl_crtc_mode_fixup(struct drm_crtc *crtc,
- 	return true;
- }
- 
--static void qxl_monitors_config_set(struct qxl_device *qdev,
--				    int index,
--				    unsigned x, unsigned y,
--				    unsigned width, unsigned height,
--				    unsigned surf_id)
--{
--	DRM_DEBUG_KMS("%d:%dx%d+%d+%d\n", index, width, height, x, y);
--	qdev->monitors_config->heads[index].x = x;
--	qdev->monitors_config->heads[index].y = y;
--	qdev->monitors_config->heads[index].width = width;
--	qdev->monitors_config->heads[index].height = height;
--	qdev->monitors_config->heads[index].surface_id = surf_id;
--
--}
--
--static void qxl_mode_set_nofb(struct drm_crtc *crtc)
--{
--	struct qxl_device *qdev = crtc->dev->dev_private;
--	struct qxl_crtc *qcrtc = to_qxl_crtc(crtc);
--	struct drm_display_mode *mode = &crtc->mode;
--
--	DRM_DEBUG("Mode set (%d,%d)\n",
--		  mode->hdisplay, mode->vdisplay);
--
--	qxl_monitors_config_set(qdev, qcrtc->index, 0, 0,
--				mode->hdisplay,	mode->vdisplay, 0);
--
--}
--
- static void qxl_crtc_atomic_enable(struct drm_crtc *crtc,
- 				   struct drm_crtc_state *old_state)
- {
--	DRM_DEBUG("\n");
-+	qxl_crtc_update_monitors_config(crtc, "enable");
- }
- 
- static void qxl_crtc_atomic_disable(struct drm_crtc *crtc,
- 				    struct drm_crtc_state *old_state)
- {
--	struct qxl_crtc *qcrtc = to_qxl_crtc(crtc);
--	struct qxl_device *qdev = crtc->dev->dev_private;
--
--	qxl_monitors_config_set(qdev, qcrtc->index, 0, 0, 0, 0, 0);
--
--	qxl_send_monitors_config(qdev);
-+	qxl_crtc_update_monitors_config(crtc, "disable");
- }
- 
- static const struct drm_crtc_helper_funcs qxl_crtc_helper_funcs = {
- 	.mode_fixup = qxl_crtc_mode_fixup,
--	.mode_set_nofb = qxl_mode_set_nofb,
- 	.atomic_flush = qxl_crtc_atomic_flush,
- 	.atomic_enable = qxl_crtc_atomic_enable,
- 	.atomic_disable = qxl_crtc_atomic_disable,
-@@ -939,61 +966,8 @@ static void qxl_enc_prepare(struct drm_encoder *encoder)
- 	DRM_DEBUG("\n");
- }
- 
--static void qxl_write_monitors_config_for_encoder(struct qxl_device *qdev,
--		struct drm_encoder *encoder)
--{
--	int i;
--	struct qxl_output *output = drm_encoder_to_qxl_output(encoder);
--	struct qxl_head *head;
--	struct drm_display_mode *mode;
--
--	BUG_ON(!encoder);
--	/* TODO: ugly, do better */
--	i = output->index;
--	if (!qdev->monitors_config ||
--	    qdev->monitors_config->max_allowed <= i) {
--		DRM_ERROR(
--		"head number too large or missing monitors config: %p, %d",
--		qdev->monitors_config,
--		qdev->monitors_config ?
--			qdev->monitors_config->max_allowed : -1);
--		return;
--	}
--	if (!encoder->crtc) {
--		DRM_ERROR("missing crtc on encoder %p\n", encoder);
--		return;
--	}
--	if (i != 0)
--		DRM_DEBUG("missing for multiple monitors: no head holes\n");
--	head = &qdev->monitors_config->heads[i];
--	head->id = i;
--	if (encoder->crtc->enabled) {
--		mode = &encoder->crtc->mode;
--		head->width = mode->hdisplay;
--		head->height = mode->vdisplay;
--		head->x = encoder->crtc->x;
--		head->y = encoder->crtc->y;
--		if (qdev->monitors_config->count < i + 1)
--			qdev->monitors_config->count = i + 1;
--	} else {
--		head->width = 0;
--		head->height = 0;
--		head->x = 0;
--		head->y = 0;
--	}
--	DRM_DEBUG_KMS("setting head %d to +%d+%d %dx%d out of %d\n",
--		      i, head->x, head->y, head->width, head->height, qdev->monitors_config->count);
--	head->flags = 0;
--	/* TODO - somewhere else to call this for multiple monitors
--	 * (config_commit?) */
--	qxl_send_monitors_config(qdev);
--}
--
- static void qxl_enc_commit(struct drm_encoder *encoder)
- {
--	struct qxl_device *qdev = encoder->dev->dev_private;
--
--	qxl_write_monitors_config_for_encoder(qdev, encoder);
- 	DRM_DEBUG("\n");
- }
- 
-@@ -1080,8 +1054,6 @@ static enum drm_connector_status qxl_conn_detect(
- 		     qxl_head_enabled(&qdev->client_monitors_config->heads[output->index]);
- 
- 	DRM_DEBUG("#%d connected: %d\n", output->index, connected);
--	if (!connected)
--		qxl_monitors_config_set(qdev, output->index, 0, 0, 0, 0, 0);
- 
- 	return connected ? connector_status_connected
- 			 : connector_status_disconnected;
--- 
-2.9.3
+Regards
