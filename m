@@ -1,13 +1,15 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [4.4-stable 12/22] virtio_balloon: prevent uninitialized variable use
-Date: Tue, 20 Feb 2018 12:54:59 +0100
-Message-ID: <20180220115527.1806578-13-arnd@arndb.de>
-References: <20180220115527.1806578-1-arnd@arndb.de>
+From: Alexander Duyck <alexander.duyck@gmail.com>
+Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
+	passthru device
+Date: Tue, 20 Feb 2018 08:04:29 -0800
+Message-ID: <CAKgT0UdU8PDXduzxp4kKfur-DLeFQSJj7-fhW_eTgVzd+AcViw__38785.876989323$1519142577$gmane$org@mail.gmail.com>
+References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
+	<20180220104224.GA2031@nanopsycho>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180220115527.1806578-1-arnd@arndb.de>
+In-Reply-To: <20180220104224.GA2031@nanopsycho>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,54 +19,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: stable@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, "Michael S . Tsirkin" <mst@redhat.com>, Greg KH <gregkh@linuxfoundation.org>, Ladi Prosek <lprosek@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-commit f0bb2d50dfcc519f06f901aac88502be6ff1df2c upstream.
+On Tue, Feb 20, 2018 at 2:42 AM, Jiri Pirko <jiri@resnulli.us> wrote:
+> Fri, Feb 16, 2018 at 07:11:19PM CET, sridhar.samudrala@intel.com wrote:
+>>Patch 1 introduces a new feature bit VIRTIO_NET_F_BACKUP that can be
+>>used by hypervisor to indicate that virtio_net interface should act as
+>>a backup for another device with the same MAC address.
+>>
+>>Ppatch 2 is in response to the community request for a 3 netdev
+>>solution.  However, it creates some issues we'll get into in a moment.
+>>It extends virtio_net to use alternate datapath when available and
+>>registered. When BACKUP feature is enabled, virtio_net driver creates
+>>an additional 'bypass' netdev that acts as a master device and controls
+>>2 slave devices.  The original virtio_net netdev is registered as
+>>'backup' netdev and a passthru/vf device with the same MAC gets
+>>registered as 'active' netdev. Both 'bypass' and 'backup' netdevs are
+>>associated with the same 'pci' device.  The user accesses the network
+>>interface via 'bypass' netdev. The 'bypass' netdev chooses 'active' netdev
+>>as default for transmits when it is available with link up and running.
+>
+> Sorry, but this is ridiculous. You are apparently re-implemeting part
+> of bonding driver as a part of NIC driver. Bond and team drivers
+> are mature solutions, well tested, broadly used, with lots of issues
+> resolved in the past. What you try to introduce is a weird shortcut
+> that already has couple of issues as you mentioned and will certanly
+> have many more. Also, I'm pretty sure that in future, someone comes up
+> with ideas like multiple VFs, LACP and similar bonding things.
 
-The latest gcc-7.0.1 snapshot reports a new warning:
+The problem with the bond and team drivers is they are too large and
+have too many interfaces available for configuration so as a result
+they can really screw this interface up.
 
-virtio/virtio_balloon.c: In function 'update_balloon_stats':
-virtio/virtio_balloon.c:258:26: error: 'events[2]' is used uninitialized in this function [-Werror=uninitialized]
-virtio/virtio_balloon.c:260:26: error: 'events[3]' is used uninitialized in this function [-Werror=uninitialized]
-virtio/virtio_balloon.c:261:56: error: 'events[18]' is used uninitialized in this function [-Werror=uninitialized]
-virtio/virtio_balloon.c:262:56: error: 'events[17]' is used uninitialized in this function [-Werror=uninitialized]
+Essentially this is meant to be a bond that is more-or-less managed by
+the host, not the guest. We want the host to be able to configure it
+and have it automatically kick in on the guest. For now we want to
+avoid adding too much complexity as this is meant to be just the first
+step. Trying to go in and implement the whole solution right from the
+start based on existing drivers is going to be a massive time sink and
+will likely never get completed due to the fact that there is always
+going to be some other thing that will interfere.
 
-This seems absolutely right, so we should add an extra check to
-prevent copying uninitialized stack data into the statistics.
-From all I can tell, this has been broken since the statistics code
-was originally added in 2.6.34.
+My personal hope is that we can look at doing a virtio-bond sort of
+device that will handle all this as well as providing a communication
+channel, but that is much further down the road. For now we only have
+a single bit so the goal for now is trying to keep this as simple as
+possible.
 
-Fixes: 9564e138b1f6 ("virtio: Add memory statistics reporting to the balloon driver (V4)")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Ladi Prosek <lprosek@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-[arnd: backported to 4.4]
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/virtio/virtio_balloon.c | 3 +++
- 1 file changed, 3 insertions(+)
+> What is the reason for this abomination? According to:
+> https://marc.info/?l=linux-virtualization&m=151189725224231&w=2
+> The reason is quite weak.
+> User in the vm sees 2 (or more) netdevices, he puts them in bond/team
+> and that's it. This works now! If the vm lacks some userspace features,
+> let's fix it there! For example the MAC changes is something that could
+> be easily handled in teamd userspace deamon.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 01d15dca940e..26d0dff069f0 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -239,12 +239,15 @@ static void update_balloon_stats(struct virtio_balloon *vb)
- 	all_vm_events(events);
- 	si_meminfo(&i);
- 
-+
-+#ifdef CONFIG_VM_EVENT_COUNTERS
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_IN,
- 				pages_to_bytes(events[PSWPIN]));
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_OUT,
- 				pages_to_bytes(events[PSWPOUT]));
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_MAJFLT, events[PGMAJFAULT]);
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_MINFLT, events[PGFAULT]);
-+#endif
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMFREE,
- 				pages_to_bytes(i.freeram));
- 	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMTOT,
--- 
-2.9.0
+I think you might have missed the point of this. This is meant to be a
+simple interface so the guest should not be able to change the MAC
+address, and it shouldn't require any userspace daemon to setup or
+tear down. Ideally with this solution the virtio bypass will come up
+and be assigned the name of the original virtio, and the "backup"
+interface will come up and be assigned the name of the original virtio
+with an additional "nbackup" tacked on via the phys_port_name, and
+then whenever a VF is added it will automatically be enslaved by the
+bypass interface, and it will be removed when the VF is hotplugged
+out.
+
+In my mind the difference between this and bond or team is where the
+configuration interface lies. In the case of bond it is in the kernel.
+If my understanding is correct team is mostly in user space. With this
+the configuration interface is really down in the hypervisor and
+requests are communicated up to the guest. I would prefer not to make
+virtio_net dependent on the bonding or team drivers, or worse yet a
+userspace daemon in the guest. For now I would argue we should keep
+this as simple as possible just to support basic live migration. There
+has already been discussions of refactoring this after it is in so
+that we can start to combine the functionality here with what is there
+in bonding/team, but the differences in configuration interface and
+the size of the code bases will make it challenging to outright merge
+this into something like that.
