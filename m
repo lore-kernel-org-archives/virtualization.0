@@ -1,15 +1,16 @@
-From: Jiri Pirko <jiri@resnulli.us>
-Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
-	passthru device
-Date: Tue, 20 Feb 2018 11:42:24 +0100
-Message-ID: <20180220104224.GA2031@nanopsycho>
-References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH 1/4] iommu: Add virtio-iommu driver
+Date: Tue, 20 Feb 2018 11:30:41 +0000
+Message-ID: <ab5bf4f1-9564-9dc6-fefe-5c96352da1be__9839.43778924203$1519126003$gmane$org@arm.com>
+References: <20180214145340.1223-1-jean-philippe.brucker@arm.com>
+	<20180214145340.1223-2-jean-philippe.brucker@arm.com>
+	<417e1617-e5ff-7b13-64e3-a8a98d30bcb9@semihalf.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
+In-Reply-To: <417e1617-e5ff-7b13-64e3-a8a98d30bcb9@semihalf.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,39 +20,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sridhar Samudrala <sridhar.samudrala@intel.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
+To: Tomasz Nowicki <tn@semihalf.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
+Cc: "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "jintack@cs.columbia.edu" <jintack@cs.columbia.edu>, "eric.auger@redhat.com" <eric.auger@redhat.com>, Robin Murphy <Robin.Murphy@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fri, Feb 16, 2018 at 07:11:19PM CET, sridhar.samudrala@intel.com wrote:
->Patch 1 introduces a new feature bit VIRTIO_NET_F_BACKUP that can be
->used by hypervisor to indicate that virtio_net interface should act as
->a backup for another device with the same MAC address.
->
->Ppatch 2 is in response to the community request for a 3 netdev
->solution.  However, it creates some issues we'll get into in a moment.
->It extends virtio_net to use alternate datapath when available and
->registered. When BACKUP feature is enabled, virtio_net driver creates
->an additional 'bypass' netdev that acts as a master device and controls
->2 slave devices.  The original virtio_net netdev is registered as
->'backup' netdev and a passthru/vf device with the same MAC gets
->registered as 'active' netdev. Both 'bypass' and 'backup' netdevs are
->associated with the same 'pci' device.  The user accesses the network
->interface via 'bypass' netdev. The 'bypass' netdev chooses 'active' netdev
->as default for transmits when it is available with link up and running.
+On 19/02/18 12:23, Tomasz Nowicki wrote:
+[...]
+>> +static int viommu_receive_resp(struct viommu_dev *viommu, int nr_sent,
+>> +			       struct list_head *sent)
+>> +{
+>> +
+>> +	unsigned int len;
+>> +	int nr_received = 0;
+>> +	struct viommu_request *req, *pending;
+>> +
+>> +	pending = list_first_entry_or_null(sent, struct viommu_request, list);
+>> +	if (WARN_ON(!pending))
+>> +		return 0;
+>> +
+>> +	while ((req = virtqueue_get_buf(viommu->vq, &len)) != NULL) {
+>> +		if (req != pending) {
+>> +			dev_warn(viommu->dev, "discarding stale request\n");
+>> +			continue;
+>> +		}
+>> +
+>> +		pending->written = len;
+>> +
+>> +		if (++nr_received == nr_sent) {
+>> +			WARN_ON(!list_is_last(&pending->list, sent));
+>> +			break;
+>> +		} else if (WARN_ON(list_is_last(&pending->list, sent))) {
+>> +			break;
+>> +		}
+>> +
+>> +		pending = list_next_entry(pending, list);
+> 
+> We should remove current element from the pending list. There is no 
+> guarantee we get response for each while loop so when we get back for 
+> more the _viommu_send_reqs_sync() caller will pass pointer to the out of 
+> date head next time.
 
-Sorry, but this is ridiculous. You are apparently re-implemeting part
-of bonding driver as a part of NIC driver. Bond and team drivers
-are mature solutions, well tested, broadly used, with lots of issues
-resolved in the past. What you try to introduce is a weird shortcut
-that already has couple of issues as you mentioned and will certanly
-have many more. Also, I'm pretty sure that in future, someone comes up
-with ideas like multiple VFs, LACP and similar bonding things.
+Right, I'll fix this
 
-What is the reason for this abomination? According to:
-https://marc.info/?l=linux-virtualization&m=151189725224231&w=2
-The reason is quite weak.
-User in the vm sees 2 (or more) netdevices, he puts them in bond/team
-and that's it. This works now! If the vm lacks some userspace features,
-let's fix it there! For example the MAC changes is something that could
-be easily handled in teamd userspace deamon.
+Thanks,
+Jean
