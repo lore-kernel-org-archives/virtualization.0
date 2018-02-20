@@ -1,15 +1,18 @@
-From: Alexander Duyck <alexander.duyck@gmail.com>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
 	passthru device
-Date: Tue, 20 Feb 2018 08:04:29 -0800
-Message-ID: <CAKgT0UdU8PDXduzxp4kKfur-DLeFQSJj7-fhW_eTgVzd+AcViw__38785.876989323$1519142577$gmane$org@mail.gmail.com>
+Date: Tue, 20 Feb 2018 08:26:33 -0800
+Message-ID: <94062cc0-fe88-86c6-3dc8-40cb8422f9df__32880.766693461$1519143894$gmane$org@intel.com>
 References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
-	<20180220104224.GA2031@nanopsycho>
+	<20180216183817.42b07af6@cakuba.netronome.com>
+	<CAKgT0UfU9gV2Y7hWFQi0vJoD9kYeoq+7cXmwAjXeV5zxXHa3dQ@mail.gmail.com>
+	<20180218221140.6c7fb32e@cakuba.netronome.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180220104224.GA2031@nanopsycho>
+In-Reply-To: <20180218221140.6c7fb32e@cakuba.netronome.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,84 +22,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: Jakub Kicinski <kubakici@wp.pl>, Alexander Duyck <alexander.duyck@gmail.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 20, 2018 at 2:42 AM, Jiri Pirko <jiri@resnulli.us> wrote:
-> Fri, Feb 16, 2018 at 07:11:19PM CET, sridhar.samudrala@intel.com wrote:
->>Patch 1 introduces a new feature bit VIRTIO_NET_F_BACKUP that can be
->>used by hypervisor to indicate that virtio_net interface should act as
->>a backup for another device with the same MAC address.
->>
->>Ppatch 2 is in response to the community request for a 3 netdev
->>solution.  However, it creates some issues we'll get into in a moment.
->>It extends virtio_net to use alternate datapath when available and
->>registered. When BACKUP feature is enabled, virtio_net driver creates
->>an additional 'bypass' netdev that acts as a master device and controls
->>2 slave devices.  The original virtio_net netdev is registered as
->>'backup' netdev and a passthru/vf device with the same MAC gets
->>registered as 'active' netdev. Both 'bypass' and 'backup' netdevs are
->>associated with the same 'pci' device.  The user accesses the network
->>interface via 'bypass' netdev. The 'bypass' netdev chooses 'active' netdev
->>as default for transmits when it is available with link up and running.
->
-> Sorry, but this is ridiculous. You are apparently re-implemeting part
-> of bonding driver as a part of NIC driver. Bond and team drivers
-> are mature solutions, well tested, broadly used, with lots of issues
-> resolved in the past. What you try to introduce is a weird shortcut
-> that already has couple of issues as you mentioned and will certanly
-> have many more. Also, I'm pretty sure that in future, someone comes up
-> with ideas like multiple VFs, LACP and similar bonding things.
-
-The problem with the bond and team drivers is they are too large and
-have too many interfaces available for configuration so as a result
-they can really screw this interface up.
-
-Essentially this is meant to be a bond that is more-or-less managed by
-the host, not the guest. We want the host to be able to configure it
-and have it automatically kick in on the guest. For now we want to
-avoid adding too much complexity as this is meant to be just the first
-step. Trying to go in and implement the whole solution right from the
-start based on existing drivers is going to be a massive time sink and
-will likely never get completed due to the fact that there is always
-going to be some other thing that will interfere.
-
-My personal hope is that we can look at doing a virtio-bond sort of
-device that will handle all this as well as providing a communication
-channel, but that is much further down the road. For now we only have
-a single bit so the goal for now is trying to keep this as simple as
-possible.
-
-> What is the reason for this abomination? According to:
-> https://marc.info/?l=linux-virtualization&m=151189725224231&w=2
-> The reason is quite weak.
-> User in the vm sees 2 (or more) netdevices, he puts them in bond/team
-> and that's it. This works now! If the vm lacks some userspace features,
-> let's fix it there! For example the MAC changes is something that could
-> be easily handled in teamd userspace deamon.
-
-I think you might have missed the point of this. This is meant to be a
-simple interface so the guest should not be able to change the MAC
-address, and it shouldn't require any userspace daemon to setup or
-tear down. Ideally with this solution the virtio bypass will come up
-and be assigned the name of the original virtio, and the "backup"
-interface will come up and be assigned the name of the original virtio
-with an additional "nbackup" tacked on via the phys_port_name, and
-then whenever a VF is added it will automatically be enslaved by the
-bypass interface, and it will be removed when the VF is hotplugged
-out.
-
-In my mind the difference between this and bond or team is where the
-configuration interface lies. In the case of bond it is in the kernel.
-If my understanding is correct team is mostly in user space. With this
-the configuration interface is really down in the hypervisor and
-requests are communicated up to the guest. I would prefer not to make
-virtio_net dependent on the bonding or team drivers, or worse yet a
-userspace daemon in the guest. For now I would argue we should keep
-this as simple as possible just to support basic live migration. There
-has already been discussions of refactoring this after it is in so
-that we can start to combine the functionality here with what is there
-in bonding/team, but the differences in configuration interface and
-the size of the code bases will make it challenging to outright merge
-this into something like that.
+T24gMi8xOC8yMDE4IDEwOjExIFBNLCBKYWt1YiBLaWNpbnNraSB3cm90ZToKPiBPbiBTYXQsIDE3
+IEZlYiAyMDE4IDA5OjEyOjAxIC0wODAwLCBBbGV4YW5kZXIgRHV5Y2sgd3JvdGU6Cj4+Pj4gV2Ug
+bm90aWNlZCBhIGNvdXBsZSBvZiBpc3N1ZXMgd2l0aCB0aGlzIGFwcHJvYWNoIGR1cmluZyB0ZXN0
+aW5nLgo+Pj4+IC0gQXMgYm90aCAnYnlwYXNzJyBhbmQgJ2JhY2t1cCcgbmV0ZGV2cyBhcmUgYXNz
+b2NpYXRlZCB3aXRoIHRoZSBzYW1lCj4+Pj4gICAgdmlydGlvIHBjaSBkZXZpY2UsIHVkZXYgdHJp
+ZXMgdG8gcmVuYW1lIGJvdGggb2YgdGhlbSB3aXRoIHRoZSBzYW1lIG5hbWUKPj4+PiAgICBhbmQg
+dGhlIDJuZCByZW5hbWUgd2lsbCBmYWlsLiBUaGlzIHdvdWxkIGJlIE9LIGFzIGxvbmcgYXMgdGhl
+IGZpcnN0IG5ldGRldgo+Pj4+ICAgIHRvIGJlIHJlbmFtZWQgaXMgdGhlICdieXBhc3MnIG5ldGRl
+diwgYnV0IHRoZSBvcmRlciBpbiB3aGljaCB1ZGV2IGdldHMKPj4+PiAgICB0byByZW5hbWUgdGhl
+IDIgbmV0ZGV2cyBpcyBub3QgcmVsaWFibGUuCj4+PiBPdXQgb2YgY3VyaW9zaXR5IC0gd2h5IGRv
+IHlvdSBsaW5rIHRoZSBtYXN0ZXIgbmV0ZGV2IHRvIHRoZSB2aXJ0aW8KPj4+IHN0cnVjdCBkZXZp
+Y2U/Cj4+IFRoZSBiYXNpYyBpZGVhIG9mIGFsbCB0aGlzIGlzIHRoYXQgd2Ugd2FudGVkIHRoaXMg
+dG8gd29yayB3aXRoIGFuCj4+IGV4aXN0aW5nIFZNIGltYWdlIHRoYXQgd2FzIHVzaW5nIHZpcnRp
+by4gQXMgc3VjaCB3ZSB3ZXJlIHRyeWluZyB0bwo+PiBtYWtlIGl0IHNvIHRoYXQgdGhlIGJ5cGFz
+cyBpbnRlcmZhY2UgdGFrZXMgdGhlIHBsYWNlIG9mIHRoZSBvcmlnaW5hbAo+PiB2aXJ0aW8gYW5k
+IGdldCB1ZGV2IHRvIHJlbmFtZSB0aGUgYnlwYXNzIHRvIHdoYXQgdGhlIG9yaWdpbmFsCj4+IHZp
+cnRpb19uZXQgd2FzLgo+IFRoYXQgbWFrZXMgc2Vuc2UuICBJcyBpdCB1ZGV2L25hbWluZyB0aGF0
+IHlvdSdyZSBtb3N0IGNvbmNlcm5lZCBhYm91dAo+IGhlcmU/ICBJLmUuIHdoYXQncyB0aGUgdXNl
+ciBzcGFjZSBhcHAgdGhhdCBleHBlY3RzIHRoZSBuZXRkZXYgdG8gYmUKPiBsaW5rZWQ/ICBUaGlz
+IGlzIGp1c3Qgb3V0IG9mIGN1cmlvc2l0eSwgdGhlIGxpbmtpbmcgb2YgbmV0ZGV2cyB0bwo+IGRl
+dmljZXMgaXMgYSBiaXQgb2YgYSBQSVRBIGluIHRoZSBzd2l0Y2hkZXYgZXN3aXRjaCBtb2RlIHdv
+cmxkLCB3aXRoCj4gbGlidmlydCBleHBlY3Rpbmcgb25seSBjZXJ0YWluIGRldmljZXMgdG8gYmUg
+dGhlcmUuLiAgUmlnaHQgbm93IHdlJ3JlCj4gbm90IGxpbmtpbmcgVkYgcmVwcnMsIHdoaWNoIGJy
+ZWFrcyBuYW1pbmcuICBJIHdhbnRlZCB0byByZXZpc2l0IHRoYXQuCgpGb3IgbGl2ZSBtaWdyYXRp
+b24gdXNlY2FzZSwgdXNlcnNwYWNlIGlzIG9ubHkgYXdhcmUgb2Ygb25lIHZpcnRpb19uZXQgCmlu
+dGVyZmFjZSBhbmQKaXQgZG9lc24ndCBleHBlY3QgaXQgdG8gYmUgbGlua2VkIHdpdGggYW55IGxv
+d2VyIGRldi7CoCBTbyBpdCBzaG91bGQgYmUgCmZpbmUgZXZlbiBpZiB0aGUKbG93ZXIgbmV0ZGV2
+IGlzIG5vdCBwcmVzZW50LiBPbmx5IHRoZSBtYXN0ZXIgbmV0ZGV2IHNob3VsZCBiZSBhc3NpZ25l
+ZCAKdGhlIHNhbWUKbmFtZSBzbyB0aGF0IHVzZXJzcGFjZSBjb25maWd1cmF0aW9uIHNjcmlwdHPC
+oCBpbiB0aGUgVk0gZG9uJ3QgbmVlZCB0byAKY2hhbmdlLgoKPgo+Pj4gRldJVyB0d28gc29sdXRp
+b25zIHRoYXQgaW1tZWRpYXRlbHkgY29tZSB0byBtaW5kIGlzIHRvIGV4cG9ydCAiYmFja3VwIgo+
+Pj4gYXMgcGh5c19wb3J0X25hbWUgb2YgdGhlIGJhY2t1cCB2aXJ0aW8gbGluayBhbmQvb3IgYXNz
+aWduIGEgbmFtZSB0byB0aGUKPj4+IG1hc3RlciBsaWtlIHlvdSBhcmUgZG9pbmcgYWxyZWFkeS4g
+IEkgdGhpbmsgdGVhbSB1c2VzIHRlYW0lZCBhbmQgYm9uZAo+Pj4gdXNlcyBib25kJWQsIHNvZnQg
+bmFtaW5nIG9mIG1hc3RlciBkZXZpY2VzIHNlZW1zIHF1aXRlIG5hdHVyYWwgaW4gdGhpcwo+Pj4g
+Y2FzZS4KPj4gSSBmaWd1cmVkIEkgaGFkIG92ZXJsb29rZWQgc29tZXRoaW5nIGxpa2UgdGhhdC4u
+IFRoYW5rcyBmb3IgcG9pbnRpbmcKPj4gdGhpcyBvdXQuIE9rYXkgc28gSSB0aGluayB0aGUgcGh5
+c19wb3J0X25hbWUgYXBwcm9hY2ggbWlnaHQgcmVzb2x2ZQo+PiB0aGUgb3JpZ2luYWwgaXNzdWUu
+IElmIEkgYW0gcmVhZGluZyB0aGluZ3MgY29ycmVjdGx5IHdoYXQgd2UgZW5kIHVwCj4+IHdpdGgg
+aXMgdGhlIG1hc3RlciBzaG93aW5nIHVwIGFzICJlbnMxIiBmb3IgZXhhbXBsZSBhbmQgdGhlIGJh
+Y2t1cAo+PiBzaG93aW5nIHVwIGFzICJlbnMxbmJhY2t1cCIuIEFtIEkgdW5kZXJzdGFuZGluZyB0
+aGF0IHJpZ2h0Pwo+IFllcywgcHJvdmlkZWQgc3lzdGVtZCBpcyBuZXcgZW5vdWdoLgoKWWVzLiBJ
+IGRpZCBhIHF1aWNrIHRlc3QgdG8gY29uZmlybSB0aGF0IGFkZGluZyBuZG9fcGh5c19wb3J0X25h
+bWUoKSB0byAKdmlydGlvX25ldApuZG9fb3BzIGZpeGVzIHRoZSB1ZGV2IG5hbWluZyBpc3N1ZSB3
+aXRoIDIgdmlydGlvIG5ldGRldnMuwqAgVGhpcyBpcyBvbiAKZmVkb3JhMjcuCgoKPgo+PiBUaGUg
+cHJvYmxlbSB3aXRoIHRoZSB0ZWFtL2JvbmQlZCBhcHByb2FjaCBpcyB0aGF0IGl0IGNyZWF0ZXMg
+YSBuZXcKPj4gbmV0ZGV2aWNlIGFuZCBzbyBpdCB3b3VsZCByZXF1aXJlIGd1ZXN0IGNvbmZpZ3Vy
+YXRpb24gY2hhbmdlcy4KPj4KPj4+IElNSE8gcGh5c19wb3J0X25hbWUgPT0gImJhY2t1cCIgaWYg
+QkFDS1VQIGJpdCBpcyBzZXQgb24gc2xhdmUgdmlydGlvCj4+PiBsaW5rIGlzIHF1aXRlIG5lYXQu
+Cj4+IEkgYWdyZWUuIEZvciBub24tImJhY2t1cCIgdmlyaW9fbmV0IGRldmljZXMgd291bGQgaXQg
+YmUgb2theSBmb3IgdXMgdG8KPj4ganVzdCByZXR1cm4gLUVPUE5PVFNVUFA/IEkgYXNzdW1lIGl0
+IHdvdWxkIGJlIGFuZCB0aGF0IHdheSB0aGUgbGVnYWN5Cj4+IGJlaGF2aW9yIGNvdWxkIGJlIG1h
+aW50YWluZWQgYWx0aG91Z2ggdGhlIGZ1bmN0aW9uIHN0aWxsIGV4aXN0cy4KPiBUaGF0J3MgbXkg
+dW5kZXJzdGFuZGluZyB0b28uCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
