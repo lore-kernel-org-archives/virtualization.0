@@ -1,16 +1,13 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [PATCH 1/4] iommu: Add virtio-iommu driver
-Date: Tue, 20 Feb 2018 11:30:41 +0000
-Message-ID: <ab5bf4f1-9564-9dc6-fefe-5c96352da1be__9839.43778924203$1519126003$gmane$org@arm.com>
-References: <20180214145340.1223-1-jean-philippe.brucker@arm.com>
-	<20180214145340.1223-2-jean-philippe.brucker@arm.com>
-	<417e1617-e5ff-7b13-64e3-a8a98d30bcb9@semihalf.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [4.4-stable 12/22] virtio_balloon: prevent uninitialized variable use
+Date: Tue, 20 Feb 2018 12:54:59 +0100
+Message-ID: <20180220115527.1806578-13-arnd@arndb.de>
+References: <20180220115527.1806578-1-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <417e1617-e5ff-7b13-64e3-a8a98d30bcb9@semihalf.com>
-Content-Language: en-US
+In-Reply-To: <20180220115527.1806578-1-arnd@arndb.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,47 +17,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tomasz Nowicki <tn@semihalf.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
-Cc: "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "jintack@cs.columbia.edu" <jintack@cs.columbia.edu>, "eric.auger@redhat.com" <eric.auger@redhat.com>, Robin Murphy <Robin.Murphy@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
+To: stable@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, "Michael S . Tsirkin" <mst@redhat.com>, Greg KH <gregkh@linuxfoundation.org>, Ladi Prosek <lprosek@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 19/02/18 12:23, Tomasz Nowicki wrote:
-[...]
->> +static int viommu_receive_resp(struct viommu_dev *viommu, int nr_sent,
->> +			       struct list_head *sent)
->> +{
->> +
->> +	unsigned int len;
->> +	int nr_received = 0;
->> +	struct viommu_request *req, *pending;
->> +
->> +	pending = list_first_entry_or_null(sent, struct viommu_request, list);
->> +	if (WARN_ON(!pending))
->> +		return 0;
->> +
->> +	while ((req = virtqueue_get_buf(viommu->vq, &len)) != NULL) {
->> +		if (req != pending) {
->> +			dev_warn(viommu->dev, "discarding stale request\n");
->> +			continue;
->> +		}
->> +
->> +		pending->written = len;
->> +
->> +		if (++nr_received == nr_sent) {
->> +			WARN_ON(!list_is_last(&pending->list, sent));
->> +			break;
->> +		} else if (WARN_ON(list_is_last(&pending->list, sent))) {
->> +			break;
->> +		}
->> +
->> +		pending = list_next_entry(pending, list);
-> 
-> We should remove current element from the pending list. There is no 
-> guarantee we get response for each while loop so when we get back for 
-> more the _viommu_send_reqs_sync() caller will pass pointer to the out of 
-> date head next time.
+commit f0bb2d50dfcc519f06f901aac88502be6ff1df2c upstream.
 
-Right, I'll fix this
+The latest gcc-7.0.1 snapshot reports a new warning:
 
-Thanks,
-Jean
+virtio/virtio_balloon.c: In function 'update_balloon_stats':
+virtio/virtio_balloon.c:258:26: error: 'events[2]' is used uninitialized in this function [-Werror=uninitialized]
+virtio/virtio_balloon.c:260:26: error: 'events[3]' is used uninitialized in this function [-Werror=uninitialized]
+virtio/virtio_balloon.c:261:56: error: 'events[18]' is used uninitialized in this function [-Werror=uninitialized]
+virtio/virtio_balloon.c:262:56: error: 'events[17]' is used uninitialized in this function [-Werror=uninitialized]
+
+This seems absolutely right, so we should add an extra check to
+prevent copying uninitialized stack data into the statistics.
+From all I can tell, this has been broken since the statistics code
+was originally added in 2.6.34.
+
+Fixes: 9564e138b1f6 ("virtio: Add memory statistics reporting to the balloon driver (V4)")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Ladi Prosek <lprosek@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+[arnd: backported to 4.4]
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/virtio/virtio_balloon.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 01d15dca940e..26d0dff069f0 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -239,12 +239,15 @@ static void update_balloon_stats(struct virtio_balloon *vb)
+ 	all_vm_events(events);
+ 	si_meminfo(&i);
+ 
++
++#ifdef CONFIG_VM_EVENT_COUNTERS
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_IN,
+ 				pages_to_bytes(events[PSWPIN]));
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_SWAP_OUT,
+ 				pages_to_bytes(events[PSWPOUT]));
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_MAJFLT, events[PGMAJFAULT]);
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_MINFLT, events[PGFAULT]);
++#endif
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMFREE,
+ 				pages_to_bytes(i.freeram));
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMTOT,
+-- 
+2.9.0
