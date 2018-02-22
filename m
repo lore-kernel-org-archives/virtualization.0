@@ -1,18 +1,20 @@
-From: Siwei Liu <loseweigh@gmail.com>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
 	passthru device
-Date: Wed, 21 Feb 2018 17:59:59 -0800
-Message-ID: <CADGSJ23WFYEYo2DpSPVfZsOLjoSpgWWVCtEZi84wrUHN-noxag__39973.6363011927$1519265691$gmane$org@mail.gmail.com>
+Date: Wed, 21 Feb 2018 18:35:08 -0800
+Message-ID: <0d158bf6-79b3-442b-2c61-3e900ff40922__22905.6999007755$1519267221$gmane$org@intel.com>
 References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
 	<20180216183817.42b07af6@cakuba.netronome.com>
 	<CAKgT0UfU9gV2Y7hWFQi0vJoD9kYeoq+7cXmwAjXeV5zxXHa3dQ@mail.gmail.com>
 	<CADGSJ217HahFJsGmNXMD6SwWiK374+u_YET8QqdsmofCRFZr=Q@mail.gmail.com>
 	<CAKgT0Uda7Bmzf06RMmD7hCVLr8hHQxaY8Fk7w9Qy=7Vi6NODwQ@mail.gmail.com>
+	<CADGSJ23WFYEYo2DpSPVfZsOLjoSpgWWVCtEZi84wrUHN-noxag@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAKgT0Uda7Bmzf06RMmD7hCVLr8hHQxaY8Fk7w9Qy=7Vi6NODwQ@mail.gmail.com>
+In-Reply-To: <CADGSJ23WFYEYo2DpSPVfZsOLjoSpgWWVCtEZi84wrUHN-noxag@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,175 +24,175 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Duyck <alexander.duyck@gmail.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: Siwei Liu <loseweigh@gmail.com>, Alexander Duyck <alexander.duyck@gmail.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 21, 2018 at 4:17 PM, Alexander Duyck
-<alexander.duyck@gmail.com> wrote:
-> On Wed, Feb 21, 2018 at 3:50 PM, Siwei Liu <loseweigh@gmail.com> wrote:
->> I haven't checked emails for days and did not realize the new revision
->> had already came out. And thank you for the effort, this revision
->> really looks to be a step forward towards our use case and is close to
->> what we wanted to do. A few questions in line.
->>
->> On Sat, Feb 17, 2018 at 9:12 AM, Alexander Duyck
->> <alexander.duyck@gmail.com> wrote:
->>> On Fri, Feb 16, 2018 at 6:38 PM, Jakub Kicinski <kubakici@wp.pl> wrote:
->>>> On Fri, 16 Feb 2018 10:11:19 -0800, Sridhar Samudrala wrote:
->>>>> Ppatch 2 is in response to the community request for a 3 netdev
->>>>> solution.  However, it creates some issues we'll get into in a moment.
->>>>> It extends virtio_net to use alternate datapath when available and
->>>>> registered. When BACKUP feature is enabled, virtio_net driver creates
->>>>> an additional 'bypass' netdev that acts as a master device and controls
->>>>> 2 slave devices.  The original virtio_net netdev is registered as
->>>>> 'backup' netdev and a passthru/vf device with the same MAC gets
->>>>> registered as 'active' netdev. Both 'bypass' and 'backup' netdevs are
->>>>> associated with the same 'pci' device.  The user accesses the network
->>>>> interface via 'bypass' netdev. The 'bypass' netdev chooses 'active' netdev
->>>>> as default for transmits when it is available with link up and running.
->>>>
->>>> Thank you do doing this.
->>>>
->>>>> We noticed a couple of issues with this approach during testing.
->>>>> - As both 'bypass' and 'backup' netdevs are associated with the same
->>>>>   virtio pci device, udev tries to rename both of them with the same name
->>>>>   and the 2nd rename will fail. This would be OK as long as the first netdev
->>>>>   to be renamed is the 'bypass' netdev, but the order in which udev gets
->>>>>   to rename the 2 netdevs is not reliable.
->>>>
->>>> Out of curiosity - why do you link the master netdev to the virtio
->>>> struct device?
->>>
->>> The basic idea of all this is that we wanted this to work with an
->>> existing VM image that was using virtio. As such we were trying to
->>> make it so that the bypass interface takes the place of the original
->>> virtio and get udev to rename the bypass to what the original
->>> virtio_net was.
->>
->> Could it made it also possible to take over the config from VF instead
->> of virtio on an existing VM image? And get udev rename the bypass
->> netdev to what the original VF was. I don't say tightly binding the
->> bypass master to only virtio or VF, but I think we should provide both
->> options to support different upgrade paths. Possibly we could tweak
->> the device tree layout to reuse the same PCI slot for the master
->> bypass netdev, such that udev would not get confused when renaming the
->> device. The VF needs to use a different function slot afterwards.
->> Perhaps we might need to a special multiseat like QEMU device for that
->> purpose?
->>
->> Our case we'll upgrade the config from VF to virtio-bypass directly.
->
-> So if I am understanding what you are saying you are wanting to flip
-> the backup interface from the virtio to a VF. The problem is that
-> becomes a bit of a vendor lock-in solution since it would rely on a
-> specific VF driver. I would agree with Jiri that we don't want to go
-> down that path. We don't want every VF out there firing up its own
-> separate bond. Ideally you want the hypervisor to be able to manage
-> all of this which is why it makes sense to have virtio manage this and
-> why this is associated with the virtio_net interface.
-
-No, that's not what I was talking about of course. I thought you
-mentioned the upgrade scenario this patch would like to address is to
-use the bypass interface "to take the place of the original virtio,
-and get udev to rename the bypass to what the original virtio_net
-was". That is one of the possible upgrade paths for sure. However the
-upgrade path I was seeking is to use the bypass interface to take the
-place of original VF interface while retaining the name and network
-configs, which generally can be done simply with kernel upgrade. It
-would become limiting as this patch makes the bypass interface share
-the same virtio pci device with virito backup. Can this bypass
-interface be made general to take place of any pci device other than
-virtio-net? This will be more helpful as the cloud users who has
-existing setup on VF interface don't have to recreate it on virtio-net
-and VF separately again.
-
->
-> The other bits get into more complexity then we are ready to handle
-> for now. I think I might have talked about something similar that I
-> was referring to as a "virtio-bond" where you would have a PCI/PCIe
-> tree topology that makes this easier to sort out, and the "virtio-bond
-> would be used to handle coordination/configuration of a much more
-> complex interface.
-
-That was one way to solve this problem but I'd like to see simple ways
-to sort it out.
-
->
->>>
->>>> FWIW two solutions that immediately come to mind is to export "backup"
->>>> as phys_port_name of the backup virtio link and/or assign a name to the
->>>> master like you are doing already.  I think team uses team%d and bond
->>>> uses bond%d, soft naming of master devices seems quite natural in this
->>>> case.
->>>
->>> I figured I had overlooked something like that.. Thanks for pointing
->>> this out. Okay so I think the phys_port_name approach might resolve
->>> the original issue. If I am reading things correctly what we end up
->>> with is the master showing up as "ens1" for example and the backup
->>> showing up as "ens1nbackup". Am I understanding that right?
->>>
->>> The problem with the team/bond%d approach is that it creates a new
->>> netdevice and so it would require guest configuration changes.
->>>
->>>> IMHO phys_port_name == "backup" if BACKUP bit is set on slave virtio
->>>> link is quite neat.
->>>
->>> I agree. For non-"backup" virio_net devices would it be okay for us to
->>> just return -EOPNOTSUPP? I assume it would be and that way the legacy
->>> behavior could be maintained although the function still exists.
->>>
->>>>> - When the 'active' netdev is unplugged OR not present on a destination
->>>>>   system after live migration, the user will see 2 virtio_net netdevs.
->>>>
->>>> That's necessary and expected, all configuration applies to the master
->>>> so master must exist.
->>>
->>> With the naming issue resolved this is the only item left outstanding.
->>> This becomes a matter of form vs function.
->>>
->>> The main complaint about the "3 netdev" solution is a bit confusing to
->>> have the 2 netdevs present if the VF isn't there. The idea is that
->>> having the extra "master" netdev there if there isn't really a bond is
->>> a bit ugly.
->>
->> Is it this uglier in terms of user experience rather than
->> functionality? I don't want it dynamically changed between 2-netdev
->> and 3-netdev depending on the presence of VF. That gets back to my
->> original question and suggestion earlier: why not just hide the lower
->> netdevs from udev renaming and such? Which important observability
->> benefits users may get if exposing the lower netdevs?
->>
->> Thanks,
->> -Siwei
->
-> The only real advantage to a 2 netdev solution is that it looks like
-> the netvsc solution, however it doesn't behave like it since there are
-> some features like XDP that may not function correctly if they are
-> left enabled in the virtio_net interface.
->
-> As far as functionality the advantage of not hiding the lower devices
-> is that they are free to be managed. The problem with pushing all of
-> the configuration into the upper device is that you are limited to the
-> intersection of the features of the lower devices. This can be
-> limiting for some setups as some VFs support things like more queues,
-> or better interrupt moderation options than others so trying to make
-> everything work with one config would be ugly.
-
-It depends on how you build it and the way you expect it to work. IMHO
-the lower devices don't need to be directly managed at all, otherwise
-it ends up with loss of configuration across migration, and it really
-does not bring much value than having a general team or bond device.
-Users still have to reconfigure those queue settings and interrupt
-moderation options after all. The new upper device could take the
-assumption that the VF/PT lower device always has superior feature set
-than virtio-net in order to apply advanced configuration. The upper
-device should remember all configurations previously done and apply
-supporting ones to active device automatically when switching the
-datapath.
-
-Regards,
--Siwei
-
->
-> - Alex
+T24gMi8yMS8yMDE4IDU6NTkgUE0sIFNpd2VpIExpdSB3cm90ZToKPiBPbiBXZWQsIEZlYiAyMSwg
+MjAxOCBhdCA0OjE3IFBNLCBBbGV4YW5kZXIgRHV5Y2sKPiA8YWxleGFuZGVyLmR1eWNrQGdtYWls
+LmNvbT4gd3JvdGU6Cj4+IE9uIFdlZCwgRmViIDIxLCAyMDE4IGF0IDM6NTAgUE0sIFNpd2VpIExp
+dSA8bG9zZXdlaWdoQGdtYWlsLmNvbT4gd3JvdGU6Cj4+PiBJIGhhdmVuJ3QgY2hlY2tlZCBlbWFp
+bHMgZm9yIGRheXMgYW5kIGRpZCBub3QgcmVhbGl6ZSB0aGUgbmV3IHJldmlzaW9uCj4+PiBoYWQg
+YWxyZWFkeSBjYW1lIG91dC4gQW5kIHRoYW5rIHlvdSBmb3IgdGhlIGVmZm9ydCwgdGhpcyByZXZp
+c2lvbgo+Pj4gcmVhbGx5IGxvb2tzIHRvIGJlIGEgc3RlcCBmb3J3YXJkIHRvd2FyZHMgb3VyIHVz
+ZSBjYXNlIGFuZCBpcyBjbG9zZSB0bwo+Pj4gd2hhdCB3ZSB3YW50ZWQgdG8gZG8uIEEgZmV3IHF1
+ZXN0aW9ucyBpbiBsaW5lLgo+Pj4KPj4+IE9uIFNhdCwgRmViIDE3LCAyMDE4IGF0IDk6MTIgQU0s
+IEFsZXhhbmRlciBEdXljawo+Pj4gPGFsZXhhbmRlci5kdXlja0BnbWFpbC5jb20+IHdyb3RlOgo+
+Pj4+IE9uIEZyaSwgRmViIDE2LCAyMDE4IGF0IDY6MzggUE0sIEpha3ViIEtpY2luc2tpIDxrdWJh
+a2ljaUB3cC5wbD4gd3JvdGU6Cj4+Pj4+IE9uIEZyaSwgMTYgRmViIDIwMTggMTA6MTE6MTkgLTA4
+MDAsIFNyaWRoYXIgU2FtdWRyYWxhIHdyb3RlOgo+Pj4+Pj4gUHBhdGNoIDIgaXMgaW4gcmVzcG9u
+c2UgdG8gdGhlIGNvbW11bml0eSByZXF1ZXN0IGZvciBhIDMgbmV0ZGV2Cj4+Pj4+PiBzb2x1dGlv
+bi4gIEhvd2V2ZXIsIGl0IGNyZWF0ZXMgc29tZSBpc3N1ZXMgd2UnbGwgZ2V0IGludG8gaW4gYSBt
+b21lbnQuCj4+Pj4+PiBJdCBleHRlbmRzIHZpcnRpb19uZXQgdG8gdXNlIGFsdGVybmF0ZSBkYXRh
+cGF0aCB3aGVuIGF2YWlsYWJsZSBhbmQKPj4+Pj4+IHJlZ2lzdGVyZWQuIFdoZW4gQkFDS1VQIGZl
+YXR1cmUgaXMgZW5hYmxlZCwgdmlydGlvX25ldCBkcml2ZXIgY3JlYXRlcwo+Pj4+Pj4gYW4gYWRk
+aXRpb25hbCAnYnlwYXNzJyBuZXRkZXYgdGhhdCBhY3RzIGFzIGEgbWFzdGVyIGRldmljZSBhbmQg
+Y29udHJvbHMKPj4+Pj4+IDIgc2xhdmUgZGV2aWNlcy4gIFRoZSBvcmlnaW5hbCB2aXJ0aW9fbmV0
+IG5ldGRldiBpcyByZWdpc3RlcmVkIGFzCj4+Pj4+PiAnYmFja3VwJyBuZXRkZXYgYW5kIGEgcGFz
+c3RocnUvdmYgZGV2aWNlIHdpdGggdGhlIHNhbWUgTUFDIGdldHMKPj4+Pj4+IHJlZ2lzdGVyZWQg
+YXMgJ2FjdGl2ZScgbmV0ZGV2LiBCb3RoICdieXBhc3MnIGFuZCAnYmFja3VwJyBuZXRkZXZzIGFy
+ZQo+Pj4+Pj4gYXNzb2NpYXRlZCB3aXRoIHRoZSBzYW1lICdwY2knIGRldmljZS4gIFRoZSB1c2Vy
+IGFjY2Vzc2VzIHRoZSBuZXR3b3JrCj4+Pj4+PiBpbnRlcmZhY2UgdmlhICdieXBhc3MnIG5ldGRl
+di4gVGhlICdieXBhc3MnIG5ldGRldiBjaG9vc2VzICdhY3RpdmUnIG5ldGRldgo+Pj4+Pj4gYXMg
+ZGVmYXVsdCBmb3IgdHJhbnNtaXRzIHdoZW4gaXQgaXMgYXZhaWxhYmxlIHdpdGggbGluayB1cCBh
+bmQgcnVubmluZy4KPj4+Pj4gVGhhbmsgeW91IGRvIGRvaW5nIHRoaXMuCj4+Pj4+Cj4+Pj4+PiBX
+ZSBub3RpY2VkIGEgY291cGxlIG9mIGlzc3VlcyB3aXRoIHRoaXMgYXBwcm9hY2ggZHVyaW5nIHRl
+c3RpbmcuCj4+Pj4+PiAtIEFzIGJvdGggJ2J5cGFzcycgYW5kICdiYWNrdXAnIG5ldGRldnMgYXJl
+IGFzc29jaWF0ZWQgd2l0aCB0aGUgc2FtZQo+Pj4+Pj4gICAgdmlydGlvIHBjaSBkZXZpY2UsIHVk
+ZXYgdHJpZXMgdG8gcmVuYW1lIGJvdGggb2YgdGhlbSB3aXRoIHRoZSBzYW1lIG5hbWUKPj4+Pj4+
+ICAgIGFuZCB0aGUgMm5kIHJlbmFtZSB3aWxsIGZhaWwuIFRoaXMgd291bGQgYmUgT0sgYXMgbG9u
+ZyBhcyB0aGUgZmlyc3QgbmV0ZGV2Cj4+Pj4+PiAgICB0byBiZSByZW5hbWVkIGlzIHRoZSAnYnlw
+YXNzJyBuZXRkZXYsIGJ1dCB0aGUgb3JkZXIgaW4gd2hpY2ggdWRldiBnZXRzCj4+Pj4+PiAgICB0
+byByZW5hbWUgdGhlIDIgbmV0ZGV2cyBpcyBub3QgcmVsaWFibGUuCj4+Pj4+IE91dCBvZiBjdXJp
+b3NpdHkgLSB3aHkgZG8geW91IGxpbmsgdGhlIG1hc3RlciBuZXRkZXYgdG8gdGhlIHZpcnRpbwo+
+Pj4+PiBzdHJ1Y3QgZGV2aWNlPwo+Pj4+IFRoZSBiYXNpYyBpZGVhIG9mIGFsbCB0aGlzIGlzIHRo
+YXQgd2Ugd2FudGVkIHRoaXMgdG8gd29yayB3aXRoIGFuCj4+Pj4gZXhpc3RpbmcgVk0gaW1hZ2Ug
+dGhhdCB3YXMgdXNpbmcgdmlydGlvLiBBcyBzdWNoIHdlIHdlcmUgdHJ5aW5nIHRvCj4+Pj4gbWFr
+ZSBpdCBzbyB0aGF0IHRoZSBieXBhc3MgaW50ZXJmYWNlIHRha2VzIHRoZSBwbGFjZSBvZiB0aGUg
+b3JpZ2luYWwKPj4+PiB2aXJ0aW8gYW5kIGdldCB1ZGV2IHRvIHJlbmFtZSB0aGUgYnlwYXNzIHRv
+IHdoYXQgdGhlIG9yaWdpbmFsCj4+Pj4gdmlydGlvX25ldCB3YXMuCj4+PiBDb3VsZCBpdCBtYWRl
+IGl0IGFsc28gcG9zc2libGUgdG8gdGFrZSBvdmVyIHRoZSBjb25maWcgZnJvbSBWRiBpbnN0ZWFk
+Cj4+PiBvZiB2aXJ0aW8gb24gYW4gZXhpc3RpbmcgVk0gaW1hZ2U/IEFuZCBnZXQgdWRldiByZW5h
+bWUgdGhlIGJ5cGFzcwo+Pj4gbmV0ZGV2IHRvIHdoYXQgdGhlIG9yaWdpbmFsIFZGIHdhcy4gSSBk
+b24ndCBzYXkgdGlnaHRseSBiaW5kaW5nIHRoZQo+Pj4gYnlwYXNzIG1hc3RlciB0byBvbmx5IHZp
+cnRpbyBvciBWRiwgYnV0IEkgdGhpbmsgd2Ugc2hvdWxkIHByb3ZpZGUgYm90aAo+Pj4gb3B0aW9u
+cyB0byBzdXBwb3J0IGRpZmZlcmVudCB1cGdyYWRlIHBhdGhzLiBQb3NzaWJseSB3ZSBjb3VsZCB0
+d2Vhawo+Pj4gdGhlIGRldmljZSB0cmVlIGxheW91dCB0byByZXVzZSB0aGUgc2FtZSBQQ0kgc2xv
+dCBmb3IgdGhlIG1hc3Rlcgo+Pj4gYnlwYXNzIG5ldGRldiwgc3VjaCB0aGF0IHVkZXYgd291bGQg
+bm90IGdldCBjb25mdXNlZCB3aGVuIHJlbmFtaW5nIHRoZQo+Pj4gZGV2aWNlLiBUaGUgVkYgbmVl
+ZHMgdG8gdXNlIGEgZGlmZmVyZW50IGZ1bmN0aW9uIHNsb3QgYWZ0ZXJ3YXJkcy4KPj4+IFBlcmhh
+cHMgd2UgbWlnaHQgbmVlZCB0byBhIHNwZWNpYWwgbXVsdGlzZWF0IGxpa2UgUUVNVSBkZXZpY2Ug
+Zm9yIHRoYXQKPj4+IHB1cnBvc2U/Cj4+Pgo+Pj4gT3VyIGNhc2Ugd2UnbGwgdXBncmFkZSB0aGUg
+Y29uZmlnIGZyb20gVkYgdG8gdmlydGlvLWJ5cGFzcyBkaXJlY3RseS4KPj4gU28gaWYgSSBhbSB1
+bmRlcnN0YW5kaW5nIHdoYXQgeW91IGFyZSBzYXlpbmcgeW91IGFyZSB3YW50aW5nIHRvIGZsaXAK
+Pj4gdGhlIGJhY2t1cCBpbnRlcmZhY2UgZnJvbSB0aGUgdmlydGlvIHRvIGEgVkYuIFRoZSBwcm9i
+bGVtIGlzIHRoYXQKPj4gYmVjb21lcyBhIGJpdCBvZiBhIHZlbmRvciBsb2NrLWluIHNvbHV0aW9u
+IHNpbmNlIGl0IHdvdWxkIHJlbHkgb24gYQo+PiBzcGVjaWZpYyBWRiBkcml2ZXIuIEkgd291bGQg
+YWdyZWUgd2l0aCBKaXJpIHRoYXQgd2UgZG9uJ3Qgd2FudCB0byBnbwo+PiBkb3duIHRoYXQgcGF0
+aC4gV2UgZG9uJ3Qgd2FudCBldmVyeSBWRiBvdXQgdGhlcmUgZmlyaW5nIHVwIGl0cyBvd24KPj4g
+c2VwYXJhdGUgYm9uZC4gSWRlYWxseSB5b3Ugd2FudCB0aGUgaHlwZXJ2aXNvciB0byBiZSBhYmxl
+IHRvIG1hbmFnZQo+PiBhbGwgb2YgdGhpcyB3aGljaCBpcyB3aHkgaXQgbWFrZXMgc2Vuc2UgdG8g
+aGF2ZSB2aXJ0aW8gbWFuYWdlIHRoaXMgYW5kCj4+IHdoeSB0aGlzIGlzIGFzc29jaWF0ZWQgd2l0
+aCB0aGUgdmlydGlvX25ldCBpbnRlcmZhY2UuCj4gTm8sIHRoYXQncyBub3Qgd2hhdCBJIHdhcyB0
+YWxraW5nIGFib3V0IG9mIGNvdXJzZS4gSSB0aG91Z2h0IHlvdQo+IG1lbnRpb25lZCB0aGUgdXBn
+cmFkZSBzY2VuYXJpbyB0aGlzIHBhdGNoIHdvdWxkIGxpa2UgdG8gYWRkcmVzcyBpcyB0bwo+IHVz
+ZSB0aGUgYnlwYXNzIGludGVyZmFjZSAidG8gdGFrZSB0aGUgcGxhY2Ugb2YgdGhlIG9yaWdpbmFs
+IHZpcnRpbywKPiBhbmQgZ2V0IHVkZXYgdG8gcmVuYW1lIHRoZSBieXBhc3MgdG8gd2hhdCB0aGUg
+b3JpZ2luYWwgdmlydGlvX25ldAo+IHdhcyIuIFRoYXQgaXMgb25lIG9mIHRoZSBwb3NzaWJsZSB1
+cGdyYWRlIHBhdGhzIGZvciBzdXJlLiBIb3dldmVyIHRoZQo+IHVwZ3JhZGUgcGF0aCBJIHdhcyBz
+ZWVraW5nIGlzIHRvIHVzZSB0aGUgYnlwYXNzIGludGVyZmFjZSB0byB0YWtlIHRoZQo+IHBsYWNl
+IG9mIG9yaWdpbmFsIFZGIGludGVyZmFjZSB3aGlsZSByZXRhaW5pbmcgdGhlIG5hbWUgYW5kIG5l
+dHdvcmsKPiBjb25maWdzLCB3aGljaCBnZW5lcmFsbHkgY2FuIGJlIGRvbmUgc2ltcGx5IHdpdGgg
+a2VybmVsIHVwZ3JhZGUuIEl0Cj4gd291bGQgYmVjb21lIGxpbWl0aW5nIGFzIHRoaXMgcGF0Y2gg
+bWFrZXMgdGhlIGJ5cGFzcyBpbnRlcmZhY2Ugc2hhcmUKPiB0aGUgc2FtZSB2aXJ0aW8gcGNpIGRl
+dmljZSB3aXRoIHZpcml0byBiYWNrdXAuIENhbiB0aGlzIGJ5cGFzcwo+IGludGVyZmFjZSBiZSBt
+YWRlIGdlbmVyYWwgdG8gdGFrZSBwbGFjZSBvZiBhbnkgcGNpIGRldmljZSBvdGhlciB0aGFuCj4g
+dmlydGlvLW5ldD8gVGhpcyB3aWxsIGJlIG1vcmUgaGVscGZ1bCBhcyB0aGUgY2xvdWQgdXNlcnMg
+d2hvIGhhcwo+IGV4aXN0aW5nIHNldHVwIG9uIFZGIGludGVyZmFjZSBkb24ndCBoYXZlIHRvIHJl
+Y3JlYXRlIGl0IG9uIHZpcnRpby1uZXQKPiBhbmQgVkYgc2VwYXJhdGVseSBhZ2Fpbi4KClllcy4g
+VGhpcyBzb3VuZHMgaW50ZXJlc3RpbmcuIExvb2tzIGxpa2UgeW91IHdhbnQgYW4gZXhpc3Rpbmcg
+Vk0gaW1hZ2Ugd2l0aApWRiBvbmx5IGNvbmZpZ3VyYXRpb24gdG8gZ2V0IHRyYW5zcGFyZW50IGxp
+dmUgbWlncmF0aW9uIHN1cHBvcnQgYnkgYWRkaW5nCnZpcnRpb19uZXQgd2l0aCBCQUNLVVAgZmVh
+dHVyZS7CoCBXZSBtYXkgbmVlZCBhbm90aGVyIGZlYXR1cmUgYml0IHRvIHN3aXRjaApiZXR3ZWVu
+IHRoZXNlIDIgb3B0aW9ucy4KCgo+Cj4+IFRoZSBvdGhlciBiaXRzIGdldCBpbnRvIG1vcmUgY29t
+cGxleGl0eSB0aGVuIHdlIGFyZSByZWFkeSB0byBoYW5kbGUKPj4gZm9yIG5vdy4gSSB0aGluayBJ
+IG1pZ2h0IGhhdmUgdGFsa2VkIGFib3V0IHNvbWV0aGluZyBzaW1pbGFyIHRoYXQgSQo+PiB3YXMg
+cmVmZXJyaW5nIHRvIGFzIGEgInZpcnRpby1ib25kIiB3aGVyZSB5b3Ugd291bGQgaGF2ZSBhIFBD
+SS9QQ0llCj4+IHRyZWUgdG9wb2xvZ3kgdGhhdCBtYWtlcyB0aGlzIGVhc2llciB0byBzb3J0IG91
+dCwgYW5kIHRoZSAidmlydGlvLWJvbmQKPj4gd291bGQgYmUgdXNlZCB0byBoYW5kbGUgY29vcmRp
+bmF0aW9uL2NvbmZpZ3VyYXRpb24gb2YgYSBtdWNoIG1vcmUKPj4gY29tcGxleCBpbnRlcmZhY2Uu
+Cj4gVGhhdCB3YXMgb25lIHdheSB0byBzb2x2ZSB0aGlzIHByb2JsZW0gYnV0IEknZCBsaWtlIHRv
+IHNlZSBzaW1wbGUgd2F5cwo+IHRvIHNvcnQgaXQgb3V0Lgo+Cj4+Pj4+IEZXSVcgdHdvIHNvbHV0
+aW9ucyB0aGF0IGltbWVkaWF0ZWx5IGNvbWUgdG8gbWluZCBpcyB0byBleHBvcnQgImJhY2t1cCIK
+Pj4+Pj4gYXMgcGh5c19wb3J0X25hbWUgb2YgdGhlIGJhY2t1cCB2aXJ0aW8gbGluayBhbmQvb3Ig
+YXNzaWduIGEgbmFtZSB0byB0aGUKPj4+Pj4gbWFzdGVyIGxpa2UgeW91IGFyZSBkb2luZyBhbHJl
+YWR5LiAgSSB0aGluayB0ZWFtIHVzZXMgdGVhbSVkIGFuZCBib25kCj4+Pj4+IHVzZXMgYm9uZCVk
+LCBzb2Z0IG5hbWluZyBvZiBtYXN0ZXIgZGV2aWNlcyBzZWVtcyBxdWl0ZSBuYXR1cmFsIGluIHRo
+aXMKPj4+Pj4gY2FzZS4KPj4+PiBJIGZpZ3VyZWQgSSBoYWQgb3Zlcmxvb2tlZCBzb21ldGhpbmcg
+bGlrZSB0aGF0Li4gVGhhbmtzIGZvciBwb2ludGluZwo+Pj4+IHRoaXMgb3V0LiBPa2F5IHNvIEkg
+dGhpbmsgdGhlIHBoeXNfcG9ydF9uYW1lIGFwcHJvYWNoIG1pZ2h0IHJlc29sdmUKPj4+PiB0aGUg
+b3JpZ2luYWwgaXNzdWUuIElmIEkgYW0gcmVhZGluZyB0aGluZ3MgY29ycmVjdGx5IHdoYXQgd2Ug
+ZW5kIHVwCj4+Pj4gd2l0aCBpcyB0aGUgbWFzdGVyIHNob3dpbmcgdXAgYXMgImVuczEiIGZvciBl
+eGFtcGxlIGFuZCB0aGUgYmFja3VwCj4+Pj4gc2hvd2luZyB1cCBhcyAiZW5zMW5iYWNrdXAiLiBB
+bSBJIHVuZGVyc3RhbmRpbmcgdGhhdCByaWdodD8KPj4+Pgo+Pj4+IFRoZSBwcm9ibGVtIHdpdGgg
+dGhlIHRlYW0vYm9uZCVkIGFwcHJvYWNoIGlzIHRoYXQgaXQgY3JlYXRlcyBhIG5ldwo+Pj4+IG5l
+dGRldmljZSBhbmQgc28gaXQgd291bGQgcmVxdWlyZSBndWVzdCBjb25maWd1cmF0aW9uIGNoYW5n
+ZXMuCj4+Pj4KPj4+Pj4gSU1ITyBwaHlzX3BvcnRfbmFtZSA9PSAiYmFja3VwIiBpZiBCQUNLVVAg
+Yml0IGlzIHNldCBvbiBzbGF2ZSB2aXJ0aW8KPj4+Pj4gbGluayBpcyBxdWl0ZSBuZWF0Lgo+Pj4+
+IEkgYWdyZWUuIEZvciBub24tImJhY2t1cCIgdmlyaW9fbmV0IGRldmljZXMgd291bGQgaXQgYmUg
+b2theSBmb3IgdXMgdG8KPj4+PiBqdXN0IHJldHVybiAtRU9QTk9UU1VQUD8gSSBhc3N1bWUgaXQg
+d291bGQgYmUgYW5kIHRoYXQgd2F5IHRoZSBsZWdhY3kKPj4+PiBiZWhhdmlvciBjb3VsZCBiZSBt
+YWludGFpbmVkIGFsdGhvdWdoIHRoZSBmdW5jdGlvbiBzdGlsbCBleGlzdHMuCj4+Pj4KPj4+Pj4+
+IC0gV2hlbiB0aGUgJ2FjdGl2ZScgbmV0ZGV2IGlzIHVucGx1Z2dlZCBPUiBub3QgcHJlc2VudCBv
+biBhIGRlc3RpbmF0aW9uCj4+Pj4+PiAgICBzeXN0ZW0gYWZ0ZXIgbGl2ZSBtaWdyYXRpb24sIHRo
+ZSB1c2VyIHdpbGwgc2VlIDIgdmlydGlvX25ldCBuZXRkZXZzLgo+Pj4+PiBUaGF0J3MgbmVjZXNz
+YXJ5IGFuZCBleHBlY3RlZCwgYWxsIGNvbmZpZ3VyYXRpb24gYXBwbGllcyB0byB0aGUgbWFzdGVy
+Cj4+Pj4+IHNvIG1hc3RlciBtdXN0IGV4aXN0Lgo+Pj4+IFdpdGggdGhlIG5hbWluZyBpc3N1ZSBy
+ZXNvbHZlZCB0aGlzIGlzIHRoZSBvbmx5IGl0ZW0gbGVmdCBvdXRzdGFuZGluZy4KPj4+PiBUaGlz
+IGJlY29tZXMgYSBtYXR0ZXIgb2YgZm9ybSB2cyBmdW5jdGlvbi4KPj4+Pgo+Pj4+IFRoZSBtYWlu
+IGNvbXBsYWludCBhYm91dCB0aGUgIjMgbmV0ZGV2IiBzb2x1dGlvbiBpcyBhIGJpdCBjb25mdXNp
+bmcgdG8KPj4+PiBoYXZlIHRoZSAyIG5ldGRldnMgcHJlc2VudCBpZiB0aGUgVkYgaXNuJ3QgdGhl
+cmUuIFRoZSBpZGVhIGlzIHRoYXQKPj4+PiBoYXZpbmcgdGhlIGV4dHJhICJtYXN0ZXIiIG5ldGRl
+diB0aGVyZSBpZiB0aGVyZSBpc24ndCByZWFsbHkgYSBib25kIGlzCj4+Pj4gYSBiaXQgdWdseS4K
+Pj4+IElzIGl0IHRoaXMgdWdsaWVyIGluIHRlcm1zIG9mIHVzZXIgZXhwZXJpZW5jZSByYXRoZXIg
+dGhhbgo+Pj4gZnVuY3Rpb25hbGl0eT8gSSBkb24ndCB3YW50IGl0IGR5bmFtaWNhbGx5IGNoYW5n
+ZWQgYmV0d2VlbiAyLW5ldGRldgo+Pj4gYW5kIDMtbmV0ZGV2IGRlcGVuZGluZyBvbiB0aGUgcHJl
+c2VuY2Ugb2YgVkYuIFRoYXQgZ2V0cyBiYWNrIHRvIG15Cj4+PiBvcmlnaW5hbCBxdWVzdGlvbiBh
+bmQgc3VnZ2VzdGlvbiBlYXJsaWVyOiB3aHkgbm90IGp1c3QgaGlkZSB0aGUgbG93ZXIKPj4+IG5l
+dGRldnMgZnJvbSB1ZGV2IHJlbmFtaW5nIGFuZCBzdWNoPyBXaGljaCBpbXBvcnRhbnQgb2JzZXJ2
+YWJpbGl0eQo+Pj4gYmVuZWZpdHMgdXNlcnMgbWF5IGdldCBpZiBleHBvc2luZyB0aGUgbG93ZXIg
+bmV0ZGV2cz8KPj4+Cj4+PiBUaGFua3MsCj4+PiAtU2l3ZWkKPj4gVGhlIG9ubHkgcmVhbCBhZHZh
+bnRhZ2UgdG8gYSAyIG5ldGRldiBzb2x1dGlvbiBpcyB0aGF0IGl0IGxvb2tzIGxpa2UKPj4gdGhl
+IG5ldHZzYyBzb2x1dGlvbiwgaG93ZXZlciBpdCBkb2Vzbid0IGJlaGF2ZSBsaWtlIGl0IHNpbmNl
+IHRoZXJlIGFyZQo+PiBzb21lIGZlYXR1cmVzIGxpa2UgWERQIHRoYXQgbWF5IG5vdCBmdW5jdGlv
+biBjb3JyZWN0bHkgaWYgdGhleSBhcmUKPj4gbGVmdCBlbmFibGVkIGluIHRoZSB2aXJ0aW9fbmV0
+IGludGVyZmFjZS4KPj4KPj4gQXMgZmFyIGFzIGZ1bmN0aW9uYWxpdHkgdGhlIGFkdmFudGFnZSBv
+ZiBub3QgaGlkaW5nIHRoZSBsb3dlciBkZXZpY2VzCj4+IGlzIHRoYXQgdGhleSBhcmUgZnJlZSB0
+byBiZSBtYW5hZ2VkLiBUaGUgcHJvYmxlbSB3aXRoIHB1c2hpbmcgYWxsIG9mCj4+IHRoZSBjb25m
+aWd1cmF0aW9uIGludG8gdGhlIHVwcGVyIGRldmljZSBpcyB0aGF0IHlvdSBhcmUgbGltaXRlZCB0
+byB0aGUKPj4gaW50ZXJzZWN0aW9uIG9mIHRoZSBmZWF0dXJlcyBvZiB0aGUgbG93ZXIgZGV2aWNl
+cy4gVGhpcyBjYW4gYmUKPj4gbGltaXRpbmcgZm9yIHNvbWUgc2V0dXBzIGFzIHNvbWUgVkZzIHN1
+cHBvcnQgdGhpbmdzIGxpa2UgbW9yZSBxdWV1ZXMsCj4+IG9yIGJldHRlciBpbnRlcnJ1cHQgbW9k
+ZXJhdGlvbiBvcHRpb25zIHRoYW4gb3RoZXJzIHNvIHRyeWluZyB0byBtYWtlCj4+IGV2ZXJ5dGhp
+bmcgd29yayB3aXRoIG9uZSBjb25maWcgd291bGQgYmUgdWdseS4KPiBJdCBkZXBlbmRzIG9uIGhv
+dyB5b3UgYnVpbGQgaXQgYW5kIHRoZSB3YXkgeW91IGV4cGVjdCBpdCB0byB3b3JrLiBJTUhPCj4g
+dGhlIGxvd2VyIGRldmljZXMgZG9uJ3QgbmVlZCB0byBiZSBkaXJlY3RseSBtYW5hZ2VkIGF0IGFs
+bCwgb3RoZXJ3aXNlCj4gaXQgZW5kcyB1cCB3aXRoIGxvc3Mgb2YgY29uZmlndXJhdGlvbiBhY3Jv
+c3MgbWlncmF0aW9uLCBhbmQgaXQgcmVhbGx5Cj4gZG9lcyBub3QgYnJpbmcgbXVjaCB2YWx1ZSB0
+aGFuIGhhdmluZyBhIGdlbmVyYWwgdGVhbSBvciBib25kIGRldmljZS4KPiBVc2VycyBzdGlsbCBo
+YXZlIHRvIHJlY29uZmlndXJlIHRob3NlIHF1ZXVlIHNldHRpbmdzIGFuZCBpbnRlcnJ1cHQKPiBt
+b2RlcmF0aW9uIG9wdGlvbnMgYWZ0ZXIgYWxsLiBUaGUgbmV3IHVwcGVyIGRldmljZSBjb3VsZCB0
+YWtlIHRoZQo+IGFzc3VtcHRpb24gdGhhdCB0aGUgVkYvUFQgbG93ZXIgZGV2aWNlIGFsd2F5cyBo
+YXMgc3VwZXJpb3IgZmVhdHVyZSBzZXQKPiB0aGFuIHZpcnRpby1uZXQgaW4gb3JkZXIgdG8gYXBw
+bHkgYWR2YW5jZWQgY29uZmlndXJhdGlvbi4gVGhlIHVwcGVyCj4gZGV2aWNlIHNob3VsZCByZW1l
+bWJlciBhbGwgY29uZmlndXJhdGlvbnMgcHJldmlvdXNseSBkb25lIGFuZCBhcHBseQo+IHN1cHBv
+cnRpbmcgb25lcyB0byBhY3RpdmUgZGV2aWNlIGF1dG9tYXRpY2FsbHkgd2hlbiBzd2l0Y2hpbmcg
+dGhlCj4gZGF0YXBhdGguCj4KSXQgc2hvdWxkIGJlIHBvc3NpYmxlIHRvIGV4dGVuZCB0aGlzIHBh
+dGNoc2V0IHRvIHN1cHBvcnQgbWlncmF0aW9uIG9mIAphZGRpdGlvbmFsCnNldHRpbmdzwqAgYnkg
+ZW5hYmxpbmcgYWRkaXRpb25hbCBuZG9fb3BzIGFuZCBldGh0b29sX29wcyBvbiB0aGUgdXBwZXIg
+ZGV2CmFuZCBwcm9wYWdhdGluZyB0aGVtIGRvd24gdGhlIGxvd2VyIGRldmljZXMgYW5kIHJlcGxh
+eWluZyB0aGUgc2V0dGluZ3MgYWZ0ZXIKdGhlIFZGIGlzIHJlcGx1Z2dlZCBhZnRlciBtaWdyYXRp
+b24uCgpUaGFua3MKU3JpZGhhcgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
