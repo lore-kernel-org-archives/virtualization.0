@@ -1,27 +1,18 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+From: Siwei Liu <loseweigh@gmail.com>
 Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
 	passthru device
-Date: Wed, 21 Feb 2018 18:15:11 -0800
-Message-ID: <943070f6-7a00-173b-4ea3-587b26097dbc__17540.1003369645$1519265637$gmane$org@intel.com>
-References: <20180220162933.GD2031@nanopsycho>
-	<509bbbf9-4db7-dc78-a05e-403452a7407a@intel.com>
-	<20180220201410.GF2031@nanopsycho>
-	<20180220143356.3467084d@cakuba.netronome.com>
-	<20180221095159.GA1996@nanopsycho>
-	<CAKgT0UdyhrVr=pYZb=AJq9sWWUVb_BadbJTcqY1AwHHTw8cmQw@mail.gmail.com>
-	<20180221161105.GC1996@nanopsycho>
-	<CAKgT0Ud+6eiY7ycyju1SToeatH1R7KBDcUOqjn9Pu2k5uOr5Wg@mail.gmail.com>
-	<20180221165848.GD1996@nanopsycho>
-	<CAKgT0UeZS_SzNfiMX3ujy+a9WZWySVdyTpyQ=b=RJJrAG3JO=w@mail.gmail.com>
-	<20180221193832.GE1996@nanopsycho>
-	<CAKgT0Ud--R7Mw1_jFckskhGmGLZgZbTZ24TuvJ+UWvm_MAQR9w@mail.gmail.com>
-	<20180221180213.30885283@cakuba.netronome.com>
+Date: Wed, 21 Feb 2018 17:59:59 -0800
+Message-ID: <CADGSJ23WFYEYo2DpSPVfZsOLjoSpgWWVCtEZi84wrUHN-noxag__39973.6363011927$1519265691$gmane$org@mail.gmail.com>
+References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
+	<20180216183817.42b07af6@cakuba.netronome.com>
+	<CAKgT0UfU9gV2Y7hWFQi0vJoD9kYeoq+7cXmwAjXeV5zxXHa3dQ@mail.gmail.com>
+	<CADGSJ217HahFJsGmNXMD6SwWiK374+u_YET8QqdsmofCRFZr=Q@mail.gmail.com>
+	<CAKgT0Uda7Bmzf06RMmD7hCVLr8hHQxaY8Fk7w9Qy=7Vi6NODwQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180221180213.30885283@cakuba.netronome.com>
-Content-Language: en-US
+In-Reply-To: <CAKgT0Uda7Bmzf06RMmD7hCVLr8hHQxaY8Fk7w9Qy=7Vi6NODwQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -31,52 +22,175 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jakub Kicinski <kubakici@wp.pl>, Alexander Duyck <alexander.duyck@gmail.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, David Miller <davem@davemloft.net>
+To: Alexander Duyck <alexander.duyck@gmail.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMi8yMS8yMDE4IDY6MDIgUE0sIEpha3ViIEtpY2luc2tpIHdyb3RlOgo+IE9uIFdlZCwgMjEg
-RmViIDIwMTggMTI6NTc6MDkgLTA4MDAsIEFsZXhhbmRlciBEdXljayB3cm90ZToKPj4+IEkgZG9u
-J3Qgc2VlIHdoeSB0aGUgdGVhbSBjYW5ub3QgYmUgdGhlcmUgYWx3YXlzLgo+PiBJdCBpcyBtb3Jl
-IHRoZSBsb2dpc3RpY2FsIG5pZ2h0bWFyZS4gUGFydCBvZiB0aGUgZ29hbCBoZXJlIHdhcyB0byB3
-b3JrCj4+IHdpdGggdGhlIGNsb3VkIGJhc2UgaW1hZ2VzIHRoYXQgYXJlIG91dCB0aGVyZSBzdWNo
-IGFzCj4+IGh0dHBzOi8vYWx0LmZlZG9yYXByb2plY3Qub3JnL2Nsb3VkLy4gV2l0aCBqdXN0IHRo
-ZSBrZXJuZWwgY2hhbmdlcyB0aGUKPj4gb3ZlcmhlYWQgZm9yIHRoaXMgc3RheXMgZmFpcmx5IHNt
-YWxsIGFuZCB3b3VsZCBiZSBwdWxsZWQgaW4gYXMganVzdCBhCj4+IHN0YW5kYXJkIHBhcnQgb2Yg
-dGhlIGtlcm5lbCB1cGRhdGUgcHJvY2Vzcy4gVGhlIHZpcnRpbyBieXBhc3Mgb25seQo+PiBwb3Bz
-IHVwIGlmIHRoZSBiYWNrdXAgYml0IGlzIHByZXNlbnQuIFdpdGggdGhlIHRlYW0gc29sdXRpb24g
-aXQKPj4gcmVxdWlyZXMgdGhhdCB0aGUgYmFzZSBpbWFnZSB1c2UgdGhlIHRlYW0gZHJpdmVyIG9u
-IHZpcnRpb19uZXQgd2hlbiBpdAo+PiBzZWVzIG9uZS4gSSBkb3VidCB0aGUgT1NWcyB3b3VsZCB3
-YW50IHRvIGRvIHRoYXQganVzdCBiZWNhdXNlIFNSLUlPVgo+PiBpc24ndCB0aGF0IHBvcHVsYXIg
-b2YgYSBjYXNlLgo+IElJVUMgd2UgbmVlZCB0byBtb25pdG9yIGZvciBhICJiYWNrdXAgaGludCIs
-IHNwYXduIHRoZSBtYXN0ZXIsIHJlbmFtZSBpdAo+IHRvIG1haW50YWluIGJhY2t3YXJkcyBjb21w
-YXRpYmlsaXR5IHdpdGggbm8tVkYgc2V0dXBzIGFuZCBlbnNsYXZlIHRoZSBWRgo+IGlmIGl0IGFw
-cGVhcnMuCj4KPiBBbGwgdGhvc2Ugc291bmQgcG9zc2libGUgZnJvbSB1c2VyIHNwYWNlLCB0aGUg
-YWR2YW50YWdlIG9mIHRoZSBrZXJuZWwKPiBzb2x1dGlvbiByaWdodCBub3cgaXMgdGhhdCBpdCBo
-YXMgbW9yZSBjb21wbGV0ZSBjb2RlLgo+Cj4gQW0gSSBtaXN1bmRlcnN0YW5kaW5nPwoKSSB0aGlu
-ayB0aGVyZSBpcyBzb21lIG1pc3VuZGVyc3RhbmRpbmcgYWJvdXQgdGhlIGV4YWN0IHJlcXVpcmVt
-ZW50IGFuZCAKdGhlIHVzZWNhc2UKd2UgYXJlIHRyeWluZyB0byBzb2x2ZS7CoCBJZiB0aGUgR3Vl
-c3QgaXMgYWxsb3dlZCB0byBkbyB0aGlzIApjb25maWd1cmF0aW9uLCB3ZSBhbHJlYWR5IGhhdmUK
-YSBzb2x1dGlvbiB3aXRoIGVpdGhlciBib25kL3RlYW0gYmFzZWQgdXNlciBzcGFjZSBjb25maWd1
-cmF0aW9uLgoKVGhpcyBpcyB0byBlbmFibGUgY2xvdWQgc2VydmljZSBwcm92aWRlcnMgdG8gcHJv
-dmlkZSBhIGFjY2VsZXJhdGVkIApkYXRhcGF0aCBieSBzaW1wbHkKbGV0dGluZyB0byB0ZW5hbnRz
-IHRvIGdldCB0aGVpciBvd24gaW1hZ2VzIHdpdGggdGhlIG9ubHkgcmVxdWlyZW1lbnQgdG8gCmVu
-YWJsZSB0aGVpcgprZXJuZWxzIHdpdGggbmV3ZXIgdmlydGlvX25ldCBkcml2ZXIgd2l0aCBCQUNL
-VVAgc3VwcG9ydCBhbmQgdGhlIFZGIGRyaXZlci4KClRvIHJlY2FwIGZyb20gYW4gZWFybGllciB0
-aHJlYWQsIGhlcmUgaXMgYSByZXNwb25zZSBmcm9tIFN0ZXBoZW4gdGhhdCAKdGFsa3MgYWJvdXQg
-dGhlCnJlcXVpcmVtZW50IGZvciB0aGUgbmV0dnNjIHNvbHV0aW9uIGFuZCB3ZSB3b3VsZCBsaWtl
-IHRvIHByb3ZpZGUgc2ltaWxhciAKc29sdXRpb24gZm9yCktWTSBiYXNlZCBjbG91ZCBkZXBsb3lt
-ZW50cy4KCiA+IFRoZSByZXF1aXJlbWVudCB3aXRoIEF6dXJlIGFjY2VsZXJhdGVkIG5ldHdvcmsg
-d2FzIHRoYXQgYSBzdG9jayAKZGlzdHJpYnV0aW9uIGltYWdlIGZyb20gdGhlCiA+IHN0b3JlIG11
-c3QgYmUgYWJsZSB0byBydW4gdW5tb2RpZmllZCBhbmQgZ2V0IGFjY2VsZXJhdGVkIG5ldHdvcmtp
-bmcuCiA+wqAgTm90IHN1cmUgaWYgb3RoZXIgZW52aXJvbm1lbnRzIG5lZWQgdG8gd29yayB0aGUg
-c2FtZSwgYnV0IGl0IHdvdWxkIApiZSBuaWNlLgogPsKgIFRoYXQgbWVhbnQgbm8gYWRkaXRpb25h
-bCBzZXR1cCBzY3JpcHRzIChha2Egbm8gYm9uZGluZykgYW5kIGFsc28gaXQgbXVzdAogPiB3b3Jr
-IHRyYW5zcGFyZW50bHkgd2l0aCBob3QtcGx1Zy4gQWxzbyB0aGVyZSBhcmUgZGl2ZXJzZSBzZXQg
-b2YgCmVudmlyb25tZW50czoKID4gb3BlbnN0YWNrLCBjbG91ZGluaXQsIG5ldHdvcmsgbWFuYWdl
-ciBhbmQgc3lzdGVtZC4gVGhlIHNvbHV0aW9uIGhhZCAKdG8gbm90IGRlcGVuZAogPiBvbiBhbnkg
-b25lIG9mIHRoZW0sIGJ1dCBhbHNvIG5vdCBicmVhayBhbnkgb2YgdGhlbS4KClRoYW5rcwpTcmlk
-aGFyCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+On Wed, Feb 21, 2018 at 4:17 PM, Alexander Duyck
+<alexander.duyck@gmail.com> wrote:
+> On Wed, Feb 21, 2018 at 3:50 PM, Siwei Liu <loseweigh@gmail.com> wrote:
+>> I haven't checked emails for days and did not realize the new revision
+>> had already came out. And thank you for the effort, this revision
+>> really looks to be a step forward towards our use case and is close to
+>> what we wanted to do. A few questions in line.
+>>
+>> On Sat, Feb 17, 2018 at 9:12 AM, Alexander Duyck
+>> <alexander.duyck@gmail.com> wrote:
+>>> On Fri, Feb 16, 2018 at 6:38 PM, Jakub Kicinski <kubakici@wp.pl> wrote:
+>>>> On Fri, 16 Feb 2018 10:11:19 -0800, Sridhar Samudrala wrote:
+>>>>> Ppatch 2 is in response to the community request for a 3 netdev
+>>>>> solution.  However, it creates some issues we'll get into in a moment.
+>>>>> It extends virtio_net to use alternate datapath when available and
+>>>>> registered. When BACKUP feature is enabled, virtio_net driver creates
+>>>>> an additional 'bypass' netdev that acts as a master device and controls
+>>>>> 2 slave devices.  The original virtio_net netdev is registered as
+>>>>> 'backup' netdev and a passthru/vf device with the same MAC gets
+>>>>> registered as 'active' netdev. Both 'bypass' and 'backup' netdevs are
+>>>>> associated with the same 'pci' device.  The user accesses the network
+>>>>> interface via 'bypass' netdev. The 'bypass' netdev chooses 'active' netdev
+>>>>> as default for transmits when it is available with link up and running.
+>>>>
+>>>> Thank you do doing this.
+>>>>
+>>>>> We noticed a couple of issues with this approach during testing.
+>>>>> - As both 'bypass' and 'backup' netdevs are associated with the same
+>>>>>   virtio pci device, udev tries to rename both of them with the same name
+>>>>>   and the 2nd rename will fail. This would be OK as long as the first netdev
+>>>>>   to be renamed is the 'bypass' netdev, but the order in which udev gets
+>>>>>   to rename the 2 netdevs is not reliable.
+>>>>
+>>>> Out of curiosity - why do you link the master netdev to the virtio
+>>>> struct device?
+>>>
+>>> The basic idea of all this is that we wanted this to work with an
+>>> existing VM image that was using virtio. As such we were trying to
+>>> make it so that the bypass interface takes the place of the original
+>>> virtio and get udev to rename the bypass to what the original
+>>> virtio_net was.
+>>
+>> Could it made it also possible to take over the config from VF instead
+>> of virtio on an existing VM image? And get udev rename the bypass
+>> netdev to what the original VF was. I don't say tightly binding the
+>> bypass master to only virtio or VF, but I think we should provide both
+>> options to support different upgrade paths. Possibly we could tweak
+>> the device tree layout to reuse the same PCI slot for the master
+>> bypass netdev, such that udev would not get confused when renaming the
+>> device. The VF needs to use a different function slot afterwards.
+>> Perhaps we might need to a special multiseat like QEMU device for that
+>> purpose?
+>>
+>> Our case we'll upgrade the config from VF to virtio-bypass directly.
+>
+> So if I am understanding what you are saying you are wanting to flip
+> the backup interface from the virtio to a VF. The problem is that
+> becomes a bit of a vendor lock-in solution since it would rely on a
+> specific VF driver. I would agree with Jiri that we don't want to go
+> down that path. We don't want every VF out there firing up its own
+> separate bond. Ideally you want the hypervisor to be able to manage
+> all of this which is why it makes sense to have virtio manage this and
+> why this is associated with the virtio_net interface.
+
+No, that's not what I was talking about of course. I thought you
+mentioned the upgrade scenario this patch would like to address is to
+use the bypass interface "to take the place of the original virtio,
+and get udev to rename the bypass to what the original virtio_net
+was". That is one of the possible upgrade paths for sure. However the
+upgrade path I was seeking is to use the bypass interface to take the
+place of original VF interface while retaining the name and network
+configs, which generally can be done simply with kernel upgrade. It
+would become limiting as this patch makes the bypass interface share
+the same virtio pci device with virito backup. Can this bypass
+interface be made general to take place of any pci device other than
+virtio-net? This will be more helpful as the cloud users who has
+existing setup on VF interface don't have to recreate it on virtio-net
+and VF separately again.
+
+>
+> The other bits get into more complexity then we are ready to handle
+> for now. I think I might have talked about something similar that I
+> was referring to as a "virtio-bond" where you would have a PCI/PCIe
+> tree topology that makes this easier to sort out, and the "virtio-bond
+> would be used to handle coordination/configuration of a much more
+> complex interface.
+
+That was one way to solve this problem but I'd like to see simple ways
+to sort it out.
+
+>
+>>>
+>>>> FWIW two solutions that immediately come to mind is to export "backup"
+>>>> as phys_port_name of the backup virtio link and/or assign a name to the
+>>>> master like you are doing already.  I think team uses team%d and bond
+>>>> uses bond%d, soft naming of master devices seems quite natural in this
+>>>> case.
+>>>
+>>> I figured I had overlooked something like that.. Thanks for pointing
+>>> this out. Okay so I think the phys_port_name approach might resolve
+>>> the original issue. If I am reading things correctly what we end up
+>>> with is the master showing up as "ens1" for example and the backup
+>>> showing up as "ens1nbackup". Am I understanding that right?
+>>>
+>>> The problem with the team/bond%d approach is that it creates a new
+>>> netdevice and so it would require guest configuration changes.
+>>>
+>>>> IMHO phys_port_name == "backup" if BACKUP bit is set on slave virtio
+>>>> link is quite neat.
+>>>
+>>> I agree. For non-"backup" virio_net devices would it be okay for us to
+>>> just return -EOPNOTSUPP? I assume it would be and that way the legacy
+>>> behavior could be maintained although the function still exists.
+>>>
+>>>>> - When the 'active' netdev is unplugged OR not present on a destination
+>>>>>   system after live migration, the user will see 2 virtio_net netdevs.
+>>>>
+>>>> That's necessary and expected, all configuration applies to the master
+>>>> so master must exist.
+>>>
+>>> With the naming issue resolved this is the only item left outstanding.
+>>> This becomes a matter of form vs function.
+>>>
+>>> The main complaint about the "3 netdev" solution is a bit confusing to
+>>> have the 2 netdevs present if the VF isn't there. The idea is that
+>>> having the extra "master" netdev there if there isn't really a bond is
+>>> a bit ugly.
+>>
+>> Is it this uglier in terms of user experience rather than
+>> functionality? I don't want it dynamically changed between 2-netdev
+>> and 3-netdev depending on the presence of VF. That gets back to my
+>> original question and suggestion earlier: why not just hide the lower
+>> netdevs from udev renaming and such? Which important observability
+>> benefits users may get if exposing the lower netdevs?
+>>
+>> Thanks,
+>> -Siwei
+>
+> The only real advantage to a 2 netdev solution is that it looks like
+> the netvsc solution, however it doesn't behave like it since there are
+> some features like XDP that may not function correctly if they are
+> left enabled in the virtio_net interface.
+>
+> As far as functionality the advantage of not hiding the lower devices
+> is that they are free to be managed. The problem with pushing all of
+> the configuration into the upper device is that you are limited to the
+> intersection of the features of the lower devices. This can be
+> limiting for some setups as some VFs support things like more queues,
+> or better interrupt moderation options than others so trying to make
+> everything work with one config would be ugly.
+
+It depends on how you build it and the way you expect it to work. IMHO
+the lower devices don't need to be directly managed at all, otherwise
+it ends up with loss of configuration across migration, and it really
+does not bring much value than having a general team or bond device.
+Users still have to reconfigure those queue settings and interrupt
+moderation options after all. The new upper device could take the
+assumption that the VF/PT lower device always has superior feature set
+than virtio-net in order to apply advanced configuration. The upper
+device should remember all configurations previously done and apply
+supporting ones to active device automatically when switching the
+datapath.
+
+Regards,
+-Siwei
+
+>
+> - Alex
