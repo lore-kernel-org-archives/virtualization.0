@@ -1,8 +1,8 @@
-From: Jakub Kicinski <kubakici@wp.pl>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
 	passthru device
-Date: Wed, 21 Feb 2018 18:02:13 -0800
-Message-ID: <20180221180213.30885283@cakuba.netronome.com>
+Date: Wed, 21 Feb 2018 18:15:11 -0800
+Message-ID: <943070f6-7a00-173b-4ea3-587b26097dbc__17540.1003369645$1519265637$gmane$org@intel.com>
 References: <20180220162933.GD2031@nanopsycho>
 	<509bbbf9-4db7-dc78-a05e-403452a7407a@intel.com>
 	<20180220201410.GF2031@nanopsycho>
@@ -15,11 +15,13 @@ References: <20180220162933.GD2031@nanopsycho>
 	<CAKgT0UeZS_SzNfiMX3ujy+a9WZWySVdyTpyQ=b=RJJrAG3JO=w@mail.gmail.com>
 	<20180221193832.GE1996@nanopsycho>
 	<CAKgT0Ud--R7Mw1_jFckskhGmGLZgZbTZ24TuvJ+UWvm_MAQR9w@mail.gmail.com>
+	<20180221180213.30885283@cakuba.netronome.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAKgT0Ud--R7Mw1_jFckskhGmGLZgZbTZ24TuvJ+UWvm_MAQR9w@mail.gmail.com>
+In-Reply-To: <20180221180213.30885283@cakuba.netronome.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,29 +31,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Duyck <alexander.duyck@gmail.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: Jakub Kicinski <kubakici@wp.pl>, Alexander Duyck <alexander.duyck@gmail.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 21 Feb 2018 12:57:09 -0800, Alexander Duyck wrote:
-> > I don't see why the team cannot be there always.  
-> 
-> It is more the logistical nightmare. Part of the goal here was to work
-> with the cloud base images that are out there such as
-> https://alt.fedoraproject.org/cloud/. With just the kernel changes the
-> overhead for this stays fairly small and would be pulled in as just a
-> standard part of the kernel update process. The virtio bypass only
-> pops up if the backup bit is present. With the team solution it
-> requires that the base image use the team driver on virtio_net when it
-> sees one. I doubt the OSVs would want to do that just because SR-IOV
-> isn't that popular of a case.
-
-IIUC we need to monitor for a "backup hint", spawn the master, rename it
-to maintain backwards compatibility with no-VF setups and enslave the VF
-if it appears.
-
-All those sound possible from user space, the advantage of the kernel
-solution right now is that it has more complete code.
-
-Am I misunderstanding?
+T24gMi8yMS8yMDE4IDY6MDIgUE0sIEpha3ViIEtpY2luc2tpIHdyb3RlOgo+IE9uIFdlZCwgMjEg
+RmViIDIwMTggMTI6NTc6MDkgLTA4MDAsIEFsZXhhbmRlciBEdXljayB3cm90ZToKPj4+IEkgZG9u
+J3Qgc2VlIHdoeSB0aGUgdGVhbSBjYW5ub3QgYmUgdGhlcmUgYWx3YXlzLgo+PiBJdCBpcyBtb3Jl
+IHRoZSBsb2dpc3RpY2FsIG5pZ2h0bWFyZS4gUGFydCBvZiB0aGUgZ29hbCBoZXJlIHdhcyB0byB3
+b3JrCj4+IHdpdGggdGhlIGNsb3VkIGJhc2UgaW1hZ2VzIHRoYXQgYXJlIG91dCB0aGVyZSBzdWNo
+IGFzCj4+IGh0dHBzOi8vYWx0LmZlZG9yYXByb2plY3Qub3JnL2Nsb3VkLy4gV2l0aCBqdXN0IHRo
+ZSBrZXJuZWwgY2hhbmdlcyB0aGUKPj4gb3ZlcmhlYWQgZm9yIHRoaXMgc3RheXMgZmFpcmx5IHNt
+YWxsIGFuZCB3b3VsZCBiZSBwdWxsZWQgaW4gYXMganVzdCBhCj4+IHN0YW5kYXJkIHBhcnQgb2Yg
+dGhlIGtlcm5lbCB1cGRhdGUgcHJvY2Vzcy4gVGhlIHZpcnRpbyBieXBhc3Mgb25seQo+PiBwb3Bz
+IHVwIGlmIHRoZSBiYWNrdXAgYml0IGlzIHByZXNlbnQuIFdpdGggdGhlIHRlYW0gc29sdXRpb24g
+aXQKPj4gcmVxdWlyZXMgdGhhdCB0aGUgYmFzZSBpbWFnZSB1c2UgdGhlIHRlYW0gZHJpdmVyIG9u
+IHZpcnRpb19uZXQgd2hlbiBpdAo+PiBzZWVzIG9uZS4gSSBkb3VidCB0aGUgT1NWcyB3b3VsZCB3
+YW50IHRvIGRvIHRoYXQganVzdCBiZWNhdXNlIFNSLUlPVgo+PiBpc24ndCB0aGF0IHBvcHVsYXIg
+b2YgYSBjYXNlLgo+IElJVUMgd2UgbmVlZCB0byBtb25pdG9yIGZvciBhICJiYWNrdXAgaGludCIs
+IHNwYXduIHRoZSBtYXN0ZXIsIHJlbmFtZSBpdAo+IHRvIG1haW50YWluIGJhY2t3YXJkcyBjb21w
+YXRpYmlsaXR5IHdpdGggbm8tVkYgc2V0dXBzIGFuZCBlbnNsYXZlIHRoZSBWRgo+IGlmIGl0IGFw
+cGVhcnMuCj4KPiBBbGwgdGhvc2Ugc291bmQgcG9zc2libGUgZnJvbSB1c2VyIHNwYWNlLCB0aGUg
+YWR2YW50YWdlIG9mIHRoZSBrZXJuZWwKPiBzb2x1dGlvbiByaWdodCBub3cgaXMgdGhhdCBpdCBo
+YXMgbW9yZSBjb21wbGV0ZSBjb2RlLgo+Cj4gQW0gSSBtaXN1bmRlcnN0YW5kaW5nPwoKSSB0aGlu
+ayB0aGVyZSBpcyBzb21lIG1pc3VuZGVyc3RhbmRpbmcgYWJvdXQgdGhlIGV4YWN0IHJlcXVpcmVt
+ZW50IGFuZCAKdGhlIHVzZWNhc2UKd2UgYXJlIHRyeWluZyB0byBzb2x2ZS7CoCBJZiB0aGUgR3Vl
+c3QgaXMgYWxsb3dlZCB0byBkbyB0aGlzIApjb25maWd1cmF0aW9uLCB3ZSBhbHJlYWR5IGhhdmUK
+YSBzb2x1dGlvbiB3aXRoIGVpdGhlciBib25kL3RlYW0gYmFzZWQgdXNlciBzcGFjZSBjb25maWd1
+cmF0aW9uLgoKVGhpcyBpcyB0byBlbmFibGUgY2xvdWQgc2VydmljZSBwcm92aWRlcnMgdG8gcHJv
+dmlkZSBhIGFjY2VsZXJhdGVkIApkYXRhcGF0aCBieSBzaW1wbHkKbGV0dGluZyB0byB0ZW5hbnRz
+IHRvIGdldCB0aGVpciBvd24gaW1hZ2VzIHdpdGggdGhlIG9ubHkgcmVxdWlyZW1lbnQgdG8gCmVu
+YWJsZSB0aGVpcgprZXJuZWxzIHdpdGggbmV3ZXIgdmlydGlvX25ldCBkcml2ZXIgd2l0aCBCQUNL
+VVAgc3VwcG9ydCBhbmQgdGhlIFZGIGRyaXZlci4KClRvIHJlY2FwIGZyb20gYW4gZWFybGllciB0
+aHJlYWQsIGhlcmUgaXMgYSByZXNwb25zZSBmcm9tIFN0ZXBoZW4gdGhhdCAKdGFsa3MgYWJvdXQg
+dGhlCnJlcXVpcmVtZW50IGZvciB0aGUgbmV0dnNjIHNvbHV0aW9uIGFuZCB3ZSB3b3VsZCBsaWtl
+IHRvIHByb3ZpZGUgc2ltaWxhciAKc29sdXRpb24gZm9yCktWTSBiYXNlZCBjbG91ZCBkZXBsb3lt
+ZW50cy4KCiA+IFRoZSByZXF1aXJlbWVudCB3aXRoIEF6dXJlIGFjY2VsZXJhdGVkIG5ldHdvcmsg
+d2FzIHRoYXQgYSBzdG9jayAKZGlzdHJpYnV0aW9uIGltYWdlIGZyb20gdGhlCiA+IHN0b3JlIG11
+c3QgYmUgYWJsZSB0byBydW4gdW5tb2RpZmllZCBhbmQgZ2V0IGFjY2VsZXJhdGVkIG5ldHdvcmtp
+bmcuCiA+wqAgTm90IHN1cmUgaWYgb3RoZXIgZW52aXJvbm1lbnRzIG5lZWQgdG8gd29yayB0aGUg
+c2FtZSwgYnV0IGl0IHdvdWxkIApiZSBuaWNlLgogPsKgIFRoYXQgbWVhbnQgbm8gYWRkaXRpb25h
+bCBzZXR1cCBzY3JpcHRzIChha2Egbm8gYm9uZGluZykgYW5kIGFsc28gaXQgbXVzdAogPiB3b3Jr
+IHRyYW5zcGFyZW50bHkgd2l0aCBob3QtcGx1Zy4gQWxzbyB0aGVyZSBhcmUgZGl2ZXJzZSBzZXQg
+b2YgCmVudmlyb25tZW50czoKID4gb3BlbnN0YWNrLCBjbG91ZGluaXQsIG5ldHdvcmsgbWFuYWdl
+ciBhbmQgc3lzdGVtZC4gVGhlIHNvbHV0aW9uIGhhZCAKdG8gbm90IGRlcGVuZAogPiBvbiBhbnkg
+b25lIG9mIHRoZW0sIGJ1dCBhbHNvIG5vdCBicmVhayBhbnkgb2YgdGhlbS4KClRoYW5rcwpTcmlk
+aGFyCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
