@@ -1,21 +1,24 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+From: Alexander Duyck <alexander.duyck@gmail.com>
 Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
 	passthru device
-Date: Wed, 21 Feb 2018 19:28:30 -0800
-Message-ID: <8ac8a83f-3af4-995e-6eba-c58eddcd086e@intel.com>
-References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
-	<20180216183817.42b07af6@cakuba.netronome.com>
-	<CAKgT0UfU9gV2Y7hWFQi0vJoD9kYeoq+7cXmwAjXeV5zxXHa3dQ@mail.gmail.com>
-	<CADGSJ217HahFJsGmNXMD6SwWiK374+u_YET8QqdsmofCRFZr=Q@mail.gmail.com>
-	<CAKgT0Uda7Bmzf06RMmD7hCVLr8hHQxaY8Fk7w9Qy=7Vi6NODwQ@mail.gmail.com>
-	<CADGSJ23WFYEYo2DpSPVfZsOLjoSpgWWVCtEZi84wrUHN-noxag@mail.gmail.com>
-	<0d158bf6-79b3-442b-2c61-3e900ff40922@intel.com>
+Date: Thu, 22 Feb 2018 13:30:12 -0800
+Message-ID: <CAKgT0UeVhPOgRM0J6fyGDAJrTnqjc6AtC8+_UMs=hojZAajtdg__32098.1894423769$1519344925$gmane$org@mail.gmail.com>
+References: <20180220201410.GF2031@nanopsycho>
+	<20180220143356.3467084d@cakuba.netronome.com>
+	<20180221095159.GA1996@nanopsycho>
+	<CAKgT0UdyhrVr=pYZb=AJq9sWWUVb_BadbJTcqY1AwHHTw8cmQw@mail.gmail.com>
+	<20180221161105.GC1996@nanopsycho>
+	<CAKgT0Ud+6eiY7ycyju1SToeatH1R7KBDcUOqjn9Pu2k5uOr5Wg@mail.gmail.com>
+	<20180221165848.GD1996@nanopsycho>
+	<CAKgT0UeZS_SzNfiMX3ujy+a9WZWySVdyTpyQ=b=RJJrAG3JO=w@mail.gmail.com>
+	<20180221193832.GE1996@nanopsycho>
+	<CAKgT0Ud--R7Mw1_jFckskhGmGLZgZbTZ24TuvJ+UWvm_MAQR9w@mail.gmail.com>
+	<20180222081115.GC1994@nanopsycho>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0d158bf6-79b3-442b-2c61-3e900ff40922@intel.com>
-Content-Language: en-US
+In-Reply-To: <20180222081115.GC1994@nanopsycho>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,190 +28,307 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>, Alexander Duyck <alexander.duyck@gmail.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: Jiri Pirko <jiri@resnulli.us>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMi8yMS8yMDE4IDY6MzUgUE0sIFNhbXVkcmFsYSwgU3JpZGhhciB3cm90ZToKPiBPbiAyLzIx
-LzIwMTggNTo1OSBQTSwgU2l3ZWkgTGl1IHdyb3RlOgo+PiBPbiBXZWQsIEZlYiAyMSwgMjAxOCBh
-dCA0OjE3IFBNLCBBbGV4YW5kZXIgRHV5Y2sKPj4gPGFsZXhhbmRlci5kdXlja0BnbWFpbC5jb20+
-IHdyb3RlOgo+Pj4gT24gV2VkLCBGZWIgMjEsIDIwMTggYXQgMzo1MCBQTSwgU2l3ZWkgTGl1IDxs
-b3Nld2VpZ2hAZ21haWwuY29tPiB3cm90ZToKPj4+PiBJIGhhdmVuJ3QgY2hlY2tlZCBlbWFpbHMg
-Zm9yIGRheXMgYW5kIGRpZCBub3QgcmVhbGl6ZSB0aGUgbmV3IHJldmlzaW9uCj4+Pj4gaGFkIGFs
-cmVhZHkgY2FtZSBvdXQuIEFuZCB0aGFuayB5b3UgZm9yIHRoZSBlZmZvcnQsIHRoaXMgcmV2aXNp
-b24KPj4+PiByZWFsbHkgbG9va3MgdG8gYmUgYSBzdGVwIGZvcndhcmQgdG93YXJkcyBvdXIgdXNl
-IGNhc2UgYW5kIGlzIGNsb3NlIHRvCj4+Pj4gd2hhdCB3ZSB3YW50ZWQgdG8gZG8uIEEgZmV3IHF1
-ZXN0aW9ucyBpbiBsaW5lLgo+Pj4+Cj4+Pj4gT24gU2F0LCBGZWIgMTcsIDIwMTggYXQgOToxMiBB
-TSwgQWxleGFuZGVyIER1eWNrCj4+Pj4gPGFsZXhhbmRlci5kdXlja0BnbWFpbC5jb20+IHdyb3Rl
-Ogo+Pj4+PiBPbiBGcmksIEZlYiAxNiwgMjAxOCBhdCA2OjM4IFBNLCBKYWt1YiBLaWNpbnNraSA8
-a3ViYWtpY2lAd3AucGw+IAo+Pj4+PiB3cm90ZToKPj4+Pj4+IE9uIEZyaSwgMTYgRmViIDIwMTgg
-MTA6MTE6MTkgLTA4MDAsIFNyaWRoYXIgU2FtdWRyYWxhIHdyb3RlOgo+Pj4+Pj4+IFBwYXRjaCAy
-IGlzIGluIHJlc3BvbnNlIHRvIHRoZSBjb21tdW5pdHkgcmVxdWVzdCBmb3IgYSAzIG5ldGRldgo+
-Pj4+Pj4+IHNvbHV0aW9uLsKgIEhvd2V2ZXIsIGl0IGNyZWF0ZXMgc29tZSBpc3N1ZXMgd2UnbGwg
-Z2V0IGludG8gaW4gYSAKPj4+Pj4+PiBtb21lbnQuCj4+Pj4+Pj4gSXQgZXh0ZW5kcyB2aXJ0aW9f
-bmV0IHRvIHVzZSBhbHRlcm5hdGUgZGF0YXBhdGggd2hlbiBhdmFpbGFibGUgYW5kCj4+Pj4+Pj4g
-cmVnaXN0ZXJlZC4gV2hlbiBCQUNLVVAgZmVhdHVyZSBpcyBlbmFibGVkLCB2aXJ0aW9fbmV0IGRy
-aXZlciAKPj4+Pj4+PiBjcmVhdGVzCj4+Pj4+Pj4gYW4gYWRkaXRpb25hbCAnYnlwYXNzJyBuZXRk
-ZXYgdGhhdCBhY3RzIGFzIGEgbWFzdGVyIGRldmljZSBhbmQgCj4+Pj4+Pj4gY29udHJvbHMKPj4+
-Pj4+PiAyIHNsYXZlIGRldmljZXMuwqAgVGhlIG9yaWdpbmFsIHZpcnRpb19uZXQgbmV0ZGV2IGlz
-IHJlZ2lzdGVyZWQgYXMKPj4+Pj4+PiAnYmFja3VwJyBuZXRkZXYgYW5kIGEgcGFzc3RocnUvdmYg
-ZGV2aWNlIHdpdGggdGhlIHNhbWUgTUFDIGdldHMKPj4+Pj4+PiByZWdpc3RlcmVkIGFzICdhY3Rp
-dmUnIG5ldGRldi4gQm90aCAnYnlwYXNzJyBhbmQgJ2JhY2t1cCcgCj4+Pj4+Pj4gbmV0ZGV2cyBh
-cmUKPj4+Pj4+PiBhc3NvY2lhdGVkIHdpdGggdGhlIHNhbWUgJ3BjaScgZGV2aWNlLsKgIFRoZSB1
-c2VyIGFjY2Vzc2VzIHRoZSAKPj4+Pj4+PiBuZXR3b3JrCj4+Pj4+Pj4gaW50ZXJmYWNlIHZpYSAn
-YnlwYXNzJyBuZXRkZXYuIFRoZSAnYnlwYXNzJyBuZXRkZXYgY2hvb3NlcyAKPj4+Pj4+PiAnYWN0
-aXZlJyBuZXRkZXYKPj4+Pj4+PiBhcyBkZWZhdWx0IGZvciB0cmFuc21pdHMgd2hlbiBpdCBpcyBh
-dmFpbGFibGUgd2l0aCBsaW5rIHVwIGFuZCAKPj4+Pj4+PiBydW5uaW5nLgo+Pj4+Pj4gVGhhbmsg
-eW91IGRvIGRvaW5nIHRoaXMuCj4+Pj4+Pgo+Pj4+Pj4+IFdlIG5vdGljZWQgYSBjb3VwbGUgb2Yg
-aXNzdWVzIHdpdGggdGhpcyBhcHByb2FjaCBkdXJpbmcgdGVzdGluZy4KPj4+Pj4+PiAtIEFzIGJv
-dGggJ2J5cGFzcycgYW5kICdiYWNrdXAnIG5ldGRldnMgYXJlIGFzc29jaWF0ZWQgd2l0aCB0aGUg
-Cj4+Pj4+Pj4gc2FtZQo+Pj4+Pj4+IMKgwqAgdmlydGlvIHBjaSBkZXZpY2UsIHVkZXYgdHJpZXMg
-dG8gcmVuYW1lIGJvdGggb2YgdGhlbSB3aXRoIHRoZSAKPj4+Pj4+PiBzYW1lIG5hbWUKPj4+Pj4+
-PiDCoMKgIGFuZCB0aGUgMm5kIHJlbmFtZSB3aWxsIGZhaWwuIFRoaXMgd291bGQgYmUgT0sgYXMg
-bG9uZyBhcyB0aGUgCj4+Pj4+Pj4gZmlyc3QgbmV0ZGV2Cj4+Pj4+Pj4gwqDCoCB0byBiZSByZW5h
-bWVkIGlzIHRoZSAnYnlwYXNzJyBuZXRkZXYsIGJ1dCB0aGUgb3JkZXIgaW4gd2hpY2ggCj4+Pj4+
-Pj4gdWRldiBnZXRzCj4+Pj4+Pj4gwqDCoCB0byByZW5hbWUgdGhlIDIgbmV0ZGV2cyBpcyBub3Qg
-cmVsaWFibGUuCj4+Pj4+PiBPdXQgb2YgY3VyaW9zaXR5IC0gd2h5IGRvIHlvdSBsaW5rIHRoZSBt
-YXN0ZXIgbmV0ZGV2IHRvIHRoZSB2aXJ0aW8KPj4+Pj4+IHN0cnVjdCBkZXZpY2U/Cj4+Pj4+IFRo
-ZSBiYXNpYyBpZGVhIG9mIGFsbCB0aGlzIGlzIHRoYXQgd2Ugd2FudGVkIHRoaXMgdG8gd29yayB3
-aXRoIGFuCj4+Pj4+IGV4aXN0aW5nIFZNIGltYWdlIHRoYXQgd2FzIHVzaW5nIHZpcnRpby4gQXMg
-c3VjaCB3ZSB3ZXJlIHRyeWluZyB0bwo+Pj4+PiBtYWtlIGl0IHNvIHRoYXQgdGhlIGJ5cGFzcyBp
-bnRlcmZhY2UgdGFrZXMgdGhlIHBsYWNlIG9mIHRoZSBvcmlnaW5hbAo+Pj4+PiB2aXJ0aW8gYW5k
-IGdldCB1ZGV2IHRvIHJlbmFtZSB0aGUgYnlwYXNzIHRvIHdoYXQgdGhlIG9yaWdpbmFsCj4+Pj4+
-IHZpcnRpb19uZXQgd2FzLgo+Pj4+IENvdWxkIGl0IG1hZGUgaXQgYWxzbyBwb3NzaWJsZSB0byB0
-YWtlIG92ZXIgdGhlIGNvbmZpZyBmcm9tIFZGIGluc3RlYWQKPj4+PiBvZiB2aXJ0aW8gb24gYW4g
-ZXhpc3RpbmcgVk0gaW1hZ2U/IEFuZCBnZXQgdWRldiByZW5hbWUgdGhlIGJ5cGFzcwo+Pj4+IG5l
-dGRldiB0byB3aGF0IHRoZSBvcmlnaW5hbCBWRiB3YXMuIEkgZG9uJ3Qgc2F5IHRpZ2h0bHkgYmlu
-ZGluZyB0aGUKPj4+PiBieXBhc3MgbWFzdGVyIHRvIG9ubHkgdmlydGlvIG9yIFZGLCBidXQgSSB0
-aGluayB3ZSBzaG91bGQgcHJvdmlkZSBib3RoCj4+Pj4gb3B0aW9ucyB0byBzdXBwb3J0IGRpZmZl
-cmVudCB1cGdyYWRlIHBhdGhzLiBQb3NzaWJseSB3ZSBjb3VsZCB0d2Vhawo+Pj4+IHRoZSBkZXZp
-Y2UgdHJlZSBsYXlvdXQgdG8gcmV1c2UgdGhlIHNhbWUgUENJIHNsb3QgZm9yIHRoZSBtYXN0ZXIK
-Pj4+PiBieXBhc3MgbmV0ZGV2LCBzdWNoIHRoYXQgdWRldiB3b3VsZCBub3QgZ2V0IGNvbmZ1c2Vk
-IHdoZW4gcmVuYW1pbmcgdGhlCj4+Pj4gZGV2aWNlLiBUaGUgVkYgbmVlZHMgdG8gdXNlIGEgZGlm
-ZmVyZW50IGZ1bmN0aW9uIHNsb3QgYWZ0ZXJ3YXJkcy4KPj4+PiBQZXJoYXBzIHdlIG1pZ2h0IG5l
-ZWQgdG8gYSBzcGVjaWFsIG11bHRpc2VhdCBsaWtlIFFFTVUgZGV2aWNlIGZvciB0aGF0Cj4+Pj4g
-cHVycG9zZT8KPj4+Pgo+Pj4+IE91ciBjYXNlIHdlJ2xsIHVwZ3JhZGUgdGhlIGNvbmZpZyBmcm9t
-IFZGIHRvIHZpcnRpby1ieXBhc3MgZGlyZWN0bHkuCj4+PiBTbyBpZiBJIGFtIHVuZGVyc3RhbmRp
-bmcgd2hhdCB5b3UgYXJlIHNheWluZyB5b3UgYXJlIHdhbnRpbmcgdG8gZmxpcAo+Pj4gdGhlIGJh
-Y2t1cCBpbnRlcmZhY2UgZnJvbSB0aGUgdmlydGlvIHRvIGEgVkYuIFRoZSBwcm9ibGVtIGlzIHRo
-YXQKPj4+IGJlY29tZXMgYSBiaXQgb2YgYSB2ZW5kb3IgbG9jay1pbiBzb2x1dGlvbiBzaW5jZSBp
-dCB3b3VsZCByZWx5IG9uIGEKPj4+IHNwZWNpZmljIFZGIGRyaXZlci4gSSB3b3VsZCBhZ3JlZSB3
-aXRoIEppcmkgdGhhdCB3ZSBkb24ndCB3YW50IHRvIGdvCj4+PiBkb3duIHRoYXQgcGF0aC4gV2Ug
-ZG9uJ3Qgd2FudCBldmVyeSBWRiBvdXQgdGhlcmUgZmlyaW5nIHVwIGl0cyBvd24KPj4+IHNlcGFy
-YXRlIGJvbmQuIElkZWFsbHkgeW91IHdhbnQgdGhlIGh5cGVydmlzb3IgdG8gYmUgYWJsZSB0byBt
-YW5hZ2UKPj4+IGFsbCBvZiB0aGlzIHdoaWNoIGlzIHdoeSBpdCBtYWtlcyBzZW5zZSB0byBoYXZl
-IHZpcnRpbyBtYW5hZ2UgdGhpcyBhbmQKPj4+IHdoeSB0aGlzIGlzIGFzc29jaWF0ZWQgd2l0aCB0
-aGUgdmlydGlvX25ldCBpbnRlcmZhY2UuCj4+IE5vLCB0aGF0J3Mgbm90IHdoYXQgSSB3YXMgdGFs
-a2luZyBhYm91dCBvZiBjb3Vyc2UuIEkgdGhvdWdodCB5b3UKPj4gbWVudGlvbmVkIHRoZSB1cGdy
-YWRlIHNjZW5hcmlvIHRoaXMgcGF0Y2ggd291bGQgbGlrZSB0byBhZGRyZXNzIGlzIHRvCj4+IHVz
-ZSB0aGUgYnlwYXNzIGludGVyZmFjZSAidG8gdGFrZSB0aGUgcGxhY2Ugb2YgdGhlIG9yaWdpbmFs
-IHZpcnRpbywKPj4gYW5kIGdldCB1ZGV2IHRvIHJlbmFtZSB0aGUgYnlwYXNzIHRvIHdoYXQgdGhl
-IG9yaWdpbmFsIHZpcnRpb19uZXQKPj4gd2FzIi4gVGhhdCBpcyBvbmUgb2YgdGhlIHBvc3NpYmxl
-IHVwZ3JhZGUgcGF0aHMgZm9yIHN1cmUuIEhvd2V2ZXIgdGhlCj4+IHVwZ3JhZGUgcGF0aCBJIHdh
-cyBzZWVraW5nIGlzIHRvIHVzZSB0aGUgYnlwYXNzIGludGVyZmFjZSB0byB0YWtlIHRoZQo+PiBw
-bGFjZSBvZiBvcmlnaW5hbCBWRiBpbnRlcmZhY2Ugd2hpbGUgcmV0YWluaW5nIHRoZSBuYW1lIGFu
-ZCBuZXR3b3JrCj4+IGNvbmZpZ3MsIHdoaWNoIGdlbmVyYWxseSBjYW4gYmUgZG9uZSBzaW1wbHkg
-d2l0aCBrZXJuZWwgdXBncmFkZS4gSXQKPj4gd291bGQgYmVjb21lIGxpbWl0aW5nIGFzIHRoaXMg
-cGF0Y2ggbWFrZXMgdGhlIGJ5cGFzcyBpbnRlcmZhY2Ugc2hhcmUKPj4gdGhlIHNhbWUgdmlydGlv
-IHBjaSBkZXZpY2Ugd2l0aCB2aXJpdG8gYmFja3VwLiBDYW4gdGhpcyBieXBhc3MKPj4gaW50ZXJm
-YWNlIGJlIG1hZGUgZ2VuZXJhbCB0byB0YWtlIHBsYWNlIG9mIGFueSBwY2kgZGV2aWNlIG90aGVy
-IHRoYW4KPj4gdmlydGlvLW5ldD8gVGhpcyB3aWxsIGJlIG1vcmUgaGVscGZ1bCBhcyB0aGUgY2xv
-dWQgdXNlcnMgd2hvIGhhcwo+PiBleGlzdGluZyBzZXR1cCBvbiBWRiBpbnRlcmZhY2UgZG9uJ3Qg
-aGF2ZSB0byByZWNyZWF0ZSBpdCBvbiB2aXJ0aW8tbmV0Cj4+IGFuZCBWRiBzZXBhcmF0ZWx5IGFn
-YWluLgo+Cj4gWWVzLiBUaGlzIHNvdW5kcyBpbnRlcmVzdGluZy4gTG9va3MgbGlrZSB5b3Ugd2Fu
-dCBhbiBleGlzdGluZyBWTSBpbWFnZSAKPiB3aXRoCj4gVkYgb25seSBjb25maWd1cmF0aW9uIHRv
-IGdldCB0cmFuc3BhcmVudCBsaXZlIG1pZ3JhdGlvbiBzdXBwb3J0IGJ5IGFkZGluZwo+IHZpcnRp
-b19uZXQgd2l0aCBCQUNLVVAgZmVhdHVyZS7CoCBXZSBtYXkgbmVlZCBhbm90aGVyIGZlYXR1cmUg
-Yml0IHRvIAo+IHN3aXRjaAo+IGJldHdlZW4gdGhlc2UgMiBvcHRpb25zLgoKQWZ0ZXIgdGhpbmtp
-bmcgc29tZSBtb3JlLCB0aGlzIG1heSBiZSBtb3JlIGludm9sdmVkIHRoYW4gYWRkaW5nIGEgbmV3
-CmZlYXR1cmUgYml0LsKgIFRoaXMgcmVxdWlyZXMgYSBuZXRkZXYgY3JlYXRlZCBieSB2aXJ0aW8g
-dG8gdGFrZSBvdmVyIHRoZSAKbmFtZSBvZgphIFZGIG5ldGRldiBhc3NvY2lhdGVkIHdpdGggYSBQ
-Q0kgZGV2aWNlIHRoYXQgbWF5IG5vdCBiZSBwbHVnZ2VkIGluIHdoZW4KdGhlIHZpcnRpbyBkcml2
-ZXIgaXMgY29taW5nIHVwLiBUaGlzIGRlZmluaXRlbHkgcmVxdWlyZXMgc29tZSBuZXcgbWVzc2Fn
-ZXMKZXhjaGFuZ2VkIGFjcm9zcyB0aGUgdmlydGlvIGNvbnRyb2wgcXVldWUgdG8gcGFzcyB0aGUg
-UENJIGRldmljZSBpbmZvIG9mIHRoZQpWRiBuZXRkZXYuCgo+Cj4KPj4KPj4+IFRoZSBvdGhlciBi
-aXRzIGdldCBpbnRvIG1vcmUgY29tcGxleGl0eSB0aGVuIHdlIGFyZSByZWFkeSB0byBoYW5kbGUK
-Pj4+IGZvciBub3cuIEkgdGhpbmsgSSBtaWdodCBoYXZlIHRhbGtlZCBhYm91dCBzb21ldGhpbmcg
-c2ltaWxhciB0aGF0IEkKPj4+IHdhcyByZWZlcnJpbmcgdG8gYXMgYSAidmlydGlvLWJvbmQiIHdo
-ZXJlIHlvdSB3b3VsZCBoYXZlIGEgUENJL1BDSWUKPj4+IHRyZWUgdG9wb2xvZ3kgdGhhdCBtYWtl
-cyB0aGlzIGVhc2llciB0byBzb3J0IG91dCwgYW5kIHRoZSAidmlydGlvLWJvbmQKPj4+IHdvdWxk
-IGJlIHVzZWQgdG8gaGFuZGxlIGNvb3JkaW5hdGlvbi9jb25maWd1cmF0aW9uIG9mIGEgbXVjaCBt
-b3JlCj4+PiBjb21wbGV4IGludGVyZmFjZS4KPj4gVGhhdCB3YXMgb25lIHdheSB0byBzb2x2ZSB0
-aGlzIHByb2JsZW0gYnV0IEknZCBsaWtlIHRvIHNlZSBzaW1wbGUgd2F5cwo+PiB0byBzb3J0IGl0
-IG91dC4KPj4KPj4+Pj4+IEZXSVcgdHdvIHNvbHV0aW9ucyB0aGF0IGltbWVkaWF0ZWx5IGNvbWUg
-dG8gbWluZCBpcyB0byBleHBvcnQgCj4+Pj4+PiAiYmFja3VwIgo+Pj4+Pj4gYXMgcGh5c19wb3J0
-X25hbWUgb2YgdGhlIGJhY2t1cCB2aXJ0aW8gbGluayBhbmQvb3IgYXNzaWduIGEgbmFtZSAKPj4+
-Pj4+IHRvIHRoZQo+Pj4+Pj4gbWFzdGVyIGxpa2UgeW91IGFyZSBkb2luZyBhbHJlYWR5LsKgIEkg
-dGhpbmsgdGVhbSB1c2VzIHRlYW0lZCBhbmQgCj4+Pj4+PiBib25kCj4+Pj4+PiB1c2VzIGJvbmQl
-ZCwgc29mdCBuYW1pbmcgb2YgbWFzdGVyIGRldmljZXMgc2VlbXMgcXVpdGUgbmF0dXJhbCBpbiAK
-Pj4+Pj4+IHRoaXMKPj4+Pj4+IGNhc2UuCj4+Pj4+IEkgZmlndXJlZCBJIGhhZCBvdmVybG9va2Vk
-IHNvbWV0aGluZyBsaWtlIHRoYXQuLiBUaGFua3MgZm9yIHBvaW50aW5nCj4+Pj4+IHRoaXMgb3V0
-LiBPa2F5IHNvIEkgdGhpbmsgdGhlIHBoeXNfcG9ydF9uYW1lIGFwcHJvYWNoIG1pZ2h0IHJlc29s
-dmUKPj4+Pj4gdGhlIG9yaWdpbmFsIGlzc3VlLiBJZiBJIGFtIHJlYWRpbmcgdGhpbmdzIGNvcnJl
-Y3RseSB3aGF0IHdlIGVuZCB1cAo+Pj4+PiB3aXRoIGlzIHRoZSBtYXN0ZXIgc2hvd2luZyB1cCBh
-cyAiZW5zMSIgZm9yIGV4YW1wbGUgYW5kIHRoZSBiYWNrdXAKPj4+Pj4gc2hvd2luZyB1cCBhcyAi
-ZW5zMW5iYWNrdXAiLiBBbSBJIHVuZGVyc3RhbmRpbmcgdGhhdCByaWdodD8KPj4+Pj4KPj4+Pj4g
-VGhlIHByb2JsZW0gd2l0aCB0aGUgdGVhbS9ib25kJWQgYXBwcm9hY2ggaXMgdGhhdCBpdCBjcmVh
-dGVzIGEgbmV3Cj4+Pj4+IG5ldGRldmljZSBhbmQgc28gaXQgd291bGQgcmVxdWlyZSBndWVzdCBj
-b25maWd1cmF0aW9uIGNoYW5nZXMuCj4+Pj4+Cj4+Pj4+PiBJTUhPIHBoeXNfcG9ydF9uYW1lID09
-ICJiYWNrdXAiIGlmIEJBQ0tVUCBiaXQgaXMgc2V0IG9uIHNsYXZlIHZpcnRpbwo+Pj4+Pj4gbGlu
-ayBpcyBxdWl0ZSBuZWF0Lgo+Pj4+PiBJIGFncmVlLiBGb3Igbm9uLSJiYWNrdXAiIHZpcmlvX25l
-dCBkZXZpY2VzIHdvdWxkIGl0IGJlIG9rYXkgZm9yIAo+Pj4+PiB1cyB0bwo+Pj4+PiBqdXN0IHJl
-dHVybiAtRU9QTk9UU1VQUD8gSSBhc3N1bWUgaXQgd291bGQgYmUgYW5kIHRoYXQgd2F5IHRoZSBs
-ZWdhY3kKPj4+Pj4gYmVoYXZpb3IgY291bGQgYmUgbWFpbnRhaW5lZCBhbHRob3VnaCB0aGUgZnVu
-Y3Rpb24gc3RpbGwgZXhpc3RzLgo+Pj4+Pgo+Pj4+Pj4+IC0gV2hlbiB0aGUgJ2FjdGl2ZScgbmV0
-ZGV2IGlzIHVucGx1Z2dlZCBPUiBub3QgcHJlc2VudCBvbiBhIAo+Pj4+Pj4+IGRlc3RpbmF0aW9u
-Cj4+Pj4+Pj4gwqDCoCBzeXN0ZW0gYWZ0ZXIgbGl2ZSBtaWdyYXRpb24sIHRoZSB1c2VyIHdpbGwg
-c2VlIDIgdmlydGlvX25ldCAKPj4+Pj4+PiBuZXRkZXZzLgo+Pj4+Pj4gVGhhdCdzIG5lY2Vzc2Fy
-eSBhbmQgZXhwZWN0ZWQsIGFsbCBjb25maWd1cmF0aW9uIGFwcGxpZXMgdG8gdGhlIAo+Pj4+Pj4g
-bWFzdGVyCj4+Pj4+PiBzbyBtYXN0ZXIgbXVzdCBleGlzdC4KPj4+Pj4gV2l0aCB0aGUgbmFtaW5n
-IGlzc3VlIHJlc29sdmVkIHRoaXMgaXMgdGhlIG9ubHkgaXRlbSBsZWZ0IAo+Pj4+PiBvdXRzdGFu
-ZGluZy4KPj4+Pj4gVGhpcyBiZWNvbWVzIGEgbWF0dGVyIG9mIGZvcm0gdnMgZnVuY3Rpb24uCj4+
-Pj4+Cj4+Pj4+IFRoZSBtYWluIGNvbXBsYWludCBhYm91dCB0aGUgIjMgbmV0ZGV2IiBzb2x1dGlv
-biBpcyBhIGJpdCAKPj4+Pj4gY29uZnVzaW5nIHRvCj4+Pj4+IGhhdmUgdGhlIDIgbmV0ZGV2cyBw
-cmVzZW50IGlmIHRoZSBWRiBpc24ndCB0aGVyZS4gVGhlIGlkZWEgaXMgdGhhdAo+Pj4+PiBoYXZp
-bmcgdGhlIGV4dHJhICJtYXN0ZXIiIG5ldGRldiB0aGVyZSBpZiB0aGVyZSBpc24ndCByZWFsbHkg
-YSAKPj4+Pj4gYm9uZCBpcwo+Pj4+PiBhIGJpdCB1Z2x5Lgo+Pj4+IElzIGl0IHRoaXMgdWdsaWVy
-IGluIHRlcm1zIG9mIHVzZXIgZXhwZXJpZW5jZSByYXRoZXIgdGhhbgo+Pj4+IGZ1bmN0aW9uYWxp
-dHk/IEkgZG9uJ3Qgd2FudCBpdCBkeW5hbWljYWxseSBjaGFuZ2VkIGJldHdlZW4gMi1uZXRkZXYK
-Pj4+PiBhbmQgMy1uZXRkZXYgZGVwZW5kaW5nIG9uIHRoZSBwcmVzZW5jZSBvZiBWRi4gVGhhdCBn
-ZXRzIGJhY2sgdG8gbXkKPj4+PiBvcmlnaW5hbCBxdWVzdGlvbiBhbmQgc3VnZ2VzdGlvbiBlYXJs
-aWVyOiB3aHkgbm90IGp1c3QgaGlkZSB0aGUgbG93ZXIKPj4+PiBuZXRkZXZzIGZyb20gdWRldiBy
-ZW5hbWluZyBhbmQgc3VjaD8gV2hpY2ggaW1wb3J0YW50IG9ic2VydmFiaWxpdHkKPj4+PiBiZW5l
-Zml0cyB1c2VycyBtYXkgZ2V0IGlmIGV4cG9zaW5nIHRoZSBsb3dlciBuZXRkZXZzPwo+Pj4+Cj4+
-Pj4gVGhhbmtzLAo+Pj4+IC1TaXdlaQo+Pj4gVGhlIG9ubHkgcmVhbCBhZHZhbnRhZ2UgdG8gYSAy
-IG5ldGRldiBzb2x1dGlvbiBpcyB0aGF0IGl0IGxvb2tzIGxpa2UKPj4+IHRoZSBuZXR2c2Mgc29s
-dXRpb24sIGhvd2V2ZXIgaXQgZG9lc24ndCBiZWhhdmUgbGlrZSBpdCBzaW5jZSB0aGVyZSBhcmUK
-Pj4+IHNvbWUgZmVhdHVyZXMgbGlrZSBYRFAgdGhhdCBtYXkgbm90IGZ1bmN0aW9uIGNvcnJlY3Rs
-eSBpZiB0aGV5IGFyZQo+Pj4gbGVmdCBlbmFibGVkIGluIHRoZSB2aXJ0aW9fbmV0IGludGVyZmFj
-ZS4KPj4+Cj4+PiBBcyBmYXIgYXMgZnVuY3Rpb25hbGl0eSB0aGUgYWR2YW50YWdlIG9mIG5vdCBo
-aWRpbmcgdGhlIGxvd2VyIGRldmljZXMKPj4+IGlzIHRoYXQgdGhleSBhcmUgZnJlZSB0byBiZSBt
-YW5hZ2VkLiBUaGUgcHJvYmxlbSB3aXRoIHB1c2hpbmcgYWxsIG9mCj4+PiB0aGUgY29uZmlndXJh
-dGlvbiBpbnRvIHRoZSB1cHBlciBkZXZpY2UgaXMgdGhhdCB5b3UgYXJlIGxpbWl0ZWQgdG8gdGhl
-Cj4+PiBpbnRlcnNlY3Rpb24gb2YgdGhlIGZlYXR1cmVzIG9mIHRoZSBsb3dlciBkZXZpY2VzLiBU
-aGlzIGNhbiBiZQo+Pj4gbGltaXRpbmcgZm9yIHNvbWUgc2V0dXBzIGFzIHNvbWUgVkZzIHN1cHBv
-cnQgdGhpbmdzIGxpa2UgbW9yZSBxdWV1ZXMsCj4+PiBvciBiZXR0ZXIgaW50ZXJydXB0IG1vZGVy
-YXRpb24gb3B0aW9ucyB0aGFuIG90aGVycyBzbyB0cnlpbmcgdG8gbWFrZQo+Pj4gZXZlcnl0aGlu
-ZyB3b3JrIHdpdGggb25lIGNvbmZpZyB3b3VsZCBiZSB1Z2x5Lgo+PiBJdCBkZXBlbmRzIG9uIGhv
-dyB5b3UgYnVpbGQgaXQgYW5kIHRoZSB3YXkgeW91IGV4cGVjdCBpdCB0byB3b3JrLiBJTUhPCj4+
-IHRoZSBsb3dlciBkZXZpY2VzIGRvbid0IG5lZWQgdG8gYmUgZGlyZWN0bHkgbWFuYWdlZCBhdCBh
-bGwsIG90aGVyd2lzZQo+PiBpdCBlbmRzIHVwIHdpdGggbG9zcyBvZiBjb25maWd1cmF0aW9uIGFj
-cm9zcyBtaWdyYXRpb24sIGFuZCBpdCByZWFsbHkKPj4gZG9lcyBub3QgYnJpbmcgbXVjaCB2YWx1
-ZSB0aGFuIGhhdmluZyBhIGdlbmVyYWwgdGVhbSBvciBib25kIGRldmljZS4KPj4gVXNlcnMgc3Rp
-bGwgaGF2ZSB0byByZWNvbmZpZ3VyZSB0aG9zZSBxdWV1ZSBzZXR0aW5ncyBhbmQgaW50ZXJydXB0
-Cj4+IG1vZGVyYXRpb24gb3B0aW9ucyBhZnRlciBhbGwuIFRoZSBuZXcgdXBwZXIgZGV2aWNlIGNv
-dWxkIHRha2UgdGhlCj4+IGFzc3VtcHRpb24gdGhhdCB0aGUgVkYvUFQgbG93ZXIgZGV2aWNlIGFs
-d2F5cyBoYXMgc3VwZXJpb3IgZmVhdHVyZSBzZXQKPj4gdGhhbiB2aXJ0aW8tbmV0IGluIG9yZGVy
-IHRvIGFwcGx5IGFkdmFuY2VkIGNvbmZpZ3VyYXRpb24uIFRoZSB1cHBlcgo+PiBkZXZpY2Ugc2hv
-dWxkIHJlbWVtYmVyIGFsbCBjb25maWd1cmF0aW9ucyBwcmV2aW91c2x5IGRvbmUgYW5kIGFwcGx5
-Cj4+IHN1cHBvcnRpbmcgb25lcyB0byBhY3RpdmUgZGV2aWNlIGF1dG9tYXRpY2FsbHkgd2hlbiBz
-d2l0Y2hpbmcgdGhlCj4+IGRhdGFwYXRoLgo+Pgo+IEl0IHNob3VsZCBiZSBwb3NzaWJsZSB0byBl
-eHRlbmQgdGhpcyBwYXRjaHNldCB0byBzdXBwb3J0IG1pZ3JhdGlvbiBvZiAKPiBhZGRpdGlvbmFs
-Cj4gc2V0dGluZ3PCoCBieSBlbmFibGluZyBhZGRpdGlvbmFsIG5kb19vcHMgYW5kIGV0aHRvb2xf
-b3BzIG9uIHRoZSB1cHBlciBkZXYKPiBhbmQgcHJvcGFnYXRpbmcgdGhlbSBkb3duIHRoZSBsb3dl
-ciBkZXZpY2VzIGFuZCByZXBsYXlpbmcgdGhlIHNldHRpbmdzIAo+IGFmdGVyCj4gdGhlIFZGIGlz
-IHJlcGx1Z2dlZCBhZnRlciBtaWdyYXRpb24uCj4KPiBUaGFua3MKPiBTcmlkaGFyCgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+On Thu, Feb 22, 2018 at 12:11 AM, Jiri Pirko <jiri@resnulli.us> wrote:
+> Wed, Feb 21, 2018 at 09:57:09PM CET, alexander.duyck@gmail.com wrote:
+>>On Wed, Feb 21, 2018 at 11:38 AM, Jiri Pirko <jiri@resnulli.us> wrote:
+>>> Wed, Feb 21, 2018 at 06:56:35PM CET, alexander.duyck@gmail.com wrote:
+>>>>On Wed, Feb 21, 2018 at 8:58 AM, Jiri Pirko <jiri@resnulli.us> wrote:
+>>>>> Wed, Feb 21, 2018 at 05:49:49PM CET, alexander.duyck@gmail.com wrote:
+>>>>>>On Wed, Feb 21, 2018 at 8:11 AM, Jiri Pirko <jiri@resnulli.us> wrote:
+>>>>>>> Wed, Feb 21, 2018 at 04:56:48PM CET, alexander.duyck@gmail.com wrote:
+>>>>>>>>On Wed, Feb 21, 2018 at 1:51 AM, Jiri Pirko <jiri@resnulli.us> wrote:
+>>>>>>>>> Tue, Feb 20, 2018 at 11:33:56PM CET, kubakici@wp.pl wrote:
+>>>>>>>>>>On Tue, 20 Feb 2018 21:14:10 +0100, Jiri Pirko wrote:
+>>>>>>>>>>> Yeah, I can see it now :( I guess that the ship has sailed and we are
+>>>>>>>>>>> stuck with this ugly thing forever...
+>>>>>>>>>>>
+>>>>>>>>>>> Could you at least make some common code that is shared in between
+>>>>>>>>>>> netvsc and virtio_net so this is handled in exacly the same way in both?
+>>>>>>>>>>
+>>>>>>>>>>IMHO netvsc is a vendor specific driver which made a mistake on what
+>>>>>>>>>>behaviour it provides (or tried to align itself with Windows SR-IOV).
+>>>>>>>>>>Let's not make a far, far more commonly deployed and important driver
+>>>>>>>>>>(virtio) bug-compatible with netvsc.
+>>>>>>>>>
+>>>>>>>>> Yeah. netvsc solution is a dangerous precedent here and in my opinition
+>>>>>>>>> it was a huge mistake to merge it. I personally would vote to unmerge it
+>>>>>>>>> and make the solution based on team/bond.
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>>>>To Jiri's initial comments, I feel the same way, in fact I've talked to
+>>>>>>>>>>the NetworkManager guys to get auto-bonding based on MACs handled in
+>>>>>>>>>>user space.  I think it may very well get done in next versions of NM,
+>>>>>>>>>>but isn't done yet.  Stephen also raised the point that not everybody is
+>>>>>>>>>>using NM.
+>>>>>>>>>
+>>>>>>>>> Can be done in NM, networkd or other network management tools.
+>>>>>>>>> Even easier to do this in teamd and let them all benefit.
+>>>>>>>>>
+>>>>>>>>> Actually, I took a stab to implement this in teamd. Took me like an hour
+>>>>>>>>> and half.
+>>>>>>>>>
+>>>>>>>>> You can just run teamd with config option "kidnap" like this:
+>>>>>>>>> # teamd/teamd -c '{"kidnap": true }'
+>>>>>>>>>
+>>>>>>>>> Whenever teamd sees another netdev to appear with the same mac as his,
+>>>>>>>>> or whenever teamd sees another netdev to change mac to his,
+>>>>>>>>> it enslaves it.
+>>>>>>>>>
+>>>>>>>>> Here's the patch (quick and dirty):
+>>>>>>>>>
+>>>>>>>>> Subject: [patch teamd] teamd: introduce kidnap feature
+>>>>>>>>>
+>>>>>>>>> Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+>>>>>>>>
+>>>>>>>>So this doesn't really address the original problem we were trying to
+>>>>>>>>solve. You asked earlier why the netdev name mattered and it mostly
+>>>>>>>>has to do with configuration. Specifically what our patch is
+>>>>>>>>attempting to resolve is the issue of how to allow a cloud provider to
+>>>>>>>>upgrade their customer to SR-IOV support and live migration without
+>>>>>>>>requiring them to reconfigure their guest. So the general idea with
+>>>>>>>>our patch is to take a VM that is running with virtio_net only and
+>>>>>>>>allow it to instead spawn a virtio_bypass master using the same netdev
+>>>>>>>>name as the original virtio, and then have the virtio_net and VF come
+>>>>>>>>up and be enslaved by the bypass interface. Doing it this way we can
+>>>>>>>>allow for multi-vendor SR-IOV live migration support using a guest
+>>>>>>>>that was originally configured for virtio only.
+>>>>>>>>
+>>>>>>>>The problem with your solution is we already have teaming and bonding
+>>>>>>>>as you said. There is already a write-up from Red Hat on how to do it
+>>>>>>>>(https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.1/html/virtual_machine_management_guide/sect-migrating_virtual_machines_between_hosts).
+>>>>>>>>That is all well and good as long as you are willing to keep around
+>>>>>>>>two VM images, one for virtio, and one for SR-IOV with live migration.
+>>>>>>>
+>>>>>>> You don't need 2 images. You need only one. The one with the team setup.
+>>>>>>> That's it. If another netdev with the same mac appears, teamd will
+>>>>>>> enslave it and run traffic on it. If not, ok, you'll go only through
+>>>>>>> virtio_net.
+>>>>>>
+>>>>>>Isn't that going to cause the routing table to get messed up when we
+>>>>>>rearrange the netdevs? We don't want to have an significant disruption
+>>>>>> in traffic when we are adding/removing the VF. It seems like we would
+>>>>>>need to invalidate any entries that were configured for the virtio_net
+>>>>>>and reestablish them on the new team interface. Part of the criteria
+>>>>>>we have been working with is that we should be able to transition from
+>>>>>>having a VF to not or vice versa without seeing any significant
+>>>>>>disruption in the traffic.
+>>>>>
+>>>>> What? You have routes on the team netdev. virtio_net and VF are only
+>>>>> slaves. What are you talking about? I don't get it :/
+>>>>
+>>>>So lets walk though this by example. The general idea of the base case
+>>>>for all this is somebody starting with virtio_net, we will call the
+>>>>interface "ens1" for now. It comes up and is assigned a dhcp address
+>>>>and everything works as expected. Now in order to get better
+>>>>performance we want to add a VF "ens2", but we don't want a new IP
+>>>>address. Now if I understand correctly what will happen is that when
+>>>>"ens2" appears on the system teamd will then create a new team
+>>>>interface "team0". Before teamd can enslave ens1 it has to down the
+>>>
+>>> No, you don't understand that correctly.
+>>>
+>>> There is always ens1 and team0. ens1 is a slave of team0. team0 is the
+>>> interface to use, to set ip on etc.
+>>>
+>>> When ens2 appears, it gets enslaved to team0 as well.
+>>>
+>>>
+>>>>interface if I understand things correctly. This means that we have to
+>>>>disrupt network traffic in order for this to work.
+>>>>
+>>>>To give you an idea of where we were before this became about trying
+>>>>to do this in the team or bonding driver, we were debating a 2 netdev
+>>>>model versus a 3 netdev model. I will call out the model and the
+>>>>advantages/disadvantages of those below.
+>>>>
+>>>>2 Netdev model, "ens1", enslaves "ens2".
+>>>>- Requires dropping in-driver XDP in order to work (won't capture VF
+>>>>traffic otherwise)
+>>>>- VF takes performance hit for extra qdisc/Tx queue lock of virtio_net interface
+>>>>- If you ass-u-me (I haven't been a fan of this model if you can't
+>>>>tell) that it is okay to rip out in-driver XDP from virtio_net, then
+>>>>you could transition between base virtio, virtio w/ backup bit set.
+>>>>- Works for netvsc because they limit their features (no in-driver
+>>>>XDP) to guarantee this works.
+>>>>
+>>>>3 Netdev model, "ens1", enslaves "ens1nbackup" and "ens2"
+>>>>- Exposes 2 netdevs "ens1" and "ens1nbackup" when only virtio is present
+>>>>- No extra qdisc or locking
+>>>>- All virtio_net original functionality still present
+>>>>- Not able to transition from virtio to virtio w/ backup without
+>>>>disruption (requires hot-plug)
+>>>>
+>>>>The way I see it the only way your team setup could work would be
+>>>>something closer to the 3 netdev model. Basically we would be
+>>>>requiring the user to always have the team0 present in order to make
+>>>>certain that anything like XDP would be run on the team interface
+>>>>instead of assuming that the virtio_net could run by itself. I will
+>>>>add it as a third option here to compare to the other 2.
+>>>
+>>> Yes.
+>>>
+>>>
+>>>>
+>>>>3 Netdev "team" model, "team0", enslaves "ens1" and "ens2"
+>>>>- Requires guest to configure teamd
+>>>>- Exposes "team0" and "ens1" when only virtio is present
+>>>>- No extra qdisc or locking
+>>>>- Doesn't require "backup" bit in virtio
+>>>>
+>>>>>>
+>>>>>>Also how does this handle any static configuration? I am assuming that
+>>>>>>everything here assumes the team will be brought up as soon as it is
+>>>>>>seen and assigned a DHCP address.
+>>>>>
+>>>>> Again. You configure whatever you need on the team netdev.
+>>>>
+>>>>Just so we are clear, are you then saying that the team0 interface
+>>>>will always be present with this configuration? You had made it sound
+>>>
+>>> Of course.
+>>>
+>>>
+>>>>like it would disappear if you didn't have at least 2 interfaces.
+>>>
+>>> Where did I make it sound like that? No.
+>>
+>>I think it was a bit of misspeak/misread specifically I am thinking of:
+>>  You don't need 2 images. You need only one. The one with the
+>>  team setup. That's it. If another netdev with the same mac appears,
+>>  teamd will enslave it and run traffic on it. If not, ok, you'll go only
+>>  through virtio_net.
+>>
+>>I read that as there being no team if the VF wasn't present since you
+>>would still be going through team and then virtio_net otherwise.
+>
+> team netdev is always there.
+>
+>
+>>
+>>>
+>>>>
+>>>>>>
+>>>>>>The solution as you have proposed seems problematic at best. I don't
+>>>>>>see how the team solution works without introducing some sort of
+>>>>>>traffic disruption to either add/remove the VF and bring up/tear down
+>>>>>>the team interface. At that point we might as well just give up on
+>>>>>>this piece of live migration support entirely since the disruption was
+>>>>>>what we were trying to avoid. We might as well just hotplug out the VF
+>>>>>>and hotplug in a virtio at the same bus device and function number and
+>>>>>>just let udev take care of renaming it for us. The idea was supposed
+>>>>>>to be a seamless transition between the two interfaces.
+>>>>>
+>>>>> Alex. What you are trying to do in this patchset and what netvsc does it
+>>>>> essentialy in-driver bonding. Same thing mechanism, rx_handler,
+>>>>> everything. I don't really understand what are you talking about. With
+>>>>> use of team you will get exactly the same behaviour.
+>>>>
+>>>>So the goal of the "in-driver bonding" is to make the bonding as
+>>>>non-intrusive as possible and require as little user intervention as
+>>>>possible. I agree that much of the handling is the same, however the
+>>>>control structure and requirements are significantly different. That
+>>>>has been what I have been trying to explain. You keep wanting to use
+>>>>the existing structures, but they don't really apply cleanly because
+>>>>they push control for the interface up into the guest, and that
+>>>>doesn't make much sense in the case of virtualization. What is
+>>>>happening here is that we are exposing a bond that the guest should
+>>>>have no control over, or at least as little as possible. In addition
+>>>>making the user have to add additional configuration in the guest
+>>>>means that there is that much more that can go wrong if they screw it
+>>>>up.
+>>>>
+>>>>The other problem here is that the transition needs to be as seamless
+>>>>as possible between just a standard virtio_net setup and this new
+>>>>setup. With either the team or bonding setup you end up essentially
+>>>>forcing the guest to have the bond/team always there even if they are
+>>>>running only a single interface. Only if they "upgrade" the VM by
+>>>>adding a VF then it finally gets to do anything.
+>>>
+>>> Yeah. There is certainly a dilemma. We have to choose between
+>>> 1) weird and hackish in-driver semi-bonding that would be simple
+>>>    for user.
+>>> 2) the standard way that would be perhaps slighly more complicated
+>>>    for user.
+>>
+>>The problem is for us option 2 is quite a bit uglier. Basically it
+>>means essentially telling all the distros and such that their cloud
+>>images have to use team by default on all virtio_net interfaces. It
+>>pretty much means we have to throw away this as a possible solution
+>>since you are requiring guest changes that most customers/OS vendors
+>>would ever accept.
+>>
+>>At least with our solution it was the driver making use of the
+>>functionality if a given feature bit was set. The teaming solution as
+>>proposed doesn't even give us that option.
+>
+> I understand your motivation.
+>
+>
+>>
+>>>>
+>>>>What this comes down to for us is the following requirements:
+>>>>1. The name of the interface cannot change when going from virtio_net,
+>>>>to virtio_net being bypassed using a VF. We cannot create an interface
+>>>>on top of the interface, if anything we need to push the original
+>>>>virtio_net out of the way so that the new team interface takes its
+>>>>place in the configuration of the system. Otherwise a VM with VF w/
+>>>>live migration will require a different configuration than one that
+>>>>just runs virtio_net.
+>>>
+>>> Team driver netdev is still the same, no name changes.
+>>
+>>Right. Basically we need to have the renaming occur so that any
+>>existing config gets moved to the upper interface instead of having to
+>>rely on configuration being adjusted for the team interface.
+>
+> The initial name of team netdevice is totally up to you.
+>
+>
+>>
+>>>>2. We need some way to signal if this VM should be running in an
+>>>>"upgraded" mode or not. We have been using the backup bit in
+>>>>virtio_net to do that. If it isn't "upgraded" then we don't need the
+>>>>team/bond and we can just run with virtio_net.
+>>>
+>>> I don't see why the team cannot be there always.
+>>
+>>It is more the logistical nightmare. Part of the goal here was to work
+>>with the cloud base images that are out there such as
+>>https://alt.fedoraproject.org/cloud/. With just the kernel changes the
+>>overhead for this stays fairly small and would be pulled in as just a
+>>standard part of the kernel update process. The virtio bypass only
+>>pops up if the backup bit is present. With the team solution it
+>>requires that the base image use the team driver on virtio_net when it
+>>sees one. I doubt the OSVs would want to do that just because SR-IOV
+>>isn't that popular of a case.
+>
+> Again, I undertand your motivation. Yet I don't like your solution.
+> But if the decision is made to do this in-driver bonding. I would like
+> to see it baing done some generic way:
+> 1) share the same "in-driver bonding core" code with netvsc
+>    put to net/core.
+> 2) the "in-driver bonding core" will strictly limit the functionality,
+>    like active-backup mode only, one vf, one backup, vf netdev type
+>    check (so noone could enslave a tap or anything else)
+> If user would need something more, he should employ team/bond.
+
+I'll have to do some research and get back to you with our final
+decision on this. There was some internal resistance to splitting out
+this code as a separate module, but I think it would need to happen in
+order to support multiple drivers.
+
+Also I would be curious how Stephen feels about this. Would the
+sharing of the dev, and the use of the phys_port_name on the
+base/backup netdev work for netvsc? It seems like it should get them
+performance gains on the VF, but I am not sure if there are any
+specific requirements that mandated that they had to have 2 netdevs.
+
+Thanks.
+
+- Alex
