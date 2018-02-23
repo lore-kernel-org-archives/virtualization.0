@@ -1,13 +1,20 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: v4.16-rc2: virtio-block + ext4 lockdep splats / sleeping from
-	invalid context
-Date: Fri, 23 Feb 2018 15:47:36 +0000
-Message-ID: <20180223154735.x4ezmpjbjm6o6duw@lakrids.cambridge.arm.com>
+From: Siwei Liu <loseweigh@gmail.com>
+Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
+	passthru device
+Date: Fri, 23 Feb 2018 14:22:36 -0800
+Message-ID: <CADGSJ22Z1ujZOc+OS5E=MwGCy1nTn9D6mHKBz+J=K9+--8R+jg@mail.gmail.com>
+References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
+	<20180216183817.42b07af6@cakuba.netronome.com>
+	<CAKgT0UfU9gV2Y7hWFQi0vJoD9kYeoq+7cXmwAjXeV5zxXHa3dQ@mail.gmail.com>
+	<CADGSJ217HahFJsGmNXMD6SwWiK374+u_YET8QqdsmofCRFZr=Q@mail.gmail.com>
+	<CAKgT0Uda7Bmzf06RMmD7hCVLr8hHQxaY8Fk7w9Qy=7Vi6NODwQ@mail.gmail.com>
+	<CADGSJ23WFYEYo2DpSPVfZsOLjoSpgWWVCtEZi84wrUHN-noxag@mail.gmail.com>
+	<0d158bf6-79b3-442b-2c61-3e900ff40922@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <0d158bf6-79b3-442b-2c61-3e900ff40922@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,234 +24,216 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>, Theodore Ts'o <tytso@mit.edu>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, Jan Kara <jack@suse.com>, linux-ext4@vger.kernel.org
+To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all,
+On Wed, Feb 21, 2018 at 6:35 PM, Samudrala, Sridhar
+<sridhar.samudrala@intel.com> wrote:
+> On 2/21/2018 5:59 PM, Siwei Liu wrote:
+>>
+>> On Wed, Feb 21, 2018 at 4:17 PM, Alexander Duyck
+>> <alexander.duyck@gmail.com> wrote:
+>>>
+>>> On Wed, Feb 21, 2018 at 3:50 PM, Siwei Liu <loseweigh@gmail.com> wrote:
+>>>>
+>>>> I haven't checked emails for days and did not realize the new revision
+>>>> had already came out. And thank you for the effort, this revision
+>>>> really looks to be a step forward towards our use case and is close to
+>>>> what we wanted to do. A few questions in line.
+>>>>
+>>>> On Sat, Feb 17, 2018 at 9:12 AM, Alexander Duyck
+>>>> <alexander.duyck@gmail.com> wrote:
+>>>>>
+>>>>> On Fri, Feb 16, 2018 at 6:38 PM, Jakub Kicinski <kubakici@wp.pl> wrote:
+>>>>>>
+>>>>>> On Fri, 16 Feb 2018 10:11:19 -0800, Sridhar Samudrala wrote:
+>>>>>>>
+>>>>>>> Ppatch 2 is in response to the community request for a 3 netdev
+>>>>>>> solution.  However, it creates some issues we'll get into in a
+>>>>>>> moment.
+>>>>>>> It extends virtio_net to use alternate datapath when available and
+>>>>>>> registered. When BACKUP feature is enabled, virtio_net driver creates
+>>>>>>> an additional 'bypass' netdev that acts as a master device and
+>>>>>>> controls
+>>>>>>> 2 slave devices.  The original virtio_net netdev is registered as
+>>>>>>> 'backup' netdev and a passthru/vf device with the same MAC gets
+>>>>>>> registered as 'active' netdev. Both 'bypass' and 'backup' netdevs are
+>>>>>>> associated with the same 'pci' device.  The user accesses the network
+>>>>>>> interface via 'bypass' netdev. The 'bypass' netdev chooses 'active'
+>>>>>>> netdev
+>>>>>>> as default for transmits when it is available with link up and
+>>>>>>> running.
+>>>>>>
+>>>>>> Thank you do doing this.
+>>>>>>
+>>>>>>> We noticed a couple of issues with this approach during testing.
+>>>>>>> - As both 'bypass' and 'backup' netdevs are associated with the same
+>>>>>>>    virtio pci device, udev tries to rename both of them with the same
+>>>>>>> name
+>>>>>>>    and the 2nd rename will fail. This would be OK as long as the
+>>>>>>> first netdev
+>>>>>>>    to be renamed is the 'bypass' netdev, but the order in which udev
+>>>>>>> gets
+>>>>>>>    to rename the 2 netdevs is not reliable.
+>>>>>>
+>>>>>> Out of curiosity - why do you link the master netdev to the virtio
+>>>>>> struct device?
+>>>>>
+>>>>> The basic idea of all this is that we wanted this to work with an
+>>>>> existing VM image that was using virtio. As such we were trying to
+>>>>> make it so that the bypass interface takes the place of the original
+>>>>> virtio and get udev to rename the bypass to what the original
+>>>>> virtio_net was.
+>>>>
+>>>> Could it made it also possible to take over the config from VF instead
+>>>> of virtio on an existing VM image? And get udev rename the bypass
+>>>> netdev to what the original VF was. I don't say tightly binding the
+>>>> bypass master to only virtio or VF, but I think we should provide both
+>>>> options to support different upgrade paths. Possibly we could tweak
+>>>> the device tree layout to reuse the same PCI slot for the master
+>>>> bypass netdev, such that udev would not get confused when renaming the
+>>>> device. The VF needs to use a different function slot afterwards.
+>>>> Perhaps we might need to a special multiseat like QEMU device for that
+>>>> purpose?
+>>>>
+>>>> Our case we'll upgrade the config from VF to virtio-bypass directly.
+>>>
+>>> So if I am understanding what you are saying you are wanting to flip
+>>> the backup interface from the virtio to a VF. The problem is that
+>>> becomes a bit of a vendor lock-in solution since it would rely on a
+>>> specific VF driver. I would agree with Jiri that we don't want to go
+>>> down that path. We don't want every VF out there firing up its own
+>>> separate bond. Ideally you want the hypervisor to be able to manage
+>>> all of this which is why it makes sense to have virtio manage this and
+>>> why this is associated with the virtio_net interface.
+>>
+>> No, that's not what I was talking about of course. I thought you
+>> mentioned the upgrade scenario this patch would like to address is to
+>> use the bypass interface "to take the place of the original virtio,
+>> and get udev to rename the bypass to what the original virtio_net
+>> was". That is one of the possible upgrade paths for sure. However the
+>> upgrade path I was seeking is to use the bypass interface to take the
+>> place of original VF interface while retaining the name and network
+>> configs, which generally can be done simply with kernel upgrade. It
+>> would become limiting as this patch makes the bypass interface share
+>> the same virtio pci device with virito backup. Can this bypass
+>> interface be made general to take place of any pci device other than
+>> virtio-net? This will be more helpful as the cloud users who has
+>> existing setup on VF interface don't have to recreate it on virtio-net
+>> and VF separately again.
+>
+>
+> Yes. This sounds interesting. Looks like you want an existing VM image with
+> VF only configuration to get transparent live migration support by adding
+> virtio_net with BACKUP feature.  We may need another feature bit to switch
+> between these 2 options.
 
-While fuzzing arm64/v4.16-rc2 with syzkaller, I simultaneously hit a
-number of splats in the block layer:
+Yes, that's what I was thinking about. I have been building something
+like this before, and would like to get back after merging with your
+patch.
 
-* inconsistent {HARDIRQ-ON-W} -> {IN-HARDIRQ-R} usage in
-  jbd2_trans_will_send_data_barrier
+>
+>
+>
+>>
+>>> The other bits get into more complexity then we are ready to handle
+>>> for now. I think I might have talked about something similar that I
+>>> was referring to as a "virtio-bond" where you would have a PCI/PCIe
+>>> tree topology that makes this easier to sort out, and the "virtio-bond
+>>> would be used to handle coordination/configuration of a much more
+>>> complex interface.
+>>
+>> That was one way to solve this problem but I'd like to see simple ways
+>> to sort it out.
+>>
+>>>>>> FWIW two solutions that immediately come to mind is to export "backup"
+>>>>>> as phys_port_name of the backup virtio link and/or assign a name to
+>>>>>> the
+>>>>>> master like you are doing already.  I think team uses team%d and bond
+>>>>>> uses bond%d, soft naming of master devices seems quite natural in this
+>>>>>> case.
+>>>>>
+>>>>> I figured I had overlooked something like that.. Thanks for pointing
+>>>>> this out. Okay so I think the phys_port_name approach might resolve
+>>>>> the original issue. If I am reading things correctly what we end up
+>>>>> with is the master showing up as "ens1" for example and the backup
+>>>>> showing up as "ens1nbackup". Am I understanding that right?
+>>>>>
+>>>>> The problem with the team/bond%d approach is that it creates a new
+>>>>> netdevice and so it would require guest configuration changes.
+>>>>>
+>>>>>> IMHO phys_port_name == "backup" if BACKUP bit is set on slave virtio
+>>>>>> link is quite neat.
+>>>>>
+>>>>> I agree. For non-"backup" virio_net devices would it be okay for us to
+>>>>> just return -EOPNOTSUPP? I assume it would be and that way the legacy
+>>>>> behavior could be maintained although the function still exists.
+>>>>>
+>>>>>>> - When the 'active' netdev is unplugged OR not present on a
+>>>>>>> destination
+>>>>>>>    system after live migration, the user will see 2 virtio_net
+>>>>>>> netdevs.
+>>>>>>
+>>>>>> That's necessary and expected, all configuration applies to the master
+>>>>>> so master must exist.
+>>>>>
+>>>>> With the naming issue resolved this is the only item left outstanding.
+>>>>> This becomes a matter of form vs function.
+>>>>>
+>>>>> The main complaint about the "3 netdev" solution is a bit confusing to
+>>>>> have the 2 netdevs present if the VF isn't there. The idea is that
+>>>>> having the extra "master" netdev there if there isn't really a bond is
+>>>>> a bit ugly.
+>>>>
+>>>> Is it this uglier in terms of user experience rather than
+>>>> functionality? I don't want it dynamically changed between 2-netdev
+>>>> and 3-netdev depending on the presence of VF. That gets back to my
+>>>> original question and suggestion earlier: why not just hide the lower
+>>>> netdevs from udev renaming and such? Which important observability
+>>>> benefits users may get if exposing the lower netdevs?
+>>>>
+>>>> Thanks,
+>>>> -Siwei
+>>>
+>>> The only real advantage to a 2 netdev solution is that it looks like
+>>> the netvsc solution, however it doesn't behave like it since there are
+>>> some features like XDP that may not function correctly if they are
+>>> left enabled in the virtio_net interface.
+>>>
+>>> As far as functionality the advantage of not hiding the lower devices
+>>> is that they are free to be managed. The problem with pushing all of
+>>> the configuration into the upper device is that you are limited to the
+>>> intersection of the features of the lower devices. This can be
+>>> limiting for some setups as some VFs support things like more queues,
+>>> or better interrupt moderation options than others so trying to make
+>>> everything work with one config would be ugly.
+>>
+>> It depends on how you build it and the way you expect it to work. IMHO
+>> the lower devices don't need to be directly managed at all, otherwise
+>> it ends up with loss of configuration across migration, and it really
+>> does not bring much value than having a general team or bond device.
+>> Users still have to reconfigure those queue settings and interrupt
+>> moderation options after all. The new upper device could take the
+>> assumption that the VF/PT lower device always has superior feature set
+>> than virtio-net in order to apply advanced configuration. The upper
+>> device should remember all configurations previously done and apply
+>> supporting ones to active device automatically when switching the
+>> datapath.
+>>
+> It should be possible to extend this patchset to support migration of
+> additional
+> settings  by enabling additional ndo_ops and ethtool_ops on the upper dev
+> and propagating them down the lower devices and replaying the settings after
+> the VF is replugged after migration.
 
-* BUG: sleeping function called from invalid context at mm/mempool.c:320
-
-* WARNING: CPU: 0 PID: 0 at block/blk.h:297 generic_make_request_checks+0x670/0x750
-
-... I've included the full splats at the end of the mail.
-
-These all happen in the context of the virtio block IRQ handler, so I
-wonder if this calls something that doesn't expect to be called from IRQ
-context. Is it valid to call blk_mq_complete_request() or
-blk_mq_end_request() from an IRQ handler?
-
-Syzkaller came up with a minimized reproducer, but it's a bit wacky (the
-fcntl and bpf calls should have no practical effect), and I haven't
-managed to come up with a C reproducer.
-
-Any ideas?
+Indeed. But your 3rd patch will collapse this merit of the 3-netdev
+into the former 2-netdev model - I hope it's just for demostrating the
+possibility of dynamically switching ndo_ops and ethtool_ops but not
+actually making it complicated in implementing this further.
 
 Thanks,
-Mark.
-
-
-Syzkaller reproducer:
-# {Threaded:true Collide:true Repeat:false Procs:1 Sandbox:setuid Fault:false FaultCall:-1 FaultNth:0 EnableTun:true UseTmpDir:true HandleSegv:true WaitRepeat:false Debug:false Repro:false}
-mmap(&(0x7f0000000000/0x24000)=nil, 0x24000, 0x3, 0x32, 0xffffffffffffffff, 0x0)
-r0 = openat(0xffffffffffffff9c, &(0x7f0000019000-0x8)='./file0\x00', 0x42, 0x0)
-fcntl$setstatus(r0, 0x4, 0x10000)
-ftruncate(r0, 0x400)
-io_setup(0x1f, &(0x7f0000018000)=<r1=>0x0)
-io_submit(r1, 0x1, &(0x7f000001d000-0x28)=[&(0x7f000001b000)={0x0, 0x0, 0x0, 0x1, 0x0, r0, &(0x7f0000022000-0x1000)="00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
- 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
- 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", 0x200, 0x0, 0x0, 0x0, 0x0}])
-bpf$BPF_PROG_ATTACH(0xffffffff, &(0x7f000001b000)={0x0, 0x0, 0x3, 0x2}, 0x40000000)
-
-
-Full splat:
-[  162.337073] ================================
-[  162.338055] WARNING: inconsistent lock state
-[  162.339017] 4.16.0-rc2 #1 Not tainted
-[  162.339797] --------------------------------
-[  162.340725] inconsistent {HARDIRQ-ON-W} -> {IN-HARDIRQ-R} usage.
-[  162.342030] swapper/0/0 [HC1[1]:SC0[0]:HE0:SE1] takes:
-[  162.343061]  (&journal->j_state_lock){+?++}, at: [<000000003b9c3e4b>] jbd2_trans_will_send_data_barrier+0x44/0xc8
-[  162.353187] {HARDIRQ-ON-W} state was registered at:
-[  162.354433]   lock_acquire+0x48/0x68
-[  162.358640]   _raw_write_lock+0x3c/0x50
-[  162.360716]   ext4_init_journal_params.isra.6+0x40/0xa0
-[  162.363445]   ext4_fill_super+0x25cc/0x2e88
-[  162.364481]   mount_bdev+0x19c/0x1d8
-[  162.365345]   ext4_mount+0x14/0x20
-[  162.366130]   mount_fs+0x34/0x160
-[  162.366790]   vfs_kern_mount.part.8+0x54/0x160
-[  162.367874]   do_mount+0x540/0xd40
-[  162.373776]   SyS_mount+0x68/0x100
-[  162.374467]   mount_block_root+0x11c/0x28c
-[  162.376558]   mount_root+0x130/0x164
-[  162.380753]   prepare_namespace+0x138/0x180
-[  162.381729]   kernel_init_freeable+0x25c/0x280
-[  162.382625]   kernel_init+0x10/0x100
-[  162.383337]   ret_from_fork+0x10/0x18
-[  162.384072] irq event stamp: 3670810
-[  162.384787] hardirqs last  enabled at (3670805): [<00000000fa98454e>] arch_cpu_idle+0x14/0x28
-[  162.386505] hardirqs last disabled at (3670806): [<00000000341112e2>] el1_irq+0x74/0x130
-[  162.388107] softirqs last  enabled at (3670810): [<00000000d00bd211>] _local_bh_enable+0x20/0x40
-[  162.389880] softirqs last disabled at (3670809): [<00000000e929005c>] irq_enter+0x54/0x70
-[  162.391443]
-[  162.391443] other info that might help us debug this:
-[  162.392680]  Possible unsafe locking scenario:
-[  162.392680]
-[  162.405967]        CPU0
-[  162.406513]        ----
-[  162.407055]   lock(&journal->j_state_lock);
-[  162.407880]   <Interrupt>
-[  162.408400]     lock(&journal->j_state_lock);
-[  162.409287]
-[  162.409287]  *** DEADLOCK ***
-[  162.409287]
-[  162.410447] 2 locks held by swapper/0/0:
-[  162.411248]  #0:  (&(&vblk->vqs[i].lock)->rlock){-.-.}, at: [<00000000b75553ae>] virtblk_done+0x50/0xf8
-[  162.413101]  #1:  (rcu_read_lock){....}, at: [<000000002bf2a216>] hctx_lock+0x1c/0xe8
-[  162.414630]
-[  162.414630] stack backtrace:
-[  162.415492] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.16.0-rc2 #1
-[  162.429624] Hardware name: linux,dummy-virt (DT)
-[  162.430631] Call trace:
-[  162.431196]  dump_backtrace+0x0/0x1c8
-[  162.432005]  show_stack+0x14/0x20
-[  162.432747]  dump_stack+0xac/0xe4
-[  162.433507]  print_usage_bug.part.28+0x258/0x270
-[  162.434510]  mark_lock+0x744/0x750
-[  162.435208]  __lock_acquire+0xab8/0x18c0
-[  162.435982]  lock_acquire+0x48/0x68
-[  162.436678]  _raw_read_lock+0x3c/0x50
-[  162.449520]  jbd2_trans_will_send_data_barrier+0x44/0xc8
-[  162.450681]  ext4_sync_file+0x1e0/0x330
-[  162.451535]  vfs_fsync_range+0x48/0xc0
-[  162.452323]  dio_complete+0x1fc/0x220
-[  162.453094]  dio_bio_end_aio+0xf0/0x130
-[  162.453935]  bio_endio+0xe8/0xf8
-[  162.454625]  blk_update_request+0x80/0x2e8
-[  162.455450]  blk_mq_end_request+0x20/0x70
-[  162.456240]  virtblk_request_done+0x24/0x30
-[  162.457080]  __blk_mq_complete_request+0x100/0x1b0
-[  162.458047]  blk_mq_complete_request+0x60/0x98
-[  162.458918]  virtblk_done+0x70/0xf8
-[  162.459608]  vring_interrupt+0x38/0x50
-[  162.460367]  __handle_irq_event_percpu+0x5c/0x148
-[  162.472443]  handle_irq_event_percpu+0x34/0x88
-[  162.477991]  handle_irq_event+0x48/0x78
-[  162.480661]  handle_fasteoi_irq+0xc0/0x198
-[  162.485417]  generic_handle_irq+0x24/0x38
-[  162.490334]  __handle_domain_irq+0x84/0xf0
-[  162.493834]  gic_handle_irq+0x58/0xa8
-[  162.498464]  el1_irq+0xb4/0x130
-[  162.500621]  arch_cpu_idle+0x18/0x28
-[  162.504729]  default_idle_call+0x1c/0x34
-[  162.508005]  do_idle+0x17c/0x1f0
-[  162.510184]  cpu_startup_entry+0x20/0x28
-[  162.515050]  rest_init+0x250/0x260
-[  162.518228]  start_kernel+0x3f0/0x41c
-[  162.522987] BUG: sleeping function called from invalid context at mm/mempool.c:320
-[  162.533762] in_atomic(): 1, irqs_disabled(): 128, pid: 0, name: swapper/0
-[  162.540375] INFO: lockdep is turned off.
-[  162.542696] irq event stamp: 3670810
-[  162.544963] hardirqs last  enabled at (3670805): [<00000000fa98454e>] arch_cpu_idle+0x14/0x28
-[  162.551514] hardirqs last disabled at (3670806): [<00000000341112e2>] el1_irq+0x74/0x130
-[  162.557422] softirqs last  enabled at (3670810): [<00000000d00bd211>] _local_bh_enable+0x20/0x40
-[  162.562596] softirqs last disabled at (3670809): [<00000000e929005c>] irq_enter+0x54/0x70
-[  162.568863] Preemption disabled at:
-[  162.568877] [<ffff000008b59ca4>] schedule_preempt_disabled+0x1c/0x28
-[  162.574673] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.16.0-rc2 #1
-[  162.580013] Hardware name: linux,dummy-virt (DT)
-[  162.583234] Call trace:
-[  162.585279]  dump_backtrace+0x0/0x1c8
-[  162.587583]  show_stack+0x14/0x20
-[  162.589047]  dump_stack+0xac/0xe4
-[  162.592035]  ___might_sleep+0x164/0x238
-[  162.594830]  __might_sleep+0x50/0x88
-[  162.597012]  mempool_alloc+0xc0/0x198
-[  162.600633]  bio_alloc_bioset+0x144/0x250
-[  162.602983]  blkdev_issue_flush+0x48/0xc8
-[  162.606134]  ext4_sync_file+0x220/0x330
-[  162.607870]  vfs_fsync_range+0x48/0xc0
-[  162.611694]  dio_complete+0x1fc/0x220
-[  162.613369]  dio_bio_end_aio+0xf0/0x130
-[  162.617040]  bio_endio+0xe8/0xf8
-[  162.618583]  blk_update_request+0x80/0x2e8
-[  162.619841]  blk_mq_end_request+0x20/0x70
-[  162.621082]  virtblk_request_done+0x24/0x30
-[  162.627389]  __blk_mq_complete_request+0x100/0x1b0
-[  162.630482]  blk_mq_complete_request+0x60/0x98
-[  162.633003]  virtblk_done+0x70/0xf8
-[  162.635456]  vring_interrupt+0x38/0x50
-[  162.638588]  __handle_irq_event_percpu+0x5c/0x148
-[  162.640582]  handle_irq_event_percpu+0x34/0x88
-[  162.642829]  handle_irq_event+0x48/0x78
-[  162.644062]  handle_fasteoi_irq+0xc0/0x198
-[  162.646182]  generic_handle_irq+0x24/0x38
-[  162.648024]  __handle_domain_irq+0x84/0xf0
-[  162.650304]  gic_handle_irq+0x58/0xa8
-[  162.652917]  el1_irq+0xb4/0x130
-[  162.656972]  arch_cpu_idle+0x18/0x28
-[  162.658445]  default_idle_call+0x1c/0x34
-[  162.660723]  do_idle+0x17c/0x1f0
-[  162.664958]  cpu_startup_entry+0x20/0x28
-[  162.670009]  rest_init+0x250/0x260
-[  162.672763]  start_kernel+0x3f0/0x41c
-[  162.677064] WARNING: CPU: 0 PID: 0 at block/blk.h:297 generic_make_request_checks+0x670/0x750
-[  162.682622] Kernel panic - not syncing: panic_on_warn set ...
-[  162.682622]
-[  162.695097] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W        4.16.0-rc2 #1
-[  162.700355] Hardware name: linux,dummy-virt (DT)
-[  162.713462] Call trace:
-[  162.714859]  dump_backtrace+0x0/0x1c8
-[  162.722935]  show_stack+0x14/0x20
-[  162.725392]  dump_stack+0xac/0xe4
-[  162.727719]  panic+0x13c/0x2b8
-[  162.732313]  panic+0x0/0x2b8
-[  162.735233]  report_bug+0xb4/0x158
-[  162.738377]  bug_handler+0x30/0x88
-[  162.740810]  brk_handler+0xd8/0x198
-[  162.747677]  do_debug_exception+0x9c/0x190
-[  162.752011]  el1_dbg+0x18/0x78
-[  162.755197]  generic_make_request_checks+0x670/0x750
-[  162.761260]  generic_make_request+0x2c/0x278
-[  162.764366]  submit_bio+0x54/0x208
-[  162.771402]  submit_bio_wait+0x68/0xa0
-[  162.775053]  blkdev_issue_flush+0x8c/0xc8
-[  162.780520]  ext4_sync_file+0x220/0x330
-[  162.784815]  vfs_fsync_range+0x48/0xc0
-[  162.788243]  dio_complete+0x1fc/0x220
-[  162.792071]  dio_bio_end_aio+0xf0/0x130
-[  162.794820]  bio_endio+0xe8/0xf8
-[  162.796203]  blk_update_request+0x80/0x2e8
-[  162.800883]  blk_mq_end_request+0x20/0x70
-[  162.803072]  virtblk_request_done+0x24/0x30
-[  162.806877]  __blk_mq_complete_request+0x100/0x1b0
-[  162.809298]  blk_mq_complete_request+0x60/0x98
-[  162.811408]  virtblk_done+0x70/0xf8
-[  162.812461]  vring_interrupt+0x38/0x50
-[  162.813467]  __handle_irq_event_percpu+0x5c/0x148
-[  162.814657]  handle_irq_event_percpu+0x34/0x88
-[  162.815730]  handle_irq_event+0x48/0x78
-[  162.816856]  handle_fasteoi_irq+0xc0/0x198
-[  162.817946]  generic_handle_irq+0x24/0x38
-[  162.818948]  __handle_domain_irq+0x84/0xf0
-[  162.820056]  gic_handle_irq+0x58/0xa8
-[  162.821013]  el1_irq+0xb4/0x130
-[  162.826572]  arch_cpu_idle+0x18/0x28
-[  162.827304]  default_idle_call+0x1c/0x34
-[  162.828315]  do_idle+0x17c/0x1f0
-[  162.829174]  cpu_startup_entry+0x20/0x28
-[  162.830072]  rest_init+0x250/0x260
-[  162.830872]  start_kernel+0x3f0/0x41c
-[  162.831627] SMP: stopping secondary CPUs
-[  165.929235] SMP: failed to stop secondary CPUs 0,2
-[  165.949001] Kernel Offset: disabled
-[  165.963649] CPU features: 0x1802082
-[  165.969405] Memory Limit: none
-[  165.974480] Rebooting in 86400 seconds..
+-Siwei
+>
+> Thanks
+> Sridhar
