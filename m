@@ -1,22 +1,25 @@
-From: Jiri Pirko <jiri@resnulli.us>
+From: Stephen Hemminger <stephen@networkplumber.org>
 Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
 	passthru device
-Date: Fri, 23 Feb 2018 23:38:02 +0100
-Message-ID: <20180223223802.GA2010@nanopsycho>
-References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
-	<20180216183817.42b07af6@cakuba.netronome.com>
-	<CAKgT0UfU9gV2Y7hWFQi0vJoD9kYeoq+7cXmwAjXeV5zxXHa3dQ@mail.gmail.com>
-	<CADGSJ217HahFJsGmNXMD6SwWiK374+u_YET8QqdsmofCRFZr=Q@mail.gmail.com>
-	<CAKgT0Uda7Bmzf06RMmD7hCVLr8hHQxaY8Fk7w9Qy=7Vi6NODwQ@mail.gmail.com>
-	<CADGSJ23WFYEYo2DpSPVfZsOLjoSpgWWVCtEZi84wrUHN-noxag@mail.gmail.com>
-	<0d158bf6-79b3-442b-2c61-3e900ff40922@intel.com>
-	<CADGSJ22Z1ujZOc+OS5E=MwGCy1nTn9D6mHKBz+J=K9+--8R+jg@mail.gmail.com>
+Date: Fri, 23 Feb 2018 15:59:04 -0800
+Message-ID: <20180223155904.27b11865@xeon-e3>
+References: <20180220201410.GF2031@nanopsycho>
+	<20180220143356.3467084d@cakuba.netronome.com>
+	<20180221095159.GA1996@nanopsycho>
+	<CAKgT0UdyhrVr=pYZb=AJq9sWWUVb_BadbJTcqY1AwHHTw8cmQw@mail.gmail.com>
+	<20180221161105.GC1996@nanopsycho>
+	<CAKgT0Ud+6eiY7ycyju1SToeatH1R7KBDcUOqjn9Pu2k5uOr5Wg@mail.gmail.com>
+	<20180221165848.GD1996@nanopsycho>
+	<CAKgT0UeZS_SzNfiMX3ujy+a9WZWySVdyTpyQ=b=RJJrAG3JO=w@mail.gmail.com>
+	<20180221193832.GE1996@nanopsycho>
+	<CAKgT0Ud--R7Mw1_jFckskhGmGLZgZbTZ24TuvJ+UWvm_MAQR9w@mail.gmail.com>
+	<20180222081115.GC1994@nanopsycho>
+	<CAKgT0UeVhPOgRM0J6fyGDAJrTnqjc6AtC8+_UMs=hojZAajtdg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CADGSJ22Z1ujZOc+OS5E=MwGCy1nTn9D6mHKBz+J=K9+--8R+jg@mail.gmail.com>
+In-Reply-To: <CAKgT0UeVhPOgRM0J6fyGDAJrTnqjc6AtC8+_UMs=hojZAajtdg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,46 +29,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: Alexander Duyck <alexander.duyck@gmail.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fri, Feb 23, 2018 at 11:22:36PM CET, loseweigh@gmail.com wrote:
+On Thu, 22 Feb 2018 13:30:12 -0800
+Alexander Duyck <alexander.duyck@gmail.com> wrote:
 
-[...]
+> > Again, I undertand your motivation. Yet I don't like your solution.
+> > But if the decision is made to do this in-driver bonding. I would like
+> > to see it baing done some generic way:
+> > 1) share the same "in-driver bonding core" code with netvsc
+> >    put to net/core.
+> > 2) the "in-driver bonding core" will strictly limit the functionality,
+> >    like active-backup mode only, one vf, one backup, vf netdev type
+> >    check (so noone could enslave a tap or anything else)
+> > If user would need something more, he should employ team/bond.  
 
->>>
->>> No, that's not what I was talking about of course. I thought you
->>> mentioned the upgrade scenario this patch would like to address is to
->>> use the bypass interface "to take the place of the original virtio,
->>> and get udev to rename the bypass to what the original virtio_net
->>> was". That is one of the possible upgrade paths for sure. However the
->>> upgrade path I was seeking is to use the bypass interface to take the
->>> place of original VF interface while retaining the name and network
->>> configs, which generally can be done simply with kernel upgrade. It
->>> would become limiting as this patch makes the bypass interface share
->>> the same virtio pci device with virito backup. Can this bypass
->>> interface be made general to take place of any pci device other than
->>> virtio-net? This will be more helpful as the cloud users who has
->>> existing setup on VF interface don't have to recreate it on virtio-net
->>> and VF separately again.
-
-How that could work? If you have the VF netdev with all configuration
-including IPs and routes and whatever - now you want to do migration
-so you add virtio_net and do some weird in-driver bonding with it. But
-then, VF disappears and the VF netdev with that and also all
-configuration it had.
-I don't think this scenario is valid.
-
-
->>
->>
->> Yes. This sounds interesting. Looks like you want an existing VM image with
->> VF only configuration to get transparent live migration support by adding
->> virtio_net with BACKUP feature.  We may need another feature bit to switch
->> between these 2 options.
->
->Yes, that's what I was thinking about. I have been building something
->like this before, and would like to get back after merging with your
->patch.
+Sharing would be good, but netvsc world would really like to only have
+one visible network device.
