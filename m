@@ -1,13 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH] virtio_ring: fix num_free handling in error case
-Date: Fri, 23 Feb 2018 13:47:26 +0100
-Message-ID: <20180223134726.3db96065.cohuck@redhat.com>
-References: <20180223114130.16332-1-tiwei.bie@intel.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 2/6] pci: Scan all functions when probing while running
+	over Jailhouse
+Date: Fri, 23 Feb 2018 15:23:37 +0200
+Message-ID: <CAHp75VcssoPE8ZCiHOt8-BKcponpr3xpzn42KZGx=Y+nMmZjYw__19427.2325294607$1519392132$gmane$org@mail.gmail.com>
+References: <cover.1516601570.git.jan.kiszka@siemens.com>
+	<66bfcfc6dc1832baa3fbd8e4879764d36aa9c1e7.1516601570.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180223114130.16332-1-tiwei.bie@intel.com>
+In-Reply-To: <66bfcfc6dc1832baa3fbd8e4879764d36aa9c1e7.1516601570.git.jan.kiszka@siemens.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,37 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>
+To: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: jailhouse-dev@googlegroups.com, Benedikt Spranger <b.spranger@linutronix.de>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 23 Feb 2018 19:41:30 +0800
-Tiwei Bie <tiwei.bie@intel.com> wrote:
+On Mon, Jan 22, 2018 at 8:12 AM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
 
-> The vq->vq.num_free hasn't been changed when error happens,
-> so it shouldn't be changed when handling the error.
-> 
-> Fixes: 780bc7903a32 ("virtio_ring: Support DMA APIs")
-> Cc: Andy Lutomirski <luto@kernel.org>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> ---
->  drivers/virtio/virtio_ring.c | 2 --
->  1 file changed, 2 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index eb30f3e09a47..71458f493cf8 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -428,8 +428,6 @@ static inline int virtqueue_add(struct virtqueue *_vq,
->  		i = virtio16_to_cpu(_vq->vdev, vq->vring.desc[i].next);
->  	}
->  
-> -	vq->vq.num_free += total_sg;
-> -
->  	if (indirect)
->  		kfree(desc);
->  
+>  #include <linux/export.h>
+>  #include <linux/pci.h>
+>  #include <asm/pci_x86.h>
+> +#include <asm/jailhouse_para.h>
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Keep it in order?
+
+
+>  #include <linux/acpi.h>
+>  #include <linux/irqdomain.h>
+>  #include <linux/pm_runtime.h>
+> +#include <linux/hypervisor.h>
+
+Ditto.
+
+-- 
+With Best Regards,
+Andy Shevchenko
