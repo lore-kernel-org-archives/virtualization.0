@@ -1,7 +1,7 @@
 From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [PATCH RFC 0/2] Packed ring for virtio
-Date: Fri, 23 Feb 2018 19:17:59 +0800
-Message-ID: <20180223111801.15240-1-tiwei.bie@intel.com>
+Subject: [PATCH] virtio_ring: fix num_free handling in error case
+Date: Fri, 23 Feb 2018 19:41:30 +0800
+Message-ID: <20180223114130.16332-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,41 +15,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: wexu@redhat.com
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello everyone,
+The vq->vq.num_free hasn't been changed when error happens,
+so it shouldn't be changed when handling the error.
 
-This RFC implements a subset of packed ring which is described at
-https://github.com/oasis-tcs/virtio-docs/blob/master/virtio-v1.1-packed-wd08.pdf
+Fixes: 780bc7903a32 ("virtio_ring: Support DMA APIs")
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+---
+ drivers/virtio/virtio_ring.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-The code was tested with DPDK vhost (testpmd/vhost-PMD) implemented
-by Jens at http://dpdk.org/ml/archives/dev/2018-January/089417.html
-Minor changes are needed for the vhost code, e.g. to kick the guest.
-
-It's not a complete implementation, here is what's missing:
-
-- Device area and driver area
-- VIRTIO_RING_F_INDIRECT_DESC
-- VIRTIO_F_NOTIFICATION_DATA
-- Virtio devices except net are not tested
-- See FIXME in the code for more details
-
-Thanks!
-
-Best regards,
-Tiwei Bie
-
-Tiwei Bie (2):
-  virtio: introduce packed ring defines
-  virtio_ring: support packed ring
-
- drivers/virtio/virtio_ring.c       | 699 ++++++++++++++++++++++++++++++++-----
- include/linux/virtio_ring.h        |   8 +-
- include/uapi/linux/virtio_config.h |  18 +-
- include/uapi/linux/virtio_ring.h   |  68 ++++
- 4 files changed, 703 insertions(+), 90 deletions(-)
-
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index eb30f3e09a47..71458f493cf8 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -428,8 +428,6 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 		i = virtio16_to_cpu(_vq->vdev, vq->vring.desc[i].next);
+ 	}
+ 
+-	vq->vq.num_free += total_sg;
+-
+ 	if (indirect)
+ 		kfree(desc);
+ 
 -- 
-2.14.1
+2.11.0
