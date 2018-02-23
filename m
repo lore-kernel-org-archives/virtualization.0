@@ -1,8 +1,8 @@
-From: Siwei Liu <loseweigh@gmail.com>
+From: Jiri Pirko <jiri@resnulli.us>
 Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
 	passthru device
-Date: Fri, 23 Feb 2018 14:22:36 -0800
-Message-ID: <CADGSJ22Z1ujZOc+OS5E=MwGCy1nTn9D6mHKBz+J=K9+--8R+jg@mail.gmail.com>
+Date: Fri, 23 Feb 2018 23:38:02 +0100
+Message-ID: <20180223223802.GA2010@nanopsycho>
 References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
 	<20180216183817.42b07af6@cakuba.netronome.com>
 	<CAKgT0UfU9gV2Y7hWFQi0vJoD9kYeoq+7cXmwAjXeV5zxXHa3dQ@mail.gmail.com>
@@ -10,11 +10,13 @@ References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
 	<CAKgT0Uda7Bmzf06RMmD7hCVLr8hHQxaY8Fk7w9Qy=7Vi6NODwQ@mail.gmail.com>
 	<CADGSJ23WFYEYo2DpSPVfZsOLjoSpgWWVCtEZi84wrUHN-noxag@mail.gmail.com>
 	<0d158bf6-79b3-442b-2c61-3e900ff40922@intel.com>
+	<CADGSJ22Z1ujZOc+OS5E=MwGCy1nTn9D6mHKBz+J=K9+--8R+jg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0d158bf6-79b3-442b-2c61-3e900ff40922@intel.com>
+Content-Disposition: inline
+In-Reply-To: <CADGSJ22Z1ujZOc+OS5E=MwGCy1nTn9D6mHKBz+J=K9+--8R+jg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,216 +26,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: Siwei Liu <loseweigh@gmail.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 21, 2018 at 6:35 PM, Samudrala, Sridhar
-<sridhar.samudrala@intel.com> wrote:
-> On 2/21/2018 5:59 PM, Siwei Liu wrote:
->>
->> On Wed, Feb 21, 2018 at 4:17 PM, Alexander Duyck
->> <alexander.duyck@gmail.com> wrote:
->>>
->>> On Wed, Feb 21, 2018 at 3:50 PM, Siwei Liu <loseweigh@gmail.com> wrote:
->>>>
->>>> I haven't checked emails for days and did not realize the new revision
->>>> had already came out. And thank you for the effort, this revision
->>>> really looks to be a step forward towards our use case and is close to
->>>> what we wanted to do. A few questions in line.
->>>>
->>>> On Sat, Feb 17, 2018 at 9:12 AM, Alexander Duyck
->>>> <alexander.duyck@gmail.com> wrote:
->>>>>
->>>>> On Fri, Feb 16, 2018 at 6:38 PM, Jakub Kicinski <kubakici@wp.pl> wrote:
->>>>>>
->>>>>> On Fri, 16 Feb 2018 10:11:19 -0800, Sridhar Samudrala wrote:
->>>>>>>
->>>>>>> Ppatch 2 is in response to the community request for a 3 netdev
->>>>>>> solution.  However, it creates some issues we'll get into in a
->>>>>>> moment.
->>>>>>> It extends virtio_net to use alternate datapath when available and
->>>>>>> registered. When BACKUP feature is enabled, virtio_net driver creates
->>>>>>> an additional 'bypass' netdev that acts as a master device and
->>>>>>> controls
->>>>>>> 2 slave devices.  The original virtio_net netdev is registered as
->>>>>>> 'backup' netdev and a passthru/vf device with the same MAC gets
->>>>>>> registered as 'active' netdev. Both 'bypass' and 'backup' netdevs are
->>>>>>> associated with the same 'pci' device.  The user accesses the network
->>>>>>> interface via 'bypass' netdev. The 'bypass' netdev chooses 'active'
->>>>>>> netdev
->>>>>>> as default for transmits when it is available with link up and
->>>>>>> running.
->>>>>>
->>>>>> Thank you do doing this.
->>>>>>
->>>>>>> We noticed a couple of issues with this approach during testing.
->>>>>>> - As both 'bypass' and 'backup' netdevs are associated with the same
->>>>>>>    virtio pci device, udev tries to rename both of them with the same
->>>>>>> name
->>>>>>>    and the 2nd rename will fail. This would be OK as long as the
->>>>>>> first netdev
->>>>>>>    to be renamed is the 'bypass' netdev, but the order in which udev
->>>>>>> gets
->>>>>>>    to rename the 2 netdevs is not reliable.
->>>>>>
->>>>>> Out of curiosity - why do you link the master netdev to the virtio
->>>>>> struct device?
->>>>>
->>>>> The basic idea of all this is that we wanted this to work with an
->>>>> existing VM image that was using virtio. As such we were trying to
->>>>> make it so that the bypass interface takes the place of the original
->>>>> virtio and get udev to rename the bypass to what the original
->>>>> virtio_net was.
->>>>
->>>> Could it made it also possible to take over the config from VF instead
->>>> of virtio on an existing VM image? And get udev rename the bypass
->>>> netdev to what the original VF was. I don't say tightly binding the
->>>> bypass master to only virtio or VF, but I think we should provide both
->>>> options to support different upgrade paths. Possibly we could tweak
->>>> the device tree layout to reuse the same PCI slot for the master
->>>> bypass netdev, such that udev would not get confused when renaming the
->>>> device. The VF needs to use a different function slot afterwards.
->>>> Perhaps we might need to a special multiseat like QEMU device for that
->>>> purpose?
->>>>
->>>> Our case we'll upgrade the config from VF to virtio-bypass directly.
->>>
->>> So if I am understanding what you are saying you are wanting to flip
->>> the backup interface from the virtio to a VF. The problem is that
->>> becomes a bit of a vendor lock-in solution since it would rely on a
->>> specific VF driver. I would agree with Jiri that we don't want to go
->>> down that path. We don't want every VF out there firing up its own
->>> separate bond. Ideally you want the hypervisor to be able to manage
->>> all of this which is why it makes sense to have virtio manage this and
->>> why this is associated with the virtio_net interface.
->>
->> No, that's not what I was talking about of course. I thought you
->> mentioned the upgrade scenario this patch would like to address is to
->> use the bypass interface "to take the place of the original virtio,
->> and get udev to rename the bypass to what the original virtio_net
->> was". That is one of the possible upgrade paths for sure. However the
->> upgrade path I was seeking is to use the bypass interface to take the
->> place of original VF interface while retaining the name and network
->> configs, which generally can be done simply with kernel upgrade. It
->> would become limiting as this patch makes the bypass interface share
->> the same virtio pci device with virito backup. Can this bypass
->> interface be made general to take place of any pci device other than
->> virtio-net? This will be more helpful as the cloud users who has
->> existing setup on VF interface don't have to recreate it on virtio-net
->> and VF separately again.
->
->
-> Yes. This sounds interesting. Looks like you want an existing VM image with
-> VF only configuration to get transparent live migration support by adding
-> virtio_net with BACKUP feature.  We may need another feature bit to switch
-> between these 2 options.
+Fri, Feb 23, 2018 at 11:22:36PM CET, loseweigh@gmail.com wrote:
 
-Yes, that's what I was thinking about. I have been building something
-like this before, and would like to get back after merging with your
-patch.
+[...]
 
->
->
->
->>
->>> The other bits get into more complexity then we are ready to handle
->>> for now. I think I might have talked about something similar that I
->>> was referring to as a "virtio-bond" where you would have a PCI/PCIe
->>> tree topology that makes this easier to sort out, and the "virtio-bond
->>> would be used to handle coordination/configuration of a much more
->>> complex interface.
->>
->> That was one way to solve this problem but I'd like to see simple ways
->> to sort it out.
->>
->>>>>> FWIW two solutions that immediately come to mind is to export "backup"
->>>>>> as phys_port_name of the backup virtio link and/or assign a name to
->>>>>> the
->>>>>> master like you are doing already.  I think team uses team%d and bond
->>>>>> uses bond%d, soft naming of master devices seems quite natural in this
->>>>>> case.
->>>>>
->>>>> I figured I had overlooked something like that.. Thanks for pointing
->>>>> this out. Okay so I think the phys_port_name approach might resolve
->>>>> the original issue. If I am reading things correctly what we end up
->>>>> with is the master showing up as "ens1" for example and the backup
->>>>> showing up as "ens1nbackup". Am I understanding that right?
->>>>>
->>>>> The problem with the team/bond%d approach is that it creates a new
->>>>> netdevice and so it would require guest configuration changes.
->>>>>
->>>>>> IMHO phys_port_name == "backup" if BACKUP bit is set on slave virtio
->>>>>> link is quite neat.
->>>>>
->>>>> I agree. For non-"backup" virio_net devices would it be okay for us to
->>>>> just return -EOPNOTSUPP? I assume it would be and that way the legacy
->>>>> behavior could be maintained although the function still exists.
->>>>>
->>>>>>> - When the 'active' netdev is unplugged OR not present on a
->>>>>>> destination
->>>>>>>    system after live migration, the user will see 2 virtio_net
->>>>>>> netdevs.
->>>>>>
->>>>>> That's necessary and expected, all configuration applies to the master
->>>>>> so master must exist.
->>>>>
->>>>> With the naming issue resolved this is the only item left outstanding.
->>>>> This becomes a matter of form vs function.
->>>>>
->>>>> The main complaint about the "3 netdev" solution is a bit confusing to
->>>>> have the 2 netdevs present if the VF isn't there. The idea is that
->>>>> having the extra "master" netdev there if there isn't really a bond is
->>>>> a bit ugly.
->>>>
->>>> Is it this uglier in terms of user experience rather than
->>>> functionality? I don't want it dynamically changed between 2-netdev
->>>> and 3-netdev depending on the presence of VF. That gets back to my
->>>> original question and suggestion earlier: why not just hide the lower
->>>> netdevs from udev renaming and such? Which important observability
->>>> benefits users may get if exposing the lower netdevs?
->>>>
->>>> Thanks,
->>>> -Siwei
 >>>
->>> The only real advantage to a 2 netdev solution is that it looks like
->>> the netvsc solution, however it doesn't behave like it since there are
->>> some features like XDP that may not function correctly if they are
->>> left enabled in the virtio_net interface.
->>>
->>> As far as functionality the advantage of not hiding the lower devices
->>> is that they are free to be managed. The problem with pushing all of
->>> the configuration into the upper device is that you are limited to the
->>> intersection of the features of the lower devices. This can be
->>> limiting for some setups as some VFs support things like more queues,
->>> or better interrupt moderation options than others so trying to make
->>> everything work with one config would be ugly.
->>
->> It depends on how you build it and the way you expect it to work. IMHO
->> the lower devices don't need to be directly managed at all, otherwise
->> it ends up with loss of configuration across migration, and it really
->> does not bring much value than having a general team or bond device.
->> Users still have to reconfigure those queue settings and interrupt
->> moderation options after all. The new upper device could take the
->> assumption that the VF/PT lower device always has superior feature set
->> than virtio-net in order to apply advanced configuration. The upper
->> device should remember all configurations previously done and apply
->> supporting ones to active device automatically when switching the
->> datapath.
->>
-> It should be possible to extend this patchset to support migration of
-> additional
-> settings  by enabling additional ndo_ops and ethtool_ops on the upper dev
-> and propagating them down the lower devices and replaying the settings after
-> the VF is replugged after migration.
+>>> No, that's not what I was talking about of course. I thought you
+>>> mentioned the upgrade scenario this patch would like to address is to
+>>> use the bypass interface "to take the place of the original virtio,
+>>> and get udev to rename the bypass to what the original virtio_net
+>>> was". That is one of the possible upgrade paths for sure. However the
+>>> upgrade path I was seeking is to use the bypass interface to take the
+>>> place of original VF interface while retaining the name and network
+>>> configs, which generally can be done simply with kernel upgrade. It
+>>> would become limiting as this patch makes the bypass interface share
+>>> the same virtio pci device with virito backup. Can this bypass
+>>> interface be made general to take place of any pci device other than
+>>> virtio-net? This will be more helpful as the cloud users who has
+>>> existing setup on VF interface don't have to recreate it on virtio-net
+>>> and VF separately again.
 
-Indeed. But your 3rd patch will collapse this merit of the 3-netdev
-into the former 2-netdev model - I hope it's just for demostrating the
-possibility of dynamically switching ndo_ops and ethtool_ops but not
-actually making it complicated in implementing this further.
+How that could work? If you have the VF netdev with all configuration
+including IPs and routes and whatever - now you want to do migration
+so you add virtio_net and do some weird in-driver bonding with it. But
+then, VF disappears and the VF netdev with that and also all
+configuration it had.
+I don't think this scenario is valid.
 
-Thanks,
--Siwei
+
+>>
+>>
+>> Yes. This sounds interesting. Looks like you want an existing VM image with
+>> VF only configuration to get transparent live migration support by adding
+>> virtio_net with BACKUP feature.  We may need another feature bit to switch
+>> between these 2 options.
 >
-> Thanks
-> Sridhar
+>Yes, that's what I was thinking about. I have been building something
+>like this before, and would like to get back after merging with your
+>patch.
