@@ -1,14 +1,24 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH] mm/page_poison: move PAGE_POISON to page_poison.c
-Date: Mon, 26 Feb 2018 12:37:58 +0800
-Message-ID: <5A938F26.4040901@intel.com>
-References: <1518163694-27155-1-git-send-email-wei.w.wang@intel.com>
-	<20180213101615.GO3443@dhcp22.suse.cz>
+From: Jiri Pirko <jiri@resnulli.us>
+Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
+	passthru device
+Date: Mon, 26 Feb 2018 08:19:24 +0100
+Message-ID: <20180226071924.GA2063@nanopsycho>
+References: <CAKgT0UdyhrVr=pYZb=AJq9sWWUVb_BadbJTcqY1AwHHTw8cmQw@mail.gmail.com>
+	<20180221161105.GC1996@nanopsycho>
+	<CAKgT0Ud+6eiY7ycyju1SToeatH1R7KBDcUOqjn9Pu2k5uOr5Wg@mail.gmail.com>
+	<20180221165848.GD1996@nanopsycho>
+	<CAKgT0UeZS_SzNfiMX3ujy+a9WZWySVdyTpyQ=b=RJJrAG3JO=w@mail.gmail.com>
+	<20180221193832.GE1996@nanopsycho>
+	<CAKgT0Ud--R7Mw1_jFckskhGmGLZgZbTZ24TuvJ+UWvm_MAQR9w@mail.gmail.com>
+	<20180222081115.GC1994@nanopsycho>
+	<CAKgT0UeVhPOgRM0J6fyGDAJrTnqjc6AtC8+_UMs=hojZAajtdg@mail.gmail.com>
+	<20180223155904.27b11865@xeon-e3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180213101615.GO3443@dhcp22.suse.cz>
+Content-Disposition: inline
+In-Reply-To: <20180223155904.27b11865@xeon-e3>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +28,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/13/2018 06:16 PM, Michal Hocko wrote:
-> On Fri 09-02-18 16:08:14, Wei Wang wrote:
->> The PAGE_POISON macro is used in page_poison.c only, so avoid exporting
->> it. Also remove the "mm/debug-pagealloc.c" related comment, which is
->> obsolete.
-> Why is this an improvement? I thought the whole point of poison.h is to
-> keep all the poison value at a single place to make them obviously
-> unique.
+Sat, Feb 24, 2018 at 12:59:04AM CET, stephen@networkplumber.org wrote:
+>On Thu, 22 Feb 2018 13:30:12 -0800
+>Alexander Duyck <alexander.duyck@gmail.com> wrote:
+>
+>> > Again, I undertand your motivation. Yet I don't like your solution.
+>> > But if the decision is made to do this in-driver bonding. I would like
+>> > to see it baing done some generic way:
+>> > 1) share the same "in-driver bonding core" code with netvsc
+>> >    put to net/core.
+>> > 2) the "in-driver bonding core" will strictly limit the functionality,
+>> >    like active-backup mode only, one vf, one backup, vf netdev type
+>> >    check (so noone could enslave a tap or anything else)
+>> > If user would need something more, he should employ team/bond.  
+>
+>Sharing would be good, but netvsc world would really like to only have
+>one visible network device.
 
-There isn't a comment explaining why they are exposed. We did this 
-because PAGE_POISON is used by page_poison.c only, it seems not 
-necessary to expose the private values.
-Why would it be not unique if moved to page_poison.c (on condition that 
-it is only used there)?
-
-Best,
-Wei
+Why do you mind? All would be the same, there would be just another
+netdevice unused by the vm user (same as the vf netdev).
