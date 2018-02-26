@@ -1,26 +1,16 @@
-From: Alexander Duyck <alexander.duyck@gmail.com>
-Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
-	passthru device
-Date: Sun, 25 Feb 2018 14:21:13 -0800
-Message-ID: <CAKgT0UcP3DUyN9bkcpd5NN6wW_fN4Su9gCt4hGdwTd3AJZkwhg__33855.8884840042$1519597188$gmane$org@mail.gmail.com>
-References: <20180220201410.GF2031@nanopsycho>
-	<20180220143356.3467084d@cakuba.netronome.com>
-	<20180221095159.GA1996@nanopsycho>
-	<CAKgT0UdyhrVr=pYZb=AJq9sWWUVb_BadbJTcqY1AwHHTw8cmQw@mail.gmail.com>
-	<20180221161105.GC1996@nanopsycho>
-	<CAKgT0Ud+6eiY7ycyju1SToeatH1R7KBDcUOqjn9Pu2k5uOr5Wg@mail.gmail.com>
-	<20180221165848.GD1996@nanopsycho>
-	<CAKgT0UeZS_SzNfiMX3ujy+a9WZWySVdyTpyQ=b=RJJrAG3JO=w@mail.gmail.com>
-	<20180221193832.GE1996@nanopsycho>
-	<CAKgT0Ud--R7Mw1_jFckskhGmGLZgZbTZ24TuvJ+UWvm_MAQR9w@mail.gmail.com>
-	<20180222081115.GC1994@nanopsycho>
-	<CAKgT0UeVhPOgRM0J6fyGDAJrTnqjc6AtC8+_UMs=hojZAajtdg@mail.gmail.com>
-	<20180223155904.27b11865@xeon-e3>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v28 0/4] Virtio-balloon: support free page reporting
+Date: Mon, 26 Feb 2018 12:01:29 +0800
+Message-ID: <5A938699.8020804__32156.7104584121$1519617403$gmane$org@intel.com>
+References: <1518083420-11108-1-git-send-email-wei.w.wang@intel.com>
+	<20180208215048-mutt-send-email-mst@kernel.org>
+	<5A7D116B.9070502@intel.com>
+	<20180209051212-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180223155904.27b11865@xeon-e3>
+In-Reply-To: <20180209051212-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -30,40 +20,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "nilal@redhat.com" <nilal@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "huangzhichao@huawei.com" <huangzhichao@huawei.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 23, 2018 at 3:59 PM, Stephen Hemminger
-<stephen@networkplumber.org> wrote:
-> On Thu, 22 Feb 2018 13:30:12 -0800
-> Alexander Duyck <alexander.duyck@gmail.com> wrote:
+On 02/09/2018 11:14 AM, Michael S. Tsirkin wrote:
+> On Fri, Feb 09, 2018 at 11:11:39AM +0800, Wei Wang wrote:
+>> On 02/09/2018 03:55 AM, Michael S. Tsirkin wrote:
+>>> On Thu, Feb 08, 2018 at 05:50:16PM +0800, Wei Wang wrote:
+>>>
+>>>> Details:
+>>>> Set up a Ping-Pong local live migration, where the guest ceaselessy
+>>>> migrates between the source and destination. Linux compilation,
+>>>> i.e. make bzImage -j4, is performed during the Ping-Pong migration. The
+>>>> legacy case takes 5min14s to finish the compilation. With this
+>>>> optimization patched, it takes 5min12s.
+>>> How is migration time affected in this case?
+>>
+>> When the linux compilation workload runs, the migration time (both the
+>> legacy and this optimization case) varies as the compilation goes on. It
+>> seems not easy to give a static speedup number, some times the migration
+>> time is reduced to 33%, sometimes to 50%, it varies, and depends on how much
+>> free memory the system has at that moment. For example, at the later stage
+>> of the compilation, I can observe 5GB memory being used as page cache. But
+>> overall, I can observe obvious improvement of the migration time.
+>>
+>>
+>> Best,
+>> Wei
+> You can run multiple tests and give a best, worst and median numbers.
 >
->> > Again, I undertand your motivation. Yet I don't like your solution.
->> > But if the decision is made to do this in-driver bonding. I would like
->> > to see it baing done some generic way:
->> > 1) share the same "in-driver bonding core" code with netvsc
->> >    put to net/core.
->> > 2) the "in-driver bonding core" will strictly limit the functionality,
->> >    like active-backup mode only, one vf, one backup, vf netdev type
->> >    check (so noone could enslave a tap or anything else)
->> > If user would need something more, he should employ team/bond.
->
-> Sharing would be good, but netvsc world would really like to only have
-> one visible network device.
 
-Other than the netdev count are there any other issues we need to be
-thinking about?
+Sorry for my late response (I was on leaves for some other 
+responsibilities).
 
-If I am not mistaken you netvsc doesn't put any broadcast/multicast
-filters on the VF. If we ended up doing that in order to support the
-virtio based solution would that cause any issues? I just realized we
-had overlooked dealing with multicast in our current solution so we
-will probably be looking at syncing the multicast list like what
-occurs in netvsc, however we will need to do it for both the VF and
-the virtio interfaces.
+Here are some more numbers of the live migration time comparison while 
+linux compilation is in progress (probably the average time is more 
+relevant)
 
-Thanks.
+average: 52.4% reduction (optimization v.s. legacy = 1242ms v.s. 2611ms)
+best: 69.1%
+worst: 21.9%
 
-- Alex
+
+Best,
+Wei
