@@ -1,17 +1,24 @@
-From: Jan Kara <jack@suse.cz>
-Subject: Re: v4.16-rc2: virtio-block + ext4 lockdep splats / sleeping from
-	invalid context
-Date: Mon, 26 Feb 2018 13:44:55 +0100
-Message-ID: <20180226124455.rkp3xfn3cqplzh4p@quack2.suse.cz>
-References: <20180223154735.x4ezmpjbjm6o6duw@lakrids.cambridge.arm.com>
-	<20180226105256.jagidoki6vsrvzb4@quack2.suse.cz>
-	<20180226113818.v544mmjsavc4x5q2@lakrids.cambridge.arm.com>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
+	passthru device
+Date: Mon, 26 Feb 2018 17:02:18 -0800
+Message-ID: <20180226170218.6b1dcf22@xeon-e3>
+References: <CAKgT0UdyhrVr=pYZb=AJq9sWWUVb_BadbJTcqY1AwHHTw8cmQw@mail.gmail.com>
+	<20180221161105.GC1996@nanopsycho>
+	<CAKgT0Ud+6eiY7ycyju1SToeatH1R7KBDcUOqjn9Pu2k5uOr5Wg@mail.gmail.com>
+	<20180221165848.GD1996@nanopsycho>
+	<CAKgT0UeZS_SzNfiMX3ujy+a9WZWySVdyTpyQ=b=RJJrAG3JO=w@mail.gmail.com>
+	<20180221193832.GE1996@nanopsycho>
+	<CAKgT0Ud--R7Mw1_jFckskhGmGLZgZbTZ24TuvJ+UWvm_MAQR9w@mail.gmail.com>
+	<20180222081115.GC1994@nanopsycho>
+	<CAKgT0UeVhPOgRM0J6fyGDAJrTnqjc6AtC8+_UMs=hojZAajtdg@mail.gmail.com>
+	<20180223155904.27b11865@xeon-e3>
+	<20180226071924.GA2063@nanopsycho>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180226113818.v544mmjsavc4x5q2@lakrids.cambridge.arm.com>
+In-Reply-To: <20180226071924.GA2063@nanopsycho>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,50 +28,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, Jan Kara <jack@suse.com>, Theodore Ts'o <tytso@mit.edu>, linux-ext4@vger.kernel.org
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon 26-02-18 11:38:19, Mark Rutland wrote:
-> On Mon, Feb 26, 2018 at 11:52:56AM +0100, Jan Kara wrote:
-> > On Fri 23-02-18 15:47:36, Mark Rutland wrote:
-> > > Hi all,
-> > > 
-> > > While fuzzing arm64/v4.16-rc2 with syzkaller, I simultaneously hit a
-> > > number of splats in the block layer:
-> > > 
-> > > * inconsistent {HARDIRQ-ON-W} -> {IN-HARDIRQ-R} usage in
-> > >   jbd2_trans_will_send_data_barrier
-> > > 
-> > > * BUG: sleeping function called from invalid context at mm/mempool.c:320
-> > > 
-> > > * WARNING: CPU: 0 PID: 0 at block/blk.h:297 generic_make_request_checks+0x670/0x750
-> > > 
-> > > ... I've included the full splats at the end of the mail.
-> > > 
-> > > These all happen in the context of the virtio block IRQ handler, so I
-> > > wonder if this calls something that doesn't expect to be called from IRQ
-> > > context. Is it valid to call blk_mq_complete_request() or
-> > > blk_mq_end_request() from an IRQ handler?
-> > 
-> > No, it's likely a bug in detection whether IO completion should be deferred
-> > to a workqueue or not. Does attached patch fix the problem? I don't see
-> > exactly this being triggered by the syzkaller but it's close enough :)
-> > 
-> > 								Honza
-> 
-> That seems to be it!
-> 
-> With the below patch applied, I can't trigger the bug after ~10 minutes,
-> whereas prior to the patch I can trigger it in ~10 seconds. I'll leave
-> that running for a while just in case there's another part to the
-> problem, but FWIW:
-> 
-> Tested-by: Mark Rutland <mark.rutland@arm.com>
+On Mon, 26 Feb 2018 08:19:24 +0100
+Jiri Pirko <jiri@resnulli.us> wrote:
 
-Thanks for testing! Sent the patch to Jens for inclusion.
+> Sat, Feb 24, 2018 at 12:59:04AM CET, stephen@networkplumber.org wrote:
+> >On Thu, 22 Feb 2018 13:30:12 -0800
+> >Alexander Duyck <alexander.duyck@gmail.com> wrote:
+> >  
+> >> > Again, I undertand your motivation. Yet I don't like your solution.
+> >> > But if the decision is made to do this in-driver bonding. I would like
+> >> > to see it baing done some generic way:
+> >> > 1) share the same "in-driver bonding core" code with netvsc
+> >> >    put to net/core.
+> >> > 2) the "in-driver bonding core" will strictly limit the functionality,
+> >> >    like active-backup mode only, one vf, one backup, vf netdev type
+> >> >    check (so noone could enslave a tap or anything else)
+> >> > If user would need something more, he should employ team/bond.    
+> >
+> >Sharing would be good, but netvsc world would really like to only have
+> >one visible network device.  
+> 
+> Why do you mind? All would be the same, there would be just another
+> netdevice unused by the vm user (same as the vf netdev).
+> 
 
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+I mind because our requirement is no changes to userspace.
+No special udev rules, no bonding script, no setup.
+
+Things like cloudinit running on current distro's expect to see a single
+eth0.  The VF device show up can also be an issue because distro's have
+stupid rules like Network Manager trying to start DHCP on every interface.
+We deal with that now by doing stuff like udev rules to get it to stop
+but that is still causing user errors.
