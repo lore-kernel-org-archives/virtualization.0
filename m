@@ -1,18 +1,16 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: v4.16-rc2: virtio-block + ext4 lockdep splats / sleeping from
-	invalid context
-Date: Tue, 27 Feb 2018 12:03:59 +0000
-Message-ID: <20180227120358.6x5pnhgv7o2z62iz__1465.34700547836$1519732929$gmane$org@lakrids.cambridge.arm.com>
-References: <20180223154735.x4ezmpjbjm6o6duw@lakrids.cambridge.arm.com>
-	<20180226105256.jagidoki6vsrvzb4@quack2.suse.cz>
-	<20180226113818.v544mmjsavc4x5q2@lakrids.cambridge.arm.com>
-	<20180226124455.rkp3xfn3cqplzh4p@quack2.suse.cz>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 1/4] iommu: Add virtio-iommu driver
+Date: Tue, 27 Feb 2018 16:47:22 +0200
+Message-ID: <20180227164510-mutt-send-email-mst__23160.2087886587$1519742739$gmane$org@kernel.org>
+References: <20180214145340.1223-2-jean-philippe.brucker@arm.com>
+	<201802220455.lMEb6LLi%fengguang.wu@intel.com>
+	<e5ffc52f-4510-f757-aa83-2a99af3ae06b@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180226124455.rkp3xfn3cqplzh4p@quack2.suse.cz>
+In-Reply-To: <e5ffc52f-4510-f757-aa83-2a99af3ae06b@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,26 +20,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Kara <jack@suse.cz>
-Cc: Jens Axboe <axboe@kernel.dk>, Theodore Ts'o <tytso@mit.edu>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, Jan Kara <jack@suse.com>, linux-ext4@vger.kernel.org
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "jintack@cs.columbia.edu" <jintack@cs.columbia.edu>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, kbuild test robot <lkp@intel.com>, "joro@8bytes.org" <joro@8bytes.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, Marc Zyngier <Marc.Zyngier@arm.com>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kbuild-all@01.org" <kbuild-all@01.org>, Robin Murphy <Robin.Murphy@arm>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 26, 2018 at 01:44:55PM +0100, Jan Kara wrote:
-> On Mon 26-02-18 11:38:19, Mark Rutland wrote:
-> > That seems to be it!
-> > 
-> > With the below patch applied, I can't trigger the bug after ~10 minutes,
-> > whereas prior to the patch I can trigger it in ~10 seconds. I'll leave
-> > that running for a while just in case there's another part to the
-> > problem, but FWIW:
-> > 
-> > Tested-by: Mark Rutland <mark.rutland@arm.com>
+On Thu, Feb 22, 2018 at 11:04:30AM +0000, Jean-Philippe Brucker wrote:
+> On 21/02/18 20:12, kbuild test robot wrote:
+> [...]
+> > config: arm64-allmodconfig (attached as .config)
+> [...]
+> >    aarch64-linux-gnu-ld: arch/arm64/kernel/head.o: relocation R_AARCH64_ABS32 against `_kernel_offset_le_lo32' can not be used when making a shared object
+> >    arch/arm64/kernel/head.o: In function `kimage_vaddr':
+> >    (.idmap.text+0x0): dangerous relocation: unsupported relocation
 > 
-> Thanks for testing! Sent the patch to Jens for inclusion.
+> Is this related?
+> 
+> >    arch/arm64/kernel/head.o: In function `__primary_switch':
+> >    (.idmap.text+0x340): dangerous relocation: unsupported relocation
+> >    (.idmap.text+0x348): dangerous relocation: unsupported relocation
+> >    drivers/iommu/virtio-iommu.o: In function `viommu_probe':
+> >    virtio-iommu.c:(.text+0xbdc): undefined reference to `virtio_check_driver_offered_feature'
+> >    virtio-iommu.c:(.text+0xcfc): undefined reference to `virtio_check_driver_offered_feature'
+> >    virtio-iommu.c:(.text+0xe10): undefined reference to `virtio_check_driver_offered_feature'
+> >    drivers/iommu/virtio-iommu.o: In function `viommu_send_reqs_sync':
+> >    virtio-iommu.c:(.text+0x130c): undefined reference to `virtqueue_add_sgs'
+> >    virtio-iommu.c:(.text+0x1398): undefined reference to `virtqueue_kick'
+> >    virtio-iommu.c:(.text+0x14d4): undefined reference to `virtqueue_get_buf'
+> >    drivers/iommu/virtio-iommu.o: In function `virtio_iommu_drv_init':
+> >    virtio-iommu.c:(.init.text+0x1c): undefined reference to `register_virtio_driver'
+> >    drivers/iommu/virtio-iommu.o: In function `virtio_iommu_drv_exit':
+> >>> virtio-iommu.c:(.exit.text+0x14): undefined reference to `unregister_virtio_driver'
+> 
+> Right. At the moment CONFIG_VIRTIO_IOMMU is a bool instead of tristate,
+> because the IOMMU subsystem isn't entirely ready to have IOMMU drivers
+> built as modules. In addition to exporting symbols it would also needs to
+> hold off probing endpoints behind the IOMMU until the IOMMU driver is
+> loaded. At the moment (I think) it gives up once userspace is reached (see
+> of_iommu_driver_present).
+> 
+> The above report is due to VIRTIO=m and VIRTIO_IOMMU=y. To solve it we could:
+> 
+> a) Allow VIRTIO_IOMMU to be built as module by exporting a dozen IOMMU
+> symbols. It would be a lie. The driver wouldn't be usable because of the
+> probe issue discussed above, but it would build.
+> 
+> b) Actually make any IOMMU driver work as module. Whilst it would
+> certainly be a nice feature, it's a bigger problem and I don't think it
+> has its place in this series.
+> 
+> c) Make VIRTIO_IOMMU depend on VIRTIO_MMIO=y instead of VIRTIO_MMIO, which
+> I think is the sanest for now (and does work), even though distro kernels
+> probably all have VIRTIO=m.
+> 
+> I prefer doing c) now and experiment with b) once I got some time.
+> 
+> Thanks,
+> Jean
 
-Cheers!
+It kind of means it's a toy for now though. So fine as long
+as it's out of tree.
 
-FWIW, I left my test case running for a day with no issue, so this looks
-rock solid.
-
-Mark.
+-- 
+MST
