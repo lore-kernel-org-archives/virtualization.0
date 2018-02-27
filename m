@@ -1,16 +1,18 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [PATCH RFC 1/2] virtio: introduce packed ring defines
-Date: Tue, 27 Feb 2018 20:01:59 +0800
-Message-ID: <20180227120159.g47rtazm3uhoht6f__44709.2115217403$1519732898$gmane$org@debian>
-References: <20180223111801.15240-1-tiwei.bie@intel.com>
-	<20180223111801.15240-2-tiwei.bie@intel.com>
-	<20180227085458.h5dytkwaeczrrijr@dhcp-192-241.str.redhat.com>
+From: Mark Rutland <mark.rutland@arm.com>
+Subject: Re: v4.16-rc2: virtio-block + ext4 lockdep splats / sleeping from
+	invalid context
+Date: Tue, 27 Feb 2018 12:03:59 +0000
+Message-ID: <20180227120358.6x5pnhgv7o2z62iz__1465.34700547836$1519732929$gmane$org@lakrids.cambridge.arm.com>
+References: <20180223154735.x4ezmpjbjm6o6duw@lakrids.cambridge.arm.com>
+	<20180226105256.jagidoki6vsrvzb4@quack2.suse.cz>
+	<20180226113818.v544mmjsavc4x5q2@lakrids.cambridge.arm.com>
+	<20180226124455.rkp3xfn3cqplzh4p@quack2.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180227085458.h5dytkwaeczrrijr@dhcp-192-241.str.redhat.com>
+In-Reply-To: <20180226124455.rkp3xfn3cqplzh4p@quack2.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,31 +22,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Freimann <jfreimann@redhat.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Jan Kara <jack@suse.cz>
+Cc: Jens Axboe <axboe@kernel.dk>, Theodore Ts'o <tytso@mit.edu>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, Jan Kara <jack@suse.com>, linux-ext4@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 27, 2018 at 09:54:58AM +0100, Jens Freimann wrote:
-> On Fri, Feb 23, 2018 at 07:18:00PM +0800, Tiwei Bie wrote:
-[...]
+On Mon, Feb 26, 2018 at 01:44:55PM +0100, Jan Kara wrote:
+> On Mon 26-02-18 11:38:19, Mark Rutland wrote:
+> > That seems to be it!
 > > 
-> > +struct vring_packed_desc_event {
-> > +	/* Descriptor Event Offset */
-> > +	__virtio16 desc_event_off   : 15,
-> > +	/* Descriptor Event Wrap Counter */
-> > +		   desc_event_wrap  : 1;
-> > +	/* Descriptor Event Flags */
-> > +	__virtio16 desc_event_flags : 2;
-> > +};
+> > With the below patch applied, I can't trigger the bug after ~10 minutes,
+> > whereas prior to the patch I can trigger it in ~10 seconds. I'll leave
+> > that running for a while just in case there's another part to the
+> > problem, but FWIW:
+> > 
+> > Tested-by: Mark Rutland <mark.rutland@arm.com>
 > 
-> Where would the virtqueue number go in driver notifications?
+> Thanks for testing! Sent the patch to Jens for inclusion.
 
-This structure is for event suppression instead of notification.
+Cheers!
 
-You could refer to the "Event Suppression Structure Format"
-section of the spec for more details:
+FWIW, I left my test case running for a day with no issue, so this looks
+rock solid.
 
-https://github.com/oasis-tcs/virtio-docs/blob/master/virtio-v1.1-packed-wd08.pdf
-
-Best regards,
-Tiwei Bie
+Mark.
