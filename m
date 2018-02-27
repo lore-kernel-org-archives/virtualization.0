@@ -1,16 +1,24 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [v2 1/1] xen, mm: Allow deferred page initialization for xen pv
-	domains
-Date: Tue, 27 Feb 2018 08:44:44 +0100
-Message-ID: <927f2a94-2ece-53f7-3be8-532f3be77dd4@suse.com>
-References: <20180226160112.24724-1-pasha.tatashin@oracle.com>
-	<20180226160112.24724-2-pasha.tatashin@oracle.com>
+From: Jiri Pirko <jiri@resnulli.us>
+Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
+	passthru device
+Date: Tue, 27 Feb 2018 09:27:18 +0100
+Message-ID: <20180227082718.GA2005@nanopsycho>
+References: <20180221165848.GD1996@nanopsycho>
+	<CAKgT0UeZS_SzNfiMX3ujy+a9WZWySVdyTpyQ=b=RJJrAG3JO=w@mail.gmail.com>
+	<20180221193832.GE1996@nanopsycho>
+	<CAKgT0Ud--R7Mw1_jFckskhGmGLZgZbTZ24TuvJ+UWvm_MAQR9w@mail.gmail.com>
+	<20180222081115.GC1994@nanopsycho>
+	<CAKgT0UeVhPOgRM0J6fyGDAJrTnqjc6AtC8+_UMs=hojZAajtdg@mail.gmail.com>
+	<20180223155904.27b11865@xeon-e3>
+	<20180226071924.GA2063@nanopsycho>
+	<20180226170218.6b1dcf22@xeon-e3>
+	<20180227030424-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180226160112.24724-2-pasha.tatashin@oracle.com>
-Content-Language: de-DE
+Content-Disposition: inline
+In-Reply-To: <20180227030424-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,39 +28,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pavel Tatashin <pasha.tatashin@oracle.com>, steven.sistare@oracle.com, daniel.m.jordan@oracle.com, akataria@vmware.com, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org, boris.ostrovsky@oracle.com, akpm@linux-foundation.org, mhocko@suse.com, vbabka@suse.cz, luto@kernel.org, labbott@redhat.com, kirill.shutemov@linux.intel.com, bp@suse.de, minipli@googlemail.com, jinb.park7@gmail.com, dan.j.williams@intel.com, bhe@redhat.com, zhang.jia@linux.alibaba.com, mgorman@techsingularity.net, hannes@cmpxchg.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, linux-mm@kvack.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 26/02/18 17:01, Pavel Tatashin wrote:
-> Juergen Gross noticed that commit
-> f7f99100d8d ("mm: stop zeroing memory during allocation in vmemmap")
-> broke XEN PV domains when deferred struct page initialization is enabled.
-> 
-> This is because the xen's PagePinned() flag is getting erased from struct
-> pages when they are initialized later in boot.
-> 
-> Juergen fixed this problem by disabling deferred pages on xen pv domains.
-> It is desirable, however, to have this feature available as it reduces boot
-> time. This fix re-enables the feature for pv-dmains, and fixes the problem
-> the following way:
-> 
-> The fix is to delay setting PagePinned flag until struct pages for all
-> allocated memory are initialized, i.e. until after free_all_bootmem().
-> 
-> A new x86_init.hyper op init_after_bootmem() is called to let xen know
-> that boot allocator is done, and hence struct pages for all the allocated
-> memory are now initialized. If deferred page initialization is enabled, the
-> rest of struct pages are going to be initialized later in boot once
-> page_alloc_init_late() is called.
-> 
-> xen_after_bootmem() walks page table's pages and marks them pinned.
-> 
-> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+Tue, Feb 27, 2018 at 02:18:12AM CET, mst@redhat.com wrote:
+>On Mon, Feb 26, 2018 at 05:02:18PM -0800, Stephen Hemminger wrote:
+>> On Mon, 26 Feb 2018 08:19:24 +0100
+>> Jiri Pirko <jiri@resnulli.us> wrote:
+>> 
+>> > Sat, Feb 24, 2018 at 12:59:04AM CET, stephen@networkplumber.org wrote:
+>> > >On Thu, 22 Feb 2018 13:30:12 -0800
+>> > >Alexander Duyck <alexander.duyck@gmail.com> wrote:
+>> > >  
+>> > >> > Again, I undertand your motivation. Yet I don't like your solution.
+>> > >> > But if the decision is made to do this in-driver bonding. I would like
+>> > >> > to see it baing done some generic way:
+>> > >> > 1) share the same "in-driver bonding core" code with netvsc
+>> > >> >    put to net/core.
+>> > >> > 2) the "in-driver bonding core" will strictly limit the functionality,
+>> > >> >    like active-backup mode only, one vf, one backup, vf netdev type
+>> > >> >    check (so noone could enslave a tap or anything else)
+>> > >> > If user would need something more, he should employ team/bond.    
+>> > >
+>> > >Sharing would be good, but netvsc world would really like to only have
+>> > >one visible network device.  
+>> > 
+>> > Why do you mind? All would be the same, there would be just another
+>> > netdevice unused by the vm user (same as the vf netdev).
+>> > 
+>> 
+>> I mind because our requirement is no changes to userspace.
+>> No special udev rules, no bonding script, no setup.
+>
+>Agreed. It is mostly fine from this point of view, except that you need
+>to know to skip the slaves.  Maybe we could look at some kind of
+>trick e.g. pretending link is down for slaves?
 
-Verified to work on a system where the original issue caused a crash.
-
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Tested-by: Juergen Gross <jgross@suse.com>
+:O Another hack. Please, don't.
 
 
-Juergen
+>
+>> Things like cloudinit running on current distro's expect to see a single
+>> eth0.  The VF device show up can also be an issue because distro's have
+>> stupid rules like Network Manager trying to start DHCP on every interface.
+>> We deal with that now by doing stuff like udev rules to get it to stop
+>> but that is still causing user errors.
+
+So that means that with an extra netdev for "virtio_net bypass" you will
+face exactly the same problems. Should not be an issue for you then.
+
+
+>
+>So the ideal of a single net device isn't achieved by netvsc.
+>
+>Since you have scripts to skip the PT device, can't they
+>hind the PV slave too? How do they identify the device to skip?
+>
+>I agree it would be nice to have a way to hide the extra netdev
+>from userspace.
+
+"A hidden netdevice", hmm. I believe that instead of doing hacks like
+this, we should fix userspace to treat particular netdevices correctly.
+
+
+>
+>The benefit of the separation is that each slave device can
+>be configured with e.g. its own native ethtool commands for
+>optimum performance.
+>
+>-- 
+>MST
