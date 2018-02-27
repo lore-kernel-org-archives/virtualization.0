@@ -1,16 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/4] iommu: Add virtio-iommu driver
-Date: Tue, 27 Feb 2018 16:47:22 +0200
-Message-ID: <20180227164510-mutt-send-email-mst__23160.2087886587$1519742739$gmane$org@kernel.org>
-References: <20180214145340.1223-2-jean-philippe.brucker@arm.com>
-	<201802220455.lMEb6LLi%fengguang.wu@intel.com>
-	<e5ffc52f-4510-f757-aa83-2a99af3ae06b@arm.com>
+Subject: Re: [PATCH] virtio_balloon: export huge page allocation statistics
+Date: Tue, 27 Feb 2018 17:20:13 +0200
+Message-ID: <20180227170250-mutt-send-email-mst@kernel.org>
+References: <1518846272-5216-1-git-send-email-jonathan.helman@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <e5ffc52f-4510-f757-aa83-2a99af3ae06b@arm.com>
+In-Reply-To: <1518846272-5216-1-git-send-email-jonathan.helman@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,65 +18,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "jintack@cs.columbia.edu" <jintack@cs.columbia.edu>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, kbuild test robot <lkp@intel.com>, "joro@8bytes.org" <joro@8bytes.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, Marc Zyngier <Marc.Zyngier@arm.com>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kbuild-all@01.org" <kbuild-all@01.org>, Robin Murphy <Robin.Murphy@arm>
+To: Jonathan Helman <jonathan.helman@oracle.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 22, 2018 at 11:04:30AM +0000, Jean-Philippe Brucker wrote:
-> On 21/02/18 20:12, kbuild test robot wrote:
-> [...]
-> > config: arm64-allmodconfig (attached as .config)
-> [...]
-> >    aarch64-linux-gnu-ld: arch/arm64/kernel/head.o: relocation R_AARCH64_ABS32 against `_kernel_offset_le_lo32' can not be used when making a shared object
-> >    arch/arm64/kernel/head.o: In function `kimage_vaddr':
-> >    (.idmap.text+0x0): dangerous relocation: unsupported relocation
-> 
-> Is this related?
-> 
-> >    arch/arm64/kernel/head.o: In function `__primary_switch':
-> >    (.idmap.text+0x340): dangerous relocation: unsupported relocation
-> >    (.idmap.text+0x348): dangerous relocation: unsupported relocation
-> >    drivers/iommu/virtio-iommu.o: In function `viommu_probe':
-> >    virtio-iommu.c:(.text+0xbdc): undefined reference to `virtio_check_driver_offered_feature'
-> >    virtio-iommu.c:(.text+0xcfc): undefined reference to `virtio_check_driver_offered_feature'
-> >    virtio-iommu.c:(.text+0xe10): undefined reference to `virtio_check_driver_offered_feature'
-> >    drivers/iommu/virtio-iommu.o: In function `viommu_send_reqs_sync':
-> >    virtio-iommu.c:(.text+0x130c): undefined reference to `virtqueue_add_sgs'
-> >    virtio-iommu.c:(.text+0x1398): undefined reference to `virtqueue_kick'
-> >    virtio-iommu.c:(.text+0x14d4): undefined reference to `virtqueue_get_buf'
-> >    drivers/iommu/virtio-iommu.o: In function `virtio_iommu_drv_init':
-> >    virtio-iommu.c:(.init.text+0x1c): undefined reference to `register_virtio_driver'
-> >    drivers/iommu/virtio-iommu.o: In function `virtio_iommu_drv_exit':
-> >>> virtio-iommu.c:(.exit.text+0x14): undefined reference to `unregister_virtio_driver'
-> 
-> Right. At the moment CONFIG_VIRTIO_IOMMU is a bool instead of tristate,
-> because the IOMMU subsystem isn't entirely ready to have IOMMU drivers
-> built as modules. In addition to exporting symbols it would also needs to
-> hold off probing endpoints behind the IOMMU until the IOMMU driver is
-> loaded. At the moment (I think) it gives up once userspace is reached (see
-> of_iommu_driver_present).
-> 
-> The above report is due to VIRTIO=m and VIRTIO_IOMMU=y. To solve it we could:
-> 
-> a) Allow VIRTIO_IOMMU to be built as module by exporting a dozen IOMMU
-> symbols. It would be a lie. The driver wouldn't be usable because of the
-> probe issue discussed above, but it would build.
-> 
-> b) Actually make any IOMMU driver work as module. Whilst it would
-> certainly be a nice feature, it's a bigger problem and I don't think it
-> has its place in this series.
-> 
-> c) Make VIRTIO_IOMMU depend on VIRTIO_MMIO=y instead of VIRTIO_MMIO, which
-> I think is the sanest for now (and does work), even though distro kernels
-> probably all have VIRTIO=m.
-> 
-> I prefer doing c) now and experiment with b) once I got some time.
-> 
-> Thanks,
-> Jean
+On Fri, Feb 16, 2018 at 09:44:32PM -0800, Jonathan Helman wrote:
+> Export statistics for successful and failed huge page allocations
+> from the virtio balloon driver. These 2 stats come directly from
+> the vm_events HTLB_BUDDY_PGALLOC and HTLB_BUDDY_PGALLOC_FAIL.
+> Signed-off-by: Jonathan Helman <jonathan.helman@oracle.com>
 
-It kind of means it's a toy for now though. So fine as long
-as it's out of tree.
+Any host/guest intergace changes need to be copied to
+the virtio TC mailing list (subscriber-only, sorry about that):
+virtio-dev@lists.oasis-open.org
 
--- 
-MST
+> ---
+>  drivers/virtio/virtio_balloon.c     | 6 ++++++
+>  include/uapi/linux/virtio_balloon.h | 4 +++-
+>  2 files changed, 9 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index dfe5684..6b237e3 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -272,6 +272,12 @@ static unsigned int update_balloon_stats(struct virtio_balloon *vb)
+>  				pages_to_bytes(events[PSWPOUT]));
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MAJFLT, events[PGMAJFAULT]);
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MINFLT, events[PGFAULT]);
+> +#ifdef CONFIG_HUGETLB_PAGE
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGALLOC,
+> +		    events[HTLB_BUDDY_PGALLOC]);
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGFAIL,
+> +		    events[HTLB_BUDDY_PGALLOC_FAIL]);
+> +#endif
+>  #endif
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMFREE,
+>  				pages_to_bytes(i.freeram));
+> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+> index 4e8b830..e3e8071 100644
+> --- a/include/uapi/linux/virtio_balloon.h
+> +++ b/include/uapi/linux/virtio_balloon.h
+> @@ -53,7 +53,9 @@ struct virtio_balloon_config {
+>  #define VIRTIO_BALLOON_S_MEMTOT   5   /* Total amount of memory */
+>  #define VIRTIO_BALLOON_S_AVAIL    6   /* Available memory as in /proc */
+>  #define VIRTIO_BALLOON_S_CACHES   7   /* Disk caches */
+> -#define VIRTIO_BALLOON_S_NR       8
+> +#define VIRTIO_BALLOON_S_HTLB_PGALLOC  8  /* Number of htlb pgalloc successes */
+> +#define VIRTIO_BALLOON_S_HTLB_PGFAIL   9  /* Number of htlb pgalloc failures */
+> +#define VIRTIO_BALLOON_S_NR       10
+
+Can you clarify the comments pls? Eschew abbreviation.
+
+>  
+>  /*
+>   * Memory statistics structure.
+> -- 
+> 1.8.3.1
