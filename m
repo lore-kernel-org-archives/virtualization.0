@@ -1,16 +1,16 @@
-From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [v2 1/1] xen, mm: Allow deferred page initialization for xen pv
-	domains
-Date: Tue, 27 Feb 2018 07:59:22 +0100
-Message-ID: <20180227065922.u6y7bcx3pwyags2u@gmail.com>
-References: <20180226160112.24724-1-pasha.tatashin@oracle.com>
-	<20180226160112.24724-2-pasha.tatashin@oracle.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Subject: Re: [PATCH 4/6] x86: Consolidate PCI_MMCONFIG configs
+Date: Tue, 27 Feb 2018 08:19:55 +0100
+Message-ID: <45f0d934-c4cf-fdc7-d7ca-17373c01e733__47051.6170877547$1519715891$gmane$org@siemens.com>
+References: <cover.1516601570.git.jan.kiszka@siemens.com>
+	<5dcaec50bb59140c1cb63c35ce566ccc02188bcb.1516601570.git.jan.kiszka@siemens.com>
+	<CAHp75Vd3AsdOayA0FSaug6L4K+Xx5pk=Eeh4F5mZQsKiV3RxwA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180226160112.24724-2-pasha.tatashin@oracle.com>
+In-Reply-To: <CAHp75Vd3AsdOayA0FSaug6L4K+Xx5pk=Eeh4F5mZQsKiV3RxwA@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,48 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pavel Tatashin <pasha.tatashin@oracle.com>
-Cc: mhocko@suse.com, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, steven.sistare@oracle.com, hpa@zytor.com, dan.j.williams@intel.com, bhe@redhat.com, x86@kernel.org, akataria@vmware.com, daniel.m.jordan@oracle.com, mingo@redhat.com, xen-devel@lists.xenproject.org, bp@suse.de, minipli@googlemail.com, jinb.park7@gmail.com, luto@kernel.org, boris.ostrovsky@oracle.com, vbabka@suse.cz, jgross@suse.com, labbott@redhat.com, linux-kernel@vger.kernel.org, tglx@linutronix.de, zhang.jia@linux.alibaba.com, hannes@cmpxchg.org, akpm@linux-foundation.org, mgorman@techsingularity.net, kirill.shutemov@linux.intel.com
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 2018-01-28 18:26, Andy Shevchenko wrote:
+> On Mon, Jan 22, 2018 at 8:12 AM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
+>> From: Jan Kiszka <jan.kiszka@siemens.com>
+>>
+>> Not sure if those two worked by design or just by chance so far. In any
+>> case, it's at least cleaner and clearer to express this in a single
+>> config statement.
+> 
+> Congrats! You found by the way a bug in
+> 
+> commit e279b6c1d329e50b766bce96aacc197eae8a053b
+> Author: Sam Ravnborg <sam@ravnborg.org>
+> Date:   Tue Nov 6 20:41:05 2007 +0100
+> 
+>    x86: start unification of arch/x86/Kconfig.*
+> 
+> ...and proper fix seems to split PCI stuff to common + X86_32 only + X86_64 only
+> 
 
-* Pavel Tatashin <pasha.tatashin@oracle.com> wrote:
+Hmm, is that a change request on this patch?
 
-> Juergen Gross noticed that commit
-> f7f99100d8d ("mm: stop zeroing memory during allocation in vmemmap")
-> broke XEN PV domains when deferred struct page initialization is enabled.
-> 
-> This is because the xen's PagePinned() flag is getting erased from struct
-> pages when they are initialized later in boot.
-> 
-> Juergen fixed this problem by disabling deferred pages on xen pv domains.
-> It is desirable, however, to have this feature available as it reduces boot
-> time. This fix re-enables the feature for pv-dmains, and fixes the problem
-> the following way:
-> 
-> The fix is to delay setting PagePinned flag until struct pages for all
-> allocated memory are initialized, i.e. until after free_all_bootmem().
-> 
-> A new x86_init.hyper op init_after_bootmem() is called to let xen know
-> that boot allocator is done, and hence struct pages for all the allocated
-> memory are now initialized. If deferred page initialization is enabled, the
-> rest of struct pages are going to be initialized later in boot once
-> page_alloc_init_late() is called.
-> 
-> xen_after_bootmem() walks page table's pages and marks them pinned.
-> 
-> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
-> ---
->  arch/x86/include/asm/x86_init.h |  2 ++
->  arch/x86/kernel/x86_init.c      |  1 +
->  arch/x86/mm/init_32.c           |  1 +
->  arch/x86/mm/init_64.c           |  1 +
->  arch/x86/xen/mmu_pv.c           | 38 ++++++++++++++++++++++++++------------
->  mm/page_alloc.c                 |  4 ----
->  6 files changed, 31 insertions(+), 16 deletions(-)
+Jan
 
-Acked-by: Ingo Molnar <mingo@kernel.org>
-
-Thanks,
-
-	Ingo
+-- 
+Siemens AG, Corporate Technology, CT RDA IOT SES-DE
+Corporate Competence Center Embedded Linux
