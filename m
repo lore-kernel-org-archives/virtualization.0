@@ -1,12 +1,16 @@
-From: "peccs@insticc.info" <peccs@insticc.info>
-Subject: CFP PECCS 2018 - 8th Int.l Joint Conf. on Pervasive and Embedded
-	Computing and Communication Systems (Porto/Portugal)
-Date: 27 Feb 2018 16:10:34 +0000
-Message-ID: <20180227161035.1.DAF3FE80A9C17203@insticc.info>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC 1/2] virtio: introduce packed ring defines
+Date: Tue, 27 Feb 2018 22:28:18 +0200
+Message-ID: <20180227222806-mutt-send-email-mst__19595.1515379877$1519763183$gmane$org@kernel.org>
+References: <20180223111801.15240-1-tiwei.bie@intel.com>
+	<20180223111801.15240-2-tiwei.bie@intel.com>
+	<20180227085458.h5dytkwaeczrrijr@dhcp-192-241.str.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20180227085458.h5dytkwaeczrrijr@dhcp-192-241.str.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,24 +20,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Jens Freimann <jfreimann@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-U1VCTUlTU0lPTiBERUFETElORSAKCjh0aCBJbnRlcm5hdGlvbmFsIEpvaW50IENvbmZlcmVuY2Ug
-b24gUGVydmFzaXZlIGFuZCBFbWJlZGRlZCBDb21wdXRpbmcgYW5kIENvbW11bmljYXRpb24gU3lz
-dGVtcwoKU3VibWlzc2lvbiBEZWFkbGluZTogTWFyY2ggMTMsIDIwMTgKCmh0dHA6Ly93d3cucGVj
-Y3Mub3JnLwoKSnVseSAyOSAtIDMwLCAyMDE4ClBvcnRvLCBQb3J0dWdhbC4KCiAKCkluIENvb3Bl
-cmF0aW9uIHdpdGggRVVST01JQ1JPLgogCkEgc2hvcnQgbGlzdCBvZiBwcmVzZW50ZWQgcGFwZXJz
-IHdpbGwgYmUgc2VsZWN0ZWQgc28gdGhhdCByZXZpc2VkIGFuZCBleHRlbmRlZCB2ZXJzaW9ucyBv
-ZiB0aGVzZSBwYXBlcnMgd2lsbCBiZSBwdWJsaXNoZWQgYnkgU3ByaW5nZXIuCiAKQWxsIHBhcGVy
-cyBwcmVzZW50ZWQgYXQgdGhlIGNvbmdyZXNzIHZlbnVlIHdpbGwgYWxzbyBiZSBhdmFpbGFibGUg
-YXQgdGhlIFNDSVRFUFJFU1MgRGlnaXRhbCBMaWJyYXJ5IChodHRwOi8vd3d3LnNjaXRlcHJlc3Mu
-b3JnL0RpZ2l0YWxMaWJyYXJ5LykuCiAgClNob3VsZCB5b3UgaGF2ZSBhbnkgcXVlc3Rpb24gcGxl
-YXNlIGRvbuKAmXQgaGVzaXRhdGUgY29udGFjdGluZyBtZS4KIAoKS2luZCByZWdhcmRzLApQRUND
-UyBTZWNyZXRhcmlhdAoKQWRkcmVzczogQXYuIEQuIE1hbnVlbCBJLCAyN0EsIDLCuiBlc3EuCjI5
-MTAtNTk1IFNldHViYWwsIFBvcnR1Z2FsClRlbDogKzM1MSAyNjUgNTIwIDE4NApGYXg6ICszNTEg
-MjY1IDUyMCAxODYKV2ViOiBodHRwOi8vd3d3LnBlY2NzLm9yZy8KZS1tYWlsOiBwZWNjcy5zZWNy
-ZXRhcmlhdEBpbnN0aWNjLm9yZwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Tue, Feb 27, 2018 at 09:54:58AM +0100, Jens Freimann wrote:
+> On Fri, Feb 23, 2018 at 07:18:00PM +0800, Tiwei Bie wrote:
+> > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+> > ---
+> > include/uapi/linux/virtio_config.h | 18 +++++++++-
+> > include/uapi/linux/virtio_ring.h   | 68 ++++++++++++++++++++++++++++++++++++++
+> > 2 files changed, 85 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+> > index 308e2096291f..e3d077ef5207 100644
+> > --- a/include/uapi/linux/virtio_config.h
+> > +++ b/include/uapi/linux/virtio_config.h
+> > @@ -49,7 +49,7 @@
+> >  * transport being used (eg. virtio_ring), the rest are per-device feature
+> >  * bits. */
+> > #define VIRTIO_TRANSPORT_F_START	28
+> > -#define VIRTIO_TRANSPORT_F_END		34
+> > +#define VIRTIO_TRANSPORT_F_END		37
+> > 
+> > #ifndef VIRTIO_CONFIG_NO_LEGACY
+> > /* Do we get callbacks when the ring is completely used, even if we've
+> > @@ -71,4 +71,20 @@
+> >  * this is for compatibility with legacy systems.
+> >  */
+> > #define VIRTIO_F_IOMMU_PLATFORM		33
+> > +
+> > +/* This feature indicates support for the packed virtqueue layout. */
+> > +#define VIRTIO_F_RING_PACKED		34
+> 
+> Spec says VIRTIO_F_PACKED_RING not RING_PACKED
+
+I changed that now :)
+
+> > +
+> > +/*
+> > + * This feature indicates that all buffers are used by the device
+> > + * in the same order in which they have been made available.
+> > + */
+> > +#define VIRTIO_F_IN_ORDER		35
+> > +
+> > +/*
+> > + * This feature indicates that drivers pass extra data (besides
+> > + * identifying the Virtqueue) in their device notifications.
+> > + */
+> > +#define VIRTIO_F_NOTIFICATION_DATA	36
+> > +
+> > #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
+> > diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+> > index 6d5d5faa989b..77b1d4aeef72 100644
+> > --- a/include/uapi/linux/virtio_ring.h
+> > +++ b/include/uapi/linux/virtio_ring.h
+> > @@ -44,6 +44,9 @@
+> > /* This means the buffer contains a list of buffer descriptors. */
+> > #define VRING_DESC_F_INDIRECT	4
+> > 
+> > +#define VRING_DESC_F_AVAIL(b)	((b) << 7)
+> > +#define VRING_DESC_F_USED(b)	((b) << 15)
+> > +
+> > /* The Host uses this in used->flags to advise the Guest: don't kick me when
+> >  * you add a buffer.  It's unreliable, so it's simply an optimization.  Guest
+> >  * will still kick if it's out of buffers. */
+> > @@ -104,6 +107,36 @@ struct vring {
+> > 	struct vring_used *used;
+> > };
+> > 
+> > +struct vring_packed_desc_event {
+> > +	/* Descriptor Event Offset */
+> > +	__virtio16 desc_event_off   : 15,
+> > +	/* Descriptor Event Wrap Counter */
+> > +		   desc_event_wrap  : 1;
+> > +	/* Descriptor Event Flags */
+> > +	__virtio16 desc_event_flags : 2;
+> > +};
+> 
+> Where would the virtqueue number go in driver notifications?
+> 
+> regards,
+> Jens
