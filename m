@@ -1,17 +1,16 @@
-From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: Re: [PATCH 2/6] pci: Scan all functions when probing while running
-	over Jailhouse
-Date: Tue, 27 Feb 2018 08:25:45 +0100
-Message-ID: <b830dc87-4953-835f-8479-fb57e55a035c__4775.64511024884$1519716237$gmane$org@siemens.com>
-References: <cover.1516601570.git.jan.kiszka@siemens.com>
-	<66bfcfc6dc1832baa3fbd8e4879764d36aa9c1e7.1516601570.git.jan.kiszka@siemens.com>
-	<20180222205753.GE16519@bhelgaas-glaptop.roam.corp.google.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [v2 1/1] xen, mm: Allow deferred page initialization for xen pv
+	domains
+Date: Tue, 27 Feb 2018 08:44:44 +0100
+Message-ID: <927f2a94-2ece-53f7-3be8-532f3be77dd4@suse.com>
+References: <20180226160112.24724-1-pasha.tatashin@oracle.com>
+	<20180226160112.24724-2-pasha.tatashin@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180222205753.GE16519@bhelgaas-glaptop.roam.corp.google.com>
-Content-Language: en-US
+In-Reply-To: <20180226160112.24724-2-pasha.tatashin@oracle.com>
+Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,58 +20,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: jailhouse-dev@googlegroups.com, Benedikt Spranger <b.spranger@linutronix.de>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Pavel Tatashin <pasha.tatashin@oracle.com>, steven.sistare@oracle.com, daniel.m.jordan@oracle.com, akataria@vmware.com, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org, boris.ostrovsky@oracle.com, akpm@linux-foundation.org, mhocko@suse.com, vbabka@suse.cz, luto@kernel.org, labbott@redhat.com, kirill.shutemov@linux.intel.com, bp@suse.de, minipli@googlemail.com, jinb.park7@gmail.com, dan.j.williams@intel.com, bhe@redhat.com, zhang.jia@linux.alibaba.com, mgorman@techsingularity.net, hannes@cmpxchg.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2018-02-22 21:57, Bjorn Helgaas wrote:
-> On Mon, Jan 22, 2018 at 07:12:46AM +0100, Jan Kiszka wrote:
->> From: Jan Kiszka <jan.kiszka@siemens.com>
->>
->> PCI and PCIBIOS probing only scans devices at function number 0/8/16/...
->> Subdevices (e.g. multiqueue) have function numbers which are not a
->> multiple of 8.
+On 26/02/18 17:01, Pavel Tatashin wrote:
+> Juergen Gross noticed that commit
+> f7f99100d8d ("mm: stop zeroing memory during allocation in vmemmap")
+> broke XEN PV domains when deferred struct page initialization is enabled.
 > 
-> Suggested text:
+> This is because the xen's PagePinned() flag is getting erased from struct
+> pages when they are initialized later in boot.
 > 
->   Per PCIe r4.0, sec 7.5.1.1.9, multi-function devices are required to
->   have a function 0.  Therefore, Linux scans for devices at function 0
->   (devfn 0/8/16/...) and only scans for other functions if function 0
->   has its Multi-Function Device bit set or ARI or SR-IOV indicate
->   there are more functions.
->   
->   The Jailhouse hypervisor may pass individual functions of a
->   multi-function device to a guest without passing function 0, which
->   means a Linux guest won't find them.
+> Juergen fixed this problem by disabling deferred pages on xen pv domains.
+> It is desirable, however, to have this feature available as it reduces boot
+> time. This fix re-enables the feature for pv-dmains, and fixes the problem
+> the following way:
 > 
->   Change Linux PCI probing so it scans all function numbers when
->   running as a guest over Jailhouse.
->   
->   This is technically prohibited by the spec, so it is possible that
->   PCI devices without the Multi-Function Device bit set may have
->   unexpected behavior in response to this probe.
+> The fix is to delay setting PagePinned flag until struct pages for all
+> allocated memory are initialized, i.e. until after free_all_bootmem().
 > 
->> The simple hypervisor Jailhouse passes subdevices directly w/o providing
->> a virtual PCI topology like KVM. As a consequence a PCI passthrough from
->> Jailhouse to a guest will not be detected by Linux.
->>
->> Based on patch by Benedikt Spranger, adding Jailhouse probing to avoid
->> changing the behavior in the absence of the hypervisor.
->>
->> CC: Benedikt Spranger <b.spranger@linutronix.de>
->> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+> A new x86_init.hyper op init_after_bootmem() is called to let xen know
+> that boot allocator is done, and hence struct pages for all the allocated
+> memory are now initialized. If deferred page initialization is enabled, the
+> rest of struct pages are going to be initialized later in boot once
+> page_alloc_init_late() is called.
 > 
-> With subject change to:
+> xen_after_bootmem() walks page table's pages and marks them pinned.
 > 
->   PCI: Scan all functions when running over Jailhouse
-> 
-> Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-> 
+> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
 
-Thanks, all suggestions picked up for next round.
+Verified to work on a system where the original issue caused a crash.
 
-Jan
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Tested-by: Juergen Gross <jgross@suse.com>
 
--- 
-Siemens AG, Corporate Technology, CT RDA IOT SES-DE
-Corporate Competence Center Embedded Linux
+
+Juergen
