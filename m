@@ -1,23 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
-	passthru device
-Date: Wed, 28 Feb 2018 17:45:39 +0200
-Message-ID: <20180228174449-mutt-send-email-mst__44511.4091774032$1519832630$gmane$org@kernel.org>
-References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
-	<20180220104224.GA2031@nanopsycho>
-	<CAKgT0UdU8PDXduzxp4kKfur-DLeFQSJj7-fhW_eTgVzd+AcViw@mail.gmail.com>
-	<20180227084959.GB2005@nanopsycho>
-	<CAKgT0Ucp8WhkORpVVy2VWwuvxZHZjXKn6YfHfVaLAVVybf3t5w@mail.gmail.com>
-	<20180227134149.2bff667e@cakuba.netronome.com>
-	<20180228070839.GA19654@nanopsycho>
-	<20180228160647-mutt-send-email-mst@kernel.org>
-	<20180228151131.GF19654@nanopsycho>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v2 4/6] x86: Consolidate PCI_MMCONFIG configs
+Date: Wed, 28 Feb 2018 17:45:37 +0200
+Message-ID: <CAHp75Vf35N1Q0aVjKNwz5UMAVKR-q8PypoDhgr8bCbbiqVeSqQ__4010.03784868426$1519832655$gmane$org@mail.gmail.com>
+References: <cover.1519799691.git.jan.kiszka@siemens.com>
+	<76a05abd818c89032161585ba130511a5bd673f0.1519799691.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180228151131.GF19654@nanopsycho>
+In-Reply-To: <76a05abd818c89032161585ba130511a5bd673f0.1519799691.git.jan.kiszka@siemens.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,42 +18,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 28, 2018 at 04:11:31PM +0100, Jiri Pirko wrote:
-> Wed, Feb 28, 2018 at 03:32:44PM CET, mst@redhat.com wrote:
-> >On Wed, Feb 28, 2018 at 08:08:39AM +0100, Jiri Pirko wrote:
-> >> Tue, Feb 27, 2018 at 10:41:49PM CET, kubakici@wp.pl wrote:
-> >> >On Tue, 27 Feb 2018 13:16:21 -0800, Alexander Duyck wrote:
-> >> >> Basically we need some sort of PCI or PCIe topology mapping for the
-> >> >> devices that can be translated into something we can communicate over
-> >> >> the communication channel. 
-> >> >
-> >> >Hm.  This is probably a completely stupid idea, but if we need to
-> >> >start marshalling configuration requests/hints maybe the entire problem
-> >> >could be solved by opening a netlink socket from hypervisor?  Even make
-> >> >teamd run on the hypervisor side...
-> >> 
-> >> Interesting. That would be more trickier then just to fwd 1 genetlink
-> >> socket to the hypervisor.
-> >> 
-> >> Also, I think that the solution should handle multiple guest oses. What
-> >> I'm thinking about is some generic bonding description passed over some
-> >> communication channel into vm. The vm either use it for configuration,
-> >> or ignores it if it is not smart enough/updated enough.
-> >
-> >For sure, we could build virtio-bond to pass that info to guests.
-> 
-> What do you mean by "virtio-bond". virtio_net extension?
+On Wed, Feb 28, 2018 at 8:34 AM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
+> From: Jan Kiszka <jan.kiszka@siemens.com>
+>
+> Not sure if those two worked by design or just by chance so far. In any
+> case, it's at least cleaner and clearer to express this in a single
+> config statement.
 
-I mean a new device supplying topology information to guests,
-with updates whenever VMs are started, stopped or migrated.
+I would add a reference to the commit which brought that in the first place.
 
-> >
-> >Such an advisory mechanism would not be a replacement for the mandatory
-> >passthrough fallback flag proposed, but OTOH it's much more flexible.
-> >
-> >-- 
-> >MST
+>
+> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+> ---
+>  arch/x86/Kconfig | 9 +++------
+>  1 file changed, 3 insertions(+), 6 deletions(-)
+>
+> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> index eb7f43f23521..63e85e7da12e 100644
+> --- a/arch/x86/Kconfig
+> +++ b/arch/x86/Kconfig
+> @@ -2641,8 +2641,9 @@ config PCI_DIRECT
+>         depends on PCI && (X86_64 || (PCI_GODIRECT || PCI_GOANY || PCI_GOOLPC || PCI_GOMMCONFIG))
+>
+>  config PCI_MMCONFIG
+> -       def_bool y
+> -       depends on X86_32 && PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY)
+> +       bool "Support mmconfig PCI config space access" if X86_64
+> +       default y
+> +       depends on PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY || X86_64)
+
+Looking to the above context I would rather put it like
+
+depends on PCI && (ACPI || SFI) && (X86_64 || (PCI_GOANY || PCI_GOMMCONFIG))
+
+-- 
+With Best Regards,
+Andy Shevchenko
