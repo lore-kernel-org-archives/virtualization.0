@@ -1,18 +1,16 @@
-From: Jakub Kicinski <kubakici@wp.pl>
-Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
-	passthru device
-Date: Tue, 27 Feb 2018 13:41:49 -0800
-Message-ID: <20180227134149.2bff667e@cakuba.netronome.com>
-References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
-	<20180220104224.GA2031@nanopsycho>
-	<CAKgT0UdU8PDXduzxp4kKfur-DLeFQSJj7-fhW_eTgVzd+AcViw@mail.gmail.com>
-	<20180227084959.GB2005@nanopsycho>
-	<CAKgT0Ucp8WhkORpVVy2VWwuvxZHZjXKn6YfHfVaLAVVybf3t5w@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH RFC 2/2] vhost: packed ring support
+Date: Wed, 28 Feb 2018 10:38:36 +0800
+Message-ID: <4a77554f-a4ce-a1d7-97c4-ffeb56bf1c90__17718.3012980551$1519786029$gmane$org@redhat.com>
+References: <1518575829-1431-1-git-send-email-jasowang@redhat.com>
+	<1518575829-1431-3-git-send-email-jasowang@redhat.com>
+	<20180227090319.h7hxmxp5rpozrb5s@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAKgT0Ucp8WhkORpVVy2VWwuvxZHZjXKn6YfHfVaLAVVybf3t5w@mail.gmail.com>
+In-Reply-To: <20180227090319.h7hxmxp5rpozrb5s@debian>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,16 +20,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Duyck <alexander.duyck@gmail.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 27 Feb 2018 13:16:21 -0800, Alexander Duyck wrote:
-> Basically we need some sort of PCI or PCIe topology mapping for the
-> devices that can be translated into something we can communicate over
-> the communication channel. 
-
-Hm.  This is probably a completely stupid idea, but if we need to
-start marshalling configuration requests/hints maybe the entire problem
-could be solved by opening a netlink socket from hypervisor?  Even make
-teamd run on the hypervisor side...
+CgpPbiAyMDE45bm0MDLmnIgyN+aXpSAxNzowMywgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFdlZCwg
+RmViIDE0LCAyMDE4IGF0IDEwOjM3OjA5QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gWy4u
+Ll0KPj4gK3N0YXRpYyB2b2lkIHNldF9kZXNjX3VzZWQoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAq
+dnEsCj4+ICsJCQkgIHN0cnVjdCB2cmluZ19kZXNjX3BhY2tlZCAqZGVzYywgYm9vbCB3cmFwX2Nv
+dW50ZXIpCj4+ICt7Cj4+ICsJX192aXJ0aW8xNiBmbGFncyA9IGRlc2MtPmZsYWdzOwo+PiArCj4+
+ICsJaWYgKHdyYXBfY291bnRlcikgewo+PiArCQlkZXNjLT5mbGFncyB8PSBjcHVfdG9fdmhvc3Qx
+Nih2cSwgREVTQ19BVkFJTCk7Cj4+ICsJCWRlc2MtPmZsYWdzIHw9IGNwdV90b192aG9zdDE2KHZx
+LCBERVNDX1VTRUQpOwo+PiArCX0gZWxzZSB7Cj4+ICsJCWRlc2MtPmZsYWdzICY9IH5jcHVfdG9f
+dmhvc3QxNih2cSwgREVTQ19BVkFJTCk7Cj4+ICsJCWRlc2MtPmZsYWdzICY9IH5jcHVfdG9fdmhv
+c3QxNih2cSwgREVTQ19VU0VEKTsKPj4gKwl9Cj4+ICsKPj4gKwlkZXNjLT5mbGFncyA9IGZsYWdz
+Owo+IFRoZSBgZGVzYy0+ZmxhZ3NgIGlzIHJlc3RvcmVkIGFmdGVyIHRoZSBjaGFuZ2UuCgpSaWdo
+dCwgd2lsbCBmaXguCgo+PiArfQo+PiArCj4+ICtzdGF0aWMgaW50IHZob3N0X2dldF92cV9kZXNj
+X3BhY2tlZChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPj4gKwkJCQkgICAgc3RydWN0IGlv
+dmVjIGlvdltdLCB1bnNpZ25lZCBpbnQgaW92X3NpemUsCj4+ICsJCQkJICAgIHVuc2lnbmVkIGlu
+dCAqb3V0X251bSwgdW5zaWduZWQgaW50ICppbl9udW0sCj4+ICsJCQkJICAgIHN0cnVjdCB2aG9z
+dF9sb2cgKmxvZywKPj4gKwkJCQkgICAgdW5zaWduZWQgaW50ICpsb2dfbnVtKQo+PiArewo+PiAr
+CXN0cnVjdCB2cmluZ19kZXNjX3BhY2tlZCBkZXNjOwo+PiArCWludCByZXQsIGFjY2VzcywgaTsK
+Pj4gKwl1MTYgYXZhaWxfaWR4ID0gdnEtPmxhc3RfYXZhaWxfaWR4Owo+PiArCj4+ICsJLyogV2hl
+biB3ZSBzdGFydCB0aGVyZSBhcmUgbm9uZSBvZiBlaXRoZXIgaW5wdXQgbm9yIG91dHB1dC4gKi8K
+Pj4gKwkqb3V0X251bSA9ICppbl9udW0gPSAwOwo+PiArCWlmICh1bmxpa2VseShsb2cpKQo+PiAr
+CQkqbG9nX251bSA9IDA7Cj4+ICsKPj4gKwlkbyB7Cj4+ICsJCXVuc2lnbmVkIGludCBpb3ZfY291
+bnQgPSAqaW5fbnVtICsgKm91dF9udW07Cj4+ICsKPj4gKwkJaSA9IHZxLT5sYXN0X2F2YWlsX2lk
+eCAmICh2cS0+bnVtIC0gMSk7Cj4gVGhlIHF1ZXVlIHNpemUgbWF5IG5vdCBiZSBhIHBvd2VyIG9m
+IDIgaW4gcGFja2VkIHJpbmcuCgpXaWxsIGZpeCB0aGlzIHRvby4KClRoYW5rcwoKPiBCZXN0IHJl
+Z2FyZHMsCj4gVGl3ZWkgQmllCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
