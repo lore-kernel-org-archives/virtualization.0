@@ -1,16 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC 2/2] vhost: packed ring support
-Date: Wed, 28 Feb 2018 10:38:36 +0800
-Message-ID: <4a77554f-a4ce-a1d7-97c4-ffeb56bf1c90__17718.3012980551$1519786029$gmane$org@redhat.com>
-References: <1518575829-1431-1-git-send-email-jasowang@redhat.com>
-	<1518575829-1431-3-git-send-email-jasowang@redhat.com>
-	<20180227090319.h7hxmxp5rpozrb5s@debian>
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Subject: [PATCH v2 4/6] x86: Consolidate PCI_MMCONFIG configs
+Date: Wed, 28 Feb 2018 07:34:49 +0100
+Message-ID: <76a05abd818c89032161585ba130511a5bd673f0.1519799691.git.jan.kiszka__2455.59396357766$1519799594$gmane$org@siemens.com>
+References: <cover.1519799691.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180227090319.h7hxmxp5rpozrb5s@debian>
-Content-Language: en-US
+In-Reply-To: <cover.1519799691.git.jan.kiszka@siemens.com>
+In-Reply-To: <cover.1519799691.git.jan.kiszka@siemens.com>
+References: <cover.1519799691.git.jan.kiszka@siemens.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,35 +19,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
+Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDLmnIgyN+aXpSAxNzowMywgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFdlZCwg
-RmViIDE0LCAyMDE4IGF0IDEwOjM3OjA5QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gWy4u
-Ll0KPj4gK3N0YXRpYyB2b2lkIHNldF9kZXNjX3VzZWQoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAq
-dnEsCj4+ICsJCQkgIHN0cnVjdCB2cmluZ19kZXNjX3BhY2tlZCAqZGVzYywgYm9vbCB3cmFwX2Nv
-dW50ZXIpCj4+ICt7Cj4+ICsJX192aXJ0aW8xNiBmbGFncyA9IGRlc2MtPmZsYWdzOwo+PiArCj4+
-ICsJaWYgKHdyYXBfY291bnRlcikgewo+PiArCQlkZXNjLT5mbGFncyB8PSBjcHVfdG9fdmhvc3Qx
-Nih2cSwgREVTQ19BVkFJTCk7Cj4+ICsJCWRlc2MtPmZsYWdzIHw9IGNwdV90b192aG9zdDE2KHZx
-LCBERVNDX1VTRUQpOwo+PiArCX0gZWxzZSB7Cj4+ICsJCWRlc2MtPmZsYWdzICY9IH5jcHVfdG9f
-dmhvc3QxNih2cSwgREVTQ19BVkFJTCk7Cj4+ICsJCWRlc2MtPmZsYWdzICY9IH5jcHVfdG9fdmhv
-c3QxNih2cSwgREVTQ19VU0VEKTsKPj4gKwl9Cj4+ICsKPj4gKwlkZXNjLT5mbGFncyA9IGZsYWdz
-Owo+IFRoZSBgZGVzYy0+ZmxhZ3NgIGlzIHJlc3RvcmVkIGFmdGVyIHRoZSBjaGFuZ2UuCgpSaWdo
-dCwgd2lsbCBmaXguCgo+PiArfQo+PiArCj4+ICtzdGF0aWMgaW50IHZob3N0X2dldF92cV9kZXNj
-X3BhY2tlZChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPj4gKwkJCQkgICAgc3RydWN0IGlv
-dmVjIGlvdltdLCB1bnNpZ25lZCBpbnQgaW92X3NpemUsCj4+ICsJCQkJICAgIHVuc2lnbmVkIGlu
-dCAqb3V0X251bSwgdW5zaWduZWQgaW50ICppbl9udW0sCj4+ICsJCQkJICAgIHN0cnVjdCB2aG9z
-dF9sb2cgKmxvZywKPj4gKwkJCQkgICAgdW5zaWduZWQgaW50ICpsb2dfbnVtKQo+PiArewo+PiAr
-CXN0cnVjdCB2cmluZ19kZXNjX3BhY2tlZCBkZXNjOwo+PiArCWludCByZXQsIGFjY2VzcywgaTsK
-Pj4gKwl1MTYgYXZhaWxfaWR4ID0gdnEtPmxhc3RfYXZhaWxfaWR4Owo+PiArCj4+ICsJLyogV2hl
-biB3ZSBzdGFydCB0aGVyZSBhcmUgbm9uZSBvZiBlaXRoZXIgaW5wdXQgbm9yIG91dHB1dC4gKi8K
-Pj4gKwkqb3V0X251bSA9ICppbl9udW0gPSAwOwo+PiArCWlmICh1bmxpa2VseShsb2cpKQo+PiAr
-CQkqbG9nX251bSA9IDA7Cj4+ICsKPj4gKwlkbyB7Cj4+ICsJCXVuc2lnbmVkIGludCBpb3ZfY291
-bnQgPSAqaW5fbnVtICsgKm91dF9udW07Cj4+ICsKPj4gKwkJaSA9IHZxLT5sYXN0X2F2YWlsX2lk
-eCAmICh2cS0+bnVtIC0gMSk7Cj4gVGhlIHF1ZXVlIHNpemUgbWF5IG5vdCBiZSBhIHBvd2VyIG9m
-IDIgaW4gcGFja2VkIHJpbmcuCgpXaWxsIGZpeCB0aGlzIHRvby4KClRoYW5rcwoKPiBCZXN0IHJl
-Z2FyZHMsCj4gVGl3ZWkgQmllCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+From: Jan Kiszka <jan.kiszka@siemens.com>
+
+Not sure if those two worked by design or just by chance so far. In any
+case, it's at least cleaner and clearer to express this in a single
+config statement.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ arch/x86/Kconfig | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index eb7f43f23521..63e85e7da12e 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -2641,8 +2641,9 @@ config PCI_DIRECT
+ 	depends on PCI && (X86_64 || (PCI_GODIRECT || PCI_GOANY || PCI_GOOLPC || PCI_GOMMCONFIG))
+ 
+ config PCI_MMCONFIG
+-	def_bool y
+-	depends on X86_32 && PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY)
++	bool "Support mmconfig PCI config space access" if X86_64
++	default y
++	depends on PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY || X86_64)
+ 
+ config PCI_OLPC
+ 	def_bool y
+@@ -2657,10 +2658,6 @@ config PCI_DOMAINS
+ 	def_bool y
+ 	depends on PCI
+ 
+-config PCI_MMCONFIG
+-	bool "Support mmconfig PCI config space access"
+-	depends on X86_64 && PCI && ACPI
+-
+ config PCI_CNB20LE_QUIRK
+ 	bool "Read CNB20LE Host Bridge Windows" if EXPERT
+ 	depends on PCI
+-- 
+2.13.6
