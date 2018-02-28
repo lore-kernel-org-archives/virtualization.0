@@ -1,20 +1,14 @@
-From: Jiri Pirko <jiri@resnulli.us>
-Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
-	passthru device
-Date: Wed, 28 Feb 2018 08:08:39 +0100
-Message-ID: <20180228070839.GA19654@nanopsycho>
-References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
-	<20180220104224.GA2031@nanopsycho>
-	<CAKgT0UdU8PDXduzxp4kKfur-DLeFQSJj7-fhW_eTgVzd+AcViw@mail.gmail.com>
-	<20180227084959.GB2005@nanopsycho>
-	<CAKgT0Ucp8WhkORpVVy2VWwuvxZHZjXKn6YfHfVaLAVVybf3t5w@mail.gmail.com>
-	<20180227134149.2bff667e@cakuba.netronome.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH v2 2/6] PCI: Scan all functions when running over Jailhouse
+Date: Wed, 28 Feb 2018 09:44:12 +0100 (CET)
+Message-ID: <alpine.DEB.2.21.1802280938380.1886__11602.135669864$1519807366$gmane$org@nanos.tec.linutronix.de>
+References: <cover.1519799691.git.jan.kiszka@siemens.com>
+	<021d3dde4276c9bf4325f7bdc37e3c47069e48fc.1519799691.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180227134149.2bff667e@cakuba.netronome.com>
+In-Reply-To: <021d3dde4276c9bf4325f7bdc37e3c47069e48fc.1519799691.git.jan.kiszka@siemens.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,25 +18,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jakub Kicinski <kubakici@wp.pl>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: jailhouse-dev@googlegroups.com, Benedikt Spranger <b.spranger@linutronix.de>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Tue, Feb 27, 2018 at 10:41:49PM CET, kubakici@wp.pl wrote:
->On Tue, 27 Feb 2018 13:16:21 -0800, Alexander Duyck wrote:
->> Basically we need some sort of PCI or PCIe topology mapping for the
->> devices that can be translated into something we can communicate over
->> the communication channel. 
->
->Hm.  This is probably a completely stupid idea, but if we need to
->start marshalling configuration requests/hints maybe the entire problem
->could be solved by opening a netlink socket from hypervisor?  Even make
->teamd run on the hypervisor side...
+On Wed, 28 Feb 2018, Jan Kiszka wrote:
 
-Interesting. That would be more trickier then just to fwd 1 genetlink
-socket to the hypervisor.
+> From: Jan Kiszka <jan.kiszka@siemens.com>
+> 
+> Per PCIe r4.0, sec 7.5.1.1.9, multi-function devices are required to
+> have a function 0.  Therefore, Linux scans for devices at function 0
+> (devfn 0/8/16/...) and only scans for other functions if function 0
+> has its Multi-Function Device bit set or ARI or SR-IOV indicate
+> there are more functions.
+> 
+> The Jailhouse hypervisor may pass individual functions of a
+> multi-function device to a guest without passing function 0, which
+> means a Linux guest won't find them.
+> 
+> Change Linux PCI probing so it scans all function numbers when
+> running as a guest over Jailhouse.
 
-Also, I think that the solution should handle multiple guest oses. What
-I'm thinking about is some generic bonding description passed over some
-communication channel into vm. The vm either use it for configuration,
-or ignores it if it is not smart enough/updated enough.
+>  void pcibios_scan_specific_bus(int busn)
+>  {
+> +	int stride = jailhouse_paravirt() ? 1 : 8;
+>  	int devfn;
+>  	u32 l;
+>  
+>  	if (pci_find_bus(0, busn))
+>  		return;
+>  
+> -	for (devfn = 0; devfn < 256; devfn += 8) {
+> +	for (devfn = 0; devfn < 256; devfn += stride) {
+>  		if (!raw_pci_read(0, busn, devfn, PCI_VENDOR_ID, 2, &l) &&
+>  		    l != 0x0000 && l != 0xffff) {
+>  			DBG("Found device at %02x:%02x [%04x]\n", busn, devfn, l);
+
+Shouldn't that take the situation into account where the MFD bit is set on
+a regular devfn, i.e. (devfn % 8) == 0? In that case you'd scan the
+subfunctions twice.
+
+Thanks,
+
+	tglx
