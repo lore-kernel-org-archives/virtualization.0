@@ -1,7 +1,7 @@
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [PATCH v2 5/6] x86/jailhouse: Allow to use PCI_MMCONFIG without ACPI
-Date: Wed, 28 Feb 2018 07:34:50 +0100
-Message-ID: <c6c3a5fd2881e8f63a5c4fe0b3006f2a66e645de.1519799691.git.jan.kiszka__22029.4368373745$1519799623$gmane$org@siemens.com>
+Subject: [PATCH v2 2/6] PCI: Scan all functions when running over Jailhouse
+Date: Wed, 28 Feb 2018 07:34:47 +0100
+Message-ID: <021d3dde4276c9bf4325f7bdc37e3c47069e48fc.1519799691.git.jan.kiszka__46391.4331318394$1519799633$gmane$org@siemens.com>
 References: <cover.1519799691.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,73 +20,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
-Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+Cc: jailhouse-dev@googlegroups.com, Benedikt Spranger <b.spranger@linutronix.de>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jan Kiszka <jan.kiszka@siemens.com>
 
-Jailhouse does not use ACPI, but it does support MMCONFIG. Make sure the
-latter can be built without having to enable ACPI as well. Primarily, we
-need to make the AMD mmconf-fam10h_64 depend upon MMCONFIG and ACPI,
-instead of just the former.
+Per PCIe r4.0, sec 7.5.1.1.9, multi-function devices are required to
+have a function 0.  Therefore, Linux scans for devices at function 0
+(devfn 0/8/16/...) and only scans for other functions if function 0
+has its Multi-Function Device bit set or ARI or SR-IOV indicate
+there are more functions.
 
-Saves some bytes in the Jailhouse non-root kernel.
+The Jailhouse hypervisor may pass individual functions of a
+multi-function device to a guest without passing function 0, which
+means a Linux guest won't find them.
 
+Change Linux PCI probing so it scans all function numbers when
+running as a guest over Jailhouse.
+
+This is technically prohibited by the spec, so it is possible that
+PCI devices without the Multi-Function Device bit set may have
+unexpected behavior in response to this probe.
+
+Based on patch by Benedikt Spranger, adding Jailhouse probing to avoid
+changing the behavior in the absence of the hypervisor.
+
+CC: Benedikt Spranger <b.spranger@linutronix.de>
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 ---
- arch/x86/Kconfig          | 6 +++++-
- arch/x86/kernel/Makefile  | 2 +-
- arch/x86/kernel/cpu/amd.c | 2 +-
- 3 files changed, 7 insertions(+), 3 deletions(-)
+ arch/x86/pci/legacy.c | 4 +++-
+ drivers/pci/probe.c   | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 63e85e7da12e..5b0ac52e357a 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -2643,7 +2643,7 @@ config PCI_DIRECT
- config PCI_MMCONFIG
- 	bool "Support mmconfig PCI config space access" if X86_64
- 	default y
--	depends on PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY || X86_64)
-+	depends on PCI && (ACPI || SFI || JAILHOUSE_GUEST) && (PCI_GOMMCONFIG || PCI_GOANY || X86_64)
+diff --git a/arch/x86/pci/legacy.c b/arch/x86/pci/legacy.c
+index 1cb01abcb1be..dfbe6ac38830 100644
+--- a/arch/x86/pci/legacy.c
++++ b/arch/x86/pci/legacy.c
+@@ -4,6 +4,7 @@
+ #include <linux/init.h>
+ #include <linux/export.h>
+ #include <linux/pci.h>
++#include <asm/jailhouse_para.h>
+ #include <asm/pci_x86.h>
  
- config PCI_OLPC
- 	def_bool y
-@@ -2658,6 +2658,10 @@ config PCI_DOMAINS
- 	def_bool y
- 	depends on PCI
+ /*
+@@ -34,13 +35,14 @@ int __init pci_legacy_init(void)
  
-+config MMCONF_FAM10H
-+	def_bool y
-+	depends on PCI_MMCONFIG && ACPI
-+
- config PCI_CNB20LE_QUIRK
- 	bool "Read CNB20LE Host Bridge Windows" if EXPERT
- 	depends on PCI
-diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
-index 29786c87e864..73ccf80c09a2 100644
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -146,6 +146,6 @@ ifeq ($(CONFIG_X86_64),y)
- 	obj-$(CONFIG_GART_IOMMU)	+= amd_gart_64.o aperture_64.o
- 	obj-$(CONFIG_CALGARY_IOMMU)	+= pci-calgary_64.o tce_64.o
- 
--	obj-$(CONFIG_PCI_MMCONFIG)	+= mmconf-fam10h_64.o
-+	obj-$(CONFIG_MMCONF_FAM10H)	+= mmconf-fam10h_64.o
- 	obj-y				+= vsmp_64.o
- endif
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index f0e6456ca7d3..12bc0a1139da 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -716,7 +716,7 @@ static void init_amd_k8(struct cpuinfo_x86 *c)
- 
- static void init_amd_gh(struct cpuinfo_x86 *c)
+ void pcibios_scan_specific_bus(int busn)
  {
--#ifdef CONFIG_X86_64
-+#ifdef CONFIG_MMCONF_FAM10H
- 	/* do this for boot cpu */
- 	if (c == &boot_cpu_data)
- 		check_enable_amd_mmconf_dmi();
++	int stride = jailhouse_paravirt() ? 1 : 8;
+ 	int devfn;
+ 	u32 l;
+ 
+ 	if (pci_find_bus(0, busn))
+ 		return;
+ 
+-	for (devfn = 0; devfn < 256; devfn += 8) {
++	for (devfn = 0; devfn < 256; devfn += stride) {
+ 		if (!raw_pci_read(0, busn, devfn, PCI_VENDOR_ID, 2, &l) &&
+ 		    l != 0x0000 && l != 0xffff) {
+ 			DBG("Found device at %02x:%02x [%04x]\n", busn, devfn, l);
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index ef5377438a1e..ce728251ae36 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -16,6 +16,7 @@
+ #include <linux/pci-aspm.h>
+ #include <linux/aer.h>
+ #include <linux/acpi.h>
++#include <linux/hypervisor.h>
+ #include <linux/irqdomain.h>
+ #include <linux/pm_runtime.h>
+ #include "pci.h"
+@@ -2517,6 +2518,7 @@ static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
+ 					      unsigned int available_buses)
+ {
+ 	unsigned int used_buses, normal_bridges = 0, hotplug_bridges = 0;
++	unsigned int stride = jailhouse_paravirt() ? 1 : 8;
+ 	unsigned int start = bus->busn_res.start;
+ 	unsigned int devfn, cmax, max = start;
+ 	struct pci_dev *dev;
+@@ -2524,7 +2526,7 @@ static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
+ 	dev_dbg(&bus->dev, "scanning bus\n");
+ 
+ 	/* Go find them, Rover! */
+-	for (devfn = 0; devfn < 0x100; devfn += 8)
++	for (devfn = 0; devfn < 0x100; devfn += stride)
+ 		pci_scan_slot(bus, devfn);
+ 
+ 	/* Reserve buses for SR-IOV capability */
 -- 
 2.13.6
