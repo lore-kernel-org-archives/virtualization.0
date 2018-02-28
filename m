@@ -1,7 +1,7 @@
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [PATCH v2 4/6] x86: Consolidate PCI_MMCONFIG configs
-Date: Wed, 28 Feb 2018 07:34:49 +0100
-Message-ID: <76a05abd818c89032161585ba130511a5bd673f0.1519799691.git.jan.kiszka__2455.59396357766$1519799594$gmane$org@siemens.com>
+Subject: [PATCH v2 5/6] x86/jailhouse: Allow to use PCI_MMCONFIG without ACPI
+Date: Wed, 28 Feb 2018 07:34:50 +0100
+Message-ID: <c6c3a5fd2881e8f63a5c4fe0b3006f2a66e645de.1519799691.git.jan.kiszka__22029.4368373745$1519799623$gmane$org@siemens.com>
 References: <cover.1519799691.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,41 +25,68 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jan Kiszka <jan.kiszka@siemens.com>
 
-Not sure if those two worked by design or just by chance so far. In any
-case, it's at least cleaner and clearer to express this in a single
-config statement.
+Jailhouse does not use ACPI, but it does support MMCONFIG. Make sure the
+latter can be built without having to enable ACPI as well. Primarily, we
+need to make the AMD mmconf-fam10h_64 depend upon MMCONFIG and ACPI,
+instead of just the former.
+
+Saves some bytes in the Jailhouse non-root kernel.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
- arch/x86/Kconfig | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ arch/x86/Kconfig          | 6 +++++-
+ arch/x86/kernel/Makefile  | 2 +-
+ arch/x86/kernel/cpu/amd.c | 2 +-
+ 3 files changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index eb7f43f23521..63e85e7da12e 100644
+index 63e85e7da12e..5b0ac52e357a 100644
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
-@@ -2641,8 +2641,9 @@ config PCI_DIRECT
- 	depends on PCI && (X86_64 || (PCI_GODIRECT || PCI_GOANY || PCI_GOOLPC || PCI_GOMMCONFIG))
- 
+@@ -2643,7 +2643,7 @@ config PCI_DIRECT
  config PCI_MMCONFIG
--	def_bool y
--	depends on X86_32 && PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY)
-+	bool "Support mmconfig PCI config space access" if X86_64
-+	default y
-+	depends on PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY || X86_64)
+ 	bool "Support mmconfig PCI config space access" if X86_64
+ 	default y
+-	depends on PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY || X86_64)
++	depends on PCI && (ACPI || SFI || JAILHOUSE_GUEST) && (PCI_GOMMCONFIG || PCI_GOANY || X86_64)
  
  config PCI_OLPC
  	def_bool y
-@@ -2657,10 +2658,6 @@ config PCI_DOMAINS
+@@ -2658,6 +2658,10 @@ config PCI_DOMAINS
  	def_bool y
  	depends on PCI
  
--config PCI_MMCONFIG
--	bool "Support mmconfig PCI config space access"
--	depends on X86_64 && PCI && ACPI
--
++config MMCONF_FAM10H
++	def_bool y
++	depends on PCI_MMCONFIG && ACPI
++
  config PCI_CNB20LE_QUIRK
  	bool "Read CNB20LE Host Bridge Windows" if EXPERT
  	depends on PCI
+diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+index 29786c87e864..73ccf80c09a2 100644
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -146,6 +146,6 @@ ifeq ($(CONFIG_X86_64),y)
+ 	obj-$(CONFIG_GART_IOMMU)	+= amd_gart_64.o aperture_64.o
+ 	obj-$(CONFIG_CALGARY_IOMMU)	+= pci-calgary_64.o tce_64.o
+ 
+-	obj-$(CONFIG_PCI_MMCONFIG)	+= mmconf-fam10h_64.o
++	obj-$(CONFIG_MMCONF_FAM10H)	+= mmconf-fam10h_64.o
+ 	obj-y				+= vsmp_64.o
+ endif
+diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
+index f0e6456ca7d3..12bc0a1139da 100644
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -716,7 +716,7 @@ static void init_amd_k8(struct cpuinfo_x86 *c)
+ 
+ static void init_amd_gh(struct cpuinfo_x86 *c)
+ {
+-#ifdef CONFIG_X86_64
++#ifdef CONFIG_MMCONF_FAM10H
+ 	/* do this for boot cpu */
+ 	if (c == &boot_cpu_data)
+ 		check_enable_amd_mmconf_dmi();
 -- 
 2.13.6
