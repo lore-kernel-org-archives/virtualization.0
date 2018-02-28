@@ -1,11 +1,21 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net] virtio-net: disable NAPI only when enabled during XDP set
-Date: Wed, 28 Feb 2018 18:20:04 +0800
-Message-ID: <1519813204-10002-1-git-send-email-jasowang@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
+	passthru device
+Date: Wed, 28 Feb 2018 16:32:44 +0200
+Message-ID: <20180228160647-mutt-send-email-mst@kernel.org>
+References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
+	<20180220104224.GA2031@nanopsycho>
+	<CAKgT0UdU8PDXduzxp4kKfur-DLeFQSJj7-fhW_eTgVzd+AcViw@mail.gmail.com>
+	<20180227084959.GB2005@nanopsycho>
+	<CAKgT0Ucp8WhkORpVVy2VWwuvxZHZjXKn6YfHfVaLAVVybf3t5w@mail.gmail.com>
+	<20180227134149.2bff667e@cakuba.netronome.com>
+	<20180228070839.GA19654@nanopsycho>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20180228070839.GA19654@nanopsycho>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,46 +25,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We try to disable NAPI to prevent a single XDP TX queue being used by
-multiple cpus. But we don't check if device is up (NAPI is enabled),
-this could result stall because of infinite wait in
-napi_disable(). Fixing this by checking device state through
-netif_running() before.
+On Wed, Feb 28, 2018 at 08:08:39AM +0100, Jiri Pirko wrote:
+> Tue, Feb 27, 2018 at 10:41:49PM CET, kubakici@wp.pl wrote:
+> >On Tue, 27 Feb 2018 13:16:21 -0800, Alexander Duyck wrote:
+> >> Basically we need some sort of PCI or PCIe topology mapping for the
+> >> devices that can be translated into something we can communicate over
+> >> the communication channel. 
+> >
+> >Hm.  This is probably a completely stupid idea, but if we need to
+> >start marshalling configuration requests/hints maybe the entire problem
+> >could be solved by opening a netlink socket from hypervisor?  Even make
+> >teamd run on the hypervisor side...
+> 
+> Interesting. That would be more trickier then just to fwd 1 genetlink
+> socket to the hypervisor.
+> 
+> Also, I think that the solution should handle multiple guest oses. What
+> I'm thinking about is some generic bonding description passed over some
+> communication channel into vm. The vm either use it for configuration,
+> or ignores it if it is not smart enough/updated enough.
 
-Fixes: 4941d472bf95b ("virtio-net: do not reset during XDP set")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+For sure, we could build virtio-bond to pass that info to guests.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 9bb9e56..2d54123 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2185,8 +2185,9 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 	}
- 
- 	/* Make sure NAPI is not using any XDP TX queues for RX. */
--	for (i = 0; i < vi->max_queue_pairs; i++)
--		napi_disable(&vi->rq[i].napi);
-+	if (netif_running(dev))
-+		for (i = 0; i < vi->max_queue_pairs; i++)
-+			napi_disable(&vi->rq[i].napi);
- 
- 	netif_set_real_num_rx_queues(dev, curr_qp + xdp_qp);
- 	err = _virtnet_set_queues(vi, curr_qp + xdp_qp);
-@@ -2205,7 +2206,8 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 		}
- 		if (old_prog)
- 			bpf_prog_put(old_prog);
--		virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
-+		if (netif_running(dev))
-+			virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
- 	}
- 
- 	return 0;
+Such an advisory mechanism would not be a replacement for the mandatory
+passthrough fallback flag proposed, but OTOH it's much more flexible.
+
 -- 
-2.7.4
+MST
