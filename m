@@ -1,15 +1,20 @@
-From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [PATCH v2 1/6] jailhouse: Provide detection for non-x86 systems
-Date: Wed, 28 Feb 2018 07:34:46 +0100
-Message-ID: <558f5cbae432ae029e2d8ee9b0ef44d837318625.1519799691.git.jan.kiszka__16054.0893710733$1519799685$gmane$org@siemens.com>
-References: <cover.1519799691.git.jan.kiszka@siemens.com>
+From: Jiri Pirko <jiri@resnulli.us>
+Subject: Re: [RFC PATCH v3 0/3] Enable virtio_net to act as a backup for a
+	passthru device
+Date: Wed, 28 Feb 2018 08:08:39 +0100
+Message-ID: <20180228070839.GA19654@nanopsycho>
+References: <1518804682-16881-1-git-send-email-sridhar.samudrala@intel.com>
+	<20180220104224.GA2031@nanopsycho>
+	<CAKgT0UdU8PDXduzxp4kKfur-DLeFQSJj7-fhW_eTgVzd+AcViw@mail.gmail.com>
+	<20180227084959.GB2005@nanopsycho>
+	<CAKgT0Ucp8WhkORpVVy2VWwuvxZHZjXKn6YfHfVaLAVVybf3t5w@mail.gmail.com>
+	<20180227134149.2bff667e@cakuba.netronome.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1519799691.git.jan.kiszka@siemens.com>
-In-Reply-To: <cover.1519799691.git.jan.kiszka@siemens.com>
-References: <cover.1519799691.git.jan.kiszka@siemens.com>
+Content-Disposition: inline
+In-Reply-To: <20180227134149.2bff667e@cakuba.netronome.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,86 +24,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
-Cc: jailhouse-dev@googlegroups.com, Mark Rutland <mark.rutland@arm.com>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Rob Herring <robh+dt@kernel.org>
+To: Jakub Kicinski <kubakici@wp.pl>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+Tue, Feb 27, 2018 at 10:41:49PM CET, kubakici@wp.pl wrote:
+>On Tue, 27 Feb 2018 13:16:21 -0800, Alexander Duyck wrote:
+>> Basically we need some sort of PCI or PCIe topology mapping for the
+>> devices that can be translated into something we can communicate over
+>> the communication channel. 
+>
+>Hm.  This is probably a completely stupid idea, but if we need to
+>start marshalling configuration requests/hints maybe the entire problem
+>could be solved by opening a netlink socket from hypervisor?  Even make
+>teamd run on the hypervisor side...
 
-Implement jailhouse_paravirt() via device tree probing on architectures
-!= x86. Will be used by the PCI core.
+Interesting. That would be more trickier then just to fwd 1 genetlink
+socket to the hypervisor.
 
-CC: Rob Herring <robh+dt@kernel.org>
-CC: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
----
- Documentation/devicetree/bindings/jailhouse.txt |  8 ++++++++
- arch/x86/include/asm/jailhouse_para.h           |  2 +-
- include/linux/hypervisor.h                      | 17 +++++++++++++++--
- 3 files changed, 24 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/jailhouse.txt
-
-diff --git a/Documentation/devicetree/bindings/jailhouse.txt b/Documentation/devicetree/bindings/jailhouse.txt
-new file mode 100644
-index 000000000000..2901c25ff340
---- /dev/null
-+++ b/Documentation/devicetree/bindings/jailhouse.txt
-@@ -0,0 +1,8 @@
-+Jailhouse non-root cell device tree bindings
-+--------------------------------------------
-+
-+When running in a non-root Jailhouse cell (partition), the device tree of this
-+platform shall have a top-level "hypervisor" node with the following
-+properties:
-+
-+- compatible = "jailhouse,cell"
-diff --git a/arch/x86/include/asm/jailhouse_para.h b/arch/x86/include/asm/jailhouse_para.h
-index 875b54376689..b885a961a150 100644
---- a/arch/x86/include/asm/jailhouse_para.h
-+++ b/arch/x86/include/asm/jailhouse_para.h
-@@ -1,7 +1,7 @@
- /* SPDX-License-Identifier: GPL2.0 */
- 
- /*
-- * Jailhouse paravirt_ops implementation
-+ * Jailhouse paravirt detection
-  *
-  * Copyright (c) Siemens AG, 2015-2017
-  *
-diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
-index b19563f9a8eb..fc08b433c856 100644
---- a/include/linux/hypervisor.h
-+++ b/include/linux/hypervisor.h
-@@ -8,15 +8,28 @@
-  */
- 
- #ifdef CONFIG_X86
-+
-+#include <asm/jailhouse_para.h>
- #include <asm/x86_init.h>
-+
- static inline void hypervisor_pin_vcpu(int cpu)
- {
- 	x86_platform.hyper.pin_vcpu(cpu);
- }
--#else
-+
-+#else /* !CONFIG_X86 */
-+
-+#include <linux/of.h>
-+
- static inline void hypervisor_pin_vcpu(int cpu)
- {
- }
--#endif
-+
-+static inline bool jailhouse_paravirt(void)
-+{
-+	return of_find_compatible_node(NULL, NULL, "jailhouse,cell");
-+}
-+
-+#endif /* !CONFIG_X86 */
- 
- #endif /* __LINUX_HYPEVISOR_H */
--- 
-2.13.6
+Also, I think that the solution should handle multiple guest oses. What
+I'm thinking about is some generic bonding description passed over some
+communication channel into vm. The vm either use it for configuration,
+or ignores it if it is not smart enough/updated enough.
