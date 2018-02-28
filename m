@@ -1,14 +1,14 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v2 4/6] x86: Consolidate PCI_MMCONFIG configs
-Date: Wed, 28 Feb 2018 17:45:37 +0200
-Message-ID: <CAHp75Vf35N1Q0aVjKNwz5UMAVKR-q8PypoDhgr8bCbbiqVeSqQ__4010.03784868426$1519832655$gmane$org@mail.gmail.com>
-References: <cover.1519799691.git.jan.kiszka@siemens.com>
-	<76a05abd818c89032161585ba130511a5bd673f0.1519799691.git.jan.kiszka@siemens.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net] virtio-net: disable NAPI only when enabled during
+	XDP set
+Date: Wed, 28 Feb 2018 12:22:31 -0500 (EST)
+Message-ID: <20180228.122231.1811613646832502397.davem@davemloft.net>
+References: <1519813204-10002-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <76a05abd818c89032161585ba130511a5bd673f0.1519799691.git.jan.kiszka@siemens.com>
+In-Reply-To: <1519813204-10002-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,43 +18,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 28, 2018 at 8:34 AM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
-> From: Jan Kiszka <jan.kiszka@siemens.com>
->
-> Not sure if those two worked by design or just by chance so far. In any
-> case, it's at least cleaner and clearer to express this in a single
-> config statement.
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 28 Feb 2018 18:20:04 +0800
 
-I would add a reference to the commit which brought that in the first place.
+> We try to disable NAPI to prevent a single XDP TX queue being used by
+> multiple cpus. But we don't check if device is up (NAPI is enabled),
+> this could result stall because of infinite wait in
+> napi_disable(). Fixing this by checking device state through
+> netif_running() before.
+> 
+> Fixes: 4941d472bf95b ("virtio-net: do not reset during XDP set")
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
->
-> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-> ---
->  arch/x86/Kconfig | 9 +++------
->  1 file changed, 3 insertions(+), 6 deletions(-)
->
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index eb7f43f23521..63e85e7da12e 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -2641,8 +2641,9 @@ config PCI_DIRECT
->         depends on PCI && (X86_64 || (PCI_GODIRECT || PCI_GOANY || PCI_GOOLPC || PCI_GOMMCONFIG))
->
->  config PCI_MMCONFIG
-> -       def_bool y
-> -       depends on X86_32 && PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY)
-> +       bool "Support mmconfig PCI config space access" if X86_64
-> +       default y
-> +       depends on PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY || X86_64)
+Yes, mis-paired NAPI enable/disable are really a pain.
 
-Looking to the above context I would rather put it like
+Probably, we can do something in the interfaces or mechanisms to make
+this less error prone and less fragile.
 
-depends on PCI && (ACPI || SFI) && (X86_64 || (PCI_GOANY || PCI_GOMMCONFIG))
-
--- 
-With Best Regards,
-Andy Shevchenko
+Anyways, applied and queued up for -stable, thanks!
