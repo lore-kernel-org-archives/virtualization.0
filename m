@@ -1,17 +1,16 @@
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-Subject: Re: [PATCH net-next 2/2] virtio-net: simplify XDP handling in small
-	buffer
-Date: Thu, 1 Mar 2018 10:15:53 +0100
-Message-ID: <20180301101553.55c4c6bd@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 0/2] virtio-net: re enable XDP_REDIRECT for
+	mergeable buffer
+Date: Thu, 1 Mar 2018 17:23:37 +0800
+Message-ID: <b0f55100-183d-a507-8510-3c67f6106031__20961.1770966605$1519896140$gmane$org@redhat.com>
 References: <1519874345-10235-1-git-send-email-jasowang@redhat.com>
-	<1519874345-10235-3-git-send-email-jasowang@redhat.com>
-	<20180301090206.04e13a71@redhat.com>
-	<dbbfd899-fb7e-c039-5c9a-0f3b6ce34b78@redhat.com>
+	<20180301101038.4253424d@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <dbbfd899-fb7e-c039-5c9a-0f3b6ce34b78@redhat.com>
+In-Reply-To: <20180301101038.4253424d@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,25 +20,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com
+To: Jesper Dangaard Brouer <brouer@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 1 Mar 2018 16:49:24 +0800
-Jason Wang <jasowang@redhat.com> wrote:
-
-> > 2. This can easily cause out-of-order packets.  
-> 
-> I may miss something, but it looks to me packets were still delivered
-> in order? Or you mean the packets that was dropped by cpumap?
-
-No. Packets can now travel two code paths to the egress device. (1) XDP
-native via ndp_xdp_xmit via direct delivery into a lockfree/dedicated
-TX queue, (2) via normal network stack which can involve being queue in
-a qdisc.  Do you see the possibility of the reorder now?
-
--- 
-Best regards,
-  Jesper Dangaard Brouer
-  MSc.CS, Principal Kernel Engineer at Red Hat
-  LinkedIn: http://www.linkedin.com/in/brouer
+CgpPbiAyMDE45bm0MDPmnIgwMeaXpSAxNzoxMCwgSmVzcGVyIERhbmdhYXJkIEJyb3VlciB3cm90
+ZToKPiBPbiBUaHUsICAxIE1hciAyMDE4IDExOjE5OjAzICswODAwCj4gSmFzb24gV2FuZyA8amFz
+b3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4KPj4gVGhpcyBzZXJpZXMgdHJpZXMgdG8gcmUtZW5h
+YmxlIFhEUF9SRURJUkVDVCBmb3IgbWVyZ2VhYmxlIGJ1ZmZlciB3aGljaAo+PiB3YXMgcmVtb3Zl
+ZCBzaW5jZSBjb21taXQgNzMyNGY1Mzk5YjA2ICgidmlydGlvX25ldDogZGlzYWJsZQo+PiBYRFBf
+UkVESVJFQ1QgaW4gcmVjZWl2ZV9tZXJnZWFibGUoKSBjYXNlIikuIE1haW4gY29uY2VybnMgYXJl
+Ogo+Pgo+PiAtIG5vdCBlbm91Z2ggdGFpbHJvb20gd2FzIHJlc2VydmVkIHdoaWNoIGJyZWFrcyBj
+cHVtYXAKPiBUbyBhZGRyZXNzIHRoaXMgYXQgYSBtb3JlIGZ1bmRhbWVudGFsIGxldmVsLCBJIHdv
+dWxkIHN1Z2dlc3QgdGhhdCB3ZS95b3UKPiBpbnN0ZWFkIGV4dGVuZCBYRFAgdG8ga25vdyBpdCdz
+IGJ1ZmZlcnMgImZyYW1lIiBzaXplL2VuZC4gIChUaGUKPiBhc3N1bXB0aW9uIHVzZSB0byBiZSwg
+eGRwX2J1ZmYtPmRhdGFfaGFyZF9zdGFydCArIFBBR0VfU0laRSwgYnV0Cj4gaXhnYmUrdmlydGlv
+X25ldCBicm9rZSB0aGF0IGFzc3VtcHRpb24pLgo+Cj4gSXQgc2hvdWxkIGFjdHVhbGx5IGJlIGZh
+aXJseSBlYXN5IHRvIGltcGxlbWVudDoKPiAgICogU2ltcGx5IGV4dGVuZCB4ZHBfYnVmZiB3aXRo
+IGEgImRhdGFfaGFyZF9lbmQiIHBvaW50ZXIuCgpSaWdodCwgYW5kIHRoZW4gY3B1bWFwIGNhbiB3
+YXJuIGFuZCBkcm9wIHBhY2tldHMgd2l0aCBpbnN1ZmZpY2llbnQgCnRhaWxyb29tLiBCdXQgaXQg
+c2hvdWxkIGJlIGEgcGF0Y2ggb24gdG9wIG9mIHRoaXMgSSB0aGluay4KClRoYW5rcwoKPgo+IE5v
+dyBjcHVtYXAgaXMgbW9yZSBzYWZlLi4uIGluc3RlYWQgb2YgY3Jhc2hpbmcsIGl0IGNhbiBub3cg
+a25vdy9zZWUgd2hlbgo+IGl0IGlzIHNhZmUgdG8gY3JlYXRlIGFuIFNLQiB1c2luZyBidWlsZF9z
+a2IgKGNvdWxkIGZhbGxiYWNrIHRvCj4gZGV2X2FsbG9jX3NrYikuCj4KCl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
+bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
