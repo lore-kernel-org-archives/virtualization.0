@@ -1,15 +1,17 @@
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-Subject: Re: [PATCH net-next 1/2] virtio-net: re enable XDP_REDIRECT for
-	mergeable buffer
-Date: Thu, 1 Mar 2018 09:41:29 +0100
-Message-ID: <20180301094129.29fb6ce6__5651.13494308225$1519893606$gmane$org@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 2/2] virtio-net: simplify XDP handling in small
+	buffer
+Date: Thu, 1 Mar 2018 16:49:24 +0800
+Message-ID: <dbbfd899-fb7e-c039-5c9a-0f3b6ce34b78__25967.6465685063$1519894391$gmane$org@redhat.com>
 References: <1519874345-10235-1-git-send-email-jasowang@redhat.com>
-	<1519874345-10235-2-git-send-email-jasowang@redhat.com>
+	<1519874345-10235-3-git-send-email-jasowang@redhat.com>
+	<20180301090206.04e13a71@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1519874345-10235-2-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20180301090206.04e13a71@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,111 +21,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com
+To: Jesper Dangaard Brouer <brouer@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On Thu,  1 Mar 2018 11:19:04 +0800 Jason Wang <jasowang@redhat.com> wrote:
-
-> XDP_REDIRECT support for mergeable buffer was removed since commit
-> 7324f5399b06 ("virtio_net: disable XDP_REDIRECT in receive_mergeable()
-> case"). This is because we don't reserve enough tailroom for struct
-> skb_shared_info which breaks XDP assumption. Other complaints are, the
-> complex linearize logic and EWMA estimation may increase the
-> possibility of linearizing.
-
-This patch also have the intermixing issues, I mentioned for patch 2/2.
-
-On Thu, 1 Mar 2018 09:02:06 +0100
-Jesper Dangaard Brouer <brouer@redhat.com> wrote:
-
-> 1. XDP generic is not feature complete, e.g. cpumap will drop these
->    packets. It might not be possible to implement some features, think
->    of (AF_XDP) zero-copy.
-> 
-> 2. This can easily cause out-of-order packets.
-> 
-> 3. It makes it harder to troubleshoot, when diagnosing issues
->    around #1, we have a hard time determining what path an XDP packet
->    took (the xdp tracepoints doesn't know).
-
-
-It is slightly better, as it is consistent in calling XDP-generic in
-the XDP_REDIRECT action, which an action under heavy development, here
-we want the freedom to develop in different code tempi.  And some
-features might never be available in XDP-generic. Thus, when a feature
-is missing/broken it will be consistent for the user.
-
-The remaining question is how will a user know that XDP "mode" she is
-using?  The user clearly loaded an XDP-native program, and expect the
-associated performance, but XDP_REDIRECT will be using the slow
-XDP-generic code path...
-
-
-
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/net/virtio_net.c | 107 +++++++++++++++++++++++++++++------------------
->  1 file changed, 67 insertions(+), 40 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 9bb9e56..81190ba 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-[...]
-> @@ -689,31 +709,30 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->  	struct bpf_prog *xdp_prog;
->  	unsigned int truesize;
->  	unsigned int headroom = mergeable_ctx_to_headroom(ctx);
-> -	bool sent;
-> +	bool sent, skb_xdp = false;
-> +	int err;
->  
->  	head_skb = NULL;
->  
->  	rcu_read_lock();
->  	xdp_prog = rcu_dereference(rq->xdp_prog);
->  	if (xdp_prog) {
-> -		struct page *xdp_page;
->  		struct xdp_buff xdp;
->  		void *data;
->  		u32 act;
->  
-> -		/* This happens when rx buffer size is underestimated */
-> +		/* This happens when rx buffer size is underestimated
-> +		 * or headroom is not enough because of the buffer
-> +		 * was refilled before XDP is set. In both cases,
-> +		 * for simplicity, we will offload them to generic
-> +		 * XDP routine. This should only happen for the first
-> +		 * several packets, so we don't care much about its
-> +		 * performance.
-> +		 */
->  		if (unlikely(num_buf > 1 ||
->  			     headroom < virtnet_get_headroom(vi))) {
-
-I think you also need to check the tailroom here? (AFAIK this is hidden
-in the len_to_ctx as the "truesize").
-
-> -			/* linearize data for XDP */
-> -			xdp_page = xdp_linearize_page(rq, &num_buf,
-> -						      page, offset,
-> -						      VIRTIO_XDP_HEADROOM,
-> -						      &len);
-> -			if (!xdp_page)
-> -				goto err_xdp;
-> -			offset = VIRTIO_XDP_HEADROOM;
-> -		} else {
-> -			xdp_page = page;
-> +			skb_xdp = true;
-> +			goto skb_xdp;
->  		}
->  
->  		/* Transient failure which in theory could occur if
-
-
--- 
-Best regards,
-  Jesper Dangaard Brouer
-  MSc.CS, Principal Kernel Engineer at Red Hat
-  LinkedIn: http://www.linkedin.com/in/brouer
+CgpPbiAyMDE45bm0MDPmnIgwMeaXpSAxNjowMiwgSmVzcGVyIERhbmdhYXJkIEJyb3VlciB3cm90
+ZToKPiBPbiBUaHUsICAxIE1hciAyMDE4IDExOjE5OjA1ICswODAwIEphc29uIFdhbmcgPGphc293
+YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+Cj4+IFdlIHVzZWQgdG8gZG8gZGF0YSBjb3B5IHRocm91
+Z2ggeGRwX2xpbmVhcml6ZV9wYWdlKCkgZm9yIHRoZSBidWZmZXIKPj4gd2l0aG91dCBzdWZmaWNp
+ZW50IGhlYWRyb29tLCBpdCBicmluZ3MgZXh0cmEgY29tcGxleGl0eSB3aXRob3V0Cj4+IGhlbHBp
+bmcgZm9yIHRoZSBwZXJmb3JtYW5jZS4gU28gdGhpcyBwYXRjaCByZW1vdmUgaXQgYW5kIHN3aXRj
+aCB0byB1c2UKPj4gZ2VuZXJpYyBYRFAgcm91dGluZSB0byBoYW5kbGUgdGhpcyBjYXNlLgo+IEkg
+ZG9uJ3QgbGlrZSB3aGVyZSB0aGlzIGlzIGdvaW5nLiAgSSBkb24ndCBsaWtlIGludGVybWl4aW5n
+IHRoZSBuYXRpdmUKPiBYRFAgYW5kIGdlbmVyaWMgWERQIGluIHRoaXMgd2F5LCBmb3Igc2V2ZXJh
+bCByZWFzb25zOgo+Cj4gMS4gWERQIGdlbmVyaWMgaXMgbm90IGZlYXR1cmUgY29tcGxldGUsIGUu
+Zy4gY3B1bWFwIHdpbGwgZHJvcCB0aGVzZQo+ICAgICBwYWNrZXRzLgoKV2VsbCwgdGhlbiB3ZSdk
+IGJldHRlciBmaXggaXQsIG90aGVyd2lzZSBpdCB3b3VsZCBiZSBldmVuIHdvcnNlIHRoYW4gbm90
+IApoYXZpbmcgaXQuIEZvciBjcHVtYXAsIGl0IGNhbiBiZSBkb25lIHRocm91Z2ggcXVldWluZyBz
+a2IgaW4gdGhlIHBvaW50ZXIgCnJpbmcgd2l0aCBzb21lIGVuY29kaW5nL2RlY29kaW5nLgoKPiAg
+IEl0IG1pZ2h0IG5vdCBiZSBwb3NzaWJsZSB0byBpbXBsZW1lbnQgc29tZSBmZWF0dXJlcywgdGhp
+bmsKPiAgICAgb2YgKEFGX1hEUCkgemVyby1jb3B5LgoKWWVzLCBidXQgY2FuIEFGX1hEUCBzdXBw
+b3J0IGhlYWRlciBhZGp1c3RtZW50PyBDb25zaWRlciB0aGUgYXNzdW1wdGlvbiAKb2YgemVyb2Nv
+cHksIEkgd2FzIGNvbnNpZGVyaW5nIG1heWJlIHdlIG5lZWQgYSB3YXkgdG8gdGVsbCBBRl9YRFAg
+b2YgCndoZXRoZXIgb3Igbm90IHplcm9jb3B5IGlzIHN1cHBvcnRlZCBieSB0aGUgZHJpdmVyLgoK
+Pgo+IDIuIFRoaXMgY2FuIGVhc2lseSBjYXVzZSBvdXQtb2Ytb3JkZXIgcGFja2V0cy4KCkkgbWF5
+IG1pc3Mgc29tZXRoaW5nLCBidXQgaXQgbG9va3MgdG8gbWUgcGFja2V0cyB3ZXJlIHN0aWxsIGRl
+bGl2ZXJlZCBpbiAKb3JkZXI/IE9yIHlvdSBtZWFuIHRoZSBwYWNrZXRzIHRoYXQgd2FzIGRyb3Bw
+ZWQgYnkgY3B1bWFwPwoKPgo+IDMuIEl0IG1ha2VzIGl0IGhhcmRlciB0byB0cm91Ymxlc2hvb3Qs
+IHdoZW4gZGlhZ25vc2luZyBpc3N1ZXMKPiAgICAgYXJvdW5kICMxLCB3ZSBoYXZlIGEgaGFyZCB0
+aW1lIGRldGVybWluaW5nIHdoYXQgcGF0aCBhbiBYRFAgcGFja2V0Cj4gICAgIHRvb2sgKHRoZSB4
+ZHAgdHJhY2Vwb2ludHMgZG9lc24ndCBrbm93KS4KCkxvb2tzIGxpa2Ugd2UgY2FuIGFkZHJlc3Mg
+dGhpcyBieSBhZGRpbmcgdHJhY2Vwb2ludHMgaW4gZ2VuZXJpYyBjb2RlIHBhdGguCgo+Cj4KPiBb
+Li4uXQo+PiBAQCAtNTkwLDI1ICs1MjYsMTQgQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNl
+aXZlX3NtYWxsKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4+ICAgCQlpZiAodW5saWtlbHkoaGRy
+LT5oZHIuZ3NvX3R5cGUpKQo+PiAgIAkJCWdvdG8gZXJyX3hkcDsKPj4gICAKPj4gKwkJLyogVGhp
+cyBoYXBwbmVzIHdoZW4gaGVhZHJvb20gaXMgbm90IGVub3VnaCBiZWNhdXNlCj4+ICsJCSAqIHRo
+ZSBidWZmZXIgd2FzIHJlZmlsbGVkIGJlZm9yZSBYRFAgaXMgc2V0LiBUaGlzCj4+ICsJCSAqIG9u
+bHkgaGFwcGVuIGZvciBzZXZlcmFsIHBhY2tldHMsIGZvciBzaW1wbGljaXR5LAo+PiArCQkgKiBv
+ZmZsb2FkIHRoZW0gdG8gZ2VuZXJpYyBYRFAgcm91dGluZS4KPiBJbiBteSBwcmFjdGljYWwgdGVz
+dHMsIEkgYWxzbyBzYXcgdGhhdCBzb21ldGltZSBteSBwaW5nIHBhY2tldHMgd2VyZQo+IHRyYXZl
+bGluZyB0aGlzIGNvZGUtcGF0aCwgZXZlbiBhZnRlciBhIGxvbmcgdGltZSB3aGVuIFhEUCB3ZXJl
+IGF0dGFjaGVkLgoKSSBkb24ndCBzZWUgdGhpcywgcHJvYmFibHkgYSBidWcgc29tZXdoZXJlLiBJ
+IHdvdWxkIGxpa2UgdG8gcmVwcm9kdWNlIAphbmQgc2VlLCBob3cgZG8geW91IGRvIHRoZSB0ZXN0
+PyBJZiB0aGVyZSdzIGp1c3QgdmVyeSBmZXcgcGFja2V0cyB3ZXJlIApyZWNlaXZlZCBhZnRlciBY
+RFAsIHdlIG1heSBzdGlsbCB1c2UgdGhlIGJ1ZmZlciB0aGF0IHdhcyByZWZpbGxlZCBiZWZvcmUg
+ClhEUCwgdGhhdCdzIGJ5IGRlc2lnbi4KCj4KPiBUaGlzIHdvcnJpZXMgbWUgYSBiaXQsIGZvciB0
+cm91Ymxlc2hvb3RpbmcgcHVycG9zZXMuLi4gYXMgdGhpcyBjYW4gZ2l2ZQo+IGEgc3RyYW5nZSB1
+c2VyIGV4cGVyaWVuY2UgZ2l2ZW4gcG9pbnQgIzEuCgoKCkkgY2FuIHN0aWNrIHRvIHRoZSB4ZHBf
+bGluZWFyaXplX3BhZ2UoKSBsb2dpYyBpZiB5b3UgZG9uJ3QgbGlrZSBnZW5lcmljIApYRFAgc3R1
+ZmZzLCBidXQgaXQgbWF5IG5vdCB3b3JrIGZvciBBRl9YRFAgbmVpdGhlci4gQ29uc2lkZXIgQUZf
+WERQIGhhcyAKc3RpbGwgc29tZSBkaXN0YW5jZSBvZiBiZWluZyBtZXJnZWQsIEknbSBub3Qgc3Vy
+ZSB3ZSBjb3VsZCBldmVuIGNhcmUgCmFib3V0IGl0LgoKVGhhbmtzCgo+Cj4KPj4gKwkJICovCj4+
+ICAgCQlpZiAodW5saWtlbHkoeGRwX2hlYWRyb29tIDwgdmlydG5ldF9nZXRfaGVhZHJvb20odmkp
+KSkgewo+PiAtCQkJaW50IG9mZnNldCA9IGJ1ZiAtIHBhZ2VfYWRkcmVzcyhwYWdlKSArIGhlYWRl
+cl9vZmZzZXQ7Cj4+IC0JCQl1bnNpZ25lZCBpbnQgdGxlbiA9IGxlbiArIHZpLT5oZHJfbGVuOwo+
+PiAtCQkJdTE2IG51bV9idWYgPSAxOwo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
