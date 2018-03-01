@@ -1,15 +1,15 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v3 1/6] jailhouse: Provide detection for non-x86 systems
-Date: Thu, 1 Mar 2018 07:17:57 +0100
-Message-ID: <18fdcca5-1afb-23ea-07f6-b24eabdc04a0__12929.2521546178$1519885404$gmane$org@suse.com>
-References: <cover.1519882849.git.jan.kiszka@siemens.com>
-	<558f5cbae432ae029e2d8ee9b0ef44d837318625.1519882849.git.jan.kiszka@siemens.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
+Subject: Re: [PATCH net-next 2/2] virtio-net: simplify XDP handling in small
+	buffer
+Date: Thu, 1 Mar 2018 09:02:06 +0100
+Message-ID: <20180301090206.04e13a71__2782.36588133058$1519891217$gmane$org@redhat.com>
+References: <1519874345-10235-1-git-send-email-jasowang@redhat.com>
+	<1519874345-10235-3-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <558f5cbae432ae029e2d8ee9b0ef44d837318625.1519882849.git.jan.kiszka@siemens.com>
-Content-Language: de-DE
+In-Reply-To: <1519874345-10235-3-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,27 +19,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Kiszka <jan.kiszka@siemens.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
-Cc: jailhouse-dev@googlegroups.com, Mark Rutland <mark.rutland@arm.com>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/03/18 06:40, Jan Kiszka wrote:
-> From: Jan Kiszka <jan.kiszka@siemens.com>
-> 
-> Implement jailhouse_paravirt() via device tree probing on architectures
-> != x86. Will be used by the PCI core.
-> 
-> CC: Rob Herring <robh+dt@kernel.org>
-> CC: Mark Rutland <mark.rutland@arm.com>
-> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-> ---
->  Documentation/devicetree/bindings/jailhouse.txt |  8 ++++++++
->  arch/x86/include/asm/jailhouse_para.h           |  2 +-
->  include/linux/hypervisor.h                      | 17 +++++++++++++++--
 
-I'd appreciate if you'd Cc: the maintainers of the touched files...
+On Thu,  1 Mar 2018 11:19:05 +0800 Jason Wang <jasowang@redhat.com> wrote:
 
-Reviewed-by: Juergen Gross <jgross@suse.com>
+> We used to do data copy through xdp_linearize_page() for the buffer
+> without sufficient headroom, it brings extra complexity without
+> helping for the performance. So this patch remove it and switch to use
+> generic XDP routine to handle this case.
+
+I don't like where this is going.  I don't like intermixing the native
+XDP and generic XDP in this way, for several reasons:
+
+1. XDP generic is not feature complete, e.g. cpumap will drop these
+   packets. It might not be possible to implement some features, think
+   of (AF_XDP) zero-copy.
+
+2. This can easily cause out-of-order packets.
+
+3. It makes it harder to troubleshoot, when diagnosing issues
+   around #1, we have a hard time determining what path an XDP packet
+   took (the xdp tracepoints doesn't know).
 
 
-Juergen
+[...]
+> @@ -590,25 +526,14 @@ static struct sk_buff *receive_small(struct net_device *dev,
+>  		if (unlikely(hdr->hdr.gso_type))
+>  			goto err_xdp;
+>  
+> +		/* This happnes when headroom is not enough because
+> +		 * the buffer was refilled before XDP is set. This
+> +		 * only happen for several packets, for simplicity,
+> +		 * offload them to generic XDP routine.
+
+In my practical tests, I also saw that sometime my ping packets were
+traveling this code-path, even after a long time when XDP were attached.
+
+This worries me a bit, for troubleshooting purposes... as this can give
+a strange user experience given point #1.
+
+
+> +		 */
+>  		if (unlikely(xdp_headroom < virtnet_get_headroom(vi))) {
+> -			int offset = buf - page_address(page) + header_offset;
+> -			unsigned int tlen = len + vi->hdr_len;
+> -			u16 num_buf = 1;
+
+
+-- 
+Best regards,
+  Jesper Dangaard Brouer
+  MSc.CS, Principal Kernel Engineer at Red Hat
+  LinkedIn: http://www.linkedin.com/in/brouer
