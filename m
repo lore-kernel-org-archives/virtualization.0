@@ -1,7 +1,7 @@
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [PATCH v3 6/6] MAINTAINERS: Add entry for Jailhouse
-Date: Thu,  1 Mar 2018 06:40:49 +0100
-Message-ID: <35c7685c09f406c8497c60408dd861ab1dcc3941.1519882849.git.jan.kiszka__43191.4376131774$1519882776$gmane$org@siemens.com>
+Subject: [PATCH v3 2/6] PCI: Scan all functions when running over Jailhouse
+Date: Thu,  1 Mar 2018 06:40:45 +0100
+Message-ID: <2b4c650d27e59c81903fa4c2526bf18a2cf2d243.1519882849.git.jan.kiszka__25320.076061371$1519882785$gmane$org@siemens.com>
 References: <cover.1519882849.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,33 +20,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
-Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: jailhouse-dev@googlegroups.com, Benedikt Spranger <b.spranger@linutronix.de>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Andy Shevchenko <andy.shevchenko@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jan Kiszka <jan.kiszka@siemens.com>
 
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
----
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+Per PCIe r4.0, sec 7.5.1.1.9, multi-function devices are required to
+have a function 0.  Therefore, Linux scans for devices at function 0
+(devfn 0/8/16/...) and only scans for other functions if function 0
+has its Multi-Function Device bit set or ARI or SR-IOV indicate
+there are more functions.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 93a12af4f180..4b889f282c77 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7521,6 +7521,13 @@ Q:	http://patchwork.linuxtv.org/project/linux-media/list/
- S:	Maintained
- F:	drivers/media/dvb-frontends/ix2505v*
+The Jailhouse hypervisor may pass individual functions of a
+multi-function device to a guest without passing function 0, which
+means a Linux guest won't find them.
+
+Change Linux PCI probing so it scans all function numbers when
+running as a guest over Jailhouse.
+
+This is technically prohibited by the spec, so it is possible that
+PCI devices without the Multi-Function Device bit set may have
+unexpected behavior in response to this probe.
+
+Derived from original patch by Benedikt Spranger.
+
+CC: Benedikt Spranger <b.spranger@linutronix.de>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+---
+ arch/x86/pci/legacy.c |  4 +++-
+ drivers/pci/probe.c   | 22 +++++++++++++++++++---
+ 2 files changed, 22 insertions(+), 4 deletions(-)
+
+diff --git a/arch/x86/pci/legacy.c b/arch/x86/pci/legacy.c
+index 1cb01abcb1be..dfbe6ac38830 100644
+--- a/arch/x86/pci/legacy.c
++++ b/arch/x86/pci/legacy.c
+@@ -4,6 +4,7 @@
+ #include <linux/init.h>
+ #include <linux/export.h>
+ #include <linux/pci.h>
++#include <asm/jailhouse_para.h>
+ #include <asm/pci_x86.h>
  
-+JAILHOUSE HYPERVISOR INTERFACE
-+M:	Jan Kiszka <jan.kiszka@siemens.com>
-+L:	jailhouse-dev@googlegroups.com
-+S:	Maintained
-+F:	arch/x86/kernel/jailhouse.c
-+F:	arch/x86/include/asm/jailhouse_para.h
+ /*
+@@ -34,13 +35,14 @@ int __init pci_legacy_init(void)
+ 
+ void pcibios_scan_specific_bus(int busn)
+ {
++	int stride = jailhouse_paravirt() ? 1 : 8;
+ 	int devfn;
+ 	u32 l;
+ 
+ 	if (pci_find_bus(0, busn))
+ 		return;
+ 
+-	for (devfn = 0; devfn < 256; devfn += 8) {
++	for (devfn = 0; devfn < 256; devfn += stride) {
+ 		if (!raw_pci_read(0, busn, devfn, PCI_VENDOR_ID, 2, &l) &&
+ 		    l != 0x0000 && l != 0xffff) {
+ 			DBG("Found device at %02x:%02x [%04x]\n", busn, devfn, l);
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index ef5377438a1e..da22d6d216f8 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -16,6 +16,7 @@
+ #include <linux/pci-aspm.h>
+ #include <linux/aer.h>
+ #include <linux/acpi.h>
++#include <linux/hypervisor.h>
+ #include <linux/irqdomain.h>
+ #include <linux/pm_runtime.h>
+ #include "pci.h"
+@@ -2518,14 +2519,29 @@ static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
+ {
+ 	unsigned int used_buses, normal_bridges = 0, hotplug_bridges = 0;
+ 	unsigned int start = bus->busn_res.start;
+-	unsigned int devfn, cmax, max = start;
++	unsigned int devfn, fn, cmax, max = start;
+ 	struct pci_dev *dev;
++	int nr_devs;
+ 
+ 	dev_dbg(&bus->dev, "scanning bus\n");
+ 
+ 	/* Go find them, Rover! */
+-	for (devfn = 0; devfn < 0x100; devfn += 8)
+-		pci_scan_slot(bus, devfn);
++	for (devfn = 0; devfn < 0x100; devfn += 8) {
++		nr_devs = pci_scan_slot(bus, devfn);
 +
- JC42.4 TEMPERATURE SENSOR DRIVER
- M:	Guenter Roeck <linux@roeck-us.net>
- L:	linux-hwmon@vger.kernel.org
++		/*
++		 * The Jailhouse hypervisor may pass individual functions of a
++		 * multi-function device to a guest without passing function 0.
++		 * Look for them as well.
++		 */
++		if (jailhouse_paravirt() && nr_devs == 0) {
++			for (fn = 1; fn < 8; fn++) {
++				dev = pci_scan_single_device(bus, devfn + fn);
++				if (dev)
++					dev->multifunction = 1;
++			}
++		}
++	}
+ 
+ 	/* Reserve buses for SR-IOV capability */
+ 	used_buses = pci_iov_bus_range(bus);
 -- 
 2.13.6
