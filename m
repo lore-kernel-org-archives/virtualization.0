@@ -1,13 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 2/2] virtio-net: simplify XDP handling in small buffer
-Date: Thu,  1 Mar 2018 11:19:05 +0800
-Message-ID: <1519874345-10235-3-git-send-email-jasowang__8786.09153810448$1519874856$gmane$org@redhat.com>
-References: <1519874345-10235-1-git-send-email-jasowang@redhat.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Subject: [PATCH v3 1/6] jailhouse: Provide detection for non-x86 systems
+Date: Thu,  1 Mar 2018 06:40:44 +0100
+Message-ID: <558f5cbae432ae029e2d8ee9b0ef44d837318625.1519882849.git.jan.kiszka__39431.4748039053$1519882774$gmane$org@siemens.com>
+References: <cover.1519882849.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1519874345-10235-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <cover.1519882849.git.jan.kiszka@siemens.com>
+In-Reply-To: <cover.1519882849.git.jan.kiszka@siemens.com>
+References: <cover.1519882849.git.jan.kiszka@siemens.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,152 +19,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: john.fastabend@gmail.com, brouer@redhat.com
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
+Cc: jailhouse-dev@googlegroups.com, Mark Rutland <mark.rutland@arm.com>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We used to do data copy through xdp_linearize_page() for the buffer
-without sufficient headroom, it brings extra complexity without
-helping for the performance. So this patch remove it and switch to use
-generic XDP routine to handle this case.
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Implement jailhouse_paravirt() via device tree probing on architectures
+!= x86. Will be used by the PCI core.
+
+CC: Rob Herring <robh+dt@kernel.org>
+CC: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
- drivers/net/virtio_net.c | 93 ++++++------------------------------------------
- 1 file changed, 10 insertions(+), 83 deletions(-)
+ Documentation/devicetree/bindings/jailhouse.txt |  8 ++++++++
+ arch/x86/include/asm/jailhouse_para.h           |  2 +-
+ include/linux/hypervisor.h                      | 17 +++++++++++++++--
+ 3 files changed, 24 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/jailhouse.txt
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 81190ba..3f14948 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -474,69 +474,6 @@ static unsigned int virtnet_get_headroom(struct virtnet_info *vi)
- 	return vi->xdp_queue_pairs ? VIRTIO_XDP_HEADROOM : 0;
- }
+diff --git a/Documentation/devicetree/bindings/jailhouse.txt b/Documentation/devicetree/bindings/jailhouse.txt
+new file mode 100644
+index 000000000000..2901c25ff340
+--- /dev/null
++++ b/Documentation/devicetree/bindings/jailhouse.txt
+@@ -0,0 +1,8 @@
++Jailhouse non-root cell device tree bindings
++--------------------------------------------
++
++When running in a non-root Jailhouse cell (partition), the device tree of this
++platform shall have a top-level "hypervisor" node with the following
++properties:
++
++- compatible = "jailhouse,cell"
+diff --git a/arch/x86/include/asm/jailhouse_para.h b/arch/x86/include/asm/jailhouse_para.h
+index 875b54376689..b885a961a150 100644
+--- a/arch/x86/include/asm/jailhouse_para.h
++++ b/arch/x86/include/asm/jailhouse_para.h
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: GPL2.0 */
  
--/* We copy the packet for XDP in the following cases:
-- *
-- * 1) Packet is scattered across multiple rx buffers.
-- * 2) Headroom space is insufficient.
-- *
-- * This is inefficient but it's a temporary condition that
-- * we hit right after XDP is enabled and until queue is refilled
-- * with large buffers with sufficient headroom - so it should affect
-- * at most queue size packets.
-- * Afterwards, the conditions to enable
-- * XDP should preclude the underlying device from sending packets
-- * across multiple buffers (num_buf > 1), and we make sure buffers
-- * have enough headroom.
-- */
--static struct page *xdp_linearize_page(struct receive_queue *rq,
--				       u16 *num_buf,
--				       struct page *p,
--				       int offset,
--				       int page_off,
--				       unsigned int *len)
--{
--	struct page *page = alloc_page(GFP_ATOMIC);
--
--	if (!page)
--		return NULL;
--
--	memcpy(page_address(page) + page_off, page_address(p) + offset, *len);
--	page_off += *len;
--
--	while (--*num_buf) {
--		unsigned int buflen;
--		void *buf;
--		int off;
--
--		buf = virtqueue_get_buf(rq->vq, &buflen);
--		if (unlikely(!buf))
--			goto err_buf;
--
--		p = virt_to_head_page(buf);
--		off = buf - page_address(p);
--
--		/* guard against a misconfigured or uncooperative backend that
--		 * is sending packet larger than the MTU.
--		 */
--		if ((page_off + buflen) > PAGE_SIZE) {
--			put_page(p);
--			goto err_buf;
--		}
--
--		memcpy(page_address(page) + page_off,
--		       page_address(p) + off, buflen);
--		page_off += buflen;
--		put_page(p);
--	}
--
--	/* Headroom does not contribute to packet length */
--	*len = page_off - VIRTIO_XDP_HEADROOM;
--	return page;
--err_buf:
--	__free_pages(page, 0);
--	return NULL;
--}
--
- static struct sk_buff *virtnet_skb_xdp(struct receive_queue *rq,
- 				       struct sk_buff *skb)
+ /*
+- * Jailhouse paravirt_ops implementation
++ * Jailhouse paravirt detection
+  *
+  * Copyright (c) Siemens AG, 2015-2017
+  *
+diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
+index b19563f9a8eb..fc08b433c856 100644
+--- a/include/linux/hypervisor.h
++++ b/include/linux/hypervisor.h
+@@ -8,15 +8,28 @@
+  */
+ 
+ #ifdef CONFIG_X86
++
++#include <asm/jailhouse_para.h>
+ #include <asm/x86_init.h>
++
+ static inline void hypervisor_pin_vcpu(int cpu)
  {
-@@ -573,8 +510,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 			      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 	struct page *page = virt_to_head_page(buf);
- 	unsigned int delta = 0;
--	struct page *xdp_page;
--	bool sent;
-+	bool sent, skb_xdp = false;
- 	int err;
+ 	x86_platform.hyper.pin_vcpu(cpu);
+ }
+-#else
++
++#else /* !CONFIG_X86 */
++
++#include <linux/of.h>
++
+ static inline void hypervisor_pin_vcpu(int cpu)
+ {
+ }
+-#endif
++
++static inline bool jailhouse_paravirt(void)
++{
++	return of_find_compatible_node(NULL, NULL, "jailhouse,cell");
++}
++
++#endif /* !CONFIG_X86 */
  
- 	len -= vi->hdr_len;
-@@ -590,25 +526,14 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 		if (unlikely(hdr->hdr.gso_type))
- 			goto err_xdp;
- 
-+		/* This happnes when headroom is not enough because
-+		 * the buffer was refilled before XDP is set. This
-+		 * only happen for several packets, for simplicity,
-+		 * offload them to generic XDP routine.
-+		 */
- 		if (unlikely(xdp_headroom < virtnet_get_headroom(vi))) {
--			int offset = buf - page_address(page) + header_offset;
--			unsigned int tlen = len + vi->hdr_len;
--			u16 num_buf = 1;
--
--			xdp_headroom = virtnet_get_headroom(vi);
--			header_offset = VIRTNET_RX_PAD + xdp_headroom;
--			headroom = vi->hdr_len + header_offset;
--			buflen = SKB_DATA_ALIGN(GOOD_PACKET_LEN + headroom) +
--				 SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
--			xdp_page = xdp_linearize_page(rq, &num_buf, page,
--						      offset, header_offset,
--						      &tlen);
--			if (!xdp_page)
--				goto err_xdp;
--
--			buf = page_address(xdp_page);
--			put_page(page);
--			page = xdp_page;
-+			skb_xdp = true;
-+			goto skb_xdp;
- 		}
- 
- 		xdp.data_hard_start = buf + VIRTNET_RX_PAD + vi->hdr_len;
-@@ -650,6 +575,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 	}
- 	rcu_read_unlock();
- 
-+skb_xdp:
- 	skb = build_skb(buf, buflen);
- 	if (!skb) {
- 		put_page(page);
-@@ -662,6 +588,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 		memcpy(skb_vnet_hdr(skb), buf, vi->hdr_len);
- 	} /* keep zeroed vnet hdr since packet was changed by bpf */
- 
-+	skb = virtnet_skb_xdp(rq, skb);
- err:
- 	return skb;
- 
+ #endif /* __LINUX_HYPEVISOR_H */
 -- 
-2.7.4
+2.13.6
