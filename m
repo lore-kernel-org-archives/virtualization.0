@@ -1,7 +1,7 @@
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [PATCH v3 1/6] jailhouse: Provide detection for non-x86 systems
-Date: Thu,  1 Mar 2018 06:40:44 +0100
-Message-ID: <558f5cbae432ae029e2d8ee9b0ef44d837318625.1519882849.git.jan.kiszka__39431.4748039053$1519882774$gmane$org@siemens.com>
+Subject: [PATCH v3 6/6] MAINTAINERS: Add entry for Jailhouse
+Date: Thu,  1 Mar 2018 06:40:49 +0100
+Message-ID: <35c7685c09f406c8497c60408dd861ab1dcc3941.1519882849.git.jan.kiszka__43191.4376131774$1519882776$gmane$org@siemens.com>
 References: <cover.1519882849.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,85 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
-Cc: jailhouse-dev@googlegroups.com, Mark Rutland <mark.rutland@arm.com>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Andy Shevchenko <andy.shevchenko@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jan Kiszka <jan.kiszka@siemens.com>
 
-Implement jailhouse_paravirt() via device tree probing on architectures
-!= x86. Will be used by the PCI core.
-
-CC: Rob Herring <robh+dt@kernel.org>
-CC: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
- Documentation/devicetree/bindings/jailhouse.txt |  8 ++++++++
- arch/x86/include/asm/jailhouse_para.h           |  2 +-
- include/linux/hypervisor.h                      | 17 +++++++++++++++--
- 3 files changed, 24 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/jailhouse.txt
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/jailhouse.txt b/Documentation/devicetree/bindings/jailhouse.txt
-new file mode 100644
-index 000000000000..2901c25ff340
---- /dev/null
-+++ b/Documentation/devicetree/bindings/jailhouse.txt
-@@ -0,0 +1,8 @@
-+Jailhouse non-root cell device tree bindings
-+--------------------------------------------
-+
-+When running in a non-root Jailhouse cell (partition), the device tree of this
-+platform shall have a top-level "hypervisor" node with the following
-+properties:
-+
-+- compatible = "jailhouse,cell"
-diff --git a/arch/x86/include/asm/jailhouse_para.h b/arch/x86/include/asm/jailhouse_para.h
-index 875b54376689..b885a961a150 100644
---- a/arch/x86/include/asm/jailhouse_para.h
-+++ b/arch/x86/include/asm/jailhouse_para.h
-@@ -1,7 +1,7 @@
- /* SPDX-License-Identifier: GPL2.0 */
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 93a12af4f180..4b889f282c77 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7521,6 +7521,13 @@ Q:	http://patchwork.linuxtv.org/project/linux-media/list/
+ S:	Maintained
+ F:	drivers/media/dvb-frontends/ix2505v*
  
- /*
-- * Jailhouse paravirt_ops implementation
-+ * Jailhouse paravirt detection
-  *
-  * Copyright (c) Siemens AG, 2015-2017
-  *
-diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
-index b19563f9a8eb..fc08b433c856 100644
---- a/include/linux/hypervisor.h
-+++ b/include/linux/hypervisor.h
-@@ -8,15 +8,28 @@
-  */
- 
- #ifdef CONFIG_X86
++JAILHOUSE HYPERVISOR INTERFACE
++M:	Jan Kiszka <jan.kiszka@siemens.com>
++L:	jailhouse-dev@googlegroups.com
++S:	Maintained
++F:	arch/x86/kernel/jailhouse.c
++F:	arch/x86/include/asm/jailhouse_para.h
 +
-+#include <asm/jailhouse_para.h>
- #include <asm/x86_init.h>
-+
- static inline void hypervisor_pin_vcpu(int cpu)
- {
- 	x86_platform.hyper.pin_vcpu(cpu);
- }
--#else
-+
-+#else /* !CONFIG_X86 */
-+
-+#include <linux/of.h>
-+
- static inline void hypervisor_pin_vcpu(int cpu)
- {
- }
--#endif
-+
-+static inline bool jailhouse_paravirt(void)
-+{
-+	return of_find_compatible_node(NULL, NULL, "jailhouse,cell");
-+}
-+
-+#endif /* !CONFIG_X86 */
- 
- #endif /* __LINUX_HYPEVISOR_H */
+ JC42.4 TEMPERATURE SENSOR DRIVER
+ M:	Guenter Roeck <linux@roeck-us.net>
+ L:	linux-hwmon@vger.kernel.org
 -- 
 2.13.6
