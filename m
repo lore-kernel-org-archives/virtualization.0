@@ -1,14 +1,16 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v3 4/6] x86: Consolidate PCI_MMCONFIG configs
-Date: Thu, 1 Mar 2018 12:31:58 +0200
-Message-ID: <CAHp75VeaE_fm53Ga+zMNsvC2Ew6E5D0hbruV5jDwPeGvZk8v2g__43462.2717359618$1519900232$gmane$org@mail.gmail.com>
-References: <cover.1519882849.git.jan.kiszka@siemens.com>
-	<8527c92b2e2920b8cd9096ddcbbb6d0f4004eb69.1519882849.git.jan.kiszka@siemens.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
+Subject: Re: [PATCH net-next 0/2] virtio-net: re enable XDP_REDIRECT for
+	mergeable buffer
+Date: Thu, 1 Mar 2018 11:35:31 +0100
+Message-ID: <20180301113531.7b25e2df@redhat.com>
+References: <1519874345-10235-1-git-send-email-jasowang@redhat.com>
+	<20180301101038.4253424d@redhat.com>
+	<b0f55100-183d-a507-8510-3c67f6106031@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8527c92b2e2920b8cd9096ddcbbb6d0f4004eb69.1519882849.git.jan.kiszka@siemens.com>
+In-Reply-To: <b0f55100-183d-a507-8510-3c67f6106031@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,64 +20,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com, Alexei Starovoitov <alexei.starovoitov@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 1, 2018 at 7:40 AM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
-> From: Jan Kiszka <jan.kiszka@siemens.com>
->
-> Since e279b6c1d329 ("x86: start unification of arch/x86/Kconfig.*"), we
-> have two PCI_MMCONFIG entries, one from the original i386 and another
-> from x86_64. This consolidates both entries into a single one.
->
-> The logic for x86_32, where this option was not under user control,
-> remains identical. On x86_64, PCI_MMCONFIG becomes additionally
-> configurable for SFI systems even if ACPI was disabled. This just
-> simplifies the logic without restricting the configurability in any way.
->
-
-FWIW,
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
-> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-> ---
->  arch/x86/Kconfig | 9 +++------
->  1 file changed, 3 insertions(+), 6 deletions(-)
->
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index eb7f43f23521..aef9d67ac186 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -2641,8 +2641,9 @@ config PCI_DIRECT
->         depends on PCI && (X86_64 || (PCI_GODIRECT || PCI_GOANY || PCI_GOOLPC || PCI_GOMMCONFIG))
->
->  config PCI_MMCONFIG
-> -       def_bool y
-> -       depends on X86_32 && PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY)
-> +       bool "Support mmconfig PCI config space access" if X86_64
-> +       default y
-> +       depends on PCI && (ACPI || SFI) && (X86_64 || (PCI_GOANY || PCI_GOMMCONFIG))
->
->  config PCI_OLPC
->         def_bool y
-> @@ -2657,10 +2658,6 @@ config PCI_DOMAINS
->         def_bool y
->         depends on PCI
->
-> -config PCI_MMCONFIG
-> -       bool "Support mmconfig PCI config space access"
-> -       depends on X86_64 && PCI && ACPI
-> -
->  config PCI_CNB20LE_QUIRK
->         bool "Read CNB20LE Host Bridge Windows" if EXPERT
->         depends on PCI
-> --
-> 2.13.6
->
-
-
-
--- 
-With Best Regards,
-Andy Shevchenko
+T24gVGh1LCAxIE1hciAyMDE4IDE3OjIzOjM3ICswODAwCkphc29uIFdhbmcgPGphc293YW5nQHJl
+ZGhhdC5jb20+IHdyb3RlOgoKPiBPbiAyMDE45bm0MDPmnIgwMeaXpSAxNzoxMCwgSmVzcGVyIERh
+bmdhYXJkIEJyb3VlciB3cm90ZToKPiA+IE9uIFRodSwgIDEgTWFyIDIwMTggMTE6MTk6MDMgKzA4
+MDAKPiA+IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gIAo+ID4+
+IFRoaXMgc2VyaWVzIHRyaWVzIHRvIHJlLWVuYWJsZSBYRFBfUkVESVJFQ1QgZm9yIG1lcmdlYWJs
+ZSBidWZmZXIgd2hpY2gKPiA+PiB3YXMgcmVtb3ZlZCBzaW5jZSBjb21taXQgNzMyNGY1Mzk5YjA2
+ICgidmlydGlvX25ldDogZGlzYWJsZQo+ID4+IFhEUF9SRURJUkVDVCBpbiByZWNlaXZlX21lcmdl
+YWJsZSgpIGNhc2UiKS4gTWFpbiBjb25jZXJucyBhcmU6Cj4gPj4KPiA+PiAtIG5vdCBlbm91Z2gg
+dGFpbHJvb20gd2FzIHJlc2VydmVkIHdoaWNoIGJyZWFrcyBjcHVtYXAgIAo+Cj4gPiBUbyBhZGRy
+ZXNzIHRoaXMgYXQgYSBtb3JlIGZ1bmRhbWVudGFsIGxldmVsLCBJIHdvdWxkIHN1Z2dlc3QgdGhh
+dCB3ZS95b3UKPiA+IGluc3RlYWQgZXh0ZW5kIFhEUCB0byBrbm93IGl0J3MgYnVmZmVycyAiZnJh
+bWUiIHNpemUvZW5kLiAgKFRoZQo+ID4gYXNzdW1wdGlvbiB1c2UgdG8gYmUsIHhkcF9idWZmLT5k
+YXRhX2hhcmRfc3RhcnQgKyBQQUdFX1NJWkUsIGJ1dAo+ID4gaXhnYmUrdmlydGlvX25ldCBicm9r
+ZSB0aGF0IGFzc3VtcHRpb24pLgo+ID4KPiA+IEl0IHNob3VsZCBhY3R1YWxseSBiZSBmYWlybHkg
+ZWFzeSB0byBpbXBsZW1lbnQ6Cj4gPiAgICogU2ltcGx5IGV4dGVuZCB4ZHBfYnVmZiB3aXRoIGEg
+ImRhdGFfaGFyZF9lbmQiIHBvaW50ZXIuICAKPiAKPiBSaWdodCwgYW5kIHRoZW4gY3B1bWFwIGNh
+biB3YXJuIGFuZCBkcm9wIHBhY2tldHMgd2l0aCBpbnN1ZmZpY2llbnQgCj4gdGFpbHJvb20uCj4K
+PiBCdXQgaXQgc2hvdWxkIGJlIGEgcGF0Y2ggb24gdG9wIG9mIHRoaXMgSSB0aGluay4KCkhtbW0s
+IG5vdCByZWFsbHkuICBJZiB3ZS95b3UgaW5zdGVhZCBmaXggdGhlIGlzc3VlIG9mIFhEUCBkb2Vz
+bid0IGtub3cKdGhlIGVuZC9zaXplIG9mIHRoZSBmcmFtZSwgdGhlbiB3ZSBkb24ndCBuZWVkIHRo
+aXMgbWl4ZWQgWERQCmdlbmVyaWMvbmF0aXZlIGNvZGUgcGF0aCBtaXhpbmcuCgpZb3UgY291bGQg
+cmUtZW5hYmxlIG5hdGl2ZSByZWRpcmVjdCwgYW5kIHB1c2ggdGhlIHJlc3BvbnNpYmlsaXR5IHRv
+CmNwdW1hcCBmb3IgZGV0ZWN0aW5nIHRoaXMgdG9vLXNtYWxsIGZyYW1lICJtaXNzaW5nIHRhaWxy
+b29tIiAoYW5kIGF2b2lkCmNyYXNoaW5nLi4uKS4gKElmIHdlIHJlYWxseSB3YW50IHRvIHN1cHBv
+cnQgdGhpcywgY3B1bWFwIGNvdWxkIGZhbGxiYWNrCnRvIGRldl9hbGxvY19za2IsIGFuZCBoYW5k
+bGUgaXQgZ3JhY2VmdWxseSkuCgotLSAKQmVzdCByZWdhcmRzLAogIEplc3BlciBEYW5nYWFyZCBC
+cm91ZXIKICBNU2MuQ1MsIFByaW5jaXBhbCBLZXJuZWwgRW5naW5lZXIgYXQgUmVkIEhhdAogIExp
+bmtlZEluOiBodHRwOi8vd3d3LmxpbmtlZGluLmNvbS9pbi9icm91ZXIKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
