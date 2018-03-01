@@ -1,17 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next 2/2] virtio-net: simplify XDP handling in small
-	buffer
-Date: Thu, 1 Mar 2018 16:49:24 +0800
-Message-ID: <dbbfd899-fb7e-c039-5c9a-0f3b6ce34b78__25967.6465685063$1519894391$gmane$org@redhat.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
+Subject: Re: [PATCH net-next 0/2] virtio-net: re enable XDP_REDIRECT for
+	mergeable buffer
+Date: Thu, 1 Mar 2018 10:10:38 +0100
+Message-ID: <20180301101038.4253424d@redhat.com>
 References: <1519874345-10235-1-git-send-email-jasowang@redhat.com>
-	<1519874345-10235-3-git-send-email-jasowang@redhat.com>
-	<20180301090206.04e13a71@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180301090206.04e13a71@redhat.com>
-Content-Language: en-US
+In-Reply-To: <1519874345-10235-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,61 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jesper Dangaard Brouer <brouer@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, mst@redhat.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDPmnIgwMeaXpSAxNjowMiwgSmVzcGVyIERhbmdhYXJkIEJyb3VlciB3cm90
-ZToKPiBPbiBUaHUsICAxIE1hciAyMDE4IDExOjE5OjA1ICswODAwIEphc29uIFdhbmcgPGphc293
-YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+Cj4+IFdlIHVzZWQgdG8gZG8gZGF0YSBjb3B5IHRocm91
-Z2ggeGRwX2xpbmVhcml6ZV9wYWdlKCkgZm9yIHRoZSBidWZmZXIKPj4gd2l0aG91dCBzdWZmaWNp
-ZW50IGhlYWRyb29tLCBpdCBicmluZ3MgZXh0cmEgY29tcGxleGl0eSB3aXRob3V0Cj4+IGhlbHBp
-bmcgZm9yIHRoZSBwZXJmb3JtYW5jZS4gU28gdGhpcyBwYXRjaCByZW1vdmUgaXQgYW5kIHN3aXRj
-aCB0byB1c2UKPj4gZ2VuZXJpYyBYRFAgcm91dGluZSB0byBoYW5kbGUgdGhpcyBjYXNlLgo+IEkg
-ZG9uJ3QgbGlrZSB3aGVyZSB0aGlzIGlzIGdvaW5nLiAgSSBkb24ndCBsaWtlIGludGVybWl4aW5n
-IHRoZSBuYXRpdmUKPiBYRFAgYW5kIGdlbmVyaWMgWERQIGluIHRoaXMgd2F5LCBmb3Igc2V2ZXJh
-bCByZWFzb25zOgo+Cj4gMS4gWERQIGdlbmVyaWMgaXMgbm90IGZlYXR1cmUgY29tcGxldGUsIGUu
-Zy4gY3B1bWFwIHdpbGwgZHJvcCB0aGVzZQo+ICAgICBwYWNrZXRzLgoKV2VsbCwgdGhlbiB3ZSdk
-IGJldHRlciBmaXggaXQsIG90aGVyd2lzZSBpdCB3b3VsZCBiZSBldmVuIHdvcnNlIHRoYW4gbm90
-IApoYXZpbmcgaXQuIEZvciBjcHVtYXAsIGl0IGNhbiBiZSBkb25lIHRocm91Z2ggcXVldWluZyBz
-a2IgaW4gdGhlIHBvaW50ZXIgCnJpbmcgd2l0aCBzb21lIGVuY29kaW5nL2RlY29kaW5nLgoKPiAg
-IEl0IG1pZ2h0IG5vdCBiZSBwb3NzaWJsZSB0byBpbXBsZW1lbnQgc29tZSBmZWF0dXJlcywgdGhp
-bmsKPiAgICAgb2YgKEFGX1hEUCkgemVyby1jb3B5LgoKWWVzLCBidXQgY2FuIEFGX1hEUCBzdXBw
-b3J0IGhlYWRlciBhZGp1c3RtZW50PyBDb25zaWRlciB0aGUgYXNzdW1wdGlvbiAKb2YgemVyb2Nv
-cHksIEkgd2FzIGNvbnNpZGVyaW5nIG1heWJlIHdlIG5lZWQgYSB3YXkgdG8gdGVsbCBBRl9YRFAg
-b2YgCndoZXRoZXIgb3Igbm90IHplcm9jb3B5IGlzIHN1cHBvcnRlZCBieSB0aGUgZHJpdmVyLgoK
-Pgo+IDIuIFRoaXMgY2FuIGVhc2lseSBjYXVzZSBvdXQtb2Ytb3JkZXIgcGFja2V0cy4KCkkgbWF5
-IG1pc3Mgc29tZXRoaW5nLCBidXQgaXQgbG9va3MgdG8gbWUgcGFja2V0cyB3ZXJlIHN0aWxsIGRl
-bGl2ZXJlZCBpbiAKb3JkZXI/IE9yIHlvdSBtZWFuIHRoZSBwYWNrZXRzIHRoYXQgd2FzIGRyb3Bw
-ZWQgYnkgY3B1bWFwPwoKPgo+IDMuIEl0IG1ha2VzIGl0IGhhcmRlciB0byB0cm91Ymxlc2hvb3Qs
-IHdoZW4gZGlhZ25vc2luZyBpc3N1ZXMKPiAgICAgYXJvdW5kICMxLCB3ZSBoYXZlIGEgaGFyZCB0
-aW1lIGRldGVybWluaW5nIHdoYXQgcGF0aCBhbiBYRFAgcGFja2V0Cj4gICAgIHRvb2sgKHRoZSB4
-ZHAgdHJhY2Vwb2ludHMgZG9lc24ndCBrbm93KS4KCkxvb2tzIGxpa2Ugd2UgY2FuIGFkZHJlc3Mg
-dGhpcyBieSBhZGRpbmcgdHJhY2Vwb2ludHMgaW4gZ2VuZXJpYyBjb2RlIHBhdGguCgo+Cj4KPiBb
-Li4uXQo+PiBAQCAtNTkwLDI1ICs1MjYsMTQgQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNl
-aXZlX3NtYWxsKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4+ICAgCQlpZiAodW5saWtlbHkoaGRy
-LT5oZHIuZ3NvX3R5cGUpKQo+PiAgIAkJCWdvdG8gZXJyX3hkcDsKPj4gICAKPj4gKwkJLyogVGhp
-cyBoYXBwbmVzIHdoZW4gaGVhZHJvb20gaXMgbm90IGVub3VnaCBiZWNhdXNlCj4+ICsJCSAqIHRo
-ZSBidWZmZXIgd2FzIHJlZmlsbGVkIGJlZm9yZSBYRFAgaXMgc2V0LiBUaGlzCj4+ICsJCSAqIG9u
-bHkgaGFwcGVuIGZvciBzZXZlcmFsIHBhY2tldHMsIGZvciBzaW1wbGljaXR5LAo+PiArCQkgKiBv
-ZmZsb2FkIHRoZW0gdG8gZ2VuZXJpYyBYRFAgcm91dGluZS4KPiBJbiBteSBwcmFjdGljYWwgdGVz
-dHMsIEkgYWxzbyBzYXcgdGhhdCBzb21ldGltZSBteSBwaW5nIHBhY2tldHMgd2VyZQo+IHRyYXZl
-bGluZyB0aGlzIGNvZGUtcGF0aCwgZXZlbiBhZnRlciBhIGxvbmcgdGltZSB3aGVuIFhEUCB3ZXJl
-IGF0dGFjaGVkLgoKSSBkb24ndCBzZWUgdGhpcywgcHJvYmFibHkgYSBidWcgc29tZXdoZXJlLiBJ
-IHdvdWxkIGxpa2UgdG8gcmVwcm9kdWNlIAphbmQgc2VlLCBob3cgZG8geW91IGRvIHRoZSB0ZXN0
-PyBJZiB0aGVyZSdzIGp1c3QgdmVyeSBmZXcgcGFja2V0cyB3ZXJlIApyZWNlaXZlZCBhZnRlciBY
-RFAsIHdlIG1heSBzdGlsbCB1c2UgdGhlIGJ1ZmZlciB0aGF0IHdhcyByZWZpbGxlZCBiZWZvcmUg
-ClhEUCwgdGhhdCdzIGJ5IGRlc2lnbi4KCj4KPiBUaGlzIHdvcnJpZXMgbWUgYSBiaXQsIGZvciB0
-cm91Ymxlc2hvb3RpbmcgcHVycG9zZXMuLi4gYXMgdGhpcyBjYW4gZ2l2ZQo+IGEgc3RyYW5nZSB1
-c2VyIGV4cGVyaWVuY2UgZ2l2ZW4gcG9pbnQgIzEuCgoKCkkgY2FuIHN0aWNrIHRvIHRoZSB4ZHBf
-bGluZWFyaXplX3BhZ2UoKSBsb2dpYyBpZiB5b3UgZG9uJ3QgbGlrZSBnZW5lcmljIApYRFAgc3R1
-ZmZzLCBidXQgaXQgbWF5IG5vdCB3b3JrIGZvciBBRl9YRFAgbmVpdGhlci4gQ29uc2lkZXIgQUZf
-WERQIGhhcyAKc3RpbGwgc29tZSBkaXN0YW5jZSBvZiBiZWluZyBtZXJnZWQsIEknbSBub3Qgc3Vy
-ZSB3ZSBjb3VsZCBldmVuIGNhcmUgCmFib3V0IGl0LgoKVGhhbmtzCgo+Cj4KPj4gKwkJICovCj4+
-ICAgCQlpZiAodW5saWtlbHkoeGRwX2hlYWRyb29tIDwgdmlydG5ldF9nZXRfaGVhZHJvb20odmkp
-KSkgewo+PiAtCQkJaW50IG9mZnNldCA9IGJ1ZiAtIHBhZ2VfYWRkcmVzcyhwYWdlKSArIGhlYWRl
-cl9vZmZzZXQ7Cj4+IC0JCQl1bnNpZ25lZCBpbnQgdGxlbiA9IGxlbiArIHZpLT5oZHJfbGVuOwo+
-PiAtCQkJdTE2IG51bV9idWYgPSAxOwo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu,  1 Mar 2018 11:19:03 +0800
+Jason Wang <jasowang@redhat.com> wrote:
+
+> This series tries to re-enable XDP_REDIRECT for mergeable buffer which
+> was removed since commit 7324f5399b06 ("virtio_net: disable
+> XDP_REDIRECT in receive_mergeable() case"). Main concerns are:
+> 
+> - not enough tailroom was reserved which breaks cpumap
+
+To address this at a more fundamental level, I would suggest that we/you
+instead extend XDP to know it's buffers "frame" size/end.  (The
+assumption use to be, xdp_buff->data_hard_start + PAGE_SIZE, but
+ixgbe+virtio_net broke that assumption).
+
+It should actually be fairly easy to implement:
+ * Simply extend xdp_buff with a "data_hard_end" pointer.
+
+Now cpumap is more safe... instead of crashing, it can now know/see when
+it is safe to create an SKB using build_skb (could fallback to
+dev_alloc_skb).
+
+-- 
+Best regards,
+  Jesper Dangaard Brouer
+  MSc.CS, Principal Kernel Engineer at Red Hat
+  LinkedIn: http://www.linkedin.com/in/brouer
