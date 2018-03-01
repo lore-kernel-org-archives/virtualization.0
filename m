@@ -1,15 +1,15 @@
-From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [PATCH v3 4/6] x86: Consolidate PCI_MMCONFIG configs
-Date: Thu,  1 Mar 2018 06:40:47 +0100
-Message-ID: <8527c92b2e2920b8cd9096ddcbbb6d0f4004eb69.1519882849.git.jan.kiszka__44591.7568904862$1519882815$gmane$org@siemens.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v3 1/6] jailhouse: Provide detection for non-x86 systems
+Date: Thu, 1 Mar 2018 07:17:57 +0100
+Message-ID: <18fdcca5-1afb-23ea-07f6-b24eabdc04a0__12929.2521546178$1519885404$gmane$org@suse.com>
 References: <cover.1519882849.git.jan.kiszka@siemens.com>
+	<558f5cbae432ae029e2d8ee9b0ef44d837318625.1519882849.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1519882849.git.jan.kiszka@siemens.com>
-In-Reply-To: <cover.1519882849.git.jan.kiszka@siemens.com>
-References: <cover.1519882849.git.jan.kiszka@siemens.com>
+In-Reply-To: <558f5cbae432ae029e2d8ee9b0ef44d837318625.1519882849.git.jan.kiszka@siemens.com>
+Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,52 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
-Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Andy Shevchenko <andy.shevchenko@gmail.com>
+To: Jan Kiszka <jan.kiszka@siemens.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
+Cc: jailhouse-dev@googlegroups.com, Mark Rutland <mark.rutland@arm.com>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+On 01/03/18 06:40, Jan Kiszka wrote:
+> From: Jan Kiszka <jan.kiszka@siemens.com>
+> 
+> Implement jailhouse_paravirt() via device tree probing on architectures
+> != x86. Will be used by the PCI core.
+> 
+> CC: Rob Herring <robh+dt@kernel.org>
+> CC: Mark Rutland <mark.rutland@arm.com>
+> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+> ---
+>  Documentation/devicetree/bindings/jailhouse.txt |  8 ++++++++
+>  arch/x86/include/asm/jailhouse_para.h           |  2 +-
+>  include/linux/hypervisor.h                      | 17 +++++++++++++++--
 
-Since e279b6c1d329 ("x86: start unification of arch/x86/Kconfig.*"), we
-have two PCI_MMCONFIG entries, one from the original i386 and another
-from x86_64. This consolidates both entries into a single one.
+I'd appreciate if you'd Cc: the maintainers of the touched files...
 
-The logic for x86_32, where this option was not under user control,
-remains identical. On x86_64, PCI_MMCONFIG becomes additionally
-configurable for SFI systems even if ACPI was disabled. This just
-simplifies the logic without restricting the configurability in any way.
+Reviewed-by: Juergen Gross <jgross@suse.com>
 
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
----
- arch/x86/Kconfig | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index eb7f43f23521..aef9d67ac186 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -2641,8 +2641,9 @@ config PCI_DIRECT
- 	depends on PCI && (X86_64 || (PCI_GODIRECT || PCI_GOANY || PCI_GOOLPC || PCI_GOMMCONFIG))
- 
- config PCI_MMCONFIG
--	def_bool y
--	depends on X86_32 && PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY)
-+	bool "Support mmconfig PCI config space access" if X86_64
-+	default y
-+	depends on PCI && (ACPI || SFI) && (X86_64 || (PCI_GOANY || PCI_GOMMCONFIG))
- 
- config PCI_OLPC
- 	def_bool y
-@@ -2657,10 +2658,6 @@ config PCI_DOMAINS
- 	def_bool y
- 	depends on PCI
- 
--config PCI_MMCONFIG
--	bool "Support mmconfig PCI config space access"
--	depends on X86_64 && PCI && ACPI
--
- config PCI_CNB20LE_QUIRK
- 	bool "Read CNB20LE Host Bridge Windows" if EXPERT
- 	depends on PCI
--- 
-2.13.6
+Juergen
