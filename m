@@ -1,17 +1,14 @@
-From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: Re: [PATCH v3 3/6] x86/jailhouse: Enable PCI mmconfig access in
-	inmates
-Date: Fri, 2 Mar 2018 11:27:47 +0100
-Message-ID: <cb20d2c8-761d-1aca-2b3b-07e25a54a803__26497.0142081895$1519986396$gmane$org@siemens.com>
-References: <cover.1519882849.git.jan.kiszka@siemens.com>
-	<188edc11aa5fa11d4915097831a2a4a153f6ed83.1519882849.git.jan.kiszka@siemens.com>
-	<CAHp75VeH5tBBY4D-1_VVaYiCdRyBG+2vA8ZGg_QBfVujawh=iA@mail.gmail.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
+Subject: Re: [PATCH net V2] virtio-net: re enable XDP_REDIRECT for mergeable
+	buffer
+Date: Fri, 2 Mar 2018 17:07:58 +0100
+Message-ID: <20180302170758.332600d6__19416.5150671781$1520006797$gmane$org@redhat.com>
+References: <1519982954-14360-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAHp75VeH5tBBY4D-1_VVaYiCdRyBG+2vA8ZGg_QBfVujawh=iA@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <1519982954-14360-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,40 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2018-03-01 11:31, Andy Shevchenko wrote:
-> On Thu, Mar 1, 2018 at 7:40 AM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
-> 
->> Use the PCI mmconfig base address exported by jailhouse in boot
->> parameters in order to access the memory mapped PCI configuration space.
-> 
-> 
->> --- a/arch/x86/kernel/jailhouse.c
->> +++ b/arch/x86/kernel/jailhouse.c
->> @@ -124,6 +124,13 @@ static int __init jailhouse_pci_arch_init(void)
->>         if (pcibios_last_bus < 0)
->>                 pcibios_last_bus = 0xff;
->>
->> +#ifdef CONFIG_PCI_MMCONFIG
->> +       if (setup_data.pci_mmconfig_base) {
-> 
->> +               pci_mmconfig_add(0, 0, 0xff, setup_data.pci_mmconfig_base);
-> 
-> Hmm... Shouldn't be pcibios_last_bus instead of 0xff?
-> 
+On Fri,  2 Mar 2018 17:29:14 +0800
+Jason Wang <jasowang@redhat.com> wrote:
 
-Indeed.
-
-Thanks,
-Jan
-
->> +               pci_mmcfg_arch_init();
->> +       }
->> +#endif
+> XDP_REDIRECT support for mergeable buffer was removed since commit
+> 7324f5399b06 ("virtio_net: disable XDP_REDIRECT in receive_mergeable()
+> case"). This is because we don't reserve enough tailroom for struct
+> skb_shared_info which breaks XDP assumption. So this patch fixes this
+> by reserving enough tailroom and using fixed size of rx buffer.
 > 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> Changes from V1:
+> - do not add duplicated tracepoint when redirection fails
+
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+
+I gave it a quick spin on my testlab, and cpumap seems to
+work/not-crash now (if I managed to turn back config to
+receive_mergeable() correctly ;-)).
+
 -- 
-Siemens AG, Corporate Technology, CT RDA IOT SES-DE
-Corporate Competence Center Embedded Linux
+Best regards,
+  Jesper Dangaard Brouer
+  MSc.CS, Principal Kernel Engineer at Red Hat
+  LinkedIn: http://www.linkedin.com/in/brouer
