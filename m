@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net V2] virtio-net: re enable XDP_REDIRECT for mergeable
-	buffer
-Date: Fri, 2 Mar 2018 19:36:14 +0200
-Message-ID: <20180302193104-mutt-send-email-mst__22815.2927280918$1520012089$gmane$org@kernel.org>
-References: <1519982954-14360-1-git-send-email-jasowang@redhat.com>
+From: Jonathan Helman <jonathan.helman@oracle.com>
+Subject: Re: [PATCH] virtio_balloon: export huge page allocation statistics
+Date: Fri, 2 Mar 2018 14:16:05 -0800
+Message-ID: <9d7e605f-5a91-1431-61e4-78c9110bf4f2@oracle.com>
+References: <1518846272-5216-1-git-send-email-jonathan.helman@oracle.com>
+	<20180227170250-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1519982954-14360-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20180227170250-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,172 +19,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, brouer@redhat.com, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 02, 2018 at 05:29:14PM +0800, Jason Wang wrote:
-> XDP_REDIRECT support for mergeable buffer was removed since commit
-> 7324f5399b06 ("virtio_net: disable XDP_REDIRECT in receive_mergeable()
-> case"). This is because we don't reserve enough tailroom for struct
-> skb_shared_info which breaks XDP assumption. So this patch fixes this
-> by reserving enough tailroom and using fixed size of rx buffer.
+
+
+On 02/27/2018 07:20 AM, Michael S. Tsirkin wrote:
+> On Fri, Feb 16, 2018 at 09:44:32PM -0800, Jonathan Helman wrote:
+>> Export statistics for successful and failed huge page allocations
+>> from the virtio balloon driver. These 2 stats come directly from
+>> the vm_events HTLB_BUDDY_PGALLOC and HTLB_BUDDY_PGALLOC_FAIL.
+>> Signed-off-by: Jonathan Helman <jonathan.helman@oracle.com>
 > 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-I think the next incremental step is to look at splitting
-out fast path XDP processing to a separate set of functions.
-
-> ---
-> Changes from V1:
-> - do not add duplicated tracepoint when redirection fails
-> ---
->  drivers/net/virtio_net.c | 54 +++++++++++++++++++++++++++++++++++++-----------
->  1 file changed, 42 insertions(+), 12 deletions(-)
+> Any host/guest intergace changes need to be copied to
+> the virtio TC mailing list (subscriber-only, sorry about that):
+> virtio-dev@lists.oasis-open.org
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 9bb9e56..426dcf7 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -504,6 +504,7 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
->  	page_off += *len;
->  
->  	while (--*num_buf) {
-> +		int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
->  		unsigned int buflen;
->  		void *buf;
->  		int off;
-> @@ -518,7 +519,7 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
->  		/* guard against a misconfigured or uncooperative backend that
->  		 * is sending packet larger than the MTU.
->  		 */
-> -		if ((page_off + buflen) > PAGE_SIZE) {
-> +		if ((page_off + buflen + tailroom) > PAGE_SIZE) {
->  			put_page(p);
->  			goto err_buf;
->  		}
-> @@ -690,6 +691,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->  	unsigned int truesize;
->  	unsigned int headroom = mergeable_ctx_to_headroom(ctx);
->  	bool sent;
-> +	int err;
->  
->  	head_skb = NULL;
->  
-> @@ -701,7 +703,12 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->  		void *data;
->  		u32 act;
->  
-> -		/* This happens when rx buffer size is underestimated */
-> +		/* This happens when rx buffer size is underestimated
-> +		 * or headroom is not enough because of the buffer
-> +		 * was refilled before XDP is set. This should only
-> +		 * happen for the first several packets, so we don't
-> +		 * care much about its performance.
-> +		 */
->  		if (unlikely(num_buf > 1 ||
->  			     headroom < virtnet_get_headroom(vi))) {
->  			/* linearize data for XDP */
-> @@ -736,9 +743,6 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->  
->  		act = bpf_prog_run_xdp(xdp_prog, &xdp);
->  
-> -		if (act != XDP_PASS)
-> -			ewma_pkt_len_add(&rq->mrg_avg_pkt_len, len);
-> -
->  		switch (act) {
->  		case XDP_PASS:
->  			/* recalculate offset to account for any header
-> @@ -770,6 +774,18 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->  				goto err_xdp;
->  			rcu_read_unlock();
->  			goto xdp_xmit;
-> +		case XDP_REDIRECT:
-> +			err = xdp_do_redirect(dev, &xdp, xdp_prog);
-> +			if (err) {
-> +				if (unlikely(xdp_page != page))
-> +					put_page(xdp_page);
-> +				goto err_xdp;
-> +			}
-> +			*xdp_xmit = true;
-> +			if (unlikely(xdp_page != page))
-> +				goto err_xdp;
-> +			rcu_read_unlock();
-> +			goto xdp_xmit;
->  		default:
->  			bpf_warn_invalid_xdp_action(act);
->  		case XDP_ABORTED:
-> @@ -1013,13 +1029,18 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
->  }
->  
->  static unsigned int get_mergeable_buf_len(struct receive_queue *rq,
-> -					  struct ewma_pkt_len *avg_pkt_len)
-> +					  struct ewma_pkt_len *avg_pkt_len,
-> +					  unsigned int room)
->  {
->  	const size_t hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
->  	unsigned int len;
->  
-> -	len = hdr_len + clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
-> +	if (room)
-> +		return PAGE_SIZE - room;
-> +
-> +	len = hdr_len +	clamp_t(unsigned int, ewma_pkt_len_read(avg_pkt_len),
->  				rq->min_buf_len, PAGE_SIZE - hdr_len);
-> +
->  	return ALIGN(len, L1_CACHE_BYTES);
->  }
->  
-> @@ -1028,21 +1049,27 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
->  {
->  	struct page_frag *alloc_frag = &rq->alloc_frag;
->  	unsigned int headroom = virtnet_get_headroom(vi);
-> +	unsigned int tailroom = headroom ? sizeof(struct skb_shared_info) : 0;
-> +	unsigned int room = SKB_DATA_ALIGN(headroom + tailroom);
->  	char *buf;
->  	void *ctx;
->  	int err;
->  	unsigned int len, hole;
->  
-> -	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len);
-> -	if (unlikely(!skb_page_frag_refill(len + headroom, alloc_frag, gfp)))
-> +	/* Extra tailroom is needed to satisfy XDP's assumption. This
-> +	 * means rx frags coalescing won't work, but consider we've
-> +	 * disabled GSO for XDP, it won't be a big issue.
-> +	 */
-> +	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
-> +	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
->  		return -ENOMEM;
->  
->  	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
->  	buf += headroom; /* advance address leaving hole at front of pkt */
->  	get_page(alloc_frag->page);
-> -	alloc_frag->offset += len + headroom;
-> +	alloc_frag->offset += len + room;
->  	hole = alloc_frag->size - alloc_frag->offset;
-> -	if (hole < len + headroom) {
-> +	if (hole < len + room) {
->  		/* To avoid internal fragmentation, if there is very likely not
->  		 * enough space for another buffer, add the remaining space to
->  		 * the current buffer.
-> @@ -2576,12 +2603,15 @@ static ssize_t mergeable_rx_buffer_size_show(struct netdev_rx_queue *queue,
->  {
->  	struct virtnet_info *vi = netdev_priv(queue->dev);
->  	unsigned int queue_index = get_netdev_rx_queue_index(queue);
-> +	unsigned int headroom = virtnet_get_headroom(vi);
-> +	unsigned int tailroom = headroom ? sizeof(struct skb_shared_info) : 0;
->  	struct ewma_pkt_len *avg;
->  
->  	BUG_ON(queue_index >= vi->max_queue_pairs);
->  	avg = &vi->rq[queue_index].mrg_avg_pkt_len;
->  	return sprintf(buf, "%u\n",
-> -		       get_mergeable_buf_len(&vi->rq[queue_index], avg));
-> +		       get_mergeable_buf_len(&vi->rq[queue_index], avg,
-> +				       SKB_DATA_ALIGN(headroom + tailroom)));
->  }
->  
->  static struct rx_queue_attribute mergeable_rx_buffer_size_attribute =
-> -- 
-> 2.7.4
+
+Sorry, will do on v2.
+
+>> ---
+>>   drivers/virtio/virtio_balloon.c     | 6 ++++++
+>>   include/uapi/linux/virtio_balloon.h | 4 +++-
+>>   2 files changed, 9 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+>> index dfe5684..6b237e3 100644
+>> --- a/drivers/virtio/virtio_balloon.c
+>> +++ b/drivers/virtio/virtio_balloon.c
+>> @@ -272,6 +272,12 @@ static unsigned int update_balloon_stats(struct virtio_balloon *vb)
+>>   				pages_to_bytes(events[PSWPOUT]));
+>>   	update_stat(vb, idx++, VIRTIO_BALLOON_S_MAJFLT, events[PGMAJFAULT]);
+>>   	update_stat(vb, idx++, VIRTIO_BALLOON_S_MINFLT, events[PGFAULT]);
+>> +#ifdef CONFIG_HUGETLB_PAGE
+>> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGALLOC,
+>> +		    events[HTLB_BUDDY_PGALLOC]);
+>> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGFAIL,
+>> +		    events[HTLB_BUDDY_PGALLOC_FAIL]);
+>> +#endif
+>>   #endif
+>>   	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMFREE,
+>>   				pages_to_bytes(i.freeram));
+>> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+>> index 4e8b830..e3e8071 100644
+>> --- a/include/uapi/linux/virtio_balloon.h
+>> +++ b/include/uapi/linux/virtio_balloon.h
+>> @@ -53,7 +53,9 @@ struct virtio_balloon_config {
+>>   #define VIRTIO_BALLOON_S_MEMTOT   5   /* Total amount of memory */
+>>   #define VIRTIO_BALLOON_S_AVAIL    6   /* Available memory as in /proc */
+>>   #define VIRTIO_BALLOON_S_CACHES   7   /* Disk caches */
+>> -#define VIRTIO_BALLOON_S_NR       8
+>> +#define VIRTIO_BALLOON_S_HTLB_PGALLOC  8  /* Number of htlb pgalloc successes */
+>> +#define VIRTIO_BALLOON_S_HTLB_PGFAIL   9  /* Number of htlb pgalloc failures */
+>> +#define VIRTIO_BALLOON_S_NR       10
+> 
+> Can you clarify the comments pls? Eschew abbreviation.
+
+Sure. How about the following instead? Hoping it makes things clearer, 
+without going over the 80 character limit ;)
+
+#define VIRTIO_BALLOON_S_HTLB_PGALLOC  8  /* Hugetlb page allocations */
+#define VIRTIO_BALLOON_S_HTLB_PGFAIL   9  /* Hugetlb page allocation 
+failures */
+
+If this is better, I'll send out a v2.
+
+Thanks,
+Jon
+
+> 
+>>   
+>>   /*
+>>    * Memory statistics structure.
+>> -- 
+>> 1.8.3.1
