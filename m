@@ -1,14 +1,16 @@
-From: Jesper Dangaard Brouer <brouer@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net] virtio-net: re enable XDP_REDIRECT for mergeable
 	buffer
-Date: Fri, 2 Mar 2018 08:05:17 +0100
-Message-ID: <20180302080517.4526f384__10170.1341489845$1519974234$gmane$org@redhat.com>
+Date: Fri, 2 Mar 2018 17:27:22 +0800
+Message-ID: <8e75beb6-ba0f-79f3-2d24-018656226b1e__21164.0355679721$1519982783$gmane$org@redhat.com>
 References: <1519971929-15148-1-git-send-email-jasowang@redhat.com>
+	<20180302080517.4526f384@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1519971929-15148-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20180302080517.4526f384@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,39 +20,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com
+To: Jesper Dangaard Brouer <brouer@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri,  2 Mar 2018 14:25:29 +0800
-Jason Wang <jasowang@redhat.com> wrote:
-
-> @@ -770,6 +774,19 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->  				goto err_xdp;
->  			rcu_read_unlock();
->  			goto xdp_xmit;
-> +		case XDP_REDIRECT:
-> +			err = xdp_do_redirect(dev, &xdp, xdp_prog);
-> +			if (err) {
-> +				trace_xdp_exception(vi->dev, xdp_prog, act);
-
-Do not add a trace_xdp_exception here... this is handled inside
-xdp_do_redirect() invocation.
-
-> +				if (unlikely(xdp_page != page))
-> +					put_page(xdp_page);
-> +				goto err_xdp;
-> +			}
-> +			*xdp_xmit = true;
-> +			if (unlikely(xdp_page != page))
-> +				goto err_xdp;
-> +			rcu_read_unlock();
-> +			goto xdp_xmit;
-
-
-
--- 
-Best regards,
-  Jesper Dangaard Brouer
-  MSc.CS, Principal Kernel Engineer at Red Hat
-  LinkedIn: http://www.linkedin.com/in/brouer
+CgpPbiAyMDE45bm0MDPmnIgwMuaXpSAxNTowNSwgSmVzcGVyIERhbmdhYXJkIEJyb3VlciB3cm90
+ZToKPiBPbiBGcmksICAyIE1hciAyMDE4IDE0OjI1OjI5ICswODAwCj4gSmFzb24gV2FuZyA8amFz
+b3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4KPj4gQEAgLTc3MCw2ICs3NzQsMTkgQEAgc3RhdGlj
+IHN0cnVjdCBza19idWZmICpyZWNlaXZlX21lcmdlYWJsZShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2
+LAo+PiAgIAkJCQlnb3RvIGVycl94ZHA7Cj4+ICAgCQkJcmN1X3JlYWRfdW5sb2NrKCk7Cj4+ICAg
+CQkJZ290byB4ZHBfeG1pdDsKPj4gKwkJY2FzZSBYRFBfUkVESVJFQ1Q6Cj4+ICsJCQllcnIgPSB4
+ZHBfZG9fcmVkaXJlY3QoZGV2LCAmeGRwLCB4ZHBfcHJvZyk7Cj4+ICsJCQlpZiAoZXJyKSB7Cj4+
+ICsJCQkJdHJhY2VfeGRwX2V4Y2VwdGlvbih2aS0+ZGV2LCB4ZHBfcHJvZywgYWN0KTsKPiBEbyBu
+b3QgYWRkIGEgdHJhY2VfeGRwX2V4Y2VwdGlvbiBoZXJlLi4uIHRoaXMgaXMgaGFuZGxlZCBpbnNp
+ZGUKPiB4ZHBfZG9fcmVkaXJlY3QoKSBpbnZvY2F0aW9uLgo+Cj4KClJpZ2h0LCBsZXQgbWUgcG9z
+dCBWMi4KClRoYW5rcwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
