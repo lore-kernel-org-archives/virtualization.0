@@ -1,15 +1,15 @@
-From: Jonathan Helman <jonathan.helman@oracle.com>
-Subject: Re: [PATCH] virtio_balloon: export huge page allocation statistics
-Date: Fri, 2 Mar 2018 14:16:05 -0800
-Message-ID: <9d7e605f-5a91-1431-61e4-78c9110bf4f2@oracle.com>
-References: <1518846272-5216-1-git-send-email-jonathan.helman@oracle.com>
-	<20180227170250-mutt-send-email-mst@kernel.org>
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Subject: [PATCH v4 7/7] MAINTAINERS: Add entry for Jailhouse
+Date: Sun,  4 Mar 2018 19:31:39 +0100
+Message-ID: <36142d5c54b217e2e6df8c80936764d883180e93.1520188299.git.jan.kiszka__40495.8716397688$1520188221$gmane$org@siemens.com>
+References: <cover.1520188299.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180227170250-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <cover.1520188299.git.jan.kiszka@siemens.com>
+In-Reply-To: <cover.1520188299.git.jan.kiszka@siemens.com>
+References: <cover.1520188299.git.jan.kiszka@siemens.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,78 +19,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
+Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Andy Shevchenko <andy.shevchenko@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+---
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-On 02/27/2018 07:20 AM, Michael S. Tsirkin wrote:
-> On Fri, Feb 16, 2018 at 09:44:32PM -0800, Jonathan Helman wrote:
->> Export statistics for successful and failed huge page allocations
->> from the virtio balloon driver. These 2 stats come directly from
->> the vm_events HTLB_BUDDY_PGALLOC and HTLB_BUDDY_PGALLOC_FAIL.
->> Signed-off-by: Jonathan Helman <jonathan.helman@oracle.com>
-> 
-> Any host/guest intergace changes need to be copied to
-> the virtio TC mailing list (subscriber-only, sorry about that):
-> virtio-dev@lists.oasis-open.org
-> 
-
-Sorry, will do on v2.
-
->> ---
->>   drivers/virtio/virtio_balloon.c     | 6 ++++++
->>   include/uapi/linux/virtio_balloon.h | 4 +++-
->>   2 files changed, 9 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
->> index dfe5684..6b237e3 100644
->> --- a/drivers/virtio/virtio_balloon.c
->> +++ b/drivers/virtio/virtio_balloon.c
->> @@ -272,6 +272,12 @@ static unsigned int update_balloon_stats(struct virtio_balloon *vb)
->>   				pages_to_bytes(events[PSWPOUT]));
->>   	update_stat(vb, idx++, VIRTIO_BALLOON_S_MAJFLT, events[PGMAJFAULT]);
->>   	update_stat(vb, idx++, VIRTIO_BALLOON_S_MINFLT, events[PGFAULT]);
->> +#ifdef CONFIG_HUGETLB_PAGE
->> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGALLOC,
->> +		    events[HTLB_BUDDY_PGALLOC]);
->> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGFAIL,
->> +		    events[HTLB_BUDDY_PGALLOC_FAIL]);
->> +#endif
->>   #endif
->>   	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMFREE,
->>   				pages_to_bytes(i.freeram));
->> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
->> index 4e8b830..e3e8071 100644
->> --- a/include/uapi/linux/virtio_balloon.h
->> +++ b/include/uapi/linux/virtio_balloon.h
->> @@ -53,7 +53,9 @@ struct virtio_balloon_config {
->>   #define VIRTIO_BALLOON_S_MEMTOT   5   /* Total amount of memory */
->>   #define VIRTIO_BALLOON_S_AVAIL    6   /* Available memory as in /proc */
->>   #define VIRTIO_BALLOON_S_CACHES   7   /* Disk caches */
->> -#define VIRTIO_BALLOON_S_NR       8
->> +#define VIRTIO_BALLOON_S_HTLB_PGALLOC  8  /* Number of htlb pgalloc successes */
->> +#define VIRTIO_BALLOON_S_HTLB_PGFAIL   9  /* Number of htlb pgalloc failures */
->> +#define VIRTIO_BALLOON_S_NR       10
-> 
-> Can you clarify the comments pls? Eschew abbreviation.
-
-Sure. How about the following instead? Hoping it makes things clearer, 
-without going over the 80 character limit ;)
-
-#define VIRTIO_BALLOON_S_HTLB_PGALLOC  8  /* Hugetlb page allocations */
-#define VIRTIO_BALLOON_S_HTLB_PGFAIL   9  /* Hugetlb page allocation 
-failures */
-
-If this is better, I'll send out a v2.
-
-Thanks,
-Jon
-
-> 
->>   
->>   /*
->>    * Memory statistics structure.
->> -- 
->> 1.8.3.1
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 4623caf8d72d..6dc0b8f3ae0e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7523,6 +7523,13 @@ Q:	http://patchwork.linuxtv.org/project/linux-media/list/
+ S:	Maintained
+ F:	drivers/media/dvb-frontends/ix2505v*
+ 
++JAILHOUSE HYPERVISOR INTERFACE
++M:	Jan Kiszka <jan.kiszka@siemens.com>
++L:	jailhouse-dev@googlegroups.com
++S:	Maintained
++F:	arch/x86/kernel/jailhouse.c
++F:	arch/x86/include/asm/jailhouse_para.h
++
+ JC42.4 TEMPERATURE SENSOR DRIVER
+ M:	Guenter Roeck <linux@roeck-us.net>
+ L:	linux-hwmon@vger.kernel.org
+-- 
+2.13.6
