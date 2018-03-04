@@ -1,7 +1,7 @@
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [PATCH v4 4/7] x86: Align x86_64 PCI_MMCONFIG with 32-bit variant
-Date: Sun,  4 Mar 2018 19:31:36 +0100
-Message-ID: <1767f3f0605af8ae9981adcab5b294edf07b2c95.1520188299.git.jan.kiszka__19839.8228771568$1520188241$gmane$org@siemens.com>
+Subject: [PATCH v4 5/7] x86: Consolidate PCI_MMCONFIG configs
+Date: Sun,  4 Mar 2018 19:31:37 +0100
+Message-ID: <544801a13f892a18a0cba0a55ab1d8d2885ca8f6.1520188299.git.jan.kiszka__15568.9741055996$1520188251$gmane$org@siemens.com>
 References: <cover.1520188299.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,28 +25,43 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jan Kiszka <jan.kiszka@siemens.com>
 
-Allow to enable PCI_MMCONFIG when only SFI is present and make this
-option default on. This will help consolidating both into one Kconfig
-statement.
+Since e279b6c1d329 ("x86: start unification of arch/x86/Kconfig.*"), we
+have two PCI_MMCONFIG entries, one from the original i386 and another
+from x86_64. This consolidates both entries into a single one.
 
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
- arch/x86/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/Kconfig | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
 diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index eb7f43f23521..c19f5342ec2b 100644
+index c19f5342ec2b..8986a6b6e3df 100644
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
-@@ -2659,7 +2659,8 @@ config PCI_DOMAINS
+@@ -2641,8 +2641,10 @@ config PCI_DIRECT
+ 	depends on PCI && (X86_64 || (PCI_GODIRECT || PCI_GOANY || PCI_GOOLPC || PCI_GOMMCONFIG))
  
  config PCI_MMCONFIG
- 	bool "Support mmconfig PCI config space access"
--	depends on X86_64 && PCI && ACPI
+-	def_bool y
+-	depends on X86_32 && PCI && (ACPI || SFI) && (PCI_GOMMCONFIG || PCI_GOANY)
++	bool "Support mmconfig PCI config space access" if X86_64
 +	default y
-+	depends on X86_64 && PCI && (ACPI || SFI)
++	depends on PCI && (ACPI || SFI)
++	depends on X86_64 || (PCI_GOANY || PCI_GOMMCONFIG)
  
+ config PCI_OLPC
+ 	def_bool y
+@@ -2657,11 +2659,6 @@ config PCI_DOMAINS
+ 	def_bool y
+ 	depends on PCI
+ 
+-config PCI_MMCONFIG
+-	bool "Support mmconfig PCI config space access"
+-	default y
+-	depends on X86_64 && PCI && (ACPI || SFI)
+-
  config PCI_CNB20LE_QUIRK
  	bool "Read CNB20LE Host Bridge Windows" if EXPERT
+ 	depends on PCI
 -- 
 2.13.6
