@@ -1,15 +1,12 @@
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [PATCH v4 3/7] x86/jailhouse: Enable PCI mmconfig access in inmates
-Date: Sun,  4 Mar 2018 19:31:35 +0100
-Message-ID: <d780e72d7a0992c891f6787aa517f8f090cb54d9.1520188299.git.jan.kiszka__30937.8874990673$1520188278$gmane$org@siemens.com>
-References: <cover.1520188299.git.jan.kiszka@siemens.com>
+Subject: [PATCH v4 0/7] jailhouse: Enhance secondary Jailhouse guest support
+	/wrt PCI
+Date: Sun,  4 Mar 2018 19:31:32 +0100
+Message-ID: <cover.1520188299.git.jan.kiszka__36789.5959913314$1520188318$gmane$org@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1520188299.git.jan.kiszka@siemens.com>
-In-Reply-To: <cover.1520188299.git.jan.kiszka@siemens.com>
-References: <cover.1520188299.git.jan.kiszka@siemens.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,69 +17,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>
-Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: jailhouse-dev@googlegroups.com, Juergen Gross <jgross@suse.com>, Benedikt Spranger <b.spranger@linutronix.de>, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Otavio Pontes <otavio.pontes@intel.com>, Mark Rutland <mark.rutland@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Otavio Pontes <otavio.pontes@intel.com>
+Basic x86 support [1] for running Linux as secondary Jailhouse [2] guest
+is currently pending in the tip tree. This builds on top and enhances
+the PCI support for x86 and also ARM guests (ARM[64] does not require
+platform patches and works already).
 
-Use the PCI mmconfig base address exported by jailhouse in boot
-parameters in order to access the memory mapped PCI configuration space.
+Key elements of this series are:
+ - detection of Jailhouse via device tree hypervisor node
+ - function-level PCI scan if Jailhouse is detected
+ - MMCONFIG support for x86 guests
 
-Signed-off-by: Otavio Pontes <otavio.pontes@intel.com>
-[Jan: rebased, fixed !CONFIG_PCI_MMCONFIG, used pcibios_last_bus]
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
----
- arch/x86/include/asm/pci_x86.h | 2 ++
- arch/x86/kernel/jailhouse.c    | 8 ++++++++
- arch/x86/pci/mmconfig-shared.c | 4 ++--
- 3 files changed, 12 insertions(+), 2 deletions(-)
+As most changes affect x86, I would suggest to route the series also via
+tip after the necessary acks are collected.
 
-diff --git a/arch/x86/include/asm/pci_x86.h b/arch/x86/include/asm/pci_x86.h
-index eb66fa9cd0fc..959d618dbb17 100644
---- a/arch/x86/include/asm/pci_x86.h
-+++ b/arch/x86/include/asm/pci_x86.h
-@@ -151,6 +151,8 @@ extern int pci_mmconfig_insert(struct device *dev, u16 seg, u8 start, u8 end,
- 			       phys_addr_t addr);
- extern int pci_mmconfig_delete(u16 seg, u8 start, u8 end);
- extern struct pci_mmcfg_region *pci_mmconfig_lookup(int segment, int bus);
-+extern struct pci_mmcfg_region *__init pci_mmconfig_add(int segment, int start,
-+							int end, u64 addr);
- 
- extern struct list_head pci_mmcfg_list;
- 
-diff --git a/arch/x86/kernel/jailhouse.c b/arch/x86/kernel/jailhouse.c
-index b68fd895235a..fa183a131edc 100644
---- a/arch/x86/kernel/jailhouse.c
-+++ b/arch/x86/kernel/jailhouse.c
-@@ -124,6 +124,14 @@ static int __init jailhouse_pci_arch_init(void)
- 	if (pcibios_last_bus < 0)
- 		pcibios_last_bus = 0xff;
- 
-+#ifdef CONFIG_PCI_MMCONFIG
-+	if (setup_data.pci_mmconfig_base) {
-+		pci_mmconfig_add(0, 0, pcibios_last_bus,
-+				 setup_data.pci_mmconfig_base);
-+		pci_mmcfg_arch_init();
-+	}
-+#endif
-+
- 	return 0;
- }
- 
-diff --git a/arch/x86/pci/mmconfig-shared.c b/arch/x86/pci/mmconfig-shared.c
-index 96684d0adcf9..0e590272366b 100644
---- a/arch/x86/pci/mmconfig-shared.c
-+++ b/arch/x86/pci/mmconfig-shared.c
-@@ -94,8 +94,8 @@ static struct pci_mmcfg_region *pci_mmconfig_alloc(int segment, int start,
- 	return new;
- }
- 
--static struct pci_mmcfg_region *__init pci_mmconfig_add(int segment, int start,
--							int end, u64 addr)
-+struct pci_mmcfg_region *__init pci_mmconfig_add(int segment, int start,
-+						 int end, u64 addr)
- {
- 	struct pci_mmcfg_region *new;
- 
+Changes in v4:
+ - slit up Kconfig changes
+ - respect pcibios_last_bus during mmconfig setup
+ - cosmetic changes requested by Andy
+
+Changes in v3:
+ - avoided duplicate scans of PCI functions under Jailhouse
+ - reformated PCI_MMCONFIG condition and rephrase related commit log
+
+Changes in v2:
+ - adjusted commit log and include ordering in patch 2
+ - rebased over Linus master
+
+Jan
+
+[1] https://lkml.org/lkml/2017/11/27/125
+[2] http://jailhouse-project.org
+
+CC: Benedikt Spranger <b.spranger@linutronix.de>
+CC: Juergen Gross <jgross@suse.com>
+CC: Mark Rutland <mark.rutland@arm.com>
+CC: Otavio Pontes <otavio.pontes@intel.com>
+CC: Rob Herring <robh+dt@kernel.org>
+
+Jan Kiszka (6):
+  jailhouse: Provide detection for non-x86 systems
+  PCI: Scan all functions when running over Jailhouse
+  x86: Align x86_64 PCI_MMCONFIG with 32-bit variant
+  x86: Consolidate PCI_MMCONFIG configs
+  x86/jailhouse: Allow to use PCI_MMCONFIG without ACPI
+  MAINTAINERS: Add entry for Jailhouse
+
+Otavio Pontes (1):
+  x86/jailhouse: Enable PCI mmconfig access in inmates
+
+ Documentation/devicetree/bindings/jailhouse.txt |  8 ++++++++
+ MAINTAINERS                                     |  7 +++++++
+ arch/x86/Kconfig                                | 12 +++++++-----
+ arch/x86/include/asm/jailhouse_para.h           |  2 +-
+ arch/x86/include/asm/pci_x86.h                  |  2 ++
+ arch/x86/kernel/Makefile                        |  2 +-
+ arch/x86/kernel/cpu/amd.c                       |  2 +-
+ arch/x86/kernel/jailhouse.c                     |  8 ++++++++
+ arch/x86/pci/legacy.c                           |  4 +++-
+ arch/x86/pci/mmconfig-shared.c                  |  4 ++--
+ drivers/pci/probe.c                             | 22 +++++++++++++++++++---
+ include/linux/hypervisor.h                      | 17 +++++++++++++++--
+ 12 files changed, 74 insertions(+), 16 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/jailhouse.txt
+
 -- 
 2.13.6
