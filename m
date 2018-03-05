@@ -1,16 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net V2] virtio-net: re enable XDP_REDIRECT for
-	mergeable buffer
-Date: Sun, 04 Mar 2018 22:16:51 -0500 (EST)
-Message-ID: <20180304.221651.1758033941719841960.davem__5804.41718125275$1520219708$gmane$org@davemloft.net>
-References: <1519982954-14360-1-git-send-email-jasowang@redhat.com>
-	<20180304.183811.344767417258525977.davem@davemloft.net>
-	<986bd816-2452-9eca-ec8a-ce267ef49a2d@redhat.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v4 3/7] x86/jailhouse: Enable PCI mmconfig access in
+	inmates
+Date: Mon, 5 Mar 2018 17:36:48 +0200
+Message-ID: <CAHp75VenhScnx2rY+BiQ=8JTkwjXGQ1bipRC7vFRAyCfgOSVtQ__47370.4628101133$1520264130$gmane$org@mail.gmail.com>
+References: <cover.1520188299.git.jan.kiszka@siemens.com>
+	<d780e72d7a0992c891f6787aa517f8f090cb54d9.1520188299.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <986bd816-2452-9eca-ec8a-ce267ef49a2d@redhat.com>
+In-Reply-To: <d780e72d7a0992c891f6787aa517f8f090cb54d9.1520188299.git.jan.kiszka@siemens.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,34 +19,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: mst@redhat.com, netdev@vger.kernel.org, john.fastabend@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com
+To: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: jailhouse-dev@googlegroups.com, linux-pci@vger.kernel.org, x86@kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 5 Mar 2018 10:43:41 +0800
+On Sun, Mar 4, 2018 at 8:31 PM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
+> From: Otavio Pontes <otavio.pontes@intel.com>
+>
+> Use the PCI mmconfig base address exported by jailhouse in boot
+> parameters in order to access the memory mapped PCI configuration space.
+>
 
-> 
-> 
-> On 2018年03月05日 07:38, David Miller wrote:
->> From: Jason Wang <jasowang@redhat.com>
->> Date: Fri,  2 Mar 2018 17:29:14 +0800
->>
->>> XDP_REDIRECT support for mergeable buffer was removed since commit
->>> 7324f5399b06 ("virtio_net: disable XDP_REDIRECT in receive_mergeable()
->>> case"). This is because we don't reserve enough tailroom for struct
->>> skb_shared_info which breaks XDP assumption. So this patch fixes this
->>> by reserving enough tailroom and using fixed size of rx buffer.
->>>
->>> Signed-off-by: Jason Wang <jasowang@redhat.com>
->>> ---
->>> Changes from V1:
->>> - do not add duplicated tracepoint when redirection fails
->> Applied to net-next, thanks Jason.
-> 
-> Hi David,
-> 
-> Consider the change is not large, any chance to make it for -net to
-> keep XDP redirection work?
+FWIW,
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-Ok, I'll apply this to 'net' too.
+> Signed-off-by: Otavio Pontes <otavio.pontes@intel.com>
+> [Jan: rebased, fixed !CONFIG_PCI_MMCONFIG, used pcibios_last_bus]
+> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+> ---
+>  arch/x86/include/asm/pci_x86.h | 2 ++
+>  arch/x86/kernel/jailhouse.c    | 8 ++++++++
+>  arch/x86/pci/mmconfig-shared.c | 4 ++--
+>  3 files changed, 12 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/x86/include/asm/pci_x86.h b/arch/x86/include/asm/pci_x86.h
+> index eb66fa9cd0fc..959d618dbb17 100644
+> --- a/arch/x86/include/asm/pci_x86.h
+> +++ b/arch/x86/include/asm/pci_x86.h
+> @@ -151,6 +151,8 @@ extern int pci_mmconfig_insert(struct device *dev, u16 seg, u8 start, u8 end,
+>                                phys_addr_t addr);
+>  extern int pci_mmconfig_delete(u16 seg, u8 start, u8 end);
+>  extern struct pci_mmcfg_region *pci_mmconfig_lookup(int segment, int bus);
+> +extern struct pci_mmcfg_region *__init pci_mmconfig_add(int segment, int start,
+> +                                                       int end, u64 addr);
+>
+>  extern struct list_head pci_mmcfg_list;
+>
+> diff --git a/arch/x86/kernel/jailhouse.c b/arch/x86/kernel/jailhouse.c
+> index b68fd895235a..fa183a131edc 100644
+> --- a/arch/x86/kernel/jailhouse.c
+> +++ b/arch/x86/kernel/jailhouse.c
+> @@ -124,6 +124,14 @@ static int __init jailhouse_pci_arch_init(void)
+>         if (pcibios_last_bus < 0)
+>                 pcibios_last_bus = 0xff;
+>
+> +#ifdef CONFIG_PCI_MMCONFIG
+> +       if (setup_data.pci_mmconfig_base) {
+> +               pci_mmconfig_add(0, 0, pcibios_last_bus,
+> +                                setup_data.pci_mmconfig_base);
+> +               pci_mmcfg_arch_init();
+> +       }
+> +#endif
+> +
+>         return 0;
+>  }
+>
+> diff --git a/arch/x86/pci/mmconfig-shared.c b/arch/x86/pci/mmconfig-shared.c
+> index 96684d0adcf9..0e590272366b 100644
+> --- a/arch/x86/pci/mmconfig-shared.c
+> +++ b/arch/x86/pci/mmconfig-shared.c
+> @@ -94,8 +94,8 @@ static struct pci_mmcfg_region *pci_mmconfig_alloc(int segment, int start,
+>         return new;
+>  }
+>
+> -static struct pci_mmcfg_region *__init pci_mmconfig_add(int segment, int start,
+> -                                                       int end, u64 addr)
+> +struct pci_mmcfg_region *__init pci_mmconfig_add(int segment, int start,
+> +                                                int end, u64 addr)
+>  {
+>         struct pci_mmcfg_region *new;
+>
+> --
+> 2.13.6
+>
+
+
+
+-- 
+With Best Regards,
+Andy Shevchenko
