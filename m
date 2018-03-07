@@ -1,7 +1,7 @@
 From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: [PATCH v5 7/7] MAINTAINERS: Add entry for Jailhouse
-Date: Wed,  7 Mar 2018 08:39:18 +0100
-Message-ID: <8be8af4084d862faa43d55c7bae94af7e0da1609.1520408357.git.jan.kiszka__6386.39892354167$1520408280$gmane$org@siemens.com>
+Subject: [PATCH v5 4/7] x86: Align x86_64 PCI_MMCONFIG with 32-bit variant
+Date: Wed,  7 Mar 2018 08:39:15 +0100
+Message-ID: <a2faf78c54f340f5549149e8b679c95950dae83d.1520408357.git.jan.kiszka__28965.7671274201$1520408317$gmane$org@siemens.com>
 References: <cover.1520408357.git.jan.kiszka@siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,28 +25,28 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jan Kiszka <jan.kiszka@siemens.com>
 
+Allow to enable PCI_MMCONFIG when only SFI is present and make this
+option default on. This will help consolidating both into one Kconfig
+statement.
+
 Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 4623caf8d72d..6dc0b8f3ae0e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7523,6 +7523,13 @@ Q:	http://patchwork.linuxtv.org/project/linux-media/list/
- S:	Maintained
- F:	drivers/media/dvb-frontends/ix2505v*
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index eb7f43f23521..c19f5342ec2b 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -2659,7 +2659,8 @@ config PCI_DOMAINS
  
-+JAILHOUSE HYPERVISOR INTERFACE
-+M:	Jan Kiszka <jan.kiszka@siemens.com>
-+L:	jailhouse-dev@googlegroups.com
-+S:	Maintained
-+F:	arch/x86/kernel/jailhouse.c
-+F:	arch/x86/include/asm/jailhouse_para.h
-+
- JC42.4 TEMPERATURE SENSOR DRIVER
- M:	Guenter Roeck <linux@roeck-us.net>
- L:	linux-hwmon@vger.kernel.org
+ config PCI_MMCONFIG
+ 	bool "Support mmconfig PCI config space access"
+-	depends on X86_64 && PCI && ACPI
++	default y
++	depends on X86_64 && PCI && (ACPI || SFI)
+ 
+ config PCI_CNB20LE_QUIRK
+ 	bool "Read CNB20LE Host Bridge Windows" if EXPERT
 -- 
 2.13.6
