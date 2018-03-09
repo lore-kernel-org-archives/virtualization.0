@@ -1,13 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net 3/3] vhost_net: examine pointer types during un-producing
-Date: Fri,  9 Mar 2018 14:50:34 +0800
-Message-ID: <1520578234-5565-4-git-send-email-jasowang__21445.3979548582$1520578147$gmane$org@redhat.com>
-References: <1520578234-5565-1-git-send-email-jasowang@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH] drivers: vhost: vsock: fixed a brace coding style issue
+Date: Fri, 9 Mar 2018 09:52:42 +0000
+Message-ID: <20180309095242.GA9668__26013.286264106$1520589083$gmane$org@stefanha-x1.localdomain>
+References: <20180309025603.4890-1-vaibhavmurkute88@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8170510737623934459=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1520578234-5565-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20180309025603.4890-1-vaibhavmurkute88@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,78 +16,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: glider@google.com, dvyukov@google.com
+To: Vaibhav Murkute <vaibhavmurkute88@gmail.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-After commit fc72d1d54dd9 ("tuntap: XDP transmission"), we can
-actually queueing XDP pointers in the pointer ring, so we should
-examine the pointer type before freeing the pointer.
 
-Fixes: fc72d1d54dd9 ("tuntap: XDP transmission")
-Reported-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/tun.c      | 3 ++-
- drivers/vhost/net.c    | 2 +-
- include/linux/if_tun.h | 4 ++++
- 3 files changed, 7 insertions(+), 2 deletions(-)
+--===============8170510737623934459==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+Content-Disposition: inline
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 7433bb2..28cfa64 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -655,7 +655,7 @@ static struct tun_struct *tun_enable_queue(struct tun_file *tfile)
- 	return tun;
- }
- 
--static void tun_ptr_free(void *ptr)
-+void tun_ptr_free(void *ptr)
- {
- 	if (!ptr)
- 		return;
-@@ -667,6 +667,7 @@ static void tun_ptr_free(void *ptr)
- 		__skb_array_destroy_skb(ptr);
- 	}
- }
-+EXPORT_SYMBOL_GPL(tun_ptr_free);
- 
- static void tun_queue_purge(struct tun_file *tfile)
- {
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index efb9306..8139bc7 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -170,7 +170,7 @@ static void vhost_net_buf_unproduce(struct vhost_net_virtqueue *nvq)
- 	if (nvq->rx_ring && !vhost_net_buf_is_empty(rxq)) {
- 		ptr_ring_unconsume(nvq->rx_ring, rxq->queue + rxq->head,
- 				   vhost_net_buf_get_size(rxq),
--				   __skb_array_destroy_skb);
-+				   tun_ptr_free);
- 		rxq->head = rxq->tail = 0;
- 	}
- }
-diff --git a/include/linux/if_tun.h b/include/linux/if_tun.h
-index c5b0a75..fd00170 100644
---- a/include/linux/if_tun.h
-+++ b/include/linux/if_tun.h
-@@ -25,6 +25,7 @@ struct ptr_ring *tun_get_tx_ring(struct file *file);
- bool tun_is_xdp_buff(void *ptr);
- void *tun_xdp_to_ptr(void *ptr);
- void *tun_ptr_to_xdp(void *ptr);
-+void tun_ptr_free(void *ptr);
- #else
- #include <linux/err.h>
- #include <linux/errno.h>
-@@ -50,5 +51,8 @@ static inline void *tun_ptr_to_xdp(void *ptr)
- {
- 	return NULL;
- }
-+static inline void tun_ptr_free(void *ptr)
-+{
-+}
- #endif /* CONFIG_TUN */
- #endif /* __IF_TUN_H */
--- 
-2.7.4
+
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Mar 09, 2018 at 08:26:03AM +0530, Vaibhav Murkute wrote:
+> Fixed a coding style issue.
+>=20
+> Signed-off-by: Vaibhav Murkute <vaibhavmurkute88@gmail.com>
+> ---
+>  drivers/vhost/vsock.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--fdj2RfSjLxBAspz7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJaollqAAoJEJykq7OBq3PIAy4H/0UVPxwyMBl7mtMlWj2JAstn
+oxPazPiWs5e0X3seQR45te0T5Q0v8NDRgbiGICx9Gh6mnYH58a8Lg6IYuYwIO+U8
+8bJjvjfRNiXcSe+9pwDCvDZXeu4eug79qw/pZF+Fst//mxQ2bXIRMPMp2kQXj2Ye
++9IHzC8iCNMbTcTO6cc4Z0BCtpwXXAqA9neSmzr9ox2/HJoMU7zGr9dTii4lVxJq
+x/S44HFRQfLFfVOE+0qqwYAHNvpOduJp8jazVx1joYGtXLPXeNGT63LMkGsSVhul
+TLoKPoYCIGb7BygT5jsHD7nDRYAWSHPraDyKrm7NQxclnkfvklRIYdDE8o2GuWQ=
+=L3or
+-----END PGP SIGNATURE-----
+
+--fdj2RfSjLxBAspz7--
+
+--===============8170510737623934459==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8170510737623934459==--
