@@ -1,14 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] vhost_net: examine pointer types during un-producing
-Date: Fri, 9 Mar 2018 14:21:30 +0800
-Message-ID: <70ddd7d9-563b-435f-a8de-f00fc772c6d7__38303.892807062$1520576412$gmane$org@redhat.com>
-References: <1520565382-4915-1-git-send-email-jasowang@redhat.com>
+Subject: [PATCH net 0/3] Several fixes for vhost_net ptr_ring usage
+Date: Fri,  9 Mar 2018 14:50:31 +0800
+Message-ID: <1520578234-5565-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1520565382-4915-1-git-send-email-jasowang@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,51 +15,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: glider@google.com, dvyukov@google.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: glider@google.com, dvyukov@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDPmnIgwOeaXpSAxMToxNiwgSmFzb24gV2FuZyB3cm90ZToKPiBBZnRlciBj
-b21taXQgNzYxODc2Yzg1N2NiICgidGFwOiBYRFAgc3VwcG9ydCIpLCB3ZSBjYW4gYWN0dWFsbHkK
-PiBxdWV1ZWluZyBYRFAgcG9pbnRlcnMgaW4gdGhlIHBvaW50ZXIgcmluZywgc28gd2Ugc2hvdWxk
-IGV4YW1pbmUgdGhlCj4gcG9pbnRlciB0eXBlIGJlZm9yZSBmcmVlaW5nIHRoZSBwb2ludGVyLgo+
-Cj4gRml4ZXM6IDc2MTg3NmM4NTdjYiAoInRhcDogWERQIHN1cHBvcnQiKQoKT29wcywgdGhlIGNv
-bW1pdCBpcyB3cm9uZywgbGV0IG1lIHJlcG9zdC4KClRoYW5rcwoKPiBSZXBvcnRlZC1ieTogTWlj
-aGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBX
-YW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+IC0tLQo+ICAgZHJpdmVycy9uZXQvdHVuLmMgICAg
-ICB8IDMgKystCj4gICBkcml2ZXJzL3Zob3N0L25ldC5jICAgIHwgMiArLQo+ICAgaW5jbHVkZS9s
-aW51eC9pZl90dW4uaCB8IDQgKysrKwo+ICAgMyBmaWxlcyBjaGFuZ2VkLCA3IGluc2VydGlvbnMo
-KyksIDIgZGVsZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdHVuLmMgYi9k
-cml2ZXJzL25ldC90dW4uYwo+IGluZGV4IDc0MzNiYjIuLjI4Y2ZhNjQgMTAwNjQ0Cj4gLS0tIGEv
-ZHJpdmVycy9uZXQvdHVuLmMKPiArKysgYi9kcml2ZXJzL25ldC90dW4uYwo+IEBAIC02NTUsNyAr
-NjU1LDcgQEAgc3RhdGljIHN0cnVjdCB0dW5fc3RydWN0ICp0dW5fZW5hYmxlX3F1ZXVlKHN0cnVj
-dCB0dW5fZmlsZSAqdGZpbGUpCj4gICAJcmV0dXJuIHR1bjsKPiAgIH0KPiAgIAo+IC1zdGF0aWMg
-dm9pZCB0dW5fcHRyX2ZyZWUodm9pZCAqcHRyKQo+ICt2b2lkIHR1bl9wdHJfZnJlZSh2b2lkICpw
-dHIpCj4gICB7Cj4gICAJaWYgKCFwdHIpCj4gICAJCXJldHVybjsKPiBAQCAtNjY3LDYgKzY2Nyw3
-IEBAIHN0YXRpYyB2b2lkIHR1bl9wdHJfZnJlZSh2b2lkICpwdHIpCj4gICAJCV9fc2tiX2FycmF5
-X2Rlc3Ryb3lfc2tiKHB0cik7Cj4gICAJfQo+ICAgfQo+ICtFWFBPUlRfU1lNQk9MX0dQTCh0dW5f
-cHRyX2ZyZWUpOwo+ICAgCj4gICBzdGF0aWMgdm9pZCB0dW5fcXVldWVfcHVyZ2Uoc3RydWN0IHR1
-bl9maWxlICp0ZmlsZSkKPiAgIHsKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC9uZXQuYyBi
-L2RyaXZlcnMvdmhvc3QvbmV0LmMKPiBpbmRleCA2MTBjYmEyLi41NGExMzhmIDEwMDY0NAo+IC0t
-LSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiArKysgYi9kcml2ZXJzL3Zob3N0L25ldC5jCj4gQEAg
-LTE3MCw3ICsxNzAsNyBAQCBzdGF0aWMgdm9pZCB2aG9zdF9uZXRfYnVmX3VucHJvZHVjZShzdHJ1
-Y3Qgdmhvc3RfbmV0X3ZpcnRxdWV1ZSAqbnZxKQo+ICAgCWlmIChudnEtPnJ4X3JpbmcgJiYgIXZo
-b3N0X25ldF9idWZfaXNfZW1wdHkocnhxKSkgewo+ICAgCQlwdHJfcmluZ191bmNvbnN1bWUobnZx
-LT5yeF9yaW5nLCByeHEtPnF1ZXVlICsgcnhxLT5oZWFkLAo+ICAgCQkJCSAgIHZob3N0X25ldF9i
-dWZfZ2V0X3NpemUocnhxKSwKPiAtCQkJCSAgIF9fc2tiX2FycmF5X2Rlc3Ryb3lfc2tiKTsKPiAr
-CQkJCSAgIHR1bl9wdHJfZnJlZSk7Cj4gICAJCXJ4cS0+aGVhZCA9IHJ4cS0+dGFpbCA9IDA7Cj4g
-ICAJfQo+ICAgfQo+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L2lmX3R1bi5oIGIvaW5jbHVk
-ZS9saW51eC9pZl90dW4uaAo+IGluZGV4IGM1YjBhNzUuLmZkMDAxNzAgMTAwNjQ0Cj4gLS0tIGEv
-aW5jbHVkZS9saW51eC9pZl90dW4uaAo+ICsrKyBiL2luY2x1ZGUvbGludXgvaWZfdHVuLmgKPiBA
-QCAtMjUsNiArMjUsNyBAQCBzdHJ1Y3QgcHRyX3JpbmcgKnR1bl9nZXRfdHhfcmluZyhzdHJ1Y3Qg
-ZmlsZSAqZmlsZSk7Cj4gICBib29sIHR1bl9pc194ZHBfYnVmZih2b2lkICpwdHIpOwo+ICAgdm9p
-ZCAqdHVuX3hkcF90b19wdHIodm9pZCAqcHRyKTsKPiAgIHZvaWQgKnR1bl9wdHJfdG9feGRwKHZv
-aWQgKnB0cik7Cj4gK3ZvaWQgdHVuX3B0cl9mcmVlKHZvaWQgKnB0cik7Cj4gICAjZWxzZQo+ICAg
-I2luY2x1ZGUgPGxpbnV4L2Vyci5oPgo+ICAgI2luY2x1ZGUgPGxpbnV4L2Vycm5vLmg+Cj4gQEAg
-LTUwLDUgKzUxLDggQEAgc3RhdGljIGlubGluZSB2b2lkICp0dW5fcHRyX3RvX3hkcCh2b2lkICpw
-dHIpCj4gICB7Cj4gICAJcmV0dXJuIE5VTEw7Cj4gICB9Cj4gK3N0YXRpYyBpbmxpbmUgdm9pZCB0
-dW5fcHRyX2ZyZWUodm9pZCAqcHRyKQo+ICt7Cj4gK30KPiAgICNlbmRpZiAvKiBDT05GSUdfVFVO
-ICovCj4gICAjZW5kaWYgLyogX19JRl9UVU5fSCAqLwoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi:
+
+This small series try to fix several bugs of ptr_ring usage in
+vhost_net. Please review.
+
+Thanks
+
+Alexander Potapenko (1):
+  vhost_net: initialize rx_ring in vhost_net_open()
+
+Jason Wang (2):
+  vhost_net: keep private_data and rx_ring synced
+  vhost_net: examine pointer types during un-producing
+
+ drivers/net/tun.c      | 3 ++-
+ drivers/vhost/net.c    | 8 +++++---
+ include/linux/if_tun.h | 4 ++++
+ 3 files changed, 11 insertions(+), 4 deletions(-)
+
+-- 
+2.7.4
