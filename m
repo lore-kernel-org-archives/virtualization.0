@@ -1,13 +1,12 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net 0/3] Several fixes for vhost_net ptr_ring usage
-Date: Fri, 09 Mar 2018 12:03:20 -0500 (EST)
-Message-ID: <20180309.120320.1315307032420131973.davem@davemloft.net>
-References: <1520578234-5565-1-git-send-email-jasowang@redhat.com>
+From: "peccs@insticc.info" <peccs@insticc.info>
+Subject: CFP PECCS 2018 - 8th Int.l Joint Conf. on Pervasive and Embedded
+	Computing and Communication Systems (Porto/Portugal)
+Date: 12 Mar 2018 18:14:26 +0000
+Message-ID: <20180312181426.1.C86D57355ED01723@insticc.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1520578234-5565-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,14 +16,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, glider@google.com, dvyukov@google.com
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri,  9 Mar 2018 14:50:31 +0800
-
-> This small series try to fix several bugs of ptr_ring usage in
-> vhost_net. Please review.
-
-Series applied, thanks Jason.
+U1VCTUlTU0lPTiBERUFETElORSAKCjh0aCBJbnRlcm5hdGlvbmFsIEpvaW50IENvbmZlcmVuY2Ug
+b24gUGVydmFzaXZlIGFuZCBFbWJlZGRlZCBDb21wdXRpbmcgYW5kIENvbW11bmljYXRpb24gU3lz
+dGVtcwoKU3VibWlzc2lvbiBEZWFkbGluZTogQXByaWwgMywgMjAxOAoKaHR0cDovL3d3dy5wZWNj
+cy5vcmcvCgpKdWx5IDI5IC0gMzAsIDIwMTgKUG9ydG8sIFBvcnR1Z2FsLgoKIAoKSW4gQ29vcGVy
+YXRpb24gd2l0aCBFVVJPTUlDUk8uCiAKV2l0aCB0aGUgcHJlc2VuY2Ugb2YgaW50ZXJuYXRpb25h
+bGx5IGRpc3Rpbmd1aXNoZWQga2V5bm90ZSBzcGVha2VyczoKU3RlcGhhbiBXZWlzcywgVW5pdmVy
+c2l0eSBvZiBTdHJhdGhjbHlkZSwgVW5pdGVkIEtpbmdkb20KCgpBIHNob3J0IGxpc3Qgb2YgcHJl
+c2VudGVkIHBhcGVycyB3aWxsIGJlIHNlbGVjdGVkIHNvIHRoYXQgcmV2aXNlZCBhbmQgZXh0ZW5k
+ZWQgdmVyc2lvbnMgb2YgdGhlc2UgcGFwZXJzIHdpbGwgYmUgcHVibGlzaGVkIGJ5IFNwcmluZ2Vy
+LgogCkFsbCBwYXBlcnMgcHJlc2VudGVkIGF0IHRoZSBjb25ncmVzcyB2ZW51ZSB3aWxsIGFsc28g
+YmUgYXZhaWxhYmxlIGF0IHRoZSBTQ0lURVBSRVNTIERpZ2l0YWwgTGlicmFyeSAoaHR0cDovL3d3
+dy5zY2l0ZXByZXNzLm9yZy9EaWdpdGFsTGlicmFyeS8pLgogIApTaG91bGQgeW91IGhhdmUgYW55
+IHF1ZXN0aW9uIHBsZWFzZSBkb27igJl0IGhlc2l0YXRlIGNvbnRhY3RpbmcgbWUuCiAKCktpbmQg
+cmVnYXJkcywKUEVDQ1MgU2VjcmV0YXJpYXQKCkFkZHJlc3M6IEF2LiBELiBNYW51ZWwgSSwgMjdB
+LCAywrogZXNxLgoyOTEwLTU5NSBTZXR1YmFsLCBQb3J0dWdhbApUZWw6ICszNTEgMjY1IDUyMCAx
+ODQKRmF4OiArMzUxIDI2NSA1MjAgMTg2CldlYjogaHR0cDovL3d3dy5wZWNjcy5vcmcvCmUtbWFp
+bDogcGVjY3Muc2VjcmV0YXJpYXRAaW5zdGljYy5vcmcKCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
