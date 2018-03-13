@@ -1,12 +1,14 @@
-From: "icete@insticc.info" <icete@insticc.info>
-Subject: CFP ICETE 2018 - 15th Int.l Joint Conf. on e-Business and
-	Telecommunications (Porto/Portugal)
-Date: 12 Mar 2018 18:58:03 +0000
-Message-ID: <20180312185804.1.170088382CAA2494@insticc.info>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: virtio-gpu: Hang on shutdown after suspend/resume with virtio
+Date: Tue, 13 Mar 2018 14:32:16 +0100
+Message-ID: <01fcd61b-1883-1baa-b0c5-c79b4942ed35@de.ibm.com>
+References: <92144051-e8ac-de5d-3fac-87dfd0e8270b@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <92144051-e8ac-de5d-3fac-87dfd0e8270b@de.ibm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,30 +18,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>, kvm list <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-U1VCTUlTU0lPTiBERUFETElORSAKCjE1dGggSW50ZXJuYXRpb25hbCBKb2ludCBDb25mZXJlbmNl
-IG9uIGUtQnVzaW5lc3MgYW5kIFRlbGVjb21tdW5pY2F0aW9ucwoKU3VibWlzc2lvbiBEZWFkbGlu
-ZTogQXByaWwgMywgMjAxOAoKaHR0cDovL3d3dy5pY2V0ZS5vcmcvCgpKdWx5IDI2IC0gMjgsIDIw
-MTgKUG9ydG8sIFBvcnR1Z2FsLgoKIAoKVGVjaG5pY2FsbHkgQ28tc3BvbnNvcmVkIGJ5IElFRUUg
-U3lzdGVtcyBDb3VuY2lsLiAKCkluIENvb3BlcmF0aW9uIHdpdGggRU9TLCBQaG90b25pY3MyMSwg
-QUNNIFNJR01NLgogCldpdGggdGhlIHByZXNlbmNlIG9mIGludGVybmF0aW9uYWxseSBkaXN0aW5n
-dWlzaGVkIGtleW5vdGUgc3BlYWtlcnM6Ckdlb3JnZSAgS2FyYWdpYW5uaWRpcyAsIEFyaXN0b3Rs
-ZSBVbml2ZXJzaXR5IG9mIFRoZXNzYWxvbmlraSwgR3JlZWNlClplbm8gR2VyYWR0cywgTmV0aGVy
-bGFuZHMgRm9yZW5zaWMgSW5zdGl0dXRlLCBOZXRoZXJsYW5kcwpKYW4gTWVuZGxpbmcsIFZpZW5u
-YSBVbml2ZXJzaXR5IG9mIEVjb25vbWljcyBhbmQgQnVzaW5lc3MsIEF1c3RyaWEKCgpBIHNob3J0
-IGxpc3Qgb2YgcHJlc2VudGVkIHBhcGVycyB3aWxsIGJlIHNlbGVjdGVkIHNvIHRoYXQgcmV2aXNl
-ZCBhbmQgZXh0ZW5kZWQgdmVyc2lvbnMgb2YgdGhlc2UgcGFwZXJzIHdpbGwgYmUgcHVibGlzaGVk
-IGJ5IFNwcmluZ2VyLgogCkFsbCBwYXBlcnMgcHJlc2VudGVkIGF0IHRoZSBjb25ncmVzcyB2ZW51
-ZSB3aWxsIGFsc28gYmUgYXZhaWxhYmxlIGF0IHRoZSBTQ0lURVBSRVNTIERpZ2l0YWwgTGlicmFy
-eSAoaHR0cDovL3d3dy5zY2l0ZXByZXNzLm9yZy9EaWdpdGFsTGlicmFyeS8pLgogIApTaG91bGQg
-eW91IGhhdmUgYW55IHF1ZXN0aW9uIHBsZWFzZSBkb27igJl0IGhlc2l0YXRlIGNvbnRhY3Rpbmcg
-bWUuCiAKCktpbmQgcmVnYXJkcywKSUNFVEUgU2VjcmV0YXJpYXQKCkFkZHJlc3M6IEF2LiBELiBN
-YW51ZWwgSSwgMjdBLCAywrogZXNxLgoyOTEwLTU5NSBTZXR1YmFsLCBQb3J0dWdhbApUZWw6ICsz
-NTEgMjY1IDUyMCAxODUKRmF4OiArMzUxIDI2NSA1MjAgMTg2CldlYjogaHR0cDovL3d3dy5pY2V0
-ZS5vcmcvCmUtbWFpbDogaWNldGUuc2VjcmV0YXJpYXRAaW5zdGljYy5vcmcKCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
-bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
-L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
-bg==
+
+
+On 03/13/2018 01:41 PM, Christian Borntraeger wrote:
+> Gerd,
+> 
+> another thing with virtio-gpu.
+> 
+> I can successfully do suspend/resume (echo disk > /sys/power/state) on my system. As soon as I have a
+> virtio-gpu the system hangs on reboot/shutdown:
+> 
+> e.g.
+> 
+> crash> bt 1
+> PID: 1      TASK: 6bef0000          CPU: 4   COMMAND: "systemd"
+>  #0 [6beef4c0] __schedule at a55d60
+>  #1 [6beef530] schedule at a563f2
+>  #2 [6beef548] virtio_gpu_queue_ctrl_buffer_locked at 7ea708
+>  #3 [6beef650] virtio_gpu_queue_ctrl_buffer at 7ea830
+>  #4 [6beef680] virtio_gpu_primary_plane_update at 7ed5ee
+>  #5 [6beef710] drm_atomic_helper_commit_planes at 7a2b46
+>  #6 [6beef760] vgdev_atomic_commit_tail at 7e9dbc
+>  #7 [6beef790] commit_tail at 7a7126
+>  #8 [6beef7c0] drm_atomic_helper_commit at 7a73fe
+>  #9 [6beef800] restore_fbdev_mode_atomic at 7aa38a
+> #10 [6beef8a0] drm_fb_helper_pan_display at 7ab7aa
+> #11 [6beef8f0] fb_pan_display at 74a248
+> #12 [6beef928] bit_update_start at 7573c0
+> #13 [6beef958] fbcon_switch at 7542b4
+> #14 [6beefa50] redraw_screen at 77b2b8
+> #15 [6beefaa0] csi_J at 77b476
+> #16 [6beefad8] do_con_trol at 77ee12
+> #17 [6beefb40] do_con_write at 77f80c
+> #18 [6beefc10] con_write at 78003c
+> #19 [6beefc40] n_tty_write at 7662d4
+> #20 [6beefce0] tty_write at 761734
+> #21 [6beefd48] __vfs_write at 3483cc
+> #22 [6beefe00] vfs_write at 3486e8
+> #23 [6beefe60] sys_write at 3489de
+> #24 [6beefea8] system_call at a5b6a8
+>  PSW:  0705100180000000 000003ff8111251c (user space)
+>  GPRS: 0000000000000000 000003ff00000002 000000000000000e 000003ff80deaef0 
+>        000000000000000a 0000000000000000 000000000000000f 00000000000003ef 
+>        0000000000000000 000000000000000e 000003ff80deaef0 000000000000000a 
+>        000003ff81228f58 000000000000000e 000003ff81112510 000003fffdefedf8 
+> 
+> 
+> 
+> 
+> Turns out that the virtio-gpu console (via vnc) prints the image loading but then
+> stops and show no login prompt. (but agetty is running on tty1) So I assume it 
+> already hangs after resume (and I am working on the serial sclp console).
+> 
+> Does suspend resume works for you with virtio-gpu on x86? If yes, then I would
+> not to look into the s390 code (virtio-blk and net seems to work fine). Otherwise
+  now
+> it would be good if you could have a look.
+
+I just checked. It seems that virtio-gpu has no freeze/restore callbacks. Is there
+some work planned to implement the power callbacks for virtio-gpu?
