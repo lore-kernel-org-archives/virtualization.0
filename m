@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v2 14/27] x86/percpu: Adapt percpu for PIE support
-Date: Tue, 13 Mar 2018 13:59:32 -0700
-Message-ID: <20180313205945.245105-15-thgarnie__19907.0355193273$1520974833$gmane$org@google.com>
+Subject: [PATCH v2 15/27] compiler: Option to default to hidden symbols
+Date: Tue, 13 Mar 2018 13:59:33 -0700
+Message-ID: <20180313205945.245105-16-thgarnie__40474.2121151232$1520974854$gmane$org@google.com>
 References: <20180313205945.245105-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -23,326 +23,211 @@ To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemlof
 Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Perpcu uses a clever design where the .percu ELF section has a virtual
-address of zero and the relocation code avoid relocating specific
-symbols. It makes the code simple and easily adaptable with or without
-SMP support.
+Provide an option to default visibility to hidden except for key
+symbols. This option is disabled by default and will be used by x86_64
+PIE support to remove errors between compilation units.
 
-This design is incompatible with PIE because generated code always try to
-access the zero virtual address relative to the default mapping address.
-It becomes impossible when KASLR is configured to go below -2G. This
-patch solves this problem by removing the zero mapping and adapting the GS
-base to be relative to the expected address. These changes are done only
-when PIE is enabled. The original implementation is kept as-is
-by default.
-
-The assembly and PER_CPU macros are changed to use relative references
-when PIE is enabled.
-
-The KALLSYMS_ABSOLUTE_PERCPU configuration is disabled with PIE given
-percpu symbols are not absolute in this case.
-
-Position Independent Executable (PIE) support will allow to extended the
-KASLR randomization range below the -2G memory limit.
+The default visibility is also enabled for external symbols that are
+compared as they maybe equals (start/end of sections). In this case,
+older versions of GCC will remove the comparison if the symbols are
+hidden. This issue exists at least on gcc 4.9 and before.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/entry/calling.h       |  2 +-
- arch/x86/entry/entry_64.S      |  4 ++--
- arch/x86/include/asm/percpu.h  | 25 +++++++++++++++++++------
- arch/x86/kernel/cpu/common.c   |  4 +++-
- arch/x86/kernel/head_64.S      |  4 ++++
- arch/x86/kernel/setup_percpu.c |  2 +-
- arch/x86/kernel/vmlinux.lds.S  | 13 +++++++++++--
- arch/x86/lib/cmpxchg16b_emu.S  |  8 ++++----
- arch/x86/xen/xen-asm.S         | 12 ++++++------
- init/Kconfig                   |  2 +-
- 10 files changed, 52 insertions(+), 24 deletions(-)
+ arch/x86/boot/boot.h                 |  2 +-
+ arch/x86/include/asm/setup.h         |  2 +-
+ arch/x86/kernel/cpu/microcode/core.c |  4 ++--
+ drivers/base/firmware_class.c        |  4 ++--
+ include/asm-generic/sections.h       |  6 ++++++
+ include/linux/compiler.h             |  7 +++++++
+ init/Kconfig                         |  7 +++++++
+ kernel/kallsyms.c                    | 16 ++++++++--------
+ kernel/trace/trace.h                 |  4 ++--
+ lib/dynamic_debug.c                  |  4 ++--
+ 10 files changed, 38 insertions(+), 18 deletions(-)
 
-diff --git a/arch/x86/entry/calling.h b/arch/x86/entry/calling.h
-index be63330c5511..7b48d97111b5 100644
---- a/arch/x86/entry/calling.h
-+++ b/arch/x86/entry/calling.h
-@@ -216,7 +216,7 @@ For 32-bit we have the following conventions - kernel is built with
- .endm
+diff --git a/arch/x86/boot/boot.h b/arch/x86/boot/boot.h
+index ef5a9cc66fb8..d726c35bdd96 100644
+--- a/arch/x86/boot/boot.h
++++ b/arch/x86/boot/boot.h
+@@ -193,7 +193,7 @@ static inline bool memcmp_gs(const void *s1, addr_t s2, size_t len)
+ }
  
- #define THIS_CPU_user_pcid_flush_mask   \
--	PER_CPU_VAR(cpu_tlbstate) + TLB_STATE_user_pcid_flush_mask
-+	PER_CPU_VAR(cpu_tlbstate + TLB_STATE_user_pcid_flush_mask)
- 
- .macro SWITCH_TO_USER_CR3_NOSTACK scratch_reg:req scratch_reg2:req
- 	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_PTI
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index c53123468364..d34794368e20 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -358,7 +358,7 @@ ENTRY(__switch_to_asm)
- 
- #ifdef CONFIG_CC_STACKPROTECTOR
- 	movq	TASK_stack_canary(%rsi), %rbx
--	movq	%rbx, PER_CPU_VAR(irq_stack_union)+stack_canary_offset
-+	movq	%rbx, PER_CPU_VAR(irq_stack_union + stack_canary_offset)
- #endif
- 
- #ifdef CONFIG_RETPOLINE
-@@ -896,7 +896,7 @@ apicinterrupt IRQ_WORK_VECTOR			irq_work_interrupt		smp_irq_work_interrupt
- /*
-  * Exception entry points.
+ /* Heap -- available for dynamic lists. */
+-extern char _end[];
++extern char _end[] __default_visibility;
+ extern char *HEAP;
+ extern char *heap_end;
+ #define RESET_HEAP() ((void *)( HEAP = _end ))
+diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
+index 3108e297d87d..dfba64fe1c7e 100644
+--- a/arch/x86/include/asm/setup.h
++++ b/arch/x86/include/asm/setup.h
+@@ -70,7 +70,7 @@ static inline void x86_ce4100_early_setup(void) { }
+  * This is set up by the setup-routine at boot-time
   */
--#define CPU_TSS_IST(x) PER_CPU_VAR(cpu_tss_rw) + (TSS_ist + ((x) - 1) * 8)
-+#define CPU_TSS_IST(x) PER_CPU_VAR(cpu_tss_rw + (TSS_ist + ((x) - 1) * 8))
+ extern struct boot_params boot_params;
+-extern char _text[];
++extern char _text[] __default_visibility;
  
- .macro idtentry sym do_sym has_error_code:req paranoid=0 shift_ist=-1
- ENTRY(\sym)
-diff --git a/arch/x86/include/asm/percpu.h b/arch/x86/include/asm/percpu.h
-index a06b07399d17..7d1271b536ea 100644
---- a/arch/x86/include/asm/percpu.h
-+++ b/arch/x86/include/asm/percpu.h
-@@ -5,9 +5,11 @@
- #ifdef CONFIG_X86_64
- #define __percpu_seg		gs
- #define __percpu_mov_op		movq
-+#define __percpu_rel		(%rip)
- #else
- #define __percpu_seg		fs
- #define __percpu_mov_op		movl
-+#define __percpu_rel
- #endif
+ static inline bool kaslr_enabled(void)
+ {
+diff --git a/arch/x86/kernel/cpu/microcode/core.c b/arch/x86/kernel/cpu/microcode/core.c
+index aa1b9a422f2b..ed5675db6e82 100644
+--- a/arch/x86/kernel/cpu/microcode/core.c
++++ b/arch/x86/kernel/cpu/microcode/core.c
+@@ -141,8 +141,8 @@ static bool __init check_loader_disabled_bsp(void)
+ 	return *res;
+ }
  
- #ifdef __ASSEMBLY__
-@@ -28,10 +30,14 @@
- #define PER_CPU(var, reg)						\
- 	__percpu_mov_op %__percpu_seg:this_cpu_off, reg;		\
- 	lea var(reg), reg
--#define PER_CPU_VAR(var)	%__percpu_seg:var
-+/* Compatible with Position Independent Code */
-+#define PER_CPU_VAR(var)		%__percpu_seg:(var)##__percpu_rel
-+/* Rare absolute reference */
-+#define PER_CPU_VAR_ABS(var)		%__percpu_seg:var
- #else /* ! SMP */
- #define PER_CPU(var, reg)	__percpu_mov_op $var, reg
--#define PER_CPU_VAR(var)	var
-+#define PER_CPU_VAR(var)	(var)##__percpu_rel
-+#define PER_CPU_VAR_ABS(var)	var
- #endif	/* SMP */
+-extern struct builtin_fw __start_builtin_fw[];
+-extern struct builtin_fw __end_builtin_fw[];
++extern struct builtin_fw __start_builtin_fw[] __default_visibility;
++extern struct builtin_fw __end_builtin_fw[] __default_visibility;
  
- #ifdef CONFIG_X86_64_SMP
-@@ -209,27 +215,34 @@ do {									\
- 	pfo_ret__;					\
+ bool get_builtin_firmware(struct cpio_data *cd, const char *name)
+ {
+diff --git a/drivers/base/firmware_class.c b/drivers/base/firmware_class.c
+index 7dd36ace6152..939a1952d0ab 100644
+--- a/drivers/base/firmware_class.c
++++ b/drivers/base/firmware_class.c
+@@ -136,8 +136,8 @@ static struct firmware_cache fw_cache;
+ 
+ #ifdef CONFIG_FW_LOADER
+ 
+-extern struct builtin_fw __start_builtin_fw[];
+-extern struct builtin_fw __end_builtin_fw[];
++extern struct builtin_fw __start_builtin_fw[] __default_visibility;
++extern struct builtin_fw __end_builtin_fw[] __default_visibility;
+ 
+ static void fw_copy_to_prealloc_buf(struct firmware *fw,
+ 				    void *buf, size_t size)
+diff --git a/include/asm-generic/sections.h b/include/asm-generic/sections.h
+index 849cd8eb5ca0..0a0e23405ddd 100644
+--- a/include/asm-generic/sections.h
++++ b/include/asm-generic/sections.h
+@@ -32,6 +32,9 @@
+  *	__softirqentry_text_start, __softirqentry_text_end
+  *	__start_opd, __end_opd
+  */
++#ifdef CONFIG_DEFAULT_HIDDEN
++#pragma GCC visibility push(default)
++#endif
+ extern char _text[], _stext[], _etext[];
+ extern char _data[], _sdata[], _edata[];
+ extern char __bss_start[], __bss_stop[];
+@@ -49,6 +52,9 @@ extern char __start_once[], __end_once[];
+ 
+ /* Start and end of .ctors section - used for constructor calls. */
+ extern char __ctors_start[], __ctors_end[];
++#ifdef CONFIG_DEFAULT_HIDDEN
++#pragma GCC visibility pop
++#endif
+ 
+ /* Start and end of .opd section - used for function descriptors. */
+ extern char __start_opd[], __end_opd[];
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index ab4711c63601..a9ac84e37af9 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -278,6 +278,13 @@ unsigned long read_word_at_a_time(const void *addr)
+ 	__u.__val;					\
  })
  
-+/* Position Independent code uses relative addresses only */
-+#ifdef CONFIG_X86_PIE
-+#define __percpu_stable_arg __percpu_arg(a1)
++#ifdef CONFIG_DEFAULT_HIDDEN
++#pragma GCC visibility push(hidden)
++#define __default_visibility  __attribute__((visibility ("default")))
 +#else
-+#define __percpu_stable_arg __percpu_arg(P1)
++#define __default_visibility
 +#endif
 +
- #define percpu_stable_op(op, var)			\
- ({							\
- 	typeof(var) pfo_ret__;				\
- 	switch (sizeof(var)) {				\
- 	case 1:						\
--		asm(op "b "__percpu_arg(P1)",%0"	\
-+		asm(op "b "__percpu_stable_arg ",%0"	\
- 		    : "=q" (pfo_ret__)			\
- 		    : "p" (&(var)));			\
- 		break;					\
- 	case 2:						\
--		asm(op "w "__percpu_arg(P1)",%0"	\
-+		asm(op "w "__percpu_stable_arg ",%0"	\
- 		    : "=r" (pfo_ret__)			\
- 		    : "p" (&(var)));			\
- 		break;					\
- 	case 4:						\
--		asm(op "l "__percpu_arg(P1)",%0"	\
-+		asm(op "l "__percpu_stable_arg ",%0"	\
- 		    : "=r" (pfo_ret__)			\
- 		    : "p" (&(var)));			\
- 		break;					\
- 	case 8:						\
--		asm(op "q "__percpu_arg(P1)",%0"	\
-+		asm(op "q "__percpu_stable_arg ",%0"	\
- 		    : "=r" (pfo_ret__)			\
- 		    : "p" (&(var)));			\
- 		break;					\
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index 348cf4821240..0e9a87a34f76 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -487,7 +487,9 @@ void load_percpu_segment(int cpu)
- 	loadsegment(fs, __KERNEL_PERCPU);
- #else
- 	__loadsegment_simple(gs, 0);
--	wrmsrl(MSR_GS_BASE, (unsigned long)per_cpu(irq_stack_union.gs_base, cpu));
-+	wrmsrl(MSR_GS_BASE,
-+	       (unsigned long)per_cpu(irq_stack_union.gs_base, cpu) -
-+	       (unsigned long)__per_cpu_start);
- #endif
- 	load_stack_canary_segment();
- }
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 48652f3ec46a..87624e1fe22f 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -266,7 +266,11 @@ ENDPROC(start_cpu0)
- 	GLOBAL(initial_code)
- 	.quad	x86_64_start_kernel
- 	GLOBAL(initial_gs)
-+#ifdef CONFIG_X86_PIE
-+	.quad	0
-+#else
- 	.quad	INIT_PER_CPU_VAR(irq_stack_union)
-+#endif
- 	GLOBAL(initial_stack)
- 	/*
- 	 * The SIZEOF_PTREGS gap is a convention which helps the in-kernel
-diff --git a/arch/x86/kernel/setup_percpu.c b/arch/x86/kernel/setup_percpu.c
-index ea554f812ee1..f7655979f19a 100644
---- a/arch/x86/kernel/setup_percpu.c
-+++ b/arch/x86/kernel/setup_percpu.c
-@@ -26,7 +26,7 @@
- DEFINE_PER_CPU_READ_MOSTLY(int, cpu_number);
- EXPORT_PER_CPU_SYMBOL(cpu_number);
+ #endif /* __KERNEL__ */
  
--#ifdef CONFIG_X86_64
-+#if defined(CONFIG_X86_64) && !defined(CONFIG_X86_PIE)
- #define BOOT_PERCPU_OFFSET ((unsigned long)__per_cpu_load)
- #else
- #define BOOT_PERCPU_OFFSET 0
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 1c43a2e839fa..4a5957900dcc 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -209,9 +209,14 @@ SECTIONS
- 	/*
- 	 * percpu offsets are zero-based on SMP.  PERCPU_VADDR() changes the
- 	 * output PHDR, so the next output section - .init.text - should
--	 * start another segment - init.
-+	 * start another segment - init. For Position Independent Code, the
-+	 * per-cpu section cannot be zero-based because everything is relative.
- 	 */
-+#ifdef CONFIG_X86_PIE
-+	PERCPU_SECTION(INTERNODE_CACHE_BYTES)
-+#else
- 	PERCPU_VADDR(INTERNODE_CACHE_BYTES, 0, :percpu)
-+#endif
- 	ASSERT(SIZEOF(.data..percpu) < CONFIG_PHYSICAL_START,
- 	       "per-CPU data too large - increase CONFIG_PHYSICAL_START")
- #endif
-@@ -387,7 +392,11 @@ SECTIONS
-  * Per-cpu symbols which need to be offset from __per_cpu_load
-  * for the boot processor.
-  */
-+#ifdef CONFIG_X86_PIE
-+#define INIT_PER_CPU(x) init_per_cpu__##x = x
-+#else
- #define INIT_PER_CPU(x) init_per_cpu__##x = x + __per_cpu_load
-+#endif
- INIT_PER_CPU(gdt_page);
- INIT_PER_CPU(irq_stack_union);
- 
-@@ -397,7 +406,7 @@ INIT_PER_CPU(irq_stack_union);
- . = ASSERT((_end - _text <= KERNEL_IMAGE_SIZE),
- 	   "kernel image bigger than KERNEL_IMAGE_SIZE");
- 
--#ifdef CONFIG_SMP
-+#if defined(CONFIG_SMP) && !defined(CONFIG_X86_PIE)
- . = ASSERT((irq_stack_union == 0),
-            "irq_stack_union is not at start of per-cpu area");
- #endif
-diff --git a/arch/x86/lib/cmpxchg16b_emu.S b/arch/x86/lib/cmpxchg16b_emu.S
-index 9b330242e740..254950604ae4 100644
---- a/arch/x86/lib/cmpxchg16b_emu.S
-+++ b/arch/x86/lib/cmpxchg16b_emu.S
-@@ -33,13 +33,13 @@ ENTRY(this_cpu_cmpxchg16b_emu)
- 	pushfq
- 	cli
- 
--	cmpq PER_CPU_VAR((%rsi)), %rax
-+	cmpq PER_CPU_VAR_ABS((%rsi)), %rax
- 	jne .Lnot_same
--	cmpq PER_CPU_VAR(8(%rsi)), %rdx
-+	cmpq PER_CPU_VAR_ABS(8(%rsi)), %rdx
- 	jne .Lnot_same
- 
--	movq %rbx, PER_CPU_VAR((%rsi))
--	movq %rcx, PER_CPU_VAR(8(%rsi))
-+	movq %rbx, PER_CPU_VAR_ABS((%rsi))
-+	movq %rcx, PER_CPU_VAR_ABS(8(%rsi))
- 
- 	popfq
- 	mov $1, %al
-diff --git a/arch/x86/xen/xen-asm.S b/arch/x86/xen/xen-asm.S
-index 8019edd0125c..a5d73d3218be 100644
---- a/arch/x86/xen/xen-asm.S
-+++ b/arch/x86/xen/xen-asm.S
-@@ -21,7 +21,7 @@
- ENTRY(xen_irq_enable_direct)
- 	FRAME_BEGIN
- 	/* Unmask events */
--	movb $0, PER_CPU_VAR(xen_vcpu_info) + XEN_vcpu_info_mask
-+	movb $0, PER_CPU_VAR(xen_vcpu_info + XEN_vcpu_info_mask)
- 
- 	/*
- 	 * Preempt here doesn't matter because that will deal with any
-@@ -30,7 +30,7 @@ ENTRY(xen_irq_enable_direct)
- 	 */
- 
- 	/* Test for pending */
--	testb $0xff, PER_CPU_VAR(xen_vcpu_info) + XEN_vcpu_info_pending
-+	testb $0xff, PER_CPU_VAR(xen_vcpu_info + XEN_vcpu_info_pending)
- 	jz 1f
- 
- 	call check_events
-@@ -45,7 +45,7 @@ ENTRY(xen_irq_enable_direct)
-  * non-zero.
-  */
- ENTRY(xen_irq_disable_direct)
--	movb $1, PER_CPU_VAR(xen_vcpu_info) + XEN_vcpu_info_mask
-+	movb $1, PER_CPU_VAR(xen_vcpu_info + XEN_vcpu_info_mask)
- 	ret
- ENDPROC(xen_irq_disable_direct)
- 
-@@ -59,7 +59,7 @@ ENDPROC(xen_irq_disable_direct)
-  * x86 use opposite senses (mask vs enable).
-  */
- ENTRY(xen_save_fl_direct)
--	testb $0xff, PER_CPU_VAR(xen_vcpu_info) + XEN_vcpu_info_mask
-+	testb $0xff, PER_CPU_VAR(xen_vcpu_info + XEN_vcpu_info_mask)
- 	setz %ah
- 	addb %ah, %ah
- 	ret
-@@ -80,7 +80,7 @@ ENTRY(xen_restore_fl_direct)
- #else
- 	testb $X86_EFLAGS_IF>>8, %ah
- #endif
--	setz PER_CPU_VAR(xen_vcpu_info) + XEN_vcpu_info_mask
-+	setz PER_CPU_VAR(xen_vcpu_info + XEN_vcpu_info_mask)
- 	/*
- 	 * Preempt here doesn't matter because that will deal with any
- 	 * pending interrupts.  The pending check may end up being run
-@@ -88,7 +88,7 @@ ENTRY(xen_restore_fl_direct)
- 	 */
- 
- 	/* check for unmasked and pending */
--	cmpw $0x0001, PER_CPU_VAR(xen_vcpu_info) + XEN_vcpu_info_pending
-+	cmpw $0x0001, PER_CPU_VAR(xen_vcpu_info + XEN_vcpu_info_pending)
- 	jnz 1f
- 	call check_events
- 1:
+ #endif /* __ASSEMBLY__ */
 diff --git a/init/Kconfig b/init/Kconfig
-index 221cac95044f..acc9087546ac 100644
+index acc9087546ac..c924babc6d47 100644
 --- a/init/Kconfig
 +++ b/init/Kconfig
-@@ -1365,7 +1365,7 @@ config KALLSYMS_ALL
- config KALLSYMS_ABSOLUTE_PERCPU
+@@ -1667,6 +1667,13 @@ config PROFILING
+ config TRACEPOINTS
  	bool
- 	depends on KALLSYMS
--	default X86_64 && SMP
-+	default X86_64 && SMP && !X86_PIE
  
- config KALLSYMS_BASE_RELATIVE
- 	bool
++#
++# Default to hidden visibility for all symbols.
++# Useful for Position Independent Code to reduce global references.
++#
++config DEFAULT_HIDDEN
++	bool
++
+ source "arch/Kconfig"
+ 
+ endmenu		# General setup
+diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
+index a23e21ada81b..f4e58b7a6daf 100644
+--- a/kernel/kallsyms.c
++++ b/kernel/kallsyms.c
+@@ -29,24 +29,24 @@
+  * These will be re-linked against their real values
+  * during the second link stage.
+  */
+-extern const unsigned long kallsyms_addresses[] __weak;
+-extern const int kallsyms_offsets[] __weak;
+-extern const u8 kallsyms_names[] __weak;
++extern const unsigned long kallsyms_addresses[] __weak __default_visibility;
++extern const int kallsyms_offsets[] __weak __default_visibility;
++extern const u8 kallsyms_names[] __weak __default_visibility;
+ 
+ /*
+  * Tell the compiler that the count isn't in the small data section if the arch
+  * has one (eg: FRV).
+  */
+ extern const unsigned long kallsyms_num_syms
+-__attribute__((weak, section(".rodata")));
++__attribute__((weak, section(".rodata"))) __default_visibility;
+ 
+ extern const unsigned long kallsyms_relative_base
+-__attribute__((weak, section(".rodata")));
++__attribute__((weak, section(".rodata"))) __default_visibility;
+ 
+-extern const u8 kallsyms_token_table[] __weak;
+-extern const u16 kallsyms_token_index[] __weak;
++extern const u8 kallsyms_token_table[] __weak __default_visibility;
++extern const u16 kallsyms_token_index[] __weak __default_visibility;
+ 
+-extern const unsigned long kallsyms_markers[] __weak;
++extern const unsigned long kallsyms_markers[] __weak __default_visibility;
+ 
+ /*
+  * Expand a compressed symbol data into the resulting uncompressed string,
+diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+index 2a6d0325a761..5aebb0dcecba 100644
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -1741,8 +1741,8 @@ extern int trace_event_enable_disable(struct trace_event_file *file,
+ 				      int enable, int soft_disable);
+ extern int tracing_alloc_snapshot(void);
+ 
+-extern const char *__start___trace_bprintk_fmt[];
+-extern const char *__stop___trace_bprintk_fmt[];
++extern const char *__start___trace_bprintk_fmt[] __default_visibility;
++extern const char *__stop___trace_bprintk_fmt[] __default_visibility;
+ 
+ extern const char *__start___tracepoint_str[];
+ extern const char *__stop___tracepoint_str[];
+diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
+index c7c96bc7654a..40b752b53627 100644
+--- a/lib/dynamic_debug.c
++++ b/lib/dynamic_debug.c
+@@ -37,8 +37,8 @@
+ #include <linux/device.h>
+ #include <linux/netdevice.h>
+ 
+-extern struct _ddebug __start___verbose[];
+-extern struct _ddebug __stop___verbose[];
++extern struct _ddebug __start___verbose[] __default_visibility;
++extern struct _ddebug __stop___verbose[] __default_visibility;
+ 
+ struct ddebug_table {
+ 	struct list_head link;
 -- 
 2.16.2.660.g709887971b-goog
