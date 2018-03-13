@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v2 04/27] x86: Add macro to get symbol address for PIE support
-Date: Tue, 13 Mar 2018 13:59:22 -0700
-Message-ID: <20180313205945.245105-5-thgarnie@google.com>
+Subject: [PATCH v2 05/27] x86: relocate_kernel - Adapt assembly for PIE support
+Date: Tue, 13 Mar 2018 13:59:23 -0700
+Message-ID: <20180313205945.245105-6-thgarnie__14625.7528606386$1520974748$gmane$org@google.com>
 References: <20180313205945.245105-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -23,26 +23,35 @@ To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemlof
 Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a new _ASM_MOVABS macro to fetch a symbol address. It will be used
-to replace "_ASM_MOV $<symbol>, %dst" code construct that are not compatible
-with PIE.
+Change the assembly code to use only relative references of symbols for the
+kernel to be PIE compatible.
+
+Position Independent Executable (PIE) support will allow to extended the
+KASLR randomization range below the -2G memory limit.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/include/asm/asm.h | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/relocate_kernel_64.S | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/asm.h b/arch/x86/include/asm/asm.h
-index 386a6900e206..653d8b82f015 100644
---- a/arch/x86/include/asm/asm.h
-+++ b/arch/x86/include/asm/asm.h
-@@ -30,6 +30,7 @@
- #define _ASM_ALIGN	__ASM_SEL(.balign 4, .balign 8)
+diff --git a/arch/x86/kernel/relocate_kernel_64.S b/arch/x86/kernel/relocate_kernel_64.S
+index 11eda21eb697..a7227dfe1a2b 100644
+--- a/arch/x86/kernel/relocate_kernel_64.S
++++ b/arch/x86/kernel/relocate_kernel_64.S
+@@ -208,9 +208,11 @@ identity_mapped:
+ 	movq	%rax, %cr3
+ 	lea	PAGE_SIZE(%r8), %rsp
+ 	call	swap_pages
+-	movq	$virtual_mapped, %rax
+-	pushq	%rax
+-	ret
++	jmp	*virtual_mapped_addr(%rip)
++
++	/* Absolute value for PIE support */
++virtual_mapped_addr:
++	.quad virtual_mapped
  
- #define _ASM_MOV	__ASM_SIZE(mov)
-+#define _ASM_MOVABS	__ASM_SEL(movl, movabsq)
- #define _ASM_INC	__ASM_SIZE(inc)
- #define _ASM_DEC	__ASM_SIZE(dec)
- #define _ASM_ADD	__ASM_SIZE(add)
+ virtual_mapped:
+ 	movq	RSP(%r8), %rsp
 -- 
 2.16.2.660.g709887971b-goog
