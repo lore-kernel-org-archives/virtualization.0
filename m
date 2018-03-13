@@ -1,15 +1,14 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: virtio-gpu: Hang on shutdown after suspend/resume with virtio
-Date: Tue, 13 Mar 2018 15:27:01 +0100
-Message-ID: <65249e88-0694-d479-1d77-55e1f1f50b6f__33530.3881242455$1520951118$gmane$org@de.ibm.com>
-References: <92144051-e8ac-de5d-3fac-87dfd0e8270b@de.ibm.com>
-	<01fcd61b-1883-1baa-b0c5-c79b4942ed35@de.ibm.com>
+From: Thomas Garnier via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: [PATCH v2 00/27] x86: PIE support and option to extend KASLR
+	randomization
+Date: Tue, 13 Mar 2018 13:59:18 -0700
+Message-ID: <20180313205945.245105-1-thgarnie@google.com>
+Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <01fcd61b-1883-1baa-b0c5-c79b4942ed35@de.ibm.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,71 +18,174 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, kvm list <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, DRI Development <dri-devel@lists.freedesktop.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kate Stewart <kstewart@linuxfoundation.org>, Thomas Garnier <thgarnie@google.com>, Arnd Bergmann <arnd@arndb.de>, Philippe Ombredanne <pombredanne@nexb.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Matthias Kaehlcke <mka@chromium.org>, Kees Cook <keescook@chromium.org>, Tom Lendacky <thomas.lendacky@amd.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Borislav Petkov <bp@alien8.de>, Borislav Petkov <bp@suse.de>, Raf
+Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Also add David and dri list.....
-Short summary, suspend/resume breaks with virtio-gpu as there are no freeze/restore callbacks 
-that put the device back into working state.
+Changes:
+ - patch v2:
+   - Adapt patch to work post KPTI and compiler changes
+   - Redo all performance testing with latest configs and compilers
+   - Simplify mov macro on PIE (MOVABS now)
+   - Reduce GOT footprint
+ - patch v1:
+   - Simplify ftrace implementation.
+   - Use gcc mstack-protector-guard-reg=%gs with PIE when possible.
+ - rfc v3:
+   - Use --emit-relocs instead of -pie to reduce dynamic relocation space on
+     mapped memory. It also simplifies the relocation process.
+   - Move the start the module section next to the kernel. Remove the need for
+     -mcmodel=large on modules. Extends module space from 1 to 2G maximum.
+   - Support for XEN PVH as 32-bit relocations can be ignored with
+     --emit-relocs.
+   - Support for GOT relocations previously done automatically with -pie.
+   - Remove need for dynamic PLT in modules.
+   - Support dymamic GOT for modules.
+ - rfc v2:
+   - Add support for global stack cookie while compiler default to fs without
+     mcmodel=kernel
+   - Change patch 7 to correctly jump out of the identity mapping on kexec load
+     preserve.
 
+These patches make the changes necessary to build the kernel as Position
+Independent Executable (PIE) on x86_64. A PIE kernel can be relocated below
+the top 2G of the virtual address space. It allows to optionally extend the
+KASLR randomization range from 1G to 3G.
 
-On 03/13/2018 02:32 PM, Christian Borntraeger wrote:
-> 
-> 
-> On 03/13/2018 01:41 PM, Christian Borntraeger wrote:
->> Gerd,
->>
->> another thing with virtio-gpu.
->>
->> I can successfully do suspend/resume (echo disk > /sys/power/state) on my system. As soon as I have a
->> virtio-gpu the system hangs on reboot/shutdown:
->>
->> e.g.
->>
->> crash> bt 1
->> PID: 1      TASK: 6bef0000          CPU: 4   COMMAND: "systemd"
->>  #0 [6beef4c0] __schedule at a55d60
->>  #1 [6beef530] schedule at a563f2
->>  #2 [6beef548] virtio_gpu_queue_ctrl_buffer_locked at 7ea708
->>  #3 [6beef650] virtio_gpu_queue_ctrl_buffer at 7ea830
->>  #4 [6beef680] virtio_gpu_primary_plane_update at 7ed5ee
->>  #5 [6beef710] drm_atomic_helper_commit_planes at 7a2b46
->>  #6 [6beef760] vgdev_atomic_commit_tail at 7e9dbc
->>  #7 [6beef790] commit_tail at 7a7126
->>  #8 [6beef7c0] drm_atomic_helper_commit at 7a73fe
->>  #9 [6beef800] restore_fbdev_mode_atomic at 7aa38a
->> #10 [6beef8a0] drm_fb_helper_pan_display at 7ab7aa
->> #11 [6beef8f0] fb_pan_display at 74a248
->> #12 [6beef928] bit_update_start at 7573c0
->> #13 [6beef958] fbcon_switch at 7542b4
->> #14 [6beefa50] redraw_screen at 77b2b8
->> #15 [6beefaa0] csi_J at 77b476
->> #16 [6beefad8] do_con_trol at 77ee12
->> #17 [6beefb40] do_con_write at 77f80c
->> #18 [6beefc10] con_write at 78003c
->> #19 [6beefc40] n_tty_write at 7662d4
->> #20 [6beefce0] tty_write at 761734
->> #21 [6beefd48] __vfs_write at 3483cc
->> #22 [6beefe00] vfs_write at 3486e8
->> #23 [6beefe60] sys_write at 3489de
->> #24 [6beefea8] system_call at a5b6a8
->>  PSW:  0705100180000000 000003ff8111251c (user space)
->>  GPRS: 0000000000000000 000003ff00000002 000000000000000e 000003ff80deaef0 
->>        000000000000000a 0000000000000000 000000000000000f 00000000000003ef 
->>        0000000000000000 000000000000000e 000003ff80deaef0 000000000000000a 
->>        000003ff81228f58 000000000000000e 000003ff81112510 000003fffdefedf8 
->>
->>
->>
->>
->> Turns out that the virtio-gpu console (via vnc) prints the image loading but then
->> stops and show no login prompt. (but agetty is running on tty1) So I assume it 
->> already hangs after resume (and I am working on the serial sclp console).
->>
->> Does suspend resume works for you with virtio-gpu on x86? If yes, then I would
->> now look into the s390 code (virtio-blk and net seems to work fine). Otherwise
->> it would be good if you could have a look.
-> 
-> I just checked. It seems that virtio-gpu has no freeze/restore callbacks. Is there
-> some work planned to implement the power callbacks for virtio-gpu?
-> 
+Thanks a lot to Ard Biesheuvel & Kees Cook on their feedback on compiler
+changes, PIE support and KASLR in general. Thanks to Roland McGrath on his
+feedback for using -pie versus --emit-relocs and details on compiler code
+generation.
+
+The patches:
+ - 1-3, 5-13, 18-19: Change in assembly code to be PIE compliant.
+ - 4: Add a new _ASM_GET_PTR macro to fetch a symbol address generically.
+ - 14: Adapt percpu design to work correctly when PIE is enabled.
+ - 15: Provide an option to default visibility to hidden except for key symbols.
+       It removes errors between compilation units.
+ - 16: Add PROVIDE_HIDDEN replacement on the linker script for weak symbols to
+       reduce GOT footprint.
+ - 17: Adapt relocation tool to handle PIE binary correctly.
+ - 20: Add support for global cookie.
+ - 21: Support ftrace with PIE (used on Ubuntu config).
+ - 22: Add option to move the module section just after the kernel.
+ - 23: Adapt module loading to support PIE with dynamic GOT.
+ - 24: Make the GOT read-only.
+ - 25: Add the CONFIG_X86_PIE option (off by default).
+ - 26: Adapt relocation tool to generate a 64-bit relocation table.
+ - 27: Add the CONFIG_RANDOMIZE_BASE_LARGE option to increase relocation range
+       from 1G to 3G (off by default).
+
+Performance/Size impact:
+
+Size of vmlinux (Default configuration):
+ File size:
+ - PIE disabled: +0.18%
+ - PIE enabled: -1.977% (less relocations)
+ .text section:
+ - PIE disabled: same
+ - PIE enabled: same
+
+Size of vmlinux (Ubuntu configuration):
+ File size:
+ - PIE disabled: +0.21%
+ - PIE enabled: +10%
+ .text section:
+ - PIE disabled: same
+ - PIE enabled: +0.001%
+
+The size increase is mainly due to not having access to the 32-bit signed
+relocation that can be used with mcmodel=kernel. A small part is due to reduced
+optimization for PIE code. This bug [1] was opened with gcc to provide a better
+code generation for kernel PIE.
+
+Hackbench (50% and 1600% on thread/process for pipe/sockets):
+ - PIE disabled: no significant change (avg -/+ 0.5% on latest test).
+ - PIE enabled: between -1% to +1% in average (default and Ubuntu config).
+
+Kernbench (average of 10 Half and Optimal runs):
+ Elapsed Time:
+ - PIE disabled: no significant change (avg -0.5%)
+ - PIE enabled: average -0.5% to +0.5%
+ System Time:
+ - PIE disabled: no significant change (avg -0.1%)
+ - PIE enabled: average -0.4% to +0.4%.
+
+[1] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82303
+
+diffstat:
+ Documentation/x86/x86_64/mm.txt              |    3 
+ arch/x86/Kconfig                             |   45 ++++++
+ arch/x86/Makefile                            |   58 ++++++++
+ arch/x86/boot/boot.h                         |    2 
+ arch/x86/boot/compressed/Makefile            |    5 
+ arch/x86/boot/compressed/misc.c              |   10 +
+ arch/x86/crypto/aes-x86_64-asm_64.S          |   45 ++++--
+ arch/x86/crypto/aesni-intel_asm.S            |    8 -
+ arch/x86/crypto/aesni-intel_avx-x86_64.S     |    6 
+ arch/x86/crypto/camellia-aesni-avx-asm_64.S  |   42 +++---
+ arch/x86/crypto/camellia-aesni-avx2-asm_64.S |   44 +++---
+ arch/x86/crypto/camellia-x86_64-asm_64.S     |    8 -
+ arch/x86/crypto/cast5-avx-x86_64-asm_64.S    |   50 ++++---
+ arch/x86/crypto/cast6-avx-x86_64-asm_64.S    |   44 +++---
+ arch/x86/crypto/des3_ede-asm_64.S            |   96 +++++++++-----
+ arch/x86/crypto/ghash-clmulni-intel_asm.S    |    4 
+ arch/x86/crypto/glue_helper-asm-avx.S        |    4 
+ arch/x86/crypto/glue_helper-asm-avx2.S       |    6 
+ arch/x86/crypto/sha256-avx2-asm.S            |   23 ++-
+ arch/x86/entry/calling.h                     |    2 
+ arch/x86/entry/entry_32.S                    |    3 
+ arch/x86/entry/entry_64.S                    |   23 ++-
+ arch/x86/include/asm/asm.h                   |    1 
+ arch/x86/include/asm/bug.h                   |    2 
+ arch/x86/include/asm/ftrace.h                |    6 
+ arch/x86/include/asm/jump_label.h            |    8 -
+ arch/x86/include/asm/kvm_host.h              |    6 
+ arch/x86/include/asm/module.h                |   11 +
+ arch/x86/include/asm/page_64_types.h         |    9 +
+ arch/x86/include/asm/paravirt_types.h        |   12 +
+ arch/x86/include/asm/percpu.h                |   25 ++-
+ arch/x86/include/asm/pgtable_64_types.h      |    6 
+ arch/x86/include/asm/pm-trace.h              |    2 
+ arch/x86/include/asm/processor.h             |   12 +
+ arch/x86/include/asm/sections.h              |    8 +
+ arch/x86/include/asm/setup.h                 |    2 
+ arch/x86/include/asm/stackprotector.h        |   19 ++
+ arch/x86/kernel/Makefile                     |    6 
+ arch/x86/kernel/acpi/wakeup_64.S             |   31 ++--
+ arch/x86/kernel/asm-offsets.c                |    3 
+ arch/x86/kernel/asm-offsets_32.c             |    3 
+ arch/x86/kernel/asm-offsets_64.c             |    3 
+ arch/x86/kernel/cpu/common.c                 |    7 -
+ arch/x86/kernel/cpu/microcode/core.c         |    4 
+ arch/x86/kernel/ftrace.c                     |   42 +++++-
+ arch/x86/kernel/head64.c                     |   23 ++-
+ arch/x86/kernel/head_32.S                    |    3 
+ arch/x86/kernel/head_64.S                    |   41 +++++-
+ arch/x86/kernel/kvm.c                        |    6 
+ arch/x86/kernel/module.c                     |  181 ++++++++++++++++++++++++++-
+ arch/x86/kernel/module.lds                   |    3 
+ arch/x86/kernel/process.c                    |    5 
+ arch/x86/kernel/relocate_kernel_64.S         |   16 +-
+ arch/x86/kernel/setup_percpu.c               |    2 
+ arch/x86/kernel/vmlinux.lds.S                |   13 +
+ arch/x86/kvm/svm.c                           |    4 
+ arch/x86/lib/cmpxchg16b_emu.S                |    8 -
+ arch/x86/mm/dump_pagetables.c                |    3 
+ arch/x86/power/hibernate_asm_64.S            |    4 
+ arch/x86/tools/relocs.c                      |  169 +++++++++++++++++++++++--
+ arch/x86/tools/relocs.h                      |    4 
+ arch/x86/tools/relocs_common.c               |   15 +-
+ arch/x86/xen/xen-asm.S                       |   12 -
+ arch/x86/xen/xen-head.S                      |   11 -
+ arch/x86/xen/xen-pvh.S                       |   13 +
+ drivers/base/firmware_class.c                |    4 
+ include/asm-generic/sections.h               |    6 
+ include/asm-generic/vmlinux.lds.h            |   12 +
+ include/linux/compiler.h                     |    7 +
+ init/Kconfig                                 |   16 ++
+ kernel/kallsyms.c                            |   16 +-
+ kernel/trace/trace.h                         |    4 
+ lib/dynamic_debug.c                          |    4 
+ scripts/link-vmlinux.sh                      |   14 ++
+ 74 files changed, 1063 insertions(+), 315 deletions(-)
