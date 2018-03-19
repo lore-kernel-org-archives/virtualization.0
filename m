@@ -1,14 +1,15 @@
-From: "Tian, Kevin" <kevin.tian@intel.com>
-Subject: RE: [virtio-dev] [RFC] virtio-iommu version 0.6
-Date: Mon, 19 Mar 2018 10:03:42 +0000
-Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D191085A76__33170.7188314342$1521453717$gmane$org@SHSMSX101.ccr.corp.intel.com>
-References: <20180206181106.21815-1-jean-philippe.brucker@arm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: get_user_pages returning 0 (was Re: kernel BUG at
+	drivers/vhost/vhost.c:LINE!)
+Date: Mon, 19 Mar 2018 17:09:28 +0200
+Message-ID: <20180319161406-mutt-send-email-mst@kernel.org>
+References: <001a11427716098c150567bcd12f@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180206181106.21815-1-jean-philippe.brucker@arm.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <001a11427716098c150567bcd12f@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,79 +19,344 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
-Cc: "eric.auger@redhat.com" <eric.auger@redhat.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
+To: syzbot <syzbot+6304bf97ef436580fede@syzkaller.appspotmail.com>
+Cc: aarcange@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, David Sterba <dsterba@suse.com>, Andrew Morton <akpm@linux-foundation.org>, Michel Lespinasse <walken@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-PiBGcm9tOiBKZWFuLVBoaWxpcHBlIEJydWNrZXINCj4gU2VudDogV2VkbmVzZGF5LCBGZWJydWFy
-eSA3LCAyMDE4IDI6MTEgQU0NCj4gDQo+IFBsZWFzZSBmaW5kIHZlcnNpb24gMC42IG9mIHRoZSB2
-aXJ0aW8taW9tbXUgc3BlY2lmaWNhdGlvbiBhdCB0aGUgZm9sbG93aW5nDQo+IGxvY2F0aW9ucy4N
-Cj4gDQo+IERvY3VtZW50OiBodHRwOi8vanBicnVja2VyLm5ldC92aXJ0aW8taW9tbXUvc3BlYy92
-aXJ0aW8taW9tbXUucGRmDQo+ICAgICAgICAgICBodHRwOi8vanBicnVja2VyLm5ldC92aXJ0aW8t
-aW9tbXUvc3BlYy92aXJ0aW8taW9tbXUuaHRtbA0KPiANCj4gU291cmNlczogZ2l0Oi8vbGludXgt
-YXJtLm9yZy92aXJ0aW8taW9tbXUuZ2l0IHZpb21tdS92MC42DQo+IA0KPiBJIGRpZG4ndCByZWNl
-aXZlIGFueSBjb21tZW50IGZvciB2MC41IFsxXSwgc28gdGhpcyB1cGRhdGUgaXMgZmFpcmx5IGxp
-Z2h0Og0KPiAqIENoYW5nZWQgcmFuZ2UgZGVmaW5pdGlvbiBpbiBtYXAgYW5kIHVubWFwIHJlcXVl
-c3RzDQo+ICogVXNlIHZpcnRpby1pb21tdSBkZXZpY2UgSUQNCj4gKiBVcGRhdGUgSU9SVCBub2Rl
-IElEIGFuZCBzaW1wbGlmeSBsYXlvdXQNCj4gDQo+IFRoZSBmb2xsb3dpbmcgZG9jdW1lbnQgc2hv
-d3MgdGhlIGRpZmZlcmVuY2UgYmV0d2VlbiB2MC41IGFuZCB2MC42Og0KPiBodHRwOi8vanBicnVj
-a2VyLm5ldC92aXJ0aW8taW9tbXUvc3BlYy9kaWZmcy92aXJ0aW8taW9tbXUtcGRmLWRpZmYtdjAu
-NS0NCj4gdjAuNi5wZGYNCj4gDQo+IE5leHQgdmVyc2lvbiB3aWxsIGhvcGVmdWxseSBhZGQgdlNW
-QSAoUEFTSUQrUFJJKSBhbmQvb3IgYXJjaGl0ZWN0dXJhbA0KPiBvcHRpbWl6YXRpb25zLCBidXQg
-SSBjYW4ndCBwcm92aWRlIGEgdGltZWxpbmUgeWV0LiBJJ2xsIHByb2JhYmx5IHNlbmQgYQ0KPiBz
-bWFsbCBkcmFmdCBmaXJzdC4NCj4gDQo+IEkgd2lsbCBzZW5kIHRoZSBMaW51eCBkcml2ZXIgc29v
-bi4gSW4gdGhlIG1lYW50aW1lIHlvdSBjYW4gZmV0Y2ggaXQgb24gbXkNCj4gZGV2ZWxvcG1lbnQg
-YnJhbmNoZXMsIGJhc2VkIG9uIG5leHQtMjAxODAyMDYuDQo+IA0KPiBnaXQ6Ly9saW51eC1hcm0u
-b3JnL2xpbnV4LWpwYi5naXQgdmlydGlvLWlvbW11L2RldmVsDQo+IGdpdDovL2xpbnV4LWFybS5v
-cmcva3ZtdG9vbC1qcGIuZ2l0IHZpcnRpby1pb21tdS9kZXZlbA0KPiANCj4gQW55IGNvbW1lbnRz
-IHdlbGNvbWUhDQo+IA0KPiBUaGFua3MsDQo+IEplYW4NCj4gDQo+IFsxXSBodHRwczovL3d3dy5z
-cGluaWNzLm5ldC9saXN0cy9rdm0vbXNnMTU3NDAyLmh0bWwNCg0Kc29tZSBjb21tZW50cyBoZXJl
-Og0KDQotLQ0KDQpCWVBBU1MgZmVhdHVyZSBiaXQgaXMgbm90IGNvdmVyZWQgaW4gIjIuMy4xLzIu
-My4yLzIuMy4zIiIuIElzIGl0IA0KaW50ZW5kZWQ/DQoNCi0tMi42LjIgRGV2aWNlIFJlcXVpcmVt
-ZW50czogRGV2aWNlIG9wZXJhdGlvbnMtLQ0KDQoiSWYgdGhlIFZJUlRJT19JT01NVV9GX0lOUFVU
-X1JBTkdFIGZlYXR1cmUgaXMgb++sgGVyZWQsIA0KdGhlIGRldmljZSBNVVNUIHRydW5jYXRlIHRo
-ZSByYW5nZSBkZXNjcmliZWQgYnkgdmlydF9zdGFydCANCmFuZCB2aXJ0X2VuZCBpbiByZXF1ZXN0
-cyB0byBmdCBpbiB0aGUgcmFuZ2UgZGVzY3JpYmVkIGJ5IA0KaW5wdXRfcmFuZ2UuIg0KDQoiSWYg
-dGhlIFZJUlRJT19JT01NVV9GX0RPTUFJTl9CSVRTIGlzIG/vrIBlcmVkLCB0aGUgZGV2aWNlIA0K
-TVVTVCBpZ25vcmUgYml0cyBhYm92ZSBkb21haW5fYml0cyBpbiBmaWVsZCBkb21haW4gb2YgcmVx
-dWVzdHMuIg0KDQpzaG91bGRuJ3QgZGV2aWNlIHJldHVybiBlcnJvciB1cG9uIGFib3ZlIHNpdHVh
-dGlvbiBpbnN0ZWFkDQpvZiBjb250aW51aW5nIG9wZXJhdGlvbiB3aXRoIG1vZGlmaWVkIHZhbHVl
-Pw0KDQotLTIuNi40IERFVEFDSCByZXF1ZXN0LS0NCg0KIiBEZXRhY2ggYW4gZW5kcG9pbnQgZnJv
-bSBpdHMgZG9tYWluLiBXaGVuIHRoaXMgcmVxdWVzdCANCmNvbXBsZXRlcywgdGhlIGVuZHBvaW50
-IGNhbm5vdCBhY2Nlc3MgYW55IG1hcHBpbmcgZnJvbSB0aGF0IA0KZG9tYWluIGFueW1vcmUgIg0K
-DQpEb2VzIGl0IG1ha2Ugc2Vuc2UgdG8gbWVudGlvbiBCWVBBU1Mgc2l0dWF0aW9uIHVwb24gdGhp
-cyByZXF1ZXN0Pw0KDQotLTIuNi44LjIgUHJvcGVydHkgUkVTVl9NRU0gLS0NCg0KIlZJUlRJT19J
-T01NVV9SRVNWX01FTV9UX1JFU0VSVkVEICgwKSBBY2Nlc3NlcyB0byANCnZpcnR1YWwgYWRkcmVz
-c2VzIGluIHRoaXMgcmVnaW9uIGFyZSBub3QgdHJhbnNsYXRlZCBieSB0aGUgZGV2aWNlLiANClRo
-ZXkgbWF5IGVpdGhlciBiZSBhYm9ydGVkIGJ5IHRoZSBkZXZpY2UgKG9yIHRoZSB1bmRlcmx5aW5n
-IA0KSU9NTVUpLCBieXBhc3MgaXQsIG9yIG5ldmVyIGV2ZW4gcmVhY2ggaXQiDQoNCmluIDMuMyBo
-YXJkd2FyZSBkZXZpY2UgYXNzaWdubWVudCB5b3UgZGVzY3JpYmVkIGFuIGV4YW1wbGUgDQp0aGF0
-IGEgcmVzZXJ2ZWQgcmFuZ2UgaXMgc3RvbGVuIGJ5IGhvc3QgdG8gbWFwIHRoZSBNU0kgDQpkb29y
-YmVsbC4uLiBzdWNoIG1hcCBiZWhhdmlvciBpcyBub3QgZGVzY3JpYmVkIGFib3ZlLg0KDQpUaGVu
-IGNvbWVzIGEgcXVlc3Rpb24gZm9yIFZJUlRJT19JT01NVV9SRVNWX01FTV9UX01TSS4NCkkga25v
-dyB0aGVyZSB3ZXJlIHF1aXRlIHNvbWUgZGlzY3Vzc2lvbiBhcm91bmQgdGhpcyBmbGFnIGJlZm9y
-ZSwNCmJ1dCBteSBtZW50YWwgcGljdHVyZSBub3cgc3RpbGwgaXMgYSBiaXQgZGlmZmljdWx0IHRv
-IHVuZGVyc3RhbmQgaXRzDQp1c2FnZSBiYXNlZCBvbiBleGFtcGxlcyBpbiBpbXBsZW1lbnRhdGlv
-biBub3RlczoNCg0KCS0gZm9yIHg4NiwgeW91IGRlc2NyaWJlIGl0IGFzIGluZGljYXRpbmcgTVNJ
-IGJ5cGFzcyBmb3INCm94ZmVleHh4eHguIEhvd2V2ZXIgZ3Vlc3QgZG9lc24ndCBuZWVkIHRvIGtu
-b3cgdGhpcyBmYWN0LiBPbmx5DQpyZXF1aXJlbWVudCBpcyB0byB0cmVhdCBpdCBhcyByZXNlcnZl
-ZCByYW5nZSAoYXMgb24gYmFyZSBtZXRhbCkNCnRoZW4gVF9SRVNFUlZFRCBpcyBzdWZmaWNpZW50
-IGZvciB0aGlzIHB1cnBvc2UNCg0KCS0gZm9yIEFSTSwgZWl0aGVyIGxldCBndWVzdCBvciBsZXQg
-aG9zdCB0byBjaG9vc2UgYSB2aXJ0dWFsDQphZGRyZXNzIGZvciBtYXBwaW5nIHRvIE1TSSBkb29y
-YmVsbC4gdGhlIGZvcm1lciBkb2Vzbid0IHJlcXVpcmUNCmEgcmVzZXJ2ZWQgcmFuZ2UuIGZvciB0
-aGUgbGF0dGVyIGFsc28gVF9SRVNFUlZFRCBpcyBlbm91Z2ggYXMNCnRoZSBleGFtcGxlIGluIGhh
-cmR3YXJlIGRldmljZSBhc3NpZ25tZW50IHNlY3Rpb24uDQoNClRoZW4gd2hhdCdzIHRoZSByZWFs
-IHBvaW50IG9mIGRpZmZlcmVudGlhdGluZyBNU0kgYnlwYXNzIGZyb20NCm5vcm1hbCByZXNlcnZl
-ZCByYW5nZT8gSXMgdGhlcmUgb3RoZXIgZXhhbXBsZSB3aGVyZSBndWVzdA0KbWF5IHVzZSBzdWNo
-IGluZm8gdG8gZG8gc3BlY2lhbCB0aGluZz8NCg0KLS0gMy4yIE1lc3NhZ2UgU2lnbmFsZWQgSW50
-ZXJydXB0cyAtLQ0KDQoiIFNlY3Rpb24gMy4yLjIgZGVzY3JpYmVzIHRoZSBhZGRlZCBjb21wbGV4
-aXR5IChmcm9tIHRoZSBob3N0IA0KcG9pbnQgb2Ygdmlldykgb2YgdHJhbnNsYXRpbmcgdGhlIElS
-USBjaGlwIGRvb3JiZWxsICINCg0KaG93ZXZlciBsYXRlciAzLjIuMiBvbmx5IHNheXMgb25lIHNl
-bnRlbmNlIGFib3V0IGhvc3QNCmNvbXBsZXhpdHkgLSAiIEhvd2V2ZXIsIHRoaXMgbW9kZSBvZiBv
-cGVyYXRpb25zIG1heSBhZGQgDQpzaWduaWZpY2FudCBjb21wbGV4aXR5IGluIHRoZSBob3N0IGlt
-cGxlbWVudGF0aW9uIi4gSWYgeW91IHBsYW4NCnRvIGVsYWJvcmF0ZSB0aGF0IHBhcnQgaW4gdGhl
-IGZ1dHVyZSwgcGxlYXNlIGFkZCBhIG5vdGUuIDotKQ0KDQpUaGFua3MNCktldmluDQpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+Hello!
+The following code triggered by syzbot 
+
+        r = get_user_pages_fast(log, 1, 1, &page);
+        if (r < 0)
+                return r;
+        BUG_ON(r != 1);
+
+Just looking at get_user_pages_fast's documentation this seems
+impossible - it is supposed to only ever return # of pages
+pinned or errno.
+
+However, poking at code, I see at least one path that might cause this:
+
+                        ret = faultin_page(tsk, vma, start, &foll_flags,
+                                        nonblocking);
+                        switch (ret) {
+                        case 0:
+                                goto retry;
+                        case -EFAULT:
+                        case -ENOMEM:
+                        case -EHWPOISON:
+                                return i ? i : ret;
+                        case -EBUSY:
+                                return i;
+
+which originally comes from:
+
+commit 53a7706d5ed8f1a53ba062b318773160cc476dde
+Author: Michel Lespinasse <walken@google.com>
+Date:   Thu Jan 13 15:46:14 2011 -0800
+
+    mlock: do not hold mmap_sem for extended periods of time
+    
+    __get_user_pages gets a new 'nonblocking' parameter to signal that the
+    caller is prepared to re-acquire mmap_sem and retry the operation if
+    needed.  This is used to split off long operations if they are going to
+    block on a disk transfer, or when we detect contention on the mmap_sem.
+    
+    [akpm@linux-foundation.org: remove ref to rwsem_is_contended()]
+    Signed-off-by: Michel Lespinasse <walken@google.com>
+    Cc: Hugh Dickins <hughd@google.com>
+    Cc: Rik van Riel <riel@redhat.com>
+    Cc: Peter Zijlstra <peterz@infradead.org>
+    Cc: Nick Piggin <npiggin@kernel.dk>
+    Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+    Cc: Ingo Molnar <mingo@elte.hu>
+    Cc: "H. Peter Anvin" <hpa@zytor.com>
+    Cc: Thomas Gleixner <tglx@linutronix.de>
+    Cc: David Howells <dhowells@redhat.com>
+    Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+    Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+I started looking into this, if anyone has any feedback meanwhile,
+that would be appreciated.
+
+In particular I don't really see why would this trigger
+on commit 8f5fd927c3a7576d57248a2d7a0861c3f2795973:
+
+Merge: 8757ae2 093e037
+Author: Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri Mar 16 13:37:42 2018 -0700
+
+    Merge tag 'for-4.16-rc5-tag' of git://git.kernel.org/pub/scm/linux/kernel/git/kdave/linux
+
+is btrfs used on these systems?
+
+
+syzbot output below:
+
+------------------------
+
+Hello,
+
+syzbot hit the following crash on upstream commit
+8f5fd927c3a7576d57248a2d7a0861c3f2795973 (Fri Mar 16 20:37:42 2018 +0000)
+Merge tag 'for-4.16-rc5-tag' of
+git://git.kernel.org/pub/scm/linux/kernel/git/kdave/linux
+
+So far this crash happened 2 times on upstream.
+C reproducer is attached.
+syzkaller reproducer is attached.
+Raw console output is attached.
+compiler: gcc (GCC) 7.1.1 20170620
+.config is attached.
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+6304bf97ef436580fede@syzkaller.appspotmail.com
+It will help syzbot understand when the bug is fixed. See footer for
+details.
+If you forward the report, please keep this part and the footer.
+
+audit: type=1400 audit(1521377060.016:6): avc:  denied  { map } for
+pid=4210 comm="bash" path="/bin/bash" dev="sda1" ino=1457
+scontext=unconfined_u:system_r:insmod_t:s0-s0:c0.c1023
+tcontext=system_u:object_r:file_t:s0 tclass=file permissive=1
+audit: type=1400 audit(1521377077.866:7): avc:  denied  { map } for
+pid=4228 comm="syzkaller050160" path="/root/syzkaller050160487" dev="sda1"
+ino=16481 scontext=unconfined_u:system_r:insmod_t:s0-s0:c0.c1023
+tcontext=unconfined_u:object_r:user_home_t:s0 tclass=file permissive=1
+------------[ cut here ]------------
+kernel BUG at drivers/vhost/vhost.c:1655!
+invalid opcode: 0000 [#1] SMP KASAN
+Dumping ftrace buffer:
+   (ftrace buffer empty)
+Modules linked in:
+CPU: 1 PID: 4228 Comm: syzkaller050160 Not tainted 4.16.0-rc5+ #357
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+RIP: 0010:set_bit_to_user drivers/vhost/vhost.c:1655 [inline]
+RIP: 0010:log_write+0x3ca/0x490 drivers/vhost/vhost.c:1679
+RSP: 0018:ffff8801b0fa77b0 EFLAGS: 00010293
+RAX: ffff8801af534240 RBX: dffffc0000000000 RCX: ffffffff8443f50a
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff8801af535618
+RBP: ffff8801b0fa78f0 R08: 0000000000000040 R09: 0000000000000001
+R10: ffff8801b0fa76d0 R11: 0000000000000002 R12: 0001ffffffffffff
+R13: ffffed00361f4f09 R14: ffff8801b0fa78c8 R15: ffff8801b0fa7848
+FS:  00000000007df880(0000) GS:ffff8801db300000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020d7c000 CR3: 00000001d3e5b005 CR4: 00000000001606e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ vhost_update_used_flags+0x379/0x480 drivers/vhost/vhost.c:1726
+ vhost_vq_init_access+0xca/0x540 drivers/vhost/vhost.c:1766
+ vhost_net_set_backend drivers/vhost/net.c:1166 [inline]
+ vhost_net_ioctl+0xee0/0x1920 drivers/vhost/net.c:1320
+ vfs_ioctl fs/ioctl.c:46 [inline]
+ do_vfs_ioctl+0x1b1/0x1520 fs/ioctl.c:686
+ SYSC_ioctl fs/ioctl.c:701 [inline]
+ SyS_ioctl+0x8f/0xc0 fs/ioctl.c:692
+ do_syscall_64+0x281/0x940 arch/x86/entry/common.c:287
+ entry_SYSCALL_64_after_hwframe+0x42/0xb7
+RIP: 0033:0x43ff09
+RSP: 002b:00007ffe94d57fc8 EFLAGS: 00000207 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 000000000043ff09
+RDX: 0000000020d7c000 RSI: 000000004008af30 RDI: 0000000000000003
+RBP: 00000000006ca018 R08: 00000000004002c8 R09: 00000000004002c8
+R10: 00000000004002c8 R11: 0000000000000207 R12: 0000000000401830
+R13: 00000000004018c0 R14: 0000000000000000 R15: 0000000000000000
+Code: 5e 41 5f 5d c3 31 c0 eb a6 e8 b3 22 2d fd 4c 89 ef e8 5b bb 4d fd 4c
+89 f8 48 c1 e8 03 c6 04 18 f8 e9 3a ff ff ff e8 96 22 2d fd <0f> 0b e8 8f 22
+2d fd 4d 8d 6c 24 ff e9 89 fe ff ff e8 80 22 2d
+RIP: set_bit_to_user drivers/vhost/vhost.c:1655 [inline] RSP:
+ffff8801b0fa77b0
+RIP: log_write+0x3ca/0x490 drivers/vhost/vhost.c:1679 RSP: ffff8801b0fa77b0
+---[ end trace 867ce9e35847b153 ]---
+Kernel panic - not syncing: Fatal exception
+Dumping ftrace buffer:
+   (ftrace buffer empty)
+Kernel Offset: disabled
+Rebooting in 86400 seconds..
+
+
+
+[....] Starting enhanced syslogd: rsyslogd[   15.400171] audit: type=1400 audit(1521377057.354:5): avc:  denied  { syslog } for  pid=4071 comm="rsyslogd" capability=34  scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=capability2 permissive=1
+[?25l[?1c7[1G[[32m ok [39;49m8[?25h[?0c.
+Starting mcstransd: 
+[....] Starting periodic command scheduler: cron[?25l[?1c7[1G[[32m ok [39;49m8[?25h[?0c.
+[....] Starting OpenBSD Secure Shell server: sshd[?25l[?1c7[1G[[32m ok [39;49m8[?25h[?0c.
+[....] Starting file context maintaining daemon: restorecond[?25l[?1c7[1G[[32m ok [39;49m8[?25h[?0c.
+
+Debian GNU/Linux 7 syzkaller ttyS0
+
+syzkaller login: [   18.063012] audit: type=1400 audit(1521377060.016:6): avc:  denied  { map } for  pid=4210 comm="bash" path="/bin/bash" dev="sda1" ino=1457 scontext=unconfined_u:system_r:insmod_t:s0-s0:c0.c1023 tcontext=system_u:object_r:file_t:s0 tclass=file permissive=1
+Warning: Permanently added '10.128.0.48' (ECDSA) to the list of known hosts.
+executing program
+[   35.912387] audit: type=1400 audit(1521377077.866:7): avc:  denied  { map } for  pid=4228 comm="syzkaller050160" path="/root/syzkaller050160487" dev="sda1" ino=16481 scontext=unconfined_u:system_r:insmod_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:user_home_t:s0 tclass=file permissive=1
+[   35.918516] ------------[ cut here ]------------
+[   35.943043] kernel BUG at drivers/vhost/vhost.c:1655!
+[   35.948327] invalid opcode: 0000 [#1] SMP KASAN
+[   35.952967] Dumping ftrace buffer:
+[   35.956472]    (ftrace buffer empty)
+[   35.960152] Modules linked in:
+[   35.963316] CPU: 1 PID: 4228 Comm: syzkaller050160 Not tainted 4.16.0-rc5+ #357
+[   35.970729] Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+[   35.980057] RIP: 0010:log_write+0x3ca/0x490
+[   35.984344] RSP: 0018:ffff8801b0fa77b0 EFLAGS: 00010293
+[   35.989677] RAX: ffff8801af534240 RBX: dffffc0000000000 RCX: ffffffff8443f50a
+[   35.996918] RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff8801af535618
+[   36.004155] RBP: ffff8801b0fa78f0 R08: 0000000000000040 R09: 0000000000000001
+[   36.011392] R10: ffff8801b0fa76d0 R11: 0000000000000002 R12: 0001ffffffffffff
+[   36.018632] R13: ffffed00361f4f09 R14: ffff8801b0fa78c8 R15: ffff8801b0fa7848
+[   36.025871] FS:  00000000007df880(0000) GS:ffff8801db300000(0000) knlGS:0000000000000000
+[   36.034065] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   36.039915] CR2: 0000000020d7c000 CR3: 00000001d3e5b005 CR4: 00000000001606e0
+[   36.047156] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   36.054393] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   36.061631] Call Trace:
+[   36.064192]  ? copy_overflow+0x30/0x30
+[   36.068047]  ? translate_desc+0x2bd/0x590
+[   36.072170]  vhost_update_used_flags+0x379/0x480
+[   36.076895]  vhost_vq_init_access+0xca/0x540
+[   36.081276]  vhost_net_ioctl+0xee0/0x1920
+[   36.085397]  ? vhost_net_stop_vq+0xf0/0xf0
+[   36.089603]  ? avc_ss_reset+0x110/0x110
+[   36.093547]  ? __handle_mm_fault+0x5ba/0x38c0
+[   36.098012]  ? __pmd_alloc+0x4e0/0x4e0
+[   36.101869]  ? trace_hardirqs_off+0x10/0x10
+[   36.106161]  ? __fd_install+0x25f/0x740
+[   36.110106]  ? find_held_lock+0x35/0x1d0
+[   36.114145]  ? check_same_owner+0x320/0x320
+[   36.118438]  ? rcu_note_context_switch+0x710/0x710
+[   36.123334]  ? __do_page_fault+0x5f7/0xc90
+[   36.127540]  ? vhost_net_stop_vq+0xf0/0xf0
+[   36.131742]  do_vfs_ioctl+0x1b1/0x1520
+[   36.135601]  ? ioctl_preallocate+0x2b0/0x2b0
+[   36.139979]  ? selinux_capable+0x40/0x40
+[   36.144009]  ? up_read+0x1a/0x40
+[   36.147349]  ? security_file_ioctl+0x7d/0xb0
+[   36.151727]  ? security_file_ioctl+0x89/0xb0
+[   36.156104]  SyS_ioctl+0x8f/0xc0
+[   36.159436]  ? do_vfs_ioctl+0x1520/0x1520
+[   36.163557]  do_syscall_64+0x281/0x940
+[   36.167412]  ? __do_page_fault+0xc90/0xc90
+[   36.171615]  ? trace_hardirqs_on_thunk+0x1a/0x1c
+[   36.176338]  ? syscall_return_slowpath+0x550/0x550
+[   36.181233]  ? syscall_return_slowpath+0x2ac/0x550
+[   36.186128]  ? prepare_exit_to_usermode+0x350/0x350
+[   36.191113]  ? retint_user+0x18/0x18
+[   36.194799]  ? trace_hardirqs_off_thunk+0x1a/0x1c
+[   36.199613]  entry_SYSCALL_64_after_hwframe+0x42/0xb7
+[   36.204772] RIP: 0033:0x43ff09
+[   36.207934] RSP: 002b:00007ffe94d57fc8 EFLAGS: 00000207 ORIG_RAX: 0000000000000010
+[   36.215608] RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 000000000043ff09
+[   36.222847] RDX: 0000000020d7c000 RSI: 000000004008af30 RDI: 0000000000000003
+[   36.230085] RBP: 00000000006ca018 R08: 00000000004002c8 R09: 00000000004002c8
+[   36.237324] R10: 00000000004002c8 R11: 0000000000000207 R12: 0000000000401830
+[   36.244563] R13: 00000000004018c0 R14: 0000000000000000 R15: 0000000000000000
+[   36.251810] Code: 5e 41 5f 5d c3 31 c0 eb a6 e8 b3 22 2d fd 4c 89 ef e8 5b bb 4d fd 4c 89 f8 48 c1 e8 03 c6 04 18 f8 e9 3a ff ff ff e8 96 22 2d fd <0f> 0b e8 8f 22 2d fd 4d 8d 6c 24 ff e9 89 fe ff ff e8 80 22 2d 
+[   36.270877] RIP: log_write+0x3ca/0x490 RSP: ffff8801b0fa77b0
+[   36.276691] ---[ end trace 867ce9e35847b153 ]---
+[   36.281425] Kernel panic - not syncing: Fatal exception
+[   36.287129] Dumping ftrace buffer:
+[   36.290635]    (ftrace buffer empty)
+[   36.294312] Kernel Offset: disabled
+[   36.297909] Rebooting in 86400 seconds..
+
+# See https://goo.gl/kgGztJ for information about syzkaller reproducers.
+#{Threaded:false Collide:false Repeat:false Procs:1 Sandbox: Fault:false FaultCall:-1 FaultNth:0 EnableTun:false UseTmpDir:false HandleSegv:false WaitRepeat:false Debug:false Repro:false}
+r0 = openat$vnet(0xffffffffffffff9c, &(0x7f00002ac000)='/dev/vhost-net\x00', 0x2, 0x0)
+ioctl$int_in(r0, 0x40000000af01, &(0x7f0000000040))
+r1 = openat$audio(0xffffffffffffff9c, &(0x7f0000000180)='/dev/audio\x00', 0x0, 0x0)
+close(r1)
+socket$packet(0x11, 0x3, 0x300)
+ioctl$VHOST_SET_VRING_ADDR(r0, 0x4028af11, &(0x7f0000000500)={0x0, 0x1, &(0x7f0000000740)=""/142, &(0x7f00000003c0)=""/69, &(0x7f0000000140)=""/14, 0xfffffffffffffffc})
+ioctl$VHOST_SET_FEATURES(r0, 0x4008af00, &(0x7f0000000640)=0x200000000)
+write$vnet(r0, &(0x7f0000000580)={0x1, {&(0x7f00000001c0)=""/219, 0x34c, &(0x7f0000000480)=""/98, 0xffffffffffffffff, 0x2}}, 0x68)
+ioctl$VHOST_NET_SET_BACKEND(r0, 0x4008af30, &(0x7f0000d7c000)={0x0, r1})
+
+// autogenerated by syzkaller (http://github.com/google/syzkaller)
+
+#define _GNU_SOURCE
+#include <endian.h>
+#include <stdint.h>
+#include <string.h>
+#include <sys/syscall.h>
+#include <unistd.h>
+
+uint64_t r[2] = {0xffffffffffffffff, 0xffffffffffffffff};
+void loop()
+{
+  long res;
+  memcpy((void*)0x202ac000, "/dev/vhost-net", 15);
+  res = syscall(__NR_openat, 0xffffffffffffff9c, 0x202ac000, 2, 0);
+  if (res != -1)
+    r[0] = res;
+  *(uint64_t*)0x20000040 = 0;
+  syscall(__NR_ioctl, r[0], 0x40000000af01, 0x20000040);
+  memcpy((void*)0x20000180, "/dev/audio", 11);
+  res = syscall(__NR_openat, 0xffffffffffffff9c, 0x20000180, 0, 0);
+  if (res != -1)
+    r[1] = res;
+  syscall(__NR_close, r[1]);
+  syscall(__NR_socket, 0x11, 3, 0x300);
+  *(uint32_t*)0x20000500 = 0;
+  *(uint32_t*)0x20000504 = 1;
+  *(uint64_t*)0x20000508 = 0x20000740;
+  *(uint64_t*)0x20000510 = 0x200003c0;
+  *(uint64_t*)0x20000518 = 0x20000140;
+  *(uint64_t*)0x20000520 = 0xfffffffffffffffc;
+  syscall(__NR_ioctl, r[0], 0x4028af11, 0x20000500);
+  *(uint64_t*)0x20000640 = 0x200000000;
+  syscall(__NR_ioctl, r[0], 0x4008af00, 0x20000640);
+  *(uint32_t*)0x20000580 = 1;
+  *(uint64_t*)0x20000588 = 0x200001c0;
+  *(uint64_t*)0x20000590 = 0x34c;
+  *(uint64_t*)0x20000598 = 0x20000480;
+  *(uint8_t*)0x200005a0 = -1;
+  *(uint8_t*)0x200005a1 = 2;
+  *(uint64_t*)0x200005a8 = 0;
+  *(uint64_t*)0x200005b0 = 0;
+  *(uint64_t*)0x200005b8 = 0;
+  *(uint64_t*)0x200005c0 = 0;
+  *(uint64_t*)0x200005c8 = 0;
+  *(uint64_t*)0x200005d0 = 0;
+  *(uint64_t*)0x200005d8 = 0;
+  *(uint64_t*)0x200005e0 = 0;
+  syscall(__NR_write, r[0], 0x20000580, 0x68);
+  *(uint32_t*)0x20d7c000 = 0;
+  *(uint32_t*)0x20d7c004 = r[1];
+  syscall(__NR_ioctl, r[0], 0x4008af30, 0x20d7c000);
+}
+
+int main()
+{
+  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
+  loop();
+  return 0;
+}
+
+#
+# Automatically generated file; DO NOT EDIT.
+# Linux/x86 4.16.0-rc5 Kernel Configuration
+#
+.. skipped ...
+
+---
+This bug is generated by a dumb bot. It may contain errors.
+See https://goo.gl/tpsmEJ for details.
+Direct all questions to syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report.
+If you forgot to add the Reported-by tag, once the fix for this bug is
+merged
+into any tree, please reply to this email with:
+#syz fix: exact-commit-title
+If you want to test a patch for this bug, please reply with:
+#syz test: git://repo/address.git branch
+and provide the patch inline or as an attachment.
+To mark this as a duplicate of another syzbot report, please reply with:
+#syz dup: exact-subject-of-another-report
+If it's a one-off invalid bug report, please reply with:
+#syz invalid
+Note: if the crash happens again, it will cause creation of a new bug
+report.
+Note: all commands must start from beginning of the line in the email body.
