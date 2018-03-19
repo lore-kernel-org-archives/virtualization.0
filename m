@@ -1,15 +1,11 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH v5 0/7] jailhouse: Enhance secondary Jailhouse guest
-	support /wrt PCI
-Date: Mon, 19 Mar 2018 20:50:59 +0100 (CET)
-Message-ID: <alpine.DEB.2.21.1803192049500.1520__20519.5469352931$1521488963$gmane$org@nanos.tec.linutronix.de>
-References: <cover.1520408357.git.jan.kiszka@siemens.com>
-	<20180319194813.GJ77194@bhelgaas-glaptop.roam.corp.google.com>
+From: Jonathan Helman <jonathan.helman@oracle.com>
+Subject: [PATCH v2] virtio_balloon: export hugetlb page allocation counts
+Date: Mon, 19 Mar 2018 15:14:14 -0700
+Message-ID: <1521497654-24807-1-git-send-email-jonathan.helman__15092.150696046$1521497558$gmane$org@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180319194813.GJ77194@bhelgaas-glaptop.roam.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,30 +15,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: jailhouse-dev@googlegroups.com, Juergen Gross <jgross@suse.com>, Benedikt Spranger <b.spranger@linutronix.de>, Jan Kiszka <jan.kiszka@siemens.com>, x86@kernel.org, linux-pci@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, virtualization@lists.linux-foundation.org, Andy Shevchenko <andy.shevchenko@gmail.com>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Bjorn Helgaas <bhelgaas@google.com>, Otavio Pontes <otavio.pontes@intel.com>, Mark Rutland <mark.rutland@arm.com>
+To: mst@redhat.com, jasowang@redhat.com
+Cc: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Bjorn,
+Export the number of successful and failed hugetlb page
+allocations via the virtio balloon driver. These 2 counts
+come directly from the vm_events HTLB_BUDDY_PGALLOC and
+HTLB_BUDDY_PGALLOC_FAIL.
 
-On Mon, 19 Mar 2018, Bjorn Helgaas wrote:
+Signed-off-by: Jonathan Helman <jonathan.helman@oracle.com>
+---
+ drivers/virtio/virtio_balloon.c     | 6 ++++++
+ include/uapi/linux/virtio_balloon.h | 4 +++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-> On Wed, Mar 07, 2018 at 08:39:11AM +0100, Jan Kiszka wrote:
-> > Basic x86 support [1] for running Linux as secondary Jailhouse [2] guest
-> > is currently pending in the tip tree. This builds on top and enhances
-> > the PCI support for x86 and also ARM guests (ARM[64] does not require
-> > platform patches and works already).
-> > ...
-> 
-> Hi Jan,
-> 
-> What tree do you plan to merge this through?  I was sort of assuming
-> x86, since the main point of jailhouse is not PCI, but I do notice
-> most of the changes here are PCI-related, so thought I should make
-> sure you're not waiting on me.
-
-I picked it up already. It's sitting in tip x86/platform
-
-Thanks,
-
-	tglx
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index dfe5684..6b237e3 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -272,6 +272,12 @@ static unsigned int update_balloon_stats(struct virtio_balloon *vb)
+ 				pages_to_bytes(events[PSWPOUT]));
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_MAJFLT, events[PGMAJFAULT]);
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_MINFLT, events[PGFAULT]);
++#ifdef CONFIG_HUGETLB_PAGE
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGALLOC,
++		    events[HTLB_BUDDY_PGALLOC]);
++	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGFAIL,
++		    events[HTLB_BUDDY_PGALLOC_FAIL]);
++#endif
+ #endif
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_MEMFREE,
+ 				pages_to_bytes(i.freeram));
+diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+index 4e8b830..40297a3 100644
+--- a/include/uapi/linux/virtio_balloon.h
++++ b/include/uapi/linux/virtio_balloon.h
+@@ -53,7 +53,9 @@ struct virtio_balloon_config {
+ #define VIRTIO_BALLOON_S_MEMTOT   5   /* Total amount of memory */
+ #define VIRTIO_BALLOON_S_AVAIL    6   /* Available memory as in /proc */
+ #define VIRTIO_BALLOON_S_CACHES   7   /* Disk caches */
+-#define VIRTIO_BALLOON_S_NR       8
++#define VIRTIO_BALLOON_S_HTLB_PGALLOC  8  /* Hugetlb page allocations */
++#define VIRTIO_BALLOON_S_HTLB_PGFAIL   9  /* Hugetlb page allocation failures */
++#define VIRTIO_BALLOON_S_NR       10
+ 
+ /*
+  * Memory statistics structure.
+-- 
+1.8.3.1
