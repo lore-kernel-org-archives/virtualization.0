@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] ptr_ring: fix build
-Date: Tue, 20 Mar 2018 02:41:45 +0200
-Message-ID: <1521506496-455194-1-git-send-email-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] ptr_ring: fix build
+Date: Tue, 20 Mar 2018 10:29:51 +0800
+Message-ID: <62a7a572-bba8-0beb-9a4a-1a4b80b244e4__1775.93733319572$1521512881$gmane$org@redhat.com>
+References: <1521506496-455194-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1521506496-455194-1-git-send-email-mst@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,39 +18,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fixes after recent use of kvmalloc
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- tools/virtio/ringtest/ptr_ring.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/tools/virtio/ringtest/ptr_ring.c b/tools/virtio/ringtest/ptr_ring.c
-index 477899c..2d566fb 100644
---- a/tools/virtio/ringtest/ptr_ring.c
-+++ b/tools/virtio/ringtest/ptr_ring.c
-@@ -17,6 +17,8 @@
- #define likely(x)    (__builtin_expect(!!(x), 1))
- #define ALIGN(x, a) (((x) + (a) - 1) / (a) * (a))
- #define SIZE_MAX        (~(size_t)0)
-+#define KMALLOC_MAX_SIZE SIZE_MAX
-+#define BUG_ON(x) assert(x)
- 
- typedef pthread_spinlock_t  spinlock_t;
- 
-@@ -57,6 +59,9 @@ static void kfree(void *p)
- 		free(p);
- }
- 
-+#define kvmalloc_array kmalloc_array
-+#define kvfree kfree
-+
- static void spin_lock_init(spinlock_t *lock)
- {
- 	int r = pthread_spin_init(lock, 0);
--- 
-MST
+CgpPbiAyMDE45bm0MDPmnIgyMOaXpSAwODo0MSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IEZpeGVzIGFmdGVyIHJlY2VudCB1c2Ugb2Yga3ZtYWxsb2MKPgo+IFNpZ25lZC1vZmYtYnk6IE1p
+Y2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4gLS0tCj4gICB0b29scy92aXJ0aW8v
+cmluZ3Rlc3QvcHRyX3JpbmcuYyB8IDUgKysrKysKPiAgIDEgZmlsZSBjaGFuZ2VkLCA1IGluc2Vy
+dGlvbnMoKykKPgo+IGRpZmYgLS1naXQgYS90b29scy92aXJ0aW8vcmluZ3Rlc3QvcHRyX3Jpbmcu
+YyBiL3Rvb2xzL3ZpcnRpby9yaW5ndGVzdC9wdHJfcmluZy5jCj4gaW5kZXggNDc3ODk5Yy4uMmQ1
+NjZmYiAxMDA2NDQKPiAtLS0gYS90b29scy92aXJ0aW8vcmluZ3Rlc3QvcHRyX3JpbmcuYwo+ICsr
+KyBiL3Rvb2xzL3ZpcnRpby9yaW5ndGVzdC9wdHJfcmluZy5jCj4gQEAgLTE3LDYgKzE3LDggQEAK
+PiAgICNkZWZpbmUgbGlrZWx5KHgpICAgIChfX2J1aWx0aW5fZXhwZWN0KCEhKHgpLCAxKSkKPiAg
+ICNkZWZpbmUgQUxJR04oeCwgYSkgKCgoeCkgKyAoYSkgLSAxKSAvIChhKSAqIChhKSkKPiAgICNk
+ZWZpbmUgU0laRV9NQVggICAgICAgICh+KHNpemVfdCkwKQo+ICsjZGVmaW5lIEtNQUxMT0NfTUFY
+X1NJWkUgU0laRV9NQVgKPiArI2RlZmluZSBCVUdfT04oeCkgYXNzZXJ0KHgpCj4gICAKPiAgIHR5
+cGVkZWYgcHRocmVhZF9zcGlubG9ja190ICBzcGlubG9ja190Owo+ICAgCj4gQEAgLTU3LDYgKzU5
+LDkgQEAgc3RhdGljIHZvaWQga2ZyZWUodm9pZCAqcCkKPiAgIAkJZnJlZShwKTsKPiAgIH0KPiAg
+IAo+ICsjZGVmaW5lIGt2bWFsbG9jX2FycmF5IGttYWxsb2NfYXJyYXkKPiArI2RlZmluZSBrdmZy
+ZWUga2ZyZWUKPiArCj4gICBzdGF0aWMgdm9pZCBzcGluX2xvY2tfaW5pdChzcGlubG9ja190ICps
+b2NrKQo+ICAgewo+ICAgCWludCByID0gcHRocmVhZF9zcGluX2luaXQobG9jaywgMCk7CgpBY2tl
+ZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
+dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
+LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
