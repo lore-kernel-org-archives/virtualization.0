@@ -1,14 +1,15 @@
-From: Jonathan Helman <jonathan.helman@oracle.com>
-Subject: Re: [PATCH v2] virtio_balloon: export hugetlb page allocation counts
-Date: Mon, 19 Mar 2018 21:26:41 -0700
-Message-ID: <6ED6CAC9-FAD9-4A27-A9B1-C6EFC7627D68@oracle.com>
-References: <1521497654-24807-1-git-send-email-jonathan.helman@oracle.com>
-	<db6371af-f93d-4409-c910-2ff712196c5b@redhat.com>
-Mime-Version: 1.0 (Mac OS X Mail 10.3 \(3273\))
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: "Tian, Kevin" <kevin.tian@intel.com>
+Subject: RE: [PATCH 1/4] iommu: Add virtio-iommu driver
+Date: Wed, 21 Mar 2018 06:43:35 +0000
+Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D19108B0FE__18044.1451295794$1521614548$gmane$org@SHSMSX101.ccr.corp.intel.com>
+References: <20180214145340.1223-1-jean-philippe.brucker@arm.com>
+	<20180214145340.1223-2-jean-philippe.brucker@arm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <db6371af-f93d-4409-c910-2ff712196c5b@redhat.com>
+In-Reply-To: <20180214145340.1223-2-jean-philippe.brucker@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,52 +19,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
+Cc: "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "mst@redhat.com" <mst@redhat.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "jintack@cs.columbia.edu" <jintack@cs.columbia.edu>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>, "joro@8bytes.org" <joro@8bytes.org>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cj4gT24gTWFyIDE5LCAyMDE4LCBhdCA3OjMxIFBNLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
-YXQuY29tPiB3cm90ZToKPiAKPiAKPiAKPiBPbiAyMDE45bm0MDPmnIgyMOaXpSAwNjoxNCwgSm9u
-YXRoYW4gSGVsbWFuIHdyb3RlOgo+PiBFeHBvcnQgdGhlIG51bWJlciBvZiBzdWNjZXNzZnVsIGFu
-ZCBmYWlsZWQgaHVnZXRsYiBwYWdlCj4+IGFsbG9jYXRpb25zIHZpYSB0aGUgdmlydGlvIGJhbGxv
-b24gZHJpdmVyLiBUaGVzZSAyIGNvdW50cwo+PiBjb21lIGRpcmVjdGx5IGZyb20gdGhlIHZtX2V2
-ZW50cyBIVExCX0JVRERZX1BHQUxMT0MgYW5kCj4+IEhUTEJfQlVERFlfUEdBTExPQ19GQUlMLgo+
-PiAKPj4gU2lnbmVkLW9mZi1ieTogSm9uYXRoYW4gSGVsbWFuIDxqb25hdGhhbi5oZWxtYW5Ab3Jh
-Y2xlLmNvbT4KPiAKPiBSZXZpZXdlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNv
-bT4KClRoYW5rcy4KCj4gCj4+IC0tLQo+PiAgZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24u
-YyAgICAgfCA2ICsrKysrKwo+PiAgaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmgg
-fCA0ICsrKy0KPj4gIDIgZmlsZXMgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9u
-KC0pCj4+IAo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYyBi
-L2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPj4gaW5kZXggZGZlNTY4NC4uNmIyMzdl
-MyAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+PiArKysg
-Yi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jCj4+IEBAIC0yNzIsNiArMjcyLDEyIEBA
-IHN0YXRpYyB1bnNpZ25lZCBpbnQgdXBkYXRlX2JhbGxvb25fc3RhdHMoc3RydWN0IHZpcnRpb19i
-YWxsb29uICp2YikKPj4gIAkJCQlwYWdlc190b19ieXRlcyhldmVudHNbUFNXUE9VVF0pKTsKPj4g
-IAl1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxMT09OX1NfTUFKRkxULCBldmVudHNb
-UEdNQUpGQVVMVF0pOwo+PiAgCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05f
-U19NSU5GTFQsIGV2ZW50c1tQR0ZBVUxUXSk7Cj4+ICsjaWZkZWYgQ09ORklHX0hVR0VUTEJfUEFH
-RQo+PiArCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19IVExCX1BHQUxM
-T0MsCj4+ICsJCSAgICBldmVudHNbSFRMQl9CVUREWV9QR0FMTE9DXSk7Cj4+ICsJdXBkYXRlX3N0
-YXQodmIsIGlkeCsrLCBWSVJUSU9fQkFMTE9PTl9TX0hUTEJfUEdGQUlMLAo+PiArCQkgICAgZXZl
-bnRzW0hUTEJfQlVERFlfUEdBTExPQ19GQUlMXSk7Cj4+ICsjZW5kaWYKPj4gICNlbmRpZgo+PiAg
-CXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19NRU1GUkVFLAo+PiAgCQkJ
-CXBhZ2VzX3RvX2J5dGVzKGkuZnJlZXJhbSkpOwo+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBp
-L2xpbnV4L3ZpcnRpb19iYWxsb29uLmggYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxv
-b24uaAo+PiBpbmRleCA0ZThiODMwLi40MDI5N2EzIDEwMDY0NAo+PiAtLS0gYS9pbmNsdWRlL3Vh
-cGkvbGludXgvdmlydGlvX2JhbGxvb24uaAo+PiArKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmly
-dGlvX2JhbGxvb24uaAo+PiBAQCAtNTMsNyArNTMsOSBAQCBzdHJ1Y3QgdmlydGlvX2JhbGxvb25f
-Y29uZmlnIHsKPj4gICNkZWZpbmUgVklSVElPX0JBTExPT05fU19NRU1UT1QgICA1ICAgLyogVG90
-YWwgYW1vdW50IG9mIG1lbW9yeSAqLwo+PiAgI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX0FWQUlM
-ICAgIDYgICAvKiBBdmFpbGFibGUgbWVtb3J5IGFzIGluIC9wcm9jICovCj4+ICAjZGVmaW5lIFZJ
-UlRJT19CQUxMT09OX1NfQ0FDSEVTICAgNyAgIC8qIERpc2sgY2FjaGVzICovCj4+IC0jZGVmaW5l
-IFZJUlRJT19CQUxMT09OX1NfTlIgICAgICAgOAo+PiArI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9T
-X0hUTEJfUEdBTExPQyAgOCAgLyogSHVnZXRsYiBwYWdlIGFsbG9jYXRpb25zICovCj4+ICsjZGVm
-aW5lIFZJUlRJT19CQUxMT09OX1NfSFRMQl9QR0ZBSUwgICA5ICAvKiBIdWdldGxiIHBhZ2UgYWxs
-b2NhdGlvbiBmYWlsdXJlcyAqLwo+PiArI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX05SICAgICAg
-IDEwCj4+ICAgIC8qCj4+ICAgKiBNZW1vcnkgc3RhdGlzdGljcyBzdHJ1Y3R1cmUuCj4gCj4gTm90
-IGZvciB0aGlzIHBhdGNoLCBidXQgaXQgbG9va3MgdG8gbWUgdGhhdCBleHBvcnRpbmcgc3VjaCBu
-ciB0aHJvdWdoIHVhcGkgaXMgZnJhZ2lsZS4KClNvcnJ5LCBjYW4geW91IGV4cGxhaW4gd2hhdCB5
-b3UgbWVhbiBoZXJlPwoKSm9uCgo+IAo+IFRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+> From: Jean-Philippe Brucker [mailto:jean-philippe.brucker@arm.com]
+> Sent: Wednesday, February 14, 2018 10:54 PM
+> 
+> The virtio IOMMU is a para-virtualized device, allowing to send IOMMU
+> requests such as map/unmap over virtio-mmio transport without
+> emulating
+> page tables. This implementation handles ATTACH, DETACH, MAP and
+> UNMAP
+> requests.
+> 
+> The bulk of the code transforms calls coming from the IOMMU API into
+> corresponding virtio requests. Mappings are kept in an interval tree
+> instead of page tables.
+> 
+> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+
+[...]
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> new file mode 100644
+> index 000000000000..a9c9245e8ba2
+> --- /dev/null
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -0,0 +1,960 @@
+> +/*
+> + * Virtio driver for the paravirtualized IOMMU
+> + *
+> + * Copyright (C) 2018 ARM Limited
+> + * Author: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+> + *
+> + * SPDX-License-Identifier: GPL-2.0
+> + */
+> +
+> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+> +
+> +#include <linux/amba/bus.h>
+> +#include <linux/delay.h>
+> +#include <linux/dma-iommu.h>
+> +#include <linux/freezer.h>
+> +#include <linux/interval_tree.h>
+> +#include <linux/iommu.h>
+> +#include <linux/module.h>
+> +#include <linux/of_iommu.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/pci.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/virtio.h>
+> +#include <linux/virtio_config.h>
+> +#include <linux/virtio_ids.h>
+> +#include <linux/wait.h>
+> +
+> +#include <uapi/linux/virtio_iommu.h>
+> +
+> +#define MSI_IOVA_BASE			0x8000000
+> +#define MSI_IOVA_LENGTH			0x100000
+
+this is ARM specific, and according to virtio-iommu spec isn't it
+better probed on the endpoint instead of hard-coding here?
+
+Thanks
+Kevin
