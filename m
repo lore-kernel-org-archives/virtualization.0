@@ -1,7 +1,7 @@
 From: Tiwei Bie <tiwei.bie@intel.com>
 Subject: Re: [PATCH RFC 2/2] virtio_ring: support packed ring
-Date: Wed, 21 Mar 2018 15:30:38 +0800
-Message-ID: <20180321073038.gukl2pxqszuudv4t@debian>
+Date: Wed, 21 Mar 2018 15:35:11 +0800
+Message-ID: <20180321073511.evpf7mt7hdwnga4k@debian>
 References: <20180223111801.15240-1-tiwei.bie@intel.com>
 	<20180223111801.15240-3-tiwei.bie@intel.com>
 	<8f73267a-e20e-de64-d8e0-3fd608dbf368@redhat.com>
@@ -11,12 +11,13 @@ References: <20180223111801.15240-1-tiwei.bie@intel.com>
 	<02a3da02-8226-ba4e-1b47-d25755b2c429@redhat.com>
 	<20180316100413.vtqwatregzrmhvt3@debian>
 	<094ca28b-d8af-bf7a-ea7e-0d0bf7518bda@redhat.com>
+	<20180316145702-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <094ca28b-d8af-bf7a-ea7e-0d0bf7518bda@redhat.com>
+In-Reply-To: <20180316145702-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,71 +27,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBNYXIgMTYsIDIwMTggYXQgMDc6MzY6NDdQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiAyMDE45bm0MDPmnIgxNuaXpSAxODowNCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gT24g
-RnJpLCBNYXIgMTYsIDIwMTggYXQgMDQ6MzQ6MjhQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-PiA+ID4gT24gMjAxOOW5tDAz5pyIMTbml6UgMTU6NDAsIFRpd2VpIEJpZSB3cm90ZToKPiA+ID4g
-PiBPbiBGcmksIE1hciAxNiwgMjAxOCBhdCAwMjo0NDoxMlBNICswODAwLCBKYXNvbiBXYW5nIHdy
-b3RlOgo+ID4gPiA+ID4gT24gMjAxOOW5tDAz5pyIMTbml6UgMTQ6MTAsIFRpd2VpIEJpZSB3cm90
-ZToKPiA+ID4gPiA+ID4gT24gRnJpLCBNYXIgMTYsIDIwMTggYXQgMTI6MDM6MjVQTSArMDgwMCwg
-SmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ID4gPiBPbiAyMDE45bm0MDLmnIgyM+aXpSAxOTox
-OCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gU2lnbmVkLW9mZi1ieTogVGl3ZWkg
-QmllIDx0aXdlaS5iaWVAaW50ZWwuY29tPgo+ID4gPiA+ID4gPiA+ID4gLS0tCj4gPiA+ID4gPiA+
-ID4gPiAgICAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgfCA2OTkgKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLQo+ID4gPiA+ID4gPiA+ID4gICAgICBpbmNs
-dWRlL2xpbnV4L3ZpcnRpb19yaW5nLmggIHwgICA4ICstCj4gPiA+ID4gPiA+ID4gPiAgICAgIDIg
-ZmlsZXMgY2hhbmdlZCwgNjE4IGluc2VydGlvbnMoKyksIDg5IGRlbGV0aW9ucygtKQpbLi4uXQo+
-ID4gPiBAQCAtMTA5NiwxNyArMTU5OSwyMSBAQCBzdHJ1Y3QgdmlydHF1ZXVlICp2cmluZ19jcmVh
-dGVfdmlydHF1ZXVlKAo+ID4gPiA+ID4gPiA+ID4gICAgICAJaWYgKCFxdWV1ZSkgewo+ID4gPiA+
-ID4gPiA+ID4gICAgICAJCS8qIFRyeSB0byBnZXQgYSBzaW5nbGUgcGFnZS4gWW91IGFyZSBteSBv
-bmx5IGhvcGUhICovCj4gPiA+ID4gPiA+ID4gPiAtCQlxdWV1ZSA9IHZyaW5nX2FsbG9jX3F1ZXVl
-KHZkZXYsIHZyaW5nX3NpemUobnVtLCB2cmluZ19hbGlnbiksCj4gPiA+ID4gPiA+ID4gPiArCQlx
-dWV1ZSA9IHZyaW5nX2FsbG9jX3F1ZXVlKHZkZXYsIF9fdnJpbmdfc2l6ZShudW0sIHZyaW5nX2Fs
-aWduLAo+ID4gPiA+ID4gPiA+ID4gKwkJCQkJCQkgICAgIHBhY2tlZCksCj4gPiA+ID4gPiA+ID4g
-PiAgICAgIAkJCQkJICAmZG1hX2FkZHIsIEdGUF9LRVJORUx8X19HRlBfWkVSTyk7Cj4gPiA+ID4g
-PiA+ID4gPiAgICAgIAl9Cj4gPiA+ID4gPiA+ID4gPiAgICAgIAlpZiAoIXF1ZXVlKQo+ID4gPiA+
-ID4gPiA+ID4gICAgICAJCXJldHVybiBOVUxMOwo+ID4gPiA+ID4gPiA+ID4gLQlxdWV1ZV9zaXpl
-X2luX2J5dGVzID0gdnJpbmdfc2l6ZShudW0sIHZyaW5nX2FsaWduKTsKPiA+ID4gPiA+ID4gPiA+
-IC0JdnJpbmdfaW5pdCgmdnJpbmcsIG51bSwgcXVldWUsIHZyaW5nX2FsaWduKTsKPiA+ID4gPiA+
-ID4gPiA+ICsJcXVldWVfc2l6ZV9pbl9ieXRlcyA9IF9fdnJpbmdfc2l6ZShudW0sIHZyaW5nX2Fs
-aWduLCBwYWNrZWQpOwo+ID4gPiA+ID4gPiA+ID4gKwlpZiAocGFja2VkKQo+ID4gPiA+ID4gPiA+
-ID4gKwkJdnJpbmdfcGFja2VkX2luaXQoJnZyaW5nLnZyaW5nX3BhY2tlZCwgbnVtLCBxdWV1ZSwg
-dnJpbmdfYWxpZ24pOwo+ID4gPiA+ID4gPiA+ID4gKwllbHNlCj4gPiA+ID4gPiA+ID4gPiArCQl2
-cmluZ19pbml0KCZ2cmluZy52cmluZ19zcGxpdCwgbnVtLCBxdWV1ZSwgdnJpbmdfYWxpZ24pOwo+
-ID4gPiA+ID4gPiA+IExldCdzIHJlbmFtZSB2cmluZ19pbml0IHRvIHZyaW5nX2luaXRfc3BsaXQo
-KSBsaWtlIG90aGVyIGhlbHBlcnM/Cj4gPiA+ID4gPiA+IFRoZSB2cmluZ19pbml0KCkgaXMgYSBw
-dWJsaWMgQVBJIGluIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcmluZy5oLgo+ID4gPiA+ID4g
-PiBJIGRvbid0IHRoaW5rIHdlIGNhbiByZW5hbWUgaXQuCj4gPiA+ID4gPiBJIHNlZSwgdGhlbiB0
-aGlzIG5lZWQgbW9yZSB0aG91Z2h0cyB0byB1bmlmeSB0aGUgQVBJLgo+ID4gPiA+IE15IHRob3Vn
-aHQgaXMgdG8ga2VlcCB0aGUgb2xkIEFQSSBhcyBpcywgYW5kIGludHJvZHVjZQo+ID4gPiA+IG5l
-dyB0eXBlcyBhbmQgaGVscGVycyBmb3IgcGFja2VkIHJpbmcuCj4gPiA+IEkgYWRtaXQgaXQncyBu
-b3QgYSBmYXVsdCBvZiB0aGlzIHBhdGNoLiBCdXQgd2UnZCBiZXR0ZXIgdGhpbmsgb2YgdGhpcyBp
-biB0aGUKPiA+ID4gZnV0dXJlLCBjb25zaWRlciB3ZSBtYXkgaGF2ZSBuZXcga2luZHMgb2Ygcmlu
-Zy4KPiA+ID4gCj4gPiA+ID4gTW9yZSBkZXRhaWxzIGNhbiBiZSBmb3VuZCBpbiB0aGlzIHBhdGNo
-Ogo+ID4gPiA+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE4LzIvMjMvMjQzCj4gPiA+ID4gKFBT
-LiBUaGUgdHlwZSB3aGljaCBoYXMgYml0IGZpZWxkcyBpcyBqdXN0IGZvciByZWZlcmVuY2UsCj4g
-PiA+ID4gICAgYW5kIHdpbGwgYmUgY2hhbmdlZCBpbiBuZXh0IHZlcnNpb24uKQo+ID4gPiA+IAo+
-ID4gPiA+IERvIHlvdSBoYXZlIGFueSBvdGhlciBzdWdnZXN0aW9ucz8KPiA+ID4gTm8uCj4gPiBI
-bW0uLiBTb3JyeSwgSSBkaWRuJ3QgZGVzY3JpYmUgbXkgcXVlc3Rpb24gd2VsbC4KPiA+IEkgbWVh
-biBkbyB5b3UgaGF2ZSBhbnkgc3VnZ2VzdGlvbnMgYWJvdXQgdGhlIEFQSQo+ID4gZGVzaWduIGZv
-ciBwYWNrZWQgcmluZyBpbiB1YXBpIGhlYWRlcj8gQ3VycmVudGx5Cj4gPiBJIGludHJvZHVjZWQg
-YmVsb3cgdHdvIG5ldyBoZWxwZXJzOgo+ID4gCj4gPiBzdGF0aWMgaW5saW5lIHZvaWQgdnJpbmdf
-cGFja2VkX2luaXQoc3RydWN0IHZyaW5nX3BhY2tlZCAqdnIsIHVuc2lnbmVkIGludCBudW0sCj4g
-PiAJCQkJICAgICB2b2lkICpwLCB1bnNpZ25lZCBsb25nIGFsaWduKTsKPiA+IHN0YXRpYyBpbmxp
-bmUgdW5zaWduZWQgdnJpbmdfcGFja2VkX3NpemUodW5zaWduZWQgaW50IG51bSwgdW5zaWduZWQg
-bG9uZyBhbGlnbik7Cj4gPiAKPiA+IFdoZW4gbmV3IHJpbmdzIGFyZSBpbnRyb2R1Y2VkIGluIHRo
-ZSBmdXR1cmUsIGFib3ZlCj4gPiBoZWxwZXJzIGNhbid0IGJlIHJldXNlZC4gTWF5YmUgd2Ugc2hv
-dWxkIG1ha2UgdGhlCj4gPiBoZWxwZXJzIGJlIGFibGUgdG8gZGV0ZXJtaW5lIHRoZSByaW5nIHR5
-cGU/Cj4gCj4gTGV0J3Mgd2FpdCBmb3IgTWljaGFlbCdzIGNvbW1lbnQgaGVyZS4gR2VuZXJhbGx5
-LCBJIGZhaWwgdG8gdW5kZXJzdGFuZCB3aHkKPiB2cmluZ19pbml0KCkgYmVjb21lIGEgcGFydCBv
-ZiB1YXBpLiBHaXQgZ3JlcCBzaG93cyB0aGUgb25seSB1c2UgY2FzZXMgYXJlCj4gdmlydGlvX3Rl
-c3QvdnJpbmdoX3Rlc3QuCgpUaGFuayB5b3UgdmVyeSBtdWNoIGZvciB0aGUgcmV2aWV3IG9uIHRo
-aXMgcGF0Y2ghCkknbGwgc2VuZCBvdXQgYSBuZXcgdmVyc2lvbiBBU0FQIHRvIGFkZHJlc3MgdGhl
-c2UKY29tbWVudHMuIDopCgpCZXN0IHJlZ2FyZHMsClRpd2VpIEJpZQpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, Mar 16, 2018 at 04:30:02PM +0200, Michael S. Tsirkin wrote:
+> On Fri, Mar 16, 2018 at 07:36:47PM +0800, Jason Wang wrote:
+> > > > @@ -1096,17 +1599,21 @@ struct virtqueue *vring_create_virtqueue(
+> > > > > > > > >      	if (!queue) {
+> > > > > > > > >      		/* Try to get a single page. You are my only hope! */
+> > > > > > > > > -		queue = vring_alloc_queue(vdev, vring_size(num, vring_align),
+> > > > > > > > > +		queue = vring_alloc_queue(vdev, __vring_size(num, vring_align,
+> > > > > > > > > +							     packed),
+> > > > > > > > >      					  &dma_addr, GFP_KERNEL|__GFP_ZERO);
+> > > > > > > > >      	}
+> > > > > > > > >      	if (!queue)
+> > > > > > > > >      		return NULL;
+> > > > > > > > > -	queue_size_in_bytes = vring_size(num, vring_align);
+> > > > > > > > > -	vring_init(&vring, num, queue, vring_align);
+> > > > > > > > > +	queue_size_in_bytes = __vring_size(num, vring_align, packed);
+> > > > > > > > > +	if (packed)
+> > > > > > > > > +		vring_packed_init(&vring.vring_packed, num, queue, vring_align);
+> > > > > > > > > +	else
+> > > > > > > > > +		vring_init(&vring.vring_split, num, queue, vring_align);
+> > > > > > > > Let's rename vring_init to vring_init_split() like other helpers?
+> > > > > > > The vring_init() is a public API in include/uapi/linux/virtio_ring.h.
+> > > > > > > I don't think we can rename it.
+> > > > > > I see, then this need more thoughts to unify the API.
+> > > > > My thought is to keep the old API as is, and introduce
+> > > > > new types and helpers for packed ring.
+> > > > I admit it's not a fault of this patch. But we'd better think of this in the
+> > > > future, consider we may have new kinds of ring.
+> > > > 
+> > > > > More details can be found in this patch:
+> > > > > https://lkml.org/lkml/2018/2/23/243
+> > > > > (PS. The type which has bit fields is just for reference,
+> > > > >    and will be changed in next version.)
+> > > > > 
+> > > > > Do you have any other suggestions?
+> > > > No.
+> > > Hmm.. Sorry, I didn't describe my question well.
+> > > I mean do you have any suggestions about the API
+> > > design for packed ring in uapi header? Currently
+> > > I introduced below two new helpers:
+> > > 
+> > > static inline void vring_packed_init(struct vring_packed *vr, unsigned int num,
+> > > 				     void *p, unsigned long align);
+> > > static inline unsigned vring_packed_size(unsigned int num, unsigned long align);
+> > > 
+> > > When new rings are introduced in the future, above
+> > > helpers can't be reused. Maybe we should make the
+> > > helpers be able to determine the ring type?
+> > 
+> > Let's wait for Michael's comment here. Generally, I fail to understand why
+> > vring_init() become a part of uapi. Git grep shows the only use cases are
+> > virtio_test/vringh_test.
+> > 
+> > Thanks
+> 
+> For init - I think it's a mistake that stems from lguest which sometimes
+> made it less than obvious which code is where.  I don't see a reason to
+> add to it.
+
+Got it! I'll move vring_packed_init() out of uapi. Many thanks! :)
+
+Best regards,
+Tiwei Bie
+
+> 
+> -- 
+> MST
