@@ -1,23 +1,15 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [PATCH RFC 2/2] virtio_ring: support packed ring
-Date: Wed, 21 Mar 2018 15:35:11 +0800
-Message-ID: <20180321073511.evpf7mt7hdwnga4k@debian>
-References: <20180223111801.15240-1-tiwei.bie@intel.com>
-	<20180223111801.15240-3-tiwei.bie@intel.com>
-	<8f73267a-e20e-de64-d8e0-3fd608dbf368@redhat.com>
-	<20180316061047.o2xdyuqhak3mzjyw@debian>
-	<0a0ecf42-8f7f-9387-8ca4-cb65d0835b56@redhat.com>
-	<20180316074028.lun2jy45qqnfeymw@debian>
-	<02a3da02-8226-ba4e-1b47-d25755b2c429@redhat.com>
-	<20180316100413.vtqwatregzrmhvt3@debian>
-	<094ca28b-d8af-bf7a-ea7e-0d0bf7518bda@redhat.com>
-	<20180316145702-mutt-send-email-mst@kernel.org>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [Outreachy kernel] [PATCH] drm/qxl: Replace
+	drm_gem_object_reference/unreference() with _get/put()
+Date: Wed, 21 Mar 2018 09:20:08 +0100
+Message-ID: <20180321082008.GX14155__3135.72424133799$1521620295$gmane$org@phenom.ffwll.local>
+References: <1521570567-22519-1-git-send-email-santhameena13@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180316145702-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1521570567-22519-1-git-send-email-santhameena13@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,73 +19,180 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Santha Meena Ramamoorthy <santhameena13@gmail.com>
+Cc: airlied@linux.ie, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, outreachy-kernel@googlegroups.com, seanpaul@chromium.org, daniel.vetter@intel.com, airlied@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 16, 2018 at 04:30:02PM +0200, Michael S. Tsirkin wrote:
-> On Fri, Mar 16, 2018 at 07:36:47PM +0800, Jason Wang wrote:
-> > > > @@ -1096,17 +1599,21 @@ struct virtqueue *vring_create_virtqueue(
-> > > > > > > > >      	if (!queue) {
-> > > > > > > > >      		/* Try to get a single page. You are my only hope! */
-> > > > > > > > > -		queue = vring_alloc_queue(vdev, vring_size(num, vring_align),
-> > > > > > > > > +		queue = vring_alloc_queue(vdev, __vring_size(num, vring_align,
-> > > > > > > > > +							     packed),
-> > > > > > > > >      					  &dma_addr, GFP_KERNEL|__GFP_ZERO);
-> > > > > > > > >      	}
-> > > > > > > > >      	if (!queue)
-> > > > > > > > >      		return NULL;
-> > > > > > > > > -	queue_size_in_bytes = vring_size(num, vring_align);
-> > > > > > > > > -	vring_init(&vring, num, queue, vring_align);
-> > > > > > > > > +	queue_size_in_bytes = __vring_size(num, vring_align, packed);
-> > > > > > > > > +	if (packed)
-> > > > > > > > > +		vring_packed_init(&vring.vring_packed, num, queue, vring_align);
-> > > > > > > > > +	else
-> > > > > > > > > +		vring_init(&vring.vring_split, num, queue, vring_align);
-> > > > > > > > Let's rename vring_init to vring_init_split() like other helpers?
-> > > > > > > The vring_init() is a public API in include/uapi/linux/virtio_ring.h.
-> > > > > > > I don't think we can rename it.
-> > > > > > I see, then this need more thoughts to unify the API.
-> > > > > My thought is to keep the old API as is, and introduce
-> > > > > new types and helpers for packed ring.
-> > > > I admit it's not a fault of this patch. But we'd better think of this in the
-> > > > future, consider we may have new kinds of ring.
-> > > > 
-> > > > > More details can be found in this patch:
-> > > > > https://lkml.org/lkml/2018/2/23/243
-> > > > > (PS. The type which has bit fields is just for reference,
-> > > > >    and will be changed in next version.)
-> > > > > 
-> > > > > Do you have any other suggestions?
-> > > > No.
-> > > Hmm.. Sorry, I didn't describe my question well.
-> > > I mean do you have any suggestions about the API
-> > > design for packed ring in uapi header? Currently
-> > > I introduced below two new helpers:
-> > > 
-> > > static inline void vring_packed_init(struct vring_packed *vr, unsigned int num,
-> > > 				     void *p, unsigned long align);
-> > > static inline unsigned vring_packed_size(unsigned int num, unsigned long align);
-> > > 
-> > > When new rings are introduced in the future, above
-> > > helpers can't be reused. Maybe we should make the
-> > > helpers be able to determine the ring type?
-> > 
-> > Let's wait for Michael's comment here. Generally, I fail to understand why
-> > vring_init() become a part of uapi. Git grep shows the only use cases are
-> > virtio_test/vringh_test.
-> > 
-> > Thanks
+On Tue, Mar 20, 2018 at 11:29:27AM -0700, Santha Meena Ramamoorthy wrote:
+> Replace drm_gem_object_reference/unreference function with *_get/put()
+> suffixes, because it is shorter and consistent with the kernel
+> kref_get/put() functions. The following Coccinelle script was used:
 > 
-> For init - I think it's a mistake that stems from lguest which sometimes
-> made it less than obvious which code is where.  I don't see a reason to
-> add to it.
+> @@
+> expression e;
+> @@
+> 
+> (
+> -drm_gem_object_reference(e);
+> +drm_gem_object_get(e);
+> |
+> -drm_gem_object_unreference(e);
+> +drm_gem_object_put(e);
+> |
+> -drm_gem_object_unreference_unlocked(e);
+> +drm_gem_object_put_unlocked(e);
+> )
+> 
+> Signed-off-by: Santha Meena Ramamoorthy <santhameena13@gmail.com>
 
-Got it! I'll move vring_packed_init() out of uapi. Many thanks! :)
+lgtm, thanks for your patch. Applied to drm-misc-next.
+-Daniel
 
-Best regards,
-Tiwei Bie
-
+> ---
+>  drivers/gpu/drm/qxl/qxl_display.c | 4 ++--
+>  drivers/gpu/drm/qxl/qxl_dumb.c    | 2 +-
+>  drivers/gpu/drm/qxl/qxl_fb.c      | 6 +++---
+>  drivers/gpu/drm/qxl/qxl_gem.c     | 2 +-
+>  drivers/gpu/drm/qxl/qxl_ioctl.c   | 4 ++--
+>  drivers/gpu/drm/qxl/qxl_object.c  | 6 +++---
+>  6 files changed, 12 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+> index 9a9214a..ecb35ed 100644
+> --- a/drivers/gpu/drm/qxl/qxl_display.c
+> +++ b/drivers/gpu/drm/qxl/qxl_display.c
+> @@ -309,7 +309,7 @@ void qxl_user_framebuffer_destroy(struct drm_framebuffer *fb)
+>  	struct qxl_bo *bo = gem_to_qxl_bo(qxl_fb->obj);
+>  
+>  	WARN_ON(bo->shadow);
+> -	drm_gem_object_unreference_unlocked(qxl_fb->obj);
+> +	drm_gem_object_put_unlocked(qxl_fb->obj);
+>  	drm_framebuffer_cleanup(fb);
+>  	kfree(qxl_fb);
+>  }
+> @@ -1215,7 +1215,7 @@ qxl_user_framebuffer_create(struct drm_device *dev,
+>  	ret = qxl_framebuffer_init(dev, qxl_fb, mode_cmd, obj, &qxl_fb_funcs);
+>  	if (ret) {
+>  		kfree(qxl_fb);
+> -		drm_gem_object_unreference_unlocked(obj);
+> +		drm_gem_object_put_unlocked(obj);
+>  		return NULL;
+>  	}
+>  
+> diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_dumb.c
+> index 11085ab..c666b89 100644
+> --- a/drivers/gpu/drm/qxl/qxl_dumb.c
+> +++ b/drivers/gpu/drm/qxl/qxl_dumb.c
+> @@ -82,6 +82,6 @@ int qxl_mode_dumb_mmap(struct drm_file *file_priv,
+>  		return -ENOENT;
+>  	qobj = gem_to_qxl_bo(gobj);
+>  	*offset_p = qxl_bo_mmap_offset(qobj);
+> -	drm_gem_object_unreference_unlocked(gobj);
+> +	drm_gem_object_put_unlocked(gobj);
+>  	return 0;
+>  }
+> diff --git a/drivers/gpu/drm/qxl/qxl_fb.c b/drivers/gpu/drm/qxl/qxl_fb.c
+> index 23af3e3..3388914 100644
+> --- a/drivers/gpu/drm/qxl/qxl_fb.c
+> +++ b/drivers/gpu/drm/qxl/qxl_fb.c
+> @@ -95,7 +95,7 @@ static void qxlfb_destroy_pinned_object(struct drm_gem_object *gobj)
+>  	qxl_bo_kunmap(qbo);
+>  	qxl_bo_unpin(qbo);
+>  
+> -	drm_gem_object_unreference_unlocked(gobj);
+> +	drm_gem_object_put_unlocked(gobj);
+>  }
+>  
+>  int qxl_get_handle_for_primary_fb(struct qxl_device *qdev,
+> @@ -316,11 +316,11 @@ static int qxlfb_create(struct qxl_fbdev *qfbdev,
+>  		qxl_bo_unpin(qbo);
+>  	}
+>  	if (fb && ret) {
+> -		drm_gem_object_unreference_unlocked(gobj);
+> +		drm_gem_object_put_unlocked(gobj);
+>  		drm_framebuffer_cleanup(fb);
+>  		kfree(fb);
+>  	}
+> -	drm_gem_object_unreference_unlocked(gobj);
+> +	drm_gem_object_put_unlocked(gobj);
+>  	return ret;
+>  }
+>  
+> diff --git a/drivers/gpu/drm/qxl/qxl_gem.c b/drivers/gpu/drm/qxl/qxl_gem.c
+> index 85f5467..f5c1e78 100644
+> --- a/drivers/gpu/drm/qxl/qxl_gem.c
+> +++ b/drivers/gpu/drm/qxl/qxl_gem.c
+> @@ -98,7 +98,7 @@ int qxl_gem_object_create_with_handle(struct qxl_device *qdev,
+>  		return r;
+>  	/* drop reference from allocate - handle holds it now */
+>  	*qobj = gem_to_qxl_bo(gobj);
+> -	drm_gem_object_unreference_unlocked(gobj);
+> +	drm_gem_object_put_unlocked(gobj);
+>  	return 0;
+>  }
+>  
+> diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
+> index e8c0b10..e238a1a 100644
+> --- a/drivers/gpu/drm/qxl/qxl_ioctl.c
+> +++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
+> @@ -121,7 +121,7 @@ static int qxlhw_handle_to_bo(struct drm_file *file_priv, uint64_t handle,
+>  	qobj = gem_to_qxl_bo(gobj);
+>  
+>  	ret = qxl_release_list_add(release, qobj);
+> -	drm_gem_object_unreference_unlocked(gobj);
+> +	drm_gem_object_put_unlocked(gobj);
+>  	if (ret)
+>  		return ret;
+>  
+> @@ -343,7 +343,7 @@ static int qxl_update_area_ioctl(struct drm_device *dev, void *data,
+>  	qxl_bo_unreserve(qobj);
+>  
+>  out:
+> -	drm_gem_object_unreference_unlocked(gobj);
+> +	drm_gem_object_put_unlocked(gobj);
+>  	return ret;
+>  }
+>  
+> diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
+> index f6b80fe..e9fb0ab 100644
+> --- a/drivers/gpu/drm/qxl/qxl_object.c
+> +++ b/drivers/gpu/drm/qxl/qxl_object.c
+> @@ -211,13 +211,13 @@ void qxl_bo_unref(struct qxl_bo **bo)
+>  	if ((*bo) == NULL)
+>  		return;
+>  
+> -	drm_gem_object_unreference_unlocked(&(*bo)->gem_base);
+> +	drm_gem_object_put_unlocked(&(*bo)->gem_base);
+>  	*bo = NULL;
+>  }
+>  
+>  struct qxl_bo *qxl_bo_ref(struct qxl_bo *bo)
+>  {
+> -	drm_gem_object_reference(&bo->gem_base);
+> +	drm_gem_object_get(&bo->gem_base);
+>  	return bo;
+>  }
+>  
+> @@ -318,7 +318,7 @@ void qxl_bo_force_delete(struct qxl_device *qdev)
+>  		list_del_init(&bo->list);
+>  		mutex_unlock(&qdev->gem.mutex);
+>  		/* this should unref the ttm bo */
+> -		drm_gem_object_unreference_unlocked(&bo->gem_base);
+> +		drm_gem_object_put_unlocked(&bo->gem_base);
+>  	}
+>  }
+>  
+> -- 
+> 2.7.4
 > 
 > -- 
-> MST
+> You received this message because you are subscribed to the Google Groups "outreachy-kernel" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to outreachy-kernel+unsubscribe@googlegroups.com.
+> To post to this group, send email to outreachy-kernel@googlegroups.com.
+> To view this discussion on the web visit https://groups.google.com/d/msgid/outreachy-kernel/1521570567-22519-1-git-send-email-santhameena13%40gmail.com.
+> For more options, visit https://groups.google.com/d/optout.
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
