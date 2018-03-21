@@ -1,15 +1,15 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [Outreachy kernel] [PATCH] drm/qxl: Replace
-	drm_gem_object_reference/unreference() with _get/put()
-Date: Wed, 21 Mar 2018 09:20:08 +0100
-Message-ID: <20180321082008.GX14155__3135.72424133799$1521620295$gmane$org@phenom.ffwll.local>
-References: <1521570567-22519-1-git-send-email-santhameena13@gmail.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [virtio-dev] [RFC] virtio-iommu version 0.6
+Date: Wed, 21 Mar 2018 13:13:30 +0000
+Message-ID: <3575fbb8-36a9-ef38-8234-6adf6a573b3e@arm.com>
+References: <20180206181106.21815-1-jean-philippe.brucker@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D191085A76@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1521570567-22519-1-git-send-email-santhameena13@gmail.com>
+In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D191085A76@SHSMSX101.ccr.corp.intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,180 +19,101 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Santha Meena Ramamoorthy <santhameena13@gmail.com>
-Cc: airlied@linux.ie, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, outreachy-kernel@googlegroups.com, seanpaul@chromium.org, daniel.vetter@intel.com, airlied@redhat.com
+To: "Tian, Kevin" <kevin.tian@intel.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: "eric.auger@redhat.com" <eric.auger@redhat.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 20, 2018 at 11:29:27AM -0700, Santha Meena Ramamoorthy wrote:
-> Replace drm_gem_object_reference/unreference function with *_get/put()
-> suffixes, because it is shorter and consistent with the kernel
-> kref_get/put() functions. The following Coccinelle script was used:
-> 
-> @@
-> expression e;
-> @@
-> 
-> (
-> -drm_gem_object_reference(e);
-> +drm_gem_object_get(e);
-> |
-> -drm_gem_object_unreference(e);
-> +drm_gem_object_put(e);
-> |
-> -drm_gem_object_unreference_unlocked(e);
-> +drm_gem_object_put_unlocked(e);
-> )
-> 
-> Signed-off-by: Santha Meena Ramamoorthy <santhameena13@gmail.com>
-
-lgtm, thanks for your patch. Applied to drm-misc-next.
--Daniel
-
-> ---
->  drivers/gpu/drm/qxl/qxl_display.c | 4 ++--
->  drivers/gpu/drm/qxl/qxl_dumb.c    | 2 +-
->  drivers/gpu/drm/qxl/qxl_fb.c      | 6 +++---
->  drivers/gpu/drm/qxl/qxl_gem.c     | 2 +-
->  drivers/gpu/drm/qxl/qxl_ioctl.c   | 4 ++--
->  drivers/gpu/drm/qxl/qxl_object.c  | 6 +++---
->  6 files changed, 12 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-> index 9a9214a..ecb35ed 100644
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -309,7 +309,7 @@ void qxl_user_framebuffer_destroy(struct drm_framebuffer *fb)
->  	struct qxl_bo *bo = gem_to_qxl_bo(qxl_fb->obj);
->  
->  	WARN_ON(bo->shadow);
-> -	drm_gem_object_unreference_unlocked(qxl_fb->obj);
-> +	drm_gem_object_put_unlocked(qxl_fb->obj);
->  	drm_framebuffer_cleanup(fb);
->  	kfree(qxl_fb);
->  }
-> @@ -1215,7 +1215,7 @@ qxl_user_framebuffer_create(struct drm_device *dev,
->  	ret = qxl_framebuffer_init(dev, qxl_fb, mode_cmd, obj, &qxl_fb_funcs);
->  	if (ret) {
->  		kfree(qxl_fb);
-> -		drm_gem_object_unreference_unlocked(obj);
-> +		drm_gem_object_put_unlocked(obj);
->  		return NULL;
->  	}
->  
-> diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_dumb.c
-> index 11085ab..c666b89 100644
-> --- a/drivers/gpu/drm/qxl/qxl_dumb.c
-> +++ b/drivers/gpu/drm/qxl/qxl_dumb.c
-> @@ -82,6 +82,6 @@ int qxl_mode_dumb_mmap(struct drm_file *file_priv,
->  		return -ENOENT;
->  	qobj = gem_to_qxl_bo(gobj);
->  	*offset_p = qxl_bo_mmap_offset(qobj);
-> -	drm_gem_object_unreference_unlocked(gobj);
-> +	drm_gem_object_put_unlocked(gobj);
->  	return 0;
->  }
-> diff --git a/drivers/gpu/drm/qxl/qxl_fb.c b/drivers/gpu/drm/qxl/qxl_fb.c
-> index 23af3e3..3388914 100644
-> --- a/drivers/gpu/drm/qxl/qxl_fb.c
-> +++ b/drivers/gpu/drm/qxl/qxl_fb.c
-> @@ -95,7 +95,7 @@ static void qxlfb_destroy_pinned_object(struct drm_gem_object *gobj)
->  	qxl_bo_kunmap(qbo);
->  	qxl_bo_unpin(qbo);
->  
-> -	drm_gem_object_unreference_unlocked(gobj);
-> +	drm_gem_object_put_unlocked(gobj);
->  }
->  
->  int qxl_get_handle_for_primary_fb(struct qxl_device *qdev,
-> @@ -316,11 +316,11 @@ static int qxlfb_create(struct qxl_fbdev *qfbdev,
->  		qxl_bo_unpin(qbo);
->  	}
->  	if (fb && ret) {
-> -		drm_gem_object_unreference_unlocked(gobj);
-> +		drm_gem_object_put_unlocked(gobj);
->  		drm_framebuffer_cleanup(fb);
->  		kfree(fb);
->  	}
-> -	drm_gem_object_unreference_unlocked(gobj);
-> +	drm_gem_object_put_unlocked(gobj);
->  	return ret;
->  }
->  
-> diff --git a/drivers/gpu/drm/qxl/qxl_gem.c b/drivers/gpu/drm/qxl/qxl_gem.c
-> index 85f5467..f5c1e78 100644
-> --- a/drivers/gpu/drm/qxl/qxl_gem.c
-> +++ b/drivers/gpu/drm/qxl/qxl_gem.c
-> @@ -98,7 +98,7 @@ int qxl_gem_object_create_with_handle(struct qxl_device *qdev,
->  		return r;
->  	/* drop reference from allocate - handle holds it now */
->  	*qobj = gem_to_qxl_bo(gobj);
-> -	drm_gem_object_unreference_unlocked(gobj);
-> +	drm_gem_object_put_unlocked(gobj);
->  	return 0;
->  }
->  
-> diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
-> index e8c0b10..e238a1a 100644
-> --- a/drivers/gpu/drm/qxl/qxl_ioctl.c
-> +++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
-> @@ -121,7 +121,7 @@ static int qxlhw_handle_to_bo(struct drm_file *file_priv, uint64_t handle,
->  	qobj = gem_to_qxl_bo(gobj);
->  
->  	ret = qxl_release_list_add(release, qobj);
-> -	drm_gem_object_unreference_unlocked(gobj);
-> +	drm_gem_object_put_unlocked(gobj);
->  	if (ret)
->  		return ret;
->  
-> @@ -343,7 +343,7 @@ static int qxl_update_area_ioctl(struct drm_device *dev, void *data,
->  	qxl_bo_unreserve(qobj);
->  
->  out:
-> -	drm_gem_object_unreference_unlocked(gobj);
-> +	drm_gem_object_put_unlocked(gobj);
->  	return ret;
->  }
->  
-> diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
-> index f6b80fe..e9fb0ab 100644
-> --- a/drivers/gpu/drm/qxl/qxl_object.c
-> +++ b/drivers/gpu/drm/qxl/qxl_object.c
-> @@ -211,13 +211,13 @@ void qxl_bo_unref(struct qxl_bo **bo)
->  	if ((*bo) == NULL)
->  		return;
->  
-> -	drm_gem_object_unreference_unlocked(&(*bo)->gem_base);
-> +	drm_gem_object_put_unlocked(&(*bo)->gem_base);
->  	*bo = NULL;
->  }
->  
->  struct qxl_bo *qxl_bo_ref(struct qxl_bo *bo)
->  {
-> -	drm_gem_object_reference(&bo->gem_base);
-> +	drm_gem_object_get(&bo->gem_base);
->  	return bo;
->  }
->  
-> @@ -318,7 +318,7 @@ void qxl_bo_force_delete(struct qxl_device *qdev)
->  		list_del_init(&bo->list);
->  		mutex_unlock(&qdev->gem.mutex);
->  		/* this should unref the ttm bo */
-> -		drm_gem_object_unreference_unlocked(&bo->gem_base);
-> +		drm_gem_object_put_unlocked(&bo->gem_base);
->  	}
->  }
->  
-> -- 
-> 2.7.4
-> 
-> -- 
-> You received this message because you are subscribed to the Google Groups "outreachy-kernel" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to outreachy-kernel+unsubscribe@googlegroups.com.
-> To post to this group, send email to outreachy-kernel@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgid/outreachy-kernel/1521570567-22519-1-git-send-email-santhameena13%40gmail.com.
-> For more options, visit https://groups.google.com/d/optout.
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+SGkgS2V2aW4sCgpUaGFua3MgZm9yIHRoZSBjb21tZW50cwoKT24gMTkvMDMvMTggMTA6MDMsIFRp
+YW4sIEtldmluIHdyb3RlOgo+IEJZUEFTUyBmZWF0dXJlIGJpdCBpcyBub3QgY292ZXJlZCBpbiAi
+Mi4zLjEvMi4zLjIvMi4zLjMiIi4gSXMgaXQgCj4gaW50ZW5kZWQ/CgpJbiBteSBvcGluaW9uIEJZ
+UEFTUyBpcyBhIGJpdCBkaWZmZXJlbnQgZnJvbSB0aGUgb3RoZXIgZmVhdHVyZXM6IHdoaWxlIHRo
+ZQpvdGhlcnMgYXJlIG5lZWRlZCBmb3IgY29ycmVjdG5lc3MsIHRoaXMgb25lIGlzIG9wdGlvbmFs
+IGFuZCBldmVuIGlmIHRoZQpndWVzdCBzdXBwb3J0cyBCWVBBU1MsIGl0IHNob3VsZCBiZSBhbGxv
+d2VkIG5vdCB0byBhY2NlcHQgaXQuIEZvciBzZWN1cml0eQpyZWFzb25zIGl0IG1heSBub3Qgd2Fu
+dCB0byBsZXQgZW5kcG9pbnRzIGFjY2VzcyB0aGUgd2hvbGUgZ3Vlc3QtcGh5c2ljYWwKYWRkcmVz
+cyBzcGFjZS4KCj4gLS0yLjYuMiBEZXZpY2UgUmVxdWlyZW1lbnRzOiBEZXZpY2Ugb3BlcmF0aW9u
+cy0tCj4gCj4gIklmIHRoZSBWSVJUSU9fSU9NTVVfRl9JTlBVVF9SQU5HRSBmZWF0dXJlIGlzIG/v
+rIBlcmVkLCAKPiB0aGUgZGV2aWNlIE1VU1QgdHJ1bmNhdGUgdGhlIHJhbmdlIGRlc2NyaWJlZCBi
+eSB2aXJ0X3N0YXJ0IAo+IGFuZCB2aXJ0X2VuZCBpbiByZXF1ZXN0cyB0byBmdCBpbiB0aGUgcmFu
+Z2UgZGVzY3JpYmVkIGJ5IAo+IGlucHV0X3JhbmdlLiIKPiAKPiAiSWYgdGhlIFZJUlRJT19JT01N
+VV9GX0RPTUFJTl9CSVRTIGlzIG/vrIBlcmVkLCB0aGUgZGV2aWNlIAo+IE1VU1QgaWdub3JlIGJp
+dHMgYWJvdmUgZG9tYWluX2JpdHMgaW4gZmllbGQgZG9tYWluIG9mIHJlcXVlc3RzLiIKPiAKPiBz
+aG91bGRuJ3QgZGV2aWNlIHJldHVybiBlcnJvciB1cG9uIGFib3ZlIHNpdHVhdGlvbiBpbnN0ZWFk
+Cj4gb2YgY29udGludWluZyBvcGVyYXRpb24gd2l0aCBtb2RpZmllZCB2YWx1ZT8KClRoZSBpbnRl
+bnQgd2FzIHRvIGFsbG93IGRldmljZSBhbmQgZHJpdmVyIHRvIHBhc3MgbWV0YWRhdGEgaW4gdGhl
+IHRvcCBiaXRzCm9mIHBvaW50ZXJzIGFuZCBkb21haW4gSURzLCBwZXJoYXBzIGZvciBhIGZ1dHVy
+ZSBleHRlbnNpb24gb3IgZm9yCmRlYnVnZ2luZy4gSSdtIG5vdCBjb252aW5jZWQgaXQncyB1c2Vm
+dWwgYW55bW9yZSAoYW5kIGRvIHdvbmRlciB3aGF0IG15CmluaXRpYWwgcmVhc29uaW5nIHdhcy4u
+LikgU3VjaCBleHRlbnNpb24gd291bGQgYmUgZGV0ZXJtaW5lZCBieSBhIG5ldwpmZWF0dXJlIGJp
+dCBhbmQgdGhlIGRldmljZSB3b3VsZCBrbm93IHRoYXQgdGhlIGZpZWxkcyBjb250YWluIGFkZGl0
+aW9uYWwKaW5mbywgaWYgdGhlIGRyaXZlciBhY2NlcHRlZCB0aGF0IGZlYXR1cmUuCgo+IC0tMi42
+LjQgREVUQUNIIHJlcXVlc3QtLQo+IAo+ICIgRGV0YWNoIGFuIGVuZHBvaW50IGZyb20gaXRzIGRv
+bWFpbi4gV2hlbiB0aGlzIHJlcXVlc3QgCj4gY29tcGxldGVzLCB0aGUgZW5kcG9pbnQgY2Fubm90
+IGFjY2VzcyBhbnkgbWFwcGluZyBmcm9tIHRoYXQgCj4gZG9tYWluIGFueW1vcmUgIgo+IAo+IERv
+ZXMgaXQgbWFrZSBzZW5zZSB0byBtZW50aW9uIEJZUEFTUyBzaXR1YXRpb24gdXBvbiB0aGlzIHJl
+cXVlc3Q/CgpTdXJlLCBJJ2xsIGFkZCBzb21ldGhpbmcgdG8gY2xhcmlmeSB0aGF0IHNpdHVhdGlv
+bgoKPiAtLTIuNi44LjIgUHJvcGVydHkgUkVTVl9NRU0gLS0KPiAKPiAiVklSVElPX0lPTU1VX1JF
+U1ZfTUVNX1RfUkVTRVJWRUQgKDApIEFjY2Vzc2VzIHRvIAo+IHZpcnR1YWwgYWRkcmVzc2VzIGlu
+IHRoaXMgcmVnaW9uIGFyZSBub3QgdHJhbnNsYXRlZCBieSB0aGUgZGV2aWNlLiAKPiBUaGV5IG1h
+eSBlaXRoZXIgYmUgYWJvcnRlZCBieSB0aGUgZGV2aWNlIChvciB0aGUgdW5kZXJseWluZyAKPiBJ
+T01NVSksIGJ5cGFzcyBpdCwgb3IgbmV2ZXIgZXZlbiByZWFjaCBpdCIKPiAKPiBpbiAzLjMgaGFy
+ZHdhcmUgZGV2aWNlIGFzc2lnbm1lbnQgeW91IGRlc2NyaWJlZCBhbiBleGFtcGxlIAo+IHRoYXQg
+YSByZXNlcnZlZCByYW5nZSBpcyBzdG9sZW4gYnkgaG9zdCB0byBtYXAgdGhlIE1TSSAKPiBkb29y
+YmVsbC4uLiBzdWNoIG1hcCBiZWhhdmlvciBpcyBub3QgZGVzY3JpYmVkIGFib3ZlLgoKUmlnaHQs
+IHdlIGNhbiBzYXkgdGhhdCBhY2Nlc3NlcyB0byB0aGUgcmVnaW9uIG1heSBiZSB1c2VkIGZvciBo
+b3N0IHRyYW5zbGF0aW9uCgo+IFRoZW4gY29tZXMgYSBxdWVzdGlvbiBmb3IgVklSVElPX0lPTU1V
+X1JFU1ZfTUVNX1RfTVNJLgo+IEkga25vdyB0aGVyZSB3ZXJlIHF1aXRlIHNvbWUgZGlzY3Vzc2lv
+biBhcm91bmQgdGhpcyBmbGFnIGJlZm9yZSwKPiBidXQgbXkgbWVudGFsIHBpY3R1cmUgbm93IHN0
+aWxsIGlzIGEgYml0IGRpZmZpY3VsdCB0byB1bmRlcnN0YW5kIGl0cwo+IHVzYWdlIGJhc2VkIG9u
+IGV4YW1wbGVzIGluIGltcGxlbWVudGF0aW9uIG5vdGVzOgo+IAo+IAktIGZvciB4ODYsIHlvdSBk
+ZXNjcmliZSBpdCBhcyBpbmRpY2F0aW5nIE1TSSBieXBhc3MgZm9yCj4gb3hmZWV4eHh4eC4gSG93
+ZXZlciBndWVzdCBkb2Vzbid0IG5lZWQgdG8ga25vdyB0aGlzIGZhY3QuIE9ubHkKPiByZXF1aXJl
+bWVudCBpcyB0byB0cmVhdCBpdCBhcyByZXNlcnZlZCByYW5nZSAoYXMgb24gYmFyZSBtZXRhbCkK
+PiB0aGVuIFRfUkVTRVJWRUQgaXMgc3VmZmljaWVudCBmb3IgdGhpcyBwdXJwb3NlPgo+IAktIGZv
+ciBBUk0sIGVpdGhlciBsZXQgZ3Vlc3Qgb3IgbGV0IGhvc3QgdG8gY2hvb3NlIGEgdmlydHVhbAo+
+IGFkZHJlc3MgZm9yIG1hcHBpbmcgdG8gTVNJIGRvb3JiZWxsLiB0aGUgZm9ybWVyIGRvZXNuJ3Qg
+cmVxdWlyZQo+IGEgcmVzZXJ2ZWQgcmFuZ2UuIGZvciB0aGUgbGF0dGVyIGFsc28gVF9SRVNFUlZF
+RCBpcyBlbm91Z2ggYXMKPiB0aGUgZXhhbXBsZSBpbiBoYXJkd2FyZSBkZXZpY2UgYXNzaWdubWVu
+dCBzZWN0aW9uLgoKSXQgbWlnaHQgYmUgbmljZXIgdG8gaGF2ZSB0aGUgaG9zdCBkZWNpZGUgaXQs
+IGJ1dCB3aGVuIHRoZSBwaHlzaWNhbCBJT01NVQppcyBBUk0gU01NVSwgbmVzdGluZyB0cmFuc2xh
+dGlvbiBjb21wbGljYXRlcyB0aGluZ3MsIGJlY2F1c2UgdGhlIGd1ZXN0CipoYXMqIHRvIGNyZWF0
+ZSBhIG1hcHBpbmc6CgoqIFRoZSBndWVzdCBpcyBpbiBjaGFyZ2Ugb2Ygc3RhZ2UtMS4gSXQgY3Jl
+YXRlcyBJT1ZBLT5HUEEgbWFwcGluZyBmb3IgdGhlCiAgTVNJIGRvb3JiZWxsLiBUaGUgR1BBIGlz
+IG1hcHBlZCB0byB0aGUgcGh5c2ljYWwgTVNJIGRvb3JiZWxsIGF0CiAgc3RhZ2UtMiBieSB0aGUg
+aG9zdC4KCiogd2hlbiBpdCB3cml0ZXMgdGhhdCBJT1ZBIGluIHRoZSB2aXJ0dWFsIE1TSS1YIHRh
+YmxlcywgdGhlIGhvc3QgdXBkYXRlcwogIHRoZSBwaHlzaWNhbCBNU0ktWCB0YWJsZXMgdXNpbmcg
+YW4gaW9jdGwgKGl0IGNhbid0IG1hcCB0aGUgcGh5c2ljYWwKICB0YWJsZXMgaW50byB0aGUgZ3Vl
+c3QsIGJlY2F1c2UgTVNJLVggdmVjdG9yIGRhdGEgYWxzbyBjb250YWluIHBoeXNpY2FsCiAgZGV2
+aWNlIGluZm8gdGhhdCBzaG91bGRuJ3QgYmUga25vd24gYnkgdGhlIGd1ZXN0LikKClNvIHdlIG5l
+ZWQgc3VwcG9ydCBmb3Igc29mdHdhcmUtbWFwcGVkIE1TSXMgaW4gdGhlIGd1ZXN0IGFueXdheS4g
+SW4gTGludXgKdGhlIHZpcnRpby1pb21tdSBkcml2ZXIgY2FuIHVzZSBleGlzdGluZyBwbHVtYmlu
+ZyBmb3IgdGhhdCwgbm8gY2hhbmdlCm5lZWRlZCBpbiB0aGUgZ3Vlc3QuCgo+IFRoZW4gd2hhdCdz
+IHRoZSByZWFsIHBvaW50IG9mIGRpZmZlcmVudGlhdGluZyBNU0kgYnlwYXNzIGZyb20KPiBub3Jt
+YWwgcmVzZXJ2ZWQgcmFuZ2U/IElzIHRoZXJlIG90aGVyIGV4YW1wbGUgd2hlcmUgZ3Vlc3QKPiBt
+YXkgdXNlIHN1Y2ggaW5mbyB0byBkbyBzcGVjaWFsIHRoaW5nPwoKVGhlIHByZXNlbmNlIG9mIGFu
+IE1TSSBieXBhc3MgcmVnaW9ucyBhbGxvd3MgdGhlIGRyaXZlciBhbmQgdGhlIERNQSBsYXllcgoo
+aW4gTGludXggaW9tbXVfZG1hX21hcF9tc2lfbXNnKSB0byBrbm93IHdoZXRoZXIgaXQgbmVlZHMg
+dG8gY3JlYXRlIGEKbWFwcGluZyBvciBpZiBpdCdzIGJ5cGFzc2VkLiBXaGVuIHdyaXRpbmcgdGhl
+IGVudHJ5IGludG8gdGhlIE1TSS1YIHRhYmxlLAppZiB0aGUgYWRkcmVzcyBpbiB0aGUgTVNJIHZl
+Y3RvciBhbHJlYWR5IGNvcnJlc3BvbmRzIHRvIGFuIE1TSSBieXBhc3MKcmVnaW9uLCB0aGVuIHRo
+ZXJlIGlzIG5vIG5lZWQgdG8gY3JlYXRlIGEgbWFwcGluZy4gTWFraW5nIHRoZSBieXBhc3MgTVNJ
+CnJlZ2lvbiBhIG5vcm1hbCBSRVNWIHJhbmdlIGhpZGVzIHRoYXQgaW5mb3JtYXRpb24uCgpBbm90
+aGVyIHdheSBvZiBjaG9vc2luZyB3b3VsZCBiZSB3aXRoICNpZmRlZiBDT05GSUdfQVJNNjQsIENP
+TkZJR19YODYgZXRjLApidXQgSSBmaW5kIGl0IG5hc3R5LCBhbmQgSSBwZXJzb25hbGx5IHByZWZl
+ciB1c2luZyBNU0kgYnlwYXNzIGZvciBBUk0gd2hlbgpwb3NzaWJsZS4KCj4gLS0gMy4yIE1lc3Nh
+Z2UgU2lnbmFsZWQgSW50ZXJydXB0cyAtLQo+IAo+ICIgU2VjdGlvbiAzLjIuMiBkZXNjcmliZXMg
+dGhlIGFkZGVkIGNvbXBsZXhpdHkgKGZyb20gdGhlIGhvc3QgCj4gcG9pbnQgb2Ygdmlldykgb2Yg
+dHJhbnNsYXRpbmcgdGhlIElSUSBjaGlwIGRvb3JiZWxsICIKPiAKPiBob3dldmVyIGxhdGVyIDMu
+Mi4yIG9ubHkgc2F5cyBvbmUgc2VudGVuY2UgYWJvdXQgaG9zdAo+IGNvbXBsZXhpdHkgLSAiIEhv
+d2V2ZXIsIHRoaXMgbW9kZSBvZiBvcGVyYXRpb25zIG1heSBhZGQgCj4gc2lnbmlmaWNhbnQgY29t
+cGxleGl0eSBpbiB0aGUgaG9zdCBpbXBsZW1lbnRhdGlvbiIuIElmIHlvdSBwbGFuCj4gdG8gZWxh
+Ym9yYXRlIHRoYXQgcGFydCBpbiB0aGUgZnV0dXJlLCBwbGVhc2UgYWRkIGEgbm90ZS4gOi0pCgpP
+aCByaWdodCwgSSBkb24ndCByZWFsbHkgd2FudCB0byBlbGFib3JhdGUsIEknbGwgdHJ5IHRvIHJl
+d29yZCAzLjIuIFRoZQprdm10b29sIHBhdGNoZXMgaGF2ZSBzdXBwb3J0IGZvciBib3RoIE1TSSBi
+eXBhc3MgYW5kIHRyYW5zbGF0aW9uCihzZWxlY3RhYmxlIHdpdGggYSBjbWRsaW5lIGZsYWcpLCB3
+aGljaCBJIHRoaW5rIGlzIGdvb2QgZW5vdWdoLiBJJ2QgcmF0aGVyCnJlYWQgYSBjb2RlIGV4YW1w
+bGUgdGhhbiBzb21lIGNsdW1zeSBwcm9zZSBkZXNjcmliaW5nIGl0LgoKVGhhbmtzLApKZWFuCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
