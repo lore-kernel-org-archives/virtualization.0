@@ -1,16 +1,16 @@
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
 Subject: Re: [PATCH 00/23] drm: Eliminate plane->fb/crtc usage for atomic
 	drivers
-Date: Thu, 22 Mar 2018 20:49:12 +0200
-Message-ID: <20180322184912.GM5453__39584.0698773556$1521744445$gmane$org@intel.com>
+Date: Fri, 23 Mar 2018 00:28:34 +0100
+Message-ID: <2e75f7f3-9e1e-0d0c-08d5-eb1060f5df71@tronnes.org>
 References: <20180322152313.6561-1-ville.syrjala@linux.intel.com>
 	<b92fe986-295c-fecb-dca1-82cb9bf7b7b1@tronnes.org>
+	<20180322184912.GM5453@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <b92fe986-295c-fecb-dca1-82cb9bf7b7b1@tronnes.org>
+In-Reply-To: <20180322184912.GM5453@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,42 +20,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, Thomas Hellstrom <thellstrom@vmware.com>, amd-gfx@lists.freedesktop.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, intel-gfx@lists.freedesktop.org, Seung-Woo Kim <sw0312.kim@samsung.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Kyungmin Park <kyungmin.park@samsung.com>, VMware Graphics <linux-graphics-maintainer@vmware.com>, linux-arm-msm@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>, Shawn Guo <shawnguo@kernel.org>, freedreno@lists.freedesktop.org, Vincent Abriou <vincent.abriou@st.com>, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, Thomas Hellstrom <thellstrom@vmware.com>, amd-gfx@lists.freedesktop.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, intel-gfx@lists.freedesktop.org, Seung-Woo Kim <sw0312.kim@samsung.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Kyungmin Park <kyungmin.park@samsung.com>, VMware Graphics <linux-graphics-maintainer@vmware.com>, linux-arm-msm@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>, Shawn Guo <shawnguo@kernel.org>, freedreno@lists.freedesktop.org, Vincent Abriou <vincent.abriou@st.com>, =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 22, 2018 at 05:51:35PM +0100, Noralf Tr=F8nnes wrote:
-> tinydrm is also using plane->fb:
-> =
-
-> $ grep -r "plane\.fb" drivers/gpu/drm/tinydrm/
-> drivers/gpu/drm/tinydrm/repaper.c:=A0=A0=A0=A0=A0 if (tdev->pipe.plane.fb=
- !=3D fb)
-> drivers/gpu/drm/tinydrm/mipi-dbi.c:=A0=A0=A0=A0 if (tdev->pipe.plane.fb !=
-=3D fb)
-> drivers/gpu/drm/tinydrm/mipi-dbi.c:=A0=A0=A0=A0 struct drm_framebuffer *f=
-b =3D =
-
-> mipi->tinydrm.pipe.plane.fb;
-
-Oh dear, and naturally it's the most annoying one of the bunch. So we
-want to take the plane lock in the fb.dirty() hook to look at the fb,
-but mipi-dbi.c calls that directly from the bowels of its
-.atomic_enable() hook. So that would deadlock pretty neatly if the
-commit happens while already holding the lock.
-
-So we'd either need to plumb an acquire context into fb.dirty(),
-or maybe have tinydrm provide a lower level lockless dirty() hook
-that gets called by both (there are just too many layers in this
-particular cake to immediately see where such a hook would be best
-placed). Or maybe there's some other solution I didn't think of.
-
-Looking at this I'm also left wondering how this is supposed
-handle fb.dirty() getting called concurrently with a modeset.
-The dirty_mutex only seems to offer any protection for
-fb.dirty() against another fb.dirty()...
-
--- =
-
-Ville Syrj=E4l=E4
-Intel OTC
+CkRlbiAyMi4wMy4yMDE4IDE5LjQ5LCBza3JldiBWaWxsZSBTeXJqw6Rsw6Q6Cj4gT24gVGh1LCBN
+YXIgMjIsIDIwMTggYXQgMDU6NTE6MzVQTSArMDEwMCwgTm9yYWxmIFRyw7hubmVzIHdyb3RlOgo+
+PiB0aW55ZHJtIGlzIGFsc28gdXNpbmcgcGxhbmUtPmZiOgo+Pgo+PiAkIGdyZXAgLXIgInBsYW5l
+XC5mYiIgZHJpdmVycy9ncHUvZHJtL3Rpbnlkcm0vCj4+IGRyaXZlcnMvZ3B1L2RybS90aW55ZHJt
+L3JlcGFwZXIuYzrCoMKgwqDCoMKgIGlmICh0ZGV2LT5waXBlLnBsYW5lLmZiICE9IGZiKQo+PiBk
+cml2ZXJzL2dwdS9kcm0vdGlueWRybS9taXBpLWRiaS5jOsKgwqDCoMKgIGlmICh0ZGV2LT5waXBl
+LnBsYW5lLmZiICE9IGZiKQo+PiBkcml2ZXJzL2dwdS9kcm0vdGlueWRybS9taXBpLWRiaS5jOsKg
+wqDCoMKgIHN0cnVjdCBkcm1fZnJhbWVidWZmZXIgKmZiID0KPj4gbWlwaS0+dGlueWRybS5waXBl
+LnBsYW5lLmZiOwo+IE9oIGRlYXIsIGFuZCBuYXR1cmFsbHkgaXQncyB0aGUgbW9zdCBhbm5veWlu
+ZyBvbmUgb2YgdGhlIGJ1bmNoLiBTbyB3ZQo+IHdhbnQgdG8gdGFrZSB0aGUgcGxhbmUgbG9jayBp
+biB0aGUgZmIuZGlydHkoKSBob29rIHRvIGxvb2sgYXQgdGhlIGZiLAo+IGJ1dCBtaXBpLWRiaS5j
+IGNhbGxzIHRoYXQgZGlyZWN0bHkgZnJvbSB0aGUgYm93ZWxzIG9mIGl0cwo+IC5hdG9taWNfZW5h
+YmxlKCkgaG9vay4gU28gdGhhdCB3b3VsZCBkZWFkbG9jayBwcmV0dHkgbmVhdGx5IGlmIHRoZQo+
+IGNvbW1pdCBoYXBwZW5zIHdoaWxlIGFscmVhZHkgaG9sZGluZyB0aGUgbG9jay4KPgo+IFNvIHdl
+J2QgZWl0aGVyIG5lZWQgdG8gcGx1bWIgYW4gYWNxdWlyZSBjb250ZXh0IGludG8gZmIuZGlydHko
+KSwKPiBvciBtYXliZSBoYXZlIHRpbnlkcm0gcHJvdmlkZSBhIGxvd2VyIGxldmVsIGxvY2tsZXNz
+IGRpcnR5KCkgaG9vawo+IHRoYXQgZ2V0cyBjYWxsZWQgYnkgYm90aCAodGhlcmUgYXJlIGp1c3Qg
+dG9vIG1hbnkgbGF5ZXJzIGluIHRoaXMKPiBwYXJ0aWN1bGFyIGNha2UgdG8gaW1tZWRpYXRlbHkg
+c2VlIHdoZXJlIHN1Y2ggYSBob29rIHdvdWxkIGJlIGJlc3QKPiBwbGFjZWQpLiBPciBtYXliZSB0
+aGVyZSdzIHNvbWUgb3RoZXIgc29sdXRpb24gSSBkaWRuJ3QgdGhpbmsgb2YuCj4KPiBMb29raW5n
+IGF0IHRoaXMgSSdtIGFsc28gbGVmdCB3b25kZXJpbmcgaG93IHRoaXMgaXMgc3VwcG9zZWQKPiBo
+YW5kbGUgZmIuZGlydHkoKSBnZXR0aW5nIGNhbGxlZCBjb25jdXJyZW50bHkgd2l0aCBhIG1vZGVz
+ZXQuCj4gVGhlIGRpcnR5X211dGV4IG9ubHkgc2VlbXMgdG8gb2ZmZXIgYW55IHByb3RlY3Rpb24g
+Zm9yCj4gZmIuZGlydHkoKSBhZ2FpbnN0IGFub3RoZXIgZmIuZGlydHkoKS4uLgo+CgpJIGhhdmUg
+YmVlbiB3YWl0aW5nIGZvciB0aGUgJ3BhZ2UtZmxpcCB3aXRoIGRhbWFnZSdbMV0gd29yayB0byBj
+b21lIHRvCmZydWl0aW9uIHNvIEkgY291bGQgaGFuZGxlIGFsbCBmbHVzaGluZyBkdXJpbmcgYXRv
+bWljIGNvbW1pdC4KVGhlIGlkZWEgaXMgdG8gdXNlIHRoZSBzYW1lIGRhbWFnZSByZWN0IGZvciBh
+IGdlbmVyaWMgZGlydHlmYiBjYWxsYmFjay4KCk1heWJlIGEgdGVtcG9yYXJ5IHRpbnlkcm0gc3Bl
+Y2lmaWMgc29sdXRpb24gaXMgcG9zc2libGUgdW50aWwgdGhhdCB3b3JrCmxhbmRzLCBidXQgSSBk
+b24ndCBrbm93IGVub3VnaCBhYm91dCBob3cgdG8gaW1wbGVtZW50IHN1Y2ggYSBkaXJ0eWZiCmNh
+bGxiYWNrLgoKSSBpbWFnaW5lIGl0IGNvdWxkIGxvb2sgc29tZXRoaW5nIGxpa2UgdGhpczoKCiDC
+oHN0cnVjdCB0aW55ZHJtX2RldmljZSB7CivCoMKgwqAgc3RydWN0IGRybV9jbGlwX3JlY3QgZGly
+dHlmYl9yZWN0OwogwqB9OwoKc3RhdGljIGludCB0aW55ZHJtX2ZiX2RpcnR5KHN0cnVjdCBkcm1f
+ZnJhbWVidWZmZXIgKmZiLAogwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIHN0cnVjdCBkcm1f
+ZmlsZSAqZmlsZV9wcml2LAogwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIHVuc2lnbmVkIGlu
+dCBmbGFncywgdW5zaWduZWQgaW50IGNvbG9yLAogwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKg
+IHN0cnVjdCBkcm1fY2xpcF9yZWN0ICpjbGlwcywKIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDC
+oCB1bnNpZ25lZCBpbnQgbnVtX2NsaXBzKQp7CiDCoMKgwqAgc3RydWN0IHRpbnlkcm1fZGV2aWNl
+ICp0ZGV2ID0gZmItPmRldi0+ZGV2X3ByaXZhdGU7CiDCoMKgwqAgc3RydWN0IGRybV9mcmFtZWJ1
+ZmZlciAqcGxhbmVmYjsKCiDCoMKgwqAgLyogR3JhYiB3aGF0ZXZlciBsb2NrIG5lZWRlZCB0byBj
+aGVjayB0aGlzICovCiDCoMKgwqAgcGxhbmVmYiA9IHRkZXYtPnBpcGUucGxhbmUuc3RhdGUtPmZi
+OwoKIMKgwqDCoCAvKiBmYmRldiBjYW4gZmx1c2ggZXZlbiB3aGVuIHdlJ3JlIG5vdCBpbnRlcmVz
+dGVkICovCiDCoMKgwqAgaWYgKGZiICE9IHBsYW5lZmIpCiDCoMKgwqAgwqDCoMKgIHJldHVybiAw
+OwoKIMKgwqDCoCAvKiBQcm90ZWN0IGRpcnR5ZmJfcmVjdCB3aXRoIGEgbG9jayAqLwogwqDCoMKg
+IHRpbnlkcm1fbWVyZ2VfY2xpcHMoJnRkZXYtPmRpcnR5X3JlY3RmYiwgY2xpcHMsIG51bV9jbGlw
+cywgZmxhZ3MsCiDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgZmItPndpZHRoLCBmYi0+aGVp
+Z2h0KTsKCiDCoMKgwqAgLyoKIMKgwqDCoCDCoCogU29tZWhvdyBkbyBhbiBhdG9taWMgY29tbWl0
+IHRoYXQgcmVzdWx0cyBpbiB0aGUgYXRvbWljIHVwZGF0ZQogwqDCoMKgIMKgKiBjYWxsYmFjayBi
+ZWluZyBjYWxsZWQKIMKgwqDCoCDCoCovCiDCoMKgwqAgcmV0ID0gZHJtX2F0b21pY19jb21taXQo
+c3RhdGUpOwouLi4KfQoKc3RhdGljIHZvaWQgbWlwaV9kYmlfZmx1c2goc3RydWN0IGRybV9mcmFt
+ZWJ1ZmZlciAqZmIsCiDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgIHN0cnVjdCBkcm1fY2xpcF9y
+ZWN0ICpjbGlwKQp7CiDCoMKgwqAgLyogRmx1c2ggb3V0IGZyYW1lYnVmZmVyICovCn0KCnZvaWQg
+bWlwaV9kYmlfcGlwZV91cGRhdGUoc3RydWN0IGRybV9zaW1wbGVfZGlzcGxheV9waXBlICpwaXBl
+LAogwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqAgc3RydWN0IGRybV9wbGFuZV9zdGF0ZSAqb2xkX3N0
+YXRlKQp7CiDCoMKgwqAgc3RydWN0IHRpbnlkcm1fZGV2aWNlICp0ZGV2ID0gcGlwZV90b190aW55
+ZHJtKHBpcGUpOwogwqDCoMKgIHN0cnVjdCBtaXBpX2RiaSAqbWlwaSA9IG1pcGlfZGJpX2Zyb21f
+dGlueWRybSh0ZGV2KTsKIMKgwqDCoCBzdHJ1Y3QgZHJtX2ZyYW1lYnVmZmVyICpmYiA9IHBpcGUt
+PnBsYW5lLnN0YXRlLT5mYjsKIMKgwqDCoCBzdHJ1Y3QgZHJtX2NydGMgKmNydGMgPSAmdGRldi0+
+cGlwZS5jcnRjOwoKIMKgwqDCoCBpZiAoIWZiIHx8IChmYiA9PSBvbGRfc3RhdGUtPmZiICYmICF0
+ZGV2LT5kaXJ0eV9yZWN0LngyKSkKIMKgwqDCoCDCoMKgwqAgZ290byBvdXRfdmJsYW5rOwoKIMKg
+wqDCoCAvKiBEb24ndCBmbHVzaCBpZiB0aGUgY29udHJvbGxlciBpc24ndCBpbml0aWFsaXplZCB5
+ZXQgKi8KIMKgwqDCoCBpZiAoIW1pcGktPmVuYWJsZWQpCiDCoMKgwqAgwqDCoMKgIGdvdG8gb3V0
+X3ZibGFuazsKCiDCoMKgwqAgaWYgKGZiICE9IG9sZF9zdGF0ZS0+ZmIpIHsgLyogUGFnZSBmbGlw
+IG9yIG5ldywgZmx1c2ggYWxsICovCiDCoMKgwqAgwqDCoMKgIG1pcGlfZGJpX2ZsdXNoKGZiLCBO
+VUxMKTsKIMKgwqDCoCB9IGVsc2UgeyAvKiBkaXJ0eWZiIGlvY3RsICovCiDCoMKgwqAgwqDCoMKg
+IG1pcGlfZGJpX2ZsdXNoKGZiLCAmdGRldi0+ZGlydHlmYl9yZWN0KTsKIMKgwqDCoCDCoMKgwqAg
+bWVtc2V0KCZ0ZGV2LT5kaXJ0eWZiX3JlY3QsIDAsIHNpemVvZih0ZGV2LT5kaXJ0eWZiX3JlY3Qp
+KTsKIMKgwqDCoCB9CgpvdXRfdmJsYW5rOgogwqDCoMKgIGlmIChjcnRjLT5zdGF0ZS0+ZXZlbnQp
+IHsKIMKgwqDCoCDCoMKgwqAgc3Bpbl9sb2NrX2lycSgmY3J0Yy0+ZGV2LT5ldmVudF9sb2NrKTsK
+IMKgwqDCoCDCoMKgwqAgZHJtX2NydGNfc2VuZF92YmxhbmtfZXZlbnQoY3J0YywgY3J0Yy0+c3Rh
+dGUtPmV2ZW50KTsKIMKgwqDCoCDCoMKgwqAgc3Bpbl91bmxvY2tfaXJxKCZjcnRjLT5kZXYtPmV2
+ZW50X2xvY2spOwogwqDCoMKgIMKgwqDCoCBjcnRjLT5zdGF0ZS0+ZXZlbnQgPSBOVUxMOwogwqDC
+oMKgIH0KfQoKVGhpcyBpcyBjYWxsZWQgZnJvbSB0aGUgZHJpdmVyIHBpcGUgZW5hYmxlIGNhbGxi
+YWNrIGFmdGVyIHRoZSBjb250cm9sbGVyCmhhcyBiZWVuIGluaXRpYWxpemVkOgoKIMKgdm9pZCBt
+aXBpX2RiaV9waXBlX2VuYWJsZShzdHJ1Y3QgZHJtX3NpbXBsZV9kaXNwbGF5X3BpcGUgKnBpcGUs
+CiDCoMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgIHN0cnVjdCBkcm1fY3J0Y19zdGF0ZSAqY3J0Y19z
+dGF0ZSkKIMKgewogwqDCoMKgwqAgc3RydWN0IHRpbnlkcm1fZGV2aWNlICp0ZGV2ID0gcGlwZV90
+b190aW55ZHJtKHBpcGUpOwogwqDCoMKgwqAgc3RydWN0IG1pcGlfZGJpICptaXBpID0gbWlwaV9k
+YmlfZnJvbV90aW55ZHJtKHRkZXYpOwotIMKgwqDCoCBzdHJ1Y3QgZHJtX2ZyYW1lYnVmZmVyICpm
+YiA9IHBpcGUtPnBsYW5lLmZiOworwqDCoMKgIHN0cnVjdCBkcm1fZnJhbWVidWZmZXIgKmZiID0g
+cGlwZS0+cGxhbmUuc3RhdGUtPmZiOwoKIMKgwqDCoMKgIERSTV9ERUJVR19LTVMoIlxuIik7Cgog
+wqDCoMKgwqAgbWlwaS0+ZW5hYmxlZCA9IHRydWU7Ci0gwqDCoMKgIGlmIChmYikKLSDCoMKgwqAg
+wqDCoMKgIGZiLT5mdW5jcy0+ZGlydHkoZmIsIE5VTEwsIDAsIDAsIE5VTEwsIDApOworwqDCoMKg
+IG1pcGlfZGJpX2ZsdXNoKGZiLCBOVUxMKTsKIMKgwqDCoMKgIHRpbnlkcm1fZW5hYmxlX2JhY2ts
+aWdodChtaXBpLT5iYWNrbGlnaHQpOwogwqB9CgpJIGNhbiBtYWtlIHBhdGNoZXMgaWYgdGhpcyBt
+YWtlcyBhbnkgc2Vuc2UgYW5kIHlvdSBjYW4gaGVscCBtZSB3aXRoIHRoZQpkaXJ0eWZiIGltcGxl
+bWVudGF0aW9uLgoKTm9yYWxmLgoKWzFdIApodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9h
+cmNoaXZlcy9kcmktZGV2ZWwvMjAxNy1EZWNlbWJlci8xNjEwMDMuaHRtbAoKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
