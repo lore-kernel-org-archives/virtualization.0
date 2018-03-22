@@ -1,13 +1,15 @@
-From: Ville Syrjala <ville.syrjala@linux.intel.com>
-Subject: [PATCH 20/23] drm/virtio: Stop updating plane->fb
-Date: Thu, 22 Mar 2018 17:23:10 +0200
-Message-ID: <20180322152313.6561-21-ville.syrjala@linux.intel.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 20/23] drm/virtio: Stop updating plane->fb
+Date: Thu, 22 Mar 2018 17:11:47 +0100
+Message-ID: <20180322161147.pfnenr2uscojnpa7__12042.973508551$1521734992$gmane$org@sirius.home.kraxel.org>
 References: <20180322152313.6561-1-ville.syrjala@linux.intel.com>
+	<20180322152313.6561-21-ville.syrjala@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180322152313.6561-1-ville.syrjala@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <20180322152313.6561-21-ville.syrjala@linux.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,29 +19,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, intel-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc: David Airlie <airlied@linux.ie>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVsLmNvbT4KCldl
-IHdhbnQgdG8gZ2V0IHJpZCBvZiBwbGFuZS0+ZmIgb24gYXRvbWljIGRyaXZlcnMuIFN0b3Agc2V0
-dGluZyBpdC4KCkNjOiBEYXZpZCBBaXJsaWUgPGFpcmxpZWRAbGludXguaWU+CkNjOiBHZXJkIEhv
-ZmZtYW5uIDxrcmF4ZWxAcmVkaGF0LmNvbT4KQ2M6IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnClNpZ25lZC1vZmYtYnk6IFZpbGxlIFN5cmrDpGzDpCA8dmlsbGUuc3ly
-amFsYUBsaW51eC5pbnRlbC5jb20+Ci0tLQogZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1
-X2Rpc3BsYXkuYyB8IDIgLS0KIDEgZmlsZSBjaGFuZ2VkLCAyIGRlbGV0aW9ucygtKQoKZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kaXNwbGF5LmMgYi9kcml2ZXJz
-L2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZGlzcGxheS5jCmluZGV4IDhjYzhjMzRkNjdmNS4uNDJl
-ODQyY2ViNTNjIDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZGlz
-cGxheS5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kaXNwbGF5LmMKQEAg
-LTMwMiw4ICszMDIsNiBAQCBzdGF0aWMgaW50IHZnZGV2X291dHB1dF9pbml0KHN0cnVjdCB2aXJ0
-aW9fZ3B1X2RldmljZSAqdmdkZXYsIGludCBpbmRleCkKIAlkcm1fY3J0Y19pbml0X3dpdGhfcGxh
-bmVzKGRldiwgY3J0YywgcHJpbWFyeSwgY3Vyc29yLAogCQkJCSAgJnZpcnRpb19ncHVfY3J0Y19m
-dW5jcywgTlVMTCk7CiAJZHJtX2NydGNfaGVscGVyX2FkZChjcnRjLCAmdmlydGlvX2dwdV9jcnRj
-X2hlbHBlcl9mdW5jcyk7Ci0JcHJpbWFyeS0+Y3J0YyA9IGNydGM7Ci0JY3Vyc29yLT5jcnRjID0g
-Y3J0YzsKIAogCWRybV9jb25uZWN0b3JfaW5pdChkZXYsIGNvbm5lY3RvciwgJnZpcnRpb19ncHVf
-Y29ubmVjdG9yX2Z1bmNzLAogCQkJICAgRFJNX01PREVfQ09OTkVDVE9SX1ZJUlRVQUwpOwotLSAK
-Mi4xNi4xCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+> We want to get rid of plane->fb on atomic drivers. Stop setting it.
+
+> -	primary->crtc = crtc;
+> -	cursor->crtc = crtc;
+
+commit msg vs. patch content mismatch here ...
+
+cheers,
+  Gerd
