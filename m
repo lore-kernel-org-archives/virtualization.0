@@ -1,13 +1,14 @@
-From: Ville Syrjala <ville.syrjala@linux.intel.com>
-Subject: [PATCH v2 20/23] drm/virtio: Stop updating plane->crtc
-Date: Thu, 22 Mar 2018 19:40:48 +0200
-Message-ID: <20180322174048.5803-1-ville.syrjala__30228.9193067283$1521740350$gmane$org@linux.intel.com>
-References: <20180322152313.6561-21-ville.syrjala@linux.intel.com>
+From: Emil Velikov <emil.l.velikov@gmail.com>
+Subject: Re: [PATCH 00/23] drm: Eliminate plane->fb/crtc usage for atomic
+	drivers
+Date: Thu, 22 Mar 2018 17:54:45 +0000
+Message-ID: <CACvgo53B4zLLUqw9y18skpjacmjt-iAYBcG19HkmE=jFwcb4+w__48295.9114983261$1521741171$gmane$org@mail.gmail.com>
+References: <20180322152313.6561-1-ville.syrjala@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180322152313.6561-21-ville.syrjala@linux.intel.com>
+In-Reply-To: <20180322152313.6561-1-ville.syrjala@linux.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,30 +18,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, intel-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, Thomas Hellstrom <thellstrom@vmware.com>, amd-gfx mailing list <amd-gfx@lists.freedesktop.org>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, intel-gfx@lists.freedesktop.org, Seung-Woo Kim <sw0312.kim@samsung.com>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Kyungmin Park <kyungmin.park@samsung.com>, VMware Graphics <linux-graphics-maintainer@vmware.com>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Alex Deucher <alexander.deucher@amd.com>, Shawn Guo <shawnguo@kernel.org>, freedreno@lists.freedesktop.org, Vincent Abriou <vincent.abriou@st.com>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVsLmNvbT4KCldl
-IHdhbnQgdG8gZ2V0IHJpZCBvZiBwbGFuZS0+Y3J0YyBvbiBhdG9taWMgZHJpdmVycy4gU3RvcCBz
-ZXR0aW5nIGl0LgoKdjI6IHMvZmIvY3J0Yy8gaW4gdGhlIGNvbW1pdCBtZXNzYWdlIChHZXJkKQoK
-Q2M6IERhdmlkIEFpcmxpZSA8YWlybGllZEBsaW51eC5pZT4KQ2M6IEdlcmQgSG9mZm1hbm4gPGty
-YXhlbEByZWRoYXQuY29tPgpDYzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKU2lnbmVkLW9mZi1ieTogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4
-LmludGVsLmNvbT4KLS0tCiBkcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZGlzcGxheS5j
-IHwgMiAtLQogMSBmaWxlIGNoYW5nZWQsIDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJp
-dmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rpc3BsYXkuYyBiL2RyaXZlcnMvZ3B1L2RybS92
-aXJ0aW8vdmlydGdwdV9kaXNwbGF5LmMKaW5kZXggOGNjOGMzNGQ2N2Y1Li40MmU4NDJjZWI1M2Mg
-MTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kaXNwbGF5LmMKKysr
-IGIvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rpc3BsYXkuYwpAQCAtMzAyLDggKzMw
-Miw2IEBAIHN0YXRpYyBpbnQgdmdkZXZfb3V0cHV0X2luaXQoc3RydWN0IHZpcnRpb19ncHVfZGV2
-aWNlICp2Z2RldiwgaW50IGluZGV4KQogCWRybV9jcnRjX2luaXRfd2l0aF9wbGFuZXMoZGV2LCBj
-cnRjLCBwcmltYXJ5LCBjdXJzb3IsCiAJCQkJICAmdmlydGlvX2dwdV9jcnRjX2Z1bmNzLCBOVUxM
-KTsKIAlkcm1fY3J0Y19oZWxwZXJfYWRkKGNydGMsICZ2aXJ0aW9fZ3B1X2NydGNfaGVscGVyX2Z1
-bmNzKTsKLQlwcmltYXJ5LT5jcnRjID0gY3J0YzsKLQljdXJzb3ItPmNydGMgPSBjcnRjOwogCiAJ
-ZHJtX2Nvbm5lY3Rvcl9pbml0KGRldiwgY29ubmVjdG9yLCAmdmlydGlvX2dwdV9jb25uZWN0b3Jf
-ZnVuY3MsCiAJCQkgICBEUk1fTU9ERV9DT05ORUNUT1JfVklSVFVBTCk7Ci0tIAoyLjE2LjEKCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+SGkgVmlsbGUsCgpPbiAyMiBNYXJjaCAyMDE4IGF0IDE1OjIyLCBWaWxsZSBTeXJqYWxhIDx2aWxs
+ZS5zeXJqYWxhQGxpbnV4LmludGVsLmNvbT4gd3JvdGU6Cj4gRnJvbTogVmlsbGUgU3lyasOkbMOk
+IDx2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVsLmNvbT4KPgo+IEkgcmVhbGx5IGp1c3Qgd2FudGVk
+IHRvIGZpeCBpOTE1IHRvIHJlLWVuYWJsZSBpdHMgcGxhbmVzIGFmZXIgbG9hZAo+IGRldGVjdGlv
+biAoYSB0d28gbGluZSBwYXRjaCkuIFRoaXMgaXMgd2hhdCBJIGFjdHVhbGx5IGVuZGVkIHVwIHdp
+dGgKPiBhZnRlciBJIHJhbiBpbnRvIGEgZnJhbWVidWZmZXIgcmVmY291bnQgbGVhayB3aXRoIHNh
+aWQgdHdvIGxpbmUgcGF0Y2guCj4KPiBJJ3ZlIHRlc3RlZCB0aGlzIG9uIGEgZmV3IGk5MTUgYm94
+ZXMgYW5kIHNvIGZhciBpdCdzIGxvb2tpbmcKPiBnb29kLiBFdmVyeXRoaW5nIGVsc2UgaXMganVz
+dCBjb21waWxlIHRlc3RlZC4KPgpNb3N0bHkgdGhpbmtpbmcgb3V0IGxvdWQ6CgpXb25kZXJpbmcg
+aWYgb25lIGNhbm5vdCBzb21laG93IChyZSltb3ZlIHBsYW5lLT5mYi9jcnRjIGFsdG9nZXRoZXIu
+Ck90aGVyd2lzZSBkcml2ZXJzIHdpbGwgcmVpbnRyb2R1Y2Ugc2ltaWxhciBjb2RlLCBkZXNwaXRl
+IHRoZSBXQVJOcyBhbmQKYmVlZnkgZG9jdW1lbnRhdGlvbiA6LVwKCkhUSApFbWlsCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
+aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
+czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
+dGlvbg==
