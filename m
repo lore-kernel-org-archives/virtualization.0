@@ -1,17 +1,17 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [PATCH 1/4] iommu: Add virtio-iommu driver
-Date: Wed, 21 Mar 2018 14:23:38 +0000
-Message-ID: <739fbfdf-1651-8036-367a-52940b93dee6@arm.com>
-References: <20180214145340.1223-1-jean-philippe.brucker@arm.com>
-	<20180214145340.1223-2-jean-philippe.brucker@arm.com>
-	<AADFC41AFE54684AB9EE6CBC0274A5D19108B0FE@SHSMSX101.ccr.corp.intel.com>
-	<a11f1b52-c031-014c-8c23-1732f3d4666c@arm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH v2] virtio_balloon: export hugetlb page
+	allocation counts
+Date: Thu, 22 Mar 2018 09:52:18 +0800
+Message-ID: <c09d3570-a8f9-7a84-5dd6-46d385da2e15__18306.8331251436$1521683437$gmane$org@redhat.com>
+References: <1521497654-24807-1-git-send-email-jonathan.helman@oracle.com>
+	<db6371af-f93d-4409-c910-2ff712196c5b@redhat.com>
+	<6ED6CAC9-FAD9-4A27-A9B1-C6EFC7627D68@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <a11f1b52-c031-014c-8c23-1732f3d4666c@arm.com>
-Content-Language: en-GB
+In-Reply-To: <6ED6CAC9-FAD9-4A27-A9B1-C6EFC7627D68@oracle.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,62 +21,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "Tian, Kevin" <kevin.tian@intel.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
-Cc: "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "jintack@cs.columbia.edu" <jintack@cs.columbia.edu>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
+To: Jonathan Helman <jonathan.helman@oracle.com>
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 21/03/18 13:14, Jean-Philippe Brucker wrote:
-> On 21/03/18 06:43, Tian, Kevin wrote:
-> [...]
->>> +
->>> +#include <uapi/linux/virtio_iommu.h>
->>> +
->>> +#define MSI_IOVA_BASE			0x8000000
->>> +#define MSI_IOVA_LENGTH			0x100000
->>
->> this is ARM specific, and according to virtio-iommu spec isn't it
->> better probed on the endpoint instead of hard-coding here?
-> 
-> These values are arbitrary, not really ARM-specific even if ARM is the
-> only user yet: we're just reserving a random IOVA region for mapping MSIs.
-> It is hard-coded because of the way iommu-dma.c works, but I don't quite
-> remember why that allocation isn't dynamic.
-
-The host kernel needs to have *some* MSI region in place before the 
-guest can start configuring interrupts, otherwise it won't know what 
-address to give to the underlying hardware. However, as soon as the host 
-kernel has picked a region, host userspace needs to know that it can no 
-longer use addresses in that region for DMA-able guest memory. It's a 
-lot easier when the address is fixed in hardware and the host userspace 
-will never be stupid enough to try and VFIO_IOMMU_DMA_MAP it, but in the 
-more general case where MSI writes undergo IOMMU address translation so 
-it's an arbitrary IOVA, this has the potential to conflict with stuff 
-like guest memory hotplug.
-
-What we currently have is just the simplest option, with the host kernel 
-just picking something up-front and pretending to host userspace that 
-it's a fixed hardware address. There's certainly scope for it to be a 
-bit more dynamic in the sense of adding an interface to let userspace 
-move it around (before attaching any devices, at least), but I don't 
-think it's feasible for the host kernel to second-guess userspace enough 
-to make it entirely transparent like it is in the DMA API domain case.
-
-Of course, that's all assuming the host itself is using a virtio-iommu 
-(e.g. in a nested virt or emulation scenario). When it's purely within a 
-guest then an MSI reservation shouldn't matter so much, since the guest 
-won't be anywhere near the real hardware configuration anyway.
-
-Robin.
-
-> As said on the v0.6 spec thread, I'm not sure allocating the IOVA range in
-> the host is preferable. With nested translation the guest has to map it
-> anyway, and I believe dealing with IOVA allocation should be left to the
-> guest when possible.
-> 
-> Thanks,
-> Jean
-> _______________________________________________
-> iommu mailing list
-> iommu@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/iommu
-> 
+CgpPbiAyMDE45bm0MDPmnIgyMOaXpSAxMjoyNiwgSm9uYXRoYW4gSGVsbWFuIHdyb3RlOgo+PiBP
+biBNYXIgMTksIDIwMTgsIGF0IDc6MzEgUE0sIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5j
+b20+IHdyb3RlOgo+Pgo+Pgo+Pgo+PiBPbiAyMDE45bm0MDPmnIgyMOaXpSAwNjoxNCwgSm9uYXRo
+YW4gSGVsbWFuIHdyb3RlOgo+Pj4gRXhwb3J0IHRoZSBudW1iZXIgb2Ygc3VjY2Vzc2Z1bCBhbmQg
+ZmFpbGVkIGh1Z2V0bGIgcGFnZQo+Pj4gYWxsb2NhdGlvbnMgdmlhIHRoZSB2aXJ0aW8gYmFsbG9v
+biBkcml2ZXIuIFRoZXNlIDIgY291bnRzCj4+PiBjb21lIGRpcmVjdGx5IGZyb20gdGhlIHZtX2V2
+ZW50cyBIVExCX0JVRERZX1BHQUxMT0MgYW5kCj4+PiBIVExCX0JVRERZX1BHQUxMT0NfRkFJTC4K
+Pj4+Cj4+PiBTaWduZWQtb2ZmLWJ5OiBKb25hdGhhbiBIZWxtYW4gPGpvbmF0aGFuLmhlbG1hbkBv
+cmFjbGUuY29tPgo+PiBSZXZpZXdlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNv
+bT4KPiBUaGFua3MuCj4KPj4+IC0tLQo+Pj4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9v
+bi5jICAgICB8IDYgKysrKysrCj4+PiAgIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9v
+bi5oIHwgNCArKystCj4+PiAgIDIgZmlsZXMgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCspLCAxIGRl
+bGV0aW9uKC0pCj4+Pgo+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxs
+b29uLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jCj4+PiBpbmRleCBkZmU1Njg0
+Li42YjIzN2UzIDEwMDY0NAo+Pj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24u
+Ywo+Pj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+Pj4gQEAgLTI3Miw2
+ICsyNzIsMTIgQEAgc3RhdGljIHVuc2lnbmVkIGludCB1cGRhdGVfYmFsbG9vbl9zdGF0cyhzdHJ1
+Y3QgdmlydGlvX2JhbGxvb24gKnZiKQo+Pj4gICAJCQkJcGFnZXNfdG9fYnl0ZXMoZXZlbnRzW1BT
+V1BPVVRdKSk7Cj4+PiAgIAl1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxMT09OX1Nf
+TUFKRkxULCBldmVudHNbUEdNQUpGQVVMVF0pOwo+Pj4gICAJdXBkYXRlX3N0YXQodmIsIGlkeCsr
+LCBWSVJUSU9fQkFMTE9PTl9TX01JTkZMVCwgZXZlbnRzW1BHRkFVTFRdKTsKPj4+ICsjaWZkZWYg
+Q09ORklHX0hVR0VUTEJfUEFHRQo+Pj4gKwl1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19C
+QUxMT09OX1NfSFRMQl9QR0FMTE9DLAo+Pj4gKwkJICAgIGV2ZW50c1tIVExCX0JVRERZX1BHQUxM
+T0NdKTsKPj4+ICsJdXBkYXRlX3N0YXQodmIsIGlkeCsrLCBWSVJUSU9fQkFMTE9PTl9TX0hUTEJf
+UEdGQUlMLAo+Pj4gKwkJICAgIGV2ZW50c1tIVExCX0JVRERZX1BHQUxMT0NfRkFJTF0pOwo+Pj4g
+KyNlbmRpZgo+Pj4gICAjZW5kaWYKPj4+ICAgCXVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElP
+X0JBTExPT05fU19NRU1GUkVFLAo+Pj4gICAJCQkJcGFnZXNfdG9fYnl0ZXMoaS5mcmVlcmFtKSk7
+Cj4+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmggYi9p
+bmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaAo+Pj4gaW5kZXggNGU4YjgzMC4uNDAy
+OTdhMyAxMDA2NDQKPj4+IC0tLSBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5o
+Cj4+PiArKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaAo+Pj4gQEAgLTUz
+LDcgKzUzLDkgQEAgc3RydWN0IHZpcnRpb19iYWxsb29uX2NvbmZpZyB7Cj4+PiAgICNkZWZpbmUg
+VklSVElPX0JBTExPT05fU19NRU1UT1QgICA1ICAgLyogVG90YWwgYW1vdW50IG9mIG1lbW9yeSAq
+Lwo+Pj4gICAjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfQVZBSUwgICAgNiAgIC8qIEF2YWlsYWJs
+ZSBtZW1vcnkgYXMgaW4gL3Byb2MgKi8KPj4+ICAgI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX0NB
+Q0hFUyAgIDcgICAvKiBEaXNrIGNhY2hlcyAqLwo+Pj4gLSNkZWZpbmUgVklSVElPX0JBTExPT05f
+U19OUiAgICAgICA4Cj4+PiArI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX0hUTEJfUEdBTExPQyAg
+OCAgLyogSHVnZXRsYiBwYWdlIGFsbG9jYXRpb25zICovCj4+PiArI2RlZmluZSBWSVJUSU9fQkFM
+TE9PTl9TX0hUTEJfUEdGQUlMICAgOSAgLyogSHVnZXRsYiBwYWdlIGFsbG9jYXRpb24gZmFpbHVy
+ZXMgKi8KPj4+ICsjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTlIgICAgICAgMTAKPj4+ICAgICAv
+Kgo+Pj4gICAgKiBNZW1vcnkgc3RhdGlzdGljcyBzdHJ1Y3R1cmUuCj4+IE5vdCBmb3IgdGhpcyBw
+YXRjaCwgYnV0IGl0IGxvb2tzIHRvIG1lIHRoYXQgZXhwb3J0aW5nIHN1Y2ggbnIgdGhyb3VnaCB1
+YXBpIGlzIGZyYWdpbGUuCj4gU29ycnksIGNhbiB5b3UgZXhwbGFpbiB3aGF0IHlvdSBtZWFuIGhl
+cmU/Cj4KPiBKb24KClNwZWMgc2FpZCAiV2l0aGluIGFuIG91dHB1dCBidWZmZXIgc3VibWl0dGVk
+IHRvIHRoZSBzdGF0c3EsIHRoZSBkZXZpY2UgCk1VU1QgaWdub3JlIGVudHJpZXMgd2l0aCB0YWcg
+dmFsdWVzIHRoYXQgaXQgZG9lcyBub3QgcmVjb2duaXplIi4gU28gCmV4cG9ydGluZyBWSVJUSU9f
+QkFMTE9PTl9TX05SIHNlZW1zIHVzZWxlc3MgYW5kIGRldmljZSBpbXBsZW1lbnRhdGlvbiAKY2Fu
+IG5vdCBkZXBlbmQgb24gc3VjaCBudW1iZXIgaW4gdWFwaS4KClRoYW5rcwoKPgo+PiBUaGFua3MK
+Pgo+IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLQo+IFRvIHVuc3Vic2NyaWJlLCBlLW1haWw6IHZpcnRpby1kZXYtdW5z
+dWJzY3JpYmVAbGlzdHMub2FzaXMtb3Blbi5vcmcKPiBGb3IgYWRkaXRpb25hbCBjb21tYW5kcywg
+ZS1tYWlsOiB2aXJ0aW8tZGV2LWhlbHBAbGlzdHMub2FzaXMtb3Blbi5vcmcKPgoKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
