@@ -1,18 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [virtio-dev] Re: [PATCH v2] virtio_balloon: export hugetlb page
-	allocation counts
-Date: Fri, 23 Mar 2018 10:38:41 +0800
-Message-ID: <3f8a1b91-c5ba-8a24-72b8-02d884a67826@redhat.com>
-References: <1521497654-24807-1-git-send-email-jonathan.helman@oracle.com>
-	<db6371af-f93d-4409-c910-2ff712196c5b@redhat.com>
-	<6ED6CAC9-FAD9-4A27-A9B1-C6EFC7627D68@oracle.com>
-	<c09d3570-a8f9-7a84-5dd6-46d385da2e15@redhat.com>
-	<20180322050842-mutt-send-email-mst@kernel.org>
+From: "Tian, Kevin" <kevin.tian@intel.com>
+Subject: RE: [PATCH 1/4] iommu: Add virtio-iommu driver
+Date: Fri, 23 Mar 2018 08:27:10 +0000
+Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D191090157__1750.81176353178$1521793524$gmane$org@SHSMSX101.ccr.corp.intel.com>
+References: <20180214145340.1223-1-jean-philippe.brucker@arm.com>
+	<20180214145340.1223-2-jean-philippe.brucker@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D19108B0FE@SHSMSX101.ccr.corp.intel.com>
+	<a11f1b52-c031-014c-8c23-1732f3d4666c@arm.com>
+	<739fbfdf-1651-8036-367a-52940b93dee6@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D19108DC42@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180322050842-mutt-send-email-mst@kernel.org>
+In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D19108DC42@SHSMSX101.ccr.corp.intel.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,66 +23,174 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: 'Robin Murphy' <robin.murphy@arm.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
+Cc: "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "jintack@cs.columbia.edu" <jintack@cs.columbia.edu>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDPmnIgyMuaXpSAxMToxMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFRodSwgTWFyIDIyLCAyMDE4IGF0IDA5OjUyOjE4QU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+IE9uIDIwMTjlubQwM+aciDIw5pelIDEyOjI2LCBKb25hdGhhbiBIZWxtYW4gd3JvdGU6
-Cj4+Pj4gT24gTWFyIDE5LCAyMDE4LCBhdCA3OjMxIFBNLCBKYXNvbiBXYW5nPGphc293YW5nQHJl
-ZGhhdC5jb20+ICB3cm90ZToKPj4+Pgo+Pj4+Cj4+Pj4KPj4+PiBPbiAyMDE45bm0MDPmnIgyMOaX
-pSAwNjoxNCwgSm9uYXRoYW4gSGVsbWFuIHdyb3RlOgo+Pj4+PiBFeHBvcnQgdGhlIG51bWJlciBv
-ZiBzdWNjZXNzZnVsIGFuZCBmYWlsZWQgaHVnZXRsYiBwYWdlCj4+Pj4+IGFsbG9jYXRpb25zIHZp
-YSB0aGUgdmlydGlvIGJhbGxvb24gZHJpdmVyLiBUaGVzZSAyIGNvdW50cwo+Pj4+PiBjb21lIGRp
-cmVjdGx5IGZyb20gdGhlIHZtX2V2ZW50cyBIVExCX0JVRERZX1BHQUxMT0MgYW5kCj4+Pj4+IEhU
-TEJfQlVERFlfUEdBTExPQ19GQUlMLgo+Pj4+Pgo+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBKb25hdGhh
-biBIZWxtYW48am9uYXRoYW4uaGVsbWFuQG9yYWNsZS5jb20+Cj4+Pj4gUmV2aWV3ZWQtYnk6IEph
-c29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4+IFRoYW5rcy4KPj4+Cj4+Pj4+IC0tLQo+
-Pj4+PiAgICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jICAgICB8IDYgKysrKysrCj4+
-Pj4+ICAgIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5oIHwgNCArKystCj4+Pj4+
-ICAgIDIgZmlsZXMgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4+Pj4+
-Cj4+Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jIGIvZHJp
-dmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+Pj4+PiBpbmRleCBkZmU1Njg0Li42YjIzN2Uz
-IDEwMDY0NAo+Pj4+PiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jCj4+Pj4+
-ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPj4+Pj4gQEAgLTI3Miw2ICsy
-NzIsMTIgQEAgc3RhdGljIHVuc2lnbmVkIGludCB1cGRhdGVfYmFsbG9vbl9zdGF0cyhzdHJ1Y3Qg
-dmlydGlvX2JhbGxvb24gKnZiKQo+Pj4+PiAgICAJCQkJcGFnZXNfdG9fYnl0ZXMoZXZlbnRzW1BT
-V1BPVVRdKSk7Cj4+Pj4+ICAgIAl1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxMT09O
-X1NfTUFKRkxULCBldmVudHNbUEdNQUpGQVVMVF0pOwo+Pj4+PiAgICAJdXBkYXRlX3N0YXQodmIs
-IGlkeCsrLCBWSVJUSU9fQkFMTE9PTl9TX01JTkZMVCwgZXZlbnRzW1BHRkFVTFRdKTsKPj4+Pj4g
-KyNpZmRlZiBDT05GSUdfSFVHRVRMQl9QQUdFCj4+Pj4+ICsJdXBkYXRlX3N0YXQodmIsIGlkeCsr
-LCBWSVJUSU9fQkFMTE9PTl9TX0hUTEJfUEdBTExPQywKPj4+Pj4gKwkJICAgIGV2ZW50c1tIVExC
-X0JVRERZX1BHQUxMT0NdKTsKPj4+Pj4gKwl1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19C
-QUxMT09OX1NfSFRMQl9QR0ZBSUwsCj4+Pj4+ICsJCSAgICBldmVudHNbSFRMQl9CVUREWV9QR0FM
-TE9DX0ZBSUxdKTsKPj4+Pj4gKyNlbmRpZgo+Pj4+PiAgICAjZW5kaWYKPj4+Pj4gICAgCXVwZGF0
-ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19NRU1GUkVFLAo+Pj4+PiAgICAJCQkJ
-cGFnZXNfdG9fYnl0ZXMoaS5mcmVlcmFtKSk7Cj4+Pj4+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3Vh
-cGkvbGludXgvdmlydGlvX2JhbGxvb24uaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFs
-bG9vbi5oCj4+Pj4+IGluZGV4IDRlOGI4MzAuLjQwMjk3YTMgMTAwNjQ0Cj4+Pj4+IC0tLSBhL2lu
-Y2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5oCj4+Pj4+ICsrKyBiL2luY2x1ZGUvdWFw
-aS9saW51eC92aXJ0aW9fYmFsbG9vbi5oCj4+Pj4+IEBAIC01Myw3ICs1Myw5IEBAIHN0cnVjdCB2
-aXJ0aW9fYmFsbG9vbl9jb25maWcgewo+Pj4+PiAgICAjZGVmaW5lIFZJUlRJT19CQUxMT09OX1Nf
-TUVNVE9UICAgNSAgIC8qIFRvdGFsIGFtb3VudCBvZiBtZW1vcnkgKi8KPj4+Pj4gICAgI2RlZmlu
-ZSBWSVJUSU9fQkFMTE9PTl9TX0FWQUlMICAgIDYgICAvKiBBdmFpbGFibGUgbWVtb3J5IGFzIGlu
-IC9wcm9jICovCj4+Pj4+ICAgICNkZWZpbmUgVklSVElPX0JBTExPT05fU19DQUNIRVMgICA3ICAg
-LyogRGlzayBjYWNoZXMgKi8KPj4+Pj4gLSNkZWZpbmUgVklSVElPX0JBTExPT05fU19OUiAgICAg
-ICA4Cj4+Pj4+ICsjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfSFRMQl9QR0FMTE9DICA4ICAvKiBI
-dWdldGxiIHBhZ2UgYWxsb2NhdGlvbnMgKi8KPj4+Pj4gKyNkZWZpbmUgVklSVElPX0JBTExPT05f
-U19IVExCX1BHRkFJTCAgIDkgIC8qIEh1Z2V0bGIgcGFnZSBhbGxvY2F0aW9uIGZhaWx1cmVzICov
-Cj4+Pj4+ICsjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTlIgICAgICAgMTAKPj4+Pj4gICAgICAv
-Kgo+Pj4+PiAgICAgKiBNZW1vcnkgc3RhdGlzdGljcyBzdHJ1Y3R1cmUuCj4+Pj4gTm90IGZvciB0
-aGlzIHBhdGNoLCBidXQgaXQgbG9va3MgdG8gbWUgdGhhdCBleHBvcnRpbmcgc3VjaCBuciB0aHJv
-dWdoIHVhcGkgaXMgZnJhZ2lsZS4KPj4+IFNvcnJ5LCBjYW4geW91IGV4cGxhaW4gd2hhdCB5b3Ug
-bWVhbiBoZXJlPwo+Pj4KPj4+IEpvbgo+PiBTcGVjIHNhaWQgIldpdGhpbiBhbiBvdXRwdXQgYnVm
-ZmVyIHN1Ym1pdHRlZCB0byB0aGUgc3RhdHNxLCB0aGUgZGV2aWNlIE1VU1QKPj4gaWdub3JlIGVu
-dHJpZXMgd2l0aCB0YWcgdmFsdWVzIHRoYXQgaXQgZG9lcyBub3QgcmVjb2duaXplIi4gU28gZXhw
-b3J0aW5nCj4+IFZJUlRJT19CQUxMT09OX1NfTlIgc2VlbXMgdXNlbGVzcyBhbmQgZGV2aWNlIGlt
-cGxlbWVudGF0aW9uIGNhbiBub3QgZGVwZW5kCj4+IG9uIHN1Y2ggbnVtYmVyIGluIHVhcGkuCj4+
-Cj4+IFRoYW5rcwo+IFN1Z2dlc3Rpb25zPyBJIGRvbid0IGxpa2UgdG8gYnJlYWsgYnVpbGQgZm9y
-IHBlb3BsZSAuLi4KPgoKRGlkbid0IGhhdmUgYSBnb29kIGlkZWEuIEJ1dCBtYXliZSB3ZSBzaG91
-bGQga2VlcCBWSVJUSU9fQkFMTE9PTl9TX05SIAp1bmNoYW5nZWQsIGFuZCBhZGQgYSBjb21tZW50
-IGhlcmUuCgpUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+> From: Tian, Kevin
+> Sent: Thursday, March 22, 2018 6:06 PM
+> 
+> > From: Robin Murphy [mailto:robin.murphy@arm.com]
+> > Sent: Wednesday, March 21, 2018 10:24 PM
+> >
+> > On 21/03/18 13:14, Jean-Philippe Brucker wrote:
+> > > On 21/03/18 06:43, Tian, Kevin wrote:
+> > > [...]
+> > >>> +
+> > >>> +#include <uapi/linux/virtio_iommu.h>
+> > >>> +
+> > >>> +#define MSI_IOVA_BASE			0x8000000
+> > >>> +#define MSI_IOVA_LENGTH			0x100000
+> > >>
+> > >> this is ARM specific, and according to virtio-iommu spec isn't it
+> > >> better probed on the endpoint instead of hard-coding here?
+> > >
+> > > These values are arbitrary, not really ARM-specific even if ARM is the
+> > > only user yet: we're just reserving a random IOVA region for mapping
+> > MSIs.
+> > > It is hard-coded because of the way iommu-dma.c works, but I don't
+> > quite
+> > > remember why that allocation isn't dynamic.
+> >
+> > The host kernel needs to have *some* MSI region in place before the
+> > guest can start configuring interrupts, otherwise it won't know what
+> > address to give to the underlying hardware. However, as soon as the host
+> > kernel has picked a region, host userspace needs to know that it can no
+> > longer use addresses in that region for DMA-able guest memory. It's a
+> > lot easier when the address is fixed in hardware and the host userspace
+> > will never be stupid enough to try and VFIO_IOMMU_DMA_MAP it, but in
+> > the
+> > more general case where MSI writes undergo IOMMU address translation
+> > so
+> > it's an arbitrary IOVA, this has the potential to conflict with stuff
+> > like guest memory hotplug.
+> >
+> > What we currently have is just the simplest option, with the host kernel
+> > just picking something up-front and pretending to host userspace that
+> > it's a fixed hardware address. There's certainly scope for it to be a
+> > bit more dynamic in the sense of adding an interface to let userspace
+> > move it around (before attaching any devices, at least), but I don't
+> > think it's feasible for the host kernel to second-guess userspace enough
+> > to make it entirely transparent like it is in the DMA API domain case.
+> >
+> > Of course, that's all assuming the host itself is using a virtio-iommu
+> > (e.g. in a nested virt or emulation scenario). When it's purely within a
+> > guest then an MSI reservation shouldn't matter so much, since the guest
+> > won't be anywhere near the real hardware configuration anyway.
+> >
+> > Robin.
+> 
+> Curious since anyway we are defining a new iommu architecture
+> is it possible to avoid those ARM-specific burden completely?
+> 
+
+OK, after some study around those tricks below is my learning:
+
+- MSI_IOVA window is used only on request (iommu_dma_get
+_msi_page), not meant to take effect on all architectures once 
+initialized. e.g. ARM GIC does it but not x86. So it is reasonable 
+for virtio-iommu driver to implement such capability;
+
+- I thought whether hardware MSI doorbell can be always reported
+on virtio-iommu since it's newly defined. Looks there is a problem
+if underlying IOMMU is sw-managed MSI style - valid mapping is
+expected in all level of translations, meaning guest has to manage
+stage-1 mapping in nested configuration since stage-1 is owned
+by guest. 
+
+Then virtio-iommu is naturally expected to report the same MSI 
+model as supported by underlying hardware. Below are some
+further thoughts along this route (use 'IOMMU' to represent the
+physical one and 'virtio-iommu' for virtual one):
+
+----
+
+In the scope of current virtio-iommu spec v.6, there is no nested
+consideration yet. Guest driver is expected to use MAP/UNMAP
+interface on assigned endpoints. In this case the MAP requests
+(IOVA->GPA) is caught and maintained within Qemu which then 
+further talks to VFIO to map IOVA->HPA in IOMMU.
+
+Qemu can learn the MSI model of IOMMU from sysfs.
+
+For hardware MSI doorbell (x86 and some ARM):
+* Host kernel reports to Qemu as IOMMU_RESV_MSI
+* Qemu report to guest as VIRTIO_IOMMU_RESV_MEM_T_MSI
+* Guest takes the range as IOMMU_RESV_MSI. reserved
+* Qemu MAP database has no mapping for the doorbell
+* Physical IOMMU page table has no mapping for the doorbell
+* MSI from passthrough device bypass IOMMU
+* MSI from emulated device bypass virtio-iommu
+
+For software MSI doorbell (most ARM):
+* Host kernel reports to Qemu as IOMMU_RESV_SW_MSI
+* Qemu report to guest as VIRTIO_IOMMU_RESV_MEM_T_RESERVED
+* Guest takes the range as IOMMU_RESV_RESERVED
+* vGIC requests to map 'GPA of the virtual doorbell'
+* a map request (IOVA->GPA) sent on endpoint
+* Qemu maintains the mapping in MAP database
+	* but no VFIO_MAP request since it's purely virtual
+* GIC requests to map 'HPA of the physical doorbell'
+	* e.g. triggered by VFIO enable msi
+* IOMMU now includes a valid mapping (IOVA->HPA)
+* MSI from emulated device go through Qemu MAP
+database (IOVA->'GPA of virtual doorbell') and then hit vGIC
+* MSI from passthrough device go through IOMMU
+(IOVA->'HPA of physical doorbell') and then hit GIC
+
+In this case, host doorbell is treated as reserved resource in
+guest side. Guest has its own sw-management for virtual
+doorbell which is only used for emulated device. two paths 
+are completely separated.
+
+If above captures the right flow, current v0.6 spec is complete
+regarding to required function definition.
+
+----
+
+Then comes nested case, with two level page tables (stage-1
+and stage-2) in IOMMU. stage-1 is for IOVA->GPA and stage-2
+is for GPA->HPA. VFIO map/unmap happens on stage-2, 
+while stage-1 is directly managed by guest (and bound to
+IOMMU which enables nested translation from IOVA->GPA
+->HPA).
+
+For hardware MSI, there is nothing special compared to
+previous requirement. Both host/guest treat the doorbell
+as reserved and guarantee no mapping in either stage-1 or 
+stage-2. 
+
+For software MSI, more consideration is required:
+
+* for emulated device it is just fine as long as guest keeps
+IOVA->'GPA of virtual doorbell' in stage-1. Qemu is expected
+to walk stage-1 page table upon MSI request from emulated
+device to hit vGIC;
+
+* for passthrough device however there is a problem. We
+need valid mapping in both stage-1 and stage-2, while host
+kernel is only responsible for stage-2:
+
+	1) if we expect to keep same isolation policy (i.e.
+host MSI fully managed by host kernel), then an identity
+mapping for host-reported MSI range is expected in stage-1.
+In such case we need a new type VIRTIO_IOMMU_RESV_
+MEM_T_DIRECT to teach guest setup identity mapping.
+it should be the right thing to add since anyway there might
+be true IOMMU_RESV_DIRECT range reported from host
+which also should be handled.
+
+	2) Alternatively we could instead allow Qemu to
+request dynamic change of physical doorbell mapping in 
+stage2, e.g. from GPA of virtual doorbell to HPA of physical 
+doorbell. But it doesn't like a good design - VFIO doesn't
+assign interrupt controller to user space then why should 
+VFIO allow user mapping to doorbell...
+
+if 1) is agreed, looks the missing part in spec is just VIRTIO_
+IOMMU_RESV_MEM_T_DIRECT, though the whole story 
+is lengthy and fully enabling nested require many other
+works. :-)
+
+Thanks
+Kevin
