@@ -1,13 +1,14 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC PATCH V2 8/8] vhost: event suppression for packed ring
-Date: Mon, 26 Mar 2018 11:38:53 +0800
-Message-ID: <1522035533-11786-9-git-send-email-jasowang__35051.4033962556$1522035517$gmane$org@redhat.com>
+Subject: Re: [RFC PATCH V2 0/8] Packed ring for vhost
+Date: Mon, 26 Mar 2018 11:44:26 +0800
+Message-ID: <1529f62d-dc16-d279-2ebf-85a6d2029ebe__11142.1272544705$1522035781$gmane$org@redhat.com>
 References: <1522035533-11786-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <1522035533-11786-1-git-send-email-jasowang@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,309 +19,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Wei Xu <wexu@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch introduces basic support for event suppression aka driver
-and device area. Compile tested only.
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/vhost.c            | 169 ++++++++++++++++++++++++++++++++++++---
- drivers/vhost/vhost.h            |  10 ++-
- include/uapi/linux/virtio_ring.h |  19 +++++
- 3 files changed, 183 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 6177e4d..ff83a2e 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1143,10 +1143,15 @@ static int vq_access_ok_packed(struct vhost_virtqueue *vq, unsigned int num,
- 			       struct vring_used __user *used)
- {
- 	struct vring_desc_packed *packed = (struct vring_desc_packed *)desc;
-+	struct vring_packed_desc_event *driver_event =
-+		(struct vring_packed_desc_event *)avail;
-+	struct vring_packed_desc_event *device_event =
-+		(struct vring_packed_desc_event *)used;
- 
--	/* FIXME: check device area and driver area */
- 	return access_ok(VERIFY_READ, packed, num * sizeof(*packed)) &&
--	       access_ok(VERIFY_WRITE, packed, num * sizeof(*packed));
-+	       access_ok(VERIFY_WRITE, packed, num * sizeof(*packed)) &&
-+	       access_ok(VERIFY_READ, driver_event, sizeof(*driver_event)) &&
-+	       access_ok(VERIFY_WRITE, device_event, sizeof(*device_event));
- }
- 
- static int vq_access_ok_split(struct vhost_virtqueue *vq, unsigned int num,
-@@ -1222,14 +1227,27 @@ static int iotlb_access_ok(struct vhost_virtqueue *vq,
- 	return true;
- }
- 
--int vq_iotlb_prefetch(struct vhost_virtqueue *vq)
-+int vq_iotlb_prefetch_packed(struct vhost_virtqueue *vq)
-+{
-+	int num = vq->num;
-+
-+	return iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->desc,
-+			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
-+	       iotlb_access_ok(vq, VHOST_ACCESS_WO, (u64)(uintptr_t)vq->desc,
-+			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
-+	       iotlb_access_ok(vq, VHOST_ACCESS_RO,
-+			       (u64)(uintptr_t)vq->driver_event,
-+			       sizeof(*vq->driver_event), VHOST_ADDR_AVAIL) &&
-+	       iotlb_access_ok(vq, VHOST_ACCESS_WO,
-+			       (u64)(uintptr_t)vq->device_event,
-+			       sizeof(*vq->device_event), VHOST_ADDR_USED);
-+}
-+
-+int vq_iotlb_prefetch_split(struct vhost_virtqueue *vq)
- {
- 	size_t s = vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
- 	unsigned int num = vq->num;
- 
--	if (!vq->iotlb)
--		return 1;
--
- 	return iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->desc,
- 			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
- 	       iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->avail,
-@@ -1241,6 +1259,17 @@ int vq_iotlb_prefetch(struct vhost_virtqueue *vq)
- 			       num * sizeof(*vq->used->ring) + s,
- 			       VHOST_ADDR_USED);
- }
-+
-+int vq_iotlb_prefetch(struct vhost_virtqueue *vq)
-+{
-+	if (!vq->iotlb)
-+		return 1;
-+
-+	if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
-+		return vq_iotlb_prefetch_packed(vq);
-+	else
-+		return vq_iotlb_prefetch_split(vq);
-+}
- EXPORT_SYMBOL_GPL(vq_iotlb_prefetch);
- 
- /* Can we log writes? */
-@@ -1756,6 +1785,29 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
- 	return 0;
- }
- 
-+static int vhost_update_device_flags(struct vhost_virtqueue *vq,
-+				     __virtio16 device_flags)
-+{
-+	void __user *flags;
-+
-+	if (vhost_put_user(vq, cpu_to_vhost16(vq, device_flags),
-+			   &vq->device_event->desc_event_flags,
-+			   VHOST_ADDR_DESC) < 0)
-+		return -EFAULT;
-+	if (unlikely(vq->log_used)) {
-+		/* Make sure the flag is seen before log. */
-+		smp_wmb();
-+		/* Log used flag write. */
-+		flags = &vq->device_event->desc_event_flags;
-+		log_write(vq->log_base, vq->log_addr +
-+			  (flags - (void __user *)vq->device_event),
-+			  sizeof(vq->used->flags));
-+		if (vq->log_ctx)
-+			eventfd_signal(vq->log_ctx, 1);
-+	}
-+	return 0;
-+}
-+
- static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
- {
- 	if (vhost_put_user(vq, cpu_to_vhost16(vq, vq->avail_idx),
-@@ -2667,16 +2719,13 @@ int vhost_add_used_n(struct vhost_virtqueue *vq,
- }
- EXPORT_SYMBOL_GPL(vhost_add_used_n);
- 
--static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
-+static bool vhost_notify_split(struct vhost_dev *dev,
-+			       struct vhost_virtqueue *vq)
- {
- 	__u16 old, new;
- 	__virtio16 event;
- 	bool v;
- 
--	/* FIXME: check driver area */
--	if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
--		return false;
--
- 	/* Flush out used index updates. This is paired
- 	 * with the barrier that the Guest executes when enabling
- 	 * interrupts. */
-@@ -2709,6 +2758,79 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	return vring_need_event(vhost16_to_cpu(vq, event), new, old);
- }
- 
-+static bool vhost_idx_diff(struct vhost_virtqueue *vq, u16 old, u16 new)
-+{
-+	if (new > old)
-+		return new - old;
-+	return  (new + vq->num - old);
-+}
-+
-+static bool vhost_vring_packed_need_event(struct vhost_virtqueue *vq,
-+					  __u16 event_off, __u16 new,
-+					  __u16 old)
-+{
-+	return (__u16)(vhost_idx_diff(vq, new, event_off) - 1) <
-+	       (__u16)vhost_idx_diff(vq, new, old);
-+}
-+
-+static bool vhost_notify_packed(struct vhost_dev *dev,
-+				struct vhost_virtqueue *vq)
-+{
-+	__virtio16 event_off_wrap, event_flags;
-+	__u16 old, new;
-+	bool v, wrap;
-+	int off;
-+
-+	/* Flush out used descriptors updates. This is paired
-+	 * with the barrier that the Guest executes when enabling
-+	 * interrupts.
-+	 */
-+	smp_mb();
-+
-+	if (vhost_get_avail(vq, event_flags,
-+			   &vq->driver_event->desc_event_flags) < 0) {
-+		vq_err(vq, "Failed to get driver desc_event_flags");
-+		return true;
-+	}
-+
-+	if (!(event_flags & cpu_to_vhost16(vq, RING_EVENT_FLAGS_DESC)))
-+		return event_flags ==
-+		       cpu_to_vhost16(vq, RING_EVENT_FLAGS_ENABLE);
-+
-+	/* Read desc event flags before event_off and event_wrap */
-+	smp_rmb();
-+
-+	if (vhost_get_avail(vq, event_off_wrap,
-+			    &vq->driver_event->desc_event_off_warp) < 0) {
-+		vq_err(vq, "Failed to get driver desc_event_off/wrap");
-+		return true;
-+	}
-+
-+	off = vhost16_to_cpu(vq, event_off_wrap);
-+
-+	wrap = off & 0x1;
-+	off >>= 1;
-+
-+	old = vq->signalled_used;
-+	v = vq->signalled_used_valid;
-+	new = vq->signalled_used = vq->last_used_idx;
-+	vq->signalled_used_valid = true;
-+
-+	if (unlikely(!v))
-+		return true;
-+
-+	return vhost_vring_packed_need_event(vq, new, old, off) &&
-+	       wrap == vq->used_wrap_counter;
-+}
-+
-+static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
-+{
-+	if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
-+		return vhost_notify_packed(dev, vq);
-+	else
-+		return vhost_notify_split(dev, vq);
-+}
-+
- /* This actually signals the guest, using eventfd. */
- void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- {
-@@ -2789,7 +2911,17 @@ static bool vhost_enable_notify_packed(struct vhost_dev *dev,
- 	__virtio16 flags;
- 	int ret;
- 
--	/* FIXME: disable notification through device area */
-+	if (!(vq->used_flags & VRING_USED_F_NO_NOTIFY))
-+		return false;
-+	vq->used_flags &= ~VRING_USED_F_NO_NOTIFY;
-+
-+	flags = cpu_to_vhost16(vq, RING_EVENT_FLAGS_ENABLE);
-+	ret = vhost_update_device_flags(vq, flags);
-+	if (ret) {
-+		vq_err(vq, "Failed to enable notification at %p: %d\n",
-+		       &vq->device_event->desc_event_flags, ret);
-+		return false;
-+	}
- 
- 	/* They could have slipped one in as we were doing that: make
- 	 * sure it's written, then check again. */
-@@ -2855,7 +2987,18 @@ EXPORT_SYMBOL_GPL(vhost_enable_notify);
- static void vhost_disable_notify_packed(struct vhost_dev *dev,
- 					struct vhost_virtqueue *vq)
- {
--	/* FIXME: disable notification through device area */
-+	__virtio16 flags;
-+	int r;
-+
-+	if (vq->used_flags & VRING_USED_F_NO_NOTIFY)
-+		return;
-+	vq->used_flags |= VRING_USED_F_NO_NOTIFY;
-+
-+	flags = cpu_to_vhost16(vq, RING_EVENT_FLAGS_DISABLE);
-+	r = vhost_update_device_flags(vq, flags);
-+	if (r)
-+		vq_err(vq, "Failed to enable notification at %p: %d\n",
-+		       &vq->device_event->desc_event_flags, r);
- }
- 
- static void vhost_disable_notify_split(struct vhost_dev *dev,
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 8a9df4f..02d7a36 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -96,8 +96,14 @@ struct vhost_virtqueue {
- 		struct vring_desc __user *desc;
- 		struct vring_desc_packed __user *desc_packed;
- 	};
--	struct vring_avail __user *avail;
--	struct vring_used __user *used;
-+	union {
-+		struct vring_avail __user *avail;
-+		struct vring_packed_desc_event __user *driver_event;
-+	};
-+	union {
-+		struct vring_used __user *used;
-+		struct vring_packed_desc_event __user *device_event;
-+	};
- 	const struct vhost_umem_node *meta_iotlb[VHOST_NUM_ADDRS];
- 	struct file *kick;
- 	struct eventfd_ctx *call_ctx;
-diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-index e297580..7cdbf06 100644
---- a/include/uapi/linux/virtio_ring.h
-+++ b/include/uapi/linux/virtio_ring.h
-@@ -75,6 +75,25 @@ struct vring_desc_packed {
- 	__virtio16 flags;
- };
- 
-+/* Enable events */
-+#define RING_EVENT_FLAGS_ENABLE 0x0
-+/* Disable events */
-+#define RING_EVENT_FLAGS_DISABLE 0x1
-+/*
-+ * Enable events for a specific descriptor
-+ * (as specified by Descriptor Ring Change Event Offset/Wrap Counter).
-+ * Only valid if VIRTIO_F_RING_EVENT_IDX has been negotiated.
-+ */
-+#define RING_EVENT_FLAGS_DESC 0x2
-+/* The value 0x3 is reserved */
-+
-+struct vring_packed_desc_event {
-+	/* Descriptor Ring Change Event Offset and Wrap Counter */
-+	__virtio16 desc_event_off_warp;
-+	/* Descriptor Ring Change Event Flags */
-+	__virtio16 desc_event_flags;
-+};
-+
- /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
- struct vring_desc {
- 	/* Address (guest-physical). */
--- 
-2.7.4
+Y2MgSmVucywgVGl3ZWkgYW5kIFdlaQoKVGhhbmtzCgoKT24gMjAxOOW5tDAz5pyIMjbml6UgMTE6
+MzgsIEphc29uIFdhbmcgd3JvdGU6Cj4gSGkgYWxsOgo+Cj4gVGhpcyBSRkMgaW1wbGVtZW50IHBh
+Y2tlZCByaW5nIGxheW91dC4gVGhlIGNvZGUgd2VyZSB0ZXN0ZWQgd2l0aCBwbWQKPiBpbXBsZW1l
+bnQgYnkgSmVucyBhdAo+IGh0dHA6Ly9kcGRrLm9yZy9tbC9hcmNoaXZlcy9kZXYvMjAxOC1KYW51
+YXJ5LzA4OTQxNy5odG1sLiBNaW5vciBjaGFuZ2UKPiB3YXMgbmVlZGVkIGZvciBwbWQgY29kZXMg
+dG8ga2ljayB2aXJ0cXVldWUgc2luY2UgaXQgYXNzdW1lcyBhIGJ1c3kKPiBwb2xsaW5nIGJhY2tl
+bmQuCj4KPiBUZXN0IHdlcmUgZG9uZSBiZXR3ZWVuIGxvY2FsaG9zdCBhbmQgZ3Vlc3QuIFRlc3Rw
+bWQgKHJ4b25seSkgaW4gZ3Vlc3QKPiByZXBvcnRzIDIuNE1wcHMuIFRlc3RwbWQgKHR4b25seSkg
+cmVwb3RzIGFib3V0IDIuMU1wcHMuCj4KPiBOb3RlczogVGhlIGV2ZW50IHN1cHByZXNzaW9uIC9p
+bmRpcmVjdCBkZXNjcmlwdG9yIHN1cHBvcnQgaXMgY29tcGxpZWQKPiAgICAgICAgIHRlc3Qgb25s
+eSBiZWNhdXNlIG9mIGxhY2tlZCBkcml2ZXIgc3VwcG9ydC4KPgo+IENoYW5nZXMgZnJvbSBWMToK
+Pgo+IC0gUmVmYWN0b3Igdmhvc3QgdXNlZCBlbGVtIGNvZGUgdG8gYXZvaWQgb3BlbiBjb2Rpbmcg
+b24gdXNlZCBlbGVtCj4gLSBFdmVudCBzdXBwcmVzc2lvbiBzdXBwb3J0IChjb21waWxlIHRlc3Qg
+b25seSkuCj4gLSBJbmRpcmVjdCBkZXNjcmlwdG9yIHN1cHBvcnQgKGNvbXBpbGUgdGVzdCBvbmx5
+KS4KPiAtIFplcm9jb3B5IHN1cHBvcnQuCj4gLSB2SU9NTVUgc3VwcG9ydC4KPiAtIFNDU0kvVlNP
+Q0sgc3VwcG9ydCAoY29tcGlsZSB0ZXN0IG9ubHkpLgo+IC0gRml4IHNldmVyYWwgYnVncwo+Cj4g
+Rm9yIHNpbXBsaWNpdHksIEkgZG9uJ3QgaW1wbGVtZW50IGJhdGNoaW5nIG9yIG90aGVyIG9wdGlt
+aXphdGlvbnMuCj4KPiBQbGVhc2UgcmV2aWV3Lgo+Cj4gVGhhbmtzCj4KPiBKYXNvbiBXYW5nICg4
+KToKPiAgICB2aG9zdDogbW92ZSBnZXRfcnhfYnVmcyB0byB2aG9zdC5jCj4gICAgdmhvc3Q6IGhp
+ZGUgdXNlZCByaW5nIGxheW91dCBmcm9tIGRldmljZQo+ICAgIHZob3N0OiBkbyBub3QgdXNlIHZy
+aW5nX3VzZWRfZWxlbQo+ICAgIHZob3N0X25ldDogZG8gbm90IGV4cGxpY2l0bHkgbWFuaXB1bGF0
+ZSB2aG9zdF91c2VkX2VsZW0KPiAgICB2aG9zdDogdmhvc3RfcHV0X3VzZXIoKSBjYW4gYWNjZXB0
+IG1ldGFkYXRhIHR5cGUKPiAgICB2aXJ0aW86IGludHJvZHVjZSBwYWNrZWQgcmluZyBkZWZpbmVz
+Cj4gICAgdmhvc3Q6IHBhY2tlZCByaW5nIHN1cHBvcnQKPiAgICB2aG9zdDogZXZlbnQgc3VwcHJl
+c3Npb24gZm9yIHBhY2tlZCByaW5nCj4KPiAgIGRyaXZlcnMvdmhvc3QvbmV0LmMgICAgICAgICAg
+ICAgICAgfCAxMzggKystLS0tLQo+ICAgZHJpdmVycy92aG9zdC9zY3NpLmMgICAgICAgICAgICAg
+ICB8ICA2MiArLS0KPiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyAgICAgICAgICAgICAgfCA4MTgg
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLQo+ICAgZHJpdmVycy92aG9zdC92
+aG9zdC5oICAgICAgICAgICAgICB8ICA0NiArKy0KPiAgIGRyaXZlcnMvdmhvc3QvdnNvY2suYyAg
+ICAgICAgICAgICAgfCAgNDIgKy0KPiAgIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fY29uZmln
+LmggfCAgIDkgKwo+ICAgaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19yaW5nLmggICB8ICAzMiAr
+Kwo+ICAgNyBmaWxlcyBjaGFuZ2VkLCA5MjEgaW5zZXJ0aW9ucygrKSwgMjI2IGRlbGV0aW9ucygt
+KQo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
