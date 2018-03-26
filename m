@@ -1,14 +1,14 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [RFC PATCH V2 0/8] Packed ring for vhost
-Date: Mon, 26 Mar 2018 15:01:30 -0400
-Message-ID: <20180326190130.GE6928__45963.265191722$1522090853$gmane$org@char.us.oracle.com>
-References: <1522035533-11786-1-git-send-email-jasowang@redhat.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v29 1/4] mm: support reporting free page blocks
+Date: Mon, 26 Mar 2018 14:22:54 -0700
+Message-ID: <20180326142254.c4129c3a54ade686ee2a5e21@linux-foundation.org>
+References: <1522031994-7246-1-git-send-email-wei.w.wang@intel.com>
+	<1522031994-7246-2-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1522035533-11786-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1522031994-7246-2-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,63 +18,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, mst@redhat.com, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, huangzhichao@huawei.com, pbonzini@redhat.com, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 26, 2018 at 11:38:45AM +0800, Jason Wang wrote:
-> Hi all:
-> 
-> This RFC implement packed ring layout. The code were tested with pmd
-> implement by Jens at
-> http://dpdk.org/ml/archives/dev/2018-January/089417.html. Minor change
-> was needed for pmd codes to kick virtqueue since it assumes a busy
-> polling backend.
-> 
-> Test were done between localhost and guest. Testpmd (rxonly) in guest
-> reports 2.4Mpps. Testpmd (txonly) repots about 2.1Mpps.
+On Mon, 26 Mar 2018 10:39:51 +0800 Wei Wang <wei.w.wang@intel.com> wrote:
 
-And how does it compare to older ring layout?
+> This patch adds support to walk through the free page blocks in the
+> system and report them via a callback function. Some page blocks may
+> leave the free list after zone->lock is released, so it is the caller's
+> responsibility to either detect or prevent the use of such pages.
+> 
+> One use example of this patch is to accelerate live migration by skipping
+> the transfer of free pages reported from the guest. A popular method used
+> by the hypervisor to track which part of memory is written during live
+> migration is to write-protect all the guest memory. So, those pages that
+> are reported as free pages but are written after the report function
+> returns will be captured by the hypervisor, and they will be added to the
+> next round of memory transfer.
+> 
+> ...
+>
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -4912,6 +4912,102 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
+>  	show_swap_cache_info();
+>  }
+>  
+> +/*
+> + * Walk through a free page list and report the found pfn range via the
+> + * callback.
+> + *
+> + * Return 0 if it completes the reporting. Otherwise, return the non-zero
+> + * value returned from the callback.
+> + */
+> +static int walk_free_page_list(void *opaque,
+> +			       struct zone *zone,
+> +			       int order,
+> +			       enum migratetype mt,
+> +			       int (*report_pfn_range)(void *,
+> +						       unsigned long,
+> +						       unsigned long))
+> +{
+> +	struct page *page;
+> +	struct list_head *list;
+> +	unsigned long pfn, flags;
+> +	int ret = 0;
+> +
+> +	spin_lock_irqsave(&zone->lock, flags);
+> +	list = &zone->free_area[order].free_list[mt];
+> +	list_for_each_entry(page, list, lru) {
+> +		pfn = page_to_pfn(page);
+> +		ret = report_pfn_range(opaque, pfn, 1 << order);
+> +		if (ret)
+> +			break;
+> +	}
+> +	spin_unlock_irqrestore(&zone->lock, flags);
+> +
+> +	return ret;
+> +}
+> +
+> +/**
+> + * walk_free_mem_block - Walk through the free page blocks in the system
+> + * @opaque: the context passed from the caller
+> + * @min_order: the minimum order of free lists to check
+> + * @report_pfn_range: the callback to report the pfn range of the free pages
+> + *
+> + * If the callback returns a non-zero value, stop iterating the list of free
+> + * page blocks. Otherwise, continue to report.
+> + *
+> + * Please note that there are no locking guarantees for the callback and
+> + * that the reported pfn range might be freed or disappear after the
+> + * callback returns so the caller has to be very careful how it is used.
+> + *
+> + * The callback itself must not sleep or perform any operations which would
+> + * require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
+> + * or via any lock dependency. It is generally advisable to implement
+> + * the callback as simple as possible and defer any heavy lifting to a
+> + * different context.
+> + *
+> + * There is no guarantee that each free range will be reported only once
+> + * during one walk_free_mem_block invocation.
+> + *
+> + * pfn_to_page on the given range is strongly discouraged and if there is
+> + * an absolute need for that make sure to contact MM people to discuss
+> + * potential problems.
+> + *
+> + * The function itself might sleep so it cannot be called from atomic
+> + * contexts.
 
-> 
-> Notes: The event suppression /indirect descriptor support is complied
->        test only because of lacked driver support.
-> 
-> Changes from V1:
-> 
-> - Refactor vhost used elem code to avoid open coding on used elem
-> - Event suppression support (compile test only).
-> - Indirect descriptor support (compile test only).
-> - Zerocopy support.
-> - vIOMMU support.
-> - SCSI/VSOCK support (compile test only).
-> - Fix several bugs
-> 
-> For simplicity, I don't implement batching or other optimizations.
-> 
-> Please review.
-> 
-> Thanks
-> 
-> Jason Wang (8):
->   vhost: move get_rx_bufs to vhost.c
->   vhost: hide used ring layout from device
->   vhost: do not use vring_used_elem
->   vhost_net: do not explicitly manipulate vhost_used_elem
->   vhost: vhost_put_user() can accept metadata type
->   virtio: introduce packed ring defines
->   vhost: packed ring support
->   vhost: event suppression for packed ring
-> 
->  drivers/vhost/net.c                | 138 ++-----
->  drivers/vhost/scsi.c               |  62 +--
->  drivers/vhost/vhost.c              | 818 ++++++++++++++++++++++++++++++++++---
->  drivers/vhost/vhost.h              |  46 ++-
->  drivers/vhost/vsock.c              |  42 +-
->  include/uapi/linux/virtio_config.h |   9 +
->  include/uapi/linux/virtio_ring.h   |  32 ++
->  7 files changed, 921 insertions(+), 226 deletions(-)
-> 
+I don't see how walk_free_mem_block() can sleep.
+
+> + * In general low orders tend to be very volatile and so it makes more
+> + * sense to query larger ones first for various optimizations which like
+> + * ballooning etc... This will reduce the overhead as well.
+> + *
+> + * Return 0 if it completes the reporting. Otherwise, return the non-zero
+> + * value returned from the callback.
+> + */
+> +int walk_free_mem_block(void *opaque,
+> +			int min_order,
+> +			int (*report_pfn_range)(void *opaque,
+> +			unsigned long pfn,
+> +			unsigned long num))
+> +{
+> +	struct zone *zone;
+> +	int order;
+> +	enum migratetype mt;
+> +	int ret;
+> +
+> +	for_each_populated_zone(zone) {
+> +		for (order = MAX_ORDER - 1; order >= min_order; order--) {
+> +			for (mt = 0; mt < MIGRATE_TYPES; mt++) {
+> +				ret = walk_free_page_list(opaque, zone,
+> +							  order, mt,
+> +							  report_pfn_range);
+> +				if (ret)
+> +					return ret;
+> +			}
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(walk_free_mem_block);
+
+This looks like it could take a long time.  Will we end up needing to
+add cond_resched() in there somewhere?
+
+>  static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
+>  {
+>  	zoneref->zone = zone;
 > -- 
 > 2.7.4
-> 
