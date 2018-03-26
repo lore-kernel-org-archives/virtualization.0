@@ -1,14 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: possible deadlock in handle_rx
-Date: Mon, 26 Mar 2018 11:48:02 +0800
-Message-ID: <b68023f4-f917-d229-6d2d-e10f35a99062__39203.20492839$1522036011$gmane$org@redhat.com>
-References: <001a113fe6d043b2a605684578f4@google.com>
+Subject: [PATCH net] vhost_net: add missing lock nesting notation
+Date: Mon, 26 Mar 2018 16:10:23 +0800
+Message-ID: <1522051823-5166-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <001a113fe6d043b2a605684578f4@google.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,45 +15,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: syzbot <syzbot+7f073540b1384a614e09@syzkaller.appspotmail.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDPmnIgyNuaXpSAwODowMSwgc3l6Ym90IHdyb3RlOgo+IEhlbGxvLAo+Cj4g
-c3l6Ym90IGhpdCB0aGUgZm9sbG93aW5nIGNyYXNoIG9uIHVwc3RyZWFtIGNvbW1pdAo+IGNiNjQx
-NjU5MmJjMmE4YjczMWRhYmNlYzBkNjNjZGEyNzA3NjRmYzYgKFN1biBNYXIgMjUgMTc6NDU6MTAg
-MjAxOCArMDAwMCkKPiBNZXJnZSB0YWcgJ2RtYWVuZ2luZS1maXgtNC4xNi1yYzcnIG9mIAo+IGdp
-dDovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC92a291bC9zbGF2ZS1k
-bWEKPiBzeXpib3QgZGFzaGJvYXJkIGxpbms6IAo+IGh0dHBzOi8vc3l6a2FsbGVyLmFwcHNwb3Qu
-Y29tL2J1Zz9leHRpZD03ZjA3MzU0MGIxMzg0YTYxNGUwOQo+Cj4gU28gZmFyIHRoaXMgY3Jhc2gg
-aGFwcGVuZWQgNCB0aW1lcyBvbiB1cHN0cmVhbS4KPiBDIHJlcHJvZHVjZXI6IGh0dHBzOi8vc3l6
-a2FsbGVyLmFwcHNwb3QuY29tL3gvcmVwcm8uYz9pZD02NTA2Nzg5MDc1OTQzNDI0Cj4gc3l6a2Fs
-bGVyIHJlcHJvZHVjZXI6IAo+IGh0dHBzOi8vc3l6a2FsbGVyLmFwcHNwb3QuY29tL3gvcmVwcm8u
-c3l6P2lkPTU3MTYyNTA1NTAzMzc1MzYKPiBSYXcgY29uc29sZSBvdXRwdXQ6IAo+IGh0dHBzOi8v
-c3l6a2FsbGVyLmFwcHNwb3QuY29tL3gvbG9nLnR4dD9pZD01MTQyMDM4NjU1Nzk1MjAwCj4gS2Vy
-bmVsIGNvbmZpZzogCj4gaHR0cHM6Ly9zeXprYWxsZXIuYXBwc3BvdC5jb20veC8uY29uZmlnP2lk
-PS01MDM0MDE3MTcyNDQxOTQ1MzE3Cj4gY29tcGlsZXI6IGdjYyAoR0NDKSA3LjEuMSAyMDE3MDYy
-MAo+Cj4gSU1QT1JUQU5UOiBpZiB5b3UgZml4IHRoZSBidWcsIHBsZWFzZSBhZGQgdGhlIGZvbGxv
-d2luZyB0YWcgdG8gdGhlIAo+IGNvbW1pdDoKPiBSZXBvcnRlZC1ieTogc3l6Ym90KzdmMDczNTQw
-YjEzODRhNjE0ZTA5QHN5emthbGxlci5hcHBzcG90bWFpbC5jb20KPiBJdCB3aWxsIGhlbHAgc3l6
-Ym90IHVuZGVyc3RhbmQgd2hlbiB0aGUgYnVnIGlzIGZpeGVkLiBTZWUgZm9vdGVyIGZvciAKPiBk
-ZXRhaWxzLgo+IElmIHlvdSBmb3J3YXJkIHRoZSByZXBvcnQsIHBsZWFzZSBrZWVwIHRoaXMgcGFy
-dCBhbmQgdGhlIGZvb3Rlci4KPgo+Cj4gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT0KPiBXQVJOSU5HOiBwb3NzaWJsZSByZWN1cnNpdmUgbG9ja2luZyBkZXRlY3Rl
-ZAo+IDQuMTYuMC1yYzYrICMzNjYgTm90IHRhaW50ZWQKPiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+IHZob3N0LTQyNDgvNDc2MCBpcyB0cnlpbmcgdG8gYWNx
-dWlyZSBsb2NrOgo+IMKgKCZ2cS0+bXV0ZXgpeysuKy59LCBhdDogWzwwMDAwMDAwMDM0ODJiZGRj
-Pl0gCj4gdmhvc3RfbmV0X3J4X3BlZWtfaGVhZF9sZW4gZHJpdmVycy92aG9zdC9uZXQuYzo2MzMg
-W2lubGluZV0KPiDCoCgmdnEtPm11dGV4KXsrLisufSwgYXQ6IFs8MDAwMDAwMDAzNDgyYmRkYz5d
-IGhhbmRsZV9yeCsweGViMS8weDE5YzAgCj4gZHJpdmVycy92aG9zdC9uZXQuYzo3ODQKPgo+IGJ1
-dCB0YXNrIGlzIGFscmVhZHkgaG9sZGluZyBsb2NrOgo+IMKgKCZ2cS0+bXV0ZXgpeysuKy59LCBh
-dDogWzwwMDAwMDAwMDRkZTcyZjQ0Pl0gaGFuZGxlX3J4KzB4MWY1LzB4MTljMCAKPiBkcml2ZXJz
-L3Zob3N0L25ldC5jOjc2Ngo+Cj4gb3RoZXIgaW5mbyB0aGF0IG1pZ2h0IGhlbHAgdXMgZGVidWcg
-dGhpczoKPiDCoFBvc3NpYmxlIHVuc2FmZSBsb2NraW5nIHNjZW5hcmlvOgo+Cj4gwqDCoMKgwqDC
-oMKgIENQVTAKPiDCoMKgwqDCoMKgwqAgLS0tLQo+IMKgIGxvY2soJnZxLT5tdXRleCk7Cj4gwqAg
-bG9jaygmdnEtPm11dGV4KTsKPgo+IMKgKioqIERFQURMT0NLICoqKgo+Cj4gwqBNYXkgYmUgZHVl
-IHRvIG1pc3NpbmcgbG9jayBuZXN0aW5nIG5vdGF0aW9uCgpZZXMsIGl0J3MgYSBtaXNzaW5nIG9m
-IG5lc3Rpbmcgbm90YXRpb24uCgpXaWxsIHBvc3QgYSBwYXRjaCBzb29uLgoKVGhhbmtzCgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+We try to hold TX virtqueue mutex in vhost_net_rx_peek_head_len()
+after RX virtqueue mutex is held in handle_rx(). This requires an
+appropriate lock nesting notation to calm down deadlock detector.
+
+Fixes: 0308813724606 ("vhost_net: basic polling support")
+Reported-by: syzbot+7f073540b1384a614e09@syzkaller.appspotmail.com
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/net.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 8139bc7..12bcfba 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -630,7 +630,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
+ 
+ 	if (!len && vq->busyloop_timeout) {
+ 		/* Both tx vq and rx socket were polled here */
+-		mutex_lock(&vq->mutex);
++		mutex_lock_nested(&vq->mutex, 1);
+ 		vhost_disable_notify(&net->dev, vq);
+ 
+ 		preempt_disable();
+@@ -763,7 +763,7 @@ static void handle_rx(struct vhost_net *net)
+ 	struct iov_iter fixup;
+ 	__virtio16 num_buffers;
+ 
+-	mutex_lock(&vq->mutex);
++	mutex_lock_nested(&vq->mutex, 0);
+ 	sock = vq->private_data;
+ 	if (!sock)
+ 		goto out;
+-- 
+2.7.4
