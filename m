@@ -1,8 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC PATCH V2 4/8] vhost_net: do not explicitly manipulate
-	vhost_used_elem
-Date: Mon, 26 Mar 2018 11:38:49 +0800
-Message-ID: <1522035533-11786-5-git-send-email-jasowang__16837.24378604$1522035494$gmane$org@redhat.com>
+Subject: [RFC PATCH V2 6/8] virtio: introduce packed ring defines
+Date: Mon, 26 Mar 2018 11:38:51 +0800
+Message-ID: <1522035533-11786-7-git-send-email-jasowang__47852.8727581308$1522035501$gmane$org@redhat.com>
 References: <1522035533-11786-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,89 +21,60 @@ To: mst@redhat.com, virtualization@lists.linux-foundation.org
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Two helpers of setting/getting used len were introduced to avoid
-explicitly manipulating vhost_used_elem in zerocopy code. This will be
-used to hide used_elem internals and simplify packed ring
-implementation.
-
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/net.c   | 11 +++++------
- drivers/vhost/vhost.c | 12 ++++++++++--
- drivers/vhost/vhost.h |  5 +++++
- 3 files changed, 20 insertions(+), 8 deletions(-)
+ include/uapi/linux/virtio_config.h |  9 +++++++++
+ include/uapi/linux/virtio_ring.h   | 13 +++++++++++++
+ 2 files changed, 22 insertions(+)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 7ea2aee..7be8b55 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -337,9 +337,10 @@ static void vhost_zerocopy_signal_used(struct vhost_net *net,
- 	int j = 0;
- 
- 	for (i = nvq->done_idx; i != nvq->upend_idx; i = (i + 1) % UIO_MAXIOV) {
--		if (vq->heads[i].elem.len == VHOST_DMA_FAILED_LEN)
-+		if (vhost_get_used_len(vq, &vq->heads[i]) ==
-+		    VHOST_DMA_FAILED_LEN)
- 			vhost_net_tx_err(net);
--		if (VHOST_DMA_IS_DONE(vq->heads[i].elem.len)) {
-+		if (VHOST_DMA_IS_DONE(vhost_get_used_len(vq, &vq->heads[i]))) {
- 			vq->heads[i].elem.len = VHOST_DMA_CLEAR_LEN;
- 			++j;
- 		} else
-@@ -537,10 +538,8 @@ static void handle_tx(struct vhost_net *net)
- 			struct ubuf_info *ubuf;
- 			ubuf = nvq->ubuf_info + nvq->upend_idx;
- 
--			vq->heads[nvq->upend_idx].elem.id =
--				cpu_to_vhost32(vq, used.elem.id);
--			vq->heads[nvq->upend_idx].elem.len =
--				VHOST_DMA_IN_PROGRESS;
-+			vhost_set_used_len(vq, &used, VHOST_DMA_IN_PROGRESS);
-+			vq->heads[nvq->upend_idx] = used;
- 			ubuf->callback = vhost_zerocopy_callback;
- 			ubuf->ctx = nvq->ubufs;
- 			ubuf->desc = nvq->upend_idx;
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 8744dae..65954d6 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2100,11 +2100,19 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- }
- EXPORT_SYMBOL_GPL(vhost_get_vq_desc);
- 
--static void vhost_set_used_len(struct vhost_virtqueue *vq,
--			       struct vhost_used_elem *used, int len)
-+void vhost_set_used_len(struct vhost_virtqueue *vq,
-+			struct vhost_used_elem *used, int len)
- {
- 	used->elem.len = cpu_to_vhost32(vq, len);
- }
-+EXPORT_SYMBOL_GPL(vhost_set_used_len);
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index 308e209..5903d51 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -71,4 +71,13 @@
+  * this is for compatibility with legacy systems.
+  */
+ #define VIRTIO_F_IOMMU_PLATFORM		33
 +
-+int vhost_get_used_len(struct vhost_virtqueue *vq,
-+		       struct vhost_used_elem *used)
-+{
-+	return vhost32_to_cpu(vq, used->elem.len);
-+}
-+EXPORT_SYMBOL_GPL(vhost_get_used_len);
++#define VIRTIO_F_RING_PACKED		34
++
++/*
++ * This feature indicates that all buffers are used by the device in
++ * the same order in which they have been made available.
++ */
++#define VIRTIO_F_IN_ORDER		35
++
+ #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
+diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+index 6d5d5fa..e297580 100644
+--- a/include/uapi/linux/virtio_ring.h
++++ b/include/uapi/linux/virtio_ring.h
+@@ -43,6 +43,8 @@
+ #define VRING_DESC_F_WRITE	2
+ /* This means the buffer contains a list of buffer descriptors. */
+ #define VRING_DESC_F_INDIRECT	4
++#define VRING_DESC_F_AVAIL      7
++#define VRING_DESC_F_USED	15
  
- /* This is a multi-buffer version of vhost_get_desc, that works if
-  *	vq has read descriptors only.
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 8399887..d57c875 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -198,6 +198,11 @@ int vhost_get_bufs(struct vhost_virtqueue *vq,
- 		   unsigned *log_num,
- 		   unsigned int quota,
- 		   s16 *count);
-+void vhost_set_used_len(struct vhost_virtqueue *vq,
-+			struct vhost_used_elem *used,
-+			int len);
-+int vhost_get_used_len(struct vhost_virtqueue *vq,
-+		       struct vhost_used_elem *used);
- void vhost_discard_vq_desc(struct vhost_virtqueue *, int n);
+ /* The Host uses this in used->flags to advise the Guest: don't kick me when
+  * you add a buffer.  It's unreliable, so it's simply an optimization.  Guest
+@@ -62,6 +64,17 @@
+  * at the end of the used ring. Guest should ignore the used->flags field. */
+ #define VIRTIO_RING_F_EVENT_IDX		29
  
- int vhost_vq_init_access(struct vhost_virtqueue *);
++struct vring_desc_packed {
++	/* Buffer Address. */
++	__virtio64 addr;
++	/* Buffer Length. */
++	__virtio32 len;
++	/* Buffer ID. */
++	__virtio16 id;
++	/* The flags depending on descriptor type. */
++	__virtio16 flags;
++};
++
+ /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
+ struct vring_desc {
+ 	/* Address (guest-physical). */
 -- 
 2.7.4
