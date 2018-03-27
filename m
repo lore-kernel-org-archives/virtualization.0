@@ -1,11 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net V2] vhost: correctly remove wait queue during poll failure
-Date: Tue, 27 Mar 2018 20:50:52 +0800
-Message-ID: <1522155052-13347-1-git-send-email-jasowang__19225.2996880145$1522154943$gmane$org@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net] vhost: correctly remove wait queue during poll failure
+Date: Tue, 27 Mar 2018 16:58:59 +0300
+Message-ID: <20180327165330-mutt-send-email-mst@kernel.org>
+References: <1522122442-30317-1-git-send-email-jasowang@redhat.com>
+	<20180327092811.ikvssyxgb74nucb4@dhcp-10-175-199-170.vpn.oracle.com>
+	<b1576bcf-652a-7c1a-9d77-db54931ab979@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <b1576bcf-652a-7c1a-9d77-db54931ab979@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,39 +20,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: netdev@vger.kernel.org, Darren Kenny <darren.kenny@oracle.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We tried to remove vq poll from wait queue, but do not check whether
-or not it was in a list before. This will lead double free. Fixing
-this by switching to use vhost_poll_stop() which zeros poll->wqh after
-removing poll from waitqueue to make sure it won't be freed twice.
-
-Cc: Darren Kenny <darren.kenny@oracle.com>
-Reported-by: syzbot+c0272972b01b872e604a@syzkaller.appspotmail.com
-Fixes: 2b8b328b61c79 ("vhost_net: handle polling errors when setting backend")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
-Changes from V1:
-- tweak the commit log for to match the code
----
- drivers/vhost/vhost.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 1b3e8d2d..5d5a9d9 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -212,8 +212,7 @@ int vhost_poll_start(struct vhost_poll *poll, struct file *file)
- 	if (mask)
- 		vhost_poll_wakeup(&poll->wait, 0, 0, poll_to_key(mask));
- 	if (mask & EPOLLERR) {
--		if (poll->wqh)
--			remove_wait_queue(poll->wqh, &poll->wait);
-+		vhost_poll_stop(poll);
- 		ret = -EINVAL;
- 	}
- 
--- 
-2.7.4
+T24gVHVlLCBNYXIgMjcsIDIwMTggYXQgMDU6NDM6MTRQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE45bm0MDPmnIgyN+aXpSAxNzoyOCwgRGFycmVuIEtlbm55IHdyb3Rl
+Ogo+ID4gSGkgSmFzb24sCj4gPiAKPiA+IE9uIFR1ZSwgTWFyIDI3LCAyMDE4IGF0IDExOjQ3OjIy
+QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+IFdlIHRyaWVkIHRvIHJlbW92ZSB2cSBw
+b2xsIGZyb20gd2FpdCBxdWV1ZSwgYnV0IGRvIG5vdCBjaGVjayB3aGV0aGVyCj4gPiA+IG9yIG5v
+dCBpdCB3YXMgaW4gYSBsaXN0IGJlZm9yZS4gVGhpcyB3aWxsIGxlYWQgZG91YmxlIGZyZWUuIEZp
+eGluZwo+ID4gPiB0aGlzIGJ5IGNoZWNraW5nIHBvbGwtPndxaCB0byBtYWtlIHN1cmUgaXQgd2Fz
+IGluIGEgbGlzdC4KPiA+IAo+ID4gVGhpcyB0ZXh0IHNlZW1zIGF0IG9kZHMgd2l0aCB0aGUgY29k
+ZSBiZWxvdywgaW5zdGVhZCBvZiBjaGVja2luZwo+ID4gcG9sbC13aHEsIHlvdSBhcmUgcmVtb3Zp
+bmcgdGhhdCBjaGVjay4uLgo+ID4gCj4gPiBNYXliZSB0aGUgdGV4dCBuZWVkcyByZXdvcmRpbmc/
+Cj4gCj4gWWVzLCBJIGFkbWl0IGl0J3MgYmFkLCB0aGFua3MgZm9yIHBvaW50aW5nIG91dC4KPiAK
+PiBIb3cgYWJvdXQ6Cj4gCj4gIkZpeGluZyB0aGlzIGJ5IHN3aXRjaGluZyB0byB1c2Ugdmhvc3Rf
+cG9sbF9zdG9wKCkgd2hpY2ggemVyb3MgcG9sbC0+d3FoCj4gYWZ0ZXIgcmVtb3ZpbmcgcG9sbCBm
+cm9tIHdhaXRxdWV1ZSB0byBtYWtlIHN1cmUgaXQgd29uJ3QgYmUgZnJlZWQgdHdpY2UuIgo+IAo+
+IFRoYW5rcwoKTGV0J3MgYmUgYSBiaXQgbW9yZSBzcGVjaWZpYyBhYm91dCB0aGUgcHJvYmxlbSBt
+YXliZT8KCndoZW4gdmhvc3QncyBhdHRlbXB0IHRvIHN0YXJ0IHBvbGxpbmcgYSBkZXNjcmlwdG9y
+IGZhaWxzLCB3ZSByZW1vdmUgdGhlCnBvbGwtPndxaCBlbnRyeSBmcm9tIHdhaXQgcXVldWUgYnV0
+IGRvIG5vdCBjbGVhciBpdCwgc28gdGhlIGZvbGxvd2luZwpjbGVhbnVwIChlLmcuIG9uIHJlbGVh
+c2UpIHdpbGwgYXR0ZW1wdCB0byByZW1vdmUgaXQgYWdhaW4uCgpUbyBmaXgsIHN3aXRjaCB0byB2
+aG9zdF9wb2xsX3N0b3AoKSB3aGljaCB6ZXJvcyBwb2xsLT53cWgKYWZ0ZXIgcmVtb3ZpbmcgcG9s
+bCBmcm9tIHdhaXRxdWV1ZSB0byBtYWtlIHN1cmUgaXQgd29uJ3QgYmUgZnJlZWQgdHdpY2UuIgoK
+CnRoZSBwYXRjaCBpdHNlbGYgaXMgZmluZSB0aG91Z2g6CgoKQWNrZWQtYnk6IE1pY2hhZWwgUy4g
+VHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+CgoKPiA+IAo+ID4gVGhhbmtzLAo+ID4gCj4gPiBEYXJy
+ZW4uCj4gPiAKPiA+ID4gCj4gPiA+IFJlcG9ydGVkLWJ5OiBzeXpib3QrYzAyNzI5NzJiMDFiODcy
+ZTYwNGFAc3l6a2FsbGVyLmFwcHNwb3RtYWlsLmNvbQo+ID4gPiBGaXhlczogMmI4YjMyOGI2MWM3
+OSAoInZob3N0X25ldDogaGFuZGxlIHBvbGxpbmcgZXJyb3JzIHdoZW4gc2V0dGluZwo+ID4gPiBi
+YWNrZW5kIikKPiA+ID4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0
+LmNvbT4KPiA+ID4gLS0tCj4gPiA+IGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyB8IDMgKy0tCj4gPiA+
+IDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMiBkZWxldGlvbnMoLSkKPiA+ID4gCj4g
+PiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJzL3Zob3N0L3Zo
+b3N0LmMKPiA+ID4gaW5kZXggMWIzZThkMmQuLjVkNWE5ZDkgMTAwNjQ0Cj4gPiA+IC0tLSBhL2Ry
+aXZlcnMvdmhvc3Qvdmhvc3QuYwo+ID4gPiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiA+
+ID4gQEAgLTIxMiw4ICsyMTIsNyBAQCBpbnQgdmhvc3RfcG9sbF9zdGFydChzdHJ1Y3Qgdmhvc3Rf
+cG9sbCAqcG9sbCwKPiA+ID4gc3RydWN0IGZpbGUgKmZpbGUpCj4gPiA+IMKgwqDCoMKgaWYgKG1h
+c2spCj4gPiA+IMKgwqDCoMKgwqDCoMKgIHZob3N0X3BvbGxfd2FrZXVwKCZwb2xsLT53YWl0LCAw
+LCAwLCBwb2xsX3RvX2tleShtYXNrKSk7Cj4gPiA+IMKgwqDCoMKgaWYgKG1hc2sgJiBFUE9MTEVS
+Uikgewo+ID4gPiAtwqDCoMKgwqDCoMKgwqAgaWYgKHBvbGwtPndxaCkKPiA+ID4gLcKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgcmVtb3ZlX3dhaXRfcXVldWUocG9sbC0+d3FoLCAmcG9sbC0+d2FpdCk7
+Cj4gPiA+ICvCoMKgwqDCoMKgwqDCoCB2aG9zdF9wb2xsX3N0b3AocG9sbCk7Cj4gPiA+IMKgwqDC
+oMKgwqDCoMKgIHJldCA9IC1FSU5WQUw7Cj4gPiA+IMKgwqDCoMKgfQo+ID4gPiAKPiA+ID4gLS0g
+Cj4gPiA+IDIuNy40Cj4gPiA+IApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
