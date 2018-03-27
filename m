@@ -1,15 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] vhost: correctly remove wait queue during poll failure
-Date: Tue, 27 Mar 2018 17:43:14 +0800
-Message-ID: <b1576bcf-652a-7c1a-9d77-db54931ab979__40845.7870282747$1522143706$gmane$org@redhat.com>
-References: <1522122442-30317-1-git-send-email-jasowang@redhat.com>
-	<20180327092811.ikvssyxgb74nucb4@dhcp-10-175-199-170.vpn.oracle.com>
+Subject: [PATCH net V2] vhost: correctly remove wait queue during poll failure
+Date: Tue, 27 Mar 2018 20:50:52 +0800
+Message-ID: <1522155052-13347-1-git-send-email-jasowang__19225.2996880145$1522154943$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180327092811.ikvssyxgb74nucb4@dhcp-10-175-199-170.vpn.oracle.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +15,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: mst@redhat.com, jasowang@redhat.com
+Cc: netdev@vger.kernel.org, Darren Kenny <darren.kenny@oracle.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDPmnIgyN+aXpSAxNzoyOCwgRGFycmVuIEtlbm55IHdyb3RlOgo+IEhpIEph
-c29uLAo+Cj4gT24gVHVlLCBNYXIgMjcsIDIwMTggYXQgMTE6NDc6MjJBTSArMDgwMCwgSmFzb24g
-V2FuZyB3cm90ZToKPj4gV2UgdHJpZWQgdG8gcmVtb3ZlIHZxIHBvbGwgZnJvbSB3YWl0IHF1ZXVl
-LCBidXQgZG8gbm90IGNoZWNrIHdoZXRoZXIKPj4gb3Igbm90IGl0IHdhcyBpbiBhIGxpc3QgYmVm
-b3JlLiBUaGlzIHdpbGwgbGVhZCBkb3VibGUgZnJlZS4gRml4aW5nCj4+IHRoaXMgYnkgY2hlY2tp
-bmcgcG9sbC0+d3FoIHRvIG1ha2Ugc3VyZSBpdCB3YXMgaW4gYSBsaXN0Lgo+Cj4gVGhpcyB0ZXh0
-IHNlZW1zIGF0IG9kZHMgd2l0aCB0aGUgY29kZSBiZWxvdywgaW5zdGVhZCBvZiBjaGVja2luZwo+
-IHBvbGwtd2hxLCB5b3UgYXJlIHJlbW92aW5nIHRoYXQgY2hlY2suLi4KPgo+IE1heWJlIHRoZSB0
-ZXh0IG5lZWRzIHJld29yZGluZz8KClllcywgSSBhZG1pdCBpdCdzIGJhZCwgdGhhbmtzIGZvciBw
-b2ludGluZyBvdXQuCgpIb3cgYWJvdXQ6CgoiRml4aW5nIHRoaXMgYnkgc3dpdGNoaW5nIHRvIHVz
-ZSB2aG9zdF9wb2xsX3N0b3AoKSB3aGljaCB6ZXJvcyBwb2xsLT53cWggCmFmdGVyIHJlbW92aW5n
-IHBvbGwgZnJvbSB3YWl0cXVldWUgdG8gbWFrZSBzdXJlIGl0IHdvbid0IGJlIGZyZWVkIHR3aWNl
-LiIKClRoYW5rcwoKPgo+IFRoYW5rcywKPgo+IERhcnJlbi4KPgo+Pgo+PiBSZXBvcnRlZC1ieTog
-c3l6Ym90K2MwMjcyOTcyYjAxYjg3MmU2MDRhQHN5emthbGxlci5hcHBzcG90bWFpbC5jb20KPj4g
-Rml4ZXM6IDJiOGIzMjhiNjFjNzkgKCJ2aG9zdF9uZXQ6IGhhbmRsZSBwb2xsaW5nIGVycm9ycyB3
-aGVuIHNldHRpbmcgCj4+IGJhY2tlbmQiKQo+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nIDxq
-YXNvd2FuZ0ByZWRoYXQuY29tPgo+PiAtLS0KPj4gZHJpdmVycy92aG9zdC92aG9zdC5jIHwgMyAr
-LS0KPj4gMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAyIGRlbGV0aW9ucygtKQo+Pgo+
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC92aG9zdC5jIGIvZHJpdmVycy92aG9zdC92aG9z
-dC5jCj4+IGluZGV4IDFiM2U4ZDJkLi41ZDVhOWQ5IDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL3Zo
-b3N0L3Zob3N0LmMKPj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4+IEBAIC0yMTIsOCAr
-MjEyLDcgQEAgaW50IHZob3N0X3BvbGxfc3RhcnQoc3RydWN0IHZob3N0X3BvbGwgKnBvbGwsIAo+
-PiBzdHJ1Y3QgZmlsZSAqZmlsZSkKPj4gwqDCoMKgwqBpZiAobWFzaykKPj4gwqDCoMKgwqDCoMKg
-wqAgdmhvc3RfcG9sbF93YWtldXAoJnBvbGwtPndhaXQsIDAsIDAsIHBvbGxfdG9fa2V5KG1hc2sp
-KTsKPj4gwqDCoMKgwqBpZiAobWFzayAmIEVQT0xMRVJSKSB7Cj4+IC3CoMKgwqDCoMKgwqDCoCBp
-ZiAocG9sbC0+d3FoKQo+PiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByZW1vdmVfd2FpdF9xdWV1
-ZShwb2xsLT53cWgsICZwb2xsLT53YWl0KTsKPj4gK8KgwqDCoMKgwqDCoMKgIHZob3N0X3BvbGxf
-c3RvcChwb2xsKTsKPj4gwqDCoMKgwqDCoMKgwqAgcmV0ID0gLUVJTlZBTDsKPj4gwqDCoMKgwqB9
-Cj4+Cj4+IC0tIAo+PiAyLjcuNAo+PgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+We tried to remove vq poll from wait queue, but do not check whether
+or not it was in a list before. This will lead double free. Fixing
+this by switching to use vhost_poll_stop() which zeros poll->wqh after
+removing poll from waitqueue to make sure it won't be freed twice.
+
+Cc: Darren Kenny <darren.kenny@oracle.com>
+Reported-by: syzbot+c0272972b01b872e604a@syzkaller.appspotmail.com
+Fixes: 2b8b328b61c79 ("vhost_net: handle polling errors when setting backend")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+Changes from V1:
+- tweak the commit log for to match the code
+---
+ drivers/vhost/vhost.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 1b3e8d2d..5d5a9d9 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -212,8 +212,7 @@ int vhost_poll_start(struct vhost_poll *poll, struct file *file)
+ 	if (mask)
+ 		vhost_poll_wakeup(&poll->wait, 0, 0, poll_to_key(mask));
+ 	if (mask & EPOLLERR) {
+-		if (poll->wqh)
+-			remove_wait_queue(poll->wqh, &poll->wait);
++		vhost_poll_stop(poll);
+ 		ret = -EINVAL;
+ 	}
+ 
+-- 
+2.7.4
