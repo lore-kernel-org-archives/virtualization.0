@@ -1,15 +1,14 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 00/23] drm: Eliminate plane->fb/crtc usage for atomic
-	drivers
-Date: Tue, 27 Mar 2018 10:21:44 +0200
-Message-ID: <20180327082144.GQ14155__26621.3887175129$1522138814$gmane$org@phenom.ffwll.local>
-References: <20180322152313.6561-1-ville.syrjala@linux.intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost-net: add time limitation for tx polling
+Date: Tue, 27 Mar 2018 17:40:28 +0800
+Message-ID: <182a4eaf-205d-b2b7-6f10-a23ec597f840__23740.3457555503$1522143556$gmane$org@redhat.com>
+References: <88D661ADF6AFBF42B2AB88D8E7682B0901FC4059@EXMBX-SZMAIL011.tencent.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="gbk"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180322152313.6561-1-ville.syrjala@linux.intel.com>
+In-Reply-To: <88D661ADF6AFBF42B2AB88D8E7682B0901FC4059@EXMBX-SZMAIL011.tencent.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,129 +18,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ville Syrjala <ville.syrjala@linux.intel.com>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, dri-devel@lists.freedesktop.org, chris@chris-wilson.co.uk, Eric Anholt <eric@anholt.net>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Dave Airlie <airlied@gmail.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Sinclair Yeh <syeh@vmware.com>, Rob Clark <robdclark@gmail.com>, amd-gfx@lists.freedesktop.org, martin.peres@free.fr, VMware Graphics <linux-graphics-maintainer@vmware.com>, Harry Wentland <harry.wentland@amd.com>, "David (ChunMing) Zhou" <David1.Zhou@amd.com>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Inki Dae <inki.dae@samsung.com>, virtualization@lists.linux-foundation.org, Vincent Abriou <vincent.abriou@st.com>
+To: =?UTF-8?B?aGFpYmluemhhbmco5byg5rW35paMKQ==?= <haibinzhang@tencent.com>, "mst@redhat.com" <mst@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 22, 2018 at 05:22:50PM +0200, Ville Syrjala wrote:
-> From: Ville Syrj=E4l=E4 <ville.syrjala@linux.intel.com>
-> =
-
-> I really just wanted to fix i915 to re-enable its planes afer load
-> detection (a two line patch). This is what I actually ended up with
-> after I ran into a framebuffer refcount leak with said two line patch.
-> =
-
-> I've tested this on a few i915 boxes and so far it's looking
-> good. Everything else is just compile tested.
-> =
-
-> Entire series available here:
-> git://github.com/vsyrjala/linux.git plane_fb_crtc_nuke
-> =
-
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: amd-gfx@lists.freedesktop.org
-> Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-> Cc: Boris Brezillon <boris.brezillon@free-electrons.com>
-> Cc: chris@chris-wilson.co.uk
-> Cc: "Christian K=F6nig" <christian.koenig@amd.com>
-> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Cc: Dave Airlie <airlied@gmail.com>
-> Cc: David Airlie <airlied@linux.ie>
-> Cc: "David (ChunMing) Zhou" <David1.Zhou@amd.com>
-> Cc: Eric Anholt <eric@anholt.net>
-> Cc: freedreno@lists.freedesktop.org
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: Harry Wentland <harry.wentland@amd.com>
-> Cc: Inki Dae <inki.dae@samsung.com>
-> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
-> Cc: Kyungmin Park <kyungmin.park@samsung.com>
-> Cc: linux-arm-msm@vger.kernel.org
-> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Cc: martin.peres@free.fr
-> Cc: Rob Clark <robdclark@gmail.com>
-> Cc: Seung-Woo Kim <sw0312.kim@samsung.com>
-> Cc: Shawn Guo <shawnguo@kernel.org>
-> Cc: Sinclair Yeh <syeh@vmware.com>
-> Cc: Thomas Hellstrom <thellstrom@vmware.com>
-> Cc: Vincent Abriou <vincent.abriou@st.com>
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: VMware Graphics <linux-graphics-maintainer@vmware.com>
-> =
-
-> Ville Syrj=E4l=E4 (23):
->   Revert "drm/atomic-helper: Fix leak in disable_all"
->   drm/atomic-helper: Make drm_atomic_helper_disable_all() update the
->     plane->fb pointers
->   drm: Clear crtc->primary->crtc when disabling the crtc via setcrtc()
->   drm/atomic-helper: WARN if legacy plane fb pointers are bogus when
->     committing duplicated state
->   drm: Add local 'plane' variable for primary/cursor planes
->   drm: Adjust whitespace for legibility
->   drm: Make the fb refcount handover less magic
->   drm: Use plane->state->fb over plane->fb
->   drm/i915: Stop consulting plane->fb
->   drm/msm: Stop consulting plane->fb
->   drm/sti: Stop consulting plane->fb
->   drm/vmwgfx: Stop consulting plane->fb
->   drm/zte: Stop consulting plane->fb
->   drm/atmel-hlcdc: Stop using plane->fb
->   drm: Stop updating plane->crtc/fb/old_fb on atomic drivers
->   drm/amdgpu/dc: Stop updating plane->fb
->   drm/i915: Stop updating plane->fb/crtc
->   drm/exynos: Stop updating plane->crtc
->   drm/msm: Stop updating plane->fb/crtc
->   drm/virtio: Stop updating plane->fb
->   drm/vc4: Stop updating plane->fb/crtc
->   drm/i915: Restore planes after load detection
->   drm/i915: Make force_load_detect effective even w/ DMI quirks/hotplug
-
-Ok, I reviewed the core patches, looks all good.
-
-Also starting auditing all the drivers. I think there's some small
-oversights in there, and I need to update my grep foo a bit, but by and
-large looks all reasonable.
-
-Imo we should start merging, that will also make the auditing easier.
--Daniel
-
-> =
-
->  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |  2 -
->  drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_plane.c   | 12 +---
->  drivers/gpu/drm/drm_atomic.c                      | 55 ++--------------
->  drivers/gpu/drm/drm_atomic_helper.c               | 79 ++++++++++-------=
-------
->  drivers/gpu/drm/drm_crtc.c                        | 51 ++++++++++-----
->  drivers/gpu/drm/drm_fb_helper.c                   |  7 --
->  drivers/gpu/drm/drm_framebuffer.c                 |  5 --
->  drivers/gpu/drm/drm_plane.c                       | 64 +++++++++++-------
->  drivers/gpu/drm/drm_plane_helper.c                |  4 +-
->  drivers/gpu/drm/exynos/exynos_drm_plane.c         |  2 -
->  drivers/gpu/drm/i915/intel_crt.c                  |  6 ++
->  drivers/gpu/drm/i915/intel_display.c              |  9 +--
->  drivers/gpu/drm/i915/intel_fbdev.c                |  2 +-
->  drivers/gpu/drm/msm/disp/mdp4/mdp4_crtc.c         |  3 +-
->  drivers/gpu/drm/msm/disp/mdp4/mdp4_plane.c        |  2 -
->  drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c        |  2 -
->  drivers/gpu/drm/sti/sti_plane.c                   |  9 +--
->  drivers/gpu/drm/vc4/vc4_crtc.c                    |  3 -
->  drivers/gpu/drm/virtio/virtgpu_display.c          |  2 -
->  drivers/gpu/drm/vmwgfx/vmwgfx_kms.c               |  6 +-
->  drivers/gpu/drm/zte/zx_vou.c                      |  2 +-
->  include/drm/drm_atomic.h                          |  3 -
->  22 files changed, 143 insertions(+), 187 deletions(-)
-> =
-
-> -- =
-
-> 2.16.1
-> =
-
-
--- =
-
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+CgpPbiAyMDE4xOowM9TCMjfI1SAxNzoxMiwgaGFpYmluemhhbmco1cW6o7HzKSB3cm90ZToKPiBo
+YW5kbGVfdHgoKSB3aWxsIGRlbGF5IHJ4IGZvciBhIGxvbmcgdGltZSB3aGVuIGJ1c3kgdHggcG9s
+bGluZyB1ZHAgcGFja2V0cwo+IHdpdGggc2hvcnQgbGVuZ3RoKGllOiAxYnl0ZSB1ZHAgcGF5bG9h
+ZCksIGJlY2F1c2Ugc2V0dGluZyBWSE9TVF9ORVRfV0VJR0hUCj4gdGFrZXMgaW50byBhY2NvdW50
+IG9ubHkgc2VudC1ieXRlcyBidXQgbm8gdGltZS4KCkludGVyZXN0aW5nLgoKTG9va2luZyBhdCB2
+aG9zdF9jYW5fYnVzeV9wb2xsKCkgaXQgdHJpZXMgdG8gcG9rZSBwZW5kaW5nIHZob3N0IHdvcmsg
+YW5kIApleGl0IHRoZSBidXN5IGxvb3AgaWYgaXQgZm91bmQgb25lLiBTbyBJIGJlbGlldmUgc29t
+ZXRoaW5nIGJsb2NrIHRoZSAKd29yayBxdWV1aW5nLiBFLmcgZGlkIHJldmVydGluZyA4MjQxYTFl
+NDY2Y2Q1NmU2YzEwNDcyY2FjOWMxYWQ0ZTU0YmM2NWRiIApmaXggdGhlIGlzc3VlPwoKPiAgIEl0
+J3Mgbm90IGZhaXIgZm9yIGhhbmRsZV9yeCgpLAo+IHNvIG5lZWRzIHRvIGxpbWl0IG1heCB0aW1l
+IG9mIHR4IHBvbGxpbmcuCj4KPiBTaWduZWQtb2ZmLWJ5OiBIYWliaW4gWmhhbmcgPGhhaWJpbnpo
+YW5nQHRlbmNlbnQuY29tPgo+IC0tLQo+ICAgZHJpdmVycy92aG9zdC9uZXQuYyB8IDMgKystCj4g
+ICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4KPiBkaWZm
+IC0tZ2l0IGEvZHJpdmVycy92aG9zdC9uZXQuYyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiBpbmRl
+eCA4MTM5YmM3MGFkN2QuLmRjOTIxOGEzYTc1YiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0
+L25ldC5jCj4gKysrIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+IEBAIC00NzMsNiArNDczLDcgQEAg
+c3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkKPiAgIAlzdHJ1Y3Qg
+c29ja2V0ICpzb2NrOwo+ICAgCXN0cnVjdCB2aG9zdF9uZXRfdWJ1Zl9yZWYgKnVuaW5pdGlhbGl6
+ZWRfdmFyKHVidWZzKTsKPiAgIAlib29sIHpjb3B5LCB6Y29weV91c2VkOwo+ICsJdW5zaWduZWQg
+bG9uZyBzdGFydCA9IGppZmZpZXM7CgpDaGVja2luZyBqaWZmaWVzIGlzIHRyaWNreSwgbmVlZCB0
+byBjb252ZXJ0IGl0IHRvIG1zIG9yIHdoYXRldmVyIG90aGVycy4KCj4gICAKPiAgIAltdXRleF9s
+b2NrKCZ2cS0+bXV0ZXgpOwo+ICAgCXNvY2sgPSB2cS0+cHJpdmF0ZV9kYXRhOwo+IEBAIC01ODAs
+NyArNTgxLDcgQEAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkK
+PiAgIAkJZWxzZQo+ICAgCQkJdmhvc3RfemVyb2NvcHlfc2lnbmFsX3VzZWQobmV0LCB2cSk7Cj4g
+ICAJCXZob3N0X25ldF90eF9wYWNrZXQobmV0KTsKPiAtCQlpZiAodW5saWtlbHkodG90YWxfbGVu
+ID49IFZIT1NUX05FVF9XRUlHSFQpKSB7Cj4gKwkJaWYgKHVubGlrZWx5KHRvdGFsX2xlbiA+PSBW
+SE9TVF9ORVRfV0VJR0hUKSB8fCB1bmxpa2VseShqaWZmaWVzIC0gc3RhcnQgPj0gMSkpIHsKCkhv
+dyB2YWx1ZSAxIGlzIGRldGVybWluZWQgaGVyZT8gQW5kIHdlIG5lZWQgYSBjb21wbGV0ZSB0ZXN0
+IHRvIG1ha2Ugc3VyZSAKdGhpcyB3b24ndCBhZmZlY3Qgb3RoZXIgdXNlIGNhc2VzLgoKQW5vdGhl
+ciB0aG91Z2h0IGlzIGludHJvZHVjZSBhbm90aGVyIGxpbWl0IG9mICNwYWNrZXRzLCBidXQgdGhp
+cyBuZWVkIApiZW5jaG1hcmsgdG9vLgoKVGhhbmtzCgo+ICAgCQkJdmhvc3RfcG9sbF9xdWV1ZSgm
+dnEtPnBvbGwpOwo+ICAgCQkJYnJlYWs7Cj4gICAJCX0KCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
