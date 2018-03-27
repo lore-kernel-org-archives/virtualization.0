@@ -1,17 +1,15 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v29 1/4] mm: support reporting free page blocks
-Date: Tue, 27 Mar 2018 08:33:22 +0200
-Message-ID: <20180327063322.GW5652__13814.1125011773$1522132329$gmane$org@dhcp22.suse.cz>
-References: <1522031994-7246-1-git-send-email-wei.w.wang@intel.com>
-	<1522031994-7246-2-git-send-email-wei.w.wang@intel.com>
-	<20180326142254.c4129c3a54ade686ee2a5e21@linux-foundation.org>
-	<5AB9E377.30900@intel.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH 00/23] drm: Eliminate plane->fb/crtc usage for atomic
+	drivers
+Date: Tue, 27 Mar 2018 10:21:44 +0200
+Message-ID: <20180327082144.GQ14155__26621.3887175129$1522138814$gmane$org@phenom.ffwll.local>
+References: <20180322152313.6561-1-ville.syrjala@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5AB9E377.30900@intel.com>
+In-Reply-To: <20180322152313.6561-1-ville.syrjala@linux.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,104 +19,129 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, mst@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, huangzhichao@huawei.com, pbonzini@redhat.com, Andrew Morton <akpm@linux-foundation.org>, nilal@redhat.com
+To: Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, dri-devel@lists.freedesktop.org, chris@chris-wilson.co.uk, Eric Anholt <eric@anholt.net>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Dave Airlie <airlied@gmail.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Sinclair Yeh <syeh@vmware.com>, Rob Clark <robdclark@gmail.com>, amd-gfx@lists.freedesktop.org, martin.peres@free.fr, VMware Graphics <linux-graphics-maintainer@vmware.com>, Harry Wentland <harry.wentland@amd.com>, "David (ChunMing) Zhou" <David1.Zhou@amd.com>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Inki Dae <inki.dae@samsung.com>, virtualization@lists.linux-foundation.org, Vincent Abriou <vincent.abriou@st.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue 27-03-18 14:23:51, Wei Wang wrote:
-> On 03/27/2018 05:22 AM, Andrew Morton wrote:
-> > On Mon, 26 Mar 2018 10:39:51 +0800 Wei Wang <wei.w.wang@intel.com> wrote:
-> > 
-> > > This patch adds support to walk through the free page blocks in the
-> > > system and report them via a callback function. Some page blocks may
-> > > leave the free list after zone->lock is released, so it is the caller's
-> > > responsibility to either detect or prevent the use of such pages.
-> > > 
-> > > One use example of this patch is to accelerate live migration by skipping
-> > > the transfer of free pages reported from the guest. A popular method used
-> > > by the hypervisor to track which part of memory is written during live
-> > > migration is to write-protect all the guest memory. So, those pages that
-> > > are reported as free pages but are written after the report function
-> > > returns will be captured by the hypervisor, and they will be added to the
-> > > next round of memory transfer.
-> > > 
-> > > ...
-> > > 
-> > > --- a/mm/page_alloc.c
-> > > +++ b/mm/page_alloc.c
-> > > @@ -4912,6 +4912,102 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
-> > >   	show_swap_cache_info();
-> > >   }
-> > > +/*
-> > > + * Walk through a free page list and report the found pfn range via the
-> > > + * callback.
-> > > + *
-> > > + * Return 0 if it completes the reporting. Otherwise, return the non-zero
-> > > + * value returned from the callback.
-> > > + */
-> > > +static int walk_free_page_list(void *opaque,
-> > > +			       struct zone *zone,
-> > > +			       int order,
-> > > +			       enum migratetype mt,
-> > > +			       int (*report_pfn_range)(void *,
-> > > +						       unsigned long,
-> > > +						       unsigned long))
-> > > +{
-> > > +	struct page *page;
-> > > +	struct list_head *list;
-> > > +	unsigned long pfn, flags;
-> > > +	int ret = 0;
-> > > +
-> > > +	spin_lock_irqsave(&zone->lock, flags);
-> > > +	list = &zone->free_area[order].free_list[mt];
-> > > +	list_for_each_entry(page, list, lru) {
-> > > +		pfn = page_to_pfn(page);
-> > > +		ret = report_pfn_range(opaque, pfn, 1 << order);
-> > > +		if (ret)
-> > > +			break;
-> > > +	}
-> > > +	spin_unlock_irqrestore(&zone->lock, flags);
-> > > +
-> > > +	return ret;
-> > > +}
-> > > +
-> > > +/**
-> > > + * walk_free_mem_block - Walk through the free page blocks in the system
-> > > + * @opaque: the context passed from the caller
-> > > + * @min_order: the minimum order of free lists to check
-> > > + * @report_pfn_range: the callback to report the pfn range of the free pages
-> > > + *
-> > > + * If the callback returns a non-zero value, stop iterating the list of free
-> > > + * page blocks. Otherwise, continue to report.
-> > > + *
-> > > + * Please note that there are no locking guarantees for the callback and
-> > > + * that the reported pfn range might be freed or disappear after the
-> > > + * callback returns so the caller has to be very careful how it is used.
-> > > + *
-> > > + * The callback itself must not sleep or perform any operations which would
-> > > + * require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
-> > > + * or via any lock dependency. It is generally advisable to implement
-> > > + * the callback as simple as possible and defer any heavy lifting to a
-> > > + * different context.
-> > > + *
-> > > + * There is no guarantee that each free range will be reported only once
-> > > + * during one walk_free_mem_block invocation.
-> > > + *
-> > > + * pfn_to_page on the given range is strongly discouraged and if there is
-> > > + * an absolute need for that make sure to contact MM people to discuss
-> > > + * potential problems.
-> > > + *
-> > > + * The function itself might sleep so it cannot be called from atomic
-> > > + * contexts.
-> > I don't see how walk_free_mem_block() can sleep.
-> 
-> OK, it would be better to remove this sentence for the current version. But
-> I think we could probably keep it if we decide to add cond_resched() below.
+On Thu, Mar 22, 2018 at 05:22:50PM +0200, Ville Syrjala wrote:
+> From: Ville Syrj=E4l=E4 <ville.syrjala@linux.intel.com>
+> =
 
-The point of this sentence was to make any user aware that the function
-might sleep from the very begining rather than chase existing callers
-when we need to add cond_resched or sleep for any other reason. So I
-would rather keep it.
--- 
-Michal Hocko
-SUSE Labs
+> I really just wanted to fix i915 to re-enable its planes afer load
+> detection (a two line patch). This is what I actually ended up with
+> after I ran into a framebuffer refcount leak with said two line patch.
+> =
+
+> I've tested this on a few i915 boxes and so far it's looking
+> good. Everything else is just compile tested.
+> =
+
+> Entire series available here:
+> git://github.com/vsyrjala/linux.git plane_fb_crtc_nuke
+> =
+
+> Cc: Alex Deucher <alexander.deucher@amd.com>
+> Cc: amd-gfx@lists.freedesktop.org
+> Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+> Cc: Boris Brezillon <boris.brezillon@free-electrons.com>
+> Cc: chris@chris-wilson.co.uk
+> Cc: "Christian K=F6nig" <christian.koenig@amd.com>
+> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Cc: Dave Airlie <airlied@gmail.com>
+> Cc: David Airlie <airlied@linux.ie>
+> Cc: "David (ChunMing) Zhou" <David1.Zhou@amd.com>
+> Cc: Eric Anholt <eric@anholt.net>
+> Cc: freedreno@lists.freedesktop.org
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: Harry Wentland <harry.wentland@amd.com>
+> Cc: Inki Dae <inki.dae@samsung.com>
+> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+> Cc: Kyungmin Park <kyungmin.park@samsung.com>
+> Cc: linux-arm-msm@vger.kernel.org
+> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Cc: martin.peres@free.fr
+> Cc: Rob Clark <robdclark@gmail.com>
+> Cc: Seung-Woo Kim <sw0312.kim@samsung.com>
+> Cc: Shawn Guo <shawnguo@kernel.org>
+> Cc: Sinclair Yeh <syeh@vmware.com>
+> Cc: Thomas Hellstrom <thellstrom@vmware.com>
+> Cc: Vincent Abriou <vincent.abriou@st.com>
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: VMware Graphics <linux-graphics-maintainer@vmware.com>
+> =
+
+> Ville Syrj=E4l=E4 (23):
+>   Revert "drm/atomic-helper: Fix leak in disable_all"
+>   drm/atomic-helper: Make drm_atomic_helper_disable_all() update the
+>     plane->fb pointers
+>   drm: Clear crtc->primary->crtc when disabling the crtc via setcrtc()
+>   drm/atomic-helper: WARN if legacy plane fb pointers are bogus when
+>     committing duplicated state
+>   drm: Add local 'plane' variable for primary/cursor planes
+>   drm: Adjust whitespace for legibility
+>   drm: Make the fb refcount handover less magic
+>   drm: Use plane->state->fb over plane->fb
+>   drm/i915: Stop consulting plane->fb
+>   drm/msm: Stop consulting plane->fb
+>   drm/sti: Stop consulting plane->fb
+>   drm/vmwgfx: Stop consulting plane->fb
+>   drm/zte: Stop consulting plane->fb
+>   drm/atmel-hlcdc: Stop using plane->fb
+>   drm: Stop updating plane->crtc/fb/old_fb on atomic drivers
+>   drm/amdgpu/dc: Stop updating plane->fb
+>   drm/i915: Stop updating plane->fb/crtc
+>   drm/exynos: Stop updating plane->crtc
+>   drm/msm: Stop updating plane->fb/crtc
+>   drm/virtio: Stop updating plane->fb
+>   drm/vc4: Stop updating plane->fb/crtc
+>   drm/i915: Restore planes after load detection
+>   drm/i915: Make force_load_detect effective even w/ DMI quirks/hotplug
+
+Ok, I reviewed the core patches, looks all good.
+
+Also starting auditing all the drivers. I think there's some small
+oversights in there, and I need to update my grep foo a bit, but by and
+large looks all reasonable.
+
+Imo we should start merging, that will also make the auditing easier.
+-Daniel
+
+> =
+
+>  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |  2 -
+>  drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_plane.c   | 12 +---
+>  drivers/gpu/drm/drm_atomic.c                      | 55 ++--------------
+>  drivers/gpu/drm/drm_atomic_helper.c               | 79 ++++++++++-------=
+------
+>  drivers/gpu/drm/drm_crtc.c                        | 51 ++++++++++-----
+>  drivers/gpu/drm/drm_fb_helper.c                   |  7 --
+>  drivers/gpu/drm/drm_framebuffer.c                 |  5 --
+>  drivers/gpu/drm/drm_plane.c                       | 64 +++++++++++-------
+>  drivers/gpu/drm/drm_plane_helper.c                |  4 +-
+>  drivers/gpu/drm/exynos/exynos_drm_plane.c         |  2 -
+>  drivers/gpu/drm/i915/intel_crt.c                  |  6 ++
+>  drivers/gpu/drm/i915/intel_display.c              |  9 +--
+>  drivers/gpu/drm/i915/intel_fbdev.c                |  2 +-
+>  drivers/gpu/drm/msm/disp/mdp4/mdp4_crtc.c         |  3 +-
+>  drivers/gpu/drm/msm/disp/mdp4/mdp4_plane.c        |  2 -
+>  drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c        |  2 -
+>  drivers/gpu/drm/sti/sti_plane.c                   |  9 +--
+>  drivers/gpu/drm/vc4/vc4_crtc.c                    |  3 -
+>  drivers/gpu/drm/virtio/virtgpu_display.c          |  2 -
+>  drivers/gpu/drm/vmwgfx/vmwgfx_kms.c               |  6 +-
+>  drivers/gpu/drm/zte/zx_vou.c                      |  2 +-
+>  include/drm/drm_atomic.h                          |  3 -
+>  22 files changed, 143 insertions(+), 187 deletions(-)
+> =
+
+> -- =
+
+> 2.16.1
+> =
+
+
+-- =
+
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
