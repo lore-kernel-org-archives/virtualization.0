@@ -1,15 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost-net: add time limitation for tx polling(Internet
-	mail)
-Date: Wed, 28 Mar 2018 14:37:04 +0800
-Message-ID: <0b1846d3-dfcf-df0c-f94c-65d414331d88__17481.9146552638$1522218938$gmane$org@redhat.com>
-References: <88D661ADF6AFBF42B2AB88D8E7682B0901FC412A@EXMBX-SZMAIL011.tencent.com>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH v29 1/4] mm: support reporting free page blocks
+Date: Wed, 28 Mar 2018 09:01:45 +0200
+Message-ID: <20180328070145.GB9275__12850.41093729$1522220403$gmane$org@dhcp22.suse.cz>
+References: <1522031994-7246-1-git-send-email-wei.w.wang@intel.com>
+	<1522031994-7246-2-git-send-email-wei.w.wang@intel.com>
+	<20180326142254.c4129c3a54ade686ee2a5e21@linux-foundation.org>
+	<5AB9E377.30900@intel.com> <20180327063322.GW5652@dhcp22.suse.cz>
+	<20180327190635-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gbk"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <88D661ADF6AFBF42B2AB88D8E7682B0901FC412A@EXMBX-SZMAIL011.tencent.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180327190635-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,58 +22,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?UTF-8?B?aGFpYmluemhhbmco5byg5rW35paMKQ==?= <haibinzhang@tencent.com>, "mst@redhat.com" <mst@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: =?UTF-8?B?eXVuZmFuZ3RhaSjlj7Dov5Dmlrkp?= <yunfangtai@tencent.com>, =?UTF-8?B?bGlkb25nY2hlbijpmYjnq4vkuJwp?= <lidongchen@tencent.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, huangzhichao@huawei.com, pbonzini@redhat.com, Andrew Morton <akpm@linux-foundation.org>, nilal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE4xOowM9TCMjjI1SAxMjowMSwgaGFpYmluemhhbmco1cW6o7HzKSB3cm90ZToKPiBP
-biAyMDE4xOowM9TCMjfI1SAxOToyNiwgSmFzb24gd3JvdGUKPiBPbiAyMDE4xOowM9TCMjfI1SAx
-NzoxMiwgaGFpYmluemhhbmcgd3JvdGU6Cj4+PiBoYW5kbGVfdHgoKSB3aWxsIGRlbGF5IHJ4IGZv
-ciBhIGxvbmcgdGltZSB3aGVuIGJ1c3kgdHggcG9sbGluZyB1ZHAgcGFja2V0cwo+Pj4gd2l0aCBz
-aG9ydCBsZW5ndGgoaWU6IDFieXRlIHVkcCBwYXlsb2FkKSwgYmVjYXVzZSBzZXR0aW5nIFZIT1NU
-X05FVF9XRUlHSFQKPj4+IHRha2VzIGludG8gYWNjb3VudCBvbmx5IHNlbnQtYnl0ZXMgYnV0IG5v
-IHRpbWUuCj4+IEludGVyZXN0aW5nLgo+Pgo+PiBMb29raW5nIGF0IHZob3N0X2Nhbl9idXN5X3Bv
-bGwoKSBpdCB0cmllcyB0byBwb2tlIHBlbmRpbmcgdmhvc3Qgd29yayBhbmQKPj4gZXhpdCB0aGUg
-YnVzeSBsb29wIGlmIGl0IGZvdW5kIG9uZS4gU28gSSBiZWxpZXZlIHNvbWV0aGluZyBibG9jayB0
-aGUKPj4gd29yayBxdWV1aW5nLiBFLmcgZGlkIHJldmVydGluZyA4MjQxYTFlNDY2Y2Q1NmU2YzEw
-NDcyY2FjOWMxYWQ0ZTU0YmM2NWRiCj4+IGZpeCB0aGUgaXNzdWU/Cj4gImJ1c3kgdHggcG9sbGlu
-ZyIgbWVhbnMgdXNpbmcgbmV0cGVyZiBzZW5kIHVkcCBwYWNrZXRzIHdpdGggMSBieXRlcyBwYXls
-b2FkKHRvdGFsIDQ3Ynl0ZXMgZnJhbWUgbGVuZ2h0KSwKPiBhbmQgaGFuZGxlX3R4KCkgd2lsbCBi
-ZSBidXN5IHNlbmRpbmcgcGFja2V0cyBjb250aW51b3VzbHkuCj4KPj4+ICAgIEl0J3Mgbm90IGZh
-aXIgZm9yIGhhbmRsZV9yeCgpLAo+Pj4gc28gbmVlZHMgdG8gbGltaXQgbWF4IHRpbWUgb2YgdHgg
-cG9sbGluZy4KPj4+Cj4+PiAtLS0KPj4+ICAgIGRyaXZlcnMvdmhvc3QvbmV0LmMgfCAzICsrLQo+
-Pj4gICAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+Pj4K
-Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L25ldC5jIGIvZHJpdmVycy92aG9zdC9uZXQu
-Ywo+Pj4gaW5kZXggODEzOWJjNzBhZDdkLi5kYzkyMThhM2E3NWIgMTAwNjQ0Cj4+PiAtLS0gYS9k
-cml2ZXJzL3Zob3N0L25ldC5jCj4+PiArKysgYi9kcml2ZXJzL3Zob3N0L25ldC5jCj4+PiBAQCAt
-NDczLDYgKzQ3Myw3IEBAIHN0YXRpYyB2b2lkIGhhbmRsZV90eChzdHJ1Y3Qgdmhvc3RfbmV0ICpu
-ZXQpCj4+PiAgICAJc3RydWN0IHNvY2tldCAqc29jazsKPj4+ICAgIAlzdHJ1Y3Qgdmhvc3RfbmV0
-X3VidWZfcmVmICp1bmluaXRpYWxpemVkX3Zhcih1YnVmcyk7Cj4+PiAgICAJYm9vbCB6Y29weSwg
-emNvcHlfdXNlZDsKPj4+ICsJdW5zaWduZWQgbG9uZyBzdGFydCA9IGppZmZpZXM7Cj4+IENoZWNr
-aW5nIGppZmZpZXMgaXMgdHJpY2t5LCBuZWVkIHRvIGNvbnZlcnQgaXQgdG8gbXMgb3Igd2hhdGV2
-ZXIgb3RoZXJzLgo+Pgo+Pj4gICAgCj4+PiAgICAJbXV0ZXhfbG9jaygmdnEtPm11dGV4KTsKPj4+
-ICAgIAlzb2NrID0gdnEtPnByaXZhdGVfZGF0YTsKPj4+IEBAIC01ODAsNyArNTgxLDcgQEAgc3Rh
-dGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkKPj4+ICAgIAkJZWxzZQo+
-Pj4gICAgCQkJdmhvc3RfemVyb2NvcHlfc2lnbmFsX3VzZWQobmV0LCB2cSk7Cj4+PiAgICAJCXZo
-b3N0X25ldF90eF9wYWNrZXQobmV0KTsKPj4+IC0JCWlmICh1bmxpa2VseSh0b3RhbF9sZW4gPj0g
-VkhPU1RfTkVUX1dFSUdIVCkpIHsKPj4+ICsJCWlmICh1bmxpa2VseSh0b3RhbF9sZW4gPj0gVkhP
-U1RfTkVUX1dFSUdIVCkgfHwgdW5saWtlbHkoamlmZmllcyAtIHN0YXJ0ID49IDEpKSB7Cj4+IEhv
-dyB2YWx1ZSAxIGlzIGRldGVybWluZWQgaGVyZT8gQW5kIHdlIG5lZWQgYSBjb21wbGV0ZSB0ZXN0
-IHRvIG1ha2Ugc3VyZQo+PiB0aGlzIHdvbid0IGFmZmVjdCBvdGhlciB1c2UgY2FzZXMuCj4gV2Ug
-anVzdCB3YW50IDwxbXMgcGluZyBsYXRlbmN5LCBidXQgYWN0dWFsbHkgd2UgYXJlIG5vdCBzdXJl
-IHdoYXQgdmFsdWUgaXMgcmVhc29uYWJsZS4KPiBXZSBoYXZlIHNvbWUgdGVzdCByZXN1bHRzIHVz
-aW5nIG5ldHBlcmYgYmVmb3JlIHRoaXMgcGF0Y2ggYXMgZm9sbG93LAo+Cj4gICAgICBVZHAgcGF5
-bG9hZCAgICAxYnl0ZSAgICAxMDBieXRlcyAgICAxMDAwYnl0ZXMgICAgMTQwMGJ5dGVzCj4gICAg
-UGluZyBhdmcgbGF0ZW5jeSAgICAyNW1zICAgICAxMG1zICAgICAgIDJtcyAgICAgICAgIDEuNW1z
-Cj4KPiBXaGF0IGlzIG90aGVyIHRlc3RjYXNlcz8KClNvbWV0aGluZyBsaWtlIGh0dHBzOi8vcGF0
-Y2h3b3JrLmtlcm5lbC5vcmcvcGF0Y2gvMTAxNTE2NDUvLgoKQnR3LCB5b3UgbmVlZCB1c2UgdGlt
-ZV9iZWZvcmUoKSB0byBwcm9wZXJseSBoYW5kbGUgamlmZmllcyBvdmVyZmxvdyBhbmQgCkkgd291
-bGQgYWxzbyBzdWdnZXN0IHlvdSB0byB0cnkgc29tZXRoaW5nIGxpa2UgI3BhY2tldHMgbGltaXQg
-KGUuZyA2NCkuCgpGb3IgbG9uZyB0ZXJtLCB3ZSBkZWZpbml0ZWx5IG5lZWQgbW9yZSB3b3JrZXIg
-dGhyZWFkcy4KClRoYW5rcwoKPgo+PiBBbm90aGVyIHRob3VnaHQgaXMgaW50cm9kdWNlIGFub3Ro
-ZXIgbGltaXQgb2YgI3BhY2tldHMsIGJ1dCB0aGlzIG5lZWQKPj4gYmVuY2htYXJrIHRvby4KPj4K
-Pj4gVGhhbmtzCj4+Cj4+PiAgICAJCQl2aG9zdF9wb2xsX3F1ZXVlKCZ2cS0+cG9sbCk7Cj4+PiAg
-ICAJCQlicmVhazsKPj4+ICAgIAkJfQo+PgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Tue 27-03-18 19:07:22, Michael S. Tsirkin wrote:
+> On Tue, Mar 27, 2018 at 08:33:22AM +0200, Michal Hocko wrote:
+> > > > > + * The function itself might sleep so it cannot be called from atomic
+> > > > > + * contexts.
+> > > > I don't see how walk_free_mem_block() can sleep.
+> > > 
+> > > OK, it would be better to remove this sentence for the current version. But
+> > > I think we could probably keep it if we decide to add cond_resched() below.
+> > 
+> > The point of this sentence was to make any user aware that the function
+> > might sleep from the very begining rather than chase existing callers
+> > when we need to add cond_resched or sleep for any other reason. So I
+> > would rather keep it.
+> 
+> Let's say what it is then - "will be changed to sleep in the future".
+
+Do we really want to describe the precise implementation in the
+documentation? I thought the main purpose of the documentation is to
+describe the _contract_. If I am curious about the implementation I can
+look at the code. As I've said earlier in this patchset lifetime. This
+interface is rather dangerous because we are exposing guts of our
+internal data structures. So we better set expectations of what can and
+cannot be done right from the beginning. I definitely do not want
+somebody to simply look at the code and see that the interface is
+sleepable and abuse that fact.
+-- 
+Michal Hocko
+SUSE Labs
