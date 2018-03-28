@@ -1,18 +1,16 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v29 1/4] mm: support reporting free page blocks
-Date: Wed, 28 Mar 2018 09:01:45 +0200
-Message-ID: <20180328070145.GB9275__12850.41093729$1522220403$gmane$org@dhcp22.suse.cz>
-References: <1522031994-7246-1-git-send-email-wei.w.wang@intel.com>
-	<1522031994-7246-2-git-send-email-wei.w.wang@intel.com>
-	<20180326142254.c4129c3a54ade686ee2a5e21@linux-foundation.org>
-	<5AB9E377.30900@intel.com> <20180327063322.GW5652@dhcp22.suse.cz>
-	<20180327190635-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost-net: add time limitation for tx polling(Internet
+	mail)
+Date: Wed, 28 Mar 2018 18:31:06 +0300
+Message-ID: <20180328182813-mutt-send-email-mst__43945.3708161183$1522250949$gmane$org@kernel.org>
+References: <88D661ADF6AFBF42B2AB88D8E7682B0901FC412A@EXMBX-SZMAIL011.tencent.com>
+	<0b1846d3-dfcf-df0c-f94c-65d414331d88@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180327190635-mutt-send-email-mst@kernel.org>
+In-Reply-To: <0b1846d3-dfcf-df0c-f94c-65d414331d88@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,35 +20,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, huangzhichao@huawei.com, pbonzini@redhat.com, Andrew Morton <akpm@linux-foundation.org>, nilal@redhat.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, =?utf-8?B?aGFpYmluemhhbmco5byg5rW35paMKQ==?= <haibinzhang@tencent.com>, =?utf-8?B?eXVuZmFuZ3RhaSjlj7Dov5Dmlrkp?= <yunfangtai@tencent.com>, =?utf-8?B?bGlkb25nY2hlbijpmYjnq4vkuJwp?= <lidongchen@tencent.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue 27-03-18 19:07:22, Michael S. Tsirkin wrote:
-> On Tue, Mar 27, 2018 at 08:33:22AM +0200, Michal Hocko wrote:
-> > > > > + * The function itself might sleep so it cannot be called from atomic
-> > > > > + * contexts.
-> > > > I don't see how walk_free_mem_block() can sleep.
-> > > 
-> > > OK, it would be better to remove this sentence for the current version. But
-> > > I think we could probably keep it if we decide to add cond_resched() below.
-> > 
-> > The point of this sentence was to make any user aware that the function
-> > might sleep from the very begining rather than chase existing callers
-> > when we need to add cond_resched or sleep for any other reason. So I
-> > would rather keep it.
-> 
-> Let's say what it is then - "will be changed to sleep in the future".
-
-Do we really want to describe the precise implementation in the
-documentation? I thought the main purpose of the documentation is to
-describe the _contract_. If I am curious about the implementation I can
-look at the code. As I've said earlier in this patchset lifetime. This
-interface is rather dangerous because we are exposing guts of our
-internal data structures. So we better set expectations of what can and
-cannot be done right from the beginning. I definitely do not want
-somebody to simply look at the code and see that the interface is
-sleepable and abuse that fact.
--- 
-Michal Hocko
-SUSE Labs
+T24gV2VkLCBNYXIgMjgsIDIwMTggYXQgMDI6Mzc6MDRQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE45bm0MDPmnIgyOOaXpSAxMjowMSwgaGFpYmluemhhbmco5byg5rW3
+5paMKSB3cm90ZToKPiA+IE9uIDIwMTjlubQwM+aciDI35pelIDE5OjI2LCBKYXNvbiB3cm90ZQo+
+ID4gT24gMjAxOOW5tDAz5pyIMjfml6UgMTc6MTIsIGhhaWJpbnpoYW5nIHdyb3RlOgo+ID4gPiA+
+IGhhbmRsZV90eCgpIHdpbGwgZGVsYXkgcnggZm9yIGEgbG9uZyB0aW1lIHdoZW4gYnVzeSB0eCBw
+b2xsaW5nIHVkcCBwYWNrZXRzCj4gPiA+ID4gd2l0aCBzaG9ydCBsZW5ndGgoaWU6IDFieXRlIHVk
+cCBwYXlsb2FkKSwgYmVjYXVzZSBzZXR0aW5nIFZIT1NUX05FVF9XRUlHSFQKPiA+ID4gPiB0YWtl
+cyBpbnRvIGFjY291bnQgb25seSBzZW50LWJ5dGVzIGJ1dCBubyB0aW1lLgo+ID4gPiBJbnRlcmVz
+dGluZy4KPiA+ID4gCj4gPiA+IExvb2tpbmcgYXQgdmhvc3RfY2FuX2J1c3lfcG9sbCgpIGl0IHRy
+aWVzIHRvIHBva2UgcGVuZGluZyB2aG9zdCB3b3JrIGFuZAo+ID4gPiBleGl0IHRoZSBidXN5IGxv
+b3AgaWYgaXQgZm91bmQgb25lLiBTbyBJIGJlbGlldmUgc29tZXRoaW5nIGJsb2NrIHRoZQo+ID4g
+PiB3b3JrIHF1ZXVpbmcuIEUuZyBkaWQgcmV2ZXJ0aW5nIDgyNDFhMWU0NjZjZDU2ZTZjMTA0NzJj
+YWM5YzFhZDRlNTRiYzY1ZGIKPiA+ID4gZml4IHRoZSBpc3N1ZT8KPiA+ICJidXN5IHR4IHBvbGxp
+bmciIG1lYW5zIHVzaW5nIG5ldHBlcmYgc2VuZCB1ZHAgcGFja2V0cyB3aXRoIDEgYnl0ZXMgcGF5
+bG9hZCh0b3RhbCA0N2J5dGVzIGZyYW1lIGxlbmdodCksCj4gPiBhbmQgaGFuZGxlX3R4KCkgd2ls
+bCBiZSBidXN5IHNlbmRpbmcgcGFja2V0cyBjb250aW51b3VzbHkuCj4gPiAKPiA+ID4gPiAgICBJ
+dCdzIG5vdCBmYWlyIGZvciBoYW5kbGVfcngoKSwKPiA+ID4gPiBzbyBuZWVkcyB0byBsaW1pdCBt
+YXggdGltZSBvZiB0eCBwb2xsaW5nLgo+ID4gPiA+IAo+ID4gPiA+IC0tLQo+ID4gPiA+ICAgIGRy
+aXZlcnMvdmhvc3QvbmV0LmMgfCAzICsrLQo+ID4gPiA+ICAgIDEgZmlsZSBjaGFuZ2VkLCAyIGlu
+c2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPiA+ID4gPiAKPiA+ID4gPiBkaWZmIC0tZ2l0IGEv
+ZHJpdmVycy92aG9zdC9uZXQuYyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiA+ID4gPiBpbmRleCA4
+MTM5YmM3MGFkN2QuLmRjOTIxOGEzYTc1YiAxMDA2NDQKPiA+ID4gPiAtLS0gYS9kcml2ZXJzL3Zo
+b3N0L25ldC5jCj4gPiA+ID4gKysrIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+ID4gPiA+IEBAIC00
+NzMsNiArNDczLDcgQEAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2aG9zdF9uZXQgKm5l
+dCkKPiA+ID4gPiAgICAJc3RydWN0IHNvY2tldCAqc29jazsKPiA+ID4gPiAgICAJc3RydWN0IHZo
+b3N0X25ldF91YnVmX3JlZiAqdW5pbml0aWFsaXplZF92YXIodWJ1ZnMpOwo+ID4gPiA+ICAgIAli
+b29sIHpjb3B5LCB6Y29weV91c2VkOwo+ID4gPiA+ICsJdW5zaWduZWQgbG9uZyBzdGFydCA9IGpp
+ZmZpZXM7Cj4gPiA+IENoZWNraW5nIGppZmZpZXMgaXMgdHJpY2t5LCBuZWVkIHRvIGNvbnZlcnQg
+aXQgdG8gbXMgb3Igd2hhdGV2ZXIgb3RoZXJzLgo+ID4gPiAKPiA+ID4gPiAgICAJbXV0ZXhfbG9j
+aygmdnEtPm11dGV4KTsKPiA+ID4gPiAgICAJc29jayA9IHZxLT5wcml2YXRlX2RhdGE7Cj4gPiA+
+ID4gQEAgLTU4MCw3ICs1ODEsNyBAQCBzdGF0aWMgdm9pZCBoYW5kbGVfdHgoc3RydWN0IHZob3N0
+X25ldCAqbmV0KQo+ID4gPiA+ICAgIAkJZWxzZQo+ID4gPiA+ICAgIAkJCXZob3N0X3plcm9jb3B5
+X3NpZ25hbF91c2VkKG5ldCwgdnEpOwo+ID4gPiA+ICAgIAkJdmhvc3RfbmV0X3R4X3BhY2tldChu
+ZXQpOwo+ID4gPiA+IC0JCWlmICh1bmxpa2VseSh0b3RhbF9sZW4gPj0gVkhPU1RfTkVUX1dFSUdI
+VCkpIHsKPiA+ID4gPiArCQlpZiAodW5saWtlbHkodG90YWxfbGVuID49IFZIT1NUX05FVF9XRUlH
+SFQpIHx8IHVubGlrZWx5KGppZmZpZXMgLSBzdGFydCA+PSAxKSkgewo+ID4gPiBIb3cgdmFsdWUg
+MSBpcyBkZXRlcm1pbmVkIGhlcmU/IEFuZCB3ZSBuZWVkIGEgY29tcGxldGUgdGVzdCB0byBtYWtl
+IHN1cmUKPiA+ID4gdGhpcyB3b24ndCBhZmZlY3Qgb3RoZXIgdXNlIGNhc2VzLgo+ID4gV2UganVz
+dCB3YW50IDwxbXMgcGluZyBsYXRlbmN5LCBidXQgYWN0dWFsbHkgd2UgYXJlIG5vdCBzdXJlIHdo
+YXQgdmFsdWUgaXMgcmVhc29uYWJsZS4KPiA+IFdlIGhhdmUgc29tZSB0ZXN0IHJlc3VsdHMgdXNp
+bmcgbmV0cGVyZiBiZWZvcmUgdGhpcyBwYXRjaCBhcyBmb2xsb3csCj4gPiAKPiA+ICAgICAgVWRw
+IHBheWxvYWQgICAgMWJ5dGUgICAgMTAwYnl0ZXMgICAgMTAwMGJ5dGVzICAgIDE0MDBieXRlcwo+
+ID4gICAgUGluZyBhdmcgbGF0ZW5jeSAgICAyNW1zICAgICAxMG1zICAgICAgIDJtcyAgICAgICAg
+IDEuNW1zCj4gPiAKPiA+IFdoYXQgaXMgb3RoZXIgdGVzdGNhc2VzPwo+IAo+IFNvbWV0aGluZyBs
+aWtlIGh0dHBzOi8vcGF0Y2h3b3JrLmtlcm5lbC5vcmcvcGF0Y2gvMTAxNTE2NDUvLgo+IAo+IEJ0
+dywgeW91IG5lZWQgdXNlIHRpbWVfYmVmb3JlKCkgdG8gcHJvcGVybHkgaGFuZGxlIGppZmZpZXMg
+b3ZlcmZsb3cgYW5kIEkKPiB3b3VsZCBhbHNvIHN1Z2dlc3QgeW91IHRvIHRyeSBzb21ldGhpbmcg
+bGlrZSAjcGFja2V0cyBsaW1pdCAoZS5nIDY0KS4KCk1heWJlIGEgcmluZyBzaXplPwoKPiBGb3Ig
+bG9uZyB0ZXJtLCB3ZSBkZWZpbml0ZWx5IG5lZWQgbW9yZSB3b3JrZXIgdGhyZWFkcy4KPiAKPiBU
+aGFua3MKCk9ubHkgaGVscHMgd2hlbiB5b3UgaGF2ZSBzcGFyZSBDUFVzLgoKPiA+IAo+ID4gPiBB
+bm90aGVyIHRob3VnaHQgaXMgaW50cm9kdWNlIGFub3RoZXIgbGltaXQgb2YgI3BhY2tldHMsIGJ1
+dCB0aGlzIG5lZWQKPiA+ID4gYmVuY2htYXJrIHRvby4KPiA+ID4gCj4gPiA+IFRoYW5rcwo+ID4g
+PiAKPiA+ID4gPiAgICAJCQl2aG9zdF9wb2xsX3F1ZXVlKCZ2cS0+cG9sbCk7Cj4gPiA+ID4gICAg
+CQkJYnJlYWs7Cj4gPiA+ID4gICAgCQl9Cj4gPiA+IApfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
