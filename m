@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net] vhost: validate log when IOTLB is enabled
-Date: Thu, 29 Mar 2018 15:48:22 +0300
-Message-ID: <20180329154803-mutt-send-email-mst__14376.9102557146$1522327587$gmane$org@kernel.org>
+Date: Thu, 29 Mar 2018 17:44:32 +0300
+Message-ID: <20180329173438-mutt-send-email-mst__40676.1744096459$1522334556$gmane$org@kernel.org>
 References: <1522310404-8486-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -32,9 +32,12 @@ On Thu, Mar 29, 2018 at 04:00:04PM +0800, Jason Wang wrote:
 > Reported-by: syzbot+6304bf97ef436580fede@syzkaller.appspotmail.com
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+One follow-up question:
 
-stable material I guess.
+We still observe that get user pages returns 0 sometimes. While I agree
+we should not pass in unvalidated addresses, isn't this worth
+documenting?
+	
 
 > ---
 >  drivers/vhost/vhost.c | 14 ++++++--------
