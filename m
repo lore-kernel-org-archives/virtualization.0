@@ -1,17 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost-net: add time limitation for tx polling(Internet
-	mail)
-Date: Thu, 29 Mar 2018 10:00:51 +0800
-Message-ID: <f1a80199-ccf2-850b-1249-31f8f920ede3__47016.0414268777$1522288766$gmane$org@redhat.com>
-References: <88D661ADF6AFBF42B2AB88D8E7682B0901FC412A@EXMBX-SZMAIL011.tencent.com>
-	<0b1846d3-dfcf-df0c-f94c-65d414331d88@redhat.com>
-	<20180328182813-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net V2] vhost: correctly remove wait queue during poll
+	failure
+Date: Thu, 29 Mar 2018 07:20:30 +0300
+Message-ID: <20180329071801-mutt-send-email-mst__49554.6976374046$1522297138$gmane$org@kernel.org>
+References: <1522155052-13347-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180328182813-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1522155052-13347-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,65 +19,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, =?UTF-8?B?aGFpYmluemhhbmco5byg5rW35paMKQ==?= <haibinzhang@tencent.com>, =?UTF-8?B?eXVuZmFuZ3RhaSjlj7Dov5Dmlrkp?= <yunfangtai@tencent.com>, =?UTF-8?B?bGlkb25nY2hlbijpmYjnq4vkuJwp?= <lidongchen@tencent.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, Darren Kenny <darren.kenny@oracle.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDPmnIgyOOaXpSAyMzozMSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFdlZCwgTWFyIDI4LCAyMDE4IGF0IDAyOjM3OjA0UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Cj4+IE9uIDIwMTjlubQwM+aciDI45pelIDEyOjAxLCBoYWliaW56aGFuZyjlvKDmtbfm
-lowpIHdyb3RlOgo+Pj4gT24gMjAxOOW5tDAz5pyIMjfml6UgMTk6MjYsIEphc29uIHdyb3RlCj4+
-PiBPbiAyMDE45bm0MDPmnIgyN+aXpSAxNzoxMiwgaGFpYmluemhhbmcgd3JvdGU6Cj4+Pj4+IGhh
-bmRsZV90eCgpIHdpbGwgZGVsYXkgcnggZm9yIGEgbG9uZyB0aW1lIHdoZW4gYnVzeSB0eCBwb2xs
-aW5nIHVkcCBwYWNrZXRzCj4+Pj4+IHdpdGggc2hvcnQgbGVuZ3RoKGllOiAxYnl0ZSB1ZHAgcGF5
-bG9hZCksIGJlY2F1c2Ugc2V0dGluZyBWSE9TVF9ORVRfV0VJR0hUCj4+Pj4+IHRha2VzIGludG8g
-YWNjb3VudCBvbmx5IHNlbnQtYnl0ZXMgYnV0IG5vIHRpbWUuCj4+Pj4gSW50ZXJlc3RpbmcuCj4+
-Pj4KPj4+PiBMb29raW5nIGF0IHZob3N0X2Nhbl9idXN5X3BvbGwoKSBpdCB0cmllcyB0byBwb2tl
-IHBlbmRpbmcgdmhvc3Qgd29yayBhbmQKPj4+PiBleGl0IHRoZSBidXN5IGxvb3AgaWYgaXQgZm91
-bmQgb25lLiBTbyBJIGJlbGlldmUgc29tZXRoaW5nIGJsb2NrIHRoZQo+Pj4+IHdvcmsgcXVldWlu
-Zy4gRS5nIGRpZCByZXZlcnRpbmcgODI0MWExZTQ2NmNkNTZlNmMxMDQ3MmNhYzljMWFkNGU1NGJj
-NjVkYgo+Pj4+IGZpeCB0aGUgaXNzdWU/Cj4+PiAiYnVzeSB0eCBwb2xsaW5nIiBtZWFucyB1c2lu
-ZyBuZXRwZXJmIHNlbmQgdWRwIHBhY2tldHMgd2l0aCAxIGJ5dGVzIHBheWxvYWQodG90YWwgNDdi
-eXRlcyBmcmFtZSBsZW5naHQpLAo+Pj4gYW5kIGhhbmRsZV90eCgpIHdpbGwgYmUgYnVzeSBzZW5k
-aW5nIHBhY2tldHMgY29udGludW91c2x5Lgo+Pj4KPj4+Pj4gICAgIEl0J3Mgbm90IGZhaXIgZm9y
-IGhhbmRsZV9yeCgpLAo+Pj4+PiBzbyBuZWVkcyB0byBsaW1pdCBtYXggdGltZSBvZiB0eCBwb2xs
-aW5nLgo+Pj4+Pgo+Pj4+PiAtLS0KPj4+Pj4gICAgIGRyaXZlcnMvdmhvc3QvbmV0LmMgfCAzICsr
-LQo+Pj4+PiAgICAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigt
-KQo+Pj4+Pgo+Pj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC9uZXQuYyBiL2RyaXZlcnMv
-dmhvc3QvbmV0LmMKPj4+Pj4gaW5kZXggODEzOWJjNzBhZDdkLi5kYzkyMThhM2E3NWIgMTAwNjQ0
-Cj4+Pj4+IC0tLSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMKPj4+Pj4gKysrIGIvZHJpdmVycy92aG9z
-dC9uZXQuYwo+Pj4+PiBAQCAtNDczLDYgKzQ3Myw3IEBAIHN0YXRpYyB2b2lkIGhhbmRsZV90eChz
-dHJ1Y3Qgdmhvc3RfbmV0ICpuZXQpCj4+Pj4+ICAgICAJc3RydWN0IHNvY2tldCAqc29jazsKPj4+
-Pj4gICAgIAlzdHJ1Y3Qgdmhvc3RfbmV0X3VidWZfcmVmICp1bmluaXRpYWxpemVkX3Zhcih1YnVm
-cyk7Cj4+Pj4+ICAgICAJYm9vbCB6Y29weSwgemNvcHlfdXNlZDsKPj4+Pj4gKwl1bnNpZ25lZCBs
-b25nIHN0YXJ0ID0gamlmZmllczsKPj4+PiBDaGVja2luZyBqaWZmaWVzIGlzIHRyaWNreSwgbmVl
-ZCB0byBjb252ZXJ0IGl0IHRvIG1zIG9yIHdoYXRldmVyIG90aGVycy4KPj4+Pgo+Pj4+PiAgICAg
-CW11dGV4X2xvY2soJnZxLT5tdXRleCk7Cj4+Pj4+ICAgICAJc29jayA9IHZxLT5wcml2YXRlX2Rh
-dGE7Cj4+Pj4+IEBAIC01ODAsNyArNTgxLDcgQEAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVj
-dCB2aG9zdF9uZXQgKm5ldCkKPj4+Pj4gICAgIAkJZWxzZQo+Pj4+PiAgICAgCQkJdmhvc3RfemVy
-b2NvcHlfc2lnbmFsX3VzZWQobmV0LCB2cSk7Cj4+Pj4+ICAgICAJCXZob3N0X25ldF90eF9wYWNr
-ZXQobmV0KTsKPj4+Pj4gLQkJaWYgKHVubGlrZWx5KHRvdGFsX2xlbiA+PSBWSE9TVF9ORVRfV0VJ
-R0hUKSkgewo+Pj4+PiArCQlpZiAodW5saWtlbHkodG90YWxfbGVuID49IFZIT1NUX05FVF9XRUlH
-SFQpIHx8IHVubGlrZWx5KGppZmZpZXMgLSBzdGFydCA+PSAxKSkgewo+Pj4+IEhvdyB2YWx1ZSAx
-IGlzIGRldGVybWluZWQgaGVyZT8gQW5kIHdlIG5lZWQgYSBjb21wbGV0ZSB0ZXN0IHRvIG1ha2Ug
-c3VyZQo+Pj4+IHRoaXMgd29uJ3QgYWZmZWN0IG90aGVyIHVzZSBjYXNlcy4KPj4+IFdlIGp1c3Qg
-d2FudCA8MW1zIHBpbmcgbGF0ZW5jeSwgYnV0IGFjdHVhbGx5IHdlIGFyZSBub3Qgc3VyZSB3aGF0
-IHZhbHVlIGlzIHJlYXNvbmFibGUuCj4+PiBXZSBoYXZlIHNvbWUgdGVzdCByZXN1bHRzIHVzaW5n
-IG5ldHBlcmYgYmVmb3JlIHRoaXMgcGF0Y2ggYXMgZm9sbG93LAo+Pj4KPj4+ICAgICAgIFVkcCBw
-YXlsb2FkICAgIDFieXRlICAgIDEwMGJ5dGVzICAgIDEwMDBieXRlcyAgICAxNDAwYnl0ZXMKPj4+
-ICAgICBQaW5nIGF2ZyBsYXRlbmN5ICAgIDI1bXMgICAgIDEwbXMgICAgICAgMm1zICAgICAgICAg
-MS41bXMKPj4+Cj4+PiBXaGF0IGlzIG90aGVyIHRlc3RjYXNlcz8KPj4gU29tZXRoaW5nIGxpa2Ug
-aHR0cHM6Ly9wYXRjaHdvcmsua2VybmVsLm9yZy9wYXRjaC8xMDE1MTY0NS8uCj4+Cj4+IEJ0dywg
-eW91IG5lZWQgdXNlIHRpbWVfYmVmb3JlKCkgdG8gcHJvcGVybHkgaGFuZGxlIGppZmZpZXMgb3Zl
-cmZsb3cgYW5kIEkKPj4gd291bGQgYWxzbyBzdWdnZXN0IHlvdSB0byB0cnkgc29tZXRoaW5nIGxp
-a2UgI3BhY2tldHMgbGltaXQgKGUuZyA2NCkuCj4gTWF5YmUgYSByaW5nIHNpemU/CgpZZXMgb3Ig
-YSBmYWN0b3Igb2YgcmluZyBzaXplLgoKPgo+PiBGb3IgbG9uZyB0ZXJtLCB3ZSBkZWZpbml0ZWx5
-IG5lZWQgbW9yZSB3b3JrZXIgdGhyZWFkcy4KPj4KPj4gVGhhbmtzCj4gT25seSBoZWxwcyB3aGVu
-IHlvdSBoYXZlIHNwYXJlIENQVXMuCgpSaWdodC4KClRoYW5rcwoKPj4+PiBBbm90aGVyIHRob3Vn
-aHQgaXMgaW50cm9kdWNlIGFub3RoZXIgbGltaXQgb2YgI3BhY2tldHMsIGJ1dCB0aGlzIG5lZWQK
-Pj4+PiBiZW5jaG1hcmsgdG9vLgo+Pj4+Cj4+Pj4gVGhhbmtzCj4+Pj4KPj4+Pj4gICAgIAkJCXZo
-b3N0X3BvbGxfcXVldWUoJnZxLT5wb2xsKTsKPj4+Pj4gICAgIAkJCWJyZWFrOwo+Pj4+PiAgICAg
-CQl9CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+On Tue, Mar 27, 2018 at 08:50:52PM +0800, Jason Wang wrote:
+> We tried to remove vq poll from wait queue, but do not check whether
+> or not it was in a list before. This will lead double free. Fixing
+> this by switching to use vhost_poll_stop() which zeros poll->wqh after
+> removing poll from waitqueue to make sure it won't be freed twice.
+> 
+> Cc: Darren Kenny <darren.kenny@oracle.com>
+> Reported-by: syzbot+c0272972b01b872e604a@syzkaller.appspotmail.com
+> Fixes: 2b8b328b61c79 ("vhost_net: handle polling errors when setting backend")
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+
+OK with this the only bug we have is where get user pages returns 0
+(Reported-by: syzbot+6304bf97ef436580fede@syzkaller.appspotmail.com)
+
+
+
+> ---
+> Changes from V1:
+> - tweak the commit log for to match the code
+> ---
+>  drivers/vhost/vhost.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 1b3e8d2d..5d5a9d9 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -212,8 +212,7 @@ int vhost_poll_start(struct vhost_poll *poll, struct file *file)
+>  	if (mask)
+>  		vhost_poll_wakeup(&poll->wait, 0, 0, poll_to_key(mask));
+>  	if (mask & EPOLLERR) {
+> -		if (poll->wqh)
+> -			remove_wait_queue(poll->wqh, &poll->wait);
+> +		vhost_poll_stop(poll);
+>  		ret = -EINVAL;
+>  	}
+>  
+> -- 
+> 2.7.4
