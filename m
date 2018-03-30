@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio over SW-defined/CPU-driven PCIe endpoint
-Date: Fri, 30 Mar 2018 01:38:47 +0300
-Message-ID: <20180330012730-mutt-send-email-mst@kernel.org>
-References: <7cbb8e1c-a34b-2cef-9de3-f034f6afcdfd@wwwdotorg.org>
+From: Changpeng Liu <changpeng.liu@intel.com>
+Subject: [PATCH v3] virtio_blk: add DISCARD and WRIET ZEROES command support
+Date: Fri, 30 Mar 2018 08:49:34 +0800
+Message-ID: <1522370974-28259-1-git-send-email-changpeng.liu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <7cbb8e1c-a34b-2cef-9de3-f034f6afcdfd@wwwdotorg.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,95 +15,259 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: james.r.harris@intel.com, pawelx.wodkowski@intel.com, mst@redhat.com, fabio.miranda.martins@canonical.com, stefanha@redhat.com, pbonzini@redhat.com, cavery@redhat.com, changpeng.liu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 29, 2018 at 03:22:29PM -0600, Stephen Warren wrote:
-> I've been investigating how to implement a virtio device (as opposed to a
-> virtio driver) on a regular computer system with a PCIe controller that can
-> operate in endpoint mode, as opposed to an endpoint that's implemented by a
-> hypervisor that can preempt execution of a VM, or an endpoint that's
-> implemented purely in hardware by logic gates. In my case (and I assume
-> likely in most CPU-driven PCIe endpoint cases), the endpoint controller has
-> the following capabilities:
-> 
-> - Host-initiated accesses to the endpoint's BARs can read/write normal
-> memory, but not hardware registers within the endpoint system.
-> 
-> - Accesses to memory exposed by BARs can't be synchronously handled by the
-> endpoint's local CPU. The local CPU can't be notified when the host writes
-> memory in order to synchronously update other memory locations. The local
-> CPU can't synchronously generate the result of a host read transaction, but
-> rather the data must be present in memory ahead of time.
-> 
-> - Accesses to a small region of address space can be used to generate
-> interrupts to the endpoint's local CPU. This region can be exposed through a
-> PCI BAR (or perhaps as part of a BAR; not sure on details yet). This region
-> of memory has a fixed format and is separate from true RAM, and so can't be
-> used to hold PCI-virtio's discovery/capability data.
-> 
-> - The endpoint can emit PCI interrupts (e.g. MSI) to the attached host.
-> 
-> The model described in the virtio spec's "Virtio PCI Bus" section doesn't
-> seem to work in this case, since it assumes:
-> 
-> - Writes to some fields in the PCI configuration space (e.g.
-> {queue,device_feature,driver_feature}_select) synchronously update other
-> fields (e.g. queue_size), which can immediately be accessed by the host.
-> This isn't possible when the memory content is created by a CPU that isn't a
-> synchronous part of PCI accesses.
-> 
-> - Writing to some fields in the PCI configuration space (e.g. device_status)
-> are supposed to trigger a response by the device, without the need to
-> explicitly notify the device of the memory write by some other means. This
-> isn't possible when the endpoint's local CPU has no mechanism to be notified
-> of such writes.
-> 
-> - The device_status field is asynchronously read-write by both the device
-> and driver, yet the spec requires that the driver must always
-> read-modify-write this field, and additionally that the driver must never
-> clear any device status bit. These requirements seem impossible to satisfy
-> in any case at all, let alone the current case.
-> 
-> I can see some possible solutions here:
-> 
-> 1) Just implement virtqueues but not all of the standardized PCI discovery
-> protocol. virtqueues don't have the problems described above and should work
-> fine between systems where there are asynchronous CPUs on both ends.
-> virtqueus solely rely on normal memory access without side-effects and
-> explicit notification. This would require implementing some
-> custom/device-specific discovery protocol. I believe that remoteproc/rpmsg
-> take this approach.
-> 
-> 2) Define a new standardized virtio PCI discovery protocol that is better
-> suited to the device being an asynchronous CPU. For example, eliminate the
-> need for the device to somehow notice memory accesses and rely on explicitl
-> notification instead. Separate device-written and driver-written data into
-> different cache-lines or pages.
-> 
-> 3) Use something other than virtio/virtqueues instead.
-> 
-> As an aside, I noticed that the memory allocation for virtqueues is very
-> lopsided; the driver always allocates the storage. This means that the
-> device must perform PCI reads to transfer data from the driver to the
-> device. PCI reads are typically slower than PCI writes since reads require a
-> round-trip transfer, whereas writes can be posted. I wonder if any thought
-> has been put into having the device optionally allocate virtuqueue buffers
-> so that the protocol can rely primarily on PCI writes? Perhaps there's some
-> alternative protocol that's more optimized for true PCI-based communication
-> rather than paravirtualized PCI-based communication?
-> 
-> Thanks for any thoughts on the best approach, or pointers to pre-existing
-> work in this area.
+Existing virtio-blk protocol doesn't have DISCARD/WRITE ZEROES
+command support, this will impact the performance when using SSD
+backend over file systems.
 
-I think Jan Kiszka wanted to add ability to put some data in the PCI
-BAR. This was never formally proposed.
+The idea here is using 16 Bytes payload as one descriptor for
+DISCARD/WRITE ZEROES command, users can put several ranges into
+one command, for the purpose to support such feature, two feature
+flags VIRTIO_BLK_F_DISCARD/VIRTIO_BLK_F_WRITE_ZEROES and two
+commands VIRTIO_BLK_T_DISCARD/VIRTIO_BLK_T_WRITE_ZEROES are
+introduced, and some parameters are added to the configuration
+space to tell the OS the granularity of DISCARD/WRITE ZEROES
+commands.
 
-Your first step IMHO should be to send these thoughts to one of the
-virtio TC mailing lists, that's where discussion about virtio interface
-extensions takes place. virtualization@lists.linux-foundation.org is
-mostly for Linux virtio drivers.
+The specification change list here:
+https://github.com/oasis-tcs/virtio-spec
 
+CHANGELOG:
+v3: finalized the specification change.
+
+Signed-off-by: Changpeng Liu <changpeng.liu@intel.com>
+---
+ drivers/block/virtio_blk.c      | 96 +++++++++++++++++++++++++++++++++++++++--
+ include/uapi/linux/virtio_blk.h | 39 +++++++++++++++++
+ 2 files changed, 132 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 4a07593c..1943adb 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -172,10 +172,53 @@ static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr,
+ 	return virtqueue_add_sgs(vq, sgs, num_out, num_in, vbr, GFP_ATOMIC);
+ }
+ 
++static inline int virtblk_setup_discard_write_zeroes(struct request *req, bool unmap)
++{
++	unsigned short segments = blk_rq_nr_discard_segments(req), n = 0;
++	u32 block_size = queue_logical_block_size(req->q);
++	struct virtio_blk_discard_write_zeroes *range;
++	struct bio *bio;
++
++	if (block_size < 512 || !block_size)
++		return -1;
++
++	range = kmalloc_array(segments, sizeof(*range), GFP_ATOMIC);
++	if (!range)
++		return -1;
++
++	__rq_for_each_bio(bio, req) {
++		u64 sector = bio->bi_iter.bi_sector;
++		u32 num_sectors = bio->bi_iter.bi_size >> 9;
++
++		range[n].flags.unmap = cpu_to_le32(unmap);
++		range[n].flags.reserved = cpu_to_le32(0);
++		range[n].num_sectors = cpu_to_le32(num_sectors);
++		range[n].sector = cpu_to_le64(sector);
++		n++;
++	}
++
++	if (WARN_ON_ONCE(n != segments)) {
++		kfree(range);
++		return -1;
++	}
++
++	req->special_vec.bv_page = virt_to_page(range);
++	req->special_vec.bv_offset = offset_in_page(range);
++	req->special_vec.bv_len = sizeof(*range) * segments;
++	req->rq_flags |= RQF_SPECIAL_PAYLOAD;
++
++	return 0;
++}
++
+ static inline void virtblk_request_done(struct request *req)
+ {
+ 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+ 
++	if (req->rq_flags & RQF_SPECIAL_PAYLOAD) {
++		kfree(page_address(req->special_vec.bv_page) +
++		      req->special_vec.bv_offset);
++	}
++
+ 	switch (req_op(req)) {
+ 	case REQ_OP_SCSI_IN:
+ 	case REQ_OP_SCSI_OUT:
+@@ -225,6 +268,7 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	int qid = hctx->queue_num;
+ 	int err;
+ 	bool notify = false;
++	bool unmap = false;
+ 	u32 type;
+ 
+ 	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
+@@ -237,6 +281,13 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	case REQ_OP_FLUSH:
+ 		type = VIRTIO_BLK_T_FLUSH;
+ 		break;
++	case REQ_OP_DISCARD:
++		type = VIRTIO_BLK_T_DISCARD;
++		break;
++	case REQ_OP_WRITE_ZEROES:
++		type = VIRTIO_BLK_T_WRITE_ZEROES;
++		unmap = !(req->cmd_flags & REQ_NOUNMAP);
++		break;
+ 	case REQ_OP_SCSI_IN:
+ 	case REQ_OP_SCSI_OUT:
+ 		type = VIRTIO_BLK_T_SCSI_CMD;
+@@ -256,9 +307,16 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 
+ 	blk_mq_start_request(req);
+ 
++	if (type == VIRTIO_BLK_T_DISCARD || type == VIRTIO_BLK_T_WRITE_ZEROES) {
++		err = virtblk_setup_discard_write_zeroes(req, unmap);
++		if (err)
++			return BLK_STS_IOERR;
++	}
++
+ 	num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
+ 	if (num) {
+-		if (rq_data_dir(req) == WRITE)
++		if (rq_data_dir(req) == WRITE || type == VIRTIO_BLK_T_DISCARD ||
++		    type == VIRTIO_BLK_T_WRITE_ZEROES)
+ 			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_OUT);
+ 		else
+ 			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_IN);
+@@ -777,6 +835,38 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	if (!err && opt_io_size)
+ 		blk_queue_io_opt(q, blk_size * opt_io_size);
+ 
++	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
++		q->limits.discard_granularity = blk_size;
++
++		virtio_cread(vdev, struct virtio_blk_config, discard_sector_alignment, &v);
++		if (v)
++			q->limits.discard_alignment = v << 9;
++		else
++			q->limits.discard_alignment = 0;
++
++		virtio_cread(vdev, struct virtio_blk_config, max_discard_sectors, &v);
++		if (v)
++			blk_queue_max_discard_sectors(q, v);
++		else
++			blk_queue_max_discard_sectors(q, UINT_MAX);
++
++		virtio_cread(vdev, struct virtio_blk_config, max_discard_seg, &v);
++		if (v)
++			blk_queue_max_discard_segments(q, v);
++		else
++			blk_queue_max_discard_segments(q, USHRT_MAX);
++
++		queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, q);
++	}
++
++	if (virtio_has_feature(vdev, VIRTIO_BLK_F_WRITE_ZEROES)) {
++		virtio_cread(vdev, struct virtio_blk_config, max_write_zeroes_sectors, &v);
++		if (v)
++			blk_queue_max_write_zeroes_sectors(q, v);
++		else
++			blk_queue_max_write_zeroes_sectors(q, UINT_MAX);
++	}
++
+ 	virtblk_update_capacity(vblk, false);
+ 	virtio_device_ready(vdev);
+ 
+@@ -885,14 +975,14 @@ static int virtblk_restore(struct virtio_device *vdev)
+ 	VIRTIO_BLK_F_SCSI,
+ #endif
+ 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+-	VIRTIO_BLK_F_MQ,
++	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+ }
+ ;
+ static unsigned int features[] = {
+ 	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
+ 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+ 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+-	VIRTIO_BLK_F_MQ,
++	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+ };
+ 
+ static struct virtio_driver virtio_blk = {
+diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+index 9ebe4d9..78a60e6 100644
+--- a/include/uapi/linux/virtio_blk.h
++++ b/include/uapi/linux/virtio_blk.h
+@@ -38,6 +38,8 @@
+ #define VIRTIO_BLK_F_BLK_SIZE	6	/* Block size of disk is available*/
+ #define VIRTIO_BLK_F_TOPOLOGY	10	/* Topology information is available */
+ #define VIRTIO_BLK_F_MQ		12	/* support more than one vq */
++#define VIRTIO_BLK_F_DISCARD	13	/* DISCARD command is supported */
++#define VIRTIO_BLK_F_WRITE_ZEROES	14	/* WRITE ZEROES command is supported */
+ 
+ /* Legacy feature bits */
+ #ifndef VIRTIO_BLK_NO_LEGACY
+@@ -86,6 +88,22 @@ struct virtio_blk_config {
+ 
+ 	/* number of vqs, only available when VIRTIO_BLK_F_MQ is set */
+ 	__u16 num_queues;
++	/* The maximum discard segment size (if VIRTIO_BLK_F_DISCARD) */
++	__u32 max_discard_sectors;
++	/* The maximum number of discard segments (if VIRTIO_BLK_F_DISCARD) */
++	__u32 max_discard_seg;
++	/* The sector alignment for discard (if VIRTIO_BLK_F_DISCARD) */
++	__u32 discard_sector_alignment;
++	/* The maximum number of write zeroes sectors (if VIRTIO_BLK_F_WRITE_ZEROES) */
++	__u32 max_write_zeroes_sectors;
++	/* The maximum number of write zeroes segments (if VIRTIO_BLK_F_WRITE_ZEROES) */
++	__u32 max_write_zeroes_seg;
++	/* Device clear this bit when write zeroes command cannot result in
++	 * deallocating one or more sectors
++	 * (if VIRTIO_BLK_F_WRITE_ZEROES with unmap bit)
++	 */
++	__u8 write_zeroes_may_unmap;
++	__u8 unused1[3];
+ } __attribute__((packed));
+ 
+ /*
+@@ -114,6 +132,12 @@ struct virtio_blk_config {
+ /* Get device ID command */
+ #define VIRTIO_BLK_T_GET_ID    8
+ 
++/* Discard command */
++#define VIRTIO_BLK_T_DISCARD	11
++
++/* Write zeroes command */
++#define VIRTIO_BLK_T_WRITE_ZEROES	13
++
+ #ifndef VIRTIO_BLK_NO_LEGACY
+ /* Barrier before this op. */
+ #define VIRTIO_BLK_T_BARRIER	0x80000000
+@@ -133,6 +157,21 @@ struct virtio_blk_outhdr {
+ 	__virtio64 sector;
+ };
+ 
++/*
++ * discard/write zeroes range for each request.
++ */
++struct virtio_blk_discard_write_zeroes {
++	/* discard/write zeroes start sector */
++	__virtio64 sector;
++	/* number of discard/write zeroes sectors */
++	__virtio32 num_sectors;
++	/* valid for write zeroes command */
++	struct {
++		__virtio32 unmap:1;
++		__virtio32 reserved:31;
++	} flags;
++};
++
+ #ifndef VIRTIO_BLK_NO_LEGACY
+ struct virtio_scsi_inhdr {
+ 	__virtio32 errors;
 -- 
-MST
+1.9.3
