@@ -1,11 +1,13 @@
 From: Vladislav Yasevich <vyasevich@gmail.com>
-Subject: [PATCH net-next 0/5] virtio-net:  Add SCTP checksum offload support
-Date: Mon,  2 Apr 2018 09:40:01 -0400
-Message-ID: <20180402134006.10111-1-vyasevic@redhat.com>
+Subject: [PATCH net-next 1/5] virtio: Add support for SCTP checksum offloading
+Date: Mon,  2 Apr 2018 09:40:02 -0400
+Message-ID: <20180402134006.10111-2-vyasevic__22397.3501859748$1522676330$gmane$org@redhat.com>
+References: <20180402134006.10111-1-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180402134006.10111-1-vyasevic@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,56 +21,95 @@ To: netdev@vger.kernel.org
 Cc: nhorman@tuxdriver.com, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that we have SCTP offload capabilities in the kernel, we can add
-them to virtio as well.  First step is SCTP checksum.
+To support SCTP checksum offloading, we need to add a new feature
+to virtio_net, so we can negotiate support between the hypervisor
+and the guest.
 
-We need a new freature in virtio to negotiate this support since
-SCTP is excluded with the stardard checksum and requires a little
-bit extra.  This series proposes VIRTIO_NET_F_SCTP_CSUM feature bit.
+The signalling to the guest that an alternate checksum needs to
+be used is done via a new flag in the virtio_net_hdr.  If the
+flag is set, the host will know to perform an alternate checksum
+calculation, which right now is only CRC32c.
 
-As the "little bit extra",  the kernel uses a new bit in the skb
-(skb->csum_not_inet) to determine whether to use standard inet checksum
-or the SCTP CRC32c checksum.  This bit has to be communicated between
-the host and the guest.  This bit is carried in the vnet header.
-
-Tap and macvtap support is added through an extra feature for the
-TUNSETOFFLOAD ioctl.  Additionally macvtap will no correctly
-do sctp checksumming if the receive doesn't support SCTP offload.
-This also turns on sctp offloading for macvlan devices.
-
-As for the perf numbers, I am seeing about a 5% increase in vm-to-vm
-and vm-to-hos throughput which is the same as manually disabling
-sctp checksumming,since this is exactly what we are emulatting.
-Sending outside the host,  the increase about 2.5-3%.
-
-As for GSO, the way sctp GSO is currently implemented buys us nothing
-in added support to virtio.  To add true GSO, would require a lot of
-re-work inside of SCTP and would require extensions to the virtio
-net header to carry extra sctp data.
-
-
-Vladislav Yasevich (5):
-  virtio: Add support for SCTP checksum offloading
-  sctp: Handle sctp packets with CHECKSUM_PARTIAL
-  sctp: Build sctp offload support into the base kernel
-  tun: Add support for SCTP checksum offload
-  macvlan/macvtap: Add support for SCTP checksum offload.
-
- drivers/net/macvlan.c           |  5 +++--
- drivers/net/tap.c               |  8 +++++---
- drivers/net/tun.c               |  5 +++++
- drivers/net/virtio_net.c        | 10 +++++++---
+Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
+---
+ drivers/net/virtio_net.c        | 11 ++++++++---
  include/linux/virtio_net.h      |  6 ++++++
- include/net/sctp/sctp.h         |  5 -----
- include/uapi/linux/if_tun.h     |  1 +
  include/uapi/linux/virtio_net.h |  2 ++
- net/Kconfig                     |  1 +
- net/sctp/Kconfig                |  1 -
- net/sctp/Makefile               |  3 ++-
- net/sctp/input.c                | 11 ++++++++++-
- net/sctp/offload.c              |  4 +++-
- net/sctp/protocol.c             |  3 ---
- 14 files changed, 45 insertions(+), 20 deletions(-)
+ 3 files changed, 16 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7b187ec..b601294 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2724,9 +2724,14 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	/* Do we support "hardware" checksums? */
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_CSUM)) {
+ 		/* This opens up the world of extra features. */
+-		dev->hw_features |= NETIF_F_HW_CSUM | NETIF_F_SG;
++		netdev_features_t sctp = 0;
++
++		if (virtio_has_feature(vdev, VIRTIO_NET_F_SCTP_CSUM))
++			sctp |= NETIF_F_SCTP_CRC;
++
++		dev->hw_features |= NETIF_F_HW_CSUM | NETIF_F_SG | sctp;
+ 		if (csum)
+-			dev->features |= NETIF_F_HW_CSUM | NETIF_F_SG;
++			dev->features |= NETIF_F_HW_CSUM | NETIF_F_SG | sctp;
+ 
+ 		if (virtio_has_feature(vdev, VIRTIO_NET_F_GSO)) {
+ 			dev->hw_features |= NETIF_F_TSO
+@@ -2952,7 +2957,7 @@ static struct virtio_device_id id_table[] = {
+ };
+ 
+ #define VIRTNET_FEATURES \
+-	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM, \
++	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM,  VIRTIO_NET_F_SCTP_CSUM, \
+ 	VIRTIO_NET_F_MAC, \
+ 	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6, \
+ 	VIRTIO_NET_F_HOST_ECN, VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6, \
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index f144216..2e7a64a 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -39,6 +39,9 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 
+ 		if (!skb_partial_csum_set(skb, start, off))
+ 			return -EINVAL;
++
++		if (hdr->flags & VIRTIO_NET_HDR_F_CSUM_NOT_INET)
++			skb->csum_not_inet = 1;
+ 	}
+ 
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+@@ -96,6 +99,9 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+ 		hdr->flags = VIRTIO_NET_HDR_F_DATA_VALID;
+ 	} /* else everything is zero */
+ 
++	if (skb->csum_not_inet)
++		hdr->flags &= VIRTIO_NET_HDR_F_CSUM_NOT_INET;
++
+ 	return 0;
+ }
+ 
+diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+index 5de6ed3..3f279c8 100644
+--- a/include/uapi/linux/virtio_net.h
++++ b/include/uapi/linux/virtio_net.h
+@@ -36,6 +36,7 @@
+ #define VIRTIO_NET_F_GUEST_CSUM	1	/* Guest handles pkts w/ partial csum */
+ #define VIRTIO_NET_F_CTRL_GUEST_OFFLOADS 2 /* Dynamic offload configuration. */
+ #define VIRTIO_NET_F_MTU	3	/* Initial MTU advice */
++#define VIRTIO_NET_F_SCTP_CSUM  4	/* SCTP checksum offload support */
+ #define VIRTIO_NET_F_MAC	5	/* Host has given MAC address. */
+ #define VIRTIO_NET_F_GUEST_TSO4	7	/* Guest can handle TSOv4 in. */
+ #define VIRTIO_NET_F_GUEST_TSO6	8	/* Guest can handle TSOv6 in. */
+@@ -101,6 +102,7 @@ struct virtio_net_config {
+ struct virtio_net_hdr_v1 {
+ #define VIRTIO_NET_HDR_F_NEEDS_CSUM	1	/* Use csum_start, csum_offset */
+ #define VIRTIO_NET_HDR_F_DATA_VALID	2	/* Csum is valid */
++#define VIRTIO_NET_HDR_F_CSUM_NOT_INET  4       /* Checksum is not inet */
+ 	__u8 flags;
+ #define VIRTIO_NET_HDR_GSO_NONE		0	/* Not a GSO frame */
+ #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
 -- 
 2.9.5
