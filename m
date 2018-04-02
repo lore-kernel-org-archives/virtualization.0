@@ -1,7 +1,7 @@
 From: Vladislav Yasevich <vyasevich@gmail.com>
-Subject: [PATCH net-next 2/5] sctp: Handle sctp packets with CHECKSUM_PARTIAL
-Date: Mon,  2 Apr 2018 09:40:03 -0400
-Message-ID: <20180402134006.10111-3-vyasevic__4770.93237354911$1522676339$gmane$org@redhat.com>
+Subject: [PATCH net-next 4/5] tun: Add support for SCTP checksum offload
+Date: Mon,  2 Apr 2018 09:40:05 -0400
+Message-ID: <20180402134006.10111-5-vyasevic__17801.7520848245$1522676344$gmane$org@redhat.com>
 References: <20180402134006.10111-1-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,41 +21,29 @@ To: netdev@vger.kernel.org
 Cc: nhorman@tuxdriver.com, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-With SCTP checksum offload available in virtio, it is now
-possible for virtio to receive a sctp packet with CHECKSUM_PARTIAL
-set (guest-to-guest traffic).  SCTP doesn't really have a
-partial checksum like TCP does because CRC32c can't do partial
-additive checksumming.  It's all or nothing.  So an SCTP packet
-with CHECKSUM_PARTIAL will have checksum set to 0.  Let SCTP
-treat this as a valid checksum if CHECKSUM_PARTIAL is set.
+Adds a new tun offload flag to allow for SCTP checksum offload.
+The flag has to be set by the user and defaults to "no offload".
 
 Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
 ---
- net/sctp/input.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/tun.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/sctp/input.c b/net/sctp/input.c
-index ba8a6e6..055b8ffa 100644
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -80,8 +80,17 @@ static inline int sctp_rcv_checksum(struct net *net, struct sk_buff *skb)
- {
- 	struct sctphdr *sh = sctp_hdr(skb);
- 	__le32 cmp = sh->checksum;
--	__le32 val = sctp_compute_cksum(skb, 0);
-+	__le32 val = 0;
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index a1ba262..263bcbe 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -2719,6 +2719,11 @@ static int set_offload(struct tun_struct *tun, unsigned long arg)
+ 		arg &= ~TUN_F_UFO;
+ 	}
  
-+	/* In sctp PARTIAL checksum is always 0.  This is a case of
-+	 * a packet received from guest that supports checksum offload.
-+	 * Assume it's correct as there is really no way to verify,
-+	 * and we want to avaoid computing it unnecesarily.
-+	 */
-+	if (skb->ip_summed == CHECKSUM_PARTIAL)
-+		return 0;
++	if (arg & TUN_F_SCTP_CSUM) {
++		features |= NETIF_F_SCTP_CRC;
++		arg &= ~TUN_F_SCTP_CSUM;
++	}
 +
-+	val = sctp_compute_cksum(skb, 0);
- 	if (val != cmp) {
- 		/* CRC failure, dump it. */
- 		__SCTP_INC_STATS(net, SCTP_MIB_CHECKSUMERRORS);
+ 	/* This gives the user a way to test for new features in future by
+ 	 * trying to set them. */
+ 	if (arg)
 -- 
 2.9.5
