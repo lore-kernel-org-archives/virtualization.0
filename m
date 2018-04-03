@@ -1,11 +1,13 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [RFC] vhost: introduce mdev based hardware vhost backend
-Date: Mon,  2 Apr 2018 23:23:30 +0800
-Message-ID: <20180402152330.4158-1-tiwei.bie__47846.0001330406$1522682653$gmane$org@intel.com>
+From: kbuild test robot <lkp@intel.com>
+Subject: Re: [PATCH net-next 4/5] tun: Add support for SCTP checksum offload
+Date: Tue, 3 Apr 2018 08:49:23 +0800
+Message-ID: <201804030823.djCbnfbA%fengguang.wu__29565.1797824123$1522716494$gmane$org@intel.com>
+References: <20180402134006.10111-5-vyasevic@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="5mCyUwZo2JvN/JJP"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20180402134006.10111-5-vyasevic@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,1246 +17,340 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, alex.williamson@redhat.com, ddutile@redhat.com, alexander.h.duyck@intel.com
-Cc: jianfeng.tan@intel.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiao.w.wang@intel.com, zhihong.wang@intel.com
+To: Vladislav Yasevich <vyasevich@gmail.com>
+Cc: nhorman@tuxdriver.com, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org, kbuild-all@01.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch introduces a mdev (mediated device) based hardware
-vhost backend. This backend is an abstraction of the various
-hardware vhost accelerators (potentially any device that uses
-virtio ring can be used as a vhost accelerator). Some generic
-mdev parent ops are provided for accelerator drivers to support
-generating mdev instances.
 
-What's this
-===========
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The idea is that we can setup a virtio ring compatible device
-with the messages available at the vhost-backend. Originally,
-these messages are used to implement a software vhost backend,
-but now we will use these messages to setup a virtio ring
-compatible hardware device. Then the hardware device will be
-able to work with the guest virtio driver in the VM just like
-what the software backend does. That is to say, we can implement
-a hardware based vhost backend in QEMU, and any virtio ring
-compatible devices potentially can be used with this backend.
-(We also call it vDPA -- vhost Data Path Acceleration).
+Hi Vladislav,
 
-One problem is that, different virtio ring compatible devices
-may have different device interfaces. That is to say, we will
-need different drivers in QEMU. It could be troublesome. And
-that's what this patch trying to fix. The idea behind this
-patch is very simple: mdev is a standard way to emulate device
-in kernel. So we defined a standard device based on mdev, which
-is able to accept vhost messages. When the mdev emulation code
-(i.e. the generic mdev parent ops provided by this patch) gets
-vhost messages, it will parse and deliver them to accelerator
-drivers. Drivers can use these messages to setup accelerators.
+Thank you for the patch! Yet something to improve:
 
-That is to say, the generic mdev parent ops (e.g. read()/write()/
-ioctl()/...) will be provided for accelerator drivers to register
-accelerators as mdev parent devices. And each accelerator device
-will support generating standard mdev instance(s).
+[auto build test ERROR on net-next/master]
 
-With this standard device interface, we will be able to just
-develop one userspace driver to implement the hardware based
-vhost backend in QEMU.
+url:    https://github.com/0day-ci/linux/commits/Vladislav-Yasevich/virtio-net-Add-SCTP-checksum-offload-support/20180402-221407
+config: m68k-hp300_defconfig (attached as .config)
+compiler: m68k-linux-gnu-gcc (Debian 7.2.0-11) 7.2.0
+reproduce:
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # save the attached .config to linux build tree
+        make.cross ARCH=m68k 
 
-Difference between vDPA and PCI passthru
-========================================
+Note: the linux-review/Vladislav-Yasevich/virtio-net-Add-SCTP-checksum-offload-support/20180402-221407 HEAD 5e0497a085e70055a1981959802173f4ff05c86b builds fine.
+      It only hurts bisectibility.
 
-The key difference between vDPA and PCI passthru is that, in
-vDPA only the data path of the device (e.g. DMA ring, notify
-region and queue interrupt) is pass-throughed to the VM, the
-device control path (e.g. PCI configuration space and MMIO
-regions) is still defined and emulated by QEMU.
+All errors (new ones prefixed by >>):
 
-The benefits of keeping virtio device emulation in QEMU compared
-with virtio device PCI passthru include (but not limit to):
+   drivers/net/tun.c: In function 'set_offload':
+>> drivers/net/tun.c:2722:12: error: 'TUN_F_SCTP_CSUM' undeclared (first use in this function); did you mean 'TUN_F_CSUM'?
+     if (arg & TUN_F_SCTP_CSUM) {
+               ^~~~~~~~~~~~~~~
+               TUN_F_CSUM
+   drivers/net/tun.c:2722:12: note: each undeclared identifier is reported only once for each function it appears in
 
-- consistent device interface for guest OS in the VM;
-- max flexibility on the hardware design, especially the
-  accelerator for each vhost backend doesn't have to be a
-  full PCI device;
-- leveraging the existing virtio live-migration framework;
+vim +2722 drivers/net/tun.c
 
-The interface of this mdev based device
-=======================================
+  2696	
+  2697	/* This is like a cut-down ethtool ops, except done via tun fd so no
+  2698	 * privs required. */
+  2699	static int set_offload(struct tun_struct *tun, unsigned long arg)
+  2700	{
+  2701		netdev_features_t features = 0;
+  2702	
+  2703		if (arg & TUN_F_CSUM) {
+  2704			features |= NETIF_F_HW_CSUM;
+  2705			arg &= ~TUN_F_CSUM;
+  2706	
+  2707			if (arg & (TUN_F_TSO4|TUN_F_TSO6)) {
+  2708				if (arg & TUN_F_TSO_ECN) {
+  2709					features |= NETIF_F_TSO_ECN;
+  2710					arg &= ~TUN_F_TSO_ECN;
+  2711				}
+  2712				if (arg & TUN_F_TSO4)
+  2713					features |= NETIF_F_TSO;
+  2714				if (arg & TUN_F_TSO6)
+  2715					features |= NETIF_F_TSO6;
+  2716				arg &= ~(TUN_F_TSO4|TUN_F_TSO6);
+  2717			}
+  2718	
+  2719			arg &= ~TUN_F_UFO;
+  2720		}
+  2721	
+> 2722		if (arg & TUN_F_SCTP_CSUM) {
+  2723			features |= NETIF_F_SCTP_CRC;
+  2724			arg &= ~TUN_F_SCTP_CSUM;
+  2725		}
+  2726	
+  2727		/* This gives the user a way to test for new features in future by
+  2728		 * trying to set them. */
+  2729		if (arg)
+  2730			return -EINVAL;
+  2731	
+  2732		tun->set_features = features;
+  2733		tun->dev->wanted_features &= ~TUN_USER_FEATURES;
+  2734		tun->dev->wanted_features |= features;
+  2735		netdev_update_features(tun->dev);
+  2736	
+  2737		return 0;
+  2738	}
+  2739	
 
-1. BAR0
-
-The MMIO region described by BAR0 is the main control
-interface. Messages will be written to or read from
-this region.
-
-The message type is determined by the `request` field
-in message header. The message size is encoded in the
-message header too. The message format looks like this:
-
-struct vhost_vfio_op {
-	__u64 request;
-	__u32 flags;
-	/* Flag values: */
-#define VHOST_VFIO_NEED_REPLY 0x1 /* Whether need reply */
-	__u32 size;
-	union {
-		__u64 u64;
-		struct vhost_vring_state state;
-		struct vhost_vring_addr addr;
-		struct vhost_memory memory;
-	} payload;
-};
-
-The existing vhost-kernel ioctl cmds are reused as
-the message requests in above structure.
-
-Each message will be written to or read from this
-region at offset 0:
-
-int vhost_vfio_write(struct vhost_dev *dev, struct vhost_vfio_op *op)
-{
-	int count = VHOST_VFIO_OP_HDR_SIZE + op->size;
-	struct vhost_vfio *vfio = dev->opaque;
-	int ret;
-
-	ret = pwrite64(vfio->device_fd, op, count, vfio->bar0_offset);
-	if (ret != count)
-		return -1;
-
-	return 0;
-}
-
-int vhost_vfio_read(struct vhost_dev *dev, struct vhost_vfio_op *op)
-{
-	int count = VHOST_VFIO_OP_HDR_SIZE + op->size;
-	struct vhost_vfio *vfio = dev->opaque;
-	uint64_t request = op->request;
-	int ret;
-
-	ret = pread64(vfio->device_fd, op, count, vfio->bar0_offset);
-	if (ret != count || request != op->request)
-		return -1;
-
-	return 0;
-}
-
-It's quite straightforward to set things to the device.
-Just need to write the message to device directly:
-
-int vhost_vfio_set_features(struct vhost_dev *dev, uint64_t features)
-{
-	struct vhost_vfio_op op;
-
-	op.request = VHOST_SET_FEATURES;
-	op.flags = 0;
-	op.size = sizeof(features);
-	op.payload.u64 = features;
-
-	return vhost_vfio_write(dev, &op);
-}
-
-To get things from the device, two steps are needed.
-Take VHOST_GET_FEATURE as an example:
-
-int vhost_vfio_get_features(struct vhost_dev *dev, uint64_t *features)
-{
-	struct vhost_vfio_op op;
-	int ret;
-
-	op.request = VHOST_GET_FEATURES;
-	op.flags = VHOST_VFIO_NEED_REPLY;
-	op.size = 0;
-
-	/* Just need to write the header */
-	ret = vhost_vfio_write(dev, &op);
-	if (ret != 0)
-		goto out;
-
-	/* `op` wasn't changed during write */
-	op.flags = 0;
-	op.size = sizeof(*features);
-
-	ret = vhost_vfio_read(dev, &op);
-	if (ret != 0)
-		goto out;
-
-	*features = op.payload.u64;
-out:
-	return ret;
-}
-
-2. BAR1 (mmap-able)
-
-The MMIO region described by BAR1 will be used to notify the
-device.
-
-Each queue will has a page for notification, and it can be
-mapped to VM (if hardware also supports), and the virtio
-driver in the VM will be able to notify the device directly.
-
-The MMIO region described by BAR1 is also write-able. If the
-accelerator's notification register(s) cannot be mapped to the
-VM, write() can also be used to notify the device. Something
-like this:
-
-void notify_relay(void *opaque)
-{
-	......
-	offset = 0x1000 * queue_idx; /* XXX assume page size is 4K here. */
-
-	ret = pwrite64(vfio->device_fd, &queue_idx, sizeof(queue_idx),
-			vfio->bar1_offset + offset);
-	......
-}
-
-Other BARs are reserved.
-
-3. VFIO interrupt ioctl API
-
-VFIO interrupt ioctl API is used to setup device interrupts.
-IRQ-bypass will also be supported.
-
-Currently, only VFIO_PCI_MSIX_IRQ_INDEX is supported.
-
-The API for drivers to provide mdev instances
-=============================================
-
-The read()/write()/ioctl()/mmap()/open()/release() mdev
-parent ops have been provided for accelerators' drivers
-to provide mdev instances.
-
-ssize_t vdpa_read(struct mdev_device *mdev, char __user *buf,
-		  size_t count, loff_t *ppos);
-ssize_t vdpa_write(struct mdev_device *mdev, const char __user *buf,
-		   size_t count, loff_t *ppos);
-long vdpa_ioctl(struct mdev_device *mdev, unsigned int cmd, unsigned long arg);
-int vdpa_mmap(struct mdev_device *mdev, struct vm_area_struct *vma);
-int vdpa_open(struct mdev_device *mdev);
-void vdpa_close(struct mdev_device *mdev);
-
-Each accelerator driver just needs to implement its own
-create()/remove() ops, and provide a vdpa device ops
-which will be called by the generic mdev emulation code.
-
-Currently, the vdpa device ops are defined as:
-
-typedef int (*vdpa_start_device_t)(struct vdpa_dev *vdpa);
-typedef int (*vdpa_stop_device_t)(struct vdpa_dev *vdpa);
-typedef int (*vdpa_dma_map_t)(struct vdpa_dev *vdpa);
-typedef int (*vdpa_dma_unmap_t)(struct vdpa_dev *vdpa);
-typedef int (*vdpa_set_eventfd_t)(struct vdpa_dev *vdpa, int vector, int fd);
-typedef u64 (*vdpa_supported_features_t)(struct vdpa_dev *vdpa);
-typedef void (*vdpa_notify_device_t)(struct vdpa_dev *vdpa, int qid);
-typedef u64 (*vdpa_get_notify_addr_t)(struct vdpa_dev *vdpa, int qid);
-
-struct vdpa_device_ops {
-	vdpa_start_device_t		start;
-	vdpa_stop_device_t		stop;
-	vdpa_dma_map_t			dma_map;
-	vdpa_dma_unmap_t		dma_unmap;
-	vdpa_set_eventfd_t		set_eventfd;
-	vdpa_supported_features_t	supported_features;
-	vdpa_notify_device_t		notify;
-	vdpa_get_notify_addr_t		get_notify_addr;
-};
-
-struct vdpa_dev {
-	struct mdev_device *mdev;
-	struct mutex ops_lock;
-	u8 vconfig[VDPA_CONFIG_SIZE];
-	int nr_vring;
-	u64 features;
-	u64 state;
-	struct vhost_memory *mem_table;
-	bool pending_reply;
-	struct vhost_vfio_op pending;
-	const struct vdpa_device_ops *ops;
-	void *private;
-	int max_vrings;
-	struct vdpa_vring_info vring_info[0];
-};
-
-struct vdpa_dev *vdpa_alloc(struct mdev_device *mdev, void *private,
-			    int max_vrings);
-void vdpa_free(struct vdpa_dev *vdpa);
-
-A simple example
-================
-
-# Query the number of available mdev instances
-$ cat /sys/class/mdev_bus/0000:06:00.2/mdev_supported_types/ifcvf_vdpa-vdpa_virtio/available_instances
-
-# Create a mdev instance
-$ echo $UUID > /sys/class/mdev_bus/0000:06:00.2/mdev_supported_types/ifcvf_vdpa-vdpa_virtio/create
-
-# Launch QEMU with a virtio-net device
-$ qemu \
-	...... \
-	-netdev type=vhost-vfio,sysfsdev=/sys/bus/mdev/devices/$UUID,id=$ID \
-	-device virtio-net-pci,netdev=$ID
-
--------- END --------
-
-Most of above words will be refined and moved to a doc in
-the formal patch. In this RFC, all introductions and code
-are gathered in this patch, the idea is to make it easier
-to find all the relevant information. Anyone who wants to
-comment could use inline comment and just keep the relevant
-parts. Sorry for the big RFC patch..
-
-This patch is just a RFC for now, and something is still
-missing or needs to be refined. But it's never too early
-to hear the thoughts from the community. So any comments
-would be appreciated! Thanks! :-)
-
-Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
 ---
- drivers/vhost/Makefile     |   3 +
- drivers/vhost/vdpa.c       | 805 +++++++++++++++++++++++++++++++++++++++++++++
- include/linux/vdpa_mdev.h  |  76 +++++
- include/uapi/linux/vhost.h |  26 ++
- 4 files changed, 910 insertions(+)
- create mode 100644 drivers/vhost/vdpa.c
- create mode 100644 include/linux/vdpa_mdev.h
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 
-diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
-index 6c6df24f770c..7d185e083140 100644
---- a/drivers/vhost/Makefile
-+++ b/drivers/vhost/Makefile
-@@ -11,3 +11,6 @@ vhost_vsock-y := vsock.o
- obj-$(CONFIG_VHOST_RING) += vringh.o
- 
- obj-$(CONFIG_VHOST)	+= vhost.o
-+
-+obj-m += vhost_vdpa.o  # FIXME: add an option
-+vhost_vdpa-y := vdpa.o
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-new file mode 100644
-index 000000000000..aa19c266ea19
---- /dev/null
-+++ b/drivers/vhost/vdpa.c
-@@ -0,0 +1,805 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (C) 2018 Intel Corporation.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/vfio.h>
-+#include <linux/vhost.h>
-+#include <linux/mdev.h>
-+#include <linux/vdpa_mdev.h>
-+
-+#define VDPA_BAR0_SIZE		0x1000000 // TBD
-+
-+#define VDPA_VFIO_PCI_OFFSET_SHIFT	40
-+#define VDPA_VFIO_PCI_OFFSET_MASK \
-+		((1ULL << VDPA_VFIO_PCI_OFFSET_SHIFT) - 1)
-+#define VDPA_VFIO_PCI_OFFSET_TO_INDEX(offset) \
-+		((offset) >> VDPA_VFIO_PCI_OFFSET_SHIFT)
-+#define VDPA_VFIO_PCI_INDEX_TO_OFFSET(index) \
-+		((u64)(index) << VDPA_VFIO_PCI_OFFSET_SHIFT)
-+#define VDPA_VFIO_PCI_BAR_OFFSET(offset) \
-+		((offset) & VDPA_VFIO_PCI_OFFSET_MASK)
-+
-+#define STORE_LE16(addr, val)	(*(u16 *)(addr) = cpu_to_le16(val))
-+#define STORE_LE32(addr, val)	(*(u32 *)(addr) = cpu_to_le32(val))
-+
-+static void vdpa_create_config_space(struct vdpa_dev *vdpa)
-+{
-+	/* PCI device ID / vendor ID */
-+	STORE_LE32(&vdpa->vconfig[0x0], 0xffffffff); // FIXME TBD
-+
-+	/* Programming interface class */
-+	vdpa->vconfig[0x9] = 0x00;
-+
-+	/* Sub class */
-+	vdpa->vconfig[0xa] = 0x00;
-+
-+	/* Base class */
-+	vdpa->vconfig[0xb] = 0x02;
-+
-+	// FIXME TBD
-+}
-+
-+struct vdpa_dev *vdpa_alloc(struct mdev_device *mdev, void *private,
-+			    int max_vrings)
-+{
-+	struct vdpa_dev *vdpa;
-+	size_t size;
-+
-+	size = sizeof(struct vdpa_dev) + max_vrings *
-+			sizeof(struct vdpa_vring_info);
-+
-+	vdpa = kzalloc(size, GFP_KERNEL);
-+	if (vdpa == NULL)
-+		return NULL;
-+
-+	mutex_init(&vdpa->ops_lock);
-+
-+	vdpa->mdev = mdev;
-+	vdpa->private = private;
-+	vdpa->max_vrings = max_vrings;
-+
-+	vdpa_create_config_space(vdpa);
-+
-+	return vdpa;
-+}
-+EXPORT_SYMBOL(vdpa_alloc);
-+
-+void vdpa_free(struct vdpa_dev *vdpa)
-+{
-+	struct mdev_device *mdev;
-+
-+	mdev = vdpa->mdev;
-+
-+	vdpa->ops->stop(vdpa);
-+	vdpa->ops->dma_unmap(vdpa);
-+
-+	mdev_set_drvdata(mdev, NULL);
-+
-+	mutex_destroy(&vdpa->ops_lock);
-+
-+	kfree(vdpa->mem_table);
-+	kfree(vdpa);
-+}
-+EXPORT_SYMBOL(vdpa_free);
-+
-+static ssize_t vdpa_handle_pcicfg_read(struct mdev_device *mdev,
-+		char __user *buf, size_t count, loff_t *ppos)
-+{
-+	struct vdpa_dev *vdpa;
-+	loff_t pos = *ppos;
-+	loff_t offset;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	offset = VDPA_VFIO_PCI_BAR_OFFSET(pos);
-+
-+	if (count + offset > VDPA_CONFIG_SIZE)
-+		return -EINVAL;
-+
-+	if (copy_to_user(buf, (vdpa->vconfig + offset), count))
-+		return -EFAULT;
-+
-+	return count;
-+}
-+
-+static ssize_t vdpa_handle_bar0_read(struct mdev_device *mdev,
-+		char __user *buf, size_t count, loff_t *ppos)
-+{
-+	struct vdpa_dev *vdpa;
-+	struct vhost_vfio_op *op = NULL;
-+	loff_t pos = *ppos;
-+	loff_t offset;
-+	int ret;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa) {
-+		ret = -ENODEV;
-+		goto out;
-+	}
-+
-+	offset = VDPA_VFIO_PCI_BAR_OFFSET(pos);
-+	if (offset != 0) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	if (!vdpa->pending_reply) {
-+		ret = 0;
-+		goto out;
-+	}
-+
-+	vdpa->pending_reply = false;
-+
-+	op = kzalloc(VHOST_VFIO_OP_HDR_SIZE + VHOST_VFIO_OP_PAYLOAD_MAX_SIZE,
-+		     GFP_KERNEL);
-+	if (op == NULL) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	op->request = vdpa->pending.request;
-+
-+	switch (op->request) {
-+	case VHOST_GET_VRING_BASE:
-+		op->payload.state = vdpa->pending.payload.state;
-+		op->size = sizeof(op->payload.state);
-+		break;
-+	case VHOST_GET_FEATURES:
-+		op->payload.u64 = vdpa->pending.payload.u64;
-+		op->size = sizeof(op->payload.u64);
-+		break;
-+	default:
-+		ret = -EINVAL;
-+		goto out_free;
-+	}
-+
-+	if (op->size + VHOST_VFIO_OP_HDR_SIZE != count) {
-+		ret = -EINVAL;
-+		goto out_free;
-+	}
-+
-+	if (copy_to_user(buf, op, count)) {
-+		ret = -EFAULT;
-+		goto out_free;
-+	}
-+
-+	ret = count;
-+
-+out_free:
-+	kfree(op);
-+out:
-+	return ret;
-+}
-+
-+ssize_t vdpa_read(struct mdev_device *mdev, char __user *buf,
-+		  size_t count, loff_t *ppos)
-+{
-+	int done = 0;
-+	unsigned int index;
-+	loff_t pos = *ppos;
-+	struct vdpa_dev *vdpa;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	mutex_lock(&vdpa->ops_lock);
-+
-+	index = VDPA_VFIO_PCI_OFFSET_TO_INDEX(pos);
-+
-+	switch (index) {
-+	case VFIO_PCI_CONFIG_REGION_INDEX:
-+		done = vdpa_handle_pcicfg_read(mdev, buf, count, ppos);
-+		break;
-+	case VFIO_PCI_BAR0_REGION_INDEX:
-+		done = vdpa_handle_bar0_read(mdev, buf, count, ppos);
-+		break;
-+	}
-+
-+	if (done > 0)
-+		*ppos += done;
-+
-+	mutex_unlock(&vdpa->ops_lock);
-+
-+	return done;
-+}
-+EXPORT_SYMBOL(vdpa_read);
-+
-+static ssize_t vdpa_handle_pcicfg_write(struct mdev_device *mdev,
-+		const char __user *buf, size_t count, loff_t *ppos)
-+{
-+	return count;
-+}
-+
-+static int vhost_set_mem_table(struct mdev_device *mdev,
-+		struct vhost_memory *mem)
-+{
-+	struct vdpa_dev *vdpa;
-+	struct vhost_memory *mem_table;
-+	size_t size;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	// FIXME fix this
-+	if (vdpa->state != VHOST_DEVICE_S_STOPPED)
-+		return -EBUSY;
-+
-+	size = sizeof(*mem) + mem->nregions * sizeof(*mem->regions);
-+
-+	mem_table = kzalloc(size, GFP_KERNEL);
-+	if (mem_table == NULL)
-+		return -ENOMEM;
-+
-+	memcpy(mem_table, mem, size);
-+
-+	kfree(vdpa->mem_table);
-+
-+	vdpa->mem_table = mem_table;
-+
-+	vdpa->ops->dma_unmap(vdpa);
-+	vdpa->ops->dma_map(vdpa);
-+
-+	return 0;
-+}
-+
-+static int vhost_set_vring_addr(struct mdev_device *mdev,
-+		struct vhost_vring_addr *addr)
-+{
-+	struct vdpa_dev *vdpa;
-+	int qid = addr->index;
-+	struct vdpa_vring_info *vring;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	if (qid >= vdpa->max_vrings)
-+		return -EINVAL;
-+
-+	/* FIXME to be fixed */
-+	if (qid >= vdpa->nr_vring)
-+		vdpa->nr_vring = qid + 1;
-+
-+	vring = &vdpa->vring_info[qid];
-+
-+	vring->desc_user_addr = addr->desc_user_addr;
-+	vring->used_user_addr = addr->used_user_addr;
-+	vring->avail_user_addr = addr->avail_user_addr;
-+	vring->log_guest_addr = addr->log_guest_addr;
-+
-+	return 0;
-+}
-+
-+static int vhost_set_vring_num(struct mdev_device *mdev,
-+		struct vhost_vring_state *num)
-+{
-+	struct vdpa_dev *vdpa;
-+	int qid = num->index;
-+	struct vdpa_vring_info *vring;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	if (qid >= vdpa->max_vrings)
-+		return -EINVAL;
-+
-+	vring = &vdpa->vring_info[qid];
-+
-+	vring->size = num->num;
-+
-+	return 0;
-+}
-+
-+static int vhost_set_vring_base(struct mdev_device *mdev,
-+		struct vhost_vring_state *base)
-+{
-+	struct vdpa_dev *vdpa;
-+	int qid = base->index;
-+	struct vdpa_vring_info *vring;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	if (qid >= vdpa->max_vrings)
-+		return -EINVAL;
-+
-+	vring = &vdpa->vring_info[qid];
-+
-+	vring->base = base->num;
-+
-+	return 0;
-+}
-+
-+static int vhost_get_vring_base(struct mdev_device *mdev,
-+		struct vhost_vring_state *base)
-+{
-+	struct vdpa_dev *vdpa;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	vdpa->pending_reply = true;
-+	vdpa->pending.request = VHOST_GET_VRING_BASE;
-+	vdpa->pending.payload.state.index = base->index;
-+
-+	// FIXME to be implemented
-+
-+	return 0;
-+}
-+
-+static int vhost_set_features(struct mdev_device *mdev, u64 *features)
-+{
-+	struct vdpa_dev *vdpa;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	vdpa->features = *features;
-+
-+	return 0;
-+}
-+
-+static int vhost_get_features(struct mdev_device *mdev, u64 *features)
-+{
-+	struct vdpa_dev *vdpa;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	vdpa->pending_reply = true;
-+	vdpa->pending.request = VHOST_GET_FEATURES;
-+	vdpa->pending.payload.u64 =
-+		vdpa->ops->supported_features(vdpa);
-+
-+	return 0;
-+}
-+
-+static int vhost_set_owner(struct mdev_device *mdev)
-+{
-+	return 0;
-+}
-+
-+static int vhost_reset_owner(struct mdev_device *mdev)
-+{
-+	return 0;
-+}
-+
-+static int vhost_set_state(struct mdev_device *mdev, u64 *state)
-+{
-+	struct vdpa_dev *vdpa;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	if (*state >= VHOST_DEVICE_S_MAX)
-+		return -EINVAL;
-+
-+	if (vdpa->state == *state)
-+		return 0;
-+
-+	vdpa->state = *state;
-+
-+	switch (vdpa->state) {
-+	case VHOST_DEVICE_S_RUNNING:
-+		vdpa->ops->start(vdpa);
-+		break;
-+	case VHOST_DEVICE_S_STOPPED:
-+		vdpa->ops->stop(vdpa);
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static ssize_t vdpa_handle_bar0_write(struct mdev_device *mdev,
-+		const char __user *buf, size_t count, loff_t *ppos)
-+{
-+	struct vhost_vfio_op *op = NULL;
-+	loff_t pos = *ppos;
-+	loff_t offset;
-+	int ret;
-+
-+	offset = VDPA_VFIO_PCI_BAR_OFFSET(pos);
-+	if (offset != 0) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	if (count < VHOST_VFIO_OP_HDR_SIZE) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	op = kzalloc(VHOST_VFIO_OP_HDR_SIZE + VHOST_VFIO_OP_PAYLOAD_MAX_SIZE,
-+		     GFP_KERNEL);
-+	if (op == NULL) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	if (copy_from_user(op, buf, VHOST_VFIO_OP_HDR_SIZE)) {
-+		ret = -EINVAL;
-+		goto out_free;
-+	}
-+
-+	if (op->size > VHOST_VFIO_OP_PAYLOAD_MAX_SIZE ||
-+	    op->size + VHOST_VFIO_OP_HDR_SIZE != count) {
-+		ret = -EINVAL;
-+		goto out_free;
-+	}
-+
-+	if (copy_from_user(&op->payload, buf + VHOST_VFIO_OP_HDR_SIZE,
-+			   op->size)) {
-+		ret = -EFAULT;
-+		goto out_free;
-+	}
-+
-+	switch (op->request) {
-+	case VHOST_SET_LOG_BASE:
-+		break;
-+	case VHOST_SET_MEM_TABLE:
-+		vhost_set_mem_table(mdev, &op->payload.memory);
-+		break;
-+	case VHOST_SET_VRING_ADDR:
-+		vhost_set_vring_addr(mdev, &op->payload.addr);
-+		break;
-+	case VHOST_SET_VRING_NUM:
-+		vhost_set_vring_num(mdev, &op->payload.state);
-+		break;
-+	case VHOST_SET_VRING_BASE:
-+		vhost_set_vring_base(mdev, &op->payload.state);
-+		break;
-+	case VHOST_GET_VRING_BASE:
-+		vhost_get_vring_base(mdev, &op->payload.state);
-+		break;
-+	case VHOST_SET_FEATURES:
-+		vhost_set_features(mdev, &op->payload.u64);
-+		break;
-+	case VHOST_GET_FEATURES:
-+		vhost_get_features(mdev, &op->payload.u64);
-+		break;
-+	case VHOST_SET_OWNER:
-+		vhost_set_owner(mdev);
-+		break;
-+	case VHOST_RESET_OWNER:
-+		vhost_reset_owner(mdev);
-+		break;
-+	case VHOST_DEVICE_SET_STATE:
-+		vhost_set_state(mdev, &op->payload.u64);
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	ret = count;
-+
-+out_free:
-+	kfree(op);
-+out:
-+	return ret;
-+}
-+
-+static ssize_t vdpa_handle_bar1_write(struct mdev_device *mdev,
-+		const char __user *buf, size_t count, loff_t *ppos)
-+{
-+	struct vdpa_dev *vdpa;
-+	int qid;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	if (count < sizeof(qid))
-+		return -EINVAL;
-+
-+	if (copy_from_user(&qid, buf, sizeof(qid)))
-+		return -EINVAL;
-+
-+	vdpa->ops->notify(vdpa, qid);
-+
-+	return count;
-+}
-+
-+ssize_t vdpa_write(struct mdev_device *mdev, const char __user *buf,
-+		   size_t count, loff_t *ppos)
-+{
-+	int done = 0;
-+	unsigned int index;
-+	loff_t pos = *ppos;
-+	struct vdpa_dev *vdpa;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	mutex_lock(&vdpa->ops_lock);
-+
-+	index = VDPA_VFIO_PCI_OFFSET_TO_INDEX(pos);
-+
-+	switch (index) {
-+	case VFIO_PCI_CONFIG_REGION_INDEX:
-+		done = vdpa_handle_pcicfg_write(mdev, buf, count, ppos);
-+		break;
-+	case VFIO_PCI_BAR0_REGION_INDEX:
-+		done = vdpa_handle_bar0_write(mdev, buf, count, ppos);
-+		break;
-+	case VFIO_PCI_BAR1_REGION_INDEX:
-+		done = vdpa_handle_bar1_write(mdev, buf, count, ppos);
-+		break;
-+	}
-+
-+	if (done > 0)
-+		*ppos += done;
-+
-+	mutex_unlock(&vdpa->ops_lock);
-+
-+	return done;
-+}
-+EXPORT_SYMBOL(vdpa_write);
-+
-+static int vdpa_get_region_info(struct mdev_device *mdev,
-+				struct vfio_region_info *region_info,
-+				u16 *cap_type_id, void **cap_type)
-+{
-+	struct vdpa_dev *vdpa;
-+	u32 bar_index;
-+	u64 size = 0;
-+
-+	if (!mdev)
-+		return -EINVAL;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -EINVAL;
-+
-+	bar_index = region_info->index;
-+	if (bar_index >= VFIO_PCI_NUM_REGIONS)
-+		return -EINVAL;
-+
-+	mutex_lock(&vdpa->ops_lock);
-+
-+	switch (bar_index) {
-+	case VFIO_PCI_CONFIG_REGION_INDEX:
-+		size = VDPA_CONFIG_SIZE;
-+		break;
-+	case VFIO_PCI_BAR0_REGION_INDEX:
-+		size = VDPA_BAR0_SIZE;
-+		break;
-+	case VFIO_PCI_BAR1_REGION_INDEX:
-+		size = (u64)vdpa->max_vrings << PAGE_SHIFT;
-+		break;
-+	default:
-+		size = 0;
-+		break;
-+	}
-+
-+	// FIXME: mark BAR1 as mmap-able (VFIO_REGION_INFO_FLAG_MMAP)
-+	region_info->size = size;
-+	region_info->offset = VDPA_VFIO_PCI_INDEX_TO_OFFSET(bar_index);
-+	region_info->flags = VFIO_REGION_INFO_FLAG_READ |
-+		VFIO_REGION_INFO_FLAG_WRITE;
-+	mutex_unlock(&vdpa->ops_lock);
-+	return 0;
-+}
-+
-+static int vdpa_reset(struct mdev_device *mdev)
-+{
-+	struct vdpa_dev *vdpa;
-+
-+	if (!mdev)
-+		return -EINVAL;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+static int vdpa_get_device_info(struct mdev_device *mdev,
-+				struct vfio_device_info *dev_info)
-+{
-+	struct vdpa_dev *vdpa;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	dev_info->flags = VFIO_DEVICE_FLAGS_PCI;
-+	dev_info->num_regions = VFIO_PCI_NUM_REGIONS;
-+	dev_info->num_irqs = vdpa->max_vrings;
-+
-+	return 0;
-+}
-+
-+static int vdpa_get_irq_info(struct mdev_device *mdev,
-+			     struct vfio_irq_info *info)
-+{
-+	struct vdpa_dev *vdpa;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	if (info->index != VFIO_PCI_MSIX_IRQ_INDEX)
-+		return -ENOTSUPP;
-+
-+	info->flags = VFIO_IRQ_INFO_EVENTFD;
-+	info->count = vdpa->max_vrings;
-+
-+	return 0;
-+}
-+
-+static int vdpa_set_irqs(struct mdev_device *mdev, uint32_t flags,
-+			 unsigned int index, unsigned int start,
-+			 unsigned int count, void *data)
-+{
-+	struct vdpa_dev *vdpa;
-+	int *fd = data, i;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -EINVAL;
-+
-+	if (index != VFIO_PCI_MSIX_IRQ_INDEX)
-+		return -ENOTSUPP;
-+
-+	for (i = 0; i < count; i++)
-+		vdpa->ops->set_eventfd(vdpa, start + i,
-+			(flags & VFIO_IRQ_SET_DATA_EVENTFD) ? fd[i] : -1);
-+
-+	return 0;
-+}
-+
-+long vdpa_ioctl(struct mdev_device *mdev, unsigned int cmd, unsigned long arg)
-+{
-+	int ret = 0;
-+	unsigned long minsz;
-+	struct vdpa_dev *vdpa;
-+
-+	if (!mdev)
-+		return -EINVAL;
-+
-+	vdpa = mdev_get_drvdata(mdev);
-+	if (!vdpa)
-+		return -ENODEV;
-+
-+	switch (cmd) {
-+	case VFIO_DEVICE_GET_INFO:
-+	{
-+		struct vfio_device_info info;
-+
-+		minsz = offsetofend(struct vfio_device_info, num_irqs);
-+
-+		if (copy_from_user(&info, (void __user *)arg, minsz))
-+			return -EFAULT;
-+
-+		if (info.argsz < minsz)
-+			return -EINVAL;
-+
-+		ret = vdpa_get_device_info(mdev, &info);
-+		if (ret)
-+			return ret;
-+
-+		if (copy_to_user((void __user *)arg, &info, minsz))
-+			return -EFAULT;
-+
-+		return 0;
-+	}
-+	case VFIO_DEVICE_GET_REGION_INFO:
-+	{
-+		struct vfio_region_info info;
-+		u16 cap_type_id = 0;
-+		void *cap_type = NULL;
-+
-+		minsz = offsetofend(struct vfio_region_info, offset);
-+
-+		if (copy_from_user(&info, (void __user *)arg, minsz))
-+			return -EFAULT;
-+
-+		if (info.argsz < minsz)
-+			return -EINVAL;
-+
-+		ret = vdpa_get_region_info(mdev, &info, &cap_type_id,
-+					   &cap_type);
-+		if (ret)
-+			return ret;
-+
-+		if (copy_to_user((void __user *)arg, &info, minsz))
-+			return -EFAULT;
-+
-+		return 0;
-+	}
-+	case VFIO_DEVICE_GET_IRQ_INFO:
-+	{
-+		struct vfio_irq_info info;
-+
-+		minsz = offsetofend(struct vfio_irq_info, count);
-+
-+		if (copy_from_user(&info, (void __user *)arg, minsz))
-+			return -EFAULT;
-+
-+		if (info.argsz < minsz || info.index >= vdpa->max_vrings)
-+			return -EINVAL;
-+
-+		ret = vdpa_get_irq_info(mdev, &info);
-+		if (ret)
-+			return ret;
-+
-+		if (copy_to_user((void __user *)arg, &info, minsz))
-+			return -EFAULT;
-+
-+		return 0;
-+	}
-+	case VFIO_DEVICE_SET_IRQS:
-+	{
-+		struct vfio_irq_set hdr;
-+		size_t data_size = 0;
-+		u8 *data = NULL;
-+
-+		minsz = offsetofend(struct vfio_irq_set, count);
-+
-+		if (copy_from_user(&hdr, (void __user *)arg, minsz))
-+			return -EFAULT;
-+
-+		ret = vfio_set_irqs_validate_and_prepare(&hdr, vdpa->max_vrings,
-+							 VFIO_PCI_NUM_IRQS,
-+							 &data_size);
-+		if (ret)
-+			return ret;
-+
-+		if (data_size) {
-+			data = memdup_user((void __user *)(arg + minsz),
-+					   data_size);
-+			if (IS_ERR(data))
-+				return PTR_ERR(data);
-+		}
-+
-+		ret = vdpa_set_irqs(mdev, hdr.flags, hdr.index, hdr.start,
-+				hdr.count, data);
-+
-+		kfree(data);
-+		return ret;
-+	}
-+	case VFIO_DEVICE_RESET:
-+		return vdpa_reset(mdev);
-+	}
-+	return -ENOTTY;
-+}
-+EXPORT_SYMBOL(vdpa_ioctl);
-+
-+int vdpa_mmap(struct mdev_device *mdev, struct vm_area_struct *vma)
-+{
-+	// FIXME: to be implemented
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(vdpa_mmap);
-+
-+int vdpa_open(struct mdev_device *mdev)
-+{
-+	return 0;
-+}
-+EXPORT_SYMBOL(vdpa_open);
-+
-+void vdpa_close(struct mdev_device *mdev)
-+{
-+}
-+EXPORT_SYMBOL(vdpa_close);
-+
-+MODULE_VERSION("0.0.0");
-+MODULE_LICENSE("GPL v2");
-+MODULE_DESCRIPTION("Hardware virtio accelerator abstraction");
-diff --git a/include/linux/vdpa_mdev.h b/include/linux/vdpa_mdev.h
-new file mode 100644
-index 000000000000..8414e86ba4b8
---- /dev/null
-+++ b/include/linux/vdpa_mdev.h
-@@ -0,0 +1,76 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (C) 2018 Intel Corporation.
-+ */
-+
-+#ifndef VDPA_MDEV_H
-+#define VDPA_MDEV_H
-+
-+#define VDPA_CONFIG_SIZE 0xff
-+
-+struct mdev_device;
-+struct vdpa_dev;
-+
-+/*
-+ * XXX: Any comments about the vDPA API design for drivers
-+ *      would be appreciated!
-+ */
-+
-+typedef int (*vdpa_start_device_t)(struct vdpa_dev *vdpa);
-+typedef int (*vdpa_stop_device_t)(struct vdpa_dev *vdpa);
-+typedef int (*vdpa_dma_map_t)(struct vdpa_dev *vdpa);
-+typedef int (*vdpa_dma_unmap_t)(struct vdpa_dev *vdpa);
-+typedef int (*vdpa_set_eventfd_t)(struct vdpa_dev *vdpa, int vector, int fd);
-+typedef u64 (*vdpa_supported_features_t)(struct vdpa_dev *vdpa);
-+typedef void (*vdpa_notify_device_t)(struct vdpa_dev *vdpa, int qid);
-+typedef u64 (*vdpa_get_notify_addr_t)(struct vdpa_dev *vdpa, int qid);
-+
-+struct vdpa_device_ops {
-+	vdpa_start_device_t		start;
-+	vdpa_stop_device_t		stop;
-+	vdpa_dma_map_t			dma_map;
-+	vdpa_dma_unmap_t		dma_unmap;
-+	vdpa_set_eventfd_t		set_eventfd;
-+	vdpa_supported_features_t	supported_features;
-+	vdpa_notify_device_t		notify;
-+	vdpa_get_notify_addr_t		get_notify_addr;
-+};
-+
-+struct vdpa_vring_info {
-+	u64 desc_user_addr;
-+	u64 used_user_addr;
-+	u64 avail_user_addr;
-+	u64 log_guest_addr;
-+	u16 size;
-+	u16 base;
-+};
-+
-+struct vdpa_dev {
-+	struct mdev_device *mdev;
-+	struct mutex ops_lock;
-+	u8 vconfig[VDPA_CONFIG_SIZE];
-+	int nr_vring;
-+	u64 features;
-+	u64 state;
-+	struct vhost_memory *mem_table;
-+	bool pending_reply;
-+	struct vhost_vfio_op pending;
-+	const struct vdpa_device_ops *ops;
-+	void *private;
-+	int max_vrings;
-+	struct vdpa_vring_info vring_info[0];
-+};
-+
-+struct vdpa_dev *vdpa_alloc(struct mdev_device *mdev, void *private,
-+			    int max_vrings);
-+void vdpa_free(struct vdpa_dev *vdpa);
-+ssize_t vdpa_read(struct mdev_device *mdev, char __user *buf,
-+		  size_t count, loff_t *ppos);
-+ssize_t vdpa_write(struct mdev_device *mdev, const char __user *buf,
-+		   size_t count, loff_t *ppos);
-+long vdpa_ioctl(struct mdev_device *mdev, unsigned int cmd, unsigned long arg);
-+int vdpa_mmap(struct mdev_device *mdev, struct vm_area_struct *vma);
-+int vdpa_open(struct mdev_device *mdev);
-+void vdpa_close(struct mdev_device *mdev);
-+
-+#endif /* VDPA_MDEV_H */
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index c51f8e5cc608..92a1ca0b5fe1 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -207,4 +207,30 @@ struct vhost_scsi_target {
- #define VHOST_VSOCK_SET_GUEST_CID	_IOW(VHOST_VIRTIO, 0x60, __u64)
- #define VHOST_VSOCK_SET_RUNNING		_IOW(VHOST_VIRTIO, 0x61, int)
- 
-+/* VHOST_DEVICE specific defines */
-+
-+#define VHOST_DEVICE_SET_STATE _IOW(VHOST_VIRTIO, 0x70, __u64)
-+
-+#define VHOST_DEVICE_S_STOPPED 0
-+#define VHOST_DEVICE_S_RUNNING 1
-+#define VHOST_DEVICE_S_MAX     2
-+
-+struct vhost_vfio_op {
-+	__u64 request;
-+	__u32 flags;
-+	/* Flag values: */
-+#define VHOST_VFIO_NEED_REPLY 0x1 /* Whether need reply */
-+	__u32 size;
-+	union {
-+		__u64 u64;
-+		struct vhost_vring_state state;
-+		struct vhost_vring_addr addr;
-+		struct vhost_memory memory;
-+	} payload;
-+};
-+
-+#define VHOST_VFIO_OP_HDR_SIZE \
-+		((unsigned long)&((struct vhost_vfio_op *)NULL)->payload)
-+#define VHOST_VFIO_OP_PAYLOAD_MAX_SIZE 1024 /* FIXME TBD */
-+
- #endif
--- 
-2.11.0
+--5mCyUwZo2JvN/JJP
+Content-Type: application/gzip
+Content-Disposition: attachment; filename=".config.gz"
+Content-Transfer-Encoding: base64
+
+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
+
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--5mCyUwZo2JvN/JJP--
