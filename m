@@ -1,14 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost-net: add limitation of sent packets for tx polling
-Date: Tue, 3 Apr 2018 14:59:03 +0300
-Message-ID: <20180403144953-mutt-send-email-mst__11591.8398173109$1522756641$gmane$org@kernel.org>
-References: <88D661ADF6AFBF42B2AB88D8E7682B0901FC4627@EXMBX-SZMAIL011.tencent.com>
+Subject: Re: [RFC PATCH 3/3] virtio_net: make lower netdevs for virtio_bypass
+	hidden
+Date: Tue, 3 Apr 2018 15:20:27 +0300
+Message-ID: <20180403151915-mutt-send-email-mst__42593.3265513324$1522757912$gmane$org@kernel.org>
+References: <1522573990-5242-1-git-send-email-si-wei.liu@oracle.com>
+	<1522573990-5242-4-git-send-email-si-wei.liu@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <88D661ADF6AFBF42B2AB88D8E7682B0901FC4627@EXMBX-SZMAIL011.tencent.com>
+In-Reply-To: <1522573990-5242-4-git-send-email-si-wei.liu@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,85 +20,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?utf-8?B?aGFpYmluemhhbmco5byg5rW35paMKQ==?= <haibinzhang@tencent.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, =?utf-8?B?eXVuZmFuZ3RhaSjlj7Dov5Dmlrkp?= <yunfangtai@tencent.com>, =?utf-8?B?bGlkb25nY2hlbijpmYjnq4vkuJwp?= <lidongchen@tencent.com>
+To: Si-Wei Liu <si-wei.liu@oracle.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, sridhar.samudrala@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBBcHIgMDMsIDIwMTggYXQgMDg6MDg6MjZBTSArMDAwMCwgaGFpYmluemhhbmco5byg
-5rW35paMKSB3cm90ZToKPiBoYW5kbGVfdHggd2lsbCBkZWxheSByeCBmb3IgYSBsb25nIHRpbWUg
-d2hlbiB0eCBidXN5IHBvbGxpbmcgdWRwIHBhY2tldHMKPiB3aXRoIHNtYWxsIGxlbmd0aChlLmcu
-IDFieXRlIHVkcCBwYXlsb2FkKSwgYmVjYXVzZSBzZXR0aW5nIFZIT1NUX05FVF9XRUlHSFQKPiB0
-YWtlcyBpbnRvIGFjY291bnQgb25seSBzZW50LWJ5dGVzIGJ1dCBubyBzaW5nbGUgcGFja2V0IGxl
-bmd0aC4KPiAKPiBUZXN0cyB3ZXJlIGRvbmUgYmV0d2VlbiB0d28gVmlydHVhbCBNYWNoaW5lcyB1
-c2luZyBuZXRwZXJmKFVEUF9TVFJFQU0sIGxlbj0xKSwKPiB0aGVuIGFub3RoZXIgbWFjaGluZSBw
-aW5nZWQgdGhlIGNsaWVudC4gUmVzdWx0IHNob3dzIGFzIGZvbGxvdzoKPiAKPiBQYWNrZXQjICAg
-ICAgIFBpbmctTGF0ZW5jeShtcykKPiAgICAgICAgICAgICAgIG1pbiAgICAgYXZnICAgICBtYXgK
-PiBPcmlnaW4gICAgICAzLjMxOSAgMTguNDg5ICA1Ny41MDMKPiA2NCAgICAgICAgICAxLjY0MyAg
-IDIuMDIxICAgMi41NTIKPiAxMjggICAgICAgICAxLjgyNSAgIDIuNjAwICAgMy4yMjQKPiAyNTYg
-ICAgICAgICAxLjk5NyAgIDIuNzEwICAgNC4yOTUKPiA1MTIqICAgICAgICAxLjg2MCAgIDMuMTcx
-ICAgNC42MzEKPiAxMDI0ICAgICAgICAyLjAwMiAgIDQuMTczICAgOS4wNTYKPiAyMDQ4ICAgICAg
-ICAyLjI1NyAgIDUuNjUwICAgOS42ODgKPiA0MDk2ICAgICAgICAyLjA5MyAgIDguNTA4ICAxNS45
-NDMKPiAKPiA1MTIgaXMgc2VsZWN0ZWQsIHdoaWNoIGlzIG11bHRpLVZSSU5HX1NJWkUKClRoZXJl
-J3Mgbm8gZ3VhcmFudGVlIHZyaW5nIHNpemUgaXMgMjU2LgoKQ291bGQgeW91IHBscyB0cnkgd2l0
-aCBhIGRpZmZlcmVudCB0eCByaW5nIHNpemU/CgpJIHN1c3BlY3Qgd2Ugd2FudDoKCiNkZWZpbmUg
-VkhPU1RfTkVUX1BLVF9XRUlHSFQodnEpICgodnEpLT5udW0gKiAyKQoKCj4gYW5kIGNsb3NlIHRv
-IFZIT1NUX05FVF9XRUlHSFQvTVRVLgoKUHV6emxlZCBieSB0aGlzIHBhcnQuICBEb2VzIHR3ZWFr
-aW5nIE1UVSBjaGFuZ2UgYW55dGhpbmc/Cgo+IFRvIGV2YWx1YXRlIHRoaXMgY2hhbmdlLCBhbm90
-aGVyIHRlc3RzIHdlcmUgZG9uZSB1c2luZyBuZXRwZXJmKFJSLCBUWCkgYmV0d2Vlbgo+IHR3byBt
-YWNoaW5lcyB3aXRoIEludGVsKFIpIFhlb24oUikgR29sZCA2MTMzIENQVSBAIDIuNTBHSHouIFJl
-c3VsdCBhcyBmb2xsb3cKPiBkb2VzIG5vdCBzaG93IG9idmlvdXMgY2hhbmdlczoKPiAKPiBUQ1Bf
-UlIKPiAKPiBzaXplL3Nlc3Npb25zLyt0aHUlLytub3JtYWxpemUlCj4gICAgMS8gICAgICAgMS8g
-IC03JS8gICAgICAgIC0yJQo+ICAgIDEvICAgICAgIDQvICArMSUvICAgICAgICAgMCUKPiAgICAx
-LyAgICAgICA4LyAgKzElLyAgICAgICAgLTIlCj4gICA2NC8gICAgICAgMS8gIC02JS8gICAgICAg
-ICAwJQo+ICAgNjQvICAgICAgIDQvICAgMCUvICAgICAgICArMiUKPiAgIDY0LyAgICAgICA4LyAg
-IDAlLyAgICAgICAgIDAlCj4gIDI1Ni8gICAgICAgMS8gIC0zJS8gICAgICAgIC00JQo+ICAyNTYv
-ICAgICAgIDQvICArMyUvICAgICAgICArNCUKPiAgMjU2LyAgICAgICA4LyAgKzIlLyAgICAgICAg
-IDAlCj4gCj4gVURQX1JSCj4gCj4gc2l6ZS9zZXNzaW9ucy8rdGh1JS8rbm9ybWFsaXplJQo+ICAg
-IDEvICAgICAgIDEvICAtNSUvICAgICAgICArMSUKPiAgICAxLyAgICAgICA0LyAgKzQlLyAgICAg
-ICAgKzElCj4gICAgMS8gICAgICAgOC8gIC0xJS8gICAgICAgIC0xJQo+ICAgNjQvICAgICAgIDEv
-ICAtMiUvICAgICAgICAtMyUKPiAgIDY0LyAgICAgICA0LyAgLTUlLyAgICAgICAgLTElCj4gICA2
-NC8gICAgICAgOC8gICAwJS8gICAgICAgIC0xJQo+ICAyNTYvICAgICAgIDEvICArNyUvICAgICAg
-ICArMSUKPiAgMjU2LyAgICAgICA0LyAgKzElLyAgICAgICAgKzElCj4gIDI1Ni8gICAgICAgOC8g
-ICsyJS8gICAgICAgICsyJQo+IAo+IFRDUF9TVFJFQU0KPiAKPiBzaXplL3Nlc3Npb25zLyt0aHUl
-Lytub3JtYWxpemUlCj4gICA2NC8gICAgICAgMS8gICAwJS8gICAgICAgIC0zJQo+ICAgNjQvICAg
-ICAgIDQvICArMyUvICAgICAgICAtMSUKPiAgIDY0LyAgICAgICA4LyAgKzklLyAgICAgICAgLTQl
-Cj4gIDI1Ni8gICAgICAgMS8gICsxJS8gICAgICAgIC00JQo+ICAyNTYvICAgICAgIDQvICAtMSUv
-ICAgICAgICAtMSUKPiAgMjU2LyAgICAgICA4LyAgKzclLyAgICAgICAgKzUlCj4gIDUxMi8gICAg
-ICAgMS8gICsxJS8gICAgICAgICAwJQo+ICA1MTIvICAgICAgIDQvICArMSUvICAgICAgICAtMSUK
-PiAgNTEyLyAgICAgICA4LyAgKzclLyAgICAgICAgLTUlCj4gMTAyNC8gICAgICAgMS8gICAwJS8g
-ICAgICAgIC0xJQo+IDEwMjQvICAgICAgIDQvICArMyUvICAgICAgICAgMCUKPiAxMDI0LyAgICAg
-ICA4LyAgKzglLyAgICAgICAgKzUlCj4gMjA0OC8gICAgICAgMS8gICsyJS8gICAgICAgICsyJQo+
-IDIwNDgvICAgICAgIDQvICArMSUvICAgICAgICAgMCUKPiAyMDQ4LyAgICAgICA4LyAgLTIlLyAg
-ICAgICAgIDAlCj4gNDA5Ni8gICAgICAgMS8gIC0yJS8gICAgICAgICAwJQo+IDQwOTYvICAgICAg
-IDQvICArMiUvICAgICAgICAgMCUKPiA0MDk2LyAgICAgICA4LyAgKzklLyAgICAgICAgLTIlCj4g
-Cj4gU2lnbmVkLW9mZi1ieTogSGFpYmluIFpoYW5nIDxoYWliaW56aGFuZ0B0ZW5jZW50LmNvbT4K
-PiBTaWduZWQtb2ZmLWJ5OiBZdW5mYW5nIFRhaSA8eXVuZmFuZ3RhaUB0ZW5jZW50LmNvbT4KPiBT
-aWduZWQtb2ZmLWJ5OiBMaWRvbmcgQ2hlbiA8bGlkb25nY2hlbkB0ZW5jZW50LmNvbT4KPiAtLS0K
-PiAgZHJpdmVycy92aG9zdC9uZXQuYyB8IDggKysrKysrKy0KPiAgMSBmaWxlIGNoYW5nZWQsIDcg
-aW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zo
-b3N0L25ldC5jIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+IGluZGV4IDgxMzliYzcwYWQ3ZC4uMTNh
-MjNmM2YzZWE0IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiArKysgYi9kcml2
-ZXJzL3Zob3N0L25ldC5jCj4gQEAgLTQ0LDYgKzQ0LDEwIEBAIE1PRFVMRV9QQVJNX0RFU0MoZXhw
-ZXJpbWVudGFsX3pjb3B5dHgsICJFbmFibGUgWmVybyBDb3B5IFRYOyIKPiAgICogVXNpbmcgdGhp
-cyBsaW1pdCBwcmV2ZW50cyBvbmUgdmlydHF1ZXVlIGZyb20gc3RhcnZpbmcgb3RoZXJzLiAqLwo+
-ICAjZGVmaW5lIFZIT1NUX05FVF9XRUlHSFQgMHg4MDAwMAo+ICAKPiArLyogTWF4IG51bWJlciBv
-ZiBwYWNrZXRzIHRyYW5zZmVycmVkIGJlZm9yZSByZXF1ZXVlaW5nIHRoZSBqb2IuCj4gKyAqIFVz
-aW5nIHRoaXMgbGltaXQgcHJldmVudHMgb25lIHZpcnRxdWV1ZSBmcm9tIHN0YXJ2aW5nIHJ4LiAq
-Lwo+ICsjZGVmaW5lIFZIT1NUX05FVF9QS1RfV0VJR0hUIDUxMgo+ICsKPiAgLyogTUFYIG51bWJl
-ciBvZiBUWCB1c2VkIGJ1ZmZlcnMgZm9yIG91dHN0YW5kaW5nIHplcm9jb3B5ICovCj4gICNkZWZp
-bmUgVkhPU1RfTUFYX1BFTkQgMTI4Cj4gICNkZWZpbmUgVkhPU1RfR09PRENPUFlfTEVOIDI1Ngo+
-IEBAIC00NzMsNiArNDc3LDcgQEAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2aG9zdF9u
-ZXQgKm5ldCkKPiAgCXN0cnVjdCBzb2NrZXQgKnNvY2s7Cj4gIAlzdHJ1Y3Qgdmhvc3RfbmV0X3Vi
-dWZfcmVmICp1bmluaXRpYWxpemVkX3Zhcih1YnVmcyk7Cj4gIAlib29sIHpjb3B5LCB6Y29weV91
-c2VkOwo+ICsJaW50IHNlbnRfcGt0cyA9IDA7Cj4gIAo+ICAJbXV0ZXhfbG9jaygmdnEtPm11dGV4
-KTsKPiAgCXNvY2sgPSB2cS0+cHJpdmF0ZV9kYXRhOwo+IEBAIC01ODAsNyArNTg1LDggQEAgc3Rh
-dGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkKPiAgCQllbHNlCj4gIAkJ
-CXZob3N0X3plcm9jb3B5X3NpZ25hbF91c2VkKG5ldCwgdnEpOwo+ICAJCXZob3N0X25ldF90eF9w
-YWNrZXQobmV0KTsKPiAtCQlpZiAodW5saWtlbHkodG90YWxfbGVuID49IFZIT1NUX05FVF9XRUlH
-SFQpKSB7Cj4gKwkJaWYgKHVubGlrZWx5KHRvdGFsX2xlbiA+PSBWSE9TVF9ORVRfV0VJR0hUKSB8
-fAo+ICsJCSAgICB1bmxpa2VseSgrK3NlbnRfcGt0cyA+PSBWSE9TVF9ORVRfUEtUX1dFSUdIVCkp
-IHsKPiAgCQkJdmhvc3RfcG9sbF9xdWV1ZSgmdnEtPnBvbGwpOwo+ICAJCQlicmVhazsKPiAgCQl9
-Cj4gLS0gCj4gMi4xMi4zCj4gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Sun, Apr 01, 2018 at 05:13:10AM -0400, Si-Wei Liu wrote:
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index aa40664..0827b7e 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -80,6 +80,8 @@ struct virtio_net_config {
+>  	__u16 max_virtqueue_pairs;
+>  	/* Default maximum transmit unit advice */
+>  	__u16 mtu;
+> +	/* Device at bus:slot.function backed up by virtio_net */
+> +	__u16 bsf2backup;
+>  } __attribute__((packed));
+
+I'm not sure this is a good interface.  This isn't unique even on some
+PCI systems, not to speak of non-PCI ones.
+
+>  /*
+> -- 
+> 1.8.3.1
