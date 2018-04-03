@@ -1,15 +1,11 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
-Date: Tue, 3 Apr 2018 00:40:50 -0700
-Message-ID: <CADGSJ23tSSo8WmGCmhWPFapXpW=c_A0_qpYH4r6fb9NEnzsnsQ__45633.6337527775$1522741157$gmane$org@mail.gmail.com>
-References: <1522573990-5242-1-git-send-email-si-wei.liu@oracle.com>
-	<1522573990-5242-3-git-send-email-si-wei.liu@oracle.com>
-	<8b589cd2-1abc-59c2-99f1-96df8174bb6b@gmail.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: [PATCH v30 0/4] Virtio-balloon: support free page reporting
+Date: Wed,  4 Apr 2018 00:10:01 +0800
+Message-ID: <1522771805-78927-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8b589cd2-1abc-59c2-99f1-96df8174bb6b@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,99 +15,118 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Ahern <dsahern@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
+To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org
+Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, huangzhichao@huawei.com, pbonzini@redhat.com, nilal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Apr 1, 2018 at 9:11 AM, David Ahern <dsahern@gmail.com> wrote:
-> On 4/1/18 3:13 AM, Si-Wei Liu wrote:
->> Hidden netdevice is not visible to userspace such that
->> typical network utilities e.g. ip, ifconfig and et al,
->> cannot sense its existence or configure it. Internally
->> hidden netdev may associate with an upper level netdev
->> that userspace has access to. Although userspace cannot
->> manipulate the lower netdev directly, user may control
->> or configure the underlying hidden device through the
->> upper-level netdev. For identification purpose, the
->> kobject for hidden netdev still presents in the sysfs
->> hierarchy, however, no uevent message will be generated
->> when the sysfs entry is created, modified or destroyed.
->>
->> For that end, a separate namescope needs to be carved
->> out for IFF_HIDDEN netdevs. As of now netdev name that
->> starts with colon i.e. ':' is invalid in userspace,
->> since socket ioctls such as SIOCGIFCONF use ':' as the
->> separator for ifname. The absence of namescope started
->> with ':' can rightly be used as the namescope for
->> the kernel-only IFF_HIDDEN netdevs.
->>
->> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
->> ---
->>  include/linux/netdevice.h   |  12 ++
->>  include/net/net_namespace.h |   2 +
->>  net/core/dev.c              | 281 ++++++++++++++++++++++++++++++++++++++------
->>  net/core/net_namespace.c    |   1 +
->>  4 files changed, 263 insertions(+), 33 deletions(-)
->>
->
-> There are other use cases that want to hide a device from userspace.
+This patch series is separated from the previous "Virtio-balloon
+Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,  
+implemented by this series enables the virtio-balloon driver to report
+hints of guest free pages to the host. It can be used to accelerate live
+migration of VMs. Here is an introduction of this usage:
 
-Can you elaborate your case in more details? Looking at the links
-below I realize that the purpose of hiding devices in your case is
-quite different from the our migration case. Particularly, I don't
-like the part of elaborately allowing user to manipulate the link's
-visibility - things fall apart easily while live migration is on
-going. And, why doing additional check for invisible links in every
-for_each_netdev() and its friends. This is effectively changing
-semantics of internal APIs that exist for decades.
+Live migration needs to transfer the VM's memory from the source machine
+to the destination round by round. For the 1st round, all the VM's memory
+is transferred. From the 2nd round, only the pieces of memory that were
+written by the guest (after the 1st round) are transferred. One method
+that is popularly used by the hypervisor to track which part of memory is
+written is to write-protect all the guest memory.
 
-> I would prefer a better solution than playing games with name prefixes and
+This feature enables the optimization by skipping the transfer of guest
+free pages during VM live migration. It is not concerned that the memory
+pages are used after they are given to the hypervisor as a hint of the
+free pages, because they will be tracked by the hypervisor and transferred
+in the subsequent round if they are used and written.
 
-This part is intentionally left to be that way and I would anticipate
-feedback before going too far. The idea in my mind was that I need a
-completely new device namespace underneath (or namescope, which is !=
-netns) for all netdevs: kernel-only IFF_HIDDEN network devices and
-those not. The current namespace for devname is already exposed to
-userspace and visible in the sysfs hierarchy, but for backwards
-compatibility reasons it's necessary to keep the old udevd still able
-to reference the entry of IFF_HIDDEN netdev under the /sys/net
-directory. By using the ':' prefix it has the benefit of minimal
-changes without introducing another namespace or the accompanied
-complexity in managing these two separate namespaces.
+* Tests
+- Test Environment
+    Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
+    Guest: 8G RAM, 4 vCPU
+    Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
 
-Technically, I can create a separate sysfs directory for the new
-namescope, say /sys/net-kernel, which includes all netdev entries like
-':eth0' and 'ens3', and which can be referenced from /sys/net. It
-would make the /sys/net consistent with the view of userspace
-utilities, but I am not even sure if that's an overkill, and would
-like to gather more feedback before moving to that model.
+- Test Results
+    - Idle Guest Live Migration Time (results are averaged over 10 runs):
+        - Optimization v.s. Legacy = 271ms vs 1769ms --> ~86% reduction
+    - Guest with Linux Compilation Workload (make bzImage -j4):
+        - Live Migration Time (average)
+          Optimization v.s. Legacy = 1265ms v.s. 2634ms --> ~51% reduction
+        - Linux Compilation Time
+          Optimization v.s. Legacy = 4min56s v.s. 5min3s
+          --> no obvious difference
 
-> one that includes an API for users to list all devices -- even ones
+ChangeLog:
+v29->v30:
+    - mm/walk_free_mem_block: add cond_sched() for each order
+v28->v29:
+    - mm/page_poison: only expose page_poison_enabled(), rather than more
+      changes did in v28, as we are not 100% confident about that for now.
+    - virtio-balloon: use a separate buffer for the stop cmd, instead of
+      having the start and stop cmd use the same buffer. This avoids the
+      corner case that the start cmd is overridden by the stop cmd when
+      the host has a delay in reading the start cmd.
+v27->v28:
+    - mm/page_poison: Move PAGE_POISON to page_poison.c and add a function
+      to expose page poison val to kernel modules.
+v26->v27:
+    - add a new patch to expose page_poisoning_enabled to kernel modules
+    - virtio-balloon: set poison_val to 0xaaaaaaaa, instead of 0xaa
+v25->v26: virtio-balloon changes only
+    - remove kicking free page vq since the host now polls the vq after
+      initiating the reporting
+    - report_free_page_func: detach all the used buffers after sending
+      the stop cmd id. This avoids leaving the detaching burden (i.e.
+      overhead) to the next cmd id. Detaching here isn't considered
+      overhead since the stop cmd id has been sent, and host has already
+      moved formard.
+v24->v25:
+    - mm: change walk_free_mem_block to return 0 (instead of true) on
+          completing the report, and return a non-zero value from the
+          callabck, which stops the reporting.
+    - virtio-balloon:
+        - use enum instead of define for VIRTIO_BALLOON_VQ_INFLATE etc.
+        - avoid __virtio_clear_bit when bailing out;
+        - a new method to avoid reporting the some cmd id to host twice
+        - destroy_workqueue can cancel free page work when the feature is
+          negotiated;
+        - fail probe when the free page vq size is less than 2.
+v23->v24:
+    - change feature name VIRTIO_BALLOON_F_FREE_PAGE_VQ to
+      VIRTIO_BALLOON_F_FREE_PAGE_HINT
+    - kick when vq->num_free < half full, instead of "= half full"
+    - replace BUG_ON with bailing out
+    - check vb->balloon_wq in probe(), if null, bail out
+    - add a new feature bit for page poisoning
+    - solve the corner case that one cmd id being sent to host twice
+v22->v23:
+    - change to kick the device when the vq is half-way full;
+    - open-code batch_free_page_sg into add_one_sg;
+    - change cmd_id from "uint32_t" to "__virtio32";
+    - reserver one entry in the vq for the driver to send cmd_id, instead
+      of busywaiting for an available entry;
+    - add "stop_update" check before queue_work for prudence purpose for
+      now, will have a separate patch to discuss this flag check later;
+    - init_vqs: change to put some variables on stack to have simpler
+      implementation;
+    - add destroy_workqueue(vb->balloon_wq);
+v21->v22:
+    - add_one_sg: some code and comment re-arrangement
+    - send_cmd_id: handle a cornercase
 
-What kind of API you would like to query for hidden devices?
-rtnetlink? a private socket API? or something else?
+For previous ChangeLog, please reference
+https://lwn.net/Articles/743660/
 
-For our case, the sysfs interface is what we need and is sufficient,
-since udev is the main target we'd like to support to make the naming
-of virtio_bypass consistent and compatible.
+Wei Wang (4):
+  mm: support reporting free page blocks
+  virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+  mm/page_poison: expose page_poisoning_enabled to kernel modules
+  virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
 
-> hidden by default.
->
-> https://github.com/dsahern/linux/commit/48a80a00eac284e58bae04af10a5a932dd7aee00
->
-> https://github.com/dsahern/iproute2/commit/7563f5b26f5539960e99066e34a995d22ea908ed
->
-> Also, why are you suggesting that the device should still be visible via
-> /sysfs? That leads to inconsistent views of networking state - /sys
-> shows a device but a link dump does not.
+ drivers/virtio/virtio_balloon.c     | 267 +++++++++++++++++++++++++++++++-----
+ include/linux/mm.h                  |   6 +
+ include/uapi/linux/virtio_balloon.h |   7 +
+ mm/page_alloc.c                     |  97 +++++++++++++
+ mm/page_poison.c                    |   6 +
+ 5 files changed, 347 insertions(+), 36 deletions(-)
 
-See my clarifications above. I don't mind kernel-only netdevs being
-visible via sysfs, as that way we get a good trade-off between
-backwards compatibility and visibility. There's still kobject created
-there right. Bottom line is that all kernel devices and its life-cycle
-uevents are made invisible to userpace network utilities, and I think
-it simply gets to the goal of not breaking existing apps while being
-able to add new features.
-
--Siwei
+-- 
+1.8.3.1
