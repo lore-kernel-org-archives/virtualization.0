@@ -1,15 +1,15 @@
 From: David Miller <davem@davemloft.net>
 Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
-Date: Wed, 04 Apr 2018 13:37:49 -0400 (EDT)
-Message-ID: <20180404.133749.1802514210170809419.davem__13875.5531902008$1522863354$gmane$org@davemloft.net>
+Date: Wed, 04 Apr 2018 13:42:41 -0400 (EDT)
+Message-ID: <20180404.134241.569157404061843307.davem__23117.6267182038$1522863664$gmane$org@davemloft.net>
 References: <3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
-	<CADGSJ23Zr7_CLMr1W9qhcWux59+aCvFdTg_nQ7Mmp5B-FWL8=Q@mail.gmail.com>
-	<54accf73-e6cc-e03f-6a1c-34e1bbd78047@gmail.com>
+	<CADGSJ22qmdzY8AiOfQdFdmR7T6rehTp-hHHj1U10XGad0bTb8A@mail.gmail.com>
+	<b0f5e27b-0be1-311e-f3f3-f79af5cd4521@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <54accf73-e6cc-e03f-6a1c-34e1bbd78047@gmail.com>
+In-Reply-To: <b0f5e27b-0be1-311e-f3f3-f79af5cd4521@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,35 +20,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dsahern@gmail.com
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, mst@redhat.com, kubakici@wp.pl, sridhar.samudrala@intel.com, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, si-wei.liu@oracle.com
+Cc: alexander.h.duyck@intel.com, jiri@resnulli.us, mst@redhat.com, kubakici@wp.pl, sridhar.samudrala@intel.com, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, si-wei.liu@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: David Ahern <dsahern@gmail.com>
-Date: Wed, 4 Apr 2018 11:21:54 -0600
+Date: Wed, 4 Apr 2018 11:37:52 -0600
 
-> It is a netdev so there is no reason to have a separate ip command to
-> inspect it. 'ip link' is the right place.
+> Networking vendors have out of tree kernel modules. Those modules use a
+> netdev (call it a master netdev, a control netdev, cpu port, whatever)
+> to pull packets from the ASIC and deliver to virtual netdevices
+> representing physical ports. The master netdev should not be mucked with
+> by a user. It should be ignored by certain s/w with lldpd as just an
+> *example*.
 
-I agree on this.
+Two approaches:
 
-What I really don't understand still is the use case... really.
+1) Add an IFF_CONTROL and make userspace understand this.  It is probably
+   long overdue.
 
-So there are control netdevs, what exactly is the problem with that?
+2) Design the driver properly.  Have a non-netdev master device like
+   mlxsw does, and control it using devlink or similar.  This is exactly
+   how this stuff was meant to be architected.
 
-Are we not exporting enough information for applications to handle
-these devices sanely?  If so, then's let add that information.
+> From there I think you are confusing my intentions: I fundamentally do
+> not believe the kernel should be hiding anything from an admin. Not
+> showing data by default is completely different than not showing that
+> data at all.
 
-We can set netdev->type to ETH_P_LINUXCONTROL or something like that.
+It is the same David.
 
-Another alternative is to add an interface flag like IFF_CONTROL or
-similar, and that probably is much nicer.
+It measn we have no intention of fixing applications to properly know
+what to do with and how to handle these devices.
 
-Hiding the devices means that we acknowledge that applications are
-currently broken with control netdevs... and we want them to stay
-broken!
+If you hide these objects, we are basically giving up on fixing the
+tools and or the drivers themselves to be architected differently
+(see #2 above).
 
-That doesn't sound like a good plan to me.
+That really isn't acceptable in my opinion.
 
-So let's fix handling of control netdevs instead of hiding them.
+> The intention of my patch with the IFF_HIDDEN attribute is:
+> 1. it is a netdev attribute
+> 
+> 2. that attribute can be used by userpsace to indicate to the kernel I
+> want all or I want the default
+> 
+> 3. that attribute can be controlled by an admin.
+> 
+> The patches go beyond my specific use case (preventing a user from
+> modifying a netdev it should not be touching) but to defining the
+> semantics of a generic capability which is what the kernel should have.
 
-Thanks.
+"Teach, do not hide!" -Yoda
