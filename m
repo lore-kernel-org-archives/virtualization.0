@@ -1,17 +1,20 @@
-From: Jiri Pirko <jiri@resnulli.us>
+From: Andrew Lunn <andrew@lunn.ch>
 Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
-Date: Wed, 4 Apr 2018 20:20:51 +0200
-Message-ID: <20180404182051.GD2209__31412.7462138005$1522865946$gmane$org@nanopsycho>
-References: <3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
-	<CADGSJ23Zr7_CLMr1W9qhcWux59+aCvFdTg_nQ7Mmp5B-FWL8=Q@mail.gmail.com>
-	<54accf73-e6cc-e03f-6a1c-34e1bbd78047@gmail.com>
-	<20180404.133749.1802514210170809419.davem@davemloft.net>
+Date: Wed, 4 Apr 2018 22:08:28 +0200
+Message-ID: <20180404200828.GA29717__41519.0339707353$1522872412$gmane$org@lunn.ch>
+References: <1522573990-5242-1-git-send-email-si-wei.liu@oracle.com>
+	<1522573990-5242-3-git-send-email-si-wei.liu@oracle.com>
+	<8b589cd2-1abc-59c2-99f1-96df8174bb6b@gmail.com>
+	<20180403154210.GK3313@nanopsycho>
+	<3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
+	<CADGSJ22qmdzY8AiOfQdFdmR7T6rehTp-hHHj1U10XGad0bTb8A@mail.gmail.com>
+	<b0f5e27b-0be1-311e-f3f3-f79af5cd4521@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180404.133749.1802514210170809419.davem@davemloft.net>
+In-Reply-To: <b0f5e27b-0be1-311e-f3f3-f79af5cd4521@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,37 +24,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, sridhar.samudrala@intel.com, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, dsahern@gmail.com, si-wei.liu@oracle.com
+To: David Ahern <dsahern@gmail.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Wed, Apr 04, 2018 at 07:37:49PM CEST, davem@davemloft.net wrote:
->From: David Ahern <dsahern@gmail.com>
->Date: Wed, 4 Apr 2018 11:21:54 -0600
->
->> It is a netdev so there is no reason to have a separate ip command to
->> inspect it. 'ip link' is the right place.
->
->I agree on this.
->
->What I really don't understand still is the use case... really.
->
->So there are control netdevs, what exactly is the problem with that?
->
->Are we not exporting enough information for applications to handle
->these devices sanely?  If so, then's let add that information.
->
->We can set netdev->type to ETH_P_LINUXCONTROL or something like that.
->
->Another alternative is to add an interface flag like IFF_CONTROL or
->similar, and that probably is much nicer.
->
->Hiding the devices means that we acknowledge that applications are
->currently broken with control netdevs... and we want them to stay
->broken!
->
->That doesn't sound like a good plan to me.
->
->So let's fix handling of control netdevs instead of hiding them.
+> Networking vendors have out of tree kernel modules. Those modules use a
+> netdev (call it a master netdev, a control netdev, cpu port, whatever)
+> to pull packets from the ASIC and deliver to virtual netdevices
+> representing physical ports.
 
-Exactly. Don't workaround userspace issues by kernel patches.
+Sounds a lot like DSA. Please ask the vendor to contribute the drivers
+:-)
+
+> The master netdev should not be mucked with by a user. It should be
+> ignored by certain s/w with lldpd as just an *example*.
+
+I have come across occasional problems with the master device in DSA.
+But nothing too serious. Generally the switch will just toss frames it
+gets which don't have the needed header, when they come direct from
+the master device, rather than via the slave devices.
+
+    Andrew
