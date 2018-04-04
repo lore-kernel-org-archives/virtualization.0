@@ -1,19 +1,17 @@
-From: Siwei Liu <loseweigh@gmail.com>
+From: Jiri Pirko <jiri@resnulli.us>
 Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
-Date: Wed, 4 Apr 2018 11:02:44 -0700
-Message-ID: <CADGSJ22t1jACsQtz=yD2Sofv16OMZ0-vywCToHvFM8BceA_ayQ__8889.65669223598$1522864866$gmane$org@mail.gmail.com>
-References: <1522573990-5242-1-git-send-email-si-wei.liu@oracle.com>
-	<1522573990-5242-3-git-send-email-si-wei.liu@oracle.com>
-	<8b589cd2-1abc-59c2-99f1-96df8174bb6b@gmail.com>
-	<20180403154210.GK3313@nanopsycho>
-	<3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
+Date: Wed, 4 Apr 2018 20:20:51 +0200
+Message-ID: <20180404182051.GD2209__31412.7462138005$1522865946$gmane$org@nanopsycho>
+References: <3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
 	<CADGSJ23Zr7_CLMr1W9qhcWux59+aCvFdTg_nQ7Mmp5B-FWL8=Q@mail.gmail.com>
 	<54accf73-e6cc-e03f-6a1c-34e1bbd78047@gmail.com>
+	<20180404.133749.1802514210170809419.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <54accf73-e6cc-e03f-6a1c-34e1bbd78047@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20180404.133749.1802514210170809419.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,56 +21,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Ahern <dsahern@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
+To: David Miller <davem@davemloft.net>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, sridhar.samudrala@intel.com, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, dsahern@gmail.com, si-wei.liu@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 4, 2018 at 10:21 AM, David Ahern <dsahern@gmail.com> wrote:
-> On 4/4/18 1:36 AM, Siwei Liu wrote:
->> On Tue, Apr 3, 2018 at 6:04 PM, David Ahern <dsahern@gmail.com> wrote:
->>> On 4/3/18 9:42 AM, Jiri Pirko wrote:
->>>>>
->>>>> There are other use cases that want to hide a device from userspace. I
->>>>
->>>> What usecases do you have in mind?
->>>
->>> As mentioned in a previous response some kernel drivers create control
->>> netdevs. Just as in this case users should not be mucking with it, and
->>> S/W like lldpd should ignore it.
->>>
->>>>
->>>>> would prefer a better solution than playing games with name prefixes and
->>>>> one that includes an API for users to list all devices -- even ones
->>>>> hidden by default.
->>>>
->>>> Netdevice hiding feels a bit scarry for me. This smells like a workaround
->>>> for userspace issues. Why can't the netdevice be visible always and
->>>> userspace would know what is it and what should it do with it?
->>>>
->>>> Once we start with hiding, there are other things related to that which
->>>> appear. Like who can see what, levels of visibility etc...
->>>>
->>>
->>> I would not advocate for any API that does not allow users to have full
->>> introspection. The intent is to hide the netdev by default but have an
->>> option to see it.
->>
->> I'm fine with having a link dump API to inspect the hidden netdev. As
->> said, the name for hidden netdevs should be in a separate device
->> namespace, and we did not even get closer to what it should look like
->> as I don't want to make it just an option for ip link. Perhaps a new
->> set of sub-commands of, say, 'ip device'.
+Wed, Apr 04, 2018 at 07:37:49PM CEST, davem@davemloft.net wrote:
+>From: David Ahern <dsahern@gmail.com>
+>Date: Wed, 4 Apr 2018 11:21:54 -0600
 >
-> It is a netdev so there is no reason to have a separate ip command to
-> inspect it. 'ip link' is the right place.
+>> It is a netdev so there is no reason to have a separate ip command to
+>> inspect it. 'ip link' is the right place.
+>
+>I agree on this.
+>
+>What I really don't understand still is the use case... really.
+>
+>So there are control netdevs, what exactly is the problem with that?
+>
+>Are we not exporting enough information for applications to handle
+>these devices sanely?  If so, then's let add that information.
+>
+>We can set netdev->type to ETH_P_LINUXCONTROL or something like that.
+>
+>Another alternative is to add an interface flag like IFF_CONTROL or
+>similar, and that probably is much nicer.
+>
+>Hiding the devices means that we acknowledge that applications are
+>currently broken with control netdevs... and we want them to stay
+>broken!
+>
+>That doesn't sound like a good plan to me.
+>
+>So let's fix handling of control netdevs instead of hiding them.
 
-If you're still thinking the visibility is part of link attribute
-rather than a separate namespace, I'd say we are trying to solve
-essentially different problems, and I really don't understand your
-proposal in solving that problem to be honest.
-
-So, let's step back on studying your case if that's the right thing
-and let's talk about concrete examples.
-
--Siwei
+Exactly. Don't workaround userspace issues by kernel patches.
