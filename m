@@ -1,16 +1,15 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
-Date: Tue, 3 Apr 2018 12:23:56 -0700
-Message-ID: <CADGSJ22Hj7JWM2NY7Ben0p0O_EaVD77wdybxvtcuuiXQjvnUAA__49792.2286078849$1522783321$gmane$org@mail.gmail.com>
-References: <1522573990-5242-1-git-send-email-si-wei.liu@oracle.com>
-	<1522573990-5242-3-git-send-email-si-wei.liu@oracle.com>
-	<8b589cd2-1abc-59c2-99f1-96df8174bb6b@gmail.com>
-	<20180403154210.GK3313@nanopsycho>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v30 2/4] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Wed, 04 Apr 2018 10:07:51 +0800
+Message-ID: <5AC43377.2070607__14051.8963723027$1522807380$gmane$org@intel.com>
+References: <1522771805-78927-1-git-send-email-wei.w.wang@intel.com>
+	<1522771805-78927-3-git-send-email-wei.w.wang@intel.com>
+	<20180403214147-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180403154210.GK3313@nanopsycho>
+In-Reply-To: <20180403214147-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,80 +19,102 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Ahern <dsahern@gmail.com>, Si-Wei Liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, huangzhichao@huawei.com, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 3, 2018 at 8:42 AM, Jiri Pirko <jiri@resnulli.us> wrote:
-> Sun, Apr 01, 2018 at 06:11:29PM CEST, dsahern@gmail.com wrote:
->>On 4/1/18 3:13 AM, Si-Wei Liu wrote:
->>> Hidden netdevice is not visible to userspace such that
->>> typical network utilites e.g. ip, ifconfig and et al,
->>> cannot sense its existence or configure it. Internally
->>> hidden netdev may associate with an upper level netdev
->>> that userspace has access to. Although userspace cannot
->>> manipulate the lower netdev directly, user may control
->>> or configure the underlying hidden device through the
->>> upper-level netdev. For identification purpose, the
->>> kobject for hidden netdev still presents in the sysfs
->>> hierarchy, however, no uevent message will be generated
->>> when the sysfs entry is created, modified or destroyed.
->>>
->>> For that end, a separate namescope needs to be carved
->>> out for IFF_HIDDEN netdevs. As of now netdev name that
->>> starts with colon i.e. ':' is invalid in userspace,
->>> since socket ioctls such as SIOCGIFCONF use ':' as the
->>> separator for ifname. The absence of namescope started
->>> with ':' can rightly be used as the namescope for
->>> the kernel-only IFF_HIDDEN netdevs.
->>>
->>> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
->>> ---
->>>  include/linux/netdevice.h   |  12 ++
->>>  include/net/net_namespace.h |   2 +
->>>  net/core/dev.c              | 281 ++++++++++++++++++++++++++++++++++++++------
->>>  net/core/net_namespace.c    |   1 +
->>>  4 files changed, 263 insertions(+), 33 deletions(-)
->>>
->>
->>There are other use cases that want to hide a device from userspace. I
->
-> What usecases do you have in mind?
+On 04/04/2018 02:47 AM, Michael S. Tsirkin wrote:
+> On Wed, Apr 04, 2018 at 12:10:03AM +0800, Wei Wang wrote:
+>> +static int add_one_sg(struct virtqueue *vq, unsigned long pfn, uint32_t len)
+>> +{
+>> +	struct scatterlist sg;
+>> +	unsigned int unused;
+>> +
+>> +	sg_init_table(&sg, 1);
+>> +	sg_set_page(&sg, pfn_to_page(pfn), len, 0);
+>> +
+>> +	/* Detach all the used buffers from the vq */
+>> +	while (virtqueue_get_buf(vq, &unused))
+>> +		;
+>> +
+>> +	/*
+>> +	 * Since this is an optimization feature, losing a couple of free
+>> +	 * pages to report isn't important. We simply return without adding
+>> +	 * the page hint if the vq is full.
+> why not stop scanning of following pages though?
 
-Hope you're not staring at me and shouting. :)
+Because continuing to send hints is a way to deliver the maximum 
+possible hints to host. For example, host may have a delay in taking 
+hints at some point, and then it resumes to take hints soon. If the 
+driver does not stop when the vq is full, it will be able to put more 
+hints to the vq once the vq has available entries to add.
 
-I think we had discussed a lot, and if the common goal is to merge two
-drivers rather than diverge, there's no better way than to hide the
-lower devices from all existing userspace management utiliies
-(NetworManager, cloud-init). This does not mean loss of visibility as
-we can add new API or CLI later on to get those missing ones exposed
-as needed, in a way existing userspace apps don't break while new apps
-aware of the feature know where to get it. This requirement is
-critical to cloud providers, which I wouldn't repeat enough why it
-drove me crazy if not seeing this resolved.
-
-Thanks,
--Siwei
 
 >
->>would prefer a better solution than playing games with name prefixes and
->>one that includes an API for users to list all devices -- even ones
->>hidden by default.
+>> +	 * We are adding one entry each time, which essentially results in no
+>> +	 * memory allocation, so the GFP_KERNEL flag below can be ignored.
+>> +	 * Host works by polling the free page vq for hints after sending the
+>> +	 * starting cmd id, so the driver doesn't need to kick after filling
+>> +	 * the vq.
+>> +	 * Lastly, there is always one entry reserved for the cmd id to use.
+>> +	 */
+>> +	if (vq->num_free > 1)
+>> +		return virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int virtio_balloon_send_free_pages(void *opaque, unsigned long pfn,
+>> +					   unsigned long nr_pages)
+>> +{
+>> +	struct virtio_balloon *vb = (struct virtio_balloon *)opaque;
+>> +	uint32_t len = nr_pages << PAGE_SHIFT;
+>> +
+>> +	/*
+>> +	 * If a stop id or a new cmd id was just received from host, stop
+>> +	 * the reporting, and return 1 to indicate an active stop.
+>> +	 */
+>> +	if (virtio32_to_cpu(vb->vdev, vb->cmd_id_use) != vb->cmd_id_received)
+>> +		return 1;
+>> +
+> this access to cmd_id_use and cmd_id_received without locks
+> bothers me. Pls document why it's safe.
+
+OK. Probably we could add below to the above comments:
+
+cmd_id_use and cmd_id_received don't need to be accessed under locks 
+because the reporting does not have to stop immediately before 
+cmd_id_received is changed (i.e. when host requests to stop). That is, 
+reporting more hints after host requests to stop isn't an issue for this 
+optimization feature, because host will simply drop the stale hints next 
+time when it needs a new reporting.
+
+
+
+
 >
-> Netdevice hiding feels a bit scarry for me. This smells like a workaround
-> for userspace issues. Why can't the netdevice be visible always and
-> userspace would know what is it and what should it do with it?
->
-> Once we start with hiding, there are other things related to that which
-> appear. Like who can see what, levels of visibility etc...
->
->
->>
->>https://github.com/dsahern/linux/commit/48a80a00eac284e58bae04af10a5a932dd7aee00
->>
->>https://github.com/dsahern/iproute2/commit/7563f5b26f5539960e99066e34a995d22ea908ed
->>
->>Also, why are you suggesting that the device should still be visible via
->>/sysfs? That leads to inconsistent views of networking state - /sys
->>shows a device but a link dump does not.
+>> +	return add_one_sg(vb->free_page_vq, pfn, len);
+>> +}
+>> +
+>> +static int send_start_cmd_id(struct virtio_balloon *vb, uint32_t cmd_id)
+>> +{
+>> +	struct scatterlist sg;
+>> +	struct virtqueue *vq = vb->free_page_vq;
+>> +
+>> +	vb->cmd_id_use = cpu_to_virtio32(vb->vdev, cmd_id);
+>> +	sg_init_one(&sg, &vb->cmd_id_use, sizeof(vb->cmd_id_use));
+>> +	return virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+>> +}
+>> +
+>> +static int send_stop_cmd_id(struct virtio_balloon *vb)
+>> +{
+>> +	struct scatterlist sg;
+>> +	struct virtqueue *vq = vb->free_page_vq;
+>> +
+>> +	sg_init_one(&sg, &vb->stop_cmd_id, sizeof(vb->cmd_id_use));
+> why the inconsistency?
+
+Thanks, will make it consistent.
+
+Best,
+Wei
