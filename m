@@ -1,18 +1,16 @@
 From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
-Date: Wed, 4 Apr 2018 01:01:37 -0700
-Message-ID: <CADGSJ23EkjBJ0soUYJ_5C4cXNGucHRjBCQKPhHjfLTuRnS0xKQ__43530.5312079892$1522828804$gmane$org@mail.gmail.com>
+Subject: Re: [virtio-dev] Re: [RFC PATCH 1/3] qemu: virtio-bypass should
+	explicitly bind to a passthrough device
+Date: Wed, 4 Apr 2018 01:02:37 -0700
+Message-ID: <CADGSJ23jr7xrq8h9rFHLtXkbpsB+AK8wcUzOQnpeftbhiYdOvA__16631.6834780902$1522828861$gmane$org@mail.gmail.com>
 References: <1522573990-5242-1-git-send-email-si-wei.liu@oracle.com>
-	<1522573990-5242-3-git-send-email-si-wei.liu@oracle.com>
-	<8b589cd2-1abc-59c2-99f1-96df8174bb6b@gmail.com>
-	<20180403154210.GK3313@nanopsycho>
-	<3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
-	<20180404061945.GN3313@nanopsycho>
+	<1522573990-5242-2-git-send-email-si-wei.liu@oracle.com>
+	<20180403152308-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180404061945.GN3313@nanopsycho>
+In-Reply-To: <20180403152308-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,66 +20,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Ahern <dsahern@gmail.com>, Si-Wei Liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 3, 2018 at 11:19 PM, Jiri Pirko <jiri@resnulli.us> wrote:
-> Wed, Apr 04, 2018 at 03:04:26AM CEST, dsahern@gmail.com wrote:
->>On 4/3/18 9:42 AM, Jiri Pirko wrote:
->>>>
->>>> There are other use cases that want to hide a device from userspace. I
->>>
->>> What usecases do you have in mind?
+On Tue, Apr 3, 2018 at 5:25 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Sun, Apr 01, 2018 at 05:13:08AM -0400, Si-Wei Liu wrote:
+>> @@ -896,6 +898,68 @@ void qmp_device_del(const char *id, Error **errp)
+>>      }
+>>  }
 >>
->>As mentioned in a previous response some kernel drivers create control
->>netdevs. Just as in this case users should not be mucking with it, and
+>> +int pci_get_busdevfn_by_id(const char *id, uint16_t *busnr,
+>> +                           uint16_t *devfn, Error **errp)
+>> +{
+>> +    uint16_t busnum = 0, slot = 0, func = 0;
+>> +    const char *pc, *pd, *pe;
+>> +    Error *local_err = NULL;
+>> +    ObjectClass *class;
+>> +    char value[1024];
+>> +    BusState *bus;
+>> +    uint64_t u64;
+>> +
+>> +    if (!(pc = strchr(id, ':'))) {
+>> +        error_setg(errp, "Invalid id: backup=%s, "
+>> +                   "correct format should be backup="
+>> +                   "'<bus-id>:<slot>[.<function>]'", id);
+>> +        return -1;
+>> +    }
+>> +    get_opt_name(value, sizeof(value), id, ':');
+>> +    if (pc != id + 1) {
+>> +        bus = qbus_find(value, errp);
+>> +        if (!bus)
+>> +            return -1;
+>> +
+>> +        class = object_get_class(OBJECT(bus));
+>> +        if (class != object_class_by_name(TYPE_PCI_BUS) &&
+>> +            class != object_class_by_name(TYPE_PCIE_BUS)) {
+>> +            error_setg(errp, "%s is not a device on pci bus", id);
+>> +            return -1;
+>> +        }
+>> +        busnum = (uint16_t)pci_bus_num(PCI_BUS(bus));
+>> +    }
 >
-> virtio_net. Any other drivers?
+> pci_bus_num is almost always a bug if not done within
+> a context of a PCI host, bridge, etc.
+>
+> In particular this will not DTRT if run before guest assigns bus
+> numbers.
+>
+I was seeking means to reserve a specific pci bus slot from drivers,
+and update the driver when guest assigns the bus number but it seems
+there's no low-hanging fruits. Because of that reason the bus_num is
+only obtained until it's really needed (during get_config) and I
+assume at that point the pci bus assignment is already done. I know
+the current one is not perfect, but we need that information (PCI
+bus:slot.func number) to name the guest device correctly.
 
-netvsc if factoring out virtio_bypass to a common driver.
-
->
->
->>S/W like lldpd should ignore it.
->
-> It's just a matter of identification of the netdevs, so the user knows
-> what to do.
->
->
->>
->>>
->>>> would prefer a better solution than playing games with name prefixes and
->>>> one that includes an API for users to list all devices -- even ones
->>>> hidden by default.
->>>
->>> Netdevice hiding feels a bit scarry for me. This smells like a workaround
->>> for userspace issues. Why can't the netdevice be visible always and
->>> userspace would know what is it and what should it do with it?
->>>
->>> Once we start with hiding, there are other things related to that which
->>> appear. Like who can see what, levels of visibility etc...
->>>
->>
->>I would not advocate for any API that does not allow users to have full
->>introspection. The intent is to hide the netdev by default but have an
->>option to see it.
->
-> As an administrator, I want to see all by default. I think it is
-> reasonable requirements. Again, this awfully smells like a workaround...
-
-If the requirement is just for dumping the link info i.e. perform
-read-only operation on the hidden netdev, it's completely fine.
-However, I am not a big fan of creating a weird mechanism to allow
-user deliberately manipulate the visibility (hide/unhide) of a netdev
-in any case at any time. This is subject to becoming a slippery slope
-to work around any software issue that should get fixed in the right
-place.
-
-Let's treat IFF_HIDDEN as a means to hide auto-managed netdevices. If
-it's just the name is misleading, I can get it renamed to something
-like IFF_AUTO_MANAGED which might reflect its nature more properly.
-
-Thanks,
+Regards,
 -Siwei
+>
+>> +
+>> +    if (!devfn)
+>> +        goto out;
+>> +
+>> +    pd = strchr(pc, '.');
+>> +    pe = get_opt_name(value, sizeof(value), pc + 1, '.');
+>> +    if (pe != pc + 1) {
+>> +        parse_option_number("slot", value, &u64, &local_err);
+>> +        if (local_err) {
+>> +            error_propagate(errp, local_err);
+>> +            return -1;
+>> +        }
+>> +        slot = (uint16_t)u64;
+>> +    }
+>> +    if (pd && *(pd + 1) != '\0') {
+>> +        parse_option_number("function", pd, &u64, &local_err);
+>> +        if (local_err) {
+>> +            error_propagate(errp, local_err);
+>> +            return -1;
+>> +        }
+>> +        func = (uint16_t)u64;
+>> +    }
+>> +
+>> +out:
+>> +    if (busnr)
+>> +        *busnr = busnum;
+>> +    if (devfn)
+>> +        *devfn = ((slot & 0x1F) << 3) | (func & 0x7);
+>> +    return 0;
+>> +}
+>> +
+>>  BlockBackend *blk_by_qdev_id(const char *id, Error **errp)
+>>  {
+>>      DeviceState *dev;
+>> --
+>> 1.8.3.1
+>
+> ---------------------------------------------------------------------
+> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+>
