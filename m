@@ -1,16 +1,17 @@
 From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [virtio-dev] Re: [RFC PATCH 3/3] virtio_net: make lower netdevs
-	for virtio_bypass hidden
-Date: Wed, 4 Apr 2018 01:03:53 -0700
-Message-ID: <CADGSJ20=yqKTAz3wTV=uUH0zohw+a698FVrgaNvmTTK9TMSj_w__38424.1586587906$1522828935$gmane$org@mail.gmail.com>
+Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
+Date: Wed, 4 Apr 2018 01:28:27 -0700
+Message-ID: <CADGSJ22qmdzY8AiOfQdFdmR7T6rehTp-hHHj1U10XGad0bTb8A__25681.0828614563$1522830412$gmane$org@mail.gmail.com>
 References: <1522573990-5242-1-git-send-email-si-wei.liu@oracle.com>
-	<1522573990-5242-4-git-send-email-si-wei.liu@oracle.com>
-	<20180403151915-mutt-send-email-mst@kernel.org>
+	<1522573990-5242-3-git-send-email-si-wei.liu@oracle.com>
+	<8b589cd2-1abc-59c2-99f1-96df8174bb6b@gmail.com>
+	<20180403154210.GK3313@nanopsycho>
+	<3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180403151915-mutt-send-email-mst@kernel.org>
+In-Reply-To: <3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +21,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+To: David Ahern <dsahern@gmail.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
 	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 3, 2018 at 5:20 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Sun, Apr 01, 2018 at 05:13:10AM -0400, Si-Wei Liu wrote:
->> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
->> index aa40664..0827b7e 100644
->> --- a/include/uapi/linux/virtio_net.h
->> +++ b/include/uapi/linux/virtio_net.h
->> @@ -80,6 +80,8 @@ struct virtio_net_config {
->>       __u16 max_virtqueue_pairs;
->>       /* Default maximum transmit unit advice */
->>       __u16 mtu;
->> +     /* Device at bus:slot.function backed up by virtio_net */
->> +     __u16 bsf2backup;
->>  } __attribute__((packed));
+On Tue, Apr 3, 2018 at 6:04 PM, David Ahern <dsahern@gmail.com> wrote:
+> On 4/3/18 9:42 AM, Jiri Pirko wrote:
+>>>
+>>> There are other use cases that want to hide a device from userspace. I
+>>
+>> What usecases do you have in mind?
 >
-> I'm not sure this is a good interface.  This isn't unique even on some
-> PCI systems, not to speak of non-PCI ones.
+> As mentioned in a previous response some kernel drivers create control
+> netdevs. Just as in this case users should not be mucking with it, and
+> S/W like lldpd should ignore it.
 
-Are you suggesting adding PCI address domain besides to make it
-universally unique? And what the non-PCI device you envisioned that
-the main target, essetially live migration, can/should cover? Or is
-there better option in your mind already?
+I'm still not sure I understand your case: why you want to hide the
+control netdev, as I assume those devices could choose either to
+silently ignore the request, or fail loudly against user operations?
+Is it creating issues already, or what problem you want to solve if
+not making the netdev invisible. Why couldn't lldpd check some
+specific flag and ignore the control netdevice (can you please give an
+example of a concrete driver for control netdevice *in tree*).
+
+And I'm completely lost why you want an API to make a hidden netdev
+visible again for these control devices.
 
 Thanks,
 -Siwei
+
+
 >
->>  /*
->> --
->> 1.8.3.1
+>>
+>>> would prefer a better solution than playing games with name prefixes and
+>>> one that includes an API for users to list all devices -- even ones
+>>> hidden by default.
+>>
+>> Netdevice hiding feels a bit scarry for me. This smells like a workaround
+>> for userspace issues. Why can't the netdevice be visible always and
+>> userspace would know what is it and what should it do with it?
+>>
+>> Once we start with hiding, there are other things related to that which
+>> appear. Like who can see what, levels of visibility etc...
+>>
 >
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
->
+> I would not advocate for any API that does not allow users to have full
+> introspection. The intent is to hide the netdev by default but have an
+> option to see it.
