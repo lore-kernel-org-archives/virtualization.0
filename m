@@ -1,14 +1,13 @@
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: [RFC PATCH 0/2] use larger max_request_size for virtio_blk
-Date: Thu, 5 Apr 2018 08:29:47 -0600
-Message-ID: <04280c25-aecb-3d79-e589-5fafa974d9e0@kernel.dk>
-References: <cover.1522922101.git.zhangweiping@didichuxing.com>
+From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Subject: Re: [RFC] virtio: Use DMA MAP API for devices without an IOMMU
+Date: Thu, 5 Apr 2018 20:09:30 +0530
+Message-ID: <3e1b113b-79ca-b700-5be9-10c66d74aabe__6851.55901960588$1522939097$gmane$org@linux.vnet.ibm.com>
+References: <20180405105631.9514-1-khandual@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1522922101.git.zhangweiping@didichuxing.com>
-Content-Language: en-US
+In-Reply-To: <20180405105631.9514-1-khandual@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +17,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: cohuck@redhat.com, mst@redhat.com, jasowang@redhat.com, linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: robh@kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/5/18 4:09 AM, Weiping Zhang wrote:
-> Hi,
+On 04/05/2018 04:26 PM, Anshuman Khandual wrote:
+> There are certian platforms which would like to use SWIOTLB based DMA API
+> for bouncing purpose without actually requiring an IOMMU back end. But the
+> virtio core does not allow such mechanism. Right now DMA MAP API is only
+> selected for devices which have an IOMMU and then the QEMU/host back end
+> will process all incoming SG buffer addresses as IOVA instead of simple
+> GPA which is the case for simple bounce buffers after being processed with
+> SWIOTLB API. To enable this usage, it introduces an architecture specific
+> function which will just make virtio core front end select DMA operations
+> structure.
 > 
-> For virtio block device, actually there is no a hard limit for max request
-> size, and virtio_blk driver set -1 to blk_queue_max_hw_sectors(q, -1U);.
-> But it doesn't work, because there is a default upper limitation
-> BLK_DEF_MAX_SECTORS (1280 sectors). So this series want to add a new helper
-> blk_queue_max_hw_sectors_no_limit to set a proper max reqeust size.
-> 
-> Weiping Zhang (2):
->   blk-setting: add new helper blk_queue_max_hw_sectors_no_limit
->   virtio_blk: add new module parameter to set max request size
-> 
->  block/blk-settings.c       | 20 ++++++++++++++++++++
->  drivers/block/virtio_blk.c | 32 ++++++++++++++++++++++++++++++--
->  include/linux/blkdev.h     |  2 ++
->  3 files changed, 52 insertions(+), 2 deletions(-)
+> Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
 
-The driver should just use blk_queue_max_hw_sectors() to set the limit,
-and then the soft limit can be modified by a udev rule. Technically the
-driver doesn't own the software limit, it's imposed to ensure that we
-don't introduce too much latency per request.
-
-Your situation is no different from many other setups, where the
-hw limit is much higher than the default 1280k.
-
--- 
-Jens Axboe
++ "Michael S. Tsirkin" <mst@redhat.com>
