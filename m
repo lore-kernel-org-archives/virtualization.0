@@ -1,20 +1,18 @@
-From: Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
-Date: Wed, 4 Apr 2018 22:08:28 +0200
-Message-ID: <20180404200828.GA29717__41519.0339707353$1522872412$gmane$org@lunn.ch>
-References: <1522573990-5242-1-git-send-email-si-wei.liu@oracle.com>
-	<1522573990-5242-3-git-send-email-si-wei.liu@oracle.com>
-	<8b589cd2-1abc-59c2-99f1-96df8174bb6b@gmail.com>
-	<20180403154210.GK3313@nanopsycho>
-	<3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
-	<CADGSJ22qmdzY8AiOfQdFdmR7T6rehTp-hHHj1U10XGad0bTb8A@mail.gmail.com>
-	<b0f5e27b-0be1-311e-f3f3-f79af5cd4521@gmail.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v30 2/4] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Thu, 5 Apr 2018 00:30:27 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F7394A6E96__13261.0596869656$1522888133$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1522771805-78927-1-git-send-email-wei.w.wang@intel.com>
+	<1522771805-78927-3-git-send-email-wei.w.wang@intel.com>
+	<20180403214147-mutt-send-email-mst@kernel.org>
+	<5AC43377.2070607@intel.com>
+	<20180404155907-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <b0f5e27b-0be1-311e-f3f3-f79af5cd4521@gmail.com>
+In-Reply-To: <20180404155907-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,25 +22,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Ahern <dsahern@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "nilal@redhat.com" <nilal@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "huangzhichao@huawei.com" <huangzhichao@huawei.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Networking vendors have out of tree kernel modules. Those modules use a
-> netdev (call it a master netdev, a control netdev, cpu port, whatever)
-> to pull packets from the ASIC and deliver to virtual netdevices
-> representing physical ports.
+On Wednesday, April 4, 2018 10:08 PM, Michael S. Tsirkin wrote:
+> On Wed, Apr 04, 2018 at 10:07:51AM +0800, Wei Wang wrote:
+> > On 04/04/2018 02:47 AM, Michael S. Tsirkin wrote:
+> > > On Wed, Apr 04, 2018 at 12:10:03AM +0800, Wei Wang wrote:
+> > > > +static int add_one_sg(struct virtqueue *vq, unsigned long pfn,
+> > > > +uint32_t len) {
+> > > > +	struct scatterlist sg;
+> > > > +	unsigned int unused;
+> > > > +
+> > > > +	sg_init_table(&sg, 1);
+> > > > +	sg_set_page(&sg, pfn_to_page(pfn), len, 0);
+> > > > +
+> > > > +	/* Detach all the used buffers from the vq */
+> > > > +	while (virtqueue_get_buf(vq, &unused))
+> > > > +		;
+> > > > +
+> > > > +	/*
+> > > > +	 * Since this is an optimization feature, losing a couple of free
+> > > > +	 * pages to report isn't important. We simply return without adding
+> > > > +	 * the page hint if the vq is full.
+> > > why not stop scanning of following pages though?
+> >
+> > Because continuing to send hints is a way to deliver the maximum
+> > possible hints to host. For example, host may have a delay in taking
+> > hints at some point, and then it resumes to take hints soon. If the
+> > driver does not stop when the vq is full, it will be able to put more
+> > hints to the vq once the vq has available entries to add.
+> 
+> What this appears to be is just lack of coordination between host and guest.
+> 
+> But meanwhile you are spending cycles walking the list uselessly.
+> Instead of trying nilly-willy, the standard thing to do is to wait for host to
+> consume an entry and proceed.
+> 
+> Coding it up might be tricky, so it's probably acceptable as is for now, but
+> please replace the justification about with a TODO entry that we should
+> synchronize with the host.
 
-Sounds a lot like DSA. Please ask the vendor to contribute the drivers
-:-)
+Thanks. I plan to add
 
-> The master netdev should not be mucked with by a user. It should be
-> ignored by certain s/w with lldpd as just an *example*.
+TODO: The current implementation could be further improved by stopping the reporting when the vq is full and continuing the reporting when host notifies that there are available entries for the driver to add.
 
-I have come across occasional problems with the master device in DSA.
-But nothing too serious. Generally the switch will just toss frames it
-gets which don't have the needed header, when they come direct from
-the master device, rather than via the slave devices.
 
-    Andrew
+> 
+> 
+> >
+> > >
+> > > > +	 * We are adding one entry each time, which essentially results in no
+> > > > +	 * memory allocation, so the GFP_KERNEL flag below can be ignored.
+> > > > +	 * Host works by polling the free page vq for hints after sending the
+> > > > +	 * starting cmd id, so the driver doesn't need to kick after filling
+> > > > +	 * the vq.
+> > > > +	 * Lastly, there is always one entry reserved for the cmd id to use.
+> > > > +	 */
+> > > > +	if (vq->num_free > 1)
+> > > > +		return virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
+> > > > +
+> > > > +	return 0;
+> > > > +}
+> > > > +
+> > > > +static int virtio_balloon_send_free_pages(void *opaque, unsigned long
+> pfn,
+> > > > +					   unsigned long nr_pages)
+> > > > +{
+> > > > +	struct virtio_balloon *vb = (struct virtio_balloon *)opaque;
+> > > > +	uint32_t len = nr_pages << PAGE_SHIFT;
+> > > > +
+> > > > +	/*
+> > > > +	 * If a stop id or a new cmd id was just received from host, stop
+> > > > +	 * the reporting, and return 1 to indicate an active stop.
+> > > > +	 */
+> > > > +	if (virtio32_to_cpu(vb->vdev, vb->cmd_id_use) != vb-
+> >cmd_id_received)
+> > > > +		return 1;
+> 
+> functions returning int should return 0 or -errno on failure, positive return
+> code should indicate progress.
+> 
+> If you want a boolean, use bool pls.
+
+OK. I plan to change 1  to -EBUSY to indicate the case that host actively asks the driver to stop reporting (This makes the callback return value type consistent with walk_free_mem_block). 
+
+
+
+> 
+> 
+> > > > +
+> > > this access to cmd_id_use and cmd_id_received without locks bothers
+> > > me. Pls document why it's safe.
+> >
+> > OK. Probably we could add below to the above comments:
+> >
+> > cmd_id_use and cmd_id_received don't need to be accessed under locks
+> > because the reporting does not have to stop immediately before
+> > cmd_id_received is changed (i.e. when host requests to stop). That is,
+> > reporting more hints after host requests to stop isn't an issue for
+> > this optimization feature, because host will simply drop the stale
+> > hints next time when it needs a new reporting.
+> 
+> What about the other direction? Can this observe a stale value and exit
+> erroneously?
+
+I'm afraid the driver couldn't be aware if the added hints are stale or not, because host and guest actions happen asynchronously. That is, host side iothread stops taking hints as soon as the migration thread asks to stop, it doesn't wait for any ACK from the driver to stop (as we discussed before, host couldn't always assume that the driver is in a responsive state).
+
+Btw, we also don't need to worry about any memory left in the vq, since only addresses are added to the vq, there is no real memory allocations.
+
+Best,
+Wei
