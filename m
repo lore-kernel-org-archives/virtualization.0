@@ -1,15 +1,12 @@
 From: Weiping Zhang <zhangweiping@didichuxing.com>
-Subject: [RFC PATCH 2/2] virtio_blk: add new module parameter to set max
-	request size
-Date: Thu, 5 Apr 2018 18:10:33 +0800
-Message-ID: <7bdaaeb8fb56acb4ace1987b6819868c73350cbe.1522922101.git.zhangweiping@didichuxing.com>
-References: <cover.1522922101.git.zhangweiping@didichuxing.com>
+Subject: [RFC PATCH 0/2] use larger max_request_size for virtio_blk
+Date: Thu, 5 Apr 2018 18:09:58 +0800
+Message-ID: <cover.1522922101.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1522922101.git.zhangweiping@didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,65 +20,22 @@ To: axboe@kernel.dk, cohuck@redhat.com, mst@redhat.com, jasowang@redhat.com
 Cc: linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Actually there is no upper limitation, so add new module parameter
-to provide a way to set a proper max request size for virtio block.
-Using a larger request size can improve sequence performance in theory,
-and reduce the interaction between guest and hypervisor.
+Hi,
 
-Signed-off-by: Weiping Zhang <zhangweiping@didichuxing.com>
----
+For virtio block device, actually there is no a hard limit for max request
+size, and virtio_blk driver set -1 to blk_queue_max_hw_sectors(q, -1U);.
+But it doesn't work, because there is a default upper limitation
+BLK_DEF_MAX_SECTORS (1280 sectors). So this series want to add a new helper
+blk_queue_max_hw_sectors_no_limit to set a proper max reqeust size.
+
+Weiping Zhang (2):
+  blk-setting: add new helper blk_queue_max_hw_sectors_no_limit
+  virtio_blk: add new module parameter to set max request size
+
+ block/blk-settings.c       | 20 ++++++++++++++++++++
  drivers/block/virtio_blk.c | 32 ++++++++++++++++++++++++++++++--
- 1 file changed, 30 insertions(+), 2 deletions(-)
+ include/linux/blkdev.h     |  2 ++
+ 3 files changed, 52 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 4a07593c..5ac6d59 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -64,6 +64,34 @@ struct virtblk_req {
- 	struct scatterlist sg[];
- };
- 
-+
-+static int max_request_size_set(const char *val, const struct kernel_param *kp);
-+
-+static const struct kernel_param_ops max_request_size_ops = {
-+	.set = max_request_size_set,
-+	.get = param_get_uint,
-+};
-+
-+static unsigned long max_request_size = 4096; /* in unit of KiB */
-+module_param_cb(max_request_size, &max_request_size_ops, &max_request_size,
-+		0444);
-+MODULE_PARM_DESC(max_request_size, "set max request size, in unit of KiB");
-+
-+static int max_request_size_set(const char *val, const struct kernel_param *kp)
-+{
-+	int ret;
-+	unsigned int size_kb, page_kb = 1 << (PAGE_SHIFT - 10);
-+
-+	ret = kstrtouint(val, 10, &size_kb);
-+	if (ret != 0)
-+		return -EINVAL;
-+
-+	if (size_kb < page_kb)
-+		return -EINVAL;
-+
-+	return param_set_uint(val, kp);
-+}
-+
- static inline blk_status_t virtblk_result(struct virtblk_req *vbr)
- {
- 	switch (vbr->status) {
-@@ -730,8 +758,8 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	/* We can handle whatever the host told us to handle. */
- 	blk_queue_max_segments(q, vblk->sg_elems-2);
- 
--	/* No real sector limit. */
--	blk_queue_max_hw_sectors(q, -1U);
-+	/* No real sector limit, use 512b (max_request_size << 10) >> 9 */
-+	blk_queue_max_hw_sectors_no_limit(q, max_request_size << 1);
- 
- 	/* Host can optionally specify maximum segment size and number of
- 	 * segments. */
 -- 
 2.9.4
