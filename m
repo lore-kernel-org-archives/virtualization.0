@@ -1,19 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v30 2/4] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
-Date: Thu, 5 Apr 2018 04:12:20 +0300
-Message-ID: <20180405040900-mutt-send-email-mst__10370.6474103548$1522890649$gmane$org@kernel.org>
-References: <1522771805-78927-1-git-send-email-wei.w.wang@intel.com>
-	<1522771805-78927-3-git-send-email-wei.w.wang@intel.com>
-	<20180403214147-mutt-send-email-mst@kernel.org>
-	<5AC43377.2070607@intel.com>
-	<20180404155907-mutt-send-email-mst@kernel.org>
-	<286AC319A985734F985F78AFA26841F7394A6E96@shsmsx102.ccr.corp.intel.com>
+Subject: [PULL] fwcfg, vhost: features and fixes
+Date: Thu, 5 Apr 2018 04:52:03 +0300
+Message-ID: <20180405045203-mutt-send-email-mst__23046.1387582638$1522893027$gmane$org@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <286AC319A985734F985F78AFA26841F7394A6E96@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,128 +16,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Wang, Wei W" <wei.w.wang@intel.com>
-Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "nilal@redhat.com" <nilal@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "huangzhichao@huawei.com" <huangzhichao@huawei.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, bhe@redhat.com, mst@redhat.com, netdev@vger.kernel.org, somlo@cmu.edu, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, sonnyrao@chromium.org, marcandre.lureau@redhat.com, dyoung@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 05, 2018 at 12:30:27AM +0000, Wang, Wei W wrote:
-> On Wednesday, April 4, 2018 10:08 PM, Michael S. Tsirkin wrote:
-> > On Wed, Apr 04, 2018 at 10:07:51AM +0800, Wei Wang wrote:
-> > > On 04/04/2018 02:47 AM, Michael S. Tsirkin wrote:
-> > > > On Wed, Apr 04, 2018 at 12:10:03AM +0800, Wei Wang wrote:
-> > > > > +static int add_one_sg(struct virtqueue *vq, unsigned long pfn,
-> > > > > +uint32_t len) {
-> > > > > +	struct scatterlist sg;
-> > > > > +	unsigned int unused;
-> > > > > +
-> > > > > +	sg_init_table(&sg, 1);
-> > > > > +	sg_set_page(&sg, pfn_to_page(pfn), len, 0);
-> > > > > +
-> > > > > +	/* Detach all the used buffers from the vq */
-> > > > > +	while (virtqueue_get_buf(vq, &unused))
-> > > > > +		;
-> > > > > +
-> > > > > +	/*
-> > > > > +	 * Since this is an optimization feature, losing a couple of free
-> > > > > +	 * pages to report isn't important. We simply return without adding
-> > > > > +	 * the page hint if the vq is full.
-> > > > why not stop scanning of following pages though?
-> > >
-> > > Because continuing to send hints is a way to deliver the maximum
-> > > possible hints to host. For example, host may have a delay in taking
-> > > hints at some point, and then it resumes to take hints soon. If the
-> > > driver does not stop when the vq is full, it will be able to put more
-> > > hints to the vq once the vq has available entries to add.
-> > 
-> > What this appears to be is just lack of coordination between host and guest.
-> > 
-> > But meanwhile you are spending cycles walking the list uselessly.
-> > Instead of trying nilly-willy, the standard thing to do is to wait for host to
-> > consume an entry and proceed.
-> > 
-> > Coding it up might be tricky, so it's probably acceptable as is for now, but
-> > please replace the justification about with a TODO entry that we should
-> > synchronize with the host.
-> 
-> Thanks. I plan to add
-> 
-> TODO: The current implementation could be further improved by stopping the reporting when the vq is full and continuing the reporting when host notifies that there are available entries for the driver to add.
-
-... that entries have been used.
-
-> 
-> > 
-> > 
-> > >
-> > > >
-> > > > > +	 * We are adding one entry each time, which essentially results in no
-> > > > > +	 * memory allocation, so the GFP_KERNEL flag below can be ignored.
-> > > > > +	 * Host works by polling the free page vq for hints after sending the
-> > > > > +	 * starting cmd id, so the driver doesn't need to kick after filling
-> > > > > +	 * the vq.
-> > > > > +	 * Lastly, there is always one entry reserved for the cmd id to use.
-> > > > > +	 */
-> > > > > +	if (vq->num_free > 1)
-> > > > > +		return virtqueue_add_inbuf(vq, &sg, 1, vq, GFP_KERNEL);
-> > > > > +
-> > > > > +	return 0;
-> > > > > +}
-> > > > > +
-> > > > > +static int virtio_balloon_send_free_pages(void *opaque, unsigned long
-> > pfn,
-> > > > > +					   unsigned long nr_pages)
-> > > > > +{
-> > > > > +	struct virtio_balloon *vb = (struct virtio_balloon *)opaque;
-> > > > > +	uint32_t len = nr_pages << PAGE_SHIFT;
-> > > > > +
-> > > > > +	/*
-> > > > > +	 * If a stop id or a new cmd id was just received from host, stop
-> > > > > +	 * the reporting, and return 1 to indicate an active stop.
-> > > > > +	 */
-> > > > > +	if (virtio32_to_cpu(vb->vdev, vb->cmd_id_use) != vb-
-> > >cmd_id_received)
-> > > > > +		return 1;
-> > 
-> > functions returning int should return 0 or -errno on failure, positive return
-> > code should indicate progress.
-> > 
-> > If you want a boolean, use bool pls.
-> 
-> OK. I plan to change 1  to -EBUSY to indicate the case that host actively asks the driver to stop reporting (This makes the callback return value type consistent with walk_free_mem_block). 
-> 
-
-something like EINTR might be a better fit.
-
-> 
-> > 
-> > 
-> > > > > +
-> > > > this access to cmd_id_use and cmd_id_received without locks bothers
-> > > > me. Pls document why it's safe.
-> > >
-> > > OK. Probably we could add below to the above comments:
-> > >
-> > > cmd_id_use and cmd_id_received don't need to be accessed under locks
-> > > because the reporting does not have to stop immediately before
-> > > cmd_id_received is changed (i.e. when host requests to stop). That is,
-> > > reporting more hints after host requests to stop isn't an issue for
-> > > this optimization feature, because host will simply drop the stale
-> > > hints next time when it needs a new reporting.
-> > 
-> > What about the other direction? Can this observe a stale value and exit
-> > erroneously?
-> 
-> I'm afraid the driver couldn't be aware if the added hints are stale or not,
-
-
-No - I mean that driver has code that compares two values
-and stops reporting. Can one of the values be stale?
-
-> because host and guest actions happen asynchronously. That is, host side iothread stops taking hints as soon as the migration thread asks to stop, it doesn't wait for any ACK from the driver to stop (as we discussed before, host couldn't always assume that the driver is in a responsive state).
-> 
-> Btw, we also don't need to worry about any memory left in the vq, since only addresses are added to the vq, there is no real memory allocations.
-> 
-> Best,
-> Wei
-
-When we support DMA API we will have to unmap things there.
+VGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCAwYzhlZmQ2MTBiNThjYjIzY2VmZGZh
+MTIwMTU3OTkwNzlhZWY5NGFlOgoKICBMaW51eCA0LjE2LXJjNSAoMjAxOC0wMy0xMSAxNzoyNTow
+OSAtMDcwMCkKCmFyZSBhdmFpbGFibGUgaW4gdGhlIEdpdCByZXBvc2l0b3J5IGF0OgoKICBnaXQ6
+Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbXN0L3Zob3N0LmdpdCB0
+YWdzL2Zvcl9saW51cwoKZm9yIHlvdSB0byBmZXRjaCBjaGFuZ2VzIHVwIHRvIGRjMzJiYjY3OGUx
+MDNhZmJjZmE0ZDgxNDQ4OWFmMDU2NjMwN2Y1Mjg6CgogIHZob3N0OiBhZGQgdnNvY2sgY29tcGF0
+IGlvY3RsICgyMDE4LTAzLTIwIDAzOjE3OjQyICswMjAwKQoKLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpmd19jZmcsIHZob3N0
+OiBmZWF0dXJlcyBmaXhlcwoKVGhpcyBjbGVhbnMgdXAgdGhlIHFlbXUgZncgY2ZnIGRldmljZSBk
+cml2ZXIuCk9uIHRvcCBvZiB0aGlzLCB2bWNvcmUgaXMgZHVtcGVkIHRoZXJlIG9uIGNyYXNoIHRv
+CmhlbHAgZGVidWdnaW5nIHdpdEgga0FTTFIgZW5hYmxlZC4KQWxzbyBpbmNsdWRlZCBhcmUgc29t
+ZSBmaXhlcyBpbiB2aG9zdC4KClNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0
+QHJlZGhhdC5jb20+CgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tCk1hcmMtQW5kcsOpIEx1cmVhdSAoMTApOgogICAgICBmd19j
+Zmc6IGZpeCBzcGFyc2Ugd2FybmluZ3MgaW4gZndfY2ZnX3NlbF9lbmRpYW5uZXNzKCkKICAgICAg
+ZndfY2ZnOiBmaXggc3BhcnNlIHdhcm5pbmdzIHdpdGggZndfY2ZnX2ZpbGUKICAgICAgZndfY2Zn
+OiBmaXggc3BhcnNlIHdhcm5pbmcgcmVhZGluZyBGV19DRkdfSUQKICAgICAgZndfY2ZnOiBmaXgg
+c3BhcnNlIHdhcm5pbmdzIGFyb3VuZCBGV19DRkdfRklMRV9ESVIgcmVhZAogICAgICBmd19jZmc6
+IHJlbW92ZSBpbmxpbmUgZnJvbSBmd19jZmdfcmVhZF9ibG9iKCkKICAgICAgZndfY2ZnOiBoYW5k
+bGUgZndfY2ZnX3JlYWRfYmxvYigpIGVycm9yCiAgICAgIGZ3X2NmZzogYWRkIGEgcHVibGljIHVh
+cGkgaGVhZGVyCiAgICAgIGZ3X2NmZzogYWRkIERNQSByZWdpc3RlcgogICAgICBjcmFzaDogZXhw
+b3J0IHBhZGRyX3ZtY29yZWluZm9fbm90ZSgpCiAgICAgIGZ3X2NmZzogd3JpdGUgdm1jb3JlaW5m
+byBkZXRhaWxzCgpNaWNoYWVsIFMuIFRzaXJraW4gKDEpOgogICAgICBwdHJfcmluZzogZml4IGJ1
+aWxkCgpTb25ueSBSYW8gKDIpOgogICAgICB2aG9zdDogZml4IHZob3N0IGlvY3RsIHNpZ25hdHVy
+ZSB0byBidWlsZCB3aXRoIGNsYW5nCiAgICAgIHZob3N0OiBhZGQgdnNvY2sgY29tcGF0IGlvY3Rs
+CgogTUFJTlRBSU5FUlMgICAgICAgICAgICAgICAgICAgICAgfCAgIDEgKwogZHJpdmVycy9maXJt
+d2FyZS9xZW11X2Z3X2NmZy5jICAgfCAyOTEgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+Ky0tLS0tLS0tCiBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgICAgICAgICAgICB8ICAgMiArLQogZHJp
+dmVycy92aG9zdC92aG9zdC5oICAgICAgICAgICAgfCAgIDQgKy0KIGRyaXZlcnMvdmhvc3QvdnNv
+Y2suYyAgICAgICAgICAgIHwgIDExICsrCiBpbmNsdWRlL3VhcGkvbGludXgvcWVtdV9md19jZmcu
+aCB8ICA5NyArKysrKysrKysrKysrCiBrZXJuZWwvY3Jhc2hfY29yZS5jICAgICAgICAgICAgICB8
+ICAgMSArCiB0b29scy92aXJ0aW8vcmluZ3Rlc3QvcHRyX3JpbmcuYyB8ICAgNSArCiA4IGZpbGVz
+IGNoYW5nZWQsIDM0OCBpbnNlcnRpb25zKCspLCA2NCBkZWxldGlvbnMoLSkKIGNyZWF0ZSBtb2Rl
+IDEwMDY0NCBpbmNsdWRlL3VhcGkvbGludXgvcWVtdV9md19jZmcuaApfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
+c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
+cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
