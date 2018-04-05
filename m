@@ -1,12 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] fwcfg, vhost: features and fixes
-Date: Thu, 5 Apr 2018 04:52:03 +0300
-Message-ID: <20180405045203-mutt-send-email-mst__23046.1387582638$1522893027$gmane$org@kernel.org>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v30 2/4] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Thu, 5 Apr 2018 02:05:03 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F7394A7F3B__28269.5995796987$1522893791$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1522771805-78927-1-git-send-email-wei.w.wang@intel.com>
+	<1522771805-78927-3-git-send-email-wei.w.wang@intel.com>
+	<20180403214147-mutt-send-email-mst@kernel.org>
+	<5AC43377.2070607@intel.com>
+	<20180404155907-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7394A6E96@shsmsx102.ccr.corp.intel.com>
+	<20180405040900-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20180405040900-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,44 +24,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, bhe@redhat.com, mst@redhat.com, netdev@vger.kernel.org, somlo@cmu.edu, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, sonnyrao@chromium.org, marcandre.lureau@redhat.com, dyoung@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "nilal@redhat.com" <nilal@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "huangzhichao@huawei.com" <huangzhichao@huawei.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCAwYzhlZmQ2MTBiNThjYjIzY2VmZGZh
-MTIwMTU3OTkwNzlhZWY5NGFlOgoKICBMaW51eCA0LjE2LXJjNSAoMjAxOC0wMy0xMSAxNzoyNTow
-OSAtMDcwMCkKCmFyZSBhdmFpbGFibGUgaW4gdGhlIEdpdCByZXBvc2l0b3J5IGF0OgoKICBnaXQ6
-Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbXN0L3Zob3N0LmdpdCB0
-YWdzL2Zvcl9saW51cwoKZm9yIHlvdSB0byBmZXRjaCBjaGFuZ2VzIHVwIHRvIGRjMzJiYjY3OGUx
-MDNhZmJjZmE0ZDgxNDQ4OWFmMDU2NjMwN2Y1Mjg6CgogIHZob3N0OiBhZGQgdnNvY2sgY29tcGF0
-IGlvY3RsICgyMDE4LTAzLTIwIDAzOjE3OjQyICswMjAwKQoKLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpmd19jZmcsIHZob3N0
-OiBmZWF0dXJlcyBmaXhlcwoKVGhpcyBjbGVhbnMgdXAgdGhlIHFlbXUgZncgY2ZnIGRldmljZSBk
-cml2ZXIuCk9uIHRvcCBvZiB0aGlzLCB2bWNvcmUgaXMgZHVtcGVkIHRoZXJlIG9uIGNyYXNoIHRv
-CmhlbHAgZGVidWdnaW5nIHdpdEgga0FTTFIgZW5hYmxlZC4KQWxzbyBpbmNsdWRlZCBhcmUgc29t
-ZSBmaXhlcyBpbiB2aG9zdC4KClNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0
-QHJlZGhhdC5jb20+CgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tCk1hcmMtQW5kcsOpIEx1cmVhdSAoMTApOgogICAgICBmd19j
-Zmc6IGZpeCBzcGFyc2Ugd2FybmluZ3MgaW4gZndfY2ZnX3NlbF9lbmRpYW5uZXNzKCkKICAgICAg
-ZndfY2ZnOiBmaXggc3BhcnNlIHdhcm5pbmdzIHdpdGggZndfY2ZnX2ZpbGUKICAgICAgZndfY2Zn
-OiBmaXggc3BhcnNlIHdhcm5pbmcgcmVhZGluZyBGV19DRkdfSUQKICAgICAgZndfY2ZnOiBmaXgg
-c3BhcnNlIHdhcm5pbmdzIGFyb3VuZCBGV19DRkdfRklMRV9ESVIgcmVhZAogICAgICBmd19jZmc6
-IHJlbW92ZSBpbmxpbmUgZnJvbSBmd19jZmdfcmVhZF9ibG9iKCkKICAgICAgZndfY2ZnOiBoYW5k
-bGUgZndfY2ZnX3JlYWRfYmxvYigpIGVycm9yCiAgICAgIGZ3X2NmZzogYWRkIGEgcHVibGljIHVh
-cGkgaGVhZGVyCiAgICAgIGZ3X2NmZzogYWRkIERNQSByZWdpc3RlcgogICAgICBjcmFzaDogZXhw
-b3J0IHBhZGRyX3ZtY29yZWluZm9fbm90ZSgpCiAgICAgIGZ3X2NmZzogd3JpdGUgdm1jb3JlaW5m
-byBkZXRhaWxzCgpNaWNoYWVsIFMuIFRzaXJraW4gKDEpOgogICAgICBwdHJfcmluZzogZml4IGJ1
-aWxkCgpTb25ueSBSYW8gKDIpOgogICAgICB2aG9zdDogZml4IHZob3N0IGlvY3RsIHNpZ25hdHVy
-ZSB0byBidWlsZCB3aXRoIGNsYW5nCiAgICAgIHZob3N0OiBhZGQgdnNvY2sgY29tcGF0IGlvY3Rs
-CgogTUFJTlRBSU5FUlMgICAgICAgICAgICAgICAgICAgICAgfCAgIDEgKwogZHJpdmVycy9maXJt
-d2FyZS9xZW11X2Z3X2NmZy5jICAgfCAyOTEgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-Ky0tLS0tLS0tCiBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgICAgICAgICAgICB8ICAgMiArLQogZHJp
-dmVycy92aG9zdC92aG9zdC5oICAgICAgICAgICAgfCAgIDQgKy0KIGRyaXZlcnMvdmhvc3QvdnNv
-Y2suYyAgICAgICAgICAgIHwgIDExICsrCiBpbmNsdWRlL3VhcGkvbGludXgvcWVtdV9md19jZmcu
-aCB8ICA5NyArKysrKysrKysrKysrCiBrZXJuZWwvY3Jhc2hfY29yZS5jICAgICAgICAgICAgICB8
-ICAgMSArCiB0b29scy92aXJ0aW8vcmluZ3Rlc3QvcHRyX3JpbmcuYyB8ICAgNSArCiA4IGZpbGVz
-IGNoYW5nZWQsIDM0OCBpbnNlcnRpb25zKCspLCA2NCBkZWxldGlvbnMoLSkKIGNyZWF0ZSBtb2Rl
-IDEwMDY0NCBpbmNsdWRlL3VhcGkvbGludXgvcWVtdV9md19jZmcuaApfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thursday, April 5, 2018 9:12 AM, Michael S. Tsirkin wrote:
+> On Thu, Apr 05, 2018 at 12:30:27AM +0000, Wang, Wei W wrote:
+> > On Wednesday, April 4, 2018 10:08 PM, Michael S. Tsirkin wrote:
+> > > On Wed, Apr 04, 2018 at 10:07:51AM +0800, Wei Wang wrote:
+> > > > On 04/04/2018 02:47 AM, Michael S. Tsirkin wrote:
+> > > > > On Wed, Apr 04, 2018 at 12:10:03AM +0800, Wei Wang wrote:
+> > I'm afraid the driver couldn't be aware if the added hints are stale
+> > or not,
+> 
+> 
+> No - I mean that driver has code that compares two values and stops
+> reporting. Can one of the values be stale?
+
+The driver compares "vb->cmd_id_use != vb->cmd_id_received" to decide if it needs to stop reporting hints, and cmd_id_received is what the driver reads from host (host notifies the driver to read for the latest value). If host sends a new cmd id, it will notify the guest to read again. I'm not sure how that could be a stale cmd id (or maybe I misunderstood your point here?)
+
+Best,
+Wei
