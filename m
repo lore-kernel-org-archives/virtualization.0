@@ -1,20 +1,15 @@
-From: "Wang, Wei W" <wei.w.wang@intel.com>
-Subject: RE: [PATCH v30 2/4] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
-Date: Thu, 5 Apr 2018 02:05:03 +0000
-Message-ID: <286AC319A985734F985F78AFA26841F7394A7F3B__28269.5995796987$1522893791$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1522771805-78927-1-git-send-email-wei.w.wang@intel.com>
-	<1522771805-78927-3-git-send-email-wei.w.wang@intel.com>
-	<20180403214147-mutt-send-email-mst@kernel.org>
-	<5AC43377.2070607@intel.com>
-	<20180404155907-mutt-send-email-mst@kernel.org>
-	<286AC319A985734F985F78AFA26841F7394A6E96@shsmsx102.ccr.corp.intel.com>
-	<20180405040900-mutt-send-email-mst@kernel.org>
+From: Weiping Zhang <zhangweiping@didichuxing.com>
+Subject: [RFC PATCH 2/2] virtio_blk: add new module parameter to set max
+	request size
+Date: Thu, 5 Apr 2018 18:10:33 +0800
+Message-ID: <7bdaaeb8fb56acb4ace1987b6819868c73350cbe.1522922101.git.zhangweiping@didichuxing.com>
+References: <cover.1522922101.git.zhangweiping@didichuxing.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180405040900-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <cover.1522922101.git.zhangweiping@didichuxing.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,24 +19,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "nilal@redhat.com" <nilal@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "huangzhichao@huawei.com" <huangzhichao@huawei.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: axboe@kernel.dk, cohuck@redhat.com, mst@redhat.com, jasowang@redhat.com
+Cc: linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday, April 5, 2018 9:12 AM, Michael S. Tsirkin wrote:
-> On Thu, Apr 05, 2018 at 12:30:27AM +0000, Wang, Wei W wrote:
-> > On Wednesday, April 4, 2018 10:08 PM, Michael S. Tsirkin wrote:
-> > > On Wed, Apr 04, 2018 at 10:07:51AM +0800, Wei Wang wrote:
-> > > > On 04/04/2018 02:47 AM, Michael S. Tsirkin wrote:
-> > > > > On Wed, Apr 04, 2018 at 12:10:03AM +0800, Wei Wang wrote:
-> > I'm afraid the driver couldn't be aware if the added hints are stale
-> > or not,
-> 
-> 
-> No - I mean that driver has code that compares two values and stops
-> reporting. Can one of the values be stale?
+Actually there is no upper limitation, so add new module parameter
+to provide a way to set a proper max request size for virtio block.
+Using a larger request size can improve sequence performance in theory,
+and reduce the interaction between guest and hypervisor.
 
-The driver compares "vb->cmd_id_use != vb->cmd_id_received" to decide if it needs to stop reporting hints, and cmd_id_received is what the driver reads from host (host notifies the driver to read for the latest value). If host sends a new cmd id, it will notify the guest to read again. I'm not sure how that could be a stale cmd id (or maybe I misunderstood your point here?)
+Signed-off-by: Weiping Zhang <zhangweiping@didichuxing.com>
+---
+ drivers/block/virtio_blk.c | 32 ++++++++++++++++++++++++++++++--
+ 1 file changed, 30 insertions(+), 2 deletions(-)
 
-Best,
-Wei
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 4a07593c..5ac6d59 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -64,6 +64,34 @@ struct virtblk_req {
+ 	struct scatterlist sg[];
+ };
+ 
++
++static int max_request_size_set(const char *val, const struct kernel_param *kp);
++
++static const struct kernel_param_ops max_request_size_ops = {
++	.set = max_request_size_set,
++	.get = param_get_uint,
++};
++
++static unsigned long max_request_size = 4096; /* in unit of KiB */
++module_param_cb(max_request_size, &max_request_size_ops, &max_request_size,
++		0444);
++MODULE_PARM_DESC(max_request_size, "set max request size, in unit of KiB");
++
++static int max_request_size_set(const char *val, const struct kernel_param *kp)
++{
++	int ret;
++	unsigned int size_kb, page_kb = 1 << (PAGE_SHIFT - 10);
++
++	ret = kstrtouint(val, 10, &size_kb);
++	if (ret != 0)
++		return -EINVAL;
++
++	if (size_kb < page_kb)
++		return -EINVAL;
++
++	return param_set_uint(val, kp);
++}
++
+ static inline blk_status_t virtblk_result(struct virtblk_req *vbr)
+ {
+ 	switch (vbr->status) {
+@@ -730,8 +758,8 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	/* We can handle whatever the host told us to handle. */
+ 	blk_queue_max_segments(q, vblk->sg_elems-2);
+ 
+-	/* No real sector limit. */
+-	blk_queue_max_hw_sectors(q, -1U);
++	/* No real sector limit, use 512b (max_request_size << 10) >> 9 */
++	blk_queue_max_hw_sectors_no_limit(q, max_request_size << 1);
+ 
+ 	/* Host can optionally specify maximum segment size and number of
+ 	 * segments. */
+-- 
+2.9.4
