@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] virtio: Use DMA MAP API for devices without an IOMMU
-Date: Thu, 5 Apr 2018 17:54:40 +0300
-Message-ID: <20180405175326-mutt-send-email-mst__36943.4969536544$1522939971$gmane$org@kernel.org>
-References: <20180405105631.9514-1-khandual@linux.vnet.ibm.com>
-	<3e1b113b-79ca-b700-5be9-10c66d74aabe@linux.vnet.ibm.com>
+From: Ville Syrjala <ville.syrjala@linux.intel.com>
+Subject: [PATCH 08/13] drm/virtio: Stop updating plane->crtc
+Date: Thu,  5 Apr 2018 18:13:55 +0300
+Message-ID: <20180405151400.11326-8-ville.syrjala@linux.intel.com>
+References: <20180405151400.11326-1-ville.syrjala@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <3e1b113b-79ca-b700-5be9-10c66d74aabe@linux.vnet.ibm.com>
+In-Reply-To: <20180405151400.11326-1-ville.syrjala@linux.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,33 +17,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Cc: robh@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, intel-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 05, 2018 at 08:09:30PM +0530, Anshuman Khandual wrote:
-> On 04/05/2018 04:26 PM, Anshuman Khandual wrote:
-> > There are certian platforms which would like to use SWIOTLB based DMA API
-> > for bouncing purpose without actually requiring an IOMMU back end. But the
-> > virtio core does not allow such mechanism. Right now DMA MAP API is only
-> > selected for devices which have an IOMMU and then the QEMU/host back end
-> > will process all incoming SG buffer addresses as IOVA instead of simple
-> > GPA which is the case for simple bounce buffers after being processed with
-> > SWIOTLB API. To enable this usage, it introduces an architecture specific
-> > function which will just make virtio core front end select DMA operations
-> > structure.
-> > 
-> > Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-> 
-> + "Michael S. Tsirkin" <mst@redhat.com>
-
-I'm confused by this.
-
-static bool vring_use_dma_api(struct virtio_device *vdev)
-{
-        if (!virtio_has_iommu_quirk(vdev))
-                return true;
-
-
-Why doesn't setting VIRTIO_F_IOMMU_PLATFORM on the
-hypervisor side sufficient?
+RnJvbTogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVsLmNvbT4KCldl
+IHdhbnQgdG8gZ2V0IHJpZCBvZiBwbGFuZS0+Y3J0YyBvbiBhdG9taWMgZHJpdmVycy4gU3RvcCBz
+ZXR0aW5nIGl0LgoKdjI6IHMvZmIvY3J0Yy8gaW4gdGhlIGNvbW1pdCBtZXNzYWdlIChHZXJkKQoK
+Q2M6IERhdmlkIEFpcmxpZSA8YWlybGllZEBsaW51eC5pZT4KQ2M6IEdlcmQgSG9mZm1hbm4gPGty
+YXhlbEByZWRoYXQuY29tPgpDYzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKU2lnbmVkLW9mZi1ieTogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4
+LmludGVsLmNvbT4KUmV2aWV3ZWQtYnk6IE1hYXJ0ZW4gTGFua2hvcnN0IDxtYWFydGVuLmxhbmto
+b3JzdEBsaW51eC5pbnRlbC5jb20+Ci0tLQogZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1
+X2Rpc3BsYXkuYyB8IDIgLS0KIDEgZmlsZSBjaGFuZ2VkLCAyIGRlbGV0aW9ucygtKQoKZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kaXNwbGF5LmMgYi9kcml2ZXJz
+L2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZGlzcGxheS5jCmluZGV4IDhjYzhjMzRkNjdmNS4uNDJl
+ODQyY2ViNTNjIDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZGlz
+cGxheS5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kaXNwbGF5LmMKQEAg
+LTMwMiw4ICszMDIsNiBAQCBzdGF0aWMgaW50IHZnZGV2X291dHB1dF9pbml0KHN0cnVjdCB2aXJ0
+aW9fZ3B1X2RldmljZSAqdmdkZXYsIGludCBpbmRleCkKIAlkcm1fY3J0Y19pbml0X3dpdGhfcGxh
+bmVzKGRldiwgY3J0YywgcHJpbWFyeSwgY3Vyc29yLAogCQkJCSAgJnZpcnRpb19ncHVfY3J0Y19m
+dW5jcywgTlVMTCk7CiAJZHJtX2NydGNfaGVscGVyX2FkZChjcnRjLCAmdmlydGlvX2dwdV9jcnRj
+X2hlbHBlcl9mdW5jcyk7Ci0JcHJpbWFyeS0+Y3J0YyA9IGNydGM7Ci0JY3Vyc29yLT5jcnRjID0g
+Y3J0YzsKIAogCWRybV9jb25uZWN0b3JfaW5pdChkZXYsIGNvbm5lY3RvciwgJnZpcnRpb19ncHVf
+Y29ubmVjdG9yX2Z1bmNzLAogCQkJICAgRFJNX01PREVfQ09OTkVDVE9SX1ZJUlRVQUwpOwotLSAK
+Mi4xNi4xCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
+dGluZm8vdmlydHVhbGl6YXRpb24=
