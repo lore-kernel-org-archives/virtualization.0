@@ -1,16 +1,15 @@
 From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [RFC PATCH net-next v5 3/4] virtio_net: Extend virtio to use VF
-	datapath when available
-Date: Fri, 6 Apr 2018 15:59:14 -0700
-Message-ID: <bb4f0821-246f-1052-de8b-d96be3388ed3__17770.4936163083$1523055442$gmane$org@intel.com>
+Subject: Re: [RFC PATCH net-next v5 2/4] net: Introduce generic bypass module
+Date: Fri, 6 Apr 2018 16:08:51 -0700
+Message-ID: <721dffe7-6714-5537-8d85-8393ddab2106__1546.17772573165$1523056035$gmane$org@intel.com>
 References: <1522962503-3963-1-git-send-email-sridhar.samudrala@intel.com>
-	<1522962503-3963-4-git-send-email-sridhar.samudrala@intel.com>
-	<20180406124814.GA24525@nanopsycho>
+	<1522962503-3963-3-git-send-email-sridhar.samudrala@intel.com>
+	<20180406125758.GC19345@nanopsycho>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180406124814.GA24525@nanopsycho>
+In-Reply-To: <20180406125758.GC19345@nanopsycho>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,522 +24,652 @@ To: Jiri Pirko <jiri@resnulli.us>
 Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/6/2018 5:48 AM, Jiri Pirko wrote:
-> Thu, Apr 05, 2018 at 11:08:22PM CEST, sridhar.samudrala@intel.com wrote:
+On 4/6/2018 5:57 AM, Jiri Pirko wrote:
+> Thu, Apr 05, 2018 at 11:08:21PM CEST, sridhar.samudrala@intel.com wrote:
+>> This provides a generic interface for paravirtual drivers to listen
+>> for netdev register/unregister/link change events from pci ethernet
+>> devices with the same MAC and takeover their datapath. The notifier and
+>> event handling code is based on the existing netvsc implementation. A
+>> paravirtual driver can use this module by registering a set of ops and
+>> each instance of the device when it is probed.
+>>
+>> Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+>> ---
+>> include/net/bypass.h |  80 ++++++++++
+>> net/Kconfig          |  18 +++
+>> net/core/Makefile    |   1 +
+>> net/core/bypass.c    | 406 +++++++++++++++++++++++++++++++++++++++++++++++++++
+>> 4 files changed, 505 insertions(+)
+>> create mode 100644 include/net/bypass.h
+>> create mode 100644 net/core/bypass.c
+>>
+>> diff --git a/include/net/bypass.h b/include/net/bypass.h
+>> new file mode 100644
+>> index 000000000000..e2dd122f951a
+>> --- /dev/null
+>> +++ b/include/net/bypass.h
+>> @@ -0,0 +1,80 @@
+>> +// SPDX-License-Identifier: GPL-2.0
+>> +/* Copyright (c) 2018, Intel Corporation. */
+>> +
+>> +#ifndef _NET_BYPASS_H
+>> +#define _NET_BYPASS_H
+>> +
+>> +#include <linux/netdevice.h>
+>> +
+>> +struct bypass_ops {
+> Perhaps "net_bypass_" would be better prefix for this module structs
+> and functions. No strong opinion though.
+>
+>
+>> +	int (*register_child)(struct net_device *bypass_netdev,
+>> +			      struct net_device *child_netdev);
+> We have master/slave upper/lower netdevices. This adds "child". Consider
+> using some existing names. Not sure if possible without loss of meaning.
 
-<snip>
-> 	
->> +
->> +static void virtnet_bypass_set_rx_mode(struct net_device *dev)
->> +{
->> +	struct virtnet_bypass_info *vbi = netdev_priv(dev);
->> +	struct net_device *child_netdev;
->> +
->> +	rcu_read_lock();
->> +
->> +	child_netdev = rcu_dereference(vbi->active_netdev);
->> +	if (child_netdev) {
->> +		dev_uc_sync_multiple(child_netdev, dev);
->> +		dev_mc_sync_multiple(child_netdev, dev);
->> +	}
->> +
->> +	child_netdev = rcu_dereference(vbi->backup_netdev);
->> +	if (child_netdev) {
->> +		dev_uc_sync_multiple(child_netdev, dev);
->> +		dev_mc_sync_multiple(child_netdev, dev);
->> +	}
->> +
->> +	rcu_read_unlock();
->> +}
-> This should be moved to bypass module.
-
-Sure. All these bypass ndo_ops can be moved to bypass module and any
-paravirtual driver that want to go with 3 netdev model can reuse these functions.
-
+OK. will change this to register_slave()
 
 >
 >
->> +
->> +static const struct net_device_ops virtnet_bypass_netdev_ops = {
->> +	.ndo_open		= virtnet_bypass_open,
->> +	.ndo_stop		= virtnet_bypass_close,
->> +	.ndo_start_xmit		= virtnet_bypass_start_xmit,
->> +	.ndo_select_queue	= virtnet_bypass_select_queue,
->> +	.ndo_get_stats64	= virtnet_bypass_get_stats,
->> +	.ndo_change_mtu		= virtnet_bypass_change_mtu,
->> +	.ndo_set_rx_mode	= virtnet_bypass_set_rx_mode,
->> +	.ndo_validate_addr	= eth_validate_addr,
->> +	.ndo_features_check	= passthru_features_check,
+>> +	int (*join_child)(struct net_device *bypass_netdev,
+>> +			  struct net_device *child_netdev);
+>> +	int (*unregister_child)(struct net_device *bypass_netdev,
+>> +				struct net_device *child_netdev);
+>> +	int (*release_child)(struct net_device *bypass_netdev,
+>> +			     struct net_device *child_netdev);
+>> +	int (*update_link)(struct net_device *bypass_netdev,
+>> +			   struct net_device *child_netdev);
+>> +	rx_handler_result_t (*handle_frame)(struct sk_buff **pskb);
 >> +};
 >> +
->> +static int
->> +virtnet_bypass_ethtool_get_link_ksettings(struct net_device *dev,
->> +					  struct ethtool_link_ksettings *cmd)
->> +{
->> +	struct virtnet_bypass_info *vbi = netdev_priv(dev);
->> +	struct net_device *child_netdev;
->> +
->> +	child_netdev = rtnl_dereference(vbi->active_netdev);
->> +	if (!child_netdev || !virtnet_bypass_xmit_ready(child_netdev)) {
->> +		child_netdev = rtnl_dereference(vbi->backup_netdev);
->> +		if (!child_netdev || !virtnet_bypass_xmit_ready(child_netdev)) {
->> +			cmd->base.duplex = DUPLEX_UNKNOWN;
->> +			cmd->base.port = PORT_OTHER;
->> +			cmd->base.speed = SPEED_UNKNOWN;
->> +
->> +			return 0;
->> +		}
->> +	}
->> +
->> +	return __ethtool_get_link_ksettings(child_netdev, cmd);
->> +}
->> +
->> +#define BYPASS_DRV_NAME "virtnet_bypass"
->> +#define BYPASS_DRV_VERSION "0.1"
->> +
->> +static void virtnet_bypass_ethtool_get_drvinfo(struct net_device *dev,
->> +					       struct ethtool_drvinfo *drvinfo)
->> +{
->> +	strlcpy(drvinfo->driver, BYPASS_DRV_NAME, sizeof(drvinfo->driver));
->> +	strlcpy(drvinfo->version, BYPASS_DRV_VERSION, sizeof(drvinfo->version));
->> +}
->> +
->> +static const struct ethtool_ops virtnet_bypass_ethtool_ops = {
->> +	.get_drvinfo            = virtnet_bypass_ethtool_get_drvinfo,
->> +	.get_link               = ethtool_op_get_link,
->> +	.get_link_ksettings     = virtnet_bypass_ethtool_get_link_ksettings,
+>> +struct bypass_instance {
+>> +	struct list_head list;
+>> +	struct net_device __rcu *bypass_netdev;
+>> +	struct bypass *bypass;
 >> +};
 >> +
->> +static int virtnet_bypass_join_child(struct net_device *bypass_netdev,
->> +				     struct net_device *child_netdev)
+>> +struct bypass {
+>> +	struct list_head list;
+>> +	const struct bypass_ops *ops;
+>> +	const struct net_device_ops *netdev_ops;
+>> +	struct list_head instance_list;
+>> +	struct mutex lock;
+>> +};
+>> +
+>> +#if IS_ENABLED(CONFIG_NET_BYPASS)
+>> +
+>> +struct bypass *bypass_register_driver(const struct bypass_ops *ops,
+>> +				      const struct net_device_ops *netdev_ops);
+>> +void bypass_unregister_driver(struct bypass *bypass);
+>> +
+>> +int bypass_register_instance(struct bypass *bypass, struct net_device *dev);
+>> +int bypass_unregister_instance(struct bypass *bypass, struct net_device	*dev);
+>> +
+>> +int bypass_unregister_child(struct net_device *child_netdev);
+>> +
+>> +#else
+>> +
+>> +static inline
+>> +struct bypass *bypass_register_driver(const struct bypass_ops *ops,
+>> +				      const struct net_device_ops *netdev_ops)
 >> +{
->> +	struct virtnet_bypass_info *vbi;
->> +	bool backup;
+>> +	return NULL;
+>> +}
 >> +
->> +	vbi = netdev_priv(bypass_netdev);
->> +	backup = (child_netdev->dev.parent == bypass_netdev->dev.parent);
->> +	if (backup ? rtnl_dereference(vbi->backup_netdev) :
->> +			rtnl_dereference(vbi->active_netdev)) {
->> +		netdev_info(bypass_netdev,
->> +			    "%s attempting to join bypass dev when %s already present\n",
->> +			    child_netdev->name, backup ? "backup" : "active");
-> Bypass module should check if there is already some other netdev
-> enslaved and refuse right there.
-
-This will work for virtio-net with 3 netdev model, but this check has to be done by netvsc
-as its bypass_netdev is same as the backup_netdev.
-Will add a flag while registering with the bypass module to indicate if the driver is doing
-a 2 netdev or 3 netdev model and based on that flag this check can be done in bypass module
-for 3 netdev scenario.
-
-
-
->
-> The active/backup terminology is quite confusing. From the bonding world
-> that means active is the one which is currently used for tx of the
-> packets. And it depends on link and other things what netdev is declared
-> active. However here, it is different. Backup is always the virtio_net
-> instance even when it is active. Odd. Please change the terminology.
-> For "active" I suggest to use name "stolen".
-
-I am not too happy with 'stolen' name. Will see if i can come up with a
-better name.
-
-
->
-> *** Also, the 2 slave netdev pointers should be stored in the bypass
-> module instance, not in the drivers.
-
-Will move virtnet_bypass_info struct to bypass.h
-
->
->
->
->> +		return -EEXIST;
->> +	}
+>> +static inline void bypass_unregister_driver(struct bypass *bypass)
+>> +{
+>> +}
 >> +
->> +	dev_hold(child_netdev);
->> +
->> +	if (backup) {
->> +		rcu_assign_pointer(vbi->backup_netdev, child_netdev);
->> +		dev_get_stats(vbi->backup_netdev, &vbi->backup_stats);
->> +	} else {
->> +		rcu_assign_pointer(vbi->active_netdev, child_netdev);
->> +		dev_get_stats(vbi->active_netdev, &vbi->active_stats);
->> +		bypass_netdev->min_mtu = child_netdev->min_mtu;
->> +		bypass_netdev->max_mtu = child_netdev->max_mtu;
->> +	}
->> +
->> +	netdev_info(bypass_netdev, "child:%s joined\n", child_netdev->name);
->> +
+>> +static inline int bypass_register_instance(struct bypass *bypass,
+>> +					   struct net_device *dev)
+>> +{
 >> +	return 0;
 >> +}
 >> +
->> +static int virtnet_bypass_register_child(struct net_device *bypass_netdev,
->> +					 struct net_device *child_netdev)
+>> +static inline int bypass_unregister_instance(struct bypass *bypass,
+>> +					     struct net_device *dev)
 >> +{
->> +	struct virtnet_bypass_info *vbi;
->> +	bool backup;
->> +
->> +	vbi = netdev_priv(bypass_netdev);
->> +	backup = (child_netdev->dev.parent == bypass_netdev->dev.parent);
->> +	if (backup ? rtnl_dereference(vbi->backup_netdev) :
->> +			rtnl_dereference(vbi->active_netdev)) {
->> +		netdev_info(bypass_netdev,
->> +			    "%s attempting to register bypass dev when %s already present\n",
->> +			    child_netdev->name, backup ? "backup" : "active");
->> +		return -EEXIST;
->> +	}
->> +
->> +	/* Avoid non pci devices as active netdev */
->> +	if (!backup && (!child_netdev->dev.parent ||
->> +			!dev_is_pci(child_netdev->dev.parent)))
->> +		return -EINVAL;
->> +
->> +	netdev_info(bypass_netdev, "child:%s registered\n", child_netdev->name);
->> +
 >> +	return 0;
 >> +}
 >> +
->> +static int virtnet_bypass_release_child(struct net_device *bypass_netdev,
->> +					struct net_device *child_netdev)
+>> +static inline int bypass_unregister_child(struct net_device *child_netdev)
 >> +{
->> +	struct net_device *backup_netdev, *active_netdev;
->> +	struct virtnet_bypass_info *vbi;
->> +
->> +	vbi = netdev_priv(bypass_netdev);
->> +	active_netdev = rtnl_dereference(vbi->active_netdev);
->> +	backup_netdev = rtnl_dereference(vbi->backup_netdev);
->> +
->> +	if (child_netdev != active_netdev && child_netdev != backup_netdev)
->> +		return -EINVAL;
->> +
->> +	netdev_info(bypass_netdev, "child:%s released\n", child_netdev->name);
->> +
 >> +	return 0;
 >> +}
 >> +
->> +static int virtnet_bypass_unregister_child(struct net_device *bypass_netdev,
->> +					   struct net_device *child_netdev)
->> +{
->> +	struct net_device *backup_netdev, *active_netdev;
->> +	struct virtnet_bypass_info *vbi;
+>> +#endif
 >> +
->> +	vbi = netdev_priv(bypass_netdev);
->> +	active_netdev = rtnl_dereference(vbi->active_netdev);
->> +	backup_netdev = rtnl_dereference(vbi->backup_netdev);
+>> +#endif /* _NET_BYPASS_H */
+>> diff --git a/net/Kconfig b/net/Kconfig
+>> index 0428f12c25c2..994445f4a96a 100644
+>> --- a/net/Kconfig
+>> +++ b/net/Kconfig
+>> @@ -423,6 +423,24 @@ config MAY_USE_DEVLINK
+>> 	  on MAY_USE_DEVLINK to ensure they do not cause link errors when
+>> 	  devlink is a loadable module and the driver using it is built-in.
+>>
+>> +config NET_BYPASS
+>> +	tristate "Bypass interface"
+>> +	---help---
+>> +	  This provides a generic interface for paravirtual drivers to listen
+>> +	  for netdev register/unregister/link change events from pci ethernet
+>> +	  devices with the same MAC and takeover their datapath. This also
+>> +	  enables live migration of a VM with direct attached VF by failing
+>> +	  over to the paravirtual datapath when the VF is unplugged.
 >> +
->> +	if (child_netdev != active_netdev && child_netdev != backup_netdev)
->> +		return -EINVAL;
+>> +config MAY_USE_BYPASS
+>> +	tristate
+>> +	default m if NET_BYPASS=m
+>> +	default y if NET_BYPASS=y || NET_BYPASS=n
+>> +	help
+>> +	  Drivers using the bypass infrastructure should have a dependency
+>> +	  on MAY_USE_BYPASS to ensure they do not cause link errors when
+>> +	  bypass is a loadable module and the driver using it is built-in.
 >> +
->> +	if (child_netdev == backup_netdev) {
->> +		RCU_INIT_POINTER(vbi->backup_netdev, NULL);
->> +	} else {
->> +		RCU_INIT_POINTER(vbi->active_netdev, NULL);
->> +		if (backup_netdev) {
->> +			bypass_netdev->min_mtu = backup_netdev->min_mtu;
->> +			bypass_netdev->max_mtu = backup_netdev->max_mtu;
->> +		}
->> +	}
+>> endif   # if NET
+>>
+>> # Used by archs to tell that they support BPF JIT compiler plus which flavour.
+>> diff --git a/net/core/Makefile b/net/core/Makefile
+>> index 6dbbba8c57ae..a9727ed1c8fc 100644
+>> --- a/net/core/Makefile
+>> +++ b/net/core/Makefile
+>> @@ -30,3 +30,4 @@ obj-$(CONFIG_DST_CACHE) += dst_cache.o
+>> obj-$(CONFIG_HWBM) += hwbm.o
+>> obj-$(CONFIG_NET_DEVLINK) += devlink.o
+>> obj-$(CONFIG_GRO_CELLS) += gro_cells.o
+>> +obj-$(CONFIG_NET_BYPASS) += bypass.o
+>> diff --git a/net/core/bypass.c b/net/core/bypass.c
+>> new file mode 100644
+>> index 000000000000..7bde962ec3d4
+>> --- /dev/null
+>> +++ b/net/core/bypass.c
+>> @@ -0,0 +1,406 @@
+>> +// SPDX-License-Identifier: GPL-2.0
+>> +/* Copyright (c) 2018, Intel Corporation. */
 >> +
->> +	dev_put(child_netdev);
->> +
->> +	netdev_info(bypass_netdev, "child:%s unregistered\n",
->> +		    child_netdev->name);
->> +
->> +	return 0;
->> +}
->> +
->> +static int virtnet_bypass_update_link(struct net_device *bypass_netdev,
->> +				      struct net_device *child_netdev)
->> +{
->> +	struct net_device *active_netdev, *backup_netdev;
->> +	struct virtnet_bypass_info *vbi;
->> +
->> +	if (!netif_running(bypass_netdev))
->> +		return 0;
->> +
->> +	vbi = netdev_priv(bypass_netdev);
->> +
->> +	active_netdev = rtnl_dereference(vbi->active_netdev);
->> +	backup_netdev = rtnl_dereference(vbi->backup_netdev);
->> +
->> +	if (child_netdev != active_netdev && child_netdev != backup_netdev)
->> +		return -EINVAL;
->> +
->> +	if ((active_netdev && virtnet_bypass_xmit_ready(active_netdev)) ||
->> +	    (backup_netdev && virtnet_bypass_xmit_ready(backup_netdev))) {
->> +		netif_carrier_on(bypass_netdev);
->> +		netif_tx_wake_all_queues(bypass_netdev);
->> +	} else {
->> +		netif_carrier_off(bypass_netdev);
->> +		netif_tx_stop_all_queues(bypass_netdev);
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +/* Called when child dev is injecting data into network stack.
->> + * Change the associated network device from lower dev to virtio.
->> + * note: already called with rcu_read_lock
+>> +/* A common module to handle registrations and notifications for paravirtual
+>> + * drivers to enable accelerated datapath and support VF live migration.
+>> + *
+>> + * The notifier and event handling code is based on netvsc driver.
 >> + */
->> +static rx_handler_result_t virtnet_bypass_handle_frame(struct sk_buff **pskb)
+>> +
+>> +#include <linux/netdevice.h>
+>> +#include <linux/etherdevice.h>
+>> +#include <linux/ethtool.h>
+>> +#include <linux/module.h>
+>> +#include <linux/slab.h>
+>> +#include <linux/netdevice.h>
+>> +#include <linux/netpoll.h>
+>> +#include <linux/rtnetlink.h>
+>> +#include <linux/if_vlan.h>
+>> +#include <net/sch_generic.h>
+>> +#include <uapi/linux/if_arp.h>
+>> +#include <net/bypass.h>
+>> +
+>> +static LIST_HEAD(bypass_list);
+>> +
+>> +static DEFINE_MUTEX(bypass_mutex);
+> Why mutex? Apparently you don't need to sleep while holding a lock.
+> Simple spinlock would do.
+>
+>
+>> +
+>> +struct bypass_instance *bypass_instance_alloc(struct net_device *dev)
 >> +{
->> +	struct sk_buff *skb = *pskb;
->> +	struct net_device *ndev = rcu_dereference(skb->dev->rx_handler_data);
+>> +	struct bypass_instance *bypass_instance;
 >> +
->> +	skb->dev = ndev;
+>> +	bypass_instance = kzalloc(sizeof(*bypass_instance), GFP_KERNEL);
+>> +	if (!bypass_instance)
+>> +		return NULL;
 >> +
->> +	return RX_HANDLER_ANOTHER;
+>> +	dev_hold(dev);
+>> +	rcu_assign_pointer(bypass_instance->bypass_netdev, dev);
+>> +
+>> +	return bypass_instance;
 >> +}
-> Hmm, you have the rx_handler defined in drivers and you register it in
-> bypass module. It is odd because here you assume that the bypass module
-> passed "ndev" and rx_handler_data. Also, you don't need advanced
-> features rx_handler provides.
-> Instead, just register a common rx_handler defined in the bypass module
-> and have simple skb_rx callback here (static void).
-
-Will move the rx_handler also to bypass.c
-
-
->
->
 >> +
->> +static const struct bypass_ops virtnet_bypass_ops = {
->> +	.register_child		= virtnet_bypass_register_child,
->> +	.join_child		= virtnet_bypass_join_child,
->> +	.unregister_child	= virtnet_bypass_unregister_child,
->> +	.release_child		= virtnet_bypass_release_child,
->> +	.update_link		= virtnet_bypass_update_link,
->> +	.handle_frame		= virtnet_bypass_handle_frame,
->> +};
->> +
->> +static struct bypass *virtnet_bypass;
->> +
->> +static int virtnet_bypass_create(struct virtnet_info *vi)
+>> +void bypass_instance_free(struct bypass_instance *bypass_instance)
 >> +{
->> +	struct net_device *backup_netdev = vi->dev;
->> +	struct device *dev = &vi->vdev->dev;
 >> +	struct net_device *bypass_netdev;
->> +	int res;
 >> +
->> +	/* Alloc at least 2 queues, for now we are going with 16 assuming
->> +	 * that most devices being bonded won't have too many queues.
->> +	 */
->> +	bypass_netdev = alloc_etherdev_mq(sizeof(struct virtnet_bypass_info),
->> +					  16);
->> +	if (!bypass_netdev) {
->> +		dev_err(dev, "Unable to allocate bypass_netdev!\n");
->> +		return -ENOMEM;
+>> +	bypass_netdev = rcu_dereference(bypass_instance->bypass_netdev);
+>> +
+>> +	dev_put(bypass_netdev);
+>> +	kfree(bypass_instance);
+>> +}
+>> +
+>> +static struct bypass_instance *bypass_get_instance_bymac(u8 *mac)
+>> +{
+>> +	struct bypass_instance *bypass_instance;
+>> +	struct net_device *bypass_netdev;
+>> +	struct bypass *bypass;
+>> +
+>> +	list_for_each_entry(bypass, &bypass_list, list) {
+>> +		mutex_lock(&bypass->lock);
+>> +		list_for_each_entry(bypass_instance, &bypass->instance_list,
+>> +				    list) {
+>> +			bypass_netdev =
+>> +				rcu_dereference(bypass_instance->bypass_netdev);
+>> +			if (ether_addr_equal(bypass_netdev->perm_addr, mac)) {
+>> +				mutex_unlock(&bypass->lock);
+>> +				goto out;
+>> +			}
+>> +		}
+>> +		mutex_unlock(&bypass->lock);
 >> +	}
 >> +
->> +	dev_net_set(bypass_netdev, dev_net(backup_netdev));
->> +	SET_NETDEV_DEV(bypass_netdev, dev);
+>> +	bypass_instance = NULL;
+>> +out:
+>> +	return bypass_instance;
+>> +}
 >> +
->> +	bypass_netdev->netdev_ops = &virtnet_bypass_netdev_ops;
->> +	bypass_netdev->ethtool_ops = &virtnet_bypass_ethtool_ops;
+>> +static int bypass_register_child(struct net_device *child_netdev)
+>> +{
+>> +	struct bypass_instance *bypass_instance;
+>> +	struct bypass *bypass;
+>> +	struct net_device *bypass_netdev;
+>> +	int ret, orig_mtu;
 >> +
->> +	/* Initialize the device options */
->> +	bypass_netdev->flags |= IFF_MASTER;
-> I think I pointed that out already. Don't use "IFF_MASTER". That is
-> specific to bonding. As I suggested in the reply to the patch #2, you
-> should introduce IFF_BYPASS. Also, this flag should be set by the bypass
-> module. Just create the netdev and do things specific to virtio and then
-> call to bypass module, pass the netdev so it can do the rest. I think
-> that the flags, features etc would be also fine to set there.
+>> +	ASSERT_RTNL();
+>> +
+>> +	mutex_lock(&bypass_mutex);
+>> +	bypass_instance = bypass_get_instance_bymac(child_netdev->perm_addr);
+>> +	if (!bypass_instance) {
+>> +		mutex_unlock(&bypass_mutex);
+>> +		goto done;
+>> +	}
+>> +
+>> +	bypass_netdev = rcu_dereference(bypass_instance->bypass_netdev);
+>> +	bypass = bypass_instance->bypass;
+>> +	mutex_unlock(&bypass_mutex);
+>> +
+>> +	if (!bypass->ops->register_child)
+>> +		goto done;
+>> +
+>> +	ret = bypass->ops->register_child(bypass_netdev, child_netdev);
+>> +	if (ret != 0)
+>> +		goto done;
+>> +
+>> +	ret = netdev_rx_handler_register(child_netdev,
+>> +					 bypass->ops->handle_frame,
+>> +					 bypass_netdev);
+>> +	if (ret != 0) {
+>> +		netdev_err(child_netdev,
+>> +			   "can not register bypass rx handler (err = %d)\n",
+>> +			   ret);
+>> +		goto rx_handler_failed;
+>> +	}
+>> +
+>> +	ret = netdev_upper_dev_link(child_netdev, bypass_netdev, NULL);
+>> +	if (ret != 0) {
+>> +		netdev_err(child_netdev,
+> No line-wrap is needed here and in other cases like this.
+>
+>
+>> +			   "can not set master device %s (err = %d)\n",
+>> +			   bypass_netdev->name, ret);
+>> +		goto upper_link_failed;
+>> +	}
+>> +
+>> +	child_netdev->flags |= IFF_SLAVE;
+> Don't reuse IFF_SLAVE. That is bonding-specific thing. I know that
+> netvsc uses it, it is wrong.
+> Please rather introduce:
+> IFF_BYPASS for master
+> and IFF_BYPASS_SLAVE for slaves.
+
+OK. Will add these flags.
+
+>
+>
+>
+>
+>> +
+>> +	if (netif_running(bypass_netdev)) {
+>> +		ret = dev_open(child_netdev);
+>> +		if (ret && (ret != -EBUSY)) {
+>> +			netdev_err(bypass_netdev,
+>> +				   "Opening child %s failed ret:%d\n",
+>> +				   child_netdev->name, ret);
+>> +			goto err_interface_up;
+>> +		}
+>> +	}
+>> +
+>> +	/* Align MTU of child with master */
+>> +	orig_mtu = child_netdev->mtu;
+>> +	ret = dev_set_mtu(child_netdev, bypass_netdev->mtu);
+>> +	if (ret != 0) {
+>> +		netdev_err(bypass_netdev,
+>> +			   "unable to change mtu of %s to %u register failed\n",
+>> +			   child_netdev->name, bypass_netdev->mtu);
+>> +		goto err_set_mtu;
+>> +	}
+>> +
+>> +	ret = bypass->ops->join_child(bypass_netdev, child_netdev);
+>> +	if (ret != 0)
+>> +		goto err_join;
+>> +
+>> +	call_netdevice_notifiers(NETDEV_JOIN, child_netdev);
+>> +
+>> +	goto done;
+>> +
+>> +err_join:
+>> +	dev_set_mtu(child_netdev, orig_mtu);
+>> +err_set_mtu:
+>> +	dev_close(child_netdev);
+>> +err_interface_up:
+>> +	netdev_upper_dev_unlink(child_netdev, bypass_netdev);
+>> +	child_netdev->flags &= ~IFF_SLAVE;
+>> +upper_link_failed:
+>> +	netdev_rx_handler_unregister(child_netdev);
+>> +rx_handler_failed:
+>> +	bypass->ops->unregister_child(bypass_netdev, child_netdev);
+>> +
+>> +done:
+>> +	return NOTIFY_DONE;
+>> +}
+>> +
+>> +int bypass_unregister_child(struct net_device *child_netdev)
+>> +{
+>> +	struct bypass_instance *bypass_instance;
+>> +	struct net_device *bypass_netdev;
+>> +	struct bypass *bypass;
+>> +	int ret;
+>> +
+>> +	ASSERT_RTNL();
+>> +
+>> +	mutex_lock(&bypass_mutex);
+>> +	bypass_instance = bypass_get_instance_bymac(child_netdev->perm_addr);
+>> +	if (!bypass_instance) {
+>> +		mutex_unlock(&bypass_mutex);
+>> +		goto done;
+>> +	}
+>> +
+>> +	bypass_netdev = rcu_dereference(bypass_instance->bypass_netdev);
+>> +	bypass = bypass_instance->bypass;
+>> +	mutex_unlock(&bypass_mutex);
+>> +
+>> +	ret = bypass->ops->release_child(bypass_netdev, child_netdev);
+>> +	if (ret != 0)
+>> +		goto done;
+>> +
+>> +	netdev_rx_handler_unregister(child_netdev);
+>> +	netdev_upper_dev_unlink(child_netdev, bypass_netdev);
+>> +	child_netdev->flags &= ~IFF_SLAVE;
+>> +
+>> +	if (!bypass->ops->unregister_child)
+>> +		goto done;
+>> +
+>> +	bypass->ops->unregister_child(bypass_netdev, child_netdev);
+>> +
+>> +done:
+>> +	return NOTIFY_DONE;
+>> +}
+>> +EXPORT_SYMBOL(bypass_unregister_child);
+> Please use "EXPORT_SYMBOL_GPL" for all exported symbols.
 
 OK.
 
-
 >
 >
->> +	bypass_netdev->priv_flags |= IFF_UNICAST_FLT | IFF_NO_QUEUE;
->> +	bypass_netdev->priv_flags &= ~(IFF_XMIT_DST_RELEASE |
->> +				       IFF_TX_SKB_SHARING);
 >> +
->> +	/* don't acquire bypass netdev's netif_tx_lock when transmitting */
->> +	bypass_netdev->features |= NETIF_F_LLTX;
->> +
->> +	/* Don't allow bypass devices to change network namespaces. */
->> +	bypass_netdev->features |= NETIF_F_NETNS_LOCAL;
->> +
->> +	bypass_netdev->hw_features = NETIF_F_HW_CSUM | NETIF_F_SG |
->> +				     NETIF_F_FRAGLIST | NETIF_F_ALL_TSO |
->> +				     NETIF_F_HIGHDMA | NETIF_F_LRO;
->> +
->> +	bypass_netdev->hw_features |= NETIF_F_GSO_ENCAP_ALL;
->> +	bypass_netdev->features |= bypass_netdev->hw_features;
->> +
->> +	/* For now treat bypass netdev as VLAN challenged since we
->> +	 * cannot assume VLAN functionality with a VF
-> Why? I don't see such drivers. But to be 100% correct, you should check
-> the NETIF_F_VLAN_CHALLENGED feature in bypass module during VF enslave
-> and forbid to do so if it is on.
-
-Will look into it.
-
-
->
->
->> +	 */
->> +	bypass_netdev->features |= NETIF_F_VLAN_CHALLENGED;
->> +
->> +	memcpy(bypass_netdev->dev_addr, backup_netdev->dev_addr,
->> +	       bypass_netdev->addr_len);
->> +
->> +	bypass_netdev->min_mtu = backup_netdev->min_mtu;
->> +	bypass_netdev->max_mtu = backup_netdev->max_mtu;
->> +
->> +	res = register_netdev(bypass_netdev);
->> +	if (res < 0) {
->> +		dev_err(dev, "Unable to register bypass_netdev!\n");
->> +		goto err_register_netdev;
->> +	}
->> +
->> +	netif_carrier_off(bypass_netdev);
->> +
->> +	res = bypass_register_instance(virtnet_bypass, bypass_netdev);
->> +	if (res < 0)
->> +		goto err_bypass;
->> +
->> +	rcu_assign_pointer(vi->bypass_netdev, bypass_netdev);
->> +
->> +	return 0;
->> +
->> +err_bypass:
->> +	unregister_netdev(bypass_netdev);
->> +err_register_netdev:
->> +	free_netdev(bypass_netdev);
->> +
->> +	return res;
->> +}
->> +
->> +static void virtnet_bypass_destroy(struct virtnet_info *vi)
+>> +static int bypass_update_link(struct net_device *child_netdev)
 >> +{
+>> +	struct bypass_instance *bypass_instance;
 >> +	struct net_device *bypass_netdev;
->> +	struct virtnet_bypass_info *vbi;
->> +	struct net_device *child_netdev;
+>> +	struct bypass *bypass;
 >> +
->> +	bypass_netdev = rcu_dereference(vi->bypass_netdev);
->> +	/* no device found, nothing to free */
->> +	if (!bypass_netdev)
->> +		return;
+>> +	ASSERT_RTNL();
 >> +
->> +	vbi = netdev_priv(bypass_netdev);
->> +
->> +	netif_device_detach(bypass_netdev);
->> +
->> +	rtnl_lock();
->> +
->> +	child_netdev = rtnl_dereference(vbi->active_netdev);
->> +	if (child_netdev)
->> +		bypass_unregister_child(child_netdev);
->> +
->> +	child_netdev = rtnl_dereference(vbi->backup_netdev);
->> +	if (child_netdev)
->> +		bypass_unregister_child(child_netdev);
->> +
->> +	unregister_netdevice(bypass_netdev);
->> +
->> +	bypass_unregister_instance(virtnet_bypass, bypass_netdev);
->> +
->> +	rtnl_unlock();
->> +
->> +	free_netdev(bypass_netdev);
->> +}
->> +
->> +/* END of functions supporting VIRTIO_NET_F_BACKUP feature. */
->> +
->> static int virtnet_probe(struct virtio_device *vdev)
->> {
->> 	int i, err = -ENOMEM;
->> @@ -2839,10 +3432,15 @@ static int virtnet_probe(struct virtio_device *vdev)
->>
->> 	virtnet_init_settings(dev);
->>
->> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_BACKUP)) {
->> +		if (virtnet_bypass_create(vi) != 0)
-> You need to do:
-> 		err = virtnet_bypass_create(vi);
-> 		if (err)
-> otherwise you ignore err and virtnet_probe would return 0;
+>> +	mutex_lock(&bypass_mutex);
+>> +	bypass_instance = bypass_get_instance_bymac(child_netdev->perm_addr);
+> You don't really need this lookup. The kernel knows about the master
+> device, you can just use netdev_master_upper_dev_get_rcu() to get it.
 
 Sure.
 
 
 >
 >
->> +			goto free_vqs;
+>> +	if (!bypass_instance) {
+>> +		mutex_unlock(&bypass_mutex);
+>> +		goto done;
 >> +	}
 >> +
->> 	err = register_netdev(dev);
->> 	if (err) {
->> 		pr_debug("virtio_net: registering device failed\n");
->> -		goto free_vqs;
->> +		goto free_bypass;
->> 	}
->>
->> 	virtio_device_ready(vdev);
->> @@ -2879,6 +3477,8 @@ static int virtnet_probe(struct virtio_device *vdev)
->> 	vi->vdev->config->reset(vdev);
->>
->> 	unregister_netdev(dev);
->> +free_bypass:
->> +	virtnet_bypass_destroy(vi);
->> free_vqs:
->> 	cancel_delayed_work_sync(&vi->refill);
->> 	free_receive_page_frags(vi);
->> @@ -2913,6 +3513,8 @@ static void virtnet_remove(struct virtio_device *vdev)
->>
->> 	unregister_netdev(vi->dev);
->>
->> +	virtnet_bypass_destroy(vi);
+>> +	bypass_netdev = rcu_dereference(bypass_instance->bypass_netdev);
+>> +	bypass = bypass_instance->bypass;
+>> +	mutex_unlock(&bypass_mutex);
 >> +
->> 	remove_vq_common(vi);
->>
->> 	free_netdev(vi->dev);
->> @@ -2996,6 +3598,11 @@ static __init int virtio_net_driver_init(void)
->> {
->> 	int ret;
->>
->> +	virtnet_bypass = bypass_register_driver(&virtnet_bypass_ops,
->> +						&virtnet_bypass_netdev_ops);
->> +	if (!virtnet_bypass)
->> +		return -ENOMEM;
-> If CONFIG_NET_BYPASS is undefined, you will always return -ENOMEM here.
+>> +	if (!bypass->ops->update_link)
+>> +		goto done;
+>> +
+>> +	bypass->ops->update_link(bypass_netdev, child_netdev);
+>> +
+>> +done:
+>> +	return NOTIFY_DONE;
+>> +}
+>> +
+>> +static bool bypass_validate_child_dev(struct net_device *dev)
+>> +{
+>> +	/* Avoid non-Ethernet type devices */
+>> +	if (dev->type != ARPHRD_ETHER)
+>> +		return false;
+>> +
+>> +	/* Avoid Vlan dev with same MAC registering as VF */
+>> +	if (is_vlan_dev(dev))
+>> +		return false;
+>> +
+>> +	/* Avoid Bonding master dev with same MAC registering as child dev */
+>> +	if ((dev->priv_flags & IFF_BONDING) && (dev->flags & IFF_MASTER))
+>> +		return false;
+>> +
+>> +	return true;
+>> +}
+>> +
+>> +static int
+>> +bypass_event(struct notifier_block *this, unsigned long event, void *ptr)
+>> +{
+>> +	struct net_device *event_dev = netdev_notifier_info_to_dev(ptr);
+>> +	struct bypass *bypass;
+>> +
+>> +	/* Skip Parent events */
+>> +	mutex_lock(&bypass_mutex);
+>> +	list_for_each_entry(bypass, &bypass_list, list) {
+>> +		if (event_dev->netdev_ops == bypass->netdev_ops) {
+>> +			mutex_unlock(&bypass_mutex);
+>> +			return NOTIFY_DONE;
+>> +		}
+> What you need instead of this is an identification helper
+> netif_is_bypass_master()
+> similar to
+> netif_is_team_master()
+> netif_is_bridge_master()
+> etc
 
-Will fix.
+OK. Will introduce this helper.
+
+>
+>   
+>
+>> +	}
+>> +	mutex_unlock(&bypass_mutex);
+>> +
+>> +	if (!bypass_validate_child_dev(event_dev))
+>> +		return NOTIFY_DONE;
+>> +
+>> +	switch (event) {
+>> +	case NETDEV_REGISTER:
+>> +		return bypass_register_child(event_dev);
+>> +	case NETDEV_UNREGISTER:
+>> +		return bypass_unregister_child(event_dev);
+>> +	case NETDEV_UP:
+>> +	case NETDEV_DOWN:
+>> +	case NETDEV_CHANGE:
+>> +		return bypass_update_link(event_dev);
+>> +	default:
+>> +		return NOTIFY_DONE;
+>> +	}
+>> +}
+>> +
+>> +static struct notifier_block bypass_notifier = {
+>> +	.notifier_call = bypass_event,
+>> +};
+>> +
+>> +static void bypass_register_existing_child(struct net_device *bypass_netdev)
+>> +{
+>> +	struct net *net = dev_net(bypass_netdev);
+>> +	struct net_device *dev;
+>> +
+>> +	rtnl_lock();
+>> +	for_each_netdev(net, dev) {
+>> +		if (dev == bypass_netdev)
+>> +			continue;
+>> +		if (!bypass_validate_child_dev(dev))
+>> +			continue;
+>> +		if (ether_addr_equal(bypass_netdev->perm_addr, dev->perm_addr))
+>> +			bypass_register_child(dev);
+>> +	}
+>> +	rtnl_unlock();
+>> +}
+>> +
+>> +int bypass_register_instance(struct bypass *bypass, struct net_device *dev)
+>> +{
+>> +	struct bypass_instance *bypass_instance;
+> No need to allocate this instace here. You can just have is embedded
+> inside netdevice priv and pass pointer to it here. You can pass the
+> pointer back to the driver when you call ops as the driver can get priv
+> back by it.
+>
+> I would also call it "struct bypass_master" and this function
+> "bypass_master_register".
+>
+> It should contain the ops pointer too.
+
+OK.
 
 
 >
 >
+>> +	struct net_device *bypass_netdev;
+>> +	int ret = 0;
 >> +
->> 	ret = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN, "virtio/net:online",
->> 				      virtnet_cpu_online,
->> 				      virtnet_cpu_down_prep);
->> @@ -3010,12 +3617,14 @@ static __init int virtio_net_driver_init(void)
->>          ret = register_virtio_driver(&virtio_net_driver);
->> 	if (ret)
->> 		goto err_virtio;
+>> +	mutex_lock(&bypass->lock);
+>> +	list_for_each_entry(bypass_instance, &bypass->instance_list, list) {
+>> +		bypass_netdev = rcu_dereference(bypass_instance->bypass_netdev);
+>> +		if (bypass_netdev == dev) {
+> This means the driver registered one netdev twice. That is a bug in
+> driver, so WARN_ON would be nice here to point that out.
+
+OK.
+
+
+>
+>
+>> +			ret = -EEXIST;
+>> +			goto done;
+>> +		}
+>> +	}
 >> +
->> 	return 0;
->> err_virtio:
->> 	cpuhp_remove_multi_state(CPUHP_VIRT_NET_DEAD);
->> err_dead:
->> 	cpuhp_remove_multi_state(virtionet_online);
->> out:
->> +	bypass_unregister_driver(virtnet_bypass);
->> 	return ret;
->> }
->> module_init(virtio_net_driver_init);
->> @@ -3025,6 +3634,7 @@ static __exit void virtio_net_driver_exit(void)
->> 	unregister_virtio_driver(&virtio_net_driver);
->> 	cpuhp_remove_multi_state(CPUHP_VIRT_NET_DEAD);
->> 	cpuhp_remove_multi_state(virtionet_online);
->> +	bypass_unregister_driver(virtnet_bypass);
->> }
->> module_exit(virtio_net_driver_exit);
->>
+>> +	bypass_instance = bypass_instance_alloc(dev);
+>> +	if (!bypass_instance) {
+>> +		ret = -ENOMEM;
+>> +		goto done;
+>> +	}
+>> +
+>> +	bypass_instance->bypass = bypass;
+>> +	list_add_tail(&bypass_instance->list, &bypass->instance_list);
+>> +
+>> +done:
+>> +	mutex_unlock(&bypass->lock);
+>> +	bypass_register_existing_child(dev);
+>> +	return ret;
+>> +}
+>> +EXPORT_SYMBOL(bypass_register_instance);
+>> +
+>> +int bypass_unregister_instance(struct bypass *bypass, struct net_device *dev)
+>> +{
+>> +	struct bypass_instance *bypass_instance;
+>> +	struct net_device *bypass_netdev;
+>> +	int ret = 0;
+>> +
+>> +	mutex_lock(&bypass->lock);
+>> +	list_for_each_entry(bypass_instance, &bypass->instance_list, list) {
+>> +		bypass_netdev = rcu_dereference(bypass_instance->bypass_netdev);
+>> +		if (bypass_netdev == dev) {
+>> +			list_del(&bypass_instance->list);
+>> +			bypass_instance_free(bypass_instance);
+>> +			goto done;
+>> +		}
+>> +	}
+>> +
+>> +	ret = -ENOENT;
+>> +done:
+>> +	mutex_unlock(&bypass->lock);
+>> +	return ret;
+>> +}
+>> +EXPORT_SYMBOL(bypass_unregister_instance);
+>> +
+>> +struct bypass *bypass_register_driver(const struct bypass_ops *ops,
+>> +				      const struct net_device_ops *netdev_ops)
+> I don't see why you need a list of drivers. What you need is just a list
+> of instances - bypass masters (probably to call them like that in the
+> code as well). Well, you can use the common netdevice list for that
+> purpose with the identification helper I mentioned above. Then you need
+> no lists and no mutexes/spinlocks.
+
+OK. looks like i should be able to just register instances and pass bypass_netdev,
+bypass_ops and a flag to indicate 3/2 netdev model.
+
+
+>
+>
+>> +{
+>> +	struct bypass *bypass;
+>> +
+>> +	bypass = kzalloc(sizeof(*bypass), GFP_KERNEL);
+>> +	if (!bypass)
+>> +		return NULL;
+>> +
+>> +	bypass->ops = ops;
+>> +	bypass->netdev_ops = netdev_ops;
+>> +	INIT_LIST_HEAD(&bypass->instance_list);
+>> +
+>> +	mutex_lock(&bypass_mutex);
+>> +	list_add_tail(&bypass->list, &bypass_list);
+>> +	mutex_unlock(&bypass_mutex);
+>> +
+>> +	return bypass;
+>> +}
+>> +EXPORT_SYMBOL_GPL(bypass_register_driver);
+>> +
+>> +void bypass_unregister_driver(struct bypass *bypass)
+>> +{
+>> +	mutex_lock(&bypass_mutex);
+>> +	list_del(&bypass->list);
+>> +	mutex_unlock(&bypass_mutex);
+>> +
+>> +	kfree(bypass);
+>> +}
+>> +EXPORT_SYMBOL_GPL(bypass_unregister_driver);
+>> +
+>> +static __init int
+>> +bypass_init(void)
+>> +{
+>> +	register_netdevice_notifier(&bypass_notifier);
+>> +
+>> +	return 0;
+>> +}
+>> +module_init(bypass_init);
+>> +
+>> +static __exit
+>> +void bypass_exit(void)
+>> +{
+>> +	unregister_netdevice_notifier(&bypass_notifier);
+>> +}
+>> +module_exit(bypass_exit);
+>> +
+>> +MODULE_DESCRIPTION("Bypass infrastructure/interface for Paravirtual drivers");
+>> +MODULE_LICENSE("GPL v2");
 >> -- 
 >> 2.14.3
 >>
