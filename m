@@ -1,17 +1,24 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC] virtio: Use DMA MAP API for devices without an IOMMU
-Date: Fri, 06 Apr 2018 07:18:33 +1000
-Message-ID: <1522963113.21446.211.camel@kernel.crashing.org>
-References: <20180405105631.9514-1-khandual@linux.vnet.ibm.com>
-	<3e1b113b-79ca-b700-5be9-10c66d74aabe@linux.vnet.ibm.com>
-	<20180405175326-mutt-send-email-mst@kernel.org>
-	<1522940983.21446.205.camel@kernel.crashing.org>
-	<20180405213042-mutt-send-email-mst@kernel.org>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v30 2/4] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Fri, 6 Apr 2018 00:11:22 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F7394A9BC3__36943.957853555$1522974979$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1522771805-78927-1-git-send-email-wei.w.wang@intel.com>
+	<1522771805-78927-3-git-send-email-wei.w.wang@intel.com>
+	<20180403214147-mutt-send-email-mst@kernel.org>
+	<5AC43377.2070607@intel.com>
+	<20180404155907-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7394A6E96@shsmsx102.ccr.corp.intel.com>
+	<20180405040900-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7394A7F3B@shsmsx102.ccr.corp.intel.com>
+	<20180405170248-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7394A889E@shsmsx102.ccr.corp.intel.com>
+	<20180405212850-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180405213042-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180405212850-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,30 +29,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: robh@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "nilal@redhat.com" <nilal@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "huangzhichao@huawei.com" <huangzhichao@huawei.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2018-04-05 at 21:34 +0300, Michael S. Tsirkin wrote:
-> > In this specific case, because that would make qemu expect an iommu,
-> > and there isn't one.
+On Friday, April 6, 2018 2:30 AM, Michael S. Tsirkin wrote:
+> On Thu, Apr 05, 2018 at 03:47:28PM +0000, Wang, Wei W wrote:
+> > On Thursday, April 5, 2018 10:04 PM, Michael S. Tsirkin wrote:
+> > > On Thu, Apr 05, 2018 at 02:05:03AM +0000, Wang, Wei W wrote:
+> > > > On Thursday, April 5, 2018 9:12 AM, Michael S. Tsirkin wrote:
+> > > > > On Thu, Apr 05, 2018 at 12:30:27AM +0000, Wang, Wei W wrote:
+> > > > > > On Wednesday, April 4, 2018 10:08 PM, Michael S. Tsirkin wrote:
+> > > > > > > On Wed, Apr 04, 2018 at 10:07:51AM +0800, Wei Wang wrote:
+> > > > > > > > On 04/04/2018 02:47 AM, Michael S. Tsirkin wrote:
+> > > > > > > > > On Wed, Apr 04, 2018 at 12:10:03AM +0800, Wei Wang wrote:
+> > > > > > I'm afraid the driver couldn't be aware if the added hints are
+> > > > > > stale or not,
+> > > > >
+> > > > >
+> > > > > No - I mean that driver has code that compares two values and
+> > > > > stops reporting. Can one of the values be stale?
+> > > >
+> > > > The driver compares "vb->cmd_id_use != vb->cmd_id_received" to
+> > > > decide if it needs to stop reporting hints, and cmd_id_received is
+> > > > what the driver reads from host (host notifies the driver to read
+> > > > for the latest value). If host sends a new cmd id, it will notify
+> > > > the guest to read again. I'm not sure how that could be a stale
+> > > > cmd id (or maybe I misunderstood your point here?)
+> > > >
+> > > > Best,
+> > > > Wei
+> > >
+> > > The comparison is done in one thread, the update in another one.
+> >
+> > I think this isn't something that could be solved by adding a lock,
+> > unless host waits for the driver's ACK about finishing the update
+> > (this is not agreed in the QEMU part discussion).
+> >
+> > Actually virtio_balloon has F_IOMMU_PLATFORM disabled, maybe we
+> don't
+> > need to worry about that using DMA api case (we only have gpa added to
+> > the vq, and having some entries stay in the vq seems fine). For this
+> > feature, I think it would not work with F_IOMMU enabled either.
 > 
-> 
-> I think that you can set iommu_platform in qemu without an iommu.
+> Adding a code comment explaining all this might be a good idea.
 
-No I mean the platform has one but it's not desirable for it to be used
-due to the performance hit.
+Thanks, will do.
 
-Cheers,
-Ben.
-> 
-> > Anshuman, you need to provide more background here. I don't have time
-> > right now it's late, but explain about the fact that this is for a
-> > specific type of secure VM which has only a limited pool of (insecure)
-> > memory that can be shared with qemu, so all IOs need to bounce via that
-> > pool, which can be achieved by using swiotlb.
-> > 
-> > Note: this isn't urgent, we can discuss alternative approaches, this is
-> > just to start the conversation.
-> > 
-> > Cheers,
-> > Ben.
+Best,
+Wei
