@@ -1,18 +1,14 @@
-From: Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
-Date: Sat, 7 Apr 2018 05:19:19 +0200
-Message-ID: <20180407031919.GB11029@lunn.ch>
-References: <3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
-	<CADGSJ23Zr7_CLMr1W9qhcWux59+aCvFdTg_nQ7Mmp5B-FWL8=Q@mail.gmail.com>
-	<54accf73-e6cc-e03f-6a1c-34e1bbd78047@gmail.com>
-	<20180404.133749.1802514210170809419.davem@davemloft.net>
-	<CADGSJ206RKi704uoLe3xVs6PyWpURPLb75OPCM_YO9DfnnEzpw@mail.gmail.com>
+From: Weiping Zhang <zwp10758@gmail.com>
+Subject: Re: [RFC PATCH 0/2] use larger max_request_size for virtio_blk
+Date: Sat, 7 Apr 2018 16:30:53 +0800
+Message-ID: <CAA70yB6_W_xHWaph4CT3-h91fSX_9EBG94bp6gafoTPys8KhzQ@mail.gmail.com>
+References: <cover.1522922101.git.zhangweiping@didichuxing.com>
+	<04280c25-aecb-3d79-e589-5fafa974d9e0@kernel.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CADGSJ206RKi704uoLe3xVs6PyWpURPLb75OPCM_YO9DfnnEzpw@mail.gmail.com>
+In-Reply-To: <04280c25-aecb-3d79-e589-5fafa974d9e0@kernel.dk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,26 +18,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Ahern <dsahern@gmail.com>, si-wei liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Siwei
+2018-04-05 22:29 GMT+08:00 Jens Axboe <axboe@kernel.dk>:
+> On 4/5/18 4:09 AM, Weiping Zhang wrote:
+>> Hi,
+>>
+>> For virtio block device, actually there is no a hard limit for max request
+>> size, and virtio_blk driver set -1 to blk_queue_max_hw_sectors(q, -1U);.
+>> But it doesn't work, because there is a default upper limitation
+>> BLK_DEF_MAX_SECTORS (1280 sectors). So this series want to add a new helper
+>> blk_queue_max_hw_sectors_no_limit to set a proper max reqeust size.
+>>
+>> Weiping Zhang (2):
+>>   blk-setting: add new helper blk_queue_max_hw_sectors_no_limit
+>>   virtio_blk: add new module parameter to set max request size
+>>
+>>  block/blk-settings.c       | 20 ++++++++++++++++++++
+>>  drivers/block/virtio_blk.c | 32 ++++++++++++++++++++++++++++++--
+>>  include/linux/blkdev.h     |  2 ++
+>>  3 files changed, 52 insertions(+), 2 deletions(-)
+>
+> The driver should just use blk_queue_max_hw_sectors() to set the limit,
+> and then the soft limit can be modified by a udev rule. Technically the
+> driver doesn't own the software limit, it's imposed to ensure that we
+> don't introduce too much latency per request.
+>
+> Your situation is no different from many other setups, where the
+> hw limit is much higher than the default 1280k.
+>
+Hi Martin, Jens,
 
-> I think everyone seems to agree not to fiddle with the ":" prefix, but
-> rather have a new class of network subsystem under /sys/class thus a
-> separate device namespace e.g. /sys/class/net-kernel for those
-> auto-managed lower netdevs is needed.
- 
-How do you get a device into this new class? I don't know the Linux
-driver model too well, but to get a device out of one class and into
-another, i think you need to device_del(dev). modify dev->class and
-then device_add(dev). However, device_add() says you are not allowed
-to do this.
+It seems more reasonable to change software limitation by udev rule,
+thanks you.
 
-And i don't even see how this helps. Are you also not going to call
-list_netdevice()? Are you going to add some other list for these
-devices in a different class?
-
-   Andrew
+>
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
