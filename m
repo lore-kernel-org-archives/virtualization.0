@@ -1,18 +1,18 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [virtio-dev] Re: [RFC PATCH 1/3] qemu: virtio-bypass should
-	explicitly bind to a passthrough device
-Date: Fri, 6 Apr 2018 19:54:33 -0700
-Message-ID: <CADGSJ22Zqm1s2Xr=i4G7upp4mZRHz4HEQGVvzNjBTcdCQ4hoDw__11527.068905025$1523069563$gmane$org@mail.gmail.com>
-References: <1522573990-5242-1-git-send-email-si-wei.liu@oracle.com>
-	<1522573990-5242-2-git-send-email-si-wei.liu@oracle.com>
-	<20180403152308-mutt-send-email-mst@kernel.org>
-	<CADGSJ23jr7xrq8h9rFHLtXkbpsB+AK8wcUzOQnpeftbhiYdOvA@mail.gmail.com>
-	<d666b8a9-9ff8-4a56-0faa-ef3d0bf81d25@redhat.com>
+From: Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
+Date: Sat, 7 Apr 2018 05:19:19 +0200
+Message-ID: <20180407031919.GB11029@lunn.ch>
+References: <3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
+	<CADGSJ23Zr7_CLMr1W9qhcWux59+aCvFdTg_nQ7Mmp5B-FWL8=Q@mail.gmail.com>
+	<54accf73-e6cc-e03f-6a1c-34e1bbd78047@gmail.com>
+	<20180404.133749.1802514210170809419.davem@davemloft.net>
+	<CADGSJ206RKi704uoLe3xVs6PyWpURPLb75OPCM_YO9DfnnEzpw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <d666b8a9-9ff8-4a56-0faa-ef3d0bf81d25@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <CADGSJ206RKi704uoLe3xVs6PyWpURPLb75OPCM_YO9DfnnEzpw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,49 +22,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
+To: Siwei Liu <loseweigh@gmail.com>
 Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
+	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Ahern <dsahern@gmail.com>, si-wei liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(click the wrong reply button again, sorry)
+Hi Siwei
 
+> I think everyone seems to agree not to fiddle with the ":" prefix, but
+> rather have a new class of network subsystem under /sys/class thus a
+> separate device namespace e.g. /sys/class/net-kernel for those
+> auto-managed lower netdevs is needed.
+ 
+How do you get a device into this new class? I don't know the Linux
+driver model too well, but to get a device out of one class and into
+another, i think you need to device_del(dev). modify dev->class and
+then device_add(dev). However, device_add() says you are not allowed
+to do this.
 
-On Thu, Apr 5, 2018 at 8:31 AM, Paolo Bonzini <pbonzini@redhat.com> wrote:
-> On 04/04/2018 10:02, Siwei Liu wrote:
->>> pci_bus_num is almost always a bug if not done within
->>> a context of a PCI host, bridge, etc.
->>>
->>> In particular this will not DTRT if run before guest assigns bus
->>> numbers.
->>>
->> I was seeking means to reserve a specific pci bus slot from drivers,
->> and update the driver when guest assigns the bus number but it seems
->> there's no low-hanging fruits. Because of that reason the bus_num is
->> only obtained until it's really needed (during get_config) and I
->> assume at that point the pci bus assignment is already done. I know
->> the current one is not perfect, but we need that information (PCI
->> bus:slot.func number) to name the guest device correctly.
->
-> Can you use the -device "id", and look it up as
->
->     devices = container_get(qdev_get_machine(), "/peripheral");
->     return object_resolve_path_component(devices, id);
+And i don't even see how this helps. Are you also not going to call
+list_netdevice()? Are you going to add some other list for these
+devices in a different class?
 
-
-No. The problem of using device id is that the vfio device may come
-and go at any time, this is particularly true when live migration is
-happening. There's no gurantee we can get the bus:device.func info if
-that device is gone. Currently the binding between vfio and virtio-net
-is weakly coupled through the backup property, there's no better way
-than specifying the bus id and addr property directly.
-
-Regards,
--Siwei
-
->
-> ?
->
-> Thanks,
->
-> Paolo
+   Andrew
