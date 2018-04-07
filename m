@@ -1,16 +1,18 @@
 From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
-Date: Fri, 6 Apr 2018 19:32:05 -0700
-Message-ID: <CADGSJ206RKi704uoLe3xVs6PyWpURPLb75OPCM_YO9DfnnEzpw@mail.gmail.com>
-References: <3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
-	<CADGSJ23Zr7_CLMr1W9qhcWux59+aCvFdTg_nQ7Mmp5B-FWL8=Q@mail.gmail.com>
-	<54accf73-e6cc-e03f-6a1c-34e1bbd78047@gmail.com>
-	<20180404.133749.1802514210170809419.davem@davemloft.net>
+Subject: Re: [virtio-dev] Re: [RFC PATCH 1/3] qemu: virtio-bypass should
+	explicitly bind to a passthrough device
+Date: Fri, 6 Apr 2018 19:54:33 -0700
+Message-ID: <CADGSJ22Zqm1s2Xr=i4G7upp4mZRHz4HEQGVvzNjBTcdCQ4hoDw__11527.068905025$1523069563$gmane$org@mail.gmail.com>
+References: <1522573990-5242-1-git-send-email-si-wei.liu@oracle.com>
+	<1522573990-5242-2-git-send-email-si-wei.liu@oracle.com>
+	<20180403152308-mutt-send-email-mst@kernel.org>
+	<CADGSJ23jr7xrq8h9rFHLtXkbpsB+AK8wcUzOQnpeftbhiYdOvA@mail.gmail.com>
+	<d666b8a9-9ff8-4a56-0faa-ef3d0bf81d25@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180404.133749.1802514210170809419.davem@davemloft.net>
+In-Reply-To: <d666b8a9-9ff8-4a56-0faa-ef3d0bf81d25@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,75 +22,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
+To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Ahern <dsahern@gmail.com>, si-wei liu <si-wei.liu@oracle.com>
+	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 4, 2018 at 10:37 AM, David Miller <davem@davemloft.net> wrote:
-> From: David Ahern <dsahern@gmail.com>
-> Date: Wed, 4 Apr 2018 11:21:54 -0600
+(click the wrong reply button again, sorry)
+
+
+On Thu, Apr 5, 2018 at 8:31 AM, Paolo Bonzini <pbonzini@redhat.com> wrote:
+> On 04/04/2018 10:02, Siwei Liu wrote:
+>>> pci_bus_num is almost always a bug if not done within
+>>> a context of a PCI host, bridge, etc.
+>>>
+>>> In particular this will not DTRT if run before guest assigns bus
+>>> numbers.
+>>>
+>> I was seeking means to reserve a specific pci bus slot from drivers,
+>> and update the driver when guest assigns the bus number but it seems
+>> there's no low-hanging fruits. Because of that reason the bus_num is
+>> only obtained until it's really needed (during get_config) and I
+>> assume at that point the pci bus assignment is already done. I know
+>> the current one is not perfect, but we need that information (PCI
+>> bus:slot.func number) to name the guest device correctly.
 >
->> It is a netdev so there is no reason to have a separate ip command to
->> inspect it. 'ip link' is the right place.
+> Can you use the -device "id", and look it up as
 >
-> I agree on this.
+>     devices = container_get(qdev_get_machine(), "/peripheral");
+>     return object_resolve_path_component(devices, id);
 
-I'm completely fine of having an API for inspection purpose. The thing
-is that we'd perhaps need to go for the namespace approach, for which
-I think everyone seems to agree not to fiddle with the ":" prefix, but
-rather have a new class of network subsystem under /sys/class thus a
-separate device namespace e.g. /sys/class/net-kernel for those
-auto-managed lower netdevs is needed.
 
-And I assume everyone here understands the use case for live migration
-(in the context of providing cloud service) is very different, and we
-have to hide the netdevs. If not, I'm more than happy to clarify.
+No. The problem of using device id is that the vfio device may come
+and go at any time, this is particularly true when live migration is
+happening. There's no gurantee we can get the bus:device.func info if
+that device is gone. Currently the binding between vfio and virtio-net
+is weakly coupled through the backup property, there's no better way
+than specifying the bus id and addr property directly.
 
-With that in mind, if having a new class of net-kernel namespace, we
-can name the kernel device elaborately which is not neccessarily equal
-to the device name exposed to userspace. For example, we can use
-driver name as the prefix as opposed to "eth" or ":eth". And we don't
-need to have auto-managed netdevs locked into the ":" prefix at all (I
-intentionally left it out in the this RFC patch to ask for comments on
-the namespace solution which is much cleaner). That said, an userpsace
-named device through udev may call something like ens3 and
-switch1-port2, but in the kernel-net namespace, it may look like
-ixgbevf0 and mlxsw1p2.
-
-So if we all agree introducing a new namespace is the rigth thing to
-do, `ip link' will no longer serve the purpose of displaying the
-information for kernel-net devnames for the sake of avoiding ambiguity
-and namespace collision: it's entirely possible the ip link name could
-collide with a kernel-net devname, it's become unclear which name of a
-netdev object the command is expected to operate on. That's why I
-thought showing the kernel-only netdevs using a separate subcommand
-makes more sense.
-
-Thoughts and comments? Please let me know.
-
-Thanks,
+Regards,
 -Siwei
 
 >
-> What I really don't understand still is the use case... really.
+> ?
 >
-> So there are control netdevs, what exactly is the problem with that?
+> Thanks,
 >
-> Are we not exporting enough information for applications to handle
-> these devices sanely?  If so, then's let add that information.
->
-> We can set netdev->type to ETH_P_LINUXCONTROL or something like that.
->
-> Another alternative is to add an interface flag like IFF_CONTROL or
-> similar, and that probably is much nicer.
->
-> Hiding the devices means that we acknowledge that applications are
-> currently broken with control netdevs... and we want them to stay
-> broken!
->
-> That doesn't sound like a good plan to me.
->
-> So let's fix handling of control netdevs instead of hiding them.
->
-> Thanks.
+> Paolo
