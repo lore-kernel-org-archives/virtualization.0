@@ -1,18 +1,15 @@
-From: Jiri Pirko <jiri@resnulli.us>
-Subject: Re: [RFC PATCH net-next v5 3/4] virtio_net: Extend virtio to use VF
-	datapath when available
-Date: Mon, 9 Apr 2018 10:07:51 +0200
-Message-ID: <20180409080751.GE19345__10137.5687322163$1523261166$gmane$org@nanopsycho>
-References: <1522962503-3963-1-git-send-email-sridhar.samudrala@intel.com>
-	<1522962503-3963-4-git-send-email-sridhar.samudrala@intel.com>
-	<20180406124814.GA24525@nanopsycho>
-	<bb4f0821-246f-1052-de8b-d96be3388ed3@intel.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v31 2/4] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Mon, 09 Apr 2018 19:46:51 +0800
+Message-ID: <5ACB52AB.5020200__12599.0539593206$1523274118$gmane$org@intel.com>
+References: <1523017045-18315-1-git-send-email-wei.w.wang@intel.com>
+	<1523017045-18315-3-git-send-email-wei.w.wang@intel.com>
+	<20180409085457-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <bb4f0821-246f-1052-de8b-d96be3388ed3@intel.com>
+In-Reply-To: <20180409085457-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,52 +19,135 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, huangzhichao@huawei.com, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Sat, Apr 07, 2018 at 12:59:14AM CEST, sridhar.samudrala@intel.com wrote:
->On 4/6/2018 5:48 AM, Jiri Pirko wrote:
->> Thu, Apr 05, 2018 at 11:08:22PM CEST, sridhar.samudrala@intel.com wrote:
-
-[...]
-
->> > +static int virtnet_bypass_join_child(struct net_device *bypass_netdev,
->> > +				     struct net_device *child_netdev)
->> > +{
->> > +	struct virtnet_bypass_info *vbi;
->> > +	bool backup;
->> > +
->> > +	vbi = netdev_priv(bypass_netdev);
->> > +	backup = (child_netdev->dev.parent == bypass_netdev->dev.parent);
->> > +	if (backup ? rtnl_dereference(vbi->backup_netdev) :
->> > +			rtnl_dereference(vbi->active_netdev)) {
->> > +		netdev_info(bypass_netdev,
->> > +			    "%s attempting to join bypass dev when %s already present\n",
->> > +			    child_netdev->name, backup ? "backup" : "active");
->> Bypass module should check if there is already some other netdev
->> enslaved and refuse right there.
+On 04/09/2018 02:03 PM, Michael S. Tsirkin wrote:
+> On Fri, Apr 06, 2018 at 08:17:23PM +0800, Wei Wang wrote:
+>> Negotiation of the VIRTIO_BALLOON_F_FREE_PAGE_HINT feature indicates the
+>> support of reporting hints of guest free pages to host via virtio-balloon.
+>>
+>> Host requests the guest to report free page hints by sending a new cmd
+>> id to the guest via the free_page_report_cmd_id configuration register.
+>>
+>> When the guest starts to report, the first element added to the free page
+>> vq is the cmd id given by host. When the guest finishes the reporting
+>> of all the free pages, VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID is added
+>> to the vq to tell host that the reporting is done. Host polls the free
+>> page vq after sending the starting cmd id, so the guest doesn't need to
+>> kick after filling an element to the vq.
+>>
+>> Host may also requests the guest to stop the reporting in advance by
+>> sending the stop cmd id to the guest via the configuration register.
+>>
+>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+>> Signed-off-by: Liang Li <liang.z.li@intel.com>
+>> Cc: Michael S. Tsirkin <mst@redhat.com>
+>> Cc: Michal Hocko <mhocko@kernel.org>
 >
->This will work for virtio-net with 3 netdev model, but this check has to be done by netvsc
->as its bypass_netdev is same as the backup_netdev.
->Will add a flag while registering with the bypass module to indicate if the driver is doing
->a 2 netdev or 3 netdev model and based on that flag this check can be done in bypass module
->for 3 netdev scenario.
+> Pretty good by now, Minor comments below.
 
-Just let me undestand it clearly. What I expect the difference would be
-between 2netdev and3 netdev model is this:
-2netdev:
-  bypass_master
-     /
-    /
-VF_slave
+Thanks for the comments.
 
-3netdev:
-  bypass_master
-     /     \
-    /       \
-VF_slave   backup_slave
+>
+>> ---
+>>   drivers/virtio/virtio_balloon.c     | 272 +++++++++++++++++++++++++++++++-----
+>>   include/uapi/linux/virtio_balloon.h |   4 +
+>>   2 files changed, 240 insertions(+), 36 deletions(-)
+>>
+>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+>> index dfe5684..aef73ee 100644
+>> --- a/drivers/virtio/virtio_balloon.c
+>> +++ b/drivers/virtio/virtio_balloon.c
+>> @@ -51,9 +51,22 @@ MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
+>>   static struct vfsmount *balloon_mnt;
+>>   #endif
+>>   
+>> +enum virtio_balloon_vq {
+>> +	VIRTIO_BALLOON_VQ_INFLATE,
+>> +	VIRTIO_BALLOON_VQ_DEFLATE,
+>> +	VIRTIO_BALLOON_VQ_STATS,
+>> +	VIRTIO_BALLOON_VQ_FREE_PAGE,
+>> +	VIRTIO_BALLOON_VQ_MAX
+>> +};
+>> +
+>>   struct virtio_balloon {
+>>   	struct virtio_device *vdev;
+>> -	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq;
+>> +	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *free_page_vq;
+>> +
+>> +	/* Balloon's own wq for cpu-intensive work items */
+>> +	struct workqueue_struct *balloon_wq;
+>> +	/* The free page reporting work item submitted to the balloon wq */
+>> +	struct work_struct report_free_page_work;
+>>   
+>>   	/* The balloon servicing is delegated to a freezable workqueue. */
+>>   	struct work_struct update_balloon_stats_work;
+>> @@ -63,6 +76,13 @@ struct virtio_balloon {
+>>   	spinlock_t stop_update_lock;
+>>   	bool stop_update;
+>>   
+>> +	/* The new cmd id received from host */
+>> +	uint32_t cmd_id_received;
+>> +	/* The cmd id that is in use */
+>> +	__virtio32 cmd_id_use;
+> I'd prefer cmd_id_active but it's not critical.
 
-Is that correct? If not, how does it look like?
+OK, will change.
 
-Thanks!
+>
+> +
+> +static void report_free_page_func(struct work_struct *work)
+> +{
+> +	struct virtio_balloon *vb;
+> +	struct virtqueue *vq;
+> +	unsigned int unused;
+> +	int ret;
+> +
+> +	vb = container_of(work, struct virtio_balloon, report_free_page_work);
+> +	vq = vb->free_page_vq;
+> +
+> +	/* Start by sending the received cmd id to host with an outbuf. */
+> +	ret = send_start_cmd_id(vb, vb->cmd_id_received);
+> +	if (unlikely(ret))
+> +		goto err;
+> +
+> +	ret = walk_free_mem_block(vb, 0, &virtio_balloon_send_free_pages);
+> +	if (unlikely(ret == -EIO))
+> +		goto err;
+> why is EIO special? I think you should special-case EINTR maybe.
+
+Actually EINTR isn't an error which needs to bail out. That's just the 
+case that the vq is full, that hint isn't added. Maybe it is not 
+necessary to treat the "vq full" case as an error.
+How about just returning "0" when the vq is full, instead of returning 
+"EINTR"? (The next hint will continue to be added)
+
+
+
+>
+>> +
+>> +	/* End by sending a stop id to host with an outbuf. */
+>> +	ret = send_stop_cmd_id(vb);
+>> +	if (likely(!ret)) {
+> What happens on failure? Don't we need to detach anyway?
+
+Yes. Please see below, we could make some more change.
+>
+>> +		/* Ending: detach all the used buffers from the vq. */
+>> +		while (vq->num_free != virtqueue_get_vring_size(vq))
+>> +			virtqueue_get_buf(vq, &unused);
+> This isn't all that happens here. It also waits for buffers to
+> be consumed. Is this by design? And why is it good idea to
+> busy poll while doing it?
+
+Because host and guest operations happen asynchronously. When the guest 
+reaches here, host may have not put anything to the vq yet. How about 
+doing this via the free page vq handler?
+Host will send a free page vq interrupt before exiting the optimization. 
+I think this would be nicer.
+
+
+Best,
+Wei
