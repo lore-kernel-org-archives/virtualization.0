@@ -1,14 +1,14 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: kernel BUG at drivers/vhost/vhost.c:LINE! (2)
-Date: Mon, 9 Apr 2018 11:28:35 +0800
-Message-ID: <20180409032835.GB1648__42857.2754994549$1523244410$gmane$org@stefanha-x1.localdomain>
-References: <001a11449424f11322056932b09c@google.com>
-	<CAJSP0QVHk7NSQcjfLWq13=1Vzm=_vtmKZqp4dDjuh8ETLO5g_g@mail.gmail.com>
-	<20180409054316-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost-net: set packet weight of tx polling to 2 * vq size
+Date: Mon, 9 Apr 2018 08:46:55 +0300
+Message-ID: <20180409084601-mutt-send-email-mst@kernel.org>
+References: <88D661ADF6AFBF42B2AB88D8E7682B0901FC49BE@EXMBX-SZMAIL011.tencent.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7840647841164505401=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180409054316-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <88D661ADF6AFBF42B2AB88D8E7682B0901FC49BE@EXMBX-SZMAIL011.tencent.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,75 +18,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm <kvm@vger.kernel.org>, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, syzbot <syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: =?utf-8?B?aGFpYmluemhhbmco5byg5rW35paMKQ==?= <haibinzhang@tencent.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, =?utf-8?B?eXVuZmFuZ3RhaSjlj7Dov5Dmlrkp?= <yunfangtai@tencent.com>, =?utf-8?B?bGlkb25nY2hlbijpmYjnq4vkuJwp?= <lidongchen@tencent.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============7840647841164505401==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xXmbgvnjoT4axfJE"
-Content-Disposition: inline
-
-
---xXmbgvnjoT4axfJE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Apr 09, 2018 at 05:44:36AM +0300, Michael S. Tsirkin wrote:
-> On Mon, Apr 09, 2018 at 10:37:45AM +0800, Stefan Hajnoczi wrote:
-> > On Sat, Apr 7, 2018 at 3:02 AM, syzbot
-> > <syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com> wrote:
-> > > syzbot hit the following crash on upstream commit
-> > > 38c23685b273cfb4ccf31a199feccce3bdcb5d83 (Fri Apr 6 04:29:35 2018 +00=
-00)
-> > > Merge tag 'armsoc-drivers' of
-> > > git://git.kernel.org/pub/scm/linux/kernel/git/arm/arm-soc
-> > > syzbot dashboard link:
-> > > https://syzkaller.appspot.com/bug?extid=3D65a84dde0214b0387ccd
-> >=20
-> > To prevent duplicated work: I am working on this one.
-> >=20
-> > Stefan
->=20
-> Do you want to try this patchset:
-> https://lkml.org/lkml/2018/4/5/665
->=20
-> ?
-
-Thanks, I'll give it a shot.
-
-I also noticed a regression in commit
-d65026c6c62e7d9616c8ceb5a53b68bcdc050525 ("vhost: validate log when
-IOTLB is enabled") and am currently testing a fix.
-
-Stefan
-
---xXmbgvnjoT4axfJE
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJayt3jAAoJEJykq7OBq3PIvCQH/2E79UtiLD6eBIXZkG58tEo5
-Ez30uLYssZ++XNLiJVf/zFggkbtAbO7MxF7NC7irzgyaywS9mClGLlmfV9RTN5En
-AwEnk1TVhOfZdrsO97o/k37V8WCF16mGNmQVA2XCoex6P8vnnUIMEBvdZGSToEQx
-WgtPjrHCAMfpEjotN/3mstAdv6O3+Cm/utLUNC4ZsJexuk7JvskDO9AljnCViVcz
-ZUAZsVHHY2nQZfjzyx1GudJrkceB/3/newMoDQDVLqvLKoFZEV65nxXWhmDO4zO9
-ocWB9oLqCU+CpD3LG1Eh+BMT+KuqvWXMzzO48IFZtUn22BHAQGNrWBDdrVo22Fs=
-=K4YJ
------END PGP SIGNATURE-----
-
---xXmbgvnjoT4axfJE--
-
---===============7840647841164505401==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7840647841164505401==--
+T24gTW9uLCBBcHIgMDksIDIwMTggYXQgMDQ6MDk6MjBBTSArMDAwMCwgaGFpYmluemhhbmco5byg
+5rW35paMKSB3cm90ZToKPiAKPiA+IE9uIEZyaSwgQXByIDA2LCAyMDE4IGF0IDA4OjIyOjM3QU0g
+KzAwMDAsIGhhaWJpbnpoYW5nKOW8oOa1t+aWjCkgd3JvdGU6Cj4gPiA+IGhhbmRsZV90eCB3aWxs
+IGRlbGF5IHJ4IGZvciB0ZW5zIG9yIGV2ZW4gaHVuZHJlZHMgb2YgbWlsbGlzZWNvbmRzIHdoZW4g
+dHggYnVzeQo+ID4gPiBwb2xsaW5nIHVkcCBwYWNrZXRzIHdpdGggc21hbGwgbGVuZ3RoKGUuZy4g
+MWJ5dGUgdWRwIHBheWxvYWQpLCBiZWNhdXNlIHNldHRpbmcKPiA+ID4gVkhPU1RfTkVUX1dFSUdI
+VCB0YWtlcyBpbnRvIGFjY291bnQgb25seSBzZW50LWJ5dGVzIGJ1dCBubyBzaW5nbGUgcGFja2V0
+IGxlbmd0aC4KPiA+ID4gCj4gPiA+IFBpbmctTGF0ZW5jaWVzIHNob3duIGJlbG93IHdlcmUgdGVz
+dGVkIGJldHdlZW4gdHdvIFZpcnR1YWwgTWFjaGluZXMgdXNpbmcKPiA+ID4gbmV0cGVyZiAoVURQ
+X1NUUkVBTSwgbGVuPTEpLCBhbmQgdGhlbiBhbm90aGVyIG1hY2hpbmUgcGluZ2VkIHRoZSBjbGll
+bnQ6Cj4gPiA+IAo+ID4gPiBQYWNrZXQtV2VpZ2h0ICAgICAgUGluZy1MYXRlbmNpZXMobWlsbGlz
+ZWNvbmQpCj4gPiA+ICAgICAgICAgICAgICAgICAgICBtaW4gICAgICBhdmcgICAgICAgbWF4Cj4g
+PiA+IE9yaWdpbiAgICAgICAgICAgMy4zMTkgICAxOC40ODkgICAgNTcuMzAzCj4gPiA+IDY0ICAg
+ICAgICAgICAgICAgMS42NDMgICAgMi4wMjEgICAgIDIuNTUyCj4gPiA+IDEyOCAgICAgICAgICAg
+ICAgMS44MjUgICAgMi42MDAgICAgIDMuMjI0Cj4gPiA+IDI1NiAgICAgICAgICAgICAgMS45OTcg
+ICAgMi43MTAgICAgIDQuMjk1Cj4gPiA+IDUxMiAgICAgICAgICAgICAgMS44NjAgICAgMy4xNzEg
+ICAgIDQuNjMxCj4gPiA+IDEwMjQgICAgICAgICAgICAgMi4wMDIgICAgNC4xNzMgICAgIDkuMDU2
+Cj4gPiA+IDIwNDggICAgICAgICAgICAgMi4yNTcgICAgNS42NTAgICAgIDkuNjg4Cj4gPiA+IDQw
+OTYgICAgICAgICAgICAgMi4wOTMgICAgOC41MDggICAgMTUuOTQzCj4gPgo+ID4gQW5kIHRoaXMg
+aXMgd2l0aCBRIHNpemUgMjU2IHJpZ2h0Pwo+IAo+IFllcy4gUGluZy1sYXRlbmNpZXMgd2l0aCA1
+MTIgVlEgc2l6ZSBzaG93IGJlbG93Lgo+IAo+IFBhY2tldC1XZWlnaHQgICAgICBQaW5nLUxhdGVu
+Y2llcyhtaWxsaXNlY29uZCkKPiAgICAgICAgICAgICAgICAgICAgIG1pbiAgICAgIGF2ZyAgICAg
+ICBtYXgKPiBPcmlnaW4gICAgICAgICAgIDYuMzU3ICAgMjkuMTc3ICAgIDY2LjI0NQo+IDY0ICAg
+ICAgICAgICAgICAgMi43OTggICAgMy42MTQgICAgIDQuNDAzCj4gMTI4ICAgICAgICAgICAgICAy
+Ljg2MSAgICAzLjgyMCAgICAgNC43NzUKPiAyNTYgICAgICAgICAgICAgIDMuMDA4ICAgIDQuMDE4
+ICAgICA0LjgwNwo+IDUxMiAgICAgICAgICAgICAgMy4yNTQgICAgNC41MjMgICAgIDUuODI0Cj4g
+MTAyNCAgICAgICAgICAgICAzLjA3OSAgICA1LjMzNSAgICAgNy43NDcKPiAyMDQ4ICAgICAgICAg
+ICAgIDMuOTQ0ICAgIDguMjAxICAgICAxMi43NjIKPiA0MDk2ICAgICAgICAgICAgIDQuMTU4ICAg
+MTEuMDU3ICAgIDE5Ljk4NQo+IAo+IFdlIHdpbGwgc3VibWl0IGFnYWluLiBJcyB0aGVyZSBhbnl0
+aGluZyBlbHNlPwoKU2VlbXMgcHJldHR5IGNvbnNpc3RlbnQsIGEgc21hbGwgZGlwIGF0IDIgVlEg
+c2l6ZXMuCgoKQWNrZWQtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cgo+
+ID4KPiA+ID4gUmluZyBzaXplIGlzIGEgaGludCBmcm9tIGRldmljZSBhYm91dCBhIGJ1cnN0IHNp
+emUgaXQgY2FuIHRvbGVyYXRlLiBCYXNlZCBvbgo+ID4gPiBiZW5jaG1hcmtzLCBzZXQgdGhlIHdl
+aWdodCB0byAyICogdnEgc2l6ZS4KPiA+ID4gCj4gPiA+IFRvIGV2YWx1YXRlIHRoaXMgY2hhbmdl
+LCBhbm90aGVyIHRlc3RzIHdlcmUgZG9uZSB1c2luZyBuZXRwZXJmKFJSLCBUWCkgYmV0d2Vlbgo+
+ID4gPiB0d28gbWFjaGluZXMgd2l0aCBJbnRlbChSKSBYZW9uKFIpIEdvbGQgNjEzMyBDUFUgQCAy
+LjUwR0h6LCBhbmQgdnEgc2l6ZSB3YXMKPiA+ID4gdHdlYWtlZCB0aHJvdWdoIHFlbXUuIFJlc3Vs
+dHMgc2hvd24gYmVsb3cgZG9lcyBub3Qgc2hvdyBvYnZpb3VzIGNoYW5nZXMuCj4gPgo+ID4gV2hh
+dCBJIGFza2VkIGZvciBpcyBwaW5nLWxhdGVuY3kgd2l0aCBkaWZmZXJlbnQgVlEgc2l6ZXMsCj4g
+PiBzdHJlYW1pbmcgYmVsb3cgZG9lcyBub3Qgc2hvdyBhbnl0aGluZy4KPiA+Cj4gPiA+IHZxIHNp
+emU9MjU2IFRDUF9SUiAgICAgICAgICAgICAgICB2cSBzaXplPTUxMiBUQ1BfUlIKPiA+ID4gc2l6
+ZS9zZXNzaW9ucy8rdGh1JS8rbm9ybWFsaXplJSAgIHNpemUvc2Vzc2lvbnMvK3RodSUvK25vcm1h
+bGl6ZSUKPiA+ID4gICAgMS8gICAgICAgMS8gIC03JS8gICAgICAgIC0yJSAgICAgIDEvICAgICAg
+IDEvICAgMCUvICAgICAgICAtMiUKPiA+ID4gICAgMS8gICAgICAgNC8gICsxJS8gICAgICAgICAw
+JSAgICAgIDEvICAgICAgIDQvICArMSUvICAgICAgICAgMCUKPiA+ID4gICAgMS8gICAgICAgOC8g
+ICsxJS8gICAgICAgIC0yJSAgICAgIDEvICAgICAgIDgvICAgMCUvICAgICAgICArMSUKPiA+ID4g
+ICA2NC8gICAgICAgMS8gIC02JS8gICAgICAgICAwJSAgICAgNjQvICAgICAgIDEvICArNyUvICAg
+ICAgICArMyUKPiA+ID4gICA2NC8gICAgICAgNC8gICAwJS8gICAgICAgICsyJSAgICAgNjQvICAg
+ICAgIDQvICAtMSUvICAgICAgICArMSUKPiA+ID4gICA2NC8gICAgICAgOC8gICAwJS8gICAgICAg
+ICAwJSAgICAgNjQvICAgICAgIDgvICAtMSUvICAgICAgICAtMiUKPiA+ID4gIDI1Ni8gICAgICAg
+MS8gIC0zJS8gICAgICAgIC00JSAgICAyNTYvICAgICAgIDEvICAtNCUvICAgICAgICAtMiUKPiA+
+ID4gIDI1Ni8gICAgICAgNC8gICszJS8gICAgICAgICs0JSAgICAyNTYvICAgICAgIDQvICArMSUv
+ICAgICAgICArMiUKPiA+ID4gIDI1Ni8gICAgICAgOC8gICsyJS8gICAgICAgICAwJSAgICAyNTYv
+ICAgICAgIDgvICArMSUvICAgICAgICAtMSUKPiA+ID4gCj4gPiA+IHZxIHNpemU9MjU2IFVEUF9S
+UiAgICAgICAgICAgICAgICB2cSBzaXplPTUxMiBVRFBfUlIKPiA+ID4gc2l6ZS9zZXNzaW9ucy8r
+dGh1JS8rbm9ybWFsaXplJSAgIHNpemUvc2Vzc2lvbnMvK3RodSUvK25vcm1hbGl6ZSUKPiA+ID4g
+ICAgMS8gICAgICAgMS8gIC01JS8gICAgICAgICsxJSAgICAgIDEvICAgICAgIDEvICAtMyUvICAg
+ICAgICAtMiUKPiA+ID4gICAgMS8gICAgICAgNC8gICs0JS8gICAgICAgICsxJSAgICAgIDEvICAg
+ICAgIDQvICAtMiUvICAgICAgICArMiUKPiA+ID4gICAgMS8gICAgICAgOC8gIC0xJS8gICAgICAg
+IC0xJSAgICAgIDEvICAgICAgIDgvICAtMSUvICAgICAgICAgMCUKPiA+ID4gICA2NC8gICAgICAg
+MS8gIC0yJS8gICAgICAgIC0zJSAgICAgNjQvICAgICAgIDEvICArMSUvICAgICAgICArMSUKPiA+
+ID4gICA2NC8gICAgICAgNC8gIC01JS8gICAgICAgIC0xJSAgICAgNjQvICAgICAgIDQvICArMiUv
+ICAgICAgICAgMCUKPiA+ID4gICA2NC8gICAgICAgOC8gICAwJS8gICAgICAgIC0xJSAgICAgNjQv
+ICAgICAgIDgvICAtMiUvICAgICAgICArMSUKPiA+ID4gIDI1Ni8gICAgICAgMS8gICs3JS8gICAg
+ICAgICsxJSAgICAyNTYvICAgICAgIDEvICAtNyUvICAgICAgICAgMCUKPiA+ID4gIDI1Ni8gICAg
+ICAgNC8gICsxJS8gICAgICAgICsxJSAgICAyNTYvICAgICAgIDQvICAtMyUvICAgICAgICAtNCUK
+PiA+ID4gIDI1Ni8gICAgICAgOC8gICsyJS8gICAgICAgICsyJSAgICAyNTYvICAgICAgIDgvICAr
+MSUvICAgICAgICArMSUKPiA+ID4gCj4gPiA+IHZxIHNpemU9MjU2IFRDUF9TVFJFQU0gICAgICAg
+ICAgICB2cSBzaXplPTUxMiBUQ1BfU1RSRUFNCj4gPiA+IHNpemUvc2Vzc2lvbnMvK3RodSUvK25v
+cm1hbGl6ZSUgICBzaXplL3Nlc3Npb25zLyt0aHUlLytub3JtYWxpemUlCj4gPiA+ICAgNjQvICAg
+ICAgIDEvICAgMCUvICAgICAgICAtMyUgICAgIDY0LyAgICAgICAxLyAgIDAlLyAgICAgICAgIDAl
+Cj4gPiA+ICAgNjQvICAgICAgIDQvICArMyUvICAgICAgICAtMSUgICAgIDY0LyAgICAgICA0LyAg
+LTIlLyAgICAgICAgKzQlCj4gPiA+ICAgNjQvICAgICAgIDgvICArOSUvICAgICAgICAtNCUgICAg
+IDY0LyAgICAgICA4LyAgLTElLyAgICAgICAgKzIlCj4gPiA+ICAyNTYvICAgICAgIDEvICArMSUv
+ICAgICAgICAtNCUgICAgMjU2LyAgICAgICAxLyAgKzElLyAgICAgICAgKzElCj4gPiA+ICAyNTYv
+ICAgICAgIDQvICAtMSUvICAgICAgICAtMSUgICAgMjU2LyAgICAgICA0LyAgLTMlLyAgICAgICAg
+IDAlCj4gPiA+ICAyNTYvICAgICAgIDgvICArNyUvICAgICAgICArNSUgICAgMjU2LyAgICAgICA4
+LyAgLTMlLyAgICAgICAgIDAlCj4gPiA+ICA1MTIvICAgICAgIDEvICArMSUvICAgICAgICAgMCUg
+ICAgNTEyLyAgICAgICAxLyAgLTElLyAgICAgICAgLTElCj4gPiA+ICA1MTIvICAgICAgIDQvICAr
+MSUvICAgICAgICAtMSUgICAgNTEyLyAgICAgICA0LyAgIDAlLyAgICAgICAgIDAlCj4gPiA+ICA1
+MTIvICAgICAgIDgvICArNyUvICAgICAgICAtNSUgICAgNTEyLyAgICAgICA4LyAgKzYlLyAgICAg
+ICAgLTElCj4gPiA+IDEwMjQvICAgICAgIDEvICAgMCUvICAgICAgICAtMSUgICAxMDI0LyAgICAg
+ICAxLyAgIDAlLyAgICAgICAgKzElCj4gPiA+IDEwMjQvICAgICAgIDQvICArMyUvICAgICAgICAg
+MCUgICAxMDI0LyAgICAgICA0LyAgKzElLyAgICAgICAgIDAlCj4gPiA+IDEwMjQvICAgICAgIDgv
+ICArOCUvICAgICAgICArNSUgICAxMDI0LyAgICAgICA4LyAgLTElLyAgICAgICAgIDAlCj4gPiA+
+IDIwNDgvICAgICAgIDEvICArMiUvICAgICAgICArMiUgICAyMDQ4LyAgICAgICAxLyAgLTElLyAg
+ICAgICAgIDAlCj4gPiA+IDIwNDgvICAgICAgIDQvICArMSUvICAgICAgICAgMCUgICAyMDQ4LyAg
+ICAgICA0LyAgIDAlLyAgICAgICAgLTElCj4gPiA+IDIwNDgvICAgICAgIDgvICAtMiUvICAgICAg
+ICAgMCUgICAyMDQ4LyAgICAgICA4LyAgIDUlLyAgICAgICAgLTElCj4gPiA+IDQwOTYvICAgICAg
+IDEvICAtMiUvICAgICAgICAgMCUgICA0MDk2LyAgICAgICAxLyAgLTIlLyAgICAgICAgIDAlCj4g
+PiA+IDQwOTYvICAgICAgIDQvICArMiUvICAgICAgICAgMCUgICA0MDk2LyAgICAgICA0LyAgIDAl
+LyAgICAgICAgIDAlCj4gPiA+IDQwOTYvICAgICAgIDgvICArOSUvICAgICAgICAtMiUgICA0MDk2
+LyAgICAgICA4LyAgLTUlLyAgICAgICAgLTElCj4gPiA+IAo+ID4gPiBTaWduZWQtb2ZmLWJ5OiBI
+YWliaW4gWmhhbmcgPGhhaWJpbnpoYW5nQHRlbmNlbnQuY29tPgo+ID4gPiBTaWduZWQtb2ZmLWJ5
+OiBZdW5mYW5nIFRhaSA8eXVuZmFuZ3RhaUB0ZW5jZW50LmNvbT4KPiA+ID4gU2lnbmVkLW9mZi1i
+eTogTGlkb25nIENoZW4gPGxpZG9uZ2NoZW5AdGVuY2VudC5jb20+Cj4gPgo+ID4gQ29kZSBpcyBm
+aW5lIGJ1dCBJJ2QgbGlrZSB0byBzZWUgdmFsaWRhdGlvbiBvZiB0aGUgaGV1cmlzdGljCj4gPiAy
+KnZxLT5udW0gd2l0aCBhbm90aGVyIHZxIHNpemUuCj4gPgo+ID4KPiA+Cj4gPiA+IC0tLQo+ID4g
+PiAgZHJpdmVycy92aG9zdC9uZXQuYyB8IDggKysrKysrKy0KPiA+ID4gIDEgZmlsZSBjaGFuZ2Vk
+LCA3IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPiA+ID4gCj4gPiA+IGRpZmYgLS1naXQg
+YS9kcml2ZXJzL3Zob3N0L25ldC5jIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+ID4gPiBpbmRleCA4
+MTM5YmM3MGFkN2QuLjM1NjNhMzA1Y2MwYSAxMDA2NDQKPiA+ID4gLS0tIGEvZHJpdmVycy92aG9z
+dC9uZXQuYwo+ID4gPiArKysgYi9kcml2ZXJzL3Zob3N0L25ldC5jCj4gPiA+IEBAIC00NCw2ICs0
+NCwxMCBAQCBNT0RVTEVfUEFSTV9ERVNDKGV4cGVyaW1lbnRhbF96Y29weXR4LCAiRW5hYmxlIFpl
+cm8gQ29weSBUWDsiCj4gPiA+ICAgKiBVc2luZyB0aGlzIGxpbWl0IHByZXZlbnRzIG9uZSB2aXJ0
+cXVldWUgZnJvbSBzdGFydmluZyBvdGhlcnMuICovCj4gPiA+ICAjZGVmaW5lIFZIT1NUX05FVF9X
+RUlHSFQgMHg4MDAwMAo+ID4gPiAgCj4gPiA+ICsvKiBNYXggbnVtYmVyIG9mIHBhY2tldHMgdHJh
+bnNmZXJyZWQgYmVmb3JlIHJlcXVldWVpbmcgdGhlIGpvYi4KPiA+ID4gKyAqIFVzaW5nIHRoaXMg
+bGltaXQgcHJldmVudHMgb25lIHZpcnRxdWV1ZSBmcm9tIHN0YXJ2aW5nIHJ4LiAqLwo+ID4gPiAr
+I2RlZmluZSBWSE9TVF9ORVRfUEtUX1dFSUdIVCh2cSkgKCh2cSktPm51bSAqIDIpCj4gPiA+ICsK
+PiA+ID4gIC8qIE1BWCBudW1iZXIgb2YgVFggdXNlZCBidWZmZXJzIGZvciBvdXRzdGFuZGluZyB6
+ZXJvY29weSAqLwo+ID4gPiAgI2RlZmluZSBWSE9TVF9NQVhfUEVORCAxMjgKPiA+ID4gICNkZWZp
+bmUgVkhPU1RfR09PRENPUFlfTEVOIDI1Ngo+ID4gPiBAQCAtNDczLDYgKzQ3Nyw3IEBAIHN0YXRp
+YyB2b2lkIGhhbmRsZV90eChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQpCj4gPiA+ICAJc3RydWN0IHNv
+Y2tldCAqc29jazsKPiA+ID4gIAlzdHJ1Y3Qgdmhvc3RfbmV0X3VidWZfcmVmICp1bmluaXRpYWxp
+emVkX3Zhcih1YnVmcyk7Cj4gPiA+ICAJYm9vbCB6Y29weSwgemNvcHlfdXNlZDsKPiA+ID4gKwlp
+bnQgc2VudF9wa3RzID0gMDsKPiA+ID4gIAo+ID4gPiAgCW11dGV4X2xvY2soJnZxLT5tdXRleCk7
+Cj4gPiA+ICAJc29jayA9IHZxLT5wcml2YXRlX2RhdGE7Cj4gPiA+IEBAIC01ODAsNyArNTg1LDgg
+QEAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkKPiA+ID4gIAkJ
+ZWxzZQo+ID4gPiAgCQkJdmhvc3RfemVyb2NvcHlfc2lnbmFsX3VzZWQobmV0LCB2cSk7Cj4gPiA+
+ICAJCXZob3N0X25ldF90eF9wYWNrZXQobmV0KTsKPiA+ID4gLQkJaWYgKHVubGlrZWx5KHRvdGFs
+X2xlbiA+PSBWSE9TVF9ORVRfV0VJR0hUKSkgewo+ID4gPiArCQlpZiAodW5saWtlbHkodG90YWxf
+bGVuID49IFZIT1NUX05FVF9XRUlHSFQpIHx8Cj4gPiA+ICsJCSAgICB1bmxpa2VseSgrK3NlbnRf
+cGt0cyA+PSBWSE9TVF9ORVRfUEtUX1dFSUdIVCh2cSkpKSB7Cj4gPiA+ICAJCQl2aG9zdF9wb2xs
+X3F1ZXVlKCZ2cS0+cG9sbCk7Cj4gPiA+ICAJCQlicmVhazsKPiA+ID4gIAkJfQo+ID4gPiAtLSAK
+PiA+ID4gMi4xMi4zCj4gPiA+IAo+IApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
