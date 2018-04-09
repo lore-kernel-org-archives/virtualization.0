@@ -1,13 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] vhost-net: set packet weight of tx polling to 2 * vq size
-Date: Sun, 08 Apr 2018 12:52:30 -0400 (EDT)
-Message-ID: <20180408.125230.1777996328363149390.davem__37956.747323233$1523206243$gmane$org@davemloft.net>
-References: <88D661ADF6AFBF42B2AB88D8E7682B0901FC47D3@EXMBX-SZMAIL011.tencent.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: kernel BUG at drivers/vhost/vhost.c:LINE! (2)
+Date: Mon, 9 Apr 2018 10:37:45 +0800
+Message-ID: <CAJSP0QVHk7NSQcjfLWq13=1Vzm=_vtmKZqp4dDjuh8ETLO5g_g__21484.9407122985$1523241358$gmane$org@mail.gmail.com>
+References: <001a11449424f11322056932b09c@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <88D661ADF6AFBF42B2AB88D8E7682B0901FC47D3@EXMBX-SZMAIL011.tencent.com>
+In-Reply-To: <001a11449424f11322056932b09c@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,23 +17,114 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: haibinzhang@tencent.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, yunfangtai@tencent.com, lidongchen@tencent.com
+To: syzbot <syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com>
+Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogaGFpYmluemhhbmco5byg5rW35paMKSA8aGFpYmluemhhbmdAdGVuY2VudC5jb20+DQpE
-YXRlOiBGcmksIDYgQXByIDIwMTggMDg6MjI6MzcgKzAwMDANCg0KPiBoYW5kbGVfdHggd2lsbCBk
-ZWxheSByeCBmb3IgdGVucyBvciBldmVuIGh1bmRyZWRzIG9mIG1pbGxpc2Vjb25kcyB3aGVuIHR4
-IGJ1c3kNCj4gcG9sbGluZyB1ZHAgcGFja2V0cyB3aXRoIHNtYWxsIGxlbmd0aChlLmcuIDFieXRl
-IHVkcCBwYXlsb2FkKSwgYmVjYXVzZSBzZXR0aW5nDQo+IFZIT1NUX05FVF9XRUlHSFQgdGFrZXMg
-aW50byBhY2NvdW50IG9ubHkgc2VudC1ieXRlcyBidXQgbm8gc2luZ2xlIHBhY2tldCBsZW5ndGgu
-DQo+IA0KPiBQaW5nLUxhdGVuY2llcyBzaG93biBiZWxvdyB3ZXJlIHRlc3RlZCBiZXR3ZWVuIHR3
-byBWaXJ0dWFsIE1hY2hpbmVzIHVzaW5nDQo+IG5ldHBlcmYgKFVEUF9TVFJFQU0sIGxlbj0xKSwg
-YW5kIHRoZW4gYW5vdGhlciBtYWNoaW5lIHBpbmdlZCB0aGUgY2xpZW50Og0KLi4uDQo+IFNpZ25l
-ZC1vZmYtYnk6IEhhaWJpbiBaaGFuZyA8aGFpYmluemhhbmdAdGVuY2VudC5jb20+DQo+IFNpZ25l
-ZC1vZmYtYnk6IFl1bmZhbmcgVGFpIDx5dW5mYW5ndGFpQHRlbmNlbnQuY29tPg0KPiBTaWduZWQt
-b2ZmLWJ5OiBMaWRvbmcgQ2hlbiA8bGlkb25nY2hlbkB0ZW5jZW50LmNvbT4NCg0KTWljaGFlbCBh
-bmQgSmFzb24sIHBsZWFzZSByZXZpZXcuDQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Sat, Apr 7, 2018 at 3:02 AM, syzbot
+<syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com> wrote:
+> syzbot hit the following crash on upstream commit
+> 38c23685b273cfb4ccf31a199feccce3bdcb5d83 (Fri Apr 6 04:29:35 2018 +0000)
+> Merge tag 'armsoc-drivers' of
+> git://git.kernel.org/pub/scm/linux/kernel/git/arm/arm-soc
+> syzbot dashboard link:
+> https://syzkaller.appspot.com/bug?extid=65a84dde0214b0387ccd
+
+To prevent duplicated work: I am working on this one.
+
+Stefan
+
+>
+> So far this crash happened 4 times on upstream.
+> C reproducer: https://syzkaller.appspot.com/x/repro.c?id=6586748079439872
+> syzkaller reproducer:
+> https://syzkaller.appspot.com/x/repro.syz?id=5974272052822016
+> Raw console output:
+> https://syzkaller.appspot.com/x/log.txt?id=6224632407392256
+> Kernel config:
+> https://syzkaller.appspot.com/x/.config?id=-5813481738265533882
+> compiler: gcc (GCC) 8.0.1 20180301 (experimental)
+>
+> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> Reported-by: syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com
+> It will help syzbot understand when the bug is fixed. See footer for
+> details.
+> If you forward the report, please keep this part and the footer.
+>
+> ------------[ cut here ]------------
+> kernel BUG at drivers/vhost/vhost.c:1652!
+> invalid opcode: 0000 [#1] SMP KASAN
+> ------------[ cut here ]------------
+> Dumping ftrace buffer:
+> kernel BUG at drivers/vhost/vhost.c:1652!
+>    (ftrace buffer empty)
+> Modules linked in:
+> CPU: 1 PID: 4461 Comm: syzkaller684218 Not tainted 4.16.0+ #3
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+> Google 01/01/2011
+> RIP: 0010:set_bit_to_user drivers/vhost/vhost.c:1652 [inline]
+> RIP: 0010:log_write+0x42a/0x4d0 drivers/vhost/vhost.c:1676
+> RSP: 0018:ffff8801b256f920 EFLAGS: 00010293
+> RAX: ffff8801adc9e2c0 RBX: dffffc0000000000 RCX: ffffffff85924a0f
+> RDX: 0000000000000000 RSI: ffffffff85924cea RDI: 0000000000000005
+> RBP: ffff8801b256fa58 R08: ffff8801adc9e2c0 R09: ffffed003962412d
+> R10: ffff8801b256fad8 R11: ffff8801cb12096f R12: 0001ffffffffffff
+> R13: ffffed00364adf36 R14: 0000000000000000 R15: ffff8801b256fa30
+> FS:  00007fdf24b19700(0000) GS:ffff8801db100000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 0000000020bf6000 CR3: 00000001ae6a7000 CR4: 00000000001406e0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Call Trace:
+>  vhost_update_used_flags+0x3af/0x4a0 drivers/vhost/vhost.c:1723
+>  vhost_vq_init_access+0x117/0x590 drivers/vhost/vhost.c:1763
+>  vhost_vsock_start drivers/vhost/vsock.c:446 [inline]
+>  vhost_vsock_dev_ioctl+0x751/0x920 drivers/vhost/vsock.c:678
+>  vfs_ioctl fs/ioctl.c:46 [inline]
+>  file_ioctl fs/ioctl.c:500 [inline]
+>  do_vfs_ioctl+0x1cf/0x1650 fs/ioctl.c:684
+>  ksys_ioctl+0xa9/0xd0 fs/ioctl.c:701
+>  SYSC_ioctl fs/ioctl.c:708 [inline]
+>  SyS_ioctl+0x24/0x30 fs/ioctl.c:706
+>  do_syscall_64+0x29e/0x9d0 arch/x86/entry/common.c:287
+>  entry_SYSCALL_64_after_hwframe+0x42/0xb7
+> RIP: 0033:0x4456c9
+> RSP: 002b:00007fdf24b18da8 EFLAGS: 00000297 ORIG_RAX: 0000000000000010
+> RAX: ffffffffffffffda RBX: 00000000006dac24 RCX: 00000000004456c9
+> RDX: 0000000020f82ffc RSI: 000000004004af61 RDI: 000000000000001b
+> RBP: 00000000006dac20 R08: 0000000000000000 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000297 R12: 6b636f73762d7473
+> R13: 6f68762f7665642f R14: fffffffffffffffc R15: 0000000000000007
+> Code: e8 7c 5e e4 fb 4c 89 ef e8 e4 16 06 fc 48 8d 85 58 ff ff ff 48 c1 e8
+> 03 c6 04 18 f8 e9 46 ff ff ff 45 31 f6 eb 91 e8 56 5e e4 fb <0f> 0b e8 4f 5e
+> e4 fb 48 c7 c6 a0 a3 24 88 4c 89 ef e8 60 b6 10
+> RIP: set_bit_to_user drivers/vhost/vhost.c:1652 [inline] RSP:
+> ffff8801b256f920
+> RIP: log_write+0x42a/0x4d0 drivers/vhost/vhost.c:1676 RSP: ffff8801b256f920
+> invalid opcode: 0000 [#2] SMP KASAN
+> ---[ end trace 0d0ff45aa44d8a23 ]---
+> Dumping ftrace buffer:
+>    (ftrace buffer empty)
+> Modules linked in:
+>
+>
+> ---
+> This bug is generated by a dumb bot. It may contain errors.
+> See https://goo.gl/tpsmEJ for details.
+> Direct all questions to syzkaller@googlegroups.com.
+>
+> syzbot will keep track of this bug report.
+> If you forgot to add the Reported-by tag, once the fix for this bug is
+> merged
+> into any tree, please reply to this email with:
+> #syz fix: exact-commit-title
+> If you want to test a patch for this bug, please reply with:
+> #syz test: git://repo/address.git branch
+> and provide the patch inline or as an attachment.
+> To mark this as a duplicate of another syzbot report, please reply with:
+> #syz dup: exact-subject-of-another-report
+> If it's a one-off invalid bug report, please reply with:
+> #syz invalid
+> Note: if the crash happens again, it will cause creation of a new bug
+> report.
+> Note: all commands must start from beginning of the line in the email body.
