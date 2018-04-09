@@ -1,16 +1,14 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: kernel BUG at drivers/vhost/vhost.c:LINE! (2)
-Date: Mon, 9 Apr 2018 21:17:35 +0800
-Message-ID: <CAJSP0QUgySKEk79EzFSQAdTfbmFRE+CdJPkLdV5+6MoX6tf3eg@mail.gmail.com>
-References: <001a11449424f11322056932b09c@google.com>
-	<CAJSP0QVHk7NSQcjfLWq13=1Vzm=_vtmKZqp4dDjuh8ETLO5g_g@mail.gmail.com>
-	<20180409054316-mutt-send-email-mst@kernel.org>
-	<20180409032835.GB1648@stefanha-x1.localdomain>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost: fix vhost_vq_access_ok() log check
+Date: Mon, 9 Apr 2018 16:58:19 +0300
+Message-ID: <20180409165805-mutt-send-email-mst@kernel.org>
+References: <20180409131021.5132-1-stefanha@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180409032835.GB1648@stefanha-x1.localdomain>
+Content-Disposition: inline
+In-Reply-To: <20180409131021.5132-1-stefanha@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,38 +18,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm <kvm@vger.kernel.org>, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, syzbot <syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 9, 2018 at 11:28 AM, Stefan Hajnoczi <stefanha@gmail.com> wrote:
-> On Mon, Apr 09, 2018 at 05:44:36AM +0300, Michael S. Tsirkin wrote:
->> On Mon, Apr 09, 2018 at 10:37:45AM +0800, Stefan Hajnoczi wrote:
->> > On Sat, Apr 7, 2018 at 3:02 AM, syzbot
->> > <syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com> wrote:
->> > > syzbot hit the following crash on upstream commit
->> > > 38c23685b273cfb4ccf31a199feccce3bdcb5d83 (Fri Apr 6 04:29:35 2018 +0000)
->> > > Merge tag 'armsoc-drivers' of
->> > > git://git.kernel.org/pub/scm/linux/kernel/git/arm/arm-soc
->> > > syzbot dashboard link:
->> > > https://syzkaller.appspot.com/bug?extid=65a84dde0214b0387ccd
->> >
->> > To prevent duplicated work: I am working on this one.
->> >
->> > Stefan
->>
->> Do you want to try this patchset:
->> https://lkml.org/lkml/2018/4/5/665
->>
->> ?
->
-> Thanks, I'll give it a shot.
->
-> I also noticed a regression in commit
-> d65026c6c62e7d9616c8ceb5a53b68bcdc050525 ("vhost: validate log when
-> IOTLB is enabled") and am currently testing a fix.
+On Mon, Apr 09, 2018 at 09:10:21PM +0800, Stefan Hajnoczi wrote:
+> Commit d65026c6c62e7d9616c8ceb5a53b68bcdc050525 ("vhost: validate log
+> when IOTLB is enabled") introduced a regression.  The logic was
+> originally:
+> 
+>   if (vq->iotlb)
+>       return 1;
+>   return A && B;
+> 
+> After the patch the short-circuit logic for A was inverted:
+> 
+>   if (A || vq->iotlb)
+>       return A;
+>   return B;
+> 
+> The correct logic is:
+> 
+>   if (!A || vq->iotlb)
+>       return A;
+>   return B;
+> 
+> Reported-by: syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com
+> Cc: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-I have sent a fix:
-https://lkml.org/lkml/2018/4/9/390
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-Stefan
+> ---
+>  drivers/vhost/vhost.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 5320039671b7..f6af4210679a 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -1246,7 +1246,7 @@ int vhost_vq_access_ok(struct vhost_virtqueue *vq)
+>  {
+>  	int ret = vq_log_access_ok(vq, vq->log_base);
+>  
+> -	if (ret || vq->iotlb)
+> +	if (!ret || vq->iotlb)
+>  		return ret;
+>  
+>  	return vq_access_ok(vq, vq->num, vq->desc, vq->avail, vq->used);
+> -- 
+> 2.14.3
