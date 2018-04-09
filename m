@@ -1,13 +1,14 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: kernel BUG at drivers/vhost/vhost.c:LINE! (2)
-Date: Mon, 9 Apr 2018 10:37:45 +0800
-Message-ID: <CAJSP0QVHk7NSQcjfLWq13=1Vzm=_vtmKZqp4dDjuh8ETLO5g_g__21484.9407122985$1523241358$gmane$org@mail.gmail.com>
-References: <001a11449424f11322056932b09c@google.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost-net: set packet weight of tx polling to 2 * vq size
+Date: Mon, 9 Apr 2018 05:42:30 +0300
+Message-ID: <20180409053757-mutt-send-email-mst__3804.92537883601$1523241634$gmane$org@kernel.org>
+References: <88D661ADF6AFBF42B2AB88D8E7682B0901FC47D3@EXMBX-SZMAIL011.tencent.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <001a11449424f11322056932b09c@google.com>
+Content-Disposition: inline
+In-Reply-To: <88D661ADF6AFBF42B2AB88D8E7682B0901FC47D3@EXMBX-SZMAIL011.tencent.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,114 +18,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: syzbot <syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com>
-Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: =?utf-8?B?aGFpYmluemhhbmco5byg5rW35paMKQ==?= <haibinzhang@tencent.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, =?utf-8?B?eXVuZmFuZ3RhaSjlj7Dov5Dmlrkp?= <yunfangtai@tencent.com>, =?utf-8?B?bGlkb25nY2hlbijpmYjnq4vkuJwp?= <lidongchen@tencent.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Apr 7, 2018 at 3:02 AM, syzbot
-<syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com> wrote:
-> syzbot hit the following crash on upstream commit
-> 38c23685b273cfb4ccf31a199feccce3bdcb5d83 (Fri Apr 6 04:29:35 2018 +0000)
-> Merge tag 'armsoc-drivers' of
-> git://git.kernel.org/pub/scm/linux/kernel/git/arm/arm-soc
-> syzbot dashboard link:
-> https://syzkaller.appspot.com/bug?extid=65a84dde0214b0387ccd
-
-To prevent duplicated work: I am working on this one.
-
-Stefan
-
->
-> So far this crash happened 4 times on upstream.
-> C reproducer: https://syzkaller.appspot.com/x/repro.c?id=6586748079439872
-> syzkaller reproducer:
-> https://syzkaller.appspot.com/x/repro.syz?id=5974272052822016
-> Raw console output:
-> https://syzkaller.appspot.com/x/log.txt?id=6224632407392256
-> Kernel config:
-> https://syzkaller.appspot.com/x/.config?id=-5813481738265533882
-> compiler: gcc (GCC) 8.0.1 20180301 (experimental)
->
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com
-> It will help syzbot understand when the bug is fixed. See footer for
-> details.
-> If you forward the report, please keep this part and the footer.
->
-> ------------[ cut here ]------------
-> kernel BUG at drivers/vhost/vhost.c:1652!
-> invalid opcode: 0000 [#1] SMP KASAN
-> ------------[ cut here ]------------
-> Dumping ftrace buffer:
-> kernel BUG at drivers/vhost/vhost.c:1652!
->    (ftrace buffer empty)
-> Modules linked in:
-> CPU: 1 PID: 4461 Comm: syzkaller684218 Not tainted 4.16.0+ #3
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-> Google 01/01/2011
-> RIP: 0010:set_bit_to_user drivers/vhost/vhost.c:1652 [inline]
-> RIP: 0010:log_write+0x42a/0x4d0 drivers/vhost/vhost.c:1676
-> RSP: 0018:ffff8801b256f920 EFLAGS: 00010293
-> RAX: ffff8801adc9e2c0 RBX: dffffc0000000000 RCX: ffffffff85924a0f
-> RDX: 0000000000000000 RSI: ffffffff85924cea RDI: 0000000000000005
-> RBP: ffff8801b256fa58 R08: ffff8801adc9e2c0 R09: ffffed003962412d
-> R10: ffff8801b256fad8 R11: ffff8801cb12096f R12: 0001ffffffffffff
-> R13: ffffed00364adf36 R14: 0000000000000000 R15: ffff8801b256fa30
-> FS:  00007fdf24b19700(0000) GS:ffff8801db100000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 0000000020bf6000 CR3: 00000001ae6a7000 CR4: 00000000001406e0
-> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> Call Trace:
->  vhost_update_used_flags+0x3af/0x4a0 drivers/vhost/vhost.c:1723
->  vhost_vq_init_access+0x117/0x590 drivers/vhost/vhost.c:1763
->  vhost_vsock_start drivers/vhost/vsock.c:446 [inline]
->  vhost_vsock_dev_ioctl+0x751/0x920 drivers/vhost/vsock.c:678
->  vfs_ioctl fs/ioctl.c:46 [inline]
->  file_ioctl fs/ioctl.c:500 [inline]
->  do_vfs_ioctl+0x1cf/0x1650 fs/ioctl.c:684
->  ksys_ioctl+0xa9/0xd0 fs/ioctl.c:701
->  SYSC_ioctl fs/ioctl.c:708 [inline]
->  SyS_ioctl+0x24/0x30 fs/ioctl.c:706
->  do_syscall_64+0x29e/0x9d0 arch/x86/entry/common.c:287
->  entry_SYSCALL_64_after_hwframe+0x42/0xb7
-> RIP: 0033:0x4456c9
-> RSP: 002b:00007fdf24b18da8 EFLAGS: 00000297 ORIG_RAX: 0000000000000010
-> RAX: ffffffffffffffda RBX: 00000000006dac24 RCX: 00000000004456c9
-> RDX: 0000000020f82ffc RSI: 000000004004af61 RDI: 000000000000001b
-> RBP: 00000000006dac20 R08: 0000000000000000 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000297 R12: 6b636f73762d7473
-> R13: 6f68762f7665642f R14: fffffffffffffffc R15: 0000000000000007
-> Code: e8 7c 5e e4 fb 4c 89 ef e8 e4 16 06 fc 48 8d 85 58 ff ff ff 48 c1 e8
-> 03 c6 04 18 f8 e9 46 ff ff ff 45 31 f6 eb 91 e8 56 5e e4 fb <0f> 0b e8 4f 5e
-> e4 fb 48 c7 c6 a0 a3 24 88 4c 89 ef e8 60 b6 10
-> RIP: set_bit_to_user drivers/vhost/vhost.c:1652 [inline] RSP:
-> ffff8801b256f920
-> RIP: log_write+0x42a/0x4d0 drivers/vhost/vhost.c:1676 RSP: ffff8801b256f920
-> invalid opcode: 0000 [#2] SMP KASAN
-> ---[ end trace 0d0ff45aa44d8a23 ]---
-> Dumping ftrace buffer:
->    (ftrace buffer empty)
-> Modules linked in:
->
->
-> ---
-> This bug is generated by a dumb bot. It may contain errors.
-> See https://goo.gl/tpsmEJ for details.
-> Direct all questions to syzkaller@googlegroups.com.
->
-> syzbot will keep track of this bug report.
-> If you forgot to add the Reported-by tag, once the fix for this bug is
-> merged
-> into any tree, please reply to this email with:
-> #syz fix: exact-commit-title
-> If you want to test a patch for this bug, please reply with:
-> #syz test: git://repo/address.git branch
-> and provide the patch inline or as an attachment.
-> To mark this as a duplicate of another syzbot report, please reply with:
-> #syz dup: exact-subject-of-another-report
-> If it's a one-off invalid bug report, please reply with:
-> #syz invalid
-> Note: if the crash happens again, it will cause creation of a new bug
-> report.
-> Note: all commands must start from beginning of the line in the email body.
+T24gRnJpLCBBcHIgMDYsIDIwMTggYXQgMDg6MjI6MzdBTSArMDAwMCwgaGFpYmluemhhbmco5byg
+5rW35paMKSB3cm90ZToKPiBoYW5kbGVfdHggd2lsbCBkZWxheSByeCBmb3IgdGVucyBvciBldmVu
+IGh1bmRyZWRzIG9mIG1pbGxpc2Vjb25kcyB3aGVuIHR4IGJ1c3kKPiBwb2xsaW5nIHVkcCBwYWNr
+ZXRzIHdpdGggc21hbGwgbGVuZ3RoKGUuZy4gMWJ5dGUgdWRwIHBheWxvYWQpLCBiZWNhdXNlIHNl
+dHRpbmcKPiBWSE9TVF9ORVRfV0VJR0hUIHRha2VzIGludG8gYWNjb3VudCBvbmx5IHNlbnQtYnl0
+ZXMgYnV0IG5vIHNpbmdsZSBwYWNrZXQgbGVuZ3RoLgo+IAo+IFBpbmctTGF0ZW5jaWVzIHNob3du
+IGJlbG93IHdlcmUgdGVzdGVkIGJldHdlZW4gdHdvIFZpcnR1YWwgTWFjaGluZXMgdXNpbmcKPiBu
+ZXRwZXJmIChVRFBfU1RSRUFNLCBsZW49MSksIGFuZCB0aGVuIGFub3RoZXIgbWFjaGluZSBwaW5n
+ZWQgdGhlIGNsaWVudDoKPiAKPiBQYWNrZXQtV2VpZ2h0ICAgICAgUGluZy1MYXRlbmNpZXMobWls
+bGlzZWNvbmQpCj4gICAgICAgICAgICAgICAgICAgIG1pbiAgICAgIGF2ZyAgICAgICBtYXgKPiBP
+cmlnaW4gICAgICAgICAgIDMuMzE5ICAgMTguNDg5ICAgIDU3LjMwMwo+IDY0ICAgICAgICAgICAg
+ICAgMS42NDMgICAgMi4wMjEgICAgIDIuNTUyCj4gMTI4ICAgICAgICAgICAgICAxLjgyNSAgICAy
+LjYwMCAgICAgMy4yMjQKPiAyNTYgICAgICAgICAgICAgIDEuOTk3ICAgIDIuNzEwICAgICA0LjI5
+NQo+IDUxMiAgICAgICAgICAgICAgMS44NjAgICAgMy4xNzEgICAgIDQuNjMxCj4gMTAyNCAgICAg
+ICAgICAgICAyLjAwMiAgICA0LjE3MyAgICAgOS4wNTYKPiAyMDQ4ICAgICAgICAgICAgIDIuMjU3
+ICAgIDUuNjUwICAgICA5LjY4OAo+IDQwOTYgICAgICAgICAgICAgMi4wOTMgICAgOC41MDggICAg
+MTUuOTQzCgpBbmQgdGhpcyBpcyB3aXRoIFEgc2l6ZSAyNTYgcmlnaHQ/Cgo+IFJpbmcgc2l6ZSBp
+cyBhIGhpbnQgZnJvbSBkZXZpY2UgYWJvdXQgYSBidXJzdCBzaXplIGl0IGNhbiB0b2xlcmF0ZS4g
+QmFzZWQgb24KPiBiZW5jaG1hcmtzLCBzZXQgdGhlIHdlaWdodCB0byAyICogdnEgc2l6ZS4KPiAK
+PiBUbyBldmFsdWF0ZSB0aGlzIGNoYW5nZSwgYW5vdGhlciB0ZXN0cyB3ZXJlIGRvbmUgdXNpbmcg
+bmV0cGVyZihSUiwgVFgpIGJldHdlZW4KPiB0d28gbWFjaGluZXMgd2l0aCBJbnRlbChSKSBYZW9u
+KFIpIEdvbGQgNjEzMyBDUFUgQCAyLjUwR0h6LCBhbmQgdnEgc2l6ZSB3YXMKPiB0d2Vha2VkIHRo
+cm91Z2ggcWVtdS4gUmVzdWx0cyBzaG93biBiZWxvdyBkb2VzIG5vdCBzaG93IG9idmlvdXMgY2hh
+bmdlcy4KCldoYXQgSSBhc2tlZCBmb3IgaXMgcGluZy1sYXRlbmN5IHdpdGggZGlmZmVyZW50IFZR
+IHNpemVzLApzdHJlYW1pbmcgYmVsb3cgZG9lcyBub3Qgc2hvdyBhbnl0aGluZy4KCj4gdnEgc2l6
+ZT0yNTYgVENQX1JSICAgICAgICAgICAgICAgIHZxIHNpemU9NTEyIFRDUF9SUgo+IHNpemUvc2Vz
+c2lvbnMvK3RodSUvK25vcm1hbGl6ZSUgICBzaXplL3Nlc3Npb25zLyt0aHUlLytub3JtYWxpemUl
+Cj4gICAgMS8gICAgICAgMS8gIC03JS8gICAgICAgIC0yJSAgICAgIDEvICAgICAgIDEvICAgMCUv
+ICAgICAgICAtMiUKPiAgICAxLyAgICAgICA0LyAgKzElLyAgICAgICAgIDAlICAgICAgMS8gICAg
+ICAgNC8gICsxJS8gICAgICAgICAwJQo+ICAgIDEvICAgICAgIDgvICArMSUvICAgICAgICAtMiUg
+ICAgICAxLyAgICAgICA4LyAgIDAlLyAgICAgICAgKzElCj4gICA2NC8gICAgICAgMS8gIC02JS8g
+ICAgICAgICAwJSAgICAgNjQvICAgICAgIDEvICArNyUvICAgICAgICArMyUKPiAgIDY0LyAgICAg
+ICA0LyAgIDAlLyAgICAgICAgKzIlICAgICA2NC8gICAgICAgNC8gIC0xJS8gICAgICAgICsxJQo+
+ICAgNjQvICAgICAgIDgvICAgMCUvICAgICAgICAgMCUgICAgIDY0LyAgICAgICA4LyAgLTElLyAg
+ICAgICAgLTIlCj4gIDI1Ni8gICAgICAgMS8gIC0zJS8gICAgICAgIC00JSAgICAyNTYvICAgICAg
+IDEvICAtNCUvICAgICAgICAtMiUKPiAgMjU2LyAgICAgICA0LyAgKzMlLyAgICAgICAgKzQlICAg
+IDI1Ni8gICAgICAgNC8gICsxJS8gICAgICAgICsyJQo+ICAyNTYvICAgICAgIDgvICArMiUvICAg
+ICAgICAgMCUgICAgMjU2LyAgICAgICA4LyAgKzElLyAgICAgICAgLTElCj4gCj4gdnEgc2l6ZT0y
+NTYgVURQX1JSICAgICAgICAgICAgICAgIHZxIHNpemU9NTEyIFVEUF9SUgo+IHNpemUvc2Vzc2lv
+bnMvK3RodSUvK25vcm1hbGl6ZSUgICBzaXplL3Nlc3Npb25zLyt0aHUlLytub3JtYWxpemUlCj4g
+ICAgMS8gICAgICAgMS8gIC01JS8gICAgICAgICsxJSAgICAgIDEvICAgICAgIDEvICAtMyUvICAg
+ICAgICAtMiUKPiAgICAxLyAgICAgICA0LyAgKzQlLyAgICAgICAgKzElICAgICAgMS8gICAgICAg
+NC8gIC0yJS8gICAgICAgICsyJQo+ICAgIDEvICAgICAgIDgvICAtMSUvICAgICAgICAtMSUgICAg
+ICAxLyAgICAgICA4LyAgLTElLyAgICAgICAgIDAlCj4gICA2NC8gICAgICAgMS8gIC0yJS8gICAg
+ICAgIC0zJSAgICAgNjQvICAgICAgIDEvICArMSUvICAgICAgICArMSUKPiAgIDY0LyAgICAgICA0
+LyAgLTUlLyAgICAgICAgLTElICAgICA2NC8gICAgICAgNC8gICsyJS8gICAgICAgICAwJQo+ICAg
+NjQvICAgICAgIDgvICAgMCUvICAgICAgICAtMSUgICAgIDY0LyAgICAgICA4LyAgLTIlLyAgICAg
+ICAgKzElCj4gIDI1Ni8gICAgICAgMS8gICs3JS8gICAgICAgICsxJSAgICAyNTYvICAgICAgIDEv
+ICAtNyUvICAgICAgICAgMCUKPiAgMjU2LyAgICAgICA0LyAgKzElLyAgICAgICAgKzElICAgIDI1
+Ni8gICAgICAgNC8gIC0zJS8gICAgICAgIC00JQo+ICAyNTYvICAgICAgIDgvICArMiUvICAgICAg
+ICArMiUgICAgMjU2LyAgICAgICA4LyAgKzElLyAgICAgICAgKzElCj4gCj4gdnEgc2l6ZT0yNTYg
+VENQX1NUUkVBTSAgICAgICAgICAgIHZxIHNpemU9NTEyIFRDUF9TVFJFQU0KPiBzaXplL3Nlc3Np
+b25zLyt0aHUlLytub3JtYWxpemUlICAgc2l6ZS9zZXNzaW9ucy8rdGh1JS8rbm9ybWFsaXplJQo+
+ICAgNjQvICAgICAgIDEvICAgMCUvICAgICAgICAtMyUgICAgIDY0LyAgICAgICAxLyAgIDAlLyAg
+ICAgICAgIDAlCj4gICA2NC8gICAgICAgNC8gICszJS8gICAgICAgIC0xJSAgICAgNjQvICAgICAg
+IDQvICAtMiUvICAgICAgICArNCUKPiAgIDY0LyAgICAgICA4LyAgKzklLyAgICAgICAgLTQlICAg
+ICA2NC8gICAgICAgOC8gIC0xJS8gICAgICAgICsyJQo+ICAyNTYvICAgICAgIDEvICArMSUvICAg
+ICAgICAtNCUgICAgMjU2LyAgICAgICAxLyAgKzElLyAgICAgICAgKzElCj4gIDI1Ni8gICAgICAg
+NC8gIC0xJS8gICAgICAgIC0xJSAgICAyNTYvICAgICAgIDQvICAtMyUvICAgICAgICAgMCUKPiAg
+MjU2LyAgICAgICA4LyAgKzclLyAgICAgICAgKzUlICAgIDI1Ni8gICAgICAgOC8gIC0zJS8gICAg
+ICAgICAwJQo+ICA1MTIvICAgICAgIDEvICArMSUvICAgICAgICAgMCUgICAgNTEyLyAgICAgICAx
+LyAgLTElLyAgICAgICAgLTElCj4gIDUxMi8gICAgICAgNC8gICsxJS8gICAgICAgIC0xJSAgICA1
+MTIvICAgICAgIDQvICAgMCUvICAgICAgICAgMCUKPiAgNTEyLyAgICAgICA4LyAgKzclLyAgICAg
+ICAgLTUlICAgIDUxMi8gICAgICAgOC8gICs2JS8gICAgICAgIC0xJQo+IDEwMjQvICAgICAgIDEv
+ICAgMCUvICAgICAgICAtMSUgICAxMDI0LyAgICAgICAxLyAgIDAlLyAgICAgICAgKzElCj4gMTAy
+NC8gICAgICAgNC8gICszJS8gICAgICAgICAwJSAgIDEwMjQvICAgICAgIDQvICArMSUvICAgICAg
+ICAgMCUKPiAxMDI0LyAgICAgICA4LyAgKzglLyAgICAgICAgKzUlICAgMTAyNC8gICAgICAgOC8g
+IC0xJS8gICAgICAgICAwJQo+IDIwNDgvICAgICAgIDEvICArMiUvICAgICAgICArMiUgICAyMDQ4
+LyAgICAgICAxLyAgLTElLyAgICAgICAgIDAlCj4gMjA0OC8gICAgICAgNC8gICsxJS8gICAgICAg
+ICAwJSAgIDIwNDgvICAgICAgIDQvICAgMCUvICAgICAgICAtMSUKPiAyMDQ4LyAgICAgICA4LyAg
+LTIlLyAgICAgICAgIDAlICAgMjA0OC8gICAgICAgOC8gICA1JS8gICAgICAgIC0xJQo+IDQwOTYv
+ICAgICAgIDEvICAtMiUvICAgICAgICAgMCUgICA0MDk2LyAgICAgICAxLyAgLTIlLyAgICAgICAg
+IDAlCj4gNDA5Ni8gICAgICAgNC8gICsyJS8gICAgICAgICAwJSAgIDQwOTYvICAgICAgIDQvICAg
+MCUvICAgICAgICAgMCUKPiA0MDk2LyAgICAgICA4LyAgKzklLyAgICAgICAgLTIlICAgNDA5Ni8g
+ICAgICAgOC8gIC01JS8gICAgICAgIC0xJQo+IAo+IFNpZ25lZC1vZmYtYnk6IEhhaWJpbiBaaGFu
+ZyA8aGFpYmluemhhbmdAdGVuY2VudC5jb20+Cj4gU2lnbmVkLW9mZi1ieTogWXVuZmFuZyBUYWkg
+PHl1bmZhbmd0YWlAdGVuY2VudC5jb20+Cj4gU2lnbmVkLW9mZi1ieTogTGlkb25nIENoZW4gPGxp
+ZG9uZ2NoZW5AdGVuY2VudC5jb20+CgpDb2RlIGlzIGZpbmUgYnV0IEknZCBsaWtlIHRvIHNlZSB2
+YWxpZGF0aW9uIG9mIHRoZSBoZXVyaXN0aWMKMip2cS0+bnVtIHdpdGggYW5vdGhlciB2cSBzaXpl
+LgoKCgo+IC0tLQo+ICBkcml2ZXJzL3Zob3N0L25ldC5jIHwgOCArKysrKysrLQo+ICAxIGZpbGUg
+Y2hhbmdlZCwgNyBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4gCj4gZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvdmhvc3QvbmV0LmMgYi9kcml2ZXJzL3Zob3N0L25ldC5jCj4gaW5kZXggODEzOWJj
+NzBhZDdkLi4zNTYzYTMwNWNjMGEgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aG9zdC9uZXQuYwo+
+ICsrKyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiBAQCAtNDQsNiArNDQsMTAgQEAgTU9EVUxFX1BB
+Uk1fREVTQyhleHBlcmltZW50YWxfemNvcHl0eCwgIkVuYWJsZSBaZXJvIENvcHkgVFg7Igo+ICAg
+KiBVc2luZyB0aGlzIGxpbWl0IHByZXZlbnRzIG9uZSB2aXJ0cXVldWUgZnJvbSBzdGFydmluZyBv
+dGhlcnMuICovCj4gICNkZWZpbmUgVkhPU1RfTkVUX1dFSUdIVCAweDgwMDAwCj4gIAo+ICsvKiBN
+YXggbnVtYmVyIG9mIHBhY2tldHMgdHJhbnNmZXJyZWQgYmVmb3JlIHJlcXVldWVpbmcgdGhlIGpv
+Yi4KPiArICogVXNpbmcgdGhpcyBsaW1pdCBwcmV2ZW50cyBvbmUgdmlydHF1ZXVlIGZyb20gc3Rh
+cnZpbmcgcnguICovCj4gKyNkZWZpbmUgVkhPU1RfTkVUX1BLVF9XRUlHSFQodnEpICgodnEpLT5u
+dW0gKiAyKQo+ICsKPiAgLyogTUFYIG51bWJlciBvZiBUWCB1c2VkIGJ1ZmZlcnMgZm9yIG91dHN0
+YW5kaW5nIHplcm9jb3B5ICovCj4gICNkZWZpbmUgVkhPU1RfTUFYX1BFTkQgMTI4Cj4gICNkZWZp
+bmUgVkhPU1RfR09PRENPUFlfTEVOIDI1Ngo+IEBAIC00NzMsNiArNDc3LDcgQEAgc3RhdGljIHZv
+aWQgaGFuZGxlX3R4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkKPiAgCXN0cnVjdCBzb2NrZXQgKnNv
+Y2s7Cj4gIAlzdHJ1Y3Qgdmhvc3RfbmV0X3VidWZfcmVmICp1bmluaXRpYWxpemVkX3Zhcih1YnVm
+cyk7Cj4gIAlib29sIHpjb3B5LCB6Y29weV91c2VkOwo+ICsJaW50IHNlbnRfcGt0cyA9IDA7Cj4g
+IAo+ICAJbXV0ZXhfbG9jaygmdnEtPm11dGV4KTsKPiAgCXNvY2sgPSB2cS0+cHJpdmF0ZV9kYXRh
+Owo+IEBAIC01ODAsNyArNTg1LDggQEAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2aG9z
+dF9uZXQgKm5ldCkKPiAgCQllbHNlCj4gIAkJCXZob3N0X3plcm9jb3B5X3NpZ25hbF91c2VkKG5l
+dCwgdnEpOwo+ICAJCXZob3N0X25ldF90eF9wYWNrZXQobmV0KTsKPiAtCQlpZiAodW5saWtlbHko
+dG90YWxfbGVuID49IFZIT1NUX05FVF9XRUlHSFQpKSB7Cj4gKwkJaWYgKHVubGlrZWx5KHRvdGFs
+X2xlbiA+PSBWSE9TVF9ORVRfV0VJR0hUKSB8fAo+ICsJCSAgICB1bmxpa2VseSgrK3NlbnRfcGt0
+cyA+PSBWSE9TVF9ORVRfUEtUX1dFSUdIVCh2cSkpKSB7Cj4gIAkJCXZob3N0X3BvbGxfcXVldWUo
+JnZxLT5wb2xsKTsKPiAgCQkJYnJlYWs7Cj4gIAkJfQo+IC0tIAo+IDIuMTIuMwo+IApfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
