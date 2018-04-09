@@ -1,14 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH RESEND v2] vhost-net: set packet weight of tx polling
-	to 2 * vq size
-Date: Mon, 09 Apr 2018 11:02:14 -0400 (EDT)
-Message-ID: <20180409.110214.2099089634160123216.davem__8621.04022312469$1523286043$gmane$org@davemloft.net>
-References: <88D661ADF6AFBF42B2AB88D8E7682B0901FC4A32@EXMBX-SZMAIL011.tencent.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH] vhost: fix vhost_vq_access_ok() log check
+Date: Mon, 9 Apr 2018 09:52:13 -0700
+Message-ID: <CA+55aFzJ_JPtU5SjAHHv--p3ZcAw4gVidxvrLLZF7w+kbHCNdg__17829.43492658$1523292630$gmane$org@mail.gmail.com>
+References: <20180409131021.5132-1-stefanha@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <88D661ADF6AFBF42B2AB88D8E7682B0901FC4A32@EXMBX-SZMAIL011.tencent.com>
+In-Reply-To: <20180409131021.5132-1-stefanha@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +17,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: haibinzhang@tencent.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, yunfangtai@tencent.com, lidongchen@tencent.com
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, syzkaller-bugs@googlegroups.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogaGFpYmluemhhbmco5byg5rW35paMKSA8aGFpYmluemhhbmdAdGVuY2VudC5jb20+DQpE
-YXRlOiBNb24sIDkgQXByIDIwMTggMDc6MjI6MTcgKzAwMDANCg0KPiBoYW5kbGVfdHggd2lsbCBk
-ZWxheSByeCBmb3IgdGVucyBvciBldmVuIGh1bmRyZWRzIG9mIG1pbGxpc2Vjb25kcyB3aGVuIHR4
-IGJ1c3kNCj4gcG9sbGluZyB1ZHAgcGFja2V0cyB3aXRoIHNtYWxsIGxlbmd0aChlLmcuIDFieXRl
-IHVkcCBwYXlsb2FkKSwgYmVjYXVzZSBzZXR0aW5nDQo+IFZIT1NUX05FVF9XRUlHSFQgdGFrZXMg
-aW50byBhY2NvdW50IG9ubHkgc2VudC1ieXRlcyBidXQgbm8gc2luZ2xlIHBhY2tldCBsZW5ndGgu
-DQo+IA0KPiBQaW5nLUxhdGVuY2llcyBzaG93biBiZWxvdyB3ZXJlIHRlc3RlZCBiZXR3ZWVuIHR3
-byBWaXJ0dWFsIE1hY2hpbmVzIHVzaW5nDQo+IG5ldHBlcmYgKFVEUF9TVFJFQU0sIGxlbj0xKSwg
-YW5kIHRoZW4gYW5vdGhlciBtYWNoaW5lIHBpbmdlZCB0aGUgY2xpZW50Og0KIC4uLg0KPiBBY2tl
-ZC1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4NCj4gU2lnbmVkLW9mZi1i
-eTogSGFpYmluIFpoYW5nIDxoYWliaW56aGFuZ0B0ZW5jZW50LmNvbT4NCj4gU2lnbmVkLW9mZi1i
-eTogWXVuZmFuZyBUYWkgPHl1bmZhbmd0YWlAdGVuY2VudC5jb20+DQo+IFNpZ25lZC1vZmYtYnk6
-IExpZG9uZyBDaGVuIDxsaWRvbmdjaGVuQHRlbmNlbnQuY29tPg0KDQpBcHBsaWVkLCB0aGFuayB5
-b3UuDQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+On Mon, Apr 9, 2018 at 6:10 AM, Stefan Hajnoczi <stefanha@redhat.com> wrote:
+> @@ -1246,7 +1246,7 @@ int vhost_vq_access_ok(struct vhost_virtqueue *vq)
+>  {
+>         int ret = vq_log_access_ok(vq, vq->log_base);
+>
+> -       if (ret || vq->iotlb)
+> +       if (!ret || vq->iotlb)
+>                 return ret;
+
+That logic is still very non-obvious.
+
+This code already had one bug because of an odd illegible test
+sequence. Let's not keep the crazy code.
+
+Why not just do the *obvious* thing, and get rid of "ret" entirely,
+and make the damn thing return a boolean, and then just write it all
+as
+
+    /* Caller should have vq mutex and device mutex */
+    bool vhost_vq_access_ok(struct vhost_virtqueue *vq)
+    {
+            if (!vq_log_access_ok(vq, vq->log_base))
+                    return false;
+
+            if (vq->iotlb || vq_access_ok(vq, vq->num, vq->desc,
+vq->avail, vq->used);
+    }
+
+which makes the logic obvious: if vq_log_access_ok() fails, then then
+vhost_vq_access_ok() fails unconditionally.
+
+Otherwise, we need to have an iotlb, or a successful vq_access_ok() check.
+
+Doesn't that all make more sense, and avoid the insane "ret" value use
+that is really quite subtle?
+
+                    Linus
