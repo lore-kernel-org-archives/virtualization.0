@@ -1,19 +1,14 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [RFC PATCH net-next v5 3/4] virtio_net: Extend virtio to use VF
-	datapath when available
-Date: Mon, 9 Apr 2018 11:47:06 -0700
-Message-ID: <16b2e531-7bfa-7f25-2702-f3f8069663ee__12683.5932177075$1523299508$gmane$org@intel.com>
-References: <1522962503-3963-1-git-send-email-sridhar.samudrala@intel.com>
-	<1522962503-3963-4-git-send-email-sridhar.samudrala@intel.com>
-	<20180406124814.GA24525@nanopsycho>
-	<bb4f0821-246f-1052-de8b-d96be3388ed3@intel.com>
-	<20180409080751.GE19345@nanopsycho>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RESEND net] vhost: fix vhost_vq_access_ok() log check
+Date: Mon, 9 Apr 2018 22:40:02 +0300
+Message-ID: <20180409174731-mutt-send-email-mst__10771.9100582928$1523302705$gmane$org@kernel.org>
+References: <20180409131021.5132-1-stefanha@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180409080751.GE19345@nanopsycho>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180409131021.5132-1-stefanha@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,79 +18,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
+To: David Miller <davem@davemloft.net>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/9/2018 1:07 AM, Jiri Pirko wrote:
-> Sat, Apr 07, 2018 at 12:59:14AM CEST, sridhar.samudrala@intel.com wrote:
->> On 4/6/2018 5:48 AM, Jiri Pirko wrote:
->>> Thu, Apr 05, 2018 at 11:08:22PM CEST, sridhar.samudrala@intel.com wrote:
-> [...]
->
->>>> +static int virtnet_bypass_join_child(struct net_device *bypass_netdev,
->>>> +				     struct net_device *child_netdev)
->>>> +{
->>>> +	struct virtnet_bypass_info *vbi;
->>>> +	bool backup;
->>>> +
->>>> +	vbi = netdev_priv(bypass_netdev);
->>>> +	backup = (child_netdev->dev.parent == bypass_netdev->dev.parent);
->>>> +	if (backup ? rtnl_dereference(vbi->backup_netdev) :
->>>> +			rtnl_dereference(vbi->active_netdev)) {
->>>> +		netdev_info(bypass_netdev,
->>>> +			    "%s attempting to join bypass dev when %s already present\n",
->>>> +			    child_netdev->name, backup ? "backup" : "active");
->>> Bypass module should check if there is already some other netdev
->>> enslaved and refuse right there.
->> This will work for virtio-net with 3 netdev model, but this check has to be done by netvsc
->> as its bypass_netdev is same as the backup_netdev.
->> Will add a flag while registering with the bypass module to indicate if the driver is doing
->> a 2 netdev or 3 netdev model and based on that flag this check can be done in bypass module
->> for 3 netdev scenario.
-> Just let me undestand it clearly. What I expect the difference would be
-> between 2netdev and3 netdev model is this:
-> 2netdev:
->    bypass_master
->       /
->      /
-> VF_slave
->
-> 3netdev:
->    bypass_master
->       /     \
->      /       \
-> VF_slave   backup_slave
->
-> Is that correct? If not, how does it look like?
->
->
-Looks correct.
-VF_slave and backup_slave are the original netdevs and are present in both the models.
-In the 3 netdev model, bypass_master netdev is created and VF_slave and backup_slave are
-marked as the 2 slaves of this new netdev.
+From: Stefan Hajnoczi <stefanha@redhat.com>
 
-In the 2 netdev model, backup_slave acts as bypass_master and the bypass module doesn't
-have access to netdev_priv of the backup_slave.
+Commit d65026c6c62e7d9616c8ceb5a53b68bcdc050525 ("vhost: validate log
+when IOTLB is enabled") introduced a regression.  The logic was
+originally:
 
-Once i moved all the ndo_ops of the master netdev to bypass module, i realized that we can
-move the create/destroy of the upper netdev also to bypass.c.
-That way the changes to virtio_net become very minimal.
+  if (vq->iotlb)
+      return 1;
+  return A && B;
 
-With these updates, bypass module now supports both the models by exporting 2 sets of
-functions.
-3 netdev:
-    int bypass_master_create(struct net_device *backup_netdev,
-                             struct bypass_master **pbypass_master);
-    void bypass_master_destroy(struct bypass_master *bypass_master);
+After the patch the short-circuit logic for A was inverted:
 
+  if (A || vq->iotlb)
+      return A;
+  return B;
 
-2 netdev:
-    int bypass_master_register(struct net_device *backup_netdev, struct bypass_ops *ops,
-                               struct bypass_master **pbypass_master);
-    void bypass_master_unregister(struct bypass_master *bypass_master);
+The correct logic is:
 
-Will send the next revision in a day or two.
+  if (!A || vq->iotlb)
+      return A;
+  return B;
 
-Thanks
-Sridhar
+Reported-by: syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com
+Cc: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+---
+ drivers/vhost/vhost.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 5320039671b7..f6af4210679a 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1246,7 +1246,7 @@ int vhost_vq_access_ok(struct vhost_virtqueue *vq)
+ {
+ 	int ret = vq_log_access_ok(vq, vq->log_base);
+ 
+-	if (ret || vq->iotlb)
++	if (!ret || vq->iotlb)
+ 		return ret;
+ 
+ 	return vq_access_ok(vq, vq->num, vq->desc, vq->avail, vq->used);
+-- 
+2.14.3
