@@ -1,14 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RESEND net] vhost: fix vhost_vq_access_ok() log check
-Date: Mon, 9 Apr 2018 22:40:02 +0300
-Message-ID: <20180409174731-mutt-send-email-mst__10771.9100582928$1523302705$gmane$org@kernel.org>
+Subject: Re: [PATCH] vhost: fix vhost_vq_access_ok() log check
+Date: Mon, 9 Apr 2018 22:54:34 +0300
+Message-ID: <20180409224842-mutt-send-email-mst__40397.5846166306$1523303573$gmane$org@kernel.org>
 References: <20180409131021.5132-1-stefanha@redhat.com>
+	<CA+55aFzJ_JPtU5SjAHHv--p3ZcAw4gVidxvrLLZF7w+kbHCNdg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180409131021.5132-1-stefanha@redhat.com>
+In-Reply-To: <CA+55aFzJ_JPtU5SjAHHv--p3ZcAw4gVidxvrLLZF7w+kbHCNdg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,53 +19,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org, mst@redhat.com, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: KVM list <kvm@vger.kernel.org>, syzkaller-bugs@googlegroups.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Stefan Hajnoczi <stefanha@redhat.com>
+On Mon, Apr 09, 2018 at 09:52:13AM -0700, Linus Torvalds wrote:
+> On Mon, Apr 9, 2018 at 6:10 AM, Stefan Hajnoczi <stefanha@redhat.com> wrote:
+> > @@ -1246,7 +1246,7 @@ int vhost_vq_access_ok(struct vhost_virtqueue *vq)
+> >  {
+> >         int ret = vq_log_access_ok(vq, vq->log_base);
+> >
+> > -       if (ret || vq->iotlb)
+> > +       if (!ret || vq->iotlb)
+> >                 return ret;
+> 
+> That logic is still very non-obvious.
+> 
+> This code already had one bug because of an odd illegible test
+> sequence. Let's not keep the crazy code.
+> 
+> Why not just do the *obvious* thing, and get rid of "ret" entirely,
+> and make the damn thing return a boolean, and then just write it all
+> as
+> 
+>     /* Caller should have vq mutex and device mutex */
+>     bool vhost_vq_access_ok(struct vhost_virtqueue *vq)
+>     {
+>             if (!vq_log_access_ok(vq, vq->log_base))
+>                     return false;
+> 
+>             if (vq->iotlb || vq_access_ok(vq, vq->num, vq->desc,
+> vq->avail, vq->used);
+>     }
+> 
+> which makes the logic obvious: if vq_log_access_ok() fails, then then
+> vhost_vq_access_ok() fails unconditionally.
+> 
+> Otherwise, we need to have an iotlb, or a successful vq_access_ok() check.
+> 
+> Doesn't that all make more sense, and avoid the insane "ret" value use
+> that is really quite subtle?
+> 
+>                     Linus
 
-Commit d65026c6c62e7d9616c8ceb5a53b68bcdc050525 ("vhost: validate log
-when IOTLB is enabled") introduced a regression.  The logic was
-originally:
 
-  if (vq->iotlb)
-      return 1;
-  return A && B;
+I agree it's cleaner.
 
-After the patch the short-circuit logic for A was inverted:
+Stefan, I reposted your patch on netdev (since the breakage got applied
+there too).
 
-  if (A || vq->iotlb)
-      return A;
-  return B;
+Would you like to self-nak it and post v2? Pls remember to CC netdev.
 
-The correct logic is:
-
-  if (!A || vq->iotlb)
-      return A;
-  return B;
-
-Reported-by: syzbot+65a84dde0214b0387ccd@syzkaller.appspotmail.com
-Cc: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
----
- drivers/vhost/vhost.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 5320039671b7..f6af4210679a 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1246,7 +1246,7 @@ int vhost_vq_access_ok(struct vhost_virtqueue *vq)
- {
- 	int ret = vq_log_access_ok(vq, vq->log_base);
- 
--	if (ret || vq->iotlb)
-+	if (!ret || vq->iotlb)
- 		return ret;
- 
- 	return vq_access_ok(vq, vq->num, vq->desc, vq->avail, vq->used);
 -- 
-2.14.3
+MST
