@@ -1,20 +1,18 @@
-From: Jonathan Helman <jonathan.helman@oracle.com>
-Subject: Re: [virtio-dev] Re: [PATCH v2] virtio_balloon: export hugetlb page
-	allocation counts
-Date: Mon, 9 Apr 2018 14:11:19 -0700
-Message-ID: <b1414be4-84bc-5d02-afff-9e42c1fd7210__40477.4489383728$1523308190$gmane$org@oracle.com>
-References: <1521497654-24807-1-git-send-email-jonathan.helman@oracle.com>
-	<db6371af-f93d-4409-c910-2ff712196c5b@redhat.com>
-	<6ED6CAC9-FAD9-4A27-A9B1-C6EFC7627D68@oracle.com>
-	<c09d3570-a8f9-7a84-5dd6-46d385da2e15@redhat.com>
-	<20180322050842-mutt-send-email-mst@kernel.org>
-	<3f8a1b91-c5ba-8a24-72b8-02d884a67826@redhat.com>
+From: Siwei Liu <loseweigh@gmail.com>
+Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
+Date: Mon, 9 Apr 2018 15:07:26 -0700
+Message-ID: <CADGSJ211kA5ktADbwv2f4ma_ooBmYW4r7YwzGD2G_Gw5+wv5rw__526.672675232653$1523311529$gmane$org@mail.gmail.com>
+References: <3bdfc39f-4935-2433-7982-9ce28c3aa166@gmail.com>
+	<CADGSJ23Zr7_CLMr1W9qhcWux59+aCvFdTg_nQ7Mmp5B-FWL8=Q@mail.gmail.com>
+	<54accf73-e6cc-e03f-6a1c-34e1bbd78047@gmail.com>
+	<20180404.133749.1802514210170809419.davem@davemloft.net>
+	<CADGSJ206RKi704uoLe3xVs6PyWpURPLb75OPCM_YO9DfnnEzpw@mail.gmail.com>
+	<20180407031919.GB11029@lunn.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <3f8a1b91-c5ba-8a24-72b8-02d884a67826@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20180407031919.GB11029@lunn.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,75 +22,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Mihai Carabas <mihai.carabas@oracle.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Ahern <dsahern@gmail.com>, si-wei liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAwMy8yMi8yMDE4IDA3OjM4IFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+IAo+IAo+IE9uIDIw
-MTjlubQwM+aciDIy5pelIDExOjEwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+IE9uIFRo
-dSwgTWFyIDIyLCAyMDE4IGF0IDA5OjUyOjE4QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+
-PiBPbiAyMDE45bm0MDPmnIgyMOaXpSAxMjoyNiwgSm9uYXRoYW4gSGVsbWFuIHdyb3RlOgo+Pj4+
-PiBPbiBNYXIgMTksIDIwMTgsIGF0IDc6MzEgUE0sIEphc29uIFdhbmc8amFzb3dhbmdAcmVkaGF0
-LmNvbT7CoCB3cm90ZToKPj4+Pj4KPj4+Pj4KPj4+Pj4KPj4+Pj4gT24gMjAxOOW5tDAz5pyIMjDm
-l6UgMDY6MTQsIEpvbmF0aGFuIEhlbG1hbiB3cm90ZToKPj4+Pj4+IEV4cG9ydCB0aGUgbnVtYmVy
-IG9mIHN1Y2Nlc3NmdWwgYW5kIGZhaWxlZCBodWdldGxiIHBhZ2UKPj4+Pj4+IGFsbG9jYXRpb25z
-IHZpYSB0aGUgdmlydGlvIGJhbGxvb24gZHJpdmVyLiBUaGVzZSAyIGNvdW50cwo+Pj4+Pj4gY29t
-ZSBkaXJlY3RseSBmcm9tIHRoZSB2bV9ldmVudHMgSFRMQl9CVUREWV9QR0FMTE9DIGFuZAo+Pj4+
-Pj4gSFRMQl9CVUREWV9QR0FMTE9DX0ZBSUwuCj4+Pj4+Pgo+Pj4+Pj4gU2lnbmVkLW9mZi1ieTog
-Sm9uYXRoYW4gSGVsbWFuPGpvbmF0aGFuLmhlbG1hbkBvcmFjbGUuY29tPgo+Pj4+PiBSZXZpZXdl
-ZC1ieTogSmFzb24gV2FuZzxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+Pj4+IFRoYW5rcy4KPj4+Pgo+
-Pj4+Pj4gLS0tCj4+Pj4+PiDCoMKgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmPCoMKg
-wqDCoCB8IDYgKysrKysrCj4+Pj4+PiDCoMKgIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFs
-bG9vbi5oIHwgNCArKystCj4+Pj4+PiDCoMKgIDIgZmlsZXMgY2hhbmdlZCwgOSBpbnNlcnRpb25z
-KCspLCAxIGRlbGV0aW9uKC0pCj4+Pj4+Pgo+Pj4+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmly
-dGlvL3ZpcnRpb19iYWxsb29uLmMgCj4+Pj4+PiBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxs
-b29uLmMKPj4+Pj4+IGluZGV4IGRmZTU2ODQuLjZiMjM3ZTMgMTAwNjQ0Cj4+Pj4+PiAtLS0gYS9k
-cml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jCj4+Pj4+PiArKysgYi9kcml2ZXJzL3ZpcnRp
-by92aXJ0aW9fYmFsbG9vbi5jCj4+Pj4+PiBAQCAtMjcyLDYgKzI3MiwxMiBAQCBzdGF0aWMgdW5z
-aWduZWQgaW50IAo+Pj4+Pj4gdXBkYXRlX2JhbGxvb25fc3RhdHMoc3RydWN0IHZpcnRpb19iYWxs
-b29uICp2YikKPj4+Pj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBwYWdl
-c190b19ieXRlcyhldmVudHNbUFNXUE9VVF0pKTsKPj4+Pj4+IMKgwqDCoMKgwqDCoCB1cGRhdGVf
-c3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxMT09OX1NfTUFKRkxULCAKPj4+Pj4+IGV2ZW50c1tQ
-R01BSkZBVUxUXSk7Cj4+Pj4+PiDCoMKgwqDCoMKgwqAgdXBkYXRlX3N0YXQodmIsIGlkeCsrLCBW
-SVJUSU9fQkFMTE9PTl9TX01JTkZMVCwgCj4+Pj4+PiBldmVudHNbUEdGQVVMVF0pOwo+Pj4+Pj4g
-KyNpZmRlZiBDT05GSUdfSFVHRVRMQl9QQUdFCj4+Pj4+PiArwqDCoMKgIHVwZGF0ZV9zdGF0KHZi
-LCBpZHgrKywgVklSVElPX0JBTExPT05fU19IVExCX1BHQUxMT0MsCj4+Pj4+PiArwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCBldmVudHNbSFRMQl9CVUREWV9QR0FMTE9DXSk7Cj4+Pj4+PiArwqDCoMKg
-IHVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19IVExCX1BHRkFJTCwKPj4+
-Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGV2ZW50c1tIVExCX0JVRERZX1BHQUxMT0NfRkFJ
-TF0pOwo+Pj4+Pj4gKyNlbmRpZgo+Pj4+Pj4gwqDCoCAjZW5kaWYKPj4+Pj4+IMKgwqDCoMKgwqDC
-oCB1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxMT09OX1NfTUVNRlJFRSwKPj4+Pj4+
-IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBwYWdlc190b19ieXRlcyhpLmZy
-ZWVyYW0pKTsKPj4+Pj4+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2Jh
-bGxvb24uaCAKPj4+Pj4+IGIvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmgKPj4+
-Pj4+IGluZGV4IDRlOGI4MzAuLjQwMjk3YTMgMTAwNjQ0Cj4+Pj4+PiAtLS0gYS9pbmNsdWRlL3Vh
-cGkvbGludXgvdmlydGlvX2JhbGxvb24uaAo+Pj4+Pj4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4
-L3ZpcnRpb19iYWxsb29uLmgKPj4+Pj4+IEBAIC01Myw3ICs1Myw5IEBAIHN0cnVjdCB2aXJ0aW9f
-YmFsbG9vbl9jb25maWcgewo+Pj4+Pj4gwqDCoCAjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTUVN
-VE9UwqDCoCA1wqDCoCAvKiBUb3RhbCBhbW91bnQgb2YgbWVtb3J5ICovCj4+Pj4+PiDCoMKgICNk
-ZWZpbmUgVklSVElPX0JBTExPT05fU19BVkFJTMKgwqDCoCA2wqDCoCAvKiBBdmFpbGFibGUgbWVt
-b3J5IGFzIGluIAo+Pj4+Pj4gL3Byb2MgKi8KPj4+Pj4+IMKgwqAgI2RlZmluZSBWSVJUSU9fQkFM
-TE9PTl9TX0NBQ0hFU8KgwqAgN8KgwqAgLyogRGlzayBjYWNoZXMgKi8KPj4+Pj4+IC0jZGVmaW5l
-IFZJUlRJT19CQUxMT09OX1NfTlLCoMKgwqDCoMKgwqAgOAo+Pj4+Pj4gKyNkZWZpbmUgVklSVElP
-X0JBTExPT05fU19IVExCX1BHQUxMT0PCoCA4wqAgLyogSHVnZXRsYiBwYWdlIAo+Pj4+Pj4gYWxs
-b2NhdGlvbnMgKi8KPj4+Pj4+ICsjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfSFRMQl9QR0ZBSUzC
-oMKgIDnCoCAvKiBIdWdldGxiIHBhZ2UgCj4+Pj4+PiBhbGxvY2F0aW9uIGZhaWx1cmVzICovCj4+
-Pj4+PiArI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX05SwqDCoMKgwqDCoMKgIDEwCj4+Pj4+PiDC
-oMKgwqDCoCAvKgo+Pj4+Pj4gwqDCoMKgICogTWVtb3J5IHN0YXRpc3RpY3Mgc3RydWN0dXJlLgo+
-Pj4+PiBOb3QgZm9yIHRoaXMgcGF0Y2gsIGJ1dCBpdCBsb29rcyB0byBtZSB0aGF0IGV4cG9ydGlu
-ZyBzdWNoIG5yIAo+Pj4+PiB0aHJvdWdoIHVhcGkgaXMgZnJhZ2lsZS4KPj4+PiBTb3JyeSwgY2Fu
-IHlvdSBleHBsYWluIHdoYXQgeW91IG1lYW4gaGVyZT8KPj4+Pgo+Pj4+IEpvbgo+Pj4gU3BlYyBz
-YWlkICJXaXRoaW4gYW4gb3V0cHV0IGJ1ZmZlciBzdWJtaXR0ZWQgdG8gdGhlIHN0YXRzcSwgdGhl
-IAo+Pj4gZGV2aWNlIE1VU1QKPj4+IGlnbm9yZSBlbnRyaWVzIHdpdGggdGFnIHZhbHVlcyB0aGF0
-IGl0IGRvZXMgbm90IHJlY29nbml6ZSIuIFNvIGV4cG9ydGluZwo+Pj4gVklSVElPX0JBTExPT05f
-U19OUiBzZWVtcyB1c2VsZXNzIGFuZCBkZXZpY2UgaW1wbGVtZW50YXRpb24gY2FuIG5vdCAKPj4+
-IGRlcGVuZAo+Pj4gb24gc3VjaCBudW1iZXIgaW4gdWFwaS4KPj4+Cj4+PiBUaGFua3MKPj4gU3Vn
-Z2VzdGlvbnM/IEkgZG9uJ3QgbGlrZSB0byBicmVhayBidWlsZCBmb3IgcGVvcGxlIC4uLgo+Pgo+
-IAo+IERpZG4ndCBoYXZlIGEgZ29vZCBpZGVhLiBCdXQgbWF5YmUgd2Ugc2hvdWxkIGtlZXAgVklS
-VElPX0JBTExPT05fU19OUiAKPiB1bmNoYW5nZWQsIGFuZCBhZGQgYSBjb21tZW50IGhlcmUuCj4g
-Cj4gVGhhbmtzCgpJIHRoaW5rIEphc29uJ3MgY29tbWVudCBpcyBmb3IgYSBmdXR1cmUgcGF0Y2gu
-IERpZG4ndCBzZWUgdGhpcyBwYXRjaCBnZXQgCmFwcGxpZWQsIHNvIHdvbmRlcmluZyBpZiBpdCBj
-b3VsZCBiZS4KClRoYW5rcywKSm9uCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Fri, Apr 6, 2018 at 8:19 PM, Andrew Lunn <andrew@lunn.ch> wrote:
+> Hi Siwei
+>
+>> I think everyone seems to agree not to fiddle with the ":" prefix, but
+>> rather have a new class of network subsystem under /sys/class thus a
+>> separate device namespace e.g. /sys/class/net-kernel for those
+>> auto-managed lower netdevs is needed.
+>
+> How do you get a device into this new class? I don't know the Linux
+> driver model too well, but to get a device out of one class and into
+> another, i think you need to device_del(dev). modify dev->class and
+> then device_add(dev). However, device_add() says you are not allowed
+> to do this.
+
+No, implementation wise I'd avoid changing the class on the fly. What
+I'm looking to is a means to add a secondary class or class aliasing
+mechanism for netdevs that allows mapping for a kernel device
+namespace (/class/net-kernel) to userspace (/class/net). Imagine
+creating symlinks between these two namespaces as an analogy. All
+userspace visible netdevs today will have both a kernel name and a
+userspace visible name, having one (/class/net) referecing the other
+(/class/net-kernel) in its own namespace. The newly introduced
+IFF_AUTO_MANAGED device will have a kernel name only
+(/class/net-kernel). As a result, the existing applications using
+/class/net don't break, while we're adding the kernel namespace that
+allows IFF_AUTO_MANAGED devices which will not be exposed to userspace
+at all.
+
+As this requires changing the internals of driver model core it's a
+rather big hammer approach I'd think. If there exists a better
+implementation than this to allow adding a separate layer of in-kernel
+device namespace, I'd more than welcome to hear about.
+
+>
+> And i don't even see how this helps. Are you also not going to call
+> list_netdevice()? Are you going to add some other list for these
+> devices in a different class?
+
+list_netdevice() is still called. I think with the current RFC patch,
+I've added two lists for netdevs under the kernel namespace:
+dev_cmpl_list and name_cmpl_hlist. As a result of that, all userspace
+netdevs get registered will be added to two types of lists: the
+userspace list for e.g. dev_list, and also the kernelspace list e.g.
+dev_cmpl_list (I can rename it to something more accurate). The
+IFF_AUTO_MANAGED device will be only added to kernelspace list e.g.
+dev_cmpl_list.
+
+Hope all your questions are answered.
+
+Thanks,
+-Siwei
+
+
+>
+>    Andrew
