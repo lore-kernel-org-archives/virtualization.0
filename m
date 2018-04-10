@@ -1,15 +1,17 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Subject: Re: [RFC PATCH net-next v6 4/4] netvsc: refactor notifier/event
 	handling code to use the bypass framework
-Date: Tue, 10 Apr 2018 14:26:08 -0700
-Message-ID: <20180410142608.50f15b45__28609.4832387336$1523395474$gmane$org@xeon-e3>
+Date: Tue, 10 Apr 2018 15:56:23 -0700
+Message-ID: <857f55f1-9d55-1c44-16e0-683ba2e3f2ec@intel.com>
 References: <1523386790-12396-1-git-send-email-sridhar.samudrala@intel.com>
 	<1523386790-12396-5-git-send-email-sridhar.samudrala@intel.com>
+	<20180410142608.50f15b45@xeon-e3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1523386790-12396-5-git-send-email-sridhar.samudrala@intel.com>
+In-Reply-To: <20180410142608.50f15b45@xeon-e3>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +21,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sridhar Samudrala <sridhar.samudrala@intel.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
 Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 10 Apr 2018 11:59:50 -0700
-Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
-
-> Use the registration/notification framework supported by the generic
-> bypass infrastructure.
-> 
-> Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
-> ---
-
-Thanks for doing this.  Your current version has couple show stopper
-issues.
-
-First, the slave device is instantly taking over the slave.
-This doesn't allow udev/systemd to do its device rename of the slave
-device. Netvsc uses a delayed work to workaround this.
-
-Secondly, the select queue needs to call queue selection in VF.
-The bonding/teaming logic doesn't work well for UDP flows.
-Commit b3bf5666a510 ("hv_netvsc: defer queue selection to VF")
-fixed this performance problem.
-
-Lastly, more indirection is bad in current climate.
-
-I am not completely adverse to this but it needs to be fast, simple
-and completely transparent.
+T24gNC8xMC8yMDE4IDI6MjYgUE0sIFN0ZXBoZW4gSGVtbWluZ2VyIHdyb3RlOgo+IE9uIFR1ZSwg
+MTAgQXByIDIwMTggMTE6NTk6NTAgLTA3MDAKPiBTcmlkaGFyIFNhbXVkcmFsYSA8c3JpZGhhci5z
+YW11ZHJhbGFAaW50ZWwuY29tPiB3cm90ZToKPgo+PiBVc2UgdGhlIHJlZ2lzdHJhdGlvbi9ub3Rp
+ZmljYXRpb24gZnJhbWV3b3JrIHN1cHBvcnRlZCBieSB0aGUgZ2VuZXJpYwo+PiBieXBhc3MgaW5m
+cmFzdHJ1Y3R1cmUuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IFNyaWRoYXIgU2FtdWRyYWxhIDxzcmlk
+aGFyLnNhbXVkcmFsYUBpbnRlbC5jb20+Cj4+IC0tLQo+IFRoYW5rcyBmb3IgZG9pbmcgdGhpcy4g
+IFlvdXIgY3VycmVudCB2ZXJzaW9uIGhhcyBjb3VwbGUgc2hvdyBzdG9wcGVyCj4gaXNzdWVzLgo+
+Cj4gRmlyc3QsIHRoZSBzbGF2ZSBkZXZpY2UgaXMgaW5zdGFudGx5IHRha2luZyBvdmVyIHRoZSBz
+bGF2ZS4KPiBUaGlzIGRvZXNuJ3QgYWxsb3cgdWRldi9zeXN0ZW1kIHRvIGRvIGl0cyBkZXZpY2Ug
+cmVuYW1lIG9mIHRoZSBzbGF2ZQo+IGRldmljZS4gTmV0dnNjIHVzZXMgYSBkZWxheWVkIHdvcmsg
+dG8gd29ya2Fyb3VuZCB0aGlzLgoKT0suIEkgZ3Vlc3MgeW91IGFyZSByZWZlcnJpbmcgdG8gdGhl
+IGRldl9zZXRfbXR1KCkgYW5kIGRldl9vcGVuKCkgY2FsbHMgdGhhdCBhcmUKbWFkZSBpbiBieXBh
+c3Nfc2xhdmVfcmVnaXN0ZXIoKSBhbmQgeW91IHdhbnQgdG8gZGVmZXIgdGhlbSB0byBiZSBkb25l
+IGFmdGVyCmEgZGVsYXkuwqAgSSBjb3VsZCBhdm9pZCB0aGVzZSBjYWxscyBpbiBjYXNlIG9mIG5l
+dHZzYyBiYXNlZCBvbiBieXBhc3Nfb3BzLgoKCj4KPiBTZWNvbmRseSwgdGhlIHNlbGVjdCBxdWV1
+ZSBuZWVkcyB0byBjYWxsIHF1ZXVlIHNlbGVjdGlvbiBpbiBWRi4KPiBUaGUgYm9uZGluZy90ZWFt
+aW5nIGxvZ2ljIGRvZXNuJ3Qgd29yayB3ZWxsIGZvciBVRFAgZmxvd3MuCj4gQ29tbWl0IGIzYmY1
+NjY2YTUxMCAoImh2X25ldHZzYzogZGVmZXIgcXVldWUgc2VsZWN0aW9uIHRvIFZGIikKPiBmaXhl
+ZCB0aGlzIHBlcmZvcm1hbmNlIHByb2JsZW0uCgpuZXR2c2Mgc2hvdWxkIG5vdCBiZSB1c2luZyBi
+eXBhc3Nfc2VsZWN0X3F1ZXVlKCkgYXPCoCB0aGF0IG5kbyBvcCBnZXRzIHVzZWQKb25seSB3aXRo
+IDMtbmV0ZGV2IG1vZGVsLgpBbnl3YXksIHdpbGwgbG9vayBpbnRvIHVwZGF0aW5nIGJ5cGFzc19z
+ZWxlY3RfcXVldWUoKSBiYXNlZCBvbiB5b3VyIGZpeC4KCj4KPiBMYXN0bHksIG1vcmUgaW5kaXJl
+Y3Rpb24gaXMgYmFkIGluIGN1cnJlbnQgY2xpbWF0ZS4KPgo+IEkgYW0gbm90IGNvbXBsZXRlbHkg
+YWR2ZXJzZSB0byB0aGlzIGJ1dCBpdCBuZWVkcyB0byBiZSBmYXN0LCBzaW1wbGUKPiBhbmQgY29t
+cGxldGVseSB0cmFuc3BhcmVudC4KCk5vdCBzdXJlIHdlIGNhbiBhdm9pZCB0aGlzIGluZGlyZWN0
+aW9uIGlmIHdlIHdhbnQgdG8gY29tbW9uaXplIHRoZSBjb2RlLMKgIGJ1dCB1c2UKZGlmZmVyZW50
+IG1vZGVscyBmb3IgdmlydGlvLW5ldCBhbmQgbmV0dnNjLgoKT24gdGhlIG90aGVyIGhhbmQsIHRo
+ZXNlIHBhdGNoZXMgYXZvaWQgY2FsbHMgdG8gZ2V0X25ldHZzY19ieW1hYygpIGFuZApnZXRfbmV0
+dnNjX2J5X3JlZigpIHRoYXQgZ28gdGhyb3VnaCBhbGwgdGhlIGRldmljZXMgZm9yIGFsbCB0aGUg
+bmV0ZGV2IGV2ZW50cy4KbmV0dnNjIGxvb2t1cHMgc2hvdWxkIGJlIG11Y2ggZmFzdGVyLgoKVGhh
+bmtzClNyaWRoYXIKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
+bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
