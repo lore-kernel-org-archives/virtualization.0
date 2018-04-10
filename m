@@ -1,15 +1,13 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC] vhost: introduce mdev based hardware vhost backend
-Date: Tue, 10 Apr 2018 12:57:23 +0800
-Message-ID: <20180410045723.rftsb7l4l3ip2ioi__2443.12654617733$1523336269$gmane$org@debian>
-References: <20180402152330.4158-1-tiwei.bie@intel.com>
-	<622f4bd7-1249-5545-dc5a-5a92b64f5c26@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [PATCH v2 2/2] vhost: return bool from *_access_ok() functions
+Date: Tue, 10 Apr 2018 13:26:30 +0800
+Message-ID: <20180410052630.11270-3-stefanha@redhat.com>
+References: <20180410052630.11270-1-stefanha@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <622f4bd7-1249-5545-dc5a-5a92b64f5c26@redhat.com>
+In-Reply-To: <20180410052630.11270-1-stefanha@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,211 +17,236 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiao.w.wang@intel.com, ddutile@redhat.com, jianfeng.tan@intel.com, zhihong.wang@intel.com
+To: virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBBcHIgMTAsIDIwMTggYXQgMTA6NTI6NTJBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiAyMDE45bm0MDTmnIgwMuaXpSAyMzoyMywgVGl3ZWkgQmllIHdyb3RlOgo+ID4gVGhp
-cyBwYXRjaCBpbnRyb2R1Y2VzIGEgbWRldiAobWVkaWF0ZWQgZGV2aWNlKSBiYXNlZCBoYXJkd2Fy
-ZQo+ID4gdmhvc3QgYmFja2VuZC4gVGhpcyBiYWNrZW5kIGlzIGFuIGFic3RyYWN0aW9uIG9mIHRo
-ZSB2YXJpb3VzCj4gPiBoYXJkd2FyZSB2aG9zdCBhY2NlbGVyYXRvcnMgKHBvdGVudGlhbGx5IGFu
-eSBkZXZpY2UgdGhhdCB1c2VzCj4gPiB2aXJ0aW8gcmluZyBjYW4gYmUgdXNlZCBhcyBhIHZob3N0
-IGFjY2VsZXJhdG9yKS4gU29tZSBnZW5lcmljCj4gPiBtZGV2IHBhcmVudCBvcHMgYXJlIHByb3Zp
-ZGVkIGZvciBhY2NlbGVyYXRvciBkcml2ZXJzIHRvIHN1cHBvcnQKPiA+IGdlbmVyYXRpbmcgbWRl
-diBpbnN0YW5jZXMuCj4gPiAKPiA+IFdoYXQncyB0aGlzCj4gPiA9PT09PT09PT09PQo+ID4gCj4g
-PiBUaGUgaWRlYSBpcyB0aGF0IHdlIGNhbiBzZXR1cCBhIHZpcnRpbyByaW5nIGNvbXBhdGlibGUg
-ZGV2aWNlCj4gPiB3aXRoIHRoZSBtZXNzYWdlcyBhdmFpbGFibGUgYXQgdGhlIHZob3N0LWJhY2tl
-bmQuIE9yaWdpbmFsbHksCj4gPiB0aGVzZSBtZXNzYWdlcyBhcmUgdXNlZCB0byBpbXBsZW1lbnQg
-YSBzb2Z0d2FyZSB2aG9zdCBiYWNrZW5kLAo+ID4gYnV0IG5vdyB3ZSB3aWxsIHVzZSB0aGVzZSBt
-ZXNzYWdlcyB0byBzZXR1cCBhIHZpcnRpbyByaW5nCj4gPiBjb21wYXRpYmxlIGhhcmR3YXJlIGRl
-dmljZS4gVGhlbiB0aGUgaGFyZHdhcmUgZGV2aWNlIHdpbGwgYmUKPiA+IGFibGUgdG8gd29yayB3
-aXRoIHRoZSBndWVzdCB2aXJ0aW8gZHJpdmVyIGluIHRoZSBWTSBqdXN0IGxpa2UKPiA+IHdoYXQg
-dGhlIHNvZnR3YXJlIGJhY2tlbmQgZG9lcy4gVGhhdCBpcyB0byBzYXksIHdlIGNhbiBpbXBsZW1l
-bnQKPiA+IGEgaGFyZHdhcmUgYmFzZWQgdmhvc3QgYmFja2VuZCBpbiBRRU1VLCBhbmQgYW55IHZp
-cnRpbyByaW5nCj4gPiBjb21wYXRpYmxlIGRldmljZXMgcG90ZW50aWFsbHkgY2FuIGJlIHVzZWQg
-d2l0aCB0aGlzIGJhY2tlbmQuCj4gPiAoV2UgYWxzbyBjYWxsIGl0IHZEUEEgLS0gdmhvc3QgRGF0
-YSBQYXRoIEFjY2VsZXJhdGlvbikuCj4gPiAKPiA+IE9uZSBwcm9ibGVtIGlzIHRoYXQsIGRpZmZl
-cmVudCB2aXJ0aW8gcmluZyBjb21wYXRpYmxlIGRldmljZXMKPiA+IG1heSBoYXZlIGRpZmZlcmVu
-dCBkZXZpY2UgaW50ZXJmYWNlcy4gVGhhdCBpcyB0byBzYXksIHdlIHdpbGwKPiA+IG5lZWQgZGlm
-ZmVyZW50IGRyaXZlcnMgaW4gUUVNVS4gSXQgY291bGQgYmUgdHJvdWJsZXNvbWUuIEFuZAo+ID4g
-dGhhdCdzIHdoYXQgdGhpcyBwYXRjaCB0cnlpbmcgdG8gZml4LiBUaGUgaWRlYSBiZWhpbmQgdGhp
-cwo+ID4gcGF0Y2ggaXMgdmVyeSBzaW1wbGU6IG1kZXYgaXMgYSBzdGFuZGFyZCB3YXkgdG8gZW11
-bGF0ZSBkZXZpY2UKPiA+IGluIGtlcm5lbC4KPiAKPiBTbyB5b3UganVzdCBtb3ZlIHRoZSBhYnN0
-cmFjdGlvbiBsYXllciBmcm9tIHFlbXUgdG8ga2VybmVsLCBhbmQgeW91IHN0aWxsCj4gbmVlZCBk
-aWZmZXJlbnQgZHJpdmVycyBpbiBrZXJuZWwgZm9yIGRpZmZlcmVudCBkZXZpY2UgaW50ZXJmYWNl
-cyBvZgo+IGFjY2VsZXJhdG9ycy4gVGhpcyBsb29rcyBldmVuIG1vcmUgY29tcGxleCB0aGFuIGxl
-YXZpbmcgaXQgaW4gcWVtdS4gQXMgeW91Cj4gc2FpZCwgYW5vdGhlciBpZGVhIGlzIHRvIGltcGxl
-bWVudCB1c2Vyc3BhY2Ugdmhvc3QgYmFja2VuZCBmb3IgYWNjZWxlcmF0b3JzCj4gd2hpY2ggc2Vl
-bXMgZWFzaWVyIGFuZCBjb3VsZCBjby13b3JrIHdpdGggb3RoZXIgcGFydHMgb2YgcWVtdSB3aXRo
-b3V0Cj4gaW52ZW50aW5nIG5ldyB0eXBlIG9mIG1lc3NhZ2VzLgoKSSdtIG5vdCBxdWl0ZSBzdXJl
-LiBEbyB5b3UgdGhpbmsgaXQncyBhY2NlcHRhYmxlIHRvCmFkZCB2YXJpb3VzIHZlbmRvciBzcGVj
-aWZpYyBoYXJkd2FyZSBkcml2ZXJzIGluIFFFTVU/Cgo+IAo+IE5lZWQgY2FyZWZ1bCB0aG91Z2h0
-IGhlcmUgdG8gc2VlayBhIGJlc3Qgc29sdXRpb24gaGVyZS4KClllYWgsIGRlZmluaXRlbHkhIDop
-CkFuZCB5b3VyIG9waW5pb25zIHdvdWxkIGJlIHZlcnkgaGVscGZ1bCEKCj4gCj4gPiAgIFNvIHdl
-IGRlZmluZWQgYSBzdGFuZGFyZCBkZXZpY2UgYmFzZWQgb24gbWRldiwgd2hpY2gKPiA+IGlzIGFi
-bGUgdG8gYWNjZXB0IHZob3N0IG1lc3NhZ2VzLiBXaGVuIHRoZSBtZGV2IGVtdWxhdGlvbiBjb2Rl
-Cj4gPiAoaS5lLiB0aGUgZ2VuZXJpYyBtZGV2IHBhcmVudCBvcHMgcHJvdmlkZWQgYnkgdGhpcyBw
-YXRjaCkgZ2V0cwo+ID4gdmhvc3QgbWVzc2FnZXMsIGl0IHdpbGwgcGFyc2UgYW5kIGRlbGl2ZXIg
-dGhlbSB0byBhY2NlbGVyYXRvcgo+ID4gZHJpdmVycy4gRHJpdmVycyBjYW4gdXNlIHRoZXNlIG1l
-c3NhZ2VzIHRvIHNldHVwIGFjY2VsZXJhdG9ycy4KPiA+IAo+ID4gVGhhdCBpcyB0byBzYXksIHRo
-ZSBnZW5lcmljIG1kZXYgcGFyZW50IG9wcyAoZS5nLiByZWFkKCkvd3JpdGUoKS8KPiA+IGlvY3Rs
-KCkvLi4uKSB3aWxsIGJlIHByb3ZpZGVkIGZvciBhY2NlbGVyYXRvciBkcml2ZXJzIHRvIHJlZ2lz
-dGVyCj4gPiBhY2NlbGVyYXRvcnMgYXMgbWRldiBwYXJlbnQgZGV2aWNlcy4gQW5kIGVhY2ggYWNj
-ZWxlcmF0b3IgZGV2aWNlCj4gPiB3aWxsIHN1cHBvcnQgZ2VuZXJhdGluZyBzdGFuZGFyZCBtZGV2
-IGluc3RhbmNlKHMpLgo+ID4gCj4gPiBXaXRoIHRoaXMgc3RhbmRhcmQgZGV2aWNlIGludGVyZmFj
-ZSwgd2Ugd2lsbCBiZSBhYmxlIHRvIGp1c3QKPiA+IGRldmVsb3Agb25lIHVzZXJzcGFjZSBkcml2
-ZXIgdG8gaW1wbGVtZW50IHRoZSBoYXJkd2FyZSBiYXNlZAo+ID4gdmhvc3QgYmFja2VuZCBpbiBR
-RU1VLgo+ID4gCj4gPiBEaWZmZXJlbmNlIGJldHdlZW4gdkRQQSBhbmQgUENJIHBhc3N0aHJ1Cj4g
-PiA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Cj4gPiAKPiA+IFRoZSBr
-ZXkgZGlmZmVyZW5jZSBiZXR3ZWVuIHZEUEEgYW5kIFBDSSBwYXNzdGhydSBpcyB0aGF0LCBpbgo+
-ID4gdkRQQSBvbmx5IHRoZSBkYXRhIHBhdGggb2YgdGhlIGRldmljZSAoZS5nLiBETUEgcmluZywg
-bm90aWZ5Cj4gPiByZWdpb24gYW5kIHF1ZXVlIGludGVycnVwdCkgaXMgcGFzcy10aHJvdWdoZWQg
-dG8gdGhlIFZNLCB0aGUKPiA+IGRldmljZSBjb250cm9sIHBhdGggKGUuZy4gUENJIGNvbmZpZ3Vy
-YXRpb24gc3BhY2UgYW5kIE1NSU8KPiA+IHJlZ2lvbnMpIGlzIHN0aWxsIGRlZmluZWQgYW5kIGVt
-dWxhdGVkIGJ5IFFFTVUuCj4gPiAKPiA+IFRoZSBiZW5lZml0cyBvZiBrZWVwaW5nIHZpcnRpbyBk
-ZXZpY2UgZW11bGF0aW9uIGluIFFFTVUgY29tcGFyZWQKPiA+IHdpdGggdmlydGlvIGRldmljZSBQ
-Q0kgcGFzc3RocnUgaW5jbHVkZSAoYnV0IG5vdCBsaW1pdCB0byk6Cj4gPiAKPiA+IC0gY29uc2lz
-dGVudCBkZXZpY2UgaW50ZXJmYWNlIGZvciBndWVzdCBPUyBpbiB0aGUgVk07Cj4gPiAtIG1heCBm
-bGV4aWJpbGl0eSBvbiB0aGUgaGFyZHdhcmUgZGVzaWduLCBlc3BlY2lhbGx5IHRoZQo+ID4gICAg
-YWNjZWxlcmF0b3IgZm9yIGVhY2ggdmhvc3QgYmFja2VuZCBkb2Vzbid0IGhhdmUgdG8gYmUgYQo+
-ID4gICAgZnVsbCBQQ0kgZGV2aWNlOwo+ID4gLSBsZXZlcmFnaW5nIHRoZSBleGlzdGluZyB2aXJ0
-aW8gbGl2ZS1taWdyYXRpb24gZnJhbWV3b3JrOwo+ID4gCj4gPiBUaGUgaW50ZXJmYWNlIG9mIHRo
-aXMgbWRldiBiYXNlZCBkZXZpY2UKPiA+ID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PQo+ID4gCj4gPiAxLiBCQVIwCj4gPiAKPiA+IFRoZSBNTUlPIHJlZ2lvbiBkZXNjcmli
-ZWQgYnkgQkFSMCBpcyB0aGUgbWFpbiBjb250cm9sCj4gPiBpbnRlcmZhY2UuIE1lc3NhZ2VzIHdp
-bGwgYmUgd3JpdHRlbiB0byBvciByZWFkIGZyb20KPiA+IHRoaXMgcmVnaW9uLgo+ID4gCj4gPiBU
-aGUgbWVzc2FnZSB0eXBlIGlzIGRldGVybWluZWQgYnkgdGhlIGByZXF1ZXN0YCBmaWVsZAo+ID4g
-aW4gbWVzc2FnZSBoZWFkZXIuIFRoZSBtZXNzYWdlIHNpemUgaXMgZW5jb2RlZCBpbiB0aGUKPiA+
-IG1lc3NhZ2UgaGVhZGVyIHRvby4gVGhlIG1lc3NhZ2UgZm9ybWF0IGxvb2tzIGxpa2UgdGhpczoK
-PiA+IAo+ID4gc3RydWN0IHZob3N0X3ZmaW9fb3Agewo+ID4gCV9fdTY0IHJlcXVlc3Q7Cj4gPiAJ
-X191MzIgZmxhZ3M7Cj4gPiAJLyogRmxhZyB2YWx1ZXM6ICovCj4gPiAjZGVmaW5lIFZIT1NUX1ZG
-SU9fTkVFRF9SRVBMWSAweDEgLyogV2hldGhlciBuZWVkIHJlcGx5ICovCj4gPiAJX191MzIgc2l6
-ZTsKPiA+IAl1bmlvbiB7Cj4gPiAJCV9fdTY0IHU2NDsKPiA+IAkJc3RydWN0IHZob3N0X3ZyaW5n
-X3N0YXRlIHN0YXRlOwo+ID4gCQlzdHJ1Y3Qgdmhvc3RfdnJpbmdfYWRkciBhZGRyOwo+ID4gCQlz
-dHJ1Y3Qgdmhvc3RfbWVtb3J5IG1lbW9yeTsKPiA+IAl9IHBheWxvYWQ7Cj4gPiB9Owo+ID4gCj4g
-PiBUaGUgZXhpc3Rpbmcgdmhvc3Qta2VybmVsIGlvY3RsIGNtZHMgYXJlIHJldXNlZCBhcwo+ID4g
-dGhlIG1lc3NhZ2UgcmVxdWVzdHMgaW4gYWJvdmUgc3RydWN0dXJlLgo+ID4gCj4gPiBFYWNoIG1l
-c3NhZ2Ugd2lsbCBiZSB3cml0dGVuIHRvIG9yIHJlYWQgZnJvbSB0aGlzCj4gPiByZWdpb24gYXQg
-b2Zmc2V0IDA6Cj4gPiAKPiA+IGludCB2aG9zdF92ZmlvX3dyaXRlKHN0cnVjdCB2aG9zdF9kZXYg
-KmRldiwgc3RydWN0IHZob3N0X3ZmaW9fb3AgKm9wKQo+ID4gewo+ID4gCWludCBjb3VudCA9IFZI
-T1NUX1ZGSU9fT1BfSERSX1NJWkUgKyBvcC0+c2l6ZTsKPiA+IAlzdHJ1Y3Qgdmhvc3RfdmZpbyAq
-dmZpbyA9IGRldi0+b3BhcXVlOwo+ID4gCWludCByZXQ7Cj4gPiAKPiA+IAlyZXQgPSBwd3JpdGU2
-NCh2ZmlvLT5kZXZpY2VfZmQsIG9wLCBjb3VudCwgdmZpby0+YmFyMF9vZmZzZXQpOwo+ID4gCWlm
-IChyZXQgIT0gY291bnQpCj4gPiAJCXJldHVybiAtMTsKPiA+IAo+ID4gCXJldHVybiAwOwo+ID4g
-fQo+ID4gCj4gPiBpbnQgdmhvc3RfdmZpb19yZWFkKHN0cnVjdCB2aG9zdF9kZXYgKmRldiwgc3Ry
-dWN0IHZob3N0X3ZmaW9fb3AgKm9wKQo+ID4gewo+ID4gCWludCBjb3VudCA9IFZIT1NUX1ZGSU9f
-T1BfSERSX1NJWkUgKyBvcC0+c2l6ZTsKPiA+IAlzdHJ1Y3Qgdmhvc3RfdmZpbyAqdmZpbyA9IGRl
-di0+b3BhcXVlOwo+ID4gCXVpbnQ2NF90IHJlcXVlc3QgPSBvcC0+cmVxdWVzdDsKPiA+IAlpbnQg
-cmV0Owo+ID4gCj4gPiAJcmV0ID0gcHJlYWQ2NCh2ZmlvLT5kZXZpY2VfZmQsIG9wLCBjb3VudCwg
-dmZpby0+YmFyMF9vZmZzZXQpOwo+ID4gCWlmIChyZXQgIT0gY291bnQgfHwgcmVxdWVzdCAhPSBv
-cC0+cmVxdWVzdCkKPiA+IAkJcmV0dXJuIC0xOwo+ID4gCj4gPiAJcmV0dXJuIDA7Cj4gPiB9Cj4g
-PiAKPiA+IEl0J3MgcXVpdGUgc3RyYWlnaHRmb3J3YXJkIHRvIHNldCB0aGluZ3MgdG8gdGhlIGRl
-dmljZS4KPiA+IEp1c3QgbmVlZCB0byB3cml0ZSB0aGUgbWVzc2FnZSB0byBkZXZpY2UgZGlyZWN0
-bHk6Cj4gPiAKPiA+IGludCB2aG9zdF92ZmlvX3NldF9mZWF0dXJlcyhzdHJ1Y3Qgdmhvc3RfZGV2
-ICpkZXYsIHVpbnQ2NF90IGZlYXR1cmVzKQo+ID4gewo+ID4gCXN0cnVjdCB2aG9zdF92ZmlvX29w
-IG9wOwo+ID4gCj4gPiAJb3AucmVxdWVzdCA9IFZIT1NUX1NFVF9GRUFUVVJFUzsKPiA+IAlvcC5m
-bGFncyA9IDA7Cj4gPiAJb3Auc2l6ZSA9IHNpemVvZihmZWF0dXJlcyk7Cj4gPiAJb3AucGF5bG9h
-ZC51NjQgPSBmZWF0dXJlczsKPiA+IAo+ID4gCXJldHVybiB2aG9zdF92ZmlvX3dyaXRlKGRldiwg
-Jm9wKTsKPiA+IH0KPiA+IAo+ID4gVG8gZ2V0IHRoaW5ncyBmcm9tIHRoZSBkZXZpY2UsIHR3byBz
-dGVwcyBhcmUgbmVlZGVkLgo+ID4gVGFrZSBWSE9TVF9HRVRfRkVBVFVSRSBhcyBhbiBleGFtcGxl
-Ogo+ID4gCj4gPiBpbnQgdmhvc3RfdmZpb19nZXRfZmVhdHVyZXMoc3RydWN0IHZob3N0X2RldiAq
-ZGV2LCB1aW50NjRfdCAqZmVhdHVyZXMpCj4gPiB7Cj4gPiAJc3RydWN0IHZob3N0X3ZmaW9fb3Ag
-b3A7Cj4gPiAJaW50IHJldDsKPiA+IAo+ID4gCW9wLnJlcXVlc3QgPSBWSE9TVF9HRVRfRkVBVFVS
-RVM7Cj4gPiAJb3AuZmxhZ3MgPSBWSE9TVF9WRklPX05FRURfUkVQTFk7Cj4gPiAJb3Auc2l6ZSA9
-IDA7Cj4gPiAKPiA+IAkvKiBKdXN0IG5lZWQgdG8gd3JpdGUgdGhlIGhlYWRlciAqLwo+ID4gCXJl
-dCA9IHZob3N0X3ZmaW9fd3JpdGUoZGV2LCAmb3ApOwo+ID4gCWlmIChyZXQgIT0gMCkKPiA+IAkJ
-Z290byBvdXQ7Cj4gPiAKPiA+IAkvKiBgb3BgIHdhc24ndCBjaGFuZ2VkIGR1cmluZyB3cml0ZSAq
-Lwo+ID4gCW9wLmZsYWdzID0gMDsKPiA+IAlvcC5zaXplID0gc2l6ZW9mKCpmZWF0dXJlcyk7Cj4g
-PiAKPiA+IAlyZXQgPSB2aG9zdF92ZmlvX3JlYWQoZGV2LCAmb3ApOwo+ID4gCWlmIChyZXQgIT0g
-MCkKPiA+IAkJZ290byBvdXQ7Cj4gPiAKPiA+IAkqZmVhdHVyZXMgPSBvcC5wYXlsb2FkLnU2NDsK
-PiA+IG91dDoKPiA+IAlyZXR1cm4gcmV0Owo+ID4gfQo+ID4gCj4gPiAyLiBCQVIxIChtbWFwLWFi
-bGUpCj4gPiAKPiA+IFRoZSBNTUlPIHJlZ2lvbiBkZXNjcmliZWQgYnkgQkFSMSB3aWxsIGJlIHVz
-ZWQgdG8gbm90aWZ5IHRoZQo+ID4gZGV2aWNlLgo+ID4gCj4gPiBFYWNoIHF1ZXVlIHdpbGwgaGFz
-IGEgcGFnZSBmb3Igbm90aWZpY2F0aW9uLCBhbmQgaXQgY2FuIGJlCj4gPiBtYXBwZWQgdG8gVk0g
-KGlmIGhhcmR3YXJlIGFsc28gc3VwcG9ydHMpLCBhbmQgdGhlIHZpcnRpbwo+ID4gZHJpdmVyIGlu
-IHRoZSBWTSB3aWxsIGJlIGFibGUgdG8gbm90aWZ5IHRoZSBkZXZpY2UgZGlyZWN0bHkuCj4gPiAK
-PiA+IFRoZSBNTUlPIHJlZ2lvbiBkZXNjcmliZWQgYnkgQkFSMSBpcyBhbHNvIHdyaXRlLWFibGUu
-IElmIHRoZQo+ID4gYWNjZWxlcmF0b3IncyBub3RpZmljYXRpb24gcmVnaXN0ZXIocykgY2Fubm90
-IGJlIG1hcHBlZCB0byB0aGUKPiA+IFZNLCB3cml0ZSgpIGNhbiBhbHNvIGJlIHVzZWQgdG8gbm90
-aWZ5IHRoZSBkZXZpY2UuIFNvbWV0aGluZwo+ID4gbGlrZSB0aGlzOgo+ID4gCj4gPiB2b2lkIG5v
-dGlmeV9yZWxheSh2b2lkICpvcGFxdWUpCj4gPiB7Cj4gPiAJLi4uLi4uCj4gPiAJb2Zmc2V0ID0g
-MHgxMDAwICogcXVldWVfaWR4OyAvKiBYWFggYXNzdW1lIHBhZ2Ugc2l6ZSBpcyA0SyBoZXJlLiAq
-Lwo+ID4gCj4gPiAJcmV0ID0gcHdyaXRlNjQodmZpby0+ZGV2aWNlX2ZkLCAmcXVldWVfaWR4LCBz
-aXplb2YocXVldWVfaWR4KSwKPiA+IAkJCXZmaW8tPmJhcjFfb2Zmc2V0ICsgb2Zmc2V0KTsKPiA+
-IAkuLi4uLi4KPiA+IH0KPiA+IAo+ID4gT3RoZXIgQkFScyBhcmUgcmVzZXJ2ZWQuCj4gPiAKPiA+
-IDMuIFZGSU8gaW50ZXJydXB0IGlvY3RsIEFQSQo+ID4gCj4gPiBWRklPIGludGVycnVwdCBpb2N0
-bCBBUEkgaXMgdXNlZCB0byBzZXR1cCBkZXZpY2UgaW50ZXJydXB0cy4KPiA+IElSUS1ieXBhc3Mg
-d2lsbCBhbHNvIGJlIHN1cHBvcnRlZC4KPiA+IAo+ID4gQ3VycmVudGx5LCBvbmx5IFZGSU9fUENJ
-X01TSVhfSVJRX0lOREVYIGlzIHN1cHBvcnRlZC4KPiA+IAo+ID4gVGhlIEFQSSBmb3IgZHJpdmVy
-cyB0byBwcm92aWRlIG1kZXYgaW5zdGFuY2VzCj4gPiA9PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT0KPiA+IAo+ID4gVGhlIHJlYWQoKS93cml0ZSgpL2lvY3RsKCkv
-bW1hcCgpL29wZW4oKS9yZWxlYXNlKCkgbWRldgo+ID4gcGFyZW50IG9wcyBoYXZlIGJlZW4gcHJv
-dmlkZWQgZm9yIGFjY2VsZXJhdG9ycycgZHJpdmVycwo+ID4gdG8gcHJvdmlkZSBtZGV2IGluc3Rh
-bmNlcy4KPiA+IAo+ID4gc3NpemVfdCB2ZHBhX3JlYWQoc3RydWN0IG1kZXZfZGV2aWNlICptZGV2
-LCBjaGFyIF9fdXNlciAqYnVmLAo+ID4gCQkgIHNpemVfdCBjb3VudCwgbG9mZl90ICpwcG9zKTsK
-PiA+IHNzaXplX3QgdmRwYV93cml0ZShzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYsIGNvbnN0IGNo
-YXIgX191c2VyICpidWYsCj4gPiAJCSAgIHNpemVfdCBjb3VudCwgbG9mZl90ICpwcG9zKTsKPiA+
-IGxvbmcgdmRwYV9pb2N0bChzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYsIHVuc2lnbmVkIGludCBj
-bWQsIHVuc2lnbmVkIGxvbmcgYXJnKTsKPiA+IGludCB2ZHBhX21tYXAoc3RydWN0IG1kZXZfZGV2
-aWNlICptZGV2LCBzdHJ1Y3Qgdm1fYXJlYV9zdHJ1Y3QgKnZtYSk7Cj4gPiBpbnQgdmRwYV9vcGVu
-KHN0cnVjdCBtZGV2X2RldmljZSAqbWRldik7Cj4gPiB2b2lkIHZkcGFfY2xvc2Uoc3RydWN0IG1k
-ZXZfZGV2aWNlICptZGV2KTsKPiA+IAo+ID4gRWFjaCBhY2NlbGVyYXRvciBkcml2ZXIganVzdCBu
-ZWVkcyB0byBpbXBsZW1lbnQgaXRzIG93bgo+ID4gY3JlYXRlKCkvcmVtb3ZlKCkgb3BzLCBhbmQg
-cHJvdmlkZSBhIHZkcGEgZGV2aWNlIG9wcwo+ID4gd2hpY2ggd2lsbCBiZSBjYWxsZWQgYnkgdGhl
-IGdlbmVyaWMgbWRldiBlbXVsYXRpb24gY29kZS4KPiA+IAo+ID4gQ3VycmVudGx5LCB0aGUgdmRw
-YSBkZXZpY2Ugb3BzIGFyZSBkZWZpbmVkIGFzOgo+ID4gCj4gPiB0eXBlZGVmIGludCAoKnZkcGFf
-c3RhcnRfZGV2aWNlX3QpKHN0cnVjdCB2ZHBhX2RldiAqdmRwYSk7Cj4gPiB0eXBlZGVmIGludCAo
-KnZkcGFfc3RvcF9kZXZpY2VfdCkoc3RydWN0IHZkcGFfZGV2ICp2ZHBhKTsKPiA+IHR5cGVkZWYg
-aW50ICgqdmRwYV9kbWFfbWFwX3QpKHN0cnVjdCB2ZHBhX2RldiAqdmRwYSk7Cj4gPiB0eXBlZGVm
-IGludCAoKnZkcGFfZG1hX3VubWFwX3QpKHN0cnVjdCB2ZHBhX2RldiAqdmRwYSk7Cj4gPiB0eXBl
-ZGVmIGludCAoKnZkcGFfc2V0X2V2ZW50ZmRfdCkoc3RydWN0IHZkcGFfZGV2ICp2ZHBhLCBpbnQg
-dmVjdG9yLCBpbnQgZmQpOwo+ID4gdHlwZWRlZiB1NjQgKCp2ZHBhX3N1cHBvcnRlZF9mZWF0dXJl
-c190KShzdHJ1Y3QgdmRwYV9kZXYgKnZkcGEpOwo+ID4gdHlwZWRlZiB2b2lkICgqdmRwYV9ub3Rp
-ZnlfZGV2aWNlX3QpKHN0cnVjdCB2ZHBhX2RldiAqdmRwYSwgaW50IHFpZCk7Cj4gPiB0eXBlZGVm
-IHU2NCAoKnZkcGFfZ2V0X25vdGlmeV9hZGRyX3QpKHN0cnVjdCB2ZHBhX2RldiAqdmRwYSwgaW50
-IHFpZCk7Cj4gPiAKPiA+IHN0cnVjdCB2ZHBhX2RldmljZV9vcHMgewo+ID4gCXZkcGFfc3RhcnRf
-ZGV2aWNlX3QJCXN0YXJ0Owo+ID4gCXZkcGFfc3RvcF9kZXZpY2VfdAkJc3RvcDsKPiA+IAl2ZHBh
-X2RtYV9tYXBfdAkJCWRtYV9tYXA7Cj4gPiAJdmRwYV9kbWFfdW5tYXBfdAkJZG1hX3VubWFwOwo+
-ID4gCXZkcGFfc2V0X2V2ZW50ZmRfdAkJc2V0X2V2ZW50ZmQ7Cj4gPiAJdmRwYV9zdXBwb3J0ZWRf
-ZmVhdHVyZXNfdAlzdXBwb3J0ZWRfZmVhdHVyZXM7Cj4gPiAJdmRwYV9ub3RpZnlfZGV2aWNlX3QJ
-CW5vdGlmeTsKPiA+IAl2ZHBhX2dldF9ub3RpZnlfYWRkcl90CQlnZXRfbm90aWZ5X2FkZHI7Cj4g
-PiB9Owo+ID4gCj4gPiBzdHJ1Y3QgdmRwYV9kZXYgewo+ID4gCXN0cnVjdCBtZGV2X2RldmljZSAq
-bWRldjsKPiA+IAlzdHJ1Y3QgbXV0ZXggb3BzX2xvY2s7Cj4gPiAJdTggdmNvbmZpZ1tWRFBBX0NP
-TkZJR19TSVpFXTsKPiA+IAlpbnQgbnJfdnJpbmc7Cj4gPiAJdTY0IGZlYXR1cmVzOwo+ID4gCXU2
-NCBzdGF0ZTsKPiA+IAlzdHJ1Y3Qgdmhvc3RfbWVtb3J5ICptZW1fdGFibGU7Cj4gPiAJYm9vbCBw
-ZW5kaW5nX3JlcGx5Owo+ID4gCXN0cnVjdCB2aG9zdF92ZmlvX29wIHBlbmRpbmc7Cj4gPiAJY29u
-c3Qgc3RydWN0IHZkcGFfZGV2aWNlX29wcyAqb3BzOwo+ID4gCXZvaWQgKnByaXZhdGU7Cj4gPiAJ
-aW50IG1heF92cmluZ3M7Cj4gPiAJc3RydWN0IHZkcGFfdnJpbmdfaW5mbyB2cmluZ19pbmZvWzBd
-Owo+ID4gfTsKPiA+IAo+ID4gc3RydWN0IHZkcGFfZGV2ICp2ZHBhX2FsbG9jKHN0cnVjdCBtZGV2
-X2RldmljZSAqbWRldiwgdm9pZCAqcHJpdmF0ZSwKPiA+IAkJCSAgICBpbnQgbWF4X3ZyaW5ncyk7
-Cj4gPiB2b2lkIHZkcGFfZnJlZShzdHJ1Y3QgdmRwYV9kZXYgKnZkcGEpOwo+ID4gCj4gPiBBIHNp
-bXBsZSBleGFtcGxlCj4gPiA9PT09PT09PT09PT09PT09Cj4gPiAKPiA+ICMgUXVlcnkgdGhlIG51
-bWJlciBvZiBhdmFpbGFibGUgbWRldiBpbnN0YW5jZXMKPiA+ICQgY2F0IC9zeXMvY2xhc3MvbWRl
-dl9idXMvMDAwMDowNjowMC4yL21kZXZfc3VwcG9ydGVkX3R5cGVzL2lmY3ZmX3ZkcGEtdmRwYV92
-aXJ0aW8vYXZhaWxhYmxlX2luc3RhbmNlcwo+ID4gCj4gPiAjIENyZWF0ZSBhIG1kZXYgaW5zdGFu
-Y2UKPiA+ICQgZWNobyAkVVVJRCA+IC9zeXMvY2xhc3MvbWRldl9idXMvMDAwMDowNjowMC4yL21k
-ZXZfc3VwcG9ydGVkX3R5cGVzL2lmY3ZmX3ZkcGEtdmRwYV92aXJ0aW8vY3JlYXRlCj4gPiAKPiA+
-ICMgTGF1bmNoIFFFTVUgd2l0aCBhIHZpcnRpby1uZXQgZGV2aWNlCj4gPiAkIHFlbXUgXAo+ID4g
-CS4uLi4uLiBcCj4gPiAJLW5ldGRldiB0eXBlPXZob3N0LXZmaW8sc3lzZnNkZXY9L3N5cy9idXMv
-bWRldi9kZXZpY2VzLyRVVUlELGlkPSRJRCBcCj4gPiAJLWRldmljZSB2aXJ0aW8tbmV0LXBjaSxu
-ZXRkZXY9JElECj4gPiAKPiA+IC0tLS0tLS0tIEVORCAtLS0tLS0tLQo+ID4gCj4gPiBNb3N0IG9m
-IGFib3ZlIHdvcmRzIHdpbGwgYmUgcmVmaW5lZCBhbmQgbW92ZWQgdG8gYSBkb2MgaW4KPiA+IHRo
-ZSBmb3JtYWwgcGF0Y2guIEluIHRoaXMgUkZDLCBhbGwgaW50cm9kdWN0aW9ucyBhbmQgY29kZQo+
-ID4gYXJlIGdhdGhlcmVkIGluIHRoaXMgcGF0Y2gsIHRoZSBpZGVhIGlzIHRvIG1ha2UgaXQgZWFz
-aWVyCj4gPiB0byBmaW5kIGFsbCB0aGUgcmVsZXZhbnQgaW5mb3JtYXRpb24uIEFueW9uZSB3aG8g
-d2FudHMgdG8KPiA+IGNvbW1lbnQgY291bGQgdXNlIGlubGluZSBjb21tZW50IGFuZCBqdXN0IGtl
-ZXAgdGhlIHJlbGV2YW50Cj4gPiBwYXJ0cy4gU29ycnkgZm9yIHRoZSBiaWcgUkZDIHBhdGNoLi4K
-PiA+IAo+ID4gVGhpcyBwYXRjaCBpcyBqdXN0IGEgUkZDIGZvciBub3csIGFuZCBzb21ldGhpbmcg
-aXMgc3RpbGwKPiA+IG1pc3Npbmcgb3IgbmVlZHMgdG8gYmUgcmVmaW5lZC4gQnV0IGl0J3MgbmV2
-ZXIgdG9vIGVhcmx5Cj4gPiB0byBoZWFyIHRoZSB0aG91Z2h0cyBmcm9tIHRoZSBjb21tdW5pdHku
-IFNvIGFueSBjb21tZW50cwo+ID4gd291bGQgYmUgYXBwcmVjaWF0ZWQhIFRoYW5rcyEgOi0pCj4g
-Cj4gSSBkb24ndCBzZWUgdmhvc3RfdmZpb193cml0ZSgpIGFuZCBvdGhlciBhYm92ZSBmdW5jdGlv
-bnMgaW4gdGhlIHBhdGNoLiBMb29rcwo+IGxpa2Ugc29tZSBwYXJ0IG9mIHRoZSBwYXRjaCBpcyBt
-aXNzZWQsIGl0IHdvdWxkIGJlIGJldHRlciB0byBwb3N0IGEgY29tcGxldGUKPiBzZXJpZXMgd2l0
-aCBhbiBleGFtcGxlIGRyaXZlciAodkRQQSkgdG8gZ2V0IGEgZnVsbCBwaWN0dXJlLgoKTm8gcHJv
-YmxlbS4gV2Ugd2lsbCBzZW5kIG91dCB0aGUgUUVNVSBjaGFuZ2VzIHNvb24hCgpUaGFua3MhCgo+
-IAo+IFRoYW5rcwo+IApbLi4uXQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Currently vhost *_access_ok() functions return int.  This is error-prone
+because there are two popular conventions:
+
+1. 0 means failure, 1 means success
+2. -errno means failure, 0 means success
+
+Although vhost mostly uses #1, it does not do so consistently.
+umem_access_ok() uses #2.
+
+This patch changes the return type from int to bool so that false means
+failure and true means success.  This eliminates a potential source of
+errors.
+
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+---
+ drivers/vhost/vhost.h |  4 ++--
+ drivers/vhost/vhost.c | 66 +++++++++++++++++++++++++--------------------------
+ 2 files changed, 35 insertions(+), 35 deletions(-)
+
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index ac4b6056f19a..6e00fa57af09 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -178,8 +178,8 @@ void vhost_dev_cleanup(struct vhost_dev *);
+ void vhost_dev_stop(struct vhost_dev *);
+ long vhost_dev_ioctl(struct vhost_dev *, unsigned int ioctl, void __user *argp);
+ long vhost_vring_ioctl(struct vhost_dev *d, int ioctl, void __user *argp);
+-int vhost_vq_access_ok(struct vhost_virtqueue *vq);
+-int vhost_log_access_ok(struct vhost_dev *);
++bool vhost_vq_access_ok(struct vhost_virtqueue *vq);
++bool vhost_log_access_ok(struct vhost_dev *);
+ 
+ int vhost_get_vq_desc(struct vhost_virtqueue *,
+ 		      struct iovec iov[], unsigned int iov_count,
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 93fd0c75b0d8..b6a082ef33dd 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -641,14 +641,14 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+ }
+ EXPORT_SYMBOL_GPL(vhost_dev_cleanup);
+ 
+-static int log_access_ok(void __user *log_base, u64 addr, unsigned long sz)
++static bool log_access_ok(void __user *log_base, u64 addr, unsigned long sz)
+ {
+ 	u64 a = addr / VHOST_PAGE_SIZE / 8;
+ 
+ 	/* Make sure 64 bit math will not overflow. */
+ 	if (a > ULONG_MAX - (unsigned long)log_base ||
+ 	    a + (unsigned long)log_base > ULONG_MAX)
+-		return 0;
++		return false;
+ 
+ 	return access_ok(VERIFY_WRITE, log_base + a,
+ 			 (sz + VHOST_PAGE_SIZE * 8 - 1) / VHOST_PAGE_SIZE / 8);
+@@ -661,30 +661,30 @@ static bool vhost_overflow(u64 uaddr, u64 size)
+ }
+ 
+ /* Caller should have vq mutex and device mutex. */
+-static int vq_memory_access_ok(void __user *log_base, struct vhost_umem *umem,
+-			       int log_all)
++static bool vq_memory_access_ok(void __user *log_base, struct vhost_umem *umem,
++				int log_all)
+ {
+ 	struct vhost_umem_node *node;
+ 
+ 	if (!umem)
+-		return 0;
++		return false;
+ 
+ 	list_for_each_entry(node, &umem->umem_list, link) {
+ 		unsigned long a = node->userspace_addr;
+ 
+ 		if (vhost_overflow(node->userspace_addr, node->size))
+-			return 0;
++			return false;
+ 
+ 
+ 		if (!access_ok(VERIFY_WRITE, (void __user *)a,
+ 				    node->size))
+-			return 0;
++			return false;
+ 		else if (log_all && !log_access_ok(log_base,
+ 						   node->start,
+ 						   node->size))
+-			return 0;
++			return false;
+ 	}
+-	return 1;
++	return true;
+ }
+ 
+ static inline void __user *vhost_vq_meta_fetch(struct vhost_virtqueue *vq,
+@@ -701,13 +701,13 @@ static inline void __user *vhost_vq_meta_fetch(struct vhost_virtqueue *vq,
+ 
+ /* Can we switch to this memory table? */
+ /* Caller should have device mutex but not vq mutex */
+-static int memory_access_ok(struct vhost_dev *d, struct vhost_umem *umem,
+-			    int log_all)
++static bool memory_access_ok(struct vhost_dev *d, struct vhost_umem *umem,
++			     int log_all)
+ {
+ 	int i;
+ 
+ 	for (i = 0; i < d->nvqs; ++i) {
+-		int ok;
++		bool ok;
+ 		bool log;
+ 
+ 		mutex_lock(&d->vqs[i]->mutex);
+@@ -717,12 +717,12 @@ static int memory_access_ok(struct vhost_dev *d, struct vhost_umem *umem,
+ 			ok = vq_memory_access_ok(d->vqs[i]->log_base,
+ 						 umem, log);
+ 		else
+-			ok = 1;
++			ok = true;
+ 		mutex_unlock(&d->vqs[i]->mutex);
+ 		if (!ok)
+-			return 0;
++			return false;
+ 	}
+-	return 1;
++	return true;
+ }
+ 
+ static int translate_desc(struct vhost_virtqueue *vq, u64 addr, u32 len,
+@@ -959,21 +959,21 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
+ 	spin_unlock(&d->iotlb_lock);
+ }
+ 
+-static int umem_access_ok(u64 uaddr, u64 size, int access)
++static bool umem_access_ok(u64 uaddr, u64 size, int access)
+ {
+ 	unsigned long a = uaddr;
+ 
+ 	/* Make sure 64 bit math will not overflow. */
+ 	if (vhost_overflow(uaddr, size))
+-		return -EFAULT;
++		return false;
+ 
+ 	if ((access & VHOST_ACCESS_RO) &&
+ 	    !access_ok(VERIFY_READ, (void __user *)a, size))
+-		return -EFAULT;
++		return false;
+ 	if ((access & VHOST_ACCESS_WO) &&
+ 	    !access_ok(VERIFY_WRITE, (void __user *)a, size))
+-		return -EFAULT;
+-	return 0;
++		return false;
++	return true;
+ }
+ 
+ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+@@ -988,7 +988,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ 			ret = -EFAULT;
+ 			break;
+ 		}
+-		if (umem_access_ok(msg->uaddr, msg->size, msg->perm)) {
++		if (!umem_access_ok(msg->uaddr, msg->size, msg->perm)) {
+ 			ret = -EFAULT;
+ 			break;
+ 		}
+@@ -1135,10 +1135,10 @@ static int vhost_iotlb_miss(struct vhost_virtqueue *vq, u64 iova, int access)
+ 	return 0;
+ }
+ 
+-static int vq_access_ok(struct vhost_virtqueue *vq, unsigned int num,
+-			struct vring_desc __user *desc,
+-			struct vring_avail __user *avail,
+-			struct vring_used __user *used)
++static bool vq_access_ok(struct vhost_virtqueue *vq, unsigned int num,
++			 struct vring_desc __user *desc,
++			 struct vring_avail __user *avail,
++			 struct vring_used __user *used)
+ 
+ {
+ 	size_t s = vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
+@@ -1161,8 +1161,8 @@ static void vhost_vq_meta_update(struct vhost_virtqueue *vq,
+ 		vq->meta_iotlb[type] = node;
+ }
+ 
+-static int iotlb_access_ok(struct vhost_virtqueue *vq,
+-			   int access, u64 addr, u64 len, int type)
++static bool iotlb_access_ok(struct vhost_virtqueue *vq,
++			    int access, u64 addr, u64 len, int type)
+ {
+ 	const struct vhost_umem_node *node;
+ 	struct vhost_umem *umem = vq->iotlb;
+@@ -1220,7 +1220,7 @@ EXPORT_SYMBOL_GPL(vq_iotlb_prefetch);
+ 
+ /* Can we log writes? */
+ /* Caller should have device mutex but not vq mutex */
+-int vhost_log_access_ok(struct vhost_dev *dev)
++bool vhost_log_access_ok(struct vhost_dev *dev)
+ {
+ 	return memory_access_ok(dev, dev->umem, 1);
+ }
+@@ -1228,8 +1228,8 @@ EXPORT_SYMBOL_GPL(vhost_log_access_ok);
+ 
+ /* Verify access for write logging. */
+ /* Caller should have vq mutex and device mutex */
+-static int vq_log_access_ok(struct vhost_virtqueue *vq,
+-			    void __user *log_base)
++static bool vq_log_access_ok(struct vhost_virtqueue *vq,
++			     void __user *log_base)
+ {
+ 	size_t s = vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
+ 
+@@ -1242,14 +1242,14 @@ static int vq_log_access_ok(struct vhost_virtqueue *vq,
+ 
+ /* Can we start vq? */
+ /* Caller should have vq mutex and device mutex */
+-int vhost_vq_access_ok(struct vhost_virtqueue *vq)
++bool vhost_vq_access_ok(struct vhost_virtqueue *vq)
+ {
+ 	if (!vq_log_access_ok(vq, vq->log_base))
+-		return 0;
++		return false;
+ 
+ 	/* Access validation occurs at prefetch time with IOTLB */
+ 	if (vq->iotlb)
+-		return 1;
++		return true;
+ 
+ 	return vq_access_ok(vq, vq->num, vq->desc, vq->avail, vq->used);
+ }
+-- 
+2.14.3
