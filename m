@@ -1,13 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC] vhost: introduce mdev based hardware vhost backend
-Date: Tue, 10 Apr 2018 15:25:45 +0800
-Message-ID: <30a63fff-7599-640a-361f-a27e5783012a__8699.18174944377$1523345051$gmane$org@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [virtio-dev] Re: [RFC] vhost: introduce mdev based hardware vhost
+	backend
+Date: Tue, 10 Apr 2018 09:51:43 +0200
+Message-ID: <7ee31a12-a370-fc43-82a6-2235f598e970@redhat.com>
 References: <20180402152330.4158-1-tiwei.bie@intel.com>
 	<622f4bd7-1249-5545-dc5a-5a92b64f5c26@redhat.com>
 	<20180410045723.rftsb7l4l3ip2ioi@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20180410045723.rftsb7l4l3ip2ioi@debian>
 Content-Language: en-US
@@ -20,49 +21,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
+To: Tiwei Bie <tiwei.bie@intel.com>, Jason Wang <jasowang@redhat.com>
 Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiao.w.wang@intel.com, ddutile@redhat.com, jianfeng.tan@intel.com, zhihong.wang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDTmnIgxMOaXpSAxMjo1NywgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFR1ZSwg
-QXByIDEwLCAyMDE4IGF0IDEwOjUyOjUyQU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9u
-IDIwMTjlubQwNOaciDAy5pelIDIzOjIzLCBUaXdlaSBCaWUgd3JvdGU6Cj4+PiBUaGlzIHBhdGNo
-IGludHJvZHVjZXMgYSBtZGV2IChtZWRpYXRlZCBkZXZpY2UpIGJhc2VkIGhhcmR3YXJlCj4+PiB2
-aG9zdCBiYWNrZW5kLiBUaGlzIGJhY2tlbmQgaXMgYW4gYWJzdHJhY3Rpb24gb2YgdGhlIHZhcmlv
-dXMKPj4+IGhhcmR3YXJlIHZob3N0IGFjY2VsZXJhdG9ycyAocG90ZW50aWFsbHkgYW55IGRldmlj
-ZSB0aGF0IHVzZXMKPj4+IHZpcnRpbyByaW5nIGNhbiBiZSB1c2VkIGFzIGEgdmhvc3QgYWNjZWxl
-cmF0b3IpLiBTb21lIGdlbmVyaWMKPj4+IG1kZXYgcGFyZW50IG9wcyBhcmUgcHJvdmlkZWQgZm9y
-IGFjY2VsZXJhdG9yIGRyaXZlcnMgdG8gc3VwcG9ydAo+Pj4gZ2VuZXJhdGluZyBtZGV2IGluc3Rh
-bmNlcy4KPj4+Cj4+PiBXaGF0J3MgdGhpcwo+Pj4gPT09PT09PT09PT0KPj4+Cj4+PiBUaGUgaWRl
-YSBpcyB0aGF0IHdlIGNhbiBzZXR1cCBhIHZpcnRpbyByaW5nIGNvbXBhdGlibGUgZGV2aWNlCj4+
-PiB3aXRoIHRoZSBtZXNzYWdlcyBhdmFpbGFibGUgYXQgdGhlIHZob3N0LWJhY2tlbmQuIE9yaWdp
-bmFsbHksCj4+PiB0aGVzZSBtZXNzYWdlcyBhcmUgdXNlZCB0byBpbXBsZW1lbnQgYSBzb2Z0d2Fy
-ZSB2aG9zdCBiYWNrZW5kLAo+Pj4gYnV0IG5vdyB3ZSB3aWxsIHVzZSB0aGVzZSBtZXNzYWdlcyB0
-byBzZXR1cCBhIHZpcnRpbyByaW5nCj4+PiBjb21wYXRpYmxlIGhhcmR3YXJlIGRldmljZS4gVGhl
-biB0aGUgaGFyZHdhcmUgZGV2aWNlIHdpbGwgYmUKPj4+IGFibGUgdG8gd29yayB3aXRoIHRoZSBn
-dWVzdCB2aXJ0aW8gZHJpdmVyIGluIHRoZSBWTSBqdXN0IGxpa2UKPj4+IHdoYXQgdGhlIHNvZnR3
-YXJlIGJhY2tlbmQgZG9lcy4gVGhhdCBpcyB0byBzYXksIHdlIGNhbiBpbXBsZW1lbnQKPj4+IGEg
-aGFyZHdhcmUgYmFzZWQgdmhvc3QgYmFja2VuZCBpbiBRRU1VLCBhbmQgYW55IHZpcnRpbyByaW5n
-Cj4+PiBjb21wYXRpYmxlIGRldmljZXMgcG90ZW50aWFsbHkgY2FuIGJlIHVzZWQgd2l0aCB0aGlz
-IGJhY2tlbmQuCj4+PiAoV2UgYWxzbyBjYWxsIGl0IHZEUEEgLS0gdmhvc3QgRGF0YSBQYXRoIEFj
-Y2VsZXJhdGlvbikuCj4+Pgo+Pj4gT25lIHByb2JsZW0gaXMgdGhhdCwgZGlmZmVyZW50IHZpcnRp
-byByaW5nIGNvbXBhdGlibGUgZGV2aWNlcwo+Pj4gbWF5IGhhdmUgZGlmZmVyZW50IGRldmljZSBp
-bnRlcmZhY2VzLiBUaGF0IGlzIHRvIHNheSwgd2Ugd2lsbAo+Pj4gbmVlZCBkaWZmZXJlbnQgZHJp
-dmVycyBpbiBRRU1VLiBJdCBjb3VsZCBiZSB0cm91Ymxlc29tZS4gQW5kCj4+PiB0aGF0J3Mgd2hh
-dCB0aGlzIHBhdGNoIHRyeWluZyB0byBmaXguIFRoZSBpZGVhIGJlaGluZCB0aGlzCj4+PiBwYXRj
-aCBpcyB2ZXJ5IHNpbXBsZTogbWRldiBpcyBhIHN0YW5kYXJkIHdheSB0byBlbXVsYXRlIGRldmlj
-ZQo+Pj4gaW4ga2VybmVsLgo+PiBTbyB5b3UganVzdCBtb3ZlIHRoZSBhYnN0cmFjdGlvbiBsYXll
-ciBmcm9tIHFlbXUgdG8ga2VybmVsLCBhbmQgeW91IHN0aWxsCj4+IG5lZWQgZGlmZmVyZW50IGRy
-aXZlcnMgaW4ga2VybmVsIGZvciBkaWZmZXJlbnQgZGV2aWNlIGludGVyZmFjZXMgb2YKPj4gYWNj
-ZWxlcmF0b3JzLiBUaGlzIGxvb2tzIGV2ZW4gbW9yZSBjb21wbGV4IHRoYW4gbGVhdmluZyBpdCBp
-biBxZW11LiBBcyB5b3UKPj4gc2FpZCwgYW5vdGhlciBpZGVhIGlzIHRvIGltcGxlbWVudCB1c2Vy
-c3BhY2Ugdmhvc3QgYmFja2VuZCBmb3IgYWNjZWxlcmF0b3JzCj4+IHdoaWNoIHNlZW1zIGVhc2ll
-ciBhbmQgY291bGQgY28td29yayB3aXRoIG90aGVyIHBhcnRzIG9mIHFlbXUgd2l0aG91dAo+PiBp
-bnZlbnRpbmcgbmV3IHR5cGUgb2YgbWVzc2FnZXMuCj4gSSdtIG5vdCBxdWl0ZSBzdXJlLiBEbyB5
-b3UgdGhpbmsgaXQncyBhY2NlcHRhYmxlIHRvCj4gYWRkIHZhcmlvdXMgdmVuZG9yIHNwZWNpZmlj
-IGhhcmR3YXJlIGRyaXZlcnMgaW4gUUVNVT8KPgoKSSBkb24ndCBvYmplY3QgYnV0IHdlIG5lZWQg
-dG8gZmlndXJlIG91dCB0aGUgYWR2YW50YWdlcyBvZiBkb2luZyBpdCBpbiAKcWVtdSB0b28uCgpU
-aGFua3MKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+On 10/04/2018 06:57, Tiwei Bie wrote:
+>> So you just move the abstraction layer from qemu to kernel, and you still
+>> need different drivers in kernel for different device interfaces of
+>> accelerators. This looks even more complex than leaving it in qemu. As you
+>> said, another idea is to implement userspace vhost backend for accelerators
+>> which seems easier and could co-work with other parts of qemu without
+>> inventing new type of messages.
+> 
+> I'm not quite sure. Do you think it's acceptable to
+> add various vendor specific hardware drivers in QEMU?
+
+I think so.  We have vendor-specific quirks, and at some point there was
+an idea of using quirks to implement (vendor-specific) live migration
+support for assigned devices.
+
+Paolo
