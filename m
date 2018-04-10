@@ -1,14 +1,21 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2 0/2] vhost: fix vhost_vq_access_ok() log check
-Date: Tue, 10 Apr 2018 10:50:43 -0400 (EDT)
-Message-ID: <20180410.105043.1798364865868187298.davem__26917.4061403193$1523371730$gmane$org@davemloft.net>
-References: <20180410052630.11270-1-stefanha@redhat.com>
-	<8642c057-e49d-d95d-19e5-6d304f20064e@redhat.com>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [RFC PATCH net-next v5 3/4] virtio_net: Extend virtio to use VF
+	datapath when available
+Date: Tue, 10 Apr 2018 08:13:40 -0700
+Message-ID: <2ccfad76-589d-9dca-7e4b-9bafee41f844__28463.7009994642$1523373124$gmane$org@intel.com>
+References: <1522962503-3963-1-git-send-email-sridhar.samudrala@intel.com>
+	<1522962503-3963-4-git-send-email-sridhar.samudrala@intel.com>
+	<20180406124814.GA24525@nanopsycho>
+	<bb4f0821-246f-1052-de8b-d96be3388ed3@intel.com>
+	<20180409080751.GE19345@nanopsycho>
+	<16b2e531-7bfa-7f25-2702-f3f8069663ee@intel.com>
+	<20180410105504.GA2028@nanopsycho>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8642c057-e49d-d95d-19e5-6d304f20064e@redhat.com>
+In-Reply-To: <20180410105504.GA2028@nanopsycho>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,39 +25,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, torvalds@linux-foundation.org
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 10 Apr 2018 14:40:10 +0800
+On 4/10/2018 3:55 AM, Jiri Pirko wrote:
+> Mon, Apr 09, 2018 at 08:47:06PM CEST, sridhar.samudrala@intel.com wrote:
+>> On 4/9/2018 1:07 AM, Jiri Pirko wrote:
+>>> Sat, Apr 07, 2018 at 12:59:14AM CEST, sridhar.samudrala@intel.com wrote:
+>>>> On 4/6/2018 5:48 AM, Jiri Pirko wrote:
+>>>>> Thu, Apr 05, 2018 at 11:08:22PM CEST, sridhar.samudrala@intel.com wrote:
+>>> [...]
+>>>
+>>>>>> +static int virtnet_bypass_join_child(struct net_device *bypass_netdev,
+>>>>>> +				     struct net_device *child_netdev)
+>>>>>> +{
+>>>>>> +	struct virtnet_bypass_info *vbi;
+>>>>>> +	bool backup;
+>>>>>> +
+>>>>>> +	vbi = netdev_priv(bypass_netdev);
+>>>>>> +	backup = (child_netdev->dev.parent == bypass_netdev->dev.parent);
+>>>>>> +	if (backup ? rtnl_dereference(vbi->backup_netdev) :
+>>>>>> +			rtnl_dereference(vbi->active_netdev)) {
+>>>>>> +		netdev_info(bypass_netdev,
+>>>>>> +			    "%s attempting to join bypass dev when %s already present\n",
+>>>>>> +			    child_netdev->name, backup ? "backup" : "active");
+>>>>> Bypass module should check if there is already some other netdev
+>>>>> enslaved and refuse right there.
+>>>> This will work for virtio-net with 3 netdev model, but this check has to be done by netvsc
+>>>> as its bypass_netdev is same as the backup_netdev.
+>>>> Will add a flag while registering with the bypass module to indicate if the driver is doing
+>>>> a 2 netdev or 3 netdev model and based on that flag this check can be done in bypass module
+>>>> for 3 netdev scenario.
+>>> Just let me undestand it clearly. What I expect the difference would be
+>>> between 2netdev and3 netdev model is this:
+>>> 2netdev:
+>>>     bypass_master
+>>>        /
+>>>       /
+>>> VF_slave
+>>>
+>>> 3netdev:
+>>>     bypass_master
+>>>        /     \
+>>>       /       \
+>>> VF_slave   backup_slave
+>>>
+>>> Is that correct? If not, how does it look like?
+>>>
+>>>
+>> Looks correct.
+>> VF_slave and backup_slave are the original netdevs and are present in both the models.
+>> In the 3 netdev model, bypass_master netdev is created and VF_slave and backup_slave are
+>> marked as the 2 slaves of this new netdev.
+> You say it looks correct and in another sentence you provide completely
+> different description. Could you please look again?
+>
+To be exact, 2 netdev model with netvsc looks like this.
 
-> On 2018年04月10日 13:26, Stefan Hajnoczi wrote:
->> v2:
->>   * Rewrote the conditional to make the vq access check clearer [Linus]
->>   * Added Patch 2 to make the return type consistent and harder to misuse
->>   * [Linus]
->>
->> The first patch fixes the vhost virtqueue access check which was
->> recently
->> broken.  The second patch replaces the int return type with bool to
->> prevent
->> future bugs.
->>
->> Stefan Hajnoczi (2):
->>    vhost: fix vhost_vq_access_ok() log check
->>    vhost: return bool from *_access_ok() functions
->>
->>   drivers/vhost/vhost.h |  4 +--
->>   drivers/vhost/vhost.c | 70
->>   ++++++++++++++++++++++++++-------------------------
->>   2 files changed, 38 insertions(+), 36 deletions(-)
->>
-> 
-> Acked-by: Jason Wang <jasowang@redhat.com>
+     netvsc_netdev
+       /
+      /
+  VF_slave
 
-This sereis doesn't apply cleanly to the net tree, please respin
-and add the appropriate Acks and Fixes: tags that Michael and Jason
-have provided.
+With virtio_net, 3 netdev model
 
-Thank you.
+   bypass_netdev
+       /     \
+      /       \
+VF_slave   virtio_net netdev
