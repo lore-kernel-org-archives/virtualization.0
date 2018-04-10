@@ -1,24 +1,17 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [RFC PATCH net-next v5 3/4] virtio_net: Extend virtio to use VF
-	datapath when available
-Date: Tue, 10 Apr 2018 08:59:02 -0700
-Message-ID: <82f741a2-2512-39de-84c6-874f126c27ea__21930.407282389$1523375823$gmane$org@intel.com>
-References: <1522962503-3963-1-git-send-email-sridhar.samudrala@intel.com>
-	<1522962503-3963-4-git-send-email-sridhar.samudrala@intel.com>
-	<20180406124814.GA24525@nanopsycho>
-	<bb4f0821-246f-1052-de8b-d96be3388ed3@intel.com>
-	<20180409080751.GE19345@nanopsycho>
-	<16b2e531-7bfa-7f25-2702-f3f8069663ee@intel.com>
-	<20180410105504.GA2028@nanopsycho>
-	<2ccfad76-589d-9dca-7e4b-9bafee41f844@intel.com>
-	<20180410152205.GF2028@nanopsycho>
-	<d08ed1e6-678a-7b34-cd2e-52788ceec919@intel.com>
-	<20180410154304.GG2028@nanopsycho>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [virtio-dev] [RFC] virtio-iommu version 0.6
+Date: Tue, 10 Apr 2018 17:18:53 +0100
+Message-ID: <235fd63b-ff33-9907-3516-38e9ef3ba007__38582.9259911135$1523377044$gmane$org@arm.com>
+References: <20180206181106.21815-1-jean-philippe.brucker@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D191085A76@SHSMSX101.ccr.corp.intel.com>
+	<3575fbb8-36a9-ef38-8234-6adf6a573b3e@arm.com>
+	<AADFC41AFE54684AB9EE6CBC0274A5D19108DBDD@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180410154304.GG2028@nanopsycho>
+Content-Disposition: inline
+In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D19108DBDD@SHSMSX101.ccr.corp.intel.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,95 +22,162 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
+To: "Tian, Kevin" <kevin.tian@intel.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: "eric.auger@redhat.com" <eric.auger@redhat.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/10/2018 8:43 AM, Jiri Pirko wrote:
-> Tue, Apr 10, 2018 at 05:27:48PM CEST, sridhar.samudrala@intel.com wrote:
->> On 4/10/2018 8:22 AM, Jiri Pirko wrote:
->>> Tue, Apr 10, 2018 at 05:13:40PM CEST, sridhar.samudrala@intel.com wrote:
->>>> On 4/10/2018 3:55 AM, Jiri Pirko wrote:
->>>>> Mon, Apr 09, 2018 at 08:47:06PM CEST, sridhar.samudrala@intel.com wrote:
->>>>>> On 4/9/2018 1:07 AM, Jiri Pirko wrote:
->>>>>>> Sat, Apr 07, 2018 at 12:59:14AM CEST, sridhar.samudrala@intel.com wrote:
->>>>>>>> On 4/6/2018 5:48 AM, Jiri Pirko wrote:
->>>>>>>>> Thu, Apr 05, 2018 at 11:08:22PM CEST, sridhar.samudrala@intel.com wrote:
->>>>>>> [...]
->>>>>>>
->>>>>>>>>> +static int virtnet_bypass_join_child(struct net_device *bypass_netdev,
->>>>>>>>>> +				     struct net_device *child_netdev)
->>>>>>>>>> +{
->>>>>>>>>> +	struct virtnet_bypass_info *vbi;
->>>>>>>>>> +	bool backup;
->>>>>>>>>> +
->>>>>>>>>> +	vbi = netdev_priv(bypass_netdev);
->>>>>>>>>> +	backup = (child_netdev->dev.parent == bypass_netdev->dev.parent);
->>>>>>>>>> +	if (backup ? rtnl_dereference(vbi->backup_netdev) :
->>>>>>>>>> +			rtnl_dereference(vbi->active_netdev)) {
->>>>>>>>>> +		netdev_info(bypass_netdev,
->>>>>>>>>> +			    "%s attempting to join bypass dev when %s already present\n",
->>>>>>>>>> +			    child_netdev->name, backup ? "backup" : "active");
->>>>>>>>> Bypass module should check if there is already some other netdev
->>>>>>>>> enslaved and refuse right there.
->>>>>>>> This will work for virtio-net with 3 netdev model, but this check has to be done by netvsc
->>>>>>>> as its bypass_netdev is same as the backup_netdev.
->>>>>>>> Will add a flag while registering with the bypass module to indicate if the driver is doing
->>>>>>>> a 2 netdev or 3 netdev model and based on that flag this check can be done in bypass module
->>>>>>>> for 3 netdev scenario.
->>>>>>> Just let me undestand it clearly. What I expect the difference would be
->>>>>>> between 2netdev and3 netdev model is this:
->>>>>>> 2netdev:
->>>>>>>       bypass_master
->>>>>>>          /
->>>>>>>         /
->>>>>>> VF_slave
->>>>>>>
->>>>>>> 3netdev:
->>>>>>>       bypass_master
->>>>>>>          /     \
->>>>>>>         /       \
->>>>>>> VF_slave   backup_slave
->>>>>>>
->>>>>>> Is that correct? If not, how does it look like?
->>>>>>>
->>>>>>>
->>>>>> Looks correct.
->>>>>> VF_slave and backup_slave are the original netdevs and are present in both the models.
->>>>>> In the 3 netdev model, bypass_master netdev is created and VF_slave and backup_slave are
->>>>>> marked as the 2 slaves of this new netdev.
->>>>> You say it looks correct and in another sentence you provide completely
->>>>> different description. Could you please look again?
->>>>>
->>>> To be exact, 2 netdev model with netvsc looks like this.
->>>>
->>>>      netvsc_netdev
->>>>        /
->>>>       /
->>>> VF_slave
->>>>
->>>> With virtio_net, 3 netdev model
->>>>
->>>>    bypass_netdev
->>>>        /     \
->>>>       /       \
->>>> VF_slave   virtio_net netdev
->>> Could you also mark the original netdev which is there now? is it
->>> bypass_netdev or virtio_net_netdev ?
->> bypass_netdev
->>      /     \
->>     /       \
->> VF_slave   virtio_net netdev (original)
-> That does not make sense.
-> 1) You diverge from the behaviour of the netvsc, where the original
->     netdev is a master of the VF
-> 2) If the original netdev is a slave, you cannot have any IP address
->     configured on it (well you could, but the rx_handler would eat every
->     incoming packet). So you will break the user bacause he would have to
->     move the configuration to the new master device.
-> This only makes sense that the original netdev becomes the master for both
-> netvsc and virtio_net.
-Forgot to mention that bypass_netdev takes over the name of the original 
-netdev and
-virtio_net netdev will get the backup name.
-So the userspace network configuration doesn't need to change.
+On 22/03/18 09:44, Tian, Kevin wrote:
+>> From: Jean-Philippe Brucker [mailto:jean-philippe.brucker@arm.com]
+>> Sent: Wednesday, March 21, 2018 9:14 PM
+>>
+>> Hi Kevin,
+>>
+>> Thanks for the comments
+>>
+>> On 19/03/18 10:03, Tian, Kevin wrote:
+>>> BYPASS feature bit is not covered in "2.3.1/2.3.2/2.3.3"". Is it
+>>> intended?
+>>
+>> In my opinion BYPASS is a bit different from the other features: while the
+>> others are needed for correctness, this one is optional and even if the
+>> guest supports BYPASS, it should be allowed not to accept it. For security
+>> reasons it may not want to let endpoints access the whole guest-physical
+>> address space.
+> 
+> ok, possibly because I'm not familiar with virtio spec convention.
+> My original feeling is that each feature bit will have a behavior
+> description regarding to whether device reports and whether 
+> driver accepts. If no need to cover optional feature, then it's fine
+> to me. :-)
+
+I think the virtio spec allows the reader to choose how to implement any
+behavior that isn't explicitly described. Whenever a SHOULD or MUST
+isn't stated in a requirement section, the spec implies "feature X MAY
+be enabled if offered".
+
+Looking at the virtio-net specification, optional features such as
+VIRTIO_NET_F_VLAN aren't mentioned in driver requirements. On the other
+hand, features that the device needs in order to function properly are
+explicitly stated, for example VIRTIO_NET_F_MAC.
+
+>> [...]
+>>> Then comes a question for VIRTIO_IOMMU_RESV_MEM_T_MSI.
+>>> I know there were quite some discussion around this flag before,
+>>> but my mental picture now still is a bit difficult to understand its
+>>> usage based on examples in implementation notes:
+>>>
+>>> 	- for x86, you describe it as indicating MSI bypass for
+>>> oxfeexxxxx. However guest doesn't need to know this fact. Only
+>>> requirement is to treat it as reserved range (as on bare metal)
+>>> then T_RESERVED is sufficient for this purpose>
+>>> 	- for ARM, either let guest or let host to choose a virtual
+>>> address for mapping to MSI doorbell. the former doesn't require
+>>> a reserved range. for the latter also T_RESERVED is enough as
+>>> the example in hardware device assignment section.
+>>
+>> It might be nicer to have the host decide it, but when the physical IOMMU
+>> is ARM SMMU, nesting translation complicates things, because the guest
+>> *has* to create a mapping:
+> 
+> confirm one thing first. v0.6 doesn't support binding to guest IOVA
+> page table yet. So based on current map/unmap interface, there is 
+> no such complicity right? stage-1 is just a shadowed translation (IOVA
+> ->HPA) to guest side (IOVA->GPA) with nesting disabled. In that case
+> the default behavior is host-reserved style.
+
+Yes, with v0.6 the host chooses whether to translate or bypass the MSIs.
+
+> Then comes nested scenario:
+> 
+>>
+>> * The guest is in charge of stage-1. It creates IOVA->GPA mapping for the
+>>   MSI doorbell. The GPA is mapped to the physical MSI doorbell at
+>>   stage-2 by the host.
+> 
+> Is it a must that above GPA is mapped to physical MSI doorbell?
+> 
+> Ideally:
+> 
+> 1) Host reserves some IOVA range for mapping MSI doorbell
+> 2) the range is reported to user space
+> 3) Qemu reported the range as reserved on endpoints, marked
+> as T_IDENTITY (a new type to be introduced), meaning guest
+> needs setup identity mapping in stage-1
+
+I think it works, and is saner than my idea. I had one concern (thought
+I had more but can't find any in my notes; they might resurface when
+prototyping): the MSI doorbell has to be mapped with device attributes
+(MMIO) to ensure proper interrupt delivery. I think it's fine because
+the host maps the doorbell with the right attributes at stage-2, which
+will take precedence over what the guest uses for stage-1 according to
+the Arm architecture.
+
+So I don't think T_IDENTITY requires arch-specific attributes for now
+but there should definitely be space for extension. I also noticed that
+Intel and AMD drivers in Linux don't add any special attribute or
+protection to identity mappings (RESV_DIRECT in Linux), apart from
+READ/WRITE.
+
+For reference the previous discussion about T_IDENTITY is here:
+https://www.spinics.net/lists/kvm/msg155240.html
+
+One problem with my idea was that if the device is behind multiple IRQ
+chips, the host cannot know which IRQ chip the IOVA corresponds to, when
+reading the MSI-X tables. Then again I don't know why multiple IRQ chips
+per device would be desirable, but it's allowed.
+
+> 4) Then device should be able to ring physical MSI doorbell
+> 5) I'm not sure whether guest still needs to allocate its own
+> IOVA and mapping to vGIC doorbell in such case...
+
+I don't think it matters, because the host MSI infrastructure is
+decoupled from the guest's. The host programs the physical MSI-X tables
+and only needs the guest to create a stage-1 mappings for those, which
+is done with T_IDENTITY. The guest doesn't know what the T_IDENTITY
+mapping is for.
+
+Then QEMU can choose whether to map or bypass the vGIC MSI doorbell.
+With MSI bypass, guest writes a GPA into the virtual MSI-X table,
+and QEMU sets up the IRQ routing.
+
+With mapped MSI
+- The guest creates a dangling stage-1 mapping for the vGIC doorbell.
+  The vGIC doorbell isn't mapped at stage-2, so accessing it from the
+  IOVA would fault. It doesn't matter because the host programs a valid
+  value into the physical MSI-X table.
+- The guest writes an IOVA into the virtual MSI-X table. The host can't
+  know which doorbell it corresponds to, because it doesn't walk pIOMMU
+  page tables. It has to guess.
+
+So I advise to use bypass. Mapped MSI prevents from having multiple IRQ
+chips for one device. Although we probably don't care about this, we
+should aim to avoid any guessing in the host.
+
+
+>> [...]
+>> Another way of choosing would be with #ifdef CONFIG_ARM64,
+>> CONFIG_X86 etc,
+>> but I find it nasty, and I personally prefer using MSI bypass for ARM when
+>> possible.
+> 
+> however from current v0.6 examples, BYPASS is only listed for x86
+> case. ARM usage is the missing piece making me confused. 
+
+Are you referring to "3.3 - Hardware device assignment" or "3.2 Message
+Signaled Interrupts"?
+
+3.2.2 gives "ARM-based platforms" as an example for MSI address
+translation because all physical Arm platforms (except one that has to
+work around an erratum) use translated MSIs, and I don't think others do
+this. Bypass isn't possible because the GIC interface can be anywhere in
+the physical address space, and therefore the PCI RC or the SMMU cannot
+distinguish MSIs from other memory accesses.
+
+The virtual platform is a bit different, in that it doesn't need to
+perform DMA writes for MSIs. Instead it can create eventfd routes
+beforehand, maybe making it easier to support bypass. That is for vhost
+and vfio, but I think for userspace devices QEMU performs a normal DMA
+write that goes through the IOMMU followed by the GIC.
+
+Thanks,
+Jean
