@@ -1,18 +1,16 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [virtio-dev] [RFC] virtio-iommu version 0.6
-Date: Tue, 10 Apr 2018 17:18:53 +0100
-Message-ID: <235fd63b-ff33-9907-3516-38e9ef3ba007__38582.9259911135$1523377044$gmane$org@arm.com>
-References: <20180206181106.21815-1-jean-philippe.brucker@arm.com>
-	<AADFC41AFE54684AB9EE6CBC0274A5D191085A76@SHSMSX101.ccr.corp.intel.com>
-	<3575fbb8-36a9-ef38-8234-6adf6a573b3e@arm.com>
-	<AADFC41AFE54684AB9EE6CBC0274A5D19108DBDD@SHSMSX101.ccr.corp.intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v29 1/4] mm: support reporting free page blocks
+Date: Tue, 10 Apr 2018 21:19:31 +0300
+Message-ID: <20180410211719-mutt-send-email-mst__47288.2799142555$1523384289$gmane$org@kernel.org>
+References: <1522031994-7246-1-git-send-email-wei.w.wang@intel.com>
+	<1522031994-7246-2-git-send-email-wei.w.wang@intel.com>
+	<20180326142254.c4129c3a54ade686ee2a5e21@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D19108DBDD@SHSMSX101.ccr.corp.intel.com>
-Content-Language: en-US
+In-Reply-To: <20180326142254.c4129c3a54ade686ee2a5e21@linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,162 +20,140 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Tian, Kevin" <kevin.tian@intel.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
-Cc: "eric.auger@redhat.com" <eric.auger@redhat.com>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, huangzhichao@huawei.com, pbonzini@redhat.com, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 22/03/18 09:44, Tian, Kevin wrote:
->> From: Jean-Philippe Brucker [mailto:jean-philippe.brucker@arm.com]
->> Sent: Wednesday, March 21, 2018 9:14 PM
->>
->> Hi Kevin,
->>
->> Thanks for the comments
->>
->> On 19/03/18 10:03, Tian, Kevin wrote:
->>> BYPASS feature bit is not covered in "2.3.1/2.3.2/2.3.3"". Is it
->>> intended?
->>
->> In my opinion BYPASS is a bit different from the other features: while the
->> others are needed for correctness, this one is optional and even if the
->> guest supports BYPASS, it should be allowed not to accept it. For security
->> reasons it may not want to let endpoints access the whole guest-physical
->> address space.
+On Mon, Mar 26, 2018 at 02:22:54PM -0700, Andrew Morton wrote:
+> On Mon, 26 Mar 2018 10:39:51 +0800 Wei Wang <wei.w.wang@intel.com> wrote:
 > 
-> ok, possibly because I'm not familiar with virtio spec convention.
-> My original feeling is that each feature bit will have a behavior
-> description regarding to whether device reports and whether 
-> driver accepts. If no need to cover optional feature, then it's fine
-> to me. :-)
-
-I think the virtio spec allows the reader to choose how to implement any
-behavior that isn't explicitly described. Whenever a SHOULD or MUST
-isn't stated in a requirement section, the spec implies "feature X MAY
-be enabled if offered".
-
-Looking at the virtio-net specification, optional features such as
-VIRTIO_NET_F_VLAN aren't mentioned in driver requirements. On the other
-hand, features that the device needs in order to function properly are
-explicitly stated, for example VIRTIO_NET_F_MAC.
-
->> [...]
->>> Then comes a question for VIRTIO_IOMMU_RESV_MEM_T_MSI.
->>> I know there were quite some discussion around this flag before,
->>> but my mental picture now still is a bit difficult to understand its
->>> usage based on examples in implementation notes:
->>>
->>> 	- for x86, you describe it as indicating MSI bypass for
->>> oxfeexxxxx. However guest doesn't need to know this fact. Only
->>> requirement is to treat it as reserved range (as on bare metal)
->>> then T_RESERVED is sufficient for this purpose>
->>> 	- for ARM, either let guest or let host to choose a virtual
->>> address for mapping to MSI doorbell. the former doesn't require
->>> a reserved range. for the latter also T_RESERVED is enough as
->>> the example in hardware device assignment section.
->>
->> It might be nicer to have the host decide it, but when the physical IOMMU
->> is ARM SMMU, nesting translation complicates things, because the guest
->> *has* to create a mapping:
+> > This patch adds support to walk through the free page blocks in the
+> > system and report them via a callback function. Some page blocks may
+> > leave the free list after zone->lock is released, so it is the caller's
+> > responsibility to either detect or prevent the use of such pages.
+> > 
+> > One use example of this patch is to accelerate live migration by skipping
+> > the transfer of free pages reported from the guest. A popular method used
+> > by the hypervisor to track which part of memory is written during live
+> > migration is to write-protect all the guest memory. So, those pages that
+> > are reported as free pages but are written after the report function
+> > returns will be captured by the hypervisor, and they will be added to the
+> > next round of memory transfer.
+> > 
+> > ...
+> >
+> > --- a/mm/page_alloc.c
+> > +++ b/mm/page_alloc.c
+> > @@ -4912,6 +4912,102 @@ void show_free_areas(unsigned int filter, nodemask_t *nodemask)
+> >  	show_swap_cache_info();
+> >  }
+> >  
+> > +/*
+> > + * Walk through a free page list and report the found pfn range via the
+> > + * callback.
+> > + *
+> > + * Return 0 if it completes the reporting. Otherwise, return the non-zero
+> > + * value returned from the callback.
+> > + */
+> > +static int walk_free_page_list(void *opaque,
+> > +			       struct zone *zone,
+> > +			       int order,
+> > +			       enum migratetype mt,
+> > +			       int (*report_pfn_range)(void *,
+> > +						       unsigned long,
+> > +						       unsigned long))
+> > +{
+> > +	struct page *page;
+> > +	struct list_head *list;
+> > +	unsigned long pfn, flags;
+> > +	int ret = 0;
+> > +
+> > +	spin_lock_irqsave(&zone->lock, flags);
+> > +	list = &zone->free_area[order].free_list[mt];
+> > +	list_for_each_entry(page, list, lru) {
+> > +		pfn = page_to_pfn(page);
+> > +		ret = report_pfn_range(opaque, pfn, 1 << order);
+> > +		if (ret)
+> > +			break;
+> > +	}
+> > +	spin_unlock_irqrestore(&zone->lock, flags);
+> > +
+> > +	return ret;
+> > +}
+> > +
+> > +/**
+> > + * walk_free_mem_block - Walk through the free page blocks in the system
+> > + * @opaque: the context passed from the caller
+> > + * @min_order: the minimum order of free lists to check
+> > + * @report_pfn_range: the callback to report the pfn range of the free pages
+> > + *
+> > + * If the callback returns a non-zero value, stop iterating the list of free
+> > + * page blocks. Otherwise, continue to report.
+> > + *
+> > + * Please note that there are no locking guarantees for the callback and
+> > + * that the reported pfn range might be freed or disappear after the
+> > + * callback returns so the caller has to be very careful how it is used.
+> > + *
+> > + * The callback itself must not sleep or perform any operations which would
+> > + * require any memory allocations directly (not even GFP_NOWAIT/GFP_ATOMIC)
+> > + * or via any lock dependency. It is generally advisable to implement
+> > + * the callback as simple as possible and defer any heavy lifting to a
+> > + * different context.
+> > + *
+> > + * There is no guarantee that each free range will be reported only once
+> > + * during one walk_free_mem_block invocation.
+> > + *
+> > + * pfn_to_page on the given range is strongly discouraged and if there is
+> > + * an absolute need for that make sure to contact MM people to discuss
+> > + * potential problems.
+> > + *
+> > + * The function itself might sleep so it cannot be called from atomic
+> > + * contexts.
 > 
-> confirm one thing first. v0.6 doesn't support binding to guest IOVA
-> page table yet. So based on current map/unmap interface, there is 
-> no such complicity right? stage-1 is just a shadowed translation (IOVA
-> ->HPA) to guest side (IOVA->GPA) with nesting disabled. In that case
-> the default behavior is host-reserved style.
-
-Yes, with v0.6 the host chooses whether to translate or bypass the MSIs.
-
-> Then comes nested scenario:
+> I don't see how walk_free_mem_block() can sleep.
 > 
->>
->> * The guest is in charge of stage-1. It creates IOVA->GPA mapping for the
->>   MSI doorbell. The GPA is mapped to the physical MSI doorbell at
->>   stage-2 by the host.
+> > + * In general low orders tend to be very volatile and so it makes more
+> > + * sense to query larger ones first for various optimizations which like
+> > + * ballooning etc... This will reduce the overhead as well.
+> > + *
+> > + * Return 0 if it completes the reporting. Otherwise, return the non-zero
+> > + * value returned from the callback.
+> > + */
+> > +int walk_free_mem_block(void *opaque,
+> > +			int min_order,
+> > +			int (*report_pfn_range)(void *opaque,
+> > +			unsigned long pfn,
+> > +			unsigned long num))
+> > +{
+> > +	struct zone *zone;
+> > +	int order;
+> > +	enum migratetype mt;
+> > +	int ret;
+> > +
+> > +	for_each_populated_zone(zone) {
+> > +		for (order = MAX_ORDER - 1; order >= min_order; order--) {
+> > +			for (mt = 0; mt < MIGRATE_TYPES; mt++) {
+> > +				ret = walk_free_page_list(opaque, zone,
+> > +							  order, mt,
+> > +							  report_pfn_range);
+> > +				if (ret)
+> > +					return ret;
+> > +			}
+> > +		}
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +EXPORT_SYMBOL_GPL(walk_free_mem_block);
 > 
-> Is it a must that above GPA is mapped to physical MSI doorbell?
-> 
-> Ideally:
-> 
-> 1) Host reserves some IOVA range for mapping MSI doorbell
-> 2) the range is reported to user space
-> 3) Qemu reported the range as reserved on endpoints, marked
-> as T_IDENTITY (a new type to be introduced), meaning guest
-> needs setup identity mapping in stage-1
+> This looks like it could take a long time.  Will we end up needing to
+> add cond_resched() in there somewhere?
 
-I think it works, and is saner than my idea. I had one concern (thought
-I had more but can't find any in my notes; they might resurface when
-prototyping): the MSI doorbell has to be mapped with device attributes
-(MMIO) to ensure proper interrupt delivery. I think it's fine because
-the host maps the doorbell with the right attributes at stage-2, which
-will take precedence over what the guest uses for stage-1 according to
-the Arm architecture.
-
-So I don't think T_IDENTITY requires arch-specific attributes for now
-but there should definitely be space for extension. I also noticed that
-Intel and AMD drivers in Linux don't add any special attribute or
-protection to identity mappings (RESV_DIRECT in Linux), apart from
-READ/WRITE.
-
-For reference the previous discussion about T_IDENTITY is here:
-https://www.spinics.net/lists/kvm/msg155240.html
-
-One problem with my idea was that if the device is behind multiple IRQ
-chips, the host cannot know which IRQ chip the IOVA corresponds to, when
-reading the MSI-X tables. Then again I don't know why multiple IRQ chips
-per device would be desirable, but it's allowed.
-
-> 4) Then device should be able to ring physical MSI doorbell
-> 5) I'm not sure whether guest still needs to allocate its own
-> IOVA and mapping to vGIC doorbell in such case...
-
-I don't think it matters, because the host MSI infrastructure is
-decoupled from the guest's. The host programs the physical MSI-X tables
-and only needs the guest to create a stage-1 mappings for those, which
-is done with T_IDENTITY. The guest doesn't know what the T_IDENTITY
-mapping is for.
-
-Then QEMU can choose whether to map or bypass the vGIC MSI doorbell.
-With MSI bypass, guest writes a GPA into the virtual MSI-X table,
-and QEMU sets up the IRQ routing.
-
-With mapped MSI
-- The guest creates a dangling stage-1 mapping for the vGIC doorbell.
-  The vGIC doorbell isn't mapped at stage-2, so accessing it from the
-  IOVA would fault. It doesn't matter because the host programs a valid
-  value into the physical MSI-X table.
-- The guest writes an IOVA into the virtual MSI-X table. The host can't
-  know which doorbell it corresponds to, because it doesn't walk pIOMMU
-  page tables. It has to guess.
-
-So I advise to use bypass. Mapped MSI prevents from having multiple IRQ
-chips for one device. Although we probably don't care about this, we
-should aim to avoid any guessing in the host.
+Andrew, were your questions answered? If yes could I bother you for an ack on this?
 
 
->> [...]
->> Another way of choosing would be with #ifdef CONFIG_ARM64,
->> CONFIG_X86 etc,
->> but I find it nasty, and I personally prefer using MSI bypass for ARM when
->> possible.
-> 
-> however from current v0.6 examples, BYPASS is only listed for x86
-> case. ARM usage is the missing piece making me confused. 
-
-Are you referring to "3.3 - Hardware device assignment" or "3.2 Message
-Signaled Interrupts"?
-
-3.2.2 gives "ARM-based platforms" as an example for MSI address
-translation because all physical Arm platforms (except one that has to
-work around an erratum) use translated MSIs, and I don't think others do
-this. Bypass isn't possible because the GIC interface can be anywhere in
-the physical address space, and therefore the PCI RC or the SMMU cannot
-distinguish MSIs from other memory accesses.
-
-The virtual platform is a bit different, in that it doesn't need to
-perform DMA writes for MSIs. Instead it can create eventfd routes
-beforehand, maybe making it easier to support bypass. That is for vhost
-and vfio, but I think for userspace devices QEMU performs a normal DMA
-write that goes through the IOMMU followed by the GIC.
-
-Thanks,
-Jean
+> >  static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
+> >  {
+> >  	zoneref->zone = zone;
+> > -- 
+> > 2.7.4
