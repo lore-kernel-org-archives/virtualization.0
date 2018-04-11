@@ -1,14 +1,21 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v2 0/2] vhost: fix vhost_vq_access_ok() log check
-Date: Wed, 11 Apr 2018 09:21:26 +0800
-Message-ID: <20180411012126.GA28698__2127.89411093599$1523409593$gmane$org@stefanha-x1.localdomain>
-References: <20180410052630.11270-1-stefanha@redhat.com>
-	<8642c057-e49d-d95d-19e5-6d304f20064e@redhat.com>
-	<20180410.105043.1798364865868187298.davem@davemloft.net>
+From: "Tian, Kevin" <kevin.tian@intel.com>
+Subject: RE: [virtio-dev] Re: [RFC] vhost: introduce mdev based hardware
+	vhost backend
+Date: Wed, 11 Apr 2018 01:38:29 +0000
+Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D1910E3505__23846.3011025035$1523410605$gmane$org@SHSMSX101.ccr.corp.intel.com>
+References: <20180402152330.4158-1-tiwei.bie@intel.com>
+	<622f4bd7-1249-5545-dc5a-5a92b64f5c26@redhat.com>
+	<20180410045723.rftsb7l4l3ip2ioi@debian>
+	<7ee31a12-a370-fc43-82a6-2235f598e970@redhat.com>
+	<D0158A423229094DA7ABF71CF2FA0DA34E9222F4@SHSMSX104.ccr.corp.intel.com>
+	<20180410163105-mutt-send-email-mst@kernel.org>
+	<D0158A423229094DA7ABF71CF2FA0DA34E9226AF@SHSMSX104.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5225961661863758292=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180410.105043.1798364865868187298.davem@davemloft.net>
+In-Reply-To: <D0158A423229094DA7ABF71CF2FA0DA34E9226AF@SHSMSX104.ccr.corp.intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,83 +25,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
+To: "Liang, Cunming" <cunming.liang@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Wang,
+	Xiao W" <xiao.w.wang@intel.com>, "ddutile@redhat.com" <ddutile@redhat.com>, "Tan,
+	Jianfeng" <jianfeng.tan@intel.com>, "Wang,
+	Zhihong" <zhihong.wang@intel.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+> From: Liang, Cunming
+> Sent: Tuesday, April 10, 2018 10:24 PM
+> 
+[...]
+> >
+> > As others said, we do not need to go overeboard. A couple of small
+> vendor-
+> > specific quirks in qemu isn't a big deal.
+> 
+> It's quite challenge to identify it's small or not, there's no uniform metric.
+> 
+> It's only dependent on QEMU itself, that's the obvious benefit. Tradeoff is
+> to build the entire device driver. We don't object to do that in QEMU, but
+> wanna make sure to understand the boundary size clearly.
+> 
 
---===============5225961661863758292==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
+It might be helpful if you can post some sample code using proposed 
+framework - then people have a clear feeling about what size is talked 
+about here and whether it falls into the concept of 'small quirks'.
 
-
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Apr 10, 2018 at 10:50:43AM -0400, David Miller wrote:
-> From: Jason Wang <jasowang@redhat.com>
-> Date: Tue, 10 Apr 2018 14:40:10 +0800
->=20
-> > On 2018=E5=B9=B404=E6=9C=8810=E6=97=A5 13:26, Stefan Hajnoczi wrote:
-> >> v2:
-> >>   * Rewrote the conditional to make the vq access check clearer [Linus]
-> >>   * Added Patch 2 to make the return type consistent and harder to mis=
-use
-> >>   * [Linus]
-> >>
-> >> The first patch fixes the vhost virtqueue access check which was
-> >> recently
-> >> broken.  The second patch replaces the int return type with bool to
-> >> prevent
-> >> future bugs.
-> >>
-> >> Stefan Hajnoczi (2):
-> >>    vhost: fix vhost_vq_access_ok() log check
-> >>    vhost: return bool from *_access_ok() functions
-> >>
-> >>   drivers/vhost/vhost.h |  4 +--
-> >>   drivers/vhost/vhost.c | 70
-> >>   ++++++++++++++++++++++++++-------------------------
-> >>   2 files changed, 38 insertions(+), 36 deletions(-)
-> >>
-> >=20
-> > Acked-by: Jason Wang <jasowang@redhat.com>
->=20
-> This sereis doesn't apply cleanly to the net tree, please respin
-> and add the appropriate Acks and Fixes: tags that Michael and Jason
-> have provided.
-
-Sorry, will fix.
-
-Stefan
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJazWMVAAoJEJykq7OBq3PIN1IH/ikRjLXh9rfQ7bPYf9bbkcyE
-43iYyGKK5W5N5GA5urguo6yZHly24hLAhvm+MdbLFiXmjrEsNODc7Lk2+p9d1HJa
-m0Dc+pyjig489X/jFWtEUwFS2woZlAbxCS/iyEjMDkotc43GCRvm1C6OT0nBHdky
-XSdsu2rJyc/PNJtLNkDAFaRm2gvbvCfLG82SlZY39S679M1Xfm+23IvZD+6E6Mhr
-c2QrUEYjF3drmY0HjfTEqiRBH4f+/wJe67W4oiBfjM1kNJd3rOO5qkMnmF28dQjC
-S/7S/hC5FJplkvxXKKis749OHLbgPFPtgwFkW5FQfgd9miWOVp7wF9lrnq88SjY=
-=eq0T
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
-
---===============5225961661863758292==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5225961661863758292==--
+Thanks
+Kevin
