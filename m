@@ -1,21 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [virtio-dev] Re: [RFC] vhost: introduce mdev based hardware vhost
-	backend
-Date: Wed, 11 Apr 2018 10:18:11 +0800
-Message-ID: <cb784844-9305-839a-3291-0e37ebfefbc7__23571.174106519$1523413005$gmane$org@redhat.com>
-References: <20180402152330.4158-1-tiwei.bie@intel.com>
-	<622f4bd7-1249-5545-dc5a-5a92b64f5c26@redhat.com>
-	<20180410045723.rftsb7l4l3ip2ioi@debian>
-	<7ee31a12-a370-fc43-82a6-2235f598e970@redhat.com>
-	<D0158A423229094DA7ABF71CF2FA0DA34E9222F4@SHSMSX104.ccr.corp.intel.com>
-	<20180410163105-mutt-send-email-mst@kernel.org>
-	<D0158A423229094DA7ABF71CF2FA0DA34E9226AF@SHSMSX104.ccr.corp.intel.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [PATCH v3 0/2] vhost: fix vhost_vq_access_ok() log check
+Date: Wed, 11 Apr 2018 10:35:39 +0800
+Message-ID: <20180411023541.15776-1-stefanha__22878.3450359062$1523414028$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <D0158A423229094DA7ABF71CF2FA0DA34E9226AF@SHSMSX104.ccr.corp.intel.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,91 +15,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Liang, Cunming" <cunming.liang@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Wang,
-	Xiao W" <xiao.w.wang@intel.com>, "ddutile@redhat.com" <ddutile@redhat.com>, "Tan,
-	Jianfeng" <jianfeng.tan@intel.com>, "Wang,
-	Zhihong" <zhihong.wang@intel.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDTmnIgxMOaXpSAyMjoyMywgTGlhbmcsIEN1bm1pbmcgd3JvdGU6Cj4+IC0t
-LS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tCj4+IEZyb206IE1pY2hhZWwgUy4gVHNpcmtpbiBbbWFp
-bHRvOm1zdEByZWRoYXQuY29tXQo+PiBTZW50OiBUdWVzZGF5LCBBcHJpbCAxMCwgMjAxOCA5OjM2
-IFBNCj4+IFRvOiBMaWFuZywgQ3VubWluZzxjdW5taW5nLmxpYW5nQGludGVsLmNvbT4KPj4gQ2M6
-IFBhb2xvIEJvbnppbmk8cGJvbnppbmlAcmVkaGF0LmNvbT47IEJpZSwgVGl3ZWk8dGl3ZWkuYmll
-QGludGVsLmNvbT47Cj4+IEphc29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT47YWxleC53aWxs
-aWFtc29uQHJlZGhhdC5jb207Cj4+IGRkdXRpbGVAcmVkaGF0LmNvbTsgRHV5Y2ssIEFsZXhhbmRl
-ciBIPGFsZXhhbmRlci5oLmR1eWNrQGludGVsLmNvbT47Cj4+IHZpcnRpby1kZXZAbGlzdHMub2Fz
-aXMtb3Blbi5vcmc7bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsKPj4ga3ZtQHZnZXIua2Vy
-bmVsLm9yZzt2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZzsKPj4gbmV0
-ZGV2QHZnZXIua2VybmVsLm9yZzsgRGFseSwgRGFuPGRhbi5kYWx5QGludGVsLmNvbT47IFdhbmcs
-IFpoaWhvbmcKPj4gPHpoaWhvbmcud2FuZ0BpbnRlbC5jb20+OyBUYW4sIEppYW5mZW5nPGppYW5m
-ZW5nLnRhbkBpbnRlbC5jb20+OyBXYW5nLCBYaWFvCj4+IFc8eGlhby53LndhbmdAaW50ZWwuY29t
-Pgo+PiBTdWJqZWN0OiBSZTogW3ZpcnRpby1kZXZdIFJlOiBbUkZDXSB2aG9zdDogaW50cm9kdWNl
-IG1kZXYgYmFzZWQgaGFyZHdhcmUgdmhvc3QKPj4gYmFja2VuZAo+Pgo+PiBPbiBUdWUsIEFwciAx
-MCwgMjAxOCBhdCAwOToyMzo1M0FNICswMDAwLCBMaWFuZywgQ3VubWluZyB3cm90ZToKPj4+PiAt
-LS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQo+Pj4+IEZyb206IFBhb2xvIEJvbnppbmkgW21haWx0
-bzpwYm9uemluaUByZWRoYXQuY29tXQo+Pj4+IFNlbnQ6IFR1ZXNkYXksIEFwcmlsIDEwLCAyMDE4
-IDM6NTIgUE0KPj4+PiBUbzogQmllLCBUaXdlaTx0aXdlaS5iaWVAaW50ZWwuY29tPjsgSmFzb24g
-V2FuZwo+Pj4+IDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+Pj4+IENjOm1zdEByZWRoYXQuY29tO2Fs
-ZXgud2lsbGlhbXNvbkByZWRoYXQuY29tO2RkdXRpbGVAcmVkaGF0LmNvbTsKPj4+PiBEdXljaywg
-QWxleGFuZGVyIEg8YWxleGFuZGVyLmguZHV5Y2tAaW50ZWwuY29tPjsKPj4+PiB2aXJ0aW8tZGV2
-QGxpc3RzLm9hc2lzLSBvcGVuLm9yZztsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOwo+Pj4+
-IGt2bUB2Z2VyLmtlcm5lbC5vcmc7dmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmc7Cj4+Pj4gbmV0ZGV2QHZnZXIua2VybmVsLm9yZzsgRGFseSwgRGFuPGRhbi5kYWx5QGlu
-dGVsLmNvbT47IExpYW5nLAo+Pj4+IEN1bm1pbmc8Y3VubWluZy5saWFuZ0BpbnRlbC5jb20+OyBX
-YW5nLCBaaGlob25nCj4+Pj4gPHpoaWhvbmcud2FuZ0BpbnRlbC5jb20+OyBUYW4sIEppYW5mZW5n
-PGppYW5mZW5nLnRhbkBpbnRlbC5jb20+Owo+Pj4+IFdhbmcsIFhpYW8gVzx4aWFvLncud2FuZ0Bp
-bnRlbC5jb20+Cj4+Pj4gU3ViamVjdDogUmU6IFt2aXJ0aW8tZGV2XSBSZTogW1JGQ10gdmhvc3Q6
-IGludHJvZHVjZSBtZGV2IGJhc2VkCj4+Pj4gaGFyZHdhcmUgdmhvc3QgYmFja2VuZAo+Pj4+Cj4+
-Pj4gT24gMTAvMDQvMjAxOCAwNjo1NywgVGl3ZWkgQmllIHdyb3RlOgo+Pj4+Pj4gU28geW91IGp1
-c3QgbW92ZSB0aGUgYWJzdHJhY3Rpb24gbGF5ZXIgZnJvbSBxZW11IHRvIGtlcm5lbCwgYW5kCj4+
-Pj4+PiB5b3Ugc3RpbGwgbmVlZCBkaWZmZXJlbnQgZHJpdmVycyBpbiBrZXJuZWwgZm9yIGRpZmZl
-cmVudCBkZXZpY2UKPj4+Pj4+IGludGVyZmFjZXMgb2YgYWNjZWxlcmF0b3JzLiBUaGlzIGxvb2tz
-IGV2ZW4gbW9yZSBjb21wbGV4IHRoYW4KPj4+Pj4+IGxlYXZpbmcgaXQgaW4gcWVtdS4gQXMgeW91
-IHNhaWQsIGFub3RoZXIgaWRlYSBpcyB0byBpbXBsZW1lbnQKPj4+Pj4+IHVzZXJzcGFjZSB2aG9z
-dCBiYWNrZW5kIGZvciBhY2NlbGVyYXRvcnMgd2hpY2ggc2VlbXMgZWFzaWVyIGFuZAo+Pj4+Pj4g
-Y291bGQgY28td29yayB3aXRoIG90aGVyIHBhcnRzIG9mIHFlbXUgd2l0aG91dCBpbnZlbnRpbmcg
-bmV3IHR5cGUgb2YKPj4gbWVzc2FnZXMuCj4+Pj4+IEknbSBub3QgcXVpdGUgc3VyZS4gRG8geW91
-IHRoaW5rIGl0J3MgYWNjZXB0YWJsZSB0byBhZGQgdmFyaW91cwo+Pj4+PiB2ZW5kb3Igc3BlY2lm
-aWMgaGFyZHdhcmUgZHJpdmVycyBpbiBRRU1VPwo+Pj4+IEkgdGhpbmsgc28uICBXZSBoYXZlIHZl
-bmRvci1zcGVjaWZpYyBxdWlya3MsIGFuZCBhdCBzb21lIHBvaW50IHRoZXJlCj4+Pj4gd2FzIGFu
-IGlkZWEgb2YgdXNpbmcgcXVpcmtzIHRvIGltcGxlbWVudCAodmVuZG9yLXNwZWNpZmljKSBsaXZl
-Cj4+Pj4gbWlncmF0aW9uIHN1cHBvcnQgZm9yIGFzc2lnbmVkIGRldmljZXMuCj4+PiBWZW5kb3It
-c3BlY2lmaWMgcXVpcmtzIG9mIGFjY2Vzc2luZyBWR0EgaXMgYSBzbWFsbCBwb3J0aW9uLiBPdGhl
-ciBtYWpvciBwb3J0aW9ucwo+PiBhcmUgc3RpbGwgaGFuZGxlZCBieSBndWVzdCBkcml2ZXIuCj4+
-PiBXaGlsZSBpbiB0aGlzIGNhc2UsIHdoZW4gc2F5aW5nIHZhcmlvdXMgdmVuZG9yIHNwZWNpZmlj
-IGRyaXZlcnMgaW4gUUVNVSwgaXQgc2F5cwo+PiBRRU1VIHRha2VzIG92ZXIgYW5kIHByb3ZpZGVz
-IHRoZSBlbnRpcmUgdXNlciBzcGFjZSBkZXZpY2UgZHJpdmVycy4gU29tZSBwYXJ0cwo+PiBhcmUg
-ZXZlbiBub3QgcmVsZXZhbnQgdG8gdmhvc3QsIHRoZXkncmUgYmFzaWMgZGV2aWNlIGZ1bmN0aW9u
-IGVuYWJsaW5nLiBNb3Jlb3ZlciwKPj4gaXQgY291bGQgYmUgZGlmZmVyZW50IGtpbmRzIG9mIGRl
-dmljZXMobmV0d29yay9ibG9jay8uLi4pIHVuZGVyIHZob3N0LiBObyBtYXR0ZXIKPj4gIyBvZiB2
-ZW5kb3JzIG9yICMgb2YgdHlwZXMsIHRvdGFsIExPQyBpcyBub3Qgc21hbGwuCj4+PiBUaGUgaWRl
-YSBpcyB0byBhdm9pZCBpbnRyb2R1Y2luZyB0aGVzZSBleHRyYSBjb21wbGV4aXR5IG91dCBvZiBR
-RU1VLCBrZWVwaW5nCj4+IHZob3N0IGFkYXB0ZXIgc2ltcGxlLiBBcyB2aG9zdCBwcm90b2NvbCBp
-cyBkZSBmYWN0b3Igc3RhbmRhcmQsIGl0IGxldmVyYWdlcyBrZXJuZWwKPj4gZGV2aWNlIGRyaXZl
-ciB0byBwcm92aWRlIHRoZSBkaXZlcnNpdHkuIENoYW5naW5nIG9uY2UgaW4gUUVNVSwgdGhlbiBp
-dCBzdXBwb3J0cwo+PiBtdWx0aS12ZW5kb3IgZGV2aWNlcyB3aG9zZSBkcml2ZXJzIG5hdHVyYWxs
-eSBwcm92aWRpbmcga2VybmVsIGRyaXZlciB0aGVyZS4KPj4+IElmIFFFTVUgaXMgZ29pbmcgdG8g
-YnVpbGQgYSB1c2VyIHNwYWNlIGRyaXZlciBmcmFtZXdvcmsgdGhlcmUsIHdlJ3JlIG9wZW4gbWlu
-ZAo+PiBvbiB0aGF0LCBldmVuIGxldmVyYWdpbmcgRFBESyBhcyB0aGUgdW5kZXJsYXkgbGlicmFy
-eS4gTG9va2luZyBmb3J3YXJkIHRvIG1vcmUKPj4gb3RoZXJzJyBjb21tZW50cyBmcm9tIGNvbW11
-bml0eS4KPj4+IFN0ZXZlCj4+IERlcGVuZGVuY3kgb24gYSBrZXJuZWwgZHJpdmVyIGlzIGZpbmUg
-SU1ITy4gSXQncyB0aGUgZGVwZW5kZW5jeSBvbiBhIERQREsKPj4gYmFja2VuZCB0aGF0IG1ha2Vz
-IHBlb3BsZSB1bmhhcHB5LCBzaW5jZSB0aGUgZnVuY3Rpb25hbGl0eSBpbiBxdWVzdGlvbiBpcyBz
-ZXR1cC0KPj4gdGltZSBvbmx5Lgo+IEFncmVlZCwgd2UgZG9uJ3Qgc2VlIGRlcGVuZGVuY3kgb24g
-a2VybmVsIGRyaXZlciBpcyBhIHByb2JsZW0uCgpBdCBlbmdpbmVlcmluZyBsZXZlbCwga2VybmVs
-IGRyaXZlciBpcyBoYXJkZXIgdGhhbiB1c2Vyc3BhY2UgZHJpdmVyLgoKPgo+IG1kZXYgYmFzZWQg
-dmhvc3QgYmFja2VuZCAodGhpcyBwYXRjaCBzZXQpIGlzIGluZGVwZW5kZW50IHdpdGggdmhvc3Qt
-dXNlciBleHRlbnNpb24gcGF0Y2ggc2V0LiBJbiBmYWN0LCB0aGVyZSdyZSBhIGZldyB2aG9zdC11
-c2VyIHByb3ZpZGVycywgRFBESyBsaWJydGVfdmhvc3QgaXMgb25lIG9mIHRoZW0uIEZELklPL1ZQ
-UCBhbmQgc25hYmJzd2l0Y2ggaGF2ZSB0aGVpciBvd24gdmhvc3QtdXNlciBwcm92aWRlcnMuIFNv
-IEkgY2FuJ3QgYWdyZWUgb24gdmhvc3QtdXNlciBleHRlbnNpb24gcGF0Y2ggZGVwZW5kcyBvbiBE
-UERLIGJhY2tlbmQuIEJ1dCBhbnl3YXksIHRoYXQncyB0aGUgdG9waWMgb2YgYW5vdGhlciBtYWls
-IHRocmVhZC4KPgoKV2VsbCB3ZSBjYW4gdHJlYXQgbWRldiBhcyBhbm90aGVyIGtpbmQgb2YgdHJh
-bnNwb3J0IG9mIHZob3N0LXVzZXIuIEFuZCAKdGVjaG5pY2FsbHkgd2UgY2FuIGV2ZW4gaW1wbGVt
-ZW50IGEgcmVsYXkgbWRldiB0aGFuIGZvcndhcmQgdmhvc3QtdXNlciAKbWVzc2FnZXMgdG8gZHBk
-ay4KClRoYW5rcwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+v3:
+ * Rebased onto net/master and resolved conflict [DaveM]
+
+v2:
+ * Rewrote the conditional to make the vq access check clearer [Linus]
+ * Added Patch 2 to make the return type consistent and harder to misuse [Linus]
+
+The first patch fixes the vhost virtqueue access check which was recently
+broken.  The second patch replaces the int return type with bool to prevent
+future bugs.
+
+Stefan Hajnoczi (2):
+  vhost: fix vhost_vq_access_ok() log check
+  vhost: return bool from *_access_ok() functions
+
+ drivers/vhost/vhost.h |  4 +--
+ drivers/vhost/vhost.c | 70 ++++++++++++++++++++++++++-------------------------
+ 2 files changed, 38 insertions(+), 36 deletions(-)
+
+-- 
+2.14.3
