@@ -1,17 +1,19 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [virtio-dev] Re: [RFC] vhost: introduce mdev based hardware
-	vhost backend
-Date: Wed, 11 Apr 2018 10:01:50 +0800
-Message-ID: <20180411020150.GE28698__47571.7907575474$1523412017$gmane$org@stefanha-x1.localdomain>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [virtio-dev] Re: [RFC] vhost: introduce mdev based hardware vhost
+	backend
+Date: Wed, 11 Apr 2018 10:08:32 +0800
+Message-ID: <56f8d47b-48d4-cd4c-6795-21e809efcb1b__1942.72036101228$1523412429$gmane$org@redhat.com>
 References: <20180402152330.4158-1-tiwei.bie@intel.com>
 	<622f4bd7-1249-5545-dc5a-5a92b64f5c26@redhat.com>
 	<20180410045723.rftsb7l4l3ip2ioi@debian>
 	<7ee31a12-a370-fc43-82a6-2235f598e970@redhat.com>
 	<D0158A423229094DA7ABF71CF2FA0DA34E9222F4@SHSMSX104.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7359400558970240325=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <D0158A423229094DA7ABF71CF2FA0DA34E9222F4@SHSMSX104.ccr.corp.intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,56 +23,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Liang, Cunming" <cunming.liang@intel.com>
+To: "Liang, Cunming" <cunming.liang@intel.com>, Paolo Bonzini <pbonzini@redhat.com>, "Bie, Tiwei" <tiwei.bie@intel.com>
 Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Wang,
 	Xiao W" <xiao.w.wang@intel.com>, "ddutile@redhat.com" <ddutile@redhat.com>, "Tan,
 	Jianfeng" <jianfeng.tan@intel.com>, "Wang,
-	Zhihong" <zhihong.wang@intel.com>, Paolo Bonzini <pbonzini@redhat.com>
+	Zhihong" <zhihong.wang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============7359400558970240325==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="so9zsI5B81VjUb/o"
-Content-Disposition: inline
-
-
---so9zsI5B81VjUb/o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Apr 10, 2018 at 09:23:53AM +0000, Liang, Cunming wrote:
-> If QEMU is going to build a user space driver framework there, we're open mind on that, even leveraging DPDK as the underlay library. Looking forward to more others' comments from community.
-
-There is already an NVMe VFIO driver in QEMU (see block/nvme.c).  So in
-principle there's no reason against userspace drivers in QEMU.
-
-Stefan
-
---so9zsI5B81VjUb/o
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJazWyOAAoJEJykq7OBq3PIDxYH/3SjcypJKNjR0hMj21VW4REg
-7F6RjwFFlXz5fjIdUTi3sW80T3eWF26MbWBttl1A6XwrWQPrx50iG9xhblCNwLtu
-KY8vkQVK89LYwpM1vQn3LH7liEWexUIvq+dksxDts+7XE52qXxJ3hhzhb29ajTFf
-aWh4HdJXZyh3243o8tyvUELsSQ/P5mxy6HHt2pggoPViO3ttfjYC/fnkd2Q11tZn
-JxPIkqC4OkJW3EBva5V2/dCu0hWC8Gcj69Hda6eMrev4FzkHpFDROrb3CqtWKDEw
-ngHk+06CpZF77C73b8OKf8/+yWUXwXc38OVjoX6B3FS/x7a+mW2DZNb/m8NRDXg=
-=ueJP
------END PGP SIGNATURE-----
-
---so9zsI5B81VjUb/o--
-
---===============7359400558970240325==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7359400558970240325==--
+CgpPbiAyMDE45bm0MDTmnIgxMOaXpSAxNzoyMywgTGlhbmcsIEN1bm1pbmcgd3JvdGU6Cj4KPj4g
+LS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0KPj4gRnJvbTogUGFvbG8gQm9uemluaSBbbWFpbHRv
+OnBib256aW5pQHJlZGhhdC5jb21dCj4+IFNlbnQ6IFR1ZXNkYXksIEFwcmlsIDEwLCAyMDE4IDM6
+NTIgUE0KPj4gVG86IEJpZSwgVGl3ZWkgPHRpd2VpLmJpZUBpbnRlbC5jb20+OyBKYXNvbiBXYW5n
+IDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+PiBDYzogbXN0QHJlZGhhdC5jb207IGFsZXgud2lsbGlh
+bXNvbkByZWRoYXQuY29tOyBkZHV0aWxlQHJlZGhhdC5jb207Cj4+IER1eWNrLCBBbGV4YW5kZXIg
+SCA8YWxleGFuZGVyLmguZHV5Y2tAaW50ZWwuY29tPjsgdmlydGlvLWRldkBsaXN0cy5vYXNpcy0K
+Pj4gb3Blbi5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGt2bUB2Z2VyLmtlcm5l
+bC5vcmc7Cj4+IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnOyBuZXRk
+ZXZAdmdlci5rZXJuZWwub3JnOyBEYWx5LCBEYW4KPj4gPGRhbi5kYWx5QGludGVsLmNvbT47IExp
+YW5nLCBDdW5taW5nIDxjdW5taW5nLmxpYW5nQGludGVsLmNvbT47IFdhbmcsCj4+IFpoaWhvbmcg
+PHpoaWhvbmcud2FuZ0BpbnRlbC5jb20+OyBUYW4sIEppYW5mZW5nIDxqaWFuZmVuZy50YW5AaW50
+ZWwuY29tPjsKPj4gV2FuZywgWGlhbyBXIDx4aWFvLncud2FuZ0BpbnRlbC5jb20+Cj4+IFN1Ympl
+Y3Q6IFJlOiBbdmlydGlvLWRldl0gUmU6IFtSRkNdIHZob3N0OiBpbnRyb2R1Y2UgbWRldiBiYXNl
+ZCBoYXJkd2FyZQo+PiB2aG9zdCBiYWNrZW5kCj4+Cj4+IE9uIDEwLzA0LzIwMTggMDY6NTcsIFRp
+d2VpIEJpZSB3cm90ZToKPj4+PiBTbyB5b3UganVzdCBtb3ZlIHRoZSBhYnN0cmFjdGlvbiBsYXll
+ciBmcm9tIHFlbXUgdG8ga2VybmVsLCBhbmQgeW91Cj4+Pj4gc3RpbGwgbmVlZCBkaWZmZXJlbnQg
+ZHJpdmVycyBpbiBrZXJuZWwgZm9yIGRpZmZlcmVudCBkZXZpY2UKPj4+PiBpbnRlcmZhY2VzIG9m
+IGFjY2VsZXJhdG9ycy4gVGhpcyBsb29rcyBldmVuIG1vcmUgY29tcGxleCB0aGFuIGxlYXZpbmcK
+Pj4+PiBpdCBpbiBxZW11LiBBcyB5b3Ugc2FpZCwgYW5vdGhlciBpZGVhIGlzIHRvIGltcGxlbWVu
+dCB1c2Vyc3BhY2Ugdmhvc3QKPj4+PiBiYWNrZW5kIGZvciBhY2NlbGVyYXRvcnMgd2hpY2ggc2Vl
+bXMgZWFzaWVyIGFuZCBjb3VsZCBjby13b3JrIHdpdGgKPj4+PiBvdGhlciBwYXJ0cyBvZiBxZW11
+IHdpdGhvdXQgaW52ZW50aW5nIG5ldyB0eXBlIG9mIG1lc3NhZ2VzLgo+Pj4gSSdtIG5vdCBxdWl0
+ZSBzdXJlLiBEbyB5b3UgdGhpbmsgaXQncyBhY2NlcHRhYmxlIHRvIGFkZCB2YXJpb3VzIHZlbmRv
+cgo+Pj4gc3BlY2lmaWMgaGFyZHdhcmUgZHJpdmVycyBpbiBRRU1VPwo+PiBJIHRoaW5rIHNvLiAg
+V2UgaGF2ZSB2ZW5kb3Itc3BlY2lmaWMgcXVpcmtzLCBhbmQgYXQgc29tZSBwb2ludCB0aGVyZSB3
+YXMgYW4KPj4gaWRlYSBvZiB1c2luZyBxdWlya3MgdG8gaW1wbGVtZW50ICh2ZW5kb3Itc3BlY2lm
+aWMpIGxpdmUgbWlncmF0aW9uIHN1cHBvcnQgZm9yCj4+IGFzc2lnbmVkIGRldmljZXMuCj4gVmVu
+ZG9yLXNwZWNpZmljIHF1aXJrcyBvZiBhY2Nlc3NpbmcgVkdBIGlzIGEgc21hbGwgcG9ydGlvbi4g
+T3RoZXIgbWFqb3IgcG9ydGlvbnMgYXJlIHN0aWxsIGhhbmRsZWQgYnkgZ3Vlc3QgZHJpdmVyLgo+
+Cj4gV2hpbGUgaW4gdGhpcyBjYXNlLCB3aGVuIHNheWluZyB2YXJpb3VzIHZlbmRvciBzcGVjaWZp
+YyBkcml2ZXJzIGluIFFFTVUsIGl0IHNheXMgUUVNVSB0YWtlcyBvdmVyIGFuZCBwcm92aWRlcyB0
+aGUgZW50aXJlIHVzZXIgc3BhY2UgZGV2aWNlIGRyaXZlcnMuIFNvbWUgcGFydHMgYXJlIGV2ZW4g
+bm90IHJlbGV2YW50IHRvIHZob3N0LCB0aGV5J3JlIGJhc2ljIGRldmljZSBmdW5jdGlvbiBlbmFi
+bGluZy4gTW9yZW92ZXIsIGl0IGNvdWxkIGJlIGRpZmZlcmVudCBraW5kcyBvZiBkZXZpY2VzKG5l
+dHdvcmsvYmxvY2svLi4uKSB1bmRlciB2aG9zdC4gTm8gbWF0dGVyICMgb2YgdmVuZG9ycyBvciAj
+IG9mIHR5cGVzLCB0b3RhbCBMT0MgaXMgbm90IHNtYWxsLgo+Cj4gVGhlIGlkZWEgaXMgdG8gYXZv
+aWQgaW50cm9kdWNpbmcgdGhlc2UgZXh0cmEgY29tcGxleGl0eSBvdXQgb2YgUUVNVSwga2VlcGlu
+ZyB2aG9zdCBhZGFwdGVyIHNpbXBsZS4gQXMgdmhvc3QgcHJvdG9jb2wgaXMgZGUgZmFjdG9yIHN0
+YW5kYXJkLCBpdCBsZXZlcmFnZXMga2VybmVsIGRldmljZSBkcml2ZXIgdG8gcHJvdmlkZSB0aGUg
+ZGl2ZXJzaXR5LiBDaGFuZ2luZyBvbmNlIGluIFFFTVUsIHRoZW4gaXQgc3VwcG9ydHMgbXVsdGkt
+dmVuZG9yIGRldmljZXMgd2hvc2UgZHJpdmVycyBuYXR1cmFsbHkgcHJvdmlkaW5nIGtlcm5lbCBk
+cml2ZXIgdGhlcmUuCgpMZXQgbWUgY2xhcmlmeSBteSBxdWVzdGlvbiwgaXQncyBub3QgcWVtdSB2
+cyBrZW5yZWwgYnV0IHVzZXJzcGFjZSB2cyAKa2VybmVsLiBJdCBjb3VsZCBiZSBhIGxpYnJhcnkg
+d2hpY2ggY291bGQgYmUgbGlua2VkIHRvIHFlbXUuIERvaW5nIGl0IGluIAp1c2Vyc3BhY2UgaGF2
+ZSB0aGUgZm9sbG93aW5nIG9idmlvdXMgYWR2YW50YWdlczoKCi0gYXR0YWNrIHN1cmZhY2Ugd2Fz
+IGxpbWl0ZWQgdG8gdXNlcnNwYWNlCi0gZWFzaWVyIHRvIGJlIG1haW50YWluZWQgKGNvbXBhcmVk
+IHRvIGtlcm5lbCBkcml2ZXIpCi0gZWFzaWVyIHRvIGJlIGV4dGVuZGVkIHdpdGhvdXQgaW50cm9k
+dWNpbmcgbmV3IHVzZXJzcGFjZS9rZXJuZWwgaW50ZXJmYWNlcwotIG5vdCB0aWVkIHRvIGEgc3Bl
+Y2lmaWMgb3BlcmF0aW5nIHN5c3RlbQoKSWYgd2Ugd2FudCB0byBkbyBpdCBpbiB0aGUga2VybmVs
+LCBuZWVkIHRvIGNvbnNpZGVyIHRvIHVuaWZ5IGNvZGUgCmJldHdlZW4gbWRldiBkZXZpY2UgZHJp
+dmVyIGFuZCBnZW5lcmljIGRyaXZlci4gRm9yIG5ldCBkcml2ZXIsIG1heWJlIHdlIApjYW4gZXZl
+biBjb25zaWRlciB0byBkbyBpdCBvbiB0b3Agb2YgZXhpc3QgZHJpdmVycy4KCj4KPiBJZiBRRU1V
+IGlzIGdvaW5nIHRvIGJ1aWxkIGEgdXNlciBzcGFjZSBkcml2ZXIgZnJhbWV3b3JrIHRoZXJlLCB3
+ZSdyZSBvcGVuIG1pbmQgb24gdGhhdCwgZXZlbiBsZXZlcmFnaW5nIERQREsgYXMgdGhlIHVuZGVy
+bGF5IGxpYnJhcnkuIExvb2tpbmcgZm9yd2FyZCB0byBtb3JlIG90aGVycycgY29tbWVudHMgZnJv
+bSBjb21tdW5pdHkuCgpJJ20gZG9pbmcgdGhpcyBub3cgYnkgaW1wbGVtZW50aW5nIHZob3N0IGlu
+c2lkZSBxZW11IElPVGhyZWFkcy4gSG9wZSBJIApjYW4gcG9zdCBSRkMgaW4gZmV3IG1vbnRocy4K
+ClRoYW5rcwoKPiBTdGV2ZQo+Cj4+IFBhb2xvCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
