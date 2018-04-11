@@ -1,15 +1,16 @@
-From: Jiri Pirko <jiri@resnulli.us>
-Subject: Re: [RFC PATCH net-next v6 2/4] net: Introduce generic bypass module
-Date: Wed, 11 Apr 2018 17:51:27 +0200
-Message-ID: <20180411155127.GQ2028__33732.4811298915$1523461772$gmane$org@nanopsycho>
-References: <1523386790-12396-1-git-send-email-sridhar.samudrala@intel.com>
-	<1523386790-12396-3-git-send-email-sridhar.samudrala@intel.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH 1/4] iommu: Add virtio-iommu driver
+Date: Wed, 11 Apr 2018 19:33:53 +0100
+Message-ID: <a67a759a-e12b-998e-40aa-84e539619484@arm.com>
+References: <20180214145340.1223-1-jean-philippe.brucker@arm.com>
+	<20180214145340.1223-2-jean-philippe.brucker@arm.com>
+	<d0cfe602-f6e8-2d6e-0942-23012f3facef@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1523386790-12396-3-git-send-email-sridhar.samudrala@intel.com>
+In-Reply-To: <d0cfe602-f6e8-2d6e-0942-23012f3facef@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,1156 +20,188 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sridhar Samudrala <sridhar.samudrala@intel.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
+To: Robin Murphy <robin.murphy@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
+Cc: "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, Tomasz.Nowicki@caviumnetworks.com, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "jintack@cs.columbia.edu" <jintack@cs.columbia.edu>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "joro@8bytes.org" <joro@8bytes.org>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Tue, Apr 10, 2018 at 08:59:48PM CEST, sridhar.samudrala@intel.com wrote:
->This provides a generic interface for paravirtual drivers to listen
->for netdev register/unregister/link change events from pci ethernet
->devices with the same MAC and takeover their datapath. The notifier and
->event handling code is based on the existing netvsc implementation.
->
->It exposes 2 sets of interfaces to the paravirtual drivers.
->1. existing netvsc driver that uses 2 netdev model. In this model, no
->master netdev is created. The paravirtual driver registers each bypass
->instance along with a set of ops to manage the slave events.
->     bypass_master_register()
->     bypass_master_unregister()
->2. new virtio_net based solution that uses 3 netdev model. In this model,
->the bypass module provides interfaces to create/destroy additional master
->netdev and all the slave events are managed internally.
->      bypass_master_create()
->      bypass_master_destroy()
->
->Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
->---
-> include/linux/netdevice.h |  14 +
-> include/net/bypass.h      |  96 ++++++
-> net/Kconfig               |  18 +
-> net/core/Makefile         |   1 +
-> net/core/bypass.c         | 844 ++++++++++++++++++++++++++++++++++++++++++++++
-> 5 files changed, 973 insertions(+)
-> create mode 100644 include/net/bypass.h
-> create mode 100644 net/core/bypass.c
->
->diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
->index cf44503ea81a..587293728f70 100644
->--- a/include/linux/netdevice.h
->+++ b/include/linux/netdevice.h
->@@ -1430,6 +1430,8 @@ enum netdev_priv_flags {
-> 	IFF_PHONY_HEADROOM		= 1<<24,
-> 	IFF_MACSEC			= 1<<25,
-> 	IFF_NO_RX_HANDLER		= 1<<26,
->+	IFF_BYPASS			= 1 << 27,
->+	IFF_BYPASS_SLAVE		= 1 << 28,
-
-I wonder, why you don't follow the existing coding style... Also, please
-add these to into the comment above.
-
-
-> };
+On 23/03/18 14:48, Robin Murphy wrote:
+[..]
+>> + * Virtio driver for the paravirtualized IOMMU
+>> + *
+>> + * Copyright (C) 2018 ARM Limited
+>> + * Author: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+>> + *
+>> + * SPDX-License-Identifier: GPL-2.0
 > 
-> #define IFF_802_1Q_VLAN			IFF_802_1Q_VLAN
->@@ -1458,6 +1460,8 @@ enum netdev_priv_flags {
-> #define IFF_RXFH_CONFIGURED		IFF_RXFH_CONFIGURED
-> #define IFF_MACSEC			IFF_MACSEC
-> #define IFF_NO_RX_HANDLER		IFF_NO_RX_HANDLER
->+#define IFF_BYPASS			IFF_BYPASS
->+#define IFF_BYPASS_SLAVE		IFF_BYPASS_SLAVE
+> This wants to be a // comment at the very top of the file (thankfully 
+> the policy is now properly documented in-tree since 
+> Documentation/process/license-rules.rst got merged)
+
+Ok
+
+[...]
+>> +
+>> +/*
+>> + * viommu_del_mappings - remove mappings from the internal tree
+>> + *
+>> + * @vdomain: the domain
+>> + * @iova: start of the range
+>> + * @size: size of the range. A size of 0 corresponds to the entire address
+>> + *	space.
+>> + * @out_mapping: if not NULL, the first removed mapping is returned in there.
+>> + *	This allows the caller to reuse the buffer for the unmap request. When
+>> + *	the returned size is greater than zero, if a mapping is returned, the
+>> + *	caller must free it.
 > 
-> /**
->  *	struct net_device - The DEVICE structure.
->@@ -4308,6 +4312,16 @@ static inline bool netif_is_rxfh_configured(const struct net_device *dev)
-> 	return dev->priv_flags & IFF_RXFH_CONFIGURED;
-> }
+> This "free multiple mappings except maybe hand one of them off to the 
+> caller" interface is really unintuitive. AFAICS it's only used by 
+> viommu_unmap() to grab mapping->req, but that doesn't seem to care about 
+> mapping itself, so I wonder whether it wouldn't make more sense to just 
+> have a global kmem_cache of struct virtio_iommu_req_unmap for that and 
+> avoid a lot of complexity...
+
+Well it's a small complication for what I hoped would be a meanignful
+performance difference, but more below.
+
+>> +
+>> +/* IOMMU API */
+>> +
+>> +static bool viommu_capable(enum iommu_cap cap)
+>> +{
+>> +	return false;
+>> +}
 > 
->+static inline bool netif_is_bypass_master(const struct net_device *dev)
->+{
->+	return dev->priv_flags & IFF_BYPASS;
->+}
->+
->+static inline bool netif_is_bypass_slave(const struct net_device *dev)
->+{
->+	return dev->priv_flags & IFF_BYPASS_SLAVE;
->+}
->+
-> /* This device needs to keep skb dst for qdisc enqueue or ndo_start_xmit() */
-> static inline void netif_keep_dst(struct net_device *dev)
-> {
->diff --git a/include/net/bypass.h b/include/net/bypass.h
->new file mode 100644
->index 000000000000..86b02cb894cf
->--- /dev/null
->+++ b/include/net/bypass.h
->@@ -0,0 +1,96 @@
->+// SPDX-License-Identifier: GPL-2.0
->+/* Copyright (c) 2018, Intel Corporation. */
->+
->+#ifndef _NET_BYPASS_H
->+#define _NET_BYPASS_H
->+
->+#include <linux/netdevice.h>
->+
->+struct bypass_ops {
->+	int (*slave_pre_register)(struct net_device *slave_netdev,
->+				  struct net_device *bypass_netdev);
->+	int (*slave_join)(struct net_device *slave_netdev,
->+			  struct net_device *bypass_netdev);
->+	int (*slave_pre_unregister)(struct net_device *slave_netdev,
->+				    struct net_device *bypass_netdev);
->+	int (*slave_release)(struct net_device *slave_netdev,
->+			     struct net_device *bypass_netdev);
->+	int (*slave_link_change)(struct net_device *slave_netdev,
->+				 struct net_device *bypass_netdev);
->+	rx_handler_result_t (*handle_frame)(struct sk_buff **pskb);
->+};
->+
->+struct bypass_master {
->+	struct list_head list;
->+	struct net_device __rcu *bypass_netdev;
->+	struct bypass_ops __rcu *ops;
->+};
->+
->+/* bypass state */
->+struct bypass_info {
->+	/* passthru netdev with same MAC */
->+	struct net_device __rcu *active_netdev;
-
-You still use "active"/"backup" names which is highly misleading as
-it has completely different meaning that in bond for example.
-I noted that in my previous review already. Please change it.
-
-
->+
->+	/* virtio_net netdev */
->+	struct net_device __rcu *backup_netdev;
->+
->+	/* active netdev stats */
->+	struct rtnl_link_stats64 active_stats;
->+
->+	/* backup netdev stats */
->+	struct rtnl_link_stats64 backup_stats;
->+
->+	/* aggregated stats */
->+	struct rtnl_link_stats64 bypass_stats;
->+
->+	/* spinlock while updating stats */
->+	spinlock_t stats_lock;
->+};
->+
->+#if IS_ENABLED(CONFIG_NET_BYPASS)
->+
->+int bypass_master_create(struct net_device *backup_netdev,
->+			 struct bypass_master **pbypass_master);
->+void bypass_master_destroy(struct bypass_master *bypass_master);
->+
->+int bypass_master_register(struct net_device *dev, struct bypass_ops *ops,
->+			   struct bypass_master **pbypass_master);
->+void bypass_master_unregister(struct bypass_master *bypass_master);
->+
->+int bypass_slave_unregister(struct net_device *slave_netdev);
->+
->+#else
->+
->+static inline
->+int bypass_master_create(struct net_device *backup_netdev,
->+			 struct bypass_master **pbypass_master);
->+{
->+	return 0;
->+}
->+
->+static inline
->+void bypass_master_destroy(struct bypass_master *bypass_master)
->+{
->+}
->+
->+static inline
->+int bypass_master_register(struct net_device *dev, struct bypass_ops *ops,
->+			   struct pbypass_master **pbypass_master);
->+{
->+	return 0;
->+}
->+
->+static inline
->+void bypass_master_unregister(struct bypass_master *bypass_master)
->+{
->+}
->+
->+static inline
->+int bypass_slave_unregister(struct net_device *slave_netdev)
->+{
->+	return 0;
->+}
->+
->+#endif
->+
->+#endif /* _NET_BYPASS_H */
->diff --git a/net/Kconfig b/net/Kconfig
->index 0428f12c25c2..994445f4a96a 100644
->--- a/net/Kconfig
->+++ b/net/Kconfig
->@@ -423,6 +423,24 @@ config MAY_USE_DEVLINK
-> 	  on MAY_USE_DEVLINK to ensure they do not cause link errors when
-> 	  devlink is a loadable module and the driver using it is built-in.
+> The .capable callback is optional, so it's only worth implementing once 
+> you want it to do something beyond the default behaviour.
 > 
->+config NET_BYPASS
->+	tristate "Bypass interface"
->+	---help---
->+	  This provides a generic interface for paravirtual drivers to listen
->+	  for netdev register/unregister/link change events from pci ethernet
->+	  devices with the same MAC and takeover their datapath. This also
->+	  enables live migration of a VM with direct attached VF by failing
->+	  over to the paravirtual datapath when the VF is unplugged.
->+
->+config MAY_USE_BYPASS
->+	tristate
->+	default m if NET_BYPASS=m
->+	default y if NET_BYPASS=y || NET_BYPASS=n
->+	help
->+	  Drivers using the bypass infrastructure should have a dependency
->+	  on MAY_USE_BYPASS to ensure they do not cause link errors when
->+	  bypass is a loadable module and the driver using it is built-in.
->+
-> endif   # if NET
+
+Ah, right
+
+[...]
+>> +static size_t viommu_unmap(struct iommu_domain *domain, unsigned long iova,
+>> +			   size_t size)
+>> +{
+>> +	int ret = 0;
+>> +	size_t unmapped;
+>> +	struct viommu_mapping *mapping = NULL;
+>> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
+>> +
+>> +	unmapped = viommu_del_mappings(vdomain, iova, size, &mapping);
+>> +	if (unmapped < size) {
+>> +		ret = -EINVAL;
+>> +		goto out_free;
+>> +	}
+>> +
+>> +	/* Device already removed all mappings after detach. */
+>> +	if (!vdomain->endpoints)
+>> +		goto out_free;
+>> +
+>> +	if (WARN_ON(!mapping))
+>> +		return 0;
+>> +
+>> +	mapping->req.unmap = (struct virtio_iommu_req_unmap) {
+>> +		.head.type	= VIRTIO_IOMMU_T_UNMAP,
+>> +		.domain		= cpu_to_le32(vdomain->id),
+>> +		.virt_start	= cpu_to_le64(iova),
+>> +		.virt_end	= cpu_to_le64(iova + unmapped - 1),
+>> +	};
 > 
-> # Used by archs to tell that they support BPF JIT compiler plus which flavour.
->diff --git a/net/core/Makefile b/net/core/Makefile
->index 6dbbba8c57ae..a9727ed1c8fc 100644
->--- a/net/core/Makefile
->+++ b/net/core/Makefile
->@@ -30,3 +30,4 @@ obj-$(CONFIG_DST_CACHE) += dst_cache.o
-> obj-$(CONFIG_HWBM) += hwbm.o
-> obj-$(CONFIG_NET_DEVLINK) += devlink.o
-> obj-$(CONFIG_GRO_CELLS) += gro_cells.o
->+obj-$(CONFIG_NET_BYPASS) += bypass.o
->diff --git a/net/core/bypass.c b/net/core/bypass.c
->new file mode 100644
->index 000000000000..b5b9cb554c3f
->--- /dev/null
->+++ b/net/core/bypass.c
->@@ -0,0 +1,844 @@
->+// SPDX-License-Identifier: GPL-2.0
->+/* Copyright (c) 2018, Intel Corporation. */
->+
->+/* A common module to handle registrations and notifications for paravirtual
->+ * drivers to enable accelerated datapath and support VF live migration.
->+ *
->+ * The notifier and event handling code is based on netvsc driver.
->+ */
->+
->+#include <linux/netdevice.h>
->+#include <linux/etherdevice.h>
->+#include <linux/ethtool.h>
->+#include <linux/module.h>
->+#include <linux/slab.h>
->+#include <linux/netdevice.h>
->+#include <linux/netpoll.h>
->+#include <linux/rtnetlink.h>
->+#include <linux/if_vlan.h>
->+#include <linux/pci.h>
->+#include <net/sch_generic.h>
->+#include <uapi/linux/if_arp.h>
->+#include <net/bypass.h>
->+
->+static LIST_HEAD(bypass_master_list);
->+static DEFINE_SPINLOCK(bypass_lock);
->+
->+static int bypass_slave_pre_register(struct net_device *slave_netdev,
->+				     struct net_device *bypass_netdev,
->+				     struct bypass_ops *bypass_ops)
->+{
->+	struct bypass_info *bi;
->+	bool backup;
->+
->+	if (bypass_ops) {
->+		if (!bypass_ops->slave_pre_register)
->+			return -EINVAL;
->+
->+		return bypass_ops->slave_pre_register(slave_netdev,
->+						      bypass_netdev);
->+	}
->+
->+	bi = netdev_priv(bypass_netdev);
->+	backup = (slave_netdev->dev.parent == bypass_netdev->dev.parent);
->+	if (backup ? rtnl_dereference(bi->backup_netdev) :
->+			rtnl_dereference(bi->active_netdev)) {
->+		netdev_err(bypass_netdev, "%s attempting to register as slave dev when %s already present\n",
->+			   slave_netdev->name, backup ? "backup" : "active");
->+		return -EEXIST;
->+	}
->+
->+	/* Avoid non pci devices as active netdev */
->+	if (!backup && (!slave_netdev->dev.parent ||
->+			!dev_is_pci(slave_netdev->dev.parent)))
->+		return -EINVAL;
->+
->+	return 0;
->+}
->+
->+static int bypass_slave_join(struct net_device *slave_netdev,
->+			     struct net_device *bypass_netdev,
->+			     struct bypass_ops *bypass_ops)
->+{
->+	struct bypass_info *bi;
->+	bool backup;
->+
->+	if (bypass_ops) {
->+		if (!bypass_ops->slave_join)
->+			return -EINVAL;
->+
->+		return bypass_ops->slave_join(slave_netdev, bypass_netdev);
->+	}
->+
->+	bi = netdev_priv(bypass_netdev);
->+	backup = (slave_netdev->dev.parent == bypass_netdev->dev.parent);
->+
->+	dev_hold(slave_netdev);
->+
->+	if (backup) {
->+		rcu_assign_pointer(bi->backup_netdev, slave_netdev);
->+		dev_get_stats(bi->backup_netdev, &bi->backup_stats);
->+	} else {
->+		rcu_assign_pointer(bi->active_netdev, slave_netdev);
->+		dev_get_stats(bi->active_netdev, &bi->active_stats);
->+		bypass_netdev->min_mtu = slave_netdev->min_mtu;
->+		bypass_netdev->max_mtu = slave_netdev->max_mtu;
->+	}
->+
->+	netdev_info(bypass_netdev, "bypass slave:%s joined\n",
->+		    slave_netdev->name);
->+
->+	return 0;
->+}
->+
->+/* Called when slave dev is injecting data into network stack.
->+ * Change the associated network device from lower dev to virtio.
->+ * note: already called with rcu_read_lock
->+ */
->+static rx_handler_result_t bypass_handle_frame(struct sk_buff **pskb)
->+{
->+	struct sk_buff *skb = *pskb;
->+	struct net_device *ndev = rcu_dereference(skb->dev->rx_handler_data);
->+
->+	skb->dev = ndev;
->+
->+	return RX_HANDLER_ANOTHER;
->+}
->+
->+static struct net_device *bypass_master_get_bymac(u8 *mac,
->+						  struct bypass_ops **ops)
->+{
->+	struct bypass_master *bypass_master;
->+	struct net_device *bypass_netdev;
->+
->+	spin_lock(&bypass_lock);
->+	list_for_each_entry(bypass_master, &bypass_master_list, list) {
+> ...In fact, the kmem_cache idea might be moot since it looks like with a 
+> bit of restructuring you could get away with just a single per-viommu 
+> virtio_iommu_req_unmap structure; this lot could be passed around on the 
+> stack until request_lock is taken, at which point it would be copied 
+> into the 'real' DMA-able structure. The equivalent might apply to 
+> viommu_map() too - now that I'm looking at it, it seems like it would 
+> take pretty minimal effort to encapsulate the whole business cleanly in 
+> viommu_send_req_sync(), which could do something like this instead of 
+> going through viommu_send_reqs_sync():
+> 
+> 	...
+> 	spin_lock_irqsave(&viommu->request_lock, flags);
+> 	viommu_copy_req(viommu->dma_req, req);
+> 	ret = _viommu_send_reqs_sync(viommu, viommu->dma_req, 1, &sent);
+> 	spin_unlock_irqrestore(&viommu->request_lock, flags);
+> 	...
 
-As I wrote the last time, you don't need this list, spinlock.
-You can do just something like:
-        for_each_net(net) {
-                for_each_netdev(net, dev) {
-			if (netif_is_bypass_master(dev)) {
+I'll have to come back to that sorry, still conducting some experiments
+with map/unmap.
 
+I'd rather avoid introducing a single dma_req per viommu, because I'd
+like to move to the iotlb_range_add/iotlb_sync interface as soon as
+possible, and the request logic changes a lot when multiple threads are
+susceptible to interleave map/unmap requests.
 
+I ran some tests, and adding a kmem_cache (or simply using kmemdup, it
+doesn't make a noticeable difference at our scale) reduces netperf
+stream/maerts throughput by 1.1%/1.4% (+/- 0.5% over 30 tests). That's
+for a virtio-net device (1 tx/rx vq), and with a vfio device the
+difference isn't measurable. At this point I'm not fussy about such
+small difference, so don't mind simplifying viommu_del_mapping.
 
+[...]
+>> +	/*
+>> +	 * Last step creates a default domain and attaches to it. Everything
+>> +	 * must be ready.
+>> +	 */
+>> +	group = iommu_group_get_for_dev(dev);
+>> +	if (!IS_ERR(group))
+>> +		iommu_group_put(group);
+> 
+> Since you create the sysfs IOMMU device, maybe also create the links for 
+> the masters?
 
->+		bypass_netdev = rcu_dereference(bypass_master->bypass_netdev);
->+		if (ether_addr_equal(bypass_netdev->perm_addr, mac)) {
->+			*ops = rcu_dereference(bypass_master->ops);
+Ok
 
-I don't see how rcu_dereference is ok here.
-1) I don't see rcu_read_lock taken
-2) Looks like bypass_master->ops has the same value across the whole
-   existence.
+>> +
+>> +	return PTR_ERR_OR_ZERO(group);
+>> +}
+>> +
+>> +static void viommu_remove_device(struct device *dev)
+>> +{
+> 
+> You need to remove dev from its group, too (basically, .remove_device 
+> should always undo everything .add_device did)
+> 
+> It would also be good practice to verify that dev->iommu_fwspec exists 
+> and is one of yours before touching anything, although having checked 
+> the core code I see we do currently just about get away with it thanks 
+> to the horrible per-bus ops.
 
+Ok
 
->+			spin_unlock(&bypass_lock);
->+			return bypass_netdev;
->+		}
->+	}
->+	spin_unlock(&bypass_lock);
->+	return NULL;
->+}
->+
->+static int bypass_slave_register(struct net_device *slave_netdev)
->+{
->+	struct net_device *bypass_netdev;
->+	struct bypass_ops *bypass_ops;
->+	int ret, orig_mtu;
->+
->+	ASSERT_RTNL();
->+
->+	bypass_netdev = bypass_master_get_bymac(slave_netdev->perm_addr,
->+						&bypass_ops);
+> 
+>> +	kfree(dev->iommu_fwspec->iommu_priv);
+>> +}
+>> +
+>> +static struct iommu_group *viommu_device_group(struct device *dev)
+>> +{
+>> +	if (dev_is_pci(dev))
+>> +		return pci_device_group(dev);
+>> +	else
+>> +		return generic_device_group(dev);
+>> +}
+>> +
+>> +static int viommu_of_xlate(struct device *dev, struct of_phandle_args *args)
+>> +{
+>> +	return iommu_fwspec_add_ids(dev, args->args, 1);
+> 
+> I'm sure a DT binding somewhere needs to document the appropriate value 
+> and meaning for #iommu-cells - I guess that probably falls under the 
+> virtio-mmio binding?
 
-For master, could you use word "master" in the variables so it is clear?
-Also, "dev" is fine instead of "netdev".
-Something like "bpmaster_dev"
+Yes I guess mmio.txt would be the best place for this.
 
+[...]
+>> +/*
+>> + * Virtio-iommu definition v0.6
+>> + *
+>> + * Copyright (C) 2018 ARM Ltd.
+>> + *
+>> + * SPDX-License-Identifier: BSD-3-Clause
+> 
+> Again, at the top, although in /* */ here since it's a header.
 
->+	if (!bypass_netdev)
->+		goto done;
->+
->+	ret = bypass_slave_pre_register(slave_netdev, bypass_netdev,
->+					bypass_ops);
->+	if (ret != 0)
+Right
 
-	Just "if (ret)" will do. You have this on more places.
-
-
->+		goto done;
->+
->+	ret = netdev_rx_handler_register(slave_netdev,
->+					 bypass_ops ? bypass_ops->handle_frame :
->+					 bypass_handle_frame, bypass_netdev);
->+	if (ret != 0) {
->+		netdev_err(slave_netdev, "can not register bypass rx handler (err = %d)\n",
->+			   ret);
->+		goto done;
->+	}
->+
->+	ret = netdev_upper_dev_link(slave_netdev, bypass_netdev, NULL);
->+	if (ret != 0) {
->+		netdev_err(slave_netdev, "can not set master device %s (err = %d)\n",
->+			   bypass_netdev->name, ret);
->+		goto upper_link_failed;
->+	}
->+
->+	slave_netdev->priv_flags |= IFF_BYPASS_SLAVE;
->+
->+	if (netif_running(bypass_netdev)) {
->+		ret = dev_open(slave_netdev);
->+		if (ret && (ret != -EBUSY)) {
->+			netdev_err(bypass_netdev, "Opening slave %s failed ret:%d\n",
->+				   slave_netdev->name, ret);
->+			goto err_interface_up;
->+		}
->+	}
->+
->+	/* Align MTU of slave with master */
->+	orig_mtu = slave_netdev->mtu;
->+	ret = dev_set_mtu(slave_netdev, bypass_netdev->mtu);
->+	if (ret != 0) {
->+		netdev_err(bypass_netdev, "unable to change mtu of %s to %u register failed\n",
->+			   slave_netdev->name, bypass_netdev->mtu);
->+		goto err_set_mtu;
->+	}
->+
->+	ret = bypass_slave_join(slave_netdev, bypass_netdev, bypass_ops);
->+	if (ret != 0)
->+		goto err_join;
->+
->+	call_netdevice_notifiers(NETDEV_JOIN, slave_netdev);
->+
->+	netdev_info(bypass_netdev, "bypass slave:%s registered\n",
->+		    slave_netdev->name);
->+
->+	goto done;
->+
->+err_join:
->+	dev_set_mtu(slave_netdev, orig_mtu);
->+err_set_mtu:
->+	dev_close(slave_netdev);
->+err_interface_up:
->+	netdev_upper_dev_unlink(slave_netdev, bypass_netdev);
->+	slave_netdev->priv_flags &= ~IFF_BYPASS_SLAVE;
->+upper_link_failed:
->+	netdev_rx_handler_unregister(slave_netdev);
->+done:
->+	return NOTIFY_DONE;
->+}
->+
->+static int bypass_slave_pre_unregister(struct net_device *slave_netdev,
->+				       struct net_device *bypass_netdev,
->+				       struct bypass_ops *bypass_ops)
->+{
->+	struct net_device *backup_netdev, *active_netdev;
->+	struct bypass_info *bi;
->+
->+	if (bypass_ops) {
->+		if (!bypass_ops->slave_pre_unregister)
->+			return -EINVAL;
->+
->+		return bypass_ops->slave_pre_unregister(slave_netdev,
->+							bypass_netdev);
->+	}
->+
->+	bi = netdev_priv(bypass_netdev);
->+	active_netdev = rtnl_dereference(bi->active_netdev);
->+	backup_netdev = rtnl_dereference(bi->backup_netdev);
->+
->+	if (slave_netdev != active_netdev && slave_netdev != backup_netdev)
->+		return -EINVAL;
->+
->+	return 0;
->+}
->+
->+static int bypass_slave_release(struct net_device *slave_netdev,
->+				struct net_device *bypass_netdev,
->+				struct bypass_ops *bypass_ops)
->+{
->+	struct net_device *backup_netdev, *active_netdev;
->+	struct bypass_info *bi;
->+
->+	if (bypass_ops) {
->+		if (!bypass_ops->slave_release)
->+			return -EINVAL;
-
-I think it would be good to make the API to the driver more strict and
-have a separate set of ops for "active" and "backup" netdevices.
-That should stop people thinking about extending this to more slaves in
-the future.
-
-
-
->+
->+		return bypass_ops->slave_release(slave_netdev, bypass_netdev);
->+	}
->+
->+	bi = netdev_priv(bypass_netdev);
->+	active_netdev = rtnl_dereference(bi->active_netdev);
->+	backup_netdev = rtnl_dereference(bi->backup_netdev);
->+
->+	if (slave_netdev == backup_netdev) {
->+		RCU_INIT_POINTER(bi->backup_netdev, NULL);
->+	} else {
->+		RCU_INIT_POINTER(bi->active_netdev, NULL);
->+		if (backup_netdev) {
->+			bypass_netdev->min_mtu = backup_netdev->min_mtu;
->+			bypass_netdev->max_mtu = backup_netdev->max_mtu;
->+		}
->+	}
->+
->+	dev_put(slave_netdev);
->+
->+	netdev_info(bypass_netdev, "bypass slave:%s released\n",
->+		    slave_netdev->name);
->+
->+	return 0;
->+}
->+
->+int bypass_slave_unregister(struct net_device *slave_netdev)
->+{
->+	struct net_device *bypass_netdev;
->+	struct bypass_ops *bypass_ops;
->+	int ret;
->+
->+	if (!netif_is_bypass_slave(slave_netdev))
->+		goto done;
->+
->+	ASSERT_RTNL();
->+
->+	bypass_netdev = bypass_master_get_bymac(slave_netdev->perm_addr,
->+						&bypass_ops);
->+	if (!bypass_netdev)
->+		goto done;
->+
->+	ret = bypass_slave_pre_unregister(slave_netdev, bypass_netdev,
->+					  bypass_ops);
->+	if (ret != 0)
->+		goto done;
->+
->+	netdev_rx_handler_unregister(slave_netdev);
->+	netdev_upper_dev_unlink(slave_netdev, bypass_netdev);
->+	slave_netdev->priv_flags &= ~IFF_BYPASS_SLAVE;
->+
->+	bypass_slave_release(slave_netdev, bypass_netdev, bypass_ops);
->+
->+	netdev_info(bypass_netdev, "bypass slave:%s unregistered\n",
->+		    slave_netdev->name);
->+
->+done:
->+	return NOTIFY_DONE;
->+}
->+EXPORT_SYMBOL_GPL(bypass_slave_unregister);
->+
->+static bool bypass_xmit_ready(struct net_device *dev)
->+{
->+	return netif_running(dev) && netif_carrier_ok(dev);
->+}
->+
->+static int bypass_slave_link_change(struct net_device *slave_netdev)
->+{
->+	struct net_device *bypass_netdev, *active_netdev, *backup_netdev;
->+	struct bypass_ops *bypass_ops;
->+	struct bypass_info *bi;
->+
->+	if (!netif_is_bypass_slave(slave_netdev))
->+		goto done;
->+
->+	ASSERT_RTNL();
->+
->+	bypass_netdev = bypass_master_get_bymac(slave_netdev->perm_addr,
->+						&bypass_ops);
->+	if (!bypass_netdev)
->+		goto done;
->+
->+	if (bypass_ops) {
->+		if (!bypass_ops->slave_link_change)
->+			goto done;
->+
->+		return bypass_ops->slave_link_change(slave_netdev,
->+						     bypass_netdev);
->+	}
->+
->+	if (!netif_running(bypass_netdev))
->+		return 0;
->+
->+	bi = netdev_priv(bypass_netdev);
->+
->+	active_netdev = rtnl_dereference(bi->active_netdev);
->+	backup_netdev = rtnl_dereference(bi->backup_netdev);
->+
->+	if (slave_netdev != active_netdev && slave_netdev != backup_netdev)
->+		goto done;
-
-You don't need this check. "if (!netif_is_bypass_slave(slave_netdev))"
-above is enough.
-
-
->+
->+	if ((active_netdev && bypass_xmit_ready(active_netdev)) ||
->+	    (backup_netdev && bypass_xmit_ready(backup_netdev))) {
->+		netif_carrier_on(bypass_netdev);
->+		netif_tx_wake_all_queues(bypass_netdev);
->+	} else {
->+		netif_carrier_off(bypass_netdev);
->+		netif_tx_stop_all_queues(bypass_netdev);
->+	}
->+
->+done:
->+	return NOTIFY_DONE;
->+}
->+
->+static bool bypass_validate_event_dev(struct net_device *dev)
->+{
->+	/* Skip parent events */
->+	if (netif_is_bypass_master(dev))
->+		return false;
->+
->+	/* Avoid non-Ethernet type devices */
->+	if (dev->type != ARPHRD_ETHER)
->+		return false;
->+
->+	/* Avoid Vlan dev with same MAC registering as VF */
->+	if (is_vlan_dev(dev))
->+		return false;
->+
->+	/* Avoid Bonding master dev with same MAC registering as slave dev */
->+	if ((dev->priv_flags & IFF_BONDING) && (dev->flags & IFF_MASTER))
-
-Yeah, this is certainly incorrect. One thing is, you should be using the
-helpers netif_is_bond_master().
-But what about the rest? macsec, macvlan, team, bridge, ovs and others?
-
-You need to do it not by blacklisting, but with whitelisting. You need
-to whitelist VF devices. My port flavours patchset might help with this.
-
-
->+		return false;
->+
->+	return true;
->+}
->+
->+static int
->+bypass_event(struct notifier_block *this, unsigned long event, void *ptr)
->+{
->+	struct net_device *event_dev = netdev_notifier_info_to_dev(ptr);
->+
->+	if (!bypass_validate_event_dev(event_dev))
->+		return NOTIFY_DONE;
->+
->+	switch (event) {
->+	case NETDEV_REGISTER:
->+		return bypass_slave_register(event_dev);
->+	case NETDEV_UNREGISTER:
->+		return bypass_slave_unregister(event_dev);
->+	case NETDEV_UP:
->+	case NETDEV_DOWN:
->+	case NETDEV_CHANGE:
->+		return bypass_slave_link_change(event_dev);
->+	default:
->+		return NOTIFY_DONE;
->+	}
->+}
->+
->+static struct notifier_block bypass_notifier = {
->+	.notifier_call = bypass_event,
->+};
->+
->+int bypass_open(struct net_device *dev)
->+{
->+	struct bypass_info *bi = netdev_priv(dev);
->+	struct net_device *active_netdev, *backup_netdev;
->+	int err;
->+
->+	netif_carrier_off(dev);
->+	netif_tx_wake_all_queues(dev);
->+
->+	active_netdev = rtnl_dereference(bi->active_netdev);
->+	if (active_netdev) {
->+		err = dev_open(active_netdev);
->+		if (err)
->+			goto err_active_open;
->+	}
->+
->+	backup_netdev = rtnl_dereference(bi->backup_netdev);
->+	if (backup_netdev) {
->+		err = dev_open(backup_netdev);
->+		if (err)
->+			goto err_backup_open;
->+	}
->+
->+	return 0;
->+
->+err_backup_open:
->+	dev_close(active_netdev);
->+err_active_open:
->+	netif_tx_disable(dev);
->+	return err;
->+}
->+EXPORT_SYMBOL_GPL(bypass_open);
->+
->+int bypass_close(struct net_device *dev)
->+{
->+	struct bypass_info *vi = netdev_priv(dev);
-
-This should be probably "bi"
-
-
->+	struct net_device *slave_netdev;
->+
->+	netif_tx_disable(dev);
->+
->+	slave_netdev = rtnl_dereference(vi->active_netdev);
->+	if (slave_netdev)
->+		dev_close(slave_netdev);
->+
->+	slave_netdev = rtnl_dereference(vi->backup_netdev);
->+	if (slave_netdev)
->+		dev_close(slave_netdev);
->+
->+	return 0;
->+}
->+EXPORT_SYMBOL_GPL(bypass_close);
->+
->+static netdev_tx_t bypass_drop_xmit(struct sk_buff *skb, struct net_device *dev)
->+{
->+	atomic_long_inc(&dev->tx_dropped);
->+	dev_kfree_skb_any(skb);
->+	return NETDEV_TX_OK;
->+}
->+
->+netdev_tx_t bypass_start_xmit(struct sk_buff *skb, struct net_device *dev)
->+{
->+	struct bypass_info *bi = netdev_priv(dev);
-
-If you rename the other variable to "bpmaster_dev", it would be nice to
-rename this to bpinfo or something more descriptive. "bi" is too short
-to know what that is right away.
-
-
->+	struct net_device *xmit_dev;
-
-Don't mix "dev" and "netdev" in one .c file. Just use "dev" for all.
-
-
-
->+
->+	/* Try xmit via active netdev followed by backup netdev */
->+	xmit_dev = rcu_dereference_bh(bi->active_netdev);
->+	if (!xmit_dev || !bypass_xmit_ready(xmit_dev)) {
->+		xmit_dev = rcu_dereference_bh(bi->backup_netdev);
->+		if (!xmit_dev || !bypass_xmit_ready(xmit_dev))
->+			return bypass_drop_xmit(skb, dev);
->+	}
->+
->+	skb->dev = xmit_dev;
->+	skb->queue_mapping = qdisc_skb_cb(skb)->slave_dev_queue_mapping;
->+
->+	return dev_queue_xmit(skb);
->+}
->+EXPORT_SYMBOL_GPL(bypass_start_xmit);
->+
->+u16 bypass_select_queue(struct net_device *dev, struct sk_buff *skb,
->+			void *accel_priv, select_queue_fallback_t fallback)
->+{
->+	/* This helper function exists to help dev_pick_tx get the correct
->+	 * destination queue.  Using a helper function skips a call to
->+	 * skb_tx_hash and will put the skbs in the queue we expect on their
->+	 * way down to the bonding driver.
->+	 */
->+	u16 txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) : 0;
->+
->+	/* Save the original txq to restore before passing to the driver */
->+	qdisc_skb_cb(skb)->slave_dev_queue_mapping = skb->queue_mapping;
->+
->+	if (unlikely(txq >= dev->real_num_tx_queues)) {
->+		do {
->+			txq -= dev->real_num_tx_queues;
->+		} while (txq >= dev->real_num_tx_queues);
->+	}
->+
->+	return txq;
->+}
->+EXPORT_SYMBOL_GPL(bypass_select_queue);
->+
->+/* fold stats, assuming all rtnl_link_stats64 fields are u64, but
->+ * that some drivers can provide 32bit values only.
->+ */
->+static void bypass_fold_stats(struct rtnl_link_stats64 *_res,
->+			      const struct rtnl_link_stats64 *_new,
->+			      const struct rtnl_link_stats64 *_old)
->+{
->+	const u64 *new = (const u64 *)_new;
->+	const u64 *old = (const u64 *)_old;
->+	u64 *res = (u64 *)_res;
->+	int i;
->+
->+	for (i = 0; i < sizeof(*_res) / sizeof(u64); i++) {
->+		u64 nv = new[i];
->+		u64 ov = old[i];
->+		s64 delta = nv - ov;
->+
->+		/* detects if this particular field is 32bit only */
->+		if (((nv | ov) >> 32) == 0)
->+			delta = (s64)(s32)((u32)nv - (u32)ov);
->+
->+		/* filter anomalies, some drivers reset their stats
->+		 * at down/up events.
->+		 */
->+		if (delta > 0)
->+			res[i] += delta;
->+	}
->+}
->+
->+void bypass_get_stats(struct net_device *dev, struct rtnl_link_stats64 *stats)
->+{
->+	struct bypass_info *bi = netdev_priv(dev);
-
-You can WARN_ON and return in case the dev is not bypass master, just
-to catch buggy drivers. Same with other helpers.
-
-
->+	const struct rtnl_link_stats64 *new;
->+	struct rtnl_link_stats64 temp;
->+	struct net_device *slave_netdev;
->+
->+	spin_lock(&bi->stats_lock);
->+	memcpy(stats, &bi->bypass_stats, sizeof(*stats));
->+
->+	rcu_read_lock();
->+
->+	slave_netdev = rcu_dereference(bi->active_netdev);
->+	if (slave_netdev) {
->+		new = dev_get_stats(slave_netdev, &temp);
->+		bypass_fold_stats(stats, new, &bi->active_stats);
->+		memcpy(&bi->active_stats, new, sizeof(*new));
->+	}
->+
->+	slave_netdev = rcu_dereference(bi->backup_netdev);
->+	if (slave_netdev) {
->+		new = dev_get_stats(slave_netdev, &temp);
->+		bypass_fold_stats(stats, new, &bi->backup_stats);
->+		memcpy(&bi->backup_stats, new, sizeof(*new));
->+	}
->+
->+	rcu_read_unlock();
->+
->+	memcpy(&bi->bypass_stats, stats, sizeof(*stats));
->+	spin_unlock(&bi->stats_lock);
->+}
->+EXPORT_SYMBOL_GPL(bypass_get_stats);
->+
->+int bypass_change_mtu(struct net_device *dev, int new_mtu)
->+{
->+	struct bypass_info *bi = netdev_priv(dev);
->+	struct net_device *active_netdev, *backup_netdev;
->+	int ret = 0;
-
-Pointless initialization.
-
-
->+
->+	active_netdev = rcu_dereference(bi->active_netdev);
->+	if (active_netdev) {
->+		ret = dev_set_mtu(active_netdev, new_mtu);
->+		if (ret)
->+			return ret;
->+	}
->+
->+	backup_netdev = rcu_dereference(bi->backup_netdev);
->+	if (backup_netdev) {
->+		ret = dev_set_mtu(backup_netdev, new_mtu);
->+		if (ret) {
->+			dev_set_mtu(active_netdev, dev->mtu);
->+			return ret;
->+		}
->+	}
->+
->+	dev->mtu = new_mtu;
->+	return 0;
->+}
->+EXPORT_SYMBOL_GPL(bypass_change_mtu);
->+
->+void bypass_set_rx_mode(struct net_device *dev)
->+{
->+	struct bypass_info *bi = netdev_priv(dev);
->+	struct net_device *slave_netdev;
->+
->+	rcu_read_lock();
->+
->+	slave_netdev = rcu_dereference(bi->active_netdev);
->+	if (slave_netdev) {
->+		dev_uc_sync_multiple(slave_netdev, dev);
->+		dev_mc_sync_multiple(slave_netdev, dev);
->+	}
->+
->+	slave_netdev = rcu_dereference(bi->backup_netdev);
->+	if (slave_netdev) {
->+		dev_uc_sync_multiple(slave_netdev, dev);
->+		dev_mc_sync_multiple(slave_netdev, dev);
->+	}
->+
->+	rcu_read_unlock();
->+}
->+EXPORT_SYMBOL_GPL(bypass_set_rx_mode);
->+
->+static const struct net_device_ops bypass_netdev_ops = {
->+	.ndo_open		= bypass_open,
->+	.ndo_stop		= bypass_close,
->+	.ndo_start_xmit		= bypass_start_xmit,
->+	.ndo_select_queue	= bypass_select_queue,
->+	.ndo_get_stats64	= bypass_get_stats,
->+	.ndo_change_mtu		= bypass_change_mtu,
->+	.ndo_set_rx_mode	= bypass_set_rx_mode,
->+	.ndo_validate_addr	= eth_validate_addr,
->+	.ndo_features_check	= passthru_features_check,
->+};
->+
->+#define BYPASS_DRV_NAME "bypass"
->+#define BYPASS_DRV_VERSION "0.1"
->+
->+static void bypass_ethtool_get_drvinfo(struct net_device *dev,
->+				       struct ethtool_drvinfo *drvinfo)
->+{
->+	strlcpy(drvinfo->driver, BYPASS_DRV_NAME, sizeof(drvinfo->driver));
->+	strlcpy(drvinfo->version, BYPASS_DRV_VERSION, sizeof(drvinfo->version));
->+}
->+
->+int bypass_ethtool_get_link_ksettings(struct net_device *dev,
->+				      struct ethtool_link_ksettings *cmd)
->+{
->+	struct bypass_info *bi = netdev_priv(dev);
->+	struct net_device *slave_netdev;
->+
->+	slave_netdev = rtnl_dereference(bi->active_netdev);
->+	if (!slave_netdev || !bypass_xmit_ready(slave_netdev)) {
->+		slave_netdev = rtnl_dereference(bi->backup_netdev);
->+		if (!slave_netdev || !bypass_xmit_ready(slave_netdev)) {
->+			cmd->base.duplex = DUPLEX_UNKNOWN;
->+			cmd->base.port = PORT_OTHER;
->+			cmd->base.speed = SPEED_UNKNOWN;
->+
->+			return 0;
->+		}
->+	}
->+
->+	return __ethtool_get_link_ksettings(slave_netdev, cmd);
->+}
->+EXPORT_SYMBOL_GPL(bypass_ethtool_get_link_ksettings);
->+
->+static const struct ethtool_ops bypass_ethtool_ops = {
->+	.get_drvinfo            = bypass_ethtool_get_drvinfo,
->+	.get_link               = ethtool_op_get_link,
->+	.get_link_ksettings     = bypass_ethtool_get_link_ksettings,
->+};
->+
->+static void bypass_register_existing_slave(struct net_device *bypass_netdev)
->+{
->+	struct net *net = dev_net(bypass_netdev);
->+	struct net_device *dev;
->+
->+	rtnl_lock();
->+	for_each_netdev(net, dev) {
->+		if (dev == bypass_netdev)
->+			continue;
->+		if (!bypass_validate_event_dev(dev))
->+			continue;
->+		if (ether_addr_equal(bypass_netdev->perm_addr, dev->perm_addr))
->+			bypass_slave_register(dev);
->+	}
->+	rtnl_unlock();
->+}
->+
->+int bypass_master_register(struct net_device *dev, struct bypass_ops *ops,
->+			   struct bypass_master **pbypass_master)
->+{
->+	struct bypass_master *bypass_master;
->+
->+	bypass_master = kzalloc(sizeof(*bypass_master), GFP_KERNEL);
->+	if (!bypass_master)
->+		return -ENOMEM;
->+
->+	rcu_assign_pointer(bypass_master->ops, ops);
->+	dev_hold(dev);
->+	dev->priv_flags |= IFF_BYPASS;
->+	rcu_assign_pointer(bypass_master->bypass_netdev, dev);
->+
->+	spin_lock(&bypass_lock);
->+	list_add_tail(&bypass_master->list, &bypass_master_list);
->+	spin_unlock(&bypass_lock);
->+
->+	bypass_register_existing_slave(dev);
->+
->+	*pbypass_master = bypass_master;
->+	return 0;
->+}
->+EXPORT_SYMBOL_GPL(bypass_master_register);
->+
->+void bypass_master_unregister(struct bypass_master *bypass_master)
->+{
->+	struct net_device *bypass_netdev;
->+
->+	bypass_netdev = rcu_dereference(bypass_master->bypass_netdev);
->+
->+	bypass_netdev->priv_flags &= ~IFF_BYPASS;
->+	dev_put(bypass_netdev);
->+
->+	spin_lock(&bypass_lock);
->+	list_del(&bypass_master->list);
->+	spin_unlock(&bypass_lock);
->+
->+	kfree(bypass_master);
->+}
->+EXPORT_SYMBOL_GPL(bypass_master_unregister);
->+
->+int bypass_master_create(struct net_device *backup_netdev,
->+			 struct bypass_master **pbypass_master)
->+{
->+	struct device *dev = backup_netdev->dev.parent;
->+	struct net_device *bypass_netdev;
->+	int err;
->+
->+	/* Alloc at least 2 queues, for now we are going with 16 assuming
->+	 * that most devices being bonded won't have too many queues.
->+	 */
->+	bypass_netdev = alloc_etherdev_mq(sizeof(struct bypass_info), 16);
->+	if (!bypass_netdev) {
->+		dev_err(dev, "Unable to allocate bypass_netdev!\n");
->+		return -ENOMEM;
->+	}
->+
->+	dev_net_set(bypass_netdev, dev_net(backup_netdev));
->+	SET_NETDEV_DEV(bypass_netdev, dev);
->+
->+	bypass_netdev->netdev_ops = &bypass_netdev_ops;
->+	bypass_netdev->ethtool_ops = &bypass_ethtool_ops;
->+
->+	/* Initialize the device options */
->+	bypass_netdev->priv_flags |= IFF_UNICAST_FLT | IFF_NO_QUEUE;
->+	bypass_netdev->priv_flags &= ~(IFF_XMIT_DST_RELEASE |
->+				       IFF_TX_SKB_SHARING);
->+
->+	/* don't acquire bypass netdev's netif_tx_lock when transmitting */
->+	bypass_netdev->features |= NETIF_F_LLTX;
->+
->+	/* Don't allow bypass devices to change network namespaces. */
->+	bypass_netdev->features |= NETIF_F_NETNS_LOCAL;
->+
->+	bypass_netdev->hw_features = NETIF_F_HW_CSUM | NETIF_F_SG |
->+				     NETIF_F_FRAGLIST | NETIF_F_ALL_TSO |
->+				     NETIF_F_HIGHDMA | NETIF_F_LRO;
->+
->+	bypass_netdev->hw_features |= NETIF_F_GSO_ENCAP_ALL;
->+	bypass_netdev->features |= bypass_netdev->hw_features;
->+
->+	memcpy(bypass_netdev->dev_addr, backup_netdev->dev_addr,
->+	       bypass_netdev->addr_len);
->+
->+	bypass_netdev->min_mtu = backup_netdev->min_mtu;
->+	bypass_netdev->max_mtu = backup_netdev->max_mtu;
->+
->+	err = register_netdev(bypass_netdev);
->+	if (err < 0) {
->+		dev_err(dev, "Unable to register bypass_netdev!\n");
->+		goto err_register_netdev;
->+	}
->+
->+	netif_carrier_off(bypass_netdev);
->+
->+	err = bypass_master_register(bypass_netdev, NULL, pbypass_master);
->+	if (err < 0)
-
-just "if (err)" would do.
-
-
->+		goto err_bypass;
->+
->+	return 0;
->+
->+err_bypass:
->+	unregister_netdev(bypass_netdev);
->+err_register_netdev:
->+	free_netdev(bypass_netdev);
->+
->+	return err;
->+}
->+EXPORT_SYMBOL_GPL(bypass_master_create);
->+
->+void bypass_master_destroy(struct bypass_master *bypass_master)
->+{
->+	struct net_device *bypass_netdev;
->+	struct net_device *slave_netdev;
->+	struct bypass_info *bi;
->+
->+	if (!bypass_master)
->+		return;
->+
->+	bypass_netdev = rcu_dereference(bypass_master->bypass_netdev);
->+	bi = netdev_priv(bypass_netdev);
->+
->+	netif_device_detach(bypass_netdev);
->+
->+	rtnl_lock();
->+
->+	slave_netdev = rtnl_dereference(bi->active_netdev);
->+	if (slave_netdev)
->+		bypass_slave_unregister(slave_netdev);
->+
->+	slave_netdev = rtnl_dereference(bi->backup_netdev);
->+	if (slave_netdev)
->+		bypass_slave_unregister(slave_netdev);
->+
->+	bypass_master_unregister(bypass_master);
->+
->+	unregister_netdevice(bypass_netdev);
->+
->+	rtnl_unlock();
->+
->+	free_netdev(bypass_netdev);
->+}
->+EXPORT_SYMBOL_GPL(bypass_master_destroy);
->+
->+static __init int
->+bypass_init(void)
->+{
->+	register_netdevice_notifier(&bypass_notifier);
->+
->+	return 0;
->+}
->+module_init(bypass_init);
->+
->+static __exit
->+void bypass_exit(void)
->+{
->+	unregister_netdevice_notifier(&bypass_notifier);
->+}
->+module_exit(bypass_exit);
->+
->+MODULE_DESCRIPTION("Bypass infrastructure/interface for Paravirtual drivers");
->+MODULE_LICENSE("GPL v2");
->-- 
->2.14.3
->
+Thanks for the review,
+Jean
