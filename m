@@ -1,18 +1,18 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: Re: [RFC PATCH net-next v6 4/4] netvsc: refactor notifier/event
-	handling code to use the bypass framework
-Date: Tue, 10 Apr 2018 16:59:36 -0700
-Message-ID: <20180410165936.0faf9080@xeon-e3>
-References: <1523386790-12396-1-git-send-email-sridhar.samudrala@intel.com>
-	<1523386790-12396-5-git-send-email-sridhar.samudrala@intel.com>
-	<20180410142608.50f15b45@xeon-e3>
-	<20180411022807-mutt-send-email-mst@kernel.org>
-	<CADGSJ22rVsC0TDTd6OKVnwbx0ExoQ8xWXBMumKB-OFH4sX=yaQ@mail.gmail.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v29 1/4] mm: support reporting free page blocks
+Date: Wed, 11 Apr 2018 09:22:01 +0800
+Message-ID: <5ACD6339.6040806__19515.0235821076$1523409425$gmane$org@intel.com>
+References: <1522031994-7246-1-git-send-email-wei.w.wang@intel.com>
+	<1522031994-7246-2-git-send-email-wei.w.wang@intel.com>
+	<20180326142254.c4129c3a54ade686ee2a5e21@linux-foundation.org>
+	<20180410211719-mutt-send-email-mst@kernel.org>
+	<20180410135429.d1aeeb91d7f2754ffe7fb80e@linux-foundation.org>
+	<20180411022440-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CADGSJ22rVsC0TDTd6OKVnwbx0ExoQ8xWXBMumKB-OFH4sX=yaQ@mail.gmail.com>
+In-Reply-To: <20180411022440-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,37 +22,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, huangzhichao@huawei.com, pbonzini@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 10 Apr 2018 16:44:47 -0700
-Siwei Liu <loseweigh@gmail.com> wrote:
+On 04/11/2018 07:25 AM, Michael S. Tsirkin wrote:
+> On Tue, Apr 10, 2018 at 01:54:29PM -0700, Andrew Morton wrote:
+>> On Tue, 10 Apr 2018 21:19:31 +0300 "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>>
+>>> Andrew, were your questions answered? If yes could I bother you for an ack on this?
+>>>
+>> Still not very happy that readers are told that "this function may
+>> sleep" when it clearly doesn't do so.  If we wish to be able to change
+>> it to sleep in the future then that should be mentioned.  And even put a
+>> might_sleep() in there, to catch people who didn't read the comments...
+>>
+>> Otherwise it looks OK.
+> Oh, might_sleep with a comment explaining it's for the future sounds
+> good to me. I queued this - Wei, could you post a patch on top pls?
+>
 
-> On Tue, Apr 10, 2018 at 4:28 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Tue, Apr 10, 2018 at 02:26:08PM -0700, Stephen Hemminger wrote:  
-> >> On Tue, 10 Apr 2018 11:59:50 -0700
-> >> Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
-> >>  
-> >> > Use the registration/notification framework supported by the generic
-> >> > bypass infrastructure.
-> >> >
-> >> > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
-> >> > ---  
-> >>
-> >> Thanks for doing this.  Your current version has couple show stopper
-> >> issues.
-> >>
-> >> First, the slave device is instantly taking over the slave.
-> >> This doesn't allow udev/systemd to do its device rename of the slave
-> >> device. Netvsc uses a delayed work to workaround this.  
-> >
-> > Interesting. Does this mean udev must act within a specific time window
-> > then?  
-> 
-> Sighs, lots of hacks. Why propgating this from driver to a common
-> module. We really need a clean solution.
-> 
+I'm just thinking if it would be necessary to add another might_sleep, 
+because we've had a cond_resched there which has wrapped a __might_sleep.
 
-I had a patch to wait for udev to do the rename and go from there
-but davem rejected it.
+Best,
+Wei
