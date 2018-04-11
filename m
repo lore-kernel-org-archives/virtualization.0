@@ -1,25 +1,18 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [RFC PATCH net-next v5 3/4] virtio_net: Extend virtio to use VF
-	datapath when available
-Date: Tue, 10 Apr 2018 23:24:43 -0700
-Message-ID: <5d56e572-24f1-745d-49ae-c2dada5db03c__26363.0407899202$1523427776$gmane$org@intel.com>
-References: <20180406124814.GA24525@nanopsycho>
-	<bb4f0821-246f-1052-de8b-d96be3388ed3@intel.com>
-	<20180409080751.GE19345@nanopsycho>
-	<16b2e531-7bfa-7f25-2702-f3f8069663ee@intel.com>
-	<20180410105504.GA2028@nanopsycho>
-	<2ccfad76-589d-9dca-7e4b-9bafee41f844@intel.com>
-	<20180410152205.GF2028@nanopsycho>
-	<d08ed1e6-678a-7b34-cd2e-52788ceec919@intel.com>
-	<20180410154304.GG2028@nanopsycho>
-	<82f741a2-2512-39de-84c6-874f126c27ea@intel.com>
-	<20180411060327.GH2028@nanopsycho>
+From: Jiri Pirko <jiri@resnulli.us>
+Subject: Re: [RFC PATCH net-next v6 4/4] netvsc: refactor notifier/event
+	handling code to use the bypass framework
+Date: Wed, 11 Apr 2018 09:50:20 +0200
+Message-ID: <20180411075020.GJ2028__39003.2475268983$1523432923$gmane$org@nanopsycho>
+References: <1523386790-12396-1-git-send-email-sridhar.samudrala@intel.com>
+	<1523386790-12396-5-git-send-email-sridhar.samudrala@intel.com>
+	<20180410142608.50f15b45@xeon-e3>
+	<20180411022807-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180411060327.GH2028@nanopsycho>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180411022807-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,93 +22,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gNC8xMC8yMDE4IDExOjAzIFBNLCBKaXJpIFBpcmtvIHdyb3RlOgo+IFR1ZSwgQXByIDEwLCAy
-MDE4IGF0IDA1OjU5OjAyUE0gQ0VTVCwgc3JpZGhhci5zYW11ZHJhbGFAaW50ZWwuY29tIHdyb3Rl
-Ogo+PiBPbiA0LzEwLzIwMTggODo0MyBBTSwgSmlyaSBQaXJrbyB3cm90ZToKPj4+IFR1ZSwgQXBy
-IDEwLCAyMDE4IGF0IDA1OjI3OjQ4UE0gQ0VTVCwgc3JpZGhhci5zYW11ZHJhbGFAaW50ZWwuY29t
-IHdyb3RlOgo+Pj4+IE9uIDQvMTAvMjAxOCA4OjIyIEFNLCBKaXJpIFBpcmtvIHdyb3RlOgo+Pj4+
-PiBUdWUsIEFwciAxMCwgMjAxOCBhdCAwNToxMzo0MFBNIENFU1QsIHNyaWRoYXIuc2FtdWRyYWxh
-QGludGVsLmNvbSB3cm90ZToKPj4+Pj4+IE9uIDQvMTAvMjAxOCAzOjU1IEFNLCBKaXJpIFBpcmtv
-IHdyb3RlOgo+Pj4+Pj4+IE1vbiwgQXByIDA5LCAyMDE4IGF0IDA4OjQ3OjA2UE0gQ0VTVCwgc3Jp
-ZGhhci5zYW11ZHJhbGFAaW50ZWwuY29tIHdyb3RlOgo+Pj4+Pj4+PiBPbiA0LzkvMjAxOCAxOjA3
-IEFNLCBKaXJpIFBpcmtvIHdyb3RlOgo+Pj4+Pj4+Pj4gU2F0LCBBcHIgMDcsIDIwMTggYXQgMTI6
-NTk6MTRBTSBDRVNULCBzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5jb20gd3JvdGU6Cj4+Pj4+Pj4+
-Pj4gT24gNC82LzIwMTggNTo0OCBBTSwgSmlyaSBQaXJrbyB3cm90ZToKPj4+Pj4+Pj4+Pj4gVGh1
-LCBBcHIgMDUsIDIwMTggYXQgMTE6MDg6MjJQTSBDRVNULCBzcmlkaGFyLnNhbXVkcmFsYUBpbnRl
-bC5jb20gd3JvdGU6Cj4+Pj4+Pj4+PiBbLi4uXQo+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+Pj4+ICtzdGF0
-aWMgaW50IHZpcnRuZXRfYnlwYXNzX2pvaW5fY2hpbGQoc3RydWN0IG5ldF9kZXZpY2UgKmJ5cGFz
-c19uZXRkZXYsCj4+Pj4+Pj4+Pj4+PiArCQkJCSAgICAgc3RydWN0IG5ldF9kZXZpY2UgKmNoaWxk
-X25ldGRldikKPj4+Pj4+Pj4+Pj4+ICt7Cj4+Pj4+Pj4+Pj4+PiArCXN0cnVjdCB2aXJ0bmV0X2J5
-cGFzc19pbmZvICp2Ymk7Cj4+Pj4+Pj4+Pj4+PiArCWJvb2wgYmFja3VwOwo+Pj4+Pj4+Pj4+Pj4g
-Kwo+Pj4+Pj4+Pj4+Pj4gKwl2YmkgPSBuZXRkZXZfcHJpdihieXBhc3NfbmV0ZGV2KTsKPj4+Pj4+
-Pj4+Pj4+ICsJYmFja3VwID0gKGNoaWxkX25ldGRldi0+ZGV2LnBhcmVudCA9PSBieXBhc3NfbmV0
-ZGV2LT5kZXYucGFyZW50KTsKPj4+Pj4+Pj4+Pj4+ICsJaWYgKGJhY2t1cCA/IHJ0bmxfZGVyZWZl
-cmVuY2UodmJpLT5iYWNrdXBfbmV0ZGV2KSA6Cj4+Pj4+Pj4+Pj4+PiArCQkJcnRubF9kZXJlZmVy
-ZW5jZSh2YmktPmFjdGl2ZV9uZXRkZXYpKSB7Cj4+Pj4+Pj4+Pj4+PiArCQluZXRkZXZfaW5mbyhi
-eXBhc3NfbmV0ZGV2LAo+Pj4+Pj4+Pj4+Pj4gKwkJCSAgICAiJXMgYXR0ZW1wdGluZyB0byBqb2lu
-IGJ5cGFzcyBkZXYgd2hlbiAlcyBhbHJlYWR5IHByZXNlbnRcbiIsCj4+Pj4+Pj4+Pj4+PiArCQkJ
-ICAgIGNoaWxkX25ldGRldi0+bmFtZSwgYmFja3VwID8gImJhY2t1cCIgOiAiYWN0aXZlIik7Cj4+
-Pj4+Pj4+Pj4+IEJ5cGFzcyBtb2R1bGUgc2hvdWxkIGNoZWNrIGlmIHRoZXJlIGlzIGFscmVhZHkg
-c29tZSBvdGhlciBuZXRkZXYKPj4+Pj4+Pj4+Pj4gZW5zbGF2ZWQgYW5kIHJlZnVzZSByaWdodCB0
-aGVyZS4KPj4+Pj4+Pj4+PiBUaGlzIHdpbGwgd29yayBmb3IgdmlydGlvLW5ldCB3aXRoIDMgbmV0
-ZGV2IG1vZGVsLCBidXQgdGhpcyBjaGVjayBoYXMgdG8gYmUgZG9uZSBieSBuZXR2c2MKPj4+Pj4+
-Pj4+PiBhcyBpdHMgYnlwYXNzX25ldGRldiBpcyBzYW1lIGFzIHRoZSBiYWNrdXBfbmV0ZGV2Lgo+
-Pj4+Pj4+Pj4+IFdpbGwgYWRkIGEgZmxhZyB3aGlsZSByZWdpc3RlcmluZyB3aXRoIHRoZSBieXBh
-c3MgbW9kdWxlIHRvIGluZGljYXRlIGlmIHRoZSBkcml2ZXIgaXMgZG9pbmcKPj4+Pj4+Pj4+PiBh
-IDIgbmV0ZGV2IG9yIDMgbmV0ZGV2IG1vZGVsIGFuZCBiYXNlZCBvbiB0aGF0IGZsYWcgdGhpcyBj
-aGVjayBjYW4gYmUgZG9uZSBpbiBieXBhc3MgbW9kdWxlCj4+Pj4+Pj4+Pj4gZm9yIDMgbmV0ZGV2
-IHNjZW5hcmlvLgo+Pj4+Pj4+Pj4gSnVzdCBsZXQgbWUgdW5kZXN0YW5kIGl0IGNsZWFybHkuIFdo
-YXQgSSBleHBlY3QgdGhlIGRpZmZlcmVuY2Ugd291bGQgYmUKPj4+Pj4+Pj4+IGJldHdlZW4gMm5l
-dGRldiBhbmQzIG5ldGRldiBtb2RlbCBpcyB0aGlzOgo+Pj4+Pj4+Pj4gMm5ldGRldjoKPj4+Pj4+
-Pj4+ICAgICAgICBieXBhc3NfbWFzdGVyCj4+Pj4+Pj4+PiAgICAgICAgICAgLwo+Pj4+Pj4+Pj4g
-ICAgICAgICAgLwo+Pj4+Pj4+Pj4gVkZfc2xhdmUKPj4+Pj4+Pj4+Cj4+Pj4+Pj4+PiAzbmV0ZGV2
-Ogo+Pj4+Pj4+Pj4gICAgICAgIGJ5cGFzc19tYXN0ZXIKPj4+Pj4+Pj4+ICAgICAgICAgICAvICAg
-ICBcCj4+Pj4+Pj4+PiAgICAgICAgICAvICAgICAgIFwKPj4+Pj4+Pj4+IFZGX3NsYXZlICAgYmFj
-a3VwX3NsYXZlCj4+Pj4+Pj4+Pgo+Pj4+Pj4+Pj4gSXMgdGhhdCBjb3JyZWN0PyBJZiBub3QsIGhv
-dyBkb2VzIGl0IGxvb2sgbGlrZT8KPj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pgo+Pj4+Pj4+PiBMb29rcyBj
-b3JyZWN0Lgo+Pj4+Pj4+PiBWRl9zbGF2ZSBhbmQgYmFja3VwX3NsYXZlIGFyZSB0aGUgb3JpZ2lu
-YWwgbmV0ZGV2cyBhbmQgYXJlIHByZXNlbnQgaW4gYm90aCB0aGUgbW9kZWxzLgo+Pj4+Pj4+PiBJ
-biB0aGUgMyBuZXRkZXYgbW9kZWwsIGJ5cGFzc19tYXN0ZXIgbmV0ZGV2IGlzIGNyZWF0ZWQgYW5k
-IFZGX3NsYXZlIGFuZCBiYWNrdXBfc2xhdmUgYXJlCj4+Pj4+Pj4+IG1hcmtlZCBhcyB0aGUgMiBz
-bGF2ZXMgb2YgdGhpcyBuZXcgbmV0ZGV2Lgo+Pj4+Pj4+IFlvdSBzYXkgaXQgbG9va3MgY29ycmVj
-dCBhbmQgaW4gYW5vdGhlciBzZW50ZW5jZSB5b3UgcHJvdmlkZSBjb21wbGV0ZWx5Cj4+Pj4+Pj4g
-ZGlmZmVyZW50IGRlc2NyaXB0aW9uLiBDb3VsZCB5b3UgcGxlYXNlIGxvb2sgYWdhaW4/Cj4+Pj4+
-Pj4KPj4+Pj4+IFRvIGJlIGV4YWN0LCAyIG5ldGRldiBtb2RlbCB3aXRoIG5ldHZzYyBsb29rcyBs
-aWtlIHRoaXMuCj4+Pj4+Pgo+Pj4+Pj4gICAgICAgbmV0dnNjX25ldGRldgo+Pj4+Pj4gICAgICAg
-ICAvCj4+Pj4+PiAgICAgICAgLwo+Pj4+Pj4gVkZfc2xhdmUKPj4+Pj4+Cj4+Pj4+PiBXaXRoIHZp
-cnRpb19uZXQsIDMgbmV0ZGV2IG1vZGVsCj4+Pj4+Pgo+Pj4+Pj4gICAgIGJ5cGFzc19uZXRkZXYK
-Pj4+Pj4+ICAgICAgICAgLyAgICAgXAo+Pj4+Pj4gICAgICAgIC8gICAgICAgXAo+Pj4+Pj4gVkZf
-c2xhdmUgICB2aXJ0aW9fbmV0IG5ldGRldgo+Pj4+PiBDb3VsZCB5b3UgYWxzbyBtYXJrIHRoZSBv
-cmlnaW5hbCBuZXRkZXYgd2hpY2ggaXMgdGhlcmUgbm93PyBpcyBpdAo+Pj4+PiBieXBhc3NfbmV0
-ZGV2IG9yIHZpcnRpb19uZXRfbmV0ZGV2ID8KPj4+PiBieXBhc3NfbmV0ZGV2Cj4+Pj4gICAgICAg
-LyAgICAgXAo+Pj4+ICAgICAgLyAgICAgICBcCj4+Pj4gVkZfc2xhdmUgICB2aXJ0aW9fbmV0IG5l
-dGRldiAob3JpZ2luYWwpCj4+PiBUaGF0IGRvZXMgbm90IG1ha2Ugc2Vuc2UuCj4+PiAxKSBZb3Ug
-ZGl2ZXJnZSBmcm9tIHRoZSBiZWhhdmlvdXIgb2YgdGhlIG5ldHZzYywgd2hlcmUgdGhlIG9yaWdp
-bmFsCj4+PiAgICAgIG5ldGRldiBpcyBhIG1hc3RlciBvZiB0aGUgVkYKPj4+IDIpIElmIHRoZSBv
-cmlnaW5hbCBuZXRkZXYgaXMgYSBzbGF2ZSwgeW91IGNhbm5vdCBoYXZlIGFueSBJUCBhZGRyZXNz
-Cj4+PiAgICAgIGNvbmZpZ3VyZWQgb24gaXQgKHdlbGwgeW91IGNvdWxkLCBidXQgdGhlIHJ4X2hh
-bmRsZXIgd291bGQgZWF0IGV2ZXJ5Cj4+PiAgICAgIGluY29taW5nIHBhY2tldCkuIFNvIHlvdSB3
-aWxsIGJyZWFrIHRoZSB1c2VyIGJhY2F1c2UgaGUgd291bGQgaGF2ZSB0bwo+Pj4gICAgICBtb3Zl
-IHRoZSBjb25maWd1cmF0aW9uIHRvIHRoZSBuZXcgbWFzdGVyIGRldmljZS4KPj4+IFRoaXMgb25s
-eSBtYWtlcyBzZW5zZSB0aGF0IHRoZSBvcmlnaW5hbCBuZXRkZXYgYmVjb21lcyB0aGUgbWFzdGVy
-IGZvciBib3RoCj4+PiBuZXR2c2MgYW5kIHZpcnRpb19uZXQuCj4+IEZvcmdvdCB0byBtZW50aW9u
-IHRoYXQgYnlwYXNzX25ldGRldiB0YWtlcyBvdmVyIHRoZSBuYW1lIG9mIHRoZSBvcmlnaW5hbAo+
-PiBuZXRkZXYgYW5kCj4+IHZpcnRpb19uZXQgbmV0ZGV2IHdpbGwgZ2V0IHRoZSBiYWNrdXAgbmFt
-ZS4KPiBXaGF0IGRvIHlvdSBtZWFuIGJ5ICJuYW1lIj8KCmJ5cGFzc19uZXRkZXYgYWxzbyBpcyBh
-c3NvY2lhdGVkIHdpdGggdGhlIHNhbWUgcGNpIGRldmljZSBhcyB0aGUgb3JpZ2luYWwgdmlydGlv
-X25ldApuZXRkZXYgdmlhIFNFVF9ORVRERVZfREVWKCkuwqAgQWxzbywgd2UgYWRkZWQgbmRvX2dl
-dF9waHlzX3BvcnRfbmFtZSgpIHRvIHZpcnRpb19uZXQKdGhhdCB3aWxsIHJldHVybiBfYmt1cCB3
-aGVuIEJBQ0tVUCBmZWF0dXJlIGlzIGVuYWJsZWQuCgpTbyBmb3IgZXg6IGlmIHZpcnRpb19uZXQg
-aW50ZWZhY2Ugd2FzIGdldHRpbmcgJ2VuczEyJyBhcyB0aGUgbmFtZSBhc3NpZ25lZCBieSB1ZGV2
-CndpdGhvdXQgQkFDS1VQIGZlYXR1cmUswqAgd2hlbiBCQUNLVVAgZmVhdHVyZSBpcyBlbmFibGVk
-LMKgIHRoZcKgIGJ5cGFzc19uZXRkZXYgd2lsbCBiZQpuYW1lZCAnZW5zMTInIGFuZCB0aGUgb3Jp
-Z2luYWwgdmlydGlvX25ldCB3aWxsIGdldCBuYW1lZCBhcyBlbnMxMm5fYmt1cC4KCgo+Cj4+IFNv
-IHRoZSB1c2Vyc3BhY2UgbmV0d29yayBjb25maWd1cmF0aW9uIGRvZXNuJ3QgbmVlZCB0byBjaGFu
-Z2UuCj4+Cj4+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Wed, Apr 11, 2018 at 01:28:51AM CEST, mst@redhat.com wrote:
+>On Tue, Apr 10, 2018 at 02:26:08PM -0700, Stephen Hemminger wrote:
+>> On Tue, 10 Apr 2018 11:59:50 -0700
+>> Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
+>> 
+>> > Use the registration/notification framework supported by the generic
+>> > bypass infrastructure.
+>> > 
+>> > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+>> > ---
+>> 
+>> Thanks for doing this.  Your current version has couple show stopper
+>> issues.
+>> 
+>> First, the slave device is instantly taking over the slave.
+>> This doesn't allow udev/systemd to do its device rename of the slave
+>> device. Netvsc uses a delayed work to workaround this.
+>
+>Interesting. Does this mean udev must act within a specific time window
+>then?
+
+Yeah. That is scarry. Also, wrong.
+
+
+>
+>> Secondly, the select queue needs to call queue selection in VF.
+>> The bonding/teaming logic doesn't work well for UDP flows.
+>> Commit b3bf5666a510 ("hv_netvsc: defer queue selection to VF")
+>> fixed this performance problem.
+>> 
+>> Lastly, more indirection is bad in current climate.
+>> 
+>> I am not completely adverse to this but it needs to be fast, simple
+>> and completely transparent.
