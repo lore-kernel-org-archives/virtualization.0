@@ -1,16 +1,22 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 1/5] virtio: Add support for SCTP checksum
-	offloading
-Date: Thu, 12 Apr 2018 01:49:32 +0300
-Message-ID: <20180412014548-mutt-send-email-mst__14446.041515521$1523486878$gmane$org@kernel.org>
-References: <20180402134006.10111-1-vyasevic@redhat.com>
-	<20180402134006.10111-2-vyasevic@redhat.com>
+From: Jonathan Helman <jonathan.helman@oracle.com>
+Subject: Re: [virtio-dev] Re: [PATCH v2] virtio_balloon: export hugetlb page
+	allocation counts
+Date: Wed, 11 Apr 2018 17:24:27 -0700
+Message-ID: <1d2bcb00-b210-b992-318e-c65607d31dff@oracle.com>
+References: <1521497654-24807-1-git-send-email-jonathan.helman@oracle.com>
+	<db6371af-f93d-4409-c910-2ff712196c5b@redhat.com>
+	<6ED6CAC9-FAD9-4A27-A9B1-C6EFC7627D68@oracle.com>
+	<c09d3570-a8f9-7a84-5dd6-46d385da2e15@redhat.com>
+	<20180322050842-mutt-send-email-mst@kernel.org>
+	<3f8a1b91-c5ba-8a24-72b8-02d884a67826@redhat.com>
+	<b1414be4-84bc-5d02-afff-9e42c1fd7210@oracle.com>
+	<e773c5bb-52a5-4b7d-4ce6-0fc3b189475f@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180402134006.10111-2-vyasevic@redhat.com>
+In-Reply-To: <e773c5bb-52a5-4b7d-4ce6-0fc3b189475f@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,105 +26,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vladislav Yasevich <vyasevich@gmail.com>
-Cc: nhorman@tuxdriver.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mihai Carabas <mihai.carabas@oracle.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 02, 2018 at 09:40:02AM -0400, Vladislav Yasevich wrote:
-> To support SCTP checksum offloading, we need to add a new feature
-> to virtio_net, so we can negotiate support between the hypervisor
-> and the guest.
-> 
-> The signalling to the guest that an alternate checksum needs to
-> be used is done via a new flag in the virtio_net_hdr.  If the
-> flag is set, the host will know to perform an alternate checksum
-> calculation, which right now is only CRC32c.
-> 
-> Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
-> ---
->  drivers/net/virtio_net.c        | 11 ++++++++---
->  include/linux/virtio_net.h      |  6 ++++++
->  include/uapi/linux/virtio_net.h |  2 ++
->  3 files changed, 16 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 7b187ec..b601294 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2724,9 +2724,14 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	/* Do we support "hardware" checksums? */
->  	if (virtio_has_feature(vdev, VIRTIO_NET_F_CSUM)) {
->  		/* This opens up the world of extra features. */
-> -		dev->hw_features |= NETIF_F_HW_CSUM | NETIF_F_SG;
-> +		netdev_features_t sctp = 0;
-> +
-> +		if (virtio_has_feature(vdev, VIRTIO_NET_F_SCTP_CSUM))
-> +			sctp |= NETIF_F_SCTP_CRC;
-> +
-> +		dev->hw_features |= NETIF_F_HW_CSUM | NETIF_F_SG | sctp;
->  		if (csum)
-> -			dev->features |= NETIF_F_HW_CSUM | NETIF_F_SG;
-> +			dev->features |= NETIF_F_HW_CSUM | NETIF_F_SG | sctp;
->  
->  		if (virtio_has_feature(vdev, VIRTIO_NET_F_GSO)) {
->  			dev->hw_features |= NETIF_F_TSO
-> @@ -2952,7 +2957,7 @@ static struct virtio_device_id id_table[] = {
->  };
->  
->  #define VIRTNET_FEATURES \
-> -	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM, \
-> +	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM,  VIRTIO_NET_F_SCTP_CSUM, \
->  	VIRTIO_NET_F_MAC, \
->  	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6, \
->  	VIRTIO_NET_F_HOST_ECN, VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6, \
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index f144216..2e7a64a 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -39,6 +39,9 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->  
->  		if (!skb_partial_csum_set(skb, start, off))
->  			return -EINVAL;
-> +
-> +		if (hdr->flags & VIRTIO_NET_HDR_F_CSUM_NOT_INET)
-> +			skb->csum_not_inet = 1;
->  	}
->  
->  	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
-> @@ -96,6 +99,9 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
->  		hdr->flags = VIRTIO_NET_HDR_F_DATA_VALID;
->  	} /* else everything is zero */
->  
-> +	if (skb->csum_not_inet)
-> +		hdr->flags &= VIRTIO_NET_HDR_F_CSUM_NOT_INET;
-> +
->  	return 0;
->  }
->  
-> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> index 5de6ed3..3f279c8 100644
-> --- a/include/uapi/linux/virtio_net.h
-> +++ b/include/uapi/linux/virtio_net.h
-> @@ -36,6 +36,7 @@
->  #define VIRTIO_NET_F_GUEST_CSUM	1	/* Guest handles pkts w/ partial csum */
->  #define VIRTIO_NET_F_CTRL_GUEST_OFFLOADS 2 /* Dynamic offload configuration. */
->  #define VIRTIO_NET_F_MTU	3	/* Initial MTU advice */
-> +#define VIRTIO_NET_F_SCTP_CSUM  4	/* SCTP checksum offload support */
->  #define VIRTIO_NET_F_MAC	5	/* Host has given MAC address. */
->  #define VIRTIO_NET_F_GUEST_TSO4	7	/* Guest can handle TSOv4 in. */
->  #define VIRTIO_NET_F_GUEST_TSO6	8	/* Guest can handle TSOv6 in. */
-
-Is this a guest or a host checksum? We should differenciate between the
-two.
-
-
-> @@ -101,6 +102,7 @@ struct virtio_net_config {
->  struct virtio_net_hdr_v1 {
->  #define VIRTIO_NET_HDR_F_NEEDS_CSUM	1	/* Use csum_start, csum_offset */
->  #define VIRTIO_NET_HDR_F_DATA_VALID	2	/* Csum is valid */
-> +#define VIRTIO_NET_HDR_F_CSUM_NOT_INET  4       /* Checksum is not inet */
->  	__u8 flags;
->  #define VIRTIO_NET_HDR_GSO_NONE		0	/* Not a GSO frame */
->  #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
-> -- 
-> 2.9.5
+CgpPbiAwNC8xMC8yMDE4IDA4OjEyIFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+IAo+IAo+IE9uIDIw
+MTjlubQwNOaciDEw5pelIDA1OjExLCBKb25hdGhhbiBIZWxtYW4gd3JvdGU6Cj4+Cj4+Cj4+IE9u
+IDAzLzIyLzIwMTggMDc6MzggUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4+Pgo+Pj4KPj4+IE9uIDIw
+MTjlubQwM+aciDIy5pelIDExOjEwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+Pj4gT24g
+VGh1LCBNYXIgMjIsIDIwMTggYXQgMDk6NTI6MThBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
+Pj4+Pj4gT24gMjAxOOW5tDAz5pyIMjDml6UgMTI6MjYsIEpvbmF0aGFuIEhlbG1hbiB3cm90ZToK
+Pj4+Pj4+PiBPbiBNYXIgMTksIDIwMTgsIGF0IDc6MzEgUE0sIEphc29uIFdhbmc8amFzb3dhbmdA
+cmVkaGF0LmNvbT7CoCB3cm90ZToKPj4+Pj4+Pgo+Pj4+Pj4+Cj4+Pj4+Pj4KPj4+Pj4+PiBPbiAy
+MDE45bm0MDPmnIgyMOaXpSAwNjoxNCwgSm9uYXRoYW4gSGVsbWFuIHdyb3RlOgo+Pj4+Pj4+PiBF
+eHBvcnQgdGhlIG51bWJlciBvZiBzdWNjZXNzZnVsIGFuZCBmYWlsZWQgaHVnZXRsYiBwYWdlCj4+
+Pj4+Pj4+IGFsbG9jYXRpb25zIHZpYSB0aGUgdmlydGlvIGJhbGxvb24gZHJpdmVyLiBUaGVzZSAy
+IGNvdW50cwo+Pj4+Pj4+PiBjb21lIGRpcmVjdGx5IGZyb20gdGhlIHZtX2V2ZW50cyBIVExCX0JV
+RERZX1BHQUxMT0MgYW5kCj4+Pj4+Pj4+IEhUTEJfQlVERFlfUEdBTExPQ19GQUlMLgo+Pj4+Pj4+
+Pgo+Pj4+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBKb25hdGhhbiBIZWxtYW48am9uYXRoYW4uaGVsbWFu
+QG9yYWNsZS5jb20+Cj4+Pj4+Pj4gUmV2aWV3ZWQtYnk6IEphc29uIFdhbmc8amFzb3dhbmdAcmVk
+aGF0LmNvbT4KPj4+Pj4+IFRoYW5rcy4KPj4+Pj4+Cj4+Pj4+Pj4+IC0tLQo+Pj4+Pj4+PiDCoMKg
+IGRyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmPCoMKgwqDCoCB8IDYgKysrKysrCj4+Pj4+
+Pj4+IMKgwqAgaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmggfCA0ICsrKy0KPj4+
+Pj4+Pj4gwqDCoCAyIGZpbGVzIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigt
+KQo+Pj4+Pj4+Pgo+Pj4+Pj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX2Jh
+bGxvb24uYyAKPj4+Pj4+Pj4gYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jCj4+Pj4+
+Pj4+IGluZGV4IGRmZTU2ODQuLjZiMjM3ZTMgMTAwNjQ0Cj4+Pj4+Pj4+IC0tLSBhL2RyaXZlcnMv
+dmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPj4+Pj4+Pj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmly
+dGlvX2JhbGxvb24uYwo+Pj4+Pj4+PiBAQCAtMjcyLDYgKzI3MiwxMiBAQCBzdGF0aWMgdW5zaWdu
+ZWQgaW50IAo+Pj4+Pj4+PiB1cGRhdGVfYmFsbG9vbl9zdGF0cyhzdHJ1Y3QgdmlydGlvX2JhbGxv
+b24gKnZiKQo+Pj4+Pj4+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcGFn
+ZXNfdG9fYnl0ZXMoZXZlbnRzW1BTV1BPVVRdKSk7Cj4+Pj4+Pj4+IMKgwqDCoMKgwqDCoCB1cGRh
+dGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxMT09OX1NfTUFKRkxULCAKPj4+Pj4+Pj4gZXZl
+bnRzW1BHTUFKRkFVTFRdKTsKPj4+Pj4+Pj4gwqDCoMKgwqDCoMKgIHVwZGF0ZV9zdGF0KHZiLCBp
+ZHgrKywgVklSVElPX0JBTExPT05fU19NSU5GTFQsIAo+Pj4+Pj4+PiBldmVudHNbUEdGQVVMVF0p
+Owo+Pj4+Pj4+PiArI2lmZGVmIENPTkZJR19IVUdFVExCX1BBR0UKPj4+Pj4+Pj4gK8KgwqDCoCB1
+cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxMT09OX1NfSFRMQl9QR0FMTE9DLAo+Pj4+
+Pj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBldmVudHNbSFRMQl9CVUREWV9QR0FMTE9DXSk7
+Cj4+Pj4+Pj4+ICvCoMKgwqAgdXBkYXRlX3N0YXQodmIsIGlkeCsrLCBWSVJUSU9fQkFMTE9PTl9T
+X0hUTEJfUEdGQUlMLAo+Pj4+Pj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBldmVudHNbSFRM
+Ql9CVUREWV9QR0FMTE9DX0ZBSUxdKTsKPj4+Pj4+Pj4gKyNlbmRpZgo+Pj4+Pj4+PiDCoMKgICNl
+bmRpZgo+Pj4+Pj4+PiDCoMKgwqDCoMKgwqAgdXBkYXRlX3N0YXQodmIsIGlkeCsrLCBWSVJUSU9f
+QkFMTE9PTl9TX01FTUZSRUUsCj4+Pj4+Pj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoCBwYWdlc190b19ieXRlcyhpLmZyZWVyYW0pKTsKPj4+Pj4+Pj4gZGlmZiAtLWdpdCBh
+L2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5oIAo+Pj4+Pj4+PiBiL2luY2x1ZGUv
+dWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5oCj4+Pj4+Pj4+IGluZGV4IDRlOGI4MzAuLjQwMjk3
+YTMgMTAwNjQ0Cj4+Pj4+Pj4+IC0tLSBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9v
+bi5oCj4+Pj4+Pj4+ICsrKyBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5oCj4+
+Pj4+Pj4+IEBAIC01Myw3ICs1Myw5IEBAIHN0cnVjdCB2aXJ0aW9fYmFsbG9vbl9jb25maWcgewo+
+Pj4+Pj4+PiDCoMKgICNkZWZpbmUgVklSVElPX0JBTExPT05fU19NRU1UT1TCoMKgIDXCoMKgIC8q
+IFRvdGFsIGFtb3VudCBvZiAKPj4+Pj4+Pj4gbWVtb3J5ICovCj4+Pj4+Pj4+IMKgwqAgI2RlZmlu
+ZSBWSVJUSU9fQkFMTE9PTl9TX0FWQUlMwqDCoMKgIDbCoMKgIC8qIEF2YWlsYWJsZSBtZW1vcnkg
+YXMgCj4+Pj4+Pj4+IGluIC9wcm9jICovCj4+Pj4+Pj4+IMKgwqAgI2RlZmluZSBWSVJUSU9fQkFM
+TE9PTl9TX0NBQ0hFU8KgwqAgN8KgwqAgLyogRGlzayBjYWNoZXMgKi8KPj4+Pj4+Pj4gLSNkZWZp
+bmUgVklSVElPX0JBTExPT05fU19OUsKgwqDCoMKgwqDCoCA4Cj4+Pj4+Pj4+ICsjZGVmaW5lIFZJ
+UlRJT19CQUxMT09OX1NfSFRMQl9QR0FMTE9DwqAgOMKgIC8qIEh1Z2V0bGIgcGFnZSAKPj4+Pj4+
+Pj4gYWxsb2NhdGlvbnMgKi8KPj4+Pj4+Pj4gKyNkZWZpbmUgVklSVElPX0JBTExPT05fU19IVExC
+X1BHRkFJTMKgwqAgOcKgIC8qIEh1Z2V0bGIgcGFnZSAKPj4+Pj4+Pj4gYWxsb2NhdGlvbiBmYWls
+dXJlcyAqLwo+Pj4+Pj4+PiArI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX05SwqDCoMKgwqDCoMKg
+IDEwCj4+Pj4+Pj4+IMKgwqDCoMKgIC8qCj4+Pj4+Pj4+IMKgwqDCoCAqIE1lbW9yeSBzdGF0aXN0
+aWNzIHN0cnVjdHVyZS4KPj4+Pj4+PiBOb3QgZm9yIHRoaXMgcGF0Y2gsIGJ1dCBpdCBsb29rcyB0
+byBtZSB0aGF0IGV4cG9ydGluZyBzdWNoIG5yIAo+Pj4+Pj4+IHRocm91Z2ggdWFwaSBpcyBmcmFn
+aWxlLgo+Pj4+Pj4gU29ycnksIGNhbiB5b3UgZXhwbGFpbiB3aGF0IHlvdSBtZWFuIGhlcmU/Cj4+
+Pj4+Pgo+Pj4+Pj4gSm9uCj4+Pj4+IFNwZWMgc2FpZCAiV2l0aGluIGFuIG91dHB1dCBidWZmZXIg
+c3VibWl0dGVkIHRvIHRoZSBzdGF0c3EsIHRoZSAKPj4+Pj4gZGV2aWNlIE1VU1QKPj4+Pj4gaWdu
+b3JlIGVudHJpZXMgd2l0aCB0YWcgdmFsdWVzIHRoYXQgaXQgZG9lcyBub3QgcmVjb2duaXplIi4g
+U28gCj4+Pj4+IGV4cG9ydGluZwo+Pj4+PiBWSVJUSU9fQkFMTE9PTl9TX05SIHNlZW1zIHVzZWxl
+c3MgYW5kIGRldmljZSBpbXBsZW1lbnRhdGlvbiBjYW4gbm90IAo+Pj4+PiBkZXBlbmQKPj4+Pj4g
+b24gc3VjaCBudW1iZXIgaW4gdWFwaS4KPj4+Pj4KPj4+Pj4gVGhhbmtzCj4+Pj4gU3VnZ2VzdGlv
+bnM/IEkgZG9uJ3QgbGlrZSB0byBicmVhayBidWlsZCBmb3IgcGVvcGxlIC4uLgo+Pj4+Cj4+Pgo+
+Pj4gRGlkbid0IGhhdmUgYSBnb29kIGlkZWEuIEJ1dCBtYXliZSB3ZSBzaG91bGQga2VlcCBWSVJU
+SU9fQkFMTE9PTl9TX05SIAo+Pj4gdW5jaGFuZ2VkLCBhbmQgYWRkIGEgY29tbWVudCBoZXJlLgo+
+Pj4KPj4+IFRoYW5rcwo+Pgo+PiBJIHRoaW5rIEphc29uJ3MgY29tbWVudCBpcyBmb3IgYSBmdXR1
+cmUgcGF0Y2guIERpZG4ndCBzZWUgdGhpcyBwYXRjaCAKPj4gZ2V0IGFwcGxpZWQsIHNvIHdvbmRl
+cmluZyBpZiBpdCBjb3VsZCBiZS4KPj4KPj4gVGhhbmtzLAo+PiBKb24KPiAKPiBIaSBKb246Cj4g
+Cj4gSGF2ZSB5b3UgdGVzdGVkIG5ldyBkcml2ZXIgd2l0aCBvbGQgcWVtdT8KClllcywgdGhpcyB0
+ZXN0aW5nIHNjZW5hcmlvIGxvb2tzIGdvb2QuIFRoYW5rcy4KCkpvbgoKPiAKPiBUaGFua3MKPiAK
+PiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
+bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
+b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
+L3ZpcnR1YWxpemF0aW9u
