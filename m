@@ -1,24 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [PATCH v2] virtio_balloon: export hugetlb page
-	allocation counts
-Date: Fri, 13 Apr 2018 16:44:42 +0300
-Message-ID: <20180413155836-mutt-send-email-mst__4635.15060623667$1523626974$gmane$org@kernel.org>
-References: <1521497654-24807-1-git-send-email-jonathan.helman@oracle.com>
-	<db6371af-f93d-4409-c910-2ff712196c5b@redhat.com>
-	<6ED6CAC9-FAD9-4A27-A9B1-C6EFC7627D68@oracle.com>
-	<c09d3570-a8f9-7a84-5dd6-46d385da2e15@redhat.com>
-	<20180322050842-mutt-send-email-mst@kernel.org>
-	<3f8a1b91-c5ba-8a24-72b8-02d884a67826@redhat.com>
-	<b1414be4-84bc-5d02-afff-9e42c1fd7210@oracle.com>
-	<e773c5bb-52a5-4b7d-4ce6-0fc3b189475f@redhat.com>
-	<1d2bcb00-b210-b992-318e-c65607d31dff@oracle.com>
-	<9b13b742-3970-e322-5a2f-dcfc75c540dc@redhat.com>
+Subject: Re: [RFC v2] virtio: support packed ring
+Date: Fri, 13 Apr 2018 18:22:45 +0300
+Message-ID: <20180413181808-mutt-send-email-mst__14785.6684089222$1523632846$gmane$org@kernel.org>
+References: <20180401141216.8969-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <9b13b742-3970-e322-5a2f-dcfc75c540dc@redhat.com>
+In-Reply-To: <20180401141216.8969-1-tiwei.bie@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,126 +18,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Mihai Carabas <mihai.carabas@oracle.com>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBBcHIgMTMsIDIwMTggYXQgMDM6MDE6MTFQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDTmnIgxMuaXpSAwODoyNCwgSm9uYXRoYW4gSGVsbWFuIHdy
-b3RlOgo+ID4gCj4gPiAKPiA+IE9uIDA0LzEwLzIwMTggMDg6MTIgUE0sIEphc29uIFdhbmcgd3Jv
-dGU6Cj4gPiA+IAo+ID4gPiAKPiA+ID4gT24gMjAxOOW5tDA05pyIMTDml6UgMDU6MTEsIEpvbmF0
-aGFuIEhlbG1hbiB3cm90ZToKPiA+ID4gPiAKPiA+ID4gPiAKPiA+ID4gPiBPbiAwMy8yMi8yMDE4
-IDA3OjM4IFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+ID4gCj4gPiA+ID4gPiAKPiA+ID4g
-PiA+IE9uIDIwMTjlubQwM+aciDIy5pelIDExOjEwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6
-Cj4gPiA+ID4gPiA+IE9uIFRodSwgTWFyIDIyLCAyMDE4IGF0IDA5OjUyOjE4QU0gKzA4MDAsIEph
-c29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4gPiA+ID4gT24gMjAxOOW5tDAz5pyIMjDml6UgMTI6MjYs
-IEpvbmF0aGFuIEhlbG1hbiB3cm90ZToKPiA+ID4gPiA+ID4gPiA+ID4gT24gTWFyIDE5LCAyMDE4
-LCBhdCA3OjMxIFBNLCBKYXNvbgo+ID4gPiA+ID4gPiA+ID4gPiBXYW5nPGphc293YW5nQHJlZGhh
-dC5jb20+IHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+ID4gCj4gPiA+
-ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+ID4gPiBPbiAyMDE45bm0MDPmnIgyMOaXpSAwNjox
-NCwgSm9uYXRoYW4gSGVsbWFuIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gPiA+IEV4cG9ydCB0aGUg
-bnVtYmVyIG9mIHN1Y2Nlc3NmdWwgYW5kIGZhaWxlZCBodWdldGxiIHBhZ2UKPiA+ID4gPiA+ID4g
-PiA+ID4gPiBhbGxvY2F0aW9ucyB2aWEgdGhlIHZpcnRpbyBiYWxsb29uIGRyaXZlci4gVGhlc2Ug
-MiBjb3VudHMKPiA+ID4gPiA+ID4gPiA+ID4gPiBjb21lIGRpcmVjdGx5IGZyb20gdGhlIHZtX2V2
-ZW50cyBIVExCX0JVRERZX1BHQUxMT0MgYW5kCj4gPiA+ID4gPiA+ID4gPiA+ID4gSFRMQl9CVURE
-WV9QR0FMTE9DX0ZBSUwuCj4gPiA+ID4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gPiA+ID4g
-U2lnbmVkLW9mZi1ieTogSm9uYXRoYW4gSGVsbWFuPGpvbmF0aGFuLmhlbG1hbkBvcmFjbGUuY29t
-Pgo+ID4gPiA+ID4gPiA+ID4gPiBSZXZpZXdlZC1ieTogSmFzb24gV2FuZzxqYXNvd2FuZ0ByZWRo
-YXQuY29tPgo+ID4gPiA+ID4gPiA+ID4gVGhhbmtzLgo+ID4gPiA+ID4gPiA+ID4gCj4gPiA+ID4g
-PiA+ID4gPiA+ID4gLS0tCj4gPiA+ID4gPiA+ID4gPiA+ID4gwqDCoCBkcml2ZXJzL3ZpcnRpby92
-aXJ0aW9fYmFsbG9vbi5jwqDCoMKgwqAgfCA2ICsrKysrKwo+ID4gPiA+ID4gPiA+ID4gPiA+IMKg
-wqAgaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19iYWxsb29uLmggfCA0ICsrKy0KPiA+ID4gPiA+
-ID4gPiA+ID4gPiDCoMKgIDIgZmlsZXMgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCspLCAxIGRlbGV0
-aW9uKC0pCj4gPiA+ID4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gPiA+ID4gZGlmZiAtLWdp
-dAo+ID4gPiA+ID4gPiA+ID4gPiA+IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+
-ID4gPiA+ID4gPiA+ID4gPiA+IGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+ID4g
-PiA+ID4gPiA+ID4gPiA+IGluZGV4IGRmZTU2ODQuLjZiMjM3ZTMgMTAwNjQ0Cj4gPiA+ID4gPiA+
-ID4gPiA+ID4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+ID4gPiA+ID4g
-PiA+ID4gPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPiA+ID4gPiA+
-ID4gPiA+ID4gPiBAQCAtMjcyLDYgKzI3MiwxMiBAQCBzdGF0aWMgdW5zaWduZWQgaW50Cj4gPiA+
-ID4gPiA+ID4gPiA+ID4gdXBkYXRlX2JhbGxvb25fc3RhdHMoc3RydWN0Cj4gPiA+ID4gPiA+ID4g
-PiA+ID4gdmlydGlvX2JhbGxvb24gKnZiKQo+ID4gPiA+ID4gPiA+ID4gPiA+IHBhZ2VzX3RvX2J5
-dGVzKGV2ZW50c1tQU1dQT1VUXSkpOwo+ID4gPiA+ID4gPiA+ID4gPiA+IMKgwqDCoMKgwqDCoCB1
-cGRhdGVfc3RhdCh2YiwgaWR4KyssCj4gPiA+ID4gPiA+ID4gPiA+ID4gVklSVElPX0JBTExPT05f
-U19NQUpGTFQsCj4gPiA+ID4gPiA+ID4gPiA+ID4gZXZlbnRzW1BHTUFKRkFVTFRdKTsKPiA+ID4g
-PiA+ID4gPiA+ID4gPiDCoMKgwqDCoMKgwqAgdXBkYXRlX3N0YXQodmIsIGlkeCsrLAo+ID4gPiA+
-ID4gPiA+ID4gPiA+IFZJUlRJT19CQUxMT09OX1NfTUlORkxULAo+ID4gPiA+ID4gPiA+ID4gPiA+
-IGV2ZW50c1tQR0ZBVUxUXSk7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gKyNpZmRlZiBDT05GSUdfSFVH
-RVRMQl9QQUdFCj4gPiA+ID4gPiA+ID4gPiA+ID4gK8KgwqDCoCB1cGRhdGVfc3RhdCh2YiwgaWR4
-KyssIFZJUlRJT19CQUxMT09OX1NfSFRMQl9QR0FMTE9DLAo+ID4gPiA+ID4gPiA+ID4gPiA+ICvC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgIGV2ZW50c1tIVExCX0JVRERZX1BHQUxMT0NdKTsKPiA+ID4g
-PiA+ID4gPiA+ID4gPiArwqDCoMKgIHVwZGF0ZV9zdGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExP
-T05fU19IVExCX1BHRkFJTCwKPiA+ID4gPiA+ID4gPiA+ID4gPiArwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoCBldmVudHNbSFRMQl9CVUREWV9QR0FMTE9DX0ZBSUxdKTsKPiA+ID4gPiA+ID4gPiA+ID4g
-PiArI2VuZGlmCj4gPiA+ID4gPiA+ID4gPiA+ID4gwqDCoCAjZW5kaWYKPiA+ID4gPiA+ID4gPiA+
-ID4gPiDCoMKgwqDCoMKgwqAgdXBkYXRlX3N0YXQodmIsIGlkeCsrLCBWSVJUSU9fQkFMTE9PTl9T
-X01FTUZSRUUsCj4gPiA+ID4gPiA+ID4gPiA+ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgIHBhZ2VzX3RvX2J5dGVzKGkuZnJlZXJhbSkpOwo+ID4gPiA+ID4gPiA+ID4gPiA+
-IGRpZmYgLS1naXQKPiA+ID4gPiA+ID4gPiA+ID4gPiBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0
-aW9fYmFsbG9vbi5oCj4gPiA+ID4gPiA+ID4gPiA+ID4gYi9pbmNsdWRlL3VhcGkvbGludXgvdmly
-dGlvX2JhbGxvb24uaAo+ID4gPiA+ID4gPiA+ID4gPiA+IGluZGV4IDRlOGI4MzAuLjQwMjk3YTMg
-MTAwNjQ0Cj4gPiA+ID4gPiA+ID4gPiA+ID4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRp
-b19iYWxsb29uLmgKPiA+ID4gPiA+ID4gPiA+ID4gPiArKysgYi9pbmNsdWRlL3VhcGkvbGludXgv
-dmlydGlvX2JhbGxvb24uaAo+ID4gPiA+ID4gPiA+ID4gPiA+IEBAIC01Myw3ICs1Myw5IEBAIHN0
-cnVjdCB2aXJ0aW9fYmFsbG9vbl9jb25maWcgewo+ID4gPiA+ID4gPiA+ID4gPiA+IMKgwqAgI2Rl
-ZmluZSBWSVJUSU9fQkFMTE9PTl9TX01FTVRPVMKgwqAgNcKgwqAKPiA+ID4gPiA+ID4gPiA+ID4g
-PiAvKiBUb3RhbCBhbW91bnQgb2YgbWVtb3J5ICovCj4gPiA+ID4gPiA+ID4gPiA+ID4gwqDCoCAj
-ZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfQVZBSUzCoMKgwqAgNsKgwqAKPiA+ID4gPiA+ID4gPiA+
-ID4gPiAvKiBBdmFpbGFibGUgbWVtb3J5IGFzIGluIC9wcm9jICovCj4gPiA+ID4gPiA+ID4gPiA+
-ID4gwqDCoCAjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfQ0FDSEVTwqDCoCA3wqDCoCAvKiBEaXNr
-IGNhY2hlcyAqLwo+ID4gPiA+ID4gPiA+ID4gPiA+IC0jZGVmaW5lIFZJUlRJT19CQUxMT09OX1Nf
-TlLCoMKgwqDCoMKgwqAgOAo+ID4gPiA+ID4gPiA+ID4gPiA+ICsjZGVmaW5lIFZJUlRJT19CQUxM
-T09OX1NfSFRMQl9QR0FMTE9DwqAKPiA+ID4gPiA+ID4gPiA+ID4gPiA4wqAgLyogSHVnZXRsYiBw
-YWdlIGFsbG9jYXRpb25zICovCj4gPiA+ID4gPiA+ID4gPiA+ID4gKyNkZWZpbmUgVklSVElPX0JB
-TExPT05fU19IVExCX1BHRkFJTMKgwqAKPiA+ID4gPiA+ID4gPiA+ID4gPiA5wqAgLyogSHVnZXRs
-YiBwYWdlIGFsbG9jYXRpb24gZmFpbHVyZXMKPiA+ID4gPiA+ID4gPiA+ID4gPiAqLwo+ID4gPiA+
-ID4gPiA+ID4gPiA+ICsjZGVmaW5lIFZJUlRJT19CQUxMT09OX1NfTlLCoMKgwqDCoMKgwqAgMTAK
-PiA+ID4gPiA+ID4gPiA+ID4gPiDCoMKgwqDCoCAvKgo+ID4gPiA+ID4gPiA+ID4gPiA+IMKgwqDC
-oCAqIE1lbW9yeSBzdGF0aXN0aWNzIHN0cnVjdHVyZS4KPiA+ID4gPiA+ID4gPiA+ID4gTm90IGZv
-ciB0aGlzIHBhdGNoLCBidXQgaXQgbG9va3MgdG8gbWUgdGhhdAo+ID4gPiA+ID4gPiA+ID4gPiBl
-eHBvcnRpbmcgc3VjaCBuciB0aHJvdWdoIHVhcGkgaXMgZnJhZ2lsZS4KPiA+ID4gPiA+ID4gPiA+
-IFNvcnJ5LCBjYW4geW91IGV4cGxhaW4gd2hhdCB5b3UgbWVhbiBoZXJlPwo+ID4gPiA+ID4gPiA+
-ID4gCj4gPiA+ID4gPiA+ID4gPiBKb24KPiA+ID4gPiA+ID4gPiBTcGVjIHNhaWQgIldpdGhpbiBh
-biBvdXRwdXQgYnVmZmVyIHN1Ym1pdHRlZCB0byB0aGUKPiA+ID4gPiA+ID4gPiBzdGF0c3EsIHRo
-ZSBkZXZpY2UgTVVTVAo+ID4gPiA+ID4gPiA+IGlnbm9yZSBlbnRyaWVzIHdpdGggdGFnIHZhbHVl
-cyB0aGF0IGl0IGRvZXMgbm90Cj4gPiA+ID4gPiA+ID4gcmVjb2duaXplIi4gU28gZXhwb3J0aW5n
-Cj4gPiA+ID4gPiA+ID4gVklSVElPX0JBTExPT05fU19OUiBzZWVtcyB1c2VsZXNzIGFuZCBkZXZp
-Y2UKPiA+ID4gPiA+ID4gPiBpbXBsZW1lbnRhdGlvbiBjYW4gbm90IGRlcGVuZAo+ID4gPiA+ID4g
-PiA+IG9uIHN1Y2ggbnVtYmVyIGluIHVhcGkuCj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4g
-VGhhbmtzCj4gPiA+ID4gPiA+IFN1Z2dlc3Rpb25zPyBJIGRvbid0IGxpa2UgdG8gYnJlYWsgYnVp
-bGQgZm9yIHBlb3BsZSAuLi4KPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiAKPiA+ID4gPiA+IERpZG4n
-dCBoYXZlIGEgZ29vZCBpZGVhLiBCdXQgbWF5YmUgd2Ugc2hvdWxkIGtlZXAKPiA+ID4gPiA+IFZJ
-UlRJT19CQUxMT09OX1NfTlIgdW5jaGFuZ2VkLCBhbmQgYWRkIGEgY29tbWVudCBoZXJlLgo+ID4g
-PiA+ID4gCj4gPiA+ID4gPiBUaGFua3MKPiA+ID4gPiAKPiA+ID4gPiBJIHRoaW5rIEphc29uJ3Mg
-Y29tbWVudCBpcyBmb3IgYSBmdXR1cmUgcGF0Y2guIERpZG4ndCBzZWUgdGhpcwo+ID4gPiA+IHBh
-dGNoIGdldCBhcHBsaWVkLCBzbyB3b25kZXJpbmcgaWYgaXQgY291bGQgYmUuCj4gPiA+ID4gCj4g
-PiA+ID4gVGhhbmtzLAo+ID4gPiA+IEpvbgo+ID4gPiAKPiA+ID4gSGkgSm9uOgo+ID4gPiAKPiA+
-ID4gSGF2ZSB5b3UgdGVzdGVkIG5ldyBkcml2ZXIgd2l0aCBvbGQgcWVtdT8KPiA+IAo+ID4gWWVz
-LCB0aGlzIHRlc3Rpbmcgc2NlbmFyaW8gbG9va3MgZ29vZC4gVGhhbmtzLgo+ID4gCj4gPiBKb24K
-PiAKPiBIaSBKb246Cj4gCj4gSSBtZWFuIGUuZyBjb21waWxpbmcgcWVtdSB3aXRoIG5ldyBsaW51
-eCBoZWFkZXJzLiBFLmcgY3VycmVudCBxZW11IGhhczoKPiAKPiBzdGF0aWMgY29uc3QgY2hhciAq
-YmFsbG9vbl9zdGF0X25hbWVzW10gPSB7Cj4gwqDCoCBbVklSVElPX0JBTExPT05fU19TV0FQX0lO
-XSA9ICJzdGF0LXN3YXAtaW4iLAo+IMKgwqAgW1ZJUlRJT19CQUxMT09OX1NfU1dBUF9PVVRdID0g
-InN0YXQtc3dhcC1vdXQiLAo+IMKgwqAgW1ZJUlRJT19CQUxMT09OX1NfTUFKRkxUXSA9ICJzdGF0
-LW1ham9yLWZhdWx0cyIsCj4gwqDCoCBbVklSVElPX0JBTExPT05fU19NSU5GTFRdID0gInN0YXQt
-bWlub3ItZmF1bHRzIiwKPiDCoMKgIFtWSVJUSU9fQkFMTE9PTl9TX01FTUZSRUVdID0gInN0YXQt
-ZnJlZS1tZW1vcnkiLAo+IMKgwqAgW1ZJUlRJT19CQUxMT09OX1NfTUVNVE9UXSA9ICJzdGF0LXRv
-dGFsLW1lbW9yeSIsCj4gwqDCoCBbVklSVElPX0JBTExPT05fU19BVkFJTF0gPSAic3RhdC1hdmFp
-bGFibGUtbWVtb3J5IiwKPiDCoMKgIFtWSVJUSU9fQkFMTE9PTl9TX0NBQ0hFU10gPSAic3RhdC1k
-aXNrLWNhY2hlcyIsCj4gwqDCoCBbVklSVElPX0JBTExPT05fU19OUl0gPSBOVUxMCj4gfTsKPiAK
-PiBJJ20gYWZyYWlkIGl0IHdpbGwgYmUgYnJva2VuIGlmIFZJUlRJT19CQUxMT09OX1NfTlIgaXMg
-MTAuCj4gCj4gVGhhbmtzCgpXZWxsIGl0IGlzIGhhbmR5IGZvciBzaXppbmcgYXJyYXlzIGFuZCB0
-aGlzIGlzbid0IHRoZSBmaXJzdCB0aW1lIHdlIGRpZAp0aGlzOgoKY29tbWl0IDRkMzIwMjliOGRk
-YjdiZTRkMTY5OWM2ZDhlMTY3NWZmNTQ3NmQxNDkKQXV0aG9yOiBUb23DocWhIEdvbGVtYmlvdnNr
-w70gPHRnb2xlbWJpQHJlZGhhdC5jb20+CkRhdGU6ICAgU3VuIE5vdiAxMiAxMzowNTozOCAyMDE3
-ICswMTAwCgogICAgdmlydGlvX2JhbGxvb246IGluY2x1ZGUgZGlzay9maWxlIGNhY2hlcyBtZW1v
-cnkgc3RhdGlzdGljcwogICAgCiAgCgpjb21taXQgNTA1N2RjZDBmMWFhYWQ1N2UwN2U3MjhiYTIw
-YTk5ZTIwNWM2YjlkZQpBdXRob3I6IElnb3IgUmVka28gPHJlZGtvaUB2aXJ0dW96em8uY29tPgpE
-YXRlOiAgIFRodSBNYXIgMTcgMTQ6MTk6MDggMjAxNiAtMDcwMAoKICAgIHZpcnRpb19iYWxsb29u
-OiBleHBvcnQgJ2F2YWlsYWJsZScgbWVtb3J5IHRvIGJhbGxvb24gc3RhdGlzdGljcwogICAgCgpo
-b3cgYWJvdXQgd2UgZ2l2ZSBRRU1VIGEgaGFuZCBhbmQganVzdCBwdXQgdGhlIGxpc3Qgb2YgbmFt
-ZXMgaW4KdGhlIGhlYWRlcj8KCkkgcG9zdGVkIGEgcGF0Y2ggbGlrZSB0aGF0LCBwbHMgcmV2aWV3
-LgoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Sun, Apr 01, 2018 at 10:12:16PM +0800, Tiwei Bie wrote:
+> +static inline bool more_used(const struct vring_virtqueue *vq)
+> +{
+> +	return vq->packed ? more_used_packed(vq) : more_used_split(vq);
+> +}
+> +
+> +void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq, unsigned int *len,
+> +				  void **ctx)
+> +{
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	void *ret;
+> +	unsigned int i;
+> +	u16 last_used;
+> +
+> +	START_USE(vq);
+> +
+> +	if (unlikely(vq->broken)) {
+> +		END_USE(vq);
+> +		return NULL;
+> +	}
+> +
+> +	if (!more_used(vq)) {
+> +		pr_debug("No more buffers in queue\n");
+> +		END_USE(vq);
+> +		return NULL;
+> +	}
+
+So virtqueue_get_buf_ctx_split should only call more_used_split.
+
+to avoid such issues I think we should lay out the code like this:
+
+XXX_split
+
+XXX_packed
+
+XXX wrappers
+
+> +/* The standard layout
+
+I'd drop standard here.
+
+> for the packed ring is a continuous chunk of memory
+> + * which looks like this.
+> + *
+> + * struct vring_packed
+> + * {
+
+Can the opening bracket go on the prev line pls?
+
+> + *	// The actual descriptors (16 bytes each)
+> + *	struct vring_packed_desc desc[num];
+> + *
+> + *	// Padding to the next align boundary.
+> + *	char pad[];
+> + *
+> + *	// Driver Event Suppression
+> + *	struct vring_packed_desc_event driver;
+> + *
+> + *	// Device Event Suppression
+> + *	struct vring_packed_desc_event device;
+
+Maybe that's how our driver does it but it's not based on spec
+so I don't think this belongs in the header.
+
+> + * };
+> + */
+> +
+> +static inline unsigned vring_packed_size(unsigned int num, unsigned long align)
+> +{
+> +	return ((sizeof(struct vring_packed_desc) * num + align - 1)
+> +		& ~(align - 1)) + sizeof(struct vring_packed_desc_event) * 2;
+> +}
+> +
+
+Cant say this API makes sense for me.
+
+
+>  #endif /* _UAPI_LINUX_VIRTIO_RING_H */
+> -- 
+> 2.11.0
