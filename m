@@ -1,24 +1,13 @@
 From: Jonathan Helman <jonathan.helman@oracle.com>
-Subject: Re: [virtio-dev] Re: [PATCH v2] virtio_balloon: export hugetlb page
-	allocation counts
-Date: Fri, 13 Apr 2018 10:10:57 -0700
-Message-ID: <38e16983-4551-a621-b399-0de84d58bf15__49314.2730942511$1523639362$gmane$org@oracle.com>
-References: <1521497654-24807-1-git-send-email-jonathan.helman@oracle.com>
-	<db6371af-f93d-4409-c910-2ff712196c5b@redhat.com>
-	<6ED6CAC9-FAD9-4A27-A9B1-C6EFC7627D68@oracle.com>
-	<c09d3570-a8f9-7a84-5dd6-46d385da2e15@redhat.com>
-	<20180322050842-mutt-send-email-mst@kernel.org>
-	<3f8a1b91-c5ba-8a24-72b8-02d884a67826@redhat.com>
-	<b1414be4-84bc-5d02-afff-9e42c1fd7210@oracle.com>
-	<e773c5bb-52a5-4b7d-4ce6-0fc3b189475f@redhat.com>
-	<1d2bcb00-b210-b992-318e-c65607d31dff@oracle.com>
-	<9b13b742-3970-e322-5a2f-dcfc75c540dc@redhat.com>
-	<20180413155836-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH] virtio_balloon: add array of stat names
+Date: Fri, 13 Apr 2018 11:53:31 -0700
+Message-ID: <8ac55da5-3c2b-a546-7597-ec6c82ff9590__44868.2283437394$1523645516$gmane$org@oracle.com>
+References: <1523627031-370966-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180413155836-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1523627031-370966-1-git-send-email-mst@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,123 +18,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Mihai Carabas <mihai.carabas@oracle.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAwNC8xMy8yMDE4IDA2OjQ0IEFNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
-RnJpLCBBcHIgMTMsIDIwMTggYXQgMDM6MDE6MTFQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4KPj4KPj4gT24gMjAxOOW5tDA05pyIMTLml6UgMDg6MjQsIEpvbmF0aGFuIEhlbG1hbiB3cm90
-ZToKPj4+Cj4+Pgo+Pj4gT24gMDQvMTAvMjAxOCAwODoxMiBQTSwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4+Pgo+Pj4+Cj4+Pj4gT24gMjAxOOW5tDA05pyIMTDml6UgMDU6MTEsIEpvbmF0aGFuIEhlbG1h
-biB3cm90ZToKPj4+Pj4KPj4+Pj4KPj4+Pj4gT24gMDMvMjIvMjAxOCAwNzozOCBQTSwgSmFzb24g
-V2FuZyB3cm90ZToKPj4+Pj4+Cj4+Pj4+Pgo+Pj4+Pj4gT24gMjAxOOW5tDAz5pyIMjLml6UgMTE6
-MTAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+Pj4+PiBPbiBUaHUsIE1hciAyMiwgMjAx
-OCBhdCAwOTo1MjoxOEFNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+Pj4+PiBPbiAyMDE4
-5bm0MDPmnIgyMOaXpSAxMjoyNiwgSm9uYXRoYW4gSGVsbWFuIHdyb3RlOgo+Pj4+Pj4+Pj4+IE9u
-IE1hciAxOSwgMjAxOCwgYXQgNzozMSBQTSwgSmFzb24KPj4+Pj4+Pj4+PiBXYW5nPGphc293YW5n
-QHJlZGhhdC5jb20+IHdyb3RlOgo+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+Pgo+Pj4+
-Pj4+Pj4+IE9uIDIwMTjlubQwM+aciDIw5pelIDA2OjE0LCBKb25hdGhhbiBIZWxtYW4gd3JvdGU6
-Cj4+Pj4+Pj4+Pj4+IEV4cG9ydCB0aGUgbnVtYmVyIG9mIHN1Y2Nlc3NmdWwgYW5kIGZhaWxlZCBo
-dWdldGxiIHBhZ2UKPj4+Pj4+Pj4+Pj4gYWxsb2NhdGlvbnMgdmlhIHRoZSB2aXJ0aW8gYmFsbG9v
-biBkcml2ZXIuIFRoZXNlIDIgY291bnRzCj4+Pj4+Pj4+Pj4+IGNvbWUgZGlyZWN0bHkgZnJvbSB0
-aGUgdm1fZXZlbnRzIEhUTEJfQlVERFlfUEdBTExPQyBhbmQKPj4+Pj4+Pj4+Pj4gSFRMQl9CVURE
-WV9QR0FMTE9DX0ZBSUwuCj4+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4+IFNpZ25lZC1vZmYtYnk6IEpv
-bmF0aGFuIEhlbG1hbjxqb25hdGhhbi5oZWxtYW5Ab3JhY2xlLmNvbT4KPj4+Pj4+Pj4+PiBSZXZp
-ZXdlZC1ieTogSmFzb24gV2FuZzxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+Pj4+Pj4+Pj4gVGhhbmtz
-Lgo+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+Pj4gLS0tCj4+Pj4+Pj4+Pj4+ICDCoMKgIGRyaXZlcnMvdmly
-dGlvL3ZpcnRpb19iYWxsb29uLmPCoMKgwqDCoCB8IDYgKysrKysrCj4+Pj4+Pj4+Pj4+ICDCoMKg
-IGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmFsbG9vbi5oIHwgNCArKystCj4+Pj4+Pj4+Pj4+
-ICDCoMKgIDIgZmlsZXMgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4+
-Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4+IGRpZmYgLS1naXQKPj4+Pj4+Pj4+Pj4gYS9kcml2ZXJzL3Zp
-cnRpby92aXJ0aW9fYmFsbG9vbi5jCj4+Pj4+Pj4+Pj4+IGIvZHJpdmVycy92aXJ0aW8vdmlydGlv
-X2JhbGxvb24uYwo+Pj4+Pj4+Pj4+PiBpbmRleCBkZmU1Njg0Li42YjIzN2UzIDEwMDY0NAo+Pj4+
-Pj4+Pj4+PiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jCj4+Pj4+Pj4+Pj4+
-ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPj4+Pj4+Pj4+Pj4gQEAgLTI3
-Miw2ICsyNzIsMTIgQEAgc3RhdGljIHVuc2lnbmVkIGludAo+Pj4+Pj4+Pj4+PiB1cGRhdGVfYmFs
-bG9vbl9zdGF0cyhzdHJ1Y3QKPj4+Pj4+Pj4+Pj4gdmlydGlvX2JhbGxvb24gKnZiKQo+Pj4+Pj4+
-Pj4+PiBwYWdlc190b19ieXRlcyhldmVudHNbUFNXUE9VVF0pKTsKPj4+Pj4+Pj4+Pj4gIMKgwqDC
-oMKgwqDCoCB1cGRhdGVfc3RhdCh2YiwgaWR4KyssCj4+Pj4+Pj4+Pj4+IFZJUlRJT19CQUxMT09O
-X1NfTUFKRkxULAo+Pj4+Pj4+Pj4+PiBldmVudHNbUEdNQUpGQVVMVF0pOwo+Pj4+Pj4+Pj4+PiAg
-wqDCoMKgwqDCoMKgIHVwZGF0ZV9zdGF0KHZiLCBpZHgrKywKPj4+Pj4+Pj4+Pj4gVklSVElPX0JB
-TExPT05fU19NSU5GTFQsCj4+Pj4+Pj4+Pj4+IGV2ZW50c1tQR0ZBVUxUXSk7Cj4+Pj4+Pj4+Pj4+
-ICsjaWZkZWYgQ09ORklHX0hVR0VUTEJfUEFHRQo+Pj4+Pj4+Pj4+PiArwqDCoMKgIHVwZGF0ZV9z
-dGF0KHZiLCBpZHgrKywgVklSVElPX0JBTExPT05fU19IVExCX1BHQUxMT0MsCj4+Pj4+Pj4+Pj4+
-ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGV2ZW50c1tIVExCX0JVRERZX1BHQUxMT0NdKTsKPj4+
-Pj4+Pj4+Pj4gK8KgwqDCoCB1cGRhdGVfc3RhdCh2YiwgaWR4KyssIFZJUlRJT19CQUxMT09OX1Nf
-SFRMQl9QR0ZBSUwsCj4+Pj4+Pj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGV2ZW50c1tI
-VExCX0JVRERZX1BHQUxMT0NfRkFJTF0pOwo+Pj4+Pj4+Pj4+PiArI2VuZGlmCj4+Pj4+Pj4+Pj4+
-ICDCoMKgICNlbmRpZgo+Pj4+Pj4+Pj4+PiAgwqDCoMKgwqDCoMKgIHVwZGF0ZV9zdGF0KHZiLCBp
-ZHgrKywgVklSVElPX0JBTExPT05fU19NRU1GUkVFLAo+Pj4+Pj4+Pj4+PiAgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHBhZ2VzX3RvX2J5dGVzKGkuZnJlZXJhbSkpOwo+Pj4+
-Pj4+Pj4+PiBkaWZmIC0tZ2l0Cj4+Pj4+Pj4+Pj4+IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRp
-b19iYWxsb29uLmgKPj4+Pj4+Pj4+Pj4gYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxv
-b24uaAo+Pj4+Pj4+Pj4+PiBpbmRleCA0ZThiODMwLi40MDI5N2EzIDEwMDY0NAo+Pj4+Pj4+Pj4+
-PiAtLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaAo+Pj4+Pj4+Pj4+PiAr
-KysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxvb24uaAo+Pj4+Pj4+Pj4+PiBAQCAt
-NTMsNyArNTMsOSBAQCBzdHJ1Y3QgdmlydGlvX2JhbGxvb25fY29uZmlnIHsKPj4+Pj4+Pj4+Pj4g
-IMKgwqAgI2RlZmluZSBWSVJUSU9fQkFMTE9PTl9TX01FTVRPVMKgwqAgNQo+Pj4+Pj4+Pj4+PiAv
-KiBUb3RhbCBhbW91bnQgb2YgbWVtb3J5ICovCj4+Pj4+Pj4+Pj4+ICDCoMKgICNkZWZpbmUgVklS
-VElPX0JBTExPT05fU19BVkFJTMKgwqDCoCA2Cj4+Pj4+Pj4+Pj4+IC8qIEF2YWlsYWJsZSBtZW1v
-cnkgYXMgaW4gL3Byb2MgKi8KPj4+Pj4+Pj4+Pj4gIMKgwqAgI2RlZmluZSBWSVJUSU9fQkFMTE9P
-Tl9TX0NBQ0hFU8KgwqAgN8KgwqAgLyogRGlzayBjYWNoZXMgKi8KPj4+Pj4+Pj4+Pj4gLSNkZWZp
-bmUgVklSVElPX0JBTExPT05fU19OUsKgwqDCoMKgwqDCoCA4Cj4+Pj4+Pj4+Pj4+ICsjZGVmaW5l
-IFZJUlRJT19CQUxMT09OX1NfSFRMQl9QR0FMTE9DCj4+Pj4+Pj4+Pj4+IDjCoCAvKiBIdWdldGxi
-IHBhZ2UgYWxsb2NhdGlvbnMgKi8KPj4+Pj4+Pj4+Pj4gKyNkZWZpbmUgVklSVElPX0JBTExPT05f
-U19IVExCX1BHRkFJTAo+Pj4+Pj4+Pj4+PiA5wqAgLyogSHVnZXRsYiBwYWdlIGFsbG9jYXRpb24g
-ZmFpbHVyZXMKPj4+Pj4+Pj4+Pj4gKi8KPj4+Pj4+Pj4+Pj4gKyNkZWZpbmUgVklSVElPX0JBTExP
-T05fU19OUsKgwqDCoMKgwqDCoCAxMAo+Pj4+Pj4+Pj4+PiAgwqDCoMKgwqAgLyoKPj4+Pj4+Pj4+
-Pj4gIMKgwqDCoCAqIE1lbW9yeSBzdGF0aXN0aWNzIHN0cnVjdHVyZS4KPj4+Pj4+Pj4+PiBOb3Qg
-Zm9yIHRoaXMgcGF0Y2gsIGJ1dCBpdCBsb29rcyB0byBtZSB0aGF0Cj4+Pj4+Pj4+Pj4gZXhwb3J0
-aW5nIHN1Y2ggbnIgdGhyb3VnaCB1YXBpIGlzIGZyYWdpbGUuCj4+Pj4+Pj4+PiBTb3JyeSwgY2Fu
-IHlvdSBleHBsYWluIHdoYXQgeW91IG1lYW4gaGVyZT8KPj4+Pj4+Pj4+Cj4+Pj4+Pj4+PiBKb24K
-Pj4+Pj4+Pj4gU3BlYyBzYWlkICJXaXRoaW4gYW4gb3V0cHV0IGJ1ZmZlciBzdWJtaXR0ZWQgdG8g
-dGhlCj4+Pj4+Pj4+IHN0YXRzcSwgdGhlIGRldmljZSBNVVNUCj4+Pj4+Pj4+IGlnbm9yZSBlbnRy
-aWVzIHdpdGggdGFnIHZhbHVlcyB0aGF0IGl0IGRvZXMgbm90Cj4+Pj4+Pj4+IHJlY29nbml6ZSIu
-IFNvIGV4cG9ydGluZwo+Pj4+Pj4+PiBWSVJUSU9fQkFMTE9PTl9TX05SIHNlZW1zIHVzZWxlc3Mg
-YW5kIGRldmljZQo+Pj4+Pj4+PiBpbXBsZW1lbnRhdGlvbiBjYW4gbm90IGRlcGVuZAo+Pj4+Pj4+
-PiBvbiBzdWNoIG51bWJlciBpbiB1YXBpLgo+Pj4+Pj4+Pgo+Pj4+Pj4+PiBUaGFua3MKPj4+Pj4+
-PiBTdWdnZXN0aW9ucz8gSSBkb24ndCBsaWtlIHRvIGJyZWFrIGJ1aWxkIGZvciBwZW9wbGUgLi4u
-Cj4+Pj4+Pj4KPj4+Pj4+Cj4+Pj4+PiBEaWRuJ3QgaGF2ZSBhIGdvb2QgaWRlYS4gQnV0IG1heWJl
-IHdlIHNob3VsZCBrZWVwCj4+Pj4+PiBWSVJUSU9fQkFMTE9PTl9TX05SIHVuY2hhbmdlZCwgYW5k
-IGFkZCBhIGNvbW1lbnQgaGVyZS4KPj4+Pj4+Cj4+Pj4+PiBUaGFua3MKPj4+Pj4KPj4+Pj4gSSB0
-aGluayBKYXNvbidzIGNvbW1lbnQgaXMgZm9yIGEgZnV0dXJlIHBhdGNoLiBEaWRuJ3Qgc2VlIHRo
-aXMKPj4+Pj4gcGF0Y2ggZ2V0IGFwcGxpZWQsIHNvIHdvbmRlcmluZyBpZiBpdCBjb3VsZCBiZS4K
-Pj4+Pj4KPj4+Pj4gVGhhbmtzLAo+Pj4+PiBKb24KPj4+Pgo+Pj4+IEhpIEpvbjoKPj4+Pgo+Pj4+
-IEhhdmUgeW91IHRlc3RlZCBuZXcgZHJpdmVyIHdpdGggb2xkIHFlbXU/Cj4+Pgo+Pj4gWWVzLCB0
-aGlzIHRlc3Rpbmcgc2NlbmFyaW8gbG9va3MgZ29vZC4gVGhhbmtzLgo+Pj4KPj4+IEpvbgo+Pgo+
-PiBIaSBKb246Cj4+Cj4+IEkgbWVhbiBlLmcgY29tcGlsaW5nIHFlbXUgd2l0aCBuZXcgbGludXgg
-aGVhZGVycy4gRS5nIGN1cnJlbnQgcWVtdSBoYXM6Cj4+Cj4+IHN0YXRpYyBjb25zdCBjaGFyICpi
-YWxsb29uX3N0YXRfbmFtZXNbXSA9IHsKPj4gIMKgwqAgW1ZJUlRJT19CQUxMT09OX1NfU1dBUF9J
-Tl0gPSAic3RhdC1zd2FwLWluIiwKPj4gIMKgwqAgW1ZJUlRJT19CQUxMT09OX1NfU1dBUF9PVVRd
-ID0gInN0YXQtc3dhcC1vdXQiLAo+PiAgwqDCoCBbVklSVElPX0JBTExPT05fU19NQUpGTFRdID0g
-InN0YXQtbWFqb3ItZmF1bHRzIiwKPj4gIMKgwqAgW1ZJUlRJT19CQUxMT09OX1NfTUlORkxUXSA9
-ICJzdGF0LW1pbm9yLWZhdWx0cyIsCj4+ICDCoMKgIFtWSVJUSU9fQkFMTE9PTl9TX01FTUZSRUVd
-ID0gInN0YXQtZnJlZS1tZW1vcnkiLAo+PiAgwqDCoCBbVklSVElPX0JBTExPT05fU19NRU1UT1Rd
-ID0gInN0YXQtdG90YWwtbWVtb3J5IiwKPj4gIMKgwqAgW1ZJUlRJT19CQUxMT09OX1NfQVZBSUxd
-ID0gInN0YXQtYXZhaWxhYmxlLW1lbW9yeSIsCj4+ICDCoMKgIFtWSVJUSU9fQkFMTE9PTl9TX0NB
-Q0hFU10gPSAic3RhdC1kaXNrLWNhY2hlcyIsCj4+ICDCoMKgIFtWSVJUSU9fQkFMTE9PTl9TX05S
-XSA9IE5VTEwKPj4gfTsKPj4KPj4gSSdtIGFmcmFpZCBpdCB3aWxsIGJlIGJyb2tlbiBpZiBWSVJU
-SU9fQkFMTE9PTl9TX05SIGlzIDEwLgo+Pgo+PiBUaGFua3MKPiAKPiBXZWxsIGl0IGlzIGhhbmR5
-IGZvciBzaXppbmcgYXJyYXlzIGFuZCB0aGlzIGlzbid0IHRoZSBmaXJzdCB0aW1lIHdlIGRpZAo+
-IHRoaXM6Cj4gCj4gY29tbWl0IDRkMzIwMjliOGRkYjdiZTRkMTY5OWM2ZDhlMTY3NWZmNTQ3NmQx
-NDkKPiBBdXRob3I6IFRvbcOhxaEgR29sZW1iaW92c2vDvSA8dGdvbGVtYmlAcmVkaGF0LmNvbT4K
-PiBEYXRlOiAgIFN1biBOb3YgMTIgMTM6MDU6MzggMjAxNyArMDEwMAo+IAo+ICAgICAgdmlydGlv
-X2JhbGxvb246IGluY2x1ZGUgZGlzay9maWxlIGNhY2hlcyBtZW1vcnkgc3RhdGlzdGljcwo+ICAg
-ICAgCj4gICAgCj4gCj4gY29tbWl0IDUwNTdkY2QwZjFhYWFkNTdlMDdlNzI4YmEyMGE5OWUyMDVj
-NmI5ZGUKPiBBdXRob3I6IElnb3IgUmVka28gPHJlZGtvaUB2aXJ0dW96em8uY29tPgo+IERhdGU6
-ICAgVGh1IE1hciAxNyAxNDoxOTowOCAyMDE2IC0wNzAwCj4gCj4gICAgICB2aXJ0aW9fYmFsbG9v
-bjogZXhwb3J0ICdhdmFpbGFibGUnIG1lbW9yeSB0byBiYWxsb29uIHN0YXRpc3RpY3MKPiAgICAg
-IAo+IAo+IGhvdyBhYm91dCB3ZSBnaXZlIFFFTVUgYSBoYW5kIGFuZCBqdXN0IHB1dCB0aGUgbGlz
-dCBvZiBuYW1lcyBpbgo+IHRoZSBoZWFkZXI/Cj4gCj4gSSBwb3N0ZWQgYSBwYXRjaCBsaWtlIHRo
-YXQsIHBscyByZXZpZXcuCj4gCgpTb3JyeSwgbWF5YmUgSSdtIG1pc3Npbmcgc29tZXRoaW5nLiBX
-ZSBoYXZlIGFuIGludGVybmFsIGNvcHkgb2YgdGhlIApoZWFkZXIgZmlsZSBpbiBxZW11IHVuZGVy
-IAppbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgvdmlydGlvX2JhbGxvb24uaCwgd2hpY2gg
-Cmh3L3ZpcnRpby92aXJ0aW8tYmFsbG9vbi5jIGluY2x1ZGVzICh0aHJvdWdoIGluY2x1ZGluZyAK
-aHcvdmlydGlvL3ZpcnRpby1iYWxsb29uLmgpLiBJIHRob3VnaHQgcWVtdSB3b3VsZCB1c2UgaW50
-ZXJuYWwgaGVhZGVyIApmaWxlcyBzbyB0aGF0IGl0IGNvdWxkIGJlIGNvbXBpbGVkIG9uIGFueSBM
-aW51eCBrZXJuZWwgdmVyc2lvbi4gU28gd2hlbiAKd291bGQgd2UgZXZlciBoYXZlIHRoZSBpc3N1
-ZSBKYXNvbiBpcyBkaXNjdXNzaW5nPwoKVGhhbmtzLApKb24KX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+
+On 04/13/2018 06:44 AM, Michael S. Tsirkin wrote:
+> Jason Wang points out that it's vary hard for users to build an array of
+
+s/vary/very
+
+> stat names. The naive thing is to use VIRTIO_BALLOON_S_NR but that
+> breaks if we add more stats.
+> 
+> Let's add an array of reasonably readable names.
+
+Thanks for doing this, this is goodness. Clients of this interface will 
+now only require a modification to their internal copy of the header 
+file (if they have one), rather than updating their string array as well.
+
+> 
+> Fixes: 6c64fe7f2 ("virtio_balloon: export hugetlb page allocation counts")
+
+I think this is a tad bit confusing since the only way you'd know why 
+this patch "fixes" 6c64fe7f2 is by reading the LKML archives and finding 
+Jason's comment.
+
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Jonathan Helman <jonathan.helman@oracle.com>, > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+Reviewed-by: Jonathan Helman <jonathan.helman@oracle.com>
+
+> ---
+>   include/uapi/linux/virtio_balloon.h | 15 +++++++++++++++
+>   1 file changed, 15 insertions(+)
+> 
+> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+> index 9e02137..1477c17 100644
+> --- a/include/uapi/linux/virtio_balloon.h
+> +++ b/include/uapi/linux/virtio_balloon.h
+> @@ -64,6 +64,21 @@ struct virtio_balloon_config {
+>   #define VIRTIO_BALLOON_S_HTLB_PGFAIL   9  /* Hugetlb page allocation failures */
+>   #define VIRTIO_BALLOON_S_NR       10
+>   
+> +#define VIRTIO_BALLOON_S_NAMES_WITH_PREFIX(VIRTIO_BALLOON_S_NAMES_prefix) { \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "swap-in", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "swap-out", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "major-faults", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "minor-faults", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "free-memory", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "total-memory", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "available-memory", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "disk-caches", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-allocations", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "hugetlb-failures" \ > +}
+> +
+> +#define VIRTIO_BALLOON_S_NAMES VIRTIO_BALLOON_S_NAMES_WITH_PREFIX("")
+> +
+>   /*
+>    * Memory statistics structure.
+>    * Driver fills an array of these structures and passes to device.
+> 
