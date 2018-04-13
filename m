@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC v2] virtio: support packed ring
-Date: Fri, 13 Apr 2018 18:22:45 +0300
-Message-ID: <20180413181808-mutt-send-email-mst__14785.6684089222$1523632846$gmane$org@kernel.org>
-References: <20180401141216.8969-1-tiwei.bie@intel.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net] virtio-net: add missing virtqueue kick when
+	flushing packets
+Date: Fri, 13 Apr 2018 11:27:12 -0400 (EDT)
+Message-ID: <20180413.112712.74483562688980325.davem__10003.7083066583$1523633144$gmane$org@davemloft.net>
+References: <1523602705-5155-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180401141216.8969-1-tiwei.bie@intel.com>
+In-Reply-To: <1523602705-5155-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,87 +18,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: jasowang@redhat.com
+Cc: daniel@iogearbox.net, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, ktaka@nii.ac.jp
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Apr 01, 2018 at 10:12:16PM +0800, Tiwei Bie wrote:
-> +static inline bool more_used(const struct vring_virtqueue *vq)
-> +{
-> +	return vq->packed ? more_used_packed(vq) : more_used_split(vq);
-> +}
-> +
-> +void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq, unsigned int *len,
-> +				  void **ctx)
-> +{
-> +	struct vring_virtqueue *vq = to_vvq(_vq);
-> +	void *ret;
-> +	unsigned int i;
-> +	u16 last_used;
-> +
-> +	START_USE(vq);
-> +
-> +	if (unlikely(vq->broken)) {
-> +		END_USE(vq);
-> +		return NULL;
-> +	}
-> +
-> +	if (!more_used(vq)) {
-> +		pr_debug("No more buffers in queue\n");
-> +		END_USE(vq);
-> +		return NULL;
-> +	}
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 13 Apr 2018 14:58:25 +0800
 
-So virtqueue_get_buf_ctx_split should only call more_used_split.
+> We tends to batch submitting packets during XDP_TX. This requires to
+> kick virtqueue after a batch, we tried to do it through
+> xdp_do_flush_map() which only makes sense for devmap not XDP_TX. So
+> explicitly kick the virtqueue in this case.
+> 
+> Reported-by: Kimitoshi Takahashi <ktaka@nii.ac.jp>
+> Tested-by: Kimitoshi Takahashi <ktaka@nii.ac.jp>
+> Cc: Daniel Borkmann <daniel@iogearbox.net>
+> Fixes: 186b3c998c50 ("virtio-net: support XDP_REDIRECT")
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-to avoid such issues I think we should lay out the code like this:
-
-XXX_split
-
-XXX_packed
-
-XXX wrappers
-
-> +/* The standard layout
-
-I'd drop standard here.
-
-> for the packed ring is a continuous chunk of memory
-> + * which looks like this.
-> + *
-> + * struct vring_packed
-> + * {
-
-Can the opening bracket go on the prev line pls?
-
-> + *	// The actual descriptors (16 bytes each)
-> + *	struct vring_packed_desc desc[num];
-> + *
-> + *	// Padding to the next align boundary.
-> + *	char pad[];
-> + *
-> + *	// Driver Event Suppression
-> + *	struct vring_packed_desc_event driver;
-> + *
-> + *	// Device Event Suppression
-> + *	struct vring_packed_desc_event device;
-
-Maybe that's how our driver does it but it's not based on spec
-so I don't think this belongs in the header.
-
-> + * };
-> + */
-> +
-> +static inline unsigned vring_packed_size(unsigned int num, unsigned long align)
-> +{
-> +	return ((sizeof(struct vring_packed_desc) * num + align - 1)
-> +		& ~(align - 1)) + sizeof(struct vring_packed_desc_event) * 2;
-> +}
-> +
-
-Cant say this API makes sense for me.
-
-
->  #endif /* _UAPI_LINUX_VIRTIO_RING_H */
-> -- 
-> 2.11.0
+Applied and queued up for -stable, thanks Jason.
