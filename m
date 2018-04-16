@@ -1,22 +1,18 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC] virtio: Use DMA MAP API for devices without an IOMMU
-Date: Sun, 15 Apr 2018 05:11:57 -0700
-Message-ID: <20180415121157.GA17726@infradead.org>
-References: <20180405105631.9514-1-khandual@linux.vnet.ibm.com>
-	<3e1b113b-79ca-b700-5be9-10c66d74aabe@linux.vnet.ibm.com>
-	<20180405175326-mutt-send-email-mst@kernel.org>
-	<1522940983.21446.205.camel@kernel.crashing.org>
-	<20180405213042-mutt-send-email-mst@kernel.org>
-	<1522963113.21446.211.camel@kernel.crashing.org>
-	<70cb433f-a8f7-5199-3c96-a760c7624804@linux.vnet.ibm.com>
-	<20180406071634.GA31108@infradead.org>
-	<1523003838.21446.238.camel@kernel.crashing.org>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Subject: Re: [PATCH net-next 1/5] virtio: Add support for SCTP checksum
+	offloading
+Date: Mon, 16 Apr 2018 09:45:48 -0400
+Message-ID: <f5655ab8-f24f-a5a5-d000-2bbb90ecc552__47165.5149515302$1523886267$gmane$org@redhat.com>
+References: <20180402134006.10111-1-vyasevic@redhat.com>
+	<20180402134006.10111-2-vyasevic@redhat.com>
+	<20180412014548-mutt-send-email-mst@kernel.org>
+Reply-To: vyasevic@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1523003838.21446.238.camel@kernel.crashing.org>
+In-Reply-To: <20180412014548-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,29 +22,119 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: robh@kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Vladislav Yasevich <vyasevich@gmail.com>
+Cc: netdev@vger.kernel.org, linux-sctp@vger.kernel.org, nhorman@tuxdriver.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 06, 2018 at 06:37:18PM +1000, Benjamin Herrenschmidt wrote:
-> > > implemented as DMA API which the virtio core understands. There is no
-> > > need for an IOMMU to be involved for the device representation in this
-> > > case IMHO.
-> > 
-> > This whole virtio translation issue is a mess.  I think we need to
-> > switch it to the dma API, and then quirk the legacy case to always
-> > use the direct mapping inside the dma API.
+On 04/11/2018 06:49 PM, Michael S. Tsirkin wrote:
+> On Mon, Apr 02, 2018 at 09:40:02AM -0400, Vladislav Yasevich wrote:
+>> To support SCTP checksum offloading, we need to add a new feature
+>> to virtio_net, so we can negotiate support between the hypervisor
+>> and the guest.
+>>
+>> The signalling to the guest that an alternate checksum needs to
+>> be used is done via a new flag in the virtio_net_hdr.  If the
+>> flag is set, the host will know to perform an alternate checksum
+>> calculation, which right now is only CRC32c.
+>>
+>> Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
+>> ---
+>>  drivers/net/virtio_net.c        | 11 ++++++++---
+>>  include/linux/virtio_net.h      |  6 ++++++
+>>  include/uapi/linux/virtio_net.h |  2 ++
+>>  3 files changed, 16 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 7b187ec..b601294 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -2724,9 +2724,14 @@ static int virtnet_probe(struct virtio_device *vdev)
+>>  	/* Do we support "hardware" checksums? */
+>>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_CSUM)) {
+>>  		/* This opens up the world of extra features. */
+>> -		dev->hw_features |= NETIF_F_HW_CSUM | NETIF_F_SG;
+>> +		netdev_features_t sctp = 0;
+>> +
+>> +		if (virtio_has_feature(vdev, VIRTIO_NET_F_SCTP_CSUM))
+>> +			sctp |= NETIF_F_SCTP_CRC;
+>> +
+>> +		dev->hw_features |= NETIF_F_HW_CSUM | NETIF_F_SG | sctp;
+>>  		if (csum)
+>> -			dev->features |= NETIF_F_HW_CSUM | NETIF_F_SG;
+>> +			dev->features |= NETIF_F_HW_CSUM | NETIF_F_SG | sctp;
+>>  
+>>  		if (virtio_has_feature(vdev, VIRTIO_NET_F_GSO)) {
+>>  			dev->hw_features |= NETIF_F_TSO
+>> @@ -2952,7 +2957,7 @@ static struct virtio_device_id id_table[] = {
+>>  };
+>>  
+>>  #define VIRTNET_FEATURES \
+>> -	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM, \
+>> +	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM,  VIRTIO_NET_F_SCTP_CSUM, \
+>>  	VIRTIO_NET_F_MAC, \
+>>  	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6, \
+>>  	VIRTIO_NET_F_HOST_ECN, VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6, \
+>> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+>> index f144216..2e7a64a 100644
+>> --- a/include/linux/virtio_net.h
+>> +++ b/include/linux/virtio_net.h
+>> @@ -39,6 +39,9 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>>  
+>>  		if (!skb_partial_csum_set(skb, start, off))
+>>  			return -EINVAL;
+>> +
+>> +		if (hdr->flags & VIRTIO_NET_HDR_F_CSUM_NOT_INET)
+>> +			skb->csum_not_inet = 1;
+>>  	}
+>>  
+>>  	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+>> @@ -96,6 +99,9 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+>>  		hdr->flags = VIRTIO_NET_HDR_F_DATA_VALID;
+>>  	} /* else everything is zero */
+>>  
+>> +	if (skb->csum_not_inet)
+>> +		hdr->flags &= VIRTIO_NET_HDR_F_CSUM_NOT_INET;
+>> +
+>>  	return 0;
+>>  }
+>>  
+>> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+>> index 5de6ed3..3f279c8 100644
+>> --- a/include/uapi/linux/virtio_net.h
+>> +++ b/include/uapi/linux/virtio_net.h
+>> @@ -36,6 +36,7 @@
+>>  #define VIRTIO_NET_F_GUEST_CSUM	1	/* Guest handles pkts w/ partial csum */
+>>  #define VIRTIO_NET_F_CTRL_GUEST_OFFLOADS 2 /* Dynamic offload configuration. */
+>>  #define VIRTIO_NET_F_MTU	3	/* Initial MTU advice */
+>> +#define VIRTIO_NET_F_SCTP_CSUM  4	/* SCTP checksum offload support */
+>>  #define VIRTIO_NET_F_MAC	5	/* Host has given MAC address. */
+>>  #define VIRTIO_NET_F_GUEST_TSO4	7	/* Guest can handle TSOv4 in. */
+>>  #define VIRTIO_NET_F_GUEST_TSO6	8	/* Guest can handle TSOv6 in. */
 > 
-> Fine with using a dma API always on the Linux side, but we do want to
-> special case virtio still at the arch and qemu side to have a "direct
-> mapping" mode. Not sure how (special flags on PCI devices) to avoid
-> actually going through an emulated IOMMU on the qemu side, because that
-> slows things down, esp. with vhost.
+> Is this a guest or a host checksum? We should differenciate between the
+> two.
+
+I suppose this is HOST checksum, since it behaves like VIRTIO_NET_F_CSUM only for
+SCTP.  I couldn't find the use for the GUEST side flag, since there technically
+isn't any validations and there is no additional mappings from VIRTIO flag to a
+NETIF flag.
+
+If the feature is negotiated, the guest ends up generating partially check-summed
+packets, and the host turns on appropriate flags on it's side.   The host will
+also make sure the checksum if fixed up if the guest doesn't support it.
+So 1 flag is currently all that is needed.
+
+-vlad
+
 > 
-> IE, we can't I think just treat it the same as a physical device.
-
-We should have treated it like a physical device from the start, but
-that device has unfortunately sailed.
-
-But yes, we'll need a per-device quirk that says 'don't attach an
-iommu'.
+> 
+>> @@ -101,6 +102,7 @@ struct virtio_net_config {
+>>  struct virtio_net_hdr_v1 {
+>>  #define VIRTIO_NET_HDR_F_NEEDS_CSUM	1	/* Use csum_start, csum_offset */
+>>  #define VIRTIO_NET_HDR_F_DATA_VALID	2	/* Csum is valid */
+>> +#define VIRTIO_NET_HDR_F_CSUM_NOT_INET  4       /* Checksum is not inet */
+>>  	__u8 flags;
+>>  #define VIRTIO_NET_HDR_GSO_NONE		0	/* Not a GSO frame */
+>>  #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
+>> -- 
+>> 2.9.5
