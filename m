@@ -1,16 +1,16 @@
 From: Mikulas Patocka <mpatocka@redhat.com>
 Subject: Re: [PATCH] net: don't use kvzalloc for DMA memory
-Date: Wed, 18 Apr 2018 13:53:59 -0400 (EDT)
-Message-ID: <alpine.LRH.2.02.1804181350050.17942__1167.29799560762$1524073941$gmane$org@file01.intranet.prod.int.rdu2.redhat.com>
-References: <alpine.LRH.2.02.1804181029270.19294@file01.intranet.prod.int.rdu2.redhat.com>
-	<3e65977e-53cd-bf09-bc4b-0ce40e9091fe@gmail.com>
+Date: Wed, 18 Apr 2018 13:55:21 -0400 (EDT)
+Message-ID: <alpine.LRH.2.02.1804181354490.17942__24732.9880054624$1524074023$gmane$org@file01.intranet.prod.int.rdu2.redhat.com>
+References: <3e65977e-53cd-bf09-bc4b-0ce40e9091fe@gmail.com>
 	<alpine.LRH.2.02.1804181218270.19136@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180418.134651.2225112489265654270.davem@davemloft.net>
+	<5f4e1286-b79f-0b9f-9a30-47d7654f3889@gmail.com>
+	<20180418.134721.283381724211219025.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180418.134651.2225112489265654270.davem@davemloft.net>
+In-Reply-To: <20180418.134721.283381724211219025.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,29 +21,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: David Miller <davem@davemloft.net>
-Cc: eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, bhutchings@solarflare.com
+Cc: eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, joby.poriyath@citrix.com, bhutchings@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 On Wed, 18 Apr 2018, David Miller wrote:
 
-> From: Mikulas Patocka <mpatocka@redhat.com>
-> Date: Wed, 18 Apr 2018 12:44:25 -0400 (EDT)
+> From: Eric Dumazet <eric.dumazet@gmail.com>
+> Date: Wed, 18 Apr 2018 09:51:25 -0700
 > 
-> > The structure net_device is followed by arbitrary driver-specific data 
-> > (accessible with the function netdev_priv). And for virtio-net, these 
-> > driver-specific data must be in DMA memory.
+> > I suggest that virtio_net clearly identifies which part needs a specific allocation
+> > and does its itself, instead of abusing the netdev_priv storage.
+> > 
+> > Ie use a pointer to a block of memory, allocated by virtio_net, for virtio_net.
 > 
-> And we are saying that this assumption is wrong and needs to be
-> corrected.
+> +1
 
-So, try to find all the networking drivers that to DMA to the private 
-area.
-
-The problem here is that kvzalloc usually returns DMA-able area, but it 
-may return non-DMA area rarely, if the memory is too fragmented. So, we 
-are in a situation, where some networking drivers will randomly fail. Go 
-and find them.
+And what about the other networking drivers that may do the same thing?
 
 Mikulas
