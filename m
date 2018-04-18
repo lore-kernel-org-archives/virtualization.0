@@ -1,16 +1,16 @@
 From: Mikulas Patocka <mpatocka@redhat.com>
 Subject: Re: [PATCH] net: don't use kvzalloc for DMA memory
-Date: Wed, 18 Apr 2018 13:49:54 -0400 (EDT)
-Message-ID: <alpine.LRH.2.02.1804181345590.17942__39061.3336734988$1524073695$gmane$org@file01.intranet.prod.int.rdu2.redhat.com>
+Date: Wed, 18 Apr 2018 13:53:59 -0400 (EDT)
+Message-ID: <alpine.LRH.2.02.1804181350050.17942__1167.29799560762$1524073941$gmane$org@file01.intranet.prod.int.rdu2.redhat.com>
 References: <alpine.LRH.2.02.1804181029270.19294@file01.intranet.prod.int.rdu2.redhat.com>
 	<3e65977e-53cd-bf09-bc4b-0ce40e9091fe@gmail.com>
 	<alpine.LRH.2.02.1804181218270.19136@file01.intranet.prod.int.rdu2.redhat.com>
-	<5f4e1286-b79f-0b9f-9a30-47d7654f3889@gmail.com>
+	<20180418.134651.2225112489265654270.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5f4e1286-b79f-0b9f-9a30-47d7654f3889@gmail.com>
+In-Reply-To: <20180418.134651.2225112489265654270.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,85 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Ben Hutchings <bhutchings@solarflare.com>, "David S. Miller" <davem@davemloft.net>
+To: David Miller <davem@davemloft.net>
+Cc: eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, bhutchings@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
-On Wed, 18 Apr 2018, Eric Dumazet wrote:
+On Wed, 18 Apr 2018, David Miller wrote:
 
+> From: Mikulas Patocka <mpatocka@redhat.com>
+> Date: Wed, 18 Apr 2018 12:44:25 -0400 (EDT)
 > 
-> 
-> On 04/18/2018 09:44 AM, Mikulas Patocka wrote:
-> > 
-> > 
-> > On Wed, 18 Apr 2018, Eric Dumazet wrote:
-> > 
-> >>
-> >>
-> >> On 04/18/2018 07:34 AM, Mikulas Patocka wrote:
-> >>> The patch 74d332c13b21 changes alloc_netdev_mqs to use vzalloc if kzalloc
-> >>> fails (later patches change it to kvzalloc).
-> >>>
-> >>> The problem with this is that if the vzalloc function is actually used, 
-> >>> virtio_net doesn't work (because it expects that the extra memory should 
-> >>> be accessible with DMA-API and memory allocated with vzalloc isn't).
-> >>>
-> >>> This patch changes it back to kzalloc and adds a warning if the allocated
-> >>> size is too large (the allocation is unreliable in this case).
-> >>>
-> >>> Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-> >>> Fixes: 74d332c13b21 ("net: extend net_device allocation to vmalloc()")
-> >>>
-> >>> ---
-> >>>  net/core/dev.c |    3 ++-
-> >>>  1 file changed, 2 insertions(+), 1 deletion(-)
-> >>>
-> >>> Index: linux-2.6/net/core/dev.c
-> >>> ===================================================================
-> >>> --- linux-2.6.orig/net/core/dev.c	2018-04-16 21:08:36.000000000 +0200
-> >>> +++ linux-2.6/net/core/dev.c	2018-04-18 16:24:43.000000000 +0200
-> >>> @@ -8366,7 +8366,8 @@ struct net_device *alloc_netdev_mqs(int
-> >>>  	/* ensure 32-byte alignment of whole construct */
-> >>>  	alloc_size += NETDEV_ALIGN - 1;
-> >>>  
-> >>> -	p = kvzalloc(alloc_size, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
-> >>> +	WARN_ON(alloc_size > PAGE_SIZE << PAGE_ALLOC_COSTLY_ORDER);
-> >>> +	p = kzalloc(alloc_size, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
-> >>>  	if (!p)
-> >>>  		return NULL;
-> >>>  
-> >>>
-> >>
-> >> Since when a net_device needs to be in DMA zone ???
-> >>
-> >> I would rather fix virtio_net, this looks very suspect to me.
-> >>
-> >> Each virtio_net should probably allocate the exact amount of DMA-memory it wants,
-> >> instead of expecting core networking stack to have a huge chunk of DMA-memory for everything.
-> > 
 > > The structure net_device is followed by arbitrary driver-specific data 
 > > (accessible with the function netdev_priv). And for virtio-net, these 
 > > driver-specific data must be in DMA memory.
 > 
-> I get that, but how is the original xenvif problem will be solved ?
-> 
-> Your patch would add a bug in some other driver(s)
-> 
-> I suggest that virtio_net clearly identifies which part needs a specific allocation
-> and does its itself, instead of abusing the netdev_priv storage.
-> 
-> Ie use a pointer to a block of memory, allocated by virtio_net, for virtio_net.
+> And we are saying that this assumption is wrong and needs to be
+> corrected.
 
-There are drivers that need to do DMA to driver-specific area.
-And there are drivers that need driver-specific area larger than kmalloc 
-limit.
+So, try to find all the networking drivers that to DMA to the private 
+area.
 
-These are conflicting requirements and one of those drivers must be 
-changed.
-
-I suggest to change the drivers that need large driver-specific area. 
-That's why I added the WARN_ON, so that they can be identified.
+The problem here is that kvzalloc usually returns DMA-able area, but it 
+may return non-DMA area rarely, if the memory is too fragmented. So, we 
+are in a situation, where some networking drivers will randomly fail. Go 
+and find them.
 
 Mikulas
