@@ -1,17 +1,23 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN netdevice
-Date: Tue, 17 Apr 2018 17:26:28 -0700
-Message-ID: <CADGSJ21nQ1BQctfZcThpmOcOUrpqLfG71jsh2trb1utVjNQH=Q__38859.6061071896$1524011095$gmane$org@mail.gmail.com>
-References: <54accf73-e6cc-e03f-6a1c-34e1bbd78047@gmail.com>
-	<20180404.133749.1802514210170809419.davem@davemloft.net>
-	<CADGSJ206RKi704uoLe3xVs6PyWpURPLb75OPCM_YO9DfnnEzpw@mail.gmail.com>
-	<20180408.123207.2294740686493951200.davem@davemloft.net>
-	<CADGSJ233AmbBrTP-A_u3-5fkr=HUJka_xcSNWxO1HWGua1J92Q@mail.gmail.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [RFC v2] virtio: support packed ring
+Date: Wed, 18 Apr 2018 09:17:57 +0800
+Message-ID: <20180418011757.ldeju5zh3e4366m5@debian>
+References: <20180401141216.8969-1-tiwei.bie@intel.com>
+	<ebfbfc3e-9e52-9331-61b6-258e131f822d@redhat.com>
+	<20180413071529.f4esh654dakodf4f@debian>
+	<8dee7d62-ac0b-54ba-6bec-4bc4a6fb34e9@redhat.com>
+	<20180417025133.7t7exmizgolr565z@debian>
+	<20180417151654-mutt-send-email-mst@kernel.org>
+	<20180417124716.wsypd5zl4n4galrz@debian>
+	<20180417170354-mutt-send-email-mst@kernel.org>
+	<20180417145626.y5vei4y6irrdw7ky@debian>
+	<20180417184810-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CADGSJ233AmbBrTP-A_u3-5fkr=HUJka_xcSNWxO1HWGua1J92Q@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20180417184810-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,121 +27,102 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Ahern <dsahern@gmail.com>, si-wei liu <si-wei.liu@oracle.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-I ran this with a few folks offline and gathered some good feedbacks
-that I'd like to share thus revive the discussion.
-
-First of all, as illustrated in the reply below, cloud service
-providers require transparent live migration. Specifically, the main
-target of our case is to support SR-IOV live migration via kernel
-upgrade while keeping the userspace of old distros unmodified. If it's
-because this use case is not appealing enough for the mainline to
-adopt, I will shut up and not continue discussing, although
-technically it's entirely possible (and there's precedent in other
-implementation) to do so to benefit any cloud service providers.
-
-If it's just the implementation of hiding netdev itself needs to be
-improved, such as implementing it as attribute flag or adding linkdump
-API, that's completely fine and we can look into that. However, the
-specific issue needs to be undestood beforehand is to make transparent
-SR-IOV to be able to take over the name (so inherit all the configs)
-from the lower netdev, which needs some games with uevents and name
-space reservation. So far I don't think it's been well discussed.
-
-One thing in particular I'd like to point out is that the 3-netdev
-model currently missed to address the core problem of live migration:
-migration of hardware specific feature/state, for e.g. ethtool configs
-and hardware offloading states. Only general network state (IP
-address, gateway, for eg.) associated with the bypass interface can be
-migrated. As a follow-up work, bypass driver can/should be enhanced to
-save and apply those hardware specific configs before or after
-migration as needed. The transparent 1-netdev model being proposed as
-part of this patch series will be able to solve that problem naturally
-by making all hardware specific configurations go through the central
-bypass driver, such that hardware configurations can be replayed when
-new VF or passthrough gets plugged back in. Although that
-corresponding function hasn't been implemented today, I'd like to
-refresh everyone's mind that is the core problem any live migration
-proposal should have addressed.
-
-If it would make things more clear to defer netdev hiding until all
-functionalities regarding centralizing and replay are implemented,
-we'd take advices like that and move on to implementing those features
-as follow-up patches. Once all needed features get done, we'd resume
-the work for hiding lower netdev at that point. Think it would be the
-best to make everyone understand the big picture in advance before
-going too far.
-
-Thanks, comments welcome.
-
--Siwei
-
-
-On Mon, Apr 9, 2018 at 11:48 PM, Siwei Liu <loseweigh@gmail.com> wrote:
-> On Sun, Apr 8, 2018 at 9:32 AM, David Miller <davem@davemloft.net> wrote:
->> From: Siwei Liu <loseweigh@gmail.com>
->> Date: Fri, 6 Apr 2018 19:32:05 -0700
->>
->>> And I assume everyone here understands the use case for live
->>> migration (in the context of providing cloud service) is very
->>> different, and we have to hide the netdevs. If not, I'm more than
->>> happy to clarify.
->>
->> I think you still need to clarify.
->
-> OK. The short answer is cloud users really want *transparent* live migration.
->
-> By being transparent it means they don't and shouldn't care about the
-> existence and the occurence of live migration, but they do if
-> userspace toolstack and libraries have to be updated or modified,
-> which means potential dependency brokeness of their applications. They
-> don't like any change to the userspace envinroment (existing apps
-> lift-and-shift, no recompilation, no re-packaging, no re-certification
-> needed), while no one barely cares about ABI or API compatibility in
-> the kernel level, as long as their applications don't break.
->
-> I agree the current bypass solution for SR-IOV live migration requires
-> guest cooperation. Though it doesn't mean guest *userspace*
-> cooperation. As a matter of fact, techinically it shouldn't invovle
-> userspace at all to get SR-IOV migration working. It's the kernel that
-> does the real work. If I understand the goal of this in-kernel
-> approach correctly, it was meant to save userspace from modification
-> or corresponding toolstack support, as those additional 2 interfaces
-> is more a side product of this approach, rather than being neccessary
-> for users to be aware of. All what the user needs to deal with is one
-> single interface, and that's what they care about. It's more a trouble
-> than help when they see 2 extra interfaces are present. Management
-> tools in the old distros don't recoginze them and try to bring up
-> those extra interfaces for its own. Various odd warnings start to spew
-> out, and there's a lot of caveats for the users to get around...
->
-> On the other hand, if we "teach" those cloud users to update the
-> userspace toolstack just for trading a feature they don't need, no one
-> is likely going to embrace the change. As such there's just no real
-> value of adopting this in-kernel bypass facility for any cloud service
-> provider. It does not look more appealing than just configure generic
-> bonding using its own set of daemons or scripts. But again, cloud
-> users don't welcome that facility. And basically it would get to
-> nearly the same set of problems if leaving userspace alone.
->
-> IMHO we're not hiding the devices, think it the way we're adding a
-> feature transparent to user. Those auto-managed slaves are ones users
-> don't care about much. And user is still able to see and configure the
-> lower netdevs if they really desires to do so. But generally the
-> target user for this feature won't need to know that. Why they care
-> how many interfaces a VM virtually has rather than how many interfaces
-> are actually _useable_ to them??
->
-> Thanks,
-> -Siwei
->
->
->>
->> netdevs are netdevs.  If they have special attributes, mark them as
->> such and the tools base their actions upon that.
->>
->> "Hiding", or changing classes, doesn't make any sense to me still.
+T24gVHVlLCBBcHIgMTcsIDIwMTggYXQgMDY6NTQ6NTFQTSArMDMwMCwgTWljaGFlbCBTLiBUc2ly
+a2luIHdyb3RlOgo+IE9uIFR1ZSwgQXByIDE3LCAyMDE4IGF0IDEwOjU2OjI2UE0gKzA4MDAsIFRp
+d2VpIEJpZSB3cm90ZToKPiA+IE9uIFR1ZSwgQXByIDE3LCAyMDE4IGF0IDA1OjA0OjU5UE0gKzAz
+MDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+ID4gT24gVHVlLCBBcHIgMTcsIDIwMTgg
+YXQgMDg6NDc6MTZQTSArMDgwMCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+IE9uIFR1ZSwgQXBy
+IDE3LCAyMDE4IGF0IDAzOjE3OjQxUE0gKzAzMDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToK
+PiA+ID4gPiA+IE9uIFR1ZSwgQXByIDE3LCAyMDE4IGF0IDEwOjUxOjMzQU0gKzA4MDAsIFRpd2Vp
+IEJpZSB3cm90ZToKPiA+ID4gPiA+ID4gT24gVHVlLCBBcHIgMTcsIDIwMTggYXQgMTA6MTE6NThB
+TSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ID4gPiBPbiAyMDE45bm0MDTmnIgx
+M+aXpSAxNToxNSwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gT24gRnJpLCBBcHIg
+MTMsIDIwMTggYXQgMTI6MzA6MjRQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+
+ID4gPiA+ID4gT24gMjAxOOW5tDA05pyIMDHml6UgMjI6MTIsIFRpd2VpIEJpZSB3cm90ZToKPiA+
+ID4gPiA+ID4gWy4uLl0KPiA+ID4gPiA+ID4gPiA+ID4gPiArc3RhdGljIGludCBkZXRhY2hfYnVm
+X3BhY2tlZChzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSwgdW5zaWduZWQgaW50IGhlYWQsCj4g
+PiA+ID4gPiA+ID4gPiA+ID4gKwkJCSAgICAgIHZvaWQgKipjdHgpCj4gPiA+ID4gPiA+ID4gPiA+
+ID4gK3sKPiA+ID4gPiA+ID4gPiA+ID4gPiArCXN0cnVjdCB2cmluZ19wYWNrZWRfZGVzYyAqZGVz
+YzsKPiA+ID4gPiA+ID4gPiA+ID4gPiArCXVuc2lnbmVkIGludCBpLCBqOwo+ID4gPiA+ID4gPiA+
+ID4gPiA+ICsKPiA+ID4gPiA+ID4gPiA+ID4gPiArCS8qIENsZWFyIGRhdGEgcHRyLiAqLwo+ID4g
+PiA+ID4gPiA+ID4gPiA+ICsJdnEtPmRlc2Nfc3RhdGVbaGVhZF0uZGF0YSA9IE5VTEw7Cj4gPiA+
+ID4gPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiA+ID4gPiA+ICsJaSA9IGhlYWQ7Cj4gPiA+ID4g
+PiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiA+ID4gPiA+ICsJZm9yIChqID0gMDsgaiA8IHZxLT5k
+ZXNjX3N0YXRlW2hlYWRdLm51bTsgaisrKSB7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gKwkJZGVzYyA9
+ICZ2cS0+dnJpbmdfcGFja2VkLmRlc2NbaV07Cj4gPiA+ID4gPiA+ID4gPiA+ID4gKwkJdnJpbmdf
+dW5tYXBfb25lX3BhY2tlZCh2cSwgZGVzYyk7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gKwkJZGVzYy0+
+ZmxhZ3MgPSAweDA7Cj4gPiA+ID4gPiA+ID4gPiA+IExvb2tzIGxpa2UgdGhpcyBpcyB1bm5lY2Vz
+c2FyeS4KPiA+ID4gPiA+ID4gPiA+IEl0J3Mgc2FmZXIgdG8gemVybyBpdC4gSWYgd2UgZG9uJ3Qg
+emVybyBpdCwgYWZ0ZXIgd2UKPiA+ID4gPiA+ID4gPiA+IGNhbGwgdmlydHF1ZXVlX2RldGFjaF91
+bnVzZWRfYnVmX3BhY2tlZCgpIHdoaWNoIGNhbGxzCj4gPiA+ID4gPiA+ID4gPiB0aGlzIGZ1bmN0
+aW9uLCB0aGUgZGVzYyBpcyBzdGlsbCBhdmFpbGFibGUgdG8gdGhlCj4gPiA+ID4gPiA+ID4gPiBk
+ZXZpY2UuCj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gV2VsbCBkZXRhY2hfdW51c2VkX2J1
+Zl9wYWNrZWQoKSBzaG91bGQgYmUgY2FsbGVkIGFmdGVyIGRldmljZSBpcyBzdG9wcGVkLAo+ID4g
+PiA+ID4gPiA+IG90aGVyd2lzZSBldmVuIGlmIHlvdSB0cnkgdG8gY2xlYXIsIHRoZXJlIHdpbGwg
+c3RpbGwgYmUgYSB3aW5kb3cgdGhhdCBkZXZpY2UKPiA+ID4gPiA+ID4gPiBtYXkgdXNlIGl0Lgo+
+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gVGhpcyBpcyBub3QgYWJvdXQgd2hldGhlciB0aGUgZGV2
+aWNlIGhhcyBiZWVuIHN0b3BwZWQgb3IKPiA+ID4gPiA+ID4gbm90LiBXZSBkb24ndCBoYXZlIG90
+aGVyIHBsYWNlcyB0byByZS1pbml0aWFsaXplIHRoZSByaW5nCj4gPiA+ID4gPiA+IGRlc2NyaXB0
+b3JzIGFuZCB3cmFwX2NvdW50ZXIuIFNvIHRoZXkgbmVlZCB0byBiZSBzZXQgdG8KPiA+ID4gPiA+
+ID4gdGhlIGNvcnJlY3QgdmFsdWVzIHdoZW4gZG9pbmcgZGV0YWNoX3VudXNlZF9idWYuCj4gPiA+
+ID4gPiA+IAo+ID4gPiA+ID4gPiBCZXN0IHJlZ2FyZHMsCj4gPiA+ID4gPiA+IFRpd2VpIEJpZQo+
+ID4gPiA+ID4gCj4gPiA+ID4gPiBmaW5kIHZxcyBpcyB0aGUgdGltZSB0byBkbyBpdC4KPiA+ID4g
+PiAKPiA+ID4gPiBUaGUgLmZpbmRfdnFzKCkgd2lsbCBjYWxsIC5zZXR1cF92cSgpIHdoaWNoIHdp
+bGwgZXZlbnR1YWxseQo+ID4gPiA+IGNhbGwgdnJpbmdfY3JlYXRlX3ZpcnRxdWV1ZSgpLiBJdCdz
+IGEgZGlmZmVyZW50IGNhc2UuIEhlcmUKPiA+ID4gPiB3ZSdyZSB0YWxraW5nIGFib3V0IHJlLWlu
+aXRpYWxpemluZyB0aGUgZGVzY3MgYW5kIHVwZGF0aW5nCj4gPiA+ID4gdGhlIHdyYXAgY291bnRl
+ciB3aGVuIGRldGFjaGluZyB0aGUgdW51c2VkIGRlc2NzIChJbiB0aGlzCj4gPiA+ID4gY2FzZSwg
+c3BsaXQgcmluZyBqdXN0IG5lZWRzIHRvIGRlY3JlYXNlIHZyaW5nLmF2YWlsLT5pZHgpLgo+ID4g
+PiA+IAo+ID4gPiA+IEJlc3QgcmVnYXJkcywKPiA+ID4gPiBUaXdlaSBCaWUKPiA+ID4gCj4gPiA+
+IFRoZXJlJ3Mgbm8gcmVxdWlyZW1lbnQgdGhhdCAgdmlydHF1ZXVlX2RldGFjaF91bnVzZWRfYnVm
+IHJlLWluaXRpYWxpemVzCj4gPiA+IHRoZSBkZXNjcy4gSXQgaGFwcGVucyBvbiBjbGVhbnVwIHBh
+dGgganVzdCBiZWZvcmUgZHJpdmVycyBkZWxldGUgdGhlCj4gPiA+IHZxcy4KPiA+IAo+ID4gQ29v
+bCwgSSB3YXNuJ3QgYXdhcmUgb2YgaXQuIEkgc2F3IHNwbGl0IHJpbmcgZGVjcmVhc2UKPiA+IHZy
+aW5nLmF2YWlsLT5pZHggYWZ0ZXIgZGV0YWNoaW5nIGFuIHVudXNlZCBkZXNjLCBzbyBJCj4gPiB0
+aG91Z2h0IGRldGFjaGluZyB1bnVzZWQgZGVzYyBhbHNvIG5lZWRzIHRvIG1ha2Ugc3VyZQo+ID4g
+dGhhdCB0aGUgcmluZyBzdGF0ZSB3aWxsIGJlIHVwZGF0ZWQgY29ycmVzcG9uZGluZ2x5Lgo+IAo+
+IAo+IEhtbS4gWW91IGFyZSByaWdodC4gU2VlbXMgdG8gYmUgb3V0IGNvbnNvbGUgZHJpdmVyIGJl
+aW5nIG91dCBvZiBzcGVjLgo+IFdpbGwgaGF2ZSB0byBsb29rIGF0IGhvdyB0byBmaXggdGhhdCA6
+KAo+IAo+IEl0IHdhcyBkb25lIGhlcmU6Cj4gCj4gQ29tbWl0IGIzMjU4ZmYxZDYwODZiZDJiOWVl
+YjU1Njg0NGE4NjhhZDdkNDliYzgKPiBBdXRob3I6IEFtaXQgU2hhaCA8YW1pdC5zaGFoQHJlZGhh
+dC5jb20+Cj4gRGF0ZTogICBXZWQgTWFyIDE2IDE5OjEyOjEwIDIwMTEgKzA1MzAKPiAKPiAgICAg
+dmlydGlvOiBEZWNyZW1lbnQgYXZhaWwgaWR4IG9uIGJ1ZmZlciBkZXRhY2gKPiAgICAgCj4gICAg
+IFdoZW4gZGV0YWNoaW5nIGEgYnVmZmVyIGZyb20gYSB2cSwgdGhlIGF2YWlsLmlkeCB2YWx1ZSBz
+aG91bGQgYmUKPiAgICAgZGVjcmVtZW50ZWQgYXMgd2VsbC4KPiAgICAgCj4gICAgIFRoaXMgd2Fz
+IG5vdGljZWQgYnkgaG90LXVucGx1Z2dpbmcgYSB2aXJ0aW8gY29uc29sZSBwb3J0IGFuZCB0aGVu
+Cj4gICAgIHBsdWdnaW5nIGluIGEgbmV3IG9uZSBvbiB0aGUgc2FtZSBudW1iZXIgKHJlLXVzaW5n
+IHRoZSB2cXMgd2hpY2ggd2VyZQo+ICAgICBqdXN0ICdkaXNvd25lZCcpLiAgcWVtdSByZXBvcnRl
+ZAo+ICAgICAKPiAgICAgICAgJ0d1ZXN0IG1vdmVkIHVzZWQgaW5kZXggZnJvbSAwIHRvIDI1NicK
+PiAgICAgCj4gICAgIHdoZW4gYW55IElPIHdhcyBhdHRlbXB0ZWQgb24gdGhlIG5ldyBwb3J0Lgo+
+ICAgICAKPiAgICAgQ0M6IHN0YWJsZUBrZXJuZWwub3JnCj4gICAgIFJlcG9ydGVkLWJ5OiBqdXpo
+YW5nIDxqdXpoYW5nQHJlZGhhdC5jb20+Cj4gICAgIFNpZ25lZC1vZmYtYnk6IEFtaXQgU2hhaCA8
+YW1pdC5zaGFoQHJlZGhhdC5jb20+Cj4gICAgIFNpZ25lZC1vZmYtYnk6IFJ1c3R5IFJ1c3NlbGwg
+PHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4KPiAKPiBUaGUgc3BlYyBpcyBxdWl0ZSBleHBsaWNpdCB0
+aG91Z2g6Cj4gCUEgZHJpdmVyIE1VU1QgTk9UIGRlY3JlbWVudCB0aGUgYXZhaWxhYmxlIGlkeCBv
+biBhIGxpdmUgdmlydHF1ZXVlIChpZS4gdGhlcmUgaXMgbm8gd2F5IHRvIOKAnHVuZXhwb3Nl4oCd
+Cj4gCWJ1ZmZlcnMpLgo+IAoKSG1tLi4gR290IGl0LiBUaGFua3MhCgpCZXN0IHJlZ2FyZHMsClRp
+d2VpIEJpZQoKCj4gCj4gCj4gCj4gCj4gPiBJZiB0aGVyZSBpcyBubyBzdWNoIHJlcXVpcmVtZW50
+LCBkbyB5b3UgdGhpbmsgaXQncyBPSwo+ID4gdG8gcmVtb3ZlIGJlbG93IHR3byBsaW5lczoKPiA+
+IAo+ID4gdnEtPmF2YWlsX2lkeF9zaGFkb3ctLTsKPiA+IHZxLT52cmluZy5hdmFpbC0+aWR4ID0g
+Y3B1X3RvX3ZpcnRpbzE2KF92cS0+dmRldiwgdnEtPmF2YWlsX2lkeF9zaGFkb3cpOwo+ID4gCj4g
+PiBmcm9tIHZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1ZigpLCBhbmQgd2UgY291bGQgaGF2ZQo+
+ID4gb25lIGdlbmVyaWMgZnVuY3Rpb24gdG8gaGFuZGxlIGJvdGggcmluZ3M6Cj4gPiAKPiA+IHZv
+aWQgKnZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1ZihzdHJ1Y3QgdmlydHF1ZXVlICpfdnEpCj4g
+PiB7Cj4gPiAJc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEgPSB0b192dnEoX3ZxKTsKPiA+IAl1
+bnNpZ25lZCBpbnQgbnVtLCBpOwo+ID4gCXZvaWQgKmJ1ZjsKPiA+IAo+ID4gCVNUQVJUX1VTRSh2
+cSk7Cj4gPiAKPiA+IAludW0gPSB2cS0+cGFja2VkID8gdnEtPnZyaW5nX3BhY2tlZC5udW0gOiB2
+cS0+dnJpbmcubnVtOwo+ID4gCj4gPiAJZm9yIChpID0gMDsgaSA8IG51bTsgaSsrKSB7Cj4gPiAJ
+CWlmICghdnEtPmRlc2Nfc3RhdGVbaV0uZGF0YSkKPiA+IAkJCWNvbnRpbnVlOwo+ID4gCQkvKiBk
+ZXRhY2hfYnVmIGNsZWFycyBkYXRhLCBzbyBncmFiIGl0IG5vdy4gKi8KPiA+IAkJYnVmID0gdnEt
+PmRlc2Nfc3RhdGVbaV0uZGF0YTsKPiA+IAkJZGV0YWNoX2J1Zih2cSwgaSwgTlVMTCk7Cj4gPiAJ
+CUVORF9VU0UodnEpOwo+ID4gCQlyZXR1cm4gYnVmOwo+ID4gCX0KPiA+IAkvKiBUaGF0IHNob3Vs
+ZCBoYXZlIGZyZWVkIGV2ZXJ5dGhpbmcuICovCj4gPiAJQlVHX09OKHZxLT52cS5udW1fZnJlZSAh
+PSBudW0pOwo+ID4gCj4gPiAJRU5EX1VTRSh2cSk7Cj4gPiAJcmV0dXJuIE5VTEw7Cj4gPiB9Cj4g
+PiAKPiA+IEJlc3QgcmVnYXJkcywKPiA+IFRpd2VpIEJpZQpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
