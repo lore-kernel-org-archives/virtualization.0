@@ -1,23 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] virtio: Use DMA MAP API for devices without an IOMMU
-Date: Wed, 18 Apr 2018 19:20:10 +0300
-Message-ID: <20180418191722-mutt-send-email-mst__36402.03145701$1524068318$gmane$org@kernel.org>
-References: <3e1b113b-79ca-b700-5be9-10c66d74aabe@linux.vnet.ibm.com>
-	<20180405175326-mutt-send-email-mst@kernel.org>
-	<1522940983.21446.205.camel@kernel.crashing.org>
-	<20180405213042-mutt-send-email-mst@kernel.org>
-	<1522963113.21446.211.camel@kernel.crashing.org>
-	<70cb433f-a8f7-5199-3c96-a760c7624804@linux.vnet.ibm.com>
-	<20180406071634.GA31108@infradead.org>
-	<1523003838.21446.238.camel@kernel.crashing.org>
-	<20180415121157.GA17726@infradead.org>
-	<002f153f-452d-f64b-4fc7-7f3383b39162@linux.vnet.ibm.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
+Subject: Re: [PATCH] net: don't use kvzalloc for DMA memory
+Date: Wed, 18 Apr 2018 12:44:25 -0400 (EDT)
+Message-ID: <alpine.LRH.2.02.1804181218270.19136__21192.8303623155$1524069762$gmane$org@file01.intranet.prod.int.rdu2.redhat.com>
+References: <alpine.LRH.2.02.1804181029270.19294@file01.intranet.prod.int.rdu2.redhat.com>
+	<3e65977e-53cd-bf09-bc4b-0ce40e9091fe@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <002f153f-452d-f64b-4fc7-7f3383b39162@linux.vnet.ibm.com>
+In-Reply-To: <3e65977e-53cd-bf09-bc4b-0ce40e9091fe@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,45 +18,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Cc: robh@kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Joby Poriyath <joby.poriyath@citrix.com>, Ben Hutchings <bhutchings@solarflare.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 18, 2018 at 08:47:10AM +0530, Anshuman Khandual wrote:
-> On 04/15/2018 05:41 PM, Christoph Hellwig wrote:
-> > On Fri, Apr 06, 2018 at 06:37:18PM +1000, Benjamin Herrenschmidt wrote:
-> >>>> implemented as DMA API which the virtio core understands. There is no
-> >>>> need for an IOMMU to be involved for the device representation in this
-> >>>> case IMHO.
-> >>>
-> >>> This whole virtio translation issue is a mess.  I think we need to
-> >>> switch it to the dma API, and then quirk the legacy case to always
-> >>> use the direct mapping inside the dma API.
-> >>
-> >> Fine with using a dma API always on the Linux side, but we do want to
-> >> special case virtio still at the arch and qemu side to have a "direct
-> >> mapping" mode. Not sure how (special flags on PCI devices) to avoid
-> >> actually going through an emulated IOMMU on the qemu side, because that
-> >> slows things down, esp. with vhost.
-> >>
-> >> IE, we can't I think just treat it the same as a physical device.
-> > 
-> > We should have treated it like a physical device from the start, but
-> > that device has unfortunately sailed.
-> > 
-> > But yes, we'll need a per-device quirk that says 'don't attach an
-> > iommu'.
+
+
+On Wed, 18 Apr 2018, Eric Dumazet wrote:
+
 > 
-> How about doing it per platform basis as suggested in this RFC through
-> an arch specific callback. Because all the virtio devices in the given
-> platform would require and exercise this option (to avail bounce buffer
-> mechanism for secure guests as an example). So the flag basically is a
-> platform specific one not a device specific one.
+> 
+> On 04/18/2018 07:34 AM, Mikulas Patocka wrote:
+> > The patch 74d332c13b21 changes alloc_netdev_mqs to use vzalloc if kzalloc
+> > fails (later patches change it to kvzalloc).
+> > 
+> > The problem with this is that if the vzalloc function is actually used, 
+> > virtio_net doesn't work (because it expects that the extra memory should 
+> > be accessible with DMA-API and memory allocated with vzalloc isn't).
+> > 
+> > This patch changes it back to kzalloc and adds a warning if the allocated
+> > size is too large (the allocation is unreliable in this case).
+> > 
+> > Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+> > Fixes: 74d332c13b21 ("net: extend net_device allocation to vmalloc()")
+> > 
+> > ---
+> >  net/core/dev.c |    3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > 
+> > Index: linux-2.6/net/core/dev.c
+> > ===================================================================
+> > --- linux-2.6.orig/net/core/dev.c	2018-04-16 21:08:36.000000000 +0200
+> > +++ linux-2.6/net/core/dev.c	2018-04-18 16:24:43.000000000 +0200
+> > @@ -8366,7 +8366,8 @@ struct net_device *alloc_netdev_mqs(int
+> >  	/* ensure 32-byte alignment of whole construct */
+> >  	alloc_size += NETDEV_ALIGN - 1;
+> >  
+> > -	p = kvzalloc(alloc_size, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+> > +	WARN_ON(alloc_size > PAGE_SIZE << PAGE_ALLOC_COSTLY_ORDER);
+> > +	p = kzalloc(alloc_size, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+> >  	if (!p)
+> >  		return NULL;
+> >  
+> > 
+> 
+> Since when a net_device needs to be in DMA zone ???
+> 
+> I would rather fix virtio_net, this looks very suspect to me.
+> 
+> Each virtio_net should probably allocate the exact amount of DMA-memory it wants,
+> instead of expecting core networking stack to have a huge chunk of DMA-memory for everything.
 
-That's not the case. A single platform can have a mix of virtio and
-non-virtio devices. Same applies even within virtio, e.g. the balloon
-device always bypasses an iommu.  Further, QEMU supports out of process
-devices some of which might bypass the IOMMU.
+The structure net_device is followed by arbitrary driver-specific data 
+(accessible with the function netdev_priv). And for virtio-net, these 
+driver-specific data must be in DMA memory.
 
--- 
-MST
+Mikulas
