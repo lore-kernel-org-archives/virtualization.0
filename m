@@ -1,13 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 2/2] qxl: keep separate release_bo pointer
-Date: Wed, 18 Apr 2018 07:42:57 +0200
-Message-ID: <20180418054257.15388-3-kraxel__2021.68054315752$1524030085$gmane$org@redhat.com>
-References: <20180418054257.15388-1-kraxel@redhat.com>
+From: Xin Long <lucien.xin@gmail.com>
+Subject: Re: [PATCH net-next 0/5] virtio-net: Add SCTP checksum offload support
+Date: Wed, 18 Apr 2018 14:57:52 +0800
+Message-ID: <CADvbK_e43O3zyZY7NC_GsjDT4-BrM54Yfuv+cNk6xWNqZjw4bg__24286.0546372414$1524034573$gmane$org@mail.gmail.com>
+References: <20180402134006.10111-1-vyasevic@redhat.com>
+	<20180402144730.GA6001@localhost.localdomain>
+	<6bc762f6-d6fb-5471-2893-a888cce199f9@redhat.com>
+	<20180418013333.GO4716@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180418054257.15388-1-kraxel@redhat.com>
+In-Reply-To: <20180418013333.GO4716@localhost.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,121 +20,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+To: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>, "Michael S. Tsirkin" <mst@redhat.com>, network dev <netdev@vger.kernel.org>, Vladislav Yasevich <vyasevich@gmail.com>, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-qxl expects that list_first_entry(release->bos) returns the first
-element qxl added to the list.  ttm_eu_reserve_buffers() may reorder
-the list though.
+On Wed, Apr 18, 2018 at 9:33 AM, Marcelo Ricardo Leitner
+<marcelo.leitner@gmail.com> wrote:
+> On Tue, Apr 17, 2018 at 04:35:18PM -0400, Vlad Yasevich wrote:
+>> On 04/02/2018 10:47 AM, Marcelo Ricardo Leitner wrote:
+>> > On Mon, Apr 02, 2018 at 09:40:01AM -0400, Vladislav Yasevich wrote:
+>> >> Now that we have SCTP offload capabilities in the kernel, we can add
+>> >> them to virtio as well.  First step is SCTP checksum.
+>> >
+>> > Thanks.
+>> >
+>> >> As for GSO, the way sctp GSO is currently implemented buys us nothing
+>> >> in added support to virtio.  To add true GSO, would require a lot of
+>> >> re-work inside of SCTP and would require extensions to the virtio
+>> >> net header to carry extra sctp data.
+>> >
+>> > Can you please elaborate more on this? Is this because SCTP GSO relies
+>> > on the gso skb format for knowing how to segment it instead of having
+>> > a list of sizes?
+>> >
+>>
+>> it's mainly because all the true segmentation, placing data into chunks,
+>> has already happened.  All that GSO does is allow for higher bundling
+>> rate between VMs. If that is all SCTP GSO ever going to do, that fine,
+>> but the goal is to do real GSO eventually and potentially reduce the
+>> amount of memory copying we are doing.
+The memory copying for bundling can't be avoided, as the chunks in
+one packet may be from some different messages, as Marcelo said below.
 
-Add a release_bo field to struct qxl_release and use that instead.
+>> If we do that, any current attempt at GSO in virtio would have to be
+>> depricated and we'd need GSO2 or something like that.
+Why would it be depreciated? virtio_net actually also supports frag_list,
+all we need to do is to enable it.
+I already have a patch for  sctp gso over virtio_net in my local tree:
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/qxl/qxl_drv.h     |  1 +
- drivers/gpu/drm/qxl/qxl_cmd.c     |  6 ++----
- drivers/gpu/drm/qxl/qxl_release.c | 12 ++++++------
- 3 files changed, 9 insertions(+), 10 deletions(-)
+patch on qemu-2.9.0(el7):
+  https://paste.fedoraproject.org/paste/IgnSbW74L6P9aUZpnWHBsA
+patch on kernel-4.16(linus):
+  https://paste.fedoraproject.org/paste/L7AhFIVVp3k8VfEV29QMiw
 
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
-index 00a1a66b05..864b456080 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.h
-+++ b/drivers/gpu/drm/qxl/qxl_drv.h
-@@ -167,6 +167,7 @@ struct qxl_release {
- 
- 	int id;
- 	int type;
-+	struct qxl_bo *release_bo;
- 	uint32_t release_offset;
- 	uint32_t surface_release_id;
- 	struct ww_acquire_ctx ticket;
-diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
-index c0fb52c6d4..01665b98c5 100644
---- a/drivers/gpu/drm/qxl/qxl_cmd.c
-+++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-@@ -179,10 +179,9 @@ qxl_push_command_ring_release(struct qxl_device *qdev, struct qxl_release *relea
- 			      uint32_t type, bool interruptible)
- {
- 	struct qxl_command cmd;
--	struct qxl_bo_list *entry = list_first_entry(&release->bos, struct qxl_bo_list, tv.head);
- 
- 	cmd.type = type;
--	cmd.data = qxl_bo_physical_address(qdev, to_qxl_bo(entry->tv.bo), release->release_offset);
-+	cmd.data = qxl_bo_physical_address(qdev, release->release_bo, release->release_offset);
- 
- 	return qxl_ring_push(qdev->command_ring, &cmd, interruptible);
- }
-@@ -192,10 +191,9 @@ qxl_push_cursor_ring_release(struct qxl_device *qdev, struct qxl_release *releas
- 			     uint32_t type, bool interruptible)
- {
- 	struct qxl_command cmd;
--	struct qxl_bo_list *entry = list_first_entry(&release->bos, struct qxl_bo_list, tv.head);
- 
- 	cmd.type = type;
--	cmd.data = qxl_bo_physical_address(qdev, to_qxl_bo(entry->tv.bo), release->release_offset);
-+	cmd.data = qxl_bo_physical_address(qdev, release->release_bo, release->release_offset);
- 
- 	return qxl_ring_push(qdev->cursor_ring, &cmd, interruptible);
- }
-diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
-index a0b4244d28..7cb2145772 100644
---- a/drivers/gpu/drm/qxl/qxl_release.c
-+++ b/drivers/gpu/drm/qxl/qxl_release.c
-@@ -173,6 +173,7 @@ qxl_release_free_list(struct qxl_release *release)
- 		list_del(&entry->tv.head);
- 		kfree(entry);
- 	}
-+	release->release_bo = NULL;
- }
- 
- void
-@@ -296,7 +297,6 @@ int qxl_alloc_surface_release_reserved(struct qxl_device *qdev,
- {
- 	if (surface_cmd_type == QXL_SURFACE_CMD_DESTROY && create_rel) {
- 		int idr_ret;
--		struct qxl_bo_list *entry = list_first_entry(&create_rel->bos, struct qxl_bo_list, tv.head);
- 		struct qxl_bo *bo;
- 		union qxl_release_info *info;
- 
-@@ -304,8 +304,9 @@ int qxl_alloc_surface_release_reserved(struct qxl_device *qdev,
- 		idr_ret = qxl_release_alloc(qdev, QXL_RELEASE_SURFACE_CMD, release);
- 		if (idr_ret < 0)
- 			return idr_ret;
--		bo = to_qxl_bo(entry->tv.bo);
-+		bo = create_rel->release_bo;
- 
-+		(*release)->release_bo = bo;
- 		(*release)->release_offset = create_rel->release_offset + 64;
- 
- 		qxl_release_list_add(*release, bo);
-@@ -365,6 +366,7 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
- 
- 	bo = qxl_bo_ref(qdev->current_release_bo[cur_idx]);
- 
-+	(*release)->release_bo = bo;
- 	(*release)->release_offset = qdev->current_release_bo_offset[cur_idx] * release_size_per_bo[cur_idx];
- 	qdev->current_release_bo_offset[cur_idx]++;
- 
-@@ -408,8 +410,7 @@ union qxl_release_info *qxl_release_map(struct qxl_device *qdev,
- {
- 	void *ptr;
- 	union qxl_release_info *info;
--	struct qxl_bo_list *entry = list_first_entry(&release->bos, struct qxl_bo_list, tv.head);
--	struct qxl_bo *bo = to_qxl_bo(entry->tv.bo);
-+	struct qxl_bo *bo = release->release_bo;
- 
- 	ptr = qxl_bo_kmap_atomic_page(qdev, bo, release->release_offset & PAGE_MASK);
- 	if (!ptr)
-@@ -422,8 +423,7 @@ void qxl_release_unmap(struct qxl_device *qdev,
- 		       struct qxl_release *release,
- 		       union qxl_release_info *info)
- {
--	struct qxl_bo_list *entry = list_first_entry(&release->bos, struct qxl_bo_list, tv.head);
--	struct qxl_bo *bo = to_qxl_bo(entry->tv.bo);
-+	struct qxl_bo *bo = release->release_bo;
- 	void *ptr;
- 
- 	ptr = ((void *)info) - (release->release_offset & ~PAGE_MASK);
--- 
-2.9.3
+The performance has been improved quite a lot with this:
+testing over virtio-net(guest):
+  https://paste.fedoraproject.org/paste/cxQMnrDQDf9AoNgBpA-twA
+testing over tap(host):
+  https://paste.fedoraproject.org/paste/QPdc22pgvF-x68oKDjWa9g
+
+>>
+>> This is why, after doing the GSO support, I decided not to include it.
+>
+> Gotcha. I don't think it will ever go further than what we have now.
+> Placing data into chunks later is not really feasible/wanted,
+> especially now with stream schedulers and idata chunks. Doesn't seem
+> worth the hassle... we would have to support things like, "segment
+> half of this message plus a third of this other one from that other
+> stream." (in case it's round robin).
+>
+>   Marcelo
