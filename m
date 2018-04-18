@@ -1,22 +1,13 @@
-From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Subject: Re: [RFC] virtio: Use DMA MAP API for devices without an IOMMU
-Date: Wed, 18 Apr 2018 08:47:10 +0530
-Message-ID: <002f153f-452d-f64b-4fc7-7f3383b39162@linux.vnet.ibm.com>
-References: <20180405105631.9514-1-khandual@linux.vnet.ibm.com>
-	<3e1b113b-79ca-b700-5be9-10c66d74aabe@linux.vnet.ibm.com>
-	<20180405175326-mutt-send-email-mst@kernel.org>
-	<1522940983.21446.205.camel@kernel.crashing.org>
-	<20180405213042-mutt-send-email-mst@kernel.org>
-	<1522963113.21446.211.camel@kernel.crashing.org>
-	<70cb433f-a8f7-5199-3c96-a760c7624804@linux.vnet.ibm.com>
-	<20180406071634.GA31108@infradead.org>
-	<1523003838.21446.238.camel@kernel.crashing.org>
-	<20180415121157.GA17726@infradead.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 1/2] qxl: fix qxl_release_{map,unmap}
+Date: Wed, 18 Apr 2018 07:42:56 +0200
+Message-ID: <20180418054257.15388-2-kraxel@redhat.com>
+References: <20180418054257.15388-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180415121157.GA17726@infradead.org>
+In-Reply-To: <20180418054257.15388-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,36 +17,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: robh@kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/15/2018 05:41 PM, Christoph Hellwig wrote:
-> On Fri, Apr 06, 2018 at 06:37:18PM +1000, Benjamin Herrenschmidt wrote:
->>>> implemented as DMA API which the virtio core understands. There is no
->>>> need for an IOMMU to be involved for the device representation in this
->>>> case IMHO.
->>>
->>> This whole virtio translation issue is a mess.  I think we need to
->>> switch it to the dma API, and then quirk the legacy case to always
->>> use the direct mapping inside the dma API.
->>
->> Fine with using a dma API always on the Linux side, but we do want to
->> special case virtio still at the arch and qemu side to have a "direct
->> mapping" mode. Not sure how (special flags on PCI devices) to avoid
->> actually going through an emulated IOMMU on the qemu side, because that
->> slows things down, esp. with vhost.
->>
->> IE, we can't I think just treat it the same as a physical device.
-> 
-> We should have treated it like a physical device from the start, but
-> that device has unfortunately sailed.
-> 
-> But yes, we'll need a per-device quirk that says 'don't attach an
-> iommu'.
+s/PAGE_SIZE/PAGE_MASK/
 
-How about doing it per platform basis as suggested in this RFC through
-an arch specific callback. Because all the virtio devices in the given
-platform would require and exercise this option (to avail bounce buffer
-mechanism for secure guests as an example). So the flag basically is a
-platform specific one not a device specific one.
+Luckily release_offset is never larger than PAGE_SIZE, so the bug has no
+bad side effects and managed to stay unnoticed for years that way ...
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_ioctl.c   | 4 ++--
+ drivers/gpu/drm/qxl/qxl_release.c | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
+index e238a1a2ec..6cc9f3367f 100644
+--- a/drivers/gpu/drm/qxl/qxl_ioctl.c
++++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
+@@ -182,9 +182,9 @@ static int qxl_process_single_command(struct qxl_device *qdev,
+ 		goto out_free_reloc;
+ 
+ 	/* TODO copy slow path code from i915 */
+-	fb_cmd = qxl_bo_kmap_atomic_page(qdev, cmd_bo, (release->release_offset & PAGE_SIZE));
++	fb_cmd = qxl_bo_kmap_atomic_page(qdev, cmd_bo, (release->release_offset & PAGE_MASK));
+ 	unwritten = __copy_from_user_inatomic_nocache
+-		(fb_cmd + sizeof(union qxl_release_info) + (release->release_offset & ~PAGE_SIZE),
++		(fb_cmd + sizeof(union qxl_release_info) + (release->release_offset & ~PAGE_MASK),
+ 		 u64_to_user_ptr(cmd->command), cmd->command_size);
+ 
+ 	{
+diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
+index 5d84a66fed..a0b4244d28 100644
+--- a/drivers/gpu/drm/qxl/qxl_release.c
++++ b/drivers/gpu/drm/qxl/qxl_release.c
+@@ -411,10 +411,10 @@ union qxl_release_info *qxl_release_map(struct qxl_device *qdev,
+ 	struct qxl_bo_list *entry = list_first_entry(&release->bos, struct qxl_bo_list, tv.head);
+ 	struct qxl_bo *bo = to_qxl_bo(entry->tv.bo);
+ 
+-	ptr = qxl_bo_kmap_atomic_page(qdev, bo, release->release_offset & PAGE_SIZE);
++	ptr = qxl_bo_kmap_atomic_page(qdev, bo, release->release_offset & PAGE_MASK);
+ 	if (!ptr)
+ 		return NULL;
+-	info = ptr + (release->release_offset & ~PAGE_SIZE);
++	info = ptr + (release->release_offset & ~PAGE_MASK);
+ 	return info;
+ }
+ 
+@@ -426,7 +426,7 @@ void qxl_release_unmap(struct qxl_device *qdev,
+ 	struct qxl_bo *bo = to_qxl_bo(entry->tv.bo);
+ 	void *ptr;
+ 
+-	ptr = ((void *)info) - (release->release_offset & ~PAGE_SIZE);
++	ptr = ((void *)info) - (release->release_offset & ~PAGE_MASK);
+ 	qxl_bo_kunmap_atomic_page(qdev, bo, ptr);
+ }
+ 
+-- 
+2.9.3
