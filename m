@@ -1,18 +1,19 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+From: Jiri Pirko <jiri@resnulli.us>
 Subject: Re: [RFC PATCH net-next v6 2/4] net: Introduce generic bypass module
-Date: Wed, 18 Apr 2018 11:43:15 -0700
-Message-ID: <dd0d53f0-f5da-cb7d-f8f6-d0c8245eb3cf__22066.7302179665$1524076887$gmane$org@intel.com>
+Date: Wed, 18 Apr 2018 21:13:15 +0200
+Message-ID: <20180418191315.GA1922__48427.3418588147$1524078700$gmane$org@nanopsycho>
 References: <1523386790-12396-1-git-send-email-sridhar.samudrala@intel.com>
 	<1523386790-12396-3-git-send-email-sridhar.samudrala@intel.com>
 	<20180411155127.GQ2028@nanopsycho>
 	<6a8c1ff5-153a-e40a-91b3-48532b8d3a38@intel.com>
 	<20180418092515.GB1989@nanopsycho>
+	<dd0d53f0-f5da-cb7d-f8f6-d0c8245eb3cf@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180418092515.GB1989@nanopsycho>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <dd0d53f0-f5da-cb7d-f8f6-d0c8245eb3cf@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,331 +23,664 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
+To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gNC8xOC8yMDE4IDI6MjUgQU0sIEppcmkgUGlya28gd3JvdGU6Cj4gV2VkLCBBcHIgMTEsIDIw
-MTggYXQgMDk6MTM6NTJQTSBDRVNULCBzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5jb20gd3JvdGU6
-Cj4+IE9uIDQvMTEvMjAxOCA4OjUxIEFNLCBKaXJpIFBpcmtvIHdyb3RlOgo+Pj4gVHVlLCBBcHIg
-MTAsIDIwMTggYXQgMDg6NTk6NDhQTSBDRVNULCBzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5jb20g
-d3JvdGU6Cj4+Pj4gVGhpcyBwcm92aWRlcyBhIGdlbmVyaWMgaW50ZXJmYWNlIGZvciBwYXJhdmly
-dHVhbCBkcml2ZXJzIHRvIGxpc3Rlbgo+Pj4+IGZvciBuZXRkZXYgcmVnaXN0ZXIvdW5yZWdpc3Rl
-ci9saW5rIGNoYW5nZSBldmVudHMgZnJvbSBwY2kgZXRoZXJuZXQKPj4+PiBkZXZpY2VzIHdpdGgg
-dGhlIHNhbWUgTUFDIGFuZCB0YWtlb3ZlciB0aGVpciBkYXRhcGF0aC4gVGhlIG5vdGlmaWVyIGFu
-ZAo+Pj4+IGV2ZW50IGhhbmRsaW5nIGNvZGUgaXMgYmFzZWQgb24gdGhlIGV4aXN0aW5nIG5ldHZz
-YyBpbXBsZW1lbnRhdGlvbi4KPj4+Pgo+Pj4+IEl0IGV4cG9zZXMgMiBzZXRzIG9mIGludGVyZmFj
-ZXMgdG8gdGhlIHBhcmF2aXJ0dWFsIGRyaXZlcnMuCj4+Pj4gMS4gZXhpc3RpbmcgbmV0dnNjIGRy
-aXZlciB0aGF0IHVzZXMgMiBuZXRkZXYgbW9kZWwuIEluIHRoaXMgbW9kZWwsIG5vCj4+Pj4gbWFz
-dGVyIG5ldGRldiBpcyBjcmVhdGVkLiBUaGUgcGFyYXZpcnR1YWwgZHJpdmVyIHJlZ2lzdGVycyBl
-YWNoIGJ5cGFzcwo+Pj4+IGluc3RhbmNlIGFsb25nIHdpdGggYSBzZXQgb2Ygb3BzIHRvIG1hbmFn
-ZSB0aGUgc2xhdmUgZXZlbnRzLgo+Pj4+ICAgICAgIGJ5cGFzc19tYXN0ZXJfcmVnaXN0ZXIoKQo+
-Pj4+ICAgICAgIGJ5cGFzc19tYXN0ZXJfdW5yZWdpc3RlcigpCj4+Pj4gMi4gbmV3IHZpcnRpb19u
-ZXQgYmFzZWQgc29sdXRpb24gdGhhdCB1c2VzIDMgbmV0ZGV2IG1vZGVsLiBJbiB0aGlzIG1vZGVs
-LAo+Pj4+IHRoZSBieXBhc3MgbW9kdWxlIHByb3ZpZGVzIGludGVyZmFjZXMgdG8gY3JlYXRlL2Rl
-c3Ryb3kgYWRkaXRpb25hbCBtYXN0ZXIKPj4+PiBuZXRkZXYgYW5kIGFsbCB0aGUgc2xhdmUgZXZl
-bnRzIGFyZSBtYW5hZ2VkIGludGVybmFsbHkuCj4+Pj4gICAgICAgIGJ5cGFzc19tYXN0ZXJfY3Jl
-YXRlKCkKPj4+PiAgICAgICAgYnlwYXNzX21hc3Rlcl9kZXN0cm95KCkKPj4+Pgo+Pj4+IFNpZ25l
-ZC1vZmYtYnk6IFNyaWRoYXIgU2FtdWRyYWxhIDxzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5jb20+
-Cj4+Pj4gLS0tCj4+Pj4gaW5jbHVkZS9saW51eC9uZXRkZXZpY2UuaCB8ICAxNCArCj4+Pj4gaW5j
-bHVkZS9uZXQvYnlwYXNzLmggICAgICB8ICA5NiArKysrKysKPj4+PiBuZXQvS2NvbmZpZyAgICAg
-ICAgICAgICAgIHwgIDE4ICsKPj4+PiBuZXQvY29yZS9NYWtlZmlsZSAgICAgICAgIHwgICAxICsK
-Pj4+PiBuZXQvY29yZS9ieXBhc3MuYyAgICAgICAgIHwgODQ0ICsrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysKPj4+PiA1IGZpbGVzIGNoYW5nZWQsIDk3MyBpbnNl
-cnRpb25zKCspCj4+Pj4gY3JlYXRlIG1vZGUgMTAwNjQ0IGluY2x1ZGUvbmV0L2J5cGFzcy5oCj4+
-Pj4gY3JlYXRlIG1vZGUgMTAwNjQ0IG5ldC9jb3JlL2J5cGFzcy5jCj4+Pj4KPj4+PiBkaWZmIC0t
-Z2l0IGEvaW5jbHVkZS9saW51eC9uZXRkZXZpY2UuaCBiL2luY2x1ZGUvbGludXgvbmV0ZGV2aWNl
-LmgKPj4+PiBpbmRleCBjZjQ0NTAzZWE4MWEuLjU4NzI5MzcyOGY3MCAxMDA2NDQKPj4+PiAtLS0g
-YS9pbmNsdWRlL2xpbnV4L25ldGRldmljZS5oCj4+Pj4gKysrIGIvaW5jbHVkZS9saW51eC9uZXRk
-ZXZpY2UuaAo+Pj4+IEBAIC0xNDMwLDYgKzE0MzAsOCBAQCBlbnVtIG5ldGRldl9wcml2X2ZsYWdz
-IHsKPj4+PiAJSUZGX1BIT05ZX0hFQURST09NCQk9IDE8PDI0LAo+Pj4+IAlJRkZfTUFDU0VDCQkJ
-PSAxPDwyNSwKPj4+PiAJSUZGX05PX1JYX0hBTkRMRVIJCT0gMTw8MjYsCj4+Pj4gKwlJRkZfQllQ
-QVNTCQkJPSAxIDw8IDI3LAo+Pj4+ICsJSUZGX0JZUEFTU19TTEFWRQkJPSAxIDw8IDI4LAo+Pj4g
-SSB3b25kZXIsIHdoeSB5b3UgZG9uJ3QgZm9sbG93IHRoZSBleGlzdGluZyBjb2Rpbmcgc3R5bGUu
-Li4gQWxzbywgcGxlYXNlCj4+PiBhZGQgdGhlc2UgdG8gaW50byB0aGUgY29tbWVudCBhYm92ZS4K
-Pj4gVG8gYXZvaWQgY2hlY2twYXRjaCB3YXJuaW5ncy4gSWYgaXQgaXMgT0sgdG8gaWdub3JlIHRo
-ZXNlIHdhcm5pbmdzLCBJIGNhbiBzd2l0Y2ggYmFjawo+PiB0byB0aGUgZXhpc3RpbmcgY29kaW5n
-IHN0eWxlIHRvIGJlIGNvbnNpc3RlbnQuCj4gUGxlYXNlIGRvLgo+Cj4KPj4+Cj4+Pj4gfTsKPj4+
-Pgo+Pj4+ICNkZWZpbmUgSUZGXzgwMl8xUV9WTEFOCQkJSUZGXzgwMl8xUV9WTEFOCj4+Pj4gQEAg
-LTE0NTgsNiArMTQ2MCw4IEBAIGVudW0gbmV0ZGV2X3ByaXZfZmxhZ3Mgewo+Pj4+ICNkZWZpbmUg
-SUZGX1JYRkhfQ09ORklHVVJFRAkJSUZGX1JYRkhfQ09ORklHVVJFRAo+Pj4+ICNkZWZpbmUgSUZG
-X01BQ1NFQwkJCUlGRl9NQUNTRUMKPj4+PiAjZGVmaW5lIElGRl9OT19SWF9IQU5ETEVSCQlJRkZf
-Tk9fUlhfSEFORExFUgo+Pj4+ICsjZGVmaW5lIElGRl9CWVBBU1MJCQlJRkZfQllQQVNTCj4+Pj4g
-KyNkZWZpbmUgSUZGX0JZUEFTU19TTEFWRQkJSUZGX0JZUEFTU19TTEFWRQo+Pj4+Cj4+Pj4gLyoq
-Cj4+Pj4gICAgKglzdHJ1Y3QgbmV0X2RldmljZSAtIFRoZSBERVZJQ0Ugc3RydWN0dXJlLgo+Pj4+
-IEBAIC00MzA4LDYgKzQzMTIsMTYgQEAgc3RhdGljIGlubGluZSBib29sIG5ldGlmX2lzX3J4Zmhf
-Y29uZmlndXJlZChjb25zdCBzdHJ1Y3QgbmV0X2RldmljZSAqZGV2KQo+Pj4+IAlyZXR1cm4gZGV2
-LT5wcml2X2ZsYWdzICYgSUZGX1JYRkhfQ09ORklHVVJFRDsKPj4+PiB9Cj4+Pj4KPj4+PiArc3Rh
-dGljIGlubGluZSBib29sIG5ldGlmX2lzX2J5cGFzc19tYXN0ZXIoY29uc3Qgc3RydWN0IG5ldF9k
-ZXZpY2UgKmRldikKPj4+PiArewo+Pj4+ICsJcmV0dXJuIGRldi0+cHJpdl9mbGFncyAmIElGRl9C
-WVBBU1M7Cj4+Pj4gK30KPj4+PiArCj4+Pj4gK3N0YXRpYyBpbmxpbmUgYm9vbCBuZXRpZl9pc19i
-eXBhc3Nfc2xhdmUoY29uc3Qgc3RydWN0IG5ldF9kZXZpY2UgKmRldikKPj4+PiArewo+Pj4+ICsJ
-cmV0dXJuIGRldi0+cHJpdl9mbGFncyAmIElGRl9CWVBBU1NfU0xBVkU7Cj4+Pj4gK30KPj4+PiAr
-Cj4+Pj4gLyogVGhpcyBkZXZpY2UgbmVlZHMgdG8ga2VlcCBza2IgZHN0IGZvciBxZGlzYyBlbnF1
-ZXVlIG9yIG5kb19zdGFydF94bWl0KCkgKi8KPj4+PiBzdGF0aWMgaW5saW5lIHZvaWQgbmV0aWZf
-a2VlcF9kc3Qoc3RydWN0IG5ldF9kZXZpY2UgKmRldikKPj4+PiB7Cj4+Pj4gZGlmZiAtLWdpdCBh
-L2luY2x1ZGUvbmV0L2J5cGFzcy5oIGIvaW5jbHVkZS9uZXQvYnlwYXNzLmgKPj4+PiBuZXcgZmls
-ZSBtb2RlIDEwMDY0NAo+Pj4+IGluZGV4IDAwMDAwMDAwMDAwMC4uODZiMDJjYjg5NGNmCj4+Pj4g
-LS0tIC9kZXYvbnVsbAo+Pj4+ICsrKyBiL2luY2x1ZGUvbmV0L2J5cGFzcy5oCj4+Pj4gQEAgLTAs
-MCArMSw5NiBAQAo+Pj4+ICsvLyBTUERYLUxpY2Vuc2UtSWRlbnRpZmllcjogR1BMLTIuMAo+Pj4+
-ICsvKiBDb3B5cmlnaHQgKGMpIDIwMTgsIEludGVsIENvcnBvcmF0aW9uLiAqLwo+Pj4+ICsKPj4+
-PiArI2lmbmRlZiBfTkVUX0JZUEFTU19ICj4+Pj4gKyNkZWZpbmUgX05FVF9CWVBBU1NfSAo+Pj4+
-ICsKPj4+PiArI2luY2x1ZGUgPGxpbnV4L25ldGRldmljZS5oPgo+Pj4+ICsKPj4+PiArc3RydWN0
-IGJ5cGFzc19vcHMgewo+Pj4+ICsJaW50ICgqc2xhdmVfcHJlX3JlZ2lzdGVyKShzdHJ1Y3QgbmV0
-X2RldmljZSAqc2xhdmVfbmV0ZGV2LAo+Pj4+ICsJCQkJICBzdHJ1Y3QgbmV0X2RldmljZSAqYnlw
-YXNzX25ldGRldik7Cj4+Pj4gKwlpbnQgKCpzbGF2ZV9qb2luKShzdHJ1Y3QgbmV0X2RldmljZSAq
-c2xhdmVfbmV0ZGV2LAo+Pj4+ICsJCQkgIHN0cnVjdCBuZXRfZGV2aWNlICpieXBhc3NfbmV0ZGV2
-KTsKPj4+PiArCWludCAoKnNsYXZlX3ByZV91bnJlZ2lzdGVyKShzdHJ1Y3QgbmV0X2RldmljZSAq
-c2xhdmVfbmV0ZGV2LAo+Pj4+ICsJCQkJICAgIHN0cnVjdCBuZXRfZGV2aWNlICpieXBhc3NfbmV0
-ZGV2KTsKPj4+PiArCWludCAoKnNsYXZlX3JlbGVhc2UpKHN0cnVjdCBuZXRfZGV2aWNlICpzbGF2
-ZV9uZXRkZXYsCj4+Pj4gKwkJCSAgICAgc3RydWN0IG5ldF9kZXZpY2UgKmJ5cGFzc19uZXRkZXYp
-Owo+Pj4+ICsJaW50ICgqc2xhdmVfbGlua19jaGFuZ2UpKHN0cnVjdCBuZXRfZGV2aWNlICpzbGF2
-ZV9uZXRkZXYsCj4+Pj4gKwkJCQkgc3RydWN0IG5ldF9kZXZpY2UgKmJ5cGFzc19uZXRkZXYpOwo+
-Pj4+ICsJcnhfaGFuZGxlcl9yZXN1bHRfdCAoKmhhbmRsZV9mcmFtZSkoc3RydWN0IHNrX2J1ZmYg
-Kipwc2tiKTsKPj4+PiArfTsKPj4+PiArCj4+Pj4gK3N0cnVjdCBieXBhc3NfbWFzdGVyIHsKPj4+
-PiArCXN0cnVjdCBsaXN0X2hlYWQgbGlzdDsKPj4+PiArCXN0cnVjdCBuZXRfZGV2aWNlIF9fcmN1
-ICpieXBhc3NfbmV0ZGV2Owo+Pj4+ICsJc3RydWN0IGJ5cGFzc19vcHMgX19yY3UgKm9wczsKPj4+
-PiArfTsKPj4+PiArCj4+Pj4gKy8qIGJ5cGFzcyBzdGF0ZSAqLwo+Pj4+ICtzdHJ1Y3QgYnlwYXNz
-X2luZm8gewo+Pj4+ICsJLyogcGFzc3RocnUgbmV0ZGV2IHdpdGggc2FtZSBNQUMgKi8KPj4+PiAr
-CXN0cnVjdCBuZXRfZGV2aWNlIF9fcmN1ICphY3RpdmVfbmV0ZGV2Owo+Pj4gWW91IHN0aWxsIHVz
-ZSAiYWN0aXZlIi8iYmFja3VwIiBuYW1lcyB3aGljaCBpcyBoaWdobHkgbWlzbGVhZGluZyBhcwo+
-Pj4gaXQgaGFzIGNvbXBsZXRlbHkgZGlmZmVyZW50IG1lYW5pbmcgdGhhdCBpbiBib25kIGZvciBl
-eGFtcGxlLgo+Pj4gSSBub3RlZCB0aGF0IGluIG15IHByZXZpb3VzIHJldmlldyBhbHJlYWR5LiBQ
-bGVhc2UgY2hhbmdlIGl0Lgo+PiBJIGd1ZXNzIHRoZSBpc3N1ZSBpcyB3aXRoIG9ubHkgdGhlICdh
-Y3RpdmUnwqAgbmFtZS4gJ2JhY2t1cCcgc2hvdWxkIGJlIGZpbmUgYXMgaXQgYWxzbwo+PiBtYXRj
-aGVzIHdpdGggdGhlIEJBQ0tVUCBmZWF0dXJlIGJpdCB3ZSBhcmUgYWRkaW5nIHRvIHZpcnRpb19u
-ZXQuCj4gSSB0aGluayB0aGF0ICJiYWNrdXAiIGlzIGFsc28gbWlzbGVhZGluZy4gQm90aCAiYWN0
-aXZlIiBhbmQgImJhY2t1cCIKPiBtZWFuIGEgKnN0YXRlKiBvZiBzbGF2ZXMuIFRoaXMgc2hvdWxk
-IGJlIG5hbWVkIGRpZmZlcmVudGx5Lgo+Cj4KPgo+PiBXaXRoIHJlZ2FyZHMgdG8gYWx0ZXJuYXRl
-IG5hbWVzIGZvciAnYWN0aXZlJywgeW91IHN1Z2dlc3RlZCAnc3RvbGVuJywgYnV0IGkKPj4gYW0g
-bm90IHRvbyBoYXBweSB3aXRoIGl0Lgo+PiBuZXR2c2MgdXNlcyB2Zl9uZXRkZXYsIGFyZSB5b3Ug
-T0sgd2l0aCB0aGlzPyBPciBhbm90aGVyIG9wdGlvbiBpcyAncGFzc3RocnUnCj4gTm8uIFRoZSBu
-ZXRkZXYgY291bGQgYmUgYW55IG5ldGRldmljZS4gSXQgZG9lcyBub3QgaGF2ZSB0byBiZSBhICJW
-RiIuCj4gSSB0aGluayAic3RvbGVuIiBpcyBxdWl0ZSBhcHByb3ByaWF0ZSBzaW5jZSBpdCBkZXNj
-cmliZXMgdGhlIG1vZHVzCj4gb3BlcmFuZGkuIFRoZSBieXBhc3MgbWFzdGVyIHN0ZWFscyBzb21l
-IG5ldGRldmljZSBhY2NvcmRpbmcgdG8gc29tZQo+IG1hdGNoLgo+Cj4gQnV0IEkgZG9uJ3QgaW5z
-aXN0IG9uICJzdG9sZW4iLiBKdXN0IHNvdW5kcyByaWdodC4KCldlIGFyZSBhZGRpbmcgVklSVElP
-X05FVF9GX0JBQ0tVUCBhcyBhIG5ldyBmZWF0dXJlIGJpdCB0byBlbmFibGUgdGhpcyBmZWF0dXJl
-LCBTbyBpIHRoaW5rCidiYWNrdXAnIG5hbWUgaXMgY29uc2lzdGVudC4KClRoZSBpbnRlbnQgaXMg
-dG8gcmVzdHJpY3QgdGhlICdhY3RpdmUnIG5ldGRldiB0byBiZSBhIFZGLiBJZiB0aGVyZSBpcyBh
-IHdheSB0byBjaGVjayB0aGF0CmEgUENJIGRldmljZSBpcyBhIFZGIGluIHRoZSBndWVzdCBrZXJu
-ZWwsIHdlIGNvdWxkIHJlc3RyaWN0ICdhY3RpdmUnIG5ldGRldiB0byBiZSBhIFZGLgoKV2lsbCBs
-b29rIGZvciBhbnkgc3VnZ2VzdGlvbnMgaW4gdGhlIG5leHQgZGF5IG9yIHR3by4gSWYgaSBkb24n
-dCBnZXQgYW55LCBpIHdpbGwgZ28Kd2l0aCAnc3RvbGVuJwoKPHNuaXA+CgoKPiArCj4gK3N0YXRp
-YyBzdHJ1Y3QgbmV0X2RldmljZSAqYnlwYXNzX21hc3Rlcl9nZXRfYnltYWModTggKm1hYywKPiAr
-CQkJCQkJICBzdHJ1Y3QgYnlwYXNzX29wcyAqKm9wcykKPiArewo+ICsJc3RydWN0IGJ5cGFzc19t
-YXN0ZXIgKmJ5cGFzc19tYXN0ZXI7Cj4gKwlzdHJ1Y3QgbmV0X2RldmljZSAqYnlwYXNzX25ldGRl
-djsKPiArCj4gKwlzcGluX2xvY2soJmJ5cGFzc19sb2NrKTsKPiArCWxpc3RfZm9yX2VhY2hfZW50
-cnkoYnlwYXNzX21hc3RlciwgJmJ5cGFzc19tYXN0ZXJfbGlzdCwgbGlzdCkgewo+Pj4gQXMgSSB3
-cm90ZSB0aGUgbGFzdCB0aW1lLCB5b3UgZG9uJ3QgbmVlZCB0aGlzIGxpc3QsIHNwaW5sb2NrLgo+
-Pj4gWW91IGNhbiBkbyBqdXN0IHNvbWV0aGluZyBsaWtlOgo+Pj4gICAgICAgICAgIGZvcl9lYWNo
-X25ldChuZXQpIHsKPj4+ICAgICAgICAgICAgICAgICAgIGZvcl9lYWNoX25ldGRldihuZXQsIGRl
-dikgewo+Pj4gCQkJaWYgKG5ldGlmX2lzX2J5cGFzc19tYXN0ZXIoZGV2KSkgewo+PiBUaGlzIGZ1
-bmN0aW9uIHJldHVybnMgdGhlIHVwcGVyIG5ldGRldiBhcyB3ZWxsIGFzIHRoZSBvcHMgYXNzb2Np
-YXRlZAo+PiB3aXRoIHRoYXQgbmV0ZGV2Lgo+PiBieXBhc3NfbWFzdGVyX2xpc3QgaXMgYSBsaXN0
-IG9mICdzdHJ1Y3QgYnlwYXNzX21hc3RlcicgdGhhdCBhc3NvY2lhdGVzCj4gV2VsbCwgY2FuJ3Qg
-eW91IGhhdmUgaXQgaW4gbmV0ZGV2IHByaXY/CgpXZSBjYW5ub3QgZG8gdGhpcyBmb3IgMi1uZXRk
-ZXYgbW9kZWwgYXMgdGhlcmUgaXMgbm8gYnlwYXNzX25ldGRldiBjcmVhdGVkLgoKPgo+Cj4+ICdi
-eXBhc3NfbmV0ZGV2JyB3aXRoICdieXBhc3Nfb3BzJyBhbmQgZ2V0cyBhZGRlZCB2aWEgYnlwYXNz
-X21hc3Rlcl9yZWdpc3RlcigpLgo+PiBXZSBuZWVkICdvcHMnIG9ubHkgdG8gc3VwcG9ydCB0aGUg
-MiBuZXRkZXYgbW9kZWwgb2YgbmV0dnNjLiBvcHMgd2lsbCBiZQo+PiBOVUxMIGZvciAzLW5ldGRl
-diBtb2RlbC4KPiBJIHNlZSA6KAo+Cj4KPj4KPj4+Cj4+Pgo+Pj4KPj4+PiArCQlieXBhc3NfbmV0
-ZGV2ID0gcmN1X2RlcmVmZXJlbmNlKGJ5cGFzc19tYXN0ZXItPmJ5cGFzc19uZXRkZXYpOwo+Pj4+
-ICsJCWlmIChldGhlcl9hZGRyX2VxdWFsKGJ5cGFzc19uZXRkZXYtPnBlcm1fYWRkciwgbWFjKSkg
-ewo+Pj4+ICsJCQkqb3BzID0gcmN1X2RlcmVmZXJlbmNlKGJ5cGFzc19tYXN0ZXItPm9wcyk7Cj4+
-PiBJIGRvbid0IHNlZSBob3cgcmN1X2RlcmVmZXJlbmNlIGlzIG9rIGhlcmUuCj4+PiAxKSBJIGRv
-bid0IHNlZSByY3VfcmVhZF9sb2NrIHRha2VuCj4+PiAyKSBMb29rcyBsaWtlIGJ5cGFzc19tYXN0
-ZXItPm9wcyBoYXMgdGhlIHNhbWUgdmFsdWUgYWNyb3NzIHRoZSB3aG9sZQo+Pj4gICAgICBleGlz
-dGVuY2UuCj4+IFdlIGhvbGQgcnRubF9sb2NrKCksIGkgdGhpbmsgaSBuZWVkIHRvIGNoYW5nZSB0
-aGlzIHRvIHJ0bmxfZGVyZWZlcmVuY2UuCj4+IFllcy4gb3BzIGRvZXNuJ3QgY2hhbmdlLgo+IElm
-IGl0IGRvZXMgbm90IGNoYW5nZSwgeW91IGNhbiBqdXN0IGFjY2VzcyBpdCBkaXJlY3RseS4KPgo+
-Cj4+Pgo+Pj4+ICsJCQlzcGluX3VubG9jaygmYnlwYXNzX2xvY2spOwo+Pj4+ICsJCQlyZXR1cm4g
-YnlwYXNzX25ldGRldjsKPj4+PiArCQl9Cj4+Pj4gKwl9Cj4+Pj4gKwlzcGluX3VubG9jaygmYnlw
-YXNzX2xvY2spOwo+Pj4+ICsJcmV0dXJuIE5VTEw7Cj4+Pj4gK30KPj4+PiArCj4+Pj4gK3N0YXRp
-YyBpbnQgYnlwYXNzX3NsYXZlX3JlZ2lzdGVyKHN0cnVjdCBuZXRfZGV2aWNlICpzbGF2ZV9uZXRk
-ZXYpCj4+Pj4gK3sKPj4+PiArCXN0cnVjdCBuZXRfZGV2aWNlICpieXBhc3NfbmV0ZGV2Owo+Pj4+
-ICsJc3RydWN0IGJ5cGFzc19vcHMgKmJ5cGFzc19vcHM7Cj4+Pj4gKwlpbnQgcmV0LCBvcmlnX210
-dTsKPj4+PiArCj4+Pj4gKwlBU1NFUlRfUlROTCgpOwo+Pj4+ICsKPj4+PiArCWJ5cGFzc19uZXRk
-ZXYgPSBieXBhc3NfbWFzdGVyX2dldF9ieW1hYyhzbGF2ZV9uZXRkZXYtPnBlcm1fYWRkciwKPj4+
-PiArCQkJCQkJJmJ5cGFzc19vcHMpOwo+Pj4gRm9yIG1hc3RlciwgY291bGQgeW91IHVzZSB3b3Jk
-ICJtYXN0ZXIiIGluIHRoZSB2YXJpYWJsZXMgc28gaXQgaXMgY2xlYXI/Cj4+PiBBbHNvLCAiZGV2
-IiBpcyBmaW5lIGluc3RlYWQgb2YgIm5ldGRldiIuCj4+PiBTb21ldGhpbmcgbGlrZSAiYnBtYXN0
-ZXJfZGV2Igo+PiBieXBhc3NfbWFzdGVyIGlzIG9mwqAgdHlwZSBzdHJ1Y3QgYnlwYXNzX21hc3Rl
-cizCoCBieXBhc3NfbmV0ZGV2IGlzIG9mIHR5cGUgc3RydWN0IG5ldF9kZXZpY2UuCj4gSSB3YXMg
-dHJ5aW5nIHRvIHBvaW50IG91dCwgdGhhdCAiYnlwYXNzX25ldGRldiIgcmVwcmVzZW50cyBhICJt
-YXN0ZXIiCj4gbmV0ZGV2LCB5ZXQgaXQgZG9lcyBub3Qgc2F5IG1hc3Rlci4gVGhhdCBpcyB3aHkg
-SSBzdWdnZXN0ZWQKPiAiYnBtYXN0ZXJfZGV2Igo+Cj4KPj4gSSBjYW4gY2hhbmdlIGFsbCBfbmV0
-ZGV2IHN1ZmZpeGVzIHRvIF9kZXYgdG8gbWFrZSB0aGUgbmFtZXMgc2hvcnRlci4KPiBvay4KPgo+
-Cj4+Cj4+Pgo+Pj4+ICsJaWYgKCFieXBhc3NfbmV0ZGV2KQo+Pj4+ICsJCWdvdG8gZG9uZTsKPj4+
-PiArCj4+Pj4gKwlyZXQgPSBieXBhc3Nfc2xhdmVfcHJlX3JlZ2lzdGVyKHNsYXZlX25ldGRldiwg
-YnlwYXNzX25ldGRldiwKPj4+PiArCQkJCQlieXBhc3Nfb3BzKTsKPj4+PiArCWlmIChyZXQgIT0g
-MCkKPj4+IAlKdXN0ICJpZiAocmV0KSIgd2lsbCBkby4gWW91IGhhdmUgdGhpcyBvbiBtb3JlIHBs
-YWNlcy4KPj4gT0suCj4+Cj4+Cj4+Pgo+Pj4+ICsJCWdvdG8gZG9uZTsKPj4+PiArCj4+Pj4gKwly
-ZXQgPSBuZXRkZXZfcnhfaGFuZGxlcl9yZWdpc3RlcihzbGF2ZV9uZXRkZXYsCj4+Pj4gKwkJCQkJ
-IGJ5cGFzc19vcHMgPyBieXBhc3Nfb3BzLT5oYW5kbGVfZnJhbWUgOgo+Pj4+ICsJCQkJCSBieXBh
-c3NfaGFuZGxlX2ZyYW1lLCBieXBhc3NfbmV0ZGV2KTsKPj4+PiArCWlmIChyZXQgIT0gMCkgewo+
-Pj4+ICsJCW5ldGRldl9lcnIoc2xhdmVfbmV0ZGV2LCAiY2FuIG5vdCByZWdpc3RlciBieXBhc3Mg
-cnggaGFuZGxlciAoZXJyID0gJWQpXG4iLAo+Pj4+ICsJCQkgICByZXQpOwo+Pj4+ICsJCWdvdG8g
-ZG9uZTsKPj4+PiArCX0KPj4+PiArCj4+Pj4gKwlyZXQgPSBuZXRkZXZfdXBwZXJfZGV2X2xpbmso
-c2xhdmVfbmV0ZGV2LCBieXBhc3NfbmV0ZGV2LCBOVUxMKTsKPj4+PiArCWlmIChyZXQgIT0gMCkg
-ewo+Pj4+ICsJCW5ldGRldl9lcnIoc2xhdmVfbmV0ZGV2LCAiY2FuIG5vdCBzZXQgbWFzdGVyIGRl
-dmljZSAlcyAoZXJyID0gJWQpXG4iLAo+Pj4+ICsJCQkgICBieXBhc3NfbmV0ZGV2LT5uYW1lLCBy
-ZXQpOwo+Pj4+ICsJCWdvdG8gdXBwZXJfbGlua19mYWlsZWQ7Cj4+Pj4gKwl9Cj4+Pj4gKwo+Pj4+
-ICsJc2xhdmVfbmV0ZGV2LT5wcml2X2ZsYWdzIHw9IElGRl9CWVBBU1NfU0xBVkU7Cj4+Pj4gKwo+
-Pj4+ICsJaWYgKG5ldGlmX3J1bm5pbmcoYnlwYXNzX25ldGRldikpIHsKPj4+PiArCQlyZXQgPSBk
-ZXZfb3BlbihzbGF2ZV9uZXRkZXYpOwo+Pj4+ICsJCWlmIChyZXQgJiYgKHJldCAhPSAtRUJVU1kp
-KSB7Cj4+Pj4gKwkJCW5ldGRldl9lcnIoYnlwYXNzX25ldGRldiwgIk9wZW5pbmcgc2xhdmUgJXMg
-ZmFpbGVkIHJldDolZFxuIiwKPj4+PiArCQkJCSAgIHNsYXZlX25ldGRldi0+bmFtZSwgcmV0KTsK
-Pj4+PiArCQkJZ290byBlcnJfaW50ZXJmYWNlX3VwOwo+Pj4+ICsJCX0KPj4+PiArCX0KPj4+PiAr
-Cj4+Pj4gKwkvKiBBbGlnbiBNVFUgb2Ygc2xhdmUgd2l0aCBtYXN0ZXIgKi8KPj4+PiArCW9yaWdf
-bXR1ID0gc2xhdmVfbmV0ZGV2LT5tdHU7Cj4+Pj4gKwlyZXQgPSBkZXZfc2V0X210dShzbGF2ZV9u
-ZXRkZXYsIGJ5cGFzc19uZXRkZXYtPm10dSk7Cj4+Pj4gKwlpZiAocmV0ICE9IDApIHsKPj4+PiAr
-CQluZXRkZXZfZXJyKGJ5cGFzc19uZXRkZXYsICJ1bmFibGUgdG8gY2hhbmdlIG10dSBvZiAlcyB0
-byAldSByZWdpc3RlciBmYWlsZWRcbiIsCj4+Pj4gKwkJCSAgIHNsYXZlX25ldGRldi0+bmFtZSwg
-YnlwYXNzX25ldGRldi0+bXR1KTsKPj4+PiArCQlnb3RvIGVycl9zZXRfbXR1Owo+Pj4+ICsJfQo+
-Pj4+ICsKPj4+PiArCXJldCA9IGJ5cGFzc19zbGF2ZV9qb2luKHNsYXZlX25ldGRldiwgYnlwYXNz
-X25ldGRldiwgYnlwYXNzX29wcyk7Cj4+Pj4gKwlpZiAocmV0ICE9IDApCj4+Pj4gKwkJZ290byBl
-cnJfam9pbjsKPj4+PiArCj4+Pj4gKwljYWxsX25ldGRldmljZV9ub3RpZmllcnMoTkVUREVWX0pP
-SU4sIHNsYXZlX25ldGRldik7Cj4+Pj4gKwo+Pj4+ICsJbmV0ZGV2X2luZm8oYnlwYXNzX25ldGRl
-diwgImJ5cGFzcyBzbGF2ZTolcyByZWdpc3RlcmVkXG4iLAo+Pj4+ICsJCSAgICBzbGF2ZV9uZXRk
-ZXYtPm5hbWUpOwo+Pj4+ICsKPj4+PiArCWdvdG8gZG9uZTsKPj4+PiArCj4+Pj4gK2Vycl9qb2lu
-Ogo+Pj4+ICsJZGV2X3NldF9tdHUoc2xhdmVfbmV0ZGV2LCBvcmlnX210dSk7Cj4+Pj4gK2Vycl9z
-ZXRfbXR1Ogo+Pj4+ICsJZGV2X2Nsb3NlKHNsYXZlX25ldGRldik7Cj4+Pj4gK2Vycl9pbnRlcmZh
-Y2VfdXA6Cj4+Pj4gKwluZXRkZXZfdXBwZXJfZGV2X3VubGluayhzbGF2ZV9uZXRkZXYsIGJ5cGFz
-c19uZXRkZXYpOwo+Pj4+ICsJc2xhdmVfbmV0ZGV2LT5wcml2X2ZsYWdzICY9IH5JRkZfQllQQVNT
-X1NMQVZFOwo+Pj4+ICt1cHBlcl9saW5rX2ZhaWxlZDoKPj4+PiArCW5ldGRldl9yeF9oYW5kbGVy
-X3VucmVnaXN0ZXIoc2xhdmVfbmV0ZGV2KTsKPj4+PiArZG9uZToKPj4+PiArCXJldHVybiBOT1RJ
-RllfRE9ORTsKPj4+PiArfQo+Pj4+ICsKPj4+PiArc3RhdGljIGludCBieXBhc3Nfc2xhdmVfcHJl
-X3VucmVnaXN0ZXIoc3RydWN0IG5ldF9kZXZpY2UgKnNsYXZlX25ldGRldiwKPj4+PiArCQkJCSAg
-ICAgICBzdHJ1Y3QgbmV0X2RldmljZSAqYnlwYXNzX25ldGRldiwKPj4+PiArCQkJCSAgICAgICBz
-dHJ1Y3QgYnlwYXNzX29wcyAqYnlwYXNzX29wcykKPj4+PiArewo+Pj4+ICsJc3RydWN0IG5ldF9k
-ZXZpY2UgKmJhY2t1cF9uZXRkZXYsICphY3RpdmVfbmV0ZGV2Owo+Pj4+ICsJc3RydWN0IGJ5cGFz
-c19pbmZvICpiaTsKPj4+PiArCj4+Pj4gKwlpZiAoYnlwYXNzX29wcykgewo+Pj4+ICsJCWlmICgh
-YnlwYXNzX29wcy0+c2xhdmVfcHJlX3VucmVnaXN0ZXIpCj4+Pj4gKwkJCXJldHVybiAtRUlOVkFM
-Owo+Pj4+ICsKPj4+PiArCQlyZXR1cm4gYnlwYXNzX29wcy0+c2xhdmVfcHJlX3VucmVnaXN0ZXIo
-c2xhdmVfbmV0ZGV2LAo+Pj4+ICsJCQkJCQkJYnlwYXNzX25ldGRldik7Cj4+Pj4gKwl9Cj4+Pj4g
-Kwo+Pj4+ICsJYmkgPSBuZXRkZXZfcHJpdihieXBhc3NfbmV0ZGV2KTsKPj4+PiArCWFjdGl2ZV9u
-ZXRkZXYgPSBydG5sX2RlcmVmZXJlbmNlKGJpLT5hY3RpdmVfbmV0ZGV2KTsKPj4+PiArCWJhY2t1
-cF9uZXRkZXYgPSBydG5sX2RlcmVmZXJlbmNlKGJpLT5iYWNrdXBfbmV0ZGV2KTsKPj4+PiArCj4+
-Pj4gKwlpZiAoc2xhdmVfbmV0ZGV2ICE9IGFjdGl2ZV9uZXRkZXYgJiYgc2xhdmVfbmV0ZGV2ICE9
-IGJhY2t1cF9uZXRkZXYpCj4+Pj4gKwkJcmV0dXJuIC1FSU5WQUw7Cj4+Pj4gKwo+Pj4+ICsJcmV0
-dXJuIDA7Cj4+Pj4gK30KPj4+PiArCj4+Pj4gK3N0YXRpYyBpbnQgYnlwYXNzX3NsYXZlX3JlbGVh
-c2Uoc3RydWN0IG5ldF9kZXZpY2UgKnNsYXZlX25ldGRldiwKPj4+PiArCQkJCXN0cnVjdCBuZXRf
-ZGV2aWNlICpieXBhc3NfbmV0ZGV2LAo+Pj4+ICsJCQkJc3RydWN0IGJ5cGFzc19vcHMgKmJ5cGFz
-c19vcHMpCj4+Pj4gK3sKPj4+PiArCXN0cnVjdCBuZXRfZGV2aWNlICpiYWNrdXBfbmV0ZGV2LCAq
-YWN0aXZlX25ldGRldjsKPj4+PiArCXN0cnVjdCBieXBhc3NfaW5mbyAqYmk7Cj4+Pj4gKwo+Pj4+
-ICsJaWYgKGJ5cGFzc19vcHMpIHsKPj4+PiArCQlpZiAoIWJ5cGFzc19vcHMtPnNsYXZlX3JlbGVh
-c2UpCj4+Pj4gKwkJCXJldHVybiAtRUlOVkFMOwo+Pj4gSSB0aGluayBpdCB3b3VsZCBiZSBnb29k
-IHRvIG1ha2UgdGhlIEFQSSB0byB0aGUgZHJpdmVyIG1vcmUgc3RyaWN0IGFuZAo+Pj4gaGF2ZSBh
-IHNlcGFyYXRlIHNldCBvZiBvcHMgZm9yICJhY3RpdmUiIGFuZCAiYmFja3VwIiBuZXRkZXZpY2Vz
-Lgo+Pj4gVGhhdCBzaG91bGQgc3RvcCBwZW9wbGUgdGhpbmtpbmcgYWJvdXQgZXh0ZW5kaW5nIHRo
-aXMgdG8gbW9yZSBzbGF2ZXMgaW4KPj4+IHRoZSBmdXR1cmUuCj4+IFdlIGhhdmUgY2hlY2tzIGlu
-IHNsYXZlX3ByZV9yZWdpc3RlcigpIHRoYXQgYWxsb3dzIG9ubHkgMSAnYmFja3VwJyBhbmQgMQo+
-PiAnYWN0aXZlJyBzbGF2ZS4KPiBJJ20gdmVyeSB3ZWxsIGF3YXJlIG9mIHRoYXQuIEkganVzdCB0
-aG91Z2h0IHRoYXQgZXhwbGljaXQgb3BzIGZvciB0aGUKPiB0d28gc2xhdmVzIHdvdWxkIG1ha2Ug
-dGhpcyBtb3JlIGNsZWFyLgo+Cj4KPj4KPj4+Cj4+Pgo+Pj4+ICsKPj4+PiArCQlyZXR1cm4gYnlw
-YXNzX29wcy0+c2xhdmVfcmVsZWFzZShzbGF2ZV9uZXRkZXYsIGJ5cGFzc19uZXRkZXYpOwo+Pj4+
-ICsJfQo+Pj4+ICsKPj4+PiArCWJpID0gbmV0ZGV2X3ByaXYoYnlwYXNzX25ldGRldik7Cj4+Pj4g
-KwlhY3RpdmVfbmV0ZGV2ID0gcnRubF9kZXJlZmVyZW5jZShiaS0+YWN0aXZlX25ldGRldik7Cj4+
-Pj4gKwliYWNrdXBfbmV0ZGV2ID0gcnRubF9kZXJlZmVyZW5jZShiaS0+YmFja3VwX25ldGRldik7
-Cj4+Pj4gKwo+Pj4+ICsJaWYgKHNsYXZlX25ldGRldiA9PSBiYWNrdXBfbmV0ZGV2KSB7Cj4+Pj4g
-KwkJUkNVX0lOSVRfUE9JTlRFUihiaS0+YmFja3VwX25ldGRldiwgTlVMTCk7Cj4+Pj4gKwl9IGVs
-c2Ugewo+Pj4+ICsJCVJDVV9JTklUX1BPSU5URVIoYmktPmFjdGl2ZV9uZXRkZXYsIE5VTEwpOwo+
-Pj4+ICsJCWlmIChiYWNrdXBfbmV0ZGV2KSB7Cj4+Pj4gKwkJCWJ5cGFzc19uZXRkZXYtPm1pbl9t
-dHUgPSBiYWNrdXBfbmV0ZGV2LT5taW5fbXR1Owo+Pj4+ICsJCQlieXBhc3NfbmV0ZGV2LT5tYXhf
-bXR1ID0gYmFja3VwX25ldGRldi0+bWF4X210dTsKPj4+PiArCQl9Cj4+Pj4gKwl9Cj4+Pj4gKwo+
-Pj4+ICsJZGV2X3B1dChzbGF2ZV9uZXRkZXYpOwo+Pj4+ICsKPj4+PiArCW5ldGRldl9pbmZvKGJ5
-cGFzc19uZXRkZXYsICJieXBhc3Mgc2xhdmU6JXMgcmVsZWFzZWRcbiIsCj4+Pj4gKwkJICAgIHNs
-YXZlX25ldGRldi0+bmFtZSk7Cj4+Pj4gKwo+Pj4+ICsJcmV0dXJuIDA7Cj4+Pj4gK30KPj4+PiAr
-Cj4+Pj4gK2ludCBieXBhc3Nfc2xhdmVfdW5yZWdpc3RlcihzdHJ1Y3QgbmV0X2RldmljZSAqc2xh
-dmVfbmV0ZGV2KQo+Pj4+ICt7Cj4+Pj4gKwlzdHJ1Y3QgbmV0X2RldmljZSAqYnlwYXNzX25ldGRl
-djsKPj4+PiArCXN0cnVjdCBieXBhc3Nfb3BzICpieXBhc3Nfb3BzOwo+Pj4+ICsJaW50IHJldDsK
-Pj4+PiArCj4+Pj4gKwlpZiAoIW5ldGlmX2lzX2J5cGFzc19zbGF2ZShzbGF2ZV9uZXRkZXYpKQo+
-Pj4+ICsJCWdvdG8gZG9uZTsKPj4+PiArCj4+Pj4gKwlBU1NFUlRfUlROTCgpOwo+Pj4+ICsKPj4+
-PiArCWJ5cGFzc19uZXRkZXYgPSBieXBhc3NfbWFzdGVyX2dldF9ieW1hYyhzbGF2ZV9uZXRkZXYt
-PnBlcm1fYWRkciwKPj4+PiArCQkJCQkJJmJ5cGFzc19vcHMpOwo+Pj4+ICsJaWYgKCFieXBhc3Nf
-bmV0ZGV2KQo+Pj4+ICsJCWdvdG8gZG9uZTsKPj4+PiArCj4+Pj4gKwlyZXQgPSBieXBhc3Nfc2xh
-dmVfcHJlX3VucmVnaXN0ZXIoc2xhdmVfbmV0ZGV2LCBieXBhc3NfbmV0ZGV2LAo+Pj4+ICsJCQkJ
-CSAgYnlwYXNzX29wcyk7Cj4+Pj4gKwlpZiAocmV0ICE9IDApCj4+Pj4gKwkJZ290byBkb25lOwo+
-Pj4+ICsKPj4+PiArCW5ldGRldl9yeF9oYW5kbGVyX3VucmVnaXN0ZXIoc2xhdmVfbmV0ZGV2KTsK
-Pj4+PiArCW5ldGRldl91cHBlcl9kZXZfdW5saW5rKHNsYXZlX25ldGRldiwgYnlwYXNzX25ldGRl
-dik7Cj4+Pj4gKwlzbGF2ZV9uZXRkZXYtPnByaXZfZmxhZ3MgJj0gfklGRl9CWVBBU1NfU0xBVkU7
-Cj4+Pj4gKwo+Pj4+ICsJYnlwYXNzX3NsYXZlX3JlbGVhc2Uoc2xhdmVfbmV0ZGV2LCBieXBhc3Nf
-bmV0ZGV2LCBieXBhc3Nfb3BzKTsKPj4+PiArCj4+Pj4gKwluZXRkZXZfaW5mbyhieXBhc3NfbmV0
-ZGV2LCAiYnlwYXNzIHNsYXZlOiVzIHVucmVnaXN0ZXJlZFxuIiwKPj4+PiArCQkgICAgc2xhdmVf
-bmV0ZGV2LT5uYW1lKTsKPj4+PiArCj4+Pj4gK2RvbmU6Cj4+Pj4gKwlyZXR1cm4gTk9USUZZX0RP
-TkU7Cj4+Pj4gK30KPj4+PiArRVhQT1JUX1NZTUJPTF9HUEwoYnlwYXNzX3NsYXZlX3VucmVnaXN0
-ZXIpOwo+Pj4+ICsKPj4+PiArc3RhdGljIGJvb2wgYnlwYXNzX3htaXRfcmVhZHkoc3RydWN0IG5l
-dF9kZXZpY2UgKmRldikKPj4+PiArewo+Pj4+ICsJcmV0dXJuIG5ldGlmX3J1bm5pbmcoZGV2KSAm
-JiBuZXRpZl9jYXJyaWVyX29rKGRldik7Cj4+Pj4gK30KPj4+PiArCj4+Pj4gK3N0YXRpYyBpbnQg
-YnlwYXNzX3NsYXZlX2xpbmtfY2hhbmdlKHN0cnVjdCBuZXRfZGV2aWNlICpzbGF2ZV9uZXRkZXYp
-Cj4+Pj4gK3sKPj4+PiArCXN0cnVjdCBuZXRfZGV2aWNlICpieXBhc3NfbmV0ZGV2LCAqYWN0aXZl
-X25ldGRldiwgKmJhY2t1cF9uZXRkZXY7Cj4+Pj4gKwlzdHJ1Y3QgYnlwYXNzX29wcyAqYnlwYXNz
-X29wczsKPj4+PiArCXN0cnVjdCBieXBhc3NfaW5mbyAqYmk7Cj4+Pj4gKwo+Pj4+ICsJaWYgKCFu
-ZXRpZl9pc19ieXBhc3Nfc2xhdmUoc2xhdmVfbmV0ZGV2KSkKPj4+PiArCQlnb3RvIGRvbmU7Cj4+
-Pj4gKwo+Pj4+ICsJQVNTRVJUX1JUTkwoKTsKPj4+PiArCj4+Pj4gKwlieXBhc3NfbmV0ZGV2ID0g
-YnlwYXNzX21hc3Rlcl9nZXRfYnltYWMoc2xhdmVfbmV0ZGV2LT5wZXJtX2FkZHIsCj4+Pj4gKwkJ
-CQkJCSZieXBhc3Nfb3BzKTsKPj4+PiArCWlmICghYnlwYXNzX25ldGRldikKPj4+PiArCQlnb3Rv
-IGRvbmU7Cj4+Pj4gKwo+Pj4+ICsJaWYgKGJ5cGFzc19vcHMpIHsKPj4+PiArCQlpZiAoIWJ5cGFz
-c19vcHMtPnNsYXZlX2xpbmtfY2hhbmdlKQo+Pj4+ICsJCQlnb3RvIGRvbmU7Cj4+Pj4gKwo+Pj4+
-ICsJCXJldHVybiBieXBhc3Nfb3BzLT5zbGF2ZV9saW5rX2NoYW5nZShzbGF2ZV9uZXRkZXYsCj4+
-Pj4gKwkJCQkJCSAgICAgYnlwYXNzX25ldGRldik7Cj4+Pj4gKwl9Cj4+Pj4gKwo+Pj4+ICsJaWYg
-KCFuZXRpZl9ydW5uaW5nKGJ5cGFzc19uZXRkZXYpKQo+Pj4+ICsJCXJldHVybiAwOwo+Pj4+ICsK
-Pj4+PiArCWJpID0gbmV0ZGV2X3ByaXYoYnlwYXNzX25ldGRldik7Cj4+Pj4gKwo+Pj4+ICsJYWN0
-aXZlX25ldGRldiA9IHJ0bmxfZGVyZWZlcmVuY2UoYmktPmFjdGl2ZV9uZXRkZXYpOwo+Pj4+ICsJ
-YmFja3VwX25ldGRldiA9IHJ0bmxfZGVyZWZlcmVuY2UoYmktPmJhY2t1cF9uZXRkZXYpOwo+Pj4+
-ICsKPj4+PiArCWlmIChzbGF2ZV9uZXRkZXYgIT0gYWN0aXZlX25ldGRldiAmJiBzbGF2ZV9uZXRk
-ZXYgIT0gYmFja3VwX25ldGRldikKPj4+PiArCQlnb3RvIGRvbmU7Cj4+PiBZb3UgZG9uJ3QgbmVl
-ZCB0aGlzIGNoZWNrLiAiaWYgKCFuZXRpZl9pc19ieXBhc3Nfc2xhdmUoc2xhdmVfbmV0ZGV2KSki
-Cj4+PiBhYm92ZSBpcyBlbm91Z2guCj4+IEkgdGhpbmsgd2UgbmVlZCB0aGlzIGNoZWNrIHRvIG5v
-dCBhbGxvdyBldmVudHMgZnJvbSBhIHNsYXZlIHRoYXQgaXMgbm90Cj4+IGF0dGFjaGVkIHRvIHRo
-aXMgbWFzdGVyIGJ1dCBoYXMgdGhlIHNhbWUgTUFDLgo+IFdoeSBkbyB3ZSBuZWVkIHN1Y2ggZXZl
-bnRzPyBTZWVtcyB3cm9uZyB0byBtZS4KCldlIHdhbnQgdG8gYXZvaWQgZXZlbnRzIGZyb20gYSBu
-ZXRkZXYgdGhhdCBpcyBtaXMtY29uZmlndXJlZCB3aXRoIHRoZSBzYW1lIE1BQyBhcwphIGJ5cGFz
-cyBzZXR1cC4KCj4gICBDb25zaWRlcjoKPgo+IGJwMSAgICAgIGJwMgo+IGExIGIxICAgIGEyIGIy
-Cj4KPgo+IGExIGFuZCBhMiBoYXZlIHRoZSBzYW1lIG1hYyBhbmQgYnAxIGFuZCBicDIgaGF2ZSB0
-aGUgc2FtZSBtYWMuCgpXZSBzaG91bGQgbm90IGhhdmUgMiBieXBhc3MgY29uZmlncyB3aXRoIHRo
-ZSBzYW1lIE1BQy4KSSBuZWVkIHRvIGFkZCBhIGNoZWNrIGluIHRoZSBieXBhc3NfbWFzdGVyX3Jl
-Z2lzdGVyKCkgdG8gcHJldmVudCB0aGlzLgoKVGhlIGFib3ZlIGNoZWNrIGlzIHRvIGF2b2lkIGNh
-c2VzIHdoZXJlIHdlIGhhdmUKYnAxKGExLCBiMSkgd2l0aCBtYWMxCmFuZCBhMiBpcyBtaXMtY29u
-ZmlndXJlZCB3aXRoIG1hYzEsIHdlIHdhbnQgdG8gYXZvaWQgdXNpbmcgYTIgbGluayBldmVudHMg
-dG8gdXBkYXRlIGJwMS4KCj4gTm93IGJ5cGFzc19tYXN0ZXJfZ2V0X2J5bWFjKCkgd2lsbCByZXR1
-cm4gYWx3YXlzIGJwMSBvciBicDIgLSBkZXBlbmRpbmcgb24KPiB0aGUgb3JkZXIgb2YgY3JlYXRp
-b24uCj4gTGV0J3Mgc2F5IGl0IHdpbGwgcmV0dXJuIGJwMS4gVGhlbiB3aGVuIHdlIGhhdmUgZXZl
-bnQgZm9yIGEyLCB0aGUKPiBieXBhc3Nfb3BzLT5zbGF2ZV9saW5rX2NoYW5nZSBpcyBjYWxsZWQg
-d2l0aCAoYTIsIGJwMSkuIFRoYXQgaXMgd3JvbmcuCj4KPgo+IFlvdSBjYW5ub3QgdXNlIGJ5cGFz
-c19tYXN0ZXJfZ2V0X2J5bWFjKCkgaGVyZS4KPgo+Cj4KPj4+Cj4+Pj4gKwo+Pj4+ICsJaWYgKChh
-Y3RpdmVfbmV0ZGV2ICYmIGJ5cGFzc194bWl0X3JlYWR5KGFjdGl2ZV9uZXRkZXYpKSB8fAo+Pj4+
-ICsJICAgIChiYWNrdXBfbmV0ZGV2ICYmIGJ5cGFzc194bWl0X3JlYWR5KGJhY2t1cF9uZXRkZXYp
-KSkgewo+Pj4+ICsJCW5ldGlmX2NhcnJpZXJfb24oYnlwYXNzX25ldGRldik7Cj4+Pj4gKwkJbmV0
-aWZfdHhfd2FrZV9hbGxfcXVldWVzKGJ5cGFzc19uZXRkZXYpOwo+Pj4+ICsJfSBlbHNlIHsKPj4+
-PiArCQluZXRpZl9jYXJyaWVyX29mZihieXBhc3NfbmV0ZGV2KTsKPj4+PiArCQluZXRpZl90eF9z
-dG9wX2FsbF9xdWV1ZXMoYnlwYXNzX25ldGRldik7Cj4+Pj4gKwl9Cj4+Pj4gKwo+Pj4+ICtkb25l
-Ogo+Pj4+ICsJcmV0dXJuIE5PVElGWV9ET05FOwo+Pj4+ICt9Cj4+Pj4gKwo+Pj4+ICtzdGF0aWMg
-Ym9vbCBieXBhc3NfdmFsaWRhdGVfZXZlbnRfZGV2KHN0cnVjdCBuZXRfZGV2aWNlICpkZXYpCj4+
-Pj4gK3sKPj4+PiArCS8qIFNraXAgcGFyZW50IGV2ZW50cyAqLwo+Pj4+ICsJaWYgKG5ldGlmX2lz
-X2J5cGFzc19tYXN0ZXIoZGV2KSkKPj4+PiArCQlyZXR1cm4gZmFsc2U7Cj4+Pj4gKwo+Pj4+ICsJ
-LyogQXZvaWQgbm9uLUV0aGVybmV0IHR5cGUgZGV2aWNlcyAqLwo+Pj4+ICsJaWYgKGRldi0+dHlw
-ZSAhPSBBUlBIUkRfRVRIRVIpCj4+Pj4gKwkJcmV0dXJuIGZhbHNlOwo+Pj4+ICsKPj4+PiArCS8q
-IEF2b2lkIFZsYW4gZGV2IHdpdGggc2FtZSBNQUMgcmVnaXN0ZXJpbmcgYXMgVkYgKi8KPj4+PiAr
-CWlmIChpc192bGFuX2RldihkZXYpKQo+Pj4+ICsJCXJldHVybiBmYWxzZTsKPj4+PiArCj4+Pj4g
-KwkvKiBBdm9pZCBCb25kaW5nIG1hc3RlciBkZXYgd2l0aCBzYW1lIE1BQyByZWdpc3RlcmluZyBh
-cyBzbGF2ZSBkZXYgKi8KPj4+PiArCWlmICgoZGV2LT5wcml2X2ZsYWdzICYgSUZGX0JPTkRJTkcp
-ICYmIChkZXYtPmZsYWdzICYgSUZGX01BU1RFUikpCj4+PiBZZWFoLCB0aGlzIGlzIGNlcnRhaW5s
-eSBpbmNvcnJlY3QuIE9uZSB0aGluZyBpcywgeW91IHNob3VsZCBiZSB1c2luZyB0aGUKPj4+IGhl
-bHBlcnMgbmV0aWZfaXNfYm9uZF9tYXN0ZXIoKS4KPj4+IEJ1dCB3aGF0IGFib3V0IHRoZSByZXN0
-PyBtYWNzZWMsIG1hY3ZsYW4sIHRlYW0sIGJyaWRnZSwgb3ZzIGFuZCBvdGhlcnM/Cj4+Pgo+Pj4g
-WW91IG5lZWQgdG8gZG8gaXQgbm90IGJ5IGJsYWNrbGlzdGluZywgYnV0IHdpdGggd2hpdGVsaXN0
-aW5nLiBZb3UgbmVlZAo+Pj4gdG8gd2hpdGVsaXN0IFZGIGRldmljZXMuIE15IHBvcnQgZmxhdm91
-cnMgcGF0Y2hzZXQgbWlnaHQgaGVscCB3aXRoIHRoaXMuCj4+IE1heSBiZSBpIGNhbiB1c2UgbmV0
-ZGV2X2hhc19sb3dlcl9kZXYoKSBoZWxwZXIgdG8gbWFrZSBzdXJlIHRoYXQgdGhlIHNsYXZlCj4g
-SSBkb24ndCBzZWUgc3VjaCBmdW5jdGlvbiBpbiB0aGUgY29kZS4KCkl0IGlzIG5ldGRldl9oYXNf
-YW55X2xvd2VyX2RldigpLiBJIG5lZWQgdG8gZXhwb3J0IGl0LgoKPgo+Cj4+IGRldmljZSBpcyBu
-b3QgYW4gdXBwZXIgZGV2Lgo+PiBDYW4geW91IHBvaW50IHRvIHlvdXIgcG9ydCBmbGF2b3VycyBw
-YXRjaHNldD8gSXMgaXQgdXBzdHJlYW0/Cj4gSSBzZW50IHJmYyBjb3VwbGUgb2Ygd2Vla3MgYWdv
-Ogo+IFtwYXRjaCBuZXQtbmV4dCBSRkMgMDAvMTJdIGRldmxpbms6IGludHJvZHVjZSBwb3J0IGZs
-YXZvdXJzIGFuZCBjb21tb24gcGh5c19wb3J0X25hbWUgZ2VuZXJhdGlvbgoKCgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+Wed, Apr 18, 2018 at 08:43:15PM CEST, sridhar.samudrala@intel.com wrote:
+>On 4/18/2018 2:25 AM, Jiri Pirko wrote:
+>> Wed, Apr 11, 2018 at 09:13:52PM CEST, sridhar.samudrala@intel.com wrote:
+>> > On 4/11/2018 8:51 AM, Jiri Pirko wrote:
+>> > > Tue, Apr 10, 2018 at 08:59:48PM CEST, sridhar.samudrala@intel.com wr=
+ote:
+>> > > > This provides a generic interface for paravirtual drivers to listen
+>> > > > for netdev register/unregister/link change events from pci ethernet
+>> > > > devices with the same MAC and takeover their datapath. The notifie=
+r and
+>> > > > event handling code is based on the existing netvsc implementation.
+>> > > > =
+
+>> > > > It exposes 2 sets of interfaces to the paravirtual drivers.
+>> > > > 1. existing netvsc driver that uses 2 netdev model. In this model,=
+ no
+>> > > > master netdev is created. The paravirtual driver registers each by=
+pass
+>> > > > instance along with a set of ops to manage the slave events.
+>> > > >       bypass_master_register()
+>> > > >       bypass_master_unregister()
+>> > > > 2. new virtio_net based solution that uses 3 netdev model. In this=
+ model,
+>> > > > the bypass module provides interfaces to create/destroy additional=
+ master
+>> > > > netdev and all the slave events are managed internally.
+>> > > >        bypass_master_create()
+>> > > >        bypass_master_destroy()
+>> > > > =
+
+>> > > > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+>> > > > ---
+>> > > > include/linux/netdevice.h |  14 +
+>> > > > include/net/bypass.h      |  96 ++++++
+>> > > > net/Kconfig               |  18 +
+>> > > > net/core/Makefile         |   1 +
+>> > > > net/core/bypass.c         | 844 ++++++++++++++++++++++++++++++++++=
+++++++++++++
+>> > > > 5 files changed, 973 insertions(+)
+>> > > > create mode 100644 include/net/bypass.h
+>> > > > create mode 100644 net/core/bypass.c
+>> > > > =
+
+>> > > > diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+>> > > > index cf44503ea81a..587293728f70 100644
+>> > > > --- a/include/linux/netdevice.h
+>> > > > +++ b/include/linux/netdevice.h
+>> > > > @@ -1430,6 +1430,8 @@ enum netdev_priv_flags {
+>> > > > 	IFF_PHONY_HEADROOM		=3D 1<<24,
+>> > > > 	IFF_MACSEC			=3D 1<<25,
+>> > > > 	IFF_NO_RX_HANDLER		=3D 1<<26,
+>> > > > +	IFF_BYPASS			=3D 1 << 27,
+>> > > > +	IFF_BYPASS_SLAVE		=3D 1 << 28,
+>> > > I wonder, why you don't follow the existing coding style... Also, pl=
+ease
+>> > > add these to into the comment above.
+>> > To avoid checkpatch warnings. If it is OK to ignore these warnings, I =
+can switch back
+>> > to the existing coding style to be consistent.
+>> Please do.
+>> =
+
+>> =
+
+>> > > =
+
+>> > > > };
+>> > > > =
+
+>> > > > #define IFF_802_1Q_VLAN			IFF_802_1Q_VLAN
+>> > > > @@ -1458,6 +1460,8 @@ enum netdev_priv_flags {
+>> > > > #define IFF_RXFH_CONFIGURED		IFF_RXFH_CONFIGURED
+>> > > > #define IFF_MACSEC			IFF_MACSEC
+>> > > > #define IFF_NO_RX_HANDLER		IFF_NO_RX_HANDLER
+>> > > > +#define IFF_BYPASS			IFF_BYPASS
+>> > > > +#define IFF_BYPASS_SLAVE		IFF_BYPASS_SLAVE
+>> > > > =
+
+>> > > > /**
+>> > > >    *	struct net_device - The DEVICE structure.
+>> > > > @@ -4308,6 +4312,16 @@ static inline bool netif_is_rxfh_configured=
+(const struct net_device *dev)
+>> > > > 	return dev->priv_flags & IFF_RXFH_CONFIGURED;
+>> > > > }
+>> > > > =
+
+>> > > > +static inline bool netif_is_bypass_master(const struct net_device=
+ *dev)
+>> > > > +{
+>> > > > +	return dev->priv_flags & IFF_BYPASS;
+>> > > > +}
+>> > > > +
+>> > > > +static inline bool netif_is_bypass_slave(const struct net_device =
+*dev)
+>> > > > +{
+>> > > > +	return dev->priv_flags & IFF_BYPASS_SLAVE;
+>> > > > +}
+>> > > > +
+>> > > > /* This device needs to keep skb dst for qdisc enqueue or ndo_star=
+t_xmit() */
+>> > > > static inline void netif_keep_dst(struct net_device *dev)
+>> > > > {
+>> > > > diff --git a/include/net/bypass.h b/include/net/bypass.h
+>> > > > new file mode 100644
+>> > > > index 000000000000..86b02cb894cf
+>> > > > --- /dev/null
+>> > > > +++ b/include/net/bypass.h
+>> > > > @@ -0,0 +1,96 @@
+>> > > > +// SPDX-License-Identifier: GPL-2.0
+>> > > > +/* Copyright (c) 2018, Intel Corporation. */
+>> > > > +
+>> > > > +#ifndef _NET_BYPASS_H
+>> > > > +#define _NET_BYPASS_H
+>> > > > +
+>> > > > +#include <linux/netdevice.h>
+>> > > > +
+>> > > > +struct bypass_ops {
+>> > > > +	int (*slave_pre_register)(struct net_device *slave_netdev,
+>> > > > +				  struct net_device *bypass_netdev);
+>> > > > +	int (*slave_join)(struct net_device *slave_netdev,
+>> > > > +			  struct net_device *bypass_netdev);
+>> > > > +	int (*slave_pre_unregister)(struct net_device *slave_netdev,
+>> > > > +				    struct net_device *bypass_netdev);
+>> > > > +	int (*slave_release)(struct net_device *slave_netdev,
+>> > > > +			     struct net_device *bypass_netdev);
+>> > > > +	int (*slave_link_change)(struct net_device *slave_netdev,
+>> > > > +				 struct net_device *bypass_netdev);
+>> > > > +	rx_handler_result_t (*handle_frame)(struct sk_buff **pskb);
+>> > > > +};
+>> > > > +
+>> > > > +struct bypass_master {
+>> > > > +	struct list_head list;
+>> > > > +	struct net_device __rcu *bypass_netdev;
+>> > > > +	struct bypass_ops __rcu *ops;
+>> > > > +};
+>> > > > +
+>> > > > +/* bypass state */
+>> > > > +struct bypass_info {
+>> > > > +	/* passthru netdev with same MAC */
+>> > > > +	struct net_device __rcu *active_netdev;
+>> > > You still use "active"/"backup" names which is highly misleading as
+>> > > it has completely different meaning that in bond for example.
+>> > > I noted that in my previous review already. Please change it.
+>> > I guess the issue is with only the 'active'=A0 name. 'backup' should b=
+e fine as it also
+>> > matches with the BACKUP feature bit we are adding to virtio_net.
+>> I think that "backup" is also misleading. Both "active" and "backup"
+>> mean a *state* of slaves. This should be named differently.
+>> =
+
+>> =
+
+>> =
+
+>> > With regards to alternate names for 'active', you suggested 'stolen', =
+but i
+>> > am not too happy with it.
+>> > netvsc uses vf_netdev, are you OK with this? Or another option is 'pas=
+sthru'
+>> No. The netdev could be any netdevice. It does not have to be a "VF".
+>> I think "stolen" is quite appropriate since it describes the modus
+>> operandi. The bypass master steals some netdevice according to some
+>> match.
+>> =
+
+>> But I don't insist on "stolen". Just sounds right.
+>
+>We are adding VIRTIO_NET_F_BACKUP as a new feature bit to enable this feat=
+ure, So i think
+>'backup' name is consistent.
+
+It perhaps makes sense from the view of virtio device. However, as I
+described couple of times, for master/slave device the name "backup" is
+highly misleading.
+
+
+>
+>The intent is to restrict the 'active' netdev to be a VF. If there is a wa=
+y to check that
+>a PCI device is a VF in the guest kernel, we could restrict 'active' netde=
+v to be a VF.
+>
+>Will look for any suggestions in the next day or two. If i don't get any, =
+i will go
+>with 'stolen'
+>
+><snip>
+>
+>
+>> +
+>> +static struct net_device *bypass_master_get_bymac(u8 *mac,
+>> +						  struct bypass_ops **ops)
+>> +{
+>> +	struct bypass_master *bypass_master;
+>> +	struct net_device *bypass_netdev;
+>> +
+>> +	spin_lock(&bypass_lock);
+>> +	list_for_each_entry(bypass_master, &bypass_master_list, list) {
+>> > > As I wrote the last time, you don't need this list, spinlock.
+>> > > You can do just something like:
+>> > >           for_each_net(net) {
+>> > >                   for_each_netdev(net, dev) {
+>> > > 			if (netif_is_bypass_master(dev)) {
+>> > This function returns the upper netdev as well as the ops associated
+>> > with that netdev.
+>> > bypass_master_list is a list of 'struct bypass_master' that associates
+>> Well, can't you have it in netdev priv?
+>
+>We cannot do this for 2-netdev model as there is no bypass_netdev created.
+
+Howcome? You have no master? I don't understand..
+
+
+
+>
+>> =
+
+>> =
+
+>> > 'bypass_netdev' with 'bypass_ops' and gets added via bypass_master_reg=
+ister().
+>> > We need 'ops' only to support the 2 netdev model of netvsc. ops will be
+>> > NULL for 3-netdev model.
+>> I see :(
+>> =
+
+>> =
+
+>> > =
+
+>> > > =
+
+>> > > =
+
+>> > > =
+
+>> > > > +		bypass_netdev =3D rcu_dereference(bypass_master->bypass_netdev);
+>> > > > +		if (ether_addr_equal(bypass_netdev->perm_addr, mac)) {
+>> > > > +			*ops =3D rcu_dereference(bypass_master->ops);
+>> > > I don't see how rcu_dereference is ok here.
+>> > > 1) I don't see rcu_read_lock taken
+>> > > 2) Looks like bypass_master->ops has the same value across the whole
+>> > >      existence.
+>> > We hold rtnl_lock(), i think i need to change this to rtnl_dereference.
+>> > Yes. ops doesn't change.
+>> If it does not change, you can just access it directly.
+>> =
+
+>> =
+
+>> > > =
+
+>> > > > +			spin_unlock(&bypass_lock);
+>> > > > +			return bypass_netdev;
+>> > > > +		}
+>> > > > +	}
+>> > > > +	spin_unlock(&bypass_lock);
+>> > > > +	return NULL;
+>> > > > +}
+>> > > > +
+>> > > > +static int bypass_slave_register(struct net_device *slave_netdev)
+>> > > > +{
+>> > > > +	struct net_device *bypass_netdev;
+>> > > > +	struct bypass_ops *bypass_ops;
+>> > > > +	int ret, orig_mtu;
+>> > > > +
+>> > > > +	ASSERT_RTNL();
+>> > > > +
+>> > > > +	bypass_netdev =3D bypass_master_get_bymac(slave_netdev->perm_add=
+r,
+>> > > > +						&bypass_ops);
+>> > > For master, could you use word "master" in the variables so it is cl=
+ear?
+>> > > Also, "dev" is fine instead of "netdev".
+>> > > Something like "bpmaster_dev"
+>> > bypass_master is of=A0 type struct bypass_master,=A0 bypass_netdev is =
+of type struct net_device.
+>> I was trying to point out, that "bypass_netdev" represents a "master"
+>> netdev, yet it does not say master. That is why I suggested
+>> "bpmaster_dev"
+>> =
+
+>> =
+
+>> > I can change all _netdev suffixes to _dev to make the names shorter.
+>> ok.
+>> =
+
+>> =
+
+>> > =
+
+>> > > =
+
+>> > > > +	if (!bypass_netdev)
+>> > > > +		goto done;
+>> > > > +
+>> > > > +	ret =3D bypass_slave_pre_register(slave_netdev, bypass_netdev,
+>> > > > +					bypass_ops);
+>> > > > +	if (ret !=3D 0)
+>> > > 	Just "if (ret)" will do. You have this on more places.
+>> > OK.
+>> > =
+
+>> > =
+
+>> > > =
+
+>> > > > +		goto done;
+>> > > > +
+>> > > > +	ret =3D netdev_rx_handler_register(slave_netdev,
+>> > > > +					 bypass_ops ? bypass_ops->handle_frame :
+>> > > > +					 bypass_handle_frame, bypass_netdev);
+>> > > > +	if (ret !=3D 0) {
+>> > > > +		netdev_err(slave_netdev, "can not register bypass rx handler (e=
+rr =3D %d)\n",
+>> > > > +			   ret);
+>> > > > +		goto done;
+>> > > > +	}
+>> > > > +
+>> > > > +	ret =3D netdev_upper_dev_link(slave_netdev, bypass_netdev, NULL);
+>> > > > +	if (ret !=3D 0) {
+>> > > > +		netdev_err(slave_netdev, "can not set master device %s (err =3D=
+ %d)\n",
+>> > > > +			   bypass_netdev->name, ret);
+>> > > > +		goto upper_link_failed;
+>> > > > +	}
+>> > > > +
+>> > > > +	slave_netdev->priv_flags |=3D IFF_BYPASS_SLAVE;
+>> > > > +
+>> > > > +	if (netif_running(bypass_netdev)) {
+>> > > > +		ret =3D dev_open(slave_netdev);
+>> > > > +		if (ret && (ret !=3D -EBUSY)) {
+>> > > > +			netdev_err(bypass_netdev, "Opening slave %s failed ret:%d\n",
+>> > > > +				   slave_netdev->name, ret);
+>> > > > +			goto err_interface_up;
+>> > > > +		}
+>> > > > +	}
+>> > > > +
+>> > > > +	/* Align MTU of slave with master */
+>> > > > +	orig_mtu =3D slave_netdev->mtu;
+>> > > > +	ret =3D dev_set_mtu(slave_netdev, bypass_netdev->mtu);
+>> > > > +	if (ret !=3D 0) {
+>> > > > +		netdev_err(bypass_netdev, "unable to change mtu of %s to %u reg=
+ister failed\n",
+>> > > > +			   slave_netdev->name, bypass_netdev->mtu);
+>> > > > +		goto err_set_mtu;
+>> > > > +	}
+>> > > > +
+>> > > > +	ret =3D bypass_slave_join(slave_netdev, bypass_netdev, bypass_op=
+s);
+>> > > > +	if (ret !=3D 0)
+>> > > > +		goto err_join;
+>> > > > +
+>> > > > +	call_netdevice_notifiers(NETDEV_JOIN, slave_netdev);
+>> > > > +
+>> > > > +	netdev_info(bypass_netdev, "bypass slave:%s registered\n",
+>> > > > +		    slave_netdev->name);
+>> > > > +
+>> > > > +	goto done;
+>> > > > +
+>> > > > +err_join:
+>> > > > +	dev_set_mtu(slave_netdev, orig_mtu);
+>> > > > +err_set_mtu:
+>> > > > +	dev_close(slave_netdev);
+>> > > > +err_interface_up:
+>> > > > +	netdev_upper_dev_unlink(slave_netdev, bypass_netdev);
+>> > > > +	slave_netdev->priv_flags &=3D ~IFF_BYPASS_SLAVE;
+>> > > > +upper_link_failed:
+>> > > > +	netdev_rx_handler_unregister(slave_netdev);
+>> > > > +done:
+>> > > > +	return NOTIFY_DONE;
+>> > > > +}
+>> > > > +
+>> > > > +static int bypass_slave_pre_unregister(struct net_device *slave_n=
+etdev,
+>> > > > +				       struct net_device *bypass_netdev,
+>> > > > +				       struct bypass_ops *bypass_ops)
+>> > > > +{
+>> > > > +	struct net_device *backup_netdev, *active_netdev;
+>> > > > +	struct bypass_info *bi;
+>> > > > +
+>> > > > +	if (bypass_ops) {
+>> > > > +		if (!bypass_ops->slave_pre_unregister)
+>> > > > +			return -EINVAL;
+>> > > > +
+>> > > > +		return bypass_ops->slave_pre_unregister(slave_netdev,
+>> > > > +							bypass_netdev);
+>> > > > +	}
+>> > > > +
+>> > > > +	bi =3D netdev_priv(bypass_netdev);
+>> > > > +	active_netdev =3D rtnl_dereference(bi->active_netdev);
+>> > > > +	backup_netdev =3D rtnl_dereference(bi->backup_netdev);
+>> > > > +
+>> > > > +	if (slave_netdev !=3D active_netdev && slave_netdev !=3D backup_=
+netdev)
+>> > > > +		return -EINVAL;
+>> > > > +
+>> > > > +	return 0;
+>> > > > +}
+>> > > > +
+>> > > > +static int bypass_slave_release(struct net_device *slave_netdev,
+>> > > > +				struct net_device *bypass_netdev,
+>> > > > +				struct bypass_ops *bypass_ops)
+>> > > > +{
+>> > > > +	struct net_device *backup_netdev, *active_netdev;
+>> > > > +	struct bypass_info *bi;
+>> > > > +
+>> > > > +	if (bypass_ops) {
+>> > > > +		if (!bypass_ops->slave_release)
+>> > > > +			return -EINVAL;
+>> > > I think it would be good to make the API to the driver more strict a=
+nd
+>> > > have a separate set of ops for "active" and "backup" netdevices.
+>> > > That should stop people thinking about extending this to more slaves=
+ in
+>> > > the future.
+>> > We have checks in slave_pre_register() that allows only 1 'backup' and=
+ 1
+>> > 'active' slave.
+>> I'm very well aware of that. I just thought that explicit ops for the
+>> two slaves would make this more clear.
+>> =
+
+>> =
+
+>> > =
+
+>> > > =
+
+>> > > =
+
+>> > > > +
+>> > > > +		return bypass_ops->slave_release(slave_netdev, bypass_netdev);
+>> > > > +	}
+>> > > > +
+>> > > > +	bi =3D netdev_priv(bypass_netdev);
+>> > > > +	active_netdev =3D rtnl_dereference(bi->active_netdev);
+>> > > > +	backup_netdev =3D rtnl_dereference(bi->backup_netdev);
+>> > > > +
+>> > > > +	if (slave_netdev =3D=3D backup_netdev) {
+>> > > > +		RCU_INIT_POINTER(bi->backup_netdev, NULL);
+>> > > > +	} else {
+>> > > > +		RCU_INIT_POINTER(bi->active_netdev, NULL);
+>> > > > +		if (backup_netdev) {
+>> > > > +			bypass_netdev->min_mtu =3D backup_netdev->min_mtu;
+>> > > > +			bypass_netdev->max_mtu =3D backup_netdev->max_mtu;
+>> > > > +		}
+>> > > > +	}
+>> > > > +
+>> > > > +	dev_put(slave_netdev);
+>> > > > +
+>> > > > +	netdev_info(bypass_netdev, "bypass slave:%s released\n",
+>> > > > +		    slave_netdev->name);
+>> > > > +
+>> > > > +	return 0;
+>> > > > +}
+>> > > > +
+>> > > > +int bypass_slave_unregister(struct net_device *slave_netdev)
+>> > > > +{
+>> > > > +	struct net_device *bypass_netdev;
+>> > > > +	struct bypass_ops *bypass_ops;
+>> > > > +	int ret;
+>> > > > +
+>> > > > +	if (!netif_is_bypass_slave(slave_netdev))
+>> > > > +		goto done;
+>> > > > +
+>> > > > +	ASSERT_RTNL();
+>> > > > +
+>> > > > +	bypass_netdev =3D bypass_master_get_bymac(slave_netdev->perm_add=
+r,
+>> > > > +						&bypass_ops);
+>> > > > +	if (!bypass_netdev)
+>> > > > +		goto done;
+>> > > > +
+>> > > > +	ret =3D bypass_slave_pre_unregister(slave_netdev, bypass_netdev,
+>> > > > +					  bypass_ops);
+>> > > > +	if (ret !=3D 0)
+>> > > > +		goto done;
+>> > > > +
+>> > > > +	netdev_rx_handler_unregister(slave_netdev);
+>> > > > +	netdev_upper_dev_unlink(slave_netdev, bypass_netdev);
+>> > > > +	slave_netdev->priv_flags &=3D ~IFF_BYPASS_SLAVE;
+>> > > > +
+>> > > > +	bypass_slave_release(slave_netdev, bypass_netdev, bypass_ops);
+>> > > > +
+>> > > > +	netdev_info(bypass_netdev, "bypass slave:%s unregistered\n",
+>> > > > +		    slave_netdev->name);
+>> > > > +
+>> > > > +done:
+>> > > > +	return NOTIFY_DONE;
+>> > > > +}
+>> > > > +EXPORT_SYMBOL_GPL(bypass_slave_unregister);
+>> > > > +
+>> > > > +static bool bypass_xmit_ready(struct net_device *dev)
+>> > > > +{
+>> > > > +	return netif_running(dev) && netif_carrier_ok(dev);
+>> > > > +}
+>> > > > +
+>> > > > +static int bypass_slave_link_change(struct net_device *slave_netd=
+ev)
+>> > > > +{
+>> > > > +	struct net_device *bypass_netdev, *active_netdev, *backup_netdev;
+>> > > > +	struct bypass_ops *bypass_ops;
+>> > > > +	struct bypass_info *bi;
+>> > > > +
+>> > > > +	if (!netif_is_bypass_slave(slave_netdev))
+>> > > > +		goto done;
+>> > > > +
+>> > > > +	ASSERT_RTNL();
+>> > > > +
+>> > > > +	bypass_netdev =3D bypass_master_get_bymac(slave_netdev->perm_add=
+r,
+>> > > > +						&bypass_ops);
+>> > > > +	if (!bypass_netdev)
+>> > > > +		goto done;
+>> > > > +
+>> > > > +	if (bypass_ops) {
+>> > > > +		if (!bypass_ops->slave_link_change)
+>> > > > +			goto done;
+>> > > > +
+>> > > > +		return bypass_ops->slave_link_change(slave_netdev,
+>> > > > +						     bypass_netdev);
+>> > > > +	}
+>> > > > +
+>> > > > +	if (!netif_running(bypass_netdev))
+>> > > > +		return 0;
+>> > > > +
+>> > > > +	bi =3D netdev_priv(bypass_netdev);
+>> > > > +
+>> > > > +	active_netdev =3D rtnl_dereference(bi->active_netdev);
+>> > > > +	backup_netdev =3D rtnl_dereference(bi->backup_netdev);
+>> > > > +
+>> > > > +	if (slave_netdev !=3D active_netdev && slave_netdev !=3D backup_=
+netdev)
+>> > > > +		goto done;
+>> > > You don't need this check. "if (!netif_is_bypass_slave(slave_netdev)=
+)"
+>> > > above is enough.
+>> > I think we need this check to not allow events from a slave that is not
+>> > attached to this master but has the same MAC.
+>> Why do we need such events? Seems wrong to me.
+>
+>We want to avoid events from a netdev that is mis-configured with the same=
+ MAC as
+>a bypass setup.
+>
+>>   Consider:
+>> =
+
+>> bp1      bp2
+>> a1 b1    a2 b2
+>> =
+
+>> =
+
+>> a1 and a2 have the same mac and bp1 and bp2 have the same mac.
+>
+>We should not have 2 bypass configs with the same MAC.
+>I need to add a check in the bypass_master_register() to prevent this.
+
+Mac can change, you would have to check in change as well. Feels odd
+thought. =
+
+
+
+>
+>The above check is to avoid cases where we have
+>bp1(a1, b1) with mac1
+>and a2 is mis-configured with mac1, we want to avoid using a2 link events =
+to update bp1.
+>
+>> Now bypass_master_get_bymac() will return always bp1 or bp2 - depending =
+on
+>> the order of creation.
+>> Let's say it will return bp1. Then when we have event for a2, the
+>> bypass_ops->slave_link_change is called with (a2, bp1). That is wrong.
+>> =
+
+>> =
+
+>> You cannot use bypass_master_get_bymac() here.
+>> =
+
+>> =
+
+>> =
+
+>> > > =
+
+>> > > > +
+>> > > > +	if ((active_netdev && bypass_xmit_ready(active_netdev)) ||
+>> > > > +	    (backup_netdev && bypass_xmit_ready(backup_netdev))) {
+>> > > > +		netif_carrier_on(bypass_netdev);
+>> > > > +		netif_tx_wake_all_queues(bypass_netdev);
+>> > > > +	} else {
+>> > > > +		netif_carrier_off(bypass_netdev);
+>> > > > +		netif_tx_stop_all_queues(bypass_netdev);
+>> > > > +	}
+>> > > > +
+>> > > > +done:
+>> > > > +	return NOTIFY_DONE;
+>> > > > +}
+>> > > > +
+>> > > > +static bool bypass_validate_event_dev(struct net_device *dev)
+>> > > > +{
+>> > > > +	/* Skip parent events */
+>> > > > +	if (netif_is_bypass_master(dev))
+>> > > > +		return false;
+>> > > > +
+>> > > > +	/* Avoid non-Ethernet type devices */
+>> > > > +	if (dev->type !=3D ARPHRD_ETHER)
+>> > > > +		return false;
+>> > > > +
+>> > > > +	/* Avoid Vlan dev with same MAC registering as VF */
+>> > > > +	if (is_vlan_dev(dev))
+>> > > > +		return false;
+>> > > > +
+>> > > > +	/* Avoid Bonding master dev with same MAC registering as slave d=
+ev */
+>> > > > +	if ((dev->priv_flags & IFF_BONDING) && (dev->flags & IFF_MASTER))
+>> > > Yeah, this is certainly incorrect. One thing is, you should be using=
+ the
+>> > > helpers netif_is_bond_master().
+>> > > But what about the rest? macsec, macvlan, team, bridge, ovs and othe=
+rs?
+>> > > =
+
+>> > > You need to do it not by blacklisting, but with whitelisting. You ne=
+ed
+>> > > to whitelist VF devices. My port flavours patchset might help with t=
+his.
+>> > May be i can use netdev_has_lower_dev() helper to make sure that the s=
+lave
+>> I don't see such function in the code.
+>
+>It is netdev_has_any_lower_dev(). I need to export it.
+
+Come on, you cannot use that. That would allow bonding without slaves,
+but the slaves could be added later on.
+
+What exactly you are trying to achieve by this?
+
+
+>
+>> =
+
+>> =
+
+>> > device is not an upper dev.
+>> > Can you point to your port flavours patchset? Is it upstream?
+>> I sent rfc couple of weeks ago:
+>> [patch net-next RFC 00/12] devlink: introduce port flavours and common p=
+hys_port_name generation
+>
+>
+>
