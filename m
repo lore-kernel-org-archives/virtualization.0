@@ -1,23 +1,24 @@
-From: Jiri Pirko <jiri@resnulli.us>
-Subject: Re: [RFC PATCH net-next v6 2/4] net: Introduce generic bypass module
-Date: Thu, 19 Apr 2018 08:35:32 +0200
-Message-ID: <20180419063532.GA2048__8396.05846344984$1524119617$gmane$org@nanopsycho>
-References: <1523386790-12396-1-git-send-email-sridhar.samudrala@intel.com>
-	<1523386790-12396-3-git-send-email-sridhar.samudrala@intel.com>
-	<20180411155127.GQ2028@nanopsycho>
-	<6a8c1ff5-153a-e40a-91b3-48532b8d3a38@intel.com>
-	<20180418092515.GB1989@nanopsycho>
-	<dd0d53f0-f5da-cb7d-f8f6-d0c8245eb3cf@intel.com>
-	<20180418191315.GA1922@nanopsycho>
-	<20180418222309-mutt-send-email-mst@kernel.org>
-	<20180418203206.GC1922@nanopsycho>
-	<ff0c5ea1-16d4-00a7-9952-9049efa818eb@intel.com>
+From: Siwei Liu <loseweigh@gmail.com>
+Subject: Re: [virtio-dev] Re: [RFC PATCH 2/3] netdev: kernel-only IFF_HIDDEN
+	netdevice
+Date: Wed, 18 Apr 2018 23:43:51 -0700
+Message-ID: <CADGSJ21bykgxXhg1SqtHogeFe3c1mVfaLH9JjzQD7tEkYSjVVA__11429.6029125855$1524120113$gmane$org@mail.gmail.com>
+References: <54accf73-e6cc-e03f-6a1c-34e1bbd78047@gmail.com>
+	<20180404.133749.1802514210170809419.davem@davemloft.net>
+	<CADGSJ206RKi704uoLe3xVs6PyWpURPLb75OPCM_YO9DfnnEzpw@mail.gmail.com>
+	<20180408.123207.2294740686493951200.davem@davemloft.net>
+	<CADGSJ233AmbBrTP-A_u3-5fkr=HUJka_xcSNWxO1HWGua1J92Q@mail.gmail.com>
+	<CADGSJ21nQ1BQctfZcThpmOcOUrpqLfG71jsh2trb1utVjNQH=Q@mail.gmail.com>
+	<1f3af59f-fd64-cc0d-f9eb-668636c52db4@intel.com>
+	<20180419072003-mutt-send-email-mst@kernel.org>
+	<4e029524-d542-0f12-bfdb-7c8a2f198e28@intel.com>
+	<20180419080215-mutt-send-email-mst@kernel.org>
+	<5d5f1e52-bddf-5551-bdea-8e7b408b39b9@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <ff0c5ea1-16d4-00a7-9952-9049efa818eb@intel.com>
+In-Reply-To: <5d5f1e52-bddf-5551-bdea-8e7b408b39b9@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,174 +29,121 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Ahern <dsahern@gmail.com>, si-wei liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thu, Apr 19, 2018 at 12:46:11AM CEST, sridhar.samudrala@intel.com wrote:
->On 4/18/2018 1:32 PM, Jiri Pirko wrote:
->> > > > > > > You still use "active"/"backup" names which is highly mislea=
-ding as
->> > > > > > > it has completely different meaning that in bond for example.
->> > > > > > > I noted that in my previous review already. Please change it.
->> > > > > > I guess the issue is with only the 'active'=A0 name. 'backup' =
-should be fine as it also
->> > > > > > matches with the BACKUP feature bit we are adding to virtio_ne=
-t.
->> > > > > I think that "backup" is also misleading. Both "active" and "bac=
-kup"
->> > > > > mean a *state* of slaves. This should be named differently.
->> > > > > =
-
->> > > > > =
-
->> > > > > =
-
->> > > > > > With regards to alternate names for 'active', you suggested 's=
-tolen', but i
->> > > > > > am not too happy with it.
->> > > > > > netvsc uses vf_netdev, are you OK with this? Or another option=
- is 'passthru'
->> > > > > No. The netdev could be any netdevice. It does not have to be a =
-"VF".
->> > > > > I think "stolen" is quite appropriate since it describes the mod=
-us
->> > > > > operandi. The bypass master steals some netdevice according to s=
-ome
->> > > > > match.
->> > > > > =
-
->> > > > > But I don't insist on "stolen". Just sounds right.
->> > > > We are adding VIRTIO_NET_F_BACKUP as a new feature bit to enable t=
-his feature, So i think
->> > > > 'backup' name is consistent.
->> > > It perhaps makes sense from the view of virtio device. However, as I
->> > > described couple of times, for master/slave device the name "backup"=
- is
->> > > highly misleading.
->> > virtio is the backup. You are supposed to use another
->> > (typically passthrough) device, if that fails use virtio.
->> > It does seem appropriate to me. If you like, we can
->> > change that to "standby".  Active I don't like either. "main"?
->> Sounds much better, yes.
+On Wed, Apr 18, 2018 at 11:10 PM, Samudrala, Sridhar
+<sridhar.samudrala@intel.com> wrote:
 >
->OK. Will change backup to 'standby'.
->'main' is fine, what about 'primary'?
-
-Primary is also bonding terminology. But in this case, I think it would
-fit. The primary slave is used as the active one whenever the link is
-up.
-
-
->
->
->> =
-
->> =
-
->> > In fact would failover be better than bypass?
->> Also, much better.
->
->So do we want to change all 'bypass' references to 'failover' including
->the filenames.(net/core/failover.c and include/net/failover.h)
->
-><snip>
->
->
->
->> =
-
->> =
-
->> > =
-
->> > > > The intent is to restrict the 'active' netdev to be a VF. If there=
- is a way to check that
->> > > > a PCI device is a VF in the guest kernel, we could restrict 'activ=
-e' netdev to be a VF.
->> > > > =
-
->> > > > Will look for any suggestions in the next day or two. If i don't g=
-et any, i will go
->> > > > with 'stolen'
->> > > > =
-
->> > > > <snip>
->> > > > =
-
->> > > > =
-
->> > > > > +
->> > > > > +static struct net_device *bypass_master_get_bymac(u8 *mac,
->> > > > > +						  struct bypass_ops **ops)
->> > > > > +{
->> > > > > +	struct bypass_master *bypass_master;
->> > > > > +	struct net_device *bypass_netdev;
->> > > > > +
->> > > > > +	spin_lock(&bypass_lock);
->> > > > > +	list_for_each_entry(bypass_master, &bypass_master_list, list) {
->> > > > > > > As I wrote the last time, you don't need this list, spinlock.
->> > > > > > > You can do just something like:
->> > > > > > >            for_each_net(net) {
->> > > > > > >                    for_each_netdev(net, dev) {
->> > > > > > > 			if (netif_is_bypass_master(dev)) {
->> > > > > > This function returns the upper netdev as well as the ops asso=
-ciated
->> > > > > > with that netdev.
->> > > > > > bypass_master_list is a list of 'struct bypass_master' that as=
-sociates
->> > > > > Well, can't you have it in netdev priv?
->> > > > We cannot do this for 2-netdev model as there is no bypass_netdev =
-created.
->> > > Howcome? You have no master? I don't understand..
->
->For 2-netdev model, the master netdev is not a new one created by the bypa=
-ss module.
->It is created by netvsc internally and passed via bypass_master_register()
-
-But virtio_net alho has to create the master and pass it down to the
-bypass module. Howcome it is different?
-
-
->
-><snip>
+> On 4/18/2018 10:07 PM, Michael S. Tsirkin wrote:
+>>
+>> On Wed, Apr 18, 2018 at 10:00:51PM -0700, Samudrala, Sridhar wrote:
+>>>
+>>> On 4/18/2018 9:41 PM, Michael S. Tsirkin wrote:
+>>>>
+>>>> On Wed, Apr 18, 2018 at 04:33:34PM -0700, Samudrala, Sridhar wrote:
+>>>>>
+>>>>> On 4/17/2018 5:26 PM, Siwei Liu wrote:
+>>>>>>
+>>>>>> I ran this with a few folks offline and gathered some good feedbacks
+>>>>>> that I'd like to share thus revive the discussion.
+>>>>>>
+>>>>>> First of all, as illustrated in the reply below, cloud service
+>>>>>> providers require transparent live migration. Specifically, the main
+>>>>>> target of our case is to support SR-IOV live migration via kernel
+>>>>>> upgrade while keeping the userspace of old distros unmodified. If it's
+>>>>>> because this use case is not appealing enough for the mainline to
+>>>>>> adopt, I will shut up and not continue discussing, although
+>>>>>> technically it's entirely possible (and there's precedent in other
+>>>>>> implementation) to do so to benefit any cloud service providers.
+>>>>>>
+>>>>>> If it's just the implementation of hiding netdev itself needs to be
+>>>>>> improved, such as implementing it as attribute flag or adding linkdump
+>>>>>> API, that's completely fine and we can look into that. However, the
+>>>>>> specific issue needs to be undestood beforehand is to make transparent
+>>>>>> SR-IOV to be able to take over the name (so inherit all the configs)
+>>>>>> from the lower netdev, which needs some games with uevents and name
+>>>>>> space reservation. So far I don't think it's been well discussed.
+>>>>>>
+>>>>>> One thing in particular I'd like to point out is that the 3-netdev
+>>>>>> model currently missed to address the core problem of live migration:
+>>>>>> migration of hardware specific feature/state, for e.g. ethtool configs
+>>>>>> and hardware offloading states. Only general network state (IP
+>>>>>> address, gateway, for eg.) associated with the bypass interface can be
+>>>>>> migrated. As a follow-up work, bypass driver can/should be enhanced to
+>>>>>> save and apply those hardware specific configs before or after
+>>>>>> migration as needed. The transparent 1-netdev model being proposed as
+>>>>>> part of this patch series will be able to solve that problem naturally
+>>>>>> by making all hardware specific configurations go through the central
+>>>>>> bypass driver, such that hardware configurations can be replayed when
+>>>>>> new VF or passthrough gets plugged back in. Although that
+>>>>>> corresponding function hasn't been implemented today, I'd like to
+>>>>>> refresh everyone's mind that is the core problem any live migration
+>>>>>> proposal should have addressed.
+>>>>>>
+>>>>>> If it would make things more clear to defer netdev hiding until all
+>>>>>> functionalities regarding centralizing and replay are implemented,
+>>>>>> we'd take advices like that and move on to implementing those features
+>>>>>> as follow-up patches. Once all needed features get done, we'd resume
+>>>>>> the work for hiding lower netdev at that point. Think it would be the
+>>>>>> best to make everyone understand the big picture in advance before
+>>>>>> going too far.
+>>>>>
+>>>>> I think we should get the 3-netdev model integrated and add any
+>>>>> additional
+>>>>> ndo_ops/ethool ops that we would like to support/migrate before looking
+>>>>> into
+>>>>> hiding the lower netdevs.
+>>>>
+>>>> Once they are exposed, I don't think we'll be able to hide them -
+>>>> they will be a kernel ABI.
+>>>>
+>>>> Do you think everyone needs to hide the SRIOV device?
+>>>> Or that only some users need this?
+>>>
+>>> Hyper-V is currently supporting live migration without hiding the SR-IOV
+>>> device. So i don't
+>>> think it is a hard requirement.
+>>
+>> OK, fine.
+>>
+>>> And also,  as we don't yet have a consensus on how to hide
+>>> the lower netdevs, we could make it as another feature bit to hide lower
+>>> netdevs once
+>>> we have an acceptable solution.
+>>
+>> Guest/host interface isn't more flexible than the userspace/kernel
+>> interface.  The feature bit you propose would say what exactly?
+>> Hypervisor has no idea what guest kernel shows guest userspace.
+>> Note that the backup flag doesn't tell guest kernel what to do,
+>> it just tells guest that there is or will be a faster main device
+>> connected to the same backend, so the backup should only be used
+>> when main device is not present.
 >
 >
+> The current bypass module supports 3-netdev and 2-netdev models via 2 sets
+> of interfaces
+> bypass_master_create/destroy and bypass_master_register/unregister.  So
+> theoretically
+> we can support the 2 models via 2 different feature bits. BACKUP and
+> BACKUP_2_NETDEV.
+
+I'm still trying to understand the value of so many models to support.
+If we all agree eventually the transparent 1-netdev model can address
+the more general case while 2-netdev or 3-netdev is unable to, what's
+the point for supporting these many features?
+
+-Siwei
 >
->> > > =
-
->> > > > > > > > +
->> > > > > > > > +	/* Avoid Bonding master dev with same MAC registering as=
- slave dev */
->> > > > > > > > +	if ((dev->priv_flags & IFF_BONDING) && (dev->flags & IFF=
-_MASTER))
->> > > > > > > Yeah, this is certainly incorrect. One thing is, you should =
-be using the
->> > > > > > > helpers netif_is_bond_master().
->> > > > > > > But what about the rest? macsec, macvlan, team, bridge, ovs =
-and others?
->> > > > > > > =
-
->> > > > > > > You need to do it not by blacklisting, but with whitelisting=
-. You need
->> > > > > > > to whitelist VF devices. My port flavours patchset might hel=
-p with this.
->> > > > > > May be i can use netdev_has_lower_dev() helper to make sure th=
-at the slave
->> > > > > I don't see such function in the code.
->> > > > It is netdev_has_any_lower_dev(). I need to export it.
->> > > Come on, you cannot use that. That would allow bonding without slave=
-s,
->> > > but the slaves could be added later on.
->> > > =
-
->> > > What exactly you are trying to achieve by this?
+> Similarly if we can figure out a way to hide both the netdevs, we can add
+> BACKUP_1_NETDEV
+> feature bit and update the bypass module to provide another set of
+> interfaces that can
+> be used by virtio_net to support this model.
 >
->I think i can remove this check.=A0 In pre-register,
->for backup device, i check that its parent matches bypass device &
->for vf device, we make sure that it is a pci device.
-
-Okay. That is a start.
-
-
+> Now that we are leaning towards 'standby' as the name for the lower
+> virtio-net, should we
+> change the feature bit name also to VIRTIO_NET_F_STANDBY?
 >
+>>
 >
