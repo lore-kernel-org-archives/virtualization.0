@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 net 2/3] virtio_net: fix adding vids on big-endian
-Date: Thu, 19 Apr 2018 17:56:04 +0300
-Message-ID: <20180419175456-mutt-send-email-mst__29191.3084256977$1524149645$gmane$org@kernel.org>
-References: <1524115776-334953-1-git-send-email-mst@redhat.com>
-	<1524115776-334953-3-git-send-email-mst@redhat.com>
-	<20180419152641.092865f3.cohuck@redhat.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
+Subject: [PATCH] kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
+Date: Thu, 19 Apr 2018 12:12:38 -0400 (EDT)
+Message-ID: <alpine.LRH.2.02.1804191207380.31175__33027.2324652926$1524154260$gmane$org@file01.intranet.prod.int.rdu2.redhat.com>
+References: <alpine.LRH.2.02.1804181029270.19294@file01.intranet.prod.int.rdu2.redhat.com>
+	<3e65977e-53cd-bf09-bc4b-0ce40e9091fe@gmail.com>
+	<alpine.LRH.2.02.1804181218270.19136@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180418.134651.2225112489265654270.davem@davemloft.net>
+	<alpine.LRH.2.02.1804181350050.17942@file01.intranet.prod.int.rdu2.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180419152641.092865f3.cohuck@redhat.com>
+In-Reply-To: <alpine.LRH.2.02.1804181350050.17942@file01.intranet.prod.int.rdu2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,31 +21,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Thomas Huth <thuth@redhat.com>, Eric Dumazet <eric.dumazet@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Mikulas Patocka <mpatocka@redhat.com>, David Miller <davem@davemloft.net>
+To: David Miller <davem@davemloft.net>, Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org
+Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, bhutchings@solarflare.com, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 19, 2018 at 03:26:41PM +0200, Cornelia Huck wrote:
-> On Thu, 19 Apr 2018 08:30:49 +0300
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > Programming vids (adding or removing them) still passes
-> > guest-endian values in the DMA buffer. That's wrong
-> > if guest is big-endian and when virtio 1 is enabled.
-> > 
-> > Note: this is on top of a previous patch:
-> > 	virtio_net: split out ctrl buffer
-> > 
-> > Fixes: 9465a7a6f ("virtio_net: enable v1.0 support")
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  drivers/net/virtio_net.c | 6 +++---
-> >  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> Ouch. Have you seen any bug reports for that?
 
-No, but then vlans within VMs aren't used too often
-(as opposed to attaching vlans by the HV).
 
--- 
-MST
+On Wed, 18 Apr 2018, Mikulas Patocka wrote:
+
+> 
+> 
+> On Wed, 18 Apr 2018, David Miller wrote:
+> 
+> > From: Mikulas Patocka <mpatocka@redhat.com>
+> > Date: Wed, 18 Apr 2018 12:44:25 -0400 (EDT)
+> > 
+> > > The structure net_device is followed by arbitrary driver-specific data 
+> > > (accessible with the function netdev_priv). And for virtio-net, these 
+> > > driver-specific data must be in DMA memory.
+> > 
+> > And we are saying that this assumption is wrong and needs to be
+> > corrected.
+> 
+> So, try to find all the networking drivers that to DMA to the private 
+> area.
+> 
+> The problem here is that kvzalloc usually returns DMA-able area, but it 
+> may return non-DMA area rarely, if the memory is too fragmented. So, we 
+> are in a situation, where some networking drivers will randomly fail. Go 
+> and find them.
+> 
+> Mikulas
+
+Her I submit a patch that makes kvmalloc always use vmalloc if 
+CONFIG_DEBUG_VM is defined.
+
+
+
+
+From: Mikulas Patocka <mpatocka@redhat.com>
+Subject: [PATCH] kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
+
+The kvmalloc function tries to use kmalloc and falls back to vmalloc if
+kmalloc fails.
+
+Unfortunatelly, some kernel code has bugs - it uses kvmalloc and then
+uses DMA-API on the returned memory or frees it with kfree. Such bugs were
+found in the virtio-net driver, dm-integrity or RHEL7 powerpc-specific
+code.
+
+These bugs are hard to reproduce because vmalloc falls back to kmalloc
+only if memory is fragmented.
+
+In order to detect these bugs reliably I submit this patch that changes
+kvmalloc to always use vmalloc if CONFIG_DEBUG_VM is turned on.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+
+---
+ mm/util.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+Index: linux-2.6/mm/util.c
+===================================================================
+--- linux-2.6.orig/mm/util.c	2018-04-18 15:46:23.000000000 +0200
++++ linux-2.6/mm/util.c	2018-04-18 16:00:43.000000000 +0200
+@@ -395,6 +395,7 @@ EXPORT_SYMBOL(vm_mmap);
+  */
+ void *kvmalloc_node(size_t size, gfp_t flags, int node)
+ {
++#ifndef CONFIG_DEBUG_VM
+ 	gfp_t kmalloc_flags = flags;
+ 	void *ret;
+ 
+@@ -426,6 +427,7 @@ void *kvmalloc_node(size_t size, gfp_t f
+ 	 */
+ 	if (ret || size <= PAGE_SIZE)
+ 		return ret;
++#endif
+ 
+ 	return __vmalloc_node_flags_caller(size, node, flags,
+ 			__builtin_return_address(0));
