@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 net-next 3/4] virtio_net: Extend virtio to use VF
-	datapath when available
-Date: Fri, 20 Apr 2018 05:46:15 +0300
-Message-ID: <20180420054538-mutt-send-email-mst__45558.340175967$1524192277$gmane$org@kernel.org>
-References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524188524-28411-4-git-send-email-sridhar.samudrala@intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio_ring: switch to dma_XX barriers for rpmsg
+Date: Fri, 20 Apr 2018 11:04:36 +0800
+Message-ID: <05e885b8-7677-9cad-28fc-1cfa87c1d1a9__47762.9340523437$1524193383$gmane$org@redhat.com>
+References: <1524159181-351878-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1524188524-28411-4-git-send-email-sridhar.samudrala@intel.com>
+In-Reply-To: <1524159181-351878-1-git-send-email-mst@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,21 +18,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sridhar Samudrala <sridhar.samudrala@intel.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Ohad Ben-Cohen <ohad@wizery.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, linux-remoteproc@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 19, 2018 at 06:42:03PM -0700, Sridhar Samudrala wrote:
-> @@ -3010,6 +3043,7 @@ static __init int virtio_net_driver_init(void)
->          ret = register_virtio_driver(&virtio_net_driver);
->  	if (ret)
->  		goto err_virtio;
-> +
->  	return 0;
->  err_virtio:
->  	cpuhp_remove_multi_state(CPUHP_VIRT_NET_DEAD);
-
-I'd rather you didn't let's not mix in whitespace changes.
-
-> -- 
-> 2.14.3
+CgpPbiAyMDE45bm0MDTmnIgyMOaXpSAwMTozNSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IHZpcnRpbyBpcyB1c2luZyBiYXJyaWVycyB0byBvcmRlciBtZW1vcnkgYWNjZXNzZXMsIHRodXMK
+PiBkbWFfd21iL3JtYiBpcyBhIGdvb2QgbWF0Y2guCj4KPiBCdWlsZC10ZXN0ZWQgb24geDg2OiBC
+ZWZvcmUKPgo+IFttc3RAdHVjayBsaW51eF0kIHNpemUgZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jp
+bmcubwo+ICAgICB0ZXh0ICAgIGRhdGEgICAgIGJzcyAgICAgZGVjICAgICBoZXggZmlsZW5hbWUK
+PiAgICAxMTM5MiAgICAgODIwICAgICAgIDAgICAxMjIxMiAgICAyZmI0IGRyaXZlcnMvdmlydGlv
+L3ZpcnRpb19yaW5nLm8KPgo+IEFmdGVyCj4gbXN0QHR1Y2sgbGludXhdJCBzaXplIGRyaXZlcnMv
+dmlydGlvL3ZpcnRpb19yaW5nLm8KPiAgICAgdGV4dCAgICBkYXRhICAgICBic3MgICAgIGRlYyAg
+ICAgaGV4IGZpbGVuYW1lCj4gICAgMTEyODQgICAgIDgyMCAgICAgICAwICAgMTIxMDQgICAgMmY0
+OCBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5vCj4KPiBDYzogT2hhZCBCZW4tQ29oZW4gPG9o
+YWRAd2l6ZXJ5LmNvbT4KPiBDYzogQmpvcm4gQW5kZXJzc29uIDxiam9ybi5hbmRlcnNzb25AbGlu
+YXJvLm9yZz4KPiBDYzogbGludXgtcmVtb3RlcHJvY0B2Z2VyLmtlcm5lbC5vcmcKPiBTaWduZWQt
+b2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+IC0tLQo+Cj4gSXQn
+cyBnb29kIGluIHRoZW9yeSwgYnV0IGNvdWxkIG9uZSBvZiBSUE1TRyBtYWludGFpbmVycyBwbGVh
+c2UgcmV2aWV3Cj4gYW5kIGFjayB0aGlzIHBhdGNoPyBPciBldmVuIGJldHRlciB0ZXN0IGl0Pwo+
+Cj4gQWxsIHRoZXNlIGJhcnJpZXJzIGFyZSB1c2VsZXNzIG9uIEludGVsIGFueXdheSAuLi4KPgo+
+ICAgaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oIHwgNCArKy0tCj4gICAxIGZpbGUgY2hhbmdl
+ZCwgMiBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2luY2x1
+ZGUvbGludXgvdmlydGlvX3JpbmcuaCBiL2luY2x1ZGUvbGludXgvdmlydGlvX3JpbmcuaAo+IGlu
+ZGV4IGJiZjMyNTIuLmZhYjAyMTMgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS9saW51eC92aXJ0aW9f
+cmluZy5oCj4gKysrIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCj4gQEAgLTM1LDcgKzM1
+LDcgQEAgc3RhdGljIGlubGluZSB2b2lkIHZpcnRpb19ybWIoYm9vbCB3ZWFrX2JhcnJpZXJzKQo+
+ICAgCWlmICh3ZWFrX2JhcnJpZXJzKQo+ICAgCQl2aXJ0X3JtYigpOwo+ICAgCWVsc2UKPiAtCQly
+bWIoKTsKPiArCQlkbWFfcm1iKCk7Cj4gICB9Cj4gICAKPiAgIHN0YXRpYyBpbmxpbmUgdm9pZCB2
+aXJ0aW9fd21iKGJvb2wgd2Vha19iYXJyaWVycykKPiBAQCAtNDMsNyArNDMsNyBAQCBzdGF0aWMg
+aW5saW5lIHZvaWQgdmlydGlvX3dtYihib29sIHdlYWtfYmFycmllcnMpCj4gICAJaWYgKHdlYWtf
+YmFycmllcnMpCj4gICAJCXZpcnRfd21iKCk7Cj4gICAJZWxzZQo+IC0JCXdtYigpOwo+ICsJCWRt
+YV93bWIoKTsKPiAgIH0KPiAgIAo+ICAgc3RhdGljIGlubGluZSB2b2lkIHZpcnRpb19zdG9yZV9t
+Yihib29sIHdlYWtfYmFycmllcnMsCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
+aGF0LmNvbT4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
