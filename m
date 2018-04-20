@@ -1,18 +1,17 @@
-From: Alexander Duyck <alexander.duyck@gmail.com>
-Subject: Re: [virtio-dev] Re: [PATCH v7 net-next 2/4] net: Introduce generic
-	failover module
-Date: Fri, 20 Apr 2018 08:56:57 -0700
-Message-ID: <CAKgT0UeQTx7zJPK3K3eM9xxHfVyHXwJ-G_b8eqGn0bWAyt9aAg__46941.6138985709$1524239717$gmane$org@mail.gmail.com>
+From: Jiri Pirko <jiri@resnulli.us>
+Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event handling
+	code to use the failover framework
+Date: Fri, 20 Apr 2018 18:00:58 +0200
+Message-ID: <20180420160058.GB2150__35492.7202025012$1524239942$gmane$org@nanopsycho.orion>
 References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524188524-28411-3-git-send-email-sridhar.samudrala@intel.com>
-	<20180420045657-mutt-send-email-mst@kernel.org>
-	<d1bf0771-751b-85bc-4890-8232283131a2@intel.com>
-	<20180420183021-mutt-send-email-mst@kernel.org>
+	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
+	<20180420082802.6ca37e4c@xeon-e3>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180420183021-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180420082802.6ca37e4c@xeon-e3>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,64 +21,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 20, 2018 at 8:34 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Fri, Apr 20, 2018 at 08:21:00AM -0700, Samudrala, Sridhar wrote:
->> > > + finfo = netdev_priv(failover_dev);
->> > > +
->> > > + primary_dev = rtnl_dereference(finfo->primary_dev);
->> > > + standby_dev = rtnl_dereference(finfo->standby_dev);
->> > > +
->> > > + if (slave_dev != primary_dev && slave_dev != standby_dev)
->> > > +         goto done;
->> > > +
->> > > + if ((primary_dev && failover_xmit_ready(primary_dev)) ||
->> > > +     (standby_dev && failover_xmit_ready(standby_dev))) {
->> > > +         netif_carrier_on(failover_dev);
->> > > +         netif_tx_wake_all_queues(failover_dev);
->> > > + } else {
->> > > +         netif_carrier_off(failover_dev);
->> > > +         netif_tx_stop_all_queues(failover_dev);
->> > And I think it's a good idea to get stats from device here too.
->>
->> Not sure why we need to get stats from lower devs here?
+Fri, Apr 20, 2018 at 05:28:02PM CEST, stephen@networkplumber.org wrote:
+>On Thu, 19 Apr 2018 18:42:04 -0700
+>Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
 >
-> link down is often indication of a hardware problem.
-> lower dev might stop responding down the road.
+>> Use the registration/notification framework supported by the generic
+>> failover infrastructure.
+>> 
+>> Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
 >
->> > > +static const struct net_device_ops failover_dev_ops = {
->> > > + .ndo_open               = failover_open,
->> > > + .ndo_stop               = failover_close,
->> > > + .ndo_start_xmit         = failover_start_xmit,
->> > > + .ndo_select_queue       = failover_select_queue,
->> > > + .ndo_get_stats64        = failover_get_stats,
->> > > + .ndo_change_mtu         = failover_change_mtu,
->> > > + .ndo_set_rx_mode        = failover_set_rx_mode,
->> > > + .ndo_validate_addr      = eth_validate_addr,
->> > > + .ndo_features_check     = passthru_features_check,
->> > xdp support?
->>
->> I think it should be possible to add it be calling the lower dev ndo_xdp routines
->> with proper checks. can we add this later?
+>Do what you want to other devices but leave netvsc alone.
+>Adding these failover ops does not reduce the code size, and really is
+>no benefit.  The netvsc device driver needs to be backported to several
+>other distributions and doing this makes that harder.
+
+We should not care about the backport burden when we are trying to make
+things right. And things are not right. The current netvsc approach is
+just plain wrong shortcut. It should have been done in a generic way
+from the very beginning. We are just trying to fix this situation.
+
+Moreover, I believe that part of the fix is to convert netvsc to 3
+netdev solution too. 2 netdev model is wrong.
+
+
 >
-> I'd be concerned that if you don't xdp userspace will keep poking
-> at lower devs. Then it will stop working if you add this later.
+>I will NAK patches to change to common code for netvsc especially the
+>three device model.  MS worked hard with distro vendors to support transparent
+>mode, ans we really can't have a new model; or do backport.
+>
+>Plus, DPDK is now dependent on existing model.
 
-The failover device is better off not providing in-driver XDP since
-there are already skbs allocated by the time that we see the packet
-here anyway. As such generic XDP is the preferred way to handle this
-since it will work regardless of what lower devices are present.
-
-The only advantage of having XDP down at the virtio or VF level would
-be that it performs better, but at the cost of complexity since we
-would need to rebind the eBPF program any time a device is hotplugged
-out and then back in. For now the current approach is in keeping with
-how bonding and other similar drivers are currently handling this.
-
-Thanks.
-
-- Alex
+Sorry, but nobody here cares about dpdk or other similar oddities.
