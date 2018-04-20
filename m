@@ -1,15 +1,13 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v2 4/4] qxl: drop dummy functions
-Date: Fri, 20 Apr 2018 10:14:46 +0200
-Message-ID: <20180420081446.GP31310__43254.5068128549$1524211972$gmane$org@phenom.ffwll.local>
-References: <20180420071904.24276-1-kraxel@redhat.com>
-	<20180420071904.24276-5-kraxel@redhat.com>
+From: Dave Airlie <airlied@gmail.com>
+Subject: Re: [PATCH] drm/virtio: fix vq wait_event condition
+Date: Fri, 20 Apr 2018 10:12:17 +0000
+Message-ID: <CAPM=9txAe2J8FsxynD0SaUHOcjeGOZnXRqhxtu7VMgUJEVz2yA@mail.gmail.com>
+References: <20180403095904.11152-1-kraxel@redhat.com>
+	<20180420072228.uorb3h7snx4io6xs@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8288221594213831039=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180420071904.24276-5-kraxel@redhat.com>
+In-Reply-To: <20180420072228.uorb3h7snx4io6xs@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,150 +18,165 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+Cc: Dave Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, stable@vger.kernel.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, dri-devel <dri-devel@lists.freedesktop.org>, amagloire@blackberry.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 20, 2018 at 09:19:04AM +0200, Gerd Hoffmann wrote:
-> These days drm core checks function pointers everywhere before calling
-> them.  So we can drop a bunch of dummy functions now.
-> 
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/qxl/qxl_display.c | 50 ---------------------------------------
->  1 file changed, 50 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-> index 06ee00b486..af6e52af5f 100644
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -456,13 +456,6 @@ qxl_framebuffer_init(struct drm_device *dev,
->  	return 0;
->  }
->  
-> -static bool qxl_crtc_mode_fixup(struct drm_crtc *crtc,
-> -				  const struct drm_display_mode *mode,
-> -				  struct drm_display_mode *adjusted_mode)
-> -{
-> -	return true;
-> -}
-> -
->  static void qxl_crtc_atomic_enable(struct drm_crtc *crtc,
->  				   struct drm_crtc_state *old_state)
->  {
-> @@ -476,7 +469,6 @@ static void qxl_crtc_atomic_disable(struct drm_crtc *crtc,
->  }
->  
->  static const struct drm_crtc_helper_funcs qxl_crtc_helper_funcs = {
-> -	.mode_fixup = qxl_crtc_mode_fixup,
->  	.atomic_flush = qxl_crtc_atomic_flush,
->  	.atomic_enable = qxl_crtc_atomic_enable,
->  	.atomic_disable = qxl_crtc_atomic_disable,
-> @@ -620,12 +612,6 @@ static void qxl_primary_atomic_disable(struct drm_plane *plane,
->  	}
->  }
->  
-> -static int qxl_plane_atomic_check(struct drm_plane *plane,
-> -				  struct drm_plane_state *state)
-> -{
-> -	return 0;
-> -}
-> -
->  static void qxl_cursor_atomic_update(struct drm_plane *plane,
->  				     struct drm_plane_state *old_state)
->  {
-> @@ -831,7 +817,6 @@ static const uint32_t qxl_cursor_plane_formats[] = {
->  };
->  
->  static const struct drm_plane_helper_funcs qxl_cursor_helper_funcs = {
-> -	.atomic_check = qxl_plane_atomic_check,
->  	.atomic_update = qxl_cursor_atomic_update,
->  	.atomic_disable = qxl_cursor_atomic_disable,
->  	.prepare_fb = qxl_plane_prepare_fb,
-> @@ -956,28 +941,6 @@ static int qdev_crtc_init(struct drm_device *dev, int crtc_id)
->  	return r;
->  }
->  
-> -static void qxl_enc_dpms(struct drm_encoder *encoder, int mode)
-> -{
-> -	DRM_DEBUG("\n");
-> -}
-> -
-> -static void qxl_enc_prepare(struct drm_encoder *encoder)
-> -{
-> -	DRM_DEBUG("\n");
-> -}
-> -
-> -static void qxl_enc_commit(struct drm_encoder *encoder)
-> -{
-> -	DRM_DEBUG("\n");
-> -}
-> -
-> -static void qxl_enc_mode_set(struct drm_encoder *encoder,
-> -				struct drm_display_mode *mode,
-> -				struct drm_display_mode *adjusted_mode)
-> -{
-> -	DRM_DEBUG("\n");
-> -}
-> -
->  static int qxl_conn_get_modes(struct drm_connector *connector)
->  {
->  	unsigned pwidth = 1024;
-> @@ -1023,10 +986,6 @@ static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
->  
->  
->  static const struct drm_encoder_helper_funcs qxl_enc_helper_funcs = {
+--===============8288221594213831039==
+Content-Type: multipart/alternative; boundary="089e082f6ac0effaf2056a44eca0"
 
-Hm, I thought even the vtable itself is optional? We do have tons of if
-(!funcs) checks all over the place at least.
+--089e082f6ac0effaf2056a44eca0
+Content-Type: text/plain; charset="UTF-8"
 
+Reviewed-by: Dave Airlie <airlied@redhat.com>
 
-> -	.dpms = qxl_enc_dpms,
-> -	.prepare = qxl_enc_prepare,
-> -	.mode_set = qxl_enc_mode_set,
-> -	.commit = qxl_enc_commit,
->  };
->  
->  static const struct drm_connector_helper_funcs qxl_connector_helper_funcs = {
-> @@ -1059,14 +1018,6 @@ static enum drm_connector_status qxl_conn_detect(
->  			 : connector_status_disconnected;
->  }
->  
-> -static int qxl_conn_set_property(struct drm_connector *connector,
-> -				   struct drm_property *property,
-> -				   uint64_t value)
-> -{
-> -	DRM_DEBUG("\n");
-> -	return 0;
-> -}
-> -
->  static void qxl_conn_destroy(struct drm_connector *connector)
->  {
->  	struct qxl_output *qxl_output =
-> @@ -1081,7 +1032,6 @@ static const struct drm_connector_funcs qxl_connector_funcs = {
->  	.dpms = drm_helper_connector_dpms,
->  	.detect = qxl_conn_detect,
->  	.fill_modes = drm_helper_probe_single_connector_modes,
-> -	.set_property = qxl_conn_set_property,
+On Fri., 20 Apr. 2018, 17:23 Gerd Hoffmann, <kraxel@redhat.com> wrote:
 
-This is a legacy callback anyway. I kinda wonder whether we should have a
-bunch of WARN_ON checks for this, so that atomic drivers don't have these
-hanging around anymore.
-
-Anyway, patch looks pretty.
-
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
->  	.destroy = qxl_conn_destroy,
->  	.reset = drm_atomic_helper_connector_reset,
->  	.atomic_duplicate_state = drm_atomic_helper_connector_duplicate_state,
-> -- 
-> 2.9.3
-> 
+> On Tue, Apr 03, 2018 at 11:59:04AM +0200, Gerd Hoffmann wrote:
+> > Wait until we have enough space in the virt queue to actually queue up
+> > our request.  Avoids the guest spinning in case we have a non-zero
+> > amount of free entries but not enough for the request.
+>
+> Ping airlied, can you please either pick it up or review so I can commit
+> myself?
+>
+> thanks,
+>   Gerd
+>
+> > Cc: stable@vger.kernel.org
+> > Reported-by: Alain Magloire <amagloire@blackberry.com>
+> > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> > ---
+> >  drivers/gpu/drm/virtio/virtgpu_vq.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c
+> b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> > index 48e4f1df6e..020070d483 100644
+> > --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
+> > +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> > @@ -293,7 +293,7 @@ static int
+> virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
+> >       ret = virtqueue_add_sgs(vq, sgs, outcnt, incnt, vbuf, GFP_ATOMIC);
+> >       if (ret == -ENOSPC) {
+> >               spin_unlock(&vgdev->ctrlq.qlock);
+> > -             wait_event(vgdev->ctrlq.ack_queue, vq->num_free);
+> > +             wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= outcnt
+> + incnt);
+> >               spin_lock(&vgdev->ctrlq.qlock);
+> >               goto retry;
+> >       } else {
+> > @@ -368,7 +368,7 @@ static int virtio_gpu_queue_cursor(struct
+> virtio_gpu_device *vgdev,
+> >       ret = virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
+> >       if (ret == -ENOSPC) {
+> >               spin_unlock(&vgdev->cursorq.qlock);
+> > -             wait_event(vgdev->cursorq.ack_queue, vq->num_free);
+> > +             wait_event(vgdev->cursorq.ack_queue, vq->num_free >=
+> outcnt);
+> >               spin_lock(&vgdev->cursorq.qlock);
+> >               goto retry;
+> >       } else {
+> > --
+> > 2.9.3
+> >
 > _______________________________________________
 > dri-devel mailing list
 > dri-devel@lists.freedesktop.org
 > https://lists.freedesktop.org/mailman/listinfo/dri-devel
+>
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+--089e082f6ac0effaf2056a44eca0
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto"><div dir=3D"auto"><br></div><div dir=3D"auto">Reviewed-by=
+: Dave Airlie &lt;<a href=3D"mailto:airlied@redhat.com">airlied@redhat.com<=
+/a>&gt;</div></div><br><div class=3D"gmail_quote"><div dir=3D"ltr">On Fri.,=
+ 20 Apr. 2018, 17:23 Gerd Hoffmann, &lt;<a href=3D"mailto:kraxel@redhat.com=
+">kraxel@redhat.com</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quot=
+e" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">=
+On Tue, Apr 03, 2018 at 11:59:04AM +0200, Gerd Hoffmann wrote:<br>
+&gt; Wait until we have enough space in the virt queue to actually queue up=
+<br>
+&gt; our request.=C2=A0 Avoids the guest spinning in case we have a non-zer=
+o<br>
+&gt; amount of free entries but not enough for the request.<br>
+<br>
+Ping airlied, can you please either pick it up or review so I can commit<br=
+>
+myself?<br>
+<br>
+thanks,<br>
+=C2=A0 Gerd<br>
+<br>
+&gt; Cc: <a href=3D"mailto:stable@vger.kernel.org" target=3D"_blank" rel=3D=
+"noreferrer">stable@vger.kernel.org</a><br>
+&gt; Reported-by: Alain Magloire &lt;<a href=3D"mailto:amagloire@blackberry=
+.com" target=3D"_blank" rel=3D"noreferrer">amagloire@blackberry.com</a>&gt;=
+<br>
+&gt; Signed-off-by: Gerd Hoffmann &lt;<a href=3D"mailto:kraxel@redhat.com" =
+target=3D"_blank" rel=3D"noreferrer">kraxel@redhat.com</a>&gt;<br>
+&gt; ---<br>
+&gt;=C2=A0 drivers/gpu/drm/virtio/virtgpu_vq.c | 4 ++--<br>
+&gt;=C2=A0 1 file changed, 2 insertions(+), 2 deletions(-)<br>
+&gt; <br>
+&gt; diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/vir=
+tio/virtgpu_vq.c<br>
+&gt; index 48e4f1df6e..020070d483 100644<br>
+&gt; --- a/drivers/gpu/drm/virtio/virtgpu_vq.c<br>
+&gt; +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c<br>
+&gt; @@ -293,7 +293,7 @@ static int virtio_gpu_queue_ctrl_buffer_locked(str=
+uct virtio_gpu_device *vgdev,<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0ret =3D virtqueue_add_sgs(vq, sgs, outcnt, i=
+ncnt, vbuf, GFP_ATOMIC);<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0if (ret =3D=3D -ENOSPC) {<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0spin_unlock(&amp=
+;vgdev-&gt;ctrlq.qlock);<br>
+&gt; -=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0wait_event(vgdev-&gt;=
+ctrlq.ack_queue, vq-&gt;num_free);<br>
+&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0wait_event(vgdev-&gt;=
+ctrlq.ack_queue, vq-&gt;num_free &gt;=3D outcnt + incnt);<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0spin_lock(&amp;v=
+gdev-&gt;ctrlq.qlock);<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto retry;<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0} else {<br>
+&gt; @@ -368,7 +368,7 @@ static int virtio_gpu_queue_cursor(struct virtio_g=
+pu_device *vgdev,<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0ret =3D virtqueue_add_sgs(vq, sgs, outcnt, 0=
+, vbuf, GFP_ATOMIC);<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0if (ret =3D=3D -ENOSPC) {<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0spin_unlock(&amp=
+;vgdev-&gt;cursorq.qlock);<br>
+&gt; -=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0wait_event(vgdev-&gt;=
+cursorq.ack_queue, vq-&gt;num_free);<br>
+&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0wait_event(vgdev-&gt;=
+cursorq.ack_queue, vq-&gt;num_free &gt;=3D outcnt);<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0spin_lock(&amp;v=
+gdev-&gt;cursorq.qlock);<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto retry;<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0} else {<br>
+&gt; -- <br>
+&gt; 2.9.3<br>
+&gt; <br>
+_______________________________________________<br>
+dri-devel mailing list<br>
+<a href=3D"mailto:dri-devel@lists.freedesktop.org" target=3D"_blank" rel=3D=
+"noreferrer">dri-devel@lists.freedesktop.org</a><br>
+<a href=3D"https://lists.freedesktop.org/mailman/listinfo/dri-devel" rel=3D=
+"noreferrer noreferrer" target=3D"_blank">https://lists.freedesktop.org/mai=
+lman/listinfo/dri-devel</a><br>
+</blockquote></div>
+
+--089e082f6ac0effaf2056a44eca0--
+
+--===============8288221594213831039==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8288221594213831039==--
