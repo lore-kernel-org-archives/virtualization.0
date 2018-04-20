@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 1/6] virtio_console: don't tie bufs to a vq
-Date: Fri, 20 Apr 2018 21:18:01 +0300
-Message-ID: <1524248223-393618-2-git-send-email-mst@redhat.com>
+Subject: [PATCH 5/6] virtio_console: move removal code
+Date: Fri, 20 Apr 2018 21:18:05 +0300
+Message-ID: <1524248223-393618-6-git-send-email-mst__42952.7352018797$1524248197$gmane$org@redhat.com>
 References: <1524248223-393618-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,74 +22,102 @@ To: linux-kernel@vger.kernel.org
 Cc: Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-an allocated buffer doesn't need to be tied to a vq -
-only vq->vdev is ever used. Pass the function the
-just what it needs - the vdev.
+Will make it reusable for error handling.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/char/virtio_console.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/char/virtio_console.c | 72 +++++++++++++++++++++----------------------
+ 1 file changed, 36 insertions(+), 36 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 468f061..3e56f32 100644
+index 2d87ce5..e8480fe 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -422,7 +422,7 @@ static void reclaim_dma_bufs(void)
- 	}
+@@ -1988,6 +1988,42 @@ static void remove_vqs(struct ports_device *portdev)
+ 	kfree(portdev->out_vqs);
  }
  
--static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
-+static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size,
- 				     int pages)
- {
- 	struct port_buffer *buf;
-@@ -445,16 +445,16 @@ static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
- 		return buf;
- 	}
++static void virtcons_remove(struct virtio_device *vdev)
++{
++	struct ports_device *portdev;
++	struct port *port, *port2;
++
++	portdev = vdev->priv;
++
++	spin_lock_irq(&pdrvdata_lock);
++	list_del(&portdev->list);
++	spin_unlock_irq(&pdrvdata_lock);
++
++	/* Disable interrupts for vqs */
++	vdev->config->reset(vdev);
++	/* Finish up work that's lined up */
++	if (use_multiport(portdev))
++		cancel_work_sync(&portdev->control_work);
++	else
++		cancel_work_sync(&portdev->config_work);
++
++	list_for_each_entry_safe(port, port2, &portdev->ports, list)
++		unplug_port(port);
++
++	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
++
++	/*
++	 * When yanking out a device, we immediately lose the
++	 * (device-side) queues.  So there's no point in keeping the
++	 * guest side around till we drop our final reference.  This
++	 * also means that any ports which are in an open state will
++	 * have to just stop using the port, as the vqs are going
++	 * away.
++	 */
++	remove_vqs(portdev);
++	kfree(portdev);
++}
++
+ /*
+  * Once we're further in boot, we get probed like any other virtio
+  * device.
+@@ -2116,42 +2152,6 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 	return err;
+ }
  
--	if (is_rproc_serial(vq->vdev)) {
-+	if (is_rproc_serial(vdev)) {
- 		/*
- 		 * Allocate DMA memory from ancestor. When a virtio
- 		 * device is created by remoteproc, the DMA memory is
- 		 * associated with the grandparent device:
- 		 * vdev => rproc => platform-dev.
- 		 */
--		if (!vq->vdev->dev.parent || !vq->vdev->dev.parent->parent)
-+		if (!vdev->dev.parent || !vdev->dev.parent->parent)
- 			goto free_buf;
--		buf->dev = vq->vdev->dev.parent->parent;
-+		buf->dev = vdev->dev.parent->parent;
- 
- 		/* Increase device refcnt to avoid freeing it */
- 		get_device(buf->dev);
-@@ -838,7 +838,7 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
- 
- 	count = min((size_t)(32 * 1024), count);
- 
--	buf = alloc_buf(port->out_vq, count, 0);
-+	buf = alloc_buf(port->portdev->vdev, count, 0);
- 	if (!buf)
- 		return -ENOMEM;
- 
-@@ -957,7 +957,7 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
- 	if (ret < 0)
- 		goto error_out;
- 
--	buf = alloc_buf(port->out_vq, 0, pipe->nrbufs);
-+	buf = alloc_buf(port->portdev->vdev, 0, pipe->nrbufs);
- 	if (!buf) {
- 		ret = -ENOMEM;
- 		goto error_out;
-@@ -1374,7 +1374,7 @@ static unsigned int fill_queue(struct virtqueue *vq, spinlock_t *lock)
- 
- 	nr_added_bufs = 0;
- 	do {
--		buf = alloc_buf(vq, PAGE_SIZE, 0);
-+		buf = alloc_buf(vq->vdev, PAGE_SIZE, 0);
- 		if (!buf)
- 			break;
- 
+-static void virtcons_remove(struct virtio_device *vdev)
+-{
+-	struct ports_device *portdev;
+-	struct port *port, *port2;
+-
+-	portdev = vdev->priv;
+-
+-	spin_lock_irq(&pdrvdata_lock);
+-	list_del(&portdev->list);
+-	spin_unlock_irq(&pdrvdata_lock);
+-
+-	/* Disable interrupts for vqs */
+-	vdev->config->reset(vdev);
+-	/* Finish up work that's lined up */
+-	if (use_multiport(portdev))
+-		cancel_work_sync(&portdev->control_work);
+-	else
+-		cancel_work_sync(&portdev->config_work);
+-
+-	list_for_each_entry_safe(port, port2, &portdev->ports, list)
+-		unplug_port(port);
+-
+-	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
+-
+-	/*
+-	 * When yanking out a device, we immediately lose the
+-	 * (device-side) queues.  So there's no point in keeping the
+-	 * guest side around till we drop our final reference.  This
+-	 * also means that any ports which are in an open state will
+-	 * have to just stop using the port, as the vqs are going
+-	 * away.
+-	 */
+-	remove_vqs(portdev);
+-	kfree(portdev);
+-}
+-
+ static struct virtio_device_id id_table[] = {
+ 	{ VIRTIO_ID_CONSOLE, VIRTIO_DEV_ANY_ID },
+ 	{ 0 },
 -- 
 MST
