@@ -1,7 +1,7 @@
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Matthew Wilcox <willy@infradead.org>
 Subject: Re: [PATCH] kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
-Date: Fri, 20 Apr 2018 16:56:07 -0400 (EDT)
-Message-ID: <alpine.LRH.2.02.1804201141420.1535__3891.69992781735$1524257672$gmane$org@file01.intranet.prod.int.rdu2.redhat.com>
+Date: Fri, 20 Apr 2018 14:02:00 -0700
+Message-ID: <20180420210200.GH10788__29403.8025233478$1524258034$gmane$org@bombadil.infradead.org>
 References: <alpine.LRH.2.02.1804181029270.19294@file01.intranet.prod.int.rdu2.redhat.com>
 	<3e65977e-53cd-bf09-bc4b-0ce40e9091fe@gmail.com>
 	<alpine.LRH.2.02.1804181218270.19136@file01.intranet.prod.int.rdu2.redhat.com>
@@ -9,13 +9,13 @@ References: <alpine.LRH.2.02.1804181029270.19294@file01.intranet.prod.int.rdu2.r
 	<alpine.LRH.2.02.1804181350050.17942@file01.intranet.prod.int.rdu2.redhat.com>
 	<alpine.LRH.2.02.1804191207380.31175@file01.intranet.prod.int.rdu2.redhat.com>
 	<20180420130852.GC16083@dhcp22.suse.cz>
-	<20180420134136.GD10788@bombadil.infradead.org>
-	<20180420134901.GB17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180420134901.GB17484@dhcp22.suse.cz>
+Content-Disposition: inline
+In-Reply-To: <alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,46 +25,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, edumazet@google.com, bhutchings@solarflare.com, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
+To: Mikulas Patocka <mpatocka@redhat.com>
+Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, edumazet@google.com, bhutchings@solarflare.com, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On Fri, 20 Apr 2018, Michal Hocko wrote:
-
-> On Fri 20-04-18 06:41:36, Matthew Wilcox wrote:
-> > On Fri, Apr 20, 2018 at 03:08:52PM +0200, Michal Hocko wrote:
-> > > > In order to detect these bugs reliably I submit this patch that changes
-> > > > kvmalloc to always use vmalloc if CONFIG_DEBUG_VM is turned on.
-> > > 
-> > > No way. This is just wrong! First of all, you will explode most likely
-> > > on many allocations of small sizes. Second, CONFIG_DEBUG_VM tends to be
-> > > enabled quite often.
-> > 
-> > I think it'll still suit Mikulas' debugging needs if we always use
-> > vmalloc for sizes above PAGE_SIZE?
+On Fri, Apr 20, 2018 at 04:54:53PM -0400, Mikulas Patocka wrote:
+> On Fri, 20 Apr 2018, Michal Hocko wrote:
+> > No way. This is just wrong! First of all, you will explode most likely
+> > on many allocations of small sizes. Second, CONFIG_DEBUG_VM tends to be
+> > enabled quite often.
 > 
-> Even if that was the case then this doesn't sounds like CONFIG_DEBUG_VM
-> material. We do not want a completely different behavior when the config
-> 
-> -- 
-> Michal Hocko
-> SUSE Labs
+> You're an evil person who doesn't want to fix bugs.
 
-I'm not arguing that it must be turned on exactly by CONFIG_DEBUG_VM. It 
-may be turned on some other option that is enabled in debug kernels 
-(CONFIG_DEBUG_SG may be a better option, because you'll get meaningful 
-stracktraces from DMA API then).
+Steady on.  There's no need for that.  Michal isn't evil.  Please
+apologise.
 
-> is enabled. If we really need some better fallback testing coverage
-> then the fault injection, as suggested by Vlastimil, sounds much more
-> reasonable to me
+> You refused to fix vmalloc(GFP_NOIO) misbehavior a year ago (did you make 
+> some progress with it since that time?) and you refuse to fix kvmalloc 
+> misuses.
 
-People who test kernels will install the kernel-debug package, reboot to 
-the debug kernel and run their testsuites. They won't turn on magic 
-options in debugfs or use some hideous kernel commandline arguments. If 
-the kvmalloc test isn't in the debug kernel, then the testing crew won't 
-test it - that's it.
+I understand you're frustrated, but this is not the way to get the problems
+fixed.
 
-Mikulas
+> I tried this patch on text-only virtual machine and /proc/vmallocinfo 
+> shows 614kB more memory. I tried it on a desktop machine with the chrome 
+> browser open and /proc/vmallocinfo space is increased by 7MB. So no - this 
+> won't exhaust memory and kill the machine.
+
+This is good data, thank you for providing it.
+
+> Arguing that this increases memory consumption is as bogus as arguing that 
+> CONFIG_LOCKDEP increses memory consumption. No one is forcing you to 
+> enable CONFIG_LOCKDEP and no one is forcing you to enable this kvmalloc 
+> test too.
+
+I think there's a real problem which is that CONFIG_DEBUG_VM is too broad.
+It inserts code in a *lot* of places, some of which is quite expensive.
+We would do better to split it into more granular pieces ... although
+an explosion of configuration options isn't great either.  Maybe just
+CONFIG_DEBUG_VM and CONFIG_DEBUG_VM_EXPENSIVE.
+
+Michal may be wrong, but he's not evil.
