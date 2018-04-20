@@ -1,14 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio_ring: switch to dma_XX barriers for rpmsg
-Date: Fri, 20 Apr 2018 11:04:36 +0800
-Message-ID: <05e885b8-7677-9cad-28fc-1cfa87c1d1a9__47762.9340523437$1524193383$gmane$org@redhat.com>
-References: <1524159181-351878-1-git-send-email-mst@redhat.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [RFC] vhost: introduce mdev based hardware vhost backend
+Date: Fri, 20 Apr 2018 11:28:07 +0800
+Message-ID: <20180420032806.i3jy7xb7emgil6eu__43151.2155956172$1524194742$gmane$org@debian>
+References: <20180402152330.4158-1-tiwei.bie@intel.com>
+	<622f4bd7-1249-5545-dc5a-5a92b64f5c26@redhat.com>
+	<20180410045723.rftsb7l4l3ip2ioi@debian>
+	<30a63fff-7599-640a-361f-a27e5783012a@redhat.com>
+	<20180419212911-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1524159181-351878-1-git-send-email-mst@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180419212911-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,40 +22,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Ohad Ben-Cohen <ohad@wizery.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, linux-remoteproc@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiao.w.wang@intel.com, ddutile@redhat.com, jianfeng.tan@intel.com, zhihong.wang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDTmnIgyMOaXpSAwMTozNSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IHZpcnRpbyBpcyB1c2luZyBiYXJyaWVycyB0byBvcmRlciBtZW1vcnkgYWNjZXNzZXMsIHRodXMK
-PiBkbWFfd21iL3JtYiBpcyBhIGdvb2QgbWF0Y2guCj4KPiBCdWlsZC10ZXN0ZWQgb24geDg2OiBC
-ZWZvcmUKPgo+IFttc3RAdHVjayBsaW51eF0kIHNpemUgZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jp
-bmcubwo+ICAgICB0ZXh0ICAgIGRhdGEgICAgIGJzcyAgICAgZGVjICAgICBoZXggZmlsZW5hbWUK
-PiAgICAxMTM5MiAgICAgODIwICAgICAgIDAgICAxMjIxMiAgICAyZmI0IGRyaXZlcnMvdmlydGlv
-L3ZpcnRpb19yaW5nLm8KPgo+IEFmdGVyCj4gbXN0QHR1Y2sgbGludXhdJCBzaXplIGRyaXZlcnMv
-dmlydGlvL3ZpcnRpb19yaW5nLm8KPiAgICAgdGV4dCAgICBkYXRhICAgICBic3MgICAgIGRlYyAg
-ICAgaGV4IGZpbGVuYW1lCj4gICAgMTEyODQgICAgIDgyMCAgICAgICAwICAgMTIxMDQgICAgMmY0
-OCBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5vCj4KPiBDYzogT2hhZCBCZW4tQ29oZW4gPG9o
-YWRAd2l6ZXJ5LmNvbT4KPiBDYzogQmpvcm4gQW5kZXJzc29uIDxiam9ybi5hbmRlcnNzb25AbGlu
-YXJvLm9yZz4KPiBDYzogbGludXgtcmVtb3RlcHJvY0B2Z2VyLmtlcm5lbC5vcmcKPiBTaWduZWQt
-b2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+IC0tLQo+Cj4gSXQn
-cyBnb29kIGluIHRoZW9yeSwgYnV0IGNvdWxkIG9uZSBvZiBSUE1TRyBtYWludGFpbmVycyBwbGVh
-c2UgcmV2aWV3Cj4gYW5kIGFjayB0aGlzIHBhdGNoPyBPciBldmVuIGJldHRlciB0ZXN0IGl0Pwo+
-Cj4gQWxsIHRoZXNlIGJhcnJpZXJzIGFyZSB1c2VsZXNzIG9uIEludGVsIGFueXdheSAuLi4KPgo+
-ICAgaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oIHwgNCArKy0tCj4gICAxIGZpbGUgY2hhbmdl
-ZCwgMiBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2luY2x1
-ZGUvbGludXgvdmlydGlvX3JpbmcuaCBiL2luY2x1ZGUvbGludXgvdmlydGlvX3JpbmcuaAo+IGlu
-ZGV4IGJiZjMyNTIuLmZhYjAyMTMgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS9saW51eC92aXJ0aW9f
-cmluZy5oCj4gKysrIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCj4gQEAgLTM1LDcgKzM1
-LDcgQEAgc3RhdGljIGlubGluZSB2b2lkIHZpcnRpb19ybWIoYm9vbCB3ZWFrX2JhcnJpZXJzKQo+
-ICAgCWlmICh3ZWFrX2JhcnJpZXJzKQo+ICAgCQl2aXJ0X3JtYigpOwo+ICAgCWVsc2UKPiAtCQly
-bWIoKTsKPiArCQlkbWFfcm1iKCk7Cj4gICB9Cj4gICAKPiAgIHN0YXRpYyBpbmxpbmUgdm9pZCB2
-aXJ0aW9fd21iKGJvb2wgd2Vha19iYXJyaWVycykKPiBAQCAtNDMsNyArNDMsNyBAQCBzdGF0aWMg
-aW5saW5lIHZvaWQgdmlydGlvX3dtYihib29sIHdlYWtfYmFycmllcnMpCj4gICAJaWYgKHdlYWtf
-YmFycmllcnMpCj4gICAJCXZpcnRfd21iKCk7Cj4gICAJZWxzZQo+IC0JCXdtYigpOwo+ICsJCWRt
-YV93bWIoKTsKPiAgIH0KPiAgIAo+ICAgc3RhdGljIGlubGluZSB2b2lkIHZpcnRpb19zdG9yZV9t
-Yihib29sIHdlYWtfYmFycmllcnMsCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Apr 19, 2018 at 09:40:23PM +0300, Michael S. Tsirkin wrote:
+> On Tue, Apr 10, 2018 at 03:25:45PM +0800, Jason Wang wrote:
+> > > > > One problem is that, different virtio ring compatible devices
+> > > > > may have different device interfaces. That is to say, we will
+> > > > > need different drivers in QEMU. It could be troublesome. And
+> > > > > that's what this patch trying to fix. The idea behind this
+> > > > > patch is very simple: mdev is a standard way to emulate device
+> > > > > in kernel.
+> > > > So you just move the abstraction layer from qemu to kernel, and you still
+> > > > need different drivers in kernel for different device interfaces of
+> > > > accelerators. This looks even more complex than leaving it in qemu. As you
+> > > > said, another idea is to implement userspace vhost backend for accelerators
+> > > > which seems easier and could co-work with other parts of qemu without
+> > > > inventing new type of messages.
+> > > I'm not quite sure. Do you think it's acceptable to
+> > > add various vendor specific hardware drivers in QEMU?
+> > > 
+> > 
+> > I don't object but we need to figure out the advantages of doing it in qemu
+> > too.
+> > 
+> > Thanks
+> 
+> To be frank kernel is exactly where device drivers belong.  DPDK did
+> move them to userspace but that's merely a requirement for data path.
+> *If* you can have them in kernel that is best:
+> - update kernel and there's no need to rebuild userspace
+> - apps can be written in any language no need to maintain multiple
+>   libraries or add wrappers
+> - security concerns are much smaller (ok people are trying to
+>   raise the bar with IOMMUs and such, but it's already pretty
+>   good even without)
+> 
+> The biggest issue is that you let userspace poke at the
+> device which is also allowed by the IOMMU to poke at
+> kernel memory (needed for kernel driver to work).
+
+I think the device won't and shouldn't be allowed to
+poke at kernel memory. Its kernel driver needs some
+kernel memory to work. But the device doesn't have
+the access to them. Instead, the device only has the
+access to:
+
+(1) the entire memory of the VM (if vIOMMU isn't used)
+or
+(2) the memory belongs to the guest virtio device (if
+    vIOMMU is being used).
+
+Below is the reason:
+
+For the first case, we should program the IOMMU for
+the hardware device based on the info in the memory
+table which is the entire memory of the VM.
+
+For the second case, we should program the IOMMU for
+the hardware device based on the info in the shadow
+page table of the vIOMMU.
+
+So the memory can be accessed by the device is limited,
+it should be safe especially for the second case.
+
+My concern is that, in this RFC, we don't program the
+IOMMU for the mdev device in the userspace via the VFIO
+API directly. Instead, we pass the memory table to the
+kernel driver via the mdev device (BAR0) and ask the
+driver to do the IOMMU programming. Someone may don't
+like it. The main reason why we don't program IOMMU via
+VFIO API in userspace directly is that, currently IOMMU
+drivers don't support mdev bus.
+
+> 
+> Yes, maybe if device is not buggy it's all fine, but
+> it's better if we do not have to trust the device
+> otherwise the security picture becomes more murky.
+> 
+> I suggested attaching a PASID to (some) queues - see my old post "using
+> PASIDs to enable a safe variant of direct ring access".
+
+It's pretty cool. We also have some similar ideas.
+Cunming will talk more about this.
+
+Best regards,
+Tiwei Bie
+
+> 
+> Then using IOMMU with VFIO to limit access through queue to corrent
+> ranges of memory.
+> 
+> 
+> -- 
+> MST
