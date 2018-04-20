@@ -1,18 +1,17 @@
-From: "Liang, Cunming" <cunming.liang@intel.com>
-Subject: RE: [RFC] vhost: introduce mdev based hardware vhost backend
-Date: Fri, 20 Apr 2018 03:50:41 +0000
-Message-ID: <D0158A423229094DA7ABF71CF2FA0DA34E9511D5__7093.39901009134$1524196145$gmane$org@SHSMSX104.ccr.corp.intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC] vhost: introduce mdev based hardware vhost backend
+Date: Fri, 20 Apr 2018 11:52:47 +0800
+Message-ID: <060e2b5f-2e93-c53f-387b-5baaa33e87cd@redhat.com>
 References: <20180402152330.4158-1-tiwei.bie@intel.com>
 	<622f4bd7-1249-5545-dc5a-5a92b64f5c26@redhat.com>
 	<20180410045723.rftsb7l4l3ip2ioi@debian>
 	<30a63fff-7599-640a-361f-a27e5783012a@redhat.com>
 	<20180419212911-mutt-send-email-mst@kernel.org>
-	<20180420032806.i3jy7xb7emgil6eu@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180420032806.i3jy7xb7emgil6eu@debian>
+In-Reply-To: <20180419212911-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,113 +22,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Bie, Tiwei" <tiwei.bie@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Wang,
-	Xiao W" <xiao.w.wang@intel.com>, "ddutile@redhat.com" <ddutile@redhat.com>, "Tan,
-	Jianfeng" <jianfeng.tan@intel.com>, "Wang,
-	Zhihong" <zhihong.wang@intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiao.w.wang@intel.com, ddutile@redhat.com, jianfeng.tan@intel.com, zhihong.wang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Bie, Tiwei
-> Sent: Friday, April 20, 2018 11:28 AM
-> To: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>; alex.williamson@redhat.com;
-> ddutile@redhat.com; Duyck, Alexander H <alexander.h.duyck@intel.com>;
-> virtio-dev@lists.oasis-open.org; linux-kernel@vger.kernel.org;
-> kvm@vger.kernel.org; virtualization@lists.linux-foundation.org;
-> netdev@vger.kernel.org; Daly, Dan <dan.daly@intel.com>; Liang, Cunming
-> <cunming.liang@intel.com>; Wang, Zhihong <zhihong.wang@intel.com>; Tan,
-> Jianfeng <jianfeng.tan@intel.com>; Wang, Xiao W <xiao.w.wang@intel.com>;
-> Tian, Kevin <kevin.tian@intel.com>
-> Subject: Re: [RFC] vhost: introduce mdev based hardware vhost backend
-> 
-> On Thu, Apr 19, 2018 at 09:40:23PM +0300, Michael S. Tsirkin wrote:
-> > On Tue, Apr 10, 2018 at 03:25:45PM +0800, Jason Wang wrote:
-> > > > > > One problem is that, different virtio ring compatible devices
-> > > > > > may have different device interfaces. That is to say, we will
-> > > > > > need different drivers in QEMU. It could be troublesome. And
-> > > > > > that's what this patch trying to fix. The idea behind this
-> > > > > > patch is very simple: mdev is a standard way to emulate device
-> > > > > > in kernel.
-> > > > > So you just move the abstraction layer from qemu to kernel, and
-> > > > > you still need different drivers in kernel for different device
-> > > > > interfaces of accelerators. This looks even more complex than
-> > > > > leaving it in qemu. As you said, another idea is to implement
-> > > > > userspace vhost backend for accelerators which seems easier and
-> > > > > could co-work with other parts of qemu without inventing new type of
-> messages.
-> > > > I'm not quite sure. Do you think it's acceptable to add various
-> > > > vendor specific hardware drivers in QEMU?
-> > > >
-> > >
-> > > I don't object but we need to figure out the advantages of doing it
-> > > in qemu too.
-> > >
-> > > Thanks
-> >
-> > To be frank kernel is exactly where device drivers belong.  DPDK did
-> > move them to userspace but that's merely a requirement for data path.
-> > *If* you can have them in kernel that is best:
-> > - update kernel and there's no need to rebuild userspace
-> > - apps can be written in any language no need to maintain multiple
-> >   libraries or add wrappers
-> > - security concerns are much smaller (ok people are trying to
-> >   raise the bar with IOMMUs and such, but it's already pretty
-> >   good even without)
-> >
-> > The biggest issue is that you let userspace poke at the device which
-> > is also allowed by the IOMMU to poke at kernel memory (needed for
-> > kernel driver to work).
-> 
-> I think the device won't and shouldn't be allowed to poke at kernel memory. Its
-> kernel driver needs some kernel memory to work. But the device doesn't have
-> the access to them. Instead, the device only has the access to:
-> 
-> (1) the entire memory of the VM (if vIOMMU isn't used) or
-> (2) the memory belongs to the guest virtio device (if
->     vIOMMU is being used).
-> 
-> Below is the reason:
-> 
-> For the first case, we should program the IOMMU for the hardware device based
-> on the info in the memory table which is the entire memory of the VM.
-> 
-> For the second case, we should program the IOMMU for the hardware device
-> based on the info in the shadow page table of the vIOMMU.
-> 
-> So the memory can be accessed by the device is limited, it should be safe
-> especially for the second case.
-> 
-> My concern is that, in this RFC, we don't program the IOMMU for the mdev
-> device in the userspace via the VFIO API directly. Instead, we pass the memory
-> table to the kernel driver via the mdev device (BAR0) and ask the driver to do the
-> IOMMU programming. Someone may don't like it. The main reason why we don't
-> program IOMMU via VFIO API in userspace directly is that, currently IOMMU
-> drivers don't support mdev bus.
-> 
-> >
-> > Yes, maybe if device is not buggy it's all fine, but it's better if we
-> > do not have to trust the device otherwise the security picture becomes
-> > more murky.
-> >
-> > I suggested attaching a PASID to (some) queues - see my old post
-> > "using PASIDs to enable a safe variant of direct ring access".
-> 
-Ideally we can have a device binding with normal driver in host, meanwhile support to allocate a few queues attaching with PASID on-demand. By vhost mdev transport channel, the data path ability of queues(as a device) can expose to qemu vhost adaptor as a vDPA instance. Then we can avoid VF number limitation, providing vhost data path acceleration in a small granularity.
-
-> It's pretty cool. We also have some similar ideas.
-> Cunming will talk more about this.
-> 
-> Best regards,
-> Tiwei Bie
-> 
-> >
-> > Then using IOMMU with VFIO to limit access through queue to corrent
-> > ranges of memory.
-> >
-> >
-> > --
-> > MST
+CgpPbiAyMDE45bm0MDTmnIgyMOaXpSAwMjo0MCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFR1ZSwgQXByIDEwLCAyMDE4IGF0IDAzOjI1OjQ1UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+Pj4+IE9uZSBwcm9ibGVtIGlzIHRoYXQsIGRpZmZlcmVudCB2aXJ0aW8gcmluZyBjb21w
+YXRpYmxlIGRldmljZXMKPj4+Pj4gbWF5IGhhdmUgZGlmZmVyZW50IGRldmljZSBpbnRlcmZhY2Vz
+LiBUaGF0IGlzIHRvIHNheSwgd2Ugd2lsbAo+Pj4+PiBuZWVkIGRpZmZlcmVudCBkcml2ZXJzIGlu
+IFFFTVUuIEl0IGNvdWxkIGJlIHRyb3VibGVzb21lLiBBbmQKPj4+Pj4gdGhhdCdzIHdoYXQgdGhp
+cyBwYXRjaCB0cnlpbmcgdG8gZml4LiBUaGUgaWRlYSBiZWhpbmQgdGhpcwo+Pj4+PiBwYXRjaCBp
+cyB2ZXJ5IHNpbXBsZTogbWRldiBpcyBhIHN0YW5kYXJkIHdheSB0byBlbXVsYXRlIGRldmljZQo+
+Pj4+PiBpbiBrZXJuZWwuCj4+Pj4gU28geW91IGp1c3QgbW92ZSB0aGUgYWJzdHJhY3Rpb24gbGF5
+ZXIgZnJvbSBxZW11IHRvIGtlcm5lbCwgYW5kIHlvdSBzdGlsbAo+Pj4+IG5lZWQgZGlmZmVyZW50
+IGRyaXZlcnMgaW4ga2VybmVsIGZvciBkaWZmZXJlbnQgZGV2aWNlIGludGVyZmFjZXMgb2YKPj4+
+PiBhY2NlbGVyYXRvcnMuIFRoaXMgbG9va3MgZXZlbiBtb3JlIGNvbXBsZXggdGhhbiBsZWF2aW5n
+IGl0IGluIHFlbXUuIEFzIHlvdQo+Pj4+IHNhaWQsIGFub3RoZXIgaWRlYSBpcyB0byBpbXBsZW1l
+bnQgdXNlcnNwYWNlIHZob3N0IGJhY2tlbmQgZm9yIGFjY2VsZXJhdG9ycwo+Pj4+IHdoaWNoIHNl
+ZW1zIGVhc2llciBhbmQgY291bGQgY28td29yayB3aXRoIG90aGVyIHBhcnRzIG9mIHFlbXUgd2l0
+aG91dAo+Pj4+IGludmVudGluZyBuZXcgdHlwZSBvZiBtZXNzYWdlcy4KPj4+IEknbSBub3QgcXVp
+dGUgc3VyZS4gRG8geW91IHRoaW5rIGl0J3MgYWNjZXB0YWJsZSB0bwo+Pj4gYWRkIHZhcmlvdXMg
+dmVuZG9yIHNwZWNpZmljIGhhcmR3YXJlIGRyaXZlcnMgaW4gUUVNVT8KPj4+Cj4+IEkgZG9uJ3Qg
+b2JqZWN0IGJ1dCB3ZSBuZWVkIHRvIGZpZ3VyZSBvdXQgdGhlIGFkdmFudGFnZXMgb2YgZG9pbmcg
+aXQgaW4gcWVtdQo+PiB0b28uCj4+Cj4+IFRoYW5rcwo+IFRvIGJlIGZyYW5rIGtlcm5lbCBpcyBl
+eGFjdGx5IHdoZXJlIGRldmljZSBkcml2ZXJzIGJlbG9uZy4gIERQREsgZGlkCj4gbW92ZSB0aGVt
+IHRvIHVzZXJzcGFjZSBidXQgdGhhdCdzIG1lcmVseSBhIHJlcXVpcmVtZW50IGZvciBkYXRhIHBh
+dGguCj4gKklmKiB5b3UgY2FuIGhhdmUgdGhlbSBpbiBrZXJuZWwgdGhhdCBpcyBiZXN0Ogo+IC0g
+dXBkYXRlIGtlcm5lbCBhbmQgdGhlcmUncyBubyBuZWVkIHRvIHJlYnVpbGQgdXNlcnNwYWNlCgpX
+ZWxsLCB5b3Ugc3RpbGwgbmVlZCB0byByZWJ1aWxkIHVzZXJzcGFjZSBzaW5jZSBhIG5ldyB2aG9z
+dCBiYWNrZW5kIGlzIApyZXF1aXJlZCB3aGljaCByZWxpZXMgdmhvc3QgcHJvdG9jb2wgdGhyb3Vn
+aCBtZGV2IEFQSS4gQW5kIEkgYmVsaWV2ZSAKdXBncmFkaW5nIHVzZXJzcGFjZSBwYWNrYWdlIGlz
+IGNvbnNpZGVyZWQgdG8gYmUgbW9yZSBsaWdodHdlaWdodCB0aGFuIAp1cGdyYWRpbmcga2VybmVs
+LiBXaXRoIG1kZXYsIHdlJ3JlIGxpa2VseSB0byByZXBlYXQgdGhlIHN0b3J5IG9mIHZob3N0IApB
+UEksIGRlYWxpbmcgd2l0aCBmZWF0dXJlcy92ZXJzaW9ucyBhbmQgaW52ZW50aW5nIG5ldyBBUEkg
+ZW5kbGVzcyBmb3IgCm5ldyBmZWF0dXJlcy4gQW5kIHlvdSB3aWxsIHN0aWxsIG5lZWQgdG8gcmVi
+dWlsZCB0aGUgdXNlcnNwYWNlLgoKPiAtIGFwcHMgY2FuIGJlIHdyaXR0ZW4gaW4gYW55IGxhbmd1
+YWdlIG5vIG5lZWQgdG8gbWFpbnRhaW4gbXVsdGlwbGUKPiAgICBsaWJyYXJpZXMgb3IgYWRkIHdy
+YXBwZXJzCgpUaGlzIGlzIG5vdCBhIGJpZyBpc3N1ZSBjb25zaWRlciBJdCdzIG5vdCBhIGdlbmVy
+aWMgbmV0d29yayBkcml2ZXIgYnV0IGEgCm1kZXYgZHJpdmVyLCB0aGUgb25seSBwb3NzaWJsZSB1
+c2VyIGlzIFZNLgoKPiAtIHNlY3VyaXR5IGNvbmNlcm5zIGFyZSBtdWNoIHNtYWxsZXIgKG9rIHBl
+b3BsZSBhcmUgdHJ5aW5nIHRvCj4gICAgcmFpc2UgdGhlIGJhciB3aXRoIElPTU1VcyBhbmQgc3Vj
+aCwgYnV0IGl0J3MgYWxyZWFkeSBwcmV0dHkKPiAgICBnb29kIGV2ZW4gd2l0aG91dCkKCldlbGws
+IEkgdGhpbmsgbm90LCBrZXJuZWwgYnVncyBhcmUgbXVjaCBtb3JlIHNlcmlvdXMgdGhhbiB1c2Vy
+c3BhY2UgCm9uZXMuIEFuZCBJIGJlZyB0aGUga2VybmVsIGRyaXZlciBpdHNlbGYgd29uJ3QgYmUg
+c21hbGwuCgo+Cj4gVGhlIGJpZ2dlc3QgaXNzdWUgaXMgdGhhdCB5b3UgbGV0IHVzZXJzcGFjZSBw
+b2tlIGF0IHRoZQo+IGRldmljZSB3aGljaCBpcyBhbHNvIGFsbG93ZWQgYnkgdGhlIElPTU1VIHRv
+IHBva2UgYXQKPiBrZXJuZWwgbWVtb3J5IChuZWVkZWQgZm9yIGtlcm5lbCBkcml2ZXIgdG8gd29y
+aykuCgpJIGRvbid0IHF1aXRlIGdldC4gVGhlIHVzZXJzcGFjZSBkcml2ZXIgY291bGQgYmUgYnVp
+bHQgb24gdG9wIG9mIFZGSU8gCmZvciBzdXJlLiBTbyBrZXJuZWwgbWVtb3J5IHdlcmUgcGVyZmVj
+dGx5IGlzb2xhdGVkIGluIHRoaXMgY2FzZS4KCj4KPiBZZXMsIG1heWJlIGlmIGRldmljZSBpcyBu
+b3QgYnVnZ3kgaXQncyBhbGwgZmluZSwgYnV0Cj4gaXQncyBiZXR0ZXIgaWYgd2UgZG8gbm90IGhh
+dmUgdG8gdHJ1c3QgdGhlIGRldmljZQo+IG90aGVyd2lzZSB0aGUgc2VjdXJpdHkgcGljdHVyZSBi
+ZWNvbWVzIG1vcmUgbXVya3kuCj4KPiBJIHN1Z2dlc3RlZCBhdHRhY2hpbmcgYSBQQVNJRCB0byAo
+c29tZSkgcXVldWVzIC0gc2VlIG15IG9sZCBwb3N0ICJ1c2luZwo+IFBBU0lEcyB0byBlbmFibGUg
+YSBzYWZlIHZhcmlhbnQgb2YgZGlyZWN0IHJpbmcgYWNjZXNzIi4KPgo+IFRoZW4gdXNpbmcgSU9N
+TVUgd2l0aCBWRklPIHRvIGxpbWl0IGFjY2VzcyB0aHJvdWdoIHF1ZXVlIHRvIGNvcnJlbnQKPiBy
+YW5nZXMgb2YgbWVtb3J5LgoKV2VsbCB1c2Vyc3BhY2UgZHJpdmVyIGNvdWxkIGJlbmVmaXQgZnJv
+bSB0aGlzIHRvby4gQW5kIHdlIGNhbiBldmVuIGdvIApmdXJ0aGVyIGJ5IHVzaW5nIG5lc3RlZCBJ
+TyBwYWdlIHRhYmxlcyB0byBzaGFyZSBJT1ZBIGFkZHJlc3Mgc3BhY2UgCmJldHdlZW4gZGV2aWNl
+cyBhbmQgYSBWTS4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
