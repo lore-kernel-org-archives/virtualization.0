@@ -1,15 +1,15 @@
 From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 1/2] qxl: fix qxl_release_{map,unmap}
-Date: Fri, 20 Apr 2018 09:48:18 +0200
-Message-ID: <20180420074818.GL31310__45251.2657190256$1524210392$gmane$org@phenom.ffwll.local>
-References: <20180418054257.15388-1-kraxel@redhat.com>
-	<20180418054257.15388-2-kraxel@redhat.com>
+Subject: Re: [PATCH v2 4/4] qxl: drop dummy functions
+Date: Fri, 20 Apr 2018 10:14:46 +0200
+Message-ID: <20180420081446.GP31310__43254.5068128549$1524211972$gmane$org@phenom.ffwll.local>
+References: <20180420071904.24276-1-kraxel@redhat.com>
+	<20180420071904.24276-5-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180418054257.15388-2-kraxel@redhat.com>
+In-Reply-To: <20180420071904.24276-5-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,69 +20,141 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+Cc: David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 18, 2018 at 07:42:56AM +0200, Gerd Hoffmann wrote:
-> s/PAGE_SIZE/PAGE_MASK/
-> 
-> Luckily release_offset is never larger than PAGE_SIZE, so the bug has no
-> bad side effects and managed to stay unnoticed for years that way ...
+On Fri, Apr 20, 2018 at 09:19:04AM +0200, Gerd Hoffmann wrote:
+> These days drm core checks function pointers everywhere before calling
+> them.  So we can drop a bunch of dummy functions now.
 > 
 > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/qxl/qxl_display.c | 50 ---------------------------------------
+>  1 file changed, 50 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+> index 06ee00b486..af6e52af5f 100644
+> --- a/drivers/gpu/drm/qxl/qxl_display.c
+> +++ b/drivers/gpu/drm/qxl/qxl_display.c
+> @@ -456,13 +456,6 @@ qxl_framebuffer_init(struct drm_device *dev,
+>  	return 0;
+>  }
+>  
+> -static bool qxl_crtc_mode_fixup(struct drm_crtc *crtc,
+> -				  const struct drm_display_mode *mode,
+> -				  struct drm_display_mode *adjusted_mode)
+> -{
+> -	return true;
+> -}
+> -
+>  static void qxl_crtc_atomic_enable(struct drm_crtc *crtc,
+>  				   struct drm_crtc_state *old_state)
+>  {
+> @@ -476,7 +469,6 @@ static void qxl_crtc_atomic_disable(struct drm_crtc *crtc,
+>  }
+>  
+>  static const struct drm_crtc_helper_funcs qxl_crtc_helper_funcs = {
+> -	.mode_fixup = qxl_crtc_mode_fixup,
+>  	.atomic_flush = qxl_crtc_atomic_flush,
+>  	.atomic_enable = qxl_crtc_atomic_enable,
+>  	.atomic_disable = qxl_crtc_atomic_disable,
+> @@ -620,12 +612,6 @@ static void qxl_primary_atomic_disable(struct drm_plane *plane,
+>  	}
+>  }
+>  
+> -static int qxl_plane_atomic_check(struct drm_plane *plane,
+> -				  struct drm_plane_state *state)
+> -{
+> -	return 0;
+> -}
+> -
+>  static void qxl_cursor_atomic_update(struct drm_plane *plane,
+>  				     struct drm_plane_state *old_state)
+>  {
+> @@ -831,7 +817,6 @@ static const uint32_t qxl_cursor_plane_formats[] = {
+>  };
+>  
+>  static const struct drm_plane_helper_funcs qxl_cursor_helper_funcs = {
+> -	.atomic_check = qxl_plane_atomic_check,
+>  	.atomic_update = qxl_cursor_atomic_update,
+>  	.atomic_disable = qxl_cursor_atomic_disable,
+>  	.prepare_fb = qxl_plane_prepare_fb,
+> @@ -956,28 +941,6 @@ static int qdev_crtc_init(struct drm_device *dev, int crtc_id)
+>  	return r;
+>  }
+>  
+> -static void qxl_enc_dpms(struct drm_encoder *encoder, int mode)
+> -{
+> -	DRM_DEBUG("\n");
+> -}
+> -
+> -static void qxl_enc_prepare(struct drm_encoder *encoder)
+> -{
+> -	DRM_DEBUG("\n");
+> -}
+> -
+> -static void qxl_enc_commit(struct drm_encoder *encoder)
+> -{
+> -	DRM_DEBUG("\n");
+> -}
+> -
+> -static void qxl_enc_mode_set(struct drm_encoder *encoder,
+> -				struct drm_display_mode *mode,
+> -				struct drm_display_mode *adjusted_mode)
+> -{
+> -	DRM_DEBUG("\n");
+> -}
+> -
+>  static int qxl_conn_get_modes(struct drm_connector *connector)
+>  {
+>  	unsigned pwidth = 1024;
+> @@ -1023,10 +986,6 @@ static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
+>  
+>  
+>  static const struct drm_encoder_helper_funcs qxl_enc_helper_funcs = {
 
-Sweeet. Since the buggy code uses the same expression for page frame and
-offset I don't think there's a security bug. You might still want to cc:
-stable (since without you defacto can't ever use this feature).
+Hm, I thought even the vtable itself is optional? We do have tons of if
+(!funcs) checks all over the place at least.
+
+
+> -	.dpms = qxl_enc_dpms,
+> -	.prepare = qxl_enc_prepare,
+> -	.mode_set = qxl_enc_mode_set,
+> -	.commit = qxl_enc_commit,
+>  };
+>  
+>  static const struct drm_connector_helper_funcs qxl_connector_helper_funcs = {
+> @@ -1059,14 +1018,6 @@ static enum drm_connector_status qxl_conn_detect(
+>  			 : connector_status_disconnected;
+>  }
+>  
+> -static int qxl_conn_set_property(struct drm_connector *connector,
+> -				   struct drm_property *property,
+> -				   uint64_t value)
+> -{
+> -	DRM_DEBUG("\n");
+> -	return 0;
+> -}
+> -
+>  static void qxl_conn_destroy(struct drm_connector *connector)
+>  {
+>  	struct qxl_output *qxl_output =
+> @@ -1081,7 +1032,6 @@ static const struct drm_connector_funcs qxl_connector_funcs = {
+>  	.dpms = drm_helper_connector_dpms,
+>  	.detect = qxl_conn_detect,
+>  	.fill_modes = drm_helper_probe_single_connector_modes,
+> -	.set_property = qxl_conn_set_property,
+
+This is a legacy callback anyway. I kinda wonder whether we should have a
+bunch of WARN_ON checks for this, so that atomic drivers don't have these
+hanging around anymore.
+
+Anyway, patch looks pretty.
 
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> ---
->  drivers/gpu/drm/qxl/qxl_ioctl.c   | 4 ++--
->  drivers/gpu/drm/qxl/qxl_release.c | 6 +++---
->  2 files changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
-> index e238a1a2ec..6cc9f3367f 100644
-> --- a/drivers/gpu/drm/qxl/qxl_ioctl.c
-> +++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
-> @@ -182,9 +182,9 @@ static int qxl_process_single_command(struct qxl_device *qdev,
->  		goto out_free_reloc;
->  
->  	/* TODO copy slow path code from i915 */
-> -	fb_cmd = qxl_bo_kmap_atomic_page(qdev, cmd_bo, (release->release_offset & PAGE_SIZE));
-> +	fb_cmd = qxl_bo_kmap_atomic_page(qdev, cmd_bo, (release->release_offset & PAGE_MASK));
->  	unwritten = __copy_from_user_inatomic_nocache
-> -		(fb_cmd + sizeof(union qxl_release_info) + (release->release_offset & ~PAGE_SIZE),
-> +		(fb_cmd + sizeof(union qxl_release_info) + (release->release_offset & ~PAGE_MASK),
->  		 u64_to_user_ptr(cmd->command), cmd->command_size);
->  
->  	{
-> diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
-> index 5d84a66fed..a0b4244d28 100644
-> --- a/drivers/gpu/drm/qxl/qxl_release.c
-> +++ b/drivers/gpu/drm/qxl/qxl_release.c
-> @@ -411,10 +411,10 @@ union qxl_release_info *qxl_release_map(struct qxl_device *qdev,
->  	struct qxl_bo_list *entry = list_first_entry(&release->bos, struct qxl_bo_list, tv.head);
->  	struct qxl_bo *bo = to_qxl_bo(entry->tv.bo);
->  
-> -	ptr = qxl_bo_kmap_atomic_page(qdev, bo, release->release_offset & PAGE_SIZE);
-> +	ptr = qxl_bo_kmap_atomic_page(qdev, bo, release->release_offset & PAGE_MASK);
->  	if (!ptr)
->  		return NULL;
-> -	info = ptr + (release->release_offset & ~PAGE_SIZE);
-> +	info = ptr + (release->release_offset & ~PAGE_MASK);
->  	return info;
->  }
->  
-> @@ -426,7 +426,7 @@ void qxl_release_unmap(struct qxl_device *qdev,
->  	struct qxl_bo *bo = to_qxl_bo(entry->tv.bo);
->  	void *ptr;
->  
-> -	ptr = ((void *)info) - (release->release_offset & ~PAGE_SIZE);
-> +	ptr = ((void *)info) - (release->release_offset & ~PAGE_MASK);
->  	qxl_bo_kunmap_atomic_page(qdev, bo, ptr);
->  }
->  
+>  	.destroy = qxl_conn_destroy,
+>  	.reset = drm_atomic_helper_connector_reset,
+>  	.atomic_duplicate_state = drm_atomic_helper_connector_duplicate_state,
 > -- 
 > 2.9.3
 > 
