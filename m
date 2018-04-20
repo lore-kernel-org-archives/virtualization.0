@@ -1,7 +1,7 @@
-From: Matthew Wilcox <willy@infradead.org>
+From: Mikulas Patocka <mpatocka@redhat.com>
 Subject: Re: [PATCH] kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
-Date: Fri, 20 Apr 2018 14:02:00 -0700
-Message-ID: <20180420210200.GH10788__29403.8025233478$1524258034$gmane$org@bombadil.infradead.org>
+Date: Fri, 20 Apr 2018 17:21:26 -0400 (EDT)
+Message-ID: <alpine.LRH.2.02.1804201704580.25408__7480.55648659847$1524259188$gmane$org@file01.intranet.prod.int.rdu2.redhat.com>
 References: <alpine.LRH.2.02.1804181029270.19294@file01.intranet.prod.int.rdu2.redhat.com>
 	<3e65977e-53cd-bf09-bc4b-0ce40e9091fe@gmail.com>
 	<alpine.LRH.2.02.1804181218270.19136@file01.intranet.prod.int.rdu2.redhat.com>
@@ -10,12 +10,12 @@ References: <alpine.LRH.2.02.1804181029270.19294@file01.intranet.prod.int.rdu2.r
 	<alpine.LRH.2.02.1804191207380.31175@file01.intranet.prod.int.rdu2.redhat.com>
 	<20180420130852.GC16083@dhcp22.suse.cz>
 	<alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180420210200.GH10788@bombadil.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
+In-Reply-To: <20180420210200.GH10788@bombadil.infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,44 +25,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mikulas Patocka <mpatocka@redhat.com>
+To: Matthew Wilcox <willy@infradead.org>
 Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, edumazet@google.com, bhutchings@solarflare.com, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 20, 2018 at 04:54:53PM -0400, Mikulas Patocka wrote:
-> On Fri, 20 Apr 2018, Michal Hocko wrote:
-> > No way. This is just wrong! First of all, you will explode most likely
-> > on many allocations of small sizes. Second, CONFIG_DEBUG_VM tends to be
-> > enabled quite often.
+
+
+On Fri, 20 Apr 2018, Matthew Wilcox wrote:
+
+> On Fri, Apr 20, 2018 at 04:54:53PM -0400, Mikulas Patocka wrote:
+> > On Fri, 20 Apr 2018, Michal Hocko wrote:
+> > > No way. This is just wrong! First of all, you will explode most likely
+> > > on many allocations of small sizes. Second, CONFIG_DEBUG_VM tends to be
+> > > enabled quite often.
+> > 
+> > You're an evil person who doesn't want to fix bugs.
 > 
-> You're an evil person who doesn't want to fix bugs.
+> Steady on.  There's no need for that.  Michal isn't evil.  Please
+> apologise.
 
-Steady on.  There's no need for that.  Michal isn't evil.  Please
-apologise.
+I see this attitude from Michal again and again.
 
-> You refused to fix vmalloc(GFP_NOIO) misbehavior a year ago (did you make 
-> some progress with it since that time?) and you refuse to fix kvmalloc 
-> misuses.
+He didn't want to fix vmalloc(GFP_NOIO), he didn't want to fix alloc_pages 
+sleeping when __GFP_NORETRY is used. So what should I say? Fix them and 
+you won't be evil :-)
 
-I understand you're frustrated, but this is not the way to get the problems
-fixed.
+(he could also fix the oom killer, so that it is triggered when 
+free_memory+cache+free_swap goes beyond a threshold and not when you loop 
+too long in the allocator)
 
-> I tried this patch on text-only virtual machine and /proc/vmallocinfo 
-> shows 614kB more memory. I tried it on a desktop machine with the chrome 
-> browser open and /proc/vmallocinfo space is increased by 7MB. So no - this 
-> won't exhaust memory and kill the machine.
+> > You refused to fix vmalloc(GFP_NOIO) misbehavior a year ago (did you make 
+> > some progress with it since that time?) and you refuse to fix kvmalloc 
+> > misuses.
+> 
+> I understand you're frustrated, but this is not the way to get the problems
+> fixed.
+> 
+> > I tried this patch on text-only virtual machine and /proc/vmallocinfo 
+> > shows 614kB more memory. I tried it on a desktop machine with the chrome 
+> > browser open and /proc/vmallocinfo space is increased by 7MB. So no - this 
+> > won't exhaust memory and kill the machine.
+> 
+> This is good data, thank you for providing it.
+> 
+> > Arguing that this increases memory consumption is as bogus as arguing that 
+> > CONFIG_LOCKDEP increses memory consumption. No one is forcing you to 
+> > enable CONFIG_LOCKDEP and no one is forcing you to enable this kvmalloc 
+> > test too.
+> 
+> I think there's a real problem which is that CONFIG_DEBUG_VM is too broad.
+> It inserts code in a *lot* of places, some of which is quite expensive.
+> We would do better to split it into more granular pieces ... although
+> an explosion of configuration options isn't great either.  Maybe just
+> CONFIG_DEBUG_VM and CONFIG_DEBUG_VM_EXPENSIVE.
+> 
+> Michal may be wrong, but he's not evil.
 
-This is good data, thank you for providing it.
+I already said that we can change it from CONFIG_DEBUG_VM to 
+CONFIG_DEBUG_SG - or to whatever other option you may want, just to make 
+sure that it is enabled in distro debug kernels by default.
 
-> Arguing that this increases memory consumption is as bogus as arguing that 
-> CONFIG_LOCKDEP increses memory consumption. No one is forcing you to 
-> enable CONFIG_LOCKDEP and no one is forcing you to enable this kvmalloc 
-> test too.
-
-I think there's a real problem which is that CONFIG_DEBUG_VM is too broad.
-It inserts code in a *lot* of places, some of which is quite expensive.
-We would do better to split it into more granular pieces ... although
-an explosion of configuration options isn't great either.  Maybe just
-CONFIG_DEBUG_VM and CONFIG_DEBUG_VM_EXPENSIVE.
-
-Michal may be wrong, but he's not evil.
+Mikulas
