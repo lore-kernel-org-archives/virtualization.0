@@ -1,18 +1,15 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC] vhost: introduce mdev based hardware vhost backend
-Date: Fri, 20 Apr 2018 11:28:07 +0800
-Message-ID: <20180420032806.i3jy7xb7emgil6eu__43151.2155956172$1524194742$gmane$org@debian>
-References: <20180402152330.4158-1-tiwei.bie@intel.com>
-	<622f4bd7-1249-5545-dc5a-5a92b64f5c26@redhat.com>
-	<20180410045723.rftsb7l4l3ip2ioi@debian>
-	<30a63fff-7599-640a-361f-a27e5783012a@redhat.com>
-	<20180419212911-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v7 net-next 2/4] net: Introduce generic failover module
+Date: Fri, 20 Apr 2018 06:34:42 +0300
+Message-ID: <20180420054853-mutt-send-email-mst__14345.8074112006$1524195185$gmane$org@kernel.org>
+References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
+	<1524188524-28411-3-git-send-email-sridhar.samudrala@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180419212911-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1524188524-28411-3-git-send-email-sridhar.samudrala@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,98 +19,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiao.w.wang@intel.com, ddutile@redhat.com, jianfeng.tan@intel.com, zhihong.wang@intel.com
+To: Sridhar Samudrala <sridhar.samudrala@intel.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 19, 2018 at 09:40:23PM +0300, Michael S. Tsirkin wrote:
-> On Tue, Apr 10, 2018 at 03:25:45PM +0800, Jason Wang wrote:
-> > > > > One problem is that, different virtio ring compatible devices
-> > > > > may have different device interfaces. That is to say, we will
-> > > > > need different drivers in QEMU. It could be troublesome. And
-> > > > > that's what this patch trying to fix. The idea behind this
-> > > > > patch is very simple: mdev is a standard way to emulate device
-> > > > > in kernel.
-> > > > So you just move the abstraction layer from qemu to kernel, and you still
-> > > > need different drivers in kernel for different device interfaces of
-> > > > accelerators. This looks even more complex than leaving it in qemu. As you
-> > > > said, another idea is to implement userspace vhost backend for accelerators
-> > > > which seems easier and could co-work with other parts of qemu without
-> > > > inventing new type of messages.
-> > > I'm not quite sure. Do you think it's acceptable to
-> > > add various vendor specific hardware drivers in QEMU?
-> > > 
-> > 
-> > I don't object but we need to figure out the advantages of doing it in qemu
-> > too.
-> > 
-> > Thanks
-> 
-> To be frank kernel is exactly where device drivers belong.  DPDK did
-> move them to userspace but that's merely a requirement for data path.
-> *If* you can have them in kernel that is best:
-> - update kernel and there's no need to rebuild userspace
-> - apps can be written in any language no need to maintain multiple
->   libraries or add wrappers
-> - security concerns are much smaller (ok people are trying to
->   raise the bar with IOMMUs and such, but it's already pretty
->   good even without)
-> 
-> The biggest issue is that you let userspace poke at the
-> device which is also allowed by the IOMMU to poke at
-> kernel memory (needed for kernel driver to work).
+On Thu, Apr 19, 2018 at 06:42:02PM -0700, Sridhar Samudrala wrote:
+> +static struct net_device *failover_get_bymac(u8 *mac, struct failover_ops **ops)
+> +{
+> +	struct net_device *failover_dev;
+> +	struct failover *failover;
+> +
+> +	spin_lock(&failover_lock);
+> +	list_for_each_entry(failover, &failover_list, list) {
+> +		failover_dev = rtnl_dereference(failover->failover_dev);
+> +		if (ether_addr_equal(failover_dev->perm_addr, mac)) {
+> +			*ops = rtnl_dereference(failover->ops);
+> +			spin_unlock(&failover_lock);
+> +			return failover_dev;
+> +		}
+> +	}
+> +	spin_unlock(&failover_lock);
+> +	return NULL;
+> +}
 
-I think the device won't and shouldn't be allowed to
-poke at kernel memory. Its kernel driver needs some
-kernel memory to work. But the device doesn't have
-the access to them. Instead, the device only has the
-access to:
+So it bothers me that this ties to just any device at all.
 
-(1) the entire memory of the VM (if vIOMMU isn't used)
-or
-(2) the memory belongs to the guest virtio device (if
-    vIOMMU is being used).
+I thought hard about it, and I see a nice solution.
+Here goes:
 
-Below is the reason:
+QEMU has a pci-bridge-seat device. It is used currently to
+group e.g. input devices for multiseat support.
 
-For the first case, we should program the IOMMU for
-the hardware device based on the info in the memory
-table which is the entire memory of the VM.
+Now if you squint at it hard enough, you can see we are also
+in a grouping problem. So how about the following:
 
-For the second case, we should program the IOMMU for
-the hardware device based on the info in the shadow
-page table of the vIOMMU.
+1. allocate a virtio pci bridge device failover grouping id (reserve through virtio TC).
+2. only group two devices in a failover configuration if both
+   are under the same bridge with this id (in addition to a mac check).
 
-So the memory can be accessed by the device is limited,
-it should be safe especially for the second case.
+In particular a bridged configuration makes it easier to
+make sure the standby is enumerated before the primary.
+In fact we could fail init of failover if we see
+appear standby *after* primary.
 
-My concern is that, in this RFC, we don't program the
-IOMMU for the mdev device in the userspace via the VFIO
-API directly. Instead, we pass the memory table to the
-kernel driver via the mdev device (BAR0) and ask the
-driver to do the IOMMU programming. Someone may don't
-like it. The main reason why we don't program IOMMU via
-VFIO API in userspace directly is that, currently IOMMU
-drivers don't support mdev bus.
+And this allows many devices with the same ethernet address
+without any issues - just under separate bridges.
 
-> 
-> Yes, maybe if device is not buggy it's all fine, but
-> it's better if we do not have to trust the device
-> otherwise the security picture becomes more murky.
-> 
-> I suggested attaching a PASID to (some) queues - see my old post "using
-> PASIDs to enable a safe variant of direct ring access".
+Further if we ever want to enumerate in parallel this can
+be supported by adding a driver for the bridge.
 
-It's pretty cool. We also have some similar ideas.
-Cunming will talk more about this.
+In fact, I see how down the road such a device could
+be the beginning of the more ambitious plan to
+expose a powerful switchdev interface for
+more advanced 
 
-Best regards,
-Tiwei Bie
 
-> 
-> Then using IOMMU with VFIO to limit access through queue to corrent
-> ranges of memory.
-> 
-> 
-> -- 
-> MST
+So far so good, but I see a couple of issues:
+
+- it is PCI specific
+	 Not a big deal: we limit ourselves to PCI anyway ATM.
+
+- does not work across PCI domains - which are helpful for NUMA
+  (e.g. we want to be able to move to primary
+   which is on a different numa
+   node without losing connectivity).
+
+	Idea: add a "group ID" register to each of these pci bridge
+	devices (e.g. in device specific config space).
+	Match two bridges if they have the same group ID.
+
+- all these extra bridges slow enumeration down somewhat
+
+	Idea: as a fallback if no bridge is found,
+	just assume all devices match, which will result
+	in falling back on the "match by mac" logic like in
+	this patchset. Will be fine for simple setups.
+	
+
+Thoughts?
+
+-- 
+MST
