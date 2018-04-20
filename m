@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 2/6] virtio: add ability to iterate over vqs
-Date: Fri, 20 Apr 2018 21:18:02 +0300
-Message-ID: <1524248223-393618-3-git-send-email-mst__31870.8040206277$1524248182$gmane$org@redhat.com>
+Subject: [PATCH 1/6] virtio_console: don't tie bufs to a vq
+Date: Fri, 20 Apr 2018 21:18:01 +0300
+Message-ID: <1524248223-393618-2-git-send-email-mst@redhat.com>
 References: <1524248223-393618-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,27 +22,74 @@ To: linux-kernel@vger.kernel.org
 Cc: Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-For cleanup it's helpful to be able to simply scan all vqs and discard
-all data. Add an iterator to do that.
+an allocated buffer doesn't need to be tied to a vq -
+only vq->vdev is ever used. Pass the function the
+just what it needs - the vdev.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/virtio.h | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/char/virtio_console.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 988c735..fa1b5da 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -157,6 +157,9 @@ int virtio_device_freeze(struct virtio_device *dev);
- int virtio_device_restore(struct virtio_device *dev);
- #endif
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 468f061..3e56f32 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -422,7 +422,7 @@ static void reclaim_dma_bufs(void)
+ 	}
+ }
  
-+#define virtio_device_for_each_vq(vdev, vq) \
-+	list_for_each_entry(vq, &vdev->vqs, list)
-+
- /**
-  * virtio_driver - operations for a virtio I/O driver
-  * @driver: underlying device driver (populate name and owner).
+-static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
++static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size,
+ 				     int pages)
+ {
+ 	struct port_buffer *buf;
+@@ -445,16 +445,16 @@ static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
+ 		return buf;
+ 	}
+ 
+-	if (is_rproc_serial(vq->vdev)) {
++	if (is_rproc_serial(vdev)) {
+ 		/*
+ 		 * Allocate DMA memory from ancestor. When a virtio
+ 		 * device is created by remoteproc, the DMA memory is
+ 		 * associated with the grandparent device:
+ 		 * vdev => rproc => platform-dev.
+ 		 */
+-		if (!vq->vdev->dev.parent || !vq->vdev->dev.parent->parent)
++		if (!vdev->dev.parent || !vdev->dev.parent->parent)
+ 			goto free_buf;
+-		buf->dev = vq->vdev->dev.parent->parent;
++		buf->dev = vdev->dev.parent->parent;
+ 
+ 		/* Increase device refcnt to avoid freeing it */
+ 		get_device(buf->dev);
+@@ -838,7 +838,7 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
+ 
+ 	count = min((size_t)(32 * 1024), count);
+ 
+-	buf = alloc_buf(port->out_vq, count, 0);
++	buf = alloc_buf(port->portdev->vdev, count, 0);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+@@ -957,7 +957,7 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
+ 	if (ret < 0)
+ 		goto error_out;
+ 
+-	buf = alloc_buf(port->out_vq, 0, pipe->nrbufs);
++	buf = alloc_buf(port->portdev->vdev, 0, pipe->nrbufs);
+ 	if (!buf) {
+ 		ret = -ENOMEM;
+ 		goto error_out;
+@@ -1374,7 +1374,7 @@ static unsigned int fill_queue(struct virtqueue *vq, spinlock_t *lock)
+ 
+ 	nr_added_bufs = 0;
+ 	do {
+-		buf = alloc_buf(vq, PAGE_SIZE, 0);
++		buf = alloc_buf(vq->vdev, PAGE_SIZE, 0);
+ 		if (!buf)
+ 			break;
+ 
 -- 
 MST
