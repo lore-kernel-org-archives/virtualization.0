@@ -1,20 +1,12 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
-Date: Thu, 19 Apr 2018 16:22:50 -0700
-Message-ID: <20180419162250.00bf82e2c40b4960a7e23cdc__16763.0609278151$1524180072$gmane$org@linux-foundation.org>
-References: <alpine.LRH.2.02.1804181029270.19294@file01.intranet.prod.int.rdu2.redhat.com>
-	<3e65977e-53cd-bf09-bc4b-0ce40e9091fe@gmail.com>
-	<alpine.LRH.2.02.1804181218270.19136@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180418.134651.2225112489265654270.davem@davemloft.net>
-	<alpine.LRH.2.02.1804181350050.17942@file01.intranet.prod.int.rdu2.redhat.com>
-	<alpine.LRH.2.02.1804191207380.31175@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180419124751.8884e516e99825d83da3d87a@linux-foundation.org>
-	<alpine.LRH.2.02.1804191716100.10099@file01.intranet.prod.int.rdu2.redhat.com>
+From: Sridhar Samudrala <sridhar.samudrala@intel.com>
+Subject: [PATCH net-next v7 0/4] Enable virtio_net to act as a standby for a
+	passthru device
+Date: Thu, 19 Apr 2018 18:42:00 -0700
+Message-ID: <1524188524-28411-1-git-send-email-sridhar.samudrala__36654.3663353243$1524188425$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.LRH.2.02.1804191716100.10099@file01.intranet.prod.int.rdu2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,69 +16,118 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, edumazet@google.com, bhutchings@solarflare.com, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
+To: mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, kubakici@wp.pl, sridhar.samudrala@intel.com, jasowang@redhat.com, loseweigh@gmail.com, jiri@resnulli.us
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 19 Apr 2018 17:19:20 -0400 (EDT) Mikulas Patocka <mpatocka@redhat.com> wrote:
+The main motivation for this patch is to enable cloud service providers
+to provide an accelerated datapath to virtio-net enabled VMs in a 
+transparent manner with no/minimal guest userspace changes. This also
+enables hypervisor controlled live migration to be supported with VMs that
+have direct attached SR-IOV VF devices.
 
-> > > In order to detect these bugs reliably I submit this patch that changes
-> > > kvmalloc to always use vmalloc if CONFIG_DEBUG_VM is turned on.
-> > > 
-> > > ...
-> > >
-> > > --- linux-2.6.orig/mm/util.c	2018-04-18 15:46:23.000000000 +0200
-> > > +++ linux-2.6/mm/util.c	2018-04-18 16:00:43.000000000 +0200
-> > > @@ -395,6 +395,7 @@ EXPORT_SYMBOL(vm_mmap);
-> > >   */
-> > >  void *kvmalloc_node(size_t size, gfp_t flags, int node)
-> > >  {
-> > > +#ifndef CONFIG_DEBUG_VM
-> > >  	gfp_t kmalloc_flags = flags;
-> > >  	void *ret;
-> > >  
-> > > @@ -426,6 +427,7 @@ void *kvmalloc_node(size_t size, gfp_t f
-> > >  	 */
-> > >  	if (ret || size <= PAGE_SIZE)
-> > >  		return ret;
-> > > +#endif
-> > >  
-> > >  	return __vmalloc_node_flags_caller(size, node, flags,
-> > >  			__builtin_return_address(0));
-> > 
-> > Well, it doesn't have to be done at compile-time, does it?  We could
-> > add a knob (in debugfs, presumably) which enables this at runtime. 
-> > That's far more user-friendly.
-> 
-> But who will turn it on in debugfs?
+Patch 1 introduces a new feature bit VIRTIO_NET_F_STANDBY that can be
+used by hypervisor to indicate that virtio_net interface should act as
+a standby for another device with the same MAC address.
 
-But who will turn it on in Kconfig?  Just a handful of developers.  We
-could add SONFIG_DEBUG_SG to the list in
-Documentation/process/submit-checklist.rst, but nobody reads that.
+Patch 2 introduces a failover module that provides a generic interface for 
+paravirtual drivers to listen for netdev register/unregister/link change
+events from pci ethernet devices with the same MAC and takeover their
+datapath. The notifier and event handling code is based on the existing
+netvsc implementation. It provides 2 sets of interfaces to paravirtual 
+drivers to support 2-netdev(netvsc) and 3-netdev(virtio_net) models.
 
-Also, a whole bunch of defconfigs set CONFIG_DEBUG_SG=y and some
-googling indicates that they aren't the only ones...
+Patch 3 extends virtio_net to use alternate datapath when available and
+registered. When STANDBY feature is enabled, virtio_net driver creates
+an additional 'failover' netdev that acts as a master device and controls
+2 slave devices.  The original virtio_net netdev is registered as
+'standby' netdev and a passthru/vf device with the same MAC gets
+registered as 'primary' netdev. Both 'standby' and 'primary' netdevs are
+associated with the same 'pci' device.  The user accesses the network
+interface via 'failover' netdev. The 'failover' netdev chooses 'primary'
+netdev as default for transmits when it is available with link up and
+running.
 
-> It should be default for debugging 
-> kernels, so that users using them would report the error.
+Patch 4 refactors netvsc to use the registration/notification framework
+supported by failover module.
 
-Well.  This isn't the first time we've wanted to enable expensive (or
-noisy) debugging things in debug kernels, by any means.
+As this patch series is initially focusing on usecases where hypervisor 
+fully controls the VM networking and the guest is not expected to directly 
+configure any hardware settings, it doesn't expose all the ndo/ethtool ops
+that are supported by virtio_net at this time. To support additional usecases,
+it should be possible to enable additional ops later by caching the state
+in virtio netdev and replaying when the 'primary' netdev gets registered. 
+ 
+The hypervisor needs to enable only one datapath at any time so that packets
+don't get looped back to the VM over the other datapath. When a VF is
+plugged, the virtio datapath link state can be marked as down.
+At the time of live migration, the hypervisor needs to unplug the VF device
+from the guest on the source host and reset the MAC filter of the VF to
+initiate failover of datapath to virtio before starting the migration. After
+the migration is completed, the destination hypervisor sets the MAC filter
+on the VF and plugs it back to the guest to switch over to VF datapath.
 
-So how could we define a debug kernel in which it's OK to enable such
-things?
+This patch is based on the discussion initiated by Jesse on this thread.
+https://marc.info/?l=linux-virtualization&m=151189725224231&w=2
 
-- Could be "it's an -rc kernel".  But then we'd be enabling a bunch of
-  untested code when Linus cuts a release.
+v7
+- Rename 'bypass/active/backup' terminology with 'failover/primary/standy'
+  (jiri, mst)
+- re-arranged dev_open() and dev_set_mtu() calls in the register routines
+  so that they don't get called for 2-netdev model. (stephen)
+- fixed select_queue() routine to do queue selection based on VF if it is
+  registered as primary. (stephen)
+-  minor bugfixes
 
-- Could be "it's an -rc kernel with SUBLEVEL <= 5".  But then we risk
-  unexpected things happening when Linux cuts -rc6, which still isn't
-  good.
+v6 RFC:
+  Simplified virtio_net changes by moving all the ndo_ops of the 
+  bypass_netdev and create/destroy of bypass_netdev to 'bypass' module.
+  avoided 2 phase registration(driver + instances).
+  introduced IFF_BYPASS/IFF_BYPASS_SLAVE dev->priv_flags 
+  replaced mutex with a spinlock
 
-- How about "it's an -rc kernel with odd-numbered SUBLEVEL and
-  SUBLEVEL <= 5".  That way everybody who runs -rc1, -rc3 and -rc5 will
-  have kvmalloc debugging enabled.  That's potentially nasty because
-  vmalloc is much slower than kmalloc.  But kvmalloc() is only used for
-  large and probably infrequent allocations, so it's probably OK.
+v5 RFC:
+  Based on Jiri's comments, moved the common functionality to a 'bypass'
+  module so that the same notifier and event handlers to handle child
+  register/unregister/link change events can be shared between virtio_net
+  and netvsc.
+  Improved error handling based on Siwei's comments.
+v4:
+- Based on the review comments on the v3 version of the RFC patch and
+  Jakub's suggestion for the naming issue with 3 netdev solution,
+  proposed 3 netdev in-driver bonding solution for virtio-net.
+v3 RFC:
+- Introduced 3 netdev model and pointed out a couple of issues with
+  that model and proposed 2 netdev model to avoid these issues.
+- Removed broadcast/multicast optimization and only use virtio as
+  backup path when VF is unplugged.
+v2 RFC:
+- Changed VIRTIO_NET_F_MASTER to VIRTIO_NET_F_BACKUP (mst)
+- made a small change to the virtio-net xmit path to only use VF datapath
+  for unicasts. Broadcasts/multicasts use virtio datapath. This avoids
+  east-west broadcasts to go over the PCI link.
+- added suppport for the feature bit in qemu
 
-I wonder how we get at SUBLEVEL from within .c.  
+Sridhar Samudrala (4):
+  virtio_net: Introduce VIRTIO_NET_F_STANDBY feature bit
+  net: Introduce generic failover module
+  virtio_net: Extend virtio to use VF datapath when available
+  netvsc: refactor notifier/event handling code to use the failover
+    framework
+
+ drivers/net/Kconfig             |   1 +
+ drivers/net/hyperv/Kconfig      |   1 +
+ drivers/net/hyperv/hyperv_net.h |   2 +
+ drivers/net/hyperv/netvsc_drv.c | 208 +++-------
+ drivers/net/virtio_net.c        |  38 +-
+ include/linux/netdevice.h       |  16 +
+ include/net/failover.h          |  96 +++++
+ include/uapi/linux/virtio_net.h |   3 +
+ net/Kconfig                     |  18 +
+ net/core/Makefile               |   1 +
+ net/core/failover.c             | 844 ++++++++++++++++++++++++++++++++++++++++
+ 11 files changed, 1070 insertions(+), 158 deletions(-)
+ create mode 100644 include/net/failover.h
+ create mode 100644 net/core/failover.c
+
+-- 
+2.14.3
