@@ -1,18 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC] vhost: introduce mdev based hardware vhost backend
-Date: Fri, 20 Apr 2018 11:52:47 +0800
-Message-ID: <060e2b5f-2e93-c53f-387b-5baaa33e87cd@redhat.com>
-References: <20180402152330.4158-1-tiwei.bie@intel.com>
-	<622f4bd7-1249-5545-dc5a-5a92b64f5c26@redhat.com>
-	<20180410045723.rftsb7l4l3ip2ioi@debian>
-	<30a63fff-7599-640a-361f-a27e5783012a@redhat.com>
-	<20180419212911-mutt-send-email-mst@kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: drm: qxl: what's going on
+Date: Fri, 20 Apr 2018 08:35:02 +0200
+Message-ID: <20180420063502.qasvpb2vg2scs7dr@sirius.home.kraxel.org>
+References: <1804457420.18566346.1524205266780.JavaMail.zimbra@redhat.com>
+	<870348000.18567429.1524205571170.JavaMail.zimbra@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180419212911-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <870348000.18567429.1524205571170.JavaMail.zimbra@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,66 +19,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiao.w.wang@intel.com, ddutile@redhat.com, jianfeng.tan@intel.com, zhihong.wang@intel.com
+To: Chunyu Hu <chuhu@redhat.com>
+Cc: airlied@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDTmnIgyMOaXpSAwMjo0MCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFR1ZSwgQXByIDEwLCAyMDE4IGF0IDAzOjI1OjQ1UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Pj4+IE9uZSBwcm9ibGVtIGlzIHRoYXQsIGRpZmZlcmVudCB2aXJ0aW8gcmluZyBjb21w
-YXRpYmxlIGRldmljZXMKPj4+Pj4gbWF5IGhhdmUgZGlmZmVyZW50IGRldmljZSBpbnRlcmZhY2Vz
-LiBUaGF0IGlzIHRvIHNheSwgd2Ugd2lsbAo+Pj4+PiBuZWVkIGRpZmZlcmVudCBkcml2ZXJzIGlu
-IFFFTVUuIEl0IGNvdWxkIGJlIHRyb3VibGVzb21lLiBBbmQKPj4+Pj4gdGhhdCdzIHdoYXQgdGhp
-cyBwYXRjaCB0cnlpbmcgdG8gZml4LiBUaGUgaWRlYSBiZWhpbmQgdGhpcwo+Pj4+PiBwYXRjaCBp
-cyB2ZXJ5IHNpbXBsZTogbWRldiBpcyBhIHN0YW5kYXJkIHdheSB0byBlbXVsYXRlIGRldmljZQo+
-Pj4+PiBpbiBrZXJuZWwuCj4+Pj4gU28geW91IGp1c3QgbW92ZSB0aGUgYWJzdHJhY3Rpb24gbGF5
-ZXIgZnJvbSBxZW11IHRvIGtlcm5lbCwgYW5kIHlvdSBzdGlsbAo+Pj4+IG5lZWQgZGlmZmVyZW50
-IGRyaXZlcnMgaW4ga2VybmVsIGZvciBkaWZmZXJlbnQgZGV2aWNlIGludGVyZmFjZXMgb2YKPj4+
-PiBhY2NlbGVyYXRvcnMuIFRoaXMgbG9va3MgZXZlbiBtb3JlIGNvbXBsZXggdGhhbiBsZWF2aW5n
-IGl0IGluIHFlbXUuIEFzIHlvdQo+Pj4+IHNhaWQsIGFub3RoZXIgaWRlYSBpcyB0byBpbXBsZW1l
-bnQgdXNlcnNwYWNlIHZob3N0IGJhY2tlbmQgZm9yIGFjY2VsZXJhdG9ycwo+Pj4+IHdoaWNoIHNl
-ZW1zIGVhc2llciBhbmQgY291bGQgY28td29yayB3aXRoIG90aGVyIHBhcnRzIG9mIHFlbXUgd2l0
-aG91dAo+Pj4+IGludmVudGluZyBuZXcgdHlwZSBvZiBtZXNzYWdlcy4KPj4+IEknbSBub3QgcXVp
-dGUgc3VyZS4gRG8geW91IHRoaW5rIGl0J3MgYWNjZXB0YWJsZSB0bwo+Pj4gYWRkIHZhcmlvdXMg
-dmVuZG9yIHNwZWNpZmljIGhhcmR3YXJlIGRyaXZlcnMgaW4gUUVNVT8KPj4+Cj4+IEkgZG9uJ3Qg
-b2JqZWN0IGJ1dCB3ZSBuZWVkIHRvIGZpZ3VyZSBvdXQgdGhlIGFkdmFudGFnZXMgb2YgZG9pbmcg
-aXQgaW4gcWVtdQo+PiB0b28uCj4+Cj4+IFRoYW5rcwo+IFRvIGJlIGZyYW5rIGtlcm5lbCBpcyBl
-eGFjdGx5IHdoZXJlIGRldmljZSBkcml2ZXJzIGJlbG9uZy4gIERQREsgZGlkCj4gbW92ZSB0aGVt
-IHRvIHVzZXJzcGFjZSBidXQgdGhhdCdzIG1lcmVseSBhIHJlcXVpcmVtZW50IGZvciBkYXRhIHBh
-dGguCj4gKklmKiB5b3UgY2FuIGhhdmUgdGhlbSBpbiBrZXJuZWwgdGhhdCBpcyBiZXN0Ogo+IC0g
-dXBkYXRlIGtlcm5lbCBhbmQgdGhlcmUncyBubyBuZWVkIHRvIHJlYnVpbGQgdXNlcnNwYWNlCgpX
-ZWxsLCB5b3Ugc3RpbGwgbmVlZCB0byByZWJ1aWxkIHVzZXJzcGFjZSBzaW5jZSBhIG5ldyB2aG9z
-dCBiYWNrZW5kIGlzIApyZXF1aXJlZCB3aGljaCByZWxpZXMgdmhvc3QgcHJvdG9jb2wgdGhyb3Vn
-aCBtZGV2IEFQSS4gQW5kIEkgYmVsaWV2ZSAKdXBncmFkaW5nIHVzZXJzcGFjZSBwYWNrYWdlIGlz
-IGNvbnNpZGVyZWQgdG8gYmUgbW9yZSBsaWdodHdlaWdodCB0aGFuIAp1cGdyYWRpbmcga2VybmVs
-LiBXaXRoIG1kZXYsIHdlJ3JlIGxpa2VseSB0byByZXBlYXQgdGhlIHN0b3J5IG9mIHZob3N0IApB
-UEksIGRlYWxpbmcgd2l0aCBmZWF0dXJlcy92ZXJzaW9ucyBhbmQgaW52ZW50aW5nIG5ldyBBUEkg
-ZW5kbGVzcyBmb3IgCm5ldyBmZWF0dXJlcy4gQW5kIHlvdSB3aWxsIHN0aWxsIG5lZWQgdG8gcmVi
-dWlsZCB0aGUgdXNlcnNwYWNlLgoKPiAtIGFwcHMgY2FuIGJlIHdyaXR0ZW4gaW4gYW55IGxhbmd1
-YWdlIG5vIG5lZWQgdG8gbWFpbnRhaW4gbXVsdGlwbGUKPiAgICBsaWJyYXJpZXMgb3IgYWRkIHdy
-YXBwZXJzCgpUaGlzIGlzIG5vdCBhIGJpZyBpc3N1ZSBjb25zaWRlciBJdCdzIG5vdCBhIGdlbmVy
-aWMgbmV0d29yayBkcml2ZXIgYnV0IGEgCm1kZXYgZHJpdmVyLCB0aGUgb25seSBwb3NzaWJsZSB1
-c2VyIGlzIFZNLgoKPiAtIHNlY3VyaXR5IGNvbmNlcm5zIGFyZSBtdWNoIHNtYWxsZXIgKG9rIHBl
-b3BsZSBhcmUgdHJ5aW5nIHRvCj4gICAgcmFpc2UgdGhlIGJhciB3aXRoIElPTU1VcyBhbmQgc3Vj
-aCwgYnV0IGl0J3MgYWxyZWFkeSBwcmV0dHkKPiAgICBnb29kIGV2ZW4gd2l0aG91dCkKCldlbGws
-IEkgdGhpbmsgbm90LCBrZXJuZWwgYnVncyBhcmUgbXVjaCBtb3JlIHNlcmlvdXMgdGhhbiB1c2Vy
-c3BhY2UgCm9uZXMuIEFuZCBJIGJlZyB0aGUga2VybmVsIGRyaXZlciBpdHNlbGYgd29uJ3QgYmUg
-c21hbGwuCgo+Cj4gVGhlIGJpZ2dlc3QgaXNzdWUgaXMgdGhhdCB5b3UgbGV0IHVzZXJzcGFjZSBw
-b2tlIGF0IHRoZQo+IGRldmljZSB3aGljaCBpcyBhbHNvIGFsbG93ZWQgYnkgdGhlIElPTU1VIHRv
-IHBva2UgYXQKPiBrZXJuZWwgbWVtb3J5IChuZWVkZWQgZm9yIGtlcm5lbCBkcml2ZXIgdG8gd29y
-aykuCgpJIGRvbid0IHF1aXRlIGdldC4gVGhlIHVzZXJzcGFjZSBkcml2ZXIgY291bGQgYmUgYnVp
-bHQgb24gdG9wIG9mIFZGSU8gCmZvciBzdXJlLiBTbyBrZXJuZWwgbWVtb3J5IHdlcmUgcGVyZmVj
-dGx5IGlzb2xhdGVkIGluIHRoaXMgY2FzZS4KCj4KPiBZZXMsIG1heWJlIGlmIGRldmljZSBpcyBu
-b3QgYnVnZ3kgaXQncyBhbGwgZmluZSwgYnV0Cj4gaXQncyBiZXR0ZXIgaWYgd2UgZG8gbm90IGhh
-dmUgdG8gdHJ1c3QgdGhlIGRldmljZQo+IG90aGVyd2lzZSB0aGUgc2VjdXJpdHkgcGljdHVyZSBi
-ZWNvbWVzIG1vcmUgbXVya3kuCj4KPiBJIHN1Z2dlc3RlZCBhdHRhY2hpbmcgYSBQQVNJRCB0byAo
-c29tZSkgcXVldWVzIC0gc2VlIG15IG9sZCBwb3N0ICJ1c2luZwo+IFBBU0lEcyB0byBlbmFibGUg
-YSBzYWZlIHZhcmlhbnQgb2YgZGlyZWN0IHJpbmcgYWNjZXNzIi4KPgo+IFRoZW4gdXNpbmcgSU9N
-TVUgd2l0aCBWRklPIHRvIGxpbWl0IGFjY2VzcyB0aHJvdWdoIHF1ZXVlIHRvIGNvcnJlbnQKPiBy
-YW5nZXMgb2YgbWVtb3J5LgoKV2VsbCB1c2Vyc3BhY2UgZHJpdmVyIGNvdWxkIGJlbmVmaXQgZnJv
-bSB0aGlzIHRvby4gQW5kIHdlIGNhbiBldmVuIGdvIApmdXJ0aGVyIGJ5IHVzaW5nIG5lc3RlZCBJ
-TyBwYWdlIHRhYmxlcyB0byBzaGFyZSBJT1ZBIGFkZHJlc3Mgc3BhY2UgCmJldHdlZW4gZGV2aWNl
-cyBhbmQgYSBWTS4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Fri, Apr 20, 2018 at 02:26:11AM -0400, Chunyu Hu wrote:
+> Hello,
+> 
+> I am seeing qxl driver is not working in my kvm machine with kernel 4.17,
+> (4.16 failed too). I'd like to consult your expert is there a fix for it
+> now? 
+
+https://www.kraxel.org/cgit/linux/log/?h=drm-qxl-release
+
+cheers,
+  Gerd
