@@ -1,23 +1,13 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH] kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
-Date: Sat, 21 Apr 2018 07:47:57 -0700
-Message-ID: <20180421144757.GC14610__29882.1359560408$1524321976$gmane$org@bombadil.infradead.org>
-References: <alpine.LRH.2.02.1804181029270.19294@file01.intranet.prod.int.rdu2.redhat.com>
-	<3e65977e-53cd-bf09-bc4b-0ce40e9091fe@gmail.com>
-	<alpine.LRH.2.02.1804181218270.19136@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180418.134651.2225112489265654270.davem@davemloft.net>
-	<alpine.LRH.2.02.1804181350050.17942@file01.intranet.prod.int.rdu2.redhat.com>
-	<alpine.LRH.2.02.1804191207380.31175@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180420130852.GC16083@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180420210200.GH10788@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804201704580.25408@file01.intranet.prod.int.rdu2.redhat.com>
+From: Anup Patel <anup@brainfault.org>
+Subject: Re: virtio remoteproc device
+Date: Sun, 22 Apr 2018 09:38:10 +0530
+Message-ID: <CAAhSdy2JncLrpc0WUoBtB4g+bnGtUWiFOS=sxnTF9fkw9a3UnQ@mail.gmail.com>
+References: <20180420194321-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LRH.2.02.1804201704580.25408@file01.intranet.prod.int.rdu2.redhat.com>
+In-Reply-To: <20180420194321-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,56 +17,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, edumazet@google.com, bhutchings@solarflare.com, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Ohad Ben-Cohen <ohad@wizery.com>, virtualization@lists.linux-foundation.org, linux-remoteproc@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 20, 2018 at 05:21:26PM -0400, Mikulas Patocka wrote:
-> On Fri, 20 Apr 2018, Matthew Wilcox wrote:
-> > On Fri, Apr 20, 2018 at 04:54:53PM -0400, Mikulas Patocka wrote:
-> > > On Fri, 20 Apr 2018, Michal Hocko wrote:
-> > > > No way. This is just wrong! First of all, you will explode most likely
-> > > > on many allocations of small sizes. Second, CONFIG_DEBUG_VM tends to be
-> > > > enabled quite often.
-> > > 
-> > > You're an evil person who doesn't want to fix bugs.
-> > 
-> > Steady on.  There's no need for that.  Michal isn't evil.  Please
-> > apologise.
-> 
-> I see this attitude from Michal again and again.
-
-Fine; then *say that*.  I also see Michal saying "No" a lot.  Sometimes
-I agree with him, sometimes I don't.  I think he genuinely wants the best
-code in the kernel, and saying "No" is part of it.
-
-> He didn't want to fix vmalloc(GFP_NOIO)
-
-I don't remember that conversation, so I don't know whether I agree with
-his reasoning or not.  But we are supposed to be moving away from GFP_NOIO
-towards marking regions with memalloc_noio_save() / restore.  If you do
-that, you won't need vmalloc(GFP_NOIO).
-
-> he didn't want to fix alloc_pages sleeping when __GFP_NORETRY is used.
-
-The GFP flags are a mess, still.
-
-> So what should I say? Fix them and 
-> you won't be evil :-)
-
-No, you should reserve calling somebody evil for truly evil things.
-
-> (he could also fix the oom killer, so that it is triggered when 
-> free_memory+cache+free_swap goes beyond a threshold and not when you loop 
-> too long in the allocator)
-
-... that also doesn't make somebody evil.
-
-> I already said that we can change it from CONFIG_DEBUG_VM to 
-> CONFIG_DEBUG_SG - or to whatever other option you may want, just to make 
-> sure that it is enabled in distro debug kernels by default.
-
-Yes, and I think that's the right idea.  So send a v2 and ignore the
-replies that are clearly relating to an earlier version of the patch.
-Not everybody reads every mail in the thread before responding to one they
-find interesting.  Yes, ideally, one would, but sometimes one doesn't.
+T24gRnJpLCBBcHIgMjAsIDIwMTggYXQgMTA6MjMgUE0sIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0
+QHJlZGhhdC5jb20+IHdyb3RlOgo+IEhlbGxvIQo+IEkgbm90ZSB0aGUgZm9sbG93aW5nIGluIHRo
+ZSBzZXJpYWwgY29uc29sZToKPgo+ICAgICAgIGlmIChpc19ycHJvY19zZXJpYWwodmRldikpIHsK
+PiAgICAgICAgICAgICAgICAgLyoKPiAgICAgICAgICAgICAgICAgICogQWxsb2NhdGUgRE1BIG1l
+bW9yeSBmcm9tIGFuY2VzdG9yLiBXaGVuIGEgdmlydGlvCj4gICAgICAgICAgICAgICAgICAqIGRl
+dmljZSBpcyBjcmVhdGVkIGJ5IHJlbW90ZXByb2MsIHRoZSBETUEgbWVtb3J5IGlzCj4gICAgICAg
+ICAgICAgICAgICAqIGFzc29jaWF0ZWQgd2l0aCB0aGUgZ3JhbmRwYXJlbnQgZGV2aWNlOgo+ICAg
+ICAgICAgICAgICAgICAgKiB2ZGV2ID0+IHJwcm9jID0+IHBsYXRmb3JtLWRldi4KPiAgICAgICAg
+ICAgICAgICAgICovCj4gICAgICAgICAgICAgICAgIGlmICghdmRldi0+ZGV2LnBhcmVudCB8fCAh
+dmRldi0+ZGV2LnBhcmVudC0+cGFyZW50KQo+ICAgICAgICAgICAgICAgICAgICAgICAgIGdvdG8g
+ZnJlZV9idWY7Cj4gICAgICAgICAgICAgICAgIGJ1Zi0+ZGV2ID0gdmRldi0+ZGV2LnBhcmVudC0+
+cGFyZW50Owo+Cj4gICAgICAgICAgICAgICAgIC8qIEluY3JlYXNlIGRldmljZSByZWZjbnQgdG8g
+YXZvaWQgZnJlZWluZyBpdCAqLwo+ICAgICAgICAgICAgICAgICBnZXRfZGV2aWNlKGJ1Zi0+ZGV2
+KTsKPiAgICAgICAgICAgICAgICAgYnVmLT5idWYgPSBkbWFfYWxsb2NfY29oZXJlbnQoYnVmLT5k
+ZXYsIGJ1Zl9zaXplLCAmYnVmLT5kbWEsCj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIEdGUF9LRVJORUwpOwo+ICAgICAgICAgfQo+Cj4gQWRkZWQgaGVyZToK
+PiAgICAgICAgIGNvbW1pdCAxYjYzNzA0NjNlODhiMGMxYzMxN2RlMTZkN2I5NjJhY2MxZGFiNGYy
+Cj4gICAgICAgICBBdXRob3I6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVy
+aWNzc29uLmNvbT4KPiAgICAgICAgIERhdGU6ICAgRnJpIERlYyAxNCAxNDo0MDo1MSAyMDEyICsx
+MDMwCj4KPiAgICAgdmlydGlvX2NvbnNvbGU6IEFkZCBzdXBwb3J0IGZvciByZW1vdGVwcm9jIHNl
+cmlhbAo+Cj4KPiBJIGFtIG5vdCBmYW1pbGlhciB3aXRoIHJwcm9jIHNvIEkgaGF2ZSBhIHF1ZXN0
+aW9uOgo+IHdoeSBpcyBpdCByZXF1aXJlZCB0byB1c2UgY29oZXJlbnQgbWVtb3J5IGhlcmUsCj4g
+YW5kIHdoeSB0aHJvdWdoIGEgZ3JhbmRwYXJlbnQgZGV2aWNlPwoKSSBmYWNlZCBzaW1pbGFyIGlz
+c3VlIHdoZW4gSSB0cmllZCBWaXJ0SU8gUlBNU0cgYnVzIG92ZXIKVmlydElPIE1NSU8gdHJhbnNw
+b3J0LgoKSGVyZSdzIG15IGZpeCBmb3IgVmlydElPIFJQTVNHIGJ1cyBkcml2ZXI6Cmh0dHBzOi8v
+cGF0Y2h3b3JrLmtlcm5lbC5vcmcvcGF0Y2gvMTAxNTUxNDUvCgpSZWdhcmRzLApBbnVwCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
