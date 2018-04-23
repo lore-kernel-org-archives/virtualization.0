@@ -1,8 +1,8 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jiri Pirko <jiri@resnulli.us>
 Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event handling
 	code to use the failover framework
-Date: Mon, 23 Apr 2018 20:24:56 +0300
-Message-ID: <20180423202204-mutt-send-email-mst__4198.96972966871$1524504183$gmane$org@kernel.org>
+Date: Mon, 23 Apr 2018 19:25:50 +0200
+Message-ID: <20180423172550.GF3585__41184.7879797735$1524504246$gmane$org@nanopsycho.orion>
 References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
 	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
 	<20180420082802.6ca37e4c@xeon-e3>
@@ -24,29 +24,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, davem@davemloft.net
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:
-> > >
-> > >I will NAK patches to change to common code for netvsc especially the
-> > >three device model.  MS worked hard with distro vendors to support transparent
-> > >mode, ans we really can't have a new model; or do backport.
-> > >
-> > >Plus, DPDK is now dependent on existing model.  
-> > 
-> > Sorry, but nobody here cares about dpdk or other similar oddities.
-> 
-> The network device model is a userspace API, and DPDK is a userspace application.
+Mon, Apr 23, 2018 at 07:04:06PM CEST, stephen@networkplumber.org wrote:
+>On Fri, 20 Apr 2018 18:00:58 +0200
+>Jiri Pirko <jiri@resnulli.us> wrote:
+>
+>> Fri, Apr 20, 2018 at 05:28:02PM CEST, stephen@networkplumber.org wrote:
+>> >On Thu, 19 Apr 2018 18:42:04 -0700
+>> >Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
+>> >  
+>> >> Use the registration/notification framework supported by the generic
+>> >> failover infrastructure.
+>> >> 
+>> >> Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>  
+>> >
+>> >Do what you want to other devices but leave netvsc alone.
+>> >Adding these failover ops does not reduce the code size, and really is
+>> >no benefit.  The netvsc device driver needs to be backported to several
+>> >other distributions and doing this makes that harder.  
+>> 
+>> We should not care about the backport burden when we are trying to make
+>> things right. And things are not right. The current netvsc approach is
+>> just plain wrong shortcut. It should have been done in a generic way
+>> from the very beginning. We are just trying to fix this situation.
+>> 
+>> Moreover, I believe that part of the fix is to convert netvsc to 3
+>> netdev solution too. 2 netdev model is wrong.
+>> 
+>> 
+>> >
+>> >I will NAK patches to change to common code for netvsc especially the
+>> >three device model.  MS worked hard with distro vendors to support transparent
+>> >mode, ans we really can't have a new model; or do backport.
+>> >
+>> >Plus, DPDK is now dependent on existing model.  
+>> 
+>> Sorry, but nobody here cares about dpdk or other similar oddities.
+>
+>The network device model is a userspace API, and DPDK is a userspace application.
+>You can't go breaking userspace even if you don't like the application.
 
-It is userspace but are you sure dpdk is actually poking at netdevs?
-AFAIK it's normally banging device registers directly.
+I don't understand how you can break anything by exposing
+just-another-netdevice. If you break it, it is already broken...
 
-> You can't go breaking userspace even if you don't like the application.
-
-Could you please explain how is the proposed patchset breaking
-userspace? Ignoring DPDK for now, I don't think it changes the userspace
-API at all.
-
--- 
-MST
+And how you can break anything in userspace by doing refactoring inside
+the kernel is puzzling me even more...
