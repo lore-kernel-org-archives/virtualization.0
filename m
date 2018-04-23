@@ -1,21 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
-Date: Mon, 23 Apr 2018 18:25:57 +0300
-Message-ID: <20180423181250-mutt-send-email-mst__30141.5422386073$1524497041$gmane$org@kernel.org>
-References: <alpine.LRH.2.02.1804181029270.19294@file01.intranet.prod.int.rdu2.redhat.com>
-	<3e65977e-53cd-bf09-bc4b-0ce40e9091fe@gmail.com>
-	<alpine.LRH.2.02.1804181218270.19136@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180418.134651.2225112489265654270.davem@davemloft.net>
-	<alpine.LRH.2.02.1804181350050.17942@file01.intranet.prod.int.rdu2.redhat.com>
-	<alpine.LRH.2.02.1804191207380.31175@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180420114712.GB10788@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804200817230.22382@file01.intranet.prod.int.rdu2.redhat.com>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event
+	handling code to use the failover framework
+Date: Mon, 23 Apr 2018 10:04:06 -0700
+Message-ID: <20180423100406.71b95f74__4325.24701250276$1524502936$gmane$org@xeon-e3>
+References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
+	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
+	<20180420082802.6ca37e4c@xeon-e3>
+	<20180420160058.GB2150@nanopsycho.orion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LRH.2.02.1804200817230.22382@file01.intranet.prod.int.rdu2.redhat.com>
+In-Reply-To: <20180420160058.GB2150@nanopsycho.orion>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,63 +21,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, edumazet@google.com, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 20, 2018 at 08:20:23AM -0400, Mikulas Patocka wrote:
+On Fri, 20 Apr 2018 18:00:58 +0200
+Jiri Pirko <jiri@resnulli.us> wrote:
+
+> Fri, Apr 20, 2018 at 05:28:02PM CEST, stephen@networkplumber.org wrote:
+> >On Thu, 19 Apr 2018 18:42:04 -0700
+> >Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
+> >  
+> >> Use the registration/notification framework supported by the generic
+> >> failover infrastructure.
+> >> 
+> >> Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>  
+> >
+> >Do what you want to other devices but leave netvsc alone.
+> >Adding these failover ops does not reduce the code size, and really is
+> >no benefit.  The netvsc device driver needs to be backported to several
+> >other distributions and doing this makes that harder.  
+> 
+> We should not care about the backport burden when we are trying to make
+> things right. And things are not right. The current netvsc approach is
+> just plain wrong shortcut. It should have been done in a generic way
+> from the very beginning. We are just trying to fix this situation.
+> 
+> Moreover, I believe that part of the fix is to convert netvsc to 3
+> netdev solution too. 2 netdev model is wrong.
 > 
 > 
-> On Fri, 20 Apr 2018, Matthew Wilcox wrote:
+> >
+> >I will NAK patches to change to common code for netvsc especially the
+> >three device model.  MS worked hard with distro vendors to support transparent
+> >mode, ans we really can't have a new model; or do backport.
+> >
+> >Plus, DPDK is now dependent on existing model.  
 > 
-> > On Thu, Apr 19, 2018 at 12:12:38PM -0400, Mikulas Patocka wrote:
-> > > Unfortunatelly, some kernel code has bugs - it uses kvmalloc and then
-> > > uses DMA-API on the returned memory or frees it with kfree. Such bugs were
-> > > found in the virtio-net driver, dm-integrity or RHEL7 powerpc-specific
-> > > code.
-> > 
-> > Maybe it's time to have the SG code handle vmalloced pages?  This is
-> > becoming more and more common with vmapped stacks (and some of our
-> > workarounds are hideous -- allocate 4 bytes with kmalloc because we can't
-> > DMA onto the stack any more?).  We already have a few places which do
-> > handle sgs of vmalloced addresses, such as the nx crypto driver:
-> > 
-> >         if (is_vmalloc_addr(start_addr))
-> >                 sg_addr = page_to_phys(vmalloc_to_page(start_addr))
-> >                           + offset_in_page(sg_addr);
-> >         else
-> >                 sg_addr = __pa(sg_addr);
-> > 
-> > and videobuf:
-> > 
-> >                 pg = vmalloc_to_page(virt);
-> >                 if (NULL == pg)
-> >                         goto err;
-> >                 BUG_ON(page_to_pfn(pg) >= (1 << (32 - PAGE_SHIFT)));
-> >                 sg_set_page(&sglist[i], pg, PAGE_SIZE, 0);
-> > 
-> > Yes, there's the potential that we have to produce two SG entries for a
-> > virtually contiguous region if it crosses a page boundary, and our APIs
-> > aren't set up right to make it happen.  But this is something we should
-> > consider fixing ... otherwise we'll end up with dozens of driver hacks.
-> > The videobuf implementation was already copy-and-pasted into the saa7146
-> > driver, for example.
-> 
-> What if the device requires physically contiguous area and the vmalloc 
-> area crosses a page? Will you use a bounce buffer? Where do you allocate 
-> the bounce buffer from? What if you run out of bounce buffers?
-> 
-> Mikulkas
+> Sorry, but nobody here cares about dpdk or other similar oddities.
 
-I agree with Matthew here.
-
-4 byte variables are typically size aligned so won't cross a boundary.
-
-That's enough for virtio at least. People using structs can force
-alignment.
-
-We could wrap access in a macro (sizeof(x) >= alignof(x)) to help
-guarantee that.
-
--- 
-MST
+The network device model is a userspace API, and DPDK is a userspace application.
+You can't go breaking userspace even if you don't like the application.
