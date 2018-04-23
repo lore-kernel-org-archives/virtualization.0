@@ -1,16 +1,17 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [RFC V3 PATCH 0/8] Packed ring for vhost
-Date: Mon, 23 Apr 2018 16:11:51 -0400
-Message-ID: <20180423201151.GD5215@char.us.oracle.com>
-References: <1524461700-5469-1-git-send-email-jasowang@redhat.com>
-	<20180423193120.GD30033@char.us.oracle.com>
-	<20180423224715-mutt-send-email-mst@kernel.org>
+From: Loic PALLARDY <loic.pallardy@st.com>
+Subject: RE: virtio remoteproc device
+Date: Mon, 23 Apr 2018 20:45:57 +0000
+Message-ID: <6207f230555b46a99f85a6a7c18155bd@SFHDAG7NODE2.st.com>
+References: <20180420194321-mutt-send-email-mst@kernel.org>
+	<CAAhSdy2JncLrpc0WUoBtB4g+bnGtUWiFOS=sxnTF9fkw9a3UnQ@mail.gmail.com>
+	<1d7df45a692b42bd9d70462e0af63ca9@SFHDAG7NODE2.st.com>
+	<20180423223717-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180423224715-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180423223717-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,75 +22,171 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+Cc: Ohad Ben-Cohen <ohad@wizery.com>, Anup Patel <anup@brainfault.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 23, 2018 at 10:59:43PM +0300, Michael S. Tsirkin wrote:
-> On Mon, Apr 23, 2018 at 03:31:20PM -0400, Konrad Rzeszutek Wilk wrote:
-> > On Mon, Apr 23, 2018 at 01:34:52PM +0800, Jason Wang wrote:
-> > > Hi all:
-> > > 
-> > > This RFC implement packed ring layout. The code were tested with
-> > > Tiwei's RFC V2 a thttps://lkml.org/lkml/2018/4/1/48. Some fixups and
-> > > tweaks were needed on top of Tiwei's code to make it run. TCP stream
-> > > and pktgen does not show obvious difference compared with split ring.
-> > 
-> > I have to ask then - what is the benefit of this?
-> 
-> You can use this with dpdk within guest.
-> The DPDK version did see a performance improvement so hopefully with
 
-Is there a link to this performance improvement document?
 
-> future versions this will too.
-> 
-> > > 
-> > > Changes from V2:
-> > > - do not use & in checking desc_event_flags
-> > > - off should be most significant bit
-> > > - remove the workaround of mergeable buffer for dpdk prototype
-> > > - id should be in the last descriptor in the chain
-> > > - keep _F_WRITE for write descriptor when adding used
-> > > - device flags updating should use ADDR_USED type
-> > > - return error on unexpected unavail descriptor in a chain
-> > > - return false in vhost_ve_avail_empty is descriptor is available
-> > > - track last seen avail_wrap_counter
-> > > - correctly examine available descriptor in get_indirect_packed()
-> > > - vhost_idx_diff should return u16 instead of bool
-> > > 
-> > > Changes from V1:
-> > > 
-> > > - Refactor vhost used elem code to avoid open coding on used elem
-> > > - Event suppression support (compile test only).
-> > > - Indirect descriptor support (compile test only).
-> > > - Zerocopy support.
-> > > - vIOMMU support.
-> > > - SCSI/VSOCK support (compile test only).
-> > > - Fix several bugs
-> > > 
-> > > For simplicity, I don't implement batching or other optimizations.
-> > > 
-> > > Please review.
-> > > 
-> > > Jason Wang (8):
-> > >   vhost: move get_rx_bufs to vhost.c
-> > >   vhost: hide used ring layout from device
-> > >   vhost: do not use vring_used_elem
-> > >   vhost_net: do not explicitly manipulate vhost_used_elem
-> > >   vhost: vhost_put_user() can accept metadata type
-> > >   virtio: introduce packed ring defines
-> > >   vhost: packed ring support
-> > >   vhost: event suppression for packed ring
-> > > 
-> > >  drivers/vhost/net.c                | 136 ++----
-> > >  drivers/vhost/scsi.c               |  62 +--
-> > >  drivers/vhost/vhost.c              | 824 ++++++++++++++++++++++++++++++++++---
-> > >  drivers/vhost/vhost.h              |  47 ++-
-> > >  drivers/vhost/vsock.c              |  42 +-
-> > >  include/uapi/linux/virtio_config.h |   9 +
-> > >  include/uapi/linux/virtio_ring.h   |  32 ++
-> > >  7 files changed, 926 insertions(+), 226 deletions(-)
-> > > 
-> > > -- 
-> > > 2.7.4
-> > > 
+> -----Original Message-----
+> From: Michael S. Tsirkin [mailto:mst@redhat.com]
+> Sent: Monday, April 23, 2018 9:41 PM
+> To: Loic PALLARDY <loic.pallardy@st.com>
+> Cc: Anup Patel <anup@brainfault.org>; linux-remoteproc@vger.kernel.org;
+> Ohad Ben-Cohen <ohad@wizery.com>; Bjorn Andersson
+> <bjorn.andersson@linaro.org>; virtualization@lists.linux-foundation.org
+> Subject: Re: virtio remoteproc device
+> =
+
+> On Mon, Apr 23, 2018 at 08:55:57AM +0000, Loic PALLARDY wrote:
+> >
+> >
+> > > -----Original Message-----
+> > > From: linux-remoteproc-owner@vger.kernel.org [mailto:linux-
+> remoteproc-
+> > > owner@vger.kernel.org] On Behalf Of Anup Patel
+> > > Sent: Sunday, April 22, 2018 6:08 AM
+> > > To: Michael S. Tsirkin <mst@redhat.com>
+> > > Cc: linux-remoteproc@vger.kernel.org; Ohad Ben-Cohen
+> > > <ohad@wizery.com>; Bjorn Andersson <bjorn.andersson@linaro.org>;
+> > > virtualization@lists.linux-foundation.org
+> > > Subject: Re: virtio remoteproc device
+> > >
+> > > On Fri, Apr 20, 2018 at 10:23 PM, Michael S. Tsirkin <mst@redhat.com>
+> > > wrote:
+> > > > Hello!
+> > > > I note the following in the serial console:
+> > > >
+> > > >       if (is_rproc_serial(vdev)) {
+> > > >                 /*
+> > > >                  * Allocate DMA memory from ancestor. When a virtio
+> > > >                  * device is created by remoteproc, the DMA memory =
+is
+> > > >                  * associated with the grandparent device:
+> > > >                  * vdev =3D> rproc =3D> platform-dev.
+> > > >                  */
+> > > >                 if (!vdev->dev.parent || !vdev->dev.parent->parent)
+> > > >                         goto free_buf;
+> > > >                 buf->dev =3D vdev->dev.parent->parent;
+> > > >
+> > > >                 /* Increase device refcnt to avoid freeing it */
+> > > >                 get_device(buf->dev);
+> > > >                 buf->buf =3D dma_alloc_coherent(buf->dev, buf_size,=
+ &buf-
+> >dma,
+> > > >                                               GFP_KERNEL);
+> > > >         }
+> > > >
+> > > > Added here:
+> > > >         commit 1b6370463e88b0c1c317de16d7b962acc1dab4f2
+> > > >         Author: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+> > > >         Date:   Fri Dec 14 14:40:51 2012 +1030
+> > > >
+> > > >     virtio_console: Add support for remoteproc serial
+> > > >
+> > > >
+> > > > I am not familiar with rproc so I have a question:
+> > > > why is it required to use coherent memory here,
+> > > > and why through a grandparent device?
+> > >
+> > > I faced similar issue when I tried VirtIO RPMSG bus over
+> > > VirtIO MMIO transport.
+> > >
+> > > Here's my fix for VirtIO RPMSG bus driver:
+> > > https://patchwork.kernel.org/patch/10155145/
+> >
+> > Hi Anup and Michael,
+> >
+> > I pushed a series to modify virtio device allocation in remoteproc. Ple=
+ase
+> see [1].
+> > It allows to remove allocation based on "grand-parent" device in the ca=
+se
+> of virtio device allocated by remoteproc.
+> > Virto_console patch missing, only virtio_rpmsg modification proposed. I=
+ can
+> add it in next version.
+> >
+> > Regards,
+> > Loic
+> >
+> > [1] https://lkml.org/lkml/2018/3/1/644
+> >
+> > >
+> > > Regards,
+> > > Anup
+> > > --
+> > > To unsubscribe from this list: send the line "unsubscribe linux-
+> remoteproc" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> =
+
+> So on top of your patches, can we just force use of DMA API
+> and drop special casting?
+> E.g. maybe something like the below - completely untested - patch?
+> Does it work for you?
+> =
+
+
+Just have a look to VIRTIO_F_IOMMU_PLATFORM usage.
+If we activate it, this will change virtio_ring behavior, allowing to rely =
+on dma api, but need to have deeper look to virtio_console impacts.
+
+For sure, if you remove/disable rproc specific code in virtio_console, allo=
+c_buf will rely on kmalloc instead of dma_alloc_coherent. As some coprocess=
+ors doesn't have access to complete memory map and in some case no access t=
+o DDR memory, buffer copy will have to be done in dedicated vdev memory bef=
+ore adding it to vring.
+Specific rproc case was added to avoid copy and directly using shared memor=
+y for buffer allocation.
+
+Regards,
+Loic
+> =
+
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index 2108551..6c6767c 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -40,7 +40,8 @@
+>  #include <linux/dma-mapping.h>
+>  #include "../tty/hvc/hvc_console.h"
+> =
+
+> -#define is_rproc_enabled IS_ENABLED(CONFIG_REMOTEPROC)
+> +//#define is_rproc_enabled IS_ENABLED(CONFIG_REMOTEPROC)
+> +#define is_rproc_enabled 0
+> =
+
+>  /*
+>   * This is a global struct for storing common data for all the devices
+> diff --git a/drivers/remoteproc/remoteproc_virtio.c
+> b/drivers/remoteproc/remoteproc_virtio.c
+> index b0633fd..4a13ca2 100644
+> --- a/drivers/remoteproc/remoteproc_virtio.c
+> +++ b/drivers/remoteproc/remoteproc_virtio.c
+> @@ -199,7 +199,7 @@ static u64 rproc_virtio_get_features(struct
+> virtio_device *vdev)
+> =
+
+>  	rsc =3D (void *)rvdev->rproc->table_ptr + rvdev->rsc_offset;
+> =
+
+> -	return rsc->dfeatures;
+> +	return rsc->dfeatures | (1ULL << VIRTIO_F_IOMMU_PLATFORM);
+>  }
+> =
+
+>  static int rproc_virtio_finalize_features(struct virtio_device *vdev)
+> @@ -213,7 +213,7 @@ static int rproc_virtio_finalize_features(struct
+> virtio_device *vdev)
+>  	vring_transport_features(vdev);
+> =
+
+>  	/* Make sure we don't have any features > 32 bits! */
+> -	BUG_ON((u32)vdev->features !=3D vdev->features);
+> +	//BUG_ON((u32)vdev->features !=3D vdev->features);
+> =
+
+>  	/*
+>  	 * Remember the finalized features of our vdev, and provide it
