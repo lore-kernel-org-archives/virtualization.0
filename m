@@ -1,21 +1,15 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event handling
-	code to use the failover framework
-Date: Mon, 23 Apr 2018 12:44:39 -0700
-Message-ID: <CADGSJ20ge75T+ddxtUBT4d9m1i3=HLOAHJEoS7Cg0bqnXrutwA__48744.2271122292$1524512569$gmane$org@mail.gmail.com>
-References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
-	<20180420082802.6ca37e4c@xeon-e3>
-	<20180420160058.GB2150@nanopsycho.orion>
-	<20180423100406.71b95f74@xeon-e3>
-	<20180423202204-mutt-send-email-mst@kernel.org>
-	<20180423104440.2fe6cfd2@xeon-e3>
-	<20180423205019-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC V3 PATCH 0/8] Packed ring for vhost
+Date: Mon, 23 Apr 2018 22:59:43 +0300
+Message-ID: <20180423224715-mutt-send-email-mst__47652.9244370342$1524513478$gmane$org@kernel.org>
+References: <1524461700-5469-1-git-send-email-jasowang@redhat.com>
+	<20180423193120.GD30033@char.us.oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180423205019-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180423193120.GD30033@char.us.oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,67 +19,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 23, 2018 at 10:56 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Mon, Apr 23, 2018 at 10:44:40AM -0700, Stephen Hemminger wrote:
->> On Mon, 23 Apr 2018 20:24:56 +0300
->> "Michael S. Tsirkin" <mst@redhat.com> wrote:
->>
->> > On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:
->> > > > >
->> > > > >I will NAK patches to change to common code for netvsc especially the
->> > > > >three device model.  MS worked hard with distro vendors to support transparent
->> > > > >mode, ans we really can't have a new model; or do backport.
->> > > > >
->> > > > >Plus, DPDK is now dependent on existing model.
->> > > >
->> > > > Sorry, but nobody here cares about dpdk or other similar oddities.
->> > >
->> > > The network device model is a userspace API, and DPDK is a userspace application.
->> >
->> > It is userspace but are you sure dpdk is actually poking at netdevs?
->> > AFAIK it's normally banging device registers directly.
->> >
->> > > You can't go breaking userspace even if you don't like the application.
->> >
->> > Could you please explain how is the proposed patchset breaking
->> > userspace? Ignoring DPDK for now, I don't think it changes the userspace
->> > API at all.
->> >
->>
->> The DPDK has a device driver vdev_netvsc which scans the Linux network devices
->> to look for Linux netvsc device and the paired VF device and setup the
->> DPDK environment.  This setup creates a DPDK failsafe (bondingish) instance
->> and sets up TAP support over the Linux netvsc device as well as the Mellanox
->> VF device.
->>
->> So it depends on existing 2 device model. You can't go to a 3 device model
->> or start hiding devices from userspace.
->
-> Okay so how does the existing patch break that? IIUC does not go to
-> a 3 device model since netvsc calls failover_register directly.
->
->> Also, I am working on associating netvsc and VF device based on serial number
->> rather than MAC address. The serial number is how Windows works now, and it makes
->> sense for Linux and Windows to use the same mechanism if possible.
->
-> Maybe we should support same for virtio ...
-> Which serial do you mean? From vpd?
->
-> I guess you will want to keep supporting MAC for old hypervisors?
->
-> It all seems like a reasonable thing to support in the generic core.
+On Mon, Apr 23, 2018 at 03:31:20PM -0400, Konrad Rzeszutek Wilk wrote:
+> On Mon, Apr 23, 2018 at 01:34:52PM +0800, Jason Wang wrote:
+> > Hi all:
+> > 
+> > This RFC implement packed ring layout. The code were tested with
+> > Tiwei's RFC V2 a thttps://lkml.org/lkml/2018/4/1/48. Some fixups and
+> > tweaks were needed on top of Tiwei's code to make it run. TCP stream
+> > and pktgen does not show obvious difference compared with split ring.
+> 
+> I have to ask then - what is the benefit of this?
 
-That's the reason why I chose explicit identifier rather than rely on
-MAC address to bind/pair a device. MAC address can change. Even if it
-can't, malicious guest user can fake MAC address to skip binding.
+You can use this with dpdk within guest.
+The DPDK version did see a performance improvement so hopefully with
+future versions this will too.
 
--Siwei
-
-
->
-> --
-> MST
+> > 
+> > Changes from V2:
+> > - do not use & in checking desc_event_flags
+> > - off should be most significant bit
+> > - remove the workaround of mergeable buffer for dpdk prototype
+> > - id should be in the last descriptor in the chain
+> > - keep _F_WRITE for write descriptor when adding used
+> > - device flags updating should use ADDR_USED type
+> > - return error on unexpected unavail descriptor in a chain
+> > - return false in vhost_ve_avail_empty is descriptor is available
+> > - track last seen avail_wrap_counter
+> > - correctly examine available descriptor in get_indirect_packed()
+> > - vhost_idx_diff should return u16 instead of bool
+> > 
+> > Changes from V1:
+> > 
+> > - Refactor vhost used elem code to avoid open coding on used elem
+> > - Event suppression support (compile test only).
+> > - Indirect descriptor support (compile test only).
+> > - Zerocopy support.
+> > - vIOMMU support.
+> > - SCSI/VSOCK support (compile test only).
+> > - Fix several bugs
+> > 
+> > For simplicity, I don't implement batching or other optimizations.
+> > 
+> > Please review.
+> > 
+> > Jason Wang (8):
+> >   vhost: move get_rx_bufs to vhost.c
+> >   vhost: hide used ring layout from device
+> >   vhost: do not use vring_used_elem
+> >   vhost_net: do not explicitly manipulate vhost_used_elem
+> >   vhost: vhost_put_user() can accept metadata type
+> >   virtio: introduce packed ring defines
+> >   vhost: packed ring support
+> >   vhost: event suppression for packed ring
+> > 
+> >  drivers/vhost/net.c                | 136 ++----
+> >  drivers/vhost/scsi.c               |  62 +--
+> >  drivers/vhost/vhost.c              | 824 ++++++++++++++++++++++++++++++++++---
+> >  drivers/vhost/vhost.h              |  47 ++-
+> >  drivers/vhost/vsock.c              |  42 +-
+> >  include/uapi/linux/virtio_config.h |   9 +
+> >  include/uapi/linux/virtio_ring.h   |  32 ++
+> >  7 files changed, 926 insertions(+), 226 deletions(-)
+> > 
+> > -- 
+> > 2.7.4
+> > 
