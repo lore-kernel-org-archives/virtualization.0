@@ -1,16 +1,19 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [PATCH v7 net-next 2/4] net: Introduce generic failover module
-Date: Mon, 23 Apr 2018 10:21:45 -0700
-Message-ID: <c252fc18-51fb-e92c-c37b-55e91b42fdbc@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event handling
+	code to use the failover framework
+Date: Mon, 23 Apr 2018 20:24:56 +0300
+Message-ID: <20180423202204-mutt-send-email-mst__4198.96972966871$1524504183$gmane$org@kernel.org>
 References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524188524-28411-3-git-send-email-sridhar.samudrala@intel.com>
-	<20180422200259-mutt-send-email-mst@kernel.org>
+	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
+	<20180420082802.6ca37e4c@xeon-e3>
+	<20180420160058.GB2150@nanopsycho.orion>
+	<20180423100406.71b95f74@xeon-e3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180422200259-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180423100406.71b95f74@xeon-e3>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,84 +23,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/22/2018 10:06 AM, Michael S. Tsirkin wrote:
-> On Thu, Apr 19, 2018 at 06:42:02PM -0700, Sridhar Samudrala wrote:
->> +#if IS_ENABLED(CONFIG_NET_FAILOVER)
->> +
->> +int failover_create(struct net_device *standby_dev,
->> +		    struct failover **pfailover);
-> Should we rename all these structs net_failover?
-> It's possible to extend the concept to storage I think.
+On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:
+> > >
+> > >I will NAK patches to change to common code for netvsc especially the
+> > >three device model.  MS worked hard with distro vendors to support transparent
+> > >mode, ans we really can't have a new model; or do backport.
+> > >
+> > >Plus, DPDK is now dependent on existing model.  
+> > 
+> > Sorry, but nobody here cares about dpdk or other similar oddities.
+> 
+> The network device model is a userspace API, and DPDK is a userspace application.
 
-We could, the only downside is that the names become longer. i think we need
-to change the filenames and the function names also to be consistent.
+It is userspace but are you sure dpdk is actually poking at netdevs?
+AFAIK it's normally banging device registers directly.
 
+> You can't go breaking userspace even if you don't like the application.
 
->
->> +void failover_destroy(struct failover *failover);
->> +
->> +int failover_register(struct net_device *standby_dev, struct failover_ops *ops,
->> +		      struct failover **pfailover);
->> +void failover_unregister(struct failover *failover);
->> +
->> +int failover_slave_unregister(struct net_device *slave_dev);
->> +
->> +#else
->> +
->> +static inline
->> +int failover_create(struct net_device *standby_dev,
->> +		    struct failover **pfailover);
->> +{
->> +	return 0;
-> Does this make callers do something sane?
-> Shouldn't these return an error?
+Could you please explain how is the proposed patchset breaking
+userspace? Ignoring DPDK for now, I don't think it changes the userspace
+API at all.
 
-Yes. i think i should return -EOPNOTSUPP here, so that we fail
-when CONFIG_NET_FAILOVER is not enabled and the virtio-net driver is trying
-to create a failover device.
-
-
->> +}
->> +
->> +static inline
->> +void failover_destroy(struct failover *failover)
->> +{
->> +}
->> +
->> +static inline
->> +int failover_register(struct net_device *standby_dev, struct failover_ops *ops,
->> +		      struct pfailover **pfailover);
->> +{
->> +	return 0;
->> +}
-> struct pfailover seems like a typo.
-
-yes. will also change the return to -EOPNOTSUPP
-
->
->> +
->> +static inline
->> +void failover_unregister(struct failover *failover)
->> +{
->> +}
->> +
->> +static inline
->> +int failover_slave_unregister(struct net_device *slave_dev)
->> +{
->> +	return 0;
->> +}
-> Does anyone test return value of unregister?
-> should this be void?
-
-yes. can be changed to void.
-
-
->
->> +
->> +#endif
->> +
->> +#endif /* _NET_FAILOVER_H */
+-- 
+MST
