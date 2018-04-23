@@ -1,19 +1,19 @@
-From: Jiri Pirko <jiri@resnulli.us>
-Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event handling
-	code to use the failover framework
-Date: Mon, 23 Apr 2018 19:25:50 +0200
-Message-ID: <20180423172550.GF3585__41184.7879797735$1524504246$gmane$org@nanopsycho.orion>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event
+	handling code to use the failover framework
+Date: Mon, 23 Apr 2018 10:44:40 -0700
+Message-ID: <20180423104440.2fe6cfd2__33477.5915639058$1524505366$gmane$org@xeon-e3>
 References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
 	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
 	<20180420082802.6ca37e4c@xeon-e3>
 	<20180420160058.GB2150@nanopsycho.orion>
 	<20180423100406.71b95f74@xeon-e3>
+	<20180423202204-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180423100406.71b95f74@xeon-e3>
+In-Reply-To: <20180423202204-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,51 +23,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, davem@davemloft.net
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Mon, Apr 23, 2018 at 07:04:06PM CEST, stephen@networkplumber.org wrote:
->On Fri, 20 Apr 2018 18:00:58 +0200
->Jiri Pirko <jiri@resnulli.us> wrote:
->
->> Fri, Apr 20, 2018 at 05:28:02PM CEST, stephen@networkplumber.org wrote:
->> >On Thu, 19 Apr 2018 18:42:04 -0700
->> >Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
->> >  
->> >> Use the registration/notification framework supported by the generic
->> >> failover infrastructure.
->> >> 
->> >> Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>  
->> >
->> >Do what you want to other devices but leave netvsc alone.
->> >Adding these failover ops does not reduce the code size, and really is
->> >no benefit.  The netvsc device driver needs to be backported to several
->> >other distributions and doing this makes that harder.  
->> 
->> We should not care about the backport burden when we are trying to make
->> things right. And things are not right. The current netvsc approach is
->> just plain wrong shortcut. It should have been done in a generic way
->> from the very beginning. We are just trying to fix this situation.
->> 
->> Moreover, I believe that part of the fix is to convert netvsc to 3
->> netdev solution too. 2 netdev model is wrong.
->> 
->> 
->> >
->> >I will NAK patches to change to common code for netvsc especially the
->> >three device model.  MS worked hard with distro vendors to support transparent
->> >mode, ans we really can't have a new model; or do backport.
->> >
->> >Plus, DPDK is now dependent on existing model.  
->> 
->> Sorry, but nobody here cares about dpdk or other similar oddities.
->
->The network device model is a userspace API, and DPDK is a userspace application.
->You can't go breaking userspace even if you don't like the application.
+On Mon, 23 Apr 2018 20:24:56 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-I don't understand how you can break anything by exposing
-just-another-netdevice. If you break it, it is already broken...
+> On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:
+> > > >
+> > > >I will NAK patches to change to common code for netvsc especially the
+> > > >three device model.  MS worked hard with distro vendors to support transparent
+> > > >mode, ans we really can't have a new model; or do backport.
+> > > >
+> > > >Plus, DPDK is now dependent on existing model.    
+> > > 
+> > > Sorry, but nobody here cares about dpdk or other similar oddities.  
+> > 
+> > The network device model is a userspace API, and DPDK is a userspace application.  
+> 
+> It is userspace but are you sure dpdk is actually poking at netdevs?
+> AFAIK it's normally banging device registers directly.
+> 
+> > You can't go breaking userspace even if you don't like the application.  
+> 
+> Could you please explain how is the proposed patchset breaking
+> userspace? Ignoring DPDK for now, I don't think it changes the userspace
+> API at all.
+> 
 
-And how you can break anything in userspace by doing refactoring inside
-the kernel is puzzling me even more...
+The DPDK has a device driver vdev_netvsc which scans the Linux network devices
+to look for Linux netvsc device and the paired VF device and setup the
+DPDK environment.  This setup creates a DPDK failsafe (bondingish) instance
+and sets up TAP support over the Linux netvsc device as well as the Mellanox
+VF device.
+
+So it depends on existing 2 device model. You can't go to a 3 device model
+or start hiding devices from userspace.
+
+Also, I am working on associating netvsc and VF device based on serial number
+rather than MAC address. The serial number is how Windows works now, and it makes
+sense for Linux and Windows to use the same mechanism if possible.
