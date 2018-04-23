@@ -1,18 +1,23 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio remoteproc device
-Date: Tue, 24 Apr 2018 00:02:12 +0300
-Message-ID: <20180423235958-mutt-send-email-mst@kernel.org>
-References: <20180420194321-mutt-send-email-mst@kernel.org>
-	<CAAhSdy2JncLrpc0WUoBtB4g+bnGtUWiFOS=sxnTF9fkw9a3UnQ@mail.gmail.com>
-	<1d7df45a692b42bd9d70462e0af63ca9@SFHDAG7NODE2.st.com>
-	<20180423223717-mutt-send-email-mst@kernel.org>
-	<6207f230555b46a99f85a6a7c18155bd@SFHDAG7NODE2.st.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
+Subject: Re: [PATCH] kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
+Date: Mon, 23 Apr 2018 19:20:11 -0400 (EDT)
+Message-ID: <alpine.LRH.2.02.1804231911280.25912@file01.intranet.prod.int.rdu2.redhat.com>
+References: <20180418.134651.2225112489265654270.davem@davemloft.net>
+	<alpine.LRH.2.02.1804181350050.17942@file01.intranet.prod.int.rdu2.redhat.com>
+	<alpine.LRH.2.02.1804191207380.31175@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180420130852.GC16083@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180420210200.GH10788@bombadil.infradead.org>
+	<alpine.LRH.2.02.1804201704580.25408@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180421144757.GC14610@bombadil.infradead.org>
+	<20180422130356.GG17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804231006440.22488@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180423151015.GT17484@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <6207f230555b46a99f85a6a7c18155bd@SFHDAG7NODE2.st.com>
+In-Reply-To: <20180423151015.GT17484@dhcp22.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,191 +27,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Loic PALLARDY <loic.pallardy@st.com>
-Cc: Ohad Ben-Cohen <ohad@wizery.com>, Anup Patel <anup@brainfault.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>
+To: Michal Hocko <mhocko@kernel.org>
+Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, edumazet@google.com, bhutchings@solarflare.com, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 23, 2018 at 08:45:57PM +0000, Loic PALLARDY wrote:
-> =
 
-> =
 
-> > -----Original Message-----
-> > From: Michael S. Tsirkin [mailto:mst@redhat.com]
-> > Sent: Monday, April 23, 2018 9:41 PM
-> > To: Loic PALLARDY <loic.pallardy@st.com>
-> > Cc: Anup Patel <anup@brainfault.org>; linux-remoteproc@vger.kernel.org;
-> > Ohad Ben-Cohen <ohad@wizery.com>; Bjorn Andersson
-> > <bjorn.andersson@linaro.org>; virtualization@lists.linux-foundation.org
-> > Subject: Re: virtio remoteproc device
-> > =
+On Mon, 23 Apr 2018, Michal Hocko wrote:
 
-> > On Mon, Apr 23, 2018 at 08:55:57AM +0000, Loic PALLARDY wrote:
-> > >
-> > >
-> > > > -----Original Message-----
-> > > > From: linux-remoteproc-owner@vger.kernel.org [mailto:linux-
-> > remoteproc-
-> > > > owner@vger.kernel.org] On Behalf Of Anup Patel
-> > > > Sent: Sunday, April 22, 2018 6:08 AM
-> > > > To: Michael S. Tsirkin <mst@redhat.com>
-> > > > Cc: linux-remoteproc@vger.kernel.org; Ohad Ben-Cohen
-> > > > <ohad@wizery.com>; Bjorn Andersson <bjorn.andersson@linaro.org>;
-> > > > virtualization@lists.linux-foundation.org
-> > > > Subject: Re: virtio remoteproc device
-> > > >
-> > > > On Fri, Apr 20, 2018 at 10:23 PM, Michael S. Tsirkin <mst@redhat.co=
-m>
-> > > > wrote:
-> > > > > Hello!
-> > > > > I note the following in the serial console:
-> > > > >
-> > > > >       if (is_rproc_serial(vdev)) {
-> > > > >                 /*
-> > > > >                  * Allocate DMA memory from ancestor. When a virt=
-io
-> > > > >                  * device is created by remoteproc, the DMA memor=
-y is
-> > > > >                  * associated with the grandparent device:
-> > > > >                  * vdev =3D> rproc =3D> platform-dev.
-> > > > >                  */
-> > > > >                 if (!vdev->dev.parent || !vdev->dev.parent->paren=
-t)
-> > > > >                         goto free_buf;
-> > > > >                 buf->dev =3D vdev->dev.parent->parent;
-> > > > >
-> > > > >                 /* Increase device refcnt to avoid freeing it */
-> > > > >                 get_device(buf->dev);
-> > > > >                 buf->buf =3D dma_alloc_coherent(buf->dev, buf_siz=
-e, &buf-
-> > >dma,
-> > > > >                                               GFP_KERNEL);
-> > > > >         }
-> > > > >
-> > > > > Added here:
-> > > > >         commit 1b6370463e88b0c1c317de16d7b962acc1dab4f2
-> > > > >         Author: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
-> > > > >         Date:   Fri Dec 14 14:40:51 2012 +1030
-> > > > >
-> > > > >     virtio_console: Add support for remoteproc serial
-> > > > >
-> > > > >
-> > > > > I am not familiar with rproc so I have a question:
-> > > > > why is it required to use coherent memory here,
-> > > > > and why through a grandparent device?
-> > > >
-> > > > I faced similar issue when I tried VirtIO RPMSG bus over
-> > > > VirtIO MMIO transport.
-> > > >
-> > > > Here's my fix for VirtIO RPMSG bus driver:
-> > > > https://patchwork.kernel.org/patch/10155145/
-> > >
-> > > Hi Anup and Michael,
-> > >
-> > > I pushed a series to modify virtio device allocation in remoteproc. P=
-lease
-> > see [1].
-> > > It allows to remove allocation based on "grand-parent" device in the =
-case
-> > of virtio device allocated by remoteproc.
-> > > Virto_console patch missing, only virtio_rpmsg modification proposed.=
- I can
-> > add it in next version.
-> > >
-> > > Regards,
-> > > Loic
-> > >
-> > > [1] https://lkml.org/lkml/2018/3/1/644
-> > >
-> > > >
-> > > > Regards,
-> > > > Anup
-> > > > --
-> > > > To unsubscribe from this list: send the line "unsubscribe linux-
-> > remoteproc" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > =
+> On Mon 23-04-18 10:24:02, Mikulas Patocka wrote:
+> 
+> > > Really, we have a fault injection framework and this sounds like
+> > > something to hook in there.
+> > 
+> > The testing people won't set it up. They install the "kernel-debug" 
+> > package and run the tests in it.
+> > 
+> > If you introduce a hidden option that no one knows about, no one will use 
+> > it.
+> 
+> then make sure people know about it. Fuzzers already do test fault
+> injections.
 
-> > So on top of your patches, can we just force use of DMA API
-> > and drop special casting?
-> > E.g. maybe something like the below - completely untested - patch?
-> > Does it work for you?
-> > =
+I think that in the long term we can introduce a kernel parameter like 
+"debug_level=1", "debug_level=2", "debug_level=3" that will turn on 
+debugging features across all kernel subsystems and we can teach users to 
+use it to diagnose problems.
 
-> =
+But it won't work if every subsystem has different debug parameters. There 
+are 192 distinct filenames in debugfs, if we add 193rd one, harly anyone 
+notices it.
 
-> Just have a look to VIRTIO_F_IOMMU_PLATFORM usage.
-> If we activate it, this will change virtio_ring behavior, allowing to rel=
-y on dma api, but need to have deeper look to virtio_console impacts.
-
-Could you test the patch though?
-
-> For sure, if you remove/disable rproc specific code in virtio_console, al=
-loc_buf will rely on kmalloc instead of dma_alloc_coherent. As some coproce=
-ssors doesn't have access to complete memory map and in some case no access=
- to DDR memory, buffer copy will have to be done in dedicated vdev memory b=
-efore adding it to vring.
-
-I'm guessing that for console an extra copy is not a big deal. How much
-data is pushed there after all, right?
-
-> Specific rproc case was added to avoid copy and directly using shared mem=
-ory for buffer allocation.
-> =
-
-> Regards,
-> Loic
-
-I was under the impression that it was more to just make it work
-somehow. But I might be wrong.
-
-> > =
-
-> > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_consol=
-e.c
-> > index 2108551..6c6767c 100644
-> > --- a/drivers/char/virtio_console.c
-> > +++ b/drivers/char/virtio_console.c
-> > @@ -40,7 +40,8 @@
-> >  #include <linux/dma-mapping.h>
-> >  #include "../tty/hvc/hvc_console.h"
-> > =
-
-> > -#define is_rproc_enabled IS_ENABLED(CONFIG_REMOTEPROC)
-> > +//#define is_rproc_enabled IS_ENABLED(CONFIG_REMOTEPROC)
-> > +#define is_rproc_enabled 0
-> > =
-
-> >  /*
-> >   * This is a global struct for storing common data for all the devices
-> > diff --git a/drivers/remoteproc/remoteproc_virtio.c
-> > b/drivers/remoteproc/remoteproc_virtio.c
-> > index b0633fd..4a13ca2 100644
-> > --- a/drivers/remoteproc/remoteproc_virtio.c
-> > +++ b/drivers/remoteproc/remoteproc_virtio.c
-> > @@ -199,7 +199,7 @@ static u64 rproc_virtio_get_features(struct
-> > virtio_device *vdev)
-> > =
-
-> >  	rsc =3D (void *)rvdev->rproc->table_ptr + rvdev->rsc_offset;
-> > =
-
-> > -	return rsc->dfeatures;
-> > +	return rsc->dfeatures | (1ULL << VIRTIO_F_IOMMU_PLATFORM);
-> >  }
-> > =
-
-> >  static int rproc_virtio_finalize_features(struct virtio_device *vdev)
-> > @@ -213,7 +213,7 @@ static int rproc_virtio_finalize_features(struct
-> > virtio_device *vdev)
-> >  	vring_transport_features(vdev);
-> > =
-
-> >  	/* Make sure we don't have any features > 32 bits! */
-> > -	BUG_ON((u32)vdev->features !=3D vdev->features);
-> > +	//BUG_ON((u32)vdev->features !=3D vdev->features);
-> > =
-
-> >  	/*
-> >  	 * Remember the finalized features of our vdev, and provide it
+Mikulas
