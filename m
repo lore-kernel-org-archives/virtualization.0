@@ -1,16 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio remoteproc device
-Date: Mon, 23 Apr 2018 14:52:19 +0300
-Message-ID: <20180423144812-mutt-send-email-mst@kernel.org>
-References: <20180420194321-mutt-send-email-mst@kernel.org>
-	<CAAhSdy2JncLrpc0WUoBtB4g+bnGtUWiFOS=sxnTF9fkw9a3UnQ@mail.gmail.com>
-	<1d7df45a692b42bd9d70462e0af63ca9@SFHDAG7NODE2.st.com>
+From: Vlad Yasevich <vyasevic@redhat.com>
+Subject: Re: [PATCH net-next 0/5] virtio-net: Add SCTP checksum offload support
+Date: Mon, 23 Apr 2018 09:17:52 -0400
+Message-ID: <35995a53-08ed-aa4f-ed53-f05722f42e5d__9153.97082358158$1524489356$gmane$org@redhat.com>
+References: <20180402134006.10111-1-vyasevic@redhat.com>
+	<20180402144730.GA6001@localhost.localdomain>
+	<6bc762f6-d6fb-5471-2893-a888cce199f9@redhat.com>
+	<20180418162633-mutt-send-email-mst@kernel.org>
+	<20180420172219.GR4716@localhost.localdomain>
+Reply-To: vyasevic@redhat.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1d7df45a692b42bd9d70462e0af63ca9@SFHDAG7NODE2.st.com>
+In-Reply-To: <20180420172219.GR4716@localhost.localdomain>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,97 +23,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Loic PALLARDY <loic.pallardy@st.com>
-Cc: Ohad Ben-Cohen <ohad@wizery.com>, Anup Patel <anup@brainfault.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>
+To: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: nhorman@tuxdriver.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org, Vladislav Yasevich <vyasevich@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 23, 2018 at 08:55:57AM +0000, Loic PALLARDY wrote:
-> =
+On 04/20/2018 01:22 PM, Marcelo Ricardo Leitner wrote:
+> On Wed, Apr 18, 2018 at 05:06:46PM +0300, Michael S. Tsirkin wrote:
+>> On Tue, Apr 17, 2018 at 04:35:18PM -0400, Vlad Yasevich wrote:
+>>> On 04/02/2018 10:47 AM, Marcelo Ricardo Leitner wrote:
+>>>> On Mon, Apr 02, 2018 at 09:40:01AM -0400, Vladislav Yasevich wrote:
+>>>>> Now that we have SCTP offload capabilities in the kernel, we can add
+>>>>> them to virtio as well.  First step is SCTP checksum.
+>>>>
+>>>> Thanks.
+>>>>
+>>>>> As for GSO, the way sctp GSO is currently implemented buys us nothing
+>>>>> in added support to virtio.  To add true GSO, would require a lot of
+>>>>> re-work inside of SCTP and would require extensions to the virtio
+>>>>> net header to carry extra sctp data.
+>>>>
+>>>> Can you please elaborate more on this? Is this because SCTP GSO relies
+>>>> on the gso skb format for knowing how to segment it instead of having
+>>>> a list of sizes?
+>>>>
+>>>
+>>> it's mainly because all the true segmentation, placing data into chunks,
+>>> has already happened.  All that GSO does is allow for higher bundling
+>>> rate between VMs. If that is all SCTP GSO ever going to do, that fine,
+>>> but the goal is to do real GSO eventually and potentially reduce the
+>>> amount of memory copying we are doing.
+>>> If we do that, any current attempt at GSO in virtio would have to be
+>>> depricated and we'd need GSO2 or something like that.
+>>
+>> Batching helps virtualization *a lot* though.
+> 
+> Yep. The results posted by Xin in the other email give good insights
+> on it.
+> 
+>> Are there actual plans for GSO2? Is it just for SCTP?
+> 
+> No plans. In this context, at least, yes, just for SCTP.
+> 
+> It was a supposition in case we start doing a different GSO for SCTP,
+> one more like what we have for TCP.
+> 
+> Currently, as the SCTP GSO code doesn't leave the system, we can
+> update it if we want. But by the moment we add support for it in
+> virtio, we will have to be backwards compatible if we end up doing
+> SCTP GSO differently.
 
-> =
+So, just because the linux code doesn't do it differently doesn't mean
+that someone else doesn't.  Since the device has to work across different
+possible implementations, it needs to be generic enough.  If we simply
+document the current linux practice, that may not be ideal on the future.
 
-> > -----Original Message-----
-> > From: linux-remoteproc-owner@vger.kernel.org [mailto:linux-remoteproc-
-> > owner@vger.kernel.org] On Behalf Of Anup Patel
-> > Sent: Sunday, April 22, 2018 6:08 AM
-> > To: Michael S. Tsirkin <mst@redhat.com>
-> > Cc: linux-remoteproc@vger.kernel.org; Ohad Ben-Cohen
-> > <ohad@wizery.com>; Bjorn Andersson <bjorn.andersson@linaro.org>;
-> > virtualization@lists.linux-foundation.org
-> > Subject: Re: virtio remoteproc device
-> > =
+I was hesitant to introduce this without studying the feasibility of
+doing late segmentation.
 
-> > On Fri, Apr 20, 2018 at 10:23 PM, Michael S. Tsirkin <mst@redhat.com>
-> > wrote:
-> > > Hello!
-> > > I note the following in the serial console:
-> > >
-> > >       if (is_rproc_serial(vdev)) {
-> > >                 /*
-> > >                  * Allocate DMA memory from ancestor. When a virtio
-> > >                  * device is created by remoteproc, the DMA memory is
-> > >                  * associated with the grandparent device:
-> > >                  * vdev =3D> rproc =3D> platform-dev.
-> > >                  */
-> > >                 if (!vdev->dev.parent || !vdev->dev.parent->parent)
-> > >                         goto free_buf;
-> > >                 buf->dev =3D vdev->dev.parent->parent;
-> > >
-> > >                 /* Increase device refcnt to avoid freeing it */
-> > >                 get_device(buf->dev);
-> > >                 buf->buf =3D dma_alloc_coherent(buf->dev, buf_size, &=
-buf->dma,
-> > >                                               GFP_KERNEL);
-> > >         }
-> > >
-> > > Added here:
-> > >         commit 1b6370463e88b0c1c317de16d7b962acc1dab4f2
-> > >         Author: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
-> > >         Date:   Fri Dec 14 14:40:51 2012 +1030
-> > >
-> > >     virtio_console: Add support for remoteproc serial
-> > >
-> > >
-> > > I am not familiar with rproc so I have a question:
-> > > why is it required to use coherent memory here,
-> > > and why through a grandparent device?
-> > =
+-vlad
 
-> > I faced similar issue when I tried VirtIO RPMSG bus over
-> > VirtIO MMIO transport.
-> > =
-
-> > Here's my fix for VirtIO RPMSG bus driver:
-> > https://patchwork.kernel.org/patch/10155145/
-> =
-
-> Hi Anup and Michael,
-> =
-
-> I pushed a series to modify virtio device allocation in remoteproc. Pleas=
-e see [1].
-> It allows to remove allocation based on "grand-parent" device in the case=
- of virtio device allocated by remoteproc.
-> Virto_console patch missing, only virtio_rpmsg modification proposed. I c=
-an add it in next version.
-> =
-
-> Regards,
-> Loic
-> =
-
-> [1] https://lkml.org/lkml/2018/3/1/644
-
-Thanks!
-Based on that patch, can remoteproc force VIRTIO_F_IOMMU_PLATFORM
-in features and then drop special-casing of dma completely?
-
-> > =
-
-> > Regards,
-> > Anup
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-remotep=
-roc" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> But again, I don't think such approach for SCTP GSO would be neither
+> feasible or worth. The complexity for it, to work across stream
+> schedules and late TSN allocation, would do more harm then good IMO.
+> 
+>>
+>>>
+>>> This is why, after doing the GSO support, I decided not to include it.
+>>>
+>>> -vlad
+>>>>   Marcelo
+>>>>
