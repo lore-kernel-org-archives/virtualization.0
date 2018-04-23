@@ -1,14 +1,11 @@
-From: Dave Airlie <airlied@gmail.com>
-Subject: Re: [PATCH] drm/virtio: fix vq wait_event condition
-Date: Mon, 23 Apr 2018 11:24:53 +1000
-Message-ID: <CAPM=9tw6jK2QrjjGnH8JqhV-Z0VMngySLyFvayn98otw3efOPg__23692.5315963619$1524446594$gmane$org@mail.gmail.com>
-References: <20180403095904.11152-1-kraxel@redhat.com>
-	<20180420072228.uorb3h7snx4io6xs@sirius.home.kraxel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [RFC V3 PATCH 0/8] Packed ring for vhost
+Date: Mon, 23 Apr 2018 13:34:52 +0800
+Message-ID: <1524461700-5469-1-git-send-email-jasowang__36280.2547672347$1524461608$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180420072228.uorb3h7snx4io6xs@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,60 +15,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, stable@vger.kernel.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, dri-devel <dri-devel@lists.freedesktop.org>, amagloire@blackberry.com
+To: mst@redhat.com, jasowang@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 20 April 2018 at 17:22, Gerd Hoffmann <kraxel@redhat.com> wrote:
-> On Tue, Apr 03, 2018 at 11:59:04AM +0200, Gerd Hoffmann wrote:
->> Wait until we have enough space in the virt queue to actually queue up
->> our request.  Avoids the guest spinning in case we have a non-zero
->> amount of free entries but not enough for the request.
->
-> Ping airlied, can you please either pick it up or review so I can commit
-> myself?
+Hi all:
 
-Just in case it got lost from my phone,
+This RFC implement packed ring layout. The code were tested with
+Tiwei's RFC V2 a thttps://lkml.org/lkml/2018/4/1/48. Some fixups and
+tweaks were needed on top of Tiwei's code to make it run. TCP stream
+and pktgen does not show obvious difference compared with split ring.
 
-Reviewed-by: Dave Airlie <airlied@redhat.com>
+Changes from V2:
+- do not use & in checking desc_event_flags
+- off should be most significant bit
+- remove the workaround of mergeable buffer for dpdk prototype
+- id should be in the last descriptor in the chain
+- keep _F_WRITE for write descriptor when adding used
+- device flags updating should use ADDR_USED type
+- return error on unexpected unavail descriptor in a chain
+- return false in vhost_ve_avail_empty is descriptor is available
+- track last seen avail_wrap_counter
+- correctly examine available descriptor in get_indirect_packed()
+- vhost_idx_diff should return u16 instead of bool
 
->
-> thanks,
->   Gerd
->
->> Cc: stable@vger.kernel.org
->> Reported-by: Alain Magloire <amagloire@blackberry.com>
->> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
->> ---
->>  drivers/gpu/drm/virtio/virtgpu_vq.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
->> index 48e4f1df6e..020070d483 100644
->> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
->> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
->> @@ -293,7 +293,7 @@ static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
->>       ret = virtqueue_add_sgs(vq, sgs, outcnt, incnt, vbuf, GFP_ATOMIC);
->>       if (ret == -ENOSPC) {
->>               spin_unlock(&vgdev->ctrlq.qlock);
->> -             wait_event(vgdev->ctrlq.ack_queue, vq->num_free);
->> +             wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= outcnt + incnt);
->>               spin_lock(&vgdev->ctrlq.qlock);
->>               goto retry;
->>       } else {
->> @@ -368,7 +368,7 @@ static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
->>       ret = virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
->>       if (ret == -ENOSPC) {
->>               spin_unlock(&vgdev->cursorq.qlock);
->> -             wait_event(vgdev->cursorq.ack_queue, vq->num_free);
->> +             wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
->>               spin_lock(&vgdev->cursorq.qlock);
->>               goto retry;
->>       } else {
->> --
->> 2.9.3
->>
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+Changes from V1:
+
+- Refactor vhost used elem code to avoid open coding on used elem
+- Event suppression support (compile test only).
+- Indirect descriptor support (compile test only).
+- Zerocopy support.
+- vIOMMU support.
+- SCSI/VSOCK support (compile test only).
+- Fix several bugs
+
+For simplicity, I don't implement batching or other optimizations.
+
+Please review.
+
+Jason Wang (8):
+  vhost: move get_rx_bufs to vhost.c
+  vhost: hide used ring layout from device
+  vhost: do not use vring_used_elem
+  vhost_net: do not explicitly manipulate vhost_used_elem
+  vhost: vhost_put_user() can accept metadata type
+  virtio: introduce packed ring defines
+  vhost: packed ring support
+  vhost: event suppression for packed ring
+
+ drivers/vhost/net.c                | 136 ++----
+ drivers/vhost/scsi.c               |  62 +--
+ drivers/vhost/vhost.c              | 824 ++++++++++++++++++++++++++++++++++---
+ drivers/vhost/vhost.h              |  47 ++-
+ drivers/vhost/vsock.c              |  42 +-
+ include/uapi/linux/virtio_config.h |   9 +
+ include/uapi/linux/virtio_ring.h   |  32 ++
+ 7 files changed, 926 insertions(+), 226 deletions(-)
+
+-- 
+2.7.4
