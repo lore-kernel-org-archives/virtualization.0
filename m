@@ -1,17 +1,16 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event
-	handling code to use the failover framework
-Date: Mon, 23 Apr 2018 10:04:06 -0700
-Message-ID: <20180423100406.71b95f74__4325.24701250276$1524502936$gmane$org@xeon-e3>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [PATCH v7 net-next 2/4] net: Introduce generic failover module
+Date: Mon, 23 Apr 2018 10:21:45 -0700
+Message-ID: <c252fc18-51fb-e92c-c37b-55e91b42fdbc@intel.com>
 References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
-	<20180420082802.6ca37e4c@xeon-e3>
-	<20180420160058.GB2150@nanopsycho.orion>
+	<1524188524-28411-3-git-send-email-sridhar.samudrala@intel.com>
+	<20180422200259-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180420160058.GB2150@nanopsycho.orion>
+In-Reply-To: <20180422200259-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,44 +20,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, davem@davemloft.net
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 20 Apr 2018 18:00:58 +0200
-Jiri Pirko <jiri@resnulli.us> wrote:
+On 4/22/2018 10:06 AM, Michael S. Tsirkin wrote:
+> On Thu, Apr 19, 2018 at 06:42:02PM -0700, Sridhar Samudrala wrote:
+>> +#if IS_ENABLED(CONFIG_NET_FAILOVER)
+>> +
+>> +int failover_create(struct net_device *standby_dev,
+>> +		    struct failover **pfailover);
+> Should we rename all these structs net_failover?
+> It's possible to extend the concept to storage I think.
 
-> Fri, Apr 20, 2018 at 05:28:02PM CEST, stephen@networkplumber.org wrote:
-> >On Thu, 19 Apr 2018 18:42:04 -0700
-> >Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
-> >  
-> >> Use the registration/notification framework supported by the generic
-> >> failover infrastructure.
-> >> 
-> >> Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>  
-> >
-> >Do what you want to other devices but leave netvsc alone.
-> >Adding these failover ops does not reduce the code size, and really is
-> >no benefit.  The netvsc device driver needs to be backported to several
-> >other distributions and doing this makes that harder.  
-> 
-> We should not care about the backport burden when we are trying to make
-> things right. And things are not right. The current netvsc approach is
-> just plain wrong shortcut. It should have been done in a generic way
-> from the very beginning. We are just trying to fix this situation.
-> 
-> Moreover, I believe that part of the fix is to convert netvsc to 3
-> netdev solution too. 2 netdev model is wrong.
-> 
-> 
-> >
-> >I will NAK patches to change to common code for netvsc especially the
-> >three device model.  MS worked hard with distro vendors to support transparent
-> >mode, ans we really can't have a new model; or do backport.
-> >
-> >Plus, DPDK is now dependent on existing model.  
-> 
-> Sorry, but nobody here cares about dpdk or other similar oddities.
+We could, the only downside is that the names become longer. i think we need
+to change the filenames and the function names also to be consistent.
 
-The network device model is a userspace API, and DPDK is a userspace application.
-You can't go breaking userspace even if you don't like the application.
+
+>
+>> +void failover_destroy(struct failover *failover);
+>> +
+>> +int failover_register(struct net_device *standby_dev, struct failover_ops *ops,
+>> +		      struct failover **pfailover);
+>> +void failover_unregister(struct failover *failover);
+>> +
+>> +int failover_slave_unregister(struct net_device *slave_dev);
+>> +
+>> +#else
+>> +
+>> +static inline
+>> +int failover_create(struct net_device *standby_dev,
+>> +		    struct failover **pfailover);
+>> +{
+>> +	return 0;
+> Does this make callers do something sane?
+> Shouldn't these return an error?
+
+Yes. i think i should return -EOPNOTSUPP here, so that we fail
+when CONFIG_NET_FAILOVER is not enabled and the virtio-net driver is trying
+to create a failover device.
+
+
+>> +}
+>> +
+>> +static inline
+>> +void failover_destroy(struct failover *failover)
+>> +{
+>> +}
+>> +
+>> +static inline
+>> +int failover_register(struct net_device *standby_dev, struct failover_ops *ops,
+>> +		      struct pfailover **pfailover);
+>> +{
+>> +	return 0;
+>> +}
+> struct pfailover seems like a typo.
+
+yes. will also change the return to -EOPNOTSUPP
+
+>
+>> +
+>> +static inline
+>> +void failover_unregister(struct failover *failover)
+>> +{
+>> +}
+>> +
+>> +static inline
+>> +int failover_slave_unregister(struct net_device *slave_dev)
+>> +{
+>> +	return 0;
+>> +}
+> Does anyone test return value of unregister?
+> should this be void?
+
+yes. can be changed to void.
+
+
+>
+>> +
+>> +#endif
+>> +
+>> +#endif /* _NET_FAILOVER_H */
