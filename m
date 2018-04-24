@@ -1,14 +1,25 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost_net: use packet weight for rx handler, too
-Date: Tue, 24 Apr 2018 17:11:49 +0800
-Message-ID: <efe7a637-962e-17df-9885-07eac27f643c@redhat.com>
-References: <11f2a27cee0c660a611af381ac1b68d9526095e3.1524556673.git.pabeni@redhat.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
+Subject: Re: [PATCH v3] kvmalloc: always use vmalloc if CONFIG_DEBUG_SG
+Date: Tue, 24 Apr 2018 07:04:23 -0400 (EDT)
+Message-ID: <alpine.LRH.2.02.1804240701590.28016@file01.intranet.prod.int.rdu2.redhat.com>
+References: <alpine.LRH.2.02.1804181218270.19136@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180418.134651.2225112489265654270.davem@davemloft.net>
+	<alpine.LRH.2.02.1804181350050.17942@file01.intranet.prod.int.rdu2.redhat.com>
+	<alpine.LRH.2.02.1804191207380.31175@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180420130852.GC16083@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180420210200.GH10788@bombadil.infradead.org>
+	<alpine.LRH.2.02.1804201704580.25408@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180421144757.GC14610@bombadil.infradead.org>
+	<alpine.LRH.2.02.1804221733520.7995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180423151545.GU17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804232003100.2299@file01.intranet.prod.int.rdu2.redhat.com>
+	<alpine.DEB.2.21.1804231945410.58980@chino.kir.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11f2a27cee0c660a611af381ac1b68d9526095e3.1524556673.git.pabeni@redhat.com>
-Content-Language: en-US
+In-Reply-To: <alpine.DEB.2.21.1804231945410.58980@chino.kir.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,66 +29,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Abeni <pabeni@redhat.com>, kvm@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, haibinzhang <haibinzhang@tencent.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: David Rientjes <rientjes@google.com>
+Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, edumazet@google.com, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDTmnIgyNOaXpSAxNjozNCwgUGFvbG8gQWJlbmkgd3JvdGU6Cj4gU2ltaWxh
-ciB0byBjb21taXQgYTJhYzk5OTA1ZjFlICgidmhvc3QtbmV0OiBzZXQgcGFja2V0IHdlaWdodCBv
-Zgo+IHR4IHBvbGxpbmcgdG8gMiAqIHZxIHNpemUiKSwgd2UgbmVlZCBhIHBhY2tldC1iYXNlZCBs
-aW1pdCBmb3IKPiBoYW5kbGVyX3J4LCB0b28gLSBlbHNld2hlcmUsIHVuZGVyIHJ4IGZsb29kIHdp
-dGggc21hbGwgcGFja2V0cywKPiB0eCBjYW4gYmUgZGVsYXllZCBmb3IgYSB2ZXJ5IGxvbmcgdGlt
-ZSwgZXZlbiB3aXRob3V0IGJ1c3lwb2xsaW5nLgo+Cj4gVGhlIHBrdCBsaW1pdCBhcHBsaWVkIHRv
-IGhhbmRsZV9yeCBtdXN0IGJlIHRoZSBzYW1lIGFwcGxpZWQgYnkKPiBoYW5kbGVfdHgsIG9yIHdl
-IHdpbGwgZ2V0IHVuZmFpciBzY2hlZHVsaW5nIGJldHdlZW4gcnggYW5kIHR4Lgo+IFR5aW5nIHN1
-Y2ggbGltaXQgdG8gdGhlIHF1ZXVlIGxlbmd0aCBtYWtlcyBpdCBsZXNzIGVmZmVjdGl2ZSBmb3IK
-PiBsYXJnZSBxdWV1ZSBsZW5ndGggdmFsdWVzIGFuZCBjYW4gaW50cm9kdWNlIGxhcmdlIHByb2Nl
-c3MKPiBzY2hlZHVsZXIgbGF0ZW5jaWVzLCBzbyBhIGNvbnN0YW50IHZhbHVlZCBpcyB1c2VkIC0g
-bGlrZXdpc2UKPiB0aGUgZXhpc3RpbmcgYnl0ZXMgbGltaXQuCj4KPiBUaGUgc2VsZWN0ZWQgbGlt
-aXQgaGFzIGJlZW4gdmFsaWRhdGVkIHdpdGggUFZQWzFdIHBlcmZvcm1hbmNlCj4gdGVzdCB3aXRo
-IGRpZmZlcmVudCBxdWV1ZSBzaXplczoKPgo+IHF1ZXVlIHNpemUJCTI1Ngk1MTIJMTAyNAo+Cj4g
-YmFzZWxpbmUJCTM2NgkzNTQJMzYyCj4gd2VpZ2h0IDEyOAkJNzE1CTcyMwk2NzAKPiB3ZWlnaHQg
-MjU2CQk3NDAJNzQ1CTczMwo+IHdlaWdodCA1MTIJCTYwMAk0NjAJNTgzCj4gd2VpZ2h0IDEwMjQJ
-CTQyMwk0MjcJNDE4Cj4KPiBBIHBhY2tldCB3ZWlnaHQgb2YgMjU2IGdpdmVzIHBlZWsgcGVyZm9y
-bWFuY2VzIGluIHVuZGVyIGFsbCB0aGUKPiB0ZXN0ZWQgc2NlbmFyaW9zLgo+Cj4gTm8gbWVhc3Vy
-YWJsZSByZWdyZXNzaW9uIGluIHVuaWRpcmVjdGlvbmFsIHBlcmZvcm1hbmNlIHRlc3RzIGhhcwo+
-IGJlZW4gZGV0ZWN0ZWQuCj4KPiBbMV0gaHR0cHM6Ly9kZXZlbG9wZXJzLnJlZGhhdC5jb20vYmxv
-Zy8yMDE3LzA2LzA1L21lYXN1cmluZy1hbmQtY29tcGFyaW5nLW9wZW4tdnN3aXRjaC1wZXJmb3Jt
-YW5jZS8KPgo+IFNpZ25lZC1vZmYtYnk6IFBhb2xvIEFiZW5pIDxwYWJlbmlAcmVkaGF0LmNvbT4K
-PiAtLS0KPiAgIGRyaXZlcnMvdmhvc3QvbmV0LmMgfCAxMiArKysrKysrKy0tLS0KPiAgIDEgZmls
-ZSBjaGFuZ2VkLCA4IGluc2VydGlvbnMoKyksIDQgZGVsZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0
-IGEvZHJpdmVycy92aG9zdC9uZXQuYyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiBpbmRleCBiYmYz
-OGJlZmVmYjIuLmM0YjQ5ZmNhNDg3MSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L25ldC5j
-Cj4gKysrIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+IEBAIC00Niw4ICs0NiwxMCBAQCBNT0RVTEVf
-UEFSTV9ERVNDKGV4cGVyaW1lbnRhbF96Y29weXR4LCAiRW5hYmxlIFplcm8gQ29weSBUWDsiCj4g
-ICAjZGVmaW5lIFZIT1NUX05FVF9XRUlHSFQgMHg4MDAwMAo+ICAgCj4gICAvKiBNYXggbnVtYmVy
-IG9mIHBhY2tldHMgdHJhbnNmZXJyZWQgYmVmb3JlIHJlcXVldWVpbmcgdGhlIGpvYi4KPiAtICog
-VXNpbmcgdGhpcyBsaW1pdCBwcmV2ZW50cyBvbmUgdmlydHF1ZXVlIGZyb20gc3RhcnZpbmcgcngu
-ICovCj4gLSNkZWZpbmUgVkhPU1RfTkVUX1BLVF9XRUlHSFQodnEpICgodnEpLT5udW0gKiAyKQo+
-ICsgKiBVc2luZyB0aGlzIGxpbWl0IHByZXZlbnRzIG9uZSB2aXJ0cXVldWUgZnJvbSBzdGFydmlu
-ZyBvdGhlcnMgd2l0aCBzbWFsbAo+ICsgKiBwa3RzLgo+ICsgKi8KPiArI2RlZmluZSBWSE9TVF9O
-RVRfUEtUX1dFSUdIVCAyNTYKPiAgIAo+ICAgLyogTUFYIG51bWJlciBvZiBUWCB1c2VkIGJ1ZmZl
-cnMgZm9yIG91dHN0YW5kaW5nIHplcm9jb3B5ICovCj4gICAjZGVmaW5lIFZIT1NUX01BWF9QRU5E
-IDEyOAo+IEBAIC01ODcsNyArNTg5LDcgQEAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2
-aG9zdF9uZXQgKm5ldCkKPiAgIAkJCXZob3N0X3plcm9jb3B5X3NpZ25hbF91c2VkKG5ldCwgdnEp
-Owo+ICAgCQl2aG9zdF9uZXRfdHhfcGFja2V0KG5ldCk7Cj4gICAJCWlmICh1bmxpa2VseSh0b3Rh
-bF9sZW4gPj0gVkhPU1RfTkVUX1dFSUdIVCkgfHwKPiAtCQkgICAgdW5saWtlbHkoKytzZW50X3Br
-dHMgPj0gVkhPU1RfTkVUX1BLVF9XRUlHSFQodnEpKSkgewo+ICsJCSAgICB1bmxpa2VseSgrK3Nl
-bnRfcGt0cyA+PSBWSE9TVF9ORVRfUEtUX1dFSUdIVCkpIHsKPiAgIAkJCXZob3N0X3BvbGxfcXVl
-dWUoJnZxLT5wb2xsKTsKPiAgIAkJCWJyZWFrOwo+ICAgCQl9Cj4gQEAgLTc2OSw2ICs3NzEsNyBA
-QCBzdGF0aWMgdm9pZCBoYW5kbGVfcngoc3RydWN0IHZob3N0X25ldCAqbmV0KQo+ICAgCXN0cnVj
-dCBzb2NrZXQgKnNvY2s7Cj4gICAJc3RydWN0IGlvdl9pdGVyIGZpeHVwOwo+ICAgCV9fdmlydGlv
-MTYgbnVtX2J1ZmZlcnM7Cj4gKwlpbnQgcmVjdl9wa3RzID0gMDsKPiAgIAo+ICAgCW11dGV4X2xv
-Y2tfbmVzdGVkKCZ2cS0+bXV0ZXgsIDApOwo+ICAgCXNvY2sgPSB2cS0+cHJpdmF0ZV9kYXRhOwo+
-IEBAIC04NzIsNyArODc1LDggQEAgc3RhdGljIHZvaWQgaGFuZGxlX3J4KHN0cnVjdCB2aG9zdF9u
-ZXQgKm5ldCkKPiAgIAkJaWYgKHVubGlrZWx5KHZxX2xvZykpCj4gICAJCQl2aG9zdF9sb2dfd3Jp
-dGUodnEsIHZxX2xvZywgbG9nLCB2aG9zdF9sZW4pOwo+ICAgCQl0b3RhbF9sZW4gKz0gdmhvc3Rf
-bGVuOwo+IC0JCWlmICh1bmxpa2VseSh0b3RhbF9sZW4gPj0gVkhPU1RfTkVUX1dFSUdIVCkpIHsK
-PiArCQlpZiAodW5saWtlbHkodG90YWxfbGVuID49IFZIT1NUX05FVF9XRUlHSFQpIHx8Cj4gKwkJ
-ICAgIHVubGlrZWx5KCsrcmVjdl9wa3RzID49IFZIT1NUX05FVF9QS1RfV0VJR0hUKSkgewo+ICAg
-CQkJdmhvc3RfcG9sbF9xdWV1ZSgmdnEtPnBvbGwpOwo+ICAgCQkJZ290byBvdXQ7Cj4gICAJCX0K
-ClRoZSBudW1iZXJzIGxvb2tzIGltcHJlc3NpdmUuCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFz
-b3dhbmdAcmVkaGF0LmNvbT4KClRoYW5rcyEKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+
+On Mon, 23 Apr 2018, David Rientjes wrote:
+
+> On Mon, 23 Apr 2018, Mikulas Patocka wrote:
+> 
+> > The kvmalloc function tries to use kmalloc and falls back to vmalloc if
+> > kmalloc fails.
+> > 
+> > Unfortunatelly, some kernel code has bugs - it uses kvmalloc and then
+> > uses DMA-API on the returned memory or frees it with kfree. Such bugs were
+> > found in the virtio-net driver, dm-integrity or RHEL7 powerpc-specific
+> > code.
+> > 
+> > These bugs are hard to reproduce because kvmalloc falls back to vmalloc
+> > only if memory is fragmented.
+> > 
+> > In order to detect these bugs reliably I submit this patch that changes
+> > kvmalloc to fall back to vmalloc with 1/2 probability if CONFIG_DEBUG_SG
+> > is turned on. CONFIG_DEBUG_SG is used, because it makes the DMA API layer
+> > verify the addresses passed to it, and so the user will get a reliable
+> > stacktrace.
+> 
+> Why not just do it unconditionally?  Sounds better than "50% of the time 
+> this will catch bugs".
+
+Because kmalloc (with slub_debug) detects buffer overflows better than 
+vmalloc. vmalloc detects buffer overflows only at a page boundary. This is 
+intended for debugging kernels and debugging kernels should detect as many 
+bugs as possible.
+
+Mikulas
