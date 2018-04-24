@@ -1,24 +1,21 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event handling
-	code to use the failover framework
-Date: Tue, 24 Apr 2018 04:42:22 +0300
-Message-ID: <20180424043042-mutt-send-email-mst__34304.6559523374$1524534045$gmane$org@kernel.org>
-References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
-	<20180420082802.6ca37e4c@xeon-e3>
-	<20180420160058.GB2150@nanopsycho.orion>
-	<20180423100406.71b95f74@xeon-e3>
-	<20180423202204-mutt-send-email-mst@kernel.org>
-	<20180423104440.2fe6cfd2@xeon-e3>
-	<20180423205019-mutt-send-email-mst@kernel.org>
-	<CADGSJ20ge75T+ddxtUBT4d9m1i3=HLOAHJEoS7Cg0bqnXrutwA@mail.gmail.com>
-	<20180423182503.353180c9@xeon-e3>
+Subject: Re: [RFC v2] virtio: support packed ring
+Date: Tue, 24 Apr 2018 04:43:22 +0300
+Message-ID: <20180424044250-mutt-send-email-mst__40946.2241492749$1524534150$gmane$org@kernel.org>
+References: <20180401141216.8969-1-tiwei.bie@intel.com>
+	<515e635b-bc80-9b8d-72f9-b390ae5103ec@redhat.com>
+	<20180423092908.77rii3gi7dcaf7o6@debian>
+	<e08c55df-6ea2-cf7f-d7c9-91e55913ab16@redhat.com>
+	<20180424040258-mutt-send-email-mst@kernel.org>
+	<20180424011638.vf6f22dnl7ufnnij@debian>
+	<20180424042913-mutt-send-email-mst@kernel.org>
+	<20180424013747.hmr4ytqe7gdqfhdt@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180423182503.353180c9@xeon-e3>
+In-Reply-To: <20180424013747.hmr4ytqe7gdqfhdt@debian>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,67 +25,137 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, David Miller <davem@davemloft.net>
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 23, 2018 at 06:25:03PM -0700, Stephen Hemminger wrote:
-> On Mon, 23 Apr 2018 12:44:39 -0700
-> Siwei Liu <loseweigh@gmail.com> wrote:
-> 
-> > On Mon, Apr 23, 2018 at 10:56 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > On Mon, Apr 23, 2018 at 10:44:40AM -0700, Stephen Hemminger wrote:  
-> > >> On Mon, 23 Apr 2018 20:24:56 +0300
-> > >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > >>  
-> > >> > On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:  
-> > >> > > > >
-> > >> > > > >I will NAK patches to change to common code for netvsc especially the
-> > >> > > > >three device model.  MS worked hard with distro vendors to support transparent
-> > >> > > > >mode, ans we really can't have a new model; or do backport.
-> > >> > > > >
-> > >> > > > >Plus, DPDK is now dependent on existing model.  
-> > >> > > >
-> > >> > > > Sorry, but nobody here cares about dpdk or other similar oddities.  
-> > >> > >
-> > >> > > The network device model is a userspace API, and DPDK is a userspace application.  
-> > >> >
-> > >> > It is userspace but are you sure dpdk is actually poking at netdevs?
-> > >> > AFAIK it's normally banging device registers directly.
-> > >> >  
-> > >> > > You can't go breaking userspace even if you don't like the application.  
-> > >> >
-> > >> > Could you please explain how is the proposed patchset breaking
-> > >> > userspace? Ignoring DPDK for now, I don't think it changes the userspace
-> > >> > API at all.
-> > >> >  
-> > >>
-> > >> The DPDK has a device driver vdev_netvsc which scans the Linux network devices
-> > >> to look for Linux netvsc device and the paired VF device and setup the
-> > >> DPDK environment.  This setup creates a DPDK failsafe (bondingish) instance
-> > >> and sets up TAP support over the Linux netvsc device as well as the Mellanox
-> > >> VF device.
-> > >>
-> > >> So it depends on existing 2 device model. You can't go to a 3 device model
-> > >> or start hiding devices from userspace.  
-> > >
-> > > Okay so how does the existing patch break that? IIUC does not go to
-> > > a 3 device model since netvsc calls failover_register directly.
-> > >  
-> > >> Also, I am working on associating netvsc and VF device based on serial number
-> > >> rather than MAC address. The serial number is how Windows works now, and it makes
-> > >> sense for Linux and Windows to use the same mechanism if possible.  
-> > >
-> > > Maybe we should support same for virtio ...
-> > > Which serial do you mean? From vpd?
-> > >
-> > > I guess you will want to keep supporting MAC for old hypervisors?
-> 
-> The serial number has always been in the hypervisor since original support of SR-IOV
-> in WS2008.  So no backward compatibility special cases would be needed.
-
-Is that a serial from real hardware or a hypervisor thing?
-
-
--- 
-MST
+T24gVHVlLCBBcHIgMjQsIDIwMTggYXQgMDk6Mzc6NDdBTSArMDgwMCwgVGl3ZWkgQmllIHdyb3Rl
+Ogo+IE9uIFR1ZSwgQXByIDI0LCAyMDE4IGF0IDA0OjI5OjUxQU0gKzAzMDAsIE1pY2hhZWwgUy4g
+VHNpcmtpbiB3cm90ZToKPiA+IE9uIFR1ZSwgQXByIDI0LCAyMDE4IGF0IDA5OjE2OjM4QU0gKzA4
+MDAsIFRpd2VpIEJpZSB3cm90ZToKPiA+ID4gT24gVHVlLCBBcHIgMjQsIDIwMTggYXQgMDQ6MDU6
+MDdBTSArMDMwMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+ID4gPiA+IE9uIFR1ZSwgQXBy
+IDI0LCAyMDE4IGF0IDA4OjU0OjUyQU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4g
+PiAKPiA+ID4gPiA+IAo+ID4gPiA+ID4gT24gMjAxOOW5tDA05pyIMjPml6UgMTc6MjksIFRpd2Vp
+IEJpZSB3cm90ZToKPiA+ID4gPiA+ID4gT24gTW9uLCBBcHIgMjMsIDIwMTggYXQgMDE6NDI6MTRQ
+TSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ID4gPiBPbiAyMDE45bm0MDTmnIgw
+MeaXpSAyMjoxMiwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gSGVsbG8gZXZlcnlv
+bmUsCj4gPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+IFRoaXMgUkZDIGltcGxlbWVudHMg
+cGFja2VkIHJpbmcgc3VwcG9ydCBmb3IgdmlydGlvIGRyaXZlci4KPiA+ID4gPiA+ID4gPiA+IAo+
+ID4gPiA+ID4gPiA+ID4gVGhlIGNvZGUgd2FzIHRlc3RlZCB3aXRoIERQREsgdmhvc3QgKHRlc3Rw
+bWQvdmhvc3QtUE1EKSBpbXBsZW1lbnRlZAo+ID4gPiA+ID4gPiA+ID4gYnkgSmVucyBhdCBodHRw
+Oi8vZHBkay5vcmcvbWwvYXJjaGl2ZXMvZGV2LzIwMTgtSmFudWFyeS8wODk0MTcuaHRtbAo+ID4g
+PiA+ID4gPiA+ID4gTWlub3IgY2hhbmdlcyBhcmUgbmVlZGVkIGZvciB0aGUgdmhvc3QgY29kZSwg
+ZS5nLiB0byBraWNrIHRoZSBndWVzdC4KPiA+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+ID4g
+VE9ETzoKPiA+ID4gPiA+ID4gPiA+IC0gUmVmaW5lbWVudHMgYW5kIGJ1ZyBmaXhlczsKPiA+ID4g
+PiA+ID4gPiA+IC0gU3BsaXQgaW50byBzbWFsbCBwYXRjaGVzOwo+ID4gPiA+ID4gPiA+ID4gLSBU
+ZXN0IGluZGlyZWN0IGRlc2NyaXB0b3Igc3VwcG9ydDsKPiA+ID4gPiA+ID4gPiA+IC0gVGVzdC9m
+aXggZXZlbnQgc3VwcHJlc3Npb24gc3VwcG9ydDsKPiA+ID4gPiA+ID4gPiA+IC0gVGVzdCBkZXZp
+Y2VzIG90aGVyIHRoYW4gbmV0Owo+ID4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gPiBSRkMg
+djEgLT4gUkZDIHYyOgo+ID4gPiA+ID4gPiA+ID4gLSBBZGQgaW5kaXJlY3QgZGVzY3JpcHRvciBz
+dXBwb3J0IC0gY29tcGlsZSB0ZXN0IG9ubHk7Cj4gPiA+ID4gPiA+ID4gPiAtIEFkZCBldmVudCBz
+dXBwcmVzc2lvbiBzdXBwcnQgLSBjb21waWxlIHRlc3Qgb25seTsKPiA+ID4gPiA+ID4gPiA+IC0g
+TW92ZSB2cmluZ19wYWNrZWRfaW5pdCgpIG91dCBvZiB1YXBpIChKYXNvbiwgTVNUKTsKPiA+ID4g
+PiA+ID4gPiA+IC0gTWVyZ2UgdHdvIGxvb3BzIGludG8gb25lIGluIHZpcnRxdWV1ZV9hZGRfcGFj
+a2VkKCkgKEphc29uKTsKPiA+ID4gPiA+ID4gPiA+IC0gU3BsaXQgdnJpbmdfdW5tYXBfb25lKCkg
+Zm9yIHBhY2tlZCByaW5nIGFuZCBzcGxpdCByaW5nIChKYXNvbik7Cj4gPiA+ID4gPiA+ID4gPiAt
+IEF2b2lkIHVzaW5nICclJyBvcGVyYXRvciAoSmFzb24pOwo+ID4gPiA+ID4gPiA+ID4gLSBSZW5h
+bWUgZnJlZV9oZWFkIC0+IG5leHRfYXZhaWxfaWR4IChKYXNvbik7Cj4gPiA+ID4gPiA+ID4gPiAt
+IEFkZCBjb21tZW50cyBmb3IgdmlydGlvX3dtYigpIGluIHZpcnRxdWV1ZV9hZGRfcGFja2VkKCkg
+KEphc29uKTsKPiA+ID4gPiA+ID4gPiA+IC0gU29tZSBvdGhlciByZWZpbmVtZW50cyBhbmQgYnVn
+IGZpeGVzOwo+ID4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gPiBUaGFua3MhCj4gPiA+ID4g
+PiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IFRpd2VpIEJpZSA8dGl3ZWku
+YmllQGludGVsLmNvbT4KPiA+ID4gPiA+ID4gPiA+IC0tLQo+ID4gPiA+ID4gPiA+ID4gICAgZHJp
+dmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyAgICAgICB8IDEwOTQgKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKystLS0tLS0tCj4gPiA+ID4gPiA+ID4gPiAgICBpbmNsdWRlL2xpbnV4L3ZpcnRp
+b19yaW5nLmggICAgICAgIHwgICAgOCArLQo+ID4gPiA+ID4gPiA+ID4gICAgaW5jbHVkZS91YXBp
+L2xpbnV4L3ZpcnRpb19jb25maWcuaCB8ICAgMTIgKy0KPiA+ID4gPiA+ID4gPiA+ICAgIGluY2x1
+ZGUvdWFwaS9saW51eC92aXJ0aW9fcmluZy5oICAgfCAgIDYxICsrCj4gPiA+ID4gPiA+ID4gPiAg
+ICA0IGZpbGVzIGNoYW5nZWQsIDk4MCBpbnNlcnRpb25zKCspLCAxOTUgZGVsZXRpb25zKC0pCj4g
+PiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRp
+by92aXJ0aW9fcmluZy5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gPiA+ID4g
+PiA+ID4gaW5kZXggNzE0NThmNDkzY2Y4Li4wNTE1ZGNhMzRkNzcgMTAwNjQ0Cj4gPiA+ID4gPiA+
+ID4gPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPiA+ID4gPiA+ID4gPiAr
+KysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPiA+ID4gPiA+ID4gPiBAQCAtNTgs
+MTQgKzU4LDE1IEBACj4gPiA+ID4gPiA+ID4gWy4uLl0KPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+
+ID4gPiA+ICsKPiA+ID4gPiA+ID4gPiA+ICsJaWYgKHZxLT5pbmRpcmVjdCkgewo+ID4gPiA+ID4g
+PiA+ID4gKwkJdTMyIGxlbjsKPiA+ID4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gPiA+ICsJCWRl
+c2MgPSB2cS0+ZGVzY19zdGF0ZVtoZWFkXS5pbmRpcl9kZXNjOwo+ID4gPiA+ID4gPiA+ID4gKwkJ
+LyogRnJlZSB0aGUgaW5kaXJlY3QgdGFibGUsIGlmIGFueSwgbm93IHRoYXQgaXQncyB1bm1hcHBl
+ZC4gKi8KPiA+ID4gPiA+ID4gPiA+ICsJCWlmICghZGVzYykKPiA+ID4gPiA+ID4gPiA+ICsJCQln
+b3RvIG91dDsKPiA+ID4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gPiA+ICsJCWxlbiA9IHZpcnRp
+bzMyX3RvX2NwdSh2cS0+dnEudmRldiwKPiA+ID4gPiA+ID4gPiA+ICsJCQkJICAgICAgdnEtPnZy
+aW5nX3BhY2tlZC5kZXNjW2hlYWRdLmxlbik7Cj4gPiA+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+
+ID4gPiArCQlCVUdfT04oISh2cS0+dnJpbmdfcGFja2VkLmRlc2NbaGVhZF0uZmxhZ3MgJgo+ID4g
+PiA+ID4gPiA+ID4gKwkJCSBjcHVfdG9fdmlydGlvMTYodnEtPnZxLnZkZXYsIFZSSU5HX0RFU0Nf
+Rl9JTkRJUkVDVCkpKTsKPiA+ID4gPiA+ID4gPiBJdCBsb29rcyB0byBtZSBzcGVjIGRvZXMgbm90
+IGZvcmNlIHRvIGtlZXAgVlJJTkdfREVTQ19GX0lORElSRUNUIGhlcmUuIFNvIHdlCj4gPiA+ID4g
+PiA+ID4gY2FuIHNhZmVseSByZW1vdmUgdGhpcyBCVUdfT04oKSBoZXJlLgo+ID4gPiA+ID4gPiA+
+IAo+ID4gPiA+ID4gPiA+ID4gKwkJQlVHX09OKGxlbiA9PSAwIHx8IGxlbiAlIHNpemVvZihzdHJ1
+Y3QgdnJpbmdfcGFja2VkX2Rlc2MpKTsKPiA+ID4gPiA+ID4gPiBMZW4gY291bGQgYmUgaWdub3Jl
+ZCBmb3IgdXNlZCBkZXNjcmlwdG9yIGFjY29yZGluZyB0byB0aGUgc3BlYywgc28gd2UgbmVlZAo+
+ID4gPiA+ID4gPiA+IHJlbW92ZSB0aGlzIEJVR19PTigpIHRvby4KPiA+ID4gPiA+ID4gWWVhaCwg
+eW91J3JlIHJpZ2h0ISBUaGUgQlVHX09OKCkgaXNuJ3QgcmlnaHQuIEknbGwgcmVtb3ZlIGl0Lgo+
+ID4gPiA+ID4gPiBBbmQgSSB0aGluayBzb21ldGhpbmcgcmVsYXRlZCB0byB0aGlzIGluIHRoZSBz
+cGVjIGlzbid0IHZlcnkKPiA+ID4gPiA+ID4gY2xlYXIgY3VycmVudGx5Lgo+ID4gPiA+ID4gPiAK
+PiA+ID4gPiA+ID4gSW4gdGhlIHNwZWMsIHRoZXJlIGFyZSBiZWxvdyB3b3JkczoKPiA+ID4gPiA+
+ID4gCj4gPiA+ID4gPiA+IGh0dHBzOi8vZ2l0aHViLmNvbS9vYXNpcy10Y3MvdmlydGlvLXNwZWMv
+YmxvYi9kNGZlYzUxN2RmY2YvcGFja2VkLXJpbmcudGV4I0wyNzIKPiA+ID4gPiA+ID4gIiIiCj4g
+PiA+ID4gPiA+IEluIGRlc2NyaXB0b3JzIHdpdGggVklSVFFfREVTQ19GX0lORElSRUNUIHNldCBW
+SVJUUV9ERVNDX0ZfV1JJVEUKPiA+ID4gPiA+ID4gaXMgcmVzZXJ2ZWQgYW5kIGlzIGlnbm9yZWQg
+YnkgdGhlIGRldmljZS4KPiA+ID4gPiA+ID4gIiIiCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiBT
+byB3aGVuIGRldmljZSB3cml0ZXMgYmFjayBhbiB1c2VkIGRlc2NyaXB0b3IgaW4gdGhpcyBjYXNl
+LAo+ID4gPiA+ID4gPiBkZXZpY2UgbWF5IG5vdCBzZXQgdGhlIFZJUlRRX0RFU0NfRl9XUklURSBm
+bGFnIGFzIHRoZSBmbGFnCj4gPiA+ID4gPiA+IGlzIHJlc2VydmVkIGFuZCBzaG91bGQgYmUgaWdu
+b3JlZC4KPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+IGh0dHBzOi8vZ2l0aHViLmNvbS9vYXNpcy10
+Y3MvdmlydGlvLXNwZWMvYmxvYi9kNGZlYzUxN2RmY2YvcGFja2VkLXJpbmcudGV4I0wxNzAKPiA+
+ID4gPiA+ID4gIiIiCj4gPiA+ID4gPiA+IEVsZW1lbnQgTGVuZ3RoIGlzIHJlc2VydmVkIGZvciB1
+c2VkIGRlc2NyaXB0b3JzIHdpdGhvdXQgdGhlCj4gPiA+ID4gPiA+IFZJUlRRX0RFU0NfRl9XUklU
+RSBmbGFnLCBhbmQgaXMgaWdub3JlZCBieSBkcml2ZXJzLgo+ID4gPiA+ID4gPiAiIiIKPiA+ID4g
+PiA+ID4gCj4gPiA+ID4gPiA+IEFuZCB0aGlzIGlzIHRoZSB3YXkgaG93IGRyaXZlciBpZ25vcmVz
+IHRoZSBgbGVuYCBpbiBhbiB1c2VkCj4gPiA+ID4gPiA+IGRlc2NyaXB0b3IuCj4gPiA+ID4gPiA+
+IAo+ID4gPiA+ID4gPiBodHRwczovL2dpdGh1Yi5jb20vb2FzaXMtdGNzL3ZpcnRpby1zcGVjL2Js
+b2IvZDRmZWM1MTdkZmNmL3BhY2tlZC1yaW5nLnRleCNMMjQxCj4gPiA+ID4gPiA+ICIiIgo+ID4g
+PiA+ID4gPiBUbyBpbmNyZWFzZSByaW5nIGNhcGFjaXR5IHRoZSBkcml2ZXIgY2FuIHN0b3JlIGEg
+KHJlYWQtb25seQo+ID4gPiA+ID4gPiBieSB0aGUgZGV2aWNlKSB0YWJsZSBvZiBpbmRpcmVjdCBk
+ZXNjcmlwdG9ycyBhbnl3aGVyZSBpbiBtZW1vcnksCj4gPiA+ID4gPiA+IGFuZCBpbnNlcnQgYSBk
+ZXNjcmlwdG9yIGluIHRoZSBtYWluIHZpcnRxdWV1ZSAod2l0aCBcZmllbGR7RmxhZ3N9Cj4gPiA+
+ID4gPiA+IGJpdCBWSVJUUV9ERVNDX0ZfSU5ESVJFQ1Qgb24pIHRoYXQgcmVmZXJzIHRvIGEgYnVm
+ZmVyIGVsZW1lbnQKPiA+ID4gPiA+ID4gY29udGFpbmluZyB0aGlzIGluZGlyZWN0IGRlc2NyaXB0
+b3IgdGFibGU7Cj4gPiA+ID4gPiA+ICIiIgo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gU28gdGhl
+IGluZGlyZWN0IGRlc2NyaXB0b3JzIGluIHRoZSB0YWJsZSBhcmUgcmVhZC1vbmx5IGJ5Cj4gPiA+
+ID4gPiA+IHRoZSBkZXZpY2UuIEFuZCB0aGUgb25seSBkZXNjcmlwdG9yIHdoaWNoIGlzIHdyaXRl
+YWJsZSBieQo+ID4gPiA+ID4gPiB0aGUgZGV2aWNlIGlzIHRoZSBkZXNjcmlwdG9yIGluIHRoZSBt
+YWluIHZpcnRxdWV1ZSAod2l0aAo+ID4gPiA+ID4gPiBGbGFncyBiaXQgVklSVFFfREVTQ19GX0lO
+RElSRUNUIG9uKS4gU28gaWYgd2UgaWdub3JlIHRoZQo+ID4gPiA+ID4gPiBgbGVuYCBpbiB0aGlz
+IGRlc2NyaXB0b3IsIHdlIHdvbid0IGJlIGFibGUgdG8gZ2V0IHRoZQo+ID4gPiA+ID4gPiBsZW5n
+dGggb2YgdGhlIGRhdGEgd3JpdHRlbiBieSB0aGUgZGV2aWNlLgo+ID4gPiA+ID4gPiAKPiA+ID4g
+PiA+ID4gU28gSSB0aGluayB0aGUgYGxlbmAgaW4gdGhpcyBkZXNjcmlwdG9yIHdpbGwgY2Fycnkg
+dGhlCj4gPiA+ID4gPiA+IGxlbmd0aCBvZiB0aGUgZGF0YSB3cml0dGVuIGJ5IHRoZSBkZXZpY2Ug
+KGlmIHRoZSBidWZmZXJzCj4gPiA+ID4gPiA+IGFyZSB3cml0YWJsZSB0byB0aGUgZGV2aWNlKSBl
+dmVuIGlmIHRoZSBWSVJUUV9ERVNDX0ZfV1JJVEUKPiA+ID4gPiA+ID4gaXNuJ3Qgc2V0IGJ5IHRo
+ZSBkZXZpY2UuIEhvdyBkbyB5b3UgdGhpbms/Cj4gPiA+ID4gPiAKPiA+ID4gPiA+IFllcyBJIHRo
+aW5rIHNvLiBCdXQgd2UnZCBiZXR0ZXIgbmVlZCBjbGFyaWZpY2F0aW9uIGZyb20gTWljaGFlbC4K
+PiA+ID4gPiAKPiA+ID4gPiBJIHRoaW5rIGlmIHlvdSB1c2UgYSBkZXNjcmlwdG9yLCBhbmQgeW91
+IHdhbnQgdG8gc3VwcGx5IGxlbgo+ID4gPiA+IHRvIGd1ZXN0LCB5b3Ugc2V0IFZJUlRRX0RFU0Nf
+Rl9XUklURSBpbiB0aGUgdXNlZCBkZXNjcmlwdG9yLgo+ID4gPiA+IFNwZWMgYWxzbyBzYXlzIHlv
+dSBtdXN0IG5vdCBzZXQgVklSVFFfREVTQ19GX0lORElSRUNUIHRoZW4uCj4gPiA+ID4gSWYgdGhh
+dCdzIGEgcHJvYmxlbSB3ZSBjb3VsZCBsb29rIGF0IHJlbGF4aW5nIHRoYXQgbGFzdCByZXF1aXJl
+bWVudCAtCj4gPiA+ID4gZG9lcyBkcml2ZXIgd2FudCBJTkRJUkVDVCBpbiB1c2VkIGRlc2NyaXB0
+b3IgdG8gbWF0Y2gKPiA+ID4gPiB0aGUgdmFsdWUgaW4gdGhlIGF2YWlsIGRlc2NyaXB0b3IgZm9y
+IHNvbWUgcmVhc29uPwo+ID4gPiAKPiA+ID4gRm9yIGluZGlyZWN0LCBkcml2ZXIgbmVlZHMgc29t
+ZSB3YXkgdG8gZ2V0IHRoZSBsZW5ndGgKPiA+ID4gb2YgdGhlIGRhdGEgd3JpdHRlbiBieSB0aGUg
+ZHJpdmVyLiBBbmQgdGhlIGRlc2NyaXB0b3JzCj4gPiA+IGluIHRoZSBpbmRpcmVjdCB0YWJsZSBp
+cyByZWFkLW9ubHksIHNvIHRoZSBvbmx5IHBsYWNlCj4gPiA+IGRldmljZSBjb3VsZCBwdXQgdGhp
+cyB2YWx1ZSBpcyB0aGUgZGVzY3JpcHRvciB3aXRoIHRoZQo+ID4gPiBWSVJUUV9ERVNDX0ZfSU5E
+SVJFQ1QgZmxhZyBzZXQuCj4gPiAKPiA+IHdoZW4gd3JpdGluZyBvdXQgdXNlZCBkZXNjcmlwdG9y
+LCBkZXZpY2Ugc2hvdWxkIHNldCBWSVJUUV9ERVNDX0ZfV1JJVEUKPiA+IChhbmQgY2xlYXIgVklS
+VFFfREVTQ19GX0lORElSRUNUKS4KPiAKPiBTbyB0aGUgc3BlYyBhbGxvd3MgZGV2aWNlIHRvIHNl
+dCBWSVJUUV9ERVNDX0ZfV1JJVEUgYml0Cj4gd2hlbiB3cml0aW5nIG91dCBhbiB1c2VkIGRlc2Ny
+aXB0b3IgZXZlbiBpZiB0aGUgY29ycmVzcG9uZGluZwo+IGRlc2NyaXB0b3JzIGl0IGp1c3QgcGFy
+c2VkIGRvbid0IGhhdmUgdGhlIFZJUlRRX0RFU0NfRl9XUklURQo+IGJpdCBzZXQ/Cj4gCj4gQmVz
+dCByZWdhcmRzLAo+IFRpd2VpIEJpZQoKSSB0aGluayBzby4gSW4gYSB1c2VkIGRlc2NyaXB0b3Is
+IFZJUlRRX0RFU0NfRl9XUklURSBqdXN0IG1lYW5zIGxlbmd0aAppcyB2YWxpZC4KCi0tIApNU1QK
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
+YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
+cnR1YWxpemF0aW9u
