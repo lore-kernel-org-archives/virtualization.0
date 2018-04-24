@@ -1,25 +1,15 @@
-From: Mikulas Patocka <mpatocka@redhat.com>
-Subject: Re: [PATCH v3] kvmalloc: always use vmalloc if CONFIG_DEBUG_SG
-Date: Tue, 24 Apr 2018 07:04:23 -0400 (EDT)
-Message-ID: <alpine.LRH.2.02.1804240701590.28016@file01.intranet.prod.int.rdu2.redhat.com>
-References: <alpine.LRH.2.02.1804181218270.19136@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180418.134651.2225112489265654270.davem@davemloft.net>
-	<alpine.LRH.2.02.1804181350050.17942@file01.intranet.prod.int.rdu2.redhat.com>
-	<alpine.LRH.2.02.1804191207380.31175@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180420130852.GC16083@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180420210200.GH10788@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804201704580.25408@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180421144757.GC14610@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804221733520.7995@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180423151545.GU17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804232003100.2299@file01.intranet.prod.int.rdu2.redhat.com>
-	<alpine.DEB.2.21.1804231945410.58980@chino.kir.corp.google.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH] gpu: drm: qxl: Adding new typedef vm_fault_t
+Date: Tue, 24 Apr 2018 14:11:51 +0200
+Message-ID: <20180424121151.GX31310__47714.6576311954$1524571796$gmane$org@phenom.ffwll.local>
+References: <20180417133844.GA30256@jordon-HP-15-Notebook-PC>
+	<20180423104924.ozalv7x5ppjifnxc@sirius.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.21.1804231945410.58980@chino.kir.corp.google.com>
+Content-Disposition: inline
+In-Reply-To: <20180423104924.ozalv7x5ppjifnxc@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,39 +19,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Rientjes <rientjes@google.com>
-Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, edumazet@google.com, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: willy@infradead.org, airlied@linux.ie, Gustavo Padovan <gustavo@padovan.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Sean Paul <seanpaul@chromium.org>, Souptick Joarder <jrdr.linux@gmail.com>, airlied@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On Mon, 23 Apr 2018, David Rientjes wrote:
-
-> On Mon, 23 Apr 2018, Mikulas Patocka wrote:
+On Mon, Apr 23, 2018 at 12:49:24PM +0200, Gerd Hoffmann wrote:
+> On Tue, Apr 17, 2018 at 07:08:44PM +0530, Souptick Joarder wrote:
+> > Use new return type vm_fault_t for fault handler. For
+> > now, this is just documenting that the function returns
+> > a VM_FAULT value rather than an errno. Once all instances
+> > are converted, vm_fault_t will become a distinct type.
+> > 
+> > Reference id -> 1c8f422059ae ("mm: change return type to
+> > vm_fault_t")
 > 
-> > The kvmalloc function tries to use kmalloc and falls back to vmalloc if
-> > kmalloc fails.
-> > 
-> > Unfortunatelly, some kernel code has bugs - it uses kvmalloc and then
-> > uses DMA-API on the returned memory or frees it with kfree. Such bugs were
-> > found in the virtio-net driver, dm-integrity or RHEL7 powerpc-specific
-> > code.
-> > 
-> > These bugs are hard to reproduce because kvmalloc falls back to vmalloc
-> > only if memory is fragmented.
-> > 
-> > In order to detect these bugs reliably I submit this patch that changes
-> > kvmalloc to fall back to vmalloc with 1/2 probability if CONFIG_DEBUG_SG
-> > is turned on. CONFIG_DEBUG_SG is used, because it makes the DMA API layer
-> > verify the addresses passed to it, and so the user will get a reliable
-> > stacktrace.
-> 
-> Why not just do it unconditionally?  Sounds better than "50% of the time 
-> this will catch bugs".
+> Hmm, that commit isn't yet in drm-misc-next.
+> Will drm-misc-next merge with 4.17-rcX soon?
 
-Because kmalloc (with slub_debug) detects buffer overflows better than 
-vmalloc. vmalloc detects buffer overflows only at a page boundary. This is 
-intended for debugging kernels and debugging kernels should detect as many 
-bugs as possible.
-
-Mikulas
+For backmerge requests you need to cc/ping the drm-misc maintainers.
+Adding them. I think the hold-up also was that Dave was on vacations
+still.
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
