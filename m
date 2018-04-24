@@ -1,15 +1,23 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 3/6] virtio_console: free buffers after reset
-Date: Tue, 24 Apr 2018 10:40:18 +0800
-Message-ID: <27e87df7-2835-7f3e-c3da-76b844dbd780__5868.08246230266$1524537544$gmane$org@redhat.com>
-References: <1524248223-393618-1-git-send-email-mst@redhat.com>
-	<1524248223-393618-4-git-send-email-mst@redhat.com>
+From: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH v3] kvmalloc: always use vmalloc if CONFIG_DEBUG_SG
+Date: Mon, 23 Apr 2018 20:46:43 -0700
+Message-ID: <20180424034643.GA26636__48176.7561556355$1524541508$gmane$org@bombadil.infradead.org>
+References: <alpine.LRH.2.02.1804181350050.17942@file01.intranet.prod.int.rdu2.redhat.com>
+	<alpine.LRH.2.02.1804191207380.31175@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180420130852.GC16083@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180420210200.GH10788@bombadil.infradead.org>
+	<alpine.LRH.2.02.1804201704580.25408@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180421144757.GC14610@bombadil.infradead.org>
+	<alpine.LRH.2.02.1804221733520.7995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180423151545.GU17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804232003100.2299@file01.intranet.prod.int.rdu2.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1524248223-393618-4-git-send-email-mst@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <alpine.LRH.2.02.1804232003100.2299@file01.intranet.prod.int.rdu2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,83 +27,14 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, stable@kernel.org
+To: Mikulas Patocka <mpatocka@redhat.com>
+Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, edumazet@google.com, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDTmnIgyMeaXpSAwMjoxOCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IENvbnNvbGUgZHJpdmVyIGlzIG91dCBvZiBzcGVjLiBUaGUgc3BlYyBzYXlzOgo+IAlBIGRyaXZl
-ciBNVVNUIE5PVCBkZWNyZW1lbnQgdGhlIGF2YWlsYWJsZSBpZHggb24gYSBsaXZlCj4gCXZpcnRx
-dWV1ZSAoaWUuIHRoZXJlIGlzIG5vIHdheSB0byDigJx1bmV4cG9zZeKAnSBidWZmZXJzKS4KPiBh
-bmQgaXQgZG9lcyBleGFjdGx5IHRoYXQgYnkgdHJ5aW5nIHRvIGRldGFjaCB1bnVzZWQgYnVmZmVy
-cwo+IHdpdGhvdXQgZG9pbmcgYSBkZXZpY2UgcmVzZXQgZmlyc3QuCj4KPiBEZWZlciBkZXRhY2hp
-bmcgdGhlIGJ1ZmZlcnMgdW50aWwgZGV2aWNlIHVucGx1Zy4KPgo+IE9mIGNvdXJzZSB0aGlzIG1l
-YW5zIHdlIG1pZ2h0IGdldCBhbiBpbnRlcnJ1cHQgZm9yCj4gYSB2cSB3aXRob3V0IGFuIGF0dGFj
-aGVkIHBvcnQgbm93LiBIYW5kbGUgdGhhdCBieQo+IGRpc2NhcmRpbmcgdGhlIGNvbnN1bWVkIGJ1
-ZmZlci4KPgo+IFJlcG9ydGVkLWJ5OiBUaXdlaSBCaWUgPHRpd2VpLmJpZUBpbnRlbC5jb20+Cj4g
-Rml4ZXM6IGIzMjU4ZmYxZDYgKCJ2aXJ0aW86IERlY3JlbWVudCBhdmFpbCBpZHggb24gYnVmZmVy
-IGRldGFjaCIpCj4gQ0M6IHN0YWJsZUBrZXJuZWwub3JnCj4gU2lnbmVkLW9mZi1ieTogTWljaGFl
-bCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KCkkgd29uZGVyIHdoZXRoZXIgb3Igbm90IHdl
-IGNhbiBoYXZlIHNvbWUgQlVHX09OKCkgaW4gCnZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1Zigp
-IHRvIGRldGVjdCBzdWNoIGJ1Z3MgKGUuZyBieSBjaGVja2luZyBzdGF0dXM/KS4KClRoYW5rcwoK
-PiAtLS0KPiAgIGRyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jIHwgNDkgKysrKysrKysrKysr
-KysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+ICAgMSBmaWxlIGNoYW5nZWQsIDI0IGlu
-c2VydGlvbnMoKyksIDI1IGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvY2hh
-ci92aXJ0aW9fY29uc29sZS5jIGIvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMKPiBpbmRl
-eCAzZTU2ZjMyLi4yNmE2NmZmIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvY2hhci92aXJ0aW9fY29u
-c29sZS5jCj4gKysrIGIvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMKPiBAQCAtMTQwMiw3
-ICsxNDAyLDYgQEAgc3RhdGljIGludCBhZGRfcG9ydChzdHJ1Y3QgcG9ydHNfZGV2aWNlICpwb3J0
-ZGV2LCB1MzIgaWQpCj4gICB7Cj4gICAJY2hhciBkZWJ1Z2ZzX25hbWVbMTZdOwo+ICAgCXN0cnVj
-dCBwb3J0ICpwb3J0Owo+IC0Jc3RydWN0IHBvcnRfYnVmZmVyICpidWY7Cj4gICAJZGV2X3QgZGV2
-dDsKPiAgIAl1bnNpZ25lZCBpbnQgbnJfYWRkZWRfYnVmczsKPiAgIAlpbnQgZXJyOwo+IEBAIC0x
-NTEzLDggKzE1MTIsNiBAQCBzdGF0aWMgaW50IGFkZF9wb3J0KHN0cnVjdCBwb3J0c19kZXZpY2Ug
-KnBvcnRkZXYsIHUzMiBpZCkKPiAgIAlyZXR1cm4gMDsKPiAgIAo+ICAgZnJlZV9pbmJ1ZnM6Cj4g
-LQl3aGlsZSAoKGJ1ZiA9IHZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1Zihwb3J0LT5pbl92cSkp
-KQo+IC0JCWZyZWVfYnVmKGJ1ZiwgdHJ1ZSk7Cj4gICBmcmVlX2RldmljZToKPiAgIAlkZXZpY2Vf
-ZGVzdHJveShwZHJ2ZGF0YS5jbGFzcywgcG9ydC0+ZGV2LT5kZXZ0KTsKPiAgIGZyZWVfY2RldjoK
-PiBAQCAtMTUzOSwzNCArMTUzNiwxNCBAQCBzdGF0aWMgdm9pZCByZW1vdmVfcG9ydChzdHJ1Y3Qg
-a3JlZiAqa3JlZikKPiAgIAo+ICAgc3RhdGljIHZvaWQgcmVtb3ZlX3BvcnRfZGF0YShzdHJ1Y3Qg
-cG9ydCAqcG9ydCkKPiAgIHsKPiAtCXN0cnVjdCBwb3J0X2J1ZmZlciAqYnVmOwo+IC0KPiAgIAlz
-cGluX2xvY2tfaXJxKCZwb3J0LT5pbmJ1Zl9sb2NrKTsKPiAgIAkvKiBSZW1vdmUgdW51c2VkIGRh
-dGEgdGhpcyBwb3J0IG1pZ2h0IGhhdmUgcmVjZWl2ZWQuICovCj4gICAJZGlzY2FyZF9wb3J0X2Rh
-dGEocG9ydCk7Cj4gICAJc3Bpbl91bmxvY2tfaXJxKCZwb3J0LT5pbmJ1Zl9sb2NrKTsKPiAgIAo+
-IC0JLyogUmVtb3ZlIGJ1ZmZlcnMgd2UgcXVldWVkIHVwIGZvciB0aGUgSG9zdCB0byBzZW5kIHVz
-IGRhdGEgaW4uICovCj4gLQlkbyB7Cj4gLQkJc3Bpbl9sb2NrX2lycSgmcG9ydC0+aW5idWZfbG9j
-ayk7Cj4gLQkJYnVmID0gdmlydHF1ZXVlX2RldGFjaF91bnVzZWRfYnVmKHBvcnQtPmluX3ZxKTsK
-PiAtCQlzcGluX3VubG9ja19pcnEoJnBvcnQtPmluYnVmX2xvY2spOwo+IC0JCWlmIChidWYpCj4g
-LQkJCWZyZWVfYnVmKGJ1ZiwgdHJ1ZSk7Cj4gLQl9IHdoaWxlIChidWYpOwo+IC0KPiAgIAlzcGlu
-X2xvY2tfaXJxKCZwb3J0LT5vdXR2cV9sb2NrKTsKPiAgIAlyZWNsYWltX2NvbnN1bWVkX2J1ZmZl
-cnMocG9ydCk7Cj4gICAJc3Bpbl91bmxvY2tfaXJxKCZwb3J0LT5vdXR2cV9sb2NrKTsKPiAtCj4g
-LQkvKiBGcmVlIHBlbmRpbmcgYnVmZmVycyBmcm9tIHRoZSBvdXQtcXVldWUuICovCj4gLQlkbyB7
-Cj4gLQkJc3Bpbl9sb2NrX2lycSgmcG9ydC0+b3V0dnFfbG9jayk7Cj4gLQkJYnVmID0gdmlydHF1
-ZXVlX2RldGFjaF91bnVzZWRfYnVmKHBvcnQtPm91dF92cSk7Cj4gLQkJc3Bpbl91bmxvY2tfaXJx
-KCZwb3J0LT5vdXR2cV9sb2NrKTsKPiAtCQlpZiAoYnVmKQo+IC0JCQlmcmVlX2J1ZihidWYsIHRy
-dWUpOwo+IC0JfSB3aGlsZSAoYnVmKTsKPiAgIH0KPiAgIAo+ICAgLyoKPiBAQCAtMTc5MSwxMyAr
-MTc2OCwyNCBAQCBzdGF0aWMgdm9pZCBjb250cm9sX3dvcmtfaGFuZGxlcihzdHJ1Y3Qgd29ya19z
-dHJ1Y3QgKndvcmspCj4gICAJc3Bpbl91bmxvY2soJnBvcnRkZXYtPmNfaXZxX2xvY2spOwo+ICAg
-fQo+ICAgCj4gK3N0YXRpYyB2b2lkIGZsdXNoX2J1ZnMoc3RydWN0IHZpcnRxdWV1ZSAqdnEsIGJv
-b2wgY2FuX3NsZWVwKQo+ICt7Cj4gKwlzdHJ1Y3QgcG9ydF9idWZmZXIgKmJ1ZjsKPiArCXVuc2ln
-bmVkIGludCBsZW47Cj4gKwo+ICsJd2hpbGUgKChidWYgPSB2aXJ0cXVldWVfZ2V0X2J1Zih2cSwg
-JmxlbikpKQo+ICsJCWZyZWVfYnVmKGJ1ZiwgY2FuX3NsZWVwKTsKPiArfQo+ICsKPiAgIHN0YXRp
-YyB2b2lkIG91dF9pbnRyKHN0cnVjdCB2aXJ0cXVldWUgKnZxKQo+ICAgewo+ICAgCXN0cnVjdCBw
-b3J0ICpwb3J0Owo+ICAgCj4gICAJcG9ydCA9IGZpbmRfcG9ydF9ieV92cSh2cS0+dmRldi0+cHJp
-diwgdnEpOwo+IC0JaWYgKCFwb3J0KQo+ICsJaWYgKCFwb3J0KSB7Cj4gKwkJZmx1c2hfYnVmcyh2
-cSwgZmFsc2UpOwo+ICAgCQlyZXR1cm47Cj4gKwl9Cj4gICAKPiAgIAl3YWtlX3VwX2ludGVycnVw
-dGlibGUoJnBvcnQtPndhaXRxdWV1ZSk7Cj4gICB9Cj4gQEAgLTE4MDgsOCArMTc5NiwxMCBAQCBz
-dGF0aWMgdm9pZCBpbl9pbnRyKHN0cnVjdCB2aXJ0cXVldWUgKnZxKQo+ICAgCXVuc2lnbmVkIGxv
-bmcgZmxhZ3M7Cj4gICAKPiAgIAlwb3J0ID0gZmluZF9wb3J0X2J5X3ZxKHZxLT52ZGV2LT5wcml2
-LCB2cSk7Cj4gLQlpZiAoIXBvcnQpCj4gKwlpZiAoIXBvcnQpIHsKPiArCQlmbHVzaF9idWZzKHZx
-LCBmYWxzZSk7Cj4gICAJCXJldHVybjsKPiArCX0KPiAgIAo+ICAgCXNwaW5fbG9ja19pcnFzYXZl
-KCZwb3J0LT5pbmJ1Zl9sb2NrLCBmbGFncyk7Cj4gICAJcG9ydC0+aW5idWYgPSBnZXRfaW5idWYo
-cG9ydCk7Cj4gQEAgLTE5ODQsNiArMTk3NCwxNSBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGZpbGVf
-b3BlcmF0aW9ucyBwb3J0ZGV2X2ZvcHMgPSB7Cj4gICAKPiAgIHN0YXRpYyB2b2lkIHJlbW92ZV92
-cXMoc3RydWN0IHBvcnRzX2RldmljZSAqcG9ydGRldikKPiAgIHsKPiArCXN0cnVjdCB2aXJ0cXVl
-dWUgKnZxOwo+ICsKPiArCXZpcnRpb19kZXZpY2VfZm9yX2VhY2hfdnEocG9ydGRldi0+dmRldiwg
-dnEpIHsKPiArCQlzdHJ1Y3QgcG9ydF9idWZmZXIgKmJ1ZjsKPiArCj4gKwkJZmx1c2hfYnVmcyh2
-cSwgdHJ1ZSk7Cj4gKwkJd2hpbGUgKChidWYgPSB2aXJ0cXVldWVfZGV0YWNoX3VudXNlZF9idWYo
-dnEpKSkKPiArCQkJZnJlZV9idWYoYnVmLCB0cnVlKTsKPiArCX0KPiAgIAlwb3J0ZGV2LT52ZGV2
-LT5jb25maWctPmRlbF92cXMocG9ydGRldi0+dmRldik7Cj4gICAJa2ZyZWUocG9ydGRldi0+aW5f
-dnFzKTsKPiAgIAlrZnJlZShwb3J0ZGV2LT5vdXRfdnFzKTsKCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Mon, Apr 23, 2018 at 08:06:16PM -0400, Mikulas Patocka wrote:
+> Some bugs (such as buffer overflows) are better detected
+> with kmalloc code, so we must test the kmalloc path too.
+
+Well now, this brings up another item for the collective TODO list --
+implement redzone checks for vmalloc.  Unless this is something already
+taken care of by kasan or similar.
