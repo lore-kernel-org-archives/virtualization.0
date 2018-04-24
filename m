@@ -1,13 +1,23 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] vhost_net: use packet weight for rx handler, too
-Date: Tue, 24 Apr 2018 10:02:50 -0400 (EDT)
-Message-ID: <20180424.100250.2051235227878473641.davem__43388.8465086513$1524578480$gmane$org@davemloft.net>
-References: <11f2a27cee0c660a611af381ac1b68d9526095e3.1524556673.git.pabeni@redhat.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
+Subject: Re: [PATCH] kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
+Date: Tue, 24 Apr 2018 11:30:40 -0400 (EDT)
+Message-ID: <alpine.LRH.2.02.1804241107010.31601@file01.intranet.prod.int.rdu2.redhat.com>
+References: <alpine.LRH.2.02.1804181350050.17942@file01.intranet.prod.int.rdu2.redhat.com>
+	<alpine.LRH.2.02.1804191207380.31175@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180420130852.GC16083@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180420210200.GH10788@bombadil.infradead.org>
+	<alpine.LRH.2.02.1804201704580.25408@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180421144757.GC14610@bombadil.infradead.org>
+	<alpine.LRH.2.02.1804221733520.7995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180423151545.GU17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804232006540.2299@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424133146.GG17484@dhcp22.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11f2a27cee0c660a611af381ac1b68d9526095e3.1524556673.git.pabeni@redhat.com>
+In-Reply-To: <20180424133146.GG17484@dhcp22.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,44 +27,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: pabeni@redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, haibinzhang@tencent.com
+To: Michal Hocko <mhocko@kernel.org>
+Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, edumazet@google.com, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Paolo Abeni <pabeni@redhat.com>
-Date: Tue, 24 Apr 2018 10:34:36 +0200
 
-> Similar to commit a2ac99905f1e ("vhost-net: set packet weight of
-> tx polling to 2 * vq size"), we need a packet-based limit for
-> handler_rx, too - elsewhere, under rx flood with small packets,
-> tx can be delayed for a very long time, even without busypolling.
-> 
-> The pkt limit applied to handle_rx must be the same applied by
-> handle_tx, or we will get unfair scheduling between rx and tx.
-> Tying such limit to the queue length makes it less effective for
-> large queue length values and can introduce large process
-> scheduler latencies, so a constant valued is used - likewise
-> the existing bytes limit.
-> 
-> The selected limit has been validated with PVP[1] performance
-> test with different queue sizes:
-> 
-> queue size		256	512	1024
-> 
-> baseline		366	354	362
-> weight 128		715	723	670
-> weight 256		740	745	733
-> weight 512		600	460	583
-> weight 1024		423	427	418
-> 
-> A packet weight of 256 gives peek performances in under all the
-> tested scenarios.
-> 
-> No measurable regression in unidirectional performance tests has
-> been detected.
-> 
-> [1] https://developers.redhat.com/blog/2017/06/05/measuring-and-comparing-open-vswitch-performance/
-> 
-> Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 
-Applied to net-next, thanks.
+On Tue, 24 Apr 2018, Michal Hocko wrote:
+
+> On Mon 23-04-18 20:25:15, Mikulas Patocka wrote:
+> 
+> > Fixing __vmalloc code 
+> > is easy and it doesn't require cooperation with maintainers.
+> 
+> But it is a hack against the intention of the scope api.
+
+It is not! You can fix __vmalloc now and you can convert the kernel to the 
+scope API in 4 years. It's not one way or the other.
+
+> It also alows maintainers to not care about their broken code.
+
+Most maintainers don't even know that it's broken. Out of 14 subsystems 
+using __vmalloc with GFP_NOIO/NOFS, only 2 realized that its 
+implementation is broken and implemented a workaround (me and the XFS 
+developers).
+
+Misimplementing a function in a subtle and hard-to-notice way won't drive 
+developers away from using it.
+
+> > > > He refuses 15-line patch to fix GFP_NOIO bug because he believes that in 4 
+> > > > years, the kernel will be refactored and GFP_NOIO will be eliminated. Why 
+> > > > does he have veto over this part of the code? I'd much rather argue with 
+> > > > people who have constructive comments about fixing bugs than with him.
+> > > 
+> > > I didn't NACK the patch AFAIR. I've said it is not a good idea longterm.
+> > > I would be much more willing to change my mind if you would back your
+> > > patch by a real bug report. Hacks are acceptable when we have a real
+> > > issue in hands. But if we want to fix potential issue then better make
+> > > it properly.
+> > 
+> > Developers should fix bugs in advance, not to wait until a crash hapens, 
+> > is analyzed and reported.
+> 
+> I agree. But are those existing users broken in the first place? I have
+> seen so many GFP_NOFS abuses that I would dare to guess that most of
+> those vmalloc NOFS abusers can be simply turned into GFP_KERNEL. Maybe
+> that is the reason we haven't heard any complains in years.
+
+alloc_pages reclaims clean pages and most hard work is done by kswapd, so 
+GFP_KERNEL doesn't cause much issues with writeback. But cheating isn't 
+justified if you can get away with it. Incorrect GFP flags cause real 
+problems with shrinkers - because shrinkers are called from alloc_pages 
+and they do respond to GFP flags.
+
+I had reported deadlock due to GFP issues (9d28eb12447). And the worst 
+thing about these bug reports is that they are totally unreproducible and 
+I get nothing, but a stacktrace in bugzilla. I had to guess what happened 
+and I couldn't even test if the patch fixed the bug.
+
+I'm not really happy that you are deliberately leaving these issues behind 
+and making excuses.
+
+Mikulas
