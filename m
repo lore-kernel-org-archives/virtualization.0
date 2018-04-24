@@ -1,11 +1,14 @@
-From: Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH] vhost_net: use packet weight for rx handler, too
-Date: Tue, 24 Apr 2018 10:34:36 +0200
-Message-ID: <11f2a27cee0c660a611af381ac1b68d9526095e3.1524556673.git.pabeni__1010.58758232302$1524558795$gmane$org@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost_net: use packet weight for rx handler, too
+Date: Tue, 24 Apr 2018 17:11:49 +0800
+Message-ID: <efe7a637-962e-17df-9885-07eac27f643c@redhat.com>
+References: <11f2a27cee0c660a611af381ac1b68d9526095e3.1524556673.git.pabeni@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <11f2a27cee0c660a611af381ac1b68d9526095e3.1524556673.git.pabeni@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,89 +18,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org
+To: Paolo Abeni <pabeni@redhat.com>, kvm@vger.kernel.org
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, haibinzhang <haibinzhang@tencent.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Similar to commit a2ac99905f1e ("vhost-net: set packet weight of
-tx polling to 2 * vq size"), we need a packet-based limit for
-handler_rx, too - elsewhere, under rx flood with small packets,
-tx can be delayed for a very long time, even without busypolling.
-
-The pkt limit applied to handle_rx must be the same applied by
-handle_tx, or we will get unfair scheduling between rx and tx.
-Tying such limit to the queue length makes it less effective for
-large queue length values and can introduce large process
-scheduler latencies, so a constant valued is used - likewise
-the existing bytes limit.
-
-The selected limit has been validated with PVP[1] performance
-test with different queue sizes:
-
-queue size		256	512	1024
-
-baseline		366	354	362
-weight 128		715	723	670
-weight 256		740	745	733
-weight 512		600	460	583
-weight 1024		423	427	418
-
-A packet weight of 256 gives peek performances in under all the
-tested scenarios.
-
-No measurable regression in unidirectional performance tests has
-been detected.
-
-[1] https://developers.redhat.com/blog/2017/06/05/measuring-and-comparing-open-vswitch-performance/
-
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
----
- drivers/vhost/net.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index bbf38befefb2..c4b49fca4871 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -46,8 +46,10 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
- #define VHOST_NET_WEIGHT 0x80000
- 
- /* Max number of packets transferred before requeueing the job.
-- * Using this limit prevents one virtqueue from starving rx. */
--#define VHOST_NET_PKT_WEIGHT(vq) ((vq)->num * 2)
-+ * Using this limit prevents one virtqueue from starving others with small
-+ * pkts.
-+ */
-+#define VHOST_NET_PKT_WEIGHT 256
- 
- /* MAX number of TX used buffers for outstanding zerocopy */
- #define VHOST_MAX_PEND 128
-@@ -587,7 +589,7 @@ static void handle_tx(struct vhost_net *net)
- 			vhost_zerocopy_signal_used(net, vq);
- 		vhost_net_tx_packet(net);
- 		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
--		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT(vq))) {
-+		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT)) {
- 			vhost_poll_queue(&vq->poll);
- 			break;
- 		}
-@@ -769,6 +771,7 @@ static void handle_rx(struct vhost_net *net)
- 	struct socket *sock;
- 	struct iov_iter fixup;
- 	__virtio16 num_buffers;
-+	int recv_pkts = 0;
- 
- 	mutex_lock_nested(&vq->mutex, 0);
- 	sock = vq->private_data;
-@@ -872,7 +875,8 @@ static void handle_rx(struct vhost_net *net)
- 		if (unlikely(vq_log))
- 			vhost_log_write(vq, vq_log, log, vhost_len);
- 		total_len += vhost_len;
--		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
-+		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
-+		    unlikely(++recv_pkts >= VHOST_NET_PKT_WEIGHT)) {
- 			vhost_poll_queue(&vq->poll);
- 			goto out;
- 		}
--- 
-2.14.3
+CgpPbiAyMDE45bm0MDTmnIgyNOaXpSAxNjozNCwgUGFvbG8gQWJlbmkgd3JvdGU6Cj4gU2ltaWxh
+ciB0byBjb21taXQgYTJhYzk5OTA1ZjFlICgidmhvc3QtbmV0OiBzZXQgcGFja2V0IHdlaWdodCBv
+Zgo+IHR4IHBvbGxpbmcgdG8gMiAqIHZxIHNpemUiKSwgd2UgbmVlZCBhIHBhY2tldC1iYXNlZCBs
+aW1pdCBmb3IKPiBoYW5kbGVyX3J4LCB0b28gLSBlbHNld2hlcmUsIHVuZGVyIHJ4IGZsb29kIHdp
+dGggc21hbGwgcGFja2V0cywKPiB0eCBjYW4gYmUgZGVsYXllZCBmb3IgYSB2ZXJ5IGxvbmcgdGlt
+ZSwgZXZlbiB3aXRob3V0IGJ1c3lwb2xsaW5nLgo+Cj4gVGhlIHBrdCBsaW1pdCBhcHBsaWVkIHRv
+IGhhbmRsZV9yeCBtdXN0IGJlIHRoZSBzYW1lIGFwcGxpZWQgYnkKPiBoYW5kbGVfdHgsIG9yIHdl
+IHdpbGwgZ2V0IHVuZmFpciBzY2hlZHVsaW5nIGJldHdlZW4gcnggYW5kIHR4Lgo+IFR5aW5nIHN1
+Y2ggbGltaXQgdG8gdGhlIHF1ZXVlIGxlbmd0aCBtYWtlcyBpdCBsZXNzIGVmZmVjdGl2ZSBmb3IK
+PiBsYXJnZSBxdWV1ZSBsZW5ndGggdmFsdWVzIGFuZCBjYW4gaW50cm9kdWNlIGxhcmdlIHByb2Nl
+c3MKPiBzY2hlZHVsZXIgbGF0ZW5jaWVzLCBzbyBhIGNvbnN0YW50IHZhbHVlZCBpcyB1c2VkIC0g
+bGlrZXdpc2UKPiB0aGUgZXhpc3RpbmcgYnl0ZXMgbGltaXQuCj4KPiBUaGUgc2VsZWN0ZWQgbGlt
+aXQgaGFzIGJlZW4gdmFsaWRhdGVkIHdpdGggUFZQWzFdIHBlcmZvcm1hbmNlCj4gdGVzdCB3aXRo
+IGRpZmZlcmVudCBxdWV1ZSBzaXplczoKPgo+IHF1ZXVlIHNpemUJCTI1Ngk1MTIJMTAyNAo+Cj4g
+YmFzZWxpbmUJCTM2NgkzNTQJMzYyCj4gd2VpZ2h0IDEyOAkJNzE1CTcyMwk2NzAKPiB3ZWlnaHQg
+MjU2CQk3NDAJNzQ1CTczMwo+IHdlaWdodCA1MTIJCTYwMAk0NjAJNTgzCj4gd2VpZ2h0IDEwMjQJ
+CTQyMwk0MjcJNDE4Cj4KPiBBIHBhY2tldCB3ZWlnaHQgb2YgMjU2IGdpdmVzIHBlZWsgcGVyZm9y
+bWFuY2VzIGluIHVuZGVyIGFsbCB0aGUKPiB0ZXN0ZWQgc2NlbmFyaW9zLgo+Cj4gTm8gbWVhc3Vy
+YWJsZSByZWdyZXNzaW9uIGluIHVuaWRpcmVjdGlvbmFsIHBlcmZvcm1hbmNlIHRlc3RzIGhhcwo+
+IGJlZW4gZGV0ZWN0ZWQuCj4KPiBbMV0gaHR0cHM6Ly9kZXZlbG9wZXJzLnJlZGhhdC5jb20vYmxv
+Zy8yMDE3LzA2LzA1L21lYXN1cmluZy1hbmQtY29tcGFyaW5nLW9wZW4tdnN3aXRjaC1wZXJmb3Jt
+YW5jZS8KPgo+IFNpZ25lZC1vZmYtYnk6IFBhb2xvIEFiZW5pIDxwYWJlbmlAcmVkaGF0LmNvbT4K
+PiAtLS0KPiAgIGRyaXZlcnMvdmhvc3QvbmV0LmMgfCAxMiArKysrKysrKy0tLS0KPiAgIDEgZmls
+ZSBjaGFuZ2VkLCA4IGluc2VydGlvbnMoKyksIDQgZGVsZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0
+IGEvZHJpdmVycy92aG9zdC9uZXQuYyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiBpbmRleCBiYmYz
+OGJlZmVmYjIuLmM0YjQ5ZmNhNDg3MSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L25ldC5j
+Cj4gKysrIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+IEBAIC00Niw4ICs0NiwxMCBAQCBNT0RVTEVf
+UEFSTV9ERVNDKGV4cGVyaW1lbnRhbF96Y29weXR4LCAiRW5hYmxlIFplcm8gQ29weSBUWDsiCj4g
+ICAjZGVmaW5lIFZIT1NUX05FVF9XRUlHSFQgMHg4MDAwMAo+ICAgCj4gICAvKiBNYXggbnVtYmVy
+IG9mIHBhY2tldHMgdHJhbnNmZXJyZWQgYmVmb3JlIHJlcXVldWVpbmcgdGhlIGpvYi4KPiAtICog
+VXNpbmcgdGhpcyBsaW1pdCBwcmV2ZW50cyBvbmUgdmlydHF1ZXVlIGZyb20gc3RhcnZpbmcgcngu
+ICovCj4gLSNkZWZpbmUgVkhPU1RfTkVUX1BLVF9XRUlHSFQodnEpICgodnEpLT5udW0gKiAyKQo+
+ICsgKiBVc2luZyB0aGlzIGxpbWl0IHByZXZlbnRzIG9uZSB2aXJ0cXVldWUgZnJvbSBzdGFydmlu
+ZyBvdGhlcnMgd2l0aCBzbWFsbAo+ICsgKiBwa3RzLgo+ICsgKi8KPiArI2RlZmluZSBWSE9TVF9O
+RVRfUEtUX1dFSUdIVCAyNTYKPiAgIAo+ICAgLyogTUFYIG51bWJlciBvZiBUWCB1c2VkIGJ1ZmZl
+cnMgZm9yIG91dHN0YW5kaW5nIHplcm9jb3B5ICovCj4gICAjZGVmaW5lIFZIT1NUX01BWF9QRU5E
+IDEyOAo+IEBAIC01ODcsNyArNTg5LDcgQEAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2
+aG9zdF9uZXQgKm5ldCkKPiAgIAkJCXZob3N0X3plcm9jb3B5X3NpZ25hbF91c2VkKG5ldCwgdnEp
+Owo+ICAgCQl2aG9zdF9uZXRfdHhfcGFja2V0KG5ldCk7Cj4gICAJCWlmICh1bmxpa2VseSh0b3Rh
+bF9sZW4gPj0gVkhPU1RfTkVUX1dFSUdIVCkgfHwKPiAtCQkgICAgdW5saWtlbHkoKytzZW50X3Br
+dHMgPj0gVkhPU1RfTkVUX1BLVF9XRUlHSFQodnEpKSkgewo+ICsJCSAgICB1bmxpa2VseSgrK3Nl
+bnRfcGt0cyA+PSBWSE9TVF9ORVRfUEtUX1dFSUdIVCkpIHsKPiAgIAkJCXZob3N0X3BvbGxfcXVl
+dWUoJnZxLT5wb2xsKTsKPiAgIAkJCWJyZWFrOwo+ICAgCQl9Cj4gQEAgLTc2OSw2ICs3NzEsNyBA
+QCBzdGF0aWMgdm9pZCBoYW5kbGVfcngoc3RydWN0IHZob3N0X25ldCAqbmV0KQo+ICAgCXN0cnVj
+dCBzb2NrZXQgKnNvY2s7Cj4gICAJc3RydWN0IGlvdl9pdGVyIGZpeHVwOwo+ICAgCV9fdmlydGlv
+MTYgbnVtX2J1ZmZlcnM7Cj4gKwlpbnQgcmVjdl9wa3RzID0gMDsKPiAgIAo+ICAgCW11dGV4X2xv
+Y2tfbmVzdGVkKCZ2cS0+bXV0ZXgsIDApOwo+ICAgCXNvY2sgPSB2cS0+cHJpdmF0ZV9kYXRhOwo+
+IEBAIC04NzIsNyArODc1LDggQEAgc3RhdGljIHZvaWQgaGFuZGxlX3J4KHN0cnVjdCB2aG9zdF9u
+ZXQgKm5ldCkKPiAgIAkJaWYgKHVubGlrZWx5KHZxX2xvZykpCj4gICAJCQl2aG9zdF9sb2dfd3Jp
+dGUodnEsIHZxX2xvZywgbG9nLCB2aG9zdF9sZW4pOwo+ICAgCQl0b3RhbF9sZW4gKz0gdmhvc3Rf
+bGVuOwo+IC0JCWlmICh1bmxpa2VseSh0b3RhbF9sZW4gPj0gVkhPU1RfTkVUX1dFSUdIVCkpIHsK
+PiArCQlpZiAodW5saWtlbHkodG90YWxfbGVuID49IFZIT1NUX05FVF9XRUlHSFQpIHx8Cj4gKwkJ
+ICAgIHVubGlrZWx5KCsrcmVjdl9wa3RzID49IFZIT1NUX05FVF9QS1RfV0VJR0hUKSkgewo+ICAg
+CQkJdmhvc3RfcG9sbF9xdWV1ZSgmdnEtPnBvbGwpOwo+ICAgCQkJZ290byBvdXQ7Cj4gICAJCX0K
+ClRoZSBudW1iZXJzIGxvb2tzIGltcHJlc3NpdmUuCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFz
+b3dhbmdAcmVkaGF0LmNvbT4KClRoYW5rcyEKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
