@@ -1,20 +1,24 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC v2] virtio: support packed ring
-Date: Tue, 24 Apr 2018 09:37:47 +0800
-Message-ID: <20180424013747.hmr4ytqe7gdqfhdt__20026.7647662715$1524533703$gmane$org@debian>
-References: <20180401141216.8969-1-tiwei.bie@intel.com>
-	<515e635b-bc80-9b8d-72f9-b390ae5103ec@redhat.com>
-	<20180423092908.77rii3gi7dcaf7o6@debian>
-	<e08c55df-6ea2-cf7f-d7c9-91e55913ab16@redhat.com>
-	<20180424040258-mutt-send-email-mst@kernel.org>
-	<20180424011638.vf6f22dnl7ufnnij@debian>
-	<20180424042913-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event handling
+	code to use the failover framework
+Date: Tue, 24 Apr 2018 04:42:22 +0300
+Message-ID: <20180424043042-mutt-send-email-mst__34304.6559523374$1524534045$gmane$org@kernel.org>
+References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
+	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
+	<20180420082802.6ca37e4c@xeon-e3>
+	<20180420160058.GB2150@nanopsycho.orion>
+	<20180423100406.71b95f74@xeon-e3>
+	<20180423202204-mutt-send-email-mst@kernel.org>
+	<20180423104440.2fe6cfd2@xeon-e3>
+	<20180423205019-mutt-send-email-mst@kernel.org>
+	<CADGSJ20ge75T+ddxtUBT4d9m1i3=HLOAHJEoS7Cg0bqnXrutwA@mail.gmail.com>
+	<20180423182503.353180c9@xeon-e3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180424042913-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180423182503.353180c9@xeon-e3>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,129 +28,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBBcHIgMjQsIDIwMTggYXQgMDQ6Mjk6NTFBTSArMDMwMCwgTWljaGFlbCBTLiBUc2ly
-a2luIHdyb3RlOgo+IE9uIFR1ZSwgQXByIDI0LCAyMDE4IGF0IDA5OjE2OjM4QU0gKzA4MDAsIFRp
-d2VpIEJpZSB3cm90ZToKPiA+IE9uIFR1ZSwgQXByIDI0LCAyMDE4IGF0IDA0OjA1OjA3QU0gKzAz
-MDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+ID4gT24gVHVlLCBBcHIgMjQsIDIwMTgg
-YXQgMDg6NTQ6NTJBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiAKPiA+ID4gPiAK
-PiA+ID4gPiBPbiAyMDE45bm0MDTmnIgyM+aXpSAxNzoyOSwgVGl3ZWkgQmllIHdyb3RlOgo+ID4g
-PiA+ID4gT24gTW9uLCBBcHIgMjMsIDIwMTggYXQgMDE6NDI6MTRQTSArMDgwMCwgSmFzb24gV2Fu
-ZyB3cm90ZToKPiA+ID4gPiA+ID4gT24gMjAxOOW5tDA05pyIMDHml6UgMjI6MTIsIFRpd2VpIEJp
-ZSB3cm90ZToKPiA+ID4gPiA+ID4gPiBIZWxsbyBldmVyeW9uZSwKPiA+ID4gPiA+ID4gPiAKPiA+
-ID4gPiA+ID4gPiBUaGlzIFJGQyBpbXBsZW1lbnRzIHBhY2tlZCByaW5nIHN1cHBvcnQgZm9yIHZp
-cnRpbyBkcml2ZXIuCj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gVGhlIGNvZGUgd2FzIHRl
-c3RlZCB3aXRoIERQREsgdmhvc3QgKHRlc3RwbWQvdmhvc3QtUE1EKSBpbXBsZW1lbnRlZAo+ID4g
-PiA+ID4gPiA+IGJ5IEplbnMgYXQgaHR0cDovL2RwZGsub3JnL21sL2FyY2hpdmVzL2Rldi8yMDE4
-LUphbnVhcnkvMDg5NDE3Lmh0bWwKPiA+ID4gPiA+ID4gPiBNaW5vciBjaGFuZ2VzIGFyZSBuZWVk
-ZWQgZm9yIHRoZSB2aG9zdCBjb2RlLCBlLmcuIHRvIGtpY2sgdGhlIGd1ZXN0Lgo+ID4gPiA+ID4g
-PiA+IAo+ID4gPiA+ID4gPiA+IFRPRE86Cj4gPiA+ID4gPiA+ID4gLSBSZWZpbmVtZW50cyBhbmQg
-YnVnIGZpeGVzOwo+ID4gPiA+ID4gPiA+IC0gU3BsaXQgaW50byBzbWFsbCBwYXRjaGVzOwo+ID4g
-PiA+ID4gPiA+IC0gVGVzdCBpbmRpcmVjdCBkZXNjcmlwdG9yIHN1cHBvcnQ7Cj4gPiA+ID4gPiA+
-ID4gLSBUZXN0L2ZpeCBldmVudCBzdXBwcmVzc2lvbiBzdXBwb3J0Owo+ID4gPiA+ID4gPiA+IC0g
-VGVzdCBkZXZpY2VzIG90aGVyIHRoYW4gbmV0Owo+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+
-IFJGQyB2MSAtPiBSRkMgdjI6Cj4gPiA+ID4gPiA+ID4gLSBBZGQgaW5kaXJlY3QgZGVzY3JpcHRv
-ciBzdXBwb3J0IC0gY29tcGlsZSB0ZXN0IG9ubHk7Cj4gPiA+ID4gPiA+ID4gLSBBZGQgZXZlbnQg
-c3VwcHJlc3Npb24gc3VwcHJ0IC0gY29tcGlsZSB0ZXN0IG9ubHk7Cj4gPiA+ID4gPiA+ID4gLSBN
-b3ZlIHZyaW5nX3BhY2tlZF9pbml0KCkgb3V0IG9mIHVhcGkgKEphc29uLCBNU1QpOwo+ID4gPiA+
-ID4gPiA+IC0gTWVyZ2UgdHdvIGxvb3BzIGludG8gb25lIGluIHZpcnRxdWV1ZV9hZGRfcGFja2Vk
-KCkgKEphc29uKTsKPiA+ID4gPiA+ID4gPiAtIFNwbGl0IHZyaW5nX3VubWFwX29uZSgpIGZvciBw
-YWNrZWQgcmluZyBhbmQgc3BsaXQgcmluZyAoSmFzb24pOwo+ID4gPiA+ID4gPiA+IC0gQXZvaWQg
-dXNpbmcgJyUnIG9wZXJhdG9yIChKYXNvbik7Cj4gPiA+ID4gPiA+ID4gLSBSZW5hbWUgZnJlZV9o
-ZWFkIC0+IG5leHRfYXZhaWxfaWR4IChKYXNvbik7Cj4gPiA+ID4gPiA+ID4gLSBBZGQgY29tbWVu
-dHMgZm9yIHZpcnRpb193bWIoKSBpbiB2aXJ0cXVldWVfYWRkX3BhY2tlZCgpIChKYXNvbik7Cj4g
-PiA+ID4gPiA+ID4gLSBTb21lIG90aGVyIHJlZmluZW1lbnRzIGFuZCBidWcgZml4ZXM7Cj4gPiA+
-ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gVGhhbmtzIQo+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4g
-PiA+IFNpZ25lZC1vZmYtYnk6IFRpd2VpIEJpZSA8dGl3ZWkuYmllQGludGVsLmNvbT4KPiA+ID4g
-PiA+ID4gPiAtLS0KPiA+ID4gPiA+ID4gPiAgICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5j
-ICAgICAgIHwgMTA5NCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0KPiA+ID4g
-PiA+ID4gPiAgICBpbmNsdWRlL2xpbnV4L3ZpcnRpb19yaW5nLmggICAgICAgIHwgICAgOCArLQo+
-ID4gPiA+ID4gPiA+ICAgIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fY29uZmlnLmggfCAgIDEy
-ICstCj4gPiA+ID4gPiA+ID4gICAgaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19yaW5nLmggICB8
-ICAgNjEgKysKPiA+ID4gPiA+ID4gPiAgICA0IGZpbGVzIGNoYW5nZWQsIDk4MCBpbnNlcnRpb25z
-KCspLCAxOTUgZGVsZXRpb25zKC0pCj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0
-aW9fcmluZy5jCj4gPiA+ID4gPiA+ID4gaW5kZXggNzE0NThmNDkzY2Y4Li4wNTE1ZGNhMzRkNzcg
-MTAwNjQ0Cj4gPiA+ID4gPiA+ID4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+
-ID4gPiA+ID4gPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+ID4gPiA+
-ID4gPiBAQCAtNTgsMTQgKzU4LDE1IEBACj4gPiA+ID4gPiA+IFsuLi5dCj4gPiA+ID4gPiA+IAo+
-ID4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gPiArCWlmICh2cS0+aW5kaXJlY3QpIHsKPiA+ID4g
-PiA+ID4gPiArCQl1MzIgbGVuOwo+ID4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gPiArCQlkZXNj
-ID0gdnEtPmRlc2Nfc3RhdGVbaGVhZF0uaW5kaXJfZGVzYzsKPiA+ID4gPiA+ID4gPiArCQkvKiBG
-cmVlIHRoZSBpbmRpcmVjdCB0YWJsZSwgaWYgYW55LCBub3cgdGhhdCBpdCdzIHVubWFwcGVkLiAq
-Lwo+ID4gPiA+ID4gPiA+ICsJCWlmICghZGVzYykKPiA+ID4gPiA+ID4gPiArCQkJZ290byBvdXQ7
-Cj4gPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiA+ICsJCWxlbiA9IHZpcnRpbzMyX3RvX2NwdSh2
-cS0+dnEudmRldiwKPiA+ID4gPiA+ID4gPiArCQkJCSAgICAgIHZxLT52cmluZ19wYWNrZWQuZGVz
-Y1toZWFkXS5sZW4pOwo+ID4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gPiArCQlCVUdfT04oISh2
-cS0+dnJpbmdfcGFja2VkLmRlc2NbaGVhZF0uZmxhZ3MgJgo+ID4gPiA+ID4gPiA+ICsJCQkgY3B1
-X3RvX3ZpcnRpbzE2KHZxLT52cS52ZGV2LCBWUklOR19ERVNDX0ZfSU5ESVJFQ1QpKSk7Cj4gPiA+
-ID4gPiA+IEl0IGxvb2tzIHRvIG1lIHNwZWMgZG9lcyBub3QgZm9yY2UgdG8ga2VlcCBWUklOR19E
-RVNDX0ZfSU5ESVJFQ1QgaGVyZS4gU28gd2UKPiA+ID4gPiA+ID4gY2FuIHNhZmVseSByZW1vdmUg
-dGhpcyBCVUdfT04oKSBoZXJlLgo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiArCQlCVUdfT04o
-bGVuID09IDAgfHwgbGVuICUgc2l6ZW9mKHN0cnVjdCB2cmluZ19wYWNrZWRfZGVzYykpOwo+ID4g
-PiA+ID4gPiBMZW4gY291bGQgYmUgaWdub3JlZCBmb3IgdXNlZCBkZXNjcmlwdG9yIGFjY29yZGlu
-ZyB0byB0aGUgc3BlYywgc28gd2UgbmVlZAo+ID4gPiA+ID4gPiByZW1vdmUgdGhpcyBCVUdfT04o
-KSB0b28uCj4gPiA+ID4gPiBZZWFoLCB5b3UncmUgcmlnaHQhIFRoZSBCVUdfT04oKSBpc24ndCBy
-aWdodC4gSSdsbCByZW1vdmUgaXQuCj4gPiA+ID4gPiBBbmQgSSB0aGluayBzb21ldGhpbmcgcmVs
-YXRlZCB0byB0aGlzIGluIHRoZSBzcGVjIGlzbid0IHZlcnkKPiA+ID4gPiA+IGNsZWFyIGN1cnJl
-bnRseS4KPiA+ID4gPiA+IAo+ID4gPiA+ID4gSW4gdGhlIHNwZWMsIHRoZXJlIGFyZSBiZWxvdyB3
-b3JkczoKPiA+ID4gPiA+IAo+ID4gPiA+ID4gaHR0cHM6Ly9naXRodWIuY29tL29hc2lzLXRjcy92
-aXJ0aW8tc3BlYy9ibG9iL2Q0ZmVjNTE3ZGZjZi9wYWNrZWQtcmluZy50ZXgjTDI3Mgo+ID4gPiA+
-ID4gIiIiCj4gPiA+ID4gPiBJbiBkZXNjcmlwdG9ycyB3aXRoIFZJUlRRX0RFU0NfRl9JTkRJUkVD
-VCBzZXQgVklSVFFfREVTQ19GX1dSSVRFCj4gPiA+ID4gPiBpcyByZXNlcnZlZCBhbmQgaXMgaWdu
-b3JlZCBieSB0aGUgZGV2aWNlLgo+ID4gPiA+ID4gIiIiCj4gPiA+ID4gPiAKPiA+ID4gPiA+IFNv
-IHdoZW4gZGV2aWNlIHdyaXRlcyBiYWNrIGFuIHVzZWQgZGVzY3JpcHRvciBpbiB0aGlzIGNhc2Us
-Cj4gPiA+ID4gPiBkZXZpY2UgbWF5IG5vdCBzZXQgdGhlIFZJUlRRX0RFU0NfRl9XUklURSBmbGFn
-IGFzIHRoZSBmbGFnCj4gPiA+ID4gPiBpcyByZXNlcnZlZCBhbmQgc2hvdWxkIGJlIGlnbm9yZWQu
-Cj4gPiA+ID4gPiAKPiA+ID4gPiA+IGh0dHBzOi8vZ2l0aHViLmNvbS9vYXNpcy10Y3MvdmlydGlv
-LXNwZWMvYmxvYi9kNGZlYzUxN2RmY2YvcGFja2VkLXJpbmcudGV4I0wxNzAKPiA+ID4gPiA+ICIi
-Igo+ID4gPiA+ID4gRWxlbWVudCBMZW5ndGggaXMgcmVzZXJ2ZWQgZm9yIHVzZWQgZGVzY3JpcHRv
-cnMgd2l0aG91dCB0aGUKPiA+ID4gPiA+IFZJUlRRX0RFU0NfRl9XUklURSBmbGFnLCBhbmQgaXMg
-aWdub3JlZCBieSBkcml2ZXJzLgo+ID4gPiA+ID4gIiIiCj4gPiA+ID4gPiAKPiA+ID4gPiA+IEFu
-ZCB0aGlzIGlzIHRoZSB3YXkgaG93IGRyaXZlciBpZ25vcmVzIHRoZSBgbGVuYCBpbiBhbiB1c2Vk
-Cj4gPiA+ID4gPiBkZXNjcmlwdG9yLgo+ID4gPiA+ID4gCj4gPiA+ID4gPiBodHRwczovL2dpdGh1
-Yi5jb20vb2FzaXMtdGNzL3ZpcnRpby1zcGVjL2Jsb2IvZDRmZWM1MTdkZmNmL3BhY2tlZC1yaW5n
-LnRleCNMMjQxCj4gPiA+ID4gPiAiIiIKPiA+ID4gPiA+IFRvIGluY3JlYXNlIHJpbmcgY2FwYWNp
-dHkgdGhlIGRyaXZlciBjYW4gc3RvcmUgYSAocmVhZC1vbmx5Cj4gPiA+ID4gPiBieSB0aGUgZGV2
-aWNlKSB0YWJsZSBvZiBpbmRpcmVjdCBkZXNjcmlwdG9ycyBhbnl3aGVyZSBpbiBtZW1vcnksCj4g
-PiA+ID4gPiBhbmQgaW5zZXJ0IGEgZGVzY3JpcHRvciBpbiB0aGUgbWFpbiB2aXJ0cXVldWUgKHdp
-dGggXGZpZWxke0ZsYWdzfQo+ID4gPiA+ID4gYml0IFZJUlRRX0RFU0NfRl9JTkRJUkVDVCBvbikg
-dGhhdCByZWZlcnMgdG8gYSBidWZmZXIgZWxlbWVudAo+ID4gPiA+ID4gY29udGFpbmluZyB0aGlz
-IGluZGlyZWN0IGRlc2NyaXB0b3IgdGFibGU7Cj4gPiA+ID4gPiAiIiIKPiA+ID4gPiA+IAo+ID4g
-PiA+ID4gU28gdGhlIGluZGlyZWN0IGRlc2NyaXB0b3JzIGluIHRoZSB0YWJsZSBhcmUgcmVhZC1v
-bmx5IGJ5Cj4gPiA+ID4gPiB0aGUgZGV2aWNlLiBBbmQgdGhlIG9ubHkgZGVzY3JpcHRvciB3aGlj
-aCBpcyB3cml0ZWFibGUgYnkKPiA+ID4gPiA+IHRoZSBkZXZpY2UgaXMgdGhlIGRlc2NyaXB0b3Ig
-aW4gdGhlIG1haW4gdmlydHF1ZXVlICh3aXRoCj4gPiA+ID4gPiBGbGFncyBiaXQgVklSVFFfREVT
-Q19GX0lORElSRUNUIG9uKS4gU28gaWYgd2UgaWdub3JlIHRoZQo+ID4gPiA+ID4gYGxlbmAgaW4g
-dGhpcyBkZXNjcmlwdG9yLCB3ZSB3b24ndCBiZSBhYmxlIHRvIGdldCB0aGUKPiA+ID4gPiA+IGxl
-bmd0aCBvZiB0aGUgZGF0YSB3cml0dGVuIGJ5IHRoZSBkZXZpY2UuCj4gPiA+ID4gPiAKPiA+ID4g
-PiA+IFNvIEkgdGhpbmsgdGhlIGBsZW5gIGluIHRoaXMgZGVzY3JpcHRvciB3aWxsIGNhcnJ5IHRo
-ZQo+ID4gPiA+ID4gbGVuZ3RoIG9mIHRoZSBkYXRhIHdyaXR0ZW4gYnkgdGhlIGRldmljZSAoaWYg
-dGhlIGJ1ZmZlcnMKPiA+ID4gPiA+IGFyZSB3cml0YWJsZSB0byB0aGUgZGV2aWNlKSBldmVuIGlm
-IHRoZSBWSVJUUV9ERVNDX0ZfV1JJVEUKPiA+ID4gPiA+IGlzbid0IHNldCBieSB0aGUgZGV2aWNl
-LiBIb3cgZG8geW91IHRoaW5rPwo+ID4gPiA+IAo+ID4gPiA+IFllcyBJIHRoaW5rIHNvLiBCdXQg
-d2UnZCBiZXR0ZXIgbmVlZCBjbGFyaWZpY2F0aW9uIGZyb20gTWljaGFlbC4KPiA+ID4gCj4gPiA+
-IEkgdGhpbmsgaWYgeW91IHVzZSBhIGRlc2NyaXB0b3IsIGFuZCB5b3Ugd2FudCB0byBzdXBwbHkg
-bGVuCj4gPiA+IHRvIGd1ZXN0LCB5b3Ugc2V0IFZJUlRRX0RFU0NfRl9XUklURSBpbiB0aGUgdXNl
-ZCBkZXNjcmlwdG9yLgo+ID4gPiBTcGVjIGFsc28gc2F5cyB5b3UgbXVzdCBub3Qgc2V0IFZJUlRR
-X0RFU0NfRl9JTkRJUkVDVCB0aGVuLgo+ID4gPiBJZiB0aGF0J3MgYSBwcm9ibGVtIHdlIGNvdWxk
-IGxvb2sgYXQgcmVsYXhpbmcgdGhhdCBsYXN0IHJlcXVpcmVtZW50IC0KPiA+ID4gZG9lcyBkcml2
-ZXIgd2FudCBJTkRJUkVDVCBpbiB1c2VkIGRlc2NyaXB0b3IgdG8gbWF0Y2gKPiA+ID4gdGhlIHZh
-bHVlIGluIHRoZSBhdmFpbCBkZXNjcmlwdG9yIGZvciBzb21lIHJlYXNvbj8KPiA+IAo+ID4gRm9y
-IGluZGlyZWN0LCBkcml2ZXIgbmVlZHMgc29tZSB3YXkgdG8gZ2V0IHRoZSBsZW5ndGgKPiA+IG9m
-IHRoZSBkYXRhIHdyaXR0ZW4gYnkgdGhlIGRyaXZlci4gQW5kIHRoZSBkZXNjcmlwdG9ycwo+ID4g
-aW4gdGhlIGluZGlyZWN0IHRhYmxlIGlzIHJlYWQtb25seSwgc28gdGhlIG9ubHkgcGxhY2UKPiA+
-IGRldmljZSBjb3VsZCBwdXQgdGhpcyB2YWx1ZSBpcyB0aGUgZGVzY3JpcHRvciB3aXRoIHRoZQo+
-ID4gVklSVFFfREVTQ19GX0lORElSRUNUIGZsYWcgc2V0Lgo+IAo+IHdoZW4gd3JpdGluZyBvdXQg
-dXNlZCBkZXNjcmlwdG9yLCBkZXZpY2Ugc2hvdWxkIHNldCBWSVJUUV9ERVNDX0ZfV1JJVEUKPiAo
-YW5kIGNsZWFyIFZJUlRRX0RFU0NfRl9JTkRJUkVDVCkuCgpTbyB0aGUgc3BlYyBhbGxvd3MgZGV2
-aWNlIHRvIHNldCBWSVJUUV9ERVNDX0ZfV1JJVEUgYml0CndoZW4gd3JpdGluZyBvdXQgYW4gdXNl
-ZCBkZXNjcmlwdG9yIGV2ZW4gaWYgdGhlIGNvcnJlc3BvbmRpbmcKZGVzY3JpcHRvcnMgaXQganVz
-dCBwYXJzZWQgZG9uJ3QgaGF2ZSB0aGUgVklSVFFfREVTQ19GX1dSSVRFCmJpdCBzZXQ/CgpCZXN0
-IHJlZ2FyZHMsClRpd2VpIEJpZQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, Apr 23, 2018 at 06:25:03PM -0700, Stephen Hemminger wrote:
+> On Mon, 23 Apr 2018 12:44:39 -0700
+> Siwei Liu <loseweigh@gmail.com> wrote:
+> 
+> > On Mon, Apr 23, 2018 at 10:56 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > On Mon, Apr 23, 2018 at 10:44:40AM -0700, Stephen Hemminger wrote:  
+> > >> On Mon, 23 Apr 2018 20:24:56 +0300
+> > >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > >>  
+> > >> > On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:  
+> > >> > > > >
+> > >> > > > >I will NAK patches to change to common code for netvsc especially the
+> > >> > > > >three device model.  MS worked hard with distro vendors to support transparent
+> > >> > > > >mode, ans we really can't have a new model; or do backport.
+> > >> > > > >
+> > >> > > > >Plus, DPDK is now dependent on existing model.  
+> > >> > > >
+> > >> > > > Sorry, but nobody here cares about dpdk or other similar oddities.  
+> > >> > >
+> > >> > > The network device model is a userspace API, and DPDK is a userspace application.  
+> > >> >
+> > >> > It is userspace but are you sure dpdk is actually poking at netdevs?
+> > >> > AFAIK it's normally banging device registers directly.
+> > >> >  
+> > >> > > You can't go breaking userspace even if you don't like the application.  
+> > >> >
+> > >> > Could you please explain how is the proposed patchset breaking
+> > >> > userspace? Ignoring DPDK for now, I don't think it changes the userspace
+> > >> > API at all.
+> > >> >  
+> > >>
+> > >> The DPDK has a device driver vdev_netvsc which scans the Linux network devices
+> > >> to look for Linux netvsc device and the paired VF device and setup the
+> > >> DPDK environment.  This setup creates a DPDK failsafe (bondingish) instance
+> > >> and sets up TAP support over the Linux netvsc device as well as the Mellanox
+> > >> VF device.
+> > >>
+> > >> So it depends on existing 2 device model. You can't go to a 3 device model
+> > >> or start hiding devices from userspace.  
+> > >
+> > > Okay so how does the existing patch break that? IIUC does not go to
+> > > a 3 device model since netvsc calls failover_register directly.
+> > >  
+> > >> Also, I am working on associating netvsc and VF device based on serial number
+> > >> rather than MAC address. The serial number is how Windows works now, and it makes
+> > >> sense for Linux and Windows to use the same mechanism if possible.  
+> > >
+> > > Maybe we should support same for virtio ...
+> > > Which serial do you mean? From vpd?
+> > >
+> > > I guess you will want to keep supporting MAC for old hypervisors?
+> 
+> The serial number has always been in the hypervisor since original support of SR-IOV
+> in WS2008.  So no backward compatibility special cases would be needed.
+
+Is that a serial from real hardware or a hypervisor thing?
+
+
+-- 
+MST
