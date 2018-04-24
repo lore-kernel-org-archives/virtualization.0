@@ -1,18 +1,22 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC v2] virtio: support packed ring
-Date: Tue, 24 Apr 2018 09:14:36 +0800
-Message-ID: <820a9720-0a02-684b-3957-319b5b2a5370__8891.59741714156$1524532376$gmane$org@redhat.com>
-References: <20180401141216.8969-1-tiwei.bie@intel.com>
-	<515e635b-bc80-9b8d-72f9-b390ae5103ec@redhat.com>
-	<20180423092908.77rii3gi7dcaf7o6@debian>
-	<e08c55df-6ea2-cf7f-d7c9-91e55913ab16@redhat.com>
-	<20180424040258-mutt-send-email-mst@kernel.org>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event
+	handling code to use the failover framework
+Date: Mon, 23 Apr 2018 18:25:03 -0700
+Message-ID: <20180423182503.353180c9__27269.5983564065$1524533007$gmane$org@xeon-e3>
+References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
+	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
+	<20180420082802.6ca37e4c@xeon-e3>
+	<20180420160058.GB2150@nanopsycho.orion>
+	<20180423100406.71b95f74@xeon-e3>
+	<20180423202204-mutt-send-email-mst@kernel.org>
+	<20180423104440.2fe6cfd2@xeon-e3>
+	<20180423205019-mutt-send-email-mst@kernel.org>
+	<CADGSJ20ge75T+ddxtUBT4d9m1i3=HLOAHJEoS7Cg0bqnXrutwA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180424040258-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <CADGSJ20ge75T+ddxtUBT4d9m1i3=HLOAHJEoS7Cg0bqnXrutwA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,71 +26,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Siwei Liu <loseweigh@gmail.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDTmnIgyNOaXpSAwOTowNSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-Pj4+PiArCWlmICh2cS0+aW5kaXJlY3QpIHsKPj4+Pj4gKwkJdTMyIGxlbjsKPj4+Pj4gKwo+Pj4+
-PiArCQlkZXNjID0gdnEtPmRlc2Nfc3RhdGVbaGVhZF0uaW5kaXJfZGVzYzsKPj4+Pj4gKwkJLyog
-RnJlZSB0aGUgaW5kaXJlY3QgdGFibGUsIGlmIGFueSwgbm93IHRoYXQgaXQncyB1bm1hcHBlZC4g
-Ki8KPj4+Pj4gKwkJaWYgKCFkZXNjKQo+Pj4+PiArCQkJZ290byBvdXQ7Cj4+Pj4+ICsKPj4+Pj4g
-KwkJbGVuID0gdmlydGlvMzJfdG9fY3B1KHZxLT52cS52ZGV2LAo+Pj4+PiArCQkJCSAgICAgIHZx
-LT52cmluZ19wYWNrZWQuZGVzY1toZWFkXS5sZW4pOwo+Pj4+PiArCj4+Pj4+ICsJCUJVR19PTigh
-KHZxLT52cmluZ19wYWNrZWQuZGVzY1toZWFkXS5mbGFncyAmCj4+Pj4+ICsJCQkgY3B1X3RvX3Zp
-cnRpbzE2KHZxLT52cS52ZGV2LCBWUklOR19ERVNDX0ZfSU5ESVJFQ1QpKSk7Cj4+Pj4gSXQgbG9v
-a3MgdG8gbWUgc3BlYyBkb2VzIG5vdCBmb3JjZSB0byBrZWVwIFZSSU5HX0RFU0NfRl9JTkRJUkVD
-VCBoZXJlLiBTbyB3ZQo+Pj4+IGNhbiBzYWZlbHkgcmVtb3ZlIHRoaXMgQlVHX09OKCkgaGVyZS4K
-Pj4+Pgo+Pj4+PiArCQlCVUdfT04obGVuID09IDAgfHwgbGVuICUgc2l6ZW9mKHN0cnVjdCB2cmlu
-Z19wYWNrZWRfZGVzYykpOwo+Pj4+IExlbiBjb3VsZCBiZSBpZ25vcmVkIGZvciB1c2VkIGRlc2Ny
-aXB0b3IgYWNjb3JkaW5nIHRvIHRoZSBzcGVjLCBzbyB3ZSBuZWVkCj4+Pj4gcmVtb3ZlIHRoaXMg
-QlVHX09OKCkgdG9vLgo+Pj4gWWVhaCwgeW91J3JlIHJpZ2h0ISBUaGUgQlVHX09OKCkgaXNuJ3Qg
-cmlnaHQuIEknbGwgcmVtb3ZlIGl0Lgo+Pj4gQW5kIEkgdGhpbmsgc29tZXRoaW5nIHJlbGF0ZWQg
-dG8gdGhpcyBpbiB0aGUgc3BlYyBpc24ndCB2ZXJ5Cj4+PiBjbGVhciBjdXJyZW50bHkuCj4+Pgo+
-Pj4gSW4gdGhlIHNwZWMsIHRoZXJlIGFyZSBiZWxvdyB3b3JkczoKPj4+Cj4+PiBodHRwczovL2dp
-dGh1Yi5jb20vb2FzaXMtdGNzL3ZpcnRpby1zcGVjL2Jsb2IvZDRmZWM1MTdkZmNmL3BhY2tlZC1y
-aW5nLnRleCNMMjcyCj4+PiAiIiIKPj4+IEluIGRlc2NyaXB0b3JzIHdpdGggVklSVFFfREVTQ19G
-X0lORElSRUNUIHNldCBWSVJUUV9ERVNDX0ZfV1JJVEUKPj4+IGlzIHJlc2VydmVkIGFuZCBpcyBp
-Z25vcmVkIGJ5IHRoZSBkZXZpY2UuCj4+PiAiIiIKPj4+Cj4+PiBTbyB3aGVuIGRldmljZSB3cml0
-ZXMgYmFjayBhbiB1c2VkIGRlc2NyaXB0b3IgaW4gdGhpcyBjYXNlLAo+Pj4gZGV2aWNlIG1heSBu
-b3Qgc2V0IHRoZSBWSVJUUV9ERVNDX0ZfV1JJVEUgZmxhZyBhcyB0aGUgZmxhZwo+Pj4gaXMgcmVz
-ZXJ2ZWQgYW5kIHNob3VsZCBiZSBpZ25vcmVkLgo+Pj4KPj4+IGh0dHBzOi8vZ2l0aHViLmNvbS9v
-YXNpcy10Y3MvdmlydGlvLXNwZWMvYmxvYi9kNGZlYzUxN2RmY2YvcGFja2VkLXJpbmcudGV4I0wx
-NzAKPj4+ICIiIgo+Pj4gRWxlbWVudCBMZW5ndGggaXMgcmVzZXJ2ZWQgZm9yIHVzZWQgZGVzY3Jp
-cHRvcnMgd2l0aG91dCB0aGUKPj4+IFZJUlRRX0RFU0NfRl9XUklURSBmbGFnLCBhbmQgaXMgaWdu
-b3JlZCBieSBkcml2ZXJzLgo+Pj4gIiIiCj4+Pgo+Pj4gQW5kIHRoaXMgaXMgdGhlIHdheSBob3cg
-ZHJpdmVyIGlnbm9yZXMgdGhlIGBsZW5gIGluIGFuIHVzZWQKPj4+IGRlc2NyaXB0b3IuCj4+Pgo+
-Pj4gaHR0cHM6Ly9naXRodWIuY29tL29hc2lzLXRjcy92aXJ0aW8tc3BlYy9ibG9iL2Q0ZmVjNTE3
-ZGZjZi9wYWNrZWQtcmluZy50ZXgjTDI0MQo+Pj4gIiIiCj4+PiBUbyBpbmNyZWFzZSByaW5nIGNh
-cGFjaXR5IHRoZSBkcml2ZXIgY2FuIHN0b3JlIGEgKHJlYWQtb25seQo+Pj4gYnkgdGhlIGRldmlj
-ZSkgdGFibGUgb2YgaW5kaXJlY3QgZGVzY3JpcHRvcnMgYW55d2hlcmUgaW4gbWVtb3J5LAo+Pj4g
-YW5kIGluc2VydCBhIGRlc2NyaXB0b3IgaW4gdGhlIG1haW4gdmlydHF1ZXVlICh3aXRoIFxmaWVs
-ZHtGbGFnc30KPj4+IGJpdCBWSVJUUV9ERVNDX0ZfSU5ESVJFQ1Qgb24pIHRoYXQgcmVmZXJzIHRv
-IGEgYnVmZmVyIGVsZW1lbnQKPj4+IGNvbnRhaW5pbmcgdGhpcyBpbmRpcmVjdCBkZXNjcmlwdG9y
-IHRhYmxlOwo+Pj4gIiIiCj4+Pgo+Pj4gU28gdGhlIGluZGlyZWN0IGRlc2NyaXB0b3JzIGluIHRo
-ZSB0YWJsZSBhcmUgcmVhZC1vbmx5IGJ5Cj4+PiB0aGUgZGV2aWNlLiBBbmQgdGhlIG9ubHkgZGVz
-Y3JpcHRvciB3aGljaCBpcyB3cml0ZWFibGUgYnkKPj4+IHRoZSBkZXZpY2UgaXMgdGhlIGRlc2Ny
-aXB0b3IgaW4gdGhlIG1haW4gdmlydHF1ZXVlICh3aXRoCj4+PiBGbGFncyBiaXQgVklSVFFfREVT
-Q19GX0lORElSRUNUIG9uKS4gU28gaWYgd2UgaWdub3JlIHRoZQo+Pj4gYGxlbmAgaW4gdGhpcyBk
-ZXNjcmlwdG9yLCB3ZSB3b24ndCBiZSBhYmxlIHRvIGdldCB0aGUKPj4+IGxlbmd0aCBvZiB0aGUg
-ZGF0YSB3cml0dGVuIGJ5IHRoZSBkZXZpY2UuCj4+Pgo+Pj4gU28gSSB0aGluayB0aGUgYGxlbmAg
-aW4gdGhpcyBkZXNjcmlwdG9yIHdpbGwgY2FycnkgdGhlCj4+PiBsZW5ndGggb2YgdGhlIGRhdGEg
-d3JpdHRlbiBieSB0aGUgZGV2aWNlIChpZiB0aGUgYnVmZmVycwo+Pj4gYXJlIHdyaXRhYmxlIHRv
-IHRoZSBkZXZpY2UpIGV2ZW4gaWYgdGhlIFZJUlRRX0RFU0NfRl9XUklURQo+Pj4gaXNuJ3Qgc2V0
-IGJ5IHRoZSBkZXZpY2UuIEhvdyBkbyB5b3UgdGhpbms/Cj4+IFllcyBJIHRoaW5rIHNvLiBCdXQg
-d2UnZCBiZXR0ZXIgbmVlZCBjbGFyaWZpY2F0aW9uIGZyb20gTWljaGFlbC4KPiBJIHRoaW5rIGlm
-IHlvdSB1c2UgYSBkZXNjcmlwdG9yLCBhbmQgeW91IHdhbnQgdG8gc3VwcGx5IGxlbgo+IHRvIGd1
-ZXN0LCB5b3Ugc2V0IFZJUlRRX0RFU0NfRl9XUklURSBpbiB0aGUgdXNlZCBkZXNjcmlwdG9yLgo+
-IFNwZWMgYWxzbyBzYXlzIHlvdSBtdXN0IG5vdCBzZXQgVklSVFFfREVTQ19GX0lORElSRUNUIHRo
-ZW4uCj4gSWYgdGhhdCdzIGEgcHJvYmxlbSB3ZSBjb3VsZCBsb29rIGF0IHJlbGF4aW5nIHRoYXQg
-bGFzdCByZXF1aXJlbWVudCAtCj4gZG9lcyBkcml2ZXIgd2FudCBJTkRJUkVDVCBpbiB1c2VkIGRl
-c2NyaXB0b3IgdG8gbWF0Y2gKPiB0aGUgdmFsdWUgaW4gdGhlIGF2YWlsIGRlc2NyaXB0b3IgZm9y
-IHNvbWUgcmVhc29uPwo+CgpMb29rcyBub3QsIHNvIHdoYXQgSSBnZXQgaXQ6CgotIGRldmljZSBh
-bmQgc2V0IFZJUlRRX0RFU0NfRl9XUklURSBmbGFnIGZvciB1c2VkIGRlc2NyaXB0b3Igd2hlbiBu
-ZWVkZWQKLSB0aGVyZSBubyBuZWVkIHRvIGtlZXAgSU5ESVJFQ1QgZmxhZyBpbiB1c2VkIGRlc2Ny
-aXB0b3IKClNvIGZvciB0aGUgYWJvdmUgY2FzZSwgd2UgY2FuIGp1c3QgaGF2ZSBhIHVzZWQgZGVz
-Y3JpcHRvciB3aXRoIF9GX1dSSVRFIApidXQgd2l0aG91dCBJTkRJUkVDVCBmbGFnLgoKVGhhbmtz
-CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+On Mon, 23 Apr 2018 12:44:39 -0700
+Siwei Liu <loseweigh@gmail.com> wrote:
+
+> On Mon, Apr 23, 2018 at 10:56 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > On Mon, Apr 23, 2018 at 10:44:40AM -0700, Stephen Hemminger wrote:  
+> >> On Mon, 23 Apr 2018 20:24:56 +0300
+> >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> >>  
+> >> > On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:  
+> >> > > > >
+> >> > > > >I will NAK patches to change to common code for netvsc especially the
+> >> > > > >three device model.  MS worked hard with distro vendors to support transparent
+> >> > > > >mode, ans we really can't have a new model; or do backport.
+> >> > > > >
+> >> > > > >Plus, DPDK is now dependent on existing model.  
+> >> > > >
+> >> > > > Sorry, but nobody here cares about dpdk or other similar oddities.  
+> >> > >
+> >> > > The network device model is a userspace API, and DPDK is a userspace application.  
+> >> >
+> >> > It is userspace but are you sure dpdk is actually poking at netdevs?
+> >> > AFAIK it's normally banging device registers directly.
+> >> >  
+> >> > > You can't go breaking userspace even if you don't like the application.  
+> >> >
+> >> > Could you please explain how is the proposed patchset breaking
+> >> > userspace? Ignoring DPDK for now, I don't think it changes the userspace
+> >> > API at all.
+> >> >  
+> >>
+> >> The DPDK has a device driver vdev_netvsc which scans the Linux network devices
+> >> to look for Linux netvsc device and the paired VF device and setup the
+> >> DPDK environment.  This setup creates a DPDK failsafe (bondingish) instance
+> >> and sets up TAP support over the Linux netvsc device as well as the Mellanox
+> >> VF device.
+> >>
+> >> So it depends on existing 2 device model. You can't go to a 3 device model
+> >> or start hiding devices from userspace.  
+> >
+> > Okay so how does the existing patch break that? IIUC does not go to
+> > a 3 device model since netvsc calls failover_register directly.
+> >  
+> >> Also, I am working on associating netvsc and VF device based on serial number
+> >> rather than MAC address. The serial number is how Windows works now, and it makes
+> >> sense for Linux and Windows to use the same mechanism if possible.  
+> >
+> > Maybe we should support same for virtio ...
+> > Which serial do you mean? From vpd?
+> >
+> > I guess you will want to keep supporting MAC for old hypervisors?
+
+The serial number has always been in the hypervisor since original support of SR-IOV
+in WS2008.  So no backward compatibility special cases would be needed.
