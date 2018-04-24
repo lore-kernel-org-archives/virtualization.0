@@ -1,23 +1,16 @@
-From: Mikulas Patocka <mpatocka@redhat.com>
-Subject: Re: [PATCH] kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
-Date: Mon, 23 Apr 2018 20:25:15 -0400 (EDT)
-Message-ID: <alpine.LRH.2.02.1804232006540.2299__17378.940471872$1524529420$gmane$org@file01.intranet.prod.int.rdu2.redhat.com>
-References: <alpine.LRH.2.02.1804181218270.19136@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180418.134651.2225112489265654270.davem@davemloft.net>
-	<alpine.LRH.2.02.1804181350050.17942@file01.intranet.prod.int.rdu2.redhat.com>
-	<alpine.LRH.2.02.1804191207380.31175@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180420130852.GC16083@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180420210200.GH10788@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804201704580.25408@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180421144757.GC14610@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804221733520.7995@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180423151545.GU17484@dhcp22.suse.cz>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC v2] virtio: support packed ring
+Date: Tue, 24 Apr 2018 08:54:52 +0800
+Message-ID: <e08c55df-6ea2-cf7f-d7c9-91e55913ab16@redhat.com>
+References: <20180401141216.8969-1-tiwei.bie@intel.com>
+	<515e635b-bc80-9b8d-72f9-b390ae5103ec@redhat.com>
+	<20180423092908.77rii3gi7dcaf7o6@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180423151545.GU17484@dhcp22.suse.cz>
+In-Reply-To: <20180423092908.77rii3gi7dcaf7o6@debian>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,52 +20,131 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, edumazet@google.com, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On Mon, 23 Apr 2018, Michal Hocko wrote:
-
-> On Mon 23-04-18 10:06:08, Mikulas Patocka wrote:
-> 
-> > > > He didn't want to fix vmalloc(GFP_NOIO)
-> > > 
-> > > I don't remember that conversation, so I don't know whether I agree with
-> > > his reasoning or not.  But we are supposed to be moving away from GFP_NOIO
-> > > towards marking regions with memalloc_noio_save() / restore.  If you do
-> > > that, you won't need vmalloc(GFP_NOIO).
-> > 
-> > He said the same thing a year ago. And there was small progress. 6 out of 
-> > 27 __vmalloc calls were converted to memalloc_noio_save in a year - 5 in 
-> > infiniband and 1 in btrfs. (the whole discussion is here 
-> > http://lkml.iu.edu/hypermail/linux/kernel/1706.3/04681.html )
-> 
-> Well this is not that easy. It requires a cooperation from maintainers.
-> I can only do as much. I've posted patches in the past and actively
-> bringing up this topic at LSFMM last two years...
-
-You're right - but you have chosen the uneasy path. Fixing __vmalloc code 
-is easy and it doesn't require cooperation with maintainers.
-
-> > He refuses 15-line patch to fix GFP_NOIO bug because he believes that in 4 
-> > years, the kernel will be refactored and GFP_NOIO will be eliminated. Why 
-> > does he have veto over this part of the code? I'd much rather argue with 
-> > people who have constructive comments about fixing bugs than with him.
-> 
-> I didn't NACK the patch AFAIR. I've said it is not a good idea longterm.
-> I would be much more willing to change my mind if you would back your
-> patch by a real bug report. Hacks are acceptable when we have a real
-> issue in hands. But if we want to fix potential issue then better make
-> it properly.
-
-Developers should fix bugs in advance, not to wait until a crash hapens, 
-is analyzed and reported.
-
-What's the problem with 15-line hack? Is the problem that kernel 
-developers would feel depressed when looking the source code? Other than 
-harming developers' feelings, I don't see what kind of damange could that 
-piece of code do.
-
-Mikulas
+CgpPbiAyMDE45bm0MDTmnIgyM+aXpSAxNzoyOSwgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIE1vbiwg
+QXByIDIzLCAyMDE4IGF0IDAxOjQyOjE0UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9u
+IDIwMTjlubQwNOaciDAx5pelIDIyOjEyLCBUaXdlaSBCaWUgd3JvdGU6Cj4+PiBIZWxsbyBldmVy
+eW9uZSwKPj4+Cj4+PiBUaGlzIFJGQyBpbXBsZW1lbnRzIHBhY2tlZCByaW5nIHN1cHBvcnQgZm9y
+IHZpcnRpbyBkcml2ZXIuCj4+Pgo+Pj4gVGhlIGNvZGUgd2FzIHRlc3RlZCB3aXRoIERQREsgdmhv
+c3QgKHRlc3RwbWQvdmhvc3QtUE1EKSBpbXBsZW1lbnRlZAo+Pj4gYnkgSmVucyBhdCBodHRwOi8v
+ZHBkay5vcmcvbWwvYXJjaGl2ZXMvZGV2LzIwMTgtSmFudWFyeS8wODk0MTcuaHRtbAo+Pj4gTWlu
+b3IgY2hhbmdlcyBhcmUgbmVlZGVkIGZvciB0aGUgdmhvc3QgY29kZSwgZS5nLiB0byBraWNrIHRo
+ZSBndWVzdC4KPj4+Cj4+PiBUT0RPOgo+Pj4gLSBSZWZpbmVtZW50cyBhbmQgYnVnIGZpeGVzOwo+
+Pj4gLSBTcGxpdCBpbnRvIHNtYWxsIHBhdGNoZXM7Cj4+PiAtIFRlc3QgaW5kaXJlY3QgZGVzY3Jp
+cHRvciBzdXBwb3J0Owo+Pj4gLSBUZXN0L2ZpeCBldmVudCBzdXBwcmVzc2lvbiBzdXBwb3J0Owo+
+Pj4gLSBUZXN0IGRldmljZXMgb3RoZXIgdGhhbiBuZXQ7Cj4+Pgo+Pj4gUkZDIHYxIC0+IFJGQyB2
+MjoKPj4+IC0gQWRkIGluZGlyZWN0IGRlc2NyaXB0b3Igc3VwcG9ydCAtIGNvbXBpbGUgdGVzdCBv
+bmx5Owo+Pj4gLSBBZGQgZXZlbnQgc3VwcHJlc3Npb24gc3VwcHJ0IC0gY29tcGlsZSB0ZXN0IG9u
+bHk7Cj4+PiAtIE1vdmUgdnJpbmdfcGFja2VkX2luaXQoKSBvdXQgb2YgdWFwaSAoSmFzb24sIE1T
+VCk7Cj4+PiAtIE1lcmdlIHR3byBsb29wcyBpbnRvIG9uZSBpbiB2aXJ0cXVldWVfYWRkX3BhY2tl
+ZCgpIChKYXNvbik7Cj4+PiAtIFNwbGl0IHZyaW5nX3VubWFwX29uZSgpIGZvciBwYWNrZWQgcmlu
+ZyBhbmQgc3BsaXQgcmluZyAoSmFzb24pOwo+Pj4gLSBBdm9pZCB1c2luZyAnJScgb3BlcmF0b3Ig
+KEphc29uKTsKPj4+IC0gUmVuYW1lIGZyZWVfaGVhZCAtPiBuZXh0X2F2YWlsX2lkeCAoSmFzb24p
+Owo+Pj4gLSBBZGQgY29tbWVudHMgZm9yIHZpcnRpb193bWIoKSBpbiB2aXJ0cXVldWVfYWRkX3Bh
+Y2tlZCgpIChKYXNvbik7Cj4+PiAtIFNvbWUgb3RoZXIgcmVmaW5lbWVudHMgYW5kIGJ1ZyBmaXhl
+czsKPj4+Cj4+PiBUaGFua3MhCj4+Pgo+Pj4gU2lnbmVkLW9mZi1ieTogVGl3ZWkgQmllIDx0aXdl
+aS5iaWVAaW50ZWwuY29tPgo+Pj4gLS0tCj4+PiAgICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmlu
+Zy5jICAgICAgIHwgMTA5NCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0KPj4+
+ICAgIGluY2x1ZGUvbGludXgvdmlydGlvX3JpbmcuaCAgICAgICAgfCAgICA4ICstCj4+PiAgICBp
+bmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2NvbmZpZy5oIHwgICAxMiArLQo+Pj4gICAgaW5jbHVk
+ZS91YXBpL2xpbnV4L3ZpcnRpb19yaW5nLmggICB8ICAgNjEgKysKPj4+ICAgIDQgZmlsZXMgY2hh
+bmdlZCwgOTgwIGluc2VydGlvbnMoKyksIDE5NSBkZWxldGlvbnMoLSkKPj4+Cj4+PiBkaWZmIC0t
+Z2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRp
+b19yaW5nLmMKPj4+IGluZGV4IDcxNDU4ZjQ5M2NmOC4uMDUxNWRjYTM0ZDc3IDEwMDY0NAo+Pj4g
+LS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+Pj4gKysrIGIvZHJpdmVycy92aXJ0
+aW8vdmlydGlvX3JpbmcuYwo+Pj4gQEAgLTU4LDE0ICs1OCwxNSBAQAo+PiBbLi4uXQo+Pgo+Pj4g
+Kwo+Pj4gKwlpZiAodnEtPmluZGlyZWN0KSB7Cj4+PiArCQl1MzIgbGVuOwo+Pj4gKwo+Pj4gKwkJ
+ZGVzYyA9IHZxLT5kZXNjX3N0YXRlW2hlYWRdLmluZGlyX2Rlc2M7Cj4+PiArCQkvKiBGcmVlIHRo
+ZSBpbmRpcmVjdCB0YWJsZSwgaWYgYW55LCBub3cgdGhhdCBpdCdzIHVubWFwcGVkLiAqLwo+Pj4g
+KwkJaWYgKCFkZXNjKQo+Pj4gKwkJCWdvdG8gb3V0Owo+Pj4gKwo+Pj4gKwkJbGVuID0gdmlydGlv
+MzJfdG9fY3B1KHZxLT52cS52ZGV2LAo+Pj4gKwkJCQkgICAgICB2cS0+dnJpbmdfcGFja2VkLmRl
+c2NbaGVhZF0ubGVuKTsKPj4+ICsKPj4+ICsJCUJVR19PTighKHZxLT52cmluZ19wYWNrZWQuZGVz
+Y1toZWFkXS5mbGFncyAmCj4+PiArCQkJIGNwdV90b192aXJ0aW8xNih2cS0+dnEudmRldiwgVlJJ
+TkdfREVTQ19GX0lORElSRUNUKSkpOwo+PiBJdCBsb29rcyB0byBtZSBzcGVjIGRvZXMgbm90IGZv
+cmNlIHRvIGtlZXAgVlJJTkdfREVTQ19GX0lORElSRUNUIGhlcmUuIFNvIHdlCj4+IGNhbiBzYWZl
+bHkgcmVtb3ZlIHRoaXMgQlVHX09OKCkgaGVyZS4KPj4KPj4+ICsJCUJVR19PTihsZW4gPT0gMCB8
+fCBsZW4gJSBzaXplb2Yoc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjKSk7Cj4+IExlbiBjb3VsZCBi
+ZSBpZ25vcmVkIGZvciB1c2VkIGRlc2NyaXB0b3IgYWNjb3JkaW5nIHRvIHRoZSBzcGVjLCBzbyB3
+ZSBuZWVkCj4+IHJlbW92ZSB0aGlzIEJVR19PTigpIHRvby4KPiBZZWFoLCB5b3UncmUgcmlnaHQh
+IFRoZSBCVUdfT04oKSBpc24ndCByaWdodC4gSSdsbCByZW1vdmUgaXQuCj4gQW5kIEkgdGhpbmsg
+c29tZXRoaW5nIHJlbGF0ZWQgdG8gdGhpcyBpbiB0aGUgc3BlYyBpc24ndCB2ZXJ5Cj4gY2xlYXIg
+Y3VycmVudGx5Lgo+Cj4gSW4gdGhlIHNwZWMsIHRoZXJlIGFyZSBiZWxvdyB3b3JkczoKPgo+IGh0
+dHBzOi8vZ2l0aHViLmNvbS9vYXNpcy10Y3MvdmlydGlvLXNwZWMvYmxvYi9kNGZlYzUxN2RmY2Yv
+cGFja2VkLXJpbmcudGV4I0wyNzIKPiAiIiIKPiBJbiBkZXNjcmlwdG9ycyB3aXRoIFZJUlRRX0RF
+U0NfRl9JTkRJUkVDVCBzZXQgVklSVFFfREVTQ19GX1dSSVRFCj4gaXMgcmVzZXJ2ZWQgYW5kIGlz
+IGlnbm9yZWQgYnkgdGhlIGRldmljZS4KPiAiIiIKPgo+IFNvIHdoZW4gZGV2aWNlIHdyaXRlcyBi
+YWNrIGFuIHVzZWQgZGVzY3JpcHRvciBpbiB0aGlzIGNhc2UsCj4gZGV2aWNlIG1heSBub3Qgc2V0
+IHRoZSBWSVJUUV9ERVNDX0ZfV1JJVEUgZmxhZyBhcyB0aGUgZmxhZwo+IGlzIHJlc2VydmVkIGFu
+ZCBzaG91bGQgYmUgaWdub3JlZC4KPgo+IGh0dHBzOi8vZ2l0aHViLmNvbS9vYXNpcy10Y3Mvdmly
+dGlvLXNwZWMvYmxvYi9kNGZlYzUxN2RmY2YvcGFja2VkLXJpbmcudGV4I0wxNzAKPiAiIiIKPiBF
+bGVtZW50IExlbmd0aCBpcyByZXNlcnZlZCBmb3IgdXNlZCBkZXNjcmlwdG9ycyB3aXRob3V0IHRo
+ZQo+IFZJUlRRX0RFU0NfRl9XUklURSBmbGFnLCBhbmQgaXMgaWdub3JlZCBieSBkcml2ZXJzLgo+
+ICIiIgo+Cj4gQW5kIHRoaXMgaXMgdGhlIHdheSBob3cgZHJpdmVyIGlnbm9yZXMgdGhlIGBsZW5g
+IGluIGFuIHVzZWQKPiBkZXNjcmlwdG9yLgo+Cj4gaHR0cHM6Ly9naXRodWIuY29tL29hc2lzLXRj
+cy92aXJ0aW8tc3BlYy9ibG9iL2Q0ZmVjNTE3ZGZjZi9wYWNrZWQtcmluZy50ZXgjTDI0MQo+ICIi
+Igo+IFRvIGluY3JlYXNlIHJpbmcgY2FwYWNpdHkgdGhlIGRyaXZlciBjYW4gc3RvcmUgYSAocmVh
+ZC1vbmx5Cj4gYnkgdGhlIGRldmljZSkgdGFibGUgb2YgaW5kaXJlY3QgZGVzY3JpcHRvcnMgYW55
+d2hlcmUgaW4gbWVtb3J5LAo+IGFuZCBpbnNlcnQgYSBkZXNjcmlwdG9yIGluIHRoZSBtYWluIHZp
+cnRxdWV1ZSAod2l0aCBcZmllbGR7RmxhZ3N9Cj4gYml0IFZJUlRRX0RFU0NfRl9JTkRJUkVDVCBv
+bikgdGhhdCByZWZlcnMgdG8gYSBidWZmZXIgZWxlbWVudAo+IGNvbnRhaW5pbmcgdGhpcyBpbmRp
+cmVjdCBkZXNjcmlwdG9yIHRhYmxlOwo+ICIiIgo+Cj4gU28gdGhlIGluZGlyZWN0IGRlc2NyaXB0
+b3JzIGluIHRoZSB0YWJsZSBhcmUgcmVhZC1vbmx5IGJ5Cj4gdGhlIGRldmljZS4gQW5kIHRoZSBv
+bmx5IGRlc2NyaXB0b3Igd2hpY2ggaXMgd3JpdGVhYmxlIGJ5Cj4gdGhlIGRldmljZSBpcyB0aGUg
+ZGVzY3JpcHRvciBpbiB0aGUgbWFpbiB2aXJ0cXVldWUgKHdpdGgKPiBGbGFncyBiaXQgVklSVFFf
+REVTQ19GX0lORElSRUNUIG9uKS4gU28gaWYgd2UgaWdub3JlIHRoZQo+IGBsZW5gIGluIHRoaXMg
+ZGVzY3JpcHRvciwgd2Ugd29uJ3QgYmUgYWJsZSB0byBnZXQgdGhlCj4gbGVuZ3RoIG9mIHRoZSBk
+YXRhIHdyaXR0ZW4gYnkgdGhlIGRldmljZS4KPgo+IFNvIEkgdGhpbmsgdGhlIGBsZW5gIGluIHRo
+aXMgZGVzY3JpcHRvciB3aWxsIGNhcnJ5IHRoZQo+IGxlbmd0aCBvZiB0aGUgZGF0YSB3cml0dGVu
+IGJ5IHRoZSBkZXZpY2UgKGlmIHRoZSBidWZmZXJzCj4gYXJlIHdyaXRhYmxlIHRvIHRoZSBkZXZp
+Y2UpIGV2ZW4gaWYgdGhlIFZJUlRRX0RFU0NfRl9XUklURQo+IGlzbid0IHNldCBieSB0aGUgZGV2
+aWNlLiBIb3cgZG8geW91IHRoaW5rPwoKWWVzIEkgdGhpbmsgc28uIEJ1dCB3ZSdkIGJldHRlciBu
+ZWVkIGNsYXJpZmljYXRpb24gZnJvbSBNaWNoYWVsLgoKPgo+Cj4+IFRoZSByZWFzb24gaXMgd2Ug
+ZG9uJ3QgdG91Y2ggZGVzY3JpcHRvciByaW5nIGluIHRoZSBjYXNlIG9mIHNwbGl0LCBzbwo+PiBC
+VUdfT04oKXMgbWF5IGhlbHAgdGhlcmUuCj4+Cj4+PiArCj4+PiArCQlmb3IgKGogPSAwOyBqIDwg
+bGVuIC8gc2l6ZW9mKHN0cnVjdCB2cmluZ19wYWNrZWRfZGVzYyk7IGorKykKPj4+ICsJCQl2cmlu
+Z191bm1hcF9vbmVfcGFja2VkKHZxLCAmZGVzY1tqXSk7Cj4+PiArCj4+PiArCQlrZnJlZShkZXNj
+KTsKPj4+ICsJCXZxLT5kZXNjX3N0YXRlW2hlYWRdLmluZGlyX2Rlc2MgPSBOVUxMOwo+Pj4gKwl9
+IGVsc2UgaWYgKGN0eCkgewo+Pj4gKwkJKmN0eCA9IHZxLT5kZXNjX3N0YXRlW2hlYWRdLmluZGly
+X2Rlc2M7Cj4+PiArCX0KPj4+ICsKPj4+ICtvdXQ6Cj4+PiArCXJldHVybiB2cS0+ZGVzY19zdGF0
+ZVtoZWFkXS5udW07Cj4+PiArfQo+Pj4gKwo+Pj4gK3N0YXRpYyBpbmxpbmUgYm9vbCBtb3JlX3Vz
+ZWRfc3BsaXQoY29uc3Qgc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEpCj4+PiAgICB7Cj4+PiAg
+ICAJcmV0dXJuIHZxLT5sYXN0X3VzZWRfaWR4ICE9IHZpcnRpbzE2X3RvX2NwdSh2cS0+dnEudmRl
+diwgdnEtPnZyaW5nLnVzZWQtPmlkeCk7Cj4+PiAgICB9Cj4+PiArc3RhdGljIGlubGluZSBib29s
+IG1vcmVfdXNlZF9wYWNrZWQoY29uc3Qgc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEpCj4+PiAr
+ewo+Pj4gKwl1MTYgbGFzdF91c2VkLCBmbGFnczsKPj4+ICsJYm9vbCBhdmFpbCwgdXNlZDsKPj4+
+ICsKPj4+ICsJaWYgKHZxLT52cS5udW1fZnJlZSA9PSB2cS0+dnJpbmdfcGFja2VkLm51bSkKPj4+
+ICsJCXJldHVybiBmYWxzZTsKPj4+ICsKPj4+ICsJbGFzdF91c2VkID0gdnEtPmxhc3RfdXNlZF9p
+ZHg7Cj4+PiArCWZsYWdzID0gdmlydGlvMTZfdG9fY3B1KHZxLT52cS52ZGV2LAo+Pj4gKwkJCQl2
+cS0+dnJpbmdfcGFja2VkLmRlc2NbbGFzdF91c2VkXS5mbGFncyk7Cj4+PiArCWF2YWlsID0gZmxh
+Z3MgJiBWUklOR19ERVNDX0ZfQVZBSUwoMSk7Cj4+PiArCXVzZWQgPSBmbGFncyAmIFZSSU5HX0RF
+U0NfRl9VU0VEKDEpOwo+Pj4gKwo+Pj4gKwlyZXR1cm4gYXZhaWwgPT0gdXNlZDsKPj4+ICt9Cj4+
+IFRoaXMgbG9va3MgaW50ZXJlc3RpbmcsIHNwZWMgc2FpZDoKPj4KPj4gIgo+PiBUaHVzIFZJUlRR
+X0RFU0NfRl9BVkFJTCBhbmQgVklSVFFfREVTQ19GX1VTRUQgYml0cyBhcmUgZGlmZmVyZW50IGZv
+ciBhbgo+PiBhdmFpbGFibGUgZGVzY3JpcHRvciBhbmQKPj4gZXF1YWwgZm9yIGEgdXNlZCBkZXNj
+cmlwdG9yLgo+PiBOb3RlIHRoYXQgdGhpcyBvYnNlcnZhdGlvbiBpcyBtb3N0bHkgdXNlZnVsIGZv
+ciBzYW5pdHktY2hlY2tpbmcgYXMgdGhlc2UgYXJlCj4+IG5lY2Vzc2FyeSBidXQgbm90IHN1ZmZp
+Y2llbnQKPj4gY29uZGl0aW9ucyAtIGZvciBleGFtcGxlLCBhbGwgZGVzY3JpcHRvcnMgYXJlIHpl
+cm8taW5pdGlhbGl6ZWQuIFRvIGRldGVjdAo+PiB1c2VkIGFuZCBhdmFpbGFibGUgZGVzY3JpcHRv
+cnMgaXQgaXMKPj4gcG9zc2libGUgZm9yIGRyaXZlcnMgYW5kIGRldmljZXMgdG8ga2VlcCB0cmFj
+ayBvZiB0aGUgbGFzdCBvYnNlcnZlZCB2YWx1ZSBvZgo+PiBWSVJUUV9ERVNDX0ZfVVNFRC9WSVJU
+UV8tCj4+IERFU0NfRl9BVkFJTC4gT3RoZXIgdGVjaG5pcXVlcyB0byBkZXRlY3QKPj4gVklSVFFf
+REVTQ19GX0FWQUlML1ZJUlRRX0RFU0NfRl9VU0VEIGJpdCBjaGFuZ2VzCj4+IG1pZ2h0IGFsc28g
+YmUgcG9zc2libGUuCj4+ICIKPj4KPj4gU28gaXQgbG9va3MgdG8gbWUgaXQgd2FzIG5vdCBzdWZm
+aWNpZW50LCBsb29raW5nIGF0IHRoZSBleGFtcGxlIGNvZGVzIGluCj4+IHNwZWMsIGRvIHdlIG5l
+ZWQgdG8gdHJhY2sgbGFzdCBzZWVuIHVzZWRfd3JhcF9jb3VudGVyIGhlcmU/Cj4gSSBkb24ndCB0
+aGluayB3ZSBoYXZlIHRvIHRyYWNrIHVzZWRfd3JhcF9jb3VudGVyIGluCj4gZHJpdmVyLiBUaGVy
+ZSB3YXMgYSBkaXNjdXNzaW9uIG9uIHRoaXM6Cj4KPiBodHRwczovL2xpc3RzLm9hc2lzLW9wZW4u
+b3JnL2FyY2hpdmVzL3ZpcnRpby1kZXYvMjAxODAyL21zZzAwMTc3Lmh0bWwKPgo+IEFuZCBhZnRl
+ciB0aGF0LCBiZWxvdyBzZW50ZW5jZSB3YXMgYWRkZWQgKGl0J3MgYWxzbwo+IGluIHRoZSBhYm92
+ZSB3b3JkcyB5b3UgcXVvdGVkKToKPgo+ICIiIgo+IE90aGVyIHRlY2huaXF1ZXMgdG8gZGV0ZWN0
+Cj4gVklSVFFfREVTQ19GX0FWQUlML1ZJUlRRX0RFU0NfRl9VU0VEIGJpdCBjaGFuZ2VzCj4gbWln
+aHQgYWxzbyBiZSBwb3NzaWJsZS4KPiAiIiIKPgo+IEJlc3QgcmVnYXJkcywKPiBUaXdlaSBCaWUK
+Ckkgc2VlLCB0aGUgZXh0cmEgY29uZGl0aW9uICJpZiAodnEtPnZxLm51bV9mcmVlID09IAp2cS0+
+dnJpbmdfcGFja2VkLm51bSkiIGhlbHAgaW4gdGhpcyBjYXNlLgoKVGhhbmtzCgo+Cj4+IFRoYW5r
+cwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
+bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
+b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
+L3ZpcnR1YWxpemF0aW9u
