@@ -1,24 +1,11 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event
-	handling code to use the failover framework
-Date: Mon, 23 Apr 2018 22:07:46 -0700
-Message-ID: <20180423220746.1971d888__32626.9109653824$1524546368$gmane$org@xeon-e3>
-References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
-	<20180420082802.6ca37e4c@xeon-e3>
-	<20180420160058.GB2150@nanopsycho.orion>
-	<20180423100406.71b95f74@xeon-e3>
-	<20180423202204-mutt-send-email-mst@kernel.org>
-	<20180423104440.2fe6cfd2@xeon-e3>
-	<20180423205019-mutt-send-email-mst@kernel.org>
-	<CADGSJ20ge75T+ddxtUBT4d9m1i3=HLOAHJEoS7Cg0bqnXrutwA@mail.gmail.com>
-	<20180423182503.353180c9@xeon-e3>
-	<20180424043042-mutt-send-email-mst@kernel.org>
+From: Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH] vhost_net: use packet weight for rx handler, too
+Date: Tue, 24 Apr 2018 10:34:36 +0200
+Message-ID: <11f2a27cee0c660a611af381ac1b68d9526095e3.1524556673.git.pabeni__1010.58758232302$1524558795$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180424043042-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,71 +15,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, David Miller <davem@davemloft.net>
+To: kvm@vger.kernel.org
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, haibinzhang <haibinzhang@tencent.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 24 Apr 2018 04:42:22 +0300
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+Similar to commit a2ac99905f1e ("vhost-net: set packet weight of
+tx polling to 2 * vq size"), we need a packet-based limit for
+handler_rx, too - elsewhere, under rx flood with small packets,
+tx can be delayed for a very long time, even without busypolling.
 
-> On Mon, Apr 23, 2018 at 06:25:03PM -0700, Stephen Hemminger wrote:
-> > On Mon, 23 Apr 2018 12:44:39 -0700
-> > Siwei Liu <loseweigh@gmail.com> wrote:
-> >   
-> > > On Mon, Apr 23, 2018 at 10:56 AM, Michael S. Tsirkin <mst@redhat.com> wrote:  
-> > > > On Mon, Apr 23, 2018 at 10:44:40AM -0700, Stephen Hemminger wrote:    
-> > > >> On Mon, 23 Apr 2018 20:24:56 +0300
-> > > >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > >>    
-> > > >> > On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:    
-> > > >> > > > >
-> > > >> > > > >I will NAK patches to change to common code for netvsc especially the
-> > > >> > > > >three device model.  MS worked hard with distro vendors to support transparent
-> > > >> > > > >mode, ans we really can't have a new model; or do backport.
-> > > >> > > > >
-> > > >> > > > >Plus, DPDK is now dependent on existing model.    
-> > > >> > > >
-> > > >> > > > Sorry, but nobody here cares about dpdk or other similar oddities.    
-> > > >> > >
-> > > >> > > The network device model is a userspace API, and DPDK is a userspace application.    
-> > > >> >
-> > > >> > It is userspace but are you sure dpdk is actually poking at netdevs?
-> > > >> > AFAIK it's normally banging device registers directly.
-> > > >> >    
-> > > >> > > You can't go breaking userspace even if you don't like the application.    
-> > > >> >
-> > > >> > Could you please explain how is the proposed patchset breaking
-> > > >> > userspace? Ignoring DPDK for now, I don't think it changes the userspace
-> > > >> > API at all.
-> > > >> >    
-> > > >>
-> > > >> The DPDK has a device driver vdev_netvsc which scans the Linux network devices
-> > > >> to look for Linux netvsc device and the paired VF device and setup the
-> > > >> DPDK environment.  This setup creates a DPDK failsafe (bondingish) instance
-> > > >> and sets up TAP support over the Linux netvsc device as well as the Mellanox
-> > > >> VF device.
-> > > >>
-> > > >> So it depends on existing 2 device model. You can't go to a 3 device model
-> > > >> or start hiding devices from userspace.    
-> > > >
-> > > > Okay so how does the existing patch break that? IIUC does not go to
-> > > > a 3 device model since netvsc calls failover_register directly.
-> > > >    
-> > > >> Also, I am working on associating netvsc and VF device based on serial number
-> > > >> rather than MAC address. The serial number is how Windows works now, and it makes
-> > > >> sense for Linux and Windows to use the same mechanism if possible.    
-> > > >
-> > > > Maybe we should support same for virtio ...
-> > > > Which serial do you mean? From vpd?
-> > > >
-> > > > I guess you will want to keep supporting MAC for old hypervisors?  
-> > 
-> > The serial number has always been in the hypervisor since original support of SR-IOV
-> > in WS2008.  So no backward compatibility special cases would be needed.  
-> 
-> Is that a serial from real hardware or a hypervisor thing?
-> 
-> 
+The pkt limit applied to handle_rx must be the same applied by
+handle_tx, or we will get unfair scheduling between rx and tx.
+Tying such limit to the queue length makes it less effective for
+large queue length values and can introduce large process
+scheduler latencies, so a constant valued is used - likewise
+the existing bytes limit.
 
-It is a hypervisor thing in the PCI hyperv code and the hyperv Netvsc interface.
-It might also be in the PCI spec, but the value in Hyper-V is being generated by the host.
+The selected limit has been validated with PVP[1] performance
+test with different queue sizes:
+
+queue size		256	512	1024
+
+baseline		366	354	362
+weight 128		715	723	670
+weight 256		740	745	733
+weight 512		600	460	583
+weight 1024		423	427	418
+
+A packet weight of 256 gives peek performances in under all the
+tested scenarios.
+
+No measurable regression in unidirectional performance tests has
+been detected.
+
+[1] https://developers.redhat.com/blog/2017/06/05/measuring-and-comparing-open-vswitch-performance/
+
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+---
+ drivers/vhost/net.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index bbf38befefb2..c4b49fca4871 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -46,8 +46,10 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+ #define VHOST_NET_WEIGHT 0x80000
+ 
+ /* Max number of packets transferred before requeueing the job.
+- * Using this limit prevents one virtqueue from starving rx. */
+-#define VHOST_NET_PKT_WEIGHT(vq) ((vq)->num * 2)
++ * Using this limit prevents one virtqueue from starving others with small
++ * pkts.
++ */
++#define VHOST_NET_PKT_WEIGHT 256
+ 
+ /* MAX number of TX used buffers for outstanding zerocopy */
+ #define VHOST_MAX_PEND 128
+@@ -587,7 +589,7 @@ static void handle_tx(struct vhost_net *net)
+ 			vhost_zerocopy_signal_used(net, vq);
+ 		vhost_net_tx_packet(net);
+ 		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
+-		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT(vq))) {
++		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT)) {
+ 			vhost_poll_queue(&vq->poll);
+ 			break;
+ 		}
+@@ -769,6 +771,7 @@ static void handle_rx(struct vhost_net *net)
+ 	struct socket *sock;
+ 	struct iov_iter fixup;
+ 	__virtio16 num_buffers;
++	int recv_pkts = 0;
+ 
+ 	mutex_lock_nested(&vq->mutex, 0);
+ 	sock = vq->private_data;
+@@ -872,7 +875,8 @@ static void handle_rx(struct vhost_net *net)
+ 		if (unlikely(vq_log))
+ 			vhost_log_write(vq, vq_log, log, vhost_len);
+ 		total_len += vhost_len;
+-		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
++		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
++		    unlikely(++recv_pkts >= VHOST_NET_PKT_WEIGHT)) {
+ 			vhost_poll_queue(&vq->poll);
+ 			goto out;
+ 		}
+-- 
+2.14.3
