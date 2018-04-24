@@ -1,8 +1,8 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
 Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event
 	handling code to use the failover framework
-Date: Mon, 23 Apr 2018 18:25:03 -0700
-Message-ID: <20180423182503.353180c9__27269.5983564065$1524533007$gmane$org@xeon-e3>
+Date: Mon, 23 Apr 2018 18:28:22 -0700
+Message-ID: <20180423182822.72c697b7__1827.82251290536$1524533194$gmane$org@xeon-e3>
 References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
 	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
 	<20180420082802.6ca37e4c@xeon-e3>
@@ -12,11 +12,12 @@ References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
 	<20180423104440.2fe6cfd2@xeon-e3>
 	<20180423205019-mutt-send-email-mst@kernel.org>
 	<CADGSJ20ge75T+ddxtUBT4d9m1i3=HLOAHJEoS7Cg0bqnXrutwA@mail.gmail.com>
+	<20180423230037-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CADGSJ20ge75T+ddxtUBT4d9m1i3=HLOAHJEoS7Cg0bqnXrutwA@mail.gmail.com>
+In-Reply-To: <20180423230037-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,60 +27,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 23 Apr 2018 12:44:39 -0700
-Siwei Liu <loseweigh@gmail.com> wrote:
+On Mon, 23 Apr 2018 23:06:55 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> On Mon, Apr 23, 2018 at 10:56 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Mon, Apr 23, 2018 at 10:44:40AM -0700, Stephen Hemminger wrote:  
-> >> On Mon, 23 Apr 2018 20:24:56 +0300
-> >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >>  
-> >> > On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:  
-> >> > > > >
-> >> > > > >I will NAK patches to change to common code for netvsc especially the
-> >> > > > >three device model.  MS worked hard with distro vendors to support transparent
-> >> > > > >mode, ans we really can't have a new model; or do backport.
-> >> > > > >
-> >> > > > >Plus, DPDK is now dependent on existing model.  
-> >> > > >
-> >> > > > Sorry, but nobody here cares about dpdk or other similar oddities.  
-> >> > >
-> >> > > The network device model is a userspace API, and DPDK is a userspace application.  
-> >> >
-> >> > It is userspace but are you sure dpdk is actually poking at netdevs?
-> >> > AFAIK it's normally banging device registers directly.
-> >> >  
-> >> > > You can't go breaking userspace even if you don't like the application.  
-> >> >
-> >> > Could you please explain how is the proposed patchset breaking
-> >> > userspace? Ignoring DPDK for now, I don't think it changes the userspace
-> >> > API at all.
-> >> >  
-> >>
-> >> The DPDK has a device driver vdev_netvsc which scans the Linux network devices
-> >> to look for Linux netvsc device and the paired VF device and setup the
-> >> DPDK environment.  This setup creates a DPDK failsafe (bondingish) instance
-> >> and sets up TAP support over the Linux netvsc device as well as the Mellanox
-> >> VF device.
-> >>
-> >> So it depends on existing 2 device model. You can't go to a 3 device model
-> >> or start hiding devices from userspace.  
-> >
-> > Okay so how does the existing patch break that? IIUC does not go to
-> > a 3 device model since netvsc calls failover_register directly.
-> >  
-> >> Also, I am working on associating netvsc and VF device based on serial number
-> >> rather than MAC address. The serial number is how Windows works now, and it makes
-> >> sense for Linux and Windows to use the same mechanism if possible.  
-> >
-> > Maybe we should support same for virtio ...
-> > Which serial do you mean? From vpd?
-> >
-> > I guess you will want to keep supporting MAC for old hypervisors?
+> On Mon, Apr 23, 2018 at 12:44:39PM -0700, Siwei Liu wrote:
+> > On Mon, Apr 23, 2018 at 10:56 AM, Michael S. Tsirkin <mst@redhat.com> wrote:  
+> > > On Mon, Apr 23, 2018 at 10:44:40AM -0700, Stephen Hemminger wrote:  
+> > >> On Mon, 23 Apr 2018 20:24:56 +0300
+> > >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > >>  
+> > >> > On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:  
+> > >> > > > >
+> > >> > > > >I will NAK patches to change to common code for netvsc especially the
+> > >> > > > >three device model.  MS worked hard with distro vendors to support transparent
+> > >> > > > >mode, ans we really can't have a new model; or do backport.
+> > >> > > > >
+> > >> > > > >Plus, DPDK is now dependent on existing model.  
+> > >> > > >
+> > >> > > > Sorry, but nobody here cares about dpdk or other similar oddities.  
+> > >> > >
+> > >> > > The network device model is a userspace API, and DPDK is a userspace application.  
+> > >> >
+> > >> > It is userspace but are you sure dpdk is actually poking at netdevs?
+> > >> > AFAIK it's normally banging device registers directly.
+> > >> >  
+> > >> > > You can't go breaking userspace even if you don't like the application.  
+> > >> >
+> > >> > Could you please explain how is the proposed patchset breaking
+> > >> > userspace? Ignoring DPDK for now, I don't think it changes the userspace
+> > >> > API at all.
+> > >> >  
+> > >>
+> > >> The DPDK has a device driver vdev_netvsc which scans the Linux network devices
+> > >> to look for Linux netvsc device and the paired VF device and setup the
+> > >> DPDK environment.  This setup creates a DPDK failsafe (bondingish) instance
+> > >> and sets up TAP support over the Linux netvsc device as well as the Mellanox
+> > >> VF device.
+> > >>
+> > >> So it depends on existing 2 device model. You can't go to a 3 device model
+> > >> or start hiding devices from userspace.  
+> > >
+> > > Okay so how does the existing patch break that? IIUC does not go to
+> > > a 3 device model since netvsc calls failover_register directly.
+> > >  
+> > >> Also, I am working on associating netvsc and VF device based on serial number
+> > >> rather than MAC address. The serial number is how Windows works now, and it makes
+> > >> sense for Linux and Windows to use the same mechanism if possible.  
+> > >
+> > > Maybe we should support same for virtio ...
+> > > Which serial do you mean? From vpd?
+> > >
+> > > I guess you will want to keep supporting MAC for old hypervisors?
+> > >
+> > > It all seems like a reasonable thing to support in the generic core.  
+> > 
+> > That's the reason why I chose explicit identifier rather than rely on
+> > MAC address to bind/pair a device. MAC address can change. Even if it
+> > can't, malicious guest user can fake MAC address to skip binding.
+> > 
+> > -Siwei  
+> 
+> Address should be sampled at device creation to prevent this
+> kind of hack. Not that it buys the malicious user much:
+> if you can poke at MAC addresses you probably already can
+> break networking.
 
-The serial number has always been in the hypervisor since original support of SR-IOV
-in WS2008.  So no backward compatibility special cases would be needed.
+On Hyper-V guest can't really change MAC address if SR-IOV is enabled.
+Also, Linux has permanent ether address in netdev which is what should
+be used to avoid user messing with device.
