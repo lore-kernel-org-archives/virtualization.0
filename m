@@ -1,16 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/6] virtio_console: don't tie bufs to a vq
-Date: Tue, 24 Apr 2018 21:56:33 +0300
-Message-ID: <20180424215318-mutt-send-email-mst__12189.6226694391$1524596097$gmane$org@kernel.org>
-References: <1524248223-393618-1-git-send-email-mst@redhat.com>
-	<1524248223-393618-2-git-send-email-mst@redhat.com>
-	<20180421073005.GA3744@kroah.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: [RFC v3 0/5] virtio: support packed ring
+Date: Wed, 25 Apr 2018 13:15:45 +0800
+Message-ID: <20180425051550.24342-1-tiwei.bie__17499.8381095522$1524633221$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180421073005.GA3744@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,109 +15,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Apr 21, 2018 at 09:30:05AM +0200, Greg Kroah-Hartman wrote:
-> On Fri, Apr 20, 2018 at 09:18:01PM +0300, Michael S. Tsirkin wrote:
-> > an allocated buffer doesn't need to be tied to a vq -
-> > only vq->vdev is ever used. Pass the function the
-> > just what it needs - the vdev.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  drivers/char/virtio_console.c | 14 +++++++-------
-> >  1 file changed, 7 insertions(+), 7 deletions(-)
-> > 
-> > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> > index 468f061..3e56f32 100644
-> > --- a/drivers/char/virtio_console.c
-> > +++ b/drivers/char/virtio_console.c
-> > @@ -422,7 +422,7 @@ static void reclaim_dma_bufs(void)
-> >  	}
-> >  }
-> >  
-> > -static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
-> > +static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size,
-> >  				     int pages)
-> >  {
-> >  	struct port_buffer *buf;
-> > @@ -445,16 +445,16 @@ static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
-> >  		return buf;
-> >  	}
-> >  
-> > -	if (is_rproc_serial(vq->vdev)) {
-> > +	if (is_rproc_serial(vdev)) {
-> >  		/*
-> >  		 * Allocate DMA memory from ancestor. When a virtio
-> >  		 * device is created by remoteproc, the DMA memory is
-> >  		 * associated with the grandparent device:
-> >  		 * vdev => rproc => platform-dev.
-> >  		 */
-> > -		if (!vq->vdev->dev.parent || !vq->vdev->dev.parent->parent)
-> > +		if (!vdev->dev.parent || !vdev->dev.parent->parent)
-> >  			goto free_buf;
-> > -		buf->dev = vq->vdev->dev.parent->parent;
-> > +		buf->dev = vdev->dev.parent->parent;
-> >  
-> >  		/* Increase device refcnt to avoid freeing it */
-> >  		get_device(buf->dev);
-> > @@ -838,7 +838,7 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
-> >  
-> >  	count = min((size_t)(32 * 1024), count);
-> >  
-> > -	buf = alloc_buf(port->out_vq, count, 0);
-> > +	buf = alloc_buf(port->portdev->vdev, count, 0);
-> >  	if (!buf)
-> >  		return -ENOMEM;
-> >  
-> > @@ -957,7 +957,7 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
-> >  	if (ret < 0)
-> >  		goto error_out;
-> >  
-> > -	buf = alloc_buf(port->out_vq, 0, pipe->nrbufs);
-> > +	buf = alloc_buf(port->portdev->vdev, 0, pipe->nrbufs);
-> >  	if (!buf) {
-> >  		ret = -ENOMEM;
-> >  		goto error_out;
-> > @@ -1374,7 +1374,7 @@ static unsigned int fill_queue(struct virtqueue *vq, spinlock_t *lock)
-> >  
-> >  	nr_added_bufs = 0;
-> >  	do {
-> > -		buf = alloc_buf(vq, PAGE_SIZE, 0);
-> > +		buf = alloc_buf(vq->vdev, PAGE_SIZE, 0);
-> >  		if (!buf)
-> >  			break;
-> >  
-> > -- 
-> > MST
-> 
-> <formletter>
-> 
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
-> 
-> </formletter>
+Hello everyone,
 
+This RFC implements packed ring support in virtio driver.
+
+Some simple functional tests have been done with Jason's
+packed ring implementation in vhost:
+
+https://lkml.org/lkml/2018/4/23/12
+
+Both of ping and netperf worked as expected (with EVENT_IDX
+disabled). But there are below known issues:
+
+1. Reloading the guest driver will break the Tx/Rx;
+2. Zeroing the flags when detaching a used desc will
+   break the guest -> host path.
+
+Some simple functional tests have also been done with
+Wei's packed ring implementation in QEMU:
+
+http://lists.nongnu.org/archive/html/qemu-devel/2018-04/msg00342.html
+
+Both of ping and netperf worked as expected (with EVENT_IDX
+disabled). Reloading the guest driver also worked as expected.
+
+TODO:
+- Refinements (for code and commit log) and bug fixes;
+- Discuss/fix/test EVENT_IDX support;
+- Test devices other than net;
+
+RFC v2 -> RFC v3:
+- Split into small patches (Jason);
+- Add helper virtqueue_use_indirect() (Jason);
+- Just set id for the last descriptor of a list (Jason);
+- Calculate the prev in virtqueue_add_packed() (Jason);
+- Fix/improve desc suppression code (Jason/MST);
+- Refine the code layout for XXX_split/packed and wrappers (MST);
+- Fix the comments and API in uapi (MST);
+- Remove the BUG_ON() for indirect (Jason);
+- Some other refinements and bug fixes;
+
+RFC v1 -> RFC v2:
+- Add indirect descriptor support - compile test only;
+- Add event suppression supprt - compile test only;
+- Move vring_packed_init() out of uapi (Jason, MST);
+- Merge two loops into one in virtqueue_add_packed() (Jason);
+- Split vring_unmap_one() for packed ring and split ring (Jason);
+- Avoid using '%' operator (Jason);
+- Rename free_head -> next_avail_idx (Jason);
+- Add comments for virtio_wmb() in virtqueue_add_packed() (Jason);
+- Some other refinements and bug fixes;
 
 Thanks!
-I have some questions about this one:
 
-Cc: <stable@vger.kernel.org> # 3.3.x: a1f84a3: sched: Check for idle
-Cc: <stable@vger.kernel.org> # 3.3.x: 1b9508f: sched: Rate-limit newidle
-Cc: <stable@vger.kernel.org> # 3.3.x: fd21073: sched: Fix affinity logic
-Cc: <stable@vger.kernel.org> # 3.3.x
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Tiwei Bie (5):
+  virtio: add packed ring definitions
+  virtio_ring: support creating packed ring
+  virtio_ring: add packed ring support
+  virtio_ring: add event idx support in packed ring
+  virtio_ring: enable packed ring
 
-1. what does the kernel version mean? can I omit it?
-2. so when I rebase to add the tag, this changes commit IDs for
-   following tags in the same tree, breaking their tags
-   in the process. Pretty annoying. Any idea how to do it better?
-
-Thanks!
+ drivers/virtio/virtio_ring.c       | 1271 ++++++++++++++++++++++++++++--------
+ include/linux/virtio_ring.h        |    8 +-
+ include/uapi/linux/virtio_config.h |   12 +-
+ include/uapi/linux/virtio_ring.h   |   36 +
+ 4 files changed, 1049 insertions(+), 278 deletions(-)
 
 -- 
-MST
+2.11.0
