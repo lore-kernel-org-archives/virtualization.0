@@ -1,10 +1,9 @@
-From: Siwei Liu <loseweigh@gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event handling
 	code to use the failover framework
-Date: Wed, 25 Apr 2018 14:38:57 -0700
-Message-ID: <CADGSJ22WMxXEtR9QpRa9_ZqgmTbgWHZz2j4hsUnRJrM9zTsW4w@mail.gmail.com>
-References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
+Date: Thu, 26 Apr 2018 01:22:43 +0300
+Message-ID: <20180426011221-mutt-send-email-mst__29821.3192065761$1524694868$gmane$org@kernel.org>
+References: <1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
 	<20180420082802.6ca37e4c@xeon-e3>
 	<20180420160058.GB2150@nanopsycho.orion>
 	<20180423100406.71b95f74@xeon-e3>
@@ -13,11 +12,13 @@ References: <1524188524-28411-1-git-send-email-sridhar.samudrala@intel.com>
 	<20180423205019-mutt-send-email-mst@kernel.org>
 	<CADGSJ20ge75T+ddxtUBT4d9m1i3=HLOAHJEoS7Cg0bqnXrutwA@mail.gmail.com>
 	<20180423230037-mutt-send-email-mst@kernel.org>
+	<CADGSJ22WMxXEtR9QpRa9_ZqgmTbgWHZz2j4hsUnRJrM9zTsW4w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180423230037-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CADGSJ22WMxXEtR9QpRa9_ZqgmTbgWHZz2j4hsUnRJrM9zTsW4w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,96 +28,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Siwei Liu <loseweigh@gmail.com>
 Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 23, 2018 at 1:06 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Mon, Apr 23, 2018 at 12:44:39PM -0700, Siwei Liu wrote:
->> On Mon, Apr 23, 2018 at 10:56 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> > On Mon, Apr 23, 2018 at 10:44:40AM -0700, Stephen Hemminger wrote:
->> >> On Mon, 23 Apr 2018 20:24:56 +0300
->> >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
->> >>
->> >> > On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:
->> >> > > > >
->> >> > > > >I will NAK patches to change to common code for netvsc especially the
->> >> > > > >three device model.  MS worked hard with distro vendors to support transparent
->> >> > > > >mode, ans we really can't have a new model; or do backport.
->> >> > > > >
->> >> > > > >Plus, DPDK is now dependent on existing model.
->> >> > > >
->> >> > > > Sorry, but nobody here cares about dpdk or other similar oddities.
->> >> > >
->> >> > > The network device model is a userspace API, and DPDK is a userspace application.
->> >> >
->> >> > It is userspace but are you sure dpdk is actually poking at netdevs?
->> >> > AFAIK it's normally banging device registers directly.
->> >> >
->> >> > > You can't go breaking userspace even if you don't like the application.
->> >> >
->> >> > Could you please explain how is the proposed patchset breaking
->> >> > userspace? Ignoring DPDK for now, I don't think it changes the userspace
->> >> > API at all.
->> >> >
->> >>
->> >> The DPDK has a device driver vdev_netvsc which scans the Linux network devices
->> >> to look for Linux netvsc device and the paired VF device and setup the
->> >> DPDK environment.  This setup creates a DPDK failsafe (bondingish) instance
->> >> and sets up TAP support over the Linux netvsc device as well as the Mellanox
->> >> VF device.
->> >>
->> >> So it depends on existing 2 device model. You can't go to a 3 device model
->> >> or start hiding devices from userspace.
->> >
->> > Okay so how does the existing patch break that? IIUC does not go to
->> > a 3 device model since netvsc calls failover_register directly.
->> >
->> >> Also, I am working on associating netvsc and VF device based on serial number
->> >> rather than MAC address. The serial number is how Windows works now, and it makes
->> >> sense for Linux and Windows to use the same mechanism if possible.
->> >
->> > Maybe we should support same for virtio ...
->> > Which serial do you mean? From vpd?
->> >
->> > I guess you will want to keep supporting MAC for old hypervisors?
->> >
->> > It all seems like a reasonable thing to support in the generic core.
->>
->> That's the reason why I chose explicit identifier rather than rely on
->> MAC address to bind/pair a device. MAC address can change. Even if it
->> can't, malicious guest user can fake MAC address to skip binding.
->>
->> -Siwei
->
-> Address should be sampled at device creation to prevent this
-> kind of hack. Not that it buys the malicious user much:
-> if you can poke at MAC addresses you probably already can
-> break networking.
+On Wed, Apr 25, 2018 at 02:38:57PM -0700, Siwei Liu wrote:
+> On Mon, Apr 23, 2018 at 1:06 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > On Mon, Apr 23, 2018 at 12:44:39PM -0700, Siwei Liu wrote:
+> >> On Mon, Apr 23, 2018 at 10:56 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> >> > On Mon, Apr 23, 2018 at 10:44:40AM -0700, Stephen Hemminger wrote:
+> >> >> On Mon, 23 Apr 2018 20:24:56 +0300
+> >> >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> >> >>
+> >> >> > On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:
+> >> >> > > > >
+> >> >> > > > >I will NAK patches to change to common code for netvsc especially the
+> >> >> > > > >three device model.  MS worked hard with distro vendors to support transparent
+> >> >> > > > >mode, ans we really can't have a new model; or do backport.
+> >> >> > > > >
+> >> >> > > > >Plus, DPDK is now dependent on existing model.
+> >> >> > > >
+> >> >> > > > Sorry, but nobody here cares about dpdk or other similar oddities.
+> >> >> > >
+> >> >> > > The network device model is a userspace API, and DPDK is a userspace application.
+> >> >> >
+> >> >> > It is userspace but are you sure dpdk is actually poking at netdevs?
+> >> >> > AFAIK it's normally banging device registers directly.
+> >> >> >
+> >> >> > > You can't go breaking userspace even if you don't like the application.
+> >> >> >
+> >> >> > Could you please explain how is the proposed patchset breaking
+> >> >> > userspace? Ignoring DPDK for now, I don't think it changes the userspace
+> >> >> > API at all.
+> >> >> >
+> >> >>
+> >> >> The DPDK has a device driver vdev_netvsc which scans the Linux network devices
+> >> >> to look for Linux netvsc device and the paired VF device and setup the
+> >> >> DPDK environment.  This setup creates a DPDK failsafe (bondingish) instance
+> >> >> and sets up TAP support over the Linux netvsc device as well as the Mellanox
+> >> >> VF device.
+> >> >>
+> >> >> So it depends on existing 2 device model. You can't go to a 3 device model
+> >> >> or start hiding devices from userspace.
+> >> >
+> >> > Okay so how does the existing patch break that? IIUC does not go to
+> >> > a 3 device model since netvsc calls failover_register directly.
+> >> >
+> >> >> Also, I am working on associating netvsc and VF device based on serial number
+> >> >> rather than MAC address. The serial number is how Windows works now, and it makes
+> >> >> sense for Linux and Windows to use the same mechanism if possible.
+> >> >
+> >> > Maybe we should support same for virtio ...
+> >> > Which serial do you mean? From vpd?
+> >> >
+> >> > I guess you will want to keep supporting MAC for old hypervisors?
+> >> >
+> >> > It all seems like a reasonable thing to support in the generic core.
+> >>
+> >> That's the reason why I chose explicit identifier rather than rely on
+> >> MAC address to bind/pair a device. MAC address can change. Even if it
+> >> can't, malicious guest user can fake MAC address to skip binding.
+> >>
+> >> -Siwei
+> >
+> > Address should be sampled at device creation to prevent this
+> > kind of hack. Not that it buys the malicious user much:
+> > if you can poke at MAC addresses you probably already can
+> > break networking.
+> 
+> I don't understand why poking at MAC address may potentially break
+> networking.
 
-I don't understand why poking at MAC address may potentially break
-networking. Unlike VF, passthrough PCI endpoint device has its freedom
-to change the MAC address. Even on a VF setup it's not neccessarily
-always safe to assume the VF's MAC address cannot or shouldn't be
-changed. That depends on the specific need whether the host admin
-wants to restrict guest from changing the MAC address, although in
-most cases it's true.
+Set a MAC address to match another device on the same LAN,
+packets will stop reaching that MAC.
 
-I understand we can use the perm_addr to distinguish. But as said,
-this will pose limitation of flexible configuration where one can
-assign VFs with identical MAC address at all while each VF belongs to
-different PF and/or different subnet for e.g. load balancing. And
-furthermore, the QEMU device model never uses MAC address to be
-interpreted as an identifier, which requires to be unique per VM
-instance. Why we're introducing this inconsistency?
+> Unlike VF, passthrough PCI endpoint device has its freedom
+> to change the MAC address. Even on a VF setup it's not neccessarily
+> always safe to assume the VF's MAC address cannot or shouldn't be
+> changed. That depends on the specific need whether the host admin
+> wants to restrict guest from changing the MAC address, although in
+> most cases it's true.
+> 
+> I understand we can use the perm_addr to distinguish. But as said,
+> this will pose limitation of flexible configuration where one can
+> assign VFs with identical MAC address at all while each VF belongs to
+> different PF and/or different subnet for e.g. load balancing.
+> And
+> furthermore, the QEMU device model never uses MAC address to be
+> interpreted as an identifier, which requires to be unique per VM
+> instance. Why we're introducing this inconsistency?
+> 
+> -Siwei
 
--Siwei
+Because it addresses most of the issues and is simple.  That's already
+much better than what we have now which is nothing unless guest
+configures things manually.
 
->
->
->
->
->>
->> >
->> > --
->> > MST
+I think ideally the infrastructure should suppport flexible matching of
+NICs - netvsc is already reported to be moving to some kind of serial
+address.
+
+
+> >
+> >
+> >
+> >
+> >>
+> >> >
+> >> > --
+> >> > MST
