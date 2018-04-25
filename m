@@ -1,30 +1,12 @@
-From: Mikulas Patocka <mpatocka@redhat.com>
-Subject: Re: [dm-devel] [PATCH v5] fault-injection: introduce kvmalloc fallback
-	options
-Date: Wed, 25 Apr 2018 19:00:30 -0400 (EDT)
-Message-ID: <alpine.LRH.2.02.1804251857070.31135@file01.intranet.prod.int.rdu2.redhat.com>
-References: <20180421144757.GC14610@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804221733520.7995@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180423151545.GU17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804232003100.2299@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180424125121.GA17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804241142340.15660@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180424162906.GM17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804241250350.28995@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180424170349.GQ17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804241319390.28995@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180424173836.GR17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804251556060.30569@file01.intranet.prod.int.rdu2.redhat.com>
-	<1114eda5-9b1f-4db8-2090-556b4a37c532@infradead.org>
-	<alpine.LRH.2.02.1804251656300.9428@file01.intranet.prod.int.rdu2.redhat.com>
-	<alpine.DEB.2.21.1804251417470.166306@chino.kir.corp.google.com>
-	<alpine.LRH.2.02.1804251720090.9428@file01.intranet.prod.int.rdu2.redhat.com>
-	<1524694663.4100.21.camel@HansenPartnership.com>
+From: Sridhar Samudrala <sridhar.samudrala@intel.com>
+Subject: [PATCH net-next v8 0/4] Enable virtio_net to act as a standby for a
+	passthru device
+Date: Wed, 25 Apr 2018 16:59:24 -0700
+Message-ID: <1524700768-38627-1-git-send-email-sridhar.samudrala__25302.9273044833$1524700671$gmane$org@intel.com>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED;
-	BOUNDARY="185206533-1907632136-1524697231=:31135"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1524694663.4100.21.camel@HansenPartnership.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -34,57 +16,133 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, dm-devel@redhat.com, Vlastimil Babka <vbabka@suse.cz>, David Rientjes <rientjes@google.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, edumazet@google.com
+To: mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, kubakici@wp.pl, sridhar.samudrala@intel.com, jasowang@redhat.com, loseweigh@gmail.com, jiri@resnulli.us, aaron.f.brown@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+This is another update based on feedback from MST and Stephen on the
+last patchset. Hopefully this series can be integrated and any further
+enhancements can be made on top of this patchset.
 
---185206533-1907632136-1524697231=:31135
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+v8:
+- Made the failover managment routines more robust by updating the feature 
+  bits/other fields in the failover netdev when slave netdevs are 
+  registered/unregistered. (mst)
+- added support for handling vlans.
+- Limited the changes in netvsc to only use the notifier/event/lookups
+  from the failover module. The slave register/unregister/link-change 
+  handlers are only updated to use the getbymac routine to get the 
+  upper netdev. There is no change in their functionality. (stephen)
+- renamed structs/function/file names to use net_failover prefix. (mst)
 
+The main motivation for this patch is to enable cloud service providers
+to provide an accelerated datapath to virtio-net enabled VMs in a 
+transparent manner with no/minimal guest userspace changes. This also
+enables hypervisor controlled live migration to be supported with VMs that
+have direct attached SR-IOV VF devices.
 
+Patch 1 introduces a new feature bit VIRTIO_NET_F_STANDBY that can be
+used by hypervisor to indicate that virtio_net interface should act as
+a standby for another device with the same MAC address.
 
-On Wed, 25 Apr 2018, James Bottomley wrote:
+Patch 2 introduces a failover module that provides a generic interface for 
+paravirtual drivers to listen for netdev register/unregister/link change
+events from pci ethernet devices with the same MAC and takeover their
+datapath. The notifier and event handling code is based on the existing
+netvsc implementation. It provides 2 sets of interfaces to paravirtual 
+drivers to support 2-netdev(netvsc) and 3-netdev(virtio_net) models.
 
-> > > Do we really need the new config option?  This could just be
-> > > manually  tunable via fault injection IIUC.
-> > 
-> > We do, because we want to enable it in RHEL and Fedora debugging
-> > kernels, so that it will be tested by the users.
-> > 
-> > The users won't use some extra magic kernel options or debugfs files.
-> 
-> If it can be enabled via a tunable, then the distro can turn it on
-> without the user having to do anything.  If you want to present the
-> user with a different boot option, you can (just have the tunable set
-> on the command line), but being tunable driven means that you don't
-> have to choose that option, you could automatically enable it under a
-> range of circumstances.  I think most sane distributions would want
-> that flexibility.
-> 
-> Kconfig proliferation, conversely, is a bit of a nightmare from both
-> the user and the tester's point of view, so we're trying to avoid it
-> unless absolutely necessary.
-> 
-> James
+Patch 3 extends virtio_net to use alternate datapath when available and
+registered. When STANDBY feature is enabled, virtio_net driver creates
+an additional 'failover' netdev that acts as a master device and controls
+2 slave devices.  The original virtio_net netdev is registered as
+'standby' netdev and a passthru/vf device with the same MAC gets
+registered as 'primary' netdev. Both 'standby' and 'primary' netdevs are
+associated with the same 'pci' device.  The user accesses the network
+interface via 'failover' netdev. The 'failover' netdev chooses 'primary'
+netdev as default for transmits when it is available with link up and
+running.
 
-BTW. even developers who compile their own kernel should have this enabled 
-by a CONFIG option - because if the developer sees the option when 
-browsing through menuconfig, he may enable it. If he doesn't see the 
-option, he won't even know that such an option exists.
+Patch 4 refactors netvsc to use the registration/notification framework
+supported by failover module.
 
-Mikulas
---185206533-1907632136-1524697231=:31135
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+As this patch series is initially focusing on usecases where hypervisor 
+fully controls the VM networking and the guest is not expected to directly 
+configure any hardware settings, it doesn't expose all the ndo/ethtool ops
+that are supported by virtio_net at this time. To support additional usecases,
+it should be possible to enable additional ops later by caching the state
+in virtio netdev and replaying when the 'primary' netdev gets registered. 
+ 
+The hypervisor needs to enable only one datapath at any time so that packets
+don't get looped back to the VM over the other datapath. When a VF is
+plugged, the virtio datapath link state can be marked as down.
+At the time of live migration, the hypervisor needs to unplug the VF device
+from the guest on the source host and reset the MAC filter of the VF to
+initiate failover of datapath to virtio before starting the migration. After
+the migration is completed, the destination hypervisor sets the MAC filter
+on the VF and plugs it back to the guest to switch over to VF datapath.
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---185206533-1907632136-1524697231=:31135--
+This patch is based on the discussion initiated by Jesse on this thread.
+https://marc.info/?l=linux-virtualization&m=151189725224231&w=2
+
+v7
+- Rename 'bypass/active/backup' terminology with 'failover/primary/standy'
+  (jiri, mst)
+- re-arranged dev_open() and dev_set_mtu() calls in the register routines
+  so that they don't get called for 2-netdev model. (stephen)
+- fixed select_queue() routine to do queue selection based on VF if it is
+  registered as primary. (stephen)
+-  minor bugfixes
+
+v6 RFC:
+  Simplified virtio_net changes by moving all the ndo_ops of the 
+  bypass_netdev and create/destroy of bypass_netdev to 'bypass' module.
+  avoided 2 phase registration(driver + instances).
+  introduced IFF_BYPASS/IFF_BYPASS_SLAVE dev->priv_flags 
+  replaced mutex with a spinlock
+
+v5 RFC:
+  Based on Jiri's comments, moved the common functionality to a 'bypass'
+  module so that the same notifier and event handlers to handle child
+  register/unregister/link change events can be shared between virtio_net
+  and netvsc.
+  Improved error handling based on Siwei's comments.
+v4:
+- Based on the review comments on the v3 version of the RFC patch and
+  Jakub's suggestion for the naming issue with 3 netdev solution,
+  proposed 3 netdev in-driver bonding solution for virtio-net.
+v3 RFC:
+- Introduced 3 netdev model and pointed out a couple of issues with
+  that model and proposed 2 netdev model to avoid these issues.
+- Removed broadcast/multicast optimization and only use virtio as
+  backup path when VF is unplugged.
+v2 RFC:
+- Changed VIRTIO_NET_F_MASTER to VIRTIO_NET_F_BACKUP (mst)
+- made a small change to the virtio-net xmit path to only use VF datapath
+  for unicasts. Broadcasts/multicasts use virtio datapath. This avoids
+  east-west broadcasts to go over the PCI link.
+- added suppport for the feature bit in qemu
+
+Sridhar Samudrala (4):
+  virtio_net: Introduce VIRTIO_NET_F_STANDBY feature bit
+  net: Introduce generic failover module
+  virtio_net: Extend virtio to use VF datapath when available
+  netvsc: refactor notifier/event handling code to use the failover
+    framework
+
+ drivers/net/Kconfig             |   1 +
+ drivers/net/hyperv/Kconfig      |   1 +
+ drivers/net/hyperv/hyperv_net.h |   2 +
+ drivers/net/hyperv/netvsc_drv.c | 134 ++----
+ drivers/net/virtio_net.c        |  37 +-
+ include/linux/netdevice.h       |  16 +
+ include/net/net_failover.h      |  94 +++++
+ include/uapi/linux/virtio_net.h |   3 +
+ net/Kconfig                     |  18 +
+ net/core/Makefile               |   1 +
+ net/core/net_failover.c         | 892 ++++++++++++++++++++++++++++++++++++++++
+ 11 files changed, 1086 insertions(+), 113 deletions(-)
+ create mode 100644 include/net/net_failover.h
+ create mode 100644 net/core/net_failover.c
+
+-- 
+2.14.3
