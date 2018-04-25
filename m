@@ -1,24 +1,30 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event handling
-	code to use the failover framework
-Date: Wed, 25 Apr 2018 15:57:57 -0700
-Message-ID: <CADGSJ20vck5V8JCoF0Tq9PWfBu7QYPDvg0yAZ_8Xkig7TKU7Lw__45918.660288635$1524696977$gmane$org@mail.gmail.com>
-References: <1524188524-28411-5-git-send-email-sridhar.samudrala@intel.com>
-	<20180420082802.6ca37e4c@xeon-e3>
-	<20180420160058.GB2150@nanopsycho.orion>
-	<20180423100406.71b95f74@xeon-e3>
-	<20180423202204-mutt-send-email-mst@kernel.org>
-	<20180423104440.2fe6cfd2@xeon-e3>
-	<20180423205019-mutt-send-email-mst@kernel.org>
-	<CADGSJ20ge75T+ddxtUBT4d9m1i3=HLOAHJEoS7Cg0bqnXrutwA@mail.gmail.com>
-	<20180423230037-mutt-send-email-mst@kernel.org>
-	<CADGSJ22WMxXEtR9QpRa9_ZqgmTbgWHZz2j4hsUnRJrM9zTsW4w@mail.gmail.com>
-	<20180426011221-mutt-send-email-mst@kernel.org>
+From: Mikulas Patocka <mpatocka@redhat.com>
+Subject: Re: [dm-devel] [PATCH v5] fault-injection: introduce kvmalloc fallback
+	options
+Date: Wed, 25 Apr 2018 19:00:30 -0400 (EDT)
+Message-ID: <alpine.LRH.2.02.1804251857070.31135@file01.intranet.prod.int.rdu2.redhat.com>
+References: <20180421144757.GC14610@bombadil.infradead.org>
+	<alpine.LRH.2.02.1804221733520.7995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180423151545.GU17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804232003100.2299@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424125121.GA17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804241142340.15660@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424162906.GM17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804241250350.28995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424170349.GQ17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804241319390.28995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424173836.GR17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804251556060.30569@file01.intranet.prod.int.rdu2.redhat.com>
+	<1114eda5-9b1f-4db8-2090-556b4a37c532@infradead.org>
+	<alpine.LRH.2.02.1804251656300.9428@file01.intranet.prod.int.rdu2.redhat.com>
+	<alpine.DEB.2.21.1804251417470.166306@chino.kir.corp.google.com>
+	<alpine.LRH.2.02.1804251720090.9428@file01.intranet.prod.int.rdu2.redhat.com>
+	<1524694663.4100.21.camel@HansenPartnership.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED;
+	BOUNDARY="185206533-1907632136-1524697231=:31135"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180426011221-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1524694663.4100.21.camel@HansenPartnership.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,137 +34,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, dm-devel@redhat.com, Vlastimil Babka <vbabka@suse.cz>, David Rientjes <rientjes@google.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, edumazet@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 25, 2018 at 3:22 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Wed, Apr 25, 2018 at 02:38:57PM -0700, Siwei Liu wrote:
->> On Mon, Apr 23, 2018 at 1:06 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> > On Mon, Apr 23, 2018 at 12:44:39PM -0700, Siwei Liu wrote:
->> >> On Mon, Apr 23, 2018 at 10:56 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> >> > On Mon, Apr 23, 2018 at 10:44:40AM -0700, Stephen Hemminger wrote:
->> >> >> On Mon, 23 Apr 2018 20:24:56 +0300
->> >> >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
->> >> >>
->> >> >> > On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:
->> >> >> > > > >
->> >> >> > > > >I will NAK patches to change to common code for netvsc especially the
->> >> >> > > > >three device model.  MS worked hard with distro vendors to support transparent
->> >> >> > > > >mode, ans we really can't have a new model; or do backport.
->> >> >> > > > >
->> >> >> > > > >Plus, DPDK is now dependent on existing model.
->> >> >> > > >
->> >> >> > > > Sorry, but nobody here cares about dpdk or other similar oddities.
->> >> >> > >
->> >> >> > > The network device model is a userspace API, and DPDK is a userspace application.
->> >> >> >
->> >> >> > It is userspace but are you sure dpdk is actually poking at netdevs?
->> >> >> > AFAIK it's normally banging device registers directly.
->> >> >> >
->> >> >> > > You can't go breaking userspace even if you don't like the application.
->> >> >> >
->> >> >> > Could you please explain how is the proposed patchset breaking
->> >> >> > userspace? Ignoring DPDK for now, I don't think it changes the userspace
->> >> >> > API at all.
->> >> >> >
->> >> >>
->> >> >> The DPDK has a device driver vdev_netvsc which scans the Linux network devices
->> >> >> to look for Linux netvsc device and the paired VF device and setup the
->> >> >> DPDK environment.  This setup creates a DPDK failsafe (bondingish) instance
->> >> >> and sets up TAP support over the Linux netvsc device as well as the Mellanox
->> >> >> VF device.
->> >> >>
->> >> >> So it depends on existing 2 device model. You can't go to a 3 device model
->> >> >> or start hiding devices from userspace.
->> >> >
->> >> > Okay so how does the existing patch break that? IIUC does not go to
->> >> > a 3 device model since netvsc calls failover_register directly.
->> >> >
->> >> >> Also, I am working on associating netvsc and VF device based on serial number
->> >> >> rather than MAC address. The serial number is how Windows works now, and it makes
->> >> >> sense for Linux and Windows to use the same mechanism if possible.
->> >> >
->> >> > Maybe we should support same for virtio ...
->> >> > Which serial do you mean? From vpd?
->> >> >
->> >> > I guess you will want to keep supporting MAC for old hypervisors?
->> >> >
->> >> > It all seems like a reasonable thing to support in the generic core.
->> >>
->> >> That's the reason why I chose explicit identifier rather than rely on
->> >> MAC address to bind/pair a device. MAC address can change. Even if it
->> >> can't, malicious guest user can fake MAC address to skip binding.
->> >>
->> >> -Siwei
->> >
->> > Address should be sampled at device creation to prevent this
->> > kind of hack. Not that it buys the malicious user much:
->> > if you can poke at MAC addresses you probably already can
->> > break networking.
->>
->> I don't understand why poking at MAC address may potentially break
->> networking.
->
-> Set a MAC address to match another device on the same LAN,
-> packets will stop reaching that MAC.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-What I meant was guest users may create a virtual link, say veth that
-has exactly the same MAC address as that for the VF, which can easily
-get around of the binding procedure. There's no explicit flag to
-identify a VF or pass-through device AFAIK. And sometimes this happens
-maybe due to user misconfiguring the link. This process should be
-hardened to avoid from any potential configuration errors.
+--185206533-1907632136-1524697231=:31135
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
->
->> Unlike VF, passthrough PCI endpoint device has its freedom
->> to change the MAC address. Even on a VF setup it's not neccessarily
->> always safe to assume the VF's MAC address cannot or shouldn't be
->> changed. That depends on the specific need whether the host admin
->> wants to restrict guest from changing the MAC address, although in
->> most cases it's true.
->>
->> I understand we can use the perm_addr to distinguish. But as said,
->> this will pose limitation of flexible configuration where one can
->> assign VFs with identical MAC address at all while each VF belongs to
->> different PF and/or different subnet for e.g. load balancing.
->> And
->> furthermore, the QEMU device model never uses MAC address to be
->> interpreted as an identifier, which requires to be unique per VM
->> instance. Why we're introducing this inconsistency?
->>
->> -Siwei
->
-> Because it addresses most of the issues and is simple.  That's already
-> much better than what we have now which is nothing unless guest
-> configures things manually.
 
-Did you see my QEMU patch for using BDF as the grouping identifier?
-And there can be others like what you suggested, but the point is that
-it's requried to support explicit grouping mechanism from day one,
-before the backup property cast into stones. This is orthogonal to
-device model being proposed, be it 1-netdev or not. Delaying it would
-just mean support and compatibility burden, appearing more like a
-design flaw rather than a feature to add later on.
 
->
-> I think ideally the infrastructure should suppport flexible matching of
-> NICs - netvsc is already reported to be moving to some kind of serial
-> address.
->
-As Stephen said, Hyper-V supports the serial UUID thing from day-one.
-It's just the Linux netvsc guest driver itself does not leverage that
-ID from the very beginging.
+On Wed, 25 Apr 2018, James Bottomley wrote:
 
-Regards,
--Siwei
+> > > Do we really need the new config option?  This could just be
+> > > manually  tunable via fault injection IIUC.
+> > 
+> > We do, because we want to enable it in RHEL and Fedora debugging
+> > kernels, so that it will be tested by the users.
+> > 
+> > The users won't use some extra magic kernel options or debugfs files.
+> 
+> If it can be enabled via a tunable, then the distro can turn it on
+> without the user having to do anything.  If you want to present the
+> user with a different boot option, you can (just have the tunable set
+> on the command line), but being tunable driven means that you don't
+> have to choose that option, you could automatically enable it under a
+> range of circumstances.  I think most sane distributions would want
+> that flexibility.
+> 
+> Kconfig proliferation, conversely, is a bit of a nightmare from both
+> the user and the tester's point of view, so we're trying to avoid it
+> unless absolutely necessary.
+> 
+> James
 
->
->> >
->> >
->> >
->> >
->> >>
->> >> >
->> >> > --
->> >> > MST
+BTW. even developers who compile their own kernel should have this enabled 
+by a CONFIG option - because if the developer sees the option when 
+browsing through menuconfig, he may enable it. If he doesn't see the 
+option, he won't even know that such an option exists.
+
+Mikulas
+--185206533-1907632136-1524697231=:31135
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--185206533-1907632136-1524697231=:31135--
