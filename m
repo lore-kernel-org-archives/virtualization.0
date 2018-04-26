@@ -1,24 +1,25 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event handling
-	code to use the failover framework
-Date: Thu, 26 Apr 2018 05:43:14 +0300
-Message-ID: <20180426053209-mutt-send-email-mst__37704.8323899091$1524710495$gmane$org@kernel.org>
-References: <20180423100406.71b95f74@xeon-e3>
-	<20180423202204-mutt-send-email-mst@kernel.org>
-	<20180423104440.2fe6cfd2@xeon-e3>
-	<20180423205019-mutt-send-email-mst@kernel.org>
-	<CADGSJ20ge75T+ddxtUBT4d9m1i3=HLOAHJEoS7Cg0bqnXrutwA@mail.gmail.com>
-	<20180423230037-mutt-send-email-mst@kernel.org>
-	<CADGSJ22WMxXEtR9QpRa9_ZqgmTbgWHZz2j4hsUnRJrM9zTsW4w@mail.gmail.com>
-	<20180426011221-mutt-send-email-mst@kernel.org>
-	<CADGSJ20vck5V8JCoF0Tq9PWfBu7QYPDvg0yAZ_8Xkig7TKU7Lw@mail.gmail.com>
-	<20180425171831.785f412b@xeon-e3>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH] fault-injection: reorder config entries
+Date: Wed, 25 Apr 2018 20:21:24 -0700
+Message-ID: <43c0881e-b411-9999-5411-ae840116a94b__1100.63773249767$1524712794$gmane$org@infradead.org>
+References: <20180421144757.GC14610@bombadil.infradead.org>
+	<alpine.LRH.2.02.1804221733520.7995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180423151545.GU17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804232003100.2299@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424125121.GA17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804241142340.15660@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424162906.GM17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804241250350.28995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424170349.GQ17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804241319390.28995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424173836.GR17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804251601160.30569@file01.intranet.prod.int.rdu2.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180425171831.785f412b@xeon-e3>
+In-Reply-To: <alpine.LRH.2.02.1804251601160.30569@file01.intranet.prod.int.rdu2.redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,47 +29,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>, David Miller <davem@davemloft.net>
+To: Mikulas Patocka <mpatocka@redhat.com>, Michal Hocko <mhocko@kernel.org>
+Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, edumazet@google.com, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 25, 2018 at 05:18:31PM -0700, Stephen Hemminger wrote:
-> On Wed, 25 Apr 2018 15:57:57 -0700
-> Siwei Liu <loseweigh@gmail.com> wrote:
+On 04/25/2018 01:02 PM, Mikulas Patocka wrote:
+> This patch reorders Kconfig entries, so that menuconfig displays proper 
+> indentation.
 > 
-> > >
-> > > I think ideally the infrastructure should suppport flexible matching of
-> > > NICs - netvsc is already reported to be moving to some kind of serial
-> > > address.
-> > >  
-> > As Stephen said, Hyper-V supports the serial UUID thing from day-one.
-> > It's just the Linux netvsc guest driver itself does not leverage that
-> > ID from the very beginging.
-> > 
-> > Regards,
-> > -Siwei
-> 
-> I am working on that.  The problem is that it requires some messy work
-> to go from VF netdevice back to PCI device and from there to the PCI hyperv
-> host infrastructure to find the serial number.
-> 
-> I was hoping that the serial number would also match the concept of PCI Express
-> device serial number. But that is a completely different ID :-( 
-> The PCI-E serial number is a hardware serial number more like MAC address.
-> The Hyper-V serial number is more like PCI slot value.
+> Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 
-Asuming you mean the Device Serial Number Capability,
-I did consider this, and
-we could use that, changing the UUID to one matching the
-PV device, but I'm not sure no drivers will get confused
-suddenly seeing the UUID of another company there.
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
 
-If we are going the UUID route, a better idea might be to
-specify the UUID of the PCI port into which the PT device is
-being hotplugged.  This is PCI-Express specific, but presumably
-legacy PCI/PCI-X devices aren't common enough to bother about
-this for now.
+Thanks.
+
+> ---
+>  lib/Kconfig.debug |   36 ++++++++++++++++++------------------
+>  1 file changed, 18 insertions(+), 18 deletions(-)
+> 
+> Index: linux-2.6/lib/Kconfig.debug
+> ===================================================================
+> --- linux-2.6.orig/lib/Kconfig.debug	2018-04-16 21:08:36.000000000 +0200
+> +++ linux-2.6/lib/Kconfig.debug	2018-04-25 15:56:16.000000000 +0200
+> @@ -1503,6 +1503,10 @@ config NETDEV_NOTIFIER_ERROR_INJECT
+>  
+>  	  If unsure, say N.
+>  
+> +config FUNCTION_ERROR_INJECTION
+> +	def_bool y
+> +	depends on HAVE_FUNCTION_ERROR_INJECTION && KPROBES
+> +
+>  config FAULT_INJECTION
+>  	bool "Fault-injection framework"
+>  	depends on DEBUG_KERNEL
+> @@ -1510,10 +1514,6 @@ config FAULT_INJECTION
+>  	  Provide fault-injection framework.
+>  	  For more details, see Documentation/fault-injection/.
+>  
+> -config FUNCTION_ERROR_INJECTION
+> -	def_bool y
+> -	depends on HAVE_FUNCTION_ERROR_INJECTION && KPROBES
+> -
+>  config FAILSLAB
+>  	bool "Fault-injection capability for kmalloc"
+>  	depends on FAULT_INJECTION
+> @@ -1544,16 +1544,6 @@ config FAIL_IO_TIMEOUT
+>  	  Only works with drivers that use the generic timeout handling,
+>  	  for others it wont do anything.
+>  
+> -config FAIL_MMC_REQUEST
+> -	bool "Fault-injection capability for MMC IO"
+> -	depends on FAULT_INJECTION_DEBUG_FS && MMC
+> -	help
+> -	  Provide fault-injection capability for MMC IO.
+> -	  This will make the mmc core return data errors. This is
+> -	  useful to test the error handling in the mmc block device
+> -	  and to test how the mmc host driver handles retries from
+> -	  the block device.
+> -
+>  config FAIL_FUTEX
+>  	bool "Fault-injection capability for futexes"
+>  	select DEBUG_FS
+> @@ -1561,6 +1551,12 @@ config FAIL_FUTEX
+>  	help
+>  	  Provide fault-injection capability for futexes.
+>  
+> +config FAULT_INJECTION_DEBUG_FS
+> +	bool "Debugfs entries for fault-injection capabilities"
+> +	depends on FAULT_INJECTION && SYSFS && DEBUG_FS
+> +	help
+> +	  Enable configuration of fault-injection capabilities via debugfs.
+> +
+>  config FAIL_FUNCTION
+>  	bool "Fault-injection capability for functions"
+>  	depends on FAULT_INJECTION_DEBUG_FS && FUNCTION_ERROR_INJECTION
+> @@ -1571,11 +1567,15 @@ config FAIL_FUNCTION
+>  	  an error value and have to handle it. This is useful to test the
+>  	  error handling in various subsystems.
+>  
+> -config FAULT_INJECTION_DEBUG_FS
+> -	bool "Debugfs entries for fault-injection capabilities"
+> -	depends on FAULT_INJECTION && SYSFS && DEBUG_FS
+> +config FAIL_MMC_REQUEST
+> +	bool "Fault-injection capability for MMC IO"
+> +	depends on FAULT_INJECTION_DEBUG_FS && MMC
+>  	help
+> -	  Enable configuration of fault-injection capabilities via debugfs.
+> +	  Provide fault-injection capability for MMC IO.
+> +	  This will make the mmc core return data errors. This is
+> +	  useful to test the error handling in the mmc block device
+> +	  and to test how the mmc host driver handles retries from
+> +	  the block device.
+>  
+>  config FAULT_INJECTION_STACKTRACE_FILTER
+>  	bool "stacktrace filter for fault-injection capabilities"
+> 
 
 
 -- 
-MST
+~Randy
