@@ -1,17 +1,24 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: Re: [PATCH net-next v8 4/4] netvsc: refactor notifier/event
-	handling code to use the failover framework
-Date: Thu, 26 Apr 2018 15:33:26 -0700
-Message-ID: <20180426153326.16388dfd__34706.6609458581$1524781899$gmane$org@xeon-e3>
-References: <1524700768-38627-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524700768-38627-5-git-send-email-sridhar.samudrala@intel.com>
-	<20180425170837.6520a577@xeon-e3>
-	<20180426052908-mutt-send-email-mst@kernel.org>
+From: Mikulas Patocka <mpatocka@redhat.com>
+Subject: Re: [dm-devel] [PATCH v5] fault-injection: introduce kvmalloc fallback
+	options
+Date: Thu, 26 Apr 2018 18:52:05 -0400 (EDT)
+Message-ID: <alpine.LRH.2.02.1804261829190.30599@file01.intranet.prod.int.rdu2.redhat.com>
+References: <alpine.LRH.2.02.1804251556060.30569@file01.intranet.prod.int.rdu2.redhat.com>
+	<1114eda5-9b1f-4db8-2090-556b4a37c532@infradead.org>
+	<alpine.LRH.2.02.1804251656300.9428@file01.intranet.prod.int.rdu2.redhat.com>
+	<alpine.DEB.2.21.1804251417470.166306@chino.kir.corp.google.com>
+	<alpine.LRH.2.02.1804251720090.9428@file01.intranet.prod.int.rdu2.redhat.com>
+	<1524694663.4100.21.camel@HansenPartnership.com>
+	<alpine.LRH.2.02.1804251857070.31135@file01.intranet.prod.int.rdu2.redhat.com>
+	<1524697697.4100.23.camel@HansenPartnership.com>
+	<23266.8532.619051.784274@quad.stoffel.home>
+	<alpine.LRH.2.02.1804261726540.13401@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180427005213-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180426052908-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180427005213-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,53 +29,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, aaron.f.brown@intel.com, davem@davemloft.net
+Cc: Andrew@stoffel.org, eric.dumazet@gmail.com, linux-mm@kvack.org, edumazet@google.com, netdev@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, John Stoffel <john@stoffel.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Hocko <mhocko@kernel.org>, James Bottomley <James.Bottomley@HansenPartnership.com>, Michal@stoffel.org, dm-devel@redhat.com, David Rientjes <rientjes@google.com>, Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 26 Apr 2018 05:30:05 +0300
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-> On Wed, Apr 25, 2018 at 05:08:37PM -0700, Stephen Hemminger wrote:
-> > On Wed, 25 Apr 2018 16:59:28 -0700
-> > Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
-> >   
-> > > Use the registration/notification framework supported by the generic
-> > > failover infrastructure.
-> > > 
-> > > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>  
-> > 
-> > NAK unless you prove this works on legacy distributions and with DPDK 18.05
-> > without modification.  
+
+On Fri, 27 Apr 2018, Michael S. Tsirkin wrote:
+
+> On Thu, Apr 26, 2018 at 05:50:20PM -0400, Mikulas Patocka wrote:
+> > How is the user or developer supposed to learn about this option, if 
+> > he gets no crash at all?
 > 
-> It looks like it should work. What kind of proof are you looking for?
+> Look in /sys/kernel/debug/fail* ? That actually lets you
+> filter by module, process etc.
 > 
+> I think this patch conflates two things:
+> 
+> 1. Make kvmalloc use the vmalloc path.
+>     This seems a bit narrow.
+>     What is special about kvmalloc? IMHO nothing - it's yet another user
+>     of __GFP_NORETRY or __GFP_RETRY_MAYFAIL. As any such
 
+__GFP_RETRY_MAYFAIL makes the allocator retry the costly_order allocations
 
-I tried this with working Ubuntu 17 on WS2016.
-It boots if the failover driver is configured in (as module).
-But if the configuration has:
+>     user, it either recovers correctly or not.
+>     So IMHO it's just a case of
+>     making __GFP_NORETRY, __GFP_RETRY_MAYFAIL, or both
+>     fail once in a while.
+>     Seems like a better extension to me than focusing on vmalloc.
+>     I think you will find more bugs this way.
 
-$ grep FAILOVER .config
-# CONFIG_NET_FAILOVER is not set
-CONFIG_MAY_USE_NET_FAILOVER=y
+If the array is <= PAGE_SIZE, vmalloc will not use __GFP_NORETRY. So it 
+still hides some bugs - such as, if a structure grows above 4k, it would 
+start randomly crashing due to memory fragmentation.
 
+> 2. Ability to control this from a separate config
+>    option.
+> 
+>    It's still not that clear to me why is this such a
+>    hard requirement.  If a distro wants to force specific
+>    boot time options, why isn't CONFIG_CMDLINE sufficient?
 
-The netvsc driver fails on boot with:
+There are 489 kernel options declared with the __setup keyword. Hardly any 
+kernel developer notices that a new one was added and selects it when 
+testing his code.
 
-[    0.826447] hv_vmbus: registering driver hv_netvsc
-[    0.829616] scsi 0:0:0:0: Direct-Access     Msft     Virtual Disk     1.0  PQ: 0 ANSI: 5
-[    0.836291] input: Microsoft Vmbus HID-compliant Mouse as /devices/0006:045E:0621.0001/input/input1
-[    0.839139] hid-generic 0006:045E:0621.0001: input: <UNKNOWN> HID v0.01 Mouse [Microsoft Vmbus HID-compliant Mouse] on
-[    0.964897] hv_vmbus: probe failed for device 849a776e-8120-4e4a-9a36-7e3d95ac75b3 (-95)
-[    0.968039] hv_netvsc: probe of 849a776e-8120-4e4a-9a36-7e3d95ac75b3 failed with error -95
-[    1.112877] hv_vmbus: probe failed for device 53557f8e-057d-425b-9265-01c0fd7e273e (-95)
-[    1.116064] hv_netvsc: probe of 53557f8e-057d-425b-9265-01c0fd7e273e failed with error -95
+>    But assuming it's important to control this kind of
+>    fault injection to be controlled from
+>    a dedicated menuconfig option, why not the rest of
+>    faults?
 
-The system has two virtual networks. eth0 is on vswitch for management.
-eth1 is on vswitch with SR-IOV for performance tests.
+The injected faults cause damage to the user, so there's no point to 
+enable them by default. vmalloc fallback should not cause any damage 
+(assuming that the code is correctly written).
 
-You probably need to just put the failover part in net/core and select it.
+> IMHO if you split 1/2 up, and generalize, the path upstream
+> will be much smoother.
 
+This seems like a lost case. So, let's not care about code correctness and 
+let's solve crashes only after they are reported. If the upstream wants to 
+work this way, there's nothing that can be done about it.
 
-It is trivial to get an evaluation version of Windows Server 2016 and setup a Linux VM.
-Please try it.
+I'm wondering if I can still push it to RHEL or not.
+
+> Hope this helps.
+> 
+> -- 
+> MST
+
+Mikulas
