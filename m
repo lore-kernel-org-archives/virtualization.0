@@ -1,15 +1,24 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [Intel-gfx] [PATCH] drm/core: Remove drm_dev_unref() and it's uses
-Date: Thu, 26 Apr 2018 15:52:42 +0200
-Message-ID: <CAKMK7uEsL7y8QnPhKu8N+-v3XmdPppqD+Z2ywt-P2Kv91Xq6Bw__14368.9572382302$1524750670$gmane$org@mail.gmail.com>
-References: <20180426102819.6985-1-vthakkar1994@gmail.com>
-	<20180426123615.GA12521@phenom.ffwll.local>
-	<1556510.Xu6NnhyFGZ@avalon> <20180426131404.GP4813@piout.net>
+From: Mikulas Patocka <mpatocka@redhat.com>
+Subject: Re: [dm-devel] [PATCH v5] fault-injection: introduce kvmalloc fallback
+	options
+Date: Thu, 26 Apr 2018 10:28:45 -0400 (EDT)
+Message-ID: <alpine.LRH.2.02.1804261006120.32722__17385.9518291012$1524752851$gmane$org@file01.intranet.prod.int.rdu2.redhat.com>
+References: <20180424170349.GQ17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804241319390.28995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424173836.GR17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804251556060.30569@file01.intranet.prod.int.rdu2.redhat.com>
+	<1114eda5-9b1f-4db8-2090-556b4a37c532@infradead.org>
+	<alpine.LRH.2.02.1804251656300.9428@file01.intranet.prod.int.rdu2.redhat.com>
+	<alpine.DEB.2.21.1804251417470.166306@chino.kir.corp.google.com>
+	<alpine.LRH.2.02.1804251720090.9428@file01.intranet.prod.int.rdu2.redhat.com>
+	<1524694663.4100.21.camel@HansenPartnership.com>
+	<alpine.LRH.2.02.1804251830540.25124@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180426125817.GO17484@dhcp22.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180426131404.GP4813@piout.net>
+In-Reply-To: <20180426125817.GO17484@dhcp22.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,52 +28,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Dave Airlie <airlied@linux.ie>, Nouveau Dev <nouveau@lists.freedesktop.org>, Linus Walleij <linus.walleij@linaro.org>, Stefan Agner <stefan@agner.ch>, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>, Matthias Brugger <matthias.bgg@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Marek Vasut <marex@denx.de>, Chunming Zhou <David1.Zhou@amd.com>, Maxime Ripard <maxime.ripard@bootlin.com>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Russell King - ARM Linux <linux@armlinux.org.uk>, Krzysztof Kozlowski <krzk@kernel.org>, Jon Hunter <jonathanh@nvidia.com>, Xinliang Liu <z.liuxinliang@hisilicon.com>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, Xinwei
+To: Michal Hocko <mhocko@kernel.org>
+Cc: eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@HansenPartnership.com>, linux-mm@kvack.org, dm-devel@redhat.com, Vlastimil Babka <vbabka@suse.cz>, David Rientjes <rientjes@google.com>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, edumazet@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 26, 2018 at 3:14 PM, Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
-> Hi,
->
-> On 26/04/2018 15:45:44+0300, Laurent Pinchart wrote:
->> Hi Daniel,
->>
->> On Thursday, 26 April 2018 15:36:15 EEST Daniel Vetter wrote:
->> > On Thu, Apr 26, 2018 at 03:58:19PM +0530, Vaishali Thakkar wrote:
->> > > It's been a while since we introduced drm_dev{get/put} functions
->> > > to replace reference/unreference in drm subsystem for the
->> > > consistency purpose. So, with this patch, let's just replace
->> > > all current use cases of drm_dev_unref() with drm_dev_put and remove
->> > > the function itself.
->> > >
->> > > Coccinelle was used for mass-patching.
->> > >
->> > > Signed-off-by: Vaishali Thakkar <vthakkar1994@gmail.com>
->> >
->> > Thanks for doing this. Unfortunately drm moves pretty fast, so already a
->> > conflict when I tried to apply this. Some drivers are also in their own
->> > trees, so this might lead to more fun :-/
->> >
->> > Can you pls split it up per-driver (just the directories under
->> > drivers/gpu/drm/ is enough)? Final patch to remove the function might then
->> > get stalled a bit ofc.
->>
->> I requested a single patch instead of splitting it per driver, you might want
->> to blame me for that.
->>
->
-> Doesn't splitting the change per driver break bisectability unless there
-> is a guarantee that the change in include/drm/drm_drv.h is applied after
-> all the driver trees have been merged?
 
-That's why I said the final patch will likely take a bit longer to get
-merged, since we have to wait until all the trees converge again. But
-since I have conflicts already looks like we can't take the shortcut
-:-(
--Daniel
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-+41 (0) 79 365 57 48 - http://blog.ffwll.ch
+
+On Thu, 26 Apr 2018, Michal Hocko wrote:
+
+> On Wed 25-04-18 18:42:57, Mikulas Patocka wrote:
+> > 
+> > 
+> > On Wed, 25 Apr 2018, James Bottomley wrote:
+> [...]
+> > > Kconfig proliferation, conversely, is a bit of a nightmare from both
+> > > the user and the tester's point of view, so we're trying to avoid it
+> > > unless absolutely necessary.
+> > > 
+> > > James
+> > 
+> > I already offered that we don't need to introduce a new kernel option and 
+> > we can bind this feature to any other kernel option, that is enabled in 
+> > the debug kernel, for example CONFIG_DEBUG_SG. Michal said no and he said 
+> > that he wants a new kernel option instead.
+> 
+> Just for the record. I didn't say I _want_ a config option. Do not
+> misinterpret my words. I've said that a config option would be
+> acceptable if there is no way to deliver the functionality via kernel
+> package automatically. You haven't provided any argument that would
+> explain why the kernel package cannot add a boot option. Maybe there are
+> some but I do not see them right now.
+
+AFAIK Grub doesn't load per-kernel options from a per-kernel file. Even if 
+we hacked grub scripts to add this option, other distributions won't.
+
+Mikulas
