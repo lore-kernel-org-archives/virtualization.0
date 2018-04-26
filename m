@@ -1,24 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [dm-devel] [PATCH v5] fault-injection: introduce kvmalloc
-	fallback options
-Date: Thu, 26 Apr 2018 21:49:19 +0300
-Message-ID: <20180426214011-mutt-send-email-mst__22831.608184106$1524768461$gmane$org@kernel.org>
-References: <1524694663.4100.21.camel@HansenPartnership.com>
-	<alpine.LRH.2.02.1804251830540.25124@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180426125817.GO17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804261006120.32722@file01.intranet.prod.int.rdu2.redhat.com>
-	<1524753932.3226.5.camel@HansenPartnership.com>
-	<alpine.LRH.2.02.1804261100170.12157@file01.intranet.prod.int.rdu2.redhat.com>
-	<1524756256.3226.7.camel@HansenPartnership.com>
-	<alpine.LRH.2.02.1804261142480.21152@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180426184845-mutt-send-email-mst@kernel.org>
-	<alpine.LRH.2.02.1804261202350.24656@file01.intranet.prod.int.rdu2.redhat.com>
+Subject: [PULL] virtio: fixups
+Date: Thu, 26 Apr 2018 21:50:39 +0300
+Message-ID: <20180426215039-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.LRH.2.02.1804261202350.24656@file01.intranet.prod.int.rdu2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,21 +16,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: eric.dumazet@gmail.com, netdev@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, James Bottomley <James.Bottomley@HansenPartnership.com>, linux-mm@kvack.org, dm-devel@redhat.com, Vlastimil Babka <vbabka@suse.cz>, David Rientjes <rientjes@google.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, edumazet@google.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 26, 2018 at 12:07:25PM -0400, Mikulas Patocka wrote:
-> > IIUC debug kernels mainly exist so people who experience e.g. memory
-> > corruption can try and debug the failure. In this case, CONFIG_DEBUG_SG
-> > will *already* catch a failure early. Nothing special needs to be done.
-> 
-> The patch helps people debug such memory coprruptions (such as using DMA 
-> API on the result of kvmalloc).
+The following changes since commit 6d08b06e67cd117f6992c46611dfb4ce267cd71e:
 
-That's my point.  I don't think your patch helps debug any memory
-corruptions.  With CONFIG_DEBUG_SG using DMA API already causes a
-BUG_ON, that's before any memory can get corrupted.
+  Linux 4.17-rc2 (2018-04-22 19:20:09 -0700)
 
--- 
-MST
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 5c60300d68da32ca77f7f978039dc72bfc78b06b:
+
+  virtio_console: reset on out of memory (2018-04-25 20:41:29 +0300)
+
+----------------------------------------------------------------
+virtio: fixups
+
+Latest header update will break QEMU (if it's rebuilt with the new
+header) - and it seems that the code there is so fragile that any change
+in this header will break it.  Add a better interface so users do not
+need to change their code every time that header changes.
+
+Fix virtio console for spec compliance.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Michael S. Tsirkin (7):
+      virtio_balloon: add array of stat names
+      virtio_console: don't tie bufs to a vq
+      virtio: add ability to iterate over vqs
+      virtio_console: free buffers after reset
+      virtio_console: drop custom control queue cleanup
+      virtio_console: move removal code
+      virtio_console: reset on out of memory
+
+ drivers/char/virtio_console.c       | 157 ++++++++++++++++--------------------
+ include/linux/virtio.h              |   3 +
+ include/uapi/linux/virtio_balloon.h |  15 ++++
+ 3 files changed, 89 insertions(+), 86 deletions(-)
