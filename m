@@ -1,14 +1,24 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [Intel-gfx] [PATCH] drm/core: Remove drm_dev_unref() and it's uses
-Date: Thu, 26 Apr 2018 15:45:44 +0300
-Message-ID: <1556510.Xu6NnhyFGZ__6808.08510301194$1524746640$gmane$org@avalon>
-References: <20180426102819.6985-1-vthakkar1994@gmail.com>
-	<20180426123615.GA12521@phenom.ffwll.local>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [dm-devel] [PATCH v5] fault-injection: introduce kvmalloc
+	fallback options
+Date: Thu, 26 Apr 2018 14:58:17 +0200
+Message-ID: <20180426125817.GO17484@dhcp22.suse.cz>
+References: <20180424170349.GQ17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804241319390.28995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424173836.GR17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804251556060.30569@file01.intranet.prod.int.rdu2.redhat.com>
+	<1114eda5-9b1f-4db8-2090-556b4a37c532@infradead.org>
+	<alpine.LRH.2.02.1804251656300.9428@file01.intranet.prod.int.rdu2.redhat.com>
+	<alpine.DEB.2.21.1804251417470.166306@chino.kir.corp.google.com>
+	<alpine.LRH.2.02.1804251720090.9428@file01.intranet.prod.int.rdu2.redhat.com>
+	<1524694663.4100.21.camel@HansenPartnership.com>
+	<alpine.LRH.2.02.1804251830540.25124@file01.intranet.prod.int.rdu2.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180426123615.GA12521@phenom.ffwll.local>
+Content-Disposition: inline
+In-Reply-To: <alpine.LRH.2.02.1804251830540.25124@file01.intranet.prod.int.rdu2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,88 +28,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: matthias.bgg@gmail, alexandre.belloni@bootlin.com, heiko@sntech.de, airlied@linux.ie, nouveau@lists.freedesktop.org, linus.walleij@linaro.org, stefan@agner.ch, virtualization@lists.linux-foundation.org, benjamin.gaignard@linaro.org, shawnguo@kernel.org, marex@denx.de, David1.Zhou@amd.com, maxime.ripard@bootlin.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, linux@armlinux.org.uk, krzk@kernel.org, jonathanh@nvidia.com, z.liuxinliang@hisilicon.com, linux-rockchip@lists.infradead.org, kong.kongxinwei@hisilicon.com, tomi.valkeinen@ti.com, bskeggs@redhat.com, puck.chen@hisilicon.com, ck.hu@mediatek.com, airlied@redhat.com, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, nicolas.ferre@microchip.com, etnaviv@lists.freedesktop.org, brodkin@synopsys.com, zourongrong@gmail.com, linux-mediatek@lists.infradead.org, dri-devel@lists.freedesktop.org
+To: Mikulas Patocka <mpatocka@redhat.com>
+Cc: eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@HansenPartnership.com>, linux-mm@kvack.org, dm-devel@redhat.com, Vlastimil Babka <vbabka@suse.cz>, David Rientjes <rientjes@google.com>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, edumazet@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Daniel,
-
-On Thursday, 26 April 2018 15:36:15 EEST Daniel Vetter wrote:
-> On Thu, Apr 26, 2018 at 03:58:19PM +0530, Vaishali Thakkar wrote:
-> > It's been a while since we introduced drm_dev{get/put} functions
-> > to replace reference/unreference in drm subsystem for the
-> > consistency purpose. So, with this patch, let's just replace
-> > all current use cases of drm_dev_unref() with drm_dev_put and remove
-> > the function itself.
-> > 
-> > Coccinelle was used for mass-patching.
-> > 
-> > Signed-off-by: Vaishali Thakkar <vthakkar1994@gmail.com>
+On Wed 25-04-18 18:42:57, Mikulas Patocka wrote:
 > 
-> Thanks for doing this. Unfortunately drm moves pretty fast, so already a
-> conflict when I tried to apply this. Some drivers are also in their own
-> trees, so this might lead to more fun :-/
 > 
-> Can you pls split it up per-driver (just the directories under
-> drivers/gpu/drm/ is enough)? Final patch to remove the function might then
-> get stalled a bit ofc.
-
-I requested a single patch instead of splitting it per driver, you might want 
-to blame me for that.
-
-> Also can you pls update ./scripts/coccinelle/api/drm-get-put.cocci and
-> remove that spatch hunk in the final patch, since we no longer need it?
-
-How about just rerunning the coccinelle patch when it's time to apply this ? 
-There's precedent for performing such automated changes, and it would ensure 
-that no driver is left out.
-
-> > ---
+> On Wed, 25 Apr 2018, James Bottomley wrote:
+[...]
+> > Kconfig proliferation, conversely, is a bit of a nightmare from both
+> > the user and the tester's point of view, so we're trying to avoid it
+> > unless absolutely necessary.
 > > 
-> >  drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c            |  4 ++--
-> >  drivers/gpu/drm/arc/arcpgu_drv.c                   |  4 ++--
-> >  drivers/gpu/drm/armada/armada_drv.c                |  6 +++---
-> >  drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c       |  4 ++--
-> >  drivers/gpu/drm/drm_drv.c                          | 13 -------------
-> >  drivers/gpu/drm/etnaviv/etnaviv_drv.c              |  4 ++--
-> >  drivers/gpu/drm/exynos/exynos_drm_drv.c            |  4 ++--
-> >  drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_drv.c          |  4 ++--
-> >  drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c    |  4 ++--
-> >  drivers/gpu/drm/hisilicon/kirin/kirin_drm_drv.c    |  8 ++++----
-> >  drivers/gpu/drm/i915/selftests/huge_pages.c        |  2 +-
-> >  drivers/gpu/drm/i915/selftests/i915_gem_dmabuf.c   |  2 +-
-> >  drivers/gpu/drm/i915/selftests/i915_gem_evict.c    |  2 +-
-> >  drivers/gpu/drm/i915/selftests/i915_gem_gtt.c      |  2 +-
-> >  drivers/gpu/drm/i915/selftests/i915_gem_object.c   |  2 +-
-> >  drivers/gpu/drm/i915/selftests/i915_request.c      |  2 +-
-> >  drivers/gpu/drm/i915/selftests/i915_vma.c          |  2 +-
-> >  drivers/gpu/drm/i915/selftests/intel_breadcrumbs.c |  2 +-
-> >  drivers/gpu/drm/imx/imx-drm-core.c                 |  4 ++--
-> >  drivers/gpu/drm/mediatek/mtk_drm_drv.c             |  6 +++---
-> >  drivers/gpu/drm/msm/msm_drv.c                      |  8 ++++----
-> >  drivers/gpu/drm/mxsfb/mxsfb_drv.c                  |  4 ++--
-> >  drivers/gpu/drm/nouveau/nouveau_platform.c         |  2 +-
-> >  drivers/gpu/drm/omapdrm/omap_drv.c                 |  4 ++--
-> >  drivers/gpu/drm/pl111/pl111_drv.c                  |  4 ++--
-> >  drivers/gpu/drm/qxl/qxl_drv.c                      |  2 +-
-> >  drivers/gpu/drm/rcar-du/rcar_du_drv.c              |  2 +-
-> >  drivers/gpu/drm/rockchip/rockchip_drm_drv.c        |  4 ++--
-> >  drivers/gpu/drm/shmobile/shmob_drm_drv.c           |  4 ++--
-> >  drivers/gpu/drm/sti/sti_drv.c                      |  8 ++++----
-> >  drivers/gpu/drm/stm/drv.c                          |  4 ++--
-> >  drivers/gpu/drm/sun4i/sun4i_drv.c                  |  4 ++--
-> >  drivers/gpu/drm/tegra/drm.c                        |  4 ++--
-> >  drivers/gpu/drm/tinydrm/core/tinydrm-core.c        |  6 +++---
-> >  drivers/gpu/drm/tve200/tve200_drv.c                |  4 ++--
-> >  drivers/gpu/drm/udl/udl_drv.c                      |  2 +-
-> >  drivers/gpu/drm/vc4/vc4_drv.c                      |  4 ++--
-> >  drivers/gpu/drm/vgem/vgem_drv.c                    |  2 +-
-> >  drivers/gpu/drm/virtio/virtgpu_drm_bus.c           |  2 +-
-> >  drivers/gpu/drm/zte/zx_drm_drv.c                   |  4 ++--
-> >  include/drm/drm_drv.h                              |  1 -
-> >  41 files changed, 73 insertions(+), 87 deletions(-)
+> > James
+> 
+> I already offered that we don't need to introduce a new kernel option and 
+> we can bind this feature to any other kernel option, that is enabled in 
+> the debug kernel, for example CONFIG_DEBUG_SG. Michal said no and he said 
+> that he wants a new kernel option instead.
 
+Just for the record. I didn't say I _want_ a config option. Do not
+misinterpret my words. I've said that a config option would be
+acceptable if there is no way to deliver the functionality via kernel
+package automatically. You haven't provided any argument that would
+explain why the kernel package cannot add a boot option. Maybe there are
+some but I do not see them right now.
 -- 
-Regards,
-
-Laurent Pinchart
+Michal Hocko
+SUSE Labs
