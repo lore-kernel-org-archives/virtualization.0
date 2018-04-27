@@ -1,24 +1,17 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [dm-devel] [PATCH v5] fault-injection: introduce kvmalloc
-	fallback options
-Date: Fri, 27 Apr 2018 10:25:55 +0200
-Message-ID: <20180427082555.GC17484__7903.95201552219$1524817444$gmane$org@dhcp22.suse.cz>
-References: <alpine.LRH.2.02.1804251656300.9428@file01.intranet.prod.int.rdu2.redhat.com>
-	<alpine.DEB.2.21.1804251417470.166306@chino.kir.corp.google.com>
-	<alpine.LRH.2.02.1804251720090.9428@file01.intranet.prod.int.rdu2.redhat.com>
-	<1524694663.4100.21.camel@HansenPartnership.com>
-	<alpine.LRH.2.02.1804251857070.31135@file01.intranet.prod.int.rdu2.redhat.com>
-	<1524697697.4100.23.camel@HansenPartnership.com>
-	<23266.8532.619051.784274@quad.stoffel.home>
-	<alpine.LRH.2.02.1804261726540.13401@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180427005213-mutt-send-email-mst@kernel.org>
-	<alpine.LRH.2.02.1804261829190.30599@file01.intranet.prod.int.rdu2.redhat.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [RFC v3 0/5] virtio: support packed ring
+Date: Fri, 27 Apr 2018 17:12:34 +0800
+Message-ID: <20180427091234.n6vr3wcnbnqxd3so__40558.8181260557$1524820192$gmane$org@debian>
+References: <20180425051550.24342-1-tiwei.bie@intel.com>
+	<5ad1ca01-1e5c-7105-f303-7e8d42f6a068@redhat.com>
+	<20180427071725-mutt-send-email-mst@kernel.org>
+	<5c712aa2-f00e-b472-cdfc-48175aea790d@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.LRH.2.02.1804261829190.30599@file01.intranet.prod.int.rdu2.redhat.com>
+In-Reply-To: <5c712aa2-f00e-b472-cdfc-48175aea790d@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,27 +21,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Andrew@stoffel.org, eric.dumazet@gmail.com, "Michael S. Tsirkin" <mst@redhat.com>, edumazet@google.com, netdev@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, John Stoffel <john@stoffel.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@HansenPartnership.com>, Michal@stoffel.org, dm-devel@redhat.com, David Miller <davem@davemloft.net>, David Rientjes <rientjes@google.com>, Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, Vlastimil Babka <vbabka@suse.cz>
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu 26-04-18 18:52:05, Mikulas Patocka wrote:
-> 
-> 
-> On Fri, 27 Apr 2018, Michael S. Tsirkin wrote:
-[...]
-> >    But assuming it's important to control this kind of
-> >    fault injection to be controlled from
-> >    a dedicated menuconfig option, why not the rest of
-> >    faults?
-> 
-> The injected faults cause damage to the user, so there's no point to 
-> enable them by default. vmalloc fallback should not cause any damage 
-> (assuming that the code is correctly written).
-
-But you want to find those bugs which would BUG_ON easier, so there is a
-risk of harm IIUC and this is not much different than other fault
-injecting paths.
--- 
-Michal Hocko
-SUSE Labs
+T24gRnJpLCBBcHIgMjcsIDIwMTggYXQgMDI6MTc6NTFQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiBPbiAyMDE45bm0MDTmnIgyN+aXpSAxMjoxOCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3Rl
+Ogo+ID4gT24gRnJpLCBBcHIgMjcsIDIwMTggYXQgMTE6NTY6MDVBTSArMDgwMCwgSmFzb24gV2Fu
+ZyB3cm90ZToKPiA+ID4gT24gMjAxOOW5tDA05pyIMjXml6UgMTM6MTUsIFRpd2VpIEJpZSB3cm90
+ZToKPiA+ID4gPiBIZWxsbyBldmVyeW9uZSwKPiA+ID4gPiAKPiA+ID4gPiBUaGlzIFJGQyBpbXBs
+ZW1lbnRzIHBhY2tlZCByaW5nIHN1cHBvcnQgaW4gdmlydGlvIGRyaXZlci4KPiA+ID4gPiAKPiA+
+ID4gPiBTb21lIHNpbXBsZSBmdW5jdGlvbmFsIHRlc3RzIGhhdmUgYmVlbiBkb25lIHdpdGggSmFz
+b24ncwo+ID4gPiA+IHBhY2tlZCByaW5nIGltcGxlbWVudGF0aW9uIGluIHZob3N0Ogo+ID4gPiA+
+IAo+ID4gPiA+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE4LzQvMjMvMTIKPiA+ID4gPiAKPiA+
+ID4gPiBCb3RoIG9mIHBpbmcgYW5kIG5ldHBlcmYgd29ya2VkIGFzIGV4cGVjdGVkICh3aXRoIEVW
+RU5UX0lEWAo+ID4gPiA+IGRpc2FibGVkKS4gQnV0IHRoZXJlIGFyZSBiZWxvdyBrbm93biBpc3N1
+ZXM6Cj4gPiA+ID4gCj4gPiA+ID4gMS4gUmVsb2FkaW5nIHRoZSBndWVzdCBkcml2ZXIgd2lsbCBi
+cmVhayB0aGUgVHgvUng7Cj4gPiA+IFdpbGwgaGF2ZSBhIGxvb2sgYXQgdGhpcyBpc3N1ZS4KPiA+
+ID4gCj4gPiA+ID4gMi4gWmVyb2luZyB0aGUgZmxhZ3Mgd2hlbiBkZXRhY2hpbmcgYSB1c2VkIGRl
+c2Mgd2lsbAo+ID4gPiA+ICAgICAgYnJlYWsgdGhlIGd1ZXN0IC0+IGhvc3QgcGF0aC4KPiA+ID4g
+SSBzdGlsbCB0aGluayB6ZXJvaW5nIGZsYWdzIGlzIHVubmVjZXNzYXJ5IG9yIGV2ZW4gYSBidWcu
+IEF0IGhvc3QsIEkgdHJhY2sKPiA+ID4gbGFzdCBvYnNlcnZlZCBhdmFpbCB3cmFwIGNvdW50ZXIg
+YW5kIGRldGVjdCBhdmFpbCBsaWtlICh3aGF0IGlzIHN1Z2dlc3RlZCBpbgo+ID4gPiB0aGUgZXhh
+bXBsZSBjb2RlIGluIHRoZSBzcGVjKToKPiA+ID4gCj4gPiA+IHN0YXRpYyBib29sIGRlc2NfaXNf
+YXZhaWwoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsIF9fdmlydGlvMTYgZmxhZ3MpCj4gPiA+
+IHsKPiA+ID4gIMKgwqDCoMKgwqDCoCBib29sIGF2YWlsID0gZmxhZ3MgJiBjcHVfdG9fdmhvc3Qx
+Nih2cSwgREVTQ19BVkFJTCk7Cj4gPiA+IAo+ID4gPiAgwqDCoMKgwqDCoMKgIHJldHVybiBhdmFp
+bCA9PSB2cS0+YXZhaWxfd3JhcF9jb3VudGVyOwo+ID4gPiB9Cj4gPiA+IAo+ID4gPiBTbyB6ZXJv
+aW5nIHdyYXAgY2FuIG5vdCB3b3JrIHdpdGggdGhpcyBvYnZpb3VzbHkuCj4gPiA+IAo+ID4gPiBU
+aGFua3MKPiA+IEkgYWdyZWUuIEkgdGhpbmsgd2hhdCBvbmUgc2hvdWxkIGRvIGlzIGZsaXAgdGhl
+IGF2YWlsYWJsZSBiaXQuCj4gPiAKPiAKPiBCdXQgaXMgdGhpcyBmbGlwcGluZyBhIG11c3Q/Cj4g
+Cj4gVGhhbmtzCgpZZWFoLCB0aGF0J3MgbXkgcXVlc3Rpb24gdG9vLiBJdCBzZWVtcyB0byBiZSBh
+IHJlcXVpcmVtZW50CmZvciBkcml2ZXIgdGhhdCwgdGhlIG9ubHkgY2hhbmdlIHRvIHRoZSBkZXNj
+IHN0YXR1cyB0aGF0IGEKZHJpdmVyIGNhbiBkbyBkdXJpbmcgcnVubmluZyBpcyB0byBtYXJrIHRo
+ZSBkZXNjIGFzIGF2YWlsLAphbmQgYW55IG90aGVyIGNoYW5nZXMgdG8gdGhlIGRlc2Mgc3RhdHVz
+IGFyZSBub3QgYWxsb3dlZC4KU2ltaWxhcmx5LCB0aGUgZGV2aWNlIGNhbiBvbmx5IG1hcmsgdGhl
+IGRlc2MgYXMgdXNlZCwgYW5kCmFueSBvdGhlciBjaGFuZ2VzIHRvIHRoZSBkZXNjIHN0YXR1cyBh
+cmUgYWxzbyBub3QgYWxsb3dlZC4KU28gdGhlIHF1ZXN0aW9uIGlzLCBhcmUgdGhlcmUgc3VjaCBy
+ZXF1aXJlbWVudHM/CgpCYXNlZCBvbiBiZWxvdyBjb250ZW50cyBpbiB0aGUgc3BlYzoKCiIiIgpU
+aHVzIFZJUlRRX0RFU0NfRl9BVkFJTCBhbmQgVklSVFFfREVTQ19GX1VTRUQgYml0cyBhcmUgZGlm
+ZmVyZW50CmZvciBhbiBhdmFpbGFibGUgZGVzY3JpcHRvciBhbmQgZXF1YWwgZm9yIGEgdXNlZCBk
+ZXNjcmlwdG9yLgoKTm90ZSB0aGF0IHRoaXMgb2JzZXJ2YXRpb24gaXMgbW9zdGx5IHVzZWZ1bCBm
+b3Igc2FuaXR5LWNoZWNraW5nCmFzIHRoZXNlIGFyZSBuZWNlc3NhcnkgYnV0IG5vdCBzdWZmaWNp
+ZW50IGNvbmRpdGlvbnMKIiIiCgpJdCBzZWVtcyB0aGF0LCBpdCdzIG5lY2Vzc2FyeSBmb3IgZGV2
+aWNlcyB0byBjaGVjayB3aGV0aGVyCnRoZSBBVkFJTCBiaXQgYW5kIFVTRUQgYml0IGFyZSBkaWZm
+ZXJlbnQuCgpCZXN0IHJlZ2FyZHMsClRpd2VpIEJpZQpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
