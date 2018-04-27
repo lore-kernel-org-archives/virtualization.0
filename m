@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC v3 0/5] virtio: support packed ring
-Date: Fri, 27 Apr 2018 07:18:03 +0300
-Message-ID: <20180427071725-mutt-send-email-mst__3474.73574006489$1524802576$gmane$org@kernel.org>
-References: <20180425051550.24342-1-tiwei.bie@intel.com>
-	<5ad1ca01-1e5c-7105-f303-7e8d42f6a068@redhat.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 16/17] drm/virtio: Remove unecessary dma_fence_ops
+Date: Fri, 27 Apr 2018 08:17:23 +0200
+Message-ID: <20180427061724.28497-17-daniel.vetter@ffwll.ch>
+References: <20180427061724.28497-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5ad1ca01-1e5c-7105-f303-7e8d42f6a068@redhat.com>
+In-Reply-To: <20180427061724.28497-1-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,69 +17,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: DRI Development <dri-devel@lists.freedesktop.org>
+Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBBcHIgMjcsIDIwMTggYXQgMTE6NTY6MDVBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDTmnIgyNeaXpSAxMzoxNSwgVGl3ZWkgQmllIHdyb3RlOgo+
-ID4gSGVsbG8gZXZlcnlvbmUsCj4gPiAKPiA+IFRoaXMgUkZDIGltcGxlbWVudHMgcGFja2VkIHJp
-bmcgc3VwcG9ydCBpbiB2aXJ0aW8gZHJpdmVyLgo+ID4gCj4gPiBTb21lIHNpbXBsZSBmdW5jdGlv
-bmFsIHRlc3RzIGhhdmUgYmVlbiBkb25lIHdpdGggSmFzb24ncwo+ID4gcGFja2VkIHJpbmcgaW1w
-bGVtZW50YXRpb24gaW4gdmhvc3Q6Cj4gPiAKPiA+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE4
-LzQvMjMvMTIKPiA+IAo+ID4gQm90aCBvZiBwaW5nIGFuZCBuZXRwZXJmIHdvcmtlZCBhcyBleHBl
-Y3RlZCAod2l0aCBFVkVOVF9JRFgKPiA+IGRpc2FibGVkKS4gQnV0IHRoZXJlIGFyZSBiZWxvdyBr
-bm93biBpc3N1ZXM6Cj4gPiAKPiA+IDEuIFJlbG9hZGluZyB0aGUgZ3Vlc3QgZHJpdmVyIHdpbGwg
-YnJlYWsgdGhlIFR4L1J4Owo+IAo+IFdpbGwgaGF2ZSBhIGxvb2sgYXQgdGhpcyBpc3N1ZS4KPiAK
-PiA+IDIuIFplcm9pbmcgdGhlIGZsYWdzIHdoZW4gZGV0YWNoaW5nIGEgdXNlZCBkZXNjIHdpbGwK
-PiA+ICAgICBicmVhayB0aGUgZ3Vlc3QgLT4gaG9zdCBwYXRoLgo+IAo+IEkgc3RpbGwgdGhpbmsg
-emVyb2luZyBmbGFncyBpcyB1bm5lY2Vzc2FyeSBvciBldmVuIGEgYnVnLiBBdCBob3N0LCBJIHRy
-YWNrCj4gbGFzdCBvYnNlcnZlZCBhdmFpbCB3cmFwIGNvdW50ZXIgYW5kIGRldGVjdCBhdmFpbCBs
-aWtlICh3aGF0IGlzIHN1Z2dlc3RlZCBpbgo+IHRoZSBleGFtcGxlIGNvZGUgaW4gdGhlIHNwZWMp
-Ogo+IAo+IHN0YXRpYyBib29sIGRlc2NfaXNfYXZhaWwoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAq
-dnEsIF9fdmlydGlvMTYgZmxhZ3MpCj4gewo+IMKgwqDCoMKgwqDCoCBib29sIGF2YWlsID0gZmxh
-Z3MgJiBjcHVfdG9fdmhvc3QxNih2cSwgREVTQ19BVkFJTCk7Cj4gCj4gwqDCoMKgwqDCoMKgIHJl
-dHVybiBhdmFpbCA9PSB2cS0+YXZhaWxfd3JhcF9jb3VudGVyOwo+IH0KPiAKPiBTbyB6ZXJvaW5n
-IHdyYXAgY2FuIG5vdCB3b3JrIHdpdGggdGhpcyBvYnZpb3VzbHkuCj4gCj4gVGhhbmtzCgpJIGFn
-cmVlLiBJIHRoaW5rIHdoYXQgb25lIHNob3VsZCBkbyBpcyBmbGlwIHRoZSBhdmFpbGFibGUgYml0
-LgoKPiA+IAo+ID4gU29tZSBzaW1wbGUgZnVuY3Rpb25hbCB0ZXN0cyBoYXZlIGFsc28gYmVlbiBk
-b25lIHdpdGgKPiA+IFdlaSdzIHBhY2tlZCByaW5nIGltcGxlbWVudGF0aW9uIGluIFFFTVU6Cj4g
-PiAKPiA+IGh0dHA6Ly9saXN0cy5ub25nbnUub3JnL2FyY2hpdmUvaHRtbC9xZW11LWRldmVsLzIw
-MTgtMDQvbXNnMDAzNDIuaHRtbAo+ID4gCj4gPiBCb3RoIG9mIHBpbmcgYW5kIG5ldHBlcmYgd29y
-a2VkIGFzIGV4cGVjdGVkICh3aXRoIEVWRU5UX0lEWAo+ID4gZGlzYWJsZWQpLiBSZWxvYWRpbmcg
-dGhlIGd1ZXN0IGRyaXZlciBhbHNvIHdvcmtlZCBhcyBleHBlY3RlZC4KPiA+IAo+ID4gVE9ETzoK
-PiA+IC0gUmVmaW5lbWVudHMgKGZvciBjb2RlIGFuZCBjb21taXQgbG9nKSBhbmQgYnVnIGZpeGVz
-Owo+ID4gLSBEaXNjdXNzL2ZpeC90ZXN0IEVWRU5UX0lEWCBzdXBwb3J0Owo+ID4gLSBUZXN0IGRl
-dmljZXMgb3RoZXIgdGhhbiBuZXQ7Cj4gPiAKPiA+IFJGQyB2MiAtPiBSRkMgdjM6Cj4gPiAtIFNw
-bGl0IGludG8gc21hbGwgcGF0Y2hlcyAoSmFzb24pOwo+ID4gLSBBZGQgaGVscGVyIHZpcnRxdWV1
-ZV91c2VfaW5kaXJlY3QoKSAoSmFzb24pOwo+ID4gLSBKdXN0IHNldCBpZCBmb3IgdGhlIGxhc3Qg
-ZGVzY3JpcHRvciBvZiBhIGxpc3QgKEphc29uKTsKPiA+IC0gQ2FsY3VsYXRlIHRoZSBwcmV2IGlu
-IHZpcnRxdWV1ZV9hZGRfcGFja2VkKCkgKEphc29uKTsKPiA+IC0gRml4L2ltcHJvdmUgZGVzYyBz
-dXBwcmVzc2lvbiBjb2RlIChKYXNvbi9NU1QpOwo+ID4gLSBSZWZpbmUgdGhlIGNvZGUgbGF5b3V0
-IGZvciBYWFhfc3BsaXQvcGFja2VkIGFuZCB3cmFwcGVycyAoTVNUKTsKPiA+IC0gRml4IHRoZSBj
-b21tZW50cyBhbmQgQVBJIGluIHVhcGkgKE1TVCk7Cj4gPiAtIFJlbW92ZSB0aGUgQlVHX09OKCkg
-Zm9yIGluZGlyZWN0IChKYXNvbik7Cj4gPiAtIFNvbWUgb3RoZXIgcmVmaW5lbWVudHMgYW5kIGJ1
-ZyBmaXhlczsKPiA+IAo+ID4gUkZDIHYxIC0+IFJGQyB2MjoKPiA+IC0gQWRkIGluZGlyZWN0IGRl
-c2NyaXB0b3Igc3VwcG9ydCAtIGNvbXBpbGUgdGVzdCBvbmx5Owo+ID4gLSBBZGQgZXZlbnQgc3Vw
-cHJlc3Npb24gc3VwcHJ0IC0gY29tcGlsZSB0ZXN0IG9ubHk7Cj4gPiAtIE1vdmUgdnJpbmdfcGFj
-a2VkX2luaXQoKSBvdXQgb2YgdWFwaSAoSmFzb24sIE1TVCk7Cj4gPiAtIE1lcmdlIHR3byBsb29w
-cyBpbnRvIG9uZSBpbiB2aXJ0cXVldWVfYWRkX3BhY2tlZCgpIChKYXNvbik7Cj4gPiAtIFNwbGl0
-IHZyaW5nX3VubWFwX29uZSgpIGZvciBwYWNrZWQgcmluZyBhbmQgc3BsaXQgcmluZyAoSmFzb24p
-Owo+ID4gLSBBdm9pZCB1c2luZyAnJScgb3BlcmF0b3IgKEphc29uKTsKPiA+IC0gUmVuYW1lIGZy
-ZWVfaGVhZCAtPiBuZXh0X2F2YWlsX2lkeCAoSmFzb24pOwo+ID4gLSBBZGQgY29tbWVudHMgZm9y
-IHZpcnRpb193bWIoKSBpbiB2aXJ0cXVldWVfYWRkX3BhY2tlZCgpIChKYXNvbik7Cj4gPiAtIFNv
-bWUgb3RoZXIgcmVmaW5lbWVudHMgYW5kIGJ1ZyBmaXhlczsKPiA+IAo+ID4gVGhhbmtzIQo+ID4g
-Cj4gPiBUaXdlaSBCaWUgKDUpOgo+ID4gICAgdmlydGlvOiBhZGQgcGFja2VkIHJpbmcgZGVmaW5p
-dGlvbnMKPiA+ICAgIHZpcnRpb19yaW5nOiBzdXBwb3J0IGNyZWF0aW5nIHBhY2tlZCByaW5nCj4g
-PiAgICB2aXJ0aW9fcmluZzogYWRkIHBhY2tlZCByaW5nIHN1cHBvcnQKPiA+ICAgIHZpcnRpb19y
-aW5nOiBhZGQgZXZlbnQgaWR4IHN1cHBvcnQgaW4gcGFja2VkIHJpbmcKPiA+ICAgIHZpcnRpb19y
-aW5nOiBlbmFibGUgcGFja2VkIHJpbmcKPiA+IAo+ID4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9f
-cmluZy5jICAgICAgIHwgMTI3MSArKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0K
-PiA+ICAgaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oICAgICAgICB8ICAgIDggKy0KPiA+ICAg
-aW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19jb25maWcuaCB8ICAgMTIgKy0KPiA+ICAgaW5jbHVk
-ZS91YXBpL2xpbnV4L3ZpcnRpb19yaW5nLmggICB8ICAgMzYgKwo+ID4gICA0IGZpbGVzIGNoYW5n
-ZWQsIDEwNDkgaW5zZXJ0aW9ucygrKSwgMjc4IGRlbGV0aW9ucygtKQo+ID4gCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
-bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
-L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
-bg==
+dma_fence_default_wait is the default now, same for the trivial
+enable_signaling implementation.
+
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+---
+ drivers/gpu/drm/virtio/virtgpu_fence.c | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
+index 23353521f903..00c742a441bf 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_fence.c
++++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
+@@ -36,11 +36,6 @@ static const char *virtio_get_timeline_name(struct dma_fence *f)
+ 	return "controlq";
+ }
+ 
+-static bool virtio_enable_signaling(struct dma_fence *f)
+-{
+-	return true;
+-}
+-
+ static bool virtio_signaled(struct dma_fence *f)
+ {
+ 	struct virtio_gpu_fence *fence = to_virtio_fence(f);
+@@ -67,9 +62,7 @@ static void virtio_timeline_value_str(struct dma_fence *f, char *str, int size)
+ static const struct dma_fence_ops virtio_fence_ops = {
+ 	.get_driver_name     = virtio_get_driver_name,
+ 	.get_timeline_name   = virtio_get_timeline_name,
+-	.enable_signaling    = virtio_enable_signaling,
+ 	.signaled            = virtio_signaled,
+-	.wait                = dma_fence_default_wait,
+ 	.fence_value_str     = virtio_fence_value_str,
+ 	.timeline_value_str  = virtio_timeline_value_str,
+ };
+-- 
+2.17.0
