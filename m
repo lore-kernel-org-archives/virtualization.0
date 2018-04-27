@@ -1,19 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Subject: Re: [PATCH net-next v8 4/4] netvsc: refactor notifier/event handling
 	code to use the failover framework
-Date: Fri, 27 Apr 2018 03:09:36 +0300
-Message-ID: <20180427024347-mutt-send-email-mst@kernel.org>
+Date: Thu, 26 Apr 2018 17:30:16 -0700
+Message-ID: <304ea4bb-6d03-df73-3601-67e8209fd5db__11800.30658511$1524788915$gmane$org@intel.com>
 References: <1524700768-38627-1-git-send-email-sridhar.samudrala@intel.com>
 	<1524700768-38627-5-git-send-email-sridhar.samudrala@intel.com>
 	<20180425170837.6520a577@xeon-e3>
 	<20180426052908-mutt-send-email-mst@kernel.org>
 	<20180426153326.16388dfd@xeon-e3>
+	<20180427024347-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180426153326.16388dfd@xeon-e3>
+In-Reply-To: <20180427024347-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,71 +24,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, aaron.f.brown@intel.com, davem@davemloft.net
+To: "Michael S. Tsirkin" <mst@redhat.com>, Stephen Hemminger <stephen@networkplumber.org>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 26, 2018 at 03:33:26PM -0700, Stephen Hemminger wrote:
-> On Thu, 26 Apr 2018 05:30:05 +0300
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Wed, Apr 25, 2018 at 05:08:37PM -0700, Stephen Hemminger wrote:
-> > > On Wed, 25 Apr 2018 16:59:28 -0700
-> > > Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
-> > >   
-> > > > Use the registration/notification framework supported by the generic
-> > > > failover infrastructure.
-> > > > 
-> > > > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>  
-> > > 
-> > > NAK unless you prove this works on legacy distributions and with DPDK 18.05
-> > > without modification.  
-> > 
-> > It looks like it should work. What kind of proof are you looking for?
-> > 
-> 
-> 
-> I tried this with working Ubuntu 17 on WS2016.
-> It boots if the failover driver is configured in (as module).
-
-Oh so by "unless you prove" you meant "unless you test"?
-
-> But if the configuration has:
-> 
-> $ grep FAILOVER .config
-> # CONFIG_NET_FAILOVER is not set
-> CONFIG_MAY_USE_NET_FAILOVER=y
-
-So the new option works, what's broken is when it's *not* selected.
-Looks like a bug.
-
-> The netvsc driver fails on boot with:
-> 
-> [    0.826447] hv_vmbus: registering driver hv_netvsc
-> [    0.829616] scsi 0:0:0:0: Direct-Access     Msft     Virtual Disk     1.0  PQ: 0 ANSI: 5
-> [    0.836291] input: Microsoft Vmbus HID-compliant Mouse as /devices/0006:045E:0621.0001/input/input1
-> [    0.839139] hid-generic 0006:045E:0621.0001: input: <UNKNOWN> HID v0.01 Mouse [Microsoft Vmbus HID-compliant Mouse] on
-> [    0.964897] hv_vmbus: probe failed for device 849a776e-8120-4e4a-9a36-7e3d95ac75b3 (-95)
-> [    0.968039] hv_netvsc: probe of 849a776e-8120-4e4a-9a36-7e3d95ac75b3 failed with error -95
-> [    1.112877] hv_vmbus: probe failed for device 53557f8e-057d-425b-9265-01c0fd7e273e (-95)
-> [    1.116064] hv_netvsc: probe of 53557f8e-057d-425b-9265-01c0fd7e273e failed with error -95
-> 
-> The system has two virtual networks. eth0 is on vswitch for management.
-> eth1 is on vswitch with SR-IOV for performance tests.
-> 
-> You probably need to just put the failover part in net/core and select it.
-
-From all drivers. Yes. And it does not need to be visible in the menu
-imho.
-
-
-> It is trivial to get an evaluation version of Windows Server 2016 and setup a Linux VM.
-> Please try it.
-
-I presume some kind of test was done here. Sridhar, do you think you
-could include some notes about testing of this patch? Or in case you
-only build-tested this part, it's a good idea to notice this after ---
-in the patch, or in the cover letter.
-
--- 
-MST
+Ck9uIDQvMjYvMjAxOCA1OjA5IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24gVGh1
+LCBBcHIgMjYsIDIwMTggYXQgMDM6MzM6MjZQTSAtMDcwMCwgU3RlcGhlbiBIZW1taW5nZXIgd3Jv
+dGU6Cj4+IE9uIFRodSwgMjYgQXByIDIwMTggMDU6MzA6MDUgKzAzMDAKPj4gIk1pY2hhZWwgUy4g
+VHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cm90ZToKPj4KPj4+IE9uIFdlZCwgQXByIDI1LCAy
+MDE4IGF0IDA1OjA4OjM3UE0gLTA3MDAsIFN0ZXBoZW4gSGVtbWluZ2VyIHdyb3RlOgo+Pj4+IE9u
+IFdlZCwgMjUgQXByIDIwMTggMTY6NTk6MjggLTA3MDAKPj4+PiBTcmlkaGFyIFNhbXVkcmFsYSA8
+c3JpZGhhci5zYW11ZHJhbGFAaW50ZWwuY29tPiB3cm90ZToKPj4+PiAgICAKPj4+Pj4gVXNlIHRo
+ZSByZWdpc3RyYXRpb24vbm90aWZpY2F0aW9uIGZyYW1ld29yayBzdXBwb3J0ZWQgYnkgdGhlIGdl
+bmVyaWMKPj4+Pj4gZmFpbG92ZXIgaW5mcmFzdHJ1Y3R1cmUuCj4+Pj4+Cj4+Pj4+IFNpZ25lZC1v
+ZmYtYnk6IFNyaWRoYXIgU2FtdWRyYWxhIDxzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5jb20+Cj4+
+Pj4gTkFLIHVubGVzcyB5b3UgcHJvdmUgdGhpcyB3b3JrcyBvbiBsZWdhY3kgZGlzdHJpYnV0aW9u
+cyBhbmQgd2l0aCBEUERLIDE4LjA1Cj4+Pj4gd2l0aG91dCBtb2RpZmljYXRpb24uCj4+PiBJdCBs
+b29rcyBsaWtlIGl0IHNob3VsZCB3b3JrLiBXaGF0IGtpbmQgb2YgcHJvb2YgYXJlIHlvdSBsb29r
+aW5nIGZvcj8KPj4+Cj4+Cj4+IEkgdHJpZWQgdGhpcyB3aXRoIHdvcmtpbmcgVWJ1bnR1IDE3IG9u
+IFdTMjAxNi4KPj4gSXQgYm9vdHMgaWYgdGhlIGZhaWxvdmVyIGRyaXZlciBpcyBjb25maWd1cmVk
+IGluIChhcyBtb2R1bGUpLgo+IE9oIHNvIGJ5ICJ1bmxlc3MgeW91IHByb3ZlIiB5b3UgbWVhbnQg
+InVubGVzcyB5b3UgdGVzdCI/Cj4KPj4gQnV0IGlmIHRoZSBjb25maWd1cmF0aW9uIGhhczoKPj4K
+Pj4gJCBncmVwIEZBSUxPVkVSIC5jb25maWcKPj4gIyBDT05GSUdfTkVUX0ZBSUxPVkVSIGlzIG5v
+dCBzZXQKPj4gQ09ORklHX01BWV9VU0VfTkVUX0ZBSUxPVkVSPXkKPiBTbyB0aGUgbmV3IG9wdGlv
+biB3b3Jrcywgd2hhdCdzIGJyb2tlbiBpcyB3aGVuIGl0J3MgKm5vdCogc2VsZWN0ZWQuCj4gTG9v
+a3MgbGlrZSBhIGJ1Zy4KClllcy7CoCBMb29rcyBsaWtlIGkgbmVlZCB0byBtYWtlIE5FVF9GQUlM
+T1ZFUiAgdG8gYmUgZW5hYmxlZCBhdXRvbWF0aWNhbGx5IHdoZW4KVklSVElPX05FVCBvciBIWVBF
+UlZfTkVUIGFyZSBzZWxlY3RlZC4KClRoYW5rcyBTdGVwaGVuIGZvciBjb25maXJtaW5nIHRoYXQg
+aXQgd29ya3Mgd2hlbiBORVRfRkFJTE9WRVIgaXMgZW5hYmxlZC4KCgoKPgo+PiBUaGUgbmV0dnNj
+IGRyaXZlciBmYWlscyBvbiBib290IHdpdGg6Cj4+Cj4+IFsgICAgMC44MjY0NDddIGh2X3ZtYnVz
+OiByZWdpc3RlcmluZyBkcml2ZXIgaHZfbmV0dnNjCj4+IFsgICAgMC44Mjk2MTZdIHNjc2kgMDow
+OjA6MDogRGlyZWN0LUFjY2VzcyAgICAgTXNmdCAgICAgVmlydHVhbCBEaXNrICAgICAxLjAgIFBR
+OiAwIEFOU0k6IDUKPj4gWyAgICAwLjgzNjI5MV0gaW5wdXQ6IE1pY3Jvc29mdCBWbWJ1cyBISUQt
+Y29tcGxpYW50IE1vdXNlIGFzIC9kZXZpY2VzLzAwMDY6MDQ1RTowNjIxLjAwMDEvaW5wdXQvaW5w
+dXQxCj4+IFsgICAgMC44MzkxMzldIGhpZC1nZW5lcmljIDAwMDY6MDQ1RTowNjIxLjAwMDE6IGlu
+cHV0OiA8VU5LTk9XTj4gSElEIHYwLjAxIE1vdXNlIFtNaWNyb3NvZnQgVm1idXMgSElELWNvbXBs
+aWFudCBNb3VzZV0gb24KPj4gWyAgICAwLjk2NDg5N10gaHZfdm1idXM6IHByb2JlIGZhaWxlZCBm
+b3IgZGV2aWNlIDg0OWE3NzZlLTgxMjAtNGU0YS05YTM2LTdlM2Q5NWFjNzViMyAoLTk1KQo+PiBb
+ICAgIDAuOTY4MDM5XSBodl9uZXR2c2M6IHByb2JlIG9mIDg0OWE3NzZlLTgxMjAtNGU0YS05YTM2
+LTdlM2Q5NWFjNzViMyBmYWlsZWQgd2l0aCBlcnJvciAtOTUKPj4gWyAgICAxLjExMjg3N10gaHZf
+dm1idXM6IHByb2JlIGZhaWxlZCBmb3IgZGV2aWNlIDUzNTU3ZjhlLTA1N2QtNDI1Yi05MjY1LTAx
+YzBmZDdlMjczZSAoLTk1KQo+PiBbICAgIDEuMTE2MDY0XSBodl9uZXR2c2M6IHByb2JlIG9mIDUz
+NTU3ZjhlLTA1N2QtNDI1Yi05MjY1LTAxYzBmZDdlMjczZSBmYWlsZWQgd2l0aCBlcnJvciAtOTUK
+Pj4KPj4gVGhlIHN5c3RlbSBoYXMgdHdvIHZpcnR1YWwgbmV0d29ya3MuIGV0aDAgaXMgb24gdnN3
+aXRjaCBmb3IgbWFuYWdlbWVudC4KPj4gZXRoMSBpcyBvbiB2c3dpdGNoIHdpdGggU1ItSU9WIGZv
+ciBwZXJmb3JtYW5jZSB0ZXN0cy4KPj4KPj4gWW91IHByb2JhYmx5IG5lZWQgdG8ganVzdCBwdXQg
+dGhlIGZhaWxvdmVyIHBhcnQgaW4gbmV0L2NvcmUgYW5kIHNlbGVjdCBpdC4KPiAgRnJvbSBhbGwg
+ZHJpdmVycy4gWWVzLiBBbmQgaXQgZG9lcyBub3QgbmVlZCB0byBiZSB2aXNpYmxlIGluIHRoZSBt
+ZW51Cj4gaW1oby4KPgo+Cj4+IEl0IGlzIHRyaXZpYWwgdG8gZ2V0IGFuIGV2YWx1YXRpb24gdmVy
+c2lvbiBvZiBXaW5kb3dzIFNlcnZlciAyMDE2IGFuZCBzZXR1cCBhIExpbnV4IFZNLgo+PiBQbGVh
+c2UgdHJ5IGl0Lgo+IEkgcHJlc3VtZSBzb21lIGtpbmQgb2YgdGVzdCB3YXMgZG9uZSBoZXJlLiBT
+cmlkaGFyLCBkbyB5b3UgdGhpbmsgeW91Cj4gY291bGQgaW5jbHVkZSBzb21lIG5vdGVzIGFib3V0
+IHRlc3Rpbmcgb2YgdGhpcyBwYXRjaD8gT3IgaW4gY2FzZSB5b3UKPiBvbmx5IGJ1aWxkLXRlc3Rl
+ZCB0aGlzIHBhcnQsIGl0J3MgYSBnb29kIGlkZWEgdG8gbm90aWNlIHRoaXMgYWZ0ZXIgLS0tCj4g
+aW4gdGhlIHBhdGNoLCBvciBpbiB0aGUgY292ZXIgbGV0dGVyLgoKSSBvbmx5IGRpZCBjb21waWxl
+IGFuZCBidWlsZCB0ZXN0IG9mIG5ldHZzYy4gSSBkb24ndCBoYXZlIGEgaHlwZXJ2IHNldHVwIHRv
+IHRlc3QgaXQgb3V0LgpXb3VsZCBhcHByZWNpYXRlIGlmIFN0ZXBoZW4gb3Igc29tZW9uZSB3aG8g
+aGFzIHRoaXMgc2V0dXAgd2lsbCB0ZXN0IGl0IG91dCB3aGVuIGkKc3VibWl0IHRoZSBuZXh0IHJl
+dmlzaW9uIHdpdGggdGhlIGNvbmZpZyBmaXhlcy4KCj4KCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
