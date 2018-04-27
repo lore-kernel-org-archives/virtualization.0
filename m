@@ -1,24 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 net-next 4/4] netvsc: refactor notifier/event handling
+Subject: Re: [PATCH net-next v8 4/4] netvsc: refactor notifier/event handling
 	code to use the failover framework
-Date: Fri, 27 Apr 2018 02:42:26 +0300
-Message-ID: <20180427012530-mutt-send-email-mst__41410.135155502$1524786050$gmane$org@kernel.org>
-References: <20180423202204-mutt-send-email-mst@kernel.org>
-	<20180423104440.2fe6cfd2@xeon-e3>
-	<20180423205019-mutt-send-email-mst@kernel.org>
-	<CADGSJ20ge75T+ddxtUBT4d9m1i3=HLOAHJEoS7Cg0bqnXrutwA@mail.gmail.com>
-	<20180423230037-mutt-send-email-mst@kernel.org>
-	<CADGSJ22WMxXEtR9QpRa9_ZqgmTbgWHZz2j4hsUnRJrM9zTsW4w@mail.gmail.com>
-	<20180426011221-mutt-send-email-mst@kernel.org>
-	<CADGSJ20vck5V8JCoF0Tq9PWfBu7QYPDvg0yAZ_8Xkig7TKU7Lw@mail.gmail.com>
-	<20180426050934-mutt-send-email-mst@kernel.org>
-	<CADGSJ22D=NTWtjVeLKsgvcesy0b_ugzb9XGHGsWOktUEFhYN_Q@mail.gmail.com>
+Date: Fri, 27 Apr 2018 03:09:36 +0300
+Message-ID: <20180427024347-mutt-send-email-mst@kernel.org>
+References: <1524700768-38627-1-git-send-email-sridhar.samudrala@intel.com>
+	<1524700768-38627-5-git-send-email-sridhar.samudrala@intel.com>
+	<20180425170837.6520a577@xeon-e3>
+	<20180426052908-mutt-send-email-mst@kernel.org>
+	<20180426153326.16388dfd@xeon-e3>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CADGSJ22D=NTWtjVeLKsgvcesy0b_ugzb9XGHGsWOktUEFhYN_Q@mail.gmail.com>
+In-Reply-To: <20180426153326.16388dfd@xeon-e3>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,312 +23,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 26, 2018 at 03:14:46PM -0700, Siwei Liu wrote:
-> On Wed, Apr 25, 2018 at 7:28 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Wed, Apr 25, 2018 at 03:57:57PM -0700, Siwei Liu wrote:
-> >> On Wed, Apr 25, 2018 at 3:22 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> >> > On Wed, Apr 25, 2018 at 02:38:57PM -0700, Siwei Liu wrote:
-> >> >> On Mon, Apr 23, 2018 at 1:06 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> >> >> > On Mon, Apr 23, 2018 at 12:44:39PM -0700, Siwei Liu wrote:
-> >> >> >> On Mon, Apr 23, 2018 at 10:56 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> >> >> >> > On Mon, Apr 23, 2018 at 10:44:40AM -0700, Stephen Hemminger wrote:
-> >> >> >> >> On Mon, 23 Apr 2018 20:24:56 +0300
-> >> >> >> >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >> >> >> >>
-> >> >> >> >> > On Mon, Apr 23, 2018 at 10:04:06AM -0700, Stephen Hemminger wrote:
-> >> >> >> >> > > > >
-> >> >> >> >> > > > >I will NAK patches to change to common code for netvsc especially the
-> >> >> >> >> > > > >three device model.  MS worked hard with distro vendors to support transparent
-> >> >> >> >> > > > >mode, ans we really can't have a new model; or do backport.
-> >> >> >> >> > > > >
-> >> >> >> >> > > > >Plus, DPDK is now dependent on existing model.
-> >> >> >> >> > > >
-> >> >> >> >> > > > Sorry, but nobody here cares about dpdk or other similar oddities.
-> >> >> >> >> > >
-> >> >> >> >> > > The network device model is a userspace API, and DPDK is a userspace application.
-> >> >> >> >> >
-> >> >> >> >> > It is userspace but are you sure dpdk is actually poking at netdevs?
-> >> >> >> >> > AFAIK it's normally banging device registers directly.
-> >> >> >> >> >
-> >> >> >> >> > > You can't go breaking userspace even if you don't like the application.
-> >> >> >> >> >
-> >> >> >> >> > Could you please explain how is the proposed patchset breaking
-> >> >> >> >> > userspace? Ignoring DPDK for now, I don't think it changes the userspace
-> >> >> >> >> > API at all.
-> >> >> >> >> >
-> >> >> >> >>
-> >> >> >> >> The DPDK has a device driver vdev_netvsc which scans the Linux network devices
-> >> >> >> >> to look for Linux netvsc device and the paired VF device and setup the
-> >> >> >> >> DPDK environment.  This setup creates a DPDK failsafe (bondingish) instance
-> >> >> >> >> and sets up TAP support over the Linux netvsc device as well as the Mellanox
-> >> >> >> >> VF device.
-> >> >> >> >>
-> >> >> >> >> So it depends on existing 2 device model. You can't go to a 3 device model
-> >> >> >> >> or start hiding devices from userspace.
-> >> >> >> >
-> >> >> >> > Okay so how does the existing patch break that? IIUC does not go to
-> >> >> >> > a 3 device model since netvsc calls failover_register directly.
-> >> >> >> >
-> >> >> >> >> Also, I am working on associating netvsc and VF device based on serial number
-> >> >> >> >> rather than MAC address. The serial number is how Windows works now, and it makes
-> >> >> >> >> sense for Linux and Windows to use the same mechanism if possible.
-> >> >> >> >
-> >> >> >> > Maybe we should support same for virtio ...
-> >> >> >> > Which serial do you mean? From vpd?
-> >> >> >> >
-> >> >> >> > I guess you will want to keep supporting MAC for old hypervisors?
-> >> >> >> >
-> >> >> >> > It all seems like a reasonable thing to support in the generic core.
-> >> >> >>
-> >> >> >> That's the reason why I chose explicit identifier rather than rely on
-> >> >> >> MAC address to bind/pair a device. MAC address can change. Even if it
-> >> >> >> can't, malicious guest user can fake MAC address to skip binding.
-> >> >> >>
-> >> >> >> -Siwei
-> >> >> >
-> >> >> > Address should be sampled at device creation to prevent this
-> >> >> > kind of hack. Not that it buys the malicious user much:
-> >> >> > if you can poke at MAC addresses you probably already can
-> >> >> > break networking.
-> >> >>
-> >> >> I don't understand why poking at MAC address may potentially break
-> >> >> networking.
-> >> >
-> >> > Set a MAC address to match another device on the same LAN,
-> >> > packets will stop reaching that MAC.
-> >>
-> >> What I meant was guest users may create a virtual link, say veth that
-> >> has exactly the same MAC address as that for the VF, which can easily
-> >> get around of the binding procedure.
-> >
-> > This patchset limits binding to PCI devices so it won't be affected
-> > by any hacks around virtual devices.
+On Thu, Apr 26, 2018 at 03:33:26PM -0700, Stephen Hemminger wrote:
+> On Thu, 26 Apr 2018 05:30:05 +0300
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
-> Wait, I vaguely recall you seemed to like to generalize this feature
-> to non-PCI device. 
-
-It's purely a layering thing.  It is cleaner not to have PCI specific
-data in the device-specific transport-independent section of the virtio
-spec.
-
-
-> But now you're saying it should stick to PCI. It's
-> not that I'm reluctant with sticking to PCI. The fact is that I don't
-> think we can go with implementation until the semantics of the
-> so-called _F_STANDBY feature can be clearly defined into the spec.
-> Previously the boundary of using MAC address as the identifier for
-> bonding was quite confusing to me. And now PCI adds to the matrix.
-
-PCI is simply one way to exclude software NICs. It's not the most
-elegant one, but it will cover many setups.  We can add more types, but
-we do want to exclude software devices since these have
-not been supplied by the hypervisor.
-
-> However it still does not gurantee uniqueness I think. It's almost
-> incorrect of choosing MAC address as the ID in the beginning since
-> that has the implication of breaking existing configs.
-
-IMO there's no chance it will break any existing config since
-no existing config sets _F_STANDBY.
-
-> I don't think
-> libvirt or QEMU today retricts the MAC address to be unique per VM
-> instance. Neither the virtio spec mentions that.
-
-You really don't have to.
-
-> In addition, it's difficult to fake PCI device on Linux does not mean
-> the same applies to other OSes that is going to implement this VirtIO
-> feature. It's a fragile assumption IMHO.
-
-What an OS does internally is its own business.
-
-What we are telling the guest here is simply that the virtio NIC is
-actually the same device as some other NIC. At this point we do not
-specify this other NIC in any way. So how do you find it?  Well it has
-to have the same MAC clearly.
-
-You point out that there could be multiple NICs with the same
-MAC in theory. It's a broken config generally but since it
-kind of works in some setups maybe it's worth supporting.
-If so we can look for ways to make the matching more specific by e.g.
-adding more flags but I see that as a separate issue,
-and pretty narrow in scope.
-
-> >
-> >> There's no explicit flag to
-> >> identify a VF or pass-through device AFAIK. And sometimes this happens
-> >> maybe due to user misconfiguring the link. This process should be
-> >> hardened to avoid from any potential configuration errors.
-> >
-> > They are still PCI devices though.
-> >
-> >> >
-> >> >> Unlike VF, passthrough PCI endpoint device has its freedom
-> >> >> to change the MAC address. Even on a VF setup it's not neccessarily
-> >> >> always safe to assume the VF's MAC address cannot or shouldn't be
-> >> >> changed. That depends on the specific need whether the host admin
-> >> >> wants to restrict guest from changing the MAC address, although in
-> >> >> most cases it's true.
-> >> >>
-> >> >> I understand we can use the perm_addr to distinguish. But as said,
-> >> >> this will pose limitation of flexible configuration where one can
-> >> >> assign VFs with identical MAC address at all while each VF belongs to
-> >> >> different PF and/or different subnet for e.g. load balancing.
-> >> >> And
-> >> >> furthermore, the QEMU device model never uses MAC address to be
-> >> >> interpreted as an identifier, which requires to be unique per VM
-> >> >> instance. Why we're introducing this inconsistency?
-> >> >>
-> >> >> -Siwei
-> >> >
-> >> > Because it addresses most of the issues and is simple.  That's already
-> >> > much better than what we have now which is nothing unless guest
-> >> > configures things manually.
-> >>
-> >> Did you see my QEMU patch for using BDF as the grouping identifier?
-> >
-> > Yes. And I don't think it can work because bus numbers are
-> > guest specified.
+> > On Wed, Apr 25, 2018 at 05:08:37PM -0700, Stephen Hemminger wrote:
+> > > On Wed, 25 Apr 2018 16:59:28 -0700
+> > > Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
+> > >   
+> > > > Use the registration/notification framework supported by the generic
+> > > > failover infrastructure.
+> > > > 
+> > > > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>  
+> > > 
+> > > NAK unless you prove this works on legacy distributions and with DPDK 18.05
+> > > without modification.  
+> > 
+> > It looks like it should work. What kind of proof are you looking for?
+> > 
 > 
-> I know it's not ideal but perhaps its the best one can do in the KVM
-> world without adding complex config e.g. PCI bridge.
-
-KVM is just a VMX/SVM driver. I think you mean QEMU.  And well -
-"best one can do" is a high bar to clear.
-
-
-> Even if bus
-> number is guest specified, it's readily available in the guest and
-> recognizable by any OS, while on the QEMU configuration users specify
-> an id instead of the bus number. Unlike Hyper-V PCI bus, I don't think
-> there exists a para-virtual PCI bus in QEMU backend to expose VPD
-> capability to a passthrough device.
-
-We can always add more interfaces if we need them.  But let's be clear
-that we are adding an interface and what are we trying to fix by doing
-it. Let's not mix it as part of the failover discussion.
-
-> >
-> >> And there can be others like what you suggested, but the point is that
-> >> it's requried to support explicit grouping mechanism from day one,
-> >> before the backup property cast into stones.
-> >
-> > Let's start with addressing simple configs with just two NICs.
-> >
-> > Down the road I can see possible extensions that can work: for example,
-> > require that devices are on the same pci bridge. Or we could even make
-> > the virtio device actually include a pci bridge (as part of same
-> > or a child function), the PT would have to be
-> > behind it.
-> >
-> > As long as we are not breaking anything, adding more flags to fix
-> > non-working configurations is always fair game.
 > 
-> While it may work, the PCI bridge has NUMA and IOMMU implications that
-> would restrict the current flexibility to group devices.
+> I tried this with working Ubuntu 17 on WS2016.
+> It boots if the failover driver is configured in (as module).
 
-It's interesting you should mention that.
+Oh so by "unless you prove" you meant "unless you test"?
 
-If you want to be flexible in placing the primary device WRT NUMA and
-IOMMU, and given that both IOMMU and NUMA are keyed by the bus address,
-then doesn't this completely break the idea of passing
-the bus address to the guest?
-
-> I'm not sure
-> if vIOMMU would have to be introduced inadvertently for
-> isolation/protection of devices under the PCI bridge which may cause
-> negative performance impact on the VF.
-
-No idea how do you introduce an IOMMU inadvertently.
-
-> >
-> >> This is orthogonal to
-> >> device model being proposed, be it 1-netdev or not. Delaying it would
-> >> just mean support and compatibility burden, appearing more like a
-> >> design flaw rather than a feature to add later on.
-> >
-> > Well it's mostly myself who gets to support it, and I see the device
-> > model as much more fundamental as userspace will come to depend
-> > on it. So I'm not too worried, let's take this one step at a time.
-> >
-> >> >
-> >> > I think ideally the infrastructure should suppport flexible matching of
-> >> > NICs - netvsc is already reported to be moving to some kind of serial
-> >> > address.
-> >> >
-> >> As Stephen said, Hyper-V supports the serial UUID thing from day-one.
-> >> It's just the Linux netvsc guest driver itself does not leverage that
-> >> ID from the very beginging.
-> >>
-> >> Regards,
-> >> -Siwei
-> >
-> > We could add something like this, too. For example,
-> > we could add a virtual VPD capability with a UUID.
+> But if the configuration has:
 > 
-> I'm not an expert on that and wonder how you could do this (add a
-> virtual VPD capability with a UUID to passthrough device) with
-> existing QEMU emulation model and native PCI bus.
+> $ grep FAILOVER .config
+> # CONFIG_NET_FAILOVER is not set
+> CONFIG_MAY_USE_NET_FAILOVER=y
 
+So the new option works, what's broken is when it's *not* selected.
+Looks like a bug.
 
-I think I see an elegant way to do that.
-
-You could put it in the port where you want to stick you PT device.
-
-Here's how it could work then:
-
-
-- standby virtio device is tied to a pci bridge.
-
-  Tied how? Well it could be 
-  - behind this bridge
-  - include a bridge internally
-  - have the bridge as a PCI function
-  - include a bridge and the bridge as a PCI function
-  - have a VPD or serial capability with same UUID as the bridge
-
-- primary passthrough device is placed behind a bridge
-  *with the same ID*
-
-	- either simply behind the same bridge
-	- or behind another bridge with the same UUID.
-
-
-The treatment could also be limited just to bridges which have a
-specific vendor/device id (maybe a good idea), or in any other arbitrary
-way.
-
-
-
-
-> >
-> > Do you know how exactly does hyperv pass the UUID for NICs?
+> The netvsc driver fails on boot with:
 > 
-> Stephen might know it more and can correct me. But my personal
-> interpretation is that the SN is a host generated 32 bit sequence
-> number which is unique per VM instance and gets propogated to guest
-> via the para-virtual Hyper-V PCI bus.
+> [    0.826447] hv_vmbus: registering driver hv_netvsc
+> [    0.829616] scsi 0:0:0:0: Direct-Access     Msft     Virtual Disk     1.0  PQ: 0 ANSI: 5
+> [    0.836291] input: Microsoft Vmbus HID-compliant Mouse as /devices/0006:045E:0621.0001/input/input1
+> [    0.839139] hid-generic 0006:045E:0621.0001: input: <UNKNOWN> HID v0.01 Mouse [Microsoft Vmbus HID-compliant Mouse] on
+> [    0.964897] hv_vmbus: probe failed for device 849a776e-8120-4e4a-9a36-7e3d95ac75b3 (-95)
+> [    0.968039] hv_netvsc: probe of 849a776e-8120-4e4a-9a36-7e3d95ac75b3 failed with error -95
+> [    1.112877] hv_vmbus: probe failed for device 53557f8e-057d-425b-9265-01c0fd7e273e (-95)
+> [    1.116064] hv_netvsc: probe of 53557f8e-057d-425b-9265-01c0fd7e273e failed with error -95
 > 
-> Regards,
-> -Siwei
+> The system has two virtual networks. eth0 is on vswitch for management.
+> eth1 is on vswitch with SR-IOV for performance tests.
+> 
+> You probably need to just put the failover part in net/core and select it.
 
-Ah, so it's a Hyper-V thing.
+From all drivers. Yes. And it does not need to be visible in the menu
+imho.
 
 
+> It is trivial to get an evaluation version of Windows Server 2016 and setup a Linux VM.
+> Please try it.
 
+I presume some kind of test was done here. Sridhar, do you think you
+could include some notes about testing of this patch? Or in case you
+only build-tested this part, it's a good idea to notice this after ---
+in the patch, or in the cover letter.
 
-> >
-> >> >
-> >> >> >
-> >> >> >
-> >> >> >
-> >> >> >
-> >> >> >>
-> >> >> >> >
-> >> >> >> > --
-> >> >> >> > MST
+-- 
+MST
