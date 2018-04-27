@@ -1,20 +1,14 @@
-From: Dmitry Vyukov via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH net] vhost: Use kzalloc() to allocate vhost_msg_node
-Date: Fri, 27 Apr 2018 18:29:20 +0200
-Message-ID: <CACT4Y+ZUoAB8ZORGnR+xhcg46XqP+HsfbeuQ+HNcRVE51xdH6A__35645.7237889574$1524846481$gmane$org@mail.gmail.com>
-References: <000000000000a5b2b1056a86e98c@google.com>
-	<20180427154502.GA22544@la.guarana.org>
-	<20180427185501-mutt-send-email-mst@kernel.org>
-	<CACT4Y+b4fEOw=GjTsZMHVyQPOZmuqPWj6AJJshpS-UGRx=bhXA@mail.gmail.com>
-	<20180427191430-mutt-send-email-mst@kernel.org>
-	<CACT4Y+bzWiPvV+pVvys4v8CwUhF7iYVskxn_yeo6ztN5uKA0VA@mail.gmail.com>
-Reply-To: Dmitry Vyukov <dvyukov@google.com>
+From: Sridhar Samudrala <sridhar.samudrala@intel.com>
+Subject: [PATCH net-next v9 1/4] virtio_net: Introduce VIRTIO_NET_F_STANDBY
+	feature bit
+Date: Fri, 27 Apr 2018 10:06:57 -0700
+Message-ID: <1524848820-42258-2-git-send-email-sridhar.samudrala__8579.23766966469$1524848710$gmane$org@intel.com>
+References: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CACT4Y+bzWiPvV+pVvys4v8CwUhF7iYVskxn_yeo6ztN5uKA0VA@mail.gmail.com>
+In-Reply-To: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,94 +18,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Kevin Easton <kevin@guarana.org>, KVM list <kvm@vger.kernel.org>, netdev <netdev@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, kubakici@wp.pl, sridhar.samudrala@intel.com, jasowang@redhat.com, loseweigh@gmail.com, jiri@resnulli.us, aaron.f.brown@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 27, 2018 at 6:25 PM, Dmitry Vyukov <dvyukov@google.com> wrote:
->>> >> The struct vhost_msg within struct vhost_msg_node is copied to userspace,
->>> >> so it should be allocated with kzalloc() to ensure all structure padding
->>> >> is zeroed.
->>> >>
->>> >> Signed-off-by: Kevin Easton <kevin@guarana.org>
->>> >> Reported-by: syzbot+87cfa083e727a224754b@syzkaller.appspotmail.com
->>> >
->>> > Does it help if a patch naming the padding is applied,
->>> > and then we init just the relevant field?
->>> > Just curious.
->>>
->>> Yes, it would help.
->>
->> I think it's slightly better that way then. node has a lot of internal
->> stuff we don't care to init. Would you mind taking my patch and building
->> on top of that then?
->
->
-> But it's asking for more information leaks in future. This looks like
-> work for compiler.
+This feature bit can be used by hypervisor to indicate virtio_net device to
+act as a standby for another device with the same MAC address.
 
+VIRTIO_NET_F_STANDBY is defined as bit 62 as it is a device feature bit.
 
-Modern compilers are perfectly capable of doing this:
+Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+---
+ drivers/net/virtio_net.c        | 2 +-
+ include/uapi/linux/virtio_net.h | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-#include <memory.h>
-#include <unistd.h>
-int main()
-{
-    int x[10];
-    memset(&x, 0, sizeof(x));
-    x[0] = 0;
-    x[2] = 2;
-    x[3] = 3;
-    x[4] = 4;
-    x[5] = 5;
-    x[6] = 6;
-    x[7] = 7;
-    x[8] = 8;
-    x[9] = 9;
-    write(0, x, sizeof(x));
-    return 0;
-}
-
-gcc 7.2 -O3
-
-0000000000000540 <main>:
- 540:   sub    $0x38,%rsp
- 544:   mov    $0x28,%edx
- 549:   xor    %edi,%edi
- 54b:   movdqa 0x1cd(%rip),%xmm0        # 720 <_IO_stdin_used+0x10>
- 553:   mov    %rsp,%rsi
- 556:   movq   $0x0,(%rsp)
- 55e:   movups %xmm0,0x8(%rsp)
- 563:   movdqa 0x1c5(%rip),%xmm0        # 730 <_IO_stdin_used+0x20>
- 56b:   movups %xmm0,0x18(%rsp)
- 570:   callq  520 <write@plt>
- 575:   xor    %eax,%eax
- 577:   add    $0x38,%rsp
- 57b:   retq
- 57c:   nopl   0x0(%rax)
-
-
-But they will not put a security hole next time fields are shuffled.
-
-
-
-
->>> >> ---
->>> >>  drivers/vhost/vhost.c | 2 +-
->>> >>  1 file changed, 1 insertion(+), 1 deletion(-)
->>> >>
->>> >> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->>> >> index f3bd8e9..1b84dcff 100644
->>> >> --- a/drivers/vhost/vhost.c
->>> >> +++ b/drivers/vhost/vhost.c
->>> >> @@ -2339,7 +2339,7 @@ EXPORT_SYMBOL_GPL(vhost_disable_notify);
->>> >>  /* Create a new message. */
->>> >>  struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type)
->>> >>  {
->>> >> -     struct vhost_msg_node *node = kmalloc(sizeof *node, GFP_KERNEL);
->>> >> +     struct vhost_msg_node *node = kzalloc(sizeof *node, GFP_KERNEL);
->>> >>       if (!node)
->>> >>               return NULL;
->>> >>       node->vq = vq;
->>> >> --
->>> >> 2.8.1
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 3b5991734118..51a085b1a242 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2999,7 +2999,7 @@ static struct virtio_device_id id_table[] = {
+ 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
+ 	VIRTIO_NET_F_CTRL_MAC_ADDR, \
+ 	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
+-	VIRTIO_NET_F_SPEED_DUPLEX
++	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY
+ 
+ static unsigned int features[] = {
+ 	VIRTNET_FEATURES,
+diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+index 5de6ed37695b..a3715a3224c1 100644
+--- a/include/uapi/linux/virtio_net.h
++++ b/include/uapi/linux/virtio_net.h
+@@ -57,6 +57,9 @@
+ 					 * Steering */
+ #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+ 
++#define VIRTIO_NET_F_STANDBY	  62	/* Act as standby for another device
++					 * with the same MAC.
++					 */
+ #define VIRTIO_NET_F_SPEED_DUPLEX 63	/* Device set linkspeed and duplex */
+ 
+ #ifndef VIRTIO_NET_NO_LEGACY
+-- 
+2.14.3
