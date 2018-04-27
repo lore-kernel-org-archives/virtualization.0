@@ -1,12 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] vhost: make msg padding explicit
-Date: Fri, 27 Apr 2018 19:02:05 +0300
-Message-ID: <1524844881-178524-1-git-send-email-mst__48602.4255901158$1524844809$gmane$org@redhat.com>
+Subject: Re: [PATCH net] vhost: Use kzalloc() to allocate vhost_msg_node
+Date: Fri, 27 Apr 2018 19:05:45 +0300
+Message-ID: <20180427185501-mutt-send-email-mst__20097.2550352619$1524845032$gmane$org@kernel.org>
+References: <000000000000a5b2b1056a86e98c@google.com>
+	<20180427154502.GA22544@la.guarana.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20180427154502.GA22544@la.guarana.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,31 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, Kevin Easton <kevin@guarana.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Kevin Easton <kevin@guarana.org>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-There's a 32 bit hole just after type. It's best to
-give it a name, this way compiler is forced to initialize
-it with rest of the structure.
+On Fri, Apr 27, 2018 at 11:45:02AM -0400, Kevin Easton wrote:
+> The struct vhost_msg within struct vhost_msg_node is copied to userspace,
+> so it should be allocated with kzalloc() to ensure all structure padding
+> is zeroed.
+> 
+> Signed-off-by: Kevin Easton <kevin@guarana.org>
+> Reported-by: syzbot+87cfa083e727a224754b@syzkaller.appspotmail.com
 
-Reported-by: Kevin Easton <kevin@guarana.org>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/uapi/linux/vhost.h | 1 +
- 1 file changed, 1 insertion(+)
+Does it help if a patch naming the padding is applied,
+and then we init just the relevant field?
+Just curious.
 
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index c51f8e5..5a8ad06 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -68,6 +68,7 @@ struct vhost_iotlb_msg {
- 
- struct vhost_msg {
- 	int type;
-+	int padding0;
- 	union {
- 		struct vhost_iotlb_msg iotlb;
- 		__u8 padding[64];
--- 
-MST
+> ---
+>  drivers/vhost/vhost.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index f3bd8e9..1b84dcff 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2339,7 +2339,7 @@ EXPORT_SYMBOL_GPL(vhost_disable_notify);
+>  /* Create a new message. */
+>  struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type)
+>  {
+> -	struct vhost_msg_node *node = kmalloc(sizeof *node, GFP_KERNEL);
+> +	struct vhost_msg_node *node = kzalloc(sizeof *node, GFP_KERNEL);
+>  	if (!node)
+>  		return NULL;
+>  	node->vq = vq;
+> -- 
+> 2.8.1
