@@ -1,7 +1,7 @@
 From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 16/17] drm/virtio: Remove unecessary dma_fence_ops
-Date: Fri, 27 Apr 2018 08:17:23 +0200
-Message-ID: <20180427061724.28497-17-daniel.vetter@ffwll.ch>
+Subject: [PATCH 12/17] drm/qxl: Remove unecessary dma_fence_ops
+Date: Fri, 27 Apr 2018 08:17:19 +0200
+Message-ID: <20180427061724.28497-13-daniel.vetter@ffwll.ch>
 References: <20180427061724.28497-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,45 +18,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: DRI Development <dri-devel@lists.freedesktop.org>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 dma_fence_default_wait is the default now, same for the trivial
 enable_signaling implementation.
 
 Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: David Airlie <airlied@linux.ie>
+Cc: Dave Airlie <airlied@redhat.com>
 Cc: Gerd Hoffmann <kraxel@redhat.com>
 Cc: virtualization@lists.linux-foundation.org
 ---
- drivers/gpu/drm/virtio/virtgpu_fence.c | 7 -------
+ drivers/gpu/drm/qxl/qxl_release.c | 7 -------
  1 file changed, 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
-index 23353521f903..00c742a441bf 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fence.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
-@@ -36,11 +36,6 @@ static const char *virtio_get_timeline_name(struct dma_fence *f)
- 	return "controlq";
+diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
+index 7cb214577275..e37f0097f744 100644
+--- a/drivers/gpu/drm/qxl/qxl_release.c
++++ b/drivers/gpu/drm/qxl/qxl_release.c
+@@ -50,12 +50,6 @@ static const char *qxl_get_timeline_name(struct dma_fence *fence)
+ 	return "release";
  }
  
--static bool virtio_enable_signaling(struct dma_fence *f)
+-static bool qxl_nop_signaling(struct dma_fence *fence)
 -{
+-	/* fences are always automatically signaled, so just pretend we did this.. */
 -	return true;
 -}
 -
- static bool virtio_signaled(struct dma_fence *f)
+ static long qxl_fence_wait(struct dma_fence *fence, bool intr,
+ 			   signed long timeout)
  {
- 	struct virtio_gpu_fence *fence = to_virtio_fence(f);
-@@ -67,9 +62,7 @@ static void virtio_timeline_value_str(struct dma_fence *f, char *str, int size)
- static const struct dma_fence_ops virtio_fence_ops = {
- 	.get_driver_name     = virtio_get_driver_name,
- 	.get_timeline_name   = virtio_get_timeline_name,
--	.enable_signaling    = virtio_enable_signaling,
- 	.signaled            = virtio_signaled,
--	.wait                = dma_fence_default_wait,
- 	.fence_value_str     = virtio_fence_value_str,
- 	.timeline_value_str  = virtio_timeline_value_str,
+@@ -119,7 +113,6 @@ static long qxl_fence_wait(struct dma_fence *fence, bool intr,
+ static const struct dma_fence_ops qxl_fence_ops = {
+ 	.get_driver_name = qxl_get_driver_name,
+ 	.get_timeline_name = qxl_get_timeline_name,
+-	.enable_signaling = qxl_nop_signaling,
+ 	.wait = qxl_fence_wait,
  };
+ 
 -- 
 2.17.0
