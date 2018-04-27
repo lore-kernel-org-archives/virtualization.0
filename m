@@ -1,16 +1,24 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC v3 0/5] virtio: support packed ring
-Date: Fri, 27 Apr 2018 14:17:51 +0800
-Message-ID: <5c712aa2-f00e-b472-cdfc-48175aea790d__37409.8689332188$1524809777$gmane$org@redhat.com>
-References: <20180425051550.24342-1-tiwei.bie@intel.com>
-	<5ad1ca01-1e5c-7105-f303-7e8d42f6a068@redhat.com>
-	<20180427071725-mutt-send-email-mst@kernel.org>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [dm-devel] [PATCH v5] fault-injection: introduce kvmalloc
+	fallback options
+Date: Fri, 27 Apr 2018 10:25:55 +0200
+Message-ID: <20180427082555.GC17484__7903.95201552219$1524817444$gmane$org@dhcp22.suse.cz>
+References: <alpine.LRH.2.02.1804251656300.9428@file01.intranet.prod.int.rdu2.redhat.com>
+	<alpine.DEB.2.21.1804251417470.166306@chino.kir.corp.google.com>
+	<alpine.LRH.2.02.1804251720090.9428@file01.intranet.prod.int.rdu2.redhat.com>
+	<1524694663.4100.21.camel@HansenPartnership.com>
+	<alpine.LRH.2.02.1804251857070.31135@file01.intranet.prod.int.rdu2.redhat.com>
+	<1524697697.4100.23.camel@HansenPartnership.com>
+	<23266.8532.619051.784274@quad.stoffel.home>
+	<alpine.LRH.2.02.1804261726540.13401@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180427005213-mutt-send-email-mst@kernel.org>
+	<alpine.LRH.2.02.1804261829190.30599@file01.intranet.prod.int.rdu2.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180427071725-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <alpine.LRH.2.02.1804261829190.30599@file01.intranet.prod.int.rdu2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,33 +28,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Andrew@stoffel.org, eric.dumazet@gmail.com, "Michael S. Tsirkin" <mst@redhat.com>, edumazet@google.com, netdev@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, John Stoffel <john@stoffel.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@HansenPartnership.com>, Michal@stoffel.org, dm-devel@redhat.com, David Miller <davem@davemloft.net>, David Rientjes <rientjes@google.com>, Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDTmnIgyN+aXpSAxMjoxOCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIEZyaSwgQXByIDI3LCAyMDE4IGF0IDExOjU2OjA1QU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+IE9uIDIwMTjlubQwNOaciDI15pelIDEzOjE1LCBUaXdlaSBCaWUgd3JvdGU6Cj4+PiBI
-ZWxsbyBldmVyeW9uZSwKPj4+Cj4+PiBUaGlzIFJGQyBpbXBsZW1lbnRzIHBhY2tlZCByaW5nIHN1
-cHBvcnQgaW4gdmlydGlvIGRyaXZlci4KPj4+Cj4+PiBTb21lIHNpbXBsZSBmdW5jdGlvbmFsIHRl
-c3RzIGhhdmUgYmVlbiBkb25lIHdpdGggSmFzb24ncwo+Pj4gcGFja2VkIHJpbmcgaW1wbGVtZW50
-YXRpb24gaW4gdmhvc3Q6Cj4+Pgo+Pj4gaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTgvNC8yMy8x
-Mgo+Pj4KPj4+IEJvdGggb2YgcGluZyBhbmQgbmV0cGVyZiB3b3JrZWQgYXMgZXhwZWN0ZWQgKHdp
-dGggRVZFTlRfSURYCj4+PiBkaXNhYmxlZCkuIEJ1dCB0aGVyZSBhcmUgYmVsb3cga25vd24gaXNz
-dWVzOgo+Pj4KPj4+IDEuIFJlbG9hZGluZyB0aGUgZ3Vlc3QgZHJpdmVyIHdpbGwgYnJlYWsgdGhl
-IFR4L1J4Owo+PiBXaWxsIGhhdmUgYSBsb29rIGF0IHRoaXMgaXNzdWUuCj4+Cj4+PiAyLiBaZXJv
-aW5nIHRoZSBmbGFncyB3aGVuIGRldGFjaGluZyBhIHVzZWQgZGVzYyB3aWxsCj4+PiAgICAgIGJy
-ZWFrIHRoZSBndWVzdCAtPiBob3N0IHBhdGguCj4+IEkgc3RpbGwgdGhpbmsgemVyb2luZyBmbGFn
-cyBpcyB1bm5lY2Vzc2FyeSBvciBldmVuIGEgYnVnLiBBdCBob3N0LCBJIHRyYWNrCj4+IGxhc3Qg
-b2JzZXJ2ZWQgYXZhaWwgd3JhcCBjb3VudGVyIGFuZCBkZXRlY3QgYXZhaWwgbGlrZSAod2hhdCBp
-cyBzdWdnZXN0ZWQgaW4KPj4gdGhlIGV4YW1wbGUgY29kZSBpbiB0aGUgc3BlYyk6Cj4+Cj4+IHN0
-YXRpYyBib29sIGRlc2NfaXNfYXZhaWwoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsIF9fdmly
-dGlvMTYgZmxhZ3MpCj4+IHsKPj4gIMKgwqDCoMKgwqDCoCBib29sIGF2YWlsID0gZmxhZ3MgJiBj
-cHVfdG9fdmhvc3QxNih2cSwgREVTQ19BVkFJTCk7Cj4+Cj4+ICDCoMKgwqDCoMKgwqAgcmV0dXJu
-IGF2YWlsID09IHZxLT5hdmFpbF93cmFwX2NvdW50ZXI7Cj4+IH0KPj4KPj4gU28gemVyb2luZyB3
-cmFwIGNhbiBub3Qgd29yayB3aXRoIHRoaXMgb2J2aW91c2x5Lgo+Pgo+PiBUaGFua3MKPiBJIGFn
-cmVlLiBJIHRoaW5rIHdoYXQgb25lIHNob3VsZCBkbyBpcyBmbGlwIHRoZSBhdmFpbGFibGUgYml0
-Lgo+CgpCdXQgaXMgdGhpcyBmbGlwcGluZyBhIG11c3Q/CgpUaGFua3MKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu 26-04-18 18:52:05, Mikulas Patocka wrote:
+> 
+> 
+> On Fri, 27 Apr 2018, Michael S. Tsirkin wrote:
+[...]
+> >    But assuming it's important to control this kind of
+> >    fault injection to be controlled from
+> >    a dedicated menuconfig option, why not the rest of
+> >    faults?
+> 
+> The injected faults cause damage to the user, so there's no point to 
+> enable them by default. vmalloc fallback should not cause any damage 
+> (assuming that the code is correctly written).
+
+But you want to find those bugs which would BUG_ON easier, so there is a
+risk of harm IIUC and this is not much different than other fault
+injecting paths.
+-- 
+Michal Hocko
+SUSE Labs
