@@ -1,13 +1,16 @@
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 12/17] drm/qxl: Remove unecessary dma_fence_ops
-Date: Fri, 27 Apr 2018 08:17:19 +0200
-Message-ID: <20180427061724.28497-13-daniel.vetter@ffwll.ch>
-References: <20180427061724.28497-1-daniel.vetter@ffwll.ch>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC v3 0/5] virtio: support packed ring
+Date: Fri, 27 Apr 2018 14:17:51 +0800
+Message-ID: <5c712aa2-f00e-b472-cdfc-48175aea790d__37409.8689332188$1524809777$gmane$org@redhat.com>
+References: <20180425051550.24342-1-tiwei.bie@intel.com>
+	<5ad1ca01-1e5c-7105-f303-7e8d42f6a068@redhat.com>
+	<20180427071725-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180427061724.28497-1-daniel.vetter@ffwll.ch>
+In-Reply-To: <20180427071725-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,45 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: DRI Development <dri-devel@lists.freedesktop.org>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Dave Airlie <airlied@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-dma_fence_default_wait is the default now, same for the trivial
-enable_signaling implementation.
-
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
----
- drivers/gpu/drm/qxl/qxl_release.c | 7 -------
- 1 file changed, 7 deletions(-)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
-index 7cb214577275..e37f0097f744 100644
---- a/drivers/gpu/drm/qxl/qxl_release.c
-+++ b/drivers/gpu/drm/qxl/qxl_release.c
-@@ -50,12 +50,6 @@ static const char *qxl_get_timeline_name(struct dma_fence *fence)
- 	return "release";
- }
- 
--static bool qxl_nop_signaling(struct dma_fence *fence)
--{
--	/* fences are always automatically signaled, so just pretend we did this.. */
--	return true;
--}
--
- static long qxl_fence_wait(struct dma_fence *fence, bool intr,
- 			   signed long timeout)
- {
-@@ -119,7 +113,6 @@ static long qxl_fence_wait(struct dma_fence *fence, bool intr,
- static const struct dma_fence_ops qxl_fence_ops = {
- 	.get_driver_name = qxl_get_driver_name,
- 	.get_timeline_name = qxl_get_timeline_name,
--	.enable_signaling = qxl_nop_signaling,
- 	.wait = qxl_fence_wait,
- };
- 
--- 
-2.17.0
+CgpPbiAyMDE45bm0MDTmnIgyN+aXpSAxMjoxOCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIEZyaSwgQXByIDI3LCAyMDE4IGF0IDExOjU2OjA1QU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+IE9uIDIwMTjlubQwNOaciDI15pelIDEzOjE1LCBUaXdlaSBCaWUgd3JvdGU6Cj4+PiBI
+ZWxsbyBldmVyeW9uZSwKPj4+Cj4+PiBUaGlzIFJGQyBpbXBsZW1lbnRzIHBhY2tlZCByaW5nIHN1
+cHBvcnQgaW4gdmlydGlvIGRyaXZlci4KPj4+Cj4+PiBTb21lIHNpbXBsZSBmdW5jdGlvbmFsIHRl
+c3RzIGhhdmUgYmVlbiBkb25lIHdpdGggSmFzb24ncwo+Pj4gcGFja2VkIHJpbmcgaW1wbGVtZW50
+YXRpb24gaW4gdmhvc3Q6Cj4+Pgo+Pj4gaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTgvNC8yMy8x
+Mgo+Pj4KPj4+IEJvdGggb2YgcGluZyBhbmQgbmV0cGVyZiB3b3JrZWQgYXMgZXhwZWN0ZWQgKHdp
+dGggRVZFTlRfSURYCj4+PiBkaXNhYmxlZCkuIEJ1dCB0aGVyZSBhcmUgYmVsb3cga25vd24gaXNz
+dWVzOgo+Pj4KPj4+IDEuIFJlbG9hZGluZyB0aGUgZ3Vlc3QgZHJpdmVyIHdpbGwgYnJlYWsgdGhl
+IFR4L1J4Owo+PiBXaWxsIGhhdmUgYSBsb29rIGF0IHRoaXMgaXNzdWUuCj4+Cj4+PiAyLiBaZXJv
+aW5nIHRoZSBmbGFncyB3aGVuIGRldGFjaGluZyBhIHVzZWQgZGVzYyB3aWxsCj4+PiAgICAgIGJy
+ZWFrIHRoZSBndWVzdCAtPiBob3N0IHBhdGguCj4+IEkgc3RpbGwgdGhpbmsgemVyb2luZyBmbGFn
+cyBpcyB1bm5lY2Vzc2FyeSBvciBldmVuIGEgYnVnLiBBdCBob3N0LCBJIHRyYWNrCj4+IGxhc3Qg
+b2JzZXJ2ZWQgYXZhaWwgd3JhcCBjb3VudGVyIGFuZCBkZXRlY3QgYXZhaWwgbGlrZSAod2hhdCBp
+cyBzdWdnZXN0ZWQgaW4KPj4gdGhlIGV4YW1wbGUgY29kZSBpbiB0aGUgc3BlYyk6Cj4+Cj4+IHN0
+YXRpYyBib29sIGRlc2NfaXNfYXZhaWwoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsIF9fdmly
+dGlvMTYgZmxhZ3MpCj4+IHsKPj4gIMKgwqDCoMKgwqDCoCBib29sIGF2YWlsID0gZmxhZ3MgJiBj
+cHVfdG9fdmhvc3QxNih2cSwgREVTQ19BVkFJTCk7Cj4+Cj4+ICDCoMKgwqDCoMKgwqAgcmV0dXJu
+IGF2YWlsID09IHZxLT5hdmFpbF93cmFwX2NvdW50ZXI7Cj4+IH0KPj4KPj4gU28gemVyb2luZyB3
+cmFwIGNhbiBub3Qgd29yayB3aXRoIHRoaXMgb2J2aW91c2x5Lgo+Pgo+PiBUaGFua3MKPiBJIGFn
+cmVlLiBJIHRoaW5rIHdoYXQgb25lIHNob3VsZCBkbyBpcyBmbGlwIHRoZSBhdmFpbGFibGUgYml0
+Lgo+CgpCdXQgaXMgdGhpcyBmbGlwcGluZyBhIG11c3Q/CgpUaGFua3MKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
