@@ -1,18 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC v3 0/5] virtio: support packed ring
-Date: Sat, 28 Apr 2018 10:45:52 +0800
-Message-ID: <e6629eba-3bfc-cbb7-8f74-9ffd8e178b57@redhat.com>
-References: <20180425051550.24342-1-tiwei.bie@intel.com>
-	<5ad1ca01-1e5c-7105-f303-7e8d42f6a068@redhat.com>
-	<20180427071725-mutt-send-email-mst@kernel.org>
-	<5c712aa2-f00e-b472-cdfc-48175aea790d@redhat.com>
-	<20180427091234.n6vr3wcnbnqxd3so@debian>
+From: Jiri Pirko <jiri@resnulli.us>
+Subject: Re: [PATCH net-next v9 1/4] virtio_net: Introduce
+	VIRTIO_NET_F_STANDBY feature bit
+Date: Sat, 28 Apr 2018 09:50:27 +0200
+Message-ID: <20180428075027.GI5632__11714.2080715441$1524901734$gmane$org@nanopsycho.orion>
+References: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
+	<1524848820-42258-2-git-send-email-sridhar.samudrala@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180427091234.n6vr3wcnbnqxd3so@debian>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1524848820-42258-2-git-send-email-sridhar.samudrala@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,53 +20,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Sridhar Samudrala <sridhar.samudrala@intel.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDTmnIgyN+aXpSAxNzoxMiwgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIEZyaSwg
-QXByIDI3LCAyMDE4IGF0IDAyOjE3OjUxUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9u
-IDIwMTjlubQwNOaciDI35pelIDEyOjE4LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+PiBP
-biBGcmksIEFwciAyNywgMjAxOCBhdCAxMTo1NjowNUFNICswODAwLCBKYXNvbiBXYW5nIHdyb3Rl
-Ogo+Pj4+IE9uIDIwMTjlubQwNOaciDI15pelIDEzOjE1LCBUaXdlaSBCaWUgd3JvdGU6Cj4+Pj4+
-IEhlbGxvIGV2ZXJ5b25lLAo+Pj4+Pgo+Pj4+PiBUaGlzIFJGQyBpbXBsZW1lbnRzIHBhY2tlZCBy
-aW5nIHN1cHBvcnQgaW4gdmlydGlvIGRyaXZlci4KPj4+Pj4KPj4+Pj4gU29tZSBzaW1wbGUgZnVu
-Y3Rpb25hbCB0ZXN0cyBoYXZlIGJlZW4gZG9uZSB3aXRoIEphc29uJ3MKPj4+Pj4gcGFja2VkIHJp
-bmcgaW1wbGVtZW50YXRpb24gaW4gdmhvc3Q6Cj4+Pj4+Cj4+Pj4+IGh0dHBzOi8vbGttbC5vcmcv
-bGttbC8yMDE4LzQvMjMvMTIKPj4+Pj4KPj4+Pj4gQm90aCBvZiBwaW5nIGFuZCBuZXRwZXJmIHdv
-cmtlZCBhcyBleHBlY3RlZCAod2l0aCBFVkVOVF9JRFgKPj4+Pj4gZGlzYWJsZWQpLiBCdXQgdGhl
-cmUgYXJlIGJlbG93IGtub3duIGlzc3VlczoKPj4+Pj4KPj4+Pj4gMS4gUmVsb2FkaW5nIHRoZSBn
-dWVzdCBkcml2ZXIgd2lsbCBicmVhayB0aGUgVHgvUng7Cj4+Pj4gV2lsbCBoYXZlIGEgbG9vayBh
-dCB0aGlzIGlzc3VlLgo+Pj4+Cj4+Pj4+IDIuIFplcm9pbmcgdGhlIGZsYWdzIHdoZW4gZGV0YWNo
-aW5nIGEgdXNlZCBkZXNjIHdpbGwKPj4+Pj4gICAgICAgYnJlYWsgdGhlIGd1ZXN0IC0+IGhvc3Qg
-cGF0aC4KPj4+PiBJIHN0aWxsIHRoaW5rIHplcm9pbmcgZmxhZ3MgaXMgdW5uZWNlc3Nhcnkgb3Ig
-ZXZlbiBhIGJ1Zy4gQXQgaG9zdCwgSSB0cmFjawo+Pj4+IGxhc3Qgb2JzZXJ2ZWQgYXZhaWwgd3Jh
-cCBjb3VudGVyIGFuZCBkZXRlY3QgYXZhaWwgbGlrZSAod2hhdCBpcyBzdWdnZXN0ZWQgaW4KPj4+
-PiB0aGUgZXhhbXBsZSBjb2RlIGluIHRoZSBzcGVjKToKPj4+Pgo+Pj4+IHN0YXRpYyBib29sIGRl
-c2NfaXNfYXZhaWwoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsIF9fdmlydGlvMTYgZmxhZ3Mp
-Cj4+Pj4gewo+Pj4+ICAgwqDCoMKgwqDCoMKgIGJvb2wgYXZhaWwgPSBmbGFncyAmIGNwdV90b192
-aG9zdDE2KHZxLCBERVNDX0FWQUlMKTsKPj4+Pgo+Pj4+ICAgwqDCoMKgwqDCoMKgIHJldHVybiBh
-dmFpbCA9PSB2cS0+YXZhaWxfd3JhcF9jb3VudGVyOwo+Pj4+IH0KPj4+Pgo+Pj4+IFNvIHplcm9p
-bmcgd3JhcCBjYW4gbm90IHdvcmsgd2l0aCB0aGlzIG9idmlvdXNseS4KPj4+Pgo+Pj4+IFRoYW5r
-cwo+Pj4gSSBhZ3JlZS4gSSB0aGluayB3aGF0IG9uZSBzaG91bGQgZG8gaXMgZmxpcCB0aGUgYXZh
-aWxhYmxlIGJpdC4KPj4+Cj4+IEJ1dCBpcyB0aGlzIGZsaXBwaW5nIGEgbXVzdD8KPj4KPj4gVGhh
-bmtzCj4gWWVhaCwgdGhhdCdzIG15IHF1ZXN0aW9uIHRvby4gSXQgc2VlbXMgdG8gYmUgYSByZXF1
-aXJlbWVudAo+IGZvciBkcml2ZXIgdGhhdCwgdGhlIG9ubHkgY2hhbmdlIHRvIHRoZSBkZXNjIHN0
-YXR1cyB0aGF0IGEKPiBkcml2ZXIgY2FuIGRvIGR1cmluZyBydW5uaW5nIGlzIHRvIG1hcmsgdGhl
-IGRlc2MgYXMgYXZhaWwsCj4gYW5kIGFueSBvdGhlciBjaGFuZ2VzIHRvIHRoZSBkZXNjIHN0YXR1
-cyBhcmUgbm90IGFsbG93ZWQuCj4gU2ltaWxhcmx5LCB0aGUgZGV2aWNlIGNhbiBvbmx5IG1hcmsg
-dGhlIGRlc2MgYXMgdXNlZCwgYW5kCj4gYW55IG90aGVyIGNoYW5nZXMgdG8gdGhlIGRlc2Mgc3Rh
-dHVzIGFyZSBhbHNvIG5vdCBhbGxvd2VkLgo+IFNvIHRoZSBxdWVzdGlvbiBpcywgYXJlIHRoZXJl
-IHN1Y2ggcmVxdWlyZW1lbnRzPwoKTG9va3Mgbm90LCBidXQgSSB0aGluayB3ZSBuZWVkIGNsYXJp
-ZnkgdGhpcyBpbiB0aGUgc3BlYy4KClRoYW5rcwoKPgo+IEJhc2VkIG9uIGJlbG93IGNvbnRlbnRz
-IGluIHRoZSBzcGVjOgo+Cj4gIiIiCj4gVGh1cyBWSVJUUV9ERVNDX0ZfQVZBSUwgYW5kIFZJUlRR
-X0RFU0NfRl9VU0VEIGJpdHMgYXJlIGRpZmZlcmVudAo+IGZvciBhbiBhdmFpbGFibGUgZGVzY3Jp
-cHRvciBhbmQgZXF1YWwgZm9yIGEgdXNlZCBkZXNjcmlwdG9yLgo+Cj4gTm90ZSB0aGF0IHRoaXMg
-b2JzZXJ2YXRpb24gaXMgbW9zdGx5IHVzZWZ1bCBmb3Igc2FuaXR5LWNoZWNraW5nCj4gYXMgdGhl
-c2UgYXJlIG5lY2Vzc2FyeSBidXQgbm90IHN1ZmZpY2llbnQgY29uZGl0aW9ucwo+ICIiIgo+Cj4g
-SXQgc2VlbXMgdGhhdCwgaXQncyBuZWNlc3NhcnkgZm9yIGRldmljZXMgdG8gY2hlY2sgd2hldGhl
-cgo+IHRoZSBBVkFJTCBiaXQgYW5kIFVTRUQgYml0IGFyZSBkaWZmZXJlbnQuCj4KPiBCZXN0IHJl
-Z2FyZHMsCj4gVGl3ZWkgQmllCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Fri, Apr 27, 2018 at 07:06:57PM CEST, sridhar.samudrala@intel.com wrote:
+>This feature bit can be used by hypervisor to indicate virtio_net device to
+>act as a standby for another device with the same MAC address.
+>
+>VIRTIO_NET_F_STANDBY is defined as bit 62 as it is a device feature bit.
+>
+>Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+>---
+> drivers/net/virtio_net.c        | 2 +-
+> include/uapi/linux/virtio_net.h | 3 +++
+> 2 files changed, 4 insertions(+), 1 deletion(-)
+>
+>diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>index 3b5991734118..51a085b1a242 100644
+>--- a/drivers/net/virtio_net.c
+>+++ b/drivers/net/virtio_net.c
+>@@ -2999,7 +2999,7 @@ static struct virtio_device_id id_table[] = {
+> 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
+> 	VIRTIO_NET_F_CTRL_MAC_ADDR, \
+> 	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
+>-	VIRTIO_NET_F_SPEED_DUPLEX
+>+	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY
+
+
+This is not part of current qemu master (head 6f0c4706b35dead265509115ddbd2a8d1af516c1)
+Were I can find the qemu code?
+
+Also, I think it makes sense to push HW (qemu HW in this case) first
+and only then the driver.
+
+
+
+> 
+> static unsigned int features[] = {
+> 	VIRTNET_FEATURES,
+>diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+>index 5de6ed37695b..a3715a3224c1 100644
+>--- a/include/uapi/linux/virtio_net.h
+>+++ b/include/uapi/linux/virtio_net.h
+>@@ -57,6 +57,9 @@
+> 					 * Steering */
+> #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+> 
+>+#define VIRTIO_NET_F_STANDBY	  62	/* Act as standby for another device
+>+					 * with the same MAC.
+>+					 */
+> #define VIRTIO_NET_F_SPEED_DUPLEX 63	/* Device set linkspeed and duplex */
+> 
+> #ifndef VIRTIO_NET_NO_LEGACY
+>-- 
+>2.14.3
+>
