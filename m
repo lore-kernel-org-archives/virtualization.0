@@ -1,18 +1,18 @@
 From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [PATCH net-next v9 1/4] virtio_net: Introduce
-	VIRTIO_NET_F_STANDBY feature bit
-Date: Mon, 30 Apr 2018 12:14:19 -0700
-Message-ID: <392e664e-4605-1047-c24f-ca8531858a25__7453.34760654277$1525115542$gmane$org@intel.com>
+Subject: Re: [PATCH net-next v9 3/4] virtio_net: Extend virtio to use VF
+	datapath when available
+Date: Mon, 30 Apr 2018 12:26:34 -0700
+Message-ID: <c965d7f2-9ba6-fc82-ce1c-4d70c3aceb6d__34484.6566593789$1525116280$gmane$org@intel.com>
 References: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524848820-42258-2-git-send-email-sridhar.samudrala@intel.com>
-	<20180428075027.GI5632@nanopsycho.orion>
-	<9826909e-d6cd-a0a3-142f-6f7f8cf2b5ce@intel.com>
-	<20180430070340.GF23854@nanopsycho.orion>
+	<1524848820-42258-4-git-send-email-sridhar.samudrala@intel.com>
+	<20180428082433.GK5632@nanopsycho.orion>
+	<62f3b81b-70f6-6991-8e23-2bf650ecea2d@intel.com>
+	<20180430071208.GG23854@nanopsycho.orion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180430070340.GF23854@nanopsycho.orion>
+In-Reply-To: <20180430071208.GG23854@nanopsycho.orion>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,41 +27,53 @@ To: Jiri Pirko <jiri@resnulli.us>
 Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 4/30/2018 12:12 AM, Jiri Pirko wrote:
+> Mon, Apr 30, 2018 at 05:00:33AM CEST, sridhar.samudrala@intel.com wrote:
+>> On 4/28/2018 1:24 AM, Jiri Pirko wrote:
+>>> Fri, Apr 27, 2018 at 07:06:59PM CEST, sridhar.samudrala@intel.com wrote:
+>>>> This patch enables virtio_net to switch over to a VF datapath when a VF
+>>>> netdev is present with the same MAC address. It allows live migration
+>>>> of a VM with a direct attached VF without the need to setup a bond/team
+>>>> between a VF and virtio net device in the guest.
+>>>>
+>>>> The hypervisor needs to enable only one datapath at any time so that
+>>>> packets don't get looped back to the VM over the other datapath. When a VF
+>>> Why? Both datapaths could be enabled at a time. Why the loop on
+>>> hypervisor side would be a problem. This in not an issue for
+>>> bonding/team as well.
+>> Somehow the hypervisor needs to make sure that the broadcasts/multicasts from the VM
+>> sent over the VF datapath don't get looped back to the VM via the virtio-net datapth.
+> Why? Please see below.
+>
+>
+>> This can happen if both datapaths are enabled at the same time.
+>>
+>> I would think this is an issue even with bonding/team as well when virtio-net and
+>> VF are backed by the same PF.
+>>
+>>
+> I believe that the scenario is the same as on an ordinary nic/swich
+> network:
+>
+> ...................
+>
+>    host
+>   
+>         bond0
+>        /     \
+>      eth0   eth1
+>       |       |
+> ...................
+>       |       |
+>       p1      p2
+>
+>    switch
+>
+> ...................
+>
+> It is perfectly valid to p1 and p2 be up and "bridged" together. Bond
+> has to cope with loop-backed frames. "Failover driver" should too,
+> it's the same scenario.
 
-On 4/30/2018 12:03 AM, Jiri Pirko wrote:
-> Mon, Apr 30, 2018 at 04:47:03AM CEST, sridhar.samudrala@intel.com wrote:
->> On 4/28/2018 12:50 AM, Jiri Pirko wrote:
->>> Fri, Apr 27, 2018 at 07:06:57PM CEST,sridhar.samudrala@intel.com  wrote:
->>>> This feature bit can be used by hypervisor to indicate virtio_net device to
->>>> act as a standby for another device with the same MAC address.
->>>>
->>>> VIRTIO_NET_F_STANDBY is defined as bit 62 as it is a device feature bit.
->>>>
->>>> Signed-off-by: Sridhar Samudrala<sridhar.samudrala@intel.com>
->>>> ---
->>>> drivers/net/virtio_net.c        | 2 +-
->>>> include/uapi/linux/virtio_net.h | 3 +++
->>>> 2 files changed, 4 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->>>> index 3b5991734118..51a085b1a242 100644
->>>> --- a/drivers/net/virtio_net.c
->>>> +++ b/drivers/net/virtio_net.c
->>>> @@ -2999,7 +2999,7 @@ static struct virtio_device_id id_table[] = {
->>>> 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
->>>> 	VIRTIO_NET_F_CTRL_MAC_ADDR, \
->>>> 	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
->>>> -	VIRTIO_NET_F_SPEED_DUPLEX
->>>> +	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY
->>> This is not part of current qemu master (head 6f0c4706b35dead265509115ddbd2a8d1af516c1)
->>> Were I can find the qemu code?
->>>
->>> Also, I think it makes sense to push HW (qemu HW in this case) first
->>> and only then the driver.
->> I had sent qemu patch with a couple of earlier versions of this patchset.
->> Will include it when i send out v10.
-> The point was, don't you want to push it to qemu first? Did you at least
-> send RFC to qemu?
-
-Yes. Here is the link to the RFC patch.
-https://patchwork.ozlabs.org/patch/859521/
+OK. So looks like we should be able to handle this by returning RX_HANDLER_EXACT
+for frames received on standby device when primary is present.
