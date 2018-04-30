@@ -1,14 +1,16 @@
 From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [PATCH net-next v9 2/4] net: Introduce generic failover module
-Date: Sun, 29 Apr 2018 19:47:54 -0700
-Message-ID: <3d481b29-896d-6d2f-0822-85c3077e8b4f__11079.7985377305$1525056376$gmane$org@intel.com>
+Subject: Re: [PATCH net-next v9 3/4] virtio_net: Extend virtio to use VF
+	datapath when available
+Date: Sun, 29 Apr 2018 20:00:33 -0700
+Message-ID: <62f3b81b-70f6-6991-8e23-2bf650ecea2d__24019.2231759012$1525057135$gmane$org@intel.com>
 References: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524848820-42258-3-git-send-email-sridhar.samudrala@intel.com>
-	<20180428081542.GJ5632@nanopsycho.orion>
+	<1524848820-42258-4-git-send-email-sridhar.samudrala@intel.com>
+	<20180428082433.GK5632@nanopsycho.orion>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5188251471284607062=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180428081542.GJ5632@nanopsycho.orion>
+In-Reply-To: <20180428082433.GK5632@nanopsycho.orion>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,133 +25,46 @@ To: Jiri Pirko <jiri@resnulli.us>
 Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---===============5188251471284607062==
-Content-Type: multipart/alternative;
- boundary="------------8D4AB5F7B80B2EED5C9D0607"
-Content-Language: en-US
-
-This is a multi-part message in MIME format.
---------------8D4AB5F7B80B2EED5C9D0607
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-
-On 4/28/2018 1:15 AM, Jiri Pirko wrote:
-> Fri, Apr 27, 2018 at 07:06:58PM CEST,sridhar.samudrala@intel.com  wrote:
->> This provides a generic interface for paravirtual drivers to listen
->> for netdev register/unregister/link change events from pci ethernet
->> devices with the same MAC and takeover their datapath. The notifier and
->> event handling code is based on the existing netvsc implementation.
->>
->> It exposes 2 sets of interfaces to the paravirtual drivers.
->> 1. For paravirtual drivers like virtio_net that use 3 netdev model, the
->>    the failover module provides interfaces to create/destroy additional
->>    master netdev and all the slave events are managed internally.
->>         net_failover_create()
->>         net_failover_destroy()
->>    A failover netdev is created that acts a master device and controls 2
->>    slave devices. The original virtio_net netdev is registered as 'standby'
->>    netdev and a passthru/vf device with the same MAC gets registered as
->>    'primary' netdev. Both 'standby' and 'primary' netdevs are associated
->>    with the same 'pci' device.  The user accesses the network interface via
-> 'standby' and 'primary' netdevs are not associated with the same 'pci'
-> device.
-> "Primary" is the VF netdevice and "standby" is virtio_net. Each
-> associated with different pci device.
-
-I meant to say that 'standby' and 'failover' netdevs are associated with
-the same 'pci' device. will fix it in v10.
-
-
->
->>    'failover' netdev. The 'failover' netdev chooses 'primary' netdev as
->>    default for transmits when it is available with link up and running.
->> 2. For existing netvsc driver that uses 2 netdev model, no master netdev
->>    is created. The paravirtual driver registers each instance of netvsc
->>    as a 'failover' netdev  along with a set of ops to manage the slave
->>    events. There is no 'standby' netdev in this model. A passthru/vf device
->>    with the same MAC gets registered as 'primary' netdev.
->>         net_failover_register()
->>         net_failover_unregister()
-> [...]
-
-
---------------8D4AB5F7B80B2EED5C9D0607
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  </head>
-  <body text="#000000" bgcolor="#FFFFFF">
-    On 4/28/2018 1:15 AM, Jiri Pirko wrote:<br>
-    <blockquote type="cite"
-      cite="mid:20180428081542.GJ5632@nanopsycho.orion">
-      <pre wrap="">Fri, Apr 27, 2018 at 07:06:58PM CEST, <a class="moz-txt-link-abbreviated" href="mailto:sridhar.samudrala@intel.com">sridhar.samudrala@intel.com</a> wrote:
-</pre>
-      <blockquote type="cite">
-        <pre wrap="">This provides a generic interface for paravirtual drivers to listen
-for netdev register/unregister/link change events from pci ethernet
-devices with the same MAC and takeover their datapath. The notifier and
-event handling code is based on the existing netvsc implementation.
-
-It exposes 2 sets of interfaces to the paravirtual drivers.
-1. For paravirtual drivers like virtio_net that use 3 netdev model, the
-  the failover module provides interfaces to create/destroy additional
-  master netdev and all the slave events are managed internally.
-       net_failover_create()
-       net_failover_destroy()
-  A failover netdev is created that acts a master device and controls 2
-  slave devices. The original virtio_net netdev is registered as 'standby'
-  netdev and a passthru/vf device with the same MAC gets registered as
-  'primary' netdev. Both 'standby' and 'primary' netdevs are associated
-  with the same 'pci' device.  The user accesses the network interface via
-</pre>
-      </blockquote>
-      <pre wrap="">'standby' and 'primary' netdevs are not associated with the same 'pci'
-device.
-"Primary" is the VF netdevice and "standby" is virtio_net. Each
-associated with different pci device.</pre>
-    </blockquote>
-    <br>
-    <pre>I meant to say that 'standby' and 'failover' netdevs are associated with
-the same 'pci' device. will fix it in v10.</pre>
-    <br>
-    <blockquote type="cite"
-      cite="mid:20180428081542.GJ5632@nanopsycho.orion">
-      <pre wrap="">
-
-</pre>
-      <blockquote type="cite">
-        <pre wrap="">  'failover' netdev. The 'failover' netdev chooses 'primary' netdev as
-  default for transmits when it is available with link up and running.
-2. For existing netvsc driver that uses 2 netdev model, no master netdev
-  is created. The paravirtual driver registers each instance of netvsc
-  as a 'failover' netdev  along with a set of ops to manage the slave
-  events. There is no 'standby' netdev in this model. A passthru/vf device
-  with the same MAC gets registered as 'primary' netdev.
-       net_failover_register()
-       net_failover_unregister()
-</pre>
-      </blockquote>
-      <pre wrap="">[...]
-</pre>
-    </blockquote>
-    <br>
-  </body>
-</html>
-
---------------8D4AB5F7B80B2EED5C9D0607--
-
---===============5188251471284607062==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5188251471284607062==--
+Ck9uIDQvMjgvMjAxOCAxOjI0IEFNLCBKaXJpIFBpcmtvIHdyb3RlOgo+IEZyaSwgQXByIDI3LCAy
+MDE4IGF0IDA3OjA2OjU5UE0gQ0VTVCwgc3JpZGhhci5zYW11ZHJhbGFAaW50ZWwuY29tIHdyb3Rl
+Ogo+PiBUaGlzIHBhdGNoIGVuYWJsZXMgdmlydGlvX25ldCB0byBzd2l0Y2ggb3ZlciB0byBhIFZG
+IGRhdGFwYXRoIHdoZW4gYSBWRgo+PiBuZXRkZXYgaXMgcHJlc2VudCB3aXRoIHRoZSBzYW1lIE1B
+QyBhZGRyZXNzLiBJdCBhbGxvd3MgbGl2ZSBtaWdyYXRpb24KPj4gb2YgYSBWTSB3aXRoIGEgZGly
+ZWN0IGF0dGFjaGVkIFZGIHdpdGhvdXQgdGhlIG5lZWQgdG8gc2V0dXAgYSBib25kL3RlYW0KPj4g
+YmV0d2VlbiBhIFZGIGFuZCB2aXJ0aW8gbmV0IGRldmljZSBpbiB0aGUgZ3Vlc3QuCj4+Cj4+IFRo
+ZSBoeXBlcnZpc29yIG5lZWRzIHRvIGVuYWJsZSBvbmx5IG9uZSBkYXRhcGF0aCBhdCBhbnkgdGlt
+ZSBzbyB0aGF0Cj4+IHBhY2tldHMgZG9uJ3QgZ2V0IGxvb3BlZCBiYWNrIHRvIHRoZSBWTSBvdmVy
+IHRoZSBvdGhlciBkYXRhcGF0aC4gV2hlbiBhIFZGCj4gV2h5PyBCb3RoIGRhdGFwYXRocyBjb3Vs
+ZCBiZSBlbmFibGVkIGF0IGEgdGltZS4gV2h5IHRoZSBsb29wIG9uCj4gaHlwZXJ2aXNvciBzaWRl
+IHdvdWxkIGJlIGEgcHJvYmxlbS4gVGhpcyBpbiBub3QgYW4gaXNzdWUgZm9yCj4gYm9uZGluZy90
+ZWFtIGFzIHdlbGwuCgpTb21laG93IHRoZSBoeXBlcnZpc29yIG5lZWRzIHRvIG1ha2Ugc3VyZSB0
+aGF0IHRoZSBicm9hZGNhc3RzL211bHRpY2FzdHMgZnJvbSB0aGUgVk0Kc2VudCBvdmVyIHRoZSBW
+RiBkYXRhcGF0aCBkb24ndCBnZXQgbG9vcGVkIGJhY2sgdG8gdGhlIFZNIHZpYSB0aGUgdmlydGlv
+LW5ldCBkYXRhcHRoLgpUaGlzIGNhbiBoYXBwZW4gaWYgYm90aCBkYXRhcGF0aHMgYXJlIGVuYWJs
+ZWQgYXQgdGhlIHNhbWUgdGltZS4KCkkgd291bGQgdGhpbmsgdGhpcyBpcyBhbiBpc3N1ZSBldmVu
+IHdpdGggYm9uZGluZy90ZWFtIGFzIHdlbGwgd2hlbiB2aXJ0aW8tbmV0IGFuZApWRiBhcmUgYmFj
+a2VkIGJ5IHRoZSBzYW1lIFBGLgoKCj4KPgo+PiBpcyBwbHVnZ2VkLCB0aGUgdmlydGlvIGRhdGFw
+YXRoIGxpbmsgc3RhdGUgY2FuIGJlIG1hcmtlZCBhcyBkb3duLiBUaGUKPj4gaHlwZXJ2aXNvciBu
+ZWVkcyB0byB1bnBsdWcgdGhlIFZGIGRldmljZSBmcm9tIHRoZSBndWVzdCBvbiB0aGUgc291cmNl
+IGhvc3QKPj4gYW5kIHJlc2V0IHRoZSBNQUMgZmlsdGVyIG9mIHRoZSBWRiB0byBpbml0aWF0ZSBm
+YWlsb3ZlciBvZiBkYXRhcGF0aCB0bwo+ICJyZXNldCB0aGUgTUFDIGZpbHRlciBvZiB0aGUgVkYi
+IC0geW91IG1lYW4gInNldCB0aGUgVkYgbWFjIj8KClllcy7CoCB0aGUgUEYgc2hvdWxkIHRha2Ug
+YXdheSB0aGUgTUFDIGFkZHJlc3MgYXNzaWduZWQgdG8gdGhlIFZGIHNvIHRoYXQgdGhlIFBGCnN0
+YXJ0cyByZWNlaXZpbmcgdGhvc2UgcGFja2V0cy4KCj4KPgo+PiB2aXJ0aW8gYmVmb3JlIHN0YXJ0
+aW5nIHRoZSBtaWdyYXRpb24uIEFmdGVyIHRoZSBtaWdyYXRpb24gaXMgY29tcGxldGVkLAo+PiB0
+aGUgZGVzdGluYXRpb24gaHlwZXJ2aXNvciBzZXRzIHRoZSBNQUMgZmlsdGVyIG9uIHRoZSBWRiBh
+bmQgcGx1Z3MgaXQgYmFjawo+PiB0byB0aGUgZ3Vlc3QgdG8gc3dpdGNoIG92ZXIgdG8gVkYgZGF0
+YXBhdGguCj4+Cj4+IEl0IHVzZXMgdGhlIGdlbmVyaWMgZmFpbG92ZXIgZnJhbWV3b3JrIHRoYXQg
+cHJvdmlkZXMgMiBmdW5jdGlvbnMgdG8gY3JlYXRlCj4+IGFuZCBkZXN0cm95IGEgbWFzdGVyIGZh
+aWxvdmVyIG5ldGRldi4gV2hlbiBTVEFOREJZIGZlYXR1cmUgaXMgZW5hYmxlZCwgYW4KPj4gYWRk
+aXRpb25hbCBuZXRkZXYoZmFpbG92ZXIgbmV0ZGV2KSBpcyBjcmVhdGVkIHRoYXQgYWN0cyBhcyBh
+IG1hc3RlciBkZXZpY2UKPj4gYW5kIHRyYWNrcyB0aGUgc3RhdGUgb2YgdGhlIDIgbG93ZXIgbmV0
+ZGV2cy4gVGhlIG9yaWdpbmFsIHZpcnRpb19uZXQgbmV0ZGV2Cj4+IGlzIG1hcmtlZCBhcyAnc3Rh
+bmRieScgbmV0ZGV2IGFuZCBhIHBhc3N0aHJ1IGRldmljZSB3aXRoIHRoZSBzYW1lIE1BQyBpcwo+
+PiByZWdpc3RlcmVkIGFzICdwcmltYXJ5JyBuZXRkZXYuCj4+Cj4+IFRoaXMgcGF0Y2ggaXMgYmFz
+ZWQgb24gdGhlIGRpc2N1c3Npb24gaW5pdGlhdGVkIGJ5IEplc3NlIG9uIHRoaXMgdGhyZWFkLgo+
+PiBodHRwczovL21hcmMuaW5mby8/bD1saW51eC12aXJ0dWFsaXphdGlvbiZtPTE1MTE4OTcyNTIy
+NDIzMSZ3PTIKPiBbLi4uXQo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
