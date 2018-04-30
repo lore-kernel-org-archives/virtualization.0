@@ -1,19 +1,28 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [PATCH net-next v9 3/4] virtio_net: Extend virtio to use VF
-	datapath when available
-Date: Mon, 30 Apr 2018 12:26:34 -0700
-Message-ID: <c965d7f2-9ba6-fc82-ce1c-4d70c3aceb6d__34484.6566593789$1525116280$gmane$org@intel.com>
-References: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524848820-42258-4-git-send-email-sridhar.samudrala@intel.com>
-	<20180428082433.GK5632@nanopsycho.orion>
-	<62f3b81b-70f6-6991-8e23-2bf650ecea2d@intel.com>
-	<20180430071208.GG23854@nanopsycho.orion>
+From: Mikulas Patocka <mpatocka@redhat.com>
+Subject: Re: [dm-devel] [PATCH v5] fault-injection: introduce kvmalloc fallback
+	options
+Date: Mon, 30 Apr 2018 17:07:47 -0400 (EDT)
+Message-ID: <alpine.LRH.2.02.1804301622480.4454__6029.29928941212$1525122370$gmane$org@file01.intranet.prod.int.rdu2.redhat.com>
+References: <20180421144757.GC14610@bombadil.infradead.org>
+	<20180424170349.GQ17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804241319390.28995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424173836.GR17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804251556060.30569@file01.intranet.prod.int.rdu2.redhat.com>
+	<1114eda5-9b1f-4db8-2090-556b4a37c532@infradead.org>
+	<alpine.LRH.2.02.1804251656300.9428@file01.intranet.prod.int.rdu2.redhat.com>
+	<alpine.DEB.2.21.1804251417470.166306@chino.kir.corp.google.com>
+	<alpine.LRH.2.02.1804251720090.9428@file01.intranet.prod.int.rdu2.redhat.com>
+	<1524694663.4100.21.camel@HansenPartnership.com>
+	<alpine.LRH.2.02.1804251857070.31135@file01.intranet.prod.int.rdu2.redhat.com>
+	<1524697697.4100.23.camel@HansenPartnership.com>
+	<23266.8532.619051.784274@quad.stoffel.home>
+	<alpine.LRH.2.02.1804261726540.13401@file01.intranet.prod.int.rdu2.redhat.com>
+	<23271.24580.695738.853532@quad.stoffel.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180430071208.GG23854@nanopsycho.orion>
-Content-Language: en-US
+In-Reply-To: <23271.24580.695738.853532@quad.stoffel.home>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,57 +32,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
+To: John Stoffel <john@stoffel.org>
+Cc: Andrew@stoffel.org, dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Hocko <mhocko@kernel.org>, James Bottomley <James.Bottomley@HansenPartnership.com>, Michal@stoffel.org, edumazet@google.com, linux-mm@kvack.org, David Rientjes <rientjes@google.com>, Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/30/2018 12:12 AM, Jiri Pirko wrote:
-> Mon, Apr 30, 2018 at 05:00:33AM CEST, sridhar.samudrala@intel.com wrote:
->> On 4/28/2018 1:24 AM, Jiri Pirko wrote:
->>> Fri, Apr 27, 2018 at 07:06:59PM CEST, sridhar.samudrala@intel.com wrote:
->>>> This patch enables virtio_net to switch over to a VF datapath when a VF
->>>> netdev is present with the same MAC address. It allows live migration
->>>> of a VM with a direct attached VF without the need to setup a bond/team
->>>> between a VF and virtio net device in the guest.
->>>>
->>>> The hypervisor needs to enable only one datapath at any time so that
->>>> packets don't get looped back to the VM over the other datapath. When a VF
->>> Why? Both datapaths could be enabled at a time. Why the loop on
->>> hypervisor side would be a problem. This in not an issue for
->>> bonding/team as well.
->> Somehow the hypervisor needs to make sure that the broadcasts/multicasts from the VM
->> sent over the VF datapath don't get looped back to the VM via the virtio-net datapth.
-> Why? Please see below.
->
->
->> This can happen if both datapaths are enabled at the same time.
->>
->> I would think this is an issue even with bonding/team as well when virtio-net and
->> VF are backed by the same PF.
->>
->>
-> I believe that the scenario is the same as on an ordinary nic/swich
-> network:
->
-> ...................
->
->    host
->   
->         bond0
->        /     \
->      eth0   eth1
->       |       |
-> ...................
->       |       |
->       p1      p2
->
->    switch
->
-> ...................
->
-> It is perfectly valid to p1 and p2 be up and "bridged" together. Bond
-> has to cope with loop-backed frames. "Failover driver" should too,
-> it's the same scenario.
 
-OK. So looks like we should be able to handle this by returning RX_HANDLER_EXACT
-for frames received on standby device when primary is present.
+
+On Mon, 30 Apr 2018, John Stoffel wrote:
+
+> >>>>> "Mikulas" == Mikulas Patocka <mpatocka@redhat.com> writes:
+> 
+> Mikulas> On Thu, 26 Apr 2018, John Stoffel wrote:
+> 
+> Mikulas> I see your point - and I think the misunderstanding is this.
+> 
+> Thanks.
+> 
+> Mikulas> This patch is not really helping people to debug existing crashes. It is 
+> Mikulas> not like "you get a crash" - "you google for some keywords" - "you get a 
+> Mikulas> page that suggests to turn this option on" - "you turn it on and solve the 
+> Mikulas> crash".
+> 
+> Mikulas> What this patch really does is that - it makes the kernel deliberately 
+> Mikulas> crash in a situation when the code violates the specification, but it 
+> Mikulas> would not crash otherwise or it would crash very rarely. It helps to 
+> Mikulas> detect specification violations.
+> 
+> Mikulas> If the kernel developer (or tester) doesn't use this option, his buggy 
+> Mikulas> code won't crash - and if it won't crash, he won't fix the bug or report 
+> Mikulas> it. How is the user or developer supposed to learn about this option, if 
+> Mikulas> he gets no crash at all?
+> 
+> So why do we make this a KConfig option at all?
+
+Because other people see the KConfig option (so, they may enable it) and 
+they don't see the kernel parameter (so, they won't enable it).
+
+Close your eyes and say how many kernel parameters do you remember :-)
+
+> Just turn it on and let it rip.
+
+I can't test if all the networking drivers use kvmalloc properly, because 
+I don't have the hardware. You can't test it neither. No one has all the 
+hardware that is supported by Linux.
+
+Driver issues can only be tested by a mass of users. And if the users 
+don't know about the debugging option, they won't enable it.
+
+> >> I agree with James here.  Looking at the SLAB vs SLUB Kconfig entries
+> >> tells me *nothing* about why I should pick one or the other, as an
+> >> example.
+
+BTW. You can enable slub debugging either with CONFIG_SLUB_DEBUG_ON or 
+with the kernel parameter "slub_debug" - and most users who compile their 
+own kernel use CONFIG_SLUB_DEBUG_ON - just because it is visible.
+
+> Now I also think that Linus has the right idea to not just sprinkle 
+> BUG_ONs into the code, just dump and oops and keep going if you can.  
+> If it's a filesystem or a device, turn it read only so that people 
+> notice right away.
+
+This vmalloc fallback is similar to CONFIG_DEBUG_KOBJECT_RELEASE. 
+CONFIG_DEBUG_KOBJECT_RELEASE changes the behavior of kobject_put in order 
+to cause deliberate crashes (that wouldn't happen otherwise) in drivers 
+that misuse kobject_put. In the same sense, we want to cause deliberate 
+crashes (that wouldn't happen otherwise) in drivers that misuse kvmalloc.
+
+The crashes will only happen in debugging kernels, not in production 
+kernels.
+
+Mikulas
