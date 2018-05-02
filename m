@@ -1,7 +1,8 @@
 From: Vladislav Yasevich <vyasevich@gmail.com>
-Subject: [PATCH V2 net-next 4/6] tun: Add support for SCTP checksum offload
-Date: Tue,  1 May 2018 22:07:37 -0400
-Message-ID: <20180502020739.19239-5-vyasevic__4721.50453501872$1525226781$gmane$org@redhat.com>
+Subject: [PATCH V2 net-next 5/6] macvlan/macvtap: Add support for SCTP
+	checksum offload.
+Date: Tue,  1 May 2018 22:07:38 -0400
+Message-ID: <20180502020739.19239-6-vyasevic__5689.00395087457$1525226787$gmane$org@redhat.com>
 References: <20180502020739.19239-1-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,52 +22,71 @@ To: netdev@vger.kernel.org
 Cc: virtio-dev@lists.oasis-open.org, marcelo.leitner@gmail.com, nhorman@tuxdriver.com, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Adds a new tun offload flag to allow for SCTP checksum offload.
-The flag has to be set by the user and defaults to "no offload".
-Add SCTP checksum support to the supported tun features.
+Since we now have support for software CRC32c offload, turn it on
+for macvlan and macvtap devices so that guests can take advantage
+of offload SCTP checksums to the host or host hardware.
 
 Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
 ---
- drivers/net/tun.c           | 7 ++++++-
- include/uapi/linux/if_tun.h | 1 +
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/macvlan.c | 5 +++--
+ drivers/net/tap.c     | 8 +++++---
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index a1ba262..4f314a6 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -216,7 +216,7 @@ struct tun_struct {
- 	struct net_device	*dev;
- 	netdev_features_t	set_features;
- #define TUN_USER_FEATURES (NETIF_F_HW_CSUM|NETIF_F_TSO_ECN|NETIF_F_TSO| \
--			  NETIF_F_TSO6)
-+			  NETIF_F_TSO6|NETIF_F_SCTP_CRC)
+diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
+index 725f4b4..646b730 100644
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -834,7 +834,7 @@ static struct lock_class_key macvlan_netdev_addr_lock_key;
  
- 	int			align;
- 	int			vnet_hdr_sz;
-@@ -2719,6 +2719,11 @@ static int set_offload(struct tun_struct *tun, unsigned long arg)
- 		arg &= ~TUN_F_UFO;
+ #define ALWAYS_ON_OFFLOADS \
+ 	(NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_GSO_SOFTWARE | \
+-	 NETIF_F_GSO_ROBUST | NETIF_F_GSO_ENCAP_ALL)
++	 NETIF_F_GSO_ROBUST | NETIF_F_GSO_ENCAP_ALL | NETIF_F_SCTP_CRC)
+ 
+ #define ALWAYS_ON_FEATURES (ALWAYS_ON_OFFLOADS | NETIF_F_LLTX)
+ 
+@@ -842,7 +842,8 @@ static struct lock_class_key macvlan_netdev_addr_lock_key;
+ 	(NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST | \
+ 	 NETIF_F_GSO | NETIF_F_TSO | NETIF_F_LRO | \
+ 	 NETIF_F_TSO_ECN | NETIF_F_TSO6 | NETIF_F_GRO | NETIF_F_RXCSUM | \
+-	 NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_VLAN_STAG_FILTER)
++	 NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_VLAN_STAG_FILTER | \
++	 NETIF_F_SCTP_CRC)
+ 
+ #define MACVLAN_STATE_MASK \
+ 	((1<<__LINK_STATE_NOCARRIER) | (1<<__LINK_STATE_DORMANT))
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index 9b6cb78..2c8512b 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -369,8 +369,7 @@ rx_handler_result_t tap_handle_frame(struct sk_buff **pskb)
+ 		 *	  check, we either support them all or none.
+ 		 */
+ 		if (skb->ip_summed == CHECKSUM_PARTIAL &&
+-		    !(features & NETIF_F_CSUM_MASK) &&
+-		    skb_checksum_help(skb))
++		    skb_csum_hwoffload_help(skb, features))
+ 			goto drop;
+ 		if (ptr_ring_produce(&q->ring, skb))
+ 			goto drop;
+@@ -945,6 +944,9 @@ static int set_offload(struct tap_queue *q, unsigned long arg)
+ 		}
  	}
  
-+	if (arg & TUN_F_SCTP_CSUM) {
-+		features |= NETIF_F_SCTP_CRC;
-+		arg &= ~TUN_F_SCTP_CSUM;
-+	}
++	if (arg & TUN_F_SCTP_CSUM)
++		feature_mask |= NETIF_F_SCTP_CRC;
 +
- 	/* This gives the user a way to test for new features in future by
- 	 * trying to set them. */
- 	if (arg)
-diff --git a/include/uapi/linux/if_tun.h b/include/uapi/linux/if_tun.h
-index ee432cd..061aea8 100644
---- a/include/uapi/linux/if_tun.h
-+++ b/include/uapi/linux/if_tun.h
-@@ -86,6 +86,7 @@
- #define TUN_F_TSO6	0x04	/* I can handle TSO for IPv6 packets */
- #define TUN_F_TSO_ECN	0x08	/* I can handle TSO with ECN bits. */
- #define TUN_F_UFO	0x10	/* I can handle UFO packets */
-+#define TUN_F_SCTP_CSUM 0x20	/* I can handle SCTP checksums offloads */
+ 	/* tun/tap driver inverts the usage for TSO offloads, where
+ 	 * setting the TSO bit means that the userspace wants to
+ 	 * accept TSO frames and turning it off means that user space
+@@ -1077,7 +1079,7 @@ static long tap_ioctl(struct file *file, unsigned int cmd,
+ 	case TUNSETOFFLOAD:
+ 		/* let the user check for future flags */
+ 		if (arg & ~(TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
+-			    TUN_F_TSO_ECN | TUN_F_UFO))
++			    TUN_F_TSO_ECN | TUN_F_UFO | TUN_F_SCTP_CSUM))
+ 			return -EINVAL;
  
- /* Protocol info prepended to the packets (when IFF_NO_PI is not set) */
- #define TUN_PKT_STRIP	0x0001
+ 		rtnl_lock();
 -- 
 2.9.5
