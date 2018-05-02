@@ -1,18 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V2 net-next 5/6] macvlan/macvtap: Add support for SCTP
-	checksum offload.
-Date: Wed, 2 May 2018 16:46:17 +0300
-Message-ID: <20180502164317-mutt-send-email-mst__7370.92098356715$1525268662$gmane$org@kernel.org>
-References: <20180502020739.19239-1-vyasevic@redhat.com>
-	<20180502020739.19239-6-vyasevic@redhat.com>
-	<20180502062400-mutt-send-email-mst@kernel.org>
-	<35def050-3803-42f4-5ee3-c10f98186c6d@redhat.com>
+Subject: Re: [RFC v3 4/5] virtio_ring: add event idx support in packed ring
+Date: Wed, 2 May 2018 16:51:01 +0300
+Message-ID: <20180502164828-mutt-send-email-mst__32518.3310000741$1525268942$gmane$org@kernel.org>
+References: <20180425051550.24342-1-tiwei.bie@intel.com>
+	<20180425051550.24342-5-tiwei.bie@intel.com>
+	<34781052-df9f-e505-cd3f-08e460b34dcc@redhat.com>
+	<20180502072819.mf5l3dypk6dwx2s7@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <35def050-3803-42f4-5ee3-c10f98186c6d@redhat.com>
+In-Reply-To: <20180502072819.mf5l3dypk6dwx2s7@debian>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,104 +21,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vlad Yasevich <vyasevic@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, marcelo.leitner@gmail.com, nhorman@tuxdriver.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org, Vladislav Yasevich <vyasevich@gmail.com>
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 02, 2018 at 09:27:00AM -0400, Vlad Yasevich wrote:
-> On 05/01/2018 11:24 PM, Michael S. Tsirkin wrote:
-> > On Tue, May 01, 2018 at 10:07:38PM -0400, Vladislav Yasevich wrote:
-> >> Since we now have support for software CRC32c offload, turn it on
-> >> for macvlan and macvtap devices so that guests can take advantage
-> >> of offload SCTP checksums to the host or host hardware.
-> >>
-> >> Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
-> >> ---
-> >>  drivers/net/macvlan.c | 5 +++--
-> >>  drivers/net/tap.c     | 8 +++++---
-> >>  2 files changed, 8 insertions(+), 5 deletions(-)
-> >>
-> >> diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
-> >> index 725f4b4..646b730 100644
-> >> --- a/drivers/net/macvlan.c
-> >> +++ b/drivers/net/macvlan.c
-> >> @@ -834,7 +834,7 @@ static struct lock_class_key macvlan_netdev_addr_lock_key;
-> >>  
-> >>  #define ALWAYS_ON_OFFLOADS \
-> >>  	(NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_GSO_SOFTWARE | \
-> >> -	 NETIF_F_GSO_ROBUST | NETIF_F_GSO_ENCAP_ALL)
-> >> +	 NETIF_F_GSO_ROBUST | NETIF_F_GSO_ENCAP_ALL | NETIF_F_SCTP_CRC)
-> >>  
-> >>  #define ALWAYS_ON_FEATURES (ALWAYS_ON_OFFLOADS | NETIF_F_LLTX)
-> >>  
-> >> @@ -842,7 +842,8 @@ static struct lock_class_key macvlan_netdev_addr_lock_key;
-> >>  	(NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST | \
-> >>  	 NETIF_F_GSO | NETIF_F_TSO | NETIF_F_LRO | \
-> >>  	 NETIF_F_TSO_ECN | NETIF_F_TSO6 | NETIF_F_GRO | NETIF_F_RXCSUM | \
-> >> -	 NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_VLAN_STAG_FILTER)
-> >> +	 NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_VLAN_STAG_FILTER | \
-> >> +	 NETIF_F_SCTP_CRC)
-> >>  
-> >>  #define MACVLAN_STATE_MASK \
-> >>  	((1<<__LINK_STATE_NOCARRIER) | (1<<__LINK_STATE_DORMANT))
-> >> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-> >> index 9b6cb78..2c8512b 100644
-> >> --- a/drivers/net/tap.c
-> >> +++ b/drivers/net/tap.c
-> >> @@ -369,8 +369,7 @@ rx_handler_result_t tap_handle_frame(struct sk_buff **pskb)
-> >>  		 *	  check, we either support them all or none.
-> >>  		 */
-> >>  		if (skb->ip_summed == CHECKSUM_PARTIAL &&
-> >> -		    !(features & NETIF_F_CSUM_MASK) &&
-> >> -		    skb_checksum_help(skb))
-> >> +		    skb_csum_hwoffload_help(skb, features))
-> >>  			goto drop;
-> >>  		if (ptr_ring_produce(&q->ring, skb))
-> >>  			goto drop;
-> >> @@ -945,6 +944,9 @@ static int set_offload(struct tap_queue *q, unsigned long arg)
-> >>  		}
-> >>  	}
-> >>  
-> >> +	if (arg & TUN_F_SCTP_CSUM)
-> >> +		feature_mask |= NETIF_F_SCTP_CRC;
-> >> +
-> > 
-> > so this still affects TX, shouldn't this affect RX instead?
-> 
-> There is no bit to set on the RX path just like there is no bit to set on the RX patch
-> for TUN_F_CSUM.
-> 
-> We only invert TSO offloads, not checksum offloads as the comment below states.
-> For checksum,  macvtap has to compute the checksum itself in tap_handle_frame() above.
-> It uses tx feature bits to see if needs do to the checksum.
-> 
-> If you think we need another flag to macvtap to control RXCSUM, that would need to be
-> separate and cover standard TCP checksum as well.
-> 
-> -vlad
-
-Confused. What is the meaning of TUN_F_SCTP_CSUM? I assume this is
-a way for userspace to tell tun device: "I can handle
-packets without SCTP checksum, pls send them my way".
-
-Now what is the implication for macvtap? And why  are
-you setting NETIF_F_SCTP_CRC which is a flag
-that affects packets sent by guest to host?
-
-
-> > 
-> > 
-> >>  	/* tun/tap driver inverts the usage for TSO offloads, where
-> >>  	 * setting the TSO bit means that the userspace wants to
-> >>  	 * accept TSO frames and turning it off means that user space
-> >> @@ -1077,7 +1079,7 @@ static long tap_ioctl(struct file *file, unsigned int cmd,
-> >>  	case TUNSETOFFLOAD:
-> >>  		/* let the user check for future flags */
-> >>  		if (arg & ~(TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
-> >> -			    TUN_F_TSO_ECN | TUN_F_UFO))
-> >> +			    TUN_F_TSO_ECN | TUN_F_UFO | TUN_F_SCTP_CSUM))
-> >>  			return -EINVAL;
-> >>  
-> >>  		rtnl_lock();
-> >> -- 
-> >> 2.9.5
+T24gV2VkLCBNYXkgMDIsIDIwMTggYXQgMDM6Mjg6MTlQTSArMDgwMCwgVGl3ZWkgQmllIHdyb3Rl
+Ogo+IE9uIFdlZCwgTWF5IDAyLCAyMDE4IGF0IDEwOjUxOjA2QU0gKzA4MDAsIEphc29uIFdhbmcg
+d3JvdGU6Cj4gPiBPbiAyMDE45bm0MDTmnIgyNeaXpSAxMzoxNSwgVGl3ZWkgQmllIHdyb3RlOgo+
+ID4gPiBUaGlzIGNvbW1pdCBpbnRyb2R1Y2VzIHRoZSBldmVudCBpZHggc3VwcG9ydCBpbiBwYWNr
+ZWQKPiA+ID4gcmluZy4gVGhpcyBmZWF0dXJlIGlzIHRlbXBvcmFyaWx5IGRpc2FibGVkLCBiZWNh
+dXNlIHRoZQo+ID4gPiBpbXBsZW1lbnRhdGlvbiBpbiB0aGlzIHBhdGNoIG1heSBub3Qgd29yayBh
+cyBleHBlY3RlZCwKPiA+ID4gYW5kIHNvbWUgZnVydGhlciBkaXNjdXNzaW9ucyBvbiB0aGUgaW1w
+bGVtZW50YXRpb24gYXJlCj4gPiA+IG5lZWRlZCwgZS5nLiBkbyB3ZSBoYXZlIHRvIGNoZWNrIHRo
+ZSB3cmFwIGNvdW50ZXIgd2hlbgo+ID4gPiBjaGVja2luZyB3aGV0aGVyIGEga2ljayBpcyBuZWVk
+ZWQ/Cj4gPiA+IAo+ID4gPiBTaWduZWQtb2ZmLWJ5OiBUaXdlaSBCaWUgPHRpd2VpLmJpZUBpbnRl
+bC5jb20+Cj4gPiA+IC0tLQo+ID4gPiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgfCA1
+MyArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLQo+ID4gPiAgIDEg
+ZmlsZSBjaGFuZ2VkLCA0OSBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQo+ID4gPiAKPiA+
+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3Zp
+cnRpby92aXJ0aW9fcmluZy5jCj4gPiA+IGluZGV4IDAxODFlOTM4OTdiZS4uYjEwMzljMjk4NWI5
+IDEwMDY0NAo+ID4gPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPiA+ICsr
+KyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+ID4gQEAgLTk4Niw3ICs5ODYsNyBA
+QCBzdGF0aWMgaW5saW5lIGludCB2aXJ0cXVldWVfYWRkX3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVl
+ICpfdnEsCj4gPiA+ICAgc3RhdGljIGJvb2wgdmlydHF1ZXVlX2tpY2tfcHJlcGFyZV9wYWNrZWQo
+c3RydWN0IHZpcnRxdWV1ZSAqX3ZxKQo+ID4gPiAgIHsKPiA+ID4gICAJc3RydWN0IHZyaW5nX3Zp
+cnRxdWV1ZSAqdnEgPSB0b192dnEoX3ZxKTsKPiA+ID4gLQl1MTYgZmxhZ3M7Cj4gPiA+ICsJdTE2
+IG5ldywgb2xkLCBvZmZfd3JhcCwgZmxhZ3M7Cj4gPiA+ICAgCWJvb2wgbmVlZHNfa2ljazsKPiA+
+ID4gICAJdTMyIHNuYXBzaG90Owo+ID4gPiBAQCAtOTk1LDcgKzk5NSwxMiBAQCBzdGF0aWMgYm9v
+bCB2aXJ0cXVldWVfa2lja19wcmVwYXJlX3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEpCj4g
+PiA+ICAgCSAqIHN1cHByZXNzaW9ucy4gKi8KPiA+ID4gICAJdmlydGlvX21iKHZxLT53ZWFrX2Jh
+cnJpZXJzKTsKPiA+ID4gKwlvbGQgPSB2cS0+bmV4dF9hdmFpbF9pZHggLSB2cS0+bnVtX2FkZGVk
+Owo+ID4gPiArCW5ldyA9IHZxLT5uZXh0X2F2YWlsX2lkeDsKPiA+ID4gKwl2cS0+bnVtX2FkZGVk
+ID0gMDsKPiA+ID4gKwo+ID4gPiAgIAlzbmFwc2hvdCA9ICoodTMyICopdnEtPnZyaW5nX3BhY2tl
+ZC5kZXZpY2U7Cj4gPiA+ICsJb2ZmX3dyYXAgPSB2aXJ0aW8xNl90b19jcHUoX3ZxLT52ZGV2LCBz
+bmFwc2hvdCAmIDB4ZmZmZik7Cj4gPiA+ICAgCWZsYWdzID0gY3B1X3RvX3ZpcnRpbzE2KF92cS0+
+dmRldiwgc25hcHNob3QgPj4gMTYpICYgMHgzOwo+ID4gPiAgICNpZmRlZiBERUJVRwo+ID4gPiBA
+QCAtMTAwNiw3ICsxMDExLDEwIEBAIHN0YXRpYyBib29sIHZpcnRxdWV1ZV9raWNrX3ByZXBhcmVf
+cGFja2VkKHN0cnVjdCB2aXJ0cXVldWUgKl92cSkKPiA+ID4gICAJdnEtPmxhc3RfYWRkX3RpbWVf
+dmFsaWQgPSBmYWxzZTsKPiA+ID4gICAjZW5kaWYKPiA+ID4gLQluZWVkc19raWNrID0gKGZsYWdz
+ICE9IFZSSU5HX0VWRU5UX0ZfRElTQUJMRSk7Cj4gPiA+ICsJaWYgKGZsYWdzID09IFZSSU5HX0VW
+RU5UX0ZfREVTQykKPiA+ID4gKwkJbmVlZHNfa2ljayA9IHZyaW5nX25lZWRfZXZlbnQob2ZmX3dy
+YXAgJiB+KDE8PDE1KSwgbmV3LCBvbGQpOwo+ID4gCj4gPiBJIHdvbmRlciB3aGV0aGVyIG9yIG5v
+dCB0aGUgbWF0aCBpcyBjb3JyZWN0LiBCb3RoIG5ldyBhbmQgZXZlbnQgYXJlIGluIHRoZQo+ID4g
+dW5pdCBvZiBkZXNjcmlwdG9yIHJpbmcgc2l6ZSwgYnV0IG9sZCBsb29rcyBub3QuCj4gCj4gV2hh
+dCB2cmluZ19uZWVkX2V2ZW50KCkgY2FyZXMgaXMgdGhlIGRpc3RhbmNlIGJldHdlZW4KPiBgbmV3
+YCBhbmQgYG9sZGAsIGkuZS4gdnEtPm51bV9hZGRlZC4gU28gSSB0aGluayB0aGVyZQo+IGlzIG5v
+dGhpbmcgd3Jvbmcgd2l0aCBgb2xkYC4gQnV0IHRoZSBjYWxjdWxhdGlvbiBvZiB0aGUKPiBkaXN0
+YW5jZSBiZXR3ZWVuIGBuZXdgIGFuZCBgZXZlbnRfaWR4YCBpc24ndCByaWdodCB3aGVuCj4gYG5l
+d2Agd3JhcHMuIEhvdyBkbyB5b3UgdGhpbmsgYWJvdXQgdGhlIGJlbG93IGNvZGU6Cj4gCj4gCXdy
+YXBfY291bnRlciA9IG9mZl93cmFwID4+IDE1Owo+IAlldmVudF9pZHggPSBvZmZfd3JhcCAmIH4o
+MTw8MTUpOwo+IAlpZiAod3JhcF9jb3VudGVyICE9IHZxLT53cmFwX2NvdW50ZXIpCj4gCQlldmVu
+dF9pZHggLT0gdnEtPnZyaW5nX3BhY2tlZC5udW07Cj4gCQo+IAluZWVkc19raWNrID0gdnJpbmdf
+bmVlZF9ldmVudChldmVudF9pZHgsIG5ldywgb2xkKTsKCkkgc3VzcGVjdCB0aGlzIGhhY2sgd29u
+J3Qgd29yayBmb3Igbm9uIHBvd2VyIG9mIDIgcmluZy4KCgo+IEJlc3QgcmVnYXJkcywKPiBUaXdl
+aSBCaWUKPiAKPiAKPiA+IAo+ID4gVGhhbmtzCj4gPiAKPiA+ID4gKwllbHNlCj4gPiA+ICsJCW5l
+ZWRzX2tpY2sgPSAoZmxhZ3MgIT0gVlJJTkdfRVZFTlRfRl9ESVNBQkxFKTsKPiA+ID4gICAJRU5E
+X1VTRSh2cSk7Cj4gPiA+ICAgCXJldHVybiBuZWVkc19raWNrOwo+ID4gPiAgIH0KPiA+ID4gQEAg
+LTExMTYsNiArMTEyNCwxNSBAQCBzdGF0aWMgdm9pZCAqdmlydHF1ZXVlX2dldF9idWZfY3R4X3Bh
+Y2tlZChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEsCj4gPiA+ICAgCWlmICh2cS0+bGFzdF91c2VkX2lk
+eCA+PSB2cS0+dnJpbmdfcGFja2VkLm51bSkKPiA+ID4gICAJCXZxLT5sYXN0X3VzZWRfaWR4IC09
+IHZxLT52cmluZ19wYWNrZWQubnVtOwo+ID4gPiArCS8qIElmIHdlIGV4cGVjdCBhbiBpbnRlcnJ1
+cHQgZm9yIHRoZSBuZXh0IGVudHJ5LCB0ZWxsIGhvc3QKPiA+ID4gKwkgKiBieSB3cml0aW5nIGV2
+ZW50IGluZGV4IGFuZCBmbHVzaCBvdXQgdGhlIHdyaXRlIGJlZm9yZQo+ID4gPiArCSAqIHRoZSBy
+ZWFkIGluIHRoZSBuZXh0IGdldF9idWYgY2FsbC4gKi8KPiA+ID4gKwlpZiAodnEtPmV2ZW50X2Zs
+YWdzX3NoYWRvdyA9PSBWUklOR19FVkVOVF9GX0RFU0MpCj4gPiA+ICsJCXZpcnRpb19zdG9yZV9t
+Yih2cS0+d2Vha19iYXJyaWVycywKPiA+ID4gKwkJCQkmdnEtPnZyaW5nX3BhY2tlZC5kcml2ZXIt
+Pm9mZl93cmFwLAo+ID4gPiArCQkJCWNwdV90b192aXJ0aW8xNihfdnEtPnZkZXYsIHZxLT5sYXN0
+X3VzZWRfaWR4IHwKPiA+ID4gKwkJCQkJCSh2cS0+d3JhcF9jb3VudGVyIDw8IDE1KSkpOwo+ID4g
+PiArCj4gPiA+ICAgI2lmZGVmIERFQlVHCj4gPiA+ICAgCXZxLT5sYXN0X2FkZF90aW1lX3ZhbGlk
+ID0gZmFsc2U7Cj4gPiA+ICAgI2VuZGlmCj4gPiA+IEBAIC0xMTQzLDEwICsxMTYwLDE3IEBAIHN0
+YXRpYyB1bnNpZ25lZCB2aXJ0cXVldWVfZW5hYmxlX2NiX3ByZXBhcmVfcGFja2VkKHN0cnVjdCB2
+aXJ0cXVldWUgKl92cSkKPiA+ID4gICAJLyogV2Ugb3B0aW1pc3RpY2FsbHkgdHVybiBiYWNrIG9u
+IGludGVycnVwdHMsIHRoZW4gY2hlY2sgaWYgdGhlcmUgd2FzCj4gPiA+ICAgCSAqIG1vcmUgdG8g
+ZG8uICovCj4gPiA+ICsJLyogRGVwZW5kaW5nIG9uIHRoZSBWSVJUSU9fUklOR19GX1VTRURfRVZF
+TlRfSURYIGZlYXR1cmUsIHdlIG5lZWQgdG8KPiA+ID4gKwkgKiBlaXRoZXIgY2xlYXIgdGhlIGZs
+YWdzIGJpdCBvciBwb2ludCB0aGUgZXZlbnQgaW5kZXggYXQgdGhlIG5leHQKPiA+ID4gKwkgKiBl
+bnRyeS4gQWx3YXlzIHVwZGF0ZSB0aGUgZXZlbnQgaW5kZXggdG8ga2VlcCBjb2RlIHNpbXBsZS4g
+Ki8KPiA+ID4gKwo+ID4gPiArCXZxLT52cmluZ19wYWNrZWQuZHJpdmVyLT5vZmZfd3JhcCA9IGNw
+dV90b192aXJ0aW8xNihfdnEtPnZkZXYsCj4gPiA+ICsJCQl2cS0+bGFzdF91c2VkX2lkeCB8ICh2
+cS0+d3JhcF9jb3VudGVyIDw8IDE1KSk7Cj4gPiA+ICAgCWlmICh2cS0+ZXZlbnRfZmxhZ3Nfc2hh
+ZG93ID09IFZSSU5HX0VWRU5UX0ZfRElTQUJMRSkgewo+ID4gPiAgIAkJdmlydGlvX3dtYih2cS0+
+d2Vha19iYXJyaWVycyk7Cj4gPiA+IC0JCXZxLT5ldmVudF9mbGFnc19zaGFkb3cgPSBWUklOR19F
+VkVOVF9GX0VOQUJMRTsKPiA+ID4gKwkJdnEtPmV2ZW50X2ZsYWdzX3NoYWRvdyA9IHZxLT5ldmVu
+dCA/IFZSSU5HX0VWRU5UX0ZfREVTQyA6Cj4gPiA+ICsJCQkJCQkgICAgIFZSSU5HX0VWRU5UX0Zf
+RU5BQkxFOwo+ID4gPiAgIAkJdnEtPnZyaW5nX3BhY2tlZC5kcml2ZXItPmZsYWdzID0gY3B1X3Rv
+X3ZpcnRpbzE2KF92cS0+dmRldiwKPiA+ID4gICAJCQkJCQkJdnEtPmV2ZW50X2ZsYWdzX3NoYWRv
+dyk7Cj4gPiA+ICAgCX0KPiA+ID4gQEAgLTExNzIsMTUgKzExOTYsMzQgQEAgc3RhdGljIGJvb2wg
+dmlydHF1ZXVlX3BvbGxfcGFja2VkKHN0cnVjdCB2aXJ0cXVldWUgKl92cSwgdW5zaWduZWQgbGFz
+dF91c2VkX2lkeCkKPiA+ID4gICBzdGF0aWMgYm9vbCB2aXJ0cXVldWVfZW5hYmxlX2NiX2RlbGF5
+ZWRfcGFja2VkKHN0cnVjdCB2aXJ0cXVldWUgKl92cSkKPiA+ID4gICB7Cj4gPiA+ICAgCXN0cnVj
+dCB2cmluZ192aXJ0cXVldWUgKnZxID0gdG9fdnZxKF92cSk7Cj4gPiA+ICsJdTE2IGJ1ZnMsIHVz
+ZWRfaWR4LCB3cmFwX2NvdW50ZXI7Cj4gPiA+ICAgCVNUQVJUX1VTRSh2cSk7Cj4gPiA+ICAgCS8q
+IFdlIG9wdGltaXN0aWNhbGx5IHR1cm4gYmFjayBvbiBpbnRlcnJ1cHRzLCB0aGVuIGNoZWNrIGlm
+IHRoZXJlIHdhcwo+ID4gPiAgIAkgKiBtb3JlIHRvIGRvLiAqLwo+ID4gPiArCS8qIERlcGVuZGlu
+ZyBvbiB0aGUgVklSVElPX1JJTkdfRl9VU0VEX0VWRU5UX0lEWCBmZWF0dXJlLCB3ZSBuZWVkIHRv
+Cj4gPiA+ICsJICogZWl0aGVyIGNsZWFyIHRoZSBmbGFncyBiaXQgb3IgcG9pbnQgdGhlIGV2ZW50
+IGluZGV4IGF0IHRoZSBuZXh0Cj4gPiA+ICsJICogZW50cnkuIEFsd2F5cyB1cGRhdGUgdGhlIGV2
+ZW50IGluZGV4IHRvIGtlZXAgY29kZSBzaW1wbGUuICovCj4gPiA+ICsKPiA+ID4gKwkvKiBUT0RP
+OiB0dW5lIHRoaXMgdGhyZXNob2xkICovCj4gPiA+ICsJYnVmcyA9ICh1MTYpKHZxLT5uZXh0X2F2
+YWlsX2lkeCAtIHZxLT5sYXN0X3VzZWRfaWR4KSAqIDMgLyA0Owo+ID4gPiArCj4gPiA+ICsJdXNl
+ZF9pZHggPSB2cS0+bGFzdF91c2VkX2lkeCArIGJ1ZnM7Cj4gPiA+ICsJd3JhcF9jb3VudGVyID0g
+dnEtPndyYXBfY291bnRlcjsKPiA+ID4gKwo+ID4gPiArCWlmICh1c2VkX2lkeCA+PSB2cS0+dnJp
+bmdfcGFja2VkLm51bSkgewo+ID4gPiArCQl1c2VkX2lkeCAtPSB2cS0+dnJpbmdfcGFja2VkLm51
+bTsKPiA+ID4gKwkJd3JhcF9jb3VudGVyIF49IDE7Cj4gPiA+ICsJfQo+ID4gPiArCj4gPiA+ICsJ
+dnEtPnZyaW5nX3BhY2tlZC5kcml2ZXItPm9mZl93cmFwID0gY3B1X3RvX3ZpcnRpbzE2KF92cS0+
+dmRldiwKPiA+ID4gKwkJCXVzZWRfaWR4IHwgKHdyYXBfY291bnRlciA8PCAxNSkpOwo+ID4gPiAg
+IAlpZiAodnEtPmV2ZW50X2ZsYWdzX3NoYWRvdyA9PSBWUklOR19FVkVOVF9GX0RJU0FCTEUpIHsK
+PiA+ID4gICAJCXZpcnRpb193bWIodnEtPndlYWtfYmFycmllcnMpOwo+ID4gPiAtCQl2cS0+ZXZl
+bnRfZmxhZ3Nfc2hhZG93ID0gVlJJTkdfRVZFTlRfRl9FTkFCTEU7Cj4gPiA+ICsJCXZxLT5ldmVu
+dF9mbGFnc19zaGFkb3cgPSB2cS0+ZXZlbnQgPyBWUklOR19FVkVOVF9GX0RFU0MgOgo+ID4gPiAr
+CQkJCQkJICAgICBWUklOR19FVkVOVF9GX0VOQUJMRTsKPiA+ID4gICAJCXZxLT52cmluZ19wYWNr
+ZWQuZHJpdmVyLT5mbGFncyA9IGNwdV90b192aXJ0aW8xNihfdnEtPnZkZXYsCj4gPiA+ICAgCQkJ
+CQkJCXZxLT5ldmVudF9mbGFnc19zaGFkb3cpOwo+ID4gPiAgIAl9Cj4gPiA+IEBAIC0xODIyLDgg
+KzE4NjUsMTAgQEAgdm9pZCB2cmluZ190cmFuc3BvcnRfZmVhdHVyZXMoc3RydWN0IHZpcnRpb19k
+ZXZpY2UgKnZkZXYpCj4gPiA+ICAgCQlzd2l0Y2ggKGkpIHsKPiA+ID4gICAJCWNhc2UgVklSVElP
+X1JJTkdfRl9JTkRJUkVDVF9ERVNDOgo+ID4gPiAgIAkJCWJyZWFrOwo+ID4gPiArI2lmIDAKPiA+
+ID4gICAJCWNhc2UgVklSVElPX1JJTkdfRl9FVkVOVF9JRFg6Cj4gPiA+ICAgCQkJYnJlYWs7Cj4g
+PiA+ICsjZW5kaWYKPiA+ID4gICAJCWNhc2UgVklSVElPX0ZfVkVSU0lPTl8xOgo+ID4gPiAgIAkJ
+CWJyZWFrOwo+ID4gPiAgIAkJY2FzZSBWSVJUSU9fRl9JT01NVV9QTEFURk9STToKPiA+IApfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
