@@ -1,12 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] Revert "vhost: make msg padding explicit"
-Date: Wed, 2 May 2018 17:19:05 +0300
-Message-ID: <1525270740-460646-1-git-send-email-mst__3084.55682029507$1525270649$gmane$org@redhat.com>
+Subject: Re: [PATCH] vhost: make msg padding explicit
+Date: Wed, 2 May 2018 17:19:27 +0300
+Message-ID: <20180502171909-mutt-send-email-mst@kernel.org>
+References: <20180501.140551.1944561534446599966.davem@davemloft.net>
+	<20180502062809.GA14485@la.guarana.org>
+	<20180502162932-mutt-send-email-mst@kernel.org>
+	<20180502.100446.106883595468297057.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20180502.100446.106883595468297057.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,31 +21,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: kevin@guarana.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This reverts commit 93c0d549c4c5a7382ad70de6b86610b7aae57406.
+On Wed, May 02, 2018 at 10:04:46AM -0400, David Miller wrote:
+> From: "Michael S. Tsirkin" <mst@redhat.com>
+> Date: Wed, 2 May 2018 16:36:37 +0300
+> 
+> > Ouch.  True - and in particular the 32 bit ABI on 64 bit kernels doesn't
+> > work at all. Hmm. It's relatively new and maybe there aren't any 32 bit
+> > users yet. Thoughts?
+> 
+> If it's been in a released kernel version, we really aren't at liberty
+> to play "maybe nobody uses this" UAPI changing games.
+> 
+> Please send me a revert.
 
-Unfortunately the padding will break 32 bit userspace.
-Ouch. Need to add some compat code, revert for now.
+Sent. Looking at compat mess now.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/uapi/linux/vhost.h | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index 5a8ad06..c51f8e5 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -68,7 +68,6 @@ struct vhost_iotlb_msg {
- 
- struct vhost_msg {
- 	int type;
--	int padding0;
- 	union {
- 		struct vhost_iotlb_msg iotlb;
- 		__u8 padding[64];
 -- 
 MST
