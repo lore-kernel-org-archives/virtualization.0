@@ -1,19 +1,21 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC v3 4/5] virtio_ring: add event idx support in packed ring
-Date: Wed, 2 May 2018 18:42:57 +0300
-Message-ID: <20180502184015-mutt-send-email-mst__47802.6196630255$1525275670$gmane$org@kernel.org>
-References: <20180425051550.24342-1-tiwei.bie@intel.com>
-	<20180425051550.24342-5-tiwei.bie@intel.com>
-	<34781052-df9f-e505-cd3f-08e460b34dcc@redhat.com>
-	<20180502072819.mf5l3dypk6dwx2s7@debian>
-	<20180502164828-mutt-send-email-mst@kernel.org>
-	<20180502151255.h3x6rhszxa3euinl@debian>
+Subject: Re: [PATCH net-next v9 3/4] virtio_net: Extend virtio to use VF
+	datapath when available
+Date: Wed, 2 May 2018 18:47:27 +0300
+Message-ID: <20180502184326-mutt-send-email-mst__6061.90392650223$1525275941$gmane$org@kernel.org>
+References: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
+	<1524848820-42258-4-git-send-email-sridhar.samudrala@intel.com>
+	<20180428094205.GM5632@nanopsycho.orion>
+	<638e52c7-64db-9d8d-7530-f6b000d3e292@intel.com>
+	<20180430072034.GH23854@nanopsycho.orion>
+	<9c6f055c-c665-0601-3973-bce74d72544b@intel.com>
+	<20180502075021.GC19250@nanopsycho>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180502151255.h3x6rhszxa3euinl@debian>
+In-Reply-To: <20180502075021.GC19250@nanopsycho>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,154 +25,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kubakici@wp.pl, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBNYXkgMDIsIDIwMTggYXQgMTE6MTI6NTVQTSArMDgwMCwgVGl3ZWkgQmllIHdyb3Rl
-Ogo+IE9uIFdlZCwgTWF5IDAyLCAyMDE4IGF0IDA0OjUxOjAxUE0gKzAzMDAsIE1pY2hhZWwgUy4g
-VHNpcmtpbiB3cm90ZToKPiA+IE9uIFdlZCwgTWF5IDAyLCAyMDE4IGF0IDAzOjI4OjE5UE0gKzA4
-MDAsIFRpd2VpIEJpZSB3cm90ZToKPiA+ID4gT24gV2VkLCBNYXkgMDIsIDIwMTggYXQgMTA6NTE6
-MDZBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiBPbiAyMDE45bm0MDTmnIgyNeaX
-pSAxMzoxNSwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+ID4gVGhpcyBjb21taXQgaW50cm9kdWNl
-cyB0aGUgZXZlbnQgaWR4IHN1cHBvcnQgaW4gcGFja2VkCj4gPiA+ID4gPiByaW5nLiBUaGlzIGZl
-YXR1cmUgaXMgdGVtcG9yYXJpbHkgZGlzYWJsZWQsIGJlY2F1c2UgdGhlCj4gPiA+ID4gPiBpbXBs
-ZW1lbnRhdGlvbiBpbiB0aGlzIHBhdGNoIG1heSBub3Qgd29yayBhcyBleHBlY3RlZCwKPiA+ID4g
-PiA+IGFuZCBzb21lIGZ1cnRoZXIgZGlzY3Vzc2lvbnMgb24gdGhlIGltcGxlbWVudGF0aW9uIGFy
-ZQo+ID4gPiA+ID4gbmVlZGVkLCBlLmcuIGRvIHdlIGhhdmUgdG8gY2hlY2sgdGhlIHdyYXAgY291
-bnRlciB3aGVuCj4gPiA+ID4gPiBjaGVja2luZyB3aGV0aGVyIGEga2ljayBpcyBuZWVkZWQ/Cj4g
-PiA+ID4gPiAKPiA+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IFRpd2VpIEJpZSA8dGl3ZWkuYmllQGlu
-dGVsLmNvbT4KPiA+ID4gPiA+IC0tLQo+ID4gPiA+ID4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9f
-cmluZy5jIHwgNTMgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0K
-PiA+ID4gPiA+ICAgMSBmaWxlIGNoYW5nZWQsIDQ5IGluc2VydGlvbnMoKyksIDQgZGVsZXRpb25z
-KC0pCj4gPiA+ID4gPiAKPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0
-aW9fcmluZy5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gPiA+ID4gaW5kZXgg
-MDE4MWU5Mzg5N2JlLi5iMTAzOWMyOTg1YjkgMTAwNjQ0Cj4gPiA+ID4gPiAtLS0gYS9kcml2ZXJz
-L3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPiA+ID4gPiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0
-aW9fcmluZy5jCj4gPiA+ID4gPiBAQCAtOTg2LDcgKzk4Niw3IEBAIHN0YXRpYyBpbmxpbmUgaW50
-IHZpcnRxdWV1ZV9hZGRfcGFja2VkKHN0cnVjdCB2aXJ0cXVldWUgKl92cSwKPiA+ID4gPiA+ICAg
-c3RhdGljIGJvb2wgdmlydHF1ZXVlX2tpY2tfcHJlcGFyZV9wYWNrZWQoc3RydWN0IHZpcnRxdWV1
-ZSAqX3ZxKQo+ID4gPiA+ID4gICB7Cj4gPiA+ID4gPiAgIAlzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVl
-ICp2cSA9IHRvX3Z2cShfdnEpOwo+ID4gPiA+ID4gLQl1MTYgZmxhZ3M7Cj4gPiA+ID4gPiArCXUx
-NiBuZXcsIG9sZCwgb2ZmX3dyYXAsIGZsYWdzOwo+ID4gPiA+ID4gICAJYm9vbCBuZWVkc19raWNr
-Owo+ID4gPiA+ID4gICAJdTMyIHNuYXBzaG90Owo+ID4gPiA+ID4gQEAgLTk5NSw3ICs5OTUsMTIg
-QEAgc3RhdGljIGJvb2wgdmlydHF1ZXVlX2tpY2tfcHJlcGFyZV9wYWNrZWQoc3RydWN0IHZpcnRx
-dWV1ZSAqX3ZxKQo+ID4gPiA+ID4gICAJICogc3VwcHJlc3Npb25zLiAqLwo+ID4gPiA+ID4gICAJ
-dmlydGlvX21iKHZxLT53ZWFrX2JhcnJpZXJzKTsKPiA+ID4gPiA+ICsJb2xkID0gdnEtPm5leHRf
-YXZhaWxfaWR4IC0gdnEtPm51bV9hZGRlZDsKPiA+ID4gPiA+ICsJbmV3ID0gdnEtPm5leHRfYXZh
-aWxfaWR4Owo+ID4gPiA+ID4gKwl2cS0+bnVtX2FkZGVkID0gMDsKPiA+ID4gPiA+ICsKPiA+ID4g
-PiA+ICAgCXNuYXBzaG90ID0gKih1MzIgKil2cS0+dnJpbmdfcGFja2VkLmRldmljZTsKPiA+ID4g
-PiA+ICsJb2ZmX3dyYXAgPSB2aXJ0aW8xNl90b19jcHUoX3ZxLT52ZGV2LCBzbmFwc2hvdCAmIDB4
-ZmZmZik7Cj4gPiA+ID4gPiAgIAlmbGFncyA9IGNwdV90b192aXJ0aW8xNihfdnEtPnZkZXYsIHNu
-YXBzaG90ID4+IDE2KSAmIDB4MzsKPiA+ID4gPiA+ICAgI2lmZGVmIERFQlVHCj4gPiA+ID4gPiBA
-QCAtMTAwNiw3ICsxMDExLDEwIEBAIHN0YXRpYyBib29sIHZpcnRxdWV1ZV9raWNrX3ByZXBhcmVf
-cGFja2VkKHN0cnVjdCB2aXJ0cXVldWUgKl92cSkKPiA+ID4gPiA+ICAgCXZxLT5sYXN0X2FkZF90
-aW1lX3ZhbGlkID0gZmFsc2U7Cj4gPiA+ID4gPiAgICNlbmRpZgo+ID4gPiA+ID4gLQluZWVkc19r
-aWNrID0gKGZsYWdzICE9IFZSSU5HX0VWRU5UX0ZfRElTQUJMRSk7Cj4gPiA+ID4gPiArCWlmIChm
-bGFncyA9PSBWUklOR19FVkVOVF9GX0RFU0MpCj4gPiA+ID4gPiArCQluZWVkc19raWNrID0gdnJp
-bmdfbmVlZF9ldmVudChvZmZfd3JhcCAmIH4oMTw8MTUpLCBuZXcsIG9sZCk7Cj4gPiA+ID4gCj4g
-PiA+ID4gSSB3b25kZXIgd2hldGhlciBvciBub3QgdGhlIG1hdGggaXMgY29ycmVjdC4gQm90aCBu
-ZXcgYW5kIGV2ZW50IGFyZSBpbiB0aGUKPiA+ID4gPiB1bml0IG9mIGRlc2NyaXB0b3IgcmluZyBz
-aXplLCBidXQgb2xkIGxvb2tzIG5vdC4KPiA+ID4gCj4gPiA+IFdoYXQgdnJpbmdfbmVlZF9ldmVu
-dCgpIGNhcmVzIGlzIHRoZSBkaXN0YW5jZSBiZXR3ZWVuCj4gPiA+IGBuZXdgIGFuZCBgb2xkYCwg
-aS5lLiB2cS0+bnVtX2FkZGVkLiBTbyBJIHRoaW5rIHRoZXJlCj4gPiA+IGlzIG5vdGhpbmcgd3Jv
-bmcgd2l0aCBgb2xkYC4gQnV0IHRoZSBjYWxjdWxhdGlvbiBvZiB0aGUKPiA+ID4gZGlzdGFuY2Ug
-YmV0d2VlbiBgbmV3YCBhbmQgYGV2ZW50X2lkeGAgaXNuJ3QgcmlnaHQgd2hlbgo+ID4gPiBgbmV3
-YCB3cmFwcy4gSG93IGRvIHlvdSB0aGluayBhYm91dCB0aGUgYmVsb3cgY29kZToKPiA+ID4gCj4g
-PiA+IAl3cmFwX2NvdW50ZXIgPSBvZmZfd3JhcCA+PiAxNTsKPiA+ID4gCWV2ZW50X2lkeCA9IG9m
-Zl93cmFwICYgfigxPDwxNSk7Cj4gPiA+IAlpZiAod3JhcF9jb3VudGVyICE9IHZxLT53cmFwX2Nv
-dW50ZXIpCj4gPiA+IAkJZXZlbnRfaWR4IC09IHZxLT52cmluZ19wYWNrZWQubnVtOwo+ID4gPiAJ
-Cj4gPiA+IAluZWVkc19raWNrID0gdnJpbmdfbmVlZF9ldmVudChldmVudF9pZHgsIG5ldywgb2xk
-KTsKPiA+IAo+ID4gSSBzdXNwZWN0IHRoaXMgaGFjayB3b24ndCB3b3JrIGZvciBub24gcG93ZXIg
-b2YgMiByaW5nLgo+IAo+IEFib3ZlIGNvZGUgZG9lc24ndCByZXF1aXJlIHRoZSByaW5nIHNpemUg
-dG8gYmUgYSBwb3dlciBvZiAyLgo+IAo+IEZvciAoX191MTYpKG5ld19pZHggLSBvbGQpLCB3aGF0
-IHdlIHdhbnQgdG8gZ2V0IGlzIHZxLT5udW1fYWRkZWQuCj4gCj4gb2xkID0gdnEtPm5leHRfYXZh
-aWxfaWR4IC0gdnEtPm51bV9hZGRlZDsKPiBuZXcgPSB2cS0+bmV4dF9hdmFpbF9pZHg7Cj4gCj4g
-V2hlbiB2cS0+bmV4dF9hdmFpbF9pZHggPj0gdnEtPm51bV9hZGRlZCwgaXQncyBvYnZpb3VzIHRo
-YXQsCj4gKF9fdTE2KShuZXdfaWR4IC0gb2xkKSBpcyB2cS0+bnVtX2FkZGVkLgo+IAo+IEFuZCB3
-aGVuIHZxLT5uZXh0X2F2YWlsX2lkeCA8IHZxLT5udW1fYWRkZWQsIG5ldyB3aWxsIGJlIHNtYWxs
-ZXIKPiB0aGFuIG9sZCAob2xkIHdpbGwgYmUgYSBiaWcgdW5zaWduZWQgbnVtYmVyKSwgYnV0IChf
-X3UxNikobmV3X2lkeAo+IC0gb2xkKSBpcyBzdGlsbCB2cS0+bnVtX2FkZGVkLgo+IAo+IEZvciAo
-X191MTYpKG5ld19pZHggLSBldmVudF9pZHggLSAxKSwgd2hlbiBuZXcgd3JhcHMgYW5kIGV2ZW50
-X2lkeAo+IGRvZXNuJ3Qgd3JhcCwgdGhlIG1vc3Qgc3RyYWlnaHRmb3J3YXJkIHdheSB0byBjYWxj
-dWxhdGUgaXQgaXM6Cj4gKG5ldyArIHZxLT52cmluZ19wYWNrZWQubnVtKSAtIGV2ZW50X2lkeCAt
-IDEuCgpTbyBob3cgYWJvdXQgd2UgdXNlIHRoZSBzdHJhaWdodGZvcndhcmQgd2F5IHRoZW4/Cgo+
-IEJ1dCB3ZSBjYW4gYWxzbyBjYWxjdWxhdGUgaXQgaW4gdGhpcyB3YXk6Cj4gCj4gZXZlbnRfaWR4
-IC09IHZxLT52cmluZ19wYWNrZWQubnVtOwo+IChldmVudF9pZHggd2lsbCBiZSBhIGJpZyB1bnNp
-Z25lZCBudW1iZXIpCj4gCj4gVGhlbiAoX191MTYpKG5ld19pZHggLSBldmVudF9pZHggLSAxKSB3
-aWxsIGJlIHRoZSB2YWx1ZSB3ZSB3YW50Lgo+IAo+IEJlc3QgcmVnYXJkcywKPiBUaXdlaSBCaWUK
-Cgo+ID4gCj4gPiAKPiA+ID4gQmVzdCByZWdhcmRzLAo+ID4gPiBUaXdlaSBCaWUKPiA+ID4gCj4g
-PiA+IAo+ID4gPiA+IAo+ID4gPiA+IFRoYW5rcwo+ID4gPiA+IAo+ID4gPiA+ID4gKwllbHNlCj4g
-PiA+ID4gPiArCQluZWVkc19raWNrID0gKGZsYWdzICE9IFZSSU5HX0VWRU5UX0ZfRElTQUJMRSk7
-Cj4gPiA+ID4gPiAgIAlFTkRfVVNFKHZxKTsKPiA+ID4gPiA+ICAgCXJldHVybiBuZWVkc19raWNr
-Owo+ID4gPiA+ID4gICB9Cj4gPiA+ID4gPiBAQCAtMTExNiw2ICsxMTI0LDE1IEBAIHN0YXRpYyB2
-b2lkICp2aXJ0cXVldWVfZ2V0X2J1Zl9jdHhfcGFja2VkKHN0cnVjdCB2aXJ0cXVldWUgKl92cSwK
-PiA+ID4gPiA+ICAgCWlmICh2cS0+bGFzdF91c2VkX2lkeCA+PSB2cS0+dnJpbmdfcGFja2VkLm51
-bSkKPiA+ID4gPiA+ICAgCQl2cS0+bGFzdF91c2VkX2lkeCAtPSB2cS0+dnJpbmdfcGFja2VkLm51
-bTsKPiA+ID4gPiA+ICsJLyogSWYgd2UgZXhwZWN0IGFuIGludGVycnVwdCBmb3IgdGhlIG5leHQg
-ZW50cnksIHRlbGwgaG9zdAo+ID4gPiA+ID4gKwkgKiBieSB3cml0aW5nIGV2ZW50IGluZGV4IGFu
-ZCBmbHVzaCBvdXQgdGhlIHdyaXRlIGJlZm9yZQo+ID4gPiA+ID4gKwkgKiB0aGUgcmVhZCBpbiB0
-aGUgbmV4dCBnZXRfYnVmIGNhbGwuICovCj4gPiA+ID4gPiArCWlmICh2cS0+ZXZlbnRfZmxhZ3Nf
-c2hhZG93ID09IFZSSU5HX0VWRU5UX0ZfREVTQykKPiA+ID4gPiA+ICsJCXZpcnRpb19zdG9yZV9t
-Yih2cS0+d2Vha19iYXJyaWVycywKPiA+ID4gPiA+ICsJCQkJJnZxLT52cmluZ19wYWNrZWQuZHJp
-dmVyLT5vZmZfd3JhcCwKPiA+ID4gPiA+ICsJCQkJY3B1X3RvX3ZpcnRpbzE2KF92cS0+dmRldiwg
-dnEtPmxhc3RfdXNlZF9pZHggfAo+ID4gPiA+ID4gKwkJCQkJCSh2cS0+d3JhcF9jb3VudGVyIDw8
-IDE1KSkpOwo+ID4gPiA+ID4gKwo+ID4gPiA+ID4gICAjaWZkZWYgREVCVUcKPiA+ID4gPiA+ICAg
-CXZxLT5sYXN0X2FkZF90aW1lX3ZhbGlkID0gZmFsc2U7Cj4gPiA+ID4gPiAgICNlbmRpZgo+ID4g
-PiA+ID4gQEAgLTExNDMsMTAgKzExNjAsMTcgQEAgc3RhdGljIHVuc2lnbmVkIHZpcnRxdWV1ZV9l
-bmFibGVfY2JfcHJlcGFyZV9wYWNrZWQoc3RydWN0IHZpcnRxdWV1ZSAqX3ZxKQo+ID4gPiA+ID4g
-ICAJLyogV2Ugb3B0aW1pc3RpY2FsbHkgdHVybiBiYWNrIG9uIGludGVycnVwdHMsIHRoZW4gY2hl
-Y2sgaWYgdGhlcmUgd2FzCj4gPiA+ID4gPiAgIAkgKiBtb3JlIHRvIGRvLiAqLwo+ID4gPiA+ID4g
-KwkvKiBEZXBlbmRpbmcgb24gdGhlIFZJUlRJT19SSU5HX0ZfVVNFRF9FVkVOVF9JRFggZmVhdHVy
-ZSwgd2UgbmVlZCB0bwo+ID4gPiA+ID4gKwkgKiBlaXRoZXIgY2xlYXIgdGhlIGZsYWdzIGJpdCBv
-ciBwb2ludCB0aGUgZXZlbnQgaW5kZXggYXQgdGhlIG5leHQKPiA+ID4gPiA+ICsJICogZW50cnku
-IEFsd2F5cyB1cGRhdGUgdGhlIGV2ZW50IGluZGV4IHRvIGtlZXAgY29kZSBzaW1wbGUuICovCj4g
-PiA+ID4gPiArCj4gPiA+ID4gPiArCXZxLT52cmluZ19wYWNrZWQuZHJpdmVyLT5vZmZfd3JhcCA9
-IGNwdV90b192aXJ0aW8xNihfdnEtPnZkZXYsCj4gPiA+ID4gPiArCQkJdnEtPmxhc3RfdXNlZF9p
-ZHggfCAodnEtPndyYXBfY291bnRlciA8PCAxNSkpOwo+ID4gPiA+ID4gICAJaWYgKHZxLT5ldmVu
-dF9mbGFnc19zaGFkb3cgPT0gVlJJTkdfRVZFTlRfRl9ESVNBQkxFKSB7Cj4gPiA+ID4gPiAgIAkJ
-dmlydGlvX3dtYih2cS0+d2Vha19iYXJyaWVycyk7Cj4gPiA+ID4gPiAtCQl2cS0+ZXZlbnRfZmxh
-Z3Nfc2hhZG93ID0gVlJJTkdfRVZFTlRfRl9FTkFCTEU7Cj4gPiA+ID4gPiArCQl2cS0+ZXZlbnRf
-ZmxhZ3Nfc2hhZG93ID0gdnEtPmV2ZW50ID8gVlJJTkdfRVZFTlRfRl9ERVNDIDoKPiA+ID4gPiA+
-ICsJCQkJCQkgICAgIFZSSU5HX0VWRU5UX0ZfRU5BQkxFOwo+ID4gPiA+ID4gICAJCXZxLT52cmlu
-Z19wYWNrZWQuZHJpdmVyLT5mbGFncyA9IGNwdV90b192aXJ0aW8xNihfdnEtPnZkZXYsCj4gPiA+
-ID4gPiAgIAkJCQkJCQl2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93KTsKPiA+ID4gPiA+ICAgCX0KPiA+
-ID4gPiA+IEBAIC0xMTcyLDE1ICsxMTk2LDM0IEBAIHN0YXRpYyBib29sIHZpcnRxdWV1ZV9wb2xs
-X3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEsIHVuc2lnbmVkIGxhc3RfdXNlZF9pZHgpCj4g
-PiA+ID4gPiAgIHN0YXRpYyBib29sIHZpcnRxdWV1ZV9lbmFibGVfY2JfZGVsYXllZF9wYWNrZWQo
-c3RydWN0IHZpcnRxdWV1ZSAqX3ZxKQo+ID4gPiA+ID4gICB7Cj4gPiA+ID4gPiAgIAlzdHJ1Y3Qg
-dnJpbmdfdmlydHF1ZXVlICp2cSA9IHRvX3Z2cShfdnEpOwo+ID4gPiA+ID4gKwl1MTYgYnVmcywg
-dXNlZF9pZHgsIHdyYXBfY291bnRlcjsKPiA+ID4gPiA+ICAgCVNUQVJUX1VTRSh2cSk7Cj4gPiA+
-ID4gPiAgIAkvKiBXZSBvcHRpbWlzdGljYWxseSB0dXJuIGJhY2sgb24gaW50ZXJydXB0cywgdGhl
-biBjaGVjayBpZiB0aGVyZSB3YXMKPiA+ID4gPiA+ICAgCSAqIG1vcmUgdG8gZG8uICovCj4gPiA+
-ID4gPiArCS8qIERlcGVuZGluZyBvbiB0aGUgVklSVElPX1JJTkdfRl9VU0VEX0VWRU5UX0lEWCBm
-ZWF0dXJlLCB3ZSBuZWVkIHRvCj4gPiA+ID4gPiArCSAqIGVpdGhlciBjbGVhciB0aGUgZmxhZ3Mg
-Yml0IG9yIHBvaW50IHRoZSBldmVudCBpbmRleCBhdCB0aGUgbmV4dAo+ID4gPiA+ID4gKwkgKiBl
-bnRyeS4gQWx3YXlzIHVwZGF0ZSB0aGUgZXZlbnQgaW5kZXggdG8ga2VlcCBjb2RlIHNpbXBsZS4g
-Ki8KPiA+ID4gPiA+ICsKPiA+ID4gPiA+ICsJLyogVE9ETzogdHVuZSB0aGlzIHRocmVzaG9sZCAq
-Lwo+ID4gPiA+ID4gKwlidWZzID0gKHUxNikodnEtPm5leHRfYXZhaWxfaWR4IC0gdnEtPmxhc3Rf
-dXNlZF9pZHgpICogMyAvIDQ7Cj4gPiA+ID4gPiArCj4gPiA+ID4gPiArCXVzZWRfaWR4ID0gdnEt
-Pmxhc3RfdXNlZF9pZHggKyBidWZzOwo+ID4gPiA+ID4gKwl3cmFwX2NvdW50ZXIgPSB2cS0+d3Jh
-cF9jb3VudGVyOwo+ID4gPiA+ID4gKwo+ID4gPiA+ID4gKwlpZiAodXNlZF9pZHggPj0gdnEtPnZy
-aW5nX3BhY2tlZC5udW0pIHsKPiA+ID4gPiA+ICsJCXVzZWRfaWR4IC09IHZxLT52cmluZ19wYWNr
-ZWQubnVtOwo+ID4gPiA+ID4gKwkJd3JhcF9jb3VudGVyIF49IDE7Cj4gPiA+ID4gPiArCX0KPiA+
-ID4gPiA+ICsKPiA+ID4gPiA+ICsJdnEtPnZyaW5nX3BhY2tlZC5kcml2ZXItPm9mZl93cmFwID0g
-Y3B1X3RvX3ZpcnRpbzE2KF92cS0+dmRldiwKPiA+ID4gPiA+ICsJCQl1c2VkX2lkeCB8ICh3cmFw
-X2NvdW50ZXIgPDwgMTUpKTsKPiA+ID4gPiA+ICAgCWlmICh2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93
-ID09IFZSSU5HX0VWRU5UX0ZfRElTQUJMRSkgewo+ID4gPiA+ID4gICAJCXZpcnRpb193bWIodnEt
-PndlYWtfYmFycmllcnMpOwo+ID4gPiA+ID4gLQkJdnEtPmV2ZW50X2ZsYWdzX3NoYWRvdyA9IFZS
-SU5HX0VWRU5UX0ZfRU5BQkxFOwo+ID4gPiA+ID4gKwkJdnEtPmV2ZW50X2ZsYWdzX3NoYWRvdyA9
-IHZxLT5ldmVudCA/IFZSSU5HX0VWRU5UX0ZfREVTQyA6Cj4gPiA+ID4gPiArCQkJCQkJICAgICBW
-UklOR19FVkVOVF9GX0VOQUJMRTsKPiA+ID4gPiA+ICAgCQl2cS0+dnJpbmdfcGFja2VkLmRyaXZl
-ci0+ZmxhZ3MgPSBjcHVfdG9fdmlydGlvMTYoX3ZxLT52ZGV2LAo+ID4gPiA+ID4gICAJCQkJCQkJ
-dnEtPmV2ZW50X2ZsYWdzX3NoYWRvdyk7Cj4gPiA+ID4gPiAgIAl9Cj4gPiA+ID4gPiBAQCAtMTgy
-Miw4ICsxODY1LDEwIEBAIHZvaWQgdnJpbmdfdHJhbnNwb3J0X2ZlYXR1cmVzKHN0cnVjdCB2aXJ0
-aW9fZGV2aWNlICp2ZGV2KQo+ID4gPiA+ID4gICAJCXN3aXRjaCAoaSkgewo+ID4gPiA+ID4gICAJ
-CWNhc2UgVklSVElPX1JJTkdfRl9JTkRJUkVDVF9ERVNDOgo+ID4gPiA+ID4gICAJCQlicmVhazsK
-PiA+ID4gPiA+ICsjaWYgMAo+ID4gPiA+ID4gICAJCWNhc2UgVklSVElPX1JJTkdfRl9FVkVOVF9J
-RFg6Cj4gPiA+ID4gPiAgIAkJCWJyZWFrOwo+ID4gPiA+ID4gKyNlbmRpZgo+ID4gPiA+ID4gICAJ
-CWNhc2UgVklSVElPX0ZfVkVSU0lPTl8xOgo+ID4gPiA+ID4gICAJCQlicmVhazsKPiA+ID4gPiA+
-ICAgCQljYXNlIFZJUlRJT19GX0lPTU1VX1BMQVRGT1JNOgo+ID4gPiA+IApfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, May 02, 2018 at 09:50:21AM +0200, Jiri Pirko wrote:
+> Wed, May 02, 2018 at 02:20:26AM CEST, sridhar.samudrala@intel.com wrote:
+> >On 4/30/2018 12:20 AM, Jiri Pirko wrote:
+> >> =
+
+> >> > > Now I try to change mac of the failover master:
+> >> > > [root@test1 ~]# ip link set ens3 addr 52:54:00:b2:a7:f3
+> >> > > RTNETLINK answers: Operation not supported
+> >> > > =
+
+> >> > > That I did expect to work. I would expect this would change the ma=
+c of
+> >> > > the master and both standby and primary slaves.
+> >> > If a VF is untrusted, a VM will not able to change its MAC and moreo=
+ver
+> >> Note that at this point, I have no VF. So I'm not sure why you mention
+> >> that.
+> >> =
+
+> >> =
+
+> >> > in this mode we are assuming that the hypervisor has assigned the MA=
+C and
+> >> > guest is not expected to change the MAC.
+> >> Wait, for ordinary old-fashioned virtio_net, as a VM user, I can change
+> >> mac and all works fine. How is this different? Change mac on "failover
+> >> instance" should work and should propagate the mac down to its slaves.
+> >> =
+
+> >> =
+
+> >> > For the initial implementation, i would propose not allowing the gue=
+st to
+> >> > change the MAC of failover or standby dev.
+> >> I see no reason for such restriction.
+> >> =
+
+> >
+> >It is true that a VM user can change mac address of a normal virtio-net =
+interface,
+> >however when it is in STANDBY mode i think we should not allow this chan=
+ge specifically
+> >because we are creating a failover instance based on a MAC that is assig=
+ned by the
+> >hypervisor.
+> >
+> >Moreover,=A0 in a cloud environment i would think that PF/hypervisor ass=
+igns a MAC to
+> >the VF and it cannot be changed by the guest.
+> =
+
+> So that is easy. You allow the change of the mac and in the "failover"
+> mac change implementation you propagate the change down to slaves. If
+> one slave does not support the change, you bail out. And since VF does
+
+I wish people would say primary/standby and not "VF" :)
+
+> not allow it as you say, once it will be enslaved, the mac change could
+> not be done. Seems like a correct behavior to me
+
+
+what if primary does not allow mac changes and is attached after
+mac is changed on standy?
+
+
+> and is in-sync with how
+> bond/team behaves.
+
+I think in the end virtio can just block MAC changes for simplicity.
+
+I personally don't see softmac as a must have feature in v1,
+we can add it later.
+
+What's the situation with init scripts and whether it's
+possible to make them work well would be a better question.
+
+> =
+
+> >
+> >So for the initial implementation, do you see any issues with having thi=
+s restriction
+> >in STANDBY mode.
+> >
+> >
