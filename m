@@ -1,17 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: make msg padding explicit
-Date: Wed, 2 May 2018 17:19:27 +0300
-Message-ID: <20180502171909-mutt-send-email-mst@kernel.org>
-References: <20180501.140551.1944561534446599966.davem@davemloft.net>
-	<20180502062809.GA14485@la.guarana.org>
-	<20180502162932-mutt-send-email-mst@kernel.org>
-	<20180502.100446.106883595468297057.davem@davemloft.net>
+Subject: Re: [PATCH V2 net-next 1/6] virtio: Add support for SCTP checksum
+	offloading
+Date: Wed, 2 May 2018 17:21:38 +0300
+Message-ID: <20180502171943-mutt-send-email-mst__15536.0530167401$1525270779$gmane$org@kernel.org>
+References: <20180502020739.19239-1-vyasevic@redhat.com>
+	<20180502020739.19239-2-vyasevic@redhat.com>
+	<20180502061520-mutt-send-email-mst@kernel.org>
+	<20180502141413.GD5105@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180502.100446.106883595468297057.davem@davemloft.net>
+In-Reply-To: <20180502141413.GD5105@localhost.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,24 +22,165 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: kevin@guarana.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Cc: virtio-dev@lists.oasis-open.org, nhorman@tuxdriver.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org, Vladislav Yasevich <vyasevich@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 02, 2018 at 10:04:46AM -0400, David Miller wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> Date: Wed, 2 May 2018 16:36:37 +0300
+On Wed, May 02, 2018 at 11:14:13AM -0300, Marcelo Ricardo Leitner wrote:
+> On Wed, May 02, 2018 at 06:16:45AM +0300, Michael S. Tsirkin wrote:
+> > On Tue, May 01, 2018 at 10:07:34PM -0400, Vladislav Yasevich wrote:
+> > > To support SCTP checksum offloading, we need to add a new feature
+> > > to virtio_net, so we can negotiate support between the hypervisor
+> > > and the guest.
+> > > The HOST feature bit signifies offloading support for transmit and
+> > > enables device offload features.
+> > > The GUEST feature bit signifies offloading support of recieve and
+> > > is currently only used by the driver in case of xdp.
+> > >
+> > > That patch also adds an addition virtio_net header flag which
+> > > mirrors the skb->csum_not_inet flag.  This flags is used to indicate
+> > > that is this an SCTP packet that needs its checksum computed by the
+> > > lower layer.  In this case, the lower layer is the host hypervisor or
+> > > possibly HW nic that supporst CRC32c offload.
+> > >
+> > > In the case that GUEST feature bit is flag, it will be possible to
+> > > receive a virtio_net header with this bit set, which will set the
+> > > corresponding skb bit.  SCTP protocol will be updated to correctly
+> > > deal with it.
+> > >
+> > > Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
+> > > ---
+> > >  drivers/net/virtio_net.c        | 14 +++++++++++++-
+> > >  include/linux/virtio_net.h      |  6 ++++++
+> > >  include/uapi/linux/virtio_net.h |  5 +++++
+> > >  3 files changed, 24 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index 7b187ec..34af280 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -2148,6 +2148,8 @@ static int virtnet_clear_guest_offloads(struct virtnet_info *vi)
+> > >
+> > >  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))
+> > >  		offloads = 1ULL << VIRTIO_NET_F_GUEST_CSUM;
+> > > +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_SCTP_CSUM))
+> > > +		offloads |= 1ULL << VIRTIO_NET_F_GUEST_SCTP_CSUM;
+> > >
+> > >  	return virtnet_set_guest_offloads(vi, offloads);
+> > >  }
+> > > @@ -2160,6 +2162,8 @@ static int virtnet_restore_guest_offloads(struct virtnet_info *vi)
+> > >  		return 0;
+> > >  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))
+> > >  		offloads |= 1ULL << VIRTIO_NET_F_GUEST_CSUM;
+> > > +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_SCTP_CSUM))
+> > > +		offloads |= 1ULL << VIRTIO_NET_F_GUEST_SCTP_CSUM;
+> > >
+> > >  	return virtnet_set_guest_offloads(vi, offloads);
+> > >  }
+> > > @@ -2724,6 +2728,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+> > >  	/* Do we support "hardware" checksums? */
+> > >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_CSUM)) {
+> > >  		/* This opens up the world of extra features. */
+> > > +
+> > >  		dev->hw_features |= NETIF_F_HW_CSUM | NETIF_F_SG;
+> > >  		if (csum)
+> > >  			dev->features |= NETIF_F_HW_CSUM | NETIF_F_SG;
+> > > @@ -2746,9 +2751,15 @@ static int virtnet_probe(struct virtio_device *vdev)
+> > >  			dev->features |= dev->hw_features & NETIF_F_ALL_TSO;
+> > >  		/* (!csum && gso) case will be fixed by register_netdev() */
+> > >  	}
+> > > +
+> > >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_CSUM))
+> > >  		dev->features |= NETIF_F_RXCSUM;
+> > >
+> > > +	if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_SCTP_CSUM)) {
+> > > +		dev->hw_features |= NETIF_F_SCTP_CRC;
+> > > +		dev->features |= NETIF_F_SCTP_CRC;
+> > > +	}
+> > > +
+> > >  	dev->vlan_features = dev->features;
+> > >
+> > >  	/* MTU range: 68 - 65535 */
+> > > @@ -2962,7 +2973,8 @@ static struct virtio_device_id id_table[] = {
+> > >  	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
+> > >  	VIRTIO_NET_F_CTRL_MAC_ADDR, \
+> > >  	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
+> > > -	VIRTIO_NET_F_SPEED_DUPLEX
+> > > +	VIRTIO_NET_F_SPEED_DUPLEX, \
+> > > +	VIRTIO_NET_F_HOST_SCTP_CSUM, VIRTIO_NET_F_GUEST_SCTP_CSUM
+> > >
+> > >  static unsigned int features[] = {
+> > >  	VIRTNET_FEATURES,
+> > > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> > > index f144216..28fffdc 100644
+> > > --- a/include/linux/virtio_net.h
+> > > +++ b/include/linux/virtio_net.h
+> > > @@ -39,6 +39,9 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+> > >
+> > >  		if (!skb_partial_csum_set(skb, start, off))
+> > >  			return -EINVAL;
+> > > +
+> > > +		if (hdr->flags & VIRTIO_NET_HDR_F_CSUM_NOT_INET)
+> > > +			skb->csum_not_inet = 1;
+> > >  	}
+> > >
+> > >  	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+> > > @@ -91,6 +94,9 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+> > >  				skb_checksum_start_offset(skb));
+> > >  		hdr->csum_offset = __cpu_to_virtio16(little_endian,
+> > >  				skb->csum_offset);
+> > > +
+> > > +		if (skb->csum_not_inet)
+> > > +			hdr->flags |= VIRTIO_NET_HDR_F_CSUM_NOT_INET;
+> > >  	} else if (has_data_valid &&
+> > >  		   skb->ip_summed == CHECKSUM_UNNECESSARY) {
+> > >  		hdr->flags = VIRTIO_NET_HDR_F_DATA_VALID;
+> > > diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> > > index 5de6ed3..9dfca1a 100644
+> > > --- a/include/uapi/linux/virtio_net.h
+> > > +++ b/include/uapi/linux/virtio_net.h
+> > > @@ -57,6 +57,10 @@
+> > >  					 * Steering */
+> > >  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+> > >
+> > > +#define VIRTIO_NET_F_GUEST_SCTP_CSUM  61 /* Guest handles SCTP pks w/ partial
+> > > +					  * csum */
+> > > +#define VIRTIO_NET_F_HOST_SCTP_CSUM   62 /* HOST handles SCTP pkts w/ partial
+> > > +					  * csum */
+> > >  #define VIRTIO_NET_F_SPEED_DUPLEX 63	/* Device set linkspeed and duplex */
+> > >
+> > >  #ifndef VIRTIO_NET_NO_LEGACY
+> > > @@ -101,6 +105,7 @@ struct virtio_net_config {
+> > >  struct virtio_net_hdr_v1 {
+> > >  #define VIRTIO_NET_HDR_F_NEEDS_CSUM	1	/* Use csum_start, csum_offset */
+> > >  #define VIRTIO_NET_HDR_F_DATA_VALID	2	/* Csum is valid */
+> > > +#define VIRTIO_NET_HDR_F_CSUM_NOT_INET  4       /* Checksum is not inet */
+> >
+> > Both comment and name are not very informative.
+> > How about just saying CRC32c ?
 > 
-> > Ouch.  True - and in particular the 32 bit ABI on 64 bit kernels doesn't
-> > work at all. Hmm. It's relatively new and maybe there aren't any 32 bit
-> > users yet. Thoughts?
-> 
-> If it's been in a released kernel version, we really aren't at liberty
-> to play "maybe nobody uses this" UAPI changing games.
-> 
-> Please send me a revert.
+> csum_not_inet is following the nomenclature used in sk_buff. Initially
+> Davide had named the sk_buff field after crc32c but then it was argued
+> that maybe another check method may be introduced later and the name
+> would be bogus, thus why the "csum_not_inet".
 
-Sent. Looking at compat mess now.
+That's sk_buff internals, since Linux can change these
+at any time without breaking anything.
 
--- 
-MST
+virtio defines an ABI so we won't be able to make it
+mean something else, need to document it fully.
+"Go read linux net core code" is not a good answer
+to the natural question "what does this bit in the
+interface do".
+
+> >
+> > >  	__u8 flags;
+> > >  #define VIRTIO_NET_HDR_GSO_NONE		0	/* Not a GSO frame */
+> > >  #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
+> > > --
+> > > 2.9.5
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-sctp" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >
