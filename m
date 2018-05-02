@@ -1,17 +1,16 @@
-From: Vlad Yasevich <vyasevic@redhat.com>
-Subject: Re: [PATCH V2 net-next 4/6] tun: Add support for SCTP checksum offload
-Date: Wed, 2 May 2018 13:17:50 -0400
-Message-ID: <5e968e6d-4dbf-cfef-a270-99b0d1dd4ea8__30821.4168450379$1525281355$gmane$org@redhat.com>
-References: <20180502020739.19239-1-vyasevic@redhat.com>
-	<20180502020739.19239-5-vyasevic@redhat.com>
-	<20180502145347.GG5105@localhost.localdomain>
-	<20180502145607.GH5105@localhost.localdomain>
-Reply-To: vyasevic@redhat.com
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [PATCH net-next v9 2/4] net: Introduce generic failover module
+Date: Wed, 2 May 2018 10:51:12 -0700
+Message-ID: <052e2c60-dc4c-d6a0-0159-fc1821cb4365__35140.522014308$1525283373$gmane$org@intel.com>
+References: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
+	<1524848820-42258-3-git-send-email-sridhar.samudrala@intel.com>
+	<20180428090601.GL5632@nanopsycho.orion>
+	<20180502161542.GI19250@nanopsycho>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180502145607.GH5105@localhost.localdomain>
+In-Reply-To: <20180502161542.GI19250@nanopsycho>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,38 +21,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, Vladislav Yasevich <vyasevich@gmail.com>
-Cc: virtio-dev@lists.oasis-open.org, nhorman@tuxdriver.com, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/02/2018 10:56 AM, Marcelo Ricardo Leitner wrote:
-> On Wed, May 02, 2018 at 11:53:47AM -0300, Marcelo Ricardo Leitner wrote:
->> On Tue, May 01, 2018 at 10:07:37PM -0400, Vladislav Yasevich wrote:
->>> Adds a new tun offload flag to allow for SCTP checksum offload.
->>> The flag has to be set by the user and defaults to "no offload".
->>
->> I'm confused here:
->>
->>> +++ b/drivers/net/tun.c
->>> @@ -216,7 +216,7 @@ struct tun_struct {
->>>  	struct net_device	*dev;
->>>  	netdev_features_t	set_features;
->>>  #define TUN_USER_FEATURES (NETIF_F_HW_CSUM|NETIF_F_TSO_ECN|NETIF_F_TSO| \
->>> -			  NETIF_F_TSO6)
->>> +			  NETIF_F_TSO6|NETIF_F_SCTP_CRC)
->>
->> Doesn't adding it here mean it defaults to "offload", instead?
->>
->> later on, it does:
->>                 dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST |
->>                                    TUN_USER_FEATURES | NETIF_F_HW_VLAN_CTAG_TX |
->>                                    NETIF_F_HW_VLAN_STAG_TX;
-> 
-> Missed to paste the next line too:
->                 dev->features = dev->hw_features | NETIF_F_LLTX;
-> 
-
-Yes, as a software device, we can default it to on.  However, qemu will 0-out
-the features and then set them up based on the guest (just like regular checksum).
-
--vlad
+CgpPbiA1LzIvMjAxOCA5OjE1IEFNLCBKaXJpIFBpcmtvIHdyb3RlOgo+IFNhdCwgQXByIDI4LCAy
+MDE4IGF0IDExOjA2OjAxQU0gQ0VTVCwgamlyaUByZXNudWxsaS51cyB3cm90ZToKPj4gRnJpLCBB
+cHIgMjcsIDIwMTggYXQgMDc6MDY6NThQTSBDRVNULCBzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5j
+b20gd3JvdGU6Cj4gWy4uLl0KPgo+Cj4+PiArCj4+PiArCWVyciA9IG5ldGRldl9yeF9oYW5kbGVy
+X3JlZ2lzdGVyKHNsYXZlX2RldiwgbmV0X2ZhaWxvdmVyX2hhbmRsZV9mcmFtZSwKPj4+ICsJCQkJ
+CSBmYWlsb3Zlcl9kZXYpOwo+Pj4gKwlpZiAoZXJyKSB7Cj4+PiArCQluZXRkZXZfZXJyKHNsYXZl
+X2RldiwgImNhbiBub3QgcmVnaXN0ZXIgZmFpbG92ZXIgcnggaGFuZGxlciAoZXJyID0gJWQpXG4i
+LAo+Pj4gKwkJCSAgIGVycik7Cj4+PiArCQlnb3RvIGVycl9oYW5kbGVyX3JlZ2lzdGVyOwo+Pj4g
+Kwl9Cj4+PiArCj4+PiArCWVyciA9IG5ldGRldl91cHBlcl9kZXZfbGluayhzbGF2ZV9kZXYsIGZh
+aWxvdmVyX2RldiwgTlVMTCk7Cj4+IFBsZWFzZSB1c2UgbmV0ZGV2X21hc3Rlcl91cHBlcl9kZXZf
+bGluaygpLgo+IERvbid0IGZvcmdldCB0byBmaWxsdXAgc3RydWN0IG5ldGRldl9sYWdfdXBwZXJf
+aW5mbyAtIE5FVERFVl9MQUdfVFhfVFlQRV9BQ1RJVkVCQUNLVVAKPgo+Cj4gQWxzbywgcGxlYXNl
+IGNhbGwgbmV0ZGV2X2xvd2VyX3N0YXRlX2NoYW5nZWQoKSB3aGVuIHRoZSBhY3RpdmUgc2xhdmUK
+PiBkZXZpY2UgY2hhbmdlcyBmcm9tIHByaW1hcnktPmJhY2t1cCBvZiBiYWNrdXAtPnByaW1hcnkg
+YW5kIHdoZW5ldmVyIGxpbmsKPiBzdGF0ZSBvZiBhIHNsYXZlIGNoYW5nZXMKPgpTdXJlLiB3aWxs
+IGxvb2sgaW50byBpdC7CoCBEbyB5b3UgdGhpbmsgdGhpcyB3aWxsIGhlbHAgd2l0aCB0aGUgaXNz
+dWUKeW91IHNhdyB3aXRoIGhhdmluZyB0byBjaGFuZ2UgbWFjIG9uIHN0YW5keSB0d2ljZSB0byBn
+ZXQgdGhlIGluaXQgc2NyaXB0cwp3b3JraW5nPyBXZSBhcmUgbm93IGdvaW5nIHRvIGJsb2NrIGNo
+YW5naW5nIHRoZSBtYWMgb24gYm90aCBzdGFuZGJ5IGFuZApmYWlsb3Zlci4KCkFsc28sIGkgd2Fz
+IHdvbmRlcmluZyBpZiB3ZSBzaG91bGQgc2V0IGRldi0+ZmxhZ3MgdG8gSUZGX01BU1RFUiBvbiBm
+YWlsb3ZlcgphbmQgSUZGX1NMQVZFIG9uIHByaW1hcnkgYW5kIHN0YW5kYnkuIG5ldHZzYyBkb2Vz
+IHRoaXMuCkRvZXMgdGhpcyBoZWxwIHdpdGggdGhlIGluaXQgc2NyaXB0cyBhbmQgbmV0d29yayBt
+YW5hZ2VyIHRvIHNraXAgc2xhdmUKZGV2aWNlcyBmb3IgZGhjcCByZXF1ZXN0cz8KCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
+aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
+czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
+dGlvbg==
