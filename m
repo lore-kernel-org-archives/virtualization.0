@@ -1,11 +1,13 @@
 From: Daniel Vetter <daniel.vetter@ffwll.ch>
 Subject: [PATCH] drm/qxl: Remove unecessary dma_fence_ops
-Date: Wed,  2 May 2018 10:23:09 +0200
-Message-ID: <20180502082309.30177-1-daniel.vetter__26833.8867150762$1525249287$gmane$org@ffwll.ch>
+Date: Wed,  2 May 2018 10:23:25 +0200
+Message-ID: <20180502082325.30264-1-daniel.vetter__15878.7345317707$1525249290$gmane$org@ffwll.ch>
+References: <20180427061724.28497-13-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180427061724.28497-13-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
