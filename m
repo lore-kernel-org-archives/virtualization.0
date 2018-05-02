@@ -1,18 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Subject: Re: [PATCH net-next v9 2/4] net: Introduce generic failover module
-Date: Wed, 2 May 2018 23:30:02 +0300
-Message-ID: <20180502232907-mutt-send-email-mst__6466.68663616783$1525292888$gmane$org@kernel.org>
+Date: Wed, 2 May 2018 14:36:41 -0700
+Message-ID: <77b1e77a-a7d7-3c78-1c63-0f2982a9d681@intel.com>
 References: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
 	<1524848820-42258-3-git-send-email-sridhar.samudrala@intel.com>
 	<20180428090601.GL5632@nanopsycho.orion>
 	<20180502161542.GI19250@nanopsycho>
 	<052e2c60-dc4c-d6a0-0159-fc1821cb4365@intel.com>
+	<20180502232907-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <052e2c60-dc4c-d6a0-0159-fc1821cb4365@intel.com>
+In-Reply-To: <20180502232907-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,64 +23,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 02, 2018 at 10:51:12AM -0700, Samudrala, Sridhar wrote:
-> =
-
-> =
-
-> On 5/2/2018 9:15 AM, Jiri Pirko wrote:
-> > Sat, Apr 28, 2018 at 11:06:01AM CEST, jiri@resnulli.us wrote:
-> > > Fri, Apr 27, 2018 at 07:06:58PM CEST, sridhar.samudrala@intel.com wro=
-te:
-> > [...]
-> > =
-
-> > =
-
-> > > > +
-> > > > +	err =3D netdev_rx_handler_register(slave_dev, net_failover_handle=
-_frame,
-> > > > +					 failover_dev);
-> > > > +	if (err) {
-> > > > +		netdev_err(slave_dev, "can not register failover rx handler (err=
- =3D %d)\n",
-> > > > +			   err);
-> > > > +		goto err_handler_register;
-> > > > +	}
-> > > > +
-> > > > +	err =3D netdev_upper_dev_link(slave_dev, failover_dev, NULL);
-> > > Please use netdev_master_upper_dev_link().
-> > Don't forget to fillup struct netdev_lag_upper_info - NETDEV_LAG_TX_TYP=
-E_ACTIVEBACKUP
-> > =
-
-> > =
-
-> > Also, please call netdev_lower_state_changed() when the active slave
-> > device changes from primary->backup of backup->primary and whenever link
-> > state of a slave changes
-> > =
-
-> Sure. will look into it.=A0 Do you think this will help with the issue
-> you saw with having to change mac on standy twice to get the init scripts
-> working? We are now going to block changing the mac on both standby and
-> failover.
-> =
-
-> Also, i was wondering if we should set dev->flags to IFF_MASTER on failov=
-er
-> and IFF_SLAVE on primary and standby.
-
-We do need a way to find things out, that's for sure.
-How does userspace know it's a failover
-config and find the failover device right now?
-
-> netvsc does this.
-> Does this help with the init scripts and network manager to skip slave
-> devices for dhcp requests?
-
-Try it?
+T24gNS8yLzIwMTggMTozMCBQTSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9uIFdlZCwg
+TWF5IDAyLCAyMDE4IGF0IDEwOjUxOjEyQU0gLTA3MDAsIFNhbXVkcmFsYSwgU3JpZGhhciB3cm90
+ZToKPj4KPj4gT24gNS8yLzIwMTggOToxNSBBTSwgSmlyaSBQaXJrbyB3cm90ZToKPj4+IFNhdCwg
+QXByIDI4LCAyMDE4IGF0IDExOjA2OjAxQU0gQ0VTVCwgamlyaUByZXNudWxsaS51cyB3cm90ZToK
+Pj4+PiBGcmksIEFwciAyNywgMjAxOCBhdCAwNzowNjo1OFBNIENFU1QsIHNyaWRoYXIuc2FtdWRy
+YWxhQGludGVsLmNvbSB3cm90ZToKPj4+IFsuLi5dCj4+Pgo+Pj4KPj4+Pj4gKwo+Pj4+PiArCWVy
+ciA9IG5ldGRldl9yeF9oYW5kbGVyX3JlZ2lzdGVyKHNsYXZlX2RldiwgbmV0X2ZhaWxvdmVyX2hh
+bmRsZV9mcmFtZSwKPj4+Pj4gKwkJCQkJIGZhaWxvdmVyX2Rldik7Cj4+Pj4+ICsJaWYgKGVycikg
+ewo+Pj4+PiArCQluZXRkZXZfZXJyKHNsYXZlX2RldiwgImNhbiBub3QgcmVnaXN0ZXIgZmFpbG92
+ZXIgcnggaGFuZGxlciAoZXJyID0gJWQpXG4iLAo+Pj4+PiArCQkJICAgZXJyKTsKPj4+Pj4gKwkJ
+Z290byBlcnJfaGFuZGxlcl9yZWdpc3RlcjsKPj4+Pj4gKwl9Cj4+Pj4+ICsKPj4+Pj4gKwllcnIg
+PSBuZXRkZXZfdXBwZXJfZGV2X2xpbmsoc2xhdmVfZGV2LCBmYWlsb3Zlcl9kZXYsIE5VTEwpOwo+
+Pj4+IFBsZWFzZSB1c2UgbmV0ZGV2X21hc3Rlcl91cHBlcl9kZXZfbGluaygpLgo+Pj4gRG9uJ3Qg
+Zm9yZ2V0IHRvIGZpbGx1cCBzdHJ1Y3QgbmV0ZGV2X2xhZ191cHBlcl9pbmZvIC0gTkVUREVWX0xB
+R19UWF9UWVBFX0FDVElWRUJBQ0tVUAo+Pj4KPj4+Cj4+PiBBbHNvLCBwbGVhc2UgY2FsbCBuZXRk
+ZXZfbG93ZXJfc3RhdGVfY2hhbmdlZCgpIHdoZW4gdGhlIGFjdGl2ZSBzbGF2ZQo+Pj4gZGV2aWNl
+IGNoYW5nZXMgZnJvbSBwcmltYXJ5LT5iYWNrdXAgb2YgYmFja3VwLT5wcmltYXJ5IGFuZCB3aGVu
+ZXZlciBsaW5rCj4+PiBzdGF0ZSBvZiBhIHNsYXZlIGNoYW5nZXMKPj4+Cj4+IFN1cmUuIHdpbGwg
+bG9vayBpbnRvIGl0LsKgIERvIHlvdSB0aGluayB0aGlzIHdpbGwgaGVscCB3aXRoIHRoZSBpc3N1
+ZQo+PiB5b3Ugc2F3IHdpdGggaGF2aW5nIHRvIGNoYW5nZSBtYWMgb24gc3RhbmR5IHR3aWNlIHRv
+IGdldCB0aGUgaW5pdCBzY3JpcHRzCj4+IHdvcmtpbmc/IFdlIGFyZSBub3cgZ29pbmcgdG8gYmxv
+Y2sgY2hhbmdpbmcgdGhlIG1hYyBvbiBib3RoIHN0YW5kYnkgYW5kCj4+IGZhaWxvdmVyLgo+Pgo+
+PiBBbHNvLCBpIHdhcyB3b25kZXJpbmcgaWYgd2Ugc2hvdWxkIHNldCBkZXYtPmZsYWdzIHRvIElG
+Rl9NQVNURVIgb24gZmFpbG92ZXIKPj4gYW5kIElGRl9TTEFWRSBvbiBwcmltYXJ5IGFuZCBzdGFu
+ZGJ5Lgo+IFdlIGRvIG5lZWQgYSB3YXkgdG8gZmluZCB0aGluZ3Mgb3V0LCB0aGF0J3MgZm9yIHN1
+cmUuCj4gSG93IGRvZXMgdXNlcnNwYWNlIGtub3cgaXQncyBhIGZhaWxvdmVyCj4gY29uZmlnIGFu
+ZCBmaW5kIHRoZSBmYWlsb3ZlciBkZXZpY2UgcmlnaHQgbm93PwoKIyBldGh0b29sIC1pIGVuczEy
+fGdyZXAgZHJpdmVyCmRyaXZlcjogZmFpbG92ZXIKCiMgZXRodG9vbCAtaSBlbnMxMm5fc2J5fGdy
+ZXAgZHJpdmVyCmRyaXZlcjogdmlydGlvX25ldAoKCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
