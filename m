@@ -1,8 +1,8 @@
 From: Vladislav Yasevich <vyasevich@gmail.com>
-Subject: [PATCH V2 net-next 2/6] sctp: Handle sctp packets with
-	CHECKSUM_PARTIAL
-Date: Tue,  1 May 2018 22:07:35 -0400
-Message-ID: <20180502020739.19239-3-vyasevic__20168.4635518633$1525226762$gmane$org@redhat.com>
+Subject: [PATCH V2 net-next 3/6] sctp: Build sctp offload support into the
+	base kernel
+Date: Tue,  1 May 2018 22:07:36 -0400
+Message-ID: <20180502020739.19239-4-vyasevic@redhat.com>
 References: <20180502020739.19239-1-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,41 +22,116 @@ To: netdev@vger.kernel.org
 Cc: virtio-dev@lists.oasis-open.org, marcelo.leitner@gmail.com, nhorman@tuxdriver.com, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-With SCTP checksum offload available in virtio, it is now
-possible for virtio to receive a sctp packet with CHECKSUM_PARTIAL
-set (guest-to-guest traffic).  SCTP doesn't really have a
-partial checksum like TCP does, because CRC32c can't do partial
-additive checksumming.  It's all or nothing.  So an SCTP packet
-with CHECKSUM_PARTIAL will have checksum set to 0.  Let SCTP
-treat this as a valid checksum if CHECKSUM_PARTIAL is set.
+With the SCTP checksum offload support added to virtio, it is
+now possible to get into a situation where SCTP not present
+in the kernel, but the feature is negotiated.  Handle this just
+like we do IPv6 and other modular offloads.
+Move the sctp offload out of the sctp module and into the base
+kernel.
 
 Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
 ---
- net/sctp/input.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ include/net/sctp/sctp.h | 5 -----
+ net/Kconfig             | 1 +
+ net/sctp/Kconfig        | 1 -
+ net/sctp/Makefile       | 3 ++-
+ net/sctp/offload.c      | 4 +++-
+ net/sctp/protocol.c     | 3 ---
+ 6 files changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/net/sctp/input.c b/net/sctp/input.c
-index ba8a6e6..055b8ffa 100644
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -80,8 +80,17 @@ static inline int sctp_rcv_checksum(struct net *net, struct sk_buff *skb)
- {
- 	struct sctphdr *sh = sctp_hdr(skb);
- 	__le32 cmp = sh->checksum;
--	__le32 val = sctp_compute_cksum(skb, 0);
-+	__le32 val = 0;
+diff --git a/include/net/sctp/sctp.h b/include/net/sctp/sctp.h
+index 72c5b8f..625b45f 100644
+--- a/include/net/sctp/sctp.h
++++ b/include/net/sctp/sctp.h
+@@ -183,11 +183,6 @@ struct sctp_transport *sctp_epaddr_lookup_transport(
+ int __net_init sctp_proc_init(struct net *net);
  
-+	/* In sctp PARTIAL checksum is always 0.  This is a case of
-+	 * a packet received from guest that supports checksum offload.
-+	 * Assume it's correct as there is really no way to verify,
-+	 * and we want to avaoid computing it unnecesarily.
-+	 */
-+	if (skb->ip_summed == CHECKSUM_PARTIAL)
-+		return 0;
+ /*
+- * sctp/offload.c
+- */
+-int sctp_offload_init(void);
+-
+-/*
+  * sctp/stream_sched.c
+  */
+ void sctp_sched_ops_init(void);
+diff --git a/net/Kconfig b/net/Kconfig
+index 0428f12..2773f98 100644
+--- a/net/Kconfig
++++ b/net/Kconfig
+@@ -64,6 +64,7 @@ config INET
+ 	bool "TCP/IP networking"
+ 	select CRYPTO
+ 	select CRYPTO_AES
++	select LIBCRC32C
+ 	---help---
+ 	  These are the protocols used on the Internet and on most local
+ 	  Ethernets. It is highly recommended to say Y here (this will enlarge
+diff --git a/net/sctp/Kconfig b/net/sctp/Kconfig
+index c740b18..d07477a 100644
+--- a/net/sctp/Kconfig
++++ b/net/sctp/Kconfig
+@@ -9,7 +9,6 @@ menuconfig IP_SCTP
+ 	select CRYPTO
+ 	select CRYPTO_HMAC
+ 	select CRYPTO_SHA1
+-	select LIBCRC32C
+ 	---help---
+ 	  Stream Control Transmission Protocol
+ 
+diff --git a/net/sctp/Makefile b/net/sctp/Makefile
+index e845e45..ee206ca 100644
+--- a/net/sctp/Makefile
++++ b/net/sctp/Makefile
+@@ -5,6 +5,7 @@
+ 
+ obj-$(CONFIG_IP_SCTP) += sctp.o
+ obj-$(CONFIG_INET_SCTP_DIAG) += sctp_diag.o
++obj-$(CONFIG_INET) += offload.o
+ 
+ sctp-y := sm_statetable.o sm_statefuns.o sm_sideeffect.o \
+ 	  protocol.o endpointola.o associola.o \
+@@ -12,7 +13,7 @@ sctp-y := sm_statetable.o sm_statefuns.o sm_sideeffect.o \
+ 	  inqueue.o outqueue.o ulpqueue.o \
+ 	  tsnmap.o bind_addr.o socket.o primitive.o \
+ 	  output.o input.o debug.o stream.o auth.o \
+-	  offload.o stream_sched.o stream_sched_prio.o \
++	  stream_sched.o stream_sched_prio.o \
+ 	  stream_sched_rr.o stream_interleave.o
+ 
+ sctp_diag-y := diag.o
+diff --git a/net/sctp/offload.c b/net/sctp/offload.c
+index 123e9f2..c61cbde 100644
+--- a/net/sctp/offload.c
++++ b/net/sctp/offload.c
+@@ -107,7 +107,7 @@ static const struct skb_checksum_ops crc32c_csum_ops = {
+ 	.combine = sctp_csum_combine,
+ };
+ 
+-int __init sctp_offload_init(void)
++static int __init sctp_offload_init(void)
+ {
+ 	int ret;
+ 
+@@ -127,3 +127,5 @@ int __init sctp_offload_init(void)
+ out:
+ 	return ret;
+ }
 +
-+	val = sctp_compute_cksum(skb, 0);
- 	if (val != cmp) {
- 		/* CRC failure, dump it. */
- 		__SCTP_INC_STATS(net, SCTP_MIB_CHECKSUMERRORS);
++fs_initcall(sctp_offload_init);
+diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
+index a24cde2..46d2b63 100644
+--- a/net/sctp/protocol.c
++++ b/net/sctp/protocol.c
+@@ -1479,9 +1479,6 @@ static __init int sctp_init(void)
+ 	if (status)
+ 		goto err_v6_add_protocol;
+ 
+-	if (sctp_offload_init() < 0)
+-		pr_crit("%s: Cannot add SCTP protocol offload\n", __func__);
+-
+ out:
+ 	return status;
+ err_v6_add_protocol:
 -- 
 2.9.5
