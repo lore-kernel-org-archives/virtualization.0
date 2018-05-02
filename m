@@ -1,15 +1,19 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] vhost: make msg padding explicit
-Date: Tue, 01 May 2018 14:05:51 -0400 (EDT)
-Message-ID: <20180501.140551.1944561534446599966.davem__44651.8395714977$1525197855$gmane$org@davemloft.net>
-References: <1524844881-178524-1-git-send-email-mst@redhat.com>
-	<20180501.112822.1871426720257639849.davem@davemloft.net>
-	<20180501201841-mutt-send-email-mst@kernel.org>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [PATCH net-next v9 3/4] virtio_net: Extend virtio to use VF
+	datapath when available
+Date: Tue, 1 May 2018 17:20:26 -0700
+Message-ID: <9c6f055c-c665-0601-3973-bce74d72544b__12983.5985521369$1525220331$gmane$org@intel.com>
+References: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
+	<1524848820-42258-4-git-send-email-sridhar.samudrala@intel.com>
+	<20180428094205.GM5632@nanopsycho.orion>
+	<638e52c7-64db-9d8d-7530-f6b000d3e292@intel.com>
+	<20180430072034.GH23854@nanopsycho.orion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180501201841-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180430072034.GH23854@nanopsycho.orion>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +23,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: kevin@guarana.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Tue, 1 May 2018 20:19:19 +0300
-
-> On Tue, May 01, 2018 at 11:28:22AM -0400, David Miller wrote:
->> From: "Michael S. Tsirkin" <mst@redhat.com>
->> Date: Fri, 27 Apr 2018 19:02:05 +0300
->> 
->> > There's a 32 bit hole just after type. It's best to
->> > give it a name, this way compiler is forced to initialize
->> > it with rest of the structure.
->> > 
->> > Reported-by: Kevin Easton <kevin@guarana.org>
->> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->> 
->> Michael, will you be sending this directly to Linus or would you like
->> me to apply it to net or net-next?
->> 
->> Thanks.
-> 
-> I'd prefer you to apply it for net and cc stable if possible.
-
-Ok, applied, and added to my -stable submission queue.
+T24gNC8zMC8yMDE4IDEyOjIwIEFNLCBKaXJpIFBpcmtvIHdyb3RlOgo+Cj4+PiBOb3cgSSB0cnkg
+dG8gY2hhbmdlIG1hYyBvZiB0aGUgZmFpbG92ZXIgbWFzdGVyOgo+Pj4gW3Jvb3RAdGVzdDEgfl0j
+IGlwIGxpbmsgc2V0IGVuczMgYWRkciA1Mjo1NDowMDpiMjphNzpmMwo+Pj4gUlRORVRMSU5LIGFu
+c3dlcnM6IE9wZXJhdGlvbiBub3Qgc3VwcG9ydGVkCj4+Pgo+Pj4gVGhhdCBJIGRpZCBleHBlY3Qg
+dG8gd29yay4gSSB3b3VsZCBleHBlY3QgdGhpcyB3b3VsZCBjaGFuZ2UgdGhlIG1hYyBvZgo+Pj4g
+dGhlIG1hc3RlciBhbmQgYm90aCBzdGFuZGJ5IGFuZCBwcmltYXJ5IHNsYXZlcy4KPj4gSWYgYSBW
+RiBpcyB1bnRydXN0ZWQsIGEgVk0gd2lsbCBub3QgYWJsZSB0byBjaGFuZ2UgaXRzIE1BQyBhbmQg
+bW9yZW92ZXIKPiBOb3RlIHRoYXQgYXQgdGhpcyBwb2ludCwgSSBoYXZlIG5vIFZGLiBTbyBJJ20g
+bm90IHN1cmUgd2h5IHlvdSBtZW50aW9uCj4gdGhhdC4KPgo+Cj4+IGluIHRoaXMgbW9kZSB3ZSBh
+cmUgYXNzdW1pbmcgdGhhdCB0aGUgaHlwZXJ2aXNvciBoYXMgYXNzaWduZWQgdGhlIE1BQyBhbmQK
+Pj4gZ3Vlc3QgaXMgbm90IGV4cGVjdGVkIHRvIGNoYW5nZSB0aGUgTUFDLgo+IFdhaXQsIGZvciBv
+cmRpbmFyeSBvbGQtZmFzaGlvbmVkIHZpcnRpb19uZXQsIGFzIGEgVk0gdXNlciwgSSBjYW4gY2hh
+bmdlCj4gbWFjIGFuZCBhbGwgd29ya3MgZmluZS4gSG93IGlzIHRoaXMgZGlmZmVyZW50PyBDaGFu
+Z2UgbWFjIG9uICJmYWlsb3Zlcgo+IGluc3RhbmNlIiBzaG91bGQgd29yayBhbmQgc2hvdWxkIHBy
+b3BhZ2F0ZSB0aGUgbWFjIGRvd24gdG8gaXRzIHNsYXZlcy4KPgo+Cj4+IEZvciB0aGUgaW5pdGlh
+bCBpbXBsZW1lbnRhdGlvbiwgaSB3b3VsZCBwcm9wb3NlIG5vdCBhbGxvd2luZyB0aGUgZ3Vlc3Qg
+dG8KPj4gY2hhbmdlIHRoZSBNQUMgb2YgZmFpbG92ZXIgb3Igc3RhbmRieSBkZXYuCj4gSSBzZWUg
+bm8gcmVhc29uIGZvciBzdWNoIHJlc3RyaWN0aW9uLgo+CgpJdCBpcyB0cnVlIHRoYXQgYSBWTSB1
+c2VyIGNhbiBjaGFuZ2UgbWFjIGFkZHJlc3Mgb2YgYSBub3JtYWwgdmlydGlvLW5ldCBpbnRlcmZh
+Y2UsCmhvd2V2ZXIgd2hlbiBpdCBpcyBpbiBTVEFOREJZIG1vZGUgaSB0aGluayB3ZSBzaG91bGQg
+bm90IGFsbG93IHRoaXMgY2hhbmdlIHNwZWNpZmljYWxseQpiZWNhdXNlIHdlIGFyZSBjcmVhdGlu
+ZyBhIGZhaWxvdmVyIGluc3RhbmNlIGJhc2VkIG9uIGEgTUFDIHRoYXQgaXMgYXNzaWduZWQgYnkg
+dGhlCmh5cGVydmlzb3IuCgpNb3Jlb3ZlcizCoCBpbiBhIGNsb3VkIGVudmlyb25tZW50IGkgd291
+bGQgdGhpbmsgdGhhdCBQRi9oeXBlcnZpc29yIGFzc2lnbnMgYSBNQUMgdG8KdGhlIFZGIGFuZCBp
+dCBjYW5ub3QgYmUgY2hhbmdlZCBieSB0aGUgZ3Vlc3QuCgpTbyBmb3IgdGhlIGluaXRpYWwgaW1w
+bGVtZW50YXRpb24sIGRvIHlvdSBzZWUgYW55IGlzc3VlcyB3aXRoIGhhdmluZyB0aGlzIHJlc3Ry
+aWN0aW9uCmluIFNUQU5EQlkgbW9kZS4KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
