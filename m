@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V2 net-next 5/6] macvlan/macvtap: Add support for SCTP
-	checksum offload.
-Date: Wed, 2 May 2018 06:24:21 +0300
-Message-ID: <20180502062400-mutt-send-email-mst__38250.2153901898$1525231361$gmane$org@kernel.org>
-References: <20180502020739.19239-1-vyasevic@redhat.com>
-	<20180502020739.19239-6-vyasevic@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC v3 0/5] virtio: support packed ring
+Date: Wed, 2 May 2018 11:49:43 +0800
+Message-ID: <31839145-3e87-2cc7-dfca-a09ae64b976a__40228.0816728764$1525232897$gmane$org@redhat.com>
+References: <20180425051550.24342-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180502020739.19239-6-vyasevic@redhat.com>
+In-Reply-To: <20180425051550.24342-1-tiwei.bie@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,80 +18,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vladislav Yasevich <vyasevich@gmail.com>
-Cc: virtio-dev@lists.oasis-open.org, marcelo.leitner@gmail.com, nhorman@tuxdriver.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org
+To: Tiwei Bie <tiwei.bie@intel.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 01, 2018 at 10:07:38PM -0400, Vladislav Yasevich wrote:
-> Since we now have support for software CRC32c offload, turn it on
-> for macvlan and macvtap devices so that guests can take advantage
-> of offload SCTP checksums to the host or host hardware.
-> 
-> Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
-> ---
->  drivers/net/macvlan.c | 5 +++--
->  drivers/net/tap.c     | 8 +++++---
->  2 files changed, 8 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
-> index 725f4b4..646b730 100644
-> --- a/drivers/net/macvlan.c
-> +++ b/drivers/net/macvlan.c
-> @@ -834,7 +834,7 @@ static struct lock_class_key macvlan_netdev_addr_lock_key;
->  
->  #define ALWAYS_ON_OFFLOADS \
->  	(NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_GSO_SOFTWARE | \
-> -	 NETIF_F_GSO_ROBUST | NETIF_F_GSO_ENCAP_ALL)
-> +	 NETIF_F_GSO_ROBUST | NETIF_F_GSO_ENCAP_ALL | NETIF_F_SCTP_CRC)
->  
->  #define ALWAYS_ON_FEATURES (ALWAYS_ON_OFFLOADS | NETIF_F_LLTX)
->  
-> @@ -842,7 +842,8 @@ static struct lock_class_key macvlan_netdev_addr_lock_key;
->  	(NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST | \
->  	 NETIF_F_GSO | NETIF_F_TSO | NETIF_F_LRO | \
->  	 NETIF_F_TSO_ECN | NETIF_F_TSO6 | NETIF_F_GRO | NETIF_F_RXCSUM | \
-> -	 NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_VLAN_STAG_FILTER)
-> +	 NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_VLAN_STAG_FILTER | \
-> +	 NETIF_F_SCTP_CRC)
->  
->  #define MACVLAN_STATE_MASK \
->  	((1<<__LINK_STATE_NOCARRIER) | (1<<__LINK_STATE_DORMANT))
-> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-> index 9b6cb78..2c8512b 100644
-> --- a/drivers/net/tap.c
-> +++ b/drivers/net/tap.c
-> @@ -369,8 +369,7 @@ rx_handler_result_t tap_handle_frame(struct sk_buff **pskb)
->  		 *	  check, we either support them all or none.
->  		 */
->  		if (skb->ip_summed == CHECKSUM_PARTIAL &&
-> -		    !(features & NETIF_F_CSUM_MASK) &&
-> -		    skb_checksum_help(skb))
-> +		    skb_csum_hwoffload_help(skb, features))
->  			goto drop;
->  		if (ptr_ring_produce(&q->ring, skb))
->  			goto drop;
-> @@ -945,6 +944,9 @@ static int set_offload(struct tap_queue *q, unsigned long arg)
->  		}
->  	}
->  
-> +	if (arg & TUN_F_SCTP_CSUM)
-> +		feature_mask |= NETIF_F_SCTP_CRC;
-> +
-
-so this still affects TX, shouldn't this affect RX instead?
-
-
->  	/* tun/tap driver inverts the usage for TSO offloads, where
->  	 * setting the TSO bit means that the userspace wants to
->  	 * accept TSO frames and turning it off means that user space
-> @@ -1077,7 +1079,7 @@ static long tap_ioctl(struct file *file, unsigned int cmd,
->  	case TUNSETOFFLOAD:
->  		/* let the user check for future flags */
->  		if (arg & ~(TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
-> -			    TUN_F_TSO_ECN | TUN_F_UFO))
-> +			    TUN_F_TSO_ECN | TUN_F_UFO | TUN_F_SCTP_CSUM))
->  			return -EINVAL;
->  
->  		rtnl_lock();
-> -- 
-> 2.9.5
+CgpPbiAyMDE45bm0MDTmnIgyNeaXpSAxMzoxNSwgVGl3ZWkgQmllIHdyb3RlOgo+IEhlbGxvIGV2
+ZXJ5b25lLAo+Cj4gVGhpcyBSRkMgaW1wbGVtZW50cyBwYWNrZWQgcmluZyBzdXBwb3J0IGluIHZp
+cnRpbyBkcml2ZXIuCj4KPiBTb21lIHNpbXBsZSBmdW5jdGlvbmFsIHRlc3RzIGhhdmUgYmVlbiBk
+b25lIHdpdGggSmFzb24ncwo+IHBhY2tlZCByaW5nIGltcGxlbWVudGF0aW9uIGluIHZob3N0Ogo+
+Cj4gaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTgvNC8yMy8xMgo+Cj4gQm90aCBvZiBwaW5nIGFu
+ZCBuZXRwZXJmIHdvcmtlZCBhcyBleHBlY3RlZCAod2l0aCBFVkVOVF9JRFgKPiBkaXNhYmxlZCku
+IEJ1dCB0aGVyZSBhcmUgYmVsb3cga25vd24gaXNzdWVzOgo+Cj4gMS4gUmVsb2FkaW5nIHRoZSBn
+dWVzdCBkcml2ZXIgd2lsbCBicmVhayB0aGUgVHgvUng7CgpJdCBsb29rcyBsaWtlIHRoZSByZWFz
+b24gaXMgd2UgZG9uJ3Qgc3luYyB3cmFwIGNvdW50ZXIgaW5mb3JtYXRpb24gCmJldHdlZW4gaG9z
+dCBhbmQgcWVtdSB0aHJvdWdoIFZIT1NUX1NFVC9HRVRfVlJJTkdfQkFTRS4gQW5kIGJvdGggdmhv
+c3QgCmFuZCBxZW11IG5lZWQgdG8gZG8gdGhpcyB0aHJvdWdoIGVuY29kaW5nIHdhcnAgY291bnRl
+cnMgdG8gaGlnaGVyIGJpdHMgCm9mIHZob3N0X3ZyaW5nX3N0YXRlLm51bSwKClRoYW5rcwpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
