@@ -1,7 +1,7 @@
 From: Jiri Pirko <jiri@resnulli.us>
 Subject: Re: [PATCH net-next v9 2/4] net: Introduce generic failover module
-Date: Wed, 2 May 2018 23:39:19 +0200
-Message-ID: <20180502213919.GK19250__47181.4036173329$1525297041$gmane$org@nanopsycho>
+Date: Wed, 2 May 2018 23:39:51 +0200
+Message-ID: <20180502213951.GL19250__1537.06876230917$1525297097$gmane$org@nanopsycho>
 References: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
 	<1524848820-42258-3-git-send-email-sridhar.samudrala@intel.com>
 	<20180428090601.GL5632@nanopsycho.orion>
@@ -66,14 +66,5 @@ _ACTIVEBACKUP
 >you saw with having to change mac on standy twice to get the init scripts
 >working? We are now going to block changing the mac on both standby and
 >failover.
->
->Also, i was wondering if we should set dev->flags to IFF_MASTER on failover
->and IFF_SLAVE on primary and standby. netvsc does this.
 
-No. Don't set it. It is wrong.
-
-
-
->Does this help with the init scripts and network manager to skip slave
->devices for dhcp requests?
->
+I don't see any relation to that.
