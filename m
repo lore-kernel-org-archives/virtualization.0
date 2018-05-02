@@ -1,19 +1,24 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [PATCH net-next v9 3/4] virtio_net: Extend virtio to use VF
-	datapath when available
-Date: Tue, 1 May 2018 17:20:26 -0700
-Message-ID: <9c6f055c-c665-0601-3973-bce74d72544b__12983.5985521369$1525220331$gmane$org@intel.com>
-References: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
-	<1524848820-42258-4-git-send-email-sridhar.samudrala@intel.com>
-	<20180428094205.GM5632@nanopsycho.orion>
-	<638e52c7-64db-9d8d-7530-f6b000d3e292@intel.com>
-	<20180430072034.GH23854@nanopsycho.orion>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
+Date: Tue, 1 May 2018 17:36:26 -0700
+Message-ID: <20180501173626.4593a87d0d64f6cc9d219d20@linux-foundation.org>
+References: <20180420130852.GC16083@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180420210200.GH10788@bombadil.infradead.org>
+	<alpine.LRH.2.02.1804201704580.25408@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180421144757.GC14610@bombadil.infradead.org>
+	<alpine.LRH.2.02.1804221733520.7995@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180423151545.GU17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804232006540.2299@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424133146.GG17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804241107010.31601@file01.intranet.prod.int.rdu2.redhat.com>
+	<20180424161242.GK17484@dhcp22.suse.cz>
+	<alpine.LRH.2.02.1804241229410.23702@file01.intranet.prod.int.rdu2.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180430072034.GH23854@nanopsycho.orion>
-Content-Language: en-US
+In-Reply-To: <alpine.LRH.2.02.1804241229410.23702@file01.intranet.prod.int.rdu2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,37 +28,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
+To: Mikulas Patocka <mpatocka@redhat.com>
+Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, edumazet@google.com, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gNC8zMC8yMDE4IDEyOjIwIEFNLCBKaXJpIFBpcmtvIHdyb3RlOgo+Cj4+PiBOb3cgSSB0cnkg
-dG8gY2hhbmdlIG1hYyBvZiB0aGUgZmFpbG92ZXIgbWFzdGVyOgo+Pj4gW3Jvb3RAdGVzdDEgfl0j
-IGlwIGxpbmsgc2V0IGVuczMgYWRkciA1Mjo1NDowMDpiMjphNzpmMwo+Pj4gUlRORVRMSU5LIGFu
-c3dlcnM6IE9wZXJhdGlvbiBub3Qgc3VwcG9ydGVkCj4+Pgo+Pj4gVGhhdCBJIGRpZCBleHBlY3Qg
-dG8gd29yay4gSSB3b3VsZCBleHBlY3QgdGhpcyB3b3VsZCBjaGFuZ2UgdGhlIG1hYyBvZgo+Pj4g
-dGhlIG1hc3RlciBhbmQgYm90aCBzdGFuZGJ5IGFuZCBwcmltYXJ5IHNsYXZlcy4KPj4gSWYgYSBW
-RiBpcyB1bnRydXN0ZWQsIGEgVk0gd2lsbCBub3QgYWJsZSB0byBjaGFuZ2UgaXRzIE1BQyBhbmQg
-bW9yZW92ZXIKPiBOb3RlIHRoYXQgYXQgdGhpcyBwb2ludCwgSSBoYXZlIG5vIFZGLiBTbyBJJ20g
-bm90IHN1cmUgd2h5IHlvdSBtZW50aW9uCj4gdGhhdC4KPgo+Cj4+IGluIHRoaXMgbW9kZSB3ZSBh
-cmUgYXNzdW1pbmcgdGhhdCB0aGUgaHlwZXJ2aXNvciBoYXMgYXNzaWduZWQgdGhlIE1BQyBhbmQK
-Pj4gZ3Vlc3QgaXMgbm90IGV4cGVjdGVkIHRvIGNoYW5nZSB0aGUgTUFDLgo+IFdhaXQsIGZvciBv
-cmRpbmFyeSBvbGQtZmFzaGlvbmVkIHZpcnRpb19uZXQsIGFzIGEgVk0gdXNlciwgSSBjYW4gY2hh
-bmdlCj4gbWFjIGFuZCBhbGwgd29ya3MgZmluZS4gSG93IGlzIHRoaXMgZGlmZmVyZW50PyBDaGFu
-Z2UgbWFjIG9uICJmYWlsb3Zlcgo+IGluc3RhbmNlIiBzaG91bGQgd29yayBhbmQgc2hvdWxkIHBy
-b3BhZ2F0ZSB0aGUgbWFjIGRvd24gdG8gaXRzIHNsYXZlcy4KPgo+Cj4+IEZvciB0aGUgaW5pdGlh
-bCBpbXBsZW1lbnRhdGlvbiwgaSB3b3VsZCBwcm9wb3NlIG5vdCBhbGxvd2luZyB0aGUgZ3Vlc3Qg
-dG8KPj4gY2hhbmdlIHRoZSBNQUMgb2YgZmFpbG92ZXIgb3Igc3RhbmRieSBkZXYuCj4gSSBzZWUg
-bm8gcmVhc29uIGZvciBzdWNoIHJlc3RyaWN0aW9uLgo+CgpJdCBpcyB0cnVlIHRoYXQgYSBWTSB1
-c2VyIGNhbiBjaGFuZ2UgbWFjIGFkZHJlc3Mgb2YgYSBub3JtYWwgdmlydGlvLW5ldCBpbnRlcmZh
-Y2UsCmhvd2V2ZXIgd2hlbiBpdCBpcyBpbiBTVEFOREJZIG1vZGUgaSB0aGluayB3ZSBzaG91bGQg
-bm90IGFsbG93IHRoaXMgY2hhbmdlIHNwZWNpZmljYWxseQpiZWNhdXNlIHdlIGFyZSBjcmVhdGlu
-ZyBhIGZhaWxvdmVyIGluc3RhbmNlIGJhc2VkIG9uIGEgTUFDIHRoYXQgaXMgYXNzaWduZWQgYnkg
-dGhlCmh5cGVydmlzb3IuCgpNb3Jlb3ZlcizCoCBpbiBhIGNsb3VkIGVudmlyb25tZW50IGkgd291
-bGQgdGhpbmsgdGhhdCBQRi9oeXBlcnZpc29yIGFzc2lnbnMgYSBNQUMgdG8KdGhlIFZGIGFuZCBp
-dCBjYW5ub3QgYmUgY2hhbmdlZCBieSB0aGUgZ3Vlc3QuCgpTbyBmb3IgdGhlIGluaXRpYWwgaW1w
-bGVtZW50YXRpb24sIGRvIHlvdSBzZWUgYW55IGlzc3VlcyB3aXRoIGhhdmluZyB0aGlzIHJlc3Ry
-aWN0aW9uCmluIFNUQU5EQlkgbW9kZS4KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Tue, 24 Apr 2018 12:33:01 -0400 (EDT) Mikulas Patocka <mpatocka@redhat.com> wrote:
+
+> 
+> 
+> On Tue, 24 Apr 2018, Michal Hocko wrote:
+> 
+> > On Tue 24-04-18 11:30:40, Mikulas Patocka wrote:
+> > > 
+> > > 
+> > > On Tue, 24 Apr 2018, Michal Hocko wrote:
+> > > 
+> > > > On Mon 23-04-18 20:25:15, Mikulas Patocka wrote:
+> > > > 
+> > > > > Fixing __vmalloc code 
+> > > > > is easy and it doesn't require cooperation with maintainers.
+> > > > 
+> > > > But it is a hack against the intention of the scope api.
+> > > 
+> > > It is not!
+> > 
+> > This discussion simply doesn't make much sense it seems. The scope API
+> > is to document the scope of the reclaim recursion critical section. That
+> > certainly is not a utility function like vmalloc.
+> 
+> That 15-line __vmalloc bugfix doesn't prevent you (or any other kernel 
+> developer) from converting the code to the scope API. You make nonsensical 
+> excuses.
+> 
+
+Fun thread!
+
+Winding back to the original problem, I'd state it as
+
+- Caller uses kvmalloc() but passes the address into vmalloc-naive
+  DMA API and
+
+- Caller uses kvmalloc() but passes the address into kfree()
+
+Yes?
+
+If so, then...
+
+Is there a way in which, in the kvmalloc-called-kmalloc path, we can
+tag the slab-allocated memory with a "this memory was allocated with
+kvmalloc()" flag?  I *think* there's extra per-object storage available
+with suitable slab/slub debugging options?  Perhaps we could steal one
+bit from the redzone, dunno.
+
+If so then we can
+
+a) set that flag in kvmalloc() if the kmalloc() call succeeded
+
+b) check for that flag in the DMA code, WARN if it is set.
+
+c) in kvfree(), clear that flag before calling kfree()
+
+d) in kfree(), check for that flag and go WARN() if set.
+
+So both potential bugs are detected all the time, dependent upon
+CONFIG_SLUB_DEBUG (and perhaps other slub config options).
