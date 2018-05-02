@@ -1,8 +1,8 @@
 From: Vladislav Yasevich <vyasevich@gmail.com>
-Subject: [PATCH V2 net-next 3/6] sctp: Build sctp offload support into the
-	base kernel
-Date: Tue,  1 May 2018 22:07:36 -0400
-Message-ID: <20180502020739.19239-4-vyasevic@redhat.com>
+Subject: [PATCH V2 net-next 1/6] virtio: Add support for SCTP checksum
+	offloading
+Date: Tue,  1 May 2018 22:07:34 -0400
+Message-ID: <20180502020739.19239-2-vyasevic__2013.5537758053$1525226773$gmane$org@redhat.com>
 References: <20180502020739.19239-1-vyasevic@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,116 +22,134 @@ To: netdev@vger.kernel.org
 Cc: virtio-dev@lists.oasis-open.org, marcelo.leitner@gmail.com, nhorman@tuxdriver.com, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-With the SCTP checksum offload support added to virtio, it is
-now possible to get into a situation where SCTP not present
-in the kernel, but the feature is negotiated.  Handle this just
-like we do IPv6 and other modular offloads.
-Move the sctp offload out of the sctp module and into the base
-kernel.
+To support SCTP checksum offloading, we need to add a new feature
+to virtio_net, so we can negotiate support between the hypervisor
+and the guest.
+The HOST feature bit signifies offloading support for transmit and
+enables device offload features.
+The GUEST feature bit signifies offloading support of recieve and
+is currently only used by the driver in case of xdp.  
+
+That patch also adds an addition virtio_net header flag which
+mirrors the skb->csum_not_inet flag.  This flags is used to indicate
+that is this an SCTP packet that needs its checksum computed by the
+lower layer.  In this case, the lower layer is the host hypervisor or
+possibly HW nic that supporst CRC32c offload.
+
+In the case that GUEST feature bit is flag, it will be possible to
+receive a virtio_net header with this bit set, which will set the
+corresponding skb bit.  SCTP protocol will be updated to correctly
+deal with it.
 
 Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
 ---
- include/net/sctp/sctp.h | 5 -----
- net/Kconfig             | 1 +
- net/sctp/Kconfig        | 1 -
- net/sctp/Makefile       | 3 ++-
- net/sctp/offload.c      | 4 +++-
- net/sctp/protocol.c     | 3 ---
- 6 files changed, 6 insertions(+), 11 deletions(-)
+ drivers/net/virtio_net.c        | 14 +++++++++++++-
+ include/linux/virtio_net.h      |  6 ++++++
+ include/uapi/linux/virtio_net.h |  5 +++++
+ 3 files changed, 24 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/sctp/sctp.h b/include/net/sctp/sctp.h
-index 72c5b8f..625b45f 100644
---- a/include/net/sctp/sctp.h
-+++ b/include/net/sctp/sctp.h
-@@ -183,11 +183,6 @@ struct sctp_transport *sctp_epaddr_lookup_transport(
- int __net_init sctp_proc_init(struct net *net);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7b187ec..34af280 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2148,6 +2148,8 @@ static int virtnet_clear_guest_offloads(struct virtnet_info *vi)
  
- /*
-- * sctp/offload.c
-- */
--int sctp_offload_init(void);
--
--/*
-  * sctp/stream_sched.c
-  */
- void sctp_sched_ops_init(void);
-diff --git a/net/Kconfig b/net/Kconfig
-index 0428f12..2773f98 100644
---- a/net/Kconfig
-+++ b/net/Kconfig
-@@ -64,6 +64,7 @@ config INET
- 	bool "TCP/IP networking"
- 	select CRYPTO
- 	select CRYPTO_AES
-+	select LIBCRC32C
- 	---help---
- 	  These are the protocols used on the Internet and on most local
- 	  Ethernets. It is highly recommended to say Y here (this will enlarge
-diff --git a/net/sctp/Kconfig b/net/sctp/Kconfig
-index c740b18..d07477a 100644
---- a/net/sctp/Kconfig
-+++ b/net/sctp/Kconfig
-@@ -9,7 +9,6 @@ menuconfig IP_SCTP
- 	select CRYPTO
- 	select CRYPTO_HMAC
- 	select CRYPTO_SHA1
--	select LIBCRC32C
- 	---help---
- 	  Stream Control Transmission Protocol
+ 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))
+ 		offloads = 1ULL << VIRTIO_NET_F_GUEST_CSUM;
++	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_SCTP_CSUM))
++		offloads |= 1ULL << VIRTIO_NET_F_GUEST_SCTP_CSUM;
  
-diff --git a/net/sctp/Makefile b/net/sctp/Makefile
-index e845e45..ee206ca 100644
---- a/net/sctp/Makefile
-+++ b/net/sctp/Makefile
-@@ -5,6 +5,7 @@
- 
- obj-$(CONFIG_IP_SCTP) += sctp.o
- obj-$(CONFIG_INET_SCTP_DIAG) += sctp_diag.o
-+obj-$(CONFIG_INET) += offload.o
- 
- sctp-y := sm_statetable.o sm_statefuns.o sm_sideeffect.o \
- 	  protocol.o endpointola.o associola.o \
-@@ -12,7 +13,7 @@ sctp-y := sm_statetable.o sm_statefuns.o sm_sideeffect.o \
- 	  inqueue.o outqueue.o ulpqueue.o \
- 	  tsnmap.o bind_addr.o socket.o primitive.o \
- 	  output.o input.o debug.o stream.o auth.o \
--	  offload.o stream_sched.o stream_sched_prio.o \
-+	  stream_sched.o stream_sched_prio.o \
- 	  stream_sched_rr.o stream_interleave.o
- 
- sctp_diag-y := diag.o
-diff --git a/net/sctp/offload.c b/net/sctp/offload.c
-index 123e9f2..c61cbde 100644
---- a/net/sctp/offload.c
-+++ b/net/sctp/offload.c
-@@ -107,7 +107,7 @@ static const struct skb_checksum_ops crc32c_csum_ops = {
- 	.combine = sctp_csum_combine,
- };
- 
--int __init sctp_offload_init(void)
-+static int __init sctp_offload_init(void)
- {
- 	int ret;
- 
-@@ -127,3 +127,5 @@ int __init sctp_offload_init(void)
- out:
- 	return ret;
+ 	return virtnet_set_guest_offloads(vi, offloads);
  }
-+
-+fs_initcall(sctp_offload_init);
-diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
-index a24cde2..46d2b63 100644
---- a/net/sctp/protocol.c
-+++ b/net/sctp/protocol.c
-@@ -1479,9 +1479,6 @@ static __init int sctp_init(void)
- 	if (status)
- 		goto err_v6_add_protocol;
+@@ -2160,6 +2162,8 @@ static int virtnet_restore_guest_offloads(struct virtnet_info *vi)
+ 		return 0;
+ 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))
+ 		offloads |= 1ULL << VIRTIO_NET_F_GUEST_CSUM;
++	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_SCTP_CSUM))
++		offloads |= 1ULL << VIRTIO_NET_F_GUEST_SCTP_CSUM;
  
--	if (sctp_offload_init() < 0)
--		pr_crit("%s: Cannot add SCTP protocol offload\n", __func__);
--
- out:
- 	return status;
- err_v6_add_protocol:
+ 	return virtnet_set_guest_offloads(vi, offloads);
+ }
+@@ -2724,6 +2728,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	/* Do we support "hardware" checksums? */
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_CSUM)) {
+ 		/* This opens up the world of extra features. */
++
+ 		dev->hw_features |= NETIF_F_HW_CSUM | NETIF_F_SG;
+ 		if (csum)
+ 			dev->features |= NETIF_F_HW_CSUM | NETIF_F_SG;
+@@ -2746,9 +2751,15 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 			dev->features |= dev->hw_features & NETIF_F_ALL_TSO;
+ 		/* (!csum && gso) case will be fixed by register_netdev() */
+ 	}
++
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_CSUM))
+ 		dev->features |= NETIF_F_RXCSUM;
+ 
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_SCTP_CSUM)) {
++		dev->hw_features |= NETIF_F_SCTP_CRC;
++		dev->features |= NETIF_F_SCTP_CRC;
++	}
++
+ 	dev->vlan_features = dev->features;
+ 
+ 	/* MTU range: 68 - 65535 */
+@@ -2962,7 +2973,8 @@ static struct virtio_device_id id_table[] = {
+ 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
+ 	VIRTIO_NET_F_CTRL_MAC_ADDR, \
+ 	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
+-	VIRTIO_NET_F_SPEED_DUPLEX
++	VIRTIO_NET_F_SPEED_DUPLEX, \
++	VIRTIO_NET_F_HOST_SCTP_CSUM, VIRTIO_NET_F_GUEST_SCTP_CSUM
+ 
+ static unsigned int features[] = {
+ 	VIRTNET_FEATURES,
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index f144216..28fffdc 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -39,6 +39,9 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 
+ 		if (!skb_partial_csum_set(skb, start, off))
+ 			return -EINVAL;
++
++		if (hdr->flags & VIRTIO_NET_HDR_F_CSUM_NOT_INET)
++			skb->csum_not_inet = 1;
+ 	}
+ 
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+@@ -91,6 +94,9 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+ 				skb_checksum_start_offset(skb));
+ 		hdr->csum_offset = __cpu_to_virtio16(little_endian,
+ 				skb->csum_offset);
++
++		if (skb->csum_not_inet)
++			hdr->flags |= VIRTIO_NET_HDR_F_CSUM_NOT_INET;
+ 	} else if (has_data_valid &&
+ 		   skb->ip_summed == CHECKSUM_UNNECESSARY) {
+ 		hdr->flags = VIRTIO_NET_HDR_F_DATA_VALID;
+diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+index 5de6ed3..9dfca1a 100644
+--- a/include/uapi/linux/virtio_net.h
++++ b/include/uapi/linux/virtio_net.h
+@@ -57,6 +57,10 @@
+ 					 * Steering */
+ #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+ 
++#define VIRTIO_NET_F_GUEST_SCTP_CSUM  61 /* Guest handles SCTP pks w/ partial
++					  * csum */
++#define VIRTIO_NET_F_HOST_SCTP_CSUM   62 /* HOST handles SCTP pkts w/ partial
++					  * csum */
+ #define VIRTIO_NET_F_SPEED_DUPLEX 63	/* Device set linkspeed and duplex */
+ 
+ #ifndef VIRTIO_NET_NO_LEGACY
+@@ -101,6 +105,7 @@ struct virtio_net_config {
+ struct virtio_net_hdr_v1 {
+ #define VIRTIO_NET_HDR_F_NEEDS_CSUM	1	/* Use csum_start, csum_offset */
+ #define VIRTIO_NET_HDR_F_DATA_VALID	2	/* Csum is valid */
++#define VIRTIO_NET_HDR_F_CSUM_NOT_INET  4       /* Checksum is not inet */
+ 	__u8 flags;
+ #define VIRTIO_NET_HDR_GSO_NONE		0	/* Not a GSO frame */
+ #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
 -- 
 2.9.5
