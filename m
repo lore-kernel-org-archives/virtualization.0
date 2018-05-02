@@ -1,24 +1,11 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
-Date: Tue, 1 May 2018 17:36:26 -0700
-Message-ID: <20180501173626.4593a87d0d64f6cc9d219d20@linux-foundation.org>
-References: <20180420130852.GC16083@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804201635180.25408@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180420210200.GH10788@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804201704580.25408@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180421144757.GC14610@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804221733520.7995@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180423151545.GU17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804232006540.2299@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180424133146.GG17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804241107010.31601@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180424161242.GK17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804241229410.23702@file01.intranet.prod.int.rdu2.redhat.com>
+From: Vladislav Yasevich <vyasevich@gmail.com>
+Subject: [PATCH V2 net-next 0/6] virtio-net: Add SCTP checksum offload support
+Date: Tue,  1 May 2018 22:07:33 -0400
+Message-ID: <20180502020739.19239-1-vyasevic__28413.7842864313$1525226747$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.LRH.2.02.1804241229410.23702@file01.intranet.prod.int.rdu2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,67 +15,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, edumazet@google.com, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
+To: netdev@vger.kernel.org
+Cc: virtio-dev@lists.oasis-open.org, marcelo.leitner@gmail.com, nhorman@tuxdriver.com, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 24 Apr 2018 12:33:01 -0400 (EDT) Mikulas Patocka <mpatocka@redhat.com> wrote:
+Now that we have SCTP offload capabilities in the kernel, we can add
+them to virtio as well.  First step is SCTP checksum.
 
-> 
-> 
-> On Tue, 24 Apr 2018, Michal Hocko wrote:
-> 
-> > On Tue 24-04-18 11:30:40, Mikulas Patocka wrote:
-> > > 
-> > > 
-> > > On Tue, 24 Apr 2018, Michal Hocko wrote:
-> > > 
-> > > > On Mon 23-04-18 20:25:15, Mikulas Patocka wrote:
-> > > > 
-> > > > > Fixing __vmalloc code 
-> > > > > is easy and it doesn't require cooperation with maintainers.
-> > > > 
-> > > > But it is a hack against the intention of the scope api.
-> > > 
-> > > It is not!
-> > 
-> > This discussion simply doesn't make much sense it seems. The scope API
-> > is to document the scope of the reclaim recursion critical section. That
-> > certainly is not a utility function like vmalloc.
-> 
-> That 15-line __vmalloc bugfix doesn't prevent you (or any other kernel 
-> developer) from converting the code to the scope API. You make nonsensical 
-> excuses.
-> 
+We need a new freature in virtio to negotiate this support since
+SCTP is excluded with the stardard checksum and requires a little
+bit extra.  This series proposes VIRTIO_NET_F_SCTP_CSUM feature bit.
 
-Fun thread!
+As the "little bit extra",  the kernel uses a new bit in the skb
+(skb->csum_not_inet) to determine whether to use standard inet checksum
+or the SCTP CRC32c checksum.  This bit has to be communicated between
+the host and the guest.  This bit is carried in the vnet header.
 
-Winding back to the original problem, I'd state it as
+Tap and macvtap support is added through an extra feature for the
+TUNSETOFFLOAD ioctl.  Additionally macvtap will no correctly
+do sctp checksumming if the receive doesn't support SCTP offload.
+This also turns on sctp offloading for macvlan devices.
 
-- Caller uses kvmalloc() but passes the address into vmalloc-naive
-  DMA API and
+As for the perf numbers, I am seeing about a 5% increase in vm-to-vm
+and vm-to-hos throughput which is the same as manually disabling
+sctp checksumming,since this is exactly what we are emulatting.
+Sending outside the host,  the increase about 2.5-3%.
 
-- Caller uses kvmalloc() but passes the address into kfree()
+Since v1:
+  - Fixed some old patch bugs that snuck in.
+  - virtio feature bits moved to high bits
+  - distinguish between GUEST and HOST features
+  - Fixed offload control command to control sctp checksum offload
+  - added ipvlan support
 
-Yes?
+Vladislav Yasevich (6):
+  virtio: Add support for SCTP checksum offloading
+  sctp: Handle sctp packets with CHECKSUM_PARTIAL
+  sctp: Build sctp offload support into the base kernel
+  tun: Add support for SCTP checksum offload
+  macvlan/macvtap: Add support for SCTP checksum offload.
+  ipvlan: Add support for SCTP checksum offload
 
-If so, then...
+ drivers/net/ipvlan/ipvlan_main.c |  3 ++-
+ drivers/net/macvlan.c            |  5 +++--
+ drivers/net/tap.c                |  8 +++++---
+ drivers/net/tun.c                |  7 ++++++-
+ drivers/net/virtio_net.c         | 14 +++++++++++++-
+ include/linux/virtio_net.h       |  6 ++++++
+ include/net/sctp/sctp.h          |  5 -----
+ include/uapi/linux/if_tun.h      |  1 +
+ include/uapi/linux/virtio_net.h  |  5 +++++
+ net/Kconfig                      |  1 +
+ net/sctp/Kconfig                 |  1 -
+ net/sctp/Makefile                |  3 ++-
+ net/sctp/input.c                 | 11 ++++++++++-
+ net/sctp/offload.c               |  4 +++-
+ net/sctp/protocol.c              |  3 ---
+ 15 files changed, 57 insertions(+), 20 deletions(-)
 
-Is there a way in which, in the kvmalloc-called-kmalloc path, we can
-tag the slab-allocated memory with a "this memory was allocated with
-kvmalloc()" flag?  I *think* there's extra per-object storage available
-with suitable slab/slub debugging options?  Perhaps we could steal one
-bit from the redzone, dunno.
-
-If so then we can
-
-a) set that flag in kvmalloc() if the kmalloc() call succeeded
-
-b) check for that flag in the DMA code, WARN if it is set.
-
-c) in kvfree(), clear that flag before calling kfree()
-
-d) in kfree(), check for that flag and go WARN() if set.
-
-So both potential bugs are detected all the time, dependent upon
-CONFIG_SLUB_DEBUG (and perhaps other slub config options).
+-- 
+2.9.5
