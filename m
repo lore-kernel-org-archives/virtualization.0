@@ -1,23 +1,18 @@
-From: Mike Snitzer <snitzer@redhat.com>
-Subject: Re: kvmalloc: always use vmalloc if CONFIG_DEBUG_VM
-Date: Wed, 2 May 2018 09:33:01 -0400
-Message-ID: <20180502133224.GA22123__29382.3437452831$1525267872$gmane$org@redhat.com>
-References: <alpine.LRH.2.02.1804201704580.25408@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180421144757.GC14610@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804221733520.7995@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180423151545.GU17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804232006540.2299@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180424133146.GG17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804241107010.31601@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180424161242.GK17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804241229410.23702@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180501173626.4593a87d0d64f6cc9d219d20@linux-foundation.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost: make msg padding explicit
+Date: Wed, 2 May 2018 16:36:37 +0300
+Message-ID: <20180502162932-mutt-send-email-mst__32213.6866198436$1525268095$gmane$org@kernel.org>
+References: <1524844881-178524-1-git-send-email-mst@redhat.com>
+	<20180501.112822.1871426720257639849.davem@davemloft.net>
+	<20180501201841-mutt-send-email-mst@kernel.org>
+	<20180501.140551.1944561534446599966.davem@davemloft.net>
+	<20180502062809.GA14485@la.guarana.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180501173626.4593a87d0d64f6cc9d219d20@linux-foundation.org>
+In-Reply-To: <20180502062809.GA14485@la.guarana.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,75 +22,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, dm-devel@redhat.com, Mikulas Patocka <mpatocka@redhat.com>, Babka <vbabka@suse.cz>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, edumazet@google.com
+To: Kevin Easton <kevin@guarana.org>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 01 2018 at  8:36pm -0400,
-Andrew Morton <akpm@linux-foundation.org> wrote:
-
-> On Tue, 24 Apr 2018 12:33:01 -0400 (EDT) Mikulas Patocka <mpatocka@redhat.com> wrote:
-> 
+On Wed, May 02, 2018 at 02:28:09AM -0400, Kevin Easton wrote:
+> On Tue, May 01, 2018 at 02:05:51PM -0400, David Miller wrote:
+> > From: "Michael S. Tsirkin" <mst@redhat.com>
+> > Date: Tue, 1 May 2018 20:19:19 +0300
 > > 
-> > 
-> > On Tue, 24 Apr 2018, Michal Hocko wrote:
-> > 
-> > > On Tue 24-04-18 11:30:40, Mikulas Patocka wrote:
-> > > > 
-> > > > 
-> > > > On Tue, 24 Apr 2018, Michal Hocko wrote:
-> > > > 
-> > > > > On Mon 23-04-18 20:25:15, Mikulas Patocka wrote:
-> > > > > 
-> > > > > > Fixing __vmalloc code 
-> > > > > > is easy and it doesn't require cooperation with maintainers.
-> > > > > 
-> > > > > But it is a hack against the intention of the scope api.
-> > > > 
-> > > > It is not!
+> > > On Tue, May 01, 2018 at 11:28:22AM -0400, David Miller wrote:
+> > >> From: "Michael S. Tsirkin" <mst@redhat.com>
+> > >> Date: Fri, 27 Apr 2018 19:02:05 +0300
+> > >> 
+> > >> > There's a 32 bit hole just after type. It's best to
+> > >> > give it a name, this way compiler is forced to initialize
+> > >> > it with rest of the structure.
+> > >> > 
+> > >> > Reported-by: Kevin Easton <kevin@guarana.org>
+> > >> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > >> 
+> > >> Michael, will you be sending this directly to Linus or would you like
+> > >> me to apply it to net or net-next?
+> > >> 
+> > >> Thanks.
 > > > 
-> > > This discussion simply doesn't make much sense it seems. The scope API
-> > > is to document the scope of the reclaim recursion critical section. That
-> > > certainly is not a utility function like vmalloc.
+> > > I'd prefer you to apply it for net and cc stable if possible.
 > > 
-> > That 15-line __vmalloc bugfix doesn't prevent you (or any other kernel 
-> > developer) from converting the code to the scope API. You make nonsensical 
-> > excuses.
+> > Ok, applied, and added to my -stable submission queue.
+> 
+> Hold on, this patch changes the layout for i386 (where there is
+> no padding at all).  And it's part of UAPI.
+> 
+>     - Kevin
+> 
 > > 
-> 
-> Fun thread!
-> 
-> Winding back to the original problem, I'd state it as
-> 
-> - Caller uses kvmalloc() but passes the address into vmalloc-naive
->   DMA API and
-> 
-> - Caller uses kvmalloc() but passes the address into kfree()
-> 
-> Yes?
 
-I think so.
+Ouch.  True - and in particular the 32 bit ABI on 64 bit kernels doesn't
+work at all. Hmm. It's relatively new and maybe there aren't any 32 bit
+users yet. Thoughts?
 
-> If so, then...
-> 
-> Is there a way in which, in the kvmalloc-called-kmalloc path, we can
-> tag the slab-allocated memory with a "this memory was allocated with
-> kvmalloc()" flag?  I *think* there's extra per-object storage available
-> with suitable slab/slub debugging options?  Perhaps we could steal one
-> bit from the redzone, dunno.
-> 
-> If so then we can
-> 
-> a) set that flag in kvmalloc() if the kmalloc() call succeeded
-> 
-> b) check for that flag in the DMA code, WARN if it is set.
-> 
-> c) in kvfree(), clear that flag before calling kfree()
-> 
-> d) in kfree(), check for that flag and go WARN() if set.
-> 
-> So both potential bugs are detected all the time, dependent upon
-> CONFIG_SLUB_DEBUG (and perhaps other slub config options).
-
-Thanks Andrew, definitely the most sane proposal I've seen to resolve
-this.
+-- 
+MST
