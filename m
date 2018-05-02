@@ -1,17 +1,18 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net-next v9 2/4] net: Introduce generic failover module
-Date: Wed, 2 May 2018 10:51:12 -0700
-Message-ID: <052e2c60-dc4c-d6a0-0159-fc1821cb4365__35140.522014308$1525283373$gmane$org@intel.com>
+Date: Wed, 2 May 2018 23:30:02 +0300
+Message-ID: <20180502232907-mutt-send-email-mst__6466.68663616783$1525292888$gmane$org@kernel.org>
 References: <1524848820-42258-1-git-send-email-sridhar.samudrala@intel.com>
 	<1524848820-42258-3-git-send-email-sridhar.samudrala@intel.com>
 	<20180428090601.GL5632@nanopsycho.orion>
 	<20180502161542.GI19250@nanopsycho>
+	<052e2c60-dc4c-d6a0-0159-fc1821cb4365@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180502161542.GI19250@nanopsycho>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <052e2c60-dc4c-d6a0-0159-fc1821cb4365@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,34 +22,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
+To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiA1LzIvMjAxOCA5OjE1IEFNLCBKaXJpIFBpcmtvIHdyb3RlOgo+IFNhdCwgQXByIDI4LCAy
-MDE4IGF0IDExOjA2OjAxQU0gQ0VTVCwgamlyaUByZXNudWxsaS51cyB3cm90ZToKPj4gRnJpLCBB
-cHIgMjcsIDIwMTggYXQgMDc6MDY6NThQTSBDRVNULCBzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5j
-b20gd3JvdGU6Cj4gWy4uLl0KPgo+Cj4+PiArCj4+PiArCWVyciA9IG5ldGRldl9yeF9oYW5kbGVy
-X3JlZ2lzdGVyKHNsYXZlX2RldiwgbmV0X2ZhaWxvdmVyX2hhbmRsZV9mcmFtZSwKPj4+ICsJCQkJ
-CSBmYWlsb3Zlcl9kZXYpOwo+Pj4gKwlpZiAoZXJyKSB7Cj4+PiArCQluZXRkZXZfZXJyKHNsYXZl
-X2RldiwgImNhbiBub3QgcmVnaXN0ZXIgZmFpbG92ZXIgcnggaGFuZGxlciAoZXJyID0gJWQpXG4i
-LAo+Pj4gKwkJCSAgIGVycik7Cj4+PiArCQlnb3RvIGVycl9oYW5kbGVyX3JlZ2lzdGVyOwo+Pj4g
-Kwl9Cj4+PiArCj4+PiArCWVyciA9IG5ldGRldl91cHBlcl9kZXZfbGluayhzbGF2ZV9kZXYsIGZh
-aWxvdmVyX2RldiwgTlVMTCk7Cj4+IFBsZWFzZSB1c2UgbmV0ZGV2X21hc3Rlcl91cHBlcl9kZXZf
-bGluaygpLgo+IERvbid0IGZvcmdldCB0byBmaWxsdXAgc3RydWN0IG5ldGRldl9sYWdfdXBwZXJf
-aW5mbyAtIE5FVERFVl9MQUdfVFhfVFlQRV9BQ1RJVkVCQUNLVVAKPgo+Cj4gQWxzbywgcGxlYXNl
-IGNhbGwgbmV0ZGV2X2xvd2VyX3N0YXRlX2NoYW5nZWQoKSB3aGVuIHRoZSBhY3RpdmUgc2xhdmUK
-PiBkZXZpY2UgY2hhbmdlcyBmcm9tIHByaW1hcnktPmJhY2t1cCBvZiBiYWNrdXAtPnByaW1hcnkg
-YW5kIHdoZW5ldmVyIGxpbmsKPiBzdGF0ZSBvZiBhIHNsYXZlIGNoYW5nZXMKPgpTdXJlLiB3aWxs
-IGxvb2sgaW50byBpdC7CoCBEbyB5b3UgdGhpbmsgdGhpcyB3aWxsIGhlbHAgd2l0aCB0aGUgaXNz
-dWUKeW91IHNhdyB3aXRoIGhhdmluZyB0byBjaGFuZ2UgbWFjIG9uIHN0YW5keSB0d2ljZSB0byBn
-ZXQgdGhlIGluaXQgc2NyaXB0cwp3b3JraW5nPyBXZSBhcmUgbm93IGdvaW5nIHRvIGJsb2NrIGNo
-YW5naW5nIHRoZSBtYWMgb24gYm90aCBzdGFuZGJ5IGFuZApmYWlsb3Zlci4KCkFsc28sIGkgd2Fz
-IHdvbmRlcmluZyBpZiB3ZSBzaG91bGQgc2V0IGRldi0+ZmxhZ3MgdG8gSUZGX01BU1RFUiBvbiBm
-YWlsb3ZlcgphbmQgSUZGX1NMQVZFIG9uIHByaW1hcnkgYW5kIHN0YW5kYnkuIG5ldHZzYyBkb2Vz
-IHRoaXMuCkRvZXMgdGhpcyBoZWxwIHdpdGggdGhlIGluaXQgc2NyaXB0cyBhbmQgbmV0d29yayBt
-YW5hZ2VyIHRvIHNraXAgc2xhdmUKZGV2aWNlcyBmb3IgZGhjcCByZXF1ZXN0cz8KCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+On Wed, May 02, 2018 at 10:51:12AM -0700, Samudrala, Sridhar wrote:
+> =
+
+> =
+
+> On 5/2/2018 9:15 AM, Jiri Pirko wrote:
+> > Sat, Apr 28, 2018 at 11:06:01AM CEST, jiri@resnulli.us wrote:
+> > > Fri, Apr 27, 2018 at 07:06:58PM CEST, sridhar.samudrala@intel.com wro=
+te:
+> > [...]
+> > =
+
+> > =
+
+> > > > +
+> > > > +	err =3D netdev_rx_handler_register(slave_dev, net_failover_handle=
+_frame,
+> > > > +					 failover_dev);
+> > > > +	if (err) {
+> > > > +		netdev_err(slave_dev, "can not register failover rx handler (err=
+ =3D %d)\n",
+> > > > +			   err);
+> > > > +		goto err_handler_register;
+> > > > +	}
+> > > > +
+> > > > +	err =3D netdev_upper_dev_link(slave_dev, failover_dev, NULL);
+> > > Please use netdev_master_upper_dev_link().
+> > Don't forget to fillup struct netdev_lag_upper_info - NETDEV_LAG_TX_TYP=
+E_ACTIVEBACKUP
+> > =
+
+> > =
+
+> > Also, please call netdev_lower_state_changed() when the active slave
+> > device changes from primary->backup of backup->primary and whenever link
+> > state of a slave changes
+> > =
+
+> Sure. will look into it.=A0 Do you think this will help with the issue
+> you saw with having to change mac on standy twice to get the init scripts
+> working? We are now going to block changing the mac on both standby and
+> failover.
+> =
+
+> Also, i was wondering if we should set dev->flags to IFF_MASTER on failov=
+er
+> and IFF_SLAVE on primary and standby.
+
+We do need a way to find things out, that's for sure.
+How does userspace know it's a failover
+config and find the failover device right now?
+
+> netvsc does this.
+> Does this help with the init scripts and network manager to skip slave
+> devices for dhcp requests?
+
+Try it?
