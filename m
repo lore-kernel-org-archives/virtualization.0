@@ -1,15 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC v3 4/5] virtio_ring: add event idx support in packed ring
-Date: Wed, 2 May 2018 10:51:06 +0800
-Message-ID: <34781052-df9f-e505-cd3f-08e460b34dcc@redhat.com>
-References: <20180425051550.24342-1-tiwei.bie@intel.com>
-	<20180425051550.24342-5-tiwei.bie@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH V2 net-next 1/6] virtio: Add support for SCTP checksum
+	offloading
+Date: Wed, 2 May 2018 06:16:45 +0300
+Message-ID: <20180502061520-mutt-send-email-mst@kernel.org>
+References: <20180502020739.19239-1-vyasevic@redhat.com>
+	<20180502020739.19239-2-vyasevic@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180425051550.24342-5-tiwei.bie@intel.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180502020739.19239-2-vyasevic@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,104 +20,143 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: wexu@redhat.com
+To: Vladislav Yasevich <vyasevich@gmail.com>
+Cc: virtio-dev@lists.oasis-open.org, marcelo.leitner@gmail.com, nhorman@tuxdriver.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sctp@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDTmnIgyNeaXpSAxMzoxNSwgVGl3ZWkgQmllIHdyb3RlOgo+IFRoaXMgY29t
-bWl0IGludHJvZHVjZXMgdGhlIGV2ZW50IGlkeCBzdXBwb3J0IGluIHBhY2tlZAo+IHJpbmcuIFRo
-aXMgZmVhdHVyZSBpcyB0ZW1wb3JhcmlseSBkaXNhYmxlZCwgYmVjYXVzZSB0aGUKPiBpbXBsZW1l
-bnRhdGlvbiBpbiB0aGlzIHBhdGNoIG1heSBub3Qgd29yayBhcyBleHBlY3RlZCwKPiBhbmQgc29t
-ZSBmdXJ0aGVyIGRpc2N1c3Npb25zIG9uIHRoZSBpbXBsZW1lbnRhdGlvbiBhcmUKPiBuZWVkZWQs
-IGUuZy4gZG8gd2UgaGF2ZSB0byBjaGVjayB0aGUgd3JhcCBjb3VudGVyIHdoZW4KPiBjaGVja2lu
-ZyB3aGV0aGVyIGEga2ljayBpcyBuZWVkZWQ/Cj4KPiBTaWduZWQtb2ZmLWJ5OiBUaXdlaSBCaWUg
-PHRpd2VpLmJpZUBpbnRlbC5jb20+Cj4gLS0tCj4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmlu
-Zy5jIHwgNTMgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0KPiAg
-IDEgZmlsZSBjaGFuZ2VkLCA0OSBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQo+Cj4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92
-aXJ0aW9fcmluZy5jCj4gaW5kZXggMDE4MWU5Mzg5N2JlLi5iMTAzOWMyOTg1YjkgMTAwNjQ0Cj4g
-LS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ICsrKyBiL2RyaXZlcnMvdmlydGlv
-L3ZpcnRpb19yaW5nLmMKPiBAQCAtOTg2LDcgKzk4Niw3IEBAIHN0YXRpYyBpbmxpbmUgaW50IHZp
-cnRxdWV1ZV9hZGRfcGFja2VkKHN0cnVjdCB2aXJ0cXVldWUgKl92cSwKPiAgIHN0YXRpYyBib29s
-IHZpcnRxdWV1ZV9raWNrX3ByZXBhcmVfcGFja2VkKHN0cnVjdCB2aXJ0cXVldWUgKl92cSkKPiAg
-IHsKPiAgIAlzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSA9IHRvX3Z2cShfdnEpOwo+IC0JdTE2
-IGZsYWdzOwo+ICsJdTE2IG5ldywgb2xkLCBvZmZfd3JhcCwgZmxhZ3M7Cj4gICAJYm9vbCBuZWVk
-c19raWNrOwo+ICAgCXUzMiBzbmFwc2hvdDsKPiAgIAo+IEBAIC05OTUsNyArOTk1LDEyIEBAIHN0
-YXRpYyBib29sIHZpcnRxdWV1ZV9raWNrX3ByZXBhcmVfcGFja2VkKHN0cnVjdCB2aXJ0cXVldWUg
-Kl92cSkKPiAgIAkgKiBzdXBwcmVzc2lvbnMuICovCj4gICAJdmlydGlvX21iKHZxLT53ZWFrX2Jh
-cnJpZXJzKTsKPiAgIAo+ICsJb2xkID0gdnEtPm5leHRfYXZhaWxfaWR4IC0gdnEtPm51bV9hZGRl
-ZDsKPiArCW5ldyA9IHZxLT5uZXh0X2F2YWlsX2lkeDsKPiArCXZxLT5udW1fYWRkZWQgPSAwOwo+
-ICsKPiAgIAlzbmFwc2hvdCA9ICoodTMyICopdnEtPnZyaW5nX3BhY2tlZC5kZXZpY2U7Cj4gKwlv
-ZmZfd3JhcCA9IHZpcnRpbzE2X3RvX2NwdShfdnEtPnZkZXYsIHNuYXBzaG90ICYgMHhmZmZmKTsK
-PiAgIAlmbGFncyA9IGNwdV90b192aXJ0aW8xNihfdnEtPnZkZXYsIHNuYXBzaG90ID4+IDE2KSAm
-IDB4MzsKPiAgIAo+ICAgI2lmZGVmIERFQlVHCj4gQEAgLTEwMDYsNyArMTAxMSwxMCBAQCBzdGF0
-aWMgYm9vbCB2aXJ0cXVldWVfa2lja19wcmVwYXJlX3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVlICpf
-dnEpCj4gICAJdnEtPmxhc3RfYWRkX3RpbWVfdmFsaWQgPSBmYWxzZTsKPiAgICNlbmRpZgo+ICAg
-Cj4gLQluZWVkc19raWNrID0gKGZsYWdzICE9IFZSSU5HX0VWRU5UX0ZfRElTQUJMRSk7Cj4gKwlp
-ZiAoZmxhZ3MgPT0gVlJJTkdfRVZFTlRfRl9ERVNDKQo+ICsJCW5lZWRzX2tpY2sgPSB2cmluZ19u
-ZWVkX2V2ZW50KG9mZl93cmFwICYgfigxPDwxNSksIG5ldywgb2xkKTsKCkkgd29uZGVyIHdoZXRo
-ZXIgb3Igbm90IHRoZSBtYXRoIGlzIGNvcnJlY3QuIEJvdGggbmV3IGFuZCBldmVudCBhcmUgaW4g
-CnRoZSB1bml0IG9mIGRlc2NyaXB0b3IgcmluZyBzaXplLCBidXQgb2xkIGxvb2tzIG5vdC4KClRo
-YW5rcwoKPiArCWVsc2UKPiArCQluZWVkc19raWNrID0gKGZsYWdzICE9IFZSSU5HX0VWRU5UX0Zf
-RElTQUJMRSk7Cj4gICAJRU5EX1VTRSh2cSk7Cj4gICAJcmV0dXJuIG5lZWRzX2tpY2s7Cj4gICB9
-Cj4gQEAgLTExMTYsNiArMTEyNCwxNSBAQCBzdGF0aWMgdm9pZCAqdmlydHF1ZXVlX2dldF9idWZf
-Y3R4X3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEsCj4gICAJaWYgKHZxLT5sYXN0X3VzZWRf
-aWR4ID49IHZxLT52cmluZ19wYWNrZWQubnVtKQo+ICAgCQl2cS0+bGFzdF91c2VkX2lkeCAtPSB2
-cS0+dnJpbmdfcGFja2VkLm51bTsKPiAgIAo+ICsJLyogSWYgd2UgZXhwZWN0IGFuIGludGVycnVw
-dCBmb3IgdGhlIG5leHQgZW50cnksIHRlbGwgaG9zdAo+ICsJICogYnkgd3JpdGluZyBldmVudCBp
-bmRleCBhbmQgZmx1c2ggb3V0IHRoZSB3cml0ZSBiZWZvcmUKPiArCSAqIHRoZSByZWFkIGluIHRo
-ZSBuZXh0IGdldF9idWYgY2FsbC4gKi8KPiArCWlmICh2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93ID09
-IFZSSU5HX0VWRU5UX0ZfREVTQykKPiArCQl2aXJ0aW9fc3RvcmVfbWIodnEtPndlYWtfYmFycmll
-cnMsCj4gKwkJCQkmdnEtPnZyaW5nX3BhY2tlZC5kcml2ZXItPm9mZl93cmFwLAo+ICsJCQkJY3B1
-X3RvX3ZpcnRpbzE2KF92cS0+dmRldiwgdnEtPmxhc3RfdXNlZF9pZHggfAo+ICsJCQkJCQkodnEt
-PndyYXBfY291bnRlciA8PCAxNSkpKTsKPiArCj4gICAjaWZkZWYgREVCVUcKPiAgIAl2cS0+bGFz
-dF9hZGRfdGltZV92YWxpZCA9IGZhbHNlOwo+ICAgI2VuZGlmCj4gQEAgLTExNDMsMTAgKzExNjAs
-MTcgQEAgc3RhdGljIHVuc2lnbmVkIHZpcnRxdWV1ZV9lbmFibGVfY2JfcHJlcGFyZV9wYWNrZWQo
-c3RydWN0IHZpcnRxdWV1ZSAqX3ZxKQo+ICAgCj4gICAJLyogV2Ugb3B0aW1pc3RpY2FsbHkgdHVy
-biBiYWNrIG9uIGludGVycnVwdHMsIHRoZW4gY2hlY2sgaWYgdGhlcmUgd2FzCj4gICAJICogbW9y
-ZSB0byBkby4gKi8KPiArCS8qIERlcGVuZGluZyBvbiB0aGUgVklSVElPX1JJTkdfRl9VU0VEX0VW
-RU5UX0lEWCBmZWF0dXJlLCB3ZSBuZWVkIHRvCj4gKwkgKiBlaXRoZXIgY2xlYXIgdGhlIGZsYWdz
-IGJpdCBvciBwb2ludCB0aGUgZXZlbnQgaW5kZXggYXQgdGhlIG5leHQKPiArCSAqIGVudHJ5LiBB
-bHdheXMgdXBkYXRlIHRoZSBldmVudCBpbmRleCB0byBrZWVwIGNvZGUgc2ltcGxlLiAqLwo+ICsK
-PiArCXZxLT52cmluZ19wYWNrZWQuZHJpdmVyLT5vZmZfd3JhcCA9IGNwdV90b192aXJ0aW8xNihf
-dnEtPnZkZXYsCj4gKwkJCXZxLT5sYXN0X3VzZWRfaWR4IHwgKHZxLT53cmFwX2NvdW50ZXIgPDwg
-MTUpKTsKPiAgIAo+ICAgCWlmICh2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93ID09IFZSSU5HX0VWRU5U
-X0ZfRElTQUJMRSkgewo+ICAgCQl2aXJ0aW9fd21iKHZxLT53ZWFrX2JhcnJpZXJzKTsKPiAtCQl2
-cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93ID0gVlJJTkdfRVZFTlRfRl9FTkFCTEU7Cj4gKwkJdnEtPmV2
-ZW50X2ZsYWdzX3NoYWRvdyA9IHZxLT5ldmVudCA/IFZSSU5HX0VWRU5UX0ZfREVTQyA6Cj4gKwkJ
-CQkJCSAgICAgVlJJTkdfRVZFTlRfRl9FTkFCTEU7Cj4gICAJCXZxLT52cmluZ19wYWNrZWQuZHJp
-dmVyLT5mbGFncyA9IGNwdV90b192aXJ0aW8xNihfdnEtPnZkZXYsCj4gICAJCQkJCQkJdnEtPmV2
-ZW50X2ZsYWdzX3NoYWRvdyk7Cj4gICAJfQo+IEBAIC0xMTcyLDE1ICsxMTk2LDM0IEBAIHN0YXRp
-YyBib29sIHZpcnRxdWV1ZV9wb2xsX3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEsIHVuc2ln
-bmVkIGxhc3RfdXNlZF9pZHgpCj4gICBzdGF0aWMgYm9vbCB2aXJ0cXVldWVfZW5hYmxlX2NiX2Rl
-bGF5ZWRfcGFja2VkKHN0cnVjdCB2aXJ0cXVldWUgKl92cSkKPiAgIHsKPiAgIAlzdHJ1Y3QgdnJp
-bmdfdmlydHF1ZXVlICp2cSA9IHRvX3Z2cShfdnEpOwo+ICsJdTE2IGJ1ZnMsIHVzZWRfaWR4LCB3
-cmFwX2NvdW50ZXI7Cj4gICAKPiAgIAlTVEFSVF9VU0UodnEpOwo+ICAgCj4gICAJLyogV2Ugb3B0
-aW1pc3RpY2FsbHkgdHVybiBiYWNrIG9uIGludGVycnVwdHMsIHRoZW4gY2hlY2sgaWYgdGhlcmUg
-d2FzCj4gICAJICogbW9yZSB0byBkby4gKi8KPiArCS8qIERlcGVuZGluZyBvbiB0aGUgVklSVElP
-X1JJTkdfRl9VU0VEX0VWRU5UX0lEWCBmZWF0dXJlLCB3ZSBuZWVkIHRvCj4gKwkgKiBlaXRoZXIg
-Y2xlYXIgdGhlIGZsYWdzIGJpdCBvciBwb2ludCB0aGUgZXZlbnQgaW5kZXggYXQgdGhlIG5leHQK
-PiArCSAqIGVudHJ5LiBBbHdheXMgdXBkYXRlIHRoZSBldmVudCBpbmRleCB0byBrZWVwIGNvZGUg
-c2ltcGxlLiAqLwo+ICsKPiArCS8qIFRPRE86IHR1bmUgdGhpcyB0aHJlc2hvbGQgKi8KPiArCWJ1
-ZnMgPSAodTE2KSh2cS0+bmV4dF9hdmFpbF9pZHggLSB2cS0+bGFzdF91c2VkX2lkeCkgKiAzIC8g
-NDsKPiArCj4gKwl1c2VkX2lkeCA9IHZxLT5sYXN0X3VzZWRfaWR4ICsgYnVmczsKPiArCXdyYXBf
-Y291bnRlciA9IHZxLT53cmFwX2NvdW50ZXI7Cj4gKwo+ICsJaWYgKHVzZWRfaWR4ID49IHZxLT52
-cmluZ19wYWNrZWQubnVtKSB7Cj4gKwkJdXNlZF9pZHggLT0gdnEtPnZyaW5nX3BhY2tlZC5udW07
-Cj4gKwkJd3JhcF9jb3VudGVyIF49IDE7Cj4gKwl9Cj4gKwo+ICsJdnEtPnZyaW5nX3BhY2tlZC5k
-cml2ZXItPm9mZl93cmFwID0gY3B1X3RvX3ZpcnRpbzE2KF92cS0+dmRldiwKPiArCQkJdXNlZF9p
-ZHggfCAod3JhcF9jb3VudGVyIDw8IDE1KSk7Cj4gICAKPiAgIAlpZiAodnEtPmV2ZW50X2ZsYWdz
-X3NoYWRvdyA9PSBWUklOR19FVkVOVF9GX0RJU0FCTEUpIHsKPiAgIAkJdmlydGlvX3dtYih2cS0+
-d2Vha19iYXJyaWVycyk7Cj4gLQkJdnEtPmV2ZW50X2ZsYWdzX3NoYWRvdyA9IFZSSU5HX0VWRU5U
-X0ZfRU5BQkxFOwo+ICsJCXZxLT5ldmVudF9mbGFnc19zaGFkb3cgPSB2cS0+ZXZlbnQgPyBWUklO
-R19FVkVOVF9GX0RFU0MgOgo+ICsJCQkJCQkgICAgIFZSSU5HX0VWRU5UX0ZfRU5BQkxFOwo+ICAg
-CQl2cS0+dnJpbmdfcGFja2VkLmRyaXZlci0+ZmxhZ3MgPSBjcHVfdG9fdmlydGlvMTYoX3ZxLT52
-ZGV2LAo+ICAgCQkJCQkJCXZxLT5ldmVudF9mbGFnc19zaGFkb3cpOwo+ICAgCX0KPiBAQCAtMTgy
-Miw4ICsxODY1LDEwIEBAIHZvaWQgdnJpbmdfdHJhbnNwb3J0X2ZlYXR1cmVzKHN0cnVjdCB2aXJ0
-aW9fZGV2aWNlICp2ZGV2KQo+ICAgCQlzd2l0Y2ggKGkpIHsKPiAgIAkJY2FzZSBWSVJUSU9fUklO
-R19GX0lORElSRUNUX0RFU0M6Cj4gICAJCQlicmVhazsKPiArI2lmIDAKPiAgIAkJY2FzZSBWSVJU
-SU9fUklOR19GX0VWRU5UX0lEWDoKPiAgIAkJCWJyZWFrOwo+ICsjZW5kaWYKPiAgIAkJY2FzZSBW
-SVJUSU9fRl9WRVJTSU9OXzE6Cj4gICAJCQlicmVhazsKPiAgIAkJY2FzZSBWSVJUSU9fRl9JT01N
-VV9QTEFURk9STToKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Tue, May 01, 2018 at 10:07:34PM -0400, Vladislav Yasevich wrote:
+> To support SCTP checksum offloading, we need to add a new feature
+> to virtio_net, so we can negotiate support between the hypervisor
+> and the guest.
+> The HOST feature bit signifies offloading support for transmit and
+> enables device offload features.
+> The GUEST feature bit signifies offloading support of recieve and
+> is currently only used by the driver in case of xdp.  
+> 
+> That patch also adds an addition virtio_net header flag which
+> mirrors the skb->csum_not_inet flag.  This flags is used to indicate
+> that is this an SCTP packet that needs its checksum computed by the
+> lower layer.  In this case, the lower layer is the host hypervisor or
+> possibly HW nic that supporst CRC32c offload.
+> 
+> In the case that GUEST feature bit is flag, it will be possible to
+> receive a virtio_net header with this bit set, which will set the
+> corresponding skb bit.  SCTP protocol will be updated to correctly
+> deal with it.
+> 
+> Signed-off-by: Vladislav Yasevich <vyasevic@redhat.com>
+> ---
+>  drivers/net/virtio_net.c        | 14 +++++++++++++-
+>  include/linux/virtio_net.h      |  6 ++++++
+>  include/uapi/linux/virtio_net.h |  5 +++++
+>  3 files changed, 24 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7b187ec..34af280 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2148,6 +2148,8 @@ static int virtnet_clear_guest_offloads(struct virtnet_info *vi)
+>  
+>  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))
+>  		offloads = 1ULL << VIRTIO_NET_F_GUEST_CSUM;
+> +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_SCTP_CSUM))
+> +		offloads |= 1ULL << VIRTIO_NET_F_GUEST_SCTP_CSUM;
+>  
+>  	return virtnet_set_guest_offloads(vi, offloads);
+>  }
+> @@ -2160,6 +2162,8 @@ static int virtnet_restore_guest_offloads(struct virtnet_info *vi)
+>  		return 0;
+>  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))
+>  		offloads |= 1ULL << VIRTIO_NET_F_GUEST_CSUM;
+> +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_SCTP_CSUM))
+> +		offloads |= 1ULL << VIRTIO_NET_F_GUEST_SCTP_CSUM;
+>  
+>  	return virtnet_set_guest_offloads(vi, offloads);
+>  }
+> @@ -2724,6 +2728,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	/* Do we support "hardware" checksums? */
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_CSUM)) {
+>  		/* This opens up the world of extra features. */
+> +
+>  		dev->hw_features |= NETIF_F_HW_CSUM | NETIF_F_SG;
+>  		if (csum)
+>  			dev->features |= NETIF_F_HW_CSUM | NETIF_F_SG;
+> @@ -2746,9 +2751,15 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  			dev->features |= dev->hw_features & NETIF_F_ALL_TSO;
+>  		/* (!csum && gso) case will be fixed by register_netdev() */
+>  	}
+> +
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_CSUM))
+>  		dev->features |= NETIF_F_RXCSUM;
+>  
+> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_SCTP_CSUM)) {
+> +		dev->hw_features |= NETIF_F_SCTP_CRC;
+> +		dev->features |= NETIF_F_SCTP_CRC;
+> +	}
+> +
+>  	dev->vlan_features = dev->features;
+>  
+>  	/* MTU range: 68 - 65535 */
+> @@ -2962,7 +2973,8 @@ static struct virtio_device_id id_table[] = {
+>  	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
+>  	VIRTIO_NET_F_CTRL_MAC_ADDR, \
+>  	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
+> -	VIRTIO_NET_F_SPEED_DUPLEX
+> +	VIRTIO_NET_F_SPEED_DUPLEX, \
+> +	VIRTIO_NET_F_HOST_SCTP_CSUM, VIRTIO_NET_F_GUEST_SCTP_CSUM
+>  
+>  static unsigned int features[] = {
+>  	VIRTNET_FEATURES,
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index f144216..28fffdc 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -39,6 +39,9 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>  
+>  		if (!skb_partial_csum_set(skb, start, off))
+>  			return -EINVAL;
+> +
+> +		if (hdr->flags & VIRTIO_NET_HDR_F_CSUM_NOT_INET)
+> +			skb->csum_not_inet = 1;
+>  	}
+>  
+>  	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+> @@ -91,6 +94,9 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+>  				skb_checksum_start_offset(skb));
+>  		hdr->csum_offset = __cpu_to_virtio16(little_endian,
+>  				skb->csum_offset);
+> +
+> +		if (skb->csum_not_inet)
+> +			hdr->flags |= VIRTIO_NET_HDR_F_CSUM_NOT_INET;
+>  	} else if (has_data_valid &&
+>  		   skb->ip_summed == CHECKSUM_UNNECESSARY) {
+>  		hdr->flags = VIRTIO_NET_HDR_F_DATA_VALID;
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index 5de6ed3..9dfca1a 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -57,6 +57,10 @@
+>  					 * Steering */
+>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+>  
+> +#define VIRTIO_NET_F_GUEST_SCTP_CSUM  61 /* Guest handles SCTP pks w/ partial
+> +					  * csum */
+> +#define VIRTIO_NET_F_HOST_SCTP_CSUM   62 /* HOST handles SCTP pkts w/ partial
+> +					  * csum */
+>  #define VIRTIO_NET_F_SPEED_DUPLEX 63	/* Device set linkspeed and duplex */
+>  
+>  #ifndef VIRTIO_NET_NO_LEGACY
+> @@ -101,6 +105,7 @@ struct virtio_net_config {
+>  struct virtio_net_hdr_v1 {
+>  #define VIRTIO_NET_HDR_F_NEEDS_CSUM	1	/* Use csum_start, csum_offset */
+>  #define VIRTIO_NET_HDR_F_DATA_VALID	2	/* Csum is valid */
+> +#define VIRTIO_NET_HDR_F_CSUM_NOT_INET  4       /* Checksum is not inet */
+
+Both comment and name are not very informative.
+How about just saying CRC32c ?
+
+>  	__u8 flags;
+>  #define VIRTIO_NET_HDR_GSO_NONE		0	/* Not a GSO frame */
+>  #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
+> -- 
+> 2.9.5
