@@ -1,17 +1,12 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
 Subject: Re: [RFC] virtio: support VIRTIO_F_IO_BARRIER
-Date: Thu, 3 May 2018 17:58:23 +0800
-Message-ID: <20180503095823.zpxskdts7etpwl6x__49076.4447990388$1525341360$gmane$org@debian>
+Date: Thu, 3 May 2018 10:06:52 +0100
+Message-ID: <20180503090652.GB5301__25519.5499318235$1525350741$gmane$org@stefanha-x1.localdomain>
 References: <20180503025955.28816-1-tiwei.bie@intel.com>
-	<ab66939d-47fb-5f43-3938-0c156ffc6918@redhat.com>
-	<20180503083015.kb7po26ga46g66tc@debian>
-	<1292c46c-34ad-ea21-1f05-164044a5f35a@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============8833794240571668891=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1292c46c-34ad-ea21-1f05-164044a5f35a@redhat.com>
+In-Reply-To: <20180503025955.28816-1-tiwei.bie@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,76 +16,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, zhihong.wang@intel.com, pbonzini@redhat.com
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBNYXkgMDMsIDIwMTggYXQgMDU6MDk6NDRQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiAyMDE45bm0MDXmnIgwM+aXpSAxNjozMCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gT24g
-VGh1LCBNYXkgMDMsIDIwMTggYXQgMDM6MzA6MDNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-PiA+ID4gT24gMjAxOOW5tDA15pyIMDPml6UgMTA6NTksIFRpd2VpIEJpZSB3cm90ZToKPiA+ID4g
-PiBUaGlzIHBhdGNoIGludHJvZHVjZXMgdGhlIHN1cHBvcnQgZm9yIFZJUlRJT19GX0lPX0JBUlJJ
-RVIuCj4gPiA+ID4gV2hlbiB0aGlzIGZlYXR1cmUgaXMgbmVnb3RpYXRlZCwgZHJpdmVyIHdpbGwg
-dXNlIHRoZSBiYXJyaWVycwo+ID4gPiA+IHN1aXRhYmxlIGZvciBoYXJkd2FyZSBkZXZpY2VzLgo+
-ID4gPiA+IAo+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IFRpd2VpIEJpZSA8dGl3ZWkuYmllQGludGVs
-LmNvbT4KPiA+ID4gPiAtLS0KPiA+ID4gPiAgICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5j
-ICAgICAgIHwgNSArKysrKwo+ID4gPiA+ICAgIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fY29u
-ZmlnLmggfCA4ICsrKysrKystCj4gPiA+ID4gICAgMiBmaWxlcyBjaGFuZ2VkLCAxMiBpbnNlcnRp
-b25zKCspLCAxIGRlbGV0aW9uKC0pCj4gPiA+ID4gCj4gPiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZl
-cnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4g
-PiA+ID4gaW5kZXggMjFkNDY0YTI5Y2Y4Li5lZGI1NjU2NDNiZjQgMTAwNjQ0Cj4gPiA+ID4gLS0t
-IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gPiA+ICsrKyBiL2RyaXZlcnMvdmly
-dGlvL3ZpcnRpb19yaW5nLmMKPiA+ID4gPiBAQCAtOTk2LDYgKzk5Niw5IEBAIHN0cnVjdCB2aXJ0
-cXVldWUgKl9fdnJpbmdfbmV3X3ZpcnRxdWV1ZSh1bnNpZ25lZCBpbnQgaW5kZXgsCj4gPiA+ID4g
-ICAgCQkhY29udGV4dDsKPiA+ID4gPiAgICAJdnEtPmV2ZW50ID0gdmlydGlvX2hhc19mZWF0dXJl
-KHZkZXYsIFZJUlRJT19SSU5HX0ZfRVZFTlRfSURYKTsKPiA+ID4gPiArCWlmICh2aXJ0aW9faGFz
-X2ZlYXR1cmUodmRldiwgVklSVElPX0ZfSU9fQkFSUklFUikpCj4gPiA+ID4gKwkJdnEtPndlYWtf
-YmFycmllcnMgPSBmYWxzZTsKPiA+ID4gPiArCj4gPiA+ID4gICAgCS8qIE5vIGNhbGxiYWNrPyAg
-VGVsbCBvdGhlciBzaWRlIG5vdCB0byBib3RoZXIgdXMuICovCj4gPiA+ID4gICAgCWlmICghY2Fs
-bGJhY2spIHsKPiA+ID4gPiAgICAJCXZxLT5hdmFpbF9mbGFnc19zaGFkb3cgfD0gVlJJTkdfQVZB
-SUxfRl9OT19JTlRFUlJVUFQ7Cj4gPiA+ID4gQEAgLTExNjQsNiArMTE2Nyw4IEBAIHZvaWQgdnJp
-bmdfdHJhbnNwb3J0X2ZlYXR1cmVzKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4gPiA+
-ICAgIAkJCWJyZWFrOwo+ID4gPiA+ICAgIAkJY2FzZSBWSVJUSU9fRl9JT01NVV9QTEFURk9STToK
-PiA+ID4gPiAgICAJCQlicmVhazsKPiA+ID4gPiArCQljYXNlIFZJUlRJT19GX0lPX0JBUlJJRVI6
-Cj4gPiA+ID4gKwkJCWJyZWFrOwo+ID4gPiA+ICAgIAkJZGVmYXVsdDoKPiA+ID4gPiAgICAJCQkv
-KiBXZSBkb24ndCB1bmRlcnN0YW5kIHRoaXMgYml0LiAqLwo+ID4gPiA+ICAgIAkJCV9fdmlydGlv
-X2NsZWFyX2JpdCh2ZGV2LCBpKTsKPiA+ID4gPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xp
-bnV4L3ZpcnRpb19jb25maWcuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fY29uZmlnLmgK
-PiA+ID4gPiBpbmRleCAzMDhlMjA5NjI5MWYuLjZjYThkMjRiZjQ2OCAxMDA2NDQKPiA+ID4gPiAt
-LS0gYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2NvbmZpZy5oCj4gPiA+ID4gKysrIGIvaW5j
-bHVkZS91YXBpL2xpbnV4L3ZpcnRpb19jb25maWcuaAo+ID4gPiA+IEBAIC00OSw3ICs0OSw3IEBA
-Cj4gPiA+ID4gICAgICogdHJhbnNwb3J0IGJlaW5nIHVzZWQgKGVnLiB2aXJ0aW9fcmluZyksIHRo
-ZSByZXN0IGFyZSBwZXItZGV2aWNlIGZlYXR1cmUKPiA+ID4gPiAgICAgKiBiaXRzLiAqLwo+ID4g
-PiA+ICAgICNkZWZpbmUgVklSVElPX1RSQU5TUE9SVF9GX1NUQVJUCTI4Cj4gPiA+ID4gLSNkZWZp
-bmUgVklSVElPX1RSQU5TUE9SVF9GX0VORAkJMzQKPiA+ID4gPiArI2RlZmluZSBWSVJUSU9fVFJB
-TlNQT1JUX0ZfRU5ECQkzOAo+ID4gPiA+ICAgICNpZm5kZWYgVklSVElPX0NPTkZJR19OT19MRUdB
-Q1kKPiA+ID4gPiAgICAvKiBEbyB3ZSBnZXQgY2FsbGJhY2tzIHdoZW4gdGhlIHJpbmcgaXMgY29t
-cGxldGVseSB1c2VkLCBldmVuIGlmIHdlJ3ZlCj4gPiA+ID4gQEAgLTcxLDQgKzcxLDEwIEBACj4g
-PiA+ID4gICAgICogdGhpcyBpcyBmb3IgY29tcGF0aWJpbGl0eSB3aXRoIGxlZ2FjeSBzeXN0ZW1z
-Lgo+ID4gPiA+ICAgICAqLwo+ID4gPiA+ICAgICNkZWZpbmUgVklSVElPX0ZfSU9NTVVfUExBVEZP
-Uk0JCTMzCj4gPiA+ID4gKwo+ID4gPiA+ICsvKgo+ID4gPiA+ICsgKiBJZiBjbGVhciAtIGRyaXZl
-ciBtYXkgdXNlIGJhcnJpZXJzIHN1aXRhYmxlIGZvciBDUFUgY29yZXMuCj4gPiA+ID4gKyAqIElm
-IHNldCAtIGRyaXZlciBtdXN0IHVzZSBiYXJyaWVycyBzdWl0YWJsZSBmb3IgaGFyZHdhcmUgZGV2
-aWNlcy4KPiA+ID4gPiArICovCj4gPiA+ID4gKyNkZWZpbmUgVklSVElPX0ZfSU9fQkFSUklFUgkJ
-MzcKPiA+ID4gPiAgICAjZW5kaWYgLyogX1VBUElfTElOVVhfVklSVElPX0NPTkZJR19IICovCj4g
-PiA+IEhpOgo+ID4gPiAKPiA+ID4gSSBiZWxpZXZlIHRoaXMgZGVwZW5kcyBvbiBNaWNoYWVsJ3Mg
-cGF0Y2ggb2YKPiA+ID4gCj4gPiA+ICJbUEFUQ0hdIHZpcnRpb19yaW5nOiBzd2l0Y2ggdG8gZG1h
-X1hYIGJhcnJpZXJzIGZvciBycG1zZyIKPiA+ID4gCj4gPiA+ID8KPiA+ID4gCj4gPiA+IFRoYW5r
-cwo+ID4gV2UgYWxyZWFkeSBoYXZlIGJlbG93IGNvbW1pdCBhbmQgc29tZSBvdGhlciByZWxhdGVk
-IGNvbW1pdHMKPiA+IGluIHRoZSB0cmVlOgo+ID4gCj4gPiA3YjIxZTM0ZmQxYzIgKCJ2aXJ0aW86
-IGhhcnNoZXIgYmFycmllcnMgZm9yIHJwbXNnLiIpCj4gPiAKPiA+IFRoZXkgc2hvdWxkIGhhdmUg
-YWxyZWFkeSBndWFyYW50ZWVkIHRoYXQgdmlydGlvX1htYigpIHdpbGwKPiA+IGJlIE9LIGZvciBo
-YXJkd2FyZSBkZXZpY2VzIHdoZW4gdnEtPndlYWtfYmFycmllcnMgaXMgZmFsc2UuCj4gPiBJZiBt
-eSB1bmRlcnN0YW5kaW5nIGlzIGNvcnJlY3QsIHRoZSBiYXJyaWVycyB1c2VkIGluIHRoaXMKPiA+
-IGNhc2UgYXJlIG92ZXJraWxsLiBTbyBNaWNoYWVsJ3MgcGF0Y2ggaXMgdG8gbWFrZSB0aGUgYmFy
-cmllcnMKPiA+IHdlYWtlciAob3IgYmV0dGVyKS4KPiA+IAo+ID4gQmVzdCByZWdhcmRzLAo+ID4g
-VGl3ZWkgQmllCj4gCj4gV2VsbCwgSSB0aGluayB3ZSBuZWVkIGRtYSBiYXJyaWVycyBmb3Igc29t
-ZSBwbGF0Zm9ybXMgYWNjb3JkaW5nIHRvIHByZXZpb3VzCj4gZGlzY3Vzc2lvbj8gV2l0aG91dCBN
-aWNoYWVsJ3MgcGF0Y2gsIHdlIHdvbid0IHVzZSBhbnkgZG1hIGJhcnJpZXJzIGluIGZhY3QKPiBm
-b3IgdmlydGlvLgoKWW91IGFyZSByaWdodC4gVGhhbmtzISBBcmUgeW91IHN1Z2dlc3RpbmcgdG8g
-YWRkIGEKcmVmZXJlbmNlIHRvIE1pY2hhZWwncyBwYXRjaCBpbiB0aGlzIHBhdGNoIHRvIG1ha2UK
-c3VyZSB0aGF0IGl0IHdvbid0IGJlIGFwcGxpZWQgYmVmb3JlIHRoYXQgcGF0Y2g/CgpCZXN0IHJl
-Z2FyZHMsClRpd2VpIEJpZQoKPiAKPiBUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
-emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
-ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+--===============8833794240571668891==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
+Content-Disposition: inline
+
+
+--qlTNgmc+xy1dBmNv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, May 03, 2018 at 10:59:55AM +0800, Tiwei Bie wrote:
+> This patch introduces the support for VIRTIO_F_IO_BARRIER.
+> When this feature is negotiated, driver will use the barriers
+> suitable for hardware devices.
+>=20
+> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+
+I should have thought of this earlier, but why is a new feature bit
+necessary?  If a hardware virtio device is in use, then the device
+should already negotiate VIRTIO_F_IOMMU_PLATFORM (i.e. use DMA APIs and
+IOMMU callbacks).
+
+Does disabling weak_barriers when VIRTIO_F_IOMMU_PLATFORM is set solve
+the problem?
+
+--qlTNgmc+xy1dBmNv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJa6tEsAAoJEJykq7OBq3PId/QIALdwBH9xWwEQVvM6d304pF6L
+xzcV8Swsp88sZDWASg+U4bAHqwEu7GHZV8uL5D7cL0wj/GzosiL8UXg5gRMbCewJ
++WqmRO650s3yMrYWkSODwIVA1ecJ4z7ij43NCVFDYn2INVec5PbVxW0lDgtCG0KD
++EU5IWUK4JMU25x4f+mQSYQkrsV89msupTw/qdxF634+qHitlj79JOL4ZmcvmOg6
+DrSD11OXbpKDi8KEOJb+9KJ1ky69L9xUn29Me5YMK3mYbfte1kZYLSzE4JvQmKHS
+Rf68rErinhJeAxDU4txxaIb2jOq3dUwqSQLuj5MjtNf4KhJbSB3A+BkZHSY4HM0=
+=X31/
+-----END PGP SIGNATURE-----
+
+--qlTNgmc+xy1dBmNv--
+
+--===============8833794240571668891==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8833794240571668891==--
