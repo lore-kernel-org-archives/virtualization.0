@@ -1,18 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
 Subject: Re: [RFC] virtio: support VIRTIO_F_IO_BARRIER
-Date: Thu, 3 May 2018 20:57:33 +0800
-Message-ID: <efe1b3b9-3601-d861-aff5-80d10c9f0cdb__29300.2403494485$1525352161$gmane$org@redhat.com>
+Date: Thu, 3 May 2018 21:26:47 +0800
+Message-ID: <20180503132647.yfulyzbygdfgu2or@debian>
 References: <20180503025955.28816-1-tiwei.bie@intel.com>
-	<ab66939d-47fb-5f43-3938-0c156ffc6918@redhat.com>
-	<20180503083015.kb7po26ga46g66tc@debian>
-	<1292c46c-34ad-ea21-1f05-164044a5f35a@redhat.com>
-	<20180503095823.zpxskdts7etpwl6x@debian>
+	<20180503090652.GB5301@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180503095823.zpxskdts7etpwl6x@debian>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180503090652.GB5301@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,78 +19,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, zhihong.wang@intel.com, pbonzini@redhat.com
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgwM+aXpSAxNzo1OCwgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFRodSwg
-TWF5IDAzLCAyMDE4IGF0IDA1OjA5OjQ0UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9u
-IDIwMTjlubQwNeaciDAz5pelIDE2OjMwLCBUaXdlaSBCaWUgd3JvdGU6Cj4+PiBPbiBUaHUsIE1h
-eSAwMywgMjAxOCBhdCAwMzozMDowM1BNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+IE9u
-IDIwMTjlubQwNeaciDAz5pelIDEwOjU5LCBUaXdlaSBCaWUgd3JvdGU6Cj4+Pj4+IFRoaXMgcGF0
-Y2ggaW50cm9kdWNlcyB0aGUgc3VwcG9ydCBmb3IgVklSVElPX0ZfSU9fQkFSUklFUi4KPj4+Pj4g
-V2hlbiB0aGlzIGZlYXR1cmUgaXMgbmVnb3RpYXRlZCwgZHJpdmVyIHdpbGwgdXNlIHRoZSBiYXJy
-aWVycwo+Pj4+PiBzdWl0YWJsZSBmb3IgaGFyZHdhcmUgZGV2aWNlcy4KPj4+Pj4KPj4+Pj4gU2ln
-bmVkLW9mZi1ieTogVGl3ZWkgQmllIDx0aXdlaS5iaWVAaW50ZWwuY29tPgo+Pj4+PiAtLS0KPj4+
-Pj4gICAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgICAgICAgfCA1ICsrKysrCj4+Pj4+
-ICAgICBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2NvbmZpZy5oIHwgOCArKysrKysrLQo+Pj4+
-PiAgICAgMiBmaWxlcyBjaGFuZ2VkLCAxMiBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4+
-Pj4+Cj4+Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIGIvZHJp
-dmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+Pj4+PiBpbmRleCAyMWQ0NjRhMjljZjguLmVkYjU2
-NTY0M2JmNCAxMDA2NDQKPj4+Pj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+
-Pj4+PiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4+Pj4+IEBAIC05OTYsNiAr
-OTk2LDkgQEAgc3RydWN0IHZpcnRxdWV1ZSAqX192cmluZ19uZXdfdmlydHF1ZXVlKHVuc2lnbmVk
-IGludCBpbmRleCwKPj4+Pj4gICAgIAkJIWNvbnRleHQ7Cj4+Pj4+ICAgICAJdnEtPmV2ZW50ID0g
-dmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19SSU5HX0ZfRVZFTlRfSURYKTsKPj4+Pj4g
-KwlpZiAodmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19GX0lPX0JBUlJJRVIpKQo+Pj4+
-PiArCQl2cS0+d2Vha19iYXJyaWVycyA9IGZhbHNlOwo+Pj4+PiArCj4+Pj4+ICAgICAJLyogTm8g
-Y2FsbGJhY2s/ICBUZWxsIG90aGVyIHNpZGUgbm90IHRvIGJvdGhlciB1cy4gKi8KPj4+Pj4gICAg
-IAlpZiAoIWNhbGxiYWNrKSB7Cj4+Pj4+ICAgICAJCXZxLT5hdmFpbF9mbGFnc19zaGFkb3cgfD0g
-VlJJTkdfQVZBSUxfRl9OT19JTlRFUlJVUFQ7Cj4+Pj4+IEBAIC0xMTY0LDYgKzExNjcsOCBAQCB2
-b2lkIHZyaW5nX3RyYW5zcG9ydF9mZWF0dXJlcyhzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikK
-Pj4+Pj4gICAgIAkJCWJyZWFrOwo+Pj4+PiAgICAgCQljYXNlIFZJUlRJT19GX0lPTU1VX1BMQVRG
-T1JNOgo+Pj4+PiAgICAgCQkJYnJlYWs7Cj4+Pj4+ICsJCWNhc2UgVklSVElPX0ZfSU9fQkFSUklF
-UjoKPj4+Pj4gKwkJCWJyZWFrOwo+Pj4+PiAgICAgCQlkZWZhdWx0Ogo+Pj4+PiAgICAgCQkJLyog
-V2UgZG9uJ3QgdW5kZXJzdGFuZCB0aGlzIGJpdC4gKi8KPj4+Pj4gICAgIAkJCV9fdmlydGlvX2Ns
-ZWFyX2JpdCh2ZGV2LCBpKTsKPj4+Pj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvdWFwaS9saW51eC92
-aXJ0aW9fY29uZmlnLmggYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2NvbmZpZy5oCj4+Pj4+
-IGluZGV4IDMwOGUyMDk2MjkxZi4uNmNhOGQyNGJmNDY4IDEwMDY0NAo+Pj4+PiAtLS0gYS9pbmNs
-dWRlL3VhcGkvbGludXgvdmlydGlvX2NvbmZpZy5oCj4+Pj4+ICsrKyBiL2luY2x1ZGUvdWFwaS9s
-aW51eC92aXJ0aW9fY29uZmlnLmgKPj4+Pj4gQEAgLTQ5LDcgKzQ5LDcgQEAKPj4+Pj4gICAgICAq
-IHRyYW5zcG9ydCBiZWluZyB1c2VkIChlZy4gdmlydGlvX3JpbmcpLCB0aGUgcmVzdCBhcmUgcGVy
-LWRldmljZSBmZWF0dXJlCj4+Pj4+ICAgICAgKiBiaXRzLiAqLwo+Pj4+PiAgICAgI2RlZmluZSBW
-SVJUSU9fVFJBTlNQT1JUX0ZfU1RBUlQJMjgKPj4+Pj4gLSNkZWZpbmUgVklSVElPX1RSQU5TUE9S
-VF9GX0VORAkJMzQKPj4+Pj4gKyNkZWZpbmUgVklSVElPX1RSQU5TUE9SVF9GX0VORAkJMzgKPj4+
-Pj4gICAgICNpZm5kZWYgVklSVElPX0NPTkZJR19OT19MRUdBQ1kKPj4+Pj4gICAgIC8qIERvIHdl
-IGdldCBjYWxsYmFja3Mgd2hlbiB0aGUgcmluZyBpcyBjb21wbGV0ZWx5IHVzZWQsIGV2ZW4gaWYg
-d2UndmUKPj4+Pj4gQEAgLTcxLDQgKzcxLDEwIEBACj4+Pj4+ICAgICAgKiB0aGlzIGlzIGZvciBj
-b21wYXRpYmlsaXR5IHdpdGggbGVnYWN5IHN5c3RlbXMuCj4+Pj4+ICAgICAgKi8KPj4+Pj4gICAg
-ICNkZWZpbmUgVklSVElPX0ZfSU9NTVVfUExBVEZPUk0JCTMzCj4+Pj4+ICsKPj4+Pj4gKy8qCj4+
-Pj4+ICsgKiBJZiBjbGVhciAtIGRyaXZlciBtYXkgdXNlIGJhcnJpZXJzIHN1aXRhYmxlIGZvciBD
-UFUgY29yZXMuCj4+Pj4+ICsgKiBJZiBzZXQgLSBkcml2ZXIgbXVzdCB1c2UgYmFycmllcnMgc3Vp
-dGFibGUgZm9yIGhhcmR3YXJlIGRldmljZXMuCj4+Pj4+ICsgKi8KPj4+Pj4gKyNkZWZpbmUgVklS
-VElPX0ZfSU9fQkFSUklFUgkJMzcKPj4+Pj4gICAgICNlbmRpZiAvKiBfVUFQSV9MSU5VWF9WSVJU
-SU9fQ09ORklHX0ggKi8KPj4+PiBIaToKPj4+Pgo+Pj4+IEkgYmVsaWV2ZSB0aGlzIGRlcGVuZHMg
-b24gTWljaGFlbCdzIHBhdGNoIG9mCj4+Pj4KPj4+PiAiW1BBVENIXSB2aXJ0aW9fcmluZzogc3dp
-dGNoIHRvIGRtYV9YWCBiYXJyaWVycyBmb3IgcnBtc2ciCj4+Pj4KPj4+PiA/Cj4+Pj4KPj4+PiBU
-aGFua3MKPj4+IFdlIGFscmVhZHkgaGF2ZSBiZWxvdyBjb21taXQgYW5kIHNvbWUgb3RoZXIgcmVs
-YXRlZCBjb21taXRzCj4+PiBpbiB0aGUgdHJlZToKPj4+Cj4+PiA3YjIxZTM0ZmQxYzIgKCJ2aXJ0
-aW86IGhhcnNoZXIgYmFycmllcnMgZm9yIHJwbXNnLiIpCj4+Pgo+Pj4gVGhleSBzaG91bGQgaGF2
-ZSBhbHJlYWR5IGd1YXJhbnRlZWQgdGhhdCB2aXJ0aW9fWG1iKCkgd2lsbAo+Pj4gYmUgT0sgZm9y
-IGhhcmR3YXJlIGRldmljZXMgd2hlbiB2cS0+d2Vha19iYXJyaWVycyBpcyBmYWxzZS4KPj4+IElm
-IG15IHVuZGVyc3RhbmRpbmcgaXMgY29ycmVjdCwgdGhlIGJhcnJpZXJzIHVzZWQgaW4gdGhpcwo+
-Pj4gY2FzZSBhcmUgb3ZlcmtpbGwuIFNvIE1pY2hhZWwncyBwYXRjaCBpcyB0byBtYWtlIHRoZSBi
-YXJyaWVycwo+Pj4gd2Vha2VyIChvciBiZXR0ZXIpLgo+Pj4KPj4+IEJlc3QgcmVnYXJkcywKPj4+
-IFRpd2VpIEJpZQo+PiBXZWxsLCBJIHRoaW5rIHdlIG5lZWQgZG1hIGJhcnJpZXJzIGZvciBzb21l
-IHBsYXRmb3JtcyBhY2NvcmRpbmcgdG8gcHJldmlvdXMKPj4gZGlzY3Vzc2lvbj8gV2l0aG91dCBN
-aWNoYWVsJ3MgcGF0Y2gsIHdlIHdvbid0IHVzZSBhbnkgZG1hIGJhcnJpZXJzIGluIGZhY3QKPj4g
-Zm9yIHZpcnRpby4KPiBZb3UgYXJlIHJpZ2h0LiBUaGFua3MhIEFyZSB5b3Ugc3VnZ2VzdGluZyB0
-byBhZGQgYQo+IHJlZmVyZW5jZSB0byBNaWNoYWVsJ3MgcGF0Y2ggaW4gdGhpcyBwYXRjaCB0byBt
-YWtlCj4gc3VyZSB0aGF0IGl0IHdvbid0IGJlIGFwcGxpZWQgYmVmb3JlIHRoYXQgcGF0Y2g/CgpZ
-ZXMsIGJldHRlciB0byBoYXZlIHNvbWUgbm90ZXMsIG9yIG1heWJlIGp1c3Qgc3F1YXNoIHRoYXQg
-cGF0Y2ggaW50byAKdGhpcyBzZXJpZXMuCgpMZXQncyB3YWl0IGZvciBNaWNoYWVsJ3MgcmVwbHkg
-dG8gc2VlLgoKVGhhbmtzCgo+Cj4gQmVzdCByZWdhcmRzLAo+IFRpd2VpIEJpZQo+Cj4+IFRoYW5r
-cwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+On Thu, May 03, 2018 at 10:06:52AM +0100, Stefan Hajnoczi wrote:
+> On Thu, May 03, 2018 at 10:59:55AM +0800, Tiwei Bie wrote:
+> > This patch introduces the support for VIRTIO_F_IO_BARRIER.
+> > When this feature is negotiated, driver will use the barriers
+> > suitable for hardware devices.
+> > 
+> > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+> 
+> I should have thought of this earlier, but why is a new feature bit
+> necessary?  If a hardware virtio device is in use, then the device
+> should already negotiate VIRTIO_F_IOMMU_PLATFORM (i.e. use DMA APIs and
+> IOMMU callbacks).
+> 
+> Does disabling weak_barriers when VIRTIO_F_IOMMU_PLATFORM is set solve
+> the problem?
+
+The VIRTIO_F_IOMMU_PLATFORM feature can be set when the
+device is implemented in software. And I think we don't
+want the performance drop in this case.
+
+Best regards,
+Tiwei Bie
