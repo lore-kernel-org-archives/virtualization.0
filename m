@@ -1,15 +1,22 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC V3 PATCH 1/8] vhost: move get_rx_bufs to vhost.c
-Date: Thu, 3 May 2018 15:19:12 +0800
-Message-ID: <19846c31-45b2-6809-6e7b-6b738cd7d2ca__14703.1331355267$1525331862$gmane$org@redhat.com>
-References: <1524461700-5469-1-git-send-email-jasowang@redhat.com>
-	<1524461700-5469-2-git-send-email-jasowang@redhat.com>
-	<20180502080518.h52wme46fnqpyfpf@debian>
+Subject: Re: [RFC v3 4/5] virtio_ring: add event idx support in packed ring
+Date: Thu, 3 May 2018 15:25:29 +0800
+Message-ID: <9f0b4e37-63ff-42f9-f2e6-3747a19a0206@redhat.com>
+References: <20180425051550.24342-1-tiwei.bie@intel.com>
+	<20180425051550.24342-5-tiwei.bie@intel.com>
+	<34781052-df9f-e505-cd3f-08e460b34dcc@redhat.com>
+	<20180502072819.mf5l3dypk6dwx2s7@debian>
+	<20180502164828-mutt-send-email-mst@kernel.org>
+	<20180502151255.h3x6rhszxa3euinl@debian>
+	<20180502184015-mutt-send-email-mst@kernel.org>
+	<20180503011116.qvoyblcpklinrk26@debian>
+	<20180503044218-mutt-send-email-mst@kernel.org>
+	<20180503020949.5u3qz32gsk33z6vk@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180502080518.h52wme46fnqpyfpf@debian>
+In-Reply-To: <20180503020949.5u3qz32gsk33z6vk@debian>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,18 +27,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Tiwei Bie <tiwei.bie@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, wexu@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgwMuaXpSAxNjowNSwgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIE1vbiwg
-QXByIDIzLCAyMDE4IGF0IDAxOjM0OjUzUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE1v
-dmUgZ2V0X3J4X2J1ZnMoKSB0byB2aG9zdC5jIGFuZCByZW5hbWUgaXQgdG8KPj4gdmhvc3RfZ2V0
-X3J4X2J1ZnMoKS4gVGhpcyBoZWxwcyB0byBoaWRlIHZyaW5nIGludGVybmFsIGxheW91dCBmcm9t
-Cj4gQSBzbWFsbCB0eXBvLiBCYXNlZCBvbiB0aGUgY29kZSBjaGFuZ2UgaW4gdGhpcyBwYXRjaCwg
-aXQKPiBzZWVtcyB0aGF0IHRoaXMgZnVuY3Rpb24gaXMgcmVuYW1lZCB0byB2aG9zdF9nZXRfYnVm
-cygpLgo+Cj4gVGhhbmtzCj4KClJpZ2h0LCBsZXQgbWUgZml4IGl0IGluIHRoZSBuZXh0IHZlcnNp
-b24uCgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+CgpPbiAyMDE45bm0MDXmnIgwM+aXpSAxMDowOSwgVGl3ZWkgQmllIHdyb3RlOgo+Pj4+IFNvIGhv
+dyBhYm91dCB3ZSB1c2UgdGhlIHN0cmFpZ2h0Zm9yd2FyZCB3YXkgdGhlbj8KPj4+IFlvdSBtZWFu
+IHdlIGRvIG5ldyArPSB2cS0+dnJpbmdfcGFja2VkLm51bSBpbnN0ZWFkCj4+PiBvZiBldmVudF9p
+ZHggLT0gdnEtPnZyaW5nX3BhY2tlZC5udW0gYmVmb3JlIGNhbGxpbmcKPj4+IHZyaW5nX25lZWRf
+ZXZlbnQoKT8KPj4+Cj4+PiBUaGUgcHJvYmxlbSBpcyB0aGF0LCB0aGUgc2Vjb25kIHBhcmFtIChu
+ZXdfaWR4KSBvZgo+Pj4gdnJpbmdfbmVlZF9ldmVudCgpIHdpbGwgYmUgdXNlZCBmb3I6Cj4+Pgo+
+Pj4gKF9fdTE2KShuZXdfaWR4IC0gZXZlbnRfaWR4IC0gMSkKPj4+IChfX3UxNikobmV3X2lkeCAt
+IG9sZCkKPj4+Cj4+PiBTbyBpZiB3ZSBjaGFuZ2UgbmV3LCB3ZSB3aWxsIG5lZWQgdG8gY2hhbmdl
+IG9sZCB0b28uCj4+IEkgdGhpbmsgdGhhdCBzaW5jZSB3ZSBoYXZlIGEgYnJhbmNoIHRoZXJlIGFu
+eXdheSwKPj4gd2UgYXJlIGJldHRlciBvZmYganVzdCBzcGVjaWFsLWNhc2luZyBpZiAod3JhcF9j
+b3VudGVyICE9IHZxLT53cmFwX2NvdW50ZXIpLgo+PiBUcmVhdCBpcyBkaWZmZXJlbnR5IGFuZCBh
+dm9pZCBjYXN0cy4KPj4KPj4+IEFuZCB0aGF0IHdvdWxkIGJlIGFuIHVnbHkgaGFjay4uCj4+Pgo+
+Pj4gQmVzdCByZWdhcmRzLAo+Pj4gVGl3ZWkgQmllCj4+IEkgY29uc2lkZXIgY2FzdHMgYW5kIGh1
+Z2UgbnVtYmVycyB3aXRoIHR3bydzIGNvbXBsZW1lbnQKPj4gZ2FtZXMgZXZlbiB1Z2xpZXIuCj4g
+VGhlIGRlcGVuZGVuY3kgb24gdHdvJ3MgY29tcGxlbWVudCBnYW1lIGlzIGludHJvZHVjZWQKPiBz
+aW5jZSB0aGUgc3BsaXQgcmluZy4KPgo+IEluIHBhY2tlZCByaW5nLCBvbGQgaXMgY2FsY3VsYXRl
+ZCB2aWE6Cj4KPiBvbGQgPSB2cS0+bmV4dF9hdmFpbF9pZHggLSB2cS0+bnVtX2FkZGVkOwo+Cj4g
+SW4gc3BsaXQgcmluZywgb2xkIGlzIGNhbGN1bGF0ZWQgdmlhOgo+Cj4gb2xkID0gdnEtPmF2YWls
+X2lkeF9zaGFkb3cgLSB2cS0+bnVtX2FkZGVkOwo+Cj4gSW4gYm90aCBjYXNlcywgd2hlbiB2cS0+
+bnVtX2FkZGVkIGlzIGJpZ2dlciwgb2xkIHdpbGwKPiBiZSBhIGJpZyBudW1iZXIuCj4KPiBCZXN0
+IHJlZ2FyZHMsCj4gVGl3ZWkgQmllCj4KCkhvdyBhYm91dCBqdXN0IGRvIHNvbWV0aGluZyBsaWtl
+IHZob3N0OgoKc3RhdGljIHUxNiB2aG9zdF9pZHhfZGlmZihzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVl
+ICp2cSwgdTE2IG9sZCwgdTE2IG5ldykKewogwqDCoMKgIGlmIChuZXcgPiBvbGQpCiDCoMKgwqAg
+wqDCoMKgIHJldHVybiBuZXcgLSBvbGQ7CiDCoMKgwqAgcmV0dXJuwqAgKG5ldyArIHZxLT5udW0g
+LSBvbGQpOwp9CgpzdGF0aWMgYm9vbCB2aG9zdF92cmluZ19wYWNrZWRfbmVlZF9ldmVudChzdHJ1
+Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKg
+wqAgwqAgX191MTYgZXZlbnRfb2ZmLCBfX3UxNiBuZXcsCiDCoMKgwqAgwqDCoMKgIMKgwqDCoCDC
+oMKgwqAgwqDCoMKgIMKgIF9fdTE2IG9sZCkKewogwqDCoMKgIHJldHVybiAoX191MTYpKHZob3N0
+X2lkeF9kaWZmKHZxLCBuZXcsIGV2ZW50X29mZikgLSAxKSA8CiDCoMKgwqAgwqDCoMKgwqDCoMKg
+IChfX3UxNil2aG9zdF9pZHhfZGlmZih2cSwgbmV3LCBvbGQpOwp9Cgo/Cl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
+bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
