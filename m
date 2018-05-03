@@ -1,15 +1,23 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC] virtio: support VIRTIO_F_IO_BARRIER
-Date: Thu, 3 May 2018 14:50:07 +0100
-Message-ID: <CAJSP0QUfvRH0SVMPZB_5xYa2LbSFy9jXe=c7v68AFMf01eSWuQ__40307.7885312543$1525355288$gmane$org@mail.gmail.com>
-References: <20180503025955.28816-1-tiwei.bie@intel.com>
-	<20180503090652.GB5301@stefanha-x1.localdomain>
-	<20180503132647.yfulyzbygdfgu2or@debian>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [RFC v3 4/5] virtio_ring: add event idx support in packed ring
+Date: Thu, 3 May 2018 21:54:30 +0800
+Message-ID: <20180503135430.lbtvn4p4lyu3ksqo__24019.8037274697$1525355517$gmane$org@debian>
+References: <20180425051550.24342-5-tiwei.bie@intel.com>
+	<34781052-df9f-e505-cd3f-08e460b34dcc@redhat.com>
+	<20180502072819.mf5l3dypk6dwx2s7@debian>
+	<20180502164828-mutt-send-email-mst@kernel.org>
+	<20180502151255.h3x6rhszxa3euinl@debian>
+	<20180502184015-mutt-send-email-mst@kernel.org>
+	<20180503011116.qvoyblcpklinrk26@debian>
+	<20180503044218-mutt-send-email-mst@kernel.org>
+	<20180503020949.5u3qz32gsk33z6vk@debian>
+	<9f0b4e37-63ff-42f9-f2e6-3747a19a0206@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180503132647.yfulyzbygdfgu2or@debian>
+Content-Disposition: inline
+In-Reply-To: <9f0b4e37-63ff-42f9-f2e6-3747a19a0206@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +27,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, "Wang,
-	Zhihong" <zhihong.wang@intel.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 3, 2018 at 2:26 PM, Tiwei Bie <tiwei.bie@intel.com> wrote:
-> On Thu, May 03, 2018 at 10:06:52AM +0100, Stefan Hajnoczi wrote:
->> On Thu, May 03, 2018 at 10:59:55AM +0800, Tiwei Bie wrote:
->> > This patch introduces the support for VIRTIO_F_IO_BARRIER.
->> > When this feature is negotiated, driver will use the barriers
->> > suitable for hardware devices.
->> >
->> > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
->>
->> I should have thought of this earlier, but why is a new feature bit
->> necessary?  If a hardware virtio device is in use, then the device
->> should already negotiate VIRTIO_F_IOMMU_PLATFORM (i.e. use DMA APIs and
->> IOMMU callbacks).
->>
->> Does disabling weak_barriers when VIRTIO_F_IOMMU_PLATFORM is set solve
->> the problem?
->
-> The VIRTIO_F_IOMMU_PLATFORM feature can be set when the
-> device is implemented in software. And I think we don't
-> want the performance drop in this case.
-
-Good point.
-
-Stefan
+T24gVGh1LCBNYXkgMDMsIDIwMTggYXQgMDM6MjU6MjlQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiBPbiAyMDE45bm0MDXmnIgwM+aXpSAxMDowOSwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+
+ID4gU28gaG93IGFib3V0IHdlIHVzZSB0aGUgc3RyYWlnaHRmb3J3YXJkIHdheSB0aGVuPwo+ID4g
+PiA+IFlvdSBtZWFuIHdlIGRvIG5ldyArPSB2cS0+dnJpbmdfcGFja2VkLm51bSBpbnN0ZWFkCj4g
+PiA+ID4gb2YgZXZlbnRfaWR4IC09IHZxLT52cmluZ19wYWNrZWQubnVtIGJlZm9yZSBjYWxsaW5n
+Cj4gPiA+ID4gdnJpbmdfbmVlZF9ldmVudCgpPwo+ID4gPiA+IAo+ID4gPiA+IFRoZSBwcm9ibGVt
+IGlzIHRoYXQsIHRoZSBzZWNvbmQgcGFyYW0gKG5ld19pZHgpIG9mCj4gPiA+ID4gdnJpbmdfbmVl
+ZF9ldmVudCgpIHdpbGwgYmUgdXNlZCBmb3I6Cj4gPiA+ID4gCj4gPiA+ID4gKF9fdTE2KShuZXdf
+aWR4IC0gZXZlbnRfaWR4IC0gMSkKPiA+ID4gPiAoX191MTYpKG5ld19pZHggLSBvbGQpCj4gPiA+
+ID4gCj4gPiA+ID4gU28gaWYgd2UgY2hhbmdlIG5ldywgd2Ugd2lsbCBuZWVkIHRvIGNoYW5nZSBv
+bGQgdG9vLgo+ID4gPiBJIHRoaW5rIHRoYXQgc2luY2Ugd2UgaGF2ZSBhIGJyYW5jaCB0aGVyZSBh
+bnl3YXksCj4gPiA+IHdlIGFyZSBiZXR0ZXIgb2ZmIGp1c3Qgc3BlY2lhbC1jYXNpbmcgaWYgKHdy
+YXBfY291bnRlciAhPSB2cS0+d3JhcF9jb3VudGVyKS4KPiA+ID4gVHJlYXQgaXMgZGlmZmVyZW50
+eSBhbmQgYXZvaWQgY2FzdHMuCj4gPiA+IAo+ID4gPiA+IEFuZCB0aGF0IHdvdWxkIGJlIGFuIHVn
+bHkgaGFjay4uCj4gPiA+ID4gCj4gPiA+ID4gQmVzdCByZWdhcmRzLAo+ID4gPiA+IFRpd2VpIEJp
+ZQo+ID4gPiBJIGNvbnNpZGVyIGNhc3RzIGFuZCBodWdlIG51bWJlcnMgd2l0aCB0d28ncyBjb21w
+bGVtZW50Cj4gPiA+IGdhbWVzIGV2ZW4gdWdsaWVyLgo+ID4gVGhlIGRlcGVuZGVuY3kgb24gdHdv
+J3MgY29tcGxlbWVudCBnYW1lIGlzIGludHJvZHVjZWQKPiA+IHNpbmNlIHRoZSBzcGxpdCByaW5n
+Lgo+ID4gCj4gPiBJbiBwYWNrZWQgcmluZywgb2xkIGlzIGNhbGN1bGF0ZWQgdmlhOgo+ID4gCj4g
+PiBvbGQgPSB2cS0+bmV4dF9hdmFpbF9pZHggLSB2cS0+bnVtX2FkZGVkOwo+ID4gCj4gPiBJbiBz
+cGxpdCByaW5nLCBvbGQgaXMgY2FsY3VsYXRlZCB2aWE6Cj4gPiAKPiA+IG9sZCA9IHZxLT5hdmFp
+bF9pZHhfc2hhZG93IC0gdnEtPm51bV9hZGRlZDsKPiA+IAo+ID4gSW4gYm90aCBjYXNlcywgd2hl
+biB2cS0+bnVtX2FkZGVkIGlzIGJpZ2dlciwgb2xkIHdpbGwKPiA+IGJlIGEgYmlnIG51bWJlci4K
+PiA+IAo+ID4gQmVzdCByZWdhcmRzLAo+ID4gVGl3ZWkgQmllCj4gPiAKPiAKPiBIb3cgYWJvdXQg
+anVzdCBkbyBzb21ldGhpbmcgbGlrZSB2aG9zdDoKPiAKPiBzdGF0aWMgdTE2IHZob3N0X2lkeF9k
+aWZmKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCB1MTYgb2xkLCB1MTYgbmV3KQo+IHsKPiDC
+oMKgwqAgaWYgKG5ldyA+IG9sZCkKPiDCoMKgwqAgwqDCoMKgIHJldHVybiBuZXcgLSBvbGQ7Cj4g
+wqDCoMKgIHJldHVybsKgIChuZXcgKyB2cS0+bnVtIC0gb2xkKTsKPiB9Cj4gCj4gc3RhdGljIGJv
+b2wgdmhvc3RfdnJpbmdfcGFja2VkX25lZWRfZXZlbnQoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAq
+dnEsCj4gwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoCBfX3UxNiBldmVudF9v
+ZmYsIF9fdTE2IG5ldywKPiDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgIF9f
+dTE2IG9sZCkKPiB7Cj4gwqDCoMKgIHJldHVybiAoX191MTYpKHZob3N0X2lkeF9kaWZmKHZxLCBu
+ZXcsIGV2ZW50X29mZikgLSAxKSA8Cj4gwqDCoMKgIMKgwqDCoMKgwqDCoCAoX191MTYpdmhvc3Rf
+aWR4X2RpZmYodnEsIG5ldywgb2xkKTsKPiB9Cj4gCj4gPwoKSXQgc2VlbXMgdGhhdCB0aGVyZSBp
+cyBhIHR5cG8gaW4gYWJvdmUgY29kZS4gVGhlIHNlY29uZApwYXJhbSBvZiB2aG9zdF9pZHhfZGlm
+ZigpIGlzIGBvbGRgLCBidXQgd2hlbiBjYWxsaW5nIHRoaXMKZnVuY3Rpb24gaW4gdmhvc3RfdnJp
+bmdfcGFja2VkX25lZWRfZXZlbnQoKSwgYG5ld2AgaXMKcGFzc2VkIGFzIHRoZSBzZWNvbmQgcGFy
+YW0uCgpJZiB3ZSBhc3N1bWUgdGhlIHNlY29uZCBwYXJhbSBvZiB2aG9zdF9pZHhfZGlmZigpIGlz
+IG5ldwphbmQgdGhlIHRoaXJkIG9uZSBpcyBvbGQsIGkuZS46CgpzdGF0aWMgdTE2IHZob3N0X2lk
+eF9kaWZmKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCB1MTYgbmV3LCB1MTYgb2xkKQp7CsKg
+wqDCoCBpZiAobmV3ID4gb2xkKQrCoMKgwqAgwqDCoMKgIHJldHVybiBuZXcgLSBvbGQ7CsKgwqDC
+oCByZXR1cm7CoCAobmV3ICsgdnEtPm51bSAtIG9sZCk7Cn0KCkkgdGhpbmsgaXQncyBzdGlsbCBu
+b3QgcmlnaHQuCgpCZWNhdXNlIGluIHZpcnRxdWV1ZV9lbmFibGVfY2JfZGVsYXllZCgpLCB3ZSBt
+YXkgc2V0IGFuCmV2ZW50X29mZiB3aGljaCBpcyBiaWdnZXIgdGhhbiBuZXcgYW5kIGJvdGggb2Yg
+dGhlbSBoYXZlCndyYXBwZWQuIEFuZCBpbiB0aGlzIGNhc2UsIGFsdGhvdWdoIG5ldyBpcyBzbWFs
+bGVyIHRoYW4KZXZlbnRfb2ZmIChpLmUuIHRoZSB0aGlyZCBwYXJhbSAtLSBvbGQpLCBuZXcgc2hv
+dWxkbid0CmFkZCB2cS0+bnVtLCBhbmQgYWN0dWFsbHkgd2UgYXJlIGV4cGVjdGluZyBhIHZlcnkg
+YmlnCmlkeCBkaWZmLgoKQmVzdCByZWdhcmRzLApUaXdlaSBCaWUKX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
