@@ -1,11 +1,17 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [PATCH v1] virtio: support VIRTIO_F_IO_BARRIER
-Date: Fri,  4 May 2018 12:59:15 +0800
-Message-ID: <20180504045915.17693-1-tiwei.bie__29465.0586242371$1525409815$gmane$org@intel.com>
+From: Amit Shah <amitshah@gmx.net>
+Subject: Re: [PATCH 0/6] virtio-console: spec compliance fixes
+Date: Sun, 6 May 2018 19:56:40 +0200
+Message-ID: <20180506175640.GA19628__34625.8212499835$1525630658$gmane$org@grmbl.mre>
+References: <1524248223-393618-1-git-send-email-mst@redhat.com>
+	<20180424214104-mutt-send-email-mst@kernel.org>
+	<20180503034529.GA16676@grmbl.mre>
+	<20180503222702-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20180503222702-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,75 +21,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com, stefanha@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtio-dev@lists.oasis-open.org
-Cc: zhihong.wang@intel.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit@amitshah.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch introduces the support for VIRTIO_F_IO_BARRIER.
-When this feature is negotiated, driver will use the barriers
-suitable for hardware devices.
+On (Thu) 03 May 2018 [22:28:32], Michael S. Tsirkin wrote:
+> On Thu, May 03, 2018 at 05:45:29AM +0200, Amit Shah wrote:
+> > (apologies if you received a dup)
+> > 
+> > On (Tue) 24 Apr 2018 [21:41:29], Michael S. Tsirkin wrote:
+> > > On Fri, Apr 20, 2018 at 09:17:59PM +0300, Michael S. Tsirkin wrote:
+> > > > Turns out virtio console tries to take a buffer out of an active vq.
+> > > > Works by sheer luck, and is explicitly forbidden by spec.  And while
+> > > > going over it I saw that error handling is also broken -
+> > > > failure is easy to trigger if I force allocations to fail.
+> > > > 
+> > > > Lightly tested.
+> > > 
+> > > Amit - any feedback before I push these patches?
+> > 
+> > The changes look good spec-wise.
+> > 
+> > There are a bunch of tests in avocado-vt that test virtio-console
+> > functionality.  Can you give those a try before pushing?
+> > 
+> > 		Amit
+> 
+> I pushed before I did that test, will try to find the time later.  BTW
+> do you still want to be on the maintainers list?
 
-Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
----
-This patch depends on below proposal for virtio-spec:
-https://lists.oasis-open.org/archives/virtio-dev/201805/msg00019.html
+Yes, I want to be on the maintainers list; but won't mind
+co-maintainers.  The recent changes seem to be spec-related, and I'd
+expect you to have a good handle on that anyway.
 
-This patch also depends on below patch:
-https://lkml.org/lkml/2018/4/19/789
-
-RFC -> v1:
-- Address the changes in the proposal;
-
- drivers/virtio/virtio_ring.c       | 5 +++++
- include/uapi/linux/virtio_config.h | 8 +++++++-
- 2 files changed, 12 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 21d464a29cf8..edb565643bf4 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -996,6 +996,9 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 		!context;
- 	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
- 
-+	if (virtio_has_feature(vdev, VIRTIO_F_IO_BARRIER))
-+		vq->weak_barriers = false;
-+
- 	/* No callback?  Tell other side not to bother us. */
- 	if (!callback) {
- 		vq->avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
-@@ -1164,6 +1167,8 @@ void vring_transport_features(struct virtio_device *vdev)
- 			break;
- 		case VIRTIO_F_IOMMU_PLATFORM:
- 			break;
-+		case VIRTIO_F_IO_BARRIER:
-+			break;
- 		default:
- 			/* We don't understand this bit. */
- 			__virtio_clear_bit(vdev, i);
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index 308e2096291f..9fb519a9df28 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -49,7 +49,7 @@
-  * transport being used (eg. virtio_ring), the rest are per-device feature
-  * bits. */
- #define VIRTIO_TRANSPORT_F_START	28
--#define VIRTIO_TRANSPORT_F_END		34
-+#define VIRTIO_TRANSPORT_F_END		37
- 
- #ifndef VIRTIO_CONFIG_NO_LEGACY
- /* Do we get callbacks when the ring is completely used, even if we've
-@@ -71,4 +71,10 @@
-  * this is for compatibility with legacy systems.
-  */
- #define VIRTIO_F_IOMMU_PLATFORM		33
-+
-+/*
-+ * If clear - driver may use barriers suitable for CPU cores.
-+ * If set - driver must use barriers suitable for hardware devices.
-+ */
-+#define VIRTIO_F_IO_BARRIER		36
- #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
+		Amit
 -- 
-2.11.0
+http://amitshah.net/
