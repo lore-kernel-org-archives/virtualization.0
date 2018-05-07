@@ -1,18 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/6] virtio-console: spec compliance fixes
-Date: Sun, 6 May 2018 22:52:03 +0300
-Message-ID: <20180506225142-mutt-send-email-mst__10962.7238744453$1525636226$gmane$org@kernel.org>
-References: <1524248223-393618-1-git-send-email-mst@redhat.com>
-	<20180424214104-mutt-send-email-mst@kernel.org>
-	<20180503034529.GA16676@grmbl.mre>
-	<20180503222702-mutt-send-email-mst@kernel.org>
-	<20180506182430.GB19628@grmbl.mre>
+Subject: Re: [PATCH net] vhost: Use kzalloc() to allocate vhost_msg_node
+Date: Mon, 7 May 2018 16:03:25 +0300
+Message-ID: <20180507155534-mutt-send-email-mst__37927.284386433$1525698108$gmane$org@kernel.org>
+References: <000000000000a5b2b1056a86e98c@google.com>
+	<20180427154502.GA22544@la.guarana.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180506182430.GB19628@grmbl.mre>
+In-Reply-To: <20180427154502.GA22544@la.guarana.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,43 +19,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit@amitshah.net>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Kevin Easton <kevin@guarana.org>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, May 06, 2018 at 08:24:30PM +0200, Amit Shah wrote:
-> On (Thu) 03 May 2018 [22:28:32], Michael S. Tsirkin wrote:
-> > On Thu, May 03, 2018 at 05:45:29AM +0200, Amit Shah wrote:
-> > > (apologies if you received a dup)
-> > > 
-> > > On (Tue) 24 Apr 2018 [21:41:29], Michael S. Tsirkin wrote:
-> > > > On Fri, Apr 20, 2018 at 09:17:59PM +0300, Michael S. Tsirkin wrote:
-> > > > > Turns out virtio console tries to take a buffer out of an active vq.
-> > > > > Works by sheer luck, and is explicitly forbidden by spec.  And while
-> > > > > going over it I saw that error handling is also broken -
-> > > > > failure is easy to trigger if I force allocations to fail.
-> > > > > 
-> > > > > Lightly tested.
-> > > > 
-> > > > Amit - any feedback before I push these patches?
-> > > 
-> > > The changes look good spec-wise.
-> > > 
-> > > There are a bunch of tests in avocado-vt that test virtio-console
-> > > functionality.  Can you give those a try before pushing?
-> > > 
-> > > 		Amit
-> > 
-> > I pushed before I did that test, will try to find the time later.  BTW
-> > do you still want to be on the maintainers list?
+On Fri, Apr 27, 2018 at 11:45:02AM -0400, Kevin Easton wrote:
+> The struct vhost_msg within struct vhost_msg_node is copied to userspace,
+> so it should be allocated with kzalloc() to ensure all structure padding
+> is zeroed.
 > 
-> Yes, I want to be on the maintainers list; but won't mind
-> co-maintainers.  The recent changes seem to be spec-related, and I'd
-> expect you to have a good handle on that anyway.
+> Signed-off-by: Kevin Easton <kevin@guarana.org>
+> Reported-by: syzbot+87cfa083e727a224754b@syzkaller.appspotmail.com
+> ---
+>  drivers/vhost/vhost.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> 		Amit
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index f3bd8e9..1b84dcff 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2339,7 +2339,7 @@ EXPORT_SYMBOL_GPL(vhost_disable_notify);
+>  /* Create a new message. */
+>  struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type)
+>  {
+> -	struct vhost_msg_node *node = kmalloc(sizeof *node, GFP_KERNEL);
+> +	struct vhost_msg_node *node = kzalloc(sizeof *node, GFP_KERNEL);
+>  	if (!node)
+>  		return NULL;
+>  	node->vq = vq;
 
-If you can do extra testing that would be appreciated though.
 
-> -- 
-> http://amitshah.net/
+Let's just init the msg though.
+
+OK it seems this is the best we can do for now,
+we need a new feature bit to fix it for 32 bit
+userspace on 64 bit kernels.
+
+Does the following help?
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index f3bd8e9..58d9aec 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2342,6 +2342,9 @@ struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type)
+ 	struct vhost_msg_node *node = kmalloc(sizeof *node, GFP_KERNEL);
+ 	if (!node)
+ 		return NULL;
++
++	/* Make sure all padding within the structure is initialized. */
++	memset(&node->msg, 0, sizeof node->msg);
+ 	node->vq = vq;
+ 	node->msg.type = type;
+ 	return node;
