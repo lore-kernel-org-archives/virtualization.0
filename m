@@ -1,7 +1,7 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
 Subject: Re: [PATCH net-next v10 2/4] net: Introduce generic failover module
-Date: Mon, 7 May 2018 16:53:06 -0700
-Message-ID: <20180507165306.541bd1f2__2423.50878329507$1525737067$gmane$org@xeon-e3>
+Date: Mon, 7 May 2018 16:59:11 -0700
+Message-ID: <20180507165911.45b14c58__15569.8625174866$1525737453$gmane$org@xeon-e3>
 References: <1525731046-10989-1-git-send-email-sridhar.samudrala@intel.com>
 	<1525731046-10989-3-git-send-email-sridhar.samudrala@intel.com>
 Mime-Version: 1.0
@@ -25,23 +25,24 @@ List-Id: virtualization@lists.linuxfoundation.org
 On Mon,  7 May 2018 15:10:44 -0700
 Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
 
-> +static struct net_device *net_failover_get_bymac(u8 *mac,
-> +						 struct net_failover_ops **ops)
-> +{
-> +	struct net_device *failover_dev;
-> +	struct net_failover *failover;
-> +
-> +	spin_lock(&net_failover_lock);
-> +	list_for_each_entry(failover, &net_failover_list, list) {
-> +		failover_dev = rtnl_dereference(failover->failover_dev);
-> +		if (ether_addr_equal(failover_dev->perm_addr, mac)) {
-> +			*ops = rtnl_dereference(failover->ops);
-> +			spin_unlock(&net_failover_lock);
-> +			return failover_dev;
+> +	if (netif_running(failover_dev)) {
+> +		err = dev_open(slave_dev);
+> +		if (err && (err != -EBUSY)) {
+> +			netdev_err(failover_dev, "Opening slave %s failed err:%d\n",
+> +				   slave_dev->name, err);
+> +			goto err_dev_open;
 > +		}
 > +	}
-> +	spin_unlock(&net_failover_lock);
-> +	return NULL;
-> +}
+> +
+> +	netif_addr_lock_bh(failover_dev);
+> +	dev_uc_sync_multiple(slave_dev, failover_dev);
+> +	dev_uc_sync_multiple(slave_dev, failover_dev);
+> +	netif_addr_unlock_bh(failover_dev);
+> +
 
-This is broken if non-ethernet devices such as Infiniband are present.
+The order of these is backwards, you want to sync addresses before bringing up.
+Also, doing it this way does not allow udev/systemd the chance to rename VF devices.
+
+The complexity of this whole failover mechanism does not make life easier,
+more reliable, or safer for netvsc. I though that was the whole reason for having
+common code.
