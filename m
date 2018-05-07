@@ -1,14 +1,12 @@
 From: Sridhar Samudrala <sridhar.samudrala@intel.com>
-Subject: [PATCH net-next v10 3/4] virtio_net: Extend virtio to use VF datapath
-	when available
-Date: Mon,  7 May 2018 15:10:45 -0700
-Message-ID: <1525731046-10989-4-git-send-email-sridhar.samudrala__41167.4085575671$1525730945$gmane$org@intel.com>
-References: <1525731046-10989-1-git-send-email-sridhar.samudrala@intel.com>
+Subject: [PATCH net-next v10 0/4] Enable virtio_net to act as a standby for a
+	passthru device
+Date: Mon,  7 May 2018 15:10:42 -0700
+Message-ID: <1525731046-10989-1-git-send-email-sridhar.samudrala__19980.4517011673$1525730955$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1525731046-10989-1-git-send-email-sridhar.samudrala@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,147 +19,148 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, kubakici@wp.pl, sridhar.samudrala@intel.com, jasowang@redhat.com, loseweigh@gmail.com, jiri@resnulli.us, aaron.f.brown@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch enables virtio_net to switch over to a VF datapath when a VF
-netdev is present with the same MAC address. It allows live migration
-of a VM with a direct attached VF without the need to setup a bond/team
-between a VF and virtio net device in the guest.
+The main motivation for this patch is to enable cloud service providers
+to provide an accelerated datapath to virtio-net enabled VMs in a 
+transparent manner with no/minimal guest userspace changes. This also
+enables hypervisor controlled live migration to be supported with VMs that
+have direct attached SR-IOV VF devices.
 
-The hypervisor needs to unplug the VF device from the guest on the source
-host and reset the MAC filter of the VF to initiate failover of datapath
-to virtio before starting the migration. After the migration is completed,
-the destination hypervisor sets the MAC filter on the VF and plugs it back
-to the guest to switch over to VF datapath.
+Patch 1 introduces a new feature bit VIRTIO_NET_F_STANDBY that can be
+used by hypervisor to indicate that virtio_net interface should act as
+a standby for another device with the same MAC address.
 
-It uses the generic failover framework that provides 2 functions to create
-and destroy a master failover netdev. When STANDBY feature is enabled, an
-additional netdev(failover netdev) is created that acts as a master device
-and tracks the state of the 2 lower netdevs. The original virtio_net netdev
-is marked as 'standby' netdev and a passthru device with the same MAC is
-registered as 'primary' netdev.
+Patch 2 introduces a failover module that provides a generic interface for 
+paravirtual drivers to listen for netdev register/unregister/link change
+events from pci ethernet devices with the same MAC and takeover their
+datapath. The notifier and event handling code is based on the existing
+netvsc implementation. It provides 2 sets of interfaces to paravirtual 
+drivers to support 2-netdev(netvsc) and 3-netdev(virtio_net) models.
+
+Patch 3 extends virtio_net to use alternate datapath when available and
+registered. When STANDBY feature is enabled, virtio_net driver creates
+an additional 'failover' netdev that acts as a master device and controls
+2 slave devices.  The original virtio_net netdev is registered as
+'standby' netdev and a passthru/vf device with the same MAC gets
+registered as 'primary' netdev. Both 'standby' and 'failover' netdevs are
+associated with the same 'pci' device.  The user accesses the network
+interface via 'failover' netdev. The 'failover' netdev chooses 'primary'
+netdev as default for transmits when it is available with link up and
+running.
+
+Patch 4 refactors netvsc to use the registration/notification framework
+supported by failover module.
+
+As this patch series is initially focusing on usecases where hypervisor 
+fully controls the VM networking and the guest is not expected to directly 
+configure any hardware settings, it doesn't expose all the ndo/ethtool ops
+that are supported by virtio_net at this time. To support additional usecases,
+it should be possible to enable additional ops later by caching the state
+in virtio netdev and replaying when the 'primary' netdev gets registered. 
+ 
+At the time of live migration, the hypervisor needs to unplug the VF device
+from the guest on the source host and reset the MAC filter of the VF to
+initiate failover of datapath to virtio before starting the migration. After
+the migration is completed, the destination hypervisor sets the MAC filter
+on the VF and plugs it back to the guest to switch over to VF datapath.
 
 This patch is based on the discussion initiated by Jesse on this thread.
 https://marc.info/?l=linux-virtualization&m=151189725224231&w=2
 
-Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
----
- drivers/net/Kconfig      |  1 +
- drivers/net/virtio_net.c | 38 +++++++++++++++++++++++++++++++++++++-
- 2 files changed, 38 insertions(+), 1 deletion(-)
+v10:
+- Tested live migration with virtio-net/AVF(i40evf) configured in failover
+  mode while running iperf in background. Tried static ip and dhcp
+  configurations using 'network' scripts and Network Manager.
+  - To avoid dhcp requests to be sent over the lower 'standby' and 'primary'
+    netdevs, ifcfg-xxx scripts for the lower devices can be created.
+- Build tested netvsc module.
+Updates:
+- fix net_failover_open() to update failover CARRIER correctly based on
+  standby and primary states. 
+- fix net_failover_handle_frame() to handle frames received on standby
+  when primary is present.
+- replace netdev_upper_dev_link with netdev_master_upper_dev_link and
+  handle lower dev state changes.
+- fix net_failver_create() and net_failover_register() interfaces to
+  use ERR_PTR and avoid arg **
+- disable setting mac address when virtio-net in STANDBY mode
+- document exported symbols
+- added entry to MAINTAINERS file
 
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index a029b27fd002..30e3bb0532e4 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -332,6 +332,7 @@ config VETH
- config VIRTIO_NET
- 	tristate "Virtio network driver"
- 	depends on VIRTIO
-+	select NET_FAILOVER
- 	---help---
- 	  This is the virtual network driver for virtio.  It can be used with
- 	  QEMU based VMMs (like KVM or Xen).  Say Y or M.
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 213fddc70fd0..e7428d20763c 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -30,8 +30,11 @@
- #include <linux/cpu.h>
- #include <linux/average.h>
- #include <linux/filter.h>
-+#include <linux/netdevice.h>
-+#include <linux/pci.h>
- #include <net/route.h>
- #include <net/xdp.h>
-+#include <net/net_failover.h>
- 
- static int napi_weight = NAPI_POLL_WEIGHT;
- module_param(napi_weight, int, 0444);
-@@ -210,6 +213,9 @@ struct virtnet_info {
- 	u32 speed;
- 
- 	unsigned long guest_offloads;
-+
-+	/* failover when STANDBY feature enabled */
-+	struct net_failover *failover;
- };
- 
- struct padded_vnet_hdr {
-@@ -1523,6 +1529,9 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
- 	struct sockaddr *addr;
- 	struct scatterlist sg;
- 
-+	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STANDBY))
-+		return -EOPNOTSUPP;
-+
- 	addr = kmemdup(p, sizeof(*addr), GFP_KERNEL);
- 	if (!addr)
- 		return -ENOMEM;
-@@ -2306,6 +2315,22 @@ static int virtnet_xdp(struct net_device *dev, struct netdev_bpf *xdp)
- 	}
- }
- 
-+static int virtnet_get_phys_port_name(struct net_device *dev, char *buf,
-+				      size_t len)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	int ret;
-+
-+	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_STANDBY))
-+		return -EOPNOTSUPP;
-+
-+	ret = snprintf(buf, len, "sby");
-+	if (ret >= len)
-+		return -EOPNOTSUPP;
-+
-+	return 0;
-+}
-+
- static const struct net_device_ops virtnet_netdev = {
- 	.ndo_open            = virtnet_open,
- 	.ndo_stop   	     = virtnet_close,
-@@ -2323,6 +2348,7 @@ static const struct net_device_ops virtnet_netdev = {
- 	.ndo_xdp_xmit		= virtnet_xdp_xmit,
- 	.ndo_xdp_flush		= virtnet_xdp_flush,
- 	.ndo_features_check	= passthru_features_check,
-+	.ndo_get_phys_port_name	= virtnet_get_phys_port_name,
- };
- 
- static void virtnet_config_changed_work(struct work_struct *work)
-@@ -2876,10 +2902,16 @@ static int virtnet_probe(struct virtio_device *vdev)
- 
- 	virtnet_init_settings(dev);
- 
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_STANDBY)) {
-+		vi->failover = net_failover_create(vi->dev);
-+		if (IS_ERR(vi->failover))
-+			goto free_vqs;
-+	}
-+
- 	err = register_netdev(dev);
- 	if (err) {
- 		pr_debug("virtio_net: registering device failed\n");
--		goto free_vqs;
-+		goto free_failover;
- 	}
- 
- 	virtio_device_ready(vdev);
-@@ -2916,6 +2948,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	vi->vdev->config->reset(vdev);
- 
- 	unregister_netdev(dev);
-+free_failover:
-+	net_failover_destroy(vi->failover);
- free_vqs:
- 	cancel_delayed_work_sync(&vi->refill);
- 	free_receive_page_frags(vi);
-@@ -2950,6 +2984,8 @@ static void virtnet_remove(struct virtio_device *vdev)
- 
- 	unregister_netdev(vi->dev);
- 
-+	net_failover_destroy(vi->failover);
-+
- 	remove_vq_common(vi);
- 
- 	free_netdev(vi->dev);
+v9:
+Select NET_FAILOVER automatically when VIRTIO_NET/HYPERV_NET 
+are enabled. (stephen)
+
+v8:
+- Made the failover managment routines more robust by updating the feature 
+  bits/other fields in the failover netdev when slave netdevs are 
+  registered/unregistered. (mst)
+- added support for handling vlans.
+- Limited the changes in netvsc to only use the notifier/event/lookups
+  from the failover module. The slave register/unregister/link-change 
+  handlers are only updated to use the getbymac routine to get the 
+  upper netdev. There is no change in their functionality. (stephen)
+- renamed structs/function/file names to use net_failover prefix. (mst)
+
+v7
+- Rename 'bypass/active/backup' terminology with 'failover/primary/standy'
+  (jiri, mst)
+- re-arranged dev_open() and dev_set_mtu() calls in the register routines
+  so that they don't get called for 2-netdev model. (stephen)
+- fixed select_queue() routine to do queue selection based on VF if it is
+  registered as primary. (stephen)
+-  minor bugfixes
+
+v6 RFC:
+  Simplified virtio_net changes by moving all the ndo_ops of the 
+  bypass_netdev and create/destroy of bypass_netdev to 'bypass' module.
+  avoided 2 phase registration(driver + instances).
+  introduced IFF_BYPASS/IFF_BYPASS_SLAVE dev->priv_flags 
+  replaced mutex with a spinlock
+
+v5 RFC:
+  Based on Jiri's comments, moved the common functionality to a 'bypass'
+  module so that the same notifier and event handlers to handle child
+  register/unregister/link change events can be shared between virtio_net
+  and netvsc.
+  Improved error handling based on Siwei's comments.
+v4:
+- Based on the review comments on the v3 version of the RFC patch and
+  Jakub's suggestion for the naming issue with 3 netdev solution,
+  proposed 3 netdev in-driver bonding solution for virtio-net.
+v3 RFC:
+- Introduced 3 netdev model and pointed out a couple of issues with
+  that model and proposed 2 netdev model to avoid these issues.
+- Removed broadcast/multicast optimization and only use virtio as
+  backup path when VF is unplugged.
+v2 RFC:
+- Changed VIRTIO_NET_F_MASTER to VIRTIO_NET_F_BACKUP (mst)
+- made a small change to the virtio-net xmit path to only use VF datapath
+  for unicasts. Broadcasts/multicasts use virtio datapath. This avoids
+  east-west broadcasts to go over the PCI link.
+- added suppport for the feature bit in qemu
+
+Sridhar Samudrala (4):
+  virtio_net: Introduce VIRTIO_NET_F_STANDBY feature bit
+  net: Introduce generic failover module
+  virtio_net: Extend virtio to use VF datapath when available
+  netvsc: refactor notifier/event handling code to use the failover
+    framework
+
+ MAINTAINERS                     |    7 +
+ drivers/net/Kconfig             |    1 +
+ drivers/net/hyperv/Kconfig      |    1 +
+ drivers/net/hyperv/hyperv_net.h |    2 +
+ drivers/net/hyperv/netvsc_drv.c |  134 +----
+ drivers/net/virtio_net.c        |   40 +-
+ include/linux/netdevice.h       |   16 +
+ include/net/net_failover.h      |   52 ++
+ include/uapi/linux/virtio_net.h |    3 +
+ net/Kconfig                     |   10 +
+ net/core/Makefile               |    1 +
+ net/core/net_failover.c         | 1044 +++++++++++++++++++++++++++++++++++++++
+ 12 files changed, 1198 insertions(+), 113 deletions(-)
+ create mode 100644 include/net/net_failover.h
+ create mode 100644 net/core/net_failover.c
+
 -- 
 2.14.3
