@@ -1,24 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC v3 4/5] virtio_ring: add event idx support in packed ring
-Date: Tue, 8 May 2018 15:16:53 +0800
-Message-ID: <34f2c690-7cb2-f9ea-2ce9-40f4ccb594c9__482.579790014093$1525763718$gmane$org@redhat.com>
-References: <20180502164828-mutt-send-email-mst@kernel.org>
-	<20180502151255.h3x6rhszxa3euinl@debian>
-	<20180502184015-mutt-send-email-mst@kernel.org>
-	<20180503011116.qvoyblcpklinrk26@debian>
-	<20180503044218-mutt-send-email-mst@kernel.org>
-	<20180503020949.5u3qz32gsk33z6vk@debian>
-	<9f0b4e37-63ff-42f9-f2e6-3747a19a0206@redhat.com>
-	<20180503135430.lbtvn4p4lyu3ksqo@debian>
-	<fbe06940-1618-5d34-7321-f4888c5dd1ee@redhat.com>
-	<12ede490-f674-2b89-d639-266b5fe15466@redhat.com>
-	<20180508064409.kcn6amhsxu7nkuuc@debian>
+From: kbuild test robot <lkp@intel.com>
+Subject: Re: [PATCH net-next v10 2/4] net: Introduce generic failover module
+Date: Tue, 8 May 2018 17:02:27 +0800
+Message-ID: <201805081451.t5GJxu1F%fengguang.wu__37209.7667110667$1525770100$gmane$org@intel.com>
+References: <1525731046-10989-3-git-send-email-sridhar.samudrala@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180508064409.kcn6amhsxu7nkuuc@debian>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1525731046-10989-3-git-send-email-sridhar.samudrala@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,62 +18,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, kbuild-all@01.org, sridhar.samudrala@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgwOOaXpSAxNDo0NCwgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFR1ZSwg
-TWF5IDA4LCAyMDE4IGF0IDAxOjQwOjQwUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9u
-IDIwMTjlubQwNeaciDA45pelIDExOjA1LCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+IEJlY2F1c2Ug
-aW4gdmlydHF1ZXVlX2VuYWJsZV9jYl9kZWxheWVkKCksIHdlIG1heSBzZXQgYW4KPj4+PiBldmVu
-dF9vZmYgd2hpY2ggaXMgYmlnZ2VyIHRoYW4gbmV3IGFuZCBib3RoIG9mIHRoZW0gaGF2ZQo+Pj4+
-IHdyYXBwZWQuIEFuZCBpbiB0aGlzIGNhc2UsIGFsdGhvdWdoIG5ldyBpcyBzbWFsbGVyIHRoYW4K
-Pj4+PiBldmVudF9vZmYgKGkuZS4gdGhlIHRoaXJkIHBhcmFtIC0tIG9sZCksIG5ldyBzaG91bGRu
-J3QKPj4+PiBhZGQgdnEtPm51bSwgYW5kIGFjdHVhbGx5IHdlIGFyZSBleHBlY3RpbmcgYSB2ZXJ5
-IGJpZwo+Pj4+IGlkeCBkaWZmLgo+Pj4gWWVzLCBzbyB0byBjYWxjdWxhdGUgZGlzdGFuY2UgY29y
-cmVjdGx5IGJldHdlZW4gZXZlbnQgYW5kIG5ldywgd2UganVzdAo+Pj4gbmVlZCB0byBjb21wYXJl
-IHRoZSB3YXJwIGNvdW50ZXIgYW5kIHJldHVybiBmYWxzZSBpZiBpdCBkb2Vzbid0IG1hdGNoCj4+
-PiB3aXRob3V0IHRoZSBuZWVkIHRvIHRyeSB0byBhZGQgdnEubnVtIGhlcmUuCj4+Pgo+Pj4gVGhh
-bmtzCj4+IFNvcnJ5LCBsb29rcyBsaWtlIHRoZSBmb2xsb3dpbmcgc2hvdWxkIHdvcmssIHdlIG5l
-ZWQgYWRkIHZxLm51bSBpZgo+PiB1c2VkX3dyYXBfY291bnRlciBkb2VzIG5vdCBtYXRjaDoKPj4K
-Pj4gc3RhdGljIGJvb2wgdmhvc3RfdnJpbmdfcGFja2VkX25lZWRfZXZlbnQoc3RydWN0IHZob3N0
-X3ZpcnRxdWV1ZSAqdnEsCj4+ICDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKg
-IF9fdTE2IG9mZl93cmFwLCBfX3UxNiBuZXcsCj4+ICDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKg
-wqAgwqDCoMKgIMKgIF9fdTE2IG9sZCkKPj4gewo+PiAgwqDCoMKgIGJvb2wgd3JhcCA9IG9mZl93
-cmFwID4+IDE1Owo+PiAgwqDCoMKgIGludCBvZmYgPSBvZmZfd3JhcCAmIH4oMSA8PCAxNSk7Cj4+
-ICDCoMKgwqAgX191MTYgZDEsIGQyOwo+Pgo+PiAgwqDCoMKgIGlmICh3cmFwICE9IHZxLT51c2Vk
-X3dyYXBfY291bnRlcikKPj4gIMKgwqDCoCDCoMKgwqAgZDEgPSBuZXcgKyB2cS0+bnVtIC0gb2Zm
-IC0gMTsKPiBKdXN0IHRvIGRyYXcgeW91ciBhdHRlbnRpb24gKG1heWJlIHlvdSBoYXZlIGFscmVh
-ZHkKPiBub3RpY2VkIHRoaXMpLgoKSSBtaXNzIHRoaXMsIHRoYW5rcyEKCj4KPiBJbiB0aGlzIGNh
-c2UgKGkuZS4gd3JhcCAhPSB2cS0+dXNlZF93cmFwX2NvdW50ZXIpLAo+IGl0J3MgYWxzbyBwb3Nz
-aWJsZSB0aGF0IChvZmYgPCBuZXcpIGlzIHRydWUuIEJlY2F1c2UsCj4KPiB3aGVuIHZpcnRxdWV1
-ZV9lbmFibGVfY2JfZGVsYXllZF9wYWNrZWQoKSBpcyB1c2VkLAo+IGBvZmZgIGlzIGNhbGN1bGF0
-ZWQgaW4gZHJpdmVyIGluIGEgd2F5IGxpa2UgdGhpczoKPgo+IAlvZmYgPSB2cS0+bGFzdF91c2Vk
-X2lkeCArIGJ1ZnM7Cj4gCWlmIChvZmYgPj0gdnEtPnZyaW5nX3BhY2tlZC5udW0pIHsKPiAJCW9m
-ZiAtPSB2cS0+dnJpbmdfcGFja2VkLm51bTsKPiAJCXdyYXBfY291bnRlciBePSAxOwo+IAl9Cj4K
-PiBBbmQgd2hlbiBgbmV3YCAoaW4gdmhvc3QpIGlzIGNsb3NlIHRvIHZxLT5udW0uIFRoZQo+IHZx
-LT5sYXN0X3VzZWRfaWR4ICsgYnVmcyAoaW4gZHJpdmVyKSBjYW4gYmUgYmlnZ2VyCj4gdGhhbiB2
-cS0+dnJpbmdfcGFja2VkLm51bSwgYW5kOgo+Cj4gMS4gYG9mZmAgd2lsbCB3cmFwOwo+IDIuIHdy
-YXAgY291bnRlcnMgd29uJ3QgbWF0Y2g7Cj4gMy4gb2ZmIDwgbmV3Owo+Cj4gQW5kIGQxIChpLmUu
-IG5ldyArIHZxLT5udW0gLSBvZmYgLSAxKSB3aWxsIGJlIGEgdmFsdWUKPiBiaWdnZXIgdGhhbiB2
-cS0+bnVtLiBJJ20gb2theSB3aXRoIHRoaXMsIGFsdGhvdWdoIGl0J3MKPiBhIGJpdCB3ZWlyZC4K
-CgpTbyBJJ20gY29uc2lkZXJpbmcgc29tZXRoaW5nIG1vcmUgY29tcGFjdCBieSByZXVzaW5nIHZy
-aW5nX25lZWRfZXZlbnQoKSAKYnkgcHJldGVuZGluZyBhIGxhcmdlciBxdWV1ZSBzaXplIGFuZCBh
-ZGRpbmcgdnEtPm51bSBiYWNrIHdoZW4gbmVjZXNzYXJ5OgoKc3RhdGljIGJvb2wgdmhvc3RfdnJp
-bmdfcGFja2VkX25lZWRfZXZlbnQoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCiDCoMKgwqAg
-wqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgIF9fdTE2IG9mZl93cmFwLCBfX3UxNiBuZXcs
-CiDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgIF9fdTE2IG9sZCkKewogwqDC
-oMKgIGJvb2wgd3JhcCA9IHZxLT51c2VkX3dyYXBfY291bnRlcjsKIMKgwqDCoCBpbnQgb2ZmID0g
-b2ZmX3dyYXAgJiB+KDEgPDwgMTUpOwogwqDCoMKgIF9fdTE2IGQxLCBkMjsKCiDCoMKgwqAgaWYg
-KG5ldyA8IG9sZCkgewogwqDCoMKgIMKgwqDCoCBuZXcgKz0gdnEtPm51bTsKIMKgwqDCoCDCoMKg
-wqAgd3JhcCBePSAxOwogwqDCoMKgIH0KCiDCoMKgwqAgaWYgKHdyYXAgIT0gb2ZmX3dyYXAgPj4g
-MTUpCiDCoMKgwqAgwqDCoMKgIG9mZiArPSB2cS0+bnVtOwoKIMKgwqDCoCByZXR1cm4gdnJpbmdf
-bmVlZF9ldmVudChvZmYsIG5ldywgb2xkKTsKfQoKCj4KPiBCZXN0IHJlZ2FyZHMsCj4gVGl3ZWkg
-QmllCj4KPj4gIMKgwqDCoCBlbHNlCj4+ICDCoMKgwqAgwqDCoMKgIGQxID0gbmV3IC0gb2ZmIC0g
-MTsKPj4KPj4gIMKgwqDCoCBpZiAobmV3ID4gb2xkKQo+PiAgwqDCoMKgIMKgwqDCoCBkMiA9IG5l
-dyAtIG9sZDsKPj4gIMKgwqDCoCBlbHNlCj4+ICDCoMKgwqAgwqDCoMKgIGQyID0gbmV3ICsgdnEt
-Pm51bSAtIG9sZDsKPj4KPj4gIMKgwqDCoCByZXR1cm4gZDEgPCBkMjsKPj4gfQo+Pgo+PiBUaGFu
-a3MKPj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
-cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
-aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi Sridhar,
+
+I love your patch! Perhaps something to improve:
+
+[auto build test WARNING on net-next/master]
+
+url:    https://github.com/0day-ci/linux/commits/Sridhar-Samudrala/Enable-virtio_net-to-act-as-a-standby-for-a-passthru-device/20180508-123531
+reproduce:
+        # apt-get install sparse
+        make ARCH=x86_64 allmodconfig
+        make C=1 CF=-D__CHECK_ENDIAN__
+
+
+sparse warnings: (new ones prefixed by >>)
+
+>> net/core/net_failover.c:868:16: sparse: Using plain integer as NULL pointer
+   net/core/net_failover.c:115:12: sparse: context imbalance in 'net_failover_select_queue' - wrong count at exit
+
+vim +868 net/core/net_failover.c
+
+   828	
+   829	/**
+   830	 * net_failover_register - Register a failover instance
+   831	 *
+   832	 * @dev: failover or standby netdev
+   833	 * @ops: failover ops
+   834	 *
+   835	 * Paravirtual drivers supporting 3-netdev model call this routine indirectly
+   836	 * via net_failover_create(). It passes failover netdev and ops will be NULL
+   837	 * as the slave events are handled internally.
+   838	 * Paravirtual drivers supporting 2-netdev model call this routine by passing
+   839	 * standby netdev and ops that are called to handle slave register/unregister/
+   840	 * link change events.
+   841	 *
+   842	 * Return: pointer to failover instance
+   843	 */
+   844	struct net_failover *net_failover_register(struct net_device *dev,
+   845						   struct net_failover_ops *ops)
+   846	{
+   847		struct net_failover *failover;
+   848	
+   849		failover = kzalloc(sizeof(*failover), GFP_KERNEL);
+   850		if (!failover)
+   851			return ERR_PTR(-ENOMEM);
+   852	
+   853		rcu_assign_pointer(failover->ops, ops);
+   854		dev_hold(dev);
+   855		dev->priv_flags |= IFF_FAILOVER;
+   856		rcu_assign_pointer(failover->failover_dev, dev);
+   857	
+   858		spin_lock(&net_failover_lock);
+   859		list_add_tail(&failover->list, &net_failover_list);
+   860		spin_unlock(&net_failover_lock);
+   861	
+   862		netdev_info(dev, "failover master:%s registered\n", dev->name);
+   863	
+   864		net_failover_existing_slave_register(dev);
+   865	
+   866		return failover;
+   867	
+ > 868		return 0;
+   869	}
+   870	EXPORT_SYMBOL_GPL(net_failover_register);
+   871	
+
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
