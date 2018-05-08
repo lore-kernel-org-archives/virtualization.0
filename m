@@ -1,14 +1,16 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
 Subject: Re: [PATCH net-next v10 2/4] net: Introduce generic failover module
-Date: Mon, 7 May 2018 16:59:11 -0700
-Message-ID: <20180507165911.45b14c58__15569.8625174866$1525737453$gmane$org@xeon-e3>
+Date: Mon, 7 May 2018 17:11:21 -0700
+Message-ID: <d4b8dcae-3d21-3b8b-5881-1fc15617d18a__48174.6006910273$1525738181$gmane$org@intel.com>
 References: <1525731046-10989-1-git-send-email-sridhar.samudrala@intel.com>
 	<1525731046-10989-3-git-send-email-sridhar.samudrala@intel.com>
+	<20180507165911.45b14c58@xeon-e3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1525731046-10989-3-git-send-email-sridhar.samudrala@intel.com>
+In-Reply-To: <20180507165911.45b14c58@xeon-e3>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +20,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sridhar Samudrala <sridhar.samudrala@intel.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
 Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon,  7 May 2018 15:10:44 -0700
-Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
-
-> +	if (netif_running(failover_dev)) {
-> +		err = dev_open(slave_dev);
-> +		if (err && (err != -EBUSY)) {
-> +			netdev_err(failover_dev, "Opening slave %s failed err:%d\n",
-> +				   slave_dev->name, err);
-> +			goto err_dev_open;
-> +		}
-> +	}
-> +
-> +	netif_addr_lock_bh(failover_dev);
-> +	dev_uc_sync_multiple(slave_dev, failover_dev);
-> +	dev_uc_sync_multiple(slave_dev, failover_dev);
-> +	netif_addr_unlock_bh(failover_dev);
-> +
-
-The order of these is backwards, you want to sync addresses before bringing up.
-Also, doing it this way does not allow udev/systemd the chance to rename VF devices.
-
-The complexity of this whole failover mechanism does not make life easier,
-more reliable, or safer for netvsc. I though that was the whole reason for having
-common code.
+T24gNS83LzIwMTggNDo1OSBQTSwgU3RlcGhlbiBIZW1taW5nZXIgd3JvdGU6Cj4gT24gTW9uLCAg
+NyBNYXkgMjAxOCAxNToxMDo0NCAtMDcwMAo+IFNyaWRoYXIgU2FtdWRyYWxhIDxzcmlkaGFyLnNh
+bXVkcmFsYUBpbnRlbC5jb20+IHdyb3RlOgo+Cj4+ICsJaWYgKG5ldGlmX3J1bm5pbmcoZmFpbG92
+ZXJfZGV2KSkgewo+PiArCQllcnIgPSBkZXZfb3BlbihzbGF2ZV9kZXYpOwo+PiArCQlpZiAoZXJy
+ICYmIChlcnIgIT0gLUVCVVNZKSkgewo+PiArCQkJbmV0ZGV2X2VycihmYWlsb3Zlcl9kZXYsICJP
+cGVuaW5nIHNsYXZlICVzIGZhaWxlZCBlcnI6JWRcbiIsCj4+ICsJCQkJICAgc2xhdmVfZGV2LT5u
+YW1lLCBlcnIpOwo+PiArCQkJZ290byBlcnJfZGV2X29wZW47Cj4+ICsJCX0KPj4gKwl9Cj4+ICsK
+Pj4gKwluZXRpZl9hZGRyX2xvY2tfYmgoZmFpbG92ZXJfZGV2KTsKPj4gKwlkZXZfdWNfc3luY19t
+dWx0aXBsZShzbGF2ZV9kZXYsIGZhaWxvdmVyX2Rldik7Cj4+ICsJZGV2X3VjX3N5bmNfbXVsdGlw
+bGUoc2xhdmVfZGV2LCBmYWlsb3Zlcl9kZXYpOwo+PiArCW5ldGlmX2FkZHJfdW5sb2NrX2JoKGZh
+aWxvdmVyX2Rldik7Cj4+ICsKPiBUaGUgb3JkZXIgb2YgdGhlc2UgaXMgYmFja3dhcmRzLCB5b3Ug
+d2FudCB0byBzeW5jIGFkZHJlc3NlcyBiZWZvcmUgYnJpbmdpbmcgdXAuCj4gQWxzbywgZG9pbmcg
+aXQgdGhpcyB3YXkgZG9lcyBub3QgYWxsb3cgdWRldi9zeXN0ZW1kIHRoZSBjaGFuY2UgdG8gcmVu
+YW1lIFZGIGRldmljZXMuCgpEdXJpbmcgbXkgdGVzdGluZywgaSBub3RpY2VkIHRoYXQgZGV2X29w
+ZW4oKSBtYXkgZmFpbCB3aXRoIEVCVVNZIGluIGNlcnRhaW4gc2NlbmFyaW9zLApJZiBzbywgdGhl
+IG9wZW5pbmcgb2YgdGhlIHNsYXZlIGlzIGhhbmRsZWQgYWZ0ZXIgdGhlIHJlbmFtZSB2aWEgdGhl
+IE5FVERFVl9DSEFOR0VOQU1FCmV2ZW50IGhhbmRsZXIuCgo+Cj4gVGhlIGNvbXBsZXhpdHkgb2Yg
+dGhpcyB3aG9sZSBmYWlsb3ZlciBtZWNoYW5pc20gZG9lcyBub3QgbWFrZSBsaWZlIGVhc2llciwK
+PiBtb3JlIHJlbGlhYmxlLCBvciBzYWZlciBmb3IgbmV0dnNjLiBJIHRob3VnaCB0aGF0IHdhcyB0
+aGUgd2hvbGUgcmVhc29uIGZvciBoYXZpbmcKPiBjb21tb24gY29kZS4KCm5ldHZzYyBkb2Vzbid0
+IGdvIHRocm91Z2ggdGhpcyBjb2RlLgoKCWlmIChuZm9fb3BzICYmIG5mb19vcHMtPnNsYXZlX3Jl
+Z2lzdGVyKQogwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJldHVybiBuZm9fb3BzLT5z
+bGF2ZV9yZWdpc3RlcihzbGF2ZV9kZXYsIGZhaWxvdmVyX2Rldik7CgpTbyB0aGVyZSBpcyBubyBj
+aGFuZ2UgaW4gZXZlbnQgaGFuZGxpbmcgZm9yIG5ldHZzYyAyLW5ldGRldiBtb2RlbC4KCgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
