@@ -1,14 +1,23 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH net-next v10 2/4] net: Introduce generic failover module
-Date: Tue, 8 May 2018 17:02:27 +0800
-Message-ID: <201805081451.t5GJxu1F%fengguang.wu__37209.7667110667$1525770100$gmane$org@intel.com>
-References: <1525731046-10989-3-git-send-email-sridhar.samudrala@intel.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [RFC v3 4/5] virtio_ring: add event idx support in packed ring
+Date: Tue, 8 May 2018 17:16:28 +0800
+Message-ID: <20180508091628.d7jzpopqopq4abhy@debian>
+References: <20180502184015-mutt-send-email-mst@kernel.org>
+	<20180503011116.qvoyblcpklinrk26@debian>
+	<20180503044218-mutt-send-email-mst@kernel.org>
+	<20180503020949.5u3qz32gsk33z6vk@debian>
+	<9f0b4e37-63ff-42f9-f2e6-3747a19a0206@redhat.com>
+	<20180503135430.lbtvn4p4lyu3ksqo@debian>
+	<fbe06940-1618-5d34-7321-f4888c5dd1ee@redhat.com>
+	<12ede490-f674-2b89-d639-266b5fe15466@redhat.com>
+	<20180508064409.kcn6amhsxu7nkuuc@debian>
+	<34f2c690-7cb2-f9ea-2ce9-40f4ccb594c9@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1525731046-10989-3-git-send-email-sridhar.samudrala@intel.com>
+In-Reply-To: <34f2c690-7cb2-f9ea-2ce9-40f4ccb594c9@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,74 +27,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, kbuild-all@01.org, sridhar.samudrala@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Sridhar,
-
-I love your patch! Perhaps something to improve:
-
-[auto build test WARNING on net-next/master]
-
-url:    https://github.com/0day-ci/linux/commits/Sridhar-Samudrala/Enable-virtio_net-to-act-as-a-standby-for-a-passthru-device/20180508-123531
-reproduce:
-        # apt-get install sparse
-        make ARCH=x86_64 allmodconfig
-        make C=1 CF=-D__CHECK_ENDIAN__
-
-
-sparse warnings: (new ones prefixed by >>)
-
->> net/core/net_failover.c:868:16: sparse: Using plain integer as NULL pointer
-   net/core/net_failover.c:115:12: sparse: context imbalance in 'net_failover_select_queue' - wrong count at exit
-
-vim +868 net/core/net_failover.c
-
-   828	
-   829	/**
-   830	 * net_failover_register - Register a failover instance
-   831	 *
-   832	 * @dev: failover or standby netdev
-   833	 * @ops: failover ops
-   834	 *
-   835	 * Paravirtual drivers supporting 3-netdev model call this routine indirectly
-   836	 * via net_failover_create(). It passes failover netdev and ops will be NULL
-   837	 * as the slave events are handled internally.
-   838	 * Paravirtual drivers supporting 2-netdev model call this routine by passing
-   839	 * standby netdev and ops that are called to handle slave register/unregister/
-   840	 * link change events.
-   841	 *
-   842	 * Return: pointer to failover instance
-   843	 */
-   844	struct net_failover *net_failover_register(struct net_device *dev,
-   845						   struct net_failover_ops *ops)
-   846	{
-   847		struct net_failover *failover;
-   848	
-   849		failover = kzalloc(sizeof(*failover), GFP_KERNEL);
-   850		if (!failover)
-   851			return ERR_PTR(-ENOMEM);
-   852	
-   853		rcu_assign_pointer(failover->ops, ops);
-   854		dev_hold(dev);
-   855		dev->priv_flags |= IFF_FAILOVER;
-   856		rcu_assign_pointer(failover->failover_dev, dev);
-   857	
-   858		spin_lock(&net_failover_lock);
-   859		list_add_tail(&failover->list, &net_failover_list);
-   860		spin_unlock(&net_failover_lock);
-   861	
-   862		netdev_info(dev, "failover master:%s registered\n", dev->name);
-   863	
-   864		net_failover_existing_slave_register(dev);
-   865	
-   866		return failover;
-   867	
- > 868		return 0;
-   869	}
-   870	EXPORT_SYMBOL_GPL(net_failover_register);
-   871	
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+T24gVHVlLCBNYXkgMDgsIDIwMTggYXQgMDM6MTY6NTNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiBPbiAyMDE45bm0MDXmnIgwOOaXpSAxNDo0NCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gT24g
+VHVlLCBNYXkgMDgsIDIwMTggYXQgMDE6NDA6NDBQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
+PiA+ID4gT24gMjAxOOW5tDA15pyIMDjml6UgMTE6MDUsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+
+ID4gPiBCZWNhdXNlIGluIHZpcnRxdWV1ZV9lbmFibGVfY2JfZGVsYXllZCgpLCB3ZSBtYXkgc2V0
+IGFuCj4gPiA+ID4gPiBldmVudF9vZmYgd2hpY2ggaXMgYmlnZ2VyIHRoYW4gbmV3IGFuZCBib3Ro
+IG9mIHRoZW0gaGF2ZQo+ID4gPiA+ID4gd3JhcHBlZC4gQW5kIGluIHRoaXMgY2FzZSwgYWx0aG91
+Z2ggbmV3IGlzIHNtYWxsZXIgdGhhbgo+ID4gPiA+ID4gZXZlbnRfb2ZmIChpLmUuIHRoZSB0aGly
+ZCBwYXJhbSAtLSBvbGQpLCBuZXcgc2hvdWxkbid0Cj4gPiA+ID4gPiBhZGQgdnEtPm51bSwgYW5k
+IGFjdHVhbGx5IHdlIGFyZSBleHBlY3RpbmcgYSB2ZXJ5IGJpZwo+ID4gPiA+ID4gaWR4IGRpZmYu
+Cj4gPiA+ID4gWWVzLCBzbyB0byBjYWxjdWxhdGUgZGlzdGFuY2UgY29ycmVjdGx5IGJldHdlZW4g
+ZXZlbnQgYW5kIG5ldywgd2UganVzdAo+ID4gPiA+IG5lZWQgdG8gY29tcGFyZSB0aGUgd2FycCBj
+b3VudGVyIGFuZCByZXR1cm4gZmFsc2UgaWYgaXQgZG9lc24ndCBtYXRjaAo+ID4gPiA+IHdpdGhv
+dXQgdGhlIG5lZWQgdG8gdHJ5IHRvIGFkZCB2cS5udW0gaGVyZS4KPiA+ID4gPiAKPiA+ID4gPiBU
+aGFua3MKPiA+ID4gU29ycnksIGxvb2tzIGxpa2UgdGhlIGZvbGxvd2luZyBzaG91bGQgd29yaywg
+d2UgbmVlZCBhZGQgdnEubnVtIGlmCj4gPiA+IHVzZWRfd3JhcF9jb3VudGVyIGRvZXMgbm90IG1h
+dGNoOgo+ID4gPiAKPiA+ID4gc3RhdGljIGJvb2wgdmhvc3RfdnJpbmdfcGFja2VkX25lZWRfZXZl
+bnQoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCj4gPiA+ICDCoMKgwqAgwqDCoMKgIMKgwqDC
+oCDCoMKgwqAgwqDCoMKgIMKgIF9fdTE2IG9mZl93cmFwLCBfX3UxNiBuZXcsCj4gPiA+ICDCoMKg
+wqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgIF9fdTE2IG9sZCkKPiA+ID4gewo+ID4g
+PiAgwqDCoMKgIGJvb2wgd3JhcCA9IG9mZl93cmFwID4+IDE1Owo+ID4gPiAgwqDCoMKgIGludCBv
+ZmYgPSBvZmZfd3JhcCAmIH4oMSA8PCAxNSk7Cj4gPiA+ICDCoMKgwqAgX191MTYgZDEsIGQyOwo+
+ID4gPiAKPiA+ID4gIMKgwqDCoCBpZiAod3JhcCAhPSB2cS0+dXNlZF93cmFwX2NvdW50ZXIpCj4g
+PiA+ICDCoMKgwqAgwqDCoMKgIGQxID0gbmV3ICsgdnEtPm51bSAtIG9mZiAtIDE7Cj4gPiBKdXN0
+IHRvIGRyYXcgeW91ciBhdHRlbnRpb24gKG1heWJlIHlvdSBoYXZlIGFscmVhZHkKPiA+IG5vdGlj
+ZWQgdGhpcykuCj4gCj4gSSBtaXNzIHRoaXMsIHRoYW5rcyEKPiAKPiA+IAo+ID4gSW4gdGhpcyBj
+YXNlIChpLmUuIHdyYXAgIT0gdnEtPnVzZWRfd3JhcF9jb3VudGVyKSwKPiA+IGl0J3MgYWxzbyBw
+b3NzaWJsZSB0aGF0IChvZmYgPCBuZXcpIGlzIHRydWUuIEJlY2F1c2UsCj4gPiAKPiA+IHdoZW4g
+dmlydHF1ZXVlX2VuYWJsZV9jYl9kZWxheWVkX3BhY2tlZCgpIGlzIHVzZWQsCj4gPiBgb2ZmYCBp
+cyBjYWxjdWxhdGVkIGluIGRyaXZlciBpbiBhIHdheSBsaWtlIHRoaXM6Cj4gPiAKPiA+IAlvZmYg
+PSB2cS0+bGFzdF91c2VkX2lkeCArIGJ1ZnM7Cj4gPiAJaWYgKG9mZiA+PSB2cS0+dnJpbmdfcGFj
+a2VkLm51bSkgewo+ID4gCQlvZmYgLT0gdnEtPnZyaW5nX3BhY2tlZC5udW07Cj4gPiAJCXdyYXBf
+Y291bnRlciBePSAxOwo+ID4gCX0KPiA+IAo+ID4gQW5kIHdoZW4gYG5ld2AgKGluIHZob3N0KSBp
+cyBjbG9zZSB0byB2cS0+bnVtLiBUaGUKPiA+IHZxLT5sYXN0X3VzZWRfaWR4ICsgYnVmcyAoaW4g
+ZHJpdmVyKSBjYW4gYmUgYmlnZ2VyCj4gPiB0aGFuIHZxLT52cmluZ19wYWNrZWQubnVtLCBhbmQ6
+Cj4gPiAKPiA+IDEuIGBvZmZgIHdpbGwgd3JhcDsKPiA+IDIuIHdyYXAgY291bnRlcnMgd29uJ3Qg
+bWF0Y2g7Cj4gPiAzLiBvZmYgPCBuZXc7Cj4gPiAKPiA+IEFuZCBkMSAoaS5lLiBuZXcgKyB2cS0+
+bnVtIC0gb2ZmIC0gMSkgd2lsbCBiZSBhIHZhbHVlCj4gPiBiaWdnZXIgdGhhbiB2cS0+bnVtLiBJ
+J20gb2theSB3aXRoIHRoaXMsIGFsdGhvdWdoIGl0J3MKPiA+IGEgYml0IHdlaXJkLgo+IAo+IAo+
+IFNvIEknbSBjb25zaWRlcmluZyBzb21ldGhpbmcgbW9yZSBjb21wYWN0IGJ5IHJldXNpbmcgdnJp
+bmdfbmVlZF9ldmVudCgpIGJ5Cj4gcHJldGVuZGluZyBhIGxhcmdlciBxdWV1ZSBzaXplIGFuZCBh
+ZGRpbmcgdnEtPm51bSBiYWNrIHdoZW4gbmVjZXNzYXJ5Ogo+IAo+IHN0YXRpYyBib29sIHZob3N0
+X3ZyaW5nX3BhY2tlZF9uZWVkX2V2ZW50KHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLAo+IMKg
+wqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqAgX191MTYgb2ZmX3dyYXAsIF9fdTE2
+IG5ldywKPiDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgIF9fdTE2IG9sZCkK
+PiB7Cj4gwqDCoMKgIGJvb2wgd3JhcCA9IHZxLT51c2VkX3dyYXBfY291bnRlcjsKCklmIHRoZSB3
+cmFwIGNvdW50ZXIgaXMgb2J0YWluZWQgZnJvbSB0aGUgdnEsCkkgdGhpbmsgYG5ld2Agc2hvdWxk
+IGFsc28gYmUgb2J0YWluZWQgZnJvbQp0aGUgdnEuIE9yIHRoZSB3cmFwIGNvdW50ZXIgc2hvdWxk
+IGJlIGNhcnJpZWQKaW4gYG5ld2AuCgo+IMKgwqDCoCBpbnQgb2ZmID0gb2ZmX3dyYXAgJiB+KDEg
+PDwgMTUpOwo+IMKgwqDCoCBfX3UxNiBkMSwgZDI7Cj4gCj4gwqDCoMKgIGlmIChuZXcgPCBvbGQp
+IHsKPiDCoMKgwqAgwqDCoMKgIG5ldyArPSB2cS0+bnVtOwo+IMKgwqDCoCDCoMKgwqAgd3JhcCBe
+PSAxOwo+IMKgwqDCoCB9Cj4gCj4gwqDCoMKgIGlmICh3cmFwICE9IG9mZl93cmFwID4+IDE1KQo+
+IMKgwqDCoCDCoMKgwqAgb2ZmICs9IHZxLT5udW07CgpXaGVuIGBuZXdgIGFuZCBgb2xkYCB3cmFw
+cywgYW5kIGBvZmZgIGRvZXNuJ3Qgd3JhcCwKd3JhcCAhPSAob2ZmX3dyYXAgPj4gMTUpIHdpbGwg
+YmUgdHJ1ZS4gSW4gdGhpcyBjYXNlLApgb2ZmYCBpcyBiaWdnZXIgdGhhbiBgbmV3YCwgYW5kIHdo
+YXQgd2Ugc2hvdWxkIGRvCmlzIGBvZmYgLT0gdnEtPm51bWAgaW5zdGVhZCBvZiBgb2ZmICs9IHZx
+LT5udW1gLgoKQmVzdCByZWdhcmRzLApUaXdlaSBCaWUKCj4gCj4gwqDCoMKgIHJldHVybiB2cmlu
+Z19uZWVkX2V2ZW50KG9mZiwgbmV3LCBvbGQpOwo+IH0KPiAKPiAKPiA+IAo+ID4gQmVzdCByZWdh
+cmRzLAo+ID4gVGl3ZWkgQmllCj4gPiAKPiA+ID4gIMKgwqDCoCBlbHNlCj4gPiA+ICDCoMKgwqAg
+wqDCoMKgIGQxID0gbmV3IC0gb2ZmIC0gMTsKPiA+ID4gCj4gPiA+ICDCoMKgwqAgaWYgKG5ldyA+
+IG9sZCkKPiA+ID4gIMKgwqDCoCDCoMKgwqAgZDIgPSBuZXcgLSBvbGQ7Cj4gPiA+ICDCoMKgwqAg
+ZWxzZQo+ID4gPiAgwqDCoMKgIMKgwqDCoCBkMiA9IG5ldyArIHZxLT5udW0gLSBvbGQ7Cj4gPiA+
+IAo+ID4gPiAgwqDCoMKgIHJldHVybiBkMSA8IGQyOwo+ID4gPiB9Cj4gPiA+IAo+ID4gPiBUaGFu
+a3MKPiA+ID4gCj4gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
+bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
