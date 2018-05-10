@@ -1,18 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC v3 3/5] virtio_ring: add packed ring support
-Date: Thu, 10 May 2018 17:49:20 +0800
-Message-ID: <2fc35cd5-9dbd-7743-497f-b6637d92f528__11264.0537358404$1525945665$gmane$org@redhat.com>
-References: <20180425051550.24342-1-tiwei.bie@intel.com>
-	<20180425051550.24342-4-tiwei.bie@intel.com>
-	<927f4478-5a81-31d4-ac69-f9ec26248591@redhat.com>
-	<5885acac-e9e3-3abf-b6a2-7347f4d55be2@redhat.com>
-	<20180510085601.6mpxf3yvwxnqnk5q@debian>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [virtio-dev] [PATCH v1] virtio: support VIRTIO_F_IO_BARRIER
+Date: Thu, 10 May 2018 10:53:17 +0100
+Message-ID: <20180510095317.GO1296@stefanha-x1.localdomain>
+References: <20180504045915.17693-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============8442150944149493221=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180510085601.6mpxf3yvwxnqnk5q@debian>
-Content-Language: en-US
+In-Reply-To: <20180504045915.17693-1-tiwei.bie@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,47 +17,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: netdev@vger.kernel.org, wexu@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgxMOaXpSAxNjo1NiwgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFRodSwg
-TWF5IDEwLCAyMDE4IGF0IDAzOjM0OjUwUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9u
-IDIwMTjlubQwNeaciDEw5pelIDE1OjMyLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4gT24gMjAxOOW5
-tDA05pyIMjXml6UgMTM6MTUsIFRpd2VpIEJpZSB3cm90ZToKPj4+PiArwqDCoMKgIC8qIFdlJ3Jl
-IHVzaW5nIHNvbWUgYnVmZmVycyBmcm9tIHRoZSBmcmVlIGxpc3QuICovCj4+Pj4gK8KgwqDCoCB2
-cS0+dnEubnVtX2ZyZWUgLT0gZGVzY3NfdXNlZDsKPj4+PiArCj4+Pj4gK8KgwqDCoCAvKiBVcGRh
-dGUgZnJlZSBwb2ludGVyICovCj4+Pj4gK8KgwqDCoCBpZiAoaW5kaXJlY3QpIHsKPj4+PiArwqDC
-oMKgwqDCoMKgwqAgbiA9IGhlYWQgKyAxOwo+Pj4+ICvCoMKgwqDCoMKgwqDCoCBpZiAobiA+PSB2
-cS0+dnJpbmdfcGFja2VkLm51bSkgewo+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIG4gPSAw
-Owo+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHZxLT53cmFwX2NvdW50ZXIgXj0gMTsKPj4+
-PiArwqDCoMKgwqDCoMKgwqAgfQo+Pj4+ICvCoMKgwqDCoMKgwqDCoCB2cS0+bmV4dF9hdmFpbF9p
-ZHggPSBuOwo+Pj4+ICvCoMKgwqAgfSBlbHNlCj4+Pj4gK8KgwqDCoMKgwqDCoMKgIHZxLT5uZXh0
-X2F2YWlsX2lkeCA9IGk7Cj4+PiBEdXJpbmcgdGVzdGluZyB6ZXJvY29weSAob3V0IG9mIG9yZGVy
-IGNvbXBsZXRpb24pLCBJIGZvdW5kIGRyaXZlciBtYXkKPj4+IHN1Ym1pdCB0d28gaWRlbnRpY2Fs
-IGJ1ZmZlciBpZCB0byB2aG9zdC4gU28gdGhlIGFib3ZlIGNvZGUgbWF5IG5vdCB3b3JrCj4+PiB3
-ZWxsLgo+Pj4KPj4+IENvbnNpZGVyIHRoZSBjYXNlIHRoYXQgZHJpdmVyIGFkZHMgMyBidWZmZXIg
-YW5kIHZpcnRxdWV1ZSBzaXplIGlzIDguCj4+Pgo+Pj4gYSkgaWQgPSAwLGNvdW50ID0gMixuZXh0
-X2F2YWlsID0gMgo+Pj4KPj4+IGIpIGlkID0gMixjb3VudCA9IDQsbmV4dF9hdmFpbCA9IDIKPj4g
-bmV4dF9hdmFpbCBzaG91bGQgYmUgNiBoZXJlLgo+Pgo+Pj4gYykgaWQgPSA0LGNvdW50ID0gMixu
-ZXh0X2F2YWlsID0gMAo+Pj4KPj4gaWQgc2hvdWxkIGJlIDYgaGVyZS4KPj4KPj4gVGhhbmtzCj4+
-Cj4+PiBpZiBwYWNrZXQgYiBpcyBkb25lIGJlZm9yZSBwYWNrZXQgYSwgZHJpdmVyIG1heSB0aGlu
-ayBidWZmZXIgaWQgMCBpcwo+Pj4gYXZhaWxhYmxlIGFuZCB0cnkgdG8gdXNlIGl0IGlmIGV2ZW4g
-aWYgdGhlIHJlYWwgYnVmZmVyIDAgd2FzIG5vdCBkb25lLgo+Pj4KPj4+IFRoYW5rcwo+IE5pY2Ug
-Y2F0Y2ghIFRoYW5rcyBhIGxvdCEKPiBJJ2xsIGltcGxlbWVudCBhbiBJRCBhbGxvY2F0b3IuCj4K
-PiBCZXN0IHJlZ2FyZHMsCj4gVGl3ZWkgQmllCgpTb3VuZHMgZ29vZC4KCkFub3RoZXIgc2ltaWxh
-ciBpc3N1ZSBpcyBkZXRhY19idWZfcGFja2VkKCkuIEl0IGRpZDoKCiDCoMKgwqDCoMKgwqDCoCBm
-b3IgKGogPSAwOyBqIDwgdnEtPmRlc2Nfc3RhdGVbaGVhZF0ubnVtOyBqKyspIHsKIMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBkZXNjID0gJnZxLT52cmluZ19wYWNrZWQuZGVzY1tpXTsK
-IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB2cmluZ191bm1hcF9vbmVfcGFja2VkKHZx
-LCBkZXNjKTsKIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBpKys7CiDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKGkgPj0gdnEtPnZyaW5nX3BhY2tlZC5udW0pCiDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGkgPSAwOwogwqDCoMKg
-wqDCoMKgwqAgfQoKVGhpcyBwcm9iYWJseSB3b24ndCB3b3JrIGZvciBvdXQgb2Ygb3JkZXIgdG9v
-IGFuZCBhY2NvcmRpbmcgdG8gdGhlIHNwZWM6CgoiIiIKRHJpdmVyIG5lZWRzIHRvIGtlZXAgdHJh
-Y2sgb2YgdGhlIHNpemUgb2YgdGhlIGxpc3QgY29ycmVzcG9uZGluZyB0byBlYWNoCmJ1ZmZlciBJ
-RCwgdG8gYmUgYWJsZSB0byBza2lwIHRvIHdoZXJlIHRoZSBuZXh0IHVzZWQgZGVzY3JpcHRvciBp
-cyAKd3JpdHRlbiBieSB0aGUgZGV2aWNlLgoiIiIKCkxvb2tzIGxpa2Ugd2Ugc2hvdWxkIG5vdCBk
-ZXBlbmQgb24gdGhlIGRlc2NyaXB0b3IgcmluZy4KClRoYW5rcwpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+--===============8442150944149493221==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qse+WBH4guesipZ+"
+Content-Disposition: inline
+
+
+--qse+WBH4guesipZ+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Fri, May 04, 2018 at 12:59:15PM +0800, Tiwei Bie wrote:
+> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+> index 308e2096291f..9fb519a9df28 100644
+> --- a/include/uapi/linux/virtio_config.h
+> +++ b/include/uapi/linux/virtio_config.h
+> @@ -49,7 +49,7 @@
+>   * transport being used (eg. virtio_ring), the rest are per-device feature
+>   * bits. */
+>  #define VIRTIO_TRANSPORT_F_START	28
+> -#define VIRTIO_TRANSPORT_F_END		34
+> +#define VIRTIO_TRANSPORT_F_END		37
+
+Have you updated "2.2 Feature Bits" in the VIRTIO spec?
+
+In 1.0 it says:
+
+ 24 to 32
+    Feature bits reserved for extensions to the queue and feature negotiation mechanisms
+
+This information is out-of-date.
+
+Stefan
+
+--qse+WBH4guesipZ+
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJa9BaNAAoJEJykq7OBq3PI/mgH/3H6Ipe1WS/YN7no0pENW3a5
+p7hjNcaapuwQmOWWrBzOKVIbxvdEwgCtgc7TEfB9HQPnKh/gkpWomt12eZqL/vIJ
+hYMnk/rEK4suNIiQtYzTzVO1RDyzu6OsYPFPaoPK/VZyVOuPrqo2HqoARCdXYK5K
+Dx0sQ1UbY3cFcMhhupZfxqsKf3rVYhsFF2g2u/LU9s9smF7xcJABDXb2J5YwI7VV
+TCIR0Ck5S09HKYNCA5jBKv/VyzgE+QQuTb2ZMKRuDY50D/mYgzfwCDPpdx1boKKL
+wtFARUq/2AObvDwMK23cmINNRXqhC2eSwLuPpbG84ldKyY/ClMFCCN41g3J1kQI=
+=dYI2
+-----END PGP SIGNATURE-----
+
+--qse+WBH4guesipZ+--
+
+--===============8442150944149493221==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8442150944149493221==--
