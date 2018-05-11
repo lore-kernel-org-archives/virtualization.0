@@ -1,16 +1,17 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net-next v10 2/4] net: Introduce generic failover module
-Date: Fri, 11 May 2018 08:43:16 -0700
-Message-ID: <9bbc5be8-71e2-5aab-ce18-32eb8a612f21@intel.com>
+Date: Fri, 11 May 2018 20:15:58 +0300
+Message-ID: <20180511201450-mutt-send-email-mst@kernel.org>
 References: <1525731046-10989-1-git-send-email-sridhar.samudrala@intel.com>
 	<1525731046-10989-3-git-send-email-sridhar.samudrala@intel.com>
-	<460f3d8f-b2ec-2118-e296-03f4f9655c5a@infradead.org>
+	<20180507165306.541bd1f2@xeon-e3>
+	<e8454b29-d66b-9e20-a887-cb312a63847e@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <460f3d8f-b2ec-2118-e296-03f4f9655c5a@infradead.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <e8454b29-d66b-9e20-a887-cb312a63847e@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,29 +21,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Randy Dunlap <rdunlap@infradead.org>, mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, kubakici@wp.pl, jasowang@redhat.com, loseweigh@gmail.com, jiri@resnulli.us, aaron.f.brown@intel.com
+To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gNS83LzIwMTggMzozOSBQTSwgUmFuZHkgRHVubGFwIHdyb3RlOgo+IEhpLAo+Cj4gT24gMDUv
-MDcvMjAxOCAwMzoxMCBQTSwgU3JpZGhhciBTYW11ZHJhbGEgd3JvdGU6Cj4+IFNpZ25lZC1vZmYt
-Ynk6IFNyaWRoYXIgU2FtdWRyYWxhIDxzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5jb20+Cj4+IC0t
-LQo+PiAgIE1BSU5UQUlORVJTICAgICAgICAgICAgICAgIHwgICAgNyArCj4+ICAgaW5jbHVkZS9s
-aW51eC9uZXRkZXZpY2UuaCAgfCAgIDE2ICsKPj4gICBpbmNsdWRlL25ldC9uZXRfZmFpbG92ZXIu
-aCB8ICAgNTIgKysrCj4+ICAgbmV0L0tjb25maWcgICAgICAgICAgICAgICAgfCAgIDEwICsKPj4g
-ICBuZXQvY29yZS9NYWtlZmlsZSAgICAgICAgICB8ICAgIDEgKwo+PiAgIG5ldC9jb3JlL25ldF9m
-YWlsb3Zlci5jICAgIHwgMTA0NCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKwo+PiAgIDYgZmlsZXMgY2hhbmdlZCwgMTEzMCBpbnNlcnRpb25zKCspCj4+ICAgY3Jl
-YXRlIG1vZGUgMTAwNjQ0IGluY2x1ZGUvbmV0L25ldF9mYWlsb3Zlci5oCj4+ICAgY3JlYXRlIG1v
-ZGUgMTAwNjQ0IG5ldC9jb3JlL25ldF9mYWlsb3Zlci5jCj4KPj4gZGlmZiAtLWdpdCBhL25ldC9L
-Y29uZmlnIGIvbmV0L0tjb25maWcKPj4gaW5kZXggYjYyMDg5ZmIxMzMyLi4wNTQwODU2Njc2ZGUg
-MTAwNjQ0Cj4+IC0tLSBhL25ldC9LY29uZmlnCj4+ICsrKyBiL25ldC9LY29uZmlnCj4+IEBAIC00
-MjksNiArNDI5LDE2IEBAIGNvbmZpZyBNQVlfVVNFX0RFVkxJTksKPj4gICBjb25maWcgUEFHRV9Q
-T09MCj4+ICAgICAgICAgIGJvb2wKPj4gICAKPj4gK2NvbmZpZyBORVRfRkFJTE9WRVIKPj4gKwl0
-cmlzdGF0ZSAiRmFpbG92ZXIgaW50ZXJmYWNlIgo+PiArCWRlZmF1bHQgbQo+IE5lZWQgc29tZSBq
-dXN0aWZpY2F0aW9uIGZvciBkZWZhdWx0IG0gKGFzIG9wcG9zZWQgdG8gbikuCgpkZWZhdWx0IG4g
-c2hvdWxkIGJlIGZpbmUuwqAgSXQgd2lsbCBnZXQgc2VsZWN0ZWQgYXV0b21hdGljYWxseSB3aGVu
-IHZpcnRpb19uZXQgb3IKbmV0dnNjIGFyZSBlbmFibGVkLiB3aWxsIGZpeCBpbiB0aGUgbmV4dCBy
-ZXZpc2lvbi4KCgo+Cj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
-aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
-bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Mon, May 07, 2018 at 05:24:27PM -0700, Samudrala, Sridhar wrote:
+> =
+
+> =
+
+> On 5/7/2018 4:53 PM, Stephen Hemminger wrote:
+> > On Mon,  7 May 2018 15:10:44 -0700
+> > Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
+> > =
+
+> > > +static struct net_device *net_failover_get_bymac(u8 *mac,
+> > > +						 struct net_failover_ops **ops)
+> > > +{
+> > > +	struct net_device *failover_dev;
+> > > +	struct net_failover *failover;
+> > > +
+> > > +	spin_lock(&net_failover_lock);
+> > > +	list_for_each_entry(failover, &net_failover_list, list) {
+> > > +		failover_dev =3D rtnl_dereference(failover->failover_dev);
+> > > +		if (ether_addr_equal(failover_dev->perm_addr, mac)) {
+> > > +			*ops =3D rtnl_dereference(failover->ops);
+> > > +			spin_unlock(&net_failover_lock);
+> > > +			return failover_dev;
+> > > +		}
+> > > +	}
+> > > +	spin_unlock(&net_failover_lock);
+> > > +	return NULL;
+> > > +}
+> > This is broken if non-ethernet devices such as Infiniband are present.
+> =
+
+> There is check to make sure that a slave and failover devices are of the =
+same type in
+> net_failover_slave_register()
+> =
+
+> 	failover_dev =3D net_failover_get_bymac(slave_dev->perm_addr, &nfo_ops);
+> =A0=A0=A0=A0=A0=A0=A0 if (!failover_dev)
+> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 goto done;
+> =
+
+> =A0=A0=A0=A0=A0=A0=A0 if (failover_dev->type !=3D slave_dev->type)
+> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 goto done;
+> =
+
+> Do you think this is not good enough? I had an explicit check for ARPHRD_=
+ETHER in
+> earlier patchsets, but removed it based on Jiri's comment.
+
+Right but how is ether_addr_equal supposed to work if types are
+identical but not ethernet?
+
+This can also benefit from a comment referring to the check in
+net_failover_slave_register.
+
+-- =
+
+MST
