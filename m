@@ -1,17 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net-next v10 2/4] net: Introduce generic failover module
-Date: Fri, 11 May 2018 20:15:58 +0300
-Message-ID: <20180511201450-mutt-send-email-mst@kernel.org>
+Date: Fri, 11 May 2018 21:09:33 +0300
+Message-ID: <20180511210815-mutt-send-email-mst__32449.7332833291$1526062075$gmane$org@kernel.org>
 References: <1525731046-10989-1-git-send-email-sridhar.samudrala@intel.com>
 	<1525731046-10989-3-git-send-email-sridhar.samudrala@intel.com>
-	<20180507165306.541bd1f2@xeon-e3>
-	<e8454b29-d66b-9e20-a887-cb312a63847e@intel.com>
+	<460f3d8f-b2ec-2118-e296-03f4f9655c5a@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <e8454b29-d66b-9e20-a887-cb312a63847e@intel.com>
+In-Reply-To: <460f3d8f-b2ec-2118-e296-03f4f9655c5a@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,65 +20,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com, davem@davemloft.net
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 07, 2018 at 05:24:27PM -0700, Samudrala, Sridhar wrote:
-> =
+On Mon, May 07, 2018 at 03:39:19PM -0700, Randy Dunlap wrote:
+> Hi,
+> 
+> On 05/07/2018 03:10 PM, Sridhar Samudrala wrote:
+> > 
+> > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+> > ---
+> >  MAINTAINERS                |    7 +
+> >  include/linux/netdevice.h  |   16 +
+> >  include/net/net_failover.h |   52 +++
+> >  net/Kconfig                |   10 +
+> >  net/core/Makefile          |    1 +
+> >  net/core/net_failover.c    | 1044 ++++++++++++++++++++++++++++++++++++++++++++
+> >  6 files changed, 1130 insertions(+)
+> >  create mode 100644 include/net/net_failover.h
+> >  create mode 100644 net/core/net_failover.c
+> 
+> 
+> > diff --git a/net/Kconfig b/net/Kconfig
+> > index b62089fb1332..0540856676de 100644
+> > --- a/net/Kconfig
+> > +++ b/net/Kconfig
+> > @@ -429,6 +429,16 @@ config MAY_USE_DEVLINK
+> >  config PAGE_POOL
+> >         bool
+> >  
+> > +config NET_FAILOVER
+> > +	tristate "Failover interface"
+> > +	default m
+> 
+> Need some justification for default m (as opposed to n).
 
-> =
-
-> On 5/7/2018 4:53 PM, Stephen Hemminger wrote:
-> > On Mon,  7 May 2018 15:10:44 -0700
-> > Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
-> > =
-
-> > > +static struct net_device *net_failover_get_bymac(u8 *mac,
-> > > +						 struct net_failover_ops **ops)
-> > > +{
-> > > +	struct net_device *failover_dev;
-> > > +	struct net_failover *failover;
-> > > +
-> > > +	spin_lock(&net_failover_lock);
-> > > +	list_for_each_entry(failover, &net_failover_list, list) {
-> > > +		failover_dev =3D rtnl_dereference(failover->failover_dev);
-> > > +		if (ether_addr_equal(failover_dev->perm_addr, mac)) {
-> > > +			*ops =3D rtnl_dereference(failover->ops);
-> > > +			spin_unlock(&net_failover_lock);
-> > > +			return failover_dev;
-> > > +		}
-> > > +	}
-> > > +	spin_unlock(&net_failover_lock);
-> > > +	return NULL;
-> > > +}
-> > This is broken if non-ethernet devices such as Infiniband are present.
-> =
-
-> There is check to make sure that a slave and failover devices are of the =
-same type in
-> net_failover_slave_register()
-> =
-
-> 	failover_dev =3D net_failover_get_bymac(slave_dev->perm_addr, &nfo_ops);
-> =A0=A0=A0=A0=A0=A0=A0 if (!failover_dev)
-> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 goto done;
-> =
-
-> =A0=A0=A0=A0=A0=A0=A0 if (failover_dev->type !=3D slave_dev->type)
-> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 goto done;
-> =
-
-> Do you think this is not good enough? I had an explicit check for ARPHRD_=
-ETHER in
-> earlier patchsets, but removed it based on Jiri's comment.
-
-Right but how is ether_addr_equal supposed to work if types are
-identical but not ethernet?
-
-This can also benefit from a comment referring to the check in
-net_failover_slave_register.
-
--- =
-
-MST
+Or one can just leave the default line out.
