@@ -1,23 +1,11 @@
-From: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Subject: Re: [PATCH v3] kvmalloc: always use vmalloc if CONFIG_DEBUG_SG
-Date: Tue, 15 May 2018 10:13:11 +0900
-Message-ID: <20180515011311.GA32447__23560.6996146545$1526346695$gmane$org@js1304-desktop>
-References: <20180420210200.GH10788@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804201704580.25408@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180421144757.GC14610@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804221733520.7995@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180423151545.GU17484@dhcp22.suse.cz>
-	<alpine.LRH.2.02.1804232003100.2299@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180424034643.GA26636@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804240818530.28016@file01.intranet.prod.int.rdu2.redhat.com>
-	<20180424171651.GC30577@bombadil.infradead.org>
-	<alpine.LRH.2.02.1804241428120.8296@file01.intranet.prod.int.rdu2.redhat.com>
+From: Matthew Wilcox <willy@infradead.org>
+Subject: [PATCH 0/2] Use sbitmap instead of percpu_ida
+Date: Tue, 15 May 2018 09:00:41 -0700
+Message-ID: <20180515160043.27044-1-willy__19661.1995729201$1526399952$gmane$org@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LRH.2.02.1804241428120.8296@file01.intranet.prod.int.rdu2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,54 +15,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Christoph Lameter <cl@linux.com>, dm-devel@redhat.com, eric.dumazet@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Michal Hocko <mhocko@kernel.org>, Pekka Enberg <penberg@kernel.org>, linux-mm@kvack.org, edumazet@google.com, David Rientjes <rientjes@google.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Vlastimil Babka <vbabka@suse.cz>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, linux1394-devel@lists.sourceforge.net, linux-usb@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Juergen Gross <jgross@suse.com>, qla2xxx-upstream@qlogic.com, Kent Overstreet <kent.overstreet@gmail.com>, Jens Axboe <axboe@kernel.dk>
+Cc: Matthew Wilcox <mawilcox@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello, Mikulas.
+From: Matthew Wilcox <mawilcox@microsoft.com>
 
-On Tue, Apr 24, 2018 at 02:41:47PM -0400, Mikulas Patocka wrote:
-> 
-> 
-> On Tue, 24 Apr 2018, Matthew Wilcox wrote:
-> 
-> > On Tue, Apr 24, 2018 at 08:29:14AM -0400, Mikulas Patocka wrote:
-> > > 
-> > > 
-> > > On Mon, 23 Apr 2018, Matthew Wilcox wrote:
-> > > 
-> > > > On Mon, Apr 23, 2018 at 08:06:16PM -0400, Mikulas Patocka wrote:
-> > > > > Some bugs (such as buffer overflows) are better detected
-> > > > > with kmalloc code, so we must test the kmalloc path too.
-> > > > 
-> > > > Well now, this brings up another item for the collective TODO list --
-> > > > implement redzone checks for vmalloc.  Unless this is something already
-> > > > taken care of by kasan or similar.
-> > > 
-> > > The kmalloc overflow testing is also not ideal - it rounds the size up to 
-> > > the next slab size and detects buffer overflows only at this boundary.
-> > > 
-> > > Some times ago, I made a "kmalloc guard" patch that places a magic number 
-> > > immediatelly after the requested size - so that it can detect overflows at 
-> > > byte boundary 
-> > > ( https://www.redhat.com/archives/dm-devel/2014-September/msg00018.html )
-> > > 
-> > > That patch found a bug in crypto code:
-> > > ( http://lkml.iu.edu/hypermail/linux/kernel/1409.1/02325.html )
-> > 
-> > Is it still worth doing this, now we have kasan?
-> 
-> The kmalloc guard has much lower overhead than kasan.
+This is a pretty rough-and-ready conversion of the target drivers
+from using percpu_ida to sbitmap.  It compiles; I don't have a target
+setup, so it's completely untested.  I haven't tried to do anything
+particularly clever here, so it's possible that, for example, the wait
+queue in iscsi_target_util could be more clever, like the block layer
+uses multiple wait queues to avoid pingpongs.  Or maybe we could figure
+out a way to not store the CPU that the ID was allocated on, or perhaps
+the options I specified to sbitmap_queue_init() are suboptimal.
 
-I skimm at your code and it requires rebuilding the kernel.
-I think that if rebuilding is required as the same with the KASAN,
-using the KASAN is better since it has far better coverage for
-detection the bug.
+Patch 2 isn't interesting; it just deletes the implementation.  Patch 1
+will be where all the action is.
 
-However, I think that if the redzone can be setup tightly
-without rebuild, it would be worth implementing. I have an idea to
-implement it only for the SLUB. Could I try it? (I'm asking this
-because I'm inspired from the above patch.) :)
-Or do you wanna try it?
+Matthew Wilcox (2):
+  Convert target drivers to use sbitmap
+  Remove percpu_ida
 
-Thanks.
+ drivers/scsi/qla2xxx/qla_target.c        |  16 +-
+ drivers/target/iscsi/iscsi_target_util.c |  34 +-
+ drivers/target/sbp/sbp_target.c          |   8 +-
+ drivers/target/target_core_transport.c   |   5 +-
+ drivers/target/tcm_fc/tfc_cmd.c          |  11 +-
+ drivers/usb/gadget/function/f_tcm.c      |   8 +-
+ drivers/vhost/scsi.c                     |   9 +-
+ drivers/xen/xen-scsiback.c               |   8 +-
+ include/linux/percpu_ida.h               |  83 -----
+ include/target/iscsi/iscsi_target_core.h |   1 +
+ include/target/target_core_base.h        |   5 +-
+ lib/Makefile                             |   2 +-
+ lib/percpu_ida.c                         | 391 -----------------------
+ 13 files changed, 74 insertions(+), 507 deletions(-)
+ delete mode 100644 include/linux/percpu_ida.h
+ delete mode 100644 lib/percpu_ida.c
+
+-- 
+2.17.0
