@@ -1,14 +1,17 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: [RFC PATCH] iscsit_wait_for_tag() can be static
-Date: Wed, 16 May 2018 20:47:21 +0800
-Message-ID: <20180516124721.GA27100__36380.3773456768$1526474789$gmane$org@ivb43.lkp.intel.com>
-References: <20180515160043.27044-2-willy@infradead.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC v4 3/5] virtio_ring: add packed ring support
+Date: Wed, 16 May 2018 20:51:43 +0800
+Message-ID: <ecb50c84-b412-ff0b-6c52-fd789b6c8a86__39822.1429823481$1526475009$gmane$org@redhat.com>
+References: <20180516083737.26504-1-tiwei.bie@intel.com>
+	<20180516083737.26504-4-tiwei.bie@intel.com>
+	<2000f635-bc34-71ff-ff51-a711c2e9726d@redhat.com>
+	<20180516123909.GB986@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180515160043.27044-2-willy@infradead.org>
+In-Reply-To: <20180516123909.GB986@debian>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +21,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <willy@infradead.org>
-Cc: Juergen Gross <jgross@suse.com>, Jens Axboe <axboe@kernel.dk>, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, Matthew Wilcox <mawilcox@microsoft.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, kbuild-all@01.org, qla2xxx-upstream@qlogic.com, linux1394-devel@lists.sourceforge.net, Kent Overstreet <kent.overstreet@gmail.com>
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-Fixes: 5aff7a710f13 ("Convert target drivers to use sbitmap")
-Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
----
- iscsi_target_util.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/target/iscsi/iscsi_target_util.c b/drivers/target/iscsi/iscsi_target_util.c
-index 28bcffa..e147aef 100644
---- a/drivers/target/iscsi/iscsi_target_util.c
-+++ b/drivers/target/iscsi/iscsi_target_util.c
-@@ -147,7 +147,7 @@ void iscsit_free_r2ts_from_list(struct iscsi_cmd *cmd)
- 	spin_unlock_bh(&cmd->r2t_lock);
- }
- 
--int iscsit_wait_for_tag(struct se_session *se_sess, int state, int *cpup)
-+static int iscsit_wait_for_tag(struct se_session *se_sess, int state, int *cpup)
- {
- 	int tag = -1;
- 	DEFINE_WAIT(wait);
+CgpPbiAyMDE45bm0MDXmnIgxNuaXpSAyMDozOSwgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFdlZCwg
+TWF5IDE2LCAyMDE4IGF0IDA3OjUwOjE2UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9u
+IDIwMTjlubQwNeaciDE25pelIDE2OjM3LCBUaXdlaSBCaWUgd3JvdGU6Cj4gWy4uLl0KPj4+ICAg
+IHN0cnVjdCB2cmluZ192aXJ0cXVldWUgewo+Pj4gQEAgLTExNiw2ICsxMTcsOSBAQCBzdHJ1Y3Qg
+dnJpbmdfdmlydHF1ZXVlIHsKPj4+ICAgIAkJCS8qIExhc3Qgd3JpdHRlbiB2YWx1ZSB0byBkcml2
+ZXItPmZsYWdzIGluCj4+PiAgICAJCQkgKiBndWVzdCBieXRlIG9yZGVyLiAqLwo+Pj4gICAgCQkJ
+dTE2IGV2ZW50X2ZsYWdzX3NoYWRvdzsKPj4+ICsKPj4+ICsJCQkvKiBJRCBhbGxvY2F0aW9uLiAq
+Lwo+Pj4gKwkJCXN0cnVjdCBpZHIgYnVmZmVyX2lkOwo+PiBJJ20gbm90IHN1cmUgaWRyIGlzIGZp
+dCBmb3IgdGhlIHBlcmZvcm1hbmNlIGNyaXRpY2FsIGNhc2UgaGVyZS4gTmVlZCB0bwo+PiBtZWFz
+dXJlIGl0cyBwZXJmb3JtYW5jZSBpbXBhY3QsIGVzcGVjaWFsbHkgaWYgd2UgaGF2ZSBmZXcgdW51
+c2VkIHNsb3RzLgo+IEknbSBhbHNvIG5vdCBzdXJlLi4gQnV0IGZvcnR1bmF0ZWx5LCBpdCBzaG91
+bGQgYmUgcXVpdGUgZWFzeQo+IHRvIHJlcGxhY2UgaXQgd2l0aCBzb21ldGhpbmcgZWxzZSB3aXRo
+b3V0IGNoYW5naW5nIG90aGVyIGNvZGUuCj4gSWYgaXQgd2lsbCByZWFsbHkgaHVydCB0aGUgcGVy
+Zm9ybWFuY2UsIEknbGwgY2hhbmdlIGl0LgoKV2UgbWF5IHdhbnQgdG8gZG8gc29tZSBiZW5jaG1h
+cmtpbmcvcHJvZmlsaW5nIHRvIHNlZS4KCj4KPj4+ICAgIAkJfTsKPj4+ICAgIAl9Owo+IFsuLi5d
+Cj4+PiArc3RhdGljIHZvaWQgZGV0YWNoX2J1Zl9wYWNrZWQoc3RydWN0IHZyaW5nX3ZpcnRxdWV1
+ZSAqdnEsIHVuc2lnbmVkIGludCBoZWFkLAo+Pj4gKwkJCSAgICAgIHVuc2lnbmVkIGludCBpZCwg
+dm9pZCAqKmN0eCkKPj4+ICt7Cj4+PiArCXN0cnVjdCB2cmluZ19wYWNrZWRfZGVzYyAqZGVzYzsK
+Pj4+ICsJdW5zaWduZWQgaW50IGksIGo7Cj4+PiArCj4+PiArCS8qIENsZWFyIGRhdGEgcHRyLiAq
+Lwo+Pj4gKwl2cS0+ZGVzY19zdGF0ZVtpZF0uZGF0YSA9IE5VTEw7Cj4+PiArCj4+PiArCWkgPSBo
+ZWFkOwo+Pj4gKwo+Pj4gKwlmb3IgKGogPSAwOyBqIDwgdnEtPmRlc2Nfc3RhdGVbaWRdLm51bTsg
+aisrKSB7Cj4+PiArCQlkZXNjID0gJnZxLT52cmluZ19wYWNrZWQuZGVzY1tpXTsKPj4+ICsJCXZy
+aW5nX3VubWFwX29uZV9wYWNrZWQodnEsIGRlc2MpOwo+PiBBcyBtZW50aW9uZWQgaW4gcHJldmlv
+dXMgZGlzY3Vzc2lvbiwgdGhpcyBwcm9iYWJseSB3b24ndCB3b3JrIGZvciB0aGUgY2FzZQo+PiBv
+ZiBvdXQgb2Ygb3JkZXIgY29tcGxldGlvbiBzaW5jZSBpdCBkZXBlbmRzIG9uIHRoZSBpbmZvcm1h
+dGlvbiBpbiB0aGUKPj4gZGVzY3JpcHRvciByaW5nLiBXZSBwcm9iYWJseSBuZWVkIHRvIGV4dGVu
+ZCBjdHggdG8gcmVjb3JkIHN1Y2ggaW5mb3JtYXRpb24uCj4gQWJvdmUgY29kZSBkb2Vzbid0IGRl
+cGVuZCBvbiB0aGUgaW5mb3JtYXRpb24gaW4gdGhlIGRlc2NyaXB0b3IKPiByaW5nLiBUaGUgdnEt
+PmRlc2Nfc3RhdGVbXSBpcyB0aGUgZXh0ZW5kZWQgY3R4Lgo+Cj4gQmVzdCByZWdhcmRzLAo+IFRp
+d2VpIEJpZQoKWWVzLCBidXQgZGVzYyBpcyBhIHBvaW50ZXIgdG8gZGVzY3JpcHRvciByaW5nIEkg
+dGhpbmsgc28gCnZyaW5nX3VubWFwX29uZV9wYWNrZWQoKSBzdGlsbCBkZXBlbmRzIG9uIHRoZSBj
+b250ZW50IG9mIGRlc2NyaXB0b3IgcmluZz8KClRoYW5rcwpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
