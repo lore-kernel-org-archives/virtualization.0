@@ -1,16 +1,14 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC v4 3/5] virtio_ring: add packed ring support
-Date: Wed, 16 May 2018 20:39:09 +0800
-Message-ID: <20180516123909.GB986__18872.0317827121$1526474222$gmane$org@debian>
-References: <20180516083737.26504-1-tiwei.bie@intel.com>
-	<20180516083737.26504-4-tiwei.bie@intel.com>
-	<2000f635-bc34-71ff-ff51-a711c2e9726d@redhat.com>
+From: kbuild test robot <lkp@intel.com>
+Subject: Re: [PATCH 1/2] Convert target drivers to use sbitmap
+Date: Wed, 16 May 2018 20:47:21 +0800
+Message-ID: <201805162035.EWoS94Oq%fengguang.wu__41963.6013372385$1526474789$gmane$org@intel.com>
+References: <20180515160043.27044-2-willy@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <2000f635-bc34-71ff-ff51-a711c2e9726d@redhat.com>
+In-Reply-To: <20180515160043.27044-2-willy@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,38 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Matthew Wilcox <willy@infradead.org>
+Cc: Juergen Gross <jgross@suse.com>, Jens Axboe <axboe@kernel.dk>, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, Matthew Wilcox <mawilcox@microsoft.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, kbuild-all@01.org, qla2xxx-upstream@qlogic.com, linux1394-devel@lists.sourceforge.net, Kent Overstreet <kent.overstreet@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBNYXkgMTYsIDIwMTggYXQgMDc6NTA6MTZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiAyMDE45bm0MDXmnIgxNuaXpSAxNjozNywgVGl3ZWkgQmllIHdyb3RlOgpbLi4uXQo+
-ID4gICBzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlIHsKPiA+IEBAIC0xMTYsNiArMTE3LDkgQEAgc3Ry
-dWN0IHZyaW5nX3ZpcnRxdWV1ZSB7Cj4gPiAgIAkJCS8qIExhc3Qgd3JpdHRlbiB2YWx1ZSB0byBk
-cml2ZXItPmZsYWdzIGluCj4gPiAgIAkJCSAqIGd1ZXN0IGJ5dGUgb3JkZXIuICovCj4gPiAgIAkJ
-CXUxNiBldmVudF9mbGFnc19zaGFkb3c7Cj4gPiArCj4gPiArCQkJLyogSUQgYWxsb2NhdGlvbi4g
-Ki8KPiA+ICsJCQlzdHJ1Y3QgaWRyIGJ1ZmZlcl9pZDsKPiAKPiBJJ20gbm90IHN1cmUgaWRyIGlz
-IGZpdCBmb3IgdGhlIHBlcmZvcm1hbmNlIGNyaXRpY2FsIGNhc2UgaGVyZS4gTmVlZCB0bwo+IG1l
-YXN1cmUgaXRzIHBlcmZvcm1hbmNlIGltcGFjdCwgZXNwZWNpYWxseSBpZiB3ZSBoYXZlIGZldyB1
-bnVzZWQgc2xvdHMuCgpJJ20gYWxzbyBub3Qgc3VyZS4uIEJ1dCBmb3J0dW5hdGVseSwgaXQgc2hv
-dWxkIGJlIHF1aXRlIGVhc3kKdG8gcmVwbGFjZSBpdCB3aXRoIHNvbWV0aGluZyBlbHNlIHdpdGhv
-dXQgY2hhbmdpbmcgb3RoZXIgY29kZS4KSWYgaXQgd2lsbCByZWFsbHkgaHVydCB0aGUgcGVyZm9y
-bWFuY2UsIEknbGwgY2hhbmdlIGl0LgoKPiAKPiA+ICAgCQl9Owo+ID4gICAJfTsKWy4uLl0KPiA+
-ICtzdGF0aWMgdm9pZCBkZXRhY2hfYnVmX3BhY2tlZChzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2
-cSwgdW5zaWduZWQgaW50IGhlYWQsCj4gPiArCQkJICAgICAgdW5zaWduZWQgaW50IGlkLCB2b2lk
-ICoqY3R4KQo+ID4gK3sKPiA+ICsJc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjICpkZXNjOwo+ID4g
-Kwl1bnNpZ25lZCBpbnQgaSwgajsKPiA+ICsKPiA+ICsJLyogQ2xlYXIgZGF0YSBwdHIuICovCj4g
-PiArCXZxLT5kZXNjX3N0YXRlW2lkXS5kYXRhID0gTlVMTDsKPiA+ICsKPiA+ICsJaSA9IGhlYWQ7
-Cj4gPiArCj4gPiArCWZvciAoaiA9IDA7IGogPCB2cS0+ZGVzY19zdGF0ZVtpZF0ubnVtOyBqKysp
-IHsKPiA+ICsJCWRlc2MgPSAmdnEtPnZyaW5nX3BhY2tlZC5kZXNjW2ldOwo+ID4gKwkJdnJpbmdf
-dW5tYXBfb25lX3BhY2tlZCh2cSwgZGVzYyk7Cj4gCj4gQXMgbWVudGlvbmVkIGluIHByZXZpb3Vz
-IGRpc2N1c3Npb24sIHRoaXMgcHJvYmFibHkgd29uJ3Qgd29yayBmb3IgdGhlIGNhc2UKPiBvZiBv
-dXQgb2Ygb3JkZXIgY29tcGxldGlvbiBzaW5jZSBpdCBkZXBlbmRzIG9uIHRoZSBpbmZvcm1hdGlv
-biBpbiB0aGUKPiBkZXNjcmlwdG9yIHJpbmcuIFdlIHByb2JhYmx5IG5lZWQgdG8gZXh0ZW5kIGN0
-eCB0byByZWNvcmQgc3VjaCBpbmZvcm1hdGlvbi4KCkFib3ZlIGNvZGUgZG9lc24ndCBkZXBlbmQg
-b24gdGhlIGluZm9ybWF0aW9uIGluIHRoZSBkZXNjcmlwdG9yCnJpbmcuIFRoZSB2cS0+ZGVzY19z
-dGF0ZVtdIGlzIHRoZSBleHRlbmRlZCBjdHguCgpCZXN0IHJlZ2FyZHMsClRpd2VpIEJpZQpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+Hi Matthew,
+
+I love your patch! Perhaps something to improve:
+
+[auto build test WARNING on linus/master]
+[also build test WARNING on v4.17-rc5 next-20180516]
+[cannot apply to target/master]
+[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+
+url:    https://github.com/0day-ci/linux/commits/Matthew-Wilcox/Use-sbitmap-instead-of-percpu_ida/20180516-143658
+reproduce:
+        # apt-get install sparse
+        make ARCH=x86_64 allmodconfig
+        make C=1 CF=-D__CHECK_ENDIAN__
+
+
+sparse warnings: (new ones prefixed by >>)
+
+>> drivers/target/iscsi/iscsi_target_util.c:150:5: sparse: symbol 'iscsit_wait_for_tag' was not declared. Should it be static?
+   drivers/target/iscsi/iscsi_target_util.c:1174:31: sparse: expression using sizeof(void)
+   drivers/target/iscsi/iscsi_target_util.c:1174:31: sparse: expression using sizeof(void)
+
+Please review and possibly fold the followup patch.
+
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
