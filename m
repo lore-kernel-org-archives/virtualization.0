@@ -1,16 +1,14 @@
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH 1/2] Convert target drivers to use sbitmap
-Date: Tue, 15 May 2018 10:20:37 -0600
-Message-ID: <6ab7d206-ba46-6b1e-5210-4894ec4dc553__35360.1573304788$1526401145$gmane$org@kernel.dk>
-References: <20180515160043.27044-1-willy@infradead.org>
-	<20180515160043.27044-2-willy@infradead.org>
-	<3a56027b-47bc-dcb8-a465-3670031572f1@kernel.dk>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: Re: [RFC 0/8] Improving compiler inlining decisions
+Date: Tue, 15 May 2018 22:48:02 -0500
+Message-ID: <20180516034802.nuf7ft65nvtgc65j@treble>
+References: <20180515141124.84254-1-namit@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <3a56027b-47bc-dcb8-a465-3670031572f1@kernel.dk>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180515141124.84254-1-namit@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,26 +18,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, linux1394-devel@lists.sourceforge.net, linux-usb@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Juergen Gross <jgross@suse.com>, qla2xxx-upstream@qlogic.com, Kent Overstreet <kent.overstreet@gmail.com>
-Cc: Matthew Wilcox <mawilcox@microsoft.com>
+To: Nadav Amit <namit@vmware.com>
+Cc: Juergen Gross <jgross@suse.com>, x86@kernel.org, Kees Cook <keescook@chromium.org>, Jonathan Corbet <corbet@lwn.net>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, nadav.amit@gmail.com, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 5/15/18 10:11 AM, Jens Axboe wrote:
-> On 5/15/18 10:00 AM, Matthew Wilcox wrote:
->> From: Matthew Wilcox <mawilcox@microsoft.com>
->>
->> The sbitmap and the percpu_ida perform essentially the same task,
->> allocating tags for commands.  Since the sbitmap is more used than
->> the percpu_ida, convert the percpu_ida users to the sbitmap API.
-> 
-> It should also be the same performance as percpu_ida in light use, and
-> performs much better at > 50% utilization of the tag space. I think
-> that's better justification than "more used than".
+On Tue, May 15, 2018 at 07:11:07AM -0700, Nadav Amit wrote:
+> This patch-set deals with an interesting yet stupid problem: code that
+> does not get inlined despite its simplicity.
 
-Had to search long and hard for the perf numbers I did for percpu_ida
-on higher utilization, but here it is:
-
-https://lkml.org/lkml/2014/4/22/553
+I got the 0/8 patch twice, and didn't get the 1/8 patch.  Was there an
+issue with the sending of the patches?
 
 -- 
-Jens Axboe
+Josh
