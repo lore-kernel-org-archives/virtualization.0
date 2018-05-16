@@ -1,18 +1,11 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC v4 5/5] virtio_ring: enable packed ring
-Date: Wed, 16 May 2018 20:26:21 +0800
-Message-ID: <20180516122621.GA986__12863.5124922313$1526473455$gmane$org@debian>
-References: <20180516083737.26504-1-tiwei.bie@intel.com>
-	<20180516083737.26504-6-tiwei.bie@intel.com>
-	<27dfb4e8-6d63-bf7d-0f97-ac51559f8040@cogentembedded.com>
-	<20180516102159.GA11467@debian>
-	<dc6f6d01-7ca5-5264-6a58-1d5327da08cb@cogentembedded.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [RFC V4 PATCH 0/8] Packed ring layout for vhost
+Date: Wed, 16 May 2018 20:32:13 +0800
+Message-ID: <1526473941-16199-1-git-send-email-jasowang__4400.97853211245$1526473849$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <dc6f6d01-7ca5-5264-6a58-1d5327da08cb@cogentembedded.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,75 +15,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: mst@redhat.com, jasowang@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 16, 2018 at 02:42:53PM +0300, Sergei Shtylyov wrote:
-> On 05/16/2018 01:21 PM, Tiwei Bie wrote:
-> 
-> >>> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> >>> ---
-> >>>   drivers/virtio/virtio_ring.c | 2 ++
-> >>>   1 file changed, 2 insertions(+)
-> >>>
-> >>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> >>> index de3839f3621a..b158692263b0 100644
-> >>> --- a/drivers/virtio/virtio_ring.c
-> >>> +++ b/drivers/virtio/virtio_ring.c
-> >>> @@ -1940,6 +1940,8 @@ void vring_transport_features(struct virtio_device *vdev)
-> >>>   			break;
-> >>>   		case VIRTIO_F_IOMMU_PLATFORM:
-> >>>   			break;
-> >>> +		case VIRTIO_F_RING_PACKED:
-> >>> +			break;
-> >>
-> >>    Why not just add this *case* under the previous *case*?
-> > 
-> > Do you mean fallthrough? Something like:
-> > 
-> > 		case VIRTIO_F_IOMMU_PLATFORM:
-> > 		case VIRTIO_F_RING_PACKED:
-> > 			break;
-> 
->    Yes, exactly. :-)
+Hi all:
 
-Using fallthrough in this case will make the code more
-compact. I like such coding style. But unfortunately,
-it's not consistent with the existing code. :(
+This RFC implement packed ring layout. The code were tested with
+Tiwei's RFC V3 ahttps://lkml.org/lkml/2018/4/25/34. Some fixups and
+tweaks were needed on top of Tiwei's code to make it run for event
+index.
 
-The whole function will become something like this:
+Pktgen reports about 20% improvement on PPS (event index is off). More
+testing is ongoing.
 
-void vring_transport_features(struct virtio_device *vdev)
-{
-	unsigned int i;
+Notes for tester:
 
-	for (i = VIRTIO_TRANSPORT_F_START; i < VIRTIO_TRANSPORT_F_END; i++) {
-		switch (i) {
-		case VIRTIO_RING_F_INDIRECT_DESC:
-			break;
-		case VIRTIO_RING_F_EVENT_IDX:
-			break;
-		case VIRTIO_F_VERSION_1:
-			break;
-		case VIRTIO_F_IOMMU_PLATFORM:
-		case VIRTIO_F_RING_PACKED:
-			break;
-		default:
-			/* We don't understand this bit. */
-			__virtio_clear_bit(vdev, i);
-		}
-	}
-}
+- Start from this version, vhost need qemu co-operation to work
+  correctly. Or you can comment out the packed specific code for
+  GET/SET_VRING_BASE.
 
-Best regards,
-Tiwei Bie
+Changes from V3:
+- Fix math on event idx checking
+- Sync last avail wrap counter through GET/SET_VRING_BASE
+- remove desc_event prefix in the driver/device structure
 
-> 
-> > Best regards,
-> > Tiwei Bie
-> 
-> [...]
-> 
-> MBR, Sergei
-> 
+Changes from V2:
+- do not use & in checking desc_event_flags
+- off should be most significant bit
+- remove the workaround of mergeable buffer for dpdk prototype
+- id should be in the last descriptor in the chain
+- keep _F_WRITE for write descriptor when adding used
+- device flags updating should use ADDR_USED type
+- return error on unexpected unavail descriptor in a chain
+- return false in vhost_ve_avail_empty is descriptor is available
+- track last seen avail_wrap_counter
+- correctly examine available descriptor in get_indirect_packed()
+- vhost_idx_diff should return u16 instead of bool
+
+Changes from V1:
+
+- Refactor vhost used elem code to avoid open coding on used elem
+- Event suppression support (compile test only).
+- Indirect descriptor support (compile test only).
+- Zerocopy support.
+- vIOMMU support.
+- SCSI/VSOCK support (compile test only).
+- Fix several bugs
+
+Jason Wang (8):
+  vhost: move get_rx_bufs to vhost.c
+  vhost: hide used ring layout from device
+  vhost: do not use vring_used_elem
+  vhost_net: do not explicitly manipulate vhost_used_elem
+  vhost: vhost_put_user() can accept metadata type
+  virtio: introduce packed ring defines
+  vhost: packed ring support
+  vhost: event suppression for packed ring
+
+ drivers/vhost/net.c                | 136 ++----
+ drivers/vhost/scsi.c               |  62 +--
+ drivers/vhost/vhost.c              | 861 ++++++++++++++++++++++++++++++++-----
+ drivers/vhost/vhost.h              |  47 +-
+ drivers/vhost/vsock.c              |  42 +-
+ include/uapi/linux/virtio_config.h |   9 +
+ include/uapi/linux/virtio_ring.h   |  32 ++
+ 7 files changed, 928 insertions(+), 261 deletions(-)
+
+-- 
+2.7.4
