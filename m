@@ -1,16 +1,11 @@
 From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC v3 4/5] virtio_ring: add event idx support in packed ring
-Date: Wed, 16 May 2018 13:55:20 +0800
-Message-ID: <20180516055520.GA21116__20086.9434317157$1526449995$gmane$org@debian>
-References: <20180425051550.24342-1-tiwei.bie@intel.com>
-	<20180425051550.24342-5-tiwei.bie@intel.com>
-	<915efeaa-4e47-9004-a722-54b0c40ebcbb@redhat.com>
+Subject: [RFC v4 0/5] virtio: support packed ring
+Date: Wed, 16 May 2018 16:37:32 +0800
+Message-ID: <20180516083737.26504-1-tiwei.bie__45545.2752220028$1526459750$gmane$org@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <915efeaa-4e47-9004-a722-54b0c40ebcbb@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,69 +15,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBNYXkgMTYsIDIwMTggYXQgMDE6MDE6MDRQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiAyMDE45bm0MDTmnIgyNeaXpSAxMzoxNSwgVGl3ZWkgQmllIHdyb3RlOgpbLi4uXQo+
-ID4gQEAgLTExNDMsMTAgKzExNjAsMTcgQEAgc3RhdGljIHVuc2lnbmVkIHZpcnRxdWV1ZV9lbmFi
-bGVfY2JfcHJlcGFyZV9wYWNrZWQoc3RydWN0IHZpcnRxdWV1ZSAqX3ZxKQo+ID4gICAJLyogV2Ug
-b3B0aW1pc3RpY2FsbHkgdHVybiBiYWNrIG9uIGludGVycnVwdHMsIHRoZW4gY2hlY2sgaWYgdGhl
-cmUgd2FzCj4gPiAgIAkgKiBtb3JlIHRvIGRvLiAqLwo+ID4gKwkvKiBEZXBlbmRpbmcgb24gdGhl
-IFZJUlRJT19SSU5HX0ZfVVNFRF9FVkVOVF9JRFggZmVhdHVyZSwgd2UgbmVlZCB0bwo+ID4gKwkg
-KiBlaXRoZXIgY2xlYXIgdGhlIGZsYWdzIGJpdCBvciBwb2ludCB0aGUgZXZlbnQgaW5kZXggYXQg
-dGhlIG5leHQKPiA+ICsJICogZW50cnkuIEFsd2F5cyB1cGRhdGUgdGhlIGV2ZW50IGluZGV4IHRv
-IGtlZXAgY29kZSBzaW1wbGUuICovCj4gPiArCj4gPiArCXZxLT52cmluZ19wYWNrZWQuZHJpdmVy
-LT5vZmZfd3JhcCA9IGNwdV90b192aXJ0aW8xNihfdnEtPnZkZXYsCj4gPiArCQkJdnEtPmxhc3Rf
-dXNlZF9pZHggfCAodnEtPndyYXBfY291bnRlciA8PCAxNSkpOwo+IAo+IAo+IFVzaW5nIHZxLT53
-cmFwX2NvdW50ZXIgc2VlbXMgbm90IGNvcnJlY3QsIHdoYXQgd2UgbmVlZCBpcyB0aGUgd2FycCBj
-b3VudGVyCj4gZm9yIHRoZSBsYXN0X3VzZWRfaWR4IG5vdCBuZXh0X2F2YWlsX2lkeC4KClllcywg
-eW91J3JlIHJpZ2h0LiBJIGhhdmUgZml4ZWQgaXQgaW4gbXkgbG9jYWwgcmVwbywKYnV0IGhhdmVu
-J3Qgc2VudCBvdXQgYSBuZXcgdmVyc2lvbiB5ZXQuCgpJJ2xsIHRyeSB0byBzZW5kIG91dCBhIG5l
-dyBSRkMgdG9kYXkuCgo+IAo+IEFuZCBJIHRoaW5rIHRoZXJlJ3MgZXZlbiBubyBuZWVkIHRvIGJv
-dGhlciB3aXRoIGV2ZW50IGlkeCBoZXJlLCBob3cgYWJvdXQKPiBqdXN0IHNldCBWUklOR19FVkVO
-VF9GX0VOQUJMRT8KCldlIGhhZCBhIHNpbWlsYXIgZGlzY3Vzc2lvbiBiZWZvcmUuIE1pY2hhZWwg
-cHJlZmVycwp0byB1c2UgVlJJTkdfRVZFTlRfRl9ERVNDIHdoZW4gcG9zc2libGUgdG8gYXZvaWQK
-ZXh0cmEgaW50ZXJydXB0cyBpZiBob3N0IGlzIGZhc3Q6CgpodHRwczovL2xrbWwub3JnL2xrbWwv
-MjAxOC80LzE2LzEwODUKIiIiCkkgc3VzcGVjdCB0aGlzIHdpbGwgbGVhZCB0byBleHRyYSBpbnRl
-cnJ1cHRzIGlmIGhvc3QgaXMgZmFzdC4KU28gSSB0aGluayBmb3Igbm93IHdlIHNob3VsZCBhbHdh
-eXMgdXNlIFZSSU5HX0VWRU5UX0ZfREVTQwppZiBFVkVOVF9JRFggaXMgbmVnb3RpYXRlZC4KIiIi
-Cgo+IAo+ID4gICAJaWYgKHZxLT5ldmVudF9mbGFnc19zaGFkb3cgPT0gVlJJTkdfRVZFTlRfRl9E
-SVNBQkxFKSB7Cj4gPiAgIAkJdmlydGlvX3dtYih2cS0+d2Vha19iYXJyaWVycyk7Cj4gPiAtCQl2
-cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93ID0gVlJJTkdfRVZFTlRfRl9FTkFCTEU7Cj4gPiArCQl2cS0+
-ZXZlbnRfZmxhZ3Nfc2hhZG93ID0gdnEtPmV2ZW50ID8gVlJJTkdfRVZFTlRfRl9ERVNDIDoKPiA+
-ICsJCQkJCQkgICAgIFZSSU5HX0VWRU5UX0ZfRU5BQkxFOwo+ID4gICAJCXZxLT52cmluZ19wYWNr
-ZWQuZHJpdmVyLT5mbGFncyA9IGNwdV90b192aXJ0aW8xNihfdnEtPnZkZXYsCj4gPiAgIAkJCQkJ
-CQl2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93KTsKPiA+ICAgCX0KPiA+IEBAIC0xMTcyLDE1ICsxMTk2
-LDM0IEBAIHN0YXRpYyBib29sIHZpcnRxdWV1ZV9wb2xsX3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVl
-ICpfdnEsIHVuc2lnbmVkIGxhc3RfdXNlZF9pZHgpCj4gPiAgIHN0YXRpYyBib29sIHZpcnRxdWV1
-ZV9lbmFibGVfY2JfZGVsYXllZF9wYWNrZWQoc3RydWN0IHZpcnRxdWV1ZSAqX3ZxKQo+ID4gICB7
-Cj4gPiAgIAlzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSA9IHRvX3Z2cShfdnEpOwo+ID4gKwl1
-MTYgYnVmcywgdXNlZF9pZHgsIHdyYXBfY291bnRlcjsKPiA+ICAgCVNUQVJUX1VTRSh2cSk7Cj4g
-PiAgIAkvKiBXZSBvcHRpbWlzdGljYWxseSB0dXJuIGJhY2sgb24gaW50ZXJydXB0cywgdGhlbiBj
-aGVjayBpZiB0aGVyZSB3YXMKPiA+ICAgCSAqIG1vcmUgdG8gZG8uICovCj4gPiArCS8qIERlcGVu
-ZGluZyBvbiB0aGUgVklSVElPX1JJTkdfRl9VU0VEX0VWRU5UX0lEWCBmZWF0dXJlLCB3ZSBuZWVk
-IHRvCj4gPiArCSAqIGVpdGhlciBjbGVhciB0aGUgZmxhZ3MgYml0IG9yIHBvaW50IHRoZSBldmVu
-dCBpbmRleCBhdCB0aGUgbmV4dAo+ID4gKwkgKiBlbnRyeS4gQWx3YXlzIHVwZGF0ZSB0aGUgZXZl
-bnQgaW5kZXggdG8ga2VlcCBjb2RlIHNpbXBsZS4gKi8KPiA+ICsKPiA+ICsJLyogVE9ETzogdHVu
-ZSB0aGlzIHRocmVzaG9sZCAqLwo+ID4gKwlidWZzID0gKHUxNikodnEtPm5leHRfYXZhaWxfaWR4
-IC0gdnEtPmxhc3RfdXNlZF9pZHgpICogMyAvIDQ7Cj4gCj4gYnVmcyBjb3VsZCBiZSBtb3JlIHRo
-YW4gdnEtPm51bSBoZXJlLCBpcyB0aGlzIGludGVuZGVkPwoKWWVzLCB5b3UncmUgcmlnaHQuIExp
-a2UgdGhlIGFib3ZlIG9uZSAtLSBJIGhhdmUgZml4ZWQKaXQgaW4gbXkgbG9jYWwgcmVwbywgYnV0
-IGhhdmVuJ3Qgc2VudCBvdXQgYSBuZXcgdmVyc2lvbgp5ZXQuIFRoYW5rcyBmb3Igc3BvdHRpbmcg
-dGhpcyEKCj4gCj4gPiArCj4gPiArCXVzZWRfaWR4ID0gdnEtPmxhc3RfdXNlZF9pZHggKyBidWZz
-Owo+ID4gKwl3cmFwX2NvdW50ZXIgPSB2cS0+d3JhcF9jb3VudGVyOwo+ID4gKwo+ID4gKwlpZiAo
-dXNlZF9pZHggPj0gdnEtPnZyaW5nX3BhY2tlZC5udW0pIHsKPiA+ICsJCXVzZWRfaWR4IC09IHZx
-LT52cmluZ19wYWNrZWQubnVtOwo+ID4gKwkJd3JhcF9jb3VudGVyIF49IDE7Cj4gCj4gV2hlbiB1
-c2VkX2lkeCBpcyBncmVhdGVyIG9yIGVxdWFsIHZxLT5udW0sIHRoZXJlJ3Mgbm8gbmVlZCB0byBm
-bGlwCj4gd2FycF9jb3VudGVyIGJpdCBzaW5jZSBpdCBzaG91bGQgbWF0Y2ggbmV4dF9hdmFpbF9p
-ZHguCj4gCj4gQW5kIHdlIG5lZWQgYWxzbyBjYXJlIGFib3V0IHRoZSBjYXNlIHdoZW4gbmV4dF9h
-dmFpbCB3cmFwcyBidXQgdXNlZF9pZHggbm90Lgo+IHNvIHdlIHByb2JhbHkgbmVlZDoKPiAKPiBl
-bHNlIGlmICh2cS0+bmV4dF9hdmFpbF9pZHggPCB1c2VkX2lkeCkgewo+IMKgwqDCoCB3cmFwX2Nv
-dW50ZXIgXj0gMTsKPiB9Cj4gCj4gSSB0aGluayBtYXliZSBpdCdzIHRpbWUgdG8gYWRkIHNvbWUg
-c2FtcGxlIGNvZGVzIGluIHRoZSBzcGVjIHRvIGF2b2lkCj4gZHVwbGljYXRpbmcgdGhlIGVmZm9y
-dHMoYnVncykuCgorMQoKQmVzdCByZWdhcmRzLApUaXdlaSBCaWUKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hello everyone,
+
+This RFC implements packed ring support in virtio driver.
+
+Some simple functional tests have been done with Jason's
+packed ring implementation in vhost:
+
+https://lkml.org/lkml/2018/4/23/12
+
+Both of ping and netperf worked as expected (with EVENT_IDX
+disabled).
+
+TODO:
+- Refinements (for code and commit log);
+- More tests;
+- Bug fixes;
+
+RFC v3 -> RFC v4:
+- Make ID allocation support out-of-order (Jason);
+- Various fixes for EVENT_IDX support;
+
+RFC v2 -> RFC v3:
+- Split into small patches (Jason);
+- Add helper virtqueue_use_indirect() (Jason);
+- Just set id for the last descriptor of a list (Jason);
+- Calculate the prev in virtqueue_add_packed() (Jason);
+- Fix/improve desc suppression code (Jason/MST);
+- Refine the code layout for XXX_split/packed and wrappers (MST);
+- Fix the comments and API in uapi (MST);
+- Remove the BUG_ON() for indirect (Jason);
+- Some other refinements and bug fixes;
+
+RFC v1 -> RFC v2:
+- Add indirect descriptor support - compile test only;
+- Add event suppression supprt - compile test only;
+- Move vring_packed_init() out of uapi (Jason, MST);
+- Merge two loops into one in virtqueue_add_packed() (Jason);
+- Split vring_unmap_one() for packed ring and split ring (Jason);
+- Avoid using '%' operator (Jason);
+- Rename free_head -> next_avail_idx (Jason);
+- Add comments for virtio_wmb() in virtqueue_add_packed() (Jason);
+- Some other refinements and bug fixes;
+
+Thanks!
+
+Tiwei Bie (5):
+  virtio: add packed ring definitions
+  virtio_ring: support creating packed ring
+  virtio_ring: add packed ring support
+  virtio_ring: add event idx support in packed ring
+  virtio_ring: enable packed ring
+
+ drivers/virtio/virtio_ring.c       | 1338 ++++++++++++++++++++++------
+ include/linux/virtio_ring.h        |    8 +-
+ include/uapi/linux/virtio_config.h |   12 +-
+ include/uapi/linux/virtio_ring.h   |   36 +
+ 4 files changed, 1116 insertions(+), 278 deletions(-)
+
+-- 
+2.17.0
