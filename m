@@ -1,11 +1,13 @@
 From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [RFC v4 0/5] virtio: support packed ring
-Date: Wed, 16 May 2018 16:37:32 +0800
-Message-ID: <20180516083737.26504-1-tiwei.bie__45545.2752220028$1526459750$gmane$org@intel.com>
+Subject: [RFC v4 1/5] virtio: add packed ring definitions
+Date: Wed, 16 May 2018 16:37:33 +0800
+Message-ID: <20180516083737.26504-2-tiwei.bie@intel.com>
+References: <20180516083737.26504-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180516083737.26504-1-tiwei.bie@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,63 +21,98 @@ To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.o
 Cc: wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello everyone,
+Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+---
+ include/uapi/linux/virtio_config.h | 12 +++++++++-
+ include/uapi/linux/virtio_ring.h   | 36 ++++++++++++++++++++++++++++++
+ 2 files changed, 47 insertions(+), 1 deletion(-)
 
-This RFC implements packed ring support in virtio driver.
-
-Some simple functional tests have been done with Jason's
-packed ring implementation in vhost:
-
-https://lkml.org/lkml/2018/4/23/12
-
-Both of ping and netperf worked as expected (with EVENT_IDX
-disabled).
-
-TODO:
-- Refinements (for code and commit log);
-- More tests;
-- Bug fixes;
-
-RFC v3 -> RFC v4:
-- Make ID allocation support out-of-order (Jason);
-- Various fixes for EVENT_IDX support;
-
-RFC v2 -> RFC v3:
-- Split into small patches (Jason);
-- Add helper virtqueue_use_indirect() (Jason);
-- Just set id for the last descriptor of a list (Jason);
-- Calculate the prev in virtqueue_add_packed() (Jason);
-- Fix/improve desc suppression code (Jason/MST);
-- Refine the code layout for XXX_split/packed and wrappers (MST);
-- Fix the comments and API in uapi (MST);
-- Remove the BUG_ON() for indirect (Jason);
-- Some other refinements and bug fixes;
-
-RFC v1 -> RFC v2:
-- Add indirect descriptor support - compile test only;
-- Add event suppression supprt - compile test only;
-- Move vring_packed_init() out of uapi (Jason, MST);
-- Merge two loops into one in virtqueue_add_packed() (Jason);
-- Split vring_unmap_one() for packed ring and split ring (Jason);
-- Avoid using '%' operator (Jason);
-- Rename free_head -> next_avail_idx (Jason);
-- Add comments for virtio_wmb() in virtqueue_add_packed() (Jason);
-- Some other refinements and bug fixes;
-
-Thanks!
-
-Tiwei Bie (5):
-  virtio: add packed ring definitions
-  virtio_ring: support creating packed ring
-  virtio_ring: add packed ring support
-  virtio_ring: add event idx support in packed ring
-  virtio_ring: enable packed ring
-
- drivers/virtio/virtio_ring.c       | 1338 ++++++++++++++++++++++------
- include/linux/virtio_ring.h        |    8 +-
- include/uapi/linux/virtio_config.h |   12 +-
- include/uapi/linux/virtio_ring.h   |   36 +
- 4 files changed, 1116 insertions(+), 278 deletions(-)
-
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index 308e2096291f..a6e392325e3a 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -49,7 +49,7 @@
+  * transport being used (eg. virtio_ring), the rest are per-device feature
+  * bits. */
+ #define VIRTIO_TRANSPORT_F_START	28
+-#define VIRTIO_TRANSPORT_F_END		34
++#define VIRTIO_TRANSPORT_F_END		36
+ 
+ #ifndef VIRTIO_CONFIG_NO_LEGACY
+ /* Do we get callbacks when the ring is completely used, even if we've
+@@ -71,4 +71,14 @@
+  * this is for compatibility with legacy systems.
+  */
+ #define VIRTIO_F_IOMMU_PLATFORM		33
++
++/* This feature indicates support for the packed virtqueue layout. */
++#define VIRTIO_F_RING_PACKED		34
++
++/*
++ * This feature indicates that all buffers are used by the device
++ * in the same order in which they have been made available.
++ */
++#define VIRTIO_F_IN_ORDER		35
++
+ #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
+diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+index 6d5d5faa989b..3932cb80c347 100644
+--- a/include/uapi/linux/virtio_ring.h
++++ b/include/uapi/linux/virtio_ring.h
+@@ -44,6 +44,9 @@
+ /* This means the buffer contains a list of buffer descriptors. */
+ #define VRING_DESC_F_INDIRECT	4
+ 
++#define VRING_DESC_F_AVAIL(b)	((b) << 7)
++#define VRING_DESC_F_USED(b)	((b) << 15)
++
+ /* The Host uses this in used->flags to advise the Guest: don't kick me when
+  * you add a buffer.  It's unreliable, so it's simply an optimization.  Guest
+  * will still kick if it's out of buffers. */
+@@ -53,6 +56,10 @@
+  * optimization.  */
+ #define VRING_AVAIL_F_NO_INTERRUPT	1
+ 
++#define VRING_EVENT_F_ENABLE	0x0
++#define VRING_EVENT_F_DISABLE	0x1
++#define VRING_EVENT_F_DESC	0x2
++
+ /* We support indirect buffer descriptors */
+ #define VIRTIO_RING_F_INDIRECT_DESC	28
+ 
+@@ -171,4 +178,33 @@ static inline int vring_need_event(__u16 event_idx, __u16 new_idx, __u16 old)
+ 	return (__u16)(new_idx - event_idx - 1) < (__u16)(new_idx - old);
+ }
+ 
++struct vring_packed_desc_event {
++	/* __virtio16 off  : 15; // Descriptor Event Offset
++	 * __virtio16 wrap : 1;  // Descriptor Event Wrap Counter */
++	__virtio16 off_wrap;
++	/* __virtio16 flags : 2; // Descriptor Event Flags */
++	__virtio16 flags;
++};
++
++struct vring_packed_desc {
++	/* Buffer Address. */
++	__virtio64 addr;
++	/* Buffer Length. */
++	__virtio32 len;
++	/* Buffer ID. */
++	__virtio16 id;
++	/* The flags depending on descriptor type. */
++	__virtio16 flags;
++};
++
++struct vring_packed {
++	unsigned int num;
++
++	struct vring_packed_desc *desc;
++
++	struct vring_packed_desc_event *driver;
++
++	struct vring_packed_desc_event *device;
++};
++
+ #endif /* _UAPI_LINUX_VIRTIO_RING_H */
 -- 
 2.17.0
