@@ -1,21 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC v4 3/5] virtio_ring: add packed ring support
-Date: Thu, 17 May 2018 20:01:52 +0800
-Message-ID: <bc38e5a1-e920-7055-dc22-49ac98455257__9428.6200976514$1526558419$gmane$org@redhat.com>
-References: <20180516083737.26504-1-tiwei.bie@intel.com>
-	<20180516083737.26504-4-tiwei.bie@intel.com>
-	<2000f635-bc34-71ff-ff51-a711c2e9726d@redhat.com>
-	<20180516123909.GB986@debian>
-	<ecb50c84-b412-ff0b-6c52-fd789b6c8a86@redhat.com>
-	<20180516134550.GB4171@debian>
-	<eaf946f1-abab-c4e5-1ab5-ba7912986d58@redhat.com>
-	<20180516143332.GA1957@debian>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH 01/24] drm/cirrus: Place GEM BOs in drm_framebuffer
+Date: Thu, 17 May 2018 15:54:08 +0200
+Message-ID: <20180517135408.GB26515__27306.5445981503$1526565139$gmane$org@ulmo>
+References: <CAPj87rPKDwBK7qoOoY2zXoS6T02toATPRsk=39m_OBr=s1kXTw@mail.gmail.com>
+	<20180330141138.28987-1-daniels@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============4424983190254658322=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180516143332.GA1957@debian>
-Content-Language: en-US
+In-Reply-To: <20180330141138.28987-1-daniels@collabora.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,58 +17,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Daniel Stone <daniels@collabora.com>
+Cc: Dave Airlie <airlied@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgxNuaXpSAyMjozMywgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFdlZCwg
-TWF5IDE2LCAyMDE4IGF0IDEwOjA1OjQ0UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9u
-IDIwMTjlubQwNeaciDE25pelIDIxOjQ1LCBUaXdlaSBCaWUgd3JvdGU6Cj4+PiBPbiBXZWQsIE1h
-eSAxNiwgMjAxOCBhdCAwODo1MTo0M1BNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+IE9u
-IDIwMTjlubQwNeaciDE25pelIDIwOjM5LCBUaXdlaSBCaWUgd3JvdGU6Cj4+Pj4+IE9uIFdlZCwg
-TWF5IDE2LCAyMDE4IGF0IDA3OjUwOjE2UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+
-PiBPbiAyMDE45bm0MDXmnIgxNuaXpSAxNjozNywgVGl3ZWkgQmllIHdyb3RlOgo+IFsuLi5dCj4+
-Pj4+Pj4gK3N0YXRpYyB2b2lkIGRldGFjaF9idWZfcGFja2VkKHN0cnVjdCB2cmluZ192aXJ0cXVl
-dWUgKnZxLCB1bnNpZ25lZCBpbnQgaGVhZCwKPj4+Pj4+PiArCQkJICAgICAgdW5zaWduZWQgaW50
-IGlkLCB2b2lkICoqY3R4KQo+Pj4+Pj4+ICt7Cj4+Pj4+Pj4gKwlzdHJ1Y3QgdnJpbmdfcGFja2Vk
-X2Rlc2MgKmRlc2M7Cj4+Pj4+Pj4gKwl1bnNpZ25lZCBpbnQgaSwgajsKPj4+Pj4+PiArCj4+Pj4+
-Pj4gKwkvKiBDbGVhciBkYXRhIHB0ci4gKi8KPj4+Pj4+PiArCXZxLT5kZXNjX3N0YXRlW2lkXS5k
-YXRhID0gTlVMTDsKPj4+Pj4+PiArCj4+Pj4+Pj4gKwlpID0gaGVhZDsKPj4+Pj4+PiArCj4+Pj4+
-Pj4gKwlmb3IgKGogPSAwOyBqIDwgdnEtPmRlc2Nfc3RhdGVbaWRdLm51bTsgaisrKSB7Cj4+Pj4+
-Pj4gKwkJZGVzYyA9ICZ2cS0+dnJpbmdfcGFja2VkLmRlc2NbaV07Cj4+Pj4+Pj4gKwkJdnJpbmdf
-dW5tYXBfb25lX3BhY2tlZCh2cSwgZGVzYyk7Cj4+Pj4+PiBBcyBtZW50aW9uZWQgaW4gcHJldmlv
-dXMgZGlzY3Vzc2lvbiwgdGhpcyBwcm9iYWJseSB3b24ndCB3b3JrIGZvciB0aGUgY2FzZQo+Pj4+
-Pj4gb2Ygb3V0IG9mIG9yZGVyIGNvbXBsZXRpb24gc2luY2UgaXQgZGVwZW5kcyBvbiB0aGUgaW5m
-b3JtYXRpb24gaW4gdGhlCj4+Pj4+PiBkZXNjcmlwdG9yIHJpbmcuIFdlIHByb2JhYmx5IG5lZWQg
-dG8gZXh0ZW5kIGN0eCB0byByZWNvcmQgc3VjaCBpbmZvcm1hdGlvbi4KPj4+Pj4gQWJvdmUgY29k
-ZSBkb2Vzbid0IGRlcGVuZCBvbiB0aGUgaW5mb3JtYXRpb24gaW4gdGhlIGRlc2NyaXB0b3IKPj4+
-Pj4gcmluZy4gVGhlIHZxLT5kZXNjX3N0YXRlW10gaXMgdGhlIGV4dGVuZGVkIGN0eC4KPj4+Pj4K
-Pj4+Pj4gQmVzdCByZWdhcmRzLAo+Pj4+PiBUaXdlaSBCaWUKPj4+PiBZZXMsIGJ1dCBkZXNjIGlz
-IGEgcG9pbnRlciB0byBkZXNjcmlwdG9yIHJpbmcgSSB0aGluayBzbwo+Pj4+IHZyaW5nX3VubWFw
-X29uZV9wYWNrZWQoKSBzdGlsbCBkZXBlbmRzIG9uIHRoZSBjb250ZW50IG9mIGRlc2NyaXB0b3Ig
-cmluZz8KPj4+Pgo+Pj4gSSBnb3QgeW91ciBwb2ludCBub3cuIEkgdGhpbmsgaXQgbWFrZXMgc2Vu
-c2UgdG8gcmVzZXJ2ZQo+Pj4gdGhlIGJpdHMgb2YgdGhlIGFkZHIgZmllbGQuIERyaXZlciBzaG91
-bGRuJ3QgdHJ5IHRvIGdldAo+Pj4gYWRkcnMgZnJvbSB0aGUgZGVzY3JpcHRvcnMgd2hlbiBjbGVh
-bnVwIHRoZSBkZXNjcmlwdG9ycwo+Pj4gbm8gbWF0dGVyIHdoZXRoZXIgd2Ugc3VwcG9ydCBvdXQt
-b2Ytb3JkZXIgb3Igbm90Lgo+PiBNYXliZSBJIHdhcyB3cm9uZywgYnV0IEkgcmVtZW1iZXIgc3Bl
-YyBtZW50aW9uZWQgc29tZXRoaW5nIGxpa2UgdGhpcy4KPiBZb3UncmUgcmlnaHQuIFNwZWMgbWVu
-dGlvbmVkIHRoaXMuIEkgd2FzIGp1c3QgcmVwZWF0aW5nCj4gdGhlIHNwZWMgdG8gZW1waGFzaXpl
-IHRoYXQgaXQgZG9lcyBtYWtlIHNlbnNlLiA6KQo+Cj4+PiBCdXQgY29tYmluaW5nIGl0IHdpdGgg
-dGhlIG91dC1vZi1vcmRlciBzdXBwb3J0LCBpdCB3aWxsCj4+PiBtZWFuIHRoYXQgdGhlIGRyaXZl
-ciBzdGlsbCBuZWVkcyB0byBtYWludGFpbiBhIGRlc2MvY3R4Cj4+PiBsaXN0IHRoYXQgaXMgdmVy
-eSBzaW1pbGFyIHRvIHRoZSBkZXNjIHJpbmcgaW4gdGhlIHNwbGl0Cj4+PiByaW5nLiBJJ20gbm90
-IHF1aXRlIHN1cmUgd2hldGhlciBpdCdzIHNvbWV0aGluZyB3ZSB3YW50Lgo+Pj4gSWYgaXQgaXMg
-dHJ1ZSwgSSdsbCBkbyBpdC4gU28gZG8geW91IHRoaW5rIHdlIGFsc28gd2FudAo+Pj4gdG8gbWFp
-bnRhaW4gc3VjaCBhIGRlc2MvY3R4IGxpc3QgZm9yIHBhY2tlZCByaW5nPwo+PiBUbyBtYWtlIGl0
-IHdvcmsgZm9yIE9PTyBiYWNrZW5kcyBJIHRoaW5rIHdlIG5lZWQgc29tZXRoaW5nIGxpa2UgdGhp
-cwo+PiAoaGFyZHdhcmUgTklDIGRyaXZlcnMgYXJlIHVzdWFsbHkgaGF2ZSBzb21ldGhpbmcgbGlr
-ZSB0aGlzKS4KPiBXaGljaCBoYXJkd2FyZSBOSUMgZHJpdmVycyBoYXZlIHRoaXM/CgpJdCdzIHF1
-aXRlIGNvbW1vbiBJIHRoaW5rLCBlLmcgZHJpdmVyIHRyYWNrIGUuZyBkbWEgYWRkciBhbmQgcGFn
-ZSBmcmFnIApzb21ld2hlcmUuIGUuZyB0aGUgcmluZy0+cnhfaW5mbyBpbiBtbHg0IGRyaXZlci4K
-ClRoYW5rcwoKPgo+PiBOb3QgZm9yIHRoZSBwYXRjaCwgYnV0IGl0IGxvb2tzIGxpa2UgaGF2aW5n
-IGEgT1VUX09GX09SREVSIGZlYXR1cmUgYml0IGlzCj4+IG11Y2ggbW9yZSBzaW1wbGVyIHRvIGJl
-IHN0YXJ0ZWQgd2l0aC4KPiArMQo+Cj4gQmVzdCByZWdhcmRzLAo+IFRpd2VpIEJpZQoKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+
+--===============4424983190254658322==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="ZoaI/ZTpAVc4A5k6"
+Content-Disposition: inline
+
+
+--ZoaI/ZTpAVc4A5k6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Mar 30, 2018 at 03:11:15PM +0100, Daniel Stone wrote:
+> Since drm_framebuffer can now store GEM objects directly, place them
+> there rather than in our own subclass. As this makes the framebuffer
+> create_handle and destroy functions the same as the GEM framebuffer
+> helper, we can reuse those.
+>=20
+> Signed-off-by: Daniel Stone <daniels@collabora.com>
+> Cc: Dave Airlie <airlied@redhat.com>
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: virtualization@lists.linux-foundation.org
+> ---
+>  drivers/gpu/drm/cirrus/cirrus_drv.h   |  1 -
+>  drivers/gpu/drm/cirrus/cirrus_fbdev.c |  8 ++++----
+>  drivers/gpu/drm/cirrus/cirrus_main.c  | 25 ++++---------------------
+>  drivers/gpu/drm/cirrus/cirrus_mode.c  |  4 ++--
+>  4 files changed, 10 insertions(+), 28 deletions(-)
+
+Reviewed-by: Thierry Reding <treding@nvidia.com>
+
+--ZoaI/ZTpAVc4A5k6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlr9iYAACgkQ3SOs138+
+s6G9lg/9HlYwQfqYPoSyMu5Gh6/k/I/5jT4fqwTzPmv0OD5sP1Aors0THjJrNAWb
+hnn4byKksVf9TyylwvQLc+FcaHd/oN3LDMA/20FNT6aFNeWYzdA97XrMwdqXZbb/
+efcdbxbzryBKA23axTdwdosrBuL88C1LolUONvuXE67tMylYqZXa7OOvx66pPShB
+cYS/znESJeVdZbk22NMmxNTKQertAmBNZijBTRIUVO+N5s37TPeQyMlHKffF6GNF
+VOfmi5r0ehTvbjhUplRx7K4gDpMRRPk1h7kY44FCvs/okvv0+O0I9N4PAg38bky6
+ff6mBNq6XgM/inXs2BDdCZmrREZLC7Ph7zRwbppdrmWJvsL1xSMNKNhJsDFgmKnq
+RGokkgyquzG7d5h6Bb0f4Eqv//4UGJE+UcInWAl035yIzzhBBknBJfZhhmpeHDXj
+K6RfjdV51pEVOPH56sLwfX3Npq/5DtH1d6BN+PB3jKVNyw71lMPqWrKO0JRcbKC9
+FZfpzE4EUU1fTwvzjNNUuDkXDS6IU4dgjMO/K2t+yrlvi+y5EFnwchttFGSV9xxd
+WIEfAk3K16CDVtxtzROjyXzIQAb/67naMua41lEojVa12nloEG+oyA0Y1Y7ze4GD
+rqIfgiWTiGRiu5WN9djpzBpsi2J8KjuThdwAMpOo/1FfcEHT70E=
+=OZYx
+-----END PGP SIGNATURE-----
+
+--ZoaI/ZTpAVc4A5k6--
+
+--===============4424983190254658322==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4424983190254658322==--
