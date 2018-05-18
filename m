@@ -1,14 +1,14 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH 03/24] drm/virtio: Place GEM BOs in drm_framebuffer
-Date: Thu, 17 May 2018 16:29:25 +0200
-Message-ID: <20180517142925.GD26515__4149.84005406058$1526567268$gmane$org@ulmo>
-References: <CAPj87rPKDwBK7qoOoY2zXoS6T02toATPRsk=39m_OBr=s1kXTw@mail.gmail.com>
-	<20180330141138.28987-1-daniels@collabora.com>
-	<20180330141138.28987-3-daniels@collabora.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: KASAN: use-after-free Read in vhost_chr_write_iter
+Date: Fri, 18 May 2018 17:24:48 +0800
+Message-ID: <58419d62-3074-2e5a-8504-da1cdeb08280__434.63110127977$1526635396$gmane$org@redhat.com>
+References: <20180517134544.GA20646@dragonet.kaist.ac.kr>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6851584507730219442=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180330141138.28987-3-daniels@collabora.com>
+In-Reply-To: <20180517134544.GA20646@dragonet.kaist.ac.kr>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,72 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Stone <daniels@collabora.com>
-Cc: Dave Airlie <airlied@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: DaeRyong Jeong <threeearcat@gmail.com>, mst@redhat.com
+Cc: bammanag@purdue.edu, kt0755@gmail.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, byoungyoung@purdue.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============6851584507730219442==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="wLAMOaPNJ0fu1fTG"
-Content-Disposition: inline
-
-
---wLAMOaPNJ0fu1fTG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Mar 30, 2018 at 03:11:17PM +0100, Daniel Stone wrote:
-> Since drm_framebuffer can now store GEM objects directly, place them
-> there rather than in our own subclass. As this makes the framebuffer
-> create_handle and destroy functions the same as the GEM framebuffer
-> helper, we can reuse those.
->=20
-> Signed-off-by: Daniel Stone <daniels@collabora.com>
-> Cc: Dave Airlie <airlied@redhat.com>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
-> ---
->  drivers/gpu/drm/virtio/virtgpu_display.c | 30 +++++---------------------=
-----
->  drivers/gpu/drm/virtio/virtgpu_drv.h     |  1 -
->  drivers/gpu/drm/virtio/virtgpu_fb.c      |  8 ++++----
->  drivers/gpu/drm/virtio/virtgpu_plane.c   |  4 ++--
->  4 files changed, 11 insertions(+), 32 deletions(-)
-
-Reviewed-by: Thierry Reding <treding@nvidia.com>
-
---wLAMOaPNJ0fu1fTG
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlr9kcUACgkQ3SOs138+
-s6Fy4RAAvzRxuFMyCxYyVxjsD6OhSUNSaErf5ao/69II/JWneaX6dTHPNeDA9LhQ
-H9rg+6kHuptKipKZK83euuek4cSkbJvhHqbNGGmnqV8w9EUciER0BZGS/xbhvx7/
-TjPLC8hi8bqAeaQXHO0ZHPQDphL346F/Ie9mztIRTQnhKtiPcccKlVTrkzmCrZvD
-pO6LtRRIrZEtv+7F8yBZSd+iKm6GqVJd8G32/CTJy1EzUE83Twkk3P1d0v3iU3A/
-mR/aya1iFUM/S2D3xCwsamB7JKoLKpXU1oX8qWVWSBR4aEOQTsCxq5SpkZFLSdF8
-WFcWUDCtBLDQO9XZn+eqcbX3ISqpLRqE0Y8+vrFVCMNxC3/zeEjBFfd0ERFvSgEF
-HdNe4U4U2QGh7802hXPKsNoXyId5g6yuKXWy71RXk0fdysIoah6WADrHoeDj6wPR
-e73wfqNqzzkTizP8pAwvr84tQc/xc4uVZHdzkvEv04+nRRed2yCTsgHB9nC2zh6k
-HjaxJioncCGyhgOSiZy1JD4iipgVDNzfe16J71LJylmRsGGYlQAyF3MVyU9kI2Uw
-LqU2es1cWdofNx/a+QNtP3kGLjxP3iVHhDrcuEYRFLfUyPGh64jMw/9u3EVEvog0
-uDc1VpJkPLdoyghWgpwVelb28s+vtUhJ1KoiIpOJqAZkXhrOLZQ=
-=sFV2
------END PGP SIGNATURE-----
-
---wLAMOaPNJ0fu1fTG--
-
---===============6851584507730219442==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6851584507730219442==--
+CgpPbiAyMDE45bm0MDXmnIgxN+aXpSAyMTo0NSwgRGFlUnlvbmcgSmVvbmcgd3JvdGU6Cj4gV2Ug
+cmVwb3J0IHRoZSBjcmFzaDogS0FTQU46IHVzZS1hZnRlci1mcmVlIFJlYWQgaW4gdmhvc3RfY2hy
+X3dyaXRlX2l0ZXIKPgo+IFRoaXMgY3Jhc2ggaGFzIGJlZW4gZm91bmQgaW4gdjQuMTctcmMxIHVz
+aW5nIFJhY2VGdXp6ZXIgKGEgbW9kaWZpZWQKPiB2ZXJzaW9uIG9mIFN5emthbGxlciksIHdoaWNo
+IHdlIGRlc2NyaWJlIG1vcmUgYXQgdGhlIGVuZCBvZiB0aGlzCj4gcmVwb3J0LiBPdXIgYW5hbHlz
+aXMgc2hvd3MgdGhhdCB0aGUgcmFjZSBvY2N1cnMgd2hlbiBpbnZva2luZyB0d28KPiBzeXNjYWxs
+cyBjb25jdXJyZW50bHksIHdyaXRlJHZuZXQgYW5kIGlvY3RsJFZIT1NUX1JFU0VUX09XTkVSLgo+
+Cj4KPiBBbmFseXNpczoKPiBXZSB0aGluayB0aGUgY29uY3VycmVudCBleGVjdXRpb24gb2Ygdmhv
+c3RfcHJvY2Vzc19pb3RsYl9tc2coKSBhbmQKPiB2aG9zdF9kZXZfY2xlYW51cCgpIGNhdXNlcyB0
+aGUgY3Jhc2guCj4gQm90aCBvZiBmdW5jdGlvbnMgY2FuIHJ1biBjb25jdXJyZW50bHkgKHBsZWFz
+ZSBzZWUgY2FsbCBzZXF1ZW5jZSBiZWxvdyksCj4gYW5kIHBvc3NpYmx5LCB0aGVyZSBpcyBhIHJh
+Y2Ugb24gZGV2LT5pb3RsYi4KPiBJZiB0aGUgc3dpdGNoIG9jY3VycyByaWdodCBhZnRlciB2aG9z
+dF9kZXZfY2xlYW51cCgpIGZyZWVzCj4gZGV2LT5pb3RsYiwgdmhvc3RfcHJvY2Vzc19pb3RsYl9t
+c2coKSBzdGlsbCBzZWVzIHRoZSBub24tbnVsbCB2YWx1ZSBhbmQgaXQKPiBrZWVwIGV4ZWN1dGlu
+ZyB3aXRob3V0IHJldHVybmluZyAtRUZBVUxULiBDb25zZXF1ZW50bHksIHVzZS1hZnRlci1mcmVl
+Cj4gb2NjdXJlcwo+Cj4KPiBUaHJlYWQgaW50ZXJsZWF2aW5nOgo+IENQVTAgKHZob3N0X3Byb2Nl
+c3NfaW90bGJfbXNnKQkJCQlDUFUxICh2aG9zdF9kZXZfY2xlYW51cCkKPiAoSW4gdGhlIGNhc2Ug
+b2YgYm90aCBWSE9TVF9JT1RMQl9VUERBVEUgYW5kCj4gVkhPU1RfSU9UTEJfSU5WQUxJREFURSkK
+PiA9PT09PQkJCQkJCQk9PT09PQo+IAkJCQkJCQl2aG9zdF91bWVtX2NsZWFuKGRldi0+aW90bGIp
+Owo+IGlmICghZGV2LT5pb3RsYikgewo+IAkgICAgICAgIHJldCA9IC1FRkFVTFQ7Cj4gCQkgICAg
+ICAgIGJyZWFrOwo+IH0KPiAJCQkJCQkJZGV2LT5pb3RsYiA9IE5VTEw7Cj4KPgo+IENhbGwgU2Vx
+dWVuY2U6Cj4gQ1BVMAo+ID09PT09Cj4gdmhvc3RfbmV0X2Nocl93cml0ZV9pdGVyCj4gCXZob3N0
+X2Nocl93cml0ZV9pdGVyCj4gCQl2aG9zdF9wcm9jZXNzX2lvdGxiX21zZwo+Cj4gQ1BVMQo+ID09
+PT09Cj4gdmhvc3RfbmV0X2lvY3RsCj4gCXZob3N0X25ldF9yZXNldF9vd25lcgo+IAkJdmhvc3Rf
+ZGV2X3Jlc2V0X293bmVyCj4gCQkJdmhvc3RfZGV2X2NsZWFudXAKClRoYW5rcyBhIGxvdCBmb3Ig
+dGhlIGFuYWx5c2lzLgoKVGhpcyBjb3VsZCBiZSBhZGRyZXNzZWQgYnkgc2ltcGx5IHByb3RlY3Qg
+aXQgd2l0aCBkZXYgbXV0ZXguCgpXaWxsIHBvc3QgYSBwYXRjaC4KCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
+dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
+LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
