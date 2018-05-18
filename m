@@ -1,13 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: KASAN: use-after-free Read in vhost_chr_write_iter
-Date: Fri, 18 May 2018 17:24:48 +0800
-Message-ID: <58419d62-3074-2e5a-8504-da1cdeb08280__434.63110127977$1526635396$gmane$org@redhat.com>
-References: <20180517134544.GA20646@dragonet.kaist.ac.kr>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH 0/6] Macrofying inline assembly for better compilation
+Date: Fri, 18 May 2018 09:20:40 +0000
+Message-ID: <8737d8d4c7e84c47938e9b1aaeae16b9__37670.9169628613$1526635402$gmane$org@AcuMS.aculab.com>
+References: <20180517161402.78089-1-namit@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180517134544.GA20646@dragonet.kaist.ac.kr>
+In-Reply-To: <20180517161402.78089-1-namit@vmware.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,37 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: DaeRyong Jeong <threeearcat@gmail.com>, mst@redhat.com
-Cc: bammanag@purdue.edu, kt0755@gmail.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, byoungyoung@purdue.edu
+To: 'Nadav Amit' <namit@vmware.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>
+Cc: Juergen Gross <jgross@suse.com>, Randy Dunlap <rdunlap@infradead.org>, Kees Cook <keescook@chromium.org>, Jonathan Corbet <corbet@lwn.net>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, Josh Poimboeuf <jpoimboe@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-sparse@vger.kernel.org" <linux-sparse@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, "nadav.amit@gmail.com" <nadav.amit@gmail.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgxN+aXpSAyMTo0NSwgRGFlUnlvbmcgSmVvbmcgd3JvdGU6Cj4gV2Ug
-cmVwb3J0IHRoZSBjcmFzaDogS0FTQU46IHVzZS1hZnRlci1mcmVlIFJlYWQgaW4gdmhvc3RfY2hy
-X3dyaXRlX2l0ZXIKPgo+IFRoaXMgY3Jhc2ggaGFzIGJlZW4gZm91bmQgaW4gdjQuMTctcmMxIHVz
-aW5nIFJhY2VGdXp6ZXIgKGEgbW9kaWZpZWQKPiB2ZXJzaW9uIG9mIFN5emthbGxlciksIHdoaWNo
-IHdlIGRlc2NyaWJlIG1vcmUgYXQgdGhlIGVuZCBvZiB0aGlzCj4gcmVwb3J0LiBPdXIgYW5hbHlz
-aXMgc2hvd3MgdGhhdCB0aGUgcmFjZSBvY2N1cnMgd2hlbiBpbnZva2luZyB0d28KPiBzeXNjYWxs
-cyBjb25jdXJyZW50bHksIHdyaXRlJHZuZXQgYW5kIGlvY3RsJFZIT1NUX1JFU0VUX09XTkVSLgo+
-Cj4KPiBBbmFseXNpczoKPiBXZSB0aGluayB0aGUgY29uY3VycmVudCBleGVjdXRpb24gb2Ygdmhv
-c3RfcHJvY2Vzc19pb3RsYl9tc2coKSBhbmQKPiB2aG9zdF9kZXZfY2xlYW51cCgpIGNhdXNlcyB0
-aGUgY3Jhc2guCj4gQm90aCBvZiBmdW5jdGlvbnMgY2FuIHJ1biBjb25jdXJyZW50bHkgKHBsZWFz
-ZSBzZWUgY2FsbCBzZXF1ZW5jZSBiZWxvdyksCj4gYW5kIHBvc3NpYmx5LCB0aGVyZSBpcyBhIHJh
-Y2Ugb24gZGV2LT5pb3RsYi4KPiBJZiB0aGUgc3dpdGNoIG9jY3VycyByaWdodCBhZnRlciB2aG9z
-dF9kZXZfY2xlYW51cCgpIGZyZWVzCj4gZGV2LT5pb3RsYiwgdmhvc3RfcHJvY2Vzc19pb3RsYl9t
-c2coKSBzdGlsbCBzZWVzIHRoZSBub24tbnVsbCB2YWx1ZSBhbmQgaXQKPiBrZWVwIGV4ZWN1dGlu
-ZyB3aXRob3V0IHJldHVybmluZyAtRUZBVUxULiBDb25zZXF1ZW50bHksIHVzZS1hZnRlci1mcmVl
-Cj4gb2NjdXJlcwo+Cj4KPiBUaHJlYWQgaW50ZXJsZWF2aW5nOgo+IENQVTAgKHZob3N0X3Byb2Nl
-c3NfaW90bGJfbXNnKQkJCQlDUFUxICh2aG9zdF9kZXZfY2xlYW51cCkKPiAoSW4gdGhlIGNhc2Ug
-b2YgYm90aCBWSE9TVF9JT1RMQl9VUERBVEUgYW5kCj4gVkhPU1RfSU9UTEJfSU5WQUxJREFURSkK
-PiA9PT09PQkJCQkJCQk9PT09PQo+IAkJCQkJCQl2aG9zdF91bWVtX2NsZWFuKGRldi0+aW90bGIp
-Owo+IGlmICghZGV2LT5pb3RsYikgewo+IAkgICAgICAgIHJldCA9IC1FRkFVTFQ7Cj4gCQkgICAg
-ICAgIGJyZWFrOwo+IH0KPiAJCQkJCQkJZGV2LT5pb3RsYiA9IE5VTEw7Cj4KPgo+IENhbGwgU2Vx
-dWVuY2U6Cj4gQ1BVMAo+ID09PT09Cj4gdmhvc3RfbmV0X2Nocl93cml0ZV9pdGVyCj4gCXZob3N0
-X2Nocl93cml0ZV9pdGVyCj4gCQl2aG9zdF9wcm9jZXNzX2lvdGxiX21zZwo+Cj4gQ1BVMQo+ID09
-PT09Cj4gdmhvc3RfbmV0X2lvY3RsCj4gCXZob3N0X25ldF9yZXNldF9vd25lcgo+IAkJdmhvc3Rf
-ZGV2X3Jlc2V0X293bmVyCj4gCQkJdmhvc3RfZGV2X2NsZWFudXAKClRoYW5rcyBhIGxvdCBmb3Ig
-dGhlIGFuYWx5c2lzLgoKVGhpcyBjb3VsZCBiZSBhZGRyZXNzZWQgYnkgc2ltcGx5IHByb3RlY3Qg
-aXQgd2l0aCBkZXYgbXV0ZXguCgpXaWxsIHBvc3QgYSBwYXRjaC4KCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
-dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
-LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+From: Nadav Amit
+> Sent: 17 May 2018 17:14
+> This patch-set deals with an interesting yet stupid problem: kernel code
+> that does not get inlined despite its simplicity. There are several
+> causes for this behavior: "cold" attribute on __init, different function
+> optimization levels; conditional constant computations based on
+> __builtin_constant_p(); and finally large inline assembly blocks.
+> 
+> This patch-set deals with the inline assembly problem. I separated these
+> patches from the others (that were sent in the RFC) for easier
+> inclusion.
+> 
+> The problem with inline assembly is that inline assembly is often used
+> by the kernel for things that are other than code - for example,
+> assembly directives and data. GCC however is oblivious to the content of
+> the blocks and assumes their cost in space and time is proportional to
+> the number of the perceived assembly "instruction", according to the
+> number of newlines and semicolons. Alternatives, paravirt and other
+> mechanisms are affected, causing code not to be inlined, and degrading
+> compilation quality in general.
+> 
+> The solution that this patch-set carries for this problem is to create
+> an assembly macro, and then call it from the inline assembly block.  As
+> a result, the compiler sees a single "instruction" and assigns the more
+> appropriate cost to the code. In addition, this patch-set removes
+> unneeded new-lines from common x86 inline asm's, which "confuse" GCC
+> heuristics.
+
+Can't you get the same effect by using always_inline ?
+
+	David
