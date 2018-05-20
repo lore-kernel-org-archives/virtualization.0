@@ -1,23 +1,14 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC v4 3/5] virtio_ring: add packed ring support
-Date: Sat, 19 May 2018 10:29:38 +0800
-Message-ID: <20180519022938.GA18888__47649.0367822864$1526696854$gmane$org@debian>
-References: <20180516123909.GB986@debian>
-	<ecb50c84-b412-ff0b-6c52-fd789b6c8a86@redhat.com>
-	<20180516134550.GB4171@debian>
-	<eaf946f1-abab-c4e5-1ab5-ba7912986d58@redhat.com>
-	<20180516143332.GA1957@debian>
-	<bc38e5a1-e920-7055-dc22-49ac98455257@redhat.com>
-	<20180518112950.GA28224@debian>
-	<e247b46a-183f-3959-859b-aebb0bf81c07@redhat.com>
-	<20180518143334.GA4537@debian>
-	<1a661df0-8ca9-b31d-9c17-8684d608a33a@redhat.com>
+From: Wei Xu <wexu@redhat.com>
+Subject: Re: [RFC V4 PATCH 0/8] Packed ring layout for vhost
+Date: Mon, 21 May 2018 00:25:14 +0800
+Message-ID: <20180520162514.GA21958__45733.8062501096$1526833423$gmane$org@wei-ubt>
+References: <1526473941-16199-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1a661df0-8ca9-b31d-9c17-8684d608a33a@redhat.com>
+In-Reply-To: <1526473941-16199-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,152 +19,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gU2F0LCBNYXkgMTksIDIwMTggYXQgMDk6MTI6MzBBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiAyMDE45bm0MDXmnIgxOOaXpSAyMjozMywgVGl3ZWkgQmllIHdyb3RlOgo+ID4gT24g
-RnJpLCBNYXkgMTgsIDIwMTggYXQgMDk6MTc6MDVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-PiA+ID4gT24gMjAxOOW5tDA15pyIMTjml6UgMTk6MjksIFRpd2VpIEJpZSB3cm90ZToKPiA+ID4g
-PiBPbiBUaHUsIE1heSAxNywgMjAxOCBhdCAwODowMTo1MlBNICswODAwLCBKYXNvbiBXYW5nIHdy
-b3RlOgo+ID4gPiA+ID4gT24gMjAxOOW5tDA15pyIMTbml6UgMjI6MzMsIFRpd2VpIEJpZSB3cm90
-ZToKPiA+ID4gPiA+ID4gT24gV2VkLCBNYXkgMTYsIDIwMTggYXQgMTA6MDU6NDRQTSArMDgwMCwg
-SmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ID4gPiBPbiAyMDE45bm0MDXmnIgxNuaXpSAyMTo0
-NSwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gT24gV2VkLCBNYXkgMTYsIDIwMTgg
-YXQgMDg6NTE6NDNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ID4gPiA+ID4g
-T24gMjAxOOW5tDA15pyIMTbml6UgMjA6MzksIFRpd2VpIEJpZSB3cm90ZToKPiA+ID4gPiA+ID4g
-PiA+ID4gPiBPbiBXZWQsIE1heSAxNiwgMjAxOCBhdCAwNzo1MDoxNlBNICswODAwLCBKYXNvbiBX
-YW5nIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gT24gMjAxOOW5tDA15pyIMTbml6UgMTY6
-MzcsIFRpd2VpIEJpZSB3cm90ZToKPiA+ID4gPiA+ID4gWy4uLl0KPiA+ID4gPiA+ID4gPiA+ID4g
-PiA+ID4gK3N0YXRpYyB2b2lkIGRldGFjaF9idWZfcGFja2VkKHN0cnVjdCB2cmluZ192aXJ0cXVl
-dWUgKnZxLCB1bnNpZ25lZCBpbnQgaGVhZCwKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ID4gKwkJCSAg
-ICAgIHVuc2lnbmVkIGludCBpZCwgdm9pZCAqKmN0eCkKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ID4g
-K3sKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ID4gKwlzdHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2MgKmRl
-c2M7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICsJdW5zaWduZWQgaW50IGksIGo7Cj4gPiA+ID4g
-PiA+ID4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ID4gKwkvKiBDbGVhciBkYXRh
-IHB0ci4gKi8KPiA+ID4gPiA+ID4gPiA+ID4gPiA+ID4gKwl2cS0+ZGVzY19zdGF0ZVtpZF0uZGF0
-YSA9IE5VTEw7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+
-ID4gKwlpID0gaGVhZDsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiA+ID4g
-PiA+ID4gPiArCWZvciAoaiA9IDA7IGogPCB2cS0+ZGVzY19zdGF0ZVtpZF0ubnVtOyBqKyspIHsK
-PiA+ID4gPiA+ID4gPiA+ID4gPiA+ID4gKwkJZGVzYyA9ICZ2cS0+dnJpbmdfcGFja2VkLmRlc2Nb
-aV07Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICsJCXZyaW5nX3VubWFwX29uZV9wYWNrZWQodnEs
-IGRlc2MpOwo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gQXMgbWVudGlvbmVkIGluIHByZXZpb3VzIGRp
-c2N1c3Npb24sIHRoaXMgcHJvYmFibHkgd29uJ3Qgd29yayBmb3IgdGhlIGNhc2UKPiA+ID4gPiA+
-ID4gPiA+ID4gPiA+IG9mIG91dCBvZiBvcmRlciBjb21wbGV0aW9uIHNpbmNlIGl0IGRlcGVuZHMg
-b24gdGhlIGluZm9ybWF0aW9uIGluIHRoZQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gZGVzY3JpcHRv
-ciByaW5nLiBXZSBwcm9iYWJseSBuZWVkIHRvIGV4dGVuZCBjdHggdG8gcmVjb3JkIHN1Y2ggaW5m
-b3JtYXRpb24uCj4gPiA+ID4gPiA+ID4gPiA+ID4gQWJvdmUgY29kZSBkb2Vzbid0IGRlcGVuZCBv
-biB0aGUgaW5mb3JtYXRpb24gaW4gdGhlIGRlc2NyaXB0b3IKPiA+ID4gPiA+ID4gPiA+ID4gPiBy
-aW5nLiBUaGUgdnEtPmRlc2Nfc3RhdGVbXSBpcyB0aGUgZXh0ZW5kZWQgY3R4Lgo+ID4gPiA+ID4g
-PiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+ID4gPiA+IEJlc3QgcmVnYXJkcywKPiA+ID4gPiA+ID4g
-PiA+ID4gPiBUaXdlaSBCaWUKPiA+ID4gPiA+ID4gPiA+ID4gWWVzLCBidXQgZGVzYyBpcyBhIHBv
-aW50ZXIgdG8gZGVzY3JpcHRvciByaW5nIEkgdGhpbmsgc28KPiA+ID4gPiA+ID4gPiA+ID4gdnJp
-bmdfdW5tYXBfb25lX3BhY2tlZCgpIHN0aWxsIGRlcGVuZHMgb24gdGhlIGNvbnRlbnQgb2YgZGVz
-Y3JpcHRvciByaW5nPwo+ID4gPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+IEkgZ290IHlv
-dXIgcG9pbnQgbm93LiBJIHRoaW5rIGl0IG1ha2VzIHNlbnNlIHRvIHJlc2VydmUKPiA+ID4gPiA+
-ID4gPiA+IHRoZSBiaXRzIG9mIHRoZSBhZGRyIGZpZWxkLiBEcml2ZXIgc2hvdWxkbid0IHRyeSB0
-byBnZXQKPiA+ID4gPiA+ID4gPiA+IGFkZHJzIGZyb20gdGhlIGRlc2NyaXB0b3JzIHdoZW4gY2xl
-YW51cCB0aGUgZGVzY3JpcHRvcnMKPiA+ID4gPiA+ID4gPiA+IG5vIG1hdHRlciB3aGV0aGVyIHdl
-IHN1cHBvcnQgb3V0LW9mLW9yZGVyIG9yIG5vdC4KPiA+ID4gPiA+ID4gPiBNYXliZSBJIHdhcyB3
-cm9uZywgYnV0IEkgcmVtZW1iZXIgc3BlYyBtZW50aW9uZWQgc29tZXRoaW5nIGxpa2UgdGhpcy4K
-PiA+ID4gPiA+ID4gWW91J3JlIHJpZ2h0LiBTcGVjIG1lbnRpb25lZCB0aGlzLiBJIHdhcyBqdXN0
-IHJlcGVhdGluZwo+ID4gPiA+ID4gPiB0aGUgc3BlYyB0byBlbXBoYXNpemUgdGhhdCBpdCBkb2Vz
-IG1ha2Ugc2Vuc2UuIDopCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+ID4gQnV0IGNvbWJpbmlu
-ZyBpdCB3aXRoIHRoZSBvdXQtb2Ytb3JkZXIgc3VwcG9ydCwgaXQgd2lsbAo+ID4gPiA+ID4gPiA+
-ID4gbWVhbiB0aGF0IHRoZSBkcml2ZXIgc3RpbGwgbmVlZHMgdG8gbWFpbnRhaW4gYSBkZXNjL2N0
-eAo+ID4gPiA+ID4gPiA+ID4gbGlzdCB0aGF0IGlzIHZlcnkgc2ltaWxhciB0byB0aGUgZGVzYyBy
-aW5nIGluIHRoZSBzcGxpdAo+ID4gPiA+ID4gPiA+ID4gcmluZy4gSSdtIG5vdCBxdWl0ZSBzdXJl
-IHdoZXRoZXIgaXQncyBzb21ldGhpbmcgd2Ugd2FudC4KPiA+ID4gPiA+ID4gPiA+IElmIGl0IGlz
-IHRydWUsIEknbGwgZG8gaXQuIFNvIGRvIHlvdSB0aGluayB3ZSBhbHNvIHdhbnQKPiA+ID4gPiA+
-ID4gPiA+IHRvIG1haW50YWluIHN1Y2ggYSBkZXNjL2N0eCBsaXN0IGZvciBwYWNrZWQgcmluZz8K
-PiA+ID4gPiA+ID4gPiBUbyBtYWtlIGl0IHdvcmsgZm9yIE9PTyBiYWNrZW5kcyBJIHRoaW5rIHdl
-IG5lZWQgc29tZXRoaW5nIGxpa2UgdGhpcwo+ID4gPiA+ID4gPiA+IChoYXJkd2FyZSBOSUMgZHJp
-dmVycyBhcmUgdXN1YWxseSBoYXZlIHNvbWV0aGluZyBsaWtlIHRoaXMpLgo+ID4gPiA+ID4gPiBX
-aGljaCBoYXJkd2FyZSBOSUMgZHJpdmVycyBoYXZlIHRoaXM/Cj4gPiA+ID4gPiBJdCdzIHF1aXRl
-IGNvbW1vbiBJIHRoaW5rLCBlLmcgZHJpdmVyIHRyYWNrIGUuZyBkbWEgYWRkciBhbmQgcGFnZSBm
-cmFnCj4gPiA+ID4gPiBzb21ld2hlcmUuIGUuZyB0aGUgcmluZy0+cnhfaW5mbyBpbiBtbHg0IGRy
-aXZlci4KPiA+ID4gPiBJdCBzZWVtcyB0aGF0IEkgaGFkIGEgbWlzdW5kZXJzdGFuZGluZyBvbiB5
-b3VyCj4gPiA+ID4gcHJldmlvdXMgY29tbWVudHMuIEkga25vdyBpdCdzIHF1aXRlIGNvbW1vbiBm
-b3IKPiA+ID4gPiBkcml2ZXJzIHRvIHRyYWNrIGUuZy4gRE1BIGFkZHJzIHNvbWV3aGVyZSAoYW5k
-Cj4gPiA+ID4gSSB0aGluayBvbmUgcmVhc29uIGJlaGluZCB0aGlzIGlzIHRoYXQgdGhleSB3YW50
-Cj4gPiA+ID4gdG8gcmV1c2UgdGhlIGJpdHMgb2YgYWRkciBmaWVsZCkuCj4gPiA+IFllcywgd2Ug
-bWF5IHdhbnQgdGhpcyBmb3IgdmlydGlvLW5ldCBhcyB3ZWxsIGluIHRoZSBmdXR1cmUuCj4gPiA+
-IAo+ID4gPiA+ICAgIEJ1dCB0cmFja2luZwo+ID4gPiA+IGFkZHJzIHNvbWV3aGVyZSBkb2Vzbid0
-IG1lYW5zIHN1cHBvcnRpbmcgT09PLgo+ID4gPiA+IEkgdGhvdWdodCB5b3Ugd2VyZSBzYXlpbmcg
-aXQncyBxdWl0ZSBjb21tb24gZm9yCj4gPiA+ID4gaGFyZHdhcmUgTklDIGRyaXZlcnMgdG8gc3Vw
-cG9ydCBPT08gKGkuZS4gTklDcwo+ID4gPiA+IHdpbGwgcmV0dXJuIHRoZSBkZXNjcmlwdG9ycyBP
-T08pOgo+ID4gPiA+IAo+ID4gPiA+IEknbSBub3QgZmFtaWxpYXIgd2l0aCBtbHg0LCBtYXliZSBJ
-J20gd3JvbmcuCj4gPiA+ID4gSSBqdXN0IGhhZCBhIHF1aWNrIGdsYW5jZS4gQW5kIEkgZm91bmQg
-YmVsb3cKPiA+ID4gPiBjb21tZW50cyBpbiBtbHg0X2VuX3Byb2Nlc3NfcnhfY3EoKToKPiA+ID4g
-PiAKPiA+ID4gPiBgYGAKPiA+ID4gPiAvKiBXZSBhc3N1bWUgYSAxOjEgbWFwcGluZyBiZXR3ZWVu
-IENRRXMgYW5kIFJ4IGRlc2NyaXB0b3JzLCBzbyBSeAo+ID4gPiA+ICAgICogZGVzY3JpcHRvciBv
-ZmZzZXQgY2FuIGJlIGRlZHVjZWQgZnJvbSB0aGUgQ1FFIGluZGV4IGluc3RlYWQgb2YKPiA+ID4g
-PiAgICAqIHJlYWRpbmcgJ2NxZS0+aW5kZXgnICovCj4gPiA+ID4gaW5kZXggPSBjcS0+bWNxLmNv
-bnNfaW5kZXggJiByaW5nLT5zaXplX21hc2s7Cj4gPiA+ID4gY3FlID0gbWx4NF9lbl9nZXRfY3Fl
-KGNxLT5idWYsIGluZGV4LCBwcml2LT5jcWVfc2l6ZSkgKyBmYWN0b3I7Cj4gPiA+ID4gYGBgCj4g
-PiA+ID4gCj4gPiA+ID4gSXQgc2VlbXMgdGhhdCBhbHRob3VnaCB0aGV5IGhhdmUgYSBjb21wbGV0
-aW9uCj4gPiA+ID4gcXVldWUsIHRoZXkgYXJlIHN0aWxsIHVzaW5nIHRoZSByaW5nIGluIG9yZGVy
-Lgo+ID4gPiBJIGd1ZXNzIHNvIChhdCBsZWFzdCBmcm9tIHRoZSBhYm92ZSBiaXRzKS4gR2l0IGdy
-ZXAgLWkgIm91dCBvZiBvcmRlciIgaW4KPiA+ID4gZHJpdmVycy9uZXQgZ2l2ZXMgc29tZSBoaW50
-cy4gTG9va3MgbGlrZSB0aGVyZSdyZSBmZXcgZGVpdmNlcyBkbyB0aGlzLgo+ID4gPiAKPiA+ID4g
-PiBJIGd1ZXNzIG1heWJlIHN0b3JhZ2UgZGV2aWNlIG1heSB3YW50IE9PTy4KPiA+ID4gUmlnaHQs
-IHNvbWUgaVNDU0kgZGlkLgo+ID4gPiAKPiA+ID4gQnV0IHRyYWNraW5nIHRoZW0gZWxzZXdoZXJl
-IGlzIG5vdCBvbmx5IGZvciBPT08uCj4gPiA+IAo+ID4gPiBTcGVjIHNhaWQ6Cj4gPiA+IAo+ID4g
-PiBmb3IgZWxlbWVudCBhZGRyZXNzCj4gPiA+IAo+ID4gPiAiCj4gPiA+IEluIGEgdXNlZCBkZXNj
-cmlwdG9yLCBFbGVtZW50IEFkZHJlc3MgaXMgdW51c2VkLgo+ID4gPiAiCj4gPiA+IAo+ID4gPiBm
-b3IgTmV4dCBmbGFnOgo+ID4gPiAKPiA+ID4gIgo+ID4gPiBGb3IgZXhhbXBsZSwgaWYgZGVzY3Jp
-cHRvcnMgYXJlIHVzZWQgaW4gdGhlIHNhbWUgb3JkZXIgaW4gd2hpY2ggdGhleSBhcmUKPiA+ID4g
-bWFkZSBhdmFpbGFibGUsIHRoaXMgd2lsbCByZXN1bHQgaW4KPiA+ID4gdGhlIHVzZWQgZGVzY3Jp
-cHRvciBvdmVyd3JpdGluZyB0aGUgZmlyc3QgYXZhaWxhYmxlIGRlc2NyaXB0b3IgaW4gdGhlIGxp
-c3QsCj4gPiA+IHRoZSB1c2VkIGRlc2NyaXB0b3IgZm9yIHRoZSBuZXh0IGxpc3QKPiA+ID4gb3Zl
-cndyaXRpbmcgdGhlIGZpcnN0IGF2YWlsYWJsZSBkZXNjcmlwdG9yIGluIHRoZSBuZXh0IGxpc3Qs
-IGV0Yy4KPiA+ID4gIgo+ID4gPiAKPiA+ID4gZm9yIGluIG9yZGVyIGNvbXBsZXRpb246Cj4gPiA+
-IAo+ID4gPiAiCj4gPiA+IFRoaXMgd2lsbCByZXN1bHQgaW4gdGhlIHVzZWQgZGVzY3JpcHRvciBv
-dmVyd3JpdGluZyB0aGUgZmlyc3QgYXZhaWxhYmxlCj4gPiA+IGRlc2NyaXB0b3IgaW4gdGhlIGJh
-dGNoLCB0aGUgdXNlZCBkZXNjcmlwdG9yCj4gPiA+IGZvciB0aGUgbmV4dCBiYXRjaCBvdmVyd3Jp
-dGluZyB0aGUgZmlyc3QgYXZhaWxhYmxlIGRlc2NyaXB0b3IgaW4gdGhlIG5leHQKPiA+ID4gYmF0
-Y2gsIGV0Yy4KPiA+ID4gIgo+ID4gPiAKPiA+ID4gU286Cj4gPiA+IAo+ID4gPiAtIEl0J3MgYW4g
-YWxpZ25tZW50IHRvIHRoZSBzcGVjCj4gPiA+IC0gZGV2aWNlIG1heSAob3Igc2hvdWxkKSBvdmVy
-d3JpdGUgdGhlIGRlc2NyaXB0b3IgbWFrZSBhbHNvIG1ha2UgYWRkcmVzcwo+ID4gPiBmaWVsZCB1
-c2VsZXNzLgo+ID4gWW91IGRpZG4ndCBnZXQgbXkgcG9pbnQuLi4KPiAKPiBJIGRvbid0IGhvcGUg
-c28uCj4gCj4gPiBJIGFncmVlZCBkcml2ZXIgc2hvdWxkIHRyYWNrIHRoZSBETUEgYWRkcnMgb3Ig
-c29tZQo+ID4gb3RoZXIgbmVjZXNzYXJ5IHRoaW5ncyBmcm9tIHRoZSB2ZXJ5IGJlZ2lubmluZy4g
-QW5kCj4gPiBJIGFsc28gcmVwZWF0ZWQgdGhlIHNwZWMgdG8gZW1waGFzaXplIHRoYXQgaXQgZG9l
-cwo+ID4gbWFrZSBzZW5zZS4gQW5kIEknZCBsaWtlIHRvIGRvIHRoYXQuCj4gPiAKPiA+IFdoYXQg
-SSB3YXMgc2F5aW5nIGlzIHRoYXQsIHRvIHN1cHBvcnQgT09PLCB3ZSBtYXkKPiA+IG5lZWQgdG8g
-bWFuYWdlIHRoZXNlIGNvbnRleHQgKHdoaWNoIHNhdmVzIERNQSBhZGRycwo+ID4gZXRjKSB2aWEg
-YSBsaXN0IHdoaWNoIGlzIHNpbWlsYXIgdG8gdGhlIGRlc2MgbGlzdAo+ID4gbWFpbnRhaW5lZCB2
-aWEgYG5leHRgIGluIHNwbGl0IHJpbmcgaW5zdGVhZCBvZiBhbgo+ID4gYXJyYXkgd2hvc2UgZWxl
-bWVudHMgYWx3YXlzIGNhbiBiZSBpbmRleGVkIGRpcmVjdGx5Lgo+IAo+IE15IHBvaW50IGlzIHRo
-ZXNlIGNvbnRleHQgaXMgYSBtdXN0IChub3Qgb25seSBmb3IgT09PKS4KClllYWgsIGFuZCBJIGhh
-dmUgdGhlIGV4YWN0bHkgc2FtZSBwb2ludCBhZnRlciB5b3UKcG9pbnRlZCB0aGF0IEkgc2hvdWxk
-bid0IGdldCB0aGUgYWRkcnMgZnJvbSBkZXNjcy4KSSBkbyB0aGluayBpdCBtYWtlcyBzZW5zZS4g
-SSdsbCBkbyBpdCBpbiB0aGUgbmV4dAp2ZXJzaW9uLiBJIGRvbid0IGhhdmUgYW55IGRvdWJ0IGFi
-b3V0IGl0LiBBbGwgbXkKcXVlc3Rpb25zIGFyZSBhYm91dCB0aGUgT09PLCBpbnN0ZWFkIG9mIHdo
-ZXRoZXIgd2UKc2hvdWxkIHNhdmUgY29udGV4dCBvciBub3QuIEl0IGp1c3Qgc2VlbXMgdGhhdCB5
-b3UKdGhvdWdodCBJIGRvbid0IHdhbnQgdG8gZG8gaXQsIGFuZCB3ZXJlIHRyeWluZyB0bwpjb252
-aW5jZSBtZSB0aGF0IEkgc2hvdWxkIGRvIGl0LgoKPiAKPiA+IAo+ID4gVGhlIGRlc2MgcmluZyBp
-biBzcGxpdCByaW5nIGlzIGFuIGFycmF5LCBidXQgaXRzCj4gPiBmcmVlIGVudHJpZXMgYXJlIG1h
-bmFnZWQgYXMgbGlzdCB2aWEgbmV4dC4gSSB3YXMKPiA+IGp1c3Qgd29uZGVyaW5nLCBkbyB3ZSB3
-YW50IHRvIG1hbmFnZSBzdWNoIGEgbGlzdAo+ID4gYmVjYXVzZSBvZiBPT08uIEl0J3MganVzdCBh
-IHZlcnkgc2ltcGxlIHF1ZXN0aW9uCj4gPiB0aGF0IEkgd2FudCB0byBoZWFyIHlvdXIgb3Bpbmlv
-bi4uLiAoSXQgZG9lc24ndAo+ID4gbWVhbnMgYW55dGhpbmcsIGUuZy4gSXQgZG9lc24ndCBtZWFu
-IEkgZG9uJ3Qgd2FudAo+ID4gdG8gc3VwcG9ydCBPT08uIEl0J3MganVzdCBhIHNpbXBsZSBxdWVz
-dGlvbi4uLikKPiAKPiBTbyB0aGUgcXVlc3Rpb24gaXMgeWVzLiBCdXQgSSBhZG1pdCBJIGRvbid0
-IGhhdmUgYmV0dGVyIGlkZWEgb3RoZXIgdGhhbiB3aGF0Cj4geW91IHByb3Bvc2UgaGVyZSAoc29t
-ZXRoaW5nIGxpa2Ugc3BsaXQgcmluZyB3aGljaCBpcyBhIGxpdHRsZSBiaXQgc2FkKS4KPiBNYXli
-ZSBNaWNoYWVsIGhhZC4KClllYWgsIHRoYXQncyB3aHkgSSBhc2tlZCB0aGlzIHF1ZXN0aW9uLiBJ
-dCB3aWxsCm1ha2UgdGhlIHBhY2tlZCByaW5nIGEgYml0IHNpbWlsYXIgdG8gc3BsaXQgcmluZwph
-dCBsZWFzdCBpbiB0aGUgZHJpdmVyIHBhcnQuIFNvIEkgd2FudCB0byBkcmF3CnlvdXIgYXR0ZW50
-aW9uIG9uIHRoaXMgdG8gbWFrZSBzdXJlIHRoYXQgd2UncmUKb24gdGhlIHNhbWUgcGFnZS4KCkJl
-c3QgcmVnYXJkcywKVGl3ZWkgQmllCgo+IAo+IFRoYW5rcwo+IAo+ID4gCj4gPiBCZXN0IHJlZ2Fy
-ZHMsCj4gPiBUaXdlaSBCaWUKPiA+IAo+ID4gPiBUaGFua3MKPiA+ID4gCj4gPiA+ID4gQmVzdCBy
-ZWdhcmRzLAo+ID4gPiA+IFRpd2VpIEJpZQo+ID4gPiA+IAo+ID4gPiA+ID4gVGhhbmtzCj4gPiA+
-ID4gPiAKPiA+ID4gPiA+ID4gPiBOb3QgZm9yIHRoZSBwYXRjaCwgYnV0IGl0IGxvb2tzIGxpa2Ug
-aGF2aW5nIGEgT1VUX09GX09SREVSIGZlYXR1cmUgYml0IGlzCj4gPiA+ID4gPiA+ID4gbXVjaCBt
-b3JlIHNpbXBsZXIgdG8gYmUgc3RhcnRlZCB3aXRoLgo+ID4gPiA+ID4gPiArMQo+ID4gPiA+ID4g
-PiAKPiA+ID4gPiA+ID4gQmVzdCByZWdhcmRzLAo+ID4gPiA+ID4gPiBUaXdlaSBCaWUKPiAKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+On Wed, May 16, 2018 at 08:32:13PM +0800, Jason Wang wrote:
+> Hi all:
+> 
+> This RFC implement packed ring layout. The code were tested with
+> Tiwei's RFC V3 ahttps://lkml.org/lkml/2018/4/25/34. Some fixups and
+> tweaks were needed on top of Tiwei's code to make it run for event
+> index.
+
+Could you please show the change based on Tiwei's code to easy other's
+test?
+
+> 
+> Pktgen reports about 20% improvement on PPS (event index is off). More
+> testing is ongoing.
+> 
+> Notes for tester:
+> 
+> - Start from this version, vhost need qemu co-operation to work
+>   correctly. Or you can comment out the packed specific code for
+>   GET/SET_VRING_BASE.
+
+Do you mean the code in vhost_virtqueue_start/stop? Both Tiwei's and your v3
+work fortunately correctly which should be avoided since the ring should be
+definitely different.
+
+Wei
+
+> 
+> Changes from V3:
+> - Fix math on event idx checking
+> - Sync last avail wrap counter through GET/SET_VRING_BASE
+> - remove desc_event prefix in the driver/device structure
+> 
+> Changes from V2:
+> - do not use & in checking desc_event_flags
+> - off should be most significant bit
+> - remove the workaround of mergeable buffer for dpdk prototype
+> - id should be in the last descriptor in the chain
+> - keep _F_WRITE for write descriptor when adding used
+> - device flags updating should use ADDR_USED type
+> - return error on unexpected unavail descriptor in a chain
+> - return false in vhost_ve_avail_empty is descriptor is available
+> - track last seen avail_wrap_counter
+> - correctly examine available descriptor in get_indirect_packed()
+> - vhost_idx_diff should return u16 instead of bool
+> 
+> Changes from V1:
+> 
+> - Refactor vhost used elem code to avoid open coding on used elem
+> - Event suppression support (compile test only).
+> - Indirect descriptor support (compile test only).
+> - Zerocopy support.
+> - vIOMMU support.
+> - SCSI/VSOCK support (compile test only).
+> - Fix several bugs
+> 
+> Jason Wang (8):
+>   vhost: move get_rx_bufs to vhost.c
+>   vhost: hide used ring layout from device
+>   vhost: do not use vring_used_elem
+>   vhost_net: do not explicitly manipulate vhost_used_elem
+>   vhost: vhost_put_user() can accept metadata type
+>   virtio: introduce packed ring defines
+>   vhost: packed ring support
+>   vhost: event suppression for packed ring
+> 
+>  drivers/vhost/net.c                | 136 ++----
+>  drivers/vhost/scsi.c               |  62 +--
+>  drivers/vhost/vhost.c              | 861 ++++++++++++++++++++++++++++++++-----
+>  drivers/vhost/vhost.h              |  47 +-
+>  drivers/vhost/vsock.c              |  42 +-
+>  include/uapi/linux/virtio_config.h |   9 +
+>  include/uapi/linux/virtio_ring.h   |  32 ++
+>  7 files changed, 928 insertions(+), 261 deletions(-)
+> 
+> -- 
+> 2.7.4
+> 
