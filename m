@@ -1,7 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC PATCH net-next 04/12] vhost_net: split out datacopy logic
-Date: Mon, 21 May 2018 17:04:25 +0800
-Message-ID: <1526893473-20128-5-git-send-email-jasowang@redhat.com>
+Subject: [RFC PATCH net-next 05/12] vhost_net: batch update used ring for
+	datacopy TX
+Date: Mon, 21 May 2018 17:04:26 +0800
+Message-ID: <1526893473-20128-6-git-send-email-jasowang__479.569627396081$1526893613$gmane$org@redhat.com>
 References: <1526893473-20128-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,169 +22,61 @@ To: mst@redhat.com, jasowang@redhat.com
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Instead of mixing zerocopy and datacopy logics, this patch tries to
-split datacopy logic out. This results for a more compact code and
-specific optimization could be done on top more easily.
+Like commit e2b3b35eb989 ("vhost_net: batch used ring update in rx"),
+this patches implements batch used ring update for datacopy TX
+(zerocopy has already done some kind of batching).
+
+Testpmd transmission from guest to ixgbe via XDP_REDIRECT shows about
+15% improvement from 2.8Mpps to 3.2Mpps.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/net.c | 111 +++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 102 insertions(+), 9 deletions(-)
+ drivers/vhost/net.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 4ebac76..4682fcc 100644
+index 4682fcc..f0639d7 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -492,9 +492,95 @@ static bool vhost_has_more_pkts(struct vhost_net *net,
- 	       likely(!vhost_exceeds_maxpend(net));
- }
- 
-+static void handle_tx_copy(struct vhost_net *net)
-+{
-+	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
-+	struct vhost_virtqueue *vq = &nvq->vq;
-+	unsigned out, in;
-+	int head;
-+	struct msghdr msg = {
-+		.msg_name = NULL,
-+		.msg_namelen = 0,
-+		.msg_control = NULL,
-+		.msg_controllen = 0,
-+		.msg_flags = MSG_DONTWAIT,
-+	};
-+	size_t len, total_len = 0;
-+	int err;
-+	size_t hdr_size;
-+	struct socket *sock;
-+	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
-+	int sent_pkts = 0;
-+
-+	mutex_lock(&vq->mutex);
-+	sock = vq->private_data;
-+	if (!sock)
-+		goto out;
-+
-+	if (!vq_iotlb_prefetch(vq))
-+		goto out;
-+
-+	vhost_disable_notify(&net->dev, vq);
-+	vhost_net_disable_vq(net, vq);
-+
-+	hdr_size = nvq->vhost_hlen;
-+
-+	for (;;) {
-+		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
-+						ARRAY_SIZE(vq->iov),
-+						&out, &in);
-+		/* On error, stop handling until the next kick. */
-+		if (unlikely(head < 0))
-+			break;
-+		/* Nothing new?  Wait for eventfd to tell us they refilled. */
-+		if (head == vq->num) {
-+			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
-+				vhost_disable_notify(&net->dev, vq);
-+				continue;
-+			}
-+			break;
-+		}
-+		if (in) {
-+			vq_err(vq, "Unexpected descriptor format for TX: "
-+			       "out %d, int %d\n", out, in);
-+			break;
-+		}
-+
-+		len = init_iov_iter(vq, &msg.msg_iter, hdr_size, out);
-+		if (len < 0)
-+			break;
-+
-+		total_len += len;
-+		if (total_len < VHOST_NET_WEIGHT &&
-+		    vhost_has_more_pkts(net, vq)) {
-+			msg.msg_flags |= MSG_MORE;
-+		} else {
-+			msg.msg_flags &= ~MSG_MORE;
-+		}
-+
-+		/* TODO: Check specific error and bomb out unless ENOBUFS? */
-+		err = sock->ops->sendmsg(sock, &msg, len);
-+		if (unlikely(err < 0)) {
-+			vhost_discard_vq_desc(vq, 1);
-+			vhost_net_enable_vq(net, vq);
-+			break;
-+		}
-+		if (err != len)
-+			pr_debug("Truncated TX packet: "
-+				 " len %d != %zd\n", err, len);
-+		vhost_add_used_and_signal(&net->dev, vq, head, 0);
-+		if (vhost_exceeds_weight(++sent_pkts, total_len)) {
-+			vhost_poll_queue(&vq->poll);
-+			break;
-+		}
-+	}
-+out:
-+	mutex_unlock(&vq->mutex);
-+}
-+
- /* Expects to be always run from workqueue - which acts as
-  * read-size critical section for our kind of RCU. */
--static void handle_tx(struct vhost_net *net)
-+static void handle_tx_zerocopy(struct vhost_net *net)
- {
- 	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
- 	struct vhost_virtqueue *vq = &nvq->vq;
-@@ -512,7 +598,7 @@ static void handle_tx(struct vhost_net *net)
- 	size_t hdr_size;
+@@ -511,6 +511,7 @@ static void handle_tx_copy(struct vhost_net *net)
  	struct socket *sock;
  	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
--	bool zcopy, zcopy_used;
-+	bool zcopy_used;
  	int sent_pkts = 0;
++	s16 nheads = 0;
  
  	mutex_lock(&vq->mutex);
-@@ -527,13 +613,10 @@ static void handle_tx(struct vhost_net *net)
- 	vhost_net_disable_vq(net, vq);
- 
- 	hdr_size = nvq->vhost_hlen;
--	zcopy = nvq->ubufs;
- 
- 	for (;;) {
- 		/* Release DMAs done buffers first */
--		if (zcopy)
--			vhost_zerocopy_signal_used(net, vq);
--
-+		vhost_zerocopy_signal_used(net, vq);
- 
- 		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
- 						ARRAY_SIZE(vq->iov),
-@@ -559,9 +642,9 @@ static void handle_tx(struct vhost_net *net)
+ 	sock = vq->private_data;
+@@ -550,6 +551,9 @@ static void handle_tx_copy(struct vhost_net *net)
  		if (len < 0)
  			break;
  
--		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
--				   && !vhost_exceeds_maxpend(net)
--				   && vhost_net_tx_select_zcopy(net);
-+		zcopy_used = len >= VHOST_GOODCOPY_LEN
-+			     && !vhost_exceeds_maxpend(net)
-+			     && vhost_net_tx_select_zcopy(net);
- 
- 		/* use msg_control to pass vhost zerocopy ubuf info to skb */
- 		if (zcopy_used) {
-@@ -620,6 +703,16 @@ static void handle_tx(struct vhost_net *net)
++		vq->heads[nheads].id = cpu_to_vhost32(vq, head);
++		vq->heads[nheads].len = 0;
++
+ 		total_len += len;
+ 		if (total_len < VHOST_NET_WEIGHT &&
+ 		    vhost_has_more_pkts(net, vq)) {
+@@ -568,13 +572,20 @@ static void handle_tx_copy(struct vhost_net *net)
+ 		if (err != len)
+ 			pr_debug("Truncated TX packet: "
+ 				 " len %d != %zd\n", err, len);
+-		vhost_add_used_and_signal(&net->dev, vq, head, 0);
++		if (++nheads == VHOST_RX_BATCH) {
++			vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
++						    nheads);
++			nheads = 0;
++		}
+ 		if (vhost_exceeds_weight(++sent_pkts, total_len)) {
+ 			vhost_poll_queue(&vq->poll);
+ 			break;
+ 		}
+ 	}
+ out:
++	if (nheads)
++		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
++					    nheads);
  	mutex_unlock(&vq->mutex);
  }
  
-+static void handle_tx(struct vhost_net *net)
-+{
-+	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
-+
-+	if (nvq->ubufs)
-+		handle_tx_zerocopy(net);
-+	else
-+		handle_tx_copy(net);
-+}
-+
- static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
- {
- 	struct sk_buff *head;
 -- 
 2.7.4
