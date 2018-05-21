@@ -1,8 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net 3/4] virtio-net: reset num_buf to 1 after linearizing
-	packet
-Date: Mon, 21 May 2018 16:35:05 +0800
-Message-ID: <1526891706-18516-4-git-send-email-jasowang__44470.7362833016$1526891719$gmane$org@redhat.com>
+Subject: [PATCH net 4/4] virito-net: fix leaking page for gso packet during
+	mergeable XDP
+Date: Mon, 21 May 2018 16:35:06 +0800
+Message-ID: <1526891706-18516-5-git-send-email-jasowang__41994.8904346258$1526891787$gmane$org@redhat.com>
 References: <1526891706-18516-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,32 +19,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, jasowang@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If we successfully linearize the packets, num_buf were set to zero
-which was wrong since we now have only 1 buffer to be used for e.g in
-the error path of receive_mergeable(). Zero num_buf will lead the code
-try to pop the buffers of next packet and drop it. Fixing this by set
-num_buf to 1 if we successfully linearize the packet.
+We need to drop refcnt to xdp_page if we see a gso packet. Otherwise
+it will be leaked. Fixing this by moving the check of gso packet above
+the linearizing logic.
 
-Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
+Cc: John Fastabend <john.fastabend@gmail.com>
+Fixes: 72979a6c3590 ("virtio_net: xdp, add slowpath case for non contiguous buffers")
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/virtio_net.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 6260d65..165a922 100644
+index 165a922..f8db809 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -722,6 +722,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 						      &len);
- 			if (!xdp_page)
- 				goto err_xdp;
-+			num_buf = 1;
- 			offset = VIRTIO_XDP_HEADROOM;
- 		} else {
+@@ -707,6 +707,14 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 		void *data;
+ 		u32 act;
+ 
++		/* Transient failure which in theory could occur if
++		 * in-flight packets from before XDP was enabled reach
++		 * the receive path after XDP is loaded. In practice I
++		 * was not able to create this condition.
++		 */
++		if (unlikely(hdr->hdr.gso_type))
++			goto err_xdp;
++
+ 		/* This happens when rx buffer size is underestimated
+ 		 * or headroom is not enough because of the buffer
+ 		 * was refilled before XDP is set. This should only
+@@ -728,14 +736,6 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
  			xdp_page = page;
+ 		}
+ 
+-		/* Transient failure which in theory could occur if
+-		 * in-flight packets from before XDP was enabled reach
+-		 * the receive path after XDP is loaded. In practice I
+-		 * was not able to create this condition.
+-		 */
+-		if (unlikely(hdr->hdr.gso_type))
+-			goto err_xdp;
+-
+ 		/* Allow consuming headroom but reserve enough space to push
+ 		 * the descriptor on if we get an XDP_TX return code.
+ 		 */
 -- 
 2.7.4
