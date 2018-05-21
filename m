@@ -1,14 +1,14 @@
 From: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Subject: Re: [RFC PATCH net-next 04/12] vhost_net: split out datacopy logic
-Date: Mon, 21 May 2018 09:46:46 -0700
-Message-ID: <20180521094646.00002dee@intel.com>
+Subject: Re: [RFC PATCH net-next 10/12] vhost_net: build xdp buff
+Date: Mon, 21 May 2018 09:56:11 -0700
+Message-ID: <20180521095611.00005caa__36532.3383514353$1526921662$gmane$org@intel.com>
 References: <1526893473-20128-1-git-send-email-jasowang@redhat.com>
-	<1526893473-20128-5-git-send-email-jasowang@redhat.com>
+	<1526893473-20128-11-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1526893473-20128-5-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1526893473-20128-11-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,118 +22,115 @@ To: Jason Wang <jasowang@redhat.com>
 Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 21 May 2018 17:04:25 +0800 Jason wrote:
-> Instead of mixing zerocopy and datacopy logics, this patch tries to
-> split datacopy logic out. This results for a more compact code and
-> specific optimization could be done on top more easily.
+On Mon, 21 May 2018 17:04:31 +0800 Jason wrote:
+> This patch implement build XDP buffers in vhost_net. The idea is do
+> userspace copy in vhost_net and build XDP buff based on the
+> page. Vhost_net can then submit one or an array of XDP buffs to
+> underlayer socket (e.g TUN). TUN can choose to do XDP or call
+> build_skb() to build skb. To support build skb, vnet header were also
+> stored into the header of the XDP buff.
+> 
+> This userspace copy and XDP buffs building is key to achieve XDP
+> batching in TUN, since TUN does not need to care about userspace copy
+> and then can disable premmption for several XDP buffs to achieve
+> batching from XDP.
+> 
+> TODO: reserve headroom based on the TUN XDP.
 > 
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > ---
->  drivers/vhost/net.c | 111 +++++++++++++++++++++++++++++++++++++++++++++++-----
->  1 file changed, 102 insertions(+), 9 deletions(-)
+>  drivers/vhost/net.c | 74 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 74 insertions(+)
 > 
 > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 4ebac76..4682fcc 100644
+> index f0639d7..1209e84 100644
 > --- a/drivers/vhost/net.c
 > +++ b/drivers/vhost/net.c
-> @@ -492,9 +492,95 @@ static bool vhost_has_more_pkts(struct vhost_net *net,
+> @@ -492,6 +492,80 @@ static bool vhost_has_more_pkts(struct vhost_net *net,
 >  	       likely(!vhost_exceeds_maxpend(net));
 >  }
 >  
-> +static void handle_tx_copy(struct vhost_net *net)
+> +#define VHOST_NET_HEADROOM 256
+> +#define VHOST_NET_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
+> +
+> +static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+> +			       struct iov_iter *from,
+> +			       struct xdp_buff *xdp)
 > +{
-> +	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
 > +	struct vhost_virtqueue *vq = &nvq->vq;
-> +	unsigned out, in;
+> +	struct page_frag *alloc_frag = &current->task_frag;
+> +	struct virtio_net_hdr *gso;
+> +	size_t len = iov_iter_count(from);
+> +	int buflen = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+> +	int pad = SKB_DATA_ALIGN(VHOST_NET_RX_PAD + VHOST_NET_HEADROOM
+> +				 + nvq->sock_hlen);
+> +	int sock_hlen = nvq->sock_hlen;
+> +	void *buf;
+> +	int copied;
+> +
+> +	if (len < nvq->sock_hlen)
+> +		return -EFAULT;
+> +
+> +	if (SKB_DATA_ALIGN(len + pad) +
+> +	    SKB_DATA_ALIGN(sizeof(struct skb_shared_info)) > PAGE_SIZE)
+> +		return -ENOSPC;
+> +
+> +	buflen += SKB_DATA_ALIGN(len + pad);
 
-move "out" and "in" down to inside the for loop as well.
+maybe store the result of SKB_DATA_ALIGN in a local instead of doing
+the work twice?
 
-> +	int head;
+> +	alloc_frag->offset = ALIGN((u64)alloc_frag->offset, SMP_CACHE_BYTES);
+> +	if (unlikely(!skb_page_frag_refill(buflen, alloc_frag, GFP_KERNEL)))
+> +		return -ENOMEM;
+> +
+> +	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
+> +
+> +	/* We store two kinds of metadata in the header which will be
+> +	 * used for XDP_PASS to do build_skb():
+> +	 * offset 0: buflen
+> +	 * offset sizeof(int): vnet header
+> +	 */
+> +	copied = copy_page_from_iter(alloc_frag->page,
+> +				     alloc_frag->offset + sizeof(int), sock_hlen, from);
+> +	if (copied != sock_hlen)
+> +		return -EFAULT;
+> +
+> +	gso = (struct virtio_net_hdr *)(buf + sizeof(int));
+> +
+> +	if ((gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
+> +	    vhost16_to_cpu(vq, gso->csum_start) +
+> +	    vhost16_to_cpu(vq, gso->csum_offset) + 2 >
+> +	    vhost16_to_cpu(vq, gso->hdr_len)) {
+> +		gso->hdr_len = cpu_to_vhost16(vq,
+> +			       vhost16_to_cpu(vq, gso->csum_start) +
+> +			       vhost16_to_cpu(vq, gso->csum_offset) + 2);
+> +
+> +		if (vhost16_to_cpu(vq, gso->hdr_len) > len)
+> +			return -EINVAL;
+> +	}
+> +
+> +	len -= sock_hlen;
+> +	copied = copy_page_from_iter(alloc_frag->page,
+> +				     alloc_frag->offset + pad,
+> +				     len, from);
+> +	if (copied != len)
+> +		return -EFAULT;
+> +
+> +	xdp->data_hard_start = buf;
+> +	xdp->data = buf + pad;
+> +	xdp->data_end = xdp->data + len;
+> +	*(int *)(xdp->data_hard_start)= buflen;
 
-move this "head" declaration inside for-loop below.
-
-> +	struct msghdr msg = {
-> +		.msg_name = NULL,
-> +		.msg_namelen = 0,
-> +		.msg_control = NULL,
-> +		.msg_controllen = 0,
-> +		.msg_flags = MSG_DONTWAIT,
-> +	};
-> +	size_t len, total_len = 0;
-> +	int err;
-> +	size_t hdr_size;
-> +	struct socket *sock;
-> +	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
-> +	int sent_pkts = 0;
-
-why do we need so many locals?
+space before =
 
 > +
-> +	mutex_lock(&vq->mutex);
-> +	sock = vq->private_data;
-> +	if (!sock)
-> +		goto out;
+> +	get_page(alloc_frag->page);
+> +	alloc_frag->offset += buflen;
 > +
-> +	if (!vq_iotlb_prefetch(vq))
-> +		goto out;
+> +	return 0;
+> +}
 > +
-> +	vhost_disable_notify(&net->dev, vq);
-> +	vhost_net_disable_vq(net, vq);
-> +
-> +	hdr_size = nvq->vhost_hlen;
-> +
-> +	for (;;) {
-> +		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
-> +						ARRAY_SIZE(vq->iov),
-> +						&out, &in);
-> +		/* On error, stop handling until the next kick. */
-> +		if (unlikely(head < 0))
-> +			break;
-> +		/* Nothing new?  Wait for eventfd to tell us they refilled. */
-> +		if (head == vq->num) {
-> +			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
-> +				vhost_disable_notify(&net->dev, vq);
-> +				continue;
-> +			}
-> +			break;
-> +		}
-> +		if (in) {
-> +			vq_err(vq, "Unexpected descriptor format for TX: "
-> +			       "out %d, int %d\n", out, in);
-
-don't break strings, keep all the bits between " " together, even if it
-is longer than 80 chars.
-
-> +			break;
-> +		}
-> +
-> +		len = init_iov_iter(vq, &msg.msg_iter, hdr_size, out);
-> +		if (len < 0)
-> +			break;
-
-same comment as previous patch, len is a size_t which is unsigned.
-
-> +
-> +		total_len += len;
-> +		if (total_len < VHOST_NET_WEIGHT &&
-> +		    vhost_has_more_pkts(net, vq)) {
-> +			msg.msg_flags |= MSG_MORE;
-> +		} else {
-> +			msg.msg_flags &= ~MSG_MORE;
-> +		}
-
-don't need { } here.
-
-> +
-> +		/* TODO: Check specific error and bomb out unless ENOBUFS? */
-> +		err = sock->ops->sendmsg(sock, &msg, len);
-> +		if (unlikely(err < 0)) {
-> +			vhost_discard_vq_desc(vq, 1);
-> +			vhost_net_enable_vq(net, vq);
-> +			break;
-> +		}
-> +		if (err != len)
-> +			pr_debug("Truncated TX packet: "
-> +				 " len %d != %zd\n", err, len);
-
-single line " " string please
+>  static void handle_tx_copy(struct vhost_net *net)
+>  {
+>  	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
