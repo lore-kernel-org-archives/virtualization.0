@@ -1,16 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH net-next 12/12] vhost_net: batch submitting XDP
-	buffers to underlayer sockets
-Date: Mon, 21 May 2018 17:33:52 +0300
-Message-ID: <20180521173253-mutt-send-email-mst__41961.4434046254$1526913131$gmane$org@kernel.org>
-References: <1526893473-20128-1-git-send-email-jasowang@redhat.com>
-	<1526893473-20128-13-git-send-email-jasowang@redhat.com>
+Subject: Re: KASAN: use-after-free Read in vhost_chr_write_iter
+Date: Mon, 21 May 2018 17:42:16 +0300
+Message-ID: <20180521173645-mutt-send-email-mst__47368.2466814809$1526913644$gmane$org@kernel.org>
+References: <20180517134544.GA20646@dragonet.kaist.ac.kr>
+	<58419d62-3074-2e5a-8504-da1cdeb08280@redhat.com>
+	<fb27c1fd-5172-252a-cb8f-b53927a26d06@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1526893473-20128-13-git-send-email-jasowang@redhat.com>
+In-Reply-To: <fb27c1fd-5172-252a-cb8f-b53927a26d06@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,244 +21,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: bammanag@purdue.edu, kt0755@gmail.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, byoungyoung@purdue.edu, DaeRyong Jeong <threeearcat@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 21, 2018 at 05:04:33PM +0800, Jason Wang wrote:
-> This patch implements XDP batching for vhost_net with tun. This is
-> done by batching XDP buffs in vhost and submit them when:
-> 
-> - vhost_net can not build XDP buff (mostly because of the size of packet)
-> - #batched exceeds the limitation (VHOST_NET_RX_BATCH).
-> - tun accept a batch of XDP buff through msg_control and process them
->   in a batch
-> 
-> With this tun XDP can benefit from e.g batch transmission during
-> XDP_REDIRECT or XDP_TX.
-> 
-> Tests shows 21% improvement on TX pps (from ~3.2Mpps to ~3.9Mpps)
-> while transmitting through testpmd from guest to host by
-> xdp_redirect_map between tap0 and ixgbe.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-s/underlayer/underlying/ ?
-
-> ---
->  drivers/net/tun.c   | 36 +++++++++++++++++----------
->  drivers/vhost/net.c | 71 ++++++++++++++++++++++++++++++++++++-----------------
->  2 files changed, 71 insertions(+), 36 deletions(-)
-> 
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index b586b3f..5d16d18 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
-> @@ -1616,7 +1616,6 @@ static u32 tun_do_xdp(struct tun_struct *tun,
->  	switch (act) {
->  	case XDP_REDIRECT:
->  		*err = xdp_do_redirect(tun->dev, xdp, xdp_prog);
-> -		xdp_do_flush_map();
->  		if (*err)
->  			break;
->  		goto out;
-> @@ -1624,7 +1623,6 @@ static u32 tun_do_xdp(struct tun_struct *tun,
->  		*err = tun_xdp_tx(tun->dev, xdp);
->  		if (*err)
->  			break;
-> -		tun_xdp_flush(tun->dev);
->  		goto out;
->  	case XDP_PASS:
->  		goto out;
-> @@ -2400,9 +2398,6 @@ static int tun_xdp_one(struct tun_struct *tun,
->  	int err = 0;
->  	bool skb_xdp = false;
->  
-> -	preempt_disable();
-> -	rcu_read_lock();
-> -
->  	xdp_prog = rcu_dereference(tun->xdp_prog);
->  	if (xdp_prog) {
->  		if (gso->gso_type) {
-> @@ -2461,15 +2456,12 @@ static int tun_xdp_one(struct tun_struct *tun,
->  		tun_flow_update(tun, rxhash, tfile);
->  
->  out:
-> -	rcu_read_unlock();
-> -	preempt_enable();
-> -
->  	return err;
->  }
->  
->  static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
->  {
-> -	int ret;
-> +	int ret, i;
->  	struct tun_file *tfile = container_of(sock, struct tun_file, socket);
->  	struct tun_struct *tun = tun_get(tfile);
->  	struct tun_msg_ctl *ctl = m->msg_control;
-> @@ -2477,10 +2469,28 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
->  	if (!tun)
->  		return -EBADFD;
->  
-> -	if (ctl && ctl->type == TUN_MSG_PTR) {
-> -		ret = tun_xdp_one(tun, tfile, ctl->ptr);
-> -		if (!ret)
-> -			ret = total_len;
-> +	if (ctl && ((ctl->type & 0xF) == TUN_MSG_PTR)) {
-> +		int n = ctl->type >> 16;
-> +
-> +		preempt_disable();
-> +		rcu_read_lock();
-> +
-> +		for (i = 0; i < n; i++) {
-> +			struct xdp_buff *x = (struct xdp_buff *)ctl->ptr;
-> +			struct xdp_buff *xdp = &x[i];
-> +
-> +			xdp_set_data_meta_invalid(xdp);
-> +			xdp->rxq = &tfile->xdp_rxq;
-> +			tun_xdp_one(tun, tfile, xdp);
-> +		}
-> +
-> +		xdp_do_flush_map();
-> +		tun_xdp_flush(tun->dev);
-> +
-> +		rcu_read_unlock();
-> +		preempt_enable();
-> +
-> +		ret = total_len;
->  		goto out;
->  	}
->  
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 0d84de6..bec4109 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -118,6 +118,7 @@ struct vhost_net_virtqueue {
->  	struct ptr_ring *rx_ring;
->  	struct vhost_net_buf rxq;
->  	struct xdp_buff xdp[VHOST_RX_BATCH];
-> +	struct vring_used_elem heads[VHOST_RX_BATCH];
->  };
->  
->  struct vhost_net {
-> @@ -511,7 +512,7 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
->  	void *buf;
->  	int copied;
->  
-> -	if (len < nvq->sock_hlen)
-> +	if (unlikely(len < nvq->sock_hlen))
->  		return -EFAULT;
->  
->  	if (SKB_DATA_ALIGN(len + pad) +
-> @@ -567,11 +568,37 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
->  	return 0;
->  }
->  
-> +static void vhost_tx_batch(struct vhost_net *net,
-> +			   struct vhost_net_virtqueue *nvq,
-> +			   struct socket *sock,
-> +			   struct msghdr *msghdr, int n)
-> +{
-> +	struct tun_msg_ctl ctl = {
-> +		.type = n << 16 | TUN_MSG_PTR,
-> +		.ptr = nvq->xdp,
-> +	};
-> +	int err;
-> +
-> +	if (n == 0)
-> +		return;
-> +
-> +	msghdr->msg_control = &ctl;
-> +	err = sock->ops->sendmsg(sock, msghdr, 0);
-> +
-> +	if (unlikely(err < 0)) {
-> +		/* FIXME vq_err() */
-> +		vq_err(&nvq->vq, "sendmsg err!\n");
-> +		return;
-> +	}
-> +	vhost_add_used_and_signal_n(&net->dev, &nvq->vq, nvq->vq.heads, n);
-> +}
-> +
-> +/* Expects to be always run from workqueue - which acts as
-> + * read-size critical section for our kind of RCU. */
->  static void handle_tx_copy(struct vhost_net *net)
->  {
->  	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
->  	struct vhost_virtqueue *vq = &nvq->vq;
-> -	struct xdp_buff xdp;
->  	unsigned out, in;
->  	int head;
->  	struct msghdr msg = {
-> @@ -586,7 +613,6 @@ static void handle_tx_copy(struct vhost_net *net)
->  	size_t hdr_size;
->  	struct socket *sock;
->  	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
-> -	struct tun_msg_ctl ctl;
->  	int sent_pkts = 0;
->  	s16 nheads = 0;
->  
-> @@ -631,22 +657,24 @@ static void handle_tx_copy(struct vhost_net *net)
->  		vq->heads[nheads].id = cpu_to_vhost32(vq, head);
->  		vq->heads[nheads].len = 0;
->  
-> -		err = vhost_net_build_xdp(nvq, &msg.msg_iter, &xdp);
-> -		if (!err) {
-> -			ctl.type = TUN_MSG_PTR;
-> -			ctl.ptr = &xdp;
-> -			msg.msg_control = &ctl;
-> -		} else
-> -			msg.msg_control = NULL;
-> -
->  		total_len += len;
-> -		if (total_len < VHOST_NET_WEIGHT &&
-> -		    vhost_has_more_pkts(net, vq)) {
-> -			msg.msg_flags |= MSG_MORE;
-> -		} else {
-> -			msg.msg_flags &= ~MSG_MORE;
-> +		err = vhost_net_build_xdp(nvq, &msg.msg_iter,
-> +					  &nvq->xdp[nheads]);
-> +		if (!err) {
-> +			if (++nheads == VHOST_RX_BATCH) {
-> +				vhost_tx_batch(net, nvq, sock, &msg, nheads);
-> +				nheads = 0;
-> +			}
-> +			goto done;
-> +		} else if (unlikely(err != -ENOSPC)) {
-> +			vq_err(vq, "Fail to build XDP buffer\n");
-> +			break;
->  		}
->  
-> +		vhost_tx_batch(net, nvq, sock, &msg, nheads);
-> +		msg.msg_control = NULL;
-> +		nheads = 0;
-> +
->  		/* TODO: Check specific error and bomb out unless ENOBUFS? */
->  		err = sock->ops->sendmsg(sock, &msg, len);
->  		if (unlikely(err < 0)) {
-> @@ -657,11 +685,9 @@ static void handle_tx_copy(struct vhost_net *net)
->  		if (err != len)
->  			pr_debug("Truncated TX packet: "
->  				 " len %d != %zd\n", err, len);
-> -		if (++nheads == VHOST_RX_BATCH) {
-> -			vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
-> -						    nheads);
-> -			nheads = 0;
-> -		}
-> +
-> +		vhost_add_used_and_signal(&net->dev, vq, head, 0);
-> +done:
->  		if (vhost_exceeds_weight(++sent_pkts, total_len)) {
->  			vhost_poll_queue(&vq->poll);
->  			break;
-> @@ -669,8 +695,7 @@ static void handle_tx_copy(struct vhost_net *net)
->  	}
->  out:
->  	if (nheads)
-> -		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
-> -					    nheads);
-> +		vhost_tx_batch(net, nvq, sock, &msg, nheads);
->  	mutex_unlock(&vq->mutex);
->  }
->  
-> -- 
-> 2.7.4
+T24gTW9uLCBNYXkgMjEsIDIwMTggYXQgMTA6Mzg6MTBBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE45bm0MDXmnIgxOOaXpSAxNzoyNCwgSmFzb24gV2FuZyB3cm90ZToK
+PiA+IAo+ID4gCj4gPiBPbiAyMDE45bm0MDXmnIgxN+aXpSAyMTo0NSwgRGFlUnlvbmcgSmVvbmcg
+d3JvdGU6Cj4gPiA+IFdlIHJlcG9ydCB0aGUgY3Jhc2g6IEtBU0FOOiB1c2UtYWZ0ZXItZnJlZSBS
+ZWFkIGluIHZob3N0X2Nocl93cml0ZV9pdGVyCj4gPiA+IAo+ID4gPiBUaGlzIGNyYXNoIGhhcyBi
+ZWVuIGZvdW5kIGluIHY0LjE3LXJjMSB1c2luZyBSYWNlRnV6emVyIChhIG1vZGlmaWVkCj4gPiA+
+IHZlcnNpb24gb2YgU3l6a2FsbGVyKSwgd2hpY2ggd2UgZGVzY3JpYmUgbW9yZSBhdCB0aGUgZW5k
+IG9mIHRoaXMKPiA+ID4gcmVwb3J0LiBPdXIgYW5hbHlzaXMgc2hvd3MgdGhhdCB0aGUgcmFjZSBv
+Y2N1cnMgd2hlbiBpbnZva2luZyB0d28KPiA+ID4gc3lzY2FsbHMgY29uY3VycmVudGx5LCB3cml0
+ZSR2bmV0IGFuZCBpb2N0bCRWSE9TVF9SRVNFVF9PV05FUi4KPiA+ID4gCj4gPiA+IAo+ID4gPiBB
+bmFseXNpczoKPiA+ID4gV2UgdGhpbmsgdGhlIGNvbmN1cnJlbnQgZXhlY3V0aW9uIG9mIHZob3N0
+X3Byb2Nlc3NfaW90bGJfbXNnKCkgYW5kCj4gPiA+IHZob3N0X2Rldl9jbGVhbnVwKCkgY2F1c2Vz
+IHRoZSBjcmFzaC4KPiA+ID4gQm90aCBvZiBmdW5jdGlvbnMgY2FuIHJ1biBjb25jdXJyZW50bHkg
+KHBsZWFzZSBzZWUgY2FsbCBzZXF1ZW5jZSBiZWxvdyksCj4gPiA+IGFuZCBwb3NzaWJseSwgdGhl
+cmUgaXMgYSByYWNlIG9uIGRldi0+aW90bGIuCj4gPiA+IElmIHRoZSBzd2l0Y2ggb2NjdXJzIHJp
+Z2h0IGFmdGVyIHZob3N0X2Rldl9jbGVhbnVwKCkgZnJlZXMKPiA+ID4gZGV2LT5pb3RsYiwgdmhv
+c3RfcHJvY2Vzc19pb3RsYl9tc2coKSBzdGlsbCBzZWVzIHRoZSBub24tbnVsbCB2YWx1ZQo+ID4g
+PiBhbmQgaXQKPiA+ID4ga2VlcCBleGVjdXRpbmcgd2l0aG91dCByZXR1cm5pbmcgLUVGQVVMVC4g
+Q29uc2VxdWVudGx5LCB1c2UtYWZ0ZXItZnJlZQo+ID4gPiBvY2N1cmVzCj4gPiA+IAo+ID4gPiAK
+PiA+ID4gVGhyZWFkIGludGVybGVhdmluZzoKPiA+ID4gQ1BVMCAodmhvc3RfcHJvY2Vzc19pb3Rs
+Yl9tc2cpwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIENQVTEgKHZob3N0X2Rldl9jbGVh
+bnVwKQo+ID4gPiAoSW4gdGhlIGNhc2Ugb2YgYm90aCBWSE9TVF9JT1RMQl9VUERBVEUgYW5kCj4g
+PiA+IFZIT1NUX0lPVExCX0lOVkFMSURBVEUpCj4gPiA+ID09PT09wqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgID09PT09Cj4gPiA+IMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB2aG9zdF91bWVt
+X2NsZWFuKGRldi0+aW90bGIpOwo+ID4gPiBpZiAoIWRldi0+aW90bGIpIHsKPiA+ID4gwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoCByZXQgPSAtRUZBVUxUOwo+ID4gPiDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqAgYnJlYWs7Cj4gPiA+IH0KPiA+ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGRldi0+aW90bGIgPSBOVUxMOwo+ID4gPiAK
+PiA+ID4gCj4gPiA+IENhbGwgU2VxdWVuY2U6Cj4gPiA+IENQVTAKPiA+ID4gPT09PT0KPiA+ID4g
+dmhvc3RfbmV0X2Nocl93cml0ZV9pdGVyCj4gPiA+IMKgwqDCoMKgdmhvc3RfY2hyX3dyaXRlX2l0
+ZXIKPiA+ID4gwqDCoMKgwqDCoMKgwqAgdmhvc3RfcHJvY2Vzc19pb3RsYl9tc2cKPiA+ID4gCj4g
+PiA+IENQVTEKPiA+ID4gPT09PT0KPiA+ID4gdmhvc3RfbmV0X2lvY3RsCj4gPiA+IMKgwqDCoMKg
+dmhvc3RfbmV0X3Jlc2V0X293bmVyCj4gPiA+IMKgwqDCoMKgwqDCoMKgIHZob3N0X2Rldl9yZXNl
+dF9vd25lcgo+ID4gPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHZob3N0X2Rldl9jbGVhbnVwCj4g
+PiAKPiA+IFRoYW5rcyBhIGxvdCBmb3IgdGhlIGFuYWx5c2lzLgo+ID4gCj4gPiBUaGlzIGNvdWxk
+IGJlIGFkZHJlc3NlZCBieSBzaW1wbHkgcHJvdGVjdCBpdCB3aXRoIGRldiBtdXRleC4KPiA+IAo+
+ID4gV2lsbCBwb3N0IGEgcGF0Y2guCj4gPiAKPiAKPiBDb3VsZCB5b3UgcGxlYXNlIGhlbHAgdG8g
+dGVzdCB0aGUgYXR0YWNoZWQgcGF0Y2g/IEkndmUgZG9uZSBzb21lIHNtb2tpbmcKPiB0ZXN0Lgo+
+IAo+IFRoYW5rcwoKPiA+RnJvbSA4ODMyODM4NmYzZjY1MmU2ODRlZTMzZGM0Y2Y2M2RjYWVkODcx
+YWVhIE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQo+IEZyb206IEphc29uIFdhbmcgPGphc293YW5n
+QHJlZGhhdC5jb20+Cj4gRGF0ZTogRnJpLCAxOCBNYXkgMjAxOCAxNzozMzoyNyArMDgwMAo+IFN1
+YmplY3Q6IFtQQVRDSF0gdmhvc3Q6IHN5bmNocm9uaXplIElPVExCIG1lc3NhZ2Ugd2l0aCBkZXYg
+Y2xlYW51cAo+IAo+IERhZVJ5b25nIEplb25nIHJlcG9ydHMgYSByYWNlIGJldHdlZW4gdmhvc3Rf
+ZGV2X2NsZWFudXAoKSBhbmQKPiB2aG9zdF9wcm9jZXNzX2lvdGxiX21zZygpOgo+IAo+IFRocmVh
+ZCBpbnRlcmxlYXZpbmc6Cj4gQ1BVMCAodmhvc3RfcHJvY2Vzc19pb3RsYl9tc2cpCQkJQ1BVMSAo
+dmhvc3RfZGV2X2NsZWFudXApCj4gKEluIHRoZSBjYXNlIG9mIGJvdGggVkhPU1RfSU9UTEJfVVBE
+QVRFIGFuZAo+IFZIT1NUX0lPVExCX0lOVkFMSURBVEUpCj4gPT09PT0JCQkJCQk9PT09PQo+IAkJ
+CQkJCXZob3N0X3VtZW1fY2xlYW4oZGV2LT5pb3RsYik7Cj4gaWYgKCFkZXYtPmlvdGxiKSB7Cj4g
+CSAgICAgICAgcmV0ID0gLUVGQVVMVDsKPiAJCSAgICAgICAgYnJlYWs7Cj4gfQo+IAkJCQkJCWRl
+di0+aW90bGIgPSBOVUxMOwo+IAo+IFRoZSByZWFzb24gaXMgd2UgZG9uJ3Qgc3luY2hyb25pemUg
+YmV0d2VlbiB0aGVtLCBmaXhpbmcgYnkgcHJvdGVjdGluZwo+IHZob3N0X3Byb2Nlc3NfaW90bGJf
+bXNnKCkgd2l0aCBkZXYgbXV0ZXguCj4gCj4gUmVwb3J0ZWQtYnk6IERhZVJ5b25nIEplb25nIDx0
+aHJlZWVhcmNhdEBnbWFpbC5jb20+Cj4gRml4ZXM6IDZiMWU2Y2M3ODU1YjAgKCJ2aG9zdDogbmV3
+IGRldmljZSBJT1RMQiBBUEkiKQo+IFJlcG9ydGVkLWJ5OiBEYWVSeW9uZyBKZW9uZyA8dGhyZWVl
+YXJjYXRAZ21haWwuY29tPgoKTG9uZyB0ZXJtcyB3ZSBtaWdodCB3YW50IHRvIG1vdmUgaW90bGIg
+aW50byB2cXMKc28gdGhhdCBtZXNzYWdlcyBjYW4gYmUgcHJvY2Vzc2VkIGluIHBhcmFsbGVsLgpO
+b3Qgc3VyZSBob3cgdG8gZG8gaXQgeWV0LgoKPiAtLS0KPiAgZHJpdmVycy92aG9zdC92aG9zdC5j
+IHwgMyArKysKPiAgMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKQo+IAo+IGRpZmYgLS1n
+aXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiBpbmRl
+eCBmM2JkOGU5Li5mMGJlNWYzIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+
+ICsrKyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+IEBAIC05ODEsNiArOTgxLDcgQEAgc3RhdGlj
+IGludCB2aG9zdF9wcm9jZXNzX2lvdGxiX21zZyhzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsCj4gIHsK
+PiAgCWludCByZXQgPSAwOwo+ICAKPiArCW11dGV4X2xvY2soJmRldi0+bXV0ZXgpOwo+ICAJdmhv
+c3RfZGV2X2xvY2tfdnFzKGRldik7Cj4gIAlzd2l0Y2ggKG1zZy0+dHlwZSkgewo+ICAJY2FzZSBW
+SE9TVF9JT1RMQl9VUERBVEU6Cj4gQEAgLTEwMTYsNiArMTAxNyw4IEBAIHN0YXRpYyBpbnQgdmhv
+c3RfcHJvY2Vzc19pb3RsYl9tc2coc3RydWN0IHZob3N0X2RldiAqZGV2LAo+ICAJfQo+ICAKPiAg
+CXZob3N0X2Rldl91bmxvY2tfdnFzKGRldik7Cj4gKwltdXRleF91bmxvY2soJmRldi0+bXV0ZXgp
+Owo+ICsKPiAgCXJldHVybiByZXQ7Cj4gIH0KPiAgc3NpemVfdCB2aG9zdF9jaHJfd3JpdGVfaXRl
+cihzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsCj4gLS0gCj4gMi43LjQKPiAKCl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
+bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
