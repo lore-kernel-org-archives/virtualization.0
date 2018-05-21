@@ -1,14 +1,13 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC V4 PATCH 0/8] Packed ring layout for vhost
-Date: Mon, 21 May 2018 10:33:30 +0800
-Message-ID: <9a8425be-5c39-eff7-d808-836b825ed890__12492.5808435821$1526869914$gmane$org@redhat.com>
-References: <1526473941-16199-1-git-send-email-jasowang@redhat.com>
-	<20180520162514.GA21958@wei-ubt>
+Subject: Re: KASAN: use-after-free Read in vhost_chr_write_iter
+Date: Mon, 21 May 2018 10:38:10 +0800
+Message-ID: <fb27c1fd-5172-252a-cb8f-b53927a26d06@redhat.com>
+References: <20180517134544.GA20646@dragonet.kaist.ac.kr>
+	<58419d62-3074-2e5a-8504-da1cdeb08280@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="------------FF39819B0B32F065DEF38149"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180520162514.GA21958@wei-ubt>
+In-Reply-To: <58419d62-3074-2e5a-8504-da1cdeb08280@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,65 +18,150 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Xu <wexu@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: DaeRyong Jeong <threeearcat@gmail.com>, mst@redhat.com
+Cc: bammanag@purdue.edu, kt0755@gmail.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, byoungyoung@purdue.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgyMeaXpSAwMDoyNSwgV2VpIFh1IHdyb3RlOgo+IE9uIFdlZCwgTWF5
-IDE2LCAyMDE4IGF0IDA4OjMyOjEzUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IEhpIGFs
-bDoKPj4KPj4gVGhpcyBSRkMgaW1wbGVtZW50IHBhY2tlZCByaW5nIGxheW91dC4gVGhlIGNvZGUg
-d2VyZSB0ZXN0ZWQgd2l0aAo+PiBUaXdlaSdzIFJGQyBWMyBhaHR0cHM6Ly9sa21sLm9yZy9sa21s
-LzIwMTgvNC8yNS8zNC4gU29tZSBmaXh1cHMgYW5kCj4+IHR3ZWFrcyB3ZXJlIG5lZWRlZCBvbiB0
-b3Agb2YgVGl3ZWkncyBjb2RlIHRvIG1ha2UgaXQgcnVuIGZvciBldmVudAo+PiBpbmRleC4KPiBD
-b3VsZCB5b3UgcGxlYXNlIHNob3cgdGhlIGNoYW5nZSBiYXNlZCBvbiBUaXdlaSdzIGNvZGUgdG8g
-ZWFzeSBvdGhlcidzCj4gdGVzdD8KClBsZWFzZSB0cnkgVGl3ZWkncyBWNCBpbnN0ZWFkIG9mIGp1
-c3Qgd2FpdGluZyBmb3IgdGhlIGZpeHVwLiBJdCBzaG91bGQgCndvcmsgdW5sZXNzIHlvdSBkb24n
-dCB0cnkgemVyb2NvcHkgYW5kIHZJT01NVS4KCgo+PiBQa3RnZW4gcmVwb3J0cyBhYm91dCAyMCUg
-aW1wcm92ZW1lbnQgb24gUFBTIChldmVudCBpbmRleCBpcyBvZmYpLiBNb3JlCj4+IHRlc3Rpbmcg
-aXMgb25nb2luZy4KPj4KPj4gTm90ZXMgZm9yIHRlc3RlcjoKPj4KPj4gLSBTdGFydCBmcm9tIHRo
-aXMgdmVyc2lvbiwgdmhvc3QgbmVlZCBxZW11IGNvLW9wZXJhdGlvbiB0byB3b3JrCj4+ICAgIGNv
-cnJlY3RseS4gT3IgeW91IGNhbiBjb21tZW50IG91dCB0aGUgcGFja2VkIHNwZWNpZmljIGNvZGUg
-Zm9yCj4+ICAgIEdFVC9TRVRfVlJJTkdfQkFTRS4KPiBEbyB5b3UgbWVhbiB0aGUgY29kZSBpbiB2
-aG9zdF92aXJ0cXVldWVfc3RhcnQvc3RvcD8KCkZvciBxZW11LCBwcm9iYWJseS4KCj4gQm90aCBU
-aXdlaSdzIGFuZCB5b3VyIHYzCj4gd29yayBmb3J0dW5hdGVseSBjb3JyZWN0bHkgd2hpY2ggc2hv
-dWxkIGJlIGF2b2lkZWQgc2luY2UgdGhlIHJpbmcgc2hvdWxkIGJlCj4gZGVmaW5pdGVseSBkaWZm
-ZXJlbnQuCgpJIGRvbid0IHVuZGVyc3RhbmQgdGhpcywgeW91IG1lYW4gcmVzZXQgd29yaz8KClRo
-YW5rcwoKPgo+IFdlaQo+Cj4+IENoYW5nZXMgZnJvbSBWMzoKPj4gLSBGaXggbWF0aCBvbiBldmVu
-dCBpZHggY2hlY2tpbmcKPj4gLSBTeW5jIGxhc3QgYXZhaWwgd3JhcCBjb3VudGVyIHRocm91Z2gg
-R0VUL1NFVF9WUklOR19CQVNFCj4+IC0gcmVtb3ZlIGRlc2NfZXZlbnQgcHJlZml4IGluIHRoZSBk
-cml2ZXIvZGV2aWNlIHN0cnVjdHVyZQo+Pgo+PiBDaGFuZ2VzIGZyb20gVjI6Cj4+IC0gZG8gbm90
-IHVzZSAmIGluIGNoZWNraW5nIGRlc2NfZXZlbnRfZmxhZ3MKPj4gLSBvZmYgc2hvdWxkIGJlIG1v
-c3Qgc2lnbmlmaWNhbnQgYml0Cj4+IC0gcmVtb3ZlIHRoZSB3b3JrYXJvdW5kIG9mIG1lcmdlYWJs
-ZSBidWZmZXIgZm9yIGRwZGsgcHJvdG90eXBlCj4+IC0gaWQgc2hvdWxkIGJlIGluIHRoZSBsYXN0
-IGRlc2NyaXB0b3IgaW4gdGhlIGNoYWluCj4+IC0ga2VlcCBfRl9XUklURSBmb3Igd3JpdGUgZGVz
-Y3JpcHRvciB3aGVuIGFkZGluZyB1c2VkCj4+IC0gZGV2aWNlIGZsYWdzIHVwZGF0aW5nIHNob3Vs
-ZCB1c2UgQUREUl9VU0VEIHR5cGUKPj4gLSByZXR1cm4gZXJyb3Igb24gdW5leHBlY3RlZCB1bmF2
-YWlsIGRlc2NyaXB0b3IgaW4gYSBjaGFpbgo+PiAtIHJldHVybiBmYWxzZSBpbiB2aG9zdF92ZV9h
-dmFpbF9lbXB0eSBpcyBkZXNjcmlwdG9yIGlzIGF2YWlsYWJsZQo+PiAtIHRyYWNrIGxhc3Qgc2Vl
-biBhdmFpbF93cmFwX2NvdW50ZXIKPj4gLSBjb3JyZWN0bHkgZXhhbWluZSBhdmFpbGFibGUgZGVz
-Y3JpcHRvciBpbiBnZXRfaW5kaXJlY3RfcGFja2VkKCkKPj4gLSB2aG9zdF9pZHhfZGlmZiBzaG91
-bGQgcmV0dXJuIHUxNiBpbnN0ZWFkIG9mIGJvb2wKPj4KPj4gQ2hhbmdlcyBmcm9tIFYxOgo+Pgo+
-PiAtIFJlZmFjdG9yIHZob3N0IHVzZWQgZWxlbSBjb2RlIHRvIGF2b2lkIG9wZW4gY29kaW5nIG9u
-IHVzZWQgZWxlbQo+PiAtIEV2ZW50IHN1cHByZXNzaW9uIHN1cHBvcnQgKGNvbXBpbGUgdGVzdCBv
-bmx5KS4KPj4gLSBJbmRpcmVjdCBkZXNjcmlwdG9yIHN1cHBvcnQgKGNvbXBpbGUgdGVzdCBvbmx5
-KS4KPj4gLSBaZXJvY29weSBzdXBwb3J0Lgo+PiAtIHZJT01NVSBzdXBwb3J0Lgo+PiAtIFNDU0kv
-VlNPQ0sgc3VwcG9ydCAoY29tcGlsZSB0ZXN0IG9ubHkpLgo+PiAtIEZpeCBzZXZlcmFsIGJ1Z3MK
-Pj4KPj4gSmFzb24gV2FuZyAoOCk6Cj4+ICAgIHZob3N0OiBtb3ZlIGdldF9yeF9idWZzIHRvIHZo
-b3N0LmMKPj4gICAgdmhvc3Q6IGhpZGUgdXNlZCByaW5nIGxheW91dCBmcm9tIGRldmljZQo+PiAg
-ICB2aG9zdDogZG8gbm90IHVzZSB2cmluZ191c2VkX2VsZW0KPj4gICAgdmhvc3RfbmV0OiBkbyBu
-b3QgZXhwbGljaXRseSBtYW5pcHVsYXRlIHZob3N0X3VzZWRfZWxlbQo+PiAgICB2aG9zdDogdmhv
-c3RfcHV0X3VzZXIoKSBjYW4gYWNjZXB0IG1ldGFkYXRhIHR5cGUKPj4gICAgdmlydGlvOiBpbnRy
-b2R1Y2UgcGFja2VkIHJpbmcgZGVmaW5lcwo+PiAgICB2aG9zdDogcGFja2VkIHJpbmcgc3VwcG9y
-dAo+PiAgICB2aG9zdDogZXZlbnQgc3VwcHJlc3Npb24gZm9yIHBhY2tlZCByaW5nCj4+Cj4+ICAg
-ZHJpdmVycy92aG9zdC9uZXQuYyAgICAgICAgICAgICAgICB8IDEzNiArKy0tLS0KPj4gICBkcml2
-ZXJzL3Zob3N0L3Njc2kuYyAgICAgICAgICAgICAgIHwgIDYyICstLQo+PiAgIGRyaXZlcnMvdmhv
-c3Qvdmhvc3QuYyAgICAgICAgICAgICAgfCA4NjEgKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKystLS0tLQo+PiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuaCAgICAgICAgICAgICAgfCAgNDcg
-Ky0KPj4gICBkcml2ZXJzL3Zob3N0L3Zzb2NrLmMgICAgICAgICAgICAgIHwgIDQyICstCj4+ICAg
-aW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19jb25maWcuaCB8ICAgOSArCj4+ICAgaW5jbHVkZS91
-YXBpL2xpbnV4L3ZpcnRpb19yaW5nLmggICB8ICAzMiArKwo+PiAgIDcgZmlsZXMgY2hhbmdlZCwg
-OTI4IGluc2VydGlvbnMoKyksIDI2MSBkZWxldGlvbnMoLSkKPj4KPj4gLS0gCj4+IDIuNy40Cj4+
-CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+This is a multi-part message in MIME format.
+--------------FF39819B0B32F065DEF38149
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+
+
+On 2018年05月18日 17:24, Jason Wang wrote:
+>
+>
+> On 2018年05月17日 21:45, DaeRyong Jeong wrote:
+>> We report the crash: KASAN: use-after-free Read in vhost_chr_write_iter
+>>
+>> This crash has been found in v4.17-rc1 using RaceFuzzer (a modified
+>> version of Syzkaller), which we describe more at the end of this
+>> report. Our analysis shows that the race occurs when invoking two
+>> syscalls concurrently, write$vnet and ioctl$VHOST_RESET_OWNER.
+>>
+>>
+>> Analysis:
+>> We think the concurrent execution of vhost_process_iotlb_msg() and
+>> vhost_dev_cleanup() causes the crash.
+>> Both of functions can run concurrently (please see call sequence below),
+>> and possibly, there is a race on dev->iotlb.
+>> If the switch occurs right after vhost_dev_cleanup() frees
+>> dev->iotlb, vhost_process_iotlb_msg() still sees the non-null value 
+>> and it
+>> keep executing without returning -EFAULT. Consequently, use-after-free
+>> occures
+>>
+>>
+>> Thread interleaving:
+>> CPU0 (vhost_process_iotlb_msg)                CPU1 (vhost_dev_cleanup)
+>> (In the case of both VHOST_IOTLB_UPDATE and
+>> VHOST_IOTLB_INVALIDATE)
+>> =====                            =====
+>>                             vhost_umem_clean(dev->iotlb);
+>> if (!dev->iotlb) {
+>>             ret = -EFAULT;
+>>                 break;
+>> }
+>>                             dev->iotlb = NULL;
+>>
+>>
+>> Call Sequence:
+>> CPU0
+>> =====
+>> vhost_net_chr_write_iter
+>>     vhost_chr_write_iter
+>>         vhost_process_iotlb_msg
+>>
+>> CPU1
+>> =====
+>> vhost_net_ioctl
+>>     vhost_net_reset_owner
+>>         vhost_dev_reset_owner
+>>             vhost_dev_cleanup
+>
+> Thanks a lot for the analysis.
+>
+> This could be addressed by simply protect it with dev mutex.
+>
+> Will post a patch.
+>
+
+Could you please help to test the attached patch? I've done some smoking 
+test.
+
+Thanks
+
+--------------FF39819B0B32F065DEF38149
+Content-Type: text/x-patch;
+ name="0001-vhost-synchronize-IOTLB-message-with-dev-cleanup.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-vhost-synchronize-IOTLB-message-with-dev-cleanup.patch"
+
+From 88328386f3f652e684ee33dc4cf63dcaed871aea Mon Sep 17 00:00:00 2001
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 18 May 2018 17:33:27 +0800
+Subject: [PATCH] vhost: synchronize IOTLB message with dev cleanup
+
+DaeRyong Jeong reports a race between vhost_dev_cleanup() and
+vhost_process_iotlb_msg():
+
+Thread interleaving:
+CPU0 (vhost_process_iotlb_msg)			CPU1 (vhost_dev_cleanup)
+(In the case of both VHOST_IOTLB_UPDATE and
+VHOST_IOTLB_INVALIDATE)
+=====						=====
+						vhost_umem_clean(dev->iotlb);
+if (!dev->iotlb) {
+	        ret = -EFAULT;
+		        break;
+}
+						dev->iotlb = NULL;
+
+The reason is we don't synchronize between them, fixing by protecting
+vhost_process_iotlb_msg() with dev mutex.
+
+Reported-by: DaeRyong Jeong <threeearcat@gmail.com>
+Fixes: 6b1e6cc7855b0 ("vhost: new device IOTLB API")
+Reported-by: DaeRyong Jeong <threeearcat@gmail.com>
+---
+ drivers/vhost/vhost.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index f3bd8e9..f0be5f3 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -981,6 +981,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ {
+ 	int ret = 0;
+ 
++	mutex_lock(&dev->mutex);
+ 	vhost_dev_lock_vqs(dev);
+ 	switch (msg->type) {
+ 	case VHOST_IOTLB_UPDATE:
+@@ -1016,6 +1017,8 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ 	}
+ 
+ 	vhost_dev_unlock_vqs(dev);
++	mutex_unlock(&dev->mutex);
++
+ 	return ret;
+ }
+ ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
+-- 
+2.7.4
+
+
+--------------FF39819B0B32F065DEF38149
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--------------FF39819B0B32F065DEF38149--
