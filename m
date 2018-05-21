@@ -1,7 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC PATCH net-next 09/12] tuntap: split out XDP logic
-Date: Mon, 21 May 2018 17:04:30 +0800
-Message-ID: <1526893473-20128-10-git-send-email-jasowang__6302.95622763715$1526893787$gmane$org@redhat.com>
+Subject: [RFC PATCH net-next 10/12] vhost_net: build xdp buff
+Date: Mon, 21 May 2018 17:04:31 +0800
+Message-ID: <1526893473-20128-11-git-send-email-jasowang__39640.3299215764$1526893824$gmane$org@redhat.com>
 References: <1526893473-20128-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,150 +21,109 @@ To: mst@redhat.com, jasowang@redhat.com
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch split out XDP logic into a single function. This make it to
-be reused by XDP batching path in the following patch.
+This patch implement build XDP buffers in vhost_net. The idea is do
+userspace copy in vhost_net and build XDP buff based on the
+page. Vhost_net can then submit one or an array of XDP buffs to
+underlayer socket (e.g TUN). TUN can choose to do XDP or call
+build_skb() to build skb. To support build skb, vnet header were also
+stored into the header of the XDP buff.
+
+This userspace copy and XDP buffs building is key to achieve XDP
+batching in TUN, since TUN does not need to care about userspace copy
+and then can disable premmption for several XDP buffs to achieve
+batching from XDP.
+
+TODO: reserve headroom based on the TUN XDP.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/tun.c | 85 +++++++++++++++++++++++++++++++++----------------------
- 1 file changed, 51 insertions(+), 34 deletions(-)
+ drivers/vhost/net.c | 74 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 74 insertions(+)
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index ed04291..2560378 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1605,6 +1605,44 @@ static bool tun_can_build_skb(struct tun_struct *tun, struct tun_file *tfile,
- 	return true;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index f0639d7..1209e84 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -492,6 +492,80 @@ static bool vhost_has_more_pkts(struct vhost_net *net,
+ 	       likely(!vhost_exceeds_maxpend(net));
  }
  
-+static u32 tun_do_xdp(struct tun_struct *tun,
-+		      struct tun_file *tfile,
-+		      struct bpf_prog *xdp_prog,
-+		      struct xdp_buff *xdp,
-+		      int *err)
-+{
-+	u32 act = bpf_prog_run_xdp(xdp_prog, xdp);
++#define VHOST_NET_HEADROOM 256
++#define VHOST_NET_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
 +
-+	switch (act) {
-+	case XDP_REDIRECT:
-+		*err = xdp_do_redirect(tun->dev, xdp, xdp_prog);
-+		xdp_do_flush_map();
-+		if (*err)
-+			break;
-+		goto out;
-+	case XDP_TX:
-+		*err = tun_xdp_tx(tun->dev, xdp);
-+		if (*err)
-+			break;
-+		tun_xdp_flush(tun->dev);
-+		goto out;
-+	case XDP_PASS:
-+		goto out;
-+	default:
-+		bpf_warn_invalid_xdp_action(act);
-+		/* fall through */
-+	case XDP_ABORTED:
-+		trace_xdp_exception(tun->dev, xdp_prog, act);
-+		/* fall through */
-+	case XDP_DROP:
-+		break;
++static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
++			       struct iov_iter *from,
++			       struct xdp_buff *xdp)
++{
++	struct vhost_virtqueue *vq = &nvq->vq;
++	struct page_frag *alloc_frag = &current->task_frag;
++	struct virtio_net_hdr *gso;
++	size_t len = iov_iter_count(from);
++	int buflen = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
++	int pad = SKB_DATA_ALIGN(VHOST_NET_RX_PAD + VHOST_NET_HEADROOM
++				 + nvq->sock_hlen);
++	int sock_hlen = nvq->sock_hlen;
++	void *buf;
++	int copied;
++
++	if (len < nvq->sock_hlen)
++		return -EFAULT;
++
++	if (SKB_DATA_ALIGN(len + pad) +
++	    SKB_DATA_ALIGN(sizeof(struct skb_shared_info)) > PAGE_SIZE)
++		return -ENOSPC;
++
++	buflen += SKB_DATA_ALIGN(len + pad);
++	alloc_frag->offset = ALIGN((u64)alloc_frag->offset, SMP_CACHE_BYTES);
++	if (unlikely(!skb_page_frag_refill(buflen, alloc_frag, GFP_KERNEL)))
++		return -ENOMEM;
++
++	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
++
++	/* We store two kinds of metadata in the header which will be
++	 * used for XDP_PASS to do build_skb():
++	 * offset 0: buflen
++	 * offset sizeof(int): vnet header
++	 */
++	copied = copy_page_from_iter(alloc_frag->page,
++				     alloc_frag->offset + sizeof(int), sock_hlen, from);
++	if (copied != sock_hlen)
++		return -EFAULT;
++
++	gso = (struct virtio_net_hdr *)(buf + sizeof(int));
++
++	if ((gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
++	    vhost16_to_cpu(vq, gso->csum_start) +
++	    vhost16_to_cpu(vq, gso->csum_offset) + 2 >
++	    vhost16_to_cpu(vq, gso->hdr_len)) {
++		gso->hdr_len = cpu_to_vhost16(vq,
++			       vhost16_to_cpu(vq, gso->csum_start) +
++			       vhost16_to_cpu(vq, gso->csum_offset) + 2);
++
++		if (vhost16_to_cpu(vq, gso->hdr_len) > len)
++			return -EINVAL;
 +	}
 +
-+	put_page(virt_to_head_page(xdp->data_hard_start));
-+out:
-+	return act;
++	len -= sock_hlen;
++	copied = copy_page_from_iter(alloc_frag->page,
++				     alloc_frag->offset + pad,
++				     len, from);
++	if (copied != len)
++		return -EFAULT;
++
++	xdp->data_hard_start = buf;
++	xdp->data = buf + pad;
++	xdp->data_end = xdp->data + len;
++	*(int *)(xdp->data_hard_start)= buflen;
++
++	get_page(alloc_frag->page);
++	alloc_frag->offset += buflen;
++
++	return 0;
 +}
 +
- static struct sk_buff *tun_build_skb(struct tun_struct *tun,
- 				     struct tun_file *tfile,
- 				     struct iov_iter *from,
-@@ -1615,10 +1653,10 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
- 	struct sk_buff *skb = NULL;
- 	struct bpf_prog *xdp_prog;
- 	int buflen = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
--	unsigned int delta = 0;
- 	char *buf;
- 	size_t copied;
--	int err, pad = TUN_RX_PAD;
-+	int pad = TUN_RX_PAD;
-+	int err = 0;
- 
- 	rcu_read_lock();
- 	xdp_prog = rcu_dereference(tun->xdp_prog);
-@@ -1655,9 +1693,8 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
- 	preempt_disable();
- 	rcu_read_lock();
- 	xdp_prog = rcu_dereference(tun->xdp_prog);
--	if (xdp_prog && !*skb_xdp) {
-+	if (xdp_prog) {
- 		struct xdp_buff xdp;
--		void *orig_data;
- 		u32 act;
- 
- 		xdp.data_hard_start = buf;
-@@ -1665,34 +1702,14 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
- 		xdp_set_data_meta_invalid(&xdp);
- 		xdp.data_end = xdp.data + len;
- 		xdp.rxq = &tfile->xdp_rxq;
--		orig_data = xdp.data;
--		act = bpf_prog_run_xdp(xdp_prog, &xdp);
--
--		switch (act) {
--		case XDP_REDIRECT:
--			err = xdp_do_redirect(tun->dev, &xdp, xdp_prog);
--			xdp_do_flush_map();
--			if (err)
--				goto err_xdp;
--			goto out;
--		case XDP_TX:
--			if (tun_xdp_tx(tun->dev, &xdp))
--				goto err_xdp;
--			tun_xdp_flush(tun->dev);
--			goto out;
--		case XDP_PASS:
--			delta = orig_data - xdp.data;
--			len = xdp.data_end - xdp.data;
--			break;
--		default:
--			bpf_warn_invalid_xdp_action(act);
--			/* fall through */
--		case XDP_ABORTED:
--			trace_xdp_exception(tun->dev, xdp_prog, act);
--			/* fall through */
--		case XDP_DROP:
-+		act = tun_do_xdp(tun, tfile, xdp_prog, &xdp, &err);
-+		if (err)
- 			goto err_xdp;
--		}
-+		if (act != XDP_PASS)
-+			goto out;
-+
-+		pad = xdp.data - xdp.data_hard_start;
-+		len = xdp.data_end - xdp.data;
- 	}
- 	rcu_read_unlock();
- 	preempt_enable();
-@@ -1700,18 +1717,18 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
- build:
- 	skb = build_skb(buf, buflen);
- 	if (!skb) {
-+		put_page(alloc_frag->page);
- 		skb = ERR_PTR(-ENOMEM);
- 		goto out;
- 	}
- 
--	skb_reserve(skb, pad - delta);
-+	skb_reserve(skb, pad);
- 	skb_put(skb, len);
- 
- 	return skb;
- 
- err_xdp:
--	alloc_frag->offset -= buflen;
--	put_page(alloc_frag->page);
-+	this_cpu_inc(tun->pcpu_stats->rx_dropped);
- out:
- 	rcu_read_unlock();
- 	preempt_enable();
+ static void handle_tx_copy(struct vhost_net *net)
+ {
+ 	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
 -- 
 2.7.4
