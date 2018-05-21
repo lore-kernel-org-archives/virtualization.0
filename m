@@ -1,16 +1,15 @@
-From: Wei Xu <wexu@redhat.com>
-Subject: Re: [RFC V4 PATCH 0/8] Packed ring layout for vhost
-Date: Mon, 21 May 2018 20:25:28 +0800
-Message-ID: <20180521122528.GA28627__8877.75899977914$1526905429$gmane$org@wei-ubt>
-References: <1526473941-16199-1-git-send-email-jasowang@redhat.com>
-	<20180520162514.GA21958@wei-ubt>
-	<9a8425be-5c39-eff7-d808-836b825ed890@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH net-next 06/12] tuntap: enable premmption early
+Date: Mon, 21 May 2018 17:32:38 +0300
+Message-ID: <20180521173230-mutt-send-email-mst__23719.4711844952$1526913037$gmane$org@kernel.org>
+References: <1526893473-20128-1-git-send-email-jasowang@redhat.com>
+	<1526893473-20128-7-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <9a8425be-5c39-eff7-d808-836b825ed890@redhat.com>
+In-Reply-To: <1526893473-20128-7-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,70 +20,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBNYXkgMjEsIDIwMTggYXQgMTA6MzM6MzBBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDXmnIgyMeaXpSAwMDoyNSwgV2VpIFh1IHdyb3RlOgo+ID5P
-biBXZWQsIE1heSAxNiwgMjAxOCBhdCAwODozMjoxM1BNICswODAwLCBKYXNvbiBXYW5nIHdyb3Rl
-Ogo+ID4+SGkgYWxsOgo+ID4+Cj4gPj5UaGlzIFJGQyBpbXBsZW1lbnQgcGFja2VkIHJpbmcgbGF5
-b3V0LiBUaGUgY29kZSB3ZXJlIHRlc3RlZCB3aXRoCj4gPj5UaXdlaSdzIFJGQyBWMyBhaHR0cHM6
-Ly9sa21sLm9yZy9sa21sLzIwMTgvNC8yNS8zNC4gU29tZSBmaXh1cHMgYW5kCj4gPj50d2Vha3Mg
-d2VyZSBuZWVkZWQgb24gdG9wIG9mIFRpd2VpJ3MgY29kZSB0byBtYWtlIGl0IHJ1biBmb3IgZXZl
-bnQKPiA+PmluZGV4Lgo+ID5Db3VsZCB5b3UgcGxlYXNlIHNob3cgdGhlIGNoYW5nZSBiYXNlZCBv
-biBUaXdlaSdzIGNvZGUgdG8gZWFzeSBvdGhlcidzCj4gPnRlc3Q/Cj4gCj4gUGxlYXNlIHRyeSBU
-aXdlaSdzIFY0IGluc3RlYWQgb2YganVzdCB3YWl0aW5nIGZvciB0aGUgZml4dXAuIEl0IHNob3Vs
-ZCB3b3JrCj4gdW5sZXNzIHlvdSBkb24ndCB0cnkgemVyb2NvcHkgYW5kIHZJT01NVS4KClllYWgs
-IGFjdHVhbGx5IHYzIG9mIGJvdGggeW91IGd1eXMgd29ya3Mgd2VsbCBvbiBteSB0ZXN0IGJlZCBl
-eGNlcHQgcmVzZXR0aW5nLgoKPiAKPiAKPiA+PlBrdGdlbiByZXBvcnRzIGFib3V0IDIwJSBpbXBy
-b3ZlbWVudCBvbiBQUFMgKGV2ZW50IGluZGV4IGlzIG9mZikuIE1vcmUKPiA+PnRlc3RpbmcgaXMg
-b25nb2luZy4KPiA+Pgo+ID4+Tm90ZXMgZm9yIHRlc3RlcjoKPiA+Pgo+ID4+LSBTdGFydCBmcm9t
-IHRoaXMgdmVyc2lvbiwgdmhvc3QgbmVlZCBxZW11IGNvLW9wZXJhdGlvbiB0byB3b3JrCj4gPj4g
-ICBjb3JyZWN0bHkuIE9yIHlvdSBjYW4gY29tbWVudCBvdXQgdGhlIHBhY2tlZCBzcGVjaWZpYyBj
-b2RlIGZvcgo+ID4+ICAgR0VUL1NFVF9WUklOR19CQVNFLgo+ID5EbyB5b3UgbWVhbiB0aGUgY29k
-ZSBpbiB2aG9zdF92aXJ0cXVldWVfc3RhcnQvc3RvcD8KPiAKPiBGb3IgcWVtdSwgcHJvYmFibHku
-Cj4gCj4gPkJvdGggVGl3ZWkncyBhbmQgeW91ciB2Mwo+ID53b3JrIGZvcnR1bmF0ZWx5IGNvcnJl
-Y3RseSB3aGljaCBzaG91bGQgYmUgYXZvaWRlZCBzaW5jZSB0aGUgcmluZyBzaG91bGQgYmUKPiA+
-ZGVmaW5pdGVseSBkaWZmZXJlbnQuCj4gCj4gSSBkb24ndCB1bmRlcnN0YW5kIHRoaXMsIHlvdSBt
-ZWFuIHJlc2V0IHdvcms/YQoKTm8sIGN1cnJlbnRseSB3ZSBoYXZlIG5vdCBoYW5kbGVkIHZob3N0
-IHN0YXJ0L3N0b3AgZm9yIHNwbGl0L3BhY2tlZCByaW5nIHJlbGF0aXZlbHkKd2hpY2ggaXMgd2hh
-dCBJIGFtIGRvaW5nIG5vdy4KCldlaQoKPiAKPiBUaGFua3MKPiAKPiA+Cj4gPldlaQo+ID4KPiA+
-PkNoYW5nZXMgZnJvbSBWMzoKPiA+Pi0gRml4IG1hdGggb24gZXZlbnQgaWR4IGNoZWNraW5nCj4g
-Pj4tIFN5bmMgbGFzdCBhdmFpbCB3cmFwIGNvdW50ZXIgdGhyb3VnaCBHRVQvU0VUX1ZSSU5HX0JB
-U0UKPiA+Pi0gcmVtb3ZlIGRlc2NfZXZlbnQgcHJlZml4IGluIHRoZSBkcml2ZXIvZGV2aWNlIHN0
-cnVjdHVyZQo+ID4+Cj4gPj5DaGFuZ2VzIGZyb20gVjI6Cj4gPj4tIGRvIG5vdCB1c2UgJiBpbiBj
-aGVja2luZyBkZXNjX2V2ZW50X2ZsYWdzCj4gPj4tIG9mZiBzaG91bGQgYmUgbW9zdCBzaWduaWZp
-Y2FudCBiaXQKPiA+Pi0gcmVtb3ZlIHRoZSB3b3JrYXJvdW5kIG9mIG1lcmdlYWJsZSBidWZmZXIg
-Zm9yIGRwZGsgcHJvdG90eXBlCj4gPj4tIGlkIHNob3VsZCBiZSBpbiB0aGUgbGFzdCBkZXNjcmlw
-dG9yIGluIHRoZSBjaGFpbgo+ID4+LSBrZWVwIF9GX1dSSVRFIGZvciB3cml0ZSBkZXNjcmlwdG9y
-IHdoZW4gYWRkaW5nIHVzZWQKPiA+Pi0gZGV2aWNlIGZsYWdzIHVwZGF0aW5nIHNob3VsZCB1c2Ug
-QUREUl9VU0VEIHR5cGUKPiA+Pi0gcmV0dXJuIGVycm9yIG9uIHVuZXhwZWN0ZWQgdW5hdmFpbCBk
-ZXNjcmlwdG9yIGluIGEgY2hhaW4KPiA+Pi0gcmV0dXJuIGZhbHNlIGluIHZob3N0X3ZlX2F2YWls
-X2VtcHR5IGlzIGRlc2NyaXB0b3IgaXMgYXZhaWxhYmxlCj4gPj4tIHRyYWNrIGxhc3Qgc2VlbiBh
-dmFpbF93cmFwX2NvdW50ZXIKPiA+Pi0gY29ycmVjdGx5IGV4YW1pbmUgYXZhaWxhYmxlIGRlc2Ny
-aXB0b3IgaW4gZ2V0X2luZGlyZWN0X3BhY2tlZCgpCj4gPj4tIHZob3N0X2lkeF9kaWZmIHNob3Vs
-ZCByZXR1cm4gdTE2IGluc3RlYWQgb2YgYm9vbAo+ID4+Cj4gPj5DaGFuZ2VzIGZyb20gVjE6Cj4g
-Pj4KPiA+Pi0gUmVmYWN0b3Igdmhvc3QgdXNlZCBlbGVtIGNvZGUgdG8gYXZvaWQgb3BlbiBjb2Rp
-bmcgb24gdXNlZCBlbGVtCj4gPj4tIEV2ZW50IHN1cHByZXNzaW9uIHN1cHBvcnQgKGNvbXBpbGUg
-dGVzdCBvbmx5KS4KPiA+Pi0gSW5kaXJlY3QgZGVzY3JpcHRvciBzdXBwb3J0IChjb21waWxlIHRl
-c3Qgb25seSkuCj4gPj4tIFplcm9jb3B5IHN1cHBvcnQuCj4gPj4tIHZJT01NVSBzdXBwb3J0Lgo+
-ID4+LSBTQ1NJL1ZTT0NLIHN1cHBvcnQgKGNvbXBpbGUgdGVzdCBvbmx5KS4KPiA+Pi0gRml4IHNl
-dmVyYWwgYnVncwo+ID4+Cj4gPj5KYXNvbiBXYW5nICg4KToKPiA+PiAgIHZob3N0OiBtb3ZlIGdl
-dF9yeF9idWZzIHRvIHZob3N0LmMKPiA+PiAgIHZob3N0OiBoaWRlIHVzZWQgcmluZyBsYXlvdXQg
-ZnJvbSBkZXZpY2UKPiA+PiAgIHZob3N0OiBkbyBub3QgdXNlIHZyaW5nX3VzZWRfZWxlbQo+ID4+
-ICAgdmhvc3RfbmV0OiBkbyBub3QgZXhwbGljaXRseSBtYW5pcHVsYXRlIHZob3N0X3VzZWRfZWxl
-bQo+ID4+ICAgdmhvc3Q6IHZob3N0X3B1dF91c2VyKCkgY2FuIGFjY2VwdCBtZXRhZGF0YSB0eXBl
-Cj4gPj4gICB2aXJ0aW86IGludHJvZHVjZSBwYWNrZWQgcmluZyBkZWZpbmVzCj4gPj4gICB2aG9z
-dDogcGFja2VkIHJpbmcgc3VwcG9ydAo+ID4+ICAgdmhvc3Q6IGV2ZW50IHN1cHByZXNzaW9uIGZv
-ciBwYWNrZWQgcmluZwo+ID4+Cj4gPj4gIGRyaXZlcnMvdmhvc3QvbmV0LmMgICAgICAgICAgICAg
-ICAgfCAxMzYgKystLS0tCj4gPj4gIGRyaXZlcnMvdmhvc3Qvc2NzaS5jICAgICAgICAgICAgICAg
-fCAgNjIgKy0tCj4gPj4gIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyAgICAgICAgICAgICAgfCA4NjEg
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLQo+ID4+ICBkcml2ZXJzL3Zob3N0
-L3Zob3N0LmggICAgICAgICAgICAgIHwgIDQ3ICstCj4gPj4gIGRyaXZlcnMvdmhvc3QvdnNvY2su
-YyAgICAgICAgICAgICAgfCAgNDIgKy0KPiA+PiAgaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19j
-b25maWcuaCB8ICAgOSArCj4gPj4gIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcmluZy5oICAg
-fCAgMzIgKysKPiA+PiAgNyBmaWxlcyBjaGFuZ2VkLCA5MjggaW5zZXJ0aW9ucygrKSwgMjYxIGRl
-bGV0aW9ucygtKQo+ID4+Cj4gPj4tLSAKPiA+PjIuNy40Cj4gPj4KPiAKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, May 21, 2018 at 05:04:27PM +0800, Jason Wang wrote:
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+
+typo in subject
+
+> ---
+>  drivers/net/tun.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index 44d4f3d..24ecd82 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -1697,6 +1697,8 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
+>  			goto err_xdp;
+>  		}
+>  	}
+> +	rcu_read_unlock();
+> +	preempt_enable();
+>  
+>  	skb = build_skb(buf, buflen);
+>  	if (!skb) {
+> @@ -1710,9 +1712,6 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
+>  	get_page(alloc_frag->page);
+>  	alloc_frag->offset += buflen;
+>  
+> -	rcu_read_unlock();
+> -	preempt_enable();
+> -
+>  	return skb;
+>  
+>  err_redirect:
+> -- 
+> 2.7.4
