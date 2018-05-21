@@ -1,14 +1,24 @@
-From: Wei Xu <wexu@redhat.com>
-Subject: Re: [RFC V4 PATCH 0/8] Packed ring layout for vhost
-Date: Mon, 21 May 2018 00:25:14 +0800
-Message-ID: <20180520162514.GA21958__45733.8062501096$1526833423$gmane$org@wei-ubt>
-References: <1526473941-16199-1-git-send-email-jasowang@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC v4 3/5] virtio_ring: add packed ring support
+Date: Mon, 21 May 2018 10:30:51 +0800
+Message-ID: <b8c0d147-2711-cb26-a084-e7d3d32d0002__30415.5730446384$1526869757$gmane$org@redhat.com>
+References: <20180516123909.GB986@debian>
+	<ecb50c84-b412-ff0b-6c52-fd789b6c8a86@redhat.com>
+	<20180516134550.GB4171@debian>
+	<eaf946f1-abab-c4e5-1ab5-ba7912986d58@redhat.com>
+	<20180516143332.GA1957@debian>
+	<bc38e5a1-e920-7055-dc22-49ac98455257@redhat.com>
+	<20180518112950.GA28224@debian>
+	<e247b46a-183f-3959-859b-aebb0bf81c07@redhat.com>
+	<20180518143334.GA4537@debian>
+	<1a661df0-8ca9-b31d-9c17-8684d608a33a@redhat.com>
+	<20180519022938.GA18888@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1526473941-16199-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20180519022938.GA18888@debian>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,85 +28,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 16, 2018 at 08:32:13PM +0800, Jason Wang wrote:
-> Hi all:
-> 
-> This RFC implement packed ring layout. The code were tested with
-> Tiwei's RFC V3 ahttps://lkml.org/lkml/2018/4/25/34. Some fixups and
-> tweaks were needed on top of Tiwei's code to make it run for event
-> index.
-
-Could you please show the change based on Tiwei's code to easy other's
-test?
-
-> 
-> Pktgen reports about 20% improvement on PPS (event index is off). More
-> testing is ongoing.
-> 
-> Notes for tester:
-> 
-> - Start from this version, vhost need qemu co-operation to work
->   correctly. Or you can comment out the packed specific code for
->   GET/SET_VRING_BASE.
-
-Do you mean the code in vhost_virtqueue_start/stop? Both Tiwei's and your v3
-work fortunately correctly which should be avoided since the ring should be
-definitely different.
-
-Wei
-
-> 
-> Changes from V3:
-> - Fix math on event idx checking
-> - Sync last avail wrap counter through GET/SET_VRING_BASE
-> - remove desc_event prefix in the driver/device structure
-> 
-> Changes from V2:
-> - do not use & in checking desc_event_flags
-> - off should be most significant bit
-> - remove the workaround of mergeable buffer for dpdk prototype
-> - id should be in the last descriptor in the chain
-> - keep _F_WRITE for write descriptor when adding used
-> - device flags updating should use ADDR_USED type
-> - return error on unexpected unavail descriptor in a chain
-> - return false in vhost_ve_avail_empty is descriptor is available
-> - track last seen avail_wrap_counter
-> - correctly examine available descriptor in get_indirect_packed()
-> - vhost_idx_diff should return u16 instead of bool
-> 
-> Changes from V1:
-> 
-> - Refactor vhost used elem code to avoid open coding on used elem
-> - Event suppression support (compile test only).
-> - Indirect descriptor support (compile test only).
-> - Zerocopy support.
-> - vIOMMU support.
-> - SCSI/VSOCK support (compile test only).
-> - Fix several bugs
-> 
-> Jason Wang (8):
->   vhost: move get_rx_bufs to vhost.c
->   vhost: hide used ring layout from device
->   vhost: do not use vring_used_elem
->   vhost_net: do not explicitly manipulate vhost_used_elem
->   vhost: vhost_put_user() can accept metadata type
->   virtio: introduce packed ring defines
->   vhost: packed ring support
->   vhost: event suppression for packed ring
-> 
->  drivers/vhost/net.c                | 136 ++----
->  drivers/vhost/scsi.c               |  62 +--
->  drivers/vhost/vhost.c              | 861 ++++++++++++++++++++++++++++++++-----
->  drivers/vhost/vhost.h              |  47 +-
->  drivers/vhost/vsock.c              |  42 +-
->  include/uapi/linux/virtio_config.h |   9 +
->  include/uapi/linux/virtio_ring.h   |  32 ++
->  7 files changed, 928 insertions(+), 261 deletions(-)
-> 
-> -- 
-> 2.7.4
-> 
+CgpPbiAyMDE45bm0MDXmnIgxOeaXpSAxMDoyOSwgVGl3ZWkgQmllIHdyb3RlOgo+PiBJIGRvbid0
+IGhvcGUgc28uCj4+Cj4+PiBJIGFncmVlZCBkcml2ZXIgc2hvdWxkIHRyYWNrIHRoZSBETUEgYWRk
+cnMgb3Igc29tZQo+Pj4gb3RoZXIgbmVjZXNzYXJ5IHRoaW5ncyBmcm9tIHRoZSB2ZXJ5IGJlZ2lu
+bmluZy4gQW5kCj4+PiBJIGFsc28gcmVwZWF0ZWQgdGhlIHNwZWMgdG8gZW1waGFzaXplIHRoYXQg
+aXQgZG9lcwo+Pj4gbWFrZSBzZW5zZS4gQW5kIEknZCBsaWtlIHRvIGRvIHRoYXQuCj4+Pgo+Pj4g
+V2hhdCBJIHdhcyBzYXlpbmcgaXMgdGhhdCwgdG8gc3VwcG9ydCBPT08sIHdlIG1heQo+Pj4gbmVl
+ZCB0byBtYW5hZ2UgdGhlc2UgY29udGV4dCAod2hpY2ggc2F2ZXMgRE1BIGFkZHJzCj4+PiBldGMp
+IHZpYSBhIGxpc3Qgd2hpY2ggaXMgc2ltaWxhciB0byB0aGUgZGVzYyBsaXN0Cj4+PiBtYWludGFp
+bmVkIHZpYSBgbmV4dGAgaW4gc3BsaXQgcmluZyBpbnN0ZWFkIG9mIGFuCj4+PiBhcnJheSB3aG9z
+ZSBlbGVtZW50cyBhbHdheXMgY2FuIGJlIGluZGV4ZWQgZGlyZWN0bHkuCj4+IE15IHBvaW50IGlz
+IHRoZXNlIGNvbnRleHQgaXMgYSBtdXN0IChub3Qgb25seSBmb3IgT09PKS4KPiBZZWFoLCBhbmQg
+SSBoYXZlIHRoZSBleGFjdGx5IHNhbWUgcG9pbnQgYWZ0ZXIgeW91Cj4gcG9pbnRlZCB0aGF0IEkg
+c2hvdWxkbid0IGdldCB0aGUgYWRkcnMgZnJvbSBkZXNjcy4KPiBJIGRvIHRoaW5rIGl0IG1ha2Vz
+IHNlbnNlLiBJJ2xsIGRvIGl0IGluIHRoZSBuZXh0Cj4gdmVyc2lvbi4gSSBkb24ndCBoYXZlIGFu
+eSBkb3VidCBhYm91dCBpdC4gQWxsIG15Cj4gcXVlc3Rpb25zIGFyZSBhYm91dCB0aGUgT09PLCBp
+bnN0ZWFkIG9mIHdoZXRoZXIgd2UKPiBzaG91bGQgc2F2ZSBjb250ZXh0IG9yIG5vdC4gSXQganVz
+dCBzZWVtcyB0aGF0IHlvdQo+IHRob3VnaHQgSSBkb24ndCB3YW50IHRvIGRvIGl0LCBhbmQgd2Vy
+ZSB0cnlpbmcgdG8KPiBjb252aW5jZSBtZSB0aGF0IEkgc2hvdWxkIGRvIGl0LgoKUmlnaHQsIGJ1
+dCBsb29rcyBsaWtlIEkgd2FzIHdyb25nIDopCgo+Cj4+PiBUaGUgZGVzYyByaW5nIGluIHNwbGl0
+IHJpbmcgaXMgYW4gYXJyYXksIGJ1dCBpdHMKPj4+IGZyZWUgZW50cmllcyBhcmUgbWFuYWdlZCBh
+cyBsaXN0IHZpYSBuZXh0LiBJIHdhcwo+Pj4ganVzdCB3b25kZXJpbmcsIGRvIHdlIHdhbnQgdG8g
+bWFuYWdlIHN1Y2ggYSBsaXN0Cj4+PiBiZWNhdXNlIG9mIE9PTy4gSXQncyBqdXN0IGEgdmVyeSBz
+aW1wbGUgcXVlc3Rpb24KPj4+IHRoYXQgSSB3YW50IHRvIGhlYXIgeW91ciBvcGluaW9uLi4uIChJ
+dCBkb2Vzbid0Cj4+PiBtZWFucyBhbnl0aGluZywgZS5nLiBJdCBkb2Vzbid0IG1lYW4gSSBkb24n
+dCB3YW50Cj4+PiB0byBzdXBwb3J0IE9PTy4gSXQncyBqdXN0IGEgc2ltcGxlIHF1ZXN0aW9uLi4u
+KQo+PiBTbyB0aGUgcXVlc3Rpb24gaXMgeWVzLiBCdXQgSSBhZG1pdCBJIGRvbid0IGhhdmUgYmV0
+dGVyIGlkZWEgb3RoZXIgdGhhbiB3aGF0Cj4+IHlvdSBwcm9wb3NlIGhlcmUgKHNvbWV0aGluZyBs
+aWtlIHNwbGl0IHJpbmcgd2hpY2ggaXMgYSBsaXR0bGUgYml0IHNhZCkuCj4+IE1heWJlIE1pY2hh
+ZWwgaGFkLgo+IFllYWgsIHRoYXQncyB3aHkgSSBhc2tlZCB0aGlzIHF1ZXN0aW9uLiBJdCB3aWxs
+Cj4gbWFrZSB0aGUgcGFja2VkIHJpbmcgYSBiaXQgc2ltaWxhciB0byBzcGxpdCByaW5nCj4gYXQg
+bGVhc3QgaW4gdGhlIGRyaXZlciBwYXJ0LiBTbyBJIHdhbnQgdG8gZHJhdwo+IHlvdXIgYXR0ZW50
+aW9uIG9uIHRoaXMgdG8gbWFrZSBzdXJlIHRoYXQgd2UncmUKPiBvbiB0aGUgc2FtZSBwYWdlLgoK
+WWVzLiBJIHRoaW5rIHdlIGFyZS4KClRoYW5rcwoKPiBCZXN0IHJlZ2FyZHMsCj4gVGl3ZWkgQmll
+Cj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
