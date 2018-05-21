@@ -1,23 +1,11 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC v4 3/5] virtio_ring: add packed ring support
-Date: Mon, 21 May 2018 10:39:44 +0800
-Message-ID: <20180521023944.GA16702__25335.8041788035$1526870262$gmane$org@debian>
-References: <20180516134550.GB4171@debian>
-	<eaf946f1-abab-c4e5-1ab5-ba7912986d58@redhat.com>
-	<20180516143332.GA1957@debian>
-	<bc38e5a1-e920-7055-dc22-49ac98455257@redhat.com>
-	<20180518112950.GA28224@debian>
-	<e247b46a-183f-3959-859b-aebb0bf81c07@redhat.com>
-	<20180518143334.GA4537@debian>
-	<1a661df0-8ca9-b31d-9c17-8684d608a33a@redhat.com>
-	<20180519022938.GA18888@debian>
-	<b8c0d147-2711-cb26-a084-e7d3d32d0002@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net 0/4] Fix several issues of virtio-net mergeable XDP
+Date: Mon, 21 May 2018 16:35:02 +0800
+Message-ID: <1526891706-18516-1-git-send-email-jasowang__28760.2876117036$1526891591$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <b8c0d147-2711-cb26-a084-e7d3d32d0002@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,48 +15,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: mst@redhat.com, jasowang@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBNYXkgMjEsIDIwMTggYXQgMTA6MzA6NTFBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiAyMDE45bm0MDXmnIgxOeaXpSAxMDoyOSwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiBJ
-IGRvbid0IGhvcGUgc28uCj4gPiA+IAo+ID4gPiA+IEkgYWdyZWVkIGRyaXZlciBzaG91bGQgdHJh
-Y2sgdGhlIERNQSBhZGRycyBvciBzb21lCj4gPiA+ID4gb3RoZXIgbmVjZXNzYXJ5IHRoaW5ncyBm
-cm9tIHRoZSB2ZXJ5IGJlZ2lubmluZy4gQW5kCj4gPiA+ID4gSSBhbHNvIHJlcGVhdGVkIHRoZSBz
-cGVjIHRvIGVtcGhhc2l6ZSB0aGF0IGl0IGRvZXMKPiA+ID4gPiBtYWtlIHNlbnNlLiBBbmQgSSdk
-IGxpa2UgdG8gZG8gdGhhdC4KPiA+ID4gPiAKPiA+ID4gPiBXaGF0IEkgd2FzIHNheWluZyBpcyB0
-aGF0LCB0byBzdXBwb3J0IE9PTywgd2UgbWF5Cj4gPiA+ID4gbmVlZCB0byBtYW5hZ2UgdGhlc2Ug
-Y29udGV4dCAod2hpY2ggc2F2ZXMgRE1BIGFkZHJzCj4gPiA+ID4gZXRjKSB2aWEgYSBsaXN0IHdo
-aWNoIGlzIHNpbWlsYXIgdG8gdGhlIGRlc2MgbGlzdAo+ID4gPiA+IG1haW50YWluZWQgdmlhIGBu
-ZXh0YCBpbiBzcGxpdCByaW5nIGluc3RlYWQgb2YgYW4KPiA+ID4gPiBhcnJheSB3aG9zZSBlbGVt
-ZW50cyBhbHdheXMgY2FuIGJlIGluZGV4ZWQgZGlyZWN0bHkuCj4gPiA+IE15IHBvaW50IGlzIHRo
-ZXNlIGNvbnRleHQgaXMgYSBtdXN0IChub3Qgb25seSBmb3IgT09PKS4KPiA+IFllYWgsIGFuZCBJ
-IGhhdmUgdGhlIGV4YWN0bHkgc2FtZSBwb2ludCBhZnRlciB5b3UKPiA+IHBvaW50ZWQgdGhhdCBJ
-IHNob3VsZG4ndCBnZXQgdGhlIGFkZHJzIGZyb20gZGVzY3MuCj4gPiBJIGRvIHRoaW5rIGl0IG1h
-a2VzIHNlbnNlLiBJJ2xsIGRvIGl0IGluIHRoZSBuZXh0Cj4gPiB2ZXJzaW9uLiBJIGRvbid0IGhh
-dmUgYW55IGRvdWJ0IGFib3V0IGl0LiBBbGwgbXkKPiA+IHF1ZXN0aW9ucyBhcmUgYWJvdXQgdGhl
-IE9PTywgaW5zdGVhZCBvZiB3aGV0aGVyIHdlCj4gPiBzaG91bGQgc2F2ZSBjb250ZXh0IG9yIG5v
-dC4gSXQganVzdCBzZWVtcyB0aGF0IHlvdQo+ID4gdGhvdWdodCBJIGRvbid0IHdhbnQgdG8gZG8g
-aXQsIGFuZCB3ZXJlIHRyeWluZyB0bwo+ID4gY29udmluY2UgbWUgdGhhdCBJIHNob3VsZCBkbyBp
-dC4KPiAKPiBSaWdodCwgYnV0IGxvb2tzIGxpa2UgSSB3YXMgd3JvbmcgOikKPiAKPiA+IAo+ID4g
-PiA+IFRoZSBkZXNjIHJpbmcgaW4gc3BsaXQgcmluZyBpcyBhbiBhcnJheSwgYnV0IGl0cwo+ID4g
-PiA+IGZyZWUgZW50cmllcyBhcmUgbWFuYWdlZCBhcyBsaXN0IHZpYSBuZXh0LiBJIHdhcwo+ID4g
-PiA+IGp1c3Qgd29uZGVyaW5nLCBkbyB3ZSB3YW50IHRvIG1hbmFnZSBzdWNoIGEgbGlzdAo+ID4g
-PiA+IGJlY2F1c2Ugb2YgT09PLiBJdCdzIGp1c3QgYSB2ZXJ5IHNpbXBsZSBxdWVzdGlvbgo+ID4g
-PiA+IHRoYXQgSSB3YW50IHRvIGhlYXIgeW91ciBvcGluaW9uLi4uIChJdCBkb2Vzbid0Cj4gPiA+
-ID4gbWVhbnMgYW55dGhpbmcsIGUuZy4gSXQgZG9lc24ndCBtZWFuIEkgZG9uJ3Qgd2FudAo+ID4g
-PiA+IHRvIHN1cHBvcnQgT09PLiBJdCdzIGp1c3QgYSBzaW1wbGUgcXVlc3Rpb24uLi4pCj4gPiA+
-IFNvIHRoZSBxdWVzdGlvbiBpcyB5ZXMuIEJ1dCBJIGFkbWl0IEkgZG9uJ3QgaGF2ZSBiZXR0ZXIg
-aWRlYSBvdGhlciB0aGFuIHdoYXQKPiA+ID4geW91IHByb3Bvc2UgaGVyZSAoc29tZXRoaW5nIGxp
-a2Ugc3BsaXQgcmluZyB3aGljaCBpcyBhIGxpdHRsZSBiaXQgc2FkKS4KPiA+ID4gTWF5YmUgTWlj
-aGFlbCBoYWQuCj4gPiBZZWFoLCB0aGF0J3Mgd2h5IEkgYXNrZWQgdGhpcyBxdWVzdGlvbi4gSXQg
-d2lsbAo+ID4gbWFrZSB0aGUgcGFja2VkIHJpbmcgYSBiaXQgc2ltaWxhciB0byBzcGxpdCByaW5n
-Cj4gPiBhdCBsZWFzdCBpbiB0aGUgZHJpdmVyIHBhcnQuIFNvIEkgd2FudCB0byBkcmF3Cj4gPiB5
-b3VyIGF0dGVudGlvbiBvbiB0aGlzIHRvIG1ha2Ugc3VyZSB0aGF0IHdlJ3JlCj4gPiBvbiB0aGUg
-c2FtZSBwYWdlLgo+IAo+IFllcy4gSSB0aGluayB3ZSBhcmUuCgpDb29sLiBHbGFkIHRvIGhlYXIg
-dGhhdCEgVGhhbmtzISA6KQoKQmVzdCByZWdhcmRzLApUaXdlaSBCaWUKCj4gCj4gVGhhbmtzCj4g
-Cj4gPiBCZXN0IHJlZ2FyZHMsCj4gPiBUaXdlaSBCaWUKPiA+IAo+IApfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Hi:
+
+Please review the patches that tries to fix sevreal issues of
+virtio-net mergeable XDP.
+
+Thanks
+
+Jason Wang (4):
+  virtio-net: correctly redirect linearized packet
+  virtio-net: correctly transmit XDP buff after linearizing
+  virtio-net: reset num_buf to 1 after linearizing packet
+  virito-net: fix leaking page for gso packet during mergeable XDP
+
+ drivers/net/virtio_net.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
+
+-- 
+2.7.4
