@@ -1,17 +1,13 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net 4/4] virito-net: fix leaking page for gso packet
-	during mergeable XDP
-Date: Tue, 22 May 2018 11:37:34 +0800
-Message-ID: <cc243ed3-72b7-6970-a9aa-9836179a8949__49201.3633171611$1526960157$gmane$org@redhat.com>
-References: <1526891706-18516-1-git-send-email-jasowang@redhat.com>
-	<1526891706-18516-5-git-send-email-jasowang@redhat.com>
-	<20180521175919-mutt-send-email-mst@kernel.org>
+Subject: [PATCH net V2 1/4] virtio-net: correctly redirect linearized packet
+Date: Tue, 22 May 2018 11:44:28 +0800
+Message-ID: <1526960671-11782-2-git-send-email-jasowang__30283.9599935853$1526960572$gmane$org@redhat.com>
+References: <1526960671-11782-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180521175919-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <1526960671-11782-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,48 +17,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, jasowang@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgyMeaXpSAyMzowMSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIE1vbiwgTWF5IDIxLCAyMDE4IGF0IDA0OjM1OjA2UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+IFdlIG5lZWQgdG8gZHJvcCByZWZjbnQgdG8geGRwX3BhZ2UgaWYgd2Ugc2VlIGEgZ3Nv
-IHBhY2tldC4gT3RoZXJ3aXNlCj4+IGl0IHdpbGwgYmUgbGVha2VkLiBGaXhpbmcgdGhpcyBieSBt
-b3ZpbmcgdGhlIGNoZWNrIG9mIGdzbyBwYWNrZXQgYWJvdmUKPj4gdGhlIGxpbmVhcml6aW5nIGxv
-Z2ljLgo+Pgo+PiBDYzogSm9obiBGYXN0YWJlbmQgPGpvaG4uZmFzdGFiZW5kQGdtYWlsLmNvbT4K
-Pj4gRml4ZXM6IDcyOTc5YTZjMzU5MCAoInZpcnRpb19uZXQ6IHhkcCwgYWRkIHNsb3dwYXRoIGNh
-c2UgZm9yIG5vbiBjb250aWd1b3VzIGJ1ZmZlcnMiKQo+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBX
-YW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+IHR5cG8gaW4gc3ViamVjdAoKTGV0IG1lIGZpeCBp
-dCBpbiBWMi4KCj4+IC0tLQo+PiAgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDE2ICsrKysr
-KysrLS0tLS0tLS0KPj4gICAxIGZpbGUgY2hhbmdlZCwgOCBpbnNlcnRpb25zKCspLCA4IGRlbGV0
-aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJp
-dmVycy9uZXQvdmlydGlvX25ldC5jCj4+IGluZGV4IDE2NWE5MjIuLmY4ZGI4MDkgMTAwNjQ0Cj4+
-IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+PiArKysgYi9kcml2ZXJzL25ldC92aXJ0
-aW9fbmV0LmMKPj4gQEAgLTcwNyw2ICs3MDcsMTQgQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpy
-ZWNlaXZlX21lcmdlYWJsZShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+PiAgIAkJdm9pZCAqZGF0
-YTsKPj4gICAJCXUzMiBhY3Q7Cj4+ICAgCj4+ICsJCS8qIFRyYW5zaWVudCBmYWlsdXJlIHdoaWNo
-IGluIHRoZW9yeSBjb3VsZCBvY2N1ciBpZgo+PiArCQkgKiBpbi1mbGlnaHQgcGFja2V0cyBmcm9t
-IGJlZm9yZSBYRFAgd2FzIGVuYWJsZWQgcmVhY2gKPj4gKwkJICogdGhlIHJlY2VpdmUgcGF0aCBh
-ZnRlciBYRFAgaXMgbG9hZGVkLiBJbiBwcmFjdGljZSBJCj4+ICsJCSAqIHdhcyBub3QgYWJsZSB0
-byBjcmVhdGUgdGhpcyBjb25kaXRpb24uCj4gQlRXIHdlIHNob3VsZCBwcm9iYWJseSBkcm9wIHRo
-ZSBsYXN0IHNlbnRlbmNlLiBJdCBzYXlzIGluIHRoZW9yeSwgc2hvdWxkIGJlIGVub3VnaC4KCk9r
-LgoKVGhhbmtzCgo+PiArCQkgKi8KPj4gKwkJaWYgKHVubGlrZWx5KGhkci0+aGRyLmdzb190eXBl
-KSkKPj4gKwkJCWdvdG8gZXJyX3hkcDsKPj4gKwo+PiAgIAkJLyogVGhpcyBoYXBwZW5zIHdoZW4g
-cnggYnVmZmVyIHNpemUgaXMgdW5kZXJlc3RpbWF0ZWQKPj4gICAJCSAqIG9yIGhlYWRyb29tIGlz
-IG5vdCBlbm91Z2ggYmVjYXVzZSBvZiB0aGUgYnVmZmVyCj4+ICAgCQkgKiB3YXMgcmVmaWxsZWQg
-YmVmb3JlIFhEUCBpcyBzZXQuIFRoaXMgc2hvdWxkIG9ubHkKPj4gQEAgLTcyOCwxNCArNzM2LDYg
-QEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZlX21lcmdlYWJsZShzdHJ1Y3QgbmV0X2Rl
-dmljZSAqZGV2LAo+PiAgIAkJCXhkcF9wYWdlID0gcGFnZTsKPj4gICAJCX0KPj4gICAKPj4gLQkJ
-LyogVHJhbnNpZW50IGZhaWx1cmUgd2hpY2ggaW4gdGhlb3J5IGNvdWxkIG9jY3VyIGlmCj4+IC0J
-CSAqIGluLWZsaWdodCBwYWNrZXRzIGZyb20gYmVmb3JlIFhEUCB3YXMgZW5hYmxlZCByZWFjaAo+
-PiAtCQkgKiB0aGUgcmVjZWl2ZSBwYXRoIGFmdGVyIFhEUCBpcyBsb2FkZWQuIEluIHByYWN0aWNl
-IEkKPj4gLQkJICogd2FzIG5vdCBhYmxlIHRvIGNyZWF0ZSB0aGlzIGNvbmRpdGlvbi4KPj4gLQkJ
-ICovCj4+IC0JCWlmICh1bmxpa2VseShoZHItPmhkci5nc29fdHlwZSkpCj4+IC0JCQlnb3RvIGVy
-cl94ZHA7Cj4+IC0KPj4gICAJCS8qIEFsbG93IGNvbnN1bWluZyBoZWFkcm9vbSBidXQgcmVzZXJ2
-ZSBlbm91Z2ggc3BhY2UgdG8gcHVzaAo+PiAgIAkJICogdGhlIGRlc2NyaXB0b3Igb24gaWYgd2Ug
-Z2V0IGFuIFhEUF9UWCByZXR1cm4gY29kZS4KPj4gICAJCSAqLwo+PiAtLSAKPj4gMi43LjQKCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+After a linearized packet was redirected by XDP, we should not go for
+the err path which will try to pop buffers for the next packet and
+increase the drop counter. Fixing this by just drop the page refcnt
+for the original page.
+
+Fixes: 186b3c998c50 ("virtio-net: support XDP_REDIRECT")
+Reported-by: David Ahern <dsahern@gmail.com>
+Tested-by: David Ahern <dsahern@gmail.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 770422e..c15d240 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -787,7 +787,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 			}
+ 			*xdp_xmit = true;
+ 			if (unlikely(xdp_page != page))
+-				goto err_xdp;
++				put_page(page);
+ 			rcu_read_unlock();
+ 			goto xdp_xmit;
+ 		default:
+-- 
+2.7.4
