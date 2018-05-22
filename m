@@ -1,24 +1,21 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v11 2/5] netvsc: refactor notifier/event
-	handling code to use the failover framework
-Date: Tue, 22 May 2018 22:54:35 +0300
-Message-ID: <20180522204216-mutt-send-email-mst__22292.1869754375$1527018785$gmane$org@kernel.org>
-References: <20180522161007-mutt-send-email-mst@kernel.org>
-	<20180522131422.GG2149@nanopsycho>
-	<20180522161509-mutt-send-email-mst@kernel.org>
-	<20180522132626.GH2149@nanopsycho>
-	<20180522163502-mutt-send-email-mst@kernel.org>
-	<20180522151343.GJ2149@nanopsycho>
-	<20180522181804-mutt-send-email-mst@kernel.org>
-	<20180522154501.GL2149@nanopsycho>
-	<20180522194633-mutt-send-email-mst@kernel.org>
-	<20180522173844.GP2149@nanopsycho>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [PATCH net-next v11 2/5] netvsc: refactor notifier/event handling
+	code to use the failover framework
+Date: Tue, 22 May 2018 13:54:29 -0700
+Message-ID: <8f611f3b-88d7-4d41-fd47-d07f11d0f25a__23933.5736180239$1527022353$gmane$org@intel.com>
+References: <1526954781-35359-1-git-send-email-sridhar.samudrala@intel.com>
+	<1526954781-35359-3-git-send-email-sridhar.samudrala@intel.com>
+	<20180522090637.GE2149@nanopsycho> <20180522090853.GF2149@nanopsycho>
+	<39081bce-3913-5b07-3d07-0c476fca5e78@intel.com>
+	<20180522153614.GK2149@nanopsycho>
+	<20180522184112-mutt-send-email-mst@kernel.org>
+	<20180522161246.GN2149@nanopsycho>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180522173844.GP2149@nanopsycho>
+In-Reply-To: <20180522161246.GN2149@nanopsycho>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,36 +25,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
+To: Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 22, 2018 at 07:38:44PM +0200, Jiri Pirko wrote:
-> >> >> In private
-> >> >> flag. I don't see no reason to break this pattern here.
-> >> >
-> >> >Other masters are setup from userspace, this one is set up automatically
-> >> >by kernel. So the bar is higher, we need an interface that existing
-> >> >userspace knows about.  We can't just say "oh if userspace set this up
-> >> >it should know to skip lowerdevs".
-> >> >
-> >> >Otherwise multiple interfaces with same mac tend to confuse userspace.
-> >> 
-> >> No difference, really.
-> >> Regardless who does the setup, and independent userspace deamon should
-> >> react accordingly.
-> >
-> >If the deamon does the setup itself, it's reasonable to require that it
-> >learns about new flags each time we add a new driver.  If it doesn't,
-> >then I think it's less reasonable.
-> 
-> No need. The "IFLA_MASTER" attr is always there to be looked at. That is
-> enough.
-
-Oh so if it has an master, skip it? Sorry, I misunderstood what you were
-saying earlier.
-
-Thanks, this makes sense to me.
-
--- 
-MST
+CgpPbiA1LzIyLzIwMTggOToxMiBBTSwgSmlyaSBQaXJrbyB3cm90ZToKPiBGaXhpbmcgdGhlIHN1
+YmosIHNvcnJ5IGFib3V0IHRoYXQuCj4KPiBUdWUsIE1heSAyMiwgMjAxOCBhdCAwNTo0NjoyMVBN
+IENFU1QsIG1zdEByZWRoYXQuY29tIHdyb3RlOgo+PiBPbiBUdWUsIE1heSAyMiwgMjAxOCBhdCAw
+NTozNjoxNFBNICswMjAwLCBKaXJpIFBpcmtvIHdyb3RlOgo+Pj4gVHVlLCBNYXkgMjIsIDIwMTgg
+YXQgMDU6Mjg6NDJQTSBDRVNULCBzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5jb20gd3JvdGU6Cj4+
+Pj4gT24gNS8yMi8yMDE4IDI6MDggQU0sIEppcmkgUGlya28gd3JvdGU6Cj4+Pj4+IFR1ZSwgTWF5
+IDIyLCAyMDE4IGF0IDExOjA2OjM3QU0gQ0VTVCwgamlyaUByZXNudWxsaS51cyB3cm90ZToKPj4+
+Pj4+IFR1ZSwgTWF5IDIyLCAyMDE4IGF0IDA0OjA2OjE4QU0gQ0VTVCwgc3JpZGhhci5zYW11ZHJh
+bGFAaW50ZWwuY29tIHdyb3RlOgo+Pj4+Pj4+IFVzZSB0aGUgcmVnaXN0cmF0aW9uL25vdGlmaWNh
+dGlvbiBmcmFtZXdvcmsgc3VwcG9ydGVkIGJ5IHRoZSBnZW5lcmljCj4+Pj4+Pj4gZmFpbG92ZXIg
+aW5mcmFzdHJ1Y3R1cmUuCj4+Pj4+Pj4KPj4+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBTcmlkaGFyIFNh
+bXVkcmFsYSA8c3JpZGhhci5zYW11ZHJhbGFAaW50ZWwuY29tPgo+Pj4+Pj4gSW4gcHJldmlvdXMg
+cGF0Y2hzZXQgdmVyc2lvbnMsIHRoZSBjb21tb24gY29kZSBkaWQKPj4+Pj4+IG5ldGRldl9yeF9o
+YW5kbGVyX3JlZ2lzdGVyKCkgYW5kIG5ldGRldl91cHBlcl9kZXZfbGluaygpIGV0Ywo+Pj4+Pj4g
+KG5ldHZzY192Zl9qb2luKCkpLiBOb3csIHRoaXMgaXMgc3RpbGwgZG9uZSBpbiBuZXR2c2MuIFdo
+eT8KPj4+Pj4+Cj4+Pj4+PiBUaGlzIHNob3VsZCBiZSBwYXJ0IG9mIHRoZSBjb21tb24gImZhaWxv
+dmVyIiBjb2RlLgo+Pj4+IEJhc2VkIG9uIFN0ZXBoZW4ncyBmZWVkYmFjayBvbiBlYXJsaWVyIHBh
+dGNoZXMsIGkgdHJpZWQgdG8gbWluaW1pemUgdGhlIGNoYW5nZXMgdG8KPj4+PiBuZXR2c2MgYW5k
+IG9ubHkgY29tbW9uaXplIHRoZSBub3RpZmllciBhbmQgdGhlIG1haW4gZXZlbnQgaGFuZGxlciBy
+b3V0aW5lLgo+Pj4+IEFub3RoZXIgY29tcGxpY2F0aW9uIGlzIHRoYXQgbmV0dnNjIGRvZXMgcGFy
+dCBvZiByZWdpc3RyYXRpb24gaW4gYSBkZWxheWVkIHdvcmtxdWV1ZS4KPj4+IDooIFRoaXMga2lu
+ZCBvZiBkZWdyYWRlcyB0aGUgd2hvbGUgZWZmb3JkIG9mIGhhdmluZyBzaW5nbGUgc29sdXRpb24K
+Pj4+IGluICJmYWlsb3ZlciIgbW9kdWxlLiBJIHRoaW5rIHRoYXQgY29tbW9uIHBhcnRzLCBhcwo+
+Pj4gbmV0ZGV2X3J4X2hhbmRsZXJfcmVnaXN0ZXIoKSBhbmQgb3RoZXJzIGNlcnRhaW5seSBpcyBz
+aG91bGQgYmUgaW5zaWRlCj4+PiB0aGUgY29tbW9uIG1vZHVsZS4gVGhpcyBpcyBub3QgYSBnb29k
+IHRpbWUgdG8gbWluaW1pemUgY2hhbmdlcy4gTGV0J3MgZG8KPj4+IHRoZSB0aGluZyBwcm9wZXJs
+eSBhbmQgZml4IHRoZSBuZXR2c2MgbWVzcyBub3cuCj4+Pgo+Pj4KPj4+PiBJdCBzaG91bGQgYmUg
+cG9zc2libGUgdG8gbW92ZSBzb21lIG9mIHRoZSBjb2RlIGZyb20gbmV0X2ZhaWxvdmVyLmMgdG8g
+Z2VuZXJpYwo+Pj4+IGZhaWxvdmVyLmMgaW4gZnV0dXJlIGlmIFN0ZXBoZW4gaXMgb2sgd2l0aCBp
+dC4KPj4+Pgo+Pj4+Cj4+Pj4+IEFsc28gbm90ZSB0aGF0IGluIHRoZSBjdXJyZW50IHBhdGNoc2V0
+IHlvdSB1c2UgSUZGX0ZBSUxPVkVSIGZsYWcgZm9yCj4+Pj4+IG1hc3RlciwgeWV0IGZvciB0aGUg
+c2xhdmUgeW91IHVzZSBJRkZfU0xBVkUuIFRoYXQgaXMgd3JvbmcuCj4+Pj4+IElGRl9GQUlMT1ZF
+Ul9TTEFWRSBzaG91bGQgYmUgdXNlZC4KPj4+PiBOb3Qgc3VyZSB3aGljaCBjb2RlIHlvdSBhcmUg
+cmVmZXJyaW5nIHRvLsKgIEkgb25seSBzZXQgSUZGX0ZBSUxPVkVSX1NMQVZFCj4+Pj4gaW4gcGF0
+Y2ggMy4KPj4+IFRoZSBleGlzdGluZyBuZXR2c2MgZHJpdmVyLgo+PiBXZSByZWFsbHkgY2FuJ3Qg
+Y2hhbmdlIG5ldHZzYydzIGZsYWdzIG5vdywgZXZlbiBpZiBpdCdzIGludGVyZmFjZSBpcwo+PiBt
+ZXNzeSwgaXQncyBiZWluZyB1c2VkIGluIHRoZSBmaWVsZC4gV2UgY2FuIGFkZCBhIGZsYWcgdGhh
+dCBtYWtlcyBuZXR2c2MKPj4gYmVoYXZlIGRpZmZlcmVudGx5LCBhbmQgaWYgdGhpcyBmbGFnIGFs
+c28gYWxsb3dzIGVuaGFuY2VkIGZ1bmN0aW9uYWxpdHkKPj4gdXNlcnNwYWNlIHdpbGwgZ3JhZHVh
+bGx5IHN3aXRjaC4KPiBPa2F5LCBhbHRob3VnaCBpbiB0aGlzIGNhc2UsIGl0IHJlYWxseSBkb2Vz
+IG5vdCBtYWtlIG11Y2ggc2Vuc2UsIHNvIGJlCj4gaXQuIExlYXZlIHRoZSBuZXR2c2Mgc2V0IHRo
+ZSAtPnByaXYgZmxhZyB0byBJRkZfU0xBVkUgYXMgaXQgaXMgZG9pbmcKPiBub3cuIChUaGlzIG9u
+Y2Utd3JvbmctZm9yZXZlci13cm9uZyBwb2xpY3kgaXMgZmx1c3RyYXRpbmcgbWUpLgo+Cj4gQnV0
+IHNpbmNlIHRoaXMgcGF0Y2hzZXQgaW50cm9kdWNlcyBwcml2YXRlIGZsYWcgSUZGX0ZBSUxPVkVS
+IGFuZAo+IElGRl9GQUlMT1ZFUl9TTEFWRSwgYW5kIHdlIHNldCBJRkZfRkFJTE9WRVIgdG8gdGhl
+IG5ldHZzYyBuZXRkZXYKPiBpbnN0YW5jZSwgd2Ugc2hvdWxkIGFsc28gc2V0IElGRl9GQUlMT1ZF
+Ul9TTEFWRSB0byB0aGUgZW5zbGF2ZWQgVkYKPiBuZXRkZXZpY2UgdG8gZ2V0IGF0IGxlYXN0IHNv
+bWUgY29uc2lzdGVuY3kgYmV0d2VlbiB2aXJ0aW9fbmV0IGFuZAo+IG5ldHZzYy4KCk9LLiBJIGNh
+biBtYWtlIHRoaXMgY2hhbmdlIHRvIHNldC91bnNldCBJRkZfRkFJTE9WRVJfU0xBVkUgaW4gdGhl
+IG5ldHZzYwpyZWdpc3Rlci91bnJlZ2lzdGVyIHJvdXRpbmVzIHNvIHRoYXQgaXQgaXMgY29uc2lz
+dGVudCB3aXRoIHZpcnRpb19uZXQuCgpCYXNlZCBvbiB5b3VyIGRpc2N1c3Npb24gd2l0aCBtc3Qs
+IGkgdGhpbmsgd2UgY2FuIGV2ZW4gcmVtb3ZlIElGRl9TTEFWRQpzZXR0aW5nIG9uIG5ldHZzYyBh
+cyBpdCBzaG91bGQgbm90IGltcGFjdCB1c2Vyc3BhY2UuICBJZiBTdGVwaGVuIGlzIE9LCndlIGNh
+biBtYWtlIHRoaXMgY2hhbmdlIHRvby4KCkRvIHlvdSBzZWUgYW55IG90aGVyIGl0ZW1zIHRoYXQg
+bmVlZCB0byBiZSByZXNvbHZlZCBmb3IgdGhpcyBzZXJpZXMgdG8gZ28gaW4KdGhpcyBtZXJnZSB3
+aW5kb3c/CgoKCj4KPj4gQW55dGhpbmcgYnJlYWtpbmcgdXNlcnNwYWNlIEkgZnVsbHkgZXhwZWN0
+IFN0ZXBoZW4gdG8gbmFjayBhbmQKPj4gSU1PIHdpdGggZ29vZCByZWFzb24uCj4+Cj4+IC0tIAo+
+PiBNU1QKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
