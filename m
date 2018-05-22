@@ -1,8 +1,7 @@
-From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Subject: [RFC V2] virtio: Add platform specific DMA API translation for virito
-	devices
-Date: Tue, 22 May 2018 12:03:17 +0530
-Message-ID: <20180522063317.20956-1-khandual__4872.97024014897$1526970710$gmane$org@linux.vnet.ibm.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: [RFC v5 0/5] virtio: support packed ring
+Date: Tue, 22 May 2018 16:16:43 +0800
+Message-ID: <20180522081648.14768-1-tiwei.bie__48550.2097326846$1526976921$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,108 +15,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: robh@kernel.org, mst@redhat.com, benh@kernel.crashing.org, hch@infradead.org, mpe@ellerman.id.au, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This adds a hook which a platform can define in order to allow it to
-force the use of the DMA API for all virtio devices even if they don't
-have the VIRTIO_F_IOMMU_PLATFORM flag set.  We want to use this to do
-bounce-buffering of data on the new secure pSeries platform, currently
-under development, where a KVM host cannot access all of the memory
-space of a secure KVM guest.  The host can only access the pages which
-the guest has explicitly requested to be shared with the host, thus
-the virtio implementation in the guest has to copy data to and from
-shared pages.
+Hello everyone,
 
-With this hook, the platform code in the secure guest can force the
-use of swiotlb for virtio buffers, with a back-end for swiotlb which
-will use a pool of pre-allocated shared pages.  Thus all data being
-sent or received by virtio devices will be copied through pages which
-the host has access to.
+This RFC implements packed ring support in virtio driver.
 
-Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
----
-Changes in V2:
+Some simple functional tests have been done with Jason's
+packed ring implementation in vhost (RFC v4):
 
-The arch callback has been enabled through an weak symbol defintion
-so that it is enabled only for those architectures subscribing to
-this new framework. Clarified the patch description. The primary
-objective for this RFC has been to get an in principle agreement
-on this approach.
+https://lkml.org/lkml/2018/5/16/501
 
-Original V1:
+Both of ping and netperf worked as expected w/ EVENT_IDX
+disabled. Ping worked as expected w/ EVENT_IDX enabled,
+but netperf didn't (A hack has been added in the driver
+to make netperf test pass in this case. The hack can be
+found by `grep -rw XXX` in the code).
 
-Original RFC and discussions https://patchwork.kernel.org/patch/10324405/
+TODO:
+- Refinements (for code and commit log);
+- More tests;
+- Bug fixes;
 
- arch/powerpc/include/asm/dma-mapping.h |  6 ++++++
- arch/powerpc/platforms/pseries/iommu.c | 11 +++++++++++
- drivers/virtio/virtio_ring.c           | 10 ++++++++++
- 3 files changed, 27 insertions(+)
+RFC v4 -> RFC v5:
+- Save DMA addr, etc in desc state (Jason);
+- Track used wrap counter;
 
-diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
-index 8fa3945..056e578 100644
---- a/arch/powerpc/include/asm/dma-mapping.h
-+++ b/arch/powerpc/include/asm/dma-mapping.h
-@@ -115,4 +115,10 @@ extern u64 __dma_get_required_mask(struct device *dev);
- #define ARCH_HAS_DMA_MMAP_COHERENT
- 
- #endif /* __KERNEL__ */
-+
-+#define platform_forces_virtio_dma platform_forces_virtio_dma
-+
-+struct virtio_device;
-+
-+extern bool platform_forces_virtio_dma(struct virtio_device *vdev);
- #endif	/* _ASM_DMA_MAPPING_H */
-diff --git a/arch/powerpc/platforms/pseries/iommu.c b/arch/powerpc/platforms/pseries/iommu.c
-index 06f0296..a2ec15a 100644
---- a/arch/powerpc/platforms/pseries/iommu.c
-+++ b/arch/powerpc/platforms/pseries/iommu.c
-@@ -38,6 +38,7 @@
- #include <linux/of.h>
- #include <linux/iommu.h>
- #include <linux/rculist.h>
-+#include <linux/virtio.h>
- #include <asm/io.h>
- #include <asm/prom.h>
- #include <asm/rtas.h>
-@@ -1396,3 +1397,13 @@ static int __init disable_multitce(char *str)
- __setup("multitce=", disable_multitce);
- 
- machine_subsys_initcall_sync(pseries, tce_iommu_bus_notifier_init);
-+
-+bool platform_forces_virtio_dma(struct virtio_device *vdev)
-+{
-+	/*
-+	 * On protected guest platforms, force virtio core to use DMA
-+	 * MAP API for all virtio devices. But there can also be some
-+	 * exceptions for individual devices like virtio balloon.
-+	 */
-+	return (of_find_compatible_node(NULL, NULL, "ibm,ultravisor") != NULL);
-+}
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 21d464a..47ea6c3 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -141,8 +141,18 @@ struct vring_virtqueue {
-  * unconditionally on data path.
-  */
- 
-+#ifndef platform_forces_virtio_dma
-+static inline bool platform_forces_virtio_dma(struct virtio_device *vdev)
-+{
-+	return false;
-+}
-+#endif
-+
- static bool vring_use_dma_api(struct virtio_device *vdev)
- {
-+	if (platform_forces_virtio_dma(vdev))
-+		return true;
-+
- 	if (!virtio_has_iommu_quirk(vdev))
- 		return true;
- 
+RFC v3 -> RFC v4:
+- Make ID allocation support out-of-order (Jason);
+- Various fixes for EVENT_IDX support;
+
+RFC v2 -> RFC v3:
+- Split into small patches (Jason);
+- Add helper virtqueue_use_indirect() (Jason);
+- Just set id for the last descriptor of a list (Jason);
+- Calculate the prev in virtqueue_add_packed() (Jason);
+- Fix/improve desc suppression code (Jason/MST);
+- Refine the code layout for XXX_split/packed and wrappers (MST);
+- Fix the comments and API in uapi (MST);
+- Remove the BUG_ON() for indirect (Jason);
+- Some other refinements and bug fixes;
+
+RFC v1 -> RFC v2:
+- Add indirect descriptor support - compile test only;
+- Add event suppression supprt - compile test only;
+- Move vring_packed_init() out of uapi (Jason, MST);
+- Merge two loops into one in virtqueue_add_packed() (Jason);
+- Split vring_unmap_one() for packed ring and split ring (Jason);
+- Avoid using '%' operator (Jason);
+- Rename free_head -> next_avail_idx (Jason);
+- Add comments for virtio_wmb() in virtqueue_add_packed() (Jason);
+- Some other refinements and bug fixes;
+
+Thanks!
+
+Tiwei Bie (5):
+  virtio: add packed ring definitions
+  virtio_ring: support creating packed ring
+  virtio_ring: add packed ring support
+  virtio_ring: add event idx support in packed ring
+  virtio_ring: enable packed ring
+
+ drivers/virtio/virtio_ring.c       | 1354 ++++++++++++++++++++++------
+ include/linux/virtio_ring.h        |    8 +-
+ include/uapi/linux/virtio_config.h |    5 +-
+ include/uapi/linux/virtio_ring.h   |   36 +
+ 4 files changed, 1125 insertions(+), 278 deletions(-)
+
 -- 
-2.9.3
+2.17.0
