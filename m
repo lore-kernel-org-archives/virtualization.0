@@ -1,18 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: KASAN: use-after-free Read in vhost_chr_write_iter
-Date: Tue, 22 May 2018 06:53:27 +0300
-Message-ID: <20180522065147-mutt-send-email-mst__28981.6010663801$1526961108$gmane$org@kernel.org>
-References: <20180517134544.GA20646@dragonet.kaist.ac.kr>
-	<58419d62-3074-2e5a-8504-da1cdeb08280@redhat.com>
-	<fb27c1fd-5172-252a-cb8f-b53927a26d06@redhat.com>
-	<20180521173645-mutt-send-email-mst@kernel.org>
-	<51cf8274-162f-384b-0ff7-47fbf15412f1@redhat.com>
+From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Subject: [RFC V2] virtio: Add platform specific DMA API translation for virito
+	devices
+Date: Tue, 22 May 2018 12:03:17 +0530
+Message-ID: <20180522063317.20956-1-khandual__4872.97024014897$1526970710$gmane$org@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <51cf8274-162f-384b-0ff7-47fbf15412f1@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,81 +16,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: bammanag@purdue.edu, kt0755@gmail.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, byoungyoung@purdue.edu, DaeRyong Jeong <threeearcat@gmail.com>
+To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: robh@kernel.org, mst@redhat.com, benh@kernel.crashing.org, hch@infradead.org, mpe@ellerman.id.au, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBNYXkgMjIsIDIwMTggYXQgMTE6NTA6MjlBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDXmnIgyMeaXpSAyMjo0MiwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gT24gTW9uLCBNYXkgMjEsIDIwMTggYXQgMTA6Mzg6MTBBTSArMDgwMCwgSmFz
-b24gV2FuZyB3cm90ZToKPiA+ID4gT24gMjAxOOW5tDA15pyIMTjml6UgMTc6MjQsIEphc29uIFdh
-bmcgd3JvdGU6Cj4gPiA+ID4gT24gMjAxOOW5tDA15pyIMTfml6UgMjE6NDUsIERhZVJ5b25nIEpl
-b25nIHdyb3RlOgo+ID4gPiA+ID4gV2UgcmVwb3J0IHRoZSBjcmFzaDogS0FTQU46IHVzZS1hZnRl
-ci1mcmVlIFJlYWQgaW4gdmhvc3RfY2hyX3dyaXRlX2l0ZXIKPiA+ID4gPiA+IAo+ID4gPiA+ID4g
-VGhpcyBjcmFzaCBoYXMgYmVlbiBmb3VuZCBpbiB2NC4xNy1yYzEgdXNpbmcgUmFjZUZ1enplciAo
-YSBtb2RpZmllZAo+ID4gPiA+ID4gdmVyc2lvbiBvZiBTeXprYWxsZXIpLCB3aGljaCB3ZSBkZXNj
-cmliZSBtb3JlIGF0IHRoZSBlbmQgb2YgdGhpcwo+ID4gPiA+ID4gcmVwb3J0LiBPdXIgYW5hbHlz
-aXMgc2hvd3MgdGhhdCB0aGUgcmFjZSBvY2N1cnMgd2hlbiBpbnZva2luZyB0d28KPiA+ID4gPiA+
-IHN5c2NhbGxzIGNvbmN1cnJlbnRseSwgd3JpdGUkdm5ldCBhbmQgaW9jdGwkVkhPU1RfUkVTRVRf
-T1dORVIuCj4gPiA+ID4gPiAKPiA+ID4gPiA+IAo+ID4gPiA+ID4gQW5hbHlzaXM6Cj4gPiA+ID4g
-PiBXZSB0aGluayB0aGUgY29uY3VycmVudCBleGVjdXRpb24gb2Ygdmhvc3RfcHJvY2Vzc19pb3Rs
-Yl9tc2coKSBhbmQKPiA+ID4gPiA+IHZob3N0X2Rldl9jbGVhbnVwKCkgY2F1c2VzIHRoZSBjcmFz
-aC4KPiA+ID4gPiA+IEJvdGggb2YgZnVuY3Rpb25zIGNhbiBydW4gY29uY3VycmVudGx5IChwbGVh
-c2Ugc2VlIGNhbGwgc2VxdWVuY2UgYmVsb3cpLAo+ID4gPiA+ID4gYW5kIHBvc3NpYmx5LCB0aGVy
-ZSBpcyBhIHJhY2Ugb24gZGV2LT5pb3RsYi4KPiA+ID4gPiA+IElmIHRoZSBzd2l0Y2ggb2NjdXJz
-IHJpZ2h0IGFmdGVyIHZob3N0X2Rldl9jbGVhbnVwKCkgZnJlZXMKPiA+ID4gPiA+IGRldi0+aW90
-bGIsIHZob3N0X3Byb2Nlc3NfaW90bGJfbXNnKCkgc3RpbGwgc2VlcyB0aGUgbm9uLW51bGwgdmFs
-dWUKPiA+ID4gPiA+IGFuZCBpdAo+ID4gPiA+ID4ga2VlcCBleGVjdXRpbmcgd2l0aG91dCByZXR1
-cm5pbmcgLUVGQVVMVC4gQ29uc2VxdWVudGx5LCB1c2UtYWZ0ZXItZnJlZQo+ID4gPiA+ID4gb2Nj
-dXJlcwo+ID4gPiA+ID4gCj4gPiA+ID4gPiAKPiA+ID4gPiA+IFRocmVhZCBpbnRlcmxlYXZpbmc6
-Cj4gPiA+ID4gPiBDUFUwICh2aG9zdF9wcm9jZXNzX2lvdGxiX21zZynCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqAgQ1BVMSAodmhvc3RfZGV2X2NsZWFudXApCj4gPiA+ID4gPiAoSW4gdGhl
-IGNhc2Ugb2YgYm90aCBWSE9TVF9JT1RMQl9VUERBVEUgYW5kCj4gPiA+ID4gPiBWSE9TVF9JT1RM
-Ql9JTlZBTElEQVRFKQo+ID4gPiA+ID4gPT09PT3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgPT09PT0KPiA+ID4gPiA+ICDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdmhvc3RfdW1lbV9jbGVh
-bihkZXYtPmlvdGxiKTsKPiA+ID4gPiA+IGlmICghZGV2LT5pb3RsYikgewo+ID4gPiA+ID4gIMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0ID0gLUVGQVVMVDsKPiA+ID4gPiA+ICDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgYnJlYWs7Cj4gPiA+ID4gPiB9Cj4gPiA+ID4gPiAgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGRldi0+aW90
-bGIgPSBOVUxMOwo+ID4gPiA+ID4gCj4gPiA+ID4gPiAKPiA+ID4gPiA+IENhbGwgU2VxdWVuY2U6
-Cj4gPiA+ID4gPiBDUFUwCj4gPiA+ID4gPiA9PT09PQo+ID4gPiA+ID4gdmhvc3RfbmV0X2Nocl93
-cml0ZV9pdGVyCj4gPiA+ID4gPiAgwqDCoMKgwqB2aG9zdF9jaHJfd3JpdGVfaXRlcgo+ID4gPiA+
-ID4gIMKgwqDCoMKgwqDCoMKgIHZob3N0X3Byb2Nlc3NfaW90bGJfbXNnCj4gPiA+ID4gPiAKPiA+
-ID4gPiA+IENQVTEKPiA+ID4gPiA+ID09PT09Cj4gPiA+ID4gPiB2aG9zdF9uZXRfaW9jdGwKPiA+
-ID4gPiA+ICDCoMKgwqDCoHZob3N0X25ldF9yZXNldF9vd25lcgo+ID4gPiA+ID4gIMKgwqDCoMKg
-wqDCoMKgIHZob3N0X2Rldl9yZXNldF9vd25lcgo+ID4gPiA+ID4gIMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqAgdmhvc3RfZGV2X2NsZWFudXAKPiA+ID4gPiBUaGFua3MgYSBsb3QgZm9yIHRoZSBhbmFs
-eXNpcy4KPiA+ID4gPiAKPiA+ID4gPiBUaGlzIGNvdWxkIGJlIGFkZHJlc3NlZCBieSBzaW1wbHkg
-cHJvdGVjdCBpdCB3aXRoIGRldiBtdXRleC4KPiA+ID4gPiAKPiA+ID4gPiBXaWxsIHBvc3QgYSBw
-YXRjaC4KPiA+ID4gPiAKPiA+ID4gQ291bGQgeW91IHBsZWFzZSBoZWxwIHRvIHRlc3QgdGhlIGF0
-dGFjaGVkIHBhdGNoPyBJJ3ZlIGRvbmUgc29tZSBzbW9raW5nCj4gPiA+IHRlc3QuCj4gPiA+IAo+
-ID4gPiBUaGFua3MKPiA+ID4gPkZyb20gODgzMjgzODZmM2Y2NTJlNjg0ZWUzM2RjNGNmNjNkY2Fl
-ZDg3MWFlYSBNb24gU2VwIDE3IDAwOjAwOjAwIDIwMDEKPiA+ID4gRnJvbTogSmFzb24gV2FuZzxq
-YXNvd2FuZ0ByZWRoYXQuY29tPgo+ID4gPiBEYXRlOiBGcmksIDE4IE1heSAyMDE4IDE3OjMzOjI3
-ICswODAwCj4gPiA+IFN1YmplY3Q6IFtQQVRDSF0gdmhvc3Q6IHN5bmNocm9uaXplIElPVExCIG1l
-c3NhZ2Ugd2l0aCBkZXYgY2xlYW51cAo+ID4gPiAKPiA+ID4gRGFlUnlvbmcgSmVvbmcgcmVwb3J0
-cyBhIHJhY2UgYmV0d2VlbiB2aG9zdF9kZXZfY2xlYW51cCgpIGFuZAo+ID4gPiB2aG9zdF9wcm9j
-ZXNzX2lvdGxiX21zZygpOgo+ID4gPiAKPiA+ID4gVGhyZWFkIGludGVybGVhdmluZzoKPiA+ID4g
-Q1BVMCAodmhvc3RfcHJvY2Vzc19pb3RsYl9tc2cpCQkJQ1BVMSAodmhvc3RfZGV2X2NsZWFudXAp
-Cj4gPiA+IChJbiB0aGUgY2FzZSBvZiBib3RoIFZIT1NUX0lPVExCX1VQREFURSBhbmQKPiA+ID4g
-VkhPU1RfSU9UTEJfSU5WQUxJREFURSkKPiA+ID4gPT09PT0JCQkJCQk9PT09PQo+ID4gPiAJCQkJ
-CQl2aG9zdF91bWVtX2NsZWFuKGRldi0+aW90bGIpOwo+ID4gPiBpZiAoIWRldi0+aW90bGIpIHsK
-PiA+ID4gCSAgICAgICAgcmV0ID0gLUVGQVVMVDsKPiA+ID4gCQkgICAgICAgIGJyZWFrOwo+ID4g
-PiB9Cj4gPiA+IAkJCQkJCWRldi0+aW90bGIgPSBOVUxMOwo+ID4gPiAKPiA+ID4gVGhlIHJlYXNv
-biBpcyB3ZSBkb24ndCBzeW5jaHJvbml6ZSBiZXR3ZWVuIHRoZW0sIGZpeGluZyBieSBwcm90ZWN0
-aW5nCj4gPiA+IHZob3N0X3Byb2Nlc3NfaW90bGJfbXNnKCkgd2l0aCBkZXYgbXV0ZXguCj4gPiA+
-IAo+ID4gPiBSZXBvcnRlZC1ieTogRGFlUnlvbmcgSmVvbmc8dGhyZWVlYXJjYXRAZ21haWwuY29t
-Pgo+ID4gPiBGaXhlczogNmIxZTZjYzc4NTViMCAoInZob3N0OiBuZXcgZGV2aWNlIElPVExCIEFQ
-SSIpCj4gPiA+IFJlcG9ydGVkLWJ5OiBEYWVSeW9uZyBKZW9uZzx0aHJlZWVhcmNhdEBnbWFpbC5j
-b20+Cj4gPiBMb25nIHRlcm1zIHdlIG1pZ2h0IHdhbnQgdG8gbW92ZSBpb3RsYiBpbnRvIHZxcwo+
-ID4gc28gdGhhdCBtZXNzYWdlcyBjYW4gYmUgcHJvY2Vzc2VkIGluIHBhcmFsbGVsLgo+ID4gTm90
-IHN1cmUgaG93IHRvIGRvIGl0IHlldC4KPiA+IAo+IAo+IFRoZW4gd2UgcHJvYmFibHkgbmVlZCB0
-byBleHRlbmQgSU9UTEIgbXNnIHRvIGhhdmUgYSBxdWV1ZSBpZHguIEJ1dCBJIHRoaW5raXQKPiB3
-YXMgcHJvYmFibHkgb25seSBoZWxwIGlmIHdlIHNwbGl0IHR4L3J4IGludG8gc2VwYXJhdGUgcHJv
-Y2Vzc2VzLgo+IAo+IFRoYW5rcwoKMyBtdXRleCBsb2NrcyBvbiBlYWNoIGFjY2VzcyBpc24ndCBw
-cmV0dHkgZXZlbiBpZiBkb25lIGJ5CmEgc2luZ2xlIHByb2Nlc3MsIGJ1dCB5ZXMgLSBtaWdodCBi
-ZSBtb3JlIGltcG9ydGFudCBmb3Igc2NzaS4KCi0tIApNU1QKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+This adds a hook which a platform can define in order to allow it to
+force the use of the DMA API for all virtio devices even if they don't
+have the VIRTIO_F_IOMMU_PLATFORM flag set.  We want to use this to do
+bounce-buffering of data on the new secure pSeries platform, currently
+under development, where a KVM host cannot access all of the memory
+space of a secure KVM guest.  The host can only access the pages which
+the guest has explicitly requested to be shared with the host, thus
+the virtio implementation in the guest has to copy data to and from
+shared pages.
+
+With this hook, the platform code in the secure guest can force the
+use of swiotlb for virtio buffers, with a back-end for swiotlb which
+will use a pool of pre-allocated shared pages.  Thus all data being
+sent or received by virtio devices will be copied through pages which
+the host has access to.
+
+Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+---
+Changes in V2:
+
+The arch callback has been enabled through an weak symbol defintion
+so that it is enabled only for those architectures subscribing to
+this new framework. Clarified the patch description. The primary
+objective for this RFC has been to get an in principle agreement
+on this approach.
+
+Original V1:
+
+Original RFC and discussions https://patchwork.kernel.org/patch/10324405/
+
+ arch/powerpc/include/asm/dma-mapping.h |  6 ++++++
+ arch/powerpc/platforms/pseries/iommu.c | 11 +++++++++++
+ drivers/virtio/virtio_ring.c           | 10 ++++++++++
+ 3 files changed, 27 insertions(+)
+
+diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
+index 8fa3945..056e578 100644
+--- a/arch/powerpc/include/asm/dma-mapping.h
++++ b/arch/powerpc/include/asm/dma-mapping.h
+@@ -115,4 +115,10 @@ extern u64 __dma_get_required_mask(struct device *dev);
+ #define ARCH_HAS_DMA_MMAP_COHERENT
+ 
+ #endif /* __KERNEL__ */
++
++#define platform_forces_virtio_dma platform_forces_virtio_dma
++
++struct virtio_device;
++
++extern bool platform_forces_virtio_dma(struct virtio_device *vdev);
+ #endif	/* _ASM_DMA_MAPPING_H */
+diff --git a/arch/powerpc/platforms/pseries/iommu.c b/arch/powerpc/platforms/pseries/iommu.c
+index 06f0296..a2ec15a 100644
+--- a/arch/powerpc/platforms/pseries/iommu.c
++++ b/arch/powerpc/platforms/pseries/iommu.c
+@@ -38,6 +38,7 @@
+ #include <linux/of.h>
+ #include <linux/iommu.h>
+ #include <linux/rculist.h>
++#include <linux/virtio.h>
+ #include <asm/io.h>
+ #include <asm/prom.h>
+ #include <asm/rtas.h>
+@@ -1396,3 +1397,13 @@ static int __init disable_multitce(char *str)
+ __setup("multitce=", disable_multitce);
+ 
+ machine_subsys_initcall_sync(pseries, tce_iommu_bus_notifier_init);
++
++bool platform_forces_virtio_dma(struct virtio_device *vdev)
++{
++	/*
++	 * On protected guest platforms, force virtio core to use DMA
++	 * MAP API for all virtio devices. But there can also be some
++	 * exceptions for individual devices like virtio balloon.
++	 */
++	return (of_find_compatible_node(NULL, NULL, "ibm,ultravisor") != NULL);
++}
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 21d464a..47ea6c3 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -141,8 +141,18 @@ struct vring_virtqueue {
+  * unconditionally on data path.
+  */
+ 
++#ifndef platform_forces_virtio_dma
++static inline bool platform_forces_virtio_dma(struct virtio_device *vdev)
++{
++	return false;
++}
++#endif
++
+ static bool vring_use_dma_api(struct virtio_device *vdev)
+ {
++	if (platform_forces_virtio_dma(vdev))
++		return true;
++
+ 	if (!virtio_has_iommu_quirk(vdev))
+ 		return true;
+ 
+-- 
+2.9.3
