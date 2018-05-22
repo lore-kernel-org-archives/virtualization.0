@@ -1,16 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC PATCH net-next 10/12] vhost_net: build xdp buff
-Date: Tue, 22 May 2018 20:41:09 +0800
-Message-ID: <000c64e8-9b70-a7f5-dbd3-c6112711d7df__38875.4947031432$1526992776$gmane$org@redhat.com>
-References: <1526893473-20128-1-git-send-email-jasowang@redhat.com>
-	<1526893473-20128-11-git-send-email-jasowang@redhat.com>
-	<20180521095611.00005caa@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next v11 2/5] netvsc: refactor notifier/event
+	handling code to use the failover framework
+Date: Tue, 22 May 2018 16:12:40 +0300
+Message-ID: <20180522161007-mutt-send-email-mst__36781.8543375053$1526994854$gmane$org@kernel.org>
+References: <1526954781-35359-1-git-send-email-sridhar.samudrala@intel.com>
+	<1526954781-35359-3-git-send-email-sridhar.samudrala@intel.com>
+	<20180522090637.GE2149@nanopsycho>
+	<20180522090853.GF2149@nanopsycho>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180521095611.00005caa@intel.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180522090853.GF2149@nanopsycho>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,80 +22,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgyMuaXpSAwMDo1NiwgSmVzc2UgQnJhbmRlYnVyZyB3cm90ZToKPiBP
-biBNb24sIDIxIE1heSAyMDE4IDE3OjA0OjMxICswODAwIEphc29uIHdyb3RlOgo+PiBUaGlzIHBh
-dGNoIGltcGxlbWVudCBidWlsZCBYRFAgYnVmZmVycyBpbiB2aG9zdF9uZXQuIFRoZSBpZGVhIGlz
-IGRvCj4+IHVzZXJzcGFjZSBjb3B5IGluIHZob3N0X25ldCBhbmQgYnVpbGQgWERQIGJ1ZmYgYmFz
-ZWQgb24gdGhlCj4+IHBhZ2UuIFZob3N0X25ldCBjYW4gdGhlbiBzdWJtaXQgb25lIG9yIGFuIGFy
-cmF5IG9mIFhEUCBidWZmcyB0bwo+PiB1bmRlcmxheWVyIHNvY2tldCAoZS5nIFRVTikuIFRVTiBj
-YW4gY2hvb3NlIHRvIGRvIFhEUCBvciBjYWxsCj4+IGJ1aWxkX3NrYigpIHRvIGJ1aWxkIHNrYi4g
-VG8gc3VwcG9ydCBidWlsZCBza2IsIHZuZXQgaGVhZGVyIHdlcmUgYWxzbwo+PiBzdG9yZWQgaW50
-byB0aGUgaGVhZGVyIG9mIHRoZSBYRFAgYnVmZi4KPj4KPj4gVGhpcyB1c2Vyc3BhY2UgY29weSBh
-bmQgWERQIGJ1ZmZzIGJ1aWxkaW5nIGlzIGtleSB0byBhY2hpZXZlIFhEUAo+PiBiYXRjaGluZyBp
-biBUVU4sIHNpbmNlIFRVTiBkb2VzIG5vdCBuZWVkIHRvIGNhcmUgYWJvdXQgdXNlcnNwYWNlIGNv
-cHkKPj4gYW5kIHRoZW4gY2FuIGRpc2FibGUgcHJlbW1wdGlvbiBmb3Igc2V2ZXJhbCBYRFAgYnVm
-ZnMgdG8gYWNoaWV2ZQo+PiBiYXRjaGluZyBmcm9tIFhEUC4KPj4KPj4gVE9ETzogcmVzZXJ2ZSBo
-ZWFkcm9vbSBiYXNlZCBvbiB0aGUgVFVOIFhEUC4KPj4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24g
-V2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4gLS0tCj4+ICAgZHJpdmVycy92aG9zdC9uZXQu
-YyB8IDc0ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrCj4+ICAgMSBmaWxlIGNoYW5nZWQsIDc0IGluc2VydGlvbnMoKykKPj4KPj4gZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvdmhvc3QvbmV0LmMgYi9kcml2ZXJzL3Zob3N0L25ldC5jCj4+IGluZGV4IGYw
-NjM5ZDcuLjEyMDllODQgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMKPj4gKysr
-IGIvZHJpdmVycy92aG9zdC9uZXQuYwo+PiBAQCAtNDkyLDYgKzQ5Miw4MCBAQCBzdGF0aWMgYm9v
-bCB2aG9zdF9oYXNfbW9yZV9wa3RzKHN0cnVjdCB2aG9zdF9uZXQgKm5ldCwKPj4gICAJICAgICAg
-IGxpa2VseSghdmhvc3RfZXhjZWVkc19tYXhwZW5kKG5ldCkpOwo+PiAgIH0KPj4gICAKPj4gKyNk
-ZWZpbmUgVkhPU1RfTkVUX0hFQURST09NIDI1Ngo+PiArI2RlZmluZSBWSE9TVF9ORVRfUlhfUEFE
-IChORVRfSVBfQUxJR04gKyBORVRfU0tCX1BBRCkKPj4gKwo+PiArc3RhdGljIGludCB2aG9zdF9u
-ZXRfYnVpbGRfeGRwKHN0cnVjdCB2aG9zdF9uZXRfdmlydHF1ZXVlICpudnEsCj4+ICsJCQkgICAg
-ICAgc3RydWN0IGlvdl9pdGVyICpmcm9tLAo+PiArCQkJICAgICAgIHN0cnVjdCB4ZHBfYnVmZiAq
-eGRwKQo+PiArewo+PiArCXN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxID0gJm52cS0+dnE7Cj4+
-ICsJc3RydWN0IHBhZ2VfZnJhZyAqYWxsb2NfZnJhZyA9ICZjdXJyZW50LT50YXNrX2ZyYWc7Cj4+
-ICsJc3RydWN0IHZpcnRpb19uZXRfaGRyICpnc287Cj4+ICsJc2l6ZV90IGxlbiA9IGlvdl9pdGVy
-X2NvdW50KGZyb20pOwo+PiArCWludCBidWZsZW4gPSBTS0JfREFUQV9BTElHTihzaXplb2Yoc3Ry
-dWN0IHNrYl9zaGFyZWRfaW5mbykpOwo+PiArCWludCBwYWQgPSBTS0JfREFUQV9BTElHTihWSE9T
-VF9ORVRfUlhfUEFEICsgVkhPU1RfTkVUX0hFQURST09NCj4+ICsJCQkJICsgbnZxLT5zb2NrX2hs
-ZW4pOwo+PiArCWludCBzb2NrX2hsZW4gPSBudnEtPnNvY2tfaGxlbjsKPj4gKwl2b2lkICpidWY7
-Cj4+ICsJaW50IGNvcGllZDsKPj4gKwo+PiArCWlmIChsZW4gPCBudnEtPnNvY2tfaGxlbikKPj4g
-KwkJcmV0dXJuIC1FRkFVTFQ7Cj4+ICsKPj4gKwlpZiAoU0tCX0RBVEFfQUxJR04obGVuICsgcGFk
-KSArCj4+ICsJICAgIFNLQl9EQVRBX0FMSUdOKHNpemVvZihzdHJ1Y3Qgc2tiX3NoYXJlZF9pbmZv
-KSkgPiBQQUdFX1NJWkUpCj4+ICsJCXJldHVybiAtRU5PU1BDOwo+PiArCj4+ICsJYnVmbGVuICs9
-IFNLQl9EQVRBX0FMSUdOKGxlbiArIHBhZCk7Cj4gbWF5YmUgc3RvcmUgdGhlIHJlc3VsdCBvZiBT
-S0JfREFUQV9BTElHTiBpbiBhIGxvY2FsIGluc3RlYWQgb2YgZG9pbmcKPiB0aGUgd29yayB0d2lj
-ZT8KCk9rLgoKPgo+PiArCWFsbG9jX2ZyYWctPm9mZnNldCA9IEFMSUdOKCh1NjQpYWxsb2NfZnJh
-Zy0+b2Zmc2V0LCBTTVBfQ0FDSEVfQllURVMpOwo+PiArCWlmICh1bmxpa2VseSghc2tiX3BhZ2Vf
-ZnJhZ19yZWZpbGwoYnVmbGVuLCBhbGxvY19mcmFnLCBHRlBfS0VSTkVMKSkpCj4+ICsJCXJldHVy
-biAtRU5PTUVNOwo+PiArCj4+ICsJYnVmID0gKGNoYXIgKilwYWdlX2FkZHJlc3MoYWxsb2NfZnJh
-Zy0+cGFnZSkgKyBhbGxvY19mcmFnLT5vZmZzZXQ7Cj4+ICsKPj4gKwkvKiBXZSBzdG9yZSB0d28g
-a2luZHMgb2YgbWV0YWRhdGEgaW4gdGhlIGhlYWRlciB3aGljaCB3aWxsIGJlCj4+ICsJICogdXNl
-ZCBmb3IgWERQX1BBU1MgdG8gZG8gYnVpbGRfc2tiKCk6Cj4+ICsJICogb2Zmc2V0IDA6IGJ1Zmxl
-bgo+PiArCSAqIG9mZnNldCBzaXplb2YoaW50KTogdm5ldCBoZWFkZXIKPj4gKwkgKi8KPj4gKwlj
-b3BpZWQgPSBjb3B5X3BhZ2VfZnJvbV9pdGVyKGFsbG9jX2ZyYWctPnBhZ2UsCj4+ICsJCQkJICAg
-ICBhbGxvY19mcmFnLT5vZmZzZXQgKyBzaXplb2YoaW50KSwgc29ja19obGVuLCBmcm9tKTsKPj4g
-KwlpZiAoY29waWVkICE9IHNvY2tfaGxlbikKPj4gKwkJcmV0dXJuIC1FRkFVTFQ7Cj4+ICsKPj4g
-Kwlnc28gPSAoc3RydWN0IHZpcnRpb19uZXRfaGRyICopKGJ1ZiArIHNpemVvZihpbnQpKTsKPj4g
-Kwo+PiArCWlmICgoZ3NvLT5mbGFncyAmIFZJUlRJT19ORVRfSERSX0ZfTkVFRFNfQ1NVTSkgJiYK
-Pj4gKwkgICAgdmhvc3QxNl90b19jcHUodnEsIGdzby0+Y3N1bV9zdGFydCkgKwo+PiArCSAgICB2
-aG9zdDE2X3RvX2NwdSh2cSwgZ3NvLT5jc3VtX29mZnNldCkgKyAyID4KPj4gKwkgICAgdmhvc3Qx
-Nl90b19jcHUodnEsIGdzby0+aGRyX2xlbikpIHsKPj4gKwkJZ3NvLT5oZHJfbGVuID0gY3B1X3Rv
-X3Zob3N0MTYodnEsCj4+ICsJCQkgICAgICAgdmhvc3QxNl90b19jcHUodnEsIGdzby0+Y3N1bV9z
-dGFydCkgKwo+PiArCQkJICAgICAgIHZob3N0MTZfdG9fY3B1KHZxLCBnc28tPmNzdW1fb2Zmc2V0
-KSArIDIpOwo+PiArCj4+ICsJCWlmICh2aG9zdDE2X3RvX2NwdSh2cSwgZ3NvLT5oZHJfbGVuKSA+
-IGxlbikKPj4gKwkJCXJldHVybiAtRUlOVkFMOwo+PiArCX0KPj4gKwo+PiArCWxlbiAtPSBzb2Nr
-X2hsZW47Cj4+ICsJY29waWVkID0gY29weV9wYWdlX2Zyb21faXRlcihhbGxvY19mcmFnLT5wYWdl
-LAo+PiArCQkJCSAgICAgYWxsb2NfZnJhZy0+b2Zmc2V0ICsgcGFkLAo+PiArCQkJCSAgICAgbGVu
-LCBmcm9tKTsKPj4gKwlpZiAoY29waWVkICE9IGxlbikKPj4gKwkJcmV0dXJuIC1FRkFVTFQ7Cj4+
-ICsKPj4gKwl4ZHAtPmRhdGFfaGFyZF9zdGFydCA9IGJ1ZjsKPj4gKwl4ZHAtPmRhdGEgPSBidWYg
-KyBwYWQ7Cj4+ICsJeGRwLT5kYXRhX2VuZCA9IHhkcC0+ZGF0YSArIGxlbjsKPj4gKwkqKGludCAq
-KSh4ZHAtPmRhdGFfaGFyZF9zdGFydCk9IGJ1ZmxlbjsKPiBzcGFjZSBiZWZvcmUgPQoKWWVzLgoK
-VGhhbmtzCgo+Cj4+ICsKPj4gKwlnZXRfcGFnZShhbGxvY19mcmFnLT5wYWdlKTsKPj4gKwlhbGxv
-Y19mcmFnLT5vZmZzZXQgKz0gYnVmbGVuOwo+PiArCj4+ICsJcmV0dXJuIDA7Cj4+ICt9Cj4+ICsK
-Pj4gICBzdGF0aWMgdm9pZCBoYW5kbGVfdHhfY29weShzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQpCj4+
-ICAgewo+PiAgIAlzdHJ1Y3Qgdmhvc3RfbmV0X3ZpcnRxdWV1ZSAqbnZxID0gJm5ldC0+dnFzW1ZI
-T1NUX05FVF9WUV9UWF07CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Tue, May 22, 2018 at 11:08:53AM +0200, Jiri Pirko wrote:
+> Tue, May 22, 2018 at 11:06:37AM CEST, jiri@resnulli.us wrote:
+> >Tue, May 22, 2018 at 04:06:18AM CEST, sridhar.samudrala@intel.com wrote:
+> >>Use the registration/notification framework supported by the generic
+> >>failover infrastructure.
+> >>
+> >>Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+> >
+> >In previous patchset versions, the common code did
+> >netdev_rx_handler_register() and netdev_upper_dev_link() etc
+> >(netvsc_vf_join()). Now, this is still done in netvsc. Why?
+> >
+> >This should be part of the common "failover" code.
+> >
+> 
+> Also note that in the current patchset you use IFF_FAILOVER flag for
+> master, yet for the slave you use IFF_SLAVE. That is wrong.
+> IFF_FAILOVER_SLAVE should be used.
+
+Or drop IFF_FAILOVER_SLAVE and set both IFF_FAILOVER and IFF_SLAVE?
+
+-- 
+MST
