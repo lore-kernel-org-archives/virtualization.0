@@ -1,16 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH net-next 10/12] vhost_net: build xdp buff
-Date: Tue, 22 May 2018 01:21:11 +0300
-Message-ID: <20180522012008-mutt-send-email-mst__38174.064565874$1526941158$gmane$org@kernel.org>
-References: <1526893473-20128-1-git-send-email-jasowang@redhat.com>
-	<1526893473-20128-11-git-send-email-jasowang@redhat.com>
-	<20180521095611.00005caa@intel.com>
+From: Sridhar Samudrala <sridhar.samudrala@intel.com>
+Subject: [PATCH net-next v11 0/5] Enable virtio_net to act as a standby for a
+	passthru device
+Date: Mon, 21 May 2018 19:06:16 -0700
+Message-ID: <1526954781-35359-1-git-send-email-sridhar.samudrala__36532.5965256945$1526954684$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180521095611.00005caa@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,122 +16,178 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, kubakici@wp.pl, sridhar.samudrala@intel.com, jasowang@redhat.com, loseweigh@gmail.com, jiri@resnulli.us, aaron.f.brown@intel.com, anjali.singhai@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 21, 2018 at 09:56:11AM -0700, Jesse Brandeburg wrote:
-> On Mon, 21 May 2018 17:04:31 +0800 Jason wrote:
-> > This patch implement build XDP buffers in vhost_net. The idea is do
-> > userspace copy in vhost_net and build XDP buff based on the
-> > page. Vhost_net can then submit one or an array of XDP buffs to
-> > underlayer socket (e.g TUN). TUN can choose to do XDP or call
-> > build_skb() to build skb. To support build skb, vnet header were also
-> > stored into the header of the XDP buff.
-> > 
-> > This userspace copy and XDP buffs building is key to achieve XDP
-> > batching in TUN, since TUN does not need to care about userspace copy
-> > and then can disable premmption for several XDP buffs to achieve
-> > batching from XDP.
-> > 
-> > TODO: reserve headroom based on the TUN XDP.
-> > 
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/vhost/net.c | 74 +++++++++++++++++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 74 insertions(+)
-> > 
-> > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> > index f0639d7..1209e84 100644
-> > --- a/drivers/vhost/net.c
-> > +++ b/drivers/vhost/net.c
-> > @@ -492,6 +492,80 @@ static bool vhost_has_more_pkts(struct vhost_net *net,
-> >  	       likely(!vhost_exceeds_maxpend(net));
-> >  }
-> >  
-> > +#define VHOST_NET_HEADROOM 256
-> > +#define VHOST_NET_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
-> > +
-> > +static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
-> > +			       struct iov_iter *from,
-> > +			       struct xdp_buff *xdp)
-> > +{
-> > +	struct vhost_virtqueue *vq = &nvq->vq;
-> > +	struct page_frag *alloc_frag = &current->task_frag;
-> > +	struct virtio_net_hdr *gso;
-> > +	size_t len = iov_iter_count(from);
-> > +	int buflen = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-> > +	int pad = SKB_DATA_ALIGN(VHOST_NET_RX_PAD + VHOST_NET_HEADROOM
-> > +				 + nvq->sock_hlen);
-> > +	int sock_hlen = nvq->sock_hlen;
-> > +	void *buf;
-> > +	int copied;
-> > +
-> > +	if (len < nvq->sock_hlen)
-> > +		return -EFAULT;
-> > +
-> > +	if (SKB_DATA_ALIGN(len + pad) +
-> > +	    SKB_DATA_ALIGN(sizeof(struct skb_shared_info)) > PAGE_SIZE)
-> > +		return -ENOSPC;
-> > +
-> > +	buflen += SKB_DATA_ALIGN(len + pad);
-> 
-> maybe store the result of SKB_DATA_ALIGN in a local instead of doing
-> the work twice?
+The main motivation for this patch is to enable cloud service providers
+to provide an accelerated datapath to virtio-net enabled VMs in a 
+transparent manner with no/minimal guest userspace changes. This also
+enables hypervisor controlled live migration to be supported with VMs that
+have direct attached SR-IOV VF devices.
 
-I don't mind, but I guess gcc can always do it itself?
+Patch 1 introduces a failover module that provides a generic interface for 
+paravirtual drivers to listen for netdev register/unregister/link change
+events from pci ethernet devices with the same MAC and takeover their
+datapath. The notifier and event handling code is based on the existing
+netvsc implementation. 
 
-> > +	alloc_frag->offset = ALIGN((u64)alloc_frag->offset, SMP_CACHE_BYTES);
-> > +	if (unlikely(!skb_page_frag_refill(buflen, alloc_frag, GFP_KERNEL)))
-> > +		return -ENOMEM;
-> > +
-> > +	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
-> > +
-> > +	/* We store two kinds of metadata in the header which will be
-> > +	 * used for XDP_PASS to do build_skb():
-> > +	 * offset 0: buflen
-> > +	 * offset sizeof(int): vnet header
-> > +	 */
-> > +	copied = copy_page_from_iter(alloc_frag->page,
-> > +				     alloc_frag->offset + sizeof(int), sock_hlen, from);
-> > +	if (copied != sock_hlen)
-> > +		return -EFAULT;
-> > +
-> > +	gso = (struct virtio_net_hdr *)(buf + sizeof(int));
-> > +
-> > +	if ((gso->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) &&
-> > +	    vhost16_to_cpu(vq, gso->csum_start) +
-> > +	    vhost16_to_cpu(vq, gso->csum_offset) + 2 >
-> > +	    vhost16_to_cpu(vq, gso->hdr_len)) {
-> > +		gso->hdr_len = cpu_to_vhost16(vq,
-> > +			       vhost16_to_cpu(vq, gso->csum_start) +
-> > +			       vhost16_to_cpu(vq, gso->csum_offset) + 2);
-> > +
-> > +		if (vhost16_to_cpu(vq, gso->hdr_len) > len)
-> > +			return -EINVAL;
-> > +	}
-> > +
-> > +	len -= sock_hlen;
-> > +	copied = copy_page_from_iter(alloc_frag->page,
-> > +				     alloc_frag->offset + pad,
-> > +				     len, from);
-> > +	if (copied != len)
-> > +		return -EFAULT;
-> > +
-> > +	xdp->data_hard_start = buf;
-> > +	xdp->data = buf + pad;
-> > +	xdp->data_end = xdp->data + len;
-> > +	*(int *)(xdp->data_hard_start)= buflen;
-> 
-> space before =
-> 
-> > +
-> > +	get_page(alloc_frag->page);
-> > +	alloc_frag->offset += buflen;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >  static void handle_tx_copy(struct vhost_net *net)
-> >  {
-> >  	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
+Patch 2 refactors netvsc to use the registration/notification framework
+introduced by failover module.
+
+Patch 3 introduces a net_failover driver that provides an automated
+failover mechanism to paravirtual drivers via APIs to create and destroy
+a failover master netdev and mananges a primary and standby slave netdevs
+that get registered via the generic failover infrastructure.
+
+Patch 4 introduces a new feature bit VIRTIO_NET_F_STANDBY to virtio-net
+that can be used by hypervisor to indicate that virtio_net interface
+should act as a standby for another device with the same MAC address.
+
+Patch 5 extends virtio_net to use alternate datapath when available and
+registered. When STANDBY feature is enabled, virtio_net driver uese the
+net_failover API to create an additional 'failover' netdev that acts as
+a master device and controls 2 slave devices.  The original virtio_net
+netdev is registered as 'standby' netdev and a passthru/vf device with
+the same MAC gets registered as 'primary' netdev. Both 'standby' and
+'failover' netdevs are associated with the same 'pci' device.  The user
+accesses the network interface via 'failover' netdev. The 'failover'
+netdev chooses 'primary' netdev as default for transmits when it is
+available with link up and running.
+
+As this patch series is initially focusing on usecases where hypervisor 
+fully controls the VM networking and the guest is not expected to directly 
+configure any hardware settings, it doesn't expose all the ndo/ethtool ops
+that are supported by virtio_net at this time. To support additional usecases,
+it should be possible to enable additional ops later by caching the state
+in failover netdev and replaying when the 'primary' netdev gets registered. 
+ 
+At the time of live migration, the hypervisor needs to unplug the VF device
+from the guest on the source host and reset the MAC filter of the VF to
+initiate failover of datapath to virtio before starting the migration. After
+the migration is completed, the destination hypervisor sets the MAC filter
+on the VF and plugs it back to the guest to switch over to VF datapath.
+
+This patch is based on the discussion initiated by Jesse on this thread.
+https://marc.info/?l=linux-virtualization&m=151189725224231&w=2
+
+v11:
+- Tested live migration with virtio-net/AVF(i40evf) configured in failover
+  mode while running iperf in background. Tried static ip and dhcp
+  configurations using 'network' scripts and Network Manager.
+- Build tested netvsc module.
+Updates:
+- Split net_failover module into 2 components.
+  1. 'failover' module that provides generic failover infrastructure
+  to register a failover instance and listen for slave events.
+  2. 'net_failover' driver that provides APIs to create/destroy upper
+  netdev and supports 3-netdev model used by virtio-net.
+- Added documentation
+
+v10:
+- Tested live migration with virtio-net/AVF(i40evf) configured in failover
+  mode while running iperf in background. Tried static ip and dhcp
+  configurations using 'network' scripts and Network Manager.
+  - To avoid dhcp requests to be sent over the lower 'standby' and 'primary'
+    netdevs, ifcfg-xxx scripts for the lower devices can be created.
+- Build tested netvsc module.
+Updates:
+- fix net_failover_open() to update failover CARRIER correctly based on
+  standby and primary states. 
+- fix net_failover_handle_frame() to handle frames received on standby
+  when primary is present.
+- replace netdev_upper_dev_link with netdev_master_upper_dev_link and
+  handle lower dev state changes.
+- fix net_failver_create() and net_failover_register() interfaces to
+  use ERR_PTR and avoid arg **
+- disable setting mac address when virtio-net in STANDBY mode
+- document exported symbols
+- added entry to MAINTAINERS file
+
+v9:
+Select NET_FAILOVER automatically when VIRTIO_NET/HYPERV_NET 
+are enabled. (stephen)
+
+v8:
+- Made the failover managment routines more robust by updating the feature 
+  bits/other fields in the failover netdev when slave netdevs are 
+  registered/unregistered. (mst)
+- added support for handling vlans.
+- Limited the changes in netvsc to only use the notifier/event/lookups
+  from the failover module. The slave register/unregister/link-change 
+  handlers are only updated to use the getbymac routine to get the 
+  upper netdev. There is no change in their functionality. (stephen)
+- renamed structs/function/file names to use net_failover prefix. (mst)
+
+v7
+- Rename 'bypass/active/backup' terminology with 'failover/primary/standy'
+  (jiri, mst)
+- re-arranged dev_open() and dev_set_mtu() calls in the register routines
+  so that they don't get called for 2-netdev model. (stephen)
+- fixed select_queue() routine to do queue selection based on VF if it is
+  registered as primary. (stephen)
+-  minor bugfixes
+
+v6 RFC:
+  Simplified virtio_net changes by moving all the ndo_ops of the 
+  bypass_netdev and create/destroy of bypass_netdev to 'bypass' module.
+  avoided 2 phase registration(driver + instances).
+  introduced IFF_BYPASS/IFF_BYPASS_SLAVE dev->priv_flags 
+  replaced mutex with a spinlock
+
+v5 RFC:
+  Based on Jiri's comments, moved the common functionality to a 'bypass'
+  module so that the same notifier and event handlers to handle child
+  register/unregister/link change events can be shared between virtio_net
+  and netvsc.
+  Improved error handling based on Siwei's comments.
+v4:
+- Based on the review comments on the v3 version of the RFC patch and
+  Jakub's suggestion for the naming issue with 3 netdev solution,
+  proposed 3 netdev in-driver bonding solution for virtio-net.
+v3 RFC:
+- Introduced 3 netdev model and pointed out a couple of issues with
+  that model and proposed 2 netdev model to avoid these issues.
+- Removed broadcast/multicast optimization and only use virtio as
+  backup path when VF is unplugged.
+v2 RFC:
+- Changed VIRTIO_NET_F_MASTER to VIRTIO_NET_F_BACKUP (mst)
+- made a small change to the virtio-net xmit path to only use VF datapath
+  for unicasts. Broadcasts/multicasts use virtio datapath. This avoids
+  east-west broadcasts to go over the PCI link.
+- added suppport for the feature bit in qemu
+
+Sridhar Samudrala (5):
+  net: Introduce generic failover module
+  netvsc: refactor notifier/event handling code to use the failover
+    framework
+  net: Introduce net_failover driver
+  virtio_net: Introduce VIRTIO_NET_F_STANDBY feature bit
+  virtio_net: Extend virtio to use VF datapath when available
+
+ Documentation/networking/failover.rst     |  18 +
+ Documentation/networking/net_failover.rst | 116 +++++
+ MAINTAINERS                               |  16 +
+ drivers/net/Kconfig                       |  13 +
+ drivers/net/Makefile                      |   1 +
+ drivers/net/hyperv/Kconfig                |   1 +
+ drivers/net/hyperv/hyperv_net.h           |   2 +
+ drivers/net/hyperv/netvsc_drv.c           | 133 +----
+ drivers/net/net_failover.c                | 836 ++++++++++++++++++++++++++++++
+ drivers/net/virtio_net.c                  |  40 +-
+ include/linux/netdevice.h                 |  16 +
+ include/net/failover.h                    |  31 ++
+ include/net/net_failover.h                |  40 ++
+ include/uapi/linux/virtio_net.h           |   3 +
+ net/Kconfig                               |  13 +
+ net/core/Makefile                         |   1 +
+ net/core/failover.c                       | 273 ++++++++++
+ 17 files changed, 1440 insertions(+), 113 deletions(-)
+ create mode 100644 Documentation/networking/failover.rst
+ create mode 100644 Documentation/networking/net_failover.rst
+ create mode 100644 drivers/net/net_failover.c
+ create mode 100644 include/net/failover.h
+ create mode 100644 include/net/net_failover.h
+ create mode 100644 net/core/failover.c
+
+-- 
+2.14.3
