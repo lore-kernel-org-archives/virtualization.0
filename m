@@ -1,11 +1,17 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net] vhost: synchronize IOTLB message with dev cleanup
-Date: Tue, 22 May 2018 19:58:57 +0800
-Message-ID: <1526990337-24892-1-git-send-email-jasowang@redhat.com>
+Subject: Re: [RFC PATCH net-next 01/12] vhost_net: introduce helper to
+	initialize tx iov iter
+Date: Tue, 22 May 2018 20:26:37 +0800
+Message-ID: <2d54d4e2-c5fc-167b-9a8d-762aed2d1ba5__32985.5972821408$1526991904$gmane$org@redhat.com>
+References: <1526893473-20128-1-git-send-email-jasowang@redhat.com>
+	<1526893473-20128-2-git-send-email-jasowang@redhat.com>
+	<20180521092400.00004c68@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180521092400.00004c68@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,55 +21,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-DaeRyong Jeong reports a race between vhost_dev_cleanup() and
-vhost_process_iotlb_msg():
-
-Thread interleaving:
-CPU0 (vhost_process_iotlb_msg)			CPU1 (vhost_dev_cleanup)
-(In the case of both VHOST_IOTLB_UPDATE and
-VHOST_IOTLB_INVALIDATE)
-=====						=====
-						vhost_umem_clean(dev->iotlb);
-if (!dev->iotlb) {
-	        ret = -EFAULT;
-		        break;
-}
-						dev->iotlb = NULL;
-
-The reason is we don't synchronize between them, fixing by protecting
-vhost_process_iotlb_msg() with dev mutex.
-
-Reported-by: DaeRyong Jeong <threeearcat@gmail.com>
-Fixes: 6b1e6cc7855b0 ("vhost: new device IOTLB API")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/vhost.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index f3bd8e9..f0be5f3 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -981,6 +981,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- {
- 	int ret = 0;
- 
-+	mutex_lock(&dev->mutex);
- 	vhost_dev_lock_vqs(dev);
- 	switch (msg->type) {
- 	case VHOST_IOTLB_UPDATE:
-@@ -1016,6 +1017,8 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 	}
- 
- 	vhost_dev_unlock_vqs(dev);
-+	mutex_unlock(&dev->mutex);
-+
- 	return ret;
- }
- ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
--- 
-2.7.4
+CgpPbiAyMDE45bm0MDXmnIgyMuaXpSAwMDoyNCwgSmVzc2UgQnJhbmRlYnVyZyB3cm90ZToKPiBI
+aSBKYXNvbiwgYSBmZXcgbml0cy4KPgo+IE9uIE1vbiwgMjEgTWF5IDIwMTggMTc6MDQ6MjIgKzA4
+MDAgSmFzb24gd3JvdGU6Cj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJl
+ZGhhdC5jb20+Cj4+IC0tLQo+PiAgIGRyaXZlcnMvdmhvc3QvbmV0LmMgfCAzNCArKysrKysrKysr
+KysrKysrKysrKysrKy0tLS0tLS0tLS0tCj4+ICAgMSBmaWxlIGNoYW5nZWQsIDIzIGluc2VydGlv
+bnMoKyksIDExIGRlbGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC9u
+ZXQuYyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPj4gaW5kZXggYzRiNDlmYy4uMTVkMTkxYSAxMDA2
+NDQKPj4gLS0tIGEvZHJpdmVycy92aG9zdC9uZXQuYwo+PiArKysgYi9kcml2ZXJzL3Zob3N0L25l
+dC5jCj4+IEBAIC00NTksNiArNDU5LDI2IEBAIHN0YXRpYyBib29sIHZob3N0X2V4Y2VlZHNfbWF4
+cGVuZChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQpCj4+ICAgCSAgICAgICBtaW5fdCh1bnNpZ25lZCBp
+bnQsIFZIT1NUX01BWF9QRU5ELCB2cS0+bnVtID4+IDIpOwo+PiAgIH0KPj4gICAKPj4gK3N0YXRp
+YyBzaXplX3QgaW5pdF9pb3ZfaXRlcihzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwgc3RydWN0
+IGlvdl9pdGVyICppdGVyLAo+PiArCQkJICAgIHNpemVfdCBoZHJfc2l6ZSwgaW50IG91dCkKPj4g
+K3sKPj4gKwkvKiBTa2lwIGhlYWRlci4gVE9ETzogc3VwcG9ydCBUU08uICovCj4+ICsJc2l6ZV90
+IGxlbiA9IGlvdl9sZW5ndGgodnEtPmlvdiwgb3V0KTsKPj4gKwo+PiArCWlvdl9pdGVyX2luaXQo
+aXRlciwgV1JJVEUsIHZxLT5pb3YsIG91dCwgbGVuKTsKPj4gKwlpb3ZfaXRlcl9hZHZhbmNlKGl0
+ZXIsIGhkcl9zaXplKTsKPj4gKwkvKiBTYW5pdHkgY2hlY2sgKi8KPj4gKwlpZiAoIWlvdl9pdGVy
+X2NvdW50KGl0ZXIpKSB7Cj4+ICsJCXZxX2Vycih2cSwgIlVuZXhwZWN0ZWQgaGVhZGVyIGxlbiBm
+b3IgVFg6ICIKPj4gKwkJCSIlemQgZXhwZWN0ZWQgJXpkXG4iLAo+PiArCQkJbGVuLCBoZHJfc2l6
+ZSk7Cj4gb2ssIGl0IHdhcyBsaWtlIHRoaXMgYmVmb3JlLCBidXQgcGxlYXNlIHVud3JhcCB0aGUg
+c3RyaW5nIGluICIgIiwgdGhlcmUKPiBzaG91bGQgYmUgbm8gbGluZSBicmVha3MgaW4gc3RyaW5n
+IGRlY2xhcmF0aW9ucyBhbmQgdGhleSBhcmUgYWxsb3dlZCB0bwo+IGdvIG92ZXIgODAgY2hhcmFj
+dGVycy4KCk9rLgoKPgo+PiArCQlyZXR1cm4gLUVGQVVMVDsKPj4gKwl9Cj4+ICsJbGVuID0gaW92
+X2l0ZXJfY291bnQoaXRlcik7Cj4+ICsKPj4gKwlyZXR1cm4gbGVuOwo+PiArfQo+PiArCj4+ICAg
+LyogRXhwZWN0cyB0byBiZSBhbHdheXMgcnVuIGZyb20gd29ya3F1ZXVlIC0gd2hpY2ggYWN0cyBh
+cwo+PiAgICAqIHJlYWQtc2l6ZSBjcml0aWNhbCBzZWN0aW9uIGZvciBvdXIga2luZCBvZiBSQ1Uu
+ICovCj4+ICAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkKPj4g
+QEAgLTUyMSwxOCArNTQxLDEwIEBAIHN0YXRpYyB2b2lkIGhhbmRsZV90eChzdHJ1Y3Qgdmhvc3Rf
+bmV0ICpuZXQpCj4+ICAgCQkJICAgICAgICJvdXQgJWQsIGludCAlZFxuIiwgb3V0LCBpbik7Cj4+
+ICAgCQkJYnJlYWs7Cj4+ICAgCQl9Cj4+IC0JCS8qIFNraXAgaGVhZGVyLiBUT0RPOiBzdXBwb3J0
+IFRTTy4gKi8KPj4gLQkJbGVuID0gaW92X2xlbmd0aCh2cS0+aW92LCBvdXQpOwo+PiAtCQlpb3Zf
+aXRlcl9pbml0KCZtc2cubXNnX2l0ZXIsIFdSSVRFLCB2cS0+aW92LCBvdXQsIGxlbik7Cj4+IC0J
+CWlvdl9pdGVyX2FkdmFuY2UoJm1zZy5tc2dfaXRlciwgaGRyX3NpemUpOwo+PiAtCQkvKiBTYW5p
+dHkgY2hlY2sgKi8KPj4gLQkJaWYgKCFtc2dfZGF0YV9sZWZ0KCZtc2cpKSB7Cj4+IC0JCQl2cV9l
+cnIodnEsICJVbmV4cGVjdGVkIGhlYWRlciBsZW4gZm9yIFRYOiAiCj4+IC0JCQkgICAgICAgIiV6
+ZCBleHBlY3RlZCAlemRcbiIsCj4+IC0JCQkgICAgICAgbGVuLCBoZHJfc2l6ZSk7Cj4+ICsKPj4g
+KwkJbGVuID0gaW5pdF9pb3ZfaXRlcih2cSwgJm1zZy5tc2dfaXRlciwgaGRyX3NpemUsIG91dCk7
+Cj4+ICsJCWlmIChsZW4gPCAwKQo+IGxlbiBpcyBkZWNsYXJlZCBhcyBzaXplX3QsIHdoaWNoIGlz
+IHVuc2lnbmVkLCBhbmQgY2FuIG5ldmVyIGJlCj4gbmVnYXRpdmUuICBJJ20gcHJldHR5IHN1cmUg
+dGhpcyBpcyBhIGJ1Zy4KClllcywgbGV0IG1lIGZpeCBpdCBpbiBuZXh0IHZlcnNpb24uCgpUaGFu
+a3MKCj4KPgo+PiAgIAkJCWJyZWFrOwo+PiAtCQl9Cj4+IC0JCWxlbiA9IG1zZ19kYXRhX2xlZnQo
+Jm1zZyk7Cj4+ICAgCj4+ICAgCQl6Y29weV91c2VkID0gemNvcHkgJiYgbGVuID49IFZIT1NUX0dP
+T0RDT1BZX0xFTgo+PiAgIAkJCQkgICAmJiAhdmhvc3RfZXhjZWVkc19tYXhwZW5kKG5ldCkKCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
