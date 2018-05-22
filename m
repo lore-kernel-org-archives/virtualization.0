@@ -1,17 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: KASAN: use-after-free Read in vhost_chr_write_iter
-Date: Tue, 22 May 2018 16:42:40 +0800
-Message-ID: <231a857d-88b9-8bb3-3b57-fd62683c3e5c__16072.4011170261$1526978471$gmane$org@redhat.com>
-References: <20180517134544.GA20646@dragonet.kaist.ac.kr>
-	<58419d62-3074-2e5a-8504-da1cdeb08280@redhat.com>
-	<fb27c1fd-5172-252a-cb8f-b53927a26d06@redhat.com>
-	<20180522083842.GA10604@dragonet.kaist.ac.kr>
+From: Jiri Pirko <jiri@resnulli.us>
+Subject: Re: [PATCH net-next v11 3/5] net: Introduce net_failover driver
+Date: Tue, 22 May 2018 10:59:40 +0200
+Message-ID: <20180522085940.GD2149__446.29928092963$1526979494$gmane$org@nanopsycho>
+References: <1526954781-35359-1-git-send-email-sridhar.samudrala@intel.com>
+	<1526954781-35359-4-git-send-email-sridhar.samudrala@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180522083842.GA10604@dragonet.kaist.ac.kr>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1526954781-35359-4-git-send-email-sridhar.samudrala@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,56 +19,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: DaeRyong Jeong <threeearcat@gmail.com>
-Cc: bammanag@purdue.edu, kt0755@gmail.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, byoungyoung@purdue.edu
+To: Sridhar Samudrala <sridhar.samudrala@intel.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgyMuaXpSAxNjozOCwgRGFlUnlvbmcgSmVvbmcgd3JvdGU6Cj4gT24g
-TW9uLCBNYXkgMjEsIDIwMTggYXQgMTA6Mzg6MTBBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4gT24gMjAxOOW5tDA15pyIMTjml6UgMTc6MjQsIEphc29uIFdhbmcgd3JvdGU6Cj4+PiBPbiAy
-MDE45bm0MDXmnIgxN+aXpSAyMTo0NSwgRGFlUnlvbmcgSmVvbmcgd3JvdGU6Cj4+Pj4gV2UgcmVw
-b3J0IHRoZSBjcmFzaDogS0FTQU46IHVzZS1hZnRlci1mcmVlIFJlYWQgaW4gdmhvc3RfY2hyX3dy
-aXRlX2l0ZXIKPj4+Pgo+Pj4+IFRoaXMgY3Jhc2ggaGFzIGJlZW4gZm91bmQgaW4gdjQuMTctcmMx
-IHVzaW5nIFJhY2VGdXp6ZXIgKGEgbW9kaWZpZWQKPj4+PiB2ZXJzaW9uIG9mIFN5emthbGxlciks
-IHdoaWNoIHdlIGRlc2NyaWJlIG1vcmUgYXQgdGhlIGVuZCBvZiB0aGlzCj4+Pj4gcmVwb3J0LiBP
-dXIgYW5hbHlzaXMgc2hvd3MgdGhhdCB0aGUgcmFjZSBvY2N1cnMgd2hlbiBpbnZva2luZyB0d28K
-Pj4+PiBzeXNjYWxscyBjb25jdXJyZW50bHksIHdyaXRlJHZuZXQgYW5kIGlvY3RsJFZIT1NUX1JF
-U0VUX09XTkVSLgo+Pj4+Cj4+Pj4KPj4+PiBBbmFseXNpczoKPj4+PiBXZSB0aGluayB0aGUgY29u
-Y3VycmVudCBleGVjdXRpb24gb2Ygdmhvc3RfcHJvY2Vzc19pb3RsYl9tc2coKSBhbmQKPj4+PiB2
-aG9zdF9kZXZfY2xlYW51cCgpIGNhdXNlcyB0aGUgY3Jhc2guCj4+Pj4gQm90aCBvZiBmdW5jdGlv
-bnMgY2FuIHJ1biBjb25jdXJyZW50bHkgKHBsZWFzZSBzZWUgY2FsbCBzZXF1ZW5jZSBiZWxvdyks
-Cj4+Pj4gYW5kIHBvc3NpYmx5LCB0aGVyZSBpcyBhIHJhY2Ugb24gZGV2LT5pb3RsYi4KPj4+PiBJ
-ZiB0aGUgc3dpdGNoIG9jY3VycyByaWdodCBhZnRlciB2aG9zdF9kZXZfY2xlYW51cCgpIGZyZWVz
-Cj4+Pj4gZGV2LT5pb3RsYiwgdmhvc3RfcHJvY2Vzc19pb3RsYl9tc2coKSBzdGlsbCBzZWVzIHRo
-ZSBub24tbnVsbCB2YWx1ZQo+Pj4+IGFuZCBpdAo+Pj4+IGtlZXAgZXhlY3V0aW5nIHdpdGhvdXQg
-cmV0dXJuaW5nIC1FRkFVTFQuIENvbnNlcXVlbnRseSwgdXNlLWFmdGVyLWZyZWUKPj4+PiBvY2N1
-cmVzCj4+Pj4KPj4+Pgo+Pj4+IFRocmVhZCBpbnRlcmxlYXZpbmc6Cj4+Pj4gQ1BVMCAodmhvc3Rf
-cHJvY2Vzc19pb3RsYl9tc2cpwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIENQVTEgKHZo
-b3N0X2Rldl9jbGVhbnVwKQo+Pj4+IChJbiB0aGUgY2FzZSBvZiBib3RoIFZIT1NUX0lPVExCX1VQ
-REFURSBhbmQKPj4+PiBWSE9TVF9JT1RMQl9JTlZBTElEQVRFKQo+Pj4+ID09PT09wqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgID09PT09Cj4+Pj4g
-IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB2
-aG9zdF91bWVtX2NsZWFuKGRldi0+aW90bGIpOwo+Pj4+IGlmICghZGV2LT5pb3RsYikgewo+Pj4+
-ICDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJldCA9IC1FRkFVTFQ7Cj4+Pj4gIMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoCBicmVhazsKPj4+PiB9Cj4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBkZXYtPmlvdGxiID0gTlVMTDsK
-Pj4+Pgo+Pj4+Cj4+Pj4gQ2FsbCBTZXF1ZW5jZToKPj4+PiBDUFUwCj4+Pj4gPT09PT0KPj4+PiB2
-aG9zdF9uZXRfY2hyX3dyaXRlX2l0ZXIKPj4+PiAgwqDCoMKgwqB2aG9zdF9jaHJfd3JpdGVfaXRl
-cgo+Pj4+ICDCoMKgwqDCoMKgwqDCoCB2aG9zdF9wcm9jZXNzX2lvdGxiX21zZwo+Pj4+Cj4+Pj4g
-Q1BVMQo+Pj4+ID09PT09Cj4+Pj4gdmhvc3RfbmV0X2lvY3RsCj4+Pj4gIMKgwqDCoMKgdmhvc3Rf
-bmV0X3Jlc2V0X293bmVyCj4+Pj4gIMKgwqDCoMKgwqDCoMKgIHZob3N0X2Rldl9yZXNldF9vd25l
-cgo+Pj4+ICDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHZob3N0X2Rldl9jbGVhbnVwCj4+PiBUaGFu
-a3MgYSBsb3QgZm9yIHRoZSBhbmFseXNpcy4KPj4+Cj4+PiBUaGlzIGNvdWxkIGJlIGFkZHJlc3Nl
-ZCBieSBzaW1wbHkgcHJvdGVjdCBpdCB3aXRoIGRldiBtdXRleC4KPj4+Cj4+PiBXaWxsIHBvc3Qg
-YSBwYXRjaC4KPj4+Cj4+IENvdWxkIHlvdSBwbGVhc2UgaGVscCB0byB0ZXN0IHRoZSBhdHRhY2hl
-ZCBwYXRjaD8gSSd2ZSBkb25lIHNvbWUgc21va2luZwo+PiB0ZXN0Lgo+Pgo+PiBUaGFua3MKPiBT
-b3JyeSB0byBzYXkgdGhpcywgYnV0IHdlIGRvbid0IGhhdmUgYSByZXByb2R1Y2VyIGZvciB0aGlz
-IGJ1ZyBzaW5jZSBvdXIKPiByZXByb2R1Y2VyIGlzIGJlaW5nIGltcGxlbWVudGVkLgo+Cj4gVGhp
-cyBjcmFzaCBoYWQgb2NjcnVlZCBhIGZldyB0aW1lcyBpbiBvdXIgZnV6emVyLCBzbyBJIGluc3Bl
-Y3RlZCB0aGUgY29kZQo+IG1hbnVhbGx5Lgo+Cj4gSXQgc2VlbXMgdGhlIHBhdGNoIGlzIGdvb2Qg
-Zm9yIG1lLCBidXQgd2UgY2FuJ3QgdGVzdCB0aGUgcGF0Y2ggZm9yIG5vdy4KPiBTb3JyeS4KPgoK
-Tm8gcHJvYmxlbS4KCkknbSB0cnlpbmcgdG8gY3JhZnQgYSByZXByb2R1Y2VyLCBsb29rcyBub3Qg
-aGFyZC4KClRoYW5rcwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
-YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Tue, May 22, 2018 at 04:06:19AM CEST, sridhar.samudrala@intel.com wrote:
+>The net_failover driver provides an automated failover mechanism via APIs
+>to create and destroy a failover master netdev and mananges a primary and
+>standby slave netdevs that get registered via the generic failover
+>infrastructure.
+>
+>The failover netdev acts a master device and controls 2 slave devices. The
+>original paravirtual interface gets registered as 'standby' slave netdev and
+>a passthru/vf device with the same MAC gets registered as 'primary' slave
+>netdev. Both 'standby' and 'failover' netdevs are associated with the same
+>'pci' device. The user accesses the network interface via 'failover' netdev.
+>The 'failover' netdev chooses 'primary' netdev as default for transmits when
+>it is available with link up and running.
+>
+>This can be used by paravirtual drivers to enable an alternate low latency
+>datapath. It also enables hypervisor controlled live migration of a VM with
+>direct attached VF by failing over to the paravirtual datapath when the VF
+>is unplugged.
+>
+>Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+
+[...]
+
+>+
+>+The net_failover driver provides an automated failover mechanism via APIs
+>+to create and destroy a failover master netdev and mananges a primary and
+
+s/mananges/manages/
