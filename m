@@ -1,7 +1,8 @@
 From: Sridhar Samudrala <sridhar.samudrala@intel.com>
-Subject: [PATCH net-next v11 3/5] net: Introduce net_failover driver
-Date: Mon, 21 May 2018 19:06:19 -0700
-Message-ID: <1526954781-35359-4-git-send-email-sridhar.samudrala__20277.3505509414$1526954889$gmane$org@intel.com>
+Subject: [PATCH net-next v11 5/5] virtio_net: Extend virtio to use VF datapath
+	when available
+Date: Mon, 21 May 2018 19:06:21 -0700
+Message-ID: <1526954781-35359-6-git-send-email-sridhar.samudrala__1516.34889557517$1526954951$gmane$org@intel.com>
 References: <1526954781-35359-1-git-send-email-sridhar.samudrala@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,1005 +21,246 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, kubakici@wp.pl, sridhar.samudrala@intel.com, jasowang@redhat.com, loseweigh@gmail.com, jiri@resnulli.us, aaron.f.brown@intel.com, anjali.singhai@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The net_failover driver provides an automated failover mechanism via APIs
-to create and destroy a failover master netdev and mananges a primary and
-standby slave netdevs that get registered via the generic failover
-infrastructure.
+This patch enables virtio_net to switch over to a VF datapath when STANDBY
+feature is enabled and a VF netdev is present with the same MAC address.
+It allows live migration of a VM with a direct attached VF without the need
+to setup a bond/team between a VF and virtio net device in the guest.
 
-The failover netdev acts a master device and controls 2 slave devices. The
-original paravirtual interface gets registered as 'standby' slave netdev and
-a passthru/vf device with the same MAC gets registered as 'primary' slave
-netdev. Both 'standby' and 'failover' netdevs are associated with the same
-'pci' device. The user accesses the network interface via 'failover' netdev.
-The 'failover' netdev chooses 'primary' netdev as default for transmits when
-it is available with link up and running.
+It uses the API that is exported by the net_failover driver to create and
+and destroy a master failover netdev. When STANDBY feature is enabled, an
+additional netdev(failover netdev) is created that acts as a master device
+and tracks the state of the 2 lower netdevs. The original virtio_net netdev
+is marked as 'standby' netdev and a passthru device with the same MAC is
+registered as 'primary' netdev.
 
-This can be used by paravirtual drivers to enable an alternate low latency
-datapath. It also enables hypervisor controlled live migration of a VM with
-direct attached VF by failing over to the paravirtual datapath when the VF
-is unplugged.
+The hypervisor needs to unplug the VF device from the guest on the source
+host and reset the MAC filter of the VF to initiate failover of datapath
+to virtio before starting the migration. After the migration is completed,
+the destination hypervisor sets the MAC filter on the VF and plugs it back
+to the guest to switch over to VF datapath.
+
+This patch is based on the discussion initiated by Jesse on this thread.
+https://marc.info/?l=linux-virtualization&m=151189725224231&w=2
 
 Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
 ---
- Documentation/networking/net_failover.rst |  26 +
- MAINTAINERS                               |   8 +
- drivers/net/Kconfig                       |  12 +
- drivers/net/Makefile                      |   1 +
- drivers/net/net_failover.c                | 836 ++++++++++++++++++++++++++++++
- include/net/net_failover.h                |  40 ++
- 6 files changed, 923 insertions(+)
- create mode 100644 Documentation/networking/net_failover.rst
- create mode 100644 drivers/net/net_failover.c
- create mode 100644 include/net/net_failover.h
+ Documentation/networking/net_failover.rst | 90 +++++++++++++++++++++++++++++++
+ drivers/net/Kconfig                       |  1 +
+ drivers/net/virtio_net.c                  | 38 ++++++++++++-
+ 3 files changed, 128 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/networking/net_failover.rst b/Documentation/networking/net_failover.rst
-new file mode 100644
-index 000000000000..6764c3b1eec8
---- /dev/null
+index 6764c3b1eec8..3ad8376f8fa7 100644
+--- a/Documentation/networking/net_failover.rst
 +++ b/Documentation/networking/net_failover.rst
-@@ -0,0 +1,26 @@
-+.. SPDX-License-Identifier: GPL-2.0
+@@ -24,3 +24,93 @@ This can be used by paravirtual drivers to enable an alternate low latency
+ datapath. It also enables hypervisor controlled live migration of a VM with
+ direct attached VF by failing over to the paravirtual datapath when the VF
+ is unplugged.
 +
-+============
-+NET_FAILOVER
-+============
++virtio-net accelerated datapath: STANDBY mode
++=============================================
 +
-+Overview
-+========
++net_failover enables hypervisor controlled accelerated datapath to virtio-net
++enabled VMs in a transparent manner with no/minimal guest userspace chanages.
 +
-+The net_failover driver provides an automated failover mechanism via APIs
-+to create and destroy a failover master netdev and mananges a primary and
-+standby slave netdevs that get registered via the generic failover
-+infrastructrure.
++To support this, the hypervisor needs to enable VIRTIO_NET_F_STANDBY
++feature on the virtio-net interface and assign the same MAC address to both
++virtio-net and VF interfaces.
 +
-+The failover netdev acts a master device and controls 2 slave devices. The
-+original paravirtual interface is registered as 'standby' slave netdev and
-+a passthru/vf device with the same MAC gets registered as 'primary' slave
-+netdev. Both 'standby' and 'failover' netdevs are associated with the same
-+'pci' device. The user accesses the network interface via 'failover' netdev.
-+The 'failover' netdev chooses 'primary' netdev as default for transmits when
-+it is available with link up and running.
++Here is an example XML snippet that shows such configuration.
 +
-+This can be used by paravirtual drivers to enable an alternate low latency
-+datapath. It also enables hypervisor controlled live migration of a VM with
-+direct attached VF by failing over to the paravirtual datapath when the VF
-+is unplugged.
-diff --git a/MAINTAINERS b/MAINTAINERS
-index aed9575ddc53..ad172b1a7d57 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9642,6 +9642,14 @@ S:	Maintained
- F:	Documentation/hwmon/nct6775
- F:	drivers/hwmon/nct6775.c
- 
-+NET_FAILOVER MODULE
-+M:	Sridhar Samudrala <sridhar.samudrala@intel.com>
-+L:	netdev@vger.kernel.org
-+S:	Supported
-+F:	driver/net/net_failover.c
-+F:	include/net/net_failover.h
-+F:	Documentation/networking/net_failover.rst
++ <interface type='network'>
++   <mac address='52:54:00:00:12:53'/>
++   <source network='enp66s0f0_br'/>
++   <target dev='tap01'/>
++   <model type='virtio'/>
++   <driver name='vhost' queues='4'/>
++   <link state='down'/>
++   <address type='pci' domain='0x0000' bus='0x00' slot='0x0a' function='0x0'/>
++ </interface>
++ <interface type='hostdev' managed='yes'>
++   <mac address='52:54:00:00:12:53'/>
++   <source>
++     <address type='pci' domain='0x0000' bus='0x42' slot='0x02' function='0x5'/>
++   </source>
++   <address type='pci' domain='0x0000' bus='0x00' slot='0x0b' function='0x0'/>
++ </interface>
 +
- NETEFFECT IWARP RNIC DRIVER (IW_NES)
- M:	Faisal Latif <faisal.latif@intel.com>
- L:	linux-rdma@vger.kernel.org
++Booting a VM with the above configuration will result in the following 3
++netdevs created in the VM.
++
++4: ens10: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
++    link/ether 52:54:00:00:12:53 brd ff:ff:ff:ff:ff:ff
++    inet 192.168.12.53/24 brd 192.168.12.255 scope global dynamic ens10
++       valid_lft 42482sec preferred_lft 42482sec
++    inet6 fe80::97d8:db2:8c10:b6d6/64 scope link
++       valid_lft forever preferred_lft forever
++5: ens10nsby: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel master ens10 state UP group default qlen 1000
++    link/ether 52:54:00:00:12:53 brd ff:ff:ff:ff:ff:ff
++7: ens11: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq master ens10 state UP group default qlen 1000
++    link/ether 52:54:00:00:12:53 brd ff:ff:ff:ff:ff:ff
++
++ens10 is the 'failover' master netdev, ens10nsby and ens11 are the slave
++'standby' and 'primary' netdevs respectively.
++
++Live Migration of a VM with SR-IOV VF & virtio-net in STANDBY mode
++==================================================================
++
++net_failover also enables hypervisor controlled live migration to be supported
++with VMs that have direct attached SR-IOV VF devices by automatic failover to
++the paravirtual datapath when the VF is unplugged.
++
++Here is a sample script that shows the steps to initiate live migration on
++the source hypervisor.
++
++# cat vf_xml
++<interface type='hostdev' managed='yes'>
++  <mac address='52:54:00:00:12:53'/>
++  <source>
++    <address type='pci' domain='0x0000' bus='0x42' slot='0x02' function='0x5'/>
++  </source>
++  <address type='pci' domain='0x0000' bus='0x00' slot='0x0b' function='0x0'/>
++</interface>
++
++# Source Hypervisor
++#!/bin/bash
++
++DOMAIN=fedora27-tap01
++PF=enp66s0f0
++VF_NUM=5
++TAP_IF=tap01
++VF_XML=
++
++MAC=52:54:00:00:12:53
++ZERO_MAC=00:00:00:00:00:00
++
++virsh domif-setlink $DOMAIN $TAP_IF up
++bridge fdb del $MAC dev $PF master
++virsh detach-device $DOMAIN $VF_XML
++ip link set $PF vf $VF_NUM mac $ZERO_MAC
++
++virsh migrate --live $DOMAIN qemu+ssh://$REMOTE_HOST/system
++
++# Destination Hypervisor
++#!/bin/bash
++
++virsh attach-device $DOMAIN $VF_XML
++virsh domif-setlink $DOMAIN $TAP_IF down
 diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index a029b27fd002..1cf29c5ed510 100644
+index 1cf29c5ed510..148bcf1b4bf9 100644
 --- a/drivers/net/Kconfig
 +++ b/drivers/net/Kconfig
-@@ -510,4 +510,16 @@ config NETDEVSIM
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called netdevsim.
- 
-+config NET_FAILOVER
-+	tristate "Failover driver"
-+	select FAILOVER
-+	help
-+	  This provides an automated failover mechanism via APIs to create
-+	  and destroy a failover master netdev and manages a primary and
-+	  standby slave netdevs that get registered via the generic failover
-+	  infrastructure. This can be used by paravirtual drivers to enable
-+	  an alternate low latency datapath. It alsoenables live migration of
-+	  a VM with direct attached VF by failing over to the paravirtual
-+	  datapath when the VF is unplugged.
-+
- endif # NETDEVICES
-diff --git a/drivers/net/Makefile b/drivers/net/Makefile
-index 91e67e375dd4..21cde7e78621 100644
---- a/drivers/net/Makefile
-+++ b/drivers/net/Makefile
-@@ -78,3 +78,4 @@ obj-$(CONFIG_FUJITSU_ES) += fjes/
- thunderbolt-net-y += thunderbolt.o
- obj-$(CONFIG_THUNDERBOLT_NET) += thunderbolt-net.o
- obj-$(CONFIG_NETDEVSIM) += netdevsim/
-+obj-$(CONFIG_NET_FAILOVER) += net_failover.o
-diff --git a/drivers/net/net_failover.c b/drivers/net/net_failover.c
-new file mode 100644
-index 000000000000..ae47bdb363c9
---- /dev/null
-+++ b/drivers/net/net_failover.c
-@@ -0,0 +1,836 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/* Copyright (c) 2018, Intel Corporation. */
-+
-+/* This provides a net_failover interface for paravirtual drivers to
-+ * provide an alternate datapath by exporting APIs to create and
-+ * destroy a upper 'net_failover' netdev. The upper dev manages the
-+ * original paravirtual interface as a 'standby' netdev and uses the
-+ * generic failover infrastructure to register and manage a direct
-+ * attached VF as a 'primary' netdev. This enables live migration of
-+ * a VM with direct attached VF by failing over to the paravirtual
-+ * datapath when the VF is unplugged.
-+ *
-+ * Some of the netdev management routines are based on bond/team driver as
-+ * this driver provides active-backup functionality similar to those drivers.
-+ */
-+
+@@ -332,6 +332,7 @@ config VETH
+ config VIRTIO_NET
+ 	tristate "Virtio network driver"
+ 	depends on VIRTIO
++	select NET_FAILOVER
+ 	---help---
+ 	  This is the virtual network driver for virtio.  It can be used with
+ 	  QEMU based VMMs (like KVM or Xen).  Say Y or M.
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 213fddc70fd0..370828c3d114 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -30,8 +30,11 @@
+ #include <linux/cpu.h>
+ #include <linux/average.h>
+ #include <linux/filter.h>
 +#include <linux/netdevice.h>
-+#include <linux/etherdevice.h>
-+#include <linux/ethtool.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/netdevice.h>
-+#include <linux/netpoll.h>
-+#include <linux/rtnetlink.h>
-+#include <linux/if_vlan.h>
 +#include <linux/pci.h>
-+#include <net/sch_generic.h>
-+#include <uapi/linux/if_arp.h>
+ #include <net/route.h>
+ #include <net/xdp.h>
 +#include <net/net_failover.h>
-+
-+static bool net_failover_xmit_ready(struct net_device *dev)
-+{
-+	return netif_running(dev) && netif_carrier_ok(dev);
-+}
-+
-+static int net_failover_open(struct net_device *dev)
-+{
-+	struct net_failover_info *nfo_info = netdev_priv(dev);
-+	struct net_device *primary_dev, *standby_dev;
-+	int err;
-+
-+	primary_dev = rtnl_dereference(nfo_info->primary_dev);
-+	if (primary_dev) {
-+		err = dev_open(primary_dev);
-+		if (err)
-+			goto err_primary_open;
-+	}
-+
-+	standby_dev = rtnl_dereference(nfo_info->standby_dev);
-+	if (standby_dev) {
-+		err = dev_open(standby_dev);
-+		if (err)
-+			goto err_standby_open;
-+	}
-+
-+	if ((primary_dev && net_failover_xmit_ready(primary_dev)) ||
-+	    (standby_dev && net_failover_xmit_ready(standby_dev))) {
-+		netif_carrier_on(dev);
-+		netif_tx_wake_all_queues(dev);
-+	}
-+
-+	return 0;
-+
-+err_standby_open:
-+	dev_close(primary_dev);
-+err_primary_open:
-+	netif_tx_disable(dev);
-+	return err;
-+}
-+
-+static int net_failover_close(struct net_device *dev)
-+{
-+	struct net_failover_info *nfo_info = netdev_priv(dev);
-+	struct net_device *slave_dev;
-+
-+	netif_tx_disable(dev);
-+
-+	slave_dev = rtnl_dereference(nfo_info->primary_dev);
-+	if (slave_dev)
-+		dev_close(slave_dev);
-+
-+	slave_dev = rtnl_dereference(nfo_info->standby_dev);
-+	if (slave_dev)
-+		dev_close(slave_dev);
-+
-+	return 0;
-+}
-+
-+static netdev_tx_t net_failover_drop_xmit(struct sk_buff *skb,
-+					  struct net_device *dev)
-+{
-+	atomic_long_inc(&dev->tx_dropped);
-+	dev_kfree_skb_any(skb);
-+	return NETDEV_TX_OK;
-+}
-+
-+static netdev_tx_t net_failover_start_xmit(struct sk_buff *skb,
-+					   struct net_device *dev)
-+{
-+	struct net_failover_info *nfo_info = netdev_priv(dev);
-+	struct net_device *xmit_dev;
-+
-+	/* Try xmit via primary netdev followed by standby netdev */
-+	xmit_dev = rcu_dereference_bh(nfo_info->primary_dev);
-+	if (!xmit_dev || !net_failover_xmit_ready(xmit_dev)) {
-+		xmit_dev = rcu_dereference_bh(nfo_info->standby_dev);
-+		if (!xmit_dev || !net_failover_xmit_ready(xmit_dev))
-+			return net_failover_drop_xmit(skb, dev);
-+	}
-+
-+	skb->dev = xmit_dev;
-+	skb->queue_mapping = qdisc_skb_cb(skb)->slave_dev_queue_mapping;
-+
-+	return dev_queue_xmit(skb);
-+}
-+
-+static u16 net_failover_select_queue(struct net_device *dev,
-+				     struct sk_buff *skb, void *accel_priv,
-+				     select_queue_fallback_t fallback)
-+{
-+	struct net_failover_info *nfo_info = netdev_priv(dev);
-+	struct net_device *primary_dev;
-+	u16 txq;
-+
-+	primary_dev = rcu_dereference(nfo_info->primary_dev);
-+	if (primary_dev) {
-+		const struct net_device_ops *ops = primary_dev->netdev_ops;
-+
-+		if (ops->ndo_select_queue)
-+			txq = ops->ndo_select_queue(primary_dev, skb,
-+						    accel_priv, fallback);
-+		else
-+			txq = fallback(primary_dev, skb);
-+
-+		qdisc_skb_cb(skb)->slave_dev_queue_mapping = skb->queue_mapping;
-+
-+		return txq;
-+	}
-+
-+	txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) : 0;
-+
-+	/* Save the original txq to restore before passing to the driver */
-+	qdisc_skb_cb(skb)->slave_dev_queue_mapping = skb->queue_mapping;
-+
-+	if (unlikely(txq >= dev->real_num_tx_queues)) {
-+		do {
-+			txq -= dev->real_num_tx_queues;
-+		} while (txq >= dev->real_num_tx_queues);
-+	}
-+
-+	return txq;
-+}
-+
-+/* fold stats, assuming all rtnl_link_stats64 fields are u64, but
-+ * that some drivers can provide 32bit values only.
-+ */
-+static void net_failover_fold_stats(struct rtnl_link_stats64 *_res,
-+				    const struct rtnl_link_stats64 *_new,
-+				    const struct rtnl_link_stats64 *_old)
-+{
-+	const u64 *new = (const u64 *)_new;
-+	const u64 *old = (const u64 *)_old;
-+	u64 *res = (u64 *)_res;
-+	int i;
-+
-+	for (i = 0; i < sizeof(*_res) / sizeof(u64); i++) {
-+		u64 nv = new[i];
-+		u64 ov = old[i];
-+		s64 delta = nv - ov;
-+
-+		/* detects if this particular field is 32bit only */
-+		if (((nv | ov) >> 32) == 0)
-+			delta = (s64)(s32)((u32)nv - (u32)ov);
-+
-+		/* filter anomalies, some drivers reset their stats
-+		 * at down/up events.
-+		 */
-+		if (delta > 0)
-+			res[i] += delta;
-+	}
-+}
-+
-+static void net_failover_get_stats(struct net_device *dev,
-+				   struct rtnl_link_stats64 *stats)
-+{
-+	struct net_failover_info *nfo_info = netdev_priv(dev);
-+	const struct rtnl_link_stats64 *new;
-+	struct rtnl_link_stats64 temp;
-+	struct net_device *slave_dev;
-+
-+	spin_lock(&nfo_info->stats_lock);
-+	memcpy(stats, &nfo_info->failover_stats, sizeof(*stats));
-+
-+	rcu_read_lock();
-+
-+	slave_dev = rcu_dereference(nfo_info->primary_dev);
-+	if (slave_dev) {
-+		new = dev_get_stats(slave_dev, &temp);
-+		net_failover_fold_stats(stats, new, &nfo_info->primary_stats);
-+		memcpy(&nfo_info->primary_stats, new, sizeof(*new));
-+	}
-+
-+	slave_dev = rcu_dereference(nfo_info->standby_dev);
-+	if (slave_dev) {
-+		new = dev_get_stats(slave_dev, &temp);
-+		net_failover_fold_stats(stats, new, &nfo_info->standby_stats);
-+		memcpy(&nfo_info->standby_stats, new, sizeof(*new));
-+	}
-+
-+	rcu_read_unlock();
-+
-+	memcpy(&nfo_info->failover_stats, stats, sizeof(*stats));
-+	spin_unlock(&nfo_info->stats_lock);
-+}
-+
-+static int net_failover_change_mtu(struct net_device *dev, int new_mtu)
-+{
-+	struct net_failover_info *nfo_info = netdev_priv(dev);
-+	struct net_device *primary_dev, *standby_dev;
-+	int ret = 0;
-+
-+	primary_dev = rcu_dereference(nfo_info->primary_dev);
-+	if (primary_dev) {
-+		ret = dev_set_mtu(primary_dev, new_mtu);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	standby_dev = rcu_dereference(nfo_info->standby_dev);
-+	if (standby_dev) {
-+		ret = dev_set_mtu(standby_dev, new_mtu);
-+		if (ret) {
-+			if (primary_dev)
-+				dev_set_mtu(primary_dev, dev->mtu);
-+			return ret;
-+		}
-+	}
-+
-+	dev->mtu = new_mtu;
-+
-+	return 0;
-+}
-+
-+static void net_failover_set_rx_mode(struct net_device *dev)
-+{
-+	struct net_failover_info *nfo_info = netdev_priv(dev);
-+	struct net_device *slave_dev;
-+
-+	rcu_read_lock();
-+
-+	slave_dev = rcu_dereference(nfo_info->primary_dev);
-+	if (slave_dev) {
-+		dev_uc_sync_multiple(slave_dev, dev);
-+		dev_mc_sync_multiple(slave_dev, dev);
-+	}
-+
-+	slave_dev = rcu_dereference(nfo_info->standby_dev);
-+	if (slave_dev) {
-+		dev_uc_sync_multiple(slave_dev, dev);
-+		dev_mc_sync_multiple(slave_dev, dev);
-+	}
-+
-+	rcu_read_unlock();
-+}
-+
-+static int net_failover_vlan_rx_add_vid(struct net_device *dev, __be16 proto,
-+					u16 vid)
-+{
-+	struct net_failover_info *nfo_info = netdev_priv(dev);
-+	struct net_device *primary_dev, *standby_dev;
-+	int ret = 0;
-+
-+	primary_dev = rcu_dereference(nfo_info->primary_dev);
-+	if (primary_dev) {
-+		ret = vlan_vid_add(primary_dev, proto, vid);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	standby_dev = rcu_dereference(nfo_info->standby_dev);
-+	if (standby_dev) {
-+		ret = vlan_vid_add(standby_dev, proto, vid);
-+		if (ret)
-+			if (primary_dev)
-+				vlan_vid_del(primary_dev, proto, vid);
-+	}
-+
-+	return ret;
-+}
-+
-+static int net_failover_vlan_rx_kill_vid(struct net_device *dev, __be16 proto,
-+					 u16 vid)
-+{
-+	struct net_failover_info *nfo_info = netdev_priv(dev);
-+	struct net_device *slave_dev;
-+
-+	slave_dev = rcu_dereference(nfo_info->primary_dev);
-+	if (slave_dev)
-+		vlan_vid_del(slave_dev, proto, vid);
-+
-+	slave_dev = rcu_dereference(nfo_info->standby_dev);
-+	if (slave_dev)
-+		vlan_vid_del(slave_dev, proto, vid);
-+
-+	return 0;
-+}
-+
-+static const struct net_device_ops failover_dev_ops = {
-+	.ndo_open		= net_failover_open,
-+	.ndo_stop		= net_failover_close,
-+	.ndo_start_xmit		= net_failover_start_xmit,
-+	.ndo_select_queue	= net_failover_select_queue,
-+	.ndo_get_stats64	= net_failover_get_stats,
-+	.ndo_change_mtu		= net_failover_change_mtu,
-+	.ndo_set_rx_mode	= net_failover_set_rx_mode,
-+	.ndo_vlan_rx_add_vid	= net_failover_vlan_rx_add_vid,
-+	.ndo_vlan_rx_kill_vid	= net_failover_vlan_rx_kill_vid,
-+	.ndo_validate_addr	= eth_validate_addr,
-+	.ndo_features_check	= passthru_features_check,
-+};
-+
-+#define FAILOVER_NAME "net_failover"
-+#define FAILOVER_VERSION "0.1"
-+
-+static void nfo_ethtool_get_drvinfo(struct net_device *dev,
-+				    struct ethtool_drvinfo *drvinfo)
-+{
-+	strlcpy(drvinfo->driver, FAILOVER_NAME, sizeof(drvinfo->driver));
-+	strlcpy(drvinfo->version, FAILOVER_VERSION, sizeof(drvinfo->version));
-+}
-+
-+static int nfo_ethtool_get_link_ksettings(struct net_device *dev,
-+					  struct ethtool_link_ksettings *cmd)
-+{
-+	struct net_failover_info *nfo_info = netdev_priv(dev);
-+	struct net_device *slave_dev;
-+
-+	slave_dev = rtnl_dereference(nfo_info->primary_dev);
-+	if (!slave_dev || !net_failover_xmit_ready(slave_dev)) {
-+		slave_dev = rtnl_dereference(nfo_info->standby_dev);
-+		if (!slave_dev || !net_failover_xmit_ready(slave_dev)) {
-+			cmd->base.duplex = DUPLEX_UNKNOWN;
-+			cmd->base.port = PORT_OTHER;
-+			cmd->base.speed = SPEED_UNKNOWN;
-+
-+			return 0;
-+		}
-+	}
-+
-+	return __ethtool_get_link_ksettings(slave_dev, cmd);
-+}
-+
-+static const struct ethtool_ops failover_ethtool_ops = {
-+	.get_drvinfo            = nfo_ethtool_get_drvinfo,
-+	.get_link               = ethtool_op_get_link,
-+	.get_link_ksettings     = nfo_ethtool_get_link_ksettings,
-+};
-+
-+/* Called when slave dev is injecting data into network stack.
-+ * Change the associated network device from lower dev to failover dev.
-+ * note: already called with rcu_read_lock
-+ */
-+static rx_handler_result_t net_failover_handle_frame(struct sk_buff **pskb)
-+{
-+	struct sk_buff *skb = *pskb;
-+	struct net_device *dev = rcu_dereference(skb->dev->rx_handler_data);
-+	struct net_failover_info *nfo_info = netdev_priv(dev);
-+	struct net_device *primary_dev, *standby_dev;
-+
-+	primary_dev = rcu_dereference(nfo_info->primary_dev);
-+	standby_dev = rcu_dereference(nfo_info->standby_dev);
-+
-+	if (primary_dev && skb->dev == standby_dev)
-+		return RX_HANDLER_EXACT;
-+
-+	skb->dev = dev;
-+
-+	return RX_HANDLER_ANOTHER;
-+}
-+
-+static void net_failover_compute_features(struct net_device *dev)
-+{
-+	u32 vlan_features = FAILOVER_VLAN_FEATURES & NETIF_F_ALL_FOR_ALL;
-+	netdev_features_t enc_features  = FAILOVER_ENC_FEATURES;
-+	unsigned short max_hard_header_len = ETH_HLEN;
-+	unsigned int dst_release_flag = IFF_XMIT_DST_RELEASE |
-+					IFF_XMIT_DST_RELEASE_PERM;
-+	struct net_failover_info *nfo_info = netdev_priv(dev);
-+	struct net_device *primary_dev, *standby_dev;
-+
-+	primary_dev = rcu_dereference(nfo_info->primary_dev);
-+	if (primary_dev) {
-+		vlan_features =
-+			netdev_increment_features(vlan_features,
-+						  primary_dev->vlan_features,
-+						  FAILOVER_VLAN_FEATURES);
-+		enc_features =
-+			netdev_increment_features(enc_features,
-+						  primary_dev->hw_enc_features,
-+						  FAILOVER_ENC_FEATURES);
-+
-+		dst_release_flag &= primary_dev->priv_flags;
-+		if (primary_dev->hard_header_len > max_hard_header_len)
-+			max_hard_header_len = primary_dev->hard_header_len;
-+	}
-+
-+	standby_dev = rcu_dereference(nfo_info->standby_dev);
-+	if (standby_dev) {
-+		vlan_features =
-+			netdev_increment_features(vlan_features,
-+						  standby_dev->vlan_features,
-+						  FAILOVER_VLAN_FEATURES);
-+		enc_features =
-+			netdev_increment_features(enc_features,
-+						  standby_dev->hw_enc_features,
-+						  FAILOVER_ENC_FEATURES);
-+
-+		dst_release_flag &= standby_dev->priv_flags;
-+		if (standby_dev->hard_header_len > max_hard_header_len)
-+			max_hard_header_len = standby_dev->hard_header_len;
-+	}
-+
-+	dev->vlan_features = vlan_features;
-+	dev->hw_enc_features = enc_features | NETIF_F_GSO_ENCAP_ALL;
-+	dev->hard_header_len = max_hard_header_len;
-+
-+	dev->priv_flags &= ~IFF_XMIT_DST_RELEASE;
-+	if (dst_release_flag == (IFF_XMIT_DST_RELEASE |
-+				 IFF_XMIT_DST_RELEASE_PERM))
-+		dev->priv_flags |= IFF_XMIT_DST_RELEASE;
-+
-+	netdev_change_features(dev);
-+}
-+
-+static void net_failover_lower_state_changed(struct net_device *slave_dev,
-+					     struct net_device *primary_dev,
-+					     struct net_device *standby_dev)
-+{
-+	struct netdev_lag_lower_state_info info;
-+
-+	if (netif_carrier_ok(slave_dev))
-+		info.link_up = true;
-+	else
-+		info.link_up = false;
-+
-+	if (slave_dev == primary_dev) {
-+		if (netif_running(primary_dev))
-+			info.tx_enabled = true;
-+		else
-+			info.tx_enabled = false;
-+	} else {
-+		if ((primary_dev && netif_running(primary_dev)) ||
-+		    (!netif_running(standby_dev)))
-+			info.tx_enabled = false;
-+		else
-+			info.tx_enabled = true;
-+	}
-+
-+	netdev_lower_state_changed(slave_dev, &info);
-+}
-+
-+static int net_failover_slave_register(struct net_device *slave_dev,
-+				       struct net_device *failover_dev)
-+{
-+	struct net_device *standby_dev, *primary_dev;
-+	struct netdev_lag_upper_info lag_upper_info;
-+	struct net_failover_info *nfo_info;
-+	bool slave_is_standby;
-+	u32 orig_mtu;
-+	int err;
-+
-+	nfo_info = netdev_priv(failover_dev);
-+	standby_dev = rtnl_dereference(nfo_info->standby_dev);
-+	primary_dev = rtnl_dereference(nfo_info->primary_dev);
-+	slave_is_standby = slave_dev->dev.parent == failover_dev->dev.parent;
-+	if (slave_is_standby ? standby_dev : primary_dev) {
-+		netdev_err(failover_dev, "%s attempting to register as slave dev when %s already present\n",
-+			   slave_dev->name,
-+			   slave_is_standby ? "standby" : "primary");
-+		goto done;
-+	}
-+
-+	/* We want to allow only a direct attached VF device as a primary
-+	 * netdev. As there is no easy way to check for a VF device, restrict
-+	 * this to a pci device.
-+	 */
-+	if (!slave_is_standby && (!slave_dev->dev.parent ||
-+				  !dev_is_pci(slave_dev->dev.parent)))
-+		goto done;
-+
-+	if (failover_dev->features & NETIF_F_VLAN_CHALLENGED &&
-+	    vlan_uses_dev(failover_dev)) {
-+		netdev_err(failover_dev, "Device %s is VLAN challenged and failover device has VLAN set up\n",
-+			   failover_dev->name);
-+		goto done;
-+	}
-+
-+	/* Align MTU of slave with failover dev */
-+	orig_mtu = slave_dev->mtu;
-+	err = dev_set_mtu(slave_dev, failover_dev->mtu);
-+	if (err) {
-+		netdev_err(failover_dev, "unable to change mtu of %s to %u register failed\n",
-+			   slave_dev->name, failover_dev->mtu);
-+		goto done;
-+	}
-+
-+	dev_hold(slave_dev);
-+
-+	if (netif_running(failover_dev)) {
-+		err = dev_open(slave_dev);
-+		if (err && (err != -EBUSY)) {
-+			netdev_err(failover_dev, "Opening slave %s failed err:%d\n",
-+				   slave_dev->name, err);
-+			goto err_dev_open;
-+		}
-+	}
-+
-+	netif_addr_lock_bh(failover_dev);
-+	dev_uc_sync_multiple(slave_dev, failover_dev);
-+	dev_uc_sync_multiple(slave_dev, failover_dev);
-+	netif_addr_unlock_bh(failover_dev);
-+
-+	err = vlan_vids_add_by_dev(slave_dev, failover_dev);
-+	if (err) {
-+		netdev_err(failover_dev, "Failed to add vlan ids to device %s err:%d\n",
-+			   slave_dev->name, err);
-+		goto err_vlan_add;
-+	}
-+
-+	err = netdev_rx_handler_register(slave_dev, net_failover_handle_frame,
-+					 failover_dev);
-+	if (err) {
-+		netdev_err(slave_dev, "can not register failover rx handler (err = %d)\n",
-+			   err);
-+		goto err_handler_register;
-+	}
-+
-+	lag_upper_info.tx_type = NETDEV_LAG_TX_TYPE_ACTIVEBACKUP;
-+	err = netdev_master_upper_dev_link(slave_dev, failover_dev, NULL,
-+					   &lag_upper_info, NULL);
-+	if (err) {
-+		netdev_err(slave_dev, "can not set failover device %s (err = %d)\n",
-+			   failover_dev->name, err);
-+		goto err_upper_link;
-+	}
-+
-+	slave_dev->priv_flags |= IFF_FAILOVER_SLAVE;
-+
-+	if (slave_is_standby) {
-+		rcu_assign_pointer(nfo_info->standby_dev, slave_dev);
-+		standby_dev = slave_dev;
-+		dev_get_stats(standby_dev, &nfo_info->standby_stats);
-+	} else {
-+		rcu_assign_pointer(nfo_info->primary_dev, slave_dev);
-+		primary_dev = slave_dev;
-+		dev_get_stats(primary_dev, &nfo_info->primary_stats);
-+		failover_dev->min_mtu = slave_dev->min_mtu;
-+		failover_dev->max_mtu = slave_dev->max_mtu;
-+	}
-+
-+	net_failover_lower_state_changed(slave_dev, primary_dev, standby_dev);
-+	net_failover_compute_features(failover_dev);
-+
-+	call_netdevice_notifiers(NETDEV_JOIN, slave_dev);
-+
-+	netdev_info(failover_dev, "failover %s slave:%s registered\n",
-+		    slave_is_standby ? "standby" : "primary", slave_dev->name);
-+
-+	goto done;
-+
-+err_upper_link:
-+	netdev_rx_handler_unregister(slave_dev);
-+err_handler_register:
-+	vlan_vids_del_by_dev(slave_dev, failover_dev);
-+err_vlan_add:
-+	dev_uc_unsync(slave_dev, failover_dev);
-+	dev_mc_unsync(slave_dev, failover_dev);
-+	dev_close(slave_dev);
-+err_dev_open:
-+	dev_put(slave_dev);
-+	dev_set_mtu(slave_dev, orig_mtu);
-+done:
-+	return NOTIFY_DONE;
-+}
-+
-+static int net_failover_slave_unregister(struct net_device *slave_dev,
-+					 struct net_device *failover_dev)
-+{
-+	struct net_device *standby_dev, *primary_dev;
-+	struct net_failover_info *nfo_info;
-+	bool slave_is_standby;
-+
-+	nfo_info = netdev_priv(failover_dev);
-+	primary_dev = rtnl_dereference(nfo_info->primary_dev);
-+	standby_dev = rtnl_dereference(nfo_info->standby_dev);
-+
-+	if (slave_dev != primary_dev && slave_dev != standby_dev)
-+		goto done;
-+
-+	slave_is_standby = slave_dev->dev.parent == failover_dev->dev.parent;
-+
-+	netdev_rx_handler_unregister(slave_dev);
-+	netdev_upper_dev_unlink(slave_dev, failover_dev);
-+	vlan_vids_del_by_dev(slave_dev, failover_dev);
-+	dev_uc_unsync(slave_dev, failover_dev);
-+	dev_mc_unsync(slave_dev, failover_dev);
-+	dev_close(slave_dev);
-+	slave_dev->priv_flags &= ~IFF_FAILOVER_SLAVE;
-+
-+	nfo_info = netdev_priv(failover_dev);
-+	dev_get_stats(failover_dev, &nfo_info->failover_stats);
-+
-+	if (slave_is_standby) {
-+		RCU_INIT_POINTER(nfo_info->standby_dev, NULL);
-+	} else {
-+		RCU_INIT_POINTER(nfo_info->primary_dev, NULL);
-+		if (standby_dev) {
-+			failover_dev->min_mtu = standby_dev->min_mtu;
-+			failover_dev->max_mtu = standby_dev->max_mtu;
-+		}
-+	}
-+
-+	dev_put(slave_dev);
-+
-+	net_failover_compute_features(failover_dev);
-+
-+	netdev_info(failover_dev, "failover %s slave:%s unregistered\n",
-+		    slave_is_standby ? "standby" : "primary", slave_dev->name);
-+
-+done:
-+	return NOTIFY_DONE;
-+}
-+
-+static int net_failover_slave_link_change(struct net_device *slave_dev,
-+					  struct net_device *failover_dev)
-+{
-+	struct net_device *primary_dev, *standby_dev;
-+	struct net_failover_info *nfo_info;
-+
-+	nfo_info = netdev_priv(failover_dev);
-+
-+	primary_dev = rtnl_dereference(nfo_info->primary_dev);
-+	standby_dev = rtnl_dereference(nfo_info->standby_dev);
-+
-+	if (slave_dev != primary_dev && slave_dev != standby_dev)
-+		goto done;
-+
-+	if ((primary_dev && net_failover_xmit_ready(primary_dev)) ||
-+	    (standby_dev && net_failover_xmit_ready(standby_dev))) {
-+		netif_carrier_on(failover_dev);
-+		netif_tx_wake_all_queues(failover_dev);
-+	} else {
-+		dev_get_stats(failover_dev, &nfo_info->failover_stats);
-+		netif_carrier_off(failover_dev);
-+		netif_tx_stop_all_queues(failover_dev);
-+	}
-+
-+	net_failover_lower_state_changed(slave_dev, primary_dev, standby_dev);
-+
-+done:
-+	return NOTIFY_DONE;
-+}
-+
-+static int net_failover_slave_name_change(struct net_device *slave_dev,
-+					  struct net_device *failover_dev)
-+{
-+	struct net_device *primary_dev, *standby_dev;
-+	struct net_failover_info *nfo_info;
-+
-+	nfo_info = netdev_priv(failover_dev);
-+
-+	primary_dev = rtnl_dereference(nfo_info->primary_dev);
-+	standby_dev = rtnl_dereference(nfo_info->standby_dev);
-+
-+	if (slave_dev != primary_dev && slave_dev != standby_dev)
-+		goto done;
-+
-+	/* We need to bring up the slave after the rename by udev in case
-+	 * open failed with EBUSY when it was registered.
-+	 */
-+	dev_open(slave_dev);
-+
-+done:
-+	return NOTIFY_DONE;
-+}
-+
-+static struct failover_ops net_failover_ops = {
-+	.slave_register		= net_failover_slave_register,
-+	.slave_unregister	= net_failover_slave_unregister,
-+	.slave_link_change	= net_failover_slave_link_change,
-+	.slave_name_change	= net_failover_slave_name_change,
-+};
-+
-+/**
-+ * net_failover_create - Create and register a failover instance
-+ *
-+ * @dev: standby netdev
-+ *
-+ * Creates a failover netdev and registers a failover instance for a standby
-+ * netdev. Used by paravirtual drivers that use 3-netdev model.
-+ * The failover netdev acts as a master device and controls 2 slave devices -
-+ * the original standby netdev and a VF netdev with the same MAC gets
-+ * registered as primary netdev.
-+ *
-+ * Return: pointer to failover instance
-+ */
-+struct failover *net_failover_create(struct net_device *standby_dev)
-+{
-+	struct device *dev = standby_dev->dev.parent;
-+	struct net_device *failover_dev;
+ 
+ static int napi_weight = NAPI_POLL_WEIGHT;
+ module_param(napi_weight, int, 0444);
+@@ -210,6 +213,9 @@ struct virtnet_info {
+ 	u32 speed;
+ 
+ 	unsigned long guest_offloads;
++
++	/* failover when STANDBY feature enabled */
 +	struct failover *failover;
-+	int err;
+ };
+ 
+ struct padded_vnet_hdr {
+@@ -1523,6 +1529,9 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+ 	struct sockaddr *addr;
+ 	struct scatterlist sg;
+ 
++	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STANDBY))
++		return -EOPNOTSUPP;
 +
-+	/* Alloc at least 2 queues, for now we are going with 16 assuming
-+	 * that VF devices being enslaved won't have too many queues.
-+	 */
-+	failover_dev = alloc_etherdev_mq(sizeof(struct net_failover_info), 16);
-+	if (!failover_dev) {
-+		dev_err(dev, "Unable to allocate failover_netdev!\n");
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	dev_net_set(failover_dev, dev_net(standby_dev));
-+	SET_NETDEV_DEV(failover_dev, dev);
-+
-+	failover_dev->netdev_ops = &failover_dev_ops;
-+	failover_dev->ethtool_ops = &failover_ethtool_ops;
-+
-+	/* Initialize the device options */
-+	failover_dev->priv_flags |= IFF_UNICAST_FLT | IFF_NO_QUEUE;
-+	failover_dev->priv_flags &= ~(IFF_XMIT_DST_RELEASE |
-+				       IFF_TX_SKB_SHARING);
-+
-+	/* don't acquire failover netdev's netif_tx_lock when transmitting */
-+	failover_dev->features |= NETIF_F_LLTX;
-+
-+	/* Don't allow failover devices to change network namespaces. */
-+	failover_dev->features |= NETIF_F_NETNS_LOCAL;
-+
-+	failover_dev->hw_features = FAILOVER_VLAN_FEATURES |
-+				    NETIF_F_HW_VLAN_CTAG_TX |
-+				    NETIF_F_HW_VLAN_CTAG_RX |
-+				    NETIF_F_HW_VLAN_CTAG_FILTER;
-+
-+	failover_dev->hw_features |= NETIF_F_GSO_ENCAP_ALL;
-+	failover_dev->features |= failover_dev->hw_features;
-+
-+	memcpy(failover_dev->dev_addr, standby_dev->dev_addr,
-+	       failover_dev->addr_len);
-+
-+	failover_dev->min_mtu = standby_dev->min_mtu;
-+	failover_dev->max_mtu = standby_dev->max_mtu;
-+
-+	err = register_netdev(failover_dev);
-+	if (err) {
-+		dev_err(dev, "Unable to register failover_dev!\n");
-+		goto err_register_netdev;
-+	}
-+
-+	netif_carrier_off(failover_dev);
-+
-+	failover = failover_register(failover_dev, &net_failover_ops);
-+	if (IS_ERR(failover))
-+		goto err_failover_register;
-+
-+	return failover;
-+
-+err_failover_register:
-+	unregister_netdev(failover_dev);
-+err_register_netdev:
-+	free_netdev(failover_dev);
-+
-+	return ERR_PTR(err);
-+}
-+EXPORT_SYMBOL_GPL(net_failover_create);
-+
-+/**
-+ * net_failover_destroy - Destroy a failover instance
-+ *
-+ * @failover: pointer to failover instance
-+ *
-+ * Unregisters any slave netdevs associated with the failover instance by
-+ * calling failover_slave_unregister().
-+ * unregisters the failover instance itself and finally frees the failover
-+ * netdev. Used by paravirtual drivers that use 3-netdev model.
-+ *
-+ */
-+void net_failover_destroy(struct failover *failover)
+ 	addr = kmemdup(p, sizeof(*addr), GFP_KERNEL);
+ 	if (!addr)
+ 		return -ENOMEM;
+@@ -2306,6 +2315,22 @@ static int virtnet_xdp(struct net_device *dev, struct netdev_bpf *xdp)
+ 	}
+ }
+ 
++static int virtnet_get_phys_port_name(struct net_device *dev, char *buf,
++				      size_t len)
 +{
-+	struct net_failover_info *nfo_info;
-+	struct net_device *failover_dev;
-+	struct net_device *slave_dev;
++	struct virtnet_info *vi = netdev_priv(dev);
++	int ret;
 +
-+	if (!failover)
-+		return;
++	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_STANDBY))
++		return -EOPNOTSUPP;
 +
-+	failover_dev = rcu_dereference(failover->failover_dev);
-+	nfo_info = netdev_priv(failover_dev);
++	ret = snprintf(buf, len, "sby");
++	if (ret >= len)
++		return -EOPNOTSUPP;
 +
-+	netif_device_detach(failover_dev);
-+
-+	rtnl_lock();
-+
-+	slave_dev = rtnl_dereference(nfo_info->primary_dev);
-+	if (slave_dev)
-+		failover_slave_unregister(slave_dev);
-+
-+	slave_dev = rtnl_dereference(nfo_info->standby_dev);
-+	if (slave_dev)
-+		failover_slave_unregister(slave_dev);
-+
-+	failover_unregister(failover);
-+
-+	unregister_netdevice(failover_dev);
-+
-+	rtnl_unlock();
-+
-+	free_netdev(failover_dev);
-+}
-+EXPORT_SYMBOL_GPL(net_failover_destroy);
-+
-+static __init int
-+net_failover_init(void)
-+{
 +	return 0;
 +}
-+module_init(net_failover_init);
 +
-+static __exit
-+void net_failover_exit(void)
-+{
-+}
-+module_exit(net_failover_exit);
+ static const struct net_device_ops virtnet_netdev = {
+ 	.ndo_open            = virtnet_open,
+ 	.ndo_stop   	     = virtnet_close,
+@@ -2323,6 +2348,7 @@ static const struct net_device_ops virtnet_netdev = {
+ 	.ndo_xdp_xmit		= virtnet_xdp_xmit,
+ 	.ndo_xdp_flush		= virtnet_xdp_flush,
+ 	.ndo_features_check	= passthru_features_check,
++	.ndo_get_phys_port_name	= virtnet_get_phys_port_name,
+ };
+ 
+ static void virtnet_config_changed_work(struct work_struct *work)
+@@ -2876,10 +2902,16 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 
+ 	virtnet_init_settings(dev);
+ 
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_STANDBY)) {
++		vi->failover = net_failover_create(vi->dev);
++		if (IS_ERR(vi->failover))
++			goto free_vqs;
++	}
 +
-+MODULE_DESCRIPTION("Failover driver for Paravirtual drivers");
-+MODULE_LICENSE("GPL v2");
-diff --git a/include/net/net_failover.h b/include/net/net_failover.h
-new file mode 100644
-index 000000000000..b12a1c469d1c
---- /dev/null
-+++ b/include/net/net_failover.h
-@@ -0,0 +1,40 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/* Copyright (c) 2018, Intel Corporation. */
+ 	err = register_netdev(dev);
+ 	if (err) {
+ 		pr_debug("virtio_net: registering device failed\n");
+-		goto free_vqs;
++		goto free_failover;
+ 	}
+ 
+ 	virtio_device_ready(vdev);
+@@ -2916,6 +2948,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	vi->vdev->config->reset(vdev);
+ 
+ 	unregister_netdev(dev);
++free_failover:
++	net_failover_destroy(vi->failover);
+ free_vqs:
+ 	cancel_delayed_work_sync(&vi->refill);
+ 	free_receive_page_frags(vi);
+@@ -2950,6 +2984,8 @@ static void virtnet_remove(struct virtio_device *vdev)
+ 
+ 	unregister_netdev(vi->dev);
+ 
++	net_failover_destroy(vi->failover);
 +
-+#ifndef _NET_FAILOVER_H
-+#define _NET_FAILOVER_H
-+
-+#include <net/failover.h>
-+
-+/* failover state */
-+struct net_failover_info {
-+	/* primary netdev with same MAC */
-+	struct net_device __rcu *primary_dev;
-+
-+	/* standby netdev */
-+	struct net_device __rcu *standby_dev;
-+
-+	/* primary netdev stats */
-+	struct rtnl_link_stats64 primary_stats;
-+
-+	/* standby netdev stats */
-+	struct rtnl_link_stats64 standby_stats;
-+
-+	/* aggregated stats */
-+	struct rtnl_link_stats64 failover_stats;
-+
-+	/* spinlock while updating stats */
-+	spinlock_t stats_lock;
-+};
-+
-+struct failover *net_failover_create(struct net_device *standby_dev);
-+void net_failover_destroy(struct failover *failover);
-+
-+#define FAILOVER_VLAN_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-+				 NETIF_F_FRAGLIST | NETIF_F_ALL_TSO | \
-+				 NETIF_F_HIGHDMA | NETIF_F_LRO)
-+
-+#define FAILOVER_ENC_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-+				 NETIF_F_RXCSUM | NETIF_F_ALL_TSO)
-+
-+#endif /* _NET_FAILOVER_H */
+ 	remove_vq_common(vi);
+ 
+ 	free_netdev(vi->dev);
 -- 
 2.14.3
