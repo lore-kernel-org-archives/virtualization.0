@@ -1,10 +1,9 @@
-From: Jiri Pirko <jiri@resnulli.us>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net-next v11 2/5] netvsc: refactor notifier/event
 	handling code to use the failover framework
-Date: Tue, 22 May 2018 19:38:44 +0200
-Message-ID: <20180522173844.GP2149__12586.2413006418$1527010623$gmane$org@nanopsycho>
-References: <20180522090853.GF2149@nanopsycho>
-	<20180522161007-mutt-send-email-mst@kernel.org>
+Date: Tue, 22 May 2018 22:54:35 +0300
+Message-ID: <20180522204216-mutt-send-email-mst__22292.1869754375$1527018785$gmane$org@kernel.org>
+References: <20180522161007-mutt-send-email-mst@kernel.org>
 	<20180522131422.GG2149@nanopsycho>
 	<20180522161509-mutt-send-email-mst@kernel.org>
 	<20180522132626.GH2149@nanopsycho>
@@ -13,12 +12,13 @@ References: <20180522090853.GF2149@nanopsycho>
 	<20180522181804-mutt-send-email-mst@kernel.org>
 	<20180522154501.GL2149@nanopsycho>
 	<20180522194633-mutt-send-email-mst@kernel.org>
+	<20180522173844.GP2149@nanopsycho>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180522194633-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180522173844.GP2149@nanopsycho>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,131 +28,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jiri Pirko <jiri@resnulli.us>
 Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Tue, May 22, 2018 at 06:52:21PM CEST, mst@redhat.com wrote:
->On Tue, May 22, 2018 at 05:45:01PM +0200, Jiri Pirko wrote:
->> Tue, May 22, 2018 at 05:32:30PM CEST, mst@redhat.com wrote:
->> >On Tue, May 22, 2018 at 05:13:43PM +0200, Jiri Pirko wrote:
->> >> Tue, May 22, 2018 at 03:39:33PM CEST, mst@redhat.com wrote:
->> >> >On Tue, May 22, 2018 at 03:26:26PM +0200, Jiri Pirko wrote:
->> >> >> Tue, May 22, 2018 at 03:17:37PM CEST, mst@redhat.com wrote:
->> >> >> >On Tue, May 22, 2018 at 03:14:22PM +0200, Jiri Pirko wrote:
->> >> >> >> Tue, May 22, 2018 at 03:12:40PM CEST, mst@redhat.com wrote:
->> >> >> >> >On Tue, May 22, 2018 at 11:08:53AM +0200, Jiri Pirko wrote:
->> >> >> >> >> Tue, May 22, 2018 at 11:06:37AM CEST, jiri@resnulli.us wrote:
->> >> >> >> >> >Tue, May 22, 2018 at 04:06:18AM CEST, sridhar.samudrala@intel.com wrote:
->> >> >> >> >> >>Use the registration/notification framework supported by the generic
->> >> >> >> >> >>failover infrastructure.
->> >> >> >> >> >>
->> >> >> >> >> >>Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
->> >> >> >> >> >
->> >> >> >> >> >In previous patchset versions, the common code did
->> >> >> >> >> >netdev_rx_handler_register() and netdev_upper_dev_link() etc
->> >> >> >> >> >(netvsc_vf_join()). Now, this is still done in netvsc. Why?
->> >> >> >> >> >
->> >> >> >> >> >This should be part of the common "failover" code.
->> >> >> >> >> >
->> >> >> >> >> 
->> >> >> >> >> Also note that in the current patchset you use IFF_FAILOVER flag for
->> >> >> >> >> master, yet for the slave you use IFF_SLAVE. That is wrong.
->> >> >> >> >> IFF_FAILOVER_SLAVE should be used.
->> >> >> >> >
->> >> >> >> >Or drop IFF_FAILOVER_SLAVE and set both IFF_FAILOVER and IFF_SLAVE?
->> >> >> >> 
->> >> >> >> No. IFF_SLAVE is for bonding.
->> >> >> >
->> >> >> >What breaks if we reuse it for failover?
->> >> >> 
->> >> >> This is exposed to userspace. IFF_SLAVE is expected for bonding slaves.
->> >> >> And failover slave is not a bonding slave.
->> >> >
->> >> >That does not really answer the question.  I'd claim it's sufficiently
->> >> >like a bond slave for IFF_SLAVE to make sense.
->> >> >
->> >> >In fact you will find that netvsc already sets IFF_SLAVE, and so
->> >> 
->> >> netvsc does the whole failover thing in a wrong way. This patchset is
->> >> trying to fix it.
->> >
->> >Maybe, but we don't need gratuitous changes either, especially if they
->> >break userspace.
->> 
->> What do you mean by the "break"? It was a mistake to reuse IFF_SLAVE at
->> the first place, lets fix it. If some userspace depends on that flag, it
->> is broken anyway.
->> 
->> 
->> >
->> >> >does e.g. the eql driver.
->> >> >
->> >> >The advantage of using IFF_SLAVE is that userspace knows to skip it.  If
->> >> 
->> >> The userspace should know how to skip other types of slaves - team,
->> >> bridge, ovs, etc.
->> >> The "master link" should be the one to look at.
->> >> 
->> >
->> >How should existing userspace know which ones to skip and which one is
->> >the master?  Right now userspace seems to assume whatever does not have
->> >IFF_SLAVE should be looked at. Are you saying that's not the right thing
->> 
->> Why do you say so? What do you mean by "looked at"? Certainly not.
->> IFLA_MASTER is the attribute that should be looked at, nothing else.
->> 
->> 
->> >to do and userspace should be fixed? What should userspace do in
->> >your opinion that will be forward compatible with future kernels?
->> >
->> >> 
->> >> >we don't set IFF_SLAVE existing userspace tries to use the lowerdev.
->> >> 
->> >> Each master type has a IFF_ master flag and IFF_ slave flag.
->> >
->> >Could you give some examples please?
->> 
->> enum netdev_priv_flags {
->>         IFF_EBRIDGE                     = 1<<1,
->>         IFF_BRIDGE_PORT                 = 1<<9,
->>         IFF_OPENVSWITCH                 = 1<<20,
->>         IFF_OVS_DATAPATH                = 1<<10,
->> 	IFF_L3MDEV_MASTER               = 1<<18,
->>         IFF_L3MDEV_SLAVE                = 1<<21,
->>         IFF_TEAM                        = 1<<22,
->>         IFF_TEAM_PORT                   = 1<<13,
->> };
->
->That's not in uapi, is it?  the comment above that says:
+On Tue, May 22, 2018 at 07:38:44PM +0200, Jiri Pirko wrote:
+> >> >> In private
+> >> >> flag. I don't see no reason to break this pattern here.
+> >> >
+> >> >Other masters are setup from userspace, this one is set up automatically
+> >> >by kernel. So the bar is higher, we need an interface that existing
+> >> >userspace knows about.  We can't just say "oh if userspace set this up
+> >> >it should know to skip lowerdevs".
+> >> >
+> >> >Otherwise multiple interfaces with same mac tend to confuse userspace.
+> >> 
+> >> No difference, really.
+> >> Regardless who does the setup, and independent userspace deamon should
+> >> react accordingly.
+> >
+> >If the deamon does the setup itself, it's reasonable to require that it
+> >learns about new flags each time we add a new driver.  If it doesn't,
+> >then I think it's less reasonable.
+> 
+> No need. The "IFLA_MASTER" attr is always there to be looked at. That is
+> enough.
 
-Correct.
+Oh so if it has an master, skip it? Sorry, I misunderstood what you were
+saying earlier.
 
+Thanks, this makes sense to me.
 
->
->These flags are invisible to userspace
->
->
->
->> 
->> >
->> >> In private
->> >> flag. I don't see no reason to break this pattern here.
->> >
->> >Other masters are setup from userspace, this one is set up automatically
->> >by kernel. So the bar is higher, we need an interface that existing
->> >userspace knows about.  We can't just say "oh if userspace set this up
->> >it should know to skip lowerdevs".
->> >
->> >Otherwise multiple interfaces with same mac tend to confuse userspace.
->> 
->> No difference, really.
->> Regardless who does the setup, and independent userspace deamon should
->> react accordingly.
->
->If the deamon does the setup itself, it's reasonable to require that it
->learns about new flags each time we add a new driver.  If it doesn't,
->then I think it's less reasonable.
-
-No need. The "IFLA_MASTER" attr is always there to be looked at. That is
-enough.
+-- 
+MST
