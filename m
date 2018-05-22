@@ -1,13 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net V2 1/4] virtio-net: correctly redirect linearized packet
-Date: Tue, 22 May 2018 11:44:28 +0800
-Message-ID: <1526960671-11782-2-git-send-email-jasowang__30283.9599935853$1526960572$gmane$org@redhat.com>
-References: <1526960671-11782-1-git-send-email-jasowang@redhat.com>
+Subject: [PATCH net V2 0/4] Fix several issues of virtio-net mergeable XDP
+Date: Tue, 22 May 2018 11:44:27 +0800
+Message-ID: <1526960671-11782-1-git-send-email-jasowang__19577.9943409891$1526960582$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1526960671-11782-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,32 +19,23 @@ To: mst@redhat.com, jasowang@redhat.com
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-After a linearized packet was redirected by XDP, we should not go for
-the err path which will try to pop buffers for the next packet and
-increase the drop counter. Fixing this by just drop the page refcnt
-for the original page.
+Hi:
 
-Fixes: 186b3c998c50 ("virtio-net: support XDP_REDIRECT")
-Reported-by: David Ahern <dsahern@gmail.com>
-Tested-by: David Ahern <dsahern@gmail.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Please review the patches that tries to fix sevreal issues of
+virtio-net mergeable XDP.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 770422e..c15d240 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -787,7 +787,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 			}
- 			*xdp_xmit = true;
- 			if (unlikely(xdp_page != page))
--				goto err_xdp;
-+				put_page(page);
- 			rcu_read_unlock();
- 			goto xdp_xmit;
- 		default:
+Changes from V1:
+- check against 1 before decreasing instead of resetting to 1
+- typoe fixes
+
+Jason Wang (4):
+  virtio-net: correctly redirect linearized packet
+  virtio-net: correctly transmit XDP buff after linearizing
+  virtio-net: correctly check num_buf during err path
+  virtio-net: fix leaking page for gso packet during mergeable XDP
+
+ drivers/net/virtio_net.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
+
 -- 
 2.7.4
