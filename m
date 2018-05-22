@@ -1,18 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jiri Pirko <jiri@resnulli.us>
 Subject: Re: [PATCH net-next v11 2/5] netvsc: refactor notifier/event
 	handling code to use the failover framework
-Date: Tue, 22 May 2018 16:12:40 +0300
-Message-ID: <20180522161007-mutt-send-email-mst__36781.8543375053$1526994854$gmane$org@kernel.org>
+Date: Tue, 22 May 2018 15:14:22 +0200
+Message-ID: <20180522131422.GG2149__22574.2961084054$1526994948$gmane$org@nanopsycho>
 References: <1526954781-35359-1-git-send-email-sridhar.samudrala@intel.com>
 	<1526954781-35359-3-git-send-email-sridhar.samudrala@intel.com>
 	<20180522090637.GE2149@nanopsycho>
 	<20180522090853.GF2149@nanopsycho>
+	<20180522161007-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180522090853.GF2149@nanopsycho>
+In-Reply-To: <20180522161007-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,30 +23,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 22, 2018 at 11:08:53AM +0200, Jiri Pirko wrote:
-> Tue, May 22, 2018 at 11:06:37AM CEST, jiri@resnulli.us wrote:
-> >Tue, May 22, 2018 at 04:06:18AM CEST, sridhar.samudrala@intel.com wrote:
-> >>Use the registration/notification framework supported by the generic
-> >>failover infrastructure.
-> >>
-> >>Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
-> >
-> >In previous patchset versions, the common code did
-> >netdev_rx_handler_register() and netdev_upper_dev_link() etc
-> >(netvsc_vf_join()). Now, this is still done in netvsc. Why?
-> >
-> >This should be part of the common "failover" code.
-> >
-> 
-> Also note that in the current patchset you use IFF_FAILOVER flag for
-> master, yet for the slave you use IFF_SLAVE. That is wrong.
-> IFF_FAILOVER_SLAVE should be used.
+Tue, May 22, 2018 at 03:12:40PM CEST, mst@redhat.com wrote:
+>On Tue, May 22, 2018 at 11:08:53AM +0200, Jiri Pirko wrote:
+>> Tue, May 22, 2018 at 11:06:37AM CEST, jiri@resnulli.us wrote:
+>> >Tue, May 22, 2018 at 04:06:18AM CEST, sridhar.samudrala@intel.com wrote:
+>> >>Use the registration/notification framework supported by the generic
+>> >>failover infrastructure.
+>> >>
+>> >>Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+>> >
+>> >In previous patchset versions, the common code did
+>> >netdev_rx_handler_register() and netdev_upper_dev_link() etc
+>> >(netvsc_vf_join()). Now, this is still done in netvsc. Why?
+>> >
+>> >This should be part of the common "failover" code.
+>> >
+>> 
+>> Also note that in the current patchset you use IFF_FAILOVER flag for
+>> master, yet for the slave you use IFF_SLAVE. That is wrong.
+>> IFF_FAILOVER_SLAVE should be used.
+>
+>Or drop IFF_FAILOVER_SLAVE and set both IFF_FAILOVER and IFF_SLAVE?
 
-Or drop IFF_FAILOVER_SLAVE and set both IFF_FAILOVER and IFF_SLAVE?
-
--- 
-MST
+No. IFF_SLAVE is for bonding.
