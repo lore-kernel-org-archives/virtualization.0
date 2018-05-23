@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v3 06/27] x86/entry/64: Adapt assembly for PIE support
-Date: Wed, 23 May 2018 12:54:00 -0700
-Message-ID: <20180523195421.180248-7-thgarnie__17610.3235492066$1527105506$gmane$org@google.com>
+Subject: [PATCH v3 07/27] x86: pm-trace - Adapt assembly for PIE support
+Date: Wed, 23 May 2018 12:54:01 -0700
+Message-ID: <20180523195421.180248-8-thgarnie__10909.8425404683$1527105555$gmane$org@google.com>
 References: <20180523195421.180248-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -23,95 +23,29 @@ To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemlof
 Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Change the assembly code to use only relative references of symbols for the
-kernel to be PIE compatible.
+Change assembly to use the new _ASM_MOVABS macro instead of _ASM_MOV for
+the assembly to be PIE compatible.
 
 Position Independent Executable (PIE) support will allow to extended the
 KASLR randomization range below the -2G memory limit.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/entry/entry_64.S            | 18 ++++++++++++------
- arch/x86/kernel/relocate_kernel_64.S |  8 +++-----
- 2 files changed, 15 insertions(+), 11 deletions(-)
+ arch/x86/include/asm/pm-trace.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index c9648b287d7f..8638dca78191 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -191,7 +191,7 @@ ENTRY(entry_SYSCALL_64_trampoline)
- 	 * spill RDI and restore it in a second-stage trampoline.
- 	 */
- 	pushq	%rdi
--	movq	$entry_SYSCALL_64_stage2, %rdi
-+	movabsq	$entry_SYSCALL_64_stage2, %rdi
- 	JMP_NOSPEC %rdi
- END(entry_SYSCALL_64_trampoline)
- 
-@@ -1279,7 +1279,8 @@ ENTRY(error_entry)
- 	movl	%ecx, %eax			/* zero extend */
- 	cmpq	%rax, RIP+8(%rsp)
- 	je	.Lbstep_iret
--	cmpq	$.Lgs_change, RIP+8(%rsp)
-+	leaq	.Lgs_change(%rip), %rcx
-+	cmpq	%rcx, RIP+8(%rsp)
- 	jne	.Lerror_entry_done
- 
- 	/*
-@@ -1484,10 +1485,10 @@ ENTRY(nmi)
- 	 * resume the outer NMI.
- 	 */
- 
--	movq	$repeat_nmi, %rdx
-+	leaq	repeat_nmi(%rip), %rdx
- 	cmpq	8(%rsp), %rdx
- 	ja	1f
--	movq	$end_repeat_nmi, %rdx
-+	leaq	end_repeat_nmi(%rip), %rdx
- 	cmpq	8(%rsp), %rdx
- 	ja	nested_nmi_out
- 1:
-@@ -1541,7 +1542,8 @@ nested_nmi:
- 	pushq	%rdx
- 	pushfq
- 	pushq	$__KERNEL_CS
--	pushq	$repeat_nmi
-+	leaq	repeat_nmi(%rip), %rdx
-+	pushq	%rdx
- 
- 	/* Put stack back */
- 	addq	$(6*8), %rsp
-@@ -1580,7 +1582,11 @@ first_nmi:
- 	addq	$8, (%rsp)	/* Fix up RSP */
- 	pushfq			/* RFLAGS */
- 	pushq	$__KERNEL_CS	/* CS */
--	pushq	$1f		/* RIP */
-+	pushq	$0		/* Futur return address */
-+	pushq	%rax		/* Save RAX */
-+	leaq	1f(%rip), %rax	/* RIP */
-+	movq    %rax, 8(%rsp)   /* Put 1f on return address */
-+	popq	%rax		/* Restore RAX */
- 	iretq			/* continues at repeat_nmi below */
- 	UNWIND_HINT_IRET_REGS
- 1:
-diff --git a/arch/x86/kernel/relocate_kernel_64.S b/arch/x86/kernel/relocate_kernel_64.S
-index a7227dfe1a2b..0c0fc259a4e2 100644
---- a/arch/x86/kernel/relocate_kernel_64.S
-+++ b/arch/x86/kernel/relocate_kernel_64.S
-@@ -208,11 +208,9 @@ identity_mapped:
- 	movq	%rax, %cr3
- 	lea	PAGE_SIZE(%r8), %rsp
- 	call	swap_pages
--	jmp	*virtual_mapped_addr(%rip)
--
--	/* Absolute value for PIE support */
--virtual_mapped_addr:
--	.quad virtual_mapped
-+	movabsq $virtual_mapped, %rax
-+	pushq	%rax
-+	ret
- 
- virtual_mapped:
- 	movq	RSP(%r8), %rsp
+diff --git a/arch/x86/include/asm/pm-trace.h b/arch/x86/include/asm/pm-trace.h
+index bfa32aa428e5..972070806ce9 100644
+--- a/arch/x86/include/asm/pm-trace.h
++++ b/arch/x86/include/asm/pm-trace.h
+@@ -8,7 +8,7 @@
+ do {								\
+ 	if (pm_trace_enabled) {					\
+ 		const void *tracedata;				\
+-		asm volatile(_ASM_MOV " $1f,%0\n"		\
++		asm volatile(_ASM_MOVABS " $1f,%0\n"		\
+ 			     ".section .tracedata,\"a\"\n"	\
+ 			     "1:\t.word %c1\n\t"		\
+ 			     _ASM_PTR " %c2\n"			\
 -- 
 2.17.0.441.gb46fe60e1d-goog
