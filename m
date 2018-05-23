@@ -1,15 +1,14 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
-	virito devices
-Date: Thu, 24 May 2018 08:27:04 +1000
-Message-ID: <f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
-References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
-	<20180523213703-mutt-send-email-mst@kernel.org>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH] block drivers/block: Use octal not symbolic permissions
+Date: Wed, 23 May 2018 14:41:30 -0700
+Message-ID: <cd46916c876eb552579a5c91b62780c315dd67f8.camel__15076.0749391795$1527116230$gmane$org@perches.com>
+References: <5e97a292c1ba38a6b5a0caa271d85dc3de1b2aa7.1527105857.git.joe@perches.com>
+	<6bf44255-145f-bf14-e254-860731ff9296@kernel.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180523213703-mutt-send-email-mst@kernel.org>
+In-Reply-To: <6bf44255-145f-bf14-e254-860731ff9296@kernel.dk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,111 +18,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Cc: robh@kernel.org, mpe@ellerman.id.au, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
+To: Jens Axboe <axboe@kernel.dk>, "Ed L. Cashin" <ed.cashin@acm.org>, Philipp Reisner <philipp.reisner@linbit.com>, Lars Ellenberg <lars.ellenberg@linbit.com>, Jiri Kosina <jikos@kernel.org>, Josef Bacik <josef@toxicpanda.com>, linux-block@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>, Sage Weil <sage@redhat.com>, Alex Elder <elder@kernel.org>, Philip Kelleher <pjk1939@linux.vnet.ibm.com>, "Michael
+	S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Roger Pau =?ISO-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>
+Cc: linux-kernel@vger.kernel.org, nbd@other.debian.org, xen-devel@lists.xenproject.org, ceph-devel@vger.kernel.org, virtualization@lists.linux-foundation.org, drbd-dev@lists.linbit.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2018-05-23 at 21:50 +0300, Michael S. Tsirkin wrote:
-
-> I re-read that discussion and I'm still unclear on the
-> original question, since I got several apparently
-> conflicting answers.
-> 
-> I asked:
-> 
-> 	Why isn't setting VIRTIO_F_IOMMU_PLATFORM on the
-> 	hypervisor side sufficient?
-
-I thought I had replied to this...
-
-There are a couple of reasons:
-
-- First qemu doesn't know that the guest will switch to "secure mode"
-in advance. There is no difference between a normal and a secure
-partition until the partition does the magic UV call to "enter secure
-mode" and qemu doesn't see any of it. So who can set the flag here ?
-
-- Second, when using VIRTIO_F_IOMMU_PLATFORM, we also make qemu (or
-vhost) go through the emulated MMIO for every access to the guest,
-which adds additional overhead.
-
-Cheers,
-Ben.
-
-> 
-> 
-> >  arch/powerpc/include/asm/dma-mapping.h |  6 ++++++
-> >  arch/powerpc/platforms/pseries/iommu.c | 11 +++++++++++
-> >  drivers/virtio/virtio_ring.c           | 10 ++++++++++
-> >  3 files changed, 27 insertions(+)
+On Wed, 2018-05-23 at 15:27 -0600, Jens Axboe wrote:
+> On 5/23/18 2:05 PM, Joe Perches wrote:
+> > Convert the S_<FOO> symbolic permissions to their octal equivalents as
+> > using octal and not symbolic permissions is preferred by many as more
+> > readable.
 > > 
-> > diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
-> > index 8fa3945..056e578 100644
-> > --- a/arch/powerpc/include/asm/dma-mapping.h
-> > +++ b/arch/powerpc/include/asm/dma-mapping.h
-> > @@ -115,4 +115,10 @@ extern u64 __dma_get_required_mask(struct device *dev);
-> >  #define ARCH_HAS_DMA_MMAP_COHERENT
-> >  
-> >  #endif /* __KERNEL__ */
-> > +
-> > +#define platform_forces_virtio_dma platform_forces_virtio_dma
-> > +
-> > +struct virtio_device;
-> > +
-> > +extern bool platform_forces_virtio_dma(struct virtio_device *vdev);
-> >  #endif	/* _ASM_DMA_MAPPING_H */
-> > diff --git a/arch/powerpc/platforms/pseries/iommu.c b/arch/powerpc/platforms/pseries/iommu.c
-> > index 06f0296..a2ec15a 100644
-> > --- a/arch/powerpc/platforms/pseries/iommu.c
-> > +++ b/arch/powerpc/platforms/pseries/iommu.c
-> > @@ -38,6 +38,7 @@
-> >  #include <linux/of.h>
-> >  #include <linux/iommu.h>
-> >  #include <linux/rculist.h>
-> > +#include <linux/virtio.h>
-> >  #include <asm/io.h>
-> >  #include <asm/prom.h>
-> >  #include <asm/rtas.h>
-> > @@ -1396,3 +1397,13 @@ static int __init disable_multitce(char *str)
-> >  __setup("multitce=", disable_multitce);
-> >  
-> >  machine_subsys_initcall_sync(pseries, tce_iommu_bus_notifier_init);
-> > +
-> > +bool platform_forces_virtio_dma(struct virtio_device *vdev)
-> > +{
-> > +	/*
-> > +	 * On protected guest platforms, force virtio core to use DMA
-> > +	 * MAP API for all virtio devices. But there can also be some
-> > +	 * exceptions for individual devices like virtio balloon.
-> > +	 */
-> > +	return (of_find_compatible_node(NULL, NULL, "ibm,ultravisor") != NULL);
-> > +}
+> > see: https://lkml.org/lkml/2016/8/2/1945
+> > 
+> > Done with automated conversion via:
+> > $ ./scripts/checkpatch.pl -f --types=SYMBOLIC_PERMS --fix-inplace <files...>
+> > 
+> > Miscellanea:
+> > 
+> > o Wrapped modified multi-line calls to a single line where appropriate
+> > o Realign modified multi-line calls to open parenthesis
 > 
-> Isn't this kind of slow?  vring_use_dma_api is on
-> data path and supposed to be very fast.
-> 
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index 21d464a..47ea6c3 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -141,8 +141,18 @@ struct vring_virtqueue {
-> >   * unconditionally on data path.
-> >   */
-> >  
-> > +#ifndef platform_forces_virtio_dma
-> > +static inline bool platform_forces_virtio_dma(struct virtio_device *vdev)
-> > +{
-> > +	return false;
-> > +}
-> > +#endif
-> > +
-> >  static bool vring_use_dma_api(struct virtio_device *vdev)
-> >  {
-> > +	if (platform_forces_virtio_dma(vdev))
-> > +		return true;
-> > +
-> >  	if (!virtio_has_iommu_quirk(vdev))
-> >  		return true;
-> >  
-> > -- 
-> > 2.9.3
+> Honestly, I see this as pretty needless churn.
+
+It's just for consistency and the ability to highlight
+somewhat unusual permissions uses like just 0400.
+
+Apply it at your leisure or ignore it.
+
+btw: Joshua Morris' email address is bouncing.
+Maybe it should be removed from MAINTAINERS.
+---
+ MAINTAINERS | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 9051a9ca24a2..0d546a10d0b9 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -5598,7 +5598,6 @@ F:	drivers/base/firmware_loader/
+ F:	include/linux/firmware.h
+ 
+ FLASH ADAPTER DRIVER (IBM Flash Adapter 900GB Full Height PCI Flash
+Card)
+-M:	Joshua Morris <josh.h.morris@us.ibm.com>
+ M:	Philip Kelleher <pjk1939@linux.vnet.ibm.com>
+ S:	Maintained
+ F:	drivers/block/rsxx/
