@@ -1,23 +1,17 @@
-From: Jiri Pirko <jiri@resnulli.us>
-Subject: Re: [PATCH net-next v11 2/5] netvsc: refactor notifier/event
-	handling code to use the failover framework
-Date: Wed, 23 May 2018 08:27:48 +0200
-Message-ID: <20180523062748.GA3155__48377.1252366298$1527056792$gmane$org@nanopsycho>
-References: <1526954781-35359-1-git-send-email-sridhar.samudrala@intel.com>
-	<1526954781-35359-3-git-send-email-sridhar.samudrala@intel.com>
-	<20180522090637.GE2149@nanopsycho>
-	<20180522090853.GF2149@nanopsycho>
-	<39081bce-3913-5b07-3d07-0c476fca5e78@intel.com>
-	<20180522153614.GK2149@nanopsycho>
-	<20180522184112-mutt-send-email-mst@kernel.org>
-	<20180522161246.GN2149@nanopsycho>
-	<8f611f3b-88d7-4d41-fd47-d07f11d0f25a@intel.com>
+From: Wei Xu <wexu@redhat.com>
+Subject: Re: [RFC V4 PATCH 7/8] vhost: packed ring support
+Date: Wed, 23 May 2018 15:17:27 +0800
+Message-ID: <20180523071727.GA13373__3133.81110686368$1527059758$gmane$org@wei-ubt>
+References: <1526473941-16199-1-git-send-email-jasowang@redhat.com>
+	<1526473941-16199-8-git-send-email-jasowang@redhat.com>
+	<20180522165448.GA13523@wei-ubt>
+	<e12d4055-6ae6-4d00-ae8b-1acd88633f48@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <8f611f3b-88d7-4d41-fd47-d07f11d0f25a@intel.com>
+In-Reply-To: <e12d4055-6ae6-4d00-ae8b-1acd88633f48@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,113 +21,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Tue, May 22, 2018 at 10:54:29PM CEST, sridhar.samudrala@intel.com wrote:
->
->
->On 5/22/2018 9:12 AM, Jiri Pirko wrote:
->> Fixing the subj, sorry about that.
->> =
-
->> Tue, May 22, 2018 at 05:46:21PM CEST, mst@redhat.com wrote:
->> > On Tue, May 22, 2018 at 05:36:14PM +0200, Jiri Pirko wrote:
->> > > Tue, May 22, 2018 at 05:28:42PM CEST, sridhar.samudrala@intel.com wr=
-ote:
->> > > > On 5/22/2018 2:08 AM, Jiri Pirko wrote:
->> > > > > Tue, May 22, 2018 at 11:06:37AM CEST, jiri@resnulli.us wrote:
->> > > > > > Tue, May 22, 2018 at 04:06:18AM CEST, sridhar.samudrala@intel.=
-com wrote:
->> > > > > > > Use the registration/notification framework supported by the=
- generic
->> > > > > > > failover infrastructure.
->> > > > > > > =
-
->> > > > > > > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.co=
-m>
->> > > > > > In previous patchset versions, the common code did
->> > > > > > netdev_rx_handler_register() and netdev_upper_dev_link() etc
->> > > > > > (netvsc_vf_join()). Now, this is still done in netvsc. Why?
->> > > > > > =
-
->> > > > > > This should be part of the common "failover" code.
->> > > > Based on Stephen's feedback on earlier patches, i tried to minimiz=
-e the changes to
->> > > > netvsc and only commonize the notifier and the main event handler =
-routine.
->> > > > Another complication is that netvsc does part of registration in a=
- delayed workqueue.
->> > > :( This kind of degrades the whole efford of having single solution
->> > > in "failover" module. I think that common parts, as
->> > > netdev_rx_handler_register() and others certainly is should be inside
->> > > the common module. This is not a good time to minimize changes. Let'=
-s do
->> > > the thing properly and fix the netvsc mess now.
->> > > =
-
->> > > =
-
->> > > > It should be possible to move some of the code from net_failover.c=
- to generic
->> > > > failover.c in future if Stephen is ok with it.
->> > > > =
-
->> > > > =
-
->> > > > > Also note that in the current patchset you use IFF_FAILOVER flag=
- for
->> > > > > master, yet for the slave you use IFF_SLAVE. That is wrong.
->> > > > > IFF_FAILOVER_SLAVE should be used.
->> > > > Not sure which code you are referring to.=A0 I only set IFF_FAILOV=
-ER_SLAVE
->> > > > in patch 3.
->> > > The existing netvsc driver.
->> > We really can't change netvsc's flags now, even if it's interface is
->> > messy, it's being used in the field. We can add a flag that makes netv=
-sc
->> > behave differently, and if this flag also allows enhanced functionality
->> > userspace will gradually switch.
->> Okay, although in this case, it really does not make much sense, so be
->> it. Leave the netvsc set the ->priv flag to IFF_SLAVE as it is doing
->> now. (This once-wrong-forever-wrong policy is flustrating me).
->> =
-
->> But since this patchset introduces private flag IFF_FAILOVER and
->> IFF_FAILOVER_SLAVE, and we set IFF_FAILOVER to the netvsc netdev
->> instance, we should also set IFF_FAILOVER_SLAVE to the enslaved VF
->> netdevice to get at least some consistency between virtio_net and
->> netvsc.
->
->OK. I can make this change to set/unset IFF_FAILOVER_SLAVE in the netvsc
->register/unregister routines so that it is consistent with virtio_net.
->
->Based on your discussion with mst, i think we can even remove IFF_SLAVE
->setting on netvsc as it should not impact userspace.  If Stephen is OK
->we can make this change too.
->
->Do you see any other items that need to be resolved for this series to go =
-in
->this merge window?
-
-As I wrote previously, the common code including rx_handler registration
-and setting of flags and master link should be done in a common code,
-moved away from netvsc code.
-
-Thanks.
-
-
->
->
->
->> =
-
->> > Anything breaking userspace I fully expect Stephen to nack and
->> > IMO with good reason.
->> > =
-
->> > -- =
-
->> > MST
->
+T24gV2VkLCBNYXkgMjMsIDIwMTggYXQgMDk6Mzk6MjhBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE45bm0MDXmnIgyM+aXpSAwMDo1NCwgV2VpIFh1IHdyb3RlOgo+ID5P
+biBXZWQsIE1heSAxNiwgMjAxOCBhdCAwODozMjoyMFBNICswODAwLCBKYXNvbiBXYW5nIHdyb3Rl
+Ogo+ID4+U2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiA+
+Pi0tLQo+ID4+ICBkcml2ZXJzL3Zob3N0L25ldC5jICAgfCAgIDMgKy0KPiA+PiAgZHJpdmVycy92
+aG9zdC92aG9zdC5jIHwgNTM5ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKystLS0tCj4gPj4gIGRyaXZlcnMvdmhvc3Qvdmhvc3QuaCB8ICAgOCArLQo+ID4+ICAz
+IGZpbGVzIGNoYW5nZWQsIDUxMyBpbnNlcnRpb25zKCspLCAzNyBkZWxldGlvbnMoLSkKPiA+Pgo+
+ID4+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBiL2RyaXZlcnMvdmhvc3Qvdmhv
+c3QuYwo+ID4+aW5kZXggODMwNGMzMC4uZjJhMGY1YiAxMDA2NDQKPiA+Pi0tLSBhL2RyaXZlcnMv
+dmhvc3Qvdmhvc3QuYwo+ID4+KysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gPj5AQCAtMTM1
+OCw2ICsxMzgyLDggQEAgbG9uZyB2aG9zdF92cmluZ19pb2N0bChzdHJ1Y3Qgdmhvc3RfZGV2ICpk
+LCB1bnNpZ25lZCBpbnQgaW9jdGwsIHZvaWQgX191c2VyICphcmcKPiA+PiAgCQkJYnJlYWs7Cj4g
+Pj4gIAkJfQo+ID4+ICAJCXZxLT5sYXN0X2F2YWlsX2lkeCA9IHMubnVtOwo+ID4+KwkJaWYgKHZo
+b3N0X2hhc19mZWF0dXJlKHZxLCBWSVJUSU9fRl9SSU5HX1BBQ0tFRCkpCj4gPj4rCQkJdnEtPmF2
+YWlsX3dyYXBfY291bnRlciA9IHMubnVtID4+IDMxOwo+ID4+ICAJCS8qIEZvcmdldCB0aGUgY2Fj
+aGVkIGluZGV4IHZhbHVlLiAqLwo+ID4+ICAJCXZxLT5hdmFpbF9pZHggPSB2cS0+bGFzdF9hdmFp
+bF9pZHg7Cj4gPj4gIAkJYnJlYWs7Cj4gPj5AQCAtMTM2Niw2ICsxMzkyLDggQEAgbG9uZyB2aG9z
+dF92cmluZ19pb2N0bChzdHJ1Y3Qgdmhvc3RfZGV2ICpkLCB1bnNpZ25lZCBpbnQgaW9jdGwsIHZv
+aWQgX191c2VyICphcmcKPiA+PiAgCQlzLm51bSA9IHZxLT5sYXN0X2F2YWlsX2lkeDsKPiA+PiAg
+CQlpZiAoY29weV90b191c2VyKGFyZ3AsICZzLCBzaXplb2YgcykpCj4gPj4gIAkJCXIgPSAtRUZB
+VUxUOwo+ID4+KwkJaWYgKHZob3N0X2hhc19mZWF0dXJlKHZxLCBWSVJUSU9fRl9SSU5HX1BBQ0tF
+RCkpCj4gPj4rCQkJcy5udW0gfD0gdnEtPmF2YWlsX3dyYXBfY291bnRlciA8PCAzMTsKPiA+PiAg
+CQlicmVhazsKPiA+PiAgCWNhc2UgVkhPU1RfU0VUX1ZSSU5HX0FERFI6Cj4gPj4gIAkJaWYgKGNv
+cHlfZnJvbV91c2VyKCZhLCBhcmdwLCBzaXplb2YgYSkpIHsKPiA+J2xhc3RfdXNlZF9pZHgnIGFs
+c28gbmVlZHMgdG8gYmUgc2F2ZWQvcmVzdG9yZWQgaGVyZS4KPiA+Cj4gPkkgaGF2ZSBmaWd1cmVk
+IG91dCB0aGUgcm9vdCBjYXVzZSBvZiBicm9rZW4gZGV2aWNlIGFmdGVyIHJlbG9hZGluZwo+ID4n
+dmlydGlvLW5ldCcgbW9kdWxlLCBhbGwgaW5kaWNlcyBoYXZlIGJlZW4gcmVzZXQgZm9yIGEgcmVs
+b2FkaW5nIGJ1dAo+ID4nbGFzdF91c2VkX2lkeCcgaXMgbm90IHByb3Blcmx5IHJlc2V0IGluIHRo
+aXMgY2FzZS4gVGhpcyBjb25mdXNlcwo+ID5oYW5kbGVfcngoKS90eCgpLgo+ID4KPiA+V2VpCj4g
+Pgo+IAo+IEdvb2QgY2F0Y2gsIHNvIHdlIHByb2JhYmx5IG5lZWQgYSBuZXcgaW9jdGwgdG8gc3lu
+YyBiZXR3ZWVuIHFlbXUgYW5kIHZob3N0Lgo+IAo+IFNvbWV0aGluZyBsaWtlIFZIT1NUX1NFVC9H
+RVRfVVNFRF9CQVNFLgoKU3VyZSwgb3IgY2FuIHdlIGV4cGFuZCAndmhvc3RfdnJpbmdfc3RhdGUn
+IHRvIGtlZXAgdGhlbSBkb25lIGluIGEgYnVuY2g/Cgo+IAo+IFRoYW5rcwo+IApfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
