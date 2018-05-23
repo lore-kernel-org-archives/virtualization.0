@@ -1,15 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
-	virito devices
-Date: Wed, 23 May 2018 21:50:02 +0300
-Message-ID: <20180523213703-mutt-send-email-mst__10034.9995693707$1527101290$gmane$org@kernel.org>
-References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
+From: Thomas Garnier via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: [PATCH v3 00/27] x86: PIE support and option to extend KASLR
+	randomization
+Date: Wed, 23 May 2018 12:53:54 -0700
+Message-ID: <20180523195421.180248-1-thgarnie@google.com>
+Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,126 +18,180 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Cc: robh@kernel.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, mpe@ellerman.id.au, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
+To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Garnier <thgarnie@google.com>, Philippe Ombredanne <pombredanne@nexb.com>, Kate Stewart <kstewart@linuxfoundation.org>, Arnaldo Carvalho de Melo <acme@redhat.com>, Yonghong Song <yhs@fb.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Kees Cook <keescook@chromium.org>, Tom Lendacky <thomas.lendacky@amd.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Borislav Petkov <bp@alien8.de>, Borislav Petkov <bp@suse.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>Len
+Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-subj: s/virito/virtio/
+Changes:
+ - patch v3:
+   - Update on message to describe longer term PIE goal.
+   - Minor change on ftrace if condition.
+   - Changed code using xchgq.
+ - patch v2:
+   - Adapt patch to work post KPTI and compiler changes
+   - Redo all performance testing with latest configs and compilers
+   - Simplify mov macro on PIE (MOVABS now)
+   - Reduce GOT footprint
+ - patch v1:
+   - Simplify ftrace implementation.
+   - Use gcc mstack-protector-guard-reg=%gs with PIE when possible.
+ - rfc v3:
+   - Use --emit-relocs instead of -pie to reduce dynamic relocation space on
+     mapped memory. It also simplifies the relocation process.
+   - Move the start the module section next to the kernel. Remove the need for
+     -mcmodel=large on modules. Extends module space from 1 to 2G maximum.
+   - Support for XEN PVH as 32-bit relocations can be ignored with
+     --emit-relocs.
+   - Support for GOT relocations previously done automatically with -pie.
+   - Remove need for dynamic PLT in modules.
+   - Support dymamic GOT for modules.
+ - rfc v2:
+   - Add support for global stack cookie while compiler default to fs without
+     mcmodel=kernel
+   - Change patch 7 to correctly jump out of the identity mapping on kexec load
+     preserve.
 
-On Tue, May 22, 2018 at 12:03:17PM +0530, Anshuman Khandual wrote:
-> This adds a hook which a platform can define in order to allow it to
-> force the use of the DMA API for all virtio devices even if they don't
-> have the VIRTIO_F_IOMMU_PLATFORM flag set.  We want to use this to do
-> bounce-buffering of data on the new secure pSeries platform, currently
-> under development, where a KVM host cannot access all of the memory
-> space of a secure KVM guest.  The host can only access the pages which
-> the guest has explicitly requested to be shared with the host, thus
-> the virtio implementation in the guest has to copy data to and from
-> shared pages.
-> 
-> With this hook, the platform code in the secure guest can force the
-> use of swiotlb for virtio buffers, with a back-end for swiotlb which
-> will use a pool of pre-allocated shared pages.  Thus all data being
-> sent or received by virtio devices will be copied through pages which
-> the host has access to.
-> 
-> Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-> ---
-> Changes in V2:
-> 
-> The arch callback has been enabled through an weak symbol defintion
-> so that it is enabled only for those architectures subscribing to
-> this new framework. Clarified the patch description. The primary
-> objective for this RFC has been to get an in principle agreement
-> on this approach.
-> 
-> Original V1:
-> 
-> Original RFC and discussions https://patchwork.kernel.org/patch/10324405/
+These patches make the changes necessary to build the kernel as Position
+Independent Executable (PIE) on x86_64. A PIE kernel can be relocated below
+the top 2G of the virtual address space. It allows to optionally extend the
+KASLR randomization range from 1G to 3G. The chosen range is the one currently
+available, future changes will allow the kernel module to have a wider
+randomization range.
 
-I re-read that discussion and I'm still unclear on the
-original question, since I got several apparently
-conflicting answers.
+Thanks a lot to Ard Biesheuvel & Kees Cook on their feedback on compiler
+changes, PIE support and KASLR in general. Thanks to Roland McGrath on his
+feedback for using -pie versus --emit-relocs and details on compiler code
+generation.
 
-I asked:
+The patches:
+ - 1-3, 5-13, 18-19: Change in assembly code to be PIE compliant.
+ - 4: Add a new _ASM_MOVABS macro to fetch a symbol address generically.
+ - 14: Adapt percpu design to work correctly when PIE is enabled.
+ - 15: Provide an option to default visibility to hidden except for key symbols.
+       It removes errors between compilation units.
+ - 16: Add PROVIDE_HIDDEN replacement on the linker script for weak symbols to
+       reduce GOT footprint.
+ - 17: Adapt relocation tool to handle PIE binary correctly.
+ - 20: Add support for global cookie.
+ - 21: Support ftrace with PIE (used on Ubuntu config).
+ - 22: Add option to move the module section just after the kernel.
+ - 23: Adapt module loading to support PIE with dynamic GOT.
+ - 24: Make the GOT read-only.
+ - 25: Add the CONFIG_X86_PIE option (off by default).
+ - 26: Adapt relocation tool to generate a 64-bit relocation table.
+ - 27: Add the CONFIG_RANDOMIZE_BASE_LARGE option to increase relocation range
+       from 1G to 3G (off by default).
 
-	Why isn't setting VIRTIO_F_IOMMU_PLATFORM on the
-	hypervisor side sufficient?
+Performance/Size impact:
 
+Size of vmlinux (Default configuration):
+ File size:
+ - PIE disabled: +0.18%
+ - PIE enabled: -1.977% (less relocations)
+ .text section:
+ - PIE disabled: same
+ - PIE enabled: same
 
+Size of vmlinux (Ubuntu configuration):
+ File size:
+ - PIE disabled: +0.21%
+ - PIE enabled: +10%
+ .text section:
+ - PIE disabled: same
+ - PIE enabled: +0.001%
 
->  arch/powerpc/include/asm/dma-mapping.h |  6 ++++++
->  arch/powerpc/platforms/pseries/iommu.c | 11 +++++++++++
->  drivers/virtio/virtio_ring.c           | 10 ++++++++++
->  3 files changed, 27 insertions(+)
-> 
-> diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
-> index 8fa3945..056e578 100644
-> --- a/arch/powerpc/include/asm/dma-mapping.h
-> +++ b/arch/powerpc/include/asm/dma-mapping.h
-> @@ -115,4 +115,10 @@ extern u64 __dma_get_required_mask(struct device *dev);
->  #define ARCH_HAS_DMA_MMAP_COHERENT
->  
->  #endif /* __KERNEL__ */
-> +
-> +#define platform_forces_virtio_dma platform_forces_virtio_dma
-> +
-> +struct virtio_device;
-> +
-> +extern bool platform_forces_virtio_dma(struct virtio_device *vdev);
->  #endif	/* _ASM_DMA_MAPPING_H */
-> diff --git a/arch/powerpc/platforms/pseries/iommu.c b/arch/powerpc/platforms/pseries/iommu.c
-> index 06f0296..a2ec15a 100644
-> --- a/arch/powerpc/platforms/pseries/iommu.c
-> +++ b/arch/powerpc/platforms/pseries/iommu.c
-> @@ -38,6 +38,7 @@
->  #include <linux/of.h>
->  #include <linux/iommu.h>
->  #include <linux/rculist.h>
-> +#include <linux/virtio.h>
->  #include <asm/io.h>
->  #include <asm/prom.h>
->  #include <asm/rtas.h>
-> @@ -1396,3 +1397,13 @@ static int __init disable_multitce(char *str)
->  __setup("multitce=", disable_multitce);
->  
->  machine_subsys_initcall_sync(pseries, tce_iommu_bus_notifier_init);
-> +
-> +bool platform_forces_virtio_dma(struct virtio_device *vdev)
-> +{
-> +	/*
-> +	 * On protected guest platforms, force virtio core to use DMA
-> +	 * MAP API for all virtio devices. But there can also be some
-> +	 * exceptions for individual devices like virtio balloon.
-> +	 */
-> +	return (of_find_compatible_node(NULL, NULL, "ibm,ultravisor") != NULL);
-> +}
+The size increase is mainly due to not having access to the 32-bit signed
+relocation that can be used with mcmodel=kernel. A small part is due to reduced
+optimization for PIE code. This bug [1] was opened with gcc to provide a better
+code generation for kernel PIE.
 
-Isn't this kind of slow?  vring_use_dma_api is on
-data path and supposed to be very fast.
+Hackbench (50% and 1600% on thread/process for pipe/sockets):
+ - PIE disabled: no significant change (avg -/+ 0.5% on latest test).
+ - PIE enabled: between -1% to +1% in average (default and Ubuntu config).
 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 21d464a..47ea6c3 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -141,8 +141,18 @@ struct vring_virtqueue {
->   * unconditionally on data path.
->   */
->  
-> +#ifndef platform_forces_virtio_dma
-> +static inline bool platform_forces_virtio_dma(struct virtio_device *vdev)
-> +{
-> +	return false;
-> +}
-> +#endif
-> +
->  static bool vring_use_dma_api(struct virtio_device *vdev)
->  {
-> +	if (platform_forces_virtio_dma(vdev))
-> +		return true;
-> +
->  	if (!virtio_has_iommu_quirk(vdev))
->  		return true;
->  
-> -- 
-> 2.9.3
+Kernbench (average of 10 Half and Optimal runs):
+ Elapsed Time:
+ - PIE disabled: no significant change (avg -0.5%)
+ - PIE enabled: average -0.5% to +0.5%
+ System Time:
+ - PIE disabled: no significant change (avg -0.1%)
+ - PIE enabled: average -0.4% to +0.4%.
+
+[1] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82303
+
+diffstat:
+ Documentation/x86/x86_64/mm.txt              |    3 
+ arch/x86/Kconfig                             |   45 ++++++
+ arch/x86/Makefile                            |   58 ++++++++
+ arch/x86/boot/boot.h                         |    2 
+ arch/x86/boot/compressed/Makefile            |    5 
+ arch/x86/boot/compressed/misc.c              |   10 +
+ arch/x86/crypto/aes-x86_64-asm_64.S          |   45 ++++--
+ arch/x86/crypto/aesni-intel_asm.S            |    8 -
+ arch/x86/crypto/aesni-intel_avx-x86_64.S     |    6 
+ arch/x86/crypto/camellia-aesni-avx-asm_64.S  |   42 +++---
+ arch/x86/crypto/camellia-aesni-avx2-asm_64.S |   44 +++---
+ arch/x86/crypto/camellia-x86_64-asm_64.S     |    8 -
+ arch/x86/crypto/cast5-avx-x86_64-asm_64.S    |   50 ++++---
+ arch/x86/crypto/cast6-avx-x86_64-asm_64.S    |   44 +++---
+ arch/x86/crypto/des3_ede-asm_64.S            |   96 +++++++++-----
+ arch/x86/crypto/ghash-clmulni-intel_asm.S    |    4 
+ arch/x86/crypto/glue_helper-asm-avx.S        |    4 
+ arch/x86/crypto/glue_helper-asm-avx2.S       |    6 
+ arch/x86/crypto/sha256-avx2-asm.S            |   23 ++-
+ arch/x86/entry/calling.h                     |    2 
+ arch/x86/entry/entry_32.S                    |    3 
+ arch/x86/entry/entry_64.S                    |   25 ++-
+ arch/x86/include/asm/asm.h                   |    1 
+ arch/x86/include/asm/bug.h                   |    2 
+ arch/x86/include/asm/ftrace.h                |    6 
+ arch/x86/include/asm/jump_label.h            |    8 -
+ arch/x86/include/asm/kvm_host.h              |    8 -
+ arch/x86/include/asm/module.h                |   11 +
+ arch/x86/include/asm/page_64_types.h         |    9 +
+ arch/x86/include/asm/paravirt_types.h        |   12 +
+ arch/x86/include/asm/percpu.h                |   25 ++-
+ arch/x86/include/asm/pgtable_64_types.h      |    6 
+ arch/x86/include/asm/pm-trace.h              |    2 
+ arch/x86/include/asm/processor.h             |   16 +-
+ arch/x86/include/asm/sections.h              |    8 +
+ arch/x86/include/asm/setup.h                 |    2 
+ arch/x86/include/asm/stackprotector.h        |   19 ++
+ arch/x86/kernel/Makefile                     |    6 
+ arch/x86/kernel/acpi/wakeup_64.S             |   31 ++--
+ arch/x86/kernel/asm-offsets.c                |    3 
+ arch/x86/kernel/asm-offsets_32.c             |    3 
+ arch/x86/kernel/asm-offsets_64.c             |    3 
+ arch/x86/kernel/cpu/common.c                 |    3 
+ arch/x86/kernel/cpu/microcode/core.c         |    4 
+ arch/x86/kernel/ftrace.c                     |   42 +++++-
+ arch/x86/kernel/head64.c                     |   23 ++-
+ arch/x86/kernel/head_32.S                    |    3 
+ arch/x86/kernel/head_64.S                    |   41 +++++-
+ arch/x86/kernel/kvm.c                        |    6 
+ arch/x86/kernel/module.c                     |  181 ++++++++++++++++++++++++++-
+ arch/x86/kernel/module.lds                   |    3 
+ arch/x86/kernel/process.c                    |    5 
+ arch/x86/kernel/relocate_kernel_64.S         |   16 +-
+ arch/x86/kernel/setup_percpu.c               |    5 
+ arch/x86/kernel/vmlinux.lds.S                |   13 +
+ arch/x86/kvm/svm.c                           |    4 
+ arch/x86/lib/cmpxchg16b_emu.S                |    8 -
+ arch/x86/mm/dump_pagetables.c                |    3 
+ arch/x86/power/hibernate_asm_64.S            |    4 
+ arch/x86/tools/relocs.c                      |  169 +++++++++++++++++++++++--
+ arch/x86/tools/relocs.h                      |    4 
+ arch/x86/tools/relocs_common.c               |   15 +-
+ arch/x86/xen/xen-asm.S                       |   12 -
+ arch/x86/xen/xen-head.S                      |   11 -
+ arch/x86/xen/xen-pvh.S                       |   13 +
+ drivers/base/firmware_loader/main.c          |    4 
+ include/asm-generic/sections.h               |    6 
+ include/asm-generic/vmlinux.lds.h            |   12 +
+ include/linux/compiler.h                     |    7 +
+ init/Kconfig                                 |   16 ++
+ kernel/kallsyms.c                            |   16 +-
+ kernel/trace/trace.h                         |    4 
+ lib/dynamic_debug.c                          |    4 
+ scripts/link-vmlinux.sh                      |   14 ++
+ 74 files changed, 1070 insertions(+), 315 deletions(-)
