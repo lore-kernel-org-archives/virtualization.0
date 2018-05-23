@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v3 09/27] x86/acpi: Adapt assembly for PIE support
-Date: Wed, 23 May 2018 12:54:03 -0700
-Message-ID: <20180523195421.180248-10-thgarnie__19744.6042475805$1527105661$gmane$org@google.com>
+Subject: [PATCH v3 10/27] x86/boot/64: Adapt assembly for PIE support
+Date: Wed, 23 May 2018 12:54:04 -0700
+Message-ID: <20180523195421.180248-11-thgarnie__46589.3607390628$1527105741$gmane$org@google.com>
 References: <20180523195421.180248-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -26,86 +26,89 @@ List-Id: virtualization@lists.linuxfoundation.org
 Change the assembly code to use only relative references of symbols for the
 kernel to be PIE compatible.
 
+Early at boot, the kernel is mapped at a temporary address while preparing
+the page table. To know the changes needed for the page table with KASLR,
+the boot code calculate the difference between the expected address of the
+kernel and the one chosen by KASLR. It does not work with PIE because all
+symbols in code are relatives. Instead of getting the future relocated
+virtual address, you will get the current temporary mapping. The solution
+is using global variables that will be relocated as expected.
+
 Position Independent Executable (PIE) support will allow to extended the
 KASLR randomization range below the -2G memory limit.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/kernel/acpi/wakeup_64.S | 31 ++++++++++++++++---------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+ arch/x86/kernel/head_64.S | 26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/acpi/wakeup_64.S b/arch/x86/kernel/acpi/wakeup_64.S
-index 50b8ed0317a3..472659c0f811 100644
---- a/arch/x86/kernel/acpi/wakeup_64.S
-+++ b/arch/x86/kernel/acpi/wakeup_64.S
-@@ -14,7 +14,7 @@
- 	 * Hooray, we are in Long 64-bit mode (but still running in low memory)
- 	 */
- ENTRY(wakeup_long64)
--	movq	saved_magic, %rax
-+	movq	saved_magic(%rip), %rax
- 	movq	$0x123456789abcdef0, %rdx
- 	cmpq	%rdx, %rax
- 	jne	bogus_64_magic
-@@ -25,14 +25,14 @@ ENTRY(wakeup_long64)
- 	movw	%ax, %es
- 	movw	%ax, %fs
- 	movw	%ax, %gs
--	movq	saved_rsp, %rsp
-+	movq	saved_rsp(%rip), %rsp
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 8344dd2f310a..7c8f7ce93b9e 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -89,8 +89,9 @@ startup_64:
+ 	popq	%rsi
  
--	movq	saved_rbx, %rbx
--	movq	saved_rdi, %rdi
--	movq	saved_rsi, %rsi
--	movq	saved_rbp, %rbp
-+	movq	saved_rbx(%rip), %rbx
-+	movq	saved_rdi(%rip), %rdi
-+	movq	saved_rsi(%rip), %rsi
-+	movq	saved_rbp(%rip), %rbp
+ 	/* Form the CR3 value being sure to include the CR3 modifier */
+-	addq	$(early_top_pgt - __START_KERNEL_map), %rax
++	addq    _early_top_pgt_offset(%rip), %rax
+ 	jmp 1f
++
+ ENTRY(secondary_startup_64)
+ 	UNWIND_HINT_EMPTY
+ 	/*
+@@ -119,7 +120,7 @@ ENTRY(secondary_startup_64)
+ 	popq	%rsi
  
--	movq	saved_rip, %rax
-+	movq	saved_rip(%rip), %rax
+ 	/* Form the CR3 value being sure to include the CR3 modifier */
+-	addq	$(init_top_pgt - __START_KERNEL_map), %rax
++	addq    _init_top_offset(%rip), %rax
+ 1:
+ 
+ 	/* Enable PAE mode, PGE and LA57 */
+@@ -137,7 +138,7 @@ ENTRY(secondary_startup_64)
+ 	movq	%rax, %cr3
+ 
+ 	/* Ensure I am executing from virtual addresses */
+-	movq	$1f, %rax
++	movabs  $1f, %rax
+ 	ANNOTATE_RETPOLINE_SAFE
  	jmp	*%rax
- ENDPROC(wakeup_long64)
+ 1:
+@@ -234,11 +235,12 @@ ENTRY(secondary_startup_64)
+ 	 *	REX.W + FF /5 JMP m16:64 Jump far, absolute indirect,
+ 	 *		address given in m16:64.
+ 	 */
+-	pushq	$.Lafter_lret	# put return address on stack for unwinder
++	leaq	.Lafter_lret(%rip), %rax
++	pushq	%rax		# put return address on stack for unwinder
+ 	xorq	%rbp, %rbp	# clear frame pointer
+-	movq	initial_code(%rip), %rax
++	leaq	initial_code(%rip), %rax
+ 	pushq	$__KERNEL_CS	# set correct cs
+-	pushq	%rax		# target address in negative space
++	pushq	(%rax)		# target address in negative space
+ 	lretq
+ .Lafter_lret:
+ END(secondary_startup_64)
+@@ -342,6 +344,18 @@ END(early_idt_handler_common)
+ GLOBAL(early_recursion_flag)
+ 	.long 0
  
-@@ -45,7 +45,7 @@ ENTRY(do_suspend_lowlevel)
- 	xorl	%eax, %eax
- 	call	save_processor_state
- 
--	movq	$saved_context, %rax
-+	leaq	saved_context(%rip), %rax
- 	movq	%rsp, pt_regs_sp(%rax)
- 	movq	%rbp, pt_regs_bp(%rax)
- 	movq	%rsi, pt_regs_si(%rax)
-@@ -64,13 +64,14 @@ ENTRY(do_suspend_lowlevel)
- 	pushfq
- 	popq	pt_regs_flags(%rax)
- 
--	movq	$.Lresume_point, saved_rip(%rip)
-+	leaq	.Lresume_point(%rip), %rax
-+	movq	%rax, saved_rip(%rip)
- 
--	movq	%rsp, saved_rsp
--	movq	%rbp, saved_rbp
--	movq	%rbx, saved_rbx
--	movq	%rdi, saved_rdi
--	movq	%rsi, saved_rsi
-+	movq	%rsp, saved_rsp(%rip)
-+	movq	%rbp, saved_rbp(%rip)
-+	movq	%rbx, saved_rbx(%rip)
-+	movq	%rdi, saved_rdi(%rip)
-+	movq	%rsi, saved_rsi(%rip)
- 
- 	addq	$8, %rsp
- 	movl	$3, %edi
-@@ -82,7 +83,7 @@ ENTRY(do_suspend_lowlevel)
- 	.align 4
- .Lresume_point:
- 	/* We don't restore %rax, it must be 0 anyway */
--	movq	$saved_context, %rax
-+	leaq	saved_context(%rip), %rax
- 	movq	saved_context_cr4(%rax), %rbx
- 	movq	%rbx, %cr4
- 	movq	saved_context_cr3(%rax), %rbx
++	/*
++	 * Position Independent Code takes only relative references in code
++	 * meaning a global variable address is relative to RIP and not its
++	 * future virtual address. Global variables can be used instead as they
++	 * are still relocated on the expected kernel mapping address.
++	 */
++	.align 8
++_early_top_pgt_offset:
++	.quad early_top_pgt - __START_KERNEL_map
++_init_top_offset:
++	.quad init_top_pgt - __START_KERNEL_map
++
+ #define NEXT_PAGE(name) \
+ 	.balign	PAGE_SIZE; \
+ GLOBAL(name)
 -- 
 2.17.0.441.gb46fe60e1d-goog
