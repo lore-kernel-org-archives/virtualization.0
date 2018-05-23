@@ -1,23 +1,13 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [PATCH net-next v11 2/5] netvsc: refactor notifier/event handling
-	code to use the failover framework
-Date: Wed, 23 May 2018 09:16:59 -0700
-Message-ID: <f6df0fe0-f577-9ca2-4505-fb6bd204143a__10821.4841377505$1527092125$gmane$org@intel.com>
-References: <1526954781-35359-1-git-send-email-sridhar.samudrala@intel.com>
-	<1526954781-35359-3-git-send-email-sridhar.samudrala@intel.com>
-	<20180522090637.GE2149@nanopsycho> <20180522090853.GF2149@nanopsycho>
-	<39081bce-3913-5b07-3d07-0c476fca5e78@intel.com>
-	<20180522153614.GK2149@nanopsycho>
-	<20180522184112-mutt-send-email-mst@kernel.org>
-	<20180522161246.GN2149@nanopsycho>
-	<8f611f3b-88d7-4d41-fd47-d07f11d0f25a@intel.com>
-	<20180523062748.GA3155@nanopsycho>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net V2 0/4] Fix several issues of virtio-net mergeable XDP
+Date: Wed, 23 May 2018 13:37:58 -0400 (EDT)
+Message-ID: <20180523.133758.2273298453278600346.davem__49806.4355146655$1527096982$gmane$org@davemloft.net>
+References: <1526960671-11782-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180523062748.GA3155@nanopsycho>
-Content-Language: en-US
+In-Reply-To: <1526960671-11782-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,80 +17,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gNS8yMi8yMDE4IDExOjI3IFBNLCBKaXJpIFBpcmtvIHdyb3RlOgo+IFR1ZSwgTWF5IDIyLCAy
-MDE4IGF0IDEwOjU0OjI5UE0gQ0VTVCwgc3JpZGhhci5zYW11ZHJhbGFAaW50ZWwuY29tIHdyb3Rl
-Ogo+Pgo+PiBPbiA1LzIyLzIwMTggOToxMiBBTSwgSmlyaSBQaXJrbyB3cm90ZToKPj4+IEZpeGlu
-ZyB0aGUgc3Viaiwgc29ycnkgYWJvdXQgdGhhdC4KPj4+Cj4+PiBUdWUsIE1heSAyMiwgMjAxOCBh
-dCAwNTo0NjoyMVBNIENFU1QsIG1zdEByZWRoYXQuY29tIHdyb3RlOgo+Pj4+IE9uIFR1ZSwgTWF5
-IDIyLCAyMDE4IGF0IDA1OjM2OjE0UE0gKzAyMDAsIEppcmkgUGlya28gd3JvdGU6Cj4+Pj4+IFR1
-ZSwgTWF5IDIyLCAyMDE4IGF0IDA1OjI4OjQyUE0gQ0VTVCwgc3JpZGhhci5zYW11ZHJhbGFAaW50
-ZWwuY29tIHdyb3RlOgo+Pj4+Pj4gT24gNS8yMi8yMDE4IDI6MDggQU0sIEppcmkgUGlya28gd3Jv
-dGU6Cj4+Pj4+Pj4gVHVlLCBNYXkgMjIsIDIwMTggYXQgMTE6MDY6MzdBTSBDRVNULCBqaXJpQHJl
-c251bGxpLnVzIHdyb3RlOgo+Pj4+Pj4+PiBUdWUsIE1heSAyMiwgMjAxOCBhdCAwNDowNjoxOEFN
-IENFU1QsIHNyaWRoYXIuc2FtdWRyYWxhQGludGVsLmNvbSB3cm90ZToKPj4+Pj4+Pj4+IFVzZSB0
-aGUgcmVnaXN0cmF0aW9uL25vdGlmaWNhdGlvbiBmcmFtZXdvcmsgc3VwcG9ydGVkIGJ5IHRoZSBn
-ZW5lcmljCj4+Pj4+Pj4+PiBmYWlsb3ZlciBpbmZyYXN0cnVjdHVyZS4KPj4+Pj4+Pj4+Cj4+Pj4+
-Pj4+PiBTaWduZWQtb2ZmLWJ5OiBTcmlkaGFyIFNhbXVkcmFsYSA8c3JpZGhhci5zYW11ZHJhbGFA
-aW50ZWwuY29tPgo+Pj4+Pj4+PiBJbiBwcmV2aW91cyBwYXRjaHNldCB2ZXJzaW9ucywgdGhlIGNv
-bW1vbiBjb2RlIGRpZAo+Pj4+Pj4+PiBuZXRkZXZfcnhfaGFuZGxlcl9yZWdpc3RlcigpIGFuZCBu
-ZXRkZXZfdXBwZXJfZGV2X2xpbmsoKSBldGMKPj4+Pj4+Pj4gKG5ldHZzY192Zl9qb2luKCkpLiBO
-b3csIHRoaXMgaXMgc3RpbGwgZG9uZSBpbiBuZXR2c2MuIFdoeT8KPj4+Pj4+Pj4KPj4+Pj4+Pj4g
-VGhpcyBzaG91bGQgYmUgcGFydCBvZiB0aGUgY29tbW9uICJmYWlsb3ZlciIgY29kZS4KPj4+Pj4+
-IEJhc2VkIG9uIFN0ZXBoZW4ncyBmZWVkYmFjayBvbiBlYXJsaWVyIHBhdGNoZXMsIGkgdHJpZWQg
-dG8gbWluaW1pemUgdGhlIGNoYW5nZXMgdG8KPj4+Pj4+IG5ldHZzYyBhbmQgb25seSBjb21tb25p
-emUgdGhlIG5vdGlmaWVyIGFuZCB0aGUgbWFpbiBldmVudCBoYW5kbGVyIHJvdXRpbmUuCj4+Pj4+
-PiBBbm90aGVyIGNvbXBsaWNhdGlvbiBpcyB0aGF0IG5ldHZzYyBkb2VzIHBhcnQgb2YgcmVnaXN0
-cmF0aW9uIGluIGEgZGVsYXllZCB3b3JrcXVldWUuCj4+Pj4+IDooIFRoaXMga2luZCBvZiBkZWdy
-YWRlcyB0aGUgd2hvbGUgZWZmb3JkIG9mIGhhdmluZyBzaW5nbGUgc29sdXRpb24KPj4+Pj4gaW4g
-ImZhaWxvdmVyIiBtb2R1bGUuIEkgdGhpbmsgdGhhdCBjb21tb24gcGFydHMsIGFzCj4+Pj4+IG5l
-dGRldl9yeF9oYW5kbGVyX3JlZ2lzdGVyKCkgYW5kIG90aGVycyBjZXJ0YWlubHkgaXMgc2hvdWxk
-IGJlIGluc2lkZQo+Pj4+PiB0aGUgY29tbW9uIG1vZHVsZS4gVGhpcyBpcyBub3QgYSBnb29kIHRp
-bWUgdG8gbWluaW1pemUgY2hhbmdlcy4gTGV0J3MgZG8KPj4+Pj4gdGhlIHRoaW5nIHByb3Blcmx5
-IGFuZCBmaXggdGhlIG5ldHZzYyBtZXNzIG5vdy4KPj4+Pj4KPj4+Pj4KPj4+Pj4+IEl0IHNob3Vs
-ZCBiZSBwb3NzaWJsZSB0byBtb3ZlIHNvbWUgb2YgdGhlIGNvZGUgZnJvbSBuZXRfZmFpbG92ZXIu
-YyB0byBnZW5lcmljCj4+Pj4+PiBmYWlsb3Zlci5jIGluIGZ1dHVyZSBpZiBTdGVwaGVuIGlzIG9r
-IHdpdGggaXQuCj4+Pj4+Pgo+Pj4+Pj4KPj4+Pj4+PiBBbHNvIG5vdGUgdGhhdCBpbiB0aGUgY3Vy
-cmVudCBwYXRjaHNldCB5b3UgdXNlIElGRl9GQUlMT1ZFUiBmbGFnIGZvcgo+Pj4+Pj4+IG1hc3Rl
-ciwgeWV0IGZvciB0aGUgc2xhdmUgeW91IHVzZSBJRkZfU0xBVkUuIFRoYXQgaXMgd3JvbmcuCj4+
-Pj4+Pj4gSUZGX0ZBSUxPVkVSX1NMQVZFIHNob3VsZCBiZSB1c2VkLgo+Pj4+Pj4gTm90IHN1cmUg
-d2hpY2ggY29kZSB5b3UgYXJlIHJlZmVycmluZyB0by7CoCBJIG9ubHkgc2V0IElGRl9GQUlMT1ZF
-Ul9TTEFWRQo+Pj4+Pj4gaW4gcGF0Y2ggMy4KPj4+Pj4gVGhlIGV4aXN0aW5nIG5ldHZzYyBkcml2
-ZXIuCj4+Pj4gV2UgcmVhbGx5IGNhbid0IGNoYW5nZSBuZXR2c2MncyBmbGFncyBub3csIGV2ZW4g
-aWYgaXQncyBpbnRlcmZhY2UgaXMKPj4+PiBtZXNzeSwgaXQncyBiZWluZyB1c2VkIGluIHRoZSBm
-aWVsZC4gV2UgY2FuIGFkZCBhIGZsYWcgdGhhdCBtYWtlcyBuZXR2c2MKPj4+PiBiZWhhdmUgZGlm
-ZmVyZW50bHksIGFuZCBpZiB0aGlzIGZsYWcgYWxzbyBhbGxvd3MgZW5oYW5jZWQgZnVuY3Rpb25h
-bGl0eQo+Pj4+IHVzZXJzcGFjZSB3aWxsIGdyYWR1YWxseSBzd2l0Y2guCj4+PiBPa2F5LCBhbHRo
-b3VnaCBpbiB0aGlzIGNhc2UsIGl0IHJlYWxseSBkb2VzIG5vdCBtYWtlIG11Y2ggc2Vuc2UsIHNv
-IGJlCj4+PiBpdC4gTGVhdmUgdGhlIG5ldHZzYyBzZXQgdGhlIC0+cHJpdiBmbGFnIHRvIElGRl9T
-TEFWRSBhcyBpdCBpcyBkb2luZwo+Pj4gbm93LiAoVGhpcyBvbmNlLXdyb25nLWZvcmV2ZXItd3Jv
-bmcgcG9saWN5IGlzIGZsdXN0cmF0aW5nIG1lKS4KPj4+Cj4+PiBCdXQgc2luY2UgdGhpcyBwYXRj
-aHNldCBpbnRyb2R1Y2VzIHByaXZhdGUgZmxhZyBJRkZfRkFJTE9WRVIgYW5kCj4+PiBJRkZfRkFJ
-TE9WRVJfU0xBVkUsIGFuZCB3ZSBzZXQgSUZGX0ZBSUxPVkVSIHRvIHRoZSBuZXR2c2MgbmV0ZGV2
-Cj4+PiBpbnN0YW5jZSwgd2Ugc2hvdWxkIGFsc28gc2V0IElGRl9GQUlMT1ZFUl9TTEFWRSB0byB0
-aGUgZW5zbGF2ZWQgVkYKPj4+IG5ldGRldmljZSB0byBnZXQgYXQgbGVhc3Qgc29tZSBjb25zaXN0
-ZW5jeSBiZXR3ZWVuIHZpcnRpb19uZXQgYW5kCj4+PiBuZXR2c2MuCj4+IE9LLiBJIGNhbiBtYWtl
-IHRoaXMgY2hhbmdlIHRvIHNldC91bnNldCBJRkZfRkFJTE9WRVJfU0xBVkUgaW4gdGhlIG5ldHZz
-Ywo+PiByZWdpc3Rlci91bnJlZ2lzdGVyIHJvdXRpbmVzIHNvIHRoYXQgaXQgaXMgY29uc2lzdGVu
-dCB3aXRoIHZpcnRpb19uZXQuCj4+Cj4+IEJhc2VkIG9uIHlvdXIgZGlzY3Vzc2lvbiB3aXRoIG1z
-dCwgaSB0aGluayB3ZSBjYW4gZXZlbiByZW1vdmUgSUZGX1NMQVZFCj4+IHNldHRpbmcgb24gbmV0
-dnNjIGFzIGl0IHNob3VsZCBub3QgaW1wYWN0IHVzZXJzcGFjZS4gIElmIFN0ZXBoZW4gaXMgT0sK
-Pj4gd2UgY2FuIG1ha2UgdGhpcyBjaGFuZ2UgdG9vLgo+Pgo+PiBEbyB5b3Ugc2VlIGFueSBvdGhl
-ciBpdGVtcyB0aGF0IG5lZWQgdG8gYmUgcmVzb2x2ZWQgZm9yIHRoaXMgc2VyaWVzIHRvIGdvIGlu
-Cj4+IHRoaXMgbWVyZ2Ugd2luZG93Pwo+IEFzIEkgd3JvdGUgcHJldmlvdXNseSwgdGhlIGNvbW1v
-biBjb2RlIGluY2x1ZGluZyByeF9oYW5kbGVyIHJlZ2lzdHJhdGlvbgo+IGFuZCBzZXR0aW5nIG9m
-IGZsYWdzIGFuZCBtYXN0ZXIgbGluayBzaG91bGQgYmUgZG9uZSBpbiBhIGNvbW1vbiBjb2RlLAo+
-IG1vdmVkIGF3YXkgZnJvbSBuZXR2c2MgY29kZS4KPgpUaGlzIHJlcXVpcmVzIHJlLWludHJvZHVj
-aW5nIHRoZSAyIGFkZGl0aW9uYWwgb3BzIHByZV9yZWdpc3RlciBhbmQgcHJlX3VucmVnaXN0ZXIK
-dGhhdCBpIHJlbW92ZWQgaW4gdGhlIGxhc3QgY291cGxlIG9mIHJldmlzaW9ucyB0byBtaW5pbWl6
-ZSBuZXR2c2MgY2hhbmdlcyBhbmQgdGhlCmluZGlyZWN0IGNhbGxzIHRoYXQgU3RlcGhlbiBleHBy
-ZXNzZWQgc29tZSBjb25jZXJuLgoKQnV0LCBhcyB0aGVzZSBjYWxscyBkb24ndCBoYXBwZW4gaW4g
-aG90IHBhdGgsIGkgZ3Vlc3MgaXQgc2hvdWxkIG5vdCBiZSBhIGJpZwppc3N1ZSBhbmQgdGhlIHJp
-Z2h0IHdheSB0byBnby4KV2lsbCBzdWJtaXQgYSB2MTIgd2l0aCB0aGVzZSB1cGRhdGVzLgoKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 22 May 2018 11:44:27 +0800
+
+> Please review the patches that tries to fix sevreal issues of
+> virtio-net mergeable XDP.
+> 
+> Changes from V1:
+> - check against 1 before decreasing instead of resetting to 1
+> - typoe fixes
+
+Series applied and queued up for -stable.
