@@ -1,16 +1,23 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC V4 PATCH 7/8] vhost: packed ring support
-Date: Wed, 23 May 2018 09:39:28 +0800
-Message-ID: <e12d4055-6ae6-4d00-ae8b-1acd88633f48__16460.2999728688$1527039477$gmane$org@redhat.com>
-References: <1526473941-16199-1-git-send-email-jasowang@redhat.com>
-	<1526473941-16199-8-git-send-email-jasowang@redhat.com>
-	<20180522165448.GA13523@wei-ubt>
+From: Jiri Pirko <jiri@resnulli.us>
+Subject: Re: [PATCH net-next v11 2/5] netvsc: refactor notifier/event
+	handling code to use the failover framework
+Date: Wed, 23 May 2018 08:27:48 +0200
+Message-ID: <20180523062748.GA3155__48377.1252366298$1527056792$gmane$org@nanopsycho>
+References: <1526954781-35359-1-git-send-email-sridhar.samudrala@intel.com>
+	<1526954781-35359-3-git-send-email-sridhar.samudrala@intel.com>
+	<20180522090637.GE2149@nanopsycho>
+	<20180522090853.GF2149@nanopsycho>
+	<39081bce-3913-5b07-3d07-0c476fca5e78@intel.com>
+	<20180522153614.GK2149@nanopsycho>
+	<20180522184112-mutt-send-email-mst@kernel.org>
+	<20180522161246.GN2149@nanopsycho>
+	<8f611f3b-88d7-4d41-fd47-d07f11d0f25a@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180522165448.GA13523@wei-ubt>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <8f611f3b-88d7-4d41-fd47-d07f11d0f25a@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +27,113 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Xu <wexu@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgyM+aXpSAwMDo1NCwgV2VpIFh1IHdyb3RlOgo+IE9uIFdlZCwgTWF5
-IDE2LCAyMDE4IGF0IDA4OjMyOjIwUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IFNpZ25l
-ZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4+IC0tLQo+PiAgIGRy
-aXZlcnMvdmhvc3QvbmV0LmMgICB8ICAgMyArLQo+PiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyB8
-IDUzOSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLQo+
-PiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuaCB8ICAgOCArLQo+PiAgIDMgZmlsZXMgY2hhbmdlZCwg
-NTEzIGluc2VydGlvbnMoKyksIDM3IGRlbGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJp
-dmVycy92aG9zdC92aG9zdC5jIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4+IGluZGV4IDgzMDRj
-MzAuLmYyYTBmNWIgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+PiArKysg
-Yi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4gQEAgLTEzNTgsNiArMTM4Miw4IEBAIGxvbmcgdmhv
-c3RfdnJpbmdfaW9jdGwoc3RydWN0IHZob3N0X2RldiAqZCwgdW5zaWduZWQgaW50IGlvY3RsLCB2
-b2lkIF9fdXNlciAqYXJnCj4+ICAgCQkJYnJlYWs7Cj4+ICAgCQl9Cj4+ICAgCQl2cS0+bGFzdF9h
-dmFpbF9pZHggPSBzLm51bTsKPj4gKwkJaWYgKHZob3N0X2hhc19mZWF0dXJlKHZxLCBWSVJUSU9f
-Rl9SSU5HX1BBQ0tFRCkpCj4+ICsJCQl2cS0+YXZhaWxfd3JhcF9jb3VudGVyID0gcy5udW0gPj4g
-MzE7Cj4+ICAgCQkvKiBGb3JnZXQgdGhlIGNhY2hlZCBpbmRleCB2YWx1ZS4gKi8KPj4gICAJCXZx
-LT5hdmFpbF9pZHggPSB2cS0+bGFzdF9hdmFpbF9pZHg7Cj4+ICAgCQlicmVhazsKPj4gQEAgLTEz
-NjYsNiArMTM5Miw4IEBAIGxvbmcgdmhvc3RfdnJpbmdfaW9jdGwoc3RydWN0IHZob3N0X2RldiAq
-ZCwgdW5zaWduZWQgaW50IGlvY3RsLCB2b2lkIF9fdXNlciAqYXJnCj4+ICAgCQlzLm51bSA9IHZx
-LT5sYXN0X2F2YWlsX2lkeDsKPj4gICAJCWlmIChjb3B5X3RvX3VzZXIoYXJncCwgJnMsIHNpemVv
-ZiBzKSkKPj4gICAJCQlyID0gLUVGQVVMVDsKPj4gKwkJaWYgKHZob3N0X2hhc19mZWF0dXJlKHZx
-LCBWSVJUSU9fRl9SSU5HX1BBQ0tFRCkpCj4+ICsJCQlzLm51bSB8PSB2cS0+YXZhaWxfd3JhcF9j
-b3VudGVyIDw8IDMxOwo+PiAgIAkJYnJlYWs7Cj4+ICAgCWNhc2UgVkhPU1RfU0VUX1ZSSU5HX0FE
-RFI6Cj4+ICAgCQlpZiAoY29weV9mcm9tX3VzZXIoJmEsIGFyZ3AsIHNpemVvZiBhKSkgewo+ICds
-YXN0X3VzZWRfaWR4JyBhbHNvIG5lZWRzIHRvIGJlIHNhdmVkL3Jlc3RvcmVkIGhlcmUuCj4KPiBJ
-IGhhdmUgZmlndXJlZCBvdXQgdGhlIHJvb3QgY2F1c2Ugb2YgYnJva2VuIGRldmljZSBhZnRlciBy
-ZWxvYWRpbmcKPiAndmlydGlvLW5ldCcgbW9kdWxlLCBhbGwgaW5kaWNlcyBoYXZlIGJlZW4gcmVz
-ZXQgZm9yIGEgcmVsb2FkaW5nIGJ1dAo+ICdsYXN0X3VzZWRfaWR4JyBpcyBub3QgcHJvcGVybHkg
-cmVzZXQgaW4gdGhpcyBjYXNlLiBUaGlzIGNvbmZ1c2VzCj4gaGFuZGxlX3J4KCkvdHgoKS4KPgo+
-IFdlaQo+CgpHb29kIGNhdGNoLCBzbyB3ZSBwcm9iYWJseSBuZWVkIGEgbmV3IGlvY3RsIHRvIHN5
-bmMgYmV0d2VlbiBxZW11IGFuZCB2aG9zdC4KClNvbWV0aGluZyBsaWtlIFZIT1NUX1NFVC9HRVRf
-VVNFRF9CQVNFLgoKVGhhbmtzCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Tue, May 22, 2018 at 10:54:29PM CEST, sridhar.samudrala@intel.com wrote:
+>
+>
+>On 5/22/2018 9:12 AM, Jiri Pirko wrote:
+>> Fixing the subj, sorry about that.
+>> =
+
+>> Tue, May 22, 2018 at 05:46:21PM CEST, mst@redhat.com wrote:
+>> > On Tue, May 22, 2018 at 05:36:14PM +0200, Jiri Pirko wrote:
+>> > > Tue, May 22, 2018 at 05:28:42PM CEST, sridhar.samudrala@intel.com wr=
+ote:
+>> > > > On 5/22/2018 2:08 AM, Jiri Pirko wrote:
+>> > > > > Tue, May 22, 2018 at 11:06:37AM CEST, jiri@resnulli.us wrote:
+>> > > > > > Tue, May 22, 2018 at 04:06:18AM CEST, sridhar.samudrala@intel.=
+com wrote:
+>> > > > > > > Use the registration/notification framework supported by the=
+ generic
+>> > > > > > > failover infrastructure.
+>> > > > > > > =
+
+>> > > > > > > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.co=
+m>
+>> > > > > > In previous patchset versions, the common code did
+>> > > > > > netdev_rx_handler_register() and netdev_upper_dev_link() etc
+>> > > > > > (netvsc_vf_join()). Now, this is still done in netvsc. Why?
+>> > > > > > =
+
+>> > > > > > This should be part of the common "failover" code.
+>> > > > Based on Stephen's feedback on earlier patches, i tried to minimiz=
+e the changes to
+>> > > > netvsc and only commonize the notifier and the main event handler =
+routine.
+>> > > > Another complication is that netvsc does part of registration in a=
+ delayed workqueue.
+>> > > :( This kind of degrades the whole efford of having single solution
+>> > > in "failover" module. I think that common parts, as
+>> > > netdev_rx_handler_register() and others certainly is should be inside
+>> > > the common module. This is not a good time to minimize changes. Let'=
+s do
+>> > > the thing properly and fix the netvsc mess now.
+>> > > =
+
+>> > > =
+
+>> > > > It should be possible to move some of the code from net_failover.c=
+ to generic
+>> > > > failover.c in future if Stephen is ok with it.
+>> > > > =
+
+>> > > > =
+
+>> > > > > Also note that in the current patchset you use IFF_FAILOVER flag=
+ for
+>> > > > > master, yet for the slave you use IFF_SLAVE. That is wrong.
+>> > > > > IFF_FAILOVER_SLAVE should be used.
+>> > > > Not sure which code you are referring to.=A0 I only set IFF_FAILOV=
+ER_SLAVE
+>> > > > in patch 3.
+>> > > The existing netvsc driver.
+>> > We really can't change netvsc's flags now, even if it's interface is
+>> > messy, it's being used in the field. We can add a flag that makes netv=
+sc
+>> > behave differently, and if this flag also allows enhanced functionality
+>> > userspace will gradually switch.
+>> Okay, although in this case, it really does not make much sense, so be
+>> it. Leave the netvsc set the ->priv flag to IFF_SLAVE as it is doing
+>> now. (This once-wrong-forever-wrong policy is flustrating me).
+>> =
+
+>> But since this patchset introduces private flag IFF_FAILOVER and
+>> IFF_FAILOVER_SLAVE, and we set IFF_FAILOVER to the netvsc netdev
+>> instance, we should also set IFF_FAILOVER_SLAVE to the enslaved VF
+>> netdevice to get at least some consistency between virtio_net and
+>> netvsc.
+>
+>OK. I can make this change to set/unset IFF_FAILOVER_SLAVE in the netvsc
+>register/unregister routines so that it is consistent with virtio_net.
+>
+>Based on your discussion with mst, i think we can even remove IFF_SLAVE
+>setting on netvsc as it should not impact userspace.  If Stephen is OK
+>we can make this change too.
+>
+>Do you see any other items that need to be resolved for this series to go =
+in
+>this merge window?
+
+As I wrote previously, the common code including rx_handler registration
+and setting of flags and master link should be done in a common code,
+moved away from netvsc code.
+
+Thanks.
+
+
+>
+>
+>
+>> =
+
+>> > Anything breaking userspace I fully expect Stephen to nack and
+>> > IMO with good reason.
+>> > =
+
+>> > -- =
+
+>> > MST
+>
