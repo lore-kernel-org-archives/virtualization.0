@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v3 02/27] x86: Use symbol name on bug table for PIE support
-Date: Wed, 23 May 2018 12:53:56 -0700
-Message-ID: <20180523195421.180248-3-thgarnie@google.com>
+Subject: [PATCH v3 03/27] x86: Use symbol name in jump table for PIE support
+Date: Wed, 23 May 2018 12:53:57 -0700
+Message-ID: <20180523195421.180248-4-thgarnie__44672.8686024018$1527105320$gmane$org@google.com>
 References: <20180523195421.180248-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -31,21 +31,36 @@ KASLR randomization range below the -2G memory limit.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/include/asm/bug.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/jump_label.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/include/asm/bug.h b/arch/x86/include/asm/bug.h
-index 6804d6642767..3d690a4abf50 100644
---- a/arch/x86/include/asm/bug.h
-+++ b/arch/x86/include/asm/bug.h
-@@ -35,7 +35,7 @@ do {									\
- 	asm volatile("1:\t" ins "\n"					\
- 		     ".pushsection __bug_table,\"aw\"\n"		\
- 		     "2:\t" __BUG_REL(1b) "\t# bug_entry::bug_addr\n"	\
--		     "\t"  __BUG_REL(%c0) "\t# bug_entry::file\n"	\
-+		     "\t"  __BUG_REL(%P0) "\t# bug_entry::file\n"	\
- 		     "\t.word %c1"        "\t# bug_entry::line\n"	\
- 		     "\t.word %c2"        "\t# bug_entry::flags\n"	\
- 		     "\t.org 2b+%c3\n"					\
+diff --git a/arch/x86/include/asm/jump_label.h b/arch/x86/include/asm/jump_label.h
+index 8c0de4282659..dfdcdc39604a 100644
+--- a/arch/x86/include/asm/jump_label.h
++++ b/arch/x86/include/asm/jump_label.h
+@@ -37,9 +37,9 @@ static __always_inline bool arch_static_branch(struct static_key *key, bool bran
+ 		".byte " __stringify(STATIC_KEY_INIT_NOP) "\n\t"
+ 		".pushsection __jump_table,  \"aw\" \n\t"
+ 		_ASM_ALIGN "\n\t"
+-		_ASM_PTR "1b, %l[l_yes], %c0 + %c1 \n\t"
++		_ASM_PTR "1b, %l[l_yes], %P0 \n\t"
+ 		".popsection \n\t"
+-		: :  "i" (key), "i" (branch) : : l_yes);
++		: :  "X" (&((char *)key)[branch]) : : l_yes);
+ 
+ 	return false;
+ l_yes:
+@@ -53,9 +53,9 @@ static __always_inline bool arch_static_branch_jump(struct static_key *key, bool
+ 		"2:\n\t"
+ 		".pushsection __jump_table,  \"aw\" \n\t"
+ 		_ASM_ALIGN "\n\t"
+-		_ASM_PTR "1b, %l[l_yes], %c0 + %c1 \n\t"
++		_ASM_PTR "1b, %l[l_yes], %P0 \n\t"
+ 		".popsection \n\t"
+-		: :  "i" (key), "i" (branch) : : l_yes);
++		: :  "X" (&((char *)key)[branch]) : : l_yes);
+ 
+ 	return false;
+ l_yes:
 -- 
 2.17.0.441.gb46fe60e1d-goog
