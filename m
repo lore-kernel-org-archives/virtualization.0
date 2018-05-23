@@ -1,8 +1,8 @@
 From: Thomas Garnier via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v3 07/27] x86: pm-trace - Adapt assembly for PIE support
-Date: Wed, 23 May 2018 12:54:01 -0700
-Message-ID: <20180523195421.180248-8-thgarnie__10909.8425404683$1527105555$gmane$org@google.com>
+Subject: [PATCH v3 08/27] x86/CPU: Adapt assembly for PIE support
+Date: Wed, 23 May 2018 12:54:02 -0700
+Message-ID: <20180523195421.180248-9-thgarnie__42199.5179298849$1527105629$gmane$org@google.com>
 References: <20180523195421.180248-1-thgarnie@google.com>
 Reply-To: Thomas Garnier <thgarnie@google.com>
 Mime-Version: 1.0
@@ -23,29 +23,54 @@ To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemlof
 Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Change assembly to use the new _ASM_MOVABS macro instead of _ASM_MOV for
-the assembly to be PIE compatible.
+Change the assembly code to use only relative references of symbols for the
+kernel to be PIE compatible. Use the new _ASM_MOVABS macro instead of
+the 'mov $symbol, %dst' construct.
 
 Position Independent Executable (PIE) support will allow to extended the
 KASLR randomization range below the -2G memory limit.
 
 Signed-off-by: Thomas Garnier <thgarnie@google.com>
 ---
- arch/x86/include/asm/pm-trace.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/processor.h | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/pm-trace.h b/arch/x86/include/asm/pm-trace.h
-index bfa32aa428e5..972070806ce9 100644
---- a/arch/x86/include/asm/pm-trace.h
-+++ b/arch/x86/include/asm/pm-trace.h
-@@ -8,7 +8,7 @@
- do {								\
- 	if (pm_trace_enabled) {					\
- 		const void *tracedata;				\
--		asm volatile(_ASM_MOV " $1f,%0\n"		\
-+		asm volatile(_ASM_MOVABS " $1f,%0\n"		\
- 			     ".section .tracedata,\"a\"\n"	\
- 			     "1:\t.word %c1\n\t"		\
- 			     _ASM_PTR " %c2\n"			\
+diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
+index c119d423eacb..81ae6877df29 100644
+--- a/arch/x86/include/asm/processor.h
++++ b/arch/x86/include/asm/processor.h
+@@ -50,7 +50,7 @@ static inline void *current_text_addr(void)
+ {
+ 	void *pc;
+ 
+-	asm volatile("mov $1f, %0; 1:":"=r" (pc));
++	asm volatile(_ASM_MOVABS " $1f, %0; 1:":"=r" (pc));
+ 
+ 	return pc;
+ }
+@@ -718,6 +718,7 @@ static inline void sync_core(void)
+ 		: ASM_CALL_CONSTRAINT : : "memory");
+ #else
+ 	unsigned int tmp;
++	unsigned long tmp2;
+ 
+ 	asm volatile (
+ 		UNWIND_HINT_SAVE
+@@ -728,11 +729,13 @@ static inline void sync_core(void)
+ 		"pushfq\n\t"
+ 		"mov %%cs, %0\n\t"
+ 		"pushq %q0\n\t"
+-		"pushq $1f\n\t"
++		"leaq 1f(%%rip), %1\n\t"
++		"pushq %1\n\t"
+ 		"iretq\n\t"
+ 		UNWIND_HINT_RESTORE
+ 		"1:"
+-		: "=&r" (tmp), ASM_CALL_CONSTRAINT : : "cc", "memory");
++		: "=&r" (tmp), "=&r" (tmp2), ASM_CALL_CONSTRAINT
++		: : "cc", "memory");
+ #endif
+ }
+ 
 -- 
 2.17.0.441.gb46fe60e1d-goog
