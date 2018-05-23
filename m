@@ -1,14 +1,13 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH v3 23/27] x86/modules: Adapt module loading for PIE support
-Date: Wed, 23 May 2018 14:26:51 -0700
-Message-ID: <168ebedb-7c27-d1f3-c2f9-223d44186a52@infradead.org>
-References: <20180523195421.180248-1-thgarnie@google.com>
-	<20180523195421.180248-24-thgarnie@google.com>
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] block drivers/block: Use octal not symbolic permissions
+Date: Wed, 23 May 2018 15:27:11 -0600
+Message-ID: <6bf44255-145f-bf14-e254-860731ff9296__24681.0258868665$1527110747$gmane$org@kernel.dk>
+References: <5e97a292c1ba38a6b5a0caa271d85dc3de1b2aa7.1527105857.git.joe@perches.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180523195421.180248-24-thgarnie@google.com>
+In-Reply-To: <5e97a292c1ba38a6b5a0caa271d85dc3de1b2aa7.1527105857.git.joe@perches.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,45 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Garnier <thgarnie@google.com>, Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Kate Stewart <kstewart@linuxfoundation.org>, Arnaldo Carvalho de Melo <acme@redhat.com>, Yonghong Song <yhs@fb.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Kees Cook <keescook@chromium.org>, Tom Lendacky <thomas.lendacky@amd.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Borislav Petkov <bp@alien8.de>, Borislav Petkov <bp@suse.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>Len
-Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
+To: Joe Perches <joe@perches.com>, "Ed L. Cashin" <ed.cashin@acm.org>, Philipp Reisner <philipp.reisner@linbit.com>, Lars Ellenberg <lars.ellenberg@linbit.com>, Jiri Kosina <jikos@kernel.org>, Josef Bacik <josef@toxicpanda.com>, linux-block@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>, Sage Weil <sage@redhat.com>, Alex Elder <elder@kernel.org>, Joshua Morris <josh.h.morris@us.ibm.com>, Philip Kelleher <pjk1939@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, =?UTF-8?Q?Roger_Pau_Monn=c3=a9?= <roger.pau@citrix.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>
+Cc: linux-kernel@vger.kernel.org, nbd@other.debian.org, xen-devel@lists.xenproject.org, ceph-devel@vger.kernel.org, virtualization@lists.linux-foundation.org, drbd-dev@lists.linbit.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
-
-(for several patches in this series:)
-The commit message is confusing.  See below.
-
-
-On 05/23/2018 12:54 PM, Thomas Garnier wrote:
-> Adapt module loading to support PIE relocations. Generate dynamic GOT if
-> a symbol requires it but no entry exist in the kernel GOT.
-
-                                    exists
-
+On 5/23/18 2:05 PM, Joe Perches wrote:
+> Convert the S_<FOO> symbolic permissions to their octal equivalents as
+> using octal and not symbolic permissions is preferred by many as more
+> readable.
 > 
-> Position Independent Executable (PIE) support will allow to extended the
-
-                                                will allow us to extend the
-
-> KASLR randomization range below the -2G memory limit.
-
-Does that say "below th negative 2G memory limit"?
-I don't get it.
-
-
+> see: https://lkml.org/lkml/2016/8/2/1945
 > 
-> Signed-off-by: Thomas Garnier <thgarnie@google.com>
-> ---
->  arch/x86/Makefile               |   4 +
->  arch/x86/include/asm/module.h   |  11 ++
->  arch/x86/include/asm/sections.h |   4 +
->  arch/x86/kernel/module.c        | 181 +++++++++++++++++++++++++++++++-
->  arch/x86/kernel/module.lds      |   3 +
->  5 files changed, 198 insertions(+), 5 deletions(-)
->  create mode 100644 arch/x86/kernel/module.lds
+> Done with automated conversion via:
+> $ ./scripts/checkpatch.pl -f --types=SYMBOLIC_PERMS --fix-inplace <files...>
+> 
+> Miscellanea:
+> 
+> o Wrapped modified multi-line calls to a single line where appropriate
+> o Realign modified multi-line calls to open parenthesis
 
+Honestly, I see this as pretty needless churn.
 
-Thanks,
 -- 
-~Randy
+Jens Axboe
