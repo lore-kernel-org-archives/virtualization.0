@@ -1,17 +1,15 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
-	virito devices
-Date: Thu, 24 May 2018 00:17:59 -0700
-Message-ID: <20180524071759.GA624__2249.15488292954$1527146186$gmane$org@infradead.org>
-References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
-	<20180523213703-mutt-send-email-mst@kernel.org>
-	<f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v3 18/27] xen: Adapt assembly for PIE support
+Date: Thu, 24 May 2018 11:11:44 +0200
+Message-ID: <73524c81-ba3f-8245-9795-f2aebacd8403@suse.com>
+References: <20180523195421.180248-1-thgarnie@google.com>
+	<20180523195421.180248-19-thgarnie@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
+In-Reply-To: <20180523195421.180248-19-thgarnie@google.com>
+Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,25 +19,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: robh@kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: Thomas Garnier <thgarnie@google.com>, Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Kate Stewart <kstewart@linuxfoundation.org>, Arnaldo Carvalho de Melo <acme@redhat.com>, Yonghong Song <yhs@fb.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Kees Cook <keescook@chromium.org>, Tom Lendacky <thomas.lendacky@amd.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Borislav Petkov <bp@alien8.de>, Borislav Petkov <bp@suse.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>Len
+Cc: linux-arch@vger.kernel.org, kvm@vger.kernel.org, linux-pm@vger.kernel.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-sparse@vger.kernel.org, linux-crypto@vger.kernel.org, kernel-hardening@lists.openwall.com, xen-devel@lists.xenproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 24, 2018 at 08:27:04AM +1000, Benjamin Herrenschmidt wrote:
-> - First qemu doesn't know that the guest will switch to "secure mode"
-> in advance. There is no difference between a normal and a secure
-> partition until the partition does the magic UV call to "enter secure
-> mode" and qemu doesn't see any of it. So who can set the flag here ?
+On 23/05/18 21:54, Thomas Garnier wrote:
+> Change the assembly code to use the new _ASM_MOVABS macro which get a
+> symbol reference while being PIE compatible. Adapt the relocation tool
+> to ignore 32-bit Xen code.
 > 
-> - Second, when using VIRTIO_F_IOMMU_PLATFORM, we also make qemu (or
-> vhost) go through the emulated MMIO for every access to the guest,
-> which adds additional overhead.
+> Position Independent Executable (PIE) support will allow to extended the
+> KASLR randomization range below the -2G memory limit.
+> 
+> Signed-off-by: Thomas Garnier <thgarnie@google.com>
 
-Also this whole scheme is simply the wrong way around.  No driver should
-opt out of the DMA API in general.  For legacy reasons we might have to
-opt out of the dma API for some virtio cases due to qemu bugs, but
-this should never have been the default, but a quirk for the affected
-versions.
+Reviewed-by: Juergen Gross <jgross@suse.com>
 
-We need to fix this now and make the dma ops bypass the quirk instead of
-the default, which will also solve the power issue.
+
+Juergen
