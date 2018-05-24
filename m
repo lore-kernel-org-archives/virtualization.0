@@ -1,12 +1,14 @@
 From: Sridhar Samudrala <sridhar.samudrala@intel.com>
-Subject: [PATCH net-next v12 0/5] Enable virtio_net to act as a standby for a
-	passthru device
-Date: Thu, 24 May 2018 09:55:12 -0700
-Message-ID: <1527180917-39737-1-git-send-email-sridhar.samudrala__15014.7361717702$1527180831$gmane$org@intel.com>
+Subject: [PATCH net-next v12 2/5] netvsc: refactor notifier/event handling
+	code to use the failover framework
+Date: Thu, 24 May 2018 09:55:14 -0700
+Message-ID: <1527180917-39737-3-git-send-email-sridhar.samudrala__36898.3594155454$1527180855$gmane$org@intel.com>
+References: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,176 +21,373 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, kubakici@wp.pl, sridhar.samudrala@intel.com, jasowang@redhat.com, loseweigh@gmail.com, jiri@resnulli.us, aaron.f.brown@intel.com, anjali.singhai@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The main motivation for this patch is to enable cloud service providers
-to provide an accelerated datapath to virtio-net enabled VMs in a 
-transparent manner with no/minimal guest userspace changes. This also
-enables hypervisor controlled live migration to be supported with VMs that
-have direct attached SR-IOV VF devices.
+Use the registration/notification framework supported by the generic
+failover infrastructure.
 
-Patch 1 introduces a failover module that provides a generic interface for 
-paravirtual drivers to listen for netdev register/unregister/link change
-events from pci ethernet devices with the same MAC and takeover their
-datapath. The notifier and event handling code is based on the existing
-netvsc implementation. 
+Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+---
+ drivers/net/hyperv/Kconfig      |   1 +
+ drivers/net/hyperv/hyperv_net.h |   2 +
+ drivers/net/hyperv/netvsc_drv.c | 222 +++++++++++-----------------------------
+ 3 files changed, 60 insertions(+), 165 deletions(-)
 
-Patch 2 refactors netvsc to use the registration/notification framework
-introduced by failover module.
-
-Patch 3 introduces a net_failover driver that provides an automated
-failover mechanism to paravirtual drivers via APIs to create and destroy
-a failover master netdev and mananges a primary and standby slave netdevs
-that get registered via the generic failover infrastructure.
-
-Patch 4 introduces a new feature bit VIRTIO_NET_F_STANDBY to virtio-net
-that can be used by hypervisor to indicate that virtio_net interface
-should act as a standby for another device with the same MAC address.
-
-Patch 5 extends virtio_net to use alternate datapath when available and
-registered. When STANDBY feature is enabled, virtio_net driver uese the
-net_failover API to create an additional 'failover' netdev that acts as
-a master device and controls 2 slave devices.  The original virtio_net
-netdev is registered as 'standby' netdev and a passthru/vf device with
-the same MAC gets registered as 'primary' netdev. Both 'standby' and
-'failover' netdevs are associated with the same 'pci' device.  The user
-accesses the network interface via 'failover' netdev. The 'failover'
-netdev chooses 'primary' netdev as default for transmits when it is
-available with link up and running.
-
-As this patch series is initially focusing on usecases where hypervisor 
-fully controls the VM networking and the guest is not expected to directly 
-configure any hardware settings, it doesn't expose all the ndo/ethtool ops
-that are supported by virtio_net at this time. To support additional usecases,
-it should be possible to enable additional ops later by caching the state
-in failover netdev and replaying when the 'primary' netdev gets registered. 
+diff --git a/drivers/net/hyperv/Kconfig b/drivers/net/hyperv/Kconfig
+index 0765d5f61714..23a2d145813a 100644
+--- a/drivers/net/hyperv/Kconfig
++++ b/drivers/net/hyperv/Kconfig
+@@ -2,5 +2,6 @@ config HYPERV_NET
+ 	tristate "Microsoft Hyper-V virtual network driver"
+ 	depends on HYPERV
+ 	select UCS2_STRING
++	select FAILOVER
+ 	help
+ 	  Select this option to enable the Hyper-V virtual network driver.
+diff --git a/drivers/net/hyperv/hyperv_net.h b/drivers/net/hyperv/hyperv_net.h
+index 1be34d2e3563..99d8e7398a5b 100644
+--- a/drivers/net/hyperv/hyperv_net.h
++++ b/drivers/net/hyperv/hyperv_net.h
+@@ -932,6 +932,8 @@ struct net_device_context {
+ 	u32 vf_alloc;
+ 	/* Serial number of the VF to team with */
+ 	u32 vf_serial;
++
++	struct failover *failover;
+ };
  
-At the time of live migration, the hypervisor needs to unplug the VF device
-from the guest on the source host and reset the MAC filter of the VF to
-initiate failover of datapath to virtio before starting the migration. After
-the migration is completed, the destination hypervisor sets the MAC filter
-on the VF and plugs it back to the guest to switch over to VF datapath.
-
-This patch is based on the discussion initiated by Jesse on this thread.
-https://marc.info/?l=linux-virtualization&m=151189725224231&w=2
-
-v12:
-- Tested live migration with virtio-net/AVF(i40evf) configured in failover
-  mode while running iperf in background. Tried static ip and dhcp
-  configurations using 'network' scripts and Network Manager.
-- Build tested netvsc module.
-Updates:
-- Extended generic failover module to do common functions like setting
-  FAILOVER_SLAVE flag, registering rx-handler and linking to upper dev in
-  the generic register/unregister handlers.
-  This required adding 3 additional failover ops pre_register, pre_unregister
-  and handle_frame.  netvsc and net_failover drivers are updated to support
-  these ops.
-
-v11:
-- Split net_failover module into 2 components.
-  1. 'failover' module that provides generic failover infrastructure
-  to register a failover instance and listen for slave events.
-  2. 'net_failover' driver that provides APIs to create/destroy upper
-  netdev and supports 3-netdev model used by virtio-net.
-- Added documentation
-
-v10:
-- fix net_failover_open() to update failover CARRIER correctly based on
-  standby and primary states. 
-- fix net_failover_handle_frame() to handle frames received on standby
-  when primary is present.
-- replace netdev_upper_dev_link with netdev_master_upper_dev_link and
-  handle lower dev state changes.
-- fix net_failver_create() and net_failover_register() interfaces to
-  use ERR_PTR and avoid arg **
-- disable setting mac address when virtio-net in STANDBY mode
-- document exported symbols
-- added entry to MAINTAINERS file
-
-v9:
-Select NET_FAILOVER automatically when VIRTIO_NET/HYPERV_NET 
-are enabled. (stephen)
-
-v8:
-- Made the failover managment routines more robust by updating the feature 
-  bits/other fields in the failover netdev when slave netdevs are 
-  registered/unregistered. (mst)
-- added support for handling vlans.
-- Limited the changes in netvsc to only use the notifier/event/lookups
-  from the failover module. The slave register/unregister/link-change 
-  handlers are only updated to use the getbymac routine to get the 
-  upper netdev. There is no change in their functionality. (stephen)
-- renamed structs/function/file names to use net_failover prefix. (mst)
-
-v7
-- Rename 'bypass/active/backup' terminology with 'failover/primary/standy'
-  (jiri, mst)
-- re-arranged dev_open() and dev_set_mtu() calls in the register routines
-  so that they don't get called for 2-netdev model. (stephen)
-- fixed select_queue() routine to do queue selection based on VF if it is
-  registered as primary. (stephen)
--  minor bugfixes
-
-v6 RFC:
-  Simplified virtio_net changes by moving all the ndo_ops of the 
-  bypass_netdev and create/destroy of bypass_netdev to 'bypass' module.
-  avoided 2 phase registration(driver + instances).
-  introduced IFF_BYPASS/IFF_BYPASS_SLAVE dev->priv_flags 
-  replaced mutex with a spinlock
-
-v5 RFC:
-  Based on Jiri's comments, moved the common functionality to a 'bypass'
-  module so that the same notifier and event handlers to handle child
-  register/unregister/link change events can be shared between virtio_net
-  and netvsc.
-  Improved error handling based on Siwei's comments.
-v4:
-- Based on the review comments on the v3 version of the RFC patch and
-  Jakub's suggestion for the naming issue with 3 netdev solution,
-  proposed 3 netdev in-driver bonding solution for virtio-net.
-v3 RFC:
-- Introduced 3 netdev model and pointed out a couple of issues with
-  that model and proposed 2 netdev model to avoid these issues.
-- Removed broadcast/multicast optimization and only use virtio as
-  backup path when VF is unplugged.
-v2 RFC:
-- Changed VIRTIO_NET_F_MASTER to VIRTIO_NET_F_BACKUP (mst)
-- made a small change to the virtio-net xmit path to only use VF datapath
-  for unicasts. Broadcasts/multicasts use virtio datapath. This avoids
-  east-west broadcasts to go over the PCI link.
-- added suppport for the feature bit in qemu
-
-Sridhar Samudrala (5):
-  net: Introduce generic failover module
-  netvsc: refactor notifier/event handling code to use the failover
-    framework
-  net: Introduce net_failover driver
-  virtio_net: Introduce VIRTIO_NET_F_STANDBY feature bit
-  virtio_net: Extend virtio to use VF datapath when available
-
- Documentation/networking/failover.rst     |  18 +
- Documentation/networking/net_failover.rst | 116 +++++
- MAINTAINERS                               |  16 +
- drivers/net/Kconfig                       |  13 +
- drivers/net/Makefile                      |   1 +
- drivers/net/hyperv/Kconfig                |   1 +
- drivers/net/hyperv/hyperv_net.h           |   2 +
- drivers/net/hyperv/netvsc_drv.c           | 222 ++------
- drivers/net/net_failover.c                | 836 ++++++++++++++++++++++++++++++
- drivers/net/virtio_net.c                  |  40 +-
- include/linux/netdevice.h                 |  16 +
- include/net/failover.h                    |  36 ++
- include/net/net_failover.h                |  40 ++
- include/uapi/linux/virtio_net.h           |   3 +
- net/Kconfig                               |  13 +
- net/core/Makefile                         |   1 +
- net/core/failover.c                       | 315 +++++++++++
- 17 files changed, 1522 insertions(+), 167 deletions(-)
- create mode 100644 Documentation/networking/failover.rst
- create mode 100644 Documentation/networking/net_failover.rst
- create mode 100644 drivers/net/net_failover.c
- create mode 100644 include/net/failover.h
- create mode 100644 include/net/net_failover.h
- create mode 100644 net/core/failover.c
-
+ /* Per channel data */
+diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
+index da07ccdf84bf..62eb136c5e73 100644
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -43,6 +43,7 @@
+ #include <net/pkt_sched.h>
+ #include <net/checksum.h>
+ #include <net/ip6_checksum.h>
++#include <net/failover.h>
+ 
+ #include "hyperv_net.h"
+ 
+@@ -1763,46 +1764,6 @@ static void netvsc_link_change(struct work_struct *w)
+ 	rtnl_unlock();
+ }
+ 
+-static struct net_device *get_netvsc_bymac(const u8 *mac)
+-{
+-	struct net_device *dev;
+-
+-	ASSERT_RTNL();
+-
+-	for_each_netdev(&init_net, dev) {
+-		if (dev->netdev_ops != &device_ops)
+-			continue;	/* not a netvsc device */
+-
+-		if (ether_addr_equal(mac, dev->perm_addr))
+-			return dev;
+-	}
+-
+-	return NULL;
+-}
+-
+-static struct net_device *get_netvsc_byref(struct net_device *vf_netdev)
+-{
+-	struct net_device *dev;
+-
+-	ASSERT_RTNL();
+-
+-	for_each_netdev(&init_net, dev) {
+-		struct net_device_context *net_device_ctx;
+-
+-		if (dev->netdev_ops != &device_ops)
+-			continue;	/* not a netvsc device */
+-
+-		net_device_ctx = netdev_priv(dev);
+-		if (!rtnl_dereference(net_device_ctx->nvdev))
+-			continue;	/* device is removed */
+-
+-		if (rtnl_dereference(net_device_ctx->vf_netdev) == vf_netdev)
+-			return dev;	/* a match */
+-	}
+-
+-	return NULL;
+-}
+-
+ /* Called when VF is injecting data into network stack.
+  * Change the associated network device from VF to netvsc.
+  * note: already called with rcu_read_lock
+@@ -1825,46 +1786,6 @@ static rx_handler_result_t netvsc_vf_handle_frame(struct sk_buff **pskb)
+ 	return RX_HANDLER_ANOTHER;
+ }
+ 
+-static int netvsc_vf_join(struct net_device *vf_netdev,
+-			  struct net_device *ndev)
+-{
+-	struct net_device_context *ndev_ctx = netdev_priv(ndev);
+-	int ret;
+-
+-	ret = netdev_rx_handler_register(vf_netdev,
+-					 netvsc_vf_handle_frame, ndev);
+-	if (ret != 0) {
+-		netdev_err(vf_netdev,
+-			   "can not register netvsc VF receive handler (err = %d)\n",
+-			   ret);
+-		goto rx_handler_failed;
+-	}
+-
+-	ret = netdev_master_upper_dev_link(vf_netdev, ndev,
+-					   NULL, NULL, NULL);
+-	if (ret != 0) {
+-		netdev_err(vf_netdev,
+-			   "can not set master device %s (err = %d)\n",
+-			   ndev->name, ret);
+-		goto upper_link_failed;
+-	}
+-
+-	/* set slave flag before open to prevent IPv6 addrconf */
+-	vf_netdev->flags |= IFF_SLAVE;
+-
+-	schedule_delayed_work(&ndev_ctx->vf_takeover, VF_TAKEOVER_INT);
+-
+-	call_netdevice_notifiers(NETDEV_JOIN, vf_netdev);
+-
+-	netdev_info(vf_netdev, "joined to %s\n", ndev->name);
+-	return 0;
+-
+-upper_link_failed:
+-	netdev_rx_handler_unregister(vf_netdev);
+-rx_handler_failed:
+-	return ret;
+-}
+-
+ static void __netvsc_vf_setup(struct net_device *ndev,
+ 			      struct net_device *vf_netdev)
+ {
+@@ -1915,85 +1836,95 @@ static void netvsc_vf_setup(struct work_struct *w)
+ 	rtnl_unlock();
+ }
+ 
+-static int netvsc_register_vf(struct net_device *vf_netdev)
++static int netvsc_pre_register_vf(struct net_device *vf_netdev,
++				  struct net_device *ndev)
+ {
+-	struct net_device *ndev;
+ 	struct net_device_context *net_device_ctx;
+ 	struct netvsc_device *netvsc_dev;
+ 
+-	if (vf_netdev->addr_len != ETH_ALEN)
+-		return NOTIFY_DONE;
+-
+-	/*
+-	 * We will use the MAC address to locate the synthetic interface to
+-	 * associate with the VF interface. If we don't find a matching
+-	 * synthetic interface, move on.
+-	 */
+-	ndev = get_netvsc_bymac(vf_netdev->perm_addr);
+-	if (!ndev)
+-		return NOTIFY_DONE;
+-
+ 	net_device_ctx = netdev_priv(ndev);
+ 	netvsc_dev = rtnl_dereference(net_device_ctx->nvdev);
+ 	if (!netvsc_dev || rtnl_dereference(net_device_ctx->vf_netdev))
+-		return NOTIFY_DONE;
++		return -ENODEV;
++
++	return 0;
++}
++
++static int netvsc_register_vf(struct net_device *vf_netdev,
++			      struct net_device *ndev)
++{
++	struct net_device_context *ndev_ctx = netdev_priv(ndev);
+ 
+-	if (netvsc_vf_join(vf_netdev, ndev) != 0)
+-		return NOTIFY_DONE;
++	/* set slave flag before open to prevent IPv6 addrconf */
++	vf_netdev->flags |= IFF_SLAVE;
+ 
+-	netdev_info(ndev, "VF registering: %s\n", vf_netdev->name);
++	schedule_delayed_work(&ndev_ctx->vf_takeover, VF_TAKEOVER_INT);
++
++	call_netdevice_notifiers(NETDEV_JOIN, vf_netdev);
++
++	netdev_info(vf_netdev, "joined to %s\n", ndev->name);
+ 
+ 	dev_hold(vf_netdev);
+-	rcu_assign_pointer(net_device_ctx->vf_netdev, vf_netdev);
+-	return NOTIFY_OK;
++	rcu_assign_pointer(ndev_ctx->vf_netdev, vf_netdev);
++
++	return 0;
+ }
+ 
+ /* VF up/down change detected, schedule to change data path */
+-static int netvsc_vf_changed(struct net_device *vf_netdev)
++static int netvsc_vf_changed(struct net_device *vf_netdev,
++			     struct net_device *ndev)
+ {
+ 	struct net_device_context *net_device_ctx;
+ 	struct netvsc_device *netvsc_dev;
+-	struct net_device *ndev;
+ 	bool vf_is_up = netif_running(vf_netdev);
+ 
+-	ndev = get_netvsc_byref(vf_netdev);
+-	if (!ndev)
+-		return NOTIFY_DONE;
+-
+ 	net_device_ctx = netdev_priv(ndev);
+ 	netvsc_dev = rtnl_dereference(net_device_ctx->nvdev);
+ 	if (!netvsc_dev)
+-		return NOTIFY_DONE;
++		return -ENODEV;
+ 
+ 	netvsc_switch_datapath(ndev, vf_is_up);
+ 	netdev_info(ndev, "Data path switched %s VF: %s\n",
+ 		    vf_is_up ? "to" : "from", vf_netdev->name);
+ 
+-	return NOTIFY_OK;
++	return 0;
+ }
+ 
+-static int netvsc_unregister_vf(struct net_device *vf_netdev)
++static int netvsc_pre_unregister_vf(struct net_device *vf_netdev,
++				    struct net_device *ndev)
+ {
+-	struct net_device *ndev;
+ 	struct net_device_context *net_device_ctx;
+ 
+-	ndev = get_netvsc_byref(vf_netdev);
+-	if (!ndev)
+-		return NOTIFY_DONE;
+-
+ 	net_device_ctx = netdev_priv(ndev);
+ 	cancel_delayed_work_sync(&net_device_ctx->vf_takeover);
+ 
++	return 0;
++}
++
++static int netvsc_unregister_vf(struct net_device *vf_netdev,
++				struct net_device *ndev)
++{
++	struct net_device_context *net_device_ctx;
++
++	net_device_ctx = netdev_priv(ndev);
++
+ 	netdev_info(ndev, "VF unregistering: %s\n", vf_netdev->name);
+ 
+-	netdev_rx_handler_unregister(vf_netdev);
+-	netdev_upper_dev_unlink(vf_netdev, ndev);
+ 	RCU_INIT_POINTER(net_device_ctx->vf_netdev, NULL);
+ 	dev_put(vf_netdev);
+ 
+-	return NOTIFY_OK;
++	return 0;
+ }
+ 
++static struct failover_ops netvsc_failover_ops = {
++	.slave_pre_register	= netvsc_pre_register_vf,
++	.slave_register		= netvsc_register_vf,
++	.slave_pre_unregister	= netvsc_pre_unregister_vf,
++	.slave_unregister	= netvsc_unregister_vf,
++	.slave_link_change	= netvsc_vf_changed,
++	.slave_handle_frame	= netvsc_vf_handle_frame,
++};
++
+ static int netvsc_probe(struct hv_device *dev,
+ 			const struct hv_vmbus_device_id *dev_id)
+ {
+@@ -2083,8 +2014,14 @@ static int netvsc_probe(struct hv_device *dev,
+ 		goto register_failed;
+ 	}
+ 
++	net_device_ctx->failover = failover_register(net, &netvsc_failover_ops);
++	if (IS_ERR(net_device_ctx->failover))
++		goto err_failover;
++
+ 	return ret;
+ 
++err_failover:
++	unregister_netdev(net);
+ register_failed:
+ 	rndis_filter_device_remove(dev, nvdev);
+ rndis_failed:
+@@ -2125,13 +2062,15 @@ static int netvsc_remove(struct hv_device *dev)
+ 	rtnl_lock();
+ 	vf_netdev = rtnl_dereference(ndev_ctx->vf_netdev);
+ 	if (vf_netdev)
+-		netvsc_unregister_vf(vf_netdev);
++		failover_slave_unregister(vf_netdev);
+ 
+ 	if (nvdev)
+ 		rndis_filter_device_remove(dev, nvdev);
+ 
+ 	unregister_netdevice(net);
+ 
++	failover_unregister(ndev_ctx->failover);
++
+ 	rtnl_unlock();
+ 	rcu_read_unlock();
+ 
+@@ -2158,54 +2097,8 @@ static struct  hv_driver netvsc_drv = {
+ 	.remove = netvsc_remove,
+ };
+ 
+-/*
+- * On Hyper-V, every VF interface is matched with a corresponding
+- * synthetic interface. The synthetic interface is presented first
+- * to the guest. When the corresponding VF instance is registered,
+- * we will take care of switching the data path.
+- */
+-static int netvsc_netdev_event(struct notifier_block *this,
+-			       unsigned long event, void *ptr)
+-{
+-	struct net_device *event_dev = netdev_notifier_info_to_dev(ptr);
+-
+-	/* Skip our own events */
+-	if (event_dev->netdev_ops == &device_ops)
+-		return NOTIFY_DONE;
+-
+-	/* Avoid non-Ethernet type devices */
+-	if (event_dev->type != ARPHRD_ETHER)
+-		return NOTIFY_DONE;
+-
+-	/* Avoid Vlan dev with same MAC registering as VF */
+-	if (is_vlan_dev(event_dev))
+-		return NOTIFY_DONE;
+-
+-	/* Avoid Bonding master dev with same MAC registering as VF */
+-	if ((event_dev->priv_flags & IFF_BONDING) &&
+-	    (event_dev->flags & IFF_MASTER))
+-		return NOTIFY_DONE;
+-
+-	switch (event) {
+-	case NETDEV_REGISTER:
+-		return netvsc_register_vf(event_dev);
+-	case NETDEV_UNREGISTER:
+-		return netvsc_unregister_vf(event_dev);
+-	case NETDEV_UP:
+-	case NETDEV_DOWN:
+-		return netvsc_vf_changed(event_dev);
+-	default:
+-		return NOTIFY_DONE;
+-	}
+-}
+-
+-static struct notifier_block netvsc_netdev_notifier = {
+-	.notifier_call = netvsc_netdev_event,
+-};
+-
+ static void __exit netvsc_drv_exit(void)
+ {
+-	unregister_netdevice_notifier(&netvsc_netdev_notifier);
+ 	vmbus_driver_unregister(&netvsc_drv);
+ }
+ 
+@@ -2225,7 +2118,6 @@ static int __init netvsc_drv_init(void)
+ 	if (ret)
+ 		return ret;
+ 
+-	register_netdevice_notifier(&netvsc_netdev_notifier);
+ 	return 0;
+ }
+ 
 -- 
 2.14.3
