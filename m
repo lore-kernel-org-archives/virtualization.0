@@ -1,19 +1,14 @@
-From: Thomas Garnier via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH v3 21/27] x86/ftrace: Adapt function tracing for PIE
-	support
-Date: Thu, 24 May 2018 13:41:27 -0700
-Message-ID: <CAJcbSZGQmQM7PuER0kEqt3aG9O-8vh-g1EA2jnkVsJPx-Htvrw@mail.gmail.com>
-References: <20180523195421.180248-1-thgarnie@google.com>
-	<20180523195421.180248-22-thgarnie@google.com>
-	<20180524114024.pa67zjipy5qcg4tm@pathway.suse.cz>
-	<20180524161622.4202319f@gandalf.local.home>
-Reply-To: Thomas Garnier <thgarnie@google.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net] vhost: synchronize IOTLB message with dev cleanup
+Date: Fri, 25 May 2018 03:33:55 +0300
+Message-ID: <20180525033250-mutt-send-email-mst__7318.06577318839$1527208338$gmane$org@kernel.org>
+References: <1526990337-24892-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180524161622.4202319f@gandalf.local.home>
+Content-Disposition: inline
+In-Reply-To: <1526990337-24892-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,125 +18,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, the arch/x86 maintainers <x86@kernel.org>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Len Brown <len.brown@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Peter Zijlstra <peterz@infradead.org>, Yonghong Song <yhs@fb.com>, Christopher Li <sparse@chrisli.org>, Dave Hansen <dave.hansen@linux.intel.com>, Dominik Brodowski <linux@dominikbrodowski.net>, LKML <linux-kernel@vger.kernel.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Jan Beulich <JBeulich@suse.com>, Pavel Machek <pavel@ucw.cz>, "H . Peter Anvin" <hpa@zytor.com>, Kernel Hardening <kernel-hardening@lists.openwall.com>, Christoph Lameter <cl@linux.com>, Alok Kataria <akataria@vmware.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, Jonathan Corbet <corbet@>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 24, 2018 at 1:16 PM Steven Rostedt <rostedt@goodmis.org> wrote:
+On Tue, May 22, 2018 at 07:58:57PM +0800, Jason Wang wrote:
+> DaeRyong Jeong reports a race between vhost_dev_cleanup() and
+> vhost_process_iotlb_msg():
+> 
+> Thread interleaving:
+> CPU0 (vhost_process_iotlb_msg)			CPU1 (vhost_dev_cleanup)
+> (In the case of both VHOST_IOTLB_UPDATE and
+> VHOST_IOTLB_INVALIDATE)
+> =====						=====
+> 						vhost_umem_clean(dev->iotlb);
+> if (!dev->iotlb) {
+> 	        ret = -EFAULT;
+> 		        break;
+> }
+> 						dev->iotlb = NULL;
+> 
+> The reason is we don't synchronize between them, fixing by protecting
+> vhost_process_iotlb_msg() with dev mutex.
+> 
+> Reported-by: DaeRyong Jeong <threeearcat@gmail.com>
+> Fixes: 6b1e6cc7855b0 ("vhost: new device IOTLB API")
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-> On Thu, 24 May 2018 13:40:24 +0200
-> Petr Mladek <pmladek@suse.com> wrote:
+We should think of a way to have a per-vq lock here, but for now:
 
-> > On Wed 2018-05-23 12:54:15, Thomas Garnier wrote:
-> > > When using -fPIE/PIC with function tracing, the compiler generates a
-> > > call through the GOT (call *__fentry__@GOTPCREL). This instruction
-> > > takes 6 bytes instead of 5 on the usual relative call.
-> > >
-> > > If PIE is enabled, replace the 6th byte of the GOT call by a 1-byte
-nop
-> > > so ftrace can handle the previous 5-bytes as before.
-> > >
-> > > Position Independent Executable (PIE) support will allow to extended
-the
-> > > KASLR randomization range below the -2G memory limit.
-> > >
-> > > Signed-off-by: Thomas Garnier <thgarnie@google.com>
-> > > ---
-> > >  arch/x86/include/asm/ftrace.h   |  6 +++--
-> > >  arch/x86/include/asm/sections.h |  4 ++++
-> > >  arch/x86/kernel/ftrace.c        | 42
-+++++++++++++++++++++++++++++++--
-> > >  3 files changed, 48 insertions(+), 4 deletions(-)
-> > >
-> > > diff --git a/arch/x86/include/asm/ftrace.h
-b/arch/x86/include/asm/ftrace.h
-> > > index c18ed65287d5..8f2decce38d8 100644
-> > > --- a/arch/x86/include/asm/ftrace.h
-> > > +++ b/arch/x86/include/asm/ftrace.h
-> > > @@ -25,9 +25,11 @@ extern void __fentry__(void);
-> > >  static inline unsigned long ftrace_call_adjust(unsigned long addr)
-> > >  {
-> > >     /*
-> > > -    * addr is the address of the mcount call instruction.
-> > > -    * recordmcount does the necessary offset calculation.
-> > > +    * addr is the address of the mcount call instruction. PIE has
-always a
-> > > +    * byte added to the start of the function.
-> > >      */
-> > > +   if (IS_ENABLED(CONFIG_X86_PIE))
-> > > +           addr -= 1;
-> >
-> > This seems to modify the address even for modules that are _not_
-compiled with
-> > PIE, see below.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-> Can one load a module not compiled for PIE in a kernel with PIE?
-
-> >
-> > >     return addr;
-> > >  }
-> > >
-> > > diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-> > > index 01ebcb6f263e..73b3c30cb7a3 100644
-> > > --- a/arch/x86/kernel/ftrace.c
-> > > +++ b/arch/x86/kernel/ftrace.c
-> > > @@ -135,6 +135,44 @@ ftrace_modify_code_direct(unsigned long ip,
-unsigned const char *old_code,
-> > >     return 0;
-> > >  }
-> > >
-> > > +/* Bytes before call GOT offset */
-> > > +const unsigned char got_call_preinsn[] = { 0xff, 0x15 };
-> > > +
-> > > +static int
-> > > +ftrace_modify_initial_code(unsigned long ip, unsigned const char
-*old_code,
-> > > +                      unsigned const char *new_code)
-> > > +{
-> > > +   unsigned char replaced[MCOUNT_INSN_SIZE + 1];
-> > > +
-> > > +   ftrace_expected = old_code;
-> > > +
-> > > +   /*
-> > > +    * If PIE is not enabled or no GOT call was found, default to the
-> > > +    * original approach to code modification.
-> > > +    */
-> > > +   if (!IS_ENABLED(CONFIG_X86_PIE) ||
-> > > +       probe_kernel_read(replaced, (void *)ip, sizeof(replaced)) ||
-> > > +       memcmp(replaced, got_call_preinsn, sizeof(got_call_preinsn)))
-> > > +           return ftrace_modify_code_direct(ip, old_code, new_code);
-> >
-> > And this looks like an attempt to handle modules compiled without
-> > PIE. Does it works with the right ip in that case?
-
-> I'm guessing the || is for the "or no GOT call was found", but it
-> doesn't explain why no GOT would be found.
-
-Yes, maybe I could have made it work by using text_ip_addr earlier.
-
-
-> >
-> > I wonder if a better solution would be to update
-> > scripts/recordmcount.c to store the incremented location into the
-module.
-
-I will look into it.
-
-
-> If recordmcount.c can handle this, then I think that's the preferred
-> approach. Thanks!
-
-> -- Steve
-
-> >
-> > IMPORTANT: I have only vague picture about how this all works. It is
-> > possible that I am completely wrong. The code might be correct,
-> > especially if you tested this situation.
-> >
-> > Best Regards,
-> > Petr
-
-
-
--- 
-Thomas
+> ---
+>  drivers/vhost/vhost.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index f3bd8e9..f0be5f3 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -981,6 +981,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+>  {
+>  	int ret = 0;
+>  
+> +	mutex_lock(&dev->mutex);
+>  	vhost_dev_lock_vqs(dev);
+>  	switch (msg->type) {
+>  	case VHOST_IOTLB_UPDATE:
+> @@ -1016,6 +1017,8 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+>  	}
+>  
+>  	vhost_dev_unlock_vqs(dev);
+> +	mutex_unlock(&dev->mutex);
+> +
+>  	return ret;
+>  }
+>  ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
+> -- 
+> 2.7.4
