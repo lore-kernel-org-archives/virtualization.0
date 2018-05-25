@@ -1,7 +1,7 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
 Subject: Re: [PATCH net-next v12 1/5] net: Introduce generic failover module
-Date: Fri, 25 May 2018 15:37:44 -0700
-Message-ID: <20180525153744.2b53c449__8669.98777860335$1527287767$gmane$org@xeon-e3>
+Date: Fri, 25 May 2018 15:38:43 -0700
+Message-ID: <20180525153843.503ee052__21199.7697981589$1527287825$gmane$org@xeon-e3>
 References: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
 	<1527180917-39737-2-git-send-email-sridhar.samudrala@intel.com>
 Mime-Version: 1.0
@@ -25,25 +25,26 @@ List-Id: virtualization@lists.linuxfoundation.org
 On Thu, 24 May 2018 09:55:13 -0700
 Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
 
+> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+> index 03ed492c4e14..0f4ba52b641d 100644
+> --- a/include/linux/netdevice.h
+> +++ b/include/linux/netdevice.h
+> @@ -1421,6 +1421,8 @@ struct net_device_ops {
+>   *	entity (i.e. the master device for bridged veth)
+>   * @IFF_MACSEC: device is a MACsec device
+>   * @IFF_NO_RX_HANDLER: device doesn't support the rx_handler hook
+> + * @IFF_FAILOVER: device is a failover master device
+> + * @IFF_FAILOVER_SLAVE: device is lower dev of a failover master device
+>   */
+>  enum netdev_priv_flags {
+>  	IFF_802_1Q_VLAN			= 1<<0,
+> @@ -1450,6 +1452,8 @@ enum netdev_priv_flags {
+>  	IFF_PHONY_HEADROOM		= 1<<24,
+>  	IFF_MACSEC			= 1<<25,
+>  	IFF_NO_RX_HANDLER		= 1<<26,
+> +	IFF_FAILOVER			= 1<<27,
+> +	IFF_FAILOVER_SLAVE		= 1<<28,
+>  };
 
-> +	spin_lock(&failover_lock);
-
-Since register is not in fast path, this should be a mutex?
-
-
-> +int failover_slave_unregister(struct net_device *slave_dev)
-> +{
-> +	struct net_device *failover_dev;
-> +	struct failover_ops *fops;
-> +
-> +	if (!netif_is_failover_slave(slave_dev))
-> +		goto done;
-> +
-> +	ASSERT_RTNL();
-> +
-> +	failover_dev = failover_get_bymac(slave_dev->perm_addr, &fops);
-> +	if (!failover_dev)
-> +		goto done;
-
-Since the slave device must have a master device set already, why not use
-that instead of searching by MAC address on unregister or link change.
+Why is FAILOVER any different than other master/slave relationships.
+I don't think you need to take up precious netdev flag bits for this.
