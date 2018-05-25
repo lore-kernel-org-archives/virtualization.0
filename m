@@ -1,13 +1,15 @@
-From: Ville Syrjala <ville.syrjala@linux.intel.com>
-Subject: [PATCH v2 11/13] drm/virtio: Stop updating plane->crtc
-Date: Fri, 25 May 2018 21:50:43 +0300
-Message-ID: <20180525185045.29689-12-ville.syrjala__19229.5618624941$1527274215$gmane$org@linux.intel.com>
-References: <20180525185045.29689-1-ville.syrjala@linux.intel.com>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: Re: [PATCH net-next v12 2/5] netvsc: refactor notifier/event
+	handling code to use the failover framework
+Date: Fri, 25 May 2018 15:34:56 -0700
+Message-ID: <20180525153456.28b44c7c@xeon-e3>
+References: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
+	<1527180917-39737-3-git-send-email-sridhar.samudrala@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180525185045.29689-1-ville.syrjala@linux.intel.com>
+In-Reply-To: <1527180917-39737-3-git-send-email-sridhar.samudrala@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,32 +19,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, intel-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: Sridhar Samudrala <sridhar.samudrala@intel.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVsLmNvbT4KCldl
-IHdhbnQgdG8gZ2V0IHJpZCBvZiBwbGFuZS0+Y3J0YyBvbiBhdG9taWMgZHJpdmVycy4gU3RvcCBz
-ZXR0aW5nIGl0LgoKdjI6IHMvZmIvY3J0Yy8gaW4gdGhlIGNvbW1pdCBtZXNzYWdlIChHZXJkKQoK
-Q2M6IERhdmlkIEFpcmxpZSA8YWlybGllZEBsaW51eC5pZT4KQ2M6IEdlcmQgSG9mZm1hbm4gPGty
-YXhlbEByZWRoYXQuY29tPgpDYzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKU2lnbmVkLW9mZi1ieTogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4
-LmludGVsLmNvbT4KUmV2aWV3ZWQtYnk6IE1hYXJ0ZW4gTGFua2hvcnN0IDxtYWFydGVuLmxhbmto
-b3JzdEBsaW51eC5pbnRlbC5jb20+ClJldmlld2VkLWJ5OiBEYW5pZWwgVmV0dGVyIDxkYW5pZWwu
-dmV0dGVyQGZmd2xsLmNoPgotLS0KIGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kaXNw
-bGF5LmMgfCAyIC0tCiAxIGZpbGUgY2hhbmdlZCwgMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQg
-YS9kcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZGlzcGxheS5jIGIvZHJpdmVycy9ncHUv
-ZHJtL3ZpcnRpby92aXJ0Z3B1X2Rpc3BsYXkuYwppbmRleCBkNmRkNzY5YTdhZDMuLmZmOTkzM2U3
-OTQxNiAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rpc3BsYXku
-YworKysgYi9kcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZGlzcGxheS5jCkBAIC0yODIs
-OCArMjgyLDYgQEAgc3RhdGljIGludCB2Z2Rldl9vdXRwdXRfaW5pdChzdHJ1Y3QgdmlydGlvX2dw
-dV9kZXZpY2UgKnZnZGV2LCBpbnQgaW5kZXgpCiAJZHJtX2NydGNfaW5pdF93aXRoX3BsYW5lcyhk
-ZXYsIGNydGMsIHByaW1hcnksIGN1cnNvciwKIAkJCQkgICZ2aXJ0aW9fZ3B1X2NydGNfZnVuY3Ms
-IE5VTEwpOwogCWRybV9jcnRjX2hlbHBlcl9hZGQoY3J0YywgJnZpcnRpb19ncHVfY3J0Y19oZWxw
-ZXJfZnVuY3MpOwotCXByaW1hcnktPmNydGMgPSBjcnRjOwotCWN1cnNvci0+Y3J0YyA9IGNydGM7
-CiAKIAlkcm1fY29ubmVjdG9yX2luaXQoZGV2LCBjb25uZWN0b3IsICZ2aXJ0aW9fZ3B1X2Nvbm5l
-Y3Rvcl9mdW5jcywKIAkJCSAgIERSTV9NT0RFX0NPTk5FQ1RPUl9WSVJUVUFMKTsKLS0gCjIuMTYu
-MQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+On Thu, 24 May 2018 09:55:14 -0700
+Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
+
+> --- a/drivers/net/hyperv/Kconfig
+> +++ b/drivers/net/hyperv/Kconfig
+> @@ -2,5 +2,6 @@ config HYPERV_NET
+>  	tristate "Microsoft Hyper-V virtual network driver"
+>  	depends on HYPERV
+>  	select UCS2_STRING
+> +	select FAILOVER
+
+When I take a working kernel config, add the patches then do
+make oldconfig
+
+It is not autoselecting FAILOVER, it prompts me for it. This means
+if user says no then a non-working netvsc device is made.
