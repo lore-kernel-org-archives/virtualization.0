@@ -1,15 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v12 0/5] Enable virtio_net to act as a standby
-	for a passthru device
-Date: Fri, 25 May 2018 20:19:23 +0300
-Message-ID: <20180525201907-mutt-send-email-mst__6055.96390455521$1527268647$gmane$org@kernel.org>
-References: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
+Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
+	virito devices
+Date: Fri, 25 May 2018 20:45:42 +0300
+Message-ID: <20180525202300-mutt-send-email-mst__3447.11232833124$1527270234$gmane$org@kernel.org>
+References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
+	<20180523213703-mutt-send-email-mst@kernel.org>
+	<f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
+In-Reply-To: <f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,186 +21,129 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sridhar Samudrala <sridhar.samudrala@intel.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: robh@kernel.org, mpe@ellerman.id.au, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 24, 2018 at 09:55:12AM -0700, Sridhar Samudrala wrote:
-> The main motivation for this patch is to enable cloud service providers
-> to provide an accelerated datapath to virtio-net enabled VMs in a 
-> transparent manner with no/minimal guest userspace changes. This also
-> enables hypervisor controlled live migration to be supported with VMs that
-> have direct attached SR-IOV VF devices.
+On Thu, May 24, 2018 at 08:27:04AM +1000, Benjamin Herrenschmidt wrote:
+> On Wed, 2018-05-23 at 21:50 +0300, Michael S. Tsirkin wrote:
 > 
-> Patch 1 introduces a failover module that provides a generic interface for 
-> paravirtual drivers to listen for netdev register/unregister/link change
-> events from pci ethernet devices with the same MAC and takeover their
-> datapath. The notifier and event handling code is based on the existing
-> netvsc implementation. 
+> > I re-read that discussion and I'm still unclear on the
+> > original question, since I got several apparently
+> > conflicting answers.
+> > 
+> > I asked:
+> > 
+> > 	Why isn't setting VIRTIO_F_IOMMU_PLATFORM on the
+> > 	hypervisor side sufficient?
 > 
-> Patch 2 refactors netvsc to use the registration/notification framework
-> introduced by failover module.
+> I thought I had replied to this...
 > 
-> Patch 3 introduces a net_failover driver that provides an automated
-> failover mechanism to paravirtual drivers via APIs to create and destroy
-> a failover master netdev and mananges a primary and standby slave netdevs
-> that get registered via the generic failover infrastructure.
+> There are a couple of reasons:
 > 
-> Patch 4 introduces a new feature bit VIRTIO_NET_F_STANDBY to virtio-net
-> that can be used by hypervisor to indicate that virtio_net interface
-> should act as a standby for another device with the same MAC address.
-> 
-> Patch 5 extends virtio_net to use alternate datapath when available and
-> registered. When STANDBY feature is enabled, virtio_net driver uese the
-> net_failover API to create an additional 'failover' netdev that acts as
-> a master device and controls 2 slave devices.  The original virtio_net
-> netdev is registered as 'standby' netdev and a passthru/vf device with
-> the same MAC gets registered as 'primary' netdev. Both 'standby' and
-> 'failover' netdevs are associated with the same 'pci' device.  The user
-> accesses the network interface via 'failover' netdev. The 'failover'
-> netdev chooses 'primary' netdev as default for transmits when it is
-> available with link up and running.
-> 
-> As this patch series is initially focusing on usecases where hypervisor 
-> fully controls the VM networking and the guest is not expected to directly 
-> configure any hardware settings, it doesn't expose all the ndo/ethtool ops
-> that are supported by virtio_net at this time. To support additional usecases,
-> it should be possible to enable additional ops later by caching the state
-> in failover netdev and replaying when the 'primary' netdev gets registered. 
->  
-> At the time of live migration, the hypervisor needs to unplug the VF device
-> from the guest on the source host and reset the MAC filter of the VF to
-> initiate failover of datapath to virtio before starting the migration. After
-> the migration is completed, the destination hypervisor sets the MAC filter
-> on the VF and plugs it back to the guest to switch over to VF datapath.
-> 
-> This patch is based on the discussion initiated by Jesse on this thread.
-> https://marc.info/?l=linux-virtualization&m=151189725224231&w=2
+> - First qemu doesn't know that the guest will switch to "secure mode"
+> in advance. There is no difference between a normal and a secure
+> partition until the partition does the magic UV call to "enter secure
+> mode" and qemu doesn't see any of it. So who can set the flag here ?
 
-Series:
+Not sure I understand. Just set the flag e.g. on qemu command line.
+I might be wrong, but these secure mode things usually
+a. require hypervisor side tricks anyway
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> - Second, when using VIRTIO_F_IOMMU_PLATFORM, we also make qemu (or
+> vhost) go through the emulated MMIO for every access to the guest,
+> which adds additional overhead.
+> 
+> Cheers,
+> Ben.
+
+Well it's not supposed to be much slower for the static case.
+
+vhost has a cache so should be fine.
+
+A while ago Paolo implemented a translation cache which should be
+perfect for this case - most of the code got merged but
+never enabled because of stability issues.
+
+If all else fails, we could teach QEMU to handle the no-iommu case
+as if VIRTIO_F_IOMMU_PLATFORM was off.
 
 
-> v12:
-> - Tested live migration with virtio-net/AVF(i40evf) configured in failover
->   mode while running iperf in background. Tried static ip and dhcp
->   configurations using 'network' scripts and Network Manager.
-> - Build tested netvsc module.
-> Updates:
-> - Extended generic failover module to do common functions like setting
->   FAILOVER_SLAVE flag, registering rx-handler and linking to upper dev in
->   the generic register/unregister handlers.
->   This required adding 3 additional failover ops pre_register, pre_unregister
->   and handle_frame.  netvsc and net_failover drivers are updated to support
->   these ops.
-> 
-> v11:
-> - Split net_failover module into 2 components.
->   1. 'failover' module that provides generic failover infrastructure
->   to register a failover instance and listen for slave events.
->   2. 'net_failover' driver that provides APIs to create/destroy upper
->   netdev and supports 3-netdev model used by virtio-net.
-> - Added documentation
-> 
-> v10:
-> - fix net_failover_open() to update failover CARRIER correctly based on
->   standby and primary states. 
-> - fix net_failover_handle_frame() to handle frames received on standby
->   when primary is present.
-> - replace netdev_upper_dev_link with netdev_master_upper_dev_link and
->   handle lower dev state changes.
-> - fix net_failver_create() and net_failover_register() interfaces to
->   use ERR_PTR and avoid arg **
-> - disable setting mac address when virtio-net in STANDBY mode
-> - document exported symbols
-> - added entry to MAINTAINERS file
-> 
-> v9:
-> Select NET_FAILOVER automatically when VIRTIO_NET/HYPERV_NET 
-> are enabled. (stephen)
-> 
-> v8:
-> - Made the failover managment routines more robust by updating the feature 
->   bits/other fields in the failover netdev when slave netdevs are 
->   registered/unregistered. (mst)
-> - added support for handling vlans.
-> - Limited the changes in netvsc to only use the notifier/event/lookups
->   from the failover module. The slave register/unregister/link-change 
->   handlers are only updated to use the getbymac routine to get the 
->   upper netdev. There is no change in their functionality. (stephen)
-> - renamed structs/function/file names to use net_failover prefix. (mst)
-> 
-> v7
-> - Rename 'bypass/active/backup' terminology with 'failover/primary/standy'
->   (jiri, mst)
-> - re-arranged dev_open() and dev_set_mtu() calls in the register routines
->   so that they don't get called for 2-netdev model. (stephen)
-> - fixed select_queue() routine to do queue selection based on VF if it is
->   registered as primary. (stephen)
-> -  minor bugfixes
-> 
-> v6 RFC:
->   Simplified virtio_net changes by moving all the ndo_ops of the 
->   bypass_netdev and create/destroy of bypass_netdev to 'bypass' module.
->   avoided 2 phase registration(driver + instances).
->   introduced IFF_BYPASS/IFF_BYPASS_SLAVE dev->priv_flags 
->   replaced mutex with a spinlock
-> 
-> v5 RFC:
->   Based on Jiri's comments, moved the common functionality to a 'bypass'
->   module so that the same notifier and event handlers to handle child
->   register/unregister/link change events can be shared between virtio_net
->   and netvsc.
->   Improved error handling based on Siwei's comments.
-> v4:
-> - Based on the review comments on the v3 version of the RFC patch and
->   Jakub's suggestion for the naming issue with 3 netdev solution,
->   proposed 3 netdev in-driver bonding solution for virtio-net.
-> v3 RFC:
-> - Introduced 3 netdev model and pointed out a couple of issues with
->   that model and proposed 2 netdev model to avoid these issues.
-> - Removed broadcast/multicast optimization and only use virtio as
->   backup path when VF is unplugged.
-> v2 RFC:
-> - Changed VIRTIO_NET_F_MASTER to VIRTIO_NET_F_BACKUP (mst)
-> - made a small change to the virtio-net xmit path to only use VF datapath
->   for unicasts. Broadcasts/multicasts use virtio datapath. This avoids
->   east-west broadcasts to go over the PCI link.
-> - added suppport for the feature bit in qemu
-> 
-> Sridhar Samudrala (5):
->   net: Introduce generic failover module
->   netvsc: refactor notifier/event handling code to use the failover
->     framework
->   net: Introduce net_failover driver
->   virtio_net: Introduce VIRTIO_NET_F_STANDBY feature bit
->   virtio_net: Extend virtio to use VF datapath when available
-> 
->  Documentation/networking/failover.rst     |  18 +
->  Documentation/networking/net_failover.rst | 116 +++++
->  MAINTAINERS                               |  16 +
->  drivers/net/Kconfig                       |  13 +
->  drivers/net/Makefile                      |   1 +
->  drivers/net/hyperv/Kconfig                |   1 +
->  drivers/net/hyperv/hyperv_net.h           |   2 +
->  drivers/net/hyperv/netvsc_drv.c           | 222 ++------
->  drivers/net/net_failover.c                | 836 ++++++++++++++++++++++++++++++
->  drivers/net/virtio_net.c                  |  40 +-
->  include/linux/netdevice.h                 |  16 +
->  include/net/failover.h                    |  36 ++
->  include/net/net_failover.h                |  40 ++
->  include/uapi/linux/virtio_net.h           |   3 +
->  net/Kconfig                               |  13 +
->  net/core/Makefile                         |   1 +
->  net/core/failover.c                       | 315 +++++++++++
->  17 files changed, 1522 insertions(+), 167 deletions(-)
->  create mode 100644 Documentation/networking/failover.rst
->  create mode 100644 Documentation/networking/net_failover.rst
->  create mode 100644 drivers/net/net_failover.c
->  create mode 100644 include/net/failover.h
->  create mode 100644 include/net/net_failover.h
->  create mode 100644 net/core/failover.c
-> 
-> -- 
-> 2.14.3
+
+> > 
+> > 
+> > >  arch/powerpc/include/asm/dma-mapping.h |  6 ++++++
+> > >  arch/powerpc/platforms/pseries/iommu.c | 11 +++++++++++
+> > >  drivers/virtio/virtio_ring.c           | 10 ++++++++++
+> > >  3 files changed, 27 insertions(+)
+> > > 
+> > > diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
+> > > index 8fa3945..056e578 100644
+> > > --- a/arch/powerpc/include/asm/dma-mapping.h
+> > > +++ b/arch/powerpc/include/asm/dma-mapping.h
+> > > @@ -115,4 +115,10 @@ extern u64 __dma_get_required_mask(struct device *dev);
+> > >  #define ARCH_HAS_DMA_MMAP_COHERENT
+> > >  
+> > >  #endif /* __KERNEL__ */
+> > > +
+> > > +#define platform_forces_virtio_dma platform_forces_virtio_dma
+> > > +
+> > > +struct virtio_device;
+> > > +
+> > > +extern bool platform_forces_virtio_dma(struct virtio_device *vdev);
+> > >  #endif	/* _ASM_DMA_MAPPING_H */
+> > > diff --git a/arch/powerpc/platforms/pseries/iommu.c b/arch/powerpc/platforms/pseries/iommu.c
+> > > index 06f0296..a2ec15a 100644
+> > > --- a/arch/powerpc/platforms/pseries/iommu.c
+> > > +++ b/arch/powerpc/platforms/pseries/iommu.c
+> > > @@ -38,6 +38,7 @@
+> > >  #include <linux/of.h>
+> > >  #include <linux/iommu.h>
+> > >  #include <linux/rculist.h>
+> > > +#include <linux/virtio.h>
+> > >  #include <asm/io.h>
+> > >  #include <asm/prom.h>
+> > >  #include <asm/rtas.h>
+> > > @@ -1396,3 +1397,13 @@ static int __init disable_multitce(char *str)
+> > >  __setup("multitce=", disable_multitce);
+> > >  
+> > >  machine_subsys_initcall_sync(pseries, tce_iommu_bus_notifier_init);
+> > > +
+> > > +bool platform_forces_virtio_dma(struct virtio_device *vdev)
+> > > +{
+> > > +	/*
+> > > +	 * On protected guest platforms, force virtio core to use DMA
+> > > +	 * MAP API for all virtio devices. But there can also be some
+> > > +	 * exceptions for individual devices like virtio balloon.
+> > > +	 */
+> > > +	return (of_find_compatible_node(NULL, NULL, "ibm,ultravisor") != NULL);
+> > > +}
+> > 
+> > Isn't this kind of slow?  vring_use_dma_api is on
+> > data path and supposed to be very fast.
+> > 
+> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > > index 21d464a..47ea6c3 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -141,8 +141,18 @@ struct vring_virtqueue {
+> > >   * unconditionally on data path.
+> > >   */
+> > >  
+> > > +#ifndef platform_forces_virtio_dma
+> > > +static inline bool platform_forces_virtio_dma(struct virtio_device *vdev)
+> > > +{
+> > > +	return false;
+> > > +}
+> > > +#endif
+> > > +
+> > >  static bool vring_use_dma_api(struct virtio_device *vdev)
+> > >  {
+> > > +	if (platform_forces_virtio_dma(vdev))
+> > > +		return true;
+> > > +
+> > >  	if (!virtio_has_iommu_quirk(vdev))
+> > >  		return true;
+> > >  
+> > > -- 
+> > > 2.9.3
