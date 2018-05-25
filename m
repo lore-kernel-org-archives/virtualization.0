@@ -1,14 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
 Subject: Re: [RFC v5 0/5] virtio: support packed ring
-Date: Fri, 25 May 2018 10:31:26 +0800
-Message-ID: <b19e0888-61dc-c067-0b05-fde3b5eb0902__3683.05172673917$1527215391$gmane$org@redhat.com>
+Date: Fri, 25 May 2018 11:07:55 +0800
+Message-ID: <20180525030754.GA11557__23832.8550397002$1527217557$gmane$org@debian>
 References: <20180522081648.14768-1-tiwei.bie@intel.com>
+	<b19e0888-61dc-c067-0b05-fde3b5eb0902@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180522081648.14768-1-tiwei.bie@intel.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <b19e0888-61dc-c067-0b05-fde3b5eb0902@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,25 +19,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: wexu@redhat.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgyMuaXpSAxNjoxNiwgVGl3ZWkgQmllIHdyb3RlOgo+IEhlbGxvIGV2
-ZXJ5b25lLAo+Cj4gVGhpcyBSRkMgaW1wbGVtZW50cyBwYWNrZWQgcmluZyBzdXBwb3J0IGluIHZp
-cnRpbyBkcml2ZXIuCj4KPiBTb21lIHNpbXBsZSBmdW5jdGlvbmFsIHRlc3RzIGhhdmUgYmVlbiBk
-b25lIHdpdGggSmFzb24ncwo+IHBhY2tlZCByaW5nIGltcGxlbWVudGF0aW9uIGluIHZob3N0IChS
-RkMgdjQpOgo+Cj4gaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTgvNS8xNi81MDEKPgo+IEJvdGgg
-b2YgcGluZyBhbmQgbmV0cGVyZiB3b3JrZWQgYXMgZXhwZWN0ZWQgdy8gRVZFTlRfSURYCj4gZGlz
-YWJsZWQuIFBpbmcgd29ya2VkIGFzIGV4cGVjdGVkIHcvIEVWRU5UX0lEWCBlbmFibGVkLAo+IGJ1
-dCBuZXRwZXJmIGRpZG4ndCAoQSBoYWNrIGhhcyBiZWVuIGFkZGVkIGluIHRoZSBkcml2ZXIKPiB0
-byBtYWtlIG5ldHBlcmYgdGVzdCBwYXNzIGluIHRoaXMgY2FzZS4gVGhlIGhhY2sgY2FuIGJlCj4g
-Zm91bmQgYnkgYGdyZXAgLXJ3IFhYWGAgaW4gdGhlIGNvZGUpLgoKTG9va3MgbGlrZSB0aGlzIGlz
-IGJlY2F1c2UgYSBidWcgaW4gdmhvc3Qgd2hpY2ggd3JvbmdseSB0cmFjayAKc2lnbmFsbGVkX3Vz
-ZWQgYW5kIG1heSBtaXNzIGFuIGludGVycnVwdC4gQWZ0ZXIgZml4aW5nIHRoYXQsIGJvdGggc2lk
-ZSAKd29ya3MgbGlrZSBhIGNoYXJtLgoKSSdtIHRlc3RpbmcgdklPTU1VIGFuZCB6ZXJvY29weSwg
-YW5kIHdpbGwgcG9zdCBhIG5ldyB2ZXJzaW9uIHNob3J0bHkuIAooSG9wZSBpdCB3b3VsZCBiZSB0
-aGUgbGFzdCBSRkMgdmVyc2lvbikuCgpUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
-emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
-ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+T24gRnJpLCBNYXkgMjUsIDIwMTggYXQgMTA6MzE6MjZBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiBPbiAyMDE45bm0MDXmnIgyMuaXpSAxNjoxNiwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gSGVs
+bG8gZXZlcnlvbmUsCj4gPiAKPiA+IFRoaXMgUkZDIGltcGxlbWVudHMgcGFja2VkIHJpbmcgc3Vw
+cG9ydCBpbiB2aXJ0aW8gZHJpdmVyLgo+ID4gCj4gPiBTb21lIHNpbXBsZSBmdW5jdGlvbmFsIHRl
+c3RzIGhhdmUgYmVlbiBkb25lIHdpdGggSmFzb24ncwo+ID4gcGFja2VkIHJpbmcgaW1wbGVtZW50
+YXRpb24gaW4gdmhvc3QgKFJGQyB2NCk6Cj4gPiAKPiA+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8y
+MDE4LzUvMTYvNTAxCj4gPiAKPiA+IEJvdGggb2YgcGluZyBhbmQgbmV0cGVyZiB3b3JrZWQgYXMg
+ZXhwZWN0ZWQgdy8gRVZFTlRfSURYCj4gPiBkaXNhYmxlZC4gUGluZyB3b3JrZWQgYXMgZXhwZWN0
+ZWQgdy8gRVZFTlRfSURYIGVuYWJsZWQsCj4gPiBidXQgbmV0cGVyZiBkaWRuJ3QgKEEgaGFjayBo
+YXMgYmVlbiBhZGRlZCBpbiB0aGUgZHJpdmVyCj4gPiB0byBtYWtlIG5ldHBlcmYgdGVzdCBwYXNz
+IGluIHRoaXMgY2FzZS4gVGhlIGhhY2sgY2FuIGJlCj4gPiBmb3VuZCBieSBgZ3JlcCAtcncgWFhY
+YCBpbiB0aGUgY29kZSkuCj4gCj4gTG9va3MgbGlrZSB0aGlzIGlzIGJlY2F1c2UgYSBidWcgaW4g
+dmhvc3Qgd2hpY2ggd3JvbmdseSB0cmFjayBzaWduYWxsZWRfdXNlZAo+IGFuZCBtYXkgbWlzcyBh
+biBpbnRlcnJ1cHQuIEFmdGVyIGZpeGluZyB0aGF0LCBib3RoIHNpZGUgd29ya3MgbGlrZSBhIGNo
+YXJtLgo+IAo+IEknbSB0ZXN0aW5nIHZJT01NVSBhbmQgemVyb2NvcHksIGFuZCB3aWxsIHBvc3Qg
+YSBuZXcgdmVyc2lvbiBzaG9ydGx5LiAoSG9wZQo+IGl0IHdvdWxkIGJlIHRoZSBsYXN0IFJGQyB2
+ZXJzaW9uKS4KCkdyZWF0IHRvIGtub3cgdGhhdC4gVGhhbmtzIGEgbG90ISA6KQoKQmVzdCByZWdh
+cmRzLApUaXdlaSBCaWUKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
