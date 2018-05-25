@@ -1,13 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net] vhost: synchronize IOTLB message with dev cleanup
-Date: Thu, 24 May 2018 22:10:18 -0400 (EDT)
-Message-ID: <20180524.221018.776118684279850747.davem__17477.5501982824$1527214102$gmane$org@davemloft.net>
-References: <1526990337-24892-1-git-send-email-jasowang@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC V4 PATCH 8/8] vhost: event suppression for packed ring
+Date: Fri, 25 May 2018 10:28:38 +0800
+Message-ID: <2757710b-3c36-9730-f205-dd198475bc70__14307.5936161496$1527215230$gmane$org@redhat.com>
+References: <1526473941-16199-1-git-send-email-jasowang@redhat.com>
+	<1526473941-16199-9-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1526990337-24892-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1526473941-16199-9-git-send-email-jasowang@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,33 +19,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: mst@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 22 May 2018 19:58:57 +0800
-
-> DaeRyong Jeong reports a race between vhost_dev_cleanup() and
-> vhost_process_iotlb_msg():
-> 
-> Thread interleaving:
-> CPU0 (vhost_process_iotlb_msg)			CPU1 (vhost_dev_cleanup)
-> (In the case of both VHOST_IOTLB_UPDATE and
-> VHOST_IOTLB_INVALIDATE)
-> =====						=====
-> 						vhost_umem_clean(dev->iotlb);
-> if (!dev->iotlb) {
-> 	        ret = -EFAULT;
-> 		        break;
-> }
-> 						dev->iotlb = NULL;
-> 
-> The reason is we don't synchronize between them, fixing by protecting
-> vhost_process_iotlb_msg() with dev mutex.
-> 
-> Reported-by: DaeRyong Jeong <threeearcat@gmail.com>
-> Fixes: 6b1e6cc7855b0 ("vhost: new device IOTLB API")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-Applied and queued up for -stable.
+CgpPbiAyMDE45bm0MDXmnIgxNuaXpSAyMDozMiwgSmFzb24gV2FuZyB3cm90ZToKPiArc3RhdGlj
+IGJvb2wgdmhvc3Rfbm90aWZ5X3BhY2tlZChzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsCj4gKwkJCQlz
+dHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkKPiArewo+ICsJX192aXJ0aW8xNiBldmVudF9vZmZf
+d3JhcCwgZXZlbnRfZmxhZ3M7Cj4gKwlfX3UxNiBvbGQsIG5ldywgb2ZmX3dyYXA7Cj4gKwlib29s
+IHY7Cj4gKwo+ICsJLyogRmx1c2ggb3V0IHVzZWQgZGVzY3JpcHRvcnMgdXBkYXRlcy4gVGhpcyBp
+cyBwYWlyZWQKPiArCSAqIHdpdGggdGhlIGJhcnJpZXIgdGhhdCB0aGUgR3Vlc3QgZXhlY3V0ZXMg
+d2hlbiBlbmFibGluZwo+ICsJICogaW50ZXJydXB0cy4KPiArCSAqLwo+ICsJc21wX21iKCk7Cj4g
+Kwo+ICsJaWYgKHZob3N0X2dldF9hdmFpbCh2cSwgZXZlbnRfZmxhZ3MsCj4gKwkJCSAgICZ2cS0+
+ZHJpdmVyX2V2ZW50LT5mbGFncykgPCAwKSB7Cj4gKwkJdnFfZXJyKHZxLCAiRmFpbGVkIHRvIGdl
+dCBkcml2ZXIgZGVzY19ldmVudF9mbGFncyIpOwo+ICsJCXJldHVybiB0cnVlOwo+ICsJfQo+ICsK
+PiArCWlmIChldmVudF9mbGFncyA9PSBjcHVfdG9fdmhvc3QxNih2cSwgUklOR19FVkVOVF9GTEFH
+U19ESVNBQkxFKSkKPiArCQlyZXR1cm4gZmFsc2U7Cj4gKwllbHNlIGlmIChldmVudF9mbGFncyA9
+PSBjcHVfdG9fdmhvc3QxNih2cSwgUklOR19FVkVOVF9GTEFHU19FTkFCTEUpKQo+ICsJCXJldHVy
+biB0cnVlOwo+ICsKPiArCS8qIFJlYWQgZGVzYyBldmVudCBmbGFncyBiZWZvcmUgZXZlbnRfb2Zm
+IGFuZCBldmVudF93cmFwICovCj4gKwlzbXBfcm1iKCk7Cj4gKwo+ICsJaWYgKHZob3N0X2dldF9h
+dmFpbCh2cSwgZXZlbnRfb2ZmX3dyYXAsCj4gKwkJCSAgICAmdnEtPmRyaXZlcl9ldmVudC0+b2Zm
+X3dhcnApIDwgMCkgewo+ICsJCXZxX2Vycih2cSwgIkZhaWxlZCB0byBnZXQgZHJpdmVyIGRlc2Nf
+ZXZlbnRfb2ZmL3dyYXAiKTsKPiArCQlyZXR1cm4gdHJ1ZTsKPiArCX0KPiArCj4gKwlvZmZfd3Jh
+cCA9IHZob3N0MTZfdG9fY3B1KHZxLCBldmVudF9vZmZfd3JhcCk7Cj4gKwo+ICsJb2xkID0gdnEt
+PnNpZ25hbGxlZF91c2VkOwo+ICsJdiA9IHZxLT5zaWduYWxsZWRfdXNlZF92YWxpZDsKPiArCW5l
+dyA9IHZxLT5zaWduYWxsZWRfdXNlZCA9IHZxLT5sYXN0X3VzZWRfaWR4Owo+ICsJdnEtPnNpZ25h
+bGxlZF91c2VkX3ZhbGlkID0gdHJ1ZTsKCldlIHNob3VsZCBtb3ZlIHRob3NlIGlkeCB0cmFja2lu
+ZyBiZWZvcmUgY2hlY2tpbmcgZXZlbnRfZmxhZ3MuIE90aGVyd2lzZSAKd2UgbWF5IGxvc2UgaW50
+ZXJydXB0cyBiZWNhdXNlIG9mIGEgd3Jvbmcgc2lnbmFsbGVkX3VzZWQgdmFsdWUuCgpUaGFua3MK
+Cj4gKwo+ICsJaWYgKHVubGlrZWx5KCF2KSkKPiArCQlyZXR1cm4gdHJ1ZTsKPiArCj4gKwlyZXR1
+cm4gdmhvc3RfdnJpbmdfcGFja2VkX25lZWRfZXZlbnQodnEsIG9mZl93cmFwLCBuZXcsIG9sZCk7
+Cj4gK30KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
