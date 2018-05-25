@@ -1,17 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
-	virito devices
-Date: Fri, 25 May 2018 20:45:42 +0300
-Message-ID: <20180525202300-mutt-send-email-mst__3447.11232833124$1527270234$gmane$org@kernel.org>
-References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
-	<20180523213703-mutt-send-email-mst@kernel.org>
-	<f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
+Subject: Re: [RFC PATCH net-next 00/12] XDP batching for TUN/vhost_net
+Date: Fri, 25 May 2018 20:53:10 +0300
+Message-ID: <20180525205219-mutt-send-email-mst__5305.73648070476$1527270670$gmane$org@kernel.org>
+References: <1526893473-20128-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
+In-Reply-To: <1526893473-20128-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,129 +18,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: robh@kernel.org, mpe@ellerman.id.au, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 24, 2018 at 08:27:04AM +1000, Benjamin Herrenschmidt wrote:
-> On Wed, 2018-05-23 at 21:50 +0300, Michael S. Tsirkin wrote:
+On Mon, May 21, 2018 at 05:04:21PM +0800, Jason Wang wrote:
+> Hi all:
 > 
-> > I re-read that discussion and I'm still unclear on the
-> > original question, since I got several apparently
-> > conflicting answers.
-> > 
-> > I asked:
-> > 
-> > 	Why isn't setting VIRTIO_F_IOMMU_PLATFORM on the
-> > 	hypervisor side sufficient?
+> We do not support XDP batching for TUN since it can only receive one
+> packet a time from vhost_net. This series tries to remove this
+> limitation by:
 > 
-> I thought I had replied to this...
+> - introduce a TUN specific msg_control that can hold a pointer to an
+>   array of XDP buffs
+> - try copy and build XDP buff in vhost_net
+> - store XDP buffs in an array and submit them once for every N packets
+>   from vhost_net
+> - since TUN can only do native XDP for datacopy packet, to simplify
+>   the logic, split datacopy out logic and only do batching for
+>   datacopy.
+
+I like how this rework looks. Pls go ahead and repost as
+non-RFC.
+
+> With this series, TX PPS can improve about 34% from 2.9Mpps to
+> 3.9Mpps when doing xdp_redirect_map between TAP and ixgbe.
 > 
-> There are a couple of reasons:
+> Thanks
 > 
-> - First qemu doesn't know that the guest will switch to "secure mode"
-> in advance. There is no difference between a normal and a secure
-> partition until the partition does the magic UV call to "enter secure
-> mode" and qemu doesn't see any of it. So who can set the flag here ?
-
-Not sure I understand. Just set the flag e.g. on qemu command line.
-I might be wrong, but these secure mode things usually
-a. require hypervisor side tricks anyway
-
-> - Second, when using VIRTIO_F_IOMMU_PLATFORM, we also make qemu (or
-> vhost) go through the emulated MMIO for every access to the guest,
-> which adds additional overhead.
+> Jason Wang (12):
+>   vhost_net: introduce helper to initialize tx iov iter
+>   vhost_net: introduce vhost_exceeds_weight()
+>   vhost_net: introduce vhost_has_more_pkts()
+>   vhost_net: split out datacopy logic
+>   vhost_net: batch update used ring for datacopy TX
+>   tuntap: enable premmption early
+>   tuntap: simplify error handling in tun_build_skb()
+>   tuntap: tweak on the path of non-xdp case in tun_build_skb()
+>   tuntap: split out XDP logic
+>   vhost_net: build xdp buff
+>   vhost_net: passing raw xdp buff to tun
+>   vhost_net: batch submitting XDP buffers to underlayer sockets
 > 
-> Cheers,
-> Ben.
-
-Well it's not supposed to be much slower for the static case.
-
-vhost has a cache so should be fine.
-
-A while ago Paolo implemented a translation cache which should be
-perfect for this case - most of the code got merged but
-never enabled because of stability issues.
-
-If all else fails, we could teach QEMU to handle the no-iommu case
-as if VIRTIO_F_IOMMU_PLATFORM was off.
-
-
-
-> > 
-> > 
-> > >  arch/powerpc/include/asm/dma-mapping.h |  6 ++++++
-> > >  arch/powerpc/platforms/pseries/iommu.c | 11 +++++++++++
-> > >  drivers/virtio/virtio_ring.c           | 10 ++++++++++
-> > >  3 files changed, 27 insertions(+)
-> > > 
-> > > diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
-> > > index 8fa3945..056e578 100644
-> > > --- a/arch/powerpc/include/asm/dma-mapping.h
-> > > +++ b/arch/powerpc/include/asm/dma-mapping.h
-> > > @@ -115,4 +115,10 @@ extern u64 __dma_get_required_mask(struct device *dev);
-> > >  #define ARCH_HAS_DMA_MMAP_COHERENT
-> > >  
-> > >  #endif /* __KERNEL__ */
-> > > +
-> > > +#define platform_forces_virtio_dma platform_forces_virtio_dma
-> > > +
-> > > +struct virtio_device;
-> > > +
-> > > +extern bool platform_forces_virtio_dma(struct virtio_device *vdev);
-> > >  #endif	/* _ASM_DMA_MAPPING_H */
-> > > diff --git a/arch/powerpc/platforms/pseries/iommu.c b/arch/powerpc/platforms/pseries/iommu.c
-> > > index 06f0296..a2ec15a 100644
-> > > --- a/arch/powerpc/platforms/pseries/iommu.c
-> > > +++ b/arch/powerpc/platforms/pseries/iommu.c
-> > > @@ -38,6 +38,7 @@
-> > >  #include <linux/of.h>
-> > >  #include <linux/iommu.h>
-> > >  #include <linux/rculist.h>
-> > > +#include <linux/virtio.h>
-> > >  #include <asm/io.h>
-> > >  #include <asm/prom.h>
-> > >  #include <asm/rtas.h>
-> > > @@ -1396,3 +1397,13 @@ static int __init disable_multitce(char *str)
-> > >  __setup("multitce=", disable_multitce);
-> > >  
-> > >  machine_subsys_initcall_sync(pseries, tce_iommu_bus_notifier_init);
-> > > +
-> > > +bool platform_forces_virtio_dma(struct virtio_device *vdev)
-> > > +{
-> > > +	/*
-> > > +	 * On protected guest platforms, force virtio core to use DMA
-> > > +	 * MAP API for all virtio devices. But there can also be some
-> > > +	 * exceptions for individual devices like virtio balloon.
-> > > +	 */
-> > > +	return (of_find_compatible_node(NULL, NULL, "ibm,ultravisor") != NULL);
-> > > +}
-> > 
-> > Isn't this kind of slow?  vring_use_dma_api is on
-> > data path and supposed to be very fast.
-> > 
-> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > index 21d464a..47ea6c3 100644
-> > > --- a/drivers/virtio/virtio_ring.c
-> > > +++ b/drivers/virtio/virtio_ring.c
-> > > @@ -141,8 +141,18 @@ struct vring_virtqueue {
-> > >   * unconditionally on data path.
-> > >   */
-> > >  
-> > > +#ifndef platform_forces_virtio_dma
-> > > +static inline bool platform_forces_virtio_dma(struct virtio_device *vdev)
-> > > +{
-> > > +	return false;
-> > > +}
-> > > +#endif
-> > > +
-> > >  static bool vring_use_dma_api(struct virtio_device *vdev)
-> > >  {
-> > > +	if (platform_forces_virtio_dma(vdev))
-> > > +		return true;
-> > > +
-> > >  	if (!virtio_has_iommu_quirk(vdev))
-> > >  		return true;
-> > >  
-> > > -- 
-> > > 2.9.3
+>  drivers/net/tun.c      | 226 +++++++++++++++++++++++++++----------
+>  drivers/vhost/net.c    | 297 ++++++++++++++++++++++++++++++++++++++++++++-----
+>  include/linux/if_tun.h |   7 ++
+>  3 files changed, 444 insertions(+), 86 deletions(-)
+> 
+> -- 
+> 2.7.4
