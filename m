@@ -1,14 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH net-next 00/12] XDP batching for TUN/vhost_net
-Date: Fri, 25 May 2018 20:53:10 +0300
-Message-ID: <20180525205219-mutt-send-email-mst__5305.73648070476$1527270670$gmane$org@kernel.org>
-References: <1526893473-20128-1-git-send-email-jasowang@redhat.com>
+From: Ville Syrjala <ville.syrjala@linux.intel.com>
+Subject: [PATCH v2 00/13] drm: Eliminate plane->fb/crtc usage for atomic
+	drivers
+Date: Fri, 25 May 2018 21:50:32 +0300
+Message-ID: <20180525185045.29689-1-ville.syrjala__36066.9495109052$1527274146$gmane$org@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1526893473-20128-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,52 +16,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, "David (ChunMing) Zhou" <David1.Zhou@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Sinclair Yeh <syeh@vmware.com>, Kyungmin Park <kyungmin.park@samsung.com>, amd-gfx@lists.freedesktop.org, VMware Graphics <linux-graphics-maintainer@vmware.com>, Harry Wentland <harry.wentland@amd.com>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Inki Dae <inki.dae@samsung.com>, Deepak Rawat <drawat@vmware.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, Rob Clark <robdclark@gmail.com>, Alex Deucher <alexander.deucher@amd.com>, freedreno@lists.freedesktop.org, =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 21, 2018 at 05:04:21PM +0800, Jason Wang wrote:
-> Hi all:
-> 
-> We do not support XDP batching for TUN since it can only receive one
-> packet a time from vhost_net. This series tries to remove this
-> limitation by:
-> 
-> - introduce a TUN specific msg_control that can hold a pointer to an
->   array of XDP buffs
-> - try copy and build XDP buff in vhost_net
-> - store XDP buffs in an array and submit them once for every N packets
->   from vhost_net
-> - since TUN can only do native XDP for datacopy packet, to simplify
->   the logic, split datacopy out logic and only do batching for
->   datacopy.
-
-I like how this rework looks. Pls go ahead and repost as
-non-RFC.
-
-> With this series, TX PPS can improve about 34% from 2.9Mpps to
-> 3.9Mpps when doing xdp_redirect_map between TAP and ixgbe.
-> 
-> Thanks
-> 
-> Jason Wang (12):
->   vhost_net: introduce helper to initialize tx iov iter
->   vhost_net: introduce vhost_exceeds_weight()
->   vhost_net: introduce vhost_has_more_pkts()
->   vhost_net: split out datacopy logic
->   vhost_net: batch update used ring for datacopy TX
->   tuntap: enable premmption early
->   tuntap: simplify error handling in tun_build_skb()
->   tuntap: tweak on the path of non-xdp case in tun_build_skb()
->   tuntap: split out XDP logic
->   vhost_net: build xdp buff
->   vhost_net: passing raw xdp buff to tun
->   vhost_net: batch submitting XDP buffers to underlayer sockets
-> 
->  drivers/net/tun.c      | 226 +++++++++++++++++++++++++++----------
->  drivers/vhost/net.c    | 297 ++++++++++++++++++++++++++++++++++++++++++++-----
->  include/linux/if_tun.h |   7 ++
->  3 files changed, 444 insertions(+), 86 deletions(-)
-> 
-> -- 
-> 2.7.4
+RnJvbTogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVsLmNvbT4KCkhl
+cmUgYXJlIGFnYWluIHRoZSBsYXN0ICg/KSBiaXRzIG9mIGVsaW1pbmF0aW5nIHRoZSBwbGFuZS0+
+ZmIvY3J0Ywp1c2FnZSBmb3IgYXRvbWljIGRyaXZlcnMuIEkndmUgcHVzaGVkIGV2ZXJ5dGhpbmcg
+ZWxzZSAodGhhbmtzIHRvCmV2ZXJ5b25lIHdobyByZXZpZXdlZCB0aGVtKS4gCgpEZWVwYWsgc2Fp
+ZCBoZSdkIHRlc3RlZCB0aGUgdm13Z2Z4IHN0dWZmLCBzbyBJIHRoaW5rIGl0IHNob3VsZCBiZQpz
+YWZlIHRvIGxhbmQuIEp1c3QgbWlzc2luZyBhIGJpdCBvZiByZXZpZXcuLi4KCkNjOiBBbGV4IERl
+dWNoZXIgPGFsZXhhbmRlci5kZXVjaGVyQGFtZC5jb20+CkNjOiBhbWQtZ2Z4QGxpc3RzLmZyZWVk
+ZXNrdG9wLm9yZwpDYzogIkNocmlzdGlhbiBLw7ZuaWciIDxjaHJpc3RpYW4ua29lbmlnQGFtZC5j
+b20+CkNjOiBEYW5pZWwgVmV0dGVyIDxkYW5pZWwudmV0dGVyQGZmd2xsLmNoPgpDYzogRGF2aWQg
+QWlybGllIDxhaXJsaWVkQGxpbnV4LmllPgpDYzogIkRhdmlkIChDaHVuTWluZykgWmhvdSIgPERh
+dmlkMS5aaG91QGFtZC5jb20+CkNjOiBEZWVwYWsgUmF3YXQgPGRyYXdhdEB2bXdhcmUuY29tPgpD
+YzogRXJpYyBBbmhvbHQgPGVyaWNAYW5ob2x0Lm5ldD4KQ2M6IGZyZWVkcmVub0BsaXN0cy5mcmVl
+ZGVza3RvcC5vcmcKQ2M6IEdlcmQgSG9mZm1hbm4gPGtyYXhlbEByZWRoYXQuY29tPgpDYzogSGFy
+cnkgV2VudGxhbmQgPGhhcnJ5LndlbnRsYW5kQGFtZC5jb20+CkNjOiBJbmtpIERhZSA8aW5raS5k
+YWVAc2Ftc3VuZy5jb20+CkNjOiBKb29ueW91bmcgU2hpbSA8ankwOTIyLnNoaW1Ac2Ftc3VuZy5j
+b20+CkNjOiBLeXVuZ21pbiBQYXJrIDxreXVuZ21pbi5wYXJrQHNhbXN1bmcuY29tPgpDYzogbGlu
+dXgtYXJtLW1zbUB2Z2VyLmtlcm5lbC5vcmcKQ2M6IFJvYiBDbGFyayA8cm9iZGNsYXJrQGdtYWls
+LmNvbT4KQ2M6IFNldW5nLVdvbyBLaW0gPHN3MDMxMi5raW1Ac2Ftc3VuZy5jb20+CkNjOiBTaW5j
+bGFpciBZZWggPHN5ZWhAdm13YXJlLmNvbT4KQ2M6IFRob21hcyBIZWxsc3Ryb20gPHRoZWxsc3Ry
+b21Adm13YXJlLmNvbT4KQ2M6IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnCkNjOiBWTXdhcmUgR3JhcGhpY3MgPGxpbnV4LWdyYXBoaWNzLW1haW50YWluZXJAdm13YXJl
+LmNvbT4KClZpbGxlIFN5cmrDpGzDpCAoMTMpOgogIGRybS92bXdnZng6IFN0b3AgdXNpbmcgcGxh
+bmUtPmZiIGluIHZtd19rbXNfYXRvbWljX2NoZWNrX21vZGVzZXQoKQogIGRybS92bXdnZng6IFN0
+b3AgdXNpbmcgcGxhbmUtPmZiIGluIHZtd19rbXNfaGVscGVyX2RpcnR5KCkKICBkcm0vdm13Z2Z4
+OiBTdG9wIHVzaW5nIHBsYW5lLT5mYiBpbiB2bXdfa21zX3VwZGF0ZV9pbXBsaWNpdF9mYigpCiAg
+ZHJtL3Ztd2dmeDogU3RvcCB1cGRhdGluZyBwbGFuZS0+ZmIKICBkcm0vdm13Z2Z4OiBTdG9wIHVz
+aW5nIHBsYW5lLT5mYiBpbiBhdG9taWNfZW5hYmxlKCkKICBkcm0vdm13Z2Z4OiBTdG9wIG1lc3Np
+bmcgYWJvdXQgd2l0aCBwbGFuZS0+ZmIvb2xkX2ZiL2NydGMKICBkcm0vYW1kZ3B1L2RjOiBTdG9w
+IHVwZGF0aW5nIHBsYW5lLT5mYgogIGRybS9pOTE1OiBTdG9wIHVwZGF0aW5nIHBsYW5lLT5mYi9j
+cnRjCiAgZHJtL2V4eW5vczogU3RvcCB1cGRhdGluZyBwbGFuZS0+Y3J0YwogIGRybS9tc206IFN0
+b3AgdXBkYXRpbmcgcGxhbmUtPmZiL2NydGMKICBkcm0vdmlydGlvOiBTdG9wIHVwZGF0aW5nIHBs
+YW5lLT5jcnRjCiAgZHJtL3ZjNDogU3RvcCB1cGRhdGluZyBwbGFuZS0+ZmIvY3J0YwogIGRybTog
+U3RvcCB1cGRhdGluZyBwbGFuZS0+Y3J0Yy9mYi9vbGRfZmIgb24gYXRvbWljIGRyaXZlcnMKCiBk
+cml2ZXJzL2dwdS9kcm0vYW1kL2Rpc3BsYXkvYW1kZ3B1X2RtL2FtZGdwdV9kbS5jIHwgIDIgLQog
+ZHJpdmVycy9ncHUvZHJtL2RybV9hdG9taWMuYyAgICAgICAgICAgICAgICAgICAgICB8IDU1ICsr
+Ky0tLS0tLS0tLS0tLS0tLS0tLS0tCiBkcml2ZXJzL2dwdS9kcm0vZHJtX2F0b21pY19oZWxwZXIu
+YyAgICAgICAgICAgICAgIHwgMTUgKy0tLS0tLQogZHJpdmVycy9ncHUvZHJtL2RybV9jcnRjLmMg
+ICAgICAgICAgICAgICAgICAgICAgICB8ICA4ICsrKy0KIGRyaXZlcnMvZ3B1L2RybS9kcm1fZmJf
+aGVscGVyLmMgICAgICAgICAgICAgICAgICAgfCAgNyAtLS0KIGRyaXZlcnMvZ3B1L2RybS9kcm1f
+ZnJhbWVidWZmZXIuYyAgICAgICAgICAgICAgICAgfCAgNSAtLS0KIGRyaXZlcnMvZ3B1L2RybS9k
+cm1fcGxhbmUuYyAgICAgICAgICAgICAgICAgICAgICAgfCAxNCArKystLS0KIGRyaXZlcnMvZ3B1
+L2RybS9kcm1fcGxhbmVfaGVscGVyLmMgICAgICAgICAgICAgICAgfCAgNCArLQogZHJpdmVycy9n
+cHUvZHJtL2V4eW5vcy9leHlub3NfZHJtX3BsYW5lLmMgICAgICAgICB8ICAyIC0KIGRyaXZlcnMv
+Z3B1L2RybS9pOTE1L2ludGVsX2F0b21pY19wbGFuZS5jICAgICAgICAgfCAxMiAtLS0tLQogZHJp
+dmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfZGlzcGxheS5jICAgICAgICAgICAgICB8ICA3ICsrLQog
+ZHJpdmVycy9ncHUvZHJtL21zbS9kaXNwL21kcDQvbWRwNF9jcnRjLmMgICAgICAgICB8ICAxIC0K
+IGRyaXZlcnMvZ3B1L2RybS9tc20vZGlzcC9tZHA0L21kcDRfcGxhbmUuYyAgICAgICAgfCAgMiAt
+CiBkcml2ZXJzL2dwdS9kcm0vbXNtL2Rpc3AvbWRwNS9tZHA1X2NydGMuYyAgICAgICAgIHwgIDEg
+LQogZHJpdmVycy9ncHUvZHJtL21zbS9kaXNwL21kcDUvbWRwNV9wbGFuZS5jICAgICAgICB8ICAy
+IC0KIGRyaXZlcnMvZ3B1L2RybS92YzQvdmM0X2NydGMuYyAgICAgICAgICAgICAgICAgICAgfCAg
+MyAtLQogZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rpc3BsYXkuYyAgICAgICAgICB8
+ICAyIC0KIGRyaXZlcnMvZ3B1L2RybS92bXdnZngvdm13Z2Z4X2ZiLmMgICAgICAgICAgICAgICAg
+fCAyNCAtLS0tLS0tLS0tCiBkcml2ZXJzL2dwdS9kcm0vdm13Z2Z4L3Ztd2dmeF9rbXMuYyAgICAg
+ICAgICAgICAgIHwgMjQgKysrKysrKy0tLQogZHJpdmVycy9ncHUvZHJtL3Ztd2dmeC92bXdnZnhf
+c2Nybi5jICAgICAgICAgICAgICB8ICAyIC0KIGRyaXZlcnMvZ3B1L2RybS92bXdnZngvdm13Z2Z4
+X3N0ZHUuYyAgICAgICAgICAgICAgfCAgNSArLS0KIGluY2x1ZGUvZHJtL2RybV9hdG9taWMuaCAg
+ICAgICAgICAgICAgICAgICAgICAgICAgfCAgMyAtLQogMjIgZmlsZXMgY2hhbmdlZCwgNDYgaW5z
+ZXJ0aW9ucygrKSwgMTU0IGRlbGV0aW9ucygtKQoKLS0gCjIuMTYuMQpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
+c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
+cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
