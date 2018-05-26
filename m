@@ -1,20 +1,21 @@
-From: Jiri Pirko <jiri@resnulli.us>
-Subject: Re: [PATCH net-next v12 2/5] netvsc: refactor notifier/event
-	handling code to use the failover framework
-Date: Sat, 26 May 2018 09:51:56 +0200
-Message-ID: <20180526075156.GC4288@nanopsycho.orion>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [PATCH net-next v12 2/5] netvsc: refactor notifier/event handling
+	code to use the failover framework
+Date: Sat, 26 May 2018 12:22:28 -0700
+Message-ID: <821ec0bc-c6c6-467d-cc9c-448ce081b02f@intel.com>
 References: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
 	<1527180917-39737-3-git-send-email-sridhar.samudrala@intel.com>
 	<20180525153456.28b44c7c@xeon-e3>
 	<c0be8e44-34f8-0e46-3a51-7ce869a5d351@intel.com>
 	<20180525162839.3c7028e1@xeon-e3>
 	<cffe3c66-ae31-ae13-27ce-55f9be2d53d4@intel.com>
+	<20180526075156.GC4288@nanopsycho.orion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cffe3c66-ae31-ae13-27ce-55f9be2d53d4@intel.com>
+In-Reply-To: <20180526075156.GC4288@nanopsycho.orion>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,52 +25,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+To: Jiri Pirko <jiri@resnulli.us>
 Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Sat, May 26, 2018 at 09:22:18AM CEST, sridhar.samudrala@intel.com wrote:
->On 5/25/2018 4:28 PM, Stephen Hemminger wrote:
->> On Fri, 25 May 2018 16:11:47 -0700
->> "Samudrala, Sridhar" <sridhar.samudrala@intel.com> wrote:
->> 
->> > On 5/25/2018 3:34 PM, Stephen Hemminger wrote:
->> > > On Thu, 24 May 2018 09:55:14 -0700
->> > > Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
->> > > > --- a/drivers/net/hyperv/Kconfig
->> > > > +++ b/drivers/net/hyperv/Kconfig
->> > > > @@ -2,5 +2,6 @@ config HYPERV_NET
->> > > >    	tristate "Microsoft Hyper-V virtual network driver"
->> > > >    	depends on HYPERV
->> > > >    	select UCS2_STRING
->> > > > +	select FAILOVER
->> > > When I take a working kernel config, add the patches then do
->> > > make oldconfig
->> > > 
->> > > It is not autoselecting FAILOVER, it prompts me for it. This means
->> > > if user says no then a non-working netvsc device is made.
->> > I see
->> >      Generic failover module (FAILOVER) [M/y/?] (NEW)
->> > 
->> > So the user is given an option to either build as a Module or part of the
->> > kernel. 'n' is not an option.
->> With most libraries there is no prompt at all.
->
->Not sure what you meant by this.
->Without any patches applied, i had a .config file with HYPERV_NET configured
->as a module.
->Then after applying the first 2 patches in this series, i did a
->  make oldconfig
->and i see the above prompt.
->
->Are you saying that on some distros, 'make oldconfig creates a .config
->file without any prompt and FAILOVER is not getting selected even when HYPERV_NET
->is enabled?
->
->
-
-Well the thing is that for a user, it makes no sense to select
-"FAILOVER" by hand. It is a lib, so it should be only select it by a
-user. It has no sense to have it turned on by hand - no lib user.
-You can achieve that by simply removing "help" for the Kconfig
-item. Same thing for "NET_FAILOVER".
+J09uIDUvMjYvMjAxOCAxMjo1MSBBTSwgSmlyaSBQaXJrbyB3cm90ZToKPiBTYXQsIE1heSAyNiwg
+MjAxOCBhdCAwOToyMjoxOEFNIENFU1QsIHNyaWRoYXIuc2FtdWRyYWxhQGludGVsLmNvbSB3cm90
+ZToKPj4gT24gNS8yNS8yMDE4IDQ6MjggUE0sIFN0ZXBoZW4gSGVtbWluZ2VyIHdyb3RlOgo+Pj4g
+T24gRnJpLCAyNSBNYXkgMjAxOCAxNjoxMTo0NyAtMDcwMAo+Pj4gIlNhbXVkcmFsYSwgU3JpZGhh
+ciIgPHNyaWRoYXIuc2FtdWRyYWxhQGludGVsLmNvbT4gd3JvdGU6Cj4+Pgo+Pj4+IE9uIDUvMjUv
+MjAxOCAzOjM0IFBNLCBTdGVwaGVuIEhlbW1pbmdlciB3cm90ZToKPj4+Pj4gT24gVGh1LCAyNCBN
+YXkgMjAxOCAwOTo1NToxNCAtMDcwMAo+Pj4+PiBTcmlkaGFyIFNhbXVkcmFsYSA8c3JpZGhhci5z
+YW11ZHJhbGFAaW50ZWwuY29tPiB3cm90ZToKPj4+Pj4+IC0tLSBhL2RyaXZlcnMvbmV0L2h5cGVy
+di9LY29uZmlnCj4+Pj4+PiArKysgYi9kcml2ZXJzL25ldC9oeXBlcnYvS2NvbmZpZwo+Pj4+Pj4g
+QEAgLTIsNSArMiw2IEBAIGNvbmZpZyBIWVBFUlZfTkVUCj4+Pj4+PiAgICAgCXRyaXN0YXRlICJN
+aWNyb3NvZnQgSHlwZXItViB2aXJ0dWFsIG5ldHdvcmsgZHJpdmVyIgo+Pj4+Pj4gICAgIAlkZXBl
+bmRzIG9uIEhZUEVSVgo+Pj4+Pj4gICAgIAlzZWxlY3QgVUNTMl9TVFJJTkcKPj4+Pj4+ICsJc2Vs
+ZWN0IEZBSUxPVkVSCj4+Pj4+IFdoZW4gSSB0YWtlIGEgd29ya2luZyBrZXJuZWwgY29uZmlnLCBh
+ZGQgdGhlIHBhdGNoZXMgdGhlbiBkbwo+Pj4+PiBtYWtlIG9sZGNvbmZpZwo+Pj4+Pgo+Pj4+PiBJ
+dCBpcyBub3QgYXV0b3NlbGVjdGluZyBGQUlMT1ZFUiwgaXQgcHJvbXB0cyBtZSBmb3IgaXQuIFRo
+aXMgbWVhbnMKPj4+Pj4gaWYgdXNlciBzYXlzIG5vIHRoZW4gYSBub24td29ya2luZyBuZXR2c2Mg
+ZGV2aWNlIGlzIG1hZGUuCj4+Pj4gSSBzZWUKPj4+PiAgICAgICBHZW5lcmljIGZhaWxvdmVyIG1v
+ZHVsZSAoRkFJTE9WRVIpIFtNL3kvP10gKE5FVykKPj4+Pgo+Pj4+IFNvIHRoZSB1c2VyIGlzIGdp
+dmVuIGFuIG9wdGlvbiB0byBlaXRoZXIgYnVpbGQgYXMgYSBNb2R1bGUgb3IgcGFydCBvZiB0aGUK
+Pj4+PiBrZXJuZWwuICduJyBpcyBub3QgYW4gb3B0aW9uLgo+Pj4gV2l0aCBtb3N0IGxpYnJhcmll
+cyB0aGVyZSBpcyBubyBwcm9tcHQgYXQgYWxsLgo+PiBOb3Qgc3VyZSB3aGF0IHlvdSBtZWFudCBi
+eSB0aGlzLgo+PiBXaXRob3V0IGFueSBwYXRjaGVzIGFwcGxpZWQsIGkgaGFkIGEgLmNvbmZpZyBm
+aWxlIHdpdGggSFlQRVJWX05FVCBjb25maWd1cmVkCj4+IGFzIGEgbW9kdWxlLgo+PiBUaGVuIGFm
+dGVyIGFwcGx5aW5nIHRoZSBmaXJzdCAyIHBhdGNoZXMgaW4gdGhpcyBzZXJpZXMsIGkgZGlkIGEK
+Pj4gICBtYWtlIG9sZGNvbmZpZwo+PiBhbmQgaSBzZWUgdGhlIGFib3ZlIHByb21wdC4KPj4KPj4g
+QXJlIHlvdSBzYXlpbmcgdGhhdCBvbiBzb21lIGRpc3Ryb3MsICdtYWtlIG9sZGNvbmZpZyBjcmVh
+dGVzIGEgLmNvbmZpZwo+PiBmaWxlIHdpdGhvdXQgYW55IHByb21wdCBhbmQgRkFJTE9WRVIgaXMg
+bm90IGdldHRpbmcgc2VsZWN0ZWQgZXZlbiB3aGVuIEhZUEVSVl9ORVQKPj4gaXMgZW5hYmxlZD8K
+Pj4KPj4KPiBXZWxsIHRoZSB0aGluZyBpcyB0aGF0IGZvciBhIHVzZXIsIGl0IG1ha2VzIG5vIHNl
+bnNlIHRvIHNlbGVjdAo+ICJGQUlMT1ZFUiIgYnkgaGFuZC4gSXQgaXMgYSBsaWIsIHNvIGl0IHNo
+b3VsZCBiZSBvbmx5IHNlbGVjdCBpdCBieSBhCj4gdXNlci4gSXQgaGFzIG5vIHNlbnNlIHRvIGhh
+dmUgaXQgdHVybmVkIG9uIGJ5IGhhbmQgLSBubyBsaWIgdXNlci4KPiBZb3UgY2FuIGFjaGlldmUg
+dGhhdCBieSBzaW1wbHkgcmVtb3ZpbmcgImhlbHAiIGZvciB0aGUgS2NvbmZpZwo+IGl0ZW0uIFNh
+bWUgdGhpbmcgZm9yICJORVRfRkFJTE9WRVIiLgoKSSBwbGF5ZWQgYXJvdW5kIHdpdGggdGhlIENP
+TkZJRyBvcHRpb25zIGFuZCBpIHNlZSB0aGF0IEZBSUxPVkVSIG9wdGlvbnMgZG8KZ2V0IHNlbGVj
+dGVkIGNvcnJlY3RseSB3aGVuIHZpcnRpby1uZXQvbmV0dnNjIGFyZSBlbmFibGVkLsKgIEV2ZW4g
+aWYgdGhlIEZBSUxPVkVSCmlzIHR1cm5lZCBvZmYgYnkgdGhlIHVzZXIgYmVmb3JlIHRoZSBoeXBl
+cnYtbmV0L3ZpcnRpby1uZXQgcGF0Y2hlcyBhcmUgYXBwbGllZCwKaXQgZ2V0cyBzZWxlY3RlZCBh
+dXRvbWF0aWNhbGx5IHdoZW4gaHlwZXJ2LW5ldC92aXJ0aW8tbmV0IHBhdGNoZXMgYXJlIGFwcGxp
+ZWQgYW5kCmVuYWJsZWQgaW4gY29uZmlnLgoKSWYgd2UgZG9uJ3Qgd2FudCB0byBhbGxvdyB0aGUg
+dXNlciB0byBzZWUgdGhlc2Ugb3B0aW9ucywgdGhlbiBpIHRoaW5rIHdlIG5lZWQgdG8KcmVtb3Zl
+IHRoZW0gZnJvbSBLY29uZmlnIGZpbGVzLsKgIEp1c3QgcmVtb3ZpbmcgImhlbHAiIGRvZXNuJ3Qg
+c2VlbSB0byBtYWtlIGEKZGlmZmVyZW5jZS4KCkNhbiB3ZSBhZGRyZXNzIGFueSBjb25maWcgaXNz
+dWVzIChpIGRvbid0IHNlZSBhbnkgYXQgdGhpcyBwb2ludCkgYXMgYSBidWctZml4IG9uIHRvcApv
+ZiB0aGlzIHNlcmllcz8KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
+aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
