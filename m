@@ -1,21 +1,17 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [PATCH net-next v12 2/5] netvsc: refactor notifier/event handling
-	code to use the failover framework
-Date: Sat, 26 May 2018 12:22:28 -0700
-Message-ID: <821ec0bc-c6c6-467d-cc9c-448ce081b02f@intel.com>
-References: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
-	<1527180917-39737-3-git-send-email-sridhar.samudrala@intel.com>
-	<20180525153456.28b44c7c@xeon-e3>
-	<c0be8e44-34f8-0e46-3a51-7ce869a5d351@intel.com>
-	<20180525162839.3c7028e1@xeon-e3>
-	<cffe3c66-ae31-ae13-27ce-55f9be2d53d4@intel.com>
-	<20180526075156.GC4288@nanopsycho.orion>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
+	virito devices
+Date: Tue, 29 May 2018 09:48:17 +1000
+Message-ID: <6fff9f5d67361653e6072570a857cf0d1009a123.camel@kernel.crashing.org>
+References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
+	<20180523213703-mutt-send-email-mst@kernel.org>
+	<f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
+	<20180525202300-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180526075156.GC4288@nanopsycho.orion>
-Content-Language: en-US
+In-Reply-To: <20180525202300-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,55 +21,162 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: robh@kernel.org, mpe@ellerman.id.au, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-J09uIDUvMjYvMjAxOCAxMjo1MSBBTSwgSmlyaSBQaXJrbyB3cm90ZToKPiBTYXQsIE1heSAyNiwg
-MjAxOCBhdCAwOToyMjoxOEFNIENFU1QsIHNyaWRoYXIuc2FtdWRyYWxhQGludGVsLmNvbSB3cm90
-ZToKPj4gT24gNS8yNS8yMDE4IDQ6MjggUE0sIFN0ZXBoZW4gSGVtbWluZ2VyIHdyb3RlOgo+Pj4g
-T24gRnJpLCAyNSBNYXkgMjAxOCAxNjoxMTo0NyAtMDcwMAo+Pj4gIlNhbXVkcmFsYSwgU3JpZGhh
-ciIgPHNyaWRoYXIuc2FtdWRyYWxhQGludGVsLmNvbT4gd3JvdGU6Cj4+Pgo+Pj4+IE9uIDUvMjUv
-MjAxOCAzOjM0IFBNLCBTdGVwaGVuIEhlbW1pbmdlciB3cm90ZToKPj4+Pj4gT24gVGh1LCAyNCBN
-YXkgMjAxOCAwOTo1NToxNCAtMDcwMAo+Pj4+PiBTcmlkaGFyIFNhbXVkcmFsYSA8c3JpZGhhci5z
-YW11ZHJhbGFAaW50ZWwuY29tPiB3cm90ZToKPj4+Pj4+IC0tLSBhL2RyaXZlcnMvbmV0L2h5cGVy
-di9LY29uZmlnCj4+Pj4+PiArKysgYi9kcml2ZXJzL25ldC9oeXBlcnYvS2NvbmZpZwo+Pj4+Pj4g
-QEAgLTIsNSArMiw2IEBAIGNvbmZpZyBIWVBFUlZfTkVUCj4+Pj4+PiAgICAgCXRyaXN0YXRlICJN
-aWNyb3NvZnQgSHlwZXItViB2aXJ0dWFsIG5ldHdvcmsgZHJpdmVyIgo+Pj4+Pj4gICAgIAlkZXBl
-bmRzIG9uIEhZUEVSVgo+Pj4+Pj4gICAgIAlzZWxlY3QgVUNTMl9TVFJJTkcKPj4+Pj4+ICsJc2Vs
-ZWN0IEZBSUxPVkVSCj4+Pj4+IFdoZW4gSSB0YWtlIGEgd29ya2luZyBrZXJuZWwgY29uZmlnLCBh
-ZGQgdGhlIHBhdGNoZXMgdGhlbiBkbwo+Pj4+PiBtYWtlIG9sZGNvbmZpZwo+Pj4+Pgo+Pj4+PiBJ
-dCBpcyBub3QgYXV0b3NlbGVjdGluZyBGQUlMT1ZFUiwgaXQgcHJvbXB0cyBtZSBmb3IgaXQuIFRo
-aXMgbWVhbnMKPj4+Pj4gaWYgdXNlciBzYXlzIG5vIHRoZW4gYSBub24td29ya2luZyBuZXR2c2Mg
-ZGV2aWNlIGlzIG1hZGUuCj4+Pj4gSSBzZWUKPj4+PiAgICAgICBHZW5lcmljIGZhaWxvdmVyIG1v
-ZHVsZSAoRkFJTE9WRVIpIFtNL3kvP10gKE5FVykKPj4+Pgo+Pj4+IFNvIHRoZSB1c2VyIGlzIGdp
-dmVuIGFuIG9wdGlvbiB0byBlaXRoZXIgYnVpbGQgYXMgYSBNb2R1bGUgb3IgcGFydCBvZiB0aGUK
-Pj4+PiBrZXJuZWwuICduJyBpcyBub3QgYW4gb3B0aW9uLgo+Pj4gV2l0aCBtb3N0IGxpYnJhcmll
-cyB0aGVyZSBpcyBubyBwcm9tcHQgYXQgYWxsLgo+PiBOb3Qgc3VyZSB3aGF0IHlvdSBtZWFudCBi
-eSB0aGlzLgo+PiBXaXRob3V0IGFueSBwYXRjaGVzIGFwcGxpZWQsIGkgaGFkIGEgLmNvbmZpZyBm
-aWxlIHdpdGggSFlQRVJWX05FVCBjb25maWd1cmVkCj4+IGFzIGEgbW9kdWxlLgo+PiBUaGVuIGFm
-dGVyIGFwcGx5aW5nIHRoZSBmaXJzdCAyIHBhdGNoZXMgaW4gdGhpcyBzZXJpZXMsIGkgZGlkIGEK
-Pj4gICBtYWtlIG9sZGNvbmZpZwo+PiBhbmQgaSBzZWUgdGhlIGFib3ZlIHByb21wdC4KPj4KPj4g
-QXJlIHlvdSBzYXlpbmcgdGhhdCBvbiBzb21lIGRpc3Ryb3MsICdtYWtlIG9sZGNvbmZpZyBjcmVh
-dGVzIGEgLmNvbmZpZwo+PiBmaWxlIHdpdGhvdXQgYW55IHByb21wdCBhbmQgRkFJTE9WRVIgaXMg
-bm90IGdldHRpbmcgc2VsZWN0ZWQgZXZlbiB3aGVuIEhZUEVSVl9ORVQKPj4gaXMgZW5hYmxlZD8K
-Pj4KPj4KPiBXZWxsIHRoZSB0aGluZyBpcyB0aGF0IGZvciBhIHVzZXIsIGl0IG1ha2VzIG5vIHNl
-bnNlIHRvIHNlbGVjdAo+ICJGQUlMT1ZFUiIgYnkgaGFuZC4gSXQgaXMgYSBsaWIsIHNvIGl0IHNo
-b3VsZCBiZSBvbmx5IHNlbGVjdCBpdCBieSBhCj4gdXNlci4gSXQgaGFzIG5vIHNlbnNlIHRvIGhh
-dmUgaXQgdHVybmVkIG9uIGJ5IGhhbmQgLSBubyBsaWIgdXNlci4KPiBZb3UgY2FuIGFjaGlldmUg
-dGhhdCBieSBzaW1wbHkgcmVtb3ZpbmcgImhlbHAiIGZvciB0aGUgS2NvbmZpZwo+IGl0ZW0uIFNh
-bWUgdGhpbmcgZm9yICJORVRfRkFJTE9WRVIiLgoKSSBwbGF5ZWQgYXJvdW5kIHdpdGggdGhlIENP
-TkZJRyBvcHRpb25zIGFuZCBpIHNlZSB0aGF0IEZBSUxPVkVSIG9wdGlvbnMgZG8KZ2V0IHNlbGVj
-dGVkIGNvcnJlY3RseSB3aGVuIHZpcnRpby1uZXQvbmV0dnNjIGFyZSBlbmFibGVkLsKgIEV2ZW4g
-aWYgdGhlIEZBSUxPVkVSCmlzIHR1cm5lZCBvZmYgYnkgdGhlIHVzZXIgYmVmb3JlIHRoZSBoeXBl
-cnYtbmV0L3ZpcnRpby1uZXQgcGF0Y2hlcyBhcmUgYXBwbGllZCwKaXQgZ2V0cyBzZWxlY3RlZCBh
-dXRvbWF0aWNhbGx5IHdoZW4gaHlwZXJ2LW5ldC92aXJ0aW8tbmV0IHBhdGNoZXMgYXJlIGFwcGxp
-ZWQgYW5kCmVuYWJsZWQgaW4gY29uZmlnLgoKSWYgd2UgZG9uJ3Qgd2FudCB0byBhbGxvdyB0aGUg
-dXNlciB0byBzZWUgdGhlc2Ugb3B0aW9ucywgdGhlbiBpIHRoaW5rIHdlIG5lZWQgdG8KcmVtb3Zl
-IHRoZW0gZnJvbSBLY29uZmlnIGZpbGVzLsKgIEp1c3QgcmVtb3ZpbmcgImhlbHAiIGRvZXNuJ3Qg
-c2VlbSB0byBtYWtlIGEKZGlmZmVyZW5jZS4KCkNhbiB3ZSBhZGRyZXNzIGFueSBjb25maWcgaXNz
-dWVzIChpIGRvbid0IHNlZSBhbnkgYXQgdGhpcyBwb2ludCkgYXMgYSBidWctZml4IG9uIHRvcApv
-ZiB0aGlzIHNlcmllcz8KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, 2018-05-25 at 20:45 +0300, Michael S. Tsirkin wrote:
+> On Thu, May 24, 2018 at 08:27:04AM +1000, Benjamin Herrenschmidt wrote:
+> > On Wed, 2018-05-23 at 21:50 +0300, Michael S. Tsirkin wrote:
+> > 
+> > > I re-read that discussion and I'm still unclear on the
+> > > original question, since I got several apparently
+> > > conflicting answers.
+> > > 
+> > > I asked:
+> > > 
+> > > 	Why isn't setting VIRTIO_F_IOMMU_PLATFORM on the
+> > > 	hypervisor side sufficient?
+> > 
+> > I thought I had replied to this...
+> > 
+> > There are a couple of reasons:
+> > 
+> > - First qemu doesn't know that the guest will switch to "secure mode"
+> > in advance. There is no difference between a normal and a secure
+> > partition until the partition does the magic UV call to "enter secure
+> > mode" and qemu doesn't see any of it. So who can set the flag here ?
+> 
+> Not sure I understand. Just set the flag e.g. on qemu command line.
+> I might be wrong, but these secure mode things usually
+> a. require hypervisor side tricks anyway
+
+The way our secure mode architecture is designed, there doesn't need at
+this point to be any knowledge at qemu level whatsoever. Well at least
+until we do migration but that's a different kettle of fish. In any
+case, the guest starts normally (which means as a non-secure guest, and
+thus expects normal virtio, our FW today doesn't handle
+VIRTIO_F_IOMMU_PLATFORM, though granted, we can fix this), and later
+that guest issues some special Ultravisor call that turns it into a
+secure guest.
+
+There is some involvement of the hypervisor, but not qemu at this
+stage. We would very much like to avoid that, as it would be a hassle
+for users to have to use different libvirt options etc... bcs the guest
+might turn itself into a secure VM.
+
+> > - Second, when using VIRTIO_F_IOMMU_PLATFORM, we also make qemu (or
+> > vhost) go through the emulated MMIO for every access to the guest,
+> > which adds additional overhead.
+> > 
+> > Cheers,
+> > Ben.
+> 
+> Well it's not supposed to be much slower for the static case.
+> 
+> vhost has a cache so should be fine.
+> 
+> A while ago Paolo implemented a translation cache which should be
+> perfect for this case - most of the code got merged but
+> never enabled because of stability issues.
+> 
+> If all else fails, we could teach QEMU to handle the no-iommu case
+> as if VIRTIO_F_IOMMU_PLATFORM was off.
+
+Any serious reason why not just getting that 2 line patch allowing our
+arch code to force virtio to use the DMA API ?
+
+It's not particularly invasive and solves our problem rather nicely
+without adding overhead or additional knowledge to qemu/libvirt/mgmnt
+tools etc... that it doesn't need etc....
+
+The guest knows it's going secure so the guest arch code can do the
+right thing rather trivially.
+
+Long term we should probably make virtio always use the DMA API anyway,
+and interpose "1:1" dma_ops for the traditional virtio case, that would
+reduce code clutter significantly. In that case, it would become just a
+matter of having a platform hook to override the dma_ops used.
+
+Cheers,
+Ben.
+
+> 
+> 
+> > > 
+> > > 
+> > > >  arch/powerpc/include/asm/dma-mapping.h |  6 ++++++
+> > > >  arch/powerpc/platforms/pseries/iommu.c | 11 +++++++++++
+> > > >  drivers/virtio/virtio_ring.c           | 10 ++++++++++
+> > > >  3 files changed, 27 insertions(+)
+> > > > 
+> > > > diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
+> > > > index 8fa3945..056e578 100644
+> > > > --- a/arch/powerpc/include/asm/dma-mapping.h
+> > > > +++ b/arch/powerpc/include/asm/dma-mapping.h
+> > > > @@ -115,4 +115,10 @@ extern u64 __dma_get_required_mask(struct device *dev);
+> > > >  #define ARCH_HAS_DMA_MMAP_COHERENT
+> > > >  
+> > > >  #endif /* __KERNEL__ */
+> > > > +
+> > > > +#define platform_forces_virtio_dma platform_forces_virtio_dma
+> > > > +
+> > > > +struct virtio_device;
+> > > > +
+> > > > +extern bool platform_forces_virtio_dma(struct virtio_device *vdev);
+> > > >  #endif	/* _ASM_DMA_MAPPING_H */
+> > > > diff --git a/arch/powerpc/platforms/pseries/iommu.c b/arch/powerpc/platforms/pseries/iommu.c
+> > > > index 06f0296..a2ec15a 100644
+> > > > --- a/arch/powerpc/platforms/pseries/iommu.c
+> > > > +++ b/arch/powerpc/platforms/pseries/iommu.c
+> > > > @@ -38,6 +38,7 @@
+> > > >  #include <linux/of.h>
+> > > >  #include <linux/iommu.h>
+> > > >  #include <linux/rculist.h>
+> > > > +#include <linux/virtio.h>
+> > > >  #include <asm/io.h>
+> > > >  #include <asm/prom.h>
+> > > >  #include <asm/rtas.h>
+> > > > @@ -1396,3 +1397,13 @@ static int __init disable_multitce(char *str)
+> > > >  __setup("multitce=", disable_multitce);
+> > > >  
+> > > >  machine_subsys_initcall_sync(pseries, tce_iommu_bus_notifier_init);
+> > > > +
+> > > > +bool platform_forces_virtio_dma(struct virtio_device *vdev)
+> > > > +{
+> > > > +	/*
+> > > > +	 * On protected guest platforms, force virtio core to use DMA
+> > > > +	 * MAP API for all virtio devices. But there can also be some
+> > > > +	 * exceptions for individual devices like virtio balloon.
+> > > > +	 */
+> > > > +	return (of_find_compatible_node(NULL, NULL, "ibm,ultravisor") != NULL);
+> > > > +}
+> > > 
+> > > Isn't this kind of slow?  vring_use_dma_api is on
+> > > data path and supposed to be very fast.
+> > > 
+> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > > > index 21d464a..47ea6c3 100644
+> > > > --- a/drivers/virtio/virtio_ring.c
+> > > > +++ b/drivers/virtio/virtio_ring.c
+> > > > @@ -141,8 +141,18 @@ struct vring_virtqueue {
+> > > >   * unconditionally on data path.
+> > > >   */
+> > > >  
+> > > > +#ifndef platform_forces_virtio_dma
+> > > > +static inline bool platform_forces_virtio_dma(struct virtio_device *vdev)
+> > > > +{
+> > > > +	return false;
+> > > > +}
+> > > > +#endif
+> > > > +
+> > > >  static bool vring_use_dma_api(struct virtio_device *vdev)
+> > > >  {
+> > > > +	if (platform_forces_virtio_dma(vdev))
+> > > > +		return true;
+> > > > +
+> > > >  	if (!virtio_has_iommu_quirk(vdev))
+> > > >  		return true;
+> > > >  
+> > > > -- 
+> > > > 2.9.3
