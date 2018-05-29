@@ -1,20 +1,15 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
-	virito devices
-Date: Tue, 29 May 2018 07:03:19 -0700
-Message-ID: <20180529140319.GA19972__26999.1683112041$1527602503$gmane$org@infradead.org>
-References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
-	<20180523213703-mutt-send-email-mst@kernel.org>
-	<f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
-	<20180525202300-mutt-send-email-mst@kernel.org>
-	<6fff9f5d67361653e6072570a857cf0d1009a123.camel@kernel.crashing.org>
-	<2f1d48cf029c1f0903f3cffea946ae5b85f60ec0.camel@kernel.crashing.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net] vhost_net: flush batched heads before trying to busy
+	polling
+Date: Tue, 29 May 2018 18:27:51 +0300
+Message-ID: <20180529182745-mutt-send-email-mst__48156.2291658067$1527607572$gmane$org@kernel.org>
+References: <1527574699-13047-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <2f1d48cf029c1f0903f3cffea946ae5b85f60ec0.camel@kernel.crashing.org>
+In-Reply-To: <1527574699-13047-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,31 +19,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: robh@kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, luto@kernel.org, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 29, 2018 at 09:56:24AM +1000, Benjamin Herrenschmidt wrote:
-> I don't think forcing the addition of an emulated iommu in the middle
-> just to work around the fact that virtio "cheats" and doesn't use the
-> dma API unless there is one, is the right "fix".
+On Tue, May 29, 2018 at 02:18:19PM +0800, Jason Wang wrote:
+> After commit e2b3b35eb989 ("vhost_net: batch used ring update in rx"),
+> we tend to batch updating used heads. But it doesn't flush batched
+> heads before trying to do busy polling, this will cause vhost to wait
+> for guest TX which waits for the used RX. Fixing by flush batched
+> heads before busy loop.
+> 
+> 1 byte TCP_RR performance recovers from 13107.83 to 50402.65.
+> 
+> Fixes: e2b3b35eb989 ("vhost_net: batch used ring update in rx")
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Agreed.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-> The right long term fix is to always use the DMA API, reducing code
-> path etc... and just have a single point where virtio can "chose"
-> alternate DMA ops (via an arch hook to deal with our case).
-
-Also agreed.
-
-When Andi added vring_use_dma_api it was marked as temporary.
-
-So I'd much rather move to blacklisting platforms that needs this
-hack now than adding another exception.
-
-And then once we have the blacklist move it to a quirk in the arch
-code that just forces dma_direct_ops as the per-device dma ops.
-
-I don't really think this is crazy long term, but something we could
-do relatively quickly.  Interestingly enough the original commit
-mentions PPC64 as a case where this quirk is needed.
+> ---
+>  drivers/vhost/net.c | 37 ++++++++++++++++++++++++-------------
+>  1 file changed, 24 insertions(+), 13 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 986058a..eeaf673 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -105,7 +105,9 @@ struct vhost_net_virtqueue {
+>  	/* vhost zerocopy support fields below: */
+>  	/* last used idx for outstanding DMA zerocopy buffers */
+>  	int upend_idx;
+> -	/* first used idx for DMA done zerocopy buffers */
+> +	/* For TX, first used idx for DMA done zerocopy buffers
+> +	 * For RX, number of batched heads
+> +	 */
+>  	int done_idx;
+>  	/* an array of userspace buffers info */
+>  	struct ubuf_info *ubuf_info;
+> @@ -626,6 +628,18 @@ static int sk_has_rx_data(struct sock *sk)
+>  	return skb_queue_empty(&sk->sk_receive_queue);
+>  }
+>  
+> +static void vhost_rx_signal_used(struct vhost_net_virtqueue *nvq)
+> +{
+> +	struct vhost_virtqueue *vq = &nvq->vq;
+> +	struct vhost_dev *dev = vq->dev;
+> +
+> +	if (!nvq->done_idx)
+> +		return;
+> +
+> +	vhost_add_used_and_signal_n(dev, vq, vq->heads, nvq->done_idx);
+> +	nvq->done_idx = 0;
+> +}
+> +
+>  static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
+>  {
+>  	struct vhost_net_virtqueue *rvq = &net->vqs[VHOST_NET_VQ_RX];
+> @@ -635,6 +649,8 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
+>  	int len = peek_head_len(rvq, sk);
+>  
+>  	if (!len && vq->busyloop_timeout) {
+> +		/* Flush batched heads first */
+> +		vhost_rx_signal_used(rvq);
+>  		/* Both tx vq and rx socket were polled here */
+>  		mutex_lock_nested(&vq->mutex, 1);
+>  		vhost_disable_notify(&net->dev, vq);
+> @@ -762,7 +778,7 @@ static void handle_rx(struct vhost_net *net)
+>  	};
+>  	size_t total_len = 0;
+>  	int err, mergeable;
+> -	s16 headcount, nheads = 0;
+> +	s16 headcount;
+>  	size_t vhost_hlen, sock_hlen;
+>  	size_t vhost_len, sock_len;
+>  	struct socket *sock;
+> @@ -790,8 +806,8 @@ static void handle_rx(struct vhost_net *net)
+>  	while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk))) {
+>  		sock_len += sock_hlen;
+>  		vhost_len = sock_len + vhost_hlen;
+> -		headcount = get_rx_bufs(vq, vq->heads + nheads, vhost_len,
+> -					&in, vq_log, &log,
+> +		headcount = get_rx_bufs(vq, vq->heads + nvq->done_idx,
+> +					vhost_len, &in, vq_log, &log,
+>  					likely(mergeable) ? UIO_MAXIOV : 1);
+>  		/* On error, stop handling until the next kick. */
+>  		if (unlikely(headcount < 0))
+> @@ -862,12 +878,9 @@ static void handle_rx(struct vhost_net *net)
+>  			vhost_discard_vq_desc(vq, headcount);
+>  			goto out;
+>  		}
+> -		nheads += headcount;
+> -		if (nheads > VHOST_RX_BATCH) {
+> -			vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
+> -						    nheads);
+> -			nheads = 0;
+> -		}
+> +		nvq->done_idx += headcount;
+> +		if (nvq->done_idx > VHOST_RX_BATCH)
+> +			vhost_rx_signal_used(nvq);
+>  		if (unlikely(vq_log))
+>  			vhost_log_write(vq, vq_log, log, vhost_len);
+>  		total_len += vhost_len;
+> @@ -878,9 +891,7 @@ static void handle_rx(struct vhost_net *net)
+>  	}
+>  	vhost_net_enable_vq(net, vq);
+>  out:
+> -	if (nheads)
+> -		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
+> -					    nheads);
+> +	vhost_rx_signal_used(nvq);
+>  	mutex_unlock(&vq->mutex);
+>  }
+>  
+> -- 
+> 2.7.4
