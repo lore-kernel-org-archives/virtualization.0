@@ -1,15 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC v5 3/5] virtio_ring: add packed ring support
-Date: Tue, 29 May 2018 11:18:57 +0800
-Message-ID: <30bd7505-0ded-8584-e9ab-152756a667d6__16884.1369137683$1527563855$gmane$org@redhat.com>
-References: <20180522081648.14768-1-tiwei.bie@intel.com>
-	<20180522081648.14768-4-tiwei.bie@intel.com>
+From: Changpeng Liu <changpeng.liu@intel.com>
+Subject: [PATCH v5] virtio_blk: add DISCARD and WRIET ZEROES commands support
+Date: Tue, 29 May 2018 12:23:34 +0800
+Message-ID: <1527567814-4415-1-git-send-email-changpeng.liu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180522081648.14768-4-tiwei.bie@intel.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,296 +15,303 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: wexu@redhat.com
+To: virtualization@lists.linux-foundation.org, changpeng.liu@intel.com
+Cc: pbonzini@redhat.com, cavery@redhat.com, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDXmnIgyMuaXpSAxNjoxNiwgVGl3ZWkgQmllIHdyb3RlOgo+IFRoaXMgY29t
-bWl0IGludHJvZHVjZXMgdGhlIHN1cHBvcnQgKHdpdGhvdXQgRVZFTlRfSURYKSBmb3IKPiBwYWNr
-ZWQgcmluZy4KPgo+IFNpZ25lZC1vZmYtYnk6IFRpd2VpIEJpZSA8dGl3ZWkuYmllQGludGVsLmNv
-bT4KPiAtLS0KPiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgfCA0NzQgKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKy0KPiAgIDEgZmlsZSBjaGFuZ2VkLCA0NjggaW5zZXJ0
-aW9ucygrKSwgNiBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92
-aXJ0aW9fcmluZy5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+IGluZGV4IGY1ZWY1
-ZjQyYTdjZi4uZWI5ZmQ1MjA3YTY4IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRp
-b19yaW5nLmMKPiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gQEAgLTYyLDYg
-KzYyLDEyIEBAIHN0cnVjdCB2cmluZ19kZXNjX3N0YXRlIHsKPiAgIH07Cj4gICAKPiAgIHN0cnVj
-dCB2cmluZ19kZXNjX3N0YXRlX3BhY2tlZCB7Cj4gKwl2b2lkICpkYXRhOwkJCS8qIERhdGEgZm9y
-IGNhbGxiYWNrLiAqLwo+ICsJc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjICppbmRpcl9kZXNjOyAv
-KiBJbmRpcmVjdCBkZXNjcmlwdG9yLCBpZiBhbnkuICovCj4gKwlpbnQgbnVtOwkJCS8qIERlc2Ny
-aXB0b3IgbGlzdCBsZW5ndGguICovCj4gKwlkbWFfYWRkcl90IGFkZHI7CQkvKiBCdWZmZXIgRE1B
-IGFkZHIuICovCj4gKwl1MzIgbGVuOwkJCS8qIEJ1ZmZlciBsZW5ndGguICovCj4gKwl1MTYgZmxh
-Z3M7CQkJLyogRGVzY3JpcHRvciBmbGFncy4gKi8KPiAgIAlpbnQgbmV4dDsJCQkvKiBUaGUgbmV4
-dCBkZXNjIHN0YXRlLiAqLwo+ICAgfTsKPiAgIAo+IEBAIC03NTgsNiArNzY0LDcyIEBAIHN0YXRp
-YyBpbmxpbmUgdW5zaWduZWQgdnJpbmdfc2l6ZV9wYWNrZWQodW5zaWduZWQgaW50IG51bSwgdW5z
-aWduZWQgbG9uZyBhbGlnbikKPiAgIAkJJiB+KGFsaWduIC0gMSkpICsgc2l6ZW9mKHN0cnVjdCB2
-cmluZ19wYWNrZWRfZGVzY19ldmVudCkgKiAyOwo+ICAgfQo+ICAgCj4gK3N0YXRpYyB2b2lkIHZy
-aW5nX3VubWFwX3N0YXRlX3BhY2tlZChjb25zdCBzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSwK
-PiArCQkJCSAgICAgc3RydWN0IHZyaW5nX2Rlc2Nfc3RhdGVfcGFja2VkICpzdGF0ZSkKPiArewo+
-ICsJdTE2IGZsYWdzOwo+ICsKPiArCWlmICghdnJpbmdfdXNlX2RtYV9hcGkodnEtPnZxLnZkZXYp
-KQo+ICsJCXJldHVybjsKPiArCj4gKwlmbGFncyA9IHN0YXRlLT5mbGFnczsKPiArCj4gKwlpZiAo
-ZmxhZ3MgJiBWUklOR19ERVNDX0ZfSU5ESVJFQ1QpIHsKPiArCQlkbWFfdW5tYXBfc2luZ2xlKHZy
-aW5nX2RtYV9kZXYodnEpLAo+ICsJCQkJIHN0YXRlLT5hZGRyLCBzdGF0ZS0+bGVuLAo+ICsJCQkJ
-IChmbGFncyAmIFZSSU5HX0RFU0NfRl9XUklURSkgPwo+ICsJCQkJIERNQV9GUk9NX0RFVklDRSA6
-IERNQV9UT19ERVZJQ0UpOwo+ICsJfSBlbHNlIHsKPiArCQlkbWFfdW5tYXBfcGFnZSh2cmluZ19k
-bWFfZGV2KHZxKSwKPiArCQkJICAgICAgIHN0YXRlLT5hZGRyLCBzdGF0ZS0+bGVuLAo+ICsJCQkg
-ICAgICAgKGZsYWdzICYgVlJJTkdfREVTQ19GX1dSSVRFKSA/Cj4gKwkJCSAgICAgICBETUFfRlJP
-TV9ERVZJQ0UgOiBETUFfVE9fREVWSUNFKTsKPiArCX0KPiArfQo+ICsKPiArc3RhdGljIHZvaWQg
-dnJpbmdfdW5tYXBfZGVzY19wYWNrZWQoY29uc3Qgc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEs
-Cj4gKwkJCQkgICBzdHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2MgKmRlc2MpCj4gK3sKPiArCXUxNiBm
-bGFnczsKPiArCj4gKwlpZiAoIXZyaW5nX3VzZV9kbWFfYXBpKHZxLT52cS52ZGV2KSkKPiArCQly
-ZXR1cm47Cj4gKwo+ICsJZmxhZ3MgPSB2aXJ0aW8xNl90b19jcHUodnEtPnZxLnZkZXYsIGRlc2Mt
-PmZsYWdzKTsKPiArCj4gKwlpZiAoZmxhZ3MgJiBWUklOR19ERVNDX0ZfSU5ESVJFQ1QpIHsKPiAr
-CQlkbWFfdW5tYXBfc2luZ2xlKHZyaW5nX2RtYV9kZXYodnEpLAo+ICsJCQkJIHZpcnRpbzY0X3Rv
-X2NwdSh2cS0+dnEudmRldiwgZGVzYy0+YWRkciksCj4gKwkJCQkgdmlydGlvMzJfdG9fY3B1KHZx
-LT52cS52ZGV2LCBkZXNjLT5sZW4pLAo+ICsJCQkJIChmbGFncyAmIFZSSU5HX0RFU0NfRl9XUklU
-RSkgPwo+ICsJCQkJIERNQV9GUk9NX0RFVklDRSA6IERNQV9UT19ERVZJQ0UpOwo+ICsJfSBlbHNl
-IHsKPiArCQlkbWFfdW5tYXBfcGFnZSh2cmluZ19kbWFfZGV2KHZxKSwKPiArCQkJICAgICAgIHZp
-cnRpbzY0X3RvX2NwdSh2cS0+dnEudmRldiwgZGVzYy0+YWRkciksCj4gKwkJCSAgICAgICB2aXJ0
-aW8zMl90b19jcHUodnEtPnZxLnZkZXYsIGRlc2MtPmxlbiksCj4gKwkJCSAgICAgICAoZmxhZ3Mg
-JiBWUklOR19ERVNDX0ZfV1JJVEUpID8KPiArCQkJICAgICAgIERNQV9GUk9NX0RFVklDRSA6IERN
-QV9UT19ERVZJQ0UpOwo+ICsJfQo+ICt9Cj4gKwo+ICtzdGF0aWMgc3RydWN0IHZyaW5nX3BhY2tl
-ZF9kZXNjICphbGxvY19pbmRpcmVjdF9wYWNrZWQoc3RydWN0IHZpcnRxdWV1ZSAqX3ZxLAo+ICsJ
-CQkJCQkgICAgICAgdW5zaWduZWQgaW50IHRvdGFsX3NnLAo+ICsJCQkJCQkgICAgICAgZ2ZwX3Qg
-Z2ZwKQo+ICt7Cj4gKwlzdHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2MgKmRlc2M7Cj4gKwo+ICsJLyoK
-PiArCSAqIFdlIHJlcXVpcmUgbG93bWVtIG1hcHBpbmdzIGZvciB0aGUgZGVzY3JpcHRvcnMgYmVj
-YXVzZQo+ICsJICogb3RoZXJ3aXNlIHZpcnRfdG9fcGh5cyB3aWxsIGdpdmUgdXMgYm9ndXMgYWRk
-cmVzc2VzIGluIHRoZQo+ICsJICogdmlydHF1ZXVlLgo+ICsJICovCj4gKwlnZnAgJj0gfl9fR0ZQ
-X0hJR0hNRU07Cj4gKwo+ICsJZGVzYyA9IGttYWxsb2ModG90YWxfc2cgKiBzaXplb2Yoc3RydWN0
-IHZyaW5nX3BhY2tlZF9kZXNjKSwgZ2ZwKTsKPiArCj4gKwlyZXR1cm4gZGVzYzsKPiArfQo+ICsK
-PiAgIHN0YXRpYyBpbmxpbmUgaW50IHZpcnRxdWV1ZV9hZGRfcGFja2VkKHN0cnVjdCB2aXJ0cXVl
-dWUgKl92cSwKPiAgIAkJCQkgICAgICAgc3RydWN0IHNjYXR0ZXJsaXN0ICpzZ3NbXSwKPiAgIAkJ
-CQkgICAgICAgdW5zaWduZWQgaW50IHRvdGFsX3NnLAo+IEBAIC03NjcsNDcgKzgzOSw0MzcgQEAg
-c3RhdGljIGlubGluZSBpbnQgdmlydHF1ZXVlX2FkZF9wYWNrZWQoc3RydWN0IHZpcnRxdWV1ZSAq
-X3ZxLAo+ICAgCQkJCSAgICAgICB2b2lkICpjdHgsCj4gICAJCQkJICAgICAgIGdmcF90IGdmcCkK
-PiAgIHsKPiArCXN0cnVjdCB2cmluZ192aXJ0cXVldWUgKnZxID0gdG9fdnZxKF92cSk7Cj4gKwlz
-dHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2MgKmRlc2M7Cj4gKwlzdHJ1Y3Qgc2NhdHRlcmxpc3QgKnNn
-Owo+ICsJdW5zaWduZWQgaW50IGksIG4sIGRlc2NzX3VzZWQsIHVuaW5pdGlhbGl6ZWRfdmFyKHBy
-ZXYpLCBlcnJfaWR4Owo+ICsJX192aXJ0aW8xNiB1bmluaXRpYWxpemVkX3ZhcihoZWFkX2ZsYWdz
-KSwgZmxhZ3M7Cj4gKwl1MTYgaGVhZCwgYXZhaWxfd3JhcF9jb3VudGVyLCBpZCwgY3VyOwo+ICsJ
-Ym9vbCBpbmRpcmVjdDsKPiArCj4gKwlTVEFSVF9VU0UodnEpOwo+ICsKPiArCUJVR19PTihkYXRh
-ID09IE5VTEwpOwo+ICsJQlVHX09OKGN0eCAmJiB2cS0+aW5kaXJlY3QpOwo+ICsKPiArCWlmICh1
-bmxpa2VseSh2cS0+YnJva2VuKSkgewo+ICsJCUVORF9VU0UodnEpOwo+ICsJCXJldHVybiAtRUlP
-Owo+ICsJfQo+ICsKPiArI2lmZGVmIERFQlVHCj4gKwl7Cj4gKwkJa3RpbWVfdCBub3cgPSBrdGlt
-ZV9nZXQoKTsKPiArCj4gKwkJLyogTm8ga2ljayBvciBnZXQsIHdpdGggLjEgc2Vjb25kIGJldHdl
-ZW4/ICBXYXJuLiAqLwo+ICsJCWlmICh2cS0+bGFzdF9hZGRfdGltZV92YWxpZCkKPiArCQkJV0FS
-Tl9PTihrdGltZV90b19tcyhrdGltZV9zdWIobm93LCB2cS0+bGFzdF9hZGRfdGltZSkpCj4gKwkJ
-CQkJICAgID4gMTAwKTsKPiArCQl2cS0+bGFzdF9hZGRfdGltZSA9IG5vdzsKPiArCQl2cS0+bGFz
-dF9hZGRfdGltZV92YWxpZCA9IHRydWU7Cj4gKwl9Cj4gKyNlbmRpZgo+ICsKPiArCUJVR19PTih0
-b3RhbF9zZyA9PSAwKTsKPiArCj4gKwloZWFkID0gdnEtPm5leHRfYXZhaWxfaWR4Owo+ICsJYXZh
-aWxfd3JhcF9jb3VudGVyID0gdnEtPmF2YWlsX3dyYXBfY291bnRlcjsKPiArCj4gKwlpZiAodmly
-dHF1ZXVlX3VzZV9pbmRpcmVjdChfdnEsIHRvdGFsX3NnKSkKPiArCQlkZXNjID0gYWxsb2NfaW5k
-aXJlY3RfcGFja2VkKF92cSwgdG90YWxfc2csIGdmcCk7Cj4gKwllbHNlIHsKPiArCQlkZXNjID0g
-TlVMTDsKPiArCQlXQVJOX09OX09OQ0UodG90YWxfc2cgPiB2cS0+dnJpbmdfcGFja2VkLm51bSAm
-JiAhdnEtPmluZGlyZWN0KTsKPiArCX0KPiArCj4gKwlpZiAoZGVzYykgewo+ICsJCS8qIFVzZSBh
-IHNpbmdsZSBidWZmZXIgd2hpY2ggZG9lc24ndCBjb250aW51ZSAqLwo+ICsJCWluZGlyZWN0ID0g
-dHJ1ZTsKPiArCQkvKiBTZXQgdXAgcmVzdCB0byB1c2UgdGhpcyBpbmRpcmVjdCB0YWJsZS4gKi8K
-PiArCQlpID0gMDsKPiArCQlkZXNjc191c2VkID0gMTsKPiArCX0gZWxzZSB7Cj4gKwkJaW5kaXJl
-Y3QgPSBmYWxzZTsKPiArCQlkZXNjID0gdnEtPnZyaW5nX3BhY2tlZC5kZXNjOwo+ICsJCWkgPSBo
-ZWFkOwo+ICsJCWRlc2NzX3VzZWQgPSB0b3RhbF9zZzsKPiArCX0KPiArCj4gKwlpZiAodnEtPnZx
-Lm51bV9mcmVlIDwgZGVzY3NfdXNlZCkgewo+ICsJCXByX2RlYnVnKCJDYW4ndCBhZGQgYnVmIGxl
-biAlaSAtIGF2YWlsID0gJWlcbiIsCj4gKwkJCSBkZXNjc191c2VkLCB2cS0+dnEubnVtX2ZyZWUp
-Owo+ICsJCS8qIEZJWE1FOiBmb3IgaGlzdG9yaWNhbCByZWFzb25zLCB3ZSBmb3JjZSBhIG5vdGlm
-eSBoZXJlIGlmCj4gKwkJICogdGhlcmUgYXJlIG91dGdvaW5nIHBhcnRzIHRvIHRoZSBidWZmZXIu
-ICBQcmVzdW1hYmx5IHRoZQo+ICsJCSAqIGhvc3Qgc2hvdWxkIHNlcnZpY2UgdGhlIHJpbmcgQVNB
-UC4gKi8KPiArCQlpZiAob3V0X3NncykKPiArCQkJdnEtPm5vdGlmeSgmdnEtPnZxKTsKPiArCQlp
-ZiAoaW5kaXJlY3QpCj4gKwkJCWtmcmVlKGRlc2MpOwo+ICsJCUVORF9VU0UodnEpOwo+ICsJCXJl
-dHVybiAtRU5PU1BDOwo+ICsJfQo+ICsKPiArCWlkID0gdnEtPmZyZWVfaGVhZDsKPiArCUJVR19P
-TihpZCA9PSB2cS0+dnJpbmdfcGFja2VkLm51bSk7Cj4gKwo+ICsJY3VyID0gaWQ7Cj4gKwlmb3Ig
-KG4gPSAwOyBuIDwgb3V0X3NncyArIGluX3NnczsgbisrKSB7Cj4gKwkJZm9yIChzZyA9IHNnc1tu
-XTsgc2c7IHNnID0gc2dfbmV4dChzZykpIHsKPiArCQkJZG1hX2FkZHJfdCBhZGRyID0gdnJpbmdf
-bWFwX29uZV9zZyh2cSwgc2csIG4gPCBvdXRfc2dzID8KPiArCQkJCQkgICAgICAgRE1BX1RPX0RF
-VklDRSA6IERNQV9GUk9NX0RFVklDRSk7Cj4gKwkJCWlmICh2cmluZ19tYXBwaW5nX2Vycm9yKHZx
-LCBhZGRyKSkKPiArCQkJCWdvdG8gdW5tYXBfcmVsZWFzZTsKPiArCj4gKwkJCWZsYWdzID0gY3B1
-X3RvX3ZpcnRpbzE2KF92cS0+dmRldiwgVlJJTkdfREVTQ19GX05FWFQgfAo+ICsJCQkJICAobiA8
-IG91dF9zZ3MgPyAwIDogVlJJTkdfREVTQ19GX1dSSVRFKSB8Cj4gKwkJCQkgIFZSSU5HX0RFU0Nf
-Rl9BVkFJTCh2cS0+YXZhaWxfd3JhcF9jb3VudGVyKSB8Cj4gKwkJCQkgIFZSSU5HX0RFU0NfRl9V
-U0VEKCF2cS0+YXZhaWxfd3JhcF9jb3VudGVyKSk7Cj4gKwkJCWlmICghaW5kaXJlY3QgJiYgaSA9
-PSBoZWFkKQo+ICsJCQkJaGVhZF9mbGFncyA9IGZsYWdzOwo+ICsJCQllbHNlCj4gKwkJCQlkZXNj
-W2ldLmZsYWdzID0gZmxhZ3M7Cj4gKwo+ICsJCQlkZXNjW2ldLmFkZHIgPSBjcHVfdG9fdmlydGlv
-NjQoX3ZxLT52ZGV2LCBhZGRyKTsKPiArCQkJZGVzY1tpXS5sZW4gPSBjcHVfdG9fdmlydGlvMzIo
-X3ZxLT52ZGV2LCBzZy0+bGVuZ3RoKTsKPiArCQkJaSsrOwo+ICsJCQlpZiAoIWluZGlyZWN0KSB7
-Cj4gKwkJCQl2cS0+ZGVzY19zdGF0ZV9wYWNrZWRbY3VyXS5hZGRyID0gYWRkcjsKPiArCQkJCXZx
-LT5kZXNjX3N0YXRlX3BhY2tlZFtjdXJdLmxlbiA9IHNnLT5sZW5ndGg7Cj4gKwkJCQl2cS0+ZGVz
-Y19zdGF0ZV9wYWNrZWRbY3VyXS5mbGFncyA9Cj4gKwkJCQkJdmlydGlvMTZfdG9fY3B1KF92cS0+
-dmRldiwgZmxhZ3MpOwo+ICsJCQkJY3VyID0gdnEtPmRlc2Nfc3RhdGVfcGFja2VkW2N1cl0ubmV4
-dDsKPiArCj4gKwkJCQlpZiAoaSA+PSB2cS0+dnJpbmdfcGFja2VkLm51bSkgewo+ICsJCQkJCWkg
-PSAwOwo+ICsJCQkJCXZxLT5hdmFpbF93cmFwX2NvdW50ZXIgXj0gMTsKPiArCQkJCX0KPiArCQkJ
-fQo+ICsJCX0KPiArCX0KPiArCj4gKwlwcmV2ID0gKGkgPiAwID8gaSA6IHZxLT52cmluZ19wYWNr
-ZWQubnVtKSAtIDE7Cj4gKwlkZXNjW3ByZXZdLmlkID0gY3B1X3RvX3ZpcnRpbzE2KF92cS0+dmRl
-diwgaWQpOwo+ICsKPiArCS8qIExhc3Qgb25lIGRvZXNuJ3QgY29udGludWUuICovCj4gKwlpZiAo
-dG90YWxfc2cgPT0gMSkKPiArCQloZWFkX2ZsYWdzICY9IGNwdV90b192aXJ0aW8xNihfdnEtPnZk
-ZXYsIH5WUklOR19ERVNDX0ZfTkVYVCk7Cj4gKwllbHNlCj4gKwkJZGVzY1twcmV2XS5mbGFncyAm
-PSBjcHVfdG9fdmlydGlvMTYoX3ZxLT52ZGV2LAo+ICsJCQkJCQl+VlJJTkdfREVTQ19GX05FWFQp
-Owo+ICsKPiArCWlmIChpbmRpcmVjdCkgewo+ICsJCS8qIE5vdyB0aGF0IHRoZSBpbmRpcmVjdCB0
-YWJsZSBpcyBmaWxsZWQgaW4sIG1hcCBpdC4gKi8KPiArCQlkbWFfYWRkcl90IGFkZHIgPSB2cmlu
-Z19tYXBfc2luZ2xlKAo+ICsJCQl2cSwgZGVzYywgdG90YWxfc2cgKiBzaXplb2Yoc3RydWN0IHZy
-aW5nX3BhY2tlZF9kZXNjKSwKPiArCQkJRE1BX1RPX0RFVklDRSk7Cj4gKwkJaWYgKHZyaW5nX21h
-cHBpbmdfZXJyb3IodnEsIGFkZHIpKQo+ICsJCQlnb3RvIHVubWFwX3JlbGVhc2U7Cj4gKwo+ICsJ
-CWhlYWRfZmxhZ3MgPSBjcHVfdG9fdmlydGlvMTYoX3ZxLT52ZGV2LCBWUklOR19ERVNDX0ZfSU5E
-SVJFQ1QgfAo+ICsJCQkJICAgICAgIFZSSU5HX0RFU0NfRl9BVkFJTChhdmFpbF93cmFwX2NvdW50
-ZXIpIHwKPiArCQkJCSAgICAgICBWUklOR19ERVNDX0ZfVVNFRCghYXZhaWxfd3JhcF9jb3VudGVy
-KSk7Cj4gKwkJdnEtPnZyaW5nX3BhY2tlZC5kZXNjW2hlYWRdLmFkZHIgPSBjcHVfdG9fdmlydGlv
-NjQoX3ZxLT52ZGV2LAo+ICsJCQkJCQkJCSAgIGFkZHIpOwo+ICsJCXZxLT52cmluZ19wYWNrZWQu
-ZGVzY1toZWFkXS5sZW4gPSBjcHVfdG9fdmlydGlvMzIoX3ZxLT52ZGV2LAo+ICsJCQkJdG90YWxf
-c2cgKiBzaXplb2Yoc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjKSk7Cj4gKwkJdnEtPnZyaW5nX3Bh
-Y2tlZC5kZXNjW2hlYWRdLmlkID0gY3B1X3RvX3ZpcnRpbzE2KF92cS0+dmRldiwgaWQpOwo+ICsK
-PiArCQl2cS0+ZGVzY19zdGF0ZV9wYWNrZWRbaWRdLmFkZHIgPSBhZGRyOwo+ICsJCXZxLT5kZXNj
-X3N0YXRlX3BhY2tlZFtpZF0ubGVuID0gdG90YWxfc2cgKgo+ICsJCQkJc2l6ZW9mKHN0cnVjdCB2
-cmluZ19wYWNrZWRfZGVzYyk7Cj4gKwkJdnEtPmRlc2Nfc3RhdGVfcGFja2VkW2lkXS5mbGFncyA9
-Cj4gKwkJCQl2aXJ0aW8xNl90b19jcHUoX3ZxLT52ZGV2LCBoZWFkX2ZsYWdzKTsKPiArCX0KPiAr
-Cj4gKwkvKiBXZSdyZSB1c2luZyBzb21lIGJ1ZmZlcnMgZnJvbSB0aGUgZnJlZSBsaXN0LiAqLwo+
-ICsJdnEtPnZxLm51bV9mcmVlIC09IGRlc2NzX3VzZWQ7Cj4gKwo+ICsJLyogVXBkYXRlIGZyZWUg
-cG9pbnRlciAqLwo+ICsJaWYgKGluZGlyZWN0KSB7Cj4gKwkJbiA9IGhlYWQgKyAxOwo+ICsJCWlm
-IChuID49IHZxLT52cmluZ19wYWNrZWQubnVtKSB7Cj4gKwkJCW4gPSAwOwo+ICsJCQl2cS0+YXZh
-aWxfd3JhcF9jb3VudGVyIF49IDE7Cj4gKwkJfQo+ICsJCXZxLT5uZXh0X2F2YWlsX2lkeCA9IG47
-Cj4gKwkJdnEtPmZyZWVfaGVhZCA9IHZxLT5kZXNjX3N0YXRlX3BhY2tlZFtpZF0ubmV4dDsKPiAr
-CX0gZWxzZSB7Cj4gKwkJdnEtPm5leHRfYXZhaWxfaWR4ID0gaTsKPiArCQl2cS0+ZnJlZV9oZWFk
-ID0gY3VyOwo+ICsJfQo+ICsKPiArCS8qIFN0b3JlIHRva2VuIGFuZCBpbmRpcmVjdCBidWZmZXIg
-c3RhdGUuICovCj4gKwl2cS0+ZGVzY19zdGF0ZV9wYWNrZWRbaWRdLm51bSA9IGRlc2NzX3VzZWQ7
-Cj4gKwl2cS0+ZGVzY19zdGF0ZV9wYWNrZWRbaWRdLmRhdGEgPSBkYXRhOwo+ICsJaWYgKGluZGly
-ZWN0KQo+ICsJCXZxLT5kZXNjX3N0YXRlX3BhY2tlZFtpZF0uaW5kaXJfZGVzYyA9IGRlc2M7Cj4g
-KwllbHNlCj4gKwkJdnEtPmRlc2Nfc3RhdGVfcGFja2VkW2lkXS5pbmRpcl9kZXNjID0gY3R4Owo+
-ICsKPiArCS8qIEEgZHJpdmVyIE1VU1QgTk9UIG1ha2UgdGhlIGZpcnN0IGRlc2NyaXB0b3IgaW4g
-dGhlIGxpc3QKPiArCSAqIGF2YWlsYWJsZSBiZWZvcmUgYWxsIHN1YnNlcXVlbnQgZGVzY3JpcHRv
-cnMgY29tcHJpc2luZwo+ICsJICogdGhlIGxpc3QgYXJlIG1hZGUgYXZhaWxhYmxlLiAqLwo+ICsJ
-dmlydGlvX3dtYih2cS0+d2Vha19iYXJyaWVycyk7Cj4gKwl2cS0+dnJpbmdfcGFja2VkLmRlc2Nb
-aGVhZF0uZmxhZ3MgPSBoZWFkX2ZsYWdzOwo+ICsJdnEtPm51bV9hZGRlZCArPSBkZXNjc191c2Vk
-Owo+ICsKPiArCXByX2RlYnVnKCJBZGRlZCBidWZmZXIgaGVhZCAlaSB0byAlcFxuIiwgaGVhZCwg
-dnEpOwo+ICsJRU5EX1VTRSh2cSk7Cj4gKwo+ICsJcmV0dXJuIDA7Cj4gKwo+ICt1bm1hcF9yZWxl
-YXNlOgo+ICsJZXJyX2lkeCA9IGk7Cj4gKwlpID0gaGVhZDsKPiArCj4gKwlmb3IgKG4gPSAwOyBu
-IDwgdG90YWxfc2c7IG4rKykgewo+ICsJCWlmIChpID09IGVycl9pZHgpCj4gKwkJCWJyZWFrOwo+
-ICsJCXZyaW5nX3VubWFwX2Rlc2NfcGFja2VkKHZxLCAmZGVzY1tpXSk7Cj4gKwkJaSsrOwo+ICsJ
-CWlmICghaW5kaXJlY3QgJiYgaSA+PSB2cS0+dnJpbmdfcGFja2VkLm51bSkKPiArCQkJaSA9IDA7
-Cj4gKwl9Cj4gKwo+ICsJdnEtPmF2YWlsX3dyYXBfY291bnRlciA9IGF2YWlsX3dyYXBfY291bnRl
-cjsKPiArCj4gKwlpZiAoaW5kaXJlY3QpCj4gKwkJa2ZyZWUoZGVzYyk7Cj4gKwo+ICsJRU5EX1VT
-RSh2cSk7Cj4gICAJcmV0dXJuIC1FSU87Cj4gICB9Cj4gICAKPiAgIHN0YXRpYyBib29sIHZpcnRx
-dWV1ZV9raWNrX3ByZXBhcmVfcGFja2VkKHN0cnVjdCB2aXJ0cXVldWUgKl92cSkKPiAgIHsKPiAt
-CXJldHVybiBmYWxzZTsKPiArCXN0cnVjdCB2cmluZ192aXJ0cXVldWUgKnZxID0gdG9fdnZxKF92
-cSk7Cj4gKwl1MTYgZmxhZ3M7Cj4gKwlib29sIG5lZWRzX2tpY2s7Cj4gKwl1MzIgc25hcHNob3Q7
-Cj4gKwo+ICsJU1RBUlRfVVNFKHZxKTsKPiArCS8qIFdlIG5lZWQgdG8gZXhwb3NlIHRoZSBuZXcg
-ZmxhZ3MgdmFsdWUgYmVmb3JlIGNoZWNraW5nIG5vdGlmaWNhdGlvbgo+ICsJICogc3VwcHJlc3Np
-b25zLiAqLwo+ICsJdmlydGlvX21iKHZxLT53ZWFrX2JhcnJpZXJzKTsKPiArCj4gKwlzbmFwc2hv
-dCA9ICoodTMyICopdnEtPnZyaW5nX3BhY2tlZC5kZXZpY2U7Cj4gKwlmbGFncyA9IHZpcnRpbzE2
-X3RvX2NwdShfdnEtPnZkZXYsIChfX3ZpcnRpbzE2KShzbmFwc2hvdCA+PiAxNikpICYgMHgzOwo+
-ICsKPiArI2lmZGVmIERFQlVHCj4gKwlpZiAodnEtPmxhc3RfYWRkX3RpbWVfdmFsaWQpIHsKPiAr
-CQlXQVJOX09OKGt0aW1lX3RvX21zKGt0aW1lX3N1YihrdGltZV9nZXQoKSwKPiArCQkJCQkgICAg
-ICB2cS0+bGFzdF9hZGRfdGltZSkpID4gMTAwKTsKPiArCX0KPiArCXZxLT5sYXN0X2FkZF90aW1l
-X3ZhbGlkID0gZmFsc2U7Cj4gKyNlbmRpZgo+ICsKPiArCW5lZWRzX2tpY2sgPSAoZmxhZ3MgIT0g
-VlJJTkdfRVZFTlRfRl9ESVNBQkxFKTsKPiArCUVORF9VU0UodnEpOwo+ICsJcmV0dXJuIG5lZWRz
-X2tpY2s7Cj4gK30KPiArCj4gK3N0YXRpYyB2b2lkIGRldGFjaF9idWZfcGFja2VkKHN0cnVjdCB2
-cmluZ192aXJ0cXVldWUgKnZxLAo+ICsJCQkgICAgICB1bnNpZ25lZCBpbnQgaWQsIHZvaWQgKipj
-dHgpCj4gK3sKPiArCXN0cnVjdCB2cmluZ19kZXNjX3N0YXRlX3BhY2tlZCAqc3RhdGU7Cj4gKwlz
-dHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2MgKmRlc2M7Cj4gKwl1bnNpZ25lZCBpbnQgaTsKPiArCWlu
-dCAqbmV4dDsKPiArCj4gKwkvKiBDbGVhciBkYXRhIHB0ci4gKi8KPiArCXZxLT5kZXNjX3N0YXRl
-X3BhY2tlZFtpZF0uZGF0YSA9IE5VTEw7Cj4gKwo+ICsJbmV4dCA9ICZpZDsKPiArCWZvciAoaSA9
-IDA7IGkgPCB2cS0+ZGVzY19zdGF0ZV9wYWNrZWRbaWRdLm51bTsgaSsrKSB7Cj4gKwkJc3RhdGUg
-PSAmdnEtPmRlc2Nfc3RhdGVfcGFja2VkWypuZXh0XTsKPiArCQl2cmluZ191bm1hcF9zdGF0ZV9w
-YWNrZWQodnEsIHN0YXRlKTsKPiArCQluZXh0ID0gJnZxLT5kZXNjX3N0YXRlX3BhY2tlZFsqbmV4
-dF0ubmV4dDsKCkhhdmUgYSBzaG9ydCBkaXNjdXNzaW9uIHdpdGggTWljaGFlbC4gSXQgbG9va3Mg
-bGlrZSB0aGUgb25seSB0aGluZyB3ZSAKY2FyZSBpcyBETUEgYWRkcmVzcyBhbmQgbGVuZ3RoIGhl
-cmUuCgpTbyBhIHRob3VnaHQgaXMgdG8gYXZvaWQgdXNpbmcgZGVzY19zdGF0ZV9wYWNrZWQoKSBp
-cyAKdnJpbmdfdXNlX2RtYV9hcGkoKSBpcyBmYWxzZT8gUHJvYmFibHkgbmVlZCBhbm90aGVyIGlk
-IGFsbG9jYXRvciBvciBqdXN0IAp1c2UgZGVzY19zdGF0ZV9wYWNrZWQgZm9yIGZyZWUgaWQgbGlz
-dC4KCj4gKwl9Cj4gKwo+ICsJdnEtPnZxLm51bV9mcmVlICs9IHZxLT5kZXNjX3N0YXRlX3BhY2tl
-ZFtpZF0ubnVtOwo+ICsJKm5leHQgPSB2cS0+ZnJlZV9oZWFkOwoKVXNpbmcgcG9pbnRlciBzZWVt
-cyBub3QgZWxlZ2FudCBhbmQgdW5uZWNlc3NhcnkgaGVyZS4gWW91IGNhbiBqdXN0IHRyYWNrIApu
-ZXh0IGluIGludGVnZXIgSSB0aGluaz8KCj4gKwl2cS0+ZnJlZV9oZWFkID0gaWQ7Cj4gKwo+ICsJ
-aWYgKHZxLT5pbmRpcmVjdCkgewo+ICsJCXUzMiBsZW47Cj4gKwo+ICsJCS8qIEZyZWUgdGhlIGlu
-ZGlyZWN0IHRhYmxlLCBpZiBhbnksIG5vdyB0aGF0IGl0J3MgdW5tYXBwZWQuICovCj4gKwkJZGVz
-YyA9IHZxLT5kZXNjX3N0YXRlX3BhY2tlZFtpZF0uaW5kaXJfZGVzYzsKPiArCQlpZiAoIWRlc2Mp
-Cj4gKwkJCXJldHVybjsKPiArCj4gKwkJbGVuID0gdnEtPmRlc2Nfc3RhdGVfcGFja2VkW2lkXS5s
-ZW47Cj4gKwkJZm9yIChpID0gMDsgaSA8IGxlbiAvIHNpemVvZihzdHJ1Y3QgdnJpbmdfcGFja2Vk
-X2Rlc2MpOyBpKyspCj4gKwkJCXZyaW5nX3VubWFwX2Rlc2NfcGFja2VkKHZxLCAmZGVzY1tpXSk7
-Cj4gKwo+ICsJCWtmcmVlKGRlc2MpOwo+ICsJCXZxLT5kZXNjX3N0YXRlX3BhY2tlZFtpZF0uaW5k
-aXJfZGVzYyA9IE5VTEw7Cj4gKwl9IGVsc2UgaWYgKGN0eCkgewo+ICsJCSpjdHggPSB2cS0+ZGVz
-Y19zdGF0ZV9wYWNrZWRbaWRdLmluZGlyX2Rlc2M7Cj4gKwl9Cj4gICB9Cj4gICAKPiAgIHN0YXRp
-YyBpbmxpbmUgYm9vbCBtb3JlX3VzZWRfcGFja2VkKGNvbnN0IHN0cnVjdCB2cmluZ192aXJ0cXVl
-dWUgKnZxKQo+ICAgewo+IC0JcmV0dXJuIGZhbHNlOwo+ICsJdTE2IGxhc3RfdXNlZCwgZmxhZ3M7
-Cj4gKwl1OCBhdmFpbCwgdXNlZDsKPiArCj4gKwlsYXN0X3VzZWQgPSB2cS0+bGFzdF91c2VkX2lk
-eDsKPiArCWZsYWdzID0gdmlydGlvMTZfdG9fY3B1KHZxLT52cS52ZGV2LAo+ICsJCQkJdnEtPnZy
-aW5nX3BhY2tlZC5kZXNjW2xhc3RfdXNlZF0uZmxhZ3MpOwo+ICsJYXZhaWwgPSAhIShmbGFncyAm
-IFZSSU5HX0RFU0NfRl9BVkFJTCgxKSk7Cj4gKwl1c2VkID0gISEoZmxhZ3MgJiBWUklOR19ERVND
-X0ZfVVNFRCgxKSk7Cj4gKwo+ICsJcmV0dXJuIGF2YWlsID09IHVzZWQgJiYgdXNlZCA9PSB2cS0+
-dXNlZF93cmFwX2NvdW50ZXI7CgpTcGVjIGRvZXMgbm90IGNoZWNrIGF2YWlsID09IHVzZWQ/IFNv
-IHRoZXJlJ3MgcHJvYmFibHkgYSBidWcgaW4gZWl0aGVyIApvZiB0aGUgdHdvIHBsYWNlcy4KCklu
-IHdoYXQgY29uZGl0aW9uIHRoYXQgYXZhaWwgIT0gdXNlZCBidXQgdXNlZCA9PSB2cV91c2VkX3dy
-YXBfY291bnRlcj8gQSAKYnVnZ3kgZGV2aWNlIG9yIGRldmljZSBzZXQgdGhlIHR3byBiaXRzIGlu
-IHR3byB3cml0ZXM/Cgo+ICAgfQo+ICAgCj4gICBzdGF0aWMgdm9pZCAqdmlydHF1ZXVlX2dldF9i
-dWZfY3R4X3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEsCj4gICAJCQkJCSAgdW5zaWduZWQg
-aW50ICpsZW4sCj4gICAJCQkJCSAgdm9pZCAqKmN0eCkKPiAgIHsKPiAtCXJldHVybiBOVUxMOwo+
-ICsJc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEgPSB0b192dnEoX3ZxKTsKPiArCXUxNiBsYXN0
-X3VzZWQsIGlkOwo+ICsJdm9pZCAqcmV0Owo+ICsKPiArCVNUQVJUX1VTRSh2cSk7Cj4gKwo+ICsJ
-aWYgKHVubGlrZWx5KHZxLT5icm9rZW4pKSB7Cj4gKwkJRU5EX1VTRSh2cSk7Cj4gKwkJcmV0dXJu
-IE5VTEw7Cj4gKwl9Cj4gKwo+ICsJaWYgKCFtb3JlX3VzZWRfcGFja2VkKHZxKSkgewo+ICsJCXBy
-X2RlYnVnKCJObyBtb3JlIGJ1ZmZlcnMgaW4gcXVldWVcbiIpOwo+ICsJCUVORF9VU0UodnEpOwo+
-ICsJCXJldHVybiBOVUxMOwo+ICsJfQo+ICsKPiArCS8qIE9ubHkgZ2V0IHVzZWQgZWxlbWVudHMg
-YWZ0ZXIgdGhleSBoYXZlIGJlZW4gZXhwb3NlZCBieSBob3N0LiAqLwo+ICsJdmlydGlvX3JtYih2
-cS0+d2Vha19iYXJyaWVycyk7Cj4gKwo+ICsJbGFzdF91c2VkID0gdnEtPmxhc3RfdXNlZF9pZHg7
-Cj4gKwlpZCA9IHZpcnRpbzE2X3RvX2NwdShfdnEtPnZkZXYsIHZxLT52cmluZ19wYWNrZWQuZGVz
-Y1tsYXN0X3VzZWRdLmlkKTsKPiArCSpsZW4gPSB2aXJ0aW8zMl90b19jcHUoX3ZxLT52ZGV2LCB2
-cS0+dnJpbmdfcGFja2VkLmRlc2NbbGFzdF91c2VkXS5sZW4pOwo+ICsKPiArCWlmICh1bmxpa2Vs
-eShpZCA+PSB2cS0+dnJpbmdfcGFja2VkLm51bSkpIHsKPiArCQlCQURfUklORyh2cSwgImlkICV1
-IG91dCBvZiByYW5nZVxuIiwgaWQpOwo+ICsJCXJldHVybiBOVUxMOwo+ICsJfQo+ICsJaWYgKHVu
-bGlrZWx5KCF2cS0+ZGVzY19zdGF0ZV9wYWNrZWRbaWRdLmRhdGEpKSB7Cj4gKwkJQkFEX1JJTkco
-dnEsICJpZCAldSBpcyBub3QgYSBoZWFkIVxuIiwgaWQpOwo+ICsJCXJldHVybiBOVUxMOwo+ICsJ
-fQo+ICsKPiArCXZxLT5sYXN0X3VzZWRfaWR4ICs9IHZxLT5kZXNjX3N0YXRlX3BhY2tlZFtpZF0u
-bnVtOwo+ICsJaWYgKHZxLT5sYXN0X3VzZWRfaWR4ID49IHZxLT52cmluZ19wYWNrZWQubnVtKSB7
-Cj4gKwkJdnEtPmxhc3RfdXNlZF9pZHggLT0gdnEtPnZyaW5nX3BhY2tlZC5udW07Cj4gKwkJdnEt
-PnVzZWRfd3JhcF9jb3VudGVyIF49IDE7Cj4gKwl9Cj4gKwo+ICsJLyogZGV0YWNoX2J1Zl9wYWNr
-ZWQgY2xlYXJzIGRhdGEsIHNvIGdyYWIgaXQgbm93LiAqLwo+ICsJcmV0ID0gdnEtPmRlc2Nfc3Rh
-dGVfcGFja2VkW2lkXS5kYXRhOwo+ICsJZGV0YWNoX2J1Zl9wYWNrZWQodnEsIGlkLCBjdHgpOwo+
-ICsKPiArI2lmZGVmIERFQlVHCj4gKwl2cS0+bGFzdF9hZGRfdGltZV92YWxpZCA9IGZhbHNlOwo+
-ICsjZW5kaWYKPiArCj4gKwlFTkRfVVNFKHZxKTsKPiArCXJldHVybiByZXQ7Cj4gICB9Cj4gICAK
-PiAgIHN0YXRpYyB2b2lkIHZpcnRxdWV1ZV9kaXNhYmxlX2NiX3BhY2tlZChzdHJ1Y3QgdmlydHF1
-ZXVlICpfdnEpCj4gICB7Cj4gKwlzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSA9IHRvX3Z2cShf
-dnEpOwo+ICsKPiArCWlmICh2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93ICE9IFZSSU5HX0VWRU5UX0Zf
-RElTQUJMRSkgewo+ICsJCXZxLT5ldmVudF9mbGFnc19zaGFkb3cgPSBWUklOR19FVkVOVF9GX0RJ
-U0FCTEU7Cj4gKwkJdnEtPnZyaW5nX3BhY2tlZC5kcml2ZXItPmZsYWdzID0gY3B1X3RvX3ZpcnRp
-bzE2KF92cS0+dmRldiwKPiArCQkJCQkJCXZxLT5ldmVudF9mbGFnc19zaGFkb3cpOwo+ICsJfQo+
-ICAgfQo+ICAgCj4gICBzdGF0aWMgdW5zaWduZWQgdmlydHF1ZXVlX2VuYWJsZV9jYl9wcmVwYXJl
-X3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEpCj4gICB7Cj4gLQlyZXR1cm4gMDsKPiArCXN0
-cnVjdCB2cmluZ192aXJ0cXVldWUgKnZxID0gdG9fdnZxKF92cSk7Cj4gKwo+ICsJU1RBUlRfVVNF
-KHZxKTsKPiArCj4gKwkvKiBXZSBvcHRpbWlzdGljYWxseSB0dXJuIGJhY2sgb24gaW50ZXJydXB0
-cywgdGhlbiBjaGVjayBpZiB0aGVyZSB3YXMKPiArCSAqIG1vcmUgdG8gZG8uICovCj4gKwo+ICsJ
-aWYgKHZxLT5ldmVudF9mbGFnc19zaGFkb3cgPT0gVlJJTkdfRVZFTlRfRl9ESVNBQkxFKSB7Cj4g
-KwkJdmlydGlvX3dtYih2cS0+d2Vha19iYXJyaWVycyk7CgpNaXNzaW5nIGNvbW1lbnRzIGZvciB0
-aGUgYmFycmllci4KCj4gKwkJdnEtPmV2ZW50X2ZsYWdzX3NoYWRvdyA9IFZSSU5HX0VWRU5UX0Zf
-RU5BQkxFOwo+ICsJCXZxLT52cmluZ19wYWNrZWQuZHJpdmVyLT5mbGFncyA9IGNwdV90b192aXJ0
-aW8xNihfdnEtPnZkZXYsCj4gKwkJCQkJCQl2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93KTsKPiArCX0K
-PiArCj4gKwlFTkRfVVNFKHZxKTsKPiArCXJldHVybiB2cS0+bGFzdF91c2VkX2lkeDsKPiAgIH0K
-PiAgIAo+ICAgc3RhdGljIGJvb2wgdmlydHF1ZXVlX3BvbGxfcGFja2VkKHN0cnVjdCB2aXJ0cXVl
-dWUgKl92cSwgdW5zaWduZWQgbGFzdF91c2VkX2lkeCkKPiAgIHsKPiAtCXJldHVybiBmYWxzZTsK
-PiArCXN0cnVjdCB2cmluZ192aXJ0cXVldWUgKnZxID0gdG9fdnZxKF92cSk7Cj4gKwl1OCBhdmFp
-bCwgdXNlZDsKPiArCXUxNiBmbGFnczsKPiArCj4gKwl2aXJ0aW9fbWIodnEtPndlYWtfYmFycmll
-cnMpOwo+ICsJZmxhZ3MgPSB2aXJ0aW8xNl90b19jcHUodnEtPnZxLnZkZXYsCj4gKwkJCXZxLT52
-cmluZ19wYWNrZWQuZGVzY1tsYXN0X3VzZWRfaWR4XS5mbGFncyk7Cj4gKwlhdmFpbCA9ICEhKGZs
-YWdzICYgVlJJTkdfREVTQ19GX0FWQUlMKDEpKTsKPiArCXVzZWQgPSAhIShmbGFncyAmIFZSSU5H
-X0RFU0NfRl9VU0VEKDEpKTsKPiArCj4gKwlyZXR1cm4gYXZhaWwgPT0gdXNlZCAmJiB1c2VkID09
-IHZxLT51c2VkX3dyYXBfY291bnRlcjsKPiAgIH0KPiAgIAo+ICAgc3RhdGljIGJvb2wgdmlydHF1
-ZXVlX2VuYWJsZV9jYl9kZWxheWVkX3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEpCj4gICB7
-Cj4gLQlyZXR1cm4gZmFsc2U7Cj4gKwlzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSA9IHRvX3Z2
-cShfdnEpOwo+ICsKPiArCVNUQVJUX1VTRSh2cSk7Cj4gKwo+ICsJLyogV2Ugb3B0aW1pc3RpY2Fs
-bHkgdHVybiBiYWNrIG9uIGludGVycnVwdHMsIHRoZW4gY2hlY2sgaWYgdGhlcmUgd2FzCj4gKwkg
-KiBtb3JlIHRvIGRvLiAqLwo+ICsKPiArCWlmICh2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93ID09IFZS
-SU5HX0VWRU5UX0ZfRElTQUJMRSkgewo+ICsJCXZpcnRpb193bWIodnEtPndlYWtfYmFycmllcnMp
-OwoKCk5lZWQgY29tbWVudHMgZm9yIHRoZSBiYXJyaWVyLgoKPiArCQl2cS0+ZXZlbnRfZmxhZ3Nf
-c2hhZG93ID0gVlJJTkdfRVZFTlRfRl9FTkFCTEU7Cj4gKwkJdnEtPnZyaW5nX3BhY2tlZC5kcml2
-ZXItPmZsYWdzID0gY3B1X3RvX3ZpcnRpbzE2KF92cS0+dmRldiwKPiArCQkJCQkJCXZxLT5ldmVu
-dF9mbGFnc19zaGFkb3cpOwo+ICsJfQo+ICsKPiArCWlmIChtb3JlX3VzZWRfcGFja2VkKHZxKSkg
-ewo+ICsJCUVORF9VU0UodnEpOwo+ICsJCXJldHVybiBmYWxzZTsKPiArCX0KPiArCj4gKwlFTkRf
-VVNFKHZxKTsKPiArCXJldHVybiB0cnVlOwo+ICAgfQo+ICAgCj4gICBzdGF0aWMgdm9pZCAqdmly
-dHF1ZXVlX2RldGFjaF91bnVzZWRfYnVmX3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEpCj4g
-ICB7Cj4gKwlzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSA9IHRvX3Z2cShfdnEpOwo+ICsJdW5z
-aWduZWQgaW50IGk7Cj4gKwl2b2lkICpidWY7Cj4gKwo+ICsJU1RBUlRfVVNFKHZxKTsKPiArCj4g
-Kwlmb3IgKGkgPSAwOyBpIDwgdnEtPnZyaW5nX3BhY2tlZC5udW07IGkrKykgewo+ICsJCWlmICgh
-dnEtPmRlc2Nfc3RhdGVfcGFja2VkW2ldLmRhdGEpCj4gKwkJCWNvbnRpbnVlOwo+ICsJCS8qIGRl
-dGFjaF9idWYgY2xlYXJzIGRhdGEsIHNvIGdyYWIgaXQgbm93LiAqLwo+ICsJCWJ1ZiA9IHZxLT5k
-ZXNjX3N0YXRlX3BhY2tlZFtpXS5kYXRhOwo+ICsJCWRldGFjaF9idWZfcGFja2VkKHZxLCBpLCBO
-VUxMKTsKPiArCQlFTkRfVVNFKHZxKTsKPiArCQlyZXR1cm4gYnVmOwo+ICsJfQo+ICsJLyogVGhh
-dCBzaG91bGQgaGF2ZSBmcmVlZCBldmVyeXRoaW5nLiAqLwo+ICsJQlVHX09OKHZxLT52cS5udW1f
-ZnJlZSAhPSB2cS0+dnJpbmdfcGFja2VkLm51bSk7Cj4gKwo+ICsJRU5EX1VTRSh2cSk7Cj4gICAJ
-cmV0dXJuIE5VTEw7Cj4gICB9Cj4gICAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Existing virtio-blk protocol doesn't have DISCARD/WRITE ZEROES commands
+support, this will impact the performance when using SSD backend over
+file systems.
+
+Commit 88c85538 "virtio-blk: add discard and write zeroes features to
+specification"(see https://github.com/oasis-tcs/virtio-spec) extended
+existing virtio-blk protocol, adding extra DISCARD and WRITE ZEROES
+commands support.
+
+While here, using 16 bytes descriptor to describe one segment of DISCARD
+or WRITE ZEROES commands, each command may contain one or more decriptors.
+
+The following data structure shows the definition of one descriptor:
+
+struct virtio_blk_discard_write_zeroes {
+        le64 sector;
+        le32 num_sectors;
+        le32 unmap;
+};
+
+Field 'sector' means the start sector for DISCARD and WRITE ZEROES,
+filed 'num_sectors' means the number of sectors for DISCARD and WRITE
+ZEROES, if both DISCARD and WRITE ZEROES are supported, field 'unmap'
+maybe used for WRITE ZEROES command with DISCARD enabled.
+
+We also extended the virtio-blk configuration space to let backend
+device put DISCARD and WRITE ZEROES configuration parameters.
+
+struct virtio_blk_config {
+        [...]
+
+        le32 max_discard_sectors;
+        le32 max_discard_seg;
+        le32 discard_sector_alignment;
+        le32 max_write_zeroes_sectors;
+        le32 max_write_zeroes_seg;
+        u8 write_zeroes_may_unmap;
+}
+
+New feature bit [VIRTIO_BLK_F_DISCARD (13)]: Device can support discard
+command, maximum discard sectors size in field 'max_discard_sectors' and
+maximum discard segment number in field 'max_discard_seg'.
+
+New feature [VIRTIO_BLK_F_WRITE_ZEROES (14)]: Device can support write
+zeroes command, maximum write zeroes sectors size in field
+'max_write_zeroes_sectors' and maximum write zeroes segment number in
+field 'max_write_zeroes_seg'.
+
+The parameters in the configuration space of the device field
+'max_discard_sectors' and field 'discard_sector_alignment' are expressed in
+512-byte units if the VIRTIO_BLK_F_DISCARD feature bit is negotiated. The
+field 'max_write_zeroes_sectors' is expressed in 512-byte units if the
+VIRTIO_BLK_F_WRITE_ZEROES feature bit is negotiated.
+
+Signed-off-by: Changpeng Liu <changpeng.liu@intel.com>
+---
+CHANGELOG:
+v5: use new block layer API: blk_queue_flag_set.
+v4: several optimizations based on MST's comments, remove bit field usage for
+command descriptor.
+v3: define the virtio-blk protocol to add discard and write zeroes support,
+first version implementation based on proposed specification.
+v2: add write zeroes command support.
+v1: initial proposal implementation for discard command.
+---
+ drivers/block/virtio_blk.c      | 92 +++++++++++++++++++++++++++++++++++++++--
+ include/uapi/linux/virtio_blk.h | 43 +++++++++++++++++++
+ 2 files changed, 132 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 4a07593c..a250fcc 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -172,10 +172,45 @@ static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr,
+ 	return virtqueue_add_sgs(vq, sgs, num_out, num_in, vbr, GFP_ATOMIC);
+ }
+ 
++static inline int virtblk_setup_discard_write_zeroes(struct request *req,
++						bool unmap)
++{
++	unsigned short segments = blk_rq_nr_discard_segments(req);
++	unsigned short n = 0;
++	struct virtio_blk_discard_write_zeroes *range;
++	struct bio *bio;
++
++	range = kmalloc_array(segments, sizeof(*range), GFP_KERNEL);
++	if (!range)
++		return -ENOMEM;
++
++	__rq_for_each_bio(bio, req) {
++		u64 sector = bio->bi_iter.bi_sector;
++		u32 num_sectors = bio->bi_iter.bi_size >> 9;
++
++		range[n].unmap = cpu_to_le32(unmap);
++		range[n].num_sectors = cpu_to_le32(num_sectors);
++		range[n].sector = cpu_to_le64(sector);
++		n++;
++	}
++
++	req->special_vec.bv_page = virt_to_page(range);
++	req->special_vec.bv_offset = offset_in_page(range);
++	req->special_vec.bv_len = sizeof(*range) * segments;
++	req->rq_flags |= RQF_SPECIAL_PAYLOAD;
++
++	return 0;
++}
++
+ static inline void virtblk_request_done(struct request *req)
+ {
+ 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+ 
++	if (req->rq_flags & RQF_SPECIAL_PAYLOAD) {
++		kfree(page_address(req->special_vec.bv_page) +
++		      req->special_vec.bv_offset);
++	}
++
+ 	switch (req_op(req)) {
+ 	case REQ_OP_SCSI_IN:
+ 	case REQ_OP_SCSI_OUT:
+@@ -225,6 +260,7 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	int qid = hctx->queue_num;
+ 	int err;
+ 	bool notify = false;
++	bool unmap = false;
+ 	u32 type;
+ 
+ 	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
+@@ -237,6 +273,13 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	case REQ_OP_FLUSH:
+ 		type = VIRTIO_BLK_T_FLUSH;
+ 		break;
++	case REQ_OP_DISCARD:
++		type = VIRTIO_BLK_T_DISCARD;
++		break;
++	case REQ_OP_WRITE_ZEROES:
++		type = VIRTIO_BLK_T_WRITE_ZEROES;
++		unmap = !(req->cmd_flags & REQ_NOUNMAP);
++		break;
+ 	case REQ_OP_SCSI_IN:
+ 	case REQ_OP_SCSI_OUT:
+ 		type = VIRTIO_BLK_T_SCSI_CMD;
+@@ -256,9 +299,16 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 
+ 	blk_mq_start_request(req);
+ 
++	if (type == VIRTIO_BLK_T_DISCARD || type == VIRTIO_BLK_T_WRITE_ZEROES) {
++		err = virtblk_setup_discard_write_zeroes(req, unmap);
++		if (err)
++			return BLK_STS_RESOURCE;
++	}
++
+ 	num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
+ 	if (num) {
+-		if (rq_data_dir(req) == WRITE)
++		if (rq_data_dir(req) == WRITE || type == VIRTIO_BLK_T_DISCARD ||
++		    type == VIRTIO_BLK_T_WRITE_ZEROES)
+ 			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_OUT);
+ 		else
+ 			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_IN);
+@@ -777,6 +827,42 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	if (!err && opt_io_size)
+ 		blk_queue_io_opt(q, blk_size * opt_io_size);
+ 
++	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
++		q->limits.discard_granularity = blk_size;
++
++		virtio_cread(vdev, struct virtio_blk_config,
++				discard_sector_alignment, &v);
++		if (v)
++			q->limits.discard_alignment = v << 9;
++		else
++			q->limits.discard_alignment = 0;
++
++		virtio_cread(vdev, struct virtio_blk_config,
++				max_discard_sectors, &v);
++		if (v)
++			blk_queue_max_discard_sectors(q, v);
++		else
++			blk_queue_max_discard_sectors(q, UINT_MAX);
++
++		virtio_cread(vdev, struct virtio_blk_config, max_discard_seg,
++				&v);
++		if (v)
++			blk_queue_max_discard_segments(q, v);
++		else
++			blk_queue_max_discard_segments(q, USHRT_MAX);
++
++		queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, q);
++	}
++
++	if (virtio_has_feature(vdev, VIRTIO_BLK_F_WRITE_ZEROES)) {
++		virtio_cread(vdev, struct virtio_blk_config,
++				max_write_zeroes_sectors, &v);
++		if (v)
++			blk_queue_max_write_zeroes_sectors(q, v);
++		else
++			blk_queue_max_write_zeroes_sectors(q, UINT_MAX);
++	}
++
+ 	virtblk_update_capacity(vblk, false);
+ 	virtio_device_ready(vdev);
+ 
+@@ -885,14 +971,14 @@ static int virtblk_restore(struct virtio_device *vdev)
+ 	VIRTIO_BLK_F_SCSI,
+ #endif
+ 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+-	VIRTIO_BLK_F_MQ,
++	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+ }
+ ;
+ static unsigned int features[] = {
+ 	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
+ 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+ 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+-	VIRTIO_BLK_F_MQ,
++	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+ };
+ 
+ static struct virtio_driver virtio_blk = {
+diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+index 9ebe4d9..8e7a015 100644
+--- a/include/uapi/linux/virtio_blk.h
++++ b/include/uapi/linux/virtio_blk.h
+@@ -38,6 +38,8 @@
+ #define VIRTIO_BLK_F_BLK_SIZE	6	/* Block size of disk is available*/
+ #define VIRTIO_BLK_F_TOPOLOGY	10	/* Topology information is available */
+ #define VIRTIO_BLK_F_MQ		12	/* support more than one vq */
++#define VIRTIO_BLK_F_DISCARD	13	/* DISCARD is supported */
++#define VIRTIO_BLK_F_WRITE_ZEROES	14	/* WRITE ZEROES is supported */
+ 
+ /* Legacy feature bits */
+ #ifndef VIRTIO_BLK_NO_LEGACY
+@@ -86,6 +88,29 @@ struct virtio_blk_config {
+ 
+ 	/* number of vqs, only available when VIRTIO_BLK_F_MQ is set */
+ 	__u16 num_queues;
++	/* The maximum discard sectors (in 512-byte sectors) for
++	 * one segment (if VIRTIO_BLK_F_DISCARD)
++	 */
++	__u32 max_discard_sectors;
++	/* The maximum number of discard segments in a
++	 * discard command (if VIRTIO_BLK_F_DISCARD)
++	 */
++	__u32 max_discard_seg;
++	/* The alignment sectors for discard (if VIRTIO_BLK_F_DISCARD) */
++	__u32 discard_sector_alignment;
++	/* The maximum number of write zeroes sectors (in 512-byte sectors) in
++	 * one segment (if VIRTIO_BLK_F_WRITE_ZEROES)
++	 */
++	__u32 max_write_zeroes_sectors;
++	/* The maximum number of segments in a write zeroes
++	 * command (if VIRTIO_BLK_F_WRITE_ZEROES)
++	 */
++	__u32 max_write_zeroes_seg;
++	/* Device clear this bit when write zeroes command can't result in
++	 * unmapping sectors (if VIRITO_BLK_F_WRITE_ZEROES and with unmap)
++	 */
++	__u8 write_zeroes_may_unmap;
++	__u8 unused1[3];
+ } __attribute__((packed));
+ 
+ /*
+@@ -114,6 +139,12 @@ struct virtio_blk_config {
+ /* Get device ID command */
+ #define VIRTIO_BLK_T_GET_ID    8
+ 
++/* Discard command */
++#define VIRTIO_BLK_T_DISCARD	11
++
++/* Write zeroes command */
++#define VIRTIO_BLK_T_WRITE_ZEROES	13
++
+ #ifndef VIRTIO_BLK_NO_LEGACY
+ /* Barrier before this op. */
+ #define VIRTIO_BLK_T_BARRIER	0x80000000
+@@ -133,6 +164,18 @@ struct virtio_blk_outhdr {
+ 	__virtio64 sector;
+ };
+ 
++/*
++ * discard/write zeroes range for each request.
++ */
++struct virtio_blk_discard_write_zeroes {
++	/* discard/write zeroes start sector */
++	__virtio64 sector;
++	/* number of discard/write zeroes sectors */
++	__virtio32 num_sectors;
++	/* valid for write zeroes command */
++	__virtio32 unmap;
++};
++
+ #ifndef VIRTIO_BLK_NO_LEGACY
+ struct virtio_scsi_inhdr {
+ 	__virtio32 errors;
+-- 
+1.9.3
