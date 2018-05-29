@@ -1,20 +1,20 @@
-From: Thomas Garnier via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH v3 21/27] x86/ftrace: Adapt function tracing for PIE
-	support
-Date: Tue, 29 May 2018 11:37:45 -0700
-Message-ID: <CAJcbSZEBW0mE7x1tOUr9y2BJUfodyjix0EjO=oE7A4M+mGvZ3g@mail.gmail.com>
-References: <20180523195421.180248-1-thgarnie@google.com>
-	<20180523195421.180248-22-thgarnie@google.com>
-	<20180524114024.pa67zjipy5qcg4tm@pathway.suse.cz>
-	<20180524161622.4202319f@gandalf.local.home>
-	<CAJcbSZGQmQM7PuER0kEqt3aG9O-8vh-g1EA2jnkVsJPx-Htvrw@mail.gmail.com>
-Reply-To: Thomas Garnier <thgarnie@google.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
+	virito devices
+Date: Wed, 30 May 2018 08:13:54 +1000
+Message-ID: <230075a7760a9cf878355e2b8abe4cdb967a482a.camel@kernel.crashing.org>
+References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
+	<20180523213703-mutt-send-email-mst@kernel.org>
+	<f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
+	<20180525202300-mutt-send-email-mst@kernel.org>
+	<6fff9f5d67361653e6072570a857cf0d1009a123.camel@kernel.crashing.org>
+	<2f1d48cf029c1f0903f3cffea946ae5b85f60ec0.camel@kernel.crashing.org>
+	<20180529140319.GA19972@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJcbSZGQmQM7PuER0kEqt3aG9O-8vh-g1EA2jnkVsJPx-Htvrw@mail.gmail.com>
+In-Reply-To: <20180529140319.GA19972@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,143 +24,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, the arch/x86 maintainers <x86@kernel.org>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Len Brown <len.brown@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Peter Zijlstra <peterz@infradead.org>, Yonghong Song <yhs@fb.com>, Christopher Li <sparse@chrisli.org>, Dave Hansen <dave.hansen@linux.intel.com>, Dominik Brodowski <linux@dominikbrodowski.net>, LKML <linux-kernel@vger.kernel.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Jan Beulich <JBeulich@suse.com>, Pavel Machek <pavel@ucw.cz>, "H . Peter Anvin" <hpa@zytor.com>, Kernel Hardening <kernel-hardening@lists.openwall.com>, Christoph Lameter <cl@linux.com>, Alok Kataria <akataria@vmware.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, Jonathan Corbet <corbet@>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: robh@kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, luto@kernel.org, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 24, 2018 at 1:41 PM Thomas Garnier <thgarnie@google.com> wrote:
+On Tue, 2018-05-29 at 07:03 -0700, Christoph Hellwig wrote:
+> On Tue, May 29, 2018 at 09:56:24AM +1000, Benjamin Herrenschmidt wrote:
+> > I don't think forcing the addition of an emulated iommu in the middle
+> > just to work around the fact that virtio "cheats" and doesn't use the
+> > dma API unless there is one, is the right "fix".
+> 
+> Agreed.
+> 
+> > The right long term fix is to always use the DMA API, reducing code
+> > path etc... and just have a single point where virtio can "chose"
+> > alternate DMA ops (via an arch hook to deal with our case).
+> 
+> Also agreed.
+> 
+> When Andi added vring_use_dma_api it was marked as temporary.
+> 
+> So I'd much rather move to blacklisting platforms that needs this
+> hack now than adding another exception.
+> 
+> And then once we have the blacklist move it to a quirk in the arch
+> code that just forces dma_direct_ops as the per-device dma ops.
+> 
+> I don't really think this is crazy long term, but something we could
+> do relatively quickly.  Interestingly enough the original commit
+> mentions PPC64 as a case where this quirk is needed.
 
+Not sure why, it's not so much a platform issue today. It's qemu itself
+who by defaults bypasses any iommu. I suppose ppc64 stood out because
+unlike x86 we always have an iommu by default.
 
-> On Thu, May 24, 2018 at 1:16 PM Steven Rostedt <rostedt@goodmis.org>
-wrote:
+Anyway, Anshuman, I think that's the right approach, first make virtio
+always use the DMA API with a quirk early to override the ops.
 
-> > On Thu, 24 May 2018 13:40:24 +0200
-> > Petr Mladek <pmladek@suse.com> wrote:
+Christoph: the overriding of the ops isn't a platform thing. It's a
+qemu thing, ie, from a Linux perspective, it's a feature of the
+"device". So it should be done in virtio itself, not the platform code.
 
-> > > On Wed 2018-05-23 12:54:15, Thomas Garnier wrote:
-> > > > When using -fPIE/PIC with function tracing, the compiler generates a
-> > > > call through the GOT (call *__fentry__@GOTPCREL). This instruction
-> > > > takes 6 bytes instead of 5 on the usual relative call.
-> > > >
-> > > > If PIE is enabled, replace the 6th byte of the GOT call by a 1-byte
-> nop
-> > > > so ftrace can handle the previous 5-bytes as before.
-> > > >
-> > > > Position Independent Executable (PIE) support will allow to extended
-> the
-> > > > KASLR randomization range below the -2G memory limit.
-> > > >
-> > > > Signed-off-by: Thomas Garnier <thgarnie@google.com>
-> > > > ---
-> > > >  arch/x86/include/asm/ftrace.h   |  6 +++--
-> > > >  arch/x86/include/asm/sections.h |  4 ++++
-> > > >  arch/x86/kernel/ftrace.c        | 42
-> +++++++++++++++++++++++++++++++--
-> > > >  3 files changed, 48 insertions(+), 4 deletions(-)
-> > > >
-> > > > diff --git a/arch/x86/include/asm/ftrace.h
-> b/arch/x86/include/asm/ftrace.h
-> > > > index c18ed65287d5..8f2decce38d8 100644
-> > > > --- a/arch/x86/include/asm/ftrace.h
-> > > > +++ b/arch/x86/include/asm/ftrace.h
-> > > > @@ -25,9 +25,11 @@ extern void __fentry__(void);
-> > > >  static inline unsigned long ftrace_call_adjust(unsigned long addr)
-> > > >  {
-> > > >     /*
-> > > > -    * addr is the address of the mcount call instruction.
-> > > > -    * recordmcount does the necessary offset calculation.
-> > > > +    * addr is the address of the mcount call instruction. PIE has
-> always a
-> > > > +    * byte added to the start of the function.
-> > > >      */
-> > > > +   if (IS_ENABLED(CONFIG_X86_PIE))
-> > > > +           addr -= 1;
-> > >
-> > > This seems to modify the address even for modules that are _not_
-> compiled with
-> > > PIE, see below.
+However, we do want the ability in platform code to force the bounce
+buffering to solve our secure VM issue.
 
-> > Can one load a module not compiled for PIE in a kernel with PIE?
-
-> > >
-> > > >     return addr;
-> > > >  }
-> > > >
-> > > > diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-> > > > index 01ebcb6f263e..73b3c30cb7a3 100644
-> > > > --- a/arch/x86/kernel/ftrace.c
-> > > > +++ b/arch/x86/kernel/ftrace.c
-> > > > @@ -135,6 +135,44 @@ ftrace_modify_code_direct(unsigned long ip,
-> unsigned const char *old_code,
-> > > >     return 0;
-> > > >  }
-> > > >
-> > > > +/* Bytes before call GOT offset */
-> > > > +const unsigned char got_call_preinsn[] = { 0xff, 0x15 };
-> > > > +
-> > > > +static int
-> > > > +ftrace_modify_initial_code(unsigned long ip, unsigned const char
-> *old_code,
-> > > > +                      unsigned const char *new_code)
-> > > > +{
-> > > > +   unsigned char replaced[MCOUNT_INSN_SIZE + 1];
-> > > > +
-> > > > +   ftrace_expected = old_code;
-> > > > +
-> > > > +   /*
-> > > > +    * If PIE is not enabled or no GOT call was found, default to
-the
-> > > > +    * original approach to code modification.
-> > > > +    */
-> > > > +   if (!IS_ENABLED(CONFIG_X86_PIE) ||
-> > > > +       probe_kernel_read(replaced, (void *)ip, sizeof(replaced)) ||
-> > > > +       memcmp(replaced, got_call_preinsn,
-sizeof(got_call_preinsn)))
-> > > > +           return ftrace_modify_code_direct(ip, old_code,
-new_code);
-> > >
-> > > And this looks like an attempt to handle modules compiled without
-> > > PIE. Does it works with the right ip in that case?
-
-> > I'm guessing the || is for the "or no GOT call was found", but it
-> > doesn't explain why no GOT would be found.
-
-> Yes, maybe I could have made it work by using text_ip_addr earlier.
-
-
-> > >
-> > > I wonder if a better solution would be to update
-> > > scripts/recordmcount.c to store the incremented location into the
-> module.
-
-> I will look into it.
-
-Found a way to properly change the __mcount_loc using the preprocessing
-(removing the need for -1 on the addr). It will be part of the next version.
-
-Thanks for the feedback.
-
-
-
-> > If recordmcount.c can handle this, then I think that's the preferred
-> > approach. Thanks!
-
-> > -- Steve
-
-> > >
-> > > IMPORTANT: I have only vague picture about how this all works. It is
-> > > possible that I am completely wrong. The code might be correct,
-> > > especially if you tested this situation.
-> > >
-> > > Best Regards,
-> > > Petr
-
-
-
-> --
-> Thomas
-
-
-
--- 
-Thomas
+Cheers,
+Ben.
