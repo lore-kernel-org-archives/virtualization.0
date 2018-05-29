@@ -1,12 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net] vhost_net: flush batched heads before trying to busy
-	polling
-Date: Tue, 29 May 2018 14:18:19 +0800
-Message-ID: <1527574699-13047-1-git-send-email-jasowang@redhat.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v3 09/27] x86/acpi: Adapt assembly for PIE support
+Date: Tue, 29 May 2018 14:31:14 +0200
+Message-ID: <20180529123114.GB21399@amd>
+References: <20180523195421.180248-1-thgarnie@google.com>
+	<20180523195421.180248-10-thgarnie@google.com>
+	<20180524110306.GA20225@amd>
+	<CAJcbSZFJ84+VC5xDQZGHctupdqwmMBgqzLzFRqCTBpi5t-2Gvw@mail.gmail.com>
+	<20180525091447.GC9666@amd>
+	<CAJcbSZH17D01Stk4vRKKzjW6dxvK8x+S9sWL6vUopSP9=-x7Nw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3574584313153394462=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAJcbSZH17D01Stk4vRKKzjW6dxvK8x+S9sWL6vUopSP9=-x7Nw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,113 +21,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Thomas Garnier <thgarnie@google.com>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>, Nicolas Pitre <nicolas.pitre@linaro.org>, the arch/x86 maintainers <x86@kernel.org>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Petr Mladek <pmladek@suse.com>, Len Brown <len.brown@intel.com>, Peter Zijlstra <peterz@infradead.org>, Yonghong Song <yhs@fb.com>, Christopher Li <sparse@chrisli.org>, Dave Hansen <dave.hansen@linux.intel.com>, Dominik Brodowski <linux@dominikbrodowski.net>, LKML <linux-kernel@vger.kernel.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Jan Beulich <JBeulich@suse.com>, "H . Peter Anvin" <hpa@zytor.com>, Kernel Hardening <kernel-hardening@lists.openwall.com>, Christoph Lameter <cl@linux.com>, Alok Kataria <akataria@vmware.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Herbert Xu <herbert@gondor.>
 List-Id: virtualization@lists.linuxfoundation.org
 
-After commit e2b3b35eb989 ("vhost_net: batch used ring update in rx"),
-we tend to batch updating used heads. But it doesn't flush batched
-heads before trying to do busy polling, this will cause vhost to wait
-for guest TX which waits for the used RX. Fixing by flush batched
-heads before busy loop.
 
-1 byte TCP_RR performance recovers from 13107.83 to 50402.65.
+--===============3574584313153394462==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
+Content-Disposition: inline
 
-Fixes: e2b3b35eb989 ("vhost_net: batch used ring update in rx")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c | 37 ++++++++++++++++++++++++-------------
- 1 file changed, 24 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 986058a..eeaf673 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -105,7 +105,9 @@ struct vhost_net_virtqueue {
- 	/* vhost zerocopy support fields below: */
- 	/* last used idx for outstanding DMA zerocopy buffers */
- 	int upend_idx;
--	/* first used idx for DMA done zerocopy buffers */
-+	/* For TX, first used idx for DMA done zerocopy buffers
-+	 * For RX, number of batched heads
-+	 */
- 	int done_idx;
- 	/* an array of userspace buffers info */
- 	struct ubuf_info *ubuf_info;
-@@ -626,6 +628,18 @@ static int sk_has_rx_data(struct sock *sk)
- 	return skb_queue_empty(&sk->sk_receive_queue);
- }
- 
-+static void vhost_rx_signal_used(struct vhost_net_virtqueue *nvq)
-+{
-+	struct vhost_virtqueue *vq = &nvq->vq;
-+	struct vhost_dev *dev = vq->dev;
-+
-+	if (!nvq->done_idx)
-+		return;
-+
-+	vhost_add_used_and_signal_n(dev, vq, vq->heads, nvq->done_idx);
-+	nvq->done_idx = 0;
-+}
-+
- static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
- {
- 	struct vhost_net_virtqueue *rvq = &net->vqs[VHOST_NET_VQ_RX];
-@@ -635,6 +649,8 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
- 	int len = peek_head_len(rvq, sk);
- 
- 	if (!len && vq->busyloop_timeout) {
-+		/* Flush batched heads first */
-+		vhost_rx_signal_used(rvq);
- 		/* Both tx vq and rx socket were polled here */
- 		mutex_lock_nested(&vq->mutex, 1);
- 		vhost_disable_notify(&net->dev, vq);
-@@ -762,7 +778,7 @@ static void handle_rx(struct vhost_net *net)
- 	};
- 	size_t total_len = 0;
- 	int err, mergeable;
--	s16 headcount, nheads = 0;
-+	s16 headcount;
- 	size_t vhost_hlen, sock_hlen;
- 	size_t vhost_len, sock_len;
- 	struct socket *sock;
-@@ -790,8 +806,8 @@ static void handle_rx(struct vhost_net *net)
- 	while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk))) {
- 		sock_len += sock_hlen;
- 		vhost_len = sock_len + vhost_hlen;
--		headcount = get_rx_bufs(vq, vq->heads + nheads, vhost_len,
--					&in, vq_log, &log,
-+		headcount = get_rx_bufs(vq, vq->heads + nvq->done_idx,
-+					vhost_len, &in, vq_log, &log,
- 					likely(mergeable) ? UIO_MAXIOV : 1);
- 		/* On error, stop handling until the next kick. */
- 		if (unlikely(headcount < 0))
-@@ -862,12 +878,9 @@ static void handle_rx(struct vhost_net *net)
- 			vhost_discard_vq_desc(vq, headcount);
- 			goto out;
- 		}
--		nheads += headcount;
--		if (nheads > VHOST_RX_BATCH) {
--			vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
--						    nheads);
--			nheads = 0;
--		}
-+		nvq->done_idx += headcount;
-+		if (nvq->done_idx > VHOST_RX_BATCH)
-+			vhost_rx_signal_used(nvq);
- 		if (unlikely(vq_log))
- 			vhost_log_write(vq, vq_log, log, vhost_len);
- 		total_len += vhost_len;
-@@ -878,9 +891,7 @@ static void handle_rx(struct vhost_net *net)
- 	}
- 	vhost_net_enable_vq(net, vq);
- out:
--	if (nheads)
--		vhost_add_used_and_signal_n(&net->dev, vq, vq->heads,
--					    nheads);
-+	vhost_rx_signal_used(nvq);
- 	mutex_unlock(&vq->mutex);
- }
- 
--- 
-2.7.4
+--IrhDeMKUP4DT/M7F
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri 2018-05-25 10:00:04, Thomas Garnier wrote:
+> On Fri, May 25, 2018 at 2:14 AM Pavel Machek <pavel@ucw.cz> wrote:
+>=20
+> > On Thu 2018-05-24 09:35:42, Thomas Garnier wrote:
+> > > On Thu, May 24, 2018 at 4:03 AM Pavel Machek <pavel@ucw.cz> wrote:
+> > >
+> > > > On Wed 2018-05-23 12:54:03, Thomas Garnier wrote:
+> > > > > Change the assembly code to use only relative references of symbo=
+ls
+> for
+> > > the
+> > > > > kernel to be PIE compatible.
+> > > > >
+> > > > > Position Independent Executable (PIE) support will allow to
+> extended the
+> > > > > KASLR randomization range below the -2G memory limit.
+> > >
+> > > > What testing did this get?
+> > >
+> > > Tested boot, hibernation and performance on qemu and dedicated machin=
+e.
+>=20
+> > Well, this is suspend, not hibernation code.
+>=20
+> > So "sudo pm-suspend" or "echo mem > /sys/power/state" would be good
+> > way to test this.
+>=20
+> Thanks, it worked. I added this to the testsuite I use for KASLR.
+
+Thanks!
+
+You can add my Acked-by:.
+
+								Pavel
+							=09
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--IrhDeMKUP4DT/M7F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlsNSBIACgkQMOfwapXb+vJcmwCfVtj/DQE+VyxRZUU8UjiQVdHr
+BO8AoIc6OVRZyFmsEwBtGucDDnQJI4fU
+=APXA
+-----END PGP SIGNATURE-----
+
+--IrhDeMKUP4DT/M7F--
+
+--===============3574584313153394462==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3574584313153394462==--
