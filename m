@@ -1,7 +1,7 @@
 From: Changpeng Liu <changpeng.liu@intel.com>
 Subject: [PATCH v5] virtio_blk: add DISCARD and WRIET ZEROES commands support
-Date: Tue, 29 May 2018 12:23:34 +0800
-Message-ID: <1527567814-4415-1-git-send-email-changpeng.liu@intel.com>
+Date: Tue, 29 May 2018 12:29:23 +0800
+Message-ID: <1527568163-4580-1-git-send-email-changpeng.liu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -89,7 +89,7 @@ v1: initial proposal implementation for discard command.
  2 files changed, 132 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 4a07593c..a250fcc 100644
+index 4a07593c..fabab2a 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
 @@ -172,10 +172,45 @@ static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr,
@@ -206,7 +206,7 @@ index 4a07593c..a250fcc 100644
 +		else
 +			blk_queue_max_discard_segments(q, USHRT_MAX);
 +
-+		queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, q);
++		blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
 +	}
 +
 +	if (virtio_has_feature(vdev, VIRTIO_BLK_F_WRITE_ZEROES)) {
