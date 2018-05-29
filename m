@@ -1,15 +1,14 @@
-From: Thomas Garnier via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH v4 12/27] x86/paravirt: Adapt assembly for PIE support
-Date: Tue, 29 May 2018 15:15:13 -0700
-Message-ID: <20180529221625.33541-13-thgarnie@google.com>
-References: <20180529221625.33541-1-thgarnie@google.com>
-Reply-To: Thomas Garnier <thgarnie@google.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [net] vhost: Use kzalloc() to allocate vhost_msg_node
+Date: Tue, 29 May 2018 15:19:08 -0700
+Message-ID: <20180529221908.GA22742__35283.329539425$1527632296$gmane$org@roeck-us.net>
+References: <20180427154502.GA22544@la.guarana.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180529221625.33541-1-thgarnie@google.com>
+Content-Disposition: inline
+In-Reply-To: <20180427154502.GA22544@la.guarana.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,53 +18,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kernel-hardening@lists.openwall.com
-Cc: Juergen Gross <jgross@suse.com>, x86@kernel.org, linux-kernel@vger.kernel.org, Thomas Garnier <thgarnie@google.com>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, virtualization@lists.linux-foundation.org, Thomas Gleixner <tglx@linutronix.de>
+To: Kevin Easton <kevin@guarana.org>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-if PIE is enabled, switch the paravirt assembly constraints to be
-compatible. The %c/i constrains generate smaller code so is kept by
-default.
+On Fri, Apr 27, 2018 at 11:45:02AM -0400, Kevin Easton wrote:
+> The struct vhost_msg within struct vhost_msg_node is copied to userspace,
+> so it should be allocated with kzalloc() to ensure all structure padding
+> is zeroed.
+> 
+> Signed-off-by: Kevin Easton <kevin@guarana.org>
+> Reported-by: syzbot+87cfa083e727a224754b@syzkaller.appspotmail.com
 
-Position Independent Executable (PIE) support will allow to extend the
-KASLR randomization range 0xffffffff80000000.
+Is this patch going anywhere ?
 
-Signed-off-by: Thomas Garnier <thgarnie@google.com>
----
- arch/x86/include/asm/paravirt_types.h | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+The patch fixes CVE-2018-1118. It would be useful to understand if and when
+this problem is going to be fixed.
 
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 180bc0bff0fb..140747a98d94 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -337,9 +337,17 @@ extern struct pv_lock_ops pv_lock_ops;
- #define PARAVIRT_PATCH(x)					\
- 	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
- 
-+#ifdef CONFIG_X86_PIE
-+#define paravirt_opptr_call "a"
-+#define paravirt_opptr_type "p"
-+#else
-+#define paravirt_opptr_call "c"
-+#define paravirt_opptr_type "i"
-+#endif
-+
- #define paravirt_type(op)				\
- 	[paravirt_typenum] "i" (PARAVIRT_PATCH(op)),	\
--	[paravirt_opptr] "i" (&(op))
-+	[paravirt_opptr] paravirt_opptr_type (&(op))
- #define paravirt_clobber(clobber)		\
- 	[paravirt_clobber] "i" (clobber)
- 
-@@ -395,7 +403,7 @@ int paravirt_disable_iospace(void);
-  */
- #define PARAVIRT_CALL					\
- 	ANNOTATE_RETPOLINE_SAFE				\
--	"call *%c[paravirt_opptr];"
-+	"call *%" paravirt_opptr_call "[paravirt_opptr];"
- 
- /*
-  * These macros are intended to wrap calls through one of the paravirt
--- 
-2.17.0.921.gf22659ad46-goog
+Thanks,
+Guenter
+
+> ---
+>  drivers/vhost/vhost.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index f3bd8e9..1b84dcff 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2339,7 +2339,7 @@ EXPORT_SYMBOL_GPL(vhost_disable_notify);
+>  /* Create a new message. */
+>  struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type)
+>  {
+> -	struct vhost_msg_node *node = kmalloc(sizeof *node, GFP_KERNEL);
+> +	struct vhost_msg_node *node = kzalloc(sizeof *node, GFP_KERNEL);
+>  	if (!node)
+>  		return NULL;
+>  	node->vq = vq;
