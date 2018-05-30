@@ -1,16 +1,17 @@
-From: "Rustad, Mark D" <mark.d.rustad@intel.com>
-Subject: Re: [PATCH] virtio_pci: support enabling VFs
-Date: Wed, 30 May 2018 17:11:37 +0000
-Message-ID: <5063D90B-7955-4F1E-85A2-D8AFD661ACB7@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] [PATCH] virtio_pci: support enabling VFs
+Date: Wed, 30 May 2018 20:15:43 +0300
+Message-ID: <20180530201034-mutt-send-email-mst__21575.9478080601$1527700428$gmane$org@kernel.org>
 References: <20180530085521.26583-1-tiwei.bie@intel.com>
-	<20180530192010-mutt-send-email-mst@kernel.org>
-	<414C18B1-30FA-4AC0-B47D-F0FBF9832737@intel.com>
-	<1527699273.29907.2.camel@intel.com>
+	<CAKgT0UcRZd5ajpTyC3KMvNFACVAb6D8A9Tss3m0r+UdamvVeRA@mail.gmail.com>
+	<20180530192215-mutt-send-email-mst@kernel.org>
+	<1527697588.16245.136.camel@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1241826237455689109=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1527699273.29907.2.camel@intel.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1527697588.16245.136.camel@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,98 +22,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Duyck, Alexander H" <alexander.h.duyck@intel.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mst@redhat.com" <mst@redhat.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Wang,
-	Zhihong" <zhihong.wang@intel.com>, "bhelgaas@google.com" <bhelgaas@google.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alexander.duyck@gmail.com" <alexander.duyck@gmail.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Wang,
+	Zhihong" <zhihong.wang@intel.com>, "bhelgaas@google.com" <bhelgaas@google.com>, "Rustad,
+	Mark D" <mark.d.rustad@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============1241826237455689109==
-Content-Language: en-US
-Content-Type: multipart/signed;
-	boundary="Apple-Mail=_79A5F5B5-3E24-4259-A6B1-321A0585332D";
-	protocol="application/pgp-signature"; micalg=pgp-sha256
+On Wed, May 30, 2018 at 04:26:30PM +0000, Duyck, Alexander H wrote:
+> On Wed, 2018-05-30 at 19:22 +0300, Michael S. Tsirkin wrote:
+> > On Wed, May 30, 2018 at 09:10:57AM -0700, Alexander Duyck wrote:
+> > > On Wed, May 30, 2018 at 1:55 AM, Tiwei Bie <tiwei.bie@intel.com> wrote:
+> > > > There is a new feature bit allocated in virtio spec to
+> > > > support SR-IOV (Single Root I/O Virtualization):
+> > > > 
+> > > > https://github.com/oasis-tcs/virtio-spec/issues/11
+> > > > 
+> > > > This patch enables the support for this feature bit in
+> > > > virtio driver.
+> > > > 
+> > > > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+> > > 
+> > > So from a quick glance it looks like we are leaving SR-IOV enabled if
+> > > the driver is removed. Do we want to have that behavior or should we
+> > > be adding the code to disable SR-IOV and free the VFs on driver
+> > > removal?
+> > 
+> > Could pci core handle it for us somehow?
+> 
+> Maybe, but it would require changes to the pci core to do it.
+> 
+> The problem is some drivers want to leave the VFs there since the PF
+> doesn't really do anything, or they have the option of essentially
+> putting the VFs into a standby state when the PF is gone.
+> 
+> My main concern is do we care if VFs are allocated and then somebody
+> removes the driver and binds a different driver to the interface? If
+> not then this code and be left as is, but I just wanted to be certain
+> since I know this isn't just enabling SR-IOV we are having to do a
+> number of other checks against the virtio device.
 
---Apple-Mail=_79A5F5B5-3E24-4259-A6B1-321A0585332D
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=us-ascii;
-	delsp=yes;
-	format=flowed
+Well the spec says features have to be negotiated, and since we reset
+the device when we unbind from it I think it's a given we should keep a
+driver bound to the PF.
 
-On May 30, 2018, at 9:54 AM, Duyck, Alexander H  
-<alexander.h.duyck@intel.com> wrote:
+IOW until we are sure we need the capability to keep it enabled, let's
+disable it to be safe.
 
-> On Wed, 2018-05-30 at 09:44 -0700, Rustad, Mark D wrote:
->> On May 30, 2018, at 9:22 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->>
->>>> +static int virtio_pci_sriov_configure(struct pci_dev *pci_dev, int
->>>> num_vfs)
->>>> +{
->>>> +	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
->>>> +	struct virtio_device *vdev = &vp_dev->vdev;
->>>> +	int (*sriov_configure)(struct pci_dev *pci_dev, int num_vfs);
->>>> +
->>>> +	if (!(vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_DRIVER_OK))
->>>> +		return -EBUSY;
->>>> +
->>>> +	if (!__virtio_test_bit(vdev, VIRTIO_F_SR_IOV))
->>>> +		return -EINVAL;
->>>> +
->>>> +	sriov_configure = pci_sriov_configure_simple;
->>>> +	if (sriov_configure == NULL)
->>>> +		return -ENOENT;
->>>
->>> BTW what is all this trickery in aid of?
->>
->> When SR-IOV support is not compiled into the kernel,
->> pci_sriov_configure_simple is #defined as NULL. This allows it to compile
->> in that case, even though there is utterly no way for it to be called in
->> that case. It is an alternative to #ifs in the code.
->
-> Why even have the call though? I would wrap all of this in an #ifdef
-> and strip it out since you couldn't support SR-IOV if it isn't present
-> in the kernel anyway.
-
-I am inclined to agree. In this case, the presence of #ifdefs I think would  
-be clearer. As written, someone will want to get rid of the pointer only to  
-create a build problem when SR-IOV is not configured.
-
---
-Mark Rustad, Networking Division, Intel Corporation
-
---Apple-Mail=_79A5F5B5-3E24-4259-A6B1-321A0585332D
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="signature.asc"
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Message signed with OpenPGP
-
------BEGIN PGP SIGNATURE-----
-Comment: GPGTools - http://gpgtools.org
-
-iQIzBAEBCAAdFiEE6ug8b0Wg+ULmnksNPA7/547j7m4FAlsO20gACgkQPA7/547j
-7m6sgA//aFVQG9ccnLqmx0UcGSLODSICO8nOjKH5F9TnF3JLAawh9D23rjyqdZvC
-MwKssNOkMklZO9i5/2oYs4OaA2Y/prT1ocHZjL5q7gmU8kZIDSJZkbwb83M2p4ov
-Cq7EHKmoBJssyHPiRG92KCRBpx2df9eIHW0X+FeoWvjTIVcLg2B7D+4hE+u7HsFJ
-xMDsOCDYUAEI1RK8+IhaLpwFxjUsQGTW152Kg6vY+92JCVcm1U50bywJeyX81i7s
-eJMOmDFDuwtZbKe59IYQuEHZVTWf/2A4Pgx1tddfzNdpGIhB8+1UQjSBakOqpE2Q
-b/8CgGNP6MO+qsoy1RX/y/0Gnhr5zKSffDRt0neTmZ77FHltFoZSlshMPEfSpRGH
-4SM/HO77OPq29gFVq2Hd5v2h4SAELExSuwIyyU2nFkyPFIR0F3UxZ5lccdAQSuzt
-/6zaame34yhQdeQuD457GKinAQX+c6sEPaztYN/jVqtPkv3TiJOPS5sMaWtb4Rwk
-PT8EkC/BtIyO1gsLcrNwrzZAQKmkq7OajiD8dtwboGN0uPTKm7/eTB3A/UdKB+XL
-BU5wg8Hw6uL/dsjFvkqBZYml88bDPKqz2TjnqS/MI6oJdPsZI68IlHaSvQHK1HPU
-hnnBQfDp878SQrSsA+mWe+eHc/YIj87DM/A/eVBLfTor5pnUcJM=
-=oOs9
------END PGP SIGNATURE-----
-
---Apple-Mail=_79A5F5B5-3E24-4259-A6B1-321A0585332D--
-
---===============1241826237455689109==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1241826237455689109==--
+-- 
+MST
