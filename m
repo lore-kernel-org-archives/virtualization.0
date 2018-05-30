@@ -1,17 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] [PATCH] virtio_pci: support enabling VFs
-Date: Wed, 30 May 2018 20:15:43 +0300
-Message-ID: <20180530201034-mutt-send-email-mst__21575.9478080601$1527700428$gmane$org@kernel.org>
-References: <20180530085521.26583-1-tiwei.bie@intel.com>
-	<CAKgT0UcRZd5ajpTyC3KMvNFACVAb6D8A9Tss3m0r+UdamvVeRA@mail.gmail.com>
-	<20180530192215-mutt-send-email-mst@kernel.org>
-	<1527697588.16245.136.camel@intel.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net] vhost_net: flush batched heads before trying to
+	busy polling
+Date: Wed, 30 May 2018 13:31:04 -0400 (EDT)
+Message-ID: <20180530.133104.1841137099094945800.davem__9356.15091952986$1527701367$gmane$org@davemloft.net>
+References: <1527574699-13047-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1527697588.16245.136.camel@intel.com>
+In-Reply-To: <1527574699-13047-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,51 +18,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Duyck, Alexander H" <alexander.h.duyck@intel.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alexander.duyck@gmail.com" <alexander.duyck@gmail.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Wang,
-	Zhihong" <zhihong.wang@intel.com>, "bhelgaas@google.com" <bhelgaas@google.com>, "Rustad,
-	Mark D" <mark.d.rustad@intel.com>
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 30, 2018 at 04:26:30PM +0000, Duyck, Alexander H wrote:
-> On Wed, 2018-05-30 at 19:22 +0300, Michael S. Tsirkin wrote:
-> > On Wed, May 30, 2018 at 09:10:57AM -0700, Alexander Duyck wrote:
-> > > On Wed, May 30, 2018 at 1:55 AM, Tiwei Bie <tiwei.bie@intel.com> wrote:
-> > > > There is a new feature bit allocated in virtio spec to
-> > > > support SR-IOV (Single Root I/O Virtualization):
-> > > > 
-> > > > https://github.com/oasis-tcs/virtio-spec/issues/11
-> > > > 
-> > > > This patch enables the support for this feature bit in
-> > > > virtio driver.
-> > > > 
-> > > > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> > > 
-> > > So from a quick glance it looks like we are leaving SR-IOV enabled if
-> > > the driver is removed. Do we want to have that behavior or should we
-> > > be adding the code to disable SR-IOV and free the VFs on driver
-> > > removal?
-> > 
-> > Could pci core handle it for us somehow?
-> 
-> Maybe, but it would require changes to the pci core to do it.
-> 
-> The problem is some drivers want to leave the VFs there since the PF
-> doesn't really do anything, or they have the option of essentially
-> putting the VFs into a standby state when the PF is gone.
-> 
-> My main concern is do we care if VFs are allocated and then somebody
-> removes the driver and binds a different driver to the interface? If
-> not then this code and be left as is, but I just wanted to be certain
-> since I know this isn't just enabling SR-IOV we are having to do a
-> number of other checks against the virtio device.
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 29 May 2018 14:18:19 +0800
 
-Well the spec says features have to be negotiated, and since we reset
-the device when we unbind from it I think it's a given we should keep a
-driver bound to the PF.
+> After commit e2b3b35eb989 ("vhost_net: batch used ring update in rx"),
+> we tend to batch updating used heads. But it doesn't flush batched
+> heads before trying to do busy polling, this will cause vhost to wait
+> for guest TX which waits for the used RX. Fixing by flush batched
+> heads before busy loop.
+> 
+> 1 byte TCP_RR performance recovers from 13107.83 to 50402.65.
+> 
+> Fixes: e2b3b35eb989 ("vhost_net: batch used ring update in rx")
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-IOW until we are sure we need the capability to keep it enabled, let's
-disable it to be safe.
-
--- 
-MST
+Applied and queued up for -stable.
