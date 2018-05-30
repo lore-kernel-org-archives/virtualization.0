@@ -1,11 +1,15 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [PATCH] virtio_pci: support enabling VFs
-Date: Wed, 30 May 2018 16:55:21 +0800
-Message-ID: <20180530085521.26583-1-tiwei.bie__16075.7954734892$1527670410$gmane$org@intel.com>
+From: Wei Xu <wexu@redhat.com>
+Subject: Re: [RFC V5 PATCH 8/8] vhost: event suppression for packed ring
+Date: Wed, 30 May 2018 19:42:00 +0800
+Message-ID: <20180530114200.GA23792@wei-ubt>
+References: <1527559830-8133-1-git-send-email-jasowang@redhat.com>
+	<1527559830-8133-9-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1527559830-8133-9-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,124 +19,340 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, bhelgaas@google.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtio-dev@lists.oasis-open.org, linux-pci@vger.kernel.org
-Cc: alexander.h.duyck@intel.com, mark.d.rustad@intel.com, zhihong.wang@intel.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-There is a new feature bit allocated in virtio spec to
-support SR-IOV (Single Root I/O Virtualization):
+On Tue, May 29, 2018 at 10:10:30AM +0800, Jason Wang wrote:
+> This patch introduces basic support for event suppression aka driver
+> and device area.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vhost/vhost.c            | 191 ++++++++++++++++++++++++++++++++++++---
+>  drivers/vhost/vhost.h            |  10 +-
+>  include/uapi/linux/virtio_ring.h |  19 ++++
+>  3 files changed, 204 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index a36e5ad2..112f680 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -1112,10 +1112,15 @@ static int vq_access_ok_packed(struct vhost_virtqueue *vq, unsigned int num,
+>  			       struct vring_used __user *used)
+>  {
+>  	struct vring_desc_packed *packed = (struct vring_desc_packed *)desc;
+> +	struct vring_packed_desc_event *driver_event =
+> +		(struct vring_packed_desc_event *)avail;
+> +	struct vring_packed_desc_event *device_event =
+> +		(struct vring_packed_desc_event *)used;
+>  
+> -	/* FIXME: check device area and driver area */
+>  	return access_ok(VERIFY_READ, packed, num * sizeof(*packed)) &&
+> -	       access_ok(VERIFY_WRITE, packed, num * sizeof(*packed));
+> +	       access_ok(VERIFY_WRITE, packed, num * sizeof(*packed)) &&
+> +	       access_ok(VERIFY_READ, driver_event, sizeof(*driver_event)) &&
+> +	       access_ok(VERIFY_WRITE, device_event, sizeof(*device_event));
+>  }
+>  
+>  static int vq_access_ok_split(struct vhost_virtqueue *vq, unsigned int num,
+> @@ -1190,14 +1195,27 @@ static bool iotlb_access_ok(struct vhost_virtqueue *vq,
+>  	return true;
+>  }
+>  
+> -int vq_iotlb_prefetch(struct vhost_virtqueue *vq)
+> +int vq_iotlb_prefetch_packed(struct vhost_virtqueue *vq)
+> +{
+> +	int num = vq->num;
+> +
+> +	return iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->desc,
+> +			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
+> +	       iotlb_access_ok(vq, VHOST_ACCESS_WO, (u64)(uintptr_t)vq->desc,
+> +			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
+> +	       iotlb_access_ok(vq, VHOST_ACCESS_RO,
+> +			       (u64)(uintptr_t)vq->driver_event,
+> +			       sizeof(*vq->driver_event), VHOST_ADDR_AVAIL) &&
+> +	       iotlb_access_ok(vq, VHOST_ACCESS_WO,
+> +			       (u64)(uintptr_t)vq->device_event,
+> +			       sizeof(*vq->device_event), VHOST_ADDR_USED);
+> +}
+> +
+> +int vq_iotlb_prefetch_split(struct vhost_virtqueue *vq)
+>  {
+>  	size_t s = vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
+>  	unsigned int num = vq->num;
+>  
+> -	if (!vq->iotlb)
+> -		return 1;
+> -
+>  	return iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->desc,
+>  			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
+>  	       iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->avail,
+> @@ -1209,6 +1227,17 @@ int vq_iotlb_prefetch(struct vhost_virtqueue *vq)
+>  			       num * sizeof(*vq->used->ring) + s,
+>  			       VHOST_ADDR_USED);
+>  }
+> +
+> +int vq_iotlb_prefetch(struct vhost_virtqueue *vq)
+> +{
+> +	if (!vq->iotlb)
+> +		return 1;
+> +
+> +	if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
+> +		return vq_iotlb_prefetch_packed(vq);
+> +	else
+> +		return vq_iotlb_prefetch_split(vq);
+> +}
+>  EXPORT_SYMBOL_GPL(vq_iotlb_prefetch);
+>  
+>  /* Can we log writes? */
+> @@ -1730,6 +1759,50 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
+>  	return 0;
+>  }
+>  
+> +static int vhost_update_device_flags(struct vhost_virtqueue *vq,
+> +				     __virtio16 device_flags)
+> +{
+> +	void __user *flags;
+> +
+> +	if (vhost_put_user(vq, device_flags, &vq->device_event->flags,
+> +			   VHOST_ADDR_USED) < 0)
+> +		return -EFAULT;
+> +	if (unlikely(vq->log_used)) {
+> +		/* Make sure the flag is seen before log. */
+> +		smp_wmb();
+> +		/* Log used flag write. */
+> +		flags = &vq->device_event->flags;
+> +		log_write(vq->log_base, vq->log_addr +
+> +			  (flags - (void __user *)vq->device_event),
+> +			  sizeof(vq->device_event->flags));
+> +		if (vq->log_ctx)
+> +			eventfd_signal(vq->log_ctx, 1);
+> +	}
+> +	return 0;
+> +}
+> +
+> +static int vhost_update_device_off_wrap(struct vhost_virtqueue *vq,
+> +					__virtio16 device_off_wrap)
+> +{
+> +	void __user *off_wrap;
+> +
+> +	if (vhost_put_user(vq, device_off_wrap, &vq->device_event->off_wrap,
+> +			   VHOST_ADDR_USED) < 0)
+> +		return -EFAULT;
+> +	if (unlikely(vq->log_used)) {
+> +		/* Make sure the flag is seen before log. */
+> +		smp_wmb();
+> +		/* Log used flag write. */
+> +		off_wrap = &vq->device_event->off_wrap;
+> +		log_write(vq->log_base, vq->log_addr +
+> +			  (off_wrap - (void __user *)vq->device_event),
+> +			  sizeof(vq->device_event->off_wrap));
+> +		if (vq->log_ctx)
+> +			eventfd_signal(vq->log_ctx, 1);
+> +	}
+> +	return 0;
+> +}
+> +
+>  static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
+>  {
+>  	if (vhost_put_user(vq, cpu_to_vhost16(vq, vq->avail_idx),
+> @@ -2683,16 +2756,13 @@ int vhost_add_used_n(struct vhost_virtqueue *vq,
+>  }
+>  EXPORT_SYMBOL_GPL(vhost_add_used_n);
+>  
+> -static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+> +static bool vhost_notify_split(struct vhost_dev *dev,
+> +			       struct vhost_virtqueue *vq)
+>  {
+>  	__u16 old, new;
+>  	__virtio16 event;
+>  	bool v;
+>  
+> -	/* FIXME: check driver area */
+> -	if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
+> -		return true;
+> -
+>  	/* Flush out used index updates. This is paired
+>  	 * with the barrier that the Guest executes when enabling
+>  	 * interrupts. */
+> @@ -2725,6 +2795,64 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>  	return vring_need_event(vhost16_to_cpu(vq, event), new, old);
+>  }
+>  
+> +static bool vhost_notify_packed(struct vhost_dev *dev,
+> +				struct vhost_virtqueue *vq)
+> +{
+> +	__virtio16 event_off_wrap, event_flags;
+> +	__u16 old, new, off_wrap;
+> +	bool v;
+> +
+> +	/* Flush out used descriptors updates. This is paired
+> +	 * with the barrier that the Guest executes when enabling
+> +	 * interrupts.
+> +	 */
+> +	smp_mb();
+> +
+> +	if (vhost_get_avail(vq, event_flags,
+> +			   &vq->driver_event->flags) < 0) {
+> +		vq_err(vq, "Failed to get driver desc_event_flags");
+> +		return true;
+> +	}
+> +
+> +	if (!vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX))
+> +		return event_flags !=
+> +		       cpu_to_vhost16(vq, RING_EVENT_FLAGS_DISABLE);
+> +
+> +	old = vq->signalled_used;
+> +	v = vq->signalled_used_valid;
+> +	new = vq->signalled_used = vq->last_used_idx;
+> +	vq->signalled_used_valid = true;
+> +
+> +	if (event_flags != cpu_to_vhost16(vq, RING_EVENT_FLAGS_DESC))
+> +		return event_flags !=
+> +		       cpu_to_vhost16(vq, RING_EVENT_FLAGS_DISABLE);
+> +
+> +	/* Read desc event flags before event_off and event_wrap */
+> +	smp_rmb();
+> +
+> +	if (vhost_get_avail(vq, event_off_wrap,
+> +			    &vq->driver_event->off_wrap) < 0) {
+> +		vq_err(vq, "Failed to get driver desc_event_off/wrap");
+> +		return true;
+> +	}
+> +
+> +	off_wrap = vhost16_to_cpu(vq, event_off_wrap);
+> +
+> +	if (unlikely(!v))
+> +		return true;
+> +
+> +	return vhost_vring_packed_need_event(vq, vq->used_wrap_counter,
+> +					     off_wrap, new, old);
+> +}
+> +
+> +static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+> +{
+> +	if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
+> +		return vhost_notify_packed(dev, vq);
+> +	else
+> +		return vhost_notify_split(dev, vq);
+> +}
+> +
+>  /* This actually signals the guest, using eventfd. */
+>  void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>  {
+> @@ -2802,10 +2930,34 @@ static bool vhost_enable_notify_packed(struct vhost_dev *dev,
+>  				       struct vhost_virtqueue *vq)
+>  {
+>  	struct vring_desc_packed *d = vq->desc_packed + vq->avail_idx;
+> -	__virtio16 flags;
+> +	__virtio16 flags = RING_EVENT_FLAGS_ENABLE;
+>  	int ret;
+>  
+> -	/* FIXME: disable notification through device area */
+> +	if (!(vq->used_flags & VRING_USED_F_NO_NOTIFY))
+> +		return false;
+> +	vq->used_flags &= ~VRING_USED_F_NO_NOTIFY;
 
-https://github.com/oasis-tcs/virtio-spec/issues/11
+'used_flags' was originally designed for 1.0, why should we pay attetion to it here?
 
-This patch enables the support for this feature bit in
-virtio driver.
-
-Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
----
-This patch depends on below proposal:
-https://lists.oasis-open.org/archives/virtio-dev/201805/msg00154.html
-
-This patch depends on below patch:
-https://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git/commit/?h=pci/virtualization&id=8effc395c2097e258fcedfc02ed4a66d45fb4238
-
- drivers/virtio/virtio_pci_common.c | 20 ++++++++++++++++++++
- drivers/virtio/virtio_pci_modern.c | 14 ++++++++++++++
- include/uapi/linux/virtio_config.h |  7 ++++++-
- 3 files changed, 40 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 48d4d1cf1cb6..023da80a7a3e 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -588,6 +588,25 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
- 	put_device(dev);
- }
- 
-+static int virtio_pci_sriov_configure(struct pci_dev *pci_dev, int num_vfs)
-+{
-+	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
-+	struct virtio_device *vdev = &vp_dev->vdev;
-+	int (*sriov_configure)(struct pci_dev *pci_dev, int num_vfs);
-+
-+	if (!(vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_DRIVER_OK))
-+		return -EBUSY;
-+
-+	if (!__virtio_test_bit(vdev, VIRTIO_F_SR_IOV))
-+		return -EINVAL;
-+
-+	sriov_configure = pci_sriov_configure_simple;
-+	if (sriov_configure == NULL)
-+		return -ENOENT;
-+
-+	return sriov_configure(pci_dev, num_vfs);
-+}
-+
- static struct pci_driver virtio_pci_driver = {
- 	.name		= "virtio-pci",
- 	.id_table	= virtio_pci_id_table,
-@@ -596,6 +615,7 @@ static struct pci_driver virtio_pci_driver = {
- #ifdef CONFIG_PM_SLEEP
- 	.driver.pm	= &virtio_pci_pm_ops,
- #endif
-+	.sriov_configure = virtio_pci_sriov_configure,
- };
- 
- module_pci_driver(virtio_pci_driver);
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 2555d80f6eec..07571daccfec 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -153,14 +153,28 @@ static u64 vp_get_features(struct virtio_device *vdev)
- 	return features;
- }
- 
-+static void vp_transport_features(struct virtio_device *vdev, u64 features)
-+{
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+	struct pci_dev *pci_dev = vp_dev->pci_dev;
-+
-+	if ((features & BIT_ULL(VIRTIO_F_SR_IOV)) &&
-+			pci_find_ext_capability(pci_dev, PCI_EXT_CAP_ID_SRIOV))
-+		__virtio_set_bit(vdev, VIRTIO_F_SR_IOV);
-+}
-+
- /* virtio config->finalize_features() implementation */
- static int vp_finalize_features(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+	u64 features = vdev->features;
- 
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
- 
-+	/* Give virtio_pci a chance to accept features. */
-+	vp_transport_features(vdev, features);
-+
- 	if (!__virtio_test_bit(vdev, VIRTIO_F_VERSION_1)) {
- 		dev_err(&vdev->dev, "virtio: device uses modern interface "
- 			"but does not have VIRTIO_F_VERSION_1\n");
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index 308e2096291f..b7c1f4e7d59e 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -49,7 +49,7 @@
-  * transport being used (eg. virtio_ring), the rest are per-device feature
-  * bits. */
- #define VIRTIO_TRANSPORT_F_START	28
--#define VIRTIO_TRANSPORT_F_END		34
-+#define VIRTIO_TRANSPORT_F_END		38
- 
- #ifndef VIRTIO_CONFIG_NO_LEGACY
- /* Do we get callbacks when the ring is completely used, even if we've
-@@ -71,4 +71,9 @@
-  * this is for compatibility with legacy systems.
-  */
- #define VIRTIO_F_IOMMU_PLATFORM		33
-+
-+/*
-+ * Does the device support Single Root I/O Virtualization?
-+ */
-+#define VIRTIO_F_SR_IOV			37
- #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
--- 
-2.17.0
+Wei
+> +
+> +	if (vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX)) {
+> +		__virtio16 off_wrap = cpu_to_vhost16(vq, vq->avail_idx |
+> +				      vq->avail_wrap_counter << 15);
+> +
+> +		ret = vhost_update_device_off_wrap(vq, off_wrap);
+> +		if (ret) {
+> +			vq_err(vq, "Failed to write to off warp at %p: %d\n",
+> +			       &vq->device_event->off_wrap, ret);
+> +			return false;
+> +		}
+> +		/* Make sure off_wrap is wrote before flags */
+> +		smp_wmb();
+> +		flags = RING_EVENT_FLAGS_DESC;
+> +	}
+> +
+> +	ret = vhost_update_device_flags(vq, flags);
+> +	if (ret) {
+> +		vq_err(vq, "Failed to enable notification at %p: %d\n",
+> +			&vq->device_event->flags, ret);
+> +		return false;
+> +	}
+>  
+>  	/* They could have slipped one in as we were doing that: make
+>  	 * sure it's written, then check again. */
+> @@ -2871,7 +3023,18 @@ EXPORT_SYMBOL_GPL(vhost_enable_notify);
+>  static void vhost_disable_notify_packed(struct vhost_dev *dev,
+>  					struct vhost_virtqueue *vq)
+>  {
+> -	/* FIXME: disable notification through device area */
+> +	__virtio16 flags;
+> +	int r;
+> +
+> +	if (vq->used_flags & VRING_USED_F_NO_NOTIFY)
+> +		return;
+> +	vq->used_flags |= VRING_USED_F_NO_NOTIFY;
+> +
+> +	flags = cpu_to_vhost16(vq, RING_EVENT_FLAGS_DISABLE);
+> +	r = vhost_update_device_flags(vq, flags);
+> +	if (r)
+> +		vq_err(vq, "Failed to enable notification at %p: %d\n",
+> +		       &vq->device_event->flags, r);
+>  }
+>  
+>  static void vhost_disable_notify_split(struct vhost_dev *dev,
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index 7543a46..b920582 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -96,8 +96,14 @@ struct vhost_virtqueue {
+>  		struct vring_desc __user *desc;
+>  		struct vring_desc_packed __user *desc_packed;
+>  	};
+> -	struct vring_avail __user *avail;
+> -	struct vring_used __user *used;
+> +	union {
+> +		struct vring_avail __user *avail;
+> +		struct vring_packed_desc_event __user *driver_event;
+> +	};
+> +	union {
+> +		struct vring_used __user *used;
+> +		struct vring_packed_desc_event __user *device_event;
+> +	};
+>  	const struct vhost_umem_node *meta_iotlb[VHOST_NUM_ADDRS];
+>  	struct file *kick;
+>  	struct eventfd_ctx *call_ctx;
+> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+> index e297580..71c7a46 100644
+> --- a/include/uapi/linux/virtio_ring.h
+> +++ b/include/uapi/linux/virtio_ring.h
+> @@ -75,6 +75,25 @@ struct vring_desc_packed {
+>  	__virtio16 flags;
+>  };
+>  
+> +/* Enable events */
+> +#define RING_EVENT_FLAGS_ENABLE 0x0
+> +/* Disable events */
+> +#define RING_EVENT_FLAGS_DISABLE 0x1
+> +/*
+> + * Enable events for a specific descriptor
+> + * (as specified by Descriptor Ring Change Event Offset/Wrap Counter).
+> + * Only valid if VIRTIO_F_RING_EVENT_IDX has been negotiated.
+> + */
+> +#define RING_EVENT_FLAGS_DESC 0x2
+> +/* The value 0x3 is reserved */
+> +
+> +struct vring_packed_desc_event {
+> +	/* Descriptor Ring Change Event Offset and Wrap Counter */
+> +	__virtio16 off_wrap;
+> +	/* Descriptor Ring Change Event Flags */
+> +	__virtio16 flags;
+> +};
+> +
+>  /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
+>  struct vring_desc {
+>  	/* Address (guest-physical). */
+> -- 
+> 2.7.4
+> 
