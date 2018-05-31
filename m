@@ -1,16 +1,15 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [PATCH net-next v12 2/5] netvsc: refactor notifier/event handling
-	code to use the failover framework
-Date: Wed, 30 May 2018 20:03:11 -0700
-Message-ID: <274f0b84-07f1-5cd5-e256-ce4b71358c14@intel.com>
-References: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
-	<1527180917-39737-3-git-send-email-sridhar.samudrala@intel.com>
-	<20180530220635.206ee6d7@shemminger-XPS-13-9360>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC V5 PATCH 8/8] vhost: event suppression for packed ring
+Date: Thu, 31 May 2018 11:09:07 +0800
+Message-ID: <12f2c455-5868-3b07-0eba-d49dcafd10f2__10009.6440095969$1527736058$gmane$org@redhat.com>
+References: <1527559830-8133-1-git-send-email-jasowang@redhat.com>
+	<1527559830-8133-9-git-send-email-jasowang@redhat.com>
+	<20180530114200.GA23792@wei-ubt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180530220635.206ee6d7@shemminger-XPS-13-9360>
+In-Reply-To: <20180530114200.GA23792@wei-ubt>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,28 +20,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
+To: Wei Xu <wexu@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 5/30/2018 7:06 PM, Stephen Hemminger wrote:
-> On Thu, 24 May 2018 09:55:14 -0700
-> Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
->
->> Use the registration/notification framework supported by the generic
->> failover infrastructure.
->>
->> Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
-> Why was this merged? It was never signed off by any of the netvsc maintainers,
-> and there were still issues unresolved.
->
-> There are also namespaces issues I am fixing and this breaks them.
-> Will start my patch set with a revert for this. Sorry
-
-I would appreciate if you can make the fixes on top of this patch series. I tried hard
-to make sure that netvsc functionality and behavior doesn't change.
-
-It is possible that there could be some bugs introduced, but they can be fixed.
-Looks like Wei already found a bug and submitted a fix for that.
+CgpPbiAyMDE45bm0MDXmnIgzMOaXpSAxOTo0MiwgV2VpIFh1IHdyb3RlOgo+PiAgIC8qIFRoaXMg
+YWN0dWFsbHkgc2lnbmFscyB0aGUgZ3Vlc3QsIHVzaW5nIGV2ZW50ZmQuICovCj4+ICAgdm9pZCB2
+aG9zdF9zaWduYWwoc3RydWN0IHZob3N0X2RldiAqZGV2LCBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVl
+ICp2cSkKPj4gICB7Cj4+IEBAIC0yODAyLDEwICsyOTMwLDM0IEBAIHN0YXRpYyBib29sIHZob3N0
+X2VuYWJsZV9ub3RpZnlfcGFja2VkKHN0cnVjdCB2aG9zdF9kZXYgKmRldiwKPj4gICAJCQkJICAg
+ICAgIHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQo+PiAgIHsKPj4gICAJc3RydWN0IHZyaW5n
+X2Rlc2NfcGFja2VkICpkID0gdnEtPmRlc2NfcGFja2VkICsgdnEtPmF2YWlsX2lkeDsKPj4gLQlf
+X3ZpcnRpbzE2IGZsYWdzOwo+PiArCV9fdmlydGlvMTYgZmxhZ3MgPSBSSU5HX0VWRU5UX0ZMQUdT
+X0VOQUJMRTsKPj4gICAJaW50IHJldDsKPj4gICAKPj4gLQkvKiBGSVhNRTogZGlzYWJsZSBub3Rp
+ZmljYXRpb24gdGhyb3VnaCBkZXZpY2UgYXJlYSAqLwo+PiArCWlmICghKHZxLT51c2VkX2ZsYWdz
+ICYgVlJJTkdfVVNFRF9GX05PX05PVElGWSkpCj4+ICsJCXJldHVybiBmYWxzZTsKPj4gKwl2cS0+
+dXNlZF9mbGFncyAmPSB+VlJJTkdfVVNFRF9GX05PX05PVElGWTsKPiAndXNlZF9mbGFncycgd2Fz
+IG9yaWdpbmFsbHkgZGVzaWduZWQgZm9yIDEuMCwgd2h5IHNob3VsZCB3ZSBwYXkgYXR0ZXRpb24g
+dG8gaXQgaGVyZT8KPgo+IFdlaQoKSXQgd2FzIHVzZWQgdG8gcmVjb3JlZCB3aGV0aGVyIG9yIG5v
+dCB3ZSd2ZSBkaXNhYmxlZCBub3RpZmljYXRpb24uIFRoZW4gCndlIGNhbiBhdm9pZCB1bm5lY2Vz
+c2FyeSB1c2Vyc3BhY2Ugd3JpdGVzIG9yIG1lbW9yeSBiYXJyaWVycy4KClRoYW5rcwpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
