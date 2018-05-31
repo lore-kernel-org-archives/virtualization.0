@@ -1,15 +1,15 @@
-From: Sinclair Yeh <syeh@vmware.com>
-Subject: Re: [PATCH v2 00/13] drm: Eliminate plane->fb/crtc usage for atomic
-	drivers
-Date: Wed, 30 May 2018 10:41:11 -0700
-Message-ID: <20180530174110.GA26251@vmware.com>
-References: <20180525185045.29689-1-ville.syrjala@linux.intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next] virtio_net: fix error return code in
+	virtnet_probe()
+Date: Thu, 31 May 2018 10:05:49 +0800
+Message-ID: <c11ca878-8b53-01bc-f462-b8b5f4400096__26335.4803938002$1527732242$gmane$org@redhat.com>
+References: <1527732307-145609-1-git-send-email-weiyongjun1@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180525185045.29689-1-ville.syrjala@linux.intel.com>
+In-Reply-To: <1527732307-145609-1-git-send-email-weiyongjun1@huawei.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,93 +19,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ville Syrjala <ville.syrjala@linux.intel.com>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, "David (ChunMing) Zhou" <David1.Zhou@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, amd-gfx@lists.freedesktop.org, VMware Graphics <linux-graphics-maintainer@vmware.com>, Harry Wentland <harry.wentland@amd.com>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Inki Dae <inki.dae@samsung.com>, Deepak Rawat <drawat@vmware.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, Rob Clark <robdclark@gmail.com>, Alex Deucher <alexander.deucher@amd.com>, freedreno@lists.freedesktop.org, Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+To: Wei Yongjun <weiyongjun1@huawei.com>, "Michael S. Tsirkin" <mst@redhat.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>
+Cc: netdev@vger.kernel.org, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thanks Ville.
-
-This series: Reviewed-by: Sinclair Yeh <syeh@vmware.com>
-
-On Fri, May 25, 2018 at 09:50:32PM +0300, Ville Syrjala wrote:
-> From: Ville Syrj=E4l=E4 <ville.syrjala@linux.intel.com>
-> =
-
-> Here are again the last (?) bits of eliminating the plane->fb/crtc
-> usage for atomic drivers. I've pushed everything else (thanks to
-> everyone who reviewed them). =
-
-> =
-
-> Deepak said he'd tested the vmwgfx stuff, so I think it should be
-> safe to land. Just missing a bit of review...
-> =
-
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: amd-gfx@lists.freedesktop.org
-> Cc: "Christian K=F6nig" <christian.koenig@amd.com>
-> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Cc: David Airlie <airlied@linux.ie>
-> Cc: "David (ChunMing) Zhou" <David1.Zhou@amd.com>
-> Cc: Deepak Rawat <drawat@vmware.com>
-> Cc: Eric Anholt <eric@anholt.net>
-> Cc: freedreno@lists.freedesktop.org
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: Harry Wentland <harry.wentland@amd.com>
-> Cc: Inki Dae <inki.dae@samsung.com>
-> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
-> Cc: Kyungmin Park <kyungmin.park@samsung.com>
-> Cc: linux-arm-msm@vger.kernel.org
-> Cc: Rob Clark <robdclark@gmail.com>
-> Cc: Seung-Woo Kim <sw0312.kim@samsung.com>
-> Cc: Sinclair Yeh <syeh@vmware.com>
-> Cc: Thomas Hellstrom <thellstrom@vmware.com>
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: VMware Graphics <linux-graphics-maintainer@vmware.com>
-> =
-
-> Ville Syrj=E4l=E4 (13):
->   drm/vmwgfx: Stop using plane->fb in vmw_kms_atomic_check_modeset()
->   drm/vmwgfx: Stop using plane->fb in vmw_kms_helper_dirty()
->   drm/vmwgfx: Stop using plane->fb in vmw_kms_update_implicit_fb()
->   drm/vmwgfx: Stop updating plane->fb
->   drm/vmwgfx: Stop using plane->fb in atomic_enable()
->   drm/vmwgfx: Stop messing about with plane->fb/old_fb/crtc
->   drm/amdgpu/dc: Stop updating plane->fb
->   drm/i915: Stop updating plane->fb/crtc
->   drm/exynos: Stop updating plane->crtc
->   drm/msm: Stop updating plane->fb/crtc
->   drm/virtio: Stop updating plane->crtc
->   drm/vc4: Stop updating plane->fb/crtc
->   drm: Stop updating plane->crtc/fb/old_fb on atomic drivers
-> =
-
->  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |  2 -
->  drivers/gpu/drm/drm_atomic.c                      | 55 +++--------------=
-------
->  drivers/gpu/drm/drm_atomic_helper.c               | 15 +------
->  drivers/gpu/drm/drm_crtc.c                        |  8 +++-
->  drivers/gpu/drm/drm_fb_helper.c                   |  7 ---
->  drivers/gpu/drm/drm_framebuffer.c                 |  5 ---
->  drivers/gpu/drm/drm_plane.c                       | 14 +++---
->  drivers/gpu/drm/drm_plane_helper.c                |  4 +-
->  drivers/gpu/drm/exynos/exynos_drm_plane.c         |  2 -
->  drivers/gpu/drm/i915/intel_atomic_plane.c         | 12 -----
->  drivers/gpu/drm/i915/intel_display.c              |  7 ++-
->  drivers/gpu/drm/msm/disp/mdp4/mdp4_crtc.c         |  1 -
->  drivers/gpu/drm/msm/disp/mdp4/mdp4_plane.c        |  2 -
->  drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c         |  1 -
->  drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c        |  2 -
->  drivers/gpu/drm/vc4/vc4_crtc.c                    |  3 --
->  drivers/gpu/drm/virtio/virtgpu_display.c          |  2 -
->  drivers/gpu/drm/vmwgfx/vmwgfx_fb.c                | 24 ----------
->  drivers/gpu/drm/vmwgfx/vmwgfx_kms.c               | 24 +++++++---
->  drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c              |  2 -
->  drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c              |  5 +--
->  include/drm/drm_atomic.h                          |  3 --
->  22 files changed, 46 insertions(+), 154 deletions(-)
-> =
-
-> -- =
-
-> 2.16.1
+CgpPbiAyMDE45bm0MDXmnIgzMeaXpSAxMDowNSwgV2VpIFlvbmdqdW4gd3JvdGU6Cj4gRml4IHRv
+IHJldHVybiBhIG5lZ2F0aXZlIGVycm9yIGNvZGUgZnJvbSB0aGUgZmFpbG92ZXIgY3JlYXRlIGZh
+aWwgZXJyb3IKPiBoYW5kbGluZyBjYXNlIGluc3RlYWQgb2YgMCwgYXMgZG9uZSBlbHNld2hlcmUg
+aW4gdGhpcyBmdW5jdGlvbi4KPgo+IEZpeGVzOiBiYTVlNDQyNmU4MGUgKCJ2aXJ0aW9fbmV0OiBF
+eHRlbmQgdmlydGlvIHRvIHVzZSBWRiBkYXRhcGF0aCB3aGVuIGF2YWlsYWJsZSIpCj4gU2lnbmVk
+LW9mZi1ieTogV2VpIFlvbmdqdW4gPHdlaXlvbmdqdW4xQGh1YXdlaS5jb20+Cj4gLS0tCj4gICBk
+cml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgfCA0ICsrKy0KPiAgIDEgZmlsZSBjaGFuZ2VkLCAzIGlu
+c2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92
+aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBpbmRleCA4ZjA4YTNlLi4y
+ZDU1ZTJhIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ICsrKyBiL2Ry
+aXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+IEBAIC0yOTM1LDggKzI5MzUsMTAgQEAgc3RhdGljIGlu
+dCB2aXJ0bmV0X3Byb2JlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICAgCj4gICAJaWYg
+KHZpcnRpb19oYXNfZmVhdHVyZSh2ZGV2LCBWSVJUSU9fTkVUX0ZfU1RBTkRCWSkpIHsKPiAgIAkJ
+dmktPmZhaWxvdmVyID0gbmV0X2ZhaWxvdmVyX2NyZWF0ZSh2aS0+ZGV2KTsKPiAtCQlpZiAoSVNf
+RVJSKHZpLT5mYWlsb3ZlcikpCj4gKwkJaWYgKElTX0VSUih2aS0+ZmFpbG92ZXIpKSB7Cj4gKwkJ
+CWVyciA9IFBUUl9FUlIodmktPmZhaWxvdmVyKTsKPiAgIAkJCWdvdG8gZnJlZV92cXM7Cj4gKwkJ
+fQo+ICAgCX0KPiAgIAo+ICAgCWVyciA9IHJlZ2lzdGVyX25ldGRldihkZXYpOwo+CgpBY2tlZC1i
+eTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
