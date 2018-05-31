@@ -1,16 +1,18 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [virtio-dev] [PATCH] virtio_pci: support enabling VFs
-Date: Thu, 31 May 2018 10:55:02 +0800
-Message-ID: <20180531025502.GA15516__39518.694606568$1527735181$gmane$org@debian>
-References: <20180530085521.26583-1-tiwei.bie@intel.com>
-	<D7004E41-C23D-48B7-94A4-ACBBA06B021D@intel.com>
-	<20180530190819-mutt-send-email-mst@kernel.org>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [PATCH net-next v12 1/5] net: Introduce generic failover module
+Date: Wed, 30 May 2018 19:58:30 -0700
+Message-ID: <32eb5af0-d052-5e30-e065-e362df31ba4a__35038.3470570252$1527735400$gmane$org@intel.com>
+References: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
+	<1527180917-39737-2-git-send-email-sridhar.samudrala@intel.com>
+	<20180525153843.503ee052@xeon-e3>
+	<00d34f67-f26f-0b20-af3f-2add24ae8a5c@intel.com>
+	<20180530225259.2cf3f7be@shemminger-XPS-13-9360>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180530190819-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180530225259.2cf3f7be@shemminger-XPS-13-9360>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,77 +22,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Wang,
-	Zhihong" <zhihong.wang@intel.com>, Bjorn Helgaas <bhelgaas@google.com>, "Rustad,
-	Mark D" <mark.d.rustad@intel.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 30, 2018 at 07:09:37PM +0300, Michael S. Tsirkin wrote:
-> On Wed, May 30, 2018 at 04:03:37PM +0000, Rustad, Mark D wrote:
-> > On May 30, 2018, at 1:55 AM, Tiwei Bie <tiwei.bie@intel.com> wrote:
-> > 
-> > > There is a new feature bit allocated in virtio spec to
-> > > support SR-IOV (Single Root I/O Virtualization):
-> > > 
-> > > https://github.com/oasis-tcs/virtio-spec/issues/11
-> > > 
-> > > This patch enables the support for this feature bit in
-> > > virtio driver.
-> > > 
-> > > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> > > ---
-> > > This patch depends on below proposal:
-> > > https://lists.oasis-open.org/archives/virtio-dev/201805/msg00154.html
-> > > 
-> > > This patch depends on below patch:
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git/commit/?h=pci/virtualization&id=8effc395c2097e258fcedfc02ed4a66d45fb4238
-> > > 
-> > >  drivers/virtio/virtio_pci_common.c | 20 ++++++++++++++++++++
-> > >  drivers/virtio/virtio_pci_modern.c | 14 ++++++++++++++
-> > >  include/uapi/linux/virtio_config.h |  7 ++++++-
-> > >  3 files changed, 40 insertions(+), 1 deletion(-)
-> > > 
-> > 
-> > <snip>
-> > 
-> > > diff --git a/include/uapi/linux/virtio_config.h
-> > > b/include/uapi/linux/virtio_config.h
-> > > index 308e2096291f..b7c1f4e7d59e 100644
-> > > --- a/include/uapi/linux/virtio_config.h
-> > > +++ b/include/uapi/linux/virtio_config.h
-> > > @@ -49,7 +49,7 @@
-> > 
-> > There is a value in the comment directly before this that should
-> > be updated as well to be consistent with the new value for
-> > VIRTIO_TRANSPORT_F_END below.
-> 
-> It hasn't been updated to 34 yet.
-> I suggest a separate patch to replace the numbers with
-> VIRTIO_TRANSPORT_F_START and VIRTIO_TRANSPORT_F_END
-> in the comment.
-> Maybe replace "e.g. virtio_ring" with "e.g. virtio_ring,
-> virtio_pci etc." as well.
-
-Good idea! Thanks for the suggestion! I'll do it.
-
-Best regards,
-Tiwei Bie
 
 
-> 
-> > >   * transport being used (eg. virtio_ring), the rest are per-device feature
-> > >   * bits. */
-> > >  #define VIRTIO_TRANSPORT_F_START	28
-> > > -#define VIRTIO_TRANSPORT_F_END		34
-> > > +#define VIRTIO_TRANSPORT_F_END		38
-> > > 
-> > >  #ifndef VIRTIO_CONFIG_NO_LEGACY
-> > >  /* Do we get callbacks when the ring is completely used, even if we've
-> > 
-> > <snip>
-> > 
-> > --
-> > Mark Rustad, Networking Division, Intel Corporation
-> 
-> 
+On 5/30/2018 7:52 PM, Stephen Hemminger wrote:
+> On Fri, 25 May 2018 16:06:58 -0700
+> "Samudrala, Sridhar" <sridhar.samudrala@intel.com> wrote:
+>
+>> On 5/25/2018 3:38 PM, Stephen Hemminger wrote:
+>>> On Thu, 24 May 2018 09:55:13 -0700
+>>> Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
+>>>   
+>>>> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+>>>> index 03ed492c4e14..0f4ba52b641d 100644
+>>>> --- a/include/linux/netdevice.h
+>>>> +++ b/include/linux/netdevice.h
+>>>> @@ -1421,6 +1421,8 @@ struct net_device_ops {
+>>>>     *	entity (i.e. the master device for bridged veth)
+>>>>     * @IFF_MACSEC: device is a MACsec device
+>>>>     * @IFF_NO_RX_HANDLER: device doesn't support the rx_handler hook
+>>>> + * @IFF_FAILOVER: device is a failover master device
+>>>> + * @IFF_FAILOVER_SLAVE: device is lower dev of a failover master device
+>>>>     */
+>>>>    enum netdev_priv_flags {
+>>>>    	IFF_802_1Q_VLAN			= 1<<0,
+>>>> @@ -1450,6 +1452,8 @@ enum netdev_priv_flags {
+>>>>    	IFF_PHONY_HEADROOM		= 1<<24,
+>>>>    	IFF_MACSEC			= 1<<25,
+>>>>    	IFF_NO_RX_HANDLER		= 1<<26,
+>>>> +	IFF_FAILOVER			= 1<<27,
+>>>> +	IFF_FAILOVER_SLAVE		= 1<<28,
+>>>>    };
+>>> Why is FAILOVER any different than other master/slave relationships.
+>>> I don't think you need to take up precious netdev flag bits for this.
+>> These are netdev priv flags.
+>> Jiri says that IFF_MASTER/IFF_SLAVE are bonding specific flags and cannot be used
+>> with other failover mechanisms. Team also doesn't use this flags and it has its own
+>> priv_flags.
+>>
+> This change breaks userspace.
+> We already have worked with partners to ignore devices marked as IFF_SLAVE,
+> and IFF_SLAVE is visible to user space API's.
+
+I specifically made sure not to remove IFF_SLAVE in the netvsc patch.
+
+
+>
+> NAK
