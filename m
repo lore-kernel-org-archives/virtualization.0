@@ -1,17 +1,16 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [PATCH net-next v12 2/5] netvsc: refactor notifier/event handling
-	code to use the failover framework
-Date: Thu, 31 May 2018 13:41:56 -0700
-Message-ID: <CADGSJ23N=8=of_4fKF+r31E-ywewLM7B1JhL6X0qZFP-ORdLQA__27896.5927697302$1527799219$gmane$org@mail.gmail.com>
-References: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
-	<1527180917-39737-3-git-send-email-sridhar.samudrala@intel.com>
-	<20180530220635.206ee6d7@shemminger-XPS-13-9360>
-	<20180531212356-mutt-send-email-mst@kernel.org>
+From: "Liu, Changpeng" <changpeng.liu@intel.com>
+Subject: RE: [PATCH v4] virtio_blk: add DISCARD and WRIET ZEROES commands
+	support
+Date: Thu, 31 May 2018 23:53:26 +0000
+Message-ID: <FF7FC980937D6342B9D289F5F3C7C2625B6DCEE5@SHSMSX103.ccr.corp.intel.com>
+References: <1527558144-3825-1-git-send-email-changpeng.liu@intel.com>
+	<20180531103047.GB27838@stefanha-x1.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180531212356-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180531103047.GB27838@stefanha-x1.localdomain>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,44 +20,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, venu.busireddy@oracle.com
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, anjali.singhai@intel.com, aaron.f.brown@intel.com, David Miller <davem@davemloft.net>
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>, "cavery@redhat.com" <cavery@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 31, 2018 at 11:35 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Wed, May 30, 2018 at 10:06:35PM -0400, Stephen Hemminger wrote:
->> On Thu, 24 May 2018 09:55:14 -0700
->> Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
->>
->> > Use the registration/notification framework supported by the generic
->> > failover infrastructure.
->> >
->> > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
->>
->> Why was this merged? It was never signed off by any of the netvsc maintainers,
->> and there were still issues unresolved.
->>
->> There are also namespaces issues I am fixing and this breaks them.
->> Will start my patch set with a revert for this. Sorry
->
-> As long as you finish the patch set with re-integrating with failover,
-> that's fine IMHO.
->
-> I suspect it's easier to add the code to failover though - namespace
-> things likely affect virtio as well. Lookup by ID would be an optional
-> feature for virtio, but probably a useful one - I won't ask you
-I would think for production uses this is a required feature and
-should be enabled by default.
 
-Venu (cc'ed) is working on the group ID stuff currently for pairing
-virtio and passthrough devices. Would appreciate feedback on the group
-ID proposal on virtio-dev.
 
--Siwei
+> -----Original Message-----
+> From: Stefan Hajnoczi [mailto:stefanha@redhat.com]
+> Sent: Thursday, May 31, 2018 6:31 PM
+> To: Liu, Changpeng <changpeng.liu@intel.com>
+> Cc: virtualization@lists.linux-foundation.org; cavery@redhat.com;
+> jasowang@redhat.com; pbonzini@redhat.com; Wang, Wei W
+> <wei.w.wang@intel.com>
+> Subject: Re: [PATCH v4] virtio_blk: add DISCARD and WRIET ZEROES commands
+> support
+> 
+> On Tue, May 29, 2018 at 09:42:24AM +0800, Changpeng Liu wrote:
+> >  	num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
+> >  	if (num) {
+> > -		if (rq_data_dir(req) == WRITE)
+> > +		if (rq_data_dir(req) == WRITE || type == VIRTIO_BLK_T_DISCARD
+> ||
+> > +		    type == VIRTIO_BLK_T_WRITE_ZEROES)
+> >  			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev,
+> VIRTIO_BLK_T_OUT);
+> 
+> The VIRTIO specification says:
+> 
+>   The type of the request is either a read (VIRTIO_BLK_T_IN), a write
+>   (VIRTIO_BLK_T_OUT), a discard (VIRTIO_BLK_T_DISCARD), a write zeroes
+>   (VIRTIO_BLK_T_WRITE_ZEROES) or a flush (VIRTIO_BLK_T_FLUSH).
+> 
+> But this patch actually uses VIRTIO_BLK_T_DISCARD | VIRTIO_BLK_T_OUT or
+> VIRTIO_BLK_T_WRITE_ZEROES | VIRTIO_BLK_T_OUT.  "either A or B" is
+> exclusive, it does not mean "A and B".
+Hi Stefan,
 
-> to add it to virtio but it could be a mode in failover
-> that virtio will activate down the road. And reducing the number of
-> times we look cards up based on ID can only be a good thing.
->
-> --
-> MST
+For the new add DISCARD and WRITE ZEROES commands, I defined the 
+type code to 11 and 13, so the last bit always is 1, there is no difference
+in practice.
+But I believe the specification says VIRTIO_BLK_T_OUT means direction, so
+OR the two bits together should compliance with the specification.
+> 
+> Can you clarify whether the spec needs to be changed or what the purpose
+> of ORing in the VIRTIO_BLK_T_OUT bit is?
