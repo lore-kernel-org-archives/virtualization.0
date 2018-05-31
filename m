@@ -1,18 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
-	virito devices
-Date: Thu, 31 May 2018 20:43:58 +0300
-Message-ID: <20180531204320-mutt-send-email-mst__14761.6033013493$1527788536$gmane$org@kernel.org>
-References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
-	<20180523213703-mutt-send-email-mst@kernel.org>
-	<20180524072104.GD6139@ram.oc3035372033.ibm.com>
-	<0c508eb2-08df-3f76-c260-90cf7137af80@linux.vnet.ibm.com>
+Subject: Re: [PATCH net-next v12 2/5] netvsc: refactor notifier/event
+	handling code to use the failover framework
+Date: Thu, 31 May 2018 21:35:59 +0300
+Message-ID: <20180531212356-mutt-send-email-mst__8649.20854005522$1527791779$gmane$org@kernel.org>
+References: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
+	<1527180917-39737-3-git-send-email-sridhar.samudrala@intel.com>
+	<20180530220635.206ee6d7@shemminger-XPS-13-9360>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <0c508eb2-08df-3f76-c260-90cf7137af80@linux.vnet.ibm.com>
+In-Reply-To: <20180530220635.206ee6d7@shemminger-XPS-13-9360>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,40 +21,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Cc: robh@kernel.org, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 31, 2018 at 09:09:24AM +0530, Anshuman Khandual wrote:
-> On 05/24/2018 12:51 PM, Ram Pai wrote:
-> > On Wed, May 23, 2018 at 09:50:02PM +0300, Michael S. Tsirkin wrote:
-> >> subj: s/virito/virtio/
-> >>
-> > ..snip..
-> >>>  machine_subsys_initcall_sync(pseries, tce_iommu_bus_notifier_init);
-> >>> +
-> >>> +bool platform_forces_virtio_dma(struct virtio_device *vdev)
-> >>> +{
-> >>> +	/*
-> >>> +	 * On protected guest platforms, force virtio core to use DMA
-> >>> +	 * MAP API for all virtio devices. But there can also be some
-> >>> +	 * exceptions for individual devices like virtio balloon.
-> >>> +	 */
-> >>> +	return (of_find_compatible_node(NULL, NULL, "ibm,ultravisor") != NULL);
-> >>> +}
-> >>
-> >> Isn't this kind of slow?  vring_use_dma_api is on
-> >> data path and supposed to be very fast.
+On Wed, May 30, 2018 at 10:06:35PM -0400, Stephen Hemminger wrote:
+> On Thu, 24 May 2018 09:55:14 -0700
+> Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
+> 
+> > Use the registration/notification framework supported by the generic
+> > failover infrastructure.
 > > 
-> > Yes it is slow and not ideal. This won't be the final code. The final
-> > code will cache the information in some global variable and used
-> > in this function.
+> > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
 > 
-> Right this will be a simple check based on a global variable.
+> Why was this merged? It was never signed off by any of the netvsc maintainers,
+> and there were still issues unresolved.
 > 
+> There are also namespaces issues I am fixing and this breaks them.
+> Will start my patch set with a revert for this. Sorry
 
-Pls work on a long term solution. Short term needs can be served by
-enabling the iommu platform in qemu.
+As long as you finish the patch set with re-integrating with failover,
+that's fine IMHO.
+
+I suspect it's easier to add the code to failover though - namespace
+things likely affect virtio as well. Lookup by ID would be an optional
+feature for virtio, but probably a useful one - I won't ask you
+to add it to virtio but it could be a mode in failover
+that virtio will activate down the road. And reducing the number of
+times we look cards up based on ID can only be a good thing.
 
 -- 
 MST
