@@ -1,18 +1,19 @@
-From: Alexander Duyck <alexander.duyck@gmail.com>
-Subject: Re: [PATCH] virtio_pci: support enabling VFs
-Date: Thu, 31 May 2018 07:27:43 -0700
-Message-ID: <CAKgT0Ud1QmotAXGOi1ORA79rYLFzofDZWPiJtPj=MBg4zxiSdw__36881.8695344546$1527776774$gmane$org@mail.gmail.com>
-References: <20180530085521.26583-1-tiwei.bie@intel.com>
-	<20180530192010-mutt-send-email-mst@kernel.org>
-	<414C18B1-30FA-4AC0-B47D-F0FBF9832737@intel.com>
-	<1527699273.29907.2.camel@intel.com>
-	<5063D90B-7955-4F1E-85A2-D8AFD661ACB7@intel.com>
-	<20180531032049.GB15516@debian>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next v12 2/5] netvsc: refactor notifier/event
+	handling code to use the failover framework
+Date: Thu, 31 May 2018 20:34:03 +0300
+Message-ID: <20180531203301-mutt-send-email-mst__27766.8771720075$1527787945$gmane$org@kernel.org>
+References: <1527180917-39737-1-git-send-email-sridhar.samudrala@intel.com>
+	<1527180917-39737-3-git-send-email-sridhar.samudrala@intel.com>
+	<20180530220635.206ee6d7@shemminger-XPS-13-9360>
+	<274f0b84-07f1-5cd5-e256-ce4b71358c14@intel.com>
+	<20180531085812.0b13afef@shemminger-XPS-13-9360>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180531032049.GB15516@debian>
+Content-Disposition: inline
+In-Reply-To: <20180531085812.0b13afef@shemminger-XPS-13-9360>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,101 +23,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mst@redhat.com" <mst@redhat.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Wang,
-	Zhihong" <zhihong.wang@intel.com>, "bhelgaas@google.com" <bhelgaas@google.com>, "Rustad,
-	Mark D" <mark.d.rustad@intel.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, jiri@resnulli.us, kubakici@wp.pl, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, netdev@vger.kernel.org, anjali.singhai@intel.com, aaron.f.brown@intel.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 30, 2018 at 8:20 PM, Tiwei Bie <tiwei.bie@intel.com> wrote:
-> On Thu, May 31, 2018 at 01:11:37AM +0800, Rustad, Mark D wrote:
->> On May 30, 2018, at 9:54 AM, Duyck, Alexander H
->> <alexander.h.duyck@intel.com> wrote:
->>
->> > On Wed, 2018-05-30 at 09:44 -0700, Rustad, Mark D wrote:
->> > > On May 30, 2018, at 9:22 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> > >
->> > > > > +static int virtio_pci_sriov_configure(struct pci_dev *pci_dev, int
->> > > > > num_vfs)
->> > > > > +{
->> > > > > +     struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
->> > > > > +     struct virtio_device *vdev = &vp_dev->vdev;
->> > > > > +     int (*sriov_configure)(struct pci_dev *pci_dev, int num_vfs);
->> > > > > +
->> > > > > +     if (!(vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_DRIVER_OK))
->> > > > > +             return -EBUSY;
->> > > > > +
->> > > > > +     if (!__virtio_test_bit(vdev, VIRTIO_F_SR_IOV))
->> > > > > +             return -EINVAL;
->> > > > > +
->> > > > > +     sriov_configure = pci_sriov_configure_simple;
->> > > > > +     if (sriov_configure == NULL)
->> > > > > +             return -ENOENT;
->> > > >
->> > > > BTW what is all this trickery in aid of?
->> > >
->> > > When SR-IOV support is not compiled into the kernel,
->> > > pci_sriov_configure_simple is #defined as NULL. This allows it to compile
->> > > in that case, even though there is utterly no way for it to be called in
->> > > that case. It is an alternative to #ifs in the code.
->> >
->> > Why even have the call though? I would wrap all of this in an #ifdef
->> > and strip it out since you couldn't support SR-IOV if it isn't present
->> > in the kernel anyway.
->>
->> I am inclined to agree. In this case, the presence of #ifdefs I think would
->> be clearer. As written, someone will want to get rid of the pointer only to
->> create a build problem when SR-IOV is not configured.
->
-> In my opinion, maybe it would be better to make
-> pci_sriov_configure_simple() always available
-> just like other sriov functions.
->
-> Based on the comments in the original patch:
->
-> https://patchwork.kernel.org/patch/10353197/
-> """
-> +/* this is expected to be used as a function pointer, just define as NULL */
-> +#define pci_sriov_configure_simple NULL
-> """
->
-> This function could be defined as NULL just because
-> it was expected to be used as a function pointer.
-> But actually it could be called directly as a
-> function, just like this case.
->
-> So I prefer to make this function always available
-> just like other sriov functions.
->
-> Best regards,
-> Tiwei Bie
+On Thu, May 31, 2018 at 08:58:12AM -0400, Stephen Hemminger wrote:
+> On Wed, 30 May 2018 20:03:11 -0700
+> "Samudrala, Sridhar" <sridhar.samudrala@intel.com> wrote:
+> 
+> > On 5/30/2018 7:06 PM, Stephen Hemminger wrote:
+> > > On Thu, 24 May 2018 09:55:14 -0700
+> > > Sridhar Samudrala <sridhar.samudrala@intel.com> wrote:
+> > >  
+> > >> Use the registration/notification framework supported by the generic
+> > >> failover infrastructure.
+> > >>
+> > >> Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>  
+> > > Why was this merged? It was never signed off by any of the netvsc maintainers,
+> > > and there were still issues unresolved.
+> > >
+> > > There are also namespaces issues I am fixing and this breaks them.
+> > > Will start my patch set with a revert for this. Sorry  
+> > 
+> > I would appreciate if you can make the fixes on top of this patch series. I tried hard
+> > to make sure that netvsc functionality and behavior doesn't change.
+> > 
+> > It is possible that there could be some bugs introduced, but they can be fixed.
+> > Looks like Wei already found a bug and submitted a fix for that.
+> > 
+> 
+> Ok, but several of these may clash with what you want for virtio.
+> Like:
+> 	- VF should be moved to namespace of virt device
+> 	- VF should be associated based on message from host with serial # not
+> 	  registration notifier and MAC address.
+> 	- control operations should use master device reference rather than
+> 	  searching based on MAC.
+> 
+> As you can see these are structural changes.
 
-The fact that you are having to add additional code kind of implies
-that maybe this doesn't fall into the pci_sriov_configure_simple case
-anymore. The PF itself is defining what the VF can and can't do via
-the feature flags you are testing for.
+We might want to do these for virtio as well, at least as
+an option.
 
-For example how is the bit of code below valid if the kernel itself
-doesn't support SR-IOV:
-+static void vp_transport_features(struct virtio_device *vdev, u64 features)
-+{
-+       struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+       struct pci_dev *pci_dev = vp_dev->pci_dev;
-+
-+       if ((features & BIT_ULL(VIRTIO_F_SR_IOV)) &&
-+                       pci_find_ext_capability(pci_dev, PCI_EXT_CAP_ID_SRIOV))
-+               __virtio_set_bit(vdev, VIRTIO_F_SR_IOV);
-+}
-+
-
-It really seems like we should be wrapping these functions at the very
-minimum so that they don't imply you have SR-IOV support when it isn't
-supported in the kernel.
-
-Also it seems like we should be disabling the VFs if the driver is
-unbound from this interface. We need to add logic to disable SR-IOV if
-the driver is removed. What we don't want to do is leave VFs allocated
-and then have the potential for us to unbind/rebind the driver as the
-new driver may change the negotiated features.
-
-- Alex
+-- 
+MST
