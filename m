@@ -1,15 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next] virtio_net: fix error return code in
-	virtnet_probe()
-Date: Thu, 31 May 2018 20:37:39 +0300
-Message-ID: <20180531203733-mutt-send-email-mst__29051.8765840263$1527788160$gmane$org@kernel.org>
-References: <1527732307-145609-1-git-send-email-weiyongjun1@huawei.com>
+Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
+	virito devices
+Date: Thu, 31 May 2018 20:43:58 +0300
+Message-ID: <20180531204320-mutt-send-email-mst__14761.6033013493$1527788536$gmane$org@kernel.org>
+References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
+	<20180523213703-mutt-send-email-mst@kernel.org>
+	<20180524072104.GD6139@ram.oc3035372033.ibm.com>
+	<0c508eb2-08df-3f76-c260-90cf7137af80@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1527732307-145609-1-git-send-email-weiyongjun1@huawei.com>
+In-Reply-To: <0c508eb2-08df-3f76-c260-90cf7137af80@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,36 +22,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Yongjun <weiyongjun1@huawei.com>
-Cc: Sridhar Samudrala <sridhar.samudrala@intel.com>, netdev@vger.kernel.org, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Cc: robh@kernel.org, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 31, 2018 at 02:05:07AM +0000, Wei Yongjun wrote:
-> Fix to return a negative error code from the failover create fail error
-> handling case instead of 0, as done elsewhere in this function.
+On Thu, May 31, 2018 at 09:09:24AM +0530, Anshuman Khandual wrote:
+> On 05/24/2018 12:51 PM, Ram Pai wrote:
+> > On Wed, May 23, 2018 at 09:50:02PM +0300, Michael S. Tsirkin wrote:
+> >> subj: s/virito/virtio/
+> >>
+> > ..snip..
+> >>>  machine_subsys_initcall_sync(pseries, tce_iommu_bus_notifier_init);
+> >>> +
+> >>> +bool platform_forces_virtio_dma(struct virtio_device *vdev)
+> >>> +{
+> >>> +	/*
+> >>> +	 * On protected guest platforms, force virtio core to use DMA
+> >>> +	 * MAP API for all virtio devices. But there can also be some
+> >>> +	 * exceptions for individual devices like virtio balloon.
+> >>> +	 */
+> >>> +	return (of_find_compatible_node(NULL, NULL, "ibm,ultravisor") != NULL);
+> >>> +}
+> >>
+> >> Isn't this kind of slow?  vring_use_dma_api is on
+> >> data path and supposed to be very fast.
+> > 
+> > Yes it is slow and not ideal. This won't be the final code. The final
+> > code will cache the information in some global variable and used
+> > in this function.
 > 
-> Fixes: ba5e4426e80e ("virtio_net: Extend virtio to use VF datapath when available")
-> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-> ---
->  drivers/net/virtio_net.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+> Right this will be a simple check based on a global variable.
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 8f08a3e..2d55e2a 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2935,8 +2935,10 @@ static int virtnet_probe(struct virtio_device *vdev)
->  
->  	if (virtio_has_feature(vdev, VIRTIO_NET_F_STANDBY)) {
->  		vi->failover = net_failover_create(vi->dev);
-> -		if (IS_ERR(vi->failover))
-> +		if (IS_ERR(vi->failover)) {
-> +			err = PTR_ERR(vi->failover);
->  			goto free_vqs;
-> +		}
->  	}
->  
->  	err = register_netdev(dev);
+
+Pls work on a long term solution. Short term needs can be served by
+enabling the iommu platform in qemu.
+
+-- 
+MST
