@@ -1,16 +1,17 @@
-From: "Liu, Changpeng" <changpeng.liu@intel.com>
-Subject: RE: [PATCH v4] virtio_blk: add DISCARD and WRIET ZEROES commands
-	support
-Date: Thu, 31 May 2018 23:53:26 +0000
-Message-ID: <FF7FC980937D6342B9D289F5F3C7C2625B6DCEE5@SHSMSX103.ccr.corp.intel.com>
-References: <1527558144-3825-1-git-send-email-changpeng.liu@intel.com>
-	<20180531103047.GB27838@stefanha-x1.localdomain>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] [PATCH] virtio_pci: support enabling VFs
+Date: Fri, 1 Jun 2018 04:21:03 +0300
+Message-ID: <20180601042004-mutt-send-email-mst__35267.1870067299$1527816072$gmane$org@kernel.org>
+References: <20180530085521.26583-1-tiwei.bie@intel.com>
+	<D7004E41-C23D-48B7-94A4-ACBBA06B021D@intel.com>
+	<20180530190819-mutt-send-email-mst@kernel.org>
+	<20180531025502.GA15516@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180531103047.GB27838@stefanha-x1.localdomain>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180531025502.GA15516@debian>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,48 +21,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>, "cavery@redhat.com" <cavery@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Wang,
+	Zhihong" <zhihong.wang@intel.com>, Bjorn Helgaas <bhelgaas@google.com>, "Rustad,
+	Mark D" <mark.d.rustad@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, May 31, 2018 at 10:55:02AM +0800, Tiwei Bie wrote:
+> On Wed, May 30, 2018 at 07:09:37PM +0300, Michael S. Tsirkin wrote:
+> > On Wed, May 30, 2018 at 04:03:37PM +0000, Rustad, Mark D wrote:
+> > > On May 30, 2018, at 1:55 AM, Tiwei Bie <tiwei.bie@intel.com> wrote:
+> > > 
+> > > > There is a new feature bit allocated in virtio spec to
+> > > > support SR-IOV (Single Root I/O Virtualization):
+> > > > 
+> > > > https://github.com/oasis-tcs/virtio-spec/issues/11
+> > > > 
+> > > > This patch enables the support for this feature bit in
+> > > > virtio driver.
+> > > > 
+> > > > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+> > > > ---
+> > > > This patch depends on below proposal:
+> > > > https://lists.oasis-open.org/archives/virtio-dev/201805/msg00154.html
+> > > > 
+> > > > This patch depends on below patch:
+> > > > https://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git/commit/?h=pci/virtualization&id=8effc395c2097e258fcedfc02ed4a66d45fb4238
+> > > > 
+> > > >  drivers/virtio/virtio_pci_common.c | 20 ++++++++++++++++++++
+> > > >  drivers/virtio/virtio_pci_modern.c | 14 ++++++++++++++
+> > > >  include/uapi/linux/virtio_config.h |  7 ++++++-
+> > > >  3 files changed, 40 insertions(+), 1 deletion(-)
+> > > > 
+> > > 
+> > > <snip>
+> > > 
+> > > > diff --git a/include/uapi/linux/virtio_config.h
+> > > > b/include/uapi/linux/virtio_config.h
+> > > > index 308e2096291f..b7c1f4e7d59e 100644
+> > > > --- a/include/uapi/linux/virtio_config.h
+> > > > +++ b/include/uapi/linux/virtio_config.h
+> > > > @@ -49,7 +49,7 @@
+> > > 
+> > > There is a value in the comment directly before this that should
+> > > be updated as well to be consistent with the new value for
+> > > VIRTIO_TRANSPORT_F_END below.
+> > 
+> > It hasn't been updated to 34 yet.
+> > I suggest a separate patch to replace the numbers with
+> > VIRTIO_TRANSPORT_F_START and VIRTIO_TRANSPORT_F_END
+> > in the comment.
+> > Maybe replace "e.g. virtio_ring" with "e.g. virtio_ring,
+> > virtio_pci etc." as well.
+> 
+> Good idea! Thanks for the suggestion! I'll do it.
+> 
+> Best regards,
+> Tiwei Bie
 
+Or just focus on the new feature, tweak start/end
+as a separate patch. Up to you, the important thing
+is to have a ready to roll patch before the merge
+window.
 
-> -----Original Message-----
-> From: Stefan Hajnoczi [mailto:stefanha@redhat.com]
-> Sent: Thursday, May 31, 2018 6:31 PM
-> To: Liu, Changpeng <changpeng.liu@intel.com>
-> Cc: virtualization@lists.linux-foundation.org; cavery@redhat.com;
-> jasowang@redhat.com; pbonzini@redhat.com; Wang, Wei W
-> <wei.w.wang@intel.com>
-> Subject: Re: [PATCH v4] virtio_blk: add DISCARD and WRIET ZEROES commands
-> support
 > 
-> On Tue, May 29, 2018 at 09:42:24AM +0800, Changpeng Liu wrote:
-> >  	num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
-> >  	if (num) {
-> > -		if (rq_data_dir(req) == WRITE)
-> > +		if (rq_data_dir(req) == WRITE || type == VIRTIO_BLK_T_DISCARD
-> ||
-> > +		    type == VIRTIO_BLK_T_WRITE_ZEROES)
-> >  			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev,
-> VIRTIO_BLK_T_OUT);
-> 
-> The VIRTIO specification says:
-> 
->   The type of the request is either a read (VIRTIO_BLK_T_IN), a write
->   (VIRTIO_BLK_T_OUT), a discard (VIRTIO_BLK_T_DISCARD), a write zeroes
->   (VIRTIO_BLK_T_WRITE_ZEROES) or a flush (VIRTIO_BLK_T_FLUSH).
-> 
-> But this patch actually uses VIRTIO_BLK_T_DISCARD | VIRTIO_BLK_T_OUT or
-> VIRTIO_BLK_T_WRITE_ZEROES | VIRTIO_BLK_T_OUT.  "either A or B" is
-> exclusive, it does not mean "A and B".
-Hi Stefan,
-
-For the new add DISCARD and WRITE ZEROES commands, I defined the 
-type code to 11 and 13, so the last bit always is 1, there is no difference
-in practice.
-But I believe the specification says VIRTIO_BLK_T_OUT means direction, so
-OR the two bits together should compliance with the specification.
-> 
-> Can you clarify whether the spec needs to be changed or what the purpose
-> of ORing in the VIRTIO_BLK_T_OUT bit is?
+> > 
+> > > >   * transport being used (eg. virtio_ring), the rest are per-device feature
+> > > >   * bits. */
+> > > >  #define VIRTIO_TRANSPORT_F_START	28
+> > > > -#define VIRTIO_TRANSPORT_F_END		34
+> > > > +#define VIRTIO_TRANSPORT_F_END		38
+> > > > 
+> > > >  #ifndef VIRTIO_CONFIG_NO_LEGACY
+> > > >  /* Do we get callbacks when the ring is completely used, even if we've
+> > > 
+> > > <snip>
+> > > 
+> > > --
+> > > Mark Rustad, Networking Division, Intel Corporation
+> > 
+> > 
