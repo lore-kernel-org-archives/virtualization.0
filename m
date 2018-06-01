@@ -1,11 +1,13 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [PATCH v2] virtio: update the comments for transport features
-Date: Fri,  1 Jun 2018 18:59:50 +0800
-Message-ID: <20180601105950.10632-1-tiwei.bie__10850.7576318972$1527850679$gmane$org@intel.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2] virtio: update the comments for transport features
+Date: Fri, 1 Jun 2018 13:16:47 +0200
+Message-ID: <20180601131647.5d02da18.cohuck__19558.5462650799$1527851712$gmane$org@redhat.com>
+References: <20180601105950.10632-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180601105950.10632-1-tiwei.bie@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,44 +17,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, stefanha@redhat.com, cohuck@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtio-dev@lists.oasis-open.org
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The existing comments for transport features are out dated.
-So update them to address the latest changes in the spec.
+On Fri,  1 Jun 2018 18:59:50 +0800
+Tiwei Bie <tiwei.bie@intel.com> wrote:
 
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
----
-This patch is generated on top of below patch:
-https://lists.oasis-open.org/archives/virtio-dev/201805/msg00212.html
+> The existing comments for transport features are out dated.
 
-v2:
-- Improve the comments (Cornelia);
-- Improve the commit message;
+s/out dated/outdated/
 
- include/uapi/linux/virtio_config.h | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+> So update them to address the latest changes in the spec.
+> 
+> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+> ---
+> This patch is generated on top of below patch:
+> https://lists.oasis-open.org/archives/virtio-dev/201805/msg00212.html
+> 
+> v2:
+> - Improve the comments (Cornelia);
+> - Improve the commit message;
+> 
+>  include/uapi/linux/virtio_config.h | 9 ++++++---
+>  1 file changed, 6 insertions(+), 3 deletions(-)
+> 
+> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+> index b7c1f4e7d59e..449132c76b1c 100644
+> --- a/include/uapi/linux/virtio_config.h
+> +++ b/include/uapi/linux/virtio_config.h
+> @@ -45,9 +45,12 @@
+>  /* We've given up on this device. */
+>  #define VIRTIO_CONFIG_S_FAILED		0x80
+>  
+> -/* Some virtio feature bits (currently bits 28 through 32) are reserved for the
+> - * transport being used (eg. virtio_ring), the rest are per-device feature
+> - * bits. */
+> +/*
+> + * Virtio feature bits VIRTIO_TRANSPORT_F_START through
+> + * VIRTIO_TRANSPORT_F_END are reserved for the transport
+> + * being used (e.g. virtio_ring, virtio_pci etc.), the
+> + * rest are per-device feature bits.
+> + */
+>  #define VIRTIO_TRANSPORT_F_START	28
+>  #define VIRTIO_TRANSPORT_F_END		38
+>  
 
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index b7c1f4e7d59e..449132c76b1c 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -45,9 +45,12 @@
- /* We've given up on this device. */
- #define VIRTIO_CONFIG_S_FAILED		0x80
- 
--/* Some virtio feature bits (currently bits 28 through 32) are reserved for the
-- * transport being used (eg. virtio_ring), the rest are per-device feature
-- * bits. */
-+/*
-+ * Virtio feature bits VIRTIO_TRANSPORT_F_START through
-+ * VIRTIO_TRANSPORT_F_END are reserved for the transport
-+ * being used (e.g. virtio_ring, virtio_pci etc.), the
-+ * rest are per-device feature bits.
-+ */
- #define VIRTIO_TRANSPORT_F_START	28
- #define VIRTIO_TRANSPORT_F_END		38
- 
--- 
-2.17.0
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
