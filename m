@@ -1,7 +1,7 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v2] virtio_pci: support enabling VFs
-Date: Fri, 1 Jun 2018 11:02:21 +0800
-Message-ID: <20180601030221.GA31357@debian>
+Date: Fri, 1 Jun 2018 06:47:01 +0300
+Message-ID: <20180601063224-mutt-send-email-mst__41043.3798250326$1527824723$gmane$org@kernel.org>
 References: <20180601020921.30957-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,8 +18,8 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: stefanha@redhat.com, mst@redhat.com, bhelgaas@google.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtio-dev@lists.oasis-open.org, linux-pci@vger.kernel.org
-Cc: alexander.h.duyck@intel.com, mark.d.rustad@intel.com, zhihong.wang@intel.com
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, bhelgaas@google.com, mark.d.rustad@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Fri, Jun 01, 2018 at 10:09:21AM +0800, Tiwei Bie wrote:
@@ -34,33 +34,13 @@ On Fri, Jun 01, 2018 at 10:09:21AM +0800, Tiwei Bie wrote:
 > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
 > Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
 > Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-Hi Stefan,
-
-I'm sorry, I just noticed that I forgot to include you in
-the To/Cc list.
-
-I carried your "Acked-by" for the previous version [1]
-to this version (v2). Because from my understanding, this
-is an ACK for this feature. And the change in this version
-isn't big. The 1st change is to disable VFs when unbinding
-the driver. And the 2nd one is to drop the use of
-pci_sriov_configure_simple. So I guess the "ACK" is still
-valid. Please let me know if I'm wrong. Thanks a lot!
-
-Hi Michael,
-
-I also carried your "Acked-by" for the previous version [2]
-to this one (v2). Please let me know if I'm wrong. Thanks
-a lot!
-
-[1] https://lists.oasis-open.org/archives/virtio-dev/201805/msg00182.html
-[2] https://lists.oasis-open.org/archives/virtio-dev/201805/msg00183.html
-
-Best regards,
-Tiwei Bie
-
 > ---
+
+Generally you aren't supposed to carry forward acks
+when you make major changes.
+
+In this case I'm fine with the patch, so never mind.
+
 > v2:
 > - Disable VFs when unbinding the driver (Alex, MST);
 > - Don't use pci_sriov_configure_simple (Alex);
@@ -101,6 +81,18 @@ Tiwei Bie
 > +
 > +	if (pci_vfs_assigned(pci_dev))
 > +		return -EPERM;
+
+Not a comment on this patch - existing code has the
+same race - but generally
+
+1. this seems racy since assigning vfs does not seem
+   to take device lock
+2. does this work correctly for kvm at all?
+   pci_set_dev_assigned seems to be only called by xen.
+
+Can you look at addressing this pls?
+
+
 > +
 > +	if (num_vfs == 0) {
 > +		pci_disable_sriov(pci_dev);
@@ -183,4 +175,3 @@ Tiwei Bie
 >  #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
 > -- 
 > 2.17.0
-> 
