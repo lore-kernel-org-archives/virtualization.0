@@ -1,11 +1,20 @@
 From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [PATCH v2] virtio_pci: support enabling VFs
-Date: Fri,  1 Jun 2018 10:09:21 +0800
-Message-ID: <20180601020921.30957-1-tiwei.bie__88.2385568276689$1527818836$gmane$org@intel.com>
+Subject: Re: [PATCH] virtio_pci: support enabling VFs
+Date: Fri, 1 Jun 2018 10:30:14 +0800
+Message-ID: <20180601023014.GA31226__12261.5976063118$1527820100$gmane$org@debian>
+References: <20180530085521.26583-1-tiwei.bie@intel.com>
+	<20180530192010-mutt-send-email-mst@kernel.org>
+	<414C18B1-30FA-4AC0-B47D-F0FBF9832737@intel.com>
+	<1527699273.29907.2.camel@intel.com>
+	<5063D90B-7955-4F1E-85A2-D8AFD661ACB7@intel.com>
+	<20180531032049.GB15516@debian>
+	<CAKgT0Ud1QmotAXGOi1ORA79rYLFzofDZWPiJtPj=MBg4zxiSdw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <CAKgT0Ud1QmotAXGOi1ORA79rYLFzofDZWPiJtPj=MBg4zxiSdw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,141 +24,126 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, bhelgaas@google.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtio-dev@lists.oasis-open.org, linux-pci@vger.kernel.org
-Cc: alexander.h.duyck@intel.com, mark.d.rustad@intel.com, zhihong.wang@intel.com
+To: Alexander Duyck <alexander.duyck@gmail.com>
+Cc: "Duyck, Alexander H" <alexander.h.duyck@intel.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mst@redhat.com" <mst@redhat.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Wang,
+	Zhihong" <zhihong.wang@intel.com>, "bhelgaas@google.com" <bhelgaas@google.com>, "Rustad,
+	Mark D" <mark.d.rustad@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There is a new feature bit allocated in virtio spec to
-support SR-IOV (Single Root I/O Virtualization):
+On Thu, May 31, 2018 at 07:27:43AM -0700, Alexander Duyck wrote:
+> On Wed, May 30, 2018 at 8:20 PM, Tiwei Bie <tiwei.bie@intel.com> wrote:
+> > On Thu, May 31, 2018 at 01:11:37AM +0800, Rustad, Mark D wrote:
+> >> On May 30, 2018, at 9:54 AM, Duyck, Alexander H
+> >> <alexander.h.duyck@intel.com> wrote:
+> >>
+> >> > On Wed, 2018-05-30 at 09:44 -0700, Rustad, Mark D wrote:
+> >> > > On May 30, 2018, at 9:22 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> >> > >
+> >> > > > > +static int virtio_pci_sriov_configure(struct pci_dev *pci_dev, int
+> >> > > > > num_vfs)
+> >> > > > > +{
+> >> > > > > +     struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+> >> > > > > +     struct virtio_device *vdev = &vp_dev->vdev;
+> >> > > > > +     int (*sriov_configure)(struct pci_dev *pci_dev, int num_vfs);
+> >> > > > > +
+> >> > > > > +     if (!(vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_DRIVER_OK))
+> >> > > > > +             return -EBUSY;
+> >> > > > > +
+> >> > > > > +     if (!__virtio_test_bit(vdev, VIRTIO_F_SR_IOV))
+> >> > > > > +             return -EINVAL;
+> >> > > > > +
+> >> > > > > +     sriov_configure = pci_sriov_configure_simple;
+> >> > > > > +     if (sriov_configure == NULL)
+> >> > > > > +             return -ENOENT;
+> >> > > >
+> >> > > > BTW what is all this trickery in aid of?
+> >> > >
+> >> > > When SR-IOV support is not compiled into the kernel,
+> >> > > pci_sriov_configure_simple is #defined as NULL. This allows it to compile
+> >> > > in that case, even though there is utterly no way for it to be called in
+> >> > > that case. It is an alternative to #ifs in the code.
+> >> >
+> >> > Why even have the call though? I would wrap all of this in an #ifdef
+> >> > and strip it out since you couldn't support SR-IOV if it isn't present
+> >> > in the kernel anyway.
+> >>
+> >> I am inclined to agree. In this case, the presence of #ifdefs I think would
+> >> be clearer. As written, someone will want to get rid of the pointer only to
+> >> create a build problem when SR-IOV is not configured.
+> >
+> > In my opinion, maybe it would be better to make
+> > pci_sriov_configure_simple() always available
+> > just like other sriov functions.
+> >
+> > Based on the comments in the original patch:
+> >
+> > https://patchwork.kernel.org/patch/10353197/
+> > """
+> > +/* this is expected to be used as a function pointer, just define as NULL */
+> > +#define pci_sriov_configure_simple NULL
+> > """
+> >
+> > This function could be defined as NULL just because
+> > it was expected to be used as a function pointer.
+> > But actually it could be called directly as a
+> > function, just like this case.
+> >
+> > So I prefer to make this function always available
+> > just like other sriov functions.
+> >
+> > Best regards,
+> > Tiwei Bie
+> 
+> The fact that you are having to add additional code kind of implies
+> that maybe this doesn't fall into the pci_sriov_configure_simple case
+> anymore. The PF itself is defining what the VF can and can't do via
+> the feature flags you are testing for.
 
-https://github.com/oasis-tcs/virtio-spec/issues/11
+I think you're right about pci_sriov_configure_simple
+isn't designed for this case. I dropped the use of
+pci_sriov_configure_simple in v2. Thanks!
 
-This patch enables the support for this feature bit in
-virtio driver.
+> 
+> For example how is the bit of code below valid if the kernel itself
+> doesn't support SR-IOV:
+> +static void vp_transport_features(struct virtio_device *vdev, u64 features)
+> +{
+> +       struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> +       struct pci_dev *pci_dev = vp_dev->pci_dev;
+> +
+> +       if ((features & BIT_ULL(VIRTIO_F_SR_IOV)) &&
+> +                       pci_find_ext_capability(pci_dev, PCI_EXT_CAP_ID_SRIOV))
+> +               __virtio_set_bit(vdev, VIRTIO_F_SR_IOV);
+> +}
+> +
+> 
+> It really seems like we should be wrapping these functions at the very
+> minimum so that they don't imply you have SR-IOV support when it isn't
+> supported in the kernel.
 
-Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
----
-v2:
-- Disable VFs when unbinding the driver (Alex, MST);
-- Don't use pci_sriov_configure_simple (Alex);
+I think it's OK to accept this feature bit in this case.
+The IOV support not enabled in kernel just means there is
+no way for users to use SR-IOV. But it doesn't mean that
+the virtio driver doesn't understand *this feature bit*.
+Even if the IOV support is enabled in kernel, there is
+still no way for virtio driver to know whether users will
+enable VFs or not. Accepting this feature is to tell the
+device the virtio driver understands this feature (i.e.
+this is not an incompatible virtio driver). And it's not
+to tell the device whether users will enable VFs or not,
+or how many VFs will be enabled.
 
- drivers/virtio/virtio_pci_common.c | 30 ++++++++++++++++++++++++++++++
- drivers/virtio/virtio_pci_modern.c | 14 ++++++++++++++
- include/uapi/linux/virtio_config.h |  7 ++++++-
- 3 files changed, 50 insertions(+), 1 deletion(-)
+> 
+> Also it seems like we should be disabling the VFs if the driver is
+> unbound from this interface. We need to add logic to disable SR-IOV if
+> the driver is removed. What we don't want to do is leave VFs allocated
+> and then have the potential for us to unbind/rebind the driver as the
+> new driver may change the negotiated features.
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 48d4d1cf1cb6..1d4467b2dc31 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -577,6 +577,8 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
- 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
- 	struct device *dev = get_device(&vp_dev->vdev.dev);
- 
-+	pci_disable_sriov(pci_dev);
-+
- 	unregister_virtio_device(&vp_dev->vdev);
- 
- 	if (vp_dev->ioaddr)
-@@ -588,6 +590,33 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
- 	put_device(dev);
- }
- 
-+static int virtio_pci_sriov_configure(struct pci_dev *pci_dev, int num_vfs)
-+{
-+	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
-+	struct virtio_device *vdev = &vp_dev->vdev;
-+	int ret;
-+
-+	if (!(vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_DRIVER_OK))
-+		return -EBUSY;
-+
-+	if (!__virtio_test_bit(vdev, VIRTIO_F_SR_IOV))
-+		return -EINVAL;
-+
-+	if (pci_vfs_assigned(pci_dev))
-+		return -EPERM;
-+
-+	if (num_vfs == 0) {
-+		pci_disable_sriov(pci_dev);
-+		return 0;
-+	}
-+
-+	ret = pci_enable_sriov(pci_dev, num_vfs);
-+	if (ret < 0)
-+		return ret;
-+
-+	return num_vfs;
-+}
-+
- static struct pci_driver virtio_pci_driver = {
- 	.name		= "virtio-pci",
- 	.id_table	= virtio_pci_id_table,
-@@ -596,6 +625,7 @@ static struct pci_driver virtio_pci_driver = {
- #ifdef CONFIG_PM_SLEEP
- 	.driver.pm	= &virtio_pci_pm_ops,
- #endif
-+	.sriov_configure = virtio_pci_sriov_configure,
- };
- 
- module_pci_driver(virtio_pci_driver);
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 2555d80f6eec..07571daccfec 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -153,14 +153,28 @@ static u64 vp_get_features(struct virtio_device *vdev)
- 	return features;
- }
- 
-+static void vp_transport_features(struct virtio_device *vdev, u64 features)
-+{
-+	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+	struct pci_dev *pci_dev = vp_dev->pci_dev;
-+
-+	if ((features & BIT_ULL(VIRTIO_F_SR_IOV)) &&
-+			pci_find_ext_capability(pci_dev, PCI_EXT_CAP_ID_SRIOV))
-+		__virtio_set_bit(vdev, VIRTIO_F_SR_IOV);
-+}
-+
- /* virtio config->finalize_features() implementation */
- static int vp_finalize_features(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-+	u64 features = vdev->features;
- 
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
- 
-+	/* Give virtio_pci a chance to accept features. */
-+	vp_transport_features(vdev, features);
-+
- 	if (!__virtio_test_bit(vdev, VIRTIO_F_VERSION_1)) {
- 		dev_err(&vdev->dev, "virtio: device uses modern interface "
- 			"but does not have VIRTIO_F_VERSION_1\n");
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index 308e2096291f..b7c1f4e7d59e 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -49,7 +49,7 @@
-  * transport being used (eg. virtio_ring), the rest are per-device feature
-  * bits. */
- #define VIRTIO_TRANSPORT_F_START	28
--#define VIRTIO_TRANSPORT_F_END		34
-+#define VIRTIO_TRANSPORT_F_END		38
- 
- #ifndef VIRTIO_CONFIG_NO_LEGACY
- /* Do we get callbacks when the ring is completely used, even if we've
-@@ -71,4 +71,9 @@
-  * this is for compatibility with legacy systems.
-  */
- #define VIRTIO_F_IOMMU_PLATFORM		33
-+
-+/*
-+ * Does the device support Single Root I/O Virtualization?
-+ */
-+#define VIRTIO_F_SR_IOV			37
- #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
--- 
-2.17.0
+Right. Thanks!
+
+FYI, here is v2:
+https://lists.oasis-open.org/archives/virtio-dev/201805/msg00206.html
+
+Best regards,
+Tiwei Bie
