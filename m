@@ -1,11 +1,17 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [PATCH v3] virtio: update the comments for transport features
-Date: Fri,  1 Jun 2018 19:26:32 +0800
-Message-ID: <20180601112632.12651-1-tiwei.bie__17269.3492648706$1527852286$gmane$org@intel.com>
+From: Wei Xu <wexu@redhat.com>
+Subject: Re: [RFC V5 PATCH 8/8] vhost: event suppression for packed ring
+Date: Sun, 3 Jun 2018 23:40:04 +0800
+Message-ID: <20180603154004.GA24012__4577.71047154001$1528050497$gmane$org@wei-ubt>
+References: <1527559830-8133-1-git-send-email-jasowang@redhat.com>
+	<1527559830-8133-9-git-send-email-jasowang@redhat.com>
+	<20180530114200.GA23792@wei-ubt>
+	<12f2c455-5868-3b07-0eba-d49dcafd10f2@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <12f2c455-5868-3b07-0eba-d49dcafd10f2@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,48 +21,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, stefanha@redhat.com, cohuck@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtio-dev@lists.oasis-open.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The existing comments for transport features are outdated.
-So update them to address the latest changes in the spec.
-
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
-This patch is generated on top of below patch:
-https://lists.oasis-open.org/archives/virtio-dev/201805/msg00212.html
-
-v3:
-- Fix a typo in the commit message (Cornelia);
-
-v2:
-- Improve the comments (Cornelia);
-- Improve the commit message;
-
- include/uapi/linux/virtio_config.h | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index b7c1f4e7d59e..449132c76b1c 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -45,9 +45,12 @@
- /* We've given up on this device. */
- #define VIRTIO_CONFIG_S_FAILED		0x80
- 
--/* Some virtio feature bits (currently bits 28 through 32) are reserved for the
-- * transport being used (eg. virtio_ring), the rest are per-device feature
-- * bits. */
-+/*
-+ * Virtio feature bits VIRTIO_TRANSPORT_F_START through
-+ * VIRTIO_TRANSPORT_F_END are reserved for the transport
-+ * being used (e.g. virtio_ring, virtio_pci etc.), the
-+ * rest are per-device feature bits.
-+ */
- #define VIRTIO_TRANSPORT_F_START	28
- #define VIRTIO_TRANSPORT_F_END		38
- 
--- 
-2.17.0
+T24gVGh1LCBNYXkgMzEsIDIwMTggYXQgMTE6MDk6MDdBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE45bm0MDXmnIgzMOaXpSAxOTo0MiwgV2VpIFh1IHdyb3RlOgo+ID4+
+ICAvKiBUaGlzIGFjdHVhbGx5IHNpZ25hbHMgdGhlIGd1ZXN0LCB1c2luZyBldmVudGZkLiAqLwo+
+ID4+ICB2b2lkIHZob3N0X3NpZ25hbChzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsIHN0cnVjdCB2aG9z
+dF92aXJ0cXVldWUgKnZxKQo+ID4+ICB7Cj4gPj5AQCAtMjgwMiwxMCArMjkzMCwzNCBAQCBzdGF0
+aWMgYm9vbCB2aG9zdF9lbmFibGVfbm90aWZ5X3BhY2tlZChzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYs
+Cj4gPj4gIAkJCQkgICAgICAgc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEpCj4gPj4gIHsKPiA+
+PiAgCXN0cnVjdCB2cmluZ19kZXNjX3BhY2tlZCAqZCA9IHZxLT5kZXNjX3BhY2tlZCArIHZxLT5h
+dmFpbF9pZHg7Cj4gPj4tCV9fdmlydGlvMTYgZmxhZ3M7Cj4gPj4rCV9fdmlydGlvMTYgZmxhZ3Mg
+PSBSSU5HX0VWRU5UX0ZMQUdTX0VOQUJMRTsKPiA+PiAgCWludCByZXQ7Cj4gPj4tCS8qIEZJWE1F
+OiBkaXNhYmxlIG5vdGlmaWNhdGlvbiB0aHJvdWdoIGRldmljZSBhcmVhICovCj4gPj4rCWlmICgh
+KHZxLT51c2VkX2ZsYWdzICYgVlJJTkdfVVNFRF9GX05PX05PVElGWSkpCj4gPj4rCQlyZXR1cm4g
+ZmFsc2U7Cj4gPj4rCXZxLT51c2VkX2ZsYWdzICY9IH5WUklOR19VU0VEX0ZfTk9fTk9USUZZOwo+
+ID4ndXNlZF9mbGFncycgd2FzIG9yaWdpbmFsbHkgZGVzaWduZWQgZm9yIDEuMCwgd2h5IHNob3Vs
+ZCB3ZSBwYXkgYXR0ZXRpb24gdG8gaXQgaGVyZT8KPiA+Cj4gPldlaQo+IAo+IEl0IHdhcyB1c2Vk
+IHRvIHJlY29yZWQgd2hldGhlciBvciBub3Qgd2UndmUgZGlzYWJsZWQgbm90aWZpY2F0aW9uLiBU
+aGVuIHdlCj4gY2FuIGF2b2lkIHVubmVjZXNzYXJ5IHVzZXJzcGFjZSB3cml0ZXMgb3IgbWVtb3J5
+IGJhcnJpZXJzLgoKT0ssIHRoYW5rcy4KCj4gCj4gVGhhbmtzCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
