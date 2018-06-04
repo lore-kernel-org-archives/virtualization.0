@@ -1,17 +1,18 @@
-From: Wei Xu <wexu@redhat.com>
-Subject: Re: [RFC V5 PATCH 8/8] vhost: event suppression for packed ring
-Date: Sun, 3 Jun 2018 23:40:04 +0800
-Message-ID: <20180603154004.GA24012__4577.71047154001$1528050497$gmane$org@wei-ubt>
-References: <1527559830-8133-1-git-send-email-jasowang@redhat.com>
-	<1527559830-8133-9-git-send-email-jasowang@redhat.com>
-	<20180530114200.GA23792@wei-ubt>
-	<12f2c455-5868-3b07-0eba-d49dcafd10f2@redhat.com>
+From: "Liu, Changpeng" <changpeng.liu@intel.com>
+Subject: RE: [PATCH v4] virtio_blk: add DISCARD and WRIET ZEROES commands
+	support
+Date: Mon, 4 Jun 2018 04:14:53 +0000
+Message-ID: <FF7FC980937D6342B9D289F5F3C7C2625B6DD85E@SHSMSX103.ccr.corp.intel.com>
+References: <1527558144-3825-1-git-send-email-changpeng.liu@intel.com>
+	<20180531103047.GB27838@stefanha-x1.localdomain>
+	<FF7FC980937D6342B9D289F5F3C7C2625B6DCEE5@SHSMSX103.ccr.corp.intel.com>
+	<20180601085935.GA8196@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <12f2c455-5868-3b07-0eba-d49dcafd10f2@redhat.com>
+In-Reply-To: <20180601085935.GA8196@stefanha-x1.localdomain>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,28 +22,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>, "cavery@redhat.com" <cavery@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBNYXkgMzEsIDIwMTggYXQgMTE6MDk6MDdBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDXmnIgzMOaXpSAxOTo0MiwgV2VpIFh1IHdyb3RlOgo+ID4+
-ICAvKiBUaGlzIGFjdHVhbGx5IHNpZ25hbHMgdGhlIGd1ZXN0LCB1c2luZyBldmVudGZkLiAqLwo+
-ID4+ICB2b2lkIHZob3N0X3NpZ25hbChzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsIHN0cnVjdCB2aG9z
-dF92aXJ0cXVldWUgKnZxKQo+ID4+ICB7Cj4gPj5AQCAtMjgwMiwxMCArMjkzMCwzNCBAQCBzdGF0
-aWMgYm9vbCB2aG9zdF9lbmFibGVfbm90aWZ5X3BhY2tlZChzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYs
-Cj4gPj4gIAkJCQkgICAgICAgc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEpCj4gPj4gIHsKPiA+
-PiAgCXN0cnVjdCB2cmluZ19kZXNjX3BhY2tlZCAqZCA9IHZxLT5kZXNjX3BhY2tlZCArIHZxLT5h
-dmFpbF9pZHg7Cj4gPj4tCV9fdmlydGlvMTYgZmxhZ3M7Cj4gPj4rCV9fdmlydGlvMTYgZmxhZ3Mg
-PSBSSU5HX0VWRU5UX0ZMQUdTX0VOQUJMRTsKPiA+PiAgCWludCByZXQ7Cj4gPj4tCS8qIEZJWE1F
-OiBkaXNhYmxlIG5vdGlmaWNhdGlvbiB0aHJvdWdoIGRldmljZSBhcmVhICovCj4gPj4rCWlmICgh
-KHZxLT51c2VkX2ZsYWdzICYgVlJJTkdfVVNFRF9GX05PX05PVElGWSkpCj4gPj4rCQlyZXR1cm4g
-ZmFsc2U7Cj4gPj4rCXZxLT51c2VkX2ZsYWdzICY9IH5WUklOR19VU0VEX0ZfTk9fTk9USUZZOwo+
-ID4ndXNlZF9mbGFncycgd2FzIG9yaWdpbmFsbHkgZGVzaWduZWQgZm9yIDEuMCwgd2h5IHNob3Vs
-ZCB3ZSBwYXkgYXR0ZXRpb24gdG8gaXQgaGVyZT8KPiA+Cj4gPldlaQo+IAo+IEl0IHdhcyB1c2Vk
-IHRvIHJlY29yZWQgd2hldGhlciBvciBub3Qgd2UndmUgZGlzYWJsZWQgbm90aWZpY2F0aW9uLiBU
-aGVuIHdlCj4gY2FuIGF2b2lkIHVubmVjZXNzYXJ5IHVzZXJzcGFjZSB3cml0ZXMgb3IgbWVtb3J5
-IGJhcnJpZXJzLgoKT0ssIHRoYW5rcy4KCj4gCj4gVGhhbmtzCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+
+> -----Original Message-----
+> From: Stefan Hajnoczi [mailto:stefanha@redhat.com]
+> Sent: Friday, June 1, 2018 5:00 PM
+> To: Liu, Changpeng <changpeng.liu@intel.com>
+> Cc: virtualization@lists.linux-foundation.org; cavery@redhat.com;
+> jasowang@redhat.com; pbonzini@redhat.com; Wang, Wei W
+> <wei.w.wang@intel.com>
+> Subject: Re: [PATCH v4] virtio_blk: add DISCARD and WRIET ZEROES commands
+> support
+> 
+> On Thu, May 31, 2018 at 11:53:26PM +0000, Liu, Changpeng wrote:
+> >
+> >
+> > > -----Original Message-----
+> > > From: Stefan Hajnoczi [mailto:stefanha@redhat.com]
+> > > Sent: Thursday, May 31, 2018 6:31 PM
+> > > To: Liu, Changpeng <changpeng.liu@intel.com>
+> > > Cc: virtualization@lists.linux-foundation.org; cavery@redhat.com;
+> > > jasowang@redhat.com; pbonzini@redhat.com; Wang, Wei W
+> > > <wei.w.wang@intel.com>
+> > > Subject: Re: [PATCH v4] virtio_blk: add DISCARD and WRIET ZEROES commands
+> > > support
+> > >
+> > > On Tue, May 29, 2018 at 09:42:24AM +0800, Changpeng Liu wrote:
+> > > >  	num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
+> > > >  	if (num) {
+> > > > -		if (rq_data_dir(req) == WRITE)
+> > > > +		if (rq_data_dir(req) == WRITE || type == VIRTIO_BLK_T_DISCARD
+> > > ||
+> > > > +		    type == VIRTIO_BLK_T_WRITE_ZEROES)
+> > > >  			vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev,
+> > > VIRTIO_BLK_T_OUT);
+> > >
+> > > The VIRTIO specification says:
+> > >
+> > >   The type of the request is either a read (VIRTIO_BLK_T_IN), a write
+> > >   (VIRTIO_BLK_T_OUT), a discard (VIRTIO_BLK_T_DISCARD), a write zeroes
+> > >   (VIRTIO_BLK_T_WRITE_ZEROES) or a flush (VIRTIO_BLK_T_FLUSH).
+> > >
+> > > But this patch actually uses VIRTIO_BLK_T_DISCARD | VIRTIO_BLK_T_OUT or
+> > > VIRTIO_BLK_T_WRITE_ZEROES | VIRTIO_BLK_T_OUT.  "either A or B" is
+> > > exclusive, it does not mean "A and B".
+> > Hi Stefan,
+> >
+> > For the new add DISCARD and WRITE ZEROES commands, I defined the
+> > type code to 11 and 13, so the last bit always is 1, there is no difference
+> > in practice.
+> 
+> Then the code is misleading.  This is clearer:
+> 
+>   if (type == VIRTIO_BLK_T_DISCARD || type == VIRTIO_BLK_T_WRITE_ZEROES)
+>       /* Do nothing, type already set */
+>   else if (rq_data_dir(req) == WRITE)
+>       vbr->out_hdr.type |= cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_OUT);
+>   ...
+This change sounds good to me, will change the patch accordingly.
+> 
+> > But I believe the specification says VIRTIO_BLK_T_OUT means direction, so
+> > OR the two bits together should compliance with the specification.
+> 
+> I cannot find that in the specification:
+> 
+>   http://docs.oasis-open.org/virtio/virtio/v1.0/cs04/virtio-v1.0-cs04.html#x1-
+> 2020002
+> 
+> and it would contradict the "The type of the request is either ... or
+> ..." wording that I quoted from the spec above.
+> 
+> If you do find something in the spec, please let me know and we can
+> figure out how to make the spec consistent.
+I saw comments from file linux/usr/include/uapi/linux/virtio_blk.h, which says
+VIRTIO_BLK_T_OUT may be combined with other commands and means direction,
+the specification does not have such description.
