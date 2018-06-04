@@ -1,17 +1,19 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
-	virito devices
-Date: Mon, 04 Jun 2018 19:48:54 +1000
-Message-ID: <d5df613d6347fe2f9bb6ea65bc6f6be05650ca6f.camel@kernel.crashing.org>
-References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
-	<20180523213703-mutt-send-email-mst@kernel.org>
-	<f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
-	<20180604085742.GQ4251@umbus>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v4] virtio_blk: add DISCARD and WRIET ZEROES commands
+	support
+Date: Mon, 4 Jun 2018 12:02:48 +0200
+Message-ID: <102ec75b-68c9-a488-d0c3-223ab09254bc@redhat.com>
+References: <1527558144-3825-1-git-send-email-changpeng.liu@intel.com>
+	<20180531103047.GB27838@stefanha-x1.localdomain>
+	<FF7FC980937D6342B9D289F5F3C7C2625B6DCEE5@SHSMSX103.ccr.corp.intel.com>
+	<20180601085935.GA8196@stefanha-x1.localdomain>
+	<FF7FC980937D6342B9D289F5F3C7C2625B6DD85E@SHSMSX103.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180604085742.GQ4251@umbus>
+In-Reply-To: <FF7FC980937D6342B9D289F5F3C7C2625B6DD85E@SHSMSX103.ccr.corp.intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +23,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Gibson <david@gibson.dropbear.id.au>
-Cc: robh@kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: "Liu, Changpeng" <changpeng.liu@intel.com>, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: "cavery@redhat.com" <cavery@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2018-06-04 at 18:57 +1000, David Gibson wrote:
-> 
-> > - First qemu doesn't know that the guest will switch to "secure mode"
-> > in advance. There is no difference between a normal and a secure
-> > partition until the partition does the magic UV call to "enter secure
-> > mode" and qemu doesn't see any of it. So who can set the flag here ?
-> 
-> This seems weird to me.  As a rule HV calls should go through qemu -
-> or be allowed to go directly to KVM *by* qemu.
-
-It's not an HV call, it's a UV call, qemu won't see it, qemu isn't
-trusted. Now the UV *will* reflect that to the HV via some synthetized
-HV calls, and we *could* have those do a pass by qemu, however, so far,
-our entire design doesn't rely on *any* qemu knowledge whatsoever and
-it would be sad to add it just for that purpose.
-
-Additionally, this is rather orthogonal, see my other email, the
-problem we are trying to solve is *not* a qemu problem and it doesn't
-make sense to leak that into qemu.
-
->   We generally reserve
-> the latter for hot path things.  Since this isn't a hot path, having
-> the call handled directly by the kernel seems wrong.
+On 04/06/2018 06:14, Liu, Changpeng wrote:
+>>> But I believe the specification says VIRTIO_BLK_T_OUT means direction, so
+>>> OR the two bits together should compliance with the specification.
+>> I cannot find that in the specification:
+>>
+>>   http://docs.oasis-open.org/virtio/virtio/v1.0/cs04/virtio-v1.0-cs04.html#x1-
+>> 2020002
+>>
+>> and it would contradict the "The type of the request is either ... or
+>> ..." wording that I quoted from the spec above.
+>>
+>> If you do find something in the spec, please let me know and we can
+>> figure out how to make the spec consistent.
 >
-> Unless a "UV call" is something different I don't know about.
+> I saw comments from file linux/usr/include/uapi/linux/virtio_blk.h, which says
+> VIRTIO_BLK_T_OUT may be combined with other commands and means direction,
+> the specification does not have such description.
 
-Yes, a UV call goes to the Ultravisor, not the Hypervisor. The
-Hypervisor isn't trusted.
+I don't think it is in the specification indeed (however, 11 and 13 were
+chosen so that VIRTIO_BLK_T_OUT can still indicate direction).
 
-> > - Second, when using VIRTIO_F_IOMMU_PLATFORM, we also make qemu (or
-> > vhost) go through the emulated MMIO for every access to the guest,
-> > which adds additional overhead.
-> 
-Ben.
+Paolo
