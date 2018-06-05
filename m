@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY feature bit to
-	virtio_net
-Date: Tue, 5 Jun 2018 15:33:21 +0300
-Message-ID: <20180605152344-mutt-send-email-mst__21680.3083116703$1528201902$gmane$org@kernel.org>
-References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
-	<fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH v2 2/2] x86: paravirt: make native_save_fl extern inline
+Date: Tue, 5 Jun 2018 10:28:39 -0700
+Message-ID: <26c7fd1c-ab40-368f-c2e3-43a6b45157fd@zytor.com>
+References: <20180605170532.170361-1-ndesaulniers@google.com>
+	<20180605170532.170361-3-ndesaulniers@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="------------440690091998480EBFAA1FD9"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
+In-Reply-To: <20180605170532.170361-3-ndesaulniers@google.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,83 +18,142 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Nick Desaulniers <ndesaulniers@google.com>, akpm@linux-foundation.org, ard.biesheuvel@linaro.org, aryabinin@virtuozzo.com, akataria@vmware.com, boris.ostrovsky@oracle.com, brijesh.singh@amd.com, caoj.fnst@cn.fujitsu.com, gregkh@linuxfoundation.org, jan.kiszka@siemens.com, jarkko.sakkinen@linux.intel.com, jgross@suse.com, jpoimboe@redhat.com, kirill.shutemov@linux.intel.com, mingo@redhat.com, mjg59@google.com, mka@chromium.org, pombredanne@nexb.com, rostedt@goodmis.org, tglx@linutronix.de, thomas.lendacky@amd.com, tweek@google.com
+Cc: linux-efi@vger.kernel.org, mawilcox@microsoft.com, arnd@arndb.de, tstellar@redhat.com, x86@kernel.org, will.deacon@arm.com, astrachan@google.com, ghackmann@google.com, linux-kernel@vger.kernel.org, yamada.masahiro@socionext.com, michal.lkml@markovi.net, geert@linux-m68k.org, manojgupta@google.com, keescook@google.com, sedat.dilek@gmail.com, rientjes@google.com, virtualization@lists.linux-foundation.org, linux-kbuild@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-I don't think this is sufficient.
+This is a multi-part message in MIME format.
+--------------440690091998480EBFAA1FD9
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-If both primary and standby devices are present, a legacy guest without
-support for the feature might see two devices with same mac and get
-confused.
-
-I think that we should only make primary visible after guest acked the
-backup feature bit.
-
-And on reset or when backup is cleared in some other way, unplug the
-primary.
-
-Something like the below will do the job:
-
-Primary device is added with a special "primary-failover" flag.
-A virtual machine is then initialized with just a standby virtio
-device. Primary is not yet added.
-
-Later QEMU detects that guest driver device set DRIVER_OK.
-It then exposes the primary device to the guest, and triggers 
-a device addition event (hot-plug event) for it.
-
-If QEMU detects guest driver removal, it initiates a hot-unplug sequence
-to remove the primary driver.  In particular, if QEMU detects guest
-re-initialization (e.g. by detecting guest reset) it immediately removes
-the primary device.
-
-We can move some of this code to management as well, architecturally it
-does not make too much sense but it might be easier implementation-wise.
-
-HTH
-
-On Mon, Jun 04, 2018 at 06:41:48PM -0700, Samudrala, Sridhar wrote:
-> Ping on this patch now that the kernel patches are accepted into davem's net-next tree.
-> https://patchwork.ozlabs.org/cover/920005/
+On 06/05/18 10:05, Nick Desaulniers wrote:
+> +
+> +/*
+> + * void native_restore_fl(unsigned long flags)
+> + * %rdi: flags
+> + */
+> +ENTRY(native_restore_fl)
+> +	push %_ASM_DI
+> +	popf
+> +	ret
+> +ENDPROC(native_restore_fl)
+> +EXPORT_SYMBOL(native_restore_fl)
 > 
-> 
-> On 5/7/2018 4:09 PM, Sridhar Samudrala wrote:
-> > This feature bit can be used by hypervisor to indicate virtio_net device to
-> > act as a standby for another device with the same MAC address.
-> > 
-> > I tested this with a small change to the patch to mark the STANDBY feature 'true'
-> > by default as i am using libvirt to start the VMs.
-> > Is there a way to pass the newly added feature bit 'standby' to qemu via libvirt
-> > XML file?
-> > 
-> > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
-> > ---
-> >   hw/net/virtio-net.c                         | 2 ++
-> >   include/standard-headers/linux/virtio_net.h | 3 +++
-> >   2 files changed, 5 insertions(+)
-> > 
-> > diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-> > index 90502fca7c..38b3140670 100644
-> > --- a/hw/net/virtio-net.c
-> > +++ b/hw/net/virtio-net.c
-> > @@ -2198,6 +2198,8 @@ static Property virtio_net_properties[] = {
-> >                        true),
-> >       DEFINE_PROP_INT32("speed", VirtIONet, net_conf.speed, SPEED_UNKNOWN),
-> >       DEFINE_PROP_STRING("duplex", VirtIONet, net_conf.duplex_str),
-> > +    DEFINE_PROP_BIT64("standby", VirtIONet, host_features, VIRTIO_NET_F_STANDBY,
-> > +                      false),
-> >       DEFINE_PROP_END_OF_LIST(),
-> >   };
-> > diff --git a/include/standard-headers/linux/virtio_net.h b/include/standard-headers/linux/virtio_net.h
-> > index e9f255ea3f..01ec09684c 100644
-> > --- a/include/standard-headers/linux/virtio_net.h
-> > +++ b/include/standard-headers/linux/virtio_net.h
-> > @@ -57,6 +57,9 @@
-> >   					 * Steering */
-> >   #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
-> > +#define VIRTIO_NET_F_STANDBY      62    /* Act as standby for another device
-> > +                                         * with the same MAC.
-> > +                                         */
-> >   #define VIRTIO_NET_F_SPEED_DUPLEX 63	/* Device set linkspeed and duplex */
-> >   #ifndef VIRTIO_NET_NO_LEGACY
+
+To work on i386, this would have to be %_ASM_AX in that case.
+
+Something like this added to <asm/asm.h> might be useful; then you can
+simply:
+
+	push %_ASM_ARG1
+
+--------------440690091998480EBFAA1FD9
+Content-Type: text/x-patch;
+ name="0001-x86-asm-add-_ASM_ARG-constants-for-argument-registes.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-x86-asm-add-_ASM_ARG-constants-for-argument-registes.pa";
+ filename*1="tch"
+
+From 83a7c1b7167dceee0eb731cf4ae3af7f9b2c05ea Mon Sep 17 00:00:00 2001
+From: "H. Peter Anvin" <hpa@linux.intel.com>
+Date: Tue, 5 Jun 2018 10:21:35 -0700
+Subject: [PATCH] x86/asm: add _ASM_ARG* constants for argument registes to
+ <asm/asm.h>
+
+i386 and x86-64 uses different registers for arguments; make them
+available so we don't have to #ifdef in the actual code.
+
+Native size and specified size (q, l, w, b) versions are provided.
+
+Signed-off-by: H. Peter Anvin <hpa@linux.intel.com>
+---
+ arch/x86/include/asm/asm.h | 59 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 59 insertions(+)
+
+diff --git a/arch/x86/include/asm/asm.h b/arch/x86/include/asm/asm.h
+index 219faaec51df..3cab54bce51d 100644
+--- a/arch/x86/include/asm/asm.h
++++ b/arch/x86/include/asm/asm.h
+@@ -46,6 +46,65 @@
+ #define _ASM_SI		__ASM_REG(si)
+ #define _ASM_DI		__ASM_REG(di)
+ 
++#ifndef __x86_64__
++/* 32 bit */
++
++#define _ASM_ARG1	_ASM_AX
++#define _ASM_ARG2	_ASM_DX
++#define _ASM_ARG3	_ASM_CX
++
++#define _ASM_ARG1L	eax
++#define _ASM_ARG2L	edx
++#define _ASM_ARG3L	ecx
++
++#define _ASM_ARG1W	ax
++#define _ASM_ARG2W	dx
++#define _ASM_ARG3W	cx
++
++#define _ASM_ARG1B	al
++#define _ASM_ARG2B	dl
++#define _ASM_ARG3B	cl
++
++#else
++/* 64 bit */
++
++#define _ASM_ARG1	_ASM_DI
++#define _ASM_ARG2	_ASM_SI
++#define _ASM_ARG3	_ASM_DX
++#define _ASM_ARG4	_ASM_CX
++#define _ASM_ARG5	r8
++#define _ASM_ARG6	r9
++
++#define _ASM_ARG1Q	rdi
++#define _ASM_ARG2Q	rsi
++#define _ASM_ARG3Q	rdx
++#define _ASM_ARG4Q	rcx
++#define _ASM_ARG5Q	r8
++#define _ASM_ARG6Q	r9
++
++#define _ASM_ARG1L	edi
++#define _ASM_ARG2L	esi
++#define _ASM_ARG3L	edx
++#define _ASM_ARG4L	ecx
++#define _ASM_ARG5L	r8d
++#define _ASM_ARG6L	r9d
++
++#define _ASM_ARG1W	di
++#define _ASM_ARG2W	di
++#define _ASM_ARG3W	dx
++#define _ASM_ARG4W	cx
++#define _ASM_ARG5W	r8w
++#define _ASM_ARG6W	r9w
++
++#define _ASM_ARG1B	dil
++#define _ASM_ARG2B	sil
++#define _ASM_ARG3B	dl
++#define _ASM_ARG4B	cl
++#define _ASM_ARG5B	r8b
++#define _ASM_ARG6B	r9b
++
++#endif
++
+ /*
+  * Macros to generate condition code outputs from inline assembly,
+  * The output operand must be type "bool".
+-- 
+2.14.4
+
+
+--------------440690091998480EBFAA1FD9
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--------------440690091998480EBFAA1FD9--
