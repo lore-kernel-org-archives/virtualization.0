@@ -1,20 +1,21 @@
-From: "Liu, Changpeng" <changpeng.liu@intel.com>
-Subject: RE: [PATCH v4] virtio_blk: add DISCARD and WRIET ZEROES commands
-	support
-Date: Tue, 5 Jun 2018 00:55:19 +0000
-Message-ID: <FF7FC980937D6342B9D289F5F3C7C2625B6DDD88@SHSMSX103.ccr.corp.intel.com>
-References: <1527558144-3825-1-git-send-email-changpeng.liu@intel.com>
-	<20180531103047.GB27838@stefanha-x1.localdomain>
-	<FF7FC980937D6342B9D289F5F3C7C2625B6DCEE5@SHSMSX103.ccr.corp.intel.com>
-	<20180601085935.GA8196@stefanha-x1.localdomain>
-	<FF7FC980937D6342B9D289F5F3C7C2625B6DD85E@SHSMSX103.ccr.corp.intel.com>
-	<102ec75b-68c9-a488-d0c3-223ab09254bc@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
+	virito devices
+Date: Tue, 5 Jun 2018 04:25:37 +0300
+Message-ID: <20180605042229-mutt-send-email-mst__23268.8935626813$1528161844$gmane$org@kernel.org>
+References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
+	<20180523213703-mutt-send-email-mst@kernel.org>
+	<f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
+	<20180604153558-mutt-send-email-mst@kernel.org>
+	<e7ceddbec11711a89282e9b70b7fd3c8af10b030.camel@kernel.crashing.org>
+	<20180604184035-mutt-send-email-mst@kernel.org>
+	<6164442a718645a754879eac5c4c5fad9283c211.camel@kernel.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <102ec75b-68c9-a488-d0c3-223ab09254bc@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <6164442a718645a754879eac5c4c5fad9283c211.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,43 +25,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
-Cc: "cavery@redhat.com" <cavery@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: robh@kernel.org, mpe@ellerman.id.au, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Jun 05, 2018 at 09:26:56AM +1000, Benjamin Herrenschmidt wrote:
+> I would like to keep however the ability to bypass the iommu for
+> performance reasons
 
+So that's easy, clear the IOMMU flag and this means "bypass the IOMMU".
 
-> -----Original Message-----
-> From: Paolo Bonzini [mailto:pbonzini@redhat.com]
-> Sent: Monday, June 4, 2018 6:03 PM
-> To: Liu, Changpeng <changpeng.liu@intel.com>; Stefan Hajnoczi
-> <stefanha@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org; cavery@redhat.com;
-> jasowang@redhat.com; Wang, Wei W <wei.w.wang@intel.com>
-> Subject: Re: [PATCH v4] virtio_blk: add DISCARD and WRIET ZEROES commands
-> support
-> 
-> On 04/06/2018 06:14, Liu, Changpeng wrote:
-> >>> But I believe the specification says VIRTIO_BLK_T_OUT means direction, so
-> >>> OR the two bits together should compliance with the specification.
-> >> I cannot find that in the specification:
-> >>
-> >>   http://docs.oasis-open.org/virtio/virtio/v1.0/cs04/virtio-v1.0-cs04.html#x1-
-> >> 2020002
-> >>
-> >> and it would contradict the "The type of the request is either ... or
-> >> ..." wording that I quoted from the spec above.
-> >>
-> >> If you do find something in the spec, please let me know and we can
-> >> figure out how to make the spec consistent.
-> >
-> > I saw comments from file linux/usr/include/uapi/linux/virtio_blk.h, which says
-> > VIRTIO_BLK_T_OUT may be combined with other commands and means direction,
-> > the specification does not have such description.
-> 
-> I don't think it is in the specification indeed (however, 11 and 13 were
-> chosen so that VIRTIO_BLK_T_OUT can still indicate direction).
-Correct, we don't need to OR VIRTIO_BLK_T_OUT again for DISCARD and WRITE ZEROES commands.
-I'll remove it in next patch set.
-> 
-> Paolo
+-- 
+MST
