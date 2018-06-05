@@ -1,15 +1,16 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH v2 1/2] compiler-gcc.h: add gnu_inline to all inline
-	declarations
-Date: Tue, 05 Jun 2018 10:23:40 -0700
-Message-ID: <202492204c2d5bd5ca27307cbca5e44673b739ed.camel__40715.5953850181$1528232387$gmane$org@perches.com>
-References: <20180605170532.170361-1-ndesaulniers@google.com>
-	<20180605170532.170361-2-ndesaulniers@google.com>
+From: Siwei Liu <loseweigh@gmail.com>
+Subject: Re: [virtio-dev] Re: [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY
+	feature bit to virtio_net
+Date: Tue, 5 Jun 2018 14:16:44 -0700
+Message-ID: <CADGSJ21Qf6KpLzr+og5DOFjMPqu69n6dWRLvvj1FGAR5kVRNew@mail.gmail.com>
+References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
+	<fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
+	<20180605152344-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180605170532.170361-2-ndesaulniers@google.com>
+In-Reply-To: <20180605152344-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,62 +20,126 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nick Desaulniers <ndesaulniers@google.com>, akpm@linux-foundation.org, ard.biesheuvel@linaro.org, aryabinin@virtuozzo.com, akataria@vmware.com, boris.ostrovsky@oracle.com, brijesh.singh@amd.com, caoj.fnst@cn.fujitsu.com, gregkh@linuxfoundation.org, hpa@zytor.com, jan.kiszka@siemens.com, jarkko.sakkinen@linux.intel.com, jgross@suse.com, jpoimboe@redhat.com, kirill.shutemov@linux.intel.com, mingo@redhat.com, mjg59@google.com, mka@chromium.org, pombredanne@nexb.com, rostedt@goodmis.org, tglx@linutronix.de, thomas.lendacky@amd.com, tweek@google.com
-Cc: linux-efi@vger.kernel.org, mawilcox@microsoft.com, arnd@arndb.de, tstellar@redhat.com, x86@kernel.org, will.deacon@arm.com, astrachan@google.com, ghackmann@google.com, linux-kernel@vger.kernel.org, yamada.masahiro@socionext.com, michal.lkml@markovi.net, geert@linux-m68k.org, manojgupta@google.com, keescook@google.com, sedat.dilek@gmail.com, rientjes@google.com, virtualization@lists.linux-foundation.org, linux-kbuild@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2018-06-05 at 10:05 -0700, Nick Desaulniers wrote:
-> Functions marked extern inline do not emit an externally visible
-> function when the gnu89 C standard is used. Some KBUILD Makefiles
-> overwrite KBUILD_CFLAGS. This is an issue for GCC 5.1+ users as without
-> an explicit C standard specified, the default is gnu11. Since c99, the
-> semantics of extern inline have changed such that an externally visible
-> function is always emitted. This can lead to multiple definition errors
-> of extern inline functions at link time of compilation units whose build
-> files have removed an explicit C standard compiler flag for users of GCC
-> 5.1+ or Clang.
-[]
-> diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
-[]
-> @@ -72,17 +72,24 @@
->   * -Wunused-function.  This turns out to avoid the need for complex #ifdef
->   * directives.  Suppress the warning in clang as well by using "unused"
->   * function attribute, which is redundant but not harmful for gcc.
-> + * Prefer gnu_inline, so that extern inline functions do not emit an
-> + * externally visible function. This makes extern inline behave as per gnu89
-> + * semantics rather than c99. This prevents multiple symbol definition errors
-> + * of extern inline functions at link time.
->   */
->  #if !defined(CONFIG_ARCH_SUPPORTS_OPTIMIZED_INLINING) ||		\
->      !defined(CONFIG_OPTIMIZE_INLINING) || (__GNUC__ < 4)
-> -#define inline inline		__attribute__((always_inline,unused)) notrace
-> -#define __inline__ __inline__	__attribute__((always_inline,unused)) notrace
-> -#define __inline __inline	__attribute__((always_inline,unused)) notrace
-> +#define inline \
-> +	inline __attribute__((always_inline, unused, gnu_inline)) notrace
-> +#define __inline__ \
-> +	__inline__ __attribute__((always_inline, unused, gnu_inline)) notrace
-> +#define __inline \
-> +	__inline __attribute__((always_inline, unused, gnu_inline)) notrace
+Good to see this discussion going. I share the same feeling that the
+decision of plugging the primary (passthrough) should only be made
+until guest driver acknowledges DRIVER_OK and _F_STANDBY.
+Architecturally this intelligence should be baken to QEMU itself
+rather than moving up to management stack, such as libvirt.
 
-Perhaps these are simpler as
+A few questions in line below.
 
-#define __inline__	inline
-#define __inline	inline
+On Tue, Jun 5, 2018 at 5:33 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> I don't think this is sufficient.
+>
+> If both primary and standby devices are present, a legacy guest without
+> support for the feature might see two devices with same mac and get
+> confused.
+>
+> I think that we should only make primary visible after guest acked the
+> backup feature bit.
+>
+> And on reset or when backup is cleared in some other way, unplug the
+> primary.
+>
+> Something like the below will do the job:
+>
+> Primary device is added with a special "primary-failover" flag.
 
->  #else
->  /* A lot of inline functions can cause havoc with function tracing */
-> -#define inline inline		__attribute__((unused)) notrace
-> -#define __inline__ __inline__	__attribute__((unused)) notrace
-> -#define __inline __inline	__attribute__((unused)) notrace
-> +#define inline inline		__attribute__((unused, gnu_inline)) notrace
-> +#define __inline__ __inline__	__attribute__((unused, gnu_inline)) notrace
-> +#define __inline __inline	__attribute__((unused, gnu_inline)) notrace
->  #endif
+I wonder if you envision this flag as a user interface or some
+internal attribute/property to QEMU device?
 
-And only set once along with:
+Since QEMU needs to associate this particular primary-failover device
+with a virtio standby instance for checking DRIVER_OK as you indicate
+below, I wonder if the group ID thing will be helpful to set
+"primary-failover" flag internally without having to add another
+option in CLI?
 
->  #define __always_inline	inline __attribute__((always_inline))
+> A virtual machine is then initialized with just a standby virtio
+> device. Primary is not yet added.
+>
+> Later QEMU detects that guest driver device set DRIVER_OK.
+> It then exposes the primary device to the guest, and triggers
+> a device addition event (hot-plug event) for it.
 
-And perhaps this __always_inline should be updated
-with gnu_inline as well
+Sounds OK. While there might be a small window the guest already
+starts to use virtio interface before the passthrough gets plugged in,
+I think that should be fine.
+
+Another option is to wait until the primary appears and gets
+registered in the guest, so it can bring up the upper failover
+interface.
+
+>
+> If QEMU detects guest driver removal, it initiates a hot-unplug sequence
+> to remove the primary driver.  In particular, if QEMU detects guest
+> re-initialization (e.g. by detecting guest reset) it immediately removes
+> the primary device.
+
+Agreed.
+
+For legacy guest, user might prefer seeing a single passthrough device
+rather than a virtio device. I would hope there's an option to allow
+it to happen, instead of removing all passthrough devices.
+
+Regards,
+-Siwei
+
+>
+> We can move some of this code to management as well, architecturally it
+> does not make too much sense but it might be easier implementation-wise.
+>
+> HTH
+>
+> On Mon, Jun 04, 2018 at 06:41:48PM -0700, Samudrala, Sridhar wrote:
+>> Ping on this patch now that the kernel patches are accepted into davem's net-next tree.
+>> https://patchwork.ozlabs.org/cover/920005/
+>>
+>>
+>> On 5/7/2018 4:09 PM, Sridhar Samudrala wrote:
+>> > This feature bit can be used by hypervisor to indicate virtio_net device to
+>> > act as a standby for another device with the same MAC address.
+>> >
+>> > I tested this with a small change to the patch to mark the STANDBY feature 'true'
+>> > by default as i am using libvirt to start the VMs.
+>> > Is there a way to pass the newly added feature bit 'standby' to qemu via libvirt
+>> > XML file?
+>> >
+>> > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+>> > ---
+>> >   hw/net/virtio-net.c                         | 2 ++
+>> >   include/standard-headers/linux/virtio_net.h | 3 +++
+>> >   2 files changed, 5 insertions(+)
+>> >
+>> > diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
+>> > index 90502fca7c..38b3140670 100644
+>> > --- a/hw/net/virtio-net.c
+>> > +++ b/hw/net/virtio-net.c
+>> > @@ -2198,6 +2198,8 @@ static Property virtio_net_properties[] = {
+>> >                        true),
+>> >       DEFINE_PROP_INT32("speed", VirtIONet, net_conf.speed, SPEED_UNKNOWN),
+>> >       DEFINE_PROP_STRING("duplex", VirtIONet, net_conf.duplex_str),
+>> > +    DEFINE_PROP_BIT64("standby", VirtIONet, host_features, VIRTIO_NET_F_STANDBY,
+>> > +                      false),
+>> >       DEFINE_PROP_END_OF_LIST(),
+>> >   };
+>> > diff --git a/include/standard-headers/linux/virtio_net.h b/include/standard-headers/linux/virtio_net.h
+>> > index e9f255ea3f..01ec09684c 100644
+>> > --- a/include/standard-headers/linux/virtio_net.h
+>> > +++ b/include/standard-headers/linux/virtio_net.h
+>> > @@ -57,6 +57,9 @@
+>> >                                      * Steering */
+>> >   #define VIRTIO_NET_F_CTRL_MAC_ADDR 23     /* Set MAC address */
+>> > +#define VIRTIO_NET_F_STANDBY      62    /* Act as standby for another device
+>> > +                                         * with the same MAC.
+>> > +                                         */
+>> >   #define VIRTIO_NET_F_SPEED_DUPLEX 63      /* Device set linkspeed and duplex */
+>> >   #ifndef VIRTIO_NET_NO_LEGACY
+>
+> ---------------------------------------------------------------------
+> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+>
