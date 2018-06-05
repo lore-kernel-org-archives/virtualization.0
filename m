@@ -1,16 +1,21 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY feature bit to
-	virtio_net
-Date: Tue, 5 Jun 2018 10:06:41 +0800
-Message-ID: <d61c88c7-0803-ba1c-08ab-fc668cffa40b@redhat.com>
-References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
-	<fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
+	virito devices
+Date: Mon, 4 Jun 2018 21:52:08 -0700
+Message-ID: <20180605045207.GA28447__45537.8330815167$1528174231$gmane$org@infradead.org>
+References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
+	<20180523213703-mutt-send-email-mst@kernel.org>
+	<f77638ddef3af52dd71341083707c9e3745dd505.camel@kernel.crashing.org>
+	<20180604153558-mutt-send-email-mst@kernel.org>
+	<e7ceddbec11711a89282e9b70b7fd3c8af10b030.camel@kernel.crashing.org>
+	<20180604184035-mutt-send-email-mst@kernel.org>
+	<6164442a718645a754879eac5c4c5fad9283c211.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <6164442a718645a754879eac5c4c5fad9283c211.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,54 +25,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, qemu-devel@nongnu.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: robh@kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, luto@amacapital.net, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDbmnIgwNeaXpSAwOTo0MSwgU2FtdWRyYWxhLCBTcmlkaGFyIHdyb3RlOgo+
-IFBpbmcgb24gdGhpcyBwYXRjaCBub3cgdGhhdCB0aGUga2VybmVsIHBhdGNoZXMgYXJlIGFjY2Vw
-dGVkIGludG8gCj4gZGF2ZW0ncyBuZXQtbmV4dCB0cmVlLgo+IGh0dHBzOi8vcGF0Y2h3b3JrLm96
-bGFicy5vcmcvY292ZXIvOTIwMDA1Lwo+Cj4KPiBPbiA1LzcvMjAxOCA0OjA5IFBNLCBTcmlkaGFy
-IFNhbXVkcmFsYSB3cm90ZToKPj4gVGhpcyBmZWF0dXJlIGJpdCBjYW4gYmUgdXNlZCBieSBoeXBl
-cnZpc29yIHRvIGluZGljYXRlIHZpcnRpb19uZXQgCj4+IGRldmljZSB0bwo+PiBhY3QgYXMgYSBz
-dGFuZGJ5IGZvciBhbm90aGVyIGRldmljZSB3aXRoIHRoZSBzYW1lIE1BQyBhZGRyZXNzLgo+Pgo+
-PiBJIHRlc3RlZCB0aGlzIHdpdGggYSBzbWFsbCBjaGFuZ2UgdG8gdGhlIHBhdGNoIHRvIG1hcmsg
-dGhlIFNUQU5EQlkgCj4+IGZlYXR1cmUgJ3RydWUnCj4+IGJ5IGRlZmF1bHQgYXMgaSBhbSB1c2lu
-ZyBsaWJ2aXJ0IHRvIHN0YXJ0IHRoZSBWTXMuCj4+IElzIHRoZXJlIGEgd2F5IHRvIHBhc3MgdGhl
-IG5ld2x5IGFkZGVkIGZlYXR1cmUgYml0ICdzdGFuZGJ5JyB0byBxZW11IAo+PiB2aWEgbGlidmly
-dAo+PiBYTUwgZmlsZT8KPj4KCk1heWJlIHlvdSBjYW4gdHJ5IHFlbXUgY29tbWFuZCBsaW5lIHBh
-c3N0aHJvdWdoOgoKaHR0cHM6Ly9saWJ2aXJ0Lm9yZy9kcnZxZW11Lmh0bWwjcWVtdWNvbW1hbmQK
-ClRoZSBwYXRjaCBsb29rcyBnb29kIHRvIG1lLiBMZXQncyBzZWUgaWYgTWljaGFlbCBoYXZlIGFu
-eSBjb21tZW50LgoKVGhhbmtzCgo+PiBTaWduZWQtb2ZmLWJ5OiBTcmlkaGFyIFNhbXVkcmFsYSA8
-c3JpZGhhci5zYW11ZHJhbGFAaW50ZWwuY29tPgo+PiAtLS0KPj4gwqAgaHcvbmV0L3ZpcnRpby1u
-ZXQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8IDIg
-KysKPj4gwqAgaW5jbHVkZS9zdGFuZGFyZC1oZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaCB8IDMg
-KysrCj4+IMKgIDIgZmlsZXMgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspCj4+Cj4+IGRpZmYgLS1n
-aXQgYS9ody9uZXQvdmlydGlvLW5ldC5jIGIvaHcvbmV0L3ZpcnRpby1uZXQuYwo+PiBpbmRleCA5
-MDUwMmZjYTdjLi4zOGIzMTQwNjcwIDEwMDY0NAo+PiAtLS0gYS9ody9uZXQvdmlydGlvLW5ldC5j
-Cj4+ICsrKyBiL2h3L25ldC92aXJ0aW8tbmV0LmMKPj4gQEAgLTIxOTgsNiArMjE5OCw4IEBAIHN0
-YXRpYyBQcm9wZXJ0eSB2aXJ0aW9fbmV0X3Byb3BlcnRpZXNbXSA9IHsKPj4gwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdHJ1ZSksCj4+IMKgwqDCoMKgwqAgREVG
-SU5FX1BST1BfSU5UMzIoInNwZWVkIiwgVmlydElPTmV0LCBuZXRfY29uZi5zcGVlZCwgCj4+IFNQ
-RUVEX1VOS05PV04pLAo+PiDCoMKgwqDCoMKgIERFRklORV9QUk9QX1NUUklORygiZHVwbGV4Iiwg
-VmlydElPTmV0LCBuZXRfY29uZi5kdXBsZXhfc3RyKSwKPj4gK8KgwqDCoCBERUZJTkVfUFJPUF9C
-SVQ2NCgic3RhbmRieSIsIFZpcnRJT05ldCwgaG9zdF9mZWF0dXJlcywgCj4+IFZJUlRJT19ORVRf
-Rl9TVEFOREJZLAo+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IGZhbHNlKSwKPj4gwqDCoMKgwqDCoCBERUZJTkVfUFJPUF9FTkRfT0ZfTElTVCgpLAo+PiDCoCB9
-Owo+PiDCoCBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9zdGFuZGFyZC1oZWFkZXJzL2xpbnV4L3ZpcnRp
-b19uZXQuaCAKPj4gYi9pbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgvdmlydGlvX25ldC5o
-Cj4+IGluZGV4IGU5ZjI1NWVhM2YuLjAxZWMwOTY4NGMgMTAwNjQ0Cj4+IC0tLSBhL2luY2x1ZGUv
-c3RhbmRhcmQtaGVhZGVycy9saW51eC92aXJ0aW9fbmV0LmgKPj4gKysrIGIvaW5jbHVkZS9zdGFu
-ZGFyZC1oZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaAo+PiBAQCAtNTcsNiArNTcsOSBAQAo+PiDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAqIFN0ZWVyaW5nICov
-Cj4+IMKgICNkZWZpbmUgVklSVElPX05FVF9GX0NUUkxfTUFDX0FERFIgMjPCoMKgwqAgLyogU2V0
-IE1BQyBhZGRyZXNzICovCj4+IMKgICsjZGVmaW5lIFZJUlRJT19ORVRfRl9TVEFOREJZwqDCoMKg
-wqDCoCA2MsKgwqDCoCAvKiBBY3QgYXMgc3RhbmRieSBmb3IgCj4+IGFub3RoZXIgZGV2aWNlCj4+
-ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAqIHdpdGggdGhlIHNhbWUgTUFDLgo+PiArwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgKi8KPj4gwqAgI2RlZmluZSBWSVJUSU9fTkVUX0ZfU1BFRURfRFVQ
-TEVYIDYzwqDCoMKgIC8qIERldmljZSBzZXQgbGlua3NwZWVkIGFuZCAKPj4gZHVwbGV4ICovCj4+
-IMKgIMKgICNpZm5kZWYgVklSVElPX05FVF9OT19MRUdBQ1kKPgoKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Tue, Jun 05, 2018 at 09:26:56AM +1000, Benjamin Herrenschmidt wrote:
+> Sorry Michael, that doesn't click. Yes of course virtio is implemented
+> in qemu, but the problem we are trying to solve is *not* a qemu problem
+> (the fact that the Linux drivers bypass the DMA API is wrong, needs
+> fixing, and isnt a qemu problem). The fact that the secure guests need
+> bounce buffering is not a qemu problem either.
+> 
+> Whether qemu chose to use an iommu or not is, and should remain an
+> orthogonal problem.
+
+Agreed.  We have a problem with qemu (old qemu only?) punching a hole
+into the VM abstraction by deciding that even if firmware tables
+claim use of an IOMMU for a PCI bus it expects virtio to use physiscal
+addresses.  So far so bad.  The answer to that should have been to
+quirk the affected qemu versions and move on.  Instead we now have
+virtio not use the DMA API by default and are creating a worse problem.
+
+Let's fix this issue ASAP and quirk the buggy implementations instead
+of letting everyone else suffer.  
+
+> The DMA API itself isn't the one that needs to learn "per-device
+> quirks", it's just plumbing into arch backends. The "quirk" is at the
+> point of establishing the backend for a given device.
+> 
+> We can go a good way down that path simply by having virtio in Linux
+> start with putting *itself* its own direct ops in there when
+> VIRTIO_F_IOMMU_PLATFORM is not set, and removing all the special casing
+> in the rest of the driver.
+
+Yes.  And we have all the infrastructure for that now.  A few RDMA
+drivers quirk to virt_dma_ops, and virtio could quirk to dma_direct_ops
+anytime now.  In fact given how much time we are spending arguing here
+I'm going to give it a spin today.
+
+> Once that's done, we have a single point of establishing the dma ops,
+> we can quirk in there if needed, that's rather nicely contained, or put
+> an arch hook, or whatever is necessary.
+
+Yes.
