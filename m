@@ -1,18 +1,17 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [virtio-dev] Re: [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY
-	feature bit to virtio_net
-Date: Tue, 5 Jun 2018 15:09:26 -0700
-Message-ID: <CADGSJ21AMp02vV+qxa+DuyvAUCCsXUFwV7wjzQ1Vy1jKV=n1HA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY feature bit to
+	virtio_net
+Date: Wed, 6 Jun 2018 10:29:03 +0800
+Message-ID: <a45625c9-d2cd-f8f7-ce31-37c558e70b88@redhat.com>
 References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
 	<fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
 	<20180605152344-mutt-send-email-mst@kernel.org>
-	<CADGSJ21Qf6KpLzr+og5DOFjMPqu69n6dWRLvvj1FGAR5kVRNew@mail.gmail.com>
-	<20180606002650-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180606002650-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180605152344-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,159 +21,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 5, 2018 at 2:32 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Tue, Jun 05, 2018 at 02:16:44PM -0700, Siwei Liu wrote:
->> Good to see this discussion going. I share the same feeling that the
->> decision of plugging the primary (passthrough) should only be made
->> until guest driver acknowledges DRIVER_OK and _F_STANDBY.
->> Architecturally this intelligence should be baken to QEMU itself
->> rather than moving up to management stack, such as libvirt.
->>
->> A few questions in line below.
->>
->> On Tue, Jun 5, 2018 at 5:33 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> > I don't think this is sufficient.
->> >
->> > If both primary and standby devices are present, a legacy guest without
->> > support for the feature might see two devices with same mac and get
->> > confused.
->> >
->> > I think that we should only make primary visible after guest acked the
->> > backup feature bit.
->> >
->> > And on reset or when backup is cleared in some other way, unplug the
->> > primary.
->> >
->> > Something like the below will do the job:
->> >
->> > Primary device is added with a special "primary-failover" flag.
->>
->> I wonder if you envision this flag as a user interface or some
->> internal attribute/property to QEMU device?
->>
->> Since QEMU needs to associate this particular primary-failover device
->> with a virtio standby instance for checking DRIVER_OK as you indicate
->> below, I wonder if the group ID thing will be helpful to set
->> "primary-failover" flag internally without having to add another
->> option in CLI?
->
-> I haven't thought about it but it's an option.
->
->> > A virtual machine is then initialized with just a standby virtio
->> > device. Primary is not yet added.
->> >
->> > Later QEMU detects that guest driver device set DRIVER_OK.
->> > It then exposes the primary device to the guest, and triggers
->> > a device addition event (hot-plug event) for it.
->>
->> Sounds OK. While there might be a small window the guest already
->> starts to use virtio interface before the passthrough gets plugged in,
->> I think that should be fine.
->>
->> Another option is to wait until the primary appears and gets
->> registered in the guest, so it can bring up the upper failover
->> interface.
->
-> We can't be sure this will ever happen, can we? We might be asked to
-> migrate at any time.
-
-Right. For that to work, virtio driver needs a complicated state
-tracking hand-in-hand with the host for VF's hot plugging activity. If
-hot plugging is defered due to migration activity the failover
-interface can be brought up immediately.
-
-As said, this is just an option. I don't have strong preference here.
-
->
->> >
->> > If QEMU detects guest driver removal, it initiates a hot-unplug sequence
->> > to remove the primary driver.  In particular, if QEMU detects guest
->> > re-initialization (e.g. by detecting guest reset) it immediately removes
->> > the primary device.
->>
->> Agreed.
->>
->> For legacy guest, user might prefer seeing a single passthrough device
->> rather than a virtio device. I would hope there's an option to allow
->> it to happen, instead of removing all passthrough devices.
->>
->> Regards,
->> -Siwei
->
-> I don't see a way to make it work since then you can't migrate, can you?
-
-The thing is cloud service provider might prefer sticking to the same
-level of service agreement (SLA) of keeping VF over migration,
-particularly when guest OS or kernel does not have the support.The
-footprint in guest OS support might NOT be prevailing in the early
-days. There's no point the cloud vendor can switch back and forth, as
-there's no way for hypervisor to detect what kernel version even OS
-the guest will be running ahead of time, until the guest gets fully
-loaded and boots up, right?
-
--Siwei
-
->
-> The way I see it, if you don't need migration, just use PT without
-> failover.  If you do, then you either use virtio or failover if guest
-> supports it.
->
->> >
->> > We can move some of this code to management as well, architecturally it
->> > does not make too much sense but it might be easier implementation-wise.
->> >
->> > HTH
->> >
->> > On Mon, Jun 04, 2018 at 06:41:48PM -0700, Samudrala, Sridhar wrote:
->> >> Ping on this patch now that the kernel patches are accepted into davem's net-next tree.
->> >> https://patchwork.ozlabs.org/cover/920005/
->> >>
->> >>
->> >> On 5/7/2018 4:09 PM, Sridhar Samudrala wrote:
->> >> > This feature bit can be used by hypervisor to indicate virtio_net device to
->> >> > act as a standby for another device with the same MAC address.
->> >> >
->> >> > I tested this with a small change to the patch to mark the STANDBY feature 'true'
->> >> > by default as i am using libvirt to start the VMs.
->> >> > Is there a way to pass the newly added feature bit 'standby' to qemu via libvirt
->> >> > XML file?
->> >> >
->> >> > Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
->> >> > ---
->> >> >   hw/net/virtio-net.c                         | 2 ++
->> >> >   include/standard-headers/linux/virtio_net.h | 3 +++
->> >> >   2 files changed, 5 insertions(+)
->> >> >
->> >> > diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
->> >> > index 90502fca7c..38b3140670 100644
->> >> > --- a/hw/net/virtio-net.c
->> >> > +++ b/hw/net/virtio-net.c
->> >> > @@ -2198,6 +2198,8 @@ static Property virtio_net_properties[] = {
->> >> >                        true),
->> >> >       DEFINE_PROP_INT32("speed", VirtIONet, net_conf.speed, SPEED_UNKNOWN),
->> >> >       DEFINE_PROP_STRING("duplex", VirtIONet, net_conf.duplex_str),
->> >> > +    DEFINE_PROP_BIT64("standby", VirtIONet, host_features, VIRTIO_NET_F_STANDBY,
->> >> > +                      false),
->> >> >       DEFINE_PROP_END_OF_LIST(),
->> >> >   };
->> >> > diff --git a/include/standard-headers/linux/virtio_net.h b/include/standard-headers/linux/virtio_net.h
->> >> > index e9f255ea3f..01ec09684c 100644
->> >> > --- a/include/standard-headers/linux/virtio_net.h
->> >> > +++ b/include/standard-headers/linux/virtio_net.h
->> >> > @@ -57,6 +57,9 @@
->> >> >                                      * Steering */
->> >> >   #define VIRTIO_NET_F_CTRL_MAC_ADDR 23     /* Set MAC address */
->> >> > +#define VIRTIO_NET_F_STANDBY      62    /* Act as standby for another device
->> >> > +                                         * with the same MAC.
->> >> > +                                         */
->> >> >   #define VIRTIO_NET_F_SPEED_DUPLEX 63      /* Device set linkspeed and duplex */
->> >> >   #ifndef VIRTIO_NET_NO_LEGACY
->> >
->> > ---------------------------------------------------------------------
->> > To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
->> > For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
->> >
+CgpPbiAyMDE45bm0MDbmnIgwNeaXpSAyMDozMywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IEkgZG9uJ3QgdGhpbmsgdGhpcyBpcyBzdWZmaWNpZW50Lgo+Cj4gSWYgYm90aCBwcmltYXJ5IGFu
+ZCBzdGFuZGJ5IGRldmljZXMgYXJlIHByZXNlbnQsIGEgbGVnYWN5IGd1ZXN0IHdpdGhvdXQKPiBz
+dXBwb3J0IGZvciB0aGUgZmVhdHVyZSBtaWdodCBzZWUgdHdvIGRldmljZXMgd2l0aCBzYW1lIG1h
+YyBhbmQgZ2V0Cj4gY29uZnVzZWQuCj4KPiBJIHRoaW5rIHRoYXQgd2Ugc2hvdWxkIG9ubHkgbWFr
+ZSBwcmltYXJ5IHZpc2libGUgYWZ0ZXIgZ3Vlc3QgYWNrZWQgdGhlCj4gYmFja3VwIGZlYXR1cmUg
+Yml0LgoKSSB0aGluayB3ZSB3YW50IGV4YWN0bHkgdGhlIHJldmVyc2U/IEUuZyBmYWlsIHRoZSBu
+ZWdvdGlhdGlvbiB3aGVuIGd1ZXN0IApkb2VzIG5vdCBhY2sgYmFja3VwIGZlYXR1cmUuCgpPdGhl
+cndpc2UgbGVnYWN5IGd1ZXN0IHdvbid0IGV2ZW4gaGF2ZSB0aGUgY2hhbmNlIHRvIHNlZSBwcmlt
+YXJ5IGRldmljZSAKaW4gdGhlIGd1ZXN0LgoKPgo+IEFuZCBvbiByZXNldCBvciB3aGVuIGJhY2t1
+cCBpcyBjbGVhcmVkIGluIHNvbWUgb3RoZXIgd2F5LCB1bnBsdWcgdGhlCj4gcHJpbWFyeS4KCldo
+YXQgaWYgZ3Vlc3QgZG9lcyBub3Qgc3VwcG9ydCBob3RwbHVnPwoKPgo+IFNvbWV0aGluZyBsaWtl
+IHRoZSBiZWxvdyB3aWxsIGRvIHRoZSBqb2I6Cj4KPiBQcmltYXJ5IGRldmljZSBpcyBhZGRlZCB3
+aXRoIGEgc3BlY2lhbCAicHJpbWFyeS1mYWlsb3ZlciIgZmxhZy4KPiBBIHZpcnR1YWwgbWFjaGlu
+ZSBpcyB0aGVuIGluaXRpYWxpemVkIHdpdGgganVzdCBhIHN0YW5kYnkgdmlydGlvCj4gZGV2aWNl
+LiBQcmltYXJ5IGlzIG5vdCB5ZXQgYWRkZWQuCgpBIHF1ZXN0aW9uIGlzIGhvdyB0byBkbyB0aGUg
+bWF0Y2hpbmc/IFFlbXUga25vd3Mgbm90aGluZyBhYm91dCBlLmcgbWFjIAphZGRyZXNzIG9mIGEg
+cGFzcy10aHJvdWdoIGRldmljZSBJIGJlbGlldmU/Cgo+Cj4gTGF0ZXIgUUVNVSBkZXRlY3RzIHRo
+YXQgZ3Vlc3QgZHJpdmVyIGRldmljZSBzZXQgRFJJVkVSX09LLgo+IEl0IHRoZW4gZXhwb3NlcyB0
+aGUgcHJpbWFyeSBkZXZpY2UgdG8gdGhlIGd1ZXN0LCBhbmQgdHJpZ2dlcnMKPiBhIGRldmljZSBh
+ZGRpdGlvbiBldmVudCAoaG90LXBsdWcgZXZlbnQpIGZvciBpdC4KCkRvIHlvdSBtZWFuIHdlIHdv
+bid0IGhhdmUgcHJpbWFyeSBkZXZpY2UgaW4gdGhlIGluaXRpYWwgcWVtdSBjbGk/Cgo+Cj4gSWYg
+UUVNVSBkZXRlY3RzIGd1ZXN0IGRyaXZlciByZW1vdmFsLCBpdCBpbml0aWF0ZXMgYSBob3QtdW5w
+bHVnIHNlcXVlbmNlCj4gdG8gcmVtb3ZlIHRoZSBwcmltYXJ5IGRyaXZlci4gIEluIHBhcnRpY3Vs
+YXIsIGlmIFFFTVUgZGV0ZWN0cyBndWVzdAo+IHJlLWluaXRpYWxpemF0aW9uIChlLmcuIGJ5IGRl
+dGVjdGluZyBndWVzdCByZXNldCkgaXQgaW1tZWRpYXRlbHkgcmVtb3Zlcwo+IHRoZSBwcmltYXJ5
+IGRldmljZS4KCkkgYmVsaWV2ZSBndWVzdCBmYWlsb3ZlciBtb2R1bGUgc2hvdWxkIGhhbmRsZSB0
+aGlzIGdyYWNlZnVsbHk/CgpUaGFua3MKCj4KPiBXZSBjYW4gbW92ZSBzb21lIG9mIHRoaXMgY29k
+ZSB0byBtYW5hZ2VtZW50IGFzIHdlbGwsIGFyY2hpdGVjdHVyYWxseSBpdAo+IGRvZXMgbm90IG1h
+a2UgdG9vIG11Y2ggc2Vuc2UgYnV0IGl0IG1pZ2h0IGJlIGVhc2llciBpbXBsZW1lbnRhdGlvbi13
+aXNlLgo+Cj4gSFRICj4KPiBPbiBNb24sIEp1biAwNCwgMjAxOCBhdCAwNjo0MTo0OFBNIC0wNzAw
+LCBTYW11ZHJhbGEsIFNyaWRoYXIgd3JvdGU6Cj4+IFBpbmcgb24gdGhpcyBwYXRjaCBub3cgdGhh
+dCB0aGUga2VybmVsIHBhdGNoZXMgYXJlIGFjY2VwdGVkIGludG8gZGF2ZW0ncyBuZXQtbmV4dCB0
+cmVlLgo+PiBodHRwczovL3BhdGNod29yay5vemxhYnMub3JnL2NvdmVyLzkyMDAwNS8KPj4KPj4K
+Pj4gT24gNS83LzIwMTggNDowOSBQTSwgU3JpZGhhciBTYW11ZHJhbGEgd3JvdGU6Cj4+PiBUaGlz
+IGZlYXR1cmUgYml0IGNhbiBiZSB1c2VkIGJ5IGh5cGVydmlzb3IgdG8gaW5kaWNhdGUgdmlydGlv
+X25ldCBkZXZpY2UgdG8KPj4+IGFjdCBhcyBhIHN0YW5kYnkgZm9yIGFub3RoZXIgZGV2aWNlIHdp
+dGggdGhlIHNhbWUgTUFDIGFkZHJlc3MuCj4+Pgo+Pj4gSSB0ZXN0ZWQgdGhpcyB3aXRoIGEgc21h
+bGwgY2hhbmdlIHRvIHRoZSBwYXRjaCB0byBtYXJrIHRoZSBTVEFOREJZIGZlYXR1cmUgJ3RydWUn
+Cj4+PiBieSBkZWZhdWx0IGFzIGkgYW0gdXNpbmcgbGlidmlydCB0byBzdGFydCB0aGUgVk1zLgo+
+Pj4gSXMgdGhlcmUgYSB3YXkgdG8gcGFzcyB0aGUgbmV3bHkgYWRkZWQgZmVhdHVyZSBiaXQgJ3N0
+YW5kYnknIHRvIHFlbXUgdmlhIGxpYnZpcnQKPj4+IFhNTCBmaWxlPwo+Pj4KPj4+IFNpZ25lZC1v
+ZmYtYnk6IFNyaWRoYXIgU2FtdWRyYWxhIDxzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5jb20+Cj4+
+PiAtLS0KPj4+ICAgIGh3L25ldC92aXJ0aW8tbmV0LmMgICAgICAgICAgICAgICAgICAgICAgICAg
+fCAyICsrCj4+PiAgICBpbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgvdmlydGlvX25ldC5o
+IHwgMyArKysKPj4+ICAgIDIgZmlsZXMgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspCj4+Pgo+Pj4g
+ZGlmZiAtLWdpdCBhL2h3L25ldC92aXJ0aW8tbmV0LmMgYi9ody9uZXQvdmlydGlvLW5ldC5jCj4+
+PiBpbmRleCA5MDUwMmZjYTdjLi4zOGIzMTQwNjcwIDEwMDY0NAo+Pj4gLS0tIGEvaHcvbmV0L3Zp
+cnRpby1uZXQuYwo+Pj4gKysrIGIvaHcvbmV0L3ZpcnRpby1uZXQuYwo+Pj4gQEAgLTIxOTgsNiAr
+MjE5OCw4IEBAIHN0YXRpYyBQcm9wZXJ0eSB2aXJ0aW9fbmV0X3Byb3BlcnRpZXNbXSA9IHsKPj4+
+ICAgICAgICAgICAgICAgICAgICAgICAgIHRydWUpLAo+Pj4gICAgICAgIERFRklORV9QUk9QX0lO
+VDMyKCJzcGVlZCIsIFZpcnRJT05ldCwgbmV0X2NvbmYuc3BlZWQsIFNQRUVEX1VOS05PV04pLAo+
+Pj4gICAgICAgIERFRklORV9QUk9QX1NUUklORygiZHVwbGV4IiwgVmlydElPTmV0LCBuZXRfY29u
+Zi5kdXBsZXhfc3RyKSwKPj4+ICsgICAgREVGSU5FX1BST1BfQklUNjQoInN0YW5kYnkiLCBWaXJ0
+SU9OZXQsIGhvc3RfZmVhdHVyZXMsIFZJUlRJT19ORVRfRl9TVEFOREJZLAo+Pj4gKyAgICAgICAg
+ICAgICAgICAgICAgICBmYWxzZSksCj4+PiAgICAgICAgREVGSU5FX1BST1BfRU5EX09GX0xJU1Qo
+KSwKPj4+ICAgIH07Cj4+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9zdGFuZGFyZC1oZWFkZXJzL2xp
+bnV4L3ZpcnRpb19uZXQuaCBiL2luY2x1ZGUvc3RhbmRhcmQtaGVhZGVycy9saW51eC92aXJ0aW9f
+bmV0LmgKPj4+IGluZGV4IGU5ZjI1NWVhM2YuLjAxZWMwOTY4NGMgMTAwNjQ0Cj4+PiAtLS0gYS9p
+bmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgvdmlydGlvX25ldC5oCj4+PiArKysgYi9pbmNs
+dWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgvdmlydGlvX25ldC5oCj4+PiBAQCAtNTcsNiArNTcs
+OSBAQAo+Pj4gICAgCQkJCQkgKiBTdGVlcmluZyAqLwo+Pj4gICAgI2RlZmluZSBWSVJUSU9fTkVU
+X0ZfQ1RSTF9NQUNfQUREUiAyMwkvKiBTZXQgTUFDIGFkZHJlc3MgKi8KPj4+ICsjZGVmaW5lIFZJ
+UlRJT19ORVRfRl9TVEFOREJZICAgICAgNjIgICAgLyogQWN0IGFzIHN0YW5kYnkgZm9yIGFub3Ro
+ZXIgZGV2aWNlCj4+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAq
+IHdpdGggdGhlIHNhbWUgTUFDLgo+Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgKi8KPj4+ICAgICNkZWZpbmUgVklSVElPX05FVF9GX1NQRUVEX0RVUExFWCA2Mwkv
+KiBEZXZpY2Ugc2V0IGxpbmtzcGVlZCBhbmQgZHVwbGV4ICovCj4+PiAgICAjaWZuZGVmIFZJUlRJ
+T19ORVRfTk9fTEVHQUNZCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
+aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
