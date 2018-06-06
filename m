@@ -1,18 +1,17 @@
-From: hpa@zytor.com
-Subject: Re: [PATCH v2 1/2] compiler-gcc.h: add gnu_inline to all inline
-	declarations
-Date: Wed, 06 Jun 2018 09:39:25 -0700
-Message-ID: <5C97550D-BEF4-4069-9373-F7543E3878FB@zytor.com>
-References: <20180605170532.170361-1-ndesaulniers@google.com>
-	<20180605170532.170361-2-ndesaulniers@google.com>
-	<202492204c2d5bd5ca27307cbca5e44673b739ed.camel@perches.com>
-	<5ad1876557235a089a50e6ed6c558a7dcb0da714.camel@perches.com>
-	<CA+icZUXEpe954z0TSbhSJPdFCfOqsBtpO9mPZBcJ2HWubSo_zQ@mail.gmail.com>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY feature bit to
+	virtio_net
+Date: Wed, 6 Jun 2018 11:17:36 -0700
+Message-ID: <8e411566-1146-03a2-5372-8f8134ee0ce6@intel.com>
+References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
+	<fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
+	<d61c88c7-0803-ba1c-08ab-fc668cffa40b@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CA+icZUXEpe954z0TSbhSJPdFCfOqsBtpO9mPZBcJ2HWubSo_zQ@mail.gmail.com>
+In-Reply-To: <d61c88c7-0803-ba1c-08ab-fc668cffa40b@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,62 +21,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: sedat.dilek@gmail.comSedat Dilek <sedat.dilek@gmail.com>, Joe Perches <joe@perches.com>
-Cc: linux-efi@vger.kernel.org, brijesh.singh@amd.com, boris.ostrovsky@oracle.com, jan.kiszka@siemens.com, will.deacon@arm.com, jarkko.sakkinen@linux.intel.com, virtualization@lists.linux-foundation.org, yamada.masahiro@socionext.com, manojgupta@google.com, akataria@vmware.com, tweek@google.com, mawilcox@microsoft.com, x86@kernel.org, ghackmann@google.com, mka@chromium.org, geert@linux-m68k.org, rientjes@google.com, aryabinin@virtuozzo.com, thomas.lendacky@amd.com, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, keescook@google.com, rostedt@goodmis.org, caoj.fnst@cn.fujitsu.com, michal.lkml@markovi.net, jpoimboe@redhat.com, tglx@linutronix.de, mingo@redhat.com, jgross@suse.com, astrachan@google.com, ard.biesheuvel@linaro.org, gregkh@linuxfoundation.org, tstellar@redhat.com, Nick Desaulniers <ndesaulniers@google.com>, linux-kernel@vger.kernel.org, mjg59@google.
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, jesse.brandeburg@intel.com, alexander.h.duyck@intel.com, qemu-devel@nongnu.org, laine@redhat.com, libvir-list@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On June 6, 2018 1:05:45 AM PDT, Sedat Dilek <sedat.dilek@gmail.com> wrote:
->Hi,
->
->when discovering 'gnu_inline', I found ...
->
->$ git grep -w  __FORTIFY_INLINE
->include/linux/string.h:#define __FORTIFY_INLINE extern __always_inline
->__attribute__((gnu_inline))
->include/linux/string.h:__FORTIFY_INLINE char *strncpy(char *p, const
->char *q, __kernel_size_t size)
->include/linux/string.h:__FORTIFY_INLINE char *strcat(char *p, const
->char *q)
->include/linux/string.h:__FORTIFY_INLINE __kernel_size_t strlen(const
->char *p)
->include/linux/string.h:__FORTIFY_INLINE __kernel_size_t strnlen(const
->char *p, __kernel_size_t maxlen)
->include/linux/string.h:__FORTIFY_INLINE size_t strlcpy(char *p, const
->char *q, size_t size)
->include/linux/string.h:__FORTIFY_INLINE char *strncat(char *p, const
->char *q, __kernel_size_t count)
->include/linux/string.h:__FORTIFY_INLINE void *memset(void *p, int c,
->__kernel_size_t size)
->include/linux/string.h:__FORTIFY_INLINE void *memcpy(void *p, const
->void *q, __kernel_size_t size)
->include/linux/string.h:__FORTIFY_INLINE void *memmove(void *p, const
->void *q, __kernel_size_t size)
->include/linux/string.h:__FORTIFY_INLINE void *memscan(void *p, int c,
->__kernel_size_t size)
->include/linux/string.h:__FORTIFY_INLINE int memcmp(const void *p,
->const void *q, __kernel_size_t size)
->include/linux/string.h:__FORTIFY_INLINE void *memchr(const void *p,
->int c, __kernel_size_t size)
->include/linux/string.h:__FORTIFY_INLINE void *memchr_inv(const void
->*p, int c, size_t size)
->include/linux/string.h:__FORTIFY_INLINE void *kmemdup(const void *p,
->size_t size, gfp_t gfp)
->include/linux/string.h:__FORTIFY_INLINE char *strcpy(char *p, const
->char *q)
->
->After the inline changes suggested by Joe this can be adapted?
->
->Beyond this, a general question: Can someone explain why all these
->inline defines are in compiler-gcc.h (as there exists compiler.h and
->compiler-clang.h)?
->
->Thanks.
->
->Regards,
->- Sedat -
-
-Because gcc itself also supports both GNU89-style and C99-style inlines, but the kernel was built with the former, and it is not necessarily a trivial modification, except for "static inline" which is the same for both.
-
-The other option is to pass -fgnu89-inline on the command line, which is supported by both gcc and clang. The two methods are fully equivalent.
--- 
-Sent from my Android device with K-9 Mail. Please excuse my brevity.
+T24gNi80LzIwMTggNzowNiBQTSwgSmFzb24gV2FuZyB3cm90ZToKPgo+Cj4gT24gMjAxOOW5tDA2
+5pyIMDXml6UgMDk6NDEsIFNhbXVkcmFsYSwgU3JpZGhhciB3cm90ZToKPj4gUGluZyBvbiB0aGlz
+IHBhdGNoIG5vdyB0aGF0IHRoZSBrZXJuZWwgcGF0Y2hlcyBhcmUgYWNjZXB0ZWQgaW50byAKPj4g
+ZGF2ZW0ncyBuZXQtbmV4dCB0cmVlLgo+PiBodHRwczovL3BhdGNod29yay5vemxhYnMub3JnL2Nv
+dmVyLzkyMDAwNS8KPj4KPj4KPj4gT24gNS83LzIwMTggNDowOSBQTSwgU3JpZGhhciBTYW11ZHJh
+bGEgd3JvdGU6Cj4+PiBUaGlzIGZlYXR1cmUgYml0IGNhbiBiZSB1c2VkIGJ5IGh5cGVydmlzb3Ig
+dG8gaW5kaWNhdGUgdmlydGlvX25ldCAKPj4+IGRldmljZSB0bwo+Pj4gYWN0IGFzIGEgc3RhbmRi
+eSBmb3IgYW5vdGhlciBkZXZpY2Ugd2l0aCB0aGUgc2FtZSBNQUMgYWRkcmVzcy4KPj4+Cj4+PiBJ
+IHRlc3RlZCB0aGlzIHdpdGggYSBzbWFsbCBjaGFuZ2UgdG8gdGhlIHBhdGNoIHRvIG1hcmsgdGhl
+IFNUQU5EQlkgCj4+PiBmZWF0dXJlICd0cnVlJwo+Pj4gYnkgZGVmYXVsdCBhcyBpIGFtIHVzaW5n
+IGxpYnZpcnQgdG8gc3RhcnQgdGhlIFZNcy4KPj4+IElzIHRoZXJlIGEgd2F5IHRvIHBhc3MgdGhl
+IG5ld2x5IGFkZGVkIGZlYXR1cmUgYml0ICdzdGFuZGJ5JyB0byBxZW11IAo+Pj4gdmlhIGxpYnZp
+cnQKPj4+IFhNTCBmaWxlPwo+Pj4KPgo+IE1heWJlIHlvdSBjYW4gdHJ5IHFlbXUgY29tbWFuZCBs
+aW5lIHBhc3N0aHJvdWdoOgo+Cj4gaHR0cHM6Ly9saWJ2aXJ0Lm9yZy9kcnZxZW11Lmh0bWwjcWVt
+dWNvbW1hbmQKCkl0IGxvb2tzIGxpa2UgdGhpcyBjYW4gYmUgdXNlZCB0byBwYXNzIGNvbW1hbmQg
+bGluZSBhcmd1bWVudHMgdG8gcWVtdS4KSXMgaXQgcG9zc2libGUgdG8gc3BlY2lmeSBhIHZpcnRp
+byBzcGVjaWZpYyBhdHRyaWJ1dGUgdmlhIHRoaXMgbWV0aG9kPwoKRm9yIGV4OiB0byBzYXkgbXJn
+X3J4YnVmIGlzIG9mZiB3ZSBjYW4gYWRkIHRoZSBmb2xsb3dpbmcgbGluZSB0byB2aXJ0aW8Kc2Vj
+dGlvbiBvZiB0aGUgZG9tYWluIHhtbCBmaWxlLgogICA8aG9zdCBtcmdfcnhidWY9J29mZicvPgoK
+SSB0aGluayBsaWJ2aXJ0IG5lZWRzIHRvIGJlIGV4dGVuZGVkIHRvIHRvIHN1cHBvcnQgdGhlIG5l
+dyAnc3RhbmRieScgYXR0cmlidXRlCnZpYSB0aGlzIG1lY2hhbmlzbS4KQWRkaW5nIExpYW5lIFN0
+dW1wIGFuZCBsaWJ2aXJ0IHRvIHRoZSBDQyBsaXN0LgoKTWljaGFlbCwKQ2FuIHdlIHN0YXJ0IHdp
+dGggZ2V0dGluZyB0aGlzIHBhdGNoIGludG8gUWVtdSBhbmQgYW4gdXBkYXRlIHRvIGxpYnZpcnQg
+dG8Kc3VwcG9ydCB0aGUgJ3N0YW5kYnknIGZlYXR1cmUgc28gdGhhdCB0aGlzIGZlYXR1cmUgY2Fu
+IGJlIGVuYWJsZWQgdmlhCnNvbWUgc2NyaXB0cy9vcmNoZXN0cmF0aW9uIGxheWVyIGZvciBub3cu
+CgpXZSBjb3VsZCBpbXByb3ZlIHRoaXMgc29sdXRpb24gYnkgZW5oYW5jaW5nIFFlbXUgdG8gZG8g
+YXV0b21hdGljIG1hbmFnZW1lbnQgb2YgdGhlCmFkZGl0aW9uL2RlbGV0aW9uIG9mIHRoZSBwcmlt
+YXJ5IGRldmljZSBiYXNlZCBvbiBmZWF0dXJlIG5lZ290aWF0aW9uIGFzIGEgbGF0ZXIgcGF0Y2gu
+CgoKPgo+IFRoZSBwYXRjaCBsb29rcyBnb29kIHRvIG1lLiBMZXQncyBzZWUgaWYgTWljaGFlbCBo
+YXZlIGFueSBjb21tZW50Lgo+Cj4gVGhhbmtzCj4KPj4+IFNpZ25lZC1vZmYtYnk6IFNyaWRoYXIg
+U2FtdWRyYWxhIDxzcmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5jb20+Cj4+PiAtLS0KPj4+IMKgIGh3
+L25ldC92aXJ0aW8tbmV0LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqAgfCAyICsrCj4+PiDCoCBpbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgvdmly
+dGlvX25ldC5oIHwgMyArKysKPj4+IMKgIDIgZmlsZXMgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCsp
+Cj4+Pgo+Pj4gZGlmZiAtLWdpdCBhL2h3L25ldC92aXJ0aW8tbmV0LmMgYi9ody9uZXQvdmlydGlv
+LW5ldC5jCj4+PiBpbmRleCA5MDUwMmZjYTdjLi4zOGIzMTQwNjcwIDEwMDY0NAo+Pj4gLS0tIGEv
+aHcvbmV0L3ZpcnRpby1uZXQuYwo+Pj4gKysrIGIvaHcvbmV0L3ZpcnRpby1uZXQuYwo+Pj4gQEAg
+LTIxOTgsNiArMjE5OCw4IEBAIHN0YXRpYyBQcm9wZXJ0eSB2aXJ0aW9fbmV0X3Byb3BlcnRpZXNb
+XSA9IHsKPj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHRy
+dWUpLAo+Pj4gwqDCoMKgwqDCoCBERUZJTkVfUFJPUF9JTlQzMigic3BlZWQiLCBWaXJ0SU9OZXQs
+IG5ldF9jb25mLnNwZWVkLCAKPj4+IFNQRUVEX1VOS05PV04pLAo+Pj4gwqDCoMKgwqDCoCBERUZJ
+TkVfUFJPUF9TVFJJTkcoImR1cGxleCIsIFZpcnRJT05ldCwgbmV0X2NvbmYuZHVwbGV4X3N0ciks
+Cj4+PiArwqDCoMKgIERFRklORV9QUk9QX0JJVDY0KCJzdGFuZGJ5IiwgVmlydElPTmV0LCBob3N0
+X2ZlYXR1cmVzLCAKPj4+IFZJUlRJT19ORVRfRl9TVEFOREJZLAo+Pj4gK8KgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmYWxzZSksCj4+PiDCoMKgwqDCoMKgIERFRklO
+RV9QUk9QX0VORF9PRl9MSVNUKCksCj4+PiDCoCB9Owo+Pj4gwqAgZGlmZiAtLWdpdCBhL2luY2x1
+ZGUvc3RhbmRhcmQtaGVhZGVycy9saW51eC92aXJ0aW9fbmV0LmggCj4+PiBiL2luY2x1ZGUvc3Rh
+bmRhcmQtaGVhZGVycy9saW51eC92aXJ0aW9fbmV0LmgKPj4+IGluZGV4IGU5ZjI1NWVhM2YuLjAx
+ZWMwOTY4NGMgMTAwNjQ0Cj4+PiAtLS0gYS9pbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgv
+dmlydGlvX25ldC5oCj4+PiArKysgYi9pbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgvdmly
+dGlvX25ldC5oCj4+PiBAQCAtNTcsNiArNTcsOSBAQAo+Pj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKiBTdGVlcmluZyAqLwo+Pj4gwqAgI2RlZmluZSBWSVJU
+SU9fTkVUX0ZfQ1RSTF9NQUNfQUREUiAyM8KgwqDCoCAvKiBTZXQgTUFDIGFkZHJlc3MgKi8KPj4+
+IMKgICsjZGVmaW5lIFZJUlRJT19ORVRfRl9TVEFOREJZwqDCoMKgwqDCoCA2MsKgwqDCoCAvKiBB
+Y3QgYXMgc3RhbmRieSBmb3IgCj4+PiBhbm90aGVyIGRldmljZQo+Pj4gK8KgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgICogd2l0aCB0aGUgc2FtZSBNQUMuCj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgKi8KPj4+IMKgICNkZWZpbmUgVklSVElPX05FVF9GX1NQRUVEX0RVUExFWCA2M8KgwqDCoCAv
+KiBEZXZpY2Ugc2V0IGxpbmtzcGVlZCAKPj4+IGFuZCBkdXBsZXggKi8KPj4+IMKgIMKgICNpZm5k
+ZWYgVklSVElPX05FVF9OT19MRUdBQ1kKPj4KPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
+emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
+ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
