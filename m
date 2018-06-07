@@ -1,19 +1,19 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [libvirt] [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY feature
-	bit to virtio_net
-Date: Wed, 6 Jun 2018 12:39:05 -0700
-Message-ID: <98da062a-9332-345d-bbd8-28346cb9a196__30538.5438762189$1528313853$gmane$org@intel.com>
-References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
-	<fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
-	<d61c88c7-0803-ba1c-08ab-fc668cffa40b@redhat.com>
-	<8e411566-1146-03a2-5372-8f8134ee0ce6@intel.com>
-	<20180606185214.GH6767@dnr>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
+	virito devices
+Date: Wed, 6 Jun 2018 22:23:06 -0700
+Message-ID: <20180607052306.GA1532__14906.3419703909$1528348896$gmane$org@infradead.org>
+References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
+	<20180523213703-mutt-send-email-mst@kernel.org>
+	<20180524072104.GD6139@ram.oc3035372033.ibm.com>
+	<0c508eb2-08df-3f76-c260-90cf7137af80@linux.vnet.ibm.com>
+	<20180531204320-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180606185214.GH6767@dnr>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180531204320-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,56 +23,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?UTF-8?Q?J=c3=a1n_Tomko?= <jtomko@redhat.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, libvir-list@redhat.com, laine@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: robh@kernel.org, pawel.moll@arm.com, Tom Lendacky <thomas.lendacky@amd.com>, cohuck@redhat.com, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, joe@perches.com, "Rustad, Mark D" <mark.d.rustad@intel.com>, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiA2LzYvMjAxOCAxMTo1MiBBTSwgSsOhbiBUb21rbyB3cm90ZToKPiBPbiBXZWQsIEp1biAw
-NiwgMjAxOCBhdCAxMToxNzozNkFNIC0wNzAwLCBTYW11ZHJhbGEsIFNyaWRoYXIgd3JvdGU6Cj4+
-IE9uIDYvNC8yMDE4IDc6MDYgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4+Pgo+Pj4KPj4+IE9uIDIw
-MTjlubQwNuaciDA15pelIDA5OjQxLCBTYW11ZHJhbGEsIFNyaWRoYXIgd3JvdGU6Cj4+Pj4gUGlu
-ZyBvbiB0aGlzIHBhdGNoIG5vdyB0aGF0IHRoZSBrZXJuZWwgcGF0Y2hlcyBhcmUgYWNjZXB0ZWQg
-aW50bwo+Pj4+IGRhdmVtJ3MgbmV0LW5leHQgdHJlZS4KPj4+PiBodHRwczovL3BhdGNod29yay5v
-emxhYnMub3JnL2NvdmVyLzkyMDAwNS8KPj4+Pgo+Pj4+Cj4+Pj4gT24gNS83LzIwMTggNDowOSBQ
-TSwgU3JpZGhhciBTYW11ZHJhbGEgd3JvdGU6Cj4+Pj4+IFRoaXMgZmVhdHVyZSBiaXQgY2FuIGJl
-IHVzZWQgYnkgaHlwZXJ2aXNvciB0byBpbmRpY2F0ZSB2aXJ0aW9fbmV0Cj4+Pj4+IGRldmljZSB0
-bwo+Pj4+PiBhY3QgYXMgYSBzdGFuZGJ5IGZvciBhbm90aGVyIGRldmljZSB3aXRoIHRoZSBzYW1l
-IE1BQyBhZGRyZXNzLgo+Pj4+Pgo+Pj4+PiBJIHRlc3RlZCB0aGlzIHdpdGggYSBzbWFsbCBjaGFu
-Z2UgdG8gdGhlIHBhdGNoIHRvIG1hcmsgdGhlIFNUQU5EQlkKPj4+Pj4gZmVhdHVyZSAndHJ1ZScK
-Pj4+Pj4gYnkgZGVmYXVsdCBhcyBpIGFtIHVzaW5nIGxpYnZpcnQgdG8gc3RhcnQgdGhlIFZNcy4K
-Pj4+Pj4gSXMgdGhlcmUgYSB3YXkgdG8gcGFzcyB0aGUgbmV3bHkgYWRkZWQgZmVhdHVyZSBiaXQg
-J3N0YW5kYnknIHRvIHFlbXUKPj4+Pj4gdmlhIGxpYnZpcnQKPj4+Pj4gWE1MIGZpbGU/Cj4+Pj4+
-Cj4+Pgo+Pj4gTWF5YmUgeW91IGNhbiB0cnkgcWVtdSBjb21tYW5kIGxpbmUgcGFzc3Rocm91Z2g6
-Cj4+Pgo+Pj4gaHR0cHM6Ly9saWJ2aXJ0Lm9yZy9kcnZxZW11Lmh0bWwjcWVtdWNvbW1hbmQKPj4K
-Pj4gSXQgbG9va3MgbGlrZSB0aGlzIGNhbiBiZSB1c2VkIHRvIHBhc3MgY29tbWFuZCBsaW5lIGFy
-Z3VtZW50cyB0byBxZW11Lgo+PiBJcyBpdCBwb3NzaWJsZSB0byBzcGVjaWZ5IGEgdmlydGlvIHNw
-ZWNpZmljIGF0dHJpYnV0ZSB2aWEgdGhpcyBtZXRob2Q/Cj4+Cj4KPiBZZXMsIGZvciB0ZXN0aW5n
-IHB1cnBvc2VzIHlvdSBzaG91bGQgYmUgYWJsZSB0byBkbyB0aGlzIHZpYSB1c2luZyBRRU1VJ3MK
-PiAtc2V0IGNvbW1hbmQgbGluZSBhcmd1bWVudDoKPiBodHRwOi8vYmxvZy52bXNwbGljZS5uZXQv
-MjAxMS8wNC9ob3ctdG8tcGFzcy1xZW11LWNvbW1hbmQtbGluZS1vcHRpb25zLmh0bWwgCj4KPiBp
-LmUuOgo+Cj4gPGRvbWFpbiB0eXBlPSdrdm0nIAo+IHhtbG5zOnFlbXU9J2h0dHA6Ly9saWJ2aXJ0
-Lm9yZy9zY2hlbWFzL2RvbWFpbi9xZW11LzEuMCc+Cj4gwqAuLi4KPiDCoDxxZW11OmNvbW1hbmRs
-aW5lPgo+IMKgwqAgPHFlbXU6YXJnIHZhbHVlPSctc2V0Jy8+Cj4gwqDCoCA8cWVtdTphcmcgdmFs
-dWU9J2RldmljZS5uZXQwLnN0YW5kYnk9b24nLz4KPiDCoDwvcWVtdTpjb21tYW5kbGluZT4KPiA8
-L2RvbWFpbj4KClRoYW5rcy4gV2lsbCB0cnkgdGhpcy4KCj4KPj4gRm9yIGV4OiB0byBzYXkgbXJn
-X3J4YnVmIGlzIG9mZiB3ZSBjYW4gYWRkIHRoZSBmb2xsb3dpbmcgbGluZSB0byB2aXJ0aW8KPj4g
-c2VjdGlvbiBvZiB0aGUgZG9tYWluIHhtbCBmaWxlLgo+PiDCoCA8aG9zdCBtcmdfcnhidWY9J29m
-ZicvPgo+Pgo+PiBJIHRoaW5rIGxpYnZpcnQgbmVlZHMgdG8gYmUgZXh0ZW5kZWQgdG8gdG8gc3Vw
-cG9ydCB0aGUgbmV3ICdzdGFuZGJ5JyAKPj4gYXR0cmlidXRlCj4+IHZpYSB0aGlzIG1lY2hhbmlz
-bS4KPj4gQWRkaW5nIExpYW5lIFN0dW1wIGFuZCBsaWJ2aXJ0IHRvIHRoZSBDQyBsaXN0Lgo+Cj4g
-KkxhaW5lCj4KPj4KPj4gTWljaGFlbCwKPj4gQ2FuIHdlIHN0YXJ0IHdpdGggZ2V0dGluZyB0aGlz
-IHBhdGNoIGludG8gUWVtdSBhbmQgYW4gdXBkYXRlIHRvIAo+PiBsaWJ2aXJ0IHRvCj4+IHN1cHBv
-cnQgdGhlICdzdGFuZGJ5JyBmZWF0dXJlIHNvIHRoYXQgdGhpcyBmZWF0dXJlIGNhbiBiZSBlbmFi
-bGVkIHZpYQo+PiBzb21lIHNjcmlwdHMvb3JjaGVzdHJhdGlvbiBsYXllciBmb3Igbm93Lgo+Pgo+
-PiBXZSBjb3VsZCBpbXByb3ZlIHRoaXMgc29sdXRpb24gYnkgZW5oYW5jaW5nIFFlbXUgdG8gZG8g
-YXV0b21hdGljIAo+PiBtYW5hZ2VtZW50IG9mIHRoZQo+PiBhZGRpdGlvbi9kZWxldGlvbiBvZiB0
-aGUgcHJpbWFyeSBkZXZpY2UgYmFzZWQgb24gZmVhdHVyZSBuZWdvdGlhdGlvbiAKPj4gYXMgYSBs
-YXRlciBwYXRjaC4KPj4KPgo+IElmIHRoYXQgbWVhbnMgdGhlIGxpYnZpcnQgYXR0cmlidXRlIHdv
-dWxkIG5vIGxvbmdlciBiZSBuZWVkZWQsIEkgZG9uJ3QKPiBzZWUgdGhlIHJlYXNvbiB0byBhZGQg
-aXQgdG8gbGlidmlydCBpbiB0aGUgZmlyc3QgcGxhY2UuCgpJIHRoaW5rIHdlIHN0aWxsIG5lZWQg
-dGhpcyBhdHRyaWJ1dGUgc3VwcG9ydGVkIHZpYSBsaWJ2aXJ0IHNvIHRoYXQgYSB1c2VyL2FkbWlu
-CmNhbiBlbmFibGUgdGhpcyBmZWF0dXJlIHZpYSBkb21haW4gWE1MIHNwZWNpZmljYXRpb24uCgoK
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
-YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
-b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
-cnR1YWxpemF0aW9u
+On Thu, May 31, 2018 at 08:43:58PM +0300, Michael S. Tsirkin wrote:
+> Pls work on a long term solution. Short term needs can be served by
+> enabling the iommu platform in qemu.
+
+So, I spent some time looking at converting virtio to dma ops overrides,
+and the current virtio spec, and the sad through I have to tell is that
+both the spec and the Linux implementation are complete and utterly fucked
+up.
+
+Both in the flag naming and the implementation there is an implication
+of DMA API == IOMMU, which is fundamentally wrong.
+
+The DMA API does a few different things:
+
+ a) address translation
+
+	This does include IOMMUs.  But it also includes random offsets
+	between PCI bars and system memory that we see on various
+	platforms.  Worse so some of these offsets might be based on
+	banks, e.g. on the broadcom bmips platform.  It also deals
+	with bitmask in physical addresses related to memory encryption
+	like AMD SEV.  I'd be really curious how for example the
+	Intel virtio based NIC is going to work on any of those
+	plaforms.
+
+  b) coherency
+
+	On many architectures DMA is not cache coherent, and we need
+	to invalidate and/or write back cache lines before doing
+	DMA.  Again, I wonder how this is every going to work with
+	hardware based virtio implementations.  Even worse I think this
+	is actually broken at least for VIVT event for virtualized
+	implementations.  E.g. a KVM guest is going to access memory
+	using different virtual addresses than qemu, vhost might throw
+	in another different address space.
+
+  c) bounce buffering
+
+	Many DMA implementations can not address all physical memory
+	due to addressing limitations.  In such cases we copy the
+	DMA memory into a known addressable bounc buffer and DMA
+	from there.
+
+  d) flushing write combining buffers or similar
+
+	On some hardware platforms we need workarounds to e.g. read
+	from a certain mmio address to make sure DMA can actually
+	see memory written by the host.
+
+All of this is bypassed by virtio by default despite generally being
+platform issues, not particular to a given device.
