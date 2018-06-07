@@ -1,16 +1,20 @@
-From: Dmitry Vyukov via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: KMSAN: uninit-value in _copy_to_iter (2)
-Date: Thu, 7 Jun 2018 18:25:35 +0200
-Message-ID: <CACT4Y+btyLi+z09EO0JU-7AS_OfRbWiZvGn-KP9fndevh+xFNw@mail.gmail.com>
-References: <000000000000a5b2b1056a86e98c@google.com>
-	<000000000000cf4578056ab12452@google.com>
-	<20180607183627-mutt-send-email-mst@kernel.org>
-Reply-To: Dmitry Vyukov <dvyukov@google.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
+	virito devices
+Date: Thu, 7 Jun 2018 19:28:35 +0300
+Message-ID: <20180607185234-mutt-send-email-mst__7129.7324415811$1528388819$gmane$org@kernel.org>
+References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
+	<20180523213703-mutt-send-email-mst@kernel.org>
+	<20180524072104.GD6139@ram.oc3035372033.ibm.com>
+	<0c508eb2-08df-3f76-c260-90cf7137af80@linux.vnet.ibm.com>
+	<20180531204320-mutt-send-email-mst@kernel.org>
+	<20180607052306.GA1532@infradead.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="000000000000e8e79a056e0fbcf6"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180607183627-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180607052306.GA1532@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,81 +24,126 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Willem de Bruijn <willemb@google.com>, avagin <avagin@openvz.org>, KVM list <kvm@vger.kernel.org>, netdev <netdev@vger.kernel.org>, Matthew Dawson <matthew@mjdsystems.ca>, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Eric Dumazet <edumazet@google.com>, Al Viro <viro@zeniv.linux.org.uk>, Ding Tianhong <dingtianhong@huawei.com>, syzbot <syzbot+87cfa083e727a224754b@syzkaller.appspotmail.com>, Paolo Abeni <pabeni@redhat.com>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, "Reshetova,
-	Elena" <elena.reshetova@intel.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: robh@kernel.org, pawel.moll@arm.com, Tom Lendacky <thomas.lendacky@amd.com>, cohuck@redhat.com, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, joe@perches.com, "Rustad, Mark D" <mark.d.rustad@intel.com>, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---000000000000e8e79a056e0fbcf6
-Content-Type: text/plain; charset="UTF-8"
+On Wed, Jun 06, 2018 at 10:23:06PM -0700, Christoph Hellwig wrote:
+> On Thu, May 31, 2018 at 08:43:58PM +0300, Michael S. Tsirkin wrote:
+> > Pls work on a long term solution. Short term needs can be served by
+> > enabling the iommu platform in qemu.
+> 
+> So, I spent some time looking at converting virtio to dma ops overrides,
+> and the current virtio spec, and the sad through I have to tell is that
+> both the spec and the Linux implementation are complete and utterly fucked
+> up.
 
-On Thu, Jun 7, 2018 at 5:38 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> #syz test: https://github.com/google/kmsan.git/master d2d741e5d1898dfde1a75ea3d29a9a3e2edf0617
+Let me restate it: DMA API has support for a wide range of hardware, and
+hardware based virtio implementations likely won't benefit from all of
+it.
 
-Hi Michael,
+And given virtio right now is optimized for specific workloads, improving
+portability without regressing performance isn't easy.
 
-We need:
+I think it's unsurprising since it started a strictly a guest/host
+mechanism.  People did implement offloads on specific platforms though,
+and they are known to work. To improve portability even further,
+we might need to make spec and code changes.
 
-#syz test: https://github.com/google/kmsan.git master
+I'm not really sympathetic to people complaining that they can't even
+set a flag in qemu though. If that's the case the stack in question is
+way too inflexible.
 
-here. Please see
-https://github.com/google/syzkaller/blob/master/docs/syzbot.md#testing-patches
-for more info.
 
-Please also add the Reported-by tag when mailing the patch for review.
 
-Thanks
+> Both in the flag naming and the implementation there is an implication
+> of DMA API == IOMMU, which is fundamentally wrong.
 
-> Subject: vhost: fix info leak
->
-> Fixes: CVE-2018-1118
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index f0be5f35ab28..9beefa6ed1ce 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -2345,6 +2345,9 @@ struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type)
->         struct vhost_msg_node *node = kmalloc(sizeof *node, GFP_KERNEL);
->         if (!node)
->                 return NULL;
-> +
-> +       /* Make sure all padding within the structure is initialized. */
-> +       memset(&node->msg, 0, sizeof node->msg);
->         node->vq = vq;
->         node->msg.type = type;
->         return node;
->
-> --
-> You received this message because you are subscribed to the Google Groups "syzkaller-bugs" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to syzkaller-bugs+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgid/syzkaller-bugs/20180607183627-mutt-send-email-mst%40kernel.org.
-> For more options, visit https://groups.google.com/d/optout.
+Maybe we need to extend the meaning of PLATFORM_IOMMU or rename it.
 
---000000000000e8e79a056e0fbcf6
-Content-Type: application/octet-stream; name=patch
-Content-Disposition: attachment; filename=patch
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ji4r5e8p0
+It's possible that some setups will benefit from a more
+fine-grained approach where some aspects of the DMA
+API are bypassed, others aren't.
 
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3Qu
-YwppbmRleCBmMGJlNWYzNWFiMjguLjliZWVmYTZlZDFjZSAxMDA2NDQKLS0tIGEvZHJpdmVycy92
-aG9zdC92aG9zdC5jCisrKyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwpAQCAtMjM0NSw2ICsyMzQ1
-LDkgQEAgc3RydWN0IHZob3N0X21zZ19ub2RlICp2aG9zdF9uZXdfbXNnKHN0cnVjdCB2aG9zdF92
-aXJ0cXVldWUgKnZxLCBpbnQgdHlwZSkKIAlzdHJ1Y3Qgdmhvc3RfbXNnX25vZGUgKm5vZGUgPSBr
-bWFsbG9jKHNpemVvZiAqbm9kZSwgR0ZQX0tFUk5FTCk7CiAJaWYgKCFub2RlKQogCQlyZXR1cm4g
-TlVMTDsKKworCS8qIE1ha2Ugc3VyZSBhbGwgcGFkZGluZyB3aXRoaW4gdGhlIHN0cnVjdHVyZSBp
-cyBpbml0aWFsaXplZC4gKi8KKwltZW1zZXQoJm5vZGUtPm1zZywgMCwgc2l6ZW9mIG5vZGUtPm1z
-Zyk7CiAJbm9kZS0+dnEgPSB2cTsKIAlub2RlLT5tc2cudHlwZSA9IHR5cGU7CiAJcmV0dXJuIG5v
-ZGU7Cgo=
---000000000000e8e79a056e0fbcf6
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+This seems to be what was being asked for in this thread,
+with comments claiming IOMMU flag adds too much overhead.
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---000000000000e8e79a056e0fbcf6--
+
+> The DMA API does a few different things:
+> 
+>  a) address translation
+> 
+> 	This does include IOMMUs.  But it also includes random offsets
+> 	between PCI bars and system memory that we see on various
+> 	platforms.
+
+I don't think you mean bars. That's unrelated to DMA.
+
+>  Worse so some of these offsets might be based on
+> 	banks, e.g. on the broadcom bmips platform.  It also deals
+> 	with bitmask in physical addresses related to memory encryption
+> 	like AMD SEV.  I'd be really curious how for example the
+> 	Intel virtio based NIC is going to work on any of those
+> 	plaforms.
+
+SEV guys report that they just set the iommu flag and then it all works.
+I guess if there's translation we can think of this as a kind of iommu.
+Maybe we should rename PLATFORM_IOMMU to PLARTFORM_TRANSLATION?
+
+And apparently some people complain that just setting that flag makes
+qemu check translation on each access with an unacceptable performance
+overhead.  Forcing same behaviour for everyone on general principles
+even without the flag is unlikely to make them happy.
+
+>   b) coherency
+> 
+> 	On many architectures DMA is not cache coherent, and we need
+> 	to invalidate and/or write back cache lines before doing
+> 	DMA.  Again, I wonder how this is every going to work with
+> 	hardware based virtio implementations.
+
+
+You mean dma_Xmb and friends?
+There's a new feature VIRTIO_F_IO_BARRIER that's being proposed
+for that.
+
+
+>  Even worse I think this
+> 	is actually broken at least for VIVT event for virtualized
+> 	implementations.  E.g. a KVM guest is going to access memory
+> 	using different virtual addresses than qemu, vhost might throw
+> 	in another different address space.
+
+I don't really know what VIVT is. Could you help me please?
+
+>   c) bounce buffering
+> 
+> 	Many DMA implementations can not address all physical memory
+> 	due to addressing limitations.  In such cases we copy the
+> 	DMA memory into a known addressable bounc buffer and DMA
+> 	from there.
+
+Don't do it then?
+
+
+>   d) flushing write combining buffers or similar
+> 
+> 	On some hardware platforms we need workarounds to e.g. read
+> 	from a certain mmio address to make sure DMA can actually
+> 	see memory written by the host.
+
+I guess it isn't an issue as long as WC isn't actually used.
+It will become an issue when virtio spec adds some WC capability -
+I suspect we can ignore this for now.
+
+> 
+> All of this is bypassed by virtio by default despite generally being
+> platform issues, not particular to a given device.
+
+It's both a device and a platform issue. A PV device is often more like
+another CPU than like a PCI device.
+
+
+
+-- 
+MST
