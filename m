@@ -1,19 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: KMSAN: uninit-value in _copy_to_iter (2)
-Date: Thu, 7 Jun 2018 22:29:13 +0300
-Message-ID: <20180607222728-mutt-send-email-mst__45678.9320488044$1528399640$gmane$org@kernel.org>
-References: <000000000000a5b2b1056a86e98c@google.com>
-	<000000000000cf4578056ab12452@google.com>
-	<20180607183627-mutt-send-email-mst@kernel.org>
-	<20180607174355.GR30522@ZenIV.linux.org.uk>
-	<20180607205611-mutt-send-email-mst@kernel.org>
-	<20180607180449.GS30522@ZenIV.linux.org.uk>
+From: "H. Peter Anvin" <hpa@linux.intel.com>
+Subject: Re: [PATCH v3 2/3] x86/asm: add _ASM_ARG* constants for argument
+	registers to <asm/asm.h>
+Date: Thu, 7 Jun 2018 13:13:56 -0700
+Message-ID: <2f7fc4bf-d0fe-0d3a-ffdd-02cc82c83747__16977.7357289151$1528402344$gmane$org@linux.intel.com>
+References: <20180607183219.192973-1-ndesaulniers@google.com>
+	<20180607183219.192973-3-ndesaulniers@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180607180449.GS30522@ZenIV.linux.org.uk>
+In-Reply-To: <20180607183219.192973-3-ndesaulniers@google.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,59 +20,14 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: willemb@google.com, avagin@openvz.org, kvm@vger.kernel.org, netdev@vger.kernel.org, matthew@mjdsystems.ca, linux-kernel@vger.kernel.org, mingo@kernel.org, syzkaller-bugs@googlegroups.com, edumazet@google.com, dingtianhong@huawei.com, syzbot <syzbot+87cfa083e727a224754b@syzkaller.appspotmail.com>, pabeni@redhat.com, virtualization@lists.linux-foundation.org, davem@davemloft.net, elena.reshetova@intel.com
+To: Nick Desaulniers <ndesaulniers@google.com>, akpm@linux-foundation.org, hpa@zytor.com, mingo@redhat.com, tglx@linutronix.de
+Cc: kstewart@linuxfoundation.org, linux-efi@vger.kernel.org, brijesh.singh@amd.com, jan.kiszka@siemens.com, will.deacon@arm.com, jarkko.sakkinen@linux.intel.com, linux-kernel@vger.kernel.org, yamada.masahiro@socionext.com, manojgupta@google.com, akataria@vmware.com, tweek@google.com, mawilcox@microsoft.com, x86@kernel.org, ghackmann@google.com, mka@chromium.org, geert@linux-m68k.org, rientjes@google.com, aryabinin@virtuozzo.com, thomas.lendacky@amd.com, arnd@arndb.de, linux-kbuild@vger.kernel.org, keescook@google.com, rostedt@goodmis.org, acme@redhat.com, caoj.fnst@cn.fujitsu.com, jpoimboe@redhat.com, sedat.dilek@gmail.com, boris.ostrovsky@oracle.com, virtualization@lists.linux-foundation.org, jgross@suse.com, michal.lkml@markovi.net, tstellar@redhat.com, gregkh@linuxfoundation.org, ard.biesheuvel@linaro.org, astrachan@google.com, mjg59@google.com, pombredanne@nexb.com, jo
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 07, 2018 at 07:04:49PM +0100, Al Viro wrote:
-> On Thu, Jun 07, 2018 at 08:59:06PM +0300, Michael S. Tsirkin wrote:
-> > On Thu, Jun 07, 2018 at 06:43:55PM +0100, Al Viro wrote:
-> > > On Thu, Jun 07, 2018 at 06:38:48PM +0300, Michael S. Tsirkin wrote:
-> > > > #syz test: https://github.com/google/kmsan.git/master d2d741e5d1898dfde1a75ea3d29a9a3e2edf0617
-> > > > 
-> > > > Subject: vhost: fix info leak
-> > > > 
-> > > > Fixes: CVE-2018-1118
-> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > > ---
-> > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > > > index f0be5f35ab28..9beefa6ed1ce 100644
-> > > > --- a/drivers/vhost/vhost.c
-> > > > +++ b/drivers/vhost/vhost.c
-> > > > @@ -2345,6 +2345,9 @@ struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type)
-> > > >  	struct vhost_msg_node *node = kmalloc(sizeof *node, GFP_KERNEL);
-> > > >  	if (!node)
-> > > >  		return NULL;
-> > > > +
-> > > > +	/* Make sure all padding within the structure is initialized. */
-> > > > +	memset(&node->msg, 0, sizeof node->msg);
-> > > 
-> > > Umm...  Maybe kzalloc(), then?  You have
-> > > 
-> > > struct vhost_msg_node {
-> > >   struct vhost_msg msg;
-> > >   struct vhost_virtqueue *vq;
-> > >   struct list_head node;
-> > > };
-> > > 
-> > > and that's what, 68 bytes in msg, then either 4 bytes pointer or
-> > > 4 bytes padding + 8 bytes pointer, then two pointers?  How much
-> > > does explicit partial memset() save you here?
-> > 
-> > Yes but 0 isn't a nop here so if this struct is used without
-> > a sensible initialization, it will crash elsewhere.
-> > I prefer KASAN to catch such uses.
-> > 
-> > 
-> > > >  	node->vq = vq;
-> > > >  	node->msg.type = type;
+On 06/07/18 11:32, Nick Desaulniers wrote:
 > 
-> IDGI - what would your variant catch that kzalloc + 2 assignments won't?
-> Accesses to uninitialized ->node?  Because that's the only difference in
-> what is and is not initialized between those variants...
+> Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
 
-For now yes but we'll likely add more fields in this structure
-down the road, which is where I'd expect new bugs to come from.
+If this was suggested by Sedat, I didn't see that suggestion...
 
--- 
-MST
+	-hpa
