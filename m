@@ -1,15 +1,15 @@
-From: "H. Peter Anvin" <hpa@linux.intel.com>
-Subject: Re: [PATCH v3 2/3] x86/asm: add _ASM_ARG* constants for argument
-	registers to <asm/asm.h>
-Date: Thu, 7 Jun 2018 13:13:56 -0700
-Message-ID: <2f7fc4bf-d0fe-0d3a-ffdd-02cc82c83747__16977.7357289151$1528402344$gmane$org@linux.intel.com>
-References: <20180607183219.192973-1-ndesaulniers@google.com>
-	<20180607183219.192973-3-ndesaulniers@google.com>
+From: "Liu, Changpeng" <changpeng.liu@intel.com>
+Subject: RE: [PATCH v6] virtio_blk: add DISCARD and WRIET ZEROES commands
+	support
+Date: Thu, 7 Jun 2018 23:07:06 +0000
+Message-ID: <FF7FC980937D6342B9D289F5F3C7C2625B6DED4D@SHSMSX103.ccr.corp.intel.com>
+References: <1528258740-6581-1-git-send-email-changpeng.liu@intel.com>
+	<20180607131003.GN19032@stefanha-x1.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180607183219.192973-3-ndesaulniers@google.com>
+In-Reply-To: <20180607131003.GN19032@stefanha-x1.localdomain>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,14 +20,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nick Desaulniers <ndesaulniers@google.com>, akpm@linux-foundation.org, hpa@zytor.com, mingo@redhat.com, tglx@linutronix.de
-Cc: kstewart@linuxfoundation.org, linux-efi@vger.kernel.org, brijesh.singh@amd.com, jan.kiszka@siemens.com, will.deacon@arm.com, jarkko.sakkinen@linux.intel.com, linux-kernel@vger.kernel.org, yamada.masahiro@socionext.com, manojgupta@google.com, akataria@vmware.com, tweek@google.com, mawilcox@microsoft.com, x86@kernel.org, ghackmann@google.com, mka@chromium.org, geert@linux-m68k.org, rientjes@google.com, aryabinin@virtuozzo.com, thomas.lendacky@amd.com, arnd@arndb.de, linux-kbuild@vger.kernel.org, keescook@google.com, rostedt@goodmis.org, acme@redhat.com, caoj.fnst@cn.fujitsu.com, jpoimboe@redhat.com, sedat.dilek@gmail.com, boris.ostrovsky@oracle.com, virtualization@lists.linux-foundation.org, jgross@suse.com, michal.lkml@markovi.net, tstellar@redhat.com, gregkh@linuxfoundation.org, ard.biesheuvel@linaro.org, astrachan@google.com, mjg59@google.com, pombredanne@nexb.com, jo
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>, "cavery@redhat.com" <cavery@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/07/18 11:32, Nick Desaulniers wrote:
+
+
+> -----Original Message-----
+> From: Stefan Hajnoczi [mailto:stefanha@redhat.com]
+> Sent: Thursday, June 7, 2018 9:10 PM
+> To: Liu, Changpeng <changpeng.liu@intel.com>
+> Cc: virtualization@lists.linux-foundation.org; cavery@redhat.com;
+> jasowang@redhat.com; pbonzini@redhat.com; Wang, Wei W
+> <wei.w.wang@intel.com>
+> Subject: Re: [PATCH v6] virtio_blk: add DISCARD and WRIET ZEROES commands
+> support
 > 
-> Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
-
-If this was suggested by Sedat, I didn't see that suggestion...
-
-	-hpa
+> On Wed, Jun 06, 2018 at 12:19:00PM +0800, Changpeng Liu wrote:
+> > Existing virtio-blk protocol doesn't have DISCARD/WRITE ZEROES commands
+> > support, this will impact the performance when using SSD backend over
+> > file systems.
+> >
+> > Commit 88c85538 "virtio-blk: add discard and write zeroes features to
+> > specification"(see https://github.com/oasis-tcs/virtio-spec) extended
+> > existing virtio-blk protocol, adding extra DISCARD and WRITE ZEROES
+> > commands support.
+> >
+> > While here, using 16 bytes descriptor to describe one segment of DISCARD
+> > or WRITE ZEROES commands, each command may contain one or more
+> decriptors.
+> >
+> > The following data structure shows the definition of one descriptor:
+> >
+> > struct virtio_blk_discard_write_zeroes {
+> >         le64 sector;
+> >         le32 num_sectors;
+> >         le32 unmap;
+> > };
+> >
+> > Field 'sector' means the start sector for DISCARD and WRITE ZEROES,
+> > filed 'num_sectors' means the number of sectors for DISCARD and WRITE
+> > ZEROES, if both DISCARD and WRITE ZEROES are supported, field 'unmap'
+> > maybe used for WRITE ZEROES command with DISCARD enabled.
+> >
+> > We also extended the virtio-blk configuration space to let backend
+> > device put DISCARD and WRITE ZEROES configuration parameters.
+> >
+> > struct virtio_blk_config {
+> >         [...]
+> >
+> >         le32 max_discard_sectors;
+> >         le32 max_discard_seg;
+> >         le32 discard_sector_alignment;
+> >         le32 max_write_zeroes_sectors;
+> >         le32 max_write_zeroes_seg;
+> >         u8 write_zeroes_may_unmap;
+> > }
+> >
+> > New feature bit [VIRTIO_BLK_F_DISCARD (13)]: Device can support discard
+> > command, maximum discard sectors size in field 'max_discard_sectors' and
+> > maximum discard segment number in field 'max_discard_seg'.
+> >
+> > New feature [VIRTIO_BLK_F_WRITE_ZEROES (14)]: Device can support write
+> > zeroes command, maximum write zeroes sectors size in field
+> > 'max_write_zeroes_sectors' and maximum write zeroes segment number in
+> > field 'max_write_zeroes_seg'.
+> >
+> > The parameters in the configuration space of the device field
+> > 'max_discard_sectors' and field 'discard_sector_alignment' are expressed in
+> > 512-byte units if the VIRTIO_BLK_F_DISCARD feature bit is negotiated. The
+> > field 'max_write_zeroes_sectors' is expressed in 512-byte units if the
+> > VIRTIO_BLK_F_WRITE_ZEROES feature bit is negotiated.
+> >
+> > Signed-off-by: Changpeng Liu <changpeng.liu@intel.com>
+> > ---
+> > CHANGELOG:
+> > v6: don't set T_OUT bit to discard and write zeroes commands.
+> 
+> I don't see this in the patch...
+Yeah, do noting with DISCARD/WRITE ZEROES means no need to OR BLK_T_OUT again.
+> 
+> > @@ -225,6 +260,7 @@ static blk_status_t virtio_queue_rq(struct
+> blk_mq_hw_ctx *hctx,
+> >  	int qid = hctx->queue_num;
+> >  	int err;
+> >  	bool notify = false;
+> > +	bool unmap = false;
+> >  	u32 type;
+> >
+> >  	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
+> > @@ -237,6 +273,13 @@ static blk_status_t virtio_queue_rq(struct
+> blk_mq_hw_ctx *hctx,
+> >  	case REQ_OP_FLUSH:
+> >  		type = VIRTIO_BLK_T_FLUSH;
+> >  		break;
+> > +	case REQ_OP_DISCARD:
+> > +		type = VIRTIO_BLK_T_DISCARD;
+> > +		break;
+> > +	case REQ_OP_WRITE_ZEROES:
+> > +		type = VIRTIO_BLK_T_WRITE_ZEROES;
+> > +		unmap = !(req->cmd_flags & REQ_NOUNMAP);
+> > +		break;
+> >  	case REQ_OP_SCSI_IN:
+> >  	case REQ_OP_SCSI_OUT:
+> >  		type = VIRTIO_BLK_T_SCSI_CMD;
+> > @@ -256,6 +299,12 @@ static blk_status_t virtio_queue_rq(struct
+> blk_mq_hw_ctx *hctx,
+> >
+> >  	blk_mq_start_request(req);
+> >
+> > +	if (type == VIRTIO_BLK_T_DISCARD || type ==
+> VIRTIO_BLK_T_WRITE_ZEROES) {
+> > +		err = virtblk_setup_discard_write_zeroes(req, unmap);
+> > +		if (err)
+> > +			return BLK_STS_RESOURCE;
+> > +	}
+> > +
+> >  	num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
+> >  	if (num) {
+> >  		if (rq_data_dir(req) == WRITE)
+> 
+> ...since we still do blk_rq_map_sg() here and num should be != 0.
+No, while here, we should keep the original logic for READ/WRITE commands.
