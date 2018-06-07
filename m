@@ -1,15 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC v6 4/5] virtio_ring: add event idx support in packed ring
-Date: Thu, 7 Jun 2018 17:50:32 +0800
-Message-ID: <c0621b16-3143-0bf7-f44f-3d1173577734__36449.489175766$1528364952$gmane$org@redhat.com>
-References: <20180605074046.20709-1-tiwei.bie@intel.com>
-	<20180605074046.20709-5-tiwei.bie@intel.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v3] virtio: update the comments for transport features
+Date: Thu, 7 Jun 2018 14:04:48 +0100
+Message-ID: <20180607130448.GM19032__43828.9686492228$1528376594$gmane$org@stefanha-x1.localdomain>
+References: <20180601112632.12651-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============5852434016818587434=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180605074046.20709-5-tiwei.bie@intel.com>
-Content-Language: en-US
+In-Reply-To: <20180601112632.12651-1-tiwei.bie@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,55 +16,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: wexu@redhat.com
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDbmnIgwNeaXpSAxNTo0MCwgVGl3ZWkgQmllIHdyb3RlOgo+ICAgc3RhdGlj
-IGJvb2wgdmlydHF1ZXVlX2VuYWJsZV9jYl9kZWxheWVkX3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVl
-ICpfdnEpCj4gICB7Cj4gICAJc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEgPSB0b192dnEoX3Zx
-KTsKPiArCXUxNiBidWZzLCB1c2VkX2lkeCwgd3JhcF9jb3VudGVyOwo+ICAgCj4gICAJU1RBUlRf
-VVNFKHZxKTsKPiAgIAo+ICAgCS8qIFdlIG9wdGltaXN0aWNhbGx5IHR1cm4gYmFjayBvbiBpbnRl
-cnJ1cHRzLCB0aGVuIGNoZWNrIGlmIHRoZXJlIHdhcwo+ICAgCSAqIG1vcmUgdG8gZG8uICovCj4g
-KwkvKiBEZXBlbmRpbmcgb24gdGhlIFZJUlRJT19SSU5HX0ZfRVZFTlRfSURYIGZlYXR1cmUsIHdl
-IG5lZWQgdG8KPiArCSAqIGVpdGhlciBjbGVhciB0aGUgZmxhZ3MgYml0IG9yIHBvaW50IHRoZSBl
-dmVudCBpbmRleCBhdCB0aGUgbmV4dAo+ICsJICogZW50cnkuIEFsd2F5cyB1cGRhdGUgdGhlIGV2
-ZW50IGluZGV4IHRvIGtlZXAgY29kZSBzaW1wbGUuICovCj4gKwoKTWF5YmUgZm9yIHBhY2tlZCBy
-aW5nLCBpdCdzIHRpbWUgdG8gdHJlYXQgZXZlbnQgaW5kZXggc2VwYXJhdGVseSB0byAKYXZvaWQg
-YSB2aXJ0aW9fd21iKCkgZm9yIGV2ZW50IGlkeCBpcyBvZmYuCgo+ICsJLyogVE9ETzogdHVuZSB0
-aGlzIHRocmVzaG9sZCAqLwo+ICsJaWYgKHZxLT5uZXh0X2F2YWlsX2lkeCA8IHZxLT5sYXN0X3Vz
-ZWRfaWR4KQo+ICsJCWJ1ZnMgPSAodnEtPnZyaW5nX3BhY2tlZC5udW0gKyB2cS0+bmV4dF9hdmFp
-bF9pZHggLQo+ICsJCQkJdnEtPmxhc3RfdXNlZF9pZHgpICogMyAvIDQ7Cj4gKwllbHNlCj4gKwkJ
-YnVmcyA9ICh2cS0+bmV4dF9hdmFpbF9pZHggLSB2cS0+bGFzdF91c2VkX2lkeCkgKiAzIC8gNDsK
-CnZxLT5uZXh0X2F2YWlsLWlkeCBjb3VsZCBiZSBlcXVhbCB0byB2cS0+bGFzdF91c2RfaWR4IHdo
-ZW4gdGhlIHJpbmcgaXMgCmZ1bGwuIFRob3VnaCB2aXJpdG8tbmV0IGlzIHRoZSBvbmx5IHVzZXIg
-bm93IGFuZCBpdCBjYW4gZ3VhcmFudGVlIHRoaXMgCndvbid0IGhhcHBlbi4gQnV0IGNvbnNpZGVy
-IHRoaXMgaXMgYSBjb3JlIEFQSSwgd2Ugc2hvdWxkIG1ha2Ugc3VyZSBpdCAKY2FuIHdvcmsgZm9y
-IGFueSBjYXNlcy4KCkl0IGxvb2tzIHRvIG1lIHRoYXQgYnVmcyBpcyBqdXN0IHZxLT52cmluZ19w
-YWNrZWQubnVtIC0gdnEtPm51bV9mcmVlPwoKPiArCj4gKwl3cmFwX2NvdW50ZXIgPSB2cS0+dXNl
-ZF93cmFwX2NvdW50ZXI7Cj4gKwo+ICsJdXNlZF9pZHggPSB2cS0+bGFzdF91c2VkX2lkeCArIGJ1
-ZnM7Cj4gKwlpZiAodXNlZF9pZHggPj0gdnEtPnZyaW5nX3BhY2tlZC5udW0pIHsKPiArCQl1c2Vk
-X2lkeCAtPSB2cS0+dnJpbmdfcGFja2VkLm51bTsKPiArCQl3cmFwX2NvdW50ZXIgXj0gMTsKPiAr
-CX0KPiArCj4gKwl2cS0+dnJpbmdfcGFja2VkLmRyaXZlci0+b2ZmX3dyYXAgPSBjcHVfdG9fdmly
-dGlvMTYoX3ZxLT52ZGV2LAo+ICsJCQl1c2VkX2lkeCB8ICh3cmFwX2NvdW50ZXIgPDwgMTUpKTsK
-PiAgIAo+ICAgCWlmICh2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93ID09IFZSSU5HX0VWRU5UX0ZfRElT
-QUJMRSkgewo+IC0JCXZxLT5ldmVudF9mbGFnc19zaGFkb3cgPSBWUklOR19FVkVOVF9GX0VOQUJM
-RTsKPiArCQkvKiBXZSBuZWVkIHRvIHVwZGF0ZSBldmVudCBvZmZzZXQgYW5kIGV2ZW50IHdyYXAK
-PiArCQkgKiBjb3VudGVyIGZpcnN0IGJlZm9yZSB1cGRhdGluZyBldmVudCBmbGFncy4gKi8KPiAr
-CQl2aXJ0aW9fd21iKHZxLT53ZWFrX2JhcnJpZXJzKTsKPiArCQl2cS0+ZXZlbnRfZmxhZ3Nfc2hh
-ZG93ID0gdnEtPmV2ZW50ID8gVlJJTkdfRVZFTlRfRl9ERVNDIDoKPiArCQkJCQkJICAgICBWUklO
-R19FVkVOVF9GX0VOQUJMRTsKPiAgIAkJdnEtPnZyaW5nX3BhY2tlZC5kcml2ZXItPmZsYWdzID0g
-Y3B1X3RvX3ZpcnRpbzE2KF92cS0+dmRldiwKPiAgIAkJCQkJCQl2cS0+ZXZlbnRfZmxhZ3Nfc2hh
-ZG93KTsKPiAtCQkvKiBXZSBuZWVkIHRvIGVuYWJsZSBpbnRlcnJ1cHRzIGZpcnN0IGJlZm9yZSBy
-ZS1jaGVja2luZwo+IC0JCSAqIGZvciBtb3JlIHVzZWQgYnVmZmVycy4gKi8KPiAtCQl2aXJ0aW9f
-bWIodnEtPndlYWtfYmFycmllcnMpOwo+ICAgCX0KPiAgIAo+ICsJLyogV2UgbmVlZCB0byB1cGRh
-dGUgZXZlbnQgc3VwcHJlc3Npb24gc3RydWN0dXJlIGZpcnN0Cj4gKwkgKiBiZWZvcmUgcmUtY2hl
-Y2tpbmcgZm9yIG1vcmUgdXNlZCBidWZmZXJzLiAqLwo+ICsJdmlydGlvX21iKHZxLT53ZWFrX2Jh
-cnJpZXJzKTsKPiArCj4gICAJaWYgKG1vcmVfdXNlZF9wYWNrZWQodnEpKSB7Cj4gICAJCUVORF9V
-U0UodnEpOwo+ICAgCQlyZXR1cm4gZmFsc2U7CgpJIHRoaW5rIHdoYXQgd2UgbmVlZCB0byB0byBt
-YWtlIHN1cmUgdGhlIGRlc2NyaXB0b3IgdXNlZF9pZHggaXMgdXNlZD8gCk90aGVyd2lzZSB3ZSBt
-YXkgc3RvcCBhbmQgcmVzdGFydCBxZGlzYyB0b28gZnJlcXVlbnRseT8KClRoYW5rcwoKPiAtLSAK
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+
+--===============5852434016818587434==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VLAOICcq5m4DWEYr"
+Content-Disposition: inline
+
+
+--VLAOICcq5m4DWEYr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Jun 01, 2018 at 07:26:32PM +0800, Tiwei Bie wrote:
+> The existing comments for transport features are outdated.
+> So update them to address the latest changes in the spec.
+>=20
+> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+> This patch is generated on top of below patch:
+> https://lists.oasis-open.org/archives/virtio-dev/201805/msg00212.html
+>=20
+> v3:
+> - Fix a typo in the commit message (Cornelia);
+>=20
+> v2:
+> - Improve the comments (Cornelia);
+> - Improve the commit message;
+>=20
+>  include/uapi/linux/virtio_config.h | 9 ++++++---
+>  1 file changed, 6 insertions(+), 3 deletions(-)
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--VLAOICcq5m4DWEYr
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJbGS1wAAoJEJykq7OBq3PIsQgH/juE93zamoKrVvX0dLQqbPh7
+cO+fADWB/7gWbUTAivY6zhpmxKN22QaR8OTrbJHctlS2A8NV3Ra7NOjNq9ThZEWQ
+lsVF58S3PHBZVoI11pbd1FYgJvhQbBtI18wdN0VWwu2bXfL18qIEpELnfS/ePkvJ
+WUx6nPt8JcqDwPwQpVyQFfRLudcg5N8RLXxTGPhSOHjyiPzfHkxvrs/Qu51W75C7
+rX9K3AjauK4Rc1nebJG/u4REDJch6zBiTCqGod4cZCR4Zc/oeXQKCz02RLL8/VeR
+zvfilxTYEEelkYa/+5mUDnt1tGpAssOt+Es/h0uERnxnL3haa1D+ofI8DYX+IM4=
+=qMT1
+-----END PGP SIGNATURE-----
+
+--VLAOICcq5m4DWEYr--
+
+--===============5852434016818587434==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5852434016818587434==--
