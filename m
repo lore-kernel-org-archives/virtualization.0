@@ -1,16 +1,15 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC v6 4/5] virtio_ring: add event idx support in packed ring
-Date: Fri, 8 Jun 2018 16:32:13 +0800
-Message-ID: <20180608083213.GA8512__13159.1982245029$1528446622$gmane$org@debian>
-References: <20180605074046.20709-1-tiwei.bie@intel.com>
-	<20180605074046.20709-5-tiwei.bie@intel.com>
-	<c0621b16-3143-0bf7-f44f-3d1173577734@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v6] virtio_blk: add DISCARD and WRIET ZEROES commands
+	support
+Date: Fri, 8 Jun 2018 11:20:27 +0100
+Message-ID: <20180608102027.GB31164@stefanha-x1.localdomain>
+References: <1528258740-6581-1-git-send-email-changpeng.liu@intel.com>
+	<20180607131003.GN19032@stefanha-x1.localdomain>
+	<FF7FC980937D6342B9D289F5F3C7C2625B6DED4D@SHSMSX103.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============6305530005863412733=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <c0621b16-3143-0bf7-f44f-3d1173577734@redhat.com>
+In-Reply-To: <FF7FC980937D6342B9D289F5F3C7C2625B6DED4D@SHSMSX103.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,61 +19,183 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: "Liu, Changpeng" <changpeng.liu@intel.com>
+Cc: "pbonzini@redhat.com" <pbonzini@redhat.com>, "cavery@redhat.com" <cavery@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBKdW4gMDcsIDIwMTggYXQgMDU6NTA6MzJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiAyMDE45bm0MDbmnIgwNeaXpSAxNTo0MCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gICBz
-dGF0aWMgYm9vbCB2aXJ0cXVldWVfZW5hYmxlX2NiX2RlbGF5ZWRfcGFja2VkKHN0cnVjdCB2aXJ0
-cXVldWUgKl92cSkKPiA+ICAgewo+ID4gICAJc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEgPSB0
-b192dnEoX3ZxKTsKPiA+ICsJdTE2IGJ1ZnMsIHVzZWRfaWR4LCB3cmFwX2NvdW50ZXI7Cj4gPiAg
-IAlTVEFSVF9VU0UodnEpOwo+ID4gICAJLyogV2Ugb3B0aW1pc3RpY2FsbHkgdHVybiBiYWNrIG9u
-IGludGVycnVwdHMsIHRoZW4gY2hlY2sgaWYgdGhlcmUgd2FzCj4gPiAgIAkgKiBtb3JlIHRvIGRv
-LiAqLwo+ID4gKwkvKiBEZXBlbmRpbmcgb24gdGhlIFZJUlRJT19SSU5HX0ZfRVZFTlRfSURYIGZl
-YXR1cmUsIHdlIG5lZWQgdG8KPiA+ICsJICogZWl0aGVyIGNsZWFyIHRoZSBmbGFncyBiaXQgb3Ig
-cG9pbnQgdGhlIGV2ZW50IGluZGV4IGF0IHRoZSBuZXh0Cj4gPiArCSAqIGVudHJ5LiBBbHdheXMg
-dXBkYXRlIHRoZSBldmVudCBpbmRleCB0byBrZWVwIGNvZGUgc2ltcGxlLiAqLwo+ID4gKwo+IAo+
-IE1heWJlIGZvciBwYWNrZWQgcmluZywgaXQncyB0aW1lIHRvIHRyZWF0IGV2ZW50IGluZGV4IHNl
-cGFyYXRlbHkgdG8gYXZvaWQgYQo+IHZpcnRpb193bWIoKSBmb3IgZXZlbnQgaWR4IGlzIG9mZi4K
-Ck9rYXkuIEknbGwgZG8gaXQuCgo+IAo+ID4gKwkvKiBUT0RPOiB0dW5lIHRoaXMgdGhyZXNob2xk
-ICovCj4gPiArCWlmICh2cS0+bmV4dF9hdmFpbF9pZHggPCB2cS0+bGFzdF91c2VkX2lkeCkKPiA+
-ICsJCWJ1ZnMgPSAodnEtPnZyaW5nX3BhY2tlZC5udW0gKyB2cS0+bmV4dF9hdmFpbF9pZHggLQo+
-ID4gKwkJCQl2cS0+bGFzdF91c2VkX2lkeCkgKiAzIC8gNDsKPiA+ICsJZWxzZQo+ID4gKwkJYnVm
-cyA9ICh2cS0+bmV4dF9hdmFpbF9pZHggLSB2cS0+bGFzdF91c2VkX2lkeCkgKiAzIC8gNDsKPiAK
-PiB2cS0+bmV4dF9hdmFpbC1pZHggY291bGQgYmUgZXF1YWwgdG8gdnEtPmxhc3RfdXNkX2lkeCB3
-aGVuIHRoZSByaW5nIGlzIGZ1bGwuCj4gVGhvdWdoIHZpcml0by1uZXQgaXMgdGhlIG9ubHkgdXNl
-ciBub3cgYW5kIGl0IGNhbiBndWFyYW50ZWUgdGhpcyB3b24ndAo+IGhhcHBlbi4gQnV0IGNvbnNp
-ZGVyIHRoaXMgaXMgYSBjb3JlIEFQSSwgd2Ugc2hvdWxkIG1ha2Ugc3VyZSBpdCBjYW4gd29yayBm
-b3IKPiBhbnkgY2FzZXMuCj4gCj4gSXQgbG9va3MgdG8gbWUgdGhhdCBidWZzIGlzIGp1c3QgdnEt
-PnZyaW5nX3BhY2tlZC5udW0gLSB2cS0+bnVtX2ZyZWU/CgpJJ2xsIHRyeSBpdCEgVGhhbmtzIGZv
-ciB0aGUgc3VnZ2VzdGlvbiEgOikKCj4gCj4gPiArCj4gPiArCXdyYXBfY291bnRlciA9IHZxLT51
-c2VkX3dyYXBfY291bnRlcjsKPiA+ICsKPiA+ICsJdXNlZF9pZHggPSB2cS0+bGFzdF91c2VkX2lk
-eCArIGJ1ZnM7Cj4gPiArCWlmICh1c2VkX2lkeCA+PSB2cS0+dnJpbmdfcGFja2VkLm51bSkgewo+
-ID4gKwkJdXNlZF9pZHggLT0gdnEtPnZyaW5nX3BhY2tlZC5udW07Cj4gPiArCQl3cmFwX2NvdW50
-ZXIgXj0gMTsKPiA+ICsJfQo+ID4gKwo+ID4gKwl2cS0+dnJpbmdfcGFja2VkLmRyaXZlci0+b2Zm
-X3dyYXAgPSBjcHVfdG9fdmlydGlvMTYoX3ZxLT52ZGV2LAo+ID4gKwkJCXVzZWRfaWR4IHwgKHdy
-YXBfY291bnRlciA8PCAxNSkpOwo+ID4gICAJaWYgKHZxLT5ldmVudF9mbGFnc19zaGFkb3cgPT0g
-VlJJTkdfRVZFTlRfRl9ESVNBQkxFKSB7Cj4gPiAtCQl2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93ID0g
-VlJJTkdfRVZFTlRfRl9FTkFCTEU7Cj4gPiArCQkvKiBXZSBuZWVkIHRvIHVwZGF0ZSBldmVudCBv
-ZmZzZXQgYW5kIGV2ZW50IHdyYXAKPiA+ICsJCSAqIGNvdW50ZXIgZmlyc3QgYmVmb3JlIHVwZGF0
-aW5nIGV2ZW50IGZsYWdzLiAqLwo+ID4gKwkJdmlydGlvX3dtYih2cS0+d2Vha19iYXJyaWVycyk7
-Cj4gPiArCQl2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93ID0gdnEtPmV2ZW50ID8gVlJJTkdfRVZFTlRf
-Rl9ERVNDIDoKPiA+ICsJCQkJCQkgICAgIFZSSU5HX0VWRU5UX0ZfRU5BQkxFOwo+ID4gICAJCXZx
-LT52cmluZ19wYWNrZWQuZHJpdmVyLT5mbGFncyA9IGNwdV90b192aXJ0aW8xNihfdnEtPnZkZXYs
-Cj4gPiAgIAkJCQkJCQl2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93KTsKPiA+IC0JCS8qIFdlIG5lZWQg
-dG8gZW5hYmxlIGludGVycnVwdHMgZmlyc3QgYmVmb3JlIHJlLWNoZWNraW5nCj4gPiAtCQkgKiBm
-b3IgbW9yZSB1c2VkIGJ1ZmZlcnMuICovCj4gPiAtCQl2aXJ0aW9fbWIodnEtPndlYWtfYmFycmll
-cnMpOwo+ID4gICAJfQo+ID4gKwkvKiBXZSBuZWVkIHRvIHVwZGF0ZSBldmVudCBzdXBwcmVzc2lv
-biBzdHJ1Y3R1cmUgZmlyc3QKPiA+ICsJICogYmVmb3JlIHJlLWNoZWNraW5nIGZvciBtb3JlIHVz
-ZWQgYnVmZmVycy4gKi8KPiA+ICsJdmlydGlvX21iKHZxLT53ZWFrX2JhcnJpZXJzKTsKPiA+ICsK
-PiA+ICAgCWlmIChtb3JlX3VzZWRfcGFja2VkKHZxKSkgewo+ID4gICAJCUVORF9VU0UodnEpOwo+
-ID4gICAJCXJldHVybiBmYWxzZTsKPiAKPiBJIHRoaW5rIHdoYXQgd2UgbmVlZCB0byB0byBtYWtl
-IHN1cmUgdGhlIGRlc2NyaXB0b3IgdXNlZF9pZHggaXMgdXNlZD8KPiBPdGhlcndpc2Ugd2UgbWF5
-IHN0b3AgYW5kIHJlc3RhcnQgcWRpc2MgdG9vIGZyZXF1ZW50bHk/CgpHb29kIGNhdGNoISBZZWFo
-LiBJdCdzIG5vdCB0aGUgYmVzdCBjaG9pY2UgdG8gY2hlY2sgdGhlCmRlc2NyaXB0b3IgYXQgbGFz
-dF91c2VkX2lkeC4gSSdsbCB0cnkgdG8gZml4IHRoaXMhCgpCZXN0IHJlZ2FyZHMsClRpd2VpIEJp
-ZQoKPiAKPiBUaGFua3MKPiAKPiA+IC0tIAo+IApfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
-YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
-YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+--===============6305530005863412733==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kXdP64Ggrk/fb43R"
+Content-Disposition: inline
+
+
+--kXdP64Ggrk/fb43R
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Jun 07, 2018 at 11:07:06PM +0000, Liu, Changpeng wrote:
+>=20
+>=20
+> > -----Original Message-----
+> > From: Stefan Hajnoczi [mailto:stefanha@redhat.com]
+> > Sent: Thursday, June 7, 2018 9:10 PM
+> > To: Liu, Changpeng <changpeng.liu@intel.com>
+> > Cc: virtualization@lists.linux-foundation.org; cavery@redhat.com;
+> > jasowang@redhat.com; pbonzini@redhat.com; Wang, Wei W
+> > <wei.w.wang@intel.com>
+> > Subject: Re: [PATCH v6] virtio_blk: add DISCARD and WRIET ZEROES comman=
+ds
+> > support
+> >=20
+> > On Wed, Jun 06, 2018 at 12:19:00PM +0800, Changpeng Liu wrote:
+> > > Existing virtio-blk protocol doesn't have DISCARD/WRITE ZEROES comman=
+ds
+> > > support, this will impact the performance when using SSD backend over
+> > > file systems.
+> > >
+> > > Commit 88c85538 "virtio-blk: add discard and write zeroes features to
+> > > specification"(see https://github.com/oasis-tcs/virtio-spec) extended
+> > > existing virtio-blk protocol, adding extra DISCARD and WRITE ZEROES
+> > > commands support.
+> > >
+> > > While here, using 16 bytes descriptor to describe one segment of DISC=
+ARD
+> > > or WRITE ZEROES commands, each command may contain one or more
+> > decriptors.
+> > >
+> > > The following data structure shows the definition of one descriptor:
+> > >
+> > > struct virtio_blk_discard_write_zeroes {
+> > >         le64 sector;
+> > >         le32 num_sectors;
+> > >         le32 unmap;
+> > > };
+> > >
+> > > Field 'sector' means the start sector for DISCARD and WRITE ZEROES,
+> > > filed 'num_sectors' means the number of sectors for DISCARD and WRITE
+> > > ZEROES, if both DISCARD and WRITE ZEROES are supported, field 'unmap'
+> > > maybe used for WRITE ZEROES command with DISCARD enabled.
+> > >
+> > > We also extended the virtio-blk configuration space to let backend
+> > > device put DISCARD and WRITE ZEROES configuration parameters.
+> > >
+> > > struct virtio_blk_config {
+> > >         [...]
+> > >
+> > >         le32 max_discard_sectors;
+> > >         le32 max_discard_seg;
+> > >         le32 discard_sector_alignment;
+> > >         le32 max_write_zeroes_sectors;
+> > >         le32 max_write_zeroes_seg;
+> > >         u8 write_zeroes_may_unmap;
+> > > }
+> > >
+> > > New feature bit [VIRTIO_BLK_F_DISCARD (13)]: Device can support disca=
+rd
+> > > command, maximum discard sectors size in field 'max_discard_sectors' =
+and
+> > > maximum discard segment number in field 'max_discard_seg'.
+> > >
+> > > New feature [VIRTIO_BLK_F_WRITE_ZEROES (14)]: Device can support write
+> > > zeroes command, maximum write zeroes sectors size in field
+> > > 'max_write_zeroes_sectors' and maximum write zeroes segment number in
+> > > field 'max_write_zeroes_seg'.
+> > >
+> > > The parameters in the configuration space of the device field
+> > > 'max_discard_sectors' and field 'discard_sector_alignment' are expres=
+sed in
+> > > 512-byte units if the VIRTIO_BLK_F_DISCARD feature bit is negotiated.=
+ The
+> > > field 'max_write_zeroes_sectors' is expressed in 512-byte units if the
+> > > VIRTIO_BLK_F_WRITE_ZEROES feature bit is negotiated.
+> > >
+> > > Signed-off-by: Changpeng Liu <changpeng.liu@intel.com>
+> > > ---
+> > > CHANGELOG:
+> > > v6: don't set T_OUT bit to discard and write zeroes commands.
+> >=20
+> > I don't see this in the patch...
+> Yeah, do noting with DISCARD/WRITE ZEROES means no need to OR BLK_T_OUT a=
+gain.
+> >=20
+> > > @@ -225,6 +260,7 @@ static blk_status_t virtio_queue_rq(struct
+> > blk_mq_hw_ctx *hctx,
+> > >  	int qid =3D hctx->queue_num;
+> > >  	int err;
+> > >  	bool notify =3D false;
+> > > +	bool unmap =3D false;
+> > >  	u32 type;
+> > >
+> > >  	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
+> > > @@ -237,6 +273,13 @@ static blk_status_t virtio_queue_rq(struct
+> > blk_mq_hw_ctx *hctx,
+> > >  	case REQ_OP_FLUSH:
+> > >  		type =3D VIRTIO_BLK_T_FLUSH;
+> > >  		break;
+> > > +	case REQ_OP_DISCARD:
+> > > +		type =3D VIRTIO_BLK_T_DISCARD;
+> > > +		break;
+> > > +	case REQ_OP_WRITE_ZEROES:
+> > > +		type =3D VIRTIO_BLK_T_WRITE_ZEROES;
+> > > +		unmap =3D !(req->cmd_flags & REQ_NOUNMAP);
+> > > +		break;
+> > >  	case REQ_OP_SCSI_IN:
+> > >  	case REQ_OP_SCSI_OUT:
+> > >  		type =3D VIRTIO_BLK_T_SCSI_CMD;
+> > > @@ -256,6 +299,12 @@ static blk_status_t virtio_queue_rq(struct
+> > blk_mq_hw_ctx *hctx,
+> > >
+> > >  	blk_mq_start_request(req);
+> > >
+> > > +	if (type =3D=3D VIRTIO_BLK_T_DISCARD || type =3D=3D
+> > VIRTIO_BLK_T_WRITE_ZEROES) {
+> > > +		err =3D virtblk_setup_discard_write_zeroes(req, unmap);
+> > > +		if (err)
+> > > +			return BLK_STS_RESOURCE;
+> > > +	}
+> > > +
+> > >  	num =3D blk_rq_map_sg(hctx->queue, req, vbr->sg);
+> > >  	if (num) {
+> > >  		if (rq_data_dir(req) =3D=3D WRITE)
+> >=20
+> > ...since we still do blk_rq_map_sg() here and num should be !=3D 0.
+> No, while here, we should keep the original logic for READ/WRITE commands.
+
+My question is: why does the changelog say "don't set T_OUT" but the
+code *will* set it because blk_rq_map_sg() returns !=3D 0 and
+rq_data_dir(req) =3D=3D WRITE?
+
+Maybe I'm misreading the code, but it looks to me like this patch
+does the opposite of what the changelog says.
+
+Stefan
+
+--kXdP64Ggrk/fb43R
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJbGlhrAAoJEJykq7OBq3PIFQsH/j9F6lZIFzXKDYsCBLHx6f/2
+ETndnwhYiCzUmzVrg/evs5Japp/2GFzn/AE2Ev+pkx38gGcvyrTZsjONTg4qkTWz
+tHB3tafJ0GUpcZARSB/uSkV9rdM0BDJUtfBftcMNOWa454XCDvgsX0NK7rtdRFDq
+i9N0cBc9ggXGMcqA341y2x1LVySIx7yg7vYGzJSo6OQEhnpxVuwA8+uX7NyohFcn
+tLn7SY4dmFLI+v6btfX3RPA0uesFCgi67UaUew9qHieVXltbnzJJw8RW2jywfbdc
+ZjJ/J6cuNowkkgN8KCY5v+kUBHRH7YtP9M/ZkJB6cu1+jkbV46lX4AwZKwUCpeY=
+=1PEV
+-----END PGP SIGNATURE-----
+
+--kXdP64Ggrk/fb43R--
+
+--===============6305530005863412733==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6305530005863412733==--
