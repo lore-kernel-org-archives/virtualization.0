@@ -1,15 +1,16 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v4 1/3] compiler-gcc.h: add gnu_inline to all inline
-	declarations
-Date: Fri, 8 Jun 2018 09:59:54 +0200
-Message-ID: <CAK8P3a0yi+MrOS=+pjCeUu==YBE_AppB8vfqdsQS-1NpSO2c4A__17775.1563875519$1528444683$gmane$org@mail.gmail.com>
-References: <20180607204927.219329-1-ndesaulniers@google.com>
-	<20180607204927.219329-2-ndesaulniers@google.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [RFC v6 4/5] virtio_ring: add event idx support in packed ring
+Date: Fri, 8 Jun 2018 16:32:13 +0800
+Message-ID: <20180608083213.GA8512__13159.1982245029$1528446622$gmane$org@debian>
+References: <20180605074046.20709-1-tiwei.bie@intel.com>
+	<20180605074046.20709-5-tiwei.bie@intel.com>
+	<c0621b16-3143-0bf7-f44f-3d1173577734@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180607204927.219329-2-ndesaulniers@google.com>
+Content-Disposition: inline
+In-Reply-To: <c0621b16-3143-0bf7-f44f-3d1173577734@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +20,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, linux-efi@vger.kernel.org, Brijesh Singh <brijesh.singh@amd.com>, Jan Kiszka <jan.kiszka@siemens.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Will Deacon <will.deacon@arm.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Manoj Gupta <manojgupta@google.com>, "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Thiebaud Weksteen <tweek@google.com>, mawilcox@microsoft.com, the arch/x86 maintainers <x86@kernel.org>, akataria@vmware.com, Greg Hackmann <ghackmann@google.com>, Ingo Molnar <mingo@redhat.com>, astrachan@google.com, David Rientjes <rientjes@google.com>, Geert Uytterhoeven <geert@linux-m68k.org>, "Lendacky,
-	Thomas" <thomas.lendacky@amd.com>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 7, 2018 at 10:49 PM, Nick Desaulniers
-<ndesaulniers@google.com> wrote:
-> Functions marked extern inline do not emit an externally visible
-> function when the gnu89 C standard is used. Some KBUILD Makefiles
-> overwrite KBUILD_CFLAGS. This is an issue for GCC 5.1+ users as without
-> an explicit C standard specified, the default is gnu11. Since c99, the
-> semantics of extern inline have changed such that an externally visible
-> function is always emitted. This can lead to multiple definition errors
-> of extern inline functions at link time of compilation units whose build
-> files have removed an explicit C standard compiler flag for users of GCC
-> 5.1+ or Clang.
->
-> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> Suggested-by: H. Peter Anvin <hpa@zytor.com>
-> Suggested-by: Joe Perches <joe@perches.com>
-
-I suspect this will break Geert's gcc-4.1.2, which I think doesn't have that
-attribute yet (4.1.3 or higher have it according to the documentation.
-
-It wouldn't be hard to work around that if we want to keep that version
-working, or we could decide that it's time to officially stop supporting
-that version, but we should probably decide on one or the other.
-
-        Arnd
+T24gVGh1LCBKdW4gMDcsIDIwMTggYXQgMDU6NTA6MzJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiBPbiAyMDE45bm0MDbmnIgwNeaXpSAxNTo0MCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gICBz
+dGF0aWMgYm9vbCB2aXJ0cXVldWVfZW5hYmxlX2NiX2RlbGF5ZWRfcGFja2VkKHN0cnVjdCB2aXJ0
+cXVldWUgKl92cSkKPiA+ICAgewo+ID4gICAJc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEgPSB0
+b192dnEoX3ZxKTsKPiA+ICsJdTE2IGJ1ZnMsIHVzZWRfaWR4LCB3cmFwX2NvdW50ZXI7Cj4gPiAg
+IAlTVEFSVF9VU0UodnEpOwo+ID4gICAJLyogV2Ugb3B0aW1pc3RpY2FsbHkgdHVybiBiYWNrIG9u
+IGludGVycnVwdHMsIHRoZW4gY2hlY2sgaWYgdGhlcmUgd2FzCj4gPiAgIAkgKiBtb3JlIHRvIGRv
+LiAqLwo+ID4gKwkvKiBEZXBlbmRpbmcgb24gdGhlIFZJUlRJT19SSU5HX0ZfRVZFTlRfSURYIGZl
+YXR1cmUsIHdlIG5lZWQgdG8KPiA+ICsJICogZWl0aGVyIGNsZWFyIHRoZSBmbGFncyBiaXQgb3Ig
+cG9pbnQgdGhlIGV2ZW50IGluZGV4IGF0IHRoZSBuZXh0Cj4gPiArCSAqIGVudHJ5LiBBbHdheXMg
+dXBkYXRlIHRoZSBldmVudCBpbmRleCB0byBrZWVwIGNvZGUgc2ltcGxlLiAqLwo+ID4gKwo+IAo+
+IE1heWJlIGZvciBwYWNrZWQgcmluZywgaXQncyB0aW1lIHRvIHRyZWF0IGV2ZW50IGluZGV4IHNl
+cGFyYXRlbHkgdG8gYXZvaWQgYQo+IHZpcnRpb193bWIoKSBmb3IgZXZlbnQgaWR4IGlzIG9mZi4K
+Ck9rYXkuIEknbGwgZG8gaXQuCgo+IAo+ID4gKwkvKiBUT0RPOiB0dW5lIHRoaXMgdGhyZXNob2xk
+ICovCj4gPiArCWlmICh2cS0+bmV4dF9hdmFpbF9pZHggPCB2cS0+bGFzdF91c2VkX2lkeCkKPiA+
+ICsJCWJ1ZnMgPSAodnEtPnZyaW5nX3BhY2tlZC5udW0gKyB2cS0+bmV4dF9hdmFpbF9pZHggLQo+
+ID4gKwkJCQl2cS0+bGFzdF91c2VkX2lkeCkgKiAzIC8gNDsKPiA+ICsJZWxzZQo+ID4gKwkJYnVm
+cyA9ICh2cS0+bmV4dF9hdmFpbF9pZHggLSB2cS0+bGFzdF91c2VkX2lkeCkgKiAzIC8gNDsKPiAK
+PiB2cS0+bmV4dF9hdmFpbC1pZHggY291bGQgYmUgZXF1YWwgdG8gdnEtPmxhc3RfdXNkX2lkeCB3
+aGVuIHRoZSByaW5nIGlzIGZ1bGwuCj4gVGhvdWdoIHZpcml0by1uZXQgaXMgdGhlIG9ubHkgdXNl
+ciBub3cgYW5kIGl0IGNhbiBndWFyYW50ZWUgdGhpcyB3b24ndAo+IGhhcHBlbi4gQnV0IGNvbnNp
+ZGVyIHRoaXMgaXMgYSBjb3JlIEFQSSwgd2Ugc2hvdWxkIG1ha2Ugc3VyZSBpdCBjYW4gd29yayBm
+b3IKPiBhbnkgY2FzZXMuCj4gCj4gSXQgbG9va3MgdG8gbWUgdGhhdCBidWZzIGlzIGp1c3QgdnEt
+PnZyaW5nX3BhY2tlZC5udW0gLSB2cS0+bnVtX2ZyZWU/CgpJJ2xsIHRyeSBpdCEgVGhhbmtzIGZv
+ciB0aGUgc3VnZ2VzdGlvbiEgOikKCj4gCj4gPiArCj4gPiArCXdyYXBfY291bnRlciA9IHZxLT51
+c2VkX3dyYXBfY291bnRlcjsKPiA+ICsKPiA+ICsJdXNlZF9pZHggPSB2cS0+bGFzdF91c2VkX2lk
+eCArIGJ1ZnM7Cj4gPiArCWlmICh1c2VkX2lkeCA+PSB2cS0+dnJpbmdfcGFja2VkLm51bSkgewo+
+ID4gKwkJdXNlZF9pZHggLT0gdnEtPnZyaW5nX3BhY2tlZC5udW07Cj4gPiArCQl3cmFwX2NvdW50
+ZXIgXj0gMTsKPiA+ICsJfQo+ID4gKwo+ID4gKwl2cS0+dnJpbmdfcGFja2VkLmRyaXZlci0+b2Zm
+X3dyYXAgPSBjcHVfdG9fdmlydGlvMTYoX3ZxLT52ZGV2LAo+ID4gKwkJCXVzZWRfaWR4IHwgKHdy
+YXBfY291bnRlciA8PCAxNSkpOwo+ID4gICAJaWYgKHZxLT5ldmVudF9mbGFnc19zaGFkb3cgPT0g
+VlJJTkdfRVZFTlRfRl9ESVNBQkxFKSB7Cj4gPiAtCQl2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93ID0g
+VlJJTkdfRVZFTlRfRl9FTkFCTEU7Cj4gPiArCQkvKiBXZSBuZWVkIHRvIHVwZGF0ZSBldmVudCBv
+ZmZzZXQgYW5kIGV2ZW50IHdyYXAKPiA+ICsJCSAqIGNvdW50ZXIgZmlyc3QgYmVmb3JlIHVwZGF0
+aW5nIGV2ZW50IGZsYWdzLiAqLwo+ID4gKwkJdmlydGlvX3dtYih2cS0+d2Vha19iYXJyaWVycyk7
+Cj4gPiArCQl2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93ID0gdnEtPmV2ZW50ID8gVlJJTkdfRVZFTlRf
+Rl9ERVNDIDoKPiA+ICsJCQkJCQkgICAgIFZSSU5HX0VWRU5UX0ZfRU5BQkxFOwo+ID4gICAJCXZx
+LT52cmluZ19wYWNrZWQuZHJpdmVyLT5mbGFncyA9IGNwdV90b192aXJ0aW8xNihfdnEtPnZkZXYs
+Cj4gPiAgIAkJCQkJCQl2cS0+ZXZlbnRfZmxhZ3Nfc2hhZG93KTsKPiA+IC0JCS8qIFdlIG5lZWQg
+dG8gZW5hYmxlIGludGVycnVwdHMgZmlyc3QgYmVmb3JlIHJlLWNoZWNraW5nCj4gPiAtCQkgKiBm
+b3IgbW9yZSB1c2VkIGJ1ZmZlcnMuICovCj4gPiAtCQl2aXJ0aW9fbWIodnEtPndlYWtfYmFycmll
+cnMpOwo+ID4gICAJfQo+ID4gKwkvKiBXZSBuZWVkIHRvIHVwZGF0ZSBldmVudCBzdXBwcmVzc2lv
+biBzdHJ1Y3R1cmUgZmlyc3QKPiA+ICsJICogYmVmb3JlIHJlLWNoZWNraW5nIGZvciBtb3JlIHVz
+ZWQgYnVmZmVycy4gKi8KPiA+ICsJdmlydGlvX21iKHZxLT53ZWFrX2JhcnJpZXJzKTsKPiA+ICsK
+PiA+ICAgCWlmIChtb3JlX3VzZWRfcGFja2VkKHZxKSkgewo+ID4gICAJCUVORF9VU0UodnEpOwo+
+ID4gICAJCXJldHVybiBmYWxzZTsKPiAKPiBJIHRoaW5rIHdoYXQgd2UgbmVlZCB0byB0byBtYWtl
+IHN1cmUgdGhlIGRlc2NyaXB0b3IgdXNlZF9pZHggaXMgdXNlZD8KPiBPdGhlcndpc2Ugd2UgbWF5
+IHN0b3AgYW5kIHJlc3RhcnQgcWRpc2MgdG9vIGZyZXF1ZW50bHk/CgpHb29kIGNhdGNoISBZZWFo
+LiBJdCdzIG5vdCB0aGUgYmVzdCBjaG9pY2UgdG8gY2hlY2sgdGhlCmRlc2NyaXB0b3IgYXQgbGFz
+dF91c2VkX2lkeC4gSSdsbCB0cnkgdG8gZml4IHRoaXMhCgpCZXN0IHJlZ2FyZHMsClRpd2VpIEJp
+ZQoKPiAKPiBUaGFua3MKPiAKPiA+IC0tIAo+IApfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
