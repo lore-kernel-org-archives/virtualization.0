@@ -1,12 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: cleanups and fixes
-Date: Mon, 11 Jun 2018 19:23:53 +0300
-Message-ID: <20180611192353-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY feature bit to
+	virtio_net
+Date: Mon, 11 Jun 2018 20:26:04 +0300
+Message-ID: <20180611202207-mutt-send-email-mst__36016.2170175046$1528737845$gmane$org@kernel.org>
+References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,55 +19,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: ohad@wizery.com, kevin@guarana.org, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, liang.z.li@intel.com, linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, bjorn.andersson@linaro.org, mhocko@kernel.org, mhocko@suse.com, syzbot+87cfa083e727a224754b@syzkaller.appspotmail.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org
+To: Sridhar Samudrala <sridhar.samudrala@intel.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, loseweigh@gmail.com, aaron.f.brown@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 29dcea88779c856c7dc92040a0c01233263101d4:
+On Mon, May 07, 2018 at 04:09:54PM -0700, Sridhar Samudrala wrote:
+> This feature bit can be used by hypervisor to indicate virtio_net device to
+> act as a standby for another device with the same MAC address.
+> 
+> I tested this with a small change to the patch to mark the STANDBY feature 'true'
+> by default as i am using libvirt to start the VMs.
+> Is there a way to pass the newly added feature bit 'standby' to qemu via libvirt
+> XML file?
+> 
+> Signed-off-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
 
-  Linux 4.17 (2018-06-03 14:15:21 -0700)
+So I do not think we can commit to this interface: we
+really need to control visibility of the primary device.
 
-are available in the Git repository at:
+However just for testing purposes, we could add a non-stable
+interface "x-standby" with the understanding that as any
+x- prefix it's unstable and will be changed down the road,
+likely in the next release.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-for you to fetch changes up to aa15783ee62d57d69433101ede3e3ed11e48161d:
-
-  virtio: update the comments for transport features (2018-06-07 22:17:40 +0300)
-
-----------------------------------------------------------------
-virtio, vhost: features, fixes
-
-VF support for virtio.
-Free page hint request support for VM migration.
-DMA barriers for virtio strong barriers.
-Bugfixes.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Michael S. Tsirkin (2):
-      virtio_ring: switch to dma_XX barriers for rpmsg
-      vhost: fix info leak due to uninitialized memory
-
-Tiwei Bie (2):
-      virtio_pci: support enabling VFs
-      virtio: update the comments for transport features
-
-Wei Wang (4):
-      mm: support reporting free page blocks
-      virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
-      mm/page_poison: expose page_poisoning_enabled to kernel modules
-      virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
-
- drivers/vhost/vhost.c               |   3 +
- drivers/virtio/virtio_balloon.c     | 298 +++++++++++++++++++++++++++++++-----
- drivers/virtio/virtio_pci_common.c  |  30 ++++
- drivers/virtio/virtio_pci_modern.c  |  14 ++
- include/linux/mm.h                  |   6 +
- include/linux/virtio_ring.h         |   4 +-
- include/uapi/linux/virtio_balloon.h |   7 +
- include/uapi/linux/virtio_config.h  |  16 +-
- mm/page_alloc.c                     |  97 ++++++++++++
- mm/page_poison.c                    |   6 +
- 10 files changed, 439 insertions(+), 42 deletions(-)
+> ---
+>  hw/net/virtio-net.c                         | 2 ++
+>  include/standard-headers/linux/virtio_net.h | 3 +++
+>  2 files changed, 5 insertions(+)
+> 
+> diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
+> index 90502fca7c..38b3140670 100644
+> --- a/hw/net/virtio-net.c
+> +++ b/hw/net/virtio-net.c
+> @@ -2198,6 +2198,8 @@ static Property virtio_net_properties[] = {
+>                       true),
+>      DEFINE_PROP_INT32("speed", VirtIONet, net_conf.speed, SPEED_UNKNOWN),
+>      DEFINE_PROP_STRING("duplex", VirtIONet, net_conf.duplex_str),
+> +    DEFINE_PROP_BIT64("standby", VirtIONet, host_features, VIRTIO_NET_F_STANDBY,
+> +                      false),
+>      DEFINE_PROP_END_OF_LIST(),
+>  };
+>  
+> diff --git a/include/standard-headers/linux/virtio_net.h b/include/standard-headers/linux/virtio_net.h
+> index e9f255ea3f..01ec09684c 100644
+> --- a/include/standard-headers/linux/virtio_net.h
+> +++ b/include/standard-headers/linux/virtio_net.h
+> @@ -57,6 +57,9 @@
+>  					 * Steering */
+>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+>  
+> +#define VIRTIO_NET_F_STANDBY      62    /* Act as standby for another device
+> +                                         * with the same MAC.
+> +                                         */
+>  #define VIRTIO_NET_F_SPEED_DUPLEX 63	/* Device set linkspeed and duplex */
+>  
+>  #ifndef VIRTIO_NET_NO_LEGACY
+> -- 
+> 2.14.3
