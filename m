@@ -1,18 +1,22 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] vhost_net: remove VHOST_NET_F_VIRTIO_NET_HDR support
-Date: Mon, 11 Jun 2018 06:08:34 +0300
-Message-ID: <20180611060759-mutt-send-email-mst@kernel.org>
-References: <1528429842-22835-1-git-send-email-jasowang@redhat.com>
-	<20180608074115-mutt-send-email-mst@kernel.org>
-	<23efe110-f61a-5aee-c0b4-bd3dc5426438@redhat.com>
-	<20180611050741-mutt-send-email-mst@kernel.org>
-	<90e9b3ea-e9d2-d60d-8355-42d447c67452@redhat.com>
+Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
+	virito devices
+Date: Mon, 11 Jun 2018 06:28:19 +0300
+Message-ID: <20180611060949-mutt-send-email-mst@kernel.org>
+References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
+	<20180523213703-mutt-send-email-mst@kernel.org>
+	<20180524072104.GD6139@ram.oc3035372033.ibm.com>
+	<0c508eb2-08df-3f76-c260-90cf7137af80@linux.vnet.ibm.com>
+	<20180531204320-mutt-send-email-mst@kernel.org>
+	<20180607052306.GA1532@infradead.org>
+	<20180607185234-mutt-send-email-mst@kernel.org>
+	<20180611023909.GA5726@ram.oc3035372033.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <90e9b3ea-e9d2-d60d-8355-42d447c67452@redhat.com>
+In-Reply-To: <20180611023909.GA5726@ram.oc3035372033.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,91 +26,184 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ram Pai <linuxram@us.ibm.com>
+Cc: robh@kernel.org, pawel.moll@arm.com, Tom Lendacky <thomas.lendacky@amd.com>, benh@kernel.crashing.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, joe@perches.com, "Rustad,
+	Mark D" <mark.d.rustad@intel.com>, Anshuman Khandual <khandual@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBKdW4gMTEsIDIwMTggYXQgMTA6Mjk6MzZBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDbmnIgxMeaXpSAxMDoxMiwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gT24gRnJpLCBKdW4gMDgsIDIwMTggYXQgMDE6MDc6MDlQTSArMDgwMCwgSmFz
-b24gV2FuZyB3cm90ZToKPiA+ID4gCj4gPiA+IE9uIDIwMTjlubQwNuaciDA45pelIDEyOjQ2LCBN
-aWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gT24gRnJpLCBKdW4gMDgsIDIwMTggYXQg
-MTE6NTA6NDJBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+IFRoaXMgZmVhdHVy
-ZSBiaXQgaXMgZHVwbGljYXRlZCB3aXRoIFZJUlRJT19GX0FOWV9MQVlPVVQsIHRoaXMgbWVhbnMg
-aWYKPiA+ID4gPiA+IGEgdXNlcnBzYWNlIHdhbnQgdG8gZW5hYmxlIFZSSVRJT19GX0FOWV9MQVlP
-VVQsCj4gPiA+ID4gPiBWSE9TVF9ORVRfRl9WSVJUSU9fTkVUX0hEUiB3aWxsIGJlIGltcGxpZWQg
-dG9vLiBUaGlzIGlzIHdyb25nIGFuZCB3aWxsCj4gPiA+ID4gPiBicmVhayBuZXR3b3JraW5nLgo+
-ID4gPiA+IFdoYXQgYnJlYWtzIG5ldHdvcmtpbmcgZXhhY3RseT8gVkhPU1RfTkVUIHN1cHBvcnRl
-ZCBBTllfTEFZT1VUCj4gPiA+ID4gZnJvbSBkYXkgb25lLiBGb3IgdGhpcyByZWFzb24gaXQgZG9l
-cyBub3QgbmVlZCB0byBrbm93IGFib3V0Cj4gPiA+ID4gVlJJVElPX0ZfQU5ZX0xBWU9VVCBhbmQg
-d2UgcmV1c2VkIHRoZSBiaXQgZm9yIG90aGVyIHB1cnBvc2VzLgo+ID4gPiBJdCdzIHRoZSBrbm93
-bGVkZ2Ugb2Ygdmhvc3RfbmV0IGNvZGUgaXQgc2VsZiBidXQgbm90IHVzZXJzcGFjZS4gRm9yCj4g
-PiA+IHVzZXJzcGFjZSwgaXQgc2hvdWxkIGRlcGVuZHMgb24gdGhlIHZhbHVlIG9mIHJldHVybmVk
-IGJ5IFZIT1NUX0dFVF9GRUFUVVJFUy4KPiA+ID4gU28gd2hlbiB1c2Vyc3BhY2UgY2FuIHNldF9m
-ZWF0dXJlcyB3aXRoIEFOWV9MQVlPVVQsIHZob3N0IG1heSB0aGluayBpdCB3YW50cwo+ID4gPiBW
-SE9TVF9ORVRfRl9WSVJUSU9fTkVUX0hEUi4KPiA+IFllcyBidXQgdGhhdCdzIHRoZSBhZG1pdHRl
-ZGx5IHVnbHkgQVBJIHRoYXQgd2UgaGF2ZSBub3cuCj4gPiB1c2Vyc3BhY2UgaXMgc3VwcG9zZWQg
-dG8ga25vdyBWUklUSU9fRl9BTllfTEFZT1VUIGRvZXMKPiA+IG5vdCBtYWtlIHNlbnNlIGZvciB2
-aG9zdC4KPiAKPiBPay4KPiAKPiA+IAo+ID4gCj4gPiAKPiA+ID4gPiAKPiA+ID4gPiAKPiA+ID4g
-PiA+IEZpeGluZyB0aGlzIGJ5IHNhZmVseSByZW1vdmluZwo+ID4gPiA+ID4gVkhPU1RfTkVUX0Zf
-VklSVElPX05FVF9IRFIgc3VwcG9ydC4gVGhlcmUgc2hvdWxkIGJlIHZlcnkgZmV3IG9yIGV2ZW4K
-PiA+ID4gPiA+IG5vIHVzZXJzcGFjZSBjYW4gdXNlIHRoaXMuCj4gPiA+ID4gUXVpdGUgcG9zc2li
-bHksIGJ1dCBpdCBpcyBoYXJkIHRvIGJlIHN1cmUuIEl0IHNlZW1zIHNhZmVyIHRvCj4gPiA+ID4g
-bWFpbnRhaW4gaXQgdW5sZXNzIHRoZXJlJ3MgYW4gYWN0dWFsIHJlYXNvbiBzb21ldGhpbmcncyBi
-cm9rZW4uCj4gPiA+IEkgdGhpbmsgbm90IHNpbmNlIHRoZSBmZWF0dXJlIGlzIG5lZ290aWF0ZWQg
-bm90IG1hbmRhdG9yeT8KPiA+IFRoYXQgZG9lc24ndCBtZWFuIG11Y2guCj4gPiAKPiA+ID4gPiA+
-IEZ1cnRoZXIgY2xlYW51cHMgY291bGQgYmUgZG9uZSBmb3IKPiA+ID4gPiA+IC1uZXQtbmV4dCBm
-b3Igc2FmZXR5Lgo+ID4gPiA+ID4gCj4gPiA+ID4gPiBJbiB0aGUgZnV0dXJlLCB3ZSBuZWVkIGEg
-dmhvc3QgZGVkaWNhdGVkIGZlYXR1cmUgc2V0L2dldCBpb2N0bCgpCj4gPiA+ID4gPiBpbnN0ZWFk
-IG9mIHJldXNpbmcgdmlydGlvIG9uZXMuCj4gPiA+ID4gTm90IGp1c3QgaW4gdGhlIGZ1dHVyZSwg
-d2UgbWlnaHQgd2FudCB0byBzd2l0Y2ggaW9tbXUKPiA+ID4gPiB0byBhIHNhbmUgc3RydWN0dXJl
-IHdpdGhvdXQgdGhlIDY0IGJpdCBwYWRkaW5nIGJ1Zwo+ID4gPiA+IHJpZ2h0IG5vdy4KPiA+ID4g
-WWVzLCBJIGhpdCB0aGlzIGJ1ZyB3aGVuIGludHJvZHVjaW5nIFYyIG9mIG1zZyBJT1RMQiBtZXNz
-YWdlLgo+ID4gU291bmRzIGdvb2QsIHNvIGlmIHlvdSBsaWtlLCByZXNlcnZlIGEgYml0IGZvcgo+
-ID4gVkhPU1RfTkVUX0ZfVklSVElPX05FVF9IRFIgaW4gdGhlIG5ldyBpb2N0bCBtYXNrIGFuZAo+
-ID4gZG8gbm90IGVuYWJsZSBpdCB0aGVyZS4KPiAKPiBPaywgYW5kIG1heWJlIFZIT1NUX0ZfTE9H
-X0FMTC4KPiAKPiA+IAo+ID4gPiA+ID4gRml4ZXM6IDRlOWZhNTBjNmNjYmUgKCJ2aG9zdDogbW92
-ZSBmZWF0dXJlcyB0byBjb3JlIikKPiA+ID4gPiBUaGlzIHRhZyBtYWtlcyBubyBzZW5zZSBoZXJl
-IElNSE8uIExvb2tzIGxpa2UgcGVvcGxlIGFyZSB1c2luZyBzb21lIHRvb2wKPiA+ID4gPiB0aGF0
-IGp1c3QgbG9va3MgYXQgdGhlIGVhcmxpZXN0IHZlcnNpb24gd2hlcmUgcGF0Y2ggd29uJ3QgYXBw
-bHkuIFRoZQo+ID4gPiA+IGNvbW1pdCBpbiBxdWVzdGlvbiBqdXN0IG1vdmVkIHNvbWUgY29kZSBh
-cm91bmQuCj4gPiA+IExvb2tzIG5vdCwgYmVmb3JlIHRoaXMgY29tbWl0LCB2aG9zdF9uZXQgd29u
-J3QgcmV0dXJuIEFOWV9MQVlPVVQuCj4gPiA+IAo+ID4gPiBUaGFua3MKPiA+IFdlbGwgQU5ZX0xB
-WU9VVCBqdXN0IGhhcHBlbnMgdG8gYmUgc2FtZSBhcyBWSE9TVF9ORVRfRl9WSVJUSU9fTkVUX0hE
-Ugo+ID4gYW5kIHRoYXQgaGFzIGJlZW4gc2V0IHNpbmNlIGZvcmV2ZXIuCj4gCj4gU28gZG8geW91
-IHN0aWxsIHdhbnQgdGhpcyBwYXRjaD8gSWYgbm90IHdlIG5lZWQgdG8gZG9jdW1lbnQgdGhhdCBB
-TllfTEFZT1VUCj4gY291bGQgbm90IGJlIHBhc3NlZCB0aHJvdWdoIFNFVF9GRUFUVVJFUyBzb21l
-d2hlcmUuCj4gCj4gVGhhbmtzCgpMZXQncyBkb2N1bWVudCB0aGlzLCB5ZXMuIEkgZG9uJ3QgdGhp
-bmsgd2Ugc2hvdWxkIGRyb3AKVkhPU1RfTkVUX0ZfVklSVElPX05FVF9IRFIgbm93LgoKPiA+IAo+
-ID4gPiA+ID4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4K
-PiA+ID4gPiA+IC0tLQo+ID4gPiA+ID4gICAgZHJpdmVycy92aG9zdC9uZXQuYyB8IDE1ICsrKysr
-LS0tLS0tLS0tLQo+ID4gPiA+ID4gICAgMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwg
-MTAgZGVsZXRpb25zKC0pCj4gPiA+ID4gPiAKPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJz
-L3Zob3N0L25ldC5jIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+ID4gPiA+ID4gaW5kZXggOTg2MDU4
-YS4uODNlZWY1MiAxMDA2NDQKPiA+ID4gPiA+IC0tLSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiA+
-ID4gPiA+ICsrKyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiA+ID4gPiA+IEBAIC02OSw3ICs2OSw2
-IEBAIE1PRFVMRV9QQVJNX0RFU0MoZXhwZXJpbWVudGFsX3pjb3B5dHgsICJFbmFibGUgWmVybyBD
-b3B5IFRYOyIKPiA+ID4gPiA+ICAgIGVudW0gewo+ID4gPiA+ID4gICAgCVZIT1NUX05FVF9GRUFU
-VVJFUyA9IFZIT1NUX0ZFQVRVUkVTIHwKPiA+ID4gPiA+IC0JCQkgKDFVTEwgPDwgVkhPU1RfTkVU
-X0ZfVklSVElPX05FVF9IRFIpIHwKPiA+ID4gPiA+ICAgIAkJCSAoMVVMTCA8PCBWSVJUSU9fTkVU
-X0ZfTVJHX1JYQlVGKSB8Cj4gPiA+ID4gPiAgICAJCQkgKDFVTEwgPDwgVklSVElPX0ZfSU9NTVVf
-UExBVEZPUk0pCj4gPiA+ID4gPiAgICB9Owo+ID4gPiA+ID4gQEAgLTEyNTUsMTUgKzEyNTQsMTEg
-QEAgc3RhdGljIGludCB2aG9zdF9uZXRfc2V0X2ZlYXR1cmVzKHN0cnVjdCB2aG9zdF9uZXQgKm4s
-IHU2NCBmZWF0dXJlcykKPiA+ID4gPiA+ICAgIAkJCSAgICAgICAoMVVMTCA8PCBWSVJUSU9fRl9W
-RVJTSU9OXzEpKSkgPwo+ID4gPiA+ID4gICAgCQkJc2l6ZW9mKHN0cnVjdCB2aXJ0aW9fbmV0X2hk
-cl9tcmdfcnhidWYpIDoKPiA+ID4gPiA+ICAgIAkJCXNpemVvZihzdHJ1Y3QgdmlydGlvX25ldF9o
-ZHIpOwo+ID4gPiA+ID4gLQlpZiAoZmVhdHVyZXMgJiAoMSA8PCBWSE9TVF9ORVRfRl9WSVJUSU9f
-TkVUX0hEUikpIHsKPiA+ID4gPiA+IC0JCS8qIHZob3N0IHByb3ZpZGVzIHZuZXRfaGRyICovCj4g
-PiA+ID4gPiAtCQl2aG9zdF9obGVuID0gaGRyX2xlbjsKPiA+ID4gPiA+IC0JCXNvY2tfaGxlbiA9
-IDA7Cj4gPiA+ID4gPiAtCX0gZWxzZSB7Cj4gPiA+ID4gPiAtCQkvKiBzb2NrZXQgcHJvdmlkZXMg
-dm5ldF9oZHIgKi8KPiA+ID4gPiA+IC0JCXZob3N0X2hsZW4gPSAwOwo+ID4gPiA+ID4gLQkJc29j
-a19obGVuID0gaGRyX2xlbjsKPiA+ID4gPiA+IC0JfQo+ID4gPiA+ID4gKwo+ID4gPiA+ID4gKyAg
-ICAgICAgLyogc29ja2V0IHByb3ZpZGVzIHZuZXRfaGRyICovCj4gPiA+ID4gPiArCXZob3N0X2hs
-ZW4gPSAwOwo+ID4gPiA+ID4gKwlzb2NrX2hsZW4gPSBoZHJfbGVuOwo+ID4gPiA+ID4gKwo+ID4g
-PiA+ID4gICAgCW11dGV4X2xvY2soJm4tPmRldi5tdXRleCk7Cj4gPiA+ID4gPiAgICAJaWYgKChm
-ZWF0dXJlcyAmICgxIDw8IFZIT1NUX0ZfTE9HX0FMTCkpICYmCj4gPiA+ID4gPiAgICAJICAgICF2
-aG9zdF9sb2dfYWNjZXNzX29rKCZuLT5kZXYpKQo+ID4gPiA+ID4gLS0gCj4gPiA+ID4gPiAyLjcu
-NApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+On Sun, Jun 10, 2018 at 07:39:09PM -0700, Ram Pai wrote:
+> On Thu, Jun 07, 2018 at 07:28:35PM +0300, Michael S. Tsirkin wrote:
+> > On Wed, Jun 06, 2018 at 10:23:06PM -0700, Christoph Hellwig wrote:
+> > > On Thu, May 31, 2018 at 08:43:58PM +0300, Michael S. Tsirkin wrote:
+> > > > Pls work on a long term solution. Short term needs can be served by
+> > > > enabling the iommu platform in qemu.
+> > > 
+> > > So, I spent some time looking at converting virtio to dma ops overrides,
+> > > and the current virtio spec, and the sad through I have to tell is that
+> > > both the spec and the Linux implementation are complete and utterly fucked
+> > > up.
+> > 
+> > Let me restate it: DMA API has support for a wide range of hardware, and
+> > hardware based virtio implementations likely won't benefit from all of
+> > it.
+> > 
+> > And given virtio right now is optimized for specific workloads, improving
+> > portability without regressing performance isn't easy.
+> > 
+> > I think it's unsurprising since it started a strictly a guest/host
+> > mechanism.  People did implement offloads on specific platforms though,
+> > and they are known to work. To improve portability even further,
+> > we might need to make spec and code changes.
+> > 
+> > I'm not really sympathetic to people complaining that they can't even
+> > set a flag in qemu though. If that's the case the stack in question is
+> > way too inflexible.
+> 
+> We did consider your suggestion. But can't see how it will work.
+> Maybe you can guide us here. 
+> 
+> In our case qemu has absolutely no idea if the VM will switch itself to
+> secure mode or not.  Its a dynamic decision made entirely by the VM
+> through direct interaction with the hardware/firmware; no
+> qemu/hypervisor involved.
+> 
+> If the administrator, who invokes qemu, enables the flag, the DMA ops
+> associated with the virito devices will be called, and hence will be
+> able to do the right things. Yes we might incur performance hit due to
+> the IOMMU translations, but lets ignore that for now; the functionality
+> will work. Good till now.
+> 
+> However if the administrator
+> ignores/forgets/deliberatey-decides/is-constrained to NOT enable the
+> flag, virtio will not be able to pass control to the DMA ops associated
+> with the virtio devices. Which means, we have no opportunity to share
+> the I/O buffers with the hypervisor/qemu.
+> 
+> How do you suggest, we handle this case?
+
+As step 1, ignore it as a user error.
+Further you can for example add per-device quirks in virtio so it can be
+switched to dma api. make extra decisions in platform code then.
+
+> > 
+> > 
+> > 
+> > > Both in the flag naming and the implementation there is an implication
+> > > of DMA API == IOMMU, which is fundamentally wrong.
+> > 
+> > Maybe we need to extend the meaning of PLATFORM_IOMMU or rename it.
+> > 
+> > It's possible that some setups will benefit from a more
+> > fine-grained approach where some aspects of the DMA
+> > API are bypassed, others aren't.
+> > 
+> > This seems to be what was being asked for in this thread,
+> > with comments claiming IOMMU flag adds too much overhead.
+> > 
+> > 
+> > > The DMA API does a few different things:
+> > > 
+> > >  a) address translation
+> > > 
+> > > 	This does include IOMMUs.  But it also includes random offsets
+> > > 	between PCI bars and system memory that we see on various
+> > > 	platforms.
+> > 
+> > I don't think you mean bars. That's unrelated to DMA.
+> > 
+> > >  Worse so some of these offsets might be based on
+> > > 	banks, e.g. on the broadcom bmips platform.  It also deals
+> > > 	with bitmask in physical addresses related to memory encryption
+> > > 	like AMD SEV.  I'd be really curious how for example the
+> > > 	Intel virtio based NIC is going to work on any of those
+> > > 	plaforms.
+> > 
+> > SEV guys report that they just set the iommu flag and then it all works.
+> 
+> This is one of the fundamental difference between SEV architecture and
+> the ultravisor architecture. In SEV, qemu is aware of SEV.  In
+> ultravisor architecture, only the VM that runs within qemu is aware of
+> ultravisor;  hypervisor/qemu/administrator are untrusted entities.
+
+Spo one option is to teach qemu that it's on a platform with an
+ultravisor, this might have more advantages.
+
+> I hope, we can make virtio subsystem flexibe enough to support various
+> security paradigms.
+
+So if you are worried about qemu attacking guests, I see
+more problems than just passing an incorrect iommu
+flag.
+
+
+> Apart from the above reason, Christoph and Ben point to so many other
+> reasons to make it flexibe. So why not, make it happen?
+> 
+
+I don't see a flexibility argument.  I just don't think new platforms
+should use workarounds that we put in place for old ones.
+
+
+> > I guess if there's translation we can think of this as a kind of iommu.
+> > Maybe we should rename PLATFORM_IOMMU to PLARTFORM_TRANSLATION?
+> > 
+> > And apparently some people complain that just setting that flag makes
+> > qemu check translation on each access with an unacceptable performance
+> > overhead.  Forcing same behaviour for everyone on general principles
+> > even without the flag is unlikely to make them happy.
+> > 
+> > >   b) coherency
+> > > 
+> > > 	On many architectures DMA is not cache coherent, and we need
+> > > 	to invalidate and/or write back cache lines before doing
+> > > 	DMA.  Again, I wonder how this is every going to work with
+> > > 	hardware based virtio implementations.
+> > 
+> > 
+> > You mean dma_Xmb and friends?
+> > There's a new feature VIRTIO_F_IO_BARRIER that's being proposed
+> > for that.
+> > 
+> > 
+> > >  Even worse I think this
+> > > 	is actually broken at least for VIVT event for virtualized
+> > > 	implementations.  E.g. a KVM guest is going to access memory
+> > > 	using different virtual addresses than qemu, vhost might throw
+> > > 	in another different address space.
+> > 
+> > I don't really know what VIVT is. Could you help me please?
+> > 
+> > >   c) bounce buffering
+> > > 
+> > > 	Many DMA implementations can not address all physical memory
+> > > 	due to addressing limitations.  In such cases we copy the
+> > > 	DMA memory into a known addressable bounc buffer and DMA
+> > > 	from there.
+> > 
+> > Don't do it then?
+> > 
+> > 
+> > >   d) flushing write combining buffers or similar
+> > > 
+> > > 	On some hardware platforms we need workarounds to e.g. read
+> > > 	from a certain mmio address to make sure DMA can actually
+> > > 	see memory written by the host.
+> > 
+> > I guess it isn't an issue as long as WC isn't actually used.
+> > It will become an issue when virtio spec adds some WC capability -
+> > I suspect we can ignore this for now.
+> > 
+> > > 
+> > > All of this is bypassed by virtio by default despite generally being
+> > > platform issues, not particular to a given device.
+> > 
+> > It's both a device and a platform issue. A PV device is often more like
+> > another CPU than like a PCI device.
+> > 
+> > 
+> > 
+> > -- 
+> > MST
+> 
+> -- 
+> Ram Pai
