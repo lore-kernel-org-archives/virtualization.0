@@ -1,13 +1,14 @@
 From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [PULL] vhost: cleanups and fixes
-Date: Mon, 11 Jun 2018 11:32:41 -0700
-Message-ID: <CA+55aFzrPgnd7hRPrkeV+jX-MSwOZf7T4wKxz66Lk4oub3PZsw@mail.gmail.com>
+Date: Mon, 11 Jun 2018 11:44:05 -0700
+Message-ID: <CA+55aFz4uBHaWnBarVUEG90s2ucyVtoLmwYpYVwDV+XQESNRqw@mail.gmail.com>
 References: <20180611192353-mutt-send-email-mst@kernel.org>
+	<CA+55aFzrPgnd7hRPrkeV+jX-MSwOZf7T4wKxz66Lk4oub3PZsw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180611192353-mutt-send-email-mst@kernel.org>
+In-Reply-To: <CA+55aFzrPgnd7hRPrkeV+jX-MSwOZf7T4wKxz66Lk4oub3PZsw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,35 +22,25 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 11, 2018 at 9:24 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Mon, Jun 11, 2018 at 11:32 AM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
->       virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+> So now we apparently do a GFP_KERNEL allocation insider the mm zone
+> lock, which is broken on just _so_ many levels.
 
-Is this really a good idea?
+Oh, I see the comment about how it doesn't actually do an allocation
+at all because it's a single-entry.
 
-Plus it seems entirely broken.
+Still too damn ugly to live, and much too fragile. No way in hell do
+we even _hint_ at a GFP_KERNEL when we're inside a context that can't
+do any memory allocation at all.
 
-The report_pfn_range() callback is done under the zone lock, but
-virtio_balloon_send_free_pages() (which is the only callback used that
-I can find) does add_one_sg(), which does virtqueue_add_inbuf(vq, &sg,
-1, vq, GFP_KERNEL);
+Plus I'm not convinced it's a "no allocation" path even despite that
+comment, because it also does a "dma_map_page()" etc, which can cause
+allocations to do the dma mapping thing afaik. No?
 
-So now we apparently do a GFP_KERNEL allocation insider the mm zone
-lock, which is broken on just _so_ many levels.
-
-Pulled and then unpulled again.
-
-Either somebody needs to explain why I'm wrong and you can re-submit
-this, or this kind of garbage needs to go away.
-
-I do *not* want to be in the situation where I pull stuff from the
-virtio people that adds completely broken core VM functionality.
-
-Because if I'm in that situation, I will stop pulling from you guys.
-Seriously. You have *no* place sending me broken shit that is outside
-the virtio layer.
-
-Subsystems that break code MM will get shunned. You just aren't
-important enough to allow you breaking code VM.
+Maybe there's some reason why that doesn't happen either, but
+basically this whole callchain looks *way* to complicated to be used
+under a core VM spinlock.
 
                 Linus
