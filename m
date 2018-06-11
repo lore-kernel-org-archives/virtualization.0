@@ -1,13 +1,16 @@
-From: David Miller <davem@davemloft.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net] vhost_net: remove VHOST_NET_F_VIRTIO_NET_HDR support
-Date: Sun, 10 Jun 2018 12:27:52 -0700 (PDT)
-Message-ID: <20180610.122752.586267370739308245.davem@davemloft.net>
+Date: Mon, 11 Jun 2018 05:12:20 +0300
+Message-ID: <20180611050741-mutt-send-email-mst@kernel.org>
 References: <1528429842-22835-1-git-send-email-jasowang@redhat.com>
+	<20180608074115-mutt-send-email-mst@kernel.org>
+	<23efe110-f61a-5aee-c0b4-bd3dc5426438@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1528429842-22835-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <23efe110-f61a-5aee-c0b4-bd3dc5426438@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,28 +20,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri,  8 Jun 2018 11:50:42 +0800
-
-> This feature bit is duplicated with VIRTIO_F_ANY_LAYOUT, this means if
-> a userpsace want to enable VRITIO_F_ANY_LAYOUT,
-> VHOST_NET_F_VIRTIO_NET_HDR will be implied too. This is wrong and will
-> break networking. Fixing this by safely removing
-> VHOST_NET_F_VIRTIO_NET_HDR support. There should be very few or even
-> no userspace can use this. Further cleanups could be done for
-> -net-next for safety.
-> 
-> In the future, we need a vhost dedicated feature set/get ioctl()
-> instead of reusing virtio ones.
-> 
-> Fixes: 4e9fa50c6ccbe ("vhost: move features to core")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-I don't see this discussion as resolved yet so I'll mark this
-as Deferred in patchwork.
-
-Thanks.
+T24gRnJpLCBKdW4gMDgsIDIwMTggYXQgMDE6MDc6MDlQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE45bm0MDbmnIgwOOaXpSAxMjo0NiwgTWljaGFlbCBTLiBUc2lya2lu
+IHdyb3RlOgo+ID4gT24gRnJpLCBKdW4gMDgsIDIwMTggYXQgMTE6NTA6NDJBTSArMDgwMCwgSmFz
+b24gV2FuZyB3cm90ZToKPiA+ID4gVGhpcyBmZWF0dXJlIGJpdCBpcyBkdXBsaWNhdGVkIHdpdGgg
+VklSVElPX0ZfQU5ZX0xBWU9VVCwgdGhpcyBtZWFucyBpZgo+ID4gPiBhIHVzZXJwc2FjZSB3YW50
+IHRvIGVuYWJsZSBWUklUSU9fRl9BTllfTEFZT1VULAo+ID4gPiBWSE9TVF9ORVRfRl9WSVJUSU9f
+TkVUX0hEUiB3aWxsIGJlIGltcGxpZWQgdG9vLiBUaGlzIGlzIHdyb25nIGFuZCB3aWxsCj4gPiA+
+IGJyZWFrIG5ldHdvcmtpbmcuCj4gPiBXaGF0IGJyZWFrcyBuZXR3b3JraW5nIGV4YWN0bHk/IFZI
+T1NUX05FVCBzdXBwb3J0ZWQgQU5ZX0xBWU9VVAo+ID4gZnJvbSBkYXkgb25lLiBGb3IgdGhpcyBy
+ZWFzb24gaXQgZG9lcyBub3QgbmVlZCB0byBrbm93IGFib3V0Cj4gPiBWUklUSU9fRl9BTllfTEFZ
+T1VUIGFuZCB3ZSByZXVzZWQgdGhlIGJpdCBmb3Igb3RoZXIgcHVycG9zZXMuCj4gCj4gSXQncyB0
+aGUga25vd2xlZGdlIG9mIHZob3N0X25ldCBjb2RlIGl0IHNlbGYgYnV0IG5vdCB1c2Vyc3BhY2Uu
+IEZvcgo+IHVzZXJzcGFjZSwgaXQgc2hvdWxkIGRlcGVuZHMgb24gdGhlIHZhbHVlIG9mIHJldHVy
+bmVkIGJ5IFZIT1NUX0dFVF9GRUFUVVJFUy4KPiBTbyB3aGVuIHVzZXJzcGFjZSBjYW4gc2V0X2Zl
+YXR1cmVzIHdpdGggQU5ZX0xBWU9VVCwgdmhvc3QgbWF5IHRoaW5rIGl0IHdhbnRzCj4gVkhPU1Rf
+TkVUX0ZfVklSVElPX05FVF9IRFIuCgpZZXMgYnV0IHRoYXQncyB0aGUgYWRtaXR0ZWRseSB1Z2x5
+IEFQSSB0aGF0IHdlIGhhdmUgbm93Lgp1c2Vyc3BhY2UgaXMgc3VwcG9zZWQgdG8ga25vdyBWUklU
+SU9fRl9BTllfTEFZT1VUIGRvZXMKbm90IG1ha2Ugc2Vuc2UgZm9yIHZob3N0LgoKCgo+ID4gCj4g
+PiAKPiA+IAo+ID4gPiBGaXhpbmcgdGhpcyBieSBzYWZlbHkgcmVtb3ZpbmcKPiA+ID4gVkhPU1Rf
+TkVUX0ZfVklSVElPX05FVF9IRFIgc3VwcG9ydC4gVGhlcmUgc2hvdWxkIGJlIHZlcnkgZmV3IG9y
+IGV2ZW4KPiA+ID4gbm8gdXNlcnNwYWNlIGNhbiB1c2UgdGhpcy4KPiA+IFF1aXRlIHBvc3NpYmx5
+LCBidXQgaXQgaXMgaGFyZCB0byBiZSBzdXJlLiBJdCBzZWVtcyBzYWZlciB0bwo+ID4gbWFpbnRh
+aW4gaXQgdW5sZXNzIHRoZXJlJ3MgYW4gYWN0dWFsIHJlYXNvbiBzb21ldGhpbmcncyBicm9rZW4u
+Cj4gCj4gSSB0aGluayBub3Qgc2luY2UgdGhlIGZlYXR1cmUgaXMgbmVnb3RpYXRlZCBub3QgbWFu
+ZGF0b3J5PwoKVGhhdCBkb2Vzbid0IG1lYW4gbXVjaC4KCj4gPiAKPiA+ID4gRnVydGhlciBjbGVh
+bnVwcyBjb3VsZCBiZSBkb25lIGZvcgo+ID4gPiAtbmV0LW5leHQgZm9yIHNhZmV0eS4KPiA+ID4g
+Cj4gPiA+IEluIHRoZSBmdXR1cmUsIHdlIG5lZWQgYSB2aG9zdCBkZWRpY2F0ZWQgZmVhdHVyZSBz
+ZXQvZ2V0IGlvY3RsKCkKPiA+ID4gaW5zdGVhZCBvZiByZXVzaW5nIHZpcnRpbyBvbmVzLgo+ID4g
+Tm90IGp1c3QgaW4gdGhlIGZ1dHVyZSwgd2UgbWlnaHQgd2FudCB0byBzd2l0Y2ggaW9tbXUKPiA+
+IHRvIGEgc2FuZSBzdHJ1Y3R1cmUgd2l0aG91dCB0aGUgNjQgYml0IHBhZGRpbmcgYnVnCj4gPiBy
+aWdodCBub3cuCj4gCj4gWWVzLCBJIGhpdCB0aGlzIGJ1ZyB3aGVuIGludHJvZHVjaW5nIFYyIG9m
+IG1zZyBJT1RMQiBtZXNzYWdlLgoKU291bmRzIGdvb2QsIHNvIGlmIHlvdSBsaWtlLCByZXNlcnZl
+IGEgYml0IGZvcgpWSE9TVF9ORVRfRl9WSVJUSU9fTkVUX0hEUiBpbiB0aGUgbmV3IGlvY3RsIG1h
+c2sgYW5kCmRvIG5vdCBlbmFibGUgaXQgdGhlcmUuCgo+ID4gCj4gPiA+IEZpeGVzOiA0ZTlmYTUw
+YzZjY2JlICgidmhvc3Q6IG1vdmUgZmVhdHVyZXMgdG8gY29yZSIpCj4gPiBUaGlzIHRhZyBtYWtl
+cyBubyBzZW5zZSBoZXJlIElNSE8uIExvb2tzIGxpa2UgcGVvcGxlIGFyZSB1c2luZyBzb21lIHRv
+b2wKPiA+IHRoYXQganVzdCBsb29rcyBhdCB0aGUgZWFybGllc3QgdmVyc2lvbiB3aGVyZSBwYXRj
+aCB3b24ndCBhcHBseS4gVGhlCj4gPiBjb21taXQgaW4gcXVlc3Rpb24ganVzdCBtb3ZlZCBzb21l
+IGNvZGUgYXJvdW5kLgo+IAo+IExvb2tzIG5vdCwgYmVmb3JlIHRoaXMgY29tbWl0LCB2aG9zdF9u
+ZXQgd29uJ3QgcmV0dXJuIEFOWV9MQVlPVVQuCj4gCj4gVGhhbmtzCgpXZWxsIEFOWV9MQVlPVVQg
+anVzdCBoYXBwZW5zIHRvIGJlIHNhbWUgYXMgVkhPU1RfTkVUX0ZfVklSVElPX05FVF9IRFIKYW5k
+IHRoYXQgaGFzIGJlZW4gc2V0IHNpbmNlIGZvcmV2ZXIuCgo+ID4gCj4gPiA+IFNpZ25lZC1vZmYt
+Ynk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gPiA+IC0tLQo+ID4gPiAgIGRy
+aXZlcnMvdmhvc3QvbmV0LmMgfCAxNSArKysrKy0tLS0tLS0tLS0KPiA+ID4gICAxIGZpbGUgY2hh
+bmdlZCwgNSBpbnNlcnRpb25zKCspLCAxMCBkZWxldGlvbnMoLSkKPiA+ID4gCj4gPiA+IGRpZmYg
+LS1naXQgYS9kcml2ZXJzL3Zob3N0L25ldC5jIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+ID4gPiBp
+bmRleCA5ODYwNThhLi44M2VlZjUyIDEwMDY0NAo+ID4gPiAtLS0gYS9kcml2ZXJzL3Zob3N0L25l
+dC5jCj4gPiA+ICsrKyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiA+ID4gQEAgLTY5LDcgKzY5LDYg
+QEAgTU9EVUxFX1BBUk1fREVTQyhleHBlcmltZW50YWxfemNvcHl0eCwgIkVuYWJsZSBaZXJvIENv
+cHkgVFg7Igo+ID4gPiAgIGVudW0gewo+ID4gPiAgIAlWSE9TVF9ORVRfRkVBVFVSRVMgPSBWSE9T
+VF9GRUFUVVJFUyB8Cj4gPiA+IC0JCQkgKDFVTEwgPDwgVkhPU1RfTkVUX0ZfVklSVElPX05FVF9I
+RFIpIHwKPiA+ID4gICAJCQkgKDFVTEwgPDwgVklSVElPX05FVF9GX01SR19SWEJVRikgfAo+ID4g
+PiAgIAkJCSAoMVVMTCA8PCBWSVJUSU9fRl9JT01NVV9QTEFURk9STSkKPiA+ID4gICB9Owo+ID4g
+PiBAQCAtMTI1NSwxNSArMTI1NCwxMSBAQCBzdGF0aWMgaW50IHZob3N0X25ldF9zZXRfZmVhdHVy
+ZXMoc3RydWN0IHZob3N0X25ldCAqbiwgdTY0IGZlYXR1cmVzKQo+ID4gPiAgIAkJCSAgICAgICAo
+MVVMTCA8PCBWSVJUSU9fRl9WRVJTSU9OXzEpKSkgPwo+ID4gPiAgIAkJCXNpemVvZihzdHJ1Y3Qg
+dmlydGlvX25ldF9oZHJfbXJnX3J4YnVmKSA6Cj4gPiA+ICAgCQkJc2l6ZW9mKHN0cnVjdCB2aXJ0
+aW9fbmV0X2hkcik7Cj4gPiA+IC0JaWYgKGZlYXR1cmVzICYgKDEgPDwgVkhPU1RfTkVUX0ZfVklS
+VElPX05FVF9IRFIpKSB7Cj4gPiA+IC0JCS8qIHZob3N0IHByb3ZpZGVzIHZuZXRfaGRyICovCj4g
+PiA+IC0JCXZob3N0X2hsZW4gPSBoZHJfbGVuOwo+ID4gPiAtCQlzb2NrX2hsZW4gPSAwOwo+ID4g
+PiAtCX0gZWxzZSB7Cj4gPiA+IC0JCS8qIHNvY2tldCBwcm92aWRlcyB2bmV0X2hkciAqLwo+ID4g
+PiAtCQl2aG9zdF9obGVuID0gMDsKPiA+ID4gLQkJc29ja19obGVuID0gaGRyX2xlbjsKPiA+ID4g
+LQl9Cj4gPiA+ICsKPiA+ID4gKyAgICAgICAgLyogc29ja2V0IHByb3ZpZGVzIHZuZXRfaGRyICov
+Cj4gPiA+ICsJdmhvc3RfaGxlbiA9IDA7Cj4gPiA+ICsJc29ja19obGVuID0gaGRyX2xlbjsKPiA+
+ID4gKwo+ID4gPiAgIAltdXRleF9sb2NrKCZuLT5kZXYubXV0ZXgpOwo+ID4gPiAgIAlpZiAoKGZl
+YXR1cmVzICYgKDEgPDwgVkhPU1RfRl9MT0dfQUxMKSkgJiYKPiA+ID4gICAJICAgICF2aG9zdF9s
+b2dfYWNjZXNzX29rKCZuLT5kZXYpKQo+ID4gPiAtLSAKPiA+ID4gMi43LjQKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
