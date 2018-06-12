@@ -1,16 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY feature
-	bit to virtio_net
-Date: Tue, 12 Jun 2018 09:54:44 +0800
-Message-ID: <dc8b1669-b8b6-fb59-94e2-6e4de6b96572__49935.3641797372$1528768373$gmane$org@redhat.com>
-References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
-	<20180611202207-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PULL] vhost: cleanups and fixes
+Date: Tue, 12 Jun 2018 04:57:51 +0300
+Message-ID: <20180612043723-mutt-send-email-mst@kernel.org>
+References: <20180611192353-mutt-send-email-mst@kernel.org>
+	<CA+55aFzrPgnd7hRPrkeV+jX-MSwOZf7T4wKxz66Lk4oub3PZsw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180611202207-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CA+55aFzrPgnd7hRPrkeV+jX-MSwOZf7T4wKxz66Lk4oub3PZsw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,54 +19,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Sridhar Samudrala <sridhar.samudrala@intel.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, aaron.f.brown@intel.com, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, qemu-devel@nongnu.org, loseweigh@gmail.com, virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: nilal@redhat.com, KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDbmnIgxMuaXpSAwMToyNiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIE1vbiwgTWF5IDA3LCAyMDE4IGF0IDA0OjA5OjU0UE0gLTA3MDAsIFNyaWRoYXIgU2FtdWRy
-YWxhIHdyb3RlOgo+PiBUaGlzIGZlYXR1cmUgYml0IGNhbiBiZSB1c2VkIGJ5IGh5cGVydmlzb3Ig
-dG8gaW5kaWNhdGUgdmlydGlvX25ldCBkZXZpY2UgdG8KPj4gYWN0IGFzIGEgc3RhbmRieSBmb3Ig
-YW5vdGhlciBkZXZpY2Ugd2l0aCB0aGUgc2FtZSBNQUMgYWRkcmVzcy4KPj4KPj4gSSB0ZXN0ZWQg
-dGhpcyB3aXRoIGEgc21hbGwgY2hhbmdlIHRvIHRoZSBwYXRjaCB0byBtYXJrIHRoZSBTVEFOREJZ
-IGZlYXR1cmUgJ3RydWUnCj4+IGJ5IGRlZmF1bHQgYXMgaSBhbSB1c2luZyBsaWJ2aXJ0IHRvIHN0
-YXJ0IHRoZSBWTXMuCj4+IElzIHRoZXJlIGEgd2F5IHRvIHBhc3MgdGhlIG5ld2x5IGFkZGVkIGZl
-YXR1cmUgYml0ICdzdGFuZGJ5JyB0byBxZW11IHZpYSBsaWJ2aXJ0Cj4+IFhNTCBmaWxlPwo+Pgo+
-PiBTaWduZWQtb2ZmLWJ5OiBTcmlkaGFyIFNhbXVkcmFsYSA8c3JpZGhhci5zYW11ZHJhbGFAaW50
-ZWwuY29tPgo+IFNvIEkgZG8gbm90IHRoaW5rIHdlIGNhbiBjb21taXQgdG8gdGhpcyBpbnRlcmZh
-Y2U6IHdlCj4gcmVhbGx5IG5lZWQgdG8gY29udHJvbCB2aXNpYmlsaXR5IG9mIHRoZSBwcmltYXJ5
-IGRldmljZS4KClRoZSBwcm9ibGVtIGlzIGxlZ2FjeSBndWVzdCB3b24ndCB1c2UgcHJpbWFyeSBk
-ZXZpY2UgYXQgYWxsIGlmIHdlIGRvIHRoaXMuCgpIb3cgYWJvdXQgY29udHJvbCB0aGUgdmlzaWJp
-bGl0eSBvZiBzdGFuZGJ5IGRldmljZT8KClRoYW5rcwoKPiBIb3dldmVyIGp1c3QgZm9yIHRlc3Rp
-bmcgcHVycG9zZXMsIHdlIGNvdWxkIGFkZCBhIG5vbi1zdGFibGUKPiBpbnRlcmZhY2UgIngtc3Rh
-bmRieSIgd2l0aCB0aGUgdW5kZXJzdGFuZGluZyB0aGF0IGFzIGFueQo+IHgtIHByZWZpeCBpdCdz
-IHVuc3RhYmxlIGFuZCB3aWxsIGJlIGNoYW5nZWQgZG93biB0aGUgcm9hZCwKPiBsaWtlbHkgaW4g
-dGhlIG5leHQgcmVsZWFzZS4KPgo+Cj4+IC0tLQo+PiAgIGh3L25ldC92aXJ0aW8tbmV0LmMgICAg
-ICAgICAgICAgICAgICAgICAgICAgfCAyICsrCj4+ICAgaW5jbHVkZS9zdGFuZGFyZC1oZWFkZXJz
-L2xpbnV4L3ZpcnRpb19uZXQuaCB8IDMgKysrCj4+ICAgMiBmaWxlcyBjaGFuZ2VkLCA1IGluc2Vy
-dGlvbnMoKykKPj4KPj4gZGlmZiAtLWdpdCBhL2h3L25ldC92aXJ0aW8tbmV0LmMgYi9ody9uZXQv
-dmlydGlvLW5ldC5jCj4+IGluZGV4IDkwNTAyZmNhN2MuLjM4YjMxNDA2NzAgMTAwNjQ0Cj4+IC0t
-LSBhL2h3L25ldC92aXJ0aW8tbmV0LmMKPj4gKysrIGIvaHcvbmV0L3ZpcnRpby1uZXQuYwo+PiBA
-QCAtMjE5OCw2ICsyMTk4LDggQEAgc3RhdGljIFByb3BlcnR5IHZpcnRpb19uZXRfcHJvcGVydGll
-c1tdID0gewo+PiAgICAgICAgICAgICAgICAgICAgICAgIHRydWUpLAo+PiAgICAgICBERUZJTkVf
-UFJPUF9JTlQzMigic3BlZWQiLCBWaXJ0SU9OZXQsIG5ldF9jb25mLnNwZWVkLCBTUEVFRF9VTktO
-T1dOKSwKPj4gICAgICAgREVGSU5FX1BST1BfU1RSSU5HKCJkdXBsZXgiLCBWaXJ0SU9OZXQsIG5l
-dF9jb25mLmR1cGxleF9zdHIpLAo+PiArICAgIERFRklORV9QUk9QX0JJVDY0KCJzdGFuZGJ5Iiwg
-VmlydElPTmV0LCBob3N0X2ZlYXR1cmVzLCBWSVJUSU9fTkVUX0ZfU1RBTkRCWSwKPj4gKyAgICAg
-ICAgICAgICAgICAgICAgICBmYWxzZSksCj4+ICAgICAgIERFRklORV9QUk9QX0VORF9PRl9MSVNU
-KCksCj4+ICAgfTsKPj4gICAKPj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvc3RhbmRhcmQtaGVhZGVy
-cy9saW51eC92aXJ0aW9fbmV0LmggYi9pbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgvdmly
-dGlvX25ldC5oCj4+IGluZGV4IGU5ZjI1NWVhM2YuLjAxZWMwOTY4NGMgMTAwNjQ0Cj4+IC0tLSBh
-L2luY2x1ZGUvc3RhbmRhcmQtaGVhZGVycy9saW51eC92aXJ0aW9fbmV0LmgKPj4gKysrIGIvaW5j
-bHVkZS9zdGFuZGFyZC1oZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaAo+PiBAQCAtNTcsNiArNTcs
-OSBAQAo+PiAgIAkJCQkJICogU3RlZXJpbmcgKi8KPj4gICAjZGVmaW5lIFZJUlRJT19ORVRfRl9D
-VFJMX01BQ19BRERSIDIzCS8qIFNldCBNQUMgYWRkcmVzcyAqLwo+PiAgIAo+PiArI2RlZmluZSBW
-SVJUSU9fTkVUX0ZfU1RBTkRCWSAgICAgIDYyICAgIC8qIEFjdCBhcyBzdGFuZGJ5IGZvciBhbm90
-aGVyIGRldmljZQo+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAq
-IHdpdGggdGhlIHNhbWUgTUFDLgo+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAqLwo+PiAgICNkZWZpbmUgVklSVElPX05FVF9GX1NQRUVEX0RVUExFWCA2MwkvKiBE
-ZXZpY2Ugc2V0IGxpbmtzcGVlZCBhbmQgZHVwbGV4ICovCj4+ICAgCj4+ICAgI2lmbmRlZiBWSVJU
-SU9fTkVUX05PX0xFR0FDWQo+PiAtLSAKPj4gMi4xNC4zCgpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
-eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, Jun 11, 2018 at 11:32:41AM -0700, Linus Torvalds wrote:
+> On Mon, Jun 11, 2018 at 9:24 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> >       virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+> 
+> Is this really a good idea?
+
+Well knowing which pages are unused does seem to be useful.  Do you
+refer to this generally or to the idea of scanning the free list,
+or to the specific implementation issues you listed below?
+
+
+> Plus it seems entirely broken.
+> 
+> The report_pfn_range() callback is done under the zone lock, but
+> virtio_balloon_send_free_pages() (which is the only callback used that
+> I can find) does add_one_sg(), which does virtqueue_add_inbuf(vq, &sg,
+> 1, vq, GFP_KERNEL);
+> 
+> So now we apparently do a GFP_KERNEL allocation insider the mm zone
+> lock, which is broken on just _so_ many levels.
+> 
+> Pulled and then unpulled again.
+> 
+> Either somebody needs to explain why I'm wrong and you can re-submit
+> this, or this kind of garbage needs to go away.
+> 
+> I do *not* want to be in the situation where I pull stuff from the
+> virtio people that adds completely broken core VM functionality.
+> 
+> Because if I'm in that situation, I will stop pulling from you guys.
+> Seriously. You have *no* place sending me broken shit that is outside
+> the virtio layer.
+> 
+> Subsystems that break code MM will get shunned. You just aren't
+> important enough to allow you breaking code VM.
+> 
+>                 Linus
+
+So no, it doesn't do any allocations - GFP_KERNEL or otherwise, but I
+agree how it might be confusing.
+
+So I'll drop this for now, but it would be nice if there is a bit more
+direction on this feature since I know several people are trying to work
+on this.
+
+
+-- 
+MST
