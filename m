@@ -1,17 +1,19 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PULL] vhost: cleanups and fixes
-Date: Tue, 12 Jun 2018 19:05:19 +0800
-Message-ID: <5B1FA8EF.4030409@intel.com>
-References: <20180611192353-mutt-send-email-mst@kernel.org>
-	<CA+55aFzrPgnd7hRPrkeV+jX-MSwOZf7T4wKxz66Lk4oub3PZsw@mail.gmail.com>
-	<CA+55aFz4uBHaWnBarVUEG90s2ucyVtoLmwYpYVwDV+XQESNRqw@mail.gmail.com>
-	<20180612042600-mutt-send-email-mst@kernel.org>
-	<CA+55aFyNhEzzufw0XP9DcqZNS1CH+jDGdN4CVnazb3ssFxFbzQ@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY
+	feature bit to virtio_net
+Date: Tue, 12 Jun 2018 14:34:56 +0300
+Message-ID: <20180612142557-mutt-send-email-mst@kernel.org>
+References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
+	<20180611202207-mutt-send-email-mst@kernel.org>
+	<dc8b1669-b8b6-fb59-94e2-6e4de6b96572@redhat.com>
+	<20180612051432-mutt-send-email-mst@kernel.org>
+	<23fc4aa4-ec41-d6e2-3354-10cbfc13b7ec@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CA+55aFyNhEzzufw0XP9DcqZNS1CH+jDGdN4CVnazb3ssFxFbzQ@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <23fc4aa4-ec41-d6e2-3354-10cbfc13b7ec@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,72 +23,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, aaron.f.brown@intel.com, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, qemu-devel@nongnu.org, loseweigh@gmail.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/12/2018 09:59 AM, Linus Torvalds wrote:
-> On Mon, Jun 11, 2018 at 6:36 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->> Maybe it will help to have GFP_NONE which will make any allocation
->> fail if attempted. Linus, would this address your comment?
-> It would definitely have helped me initially overlook that call chain.
->
-> But then when I started looking at the whole dma_map_page() thing, it
-> just raised my hackles again.
->
-> I would seriously suggest having a much simpler version for the "no
-> allocation, no dma mapping" case, so that it's *obvious* that that
-> never happens.
->
-> So instead of having virtio_balloon_send_free_pages() call a really
-> generic complex chain of functions that in _some_ cases can do memory
-> allocation, why isn't there a short-circuited "vitruque_add_datum()"
-> that is guaranteed to never do anything like that?
->
-> Honestly, I look at "add_one_sg()" and it really doesn't make me
-> happy. It looks hacky as hell. If I read the code right, you're really
-> trying to just queue up a simple tuple of <pfn,len>, except you encode
-> it as a page pointer in order to play games with the SG logic, and
-> then you hmap that to the ring, except in this case it's all a fake
-> ring that just adds the cpu-physical address instead.
->
-> And to figuer that out, it's like five layers of indirection through
-> different helper functions that *can* do more generic things but in
-> this case don't.
->
-> And you do all of this from a core VM callback function with some
-> _really_ core VM locks held.
->
-> That makes no sense to me.
->
-> How about this:
->
->   - get rid of all that code
->
->   - make the core VM callback save the "these are the free memory
-> regions" in a fixed and limited array. One that DOES JUST THAT. No
-> crazy "SG IO dma-mapping function crap". Just a plain array of a fixed
-> size, pre-allocated for that virtio instance.
->
->   - make it obvious that what you do in that sequence is ten
-> instructions and no allocations ("Look ma, I wrote a value to an array
-> and incremented the array idex, and I'M DONE")
->
->   - then in that workqueue entry that you start *anyway*, you empty the
-> array and do all the crazy virtio stuff.
->
-> In fact, while at it, just simplify the VM interface too. Instead of
-> traversing a random number of buddy lists, just trraverse *one* - the
-> top-level one. Are you seriously ever going to shrink or mark
-> read-only anythin *but* something big enough to be in the maximum
-> order?
->
-> MAX_ORDER is what, 11? So we're talking 8MB blocks. Do you *really*
-> want the balloon code to work on smaller things, particularly since
-> the whole interface is fundamentally racy and opportunistic to begin
-> with?
-
-OK, I will implement a new version based on the suggestions. Thanks.
-
-Best,
-Wei
+T24gTW9uLCBKdW4gMTEsIDIwMTggYXQgMTA6MDI6NDVQTSAtMDcwMCwgU2FtdWRyYWxhLCBTcmlk
+aGFyIHdyb3RlOgo+IE9uIDYvMTEvMjAxOCA3OjE3IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3Jv
+dGU6Cj4gPiBPbiBUdWUsIEp1biAxMiwgMjAxOCBhdCAwOTo1NDo0NEFNICswODAwLCBKYXNvbiBX
+YW5nIHdyb3RlOgo+ID4gPiAKPiA+ID4gT24gMjAxOOW5tDA25pyIMTLml6UgMDE6MjYsIE1pY2hh
+ZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+ID4gPiBPbiBNb24sIE1heSAwNywgMjAxOCBhdCAwNDow
+OTo1NFBNIC0wNzAwLCBTcmlkaGFyIFNhbXVkcmFsYSB3cm90ZToKPiA+ID4gPiA+IFRoaXMgZmVh
+dHVyZSBiaXQgY2FuIGJlIHVzZWQgYnkgaHlwZXJ2aXNvciB0byBpbmRpY2F0ZSB2aXJ0aW9fbmV0
+IGRldmljZSB0bwo+ID4gPiA+ID4gYWN0IGFzIGEgc3RhbmRieSBmb3IgYW5vdGhlciBkZXZpY2Ug
+d2l0aCB0aGUgc2FtZSBNQUMgYWRkcmVzcy4KPiA+ID4gPiA+IAo+ID4gPiA+ID4gSSB0ZXN0ZWQg
+dGhpcyB3aXRoIGEgc21hbGwgY2hhbmdlIHRvIHRoZSBwYXRjaCB0byBtYXJrIHRoZSBTVEFOREJZ
+IGZlYXR1cmUgJ3RydWUnCj4gPiA+ID4gPiBieSBkZWZhdWx0IGFzIGkgYW0gdXNpbmcgbGlidmly
+dCB0byBzdGFydCB0aGUgVk1zLgo+ID4gPiA+ID4gSXMgdGhlcmUgYSB3YXkgdG8gcGFzcyB0aGUg
+bmV3bHkgYWRkZWQgZmVhdHVyZSBiaXQgJ3N0YW5kYnknIHRvIHFlbXUgdmlhIGxpYnZpcnQKPiA+
+ID4gPiA+IFhNTCBmaWxlPwo+ID4gPiA+ID4gCj4gPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBTcmlk
+aGFyIFNhbXVkcmFsYSA8c3JpZGhhci5zYW11ZHJhbGFAaW50ZWwuY29tPgo+ID4gPiA+IFNvIEkg
+ZG8gbm90IHRoaW5rIHdlIGNhbiBjb21taXQgdG8gdGhpcyBpbnRlcmZhY2U6IHdlCj4gPiA+ID4g
+cmVhbGx5IG5lZWQgdG8gY29udHJvbCB2aXNpYmlsaXR5IG9mIHRoZSBwcmltYXJ5IGRldmljZS4K
+PiA+ID4gVGhlIHByb2JsZW0gaXMgbGVnYWN5IGd1ZXN0IHdvbid0IHVzZSBwcmltYXJ5IGRldmlj
+ZSBhdCBhbGwgaWYgd2UgZG8gdGhpcy4KPiA+IEFuZCB0aGF0J3MgYnkgZGVzaWduIC0gSSB0aGlu
+ayBpdCdzIHRoZSBvbmx5IHdheSB0byBlbnN1cmUgdGhlCj4gPiBsZWdhY3kgZ3Vlc3QgaXNuJ3Qg
+Y29uZnVzZWQuCj4gCj4gWWVzLiBJIHRoaW5rIHNvLiBCdXQgaSBhbSBub3Qgc3VyZSBpZiBRZW11
+IGlzIHRoZSByaWdodCBwbGFjZSB0byBjb250cm9sIHRoZSB2aXNpYmlsaXR5Cj4gb2YgdGhlIHBy
+aW1hcnkgZGV2aWNlLiBUaGUgcHJpbWFyeSBkZXZpY2UgbWF5IG5vdCBiZSBzcGVjaWZpZWQgYXMg
+YW4gYXJndW1lbnQgdG8gUWVtdS4gSXQKPiBtYXkgYmUgcGx1Z2dlZCBpbiBsYXRlci4KPiBUaGUg
+Y2xvdWQgc2VydmljZSBwcm92aWRlciBpcyBwcm92aWRpbmcgYSBmZWF0dXJlIHRoYXQgZW5hYmxl
+cyBsb3cgbGF0ZW5jeSBkYXRhcGF0aCBhbmQgbGl2ZQo+IG1pZ3JhdGlvbiBjYXBhYmlsaXR5Lgo+
+IEEgdGVuYW50IGNhbiB1c2UgdGhpcyBmZWF0dXJlIG9ubHkgaWYgaGUgaXMgcnVubmluZyBhIFZN
+IHRoYXQgaGFzIHZpcnRpby1uZXQgd2l0aCBmYWlsb3ZlciBzdXBwb3J0LgoKV2VsbCBsaXZlIG1p
+Z3JhdGlvbiBpcyB0aGVyZSBhbHJlYWR5LiBUaGUgbmV3IGZlYXR1cmUgaXMgbG93IGxhdGVuY3kK
+ZGF0YSBwYXRoLgoKQW5kIGl0J3MgdGhlIGd1ZXN0IHRoYXQgbmVlZHMgZmFpbG92ZXIgc3VwcG9y
+dCBub3QgdGhlIFZNLgoKCj4gSSB0aGluayBRZW11IHNob3VsZCBjaGVjayBpZiBndWVzdCB2aXJ0
+aW8tbmV0IHN1cHBvcnRzIHRoaXMgZmVhdHVyZSBhbmQgcHJvdmlkZSBhIG1lY2hhbmlzbSBmb3IK
+PiBhbiB1cHBlciBsYXllciBpbmRpY2F0aW5nIGlmIHRoZSBTVEFOREJZIGZlYXR1cmUgaXMgc3Vj
+Y2Vzc2Z1bGx5IG5lZ290aWF0ZWQgb3Igbm90Lgo+IFRoZSB1cHBlciBsYXllciBjYW4gdGhlbiBk
+ZWNpZGUgaWYgaXQgc2hvdWxkIGhvdCBwbHVnIGEgVkYgd2l0aCB0aGUgc2FtZSBNQUMgYW5kIG1h
+bmFnZSB0aGUgMiBsaW5rcy4KPiBJZiBWRiBpcyBzdWNjZXNzZnVsbHkgaG90IHBsdWdnZWQsIHZp
+cnRpby1uZXQgbGluayBzaG91bGQgYmUgZGlzYWJsZWQuCgpEaWQgeW91IGV2ZW4gdGFsayB0byB1
+cHBlciBsYXllciBtYW5hZ2VtZW50IGFib3V0IGl0PwpKdXN0IGxpc3QgdGhlIHN0ZXBzIHRoZXkg
+bmVlZCB0byBkbyBhbmQgeW91IHdpbGwgc2VlCnRoYXQncyBhIGxvdCBvZiBtYWNoaW5lcnkgdG8g
+bWFuYWdlIGJ5IHRoZSB1cHBlciBsYXllci4KCldoYXQgZG8gd2UgZ2FpbiBpbiBmbGV4aWJpbGl0
+eT8gQXMgZmFyIGFzIEkgY2FuIHNlZSB0aGUKb25seSBnYWluIGlzIHNvbWUgcmVzb3VyY2VzIHNh
+dmVkIGZvciBsZWdhY3kgVk1zLgoKVGhhdCdzIG5vdCBhIGxvdCBhcyB0ZW5hbnQgb2YgdGhlIHVw
+cGVyIGxheWVyIHByb2JhYmx5IGFscmVhZHkgaGFzCmF0IGxlYXN0IGEgaHVuY2ggdGhhdCBpdCdz
+IGEgbmV3IGd1ZXN0IG90aGVyd2lzZQp3aHkgYm90aGVyIHNwZWNpZnlpbmcgdGhlIGZlYXR1cmUg
+YXQgYWxsIC0geW91CnNhdmUgZXZlbiBtb3JlIHJlc291cmNlcyB3aXRob3V0IGl0LgoKCgoKPiAK
+PiA+IAo+ID4gPiBIb3cgYWJvdXQgY29udHJvbCB0aGUgdmlzaWJpbGl0eSBvZiBzdGFuZGJ5IGRl
+dmljZT8KPiA+ID4gCj4gPiA+IFRoYW5rcwo+ID4gc3RhbmR5IHRoZSBhbHdheXMgdGhlcmUgdG8g
+Z3VhcmFudGVlIG5vIGRvd250aW1lLgo+ID4gCj4gPiA+ID4gSG93ZXZlciBqdXN0IGZvciB0ZXN0
+aW5nIHB1cnBvc2VzLCB3ZSBjb3VsZCBhZGQgYSBub24tc3RhYmxlCj4gPiA+ID4gaW50ZXJmYWNl
+ICJ4LXN0YW5kYnkiIHdpdGggdGhlIHVuZGVyc3RhbmRpbmcgdGhhdCBhcyBhbnkKPiA+ID4gPiB4
+LSBwcmVmaXggaXQncyB1bnN0YWJsZSBhbmQgd2lsbCBiZSBjaGFuZ2VkIGRvd24gdGhlIHJvYWQs
+Cj4gPiA+ID4gbGlrZWx5IGluIHRoZSBuZXh0IHJlbGVhc2UuCj4gPiA+ID4gCj4gPiA+ID4gCj4g
+PiA+ID4gPiAtLS0KPiA+ID4gPiA+ICAgIGh3L25ldC92aXJ0aW8tbmV0LmMgICAgICAgICAgICAg
+ICAgICAgICAgICAgfCAyICsrCj4gPiA+ID4gPiAgICBpbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMv
+bGludXgvdmlydGlvX25ldC5oIHwgMyArKysKPiA+ID4gPiA+ICAgIDIgZmlsZXMgY2hhbmdlZCwg
+NSBpbnNlcnRpb25zKCspCj4gPiA+ID4gPiAKPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9ody9uZXQv
+dmlydGlvLW5ldC5jIGIvaHcvbmV0L3ZpcnRpby1uZXQuYwo+ID4gPiA+ID4gaW5kZXggOTA1MDJm
+Y2E3Yy4uMzhiMzE0MDY3MCAxMDA2NDQKPiA+ID4gPiA+IC0tLSBhL2h3L25ldC92aXJ0aW8tbmV0
+LmMKPiA+ID4gPiA+ICsrKyBiL2h3L25ldC92aXJ0aW8tbmV0LmMKPiA+ID4gPiA+IEBAIC0yMTk4
+LDYgKzIxOTgsOCBAQCBzdGF0aWMgUHJvcGVydHkgdmlydGlvX25ldF9wcm9wZXJ0aWVzW10gPSB7
+Cj4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICB0cnVlKSwKPiA+ID4gPiA+ICAgICAg
+ICBERUZJTkVfUFJPUF9JTlQzMigic3BlZWQiLCBWaXJ0SU9OZXQsIG5ldF9jb25mLnNwZWVkLCBT
+UEVFRF9VTktOT1dOKSwKPiA+ID4gPiA+ICAgICAgICBERUZJTkVfUFJPUF9TVFJJTkcoImR1cGxl
+eCIsIFZpcnRJT05ldCwgbmV0X2NvbmYuZHVwbGV4X3N0ciksCj4gPiA+ID4gPiArICAgIERFRklO
+RV9QUk9QX0JJVDY0KCJzdGFuZGJ5IiwgVmlydElPTmV0LCBob3N0X2ZlYXR1cmVzLCBWSVJUSU9f
+TkVUX0ZfU1RBTkRCWSwKPiA+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgZmFsc2UpLAo+
+ID4gPiA+ID4gICAgICAgIERFRklORV9QUk9QX0VORF9PRl9MSVNUKCksCj4gPiA+ID4gPiAgICB9
+Owo+ID4gPiA+ID4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvc3RhbmRhcmQtaGVhZGVycy9saW51eC92
+aXJ0aW9fbmV0LmggYi9pbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgvdmlydGlvX25ldC5o
+Cj4gPiA+ID4gPiBpbmRleCBlOWYyNTVlYTNmLi4wMWVjMDk2ODRjIDEwMDY0NAo+ID4gPiA+ID4g
+LS0tIGEvaW5jbHVkZS9zdGFuZGFyZC1oZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaAo+ID4gPiA+
+ID4gKysrIGIvaW5jbHVkZS9zdGFuZGFyZC1oZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaAo+ID4g
+PiA+ID4gQEAgLTU3LDYgKzU3LDkgQEAKPiA+ID4gPiA+ICAgIAkJCQkJICogU3RlZXJpbmcgKi8K
+PiA+ID4gPiA+ICAgICNkZWZpbmUgVklSVElPX05FVF9GX0NUUkxfTUFDX0FERFIgMjMJLyogU2V0
+IE1BQyBhZGRyZXNzICovCj4gPiA+ID4gPiArI2RlZmluZSBWSVJUSU9fTkVUX0ZfU1RBTkRCWSAg
+ICAgIDYyICAgIC8qIEFjdCBhcyBzdGFuZGJ5IGZvciBhbm90aGVyIGRldmljZQo+ID4gPiA+ID4g
+KyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKiB3aXRoIHRoZSBzYW1l
+IE1BQy4KPiA+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICovCj4gPiA+ID4gPiAgICAjZGVmaW5lIFZJUlRJT19ORVRfRl9TUEVFRF9EVVBMRVggNjMJLyog
+RGV2aWNlIHNldCBsaW5rc3BlZWQgYW5kIGR1cGxleCAqLwo+ID4gPiA+ID4gICAgI2lmbmRlZiBW
+SVJUSU9fTkVUX05PX0xFR0FDWQo+ID4gPiA+ID4gLS0gCj4gPiA+ID4gPiAyLjE0LjMKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
+bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
+dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
