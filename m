@@ -1,17 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY
-	feature bit to virtio_net
-Date: Tue, 12 Jun 2018 05:17:26 +0300
-Message-ID: <20180612051432-mutt-send-email-mst__19497.9773521938$1528769754$gmane$org@kernel.org>
-References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
-	<20180611202207-mutt-send-email-mst@kernel.org>
-	<dc8b1669-b8b6-fb59-94e2-6e4de6b96572@redhat.com>
+From: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH 1/2] Convert target drivers to use sbitmap
+Date: Mon, 11 Jun 2018 20:06:48 -0700
+Message-ID: <20180612030648.GA14222@bombadil.infradead.org>
+References: <20180515160043.27044-1-willy@infradead.org>
+	<20180515160043.27044-2-willy@infradead.org>
+	<3a56027b-47bc-dcb8-a465-3670031572f1@kernel.dk>
+	<02326395-3241-c94b-ad70-3de27a6f5a8c@kernel.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <dc8b1669-b8b6-fb59-94e2-6e4de6b96572@redhat.com>
+In-Reply-To: <02326395-3241-c94b-ad70-3de27a6f5a8c@kernel.dk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,60 +21,11 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, aaron.f.brown@intel.com, jiri@resnulli.us, kubakici@wp.pl, Sridhar Samudrala <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, loseweigh@gmail.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Juergen Gross <jgross@suse.com>, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, Matthew Wilcox <mawilcox@microsoft.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, qla2xxx-upstream@qlogic.com, linux1394-devel@lists.sourceforge.net, Kent Overstreet <kent.overstreet@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBKdW4gMTIsIDIwMTggYXQgMDk6NTQ6NDRBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDbmnIgxMuaXpSAwMToyNiwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gT24gTW9uLCBNYXkgMDcsIDIwMTggYXQgMDQ6MDk6NTRQTSAtMDcwMCwgU3Jp
-ZGhhciBTYW11ZHJhbGEgd3JvdGU6Cj4gPiA+IFRoaXMgZmVhdHVyZSBiaXQgY2FuIGJlIHVzZWQg
-YnkgaHlwZXJ2aXNvciB0byBpbmRpY2F0ZSB2aXJ0aW9fbmV0IGRldmljZSB0bwo+ID4gPiBhY3Qg
-YXMgYSBzdGFuZGJ5IGZvciBhbm90aGVyIGRldmljZSB3aXRoIHRoZSBzYW1lIE1BQyBhZGRyZXNz
-Lgo+ID4gPiAKPiA+ID4gSSB0ZXN0ZWQgdGhpcyB3aXRoIGEgc21hbGwgY2hhbmdlIHRvIHRoZSBw
-YXRjaCB0byBtYXJrIHRoZSBTVEFOREJZIGZlYXR1cmUgJ3RydWUnCj4gPiA+IGJ5IGRlZmF1bHQg
-YXMgaSBhbSB1c2luZyBsaWJ2aXJ0IHRvIHN0YXJ0IHRoZSBWTXMuCj4gPiA+IElzIHRoZXJlIGEg
-d2F5IHRvIHBhc3MgdGhlIG5ld2x5IGFkZGVkIGZlYXR1cmUgYml0ICdzdGFuZGJ5JyB0byBxZW11
-IHZpYSBsaWJ2aXJ0Cj4gPiA+IFhNTCBmaWxlPwo+ID4gPiAKPiA+ID4gU2lnbmVkLW9mZi1ieTog
-U3JpZGhhciBTYW11ZHJhbGEgPHNyaWRoYXIuc2FtdWRyYWxhQGludGVsLmNvbT4KPiA+IFNvIEkg
-ZG8gbm90IHRoaW5rIHdlIGNhbiBjb21taXQgdG8gdGhpcyBpbnRlcmZhY2U6IHdlCj4gPiByZWFs
-bHkgbmVlZCB0byBjb250cm9sIHZpc2liaWxpdHkgb2YgdGhlIHByaW1hcnkgZGV2aWNlLgo+IAo+
-IFRoZSBwcm9ibGVtIGlzIGxlZ2FjeSBndWVzdCB3b24ndCB1c2UgcHJpbWFyeSBkZXZpY2UgYXQg
-YWxsIGlmIHdlIGRvIHRoaXMuCgpBbmQgdGhhdCdzIGJ5IGRlc2lnbiAtIEkgdGhpbmsgaXQncyB0
-aGUgb25seSB3YXkgdG8gZW5zdXJlIHRoZQpsZWdhY3kgZ3Vlc3QgaXNuJ3QgY29uZnVzZWQuCgo+
-IEhvdyBhYm91dCBjb250cm9sIHRoZSB2aXNpYmlsaXR5IG9mIHN0YW5kYnkgZGV2aWNlPwo+IAo+
-IFRoYW5rcwoKc3RhbmR5IHRoZSBhbHdheXMgdGhlcmUgdG8gZ3VhcmFudGVlIG5vIGRvd250aW1l
-LgoKPiA+IEhvd2V2ZXIganVzdCBmb3IgdGVzdGluZyBwdXJwb3Nlcywgd2UgY291bGQgYWRkIGEg
-bm9uLXN0YWJsZQo+ID4gaW50ZXJmYWNlICJ4LXN0YW5kYnkiIHdpdGggdGhlIHVuZGVyc3RhbmRp
-bmcgdGhhdCBhcyBhbnkKPiA+IHgtIHByZWZpeCBpdCdzIHVuc3RhYmxlIGFuZCB3aWxsIGJlIGNo
-YW5nZWQgZG93biB0aGUgcm9hZCwKPiA+IGxpa2VseSBpbiB0aGUgbmV4dCByZWxlYXNlLgo+ID4g
-Cj4gPiAKPiA+ID4gLS0tCj4gPiA+ICAgaHcvbmV0L3ZpcnRpby1uZXQuYyAgICAgICAgICAgICAg
-ICAgICAgICAgICB8IDIgKysKPiA+ID4gICBpbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgv
-dmlydGlvX25ldC5oIHwgMyArKysKPiA+ID4gICAyIGZpbGVzIGNoYW5nZWQsIDUgaW5zZXJ0aW9u
-cygrKQo+ID4gPiAKPiA+ID4gZGlmZiAtLWdpdCBhL2h3L25ldC92aXJ0aW8tbmV0LmMgYi9ody9u
-ZXQvdmlydGlvLW5ldC5jCj4gPiA+IGluZGV4IDkwNTAyZmNhN2MuLjM4YjMxNDA2NzAgMTAwNjQ0
-Cj4gPiA+IC0tLSBhL2h3L25ldC92aXJ0aW8tbmV0LmMKPiA+ID4gKysrIGIvaHcvbmV0L3ZpcnRp
-by1uZXQuYwo+ID4gPiBAQCAtMjE5OCw2ICsyMTk4LDggQEAgc3RhdGljIFByb3BlcnR5IHZpcnRp
-b19uZXRfcHJvcGVydGllc1tdID0gewo+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgIHRydWUp
-LAo+ID4gPiAgICAgICBERUZJTkVfUFJPUF9JTlQzMigic3BlZWQiLCBWaXJ0SU9OZXQsIG5ldF9j
-b25mLnNwZWVkLCBTUEVFRF9VTktOT1dOKSwKPiA+ID4gICAgICAgREVGSU5FX1BST1BfU1RSSU5H
-KCJkdXBsZXgiLCBWaXJ0SU9OZXQsIG5ldF9jb25mLmR1cGxleF9zdHIpLAo+ID4gPiArICAgIERF
-RklORV9QUk9QX0JJVDY0KCJzdGFuZGJ5IiwgVmlydElPTmV0LCBob3N0X2ZlYXR1cmVzLCBWSVJU
-SU9fTkVUX0ZfU1RBTkRCWSwKPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICBmYWxzZSksCj4g
-PiA+ICAgICAgIERFRklORV9QUk9QX0VORF9PRl9MSVNUKCksCj4gPiA+ICAgfTsKPiA+ID4gZGlm
-ZiAtLWdpdCBhL2luY2x1ZGUvc3RhbmRhcmQtaGVhZGVycy9saW51eC92aXJ0aW9fbmV0LmggYi9p
-bmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgvdmlydGlvX25ldC5oCj4gPiA+IGluZGV4IGU5
-ZjI1NWVhM2YuLjAxZWMwOTY4NGMgMTAwNjQ0Cj4gPiA+IC0tLSBhL2luY2x1ZGUvc3RhbmRhcmQt
-aGVhZGVycy9saW51eC92aXJ0aW9fbmV0LmgKPiA+ID4gKysrIGIvaW5jbHVkZS9zdGFuZGFyZC1o
-ZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaAo+ID4gPiBAQCAtNTcsNiArNTcsOSBAQAo+ID4gPiAg
-IAkJCQkJICogU3RlZXJpbmcgKi8KPiA+ID4gICAjZGVmaW5lIFZJUlRJT19ORVRfRl9DVFJMX01B
-Q19BRERSIDIzCS8qIFNldCBNQUMgYWRkcmVzcyAqLwo+ID4gPiArI2RlZmluZSBWSVJUSU9fTkVU
-X0ZfU1RBTkRCWSAgICAgIDYyICAgIC8qIEFjdCBhcyBzdGFuZGJ5IGZvciBhbm90aGVyIGRldmlj
-ZQo+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAqIHdpdGgg
-dGhlIHNhbWUgTUFDLgo+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAqLwo+ID4gPiAgICNkZWZpbmUgVklSVElPX05FVF9GX1NQRUVEX0RVUExFWCA2MwkvKiBE
-ZXZpY2Ugc2V0IGxpbmtzcGVlZCBhbmQgZHVwbGV4ICovCj4gPiA+ICAgI2lmbmRlZiBWSVJUSU9f
-TkVUX05PX0xFR0FDWQo+ID4gPiAtLSAKPiA+ID4gMi4xNC4zCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Mon, Jun 11, 2018 at 07:18:55PM -0600, Jens Axboe wrote:
+> Are you going to push this further? I really think we should.
+
+Yes, I'll resubmit it tomorrow.  Sorry for dropping the ball on this one.
