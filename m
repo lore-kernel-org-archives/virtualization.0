@@ -1,18 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY feature bit to
-	virtio_net
-Date: Tue, 12 Jun 2018 14:54:36 +0300
-Message-ID: <20180612144743-mutt-send-email-mst@kernel.org>
-References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
-	<fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
-	<20180605152344-mutt-send-email-mst@kernel.org>
-	<a45625c9-d2cd-f8f7-ce31-37c558e70b88@redhat.com>
+From: Bart Van Assche <Bart.VanAssche@wdc.com>
+Subject: Re: [PATCH 1/2] Convert target drivers to use sbitmap
+Date: Tue, 12 Jun 2018 15:22:42 +0000
+Message-ID: <da5220a5ed4bed210c31a7517389e787a3b1a01f.camel@wdc.com>
+References: <20180515160043.27044-1-willy@infradead.org>
+	<20180515160043.27044-2-willy@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <a45625c9-d2cd-f8f7-ce31-37c558e70b88@redhat.com>
+In-Reply-To: <20180515160043.27044-2-willy@infradead.org>
+Content-Language: en-US
+Content-ID: <4C063782DCBCAE4EAAD78091E6B6DBE4@namprd04.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,99 +20,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "willy@infradead.org" <willy@infradead.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kent.overstreet@gmail.com" <kent.overstreet@gmail.com>, "linux1394-devel@lists.sourceforge.net" <linux1394-devel@lists.sourceforge.net>, "jgross@suse.com" <jgross@suse.com>, "axboe@kernel.dk" <axboe@kernel.dk>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "qla2xxx-upstream@qlogic.com" <qla2xxx-upstream@qlogic.com>, "target-devel@vger.kernel.org" <target-devel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Cc: "mawilcox@microsoft.com" <mawilcox@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKdW4gMDYsIDIwMTggYXQgMTA6Mjk6MDNBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDbmnIgwNeaXpSAyMDozMywgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gSSBkb24ndCB0aGluayB0aGlzIGlzIHN1ZmZpY2llbnQuCj4gPiAKPiA+IElm
-IGJvdGggcHJpbWFyeSBhbmQgc3RhbmRieSBkZXZpY2VzIGFyZSBwcmVzZW50LCBhIGxlZ2FjeSBn
-dWVzdCB3aXRob3V0Cj4gPiBzdXBwb3J0IGZvciB0aGUgZmVhdHVyZSBtaWdodCBzZWUgdHdvIGRl
-dmljZXMgd2l0aCBzYW1lIG1hYyBhbmQgZ2V0Cj4gPiBjb25mdXNlZC4KPiA+IAo+ID4gSSB0aGlu
-ayB0aGF0IHdlIHNob3VsZCBvbmx5IG1ha2UgcHJpbWFyeSB2aXNpYmxlIGFmdGVyIGd1ZXN0IGFj
-a2VkIHRoZQo+ID4gYmFja3VwIGZlYXR1cmUgYml0Lgo+IAo+IEkgdGhpbmsgd2Ugd2FudCBleGFj
-dGx5IHRoZSByZXZlcnNlPyBFLmcgZmFpbCB0aGUgbmVnb3RpYXRpb24gd2hlbiBndWVzdAo+IGRv
-ZXMgbm90IGFjayBiYWNrdXAgZmVhdHVyZS4KPiAKPiBPdGhlcndpc2UgbGVnYWN5IGd1ZXN0IHdv
-bid0IGV2ZW4gaGF2ZSB0aGUgY2hhbmNlIHRvIHNlZSBwcmltYXJ5IGRldmljZSBpbgo+IHRoZSBn
-dWVzdC4KClRoYXQncyBieSBkZXNpZ24uCgo+ID4gCj4gPiBBbmQgb24gcmVzZXQgb3Igd2hlbiBi
-YWNrdXAgaXMgY2xlYXJlZCBpbiBzb21lIG90aGVyIHdheSwgdW5wbHVnIHRoZQo+ID4gcHJpbWFy
-eS4KPiAKPiBXaGF0IGlmIGd1ZXN0IGRvZXMgbm90IHN1cHBvcnQgaG90cGx1Zz8KCkl0IHNob3Vs
-ZG4ndCBhY2sgdGhlIGJhY2t1cCBmZWF0dXJlIHRoZW4gYW5kIGl0J3MgYSBnb29kIHBvaW50LgpX
-ZSBzaG91bGQgYm90aCBkb2N1bWVudCB0aGlzIGFuZCBjaGVjayBrZXJuZWwgY29uZmlnIGhhcwpo
-b3RwbHVnIHN1cHBvcnQuIFNyaWRoYXIgY291bGQgeW91IHRha2UgYSBsb29rIHBscz8KCj4gPiAK
-PiA+IFNvbWV0aGluZyBsaWtlIHRoZSBiZWxvdyB3aWxsIGRvIHRoZSBqb2I6Cj4gPiAKPiA+IFBy
-aW1hcnkgZGV2aWNlIGlzIGFkZGVkIHdpdGggYSBzcGVjaWFsICJwcmltYXJ5LWZhaWxvdmVyIiBm
-bGFnLgo+ID4gQSB2aXJ0dWFsIG1hY2hpbmUgaXMgdGhlbiBpbml0aWFsaXplZCB3aXRoIGp1c3Qg
-YSBzdGFuZGJ5IHZpcnRpbwo+ID4gZGV2aWNlLiBQcmltYXJ5IGlzIG5vdCB5ZXQgYWRkZWQuCj4g
-Cj4gQSBxdWVzdGlvbiBpcyBob3cgdG8gZG8gdGhlIG1hdGNoaW5nPyBRZW11IGtub3dzIG5vdGhp
-bmcgYWJvdXQgZS5nIG1hYwo+IGFkZHJlc3Mgb2YgYSBwYXNzLXRocm91Z2ggZGV2aWNlIEkgYmVs
-aWV2ZT8KClN1cHBseSBhIGZsYWcgdG8gdGhlIFZGSU8gd2hlbiBpdCdzIGFkZGVkLCB0aGlzIHdh
-eSBRRU1VIHdpbGwga25vdy4KCj4gPiAKPiA+IExhdGVyIFFFTVUgZGV0ZWN0cyB0aGF0IGd1ZXN0
-IGRyaXZlciBkZXZpY2Ugc2V0IERSSVZFUl9PSy4KPiA+IEl0IHRoZW4gZXhwb3NlcyB0aGUgcHJp
-bWFyeSBkZXZpY2UgdG8gdGhlIGd1ZXN0LCBhbmQgdHJpZ2dlcnMKPiA+IGEgZGV2aWNlIGFkZGl0
-aW9uIGV2ZW50IChob3QtcGx1ZyBldmVudCkgZm9yIGl0Lgo+IAo+IERvIHlvdSBtZWFuIHdlIHdv
-bid0IGhhdmUgcHJpbWFyeSBkZXZpY2UgaW4gdGhlIGluaXRpYWwgcWVtdSBjbGk/CgpObywgdGhh
-dCdzIG5vdCB3aGF0IEkgbWVhbi4KCkkgbWVhbiBtYW5hZ2VtZW50IHdpbGwgc3VwcGx5IGEgZmxh
-ZyB0byBWRklPIGFuZCB0aGVuCgoKLSBWRklPIGRlZmVycyBleHBvc2luZwpwcmltYXJ5IHRvIGd1
-ZXN0IHVudGlsIGd1ZXN0IGFja3MgdGhlIGZlYXR1cmUgYml0LgotIFdoZW4gd2Ugc2VlIGd1ZXN0
-IGFjaywgaW5pdGlhdGUgaG90cGx1Zy4KLSBPbiByZWJvb3QsIGhpZGUgaXQgYWdhaW4uCi0gT24g
-cmVzZXQgd2l0aG91dCByZWJvb3QsIHJlcXVlc3QgaG90LXVucGx1ZyBhbmQgb24gZWplY3QgaGlk
-ZSBpdCBhZ2Fpbi4KCgo+ID4gCj4gPiBJZiBRRU1VIGRldGVjdHMgZ3Vlc3QgZHJpdmVyIHJlbW92
-YWwsIGl0IGluaXRpYXRlcyBhIGhvdC11bnBsdWcgc2VxdWVuY2UKPiA+IHRvIHJlbW92ZSB0aGUg
-cHJpbWFyeSBkcml2ZXIuICBJbiBwYXJ0aWN1bGFyLCBpZiBRRU1VIGRldGVjdHMgZ3Vlc3QKPiA+
-IHJlLWluaXRpYWxpemF0aW9uIChlLmcuIGJ5IGRldGVjdGluZyBndWVzdCByZXNldCkgaXQgaW1t
-ZWRpYXRlbHkgcmVtb3Zlcwo+ID4gdGhlIHByaW1hcnkgZGV2aWNlLgo+IAo+IEkgYmVsaWV2ZSBn
-dWVzdCBmYWlsb3ZlciBtb2R1bGUgc2hvdWxkIGhhbmRsZSB0aGlzIGdyYWNlZnVsbHk/CgpJdCBj
-YW4ndCBjb250cm9sIGVudW1lcmF0aW9uIG9yZGVyLCBpZiBwcmltYXJ5IGlzIGVudW1lcmF0ZWQg
-YmVmb3JlCnN0YW5kYnkgdGhlbiBndWVzdCB3aWxsIGxvYWQgaXRzIGRyaXZlciBhbmQgaXQncyB0
-b28gbGF0ZQp3aGVuIGZhaWxvdmVyIGRyaXZlciBpcyBsb2FkZWQuCgo+IFRoYW5rcwo+IAo+ID4g
-Cj4gPiBXZSBjYW4gbW92ZSBzb21lIG9mIHRoaXMgY29kZSB0byBtYW5hZ2VtZW50IGFzIHdlbGws
-IGFyY2hpdGVjdHVyYWxseSBpdAo+ID4gZG9lcyBub3QgbWFrZSB0b28gbXVjaCBzZW5zZSBidXQg
-aXQgbWlnaHQgYmUgZWFzaWVyIGltcGxlbWVudGF0aW9uLXdpc2UuCj4gPiAKPiA+IEhUSAo+ID4g
-Cj4gPiBPbiBNb24sIEp1biAwNCwgMjAxOCBhdCAwNjo0MTo0OFBNIC0wNzAwLCBTYW11ZHJhbGEs
-IFNyaWRoYXIgd3JvdGU6Cj4gPiA+IFBpbmcgb24gdGhpcyBwYXRjaCBub3cgdGhhdCB0aGUga2Vy
-bmVsIHBhdGNoZXMgYXJlIGFjY2VwdGVkIGludG8gZGF2ZW0ncyBuZXQtbmV4dCB0cmVlLgo+ID4g
-PiBodHRwczovL3BhdGNod29yay5vemxhYnMub3JnL2NvdmVyLzkyMDAwNS8KPiA+ID4gCj4gPiA+
-IAo+ID4gPiBPbiA1LzcvMjAxOCA0OjA5IFBNLCBTcmlkaGFyIFNhbXVkcmFsYSB3cm90ZToKPiA+
-ID4gPiBUaGlzIGZlYXR1cmUgYml0IGNhbiBiZSB1c2VkIGJ5IGh5cGVydmlzb3IgdG8gaW5kaWNh
-dGUgdmlydGlvX25ldCBkZXZpY2UgdG8KPiA+ID4gPiBhY3QgYXMgYSBzdGFuZGJ5IGZvciBhbm90
-aGVyIGRldmljZSB3aXRoIHRoZSBzYW1lIE1BQyBhZGRyZXNzLgo+ID4gPiA+IAo+ID4gPiA+IEkg
-dGVzdGVkIHRoaXMgd2l0aCBhIHNtYWxsIGNoYW5nZSB0byB0aGUgcGF0Y2ggdG8gbWFyayB0aGUg
-U1RBTkRCWSBmZWF0dXJlICd0cnVlJwo+ID4gPiA+IGJ5IGRlZmF1bHQgYXMgaSBhbSB1c2luZyBs
-aWJ2aXJ0IHRvIHN0YXJ0IHRoZSBWTXMuCj4gPiA+ID4gSXMgdGhlcmUgYSB3YXkgdG8gcGFzcyB0
-aGUgbmV3bHkgYWRkZWQgZmVhdHVyZSBiaXQgJ3N0YW5kYnknIHRvIHFlbXUgdmlhIGxpYnZpcnQK
-PiA+ID4gPiBYTUwgZmlsZT8KPiA+ID4gPiAKPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBTcmlkaGFy
-IFNhbXVkcmFsYSA8c3JpZGhhci5zYW11ZHJhbGFAaW50ZWwuY29tPgo+ID4gPiA+IC0tLQo+ID4g
-PiA+ICAgIGh3L25ldC92aXJ0aW8tbmV0LmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAyICsr
-Cj4gPiA+ID4gICAgaW5jbHVkZS9zdGFuZGFyZC1oZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaCB8
-IDMgKysrCj4gPiA+ID4gICAgMiBmaWxlcyBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKykKPiA+ID4g
-PiAKPiA+ID4gPiBkaWZmIC0tZ2l0IGEvaHcvbmV0L3ZpcnRpby1uZXQuYyBiL2h3L25ldC92aXJ0
-aW8tbmV0LmMKPiA+ID4gPiBpbmRleCA5MDUwMmZjYTdjLi4zOGIzMTQwNjcwIDEwMDY0NAo+ID4g
-PiA+IC0tLSBhL2h3L25ldC92aXJ0aW8tbmV0LmMKPiA+ID4gPiArKysgYi9ody9uZXQvdmlydGlv
-LW5ldC5jCj4gPiA+ID4gQEAgLTIxOTgsNiArMjE5OCw4IEBAIHN0YXRpYyBQcm9wZXJ0eSB2aXJ0
-aW9fbmV0X3Byb3BlcnRpZXNbXSA9IHsKPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICB0
-cnVlKSwKPiA+ID4gPiAgICAgICAgREVGSU5FX1BST1BfSU5UMzIoInNwZWVkIiwgVmlydElPTmV0
-LCBuZXRfY29uZi5zcGVlZCwgU1BFRURfVU5LTk9XTiksCj4gPiA+ID4gICAgICAgIERFRklORV9Q
-Uk9QX1NUUklORygiZHVwbGV4IiwgVmlydElPTmV0LCBuZXRfY29uZi5kdXBsZXhfc3RyKSwKPiA+
-ID4gPiArICAgIERFRklORV9QUk9QX0JJVDY0KCJzdGFuZGJ5IiwgVmlydElPTmV0LCBob3N0X2Zl
-YXR1cmVzLCBWSVJUSU9fTkVUX0ZfU1RBTkRCWSwKPiA+ID4gPiArICAgICAgICAgICAgICAgICAg
-ICAgIGZhbHNlKSwKPiA+ID4gPiAgICAgICAgREVGSU5FX1BST1BfRU5EX09GX0xJU1QoKSwKPiA+
-ID4gPiAgICB9Owo+ID4gPiA+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMv
-bGludXgvdmlydGlvX25ldC5oIGIvaW5jbHVkZS9zdGFuZGFyZC1oZWFkZXJzL2xpbnV4L3ZpcnRp
-b19uZXQuaAo+ID4gPiA+IGluZGV4IGU5ZjI1NWVhM2YuLjAxZWMwOTY4NGMgMTAwNjQ0Cj4gPiA+
-ID4gLS0tIGEvaW5jbHVkZS9zdGFuZGFyZC1oZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaAo+ID4g
-PiA+ICsrKyBiL2luY2x1ZGUvc3RhbmRhcmQtaGVhZGVycy9saW51eC92aXJ0aW9fbmV0LmgKPiA+
-ID4gPiBAQCAtNTcsNiArNTcsOSBAQAo+ID4gPiA+ICAgIAkJCQkJICogU3RlZXJpbmcgKi8KPiA+
-ID4gPiAgICAjZGVmaW5lIFZJUlRJT19ORVRfRl9DVFJMX01BQ19BRERSIDIzCS8qIFNldCBNQUMg
-YWRkcmVzcyAqLwo+ID4gPiA+ICsjZGVmaW5lIFZJUlRJT19ORVRfRl9TVEFOREJZICAgICAgNjIg
-ICAgLyogQWN0IGFzIHN0YW5kYnkgZm9yIGFub3RoZXIgZGV2aWNlCj4gPiA+ID4gKyAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKiB3aXRoIHRoZSBzYW1lIE1BQy4KPiA+
-ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAqLwo+ID4gPiA+
-ICAgICNkZWZpbmUgVklSVElPX05FVF9GX1NQRUVEX0RVUExFWCA2MwkvKiBEZXZpY2Ugc2V0IGxp
-bmtzcGVlZCBhbmQgZHVwbGV4ICovCj4gPiA+ID4gICAgI2lmbmRlZiBWSVJUSU9fTkVUX05PX0xF
-R0FDWQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+On Tue, 2018-05-15 at 09:00 -0700, Matthew Wilcox wrote:
+> diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+> index 025dc2d3f3de..cdf671c2af61 100644
+> --- a/drivers/scsi/qla2xxx/qla_target.c
+> +++ b/drivers/scsi/qla2xxx/qla_target.c
+> @@ -3719,7 +3719,8 @@ void qlt_free_cmd(struct qla_tgt_cmd *cmd)
+>  		return;
+>  	}
+>  	cmd->jiffies_at_free = get_jiffies_64();
+> -	percpu_ida_free(&sess->se_sess->sess_tag_pool, cmd->se_cmd.map_tag);
+> +	sbitmap_queue_clear(&sess->se_sess->sess_tag_pool, cmd->se_cmd.map_tag,
+> +			cmd->se_cmd.map_cpu);
+>  }
+>  EXPORT_SYMBOL(qlt_free_cmd);
+
+Please introduce functions in the target core for allocating and freeing a tag
+instead of spreading the knowledge of how to allocate and free tags over all
+target drivers.
+ 
+> +int iscsit_wait_for_tag(struct se_session *se_sess, int state, int *cpup)
+> +{
+> +	int tag = -1;
+> +	DEFINE_WAIT(wait);
+> +	struct sbq_wait_state *ws;
+> +
+> +	if (state == TASK_RUNNING)
+> +		return tag;
+> +
+> +	ws = &se_sess->sess_tag_pool.ws[0];
+> +	for (;;) {
+> +		prepare_to_wait_exclusive(&ws->wait, &wait, state);
+> +		if (signal_pending_state(state, current))
+> +			break;
+
+This looks weird to me. Shouldn't target code ignore signals instead of causing
+tag allocation to fail if a signal is received?
+
+> +		schedule();
+> +		tag = sbitmap_queue_get(&se_sess->sess_tag_pool, cpup);
+> +	}
+> +
+> +	finish_wait(&ws->wait, &wait);
+> +	return tag;
+> +}
+
+Thanks,
+
+Bart.
