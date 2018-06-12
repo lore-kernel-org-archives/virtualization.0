@@ -1,17 +1,18 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH 1/2] Convert target drivers to use sbitmap
-Date: Mon, 11 Jun 2018 20:06:48 -0700
-Message-ID: <20180612030648.GA14222@bombadil.infradead.org>
-References: <20180515160043.27044-1-willy@infradead.org>
-	<20180515160043.27044-2-willy@infradead.org>
-	<3a56027b-47bc-dcb8-a465-3670031572f1@kernel.dk>
-	<02326395-3241-c94b-ad70-3de27a6f5a8c@kernel.dk>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [Qemu-devel] [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY feature
+	bit to virtio_net
+Date: Mon, 11 Jun 2018 22:02:45 -0700
+Message-ID: <23fc4aa4-ec41-d6e2-3354-10cbfc13b7ec@intel.com>
+References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
+	<20180611202207-mutt-send-email-mst@kernel.org>
+	<dc8b1669-b8b6-fb59-94e2-6e4de6b96572@redhat.com>
+	<20180612051432-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <02326395-3241-c94b-ad70-3de27a6f5a8c@kernel.dk>
+In-Reply-To: <20180612051432-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,11 +22,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Juergen Gross <jgross@suse.com>, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, Matthew Wilcox <mawilcox@microsoft.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, qla2xxx-upstream@qlogic.com, linux1394-devel@lists.sourceforge.net, Kent Overstreet <kent.overstreet@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, aaron.f.brown@intel.com, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, qemu-devel@nongnu.org, loseweigh@gmail.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 11, 2018 at 07:18:55PM -0600, Jens Axboe wrote:
-> Are you going to push this further? I really think we should.
-
-Yes, I'll resubmit it tomorrow.  Sorry for dropping the ball on this one.
+T24gNi8xMS8yMDE4IDc6MTcgUE0sIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBUdWUs
+IEp1biAxMiwgMjAxOCBhdCAwOTo1NDo0NEFNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pgo+
+PiBPbiAyMDE45bm0MDbmnIgxMuaXpSAwMToyNiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+Pj4gT24gTW9uLCBNYXkgMDcsIDIwMTggYXQgMDQ6MDk6NTRQTSAtMDcwMCwgU3JpZGhhciBTYW11
+ZHJhbGEgd3JvdGU6Cj4+Pj4gVGhpcyBmZWF0dXJlIGJpdCBjYW4gYmUgdXNlZCBieSBoeXBlcnZp
+c29yIHRvIGluZGljYXRlIHZpcnRpb19uZXQgZGV2aWNlIHRvCj4+Pj4gYWN0IGFzIGEgc3RhbmRi
+eSBmb3IgYW5vdGhlciBkZXZpY2Ugd2l0aCB0aGUgc2FtZSBNQUMgYWRkcmVzcy4KPj4+Pgo+Pj4+
+IEkgdGVzdGVkIHRoaXMgd2l0aCBhIHNtYWxsIGNoYW5nZSB0byB0aGUgcGF0Y2ggdG8gbWFyayB0
+aGUgU1RBTkRCWSBmZWF0dXJlICd0cnVlJwo+Pj4+IGJ5IGRlZmF1bHQgYXMgaSBhbSB1c2luZyBs
+aWJ2aXJ0IHRvIHN0YXJ0IHRoZSBWTXMuCj4+Pj4gSXMgdGhlcmUgYSB3YXkgdG8gcGFzcyB0aGUg
+bmV3bHkgYWRkZWQgZmVhdHVyZSBiaXQgJ3N0YW5kYnknIHRvIHFlbXUgdmlhIGxpYnZpcnQKPj4+
+PiBYTUwgZmlsZT8KPj4+Pgo+Pj4+IFNpZ25lZC1vZmYtYnk6IFNyaWRoYXIgU2FtdWRyYWxhIDxz
+cmlkaGFyLnNhbXVkcmFsYUBpbnRlbC5jb20+Cj4+PiBTbyBJIGRvIG5vdCB0aGluayB3ZSBjYW4g
+Y29tbWl0IHRvIHRoaXMgaW50ZXJmYWNlOiB3ZQo+Pj4gcmVhbGx5IG5lZWQgdG8gY29udHJvbCB2
+aXNpYmlsaXR5IG9mIHRoZSBwcmltYXJ5IGRldmljZS4KPj4gVGhlIHByb2JsZW0gaXMgbGVnYWN5
+IGd1ZXN0IHdvbid0IHVzZSBwcmltYXJ5IGRldmljZSBhdCBhbGwgaWYgd2UgZG8gdGhpcy4KPiBB
+bmQgdGhhdCdzIGJ5IGRlc2lnbiAtIEkgdGhpbmsgaXQncyB0aGUgb25seSB3YXkgdG8gZW5zdXJl
+IHRoZQo+IGxlZ2FjeSBndWVzdCBpc24ndCBjb25mdXNlZC4KClllcy4gSSB0aGluayBzby4gQnV0
+IGkgYW0gbm90IHN1cmUgaWYgUWVtdSBpcyB0aGUgcmlnaHQgcGxhY2UgdG8gY29udHJvbCB0aGUg
+dmlzaWJpbGl0eQpvZiB0aGUgcHJpbWFyeSBkZXZpY2UuIFRoZSBwcmltYXJ5IGRldmljZSBtYXkg
+bm90IGJlIHNwZWNpZmllZCBhcyBhbiBhcmd1bWVudCB0byBRZW11LiBJdAptYXkgYmUgcGx1Z2dl
+ZCBpbiBsYXRlci4KVGhlIGNsb3VkIHNlcnZpY2UgcHJvdmlkZXIgaXMgcHJvdmlkaW5nIGEgZmVh
+dHVyZSB0aGF0IGVuYWJsZXMgbG93IGxhdGVuY3kgZGF0YXBhdGggYW5kIGxpdmUKbWlncmF0aW9u
+IGNhcGFiaWxpdHkuCkEgdGVuYW50IGNhbiB1c2UgdGhpcyBmZWF0dXJlIG9ubHkgaWYgaGUgaXMg
+cnVubmluZyBhIFZNIHRoYXQgaGFzIHZpcnRpby1uZXQgd2l0aCBmYWlsb3ZlciBzdXBwb3J0LgoK
+SSB0aGluayBRZW11IHNob3VsZCBjaGVjayBpZiBndWVzdCB2aXJ0aW8tbmV0IHN1cHBvcnRzIHRo
+aXMgZmVhdHVyZSBhbmQgcHJvdmlkZSBhIG1lY2hhbmlzbSBmb3IKYW4gdXBwZXIgbGF5ZXIgaW5k
+aWNhdGluZyBpZiB0aGUgU1RBTkRCWSBmZWF0dXJlIGlzIHN1Y2Nlc3NmdWxseSBuZWdvdGlhdGVk
+IG9yIG5vdC4KVGhlIHVwcGVyIGxheWVyIGNhbiB0aGVuIGRlY2lkZSBpZiBpdCBzaG91bGQgaG90
+IHBsdWcgYSBWRiB3aXRoIHRoZSBzYW1lIE1BQyBhbmQgbWFuYWdlIHRoZSAyIGxpbmtzLgpJZiBW
+RiBpcyBzdWNjZXNzZnVsbHkgaG90IHBsdWdnZWQsIHZpcnRpby1uZXQgbGluayBzaG91bGQgYmUg
+ZGlzYWJsZWQuCgoKPgo+PiBIb3cgYWJvdXQgY29udHJvbCB0aGUgdmlzaWJpbGl0eSBvZiBzdGFu
+ZGJ5IGRldmljZT8KPj4KPj4gVGhhbmtzCj4gc3RhbmR5IHRoZSBhbHdheXMgdGhlcmUgdG8gZ3Vh
+cmFudGVlIG5vIGRvd250aW1lLgo+Cj4+PiBIb3dldmVyIGp1c3QgZm9yIHRlc3RpbmcgcHVycG9z
+ZXMsIHdlIGNvdWxkIGFkZCBhIG5vbi1zdGFibGUKPj4+IGludGVyZmFjZSAieC1zdGFuZGJ5IiB3
+aXRoIHRoZSB1bmRlcnN0YW5kaW5nIHRoYXQgYXMgYW55Cj4+PiB4LSBwcmVmaXggaXQncyB1bnN0
+YWJsZSBhbmQgd2lsbCBiZSBjaGFuZ2VkIGRvd24gdGhlIHJvYWQsCj4+PiBsaWtlbHkgaW4gdGhl
+IG5leHQgcmVsZWFzZS4KPj4+Cj4+Pgo+Pj4+IC0tLQo+Pj4+ICAgIGh3L25ldC92aXJ0aW8tbmV0
+LmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAyICsrCj4+Pj4gICAgaW5jbHVkZS9zdGFuZGFy
+ZC1oZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaCB8IDMgKysrCj4+Pj4gICAgMiBmaWxlcyBjaGFu
+Z2VkLCA1IGluc2VydGlvbnMoKykKPj4+Pgo+Pj4+IGRpZmYgLS1naXQgYS9ody9uZXQvdmlydGlv
+LW5ldC5jIGIvaHcvbmV0L3ZpcnRpby1uZXQuYwo+Pj4+IGluZGV4IDkwNTAyZmNhN2MuLjM4YjMx
+NDA2NzAgMTAwNjQ0Cj4+Pj4gLS0tIGEvaHcvbmV0L3ZpcnRpby1uZXQuYwo+Pj4+ICsrKyBiL2h3
+L25ldC92aXJ0aW8tbmV0LmMKPj4+PiBAQCAtMjE5OCw2ICsyMTk4LDggQEAgc3RhdGljIFByb3Bl
+cnR5IHZpcnRpb19uZXRfcHJvcGVydGllc1tdID0gewo+Pj4+ICAgICAgICAgICAgICAgICAgICAg
+ICAgIHRydWUpLAo+Pj4+ICAgICAgICBERUZJTkVfUFJPUF9JTlQzMigic3BlZWQiLCBWaXJ0SU9O
+ZXQsIG5ldF9jb25mLnNwZWVkLCBTUEVFRF9VTktOT1dOKSwKPj4+PiAgICAgICAgREVGSU5FX1BS
+T1BfU1RSSU5HKCJkdXBsZXgiLCBWaXJ0SU9OZXQsIG5ldF9jb25mLmR1cGxleF9zdHIpLAo+Pj4+
+ICsgICAgREVGSU5FX1BST1BfQklUNjQoInN0YW5kYnkiLCBWaXJ0SU9OZXQsIGhvc3RfZmVhdHVy
+ZXMsIFZJUlRJT19ORVRfRl9TVEFOREJZLAo+Pj4+ICsgICAgICAgICAgICAgICAgICAgICAgZmFs
+c2UpLAo+Pj4+ICAgICAgICBERUZJTkVfUFJPUF9FTkRfT0ZfTElTVCgpLAo+Pj4+ICAgIH07Cj4+
+Pj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvc3RhbmRhcmQtaGVhZGVycy9saW51eC92aXJ0aW9fbmV0
+LmggYi9pbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgvdmlydGlvX25ldC5oCj4+Pj4gaW5k
+ZXggZTlmMjU1ZWEzZi4uMDFlYzA5Njg0YyAxMDA2NDQKPj4+PiAtLS0gYS9pbmNsdWRlL3N0YW5k
+YXJkLWhlYWRlcnMvbGludXgvdmlydGlvX25ldC5oCj4+Pj4gKysrIGIvaW5jbHVkZS9zdGFuZGFy
+ZC1oZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaAo+Pj4+IEBAIC01Nyw2ICs1Nyw5IEBACj4+Pj4g
+ICAgCQkJCQkgKiBTdGVlcmluZyAqLwo+Pj4+ICAgICNkZWZpbmUgVklSVElPX05FVF9GX0NUUkxf
+TUFDX0FERFIgMjMJLyogU2V0IE1BQyBhZGRyZXNzICovCj4+Pj4gKyNkZWZpbmUgVklSVElPX05F
+VF9GX1NUQU5EQlkgICAgICA2MiAgICAvKiBBY3QgYXMgc3RhbmRieSBmb3IgYW5vdGhlciBkZXZp
+Y2UKPj4+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAqIHdpdGgg
+dGhlIHNhbWUgTUFDLgo+Pj4+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICovCj4+Pj4gICAgI2RlZmluZSBWSVJUSU9fTkVUX0ZfU1BFRURfRFVQTEVYIDYzCS8qIERl
+dmljZSBzZXQgbGlua3NwZWVkIGFuZCBkdXBsZXggKi8KPj4+PiAgICAjaWZuZGVmIFZJUlRJT19O
+RVRfTk9fTEVHQUNZCj4+Pj4gLS0gCj4+Pj4gMi4xNC4zCgpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
