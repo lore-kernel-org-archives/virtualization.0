@@ -1,20 +1,19 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH v4 1/3] compiler-gcc.h: add gnu_inline to all inline
-	declarations
-Date: Tue, 12 Jun 2018 14:31:08 -0700
-Message-ID: <7e375fab-f8ad-705a-dd04-f7e18952bd0c@zytor.com>
-References: <20180607204927.219329-1-ndesaulniers@google.com>
-	<20180607204927.219329-2-ndesaulniers@google.com>
-	<CAK8P3a0yi+MrOS=+pjCeUu==YBE_AppB8vfqdsQS-1NpSO2c4A@mail.gmail.com>
-	<CA+icZUXDoeo5ktZZPFcFyLzk3xthM-98N88QJFzesg6t+Vr5cQ@mail.gmail.com>
-	<CAKwvOdmxFHfkj81YAXa8fE86fC+k+KvqMvgk4=e62pNCcXbKOg@mail.gmail.com>
-	<201806121851.w5CIpTY7134381@mail.zytor.com>
-	<CAKwvOdkeEqb0HnHoggpwmHiKtDo06VN0N_r9ffv0rzigNLvXUg@mail.gmail.com>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
+	VIRTIO_NET_F_STANDBY feature bit to virtio_net
+Date: Tue, 12 Jun 2018 17:08:45 -0700
+Message-ID: <b9c88515-cf41-2a9a-078e-9c9e5adbbf14@intel.com>
+References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
+	<20180611202207-mutt-send-email-mst@kernel.org>
+	<dc8b1669-b8b6-fb59-94e2-6e4de6b96572@redhat.com>
+	<20180612051432-mutt-send-email-mst@kernel.org>
+	<23fc4aa4-ec41-d6e2-3354-10cbfc13b7ec@intel.com>
+	<20180612142557-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAKwvOdkeEqb0HnHoggpwmHiKtDo06VN0N_r9ffv0rzigNLvXUg@mail.gmail.com>
+In-Reply-To: <20180612142557-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,44 +24,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, linux-efi@vger.kernel.org, brijesh.singh@amd.com, "J. Kiszka" <jan.kiszka@siemens.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Manoj Gupta <manojgupta@google.com>, boris.ostrovsky@oracle.com, mawilcox@microsoft.com, x86@kernel.org, akataria@vmware.com, Greg Hackmann <ghackmann@google.com>, mingo@redhat.com, Alistair Strachan <astrachan@google.com>, David Rientjes <rientjes@google.com>, geert@linux-m68k.org, Arnd Bergmann <arnd@arndb.de>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Philippe Ombredanne <pombredanne@nexb.com>, rostedt@goodmis.org, acme@redhat.com, Andrey Ryabinin <aryabinin@virtuozzo.com>, sedat.dilek@gmail.com, Thomas Gleixner <tglx@linutronix.de>, Michal Marek <michal.lkml@markovi.net>, tstellar@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, aaron.f.brown@intel.com, jiri@resnulli.us, kubakici@wp.pl, netdev@vger.kernel.org, qemu-devel@nongnu.org, loseweigh@gmail.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/12/18 13:19, Nick Desaulniers wrote:
-> 
-> Oh, by [0] __GCC_STDC_INLINE__ is indeed actually the correct symbol
-> to check for.  Clang does support that, so nothing to fix there.
-> 
->> By the way, you should check clang against gcc's predefined macros by doing:
->>
->> gcc [options] -x c -Wp,-dM -E /dev/null | sort
->>
->> Options can change the predefined macros substantially, especially the, -std=, arch and -O options. -x c can be replaced with e.g. -x c++, objective-c, assembler-with-cpp etc.
-> 
-> Neat, I'll have to bookmark that incantation.  I can s/gcc/clang/ to
-> get a similar list (which is how I know it supports
-> __GCC_STDC_INLINE__).>
-
-I bet that if you add -fgnu89-inlines then it *does* define
-__GNUC_GNU_INLINE__.
-
-> 
-> Patch now becomes something like:
-> 
-> #ifdef __GNUC_GNU_INLINE__
-> #define __gnu_inline __attribute__((gnu_inline))
-> #else
-> #define __gnu_inline
-> #endif
-> 
-> #define inline inline __attribute__((always_inline, unused)) notrace
-> __gnu_inline
-> ...
-> 
-> Issues with that approach?
-> 
-
-s/__GNUC_GNU_INLINE__/__GNUC_STDC_INLINE__/
-
-	-hpa
+T24gNi8xMi8yMDE4IDQ6MzQgQU0sIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBNb24s
+IEp1biAxMSwgMjAxOCBhdCAxMDowMjo0NVBNIC0wNzAwLCBTYW11ZHJhbGEsIFNyaWRoYXIgd3Jv
+dGU6Cj4+IE9uIDYvMTEvMjAxOCA3OjE3IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+
+PiBPbiBUdWUsIEp1biAxMiwgMjAxOCBhdCAwOTo1NDo0NEFNICswODAwLCBKYXNvbiBXYW5nIHdy
+b3RlOgo+Pj4+IE9uIDIwMTjlubQwNuaciDEy5pelIDAxOjI2LCBNaWNoYWVsIFMuIFRzaXJraW4g
+d3JvdGU6Cj4+Pj4+IE9uIE1vbiwgTWF5IDA3LCAyMDE4IGF0IDA0OjA5OjU0UE0gLTA3MDAsIFNy
+aWRoYXIgU2FtdWRyYWxhIHdyb3RlOgo+Pj4+Pj4gVGhpcyBmZWF0dXJlIGJpdCBjYW4gYmUgdXNl
+ZCBieSBoeXBlcnZpc29yIHRvIGluZGljYXRlIHZpcnRpb19uZXQgZGV2aWNlIHRvCj4+Pj4+PiBh
+Y3QgYXMgYSBzdGFuZGJ5IGZvciBhbm90aGVyIGRldmljZSB3aXRoIHRoZSBzYW1lIE1BQyBhZGRy
+ZXNzLgo+Pj4+Pj4KPj4+Pj4+IEkgdGVzdGVkIHRoaXMgd2l0aCBhIHNtYWxsIGNoYW5nZSB0byB0
+aGUgcGF0Y2ggdG8gbWFyayB0aGUgU1RBTkRCWSBmZWF0dXJlICd0cnVlJwo+Pj4+Pj4gYnkgZGVm
+YXVsdCBhcyBpIGFtIHVzaW5nIGxpYnZpcnQgdG8gc3RhcnQgdGhlIFZNcy4KPj4+Pj4+IElzIHRo
+ZXJlIGEgd2F5IHRvIHBhc3MgdGhlIG5ld2x5IGFkZGVkIGZlYXR1cmUgYml0ICdzdGFuZGJ5JyB0
+byBxZW11IHZpYSBsaWJ2aXJ0Cj4+Pj4+PiBYTUwgZmlsZT8KPj4+Pj4+Cj4+Pj4+PiBTaWduZWQt
+b2ZmLWJ5OiBTcmlkaGFyIFNhbXVkcmFsYSA8c3JpZGhhci5zYW11ZHJhbGFAaW50ZWwuY29tPgo+
+Pj4+PiBTbyBJIGRvIG5vdCB0aGluayB3ZSBjYW4gY29tbWl0IHRvIHRoaXMgaW50ZXJmYWNlOiB3
+ZQo+Pj4+PiByZWFsbHkgbmVlZCB0byBjb250cm9sIHZpc2liaWxpdHkgb2YgdGhlIHByaW1hcnkg
+ZGV2aWNlLgo+Pj4+IFRoZSBwcm9ibGVtIGlzIGxlZ2FjeSBndWVzdCB3b24ndCB1c2UgcHJpbWFy
+eSBkZXZpY2UgYXQgYWxsIGlmIHdlIGRvIHRoaXMuCj4+PiBBbmQgdGhhdCdzIGJ5IGRlc2lnbiAt
+IEkgdGhpbmsgaXQncyB0aGUgb25seSB3YXkgdG8gZW5zdXJlIHRoZQo+Pj4gbGVnYWN5IGd1ZXN0
+IGlzbid0IGNvbmZ1c2VkLgo+PiBZZXMuIEkgdGhpbmsgc28uIEJ1dCBpIGFtIG5vdCBzdXJlIGlm
+IFFlbXUgaXMgdGhlIHJpZ2h0IHBsYWNlIHRvIGNvbnRyb2wgdGhlIHZpc2liaWxpdHkKPj4gb2Yg
+dGhlIHByaW1hcnkgZGV2aWNlLiBUaGUgcHJpbWFyeSBkZXZpY2UgbWF5IG5vdCBiZSBzcGVjaWZp
+ZWQgYXMgYW4gYXJndW1lbnQgdG8gUWVtdS4gSXQKPj4gbWF5IGJlIHBsdWdnZWQgaW4gbGF0ZXIu
+Cj4+IFRoZSBjbG91ZCBzZXJ2aWNlIHByb3ZpZGVyIGlzIHByb3ZpZGluZyBhIGZlYXR1cmUgdGhh
+dCBlbmFibGVzIGxvdyBsYXRlbmN5IGRhdGFwYXRoIGFuZCBsaXZlCj4+IG1pZ3JhdGlvbiBjYXBh
+YmlsaXR5Lgo+PiBBIHRlbmFudCBjYW4gdXNlIHRoaXMgZmVhdHVyZSBvbmx5IGlmIGhlIGlzIHJ1
+bm5pbmcgYSBWTSB0aGF0IGhhcyB2aXJ0aW8tbmV0IHdpdGggZmFpbG92ZXIgc3VwcG9ydC4KPiBX
+ZWxsIGxpdmUgbWlncmF0aW9uIGlzIHRoZXJlIGFscmVhZHkuIFRoZSBuZXcgZmVhdHVyZSBpcyBs
+b3cgbGF0ZW5jeQo+IGRhdGEgcGF0aC4KCndlIGdldCBsaXZlIG1pZ3JhdGlvbiB3aXRoIGp1c3Qg
+dmlydGlvLiAgQnV0IEkgbWVhbnQgbGl2ZSBtaWdyYXRpb24gd2l0aCBWRiBhcwpwcmltYXJ5IGRl
+dmljZS4KCj4KPiBBbmQgaXQncyB0aGUgZ3Vlc3QgdGhhdCBuZWVkcyBmYWlsb3ZlciBzdXBwb3J0
+IG5vdCB0aGUgVk0uCgpJc24ndCBndWVzdCBhbmQgVk0gc3lub255bW91cz8KCgo+Cj4KPj4gSSB0
+aGluayBRZW11IHNob3VsZCBjaGVjayBpZiBndWVzdCB2aXJ0aW8tbmV0IHN1cHBvcnRzIHRoaXMg
+ZmVhdHVyZSBhbmQgcHJvdmlkZSBhIG1lY2hhbmlzbSBmb3IKPj4gYW4gdXBwZXIgbGF5ZXIgaW5k
+aWNhdGluZyBpZiB0aGUgU1RBTkRCWSBmZWF0dXJlIGlzIHN1Y2Nlc3NmdWxseSBuZWdvdGlhdGVk
+IG9yIG5vdC4KPj4gVGhlIHVwcGVyIGxheWVyIGNhbiB0aGVuIGRlY2lkZSBpZiBpdCBzaG91bGQg
+aG90IHBsdWcgYSBWRiB3aXRoIHRoZSBzYW1lIE1BQyBhbmQgbWFuYWdlIHRoZSAyIGxpbmtzLgo+
+PiBJZiBWRiBpcyBzdWNjZXNzZnVsbHkgaG90IHBsdWdnZWQsIHZpcnRpby1uZXQgbGluayBzaG91
+bGQgYmUgZGlzYWJsZWQuCj4gRGlkIHlvdSBldmVuIHRhbGsgdG8gdXBwZXIgbGF5ZXIgbWFuYWdl
+bWVudCBhYm91dCBpdD8KPiBKdXN0IGxpc3QgdGhlIHN0ZXBzIHRoZXkgbmVlZCB0byBkbyBhbmQg
+eW91IHdpbGwgc2VlCj4gdGhhdCdzIGEgbG90IG9mIG1hY2hpbmVyeSB0byBtYW5hZ2UgYnkgdGhl
+IHVwcGVyIGxheWVyLgo+Cj4gV2hhdCBkbyB3ZSBnYWluIGluIGZsZXhpYmlsaXR5PyBBcyBmYXIg
+YXMgSSBjYW4gc2VlIHRoZQo+IG9ubHkgZ2FpbiBpcyBzb21lIHJlc291cmNlcyBzYXZlZCBmb3Ig
+bGVnYWN5IFZNcy4KPgo+IFRoYXQncyBub3QgYSBsb3QgYXMgdGVuYW50IG9mIHRoZSB1cHBlciBs
+YXllciBwcm9iYWJseSBhbHJlYWR5IGhhcwo+IGF0IGxlYXN0IGEgaHVuY2ggdGhhdCBpdCdzIGEg
+bmV3IGd1ZXN0IG90aGVyd2lzZQo+IHdoeSBib3RoZXIgc3BlY2lmeWluZyB0aGUgZmVhdHVyZSBh
+dCBhbGwgLSB5b3UKPiBzYXZlIGV2ZW4gbW9yZSByZXNvdXJjZXMgd2l0aG91dCBpdC4KPgoKSSBh
+bSBub3QgYWxsIHRoYXQgZmFtaWxpYXIgd2l0aCBob3cgUWVtdSBtYW5hZ2VzIG5ldHdvcmsgZGV2
+aWNlcy4gSWYgd2UgY2FuIGRvIGFsbCB0aGUKcmVxdWlyZWQgbWFuYWdlbWVudCBvZiB0aGUgcHJp
+bWFyeS9zdGFuZGJ5IGRldmljZXMgd2l0aGluIFFlbXUsIHRoYXQgaXMgZGVmaW5pdGVseSBhIGJl
+dHRlcgphcHByb2FjaCB3aXRob3V0IHVwcGVyIGxheWVyIGludm9sdmVtZW50LgoKCj4KPgo+Pj4+
+IEhvdyBhYm91dCBjb250cm9sIHRoZSB2aXNpYmlsaXR5IG9mIHN0YW5kYnkgZGV2aWNlPwo+Pj4+
+Cj4+Pj4gVGhhbmtzCj4+PiBzdGFuZHkgdGhlIGFsd2F5cyB0aGVyZSB0byBndWFyYW50ZWUgbm8g
+ZG93bnRpbWUuCj4+Pgo+Pj4+PiBIb3dldmVyIGp1c3QgZm9yIHRlc3RpbmcgcHVycG9zZXMsIHdl
+IGNvdWxkIGFkZCBhIG5vbi1zdGFibGUKPj4+Pj4gaW50ZXJmYWNlICJ4LXN0YW5kYnkiIHdpdGgg
+dGhlIHVuZGVyc3RhbmRpbmcgdGhhdCBhcyBhbnkKPj4+Pj4geC0gcHJlZml4IGl0J3MgdW5zdGFi
+bGUgYW5kIHdpbGwgYmUgY2hhbmdlZCBkb3duIHRoZSByb2FkLAo+Pj4+PiBsaWtlbHkgaW4gdGhl
+IG5leHQgcmVsZWFzZS4KPj4+Pj4KPj4+Pj4KPj4+Pj4+IC0tLQo+Pj4+Pj4gICAgIGh3L25ldC92
+aXJ0aW8tbmV0LmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAyICsrCj4+Pj4+PiAgICAgaW5j
+bHVkZS9zdGFuZGFyZC1oZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaCB8IDMgKysrCj4+Pj4+PiAg
+ICAgMiBmaWxlcyBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKykKPj4+Pj4+Cj4+Pj4+PiBkaWZmIC0t
+Z2l0IGEvaHcvbmV0L3ZpcnRpby1uZXQuYyBiL2h3L25ldC92aXJ0aW8tbmV0LmMKPj4+Pj4+IGlu
+ZGV4IDkwNTAyZmNhN2MuLjM4YjMxNDA2NzAgMTAwNjQ0Cj4+Pj4+PiAtLS0gYS9ody9uZXQvdmly
+dGlvLW5ldC5jCj4+Pj4+PiArKysgYi9ody9uZXQvdmlydGlvLW5ldC5jCj4+Pj4+PiBAQCAtMjE5
+OCw2ICsyMTk4LDggQEAgc3RhdGljIFByb3BlcnR5IHZpcnRpb19uZXRfcHJvcGVydGllc1tdID0g
+ewo+Pj4+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgIHRydWUpLAo+Pj4+Pj4gICAgICAgICBE
+RUZJTkVfUFJPUF9JTlQzMigic3BlZWQiLCBWaXJ0SU9OZXQsIG5ldF9jb25mLnNwZWVkLCBTUEVF
+RF9VTktOT1dOKSwKPj4+Pj4+ICAgICAgICAgREVGSU5FX1BST1BfU1RSSU5HKCJkdXBsZXgiLCBW
+aXJ0SU9OZXQsIG5ldF9jb25mLmR1cGxleF9zdHIpLAo+Pj4+Pj4gKyAgICBERUZJTkVfUFJPUF9C
+SVQ2NCgic3RhbmRieSIsIFZpcnRJT05ldCwgaG9zdF9mZWF0dXJlcywgVklSVElPX05FVF9GX1NU
+QU5EQlksCj4+Pj4+PiArICAgICAgICAgICAgICAgICAgICAgIGZhbHNlKSwKPj4+Pj4+ICAgICAg
+ICAgREVGSU5FX1BST1BfRU5EX09GX0xJU1QoKSwKPj4+Pj4+ICAgICB9Owo+Pj4+Pj4gZGlmZiAt
+LWdpdCBhL2luY2x1ZGUvc3RhbmRhcmQtaGVhZGVycy9saW51eC92aXJ0aW9fbmV0LmggYi9pbmNs
+dWRlL3N0YW5kYXJkLWhlYWRlcnMvbGludXgvdmlydGlvX25ldC5oCj4+Pj4+PiBpbmRleCBlOWYy
+NTVlYTNmLi4wMWVjMDk2ODRjIDEwMDY0NAo+Pj4+Pj4gLS0tIGEvaW5jbHVkZS9zdGFuZGFyZC1o
+ZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaAo+Pj4+Pj4gKysrIGIvaW5jbHVkZS9zdGFuZGFyZC1o
+ZWFkZXJzL2xpbnV4L3ZpcnRpb19uZXQuaAo+Pj4+Pj4gQEAgLTU3LDYgKzU3LDkgQEAKPj4+Pj4+
+ICAgICAJCQkJCSAqIFN0ZWVyaW5nICovCj4+Pj4+PiAgICAgI2RlZmluZSBWSVJUSU9fTkVUX0Zf
+Q1RSTF9NQUNfQUREUiAyMwkvKiBTZXQgTUFDIGFkZHJlc3MgKi8KPj4+Pj4+ICsjZGVmaW5lIFZJ
+UlRJT19ORVRfRl9TVEFOREJZICAgICAgNjIgICAgLyogQWN0IGFzIHN0YW5kYnkgZm9yIGFub3Ro
+ZXIgZGV2aWNlCj4+Pj4+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAqIHdpdGggdGhlIHNhbWUgTUFDLgo+Pj4+Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgKi8KPj4+Pj4+ICAgICAjZGVmaW5lIFZJUlRJT19ORVRfRl9TUEVFRF9E
+VVBMRVggNjMJLyogRGV2aWNlIHNldCBsaW5rc3BlZWQgYW5kIGR1cGxleCAqLwo+Pj4+Pj4gICAg
+ICNpZm5kZWYgVklSVElPX05FVF9OT19MRUdBQ1kKPj4+Pj4+IC0tIAo+Pj4+Pj4gMi4xNC4zCj4g
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tCj4gVG8gdW5zdWJzY3JpYmUsIGUtbWFpbDogdmlydGlvLWRldi11bnN1YnNj
+cmliZUBsaXN0cy5vYXNpcy1vcGVuLm9yZwo+IEZvciBhZGRpdGlvbmFsIGNvbW1hbmRzLCBlLW1h
+aWw6IHZpcnRpby1kZXYtaGVscEBsaXN0cy5vYXNpcy1vcGVuLm9yZwo+CgpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
+IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
+aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
