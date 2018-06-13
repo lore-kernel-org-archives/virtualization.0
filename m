@@ -1,8 +1,8 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
 	virito devices
-Date: Wed, 13 Jun 2018 23:11:01 +1000
-Message-ID: <10bbd7122aaa67f51de7a8328df8154212a13f23.camel@kernel.crashing.org>
+Date: Wed, 13 Jun 2018 16:49:39 +0300
+Message-ID: <20180613161806-mutt-send-email-mst@kernel.org>
 References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
 	<20180523213703-mutt-send-email-mst@kernel.org>
 	<20180524072104.GD6139@ram.oc3035372033.ibm.com>
@@ -10,15 +10,13 @@ References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
 	<20180531204320-mutt-send-email-mst@kernel.org>
 	<20180607052306.GA1532@infradead.org>
 	<20180607185234-mutt-send-email-mst@kernel.org>
-	<20180611023909.GA5726@ram.oc3035372033.ibm.com>
-	<07b804fccd7373c650be79ac9fa77ae7f2375ced.camel@kernel.crashing.org>
-	<20180613074141.GA12033@infradead.org>
-	<5dbcafa73b065bc619fd6adc9ef47eb6367b8378.camel@kernel.crashing.org>
+	<20180608063655.GA32080@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5dbcafa73b065bc619fd6adc9ef47eb6367b8378.camel@kernel.crashing.org>
+Content-Disposition: inline
+In-Reply-To: <20180608063655.GA32080@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,45 +27,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Christoph Hellwig <hch@infradead.org>
-Cc: robh@kernel.org, cohuck@redhat.com, pawel.moll@arm.com, Tom Lendacky <thomas.lendacky@amd.com>, "Michael S. Tsirkin" <mst@redhat.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, joe@perches.com, "Rustad, Mark
-	D" <mark.d.rustad@intel.com>, Anshuman Khandual <khandual@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
+Cc: robh@kernel.org, pawel.moll@arm.com, Tom Lendacky <thomas.lendacky@amd.com>, cohuck@redhat.com, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, joe@perches.com, "Rustad, Mark D" <mark.d.rustad@intel.com>, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2018-06-13 at 22:25 +1000, Benjamin Herrenschmidt wrote:
-> On Wed, 2018-06-13 at 00:41 -0700, Christoph Hellwig wrote:
-> > On Mon, Jun 11, 2018 at 01:29:18PM +1000, Benjamin Herrenschmidt wrote:
-> > > At the risk of repeating myself, let's just do the first pass which is
-> > > to switch virtio over to always using the DMA API in the actual data
-> > > flow code, with a hook at initialization time that replaces the DMA ops
-> > > with some home cooked "direct" ops in the case where the IOMMU flag
-> > > isn't set.
-> > > 
-> > > This will be equivalent to what we have today but avoids having 2
-> > > separate code path all over the driver.
-> > > 
-> > > Then a second stage, I think, is to replace this "hook" so that the
-> > > architecture gets a say in the matter.
-> > 
-> > I don't think we can actually use dma_direct_ops.  It still allows
-> > architectures to override parts of the dma setup, which virtio seems
-> > to blindly assume phys == dma and not cache flushing.
+On Thu, Jun 07, 2018 at 11:36:55PM -0700, Christoph Hellwig wrote:
+> > This seems to be what was being asked for in this thread,
+> > with comments claiming IOMMU flag adds too much overhead.
 > 
-> By direct ops I didn't mean *the* dma_direct_ops but a virtio-local
-> variants that effectively reproduces the existing expectations (ie,
-> virtio-dma-legacy-ops or something).
+> Right now it means implementing a virtual iommu, which I agree is
+> way too much overhead.
 
-Actually ... the stuff in lib/dma-direct.c seems to be just it, no ?
+Well not really. The flag in question will have a desired effect without
+a virtual iommu.
 
-There's no cache flushing and there's no architecture hooks that I can
-see other than the AMD security stuff which is probably fine.
-
-Or am I missing something ?
-
-Cheers,
-Ben.
+> > SEV guys report that they just set the iommu flag and then it all works.
+> > I guess if there's translation we can think of this as a kind of iommu.
+> > Maybe we should rename PLATFORM_IOMMU to PLARTFORM_TRANSLATION?
 > 
-> > I think the right way forward is to either add a new
-> > VIRTIO_F_IS_PCI_DEVICE (or redefine the existing iommu flag if deemed
-> > possible).  And then make sure recent qemu always sets it.
+> VIRTIO_F_BEHAVES_LIKE_A_REAL_PCI_DEVICE_DONT_TRY_TO_OUTSMART_ME
 > 
-> Ben.
+> as said it's not just translations, it is cache coherence as well.
+
+Well it's only for DMA. So maybe PLATFORM_DMA.
+
+I suspect people will then come and complain that they
+do *not* want cache coherence tricks because virtio is
+running on a CPU, but we'll see.
+
+> > And apparently some people complain that just setting that flag makes
+> > qemu check translation on each access with an unacceptable performance
+> > overhead.  Forcing same behaviour for everyone on general principles
+> > even without the flag is unlikely to make them happy.
+> 
+> That sounds like a qemu implementation bug.  If qemu knowns that
+> guest physiscall == guest dma space there is no need to check.
+
+Possibly. Or it's possible it's all just theoretical, no one
+posted any numbers.
+
+-- 
+MST
