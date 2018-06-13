@@ -1,21 +1,23 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY feature bit to
-	virtio_net
-Date: Wed, 13 Jun 2018 13:40:59 +0800
-Message-ID: <ce4da2b0-88fd-c79b-0567-fe564bb34922@redhat.com>
-References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
-	<fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
-	<20180605152344-mutt-send-email-mst@kernel.org>
-	<a45625c9-d2cd-f8f7-ce31-37c558e70b88@redhat.com>
-	<20180612144743-mutt-send-email-mst@kernel.org>
-	<5718de66-74c9-1362-a87b-2eba02475b48@redhat.com>
-	<c29a5ac9-cfb5-0a19-f28c-30d41bd5efcf@intel.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
+	virito devices
+Date: Wed, 13 Jun 2018 00:41:41 -0700
+Message-ID: <20180613074141.GA12033@infradead.org>
+References: <20180522063317.20956-1-khandual@linux.vnet.ibm.com>
+	<20180523213703-mutt-send-email-mst@kernel.org>
+	<20180524072104.GD6139@ram.oc3035372033.ibm.com>
+	<0c508eb2-08df-3f76-c260-90cf7137af80@linux.vnet.ibm.com>
+	<20180531204320-mutt-send-email-mst@kernel.org>
+	<20180607052306.GA1532@infradead.org>
+	<20180607185234-mutt-send-email-mst@kernel.org>
+	<20180611023909.GA5726@ram.oc3035372033.ibm.com>
+	<07b804fccd7373c650be79ac9fa77ae7f2375ced.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c29a5ac9-cfb5-0a19-f28c-30d41bd5efcf@intel.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <07b804fccd7373c650be79ac9fa77ae7f2375ced.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,138 +27,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: robh@kernel.org, cohuck@redhat.com, pawel.moll@arm.com, Tom Lendacky <thomas.lendacky@amd.com>, "Michael S. Tsirkin" <mst@redhat.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, joe@perches.com, "Rustad,
+	Mark D" <mark.d.rustad@intel.com>, Anshuman Khandual <khandual@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDbmnIgxM+aXpSAxMjoyNCwgU2FtdWRyYWxhLCBTcmlkaGFyIHdyb3RlOgo+
-IE9uIDYvMTIvMjAxOCA3OjM4IFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pgo+Pgo+PiBPbiAyMDE4
-5bm0MDbmnIgxMuaXpSAxOTo1NCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4gT24gV2Vk
-LCBKdW4gMDYsIDIwMTggYXQgMTA6Mjk6MDNBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4+
-Pgo+Pj4+IE9uIDIwMTjlubQwNuaciDA15pelIDIwOjMzLCBNaWNoYWVsIFMuIFRzaXJraW4gd3Jv
-dGU6Cj4+Pj4+IEkgZG9uJ3QgdGhpbmsgdGhpcyBpcyBzdWZmaWNpZW50Lgo+Pj4+Pgo+Pj4+PiBJ
-ZiBib3RoIHByaW1hcnkgYW5kIHN0YW5kYnkgZGV2aWNlcyBhcmUgcHJlc2VudCwgYSBsZWdhY3kg
-Z3Vlc3QgCj4+Pj4+IHdpdGhvdXQKPj4+Pj4gc3VwcG9ydCBmb3IgdGhlIGZlYXR1cmUgbWlnaHQg
-c2VlIHR3byBkZXZpY2VzIHdpdGggc2FtZSBtYWMgYW5kIGdldAo+Pj4+PiBjb25mdXNlZC4KPj4+
-Pj4KPj4+Pj4gSSB0aGluayB0aGF0IHdlIHNob3VsZCBvbmx5IG1ha2UgcHJpbWFyeSB2aXNpYmxl
-IGFmdGVyIGd1ZXN0IGFja2VkIAo+Pj4+PiB0aGUKPj4+Pj4gYmFja3VwIGZlYXR1cmUgYml0Lgo+
-Pj4+IEkgdGhpbmsgd2Ugd2FudCBleGFjdGx5IHRoZSByZXZlcnNlPyBFLmcgZmFpbCB0aGUgbmVn
-b3RpYXRpb24gd2hlbiAKPj4+PiBndWVzdAo+Pj4+IGRvZXMgbm90IGFjayBiYWNrdXAgZmVhdHVy
-ZS4KPj4+Pgo+Pj4+IE90aGVyd2lzZSBsZWdhY3kgZ3Vlc3Qgd29uJ3QgZXZlbiBoYXZlIHRoZSBj
-aGFuY2UgdG8gc2VlIHByaW1hcnkgCj4+Pj4gZGV2aWNlIGluCj4+Pj4gdGhlIGd1ZXN0Lgo+Pj4g
-VGhhdCdzIGJ5IGRlc2lnbi4KPj4KPj4gU28gbWFuYWdlbWVudCBuZWVkcyB0byBrbm93IHRoZSBj
-YXBhYmlsaXR5IG9mIGd1ZXN0IHRvIHNldCB0aGUgYmFja3VwIAo+PiBmZWF0dXJlLiBUaGlzIGxv
-b2tzIGEgY2hpY2tlbiBvciBlZ2cgcHJvYmxlbSB0byBtZS4KPgo+IEkgZG9uJ3QgdGhpbmsgc28u
-IElmIHRoZSB0ZW5hbnQgcmVxdWVzdHMgJ2FjY2VsZXJhdGVkIGRhdGFwYXRoIAo+IGZlYXR1cmUn
-LCB0aGUgbWFuYWdlbWVudAo+IHdpbGwgc2V0ICdzdGFuZGJ5JyBmZWF0dXJlIGJpdCBvbiB2aXJ0
-aW8tbmV0IGludGVyZmFjZSBhbmQgaWYgdGhlIAo+IGd1ZXN0IHZpcnRpby1uZXQgZHJpdmVyCj4g
-c3VwcG9ydHMgdGhpcyBmZWF0dXJlLCB0aGVuIHRoZSB0ZW5hbnQgVk0gd2lsbCBnZXQgdGhhdCBj
-YXBhYmlsaXR5IHZpYSAKPiBhIGhvdC1wbHVnZ2VkCj4gcHJpbWFyeSBkZXZpY2UuCgpPaywgSSB0
-aG91Z2h0IGV4YWN0bHkgdGhlIHJldmVyc2UgYmVjYXVzZSBvZiB0aGUgY29tbWl0IHRpdGxlIGlz
-ICJlbmFibGUgCnZpcnRpb19uZXQgdG8gYWN0IGFzIGEgc3RhbmRieSBmb3IgYSBwYXNzdGhydSBk
-ZXZpY2UiLiBCdXQgcmUtcmVhZCB0aGUgCmNvbW1pdCBsb2cgY29udGVudCwgSSB1bmRlcnN0YW5k
-IHRoZSBjYXNlIGEgbGl0dGxlIGJpdC4gQnR3LCBWRiBpcyBub3QgCm5lY2Vzc2FyaWx5IGZhc3Rl
-ciB0aGFuIHZpcnRpby1uZXQsIGVzcGVjaWFsbHkgY29uc2lkZXIgdmlydGlvLW5ldCBtYXkgCmhh
-dmUgYSBsb3Qgb2YgcXVldWVzLgoKPgo+Cj4+Cj4+Pgo+Pj4+PiBBbmQgb24gcmVzZXQgb3Igd2hl
-biBiYWNrdXAgaXMgY2xlYXJlZCBpbiBzb21lIG90aGVyIHdheSwgdW5wbHVnIHRoZQo+Pj4+PiBw
-cmltYXJ5Lgo+Pj4+IFdoYXQgaWYgZ3Vlc3QgZG9lcyBub3Qgc3VwcG9ydCBob3RwbHVnPwo+Pj4g
-SXQgc2hvdWxkbid0IGFjayB0aGUgYmFja3VwIGZlYXR1cmUgdGhlbiBhbmQgaXQncyBhIGdvb2Qg
-cG9pbnQuCj4+PiBXZSBzaG91bGQgYm90aCBkb2N1bWVudCB0aGlzIGFuZCBjaGVjayBrZXJuZWwg
-Y29uZmlnIGhhcwo+Pj4gaG90cGx1ZyBzdXBwb3J0LiBTcmlkaGFyIGNvdWxkIHlvdSB0YWtlIGEg
-bG9vayBwbHM/Cj4+Pgo+Pj4+PiBTb21ldGhpbmcgbGlrZSB0aGUgYmVsb3cgd2lsbCBkbyB0aGUg
-am9iOgo+Pj4+Pgo+Pj4+PiBQcmltYXJ5IGRldmljZSBpcyBhZGRlZCB3aXRoIGEgc3BlY2lhbCAi
-cHJpbWFyeS1mYWlsb3ZlciIgZmxhZy4KPj4+Pj4gQSB2aXJ0dWFsIG1hY2hpbmUgaXMgdGhlbiBp
-bml0aWFsaXplZCB3aXRoIGp1c3QgYSBzdGFuZGJ5IHZpcnRpbwo+Pj4+PiBkZXZpY2UuIFByaW1h
-cnkgaXMgbm90IHlldCBhZGRlZC4KPj4+PiBBIHF1ZXN0aW9uIGlzIGhvdyB0byBkbyB0aGUgbWF0
-Y2hpbmc/IFFlbXUga25vd3Mgbm90aGluZyBhYm91dCBlLmcgbWFjCj4+Pj4gYWRkcmVzcyBvZiBh
-IHBhc3MtdGhyb3VnaCBkZXZpY2UgSSBiZWxpZXZlPwo+Pj4gU3VwcGx5IGEgZmxhZyB0byB0aGUg
-VkZJTyB3aGVuIGl0J3MgYWRkZWQsIHRoaXMgd2F5IFFFTVUgd2lsbCBrbm93Lgo+Pj4KPj4+Pj4g
-TGF0ZXIgUUVNVSBkZXRlY3RzIHRoYXQgZ3Vlc3QgZHJpdmVyIGRldmljZSBzZXQgRFJJVkVSX09L
-Lgo+Pj4+PiBJdCB0aGVuIGV4cG9zZXMgdGhlIHByaW1hcnkgZGV2aWNlIHRvIHRoZSBndWVzdCwg
-YW5kIHRyaWdnZXJzCj4+Pj4+IGEgZGV2aWNlIGFkZGl0aW9uIGV2ZW50IChob3QtcGx1ZyBldmVu
-dCkgZm9yIGl0Lgo+Pj4+IERvIHlvdSBtZWFuIHdlIHdvbid0IGhhdmUgcHJpbWFyeSBkZXZpY2Ug
-aW4gdGhlIGluaXRpYWwgcWVtdSBjbGk/Cj4+PiBObywgdGhhdCdzIG5vdCB3aGF0IEkgbWVhbi4K
-Pj4+Cj4+PiBJIG1lYW4gbWFuYWdlbWVudCB3aWxsIHN1cHBseSBhIGZsYWcgdG8gVkZJTyBhbmQg
-dGhlbgo+Pj4KPj4+Cj4+PiAtIFZGSU8gZGVmZXJzIGV4cG9zaW5nCj4+PiBwcmltYXJ5IHRvIGd1
-ZXN0IHVudGlsIGd1ZXN0IGFja3MgdGhlIGZlYXR1cmUgYml0Lgo+Pj4gLSBXaGVuIHdlIHNlZSBn
-dWVzdCBhY2ssIGluaXRpYXRlIGhvdHBsdWcuCj4+PiAtIE9uIHJlYm9vdCwgaGlkZSBpdCBhZ2Fp
-bi4KPj4+IC0gT24gcmVzZXQgd2l0aG91dCByZWJvb3QsIHJlcXVlc3QgaG90LXVucGx1ZyBhbmQg
-b24gZWplY3QgaGlkZSBpdCAKPj4+IGFnYWluLgo+Pgo+PiBUaGlzIHNvdW5kcyBtdWNoIGxpa2Ug
-YSBraW5kIG9mIGJvbmRpbmcgaW4gcWVtdS4KPj4KPj4+Cj4+Pj4+IElmIFFFTVUgZGV0ZWN0cyBn
-dWVzdCBkcml2ZXIgcmVtb3ZhbCwgaXQgaW5pdGlhdGVzIGEgaG90LXVucGx1ZyAKPj4+Pj4gc2Vx
-dWVuY2UKPj4+Pj4gdG8gcmVtb3ZlIHRoZSBwcmltYXJ5IGRyaXZlci7CoCBJbiBwYXJ0aWN1bGFy
-LCBpZiBRRU1VIGRldGVjdHMgZ3Vlc3QKPj4+Pj4gcmUtaW5pdGlhbGl6YXRpb24gKGUuZy4gYnkg
-ZGV0ZWN0aW5nIGd1ZXN0IHJlc2V0KSBpdCBpbW1lZGlhdGVseSAKPj4+Pj4gcmVtb3Zlcwo+Pj4+
-PiB0aGUgcHJpbWFyeSBkZXZpY2UuCj4+Pj4gSSBiZWxpZXZlIGd1ZXN0IGZhaWxvdmVyIG1vZHVs
-ZSBzaG91bGQgaGFuZGxlIHRoaXMgZ3JhY2VmdWxseT8KPj4+IEl0IGNhbid0IGNvbnRyb2wgZW51
-bWVyYXRpb24gb3JkZXIsIGlmIHByaW1hcnkgaXMgZW51bWVyYXRlZCBiZWZvcmUKPj4+IHN0YW5k
-YnkgdGhlbiBndWVzdCB3aWxsIGxvYWQgaXRzIGRyaXZlciBhbmQgaXQncyB0b28gbGF0ZQo+Pj4g
-d2hlbiBmYWlsb3ZlciBkcml2ZXIgaXMgbG9hZGVkLgo+Pgo+PiBXZWxsLCBldmVuIGlmIHdlIGNh
-biBkZWxheSB0aGUgdmlzaWJpbGl0eSBvZiBwcmltYXJ5IHVudGlsIERSSVZFUl9PSywgCj4+IHRo
-ZXJlIHN0aWxsIGJlIGEgcmFjZSBJIHRoaW5rPyBBbmQgaXQgbG9va3MgdG8gbWUgaXQncyBzdGls
-bCBhIGJ1ZyBvZiAKPj4gZ3Vlc3Q6Cj4+Cj4+IEUuZyBwcmltYXJ5IGNvdWxkIGJlIHByb2JlZCBi
-ZWZvcmUgZmFpbG92ZXJfcmVnaXN0ZXIoKSBpbiBndWVzdC4gVGhlbiAKPj4gd2Ugd2lsbCBtaXNz
-IHRoZSBlbnNsYXZpbmcgb2YgcHJpbWFyeSBmb3JldmVyLgo+Cj4gVGhhdCBpcyBub3QgYW4gaXNz
-dWUuIEV2ZW4gaWYgdGhlIHByaW1hcnkgaXMgcHJvYmVkIGJlZm9yZSBmYWlsb3ZlciAKPiBkcml2
-ZXIsIGl0IHdpbGwKPiBlbnNsYXZlIHRoZSBwcmltYXJ5IHZpYSB0aGUgY2FsbCB0byBmYWlsb3Zl
-cl9leGlzdGluZ19zbGF2ZV9yZWdpc3RlcigpIAo+IGFzIHBhcnQgb2YKPiBmYWlsb3Zlcl9yZWdp
-c3RlcigpIHJvdXRpbmUuCgpBaGEgSSBnZXQgaXQuIFNvIHRoZSBlbnVtZXJhdGlvbiBvcmRlciBp
-cyBub3QgYW4gaXNzdWUuCgpDb25zaWRlciBwcmltYXJ5IG1heSBzdGlsbCBiZSBzZWVuIGJ5IGd1
-ZXN0IGtlcm5lbCBldmVuIGlmIHdlIGRlbGF5IGl0cyAKdmlzaWJpbGl0eSwgSSB3b25kZXIgd2hl
-dGhlciB3ZSBjYW4gY29udHJvbCB0aGUgbGlmZWN5Y2xlIG9mIHByaW1hcnkgCnRocm91Z2ggZHJp
-dmVyIGJ1dCBub3QgcWVtdS4gVGhpcyBjYW4gc2ltcGxpZnkgYSBsb3Qgb2YgdGhpbmdzLgoKVGhh
-bmtzCgo+Cj4+Cj4+IFRoYW5rcwo+Pgo+Pj4KPj4+PiBUaGFua3MKPj4+Pgo+Pj4+PiBXZSBjYW4g
-bW92ZSBzb21lIG9mIHRoaXMgY29kZSB0byBtYW5hZ2VtZW50IGFzIHdlbGwsIAo+Pj4+PiBhcmNo
-aXRlY3R1cmFsbHkgaXQKPj4+Pj4gZG9lcyBub3QgbWFrZSB0b28gbXVjaCBzZW5zZSBidXQgaXQg
-bWlnaHQgYmUgZWFzaWVyIAo+Pj4+PiBpbXBsZW1lbnRhdGlvbi13aXNlLgo+Pj4+Pgo+Pj4+PiBI
-VEgKPj4+Pj4KPj4+Pj4gT24gTW9uLCBKdW4gMDQsIDIwMTggYXQgMDY6NDE6NDhQTSAtMDcwMCwg
-U2FtdWRyYWxhLCBTcmlkaGFyIHdyb3RlOgo+Pj4+Pj4gUGluZyBvbiB0aGlzIHBhdGNoIG5vdyB0
-aGF0IHRoZSBrZXJuZWwgcGF0Y2hlcyBhcmUgYWNjZXB0ZWQgaW50byAKPj4+Pj4+IGRhdmVtJ3Mg
-bmV0LW5leHQgdHJlZS4KPj4+Pj4+IGh0dHBzOi8vcGF0Y2h3b3JrLm96bGFicy5vcmcvY292ZXIv
-OTIwMDA1Lwo+Pj4+Pj4KPj4+Pj4+Cj4+Pj4+PiBPbiA1LzcvMjAxOCA0OjA5IFBNLCBTcmlkaGFy
-IFNhbXVkcmFsYSB3cm90ZToKPj4+Pj4+PiBUaGlzIGZlYXR1cmUgYml0IGNhbiBiZSB1c2VkIGJ5
-IGh5cGVydmlzb3IgdG8gaW5kaWNhdGUgCj4+Pj4+Pj4gdmlydGlvX25ldCBkZXZpY2UgdG8KPj4+
-Pj4+PiBhY3QgYXMgYSBzdGFuZGJ5IGZvciBhbm90aGVyIGRldmljZSB3aXRoIHRoZSBzYW1lIE1B
-QyBhZGRyZXNzLgo+Pj4+Pj4+Cj4+Pj4+Pj4gSSB0ZXN0ZWQgdGhpcyB3aXRoIGEgc21hbGwgY2hh
-bmdlIHRvIHRoZSBwYXRjaCB0byBtYXJrIHRoZSAKPj4+Pj4+PiBTVEFOREJZIGZlYXR1cmUgJ3Ry
-dWUnCj4+Pj4+Pj4gYnkgZGVmYXVsdCBhcyBpIGFtIHVzaW5nIGxpYnZpcnQgdG8gc3RhcnQgdGhl
-IFZNcy4KPj4+Pj4+PiBJcyB0aGVyZSBhIHdheSB0byBwYXNzIHRoZSBuZXdseSBhZGRlZCBmZWF0
-dXJlIGJpdCAnc3RhbmRieScgdG8gCj4+Pj4+Pj4gcWVtdSB2aWEgbGlidmlydAo+Pj4+Pj4+IFhN
-TCBmaWxlPwo+Pj4+Pj4+Cj4+Pj4+Pj4gU2lnbmVkLW9mZi1ieTogU3JpZGhhciBTYW11ZHJhbGEg
-PHNyaWRoYXIuc2FtdWRyYWxhQGludGVsLmNvbT4KPj4+Pj4+PiAtLS0KPj4+Pj4+PiDCoMKgwqAg
-aHcvbmV0L3ZpcnRpby1uZXQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoCB8IDIgKysKPj4+Pj4+PiDCoMKgwqAgaW5jbHVkZS9zdGFuZGFyZC1oZWFkZXJz
-L2xpbnV4L3ZpcnRpb19uZXQuaCB8IDMgKysrCj4+Pj4+Pj4gwqDCoMKgIDIgZmlsZXMgY2hhbmdl
-ZCwgNSBpbnNlcnRpb25zKCspCj4+Pj4+Pj4KPj4+Pj4+PiBkaWZmIC0tZ2l0IGEvaHcvbmV0L3Zp
-cnRpby1uZXQuYyBiL2h3L25ldC92aXJ0aW8tbmV0LmMKPj4+Pj4+PiBpbmRleCA5MDUwMmZjYTdj
-Li4zOGIzMTQwNjcwIDEwMDY0NAo+Pj4+Pj4+IC0tLSBhL2h3L25ldC92aXJ0aW8tbmV0LmMKPj4+
-Pj4+PiArKysgYi9ody9uZXQvdmlydGlvLW5ldC5jCj4+Pj4+Pj4gQEAgLTIxOTgsNiArMjE5OCw4
-IEBAIHN0YXRpYyBQcm9wZXJ0eSB2aXJ0aW9fbmV0X3Byb3BlcnRpZXNbXSA9IHsKPj4+Pj4+PiDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdHJ1ZSksCj4+
-Pj4+Pj4gwqDCoMKgwqDCoMKgwqAgREVGSU5FX1BST1BfSU5UMzIoInNwZWVkIiwgVmlydElPTmV0
-LCBuZXRfY29uZi5zcGVlZCwgCj4+Pj4+Pj4gU1BFRURfVU5LTk9XTiksCj4+Pj4+Pj4gwqDCoMKg
-wqDCoMKgwqAgREVGSU5FX1BST1BfU1RSSU5HKCJkdXBsZXgiLCBWaXJ0SU9OZXQsIAo+Pj4+Pj4+
-IG5ldF9jb25mLmR1cGxleF9zdHIpLAo+Pj4+Pj4+ICvCoMKgwqAgREVGSU5FX1BST1BfQklUNjQo
-InN0YW5kYnkiLCBWaXJ0SU9OZXQsIGhvc3RfZmVhdHVyZXMsIAo+Pj4+Pj4+IFZJUlRJT19ORVRf
-Rl9TVEFOREJZLAo+Pj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqAgZmFsc2UpLAo+Pj4+Pj4+IMKgwqDCoMKgwqDCoMKgIERFRklORV9QUk9QX0VORF9PRl9M
-SVNUKCksCj4+Pj4+Pj4gwqDCoMKgIH07Cj4+Pj4+Pj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvc3Rh
-bmRhcmQtaGVhZGVycy9saW51eC92aXJ0aW9fbmV0LmggCj4+Pj4+Pj4gYi9pbmNsdWRlL3N0YW5k
-YXJkLWhlYWRlcnMvbGludXgvdmlydGlvX25ldC5oCj4+Pj4+Pj4gaW5kZXggZTlmMjU1ZWEzZi4u
-MDFlYzA5Njg0YyAxMDA2NDQKPj4+Pj4+PiAtLS0gYS9pbmNsdWRlL3N0YW5kYXJkLWhlYWRlcnMv
-bGludXgvdmlydGlvX25ldC5oCj4+Pj4+Pj4gKysrIGIvaW5jbHVkZS9zdGFuZGFyZC1oZWFkZXJz
-L2xpbnV4L3ZpcnRpb19uZXQuaAo+Pj4+Pj4+IEBAIC01Nyw2ICs1Nyw5IEBACj4+Pj4+Pj4gwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICogU3RlZXJpbmcg
-Ki8KPj4+Pj4+PiDCoMKgwqAgI2RlZmluZSBWSVJUSU9fTkVUX0ZfQ1RSTF9NQUNfQUREUiAyM8Kg
-wqDCoCAvKiBTZXQgTUFDIGFkZHJlc3MgKi8KPj4+Pj4+PiArI2RlZmluZSBWSVJUSU9fTkVUX0Zf
-U1RBTkRCWcKgwqDCoMKgwqAgNjLCoMKgwqAgLyogQWN0IGFzIHN0YW5kYnkgZm9yIAo+Pj4+Pj4+
-IGFub3RoZXIgZGV2aWNlCj4+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICogd2l0aCB0
-aGUgc2FtZSBNQUMuCj4+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICovCj4+Pj4+Pj4g
-wqDCoMKgICNkZWZpbmUgVklSVElPX05FVF9GX1NQRUVEX0RVUExFWCA2M8KgwqDCoCAvKiBEZXZp
-Y2Ugc2V0IAo+Pj4+Pj4+IGxpbmtzcGVlZCBhbmQgZHVwbGV4ICovCj4+Pj4+Pj4gwqDCoMKgICNp
-Zm5kZWYgVklSVElPX05FVF9OT19MRUdBQ1kKPj4KPgoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, Jun 11, 2018 at 01:29:18PM +1000, Benjamin Herrenschmidt wrote:
+> At the risk of repeating myself, let's just do the first pass which is
+> to switch virtio over to always using the DMA API in the actual data
+> flow code, with a hook at initialization time that replaces the DMA ops
+> with some home cooked "direct" ops in the case where the IOMMU flag
+> isn't set.
+> 
+> This will be equivalent to what we have today but avoids having 2
+> separate code path all over the driver.
+> 
+> Then a second stage, I think, is to replace this "hook" so that the
+> architecture gets a say in the matter.
+
+I don't think we can actually use dma_direct_ops.  It still allows
+architectures to override parts of the dma setup, which virtio seems
+to blindly assume phys == dma and not cache flushing.
+
+I think the right way forward is to either add a new
+VIRTIO_F_IS_PCI_DEVICE (or redefine the existing iommu flag if deemed
+possible).  And then make sure recent qemu always sets it.
