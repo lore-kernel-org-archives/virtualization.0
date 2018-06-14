@@ -1,12 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL v2] vhost, virtio
-Date: Thu, 14 Jun 2018 02:45:06 +0300
-Message-ID: <20180614024506-mutt-send-email-mst@kernel.org>
+From: Siwei Liu <loseweigh@gmail.com>
+Subject: Re: [virtio-dev] Re: [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY
+	feature bit to virtio_net
+Date: Wed, 13 Jun 2018 17:56:06 -0700
+Message-ID: <CADGSJ21gEYTMQv+-nOxXiwKmFp0c5EDqfCXHqy2EbF3iLZfuXg@mail.gmail.com>
+References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
+	<fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
+	<20180605152344-mutt-send-email-mst@kernel.org>
+	<CADGSJ21Qf6KpLzr+og5DOFjMPqu69n6dWRLvvj1FGAR5kVRNew@mail.gmail.com>
+	<20180606002650-mutt-send-email-mst@kernel.org>
+	<CADGSJ21AMp02vV+qxa+DuyvAUCCsXUFwV7wjzQ1Vy1jKV=n1HA@mail.gmail.com>
+	<20180612143554-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20180612143554-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,45 +24,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: ohad@wizery.com, kevin@guarana.org, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, bjorn.andersson@linaro.org, syzbot+87cfa083e727a224754b@syzkaller.appspotmail.com, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Page hints are reworked - I dropped them for now.
+On Tue, Jun 12, 2018 at 4:47 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Tue, Jun 05, 2018 at 03:09:26PM -0700, Siwei Liu wrote:
+>> The thing is cloud service provider might prefer sticking to the same
+>> level of service agreement (SLA) of keeping VF over migration,
+>
+> That requirement is trivially satisfied by just a single VF :) If your
+> SLA does not require live migration, you should do just that.
 
-The following changes since commit 29dcea88779c856c7dc92040a0c01233263101d4:
+The requirement is enable live migration by default without getting
+user too much attention. Migration should be attempted if guest is
+live migratable. If not, present a single VF to legacy guest.
 
-  Linux 4.17 (2018-06-03 14:15:21 -0700)
+You seem to think it's not a valid use case? Or impossible to do so?
+What if I have something in mind that can support my theory as well?
 
-are available in the Git repository at:
+-Siwei
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to 2eb98105f8c7f4b867f7f714a998f5b8c1bb009b:
-
-  virtio: update the comments for transport features (2018-06-12 04:59:29 +0300)
-
-----------------------------------------------------------------
-virtio, vhost: features, fixes
-
-VF support for virtio.
-DMA barriers for virtio strong barriers.
-Bugfixes.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Michael S. Tsirkin (2):
-      virtio_ring: switch to dma_XX barriers for rpmsg
-      vhost: fix info leak due to uninitialized memory
-
-Tiwei Bie (2):
-      virtio_pci: support enabling VFs
-      virtio: update the comments for transport features
-
- drivers/vhost/vhost.c              |  3 +++
- drivers/virtio/virtio_pci_common.c | 30 ++++++++++++++++++++++++++++++
- drivers/virtio/virtio_pci_modern.c | 14 ++++++++++++++
- include/linux/virtio_ring.h        |  4 ++--
- include/uapi/linux/virtio_config.h | 16 ++++++++++++----
- 5 files changed, 61 insertions(+), 6 deletions(-)
+>
+> --
+> MST
