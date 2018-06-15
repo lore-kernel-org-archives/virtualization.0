@@ -1,10 +1,9 @@
-From: Cornelia Huck <cohuck@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
 	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Fri, 15 Jun 2018 13:48:15 +0200
-Message-ID: <20180615134815.6613620e.cohuck__14717.0153832578$1529063177$gmane$org@redhat.com>
-References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
-	<20180611202207-mutt-send-email-mst@kernel.org>
+Date: Fri, 15 Jun 2018 15:31:43 +0300
+Message-ID: <20180615152926-mutt-send-email-mst__2473.51583461768$1529065787$gmane$org@kernel.org>
+References: <20180611202207-mutt-send-email-mst@kernel.org>
 	<dc8b1669-b8b6-fb59-94e2-6e4de6b96572@redhat.com>
 	<20180612051432-mutt-send-email-mst@kernel.org>
 	<23fc4aa4-ec41-d6e2-3354-10cbfc13b7ec@intel.com>
@@ -12,12 +11,14 @@ References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
 	<b9c88515-cf41-2a9a-078e-9c9e5adbbf14@intel.com>
 	<CADGSJ213f8tJpNXuOhv8qRew-Y5VZAwA+srNMrLZYnKdVGLdAA@mail.gmail.com>
 	<20180614120231.0a72bd5f.cohuck@redhat.com>
-	<CADGSJ23WnTmVKHezm3t0V6M2sWeHaOUoTjdXkmrvbO0EF83hMg@mail.gmail.com>
+	<20180615052743-mutt-send-email-mst@kernel.org>
+	<20180615113242.799974f6.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CADGSJ23WnTmVKHezm3t0V6M2sWeHaOUoTjdXkmrvbO0EF83hMg@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20180615113242.799974f6.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,125 +28,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S.
-	Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, aaron.f.brown@intel.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, aaron.f.brown@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 14 Jun 2018 18:57:11 -0700
-Siwei Liu <loseweigh@gmail.com> wrote:
+On Fri, Jun 15, 2018 at 11:32:42AM +0200, Cornelia Huck wrote:
+> On Fri, 15 Jun 2018 05:34:24 +0300
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > On Thu, Jun 14, 2018 at 12:02:31PM +0200, Cornelia Huck wrote:
+> 
+> > > > > I am not all that familiar with how Qemu manages network devices. If we can
+> > > > > do all the
+> > > > > required management of the primary/standby devices within Qemu, that is
+> > > > > definitely a better
+> > > > > approach without upper layer involvement.    
+> > > > 
+> > > > Right. I would imagine in the extreme case the upper layer doesn't
+> > > > have to be involved at all if QEMU manages all hot plug/unplug logic.
+> > > > The management tool can supply passthrough device and virtio with the
+> > > > same group UUID, QEMU auto-manages the presence of the primary, and
+> > > > hot plug the device as needed before or after the migration.  
+> > > 
+> > > I do not really see how you can manage that kind of stuff in QEMU only.  
+> > 
+> > So right now failover is limited to pci passthrough devices only.
+> > The idea is to realize the vfio device but not expose it
+> > to guest. Have a separate command to expose it to guest.
+> > Hotunplug would also hide it from guest but not unrealize it.
+> 
+> So, this would not be real hot(un)plug, but 'hide it from the guest',
+> right? The concept of "we have it realized in QEMU, but the guest can't
+> discover and use it" should be translatable to non-pci as well (at
+> least for ccw).
+> 
+> > 
+> > This will help ensure that e.g. on migration failure we can
+> > re-expose the device without risk of running out of resources.
+> 
+> Makes sense.
+> 
+> Should that 'hidden' state be visible/settable from outside as well
+> (e.g. via a property)? I guess yes, so that management software has a
+> chance to see whether a device is visible.
 
-> Thank you for sharing your thoughts, Cornelia. With questions below, I
-> think you raised really good points, some of which I don't have answer
-> yet and would also like to explore here.
-> 
-> First off, I don't want to push the discussion to the extreme at this
-> point, or sell anything about having QEMU manage everything
-> automatically. Don't get me wrong, it's not there yet. Let's don't
-> assume we are tied to a specific or concerte solution. I think the key
-> for our discussion might be to define or refine the boundary between
-> VM and guest,  e.g. what each layer is expected to control and manage
-> exactly.
-> 
-> In my view, there might be possibly 3 different options to represent
-> the failover device conceipt to QEMU and libvirt (or any upper layer
-> software):
-> 
-> a. Seperate device: in this model, virtio and passthough remains
-> separate devices just as today. QEMU exposes the standby feature bit
-> for virtio, and publish status/event around the negotiation process of
-> this feature bit for libvirt to react upon. Since Libvirt has the
-> pairing relationship itself, maybe through MAC address or something
-> else, it can control the presence of primary by hot plugging or
-> unplugging the passthrough device, although it has to work tightly
-> with virtio's feature negotation process. Not just for migration but
-> also various corner scenarios (driver/feature ok, device reset,
-> reboot, legacy guest etc) along virtio's feature negotiation.
+Might be handy for debug, but note that since QEMU manages this
+state it's transient: can change at any time, so it's kind
+of hard for management to rely on it.
 
-Yes, that one has obvious tie-ins to virtio's modus operandi.
-
-> 
-> b. Coupled device: in this model, virtio and passthough devices are
-> weakly coupled using some group ID, i.e. QEMU match the passthough
-> device for a standby virtio instance by comparing the group ID value
-> present behind each device's bridge. Libvirt provides QEMU the group
-> ID for both type of devices, and only deals with hot plug for
-> migration, by checking some migration status exposed (e.g. the feature
-> negotiation status on the virtio device) by QEMU. QEMU manages the
-> visibility of the primary in guest along virtio's feature negotiation
-> process.
-
-I'm a bit confused here. What, exactly, ties the two devices together?
-If libvirt already has the knowledge that it should manage the two as a
-couple, why do we need the group id (or something else for other
-architectures)? (Maybe I'm simply missing something because I'm not
-that familiar with pci.)
-
-> 
-> c. Fully combined device: in this model, virtio and passthough devices
-> are viewed as a single VM interface altogther. QEMU not just controls
-> the visibility of the primary in guest, but can also manage the
-> exposure of the passthrough for migratability. It can be like that
-> libvirt supplies the group ID to QEMU. Or libvirt does not even have
-> to provide group ID for grouping the two devices, if just one single
-> combined device is exposed by QEMU. In either case, QEMU manages all
-> aspect of such internal construct, including virtio feature
-> negotiation, presence of the primary, and live migration.
-
-Same question as above.
-
-> 
-> It looks like to me that, in your opinion, you seem to prefer go with
-> (a). While I'm actually okay with either (b) or (c). Do I understand
-> your point correctly?
-
-I'm not yet preferring anything, as I'm still trying to understand how
-this works :) I hope we can arrive at a model that covers the use case
-and that is also flexible enough to be extended to other platforms.
-
-> 
-> The reason that I feel that (a) might not be ideal, just as Michael
-> alluded to (quoting below), is that as management stack, it really
-> doesn't need to care about the detailed process of feature negotiation
-> (if we view the guest presence of the primary as part of feature
-> negotiation at an extended level not just virtio). All it needs to be
-> done is to hand in the required devices to QEMU and that's all. Why do
-> we need to addd various hooks, events for whichever happens internally
-> within the guest?
-> 
-> ''
-> Primary device is added with a special "primary-failover" flag.
-> A virtual machine is then initialized with just a standby virtio
-> device. Primary is not yet added.
-> 
-> Later QEMU detects that guest driver device set DRIVER_OK.
-> It then exposes the primary device to the guest, and triggers
-> a device addition event (hot-plug event) for it.
-> 
-> If QEMU detects guest driver removal, it initiates a hot-unplug sequence
-> to remove the primary driver.  In particular, if QEMU detects guest
-> re-initialization (e.g. by detecting guest reset) it immediately removes
-> the primary device.
-> ''
-> 
-> and,
-> 
-> ''
-> management just wants to give the primary to guest and later take it back,
-> it really does not care about the details of the process,
-> so I don't see what does pushing it up the stack buy you.
-> 
-> So I don't think it *needs* to be done in libvirt. It probably can if you
-> add a bunch of hooks so it knows whenever vm reboots, driver binds and
-> unbinds from device, and can check that backup flag was set.
-> If you are pushing for a setup like that please get a buy-in
-> from libvirt maintainers or better write a patch.
-> ''
-
-This actually seems to mean the opposite to me: We need to know what
-the guest is doing and when, as it directly drives what we need to do
-with the devices. If we switch to a visibility vs a hotplug model (see
-the other mail), we might be able to handle that part within qemu.
-However, I don't see how you get around needing libvirt to actually set
-this up in the first place and to handle migration per se.
+> Settable may be useful if we
+> find another use case for hiding realized devices.
