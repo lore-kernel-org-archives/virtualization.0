@@ -1,24 +1,23 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
-	virito devices
-Date: Fri, 15 Jun 2018 02:16:24 -0700
-Message-ID: <20180615091624.GA1064@infradead.org>
-References: <20180524072104.GD6139@ram.oc3035372033.ibm.com>
-	<0c508eb2-08df-3f76-c260-90cf7137af80@linux.vnet.ibm.com>
-	<20180531204320-mutt-send-email-mst@kernel.org>
-	<20180607052306.GA1532@infradead.org>
-	<20180607185234-mutt-send-email-mst@kernel.org>
-	<20180611023909.GA5726@ram.oc3035372033.ibm.com>
-	<07b804fccd7373c650be79ac9fa77ae7f2375ced.camel@kernel.crashing.org>
-	<20180613074141.GA12033@infradead.org>
-	<5dbcafa73b065bc619fd6adc9ef47eb6367b8378.camel@kernel.crashing.org>
-	<10bbd7122aaa67f51de7a8328df8154212a13f23.camel@kernel.crashing.org>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
+	VIRTIO_NET_F_STANDBY feature bit to virtio_net
+Date: Fri, 15 Jun 2018 11:32:42 +0200
+Message-ID: <20180615113242.799974f6.cohuck__42860.0102699876$1529055047$gmane$org@redhat.com>
+References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
+	<20180611202207-mutt-send-email-mst@kernel.org>
+	<dc8b1669-b8b6-fb59-94e2-6e4de6b96572@redhat.com>
+	<20180612051432-mutt-send-email-mst@kernel.org>
+	<23fc4aa4-ec41-d6e2-3354-10cbfc13b7ec@intel.com>
+	<20180612142557-mutt-send-email-mst@kernel.org>
+	<b9c88515-cf41-2a9a-078e-9c9e5adbbf14@intel.com>
+	<CADGSJ213f8tJpNXuOhv8qRew-Y5VZAwA+srNMrLZYnKdVGLdAA@mail.gmail.com>
+	<20180614120231.0a72bd5f.cohuck@redhat.com>
+	<20180615052743-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <10bbd7122aaa67f51de7a8328df8154212a13f23.camel@kernel.crashing.org>
+In-Reply-To: <20180615052743-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,21 +27,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: robh@kernel.org, cohuck@redhat.com, pawel.moll@arm.com, Tom Lendacky <thomas.lendacky@amd.com>, "Michael S. Tsirkin" <mst@redhat.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, joe@perches.com, "Rustad,
-	Mark D" <mark.d.rustad@intel.com>, Anshuman Khandual <khandual@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, aaron.f.brown@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 13, 2018 at 11:11:01PM +1000, Benjamin Herrenschmidt wrote:
-> Actually ... the stuff in lib/dma-direct.c seems to be just it, no ?
-> 
-> There's no cache flushing and there's no architecture hooks that I can
-> see other than the AMD security stuff which is probably fine.
-> 
-> Or am I missing something ?
+On Fri, 15 Jun 2018 05:34:24 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-You are missing the __phys_to_dma arch hook that allows architectures
-to adjust the dma address.  Various systems have offsets, or even
-multiple banks with different offsets there.  Most of them don't
-use the dma-direct code yet (working on it), but there are a few
-examples in the tree already.
+> On Thu, Jun 14, 2018 at 12:02:31PM +0200, Cornelia Huck wrote:
+
+> > > > I am not all that familiar with how Qemu manages network devices. If we can
+> > > > do all the
+> > > > required management of the primary/standby devices within Qemu, that is
+> > > > definitely a better
+> > > > approach without upper layer involvement.    
+> > > 
+> > > Right. I would imagine in the extreme case the upper layer doesn't
+> > > have to be involved at all if QEMU manages all hot plug/unplug logic.
+> > > The management tool can supply passthrough device and virtio with the
+> > > same group UUID, QEMU auto-manages the presence of the primary, and
+> > > hot plug the device as needed before or after the migration.  
+> > 
+> > I do not really see how you can manage that kind of stuff in QEMU only.  
+> 
+> So right now failover is limited to pci passthrough devices only.
+> The idea is to realize the vfio device but not expose it
+> to guest. Have a separate command to expose it to guest.
+> Hotunplug would also hide it from guest but not unrealize it.
+
+So, this would not be real hot(un)plug, but 'hide it from the guest',
+right? The concept of "we have it realized in QEMU, but the guest can't
+discover and use it" should be translatable to non-pci as well (at
+least for ccw).
+
+> 
+> This will help ensure that e.g. on migration failure we can
+> re-expose the device without risk of running out of resources.
+
+Makes sense.
+
+Should that 'hidden' state be visible/settable from outside as well
+(e.g. via a property)? I guess yes, so that management software has a
+chance to see whether a device is visible. Settable may be useful if we
+find another use case for hiding realized devices.
