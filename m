@@ -1,14 +1,24 @@
 From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 0/3] Use sbitmap instead of percpu_ida
-Date: Fri, 15 Jun 2018 00:37:55 -0700
-Message-ID: <20180615073755.GA22953@infradead.org>
-References: <20180612190545.10781-1-willy@infradead.org>
+Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
+	virito devices
+Date: Fri, 15 Jun 2018 02:16:24 -0700
+Message-ID: <20180615091624.GA1064@infradead.org>
+References: <20180524072104.GD6139@ram.oc3035372033.ibm.com>
+	<0c508eb2-08df-3f76-c260-90cf7137af80@linux.vnet.ibm.com>
+	<20180531204320-mutt-send-email-mst@kernel.org>
+	<20180607052306.GA1532@infradead.org>
+	<20180607185234-mutt-send-email-mst@kernel.org>
+	<20180611023909.GA5726@ram.oc3035372033.ibm.com>
+	<07b804fccd7373c650be79ac9fa77ae7f2375ced.camel@kernel.crashing.org>
+	<20180613074141.GA12033@infradead.org>
+	<5dbcafa73b065bc619fd6adc9ef47eb6367b8378.camel@kernel.crashing.org>
+	<10bbd7122aaa67f51de7a8328df8154212a13f23.camel@kernel.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180612190545.10781-1-willy@infradead.org>
+In-Reply-To: <10bbd7122aaa67f51de7a8328df8154212a13f23.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,10 +28,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <willy@infradead.org>
-Cc: Juergen Gross <jgross@suse.com>, Jens Axboe <axboe@kernel.dk>, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, qla2xxx-upstream@qlogic.com, linux1394-devel@lists.sourceforge.net, Kent Overstreet <kent.overstreet@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: robh@kernel.org, cohuck@redhat.com, pawel.moll@arm.com, Tom Lendacky <thomas.lendacky@amd.com>, "Michael S. Tsirkin" <mst@redhat.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, joe@perches.com, "Rustad,
+	Mark D" <mark.d.rustad@intel.com>, Anshuman Khandual <khandual@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-Btw, if you are on a spree to remove almost unused data structures
-from target code, the lib/btree.c code is only used by the qla2xxx
-target code, and doesn't really look like the best fit for it either.
+On Wed, Jun 13, 2018 at 11:11:01PM +1000, Benjamin Herrenschmidt wrote:
+> Actually ... the stuff in lib/dma-direct.c seems to be just it, no ?
+> 
+> There's no cache flushing and there's no architecture hooks that I can
+> see other than the AMD security stuff which is probably fine.
+> 
+> Or am I missing something ?
+
+You are missing the __phys_to_dma arch hook that allows architectures
+to adjust the dma address.  Various systems have offsets, or even
+multiple banks with different offsets there.  Most of them don't
+use the dma-direct code yet (working on it), but there are a few
+examples in the tree already.
