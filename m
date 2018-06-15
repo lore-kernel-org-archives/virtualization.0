@@ -1,19 +1,11 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PULL] vhost: cleanups and fixes
-Date: Fri, 15 Jun 2018 11:53:17 +0800
-Message-ID: <5B23382D.7090909@intel.com>
-References: <20180611192353-mutt-send-email-mst@kernel.org>
-	<CA+55aFzrPgnd7hRPrkeV+jX-MSwOZf7T4wKxz66Lk4oub3PZsw@mail.gmail.com>
-	<CA+55aFz4uBHaWnBarVUEG90s2ucyVtoLmwYpYVwDV+XQESNRqw@mail.gmail.com>
-	<20180612042600-mutt-send-email-mst@kernel.org>
-	<CA+55aFyNhEzzufw0XP9DcqZNS1CH+jDGdN4CVnazb3ssFxFbzQ@mail.gmail.com>
-	<5B1FA8EF.4030409@intel.com>
-	<0f18063c-c76b-4728-5145-810f069988ea@redhat.com>
+Subject: [PATCH v33 0/4] Virtio-balloon: support free page reporting
+Date: Fri, 15 Jun 2018 12:43:09 +0800
+Message-ID: <1529037793-35521-1-git-send-email-wei.w.wang__25704.658139921$1529039205$gmane$org@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0f18063c-c76b-4728-5145-810f069988ea@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,101 +15,144 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nitesh Narayan Lal <nilal@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: KVM list <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org
+Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, pbonzini@redhat.com, nilal@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/14/2018 11:01 PM, Nitesh Narayan Lal wrote:
-> Hi Wei,
->
->
-> On 06/12/2018 07:05 AM, Wei Wang wrote:
->> On 06/12/2018 09:59 AM, Linus Torvalds wrote:
->>> On Mon, Jun 11, 2018 at 6:36 PM Michael S. Tsirkin <mst@redhat.com>
->>> wrote:
->>>> Maybe it will help to have GFP_NONE which will make any allocation
->>>> fail if attempted. Linus, would this address your comment?
->>> It would definitely have helped me initially overlook that call chain.
->>>
->>> But then when I started looking at the whole dma_map_page() thing, it
->>> just raised my hackles again.
->>>
->>> I would seriously suggest having a much simpler version for the "no
->>> allocation, no dma mapping" case, so that it's *obvious* that that
->>> never happens.
->>>
->>> So instead of having virtio_balloon_send_free_pages() call a really
->>> generic complex chain of functions that in _some_ cases can do memory
->>> allocation, why isn't there a short-circuited "vitruque_add_datum()"
->>> that is guaranteed to never do anything like that?
->>>
->>> Honestly, I look at "add_one_sg()" and it really doesn't make me
->>> happy. It looks hacky as hell. If I read the code right, you're really
->>> trying to just queue up a simple tuple of <pfn,len>, except you encode
->>> it as a page pointer in order to play games with the SG logic, and
->>> then you hmap that to the ring, except in this case it's all a fake
->>> ring that just adds the cpu-physical address instead.
->>>
->>> And to figuer that out, it's like five layers of indirection through
->>> different helper functions that *can* do more generic things but in
->>> this case don't.
->>>
->>> And you do all of this from a core VM callback function with some
->>> _really_ core VM locks held.
->>>
->>> That makes no sense to me.
->>>
->>> How about this:
->>>
->>>    - get rid of all that code
->>>
->>>    - make the core VM callback save the "these are the free memory
->>> regions" in a fixed and limited array. One that DOES JUST THAT. No
->>> crazy "SG IO dma-mapping function crap". Just a plain array of a fixed
->>> size, pre-allocated for that virtio instance.
->>>
->>>    - make it obvious that what you do in that sequence is ten
->>> instructions and no allocations ("Look ma, I wrote a value to an array
->>> and incremented the array idex, and I'M DONE")
->>>
->>>    - then in that workqueue entry that you start *anyway*, you empty the
->>> array and do all the crazy virtio stuff.
->>>
->>> In fact, while at it, just simplify the VM interface too. Instead of
->>> traversing a random number of buddy lists, just trraverse *one* - the
->>> top-level one. Are you seriously ever going to shrink or mark
->>> read-only anythin *but* something big enough to be in the maximum
->>> order?
->>>
->>> MAX_ORDER is what, 11? So we're talking 8MB blocks. Do you *really*
->>> want the balloon code to work on smaller things, particularly since
->>> the whole interface is fundamentally racy and opportunistic to begin
->>> with?
->> OK, I will implement a new version based on the suggestions. Thanks.
-> I have been working on a similar series [1] that is more generic, which
-> solves the problem of giving unused memory back to the host and could be
-> used to solve the migration problem as well. Can you take a look and see
-> if you can use my series in some way?
+This patch series is separated from the previous "Virtio-balloon
+Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,  
+implemented by this series enables the virtio-balloon driver to report
+hints of guest free pages to the host. It can be used to accelerate live
+migration of VMs. Here is an introduction of this usage:
 
-Hi Nitesh,
+Live migration needs to transfer the VM's memory from the source machine
+to the destination round by round. For the 1st round, all the VM's memory
+is transferred. From the 2nd round, only the pieces of memory that were
+written by the guest (after the 1st round) are transferred. One method
+that is popularly used by the hypervisor to track which part of memory is
+written is to write-protect all the guest memory.
 
-I actually checked the last version, which dates back to last year. It 
-seems the new version does not have fundamental differences.
+This feature enables the optimization by skipping the transfer of guest
+free pages during VM live migration. It is not concerned that the memory
+pages are used after they are given to the hypervisor as a hint of the
+free pages, because they will be tracked by the hypervisor and transferred
+in the subsequent round if they are used and written.
 
-Actually there are obvious differences between the two series. This 
-series provides a simple lightweight method (will continue to post out a 
-new version with simpler interfaces based on the above suggestions) to 
-offer free pages hints, and the hints are quit helpful for usages like 
-accelerating live migration and guest snapshot. If I read that 
-correctly, that series seems to provide true (guaranteed) free pages 
-with much more heavyweight logics, but true free pages are not necessary 
-for the live migration optimization, which is the goal and motivation of 
-this work. And from my point of view, that series seems more like an 
-alternative function to ballooning, which takes out free pages (or say 
-guest unused pages) via allocation.
+* Tests
+- Test Environment
+    Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
+    Guest: 8G RAM, 4 vCPU
+    Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
 
-I will join the discussion in that thread. Probably we would need to 
-think about other new usages for that series.
+- Test Results
+    - Idle Guest Live Migration Time (results are averaged over 10 runs):
+        - Optimization v.s. Legacy = 278ms vs 1757ms --> ~84% reduction
+    - Guest with Linux Compilation Workload (make bzImage -j4):
+        - Live Migration Time (average)
+          Optimization v.s. Legacy = 1408ms v.s. 2528ms --> ~44% reduction
+        - Linux Compilation Time
+          Optimization v.s. Legacy = 5min3s v.s. 5min12s
+          --> no obvious difference
 
-Best,
-Wei
+ChangeLog:
+v32->v33:
+    - mm/get_from_free_page_list: The new implementation to get free page
+      hints based on the suggestions from Linus:
+      https://lkml.org/lkml/2018/6/11/764
+      This avoids the complex call chain, and looks more prudent.
+    - virtio-balloon: 
+      - use a fix-sized buffer to get free page hints;
+      - remove the cmd id related interface. Now host can just send a free
+        page hint command to the guest (via the host_cmd config register)
+        to start the reporting. Currentlty the guest reports only the max
+        order free page hints to host, which has generated similar good
+        results as before. But the interface used by virtio-balloon to
+        report can support reporting more orders in the future when there
+        is a need.
+v31->v32:
+    - virtio-balloon:
+        - rename cmd_id_use to cmd_id_active;
+        - report_free_page_func: detach used buffers after host sends a vq
+          interrupt, instead of busy waiting for used buffers.
+v30->v31:
+    - virtio-balloon:
+        - virtio_balloon_send_free_pages: return -EINTR rather than 1 to
+          indicate an active stop requested by host; and add more
+          comments to explain about access to cmd_id_received without
+          locks;
+        -  add_one_sg: add TODO to comments about possible improvement.
+v29->v30:
+    - mm/walk_free_mem_block: add cond_sched() for each order
+v28->v29:
+    - mm/page_poison: only expose page_poison_enabled(), rather than more
+      changes did in v28, as we are not 100% confident about that for now.
+    - virtio-balloon: use a separate buffer for the stop cmd, instead of
+      having the start and stop cmd use the same buffer. This avoids the
+      corner case that the start cmd is overridden by the stop cmd when
+      the host has a delay in reading the start cmd.
+v27->v28:
+    - mm/page_poison: Move PAGE_POISON to page_poison.c and add a function
+      to expose page poison val to kernel modules.
+v26->v27:
+    - add a new patch to expose page_poisoning_enabled to kernel modules
+    - virtio-balloon: set poison_val to 0xaaaaaaaa, instead of 0xaa
+v25->v26: virtio-balloon changes only
+    - remove kicking free page vq since the host now polls the vq after
+      initiating the reporting
+    - report_free_page_func: detach all the used buffers after sending
+      the stop cmd id. This avoids leaving the detaching burden (i.e.
+      overhead) to the next cmd id. Detaching here isn't considered
+      overhead since the stop cmd id has been sent, and host has already
+      moved formard.
+v24->v25:
+    - mm: change walk_free_mem_block to return 0 (instead of true) on
+          completing the report, and return a non-zero value from the
+          callabck, which stops the reporting.
+    - virtio-balloon:
+        - use enum instead of define for VIRTIO_BALLOON_VQ_INFLATE etc.
+        - avoid __virtio_clear_bit when bailing out;
+        - a new method to avoid reporting the some cmd id to host twice
+        - destroy_workqueue can cancel free page work when the feature is
+          negotiated;
+        - fail probe when the free page vq size is less than 2.
+v23->v24:
+    - change feature name VIRTIO_BALLOON_F_FREE_PAGE_VQ to
+      VIRTIO_BALLOON_F_FREE_PAGE_HINT
+    - kick when vq->num_free < half full, instead of "= half full"
+    - replace BUG_ON with bailing out
+    - check vb->balloon_wq in probe(), if null, bail out
+    - add a new feature bit for page poisoning
+    - solve the corner case that one cmd id being sent to host twice
+v22->v23:
+    - change to kick the device when the vq is half-way full;
+    - open-code batch_free_page_sg into add_one_sg;
+    - change cmd_id from "uint32_t" to "__virtio32";
+    - reserver one entry in the vq for the driver to send cmd_id, instead
+      of busywaiting for an available entry;
+    - add "stop_update" check before queue_work for prudence purpose for
+      now, will have a separate patch to discuss this flag check later;
+    - init_vqs: change to put some variables on stack to have simpler
+      implementation;
+    - add destroy_workqueue(vb->balloon_wq);
+v21->v22:
+    - add_one_sg: some code and comment re-arrangement
+    - send_cmd_id: handle a cornercase
+
+For previous ChangeLog, please reference
+https://lwn.net/Articles/743660/
+
+Wei Wang (4):
+  mm: add a function to get free page blocks
+  virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+  mm/page_poison: expose page_poisoning_enabled to kernel modules
+  virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
+
+ drivers/virtio/virtio_balloon.c     | 197 +++++++++++++++++++++++++++++-------
+ include/linux/mm.h                  |   1 +
+ include/uapi/linux/virtio_balloon.h |  16 +++
+ mm/page_alloc.c                     |  52 ++++++++++
+ mm/page_poison.c                    |   6 ++
+ 5 files changed, 235 insertions(+), 37 deletions(-)
+
+-- 
+2.7.4
