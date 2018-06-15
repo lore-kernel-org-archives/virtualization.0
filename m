@@ -1,24 +1,13 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
-	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Fri, 15 Jun 2018 10:06:07 -0700
-Message-ID: <CADGSJ208NRp=bjhSkzF2K5Ft94TwdRs73WfSp4h-_vXvEKwgiQ@mail.gmail.com>
-References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
-	<20180611202207-mutt-send-email-mst@kernel.org>
-	<dc8b1669-b8b6-fb59-94e2-6e4de6b96572@redhat.com>
-	<20180612051432-mutt-send-email-mst@kernel.org>
-	<23fc4aa4-ec41-d6e2-3354-10cbfc13b7ec@intel.com>
-	<20180612142557-mutt-send-email-mst@kernel.org>
-	<b9c88515-cf41-2a9a-078e-9c9e5adbbf14@intel.com>
-	<CADGSJ213f8tJpNXuOhv8qRew-Y5VZAwA+srNMrLZYnKdVGLdAA@mail.gmail.com>
-	<20180614120231.0a72bd5f.cohuck@redhat.com>
-	<CADGSJ23WnTmVKHezm3t0V6M2sWeHaOUoTjdXkmrvbO0EF83hMg@mail.gmail.com>
-	<20180615134815.6613620e.cohuck@redhat.com>
+From: Luiz Capitulino <lcapitulino@redhat.com>
+Subject: Re: [PATCH v33 0/4] Virtio-balloon: support free page reporting
+Date: Fri, 15 Jun 2018 15:21:20 -0400
+Message-ID: <20180615152120.0c4a47e3__19591.6722449057$1529090368$gmane$org@doriath>
+References: <1529037793-35521-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180615134815.6613620e.cohuck@redhat.com>
+In-Reply-To: <1529037793-35521-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,167 +17,154 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, konrad.wilk@oracle.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, mst@redhat.com, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 15, 2018 at 4:48 AM, Cornelia Huck <cohuck@redhat.com> wrote:
-> On Thu, 14 Jun 2018 18:57:11 -0700
-> Siwei Liu <loseweigh@gmail.com> wrote:
->
->> Thank you for sharing your thoughts, Cornelia. With questions below, I
->> think you raised really good points, some of which I don't have answer
->> yet and would also like to explore here.
->>
->> First off, I don't want to push the discussion to the extreme at this
->> point, or sell anything about having QEMU manage everything
->> automatically. Don't get me wrong, it's not there yet. Let's don't
->> assume we are tied to a specific or concerte solution. I think the key
->> for our discussion might be to define or refine the boundary between
->> VM and guest,  e.g. what each layer is expected to control and manage
->> exactly.
->>
->> In my view, there might be possibly 3 different options to represent
->> the failover device conceipt to QEMU and libvirt (or any upper layer
->> software):
->>
->> a. Seperate device: in this model, virtio and passthough remains
->> separate devices just as today. QEMU exposes the standby feature bit
->> for virtio, and publish status/event around the negotiation process of
->> this feature bit for libvirt to react upon. Since Libvirt has the
->> pairing relationship itself, maybe through MAC address or something
->> else, it can control the presence of primary by hot plugging or
->> unplugging the passthrough device, although it has to work tightly
->> with virtio's feature negotation process. Not just for migration but
->> also various corner scenarios (driver/feature ok, device reset,
->> reboot, legacy guest etc) along virtio's feature negotiation.
->
-> Yes, that one has obvious tie-ins to virtio's modus operandi.
->
->>
->> b. Coupled device: in this model, virtio and passthough devices are
->> weakly coupled using some group ID, i.e. QEMU match the passthough
->> device for a standby virtio instance by comparing the group ID value
->> present behind each device's bridge. Libvirt provides QEMU the group
->> ID for both type of devices, and only deals with hot plug for
->> migration, by checking some migration status exposed (e.g. the feature
->> negotiation status on the virtio device) by QEMU. QEMU manages the
->> visibility of the primary in guest along virtio's feature negotiation
->> process.
->
-> I'm a bit confused here. What, exactly, ties the two devices together?
+On Fri, 15 Jun 2018 12:43:09 +0800
+Wei Wang <wei.w.wang@intel.com> wrote:
 
-The group UUID. Since QEMU VFIO dvice does not have insight of MAC
-address (which it doesn't have to), the association between VFIO
-passthrough and standby must be specificed for QEMU to understand the
-relationship with this model. Note, standby feature is no longer
-required to be exposed under this model.
+> This patch series is separated from the previous "Virtio-balloon
+> Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,  
+> implemented by this series enables the virtio-balloon driver to report
+> hints of guest free pages to the host. It can be used to accelerate live
+> migration of VMs. Here is an introduction of this usage:
 
-> If libvirt already has the knowledge that it should manage the two as a
-> couple, why do we need the group id (or something else for other
-> architectures)? (Maybe I'm simply missing something because I'm not
-> that familiar with pci.)
+So, we have two page hinting solutions being proposed. One is this
+series, the other one by Nitesh is intended to improve host memory
+utilization by letting the host use unused guest memory[1].
 
-The idea is to have QEMU control the visibility and enumeration order
-of the passthrough VFIO for the failover scenario. Hotplug can be one
-way to achieve it, and perhaps there's other way around also. The
-group ID is not just for QEMU to couple devices, it's also helpful to
-guest too as grouping using MAC address is just not safe.
+Instead of merging two similar solutions, do we want a more generic
+one that solves both problems? Or maybe an unified solution?
 
->
->>
->> c. Fully combined device: in this model, virtio and passthough devices
->> are viewed as a single VM interface altogther. QEMU not just controls
->> the visibility of the primary in guest, but can also manage the
->> exposure of the passthrough for migratability. It can be like that
->> libvirt supplies the group ID to QEMU. Or libvirt does not even have
->> to provide group ID for grouping the two devices, if just one single
->> combined device is exposed by QEMU. In either case, QEMU manages all
->> aspect of such internal construct, including virtio feature
->> negotiation, presence of the primary, and live migration.
->
-> Same question as above.
->
->>
->> It looks like to me that, in your opinion, you seem to prefer go with
->> (a). While I'm actually okay with either (b) or (c). Do I understand
->> your point correctly?
->
-> I'm not yet preferring anything, as I'm still trying to understand how
-> this works :) I hope we can arrive at a model that covers the use case
-> and that is also flexible enough to be extended to other platforms.
->
->>
->> The reason that I feel that (a) might not be ideal, just as Michael
->> alluded to (quoting below), is that as management stack, it really
->> doesn't need to care about the detailed process of feature negotiation
->> (if we view the guest presence of the primary as part of feature
->> negotiation at an extended level not just virtio). All it needs to be
->> done is to hand in the required devices to QEMU and that's all. Why do
->> we need to addd various hooks, events for whichever happens internally
->> within the guest?
->>
->> ''
->> Primary device is added with a special "primary-failover" flag.
->> A virtual machine is then initialized with just a standby virtio
->> device. Primary is not yet added.
->>
->> Later QEMU detects that guest driver device set DRIVER_OK.
->> It then exposes the primary device to the guest, and triggers
->> a device addition event (hot-plug event) for it.
->>
->> If QEMU detects guest driver removal, it initiates a hot-unplug sequence
->> to remove the primary driver.  In particular, if QEMU detects guest
->> re-initialization (e.g. by detecting guest reset) it immediately removes
->> the primary device.
->> ''
->>
->> and,
->>
->> ''
->> management just wants to give the primary to guest and later take it back,
->> it really does not care about the details of the process,
->> so I don't see what does pushing it up the stack buy you.
->>
->> So I don't think it *needs* to be done in libvirt. It probably can if you
->> add a bunch of hooks so it knows whenever vm reboots, driver binds and
->> unbinds from device, and can check that backup flag was set.
->> If you are pushing for a setup like that please get a buy-in
->> from libvirt maintainers or better write a patch.
->> ''
->
-> This actually seems to mean the opposite to me: We need to know what
-> the guest is doing and when, as it directly drives what we need to do
-> with the devices. If we switch to a visibility vs a hotplug model (see
-> the other mail), we might be able to handle that part within qemu.
+[1] https://www.spinics.net/lists/kvm/msg170113.html
 
-In the model of (b), I think it essentially turns hotplug to one of
-mechanisms for QEMU to control the visibility. The libvirt can still
-manage the hotplug of individual devices during live migration or in
-normal situation to hot add/remove devices. Though the visibility of
-the VFIO is under the controll of QEMU, and it's possible that the hot
-add/remove request does not involve actual hot plug activity in guest
-at all.
-
-In the model of (c), the hotplug semantics of the combined device
-would mean differently - it would end up with devices plugged in or
-out altogther. To make this work, we either have to build a brand new
-bond-like QEMU device consist of virtio and VFIO internally, or need
-to have some abstraction in place for libvirt to manipulate the
-combined device (and prohibit libvirt from operating on individual
-internal device directly). Note with this model the group ID doesn't
-even need to get exposed to libvirt, just imagine libvirt to supply
-all options required to configure two regular virtio-net and VFIO
-devices for a single device object, and QEMU will deal with the
-device's visibility and enumeration, such when to hot plug VFIO device
-in to or out from the guest.
-
-It might be complicated to implement (c) though.
-
-Regards,
--Siwei
-
-
-> However, I don't see how you get around needing libvirt to actually set
-> this up in the first place and to handle migration per se.
+> Live migration needs to transfer the VM's memory from the source machine
+> to the destination round by round. For the 1st round, all the VM's memory
+> is transferred. From the 2nd round, only the pieces of memory that were
+> written by the guest (after the 1st round) are transferred. One method
+> that is popularly used by the hypervisor to track which part of memory is
+> written is to write-protect all the guest memory.
+> 
+> This feature enables the optimization by skipping the transfer of guest
+> free pages during VM live migration. It is not concerned that the memory
+> pages are used after they are given to the hypervisor as a hint of the
+> free pages, because they will be tracked by the hypervisor and transferred
+> in the subsequent round if they are used and written.
+> 
+> * Tests
+> - Test Environment
+>     Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
+>     Guest: 8G RAM, 4 vCPU
+>     Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
+> 
+> - Test Results
+>     - Idle Guest Live Migration Time (results are averaged over 10 runs):
+>         - Optimization v.s. Legacy = 278ms vs 1757ms --> ~84% reduction
+>     - Guest with Linux Compilation Workload (make bzImage -j4):
+>         - Live Migration Time (average)
+>           Optimization v.s. Legacy = 1408ms v.s. 2528ms --> ~44% reduction
+>         - Linux Compilation Time
+>           Optimization v.s. Legacy = 5min3s v.s. 5min12s
+>           --> no obvious difference  
+> 
+> ChangeLog:
+> v32->v33:
+>     - mm/get_from_free_page_list: The new implementation to get free page
+>       hints based on the suggestions from Linus:
+>       https://lkml.org/lkml/2018/6/11/764
+>       This avoids the complex call chain, and looks more prudent.
+>     - virtio-balloon: 
+>       - use a fix-sized buffer to get free page hints;
+>       - remove the cmd id related interface. Now host can just send a free
+>         page hint command to the guest (via the host_cmd config register)
+>         to start the reporting. Currentlty the guest reports only the max
+>         order free page hints to host, which has generated similar good
+>         results as before. But the interface used by virtio-balloon to
+>         report can support reporting more orders in the future when there
+>         is a need.
+> v31->v32:
+>     - virtio-balloon:
+>         - rename cmd_id_use to cmd_id_active;
+>         - report_free_page_func: detach used buffers after host sends a vq
+>           interrupt, instead of busy waiting for used buffers.
+> v30->v31:
+>     - virtio-balloon:
+>         - virtio_balloon_send_free_pages: return -EINTR rather than 1 to
+>           indicate an active stop requested by host; and add more
+>           comments to explain about access to cmd_id_received without
+>           locks;
+>         -  add_one_sg: add TODO to comments about possible improvement.
+> v29->v30:
+>     - mm/walk_free_mem_block: add cond_sched() for each order
+> v28->v29:
+>     - mm/page_poison: only expose page_poison_enabled(), rather than more
+>       changes did in v28, as we are not 100% confident about that for now.
+>     - virtio-balloon: use a separate buffer for the stop cmd, instead of
+>       having the start and stop cmd use the same buffer. This avoids the
+>       corner case that the start cmd is overridden by the stop cmd when
+>       the host has a delay in reading the start cmd.
+> v27->v28:
+>     - mm/page_poison: Move PAGE_POISON to page_poison.c and add a function
+>       to expose page poison val to kernel modules.
+> v26->v27:
+>     - add a new patch to expose page_poisoning_enabled to kernel modules
+>     - virtio-balloon: set poison_val to 0xaaaaaaaa, instead of 0xaa
+> v25->v26: virtio-balloon changes only
+>     - remove kicking free page vq since the host now polls the vq after
+>       initiating the reporting
+>     - report_free_page_func: detach all the used buffers after sending
+>       the stop cmd id. This avoids leaving the detaching burden (i.e.
+>       overhead) to the next cmd id. Detaching here isn't considered
+>       overhead since the stop cmd id has been sent, and host has already
+>       moved formard.
+> v24->v25:
+>     - mm: change walk_free_mem_block to return 0 (instead of true) on
+>           completing the report, and return a non-zero value from the
+>           callabck, which stops the reporting.
+>     - virtio-balloon:
+>         - use enum instead of define for VIRTIO_BALLOON_VQ_INFLATE etc.
+>         - avoid __virtio_clear_bit when bailing out;
+>         - a new method to avoid reporting the some cmd id to host twice
+>         - destroy_workqueue can cancel free page work when the feature is
+>           negotiated;
+>         - fail probe when the free page vq size is less than 2.
+> v23->v24:
+>     - change feature name VIRTIO_BALLOON_F_FREE_PAGE_VQ to
+>       VIRTIO_BALLOON_F_FREE_PAGE_HINT
+>     - kick when vq->num_free < half full, instead of "= half full"
+>     - replace BUG_ON with bailing out
+>     - check vb->balloon_wq in probe(), if null, bail out
+>     - add a new feature bit for page poisoning
+>     - solve the corner case that one cmd id being sent to host twice
+> v22->v23:
+>     - change to kick the device when the vq is half-way full;
+>     - open-code batch_free_page_sg into add_one_sg;
+>     - change cmd_id from "uint32_t" to "__virtio32";
+>     - reserver one entry in the vq for the driver to send cmd_id, instead
+>       of busywaiting for an available entry;
+>     - add "stop_update" check before queue_work for prudence purpose for
+>       now, will have a separate patch to discuss this flag check later;
+>     - init_vqs: change to put some variables on stack to have simpler
+>       implementation;
+>     - add destroy_workqueue(vb->balloon_wq);
+> v21->v22:
+>     - add_one_sg: some code and comment re-arrangement
+>     - send_cmd_id: handle a cornercase
+> 
+> For previous ChangeLog, please reference
+> https://lwn.net/Articles/743660/
+> 
+> Wei Wang (4):
+>   mm: add a function to get free page blocks
+>   virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+>   mm/page_poison: expose page_poisoning_enabled to kernel modules
+>   virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
+> 
+>  drivers/virtio/virtio_balloon.c     | 197 +++++++++++++++++++++++++++++-------
+>  include/linux/mm.h                  |   1 +
+>  include/uapi/linux/virtio_balloon.h |  16 +++
+>  mm/page_alloc.c                     |  52 ++++++++++
+>  mm/page_poison.c                    |   6 ++
+>  5 files changed, 235 insertions(+), 37 deletions(-)
+> 
