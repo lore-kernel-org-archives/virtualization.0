@@ -1,14 +1,24 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH v33 1/4] mm: add a function to get free page blocks
-Date: Sat, 16 Jun 2018 08:08:53 +0900
-Message-ID: <CA+55aFzhuGKinEq5udPsk_uYHShkQxJYqcPO=tLCkT-oxpsgPg@mail.gmail.com>
-References: <1529037793-35521-1-git-send-email-wei.w.wang@intel.com>
-	<1529037793-35521-2-git-send-email-wei.w.wang@intel.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
+	virito devices
+Date: Sat, 16 Jun 2018 11:07:24 +1000
+Message-ID: <1b4732c5015ee4377fef1de0270065174cde397a.camel@kernel.crashing.org>
+References: <20180524072104.GD6139@ram.oc3035372033.ibm.com>
+	<0c508eb2-08df-3f76-c260-90cf7137af80@linux.vnet.ibm.com>
+	<20180531204320-mutt-send-email-mst@kernel.org>
+	<20180607052306.GA1532@infradead.org>
+	<20180607185234-mutt-send-email-mst@kernel.org>
+	<20180611023909.GA5726@ram.oc3035372033.ibm.com>
+	<07b804fccd7373c650be79ac9fa77ae7f2375ced.camel@kernel.crashing.org>
+	<20180613074141.GA12033@infradead.org>
+	<5dbcafa73b065bc619fd6adc9ef47eb6367b8378.camel@kernel.crashing.org>
+	<10bbd7122aaa67f51de7a8328df8154212a13f23.camel@kernel.crashing.org>
+	<20180615091624.GA1064@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1529037793-35521-2-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20180615091624.GA1064@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,21 +28,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: wei.w.wang@intel.com
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, Rik van Riel <riel@redhat.com>, quan.xu0@gmail.com, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, nilal@redhat.com, liliang.opensource@gmail.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-mm <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@kernel.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: robh@kernel.org, cohuck@redhat.com, pawel.moll@arm.com, Tom Lendacky <thomas.lendacky@amd.com>, "Michael S. Tsirkin" <mst@redhat.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, joe@perches.com, "Rustad, Mark
+	D" <mark.d.rustad@intel.com>, Anshuman Khandual <khandual@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 15, 2018 at 2:08 PM Wei Wang <wei.w.wang@intel.com> wrote:
->
-> This patch adds a function to get free pages blocks from a free page
-> list. The obtained free page blocks are hints about free pages, because
-> there is no guarantee that they are still on the free page list after
-> the function returns.
+On Fri, 2018-06-15 at 02:16 -0700, Christoph Hellwig wrote:
+> On Wed, Jun 13, 2018 at 11:11:01PM +1000, Benjamin Herrenschmidt wrote:
+> > Actually ... the stuff in lib/dma-direct.c seems to be just it, no ?
+> > 
+> > There's no cache flushing and there's no architecture hooks that I can
+> > see other than the AMD security stuff which is probably fine.
+> > 
+> > Or am I missing something ?
+> 
+> You are missing the __phys_to_dma arch hook that allows architectures
+> to adjust the dma address.  Various systems have offsets, or even
+> multiple banks with different offsets there.  Most of them don't
+> use the dma-direct code yet (working on it), but there are a few
+> examples in the tree already.
 
-Ack. This is the kind of simple interface where I don't need to worry
-about the MM code calling out to random drivers or subsystems.
+Ok and on those systems, qemu will bypass said offset ? Maybe we could
+just create a device DMA "flag" or (or use the attributes) to instruct
+dma-direct to not use that for legacy virtio ?
 
-I think that "order" should be checked for validity, but from a MM
-standpoint I think this is fine.
-
-                Linus
+Cheers,
+Ben.
