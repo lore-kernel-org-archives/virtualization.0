@@ -1,24 +1,18 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC V2] virtio: Add platform specific DMA API translation for
-	virito devices
-Date: Sat, 16 Jun 2018 11:07:24 +1000
-Message-ID: <1b4732c5015ee4377fef1de0270065174cde397a.camel@kernel.crashing.org>
-References: <20180524072104.GD6139@ram.oc3035372033.ibm.com>
-	<0c508eb2-08df-3f76-c260-90cf7137af80@linux.vnet.ibm.com>
-	<20180531204320-mutt-send-email-mst@kernel.org>
-	<20180607052306.GA1532@infradead.org>
-	<20180607185234-mutt-send-email-mst@kernel.org>
-	<20180611023909.GA5726@ram.oc3035372033.ibm.com>
-	<07b804fccd7373c650be79ac9fa77ae7f2375ced.camel@kernel.crashing.org>
-	<20180613074141.GA12033@infradead.org>
-	<5dbcafa73b065bc619fd6adc9ef47eb6367b8378.camel@kernel.crashing.org>
-	<10bbd7122aaa67f51de7a8328df8154212a13f23.camel@kernel.crashing.org>
-	<20180615091624.GA1064@infradead.org>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v33 2/4] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Sat, 16 Jun 2018 01:09:44 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F7396A5CB0@shsmsx102.ccr.corp.intel.com>
+References: <1529037793-35521-1-git-send-email-wei.w.wang@intel.com>
+	<1529037793-35521-3-git-send-email-wei.w.wang@intel.com>
+	<20180615144000-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7396A3D04@shsmsx102.ccr.corp.intel.com>
+	<20180615171635-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180615091624.GA1064@infradead.org>
+In-Reply-To: <20180615171635-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,29 +22,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: robh@kernel.org, cohuck@redhat.com, pawel.moll@arm.com, Tom Lendacky <thomas.lendacky@amd.com>, "Michael S. Tsirkin" <mst@redhat.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, joe@perches.com, "Rustad, Mark
-	D" <mark.d.rustad@intel.com>, Anshuman Khandual <khandual@linux.vnet.ibm.com>, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, david@gibson.dropbear.id.au
+To: "'Michael S. Tsirkin'" <mst@redhat.com>
+Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "nilal@redhat.com" <nilal@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2018-06-15 at 02:16 -0700, Christoph Hellwig wrote:
-> On Wed, Jun 13, 2018 at 11:11:01PM +1000, Benjamin Herrenschmidt wrote:
-> > Actually ... the stuff in lib/dma-direct.c seems to be just it, no ?
-> > 
-> > There's no cache flushing and there's no architecture hooks that I can
-> > see other than the AMD security stuff which is probably fine.
-> > 
-> > Or am I missing something ?
+On Friday, June 15, 2018 10:29 PM, Michael S. Tsirkin wrote:
+> On Fri, Jun 15, 2018 at 02:11:23PM +0000, Wang, Wei W wrote:
+> > On Friday, June 15, 2018 7:42 PM, Michael S. Tsirkin wrote:
+> > > On Fri, Jun 15, 2018 at 12:43:11PM +0800, Wei Wang wrote:
+> > > > Negotiation of the VIRTIO_BALLOON_F_FREE_PAGE_HINT feature
+> > > > indicates the support of reporting hints of guest free pages to host via
+> virtio-balloon.
+> > > >
+> > > > Host requests the guest to report free page hints by sending a
+> > > > command to the guest via setting the
+> > > VIRTIO_BALLOON_HOST_CMD_FREE_PAGE_HINT
+> > > > bit of the host_cmd config register.
+> > > >
+> > > > As the first step here, virtio-balloon only reports free page
+> > > > hints from the max order (10) free page list to host. This has
+> > > > generated similar good results as reporting all free page hints during
+> our tests.
+> > > >
+> > > > TODO:
+> > > > - support reporting free page hints from smaller order free page lists
+> > > >   when there is a need/request from users.
+> > > >
+> > > > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> > > > Signed-off-by: Liang Li <liang.z.li@intel.com>
+> > > > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > > > Cc: Michal Hocko <mhocko@kernel.org>
+> > > > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > > > ---
+> > > >  drivers/virtio/virtio_balloon.c     | 187
+> +++++++++++++++++++++++++++++--
+> > > -----
+> > > >  include/uapi/linux/virtio_balloon.h |  13 +++
+> > > >  2 files changed, 163 insertions(+), 37 deletions(-)
+> > > >
+> > > > diff --git a/drivers/virtio/virtio_balloon.c
+> > > > b/drivers/virtio/virtio_balloon.c index 6b237e3..582a03b 100644
+> > > > --- a/drivers/virtio/virtio_balloon.c
+> > > > +++ b/drivers/virtio/virtio_balloon.c
+> > > > @@ -43,6 +43,9 @@
+> > > >  #define OOM_VBALLOON_DEFAULT_PAGES 256  #define
+> > > > VIRTBALLOON_OOM_NOTIFY_PRIORITY 80
+> > > >
+> > > > +/* The size of memory in bytes allocated for reporting free page
+> > > > +hints */ #define FREE_PAGE_HINT_MEM_SIZE (PAGE_SIZE * 16)
+> > > > +
+> > > >  static int oom_pages = OOM_VBALLOON_DEFAULT_PAGES;
+> > > > module_param(oom_pages, int, S_IRUSR | S_IWUSR);
+> > > > MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
+> > >
+> > > Doesn't this limit memory size of the guest we can report?
+> > > Apparently to several gigabytes ...
+> > > OTOH huge guests with lots of free memory is exactly where we would
+> > > gain the most ...
+> >
+> > Yes, the 16-page array can report up to 32GB (each page can hold 512
+> addresses of 4MB free page blocks, i.e. 2GB free memory per page) free
+> memory to host. It is not flexible.
+> >
+> > How about allocating the buffer according to the guest memory size
+> > (proportional)? That is,
+> >
+> > /* Calculates the maximum number of 4MB (equals to 1024 pages) free
+> > pages blocks that the system can have */ 4m_page_blocks =
+> > totalram_pages / 1024;
+> >
+> > /* Allocating one page can hold 512 free page blocks, so calculates
+> > the number of pages that can hold those 4MB blocks. And this
+> > allocation should not exceed 1024 pages */ pages_to_allocate =
+> > min(4m_page_blocks / 512, 1024);
+> >
+> > For a 2TB guests, which has 2^19 page blocks (4MB each), we will allocate
+> 1024 pages as the buffer.
+> >
+> > When the guest has large memory, it should be easier to succeed in
+> allocation of large buffer. If that allocation fails, that implies that nothing
+> would be got from the 4MB free page list.
+> >
+> > I think the proportional allocation is simpler compared to other
+> > approaches like
+> > - scattered buffer, which will complicate the get_from_free_page_list
+> > implementation;
+> > - one buffer to call get_from_free_page_list multiple times, which needs
+> get_from_free_page_list to maintain states.. also too complicated.
+> >
+> > Best,
+> > Wei
+> >
 > 
-> You are missing the __phys_to_dma arch hook that allows architectures
-> to adjust the dma address.  Various systems have offsets, or even
-> multiple banks with different offsets there.  Most of them don't
-> use the dma-direct code yet (working on it), but there are a few
-> examples in the tree already.
+> That's more reasonable, but question remains what to do if that value
+> exceeds MAX_ORDER. I'd say maybe tell host we can't report it.
 
-Ok and on those systems, qemu will bypass said offset ? Maybe we could
-just create a device DMA "flag" or (or use the attributes) to instruct
-dma-direct to not use that for legacy virtio ?
+Not necessarily, I think. We have min(4m_page_blocks / 512, 1024) above, so the maximum memory that can be reported is 2TB. For larger guests, e.g. 4TB, the optimization can still offer 2TB free memory (better than no optimization).
 
-Cheers,
-Ben.
+On the other hand, large guests being large mostly because the guests need to use large memory. In that case, they usually won't have that much free memory to report.
+
+> 
+> Also allocating it with GFP_KERNEL is out. You only want to take it off the free
+> list. So I guess __GFP_NOMEMALLOC and __GFP_ATOMIC.
+
+Sounds good, thanks.
+
+> Also you can't allocate this on device start. First totalram_pages can change.
+> Second that's too much memory to tie up forever.
+
+Yes, makes sense.
+
+Best,
+Wei
