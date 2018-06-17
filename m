@@ -1,15 +1,16 @@
-From: Mike Galbraith <efault@gmx.de>
+From: Greg KH <gregkh@linuxfoundation.org>
 Subject: Re: v4.14.21+: ATOMIC_SLEEP splat bisected  to 9428088c90b6
 	("drm/qxl: reapply cursor after resetting primary")
-Date: Sun, 17 Jun 2018 12:38:06 +0200
-Message-ID: <1529231886.5303.6.camel__15523.6900704496$1529231775$gmane$org@gmx.de>
+Date: Sun, 17 Jun 2018 13:02:00 +0200
+Message-ID: <20180617110200.GA19216@kroah.com>
 References: <1529163551.16103.16.camel@gmx.de>
-	<20180617093607.GA27652@kroah.com>
+	<20180617093607.GA27652@kroah.com> <1529231886.5303.6.camel@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180617093607.GA27652@kroah.com>
+Content-Disposition: inline
+In-Reply-To: <1529231886.5303.6.camel@gmx.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,14 +20,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>
+To: Mike Galbraith <efault@gmx.de>
 Cc: Ray Strode <rstrode@redhat.com>, LKML <linux-kernel@vger.kernel.org>, stable <stable@vger.kernel.org>, virtualization@lists.linux-foundation.org, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2018-06-17 at 11:36 +0200, Greg KH wrote:
+On Sun, Jun 17, 2018 at 12:38:06PM +0200, Mike Galbraith wrote:
+> On Sun, 2018-06-17 at 11:36 +0200, Greg KH wrote:
+> > 
+> > And if you revert that patch, does everything work again?
 > 
-> And if you revert that patch, does everything work again?
+> Yes.
 
-Yes.
+Great, Dave, care to revert this in 4.18 so I can queue up that revert
+in older kernels as well?
 
-	-Mike
+thanks,
+
+greg k-h
