@@ -1,24 +1,14 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
-	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Mon, 18 Jun 2018 15:27:47 +0200
-Message-ID: <20180618152747.5b5ab22c.cohuck__16778.5332458609$1529328360$gmane$org@redhat.com>
-References: <20180611202207-mutt-send-email-mst@kernel.org>
-	<dc8b1669-b8b6-fb59-94e2-6e4de6b96572@redhat.com>
-	<20180612051432-mutt-send-email-mst@kernel.org>
-	<23fc4aa4-ec41-d6e2-3354-10cbfc13b7ec@intel.com>
-	<20180612142557-mutt-send-email-mst@kernel.org>
-	<b9c88515-cf41-2a9a-078e-9c9e5adbbf14@intel.com>
-	<CADGSJ213f8tJpNXuOhv8qRew-Y5VZAwA+srNMrLZYnKdVGLdAA@mail.gmail.com>
-	<20180614120231.0a72bd5f.cohuck@redhat.com>
-	<20180615052743-mutt-send-email-mst@kernel.org>
-	<20180615113242.799974f6.cohuck@redhat.com>
-	<20180615152926-mutt-send-email-mst@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: Design Decision for KVM based anti rootkit
+Date: Mon, 18 Jun 2018 16:34:12 +0200
+Message-ID: <7c7ddb96-e865-53a2-3aa9-b79403c646a9@redhat.com>
+References: <CAAGnT3bjYPu9bordn_Dh8z+MW6p5DDLoSsZC9xg8QxQriVus9A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180615152926-mutt-send-email-mst@kernel.org>
+In-Reply-To: <CAAGnT3bjYPu9bordn_Dh8z+MW6p5DDLoSsZC9xg8QxQriVus9A@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,65 +18,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, aaron.f.brown@intel.com
+To: Ahmed Soliman <ahmedsoliman0x666@gmail.com>, kvm@vger.kernel.org, Kernel Hardening <kernel-hardening@lists.openwall.com>, riel@redhat.com, Kees Cook <keescook@chromium.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Hossam Hassan <7ossam9063@gmail.com>, Ahmed Lotfy <A7med.lotfey@gmail.com>, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 15 Jun 2018 15:31:43 +0300
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Fri, Jun 15, 2018 at 11:32:42AM +0200, Cornelia Huck wrote:
-> > On Fri, 15 Jun 2018 05:34:24 +0300
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >   
-> > > On Thu, Jun 14, 2018 at 12:02:31PM +0200, Cornelia Huck wrote:  
-> >   
-> > > > > > I am not all that familiar with how Qemu manages network devices. If we can
-> > > > > > do all the
-> > > > > > required management of the primary/standby devices within Qemu, that is
-> > > > > > definitely a better
-> > > > > > approach without upper layer involvement.      
-> > > > > 
-> > > > > Right. I would imagine in the extreme case the upper layer doesn't
-> > > > > have to be involved at all if QEMU manages all hot plug/unplug logic.
-> > > > > The management tool can supply passthrough device and virtio with the
-> > > > > same group UUID, QEMU auto-manages the presence of the primary, and
-> > > > > hot plug the device as needed before or after the migration.    
-> > > > 
-> > > > I do not really see how you can manage that kind of stuff in QEMU only.    
-> > > 
-> > > So right now failover is limited to pci passthrough devices only.
-> > > The idea is to realize the vfio device but not expose it
-> > > to guest. Have a separate command to expose it to guest.
-> > > Hotunplug would also hide it from guest but not unrealize it.  
-> > 
-> > So, this would not be real hot(un)plug, but 'hide it from the guest',
-> > right? The concept of "we have it realized in QEMU, but the guest can't
-> > discover and use it" should be translatable to non-pci as well (at
-> > least for ccw).
-> >   
-> > > 
-> > > This will help ensure that e.g. on migration failure we can
-> > > re-expose the device without risk of running out of resources.  
-> > 
-> > Makes sense.
-> > 
-> > Should that 'hidden' state be visible/settable from outside as well
-> > (e.g. via a property)? I guess yes, so that management software has a
-> > chance to see whether a device is visible.  
+On 16.06.2018 13:49, Ahmed Soliman wrote:
+> Following up on these threads:
+> - https://marc.info/?l=kvm&m=151929803301378&w=2
+> - http://www.openwall.com/lists/kernel-hardening/2018/02/22/18
 > 
-> Might be handy for debug, but note that since QEMU manages this
-> state it's transient: can change at any time, so it's kind
-> of hard for management to rely on it.
-
-Might be another reason to have this controlled by management software;
-being able to find out easily why a device is not visible to the guest
-seems to be a useful thing.
-
-Anyway, let's defer this discussion until it is clear how we actually
-want to handle the whole setup.
-
+> I lost the original emails so I couldn't reply to them, and also sorry
+> for being late, it was the end of semester exams.
 > 
-> > Settable may be useful if we
-> > find another use case for hiding realized devices.  
+> I was adviced on #qemu and #kernelnewbies IRCs to ask here as it will
+> help having better insights.
+> 
+> To wrap things up, the basic design will be a method for communication
+> between host and guest is guest can request certain pages to be read
+> only, and then host will force them to be read-only by guest until
+> next guest reboot, then it will impossible for guest OS to have them
+> as RW again. The choice of which pages to be set as read only is the
+> guest's. So this way mixed pages can still be mixed with R/W content
+> even if holds kernel code.
+> 
+> I was planning to use KVM as my hypervisor, until I found out that KVM
+> can't do that on its own so one will need a custom virtio driver to do
+> this kind of guest-host communication/coordination, I am still
+> sticking to KVM, and have no plans to do this for Xen at least for
+> now, this means that in order to get it to work there must be a QEMU
+> support our specific driver we are planning to write in order for
+> things to work properly.
+> 
+> The question is is this the right approach? or is there a simpler way
+> to achieve this goal?
+> 
+
+Especially if you want to support multiple architectures in the long
+term, virtio is the way to go.
+
+Design an architecture independent and extensible (+configurable)
+interface and be happy :) This might of course require some thought.
+
+(and don't worry, implementing a virtio driver is a lot simpler than you
+might think)
+
+But be aware that the virtio "hypervisor" side will be handled in QEMU,
+so you'll need a proper QEMU->KVM interface to get things running.
+
+-- 
+
+Thanks,
+
+David / dhildenb
