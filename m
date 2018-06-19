@@ -1,15 +1,14 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v4 6/9] x86: prevent inline distortion by paravirt ops
-Date: Tue, 19 Jun 2018 17:09:22 +0200
-Message-ID: <39832e4b-db6c-e3bc-1013-d9f1aaf19c83@suse.com>
-References: <20180612115050.185112-1-namit@vmware.com>
-	<20180612115050.185112-7-namit@vmware.com>
+From: Ahmed Soliman <ahmedsoliman0x666@gmail.com>
+Subject: Re: Design Decision for KVM based anti rootkit
+Date: Tue, 19 Jun 2018 20:12:22 +0200
+Message-ID: <CAAGnT3ZaT-BOodo6gM8C8QGDOTmYMjTaYX3G-RLscr35Qws0Wg@mail.gmail.com>
+References: <CAAGnT3bjYPu9bordn_Dh8z+MW6p5DDLoSsZC9xg8QxQriVus9A@mail.gmail.com>
+	<7337582f-0007-d006-0809-cf41fd93b31e@nutanix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180612115050.185112-7-namit@vmware.com>
-Content-Language: de-DE
+In-Reply-To: <7337582f-0007-d006-0809-cf41fd93b31e@nutanix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,43 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <namit@vmware.com>, linux-kernel@vger.kernel.org, x86@kernel.org
-Cc: Alok Kataria <akataria@vmware.com>, Ingo Molnar <mingo@redhat.com>, virtualization@lists.linux-foundation.org, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>
+To: David Vrabel <david.vrabel@nutanix.com>
+Cc: riel@redhat.com, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Hossam Hassan <7ossam9063@gmail.com>, Ahmed Lotfy <A7med.lotfey@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/06/18 13:50, Nadav Amit wrote:
-> GCC considers the number of statements in inlined assembly blocks,
-> according to new-lines and semicolons, as an indication to the cost of
-> the block in time and space. This data is distorted by the kernel code,
-> which puts information in alternative sections. As a result, the
-> compiler may perform incorrect inlining and branch optimizations.
-> 
-> The solution is to set an assembly macro and call it from the inlined
-> assembly block. As a result GCC considers the inline assembly block as
-> a single instruction.
-> 
-> The effect of the patch is a more aggressive inlining, which also
-> causes a size increase of kernel.
-> 
->    text	   data	    bss	    dec	    hex	filename
-> 18147336 10226688 2957312 31331336 1de1408 ./vmlinux before
-> 18162555 10226288 2957312 31346155 1de4deb ./vmlinux after (+14819)
-> 
-> Static text symbols:
-> Before:	40053
-> After:	39942	(-111)
-> 
-> Cc: Juergen Gross <jgross@suse.com>
-> Cc: Alok Kataria <akataria@vmware.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: x86@kernel.org
-> Cc: virtualization@lists.linux-foundation.org
-> 
-> Signed-off-by: Nadav Amit <namit@vmware.com>
+On 19 June 2018 at 19:37, David Vrabel <david.vrabel@nutanix.com> wrote:
+> It's not clear how this increases security. What threats is this
+> protecting again?
+It won't completely protect prevent rootkits, because still rootkits
+can edit dynamic kernel data structures, but it will limit what
+rootkits damage to only dynamic data.
+This way system calls can't be changed, or Interrupt tables.
+> As an attacker, modifying the sensitive pages (kernel text?) will
+> require either: a) altering the existing mappings for these (to make
+> them read-write or user-writable for example); or b) creating aliased
+> mappings with suitable permissions.
+>
+> If the attacker can modify page tables in this way then it can also
+> bypass the suggested hypervisor's read-only protection by changing the
+> mappings to point to a unprotected page.
 
-Reviewed-by: Juergen Gross <jgross@suse.com>
-
-
-Juergen
+I think I was missing this part out, but I meant to say completely
+prevent any modification to pages including the guest physical address
+to guest virtual address mapping for those protected pages, Another
+tricky (something random just popped up in my mind right now, better
+to say it than to forget it) solution is making new memory mappings
+inherit the same protection as old one, I assume that Hyper visor can
+do either things. Also that was the kind of performance hit I was
+talking about. I am not sure if that might break things or I can say
+it will for sure heavily limit some functionalities. like maybe
+hibernating guest. But that will be the kind of trades off I am
+expecting at least at the begining.
