@@ -1,25 +1,22 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
-	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Tue, 19 Jun 2018 12:54:53 +0200
-Message-ID: <20180619125453.2d2dfb2d.cohuck@redhat.com>
-References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
-	<20180611202207-mutt-send-email-mst@kernel.org>
-	<dc8b1669-b8b6-fb59-94e2-6e4de6b96572@redhat.com>
-	<20180612051432-mutt-send-email-mst@kernel.org>
-	<23fc4aa4-ec41-d6e2-3354-10cbfc13b7ec@intel.com>
-	<20180612142557-mutt-send-email-mst@kernel.org>
-	<b9c88515-cf41-2a9a-078e-9c9e5adbbf14@intel.com>
-	<CADGSJ213f8tJpNXuOhv8qRew-Y5VZAwA+srNMrLZYnKdVGLdAA@mail.gmail.com>
-	<20180614120231.0a72bd5f.cohuck@redhat.com>
-	<CADGSJ23WnTmVKHezm3t0V6M2sWeHaOUoTjdXkmrvbO0EF83hMg@mail.gmail.com>
-	<20180615134815.6613620e.cohuck@redhat.com>
-	<CADGSJ208NRp=bjhSkzF2K5Ft94TwdRs73WfSp4h-_vXvEKwgiQ@mail.gmail.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [virtio-dev] Re: [PATCH v33 2/4] virtio-balloon:
+	VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Tue, 19 Jun 2018 20:13:37 +0800
+Message-ID: <5B28F371.9020308@intel.com>
+References: <1529037793-35521-1-git-send-email-wei.w.wang@intel.com>
+	<1529037793-35521-3-git-send-email-wei.w.wang@intel.com>
+	<20180615144000-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7396A3D04@shsmsx102.ccr.corp.intel.com>
+	<20180615171635-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7396A5CB0@shsmsx102.ccr.corp.intel.com>
+	<20180618051637-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7396AA10C@shsmsx102.ccr.corp.intel.com>
+	<20180619055449-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CADGSJ208NRp=bjhSkzF2K5Ft94TwdRs73WfSp4h-_vXvEKwgiQ@mail.gmail.com>
+In-Reply-To: <20180619055449-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,194 +26,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S.
-	Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, konrad.wilk@oracle.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "nilal@redhat.com" <nilal@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 15 Jun 2018 10:06:07 -0700
-Siwei Liu <loseweigh@gmail.com> wrote:
+On 06/19/2018 11:05 AM, Michael S. Tsirkin wrote:
+> On Tue, Jun 19, 2018 at 01:06:48AM +0000, Wang, Wei W wrote:
+>> On Monday, June 18, 2018 10:29 AM, Michael S. Tsirkin wrote:
+>>> On Sat, Jun 16, 2018 at 01:09:44AM +0000, Wang, Wei W wrote:
+>>>> Not necessarily, I think. We have min(4m_page_blocks / 512, 1024) above,
+>>> so the maximum memory that can be reported is 2TB. For larger guests, e.g.
+>>> 4TB, the optimization can still offer 2TB free memory (better than no
+>>> optimization).
+>>>
+>>> Maybe it's better, maybe it isn't. It certainly muddies the waters even more.
+>>> I'd rather we had a better plan. From that POV I like what Matthew Wilcox
+>>> suggested for this which is to steal the necessary # of entries off the list.
+>> Actually what Matthew suggested doesn't make a difference here. That method always steal the first free page blocks, and sure can be changed to take more. But all these can be achieved via kmalloc
+> I'd do get_user_pages really. You don't want pages split, etc.
 
-> On Fri, Jun 15, 2018 at 4:48 AM, Cornelia Huck <cohuck@redhat.com> wrote:
-> > On Thu, 14 Jun 2018 18:57:11 -0700
-> > Siwei Liu <loseweigh@gmail.com> wrote:
-> >  
-> >> Thank you for sharing your thoughts, Cornelia. With questions below, I
-> >> think you raised really good points, some of which I don't have answer
-> >> yet and would also like to explore here.
-> >>
-> >> First off, I don't want to push the discussion to the extreme at this
-> >> point, or sell anything about having QEMU manage everything
-> >> automatically. Don't get me wrong, it's not there yet. Let's don't
-> >> assume we are tied to a specific or concerte solution. I think the key
-> >> for our discussion might be to define or refine the boundary between
-> >> VM and guest,  e.g. what each layer is expected to control and manage
-> >> exactly.
-> >>
-> >> In my view, there might be possibly 3 different options to represent
-> >> the failover device conceipt to QEMU and libvirt (or any upper layer
-> >> software):
-> >>
-> >> a. Seperate device: in this model, virtio and passthough remains
-> >> separate devices just as today. QEMU exposes the standby feature bit
-> >> for virtio, and publish status/event around the negotiation process of
-> >> this feature bit for libvirt to react upon. Since Libvirt has the
-> >> pairing relationship itself, maybe through MAC address or something
-> >> else, it can control the presence of primary by hot plugging or
-> >> unplugging the passthrough device, although it has to work tightly
-> >> with virtio's feature negotation process. Not just for migration but
-> >> also various corner scenarios (driver/feature ok, device reset,
-> >> reboot, legacy guest etc) along virtio's feature negotiation.  
-> >
-> > Yes, that one has obvious tie-ins to virtio's modus operandi.
-> >  
-> >>
-> >> b. Coupled device: in this model, virtio and passthough devices are
-> >> weakly coupled using some group ID, i.e. QEMU match the passthough
-> >> device for a standby virtio instance by comparing the group ID value
-> >> present behind each device's bridge. Libvirt provides QEMU the group
-> >> ID for both type of devices, and only deals with hot plug for
-> >> migration, by checking some migration status exposed (e.g. the feature
-> >> negotiation status on the virtio device) by QEMU. QEMU manages the
-> >> visibility of the primary in guest along virtio's feature negotiation
-> >> process.  
-> >
-> > I'm a bit confused here. What, exactly, ties the two devices together?  
-> 
-> The group UUID. Since QEMU VFIO dvice does not have insight of MAC
-> address (which it doesn't have to), the association between VFIO
-> passthrough and standby must be specificed for QEMU to understand the
-> relationship with this model. Note, standby feature is no longer
-> required to be exposed under this model.
+>> by the caller which is more prudent and makes the code more straightforward. I think we don't need to take that risk unless the MM folks strongly endorse that approach.
+>>
+>> The max size of the kmalloc-ed memory is 4MB, which gives us the limitation that the max free memory to report is 2TB. Back to the motivation of this work, the cloud guys want to use this optimization to accelerate their guest live migration. 2TB guests are not common in today's clouds. When huge guests become common in the future, we can easily tweak this API to fill hints into scattered buffer (e.g. several 4MB arrays passed to this API) instead of one as in this version.
+>>
+>> This limitation doesn't cause any issue from functionality perspective. For the extreme case like a 100TB guest live migration which is theoretically possible today, this optimization helps skip 2TB of its free memory. This result is that it may reduce only 2% live migration time, but still better than not skipping the 2TB (if not using the feature).
+> Not clearly better, no, since you are slowing the guest.
 
-Isn't that a bit limiting, though?
+Not really. Live migration slows down the guest itself. It seems that 
+the guest spends a little extra time reporting free pages, but in return 
+the live migration time gets reduced a lot, which makes the guest endure 
+less from live migration. (there is no drop of the workload performance 
+when using the optimization in the tests)
 
-With this model, you can probably tie a vfio-pci device and a
-virtio-net-pci device together. But this will fail if you have
-different transports: Consider tying together a vfio-pci device and a
-virtio-net-ccw device on s390, for example. The standby feature bit is
-on the virtio-net level and should not have any dependency on the
-transport used.
 
-> 
-> > If libvirt already has the knowledge that it should manage the two as a
-> > couple, why do we need the group id (or something else for other
-> > architectures)? (Maybe I'm simply missing something because I'm not
-> > that familiar with pci.)  
-> 
-> The idea is to have QEMU control the visibility and enumeration order
-> of the passthrough VFIO for the failover scenario. Hotplug can be one
-> way to achieve it, and perhaps there's other way around also. The
-> group ID is not just for QEMU to couple devices, it's also helpful to
-> guest too as grouping using MAC address is just not safe.
 
-Sorry about dragging mainframes into this, but this will only work for
-homogenous device coupling, not for heterogenous. Consider my vfio-pci
-+ virtio-net-ccw example again: The guest cannot find out that the two
-belong together by checking some group ID, it has to either use the MAC
-or some needs-to-be-architectured property.
+>
+>
+>> So, for the first release of this feature, I think it is better to have the simpler and more straightforward solution as we have now, and clearly document why it can report up to 2TB free memory.
+> No one has the time to read documentation about how an internal flag
+> within a device works. Come on, getting two pages isn't much harder
+> than a single one.
 
-Alternatively, we could propose that mechanism as pci-only, which means
-we can rely on mechanisms that won't necessarily work on non-pci
-transports. (FWIW, I don't see a use case for using vfio-ccw to pass
-through a network card anytime in the near future, due to the nature of
-network cards currently in use on s390.)
+>>   
+>>> If that doesn't fly, we can allocate out of the loop and just retry with more
+>>> pages.
+>>>
+>>>> On the other hand, large guests being large mostly because the guests need
+>>> to use large memory. In that case, they usually won't have that much free
+>>> memory to report.
+>>>
+>>> And following this logic small guests don't have a lot of memory to report at
+>>> all.
+>>> Could you remind me why are we considering this optimization then?
+>> If there is a 3TB guest, it is 3TB not 2TB mostly because it would need to use e.g. 2.5TB memory from time to time. In the worst case, it only has 0.5TB free memory to report, but reporting 0.5TB with this optimization is better than no optimization. (and the current 2TB limitation isn't a limitation for the 3TB guest in this case)
+> I'd rather not spend time writing up random limitations.
 
-> 
-> >  
-> >>
-> >> c. Fully combined device: in this model, virtio and passthough devices
-> >> are viewed as a single VM interface altogther. QEMU not just controls
-> >> the visibility of the primary in guest, but can also manage the
-> >> exposure of the passthrough for migratability. It can be like that
-> >> libvirt supplies the group ID to QEMU. Or libvirt does not even have
-> >> to provide group ID for grouping the two devices, if just one single
-> >> combined device is exposed by QEMU. In either case, QEMU manages all
-> >> aspect of such internal construct, including virtio feature
-> >> negotiation, presence of the primary, and live migration.  
-> >
-> > Same question as above.
-> >  
-> >>
-> >> It looks like to me that, in your opinion, you seem to prefer go with
-> >> (a). While I'm actually okay with either (b) or (c). Do I understand
-> >> your point correctly?  
-> >
-> > I'm not yet preferring anything, as I'm still trying to understand how
-> > this works :) I hope we can arrive at a model that covers the use case
-> > and that is also flexible enough to be extended to other platforms.
-> >  
-> >>
-> >> The reason that I feel that (a) might not be ideal, just as Michael
-> >> alluded to (quoting below), is that as management stack, it really
-> >> doesn't need to care about the detailed process of feature negotiation
-> >> (if we view the guest presence of the primary as part of feature
-> >> negotiation at an extended level not just virtio). All it needs to be
-> >> done is to hand in the required devices to QEMU and that's all. Why do
-> >> we need to addd various hooks, events for whichever happens internally
-> >> within the guest?
-> >>
-> >> ''
-> >> Primary device is added with a special "primary-failover" flag.
-> >> A virtual machine is then initialized with just a standby virtio
-> >> device. Primary is not yet added.
-> >>
-> >> Later QEMU detects that guest driver device set DRIVER_OK.
-> >> It then exposes the primary device to the guest, and triggers
-> >> a device addition event (hot-plug event) for it.
-> >>
-> >> If QEMU detects guest driver removal, it initiates a hot-unplug sequence
-> >> to remove the primary driver.  In particular, if QEMU detects guest
-> >> re-initialization (e.g. by detecting guest reset) it immediately removes
-> >> the primary device.
-> >> ''
-> >>
-> >> and,
-> >>
-> >> ''
-> >> management just wants to give the primary to guest and later take it back,
-> >> it really does not care about the details of the process,
-> >> so I don't see what does pushing it up the stack buy you.
-> >>
-> >> So I don't think it *needs* to be done in libvirt. It probably can if you
-> >> add a bunch of hooks so it knows whenever vm reboots, driver binds and
-> >> unbinds from device, and can check that backup flag was set.
-> >> If you are pushing for a setup like that please get a buy-in
-> >> from libvirt maintainers or better write a patch.
-> >> ''  
-> >
-> > This actually seems to mean the opposite to me: We need to know what
-> > the guest is doing and when, as it directly drives what we need to do
-> > with the devices. If we switch to a visibility vs a hotplug model (see
-> > the other mail), we might be able to handle that part within qemu.  
-> 
-> In the model of (b), I think it essentially turns hotplug to one of
-> mechanisms for QEMU to control the visibility. The libvirt can still
-> manage the hotplug of individual devices during live migration or in
-> normal situation to hot add/remove devices. Though the visibility of
-> the VFIO is under the controll of QEMU, and it's possible that the hot
-> add/remove request does not involve actual hot plug activity in guest
-> at all.
+This is not a random limitation. It would be more clear to see the code. 
+Also I'm not sure how get_user_pages could be used in our case, and what 
+you meant by "getting two pages". I'll post out a new version, and we 
+can discuss on the code.
 
-That depends on how you model visibility, I guess. You'll probably want
-to stop traffic flowing through one or the other of the cards; would
-link down or similar be enough for the virtio device?
 
-> 
-> In the model of (c), the hotplug semantics of the combined device
-> would mean differently - it would end up with devices plugged in or
-> out altogther. To make this work, we either have to build a brand new
-> bond-like QEMU device consist of virtio and VFIO internally, or need
-> to have some abstraction in place for libvirt to manipulate the
-> combined device (and prohibit libvirt from operating on individual
-> internal device directly). Note with this model the group ID doesn't
-> even need to get exposed to libvirt, just imagine libvirt to supply
-> all options required to configure two regular virtio-net and VFIO
-> devices for a single device object, and QEMU will deal with the
-> device's visibility and enumeration, such when to hot plug VFIO device
-> in to or out from the guest.
-> 
-> It might be complicated to implement (c) though.
-
-I think (c) would be even more complicated for heterogenous setups.
+Best,
+Wei
