@@ -1,24 +1,27 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [PATCH v33 2/4] virtio-balloon:
-	VIRTIO_BALLOON_F_FREE_PAGE_HINT
-Date: Wed, 20 Jun 2018 17:14:41 +0300
-Message-ID: <20180620171320-mutt-send-email-mst@kernel.org>
-References: <20180615144000-mutt-send-email-mst@kernel.org>
-	<286AC319A985734F985F78AFA26841F7396A3D04@shsmsx102.ccr.corp.intel.com>
-	<20180615171635-mutt-send-email-mst@kernel.org>
-	<286AC319A985734F985F78AFA26841F7396A5CB0@shsmsx102.ccr.corp.intel.com>
-	<20180618051637-mutt-send-email-mst@kernel.org>
-	<286AC319A985734F985F78AFA26841F7396AA10C@shsmsx102.ccr.corp.intel.com>
-	<20180619055449-mutt-send-email-mst@kernel.org>
-	<5B28F371.9020308@intel.com>
-	<20180619173256-mutt-send-email-mst@kernel.org>
-	<286AC319A985734F985F78AFA26841F7396AE2EC@shsmsx102.ccr.corp.intel.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
+	VIRTIO_NET_F_STANDBY feature bit to virtio_net
+Date: Wed, 20 Jun 2018 16:34:08 +0200
+Message-ID: <20180620163408.737af8c2.cohuck__40363.8743366629$1529505169$gmane$org@redhat.com>
+References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
+	<20180611202207-mutt-send-email-mst@kernel.org>
+	<dc8b1669-b8b6-fb59-94e2-6e4de6b96572@redhat.com>
+	<20180612051432-mutt-send-email-mst@kernel.org>
+	<23fc4aa4-ec41-d6e2-3354-10cbfc13b7ec@intel.com>
+	<20180612142557-mutt-send-email-mst@kernel.org>
+	<b9c88515-cf41-2a9a-078e-9c9e5adbbf14@intel.com>
+	<CADGSJ213f8tJpNXuOhv8qRew-Y5VZAwA+srNMrLZYnKdVGLdAA@mail.gmail.com>
+	<20180614120231.0a72bd5f.cohuck@redhat.com>
+	<CADGSJ23WnTmVKHezm3t0V6M2sWeHaOUoTjdXkmrvbO0EF83hMg@mail.gmail.com>
+	<20180615134815.6613620e.cohuck@redhat.com>
+	<CADGSJ208NRp=bjhSkzF2K5Ft94TwdRs73WfSp4h-_vXvEKwgiQ@mail.gmail.com>
+	<20180619125453.2d2dfb2d.cohuck@redhat.com>
+	<CADGSJ20wrF418-WVev6OjaeShZWE488uxRwgaZmsjOHZr8jyOw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <286AC319A985734F985F78AFA26841F7396AE2EC@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <CADGSJ20wrF418-WVev6OjaeShZWE488uxRwgaZmsjOHZr8jyOw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,76 +31,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Wang, Wei W" <wei.w.wang@intel.com>
-Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "nilal@redhat.com" <nilal@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>
+To: Siwei Liu <loseweigh@gmail.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S.
+	Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, konrad.wilk@oracle.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 20, 2018 at 09:11:39AM +0000, Wang, Wei W wrote:
-> On Tuesday, June 19, 2018 10:43 PM, Michael S. Tsirk wrote:
-> > On Tue, Jun 19, 2018 at 08:13:37PM +0800, Wei Wang wrote:
-> > > On 06/19/2018 11:05 AM, Michael S. Tsirkin wrote:
-> > > > On Tue, Jun 19, 2018 at 01:06:48AM +0000, Wang, Wei W wrote:
-> > > > > On Monday, June 18, 2018 10:29 AM, Michael S. Tsirkin wrote:
-> > > > > > On Sat, Jun 16, 2018 at 01:09:44AM +0000, Wang, Wei W wrote:
-> > > > > > > Not necessarily, I think. We have min(4m_page_blocks / 512,
-> > > > > > > 1024) above,
-> > > > > > so the maximum memory that can be reported is 2TB. For larger
-> > guests, e.g.
-> > > > > > 4TB, the optimization can still offer 2TB free memory (better
-> > > > > > than no optimization).
-> > > > > >
-> > > > > > Maybe it's better, maybe it isn't. It certainly muddies the waters even
-> > more.
-> > > > > > I'd rather we had a better plan. From that POV I like what
-> > > > > > Matthew Wilcox suggested for this which is to steal the necessary # of
-> > entries off the list.
-> > > > > Actually what Matthew suggested doesn't make a difference here.
-> > > > > That method always steal the first free page blocks, and sure can
-> > > > > be changed to take more. But all these can be achieved via kmalloc
-> > > > I'd do get_user_pages really. You don't want pages split, etc.
-> > 
-> > Oops sorry. I meant get_free_pages .
-> 
-> Yes, we can use __get_free_pages, and the max allocation is MAX_ORDER - 1, which can report up to 2TB free memory. 
-> 
-> "getting two pages isn't harder", do you mean passing two arrays (two allocations by get_free_pages(,MAX_ORDER -1)) to the mm API?
+On Tue, 19 Jun 2018 13:09:14 -0700
+Siwei Liu <loseweigh@gmail.com> wrote:
 
-Yes, or generally a list of pages with as many as needed.
+> On Tue, Jun 19, 2018 at 3:54 AM, Cornelia Huck <cohuck@redhat.com> wrote:
+> > On Fri, 15 Jun 2018 10:06:07 -0700
+> > Siwei Liu <loseweigh@gmail.com> wrote:
+> >  
+> >> On Fri, Jun 15, 2018 at 4:48 AM, Cornelia Huck <cohuck@redhat.com> wrote:  
+> >> > On Thu, 14 Jun 2018 18:57:11 -0700
+> >> > Siwei Liu <loseweigh@gmail.com> wrote:
 
+> >> > I'm a bit confused here. What, exactly, ties the two devices together?  
+> >>
+> >> The group UUID. Since QEMU VFIO dvice does not have insight of MAC
+> >> address (which it doesn't have to), the association between VFIO
+> >> passthrough and standby must be specificed for QEMU to understand the
+> >> relationship with this model. Note, standby feature is no longer
+> >> required to be exposed under this model.  
+> >
+> > Isn't that a bit limiting, though?
+> >
+> > With this model, you can probably tie a vfio-pci device and a
+> > virtio-net-pci device together. But this will fail if you have
+> > different transports: Consider tying together a vfio-pci device and a
+> > virtio-net-ccw device on s390, for example. The standby feature bit is
+> > on the virtio-net level and should not have any dependency on the
+> > transport used.  
+> 
+> Probably we'd limit the support for grouping to virtio-net-pci device
+> and vfio-pci device only. For virtio-net-pci, as you might see with
+> Venu's patch, we store the group UUID on the config space of
+> virtio-pci, which is only applicable to PCI transport.
+> 
+> If virtio-net-ccw needs to support the same, I think similar grouping
+> interface should be defined on the VirtIO CCW transport. I think the
+> current implementation of the Linux failover driver assumes that it's
+> SR-IOV VF with same MAC address which the virtio-net-pci needs to pair
+> with, and that the PV path is on same PF without needing to update
+> network of the port-MAC association change. If we need to extend the
+> grouping mechanism to virtio-net-ccw, it has to pass such failover
+> mode to virtio driver specifically through some other option I guess.
 
-> Please see if the following logic aligns to what you think:
-> 
->         uint32_t i, max_hints, hints_per_page, hints_per_array, total_arrays;
->         unsigned long *arrays;
->  
->      /*
->          * Each array size is MAX_ORDER_NR_PAGES. If one array is not enough to
->          * store all the hints, we need to allocate multiple arrays.
->          * max_hints: the max number of 4MB free page blocks
->          * hints_per_page: the number of hints each page can store
->          * hints_per_array: the number of hints an array can store
->          * total_arrays: the number of arrays we need
->          */
->         max_hints = totalram_pages / MAX_ORDER_NR_PAGES;
->         hints_per_page = PAGE_SIZE / sizeof(__le64);
->         hints_per_array = hints_per_page * MAX_ORDER_NR_PAGES;
->         total_arrays = max_hints /  hints_per_array +
->                        !!(max_hints % hints_per_array);
->         arrays = kmalloc(total_arrays * sizeof(unsigned long), GFP_KERNEL);
->         for (i = 0; i < total_arrays; i++) {
->                 arrays[i] = __get_free_pages(__GFP_ATOMIC | __GFP_NOMEMALLOC, MAX_ORDER - 1);
-> 
->               if (!arrays[i])
->                       goto out;
->         }
-> 
-> 
-> - the mm API needs to be changed to support storing hints to multiple separated arrays offered by the caller.
-> 
-> Best,
-> Wei
+Hm, I've just spent some time reading the Linux failover code and I did
+not really find much pci-related magic in there (other than checking
+for a pci device in net_failover_slave_pre_register). We also seem to
+look for a matching device by MAC only. What magic am I missing?
 
-Yes. And add an API to just count entries so we know how many arrays to allocate.
+Is the look-for-uuid handling supposed to happen in the host only?
 
--- 
-MST
+> >> > If libvirt already has the knowledge that it should manage the two as a
+> >> > couple, why do we need the group id (or something else for other
+> >> > architectures)? (Maybe I'm simply missing something because I'm not
+> >> > that familiar with pci.)  
+> >>
+> >> The idea is to have QEMU control the visibility and enumeration order
+> >> of the passthrough VFIO for the failover scenario. Hotplug can be one
+> >> way to achieve it, and perhaps there's other way around also. The
+> >> group ID is not just for QEMU to couple devices, it's also helpful to
+> >> guest too as grouping using MAC address is just not safe.  
+> >
+> > Sorry about dragging mainframes into this, but this will only work for
+> > homogenous device coupling, not for heterogenous. Consider my vfio-pci
+> > + virtio-net-ccw example again: The guest cannot find out that the two
+> > belong together by checking some group ID, it has to either use the MAC
+> > or some needs-to-be-architectured property.
+> >
+> > Alternatively, we could propose that mechanism as pci-only, which means
+> > we can rely on mechanisms that won't necessarily work on non-pci
+> > transports. (FWIW, I don't see a use case for using vfio-ccw to pass
+> > through a network card anytime in the near future, due to the nature of
+> > network cards currently in use on s390.)  
+> 
+> Yes, let's do this just for PCI transport (homogenous) for now.
+
+But why? Using pci for passthrough to make things easier (and because
+there's not really a use case), sure. But I really don't want to
+restrict this to virtio-pci only.
+
+> >> In the model of (b), I think it essentially turns hotplug to one of
+> >> mechanisms for QEMU to control the visibility. The libvirt can still
+> >> manage the hotplug of individual devices during live migration or in
+> >> normal situation to hot add/remove devices. Though the visibility of
+> >> the VFIO is under the controll of QEMU, and it's possible that the hot
+> >> add/remove request does not involve actual hot plug activity in guest
+> >> at all.  
+> >
+> > That depends on how you model visibility, I guess. You'll probably want
+> > to stop traffic flowing through one or the other of the cards; would
+> > link down or similar be enough for the virtio device?  
+> 
+> I'm not sure if it is a good idea. The guest user will see two devices
+> with same MAC but one of them is down. Do you expect user to use it or
+> not? And since the guest is going to be migrated, we need to unplug a
+> broken VF from guest before migrating, why do we bother plugging in
+> this useless VF at the first place?
+
+I was thinking about using hotunplugging only over migration and doing
+the link up only after feature negotiation has finished, but that is
+probably too complicated. Let's stick to hotplug for simplicity's sake.
