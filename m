@@ -1,24 +1,24 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
-	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Wed, 20 Jun 2018 17:11:59 +0300
-Message-ID: <20180620170904-mutt-send-email-mst@kernel.org>
-References: <20180612142557-mutt-send-email-mst@kernel.org>
-	<b9c88515-cf41-2a9a-078e-9c9e5adbbf14@intel.com>
-	<CADGSJ213f8tJpNXuOhv8qRew-Y5VZAwA+srNMrLZYnKdVGLdAA@mail.gmail.com>
-	<20180614120231.0a72bd5f.cohuck@redhat.com>
-	<CADGSJ23WnTmVKHezm3t0V6M2sWeHaOUoTjdXkmrvbO0EF83hMg@mail.gmail.com>
-	<20180615134815.6613620e.cohuck@redhat.com>
-	<CADGSJ208NRp=bjhSkzF2K5Ft94TwdRs73WfSp4h-_vXvEKwgiQ@mail.gmail.com>
-	<20180619125453.2d2dfb2d.cohuck@redhat.com>
-	<20180619233001-mutt-send-email-mst@kernel.org>
-	<20180620115359.1a3bf6fb.cohuck@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH v33 2/4] virtio-balloon:
+	VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Wed, 20 Jun 2018 17:14:41 +0300
+Message-ID: <20180620171320-mutt-send-email-mst@kernel.org>
+References: <20180615144000-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7396A3D04@shsmsx102.ccr.corp.intel.com>
+	<20180615171635-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7396A5CB0@shsmsx102.ccr.corp.intel.com>
+	<20180618051637-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7396AA10C@shsmsx102.ccr.corp.intel.com>
+	<20180619055449-mutt-send-email-mst@kernel.org>
+	<5B28F371.9020308@intel.com>
+	<20180619173256-mutt-send-email-mst@kernel.org>
+	<286AC319A985734F985F78AFA26841F7396AE2EC@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180620115359.1a3bf6fb.cohuck@redhat.com>
+In-Reply-To: <286AC319A985734F985F78AFA26841F7396AE2EC@shsmsx102.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,48 +28,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
+To: "Wang, Wei W" <wei.w.wang@intel.com>
+Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "nilal@redhat.com" <nilal@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 20, 2018 at 11:53:59AM +0200, Cornelia Huck wrote:
-> On Tue, 19 Jun 2018 23:32:06 +0300
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Tue, Jun 19, 2018 at 12:54:53PM +0200, Cornelia Huck wrote:
-> > > Sorry about dragging mainframes into this, but this will only work for
-> > > homogenous device coupling, not for heterogenous. Consider my vfio-pci
-> > > + virtio-net-ccw example again: The guest cannot find out that the two
-> > > belong together by checking some group ID, it has to either use the MAC
-> > > or some needs-to-be-architectured property.
-> > > 
-> > > Alternatively, we could propose that mechanism as pci-only, which means
-> > > we can rely on mechanisms that won't necessarily work on non-pci
-> > > transports. (FWIW, I don't see a use case for using vfio-ccw to pass
-> > > through a network card anytime in the near future, due to the nature of
-> > > network cards currently in use on s390.)  
+On Wed, Jun 20, 2018 at 09:11:39AM +0000, Wang, Wei W wrote:
+> On Tuesday, June 19, 2018 10:43 PM, Michael S. Tsirk wrote:
+> > On Tue, Jun 19, 2018 at 08:13:37PM +0800, Wei Wang wrote:
+> > > On 06/19/2018 11:05 AM, Michael S. Tsirkin wrote:
+> > > > On Tue, Jun 19, 2018 at 01:06:48AM +0000, Wang, Wei W wrote:
+> > > > > On Monday, June 18, 2018 10:29 AM, Michael S. Tsirkin wrote:
+> > > > > > On Sat, Jun 16, 2018 at 01:09:44AM +0000, Wang, Wei W wrote:
+> > > > > > > Not necessarily, I think. We have min(4m_page_blocks / 512,
+> > > > > > > 1024) above,
+> > > > > > so the maximum memory that can be reported is 2TB. For larger
+> > guests, e.g.
+> > > > > > 4TB, the optimization can still offer 2TB free memory (better
+> > > > > > than no optimization).
+> > > > > >
+> > > > > > Maybe it's better, maybe it isn't. It certainly muddies the waters even
+> > more.
+> > > > > > I'd rather we had a better plan. From that POV I like what
+> > > > > > Matthew Wilcox suggested for this which is to steal the necessary # of
+> > entries off the list.
+> > > > > Actually what Matthew suggested doesn't make a difference here.
+> > > > > That method always steal the first free page blocks, and sure can
+> > > > > be changed to take more. But all these can be achieved via kmalloc
+> > > > I'd do get_user_pages really. You don't want pages split, etc.
 > > 
-> > That's what it boils down to, yes.  If there's need to have this for
-> > non-pci devices, then we should put it in config space.
-> > Cornelia, what do you think?
-> > 
+> > Oops sorry. I meant get_free_pages .
 > 
-> I think the only really useful config on s390 is the vfio-pci network
-> card coupled with a virtio-net-ccw device: Using an s390 network card
-> via vfio-ccw is out due to the nature of the s390 network cards, and
-> virtio-ccw is the default transport (virtio-pci is not supported on any
-> enterprise distro AFAIK).
+> Yes, we can use __get_free_pages, and the max allocation is MAX_ORDER - 1, which can report up to 2TB free memory. 
 > 
-> For this, having a uuid in the config space could work (vfio-pci
-> devices have a config space by virtue of being pci devices, and
-> virtio-net-ccw devices have a config space by virtue of being virtio
-> devices -- ccw devices usually don't have that concept).
+> "getting two pages isn't harder", do you mean passing two arrays (two allocations by get_free_pages(,MAX_ORDER -1)) to the mm API?
 
-OK so this calls for adding such a field generally (it's
-device agnostic right now).
+Yes, or generally a list of pages with as many as needed.
 
-How would you suggest doing that?
 
+> Please see if the following logic aligns to what you think:
+> 
+>         uint32_t i, max_hints, hints_per_page, hints_per_array, total_arrays;
+>         unsigned long *arrays;
+>  
+>      /*
+>          * Each array size is MAX_ORDER_NR_PAGES. If one array is not enough to
+>          * store all the hints, we need to allocate multiple arrays.
+>          * max_hints: the max number of 4MB free page blocks
+>          * hints_per_page: the number of hints each page can store
+>          * hints_per_array: the number of hints an array can store
+>          * total_arrays: the number of arrays we need
+>          */
+>         max_hints = totalram_pages / MAX_ORDER_NR_PAGES;
+>         hints_per_page = PAGE_SIZE / sizeof(__le64);
+>         hints_per_array = hints_per_page * MAX_ORDER_NR_PAGES;
+>         total_arrays = max_hints /  hints_per_array +
+>                        !!(max_hints % hints_per_array);
+>         arrays = kmalloc(total_arrays * sizeof(unsigned long), GFP_KERNEL);
+>         for (i = 0; i < total_arrays; i++) {
+>                 arrays[i] = __get_free_pages(__GFP_ATOMIC | __GFP_NOMEMALLOC, MAX_ORDER - 1);
+> 
+>               if (!arrays[i])
+>                       goto out;
+>         }
+> 
+> 
+> - the mm API needs to be changed to support storing hints to multiple separated arrays offered by the caller.
+> 
+> Best,
+> Wei
+
+Yes. And add an API to just count entries so we know how many arrays to allocate.
 
 -- 
 MST
