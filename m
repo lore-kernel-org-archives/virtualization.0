@@ -1,27 +1,12 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
-	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Wed, 20 Jun 2018 16:34:08 +0200
-Message-ID: <20180620163408.737af8c2.cohuck__40363.8743366629$1529505169$gmane$org@redhat.com>
-References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
-	<20180611202207-mutt-send-email-mst@kernel.org>
-	<dc8b1669-b8b6-fb59-94e2-6e4de6b96572@redhat.com>
-	<20180612051432-mutt-send-email-mst@kernel.org>
-	<23fc4aa4-ec41-d6e2-3354-10cbfc13b7ec@intel.com>
-	<20180612142557-mutt-send-email-mst@kernel.org>
-	<b9c88515-cf41-2a9a-078e-9c9e5adbbf14@intel.com>
-	<CADGSJ213f8tJpNXuOhv8qRew-Y5VZAwA+srNMrLZYnKdVGLdAA@mail.gmail.com>
-	<20180614120231.0a72bd5f.cohuck@redhat.com>
-	<CADGSJ23WnTmVKHezm3t0V6M2sWeHaOUoTjdXkmrvbO0EF83hMg@mail.gmail.com>
-	<20180615134815.6613620e.cohuck@redhat.com>
-	<CADGSJ208NRp=bjhSkzF2K5Ft94TwdRs73WfSp4h-_vXvEKwgiQ@mail.gmail.com>
-	<20180619125453.2d2dfb2d.cohuck@redhat.com>
-	<CADGSJ20wrF418-WVev6OjaeShZWE488uxRwgaZmsjOHZr8jyOw@mail.gmail.com>
+From: "sensornets@insticc.info" <sensornets@insticc.info>
+Subject: CFP SENSORNETS 2019 - 8th Int.l Conf. on Sensor Networks
+	(Prague/Czech Republic)
+Date: 20 Jun 2018 15:54:02 +0100
+Message-ID: <20180620145403.1.B4B484F8DF0AB0E2@insticc.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CADGSJ20wrF418-WVev6OjaeShZWE488uxRwgaZmsjOHZr8jyOw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -31,108 +16,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S.
-	Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, konrad.wilk@oracle.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 19 Jun 2018 13:09:14 -0700
-Siwei Liu <loseweigh@gmail.com> wrote:
-
-> On Tue, Jun 19, 2018 at 3:54 AM, Cornelia Huck <cohuck@redhat.com> wrote:
-> > On Fri, 15 Jun 2018 10:06:07 -0700
-> > Siwei Liu <loseweigh@gmail.com> wrote:
-> >  
-> >> On Fri, Jun 15, 2018 at 4:48 AM, Cornelia Huck <cohuck@redhat.com> wrote:  
-> >> > On Thu, 14 Jun 2018 18:57:11 -0700
-> >> > Siwei Liu <loseweigh@gmail.com> wrote:
-
-> >> > I'm a bit confused here. What, exactly, ties the two devices together?  
-> >>
-> >> The group UUID. Since QEMU VFIO dvice does not have insight of MAC
-> >> address (which it doesn't have to), the association between VFIO
-> >> passthrough and standby must be specificed for QEMU to understand the
-> >> relationship with this model. Note, standby feature is no longer
-> >> required to be exposed under this model.  
-> >
-> > Isn't that a bit limiting, though?
-> >
-> > With this model, you can probably tie a vfio-pci device and a
-> > virtio-net-pci device together. But this will fail if you have
-> > different transports: Consider tying together a vfio-pci device and a
-> > virtio-net-ccw device on s390, for example. The standby feature bit is
-> > on the virtio-net level and should not have any dependency on the
-> > transport used.  
-> 
-> Probably we'd limit the support for grouping to virtio-net-pci device
-> and vfio-pci device only. For virtio-net-pci, as you might see with
-> Venu's patch, we store the group UUID on the config space of
-> virtio-pci, which is only applicable to PCI transport.
-> 
-> If virtio-net-ccw needs to support the same, I think similar grouping
-> interface should be defined on the VirtIO CCW transport. I think the
-> current implementation of the Linux failover driver assumes that it's
-> SR-IOV VF with same MAC address which the virtio-net-pci needs to pair
-> with, and that the PV path is on same PF without needing to update
-> network of the port-MAC association change. If we need to extend the
-> grouping mechanism to virtio-net-ccw, it has to pass such failover
-> mode to virtio driver specifically through some other option I guess.
-
-Hm, I've just spent some time reading the Linux failover code and I did
-not really find much pci-related magic in there (other than checking
-for a pci device in net_failover_slave_pre_register). We also seem to
-look for a matching device by MAC only. What magic am I missing?
-
-Is the look-for-uuid handling supposed to happen in the host only?
-
-> >> > If libvirt already has the knowledge that it should manage the two as a
-> >> > couple, why do we need the group id (or something else for other
-> >> > architectures)? (Maybe I'm simply missing something because I'm not
-> >> > that familiar with pci.)  
-> >>
-> >> The idea is to have QEMU control the visibility and enumeration order
-> >> of the passthrough VFIO for the failover scenario. Hotplug can be one
-> >> way to achieve it, and perhaps there's other way around also. The
-> >> group ID is not just for QEMU to couple devices, it's also helpful to
-> >> guest too as grouping using MAC address is just not safe.  
-> >
-> > Sorry about dragging mainframes into this, but this will only work for
-> > homogenous device coupling, not for heterogenous. Consider my vfio-pci
-> > + virtio-net-ccw example again: The guest cannot find out that the two
-> > belong together by checking some group ID, it has to either use the MAC
-> > or some needs-to-be-architectured property.
-> >
-> > Alternatively, we could propose that mechanism as pci-only, which means
-> > we can rely on mechanisms that won't necessarily work on non-pci
-> > transports. (FWIW, I don't see a use case for using vfio-ccw to pass
-> > through a network card anytime in the near future, due to the nature of
-> > network cards currently in use on s390.)  
-> 
-> Yes, let's do this just for PCI transport (homogenous) for now.
-
-But why? Using pci for passthrough to make things easier (and because
-there's not really a use case), sure. But I really don't want to
-restrict this to virtio-pci only.
-
-> >> In the model of (b), I think it essentially turns hotplug to one of
-> >> mechanisms for QEMU to control the visibility. The libvirt can still
-> >> manage the hotplug of individual devices during live migration or in
-> >> normal situation to hot add/remove devices. Though the visibility of
-> >> the VFIO is under the controll of QEMU, and it's possible that the hot
-> >> add/remove request does not involve actual hot plug activity in guest
-> >> at all.  
-> >
-> > That depends on how you model visibility, I guess. You'll probably want
-> > to stop traffic flowing through one or the other of the cards; would
-> > link down or similar be enough for the virtio device?  
-> 
-> I'm not sure if it is a good idea. The guest user will see two devices
-> with same MAC but one of them is down. Do you expect user to use it or
-> not? And since the guest is going to be migrated, we need to unplug a
-> broken VF from guest before migrating, why do we bother plugging in
-> this useless VF at the first place?
-
-I was thinking about using hotunplugging only over migration and doing
-the link up only after feature negotiation has finished, but that is
-probably too complicated. Let's stick to hotplug for simplicity's sake.
+U1VCTUlTU0lPTiBERUFETElORSAKCjh0aCBJbnRlcm5hdGlvbmFsIENvbmZlcmVuY2Ugb24gU2Vu
+c29yIE5ldHdvcmtzCgpTdWJtaXNzaW9uIERlYWRsaW5lOiBPY3RvYmVyIDEsIDIwMTgKCmh0dHA6
+Ly93d3cuc2Vuc29ybmV0cy5vcmcvCgpGZWJydWFyeSAyNiAtIDI3LCAyMDE5ClByYWd1ZSwgQ3pl
+Y2ggUmVwdWJsaWMuCgogU0VOU09STkVUUyBpcyBvcmdhbml6ZWQgaW4gNSBtYWpvciB0cmFja3M6
+CgogLSBTZW5zb3IgTmV0d29ya3MgU29mdHdhcmUsIEFyY2hpdGVjdHVyZXMgYW5kIEFwcGxpY2F0
+aW9ucwogLSBXaXJlbGVzcyBTZW5zb3IgTmV0d29ya3MKIC0gRW5lcmd5IGFuZCBFbnZpcm9ubWVu
+dAogLSBJbnRlbGxpZ2VudCBEYXRhIEFuYWx5c2lzIGFuZCBQcm9jZXNzaW5nCiAtIFNlY3VyaXR5
+IGFuZCBQcml2YWN5IGluIFNlbnNvciBOZXR3b3JrcwoKDQpJbiBDb29wZXJhdGlvbiB3aXRoOiBF
+VVJPR1JBUEhJQ1MgYW5kIEFGSUcuIDxici8+DQpQcm9jZWVkaW5ncyB3aWxsIGJlIHN1Ym1pdHRl
+ZCBmb3IgaW5kZXhhdGlvbiBieTogREJMUCwgREJMUCwgVGhvbXNvbiBSZXV0ZXJzLCBFSSwgU0NP
+UFVTLCBTZW1hbnRpYyBTY2hvbGFyIGFuZCBTZW1hbnRpYyBTY2hvbGFyLiA8YnIvPgogCkEgc2hv
+cnQgbGlzdCBvZiBwcmVzZW50ZWQgcGFwZXJzIHdpbGwgYmUgc2VsZWN0ZWQgc28gdGhhdCByZXZp
+c2VkIGFuZCBleHRlbmRlZCB2ZXJzaW9ucyBvZiB0aGVzZSBwYXBlcnMgd2lsbCBiZSBwdWJsaXNo
+ZWQgYnkgU3ByaW5nZXIuCiAKQWxsIHBhcGVycyBwcmVzZW50ZWQgYXQgdGhlIGNvbmdyZXNzIHZl
+bnVlIHdpbGwgYWxzbyBiZSBhdmFpbGFibGUgYXQgdGhlIFNDSVRFUFJFU1MgRGlnaXRhbCBMaWJy
+YXJ5IChodHRwOi8vd3d3LnNjaXRlcHJlc3Mub3JnL0RpZ2l0YWxMaWJyYXJ5LykuCiAgClNob3Vs
+ZCB5b3UgaGF2ZSBhbnkgcXVlc3Rpb24gcGxlYXNlIGRvbuKAmXQgaGVzaXRhdGUgY29udGFjdGlu
+ZyBtZS4KIAoKS2luZCByZWdhcmRzLApTRU5TT1JORVRTIFNlY3JldGFyaWF0CgpBZGRyZXNzOiBB
+di4gRC4gTWFudWVsIEksIDI3QSwgMsK6IGVzcS4KMjkxMC01OTUgU2V0dWJhbCwgUG9ydHVnYWwK
+VGVsOiArMzUxIDI2NSAxMDAgMDMzCkZheDogKzM1MSAyNjUgNTIwIDE4NgpXZWI6IGh0dHA6Ly93
+d3cuc2Vuc29ybmV0cy5vcmcvCmUtbWFpbDogc2Vuc29ybmV0cy5zZWNyZXRhcmlhdEBpbnN0aWNj
+Lm9yZwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
