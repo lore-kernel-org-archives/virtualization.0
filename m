@@ -1,12 +1,24 @@
-From: "sensornets@insticc.info" <sensornets@insticc.info>
-Subject: CFP SENSORNETS 2019 - 8th Int.l Conf. on Sensor Networks
-	(Prague/Czech Republic)
-Date: 20 Jun 2018 15:54:02 +0100
-Message-ID: <20180620145403.1.B4B484F8DF0AB0E2@insticc.info>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
+	VIRTIO_NET_F_STANDBY feature bit to virtio_net
+Date: Wed, 20 Jun 2018 18:06:19 +0200
+Message-ID: <20180620180619.6b4ee52d.cohuck@redhat.com>
+References: <20180612142557-mutt-send-email-mst@kernel.org>
+	<b9c88515-cf41-2a9a-078e-9c9e5adbbf14@intel.com>
+	<CADGSJ213f8tJpNXuOhv8qRew-Y5VZAwA+srNMrLZYnKdVGLdAA@mail.gmail.com>
+	<20180614120231.0a72bd5f.cohuck@redhat.com>
+	<CADGSJ23WnTmVKHezm3t0V6M2sWeHaOUoTjdXkmrvbO0EF83hMg@mail.gmail.com>
+	<20180615134815.6613620e.cohuck@redhat.com>
+	<CADGSJ208NRp=bjhSkzF2K5Ft94TwdRs73WfSp4h-_vXvEKwgiQ@mail.gmail.com>
+	<20180619125453.2d2dfb2d.cohuck@redhat.com>
+	<20180619233001-mutt-send-email-mst@kernel.org>
+	<20180620115359.1a3bf6fb.cohuck@redhat.com>
+	<20180620170904-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180620170904-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,31 +28,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-U1VCTUlTU0lPTiBERUFETElORSAKCjh0aCBJbnRlcm5hdGlvbmFsIENvbmZlcmVuY2Ugb24gU2Vu
-c29yIE5ldHdvcmtzCgpTdWJtaXNzaW9uIERlYWRsaW5lOiBPY3RvYmVyIDEsIDIwMTgKCmh0dHA6
-Ly93d3cuc2Vuc29ybmV0cy5vcmcvCgpGZWJydWFyeSAyNiAtIDI3LCAyMDE5ClByYWd1ZSwgQ3pl
-Y2ggUmVwdWJsaWMuCgogU0VOU09STkVUUyBpcyBvcmdhbml6ZWQgaW4gNSBtYWpvciB0cmFja3M6
-CgogLSBTZW5zb3IgTmV0d29ya3MgU29mdHdhcmUsIEFyY2hpdGVjdHVyZXMgYW5kIEFwcGxpY2F0
-aW9ucwogLSBXaXJlbGVzcyBTZW5zb3IgTmV0d29ya3MKIC0gRW5lcmd5IGFuZCBFbnZpcm9ubWVu
-dAogLSBJbnRlbGxpZ2VudCBEYXRhIEFuYWx5c2lzIGFuZCBQcm9jZXNzaW5nCiAtIFNlY3VyaXR5
-IGFuZCBQcml2YWN5IGluIFNlbnNvciBOZXR3b3JrcwoKDQpJbiBDb29wZXJhdGlvbiB3aXRoOiBF
-VVJPR1JBUEhJQ1MgYW5kIEFGSUcuIDxici8+DQpQcm9jZWVkaW5ncyB3aWxsIGJlIHN1Ym1pdHRl
-ZCBmb3IgaW5kZXhhdGlvbiBieTogREJMUCwgREJMUCwgVGhvbXNvbiBSZXV0ZXJzLCBFSSwgU0NP
-UFVTLCBTZW1hbnRpYyBTY2hvbGFyIGFuZCBTZW1hbnRpYyBTY2hvbGFyLiA8YnIvPgogCkEgc2hv
-cnQgbGlzdCBvZiBwcmVzZW50ZWQgcGFwZXJzIHdpbGwgYmUgc2VsZWN0ZWQgc28gdGhhdCByZXZp
-c2VkIGFuZCBleHRlbmRlZCB2ZXJzaW9ucyBvZiB0aGVzZSBwYXBlcnMgd2lsbCBiZSBwdWJsaXNo
-ZWQgYnkgU3ByaW5nZXIuCiAKQWxsIHBhcGVycyBwcmVzZW50ZWQgYXQgdGhlIGNvbmdyZXNzIHZl
-bnVlIHdpbGwgYWxzbyBiZSBhdmFpbGFibGUgYXQgdGhlIFNDSVRFUFJFU1MgRGlnaXRhbCBMaWJy
-YXJ5IChodHRwOi8vd3d3LnNjaXRlcHJlc3Mub3JnL0RpZ2l0YWxMaWJyYXJ5LykuCiAgClNob3Vs
-ZCB5b3UgaGF2ZSBhbnkgcXVlc3Rpb24gcGxlYXNlIGRvbuKAmXQgaGVzaXRhdGUgY29udGFjdGlu
-ZyBtZS4KIAoKS2luZCByZWdhcmRzLApTRU5TT1JORVRTIFNlY3JldGFyaWF0CgpBZGRyZXNzOiBB
-di4gRC4gTWFudWVsIEksIDI3QSwgMsK6IGVzcS4KMjkxMC01OTUgU2V0dWJhbCwgUG9ydHVnYWwK
-VGVsOiArMzUxIDI2NSAxMDAgMDMzCkZheDogKzM1MSAyNjUgNTIwIDE4NgpXZWI6IGh0dHA6Ly93
-d3cuc2Vuc29ybmV0cy5vcmcvCmUtbWFpbDogc2Vuc29ybmV0cy5zZWNyZXRhcmlhdEBpbnN0aWNj
-Lm9yZwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, 20 Jun 2018 17:11:59 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> On Wed, Jun 20, 2018 at 11:53:59AM +0200, Cornelia Huck wrote:
+> > On Tue, 19 Jun 2018 23:32:06 +0300
+> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> >   
+> > > On Tue, Jun 19, 2018 at 12:54:53PM +0200, Cornelia Huck wrote:  
+> > > > Sorry about dragging mainframes into this, but this will only work for
+> > > > homogenous device coupling, not for heterogenous. Consider my vfio-pci
+> > > > + virtio-net-ccw example again: The guest cannot find out that the two
+> > > > belong together by checking some group ID, it has to either use the MAC
+> > > > or some needs-to-be-architectured property.
+> > > > 
+> > > > Alternatively, we could propose that mechanism as pci-only, which means
+> > > > we can rely on mechanisms that won't necessarily work on non-pci
+> > > > transports. (FWIW, I don't see a use case for using vfio-ccw to pass
+> > > > through a network card anytime in the near future, due to the nature of
+> > > > network cards currently in use on s390.)    
+> > > 
+> > > That's what it boils down to, yes.  If there's need to have this for
+> > > non-pci devices, then we should put it in config space.
+> > > Cornelia, what do you think?
+> > >   
+> > 
+> > I think the only really useful config on s390 is the vfio-pci network
+> > card coupled with a virtio-net-ccw device: Using an s390 network card
+> > via vfio-ccw is out due to the nature of the s390 network cards, and
+> > virtio-ccw is the default transport (virtio-pci is not supported on any
+> > enterprise distro AFAIK).
+> > 
+> > For this, having a uuid in the config space could work (vfio-pci
+> > devices have a config space by virtue of being pci devices, and
+> > virtio-net-ccw devices have a config space by virtue of being virtio
+> > devices -- ccw devices usually don't have that concept).  
+> 
+> OK so this calls for adding such a field generally (it's
+> device agnostic right now).
+> 
+> How would you suggest doing that?
+
+I hope that I'm not thoroughly confused at this point in time, so I'll
+summarize my current understanding (also keep in mind that I haven't
+looked at Venu's patches yet):
+
+- The Linux guest initiates coupling from the virtio-net driver.
+  Matching the other device is done via the MAC, and only pci devices
+  are allowed for the failover device. (There does not seem to be any
+  restriction on the transport of the virtio-net device.)
+- The Linux guest virtio-net driver does not allow changing the MAC if
+  standby has been negotiated (implying that the hypervisor needs to
+  configure the correct MAC).
+- In QEMU, we need to know which two devices (vfio-pci and virtio-net)
+  go together, so that the virtio-net device gets the correct MAC. We
+  also need the pairing so that we can make the vfio-pci device
+  available once the guest has negotiated the standby feature.
+
+We can tack the two devices together in QEMU by introducing new,
+optional properties pointing from the virtio-net device to the vfio-pci
+device (only offer standby if this is set) and the other way around
+(don't make the device visible at the start if this is set). Problems:
+
+- The admin needs to figure out the MAC by themselves and set it
+  correctly. If this is incorrect, the vfio-pci device cannot be found
+  in the guest. (Not sure how much of a problem this is in practice --
+  and QEMU cannot figure out the MAC without poking at the vfio-pci
+  device, and we probably want to avoid that.)
+- This two-way pointing makes for interesting handing of the command
+  line and when both devices are plugged later.
+
+In any case, I'm not sure anymore why we'd want the extra uuid. Is
+there any way QEMU (or libvirt) can figure it out without actually
+looking at the vfio-pci device?
