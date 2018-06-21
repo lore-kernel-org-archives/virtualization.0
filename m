@@ -1,24 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
-	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Thu, 21 Jun 2018 21:20:13 +0300
-Message-ID: <20180621211712-mutt-send-email-mst__18832.5129369789$1529605118$gmane$org@kernel.org>
-References: <CADGSJ23WnTmVKHezm3t0V6M2sWeHaOUoTjdXkmrvbO0EF83hMg@mail.gmail.com>
-	<20180615134815.6613620e.cohuck@redhat.com>
-	<CADGSJ208NRp=bjhSkzF2K5Ft94TwdRs73WfSp4h-_vXvEKwgiQ@mail.gmail.com>
-	<20180619125453.2d2dfb2d.cohuck@redhat.com>
-	<20180619233001-mutt-send-email-mst@kernel.org>
-	<20180620115359.1a3bf6fb.cohuck@redhat.com>
-	<20180620170904-mutt-send-email-mst@kernel.org>
-	<20180620180619.6b4ee52d.cohuck@redhat.com>
-	<20180620224535-mutt-send-email-mst@kernel.org>
-	<20180621165913.7e3f4faa.cohuck@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: [PATCH v2 0/5] Add virtio-iommu driver
+Date: Thu, 21 Jun 2018 20:06:50 +0100
+Message-ID: <20180621190655.56391-1-jean-philippe.brucker__45188.9196098366$1529608209$gmane$org@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180621165913.7e3f4faa.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,45 +15,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
+To: iommu@lists.linux-foundation.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, devicetree@vger.kernel.org, kvmarm@lists.cs.columbia.edu
+Cc: mark.rutland@arm.com, jayachandran.nair@cavium.com, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, mst@redhat.com, marc.zyngier@arm.com, joro@8bytes.org, will.deacon@arm.com, eric.auger@redhat.com, robh+dt@kernel.org, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 21, 2018 at 04:59:13PM +0200, Cornelia Huck wrote:
-> On Wed, 20 Jun 2018 22:48:58 +0300
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Wed, Jun 20, 2018 at 06:06:19PM +0200, Cornelia Huck wrote:
-> > > In any case, I'm not sure anymore why we'd want the extra uuid.  
-> > 
-> > It's mostly so we can have e.g. multiple devices with same MAC
-> > (which some people seem to want in order to then use
-> > then with different containers).
-> > 
-> > But it is also handy for when you assign a PF, since then you
-> > can't set the MAC.
-> > 
-> 
-> OK, so what about the following:
-> 
-> - introduce a new feature bit, VIRTIO_NET_F_STANDBY_UUID that indicates
->   that we have a new uuid field in the virtio-net config space
-> - in QEMU, add a property for virtio-net that allows to specify a uuid,
->   offer VIRTIO_NET_F_STANDBY_UUID if set
-> - when configuring, set the property to the group UUID of the vfio-pci
->   device
-> - in the guest, use the uuid from the virtio-net device's config space
->   if applicable; else, fall back to matching by MAC as done today
-> 
-> That should work for all virtio transports.
-
-True. I'm a bit unhappy that it's virtio net specific though
-since down the road I expect we'll have a very similar feature
-for scsi (and maybe others).
-
-But we do not have a way to have fields that are portable
-both across devices and transports, and I think it would
-be a useful addition. How would this work though? Any idea?
-
--- 
-MST
+SW1wbGVtZW50IHRoZSBiYXNlIHZpcnRpby1pb21tdSBkcml2ZXIsIGZvbGxvd2luZyB2ZXJzaW9u
+IDAuNyBvZiB0aGUKc3BlY2lmaWNhdGlvbiBbMV0uCgpDaGFuZ2VzIHNpbmNlIGxhc3QgdmVyc2lv
+biBbMl06CiogQWRkcmVzcyBjb21tZW50cywgdGhhbmtzIGFnYWluIGZvciB0aGUgcmV2aWV3Lgoq
+IEFzIHN1Z2dlc3RlZCwgYWRkIGEgRFQgYmluZGluZyBkZXNjcmlwdGlvbiBpbiBwYXRjaCAxLgoq
+IERlcGVuZCBvbiBWSVJUSU9fTU1JTz15IHRvIGZpeCBhIGJ1aWxkIGZhaWx1cmXCuQoqIFN3aXRj
+aCB0byB2MC43IG9mIHRoZSBzcGVjLCB3aGljaCBjaGFuZ2VzIHJlc3ZfbWVtIHBhcmFtZXRlcnMg
+YW5kIGFkZHMKICBhbiBNTUlPIGZsYWcuIFRoZXNlIGFyZSB0cml2aWFsIGJ1dCBub3QgYmFja3dh
+cmQgY29tcGF0aWJsZS4gT25jZQogIGRldmljZSBvciBkcml2ZXIgaXMgdXBzdHJlYW0sIHVwZGF0
+ZXMgdG8gdGhlIHNwZWMgd2lsbCByZWx5IG9uIGZlYXR1cmUKICBiaXRzIHRvIHN0YXkgY29tcGF0
+aWJsZSB3aXRoIHRoaXMgY29kZS4KKiBJbXBsZW1lbnQgdGhlIG5ldyB0bGJfc3luYyBpbnRlcmZh
+Y2UsIGJ5IHNwbGl0dGluZyBhZGRfcmVxKCkgYW5kCiAgc3luY19yZXEoKS4gSSBub3RpY2VkIGEg
+c21hbGwgaW1wcm92ZW1lbnQgb24gbmV0cGVyZiBzdHJlYW0gYmVjYXVzZQogIHRoZSBzeW5jaHJv
+bm91cyBpb21tdV91bm1hcCgpIGFsc28gYmVuZWZpdHMgZnJvbSB0aGlzLiBPdGhlcgogIGV4cGVy
+aW1lbnRzLCBzdWNoIGFzIHVzaW5nIGttZW1fY2FjaGUgZm9yIHJlcXVlc3RzIGluc3RlYWQgb2Yg
+a21hbGxvYywKICBkaWRuJ3Qgc2hvdyBhbnkgaW1wcm92ZW1lbnQuCgpEcml2ZXIgaXMgYXZhaWxh
+YmxlIG9uIGJyYW5jaCB2aXJ0aW8taW9tbXUvdjAuNyBbM10sIGFuZCB0aGUgeDg2K0FDUEkKcHJv
+dG90eXBlIGlzIG9uIGJyYW5jaCB2aXJ0aW8taW9tbXUvZGV2ZWwuIFRoYXQgeDg2IGNvZGUgaGFz
+bid0IGNoYW5nZWQsCml0IHN0aWxsIHJlcXVpcmVzIHRoZSBETUEgaWZkZWZmZXJ5IGFuZCBJIGxh
+Y2sgdGhlIGV4cGVydGlzZSB0byB0aWR5IGl0CnVwLiBUaGUga3ZtdG9vbCBleGFtcGxlIGRldmlj
+ZSBoYXMgYmVlbiBjbGVhbmVkIHVwIGFuZCBpcyBhdmFpbGFibGUgb24KYnJhbmNoIHZpcnRpby1p
+b21tdS92MC43IFs0XS4KCkZlZWRiYWNrIHdlbGNvbWUhCgpUaGFua3MsCkplYW4KClsxXSB2aXJ0
+aW8taW9tbXUgc3BlY2lmaWNhdGlvbiB2MC43CiAgICBodHRwczovL3d3dy5zcGluaWNzLm5ldC9s
+aXN0cy9saW51eC12aXJ0dWFsaXphdGlvbi9tc2czNDEyNy5odG1sClsyXSB2aXJ0aW8taW9tbXUg
+ZHJpdmVyIHYxCiAgICBodHRwczovL3d3dy5zcGluaWNzLm5ldC9saXN0cy9rdm0vbXNnMTY0MzIy
+Lmh0bWwKWzNdIGdpdDovL2xpbnV4LWFybS5vcmcvbGludXgtanBiLmdpdCB2aXJ0aW8taW9tbXUv
+djAuNwogICAgaHR0cDovL3d3dy5saW51eC1hcm0ub3JnL2dpdD9wPWxpbnV4LWpwYi5naXQ7YT1z
+aG9ydGxvZztoPXJlZnMvaGVhZHMvdmlydGlvLWlvbW11L3YwLjcKWzRdIGdpdDovL2xpbnV4LWFy
+bS5vcmcva3ZtdG9vbC1qcGIuZ2l0IHZpcnRpby1pb21tdS92MC43IAoKICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIC0tLQrCuSBBIHdvcmQgb24gdGhlIG1vZHVsZSBzdG9yeS4gQmVj
+YXVzZSBvZiBjb21wbGV4IGRlcGVuZGVuY2llcyBJT01NVQpkcml2ZXJzIGNhbm5vdCB5ZXQgYmUg
+LmtvIG1vZHVsZXMuIEVuYWJsaW5nIGl0IGlzIG91dHNpZGUgdGhlIHNjb3BlIG9mCnRoaXMgc2Vy
+aWVzIGJ1dCBJIGhhdmUgYSBzbWFsbCBwcm90b3R5cGUgb24gYnJhbmNoIHZpcnRpby1pb21tdS8K
+bW9kdWxlLWRldmVsLiBJdCBzZWVtcyBkZXNpcmFibGUgc2luY2Ugc29tZSBkaXN0cm9zIGN1cnJl
+bnRseSBzaGlwIHRoZQp0cmFuc3BvcnQgY29kZSBhcyBtb2R1bGUgYW5kIGFyZSB1bmxpa2VseSB0
+byBjaGFuZ2UgdGhpcyBvbiBvdXIgYWNjb3VudC4KTm90ZSB0aGF0IHRoaXMgc2VyaWVzIHdvcmtz
+IGZpbmUgd2l0aCBhcm02NCBkZWZjb25maWcsIHdoaWNoIHNlbGVjdHMKVklSVElPX01NSU89eS4K
+CkkgY291bGQgdXNlIHNvbWUgaGVscCB0byBjbGVhbiB0aGlzIHVwLiBDdXJyZW50bHkgbXkgc29s
+dXRpb24gaXMgdG8gc3BsaXQKdmlydGlvLWlvbW11IGludG8gYSBtb2R1bGUgYW5kIGEgMy1saW5l
+cyBidWlsdC1pbiBzdHViLCB3aGljaCBpc24ndApncmFjZWZ1bCBidXQgY291bGQgaGF2ZSBiZWVu
+IHdvcnNlLgoKS2VlcGluZyB0aGUgd2hvbGUgdmlydGlvLWlvbW11IGRyaXZlciBhcyBidWlsdGlu
+IHdvdWxkIHJlcXVpcmUgYWNjZXNzaW5nCmFueSB2aXJ0aW8gdXRpbGl0eSB0aHJvdWdoIGdldF9z
+eW1ib2wuIFNvIGZhciB3ZSBvbmx5IGhhdmUgc2V2ZW4gb2YKdGhvc2UgYW5kIGNvdWxkIGtlZXAg
+YSBsaXN0IG9mIHBvaW50ZXIgb3BzLCBidXQgSSBmaW5kIHRoaXMgc29sdXRpb24KdGVycmlibGUu
+IElmIHZpcnRpbyBvciB2aXJ0aW9fbW1pbyBpcyBhIG1vZHVsZSwgdmlydGlvLWlvbW11IGFsc28g
+bmVlZHMKdG8gYmUgb25lLgoKVGhlIG1pbmltYWwgc2V0IG9mIGNoYW5nZXMgdG8gbWFrZSBhIG1v
+ZHVsZSBvdXQgb2YgYW4gT0YtYmFzZWQgSU9NTVUKZHJpdmVyIHNlZW1zIHRvIGJlOgoqIEV4cG9y
+dCBJT01NVSBzeW1ib2xzIHVzZWQgYnkgZHJpdmVycwoqIERvbid0IGdpdmUgdXAgZGVmZXJyaW5n
+IHByb2JlIGluIG9mX2lvbW11CiogTW92ZSBJT01NVSBPRiB0YWJsZXMgdG8gLnJvZGF0YQoqIENy
+ZWF0ZSBhIHN0YXRpYyB2aXJ0aW8taW9tbXUgc3R1YiB0aGF0IGRlY2xhcmVzIHRoZSB2aXJ0aW8t
+aW9tbXUgT0YKICB0YWJsZSBlbnRyeS4gVGhlIGJ1aWxkIHN5c3RlbSBkb2Vzbid0IHBpY2sgdXAg
+SU9NTVVfT0ZfREVDTEFSRSB3aGVuCiAgZG9uZSBmcm9tIGFuIG9iamVjdCBkZXN0aW5lZCB0byBi
+ZSBidWlsdCBhcyBtb2R1bGUgOigKKiBDcmVhdGUgYSBkZXZpY2VfbGluayBiZXR3ZWVuIGVuZHBv
+aW50IGFuZCBJT01NVSwgdG8gZW5zdXJlIHRoYXQKICByZW1vdmluZyB0aGUgSU9NTVUgZHJpdmVy
+IGFsc28gdW5iaW5kcyB0aGUgZW5kcG9pbnQgZHJpdmVyLiBQdXR0aW5nCiAgdGhpcyBpbiBJT01N
+VSBjb3JlIHNlZW1zIGxpa2UgYSBiZXR0ZXIgYXBwcm9hY2ggc2luY2UgZXZlbiB3aGVuIG5vdAog
+IGJ1aWx0IGFzIG1vZHVsZSwgdW5iaW5kaW5nIGFuIElPTU1VIGRldmljZSB2aWEgc3lzZnMgd2ls
+bCBjYXVzZQogIGNyYXNoZXMuCgpXaXRoIHRoaXMsIGFzIGxvbmcgYXMgdmlydGlvLW1taW8gaXNu
+J3QgbG9hZGVkLCB0aGUgT0YgY29kZSBkZWZlcnMgcHJvYmUKb2YgZW5kcG9pbnRzIHRoYXQgZGVw
+ZW5kIG9uIHZpcnRpby1pb21tdS4gT25jZSB2aXJ0aW8tbW1pbyBpcyBsb2FkZWQsCnRoZSBwcm9i
+ZSBpcyBzdGlsbCBkZWZlcnJlZCB1bnRpbCB2aXJ0aW8taW9tbXUgcmVnaXN0ZXJzIGl0c2VsZiB0
+byB0aGUKdmlydGlvIGJ1cy4gT25jZSB2aXJ0aW8taW9tbXUgaXMgbG9hZGVkLCBwcm9iZSBvZiBl
+bmRwb2ludHMgbWFuYWdlZCBieQp0aGUgSU9NTVUgZm9sbG93cy4KCkknbGwgaW52ZXN0aWdhdGUg
+QUNQSSBJT1JUIHdoZW4gSSBmaW5kIHNvbWUgdGltZSwgdGhvdWdoIEkgZG9uJ3QgZXhwZWN0Cm11
+Y2ggY29tcGxpY2F0aW9uIGFuZCBzdWdnZXN0IHdlIHRhY2tsZSBvbmUgcHJvYmxlbSBhdCBhIHRp
+bWUuIFNpbmNlIGl0CmlzIGEgbHV4dXJ5IHRoYXQgcmVxdWlyZXMgY2hhbmdlcyB0byB0aGUgSU9N
+TVUgY29yZSwgbW9kdWxlIHN1cHBvcnQgaXMKbGVmdCBhcyBhIGZ1dHVyZSBpbXByb3ZlbWVudC4K
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC0tLQoKSmVhbi1QaGlsaXBwZSBCcnVj
+a2VyICg1KToKICBkdC1iaW5kaW5nczogdmlydGlvOiBTcGVjaWZ5ICNpb21tdS1jZWxscyB2YWx1
+ZSBmb3IgYSB2aXJ0aW8taW9tbXUKICBpb21tdTogQWRkIHZpcnRpby1pb21tdSBkcml2ZXIKICBp
+b21tdS92aXJ0aW86IEFkZCBwcm9iZSByZXF1ZXN0CiAgaW9tbXUvdmlydGlvOiBBZGQgZXZlbnQg
+cXVldWUKICB2ZmlvOiBBbGxvdyB0eXBlLTEgSU9NTVUgaW5zdGFudGlhdGlvbiBmb3IgQVJNCgog
+Li4uL2RldmljZXRyZWUvYmluZGluZ3MvdmlydGlvL21taW8udHh0ICAgICAgIHwgICAgOCArCiBN
+QUlOVEFJTkVSUyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgICA2ICsKIGRy
+aXZlcnMvaW9tbXUvS2NvbmZpZyAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMTEgKwogZHJp
+dmVycy9pb21tdS9NYWtlZmlsZSAgICAgICAgICAgICAgICAgICAgICAgIHwgICAgMSArCiBkcml2
+ZXJzL2lvbW11L3ZpcnRpby1pb21tdS5jICAgICAgICAgICAgICAgICAgfCAxMTY0ICsrKysrKysr
+KysrKysrKysrCiBkcml2ZXJzL3ZmaW8vS2NvbmZpZyAgICAgICAgICAgICAgICAgICAgICAgICAg
+fCAgICAyICstCiBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2lkcy5oICAgICAgICAgICAgICAg
+fCAgICAxICsKIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9faW9tbXUuaCAgICAgICAgICAgICB8
+ICAxNzIgKysrCiA4IGZpbGVzIGNoYW5nZWQsIDEzNjQgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlv
+bigtKQogY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvaW9tbXUvdmlydGlvLWlvbW11LmMKIGNy
+ZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2lvbW11LmgKCi0tIAoy
+LjE3LjAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
