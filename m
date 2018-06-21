@@ -1,20 +1,24 @@
-From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH v5 2/3] x86/asm: add _ASM_ARG* constants for argument
-	registers to <asm/asm.h>
-Date: Thu, 21 Jun 2018 14:28:11 +0200
-Message-ID: <20180621122811.GA25066__23629.6869851232$1529584355$gmane$org@gmail.com>
-References: <20180613210518.113983-1-ndesaulniers@google.com>
-	<20180613210518.113983-3-ndesaulniers@google.com>
-	<b027a324-ffae-fd5e-d8a3-03934be91a2d@zytor.com>
-	<CAKwvOdngs8k_T=nDKh8JYdAwwFoJRcCU0bZu0tJHQ+keZ5+RFQ@mail.gmail.com>
-	<deb5a074-b057-9388-4ab7-42295b5bb46c@zytor.com>
-	<CAKwvOdmE-EHJY7tgzkhyQqNT3m3oWtd6iE3sWBTz19Rijzx4Ew@mail.gmail.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
+	VIRTIO_NET_F_STANDBY feature bit to virtio_net
+Date: Thu, 21 Jun 2018 16:59:13 +0200
+Message-ID: <20180621165913.7e3f4faa.cohuck@redhat.com>
+References: <CADGSJ213f8tJpNXuOhv8qRew-Y5VZAwA+srNMrLZYnKdVGLdAA@mail.gmail.com>
+	<20180614120231.0a72bd5f.cohuck@redhat.com>
+	<CADGSJ23WnTmVKHezm3t0V6M2sWeHaOUoTjdXkmrvbO0EF83hMg@mail.gmail.com>
+	<20180615134815.6613620e.cohuck@redhat.com>
+	<CADGSJ208NRp=bjhSkzF2K5Ft94TwdRs73WfSp4h-_vXvEKwgiQ@mail.gmail.com>
+	<20180619125453.2d2dfb2d.cohuck@redhat.com>
+	<20180619233001-mutt-send-email-mst@kernel.org>
+	<20180620115359.1a3bf6fb.cohuck@redhat.com>
+	<20180620170904-mutt-send-email-mst@kernel.org>
+	<20180620180619.6b4ee52d.cohuck@redhat.com>
+	<20180620224535-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAKwvOdmE-EHJY7tgzkhyQqNT3m3oWtd6iE3sWBTz19Rijzx4Ew@mail.gmail.com>
+In-Reply-To: <20180620224535-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,52 +28,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, andrea.parri@amarulasolutions.com, linux-efi@vger.kernel.org, brijesh.singh@amd.com, "J. Kiszka" <jan.kiszka@siemens.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Will Deacon <will.deacon@arm.com>, jarkko.sakkinen@linux.intel.com, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Manoj Gupta <manojgupta@google.com>, hpa@zytor.com, boris.ostrovsky@oracle.com, Thiebaud Weksteen <tweek@google.com>, mawilcox@microsoft.com, x86@kernel.org, akataria@vmware.com, Greg Hackmann <ghackmann@google.com>, mingo@redhat.com, Alistair Strachan <astrachan@google.com>, David Rientjes <rientjes@google.com>, geert@linux-m68k.org, thomas.lendacky@amd.com, Arnd Bergmann <arnd@arndb.de>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Philippe Ombredanne <pombredanne@nexb.com>, rostedt@goodmis.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, 20 Jun 2018 22:48:58 +0300
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-* Nick Desaulniers <ndesaulniers@google.com> wrote:
-
-> On Thu, Jun 14, 2018 at 5:17 PM H. Peter Anvin <hpa@zytor.com> wrote:
-> >
-> > On 06/14/18 13:59, Nick Desaulniers wrote:
-> > > On Thu, Jun 14, 2018 at 1:48 PM H. Peter Anvin <hpa@zytor.com> wrote:
-> > >>
-> > >> On 06/13/18 14:05, Nick Desaulniers wrote:
-> > >>> From: "H. Peter Anvin" <hpa@linux.intel.com>
-> > >>>
-> > >>> i386 and x86-64 uses different registers for arguments; make them
-> > >>> available so we don't have to #ifdef in the actual code.
-> > >>>
-> > >>> Native size and specified size (q, l, w, b) versions are provided.
-> > >>>
-> > >>> Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
-> > >>> Signed-off-by: H. Peter Anvin <hpa@linux.intel.com>
-> > >>> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> > >>
-> > >> I still object to Suggested-by: here.  Sedat did a correction, which is
-> > >> a Reviewed-by:, but unless I'm completely out to sea, there was no
-> > >> suggestion on Sedat's part of this; and I had certainly not seen it when
-> > >> I wrote the code.
-> > >
-> > > I'm fine with changing it from a Suggested-by to a Reviewed-by.  Can
-> > > you do that when you apply the set, or should I send a v6?
-> > >
-> >
-> > I'm not handling patch mechanics for x86 at the moment.
+> On Wed, Jun 20, 2018 at 06:06:19PM +0200, Cornelia Huck wrote:
+> > In any case, I'm not sure anymore why we'd want the extra uuid.  
 > 
-> Hi Ingo and Thomas,
-> Have you had a chance to review this patch series for application?
+> It's mostly so we can have e.g. multiple devices with same MAC
+> (which some people seem to want in order to then use
+> then with different containers).
 > 
-> Note that Juergen (the paravirt maintainer) acked the series:
-> https://bugs.llvm.org/show_bug.cgi?id=37880
-> The only issue being swapping a Suggested-by for a Reviewed-by tag for
-> one commit, as above.
+> But it is also handy for when you assign a PF, since then you
+> can't set the MAC.
+> 
 
-Could you please update the series with all suggestions and tags and send a new 
-series?
+OK, so what about the following:
 
-Thanks,
+- introduce a new feature bit, VIRTIO_NET_F_STANDBY_UUID that indicates
+  that we have a new uuid field in the virtio-net config space
+- in QEMU, add a property for virtio-net that allows to specify a uuid,
+  offer VIRTIO_NET_F_STANDBY_UUID if set
+- when configuring, set the property to the group UUID of the vfio-pci
+  device
+- in the guest, use the uuid from the virtio-net device's config space
+  if applicable; else, fall back to matching by MAC as done today
 
-	Ingo
+That should work for all virtio transports.
