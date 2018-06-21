@@ -1,13 +1,20 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] net: vhost: improve performance when enable busyloop
-Date: Thu, 21 Jun 2018 13:59:07 +0800
-Message-ID: <a2302593-d8c2-8abb-9b57-671ccdbc4889@redhat.com>
-References: <1529501332-118823-1-git-send-email-xiangxia.m.yue@gmail.com>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH v5 2/3] x86/asm: add _ASM_ARG* constants for argument
+	registers to <asm/asm.h>
+Date: Thu, 21 Jun 2018 14:28:11 +0200
+Message-ID: <20180621122811.GA25066__23629.6869851232$1529584355$gmane$org@gmail.com>
+References: <20180613210518.113983-1-ndesaulniers@google.com>
+	<20180613210518.113983-3-ndesaulniers@google.com>
+	<b027a324-ffae-fd5e-d8a3-03934be91a2d@zytor.com>
+	<CAKwvOdngs8k_T=nDKh8JYdAwwFoJRcCU0bZu0tJHQ+keZ5+RFQ@mail.gmail.com>
+	<deb5a074-b057-9388-4ab7-42295b5bb46c@zytor.com>
+	<CAKwvOdmE-EHJY7tgzkhyQqNT3m3oWtd6iE3sWBTz19Rijzx4Ew@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------EB6CC894810ADED97061FC60"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1529501332-118823-1-git-send-email-xiangxia.m.yue@gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CAKwvOdmE-EHJY7tgzkhyQqNT3m3oWtd6iE3sWBTz19Rijzx4Ew@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,201 +24,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Cc: netdev@vger.kernel.org, Tonghao Zhang <zhangtonghao@didichuxing.com>, virtualization@lists.linux-foundation.org
+To: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>, andrea.parri@amarulasolutions.com, linux-efi@vger.kernel.org, brijesh.singh@amd.com, "J. Kiszka" <jan.kiszka@siemens.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Will Deacon <will.deacon@arm.com>, jarkko.sakkinen@linux.intel.com, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Manoj Gupta <manojgupta@google.com>, hpa@zytor.com, boris.ostrovsky@oracle.com, Thiebaud Weksteen <tweek@google.com>, mawilcox@microsoft.com, x86@kernel.org, akataria@vmware.com, Greg Hackmann <ghackmann@google.com>, mingo@redhat.com, Alistair Strachan <astrachan@google.com>, David Rientjes <rientjes@google.com>, geert@linux-m68k.org, thomas.lendacky@amd.com, Arnd Bergmann <arnd@arndb.de>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Philippe Ombredanne <pombredanne@nexb.com>, rostedt@goodmis.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---------------EB6CC894810ADED97061FC60
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
 
+* Nick Desaulniers <ndesaulniers@google.com> wrote:
 
+> On Thu, Jun 14, 2018 at 5:17 PM H. Peter Anvin <hpa@zytor.com> wrote:
+> >
+> > On 06/14/18 13:59, Nick Desaulniers wrote:
+> > > On Thu, Jun 14, 2018 at 1:48 PM H. Peter Anvin <hpa@zytor.com> wrote:
+> > >>
+> > >> On 06/13/18 14:05, Nick Desaulniers wrote:
+> > >>> From: "H. Peter Anvin" <hpa@linux.intel.com>
+> > >>>
+> > >>> i386 and x86-64 uses different registers for arguments; make them
+> > >>> available so we don't have to #ifdef in the actual code.
+> > >>>
+> > >>> Native size and specified size (q, l, w, b) versions are provided.
+> > >>>
+> > >>> Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
+> > >>> Signed-off-by: H. Peter Anvin <hpa@linux.intel.com>
+> > >>> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> > >>
+> > >> I still object to Suggested-by: here.  Sedat did a correction, which is
+> > >> a Reviewed-by:, but unless I'm completely out to sea, there was no
+> > >> suggestion on Sedat's part of this; and I had certainly not seen it when
+> > >> I wrote the code.
+> > >
+> > > I'm fine with changing it from a Suggested-by to a Reviewed-by.  Can
+> > > you do that when you apply the set, or should I send a v6?
+> > >
+> >
+> > I'm not handling patch mechanics for x86 at the moment.
+> 
+> Hi Ingo and Thomas,
+> Have you had a chance to review this patch series for application?
+> 
+> Note that Juergen (the paravirt maintainer) acked the series:
+> https://bugs.llvm.org/show_bug.cgi?id=37880
+> The only issue being swapping a Suggested-by for a Reviewed-by tag for
+> one commit, as above.
 
-On 2018年06月20日 21:28, Tonghao Zhang wrote:
-> This patch improves the guest receive performance from
-> host. On the handle_tx side, we poll the sock receive
-> queue at the same time. handle_rx do that in the same way.
->
-> we set the poll-us=100 us and use the iperf3 to test
-> its throughput. The iperf3 command is shown as below.
->
-> iperf3 -s -D
-> iperf3 -c 192.168.1.100 -i 1 -P 10 -t 10 -M 1400 --bandwidth 100000M
->
-> * With the patch:    21.1 Gbits/sec
-> * Without the patch: 12.7 Gbits/sec
+Could you please update the series with all suggestions and tags and send a new 
+series?
 
-Thanks a lot for the patch. But looks like it needs some work to avoid 
-e.g deadlock.
+Thanks,
 
-E.g in vhost_process_iotlb_msg() we call vhost_dev_lock_vqs() which did:
-
-     for (i = 0; i < d->nvqs; ++i)
-         mutex_lock_nested(&d->vqs[i]->mutex, i);
-
-I believe we need to change the code to lock the vq one by one like the 
-attached (only compile test).
-
-> Signed-off-by: Tonghao Zhang <zhangtonghao@didichuxing.com>
-> ---
->   drivers/vhost/net.c | 21 +++++++++++++++++++++
->   1 file changed, 21 insertions(+)
->
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index e7cf7d2..9364ede 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -429,22 +429,43 @@ static int vhost_net_enable_vq(struct vhost_net *n,
->   	return vhost_poll_start(poll, sock->file);
->   }
->   
-> +static int sk_has_rx_data(struct sock *sk);
-> +
-
-How about move sk_has_rx_data() here.
-
->   static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
->   				    struct vhost_virtqueue *vq,
->   				    struct iovec iov[], unsigned int iov_size,
->   				    unsigned int *out_num, unsigned int *in_num)
->   {
->   	unsigned long uninitialized_var(endtime);
-> +	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_RX];
-> +	struct vhost_virtqueue *rvq = &nvq->vq;
-> +	struct socket *sock = rvq->private_data;
-> +
->   	int r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
->   				  out_num, in_num, NULL, NULL);
->   
->   	if (r == vq->num && vq->busyloop_timeout) {
-> +		mutex_lock_nested(&rvq->mutex, 1);
-> +
-> +		vhost_disable_notify(&net->dev, rvq);
-> +
->   		preempt_disable();
->   		endtime = busy_clock() + vq->busyloop_timeout;
->   		while (vhost_can_busy_poll(vq->dev, endtime) &&
-> +		       !(sock && sk_has_rx_data(sock->sk)) &&
->   		       vhost_vq_avail_empty(vq->dev, vq))
->   			cpu_relax();
->   		preempt_enable();
-> +
-> +		if (sock && sk_has_rx_data(sock->sk))
-> +			vhost_poll_queue(&rvq->poll);
-> +		else if (unlikely(vhost_enable_notify(&net->dev, rvq))) {
-> +			vhost_disable_notify(&net->dev, rvq);
-> +			vhost_poll_queue(&rvq->poll);
-> +		}
-> +
-> +		mutex_unlock(&rvq->mutex);
-
-Some kinds of code duplication, can we try to unify them?
-
-Btw, net-next is closed, so you need resubmit after it was open and use 
-a "net-next" as the prefix of the patch.
-
-Thanks
-
-> +
->   		r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
->   				      out_num, in_num, NULL, NULL);
->   	}
-
-
---------------EB6CC894810ADED97061FC60
-Content-Type: text/x-patch;
- name="0001-vhost-lock-vqs-one-by-one.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="0001-vhost-lock-vqs-one-by-one.patch"
-
-From 383fe9d98420d92a632dc554969b4b1716017ba2 Mon Sep 17 00:00:00 2001
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 21 Jun 2018 13:58:31 +0800
-Subject: [PATCH] vhost: lock vqs one by one
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/vhost.c | 23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index e5bc4bb..937252d 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -294,8 +294,11 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
- {
- 	int i;
- 
--	for (i = 0; i < d->nvqs; ++i)
-+	for (i = 0; i < d->nvqs; ++i) {
-+		mutex_lock(&d->vqs[i]->mutex);
- 		__vhost_vq_meta_reset(d->vqs[i]);
-+		mutex_unlock(&d->vqs[i]->mutex);
-+	}
- }
- 
- static void vhost_vq_reset(struct vhost_dev *dev,
-@@ -855,20 +858,6 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
- #define vhost_get_used(vq, x, ptr) \
- 	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
- 
--static void vhost_dev_lock_vqs(struct vhost_dev *d)
--{
--	int i = 0;
--	for (i = 0; i < d->nvqs; ++i)
--		mutex_lock_nested(&d->vqs[i]->mutex, i);
--}
--
--static void vhost_dev_unlock_vqs(struct vhost_dev *d)
--{
--	int i = 0;
--	for (i = 0; i < d->nvqs; ++i)
--		mutex_unlock(&d->vqs[i]->mutex);
--}
--
- static int vhost_new_umem_range(struct vhost_umem *umem,
- 				u64 start, u64 size, u64 end,
- 				u64 userspace_addr, int perm)
-@@ -918,7 +907,9 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
- 		if (msg->iova <= vq_msg->iova &&
- 		    msg->iova + msg->size - 1 > vq_msg->iova &&
- 		    vq_msg->type == VHOST_IOTLB_MISS) {
-+			mutex_lock(&node->vq->mutex);
- 			vhost_poll_queue(&node->vq->poll);
-+			mutex_unlock(&node->vq->mutex);
- 			list_del(&node->node);
- 			kfree(node);
- 		}
-@@ -950,7 +941,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 	int ret = 0;
- 
- 	mutex_lock(&dev->mutex);
--	vhost_dev_lock_vqs(dev);
- 	switch (msg->type) {
- 	case VHOST_IOTLB_UPDATE:
- 		if (!dev->iotlb) {
-@@ -984,7 +974,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 		break;
- 	}
- 
--	vhost_dev_unlock_vqs(dev);
- 	mutex_unlock(&dev->mutex);
- 
- 	return ret;
--- 
-2.7.4
-
-
---------------EB6CC894810ADED97061FC60
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---------------EB6CC894810ADED97061FC60--
+	Ingo
