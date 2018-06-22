@@ -1,15 +1,24 @@
-From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH v6 3/3] x86: paravirt: make native_save_fl extern inline
-Date: Fri, 22 Jun 2018 04:24:02 +0200
-Message-ID: <20180622022402.GA24194@gmail.com>
-References: <20180621162324.36656-1-ndesaulniers@google.com>
-	<20180621162324.36656-4-ndesaulniers@google.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY
+	feature bit to virtio_net
+Date: Fri, 22 Jun 2018 05:30:43 +0300
+Message-ID: <20180622052717-mutt-send-email-mst@kernel.org>
+References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
+	<fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
+	<20180605152344-mutt-send-email-mst@kernel.org>
+	<a45625c9-d2cd-f8f7-ce31-37c558e70b88@redhat.com>
+	<20180612144743-mutt-send-email-mst@kernel.org>
+	<5718de66-74c9-1362-a87b-2eba02475b48@redhat.com>
+	<c29a5ac9-cfb5-0a19-f28c-30d41bd5efcf@intel.com>
+	<ce4da2b0-88fd-c79b-0567-fe564bb34922@redhat.com>
+	<20180621211359-mutt-send-email-mst@kernel.org>
+	<CADGSJ216itm89dUuK_vOfuBsBq5bq4485GqMKjB1JXFD_PLZxA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180621162324.36656-4-ndesaulniers@google.com>
+In-Reply-To: <CADGSJ216itm89dUuK_vOfuBsBq5bq4485GqMKjB1JXFD_PLZxA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,31 +28,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: kstewart@linuxfoundation.org, andrea.parri@amarulasolutions.com, linux-efi@vger.kernel.org, brijesh.singh@amd.com, jan.kiszka@siemens.com, jpoimboe@redhat.com, will.deacon@arm.com, jarkko.sakkinen@linux.intel.com, virtualization@lists.linux-foundation.org, yamada.masahiro@socionext.com, manojgupta@google.com, hpa@zytor.com, boris.ostrovsky@oracle.com, tweek@google.com, mawilcox@microsoft.com, x86@kernel.org, akataria@vmware.com, ghackmann@google.com, mingo@redhat.com, astrachan@google.com, rientjes@google.com, geert@linux-m68k.org, thomas.lendacky@amd.com, arnd@arndb.de, linux-kbuild@vger.kernel.org, pombredanne@nexb.com, rostedt@goodmis.org, acme@redhat.com, caoj.fnst@cn.fujitsu.com, aryabinin@virtuozzo.com, sedat.dilek@gmail.com, tglx@linutronix.de, jgross@suse.com, michal.lkml@markovi.net, tstellar@redhat.com, gregkh@linuxfoundation.org, mka@chromium.org, ard.bieshe
+To: Siwei Liu <loseweigh@gmail.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-* Nick Desaulniers <ndesaulniers@google.com> wrote:
-
-> native_save_fl() is marked static inline, but by using it as
-> a function pointer in arch/x86/kernel/paravirt.c, it MUST be outlined.
-
-> --- a/arch/x86/include/asm/irqflags.h
-> +++ b/arch/x86/include/asm/irqflags.h
-> @@ -13,7 +13,7 @@
->   * Interrupt control:
->   */
->  
-> -static inline unsigned long native_save_fl(void)
-> +extern inline unsigned long native_save_fl(void)
->  {
->  	unsigned long flags;
->  
-
-What's the code generation effect of this on say a defconfig kernel vmlinux with 
-paravirt enabled?
-
-Thanks,
-
-	Ingo
+T24gVGh1LCBKdW4gMjEsIDIwMTggYXQgMDY6MDc6MThQTSAtMDcwMCwgU2l3ZWkgTGl1IHdyb3Rl
+Ogo+IE9uIFRodSwgSnVuIDIxLCAyMDE4IGF0IDExOjE0IEFNLCBNaWNoYWVsIFMuIFRzaXJraW4g
+PG1zdEByZWRoYXQuY29tPiB3cm90ZToKPiA+IE9uIFdlZCwgSnVuIDEzLCAyMDE4IGF0IDAxOjQw
+OjU5UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPj4KPiA+Pgo+ID4+IE9uIDIwMTjlubQw
+NuaciDEz5pelIDEyOjI0LCBTYW11ZHJhbGEsIFNyaWRoYXIgd3JvdGU6Cj4gPj4gPiBPbiA2LzEy
+LzIwMTggNzozOCBQTSwgSmFzb24gV2FuZyB3cm90ZToKPiA+PiA+ID4KPiA+PiA+ID4KPiA+PiA+
+ID4gT24gMjAxOOW5tDA25pyIMTLml6UgMTk6NTQsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToK
+PiA+PiA+ID4gPiBPbiBXZWQsIEp1biAwNiwgMjAxOCBhdCAxMDoyOTowM0FNICswODAwLCBKYXNv
+biBXYW5nIHdyb3RlOgo+ID4+ID4gPiA+ID4KPiA+PiA+ID4gPiA+IE9uIDIwMTjlubQwNuaciDA1
+5pelIDIwOjMzLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPj4gPiA+ID4gPiA+IEkgZG9u
+J3QgdGhpbmsgdGhpcyBpcyBzdWZmaWNpZW50Lgo+ID4+ID4gPiA+ID4gPgo+ID4+ID4gPiA+ID4g
+PiBJZiBib3RoIHByaW1hcnkgYW5kIHN0YW5kYnkgZGV2aWNlcyBhcmUgcHJlc2VudCwgYQo+ID4+
+ID4gPiA+ID4gPiBsZWdhY3kgZ3Vlc3Qgd2l0aG91dAo+ID4+ID4gPiA+ID4gPiBzdXBwb3J0IGZv
+ciB0aGUgZmVhdHVyZSBtaWdodCBzZWUgdHdvIGRldmljZXMgd2l0aCBzYW1lIG1hYyBhbmQgZ2V0
+Cj4gPj4gPiA+ID4gPiA+IGNvbmZ1c2VkLgo+ID4+ID4gPiA+ID4gPgo+ID4+ID4gPiA+ID4gPiBJ
+IHRoaW5rIHRoYXQgd2Ugc2hvdWxkIG9ubHkgbWFrZSBwcmltYXJ5IHZpc2libGUgYWZ0ZXIKPiA+
+PiA+ID4gPiA+ID4gZ3Vlc3QgYWNrZWQgdGhlCj4gPj4gPiA+ID4gPiA+IGJhY2t1cCBmZWF0dXJl
+IGJpdC4KPiA+PiA+ID4gPiA+IEkgdGhpbmsgd2Ugd2FudCBleGFjdGx5IHRoZSByZXZlcnNlPyBF
+LmcgZmFpbCB0aGUKPiA+PiA+ID4gPiA+IG5lZ290aWF0aW9uIHdoZW4gZ3Vlc3QKPiA+PiA+ID4g
+PiA+IGRvZXMgbm90IGFjayBiYWNrdXAgZmVhdHVyZS4KPiA+PiA+ID4gPiA+Cj4gPj4gPiA+ID4g
+PiBPdGhlcndpc2UgbGVnYWN5IGd1ZXN0IHdvbid0IGV2ZW4gaGF2ZSB0aGUgY2hhbmNlIHRvIHNl
+ZQo+ID4+ID4gPiA+ID4gcHJpbWFyeSBkZXZpY2UgaW4KPiA+PiA+ID4gPiA+IHRoZSBndWVzdC4K
+PiA+PiA+ID4gPiBUaGF0J3MgYnkgZGVzaWduLgo+ID4+ID4gPgo+ID4+ID4gPiBTbyBtYW5hZ2Vt
+ZW50IG5lZWRzIHRvIGtub3cgdGhlIGNhcGFiaWxpdHkgb2YgZ3Vlc3QgdG8gc2V0IHRoZQo+ID4+
+ID4gPiBiYWNrdXAgZmVhdHVyZS4gVGhpcyBsb29rcyBhIGNoaWNrZW4gb3IgZWdnIHByb2JsZW0g
+dG8gbWUuCj4gPj4gPgo+ID4+ID4gSSBkb24ndCB0aGluayBzby4gSWYgdGhlIHRlbmFudCByZXF1
+ZXN0cyAnYWNjZWxlcmF0ZWQgZGF0YXBhdGggZmVhdHVyZScsCj4gPj4gPiB0aGUgbWFuYWdlbWVu
+dAo+ID4+ID4gd2lsbCBzZXQgJ3N0YW5kYnknIGZlYXR1cmUgYml0IG9uIHZpcnRpby1uZXQgaW50
+ZXJmYWNlIGFuZCBpZiB0aGUgZ3Vlc3QKPiA+PiA+IHZpcnRpby1uZXQgZHJpdmVyCj4gPj4gPiBz
+dXBwb3J0cyB0aGlzIGZlYXR1cmUsIHRoZW4gdGhlIHRlbmFudCBWTSB3aWxsIGdldCB0aGF0IGNh
+cGFiaWxpdHkgdmlhIGEKPiA+PiA+IGhvdC1wbHVnZ2VkCj4gPj4gPiBwcmltYXJ5IGRldmljZS4K
+PiA+Pgo+ID4+IE9rLCBJIHRob3VnaHQgZXhhY3RseSB0aGUgcmV2ZXJzZSBiZWNhdXNlIG9mIHRo
+ZSBjb21taXQgdGl0bGUgaXMgImVuYWJsZQo+ID4+IHZpcnRpb19uZXQgdG8gYWN0IGFzIGEgc3Rh
+bmRieSBmb3IgYSBwYXNzdGhydSBkZXZpY2UiLiBCdXQgcmUtcmVhZCB0aGUKPiA+PiBjb21taXQg
+bG9nIGNvbnRlbnQsIEkgdW5kZXJzdGFuZCB0aGUgY2FzZSBhIGxpdHRsZSBiaXQuIEJ0dywgVkYg
+aXMgbm90Cj4gPj4gbmVjZXNzYXJpbHkgZmFzdGVyIHRoYW4gdmlydGlvLW5ldCwgZXNwZWNpYWxs
+eSBjb25zaWRlciB2aXJ0aW8tbmV0IG1heSBoYXZlCj4gPj4gYSBsb3Qgb2YgcXVldWVzLgo+ID4K
+PiA+IERvbid0IGRvIHRoYXQgdGhlbiwgcmlnaHQ/Cj4gCj4gSSBkb24ndCB1bmRlcnN0YW5kLiBX
+aGVyZSBkaWQgdGhlIHN0YW5kYnkgZmVhdHVyZSBjb21lIHRvIGltcGx5IHRoZQo+ICJhY2NlbGVy
+YXRlZCBkYXRhcGF0aCIgdGhpbmc/Cj4gSXNuJ3QgZmFpbG92ZXIvc3RhbmRieSBhIGdlbmVyaWMg
+aGlnaAo+IGF2YWlsYmxpdHkgdGVybSwgcmF0aGVyIHRoYW4gbWFycnkgaXQgdG8gdGhlIGNvbmNl
+cHQgb2YgZGV2aWNlIG1vZGVsCj4gc3BlY2lmaWNzPyBEbyB3ZSBleHBlY3Qgc2NzaSB0byB3b3Jr
+IGV4YWN0bHkgdGhlIHNhbWUgd2F5IHdpdGgKPiAiYWNjZWxlcmF0ZWQgZGF0YXBhdGgiPwoKVGhh
+dCdzIG5vdCB3aGF0IEkgc2FpZC4KVGhlIHNlbWFudGljcyBhcmUgdGhhdCB0aGUgcHJpbWFyeSBp
+cyBhbHdheXMgdXNlZCBpZiBwcmVzZW50IGluCnByZWZlcmVuY2UgdG8gc3RhbmRieS4KSmFzb24g
+c2FpZCB2aXJ0aW8gbmV0IGlzIHNvbWV0aW1lcyBwcmVmZXJhYmxlLgpJZiB0aGF0J3MgdGhlIGNh
+c2UgZG9uJ3QgbWFrZSBpdCBhIHN0YW5kYnkuCgpNb3JlIGFkdmFuY2VkIHVzZS1jYXNlcyBkbyBl
+eGlzdCBhbmQgZS5nLiBBbGV4YW5kZXIgRHV5Y2sKc3VnZ2VzdGVkIHVzaW5nIGEgc3dpdGNoLWRl
+di4gZmFpbG92ZXIgaXNuJ3QgaXQgdGhvdWdoLgoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
+VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
+aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
