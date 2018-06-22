@@ -1,9 +1,11 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
 	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Sat, 23 Jun 2018 00:32:45 +0300
-Message-ID: <20180623003022-mutt-send-email-mst__37108.579153619$1529703045$gmane$org@kernel.org>
-References: <20180619233001-mutt-send-email-mst@kernel.org>
+Date: Sat, 23 Jun 2018 00:43:24 +0300
+Message-ID: <20180623003545-mutt-send-email-mst__5566.29749848998$1529703685$gmane$org@kernel.org>
+References: <CADGSJ208NRp=bjhSkzF2K5Ft94TwdRs73WfSp4h-_vXvEKwgiQ@mail.gmail.com>
+	<20180619125453.2d2dfb2d.cohuck@redhat.com>
+	<20180619233001-mutt-send-email-mst@kernel.org>
 	<20180620115359.1a3bf6fb.cohuck@redhat.com>
 	<20180620170904-mutt-send-email-mst@kernel.org>
 	<20180620180619.6b4ee52d.cohuck@redhat.com>
@@ -11,14 +13,12 @@ References: <20180619233001-mutt-send-email-mst@kernel.org>
 	<20180621165913.7e3f4faa.cohuck@redhat.com>
 	<20180621211712-mutt-send-email-mst@kernel.org>
 	<20180622170955.298900c1.cohuck@redhat.com>
-	<20180622214259-mutt-send-email-mst@kernel.org>
-	<CADGSJ22e=Sa8S-HqM4XtOa6ngBKPL73SiQRPh8PUzQgRaie5oA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CADGSJ22e=Sa8S-HqM4XtOa6ngBKPL73SiQRPh8PUzQgRaie5oA@mail.gmail.com>
+In-Reply-To: <20180622170955.298900c1.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,93 +28,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 22, 2018 at 01:21:45PM -0700, Siwei Liu wrote:
-> On Fri, Jun 22, 2018 at 12:05 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Fri, Jun 22, 2018 at 05:09:55PM +0200, Cornelia Huck wrote:
-> >> On Thu, 21 Jun 2018 21:20:13 +0300
-> >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >>
-> >> > On Thu, Jun 21, 2018 at 04:59:13PM +0200, Cornelia Huck wrote:
-> >> > > OK, so what about the following:
-> >> > >
-> >> > > - introduce a new feature bit, VIRTIO_NET_F_STANDBY_UUID that indicates
-> >> > >   that we have a new uuid field in the virtio-net config space
-> >> > > - in QEMU, add a property for virtio-net that allows to specify a uuid,
-> >> > >   offer VIRTIO_NET_F_STANDBY_UUID if set
-> >> > > - when configuring, set the property to the group UUID of the vfio-pci
-> >> > >   device
-> >> > > - in the guest, use the uuid from the virtio-net device's config space
-> >> > >   if applicable; else, fall back to matching by MAC as done today
-> >> > >
-> >> > > That should work for all virtio transports.
-> >> >
-> >> > True. I'm a bit unhappy that it's virtio net specific though
-> >> > since down the road I expect we'll have a very similar feature
-> >> > for scsi (and maybe others).
-> >> >
-> >> > But we do not have a way to have fields that are portable
-> >> > both across devices and transports, and I think it would
-> >> > be a useful addition. How would this work though? Any idea?
-> >>
-> >> Can we introduce some kind of device-independent config space area?
-> >> Pushing back the device-specific config space by a certain value if the
-> >> appropriate feature is negotiated and use that for things like the uuid?
-> >
-> > So config moves back and forth?
-> > Reminds me of the msi vector mess we had with pci.
-> > I'd rather have every transport add a new config.
-> >
-> >> But regardless of that, I'm not sure whether extending this approach to
-> >> other device types is the way to go. Tying together two different
-> >> devices is creating complicated situations at least in the hypervisor
-> >> (even if it's fairly straightforward in the guest). [I have not come
-> >> around again to look at the "how to handle visibility in QEMU"
-> >> questions due to lack of cycles, sorry about that.]
-> >>
-> >> So, what's the goal of this approach? Only to allow migration with
-> >> vfio-pci, or also to plug in a faster device and use it instead of an
-> >> already attached paravirtualized device?
-> >
-> > These are two sides of the same coin, I think the second approach
-> > is closer to what we are doing here.
-> 
-> I'm leaning towards being conservative to keep the potential of doing
-> both. It's the vfio migration itself that has to be addessed, not to
-> make every virtio device to have an accelerated datapath, right?
-> 
-> -Siwei
+On Fri, Jun 22, 2018 at 05:09:55PM +0200, Cornelia Huck wrote:
+> Would it be more helpful to focus on generic
+> migration support for vfio instead of going about it device by device?
 
-I think that the approach we took (signal configuration
-through standby) assumes standby always present and
-primary appearing and disappearing.
+Just to note this approach is actually device by device *type*.  It's
+mostly device agnostic for a given device type so you can migrate
+between hosts with very different hardware.
 
-Anything else isn't well supported and I'm not sure we
-should complicate code too much to support it.
+And support for more PV device types has other advantages
+such as security and forward compatibility to future hosts.
 
-> 
-> >
-> >> What about migration of vfio devices that are not easily replaced by a
-> >> paravirtualized device? I'm thinking of vfio-ccw, where our main (and
-> >> currently only) supported device is dasd (disks) -- which can do a lot
-> >> of specialized things that virtio-blk does not support (and should not
-> >> or even cannot support).
-> >
-> > But maybe virtio-scsi can?
-> >
-> >> Would it be more helpful to focus on generic
-> >> migration support for vfio instead of going about it device by device?
-> >>
-> >> This network device approach already seems far along, so it makes sense
-> >> to continue with it. But I'm not sure whether we want to spend time and
-> >> energy on that for other device types rather than working on a general
-> >> solution for vfio migration.
-> >
-> > I'm inclined to say finalizing this feature would be a good first step
-> > and will teach us how we can move forward.
-> >
-> > --
-> > MST
+Finally, it all can happen mostly within QEMU. User is currently
+required to enable it but it's pretty lightweight.
+
+OTOH vfio migration generally requires actual device-specific work, and
+only works when hosts are mostly identical. When they aren't it's easy
+to blame the user, but tools for checking host compatiblity are
+currently non-existent. Upper layer management will also have to learn
+about host and device compatibility wrt migration. At the moment they
+can't even figure it out wrt software versions of vhost in kernel and
+dpdk so I won't hold my breath for all of this happening quickly.
+
+
+-- 
+MST
