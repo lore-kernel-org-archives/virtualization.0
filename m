@@ -1,24 +1,24 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [PATCH] qemu: Introduce VIRTIO_NET_F_STANDBY
-	feature bit to virtio_net
-Date: Fri, 22 Jun 2018 05:30:43 +0300
-Message-ID: <20180622052717-mutt-send-email-mst@kernel.org>
-References: <1525734594-11134-1-git-send-email-sridhar.samudrala@intel.com>
-	<fcefe501-b410-f1ec-829c-68199edcdbef@intel.com>
-	<20180605152344-mutt-send-email-mst@kernel.org>
-	<a45625c9-d2cd-f8f7-ce31-37c558e70b88@redhat.com>
-	<20180612144743-mutt-send-email-mst@kernel.org>
-	<5718de66-74c9-1362-a87b-2eba02475b48@redhat.com>
-	<c29a5ac9-cfb5-0a19-f28c-30d41bd5efcf@intel.com>
-	<ce4da2b0-88fd-c79b-0567-fe564bb34922@redhat.com>
-	<20180621211359-mutt-send-email-mst@kernel.org>
-	<CADGSJ216itm89dUuK_vOfuBsBq5bq4485GqMKjB1JXFD_PLZxA@mail.gmail.com>
+Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
+	VIRTIO_NET_F_STANDBY feature bit to virtio_net
+Date: Fri, 22 Jun 2018 05:32:28 +0300
+Message-ID: <20180622053141-mutt-send-email-mst__30246.3149805137$1529634628$gmane$org@kernel.org>
+References: <20180615134815.6613620e.cohuck@redhat.com>
+	<CADGSJ208NRp=bjhSkzF2K5Ft94TwdRs73WfSp4h-_vXvEKwgiQ@mail.gmail.com>
+	<20180619125453.2d2dfb2d.cohuck@redhat.com>
+	<20180619233001-mutt-send-email-mst@kernel.org>
+	<20180620115359.1a3bf6fb.cohuck@redhat.com>
+	<20180620170904-mutt-send-email-mst@kernel.org>
+	<20180620180619.6b4ee52d.cohuck@redhat.com>
+	<20180620224535-mutt-send-email-mst@kernel.org>
+	<20180621165913.7e3f4faa.cohuck@redhat.com>
+	<CADGSJ22B39JiS14L0yCYQ720-fZcwyUt1wCX1YO-6Y9FhmDKZg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CADGSJ216itm89dUuK_vOfuBsBq5bq4485GqMKjB1JXFD_PLZxA@mail.gmail.com>
+In-Reply-To: <CADGSJ22B39JiS14L0yCYQ720-fZcwyUt1wCX1YO-6Y9FhmDKZg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,58 +29,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Siwei Liu <loseweigh@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBKdW4gMjEsIDIwMTggYXQgMDY6MDc6MThQTSAtMDcwMCwgU2l3ZWkgTGl1IHdyb3Rl
-Ogo+IE9uIFRodSwgSnVuIDIxLCAyMDE4IGF0IDExOjE0IEFNLCBNaWNoYWVsIFMuIFRzaXJraW4g
-PG1zdEByZWRoYXQuY29tPiB3cm90ZToKPiA+IE9uIFdlZCwgSnVuIDEzLCAyMDE4IGF0IDAxOjQw
-OjU5UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPj4KPiA+Pgo+ID4+IE9uIDIwMTjlubQw
-NuaciDEz5pelIDEyOjI0LCBTYW11ZHJhbGEsIFNyaWRoYXIgd3JvdGU6Cj4gPj4gPiBPbiA2LzEy
-LzIwMTggNzozOCBQTSwgSmFzb24gV2FuZyB3cm90ZToKPiA+PiA+ID4KPiA+PiA+ID4KPiA+PiA+
-ID4gT24gMjAxOOW5tDA25pyIMTLml6UgMTk6NTQsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToK
-PiA+PiA+ID4gPiBPbiBXZWQsIEp1biAwNiwgMjAxOCBhdCAxMDoyOTowM0FNICswODAwLCBKYXNv
-biBXYW5nIHdyb3RlOgo+ID4+ID4gPiA+ID4KPiA+PiA+ID4gPiA+IE9uIDIwMTjlubQwNuaciDA1
-5pelIDIwOjMzLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPj4gPiA+ID4gPiA+IEkgZG9u
-J3QgdGhpbmsgdGhpcyBpcyBzdWZmaWNpZW50Lgo+ID4+ID4gPiA+ID4gPgo+ID4+ID4gPiA+ID4g
-PiBJZiBib3RoIHByaW1hcnkgYW5kIHN0YW5kYnkgZGV2aWNlcyBhcmUgcHJlc2VudCwgYQo+ID4+
-ID4gPiA+ID4gPiBsZWdhY3kgZ3Vlc3Qgd2l0aG91dAo+ID4+ID4gPiA+ID4gPiBzdXBwb3J0IGZv
-ciB0aGUgZmVhdHVyZSBtaWdodCBzZWUgdHdvIGRldmljZXMgd2l0aCBzYW1lIG1hYyBhbmQgZ2V0
-Cj4gPj4gPiA+ID4gPiA+IGNvbmZ1c2VkLgo+ID4+ID4gPiA+ID4gPgo+ID4+ID4gPiA+ID4gPiBJ
-IHRoaW5rIHRoYXQgd2Ugc2hvdWxkIG9ubHkgbWFrZSBwcmltYXJ5IHZpc2libGUgYWZ0ZXIKPiA+
-PiA+ID4gPiA+ID4gZ3Vlc3QgYWNrZWQgdGhlCj4gPj4gPiA+ID4gPiA+IGJhY2t1cCBmZWF0dXJl
-IGJpdC4KPiA+PiA+ID4gPiA+IEkgdGhpbmsgd2Ugd2FudCBleGFjdGx5IHRoZSByZXZlcnNlPyBF
-LmcgZmFpbCB0aGUKPiA+PiA+ID4gPiA+IG5lZ290aWF0aW9uIHdoZW4gZ3Vlc3QKPiA+PiA+ID4g
-PiA+IGRvZXMgbm90IGFjayBiYWNrdXAgZmVhdHVyZS4KPiA+PiA+ID4gPiA+Cj4gPj4gPiA+ID4g
-PiBPdGhlcndpc2UgbGVnYWN5IGd1ZXN0IHdvbid0IGV2ZW4gaGF2ZSB0aGUgY2hhbmNlIHRvIHNl
-ZQo+ID4+ID4gPiA+ID4gcHJpbWFyeSBkZXZpY2UgaW4KPiA+PiA+ID4gPiA+IHRoZSBndWVzdC4K
-PiA+PiA+ID4gPiBUaGF0J3MgYnkgZGVzaWduLgo+ID4+ID4gPgo+ID4+ID4gPiBTbyBtYW5hZ2Vt
-ZW50IG5lZWRzIHRvIGtub3cgdGhlIGNhcGFiaWxpdHkgb2YgZ3Vlc3QgdG8gc2V0IHRoZQo+ID4+
-ID4gPiBiYWNrdXAgZmVhdHVyZS4gVGhpcyBsb29rcyBhIGNoaWNrZW4gb3IgZWdnIHByb2JsZW0g
-dG8gbWUuCj4gPj4gPgo+ID4+ID4gSSBkb24ndCB0aGluayBzby4gSWYgdGhlIHRlbmFudCByZXF1
-ZXN0cyAnYWNjZWxlcmF0ZWQgZGF0YXBhdGggZmVhdHVyZScsCj4gPj4gPiB0aGUgbWFuYWdlbWVu
-dAo+ID4+ID4gd2lsbCBzZXQgJ3N0YW5kYnknIGZlYXR1cmUgYml0IG9uIHZpcnRpby1uZXQgaW50
-ZXJmYWNlIGFuZCBpZiB0aGUgZ3Vlc3QKPiA+PiA+IHZpcnRpby1uZXQgZHJpdmVyCj4gPj4gPiBz
-dXBwb3J0cyB0aGlzIGZlYXR1cmUsIHRoZW4gdGhlIHRlbmFudCBWTSB3aWxsIGdldCB0aGF0IGNh
-cGFiaWxpdHkgdmlhIGEKPiA+PiA+IGhvdC1wbHVnZ2VkCj4gPj4gPiBwcmltYXJ5IGRldmljZS4K
-PiA+Pgo+ID4+IE9rLCBJIHRob3VnaHQgZXhhY3RseSB0aGUgcmV2ZXJzZSBiZWNhdXNlIG9mIHRo
-ZSBjb21taXQgdGl0bGUgaXMgImVuYWJsZQo+ID4+IHZpcnRpb19uZXQgdG8gYWN0IGFzIGEgc3Rh
-bmRieSBmb3IgYSBwYXNzdGhydSBkZXZpY2UiLiBCdXQgcmUtcmVhZCB0aGUKPiA+PiBjb21taXQg
-bG9nIGNvbnRlbnQsIEkgdW5kZXJzdGFuZCB0aGUgY2FzZSBhIGxpdHRsZSBiaXQuIEJ0dywgVkYg
-aXMgbm90Cj4gPj4gbmVjZXNzYXJpbHkgZmFzdGVyIHRoYW4gdmlydGlvLW5ldCwgZXNwZWNpYWxs
-eSBjb25zaWRlciB2aXJ0aW8tbmV0IG1heSBoYXZlCj4gPj4gYSBsb3Qgb2YgcXVldWVzLgo+ID4K
-PiA+IERvbid0IGRvIHRoYXQgdGhlbiwgcmlnaHQ/Cj4gCj4gSSBkb24ndCB1bmRlcnN0YW5kLiBX
-aGVyZSBkaWQgdGhlIHN0YW5kYnkgZmVhdHVyZSBjb21lIHRvIGltcGx5IHRoZQo+ICJhY2NlbGVy
-YXRlZCBkYXRhcGF0aCIgdGhpbmc/Cj4gSXNuJ3QgZmFpbG92ZXIvc3RhbmRieSBhIGdlbmVyaWMg
-aGlnaAo+IGF2YWlsYmxpdHkgdGVybSwgcmF0aGVyIHRoYW4gbWFycnkgaXQgdG8gdGhlIGNvbmNl
-cHQgb2YgZGV2aWNlIG1vZGVsCj4gc3BlY2lmaWNzPyBEbyB3ZSBleHBlY3Qgc2NzaSB0byB3b3Jr
-IGV4YWN0bHkgdGhlIHNhbWUgd2F5IHdpdGgKPiAiYWNjZWxlcmF0ZWQgZGF0YXBhdGgiPwoKVGhh
-dCdzIG5vdCB3aGF0IEkgc2FpZC4KVGhlIHNlbWFudGljcyBhcmUgdGhhdCB0aGUgcHJpbWFyeSBp
-cyBhbHdheXMgdXNlZCBpZiBwcmVzZW50IGluCnByZWZlcmVuY2UgdG8gc3RhbmRieS4KSmFzb24g
-c2FpZCB2aXJ0aW8gbmV0IGlzIHNvbWV0aW1lcyBwcmVmZXJhYmxlLgpJZiB0aGF0J3MgdGhlIGNh
-c2UgZG9uJ3QgbWFrZSBpdCBhIHN0YW5kYnkuCgpNb3JlIGFkdmFuY2VkIHVzZS1jYXNlcyBkbyBl
-eGlzdCBhbmQgZS5nLiBBbGV4YW5kZXIgRHV5Y2sKc3VnZ2VzdGVkIHVzaW5nIGEgc3dpdGNoLWRl
-di4gZmFpbG92ZXIgaXNuJ3QgaXQgdGhvdWdoLgoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, Jun 21, 2018 at 06:21:55PM -0700, Siwei Liu wrote:
+> On Thu, Jun 21, 2018 at 7:59 AM, Cornelia Huck <cohuck@redhat.com> wrote:
+> > On Wed, 20 Jun 2018 22:48:58 +0300
+> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> >
+> >> On Wed, Jun 20, 2018 at 06:06:19PM +0200, Cornelia Huck wrote:
+> >> > In any case, I'm not sure anymore why we'd want the extra uuid.
+> >>
+> >> It's mostly so we can have e.g. multiple devices with same MAC
+> >> (which some people seem to want in order to then use
+> >> then with different containers).
+> >>
+> >> But it is also handy for when you assign a PF, since then you
+> >> can't set the MAC.
+> >>
+> >
+> > OK, so what about the following:
+> >
+> > - introduce a new feature bit, VIRTIO_NET_F_STANDBY_UUID that indicates
+> >   that we have a new uuid field in the virtio-net config space
+> > - in QEMU, add a property for virtio-net that allows to specify a uuid,
+> >   offer VIRTIO_NET_F_STANDBY_UUID if set
+> > - when configuring, set the property to the group UUID of the vfio-pci
+> >   device
+> 
+> If feature negotiation fails on VIRTIO_NET_F_STANDBY_UUID, is it safe
+> to still expose UUID in the config space on virtio-pci?
+
+
+Yes but guest is not supposed to read it.
+
+> I'm not even sure if it's sane to expose group UUID on the PCI bridge
+> where the corresponding vfio-pci device attached to for a guest which
+> doesn't support the feature (legacy).
+> 
+> -Siwei
+
+Yes but you won't add the primary behind such a bridge.
+
+> 
+> > - in the guest, use the uuid from the virtio-net device's config space
+> >   if applicable; else, fall back to matching by MAC as done today
+> >
+> > That should work for all virtio transports.
