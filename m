@@ -1,25 +1,15 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
-	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Thu, 21 Jun 2018 18:21:55 -0700
-Message-ID: <CADGSJ22B39JiS14L0yCYQ720-fZcwyUt1wCX1YO-6Y9FhmDKZg@mail.gmail.com>
-References: <CADGSJ213f8tJpNXuOhv8qRew-Y5VZAwA+srNMrLZYnKdVGLdAA@mail.gmail.com>
-	<20180614120231.0a72bd5f.cohuck@redhat.com>
-	<CADGSJ23WnTmVKHezm3t0V6M2sWeHaOUoTjdXkmrvbO0EF83hMg@mail.gmail.com>
-	<20180615134815.6613620e.cohuck@redhat.com>
-	<CADGSJ208NRp=bjhSkzF2K5Ft94TwdRs73WfSp4h-_vXvEKwgiQ@mail.gmail.com>
-	<20180619125453.2d2dfb2d.cohuck@redhat.com>
-	<20180619233001-mutt-send-email-mst@kernel.org>
-	<20180620115359.1a3bf6fb.cohuck@redhat.com>
-	<20180620170904-mutt-send-email-mst@kernel.org>
-	<20180620180619.6b4ee52d.cohuck@redhat.com>
-	<20180620224535-mutt-send-email-mst@kernel.org>
-	<20180621165913.7e3f4faa.cohuck@redhat.com>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH v6 3/3] x86: paravirt: make native_save_fl extern inline
+Date: Fri, 22 Jun 2018 04:24:02 +0200
+Message-ID: <20180622022402.GA24194@gmail.com>
+References: <20180621162324.36656-1-ndesaulniers@google.com>
+	<20180621162324.36656-4-ndesaulniers@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180621165913.7e3f4faa.cohuck@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20180621162324.36656-4-ndesaulniers@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,46 +19,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, konrad.wilk@oracle.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
+To: Nick Desaulniers <ndesaulniers@google.com>
+Cc: kstewart@linuxfoundation.org, andrea.parri@amarulasolutions.com, linux-efi@vger.kernel.org, brijesh.singh@amd.com, jan.kiszka@siemens.com, jpoimboe@redhat.com, will.deacon@arm.com, jarkko.sakkinen@linux.intel.com, virtualization@lists.linux-foundation.org, yamada.masahiro@socionext.com, manojgupta@google.com, hpa@zytor.com, boris.ostrovsky@oracle.com, tweek@google.com, mawilcox@microsoft.com, x86@kernel.org, akataria@vmware.com, ghackmann@google.com, mingo@redhat.com, astrachan@google.com, rientjes@google.com, geert@linux-m68k.org, thomas.lendacky@amd.com, arnd@arndb.de, linux-kbuild@vger.kernel.org, pombredanne@nexb.com, rostedt@goodmis.org, acme@redhat.com, caoj.fnst@cn.fujitsu.com, aryabinin@virtuozzo.com, sedat.dilek@gmail.com, tglx@linutronix.de, jgross@suse.com, michal.lkml@markovi.net, tstellar@redhat.com, gregkh@linuxfoundation.org, mka@chromium.org, ard.bieshe
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 21, 2018 at 7:59 AM, Cornelia Huck <cohuck@redhat.com> wrote:
-> On Wed, 20 Jun 2018 22:48:58 +0300
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
->
->> On Wed, Jun 20, 2018 at 06:06:19PM +0200, Cornelia Huck wrote:
->> > In any case, I'm not sure anymore why we'd want the extra uuid.
->>
->> It's mostly so we can have e.g. multiple devices with same MAC
->> (which some people seem to want in order to then use
->> then with different containers).
->>
->> But it is also handy for when you assign a PF, since then you
->> can't set the MAC.
->>
->
-> OK, so what about the following:
->
-> - introduce a new feature bit, VIRTIO_NET_F_STANDBY_UUID that indicates
->   that we have a new uuid field in the virtio-net config space
-> - in QEMU, add a property for virtio-net that allows to specify a uuid,
->   offer VIRTIO_NET_F_STANDBY_UUID if set
-> - when configuring, set the property to the group UUID of the vfio-pci
->   device
 
-If feature negotiation fails on VIRTIO_NET_F_STANDBY_UUID, is it safe
-to still expose UUID in the config space on virtio-pci?
+* Nick Desaulniers <ndesaulniers@google.com> wrote:
 
-I'm not even sure if it's sane to expose group UUID on the PCI bridge
-where the corresponding vfio-pci device attached to for a guest which
-doesn't support the feature (legacy).
+> native_save_fl() is marked static inline, but by using it as
+> a function pointer in arch/x86/kernel/paravirt.c, it MUST be outlined.
 
--Siwei
+> --- a/arch/x86/include/asm/irqflags.h
+> +++ b/arch/x86/include/asm/irqflags.h
+> @@ -13,7 +13,7 @@
+>   * Interrupt control:
+>   */
+>  
+> -static inline unsigned long native_save_fl(void)
+> +extern inline unsigned long native_save_fl(void)
+>  {
+>  	unsigned long flags;
+>  
 
+What's the code generation effect of this on say a defconfig kernel vmlinux with 
+paravirt enabled?
 
-> - in the guest, use the uuid from the virtio-net device's config space
->   if applicable; else, fall back to matching by MAC as done today
->
-> That should work for all virtio transports.
+Thanks,
+
+	Ingo
