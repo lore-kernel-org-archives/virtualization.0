@@ -1,25 +1,13 @@
-From: Siwei Liu <loseweigh@gmail.com>
-Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
-	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Fri, 22 Jun 2018 17:17:10 -0700
-Message-ID: <CADGSJ22DX8=rNPY+gNS_q=LCYLR5ieoE7oD8p4+8AnpzQsWSCg@mail.gmail.com>
-References: <20180620170904-mutt-send-email-mst@kernel.org>
-	<20180620180619.6b4ee52d.cohuck@redhat.com>
-	<20180620224535-mutt-send-email-mst@kernel.org>
-	<20180621165913.7e3f4faa.cohuck@redhat.com>
-	<CADGSJ22B39JiS14L0yCYQ720-fZcwyUt1wCX1YO-6Y9FhmDKZg@mail.gmail.com>
-	<20180622053141-mutt-send-email-mst@kernel.org>
-	<CADGSJ23SBEFJCD50K-F-Gt86Q1-i_6iHTmSSjdXDzNnnpWZ_oQ@mail.gmail.com>
-	<CADGSJ22nLcz_XaJNzUUdpjQaJY8b5wZs=ohm=B7c2qf2K7_yGA@mail.gmail.com>
-	<20180623002628-mutt-send-email-mst@kernel.org>
-	<CADGSJ20td7b6He6S1PBSJjCq=bNvgqMGbOjiho2eeQm2pgpK3g@mail.gmail.com>
-	<20180623012406-mutt-send-email-mst@kernel.org>
-	<CADGSJ211pWKYnuuzcgUqJZiHU+=7H3oQSpp1TnE=+EBjkdmCSQ@mail.gmail.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net] vhost_net: validate sock before trying to put its fd
+Date: Sat, 23 Jun 2018 10:24:35 +0900 (KST)
+Message-ID: <20180623.102435.440104910657366197.davem@davemloft.net>
+References: <1529557891-4828-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CADGSJ211pWKYnuuzcgUqJZiHU+=7H3oQSpp1TnE=+EBjkdmCSQ@mail.gmail.com>
+In-Reply-To: <1529557891-4828-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,136 +17,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
+To: jasowang@redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dan.carpenter@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 22, 2018 at 4:40 PM, Siwei Liu <loseweigh@gmail.com> wrote:
-> On Fri, Jun 22, 2018 at 3:25 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> On Fri, Jun 22, 2018 at 02:51:11PM -0700, Siwei Liu wrote:
->>> On Fri, Jun 22, 2018 at 2:29 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->>> > On Fri, Jun 22, 2018 at 01:03:04PM -0700, Siwei Liu wrote:
->>> >> On Fri, Jun 22, 2018 at 1:00 PM, Siwei Liu <loseweigh@gmail.com> wrote:
->>> >> > On Thu, Jun 21, 2018 at 7:32 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->>> >> >> On Thu, Jun 21, 2018 at 06:21:55PM -0700, Siwei Liu wrote:
->>> >> >>> On Thu, Jun 21, 2018 at 7:59 AM, Cornelia Huck <cohuck@redhat.com> wrote:
->>> >> >>> > On Wed, 20 Jun 2018 22:48:58 +0300
->>> >> >>> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
->>> >> >>> >
->>> >> >>> >> On Wed, Jun 20, 2018 at 06:06:19PM +0200, Cornelia Huck wrote:
->>> >> >>> >> > In any case, I'm not sure anymore why we'd want the extra uuid.
->>> >> >>> >>
->>> >> >>> >> It's mostly so we can have e.g. multiple devices with same MAC
->>> >> >>> >> (which some people seem to want in order to then use
->>> >> >>> >> then with different containers).
->>> >> >>> >>
->>> >> >>> >> But it is also handy for when you assign a PF, since then you
->>> >> >>> >> can't set the MAC.
->>> >> >>> >>
->>> >> >>> >
->>> >> >>> > OK, so what about the following:
->>> >> >>> >
->>> >> >>> > - introduce a new feature bit, VIRTIO_NET_F_STANDBY_UUID that indicates
->>> >> >>> >   that we have a new uuid field in the virtio-net config space
->>> >> >>> > - in QEMU, add a property for virtio-net that allows to specify a uuid,
->>> >> >>> >   offer VIRTIO_NET_F_STANDBY_UUID if set
->>> >> >>> > - when configuring, set the property to the group UUID of the vfio-pci
->>> >> >>> >   device
->>> >> >>>
->>> >> >>> If feature negotiation fails on VIRTIO_NET_F_STANDBY_UUID, is it safe
->>> >> >>> to still expose UUID in the config space on virtio-pci?
->>> >> >>
->>> >> >>
->>> >> >> Yes but guest is not supposed to read it.
->>> >> >>
->>> >> >>> I'm not even sure if it's sane to expose group UUID on the PCI bridge
->>> >> >>> where the corresponding vfio-pci device attached to for a guest which
->>> >> >>> doesn't support the feature (legacy).
->>> >> >>>
->>> >> >>> -Siwei
->>> >> >>
->>> >> >> Yes but you won't add the primary behind such a bridge.
->>> >> >
->>> >> > I assume the UUID feature is a new one besides the exiting
->>> >> > VIRTIO_NET_F_STANDBY feature, where I think the current proposal is,
->>> >> > if UUID feature is present and supported by guest, we'll do pairing
->>> >> > based on UUID; if UUID feature present
->>> >>                                  ^^^^^^^  is NOT present
->>> >
->>> > Let's go back for a bit.
->>> >
->>> > What is wrong with matching by mac?
->>> >
->>> > 1. Does not allow multiple NICs with same mac
->>> > 2. Requires MAC to be programmed by host in the PT device
->>> >    (which is often possible with VFs but isn't possible with all PT
->>> >    devices)
->>>
->>> Might not neccessarily be something wrong, but it's very limited to
->>> prohibit the MAC of VF from changing when enslaved by failover.
->>
->> You mean guest changing MAC? I'm not sure why we prohibit that.
->
-> I think Sridhar and Jiri might be better person to answer it. My
-> impression was that sync'ing the MAC address change between all 3
-> devices is challenging, as the failover driver uses MAC address to
-> match net_device internally.
->
->>
->>
->>> The
->>> same as you indicated on the PT device. I suspect the same is
->>> prohibited on even virtio-net and failover is because of the same
->>> limitation.
->>>
->>> >
->>> > Both issues are up to host: if host needs them it needs the UUID
->>> > feature, if not MAC matching is sufficient.
->>>
->>> I know. What I'm saying is that we rely on STANDBY feature to control
->>> the visibility of the primary, not the UUID feature.
->>>
->>> -Siwei
->>
->> And what I'm saying is that it's up to a host policy.
->
-> So lets say host policy explicitly requires UUID but the guest does
-> not support it. The guest could be a legacy guest with no STANDBY
-> support, or a relevately recent guest with STANDBY support but without
-> the UUID support. In either case, since host asked for UUID matching
-> explicitly, maybe because it requires different NIC using same MAC, so
-> it has to override the negotiation result of STANDBY, even if STANDBY
-> is set and supported? That will end up with inter-feature dependency
-> over STANDBY, as you see.
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 21 Jun 2018 13:11:31 +0800
 
-I forgot to mention the above has the assumption that we expose both
-STANDBY and UUID feature to QEMU user. In fact, as we're going towards
-not exposing the STANDBY feature directly to user, UUID may be always
-required to enable STANDBY. If not, how do we make sure QEMU can
-control the visibility of primary device? Something to be confirmed
-before implementing the code.
+> Sock will be NULL if we pass -1 to vhost_net_set_backend(), but when
+> we meet errors during ubuf allocation, the code does not check for
+> NULL before calling sockfd_put(), this will lead NULL
+> dereferencing. Fixing by checking sock pointer before.
+> 
+> Fixes: bab632d69ee4 ("vhost: vhost TX zero-copy support")
+> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
--Siwei
-
->
-> -Siwei
->
->>
->>> >
->>> >
->>> >> > or not supported by guest,
->>> >> > we'll still plug in the VF (if guest supports the _F_STANDBY feature)
->>> >> > but the pairing will be fallback to using MAC address. Are you saying
->>> >> > you don't even want to plug in the primary when the UUID feature is
->>> >> > not supported by guest? Does the feature negotiation UUID have to
->>> >> > depend on STANDBY being set, or the other way around? I thought that
->>> >> > just the absence of STANDBY will prevent primary to get exposed to the
->>> >> > guest.
->>> >> >
->>> >> > -Siwei
->>> >> >
->>> >> >>
->>> >> >>>
->>> >> >>> > - in the guest, use the uuid from the virtio-net device's config space
->>> >> >>> >   if applicable; else, fall back to matching by MAC as done today
->>> >
+Applied and queued up for -stable, thanks Jason.
