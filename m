@@ -1,27 +1,16 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
-Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
-	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Mon, 25 Jun 2018 10:54:09 -0700
-Message-ID: <da144f8f-65cd-45d9-3c81-6c8ca1fb25fe__35544.097403954$1529949235$gmane$org@intel.com>
-References: <20180620170904-mutt-send-email-mst@kernel.org>
-	<20180620180619.6b4ee52d.cohuck@redhat.com>
-	<20180620224535-mutt-send-email-mst@kernel.org>
-	<20180621165913.7e3f4faa.cohuck@redhat.com>
-	<CADGSJ22B39JiS14L0yCYQ720-fZcwyUt1wCX1YO-6Y9FhmDKZg@mail.gmail.com>
-	<20180622053141-mutt-send-email-mst@kernel.org>
-	<CADGSJ23SBEFJCD50K-F-Gt86Q1-i_6iHTmSSjdXDzNnnpWZ_oQ@mail.gmail.com>
-	<CADGSJ22nLcz_XaJNzUUdpjQaJY8b5wZs=ohm=B7c2qf2K7_yGA@mail.gmail.com>
-	<20180623002628-mutt-send-email-mst@kernel.org>
-	<CADGSJ20td7b6He6S1PBSJjCq=bNvgqMGbOjiho2eeQm2pgpK3g@mail.gmail.com>
-	<20180623012406-mutt-send-email-mst@kernel.org>
-	<CADGSJ211pWKYnuuzcgUqJZiHU+=7H3oQSpp1TnE=+EBjkdmCSQ@mail.gmail.com>
-	<CADGSJ22DX8=rNPY+gNS_q=LCYLR5ieoE7oD8p4+8AnpzQsWSCg@mail.gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 1/5] dt-bindings: virtio: Specify #iommu-cells value
+	for a virtio-iommu
+Date: Mon, 25 Jun 2018 13:27:53 -0600
+Message-ID: <20180625192753.GA22351@rob-hp-laptop>
+References: <20180621190655.56391-1-jean-philippe.brucker@arm.com>
+	<20180621190655.56391-2-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CADGSJ22DX8=rNPY+gNS_q=LCYLR5ieoE7oD8p4+8AnpzQsWSCg@mail.gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180621190655.56391-2-jean-philippe.brucker@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -31,75 +20,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Venu Busireddy <venu.busireddy@oracle.com>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, jayachandran.nair@cavium.com, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, kvm@vger.kernel.org, virtio-dev@lists.oasis-open.org, joro@8bytes.org, mst@redhat.com, will.deacon@arm.com, virtualization@lists.linux-foundation.org, marc.zyngier@arm.com, iommu@lists.linux-foundation.org, eric.auger@redhat.com, robin.murphy@arm.com, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gNi8yMi8yMDE4IDU6MTcgUE0sIFNpd2VpIExpdSB3cm90ZToKPiBPbiBGcmksIEp1biAyMiwg
-MjAxOCBhdCA0OjQwIFBNLCBTaXdlaSBMaXUgPGxvc2V3ZWlnaEBnbWFpbC5jb20+IHdyb3RlOgo+
-PiBPbiBGcmksIEp1biAyMiwgMjAxOCBhdCAzOjI1IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gPG1z
-dEByZWRoYXQuY29tPiB3cm90ZToKPj4+IE9uIEZyaSwgSnVuIDIyLCAyMDE4IGF0IDAyOjUxOjEx
-UE0gLTA3MDAsIFNpd2VpIExpdSB3cm90ZToKPj4+PiBPbiBGcmksIEp1biAyMiwgMjAxOCBhdCAy
-OjI5IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPiB3cm90ZToKPj4+Pj4g
-T24gRnJpLCBKdW4gMjIsIDIwMTggYXQgMDE6MDM6MDRQTSAtMDcwMCwgU2l3ZWkgTGl1IHdyb3Rl
-Ogo+Pj4+Pj4gT24gRnJpLCBKdW4gMjIsIDIwMTggYXQgMTowMCBQTSwgU2l3ZWkgTGl1IDxsb3Nl
-d2VpZ2hAZ21haWwuY29tPiB3cm90ZToKPj4+Pj4+PiBPbiBUaHUsIEp1biAyMSwgMjAxOCBhdCA3
-OjMyIFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPiB3cm90ZToKPj4+Pj4+
-Pj4gT24gVGh1LCBKdW4gMjEsIDIwMTggYXQgMDY6MjE6NTVQTSAtMDcwMCwgU2l3ZWkgTGl1IHdy
-b3RlOgo+Pj4+Pj4+Pj4gT24gVGh1LCBKdW4gMjEsIDIwMTggYXQgNzo1OSBBTSwgQ29ybmVsaWEg
-SHVjayA8Y29odWNrQHJlZGhhdC5jb20+IHdyb3RlOgo+Pj4+Pj4+Pj4+IE9uIFdlZCwgMjAgSnVu
-IDIwMTggMjI6NDg6NTggKzAzMDAKPj4+Pj4+Pj4+PiAiTWljaGFlbCBTLiBUc2lya2luIiA8bXN0
-QHJlZGhhdC5jb20+IHdyb3RlOgo+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4+IE9uIFdlZCwgSnVuIDIw
-LCAyMDE4IGF0IDA2OjA2OjE5UE0gKzAyMDAsIENvcm5lbGlhIEh1Y2sgd3JvdGU6Cj4+Pj4+Pj4+
-Pj4+PiBJbiBhbnkgY2FzZSwgSSdtIG5vdCBzdXJlIGFueW1vcmUgd2h5IHdlJ2Qgd2FudCB0aGUg
-ZXh0cmEgdXVpZC4KPj4+Pj4+Pj4+Pj4gSXQncyBtb3N0bHkgc28gd2UgY2FuIGhhdmUgZS5nLiBt
-dWx0aXBsZSBkZXZpY2VzIHdpdGggc2FtZSBNQUMKPj4+Pj4+Pj4+Pj4gKHdoaWNoIHNvbWUgcGVv
-cGxlIHNlZW0gdG8gd2FudCBpbiBvcmRlciB0byB0aGVuIHVzZQo+Pj4+Pj4+Pj4+PiB0aGVuIHdp
-dGggZGlmZmVyZW50IGNvbnRhaW5lcnMpLgo+Pj4+Pj4+Pj4+Pgo+Pj4+Pj4+Pj4+PiBCdXQgaXQg
-aXMgYWxzbyBoYW5keSBmb3Igd2hlbiB5b3UgYXNzaWduIGEgUEYsIHNpbmNlIHRoZW4geW91Cj4+
-Pj4+Pj4+Pj4+IGNhbid0IHNldCB0aGUgTUFDLgo+Pj4+Pj4+Pj4+Pgo+Pj4+Pj4+Pj4+IE9LLCBz
-byB3aGF0IGFib3V0IHRoZSBmb2xsb3dpbmc6Cj4+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+PiAtIGludHJv
-ZHVjZSBhIG5ldyBmZWF0dXJlIGJpdCwgVklSVElPX05FVF9GX1NUQU5EQllfVVVJRCB0aGF0IGlu
-ZGljYXRlcwo+Pj4+Pj4+Pj4+ICAgIHRoYXQgd2UgaGF2ZSBhIG5ldyB1dWlkIGZpZWxkIGluIHRo
-ZSB2aXJ0aW8tbmV0IGNvbmZpZyBzcGFjZQo+Pj4+Pj4+Pj4+IC0gaW4gUUVNVSwgYWRkIGEgcHJv
-cGVydHkgZm9yIHZpcnRpby1uZXQgdGhhdCBhbGxvd3MgdG8gc3BlY2lmeSBhIHV1aWQsCj4+Pj4+
-Pj4+Pj4gICAgb2ZmZXIgVklSVElPX05FVF9GX1NUQU5EQllfVVVJRCBpZiBzZXQKPj4+Pj4+Pj4+
-PiAtIHdoZW4gY29uZmlndXJpbmcsIHNldCB0aGUgcHJvcGVydHkgdG8gdGhlIGdyb3VwIFVVSUQg
-b2YgdGhlIHZmaW8tcGNpCj4+Pj4+Pj4+Pj4gICAgZGV2aWNlCj4+Pj4+Pj4+PiBJZiBmZWF0dXJl
-IG5lZ290aWF0aW9uIGZhaWxzIG9uIFZJUlRJT19ORVRfRl9TVEFOREJZX1VVSUQsIGlzIGl0IHNh
-ZmUKPj4+Pj4+Pj4+IHRvIHN0aWxsIGV4cG9zZSBVVUlEIGluIHRoZSBjb25maWcgc3BhY2Ugb24g
-dmlydGlvLXBjaT8KPj4+Pj4+Pj4KPj4+Pj4+Pj4gWWVzIGJ1dCBndWVzdCBpcyBub3Qgc3VwcG9z
-ZWQgdG8gcmVhZCBpdC4KPj4+Pj4+Pj4KPj4+Pj4+Pj4+IEknbSBub3QgZXZlbiBzdXJlIGlmIGl0
-J3Mgc2FuZSB0byBleHBvc2UgZ3JvdXAgVVVJRCBvbiB0aGUgUENJIGJyaWRnZQo+Pj4+Pj4+Pj4g
-d2hlcmUgdGhlIGNvcnJlc3BvbmRpbmcgdmZpby1wY2kgZGV2aWNlIGF0dGFjaGVkIHRvIGZvciBh
-IGd1ZXN0IHdoaWNoCj4+Pj4+Pj4+PiBkb2Vzbid0IHN1cHBvcnQgdGhlIGZlYXR1cmUgKGxlZ2Fj
-eSkuCj4+Pj4+Pj4+Pgo+Pj4+Pj4+Pj4gLVNpd2VpCj4+Pj4+Pj4+IFllcyBidXQgeW91IHdvbid0
-IGFkZCB0aGUgcHJpbWFyeSBiZWhpbmQgc3VjaCBhIGJyaWRnZS4KPj4+Pj4+PiBJIGFzc3VtZSB0
-aGUgVVVJRCBmZWF0dXJlIGlzIGEgbmV3IG9uZSBiZXNpZGVzIHRoZSBleGl0aW5nCj4+Pj4+Pj4g
-VklSVElPX05FVF9GX1NUQU5EQlkgZmVhdHVyZSwgd2hlcmUgSSB0aGluayB0aGUgY3VycmVudCBw
-cm9wb3NhbCBpcywKPj4+Pj4+PiBpZiBVVUlEIGZlYXR1cmUgaXMgcHJlc2VudCBhbmQgc3VwcG9y
-dGVkIGJ5IGd1ZXN0LCB3ZSdsbCBkbyBwYWlyaW5nCj4+Pj4+Pj4gYmFzZWQgb24gVVVJRDsgaWYg
-VVVJRCBmZWF0dXJlIHByZXNlbnQKPj4+Pj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICBeXl5eXl5eICBpcyBOT1QgcHJlc2VudAo+Pj4+PiBMZXQncyBnbyBiYWNrIGZvciBhIGJp
-dC4KPj4+Pj4KPj4+Pj4gV2hhdCBpcyB3cm9uZyB3aXRoIG1hdGNoaW5nIGJ5IG1hYz8KPj4+Pj4K
-Pj4+Pj4gMS4gRG9lcyBub3QgYWxsb3cgbXVsdGlwbGUgTklDcyB3aXRoIHNhbWUgbWFjCj4+Pj4+
-IDIuIFJlcXVpcmVzIE1BQyB0byBiZSBwcm9ncmFtbWVkIGJ5IGhvc3QgaW4gdGhlIFBUIGRldmlj
-ZQo+Pj4+PiAgICAgKHdoaWNoIGlzIG9mdGVuIHBvc3NpYmxlIHdpdGggVkZzIGJ1dCBpc24ndCBw
-b3NzaWJsZSB3aXRoIGFsbCBQVAo+Pj4+PiAgICAgZGV2aWNlcykKPj4+PiBNaWdodCBub3QgbmVj
-Y2Vzc2FyaWx5IGJlIHNvbWV0aGluZyB3cm9uZywgYnV0IGl0J3MgdmVyeSBsaW1pdGVkIHRvCj4+
-Pj4gcHJvaGliaXQgdGhlIE1BQyBvZiBWRiBmcm9tIGNoYW5naW5nIHdoZW4gZW5zbGF2ZWQgYnkg
-ZmFpbG92ZXIuCj4+PiBZb3UgbWVhbiBndWVzdCBjaGFuZ2luZyBNQUM/IEknbSBub3Qgc3VyZSB3
-aHkgd2UgcHJvaGliaXQgdGhhdC4KPj4gSSB0aGluayBTcmlkaGFyIGFuZCBKaXJpIG1pZ2h0IGJl
-IGJldHRlciBwZXJzb24gdG8gYW5zd2VyIGl0LiBNeQo+PiBpbXByZXNzaW9uIHdhcyB0aGF0IHN5
-bmMnaW5nIHRoZSBNQUMgYWRkcmVzcyBjaGFuZ2UgYmV0d2VlbiBhbGwgMwo+PiBkZXZpY2VzIGlz
-IGNoYWxsZW5naW5nLCBhcyB0aGUgZmFpbG92ZXIgZHJpdmVyIHVzZXMgTUFDIGFkZHJlc3MgdG8K
-Pj4gbWF0Y2ggbmV0X2RldmljZSBpbnRlcm5hbGx5LgoKWWVzLiBUaGUgTUFDIGFkZHJlc3MgaXMg
-YXNzaWduZWQgYnkgdGhlIGh5cGVydmlzb3IgYW5kIGl0IG5lZWRzIHRvIG1hbmFnZSB0aGUgbW92
-ZW1lbnQKb2YgdGhlIE1BQyBiZXR3ZWVuIHRoZSBQRiBhbmQgVkYuwqAgQWxsb3dpbmcgdGhlIGd1
-ZXN0IHRvIGNoYW5nZSB0aGUgTUFDIHdpbGwgcmVxdWlyZQpzeW5jaHJvbml6YXRpb24gYmV0d2Vl
-biB0aGUgaHlwZXJ2aXNvciBhbmQgdGhlIFBGL1ZGIGRyaXZlcnMuIE1vc3Qgb2YgdGhlIFZGIGRy
-aXZlcnMKZG9uJ3QgYWxsb3cgY2hhbmdpbmcgZ3Vlc3QgTUFDIHVubGVzcyBpdCBpcyBhIHRydXN0
-ZWQgVkYuCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, Jun 21, 2018 at 08:06:51PM +0100, Jean-Philippe Brucker wrote:
+> A virtio-mmio node may represent a virtio-iommu device. This is discovered
+> by the virtio driver at probe time, but the DMA topology isn't
+> discoverable and must be described by firmware. For DT the standard IOMMU
+> description is used, as specified in bindings/iommu/iommu.txt and
+> bindings/pci/pci-iommu.txt. Like many other IOMMUs, virtio-iommu
+> distinguishes masters by their endpoint IDs, which requires one IOMMU cell
+> in the "iommus" property.
+> 
+> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+> ---
+>  Documentation/devicetree/bindings/virtio/mmio.txt | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/virtio/mmio.txt b/Documentation/devicetree/bindings/virtio/mmio.txt
+> index 5069c1b8e193..337da0e3a87f 100644
+> --- a/Documentation/devicetree/bindings/virtio/mmio.txt
+> +++ b/Documentation/devicetree/bindings/virtio/mmio.txt
+> @@ -8,6 +8,14 @@ Required properties:
+>  - reg:		control registers base address and size including configuration space
+>  - interrupts:	interrupt generated by the device
+>  
+> +Required properties for virtio-iommu:
+> +
+> +- #iommu-cells:	When the node describes a virtio-iommu device, it is
+> +		linked to DMA masters using the "iommus" property as
+> +		described in devicetree/bindings/iommu/iommu.txt. For
+> +		virtio-iommu #iommu-cells must be 1, each cell describing
+> +		a single endpoint ID.
+
+The iommus property should also be documented for the client side.
+
+Rob
