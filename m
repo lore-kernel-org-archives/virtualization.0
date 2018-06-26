@@ -1,11 +1,9 @@
-From: Cornelia Huck <cohuck@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
 	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Tue, 26 Jun 2018 18:03:16 +0200
-Message-ID: <20180626180316.3723422f.cohuck__7674.48059418729$1530028880$gmane$org@redhat.com>
-References: <CADGSJ23SBEFJCD50K-F-Gt86Q1-i_6iHTmSSjdXDzNnnpWZ_oQ@mail.gmail.com>
-	<CADGSJ22nLcz_XaJNzUUdpjQaJY8b5wZs=ohm=B7c2qf2K7_yGA@mail.gmail.com>
-	<20180623002628-mutt-send-email-mst@kernel.org>
+Date: Tue, 26 Jun 2018 20:42:53 +0300
+Message-ID: <20180626204237-mutt-send-email-mst@kernel.org>
+References: <20180623002628-mutt-send-email-mst@kernel.org>
 	<CADGSJ20td7b6He6S1PBSJjCq=bNvgqMGbOjiho2eeQm2pgpK3g@mail.gmail.com>
 	<20180623012406-mutt-send-email-mst@kernel.org>
 	<CADGSJ211pWKYnuuzcgUqJZiHU+=7H3oQSpp1TnE=+EBjkdmCSQ@mail.gmail.com>
@@ -14,11 +12,13 @@ References: <CADGSJ23SBEFJCD50K-F-Gt86Q1-i_6iHTmSSjdXDzNnnpWZ_oQ@mail.gmail.com>
 	<20180626044650-mutt-send-email-mst@kernel.org>
 	<20180626171732.5038f53f.cohuck@redhat.com>
 	<20180626183706-mutt-send-email-mst@kernel.org>
+	<20180626180316.3723422f.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180626183706-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180626180316.3723422f.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,46 +28,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
 Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCAyNiBKdW4gMjAxOCAxODozODo1MSArMDMwMAoiTWljaGFlbCBTLiBUc2lya2luIiA8
-bXN0QHJlZGhhdC5jb20+IHdyb3RlOgoKPiBPbiBUdWUsIEp1biAyNiwgMjAxOCBhdCAwNToxNzoz
-MlBNICswMjAwLCBDb3JuZWxpYSBIdWNrIHdyb3RlOgo+ID4gT24gVHVlLCAyNiBKdW4gMjAxOCAw
-NDo1MDoyNSArMDMwMAo+ID4gIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3
-cm90ZToKPiA+ICAgCj4gPiA+IE9uIE1vbiwgSnVuIDI1LCAyMDE4IGF0IDEwOjU0OjA5QU0gLTA3
-MDAsIFNhbXVkcmFsYSwgU3JpZGhhciB3cm90ZTogIAo+ID4gPiA+ID4gPiA+ID4gTWlnaHQgbm90
-IG5lY2Nlc3NhcmlseSBiZSBzb21ldGhpbmcgd3JvbmcsIGJ1dCBpdCdzIHZlcnkgbGltaXRlZCB0
-bwo+ID4gPiA+ID4gPiA+ID4gcHJvaGliaXQgdGhlIE1BQyBvZiBWRiBmcm9tIGNoYW5naW5nIHdo
-ZW4gZW5zbGF2ZWQgYnkgZmFpbG92ZXIuICAgIAo+ID4gPiA+ID4gPiA+IFlvdSBtZWFuIGd1ZXN0
-IGNoYW5naW5nIE1BQz8gSSdtIG5vdCBzdXJlIHdoeSB3ZSBwcm9oaWJpdCB0aGF0LiAgICAKPiA+
-ID4gPiA+ID4gSSB0aGluayBTcmlkaGFyIGFuZCBKaXJpIG1pZ2h0IGJlIGJldHRlciBwZXJzb24g
-dG8gYW5zd2VyIGl0LiBNeQo+ID4gPiA+ID4gPiBpbXByZXNzaW9uIHdhcyB0aGF0IHN5bmMnaW5n
-IHRoZSBNQUMgYWRkcmVzcyBjaGFuZ2UgYmV0d2VlbiBhbGwgMwo+ID4gPiA+ID4gPiBkZXZpY2Vz
-IGlzIGNoYWxsZW5naW5nLCBhcyB0aGUgZmFpbG92ZXIgZHJpdmVyIHVzZXMgTUFDIGFkZHJlc3Mg
-dG8KPiA+ID4gPiA+ID4gbWF0Y2ggbmV0X2RldmljZSBpbnRlcm5hbGx5LiAgICAKPiA+ID4gPiAK
-PiA+ID4gPiBZZXMuIFRoZSBNQUMgYWRkcmVzcyBpcyBhc3NpZ25lZCBieSB0aGUgaHlwZXJ2aXNv
-ciBhbmQgaXQgbmVlZHMgdG8gbWFuYWdlIHRoZSBtb3ZlbWVudAo+ID4gPiA+IG9mIHRoZSBNQUMg
-YmV0d2VlbiB0aGUgUEYgYW5kIFZGLsKgIEFsbG93aW5nIHRoZSBndWVzdCB0byBjaGFuZ2UgdGhl
-IE1BQyB3aWxsIHJlcXVpcmUKPiA+ID4gPiBzeW5jaHJvbml6YXRpb24gYmV0d2VlbiB0aGUgaHlw
-ZXJ2aXNvciBhbmQgdGhlIFBGL1ZGIGRyaXZlcnMuIE1vc3Qgb2YgdGhlIFZGIGRyaXZlcnMKPiA+
-ID4gPiBkb24ndCBhbGxvdyBjaGFuZ2luZyBndWVzdCBNQUMgdW5sZXNzIGl0IGlzIGEgdHJ1c3Rl
-ZCBWRi4gICAgCj4gPiA+IAo+ID4gPiBPSyBidXQgaXQncyBhIHBvbGljeSB0aGluZy4gTWF5YmUg
-aXQncyBhIHRydXN0ZWQgVkYuIFdobyBrbm93cz8KPiA+ID4gRm9yIGV4YW1wbGUgSSBjYW4gc2Vl
-IGhvc3QganVzdAo+ID4gPiBmYWlsaW5nIFZJUlRJT19ORVRfQ1RSTF9NQUNfQUREUl9TRVQgaWYg
-aXQgd2FudHMgdG8gYmxvY2sgaXQuCj4gPiA+IEknbSBub3Qgc3VyZSB3aHkgVklSVElPX05FVF9G
-X1NUQU5EQlkgaGFzIHRvIGJsb2NrIGl0IGluIHRoZSBndWVzdC4KPiA+ID4gICAKPiA+IAo+ID4g
-U28sIHdoYXQgSSBnZXQgZnJvbSB0aGlzIGlzIHRoYXQgUUVNVSBuZWVkcyB0byBiZSBhYmxlIHRv
-IGNvbnRyb2wgYWxsCj4gPiBvZiBzdGFuZGJ5LCB1dWlkLCBhbmQgbWFjIHRvIGFjY29tbW9kYXRl
-IHRoZSBkaWZmZXJlbnQgc2V0dXBzCj4gPiAocmVzcGVjdGl2ZWx5IGhhdmUgbGlidmlydC9tYW5h
-Z2VtZW50IHNvZnR3YXJlIHNldCBpdCB1cCkuIElzIHRoZSBob3N0Cj4gPiBhYmxlIHRvIGZpbmQg
-b3V0IHJlc3BlY3RpdmVseSBkZWZpbmUgd2hldGhlciBhIFZGIGlzIHRydXN0ZWQ/ICAKPiAKPiBZ
-b3UgZG8gaXQgd2l0aCBpcCBsaW5rIEkgdGhpbmsgYnV0IFFFTVUgZG9lc24ndCBub3JtYWxseSBk
-byB0aGlzLAo+IGl0IHJlbGllcyBvbiBsaWJ2aXJ0IHRvIHBva2UgYXQgaG9zdCBrZXJuZWwgYW5k
-IHN1cHBseSB0aGUgaW5mby4KPiAKCk9rLCB0aGF0IG1ha2VzIG1lIGNvbmNsdWRlIHRoYXQgd2Ug
-ZGVmaW5pdGVseSBuZWVkIHRvIGludm9sdmUgdGhlCmxpYnZpcnQgZm9sa3MgYmVmb3JlIHdlIHBy
-b2NlZWQgZnVydGhlciB3aXRoIGRlZmluaW5nIFFFTVUgaW50ZXJmYWNlcy4KX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
-ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
-bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Tue, Jun 26, 2018 at 06:03:16PM +0200, Cornelia Huck wrote:
+> Ok, that makes me conclude that we definitely need to involve the
+> libvirt folks before we proceed further with defining QEMU interfaces.
+
+That's always a wise thing to do.
+
+-- 
+MST
