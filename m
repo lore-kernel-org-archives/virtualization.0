@@ -1,24 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
-	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Tue, 26 Jun 2018 20:50:20 +0300
-Message-ID: <20180626204312-mutt-send-email-mst@kernel.org>
-References: <20180621165913.7e3f4faa.cohuck@redhat.com>
-	<20180621211712-mutt-send-email-mst@kernel.org>
-	<20180622170955.298900c1.cohuck@redhat.com>
-	<20180622214259-mutt-send-email-mst@kernel.org>
-	<CADGSJ22e=Sa8S-HqM4XtOa6ngBKPL73SiQRPh8PUzQgRaie5oA@mail.gmail.com>
-	<20180623003022-mutt-send-email-mst@kernel.org>
-	<CADGSJ22oFhP955cuTmMWeSt0UOsG5K1A--c34QUSMx5z3Up2SA@mail.gmail.com>
-	<20180623012934-mutt-send-email-mst@kernel.org>
-	<CADGSJ21HNd4VYNcCt4H0gJ_CCx1GUFpHrDof2N=4WqhD24Zc2A@mail.gmail.com>
-	<20180626170813.4db094a1.cohuck@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH v2 1/5] dt-bindings: virtio: Specify #iommu-cells value
+	for a virtio-iommu
+Date: Tue, 26 Jun 2018 18:58:58 +0100
+Message-ID: <89d31865-ee35-ef8c-f7b3-f3acf2bbd30e__44886.3026257188$1530035849$gmane$org@arm.com>
+References: <20180621190655.56391-1-jean-philippe.brucker@arm.com>
+	<20180621190655.56391-2-jean-philippe.brucker@arm.com>
+	<20180625192753.GA22351@rob-hp-laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180626170813.4db094a1.cohuck@redhat.com>
+In-Reply-To: <20180625192753.GA22351@rob-hp-laptop>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,36 +21,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
+To: Rob Herring <robh@kernel.org>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "joro@8bytes.org" <joro@8bytes.org>, "mst@redhat.com" <mst@redhat.com>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Marc Zyngier <Marc.Zyngier@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, Robin Murphy <Robin.Murphy@arm.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 26, 2018 at 05:08:13PM +0200, Cornelia Huck wrote:
-> On Fri, 22 Jun 2018 17:05:04 -0700
-> Siwei Liu <loseweigh@gmail.com> wrote:
+On 25/06/18 20:27, Rob Herring wrote:
+> On Thu, Jun 21, 2018 at 08:06:51PM +0100, Jean-Philippe Brucker wrote:
+>> A virtio-mmio node may represent a virtio-iommu device. This is discovered
+>> by the virtio driver at probe time, but the DMA topology isn't
+>> discoverable and must be described by firmware. For DT the standard IOMMU
+>> description is used, as specified in bindings/iommu/iommu.txt and
+>> bindings/pci/pci-iommu.txt. Like many other IOMMUs, virtio-iommu
+>> distinguishes masters by their endpoint IDs, which requires one IOMMU cell
+>> in the "iommus" property.
+>>
+>> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+>> ---
+>>  Documentation/devicetree/bindings/virtio/mmio.txt | 8 ++++++++
+>>  1 file changed, 8 insertions(+)
+>>
+>> diff --git a/Documentation/devicetree/bindings/virtio/mmio.txt b/Documentation/devicetree/bindings/virtio/mmio.txt
+>> index 5069c1b8e193..337da0e3a87f 100644
+>> --- a/Documentation/devicetree/bindings/virtio/mmio.txt
+>> +++ b/Documentation/devicetree/bindings/virtio/mmio.txt
+>> @@ -8,6 +8,14 @@ Required properties:
+>>  - reg:		control registers base address and size including configuration space
+>>  - interrupts:	interrupt generated by the device
+>>  
+>> +Required properties for virtio-iommu:
+>> +
+>> +- #iommu-cells:	When the node describes a virtio-iommu device, it is
+>> +		linked to DMA masters using the "iommus" property as
+>> +		described in devicetree/bindings/iommu/iommu.txt. For
+>> +		virtio-iommu #iommu-cells must be 1, each cell describing
+>> +		a single endpoint ID.
 > 
-> > On Fri, Jun 22, 2018 at 3:33 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > I suspect the diveregence will be lost on most users though
-> > > simply because they don't even care about vfio. They just
-> > > want things to go fast.  
-> > 
-> > Like Jason said, VF isn't faster than virtio-net in all cases. It
-> > depends on the workload and performance metrics: throughput, latency,
-> > or packet per second.
-> 
-> So, will it be guest/admin-controllable then where the traffic flows
-> through? Just because we do have a vf available after negotiation of
-> the feature bit, it does not necessarily mean we want to use it? Do we
-> (the guest) even want to make it visible in that case?
+> The iommus property should also be documented for the client side.
 
-I think these ideas belong to what Alex Duyck wanted to do:
-some kind of advanced device that isn't tied to
-any network interfaces and allows workload and performance
-specific tuning.
+Isn't section "IOMMU master node" of iommu.txt sufficient? Since the
+iommus property applies to any DMA master, not only virtio-mmio devices,
+the canonical description in iommu.txt seems the best place for it, and
+I'm not sure what to add in this file. Maybe a short example below the
+virtio_block one?
 
-Way out of scope for a simple failover, and more importantly,
-no one is looking at even enumerating the problems involved,
-much less solving them.
-
--- 
-MST
+Thanks,
+Jean
