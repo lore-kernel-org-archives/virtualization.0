@@ -1,17 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v34 2/4] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
-Date: Tue, 26 Jun 2018 06:56:25 +0300
-Message-ID: <20180626064338-mutt-send-email-mst@kernel.org>
-References: <1529928312-30500-1-git-send-email-wei.w.wang@intel.com>
-	<1529928312-30500-3-git-send-email-wei.w.wang@intel.com>
-	<20180626002822-mutt-send-email-mst@kernel.org>
-	<5B31B71B.6080709@intel.com>
+From: xiangxia.m.yue@gmail.com
+Subject: [PATCH net-next v2] net: vhost: improve performance when enable
+	busyloop
+Date: Mon, 25 Jun 2018 22:17:56 -0700
+Message-ID: <1529990276-61157-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5B31B71B.6080709@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,321 +16,261 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, Tonghao Zhang <zhangtonghao@didichuxing.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 26, 2018 at 11:46:35AM +0800, Wei Wang wrote:
-> On 06/26/2018 09:37 AM, Michael S. Tsirkin wrote:
-> > On Mon, Jun 25, 2018 at 08:05:10PM +0800, Wei Wang wrote:
-> > 
-> > > @@ -326,17 +353,6 @@ static void stats_handle_request(struct virtio_balloon *vb)
-> > >   	virtqueue_kick(vq);
-> > >   }
-> > > -static void virtballoon_changed(struct virtio_device *vdev)
-> > > -{
-> > > -	struct virtio_balloon *vb = vdev->priv;
-> > > -	unsigned long flags;
-> > > -
-> > > -	spin_lock_irqsave(&vb->stop_update_lock, flags);
-> > > -	if (!vb->stop_update)
-> > > -		queue_work(system_freezable_wq, &vb->update_balloon_size_work);
-> > > -	spin_unlock_irqrestore(&vb->stop_update_lock, flags);
-> > > -}
-> > > -
-> > >   static inline s64 towards_target(struct virtio_balloon *vb)
-> > >   {
-> > >   	s64 target;
-> > > @@ -353,6 +369,35 @@ static inline s64 towards_target(struct virtio_balloon *vb)
-> > >   	return target - vb->num_pages;
-> > >   }
-> > > +static void virtballoon_changed(struct virtio_device *vdev)
-> > > +{
-> > > +	struct virtio_balloon *vb = vdev->priv;
-> > > +	unsigned long flags;
-> > > +	s64 diff = towards_target(vb);
-> > > +
-> > > +	if (diff) {
-> > > +		spin_lock_irqsave(&vb->stop_update_lock, flags);
-> > > +		if (!vb->stop_update)
-> > > +			queue_work(system_freezable_wq,
-> > > +				   &vb->update_balloon_size_work);
-> > > +		spin_unlock_irqrestore(&vb->stop_update_lock, flags);
-> > > +	}
-> > > +
-> > > +	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
-> > > +		virtio_cread(vdev, struct virtio_balloon_config,
-> > > +			     free_page_report_cmd_id, &vb->cmd_id_received);
-> > > +		if (vb->cmd_id_received !=
-> > > +		    VIRTIO_BALLOON_FREE_PAGE_REPORT_STOP_ID &&
-> > > +		    vb->cmd_id_received != vb->cmd_id_active) {
-> > > +			spin_lock_irqsave(&vb->stop_update_lock, flags);
-> > > +			if (!vb->stop_update)
-> > > +				queue_work(vb->balloon_wq,
-> > > +					   &vb->report_free_page_work);
-> > > +			spin_unlock_irqrestore(&vb->stop_update_lock, flags);
-> > > +		}
-> > > +	}
-> > > +}
-> > > +
-> > >   static void update_balloon_size(struct virtio_balloon *vb)
-> > >   {
-> > >   	u32 actual = vb->num_pages;
-> > > @@ -425,44 +470,253 @@ static void update_balloon_size_func(struct work_struct *work)
-> > >   		queue_work(system_freezable_wq, work);
-> > >   }
-> > > +static void free_page_vq_cb(struct virtqueue *vq)
-> > > +{
-> > > +	unsigned int len;
-> > > +	void *buf;
-> > > +	struct virtio_balloon *vb = vq->vdev->priv;
-> > > +
-> > > +	while (1) {
-> > > +		buf = virtqueue_get_buf(vq, &len);
-> > > +
-> > > +		if (!buf || buf == &vb->cmd_start || buf == &vb->cmd_stop)
-> > > +			break;
-> > If there's any buffer after this one we might never get another
-> > callback.
-> 
-> I think every used buffer can get the callback, because host takes from the
-> arrays one by one, and puts back each with a vq notify.
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 
-It's probabky racy even in this case. Besides, host is free to do it in
-any way that's legal in spec.
+This patch improves the guest receive performance from
+host. On the handle_tx side, we poll the sock receive
+queue at the same time. handle_rx do that in the same way.
 
-> 
-> 
-> > > +		free_pages((unsigned long)buf, ARRAY_ALLOC_ORDER);
-> > > +	}
-> > > +}
-> > > +
-> > >   static int init_vqs(struct virtio_balloon *vb)
-> > >   {
-> > > -	struct virtqueue *vqs[3];
-> > > -	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
-> > > -	static const char * const names[] = { "inflate", "deflate", "stats" };
-> > > -	int err, nvqs;
-> > > +	struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
-> > > +	vq_callback_t *callbacks[VIRTIO_BALLOON_VQ_MAX];
-> > > +	const char *names[VIRTIO_BALLOON_VQ_MAX];
-> > > +	struct scatterlist sg;
-> > > +	int ret;
-> > >   	/*
-> > > -	 * We expect two virtqueues: inflate and deflate, and
-> > > -	 * optionally stat.
-> > > +	 * Inflateq and deflateq are used unconditionally. The names[]
-> > > +	 * will be NULL if the related feature is not enabled, which will
-> > > +	 * cause no allocation for the corresponding virtqueue in find_vqs.
-> > >   	 */
-> > > -	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
-> > > -	err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
-> > > -	if (err)
-> > > -		return err;
-> > > +	callbacks[VIRTIO_BALLOON_VQ_INFLATE] = balloon_ack;
-> > > +	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
-> > > +	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
-> > > +	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
-> > > +	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
-> > > +	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
-> > > -	vb->inflate_vq = vqs[0];
-> > > -	vb->deflate_vq = vqs[1];
-> > >   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-> > > -		struct scatterlist sg;
-> > > -		unsigned int num_stats;
-> > > -		vb->stats_vq = vqs[2];
-> > > +		names[VIRTIO_BALLOON_VQ_STATS] = "stats";
-> > > +		callbacks[VIRTIO_BALLOON_VQ_STATS] = stats_request;
-> > > +	}
-> > > +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
-> > > +		names[VIRTIO_BALLOON_VQ_FREE_PAGE] = "free_page_vq";
-> > > +		callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = free_page_vq_cb;
-> > > +	}
-> > > +
-> > > +	ret = vb->vdev->config->find_vqs(vb->vdev, VIRTIO_BALLOON_VQ_MAX,
-> > > +					 vqs, callbacks, names, NULL, NULL);
-> > > +	if (ret)
-> > > +		return ret;
-> > > +
-> > > +	vb->inflate_vq = vqs[VIRTIO_BALLOON_VQ_INFLATE];
-> > > +	vb->deflate_vq = vqs[VIRTIO_BALLOON_VQ_DEFLATE];
-> > > +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-> > > +		vb->stats_vq = vqs[VIRTIO_BALLOON_VQ_STATS];
-> > >   		/*
-> > >   		 * Prime this virtqueue with one buffer so the hypervisor can
-> > >   		 * use it to signal us later (it can't be broken yet!).
-> > >   		 */
-> > > -		num_stats = update_balloon_stats(vb);
-> > > -
-> > > -		sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
-> > > -		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
-> > > -		    < 0)
-> > > -			BUG();
-> > > +		sg_init_one(&sg, vb->stats, sizeof(vb->stats));
-> > > +		ret = virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb,
-> > > +					   GFP_KERNEL);
-> > > +		if (ret) {
-> > > +			dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
-> > > +				 __func__);
-> > > +			return ret;
-> > > +		}
-> > Why the change? Is it more likely to happen now?
-> 
-> Actually this part remains the same as the previous versions (e.g. v32). It
-> is changed because we agreed that using BUG() isn't necessary here, and
-> better to bail out nicely.
+For avoiding deadlock, change the code to lock the vq one
+by one and use the VHOST_NET_VQ_XX as a subclass for
+mutex_lock_nested. With the patch, qemu can set differently
+the busyloop_timeout for rx or tx queue.
 
-Why is this part of the hinting patch though? I'd rather have
-a separate one.
+We set the poll-us=100us and use the iperf3 to test
+its throughput. The iperf3 command is shown as below.
 
-> 
-> 
-> > 
-> > +/*
-> > + * virtio_balloon_send_hints - send arrays of hints to host
-> > + * @vb: the virtio_balloon struct
-> > + * @arrays: the arrays of hints
-> > + * @array_num: the number of arrays give by the caller
-> > + * @last_array_hints: the number of hints in the last array
-> > + *
-> > + * Send hints to host array by array. This begins by sending a start cmd,
-> > + * which contains a cmd id received from host and the free page block size in
-> > + * bytes of each hint. At the end, a stop cmd is sent to host to indicate the
-> > + * end of this reporting. If host actively requests to stop the reporting, free
-> > + * the arrays that have not been sent.
-> > + */
-> > +static void virtio_balloon_send_hints(struct virtio_balloon *vb,
-> > +				      __le64 **arrays,
-> > +				      uint32_t array_num,
-> > +				      uint32_t last_array_hints)
-> > +{
-> > +	int err, i = 0;
-> > +	struct scatterlist sg;
-> > +	struct virtqueue *vq = vb->free_page_vq;
-> > +
-> > +	/* Start by sending the received cmd id to host with an outbuf. */
-> > +	err = send_start_cmd_id(vb);
-> > +	if (unlikely(err))
-> > +		goto out_err;
-> > +	/* Kick host to start taking entries from the vq. */
-> > +	virtqueue_kick(vq);
-> > +
-> > +	for (i = 0; i < array_num; i++) {
-> > +		/*
-> > +		 * If a stop id or a new cmd id was just received from host,
-> > +		 * stop the reporting, and free the remaining arrays that
-> > +		 * haven't been sent to host.
-> > +		 */
-> > +		if (vb->cmd_id_received != vb->cmd_id_active)
-> > +			goto out_free;
-> > +
-> > +		if (i + 1 == array_num)
-> > +			sg_init_one(&sg, (void *)arrays[i],
-> > +				    last_array_hints * sizeof(__le64));
-> > +		else
-> > +			sg_init_one(&sg, (void *)arrays[i], ARRAY_ALLOC_SIZE);
-> > +		err = virtqueue_add_inbuf(vq, &sg, 1, (void *)arrays[i],
-> > +					  GFP_KERNEL);
-> > +		if (unlikely(err))
-> > +			goto out_err;
-> > +	}
-> > +
-> > +	/* End by sending a stop id to host with an outbuf. */
-> > +	err = send_stop_cmd_id(vb);
-> > +	if (unlikely(err))
-> > +		goto out_err;
-> > Don't we need to kick here?
-> 
-> I think not needed, because we have kicked host about starting the report,
-> and the host side optimization won't exit unless receiving this stop sign or
-> the migration thread asks to exit.
+on the guest:
+iperf3  -s -D
 
-You can't assume that. Host might want to sleep.
-If it doesn't then it will disable notifications and kick will be free.
+on the host:
+iperf3  -c 192.168.1.100 -i 1 -P 10 -t 10 -M 1400
 
-> > 
-> > > +	int i;
-> > > +
-> > > +	max_entries = max_free_page_blocks(ARRAY_ALLOC_ORDER);
-> > > +	entries_per_page = PAGE_SIZE / sizeof(__le64);
-> > > +	entries_per_array = entries_per_page * (1 << ARRAY_ALLOC_ORDER);
-> > > +	max_array_num = max_entries / entries_per_array +
-> > > +			!!(max_entries % entries_per_array);
-> > > +	arrays = kmalloc_array(max_array_num, sizeof(__le64 *), GFP_KERNEL);
-> > Instead of all this mess, how about get_free_pages here as well?
-> 
-> Sounds good, will replace kmalloc_array with __get_free_pages(),
+* With the patch:     23.1 Gbits/sec
+* Without the patch:  12.7 Gbits/sec
 
-Or alloc_pages, __ APIs are better avoided if possible.
+Signed-off-by: Tonghao Zhang <zhangtonghao@didichuxing.com>
+---
+ drivers/vhost/net.c   | 106 +++++++++++++++++++++++++++-----------------------
+ drivers/vhost/vhost.c |  24 ++++--------
+ 2 files changed, 66 insertions(+), 64 deletions(-)
 
-> but still
-> need the above calculation to get max_array_num.
-
-Maybe alloc_pages?
-
-> > 
-> > Also why do we need GFP_KERNEL for this?
-> 
-> I guess it is better to use "__GFP_ATOMIC | __GFP_NOMEMALLOC", thanks.
-> 
-> > 
-> > 
-> > > +	if (!arrays)
-> > > +		return NULL;
-> > > +
-> > > +	for (i = 0; i < max_array_num; i++) {
-> > So we are getting a ton of memory here just to free it up a bit later.
-> > Why doesn't get_from_free_page_list get the pages from free list for us?
-> > We could also avoid the 1st allocation then - just build a list
-> > of these.
-> 
-> That wouldn't be a good choice for us. If we check how the regular
-> allocation works, there are many many things we need to consider when pages
-> are allocated to users.
-> For example, we need to take care of the nr_free
-> counter, we need to check the watermark and perform the related actions.
-> Also the folks working on arch_alloc_page to monitor page allocation
-> activities would get a surprise..if page allocation is allowed to work in
-> this way.
-> 
-
-mm/ code is well positioned to handle all this correctly.
-
-
-> 
-> 
-> 
-> > 
-> > > +		arrays[i] =
-> > > +		(__le64 *)__get_free_pages(__GFP_ATOMIC | __GFP_NOMEMALLOC,
-> > > +					   ARRAY_ALLOC_ORDER);
-> > Coding style says:
-> > 
-> > Descendants are always substantially shorter than the parent and
-> > are placed substantially to the right.
-> 
-> Thanks, will rearrange it:
-> 
-> arrays[i] = (__le64 *)__get_free_pages(__GFP_ATOMIC |
-> 				__GFP_NOMEMALLOC, ARRAY_ALLOC_ORDER);
-> 
-> 
-> 
-> > 
-> > > +		if (!arrays[i]) {
-> > Also if it does fail (small guest), shall we try with less arrays?
-> 
-> I think it's not needed. If the free list is empty, no matter it is a huge
-> guest or a small guest, get_from_free_page_list() will load nothing even we
-> pass a small array to it.
-> 
-> 
-> Best,
-> Wei
-
-Yes but the reason it's empty is maybe because we used a ton of
-memory for all of the arrays. Why allocate a top level array at all?
-Can't we pass in a list?
-
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index e7cf7d2..38e9adb 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -429,22 +429,62 @@ static int vhost_net_enable_vq(struct vhost_net *n,
+ 	return vhost_poll_start(poll, sock->file);
+ }
+ 
++static int sk_has_rx_data(struct sock *sk)
++{
++	struct socket *sock = sk->sk_socket;
++
++	if (sock->ops->peek_len)
++		return sock->ops->peek_len(sock);
++
++	return skb_queue_empty(&sk->sk_receive_queue);
++}
++
++static void vhost_net_busy_poll(struct vhost_net *net,
++				struct vhost_virtqueue *rvq,
++				struct vhost_virtqueue *tvq,
++				bool rx)
++{
++	unsigned long uninitialized_var(endtime);
++	struct socket *sock = rvq->private_data;
++	struct vhost_virtqueue *vq = rx ? tvq : rvq;
++	unsigned long busyloop_timeout = rx ? rvq->busyloop_timeout :
++					      tvq->busyloop_timeout;
++
++	mutex_lock_nested(&vq->mutex, rx ? VHOST_NET_VQ_TX: VHOST_NET_VQ_RX);
++	vhost_disable_notify(&net->dev, vq);
++
++	preempt_disable();
++	endtime = busy_clock() + busyloop_timeout;
++	while (vhost_can_busy_poll(tvq->dev, endtime) &&
++	       !(sock && sk_has_rx_data(sock->sk)) &&
++	       vhost_vq_avail_empty(tvq->dev, tvq))
++		cpu_relax();
++	preempt_enable();
++
++	if ((rx && !vhost_vq_avail_empty(&net->dev, vq)) ||
++	    (!rx && (sock && sk_has_rx_data(sock->sk)))) {
++		vhost_poll_queue(&vq->poll);
++	} else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
++		vhost_disable_notify(&net->dev, vq);
++		vhost_poll_queue(&vq->poll);
++	}
++
++	mutex_unlock(&vq->mutex);
++}
++
+ static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
+ 				    struct vhost_virtqueue *vq,
+ 				    struct iovec iov[], unsigned int iov_size,
+ 				    unsigned int *out_num, unsigned int *in_num)
+ {
+-	unsigned long uninitialized_var(endtime);
++	struct vhost_net_virtqueue *nvq_rx = &net->vqs[VHOST_NET_VQ_RX];
++
+ 	int r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
+ 				  out_num, in_num, NULL, NULL);
+ 
+ 	if (r == vq->num && vq->busyloop_timeout) {
+-		preempt_disable();
+-		endtime = busy_clock() + vq->busyloop_timeout;
+-		while (vhost_can_busy_poll(vq->dev, endtime) &&
+-		       vhost_vq_avail_empty(vq->dev, vq))
+-			cpu_relax();
+-		preempt_enable();
++		vhost_net_busy_poll(net, &nvq_rx->vq, vq, false);
++
+ 		r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
+ 				      out_num, in_num, NULL, NULL);
+ 	}
+@@ -484,7 +524,7 @@ static void handle_tx(struct vhost_net *net)
+ 	bool zcopy, zcopy_used;
+ 	int sent_pkts = 0;
+ 
+-	mutex_lock(&vq->mutex);
++	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_TX);
+ 	sock = vq->private_data;
+ 	if (!sock)
+ 		goto out;
+@@ -621,16 +661,6 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
+ 	return len;
+ }
+ 
+-static int sk_has_rx_data(struct sock *sk)
+-{
+-	struct socket *sock = sk->sk_socket;
+-
+-	if (sock->ops->peek_len)
+-		return sock->ops->peek_len(sock);
+-
+-	return skb_queue_empty(&sk->sk_receive_queue);
+-}
+-
+ static void vhost_rx_signal_used(struct vhost_net_virtqueue *nvq)
+ {
+ 	struct vhost_virtqueue *vq = &nvq->vq;
+@@ -645,39 +675,19 @@ static void vhost_rx_signal_used(struct vhost_net_virtqueue *nvq)
+ 
+ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
+ {
+-	struct vhost_net_virtqueue *rvq = &net->vqs[VHOST_NET_VQ_RX];
+-	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
+-	struct vhost_virtqueue *vq = &nvq->vq;
+-	unsigned long uninitialized_var(endtime);
+-	int len = peek_head_len(rvq, sk);
+-
+-	if (!len && vq->busyloop_timeout) {
+-		/* Flush batched heads first */
+-		vhost_rx_signal_used(rvq);
+-		/* Both tx vq and rx socket were polled here */
+-		mutex_lock_nested(&vq->mutex, 1);
+-		vhost_disable_notify(&net->dev, vq);
+-
+-		preempt_disable();
+-		endtime = busy_clock() + vq->busyloop_timeout;
+-
+-		while (vhost_can_busy_poll(&net->dev, endtime) &&
+-		       !sk_has_rx_data(sk) &&
+-		       vhost_vq_avail_empty(&net->dev, vq))
+-			cpu_relax();
++	struct vhost_net_virtqueue *nvq_rx = &net->vqs[VHOST_NET_VQ_RX];
++	struct vhost_net_virtqueue *nvq_tx = &net->vqs[VHOST_NET_VQ_TX];
+ 
+-		preempt_enable();
++	int len = peek_head_len(nvq_rx, sk);
+ 
+-		if (!vhost_vq_avail_empty(&net->dev, vq))
+-			vhost_poll_queue(&vq->poll);
+-		else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
+-			vhost_disable_notify(&net->dev, vq);
+-			vhost_poll_queue(&vq->poll);
+-		}
++	if (!len && nvq_rx->vq.busyloop_timeout) {
++		/* Flush batched heads first */
++		vhost_rx_signal_used(nvq_rx);
+ 
+-		mutex_unlock(&vq->mutex);
++		/* Both tx vq and rx socket were polled here */
++		vhost_net_busy_poll(net, &nvq_rx->vq, &nvq_tx->vq, true);
+ 
+-		len = peek_head_len(rvq, sk);
++		len = peek_head_len(nvq_rx, sk);
+ 	}
+ 
+ 	return len;
+@@ -789,7 +799,7 @@ static void handle_rx(struct vhost_net *net)
+ 	__virtio16 num_buffers;
+ 	int recv_pkts = 0;
+ 
+-	mutex_lock_nested(&vq->mutex, 0);
++	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_RX);
+ 	sock = vq->private_data;
+ 	if (!sock)
+ 		goto out;
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 895eaa2..1716b10 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -294,8 +294,11 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < d->nvqs; ++i)
++	for (i = 0; i < d->nvqs; ++i) {
++		mutex_lock(&d->vqs[i]->mutex);
+ 		__vhost_vq_meta_reset(d->vqs[i]);
++		mutex_unlock(&d->vqs[i]->mutex);
++	}
+ }
+ 
+ static void vhost_vq_reset(struct vhost_dev *dev,
+@@ -887,19 +890,6 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
+ #define vhost_get_used(vq, x, ptr) \
+ 	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
+ 
+-static void vhost_dev_lock_vqs(struct vhost_dev *d)
+-{
+-	int i = 0;
+-	for (i = 0; i < d->nvqs; ++i)
+-		mutex_lock_nested(&d->vqs[i]->mutex, i);
+-}
+-
+-static void vhost_dev_unlock_vqs(struct vhost_dev *d)
+-{
+-	int i = 0;
+-	for (i = 0; i < d->nvqs; ++i)
+-		mutex_unlock(&d->vqs[i]->mutex);
+-}
+ 
+ static int vhost_new_umem_range(struct vhost_umem *umem,
+ 				u64 start, u64 size, u64 end,
+@@ -950,7 +940,11 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
+ 		if (msg->iova <= vq_msg->iova &&
+ 		    msg->iova + msg->size - 1 > vq_msg->iova &&
+ 		    vq_msg->type == VHOST_IOTLB_MISS) {
++
++			mutex_lock(&node->vq->mutex);
+ 			vhost_poll_queue(&node->vq->poll);
++			mutex_unlock(&node->vq->mutex);
++
+ 			list_del(&node->node);
+ 			kfree(node);
+ 		}
+@@ -982,7 +976,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ 	int ret = 0;
+ 
+ 	mutex_lock(&dev->mutex);
+-	vhost_dev_lock_vqs(dev);
+ 	switch (msg->type) {
+ 	case VHOST_IOTLB_UPDATE:
+ 		if (!dev->iotlb) {
+@@ -1016,7 +1009,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ 		break;
+ 	}
+ 
+-	vhost_dev_unlock_vqs(dev);
+ 	mutex_unlock(&dev->mutex);
+ 
+ 	return ret;
 -- 
-MST
+1.8.3.1
