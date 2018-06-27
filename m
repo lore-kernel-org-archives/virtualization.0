@@ -1,24 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [PATCH v34 2/4] virtio-balloon:
-	VIRTIO_BALLOON_F_FREE_PAGE_HINT
-Date: Wed, 27 Jun 2018 19:53:57 +0300
-Message-ID: <20180627192306-mutt-send-email-mst@kernel.org>
-References: <20180626002822-mutt-send-email-mst@kernel.org>
-	<5B31B71B.6080709@intel.com>
-	<20180626064338-mutt-send-email-mst@kernel.org>
-	<5B323140.1000306@intel.com>
-	<20180626163139-mutt-send-email-mst@kernel.org>
-	<5B32E742.8080902@intel.com>
-	<20180627053952-mutt-send-email-mst@kernel.org>
-	<5B32FDB5.4040506@intel.com>
-	<20180627065637-mutt-send-email-mst@kernel.org>
-	<5B33205B.2040702@intel.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 1/5] dt-bindings: virtio: Specify #iommu-cells value
+	for a virtio-iommu
+Date: Wed, 27 Jun 2018 11:46:32 -0600
+Message-ID: <CAL_JsqLdahF+2VsH9h658z9guO0XmqHM75QLaHApZLNP8twUNA__31732.2599156343$1530121498$gmane$org@mail.gmail.com>
+References: <20180621190655.56391-1-jean-philippe.brucker@arm.com>
+	<20180621190655.56391-2-jean-philippe.brucker@arm.com>
+	<20180625192753.GA22351@rob-hp-laptop>
+	<89d31865-ee35-ef8c-f7b3-f3acf2bbd30e@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5B33205B.2040702@intel.com>
+In-Reply-To: <89d31865-ee35-ef8c-f7b3-f3acf2bbd30e@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,116 +21,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, devicetree@vger.kernel.org, jayachandran.nair@cavium.com, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, tnowicki@caviumnetworks.com, kvm@vger.kernel.org, virtio-dev@lists.oasis-open.org, Joerg Roedel <joro@8bytes.org>, mst@redhat.com, Will Deacon <Will.Deacon@arm.com>, virtualization@lists.linux-foundation.org, Marc Zyngier <Marc.Zyngier@arm.com>, Linux IOMMU <iommu@lists.linux-foundation.org>, eric.auger@redhat.com, Robin Murphy <Robin.Murphy@arm.com>, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 27, 2018 at 01:27:55PM +0800, Wei Wang wrote:
-> On 06/27/2018 11:58 AM, Michael S. Tsirkin wrote:
-> > On Wed, Jun 27, 2018 at 11:00:05AM +0800, Wei Wang wrote:
-> > > On 06/27/2018 10:41 AM, Michael S. Tsirkin wrote:
-> > > > On Wed, Jun 27, 2018 at 09:24:18AM +0800, Wei Wang wrote:
-> > > > > On 06/26/2018 09:34 PM, Michael S. Tsirkin wrote:
-> > > > > > On Tue, Jun 26, 2018 at 08:27:44PM +0800, Wei Wang wrote:
-> > > > > > > On 06/26/2018 11:56 AM, Michael S. Tsirkin wrote:
-> > > > > > > > On Tue, Jun 26, 2018 at 11:46:35AM +0800, Wei Wang wrote:
-> > > > > > > > 
-> > > > > > > > > > > +	if (!arrays)
-> > > > > > > > > > > +		return NULL;
-> > > > > > > > > > > +
-> > > > > > > > > > > +	for (i = 0; i < max_array_num; i++) {
-> > > > > > > > > > So we are getting a ton of memory here just to free it up a bit later.
-> > > > > > > > > > Why doesn't get_from_free_page_list get the pages from free list for us?
-> > > > > > > > > > We could also avoid the 1st allocation then - just build a list
-> > > > > > > > > > of these.
-> > > > > > > > > That wouldn't be a good choice for us. If we check how the regular
-> > > > > > > > > allocation works, there are many many things we need to consider when pages
-> > > > > > > > > are allocated to users.
-> > > > > > > > > For example, we need to take care of the nr_free
-> > > > > > > > > counter, we need to check the watermark and perform the related actions.
-> > > > > > > > > Also the folks working on arch_alloc_page to monitor page allocation
-> > > > > > > > > activities would get a surprise..if page allocation is allowed to work in
-> > > > > > > > > this way.
-> > > > > > > > > 
-> > > > > > > > mm/ code is well positioned to handle all this correctly.
-> > > > > > > I'm afraid that would be a re-implementation of the alloc functions,
-> > > > > > A re-factoring - you can share code. The main difference is locking.
-> > > > > > 
-> > > > > > > and
-> > > > > > > that would be much more complex than what we have. I think your idea of
-> > > > > > > passing a list of pages is better.
-> > > > > > > 
-> > > > > > > Best,
-> > > > > > > Wei
-> > > > > > How much memory is this allocating anyway?
-> > > > > > 
-> > > > > For every 2TB memory that the guest has, we allocate 4MB.
-> > > > Hmm I guess I'm missing something, I don't see it:
-> > > > 
-> > > > 
-> > > > +       max_entries = max_free_page_blocks(ARRAY_ALLOC_ORDER);
-> > > > +       entries_per_page = PAGE_SIZE / sizeof(__le64);
-> > > > +       entries_per_array = entries_per_page * (1 << ARRAY_ALLOC_ORDER);
-> > > > +       max_array_num = max_entries / entries_per_array +
-> > > > +                       !!(max_entries % entries_per_array);
-> > > > 
-> > > > Looks like you always allocate the max number?
-> > > Yes. We allocated the max number and then free what's not used.
-> > > For example, a 16TB guest, we allocate Four 4MB buffers and pass the 4
-> > > buffers to get_from_free_page_list. If it uses 3, then the remaining 1 "4MB
-> > > buffer" will end up being freed.
-> > > 
-> > > For today's guests, max_array_num is usually 1.
-> > > 
-> > > Best,
-> > > Wei
-> > I see, it's based on total ram pages. It's reasonable but might
-> > get out of sync if memory is onlined quickly. So you want to
-> > detect that there's more free memory than can fit and
-> > retry the reporting.
-> > 
-> 
-> 
-> - AFAIK, memory hotplug isn't expected to happen during live migration
-> today. Hypervisors (e.g. QEMU) explicitly forbid this.
+On Tue, Jun 26, 2018 at 11:59 AM Jean-Philippe Brucker
+<jean-philippe.brucker@arm.com> wrote:
+>
+> On 25/06/18 20:27, Rob Herring wrote:
+> > On Thu, Jun 21, 2018 at 08:06:51PM +0100, Jean-Philippe Brucker wrote:
+> >> A virtio-mmio node may represent a virtio-iommu device. This is discovered
+> >> by the virtio driver at probe time, but the DMA topology isn't
+> >> discoverable and must be described by firmware. For DT the standard IOMMU
+> >> description is used, as specified in bindings/iommu/iommu.txt and
+> >> bindings/pci/pci-iommu.txt. Like many other IOMMUs, virtio-iommu
+> >> distinguishes masters by their endpoint IDs, which requires one IOMMU cell
+> >> in the "iommus" property.
+> >>
+> >> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+> >> ---
+> >>  Documentation/devicetree/bindings/virtio/mmio.txt | 8 ++++++++
+> >>  1 file changed, 8 insertions(+)
+> >>
+> >> diff --git a/Documentation/devicetree/bindings/virtio/mmio.txt b/Documentation/devicetree/bindings/virtio/mmio.txt
+> >> index 5069c1b8e193..337da0e3a87f 100644
+> >> --- a/Documentation/devicetree/bindings/virtio/mmio.txt
+> >> +++ b/Documentation/devicetree/bindings/virtio/mmio.txt
+> >> @@ -8,6 +8,14 @@ Required properties:
+> >>  - reg:              control registers base address and size including configuration space
+> >>  - interrupts:       interrupt generated by the device
+> >>
+> >> +Required properties for virtio-iommu:
+> >> +
+> >> +- #iommu-cells:     When the node describes a virtio-iommu device, it is
+> >> +            linked to DMA masters using the "iommus" property as
+> >> +            described in devicetree/bindings/iommu/iommu.txt. For
+> >> +            virtio-iommu #iommu-cells must be 1, each cell describing
+> >> +            a single endpoint ID.
+> >
+> > The iommus property should also be documented for the client side.
+>
+> Isn't section "IOMMU master node" of iommu.txt sufficient? Since the
+> iommus property applies to any DMA master, not only virtio-mmio devices,
+> the canonical description in iommu.txt seems the best place for it, and
+> I'm not sure what to add in this file. Maybe a short example below the
+> virtio_block one?
 
-That's a temporary limitation.
+No, because somewhere we have to capture if 'iommus' is valid for
+'virtio-mmio' or not. Hopefully soon we'll actually be able to
+validate that.
 
-> - Allocating buffers based on total ram pages already gives some headroom
-> for newly plugged memory if that could happen in any case. Also, we can
-> think about why people plug in more memory - usually because the existing
-> memory isn't enough, which implies that the free page list is very likely to
-> be close to empty.
-
-Or maybe because guest is expected to use more memory.
-
-> - This method could be easily scaled if people really need more headroom for
-> hot-plugged memory. For example, calculation based on "X * total_ram_pages",
-> X could be a number passed from the hypervisor.
-
-All this in place of a simple retry loop within guest?
-
-> - This is an optimization feature, and reporting less free memory in that
-> rare case doesn't hurt anything.
-
-People working on memory hotplug can't be expected to worry about
-balloon. And maintainers have other things to do than debug hard to
-trigger failure reports from the field.
-
-> 
-> So I think it is good to start from a fundamental implementation, which
-> doesn't confuse people, and complexities can be added when there is a real
-> need in the future.
-> 
-> Best,
-> Wei
-
-The usefulness of the whole patchset hasn't been proven in the field yet.
-The more uncovered corner cases there are, the higher the chance that
-it will turn out not to be useful after all.
-
-> 
-> 
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+Rob
