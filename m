@@ -1,16 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v2] net: vhost: improve performance when enable
-	busyloop
-Date: Wed, 27 Jun 2018 18:58:24 +0300
-Message-ID: <20180627185543-mutt-send-email-mst__46403.7978476428$1530114997$gmane$org@kernel.org>
-References: <1529990276-61157-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<369bea44-6ebd-337a-b20b-a28a604fa2e9@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH v33 1/4] mm: add a function to get free page blocks
+Date: Wed, 27 Jun 2018 09:05:39 -0700
+Message-ID: <CA+55aFwFpDPvfL=KPdabO-x1r0FnwpfPk5oN8+e01TKqAPNYbw@mail.gmail.com>
+References: <1529037793-35521-1-git-send-email-wei.w.wang@intel.com>
+	<1529037793-35521-2-git-send-email-wei.w.wang@intel.com>
+	<CA+55aFzhuGKinEq5udPsk_uYHShkQxJYqcPO=tLCkT-oxpsgPg@mail.gmail.com>
+	<20180626045118-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <369bea44-6ebd-337a-b20b-a28a604fa2e9@redhat.com>
+In-Reply-To: <20180626045118-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,37 +20,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, Tonghao Zhang <zhangtonghao@didichuxing.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, Rik van Riel <riel@redhat.com>, quan.xu0@gmail.com, KVM list <kvm@vger.kernel.org>, nilal@redhat.com, liliang.opensource@gmail.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-mm <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKdW4gMjcsIDIwMTggYXQgMTA6MjQ6NDNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDbmnIgyNuaXpSAxMzoxNywgeGlhbmd4aWEubS55dWVAZ21h
-aWwuY29tIHdyb3RlOgo+ID4gRnJvbTogVG9uZ2hhbyBaaGFuZyA8eGlhbmd4aWEubS55dWVAZ21h
-aWwuY29tPgo+ID4gCj4gPiBUaGlzIHBhdGNoIGltcHJvdmVzIHRoZSBndWVzdCByZWNlaXZlIHBl
-cmZvcm1hbmNlIGZyb20KPiA+IGhvc3QuIE9uIHRoZSBoYW5kbGVfdHggc2lkZSwgd2UgcG9sbCB0
-aGUgc29jayByZWNlaXZlCj4gPiBxdWV1ZSBhdCB0aGUgc2FtZSB0aW1lLiBoYW5kbGVfcnggZG8g
-dGhhdCBpbiB0aGUgc2FtZSB3YXkuCj4gPiAKPiA+IEZvciBhdm9pZGluZyBkZWFkbG9jaywgY2hh
-bmdlIHRoZSBjb2RlIHRvIGxvY2sgdGhlIHZxIG9uZQo+ID4gYnkgb25lIGFuZCB1c2UgdGhlIFZI
-T1NUX05FVF9WUV9YWCBhcyBhIHN1YmNsYXNzIGZvcgo+ID4gbXV0ZXhfbG9ja19uZXN0ZWQuIFdp
-dGggdGhlIHBhdGNoLCBxZW11IGNhbiBzZXQgZGlmZmVyZW50bHkKPiA+IHRoZSBidXN5bG9vcF90
-aW1lb3V0IGZvciByeCBvciB0eCBxdWV1ZS4KPiA+IAo+ID4gV2Ugc2V0IHRoZSBwb2xsLXVzPTEw
-MHVzIGFuZCB1c2UgdGhlIGlwZXJmMyB0byB0ZXN0Cj4gPiBpdHMgdGhyb3VnaHB1dC4gVGhlIGlw
-ZXJmMyBjb21tYW5kIGlzIHNob3duIGFzIGJlbG93Lgo+ID4gCj4gPiBvbiB0aGUgZ3Vlc3Q6Cj4g
-PiBpcGVyZjMgIC1zIC1ECj4gPiAKPiA+IG9uIHRoZSBob3N0Ogo+ID4gaXBlcmYzICAtYyAxOTIu
-MTY4LjEuMTAwIC1pIDEgLVAgMTAgLXQgMTAgLU0gMTQwMAo+ID4gCj4gPiAqIFdpdGggdGhlIHBh
-dGNoOiAgICAgMjMuMSBHYml0cy9zZWMKPiA+ICogV2l0aG91dCB0aGUgcGF0Y2g6ICAxMi43IEdi
-aXRzL3NlYwo+ID4gCj4gPiBTaWduZWQtb2ZmLWJ5OiBUb25naGFvIFpoYW5nIDx6aGFuZ3Rvbmdo
-YW9AZGlkaWNodXhpbmcuY29tPgo+IAo+IFRoYW5rcyBhIGxvdCBmb3IgdGhlIHBhdGNoLiBMb29r
-cyBnb29kIGdlbmVyYWxseSwgYnV0IHBsZWFzZSBzcGxpdCB0aGlzIGJpZwo+IHBhdGNoIGludG8g
-c2VwYXJhdGUgb25lcyBsaWtlOgo+IAo+IHBhdGNoIDE6IGxvY2sgdnFzIG9uZSBieSBvbmUKPiBw
-YXRjaCAyOiByZXBsYWNlIG1hZ2ljIG51bWJlciBvZiBsb2NrIGFubm90YXRpb24KPiBwYXRjaCAz
-OiBmYWN0b3Igb3V0IGdlbmVyaWMgYnVzeSBwb2xsaW5nIGxvZ2ljIHRvIHZob3N0X25ldF9idXN5
-X3BvbGwoKQo+IHBhdGNoIDQ6IGFkZCByeCBidXN5IHBvbGxpbmcgaW4gdHggcGF0aC4KPiAKPiBB
-bmQgcGxlYXNlIGNjIE1pY2hhZWwgaW4gdjMuCj4gCj4gVGhhbmtzCgpQbHMgaW5jbHVkZSBob3N0
-IENQVSB1dGlsaXphdGlvbiBudW1iZXJzLiBZb3UgY2FuIGdldCB0aGVtIGUuZy4gdXNpbmcKdm1z
-dGF0LiBJIHN1c3BlY3Qgd2UgYWxzbyB3YW50IHRoZSBwb2xsaW5nIGNvbnRyb2xsYWJsZSBlLmcu
-IHRocm91Z2gKYW4gaW9jdGwuCgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+[ Sorry for slow reply, my travels have made a mess of my inbox ]
+
+On Mon, Jun 25, 2018 at 6:55 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> Linus, do you think it would be ok to have get_from_free_page_list
+> actually pop entries from the free list and use them as the buffer
+> to store PAs?
+
+Honestly, what I think the best option would be is to get rid of this
+interface *entirely*, and just have the balloon code do
+
+    #define GFP_MINFLAGS (__GFP_NORETRY | __GFP_NOWARN |
+__GFP_THISNODE | __GFP_NOMEMALLOC)
+
+    struct page *page =  alloc_pages(GFP_MINFLAGS, MAX_ORDER-1);
+
+ which is not a new interface, and simply removes the max-order page
+from the list if at all possible.
+
+The above has the advantage of "just working", and not having any races.
+
+Now, because you don't want to necessarily *entirely* deplete the max
+order, I'd suggest that the *one* new interface you add is just a "how
+many max-order pages are there" interface. So then you can query
+(either before or after getting the max-order page) just how many of
+them there were and whether you want to give that page back.
+
+Notice? No need for any page lists or physical addresses. No races. No
+complex new functions.
+
+The physical address you can just get from the "struct page" you got.
+
+And if you run out of memory because of getting a page, you get all
+the usual "hey, we ran out of memory" responses..
+
+Wouldn't the above be sufficient?
+
+            Linus
