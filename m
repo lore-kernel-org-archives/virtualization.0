@@ -1,8 +1,8 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+From: Siwei Liu <loseweigh@gmail.com>
 Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
 	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Tue, 26 Jun 2018 23:49:28 -0700
-Message-ID: <19654612-a321-2ce9-9c1c-bcbae3a10e2f__17208.5558683195$1530082049$gmane$org@intel.com>
+Date: Wed, 27 Jun 2018 00:03:26 -0700
+Message-ID: <CADGSJ20jt8Ln_xcB4B9GD5dizSMNEDiSwvx5P0Mbg=aT-MQ2TQ@mail.gmail.com>
 References: <CADGSJ23SBEFJCD50K-F-Gt86Q1-i_6iHTmSSjdXDzNnnpWZ_oQ@mail.gmail.com>
 	<CADGSJ22nLcz_XaJNzUUdpjQaJY8b5wZs=ohm=B7c2qf2K7_yGA@mail.gmail.com>
 	<20180623002628-mutt-send-email-mst@kernel.org>
@@ -15,12 +15,12 @@ References: <CADGSJ23SBEFJCD50K-F-Gt86Q1-i_6iHTmSSjdXDzNnnpWZ_oQ@mail.gmail.com>
 	<CADGSJ204fgdnafRsrzMVh+SeBCj3-z_twS9B+7g8iiOaUQGW5g@mail.gmail.com>
 	<20180627032825-mutt-send-email-mst@kernel.org>
 	<CADGSJ22Sv_AFUkDou6hdq9++RNC40BTB-puS9209tOqzGLFJ-g@mail.gmail.com>
+	<19654612-a321-2ce9-9c1c-bcbae3a10e2f@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CADGSJ22Sv_AFUkDou6hdq9++RNC40BTB-puS9209tOqzGLFJ-g@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <19654612-a321-2ce9-9c1c-bcbae3a10e2f@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -30,52 +30,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Venu Busireddy <venu.busireddy@oracle.com>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
+To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Venu Busireddy <venu.busireddy@oracle.com>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gNi8yNi8yMDE4IDExOjIxIFBNLCBTaXdlaSBMaXUgd3JvdGU6Cj4gT24gVHVlLCBKdW4gMjYs
-IDIwMTggYXQgNToyOSBQTSwgTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4gd3Jv
-dGU6Cj4+IE9uIFR1ZSwgSnVuIDI2LCAyMDE4IGF0IDA0OjM4OjI2UE0gLTA3MDAsIFNpd2VpIExp
-dSB3cm90ZToKPj4+IE9uIE1vbiwgSnVuIDI1LCAyMDE4IGF0IDY6NTAgUE0sIE1pY2hhZWwgUy4g
-VHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+IHdyb3RlOgo+Pj4+IE9uIE1vbiwgSnVuIDI1LCAyMDE4
-IGF0IDEwOjU0OjA5QU0gLTA3MDAsIFNhbXVkcmFsYSwgU3JpZGhhciB3cm90ZToKPj4+Pj4+Pj4+
-IE1pZ2h0IG5vdCBuZWNjZXNzYXJpbHkgYmUgc29tZXRoaW5nIHdyb25nLCBidXQgaXQncyB2ZXJ5
-IGxpbWl0ZWQgdG8KPj4+Pj4+Pj4+IHByb2hpYml0IHRoZSBNQUMgb2YgVkYgZnJvbSBjaGFuZ2lu
-ZyB3aGVuIGVuc2xhdmVkIGJ5IGZhaWxvdmVyLgo+Pj4+Pj4+PiBZb3UgbWVhbiBndWVzdCBjaGFu
-Z2luZyBNQUM/IEknbSBub3Qgc3VyZSB3aHkgd2UgcHJvaGliaXQgdGhhdC4KPj4+Pj4+PiBJIHRo
-aW5rIFNyaWRoYXIgYW5kIEppcmkgbWlnaHQgYmUgYmV0dGVyIHBlcnNvbiB0byBhbnN3ZXIgaXQu
-IE15Cj4+Pj4+Pj4gaW1wcmVzc2lvbiB3YXMgdGhhdCBzeW5jJ2luZyB0aGUgTUFDIGFkZHJlc3Mg
-Y2hhbmdlIGJldHdlZW4gYWxsIDMKPj4+Pj4+PiBkZXZpY2VzIGlzIGNoYWxsZW5naW5nLCBhcyB0
-aGUgZmFpbG92ZXIgZHJpdmVyIHVzZXMgTUFDIGFkZHJlc3MgdG8KPj4+Pj4+PiBtYXRjaCBuZXRf
-ZGV2aWNlIGludGVybmFsbHkuCj4+Pj4+IFllcy4gVGhlIE1BQyBhZGRyZXNzIGlzIGFzc2lnbmVk
-IGJ5IHRoZSBoeXBlcnZpc29yIGFuZCBpdCBuZWVkcyB0byBtYW5hZ2UgdGhlIG1vdmVtZW50Cj4+
-Pj4+IG9mIHRoZSBNQUMgYmV0d2VlbiB0aGUgUEYgYW5kIFZGLiAgQWxsb3dpbmcgdGhlIGd1ZXN0
-IHRvIGNoYW5nZSB0aGUgTUFDIHdpbGwgcmVxdWlyZQo+Pj4+PiBzeW5jaHJvbml6YXRpb24gYmV0
-d2VlbiB0aGUgaHlwZXJ2aXNvciBhbmQgdGhlIFBGL1ZGIGRyaXZlcnMuIE1vc3Qgb2YgdGhlIFZG
-IGRyaXZlcnMKPj4+Pj4gZG9uJ3QgYWxsb3cgY2hhbmdpbmcgZ3Vlc3QgTUFDIHVubGVzcyBpdCBp
-cyBhIHRydXN0ZWQgVkYuCj4+Pj4gT0sgYnV0IGl0J3MgYSBwb2xpY3kgdGhpbmcuIE1heWJlIGl0
-J3MgYSB0cnVzdGVkIFZGLiBXaG8ga25vd3M/Cj4+Pj4gRm9yIGV4YW1wbGUgSSBjYW4gc2VlIGhv
-c3QganVzdAo+Pj4+IGZhaWxpbmcgVklSVElPX05FVF9DVFJMX01BQ19BRERSX1NFVCBpZiBpdCB3
-YW50cyB0byBibG9jayBpdC4KPj4+PiBJJ20gbm90IHN1cmUgd2h5IFZJUlRJT19ORVRfRl9TVEFO
-REJZIGhhcyB0byBibG9jayBpdCBpbiB0aGUgZ3Vlc3QuCj4+PiBUaGF0J3Mgd2h5IEkgdGhpbmsg
-cGFpcmluZyB1c2luZyBNQUMgaXMgZnJhZ2lsZSBJTUhPLiBXaGVuIFZGJ3MgTUFDCj4+PiBnb3Qg
-Y2hhbmdlZCBiZWZvcmUgdmlydGlvIGF0dGVtcHRzIHRvIG1hdGNoIGFuZCBwYWlyIHRoZSBkZXZp
-Y2UsIGl0Cj4+PiBlbmRzIHVwIHdpdGggbm8gcGFpcmluZyBmb3VuZCBvdXQgYXQgYWxsLgo+PiBH
-dWVzdCBzZWVtcyB0byBtYXRjaCBvbiB0aGUgaGFyZHdhcmUgbWFjIGFuZCBpZ25vcmUgd2hhdGV2
-ZXIKPj4gaXMgc2V0IGJ5IHVzZXIuIE1ha2VzIHNlbnNlIHRvIG1lIGFuZCBzaG91bGQgbm90IGJl
-IGZyYWdpbGUuCj4gSG9zdCBjYW4gY2hhbmdlIHRoZSBoYXJkd2FyZSBtYWMgZm9yIFZGIGFueSB0
-aW1lLgoKTGl2ZSBtaWdyYXRpb24gaXMgaW5pdGlhdGVkIGFuZCBjb250cm9sbGVkIGJ5IHRoZSBI
-b3N0LMKgIFNvIHRoZSBTb3VyY2UgSG9zdCB3aWxsCnJlc2V0IHRoZSBNQUMgZHVyaW5nIGxpdmUg
-bWlncmF0aW9uIGFmdGVyIHVucGx1Z2dpbmcgdGhlIFZGLiBUaGlzIGlzIHRvIHJlZGlyZWN0IHRo
-ZQpWTXMgZnJhbWVzIHRvd2FyZHMgUEYgc28gdGhhdCB0aGV5IGNhbiBiZSByZWNlaXZlZCB2aWEg
-dmlydGlvLW5ldCBzdGFuZGJ5IGludGVyZmFjZS4KVGhlIGRlc3RpbmF0aW9uIGhvc3Qgd2lsbCBz
-ZXQgdGhlIFZGIE1BQyBhbmQgcGx1ZyB0aGUgVkYgYWZ0ZXIgbGl2ZSBtaWdyYXRpb24gaXMKY29t
-cGxldGVkLgoKQWxsb3dpbmcgdGhlIGd1ZXN0IHRvIGNoYW5nZSB0aGUgTUFDIHdpbGwgcmVxdWly
-ZSB0aGUgcWVtdS9saWJ2aXJ0L21nbXQgbGF5ZXJzIHRvCnRyYWNrIHRoZSBNQUMgY2hhbmdlcyBh
-bmQgcmVwbGF5IHRoYXQgY2hhbmdlIGFmdGVyIGxpdmUgbWlncmF0aW9uLgoKCj4KPiAtU2l3ZWkK
-Pj4KPj4+IFVVSUQgaXMgYmV0dGVyLgo+Pj4KPj4+IC1TaXdlaQo+Pj4KPj4+PiAtLQo+Pj4+IE1T
-VAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+On Tue, Jun 26, 2018 at 11:49 PM, Samudrala, Sridhar
+<sridhar.samudrala@intel.com> wrote:
+> On 6/26/2018 11:21 PM, Siwei Liu wrote:
+>>
+>> On Tue, Jun 26, 2018 at 5:29 PM, Michael S. Tsirkin <mst@redhat.com>
+>> wrote:
+>>>
+>>> On Tue, Jun 26, 2018 at 04:38:26PM -0700, Siwei Liu wrote:
+>>>>
+>>>> On Mon, Jun 25, 2018 at 6:50 PM, Michael S. Tsirkin <mst@redhat.com>
+>>>> wrote:
+>>>>>
+>>>>> On Mon, Jun 25, 2018 at 10:54:09AM -0700, Samudrala, Sridhar wrote:
+>>>>>>>>>>
+>>>>>>>>>> Might not neccessarily be something wrong, but it's very limited
+>>>>>>>>>> to
+>>>>>>>>>> prohibit the MAC of VF from changing when enslaved by failover.
+>>>>>>>>>
+>>>>>>>>> You mean guest changing MAC? I'm not sure why we prohibit that.
+>>>>>>>>
+>>>>>>>> I think Sridhar and Jiri might be better person to answer it. My
+>>>>>>>> impression was that sync'ing the MAC address change between all 3
+>>>>>>>> devices is challenging, as the failover driver uses MAC address to
+>>>>>>>> match net_device internally.
+>>>>>>
+>>>>>> Yes. The MAC address is assigned by the hypervisor and it needs to
+>>>>>> manage the movement
+>>>>>> of the MAC between the PF and VF.  Allowing the guest to change the
+>>>>>> MAC will require
+>>>>>> synchronization between the hypervisor and the PF/VF drivers. Most of
+>>>>>> the VF drivers
+>>>>>> don't allow changing guest MAC unless it is a trusted VF.
+>>>>>
+>>>>> OK but it's a policy thing. Maybe it's a trusted VF. Who knows?
+>>>>> For example I can see host just
+>>>>> failing VIRTIO_NET_CTRL_MAC_ADDR_SET if it wants to block it.
+>>>>> I'm not sure why VIRTIO_NET_F_STANDBY has to block it in the guest.
+>>>>
+>>>> That's why I think pairing using MAC is fragile IMHO. When VF's MAC
+>>>> got changed before virtio attempts to match and pair the device, it
+>>>> ends up with no pairing found out at all.
+>>>
+>>> Guest seems to match on the hardware mac and ignore whatever
+>>> is set by user. Makes sense to me and should not be fragile.
+>>
+>> Host can change the hardware mac for VF any time.
+>
+>
+> Live migration is initiated and controlled by the Host,  So the Source Host
+> will
+> reset the MAC during live migration after unplugging the VF. This is to
+> redirect the
+> VMs frames towards PF so that they can be received via virtio-net standby
+> interface.
+> The destination host will set the VF MAC and plug the VF after live
+> migration is
+> completed.
+>
+> Allowing the guest to change the MAC will require the qemu/libvirt/mgmt
+> layers to
+> track the MAC changes and replay that change after live migration.
+>
+If the failover's MAC is kept in sync with VF's MAC address change,
+the VF on destination host can be paired using the permanent address
+after plugging in, while failover interface will resync the MAC to the
+current one in use when enslaving the VF. I think similar is done for
+multicast and unicast address list on VF's registration, right? No
+need of QEMU or mgmt software keep track of MAC changes.
+
+-Siwei
+
+>
+>
+>>
+>> -Siwei
+>>>
+>>>
+>>>> UUID is better.
+>>>>
+>>>> -Siwei
+>>>>
+>>>>> --
+>>>>> MST
+>
+>
