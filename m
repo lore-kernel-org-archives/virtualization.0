@@ -1,24 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [Qemu-devel] [PATCH] qemu: Introduce
-	VIRTIO_NET_F_STANDBY feature bit to virtio_net
-Date: Wed, 27 Jun 2018 03:29:19 +0300
-Message-ID: <20180627032825-mutt-send-email-mst__11260.8586125591$1530059241$gmane$org@kernel.org>
-References: <CADGSJ23SBEFJCD50K-F-Gt86Q1-i_6iHTmSSjdXDzNnnpWZ_oQ@mail.gmail.com>
-	<CADGSJ22nLcz_XaJNzUUdpjQaJY8b5wZs=ohm=B7c2qf2K7_yGA@mail.gmail.com>
-	<20180623002628-mutt-send-email-mst@kernel.org>
-	<CADGSJ20td7b6He6S1PBSJjCq=bNvgqMGbOjiho2eeQm2pgpK3g@mail.gmail.com>
-	<20180623012406-mutt-send-email-mst@kernel.org>
-	<CADGSJ211pWKYnuuzcgUqJZiHU+=7H3oQSpp1TnE=+EBjkdmCSQ@mail.gmail.com>
-	<CADGSJ22DX8=rNPY+gNS_q=LCYLR5ieoE7oD8p4+8AnpzQsWSCg@mail.gmail.com>
-	<da144f8f-65cd-45d9-3c81-6c8ca1fb25fe@intel.com>
-	<20180626044650-mutt-send-email-mst@kernel.org>
-	<CADGSJ204fgdnafRsrzMVh+SeBCj3-z_twS9B+7g8iiOaUQGW5g@mail.gmail.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v34 2/4] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Wed, 27 Jun 2018 09:24:18 +0800
+Message-ID: <5B32E742.8080902@intel.com>
+References: <1529928312-30500-1-git-send-email-wei.w.wang@intel.com>
+	<1529928312-30500-3-git-send-email-wei.w.wang@intel.com>
+	<20180626002822-mutt-send-email-mst@kernel.org>
+	<5B31B71B.6080709@intel.com>
+	<20180626064338-mutt-send-email-mst@kernel.org>
+	<5B323140.1000306@intel.com>
+	<20180626163139-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CADGSJ204fgdnafRsrzMVh+SeBCj3-z_twS9B+7g8iiOaUQGW5g@mail.gmail.com>
+In-Reply-To: <20180626163139-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,43 +23,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Siwei Liu <loseweigh@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev@lists.oasis-open.org, Jiri Pirko <jiri@resnulli.us>, konrad.wilk@oracle.com, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Venu Busireddy <venu.busireddy@oracle.com>, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, aaron.f.brown@intel.com, Joao Martins <joao.m.martins@oracle.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 26, 2018 at 04:38:26PM -0700, Siwei Liu wrote:
-> On Mon, Jun 25, 2018 at 6:50 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Mon, Jun 25, 2018 at 10:54:09AM -0700, Samudrala, Sridhar wrote:
-> >> > > > > Might not neccessarily be something wrong, but it's very limited to
-> >> > > > > prohibit the MAC of VF from changing when enslaved by failover.
-> >> > > > You mean guest changing MAC? I'm not sure why we prohibit that.
-> >> > > I think Sridhar and Jiri might be better person to answer it. My
-> >> > > impression was that sync'ing the MAC address change between all 3
-> >> > > devices is challenging, as the failover driver uses MAC address to
-> >> > > match net_device internally.
-> >>
-> >> Yes. The MAC address is assigned by the hypervisor and it needs to manage the movement
-> >> of the MAC between the PF and VF.  Allowing the guest to change the MAC will require
-> >> synchronization between the hypervisor and the PF/VF drivers. Most of the VF drivers
-> >> don't allow changing guest MAC unless it is a trusted VF.
-> >
-> > OK but it's a policy thing. Maybe it's a trusted VF. Who knows?
-> > For example I can see host just
-> > failing VIRTIO_NET_CTRL_MAC_ADDR_SET if it wants to block it.
-> > I'm not sure why VIRTIO_NET_F_STANDBY has to block it in the guest.
-> 
-> That's why I think pairing using MAC is fragile IMHO. When VF's MAC
-> got changed before virtio attempts to match and pair the device, it
-> ends up with no pairing found out at all.
+On 06/26/2018 09:34 PM, Michael S. Tsirkin wrote:
+> On Tue, Jun 26, 2018 at 08:27:44PM +0800, Wei Wang wrote:
+>> On 06/26/2018 11:56 AM, Michael S. Tsirkin wrote:
+>>> On Tue, Jun 26, 2018 at 11:46:35AM +0800, Wei Wang wrote:
+>>>
+>>>>>> +	if (!arrays)
+>>>>>> +		return NULL;
+>>>>>> +
+>>>>>> +	for (i = 0; i < max_array_num; i++) {
+>>>>> So we are getting a ton of memory here just to free it up a bit later.
+>>>>> Why doesn't get_from_free_page_list get the pages from free list for us?
+>>>>> We could also avoid the 1st allocation then - just build a list
+>>>>> of these.
+>>>> That wouldn't be a good choice for us. If we check how the regular
+>>>> allocation works, there are many many things we need to consider when pages
+>>>> are allocated to users.
+>>>> For example, we need to take care of the nr_free
+>>>> counter, we need to check the watermark and perform the related actions.
+>>>> Also the folks working on arch_alloc_page to monitor page allocation
+>>>> activities would get a surprise..if page allocation is allowed to work in
+>>>> this way.
+>>>>
+>>> mm/ code is well positioned to handle all this correctly.
+>> I'm afraid that would be a re-implementation of the alloc functions,
+> A re-factoring - you can share code. The main difference is locking.
+>
+>> and
+>> that would be much more complex than what we have. I think your idea of
+>> passing a list of pages is better.
+>>
+>> Best,
+>> Wei
+> How much memory is this allocating anyway?
+>
 
-Guest seems to match on the hardware mac and ignore whatever
-is set by user. Makes sense to me and should not be fragile.
+For every 2TB memory that the guest has, we allocate 4MB. This is the 
+same for both cases.
+For today's guests, usually there will be only one 4MB allocated and 
+passed to get_from_free_page_list.
 
-
-> UUID is better.
-> 
-> -Siwei
-> 
-> >
-> > --
-> > MST
+Best,
+Wei
