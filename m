@@ -1,15 +1,18 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [PATCH v2 0/5] Add virtio-iommu driver
-Date: Wed, 27 Jun 2018 19:04:46 +0100
-Message-ID: <2bcda195-d2c6-fbf0-322e-d91756fc3547__31989.8078837015$1530122598$gmane$org@arm.com>
-References: <20180621190655.56391-1-jean-philippe.brucker@arm.com>
-	<20180626210132-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v33 1/4] mm: add a function to get free page blocks
+Date: Wed, 27 Jun 2018 22:07:02 +0300
+Message-ID: <20180627220402-mutt-send-email-mst@kernel.org>
+References: <1529037793-35521-1-git-send-email-wei.w.wang@intel.com>
+	<1529037793-35521-2-git-send-email-wei.w.wang@intel.com>
+	<CA+55aFzhuGKinEq5udPsk_uYHShkQxJYqcPO=tLCkT-oxpsgPg@mail.gmail.com>
+	<20180626045118-mutt-send-email-mst@kernel.org>
+	<CA+55aFwFpDPvfL=KPdabO-x1r0FnwpfPk5oN8+e01TKqAPNYbw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180626210132-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CA+55aFwFpDPvfL=KPdabO-x1r0FnwpfPk5oN8+e01TKqAPNYbw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,68 +22,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Mark Rutland <Mark.Rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "joro@8bytes.org" <joro@8bytes.org>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Marc Zyngier <Marc.Zyngier@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, Robin Murphy <Robin.Murphy@arm.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, Rik van Riel <riel@redhat.com>, quan.xu0@gmail.com, KVM list <kvm@vger.kernel.org>, nilal@redhat.com, liliang.opensource@gmail.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-mm <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 26/06/18 19:07, Michael S. Tsirkin wrote:
-> So as I pointed out new virtio 0 device isn't really welcome ;)
+On Wed, Jun 27, 2018 at 09:05:39AM -0700, Linus Torvalds wrote:
+> [ Sorry for slow reply, my travels have made a mess of my inbox ]
+> 
+> On Mon, Jun 25, 2018 at 6:55 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > Linus, do you think it would be ok to have get_from_free_page_list
+> > actually pop entries from the free list and use them as the buffer
+> > to store PAs?
+> 
+> Honestly, what I think the best option would be is to get rid of this
+> interface *entirely*, and just have the balloon code do
+> 
+>     #define GFP_MINFLAGS (__GFP_NORETRY | __GFP_NOWARN |
+> __GFP_THISNODE | __GFP_NOMEMALLOC)
+> 
+>     struct page *page =  alloc_pages(GFP_MINFLAGS, MAX_ORDER-1);
+> 
+>  which is not a new interface, and simply removes the max-order page
+> from the list if at all possible.
+> 
+> The above has the advantage of "just working", and not having any races.
+> 
+> Now, because you don't want to necessarily *entirely* deplete the max
+> order, I'd suggest that the *one* new interface you add is just a "how
+> many max-order pages are there" interface. So then you can query
+> (either before or after getting the max-order page) just how many of
+> them there were and whether you want to give that page back.
+> 
+> Notice? No need for any page lists or physical addresses. No races. No
+> complex new functions.
+> 
+> The physical address you can just get from the "struct page" you got.
+> 
+> And if you run out of memory because of getting a page, you get all
+> the usual "hey, we ran out of memory" responses..
+> 
+> Wouldn't the above be sufficient?
+> 
+>             Linus
 
-Agreed, virtio-iommu is expected to be implemented on virtio 1 and
-later. I'll remove the two legacy-related paragraph from the spec and
-add a check in the driver as you suggested, to avoid giving the wrong idea.
+I think so, thanks!
 
-> No one bothered implementing virtio 1 in MMIO for all the work
-> that was put in defining it.
+Wei, to put it in balloon terms, I think there's one thing we missed: if
+you do manage to allocate a page, and you don't have a use for it, then
+hey, you can just give it to the host because you know it's free - you
+are going to return it to the free list.
 
-That is curious, given that the virtio_mmio driver supports virtio 1 and
-from my own experience, porting the MMIO transport to virtio 1 only
-requires updating a few registers, when ANY_LAYOUT, modern virtqueue and
-status are already implemented.
-
-> The fact that the MMIO part of the
-> spec doesn't seem to allow for transitional devices might
-> or might not have something to do with this.
-
-Sorry, which part do you have in mind? The spec does provide both a
-legacy and modern register layout, with version numbers to differentiate
-them.
-
-> So why make it an MMIO device at all? A system with an IOMMU
-> will have a PCI bus, won't it? And it's pretty common to
-> have the IOMMU be a PCI device on the root bus.
-Having the IOMMU outside PCI seems more common though. On Arm and Intel
-the IOMMU doesn't have a PCI config space, BARs or capabilities, just a
-plain MMIO region and a static number of interrupts. However the AMD
-IOMMU appears as a PCI device with additional MMIO registers. I would be
-interested in implementing virtio-iommu as a PCI dev at some point, at
-least so that we can use MSI-X.
-
-The problem is that it requires invasive changes in the firmware
-interfaces and drivers. They need to describe relationship between IOMMU
-and endpoint, and DT or ACPI IORT don't expect the programming interface
-to be inside the PCI bus that the IOMMU manages. Describing it as a
-peripheral is more natural. For AMD it is implemented in their driver
-using IVHD tables that can't be reused. Right now I don't expect any
-success in proposing changes to firmware interfaces or drivers, because
-the device is new and paravirtualized, and works out of the box with
-MMIO. Hopefully that will change in the future, perhaps when someone
-supports DT for AMD IOMMU (they do describe bindings at the end of the
-spec, but I don't think it can work in Linux with the existing
-infrastructure)
-
-Another reason to keep the MMIO transport option is that one
-virtio-iommu can manage DMA from endpoints on multiple PCI domains at
-the same time, as well as platform devices. Some VMMs might want that,
-in which case the IOMMU would be a separate platform device.
-
-> Will remove need to bother with dt bindings etc.
-That's handled by the firmware drivers and IOMMU layer, there shouldn't
-be any special treatment at the virtio layer. In general removal of an
-IOMMU needs to be done after removal of all endpoints connected to it,
-which should be described using device_link from the driver core. DT or
-ACPI is only used to tell drivers where to find resources, and to
-describe the DMA topology.
-
-Thanks,
-Jean
+-- 
+MST
