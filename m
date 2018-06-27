@@ -1,16 +1,24 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH v33 1/4] mm: add a function to get free page blocks
-Date: Wed, 27 Jun 2018 09:05:39 -0700
-Message-ID: <CA+55aFwFpDPvfL=KPdabO-x1r0FnwpfPk5oN8+e01TKqAPNYbw@mail.gmail.com>
-References: <1529037793-35521-1-git-send-email-wei.w.wang@intel.com>
-	<1529037793-35521-2-git-send-email-wei.w.wang@intel.com>
-	<CA+55aFzhuGKinEq5udPsk_uYHShkQxJYqcPO=tLCkT-oxpsgPg@mail.gmail.com>
-	<20180626045118-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH v34 2/4] virtio-balloon:
+	VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Wed, 27 Jun 2018 19:53:57 +0300
+Message-ID: <20180627192306-mutt-send-email-mst@kernel.org>
+References: <20180626002822-mutt-send-email-mst@kernel.org>
+	<5B31B71B.6080709@intel.com>
+	<20180626064338-mutt-send-email-mst@kernel.org>
+	<5B323140.1000306@intel.com>
+	<20180626163139-mutt-send-email-mst@kernel.org>
+	<5B32E742.8080902@intel.com>
+	<20180627053952-mutt-send-email-mst@kernel.org>
+	<5B32FDB5.4040506@intel.com>
+	<20180627065637-mutt-send-email-mst@kernel.org>
+	<5B33205B.2040702@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180626045118-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <5B33205B.2040702@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,45 +28,116 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, Rik van Riel <riel@redhat.com>, quan.xu0@gmail.com, KVM list <kvm@vger.kernel.org>, nilal@redhat.com, liliang.opensource@gmail.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-mm <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@kernel.org>
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-[ Sorry for slow reply, my travels have made a mess of my inbox ]
+On Wed, Jun 27, 2018 at 01:27:55PM +0800, Wei Wang wrote:
+> On 06/27/2018 11:58 AM, Michael S. Tsirkin wrote:
+> > On Wed, Jun 27, 2018 at 11:00:05AM +0800, Wei Wang wrote:
+> > > On 06/27/2018 10:41 AM, Michael S. Tsirkin wrote:
+> > > > On Wed, Jun 27, 2018 at 09:24:18AM +0800, Wei Wang wrote:
+> > > > > On 06/26/2018 09:34 PM, Michael S. Tsirkin wrote:
+> > > > > > On Tue, Jun 26, 2018 at 08:27:44PM +0800, Wei Wang wrote:
+> > > > > > > On 06/26/2018 11:56 AM, Michael S. Tsirkin wrote:
+> > > > > > > > On Tue, Jun 26, 2018 at 11:46:35AM +0800, Wei Wang wrote:
+> > > > > > > > 
+> > > > > > > > > > > +	if (!arrays)
+> > > > > > > > > > > +		return NULL;
+> > > > > > > > > > > +
+> > > > > > > > > > > +	for (i = 0; i < max_array_num; i++) {
+> > > > > > > > > > So we are getting a ton of memory here just to free it up a bit later.
+> > > > > > > > > > Why doesn't get_from_free_page_list get the pages from free list for us?
+> > > > > > > > > > We could also avoid the 1st allocation then - just build a list
+> > > > > > > > > > of these.
+> > > > > > > > > That wouldn't be a good choice for us. If we check how the regular
+> > > > > > > > > allocation works, there are many many things we need to consider when pages
+> > > > > > > > > are allocated to users.
+> > > > > > > > > For example, we need to take care of the nr_free
+> > > > > > > > > counter, we need to check the watermark and perform the related actions.
+> > > > > > > > > Also the folks working on arch_alloc_page to monitor page allocation
+> > > > > > > > > activities would get a surprise..if page allocation is allowed to work in
+> > > > > > > > > this way.
+> > > > > > > > > 
+> > > > > > > > mm/ code is well positioned to handle all this correctly.
+> > > > > > > I'm afraid that would be a re-implementation of the alloc functions,
+> > > > > > A re-factoring - you can share code. The main difference is locking.
+> > > > > > 
+> > > > > > > and
+> > > > > > > that would be much more complex than what we have. I think your idea of
+> > > > > > > passing a list of pages is better.
+> > > > > > > 
+> > > > > > > Best,
+> > > > > > > Wei
+> > > > > > How much memory is this allocating anyway?
+> > > > > > 
+> > > > > For every 2TB memory that the guest has, we allocate 4MB.
+> > > > Hmm I guess I'm missing something, I don't see it:
+> > > > 
+> > > > 
+> > > > +       max_entries = max_free_page_blocks(ARRAY_ALLOC_ORDER);
+> > > > +       entries_per_page = PAGE_SIZE / sizeof(__le64);
+> > > > +       entries_per_array = entries_per_page * (1 << ARRAY_ALLOC_ORDER);
+> > > > +       max_array_num = max_entries / entries_per_array +
+> > > > +                       !!(max_entries % entries_per_array);
+> > > > 
+> > > > Looks like you always allocate the max number?
+> > > Yes. We allocated the max number and then free what's not used.
+> > > For example, a 16TB guest, we allocate Four 4MB buffers and pass the 4
+> > > buffers to get_from_free_page_list. If it uses 3, then the remaining 1 "4MB
+> > > buffer" will end up being freed.
+> > > 
+> > > For today's guests, max_array_num is usually 1.
+> > > 
+> > > Best,
+> > > Wei
+> > I see, it's based on total ram pages. It's reasonable but might
+> > get out of sync if memory is onlined quickly. So you want to
+> > detect that there's more free memory than can fit and
+> > retry the reporting.
+> > 
+> 
+> 
+> - AFAIK, memory hotplug isn't expected to happen during live migration
+> today. Hypervisors (e.g. QEMU) explicitly forbid this.
 
-On Mon, Jun 25, 2018 at 6:55 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> Linus, do you think it would be ok to have get_from_free_page_list
-> actually pop entries from the free list and use them as the buffer
-> to store PAs?
+That's a temporary limitation.
 
-Honestly, what I think the best option would be is to get rid of this
-interface *entirely*, and just have the balloon code do
+> - Allocating buffers based on total ram pages already gives some headroom
+> for newly plugged memory if that could happen in any case. Also, we can
+> think about why people plug in more memory - usually because the existing
+> memory isn't enough, which implies that the free page list is very likely to
+> be close to empty.
 
-    #define GFP_MINFLAGS (__GFP_NORETRY | __GFP_NOWARN |
-__GFP_THISNODE | __GFP_NOMEMALLOC)
+Or maybe because guest is expected to use more memory.
 
-    struct page *page =  alloc_pages(GFP_MINFLAGS, MAX_ORDER-1);
+> - This method could be easily scaled if people really need more headroom for
+> hot-plugged memory. For example, calculation based on "X * total_ram_pages",
+> X could be a number passed from the hypervisor.
 
- which is not a new interface, and simply removes the max-order page
-from the list if at all possible.
+All this in place of a simple retry loop within guest?
 
-The above has the advantage of "just working", and not having any races.
+> - This is an optimization feature, and reporting less free memory in that
+> rare case doesn't hurt anything.
 
-Now, because you don't want to necessarily *entirely* deplete the max
-order, I'd suggest that the *one* new interface you add is just a "how
-many max-order pages are there" interface. So then you can query
-(either before or after getting the max-order page) just how many of
-them there were and whether you want to give that page back.
+People working on memory hotplug can't be expected to worry about
+balloon. And maintainers have other things to do than debug hard to
+trigger failure reports from the field.
 
-Notice? No need for any page lists or physical addresses. No races. No
-complex new functions.
+> 
+> So I think it is good to start from a fundamental implementation, which
+> doesn't confuse people, and complexities can be added when there is a real
+> need in the future.
+> 
+> Best,
+> Wei
 
-The physical address you can just get from the "struct page" you got.
+The usefulness of the whole patchset hasn't been proven in the field yet.
+The more uncovered corner cases there are, the higher the chance that
+it will turn out not to be useful after all.
 
-And if you run out of memory because of getting a page, you get all
-the usual "hey, we ran out of memory" responses..
-
-Wouldn't the above be sufficient?
-
-            Linus
+> 
+> 
+> ---------------------------------------------------------------------
+> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
