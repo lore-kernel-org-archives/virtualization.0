@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 0/5] Add virtio-iommu driver
-Date: Wed, 27 Jun 2018 22:59:39 +0300
-Message-ID: <20180627224801-mutt-send-email-mst__35731.2883287252$1530129482$gmane$org@kernel.org>
-References: <20180621190655.56391-1-jean-philippe.brucker@arm.com>
-	<20180626210132-mutt-send-email-mst@kernel.org>
-	<2bcda195-d2c6-fbf0-322e-d91756fc3547@arm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next v2] net: vhost: improve performance when enable
+	busyloop
+Date: Thu, 28 Jun 2018 12:40:10 +0800
+Message-ID: <d54eeca1-8489-42c1-100e-ada2fa6aac8e__16739.5816105001$1530160697$gmane$org@redhat.com>
+References: <1529990276-61157-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<369bea44-6ebd-337a-b20b-a28a604fa2e9@redhat.com>
+	<20180627185543-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <2bcda195-d2c6-fbf0-322e-d91756fc3547@arm.com>
+In-Reply-To: <20180627185543-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,92 +21,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: Mark Rutland <Mark.Rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "joro@8bytes.org" <joro@8bytes.org>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Marc Zyngier <Marc.Zyngier@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, Robin Murphy <Robin.Murphy@arm.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, Tonghao Zhang <zhangtonghao@didichuxing.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 27, 2018 at 07:04:46PM +0100, Jean-Philippe Brucker wrote:
-> On 26/06/18 19:07, Michael S. Tsirkin wrote:
-> > So as I pointed out new virtio 0 device isn't really welcome ;)
-> 
-> Agreed, virtio-iommu is expected to be implemented on virtio 1 and
-> later. I'll remove the two legacy-related paragraph from the spec and
-> add a check in the driver as you suggested, to avoid giving the wrong idea.
-> 
-> > No one bothered implementing virtio 1 in MMIO for all the work
-> > that was put in defining it.
-> 
-> That is curious, given that the virtio_mmio driver supports virtio 1 and
-> from my own experience, porting the MMIO transport to virtio 1 only
-> requires updating a few registers, when ANY_LAYOUT, modern virtqueue and
-> status are already implemented.
-> 
-> > The fact that the MMIO part of the
-> > spec doesn't seem to allow for transitional devices might
-> > or might not have something to do with this.
-> 
-> Sorry, which part do you have in mind? The spec does provide both a
-> legacy and modern register layout, with version numbers to differentiate
-> them.
-
-Yes but there's no way to implement a transitional virtio mmio
-device. The version is either "legacy" or "modern".
-
-So if you implement a modern device old guests won't work with it.
-
-> > So why make it an MMIO device at all? A system with an IOMMU
-> > will have a PCI bus, won't it? And it's pretty common to
-> > have the IOMMU be a PCI device on the root bus.
-> Having the IOMMU outside PCI seems more common though. On Arm and Intel
-> the IOMMU doesn't have a PCI config space, BARs or capabilities, just a
-> plain MMIO region and a static number of interrupts. However the AMD
-> IOMMU appears as a PCI device with additional MMIO registers. I would be
-> interested in implementing virtio-iommu as a PCI dev at some point, at
-> least so that we can use MSI-X.
-> 
-> The problem is that it requires invasive changes in the firmware
-> interfaces and drivers. They need to describe relationship between IOMMU
-> and endpoint, and DT or ACPI IORT don't expect the programming interface
-> to be inside the PCI bus that the IOMMU manages.
-
-They don't particularly care IMHO.
-
-> Describing it as a
-> peripheral is more natural. For AMD it is implemented in their driver
-> using IVHD tables that can't be reused. Right now I don't expect any
-> success in proposing changes to firmware interfaces or drivers, because
-> the device is new and paravirtualized, and works out of the box with
-> MMIO. Hopefully that will change in the future, perhaps when someone
-> supports DT for AMD IOMMU (they do describe bindings at the end of the
-> spec, but I don't think it can work in Linux with the existing
-> infrastructure)
-
-That's a bit abstract, I don't really understand the issues involved.
-ACPI is formatted by QEMU, so firmware does not need to care.
-And is there even a DT for intel?
-
-> Another reason to keep the MMIO transport option is that one
-> virtio-iommu can manage DMA from endpoints on multiple PCI domains at
-> the same time, as well as platform devices. Some VMMs might want that,
-> in which case the IOMMU would be a separate platform device.
-
-Which buses are managed by the IOMMU is separate from the bus
-on which it's programming interface resides.
-
-> > Will remove need to bother with dt bindings etc.
-> That's handled by the firmware drivers and IOMMU layer, there shouldn't
-> be any special treatment at the virtio layer. In general removal of an
-> IOMMU needs to be done after removal of all endpoints connected to it,
-> which should be described using device_link from the driver core. DT or
-> ACPI is only used to tell drivers where to find resources, and to
-> describe the DMA topology.
-> 
-> Thanks,
-> Jean
-
-My point was virtio mmio isn't widely used outside of ARM.
-Rather than try to make everyone use it, IMHO it's better
-to start with PCI.
-
--- 
-MST
+CgpPbiAyMDE45bm0MDbmnIgyN+aXpSAyMzo1OCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFdlZCwgSnVuIDI3LCAyMDE4IGF0IDEwOjI0OjQzUE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+Cj4+IE9uIDIwMTjlubQwNuaciDI25pelIDEzOjE3LCB4aWFuZ3hpYS5tLnl1ZUBnbWFp
+bC5jb20gd3JvdGU6Cj4+PiBGcm9tOiBUb25naGFvIFpoYW5nIDx4aWFuZ3hpYS5tLnl1ZUBnbWFp
+bC5jb20+Cj4+Pgo+Pj4gVGhpcyBwYXRjaCBpbXByb3ZlcyB0aGUgZ3Vlc3QgcmVjZWl2ZSBwZXJm
+b3JtYW5jZSBmcm9tCj4+PiBob3N0LiBPbiB0aGUgaGFuZGxlX3R4IHNpZGUsIHdlIHBvbGwgdGhl
+IHNvY2sgcmVjZWl2ZQo+Pj4gcXVldWUgYXQgdGhlIHNhbWUgdGltZS4gaGFuZGxlX3J4IGRvIHRo
+YXQgaW4gdGhlIHNhbWUgd2F5Lgo+Pj4KPj4+IEZvciBhdm9pZGluZyBkZWFkbG9jaywgY2hhbmdl
+IHRoZSBjb2RlIHRvIGxvY2sgdGhlIHZxIG9uZQo+Pj4gYnkgb25lIGFuZCB1c2UgdGhlIFZIT1NU
+X05FVF9WUV9YWCBhcyBhIHN1YmNsYXNzIGZvcgo+Pj4gbXV0ZXhfbG9ja19uZXN0ZWQuIFdpdGgg
+dGhlIHBhdGNoLCBxZW11IGNhbiBzZXQgZGlmZmVyZW50bHkKPj4+IHRoZSBidXN5bG9vcF90aW1l
+b3V0IGZvciByeCBvciB0eCBxdWV1ZS4KPj4+Cj4+PiBXZSBzZXQgdGhlIHBvbGwtdXM9MTAwdXMg
+YW5kIHVzZSB0aGUgaXBlcmYzIHRvIHRlc3QKPj4+IGl0cyB0aHJvdWdocHV0LiBUaGUgaXBlcmYz
+IGNvbW1hbmQgaXMgc2hvd24gYXMgYmVsb3cuCj4+Pgo+Pj4gb24gdGhlIGd1ZXN0Ogo+Pj4gaXBl
+cmYzICAtcyAtRAo+Pj4KPj4+IG9uIHRoZSBob3N0Ogo+Pj4gaXBlcmYzICAtYyAxOTIuMTY4LjEu
+MTAwIC1pIDEgLVAgMTAgLXQgMTAgLU0gMTQwMAo+Pj4KPj4+ICogV2l0aCB0aGUgcGF0Y2g6ICAg
+ICAyMy4xIEdiaXRzL3NlYwo+Pj4gKiBXaXRob3V0IHRoZSBwYXRjaDogIDEyLjcgR2JpdHMvc2Vj
+Cj4+Pgo+Pj4gU2lnbmVkLW9mZi1ieTogVG9uZ2hhbyBaaGFuZyA8emhhbmd0b25naGFvQGRpZGlj
+aHV4aW5nLmNvbT4KPj4gVGhhbmtzIGEgbG90IGZvciB0aGUgcGF0Y2guIExvb2tzIGdvb2QgZ2Vu
+ZXJhbGx5LCBidXQgcGxlYXNlIHNwbGl0IHRoaXMgYmlnCj4+IHBhdGNoIGludG8gc2VwYXJhdGUg
+b25lcyBsaWtlOgo+Pgo+PiBwYXRjaCAxOiBsb2NrIHZxcyBvbmUgYnkgb25lCj4+IHBhdGNoIDI6
+IHJlcGxhY2UgbWFnaWMgbnVtYmVyIG9mIGxvY2sgYW5ub3RhdGlvbgo+PiBwYXRjaCAzOiBmYWN0
+b3Igb3V0IGdlbmVyaWMgYnVzeSBwb2xsaW5nIGxvZ2ljIHRvIHZob3N0X25ldF9idXN5X3BvbGwo
+KQo+PiBwYXRjaCA0OiBhZGQgcnggYnVzeSBwb2xsaW5nIGluIHR4IHBhdGguCj4+Cj4+IEFuZCBw
+bGVhc2UgY2MgTWljaGFlbCBpbiB2My4KPj4KPj4gVGhhbmtzCj4gUGxzIGluY2x1ZGUgaG9zdCBD
+UFUgdXRpbGl6YXRpb24gbnVtYmVycy4gWW91IGNhbiBnZXQgdGhlbSBlLmcuIHVzaW5nCj4gdm1z
+dGF0LiBJIHN1c3BlY3Qgd2UgYWxzbyB3YW50IHRoZSBwb2xsaW5nIGNvbnRyb2xsYWJsZSBlLmcu
+IHRocm91Z2gKPiBhbiBpb2N0bC4KPgoKSSBiZWxpZXZlIHdlIGhhZCBhbiBpb2N0bCBmb3Igc2V0
+dGluZyB0aW1lb3V0PyBPciB5b3Ugd2FudCBhbm90aGVyIGtpbmQgCm9mIGNvbnRyb2xsaW5nLgoK
+VGhhbmtzCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
+dGluZm8vdmlydHVhbGl6YXRpb24=
