@@ -1,11 +1,14 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: [PATCH vhost] vhost_net: Fix too many vring kick on busypoll
-Date: Fri, 29 Jun 2018 17:09:50 +0900
-Message-ID: <1530259790-2414-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH vhost] vhost_net: Fix too many vring kick on busypoll
+Date: Fri, 29 Jun 2018 17:30:50 +0800
+Message-ID: <62908af8-ae65-c8d3-6f37-941471e0780e__35430.9344701052$1530264542$gmane$org@redhat.com>
+References: <1530259790-2414-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1530259790-2414-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,254 +18,202 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, Tonghao Zhang <zhangtonghao@didichuxing.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Under heavy load vhost busypoll may run without suppressing
-notification. For example tx zerocopy callback can push tx work while
-handle_tx() is running, then busyloop exits due to vhost_has_work()
-condition and enables notification but immediately reenters handle_tx()
-because the pushed work was tx. In this case handle_tx() tries to
-disable notification again, but when using event_idx it by design
-cannot. Then busyloop will run without suppressing notification.
-Another example is the case where handle_tx() tries to enable
-notification but avail idx is advanced so disables it again. This case
-also lead to the same situation with event_idx.
-
-The problem is that once we enter this situation busyloop does not work
-under heavy load for considerable amount of time, because notification
-is likely to happen during busyloop and handle_tx() immediately enables
-notification after notification happens. Specifically busyloop detects
-notification by vhost_has_work() and then handle_tx() calls
-vhost_enable_notify(). Because the detected work was the tx work, it
-enters handle_tx(), and enters busyloop without suppression again.
-This is likely to be repeated, so with event_idx we are almost not able
-to suppress notification in this case.
-
-To fix this, poll the work instead of enabling notification when
-busypoll is interrupted by something. IMHO signal_pending() and
-vhost_has_work() are kind of interruptions rather than signals to
-completely cancel the busypoll, so let's run busypoll after the
-necessary work is done. In order to avoid too long busyloop due to
-interruption, save the endtime in vq field and use it when reentering
-the work function.
-
-I observed this problem makes tx performance poor but does not rx. I
-guess it is because rx notification from socket is not that heavy so
-did not impact the performance even when we failed to mask the
-notification. Anyway for consistency I fixed rx routine as well as tx.
-
-Performance numbers:
-
-- Bulk transfer from guest to external physical server.
-    [Guest]->vhost_net->tap--(XDP_REDIRECT)-->i40e --(wire)--> [Server]
-- Set 10us busypoll.
-- Guest disables checksum and TSO because of host XDP.
-- Measured single flow Mbps by netperf, and kicks by perf kvm stat
-  (EPT_MISCONFIG event).
-
-                            Before              After
-                          Mbps  kicks/s      Mbps  kicks/s
-UDP_STREAM 1472byte              247758                 27
-                Send   3645.37            6958.10
-                Recv   3588.56            6958.10
-              1byte                9865                 37
-                Send      4.34               5.43
-                Recv      4.17               5.26
-TCP_STREAM             8801.03    45794   9592.77     2884
-
-Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
----
- drivers/vhost/net.c   | 94 +++++++++++++++++++++++++++++++++++----------------
- drivers/vhost/vhost.c |  1 +
- drivers/vhost/vhost.h |  1 +
- 3 files changed, 66 insertions(+), 30 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index eeaf6739215f..0e85f628b965 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -391,13 +391,14 @@ static inline unsigned long busy_clock(void)
- 	return local_clock() >> 10;
- }
- 
--static bool vhost_can_busy_poll(struct vhost_dev *dev,
--				unsigned long endtime)
-+static bool vhost_can_busy_poll(unsigned long endtime)
- {
--	return likely(!need_resched()) &&
--	       likely(!time_after(busy_clock(), endtime)) &&
--	       likely(!signal_pending(current)) &&
--	       !vhost_has_work(dev);
-+	return likely(!need_resched() && !time_after(busy_clock(), endtime));
-+}
-+
-+static bool vhost_busy_poll_interrupted(struct vhost_dev *dev)
-+{
-+	return unlikely(signal_pending(current)) || vhost_has_work(dev);
- }
- 
- static void vhost_net_disable_vq(struct vhost_net *n,
-@@ -437,10 +438,21 @@ static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
- 
- 	if (r == vq->num && vq->busyloop_timeout) {
- 		preempt_disable();
--		endtime = busy_clock() + vq->busyloop_timeout;
--		while (vhost_can_busy_poll(vq->dev, endtime) &&
--		       vhost_vq_avail_empty(vq->dev, vq))
-+		if (vq->busyloop_endtime) {
-+			endtime = vq->busyloop_endtime;
-+			vq->busyloop_endtime = 0;
-+		} else {
-+			endtime = busy_clock() + vq->busyloop_timeout;
-+		}
-+		while (vhost_can_busy_poll(endtime)) {
-+			if (vhost_busy_poll_interrupted(vq->dev)) {
-+				vq->busyloop_endtime = endtime;
-+				break;
-+			}
-+			if (!vhost_vq_avail_empty(vq->dev, vq))
-+				break;
- 			cpu_relax();
-+		}
- 		preempt_enable();
- 		r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
- 				      out_num, in_num, NULL, NULL);
-@@ -509,12 +521,16 @@ static void handle_tx(struct vhost_net *net)
- 			break;
- 		/* Nothing new?  Wait for eventfd to tell us they refilled. */
- 		if (head == vq->num) {
--			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
-+			if (unlikely(vq->busyloop_endtime)) {
-+				/* Busy poll is interrupted. */
-+				vhost_poll_queue(&vq->poll);
-+			} else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
- 				vhost_disable_notify(&net->dev, vq);
- 				continue;
- 			}
- 			break;
- 		}
-+		vq->busyloop_endtime = 0;
- 		if (in) {
- 			vq_err(vq, "Unexpected descriptor format for TX: "
- 			       "out %d, int %d\n", out, in);
-@@ -642,39 +658,51 @@ static void vhost_rx_signal_used(struct vhost_net_virtqueue *nvq)
- 
- static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
- {
--	struct vhost_net_virtqueue *rvq = &net->vqs[VHOST_NET_VQ_RX];
--	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
--	struct vhost_virtqueue *vq = &nvq->vq;
-+	struct vhost_net_virtqueue *rnvq = &net->vqs[VHOST_NET_VQ_RX];
-+	struct vhost_net_virtqueue *tnvq = &net->vqs[VHOST_NET_VQ_TX];
-+	struct vhost_virtqueue *rvq = &rnvq->vq;
-+	struct vhost_virtqueue *tvq = &tnvq->vq;
- 	unsigned long uninitialized_var(endtime);
--	int len = peek_head_len(rvq, sk);
-+	int len = peek_head_len(rnvq, sk);
- 
--	if (!len && vq->busyloop_timeout) {
-+	if (!len && tvq->busyloop_timeout) {
- 		/* Flush batched heads first */
--		vhost_rx_signal_used(rvq);
-+		vhost_rx_signal_used(rnvq);
- 		/* Both tx vq and rx socket were polled here */
--		mutex_lock_nested(&vq->mutex, 1);
--		vhost_disable_notify(&net->dev, vq);
-+		mutex_lock_nested(&tvq->mutex, 1);
-+		vhost_disable_notify(&net->dev, tvq);
- 
- 		preempt_disable();
--		endtime = busy_clock() + vq->busyloop_timeout;
-+		if (rvq->busyloop_endtime) {
-+			endtime = rvq->busyloop_endtime;
-+			rvq->busyloop_endtime = 0;
-+		} else {
-+			endtime = busy_clock() + tvq->busyloop_timeout;
-+		}
- 
--		while (vhost_can_busy_poll(&net->dev, endtime) &&
--		       !sk_has_rx_data(sk) &&
--		       vhost_vq_avail_empty(&net->dev, vq))
-+		while (vhost_can_busy_poll(endtime)) {
-+			if (vhost_busy_poll_interrupted(&net->dev)) {
-+				rvq->busyloop_endtime = endtime;
-+				break;
-+			}
-+			if (sk_has_rx_data(sk) ||
-+			    !vhost_vq_avail_empty(&net->dev, tvq))
-+				break;
- 			cpu_relax();
-+		}
- 
- 		preempt_enable();
- 
--		if (!vhost_vq_avail_empty(&net->dev, vq))
--			vhost_poll_queue(&vq->poll);
--		else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
--			vhost_disable_notify(&net->dev, vq);
--			vhost_poll_queue(&vq->poll);
-+		if (!vhost_vq_avail_empty(&net->dev, tvq)) {
-+			vhost_poll_queue(&tvq->poll);
-+		} else if (unlikely(vhost_enable_notify(&net->dev, tvq))) {
-+			vhost_disable_notify(&net->dev, tvq);
-+			vhost_poll_queue(&tvq->poll);
- 		}
- 
--		mutex_unlock(&vq->mutex);
-+		mutex_unlock(&tvq->mutex);
- 
--		len = peek_head_len(rvq, sk);
-+		len = peek_head_len(rnvq, sk);
- 	}
- 
- 	return len;
-@@ -804,6 +832,7 @@ static void handle_rx(struct vhost_net *net)
- 	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
- 
- 	while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk))) {
-+		vq->busyloop_endtime = 0;
- 		sock_len += sock_hlen;
- 		vhost_len = sock_len + vhost_hlen;
- 		headcount = get_rx_bufs(vq, vq->heads + nvq->done_idx,
-@@ -889,7 +918,12 @@ static void handle_rx(struct vhost_net *net)
- 			goto out;
- 		}
- 	}
--	vhost_net_enable_vq(net, vq);
-+	if (unlikely(vq->busyloop_endtime)) {
-+		/* Busy poll is interrupted. */
-+		vhost_poll_queue(&vq->poll);
-+	} else {
-+		vhost_net_enable_vq(net, vq);
-+	}
- out:
- 	vhost_rx_signal_used(nvq);
- 	mutex_unlock(&vq->mutex);
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 9beefa6ed1ce..fe83578fe336 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -323,6 +323,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vhost_reset_is_le(vq);
- 	vhost_disable_cross_endian(vq);
- 	vq->busyloop_timeout = 0;
-+	vq->busyloop_endtime = 0;
- 	vq->umem = NULL;
- 	vq->iotlb = NULL;
- 	__vhost_vq_meta_reset(vq);
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 6c844b90a168..7e9cf80ccae9 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -144,6 +144,7 @@ struct vhost_virtqueue {
- 	bool user_be;
- #endif
- 	u32 busyloop_timeout;
-+	unsigned long busyloop_endtime;
- };
- 
- struct vhost_msg_node {
--- 
-2.14.2
+CgpPbiAyMDE45bm0MDbmnIgyOeaXpSAxNjowOSwgVG9zaGlha2kgTWFraXRhIHdyb3RlOgo+IFVu
+ZGVyIGhlYXZ5IGxvYWQgdmhvc3QgYnVzeXBvbGwgbWF5IHJ1biB3aXRob3V0IHN1cHByZXNzaW5n
+Cj4gbm90aWZpY2F0aW9uLiBGb3IgZXhhbXBsZSB0eCB6ZXJvY29weSBjYWxsYmFjayBjYW4gcHVz
+aCB0eCB3b3JrIHdoaWxlCj4gaGFuZGxlX3R4KCkgaXMgcnVubmluZywgdGhlbiBidXN5bG9vcCBl
+eGl0cyBkdWUgdG8gdmhvc3RfaGFzX3dvcmsoKQo+IGNvbmRpdGlvbiBhbmQgZW5hYmxlcyBub3Rp
+ZmljYXRpb24gYnV0IGltbWVkaWF0ZWx5IHJlZW50ZXJzIGhhbmRsZV90eCgpCj4gYmVjYXVzZSB0
+aGUgcHVzaGVkIHdvcmsgd2FzIHR4LiBJbiB0aGlzIGNhc2UgaGFuZGxlX3R4KCkgdHJpZXMgdG8K
+PiBkaXNhYmxlIG5vdGlmaWNhdGlvbiBhZ2FpbiwgYnV0IHdoZW4gdXNpbmcgZXZlbnRfaWR4IGl0
+IGJ5IGRlc2lnbgo+IGNhbm5vdC4gVGhlbiBidXN5bG9vcCB3aWxsIHJ1biB3aXRob3V0IHN1cHBy
+ZXNzaW5nIG5vdGlmaWNhdGlvbi4KPiBBbm90aGVyIGV4YW1wbGUgaXMgdGhlIGNhc2Ugd2hlcmUg
+aGFuZGxlX3R4KCkgdHJpZXMgdG8gZW5hYmxlCj4gbm90aWZpY2F0aW9uIGJ1dCBhdmFpbCBpZHgg
+aXMgYWR2YW5jZWQgc28gZGlzYWJsZXMgaXQgYWdhaW4uIFRoaXMgY2FzZQo+IGFsc28gbGVhZCB0
+byB0aGUgc2FtZSBzaXR1YXRpb24gd2l0aCBldmVudF9pZHguCgpHb29kIGNhdGNoLgoKPgo+IFRo
+ZSBwcm9ibGVtIGlzIHRoYXQgb25jZSB3ZSBlbnRlciB0aGlzIHNpdHVhdGlvbiBidXN5bG9vcCBk
+b2VzIG5vdCB3b3JrCj4gdW5kZXIgaGVhdnkgbG9hZCBmb3IgY29uc2lkZXJhYmxlIGFtb3VudCBv
+ZiB0aW1lLCBiZWNhdXNlIG5vdGlmaWNhdGlvbgo+IGlzIGxpa2VseSB0byBoYXBwZW4gZHVyaW5n
+IGJ1c3lsb29wIGFuZCBoYW5kbGVfdHgoKSBpbW1lZGlhdGVseSBlbmFibGVzCj4gbm90aWZpY2F0
+aW9uIGFmdGVyIG5vdGlmaWNhdGlvbiBoYXBwZW5zLiBTcGVjaWZpY2FsbHkgYnVzeWxvb3AgZGV0
+ZWN0cwo+IG5vdGlmaWNhdGlvbiBieSB2aG9zdF9oYXNfd29yaygpIGFuZCB0aGVuIGhhbmRsZV90
+eCgpIGNhbGxzCj4gdmhvc3RfZW5hYmxlX25vdGlmeSgpLiBCZWNhdXNlIHRoZSBkZXRlY3RlZCB3
+b3JrIHdhcyB0aGUgdHggd29yaywgaXQKPiBlbnRlcnMgaGFuZGxlX3R4KCksIGFuZCBlbnRlcnMg
+YnVzeWxvb3Agd2l0aG91dCBzdXBwcmVzc2lvbiBhZ2Fpbi4KPiBUaGlzIGlzIGxpa2VseSB0byBi
+ZSByZXBlYXRlZCwgc28gd2l0aCBldmVudF9pZHggd2UgYXJlIGFsbW9zdCBub3QgYWJsZQo+IHRv
+IHN1cHByZXNzIG5vdGlmaWNhdGlvbiBpbiB0aGlzIGNhc2UuCj4KPiBUbyBmaXggdGhpcywgcG9s
+bCB0aGUgd29yayBpbnN0ZWFkIG9mIGVuYWJsaW5nIG5vdGlmaWNhdGlvbiB3aGVuCj4gYnVzeXBv
+bGwgaXMgaW50ZXJydXB0ZWQgYnkgc29tZXRoaW5nLiBJTUhPIHNpZ25hbF9wZW5kaW5nKCkgYW5k
+Cj4gdmhvc3RfaGFzX3dvcmsoKSBhcmUga2luZCBvZiBpbnRlcnJ1cHRpb25zIHJhdGhlciB0aGFu
+IHNpZ25hbHMgdG8KPiBjb21wbGV0ZWx5IGNhbmNlbCB0aGUgYnVzeXBvbGwsIHNvIGxldCdzIHJ1
+biBidXN5cG9sbCBhZnRlciB0aGUKPiBuZWNlc3Nhcnkgd29yayBpcyBkb25lLiBJbiBvcmRlciB0
+byBhdm9pZCB0b28gbG9uZyBidXN5bG9vcCBkdWUgdG8KPiBpbnRlcnJ1cHRpb24sIHNhdmUgdGhl
+IGVuZHRpbWUgaW4gdnEgZmllbGQgYW5kIHVzZSBpdCB3aGVuIHJlZW50ZXJpbmcKPiB0aGUgd29y
+ayBmdW5jdGlvbi4KCkkgdGhpbmsgd2UgZG9uJ3QgY2FyZSBsb25nIGJ1c3lsb29wIHVubGVzcyBl
+LmcgdHggY2FuIHN0YXJ2ZSByeD8KCj4KPiBJIG9ic2VydmVkIHRoaXMgcHJvYmxlbSBtYWtlcyB0
+eCBwZXJmb3JtYW5jZSBwb29yIGJ1dCBkb2VzIG5vdCByeC4gSQo+IGd1ZXNzIGl0IGlzIGJlY2F1
+c2Ugcnggbm90aWZpY2F0aW9uIGZyb20gc29ja2V0IGlzIG5vdCB0aGF0IGhlYXZ5IHNvCj4gZGlk
+IG5vdCBpbXBhY3QgdGhlIHBlcmZvcm1hbmNlIGV2ZW4gd2hlbiB3ZSBmYWlsZWQgdG8gbWFzayB0
+aGUKPiBub3RpZmljYXRpb24uCgpJIHRoaW5rIHRoZSByZWFzb24gaXM6CgpGb3IgdHgsIHdlIG1h
+eSBvbmx5IHByb2Nlc3MgdXNlZCByaW5nIHVuZGVyIGhhbmRsZV90eCgpLiBCdXN5IHBvbGxpbmcg
+CmNvZGUgY2FuIG5vdCByZWNvZ25pemUgdGhpcyBjYXNlLgpGb3IgcngsIHdlIGNhbGwgcGVla19o
+ZWFkX2xlbigpIGFmdGVyIGV4aXRpbmcgYnVzeSBsb29wLCBzbyBpZiB0aGUgd29yayAKaXMgZm9y
+IHJ4LCBpdCBjYW4gYmUgcHJvY2Vzc2VkIGluIGhhbmRsZV9yeCgpIGltbWVkaWF0ZWx5LgoKPiBB
+bnl3YXkgZm9yIGNvbnNpc3RlbmN5IEkgZml4ZWQgcnggcm91dGluZSBhcyB3ZWxsIGFzIHR4Lgo+
+Cj4gUGVyZm9ybWFuY2UgbnVtYmVyczoKPgo+IC0gQnVsayB0cmFuc2ZlciBmcm9tIGd1ZXN0IHRv
+IGV4dGVybmFsIHBoeXNpY2FsIHNlcnZlci4KPiAgICAgIFtHdWVzdF0tPnZob3N0X25ldC0+dGFw
+LS0oWERQX1JFRElSRUNUKS0tPmk0MGUgLS0od2lyZSktLT4gW1NlcnZlcl0KCkp1c3QgdG8gY29u
+ZmlybSBpbiB0aGlzIGNhc2Ugc2luY2UgemVyb2NvcHkgaXMgZW5hYmxlZCwgd2UgYXJlIGluIGZh
+Y3QgCnVzZSB0aGUgZ2VuZXJpYyBYRFAgZGF0YXBhdGg/Cgo+IC0gU2V0IDEwdXMgYnVzeXBvbGwu
+Cj4gLSBHdWVzdCBkaXNhYmxlcyBjaGVja3N1bSBhbmQgVFNPIGJlY2F1c2Ugb2YgaG9zdCBYRFAu
+Cj4gLSBNZWFzdXJlZCBzaW5nbGUgZmxvdyBNYnBzIGJ5IG5ldHBlcmYsIGFuZCBraWNrcyBieSBw
+ZXJmIGt2bSBzdGF0Cj4gICAgKEVQVF9NSVNDT05GSUcgZXZlbnQpLgo+Cj4gICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICBCZWZvcmUgICAgICAgICAgICAgIEFmdGVyCj4gICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgTWJwcyAga2lja3MvcyAgICAgIE1icHMgIGtpY2tzL3MKPiBVRFBfU1RS
+RUFNIDE0NzJieXRlICAgICAgICAgICAgICAyNDc3NTggICAgICAgICAgICAgICAgIDI3Cj4gICAg
+ICAgICAgICAgICAgICBTZW5kICAgMzY0NS4zNyAgICAgICAgICAgIDY5NTguMTAKPiAgICAgICAg
+ICAgICAgICAgIFJlY3YgICAzNTg4LjU2ICAgICAgICAgICAgNjk1OC4xMAo+ICAgICAgICAgICAg
+ICAgIDFieXRlICAgICAgICAgICAgICAgIDk4NjUgICAgICAgICAgICAgICAgIDM3Cj4gICAgICAg
+ICAgICAgICAgICBTZW5kICAgICAgNC4zNCAgICAgICAgICAgICAgIDUuNDMKPiAgICAgICAgICAg
+ICAgICAgIFJlY3YgICAgICA0LjE3ICAgICAgICAgICAgICAgNS4yNgo+IFRDUF9TVFJFQU0gICAg
+ICAgICAgICAgODgwMS4wMyAgICA0NTc5NCAgIDk1OTIuNzcgICAgIDI4ODQKCkltcHJlc3NpdmUg
+bnVtYmVycy4KCj4KPiBTaWduZWQtb2ZmLWJ5OiBUb3NoaWFraSBNYWtpdGEgPG1ha2l0YS50b3No
+aWFraUBsYWIubnR0LmNvLmpwPgo+IC0tLQo+ICAgZHJpdmVycy92aG9zdC9uZXQuYyAgIHwgOTQg
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tCj4gICBk
+cml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAgMSArCj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggfCAg
+MSArCj4gICAzIGZpbGVzIGNoYW5nZWQsIDY2IGluc2VydGlvbnMoKyksIDMwIGRlbGV0aW9ucygt
+KQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvbmV0LmMgYi9kcml2ZXJzL3Zob3N0L25l
+dC5jCj4gaW5kZXggZWVhZjY3MzkyMTVmLi4wZTg1ZjYyOGI5NjUgMTAwNjQ0Cj4gLS0tIGEvZHJp
+dmVycy92aG9zdC9uZXQuYwo+ICsrKyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiBAQCAtMzkxLDEz
+ICszOTEsMTQgQEAgc3RhdGljIGlubGluZSB1bnNpZ25lZCBsb25nIGJ1c3lfY2xvY2sodm9pZCkK
+PiAgIAlyZXR1cm4gbG9jYWxfY2xvY2soKSA+PiAxMDsKPiAgIH0KPiAgIAo+IC1zdGF0aWMgYm9v
+bCB2aG9zdF9jYW5fYnVzeV9wb2xsKHN0cnVjdCB2aG9zdF9kZXYgKmRldiwKPiAtCQkJCXVuc2ln
+bmVkIGxvbmcgZW5kdGltZSkKPiArc3RhdGljIGJvb2wgdmhvc3RfY2FuX2J1c3lfcG9sbCh1bnNp
+Z25lZCBsb25nIGVuZHRpbWUpCj4gICB7Cj4gLQlyZXR1cm4gbGlrZWx5KCFuZWVkX3Jlc2NoZWQo
+KSkgJiYKPiAtCSAgICAgICBsaWtlbHkoIXRpbWVfYWZ0ZXIoYnVzeV9jbG9jaygpLCBlbmR0aW1l
+KSkgJiYKPiAtCSAgICAgICBsaWtlbHkoIXNpZ25hbF9wZW5kaW5nKGN1cnJlbnQpKSAmJgo+IC0J
+ICAgICAgICF2aG9zdF9oYXNfd29yayhkZXYpOwo+ICsJcmV0dXJuIGxpa2VseSghbmVlZF9yZXNj
+aGVkKCkgJiYgIXRpbWVfYWZ0ZXIoYnVzeV9jbG9jaygpLCBlbmR0aW1lKSk7Cj4gK30KPiArCj4g
+K3N0YXRpYyBib29sIHZob3N0X2J1c3lfcG9sbF9pbnRlcnJ1cHRlZChzdHJ1Y3Qgdmhvc3RfZGV2
+ICpkZXYpCj4gK3sKPiArCXJldHVybiB1bmxpa2VseShzaWduYWxfcGVuZGluZyhjdXJyZW50KSkg
+fHwgdmhvc3RfaGFzX3dvcmsoZGV2KTsKPiAgIH0KPiAgIAo+ICAgc3RhdGljIHZvaWQgdmhvc3Rf
+bmV0X2Rpc2FibGVfdnEoc3RydWN0IHZob3N0X25ldCAqbiwKPiBAQCAtNDM3LDEwICs0MzgsMjEg
+QEAgc3RhdGljIGludCB2aG9zdF9uZXRfdHhfZ2V0X3ZxX2Rlc2Moc3RydWN0IHZob3N0X25ldCAq
+bmV0LAo+ICAgCj4gICAJaWYgKHIgPT0gdnEtPm51bSAmJiB2cS0+YnVzeWxvb3BfdGltZW91dCkg
+ewo+ICAgCQlwcmVlbXB0X2Rpc2FibGUoKTsKPiAtCQllbmR0aW1lID0gYnVzeV9jbG9jaygpICsg
+dnEtPmJ1c3lsb29wX3RpbWVvdXQ7Cj4gLQkJd2hpbGUgKHZob3N0X2Nhbl9idXN5X3BvbGwodnEt
+PmRldiwgZW5kdGltZSkgJiYKPiAtCQkgICAgICAgdmhvc3RfdnFfYXZhaWxfZW1wdHkodnEtPmRl
+diwgdnEpKQo+ICsJCWlmICh2cS0+YnVzeWxvb3BfZW5kdGltZSkgewo+ICsJCQllbmR0aW1lID0g
+dnEtPmJ1c3lsb29wX2VuZHRpbWU7Cj4gKwkJCXZxLT5idXN5bG9vcF9lbmR0aW1lID0gMDsKCkxv
+b2tzIGxpa2UgZW5kdGltZSBtYXkgYmUgYmVmb3JlIGN1cnJlbnQgdGltZS4gU28gd2Ugc2tpcCBi
+dXN5IGxvb3AgaW4gCnRoaXMgY2FzZS4KCj4gKwkJfSBlbHNlIHsKPiArCQkJZW5kdGltZSA9IGJ1
+c3lfY2xvY2soKSArIHZxLT5idXN5bG9vcF90aW1lb3V0Owo+ICsJCX0KPiArCQl3aGlsZSAodmhv
+c3RfY2FuX2J1c3lfcG9sbChlbmR0aW1lKSkgewo+ICsJCQlpZiAodmhvc3RfYnVzeV9wb2xsX2lu
+dGVycnVwdGVkKHZxLT5kZXYpKSB7Cj4gKwkJCQl2cS0+YnVzeWxvb3BfZW5kdGltZSA9IGVuZHRp
+bWU7Cj4gKwkJCQlicmVhazsKPiArCQkJfQo+ICsJCQlpZiAoIXZob3N0X3ZxX2F2YWlsX2VtcHR5
+KHZxLT5kZXYsIHZxKSkKPiArCQkJCWJyZWFrOwo+ICAgCQkJY3B1X3JlbGF4KCk7Cj4gKwkJfQo+
+ICAgCQlwcmVlbXB0X2VuYWJsZSgpOwo+ICAgCQlyID0gdmhvc3RfZ2V0X3ZxX2Rlc2ModnEsIHZx
+LT5pb3YsIEFSUkFZX1NJWkUodnEtPmlvdiksCj4gICAJCQkJICAgICAgb3V0X251bSwgaW5fbnVt
+LCBOVUxMLCBOVUxMKTsKPiBAQCAtNTA5LDEyICs1MjEsMTYgQEAgc3RhdGljIHZvaWQgaGFuZGxl
+X3R4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkKPiAgIAkJCWJyZWFrOwo+ICAgCQkvKiBOb3RoaW5n
+IG5ldz8gIFdhaXQgZm9yIGV2ZW50ZmQgdG8gdGVsbCB1cyB0aGV5IHJlZmlsbGVkLiAqLwo+ICAg
+CQlpZiAoaGVhZCA9PSB2cS0+bnVtKSB7Cj4gLQkJCWlmICh1bmxpa2VseSh2aG9zdF9lbmFibGVf
+bm90aWZ5KCZuZXQtPmRldiwgdnEpKSkgewo+ICsJCQlpZiAodW5saWtlbHkodnEtPmJ1c3lsb29w
+X2VuZHRpbWUpKSB7Cj4gKwkJCQkvKiBCdXN5IHBvbGwgaXMgaW50ZXJydXB0ZWQuICovCj4gKwkJ
+CQl2aG9zdF9wb2xsX3F1ZXVlKCZ2cS0+cG9sbCk7Cj4gKwkJCX0gZWxzZSBpZiAodW5saWtlbHko
+dmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKSkpIHsKPiAgIAkJCQl2aG9zdF9kaXNh
+YmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKTsKPiAgIAkJCQljb250aW51ZTsKPiAgIAkJCX0KPiAg
+IAkJCWJyZWFrOwo+ICAgCQl9Cj4gKwkJdnEtPmJ1c3lsb29wX2VuZHRpbWUgPSAwOwo+ICAgCQlp
+ZiAoaW4pIHsKPiAgIAkJCXZxX2Vycih2cSwgIlVuZXhwZWN0ZWQgZGVzY3JpcHRvciBmb3JtYXQg
+Zm9yIFRYOiAiCj4gICAJCQkgICAgICAgIm91dCAlZCwgaW50ICVkXG4iLCBvdXQsIGluKTsKPiBA
+QCAtNjQyLDM5ICs2NTgsNTEgQEAgc3RhdGljIHZvaWQgdmhvc3Rfcnhfc2lnbmFsX3VzZWQoc3Ry
+dWN0IHZob3N0X25ldF92aXJ0cXVldWUgKm52cSkKPiAgIAo+ICAgc3RhdGljIGludCB2aG9zdF9u
+ZXRfcnhfcGVla19oZWFkX2xlbihzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQsIHN0cnVjdCBzb2NrICpz
+aykKPiAgIHsKPiAtCXN0cnVjdCB2aG9zdF9uZXRfdmlydHF1ZXVlICpydnEgPSAmbmV0LT52cXNb
+VkhPU1RfTkVUX1ZRX1JYXTsKPiAtCXN0cnVjdCB2aG9zdF9uZXRfdmlydHF1ZXVlICpudnEgPSAm
+bmV0LT52cXNbVkhPU1RfTkVUX1ZRX1RYXTsKPiAtCXN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZx
+ID0gJm52cS0+dnE7Cj4gKwlzdHJ1Y3Qgdmhvc3RfbmV0X3ZpcnRxdWV1ZSAqcm52cSA9ICZuZXQt
+PnZxc1tWSE9TVF9ORVRfVlFfUlhdOwo+ICsJc3RydWN0IHZob3N0X25ldF92aXJ0cXVldWUgKnRu
+dnEgPSAmbmV0LT52cXNbVkhPU1RfTkVUX1ZRX1RYXTsKPiArCXN0cnVjdCB2aG9zdF92aXJ0cXVl
+dWUgKnJ2cSA9ICZybnZxLT52cTsKPiArCXN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnR2cSA9ICZ0
+bnZxLT52cTsKCk5JdDogSSBhZG1pdCB0aGUgdmFyaWFibGUgbmFtZSBpcyBjb25mdXNpbmcuIEl0
+IHdvdWxkIGJlIGJldHRlciB0byBkbyAKdGhlIHJlbmFtaW5nIGluIGEgc2VwYXJhdGUgcGF0Y2gg
+dG8gZWFzZSByZXZpZXcuCgo+ICAgCXVuc2lnbmVkIGxvbmcgdW5pbml0aWFsaXplZF92YXIoZW5k
+dGltZSk7Cj4gLQlpbnQgbGVuID0gcGVla19oZWFkX2xlbihydnEsIHNrKTsKPiArCWludCBsZW4g
+PSBwZWVrX2hlYWRfbGVuKHJudnEsIHNrKTsKPiAgIAo+IC0JaWYgKCFsZW4gJiYgdnEtPmJ1c3ls
+b29wX3RpbWVvdXQpIHsKPiArCWlmICghbGVuICYmIHR2cS0+YnVzeWxvb3BfdGltZW91dCkgewo+
+ICAgCQkvKiBGbHVzaCBiYXRjaGVkIGhlYWRzIGZpcnN0ICovCj4gLQkJdmhvc3Rfcnhfc2lnbmFs
+X3VzZWQocnZxKTsKPiArCQl2aG9zdF9yeF9zaWduYWxfdXNlZChybnZxKTsKPiAgIAkJLyogQm90
+aCB0eCB2cSBhbmQgcnggc29ja2V0IHdlcmUgcG9sbGVkIGhlcmUgKi8KPiAtCQltdXRleF9sb2Nr
+X25lc3RlZCgmdnEtPm11dGV4LCAxKTsKPiAtCQl2aG9zdF9kaXNhYmxlX25vdGlmeSgmbmV0LT5k
+ZXYsIHZxKTsKPiArCQltdXRleF9sb2NrX25lc3RlZCgmdHZxLT5tdXRleCwgMSk7Cj4gKwkJdmhv
+c3RfZGlzYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB0dnEpOwo+ICAgCj4gICAJCXByZWVtcHRfZGlz
+YWJsZSgpOwo+IC0JCWVuZHRpbWUgPSBidXN5X2Nsb2NrKCkgKyB2cS0+YnVzeWxvb3BfdGltZW91
+dDsKPiArCQlpZiAocnZxLT5idXN5bG9vcF9lbmR0aW1lKSB7Cj4gKwkJCWVuZHRpbWUgPSBydnEt
+PmJ1c3lsb29wX2VuZHRpbWU7Cj4gKwkJCXJ2cS0+YnVzeWxvb3BfZW5kdGltZSA9IDA7Cj4gKwkJ
+fSBlbHNlIHsKPiArCQkJZW5kdGltZSA9IGJ1c3lfY2xvY2soKSArIHR2cS0+YnVzeWxvb3BfdGlt
+ZW91dDsKPiArCQl9Cj4gICAKPiAtCQl3aGlsZSAodmhvc3RfY2FuX2J1c3lfcG9sbCgmbmV0LT5k
+ZXYsIGVuZHRpbWUpICYmCj4gLQkJICAgICAgICFza19oYXNfcnhfZGF0YShzaykgJiYKPiAtCQkg
+ICAgICAgdmhvc3RfdnFfYXZhaWxfZW1wdHkoJm5ldC0+ZGV2LCB2cSkpCj4gKwkJd2hpbGUgKHZo
+b3N0X2Nhbl9idXN5X3BvbGwoZW5kdGltZSkpIHsKPiArCQkJaWYgKHZob3N0X2J1c3lfcG9sbF9p
+bnRlcnJ1cHRlZCgmbmV0LT5kZXYpKSB7Cj4gKwkJCQlydnEtPmJ1c3lsb29wX2VuZHRpbWUgPSBl
+bmR0aW1lOwo+ICsJCQkJYnJlYWs7Cj4gKwkJCX0KPiArCQkJaWYgKHNrX2hhc19yeF9kYXRhKHNr
+KSB8fAo+ICsJCQkgICAgIXZob3N0X3ZxX2F2YWlsX2VtcHR5KCZuZXQtPmRldiwgdHZxKSkKPiAr
+CQkJCWJyZWFrOwo+ICAgCQkJY3B1X3JlbGF4KCk7CgpBY3R1YWxseSwgSSBwbGFuIHRvIHBvbGwg
+Z3Vlc3QgcnggcmVmaWxsaW5nIGFzIHdlbGwgaGVyZSB0byBhdm9pZCByeCAKa2lja3MuIFdhbnQg
+dG8gZHJhZnQgYW5vdGhlciBwYXRjaCB0byBkbyBpdCBhcyB3ZWxsPyBJdCdzIGFzIHNpbXBsZSBh
+cyAKYWRkIGEgdmhvc3RfdnFfYXZhaWxfZW1wdHkgZm9yIHJ2cSBhYm92ZS4KCj4gKwkJfQo+ICAg
+Cj4gICAJCXByZWVtcHRfZW5hYmxlKCk7Cj4gICAKPiAtCQlpZiAoIXZob3N0X3ZxX2F2YWlsX2Vt
+cHR5KCZuZXQtPmRldiwgdnEpKQo+IC0JCQl2aG9zdF9wb2xsX3F1ZXVlKCZ2cS0+cG9sbCk7Cj4g
+LQkJZWxzZSBpZiAodW5saWtlbHkodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKSkp
+IHsKPiAtCQkJdmhvc3RfZGlzYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB2cSk7Cj4gLQkJCXZob3N0
+X3BvbGxfcXVldWUoJnZxLT5wb2xsKTsKPiArCQlpZiAoIXZob3N0X3ZxX2F2YWlsX2VtcHR5KCZu
+ZXQtPmRldiwgdHZxKSkgewo+ICsJCQl2aG9zdF9wb2xsX3F1ZXVlKCZ0dnEtPnBvbGwpOwo+ICsJ
+CX0gZWxzZSBpZiAodW5saWtlbHkodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHR2cSkp
+KSB7Cj4gKwkJCXZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwgdHZxKTsKPiArCQkJdmhv
+c3RfcG9sbF9xdWV1ZSgmdHZxLT5wb2xsKTsKPiAgIAkJfQo+ICAgCj4gLQkJbXV0ZXhfdW5sb2Nr
+KCZ2cS0+bXV0ZXgpOwo+ICsJCW11dGV4X3VubG9jaygmdHZxLT5tdXRleCk7Cj4gICAKPiAtCQls
+ZW4gPSBwZWVrX2hlYWRfbGVuKHJ2cSwgc2spOwo+ICsJCWxlbiA9IHBlZWtfaGVhZF9sZW4ocm52
+cSwgc2spOwo+ICAgCX0KPiAgIAo+ICAgCXJldHVybiBsZW47Cj4gQEAgLTgwNCw2ICs4MzIsNyBA
+QCBzdGF0aWMgdm9pZCBoYW5kbGVfcngoc3RydWN0IHZob3N0X25ldCAqbmV0KQo+ICAgCW1lcmdl
+YWJsZSA9IHZob3N0X2hhc19mZWF0dXJlKHZxLCBWSVJUSU9fTkVUX0ZfTVJHX1JYQlVGKTsKPiAg
+IAo+ICAgCXdoaWxlICgoc29ja19sZW4gPSB2aG9zdF9uZXRfcnhfcGVla19oZWFkX2xlbihuZXQs
+IHNvY2stPnNrKSkpIHsKPiArCQl2cS0+YnVzeWxvb3BfZW5kdGltZSA9IDA7Cj4gICAJCXNvY2tf
+bGVuICs9IHNvY2tfaGxlbjsKPiAgIAkJdmhvc3RfbGVuID0gc29ja19sZW4gKyB2aG9zdF9obGVu
+Owo+ICAgCQloZWFkY291bnQgPSBnZXRfcnhfYnVmcyh2cSwgdnEtPmhlYWRzICsgbnZxLT5kb25l
+X2lkeCwKPiBAQCAtODg5LDcgKzkxOCwxMiBAQCBzdGF0aWMgdm9pZCBoYW5kbGVfcngoc3RydWN0
+IHZob3N0X25ldCAqbmV0KQo+ICAgCQkJZ290byBvdXQ7Cj4gICAJCX0KPiAgIAl9Cj4gLQl2aG9z
+dF9uZXRfZW5hYmxlX3ZxKG5ldCwgdnEpOwo+ICsJaWYgKHVubGlrZWx5KHZxLT5idXN5bG9vcF9l
+bmR0aW1lKSkgewo+ICsJCS8qIEJ1c3kgcG9sbCBpcyBpbnRlcnJ1cHRlZC4gKi8KPiArCQl2aG9z
+dF9wb2xsX3F1ZXVlKCZ2cS0+cG9sbCk7Cj4gKwl9IGVsc2Ugewo+ICsJCXZob3N0X25ldF9lbmFi
+bGVfdnEobmV0LCB2cSk7Cj4gKwl9CgpUaGlzIGlzIHRvIHJlZHVjZSB0aGUgcnggd2FrZSB1cHMu
+IEJldHRlciB3aXRoIGFub3RoZXIgcGF0Y2guCgpTbyBJIHN1Z2dlc3QgdG8gc3BsaXQgdGhlIHBh
+dGNoZXMgaW50bzoKCjEgYmV0dGVyIG5hbWluZyBvZiB2YXJpYWJsZSBvZiB2aG9zdF9uZXRfcnhf
+cGVla19oZWFkX2xlbigpLgoyIGF2b2lkIHR4IGtpY2tzIChtb3N0IG9mIHdoYXQgdGhpcyBwYXRj
+aCBkaWQpCjMgYXZvaWQgcnggd2FrZXVwcyAoZXhhY3RseSB0aGUgYWJvdmUgNiBsaW5lcyBkaWQp
+CjQgYXZvaWQgcngga2lja3MKCkJ0dywgdG9uZ2hhbyBpcyBkb2luZyBzb21lIHJlZmFjdG9yaW5n
+IG9mIGJ1c3kgcG9sbGluZyBhcyB3ZWxsLiBEZXBlbmRzIApvbiB0aGUgb3JkZXIgb2YgYmVpbmcg
+bWVyZ2VkLCBvbmUgb2YgeW91IG1heSBuZWVkIHJlYmFzaW5nLgoKVGhhbmtzCgo+ICAgb3V0Ogo+
+ICAgCXZob3N0X3J4X3NpZ25hbF91c2VkKG52cSk7Cj4gICAJbXV0ZXhfdW5sb2NrKCZ2cS0+bXV0
+ZXgpOwo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJzL3Zob3N0
+L3Zob3N0LmMKPiBpbmRleCA5YmVlZmE2ZWQxY2UuLmZlODM1NzhmZTMzNiAxMDA2NDQKPiAtLS0g
+YS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiBA
+QCAtMzIzLDYgKzMyMyw3IEBAIHN0YXRpYyB2b2lkIHZob3N0X3ZxX3Jlc2V0KHN0cnVjdCB2aG9z
+dF9kZXYgKmRldiwKPiAgIAl2aG9zdF9yZXNldF9pc19sZSh2cSk7Cj4gICAJdmhvc3RfZGlzYWJs
+ZV9jcm9zc19lbmRpYW4odnEpOwo+ICAgCXZxLT5idXN5bG9vcF90aW1lb3V0ID0gMDsKPiArCXZx
+LT5idXN5bG9vcF9lbmR0aW1lID0gMDsKPiAgIAl2cS0+dW1lbSA9IE5VTEw7Cj4gICAJdnEtPmlv
+dGxiID0gTlVMTDsKPiAgIAlfX3Zob3N0X3ZxX21ldGFfcmVzZXQodnEpOwo+IGRpZmYgLS1naXQg
+YS9kcml2ZXJzL3Zob3N0L3Zob3N0LmggYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiBpbmRleCA2
+Yzg0NGI5MGExNjguLjdlOWNmODBjY2FlOSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zo
+b3N0LmgKPiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiBAQCAtMTQ0LDYgKzE0NCw3IEBA
+IHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgewo+ICAgCWJvb2wgdXNlcl9iZTsKPiAgICNlbmRpZgo+
+ICAgCXUzMiBidXN5bG9vcF90aW1lb3V0Owo+ICsJdW5zaWduZWQgbG9uZyBidXN5bG9vcF9lbmR0
+aW1lOwo+ICAgfTsKPiAgIAo+ICAgc3RydWN0IHZob3N0X21zZ19ub2RlIHsKCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
