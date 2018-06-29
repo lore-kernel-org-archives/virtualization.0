@@ -1,16 +1,11 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v34 0/4] Virtio-balloon: support free page reporting
-Date: Fri, 29 Jun 2018 09:46:09 +0200
-Message-ID: <4840cbb7-dd3f-7540-6a7c-13427de2f0d1@redhat.com>
-References: <1529928312-30500-1-git-send-email-wei.w.wang@intel.com>
-	<c4dd0a13-91fb-c0f5-b41f-54421fdacca9@redhat.com>
-	<5B35ACD5.4090800@intel.com>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Subject: [PATCH vhost] vhost_net: Fix too many vring kick on busypoll
+Date: Fri, 29 Jun 2018 17:09:50 +0900
+Message-ID: <1530259790-2414-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5B35ACD5.4090800@intel.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,144 +15,254 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org
-Cc: yang.zhang.wz@gmail.com, Andrea Arcangeli <aarcange@redhat.com>, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, Luiz Capitulino <lcapitulino@redhat.com>, pbonzini@redhat.com, nilal@redhat.com, torvalds@linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 29.06.2018 05:51, Wei Wang wrote:
-> On 06/27/2018 07:06 PM, David Hildenbrand wrote:
->> On 25.06.2018 14:05, Wei Wang wrote:
->>> This patch series is separated from the previous "Virtio-balloon
->>> Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,
->>> implemented by this series enables the virtio-balloon driver to report
->>> hints of guest free pages to the host. It can be used to accelerate live
->>> migration of VMs. Here is an introduction of this usage:
->>>
->>> Live migration needs to transfer the VM's memory from the source machine
->>> to the destination round by round. For the 1st round, all the VM's memory
->>> is transferred. From the 2nd round, only the pieces of memory that were
->>> written by the guest (after the 1st round) are transferred. One method
->>> that is popularly used by the hypervisor to track which part of memory is
->>> written is to write-protect all the guest memory.
->>>
->>> This feature enables the optimization by skipping the transfer of guest
->>> free pages during VM live migration. It is not concerned that the memory
->>> pages are used after they are given to the hypervisor as a hint of the
->>> free pages, because they will be tracked by the hypervisor and transferred
->>> in the subsequent round if they are used and written.
->>>
->>> * Tests
->>> - Test Environment
->>>      Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
->>>      Guest: 8G RAM, 4 vCPU
->>>      Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
->>>
->>> - Test Results
->>>      - Idle Guest Live Migration Time (results are averaged over 10 runs):
->>>          - Optimization v.s. Legacy = 284ms vs 1757ms --> ~84% reduction
->>>      - Guest with Linux Compilation Workload (make bzImage -j4):
->>>          - Live Migration Time (average)
->>>            Optimization v.s. Legacy = 1402ms v.s. 2528ms --> ~44% reduction
->>>          - Linux Compilation Time
->>>            Optimization v.s. Legacy = 5min6s v.s. 5min12s
->>>            --> no obvious difference
->>>
->> Being in version 34 already, this whole thing still looks and feels like
->> a big hack to me. It might just be me, but especially if I read about
->> assumptions like "QEMU will not hotplug memory during migration". This
->> does not feel like a clean solution.
->>
->> I am still not sure if we really need this interface, especially as real
->> free page hinting might be on its way.
->>
->> a) we perform free page hinting by setting all free pages
->> (arch_free_page()) to zero. Migration will detect zero pages and
->> minimize #pages to migrate. I don't think this is a good idea but Michel
->> suggested to do a performance evaluation and Nitesh is looking into that
->> right now.
-> 
-> The hypervisor doesn't get the zero pages for free. It pays lots of CPU 
-> utilization and memory bandwidth (there are some guys complaining abut 
-> this on the QEMU mailinglist)
-> In the above results, the legacy part already has the zero page feature 
-> in use.
+Under heavy load vhost busypoll may run without suppressing
+notification. For example tx zerocopy callback can push tx work while
+handle_tx() is running, then busyloop exits due to vhost_has_work()
+condition and enables notification but immediately reenters handle_tx()
+because the pushed work was tx. In this case handle_tx() tries to
+disable notification again, but when using event_idx it by design
+cannot. Then busyloop will run without suppressing notification.
+Another example is the case where handle_tx() tries to enable
+notification but avail idx is advanced so disables it again. This case
+also lead to the same situation with event_idx.
 
-Indeed, I don't consider this attempt not very practical in general,
-especially as it would rely on KSM right now, which is frowned upon by
-many people.
+The problem is that once we enter this situation busyloop does not work
+under heavy load for considerable amount of time, because notification
+is likely to happen during busyloop and handle_tx() immediately enables
+notification after notification happens. Specifically busyloop detects
+notification by vhost_has_work() and then handle_tx() calls
+vhost_enable_notify(). Because the detected work was the tx work, it
+enters handle_tx(), and enters busyloop without suppression again.
+This is likely to be repeated, so with event_idx we are almost not able
+to suppress notification in this case.
 
-> 
->>
->> b) we perform free page hinting using something that Nitesh proposed. We
->> get in QEMU blocks of free pages that we can MADV_FREE. In addition we
->> could e.g. clear the dirty bit of these pages in the dirty bitmap, to
->> hinder them from getting migrated. Right now the hinting mechanism is
->> synchronous (called from arch_free_page()) but we might be able to
->> convert it into something asynchronous.
->>
->> So we might be able to completely get rid of this interface. And looking
->> at all the discussions and problems that already happened during the
->> development of this series, I think we should rather look into how clean
->> free page hinting might solve the same problem.
->>
->> If it can't be solved using free page hinting, fair enough.
->>
-> 
-> I'm afraid it can't. For example, when we have a guest booted, without 
-> too many memory activities. Assume the guest has 8GB free memory. The 
-> arch_free_page there won't be able to capture the 8GB free pages since 
-> there is no free() called. This results in no free pages reported to host.
+To fix this, poll the work instead of enabling notification when
+busypoll is interrupted by something. IMHO signal_pending() and
+vhost_has_work() are kind of interruptions rather than signals to
+completely cancel the busypoll, so let's run busypoll after the
+necessary work is done. In order to avoid too long busyloop due to
+interruption, save the endtime in vq field and use it when reentering
+the work function.
 
+I observed this problem makes tx performance poor but does not rx. I
+guess it is because rx notification from socket is not that heavy so
+did not impact the performance even when we failed to mask the
+notification. Anyway for consistency I fixed rx routine as well as tx.
 
-So, it takes some time from when the guest boots up until the balloon
-device was initialized and therefore page hinting can start. For that
-period, you won't get any arch_free_page()/page hinting callbacks, correct.
+Performance numbers:
 
-However in the hypervisor, you can theoretically track which pages the
-guest actually touched ("dirty"), so you already know "which pages were
-never touched while booting up until virtio-balloon was brought to
-life". These, you can directly exclude from migration. No interface
-required.
+- Bulk transfer from guest to external physical server.
+    [Guest]->vhost_net->tap--(XDP_REDIRECT)-->i40e --(wire)--> [Server]
+- Set 10us busypoll.
+- Guest disables checksum and TSO because of host XDP.
+- Measured single flow Mbps by netperf, and kicks by perf kvm stat
+  (EPT_MISCONFIG event).
 
-The remaining problem is pages that were touched ("allocated") by the
-guest during bootup but freed again, before virtio-balloon came up. One
-would have to measure how many pages these usually are, I would say it
-would not be that many (because recently freed pages are likely to be
-used again next for allocation). However, there are some pages not being
-reported.
+                            Before              After
+                          Mbps  kicks/s      Mbps  kicks/s
+UDP_STREAM 1472byte              247758                 27
+                Send   3645.37            6958.10
+                Recv   3588.56            6958.10
+              1byte                9865                 37
+                Send      4.34               5.43
+                Recv      4.17               5.26
+TCP_STREAM             8801.03    45794   9592.77     2884
 
-During the lifetime of the guest, this should not be a problem,
-eventually one of these pages would get allocated/freed again, so the
-problem "solves itself over time". You are looking into the special case
-of migrating the VM just after it has been started. But we have the
-exact same problem also for ordinary free page hinting, so we should
-rather solve that problem. It is not migration specific.
+Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+---
+ drivers/vhost/net.c   | 94 +++++++++++++++++++++++++++++++++++----------------
+ drivers/vhost/vhost.c |  1 +
+ drivers/vhost/vhost.h |  1 +
+ 3 files changed, 66 insertions(+), 30 deletions(-)
 
-If we are looking for an alternative to "problem solves itself",
-something like "if virtio-balloon comes up, it will report all free
-pages step by step using free page hinting, just like we would have from
-"arch_free_pages()"". This would be the same interface we are using for
-free page hinting - and it could even be made configurable in the guest.
-
-The current approach we are discussing internally for details about
-Nitesh's work ("how the magic inside arch_fee_pages() will work
-efficiently) would allow this as far as I can see just fine.
-
-There would be a tiny little window between virtio-balloon comes up and
-it has reported all free pages step by step, but that can be considered
-a very special corner case that I would argue is not worth it to be
-optimized.
-
-If I am missing something important here, sorry in advance :)
-
-> 
-> Best,
-> Wei
-> 
-
-
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index eeaf6739215f..0e85f628b965 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -391,13 +391,14 @@ static inline unsigned long busy_clock(void)
+ 	return local_clock() >> 10;
+ }
+ 
+-static bool vhost_can_busy_poll(struct vhost_dev *dev,
+-				unsigned long endtime)
++static bool vhost_can_busy_poll(unsigned long endtime)
+ {
+-	return likely(!need_resched()) &&
+-	       likely(!time_after(busy_clock(), endtime)) &&
+-	       likely(!signal_pending(current)) &&
+-	       !vhost_has_work(dev);
++	return likely(!need_resched() && !time_after(busy_clock(), endtime));
++}
++
++static bool vhost_busy_poll_interrupted(struct vhost_dev *dev)
++{
++	return unlikely(signal_pending(current)) || vhost_has_work(dev);
+ }
+ 
+ static void vhost_net_disable_vq(struct vhost_net *n,
+@@ -437,10 +438,21 @@ static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
+ 
+ 	if (r == vq->num && vq->busyloop_timeout) {
+ 		preempt_disable();
+-		endtime = busy_clock() + vq->busyloop_timeout;
+-		while (vhost_can_busy_poll(vq->dev, endtime) &&
+-		       vhost_vq_avail_empty(vq->dev, vq))
++		if (vq->busyloop_endtime) {
++			endtime = vq->busyloop_endtime;
++			vq->busyloop_endtime = 0;
++		} else {
++			endtime = busy_clock() + vq->busyloop_timeout;
++		}
++		while (vhost_can_busy_poll(endtime)) {
++			if (vhost_busy_poll_interrupted(vq->dev)) {
++				vq->busyloop_endtime = endtime;
++				break;
++			}
++			if (!vhost_vq_avail_empty(vq->dev, vq))
++				break;
+ 			cpu_relax();
++		}
+ 		preempt_enable();
+ 		r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
+ 				      out_num, in_num, NULL, NULL);
+@@ -509,12 +521,16 @@ static void handle_tx(struct vhost_net *net)
+ 			break;
+ 		/* Nothing new?  Wait for eventfd to tell us they refilled. */
+ 		if (head == vq->num) {
+-			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
++			if (unlikely(vq->busyloop_endtime)) {
++				/* Busy poll is interrupted. */
++				vhost_poll_queue(&vq->poll);
++			} else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
+ 				vhost_disable_notify(&net->dev, vq);
+ 				continue;
+ 			}
+ 			break;
+ 		}
++		vq->busyloop_endtime = 0;
+ 		if (in) {
+ 			vq_err(vq, "Unexpected descriptor format for TX: "
+ 			       "out %d, int %d\n", out, in);
+@@ -642,39 +658,51 @@ static void vhost_rx_signal_used(struct vhost_net_virtqueue *nvq)
+ 
+ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
+ {
+-	struct vhost_net_virtqueue *rvq = &net->vqs[VHOST_NET_VQ_RX];
+-	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
+-	struct vhost_virtqueue *vq = &nvq->vq;
++	struct vhost_net_virtqueue *rnvq = &net->vqs[VHOST_NET_VQ_RX];
++	struct vhost_net_virtqueue *tnvq = &net->vqs[VHOST_NET_VQ_TX];
++	struct vhost_virtqueue *rvq = &rnvq->vq;
++	struct vhost_virtqueue *tvq = &tnvq->vq;
+ 	unsigned long uninitialized_var(endtime);
+-	int len = peek_head_len(rvq, sk);
++	int len = peek_head_len(rnvq, sk);
+ 
+-	if (!len && vq->busyloop_timeout) {
++	if (!len && tvq->busyloop_timeout) {
+ 		/* Flush batched heads first */
+-		vhost_rx_signal_used(rvq);
++		vhost_rx_signal_used(rnvq);
+ 		/* Both tx vq and rx socket were polled here */
+-		mutex_lock_nested(&vq->mutex, 1);
+-		vhost_disable_notify(&net->dev, vq);
++		mutex_lock_nested(&tvq->mutex, 1);
++		vhost_disable_notify(&net->dev, tvq);
+ 
+ 		preempt_disable();
+-		endtime = busy_clock() + vq->busyloop_timeout;
++		if (rvq->busyloop_endtime) {
++			endtime = rvq->busyloop_endtime;
++			rvq->busyloop_endtime = 0;
++		} else {
++			endtime = busy_clock() + tvq->busyloop_timeout;
++		}
+ 
+-		while (vhost_can_busy_poll(&net->dev, endtime) &&
+-		       !sk_has_rx_data(sk) &&
+-		       vhost_vq_avail_empty(&net->dev, vq))
++		while (vhost_can_busy_poll(endtime)) {
++			if (vhost_busy_poll_interrupted(&net->dev)) {
++				rvq->busyloop_endtime = endtime;
++				break;
++			}
++			if (sk_has_rx_data(sk) ||
++			    !vhost_vq_avail_empty(&net->dev, tvq))
++				break;
+ 			cpu_relax();
++		}
+ 
+ 		preempt_enable();
+ 
+-		if (!vhost_vq_avail_empty(&net->dev, vq))
+-			vhost_poll_queue(&vq->poll);
+-		else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
+-			vhost_disable_notify(&net->dev, vq);
+-			vhost_poll_queue(&vq->poll);
++		if (!vhost_vq_avail_empty(&net->dev, tvq)) {
++			vhost_poll_queue(&tvq->poll);
++		} else if (unlikely(vhost_enable_notify(&net->dev, tvq))) {
++			vhost_disable_notify(&net->dev, tvq);
++			vhost_poll_queue(&tvq->poll);
+ 		}
+ 
+-		mutex_unlock(&vq->mutex);
++		mutex_unlock(&tvq->mutex);
+ 
+-		len = peek_head_len(rvq, sk);
++		len = peek_head_len(rnvq, sk);
+ 	}
+ 
+ 	return len;
+@@ -804,6 +832,7 @@ static void handle_rx(struct vhost_net *net)
+ 	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
+ 
+ 	while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk))) {
++		vq->busyloop_endtime = 0;
+ 		sock_len += sock_hlen;
+ 		vhost_len = sock_len + vhost_hlen;
+ 		headcount = get_rx_bufs(vq, vq->heads + nvq->done_idx,
+@@ -889,7 +918,12 @@ static void handle_rx(struct vhost_net *net)
+ 			goto out;
+ 		}
+ 	}
+-	vhost_net_enable_vq(net, vq);
++	if (unlikely(vq->busyloop_endtime)) {
++		/* Busy poll is interrupted. */
++		vhost_poll_queue(&vq->poll);
++	} else {
++		vhost_net_enable_vq(net, vq);
++	}
+ out:
+ 	vhost_rx_signal_used(nvq);
+ 	mutex_unlock(&vq->mutex);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 9beefa6ed1ce..fe83578fe336 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -323,6 +323,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+ 	vhost_reset_is_le(vq);
+ 	vhost_disable_cross_endian(vq);
+ 	vq->busyloop_timeout = 0;
++	vq->busyloop_endtime = 0;
+ 	vq->umem = NULL;
+ 	vq->iotlb = NULL;
+ 	__vhost_vq_meta_reset(vq);
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 6c844b90a168..7e9cf80ccae9 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -144,6 +144,7 @@ struct vhost_virtqueue {
+ 	bool user_be;
+ #endif
+ 	u32 busyloop_timeout;
++	unsigned long busyloop_endtime;
+ };
+ 
+ struct vhost_msg_node {
 -- 
-
-Thanks,
-
-David / dhildenb
+2.14.2
