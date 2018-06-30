@@ -1,8 +1,8 @@
 From: xiangxia.m.yue@gmail.com
-Subject: [PATCH net-next v3 2/4] net: vhost: replace magic number of lock
-	annotation
-Date: Fri, 29 Jun 2018 23:33:56 -0700
-Message-ID: <1530340438-3039-3-git-send-email-xiangxia.m.yue__14144.5353780457$1530340459$gmane$org@gmail.com>
+Subject: [PATCH net-next v3 3/4] net: vhost: factor out busy polling logic to
+	vhost_net_busy_poll()
+Date: Fri, 29 Jun 2018 23:33:57 -0700
+Message-ID: <1530340438-3039-4-git-send-email-xiangxia.m.yue__11478.5135061995$1530340542$gmane$org@gmail.com>
 References: <1530340438-3039-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,43 +24,135 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 
-Use the VHOST_NET_VQ_XXX as a subclass for mutex_lock_nested.
+Factor out generic busy polling logic and will be
+used for tx path in the next patch. And with the patch,
+qemu can set differently the busyloop_timeout for rx queue.
 
 Signed-off-by: Tonghao Zhang <zhangtonghao@didichuxing.com>
 ---
- drivers/vhost/net.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/vhost/net.c | 92 ++++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 53 insertions(+), 39 deletions(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index e7cf7d2..62bb8e8 100644
+index 62bb8e8..458f81d 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -484,7 +484,7 @@ static void handle_tx(struct vhost_net *net)
- 	bool zcopy, zcopy_used;
- 	int sent_pkts = 0;
+@@ -429,6 +429,50 @@ static int vhost_net_enable_vq(struct vhost_net *n,
+ 	return vhost_poll_start(poll, sock->file);
+ }
  
--	mutex_lock(&vq->mutex);
-+	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_TX);
- 	sock = vq->private_data;
- 	if (!sock)
- 		goto out;
-@@ -655,7 +655,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
- 		/* Flush batched heads first */
- 		vhost_rx_signal_used(rvq);
- 		/* Both tx vq and rx socket were polled here */
--		mutex_lock_nested(&vq->mutex, 1);
-+		mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_TX);
- 		vhost_disable_notify(&net->dev, vq);
++static int sk_has_rx_data(struct sock *sk)
++{
++	struct socket *sock = sk->sk_socket;
++
++	if (sock->ops->peek_len)
++		return sock->ops->peek_len(sock);
++
++	return skb_queue_empty(&sk->sk_receive_queue);
++}
++
++static void vhost_net_busy_poll(struct vhost_net *net,
++				struct vhost_virtqueue *rvq,
++				struct vhost_virtqueue *tvq,
++				bool rx)
++{
++	unsigned long uninitialized_var(endtime);
++	struct socket *sock = rvq->private_data;
++	struct vhost_virtqueue *vq = rx ? tvq : rvq;
++	unsigned long busyloop_timeout = rx ? rvq->busyloop_timeout :
++					      tvq->busyloop_timeout;
++
++	mutex_lock_nested(&vq->mutex, rx ? VHOST_NET_VQ_TX: VHOST_NET_VQ_RX);
++	vhost_disable_notify(&net->dev, vq);
++
++	preempt_disable();
++	endtime = busy_clock() + busyloop_timeout;
++	while (vhost_can_busy_poll(tvq->dev, endtime) &&
++	       !(sock && sk_has_rx_data(sock->sk)) &&
++	       vhost_vq_avail_empty(tvq->dev, tvq))
++		cpu_relax();
++	preempt_enable();
++
++	if ((rx && !vhost_vq_avail_empty(&net->dev, vq)) ||
++	    (!rx && (sock && sk_has_rx_data(sock->sk)))) {
++		vhost_poll_queue(&vq->poll);
++	} else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
++		vhost_disable_notify(&net->dev, vq);
++		vhost_poll_queue(&vq->poll);
++	}
++
++	mutex_unlock(&vq->mutex);
++}
++
++
+ static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
+ 				    struct vhost_virtqueue *vq,
+ 				    struct iovec iov[], unsigned int iov_size,
+@@ -621,16 +665,6 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
+ 	return len;
+ }
  
- 		preempt_disable();
-@@ -789,7 +789,7 @@ static void handle_rx(struct vhost_net *net)
- 	__virtio16 num_buffers;
- 	int recv_pkts = 0;
+-static int sk_has_rx_data(struct sock *sk)
+-{
+-	struct socket *sock = sk->sk_socket;
+-
+-	if (sock->ops->peek_len)
+-		return sock->ops->peek_len(sock);
+-
+-	return skb_queue_empty(&sk->sk_receive_queue);
+-}
+-
+ static void vhost_rx_signal_used(struct vhost_net_virtqueue *nvq)
+ {
+ 	struct vhost_virtqueue *vq = &nvq->vq;
+@@ -645,39 +679,19 @@ static void vhost_rx_signal_used(struct vhost_net_virtqueue *nvq)
  
--	mutex_lock_nested(&vq->mutex, 0);
-+	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_RX);
- 	sock = vq->private_data;
- 	if (!sock)
- 		goto out;
+ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
+ {
+-	struct vhost_net_virtqueue *rvq = &net->vqs[VHOST_NET_VQ_RX];
+-	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
+-	struct vhost_virtqueue *vq = &nvq->vq;
+-	unsigned long uninitialized_var(endtime);
+-	int len = peek_head_len(rvq, sk);
++	struct vhost_net_virtqueue *nvq_rx = &net->vqs[VHOST_NET_VQ_RX];
++	struct vhost_net_virtqueue *nvq_tx = &net->vqs[VHOST_NET_VQ_TX];
+ 
+-	if (!len && vq->busyloop_timeout) {
+-		/* Flush batched heads first */
+-		vhost_rx_signal_used(rvq);
+-		/* Both tx vq and rx socket were polled here */
+-		mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_TX);
+-		vhost_disable_notify(&net->dev, vq);
++	int len = peek_head_len(nvq_rx, sk);
+ 
+-		preempt_disable();
+-		endtime = busy_clock() + vq->busyloop_timeout;
+-
+-		while (vhost_can_busy_poll(&net->dev, endtime) &&
+-		       !sk_has_rx_data(sk) &&
+-		       vhost_vq_avail_empty(&net->dev, vq))
+-			cpu_relax();
+-
+-		preempt_enable();
+-
+-		if (!vhost_vq_avail_empty(&net->dev, vq))
+-			vhost_poll_queue(&vq->poll);
+-		else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
+-			vhost_disable_notify(&net->dev, vq);
+-			vhost_poll_queue(&vq->poll);
+-		}
++	if (!len && nvq_rx->vq.busyloop_timeout) {
++		/* Flush batched heads first */
++		vhost_rx_signal_used(nvq_rx);
+ 
+-		mutex_unlock(&vq->mutex);
++		/* Both tx vq and rx socket were polled here */
++		vhost_net_busy_poll(net, &nvq_rx->vq, &nvq_tx->vq, true);
+ 
+-		len = peek_head_len(rvq, sk);
++		len = peek_head_len(nvq_rx, sk);
+ 	}
+ 
+ 	return len;
 -- 
 1.8.3.1
