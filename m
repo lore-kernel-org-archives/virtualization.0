@@ -1,14 +1,16 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH vhost] vhost_net: Fix too many vring kick on busypoll
-Date: Mon, 2 Jul 2018 11:59:42 +0900
-Message-ID: <09967fa3-1efe-23c2-67a7-3ce9ee9705e5@lab.ntt.co.jp>
+Date: Mon, 2 Jul 2018 11:05:38 +0800
+Message-ID: <862f8999-1e03-e7e7-ad23-be0360abf51d@redhat.com>
 References: <1530259790-2414-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 	<20180629193448-mutt-send-email-mst@kernel.org>
+	<c21a4671-df85-4805-a4ec-2441859e4e1b@redhat.com>
+	<c6ef8c74-7efa-707b-d62d-471636dd0a7f@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180629193448-mutt-send-email-mst@kernel.org>
+In-Reply-To: <c6ef8c74-7efa-707b-d62d-471636dd0a7f@lab.ntt.co.jp>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,51 +21,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2018/06/30 1:38, Michael S. Tsirkin wrote:
-...
->> Performance numbers:
->>
->> - Bulk transfer from guest to external physical server.
->>     [Guest]->vhost_net->tap--(XDP_REDIRECT)-->i40e --(wire)--> [Server]
->> - Set 10us busypoll.
->> - Guest disables checksum and TSO because of host XDP.
->> - Measured single flow Mbps by netperf, and kicks by perf kvm stat
->>   (EPT_MISCONFIG event).
->>
->>                             Before              After
->>                           Mbps  kicks/s      Mbps  kicks/s
->> UDP_STREAM 1472byte              247758                 27
->>                 Send   3645.37            6958.10
->>                 Recv   3588.56            6958.10
->>               1byte                9865                 37
->>                 Send      4.34               5.43
->>                 Recv      4.17               5.26
->> TCP_STREAM             8801.03    45794   9592.77     2884
->>
->> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> 
-> Is this with busy poll enabled?
-
-Yes, as I wrote "Set 10us busypoll" above.
-
-> Are there CPU utilization #s?
-
-I used one cpu for one vcpu and one cpu for one vhost.
-Each host cpu for vcpu/vhost was like this:
-
-- Before
- vcpu cpu : %guest 70 %sys 30
- vhost cpu: %sys 100
-
-- After
- vcpu cpu : %guest 100
- vhost cpu: %sys 100
-
-I think %sys before patch was caused by vring kick.
-
--- 
-Toshiaki Makita
+CgpPbiAyMDE45bm0MDfmnIgwMuaXpSAxMDo1MiwgVG9zaGlha2kgTWFraXRhIHdyb3RlOgo+IE9u
+IDIwMTgvMDcvMDIgMTE6NDEsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9uIDIwMTjlubQwNuaciDMw
+5pelIDAwOjM4LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+PiBPbiBGcmksIEp1biAyOSwg
+MjAxOCBhdCAwNTowOTo1MFBNICswOTAwLCBUb3NoaWFraSBNYWtpdGEgd3JvdGU6Cj4+Pj4gVW5k
+ZXIgaGVhdnkgbG9hZCB2aG9zdCBidXN5cG9sbCBtYXkgcnVuIHdpdGhvdXQgc3VwcHJlc3NpbmcK
+Pj4+PiBub3RpZmljYXRpb24uIEZvciBleGFtcGxlIHR4IHplcm9jb3B5IGNhbGxiYWNrIGNhbiBw
+dXNoIHR4IHdvcmsgd2hpbGUKPj4+PiBoYW5kbGVfdHgoKSBpcyBydW5uaW5nLCB0aGVuIGJ1c3ls
+b29wIGV4aXRzIGR1ZSB0byB2aG9zdF9oYXNfd29yaygpCj4+Pj4gY29uZGl0aW9uIGFuZCBlbmFi
+bGVzIG5vdGlmaWNhdGlvbiBidXQgaW1tZWRpYXRlbHkgcmVlbnRlcnMgaGFuZGxlX3R4KCkKPj4+
+PiBiZWNhdXNlIHRoZSBwdXNoZWQgd29yayB3YXMgdHguIEluIHRoaXMgY2FzZSBoYW5kbGVfdHgo
+KSB0cmllcyB0bwo+Pj4+IGRpc2FibGUgbm90aWZpY2F0aW9uIGFnYWluLCBidXQgd2hlbiB1c2lu
+ZyBldmVudF9pZHggaXQgYnkgZGVzaWduCj4+Pj4gY2Fubm90LiBUaGVuIGJ1c3lsb29wIHdpbGwg
+cnVuIHdpdGhvdXQgc3VwcHJlc3Npbmcgbm90aWZpY2F0aW9uLgo+Pj4+IEFub3RoZXIgZXhhbXBs
+ZSBpcyB0aGUgY2FzZSB3aGVyZSBoYW5kbGVfdHgoKSB0cmllcyB0byBlbmFibGUKPj4+PiBub3Rp
+ZmljYXRpb24gYnV0IGF2YWlsIGlkeCBpcyBhZHZhbmNlZCBzbyBkaXNhYmxlcyBpdCBhZ2Fpbi4g
+VGhpcyBjYXNlCj4+Pj4gYWxzbyBsZWFkIHRvIHRoZSBzYW1lIHNpdHVhdGlvbiB3aXRoIGV2ZW50
+X2lkeC4KPj4+Pgo+Pj4+IFRoZSBwcm9ibGVtIGlzIHRoYXQgb25jZSB3ZSBlbnRlciB0aGlzIHNp
+dHVhdGlvbiBidXN5bG9vcCBkb2VzIG5vdCB3b3JrCj4+Pj4gdW5kZXIgaGVhdnkgbG9hZCBmb3Ig
+Y29uc2lkZXJhYmxlIGFtb3VudCBvZiB0aW1lLCBiZWNhdXNlIG5vdGlmaWNhdGlvbgo+Pj4+IGlz
+IGxpa2VseSB0byBoYXBwZW4gZHVyaW5nIGJ1c3lsb29wIGFuZCBoYW5kbGVfdHgoKSBpbW1lZGlh
+dGVseSBlbmFibGVzCj4+Pj4gbm90aWZpY2F0aW9uIGFmdGVyIG5vdGlmaWNhdGlvbiBoYXBwZW5z
+LiBTcGVjaWZpY2FsbHkgYnVzeWxvb3AgZGV0ZWN0cwo+Pj4+IG5vdGlmaWNhdGlvbiBieSB2aG9z
+dF9oYXNfd29yaygpIGFuZCB0aGVuIGhhbmRsZV90eCgpIGNhbGxzCj4+Pj4gdmhvc3RfZW5hYmxl
+X25vdGlmeSgpLgo+Pj4gSSdkIGxpa2UgdG8gdW5kZXJzdGFuZCB0aGUgcHJvYmxlbSBhIGJpdCBi
+ZXR0ZXIuCj4+PiBXaHkgZG9lcyB0aGlzIGhhcHBlbj8KPj4+IERvZXNuJ3QgdGhpcyBvbmx5IGhh
+cHBlbiBpZiByaW5nIGlzIGVtcHR5Pwo+Pj4KPj4gTXkgdW5kZXJzdGFuZGluZyBpczoKPj4KPj4g
+dmhvc3RfemVyb2NvcHlfY2FsbGJhY2soKSB0cnkgdG8gcG9sbCB2aG9zdCB2aXJ0cXVldWUuIFRo
+aXMgd2lsbCBjYXVzZQo+PiB0aGUgYnVzeSBsb29wIGluIHZob3N0X25ldF90eF9nZXRfdnFfZGVz
+YygpIHRvIGV4aXQgYmVjYXVzZSBvZgo+PiB2aG9zdF9oYXNfd29yaygpIHJldHVybiB0cnVlLiBU
+aGVuIGhhbmRsZV90eCgpIHRlbmRzIHRvIGVuYWJsZQo+PiBub3RpZmljYXRpb24uIFRoZW4gZ3Vl
+c3QgbWF5IGtpY2sgdXMgZXZlbiBpZiBoYW5kbGVfdHgoKSBjYWxsCj4+IHZob3N0X2Rpc2FibGVf
+bm90aWZ5KCkgd2hpY2ggaW4gZmFjdCBkaWQgbm90aGluZyBmb3IgZXZlbiBpbmRleC4KPiBZZXMu
+Cj4KPj4gTWF5YmUgd2UgY2FuIHRyeSB0byBjYWxsIHZob3N0X3plcm9jb3B5X3NpZ25hbF91c2Vk
+KCkgaWYgd2UgZm91bmQKPj4gdGhlcmUncyBwZW5kaW5nIHVzZWQgZnJvbSB6ZXJvY29weSBpbnN0
+ZWFkLgo+IE5vdGUgdGhhdCBldmVuIHdoZW4gemVyb2NvcHkgaXMgZGlzYWJsZWQgdGhlIHByb2Js
+ZW0gaGFwcGVucyBhcyBJIHdyb3RlLgo+IFdoZW4gdmhvc3RfZW5hYmxlX25vdGlmeSgpIGRldGVj
+dHMgYXZhaWxfaWR4IGFkdmFuY2VkIGl0IHRyaWVzIHRvCj4gZGlzYWJsZSBub3RpZmljYXRpb24g
+YWdhaW4gYnV0IGl0IGZhaWxzLgo+CgpZZXMsIGFuZCB0aGUgbWFpbiByZWFzb24gaXMgbmVlZF9y
+ZXNjaGVkKCkgYW5kIHJ4IHdvcmsuIChwb2xsaW5nIFJYIHdpbGwgCmJlIGFkZHJlc3NlZCBieSBU
+b25naGFvJ3MgcGF0Y2ggSSB0aGluaykuCgpUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
