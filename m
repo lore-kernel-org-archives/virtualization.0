@@ -1,22 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH vhost] vhost_net: Fix too many vring kick on busypoll
-Date: Mon, 2 Jul 2018 16:54:48 +0800
-Message-ID: <97046866-71b8-1256-0836-f16c0bbf4c7b@redhat.com>
-References: <1530259790-2414-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<62908af8-ae65-c8d3-6f37-941471e0780e@redhat.com>
-	<4a5b4456-0f3e-40b3-849c-930ebb97ef3c@lab.ntt.co.jp>
-	<4dc58c49-f804-b720-6e50-5867dc32d7ec@redhat.com>
-	<23eaea23-2288-e00a-88df-f13eeb890e89@lab.ntt.co.jp>
-	<b0670083-d938-8b96-56d2-65d41d6b7c8c@redhat.com>
-	<0d7a285a-5fa2-0e51-8907-e8bfc508214b@lab.ntt.co.jp>
-	<3244a627-f70d-a7c6-46fb-24b5e3995ce2@redhat.com>
-	<c81775fd-c74f-d334-cbba-90decb55dfc2@lab.ntt.co.jp>
+From: xiangxia.m.yue@gmail.com
+Subject: [PATCH net-next v4 0/4] net: vhost: improve performance when enable
+	busyloop
+Date: Mon,  2 Jul 2018 05:57:04 -0700
+Message-ID: <1530536228-17462-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c81775fd-c74f-d334-cbba-90decb55dfc2@lab.ntt.co.jp>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,80 +16,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, Tonghao Zhang <zhangtonghao@didichuxing.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDfmnIgwMuaXpSAxNjowNSwgVG9zaGlha2kgTWFraXRhIHdyb3RlOgo+IE9u
-IDIwMTgvMDcvMDIgMTY6NTIsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9uIDIwMTjlubQwN+aciDAy
-5pelIDE1OjExLCBUb3NoaWFraSBNYWtpdGEgd3JvdGU6Cj4+PiBPbiAyMDE4LzA3LzAyIDE1OjE3
-LCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+IE9uIDIwMTjlubQwN+aciDAy5pelIDEyOjM3LCBUb3No
-aWFraSBNYWtpdGEgd3JvdGU6Cj4+Pj4+IE9uIDIwMTgvMDcvMDIgMTE6NTQsIEphc29uIFdhbmcg
-d3JvdGU6Cj4+Pj4+PiBPbiAyMDE45bm0MDfmnIgwMuaXpSAxMDo0NSwgVG9zaGlha2kgTWFraXRh
-IHdyb3RlOgo+Pj4+Pj4+IEhpIEphc29uLAo+Pj4+Pj4+Cj4+Pj4+Pj4gT24gMjAxOC8wNi8yOSAx
-ODozMCwgSmFzb24gV2FuZyB3cm90ZToKPj4+Pj4+Pj4gT24gMjAxOOW5tDA25pyIMjnml6UgMTY6
-MDksIFRvc2hpYWtpIE1ha2l0YSB3cm90ZToKPj4+Pj4+PiAuLi4KPj4+Pj4+Pj4+IFRvIGZpeCB0
-aGlzLCBwb2xsIHRoZSB3b3JrIGluc3RlYWQgb2YgZW5hYmxpbmcgbm90aWZpY2F0aW9uIHdoZW4K
-Pj4+Pj4+Pj4+IGJ1c3lwb2xsIGlzIGludGVycnVwdGVkIGJ5IHNvbWV0aGluZy4gSU1ITyBzaWdu
-YWxfcGVuZGluZygpIGFuZAo+Pj4+Pj4+Pj4gdmhvc3RfaGFzX3dvcmsoKSBhcmUga2luZCBvZiBp
-bnRlcnJ1cHRpb25zIHJhdGhlciB0aGFuIHNpZ25hbHMgdG8KPj4+Pj4+Pj4+IGNvbXBsZXRlbHkg
-Y2FuY2VsIHRoZSBidXN5cG9sbCwgc28gbGV0J3MgcnVuIGJ1c3lwb2xsIGFmdGVyIHRoZQo+Pj4+
-Pj4+Pj4gbmVjZXNzYXJ5IHdvcmsgaXMgZG9uZS4gSW4gb3JkZXIgdG8gYXZvaWQgdG9vIGxvbmcg
-YnVzeWxvb3AgZHVlIHRvCj4+Pj4+Pj4+PiBpbnRlcnJ1cHRpb24sIHNhdmUgdGhlIGVuZHRpbWUg
-aW4gdnEgZmllbGQgYW5kIHVzZSBpdCB3aGVuCj4+Pj4+Pj4+PiByZWVudGVyaW5nCj4+Pj4+Pj4+
-PiB0aGUgd29yayBmdW5jdGlvbi4KPj4+Pj4+Pj4gSSB0aGluayB3ZSBkb24ndCBjYXJlIGxvbmcg
-YnVzeWxvb3AgdW5sZXNzIGUuZyB0eCBjYW4gc3RhcnZlIHJ4Pwo+Pj4+Pj4+IEkganVzdCB3YW50
-IHRvIGtlZXAgaXQgdXNlci1jb250cm9sbGFibGUuIFVubGVzcyBtZW1vcml6aW5nIGl0Cj4+Pj4+
-Pj4gYnVzeXBvbGwKPj4+Pj4+PiBjYW4gcnVuIHVuZXhwZWN0ZWRseSBsb25nLgo+Pj4+Pj4gSSB0
-aGluayB0aGUgdG90YWwgYW1vdW50IG9mIHRpbWUgZm9yIGJ1c3kgcG9sbGluZyBpcyBib3VuZGVk
-LiBJZiBJIHdhcwo+Pj4+Pj4gd3JvbmcsIGl0IHNob3VsZCBiZSBhIGJ1ZyBzb21ld2hlcmUuCj4+
-Pj4+IENvbnNpZGVyIHRoaXMga2luZCBvZiBzY2VuYXJpbzoKPj4+Pj4gMC4gU2V0IDEwMHVzIGJ1
-c3lwb2xsIGZvciBleGFtcGxlLgo+Pj4+PiAxLiBoYW5kbGVfdHgoKSBydW5zIGJ1c3lwb2xsLgo+
-Pj4+PiAyLiBTb21ldGhpbmcgbGlrZSB6ZXJvY29weSBxdWV1ZXMgdHhfd29yayB3aXRoaW4gMTAw
-dXMuCj4+Pj4+IDMuIGJ1c3lwb2xsIGV4aXRzIGFuZCBjYWxsIGhhbmRsZV90eCgpIGFnYWluLgo+
-Pj4+PiA0LiBSZXBlYXQgMS0zLgo+Pj4+Pgo+Pj4+PiBJbiB0aGlzIGNhc2UgaGFuZGxlX3R4KCkg
-ZG9lcyBub3QgcHJvY2VzcyBwYWNrZXRzIGJ1dCBidXN5cG9sbAo+Pj4+PiBlc3NlbnRpYWxseSBy
-dW5zIGJleW9uZCAxMDB1cyB3aXRob3V0IGVuZHRpbWUgbWVtb3JpemVkLiBUaGlzIG1heSBiZQo+
-Pj4+PiBqdXN0IGEgdGhlb3JldGljYWwgcHJvYmxlbSwgYnV0IEkgd2FzIHdvcnJpZWQgdGhhdCBt
-b3JlIGNvZGUgdG8gcG9sbCB0eAo+Pj4+PiBxdWV1ZSBjYW4gYmUgYWRkZWQgaW4gdGhlIGZ1dHVy
-ZSBhbmQgaXQgYmVjb21lcyByZWFsaXN0aWMuCj4+Pj4gWWVzLCBidXQgY29uc2lkZXIgemVyb2Nv
-cHkgdGVuZHMgdG8gYmF0Y2ggMTYgdXNlZCBwYWNrZXRzIGFuZCB3ZSB3aWxsCj4+Pj4gZmluYWxs
-eSBmaW5pc2ggYWxsIHByb2Nlc3Npbmcgb2YgcGFja2V0cy4gVGhlIGFib3ZlIHdvbid0IGJlIGVu
-ZGxlc3MsIHNvCj4+Pj4gaXQgd2FzIHByb2JhYmx5IHRvbGVyYWJsZS4KPj4+IFJpZ2h0LiBTbyBl
-bmR0aW1lIG1lbW9yaXphdGlvbiBpcyBtb3JlIGxpa2UgYSBmdXR1cmUtcHJvb2YgdGhpbmcuCj4+
-PiBXb3VsZCB5b3UgbGlrZSB0byBrZWVwIGl0IG9yIGNoYW5nZSBzb21ldGhpbmc/Cj4+IEkgdGhp
-bmsgd2UnZCBiZXR0ZXIgaW50cm9kdWNlIGl0IG9ubHkgd2hlbiB3ZSBtZWV0IHJlYWwgYnVncy4K
-PiBJJ2xsIGNoYW5nZSBpdCB0byBhIGZsYWcgdG8gaW5kaWNhdGUgdGhlIHByZXZpb3VzIGJ1c3lw
-b2xsIGlzIGludGVycnVwdGVkLgo+Cj4+Pj4+Pj4+PiBQZXJmb3JtYW5jZSBudW1iZXJzOgo+Pj4+
-Pj4+Pj4KPj4+Pj4+Pj4+IC0gQnVsayB0cmFuc2ZlciBmcm9tIGd1ZXN0IHRvIGV4dGVybmFsIHBo
-eXNpY2FsIHNlcnZlci4KPj4+Pj4+Pj4+ICDCoMKgwqDCoMKgwqDCoCBbR3Vlc3RdLT52aG9zdF9u
-ZXQtPnRhcC0tKFhEUF9SRURJUkVDVCktLT5pNDBlIC0tKHdpcmUpLS0+Cj4+Pj4+Pj4+PiBbU2Vy
-dmVyXQo+Pj4+Pj4+PiBKdXN0IHRvIGNvbmZpcm0gaW4gdGhpcyBjYXNlIHNpbmNlIHplcm9jb3B5
-IGlzIGVuYWJsZWQsIHdlIGFyZSBpbgo+Pj4+Pj4+PiBmYWN0Cj4+Pj4+Pj4+IHVzZSB0aGUgZ2Vu
-ZXJpYyBYRFAgZGF0YXBhdGg/Cj4+Pj4+Pj4gRm9yIHNvbWUgcmVhc29uIHplcm9jb3B5IHdhcyBu
-b3QgYXBwbGllZCBmb3IgbW9zdCBwYWNrZXRzLCBzbyBpbiBtb3N0Cj4+Pj4+Pj4gY2FzZXMgZHJp
-dmVyIFhEUCB3YXMgdXNlZC4gSSB3YXMgZ29pbmcgdG8gZGlnIGludG8gaXQgYnV0IG5vdCB5ZXQu
-Cj4+Pj4+PiBSaWdodCwganVzdCB0byBjb25maXJtIHRoaXMuIFRoaXMgaXMgZXhwZWN0ZWQuCj4+
-Pj4+Pgo+Pj4+Pj4gSW4gdHVudGFwLCB3ZSBkbyBuYXRpdmUgWERQIG9ubHkgZm9yIHNtYWxsIGFu
-ZCBub24gemVyb2NvcHkKPj4+Pj4+IHBhY2tldHMuIFNlZQo+Pj4+Pj4gdHVuX2Nhbl9idWlsZF9z
-a2IoKS4gVGhlIHJlYXNvbiBpcyBYRFAgbWF5IGFkanVzdCBwYWNrZXQgaGVhZGVyCj4+Pj4+PiB3
-aGljaCBpcwo+Pj4+Pj4gbm90IHN1cHBvcnRlZCBieSB6ZXJjb3B5LiBXZSBjYW4gb25seSB1c2Ug
-WERQIGdlbmVyaWMgZm9yIHplcm9jb3B5IGluCj4+Pj4+PiB0aGlzIGNhc2UuCj4+Pj4+IEkgdGhp
-bmsgSSB1bmRlcnN0YW5kIHdoZW4gZHJpdmVyIFhEUCBjYW4gYmUgdXNlZC4gV2hhdCBJJ20gbm90
-IHN1cmUgYW5kCj4+Pj4+IHdhcyBnb2luZyB0byBuYXJyb3cgZG93biBpcyB3aHkgemVyb2NvcHkg
-aXMgbW9zdGx5IG5vdCBhcHBsaWVkLgo+Pj4+Pgo+Pj4+IEkgc2VlLCBhbnkgdG91Y2ggdG8gdGhl
-IHplcm9jb3B5IHBhY2tldCAoY2xvbmUsIGhlYWRlciBleHBhbnNpb24gb3IKPj4+PiBzZWdtZW50
-YXRpb24pIHRoYXQgbGVhZCBhIHVzZXJzcGFjZSBjb3B5IHdpbGwgaW5jcmVhc2UgdGhlIGVycm9y
-IGNvdW50ZXIKPj4+PiBpbiB2aG9zdF9uZXQuIFRoZW4gdmhvc3RfbmV0X3R4X3NlbGVjdF96Y29w
-eSgpIG1heSBjaG9vc2Ugbm90IHRvIHVzZQo+Pj4+IHplcm9jb3B5LiBTbyBpdCB3YXMgcHJvYmFi
-bHkgc29tZXRoaW5nIGluIHlvdXIgc2V0dXAgb3IgYSBidWcgc29tZXdoZXJlLgo+Pj4gVGhhbmtz
-IGZvciB0aGUgaGludCEKPiBTZWVtcyB6ZXJvY29weSBwYWNrZXRzIGFyZSBhbHdheXMgbm9ubGlu
-ZWFyIGFuZAo+IG5ldGlmX3JlY2VpdmVfZ2VuZXJpY194ZHAoKSBjYWxscyBza2JfbGluZWFyaXpl
-KCkgaW4gd2hpY2gKPiBfX3Bza2JfcHVsbF90YWlsKCkgY2FsbHMgc2tiX3pjb3B5X2NsZWFyKCku
-IExvb2tzIGxpa2UgdHhfemNvcHlfZXJyIGlzCj4gYWx3YXlzIGNvdW50ZWQgd2hlbiB6ZXJvY29w
-eSBpcyB1c2VkIHdpdGggWERQIGluIG15IGVudi4KPgoKUmlnaHQsIHNpbmNlIGl0IG5lZWRzIGRv
-IGNvcHkgdGhlcmUsIHNvIHdlIHRlbmQgdG8gZGlzYWJsZSB6ZXJvY29weSBpbiAKdGhpcyBjYXNl
-LgoKVGhhbmtzCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+
+This patches improve the guest receive and transmit performance.
+On the handle_tx side, we poll the sock receive queue at the same time.
+handle_rx do that in the same way.
+
+For more performance report, see patch 4.
+
+v3 -> v4:
+fix some issues
+
+v2 -> v3:
+This patches are splited from previous big patch:
+http://patchwork.ozlabs.org/patch/934673/
+
+Tonghao Zhang (4):
+  vhost: lock the vqs one by one
+  net: vhost: replace magic number of lock annotation
+  net: vhost: factor out busy polling logic to vhost_net_busy_poll()
+  net: vhost: add rx busy polling in tx path
+
+ drivers/vhost/net.c   | 108 ++++++++++++++++++++++++++++----------------------
+ drivers/vhost/vhost.c |  24 ++++-------
+ 2 files changed, 67 insertions(+), 65 deletions(-)
+
+-- 
+1.8.3.1
