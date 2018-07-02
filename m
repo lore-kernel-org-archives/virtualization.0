@@ -1,15 +1,15 @@
-From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Subject: Re: [PATCH net-next v3 4/4] net: vhost: add rx busy polling in tx path
-Date: Sat, 30 Jun 2018 16:48:20 +0800
-Message-ID: <CAMDZJNXoO=qq8BoxhFWZTUZ2OV7fq8nV-GmoR3MV7H+1VR2mww@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next v3 1/4] net: vhost: lock the vqs one by one
+Date: Mon, 2 Jul 2018 10:21:04 +0800
+Message-ID: <25e69ba2-5ad3-17c6-0cc0-a02c9741b550__14195.5605395653$1530497953$gmane$org@redhat.com>
 References: <1530340438-3039-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<1530340438-3039-5-git-send-email-xiangxia.m.yue@gmail.com>
-	<20180630090303.043a06c7@redhat.com>
+	<1530340438-3039-2-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180630090303.043a06c7@redhat.com>
+In-Reply-To: <1530340438-3039-2-git-send-email-xiangxia.m.yue@gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,68 +19,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: brouer@redhat.com
-Cc: mst@redhat.com, Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Tonghao Zhang <zhangtonghao@didichuxing.com>
+To: xiangxia.m.yue@gmail.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Tonghao Zhang <zhangtonghao@didichuxing.com>, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Jun 30, 2018 at 3:03 PM Jesper Dangaard Brouer
-<brouer@redhat.com> wrote:
->
-> On Fri, 29 Jun 2018 23:33:58 -0700
-> xiangxia.m.yue@gmail.com wrote:
->
-> > From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-> >
-> > This patch improves the guest receive and transmit performance.
-> > On the handle_tx side, we poll the sock receive queue at the
-> > same time. handle_rx do that in the same way.
-> >
-> > We set the poll-us=100us and use the iperf3 to test
->
-> Where/how do you configure poll-us=100us ?
->
-> Are you talking about /proc/sys/net/core/busy_poll ?
-No, we set the poll-us in qemu. e.g
--netdev tap,ifname=tap0,id=hostnet0,vhost=on,script=no,downscript=no,poll-us=100
-
->
-> p.s. Nice performance boost! :-)
->
-> > its bandwidth, use the netperf to test throughput and mean
-> > latency. When running the tests, the vhost-net kthread of
-> > that VM, is alway 100% CPU. The commands are shown as below.
-> >
-> > iperf3  -s -D
-> > iperf3  -c IP -i 1 -P 1 -t 20 -M 1400
-> >
-> > or
-> > netserver
-> > netperf -H IP -t TCP_RR -l 20 -- -O "THROUGHPUT,MEAN_LATENCY"
-> >
-> > host -> guest:
-> > iperf3:
-> > * With the patch:     27.0 Gbits/sec
-> > * Without the patch:  14.4 Gbits/sec
-> >
-> > netperf (TCP_RR):
-> > * With the patch:     48039.56 trans/s, 20.64us mean latency
-> > * Without the patch:  46027.07 trans/s, 21.58us mean latency
-> >
-> > This patch also improves the guest transmit performance.
-> >
-> > guest -> host:
-> > iperf3:
-> > * With the patch:     27.2 Gbits/sec
-> > * Without the patch:  24.4 Gbits/sec
-> >
-> > netperf (TCP_RR):
-> > * With the patch:     47963.25 trans/s, 20.71us mean latency
-> > * Without the patch:  45796.70 trans/s, 21.68us mean latency
-> >
-> > Signed-off-by: Tonghao Zhang <zhangtonghao@didichuxing.com>
->
-> --
-> Best regards,
->   Jesper Dangaard Brouer
->   MSc.CS, Principal Kernel Engineer at Red Hat
->   LinkedIn: http://www.linkedin.com/in/brouer
+CgpPbiAyMDE45bm0MDbmnIgzMOaXpSAxNDozMywgeGlhbmd4aWEubS55dWVAZ21haWwuY29tIHdy
+b3RlOgo+IEZyb206IFRvbmdoYW8gWmhhbmcgPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbT4KPgo+
+IFRoaXMgcGF0Y2ggY2hhbmdlcyB0aGUgd2F5IHRoYXQgbG9jayBhbGwgdnFzCj4gYXQgdGhlIHNh
+bWUsIHRvIGxvY2sgdGhlbSBvbmUgYnkgb25lLiBJdCB3aWxsCj4gYmUgdXNlZCBmb3IgbmV4dCBw
+YXRjaCB0byBhdm9pZCB0aGUgZGVhZGxvY2suCj4KPiBTaWduZWQtb2ZmLWJ5OiBUb25naGFvIFpo
+YW5nIDx6aGFuZ3RvbmdoYW9AZGlkaWNodXhpbmcuY29tPgo+IC0tLQo+ICAgZHJpdmVycy92aG9z
+dC92aG9zdC5jIHwgMjQgKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tCj4gICAxIGZpbGUgY2hhbmdl
+ZCwgNyBpbnNlcnRpb25zKCspLCAxNyBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2
+ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiBpbmRleCA4OTVlYWEy
+Li40Y2E5MzgzIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+ICsrKyBiL2Ry
+aXZlcnMvdmhvc3Qvdmhvc3QuYwo+IEBAIC0yOTQsOCArMjk0LDExIEBAIHN0YXRpYyB2b2lkIHZo
+b3N0X3ZxX21ldGFfcmVzZXQoc3RydWN0IHZob3N0X2RldiAqZCkKPiAgIHsKPiAgIAlpbnQgaTsK
+PiAgIAo+IC0JZm9yIChpID0gMDsgaSA8IGQtPm52cXM7ICsraSkKPiArCWZvciAoaSA9IDA7IGkg
+PCBkLT5udnFzOyArK2kpIHsKPiArCQltdXRleF9sb2NrKCZkLT52cXNbaV0tPm11dGV4KTsKPiAg
+IAkJX192aG9zdF92cV9tZXRhX3Jlc2V0KGQtPnZxc1tpXSk7Cj4gKwkJbXV0ZXhfdW5sb2NrKCZk
+LT52cXNbaV0tPm11dGV4KTsKPiArCX0KPiAgIH0KPiAgIAo+ICAgc3RhdGljIHZvaWQgdmhvc3Rf
+dnFfcmVzZXQoc3RydWN0IHZob3N0X2RldiAqZGV2LAo+IEBAIC04ODcsMjAgKzg5MCw2IEBAIHN0
+YXRpYyBpbmxpbmUgdm9pZCBfX3VzZXIgKl9fdmhvc3RfZ2V0X3VzZXIoc3RydWN0IHZob3N0X3Zp
+cnRxdWV1ZSAqdnEsCj4gICAjZGVmaW5lIHZob3N0X2dldF91c2VkKHZxLCB4LCBwdHIpIFwKPiAg
+IAl2aG9zdF9nZXRfdXNlcih2cSwgeCwgcHRyLCBWSE9TVF9BRERSX1VTRUQpCj4gICAKPiAtc3Rh
+dGljIHZvaWQgdmhvc3RfZGV2X2xvY2tfdnFzKHN0cnVjdCB2aG9zdF9kZXYgKmQpCj4gLXsKPiAt
+CWludCBpID0gMDsKPiAtCWZvciAoaSA9IDA7IGkgPCBkLT5udnFzOyArK2kpCj4gLQkJbXV0ZXhf
+bG9ja19uZXN0ZWQoJmQtPnZxc1tpXS0+bXV0ZXgsIGkpOwo+IC19Cj4gLQo+IC1zdGF0aWMgdm9p
+ZCB2aG9zdF9kZXZfdW5sb2NrX3ZxcyhzdHJ1Y3Qgdmhvc3RfZGV2ICpkKQo+IC17Cj4gLQlpbnQg
+aSA9IDA7Cj4gLQlmb3IgKGkgPSAwOyBpIDwgZC0+bnZxczsgKytpKQo+IC0JCW11dGV4X3VubG9j
+aygmZC0+dnFzW2ldLT5tdXRleCk7Cj4gLX0KPiAtCj4gICBzdGF0aWMgaW50IHZob3N0X25ld191
+bWVtX3JhbmdlKHN0cnVjdCB2aG9zdF91bWVtICp1bWVtLAo+ICAgCQkJCXU2NCBzdGFydCwgdTY0
+IHNpemUsIHU2NCBlbmQsCj4gICAJCQkJdTY0IHVzZXJzcGFjZV9hZGRyLCBpbnQgcGVybSkKPiBA
+QCAtOTUwLDcgKzkzOSwxMCBAQCBzdGF0aWMgdm9pZCB2aG9zdF9pb3RsYl9ub3RpZnlfdnEoc3Ry
+dWN0IHZob3N0X2RldiAqZCwKPiAgIAkJaWYgKG1zZy0+aW92YSA8PSB2cV9tc2ctPmlvdmEgJiYK
+PiAgIAkJICAgIG1zZy0+aW92YSArIG1zZy0+c2l6ZSAtIDEgPiB2cV9tc2ctPmlvdmEgJiYKPiAg
+IAkJICAgIHZxX21zZy0+dHlwZSA9PSBWSE9TVF9JT1RMQl9NSVNTKSB7Cj4gKwkJCW11dGV4X2xv
+Y2soJm5vZGUtPnZxLT5tdXRleCk7Cj4gICAJCQl2aG9zdF9wb2xsX3F1ZXVlKCZub2RlLT52cS0+
+cG9sbCk7Cj4gKwkJCW11dGV4X3VubG9jaygmbm9kZS0+dnEtPm11dGV4KTsKPiArCj4gICAJCQls
+aXN0X2RlbCgmbm9kZS0+bm9kZSk7Cj4gICAJCQlrZnJlZShub2RlKTsKPiAgIAkJfQo+IEBAIC05
+ODIsNyArOTc0LDYgQEAgc3RhdGljIGludCB2aG9zdF9wcm9jZXNzX2lvdGxiX21zZyhzdHJ1Y3Qg
+dmhvc3RfZGV2ICpkZXYsCj4gICAJaW50IHJldCA9IDA7Cj4gICAKPiAgIAltdXRleF9sb2NrKCZk
+ZXYtPm11dGV4KTsKPiAtCXZob3N0X2Rldl9sb2NrX3ZxcyhkZXYpOwo+ICAgCXN3aXRjaCAobXNn
+LT50eXBlKSB7Cj4gICAJY2FzZSBWSE9TVF9JT1RMQl9VUERBVEU6Cj4gICAJCWlmICghZGV2LT5p
+b3RsYikgewo+IEBAIC0xMDE2LDcgKzEwMDcsNiBAQCBzdGF0aWMgaW50IHZob3N0X3Byb2Nlc3Nf
+aW90bGJfbXNnKHN0cnVjdCB2aG9zdF9kZXYgKmRldiwKPiAgIAkJYnJlYWs7Cj4gICAJfQo+ICAg
+Cj4gLQl2aG9zdF9kZXZfdW5sb2NrX3ZxcyhkZXYpOwo+ICAgCW11dGV4X3VubG9jaygmZGV2LT5t
+dXRleCk7Cj4gICAKPiAgIAlyZXR1cm4gcmV0OwoKQWNrZWQtYnk6IEphc29uIFdhbmcgPGphc293
+YW5nQHJlZGhhdC5jb20+ClNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhh
+dC5jb20+CgpUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
