@@ -1,8 +1,8 @@
 From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: [PATCH v2 net-next 2/4] vhost_net: Avoid tx vring kicks during
-	busyloop
-Date: Tue,  3 Jul 2018 16:31:32 +0900
-Message-ID: <1530603094-2476-3-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Subject: [PATCH v2 net-next 3/4] vhost_net: Avoid rx queue wake-ups during
+	busypoll
+Date: Tue,  3 Jul 2018 16:31:33 +0900
+Message-ID: <1530603094-2476-4-git-send-email-makita.toshiaki__46290.6638895676$1530603141$gmane$org@lab.ntt.co.jp>
 References: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,123 +22,83 @@ To: "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.co
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Under heavy load vhost busypoll may run without suppressing
-notification. For example tx zerocopy callback can push tx work while
-handle_tx() is running, then busyloop exits due to vhost_has_work()
-condition and enables notification but immediately reenters handle_tx()
-because the pushed work was tx. In this case handle_tx() tries to
-disable notification again, but when using event_idx it by design
-cannot. Then busyloop will run without suppressing notification.
-Another example is the case where handle_tx() tries to enable
-notification but avail idx is advanced so disables it again. This case
-also leads to the same situation with event_idx.
-
-The problem is that once we enter this situation busyloop does not work
-under heavy load for considerable amount of time, because notification
-is likely to happen during busyloop and handle_tx() immediately enables
-notification after notification happens. Specifically busyloop detects
-notification by vhost_has_work() and then handle_tx() calls
-vhost_enable_notify(). Because the detected work was the tx work, it
-enters handle_tx(), and enters busyloop without suppression again.
-This is likely to be repeated, so with event_idx we are almost not able
-to suppress notification in this case.
-
-To fix this, poll the work instead of enabling notification when
-busypoll is interrupted by something. IMHO vhost_has_work() is kind of
-interruption rather than a signal to completely cancel the busypoll, so
-let's run busypoll after the necessary work is done.
+We may run handle_rx() while rx work is queued. For example a packet can
+push the rx work during the window before handle_rx calls
+vhost_net_disable_vq().
+In that case busypoll immediately exits due to vhost_has_work()
+condition and enables vq again. This can lead to another unnecessary rx
+wake-ups, so poll rx work instead of enabling the vq.
 
 Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
 ---
- drivers/vhost/net.c | 35 ++++++++++++++++++++++-------------
- 1 file changed, 22 insertions(+), 13 deletions(-)
+ drivers/vhost/net.c | 26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 3939c50..811c0e5 100644
+index 811c0e5..791bc8b 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -396,13 +396,10 @@ static inline unsigned long busy_clock(void)
- 	return local_clock() >> 10;
+@@ -653,7 +653,8 @@ static void vhost_rx_signal_used(struct vhost_net_virtqueue *nvq)
+ 	nvq->done_idx = 0;
  }
  
--static bool vhost_can_busy_poll(struct vhost_dev *dev,
--				unsigned long endtime)
-+static bool vhost_can_busy_poll(unsigned long endtime)
+-static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
++static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
++				      bool *busyloop_intr)
  {
--	return likely(!need_resched()) &&
--	       likely(!time_after(busy_clock(), endtime)) &&
--	       likely(!signal_pending(current)) &&
--	       !vhost_has_work(dev);
-+	return likely(!need_resched() && !time_after(busy_clock(), endtime) &&
-+		      !signal_pending(current));
- }
- 
- static void vhost_net_disable_vq(struct vhost_net *n,
-@@ -434,7 +431,8 @@ static int vhost_net_enable_vq(struct vhost_net *n,
- static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
- 				    struct vhost_virtqueue *vq,
- 				    struct iovec iov[], unsigned int iov_size,
--				    unsigned int *out_num, unsigned int *in_num)
-+				    unsigned int *out_num, unsigned int *in_num,
-+				    bool *busyloop_intr)
- {
- 	unsigned long uninitialized_var(endtime);
- 	int r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
-@@ -443,9 +441,15 @@ static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
- 	if (r == vq->num && vq->busyloop_timeout) {
- 		preempt_disable();
- 		endtime = busy_clock() + vq->busyloop_timeout;
--		while (vhost_can_busy_poll(vq->dev, endtime) &&
--		       vhost_vq_avail_empty(vq->dev, vq))
-+		while (vhost_can_busy_poll(endtime)) {
-+			if (vhost_has_work(vq->dev)) {
-+				*busyloop_intr = true;
-+				break;
-+			}
-+			if (!vhost_vq_avail_empty(vq->dev, vq))
-+				break;
- 			cpu_relax();
-+		}
- 		preempt_enable();
- 		r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
- 				      out_num, in_num, NULL, NULL);
-@@ -501,20 +505,24 @@ static void handle_tx(struct vhost_net *net)
- 	zcopy = nvq->ubufs;
- 
- 	for (;;) {
-+		bool busyloop_intr;
-+
- 		/* Release DMAs done buffers first */
- 		if (zcopy)
- 			vhost_zerocopy_signal_used(net, vq);
- 
--
-+		busyloop_intr = false;
- 		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
- 						ARRAY_SIZE(vq->iov),
--						&out, &in);
-+						&out, &in, &busyloop_intr);
- 		/* On error, stop handling until the next kick. */
- 		if (unlikely(head < 0))
- 			break;
- 		/* Nothing new?  Wait for eventfd to tell us they refilled. */
- 		if (head == vq->num) {
--			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
-+			if (unlikely(busyloop_intr)) {
-+				vhost_poll_queue(&vq->poll);
-+			} else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
- 				vhost_disable_notify(&net->dev, vq);
- 				continue;
- 			}
-@@ -663,7 +671,8 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
+ 	struct vhost_net_virtqueue *rnvq = &net->vqs[VHOST_NET_VQ_RX];
+ 	struct vhost_net_virtqueue *tnvq = &net->vqs[VHOST_NET_VQ_TX];
+@@ -671,11 +672,16 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
  		preempt_disable();
  		endtime = busy_clock() + tvq->busyloop_timeout;
  
--		while (vhost_can_busy_poll(&net->dev, endtime) &&
-+		while (vhost_can_busy_poll(endtime) &&
-+		       !vhost_has_work(&net->dev) &&
- 		       !sk_has_rx_data(sk) &&
- 		       vhost_vq_avail_empty(&net->dev, tvq))
+-		while (vhost_can_busy_poll(endtime) &&
+-		       !vhost_has_work(&net->dev) &&
+-		       !sk_has_rx_data(sk) &&
+-		       vhost_vq_avail_empty(&net->dev, tvq))
++		while (vhost_can_busy_poll(endtime)) {
++			if (vhost_has_work(&net->dev)) {
++				*busyloop_intr = true;
++				break;
++			}
++			if (sk_has_rx_data(sk) ||
++			    !vhost_vq_avail_empty(&net->dev, tvq))
++				break;
  			cpu_relax();
++		}
+ 
+ 		preempt_enable();
+ 
+@@ -795,6 +801,7 @@ static void handle_rx(struct vhost_net *net)
+ 	s16 headcount;
+ 	size_t vhost_hlen, sock_hlen;
+ 	size_t vhost_len, sock_len;
++	bool busyloop_intr = false;
+ 	struct socket *sock;
+ 	struct iov_iter fixup;
+ 	__virtio16 num_buffers;
+@@ -818,7 +825,9 @@ static void handle_rx(struct vhost_net *net)
+ 		vq->log : NULL;
+ 	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
+ 
+-	while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk))) {
++	while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
++						      &busyloop_intr))) {
++		busyloop_intr = false;
+ 		sock_len += sock_hlen;
+ 		vhost_len = sock_len + vhost_hlen;
+ 		headcount = get_rx_bufs(vq, vq->heads + nvq->done_idx,
+@@ -905,7 +914,10 @@ static void handle_rx(struct vhost_net *net)
+ 			goto out;
+ 		}
+ 	}
+-	vhost_net_enable_vq(net, vq);
++	if (unlikely(busyloop_intr))
++		vhost_poll_queue(&vq->poll);
++	else
++		vhost_net_enable_vq(net, vq);
+ out:
+ 	vhost_rx_signal_used(nvq);
+ 	mutex_unlock(&vq->mutex);
 -- 
 1.8.3.1
