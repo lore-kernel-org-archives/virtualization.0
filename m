@@ -1,14 +1,16 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: [PATCH v2 net-next 4/4] vhost_net: Avoid rx vring kicks during
-	busyloop
-Date: Tue,  3 Jul 2018 16:31:34 +0900
-Message-ID: <1530603094-2476-5-git-send-email-makita.toshiaki__5758.20127637616$1530603202$gmane$org@lab.ntt.co.jp>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v2 net-next 1/4] vhost_net: Rename local variables in
+	vhost_net_rx_peek_head_len
+Date: Tue, 3 Jul 2018 17:03:30 +0800
+Message-ID: <c10c0427-f313-c94f-18b4-fa70d35cffcc__22016.6154591881$1530608495$gmane$org@redhat.com>
 References: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<1530603094-2476-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <1530603094-2476-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,67 +20,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We may run out of avail rx ring descriptor under heavy load but busypoll
-did not detect it so busypoll may have exited prematurely. Avoid this by
-checking rx ring full during busypoll.
-
-Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
----
- drivers/vhost/net.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 791bc8b..b224036 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -658,6 +658,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
- {
- 	struct vhost_net_virtqueue *rnvq = &net->vqs[VHOST_NET_VQ_RX];
- 	struct vhost_net_virtqueue *tnvq = &net->vqs[VHOST_NET_VQ_TX];
-+	struct vhost_virtqueue *rvq = &rnvq->vq;
- 	struct vhost_virtqueue *tvq = &tnvq->vq;
- 	unsigned long uninitialized_var(endtime);
- 	int len = peek_head_len(rnvq, sk);
-@@ -677,7 +678,8 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
- 				*busyloop_intr = true;
- 				break;
- 			}
--			if (sk_has_rx_data(sk) ||
-+			if ((sk_has_rx_data(sk) &&
-+			     !vhost_vq_avail_empty(&net->dev, rvq)) ||
- 			    !vhost_vq_avail_empty(&net->dev, tvq))
- 				break;
- 			cpu_relax();
-@@ -827,7 +829,6 @@ static void handle_rx(struct vhost_net *net)
- 
- 	while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
- 						      &busyloop_intr))) {
--		busyloop_intr = false;
- 		sock_len += sock_hlen;
- 		vhost_len = sock_len + vhost_hlen;
- 		headcount = get_rx_bufs(vq, vq->heads + nvq->done_idx,
-@@ -838,7 +839,9 @@ static void handle_rx(struct vhost_net *net)
- 			goto out;
- 		/* OK, now we need to know about added descriptors. */
- 		if (!headcount) {
--			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
-+			if (unlikely(busyloop_intr)) {
-+				vhost_poll_queue(&vq->poll);
-+			} else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
- 				/* They have slipped one in as we were
- 				 * doing that: check again. */
- 				vhost_disable_notify(&net->dev, vq);
-@@ -848,6 +851,7 @@ static void handle_rx(struct vhost_net *net)
- 			 * they refilled. */
- 			goto out;
- 		}
-+		busyloop_intr = false;
- 		if (nvq->rx_ring)
- 			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
- 		/* On overrun, truncate and discard */
--- 
-1.8.3.1
+CgpPbiAyMDE45bm0MDfmnIgwM+aXpSAxNTozMSwgVG9zaGlha2kgTWFraXRhIHdyb3RlOgo+IFNv
+IHdlIGNhbiBlYXNpbHkgc2VlIHdoaWNoIHZhcmlhYmxlIGlzIGZvciB3aGljaCwgdHggb3Igcngu
+Cj4KPiBTaWduZWQtb2ZmLWJ5OiBUb3NoaWFraSBNYWtpdGEgPG1ha2l0YS50b3NoaWFraUBsYWIu
+bnR0LmNvLmpwPgo+IC0tLQo+ICAgZHJpdmVycy92aG9zdC9uZXQuYyB8IDM0ICsrKysrKysrKysr
+KysrKysrLS0tLS0tLS0tLS0tLS0tLS0KPiAgIDEgZmlsZSBjaGFuZ2VkLCAxNyBpbnNlcnRpb25z
+KCspLCAxNyBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L25ldC5j
+IGIvZHJpdmVycy92aG9zdC9uZXQuYwo+IGluZGV4IDI5NzU2ZDguLjM5MzljNTAgMTAwNjQ0Cj4g
+LS0tIGEvZHJpdmVycy92aG9zdC9uZXQuYwo+ICsrKyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiBA
+QCAtNjQ3LDM5ICs2NDcsMzkgQEAgc3RhdGljIHZvaWQgdmhvc3Rfcnhfc2lnbmFsX3VzZWQoc3Ry
+dWN0IHZob3N0X25ldF92aXJ0cXVldWUgKm52cSkKPiAgIAo+ICAgc3RhdGljIGludCB2aG9zdF9u
+ZXRfcnhfcGVla19oZWFkX2xlbihzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQsIHN0cnVjdCBzb2NrICpz
+aykKPiAgIHsKPiAtCXN0cnVjdCB2aG9zdF9uZXRfdmlydHF1ZXVlICpydnEgPSAmbmV0LT52cXNb
+VkhPU1RfTkVUX1ZRX1JYXTsKPiAtCXN0cnVjdCB2aG9zdF9uZXRfdmlydHF1ZXVlICpudnEgPSAm
+bmV0LT52cXNbVkhPU1RfTkVUX1ZRX1RYXTsKPiAtCXN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZx
+ID0gJm52cS0+dnE7Cj4gKwlzdHJ1Y3Qgdmhvc3RfbmV0X3ZpcnRxdWV1ZSAqcm52cSA9ICZuZXQt
+PnZxc1tWSE9TVF9ORVRfVlFfUlhdOwo+ICsJc3RydWN0IHZob3N0X25ldF92aXJ0cXVldWUgKnRu
+dnEgPSAmbmV0LT52cXNbVkhPU1RfTkVUX1ZRX1RYXTsKPiArCXN0cnVjdCB2aG9zdF92aXJ0cXVl
+dWUgKnR2cSA9ICZ0bnZxLT52cTsKPiAgIAl1bnNpZ25lZCBsb25nIHVuaW5pdGlhbGl6ZWRfdmFy
+KGVuZHRpbWUpOwo+IC0JaW50IGxlbiA9IHBlZWtfaGVhZF9sZW4ocnZxLCBzayk7Cj4gKwlpbnQg
+bGVuID0gcGVla19oZWFkX2xlbihybnZxLCBzayk7Cj4gICAKPiAtCWlmICghbGVuICYmIHZxLT5i
+dXN5bG9vcF90aW1lb3V0KSB7Cj4gKwlpZiAoIWxlbiAmJiB0dnEtPmJ1c3lsb29wX3RpbWVvdXQp
+IHsKPiAgIAkJLyogRmx1c2ggYmF0Y2hlZCBoZWFkcyBmaXJzdCAqLwo+IC0JCXZob3N0X3J4X3Np
+Z25hbF91c2VkKHJ2cSk7Cj4gKwkJdmhvc3Rfcnhfc2lnbmFsX3VzZWQocm52cSk7Cj4gICAJCS8q
+IEJvdGggdHggdnEgYW5kIHJ4IHNvY2tldCB3ZXJlIHBvbGxlZCBoZXJlICovCj4gLQkJbXV0ZXhf
+bG9ja19uZXN0ZWQoJnZxLT5tdXRleCwgMSk7Cj4gLQkJdmhvc3RfZGlzYWJsZV9ub3RpZnkoJm5l
+dC0+ZGV2LCB2cSk7Cj4gKwkJbXV0ZXhfbG9ja19uZXN0ZWQoJnR2cS0+bXV0ZXgsIDEpOwo+ICsJ
+CXZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwgdHZxKTsKPiAgIAo+ICAgCQlwcmVlbXB0
+X2Rpc2FibGUoKTsKPiAtCQllbmR0aW1lID0gYnVzeV9jbG9jaygpICsgdnEtPmJ1c3lsb29wX3Rp
+bWVvdXQ7Cj4gKwkJZW5kdGltZSA9IGJ1c3lfY2xvY2soKSArIHR2cS0+YnVzeWxvb3BfdGltZW91
+dDsKPiAgIAo+ICAgCQl3aGlsZSAodmhvc3RfY2FuX2J1c3lfcG9sbCgmbmV0LT5kZXYsIGVuZHRp
+bWUpICYmCj4gICAJCSAgICAgICAhc2tfaGFzX3J4X2RhdGEoc2spICYmCj4gLQkJICAgICAgIHZo
+b3N0X3ZxX2F2YWlsX2VtcHR5KCZuZXQtPmRldiwgdnEpKQo+ICsJCSAgICAgICB2aG9zdF92cV9h
+dmFpbF9lbXB0eSgmbmV0LT5kZXYsIHR2cSkpCj4gICAJCQljcHVfcmVsYXgoKTsKPiAgIAo+ICAg
+CQlwcmVlbXB0X2VuYWJsZSgpOwo+ICAgCj4gLQkJaWYgKCF2aG9zdF92cV9hdmFpbF9lbXB0eSgm
+bmV0LT5kZXYsIHZxKSkKPiAtCQkJdmhvc3RfcG9sbF9xdWV1ZSgmdnEtPnBvbGwpOwo+IC0JCWVs
+c2UgaWYgKHVubGlrZWx5KHZob3N0X2VuYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB2cSkpKSB7Cj4g
+LQkJCXZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwgdnEpOwo+IC0JCQl2aG9zdF9wb2xs
+X3F1ZXVlKCZ2cS0+cG9sbCk7Cj4gKwkJaWYgKCF2aG9zdF92cV9hdmFpbF9lbXB0eSgmbmV0LT5k
+ZXYsIHR2cSkpIHsKPiArCQkJdmhvc3RfcG9sbF9xdWV1ZSgmdHZxLT5wb2xsKTsKPiArCQl9IGVs
+c2UgaWYgKHVubGlrZWx5KHZob3N0X2VuYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB0dnEpKSkgewo+
+ICsJCQl2aG9zdF9kaXNhYmxlX25vdGlmeSgmbmV0LT5kZXYsIHR2cSk7Cj4gKwkJCXZob3N0X3Bv
+bGxfcXVldWUoJnR2cS0+cG9sbCk7Cj4gICAJCX0KPiAgIAo+IC0JCW11dGV4X3VubG9jaygmdnEt
+Pm11dGV4KTsKPiArCQltdXRleF91bmxvY2soJnR2cS0+bXV0ZXgpOwo+ICAgCj4gLQkJbGVuID0g
+cGVla19oZWFkX2xlbihydnEsIHNrKTsKPiArCQlsZW4gPSBwZWVrX2hlYWRfbGVuKHJudnEsIHNr
+KTsKPiAgIAl9Cj4gICAKPiAgIAlyZXR1cm4gbGVuOwoKQWNrZWQtYnk6IEphc29uIFdhbmcgPGph
+c293YW5nQHJlZGhhdC5jb20+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
