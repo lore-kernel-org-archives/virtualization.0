@@ -1,16 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2 net-next 4/4] vhost_net: Avoid rx vring kicks during
-	busyloop
-Date: Tue, 3 Jul 2018 17:05:22 +0800
-Message-ID: <abc4f8ce-35da-f628-811f-053250fa9b0e@redhat.com>
-References: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1530603094-2476-5-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH 14/15] drm/virtio: Remove unecessary dma_fence_ops
+Date: Tue, 3 Jul 2018 13:14:45 +0200
+Message-ID: <20180703111445.GA3891__19226.9438798123$1530616372$gmane$org@phenom.ffwll.local>
+References: <20180503142603.28513-1-daniel.vetter@ffwll.ch>
+	<20180503142603.28513-15-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1530603094-2476-5-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180503142603.28513-15-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,56 +19,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: DRI Development <dri-devel@lists.freedesktop.org>
+Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDfmnIgwM+aXpSAxNTozMSwgVG9zaGlha2kgTWFraXRhIHdyb3RlOgo+IFdl
-IG1heSBydW4gb3V0IG9mIGF2YWlsIHJ4IHJpbmcgZGVzY3JpcHRvciB1bmRlciBoZWF2eSBsb2Fk
-IGJ1dCBidXN5cG9sbAo+IGRpZCBub3QgZGV0ZWN0IGl0IHNvIGJ1c3lwb2xsIG1heSBoYXZlIGV4
-aXRlZCBwcmVtYXR1cmVseS4gQXZvaWQgdGhpcyBieQo+IGNoZWNraW5nIHJ4IHJpbmcgZnVsbCBk
-dXJpbmcgYnVzeXBvbGwuCgpBY3R1YWxseSwgd2UncmUgY2hlY2tpbmcgd2hldGhlciBpdCB3YXMg
-ZW1wdHkgaW4gZmFjdD8KCj4KPiBTaWduZWQtb2ZmLWJ5OiBUb3NoaWFraSBNYWtpdGEgPG1ha2l0
-YS50b3NoaWFraUBsYWIubnR0LmNvLmpwPgo+IC0tLQo+ICAgZHJpdmVycy92aG9zdC9uZXQuYyB8
-IDEwICsrKysrKystLS0KPiAgIDEgZmlsZSBjaGFuZ2VkLCA3IGluc2VydGlvbnMoKyksIDMgZGVs
-ZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC9uZXQuYyBiL2RyaXZlcnMv
-dmhvc3QvbmV0LmMKPiBpbmRleCA3OTFiYzhiLi5iMjI0MDM2IDEwMDY0NAo+IC0tLSBhL2RyaXZl
-cnMvdmhvc3QvbmV0LmMKPiArKysgYi9kcml2ZXJzL3Zob3N0L25ldC5jCj4gQEAgLTY1OCw2ICs2
-NTgsNyBAQCBzdGF0aWMgaW50IHZob3N0X25ldF9yeF9wZWVrX2hlYWRfbGVuKHN0cnVjdCB2aG9z
-dF9uZXQgKm5ldCwgc3RydWN0IHNvY2sgKnNrLAo+ICAgewo+ICAgCXN0cnVjdCB2aG9zdF9uZXRf
-dmlydHF1ZXVlICpybnZxID0gJm5ldC0+dnFzW1ZIT1NUX05FVF9WUV9SWF07Cj4gICAJc3RydWN0
-IHZob3N0X25ldF92aXJ0cXVldWUgKnRudnEgPSAmbmV0LT52cXNbVkhPU1RfTkVUX1ZRX1RYXTsK
-PiArCXN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnJ2cSA9ICZybnZxLT52cTsKPiAgIAlzdHJ1Y3Qg
-dmhvc3RfdmlydHF1ZXVlICp0dnEgPSAmdG52cS0+dnE7Cj4gICAJdW5zaWduZWQgbG9uZyB1bmlu
-aXRpYWxpemVkX3ZhcihlbmR0aW1lKTsKPiAgIAlpbnQgbGVuID0gcGVla19oZWFkX2xlbihybnZx
-LCBzayk7Cj4gQEAgLTY3Nyw3ICs2NzgsOCBAQCBzdGF0aWMgaW50IHZob3N0X25ldF9yeF9wZWVr
-X2hlYWRfbGVuKHN0cnVjdCB2aG9zdF9uZXQgKm5ldCwgc3RydWN0IHNvY2sgKnNrLAo+ICAgCQkJ
-CSpidXN5bG9vcF9pbnRyID0gdHJ1ZTsKPiAgIAkJCQlicmVhazsKPiAgIAkJCX0KPiAtCQkJaWYg
-KHNrX2hhc19yeF9kYXRhKHNrKSB8fAo+ICsJCQlpZiAoKHNrX2hhc19yeF9kYXRhKHNrKSAmJgo+
-ICsJCQkgICAgICF2aG9zdF92cV9hdmFpbF9lbXB0eSgmbmV0LT5kZXYsIHJ2cSkpIHx8Cj4gICAJ
-CQkgICAgIXZob3N0X3ZxX2F2YWlsX2VtcHR5KCZuZXQtPmRldiwgdHZxKSkKPiAgIAkJCQlicmVh
-azsKPiAgIAkJCWNwdV9yZWxheCgpOwo+IEBAIC04MjcsNyArODI5LDYgQEAgc3RhdGljIHZvaWQg
-aGFuZGxlX3J4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkKPiAgIAoKSSB0aG91Z2h0IGJlbG93IGNv
-ZGVzIHNob3VsZCBiZWxvbmcgdG8gcGF0Y2ggMy4gT3IgSSBtYXkgbWlzcyBzb21ldGhpbmcuCgpU
-aGFua3MKCj4gICAJd2hpbGUgKChzb2NrX2xlbiA9IHZob3N0X25ldF9yeF9wZWVrX2hlYWRfbGVu
-KG5ldCwgc29jay0+c2ssCj4gICAJCQkJCQkgICAgICAmYnVzeWxvb3BfaW50cikpKSB7Cj4gLQkJ
-YnVzeWxvb3BfaW50ciA9IGZhbHNlOwo+ICAgCQlzb2NrX2xlbiArPSBzb2NrX2hsZW47Cj4gICAJ
-CXZob3N0X2xlbiA9IHNvY2tfbGVuICsgdmhvc3RfaGxlbjsKPiAgIAkJaGVhZGNvdW50ID0gZ2V0
-X3J4X2J1ZnModnEsIHZxLT5oZWFkcyArIG52cS0+ZG9uZV9pZHgsCj4gQEAgLTgzOCw3ICs4Mzks
-OSBAQCBzdGF0aWMgdm9pZCBoYW5kbGVfcngoc3RydWN0IHZob3N0X25ldCAqbmV0KQo+ICAgCQkJ
-Z290byBvdXQ7Cj4gICAJCS8qIE9LLCBub3cgd2UgbmVlZCB0byBrbm93IGFib3V0IGFkZGVkIGRl
-c2NyaXB0b3JzLiAqLwo+ICAgCQlpZiAoIWhlYWRjb3VudCkgewo+IC0JCQlpZiAodW5saWtlbHko
-dmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKSkpIHsKPiArCQkJaWYgKHVubGlrZWx5
-KGJ1c3lsb29wX2ludHIpKSB7Cj4gKwkJCQl2aG9zdF9wb2xsX3F1ZXVlKCZ2cS0+cG9sbCk7Cj4g
-KwkJCX0gZWxzZSBpZiAodW5saWtlbHkodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZx
-KSkpIHsKPiAgIAkJCQkvKiBUaGV5IGhhdmUgc2xpcHBlZCBvbmUgaW4gYXMgd2Ugd2VyZQo+ICAg
-CQkJCSAqIGRvaW5nIHRoYXQ6IGNoZWNrIGFnYWluLiAqLwo+ICAgCQkJCXZob3N0X2Rpc2FibGVf
-bm90aWZ5KCZuZXQtPmRldiwgdnEpOwo+IEBAIC04NDgsNiArODUxLDcgQEAgc3RhdGljIHZvaWQg
-aGFuZGxlX3J4KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCkKPiAgIAkJCSAqIHRoZXkgcmVmaWxsZWQu
-ICovCj4gICAJCQlnb3RvIG91dDsKPiAgIAkJfQo+ICsJCWJ1c3lsb29wX2ludHIgPSBmYWxzZTsK
-PiAgIAkJaWYgKG52cS0+cnhfcmluZykKPiAgIAkJCW1zZy5tc2dfY29udHJvbCA9IHZob3N0X25l
-dF9idWZfY29uc3VtZSgmbnZxLT5yeHEpOwo+ICAgCQkvKiBPbiBvdmVycnVuLCB0cnVuY2F0ZSBh
-bmQgZGlzY2FyZCAqLwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, May 03, 2018 at 04:26:02PM +0200, Daniel Vetter wrote:
+> dma_fence_default_wait is the default now, same for the trivial
+> enable_signaling implementation.
+> 
+> Reviewed-by: Eric Anholt <eric@anholt.net>
+> Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Cc: David Airlie <airlied@linux.ie>
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: virtualization@lists.linux-foundation.org
+
+Ok pulled in the remaining patches here with acks/r-bs, will resend the
+others.
+-Daniel
+
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_fence.c | 7 -------
+>  1 file changed, 7 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
+> index 23353521f903..00c742a441bf 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_fence.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
+> @@ -36,11 +36,6 @@ static const char *virtio_get_timeline_name(struct dma_fence *f)
+>  	return "controlq";
+>  }
+>  
+> -static bool virtio_enable_signaling(struct dma_fence *f)
+> -{
+> -	return true;
+> -}
+> -
+>  static bool virtio_signaled(struct dma_fence *f)
+>  {
+>  	struct virtio_gpu_fence *fence = to_virtio_fence(f);
+> @@ -67,9 +62,7 @@ static void virtio_timeline_value_str(struct dma_fence *f, char *str, int size)
+>  static const struct dma_fence_ops virtio_fence_ops = {
+>  	.get_driver_name     = virtio_get_driver_name,
+>  	.get_timeline_name   = virtio_get_timeline_name,
+> -	.enable_signaling    = virtio_enable_signaling,
+>  	.signaled            = virtio_signaled,
+> -	.wait                = dma_fence_default_wait,
+>  	.fence_value_str     = virtio_fence_value_str,
+>  	.timeline_value_str  = virtio_timeline_value_str,
+>  };
+> -- 
+> 2.17.0
+> 
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
