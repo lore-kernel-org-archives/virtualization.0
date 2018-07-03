@@ -1,13 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 8/8] vhost: event suppression for packed ring
-Date: Tue,  3 Jul 2018 13:38:04 +0800
-Message-ID: <1530596284-4101-9-git-send-email-jasowang__41195.5147902065$1530596810$gmane$org@redhat.com>
-References: <1530596284-4101-1-git-send-email-jasowang@redhat.com>
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Subject: Re: [PATCH net-next v4 3/4] net: vhost: factor out busy polling logic
+	to vhost_net_busy_poll()
+Date: Tue, 3 Jul 2018 13:48:39 +0800
+Message-ID: <CAMDZJNU6bvACS9=RS1MA8T1z8+1fVkGZw=Xx8DWDjwQYWy0k8g__29316.7282398374$1530596880$gmane$org@mail.gmail.com>
+References: <1530536228-17462-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<1530536228-17462-4-git-send-email-xiangxia.m.yue@gmail.com>
+	<3eca0b98-52fc-fe34-c4dc-c022c2232cf5@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1530596284-4101-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <3eca0b98-52fc-fe34-c4dc-c022c2232cf5@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,307 +20,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: maxime.coquelin@redhat.com, wexu@redhat.com
+To: jasowang@redhat.com
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Tonghao Zhang <zhangtonghao@didichuxing.com>, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch introduces support for event suppression. This is done by
-have a two areas: device area and driver area. One side could then try
-to disable or enable (delayed) notification from other side by using a
-boolean hint or event index interface in the areas.
-
-For more information, please refer Virtio spec.
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/vhost.c | 191 ++++++++++++++++++++++++++++++++++++++++++++++----
- drivers/vhost/vhost.h |  10 ++-
- 2 files changed, 185 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 0f3f07c..cccbc82 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1115,10 +1115,15 @@ static int vq_access_ok_packed(struct vhost_virtqueue *vq, unsigned int num,
- 			       struct vring_used __user *used)
- {
- 	struct vring_desc_packed *packed = (struct vring_desc_packed *)desc;
-+	struct vring_packed_desc_event *driver_event =
-+		(struct vring_packed_desc_event *)avail;
-+	struct vring_packed_desc_event *device_event =
-+		(struct vring_packed_desc_event *)used;
- 
--	/* TODO: check device area and driver area */
- 	return access_ok(VERIFY_READ, packed, num * sizeof(*packed)) &&
--	       access_ok(VERIFY_WRITE, packed, num * sizeof(*packed));
-+	       access_ok(VERIFY_WRITE, packed, num * sizeof(*packed)) &&
-+	       access_ok(VERIFY_READ, driver_event, sizeof(*driver_event)) &&
-+	       access_ok(VERIFY_WRITE, device_event, sizeof(*device_event));
- }
- 
- static int vq_access_ok_split(struct vhost_virtqueue *vq, unsigned int num,
-@@ -1193,14 +1198,27 @@ static bool iotlb_access_ok(struct vhost_virtqueue *vq,
- 	return true;
- }
- 
--int vq_iotlb_prefetch(struct vhost_virtqueue *vq)
-+int vq_iotlb_prefetch_packed(struct vhost_virtqueue *vq)
-+{
-+	int num = vq->num;
-+
-+	return iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->desc,
-+			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
-+	       iotlb_access_ok(vq, VHOST_ACCESS_WO, (u64)(uintptr_t)vq->desc,
-+			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
-+	       iotlb_access_ok(vq, VHOST_ACCESS_RO,
-+			       (u64)(uintptr_t)vq->driver_event,
-+			       sizeof(*vq->driver_event), VHOST_ADDR_AVAIL) &&
-+	       iotlb_access_ok(vq, VHOST_ACCESS_WO,
-+			       (u64)(uintptr_t)vq->device_event,
-+			       sizeof(*vq->device_event), VHOST_ADDR_USED);
-+}
-+
-+int vq_iotlb_prefetch_split(struct vhost_virtqueue *vq)
- {
- 	size_t s = vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
- 	unsigned int num = vq->num;
- 
--	if (!vq->iotlb)
--		return 1;
--
- 	return iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->desc,
- 			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
- 	       iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->avail,
-@@ -1212,6 +1230,17 @@ int vq_iotlb_prefetch(struct vhost_virtqueue *vq)
- 			       num * sizeof(*vq->used->ring) + s,
- 			       VHOST_ADDR_USED);
- }
-+
-+int vq_iotlb_prefetch(struct vhost_virtqueue *vq)
-+{
-+	if (!vq->iotlb)
-+		return 1;
-+
-+	if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
-+		return vq_iotlb_prefetch_packed(vq);
-+	else
-+		return vq_iotlb_prefetch_split(vq);
-+}
- EXPORT_SYMBOL_GPL(vq_iotlb_prefetch);
- 
- /* Can we log writes? */
-@@ -1771,6 +1800,50 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
- 	return 0;
- }
- 
-+static int vhost_update_device_flags(struct vhost_virtqueue *vq,
-+				     __virtio16 device_flags)
-+{
-+	void __user *flags;
-+
-+	if (vhost_put_user(vq, device_flags, &vq->device_event->flags,
-+			   VHOST_ADDR_USED) < 0)
-+		return -EFAULT;
-+	if (unlikely(vq->log_used)) {
-+		/* Make sure the flag is seen before log. */
-+		smp_wmb();
-+		/* Log used flag write. */
-+		flags = &vq->device_event->flags;
-+		log_write(vq->log_base, vq->log_addr +
-+			  (flags - (void __user *)vq->device_event),
-+			  sizeof(vq->device_event->flags));
-+		if (vq->log_ctx)
-+			eventfd_signal(vq->log_ctx, 1);
-+	}
-+	return 0;
-+}
-+
-+static int vhost_update_device_off_wrap(struct vhost_virtqueue *vq,
-+					__virtio16 device_off_wrap)
-+{
-+	void __user *off_wrap;
-+
-+	if (vhost_put_user(vq, device_off_wrap, &vq->device_event->off_wrap,
-+			   VHOST_ADDR_USED) < 0)
-+		return -EFAULT;
-+	if (unlikely(vq->log_used)) {
-+		/* Make sure the flag is seen before log. */
-+		smp_wmb();
-+		/* Log used flag write. */
-+		off_wrap = &vq->device_event->off_wrap;
-+		log_write(vq->log_base, vq->log_addr +
-+			  (off_wrap - (void __user *)vq->device_event),
-+			  sizeof(vq->device_event->off_wrap));
-+		if (vq->log_ctx)
-+			eventfd_signal(vq->log_ctx, 1);
-+	}
-+	return 0;
-+}
-+
- static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
- {
- 	if (vhost_put_user(vq, cpu_to_vhost16(vq, vq->avail_idx),
-@@ -2756,16 +2829,13 @@ int vhost_add_used_n(struct vhost_virtqueue *vq,
- }
- EXPORT_SYMBOL_GPL(vhost_add_used_n);
- 
--static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
-+static bool vhost_notify_split(struct vhost_dev *dev,
-+			       struct vhost_virtqueue *vq)
- {
- 	__u16 old, new;
- 	__virtio16 event;
- 	bool v;
- 
--	/* TODO: check driver area */
--	if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
--		return true;
--
- 	/* Flush out used index updates. This is paired
- 	 * with the barrier that the Guest executes when enabling
- 	 * interrupts. */
-@@ -2798,6 +2868,64 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	return vring_need_event(vhost16_to_cpu(vq, event), new, old);
- }
- 
-+static bool vhost_notify_packed(struct vhost_dev *dev,
-+				struct vhost_virtqueue *vq)
-+{
-+	__virtio16 event_off_wrap, event_flags;
-+	__u16 old, new, off_wrap;
-+	bool v;
-+
-+	/* Flush out used descriptors updates. This is paired
-+	 * with the barrier that the Guest executes when enabling
-+	 * interrupts.
-+	 */
-+	smp_mb();
-+
-+	if (vhost_get_avail(vq, event_flags,
-+			   &vq->driver_event->flags) < 0) {
-+		vq_err(vq, "Failed to get driver desc_event_flags");
-+		return true;
-+	}
-+
-+	if (!vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX))
-+		return event_flags !=
-+		       cpu_to_vhost16(vq, RING_EVENT_FLAGS_DISABLE);
-+
-+	old = vq->signalled_used;
-+	v = vq->signalled_used_valid;
-+	new = vq->signalled_used = vq->last_used_idx;
-+	vq->signalled_used_valid = true;
-+
-+	if (event_flags != cpu_to_vhost16(vq, RING_EVENT_FLAGS_DESC))
-+		return event_flags !=
-+		       cpu_to_vhost16(vq, RING_EVENT_FLAGS_DISABLE);
-+
-+	/* Read desc event flags before event_off and event_wrap */
-+	smp_rmb();
-+
-+	if (vhost_get_avail(vq, event_off_wrap,
-+			    &vq->driver_event->off_wrap) < 0) {
-+		vq_err(vq, "Failed to get driver desc_event_off/wrap");
-+		return true;
-+	}
-+
-+	off_wrap = vhost16_to_cpu(vq, event_off_wrap);
-+
-+	if (unlikely(!v))
-+		return true;
-+
-+	return vhost_vring_packed_need_event(vq, vq->last_used_wrap_counter,
-+					     off_wrap, new, old);
-+}
-+
-+static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
-+{
-+	if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
-+		return vhost_notify_packed(dev, vq);
-+	else
-+		return vhost_notify_split(dev, vq);
-+}
-+
- /* This actually signals the guest, using eventfd. */
- void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- {
-@@ -2875,10 +3003,34 @@ static bool vhost_enable_notify_packed(struct vhost_dev *dev,
- 				       struct vhost_virtqueue *vq)
- {
- 	struct vring_desc_packed *d = vq->desc_packed + vq->avail_idx;
--	__virtio16 flags;
-+	__virtio16 flags = cpu_to_vhost16(vq, RING_EVENT_FLAGS_ENABLE);
- 	int ret;
- 
--	/* TODO: enable notification through device area */
-+	if (!(vq->used_flags & VRING_USED_F_NO_NOTIFY))
-+		return false;
-+	vq->used_flags &= ~VRING_USED_F_NO_NOTIFY;
-+
-+	if (vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX)) {
-+		__virtio16 off_wrap = cpu_to_vhost16(vq, vq->avail_idx |
-+				      vq->avail_wrap_counter << 15);
-+
-+		ret = vhost_update_device_off_wrap(vq, off_wrap);
-+		if (ret) {
-+			vq_err(vq, "Failed to write to off warp at %p: %d\n",
-+			       &vq->device_event->off_wrap, ret);
-+			return false;
-+		}
-+		/* Make sure off_wrap is wrote before flags */
-+		smp_wmb();
-+		flags = cpu_to_vhost16(vq, RING_EVENT_FLAGS_DESC);
-+	}
-+
-+	ret = vhost_update_device_flags(vq, flags);
-+	if (ret) {
-+		vq_err(vq, "Failed to enable notification at %p: %d\n",
-+			&vq->device_event->flags, ret);
-+		return false;
-+	}
- 
- 	/* They could have slipped one in as we were doing that: make
- 	 * sure it's written, then check again.
-@@ -2945,7 +3097,18 @@ EXPORT_SYMBOL_GPL(vhost_enable_notify);
- static void vhost_disable_notify_packed(struct vhost_dev *dev,
- 					struct vhost_virtqueue *vq)
- {
--	/* TODO: disable notification through device area */
-+	__virtio16 flags;
-+	int r;
-+
-+	if (vq->used_flags & VRING_USED_F_NO_NOTIFY)
-+		return;
-+	vq->used_flags |= VRING_USED_F_NO_NOTIFY;
-+
-+	flags = cpu_to_vhost16(vq, RING_EVENT_FLAGS_DISABLE);
-+	r = vhost_update_device_flags(vq, flags);
-+	if (r)
-+		vq_err(vq, "Failed to enable notification at %p: %d\n",
-+		       &vq->device_event->flags, r);
- }
- 
- static void vhost_disable_notify_split(struct vhost_dev *dev,
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index db09958..d071daf 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -96,8 +96,14 @@ struct vhost_virtqueue {
- 		struct vring_desc __user *desc;
- 		struct vring_desc_packed __user *desc_packed;
- 	};
--	struct vring_avail __user *avail;
--	struct vring_used __user *used;
-+	union {
-+		struct vring_avail __user *avail;
-+		struct vring_packed_desc_event __user *driver_event;
-+	};
-+	union {
-+		struct vring_used __user *used;
-+		struct vring_packed_desc_event __user *device_event;
-+	};
- 	const struct vhost_umem_node *meta_iotlb[VHOST_NUM_ADDRS];
- 	struct file *kick;
- 	struct eventfd_ctx *call_ctx;
--- 
-2.7.4
+T24gVHVlLCBKdWwgMywgMjAxOCBhdCAxMDoxMiBBTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPiB3cm90ZToKPgo+Cj4KPiBPbiAyMDE45bm0MDfmnIgwMuaXpSAyMDo1NywgeGlhbmd4
+aWEubS55dWVAZ21haWwuY29tIHdyb3RlOgo+ID4gRnJvbTogVG9uZ2hhbyBaaGFuZyA8eGlhbmd4
+aWEubS55dWVAZ21haWwuY29tPgo+ID4KPiA+IEZhY3RvciBvdXQgZ2VuZXJpYyBidXN5IHBvbGxp
+bmcgbG9naWMgYW5kIHdpbGwgYmUKPiA+IHVzZWQgZm9yIGluIHR4IHBhdGggaW4gdGhlIG5leHQg
+cGF0Y2guIEFuZCB3aXRoIHRoZSBwYXRjaCwKPiA+IHFlbXUgY2FuIHNldCBkaWZmZXJlbnRseSB0
+aGUgYnVzeWxvb3BfdGltZW91dCBmb3IgcnggcXVldWUuCj4gPgo+ID4gU2lnbmVkLW9mZi1ieTog
+VG9uZ2hhbyBaaGFuZyA8emhhbmd0b25naGFvQGRpZGljaHV4aW5nLmNvbT4KPiA+IC0tLQo+ID4g
+ICBkcml2ZXJzL3Zob3N0L25ldC5jIHwgOTQgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+Ky0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPiA+ICAgMSBmaWxlIGNoYW5nZWQsIDU1IGluc2VydGlv
+bnMoKyksIDM5IGRlbGV0aW9ucygtKQo+ID4KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0
+L25ldC5jIGIvZHJpdmVycy92aG9zdC9uZXQuYwo+ID4gaW5kZXggNjJiYjhlOC4uMjc5MDk1OSAx
+MDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiA+ICsrKyBiL2RyaXZlcnMvdmhv
+c3QvbmV0LmMKPiA+IEBAIC00MjksNiArNDI5LDUyIEBAIHN0YXRpYyBpbnQgdmhvc3RfbmV0X2Vu
+YWJsZV92cShzdHJ1Y3Qgdmhvc3RfbmV0ICpuLAo+ID4gICAgICAgcmV0dXJuIHZob3N0X3BvbGxf
+c3RhcnQocG9sbCwgc29jay0+ZmlsZSk7Cj4gPiAgIH0KPiA+Cj4gPiArc3RhdGljIGludCBza19o
+YXNfcnhfZGF0YShzdHJ1Y3Qgc29jayAqc2spCj4gPiArewo+ID4gKyAgICAgc3RydWN0IHNvY2tl
+dCAqc29jayA9IHNrLT5za19zb2NrZXQ7Cj4gPiArCj4gPiArICAgICBpZiAoc29jay0+b3BzLT5w
+ZWVrX2xlbikKPiA+ICsgICAgICAgICAgICAgcmV0dXJuIHNvY2stPm9wcy0+cGVla19sZW4oc29j
+ayk7Cj4gPiArCj4gPiArICAgICByZXR1cm4gc2tiX3F1ZXVlX2VtcHR5KCZzay0+c2tfcmVjZWl2
+ZV9xdWV1ZSk7Cj4gPiArfQo+ID4gKwo+ID4gK3N0YXRpYyB2b2lkIHZob3N0X25ldF9idXN5X3Bv
+bGwoc3RydWN0IHZob3N0X25ldCAqbmV0LAo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqcnZxLAo+ID4gKyAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdHZxLAo+ID4gKyAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgYm9vbCByeCkKPiA+ICt7Cj4gPiArICAgICB1bnNpZ25lZCBsb25nIHVu
+aW5pdGlhbGl6ZWRfdmFyKGVuZHRpbWUpOwo+ID4gKyAgICAgdW5zaWduZWQgbG9uZyBidXN5bG9v
+cF90aW1lb3V0Owo+ID4gKyAgICAgc3RydWN0IHNvY2tldCAqc29jazsKPiA+ICsgICAgIHN0cnVj
+dCB2aG9zdF92aXJ0cXVldWUgKnZxID0gcnggPyB0dnEgOiBydnE7Cj4gPiArCj4gPiArICAgICBt
+dXRleF9sb2NrX25lc3RlZCgmdnEtPm11dGV4LCByeCA/IFZIT1NUX05FVF9WUV9UWDogVkhPU1Rf
+TkVUX1ZRX1JYKTsKPiA+ICsKPiA+ICsgICAgIHZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRl
+diwgdnEpOwo+ID4gKyAgICAgc29jayA9IHJ2cS0+cHJpdmF0ZV9kYXRhOwo+ID4gKyAgICAgYnVz
+eWxvb3BfdGltZW91dCA9IHJ4ID8gcnZxLT5idXN5bG9vcF90aW1lb3V0IDogdHZxLT5idXN5bG9v
+cF90aW1lb3V0Owo+ID4gKwo+ID4gKyAgICAgcHJlZW1wdF9kaXNhYmxlKCk7Cj4gPiArICAgICBl
+bmR0aW1lID0gYnVzeV9jbG9jaygpICsgYnVzeWxvb3BfdGltZW91dDsKPiA+ICsgICAgIHdoaWxl
+ICh2aG9zdF9jYW5fYnVzeV9wb2xsKHR2cS0+ZGV2LCBlbmR0aW1lKSAmJgo+ID4gKyAgICAgICAg
+ICAgICEoc29jayAmJiBza19oYXNfcnhfZGF0YShzb2NrLT5zaykpICYmCj4gPiArICAgICAgICAg
+ICAgdmhvc3RfdnFfYXZhaWxfZW1wdHkodHZxLT5kZXYsIHR2cSkpCj4gPiArICAgICAgICAgICAg
+IGNwdV9yZWxheCgpOwo+ID4gKyAgICAgcHJlZW1wdF9lbmFibGUoKTsKPiA+ICsKPiA+ICsgICAg
+IGlmICgocnggJiYgIXZob3N0X3ZxX2F2YWlsX2VtcHR5KCZuZXQtPmRldiwgdnEpKSB8fAo+ID4g
+KyAgICAgICAgICghcnggJiYgKHNvY2sgJiYgc2tfaGFzX3J4X2RhdGEoc29jay0+c2spKSkpIHsK
+PiA+ICsgICAgICAgICAgICAgdmhvc3RfcG9sbF9xdWV1ZSgmdnEtPnBvbGwpOwo+ID4gKyAgICAg
+fSBlbHNlIGlmICh1bmxpa2VseSh2aG9zdF9lbmFibGVfbm90aWZ5KCZuZXQtPmRldiwgdnEpKSkg
+ewo+Cj4gT25lIGxhc3QgcXVlc3Rpb24sIGRvIHdlIG5lZWQgdGhpcyBmb3Igcng/IFRoaXMgY2hl
+Y2sgd2lsbCBiZSBhbHdheXMKPiB0cnVlIHVuZGVyIGxpZ2h0IG9yIG1lZGl1bSBsb2FkLgp3aWxs
+IHJlbW92ZSB0aGUgJ3VubGlrZWx5JwoKPiBUaGFua3MKPgo+ID4gKyAgICAgICAgICAgICB2aG9z
+dF9kaXNhYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKTsKPiA+ICsgICAgICAgICAgICAgdmhvc3Rf
+cG9sbF9xdWV1ZSgmdnEtPnBvbGwpOwo+ID4gKyAgICAgfQo+ID4gKwo+ID4gKyAgICAgbXV0ZXhf
+dW5sb2NrKCZ2cS0+bXV0ZXgpOwo+ID4gK30KPiA+ICsKPiA+ICsKPiA+ICAgc3RhdGljIGludCB2
+aG9zdF9uZXRfdHhfZ2V0X3ZxX2Rlc2Moc3RydWN0IHZob3N0X25ldCAqbmV0LAo+ID4gICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLAo+
+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCBpb3ZlYyBpb3ZbXSwg
+dW5zaWduZWQgaW50IGlvdl9zaXplLAo+ID4gQEAgLTYyMSwxNiArNjY3LDYgQEAgc3RhdGljIGlu
+dCBwZWVrX2hlYWRfbGVuKHN0cnVjdCB2aG9zdF9uZXRfdmlydHF1ZXVlICpydnEsIHN0cnVjdCBz
+b2NrICpzaykKPiA+ICAgICAgIHJldHVybiBsZW47Cj4gPiAgIH0KPiA+Cj4gPiAtc3RhdGljIGlu
+dCBza19oYXNfcnhfZGF0YShzdHJ1Y3Qgc29jayAqc2spCj4gPiAtewo+ID4gLSAgICAgc3RydWN0
+IHNvY2tldCAqc29jayA9IHNrLT5za19zb2NrZXQ7Cj4gPiAtCj4gPiAtICAgICBpZiAoc29jay0+
+b3BzLT5wZWVrX2xlbikKPiA+IC0gICAgICAgICAgICAgcmV0dXJuIHNvY2stPm9wcy0+cGVla19s
+ZW4oc29jayk7Cj4gPiAtCj4gPiAtICAgICByZXR1cm4gc2tiX3F1ZXVlX2VtcHR5KCZzay0+c2tf
+cmVjZWl2ZV9xdWV1ZSk7Cj4gPiAtfQo+ID4gLQo+ID4gICBzdGF0aWMgdm9pZCB2aG9zdF9yeF9z
+aWduYWxfdXNlZChzdHJ1Y3Qgdmhvc3RfbmV0X3ZpcnRxdWV1ZSAqbnZxKQo+ID4gICB7Cj4gPiAg
+ICAgICBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSA9ICZudnEtPnZxOwo+ID4gQEAgLTY0NSwz
+OSArNjgxLDE5IEBAIHN0YXRpYyB2b2lkIHZob3N0X3J4X3NpZ25hbF91c2VkKHN0cnVjdCB2aG9z
+dF9uZXRfdmlydHF1ZXVlICpudnEpCj4gPgo+ID4gICBzdGF0aWMgaW50IHZob3N0X25ldF9yeF9w
+ZWVrX2hlYWRfbGVuKHN0cnVjdCB2aG9zdF9uZXQgKm5ldCwgc3RydWN0IHNvY2sgKnNrKQo+ID4g
+ICB7Cj4gPiAtICAgICBzdHJ1Y3Qgdmhvc3RfbmV0X3ZpcnRxdWV1ZSAqcnZxID0gJm5ldC0+dnFz
+W1ZIT1NUX05FVF9WUV9SWF07Cj4gPiAtICAgICBzdHJ1Y3Qgdmhvc3RfbmV0X3ZpcnRxdWV1ZSAq
+bnZxID0gJm5ldC0+dnFzW1ZIT1NUX05FVF9WUV9UWF07Cj4gPiAtICAgICBzdHJ1Y3Qgdmhvc3Rf
+dmlydHF1ZXVlICp2cSA9ICZudnEtPnZxOwo+ID4gLSAgICAgdW5zaWduZWQgbG9uZyB1bmluaXRp
+YWxpemVkX3ZhcihlbmR0aW1lKTsKPiA+IC0gICAgIGludCBsZW4gPSBwZWVrX2hlYWRfbGVuKHJ2
+cSwgc2spOwo+ID4gKyAgICAgc3RydWN0IHZob3N0X25ldF92aXJ0cXVldWUgKnJudnEgPSAmbmV0
+LT52cXNbVkhPU1RfTkVUX1ZRX1JYXTsKPiA+ICsgICAgIHN0cnVjdCB2aG9zdF9uZXRfdmlydHF1
+ZXVlICp0bnZxID0gJm5ldC0+dnFzW1ZIT1NUX05FVF9WUV9UWF07Cj4gPgo+ID4gLSAgICAgaWYg
+KCFsZW4gJiYgdnEtPmJ1c3lsb29wX3RpbWVvdXQpIHsKPiA+IC0gICAgICAgICAgICAgLyogRmx1
+c2ggYmF0Y2hlZCBoZWFkcyBmaXJzdCAqLwo+ID4gLSAgICAgICAgICAgICB2aG9zdF9yeF9zaWdu
+YWxfdXNlZChydnEpOwo+ID4gLSAgICAgICAgICAgICAvKiBCb3RoIHR4IHZxIGFuZCByeCBzb2Nr
+ZXQgd2VyZSBwb2xsZWQgaGVyZSAqLwo+ID4gLSAgICAgICAgICAgICBtdXRleF9sb2NrX25lc3Rl
+ZCgmdnEtPm11dGV4LCBWSE9TVF9ORVRfVlFfVFgpOwo+ID4gLSAgICAgICAgICAgICB2aG9zdF9k
+aXNhYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKTsKPiA+ICsgICAgIGludCBsZW4gPSBwZWVrX2hl
+YWRfbGVuKHJudnEsIHNrKTsKPiA+Cj4gPiAtICAgICAgICAgICAgIHByZWVtcHRfZGlzYWJsZSgp
+Owo+ID4gLSAgICAgICAgICAgICBlbmR0aW1lID0gYnVzeV9jbG9jaygpICsgdnEtPmJ1c3lsb29w
+X3RpbWVvdXQ7Cj4gPiAtCj4gPiAtICAgICAgICAgICAgIHdoaWxlICh2aG9zdF9jYW5fYnVzeV9w
+b2xsKCZuZXQtPmRldiwgZW5kdGltZSkgJiYKPiA+IC0gICAgICAgICAgICAgICAgICAgICFza19o
+YXNfcnhfZGF0YShzaykgJiYKPiA+IC0gICAgICAgICAgICAgICAgICAgIHZob3N0X3ZxX2F2YWls
+X2VtcHR5KCZuZXQtPmRldiwgdnEpKQo+ID4gLSAgICAgICAgICAgICAgICAgICAgIGNwdV9yZWxh
+eCgpOwo+ID4gLQo+ID4gLSAgICAgICAgICAgICBwcmVlbXB0X2VuYWJsZSgpOwo+ID4gLQo+ID4g
+LSAgICAgICAgICAgICBpZiAoIXZob3N0X3ZxX2F2YWlsX2VtcHR5KCZuZXQtPmRldiwgdnEpKQo+
+ID4gLSAgICAgICAgICAgICAgICAgICAgIHZob3N0X3BvbGxfcXVldWUoJnZxLT5wb2xsKTsKPiA+
+IC0gICAgICAgICAgICAgZWxzZSBpZiAodW5saWtlbHkodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0
+LT5kZXYsIHZxKSkpIHsKPiA+IC0gICAgICAgICAgICAgICAgICAgICB2aG9zdF9kaXNhYmxlX25v
+dGlmeSgmbmV0LT5kZXYsIHZxKTsKPiA+IC0gICAgICAgICAgICAgICAgICAgICB2aG9zdF9wb2xs
+X3F1ZXVlKCZ2cS0+cG9sbCk7Cj4gPiAtICAgICAgICAgICAgIH0KPiA+ICsgICAgIGlmICghbGVu
+ICYmIHJudnEtPnZxLmJ1c3lsb29wX3RpbWVvdXQpIHsKPiA+ICsgICAgICAgICAgICAgLyogRmx1
+c2ggYmF0Y2hlZCBoZWFkcyBmaXJzdCAqLwo+ID4gKyAgICAgICAgICAgICB2aG9zdF9yeF9zaWdu
+YWxfdXNlZChybnZxKTsKPiA+Cj4gPiAtICAgICAgICAgICAgIG11dGV4X3VubG9jaygmdnEtPm11
+dGV4KTsKPiA+ICsgICAgICAgICAgICAgLyogQm90aCB0eCB2cSBhbmQgcnggc29ja2V0IHdlcmUg
+cG9sbGVkIGhlcmUgKi8KPiA+ICsgICAgICAgICAgICAgdmhvc3RfbmV0X2J1c3lfcG9sbChuZXQs
+ICZybnZxLT52cSwgJnRudnEtPnZxLCB0cnVlKTsKPiA+Cj4gPiAtICAgICAgICAgICAgIGxlbiA9
+IHBlZWtfaGVhZF9sZW4ocnZxLCBzayk7Cj4gPiArICAgICAgICAgICAgIGxlbiA9IHBlZWtfaGVh
+ZF9sZW4ocm52cSwgc2spOwo+ID4gICAgICAgfQo+ID4KPiA+ICAgICAgIHJldHVybiBsZW47Cj4K
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
+YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
+cnR1YWxpemF0aW9u
