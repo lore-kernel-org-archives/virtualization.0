@@ -1,11 +1,14 @@
 From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: [PATCH v2 net-next 0/4] vhost_net: Avoid vq kicks during busyloop
-Date: Tue,  3 Jul 2018 16:31:30 +0900
-Message-ID: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Subject: [PATCH v2 net-next 1/4] vhost_net: Rename local variables in
+	vhost_net_rx_peek_head_len
+Date: Tue,  3 Jul 2018 16:31:31 +0900
+Message-ID: <1530603094-2476-2-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+References: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,50 +22,73 @@ To: "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.co
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Under heavy load vhost tx busypoll tend not to suppress vq kicks, which
-causes poor guest tx performance. The detailed scenario is described in
-commitlog of patch 2.
-Rx seems not to have that serious problem, but for consistency I made a
-similar change on rx to avoid rx wakeups (patch 3).
-Additionary patch 4 is to avoid rx kicks under heavy load during
-busypoll.
+So we can easily see which variable is for which, tx or rx.
 
-Tx performance is greatly improved by this change. I don't see notable
-performance change on rx with this series though.
+Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+---
+ drivers/vhost/net.c | 34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-Performance numbers (tx):
-
-- Bulk transfer from guest to external physical server.
-    [Guest]->vhost_net->tap--(XDP_REDIRECT)-->i40e --(wire)--> [Server]
-- Set 10us busypoll.
-- Guest disables checksum and TSO because of host XDP.
-- Measured single flow Mbps by netperf, and kicks by perf kvm stat
-  (EPT_MISCONFIG event).
-
-                            Before              After
-                          Mbps  kicks/s      Mbps  kicks/s
-UDP_STREAM 1472byte              247758                 27
-                Send   3645.37            6958.10
-                Recv   3588.56            6958.10
-              1byte                9865                 37
-                Send      4.34               5.43
-                Recv      4.17               5.26
-TCP_STREAM             8801.03    45794   9592.77     2884
-
-v2:
-- Split patches into 3 parts (renaming variables, tx-kick fix, rx-wakeup
-  fix).
-- Avoid rx-kicks too (patch 4).
-- Don't memorize endtime as it is not needed for now.
-
-Toshiaki Makita (4):
-  vhost_net: Rename local variables in vhost_net_rx_peek_head_len
-  vhost_net: Avoid tx vring kicks during busyloop
-  vhost_net: Avoid rx queue wake-ups during busypoll
-  vhost_net: Avoid rx vring kicks during busyloop
-
- drivers/vhost/net.c | 95 +++++++++++++++++++++++++++++++++--------------------
- 1 file changed, 60 insertions(+), 35 deletions(-)
-
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 29756d8..3939c50 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -647,39 +647,39 @@ static void vhost_rx_signal_used(struct vhost_net_virtqueue *nvq)
+ 
+ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk)
+ {
+-	struct vhost_net_virtqueue *rvq = &net->vqs[VHOST_NET_VQ_RX];
+-	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
+-	struct vhost_virtqueue *vq = &nvq->vq;
++	struct vhost_net_virtqueue *rnvq = &net->vqs[VHOST_NET_VQ_RX];
++	struct vhost_net_virtqueue *tnvq = &net->vqs[VHOST_NET_VQ_TX];
++	struct vhost_virtqueue *tvq = &tnvq->vq;
+ 	unsigned long uninitialized_var(endtime);
+-	int len = peek_head_len(rvq, sk);
++	int len = peek_head_len(rnvq, sk);
+ 
+-	if (!len && vq->busyloop_timeout) {
++	if (!len && tvq->busyloop_timeout) {
+ 		/* Flush batched heads first */
+-		vhost_rx_signal_used(rvq);
++		vhost_rx_signal_used(rnvq);
+ 		/* Both tx vq and rx socket were polled here */
+-		mutex_lock_nested(&vq->mutex, 1);
+-		vhost_disable_notify(&net->dev, vq);
++		mutex_lock_nested(&tvq->mutex, 1);
++		vhost_disable_notify(&net->dev, tvq);
+ 
+ 		preempt_disable();
+-		endtime = busy_clock() + vq->busyloop_timeout;
++		endtime = busy_clock() + tvq->busyloop_timeout;
+ 
+ 		while (vhost_can_busy_poll(&net->dev, endtime) &&
+ 		       !sk_has_rx_data(sk) &&
+-		       vhost_vq_avail_empty(&net->dev, vq))
++		       vhost_vq_avail_empty(&net->dev, tvq))
+ 			cpu_relax();
+ 
+ 		preempt_enable();
+ 
+-		if (!vhost_vq_avail_empty(&net->dev, vq))
+-			vhost_poll_queue(&vq->poll);
+-		else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
+-			vhost_disable_notify(&net->dev, vq);
+-			vhost_poll_queue(&vq->poll);
++		if (!vhost_vq_avail_empty(&net->dev, tvq)) {
++			vhost_poll_queue(&tvq->poll);
++		} else if (unlikely(vhost_enable_notify(&net->dev, tvq))) {
++			vhost_disable_notify(&net->dev, tvq);
++			vhost_poll_queue(&tvq->poll);
+ 		}
+ 
+-		mutex_unlock(&vq->mutex);
++		mutex_unlock(&tvq->mutex);
+ 
+-		len = peek_head_len(rvq, sk);
++		len = peek_head_len(rnvq, sk);
+ 	}
+ 
+ 	return len;
 -- 
 1.8.3.1
