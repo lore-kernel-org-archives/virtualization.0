@@ -1,19 +1,11 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v6 3/3] x86: paravirt: make native_save_fl extern inline
-Date: Tue, 3 Jul 2018 09:21:30 +0200
-Message-ID: <21810770-ebf2-d21e-aeef-b106849bce2f@suse.com>
-References: <20180621162324.36656-1-ndesaulniers@google.com>
-	<20180621162324.36656-4-ndesaulniers@google.com>
-	<20180622022402.GA24194@gmail.com>
-	<CAKwvOdn5gnB5cK=cy6weKyxAn4SNEdZTT_MtT_D_nHRG5EDZ4g@mail.gmail.com>
-	<20180626071325.GA25751@gmail.com>
-	<CAKwvOdnW9r=pgmodEL0VXCv=PZVt_WMCA+B5x4D5oKRM1y-0Ow@mail.gmail.com>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Subject: [PATCH v2 net-next 0/4] vhost_net: Avoid vq kicks during busyloop
+Date: Tue,  3 Jul 2018 16:31:30 +0900
+Message-ID: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAKwvOdnW9r=pgmodEL0VXCv=PZVt_WMCA+B5x4D5oKRM1y-0Ow@mail.gmail.com>
-Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,25 +15,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nick Desaulniers <ndesaulniers@google.com>, Ingo Molnar <mingo@kernel.org>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, andrea.parri@amarulasolutions.com, linux-efi@vger.kernel.org, brijesh.singh@amd.com, "J. Kiszka" <jan.kiszka@siemens.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Will Deacon <will.deacon@arm.com>, jarkko.sakkinen@linux.intel.com, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Manoj Gupta <manojgupta@google.com>, hpa@zytor.com, boris.ostrovsky@oracle.com, Thiebaud Weksteen <tweek@google.com>, mawilcox@microsoft.com, x86@kernel.org, akataria@vmware.com, Greg Hackmann <ghackmann@google.com>, mingo@redhat.com, Alistair Strachan <astrachan@google.com>, David Rientjes <rientjes@google.com>, geert@linux-m68k.org, thomas.lendacky@amd.com, Arnd Bergmann <arnd@arndb.de>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Philippe Ombredanne <pombredanne@nexb.com>, rostedt@goodmis.org
+To: "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 26/06/18 18:22, Nick Desaulniers wrote:
-> On Tue, Jun 26, 2018 at 3:13 AM Ingo Molnar <mingo@kernel.org> wrote:
->> Ok!
->>
->> Acked-by: Ingo Molnar <mingo@kernel.org>
->>
->> What's the planned upstreaming route for these patches/fixes?
-> 
-> While the fix is mainly for paravirt, 2/3 of the patches exclusively
-> touch arch/x86, so I think they should go up in the x86 tree (as
-> opposed to paravirt's), if you would be so kind.  hpa mentioned not
-> handling merges in https://lkml.org/lkml/2018/6/14/903, so I reached
-> out to you and tglx.
+Under heavy load vhost tx busypoll tend not to suppress vq kicks, which
+causes poor guest tx performance. The detailed scenario is described in
+commitlog of patch 2.
+Rx seems not to have that serious problem, but for consistency I made a
+similar change on rx to avoid rx wakeups (patch 3).
+Additionary patch 4 is to avoid rx kicks under heavy load during
+busypoll.
 
-As there is no paravirt tree the x86 one seems to be appropriate. :-)
+Tx performance is greatly improved by this change. I don't see notable
+performance change on rx with this series though.
 
+Performance numbers (tx):
 
-Juergen
+- Bulk transfer from guest to external physical server.
+    [Guest]->vhost_net->tap--(XDP_REDIRECT)-->i40e --(wire)--> [Server]
+- Set 10us busypoll.
+- Guest disables checksum and TSO because of host XDP.
+- Measured single flow Mbps by netperf, and kicks by perf kvm stat
+  (EPT_MISCONFIG event).
+
+                            Before              After
+                          Mbps  kicks/s      Mbps  kicks/s
+UDP_STREAM 1472byte              247758                 27
+                Send   3645.37            6958.10
+                Recv   3588.56            6958.10
+              1byte                9865                 37
+                Send      4.34               5.43
+                Recv      4.17               5.26
+TCP_STREAM             8801.03    45794   9592.77     2884
+
+v2:
+- Split patches into 3 parts (renaming variables, tx-kick fix, rx-wakeup
+  fix).
+- Avoid rx-kicks too (patch 4).
+- Don't memorize endtime as it is not needed for now.
+
+Toshiaki Makita (4):
+  vhost_net: Rename local variables in vhost_net_rx_peek_head_len
+  vhost_net: Avoid tx vring kicks during busyloop
+  vhost_net: Avoid rx queue wake-ups during busypoll
+  vhost_net: Avoid rx vring kicks during busyloop
+
+ drivers/vhost/net.c | 95 +++++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 60 insertions(+), 35 deletions(-)
+
+-- 
+1.8.3.1
