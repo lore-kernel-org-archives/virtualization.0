@@ -1,17 +1,19 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [PATCH v2 0/5] Add virtio-iommu driver
-Date: Wed, 4 Jul 2018 12:25:26 +0100
-Message-ID: <98512e15-fd51-e4b2-1d9d-2c9cf9c863b8__9768.53131219304$1530703439$gmane$org@arm.com>
+From: Robin Murphy <robin.murphy@arm.com>
+Subject: Re: [PATCH v2 1/5] dt-bindings: virtio: Specify #iommu-cells value
+	for a virtio-iommu
+Date: Wed, 4 Jul 2018 12:45:20 +0100
+Message-ID: <0d701fb2-aea5-12a2-e07e-ba128e2e36e7__33930.3933819339$1530704618$gmane$org@arm.com>
 References: <20180621190655.56391-1-jean-philippe.brucker@arm.com>
-	<20180626210132-mutt-send-email-mst@kernel.org>
-	<2bcda195-d2c6-fbf0-322e-d91756fc3547@arm.com>
-	<20180627224801-mutt-send-email-mst@kernel.org>
+	<20180621190655.56391-2-jean-philippe.brucker@arm.com>
+	<20180625192753.GA22351@rob-hp-laptop>
+	<89d31865-ee35-ef8c-f7b3-f3acf2bbd30e@arm.com>
+	<CAL_JsqLdahF+2VsH9h658z9guO0XmqHM75QLaHApZLNP8twUNA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180627224801-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <CAL_JsqLdahF+2VsH9h658z9guO0XmqHM75QLaHApZLNP8twUNA@mail.gmail.com>
+Content-Language: en-GB
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,27 +23,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Mark Rutland <Mark.Rutland@arm.com>, peter.maydell@linaro.org, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "joro@8bytes.org" <joro@8bytes.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Marc Zyngier <Marc.Zyngier@arm.com>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, Robin Murphy <Robin.Murphy@arm.com>
+To: Rob Herring <robh@kernel.org>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, devicetree@vger.kernel.org, jayachandran.nair@cavium.com, tnowicki@caviumnetworks.com, kvm@vger.kernel.org, virtio-dev@lists.oasis-open.org, Marc Zyngier <Marc.Zyngier@arm.com>, mst@redhat.com, Will Deacon <Will.Deacon@arm.com>, virtualization@lists.linux-foundation.org, Linux IOMMU <iommu@lists.linux-foundation.org>, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 27/06/18 20:59, Michael S. Tsirkin wrote:
->> Another reason to keep the MMIO transport option is that one
->> virtio-iommu can manage DMA from endpoints on multiple PCI domains at
->> the same time, as well as platform devices. Some VMMs might want that,
->> in which case the IOMMU would be a separate platform device.
+On 27/06/18 18:46, Rob Herring wrote:
+> On Tue, Jun 26, 2018 at 11:59 AM Jean-Philippe Brucker
+> <jean-philippe.brucker@arm.com> wrote:
+>>
+>> On 25/06/18 20:27, Rob Herring wrote:
+>>> On Thu, Jun 21, 2018 at 08:06:51PM +0100, Jean-Philippe Brucker wrote:
+>>>> A virtio-mmio node may represent a virtio-iommu device. This is discovered
+>>>> by the virtio driver at probe time, but the DMA topology isn't
+>>>> discoverable and must be described by firmware. For DT the standard IOMMU
+>>>> description is used, as specified in bindings/iommu/iommu.txt and
+>>>> bindings/pci/pci-iommu.txt. Like many other IOMMUs, virtio-iommu
+>>>> distinguishes masters by their endpoint IDs, which requires one IOMMU cell
+>>>> in the "iommus" property.
+>>>>
+>>>> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+>>>> ---
+>>>>   Documentation/devicetree/bindings/virtio/mmio.txt | 8 ++++++++
+>>>>   1 file changed, 8 insertions(+)
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/virtio/mmio.txt b/Documentation/devicetree/bindings/virtio/mmio.txt
+>>>> index 5069c1b8e193..337da0e3a87f 100644
+>>>> --- a/Documentation/devicetree/bindings/virtio/mmio.txt
+>>>> +++ b/Documentation/devicetree/bindings/virtio/mmio.txt
+>>>> @@ -8,6 +8,14 @@ Required properties:
+>>>>   - reg:              control registers base address and size including configuration space
+>>>>   - interrupts:       interrupt generated by the device
+>>>>
+>>>> +Required properties for virtio-iommu:
+>>>> +
+>>>> +- #iommu-cells:     When the node describes a virtio-iommu device, it is
+>>>> +            linked to DMA masters using the "iommus" property as
+>>>> +            described in devicetree/bindings/iommu/iommu.txt. For
+>>>> +            virtio-iommu #iommu-cells must be 1, each cell describing
+>>>> +            a single endpoint ID.
+>>>
+>>> The iommus property should also be documented for the client side.
+>>
+>> Isn't section "IOMMU master node" of iommu.txt sufficient? Since the
+>> iommus property applies to any DMA master, not only virtio-mmio devices,
+>> the canonical description in iommu.txt seems the best place for it, and
+>> I'm not sure what to add in this file. Maybe a short example below the
+>> virtio_block one?
 > 
-> Which buses are managed by the IOMMU is separate from the bus
-> on which it's programming interface resides.
+> No, because somewhere we have to capture if 'iommus' is valid for
+> 'virtio-mmio' or not. Hopefully soon we'll actually be able to
+> validate that.
 
-Sorry I didn't get this. We probably don't want to instantiate a PCI
-root complex just for the IOMMU, so it needs to be in the same PCI
-segment as managed endpoints. For example in my VM the AMD IOMMU is
-presented as 00:02.0, between other devices on PCI bus 00.
+Indeed, it's rather unusual to have a single compatible which may either 
+be an IOMMU or an IOMMU client (but not both at once, I hope!), so 
+nailing down the exact semantics as clearly as possible would definitely 
+be desirable.
 
-In any case, I have a solution for virtio-pci that works with DT and
-ACPI, and isn't excessively awful. I'll probably send it as part of the
-next version.
-
-Thanks,
-Jean
+Robin.
