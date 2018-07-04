@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 net-next 0/4] vhost_net: Avoid vq kicks during busyloop
-Date: Wed, 4 Jul 2018 08:35:30 +0300
-Message-ID: <20180704083506-mutt-send-email-mst@kernel.org>
-References: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next v5 0/4] net: vhost: improve performance when
+	enable busyloop
+Date: Wed, 4 Jul 2018 14:27:49 +0800
+Message-ID: <dc8646c4-4f62-e933-eedc-113714e0a0ed@redhat.com>
+References: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,62 +19,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: xiangxia.m.yue@gmail.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 03, 2018 at 04:31:30PM +0900, Toshiaki Makita wrote:
-> Under heavy load vhost tx busypoll tend not to suppress vq kicks, which
-> causes poor guest tx performance. The detailed scenario is described in
-> commitlog of patch 2.
-> Rx seems not to have that serious problem, but for consistency I made a
-> similar change on rx to avoid rx wakeups (patch 3).
-> Additionary patch 4 is to avoid rx kicks under heavy load during
-> busypoll.
-> 
-> Tx performance is greatly improved by this change. I don't see notable
-> performance change on rx with this series though.
-> 
-> Performance numbers (tx):
-> 
-> - Bulk transfer from guest to external physical server.
->     [Guest]->vhost_net->tap--(XDP_REDIRECT)-->i40e --(wire)--> [Server]
-> - Set 10us busypoll.
-> - Guest disables checksum and TSO because of host XDP.
-> - Measured single flow Mbps by netperf, and kicks by perf kvm stat
->   (EPT_MISCONFIG event).
-> 
->                             Before              After
->                           Mbps  kicks/s      Mbps  kicks/s
-> UDP_STREAM 1472byte              247758                 27
->                 Send   3645.37            6958.10
->                 Recv   3588.56            6958.10
->               1byte                9865                 37
->                 Send      4.34               5.43
->                 Recv      4.17               5.26
-> TCP_STREAM             8801.03    45794   9592.77     2884
-
-Thanks!
-Series:
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-
-> v2:
-> - Split patches into 3 parts (renaming variables, tx-kick fix, rx-wakeup
->   fix).
-> - Avoid rx-kicks too (patch 4).
-> - Don't memorize endtime as it is not needed for now.
-> 
-> Toshiaki Makita (4):
->   vhost_net: Rename local variables in vhost_net_rx_peek_head_len
->   vhost_net: Avoid tx vring kicks during busyloop
->   vhost_net: Avoid rx queue wake-ups during busypoll
->   vhost_net: Avoid rx vring kicks during busyloop
-> 
->  drivers/vhost/net.c | 95 +++++++++++++++++++++++++++++++++--------------------
->  1 file changed, 60 insertions(+), 35 deletions(-)
-> 
-> -- 
-> 1.8.3.1
-> 
+CgpPbiAyMDE45bm0MDfmnIgwNOaXpSAxMjozMSwgeGlhbmd4aWEubS55dWVAZ21haWwuY29tIHdy
+b3RlOgo+IEZyb206IFRvbmdoYW8gWmhhbmcgPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbT4KPgo+
+IFRoaXMgcGF0Y2hlcyBpbXByb3ZlIHRoZSBndWVzdCByZWNlaXZlIGFuZCB0cmFuc21pdCBwZXJm
+b3JtYW5jZS4KPiBPbiB0aGUgaGFuZGxlX3R4IHNpZGUsIHdlIHBvbGwgdGhlIHNvY2sgcmVjZWl2
+ZSBxdWV1ZSBhdCB0aGUgc2FtZSB0aW1lLgo+IGhhbmRsZV9yeCBkbyB0aGF0IGluIHRoZSBzYW1l
+IHdheS4KPgo+IEZvciBtb3JlIHBlcmZvcm1hbmNlIHJlcG9ydCwgc2VlIHBhdGNoIDQuCj4KPiB2
+NCAtPiB2NToKPiBmaXggc29tZSBpc3N1ZXMKPgo+IHYzIC0+IHY0Ogo+IGZpeCBzb21lIGlzc3Vl
+cwo+Cj4gdjIgLT4gdjM6Cj4gVGhpcyBwYXRjaGVzIGFyZSBzcGxpdGVkIGZyb20gcHJldmlvdXMg
+YmlnIHBhdGNoOgo+IGh0dHA6Ly9wYXRjaHdvcmsub3psYWJzLm9yZy9wYXRjaC85MzQ2NzMvCj4K
+PiBUb25naGFvIFpoYW5nICg0KToKPiAgICB2aG9zdDogbG9jayB0aGUgdnFzIG9uZSBieSBvbmUK
+PiAgICBuZXQ6IHZob3N0OiByZXBsYWNlIG1hZ2ljIG51bWJlciBvZiBsb2NrIGFubm90YXRpb24K
+PiAgICBuZXQ6IHZob3N0OiBmYWN0b3Igb3V0IGJ1c3kgcG9sbGluZyBsb2dpYyB0byB2aG9zdF9u
+ZXRfYnVzeV9wb2xsKCkKPiAgICBuZXQ6IHZob3N0OiBhZGQgcnggYnVzeSBwb2xsaW5nIGluIHR4
+IHBhdGgKPgo+ICAgZHJpdmVycy92aG9zdC9uZXQuYyAgIHwgMTA4ICsrKysrKysrKysrKysrKysr
+KysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0
+LmMgfCAgMjQgKysrKy0tLS0tLS0KPiAgIDIgZmlsZXMgY2hhbmdlZCwgNjcgaW5zZXJ0aW9ucygr
+KSwgNjUgZGVsZXRpb25zKC0pCj4KCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPgoKTm90ZTogeW91IHByb2JhYmx5IG5lZWQgYSByZWJhc2Ugb24gdG9wIG9mIE1ha2l0
+YSdzIHJlY2VudCBwYXRjaGVzLiBJdCAKZGVwZW5kcyBvbiB0aGUgb3JkZXIgb2YgYmVpbmcgbWVy
+Z2VkLCBsZXQncyBzZWUuCgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
