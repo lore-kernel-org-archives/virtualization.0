@@ -1,14 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next v5 0/4] net: vhost: improve performance when
-	enable busyloop
-Date: Wed, 4 Jul 2018 14:27:49 +0800
-Message-ID: <dc8646c4-4f62-e933-eedc-113714e0a0ed@redhat.com>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Subject: Re: [PATCH net-next v5 3/4] net: vhost: factor out busy polling logic
+	to vhost_net_busy_poll()
+Date: Wed, 4 Jul 2018 16:59:20 +0900
+Message-ID: <808dea9b-6240-8055-acaa-a1b96389a673@lab.ntt.co.jp>
 References: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<1530678698-33427-4-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
+In-Reply-To: <1530678698-33427-4-git-send-email-xiangxia.m.yue@gmail.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,30 +20,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xiangxia.m.yue@gmail.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: xiangxia.m.yue@gmail.com, jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Tonghao Zhang <zhangtonghao@didichuxing.com>, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDfmnIgwNOaXpSAxMjozMSwgeGlhbmd4aWEubS55dWVAZ21haWwuY29tIHdy
-b3RlOgo+IEZyb206IFRvbmdoYW8gWmhhbmcgPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbT4KPgo+
-IFRoaXMgcGF0Y2hlcyBpbXByb3ZlIHRoZSBndWVzdCByZWNlaXZlIGFuZCB0cmFuc21pdCBwZXJm
-b3JtYW5jZS4KPiBPbiB0aGUgaGFuZGxlX3R4IHNpZGUsIHdlIHBvbGwgdGhlIHNvY2sgcmVjZWl2
-ZSBxdWV1ZSBhdCB0aGUgc2FtZSB0aW1lLgo+IGhhbmRsZV9yeCBkbyB0aGF0IGluIHRoZSBzYW1l
-IHdheS4KPgo+IEZvciBtb3JlIHBlcmZvcm1hbmNlIHJlcG9ydCwgc2VlIHBhdGNoIDQuCj4KPiB2
-NCAtPiB2NToKPiBmaXggc29tZSBpc3N1ZXMKPgo+IHYzIC0+IHY0Ogo+IGZpeCBzb21lIGlzc3Vl
-cwo+Cj4gdjIgLT4gdjM6Cj4gVGhpcyBwYXRjaGVzIGFyZSBzcGxpdGVkIGZyb20gcHJldmlvdXMg
-YmlnIHBhdGNoOgo+IGh0dHA6Ly9wYXRjaHdvcmsub3psYWJzLm9yZy9wYXRjaC85MzQ2NzMvCj4K
-PiBUb25naGFvIFpoYW5nICg0KToKPiAgICB2aG9zdDogbG9jayB0aGUgdnFzIG9uZSBieSBvbmUK
-PiAgICBuZXQ6IHZob3N0OiByZXBsYWNlIG1hZ2ljIG51bWJlciBvZiBsb2NrIGFubm90YXRpb24K
-PiAgICBuZXQ6IHZob3N0OiBmYWN0b3Igb3V0IGJ1c3kgcG9sbGluZyBsb2dpYyB0byB2aG9zdF9u
-ZXRfYnVzeV9wb2xsKCkKPiAgICBuZXQ6IHZob3N0OiBhZGQgcnggYnVzeSBwb2xsaW5nIGluIHR4
-IHBhdGgKPgo+ICAgZHJpdmVycy92aG9zdC9uZXQuYyAgIHwgMTA4ICsrKysrKysrKysrKysrKysr
-KysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0
-LmMgfCAgMjQgKysrKy0tLS0tLS0KPiAgIDIgZmlsZXMgY2hhbmdlZCwgNjcgaW5zZXJ0aW9ucygr
-KSwgNjUgZGVsZXRpb25zKC0pCj4KCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
-YXQuY29tPgoKTm90ZTogeW91IHByb2JhYmx5IG5lZWQgYSByZWJhc2Ugb24gdG9wIG9mIE1ha2l0
-YSdzIHJlY2VudCBwYXRjaGVzLiBJdCAKZGVwZW5kcyBvbiB0aGUgb3JkZXIgb2YgYmVpbmcgbWVy
-Z2VkLCBsZXQncyBzZWUuCgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 2018/07/04 13:31, xiangxia.m.yue@gmail.com wrote:
+...
+> +static void vhost_net_busy_poll(struct vhost_net *net,
+> +				struct vhost_virtqueue *rvq,
+> +				struct vhost_virtqueue *tvq,
+> +				bool rx)
+> +{
+> +	unsigned long uninitialized_var(endtime);
+> +	unsigned long busyloop_timeout;
+> +	struct socket *sock;
+> +	struct vhost_virtqueue *vq = rx ? tvq : rvq;
+> +
+> +	mutex_lock_nested(&vq->mutex, rx ? VHOST_NET_VQ_TX: VHOST_NET_VQ_RX);
+> +
+> +	vhost_disable_notify(&net->dev, vq);
+> +	sock = rvq->private_data;
+> +	busyloop_timeout = rx ? rvq->busyloop_timeout : tvq->busyloop_timeout;
+> +
+> +	preempt_disable();
+> +	endtime = busy_clock() + busyloop_timeout;
+> +	while (vhost_can_busy_poll(tvq->dev, endtime) &&
+> +	       !(sock && sk_has_rx_data(sock->sk)) &&
+> +	       vhost_vq_avail_empty(tvq->dev, tvq))
+> +		cpu_relax();
+> +	preempt_enable();
+> +
+> +	if ((rx && !vhost_vq_avail_empty(&net->dev, vq)) ||
+> +	    (!rx && (sock && sk_has_rx_data(sock->sk)))) {
+> +		vhost_poll_queue(&vq->poll);
+> +	} else if (vhost_enable_notify(&net->dev, vq) && rx) {
+
+Hmm... on tx here sock has no rx data, so you are waiting for sock
+wakeup for rx and vhost_enable_notify() seems not needed. Do you want
+this actually?
+
+} else if (rx && vhost_enable_notify(&net->dev, vq)) {
+
+> +		vhost_disable_notify(&net->dev, vq);
+> +		vhost_poll_queue(&vq->poll);
+> +	}
+
+-- 
+Toshiaki Makita
