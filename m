@@ -1,17 +1,17 @@
-From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Subject: Re: [PATCH net-next v5 3/4] net: vhost: factor out busy polling logic
-	to vhost_net_busy_poll()
-Date: Wed, 4 Jul 2018 17:46:12 +0800
-Message-ID: <CAMDZJNXiD=ygWUaAEhEUDhSWZvhjfGR8NcttCjvorheBiKW4dg@mail.gmail.com>
-References: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<1530678698-33427-4-git-send-email-xiangxia.m.yue@gmail.com>
-	<808dea9b-6240-8055-acaa-a1b96389a673@lab.ntt.co.jp>
-	<6ca28b13-637e-8650-30a4-bb3f2ea96852@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH v2 0/5] Add virtio-iommu driver
+Date: Wed, 4 Jul 2018 12:25:26 +0100
+Message-ID: <98512e15-fd51-e4b2-1d9d-2c9cf9c863b8__9768.53131219304$1530703439$gmane$org@arm.com>
+References: <20180621190655.56391-1-jean-philippe.brucker@arm.com>
+	<20180626210132-mutt-send-email-mst@kernel.org>
+	<2bcda195-d2c6-fbf0-322e-d91756fc3547@arm.com>
+	<20180627224801-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <6ca28b13-637e-8650-30a4-bb3f2ea96852@redhat.com>
+In-Reply-To: <20180627224801-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,52 +21,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, mst@redhat.com, virtualization@lists.linux-foundation.org, Tonghao Zhang <zhangtonghao@didichuxing.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, peter.maydell@linaro.org, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "jayachandran.nair@cavium.com" <jayachandran.nair@cavium.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "joro@8bytes.org" <joro@8bytes.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Marc Zyngier <Marc.Zyngier@arm.com>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, Robin Murphy <Robin.Murphy@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKdWwgNCwgMjAxOCBhdCA1OjE4IFBNIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhh
-dC5jb20+IHdyb3RlOgo+Cj4KPgo+IE9uIDIwMTjlubQwN+aciDA05pelIDE1OjU5LCBUb3NoaWFr
-aSBNYWtpdGEgd3JvdGU6Cj4gPiBPbiAyMDE4LzA3LzA0IDEzOjMxLCB4aWFuZ3hpYS5tLnl1ZUBn
-bWFpbC5jb20gd3JvdGU6Cj4gPiAuLi4KPiA+PiArc3RhdGljIHZvaWQgdmhvc3RfbmV0X2J1c3lf
-cG9sbChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQsCj4gPj4gKyAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICpydnEsCj4gPj4gKyAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp0dnEsCj4gPj4gKyAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICBib29sIHJ4KQo+ID4+ICt7Cj4gPj4gKyAgICB1bnNpZ25lZCBsb25n
-IHVuaW5pdGlhbGl6ZWRfdmFyKGVuZHRpbWUpOwo+ID4+ICsgICAgdW5zaWduZWQgbG9uZyBidXN5
-bG9vcF90aW1lb3V0Owo+ID4+ICsgICAgc3RydWN0IHNvY2tldCAqc29jazsKPiA+PiArICAgIHN0
-cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxID0gcnggPyB0dnEgOiBydnE7Cj4gPj4gKwo+ID4+ICsg
-ICAgbXV0ZXhfbG9ja19uZXN0ZWQoJnZxLT5tdXRleCwgcnggPyBWSE9TVF9ORVRfVlFfVFg6IFZI
-T1NUX05FVF9WUV9SWCk7Cj4gPj4gKwo+ID4+ICsgICAgdmhvc3RfZGlzYWJsZV9ub3RpZnkoJm5l
-dC0+ZGV2LCB2cSk7Cj4gPj4gKyAgICBzb2NrID0gcnZxLT5wcml2YXRlX2RhdGE7Cj4gPj4gKyAg
-ICBidXN5bG9vcF90aW1lb3V0ID0gcnggPyBydnEtPmJ1c3lsb29wX3RpbWVvdXQgOiB0dnEtPmJ1
-c3lsb29wX3RpbWVvdXQ7Cj4gPj4gKwo+ID4+ICsgICAgcHJlZW1wdF9kaXNhYmxlKCk7Cj4gPj4g
-KyAgICBlbmR0aW1lID0gYnVzeV9jbG9jaygpICsgYnVzeWxvb3BfdGltZW91dDsKPiA+PiArICAg
-IHdoaWxlICh2aG9zdF9jYW5fYnVzeV9wb2xsKHR2cS0+ZGV2LCBlbmR0aW1lKSAmJgo+ID4+ICsg
-ICAgICAgICAgICEoc29jayAmJiBza19oYXNfcnhfZGF0YShzb2NrLT5zaykpICYmCj4gPj4gKyAg
-ICAgICAgICAgdmhvc3RfdnFfYXZhaWxfZW1wdHkodHZxLT5kZXYsIHR2cSkpCj4gPj4gKyAgICAg
-ICAgICAgIGNwdV9yZWxheCgpOwo+ID4+ICsgICAgcHJlZW1wdF9lbmFibGUoKTsKPiA+PiArCj4g
-Pj4gKyAgICBpZiAoKHJ4ICYmICF2aG9zdF92cV9hdmFpbF9lbXB0eSgmbmV0LT5kZXYsIHZxKSkg
-fHwKPiA+PiArICAgICAgICAoIXJ4ICYmIChzb2NrICYmIHNrX2hhc19yeF9kYXRhKHNvY2stPnNr
-KSkpKSB7Cj4gPj4gKyAgICAgICAgICAgIHZob3N0X3BvbGxfcXVldWUoJnZxLT5wb2xsKTsKPiA+
-PiArICAgIH0gZWxzZSBpZiAodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKSAmJiBy
-eCkgewo+ID4gSG1tLi4uIG9uIHR4IGhlcmUgc29jayBoYXMgbm8gcnggZGF0YSwgc28geW91IGFy
-ZSB3YWl0aW5nIGZvciBzb2NrCj4gPiB3YWtldXAgZm9yIHJ4IGFuZCB2aG9zdF9lbmFibGVfbm90
-aWZ5KCkgc2VlbXMgbm90IG5lZWRlZC4gRG8geW91IHdhbnQKPiA+IHRoaXMgYWN0dWFsbHk/Cj4g
-Pgo+ID4gfSBlbHNlIGlmIChyeCAmJiB2aG9zdF9lbmFibGVfbm90aWZ5KCZuZXQtPmRldiwgdnEp
-KSB7Cj4KPiBSaWdodCwgcnggbmVlZCB0byBiZSBjaGVja2VkIGZpcnN0IGhlcmUuCnRoYW5rc++8
-jCBpZiB3ZSBkb250IGNhbGwgdGhlIHZob3N0X2VuYWJsZV9ub3RpZnkgZm9yIHR4LiBzbyB3ZSBk
-b250Cm5lZWQgdG8gY2FsbCB2aG9zdF9kaXNhYmxlX25vdGlmeSBmb3IgdHg/CgpAQCAtNDUxLDcg
-KzQ1MSw5IEBAIHN0YXRpYyB2b2lkIHZob3N0X25ldF9idXN5X3BvbGwoc3RydWN0IHZob3N0X25l
-dCAqbmV0LAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdHZx
-LT5idXN5bG9vcF90aW1lb3V0OwoKICAgICAgICBtdXRleF9sb2NrX25lc3RlZCgmdnEtPm11dGV4
-LCByeCA/IFZIT1NUX05FVF9WUV9UWDogVkhPU1RfTkVUX1ZRX1JYKTsKLSAgICAgICB2aG9zdF9k
-aXNhYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKTsKKworICAgICAgIGlmIChyeCkKKyAgICAgICAg
-ICAgICAgIHZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwgdnEpOwoKICAgICAgICBwcmVl
-bXB0X2Rpc2FibGUoKTsKICAgICAgICBlbmR0aW1lID0gYnVzeV9jbG9jaygpICsgYnVzeWxvb3Bf
-dGltZW91dDsKCj4gVGhhbmtzCj4KPiA+PiArICAgICAgICAgICAgdmhvc3RfZGlzYWJsZV9ub3Rp
-ZnkoJm5ldC0+ZGV2LCB2cSk7Cj4gPj4gKyAgICAgICAgICAgIHZob3N0X3BvbGxfcXVldWUoJnZx
-LT5wb2xsKTsKPiA+PiArICAgIH0KPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On 27/06/18 20:59, Michael S. Tsirkin wrote:
+>> Another reason to keep the MMIO transport option is that one
+>> virtio-iommu can manage DMA from endpoints on multiple PCI domains at
+>> the same time, as well as platform devices. Some VMMs might want that,
+>> in which case the IOMMU would be a separate platform device.
+> 
+> Which buses are managed by the IOMMU is separate from the bus
+> on which it's programming interface resides.
+
+Sorry I didn't get this. We probably don't want to instantiate a PCI
+root complex just for the IOMMU, so it needs to be in the same PCI
+segment as managed endpoints. For example in my VM the AMD IOMMU is
+presented as 00:02.0, between other devices on PCI bus 00.
+
+In any case, I have a solution for virtio-pci that works with DT and
+ACPI, and isn't excessively awful. I'll probably send it as part of the
+next version.
+
+Thanks,
+Jean
