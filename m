@@ -1,16 +1,17 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [PATCH net-next v5 3/4] net: vhost: factor out busy polling logic
-	to vhost_net_busy_poll()
-Date: Wed, 4 Jul 2018 16:59:20 +0900
-Message-ID: <808dea9b-6240-8055-acaa-a1b96389a673@lab.ntt.co.jp>
-References: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<1530678698-33427-4-git-send-email-xiangxia.m.yue@gmail.com>
+From: Wei Xu <wexu@redhat.com>
+Subject: Re: [PATCH net-next 8/8] vhost: event suppression for packed ring
+Date: Wed, 4 Jul 2018 16:13:56 +0800
+Message-ID: <20180704081356.GB9287@wei-ubt>
+References: <1530596284-4101-1-git-send-email-jasowang@redhat.com>
+	<1530596284-4101-9-git-send-email-jasowang@redhat.com>
+	<20180704041352.GA9287@wei-ubt>
+	<493c3a3e-e088-d6fb-1da4-cda8bfb34400@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1530678698-33427-4-git-send-email-xiangxia.m.yue@gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <493c3a3e-e088-d6fb-1da4-cda8bfb34400@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,50 +21,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xiangxia.m.yue@gmail.com, jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Tonghao Zhang <zhangtonghao@didichuxing.com>, mst@redhat.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2018/07/04 13:31, xiangxia.m.yue@gmail.com wrote:
-...
-> +static void vhost_net_busy_poll(struct vhost_net *net,
-> +				struct vhost_virtqueue *rvq,
-> +				struct vhost_virtqueue *tvq,
-> +				bool rx)
-> +{
-> +	unsigned long uninitialized_var(endtime);
-> +	unsigned long busyloop_timeout;
-> +	struct socket *sock;
-> +	struct vhost_virtqueue *vq = rx ? tvq : rvq;
-> +
-> +	mutex_lock_nested(&vq->mutex, rx ? VHOST_NET_VQ_TX: VHOST_NET_VQ_RX);
-> +
-> +	vhost_disable_notify(&net->dev, vq);
-> +	sock = rvq->private_data;
-> +	busyloop_timeout = rx ? rvq->busyloop_timeout : tvq->busyloop_timeout;
-> +
-> +	preempt_disable();
-> +	endtime = busy_clock() + busyloop_timeout;
-> +	while (vhost_can_busy_poll(tvq->dev, endtime) &&
-> +	       !(sock && sk_has_rx_data(sock->sk)) &&
-> +	       vhost_vq_avail_empty(tvq->dev, tvq))
-> +		cpu_relax();
-> +	preempt_enable();
-> +
-> +	if ((rx && !vhost_vq_avail_empty(&net->dev, vq)) ||
-> +	    (!rx && (sock && sk_has_rx_data(sock->sk)))) {
-> +		vhost_poll_queue(&vq->poll);
-> +	} else if (vhost_enable_notify(&net->dev, vq) && rx) {
-
-Hmm... on tx here sock has no rx data, so you are waiting for sock
-wakeup for rx and vhost_enable_notify() seems not needed. Do you want
-this actually?
-
-} else if (rx && vhost_enable_notify(&net->dev, vq)) {
-
-> +		vhost_disable_notify(&net->dev, vq);
-> +		vhost_poll_queue(&vq->poll);
-> +	}
-
--- 
-Toshiaki Makita
+T24gV2VkLCBKdWwgMDQsIDIwMTggYXQgMDE6MjM6MThQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiAKPiBPbiAyMDE45bm0MDfmnIgwNOaXpSAxMjoxMywgV2VpIFh1IHdyb3RlOgo+ID5P
+biBUdWUsIEp1bCAwMywgMjAxOCBhdCAwMTozODowNFBNICswODAwLCBKYXNvbiBXYW5nIHdyb3Rl
+Ogo+ID4+VGhpcyBwYXRjaCBpbnRyb2R1Y2VzIHN1cHBvcnQgZm9yIGV2ZW50IHN1cHByZXNzaW9u
+LiBUaGlzIGlzIGRvbmUgYnkKPiA+PmhhdmUgYSB0d28gYXJlYXM6IGRldmljZSBhcmVhIGFuZCBk
+cml2ZXIgYXJlYS4gT25lIHNpZGUgY291bGQgdGhlbiB0cnkKPiA+PnRvIGRpc2FibGUgb3IgZW5h
+YmxlIChkZWxheWVkKSBub3RpZmljYXRpb24gZnJvbSBvdGhlciBzaWRlIGJ5IHVzaW5nIGEKPiA+
+PmJvb2xlYW4gaGludCBvciBldmVudCBpbmRleCBpbnRlcmZhY2UgaW4gdGhlIGFyZWFzLgo+ID4+
+Cj4gPj5Gb3IgbW9yZSBpbmZvcm1hdGlvbiwgcGxlYXNlIHJlZmVyIFZpcnRpbyBzcGVjLgo+ID4+
+Cj4gPj5TaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nPGphc293YW5nQHJlZGhhdC5jb20+Cj4gPj4t
+LS0KPiA+PiAgZHJpdmVycy92aG9zdC92aG9zdC5jIHwgMTkxICsrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKystLS0tCj4gPj4gIGRyaXZlcnMvdmhvc3Qvdmhvc3Qu
+aCB8ICAxMCArKy0KPiA+PiAgMiBmaWxlcyBjaGFuZ2VkLCAxODUgaW5zZXJ0aW9ucygrKSwgMTYg
+ZGVsZXRpb25zKC0pCj4gPj4KPiA+PmRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMg
+Yi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiA+PmluZGV4IDBmM2YwN2MuLmNjY2JjODIgMTAwNjQ0
+Cj4gPj4tLS0gYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiA+PisrKyBiL2RyaXZlcnMvdmhvc3Qv
+dmhvc3QuYwo+ID4+QEAgLTExMTUsMTAgKzExMTUsMTUgQEAgc3RhdGljIGludCB2cV9hY2Nlc3Nf
+b2tfcGFja2VkKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCB1bnNpZ25lZCBpbnQgbnVtLAo+
+ID4+ICAJCQkgICAgICAgc3RydWN0IHZyaW5nX3VzZWQgX191c2VyICp1c2VkKQo+ID4+ICB7Cj4g
+Pj4gIAlzdHJ1Y3QgdnJpbmdfZGVzY19wYWNrZWQgKnBhY2tlZCA9IChzdHJ1Y3QgdnJpbmdfZGVz
+Y19wYWNrZWQgKilkZXNjOwo+ID4+KwlzdHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2NfZXZlbnQgKmRy
+aXZlcl9ldmVudCA9Cj4gPj4rCQkoc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjX2V2ZW50ICopYXZh
+aWw7Cj4gPj4rCXN0cnVjdCB2cmluZ19wYWNrZWRfZGVzY19ldmVudCAqZGV2aWNlX2V2ZW50ID0K
+PiA+PisJCShzdHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2NfZXZlbnQgKil1c2VkOwo+ID4+LQkvKiBU
+T0RPOiBjaGVjayBkZXZpY2UgYXJlYSBhbmQgZHJpdmVyIGFyZWEgKi8KPiA+PiAgCXJldHVybiBh
+Y2Nlc3Nfb2soVkVSSUZZX1JFQUQsIHBhY2tlZCwgbnVtICogc2l6ZW9mKCpwYWNrZWQpKSAmJgo+
+ID4+LQkgICAgICAgYWNjZXNzX29rKFZFUklGWV9XUklURSwgcGFja2VkLCBudW0gKiBzaXplb2Yo
+KnBhY2tlZCkpOwo+ID4+KwkgICAgICAgYWNjZXNzX29rKFZFUklGWV9XUklURSwgcGFja2VkLCBu
+dW0gKiBzaXplb2YoKnBhY2tlZCkpICYmCj4gPlIvVyBwYXJhbWV0ZXIgZG9lc24ndCBtYWtlIHNl
+bnNlIHRvIG1vc3QgYXJjaGl0ZWN0dXJlcyBhbmQgdGhlIGNvbW1lbnQgaW4geDg2Cj4gPnNheXMg
+V1JJVEUgaXMgYSBzdXBlcnNldCBvZiBSRUFELCBpcyBpdCBwb3NzaWJsZSB0byBjb252ZXJnZSB0
+aGVtIGhlcmU/Cj4gPgo+ID4vKioKPiA+ICAqIGFjY2Vzc19vazogLSBDaGVja3MgaWYgYSB1c2Vy
+IHNwYWNlIHBvaW50ZXIgaXMgdmFsaWQKPiA+ICAqIEB0eXBlOiBUeXBlIG9mIGFjY2VzczogJVZF
+UklGWV9SRUFEIG9yICVWRVJJRllfV1JJVEUuICBOb3RlIHRoYXQKPiA+ICAqICAgICAgICAlVkVS
+SUZZX1dSSVRFIGlzIGEgc3VwZXJzZXQgb2YgJVZFUklGWV9SRUFEIC0gaWYgaXQgaXMgc2FmZQo+
+ID4gICogICAgICAgIHRvIHdyaXRlIHRvIGEgYmxvY2ssIGl0IGlzIGFsd2F5cyBzYWZlIHRvIHJl
+YWQgZnJvbSBpdC4KPiA+ICAqIEBhZGRyOiBVc2VyIHNwYWNlIHBvaW50ZXIgdG8gc3RhcnQgb2Yg
+YmxvY2sgdG8gY2hlY2sKPiA+ICAqIEBzaXplOiBTaXplIG9mIGJsb2NrIHRvIGNoZWNrCj4gPiAg
+Kgo+ID4gICogQ29udGV4dDogVXNlciBjb250ZXh0IG9ubHkuIFRoaXMgZnVuY3Rpb24gbWF5IHNs
+ZWVwIGlmIHBhZ2VmYXVsdHMgYXJlCj4gPiAgKiAgICAgICAgICBlbmFibGVkLgo+ID4gICoKPiA+
+ICAqIENoZWNrcyBpZiBhIHBvaW50ZXIgdG8gYSBibG9jayBvZiBtZW1vcnkgaW4gdXNlciBzcGFj
+ZSBpcyB2YWxpZC4KPiA+ICAqCj4gPiAgKiBSZXR1cm5zIHRydWUgKG5vbnplcm8pIGlmIHRoZSBt
+ZW1vcnkgYmxvY2sgbWF5IGJlIHZhbGlkLCBmYWxzZSAoemVybykKPiA+ICAqIGlmIGl0IGlzIGRl
+ZmluaXRlbHkgaW52YWxpZC4KPiA+ICAqCj4gPiAgKiBOb3RlIHRoYXQsIGRlcGVuZGluZyBvbiBh
+cmNoaXRlY3R1cmUsIHRoaXMgZnVuY3Rpb24gcHJvYmFibHkganVzdAo+ID4gICogY2hlY2tzIHRo
+YXQgdGhlIHBvaW50ZXIgaXMgaW4gdGhlIHVzZXIgc3BhY2UgcmFuZ2UgLSBhZnRlciBjYWxsaW5n
+Cj4gPiAgKiB0aGlzIGZ1bmN0aW9uLCBtZW1vcnkgYWNjZXNzIGZ1bmN0aW9ucyBtYXkgc3RpbGwg
+cmV0dXJuIC1FRkFVTFQuCj4gPiAgKi8KPiA+I2RlZmluZSBhY2Nlc3Nfb2sodHlwZSwgYWRkciwg
+c2l6ZSkKPiA+Li4uLi4uCj4gPgo+ID5UaGFua3MsCj4gPldlaQo+ID4KPiAKPiBXZWxsLCB0aGlz
+IGlzIGEgcXVlc3Rpb24gdGhhdCBiZXlvbmQgdGhlIHNjb3BlIG9mIHRoaXMgcGF0Y2guCj4gCj4g
+TXkgdW5kZXJzdGFuZGluZyBpcyB3ZSBzaG91bGQga2VlcCBpdCB1bmxlc3MgdHlwZSB3YXMgbWVh
+bmluZ2xlc3Mgb24gYWxsCj4gYXJjaHMuCgpObyBwcm9ibGVtLCBnbyBhaGVhZC4KCldlaQoKPiAK
+PiBUaGFua3MKPiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
