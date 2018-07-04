@@ -1,15 +1,16 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [PATCH net-next 6/8] virtio: introduce packed ring defines
-Date: Wed, 4 Jul 2018 12:48:23 +0800
-Message-ID: <20180704044823.GA22808@debian>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 8/8] vhost: event suppression for packed ring
+Date: Wed, 4 Jul 2018 13:23:18 +0800
+Message-ID: <493c3a3e-e088-d6fb-1da4-cda8bfb34400@redhat.com>
 References: <1530596284-4101-1-git-send-email-jasowang@redhat.com>
-	<1530596284-4101-7-git-send-email-jasowang@redhat.com>
+	<1530596284-4101-9-git-send-email-jasowang@redhat.com>
+	<20180704041352.GA9287@wei-ubt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1530596284-4101-7-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20180704041352.GA9287@wei-ubt>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,125 +20,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
+To: Wei Xu <wexu@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 03, 2018 at 01:38:02PM +0800, Jason Wang wrote:
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  include/uapi/linux/virtio_config.h |  2 ++
->  include/uapi/linux/virtio_ring.h   | 32 ++++++++++++++++++++++++++++++++
->  2 files changed, 34 insertions(+)
-> 
-> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-> index 449132c..947f6a3 100644
-> --- a/include/uapi/linux/virtio_config.h
-> +++ b/include/uapi/linux/virtio_config.h
-> @@ -75,6 +75,8 @@
->   */
->  #define VIRTIO_F_IOMMU_PLATFORM		33
->  
-> +#define VIRTIO_F_RING_PACKED		34
-
-It's better to add some comments for this macro.
-
-> +
->  /*
->   * Does the device support Single Root I/O Virtualization?
->   */
-> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-> index 6d5d5fa..71c7a46 100644
-> --- a/include/uapi/linux/virtio_ring.h
-> +++ b/include/uapi/linux/virtio_ring.h
-> @@ -43,6 +43,8 @@
->  #define VRING_DESC_F_WRITE	2
->  /* This means the buffer contains a list of buffer descriptors. */
->  #define VRING_DESC_F_INDIRECT	4
-> +#define VRING_DESC_F_AVAIL      7
-
-It's better to use tab between VRING_DESC_F_AVAIL and 7.
-
-> +#define VRING_DESC_F_USED	15
-
-Maybe it's better to define VRING_DESC_F_AVAIL and
-VRING_DESC_F_USED as (1 << 7) and (1 << 15) or something
-similar to make them consistent with VRING_DESC_F_NEXT
-(1 << 0), VRING_DESC_F_WRITE (1 << 1) and
-VRING_DESC_F_INDIRECT (1 << 2).
-
-I plan to define below macros in virtio_ring.c:
-
-#define _VRING_DESC_F_AVAIL(b)  ((__u16)(b) << 7)
-#define _VRING_DESC_F_USED(b)   ((__u16)(b) << 15)
-
->  
->  /* The Host uses this in used->flags to advise the Guest: don't kick me when
->   * you add a buffer.  It's unreliable, so it's simply an optimization.  Guest
-> @@ -62,6 +64,36 @@
->   * at the end of the used ring. Guest should ignore the used->flags field. */
->  #define VIRTIO_RING_F_EVENT_IDX		29
->  
-> +struct vring_desc_packed {
-
-We may have other related types named as:
-
-struct vring_packed;
-struct vring_packed_desc_event;
-
-So maybe it's better to name this type as:
-
-struct vring_packed_desc;
-
-> +	/* Buffer Address. */
-> +	__virtio64 addr;
-> +	/* Buffer Length. */
-> +	__virtio32 len;
-> +	/* Buffer ID. */
-> +	__virtio16 id;
-> +	/* The flags depending on descriptor type. */
-> +	__virtio16 flags;
-> +};
-> +
-> +/* Enable events */
-> +#define RING_EVENT_FLAGS_ENABLE 0x0
-> +/* Disable events */
-> +#define RING_EVENT_FLAGS_DISABLE 0x1
-> +/*
-> + * Enable events for a specific descriptor
-> + * (as specified by Descriptor Ring Change Event Offset/Wrap Counter).
-> + * Only valid if VIRTIO_F_RING_EVENT_IDX has been negotiated.
-> + */
-> +#define RING_EVENT_FLAGS_DESC 0x2
-
-For above three macros, maybe it's better to name
-them as:
-
-VRING_EVENT_FLAGS_ENABLE
-VRING_EVENT_FLAGS_DISABLE
-VRING_EVENT_FLAGS_DESC
-
-or
-
-VRING_EVENT_F_ENABLE
-VRING_EVENT_F_DISABLE
-VRING_EVENT_F_DESC
-
-VRING_EVENT_F_* will be more consistent with
-VIRTIO_F_*, VRING_DESC_F_*, etc
-
-> +/* The value 0x3 is reserved */
-> +
-> +struct vring_packed_desc_event {
-> +	/* Descriptor Ring Change Event Offset and Wrap Counter */
-> +	__virtio16 off_wrap;
-> +	/* Descriptor Ring Change Event Flags */
-> +	__virtio16 flags;
-> +};
-> +
->  /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
->  struct vring_desc {
->  	/* Address (guest-physical). */
-> -- 
-> 2.7.4
-> 
+CgpPbiAyMDE45bm0MDfmnIgwNOaXpSAxMjoxMywgV2VpIFh1IHdyb3RlOgo+IE9uIFR1ZSwgSnVs
+IDAzLCAyMDE4IGF0IDAxOjM4OjA0UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IFRoaXMg
+cGF0Y2ggaW50cm9kdWNlcyBzdXBwb3J0IGZvciBldmVudCBzdXBwcmVzc2lvbi4gVGhpcyBpcyBk
+b25lIGJ5Cj4+IGhhdmUgYSB0d28gYXJlYXM6IGRldmljZSBhcmVhIGFuZCBkcml2ZXIgYXJlYS4g
+T25lIHNpZGUgY291bGQgdGhlbiB0cnkKPj4gdG8gZGlzYWJsZSBvciBlbmFibGUgKGRlbGF5ZWQp
+IG5vdGlmaWNhdGlvbiBmcm9tIG90aGVyIHNpZGUgYnkgdXNpbmcgYQo+PiBib29sZWFuIGhpbnQg
+b3IgZXZlbnQgaW5kZXggaW50ZXJmYWNlIGluIHRoZSBhcmVhcy4KPj4KPj4gRm9yIG1vcmUgaW5m
+b3JtYXRpb24sIHBsZWFzZSByZWZlciBWaXJ0aW8gc3BlYy4KPj4KPj4gU2lnbmVkLW9mZi1ieTog
+SmFzb24gV2FuZzxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+PiAtLS0KPj4gICBkcml2ZXJzL3Zob3N0
+L3Zob3N0LmMgfCAxOTEgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKy0tLS0KPj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggfCAgMTAgKystCj4+ICAgMiBmaWxl
+cyBjaGFuZ2VkLCAxODUgaW5zZXJ0aW9ucygrKSwgMTYgZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYg
+LS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4g
+aW5kZXggMGYzZjA3Yy4uY2NjYmM4MiAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy92aG9zdC92aG9z
+dC5jCj4+ICsrKyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+PiBAQCAtMTExNSwxMCArMTExNSwx
+NSBAQCBzdGF0aWMgaW50IHZxX2FjY2Vzc19va19wYWNrZWQoc3RydWN0IHZob3N0X3ZpcnRxdWV1
+ZSAqdnEsIHVuc2lnbmVkIGludCBudW0sCj4+ICAgCQkJICAgICAgIHN0cnVjdCB2cmluZ191c2Vk
+IF9fdXNlciAqdXNlZCkKPj4gICB7Cj4+ICAgCXN0cnVjdCB2cmluZ19kZXNjX3BhY2tlZCAqcGFj
+a2VkID0gKHN0cnVjdCB2cmluZ19kZXNjX3BhY2tlZCAqKWRlc2M7Cj4+ICsJc3RydWN0IHZyaW5n
+X3BhY2tlZF9kZXNjX2V2ZW50ICpkcml2ZXJfZXZlbnQgPQo+PiArCQkoc3RydWN0IHZyaW5nX3Bh
+Y2tlZF9kZXNjX2V2ZW50ICopYXZhaWw7Cj4+ICsJc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjX2V2
+ZW50ICpkZXZpY2VfZXZlbnQgPQo+PiArCQkoc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjX2V2ZW50
+ICopdXNlZDsKPj4gICAKPj4gLQkvKiBUT0RPOiBjaGVjayBkZXZpY2UgYXJlYSBhbmQgZHJpdmVy
+IGFyZWEgKi8KPj4gICAJcmV0dXJuIGFjY2Vzc19vayhWRVJJRllfUkVBRCwgcGFja2VkLCBudW0g
+KiBzaXplb2YoKnBhY2tlZCkpICYmCj4+IC0JICAgICAgIGFjY2Vzc19vayhWRVJJRllfV1JJVEUs
+IHBhY2tlZCwgbnVtICogc2l6ZW9mKCpwYWNrZWQpKTsKPj4gKwkgICAgICAgYWNjZXNzX29rKFZF
+UklGWV9XUklURSwgcGFja2VkLCBudW0gKiBzaXplb2YoKnBhY2tlZCkpICYmCj4gUi9XIHBhcmFt
+ZXRlciBkb2Vzbid0IG1ha2Ugc2Vuc2UgdG8gbW9zdCBhcmNoaXRlY3R1cmVzIGFuZCB0aGUgY29t
+bWVudCBpbiB4ODYKPiBzYXlzIFdSSVRFIGlzIGEgc3VwZXJzZXQgb2YgUkVBRCwgaXMgaXQgcG9z
+c2libGUgdG8gY29udmVyZ2UgdGhlbSBoZXJlPwo+Cj4gLyoqCj4gICAqIGFjY2Vzc19vazogLSBD
+aGVja3MgaWYgYSB1c2VyIHNwYWNlIHBvaW50ZXIgaXMgdmFsaWQKPiAgICogQHR5cGU6IFR5cGUg
+b2YgYWNjZXNzOiAlVkVSSUZZX1JFQUQgb3IgJVZFUklGWV9XUklURS4gIE5vdGUgdGhhdAo+ICAg
+KiAgICAgICAgJVZFUklGWV9XUklURSBpcyBhIHN1cGVyc2V0IG9mICVWRVJJRllfUkVBRCAtIGlm
+IGl0IGlzIHNhZmUKPiAgICogICAgICAgIHRvIHdyaXRlIHRvIGEgYmxvY2ssIGl0IGlzIGFsd2F5
+cyBzYWZlIHRvIHJlYWQgZnJvbSBpdC4KPiAgICogQGFkZHI6IFVzZXIgc3BhY2UgcG9pbnRlciB0
+byBzdGFydCBvZiBibG9jayB0byBjaGVjawo+ICAgKiBAc2l6ZTogU2l6ZSBvZiBibG9jayB0byBj
+aGVjawo+ICAgKgo+ICAgKiBDb250ZXh0OiBVc2VyIGNvbnRleHQgb25seS4gVGhpcyBmdW5jdGlv
+biBtYXkgc2xlZXAgaWYgcGFnZWZhdWx0cyBhcmUKPiAgICogICAgICAgICAgZW5hYmxlZC4KPiAg
+ICoKPiAgICogQ2hlY2tzIGlmIGEgcG9pbnRlciB0byBhIGJsb2NrIG9mIG1lbW9yeSBpbiB1c2Vy
+IHNwYWNlIGlzIHZhbGlkLgo+ICAgKgo+ICAgKiBSZXR1cm5zIHRydWUgKG5vbnplcm8pIGlmIHRo
+ZSBtZW1vcnkgYmxvY2sgbWF5IGJlIHZhbGlkLCBmYWxzZSAoemVybykKPiAgICogaWYgaXQgaXMg
+ZGVmaW5pdGVseSBpbnZhbGlkLgo+ICAgKgo+ICAgKiBOb3RlIHRoYXQsIGRlcGVuZGluZyBvbiBh
+cmNoaXRlY3R1cmUsIHRoaXMgZnVuY3Rpb24gcHJvYmFibHkganVzdAo+ICAgKiBjaGVja3MgdGhh
+dCB0aGUgcG9pbnRlciBpcyBpbiB0aGUgdXNlciBzcGFjZSByYW5nZSAtIGFmdGVyIGNhbGxpbmcK
+PiAgICogdGhpcyBmdW5jdGlvbiwgbWVtb3J5IGFjY2VzcyBmdW5jdGlvbnMgbWF5IHN0aWxsIHJl
+dHVybiAtRUZBVUxULgo+ICAgKi8KPiAjZGVmaW5lIGFjY2Vzc19vayh0eXBlLCBhZGRyLCBzaXpl
+KQo+IC4uLi4uLgo+Cj4gVGhhbmtzLAo+IFdlaQo+CgpXZWxsLCB0aGlzIGlzIGEgcXVlc3Rpb24g
+dGhhdCBiZXlvbmQgdGhlIHNjb3BlIG9mIHRoaXMgcGF0Y2guCgpNeSB1bmRlcnN0YW5kaW5nIGlz
+IHdlIHNob3VsZCBrZWVwIGl0IHVubGVzcyB0eXBlIHdhcyBtZWFuaW5nbGVzcyBvbiBhbGwgCmFy
+Y2hzLgoKVGhhbmtzCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
