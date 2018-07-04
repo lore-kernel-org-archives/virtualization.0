@@ -1,13 +1,15 @@
-From: xiangxia.m.yue@gmail.com
-Subject: [PATCH net-next v5 4/4] net: vhost: add rx busy polling in tx path
-Date: Tue,  3 Jul 2018 21:31:38 -0700
-Message-ID: <1530678698-33427-5-git-send-email-xiangxia.m.yue__38912.2194996618$1530678838$gmane$org@gmail.com>
-References: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [PATCH net-next 6/8] virtio: introduce packed ring defines
+Date: Wed, 4 Jul 2018 12:48:23 +0800
+Message-ID: <20180704044823.GA22808@debian>
+References: <1530596284-4101-1-git-send-email-jasowang@redhat.com>
+	<1530596284-4101-7-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1530596284-4101-7-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,77 +19,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Tonghao Zhang <zhangtonghao@didichuxing.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+On Tue, Jul 03, 2018 at 01:38:02PM +0800, Jason Wang wrote:
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  include/uapi/linux/virtio_config.h |  2 ++
+>  include/uapi/linux/virtio_ring.h   | 32 ++++++++++++++++++++++++++++++++
+>  2 files changed, 34 insertions(+)
+> 
+> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+> index 449132c..947f6a3 100644
+> --- a/include/uapi/linux/virtio_config.h
+> +++ b/include/uapi/linux/virtio_config.h
+> @@ -75,6 +75,8 @@
+>   */
+>  #define VIRTIO_F_IOMMU_PLATFORM		33
+>  
+> +#define VIRTIO_F_RING_PACKED		34
 
-This patch improves the guest receive and transmit performance.
-On the handle_tx side, we poll the sock receive queue at the
-same time. handle_rx do that in the same way.
+It's better to add some comments for this macro.
 
-We set the poll-us=100us and use the iperf3 to test
-its bandwidth, use the netperf to test throughput and mean
-latency. When running the tests, the vhost-net kthread of
-that VM, is alway 100% CPU. The commands are shown as below.
+> +
+>  /*
+>   * Does the device support Single Root I/O Virtualization?
+>   */
+> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+> index 6d5d5fa..71c7a46 100644
+> --- a/include/uapi/linux/virtio_ring.h
+> +++ b/include/uapi/linux/virtio_ring.h
+> @@ -43,6 +43,8 @@
+>  #define VRING_DESC_F_WRITE	2
+>  /* This means the buffer contains a list of buffer descriptors. */
+>  #define VRING_DESC_F_INDIRECT	4
+> +#define VRING_DESC_F_AVAIL      7
 
-iperf3  -s -D
-iperf3  -c IP -i 1 -P 1 -t 20 -M 1400
+It's better to use tab between VRING_DESC_F_AVAIL and 7.
+
+> +#define VRING_DESC_F_USED	15
+
+Maybe it's better to define VRING_DESC_F_AVAIL and
+VRING_DESC_F_USED as (1 << 7) and (1 << 15) or something
+similar to make them consistent with VRING_DESC_F_NEXT
+(1 << 0), VRING_DESC_F_WRITE (1 << 1) and
+VRING_DESC_F_INDIRECT (1 << 2).
+
+I plan to define below macros in virtio_ring.c:
+
+#define _VRING_DESC_F_AVAIL(b)  ((__u16)(b) << 7)
+#define _VRING_DESC_F_USED(b)   ((__u16)(b) << 15)
+
+>  
+>  /* The Host uses this in used->flags to advise the Guest: don't kick me when
+>   * you add a buffer.  It's unreliable, so it's simply an optimization.  Guest
+> @@ -62,6 +64,36 @@
+>   * at the end of the used ring. Guest should ignore the used->flags field. */
+>  #define VIRTIO_RING_F_EVENT_IDX		29
+>  
+> +struct vring_desc_packed {
+
+We may have other related types named as:
+
+struct vring_packed;
+struct vring_packed_desc_event;
+
+So maybe it's better to name this type as:
+
+struct vring_packed_desc;
+
+> +	/* Buffer Address. */
+> +	__virtio64 addr;
+> +	/* Buffer Length. */
+> +	__virtio32 len;
+> +	/* Buffer ID. */
+> +	__virtio16 id;
+> +	/* The flags depending on descriptor type. */
+> +	__virtio16 flags;
+> +};
+> +
+> +/* Enable events */
+> +#define RING_EVENT_FLAGS_ENABLE 0x0
+> +/* Disable events */
+> +#define RING_EVENT_FLAGS_DISABLE 0x1
+> +/*
+> + * Enable events for a specific descriptor
+> + * (as specified by Descriptor Ring Change Event Offset/Wrap Counter).
+> + * Only valid if VIRTIO_F_RING_EVENT_IDX has been negotiated.
+> + */
+> +#define RING_EVENT_FLAGS_DESC 0x2
+
+For above three macros, maybe it's better to name
+them as:
+
+VRING_EVENT_FLAGS_ENABLE
+VRING_EVENT_FLAGS_DISABLE
+VRING_EVENT_FLAGS_DESC
 
 or
-netserver
-netperf -H IP -t TCP_RR -l 20 -- -O "THROUGHPUT,MEAN_LATENCY"
 
-host -> guest:
-iperf3:
-* With the patch:     27.0 Gbits/sec
-* Without the patch:  14.4 Gbits/sec
+VRING_EVENT_F_ENABLE
+VRING_EVENT_F_DISABLE
+VRING_EVENT_F_DESC
 
-netperf (TCP_RR):
-* With the patch:     48039.56 trans/s, 20.64us mean latency
-* Without the patch:  46027.07 trans/s, 21.58us mean latency
+VRING_EVENT_F_* will be more consistent with
+VIRTIO_F_*, VRING_DESC_F_*, etc
 
-This patch also improves the guest transmit performance.
-
-guest -> host:
-iperf3:
-* With the patch:     27.2 Gbits/sec
-* Without the patch:  24.4 Gbits/sec
-
-netperf (TCP_RR):
-* With the patch:     47963.25 trans/s, 20.71us mean latency
-* Without the patch:  45796.70 trans/s, 21.68us mean latency
-
-Signed-off-by: Tonghao Zhang <zhangtonghao@didichuxing.com>
----
- drivers/vhost/net.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 2790959..3f26547 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -480,17 +480,13 @@ static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
- 				    struct iovec iov[], unsigned int iov_size,
- 				    unsigned int *out_num, unsigned int *in_num)
- {
--	unsigned long uninitialized_var(endtime);
-+	struct vhost_net_virtqueue *rnvq = &net->vqs[VHOST_NET_VQ_RX];
- 	int r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
- 				  out_num, in_num, NULL, NULL);
- 
- 	if (r == vq->num && vq->busyloop_timeout) {
--		preempt_disable();
--		endtime = busy_clock() + vq->busyloop_timeout;
--		while (vhost_can_busy_poll(vq->dev, endtime) &&
--		       vhost_vq_avail_empty(vq->dev, vq))
--			cpu_relax();
--		preempt_enable();
-+		vhost_net_busy_poll(net, &rnvq->vq, vq, false);
-+
- 		r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
- 				      out_num, in_num, NULL, NULL);
- 	}
--- 
-1.8.3.1
+> +/* The value 0x3 is reserved */
+> +
+> +struct vring_packed_desc_event {
+> +	/* Descriptor Ring Change Event Offset and Wrap Counter */
+> +	__virtio16 off_wrap;
+> +	/* Descriptor Ring Change Event Flags */
+> +	__virtio16 flags;
+> +};
+> +
+>  /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
+>  struct vring_desc {
+>  	/* Address (guest-physical). */
+> -- 
+> 2.7.4
+> 
