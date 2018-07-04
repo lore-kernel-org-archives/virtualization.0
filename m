@@ -1,16 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next 6/8] virtio: introduce packed ring defines
-Date: Wed, 4 Jul 2018 13:26:24 +0800
-Message-ID: <81c82dfe-54f9-671c-695a-68c309fa1b73@redhat.com>
-References: <1530596284-4101-1-git-send-email-jasowang@redhat.com>
-	<1530596284-4101-7-git-send-email-jasowang@redhat.com>
-	<20180704044823.GA22808@debian>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 net-next 0/4] vhost_net: Avoid vq kicks during busyloop
+Date: Wed, 4 Jul 2018 08:35:30 +0300
+Message-ID: <20180704083506-mutt-send-email-mst@kernel.org>
+References: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180704044823.GA22808@debian>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,75 +18,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDfmnIgwNOaXpSAxMjo0OCwgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFR1ZSwg
-SnVsIDAzLCAyMDE4IGF0IDAxOjM4OjAyUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IFNp
-Z25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4+IC0tLQo+PiAg
-IGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fY29uZmlnLmggfCAgMiArKwo+PiAgIGluY2x1ZGUv
-dWFwaS9saW51eC92aXJ0aW9fcmluZy5oICAgfCAzMiArKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKwo+PiAgIDIgZmlsZXMgY2hhbmdlZCwgMzQgaW5zZXJ0aW9ucygrKQo+Pgo+PiBkaWZm
-IC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19jb25maWcuaCBiL2luY2x1ZGUvdWFw
-aS9saW51eC92aXJ0aW9fY29uZmlnLmgKPj4gaW5kZXggNDQ5MTMyYy4uOTQ3ZjZhMyAxMDA2NDQK
-Pj4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19jb25maWcuaAo+PiArKysgYi9pbmNs
-dWRlL3VhcGkvbGludXgvdmlydGlvX2NvbmZpZy5oCj4+IEBAIC03NSw2ICs3NSw4IEBACj4+ICAg
-ICovCj4+ICAgI2RlZmluZSBWSVJUSU9fRl9JT01NVV9QTEFURk9STQkJMzMKPj4gICAKPj4gKyNk
-ZWZpbmUgVklSVElPX0ZfUklOR19QQUNLRUQJCTM0Cj4gSXQncyBiZXR0ZXIgdG8gYWRkIHNvbWUg
-Y29tbWVudHMgZm9yIHRoaXMgbWFjcm8uCgpPay4KCj4KPj4gKwo+PiAgIC8qCj4+ICAgICogRG9l
-cyB0aGUgZGV2aWNlIHN1cHBvcnQgU2luZ2xlIFJvb3QgSS9PIFZpcnR1YWxpemF0aW9uPwo+PiAg
-ICAqLwo+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19yaW5nLmggYi9p
-bmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3JpbmcuaAo+PiBpbmRleCA2ZDVkNWZhLi43MWM3YTQ2
-IDEwMDY0NAo+PiAtLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3JpbmcuaAo+PiArKysg
-Yi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3JpbmcuaAo+PiBAQCAtNDMsNiArNDMsOCBAQAo+
-PiAgICNkZWZpbmUgVlJJTkdfREVTQ19GX1dSSVRFCTIKPj4gICAvKiBUaGlzIG1lYW5zIHRoZSBi
-dWZmZXIgY29udGFpbnMgYSBsaXN0IG9mIGJ1ZmZlciBkZXNjcmlwdG9ycy4gKi8KPj4gICAjZGVm
-aW5lIFZSSU5HX0RFU0NfRl9JTkRJUkVDVAk0Cj4+ICsjZGVmaW5lIFZSSU5HX0RFU0NfRl9BVkFJ
-TCAgICAgIDcKPiBJdCdzIGJldHRlciB0byB1c2UgdGFiIGJldHdlZW4gVlJJTkdfREVTQ19GX0FW
-QUlMIGFuZCA3LgoKTGV0IG1lIGZpeC4KCj4KPj4gKyNkZWZpbmUgVlJJTkdfREVTQ19GX1VTRUQJ
-MTUKPiBNYXliZSBpdCdzIGJldHRlciB0byBkZWZpbmUgVlJJTkdfREVTQ19GX0FWQUlMIGFuZAo+
-IFZSSU5HX0RFU0NfRl9VU0VEIGFzICgxIDw8IDcpIGFuZCAoMSA8PCAxNSkgb3Igc29tZXRoaW5n
-Cj4gc2ltaWxhciB0byBtYWtlIHRoZW0gY29uc2lzdGVudCB3aXRoIFZSSU5HX0RFU0NfRl9ORVhU
-Cj4gKDEgPDwgMCksIFZSSU5HX0RFU0NfRl9XUklURSAoMSA8PCAxKSBhbmQKPiBWUklOR19ERVND
-X0ZfSU5ESVJFQ1QgKDEgPDwgMikuCgpPay4KCj4KPiBJIHBsYW4gdG8gZGVmaW5lIGJlbG93IG1h
-Y3JvcyBpbiB2aXJ0aW9fcmluZy5jOgo+Cj4gI2RlZmluZSBfVlJJTkdfREVTQ19GX0FWQUlMKGIp
-ICAoKF9fdTE2KShiKSA8PCA3KQo+ICNkZWZpbmUgX1ZSSU5HX0RFU0NfRl9VU0VEKGIpICAgKChf
-X3UxNikoYikgPDwgMTUpCj4KPj4gICAKPj4gICAvKiBUaGUgSG9zdCB1c2VzIHRoaXMgaW4gdXNl
-ZC0+ZmxhZ3MgdG8gYWR2aXNlIHRoZSBHdWVzdDogZG9uJ3Qga2ljayBtZSB3aGVuCj4+ICAgICog
-eW91IGFkZCBhIGJ1ZmZlci4gIEl0J3MgdW5yZWxpYWJsZSwgc28gaXQncyBzaW1wbHkgYW4gb3B0
-aW1pemF0aW9uLiAgR3Vlc3QKPj4gQEAgLTYyLDYgKzY0LDM2IEBACj4+ICAgICogYXQgdGhlIGVu
-ZCBvZiB0aGUgdXNlZCByaW5nLiBHdWVzdCBzaG91bGQgaWdub3JlIHRoZSB1c2VkLT5mbGFncyBm
-aWVsZC4gKi8KPj4gICAjZGVmaW5lIFZJUlRJT19SSU5HX0ZfRVZFTlRfSURYCQkyOQo+PiAgIAo+
-PiArc3RydWN0IHZyaW5nX2Rlc2NfcGFja2VkIHsKPiBXZSBtYXkgaGF2ZSBvdGhlciByZWxhdGVk
-IHR5cGVzIG5hbWVkIGFzOgo+Cj4gc3RydWN0IHZyaW5nX3BhY2tlZDsKPiBzdHJ1Y3QgdnJpbmdf
-cGFja2VkX2Rlc2NfZXZlbnQ7Cj4KPiBTbyBtYXliZSBpdCdzIGJldHRlciB0byBuYW1lIHRoaXMg
-dHlwZSBhczoKPgo+IHN0cnVjdCB2cmluZ19wYWNrZWRfZGVzYzsKClllcy4KCj4KPj4gKwkvKiBC
-dWZmZXIgQWRkcmVzcy4gKi8KPj4gKwlfX3ZpcnRpbzY0IGFkZHI7Cj4+ICsJLyogQnVmZmVyIExl
-bmd0aC4gKi8KPj4gKwlfX3ZpcnRpbzMyIGxlbjsKPj4gKwkvKiBCdWZmZXIgSUQuICovCj4+ICsJ
-X192aXJ0aW8xNiBpZDsKPj4gKwkvKiBUaGUgZmxhZ3MgZGVwZW5kaW5nIG9uIGRlc2NyaXB0b3Ig
-dHlwZS4gKi8KPj4gKwlfX3ZpcnRpbzE2IGZsYWdzOwo+PiArfTsKPj4gKwo+PiArLyogRW5hYmxl
-IGV2ZW50cyAqLwo+PiArI2RlZmluZSBSSU5HX0VWRU5UX0ZMQUdTX0VOQUJMRSAweDAKPj4gKy8q
-IERpc2FibGUgZXZlbnRzICovCj4+ICsjZGVmaW5lIFJJTkdfRVZFTlRfRkxBR1NfRElTQUJMRSAw
-eDEKPj4gKy8qCj4+ICsgKiBFbmFibGUgZXZlbnRzIGZvciBhIHNwZWNpZmljIGRlc2NyaXB0b3IK
-Pj4gKyAqIChhcyBzcGVjaWZpZWQgYnkgRGVzY3JpcHRvciBSaW5nIENoYW5nZSBFdmVudCBPZmZz
-ZXQvV3JhcCBDb3VudGVyKS4KPj4gKyAqIE9ubHkgdmFsaWQgaWYgVklSVElPX0ZfUklOR19FVkVO
-VF9JRFggaGFzIGJlZW4gbmVnb3RpYXRlZC4KPj4gKyAqLwo+PiArI2RlZmluZSBSSU5HX0VWRU5U
-X0ZMQUdTX0RFU0MgMHgyCj4gRm9yIGFib3ZlIHRocmVlIG1hY3JvcywgbWF5YmUgaXQncyBiZXR0
-ZXIgdG8gbmFtZQo+IHRoZW0gYXM6Cj4KPiBWUklOR19FVkVOVF9GTEFHU19FTkFCTEUKPiBWUklO
-R19FVkVOVF9GTEFHU19ESVNBQkxFCj4gVlJJTkdfRVZFTlRfRkxBR1NfREVTQwo+Cj4gb3IKPgo+
-IFZSSU5HX0VWRU5UX0ZfRU5BQkxFCj4gVlJJTkdfRVZFTlRfRl9ESVNBQkxFCj4gVlJJTkdfRVZF
-TlRfRl9ERVNDCj4KPiBWUklOR19FVkVOVF9GXyogd2lsbCBiZSBtb3JlIGNvbnNpc3RlbnQgd2l0
-aAo+IFZJUlRJT19GXyosIFZSSU5HX0RFU0NfRl8qLCBldGMKClRydWUuIExldCBtZSBmaXggYWJv
-dmUgaW4gbmV4dCB2ZXJzaW9uLgoKVGhhbmtzCgo+PiArLyogVGhlIHZhbHVlIDB4MyBpcyByZXNl
-cnZlZCAqLwo+PiArCj4+ICtzdHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2NfZXZlbnQgewo+PiArCS8q
-IERlc2NyaXB0b3IgUmluZyBDaGFuZ2UgRXZlbnQgT2Zmc2V0IGFuZCBXcmFwIENvdW50ZXIgKi8K
-Pj4gKwlfX3ZpcnRpbzE2IG9mZl93cmFwOwo+PiArCS8qIERlc2NyaXB0b3IgUmluZyBDaGFuZ2Ug
-RXZlbnQgRmxhZ3MgKi8KPj4gKwlfX3ZpcnRpbzE2IGZsYWdzOwo+PiArfTsKPj4gKwo+PiAgIC8q
-IFZpcnRpbyByaW5nIGRlc2NyaXB0b3JzOiAxNiBieXRlcy4gIFRoZXNlIGNhbiBjaGFpbiB0b2dl
-dGhlciB2aWEgIm5leHQiLiAqLwo+PiAgIHN0cnVjdCB2cmluZ19kZXNjIHsKPj4gICAJLyogQWRk
-cmVzcyAoZ3Vlc3QtcGh5c2ljYWwpLiAqLwo+PiAtLSAKPj4gMi43LjQKPj4KCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
-bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
-L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
-bg==
+On Tue, Jul 03, 2018 at 04:31:30PM +0900, Toshiaki Makita wrote:
+> Under heavy load vhost tx busypoll tend not to suppress vq kicks, which
+> causes poor guest tx performance. The detailed scenario is described in
+> commitlog of patch 2.
+> Rx seems not to have that serious problem, but for consistency I made a
+> similar change on rx to avoid rx wakeups (patch 3).
+> Additionary patch 4 is to avoid rx kicks under heavy load during
+> busypoll.
+> 
+> Tx performance is greatly improved by this change. I don't see notable
+> performance change on rx with this series though.
+> 
+> Performance numbers (tx):
+> 
+> - Bulk transfer from guest to external physical server.
+>     [Guest]->vhost_net->tap--(XDP_REDIRECT)-->i40e --(wire)--> [Server]
+> - Set 10us busypoll.
+> - Guest disables checksum and TSO because of host XDP.
+> - Measured single flow Mbps by netperf, and kicks by perf kvm stat
+>   (EPT_MISCONFIG event).
+> 
+>                             Before              After
+>                           Mbps  kicks/s      Mbps  kicks/s
+> UDP_STREAM 1472byte              247758                 27
+>                 Send   3645.37            6958.10
+>                 Recv   3588.56            6958.10
+>               1byte                9865                 37
+>                 Send      4.34               5.43
+>                 Recv      4.17               5.26
+> TCP_STREAM             8801.03    45794   9592.77     2884
+
+Thanks!
+Series:
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+
+> v2:
+> - Split patches into 3 parts (renaming variables, tx-kick fix, rx-wakeup
+>   fix).
+> - Avoid rx-kicks too (patch 4).
+> - Don't memorize endtime as it is not needed for now.
+> 
+> Toshiaki Makita (4):
+>   vhost_net: Rename local variables in vhost_net_rx_peek_head_len
+>   vhost_net: Avoid tx vring kicks during busyloop
+>   vhost_net: Avoid rx queue wake-ups during busypoll
+>   vhost_net: Avoid rx vring kicks during busyloop
+> 
+>  drivers/vhost/net.c | 95 +++++++++++++++++++++++++++++++++--------------------
+>  1 file changed, 60 insertions(+), 35 deletions(-)
+> 
+> -- 
+> 1.8.3.1
+> 
