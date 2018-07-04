@@ -1,12 +1,17 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH] drm/virtio: fix bounds check in virtio_gpu_cmd_get_capset()
-Date: Wed, 4 Jul 2018 12:42:50 +0300
-Message-ID: <20180704094250.m7sgvvzg3dhcvv3h__46998.2799412266$1530697261$gmane$org@kili.mountain>
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Subject: Re: [PATCH net-next v5 3/4] net: vhost: factor out busy polling logic
+	to vhost_net_busy_poll()
+Date: Wed, 4 Jul 2018 17:46:12 +0800
+Message-ID: <CAMDZJNXiD=ygWUaAEhEUDhSWZvhjfGR8NcttCjvorheBiKW4dg@mail.gmail.com>
+References: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<1530678698-33427-4-git-send-email-xiangxia.m.yue@gmail.com>
+	<808dea9b-6240-8055-acaa-a1b96389a673@lab.ntt.co.jp>
+	<6ca28b13-637e-8650-30a4-bb3f2ea96852@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <6ca28b13-637e-8650-30a4-bb3f2ea96852@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,44 +21,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>
-Cc: kernel-janitors@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: jasowang@redhat.com
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, mst@redhat.com, virtualization@lists.linux-foundation.org, Tonghao Zhang <zhangtonghao@didichuxing.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This doesn't affect runtime because in the current code "idx" is always
-valid.
-
-First, we read from "vgdev->capsets[idx].max_size" before checking
-whether "idx" is within bounds.  And secondly the bounds check is off by
-one so we could end up reading one element beyond the end of the
-vgdev->capsets[] array.
-
-Fixes: 62fb7a5e1096 ("virtio-gpu: add 3d/virgl support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 020070d483d3..4735bd1c7321 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -648,11 +648,11 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
- {
- 	struct virtio_gpu_get_capset *cmd_p;
- 	struct virtio_gpu_vbuffer *vbuf;
--	int max_size = vgdev->capsets[idx].max_size;
-+	int max_size;
- 	struct virtio_gpu_drv_cap_cache *cache_ent;
- 	void *resp_buf;
- 
--	if (idx > vgdev->num_capsets)
-+	if (idx >= vgdev->num_capsets)
- 		return -EINVAL;
- 
- 	if (version > vgdev->capsets[idx].max_version)
-@@ -662,6 +662,7 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
- 	if (!cache_ent)
- 		return -ENOMEM;
- 
-+	max_size = vgdev->capsets[idx].max_size;
- 	cache_ent->caps_cache = kmalloc(max_size, GFP_KERNEL);
- 	if (!cache_ent->caps_cache) {
- 		kfree(cache_ent);
+T24gV2VkLCBKdWwgNCwgMjAxOCBhdCA1OjE4IFBNIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhh
+dC5jb20+IHdyb3RlOgo+Cj4KPgo+IE9uIDIwMTjlubQwN+aciDA05pelIDE1OjU5LCBUb3NoaWFr
+aSBNYWtpdGEgd3JvdGU6Cj4gPiBPbiAyMDE4LzA3LzA0IDEzOjMxLCB4aWFuZ3hpYS5tLnl1ZUBn
+bWFpbC5jb20gd3JvdGU6Cj4gPiAuLi4KPiA+PiArc3RhdGljIHZvaWQgdmhvc3RfbmV0X2J1c3lf
+cG9sbChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQsCj4gPj4gKyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICpydnEsCj4gPj4gKyAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp0dnEsCj4gPj4gKyAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICBib29sIHJ4KQo+ID4+ICt7Cj4gPj4gKyAgICB1bnNpZ25lZCBsb25n
+IHVuaW5pdGlhbGl6ZWRfdmFyKGVuZHRpbWUpOwo+ID4+ICsgICAgdW5zaWduZWQgbG9uZyBidXN5
+bG9vcF90aW1lb3V0Owo+ID4+ICsgICAgc3RydWN0IHNvY2tldCAqc29jazsKPiA+PiArICAgIHN0
+cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxID0gcnggPyB0dnEgOiBydnE7Cj4gPj4gKwo+ID4+ICsg
+ICAgbXV0ZXhfbG9ja19uZXN0ZWQoJnZxLT5tdXRleCwgcnggPyBWSE9TVF9ORVRfVlFfVFg6IFZI
+T1NUX05FVF9WUV9SWCk7Cj4gPj4gKwo+ID4+ICsgICAgdmhvc3RfZGlzYWJsZV9ub3RpZnkoJm5l
+dC0+ZGV2LCB2cSk7Cj4gPj4gKyAgICBzb2NrID0gcnZxLT5wcml2YXRlX2RhdGE7Cj4gPj4gKyAg
+ICBidXN5bG9vcF90aW1lb3V0ID0gcnggPyBydnEtPmJ1c3lsb29wX3RpbWVvdXQgOiB0dnEtPmJ1
+c3lsb29wX3RpbWVvdXQ7Cj4gPj4gKwo+ID4+ICsgICAgcHJlZW1wdF9kaXNhYmxlKCk7Cj4gPj4g
+KyAgICBlbmR0aW1lID0gYnVzeV9jbG9jaygpICsgYnVzeWxvb3BfdGltZW91dDsKPiA+PiArICAg
+IHdoaWxlICh2aG9zdF9jYW5fYnVzeV9wb2xsKHR2cS0+ZGV2LCBlbmR0aW1lKSAmJgo+ID4+ICsg
+ICAgICAgICAgICEoc29jayAmJiBza19oYXNfcnhfZGF0YShzb2NrLT5zaykpICYmCj4gPj4gKyAg
+ICAgICAgICAgdmhvc3RfdnFfYXZhaWxfZW1wdHkodHZxLT5kZXYsIHR2cSkpCj4gPj4gKyAgICAg
+ICAgICAgIGNwdV9yZWxheCgpOwo+ID4+ICsgICAgcHJlZW1wdF9lbmFibGUoKTsKPiA+PiArCj4g
+Pj4gKyAgICBpZiAoKHJ4ICYmICF2aG9zdF92cV9hdmFpbF9lbXB0eSgmbmV0LT5kZXYsIHZxKSkg
+fHwKPiA+PiArICAgICAgICAoIXJ4ICYmIChzb2NrICYmIHNrX2hhc19yeF9kYXRhKHNvY2stPnNr
+KSkpKSB7Cj4gPj4gKyAgICAgICAgICAgIHZob3N0X3BvbGxfcXVldWUoJnZxLT5wb2xsKTsKPiA+
+PiArICAgIH0gZWxzZSBpZiAodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKSAmJiBy
+eCkgewo+ID4gSG1tLi4uIG9uIHR4IGhlcmUgc29jayBoYXMgbm8gcnggZGF0YSwgc28geW91IGFy
+ZSB3YWl0aW5nIGZvciBzb2NrCj4gPiB3YWtldXAgZm9yIHJ4IGFuZCB2aG9zdF9lbmFibGVfbm90
+aWZ5KCkgc2VlbXMgbm90IG5lZWRlZC4gRG8geW91IHdhbnQKPiA+IHRoaXMgYWN0dWFsbHk/Cj4g
+Pgo+ID4gfSBlbHNlIGlmIChyeCAmJiB2aG9zdF9lbmFibGVfbm90aWZ5KCZuZXQtPmRldiwgdnEp
+KSB7Cj4KPiBSaWdodCwgcnggbmVlZCB0byBiZSBjaGVja2VkIGZpcnN0IGhlcmUuCnRoYW5rc++8
+jCBpZiB3ZSBkb250IGNhbGwgdGhlIHZob3N0X2VuYWJsZV9ub3RpZnkgZm9yIHR4LiBzbyB3ZSBk
+b250Cm5lZWQgdG8gY2FsbCB2aG9zdF9kaXNhYmxlX25vdGlmeSBmb3IgdHg/CgpAQCAtNDUxLDcg
+KzQ1MSw5IEBAIHN0YXRpYyB2b2lkIHZob3N0X25ldF9idXN5X3BvbGwoc3RydWN0IHZob3N0X25l
+dCAqbmV0LAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdHZx
+LT5idXN5bG9vcF90aW1lb3V0OwoKICAgICAgICBtdXRleF9sb2NrX25lc3RlZCgmdnEtPm11dGV4
+LCByeCA/IFZIT1NUX05FVF9WUV9UWDogVkhPU1RfTkVUX1ZRX1JYKTsKLSAgICAgICB2aG9zdF9k
+aXNhYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKTsKKworICAgICAgIGlmIChyeCkKKyAgICAgICAg
+ICAgICAgIHZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwgdnEpOwoKICAgICAgICBwcmVl
+bXB0X2Rpc2FibGUoKTsKICAgICAgICBlbmR0aW1lID0gYnVzeV9jbG9jaygpICsgYnVzeWxvb3Bf
+dGltZW91dDsKCj4gVGhhbmtzCj4KPiA+PiArICAgICAgICAgICAgdmhvc3RfZGlzYWJsZV9ub3Rp
+ZnkoJm5ldC0+ZGV2LCB2cSk7Cj4gPj4gKyAgICAgICAgICAgIHZob3N0X3BvbGxfcXVldWUoJnZx
+LT5wb2xsKTsKPiA+PiArICAgIH0KPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
