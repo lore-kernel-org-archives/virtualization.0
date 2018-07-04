@@ -1,19 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next v5 3/4] net: vhost: factor out busy polling logic
-	to vhost_net_busy_poll()
-Date: Wed, 4 Jul 2018 19:59:41 +0800
-Message-ID: <e32caceb-f7f1-ee76-2b74-711e4f44e88f__11663.7470819571$1530705469$gmane$org@redhat.com>
-References: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<1530678698-33427-4-git-send-email-xiangxia.m.yue@gmail.com>
-	<808dea9b-6240-8055-acaa-a1b96389a673@lab.ntt.co.jp>
-	<6ca28b13-637e-8650-30a4-bb3f2ea96852@redhat.com>
-	<CAMDZJNXiD=ygWUaAEhEUDhSWZvhjfGR8NcttCjvorheBiKW4dg@mail.gmail.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v2 net-next 0/4] vhost_net: Avoid vq kicks during busyloop
+Date: Wed, 04 Jul 2018 21:31:47 +0900 (KST)
+Message-ID: <20180704.213147.556876353476580416.davem@davemloft.net>
+References: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAMDZJNXiD=ygWUaAEhEUDhSWZvhjfGR8NcttCjvorheBiKW4dg@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,62 +17,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, mst@redhat.com, virtualization@lists.linux-foundation.org, Tonghao Zhang <zhangtonghao@didichuxing.com>
+To: makita.toshiaki@lab.ntt.co.jp
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDfmnIgwNOaXpSAxNzo0NiwgVG9uZ2hhbyBaaGFuZyB3cm90ZToKPiBPbiBX
-ZWQsIEp1bCA0LCAyMDE4IGF0IDU6MTggUE0gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNv
-bT4gd3JvdGU6Cj4+Cj4+Cj4+IE9uIDIwMTjlubQwN+aciDA05pelIDE1OjU5LCBUb3NoaWFraSBN
-YWtpdGEgd3JvdGU6Cj4+PiBPbiAyMDE4LzA3LzA0IDEzOjMxLCB4aWFuZ3hpYS5tLnl1ZUBnbWFp
-bC5jb20gd3JvdGU6Cj4+PiAuLi4KPj4+PiArc3RhdGljIHZvaWQgdmhvc3RfbmV0X2J1c3lfcG9s
-bChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQsCj4+Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICpydnEsCj4+Pj4gKyAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp0dnEsCj4+Pj4gKyAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICBib29sIHJ4KQo+Pj4+ICt7Cj4+Pj4gKyAgICB1bnNpZ25lZCBsb25nIHVu
-aW5pdGlhbGl6ZWRfdmFyKGVuZHRpbWUpOwo+Pj4+ICsgICAgdW5zaWduZWQgbG9uZyBidXN5bG9v
-cF90aW1lb3V0Owo+Pj4+ICsgICAgc3RydWN0IHNvY2tldCAqc29jazsKPj4+PiArICAgIHN0cnVj
-dCB2aG9zdF92aXJ0cXVldWUgKnZxID0gcnggPyB0dnEgOiBydnE7Cj4+Pj4gKwo+Pj4+ICsgICAg
-bXV0ZXhfbG9ja19uZXN0ZWQoJnZxLT5tdXRleCwgcnggPyBWSE9TVF9ORVRfVlFfVFg6IFZIT1NU
-X05FVF9WUV9SWCk7Cj4+Pj4gKwo+Pj4+ICsgICAgdmhvc3RfZGlzYWJsZV9ub3RpZnkoJm5ldC0+
-ZGV2LCB2cSk7Cj4+Pj4gKyAgICBzb2NrID0gcnZxLT5wcml2YXRlX2RhdGE7Cj4+Pj4gKyAgICBi
-dXN5bG9vcF90aW1lb3V0ID0gcnggPyBydnEtPmJ1c3lsb29wX3RpbWVvdXQgOiB0dnEtPmJ1c3ls
-b29wX3RpbWVvdXQ7Cj4+Pj4gKwo+Pj4+ICsgICAgcHJlZW1wdF9kaXNhYmxlKCk7Cj4+Pj4gKyAg
-ICBlbmR0aW1lID0gYnVzeV9jbG9jaygpICsgYnVzeWxvb3BfdGltZW91dDsKPj4+PiArICAgIHdo
-aWxlICh2aG9zdF9jYW5fYnVzeV9wb2xsKHR2cS0+ZGV2LCBlbmR0aW1lKSAmJgo+Pj4+ICsgICAg
-ICAgICAgICEoc29jayAmJiBza19oYXNfcnhfZGF0YShzb2NrLT5zaykpICYmCj4+Pj4gKyAgICAg
-ICAgICAgdmhvc3RfdnFfYXZhaWxfZW1wdHkodHZxLT5kZXYsIHR2cSkpCj4+Pj4gKyAgICAgICAg
-ICAgIGNwdV9yZWxheCgpOwo+Pj4+ICsgICAgcHJlZW1wdF9lbmFibGUoKTsKPj4+PiArCj4+Pj4g
-KyAgICBpZiAoKHJ4ICYmICF2aG9zdF92cV9hdmFpbF9lbXB0eSgmbmV0LT5kZXYsIHZxKSkgfHwK
-Pj4+PiArICAgICAgICAoIXJ4ICYmIChzb2NrICYmIHNrX2hhc19yeF9kYXRhKHNvY2stPnNrKSkp
-KSB7Cj4+Pj4gKyAgICAgICAgICAgIHZob3N0X3BvbGxfcXVldWUoJnZxLT5wb2xsKTsKPj4+PiAr
-ICAgIH0gZWxzZSBpZiAodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKSAmJiByeCkg
-ewo+Pj4gSG1tLi4uIG9uIHR4IGhlcmUgc29jayBoYXMgbm8gcnggZGF0YSwgc28geW91IGFyZSB3
-YWl0aW5nIGZvciBzb2NrCj4+PiB3YWtldXAgZm9yIHJ4IGFuZCB2aG9zdF9lbmFibGVfbm90aWZ5
-KCkgc2VlbXMgbm90IG5lZWRlZC4gRG8geW91IHdhbnQKPj4+IHRoaXMgYWN0dWFsbHk/Cj4+Pgo+
-Pj4gfSBlbHNlIGlmIChyeCAmJiB2aG9zdF9lbmFibGVfbm90aWZ5KCZuZXQtPmRldiwgdnEpKSB7
-Cj4+IFJpZ2h0LCByeCBuZWVkIHRvIGJlIGNoZWNrZWQgZmlyc3QgaGVyZS4KPiB0aGFua3PvvIwg
-aWYgd2UgZG9udCBjYWxsIHRoZSB2aG9zdF9lbmFibGVfbm90aWZ5IGZvciB0eC4gc28gd2UgZG9u
-dAo+IG5lZWQgdG8gY2FsbCB2aG9zdF9kaXNhYmxlX25vdGlmeSBmb3IgdHg/Cj4KPiBAQCAtNDUx
-LDcgKzQ1MSw5IEBAIHN0YXRpYyB2b2lkIHZob3N0X25ldF9idXN5X3BvbGwoc3RydWN0IHZob3N0
-X25ldCAqbmV0LAo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgdHZxLT5idXN5bG9vcF90aW1lb3V0Owo+Cj4gICAgICAgICAgbXV0ZXhfbG9ja19uZXN0ZWQo
-JnZxLT5tdXRleCwgcnggPyBWSE9TVF9ORVRfVlFfVFg6IFZIT1NUX05FVF9WUV9SWCk7Cj4gLSAg
-ICAgICB2aG9zdF9kaXNhYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKTsKPiArCj4gKyAgICAgICBp
-ZiAocngpCj4gKyAgICAgICAgICAgICAgIHZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwg
-dnEpOwo+Cj4gICAgICAgICAgcHJlZW1wdF9kaXNhYmxlKCk7Cj4gICAgICAgICAgZW5kdGltZSA9
-IGJ1c3lfY2xvY2soKSArIGJ1c3lsb29wX3RpbWVvdXQ7CgpTb3JyeSBmb3IgYmVpbmcgdW5jbGVh
-ci4gV2UgbmVlZCBlbmFibGUgdHggbm90aWZpY2F0aW9uIGF0IGVuZCBlbmQgb2YgCnRoZSBsb29w
-LgoKSSBtZWFudCB3ZSBuZWVkIHJlcGxhY2UKCivCoMKgwqAgfSBlbHNlIGlmICh2aG9zdF9lbmFi
-bGVfbm90aWZ5KCZuZXQtPmRldiwgdnEpICYmIHJ4KSB7Cgp3aXRoCgorwqDCoMKgIH0gZWxzZSBp
-ZiAocnggJiYgdmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKSkgewoKV2Ugb25seSBu
-ZWVkIHJ4IG5vdGlmaWNhdGlvbiB3aGVuIHRoZXJlJ3Mgbm8gYXZhaWwgYnVmZmVycy4gVGhpcyBt
-ZWFucyAKd2UgbmVlZCBvbmx5IGVuYWJsZSBub3RpZmljYXRpb24gZm9yIHR4LgoKQW5kIG1heWJl
-IHdlIGNhbiBzaW1wbGlmeSB0aGUgbG9naWMgYXMKCmlmIChyeCkgewouLi4uLi4KfSBlbHNlIHsK
-Li4uLi4uCn0KCmhlcmUuIChub3QgYSBtdXN0KS4KClRoYW5rcwoKCj4KPj4gVGhhbmtzCj4+Cj4+
-Pj4gKyAgICAgICAgICAgIHZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwgdnEpOwo+Pj4+
-ICsgICAgICAgICAgICB2aG9zdF9wb2xsX3F1ZXVlKCZ2cS0+cG9sbCk7Cj4+Pj4gKyAgICB9Cgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Date: Tue,  3 Jul 2018 16:31:30 +0900
+
+> Under heavy load vhost tx busypoll tend not to suppress vq kicks, which
+> causes poor guest tx performance. The detailed scenario is described in
+> commitlog of patch 2.
+> Rx seems not to have that serious problem, but for consistency I made a
+> similar change on rx to avoid rx wakeups (patch 3).
+> Additionary patch 4 is to avoid rx kicks under heavy load during
+> busypoll.
+> 
+> Tx performance is greatly improved by this change. I don't see notable
+> performance change on rx with this series though.
+ ...
+
+Series applied, thank you.
