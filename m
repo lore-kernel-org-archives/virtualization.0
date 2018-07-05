@@ -1,13 +1,16 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2 net-next 0/4] vhost_net: Avoid vq kicks during busyloop
-Date: Wed, 04 Jul 2018 21:31:47 +0900 (KST)
-Message-ID: <20180704.213147.556876353476580416.davem@davemloft.net>
-References: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 6/8] virtio: introduce packed ring defines
+Date: Thu, 5 Jul 2018 19:30:18 +0800
+Message-ID: <196f5521-9215-c163-aa7c-38caf3f1e7a4@redhat.com>
+References: <1530596284-4101-1-git-send-email-jasowang@redhat.com>
+	<1530596284-4101-7-git-send-email-jasowang@redhat.com>
+	<0f293989-a0ca-e7ad-f907-83a8d8445335@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1530603094-2476-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <0f293989-a0ca-e7ad-f907-83a8d8445335@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,23 +20,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: makita.toshiaki@lab.ntt.co.jp
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Maxime Coquelin <maxime.coquelin@redhat.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Date: Tue,  3 Jul 2018 16:31:30 +0900
-
-> Under heavy load vhost tx busypoll tend not to suppress vq kicks, which
-> causes poor guest tx performance. The detailed scenario is described in
-> commitlog of patch 2.
-> Rx seems not to have that serious problem, but for consistency I made a
-> similar change on rx to avoid rx wakeups (patch 3).
-> Additionary patch 4 is to avoid rx kicks under heavy load during
-> busypoll.
-> 
-> Tx performance is greatly improved by this change. I don't see notable
-> performance change on rx with this series though.
- ...
-
-Series applied, thank you.
+CgpPbiAyMDE45bm0MDfmnIgwNeaXpSAwNDoxNSwgTWF4aW1lIENvcXVlbGluIHdyb3RlOgo+Cj4K
+PiBPbiAwNy8wMy8yMDE4IDA3OjM4IEFNLCBKYXNvbiBXYW5nIHdyb3RlOgo+PiBkaWZmIC0tZ2l0
+IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19yaW5nLmggCj4+IGIvaW5jbHVkZS91YXBpL2xp
+bnV4L3ZpcnRpb19yaW5nLmgKPj4gaW5kZXggNmQ1ZDVmYS4uNzFjN2E0NiAxMDA2NDQKPj4gLS0t
+IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19yaW5nLmgKPj4gKysrIGIvaW5jbHVkZS91YXBp
+L2xpbnV4L3ZpcnRpb19yaW5nLmgKPj4gQEAgLTQzLDYgKzQzLDggQEAKPj4gwqAgI2RlZmluZSBW
+UklOR19ERVNDX0ZfV1JJVEXCoMKgwqAgMgo+PiDCoCAvKiBUaGlzIG1lYW5zIHRoZSBidWZmZXIg
+Y29udGFpbnMgYSBsaXN0IG9mIGJ1ZmZlciBkZXNjcmlwdG9ycy4gKi8KPj4gwqAgI2RlZmluZSBW
+UklOR19ERVNDX0ZfSU5ESVJFQ1TCoMKgwqAgNAo+PiArI2RlZmluZSBWUklOR19ERVNDX0ZfQVZB
+SUzCoMKgwqDCoMKgIDcKPj4gKyNkZWZpbmUgVlJJTkdfREVTQ19GX1VTRUTCoMKgwqAgMTUKPgo+
+IEZvciBjb25zaXN0ZW5jeSwgeW91IG1heSB3YW50IHRvIG1ha2UgVlJJTkdfREVTQ19GX0FWQUlM
+IGFuZCAKPiBWUklOR19ERVNDX0ZfVVNFRCB0byByZXByZXNlbnQgdGhlIGJpdCBtYXNrIGFuZCBu
+b3QgdGhlIGJpdCBwb3NpdGlvbiwKPiBhcyBkb25lIGZvciBWUklOR19ERVNDX0ZfV1JJVEUgYW5k
+IFZSSU5HX0RFU0NfRl9JTkRJUkVDVC4KPgo+IFJlZ2FyZHMsCj4gTWF4aW1lCgpZZXMsIFRpd2Vp
+IGhhcyB0aGUgc2FtZSBjb21tZW50LgoKV2lsbCBmaXggdGhpcy4KClRoYW5rcwoKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
