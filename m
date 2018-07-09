@@ -1,13 +1,15 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [PATCH net-next v1 5/5] virtio_ring: enable packed ring
-Date: Mon,  9 Jul 2018 15:22:41 +0800
-Message-ID: <20180709072241.8886-6-tiwei.bie__15616.7215471671$1531121120$gmane$org@intel.com>
-References: <20180709072241.8886-1-tiwei.bie@intel.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH] drm/cirrus: flip default to 32bpp
+Date: Mon, 9 Jul 2018 09:39:24 +0200
+Message-ID: <20180709073924.GB3008__5109.00455196879$1531121846$gmane$org@phenom.ffwll.local>
+References: <20180706091249.25086-1-kraxel@redhat.com>
+	<e127596f255261d78fdfe6f534a1000f60c3c605.camel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180709072241.8886-1-tiwei.bie@intel.com>
+Content-Disposition: inline
+In-Reply-To: <e127596f255261d78fdfe6f534a1000f60c3c605.camel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,54 +19,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, virtio-dev@lists.oasis-open.org
-Cc: wexu@redhat.com
+To: Adam Jackson <ajax@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
----
- drivers/s390/virtio/virtio_ccw.c | 8 ++++++++
- drivers/virtio/virtio_ring.c     | 2 ++
- 2 files changed, 10 insertions(+)
+On Fri, Jul 06, 2018 at 02:35:07PM -0400, Adam Jackson wrote:
+> On Fri, 2018-07-06 at 11:12 +0200, Gerd Hoffmann wrote:
+> > cirrus can handle 1024x768 (and slightly higher) with 24bpp depth.
+> > cirrus can handle up to 800x600 with 32bpp.
+> 
+> 16bpp is maybe a better choice? Nobody's using cirrus because they care
+> about color fidelity and it'll use less CPU to update. There's
+> precedent here, mgag200 defaults to 16bpp on sufficiently memory-
+> impaired devices.
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 8f5c1d7f751a..ff5b85736d8d 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -765,6 +765,11 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
- 	return rc;
- }
- 
-+static void ccw_transport_features(struct virtio_device *vdev)
-+{
-+	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
-+}
-+
- static int virtio_ccw_finalize_features(struct virtio_device *vdev)
- {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-@@ -791,6 +796,9 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
- 
-+	/* Give virtio_ccw a chance to accept features. */
-+	ccw_transport_features(vdev);
-+
- 	features->index = 0;
- 	features->features = cpu_to_le32((u32)vdev->features);
- 	/* Write the first half of the feature bits to the host. */
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 4b3f9e1a3cab..64f20023f088 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1968,6 +1968,8 @@ void vring_transport_features(struct virtio_device *vdev)
- 			break;
- 		case VIRTIO_F_IOMMU_PLATFORM:
- 			break;
-+		case VIRTIO_F_RING_PACKED:
-+			break;
- 		default:
- 			/* We don't understand this bit. */
- 			__virtio_clear_bit(vdev, i);
+Yeah nouveau does the same fallback to 16bpp if there's not enough vram.
+So do a bunch of other drivers.
+-Daniel
 -- 
-2.18.0
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
