@@ -1,14 +1,15 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v35 4/5] mm/page_poison: expose page_poisoning_enabled to
-	kernel modules
-Date: Tue, 10 Jul 2018 17:31:06 +0800
-Message-ID: <1531215067-35472-5-git-send-email-wei.w.wang__49996.7221091085$1531216807$gmane$org@intel.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v35 1/5] mm: support to get hints of free page blocks
+Date: Tue, 10 Jul 2018 10:16:57 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F7396E91B6__18906.6727333286$1531217748$gmane$org@SHSMSX101.ccr.corp.intel.com>
 References: <1531215067-35472-1-git-send-email-wei.w.wang@intel.com>
+	<1531215067-35472-2-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1531215067-35472-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <1531215067-35472-2-git-send-email-wei.w.wang@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,46 +19,126 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org
-Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, pbonzini@redhat.com, nilal@redhat.com, torvalds@linux-foundation.org
+To: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "mst@redhat.com" <mst@redhat.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
+Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "riel@redhat.com" <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "nilal@redhat.com" <nilal@redhat.com>, "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In some usages, e.g. virtio-balloon, a kernel module needs to know if
-page poisoning is in use. This patch exposes the page_poisoning_enabled
-function to kernel modules.
+On Tuesday, July 10, 2018 5:31 PM, Wang, Wei W wrote:
+> Subject: [PATCH v35 1/5] mm: support to get hints of free page blocks
+> 
+> This patch adds support to get free page blocks from a free page list.
+> The physical addresses of the blocks are stored to a list of buffers passed
+> from the caller. The obtained free page blocks are hints about free pages,
+> because there is no guarantee that they are still on the free page list after the
+> function returns.
+> 
+> One use example of this patch is to accelerate live migration by skipping the
+> transfer of free pages reported from the guest. A popular method used by
+> the hypervisor to track which part of memory is written during live migration
+> is to write-protect all the guest memory. So, those pages that are hinted as
+> free pages but are written after this function returns will be captured by the
+> hypervisor, and they will be added to the next round of memory transfer.
+> 
+> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> Signed-off-by: Liang Li <liang.z.li@intel.com>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> ---
+>  include/linux/mm.h |  3 ++
+>  mm/page_alloc.c    | 98
+> ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 101 insertions(+)
+> 
+> diff --git a/include/linux/mm.h b/include/linux/mm.h index a0fbb9f..5ce654f
+> 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -2007,6 +2007,9 @@ extern void free_area_init(unsigned long *
+> zones_size);  extern void free_area_init_node(int nid, unsigned long *
+> zones_size,
+>  		unsigned long zone_start_pfn, unsigned long *zholes_size);
+> extern void free_initmem(void);
+> +unsigned long max_free_page_blocks(int order); int
+> +get_from_free_page_list(int order, struct list_head *pages,
+> +			    unsigned int size, unsigned long *loaded_num);
+> 
+>  /*
+>   * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c index 1521100..b67839b
+> 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -5043,6 +5043,104 @@ void show_free_areas(unsigned int filter,
+> nodemask_t *nodemask)
+>  	show_swap_cache_info();
+>  }
+> 
+> +/**
+> + * max_free_page_blocks - estimate the max number of free page blocks
+> + * @order: the order of the free page blocks to estimate
+> + *
+> + * This function gives a rough estimation of the possible maximum
+> +number of
+> + * free page blocks a free list may have. The estimation works on an
+> +assumption
+> + * that all the system pages are on that list.
+> + *
+> + * Context: Any context.
+> + *
+> + * Return: The largest number of free page blocks that the free list can have.
+> + */
+> +unsigned long max_free_page_blocks(int order) {
+> +	return totalram_pages / (1 << order);
+> +}
+> +EXPORT_SYMBOL_GPL(max_free_page_blocks);
+> +
+> +/**
+> + * get_from_free_page_list - get hints of free pages from a free page
+> +list
+> + * @order: the order of the free page list to check
+> + * @pages: the list of page blocks used as buffers to load the
+> +addresses
+> + * @size: the size of each buffer in bytes
+> + * @loaded_num: the number of addresses loaded to the buffers
+> + *
+> + * This function offers hints about free pages. The addresses of free
+> +page
+> + * blocks are stored to the list of buffers passed from the caller.
+> +There is
+> + * no guarantee that the obtained free pages are still on the free page
+> +list
+> + * after the function returns. pfn_to_page on the obtained free pages
+> +is
+> + * strongly discouraged and if there is an absolute need for that, make
+> +sure
+> + * to contact MM people to discuss potential problems.
+> + *
+> + * The addresses are currently stored to a buffer in little endian.
+> +This
+> + * avoids the overhead of converting endianness by the caller who needs
+> +data
+> + * in the little endian format. Big endian support can be added on
+> +demand in
+> + * the future.
+> + *
+> + * Context: Process context.
+> + *
+> + * Return: 0 if all the free page block addresses are stored to the buffers;
+> + *         -ENOSPC if the buffers are not sufficient to store all the
+> + *         addresses; or -EINVAL if an unexpected argument is received (e.g.
+> + *         incorrect @order, empty buffer list).
+> + */
+> +int get_from_free_page_list(int order, struct list_head *pages,
+> +			    unsigned int size, unsigned long *loaded_num) {
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Andrew Morton <akpm@linux-foundation.org>
----
- mm/page_poison.c | 6 ++++++
- 1 file changed, 6 insertions(+)
 
-diff --git a/mm/page_poison.c b/mm/page_poison.c
-index aa2b3d3..830f604 100644
---- a/mm/page_poison.c
-+++ b/mm/page_poison.c
-@@ -17,6 +17,11 @@ static int __init early_page_poison_param(char *buf)
- }
- early_param("page_poison", early_page_poison_param);
- 
-+/**
-+ * page_poisoning_enabled - check if page poisoning is enabled
-+ *
-+ * Return true if page poisoning is enabled, or false if not.
-+ */
- bool page_poisoning_enabled(void)
- {
- 	/*
-@@ -29,6 +34,7 @@ bool page_poisoning_enabled(void)
- 		(!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
- 		debug_pagealloc_enabled()));
- }
-+EXPORT_SYMBOL_GPL(page_poisoning_enabled);
- 
- static void poison_page(struct page *page)
- {
--- 
-2.7.4
+Hi Linus,
+
+We  took your original suggestion - pass in pre-allocated buffers to load the addresses (now we use a list of pre-allocated page blocks as buffers). Hope that suggestion is still acceptable (the advantage of this method was explained here: https://lkml.org/lkml/2018/6/28/184).
+Look forward to getting your feedback. Thanks.
+
+Best,
+Wei 
