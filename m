@@ -1,13 +1,14 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [PATCH net-next v2 5/5] virtio_ring: enable packed ring
-Date: Wed, 11 Jul 2018 10:27:11 +0800
-Message-ID: <20180711022711.7090-6-tiwei.bie__18774.1943788298$1531276289$gmane$org@intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next v2 0/5] virtio: support packed ring
+Date: Wed, 11 Jul 2018 10:52:49 +0800
+Message-ID: <f1438d58-db71-4a5c-e8fc-b4408d59e172__10572.8890434422$1531277453$gmane$org@redhat.com>
 References: <20180711022711.7090-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20180711022711.7090-1-tiwei.bie@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,60 +18,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, virtio-dev@lists.oasis-open.org
+To: Tiwei Bie <tiwei.bie@intel.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, virtio-dev@lists.oasis-open.org
 Cc: wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
----
- drivers/s390/virtio/virtio_ccw.c | 14 ++++++++++++++
- drivers/virtio/virtio_ring.c     |  2 ++
- 2 files changed, 16 insertions(+)
-
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 8f5c1d7f751a..8654f3a94635 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -765,6 +765,17 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
- 	return rc;
- }
- 
-+static void ccw_transport_features(struct virtio_device *vdev)
-+{
-+	/*
-+	 * Packed ring isn't enabled on virtio_ccw for now,
-+	 * because virtio_ccw uses some legacy accessors,
-+	 * e.g. virtqueue_get_avail() and virtqueue_get_used()
-+	 * which aren't available in packed ring currently.
-+	 */
-+	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
-+}
-+
- static int virtio_ccw_finalize_features(struct virtio_device *vdev)
- {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-@@ -791,6 +802,9 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
- 
-+	/* Give virtio_ccw a chance to accept features. */
-+	ccw_transport_features(vdev);
-+
- 	features->index = 0;
- 	features->features = cpu_to_le32((u32)vdev->features);
- 	/* Write the first half of the feature bits to the host. */
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index f79a1e17f7d1..807ed4b362c5 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1968,6 +1968,8 @@ void vring_transport_features(struct virtio_device *vdev)
- 			break;
- 		case VIRTIO_F_IOMMU_PLATFORM:
- 			break;
-+		case VIRTIO_F_RING_PACKED:
-+			break;
- 		default:
- 			/* We don't understand this bit. */
- 			__virtio_clear_bit(vdev, i);
--- 
-2.18.0
+CgpPbiAyMDE45bm0MDfmnIgxMeaXpSAxMDoyNywgVGl3ZWkgQmllIHdyb3RlOgo+IEhlbGxvIGV2
+ZXJ5b25lLAo+Cj4gVGhpcyBwYXRjaCBzZXQgaW1wbGVtZW50cyBwYWNrZWQgcmluZyBzdXBwb3J0
+IGluIHZpcnRpbyBkcml2ZXIuCj4KPiBTb21lIGZ1bmN0aW9uYWwgdGVzdHMgaGF2ZSBiZWVuIGRv
+bmUgd2l0aCBKYXNvbidzCj4gcGFja2VkIHJpbmcgaW1wbGVtZW50YXRpb24gaW4gdmhvc3Q6Cj4K
+PiBodHRwczovL2xrbWwub3JnL2xrbWwvMjAxOC83LzMvMzMKPgo+IEJvdGggb2YgcGluZyBhbmQg
+bmV0cGVyZiB3b3JrZWQgYXMgZXhwZWN0ZWQuCj4KPiB2MSAtPiB2MjoKPiAtIFVzZSBSRUFEX09O
+Q0UoKSB0byByZWFkIGV2ZW50IG9mZl93cmFwIGFuZCBmbGFncyB0b2dldGhlciAoSmFzb24pOwo+
+IC0gQWRkIGNvbW1lbnRzIHJlbGF0ZWQgdG8gY2N3IChKYXNvbik7Cj4KPiBSRkMgKHY2KSAtPiB2
+MToKPiAtIEF2b2lkIGV4dHJhIHZpcnRpb193bWIoKSBpbiB2aXJ0cXVldWVfZW5hYmxlX2NiX2Rl
+bGF5ZWRfcGFja2VkKCkKPiAgICB3aGVuIGV2ZW50IGlkeCBpcyBvZmYgKEphc29uKTsKPiAtIEZp
+eCBidWZzIGNhbGN1bGF0aW9uIGluIHZpcnRxdWV1ZV9lbmFibGVfY2JfZGVsYXllZF9wYWNrZWQo
+KSAoSmFzb24pOwo+IC0gVGVzdCB0aGUgc3RhdGUgb2YgdGhlIGRlc2MgYXQgdXNlZF9pZHggaW5z
+dGVhZCBvZiBsYXN0X3VzZWRfaWR4Cj4gICAgaW4gdmlydHF1ZXVlX2VuYWJsZV9jYl9kZWxheWVk
+X3BhY2tlZCgpIChKYXNvbik7Cj4gLSBTYXZlIHdyYXAgY291bnRlciAoYXMgcGFydCBvZiBxdWV1
+ZSBzdGF0ZSkgaW4gdGhlIHJldHVybiB2YWx1ZQo+ICAgIG9mIHZpcnRxdWV1ZV9lbmFibGVfY2Jf
+cHJlcGFyZV9wYWNrZWQoKTsKPiAtIFJlZmluZSB0aGUgcGFja2VkIHJpbmcgZGVmaW5pdGlvbnMg
+aW4gdWFwaTsKPiAtIFJlYmFzZSBvbiB0aGUgbmV0LW5leHQgdHJlZTsKPgo+IFJGQyB2NSAtPiBS
+RkMgdjY6Cj4gLSBBdm9pZCB0cmFja2luZyBhZGRyL2xlbi9mbGFncyB3aGVuIERNQSBBUEkgaXNu
+J3QgdXNlZCAoTVNUL0phc29uKTsKPiAtIERlZmluZSB3cmFwIGNvdW50ZXIgYXMgYm9vbCAoSmFz
+b24pOwo+IC0gVXNlIEFMSUdOKCkgaW4gdnJpbmdfaW5pdF9wYWNrZWQoKSAoSmFzb24pOwo+IC0g
+QXZvaWQgdXNpbmcgcG9pbnRlciB0byB0cmFjayBgbmV4dGAgaW4gZGV0YWNoX2J1Zl9wYWNrZWQo
+KSAoSmFzb24pOwo+IC0gQWRkIGNvbW1lbnRzIGZvciBiYXJyaWVycyAoSmFzb24pOwo+IC0gRG9u
+J3QgZW5hYmxlIFJJTkdfUEFDS0VEIG9uIGNjdyBmb3Igbm93IChub3RpY2VkIGJ5IEphc29uKTsK
+PiAtIFJlZmluZSB0aGUgbWVtb3J5IGJhcnJpZXIgaW4gdmlydHF1ZXVlX3BvbGwoKTsKPiAtIEFk
+ZCBhIG1pc3NpbmcgbWVtb3J5IGJhcnJpZXIgaW4gdmlydHF1ZXVlX2VuYWJsZV9jYl9kZWxheWVk
+X3BhY2tlZCgpOwo+IC0gUmVtb3ZlIHRoZSBoYWNrcyBpbiB2aXJ0cXVldWVfZW5hYmxlX2NiX3By
+ZXBhcmVfcGFja2VkKCk7Cj4KPiBSRkMgdjQgLT4gUkZDIHY1Ogo+IC0gU2F2ZSBETUEgYWRkciwg
+ZXRjIGluIGRlc2Mgc3RhdGUgKEphc29uKTsKPiAtIFRyYWNrIHVzZWQgd3JhcCBjb3VudGVyOwo+
+Cj4gUkZDIHYzIC0+IFJGQyB2NDoKPiAtIE1ha2UgSUQgYWxsb2NhdGlvbiBzdXBwb3J0IG91dC1v
+Zi1vcmRlciAoSmFzb24pOwo+IC0gVmFyaW91cyBmaXhlcyBmb3IgRVZFTlRfSURYIHN1cHBvcnQ7
+Cj4KPiBSRkMgdjIgLT4gUkZDIHYzOgo+IC0gU3BsaXQgaW50byBzbWFsbCBwYXRjaGVzIChKYXNv
+bik7Cj4gLSBBZGQgaGVscGVyIHZpcnRxdWV1ZV91c2VfaW5kaXJlY3QoKSAoSmFzb24pOwo+IC0g
+SnVzdCBzZXQgaWQgZm9yIHRoZSBsYXN0IGRlc2NyaXB0b3Igb2YgYSBsaXN0IChKYXNvbik7Cj4g
+LSBDYWxjdWxhdGUgdGhlIHByZXYgaW4gdmlydHF1ZXVlX2FkZF9wYWNrZWQoKSAoSmFzb24pOwo+
+IC0gRml4L2ltcHJvdmUgZGVzYyBzdXBwcmVzc2lvbiBjb2RlIChKYXNvbi9NU1QpOwo+IC0gUmVm
+aW5lIHRoZSBjb2RlIGxheW91dCBmb3IgWFhYX3NwbGl0L3BhY2tlZCBhbmQgd3JhcHBlcnMgKE1T
+VCk7Cj4gLSBGaXggdGhlIGNvbW1lbnRzIGFuZCBBUEkgaW4gdWFwaSAoTVNUKTsKPiAtIFJlbW92
+ZSB0aGUgQlVHX09OKCkgZm9yIGluZGlyZWN0IChKYXNvbik7Cj4gLSBTb21lIG90aGVyIHJlZmlu
+ZW1lbnRzIGFuZCBidWcgZml4ZXM7Cj4KPiBSRkMgdjEgLT4gUkZDIHYyOgo+IC0gQWRkIGluZGly
+ZWN0IGRlc2NyaXB0b3Igc3VwcG9ydCAtIGNvbXBpbGUgdGVzdCBvbmx5Owo+IC0gQWRkIGV2ZW50
+IHN1cHByZXNzaW9uIHN1cHBydCAtIGNvbXBpbGUgdGVzdCBvbmx5Owo+IC0gTW92ZSB2cmluZ19w
+YWNrZWRfaW5pdCgpIG91dCBvZiB1YXBpIChKYXNvbiwgTVNUKTsKPiAtIE1lcmdlIHR3byBsb29w
+cyBpbnRvIG9uZSBpbiB2aXJ0cXVldWVfYWRkX3BhY2tlZCgpIChKYXNvbik7Cj4gLSBTcGxpdCB2
+cmluZ191bm1hcF9vbmUoKSBmb3IgcGFja2VkIHJpbmcgYW5kIHNwbGl0IHJpbmcgKEphc29uKTsK
+PiAtIEF2b2lkIHVzaW5nICclJyBvcGVyYXRvciAoSmFzb24pOwo+IC0gUmVuYW1lIGZyZWVfaGVh
+ZCAtPiBuZXh0X2F2YWlsX2lkeCAoSmFzb24pOwo+IC0gQWRkIGNvbW1lbnRzIGZvciB2aXJ0aW9f
+d21iKCkgaW4gdmlydHF1ZXVlX2FkZF9wYWNrZWQoKSAoSmFzb24pOwo+IC0gU29tZSBvdGhlciBy
+ZWZpbmVtZW50cyBhbmQgYnVnIGZpeGVzOwo+Cj4gVGhhbmtzIQo+Cj4gVGl3ZWkgQmllICg1KToK
+PiAgICB2aXJ0aW86IGFkZCBwYWNrZWQgcmluZyBkZWZpbml0aW9ucwo+ICAgIHZpcnRpb19yaW5n
+OiBzdXBwb3J0IGNyZWF0aW5nIHBhY2tlZCByaW5nCj4gICAgdmlydGlvX3Jpbmc6IGFkZCBwYWNr
+ZWQgcmluZyBzdXBwb3J0Cj4gICAgdmlydGlvX3Jpbmc6IGFkZCBldmVudCBpZHggc3VwcG9ydCBp
+biBwYWNrZWQgcmluZwo+ICAgIHZpcnRpb19yaW5nOiBlbmFibGUgcGFja2VkIHJpbmcKPgo+ICAg
+ZHJpdmVycy9zMzkwL3ZpcnRpby92aXJ0aW9fY2N3LmMgICB8ICAgMTQgKwo+ICAgZHJpdmVycy92
+aXJ0aW8vdmlydGlvX3JpbmcuYyAgICAgICB8IDEzNjUgKysrKysrKysrKysrKysrKysrKysrKy0t
+LS0tLQo+ICAgaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oICAgICAgICB8ICAgIDggKy0KPiAg
+IGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fY29uZmlnLmggfCAgICAzICsKPiAgIGluY2x1ZGUv
+dWFwaS9saW51eC92aXJ0aW9fcmluZy5oICAgfCAgIDQzICsKPiAgIDUgZmlsZXMgY2hhbmdlZCwg
+MTE1NyBpbnNlcnRpb25zKCspLCAyNzYgZGVsZXRpb25zKC0pCj4KCkFja2VkLWJ5OiBKYXNvbiBX
+YW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKVGhhbmtzIQoKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
+dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
