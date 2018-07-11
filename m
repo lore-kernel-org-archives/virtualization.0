@@ -1,14 +1,16 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH v35 1/5] mm: support to get hints of free page blocks
-Date: Tue, 10 Jul 2018 10:33:08 -0700
-Message-ID: <CA+55aFz9a=D-kquM=sG5uhV_HrBAw+VAhcJmtPNz+howy4j9ow@mail.gmail.com>
-References: <1531215067-35472-1-git-send-email-wei.w.wang@intel.com>
-	<1531215067-35472-2-git-send-email-wei.w.wang@intel.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [PATCH net-next v1 5/5] virtio_ring: enable packed ring
+Date: Wed, 11 Jul 2018 09:07:30 +0800
+Message-ID: <20180711010730.GA28235@debian>
+References: <20180709072241.8886-1-tiwei.bie@intel.com>
+	<20180709072241.8886-6-tiwei.bie@intel.com>
+	<27ae72ad-247b-e8f0-aa37-a75a719e0e01@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1531215067-35472-2-git-send-email-wei.w.wang@intel.com>
+Content-Disposition: inline
+In-Reply-To: <27ae72ad-247b-e8f0-aa37-a75a719e0e01@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,49 +20,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: wei.w.wang@intel.com
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, Rik van Riel <riel@redhat.com>, quan.xu0@gmail.com, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, nilal@redhat.com, liliang.opensource@gmail.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-mm <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@kernel.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-NAK.
-
-On Tue, Jul 10, 2018 at 2:56 AM Wei Wang <wei.w.wang@intel.com> wrote:
->
-> +
-> +       buf_page = list_first_entry_or_null(pages, struct page, lru);
-> +       if (!buf_page)
-> +               return -EINVAL;
-> +       buf = (__le64 *)page_address(buf_page);
-
-Stop this garbage.
-
-Why the hell would you pass in some crazy "liost of pages" that uses
-that lru list?
-
-That's just insane shit.
-
-Just pass in a an array to fill in. No idiotic games like this with
-odd list entries (what's the locking?) and crazy casting to
-
-So if you want an array of page addresses, pass that in as such. If
-you want to do it in a page, do it with
-
-    u64 *array = page_address(page);
-    int nr = PAGE_SIZE / sizeof(u64);
-
-and now you pass that array in to the thing. None of this completely
-insane crazy crap interfaces.
-
-Plus, I still haven't heard an explanation for why you want so many
-pages in the first place, and why you want anything but MAX_ORDER-1.
-
-So no. This kind of unnecessarily complex code with completely insane
-calling interfaces does not make it into the VM layer.
-
-Maybe that crazy "let's pass a chain of pages that uses the lru list"
-makes sense to the virtio-balloon code. But you need to understand
-that it makes ZERO conceptual sense to anybody else. And the core VM
-code is about a million times more important than the balloon code in
-this case, so you had better make the interface make sense to *it*.
-
-               Linus
+T24gVHVlLCBKdWwgMTAsIDIwMTggYXQgMDE6NTE6MjBQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiBPbiAyMDE45bm0MDfmnIgwOeaXpSAxNToyMiwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gU2ln
+bmVkLW9mZi1ieTogVGl3ZWkgQmllIDx0aXdlaS5iaWVAaW50ZWwuY29tPgo+ID4gLS0tCj4gPiAg
+IGRyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jIHwgOCArKysrKysrKwo+ID4gICBkcml2
+ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jICAgICB8IDIgKysKPiA+ICAgMiBmaWxlcyBjaGFuZ2Vk
+LCAxMCBpbnNlcnRpb25zKCspCj4gPiAKPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3MzOTAvdmly
+dGlvL3ZpcnRpb19jY3cuYyBiL2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jCj4gPiBp
+bmRleCA4ZjVjMWQ3Zjc1MWEuLmZmNWI4NTczNmQ4ZCAxMDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMv
+czM5MC92aXJ0aW8vdmlydGlvX2Njdy5jCj4gPiArKysgYi9kcml2ZXJzL3MzOTAvdmlydGlvL3Zp
+cnRpb19jY3cuYwo+ID4gQEAgLTc2NSw2ICs3NjUsMTEgQEAgc3RhdGljIHU2NCB2aXJ0aW9fY2N3
+X2dldF9mZWF0dXJlcyhzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPiA+ICAgCXJldHVybiBy
+YzsKPiA+ICAgfQo+ID4gK3N0YXRpYyB2b2lkIGNjd190cmFuc3BvcnRfZmVhdHVyZXMoc3RydWN0
+IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gPiArewo+ID4gKwlfX3ZpcnRpb19jbGVhcl9iaXQodmRl
+diwgVklSVElPX0ZfUklOR19QQUNLRUQpOwo+ID4gK30KPiAKPiBJIHRoaW5rIHdlIG5lZWQgYSBi
+ZXR0ZXIgY29tbWVudCB0byBleHBsYWluIHdoeSBpdCB3YXMgZGlzYWJsZWQgaGVyZS4KClllYWgs
+IEknbGwgZG8gaXQhCgpCZXN0IHJlZ2FyZHMsClRpd2VpIEJpZQoKPiAKPiBUaGFua3MKPiAKPiA+
+ICsKPiA+ICAgc3RhdGljIGludCB2aXJ0aW9fY2N3X2ZpbmFsaXplX2ZlYXR1cmVzKHN0cnVjdCB2
+aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4gICB7Cj4gPiAgIAlzdHJ1Y3QgdmlydGlvX2Njd19kZXZp
+Y2UgKnZjZGV2ID0gdG9fdmNfZGV2aWNlKHZkZXYpOwo+ID4gQEAgLTc5MSw2ICs3OTYsOSBAQCBz
+dGF0aWMgaW50IHZpcnRpb19jY3dfZmluYWxpemVfZmVhdHVyZXMoc3RydWN0IHZpcnRpb19kZXZp
+Y2UgKnZkZXYpCj4gPiAgIAkvKiBHaXZlIHZpcnRpb19yaW5nIGEgY2hhbmNlIHRvIGFjY2VwdCBm
+ZWF0dXJlcy4gKi8KPiA+ICAgCXZyaW5nX3RyYW5zcG9ydF9mZWF0dXJlcyh2ZGV2KTsKPiA+ICsJ
+LyogR2l2ZSB2aXJ0aW9fY2N3IGEgY2hhbmNlIHRvIGFjY2VwdCBmZWF0dXJlcy4gKi8KPiA+ICsJ
+Y2N3X3RyYW5zcG9ydF9mZWF0dXJlcyh2ZGV2KTsKPiA+ICsKPiA+ICAgCWZlYXR1cmVzLT5pbmRl
+eCA9IDA7Cj4gPiAgIAlmZWF0dXJlcy0+ZmVhdHVyZXMgPSBjcHVfdG9fbGUzMigodTMyKXZkZXYt
+PmZlYXR1cmVzKTsKPiA+ICAgCS8qIFdyaXRlIHRoZSBmaXJzdCBoYWxmIG9mIHRoZSBmZWF0dXJl
+IGJpdHMgdG8gdGhlIGhvc3QuICovCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmly
+dGlvX3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+IGluZGV4IDRiM2Y5
+ZTFhM2NhYi4uNjRmMjAwMjNmMDg4IDEwMDY0NAo+ID4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmly
+dGlvX3JpbmcuYwo+ID4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gQEAg
+LTE5NjgsNiArMTk2OCw4IEBAIHZvaWQgdnJpbmdfdHJhbnNwb3J0X2ZlYXR1cmVzKHN0cnVjdCB2
+aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4gICAJCQlicmVhazsKPiA+ICAgCQljYXNlIFZJUlRJT19G
+X0lPTU1VX1BMQVRGT1JNOgo+ID4gICAJCQlicmVhazsKPiA+ICsJCWNhc2UgVklSVElPX0ZfUklO
+R19QQUNLRUQ6Cj4gPiArCQkJYnJlYWs7Cj4gPiAgIAkJZGVmYXVsdDoKPiA+ICAgCQkJLyogV2Ug
+ZG9uJ3QgdW5kZXJzdGFuZCB0aGlzIGJpdC4gKi8KPiA+ICAgCQkJX192aXJ0aW9fY2xlYXJfYml0
+KHZkZXYsIGkpOwo+IApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
