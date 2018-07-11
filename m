@@ -1,15 +1,16 @@
-From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Subject: Re: [PATCH net-next v5 0/4] net: vhost: improve performance when
-	enable busyloop
-Date: Wed, 11 Jul 2018 11:49:02 +0800
-Message-ID: <CAMDZJNWqF95P1YBiu5X+gBbBOp2EVe380D2kzNmdes_4hBH3dw@mail.gmail.com>
-References: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<934375dc-8925-c271-b2b0-b224ff5191c2@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v35 1/5] mm: support to get hints of free page blocks
+Date: Wed, 11 Jul 2018 07:00:37 +0300
+Message-ID: <20180711064709-mutt-send-email-mst__5115.38312207467$1531281525$gmane$org@kernel.org>
+References: <1531215067-35472-1-git-send-email-wei.w.wang@intel.com>
+	<1531215067-35472-2-git-send-email-wei.w.wang@intel.com>
+	<CA+55aFz9a=D-kquM=sG5uhV_HrBAw+VAhcJmtPNz+howy4j9ow@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <934375dc-8925-c271-b2b0-b224ff5191c2@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <CA+55aFz9a=D-kquM=sG5uhV_HrBAw+VAhcJmtPNz+howy4j9ow@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,36 +20,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, Rik van Riel <riel@redhat.com>, quan.xu0@gmail.com, KVM list <kvm@vger.kernel.org>, nilal@redhat.com, liliang.opensource@gmail.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-mm <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKdWwgMTEsIDIwMTggYXQgMTA6NTYgQU0gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT4gd3JvdGU6Cj4KPgo+Cj4gT24gMjAxOOW5tDA35pyIMDTml6UgMTI6MzEsIHhpYW5n
-eGlhLm0ueXVlQGdtYWlsLmNvbSB3cm90ZToKPiA+IEZyb206IFRvbmdoYW8gWmhhbmcgPHhpYW5n
-eGlhLm0ueXVlQGdtYWlsLmNvbT4KPiA+Cj4gPiBUaGlzIHBhdGNoZXMgaW1wcm92ZSB0aGUgZ3Vl
-c3QgcmVjZWl2ZSBhbmQgdHJhbnNtaXQgcGVyZm9ybWFuY2UuCj4gPiBPbiB0aGUgaGFuZGxlX3R4
-IHNpZGUsIHdlIHBvbGwgdGhlIHNvY2sgcmVjZWl2ZSBxdWV1ZSBhdCB0aGUgc2FtZSB0aW1lLgo+
-ID4gaGFuZGxlX3J4IGRvIHRoYXQgaW4gdGhlIHNhbWUgd2F5Lgo+ID4KPiA+IEZvciBtb3JlIHBl
-cmZvcm1hbmNlIHJlcG9ydCwgc2VlIHBhdGNoIDQuCj4gPgo+ID4gdjQgLT4gdjU6Cj4gPiBmaXgg
-c29tZSBpc3N1ZXMKPiA+Cj4gPiB2MyAtPiB2NDoKPiA+IGZpeCBzb21lIGlzc3Vlcwo+ID4KPiA+
-IHYyIC0+IHYzOgo+ID4gVGhpcyBwYXRjaGVzIGFyZSBzcGxpdGVkIGZyb20gcHJldmlvdXMgYmln
-IHBhdGNoOgo+ID4gaHR0cDovL3BhdGNod29yay5vemxhYnMub3JnL3BhdGNoLzkzNDY3My8KPiA+
-Cj4gPiBUb25naGFvIFpoYW5nICg0KToKPiA+ICAgIHZob3N0OiBsb2NrIHRoZSB2cXMgb25lIGJ5
-IG9uZQo+ID4gICAgbmV0OiB2aG9zdDogcmVwbGFjZSBtYWdpYyBudW1iZXIgb2YgbG9jayBhbm5v
-dGF0aW9uCj4gPiAgICBuZXQ6IHZob3N0OiBmYWN0b3Igb3V0IGJ1c3kgcG9sbGluZyBsb2dpYyB0
-byB2aG9zdF9uZXRfYnVzeV9wb2xsKCkKPiA+ICAgIG5ldDogdmhvc3Q6IGFkZCByeCBidXN5IHBv
-bGxpbmcgaW4gdHggcGF0aAo+ID4KPiA+ICAgZHJpdmVycy92aG9zdC9uZXQuYyAgIHwgMTA4ICsr
-KysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gPiAgIGRy
-aXZlcnMvdmhvc3Qvdmhvc3QuYyB8ICAyNCArKysrLS0tLS0tLQo+ID4gICAyIGZpbGVzIGNoYW5n
-ZWQsIDY3IGluc2VydGlvbnMoKyksIDY1IGRlbGV0aW9ucygtKQo+ID4KPgo+IEhpLCBhbnkgcHJv
-Z3Jlc3Mgb24gdGhlIG5ldyB2ZXJzaW9uPwo+Cj4gSSBwbGFuIHRvIHNlbmQgYSBuZXcgc2VyaWVz
-IG9mIHBhY2tlZCB2aXJ0cXVldWUgc3VwcG9ydCBvZiB2aG9zdC4gSWYgeW91Cj4gcGxhbiB0byBz
-ZW5kIGl0IHNvb24sIEkgY2FuIHdhaXQuIE90aGVyd2lzZSwgSSB3aWxsIHNlbmQgbXkgc2VyaWVz
-LgpJIHJlYmFzZSB0aGUgY29kZXMuIGFuZCBmaW5kIHRoZXJlIGlzIG5vIGltcHJvdmVtZW50IGFu
-eW1vcmUsIHRoZQpwYXRjaGVzIG9mICBtYWtpdGEgIG1heSBzb2x2ZSB0aGUgcHJvYmxlbS4gamFz
-b24geW91IG1heSBzZW5kIHlvdXIKcGF0Y2hlcywgYW5kIEkgd2lsbCBkbyBzb21lIHJlc2VhcmNo
-IG9uIGJ1c3lwb2xsLgoKPiBUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Tue, Jul 10, 2018 at 10:33:08AM -0700, Linus Torvalds wrote:
+> NAK.
+> 
+> On Tue, Jul 10, 2018 at 2:56 AM Wei Wang <wei.w.wang@intel.com> wrote:
+> >
+> > +
+> > +       buf_page = list_first_entry_or_null(pages, struct page, lru);
+> > +       if (!buf_page)
+> > +               return -EINVAL;
+> > +       buf = (__le64 *)page_address(buf_page);
+> 
+> Stop this garbage.
+> 
+> Why the hell would you pass in some crazy "liost of pages" that uses
+> that lru list?
+> 
+> That's just insane shit.
+> 
+> Just pass in a an array to fill in.
+> No idiotic games like this with
+> odd list entries (what's the locking?) and crazy casting to
+> 
+> So if you want an array of page addresses, pass that in as such. If
+> you want to do it in a page, do it with
+> 
+>     u64 *array = page_address(page);
+>     int nr = PAGE_SIZE / sizeof(u64);
+> 
+> and now you pass that array in to the thing. None of this completely
+> insane crazy crap interfaces.
+
+Question was raised what to do if there are so many free
+MAX_ORDER pages that their addresses don't fit in a single MAX_ORDER
+page. Yes, only a huge guest would trigger that but it seems
+theoretically possible.
+
+I guess an array of arrays then?
+
+An alternative suggestion was not to pass an array at all,
+instead peel enough pages off the list to contain
+all free entries. Maybe that's too hacky.
+
+
+> 
+> Plus, I still haven't heard an explanation for why you want so many
+> pages in the first place, and why you want anything but MAX_ORDER-1.
+> 
+> So no. This kind of unnecessarily complex code with completely insane
+> calling interfaces does not make it into the VM layer.
+> 
+> Maybe that crazy "let's pass a chain of pages that uses the lru list"
+> makes sense to the virtio-balloon code. But you need to understand
+> that it makes ZERO conceptual sense to anybody else. And the core VM
+> code is about a million times more important than the balloon code in
+> this case, so you had better make the interface make sense to *it*.
+> 
+>                Linus
