@@ -1,17 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next v5 0/4] net: vhost: improve performance when
-	enable busyloop
-Date: Wed, 11 Jul 2018 13:12:59 +0800
-Message-ID: <4901593f-1d9e-2c47-b963-5fc1f48a1bfe__45174.6759740219$1531285866$gmane$org@redhat.com>
-References: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<934375dc-8925-c271-b2b0-b224ff5191c2@redhat.com>
-	<CAMDZJNWqF95P1YBiu5X+gBbBOp2EVe380D2kzNmdes_4hBH3dw@mail.gmail.com>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH v35 1/5] mm: support to get hints of free page blocks
+Date: Wed, 11 Jul 2018 11:21:52 +0200
+Message-ID: <20180711092152.GE20050@dhcp22.suse.cz>
+References: <1531215067-35472-1-git-send-email-wei.w.wang@intel.com>
+	<1531215067-35472-2-git-send-email-wei.w.wang@intel.com>
+	<CA+55aFz9a=D-kquM=sG5uhV_HrBAw+VAhcJmtPNz+howy4j9ow@mail.gmail.com>
+	<5B455D50.90902@intel.com>
+	<CA+55aFzqj8wxXnHAdUTiOomipgFONVbqKMjL_tfk7e5ar1FziQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAMDZJNWqF95P1YBiu5X+gBbBOp2EVe380D2kzNmdes_4hBH3dw@mail.gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CA+55aFzqj8wxXnHAdUTiOomipgFONVbqKMjL_tfk7e5ar1FziQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,42 +22,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, Rik van Riel <riel@redhat.com>, quan.xu0@gmail.com, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, liliang.opensource@gmail.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-mm <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, nilal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDfmnIgxMeaXpSAxMTo0OSwgVG9uZ2hhbyBaaGFuZyB3cm90ZToKPiBPbiBX
-ZWQsIEp1bCAxMSwgMjAxOCBhdCAxMDo1NiBBTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQu
-Y29tPiB3cm90ZToKPj4KPj4KPj4gT24gMjAxOOW5tDA35pyIMDTml6UgMTI6MzEsIHhpYW5neGlh
-Lm0ueXVlQGdtYWlsLmNvbSB3cm90ZToKPj4+IEZyb206IFRvbmdoYW8gWmhhbmcgPHhpYW5neGlh
-Lm0ueXVlQGdtYWlsLmNvbT4KPj4+Cj4+PiBUaGlzIHBhdGNoZXMgaW1wcm92ZSB0aGUgZ3Vlc3Qg
-cmVjZWl2ZSBhbmQgdHJhbnNtaXQgcGVyZm9ybWFuY2UuCj4+PiBPbiB0aGUgaGFuZGxlX3R4IHNp
-ZGUsIHdlIHBvbGwgdGhlIHNvY2sgcmVjZWl2ZSBxdWV1ZSBhdCB0aGUgc2FtZSB0aW1lLgo+Pj4g
-aGFuZGxlX3J4IGRvIHRoYXQgaW4gdGhlIHNhbWUgd2F5Lgo+Pj4KPj4+IEZvciBtb3JlIHBlcmZv
-cm1hbmNlIHJlcG9ydCwgc2VlIHBhdGNoIDQuCj4+Pgo+Pj4gdjQgLT4gdjU6Cj4+PiBmaXggc29t
-ZSBpc3N1ZXMKPj4+Cj4+PiB2MyAtPiB2NDoKPj4+IGZpeCBzb21lIGlzc3Vlcwo+Pj4KPj4+IHYy
-IC0+IHYzOgo+Pj4gVGhpcyBwYXRjaGVzIGFyZSBzcGxpdGVkIGZyb20gcHJldmlvdXMgYmlnIHBh
-dGNoOgo+Pj4gaHR0cDovL3BhdGNod29yay5vemxhYnMub3JnL3BhdGNoLzkzNDY3My8KPj4+Cj4+
-PiBUb25naGFvIFpoYW5nICg0KToKPj4+ICAgICB2aG9zdDogbG9jayB0aGUgdnFzIG9uZSBieSBv
-bmUKPj4+ICAgICBuZXQ6IHZob3N0OiByZXBsYWNlIG1hZ2ljIG51bWJlciBvZiBsb2NrIGFubm90
-YXRpb24KPj4+ICAgICBuZXQ6IHZob3N0OiBmYWN0b3Igb3V0IGJ1c3kgcG9sbGluZyBsb2dpYyB0
-byB2aG9zdF9uZXRfYnVzeV9wb2xsKCkKPj4+ICAgICBuZXQ6IHZob3N0OiBhZGQgcnggYnVzeSBw
-b2xsaW5nIGluIHR4IHBhdGgKPj4+Cj4+PiAgICBkcml2ZXJzL3Zob3N0L25ldC5jICAgfCAxMDgg
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPj4+ICAg
-IGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyB8ICAyNCArKysrLS0tLS0tLQo+Pj4gICAgMiBmaWxlcyBj
-aGFuZ2VkLCA2NyBpbnNlcnRpb25zKCspLCA2NSBkZWxldGlvbnMoLSkKPj4+Cj4+IEhpLCBhbnkg
-cHJvZ3Jlc3Mgb24gdGhlIG5ldyB2ZXJzaW9uPwo+Pgo+PiBJIHBsYW4gdG8gc2VuZCBhIG5ldyBz
-ZXJpZXMgb2YgcGFja2VkIHZpcnRxdWV1ZSBzdXBwb3J0IG9mIHZob3N0LiBJZiB5b3UKPj4gcGxh
-biB0byBzZW5kIGl0IHNvb24sIEkgY2FuIHdhaXQuIE90aGVyd2lzZSwgSSB3aWxsIHNlbmQgbXkg
-c2VyaWVzLgo+IEkgcmViYXNlIHRoZSBjb2Rlcy4gYW5kIGZpbmQgdGhlcmUgaXMgbm8gaW1wcm92
-ZW1lbnQgYW55bW9yZSwgdGhlCj4gcGF0Y2hlcyBvZiAgbWFraXRhICBtYXkgc29sdmUgdGhlIHBy
-b2JsZW0uIGphc29uIHlvdSBtYXkgc2VuZCB5b3VyCj4gcGF0Y2hlcywgYW5kIEkgd2lsbCBkbyBz
-b21lIHJlc2VhcmNoIG9uIGJ1c3lwb2xsLgoKSSBzZWUuIE1heWJlIHlvdSBjYW4gdHJ5IHNvbWUg
-YmktZGlyZWN0aW9uYWwgdHJhZmZpYy4KCkJ0dywgbG90cyBvZiBvcHRpbWl6YXRpb25zIGNvdWxk
-IGJlIGRvbmUgZm9yIGJ1c3kgcG9sbGluZy4gRS5nIAppbnRlZ3JhdGluZyB3aXRoIGhvc3QgTkFQ
-SSBidXN5IHBvbGxpbmcgb3IgYSAxMDAlIGJ1c3kgcG9sbGluZyAKdmhvc3RfbmV0LiBZb3UncmUg
-d2VsY29tZSB0byB3b3JrIG9yIHByb3Bvc2UgbmV3IGlkZWFzLgoKVGhhbmtzCgo+Cj4+IFRoYW5r
-cwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+On Tue 10-07-18 18:44:34, Linus Torvalds wrote:
+[...]
+> That was what I tried to encourage with actually removing the pages
+> form the page list. That would be an _incremental_ interface. You can
+> remove MAX_ORDER-1 pages one by one (or a hundred at a time), and mark
+> them free for ballooning that way. And if you still feel you have tons
+> of free memory, just continue removing more pages from the free list.
+
+We already have an interface for that. alloc_pages(GFP_NOWAIT, MAX_ORDER -1).
+So why do we need any array based interface?
+-- 
+Michal Hocko
+SUSE Labs
