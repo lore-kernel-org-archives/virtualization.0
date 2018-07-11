@@ -1,18 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v5 0/4] net: vhost: improve performance when
-	enable busyloop
-Date: Wed, 11 Jul 2018 14:59:05 +0300
-Message-ID: <20180711145421-mutt-send-email-mst__18419.4996058524$1531310231$gmane$org@kernel.org>
-References: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<934375dc-8925-c271-b2b0-b224ff5191c2@redhat.com>
-	<CAMDZJNWqF95P1YBiu5X+gBbBOp2EVe380D2kzNmdes_4hBH3dw@mail.gmail.com>
-	<4901593f-1d9e-2c47-b963-5fc1f48a1bfe@redhat.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v35 1/5] mm: support to get hints of free page blocks
+Date: Wed, 11 Jul 2018 13:55:15 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F7396EEFD8__30016.7430578314$1531317240$gmane$org@SHSMSX101.ccr.corp.intel.com>
+References: <1531215067-35472-1-git-send-email-wei.w.wang@intel.com>
+	<1531215067-35472-2-git-send-email-wei.w.wang@intel.com>
+	<CA+55aFz9a=D-kquM=sG5uhV_HrBAw+VAhcJmtPNz+howy4j9ow@mail.gmail.com>
+	<5B455D50.90902@intel.com>
+	<CA+55aFzqj8wxXnHAdUTiOomipgFONVbqKMjL_tfk7e5ar1FziQ@mail.gmail.com>
+	<20180711092152.GE20050@dhcp22.suse.cz> <5B45E17D.2090205@intel.com>
+	<20180711110949.GJ20050@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4901593f-1d9e-2c47-b963-5fc1f48a1bfe@redhat.com>
+In-Reply-To: <20180711110949.GJ20050@dhcp22.suse.cz>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,49 +24,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Michal Hocko <mhocko@kernel.org>
+Cc: "yang.zhang.wz@gmail.com" <yang.zhang.wz@gmail.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, Rik van Riel <riel@redhat.com>, "quan.xu0@gmail.com" <quan.xu0@gmail.com>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "liliang.opensource@gmail.com" <liliang.opensource@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-mm <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, "nilal@redhat.com" <nilal@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKdWwgMTEsIDIwMTggYXQgMDE6MTI6NTlQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDfmnIgxMeaXpSAxMTo0OSwgVG9uZ2hhbyBaaGFuZyB3cm90
-ZToKPiA+IE9uIFdlZCwgSnVsIDExLCAyMDE4IGF0IDEwOjU2IEFNIEphc29uIFdhbmcgPGphc293
-YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPiAKPiA+ID4gCj4gPiA+IE9uIDIwMTjlubQwN+ac
-iDA05pelIDEyOjMxLCB4aWFuZ3hpYS5tLnl1ZUBnbWFpbC5jb20gd3JvdGU6Cj4gPiA+ID4gRnJv
-bTogVG9uZ2hhbyBaaGFuZyA8eGlhbmd4aWEubS55dWVAZ21haWwuY29tPgo+ID4gPiA+IAo+ID4g
-PiA+IFRoaXMgcGF0Y2hlcyBpbXByb3ZlIHRoZSBndWVzdCByZWNlaXZlIGFuZCB0cmFuc21pdCBw
-ZXJmb3JtYW5jZS4KPiA+ID4gPiBPbiB0aGUgaGFuZGxlX3R4IHNpZGUsIHdlIHBvbGwgdGhlIHNv
-Y2sgcmVjZWl2ZSBxdWV1ZSBhdCB0aGUgc2FtZSB0aW1lLgo+ID4gPiA+IGhhbmRsZV9yeCBkbyB0
-aGF0IGluIHRoZSBzYW1lIHdheS4KPiA+ID4gPiAKPiA+ID4gPiBGb3IgbW9yZSBwZXJmb3JtYW5j
-ZSByZXBvcnQsIHNlZSBwYXRjaCA0Lgo+ID4gPiA+IAo+ID4gPiA+IHY0IC0+IHY1Ogo+ID4gPiA+
-IGZpeCBzb21lIGlzc3Vlcwo+ID4gPiA+IAo+ID4gPiA+IHYzIC0+IHY0Ogo+ID4gPiA+IGZpeCBz
-b21lIGlzc3Vlcwo+ID4gPiA+IAo+ID4gPiA+IHYyIC0+IHYzOgo+ID4gPiA+IFRoaXMgcGF0Y2hl
-cyBhcmUgc3BsaXRlZCBmcm9tIHByZXZpb3VzIGJpZyBwYXRjaDoKPiA+ID4gPiBodHRwOi8vcGF0
-Y2h3b3JrLm96bGFicy5vcmcvcGF0Y2gvOTM0NjczLwo+ID4gPiA+IAo+ID4gPiA+IFRvbmdoYW8g
-WmhhbmcgKDQpOgo+ID4gPiA+ICAgICB2aG9zdDogbG9jayB0aGUgdnFzIG9uZSBieSBvbmUKPiA+
-ID4gPiAgICAgbmV0OiB2aG9zdDogcmVwbGFjZSBtYWdpYyBudW1iZXIgb2YgbG9jayBhbm5vdGF0
-aW9uCj4gPiA+ID4gICAgIG5ldDogdmhvc3Q6IGZhY3RvciBvdXQgYnVzeSBwb2xsaW5nIGxvZ2lj
-IHRvIHZob3N0X25ldF9idXN5X3BvbGwoKQo+ID4gPiA+ICAgICBuZXQ6IHZob3N0OiBhZGQgcngg
-YnVzeSBwb2xsaW5nIGluIHR4IHBhdGgKPiA+ID4gPiAKPiA+ID4gPiAgICBkcml2ZXJzL3Zob3N0
-L25ldC5jICAgfCAxMDggKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0KPiA+ID4gPiAgICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAgMjQgKysrKy0tLS0t
-LS0KPiA+ID4gPiAgICAyIGZpbGVzIGNoYW5nZWQsIDY3IGluc2VydGlvbnMoKyksIDY1IGRlbGV0
-aW9ucygtKQo+ID4gPiA+IAo+ID4gPiBIaSwgYW55IHByb2dyZXNzIG9uIHRoZSBuZXcgdmVyc2lv
-bj8KPiA+ID4gCj4gPiA+IEkgcGxhbiB0byBzZW5kIGEgbmV3IHNlcmllcyBvZiBwYWNrZWQgdmly
-dHF1ZXVlIHN1cHBvcnQgb2Ygdmhvc3QuIElmIHlvdQo+ID4gPiBwbGFuIHRvIHNlbmQgaXQgc29v
-biwgSSBjYW4gd2FpdC4gT3RoZXJ3aXNlLCBJIHdpbGwgc2VuZCBteSBzZXJpZXMuCj4gPiBJIHJl
-YmFzZSB0aGUgY29kZXMuIGFuZCBmaW5kIHRoZXJlIGlzIG5vIGltcHJvdmVtZW50IGFueW1vcmUs
-IHRoZQo+ID4gcGF0Y2hlcyBvZiAgbWFraXRhICBtYXkgc29sdmUgdGhlIHByb2JsZW0uIGphc29u
-IHlvdSBtYXkgc2VuZCB5b3VyCj4gPiBwYXRjaGVzLCBhbmQgSSB3aWxsIGRvIHNvbWUgcmVzZWFy
-Y2ggb24gYnVzeXBvbGwuCj4gCj4gSSBzZWUuIE1heWJlIHlvdSBjYW4gdHJ5IHNvbWUgYmktZGly
-ZWN0aW9uYWwgdHJhZmZpYy4KPiAKPiBCdHcsIGxvdHMgb2Ygb3B0aW1pemF0aW9ucyBjb3VsZCBi
-ZSBkb25lIGZvciBidXN5IHBvbGxpbmcuIEUuZyBpbnRlZ3JhdGluZwo+IHdpdGggaG9zdCBOQVBJ
-IGJ1c3kgcG9sbGluZyBvciBhIDEwMCUgYnVzeSBwb2xsaW5nIHZob3N0X25ldC4gWW91J3JlIHdl
-bGNvbWUKPiB0byB3b3JrIG9yIHByb3Bvc2UgbmV3IGlkZWFzLgo+IAo+IFRoYW5rcwoKSXQgc2Vl
-bXMgY2xlYXIgd2UgZG8gbmVlZCBhZGFwdGl2ZSBwb2xsaW5nLiAgVGhlIGRpZmZpY3VsdHkgd2l0
-aCBOQVBJCnBvbGxpbmcgaXMgaXQgY2FuJ3QgYWNjZXNzIGd1ZXN0IG1lbW9yeSBlYXNpbHkuIEJ1
-dCBtYXliZQpnZXRfdXNlcl9wYWdlcyBvbiB0aGUgcG9sbGVkIG1lbW9yeStOQVBJIHBvbGxpbmcg
-Y2FuIHdvcmsuCgo+ID4gCj4gPiA+IFRoYW5rcwpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
-YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
-YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wednesday, July 11, 2018 7:10 PM, Michal Hocko wrote:
+> On Wed 11-07-18 18:52:45, Wei Wang wrote:
+> > On 07/11/2018 05:21 PM, Michal Hocko wrote:
+> > > On Tue 10-07-18 18:44:34, Linus Torvalds wrote:
+> > > [...]
+> > > > That was what I tried to encourage with actually removing the
+> > > > pages form the page list. That would be an _incremental_
+> > > > interface. You can remove MAX_ORDER-1 pages one by one (or a
+> > > > hundred at a time), and mark them free for ballooning that way.
+> > > > And if you still feel you have tons of free memory, just continue
+> removing more pages from the free list.
+> > > We already have an interface for that. alloc_pages(GFP_NOWAIT,
+> MAX_ORDER -1).
+> > > So why do we need any array based interface?
+> >
+> > Yes, I'm trying to get free pages directly via alloc_pages, so there
+> > will be no new mm APIs.
+> 
+> OK. The above was just a rough example. In fact you would need a more
+> complex gfp mask. I assume you only want to balloon only memory directly
+> usable by the kernel so it will be
+> 	(GFP_KERNEL | __GFP_NOWARN) & ~__GFP_RECLAIM
+
+Sounds good to me, thanks.
+
+> 
+> > I plan to let free page allocation stop when the remaining system free
+> > memory becomes close to min_free_kbytes (prevent swapping).
+> 
+> ~__GFP_RECLAIM will make sure you are allocate as long as there is any
+> memory without reclaim. It will not even poke the kswapd to do the
+> background work. So I do not think you would need much more than that.
+
+"close to min_free_kbytes" - I meant when doing the allocations, we intentionally reserve some small amount of memory, e.g. 2 free page blocks of "MAX_ORDER - 1". So when other applications happen to do some allocation, they may easily get some from the reserved memory left on the free list. Without that reserved memory, other allocation may cause the system free memory below the WMARK[MIN], and kswapd would start to do swapping. This is actually just a small optimization to reduce the probability of causing swapping (nice to have, but not mandatary because we will allocate free page blocks one by one).
+
+ > But let me note that I am not really convinced how this (or previous)
+> approach will really work in most workloads. We tend to cache heavily so
+> there is rarely any memory free.
+
+With less free memory, the improvement becomes less, but should be nicer than no optimization. For example, the Linux build workload would cause 4~5 GB (out of 8GB) memory to be used as page cache at the final stage, there is still ~44% live migration time reduction.
+
+Since we have many cloud customers interested in this feature, I think we can let them test the usefulness.
+
+Best,
+Wei
