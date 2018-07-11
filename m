@@ -1,16 +1,11 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH v35 1/5] mm: support to get hints of free page blocks
-Date: Tue, 10 Jul 2018 18:44:34 -0700
-Message-ID: <CA+55aFzqj8wxXnHAdUTiOomipgFONVbqKMjL_tfk7e5ar1FziQ__18863.9373671778$1531273518$gmane$org@mail.gmail.com>
-References: <1531215067-35472-1-git-send-email-wei.w.wang@intel.com>
-	<1531215067-35472-2-git-send-email-wei.w.wang@intel.com>
-	<CA+55aFz9a=D-kquM=sG5uhV_HrBAw+VAhcJmtPNz+howy4j9ow@mail.gmail.com>
-	<5B455D50.90902@intel.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: [PATCH net-next v2 0/5] virtio: support packed ring
+Date: Wed, 11 Jul 2018 10:27:06 +0800
+Message-ID: <20180711022711.7090-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5B455D50.90902@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,61 +15,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: wei.w.wang@intel.com
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, Rik van Riel <riel@redhat.com>, quan.xu0@gmail.com, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, nilal@redhat.com, liliang.opensource@gmail.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-mm <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@kernel.org>
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, virtio-dev@lists.oasis-open.org
+Cc: wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 10, 2018 at 6:24 PM Wei Wang <wei.w.wang@intel.com> wrote:
->
-> We only get addresses of the "MAX_ORDER-1" blocks into the array. The
-> max size of the array that could be allocated by kmalloc is
-> KMALLOC_MAX_SIZE (i.e. 4MB on x86). With that max array, we could load
-> "4MB / sizeof(u64)" addresses of "MAX_ORDER-1" blocks, that is, 2TB free
-> memory at most. We thought about removing that 2TB limitation by passing
-> in multiple such max arrays (a list of them).
+Hello everyone,
 
-No.
+This patch set implements packed ring support in virtio driver.
 
-Stop this already./
+Some functional tests have been done with Jason's
+packed ring implementation in vhost:
 
-You're doing everthing wrong.
+https://lkml.org/lkml/2018/7/3/33
 
-If the array has to describe *all* memory you will ever free, then you
-have already lost.
+Both of ping and netperf worked as expected.
 
-Just do it in chunks.
+v1 -> v2:
+- Use READ_ONCE() to read event off_wrap and flags together (Jason);
+- Add comments related to ccw (Jason);
 
-I don't want the VM code to even fill in that big of an array anyway -
-this all happens under the zone lock, and you're walking a list that
-is bad for caching anyway.
+RFC (v6) -> v1:
+- Avoid extra virtio_wmb() in virtqueue_enable_cb_delayed_packed()
+  when event idx is off (Jason);
+- Fix bufs calculation in virtqueue_enable_cb_delayed_packed() (Jason);
+- Test the state of the desc at used_idx instead of last_used_idx
+  in virtqueue_enable_cb_delayed_packed() (Jason);
+- Save wrap counter (as part of queue state) in the return value
+  of virtqueue_enable_cb_prepare_packed();
+- Refine the packed ring definitions in uapi;
+- Rebase on the net-next tree;
 
-So plan on an interface that allows _incremental_ freeing, because any
-plan that starts with "I worry that maybe two TERABYTES of memory
-isn't big enough" is so broken that it's laughable.
+RFC v5 -> RFC v6:
+- Avoid tracking addr/len/flags when DMA API isn't used (MST/Jason);
+- Define wrap counter as bool (Jason);
+- Use ALIGN() in vring_init_packed() (Jason);
+- Avoid using pointer to track `next` in detach_buf_packed() (Jason);
+- Add comments for barriers (Jason);
+- Don't enable RING_PACKED on ccw for now (noticed by Jason);
+- Refine the memory barrier in virtqueue_poll();
+- Add a missing memory barrier in virtqueue_enable_cb_delayed_packed();
+- Remove the hacks in virtqueue_enable_cb_prepare_packed();
 
-That was what I tried to encourage with actually removing the pages
-form the page list. That would be an _incremental_ interface. You can
-remove MAX_ORDER-1 pages one by one (or a hundred at a time), and mark
-them free for ballooning that way. And if you still feel you have tons
-of free memory, just continue removing more pages from the free list.
+RFC v4 -> RFC v5:
+- Save DMA addr, etc in desc state (Jason);
+- Track used wrap counter;
 
-Notice? Incremental. Not "I want to have a crazy array that is enough
-to hold 2TB at one time".
+RFC v3 -> RFC v4:
+- Make ID allocation support out-of-order (Jason);
+- Various fixes for EVENT_IDX support;
 
-So here's the rule:
+RFC v2 -> RFC v3:
+- Split into small patches (Jason);
+- Add helper virtqueue_use_indirect() (Jason);
+- Just set id for the last descriptor of a list (Jason);
+- Calculate the prev in virtqueue_add_packed() (Jason);
+- Fix/improve desc suppression code (Jason/MST);
+- Refine the code layout for XXX_split/packed and wrappers (MST);
+- Fix the comments and API in uapi (MST);
+- Remove the BUG_ON() for indirect (Jason);
+- Some other refinements and bug fixes;
 
- - make it a simple array interface
+RFC v1 -> RFC v2:
+- Add indirect descriptor support - compile test only;
+- Add event suppression supprt - compile test only;
+- Move vring_packed_init() out of uapi (Jason, MST);
+- Merge two loops into one in virtqueue_add_packed() (Jason);
+- Split vring_unmap_one() for packed ring and split ring (Jason);
+- Avoid using '%' operator (Jason);
+- Rename free_head -> next_avail_idx (Jason);
+- Add comments for virtio_wmb() in virtqueue_add_packed() (Jason);
+- Some other refinements and bug fixes;
 
- - make the array *small*. Not megabytes. Kilobytes. Because if you're
-filling in megabytes worth of free pointers while holding the zone
-lock, you're doing something wrong.
+Thanks!
 
- - design the interface so that you do not *need* to have this crazy
-"all or nothing" approach.
+Tiwei Bie (5):
+  virtio: add packed ring definitions
+  virtio_ring: support creating packed ring
+  virtio_ring: add packed ring support
+  virtio_ring: add event idx support in packed ring
+  virtio_ring: enable packed ring
 
-See what I'm trying to push for. Think "low latency". Think "small
-arrays". Think "simple and straightforward interfaces".
+ drivers/s390/virtio/virtio_ccw.c   |   14 +
+ drivers/virtio/virtio_ring.c       | 1365 ++++++++++++++++++++++------
+ include/linux/virtio_ring.h        |    8 +-
+ include/uapi/linux/virtio_config.h |    3 +
+ include/uapi/linux/virtio_ring.h   |   43 +
+ 5 files changed, 1157 insertions(+), 276 deletions(-)
 
-At no point should you ever worry about "2TB". Never.
-
-           Linus
+-- 
+2.18.0
