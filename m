@@ -1,23 +1,23 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next v5 0/4] net: vhost: improve performance when
-	enable busyloop
-Date: Thu, 12 Jul 2018 13:51:51 +0800
-Message-ID: <e9411bc3-158d-bae8-ffb0-f4f6e327e957__12648.4967222952$1531374598$gmane$org@redhat.com>
-References: <1530678698-33427-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<934375dc-8925-c271-b2b0-b224ff5191c2@redhat.com>
-	<CAMDZJNWqF95P1YBiu5X+gBbBOp2EVe380D2kzNmdes_4hBH3dw@mail.gmail.com>
-	<4901593f-1d9e-2c47-b963-5fc1f48a1bfe@redhat.com>
-	<20180711145421-mutt-send-email-mst@kernel.org>
-	<0dcaf8f1-01b5-417d-420b-d5b716a82a8a@redhat.com>
-	<20180712062756-mutt-send-email-mst@kernel.org>
-	<2898b8aa-8a7c-06ad-9dc0-0e97e2f8e417@redhat.com>
-	<20180712082324-mutt-send-email-mst@kernel.org>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH v35 1/5] mm: support to get hints of free page blocks
+Date: Thu, 12 Jul 2018 10:13:17 +0200
+Message-ID: <20180712081317.GD32648__1659.83002302728$1531383078$gmane$org@dhcp22.suse.cz>
+References: <1531215067-35472-1-git-send-email-wei.w.wang@intel.com>
+	<1531215067-35472-2-git-send-email-wei.w.wang@intel.com>
+	<CA+55aFz9a=D-kquM=sG5uhV_HrBAw+VAhcJmtPNz+howy4j9ow@mail.gmail.com>
+	<5B455D50.90902@intel.com>
+	<CA+55aFzqj8wxXnHAdUTiOomipgFONVbqKMjL_tfk7e5ar1FziQ@mail.gmail.com>
+	<20180711092152.GE20050@dhcp22.suse.cz>
+	<CA+55aFwku2tDH4+rfaC67xc4-cEwSrXgnQaci=e2id5ZCRE9JQ@mail.gmail.com>
+	<5B46BB46.2080802@intel.com>
+	<CA+55aFxyv=EUAJFUSio=k+pm3ddteojshP7Radjia5ZRgm53zQ@mail.gmail.com>
+	<5B46C258.40601@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180712082324-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <5B46C258.40601@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,74 +27,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, Rik van Riel <riel@redhat.com>, quan.xu0@gmail.com, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, liliang.opensource@gmail.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-mm <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, nilal@redhat.com, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDfmnIgxMuaXpSAxMzoyNCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFRodSwgSnVsIDEyLCAyMDE4IGF0IDAxOjIxOjAzUE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Cj4+IE9uIDIwMTjlubQwN+aciDEy5pelIDExOjM0LCBNaWNoYWVsIFMuIFRzaXJraW4g
-d3JvdGU6Cj4+PiBPbiBUaHUsIEp1bCAxMiwgMjAxOCBhdCAxMToyNjoxMkFNICswODAwLCBKYXNv
-biBXYW5nIHdyb3RlOgo+Pj4+IE9uIDIwMTjlubQwN+aciDEx5pelIDE5OjU5LCBNaWNoYWVsIFMu
-IFRzaXJraW4gd3JvdGU6Cj4+Pj4+IE9uIFdlZCwgSnVsIDExLCAyMDE4IGF0IDAxOjEyOjU5UE0g
-KzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+PiBPbiAyMDE45bm0MDfmnIgxMeaXpSAxMTo0
-OSwgVG9uZ2hhbyBaaGFuZyB3cm90ZToKPj4+Pj4+PiBPbiBXZWQsIEp1bCAxMSwgMjAxOCBhdCAx
-MDo1NiBBTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPiB3cm90ZToKPj4+Pj4+Pj4g
-T24gMjAxOOW5tDA35pyIMDTml6UgMTI6MzEsIHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbSB3cm90
-ZToKPj4+Pj4+Pj4+IEZyb206IFRvbmdoYW8gWmhhbmcgPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNv
-bT4KPj4+Pj4+Pj4+Cj4+Pj4+Pj4+PiBUaGlzIHBhdGNoZXMgaW1wcm92ZSB0aGUgZ3Vlc3QgcmVj
-ZWl2ZSBhbmQgdHJhbnNtaXQgcGVyZm9ybWFuY2UuCj4+Pj4+Pj4+PiBPbiB0aGUgaGFuZGxlX3R4
-IHNpZGUsIHdlIHBvbGwgdGhlIHNvY2sgcmVjZWl2ZSBxdWV1ZSBhdCB0aGUgc2FtZSB0aW1lLgo+
-Pj4+Pj4+Pj4gaGFuZGxlX3J4IGRvIHRoYXQgaW4gdGhlIHNhbWUgd2F5Lgo+Pj4+Pj4+Pj4KPj4+
-Pj4+Pj4+IEZvciBtb3JlIHBlcmZvcm1hbmNlIHJlcG9ydCwgc2VlIHBhdGNoIDQuCj4+Pj4+Pj4+
-Pgo+Pj4+Pj4+Pj4gdjQgLT4gdjU6Cj4+Pj4+Pj4+PiBmaXggc29tZSBpc3N1ZXMKPj4+Pj4+Pj4+
-Cj4+Pj4+Pj4+PiB2MyAtPiB2NDoKPj4+Pj4+Pj4+IGZpeCBzb21lIGlzc3Vlcwo+Pj4+Pj4+Pj4K
-Pj4+Pj4+Pj4+IHYyIC0+IHYzOgo+Pj4+Pj4+Pj4gVGhpcyBwYXRjaGVzIGFyZSBzcGxpdGVkIGZy
-b20gcHJldmlvdXMgYmlnIHBhdGNoOgo+Pj4+Pj4+Pj4gaHR0cDovL3BhdGNod29yay5vemxhYnMu
-b3JnL3BhdGNoLzkzNDY3My8KPj4+Pj4+Pj4+Cj4+Pj4+Pj4+PiBUb25naGFvIFpoYW5nICg0KToK
-Pj4+Pj4+Pj4+ICAgICAgICB2aG9zdDogbG9jayB0aGUgdnFzIG9uZSBieSBvbmUKPj4+Pj4+Pj4+
-ICAgICAgICBuZXQ6IHZob3N0OiByZXBsYWNlIG1hZ2ljIG51bWJlciBvZiBsb2NrIGFubm90YXRp
-b24KPj4+Pj4+Pj4+ICAgICAgICBuZXQ6IHZob3N0OiBmYWN0b3Igb3V0IGJ1c3kgcG9sbGluZyBs
-b2dpYyB0byB2aG9zdF9uZXRfYnVzeV9wb2xsKCkKPj4+Pj4+Pj4+ICAgICAgICBuZXQ6IHZob3N0
-OiBhZGQgcnggYnVzeSBwb2xsaW5nIGluIHR4IHBhdGgKPj4+Pj4+Pj4+Cj4+Pj4+Pj4+PiAgICAg
-ICBkcml2ZXJzL3Zob3N0L25ldC5jICAgfCAxMDggKysrKysrKysrKysrKysrKysrKysrKysrKysr
-Ky0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPj4+Pj4+Pj4+ICAgICAgIGRyaXZlcnMvdmhvc3Qvdmhv
-c3QuYyB8ICAyNCArKysrLS0tLS0tLQo+Pj4+Pj4+Pj4gICAgICAgMiBmaWxlcyBjaGFuZ2VkLCA2
-NyBpbnNlcnRpb25zKCspLCA2NSBkZWxldGlvbnMoLSkKPj4+Pj4+Pj4+Cj4+Pj4+Pj4+IEhpLCBh
-bnkgcHJvZ3Jlc3Mgb24gdGhlIG5ldyB2ZXJzaW9uPwo+Pj4+Pj4+Pgo+Pj4+Pj4+PiBJIHBsYW4g
-dG8gc2VuZCBhIG5ldyBzZXJpZXMgb2YgcGFja2VkIHZpcnRxdWV1ZSBzdXBwb3J0IG9mIHZob3N0
-LiBJZiB5b3UKPj4+Pj4+Pj4gcGxhbiB0byBzZW5kIGl0IHNvb24sIEkgY2FuIHdhaXQuIE90aGVy
-d2lzZSwgSSB3aWxsIHNlbmQgbXkgc2VyaWVzLgo+Pj4+Pj4+IEkgcmViYXNlIHRoZSBjb2Rlcy4g
-YW5kIGZpbmQgdGhlcmUgaXMgbm8gaW1wcm92ZW1lbnQgYW55bW9yZSwgdGhlCj4+Pj4+Pj4gcGF0
-Y2hlcyBvZiAgbWFraXRhICBtYXkgc29sdmUgdGhlIHByb2JsZW0uIGphc29uIHlvdSBtYXkgc2Vu
-ZCB5b3VyCj4+Pj4+Pj4gcGF0Y2hlcywgYW5kIEkgd2lsbCBkbyBzb21lIHJlc2VhcmNoIG9uIGJ1
-c3lwb2xsLgo+Pj4+Pj4gSSBzZWUuIE1heWJlIHlvdSBjYW4gdHJ5IHNvbWUgYmktZGlyZWN0aW9u
-YWwgdHJhZmZpYy4KPj4+Pj4+Cj4+Pj4+PiBCdHcsIGxvdHMgb2Ygb3B0aW1pemF0aW9ucyBjb3Vs
-ZCBiZSBkb25lIGZvciBidXN5IHBvbGxpbmcuIEUuZyBpbnRlZ3JhdGluZwo+Pj4+Pj4gd2l0aCBo
-b3N0IE5BUEkgYnVzeSBwb2xsaW5nIG9yIGEgMTAwJSBidXN5IHBvbGxpbmcgdmhvc3RfbmV0LiBZ
-b3UncmUgd2VsY29tZQo+Pj4+Pj4gdG8gd29yayBvciBwcm9wb3NlIG5ldyBpZGVhcy4KPj4+Pj4+
-Cj4+Pj4+PiBUaGFua3MKPj4+Pj4gSXQgc2VlbXMgY2xlYXIgd2UgZG8gbmVlZCBhZGFwdGl2ZSBw
-b2xsaW5nLgo+Pj4+IFllcy4KPj4+Pgo+Pj4+PiAgICAgVGhlIGRpZmZpY3VsdHkgd2l0aCBOQVBJ
-Cj4+Pj4+IHBvbGxpbmcgaXMgaXQgY2FuJ3QgYWNjZXNzIGd1ZXN0IG1lbW9yeSBlYXNpbHkuIEJ1
-dCBtYXliZQo+Pj4+PiBnZXRfdXNlcl9wYWdlcyBvbiB0aGUgcG9sbGVkIG1lbW9yeStOQVBJIHBv
-bGxpbmcgY2FuIHdvcmsuCj4+Pj4gWW91IG1lYW4gc29tZXRoaW5nIGxpa2UgemVyb2NvcHk/IExv
-b2tzIGxpa2Ugd2UgY2FuIGRvIGJ1c3kgcG9sbGluZyB3aXRob3V0Cj4+Pj4gaXQuIEkgbWVhbiBz
-b21ldGhpbmcgbGlrZSBodHRwczovL3BhdGNod29yay5rZXJuZWwub3JnL3BhdGNoLzg3MDc1MTEv
-Lgo+Pj4+Cj4+Pj4gVGhhbmtzCj4+PiBIb3cgZG9lcyB0aGlzIHBhdGNoIHdvcms/IHZob3N0X3Zx
-X2F2YWlsX2VtcHR5IGNhbiBzbGVlcCwKPj4+IHlvdSBhcmUgY2FsbGluZyBpdCB3aXRoaW4gYW4g
-cmN1IHJlYWQgc2lkZSBjcml0aWNhbCBzZWN0aW9uLgo+PiBPaywgSSBnZXQgeW91ciBtZWFuaW5n
-LiBJIGhhdmUgcGF0Y2hlcyB0byBhY2Nlc3MgdnJpbmcgdGhyb3VnaAo+PiBnZXRfdXNlcl9wYWdl
-cyArIHZtYXAoKSB3aGljaCBzaG91bGQgaGVscCBoZXJlLiAoQW5kIGl0IGluY3JlYXNlIFBQUyBh
-Ym91dAo+PiAxMCUtMjAlKS4KPiBSZW1lbWJlciB5b3UgbXVzdCBtYXJrIGl0IGFzIGRpcnR5IG9u
-IHVucGluIHRvbyAuLi4KCk9rLgoKPgo+Cj4+PiBUaGF0J3Mgbm90IHRoZSBvbmx5IHByb2JsZW0g
-YnR3LCBhbm90aGVyIG9uZSBpcyB0aGF0IHRoZQo+Pj4gQ1BVIHRpbWUgc3BlbnQgcG9sbGluZyBp
-c24ndCBhY2NvdW50ZWQgd2l0aCB0aGUgVk0uCj4+Cj4+IFllcywgYnV0IGl0J3Mgbm90IHRoZSAn
-aXNzdWUnIG9mIHRoaXMgcGF0Y2guCj4gWWVzIGl0IGlzLiBwb2xsaW5nIHdpdGhpbiB0aHJlYWQg
-Y29udGV4dCBhY2NvdW50cyBDUFUgY29ycmVjdGx5Lgo+Cj4+IEFuZCBJIGJlbGlldmUgY2dyb3Vw
-IGNhbiBoZWxwPwo+Pgo+PiBUaGFua3MKPgo+IGNncm91cHMgYXJlIHdoYXQncyBicm9rZW4gYnkg
-cG9sbGluZyBpbiBpcnEgY29udGV4dC4KCkJ1dCBJIHRoaW5rIHRoZSBOQVBJIGJ1c3kgcG9sbGlu
-ZyBpcyBzdGlsbCBkb25lIGluIHByb2Nlc3MgY29udGV4dC4KClRoYW5rcwoKPgo+Pj4+Pj4+PiBU
-aGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
-cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
-aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu 12-07-18 10:52:08, Wei Wang wrote:
+> On 07/12/2018 10:30 AM, Linus Torvalds wrote:
+> > On Wed, Jul 11, 2018 at 7:17 PM Wei Wang <wei.w.wang@intel.com> wrote:
+> > > Would it be better to remove __GFP_THISNODE? We actually want to get all
+> > > the guest free pages (from all the nodes).
+> > Maybe. Or maybe it would be better to have the memory balloon logic be
+> > per-node? Maybe you don't want to remove too much memory from one
+> > node? I think it's one of those "play with it" things.
+> > 
+> > I don't think that's the big issue, actually. I think the real issue
+> > is how to react quickly and gracefully to "oops, I'm trying to give
+> > memory away, but now the guest wants it back" while you're in the
+> > middle of trying to create that 2TB list of pages.
+> 
+> OK. virtio-balloon has already registered an oom notifier
+> (virtballoon_oom_notify). I plan to add some control there. If oom happens,
+> - stop the page allocation;
+> - immediately give back the allocated pages to mm.
+
+Please don't. Oom notifier is an absolutely hideous interface which
+should go away sooner or later (I would much rather like the former) so
+do not build a new logic on top of it. I would appreciate if you
+actually remove the notifier much more.
+
+You can give memory back from the standard shrinker interface. If we are
+reaching low reclaim priorities then we are struggling to reclaim memory
+and then you can start returning pages back.
+-- 
+Michal Hocko
+SUSE Labs
