@@ -1,20 +1,13 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v35 1/5] mm: support to get hints of free page blocks
-Date: Thu, 12 Jul 2018 15:12:29 +0200
-Message-ID: <20180712131229.GM32648@dhcp22.suse.cz>
-References: <1531215067-35472-1-git-send-email-wei.w.wang@intel.com>
-	<1531215067-35472-2-git-send-email-wei.w.wang@intel.com>
-	<CA+55aFz9a=D-kquM=sG5uhV_HrBAw+VAhcJmtPNz+howy4j9ow@mail.gmail.com>
-	<5B455D50.90902@intel.com>
-	<CA+55aFzqj8wxXnHAdUTiOomipgFONVbqKMjL_tfk7e5ar1FziQ@mail.gmail.com>
-	<20180711092152.GE20050@dhcp22.suse.cz>
-	<CA+55aFwku2tDH4+rfaC67xc4-cEwSrXgnQaci=e2id5ZCRE9JQ@mail.gmail.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next v2 0/5] virtio: support packed ring
+Date: Thu, 12 Jul 2018 14:44:58 -0700 (PDT)
+Message-ID: <20180712.144458.2076041018423659380.davem@davemloft.net>
+References: <20180711022711.7090-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CA+55aFwku2tDH4+rfaC67xc4-cEwSrXgnQaci=e2id5ZCRE9JQ@mail.gmail.com>
+In-Reply-To: <20180711022711.7090-1-tiwei.bie@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,25 +17,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, Rik van Riel <riel@redhat.com>, quan.xu0@gmail.com, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, liliang.opensource@gmail.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, linux-mm <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, nilal@redhat.com
+To: tiwei.bie@intel.com
+Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-[Hmm this one somehow got stuck in my outgoing emails]
+From: Tiwei Bie <tiwei.bie@intel.com>
+Date: Wed, 11 Jul 2018 10:27:06 +0800
 
-On Wed 11-07-18 09:23:54, Linus Torvalds wrote:
-[...]
-> So I'm open to new interfaces. I just want those new interfaces to
-> make sense, and be low latency and simple for the VM to do. I'm
-> objecting to the incredibly baroque and heavy-weight one that can
-> return near-infinite amounts of memory.
+> Hello everyone,
+> 
+> This patch set implements packed ring support in virtio driver.
+> 
+> Some functional tests have been done with Jason's
+> packed ring implementation in vhost:
+> 
+> https://lkml.org/lkml/2018/7/3/33
+> 
+> Both of ping and netperf worked as expected.
 
-Mel was suggesting a bulk page allocator a year ago [1]. I can see only
-slab bulk api so I am not sure what happened with that work. Anyway
-I think that starting with what we have right now is much more
-appropriate than over design this thing from the early beginning.
-
-[1] http://lkml.kernel.org/r/20170109163518.6001-5-mgorman@techsingularity.net
--- 
-Michal Hocko
-SUSE Labs
+Michael and Jason, where are we with this series?
