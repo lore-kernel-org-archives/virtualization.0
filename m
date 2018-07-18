@@ -1,8 +1,8 @@
 From: <gregkh@linuxfoundation.org>
 Subject: Patch "x86/asm: Add _ASM_ARG* constants for argument registers to
-	<asm/asm.h>" has been added to the 4.4-stable tree
-Date: Wed, 18 Jul 2018 11:34:19 +0200
-Message-ID: <153190645929209@kroah.com>
+	<asm/asm.h>" has been added to the 4.9-stable tree
+Date: Wed, 18 Jul 2018 11:34:36 +0200
+Message-ID: <1531906476134235@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -25,12 +25,12 @@ This is a note to let you know that I've just added the patch titled
 
     x86/asm: Add _ASM_ARG* constants for argument registers to <asm/asm.h>
 
-to the 4.4-stable tree which can be found at:
+to the 4.9-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      x86-asm-add-_asm_arg-constants-for-argument-registers-to-asm-asm.h.patch
-and it can be found in the queue-4.4 subdirectory.
+and it can be found in the queue-4.9 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -104,7 +104,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/include/asm/asm.h
 +++ b/arch/x86/include/asm/asm.h
-@@ -44,6 +44,65 @@
+@@ -45,6 +45,65 @@
  #define _ASM_SI		__ASM_REG(si)
  #define _ASM_DI		__ASM_REG(di)
  
@@ -167,11 +167,11 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +
 +#endif
 +
- /* Exception table entry */
- #ifdef __ASSEMBLY__
- # define _ASM_EXTABLE(from,to)					\
+ /*
+  * Macros to generate condition code outputs from inline assembly,
+  * The output operand must be type "bool".
 
 
 Patches currently in stable-queue which might be from hpa@linux.intel.com are
 
-queue-4.4/x86-asm-add-_asm_arg-constants-for-argument-registers-to-asm-asm.h.patch
+queue-4.9/x86-asm-add-_asm_arg-constants-for-argument-registers-to-asm-asm.h.patch
