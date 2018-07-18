@@ -1,8 +1,8 @@
 From: <gregkh@linuxfoundation.org>
-Subject: Patch "x86/paravirt: Make native_save_fl() extern inline" has been
-	added to the 4.17-stable tree
+Subject: Patch "x86/asm: Add _ASM_ARG* constants for argument registers to
+	<asm/asm.h>" has been added to the 4.17-stable tree
 Date: Wed, 18 Jul 2018 11:34:01 +0200
-Message-ID: <15319064415777@kroah.com>
+Message-ID: <1531906441207121@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,76 +16,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 20180621162324.36656-4-ndesaulniers@google.com, acme@redhat.com, akataria@vmware.com, akpm@linux-foundation.org, andrea.parri@amarulasolutions.com, ard.biesheuvel@linaro.org, arnd@arndb.de, aryabinin@virtuozzo.com, astrachan@google.com, boris.ostrovsky@oracle.com, brijesh.singh@amd.com, caoj.fnst@cn.fujitsu.com, geert@linux-m68k.org, ghackmann@google.com, gregkh@linuxfoundation.org, hpa@zytor.com, jan.kiszka@siemens.com, jarkko.sakkinen@linux.intel.com, jgross@suse.com, joe@perches.com, jpoimboe@redhat.com, keescook@google.com, kirill.shutemov@linux.intel.com, kstewart@linuxfoundation.org, manojgupta@google.com, mawilcox@microsoft.com, michal.lkml@markovi.net, mingo@kernel.org, mjg59@google.com, mka@chromium.orgndesaulniers@google.com, peterz@infradead.org, pombredanne@nexb.com, rientjes@google.com, rostedt@goodmis.org, sedat.dilek@gmail.com, tglx@linutronix.de, tho
+To: 20180621162324.36656-3-ndesaulniers@google.com, acme@redhat.com, akataria@vmware.com, akpm@linux-foundation.org, andrea.parri@amarulasolutions.com, ard.biesheuvel@linaro.org, arnd@arndb.de, aryabinin@virtuozzo.com, astrachan@google.com, boris.ostrovsky@oracle.com, brijesh.singh@amd.com, caoj.fnst@cn.fujitsu.com, geert@linux-m68k.org, ghackmann@google.com, gregkh@linuxfoundation.org, hpa@linux.intel.com, jan.kiszka@siemens.com, jarkko.sakkinen@linux.intel.com, jgross@suse.com, joe@perches.com, jpoimboe@redhat.com, keescook@google.com, kirill.shutemov@linux.intel.com, kstewart@linuxfoundation.org, manojgupta@google.com, mawilcox@microsoft.com, michal.lkml@markovi.net, mingo@kernel.org, mjg59@google.com, mka@chromium.orgndesaulniers@google.com, peterz@infradead.org, pombredanne@nexb.com, rientjes@google.com, rostedt@goodmis.org, sedat.dilek@gmail.com, tglx@linutronix.de
 Cc: stable-commits@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 This is a note to let you know that I've just added the patch titled
 
-    x86/paravirt: Make native_save_fl() extern inline
+    x86/asm: Add _ASM_ARG* constants for argument registers to <asm/asm.h>
 
 to the 4.17-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
-     x86-paravirt-make-native_save_fl-extern-inline.patch
+     x86-asm-add-_asm_arg-constants-for-argument-registers-to-asm-asm.h.patch
 and it can be found in the queue-4.17 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
 
 
-From d0a8d9378d16eb3c69bd8e6d23779fbdbee3a8c7 Mon Sep 17 00:00:00 2001
-From: Nick Desaulniers <ndesaulniers@google.com>
-Date: Thu, 21 Jun 2018 09:23:24 -0700
-Subject: x86/paravirt: Make native_save_fl() extern inline
+From 0e2e160033283e20f688d8bad5b89460cc5bfcc4 Mon Sep 17 00:00:00 2001
+From: "H. Peter Anvin" <hpa@linux.intel.com>
+Date: Thu, 21 Jun 2018 09:23:23 -0700
+Subject: x86/asm: Add _ASM_ARG* constants for argument registers to <asm/asm.h>
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: H. Peter Anvin <hpa@linux.intel.com>
 
-commit d0a8d9378d16eb3c69bd8e6d23779fbdbee3a8c7 upstream.
+commit 0e2e160033283e20f688d8bad5b89460cc5bfcc4 upstream.
 
-native_save_fl() is marked static inline, but by using it as
-a function pointer in arch/x86/kernel/paravirt.c, it MUST be outlined.
+i386 and x86-64 uses different registers for arguments; make them
+available so we don't have to #ifdef in the actual code.
 
-paravirt's use of native_save_fl() also requires that no GPRs other than
-%rax are clobbered.
+Native size and specified size (q, l, w, b) versions are provided.
 
-Compilers have different heuristics which they use to emit stack guard
-code, the emittance of which can break paravirt's callee saved assumption
-by clobbering %rcx.
-
-Marking a function definition extern inline means that if this version
-cannot be inlined, then the out-of-line version will be preferred. By
-having the out-of-line version be implemented in assembly, it cannot be
-instrumented with a stack protector, which might violate custom calling
-conventions that code like paravirt rely on.
-
-The semantics of extern inline has changed since gnu89. This means that
-folks using GCC versions >= 5.1 may see symbol redefinition errors at
-link time for subdirs that override KBUILD_CFLAGS (making the C standard
-used implicit) regardless of this patch. This has been cleaned up
-earlier in the patch set, but is left as a note in the commit message
-for future travelers.
-
-Reports:
- https://lkml.org/lkml/2018/5/7/534
- https://github.com/ClangBuiltLinux/linux/issues/16
-
-Discussion:
- https://bugs.llvm.org/show_bug.cgi?id=37512
- https://lkml.org/lkml/2018/5/24/1371
-
-Thanks to the many folks that participated in the discussion.
-
-Debugged-by: Alistair Strachan <astrachan@google.com>
-Debugged-by: Matthias Kaehlcke <mka@chromium.org>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: H. Peter Anvin <hpa@zytor.com>
-Suggested-by: Tom Stellar <tstellar@redhat.com>
-Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: H. Peter Anvin <hpa@linux.intel.com>
 Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Sedat Dilek <sedat.dilek@gmail.com>
 Acked-by: Juergen Gross <jgross@suse.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
@@ -95,6 +62,7 @@ Cc: akataria@vmware.com
 Cc: akpm@linux-foundation.org
 Cc: andrea.parri@amarulasolutions.com
 Cc: ard.biesheuvel@linaro.org
+Cc: arnd@arndb.de
 Cc: aryabinin@virtuozzo.com
 Cc: astrachan@google.com
 Cc: boris.ostrovsky@oracle.com
@@ -121,74 +89,89 @@ Cc: pombredanne@nexb.com
 Cc: rientjes@google.com
 Cc: rostedt@goodmis.org
 Cc: thomas.lendacky@amd.com
+Cc: tstellar@redhat.com
 Cc: tweek@google.com
 Cc: virtualization@lists.linux-foundation.org
 Cc: will.deacon@arm.com
 Cc: yamada.masahiro@socionext.com
-Link: http://lkml.kernel.org/r/20180621162324.36656-4-ndesaulniers@google.com
+Link: http://lkml.kernel.org/r/20180621162324.36656-3-ndesaulniers@google.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/irqflags.h |    2 +-
- arch/x86/kernel/Makefile        |    1 +
- arch/x86/kernel/irqflags.S      |   26 ++++++++++++++++++++++++++
- 3 files changed, 28 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/asm.h |   59 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 59 insertions(+)
 
---- a/arch/x86/include/asm/irqflags.h
-+++ b/arch/x86/include/asm/irqflags.h
-@@ -13,7 +13,7 @@
-  * Interrupt control:
-  */
+--- a/arch/x86/include/asm/asm.h
++++ b/arch/x86/include/asm/asm.h
+@@ -46,6 +46,65 @@
+ #define _ASM_SI		__ASM_REG(si)
+ #define _ASM_DI		__ASM_REG(di)
  
--static inline unsigned long native_save_fl(void)
-+extern inline unsigned long native_save_fl(void)
- {
- 	unsigned long flags;
- 
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -61,6 +61,7 @@ obj-y			+= alternative.o i8253.o hw_brea
- obj-y			+= tsc.o tsc_msr.o io_delay.o rtc.o
- obj-y			+= pci-iommu_table.o
- obj-y			+= resource.o
-+obj-y			+= irqflags.o
- 
- obj-y				+= process.o
- obj-y				+= fpu/
---- /dev/null
-+++ b/arch/x86/kernel/irqflags.S
-@@ -0,0 +1,26 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __x86_64__
++/* 32 bit */
 +
-+#include <asm/asm.h>
-+#include <asm/export.h>
-+#include <linux/linkage.h>
++#define _ASM_ARG1	_ASM_AX
++#define _ASM_ARG2	_ASM_DX
++#define _ASM_ARG3	_ASM_CX
 +
-+/*
-+ * unsigned long native_save_fl(void)
-+ */
-+ENTRY(native_save_fl)
-+	pushf
-+	pop %_ASM_AX
-+	ret
-+ENDPROC(native_save_fl)
-+EXPORT_SYMBOL(native_save_fl)
++#define _ASM_ARG1L	eax
++#define _ASM_ARG2L	edx
++#define _ASM_ARG3L	ecx
 +
-+/*
-+ * void native_restore_fl(unsigned long flags)
-+ * %eax/%rdi: flags
-+ */
-+ENTRY(native_restore_fl)
-+	push %_ASM_ARG1
-+	popf
-+	ret
-+ENDPROC(native_restore_fl)
-+EXPORT_SYMBOL(native_restore_fl)
++#define _ASM_ARG1W	ax
++#define _ASM_ARG2W	dx
++#define _ASM_ARG3W	cx
++
++#define _ASM_ARG1B	al
++#define _ASM_ARG2B	dl
++#define _ASM_ARG3B	cl
++
++#else
++/* 64 bit */
++
++#define _ASM_ARG1	_ASM_DI
++#define _ASM_ARG2	_ASM_SI
++#define _ASM_ARG3	_ASM_DX
++#define _ASM_ARG4	_ASM_CX
++#define _ASM_ARG5	r8
++#define _ASM_ARG6	r9
++
++#define _ASM_ARG1Q	rdi
++#define _ASM_ARG2Q	rsi
++#define _ASM_ARG3Q	rdx
++#define _ASM_ARG4Q	rcx
++#define _ASM_ARG5Q	r8
++#define _ASM_ARG6Q	r9
++
++#define _ASM_ARG1L	edi
++#define _ASM_ARG2L	esi
++#define _ASM_ARG3L	edx
++#define _ASM_ARG4L	ecx
++#define _ASM_ARG5L	r8d
++#define _ASM_ARG6L	r9d
++
++#define _ASM_ARG1W	di
++#define _ASM_ARG2W	si
++#define _ASM_ARG3W	dx
++#define _ASM_ARG4W	cx
++#define _ASM_ARG5W	r8w
++#define _ASM_ARG6W	r9w
++
++#define _ASM_ARG1B	dil
++#define _ASM_ARG2B	sil
++#define _ASM_ARG3B	dl
++#define _ASM_ARG4B	cl
++#define _ASM_ARG5B	r8b
++#define _ASM_ARG6B	r9b
++
++#endif
++
+ /*
+  * Macros to generate condition code outputs from inline assembly,
+  * The output operand must be type "bool".
 
 
-Patches currently in stable-queue which might be from ndesaulniers@google.com are
+Patches currently in stable-queue which might be from hpa@linux.intel.com are
 
 queue-4.17/x86-asm-add-_asm_arg-constants-for-argument-registers-to-asm-asm.h.patch
-queue-4.17/compiler-gcc.h-add-__attribute__-gnu_inline-to-all-inline-declarations.patch
-queue-4.17/x86-paravirt-make-native_save_fl-extern-inline.patch
