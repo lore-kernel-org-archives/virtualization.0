@@ -1,8 +1,8 @@
 From: <gregkh@linuxfoundation.org>
-Subject: Patch "x86/asm: Add _ASM_ARG* constants for argument registers to
-	<asm/asm.h>" has been added to the 4.14-stable tree
-Date: Wed, 18 Jul 2018 11:17:50 +0200
-Message-ID: <153190547077242@kroah.com>
+Subject: Patch "compiler-gcc.h: Add __attribute__((gnu_inline)) to all inline
+	declarations" has been added to the 4.17-stable tree
+Date: Wed, 18 Jul 2018 11:34:00 +0200
+Message-ID: <153190644021929@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,43 +16,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 20180621162324.36656-3-ndesaulniers@google.com, acme@redhat.com, akataria@vmware.com, akpm@linux-foundation.org, andrea.parri@amarulasolutions.com, ard.biesheuvel@linaro.org, arnd@arndb.de, aryabinin@virtuozzo.com, astrachan@google.com, boris.ostrovsky@oracle.com, brijesh.singh@amd.com, caoj.fnst@cn.fujitsu.com, geert@linux-m68k.org, ghackmann@google.com, gregkh@linuxfoundation.org, hpa@linux.intel.com, jan.kiszka@siemens.com, jarkko.sakkinen@linux.intel.com, jgross@suse.com, joe@perches.com, jpoimboe@redhat.com, keescook@google.com, kirill.shutemov@linux.intel.com, kstewart@linuxfoundation.org, manojgupta@google.com, mawilcox@microsoft.com, michal.lkml@markovi.net, mingo@kernel.org, mjg59@google.com, mka@chromium.orgndesaulniers@google.com, peterz@infradead.org, pombredanne@nexb.com, rientjes@google.com, rostedt@goodmis.org, sedat.dilek@gmail.com, tglx@linutronix.de
+To: 20180621162324.36656-2-ndesaulniers@google.com, acme@redhat.com, akataria@vmware.com, akpm@linux-foundation.org, andrea.parri@amarulasolutions.com, ard.biesheuvel@linaro.org, arnd@arndb.de, aryabinin@virtuozzo.com, astrachan@google.com, boris.ostrovsky@oracle.com, brijesh.singh@amd.com, caoj.fnst@cn.fujitsu.com, geert@linux-m68k.org, ghackmann@google.com, gregkh@linuxfoundation.org, hpa@zytor.com, jan.kiszka@siemens.com, jarkko.sakkinen@linux.intel.com, jgross@suse.com, joe@perches.com, jpoimboe@redhat.com, keescook@google.com, kirill.shutemov@linux.intel.com, kstewart@linuxfoundation.org, manojgupta@google.com, mawilcox@microsoft.com, michal.lkml@markovi.net, mingo@kernel.org, mjg59@google.com, mka@chromium.orgndesaulniers@google.com, peterz@infradead.org, pombredanne@nexb.com, rientjes@google.com, rostedt@goodmis.org, sedat.dilek@gmail.com, tglx@linutronix.de, tho
 Cc: stable-commits@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 This is a note to let you know that I've just added the patch titled
 
-    x86/asm: Add _ASM_ARG* constants for argument registers to <asm/asm.h>
+    compiler-gcc.h: Add __attribute__((gnu_inline)) to all inline declarations
 
-to the 4.14-stable tree which can be found at:
+to the 4.17-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
-     x86-asm-add-_asm_arg-constants-for-argument-registers-to-asm-asm.h.patch
-and it can be found in the queue-4.14 subdirectory.
+     compiler-gcc.h-add-__attribute__-gnu_inline-to-all-inline-declarations.patch
+and it can be found in the queue-4.17 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
 
 
-From 0e2e160033283e20f688d8bad5b89460cc5bfcc4 Mon Sep 17 00:00:00 2001
-From: "H. Peter Anvin" <hpa@linux.intel.com>
-Date: Thu, 21 Jun 2018 09:23:23 -0700
-Subject: x86/asm: Add _ASM_ARG* constants for argument registers to <asm/asm.h>
+From d03db2bc26f0e4a6849ad649a09c9c73fccdc656 Mon Sep 17 00:00:00 2001
+From: Nick Desaulniers <ndesaulniers@google.com>
+Date: Thu, 21 Jun 2018 09:23:22 -0700
+Subject: compiler-gcc.h: Add __attribute__((gnu_inline)) to all inline declarations
 
-From: H. Peter Anvin <hpa@linux.intel.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 0e2e160033283e20f688d8bad5b89460cc5bfcc4 upstream.
+commit d03db2bc26f0e4a6849ad649a09c9c73fccdc656 upstream.
 
-i386 and x86-64 uses different registers for arguments; make them
-available so we don't have to #ifdef in the actual code.
+Functions marked extern inline do not emit an externally visible
+function when the gnu89 C standard is used. Some KBUILD Makefiles
+overwrite KBUILD_CFLAGS. This is an issue for GCC 5.1+ users as without
+an explicit C standard specified, the default is gnu11. Since c99, the
+semantics of extern inline have changed such that an externally visible
+function is always emitted. This can lead to multiple definition errors
+of extern inline functions at link time of compilation units whose build
+files have removed an explicit C standard compiler flag for users of GCC
+5.1+ or Clang.
 
-Native size and specified size (q, l, w, b) versions are provided.
-
-Signed-off-by: H. Peter Anvin <hpa@linux.intel.com>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Suggested-by: H. Peter Anvin <hpa@zytor.com>
+Suggested-by: Joe Perches <joe@perches.com>
 Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Sedat Dilek <sedat.dilek@gmail.com>
 Acked-by: Juergen Gross <jgross@suse.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
@@ -62,7 +68,6 @@ Cc: akataria@vmware.com
 Cc: akpm@linux-foundation.org
 Cc: andrea.parri@amarulasolutions.com
 Cc: ard.biesheuvel@linaro.org
-Cc: arnd@arndb.de
 Cc: aryabinin@virtuozzo.com
 Cc: astrachan@google.com
 Cc: boris.ostrovsky@oracle.com
@@ -73,7 +78,6 @@ Cc: ghackmann@google.com
 Cc: gregkh@linuxfoundation.org
 Cc: jan.kiszka@siemens.com
 Cc: jarkko.sakkinen@linux.intel.com
-Cc: joe@perches.com
 Cc: jpoimboe@redhat.com
 Cc: keescook@google.com
 Cc: kirill.shutemov@linux.intel.com
@@ -88,90 +92,75 @@ Cc: mka@chromium.org
 Cc: pombredanne@nexb.com
 Cc: rientjes@google.com
 Cc: rostedt@goodmis.org
+Cc: sedat.dilek@gmail.com
 Cc: thomas.lendacky@amd.com
 Cc: tstellar@redhat.com
 Cc: tweek@google.com
 Cc: virtualization@lists.linux-foundation.org
 Cc: will.deacon@arm.com
 Cc: yamada.masahiro@socionext.com
-Link: http://lkml.kernel.org/r/20180621162324.36656-3-ndesaulniers@google.com
+Link: http://lkml.kernel.org/r/20180621162324.36656-2-ndesaulniers@google.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/asm.h |   59 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 59 insertions(+)
+ include/linux/compiler-gcc.h |   29 ++++++++++++++++++++++-------
+ 1 file changed, 22 insertions(+), 7 deletions(-)
 
---- a/arch/x86/include/asm/asm.h
-+++ b/arch/x86/include/asm/asm.h
-@@ -46,6 +46,65 @@
- #define _ASM_SI		__ASM_REG(si)
- #define _ASM_DI		__ASM_REG(di)
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -66,25 +66,40 @@
+ #endif
  
-+#ifndef __x86_64__
-+/* 32 bit */
-+
-+#define _ASM_ARG1	_ASM_AX
-+#define _ASM_ARG2	_ASM_DX
-+#define _ASM_ARG3	_ASM_CX
-+
-+#define _ASM_ARG1L	eax
-+#define _ASM_ARG2L	edx
-+#define _ASM_ARG3L	ecx
-+
-+#define _ASM_ARG1W	ax
-+#define _ASM_ARG2W	dx
-+#define _ASM_ARG3W	cx
-+
-+#define _ASM_ARG1B	al
-+#define _ASM_ARG2B	dl
-+#define _ASM_ARG3B	cl
-+
+ /*
++ * Feature detection for gnu_inline (gnu89 extern inline semantics). Either
++ * __GNUC_STDC_INLINE__ is defined (not using gnu89 extern inline semantics,
++ * and we opt in to the gnu89 semantics), or __GNUC_STDC_INLINE__ is not
++ * defined so the gnu89 semantics are the default.
++ */
++#ifdef __GNUC_STDC_INLINE__
++# define __gnu_inline	__attribute__((gnu_inline))
 +#else
-+/* 64 bit */
-+
-+#define _ASM_ARG1	_ASM_DI
-+#define _ASM_ARG2	_ASM_SI
-+#define _ASM_ARG3	_ASM_DX
-+#define _ASM_ARG4	_ASM_CX
-+#define _ASM_ARG5	r8
-+#define _ASM_ARG6	r9
-+
-+#define _ASM_ARG1Q	rdi
-+#define _ASM_ARG2Q	rsi
-+#define _ASM_ARG3Q	rdx
-+#define _ASM_ARG4Q	rcx
-+#define _ASM_ARG5Q	r8
-+#define _ASM_ARG6Q	r9
-+
-+#define _ASM_ARG1L	edi
-+#define _ASM_ARG2L	esi
-+#define _ASM_ARG3L	edx
-+#define _ASM_ARG4L	ecx
-+#define _ASM_ARG5L	r8d
-+#define _ASM_ARG6L	r9d
-+
-+#define _ASM_ARG1W	di
-+#define _ASM_ARG2W	si
-+#define _ASM_ARG3W	dx
-+#define _ASM_ARG4W	cx
-+#define _ASM_ARG5W	r8w
-+#define _ASM_ARG6W	r9w
-+
-+#define _ASM_ARG1B	dil
-+#define _ASM_ARG2B	sil
-+#define _ASM_ARG3B	dl
-+#define _ASM_ARG4B	cl
-+#define _ASM_ARG5B	r8b
-+#define _ASM_ARG6B	r9b
-+
++# define __gnu_inline
 +#endif
 +
- /*
-  * Macros to generate condition code outputs from inline assembly,
-  * The output operand must be type "bool".
++/*
+  * Force always-inline if the user requests it so via the .config,
+  * or if gcc is too old.
+  * GCC does not warn about unused static inline functions for
+  * -Wunused-function.  This turns out to avoid the need for complex #ifdef
+  * directives.  Suppress the warning in clang as well by using "unused"
+  * function attribute, which is redundant but not harmful for gcc.
++ * Prefer gnu_inline, so that extern inline functions do not emit an
++ * externally visible function. This makes extern inline behave as per gnu89
++ * semantics rather than c99. This prevents multiple symbol definition errors
++ * of extern inline functions at link time.
++ * A lot of inline functions can cause havoc with function tracing.
+  */
+ #if !defined(CONFIG_ARCH_SUPPORTS_OPTIMIZED_INLINING) ||		\
+     !defined(CONFIG_OPTIMIZE_INLINING) || (__GNUC__ < 4)
+-#define inline inline		__attribute__((always_inline,unused)) notrace
+-#define __inline__ __inline__	__attribute__((always_inline,unused)) notrace
+-#define __inline __inline	__attribute__((always_inline,unused)) notrace
++#define inline \
++	inline __attribute__((always_inline, unused)) notrace __gnu_inline
+ #else
+-/* A lot of inline functions can cause havoc with function tracing */
+-#define inline inline		__attribute__((unused)) notrace
+-#define __inline__ __inline__	__attribute__((unused)) notrace
+-#define __inline __inline	__attribute__((unused)) notrace
++#define inline inline		__attribute__((unused)) notrace __gnu_inline
+ #endif
+ 
++#define __inline__ inline
++#define __inline inline
+ #define __always_inline	inline __attribute__((always_inline))
+ #define  noinline	__attribute__((noinline))
+ 
 
 
-Patches currently in stable-queue which might be from hpa@linux.intel.com are
+Patches currently in stable-queue which might be from ndesaulniers@google.com are
 
-queue-4.14/x86-asm-add-_asm_arg-constants-for-argument-registers-to-asm-asm.h.patch
+queue-4.17/x86-asm-add-_asm_arg-constants-for-argument-registers-to-asm-asm.h.patch
+queue-4.17/compiler-gcc.h-add-__attribute__-gnu_inline-to-all-inline-declarations.patch
+queue-4.17/x86-paravirt-make-native_save_fl-extern-inline.patch
