@@ -1,7 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 1/9] vhost_net: drop unnecessary parameter
-Date: Fri, 20 Jul 2018 08:15:13 +0800
-Message-ID: <1532045721-4958-2-git-send-email-jasowang__48877.2848308601$1532045628$gmane$org@redhat.com>
+Subject: [PATCH net-next 2/9] vhost_net: introduce helper to initialize tx iov
+	iter
+Date: Fri, 20 Jul 2018 08:15:14 +0800
+Message-ID: <1532045721-4958-3-git-send-email-jasowang__28598.665566142$1532045676$gmane$org@redhat.com>
 References: <1532045721-4958-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,34 +22,59 @@ To: mst@redhat.com, jasowang@redhat.com, netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Introduce init_iov_iter() in order to be reused by future patch.
+
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/net.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/vhost/net.c | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index b224036..1a8175a 100644
+index 1a8175a..cac28fd 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -430,7 +430,6 @@ static int vhost_net_enable_vq(struct vhost_net *n,
+@@ -466,6 +466,18 @@ static bool vhost_exceeds_maxpend(struct vhost_net *net)
+ 	       min_t(unsigned int, VHOST_MAX_PEND, vq->num >> 2);
+ }
  
- static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
- 				    struct vhost_virtqueue *vq,
--				    struct iovec iov[], unsigned int iov_size,
- 				    unsigned int *out_num, unsigned int *in_num,
- 				    bool *busyloop_intr)
- {
-@@ -512,9 +511,8 @@ static void handle_tx(struct vhost_net *net)
- 			vhost_zerocopy_signal_used(net, vq);
- 
- 		busyloop_intr = false;
--		head = vhost_net_tx_get_vq_desc(net, vq, vq->iov,
--						ARRAY_SIZE(vq->iov),
--						&out, &in, &busyloop_intr);
-+		head = vhost_net_tx_get_vq_desc(net, vq, &out, &in,
-+						&busyloop_intr);
- 		/* On error, stop handling until the next kick. */
- 		if (unlikely(head < 0))
++static size_t init_iov_iter(struct vhost_virtqueue *vq, struct iov_iter *iter,
++			    size_t hdr_size, int out)
++{
++	/* Skip header. TODO: support TSO. */
++	size_t len = iov_length(vq->iov, out);
++
++	iov_iter_init(iter, WRITE, vq->iov, out, len);
++	iov_iter_advance(iter, hdr_size);
++
++	return iov_iter_count(iter);
++}
++
+ /* Expects to be always run from workqueue - which acts as
+  * read-size critical section for our kind of RCU. */
+ static void handle_tx(struct vhost_net *net)
+@@ -531,18 +543,14 @@ static void handle_tx(struct vhost_net *net)
+ 			       "out %d, int %d\n", out, in);
  			break;
+ 		}
+-		/* Skip header. TODO: support TSO. */
+-		len = iov_length(vq->iov, out);
+-		iov_iter_init(&msg.msg_iter, WRITE, vq->iov, out, len);
+-		iov_iter_advance(&msg.msg_iter, hdr_size);
++
+ 		/* Sanity check */
+-		if (!msg_data_left(&msg)) {
+-			vq_err(vq, "Unexpected header len for TX: "
+-			       "%zd expected %zd\n",
+-			       len, hdr_size);
++		len = init_iov_iter(vq, &msg.msg_iter, hdr_size, out);
++		if (!len) {
++			vq_err(vq, "Unexpected header len for TX: %zd expected %zd\n",
++			len, hdr_size);
+ 			break;
+ 		}
+-		len = msg_data_left(&msg);
+ 
+ 		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
+ 				   && !vhost_exceeds_maxpend(net)
 -- 
 2.7.4
