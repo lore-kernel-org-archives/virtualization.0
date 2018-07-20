@@ -1,15 +1,11 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: Memory Read Only Enforcement: VMM assisted kernel rootkit
-	mitigation for KVM
-Date: Thu, 19 Jul 2018 22:45:33 -0400
-Message-ID: <20180720024533.GA27437@char.US.ORACLE.com>
-References: <20180719213802.17161-1-ahmedsoliman0x666@gmail.com>
+From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Subject: [RFC 0/4] Virtio uses DMA API for all devices
+Date: Fri, 20 Jul 2018 09:29:37 +0530
+Message-ID: <20180720035941.6844-1-khandual__31267.3335116871$1532059073$gmane$org@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180719213802.17161-1-ahmedsoliman0x666@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,48 +15,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ahmed Abd El Mawgood <ahmedsoliman0x666@gmail.com>, xen-devel@lists.xensource.com
-Cc: nathan Corbet <corbet@lwn.net>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, rkrcmar@redhat.com, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, David Vrabel <david.vrabel@nutanix.com>, x86@kernel.org, Boris Lukashev <blukashev@sempervictus.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, nigel.edwards@hpe.com, hpa@zytor.com, Kernel Hardening <kernel-hardening@lists.openwall.com>, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Rik van Riel <riel@surriel.com>
+To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mst@redhat.com, benh@kernel.crashing.org, linuxram@us.ibm.com, hch@infradead.org, paulus@samba.org, mpe@ellerman.id.au, joe@perches.com, khandual@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 19, 2018 at 11:37:59PM +0200, Ahmed Abd El Mawgood wrote:
-> Hi,
-> 
-> This is my first set of patches that works as I would expect, and the
-> third revision I sent to mailing lists.
-> 
-> Following up with my previous discussions about kernel rootkit mitigation
-> via placing R/O protection on critical data structure, static data,
-> privileged registers with static content. These patches present the
-> first part where it is only possible to place these protections on
-> memory pages. Feature-wise, this set of patches is incomplete in the sense of:
-> - They still don't protect privileged registers
-> - They don't protect guest TLB from malicious gva -> gpa page mappings.
-> But they provide sketches for a basic working design. Note that I am totally
-> noob and it took lots of time and effort to get to this point. So sorry in
-> advance if I overlooked something.
+This patch series is the follow up on the discussions we had before about
+the RFC titled [RFC,V2] virtio: Add platform specific DMA API translation
+for virito devices (https://patchwork.kernel.org/patch/10417371/). There
+were suggestions about doing away with two different paths of transactions
+with the host/QEMU, first being the direct GPA and the other being the DMA
+API based translations.
 
-This reminds me of Xen PV page model. That is the hypervisor is the one
-auditing the page tables and the guest's pages are read-only.
+First patch attempts to create a direct GPA mapping based DMA operations
+structure called 'virtio_direct_dma_ops' with exact same implementation
+of the direct GPA path which virtio core currently has but just wrapped in
+a DMA API format. Virtio core must use 'virtio_direct_dma_ops' instead of
+the arch default in absence of VIRTIO_F_IOMMU_PLATFORM flag to preserve the
+existing semantics. The second patch does exactly that inside the function
+virtio_finalize_features(). The third patch removes the default direct GPA
+path from virtio core forcing it to use DMA API callbacks for all devices.
+Now with that change, every device must have a DMA operations structure
+associated with it. The fourth patch adds an additional hook which gives
+the platform an opportunity to do yet another override if required. This
+platform hook can be used on POWER Ultravisor based protected guests to
+load up SWIOTLB DMA callbacks to do the required (as discussed previously
+in the above mentioned thread how host is allowed to access only parts of
+the guest GPA range) bounce buffering into the shared memory for all I/O
+scatter gather buffers to be consumed on the host side.
 
-Ditto for IDT, GDT, etc. Gosh, did you by chance look at how
-Xen PV mechanism is done? It may provide the protection you are looking for?
+Please go through these patches and review whether this approach broadly
+makes sense. I will appreciate suggestions, inputs, comments regarding
+the patches or the approach in general. Thank you.
 
-CC-ing xen-devel.
-> 
-> [PATCH 1/3] [RFC V3] KVM: X86: Memory ROE documentation
-> [PATCH 2/3] [RFC V3] KVM: X86: Adding arbitrary data pointer in kvm memslot itterator functions
-> [PATCH 3/3] [RFC V3] KVM: X86: Adding skeleton for Memory ROE
-> 
-> Summery:
-> 
->  Documentation/virtual/kvm/hypercalls.txt |  14 ++++
->  arch/x86/include/asm/kvm_host.h          |  11 ++-
->  arch/x86/kvm/Kconfig                     |   7 ++
->  arch/x86/kvm/mmu.c                       | 127 ++++++++++++++++++++++---------
->  arch/x86/kvm/x86.c                       |  82 +++++++++++++++++++-
->  include/linux/kvm_host.h                 |   3 +
->  include/uapi/linux/kvm_para.h            |   1 +
->  virt/kvm/kvm_main.c                      |  29 ++++++-
->  8 files changed, 232 insertions(+), 42 deletions(-)
-> 
+Anshuman Khandual (4):
+  virtio: Define virtio_direct_dma_ops structure
+  virtio: Override device's DMA OPS with virtio_direct_dma_ops selectively
+  virtio: Force virtio core to use DMA API callbacks for all virtio devices
+  virtio: Add platform specific DMA API translation for virito devices
+
+ arch/powerpc/include/asm/dma-mapping.h |  6 +++
+ arch/powerpc/platforms/pseries/iommu.c |  6 +++
+ drivers/virtio/virtio.c                | 72 ++++++++++++++++++++++++++++++++++
+ drivers/virtio/virtio_pci_common.h     |  3 ++
+ drivers/virtio/virtio_ring.c           | 65 +-----------------------------
+ 5 files changed, 89 insertions(+), 63 deletions(-)
+
+-- 
+2.9.3
