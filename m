@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 05/31] x86/asm: Add _ASM_ARG* constants for argument
-	registers to <asm/asm.h>
-Date: Fri, 20 Jul 2018 14:13:35 +0200
-Message-ID: <20180720121340.351022699__9600.2975981266$1532089577$gmane$org@linuxfoundation.org>
-References: <20180720121340.158484922@linuxfoundation.org>
+Subject: [PATCH 4.9 05/66] compiler-gcc.h: Add __attribute__((gnu_inline)) to
+	all inline declarations
+Date: Fri, 20 Jul 2018 14:13:22 +0200
+Message-ID: <20180720121407.556231581__33666.3578673781$1532089697$gmane$org@linuxfoundation.org>
+References: <20180720121407.228772286@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180720121340.158484922@linuxfoundation.org>
+In-Reply-To: <20180720121407.228772286@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,25 +19,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: andrea.parri@amarulasolutions.com, kstewart@linuxfoundation.org, linux-efi@vger.kernel.org, brijesh.singh@amd.com, Peter Zijlstra <peterz@infradead.org>, jan.kiszka@siemens.com, will.deacon@arm.com, jarkko.sakkinen@linux.intel.com, virtualization@lists.linux-foundation.org, yamada.masahiro@socionext.com, manojgupta@google.com, Thomas Gleixner <tglx@linutronix.de>, tweek@google.com, mawilcox@microsoft.com, akataria@vmware.com, ghackmann@google.com, Ingo Molnar <mingo@kernel.org>, mjg59@google.com, mka@chromium.org, geert@linux-m68k.org, rientjes@google.com, aryabinin@virtuozzo.com, thomas.lendacky@amd.com, arnd@arndb.de, linux-kbuild@vger.kernel.org, pombredanne@nexb.com, rostedt@goodmis.org, acme@redhat.com, caoj.fnst@cn.fujitsu.com, jpoimboe@redhat.com, Sedat Dilek <sedat.dilek@gmail.com>, boris.ostrovsky@oracle.com, Juergen Gross <jgross@suse.com>, michal.lkml@marko
+Cc: andrea.parri@amarulasolutions.com, kstewart@linuxfoundation.org, linux-efi@vger.kernel.org, brijesh.singh@amd.com, Peter Zijlstra <peterz@infradead.org>, jan.kiszka@siemens.com, will.deacon@arm.com, jarkko.sakkinen@linux.intel.com, virtualization@lists.linux-foundation.org, yamada.masahiro@socionext.com, manojgupta@google.com, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, tweek@google.com, mawilcox@microsoft.com, akataria@vmware.com, ghackmann@google.com, Ingo Molnar <mingo@kernel.org>, mjg59@google.com, mka@chromium.org, geert@linux-m68k.org, rientjes@google.com, aryabinin@virtuozzo.com, thomas.lendacky@amd.com, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, pombredanne@nexb.com, rostedt@goodmis.org, acme@redhat.com, caoj.fnst@cn.fujitsu.com, jpoimboe@redhat.com, sedat.dilek@gmail.com, boris.ostrovsky@oracle.com, Juergen
 List-Id: virtualization@lists.linuxfoundation.org
 
-4.4-stable review patch.  If anyone has any objections, please let me know.
+4.9-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
-From: H. Peter Anvin <hpa@linux.intel.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 0e2e160033283e20f688d8bad5b89460cc5bfcc4 upstream.
+commit d03db2bc26f0e4a6849ad649a09c9c73fccdc656 upstream.
 
-i386 and x86-64 uses different registers for arguments; make them
-available so we don't have to #ifdef in the actual code.
+Functions marked extern inline do not emit an externally visible
+function when the gnu89 C standard is used. Some KBUILD Makefiles
+overwrite KBUILD_CFLAGS. This is an issue for GCC 5.1+ users as without
+an explicit C standard specified, the default is gnu11. Since c99, the
+semantics of extern inline have changed such that an externally visible
+function is always emitted. This can lead to multiple definition errors
+of extern inline functions at link time of compilation units whose build
+files have removed an explicit C standard compiler flag for users of GCC
+5.1+ or Clang.
 
-Native size and specified size (q, l, w, b) versions are provided.
-
-Signed-off-by: H. Peter Anvin <hpa@linux.intel.com>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Suggested-by: H. Peter Anvin <hpa@zytor.com>
+Suggested-by: Joe Perches <joe@perches.com>
 Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Sedat Dilek <sedat.dilek@gmail.com>
 Acked-by: Juergen Gross <jgross@suse.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
@@ -47,7 +53,6 @@ Cc: akataria@vmware.com
 Cc: akpm@linux-foundation.org
 Cc: andrea.parri@amarulasolutions.com
 Cc: ard.biesheuvel@linaro.org
-Cc: arnd@arndb.de
 Cc: aryabinin@virtuozzo.com
 Cc: astrachan@google.com
 Cc: boris.ostrovsky@oracle.com
@@ -58,7 +63,6 @@ Cc: ghackmann@google.com
 Cc: gregkh@linuxfoundation.org
 Cc: jan.kiszka@siemens.com
 Cc: jarkko.sakkinen@linux.intel.com
-Cc: joe@perches.com
 Cc: jpoimboe@redhat.com
 Cc: keescook@google.com
 Cc: kirill.shutemov@linux.intel.com
@@ -73,85 +77,67 @@ Cc: mka@chromium.org
 Cc: pombredanne@nexb.com
 Cc: rientjes@google.com
 Cc: rostedt@goodmis.org
+Cc: sedat.dilek@gmail.com
 Cc: thomas.lendacky@amd.com
 Cc: tstellar@redhat.com
 Cc: tweek@google.com
 Cc: virtualization@lists.linux-foundation.org
 Cc: will.deacon@arm.com
 Cc: yamada.masahiro@socionext.com
-Link: http://lkml.kernel.org/r/20180621162324.36656-3-ndesaulniers@google.com
+Link: http://lkml.kernel.org/r/20180621162324.36656-2-ndesaulniers@google.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/asm.h |   59 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 59 insertions(+)
+ include/linux/compiler-gcc.h |   29 ++++++++++++++++++++++-------
+ 1 file changed, 22 insertions(+), 7 deletions(-)
 
---- a/arch/x86/include/asm/asm.h
-+++ b/arch/x86/include/asm/asm.h
-@@ -44,6 +44,65 @@
- #define _ASM_SI		__ASM_REG(si)
- #define _ASM_DI		__ASM_REG(di)
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -65,25 +65,40 @@
+ #endif
  
-+#ifndef __x86_64__
-+/* 32 bit */
-+
-+#define _ASM_ARG1	_ASM_AX
-+#define _ASM_ARG2	_ASM_DX
-+#define _ASM_ARG3	_ASM_CX
-+
-+#define _ASM_ARG1L	eax
-+#define _ASM_ARG2L	edx
-+#define _ASM_ARG3L	ecx
-+
-+#define _ASM_ARG1W	ax
-+#define _ASM_ARG2W	dx
-+#define _ASM_ARG3W	cx
-+
-+#define _ASM_ARG1B	al
-+#define _ASM_ARG2B	dl
-+#define _ASM_ARG3B	cl
-+
+ /*
++ * Feature detection for gnu_inline (gnu89 extern inline semantics). Either
++ * __GNUC_STDC_INLINE__ is defined (not using gnu89 extern inline semantics,
++ * and we opt in to the gnu89 semantics), or __GNUC_STDC_INLINE__ is not
++ * defined so the gnu89 semantics are the default.
++ */
++#ifdef __GNUC_STDC_INLINE__
++# define __gnu_inline	__attribute__((gnu_inline))
 +#else
-+/* 64 bit */
-+
-+#define _ASM_ARG1	_ASM_DI
-+#define _ASM_ARG2	_ASM_SI
-+#define _ASM_ARG3	_ASM_DX
-+#define _ASM_ARG4	_ASM_CX
-+#define _ASM_ARG5	r8
-+#define _ASM_ARG6	r9
-+
-+#define _ASM_ARG1Q	rdi
-+#define _ASM_ARG2Q	rsi
-+#define _ASM_ARG3Q	rdx
-+#define _ASM_ARG4Q	rcx
-+#define _ASM_ARG5Q	r8
-+#define _ASM_ARG6Q	r9
-+
-+#define _ASM_ARG1L	edi
-+#define _ASM_ARG2L	esi
-+#define _ASM_ARG3L	edx
-+#define _ASM_ARG4L	ecx
-+#define _ASM_ARG5L	r8d
-+#define _ASM_ARG6L	r9d
-+
-+#define _ASM_ARG1W	di
-+#define _ASM_ARG2W	si
-+#define _ASM_ARG3W	dx
-+#define _ASM_ARG4W	cx
-+#define _ASM_ARG5W	r8w
-+#define _ASM_ARG6W	r9w
-+
-+#define _ASM_ARG1B	dil
-+#define _ASM_ARG2B	sil
-+#define _ASM_ARG3B	dl
-+#define _ASM_ARG4B	cl
-+#define _ASM_ARG5B	r8b
-+#define _ASM_ARG6B	r9b
-+
++# define __gnu_inline
 +#endif
 +
- /* Exception table entry */
- #ifdef __ASSEMBLY__
- # define _ASM_EXTABLE(from,to)					\
++/*
+  * Force always-inline if the user requests it so via the .config,
+  * or if gcc is too old.
+  * GCC does not warn about unused static inline functions for
+  * -Wunused-function.  This turns out to avoid the need for complex #ifdef
+  * directives.  Suppress the warning in clang as well by using "unused"
+  * function attribute, which is redundant but not harmful for gcc.
++ * Prefer gnu_inline, so that extern inline functions do not emit an
++ * externally visible function. This makes extern inline behave as per gnu89
++ * semantics rather than c99. This prevents multiple symbol definition errors
++ * of extern inline functions at link time.
++ * A lot of inline functions can cause havoc with function tracing.
+  */
+ #if !defined(CONFIG_ARCH_SUPPORTS_OPTIMIZED_INLINING) ||		\
+     !defined(CONFIG_OPTIMIZE_INLINING) || (__GNUC__ < 4)
+-#define inline inline		__attribute__((always_inline,unused)) notrace
+-#define __inline__ __inline__	__attribute__((always_inline,unused)) notrace
+-#define __inline __inline	__attribute__((always_inline,unused)) notrace
++#define inline \
++	inline __attribute__((always_inline, unused)) notrace __gnu_inline
+ #else
+-/* A lot of inline functions can cause havoc with function tracing */
+-#define inline inline		__attribute__((unused)) notrace
+-#define __inline__ __inline__	__attribute__((unused)) notrace
+-#define __inline __inline	__attribute__((unused)) notrace
++#define inline inline		__attribute__((unused)) notrace __gnu_inline
+ #endif
+ 
++#define __inline__ inline
++#define __inline inline
+ #define __always_inline	inline __attribute__((always_inline))
+ #define  noinline	__attribute__((noinline))
