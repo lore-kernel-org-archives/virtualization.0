@@ -1,7 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 5/9] vhost_net: introduce tx_can_batch()
-Date: Fri, 20 Jul 2018 08:15:17 +0800
-Message-ID: <1532045721-4958-6-git-send-email-jasowang__48760.625269688$1532045901$gmane$org@redhat.com>
+Subject: [PATCH net-next 6/9] vhost_net: split out datacopy logic
+Date: Fri, 20 Jul 2018 08:15:18 +0800
+Message-ID: <1532045721-4958-7-git-send-email-jasowang__48961.7702005946$1532045970$gmane$org@redhat.com>
 References: <1532045721-4958-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,40 +21,166 @@ To: mst@redhat.com, jasowang@redhat.com, netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce tx_can_batch() to determine whether TX could be
-batched. This will help to reduce the code duplication in the future.
+Instead of mixing zerocopy and datacopy logics, this patch tries to
+split datacopy logic out. This results for a more compact code and
+ad-hoc optimization could be done on top more easily.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/net.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/vhost/net.c | 110 ++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 90 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index a014ca0..f59b615 100644
+index f59b615..9cef0b2 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -514,6 +514,12 @@ static int get_tx_bufs(struct vhost_net *net,
- 	return ret;
+@@ -520,9 +520,7 @@ static bool tx_can_batch(struct vhost_virtqueue *vq, size_t total_len)
+ 	       !vhost_vq_avail_empty(vq->dev, vq);
  }
  
-+static bool tx_can_batch(struct vhost_virtqueue *vq, size_t total_len)
+-/* Expects to be always run from workqueue - which acts as
+- * read-size critical section for our kind of RCU. */
+-static void handle_tx(struct vhost_net *net)
++static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
+ {
+ 	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
+ 	struct vhost_virtqueue *vq = &nvq->vq;
+@@ -537,30 +535,76 @@ static void handle_tx(struct vhost_net *net)
+ 	};
+ 	size_t len, total_len = 0;
+ 	int err;
+-	struct socket *sock;
+-	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
+-	bool zcopy, zcopy_used;
+ 	int sent_pkts = 0;
+ 
+-	mutex_lock(&vq->mutex);
+-	sock = vq->private_data;
+-	if (!sock)
+-		goto out;
++	for (;;) {
++		bool busyloop_intr = false;
+ 
+-	if (!vq_iotlb_prefetch(vq))
+-		goto out;
++		head = get_tx_bufs(net, nvq, &msg, &out, &in, &len,
++				   &busyloop_intr);
++		/* On error, stop handling until the next kick. */
++		if (unlikely(head < 0))
++			break;
++		/* Nothing new?  Wait for eventfd to tell us they refilled. */
++		if (head == vq->num) {
++			if (unlikely(busyloop_intr)) {
++				vhost_poll_queue(&vq->poll);
++			} else if (unlikely(vhost_enable_notify(&net->dev,
++								vq))) {
++				vhost_disable_notify(&net->dev, vq);
++				continue;
++			}
++			break;
++		}
+ 
+-	vhost_disable_notify(&net->dev, vq);
+-	vhost_net_disable_vq(net, vq);
++		total_len += len;
++		if (tx_can_batch(vq, total_len))
++			msg.msg_flags |= MSG_MORE;
++		else
++			msg.msg_flags &= ~MSG_MORE;
++
++		/* TODO: Check specific error and bomb out unless ENOBUFS? */
++		err = sock->ops->sendmsg(sock, &msg, len);
++		if (unlikely(err < 0)) {
++			vhost_discard_vq_desc(vq, 1);
++			vhost_net_enable_vq(net, vq);
++			break;
++		}
++		if (err != len)
++			pr_debug("Truncated TX packet: len %d != %zd\n",
++				 err, len);
++		vhost_add_used_and_signal(&net->dev, vq, head, 0);
++		if (vhost_exceeds_weight(++sent_pkts, total_len)) {
++			vhost_poll_queue(&vq->poll);
++			break;
++		}
++	}
++}
+ 
+-	zcopy = nvq->ubufs;
++static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
 +{
-+	return total_len < VHOST_NET_WEIGHT &&
-+	       !vhost_vq_avail_empty(vq->dev, vq);
++	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
++	struct vhost_virtqueue *vq = &nvq->vq;
++	unsigned out, in;
++	int head;
++	struct msghdr msg = {
++		.msg_name = NULL,
++		.msg_namelen = 0,
++		.msg_control = NULL,
++		.msg_controllen = 0,
++		.msg_flags = MSG_DONTWAIT,
++	};
++	size_t len, total_len = 0;
++	int err;
++	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
++	bool zcopy_used;
++	int sent_pkts = 0;
+ 
+ 	for (;;) {
+ 		bool busyloop_intr;
+ 
+ 		/* Release DMAs done buffers first */
+-		if (zcopy)
+-			vhost_zerocopy_signal_used(net, vq);
++		vhost_zerocopy_signal_used(net, vq);
+ 
+ 		busyloop_intr = false;
+ 		head = get_tx_bufs(net, nvq, &msg, &out, &in, &len,
+@@ -579,9 +623,9 @@ static void handle_tx(struct vhost_net *net)
+ 			break;
+ 		}
+ 
+-		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
+-				   && !vhost_exceeds_maxpend(net)
+-				   && vhost_net_tx_select_zcopy(net);
++		zcopy_used = len >= VHOST_GOODCOPY_LEN
++			     && !vhost_exceeds_maxpend(net)
++			     && vhost_net_tx_select_zcopy(net);
+ 
+ 		/* use msg_control to pass vhost zerocopy ubuf info to skb */
+ 		if (zcopy_used) {
+@@ -636,6 +680,32 @@ static void handle_tx(struct vhost_net *net)
+ 			break;
+ 		}
+ 	}
 +}
 +
- /* Expects to be always run from workqueue - which acts as
-  * read-size critical section for our kind of RCU. */
- static void handle_tx(struct vhost_net *net)
-@@ -598,8 +604,7 @@ static void handle_tx(struct vhost_net *net)
- 			ubufs = NULL;
- 		}
- 		total_len += len;
--		if (total_len < VHOST_NET_WEIGHT &&
--		    !vhost_vq_avail_empty(&net->dev, vq) &&
-+		if (tx_can_batch(vq, total_len) &&
- 		    likely(!vhost_exceeds_maxpend(net))) {
- 			msg.msg_flags |= MSG_MORE;
- 		} else {
++/* Expects to be always run from workqueue - which acts as
++ * read-size critical section for our kind of RCU. */
++static void handle_tx(struct vhost_net *net)
++{
++	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
++	struct vhost_virtqueue *vq = &nvq->vq;
++	struct socket *sock;
++
++	mutex_lock(&vq->mutex);
++	sock = vq->private_data;
++	if (!sock)
++		goto out;
++
++	if (!vq_iotlb_prefetch(vq))
++		goto out;
++
++	vhost_disable_notify(&net->dev, vq);
++	vhost_net_disable_vq(net, vq);
++
++	if (vhost_sock_zcopy(sock))
++		handle_tx_zerocopy(net, sock);
++	else
++		handle_tx_copy(net, sock);
++
+ out:
+ 	mutex_unlock(&vq->mutex);
+ }
 -- 
 2.7.4
