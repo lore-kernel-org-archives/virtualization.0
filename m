@@ -1,7 +1,8 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v36 1/5] virtio-balloon: remove BUG() in init_vqs
-Date: Fri, 20 Jul 2018 16:33:01 +0800
-Message-ID: <1532075585-39067-2-git-send-email-wei.w.wang__37813.5369894609$1532077227$gmane$org@intel.com>
+Subject: [PATCH v36 4/5] mm/page_poison: expose page_poisoning_enabled to
+	kernel modules
+Date: Fri, 20 Jul 2018 16:33:04 +0800
+Message-ID: <1532075585-39067-5-git-send-email-wei.w.wang__34476.3065259487$1532077293$gmane$org@intel.com>
 References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,36 +22,42 @@ To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualizatio
 Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, pbonzini@redhat.com, nilal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-It's a bit overkill to use BUG when failing to add an entry to the
-stats_vq in init_vqs. So remove it and just return the error to the
-caller to bail out nicely.
+In some usages, e.g. virtio-balloon, a kernel module needs to know if
+page poisoning is in use. This patch exposes the page_poisoning_enabled
+function to kernel modules.
 
 Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@kernel.org>
 Cc: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/virtio/virtio_balloon.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ mm/page_poison.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 6b237e3..9356a1a 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -455,9 +455,13 @@ static int init_vqs(struct virtio_balloon *vb)
- 		num_stats = update_balloon_stats(vb);
+diff --git a/mm/page_poison.c b/mm/page_poison.c
+index aa2b3d3..830f604 100644
+--- a/mm/page_poison.c
++++ b/mm/page_poison.c
+@@ -17,6 +17,11 @@ static int __init early_page_poison_param(char *buf)
+ }
+ early_param("page_poison", early_page_poison_param);
  
- 		sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
--		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
--		    < 0)
--			BUG();
-+		err = virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb,
-+					   GFP_KERNEL);
-+		if (err) {
-+			dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
-+				 __func__);
-+			return err;
-+		}
- 		virtqueue_kick(vb->stats_vq);
- 	}
- 	return 0;
++/**
++ * page_poisoning_enabled - check if page poisoning is enabled
++ *
++ * Return true if page poisoning is enabled, or false if not.
++ */
+ bool page_poisoning_enabled(void)
+ {
+ 	/*
+@@ -29,6 +34,7 @@ bool page_poisoning_enabled(void)
+ 		(!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
+ 		debug_pagealloc_enabled()));
+ }
++EXPORT_SYMBOL_GPL(page_poisoning_enabled);
+ 
+ static void poison_page(struct page *page)
+ {
 -- 
 2.7.4
