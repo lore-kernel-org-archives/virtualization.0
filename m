@@ -1,14 +1,11 @@
-From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Subject: [RFC 4/4] virtio: Add platform specific DMA API translation for
-	virito devices
-Date: Fri, 20 Jul 2018 09:29:41 +0530
-Message-ID: <20180720035941.6844-5-khandual__31227.4546981373$1532059344$gmane$org@linux.vnet.ibm.com>
-References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: [PATCH v36 0/5] Virtio-balloon: support free page reporting
+Date: Fri, 20 Jul 2018 16:33:00 +0800
+Message-ID: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,92 +15,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mst@redhat.com, benh@kernel.crashing.org, linuxram@us.ibm.com, hch@infradead.org, paulus@samba.org, mpe@ellerman.id.au, joe@perches.com, khandual@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
+To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, torvalds@linux-foundation.org
+Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, pbonzini@redhat.com, nilal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This adds a hook which a platform can define in order to allow it to
-override virtio device's DMA OPS irrespective of whether it has the
-flag VIRTIO_F_IOMMU_PLATFORM set or not. We want to use this to do
-bounce-buffering of data on the new secure pSeries platform, currently
-under development, where a KVM host cannot access all of the memory
-space of a secure KVM guest.  The host can only access the pages which
-the guest has explicitly requested to be shared with the host, thus
-the virtio implementation in the guest has to copy data to and from
-shared pages.
+This patch series is separated from the previous "Virtio-balloon
+Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,  
+implemented by this series enables the virtio-balloon driver to report
+hints of guest free pages to the host. It can be used to accelerate live
+migration of VMs. Here is an introduction of this usage:
 
-With this hook, the platform code in the secure guest can force the
-use of swiotlb for virtio buffers, with a back-end for swiotlb which
-will use a pool of pre-allocated shared pages.  Thus all data being
-sent or received by virtio devices will be copied through pages which
-the host has access to.
+Live migration needs to transfer the VM's memory from the source machine
+to the destination round by round. For the 1st round, all the VM's memory
+is transferred. From the 2nd round, only the pieces of memory that were
+written by the guest (after the 1st round) are transferred. One method
+that is popularly used by the hypervisor to track which part of memory is
+written is to write-protect all the guest memory.
 
-Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
----
- arch/powerpc/include/asm/dma-mapping.h | 6 ++++++
- arch/powerpc/platforms/pseries/iommu.c | 6 ++++++
- drivers/virtio/virtio.c                | 7 +++++++
- 3 files changed, 19 insertions(+)
+This feature enables the optimization by skipping the transfer of guest
+free pages during VM live migration. It is not concerned that the memory
+pages are used after they are given to the hypervisor as a hint of the
+free pages, because they will be tracked by the hypervisor and transferred
+in the subsequent round if they are used and written.
 
-diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
-index 8fa3945..bc5a9d3 100644
---- a/arch/powerpc/include/asm/dma-mapping.h
-+++ b/arch/powerpc/include/asm/dma-mapping.h
-@@ -116,3 +116,9 @@ extern u64 __dma_get_required_mask(struct device *dev);
- 
- #endif /* __KERNEL__ */
- #endif	/* _ASM_DMA_MAPPING_H */
-+
-+#define platform_override_dma_ops platform_override_dma_ops
-+
-+struct virtio_device;
-+
-+extern void platform_override_dma_ops(struct virtio_device *vdev);
-diff --git a/arch/powerpc/platforms/pseries/iommu.c b/arch/powerpc/platforms/pseries/iommu.c
-index 06f0296..5773bc7 100644
---- a/arch/powerpc/platforms/pseries/iommu.c
-+++ b/arch/powerpc/platforms/pseries/iommu.c
-@@ -38,6 +38,7 @@
- #include <linux/of.h>
- #include <linux/iommu.h>
- #include <linux/rculist.h>
-+#include <linux/virtio.h>
- #include <asm/io.h>
- #include <asm/prom.h>
- #include <asm/rtas.h>
-@@ -1396,3 +1397,8 @@ static int __init disable_multitce(char *str)
- __setup("multitce=", disable_multitce);
- 
- machine_subsys_initcall_sync(pseries, tce_iommu_bus_notifier_init);
-+
-+void platform_override_dma_ops(struct virtio_device *vdev)
-+{
-+	/* Override vdev->parent.dma_ops if required */
-+}
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 6b13987..432c332 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -168,6 +168,12 @@ EXPORT_SYMBOL_GPL(virtio_add_status);
- 
- const struct dma_map_ops virtio_direct_dma_ops;
- 
-+#ifndef platform_override_dma_ops
-+static inline void platform_override_dma_ops(struct virtio_device *vdev)
-+{
-+}
-+#endif
-+
- int virtio_finalize_features(struct virtio_device *dev)
- {
- 	int ret = dev->config->finalize_features(dev);
-@@ -179,6 +185,7 @@ int virtio_finalize_features(struct virtio_device *dev)
- 	if (virtio_has_iommu_quirk(dev))
- 		set_dma_ops(dev->dev.parent, &virtio_direct_dma_ops);
- 
-+	platform_override_dma_ops(dev);
- 	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
- 		return 0;
- 
+* Tests
+- Test Environment
+    Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
+    Guest: 8G RAM, 4 vCPU
+    Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
+
+- Test Results
+    - Idle Guest Live Migration Time (results are averaged over 10 runs):
+        - Optimization v.s. Legacy = 409ms vs 1757ms --> ~77% reduction
+	(setting page poisoning zero and enabling ksm don't affect the
+         comparison result)
+    - Guest with Linux Compilation Workload (make bzImage -j4):
+        - Live Migration Time (average)
+          Optimization v.s. Legacy = 1407ms v.s. 2528ms --> ~44% reduction
+        - Linux Compilation Time
+          Optimization v.s. Legacy = 5min4s v.s. 5min12s
+          --> no obvious difference
+
+ChangeLog:
+v35->v36:
+    - remove the mm patch, as Linus has a suggestion to get free page
+      addresses via allocation, instead of reading from the free page
+      list.
+    - virtio-balloon:
+        - replace oom notifier with shrinker;
+        - the guest to host communication interface remains the same as
+          v32.
+	- allocate free page blocks and send to host one by one, and free
+          them after sending all the pages.
+
+For ChangeLogs from v22 to v35, please reference
+https://lwn.net/Articles/759413/
+
+For ChangeLogs before v21, please reference
+https://lwn.net/Articles/743660/
+
+Wei Wang (5):
+  virtio-balloon: remove BUG() in init_vqs
+  virtio_balloon: replace oom notifier with shrinker
+  virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+  mm/page_poison: expose page_poisoning_enabled to kernel modules
+  virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
+
+ drivers/virtio/virtio_balloon.c     | 456 ++++++++++++++++++++++++++++++------
+ include/uapi/linux/virtio_balloon.h |   7 +
+ mm/page_poison.c                    |   6 +
+ 3 files changed, 394 insertions(+), 75 deletions(-)
+
 -- 
-2.9.3
+2.7.4
