@@ -1,13 +1,14 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.17 003/101] x86/paravirt: Make native_save_fl() extern inline
-Date: Fri, 20 Jul 2018 14:13:09 +0200
-Message-ID: <20180720121423.015279253__33972.4266239957$1532090664$gmane$org@linuxfoundation.org>
-References: <20180720121422.837870592@linuxfoundation.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v36 0/5] Virtio-balloon: support free page reporting
+Date: Fri, 20 Jul 2018 15:51:32 +0300
+Message-ID: <20180720154922-mutt-send-email-mst__1313.52194953269$1532090979$gmane$org@kernel.org>
+References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180720121422.837870592@linuxfoundation.org>
+Content-Disposition: inline
+In-Reply-To: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,155 +18,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: andrea.parri@amarulasolutions.com, kstewart@linuxfoundation.org, linux-efi@vger.kernel.org, brijesh.singh@amd.com, Peter Zijlstra <peterz@infradead.org>, jan.kiszka@siemens.com, will.deacon@arm.com, jarkko.sakkinen@linux.intel.com, virtualization@lists.linux-foundation.org, yamada.masahiro@socionext.com, manojgupta@google.com, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, tweek@google.com, mawilcox@microsoft.com, akataria@vmware.com, ghackmann@google.com, Ingo Molnar <mingo@kernel.org>, mjg59@google.com, mka@chromium.org, geert@linux-m68k.org, rientjes@google.com, aryabinin@virtuozzo.com, thomas.lendacky@amd.com, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, pombredanne@nexb.com, rostedt@goodmis.org, acme@redhat.com, caoj.fnst@cn.fujitsu.com, jpoimboe@redhat.com, Sedat Dilek <sedat.dilek@gmail.com>, boris.ostrovsky@oracle.com
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-4.17-stable review patch.  If anyone has any objections, please let me know.
+On Fri, Jul 20, 2018 at 04:33:00PM +0800, Wei Wang wrote:
+> This patch series is separated from the previous "Virtio-balloon
+> Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,  
+> implemented by this series enables the virtio-balloon driver to report
+> hints of guest free pages to the host. It can be used to accelerate live
+> migration of VMs. Here is an introduction of this usage:
+> 
+> Live migration needs to transfer the VM's memory from the source machine
+> to the destination round by round. For the 1st round, all the VM's memory
+> is transferred. From the 2nd round, only the pieces of memory that were
+> written by the guest (after the 1st round) are transferred. One method
+> that is popularly used by the hypervisor to track which part of memory is
+> written is to write-protect all the guest memory.
+> 
+> This feature enables the optimization by skipping the transfer of guest
+> free pages during VM live migration. It is not concerned that the memory
+> pages are used after they are given to the hypervisor as a hint of the
+> free pages, because they will be tracked by the hypervisor and transferred
+> in the subsequent round if they are used and written.
+> 
+> * Tests
+> - Test Environment
+>     Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
+>     Guest: 8G RAM, 4 vCPU
+>     Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
 
-------------------
+Can we split out patches 1 and 2? They seem appropriate for this
+release ...
 
-From: Nick Desaulniers <ndesaulniers@google.com>
-
-commit d0a8d9378d16eb3c69bd8e6d23779fbdbee3a8c7 upstream.
-
-native_save_fl() is marked static inline, but by using it as
-a function pointer in arch/x86/kernel/paravirt.c, it MUST be outlined.
-
-paravirt's use of native_save_fl() also requires that no GPRs other than
-%rax are clobbered.
-
-Compilers have different heuristics which they use to emit stack guard
-code, the emittance of which can break paravirt's callee saved assumption
-by clobbering %rcx.
-
-Marking a function definition extern inline means that if this version
-cannot be inlined, then the out-of-line version will be preferred. By
-having the out-of-line version be implemented in assembly, it cannot be
-instrumented with a stack protector, which might violate custom calling
-conventions that code like paravirt rely on.
-
-The semantics of extern inline has changed since gnu89. This means that
-folks using GCC versions >= 5.1 may see symbol redefinition errors at
-link time for subdirs that override KBUILD_CFLAGS (making the C standard
-used implicit) regardless of this patch. This has been cleaned up
-earlier in the patch set, but is left as a note in the commit message
-for future travelers.
-
-Reports:
- https://lkml.org/lkml/2018/5/7/534
- https://github.com/ClangBuiltLinux/linux/issues/16
-
-Discussion:
- https://bugs.llvm.org/show_bug.cgi?id=37512
- https://lkml.org/lkml/2018/5/24/1371
-
-Thanks to the many folks that participated in the discussion.
-
-Debugged-by: Alistair Strachan <astrachan@google.com>
-Debugged-by: Matthias Kaehlcke <mka@chromium.org>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: H. Peter Anvin <hpa@zytor.com>
-Suggested-by: Tom Stellar <tstellar@redhat.com>
-Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Juergen Gross <jgross@suse.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: acme@redhat.com
-Cc: akataria@vmware.com
-Cc: akpm@linux-foundation.org
-Cc: andrea.parri@amarulasolutions.com
-Cc: ard.biesheuvel@linaro.org
-Cc: aryabinin@virtuozzo.com
-Cc: astrachan@google.com
-Cc: boris.ostrovsky@oracle.com
-Cc: brijesh.singh@amd.com
-Cc: caoj.fnst@cn.fujitsu.com
-Cc: geert@linux-m68k.org
-Cc: ghackmann@google.com
-Cc: gregkh@linuxfoundation.org
-Cc: jan.kiszka@siemens.com
-Cc: jarkko.sakkinen@linux.intel.com
-Cc: joe@perches.com
-Cc: jpoimboe@redhat.com
-Cc: keescook@google.com
-Cc: kirill.shutemov@linux.intel.com
-Cc: kstewart@linuxfoundation.org
-Cc: linux-efi@vger.kernel.org
-Cc: linux-kbuild@vger.kernel.org
-Cc: manojgupta@google.com
-Cc: mawilcox@microsoft.com
-Cc: michal.lkml@markovi.net
-Cc: mjg59@google.com
-Cc: mka@chromium.org
-Cc: pombredanne@nexb.com
-Cc: rientjes@google.com
-Cc: rostedt@goodmis.org
-Cc: thomas.lendacky@amd.com
-Cc: tweek@google.com
-Cc: virtualization@lists.linux-foundation.org
-Cc: will.deacon@arm.com
-Cc: yamada.masahiro@socionext.com
-Link: http://lkml.kernel.org/r/20180621162324.36656-4-ndesaulniers@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- arch/x86/include/asm/irqflags.h |    2 +-
- arch/x86/kernel/Makefile        |    1 +
- arch/x86/kernel/irqflags.S      |   26 ++++++++++++++++++++++++++
- 3 files changed, 28 insertions(+), 1 deletion(-)
-
---- a/arch/x86/include/asm/irqflags.h
-+++ b/arch/x86/include/asm/irqflags.h
-@@ -13,7 +13,7 @@
-  * Interrupt control:
-  */
- 
--static inline unsigned long native_save_fl(void)
-+extern inline unsigned long native_save_fl(void)
- {
- 	unsigned long flags;
- 
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -61,6 +61,7 @@ obj-y			+= alternative.o i8253.o hw_brea
- obj-y			+= tsc.o tsc_msr.o io_delay.o rtc.o
- obj-y			+= pci-iommu_table.o
- obj-y			+= resource.o
-+obj-y			+= irqflags.o
- 
- obj-y				+= process.o
- obj-y				+= fpu/
---- /dev/null
-+++ b/arch/x86/kernel/irqflags.S
-@@ -0,0 +1,26 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#include <asm/asm.h>
-+#include <asm/export.h>
-+#include <linux/linkage.h>
-+
-+/*
-+ * unsigned long native_save_fl(void)
-+ */
-+ENTRY(native_save_fl)
-+	pushf
-+	pop %_ASM_AX
-+	ret
-+ENDPROC(native_save_fl)
-+EXPORT_SYMBOL(native_save_fl)
-+
-+/*
-+ * void native_restore_fl(unsigned long flags)
-+ * %eax/%rdi: flags
-+ */
-+ENTRY(native_restore_fl)
-+	push %_ASM_ARG1
-+	popf
-+	ret
-+ENDPROC(native_restore_fl)
-+EXPORT_SYMBOL(native_restore_fl)
+> - Test Results
+>     - Idle Guest Live Migration Time (results are averaged over 10 runs):
+>         - Optimization v.s. Legacy = 409ms vs 1757ms --> ~77% reduction
+> 	(setting page poisoning zero and enabling ksm don't affect the
+>          comparison result)
+>     - Guest with Linux Compilation Workload (make bzImage -j4):
+>         - Live Migration Time (average)
+>           Optimization v.s. Legacy = 1407ms v.s. 2528ms --> ~44% reduction
+>         - Linux Compilation Time
+>           Optimization v.s. Legacy = 5min4s v.s. 5min12s
+>           --> no obvious difference
+> 
+> ChangeLog:
+> v35->v36:
+>     - remove the mm patch, as Linus has a suggestion to get free page
+>       addresses via allocation, instead of reading from the free page
+>       list.
+>     - virtio-balloon:
+>         - replace oom notifier with shrinker;
+>         - the guest to host communication interface remains the same as
+>           v32.
+> 	- allocate free page blocks and send to host one by one, and free
+>           them after sending all the pages.
+> 
+> For ChangeLogs from v22 to v35, please reference
+> https://lwn.net/Articles/759413/
+> 
+> For ChangeLogs before v21, please reference
+> https://lwn.net/Articles/743660/
+> 
+> Wei Wang (5):
+>   virtio-balloon: remove BUG() in init_vqs
+>   virtio_balloon: replace oom notifier with shrinker
+>   virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+>   mm/page_poison: expose page_poisoning_enabled to kernel modules
+>   virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
+> 
+>  drivers/virtio/virtio_balloon.c     | 456 ++++++++++++++++++++++++++++++------
+>  include/uapi/linux/virtio_balloon.h |   7 +
+>  mm/page_poison.c                    |   6 +
+>  3 files changed, 394 insertions(+), 75 deletions(-)
+> 
+> -- 
+> 2.7.4
