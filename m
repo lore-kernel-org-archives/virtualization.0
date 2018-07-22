@@ -1,13 +1,13 @@
-From: xiangxia.m.yue@gmail.com
-Subject: [PATCH net-next v6 4/4] net: vhost: add rx busy polling in tx path
-Date: Sat, 21 Jul 2018 11:04:02 -0700
-Message-ID: <1532196242-2998-5-git-send-email-xiangxia.m.yue__671.938274945383$1532196452$gmane$org@gmail.com>
-References: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next 0/9] TX used ring batched updating for vhost
+Date: Sat, 21 Jul 2018 21:44:05 -0700 (PDT)
+Message-ID: <20180721.214405.519016522016153008.davem@davemloft.net>
+References: <1532045721-4958-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
+In-Reply-To: <1532045721-4958-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,81 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 20 Jul 2018 08:15:12 +0800
 
-This patch improves the guest receive performance.
-On the handle_tx side, we poll the sock receive queue at the
-same time. handle_rx do that in the same way.
+> This series implement batch updating of used ring for TX. This help to
+> reduce the cache contention on used ring. The idea is first split
+> datacopy path from zerocopy, and do only batching for datacopy. This
+> is because zercopy had already supported its own batching.
+> 
+> TX PPS was increased 25.8% and Netperf TCP does not show obvious
+> differences.
+> 
+> The split of datapath will also be helpful for future implementation
+> like in order completion.
+> 
+> Please review.
 
-We set the poll-us=100us and use the netperf to test throughput
-and mean latency. When running the tests, the vhost-net kthread
-of that VM, is alway 100% CPU. The commands are shown as below.
+Jason, I really like the way you composed this patch series, it was
+very easy to read and understand. :-)
 
-Rx performance is greatly improved by this patch. There is not
-notable performance change on tx with this series though. This
-patch is useful for bi-directional traffic.
-
-netperf -H IP -t TCP_STREAM -l 20 -- -O "THROUGHPUT, THROUGHPUT_UNITS, MEAN_LATENCY"
-
-Topology:
-[Host] ->linux bridge -> tap vhost-net ->[Guest]
-
-TCP_STREAM:
-* Without the patch:  19842.95 Mbps, 6.50 us mean latency
-* With the patch:     37373.10 Mbps, 3.43 us mean latency
-
-Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
----
- drivers/vhost/net.c | 30 +++++++++++-------------------
- 1 file changed, 11 insertions(+), 19 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 2dc937e..a562828 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -501,29 +501,21 @@ static void vhost_net_busy_poll(struct vhost_net *net,
- }
- 
- static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
--				    struct vhost_virtqueue *vq,
-+				    struct vhost_virtqueue *tvq,
- 				    struct iovec iov[], unsigned int iov_size,
- 				    unsigned int *out_num, unsigned int *in_num,
- 				    bool *busyloop_intr)
- {
--	unsigned long uninitialized_var(endtime);
--	int r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
--				  out_num, in_num, NULL, NULL);
--
--	if (r == vq->num && vq->busyloop_timeout) {
--		preempt_disable();
--		endtime = busy_clock() + vq->busyloop_timeout;
--		while (vhost_can_busy_poll(endtime)) {
--			if (vhost_has_work(vq->dev)) {
--				*busyloop_intr = true;
--				break;
--			}
--			if (!vhost_vq_avail_empty(vq->dev, vq))
--				break;
--			cpu_relax();
--		}
--		preempt_enable();
--		r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
-+	struct vhost_net_virtqueue *rnvq = &net->vqs[VHOST_NET_VQ_RX];
-+	struct vhost_virtqueue *rvq = &rnvq->vq;
-+
-+	int r = vhost_get_vq_desc(tvq, tvq->iov, ARRAY_SIZE(tvq->iov),
-+			          out_num, in_num, NULL, NULL);
-+
-+	if (r == tvq->num && tvq->busyloop_timeout) {
-+		vhost_net_busy_poll(net, rvq, tvq, busyloop_intr, false);
-+
-+		r = vhost_get_vq_desc(tvq, tvq->iov, ARRAY_SIZE(tvq->iov),
- 				      out_num, in_num, NULL, NULL);
- 	}
- 
--- 
-1.8.3.1
+Michael, please review.
