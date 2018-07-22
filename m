@@ -1,15 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v36 2/5] virtio_balloon: replace oom notifier with shrinker
-Date: Sun, 22 Jul 2018 17:48:01 +0300
-Message-ID: <20180722174125-mutt-send-email-mst__24706.7966535271$1532270764$gmane$org@kernel.org>
-References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
-	<1532075585-39067-3-git-send-email-wei.w.wang@intel.com>
+Subject: Re: [PATCH net-next v6 1/4] net: vhost: lock the vqs one by one
+Date: Sun, 22 Jul 2018 18:26:26 +0300
+Message-ID: <20180722182448-mutt-send-email-mst__23037.3907172636$1532273070$gmane$org@kernel.org>
+References: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<1532196242-2998-2-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1532075585-39067-3-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <1532196242-2998-2-git-send-email-xiangxia.m.yue@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,226 +19,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
+To: xiangxia.m.yue@gmail.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 20, 2018 at 04:33:02PM +0800, Wei Wang wrote:
-> The OOM notifier is getting deprecated to use for the reasons mentioned
-> here by Michal Hocko: https://lkml.org/lkml/2018/7/12/314
+On Sat, Jul 21, 2018 at 11:03:59AM -0700, xiangxia.m.yue@gmail.com wrote:
+> From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 > 
-> This patch replaces the virtio-balloon oom notifier with a shrinker
-> to release balloon pages on memory pressure.
+> This patch changes the way that lock all vqs
+> at the same, to lock them one by one. It will
+> be used for next patch to avoid the deadlock.
 > 
-> In addition, the bug in the replaced virtballoon_oom_notify that only
-> VIRTIO_BALLOON_ARRAY_PFNS_MAX (i.e 256) balloon pages can be freed
-> though the user has specified more than that number is fixed in the
-> shrinker_scan function.
-> 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Michal Hocko <mhocko@kernel.org>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 > ---
->  drivers/virtio/virtio_balloon.c | 113 +++++++++++++++++++++++-----------------
->  1 file changed, 65 insertions(+), 48 deletions(-)
+>  drivers/vhost/vhost.c | 24 +++++++-----------------
+>  1 file changed, 7 insertions(+), 17 deletions(-)
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 9356a1a..c6fd406 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -27,7 +27,6 @@
->  #include <linux/slab.h>
->  #include <linux/module.h>
->  #include <linux/balloon_compaction.h>
-> -#include <linux/oom.h>
->  #include <linux/wait.h>
->  #include <linux/mm.h>
->  #include <linux/mount.h>
-> @@ -40,12 +39,12 @@
->   */
->  #define VIRTIO_BALLOON_PAGES_PER_PAGE (unsigned)(PAGE_SIZE >> VIRTIO_BALLOON_PFN_SHIFT)
->  #define VIRTIO_BALLOON_ARRAY_PFNS_MAX 256
-> -#define OOM_VBALLOON_DEFAULT_PAGES 256
-> +#define DEFAULT_BALLOON_PAGES_TO_SHRINK 256
->  #define VIRTBALLOON_OOM_NOTIFY_PRIORITY 80
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index a502f1a..a1c06e7 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -294,8 +294,11 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
+>  {
+>  	int i;
 >  
-> -static int oom_pages = OOM_VBALLOON_DEFAULT_PAGES;
-> -module_param(oom_pages, int, S_IRUSR | S_IWUSR);
-> -MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
-> +static unsigned long balloon_pages_to_shrink = DEFAULT_BALLOON_PAGES_TO_SHRINK;
-> +module_param(balloon_pages_to_shrink, ulong, 0600);
-> +MODULE_PARM_DESC(balloon_pages_to_shrink, "pages to free on memory presure");
->  
->  #ifdef CONFIG_BALLOON_COMPACTION
->  static struct vfsmount *balloon_mnt;
-> @@ -86,8 +85,8 @@ struct virtio_balloon {
->  	/* Memory statistics */
->  	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
->  
-> -	/* To register callback in oom notifier call chain */
-> -	struct notifier_block nb;
-> +	/* To register a shrinker to shrink memory upon memory pressure */
-> +	struct shrinker shrinker;
->  };
->  
->  static struct virtio_device_id id_table[] = {
-> @@ -365,38 +364,6 @@ static void update_balloon_size(struct virtio_balloon *vb)
->  		      &actual);
+> -	for (i = 0; i < d->nvqs; ++i)
+> +	for (i = 0; i < d->nvqs; ++i) {
+> +		mutex_lock(&d->vqs[i]->mutex);
+>  		__vhost_vq_meta_reset(d->vqs[i]);
+> +		mutex_unlock(&d->vqs[i]->mutex);
+> +	}
 >  }
 >  
-> -/*
-> - * virtballoon_oom_notify - release pages when system is under severe
-> - *			    memory pressure (called from out_of_memory())
-> - * @self : notifier block struct
-> - * @dummy: not used
-> - * @parm : returned - number of freed pages
-> - *
-> - * The balancing of memory by use of the virtio balloon should not cause
-> - * the termination of processes while there are pages in the balloon.
-> - * If virtio balloon manages to release some memory, it will make the
-> - * system return and retry the allocation that forced the OOM killer
-> - * to run.
-> - */
-> -static int virtballoon_oom_notify(struct notifier_block *self,
-> -				  unsigned long dummy, void *parm)
+>  static void vhost_vq_reset(struct vhost_dev *dev,
+> @@ -890,20 +893,6 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
+>  #define vhost_get_used(vq, x, ptr) \
+>  	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
+>  
+> -static void vhost_dev_lock_vqs(struct vhost_dev *d)
 > -{
-> -	struct virtio_balloon *vb;
-> -	unsigned long *freed;
-> -	unsigned num_freed_pages;
-> -
-> -	vb = container_of(self, struct virtio_balloon, nb);
-> -	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> -		return NOTIFY_OK;
-> -
-> -	freed = parm;
-> -	num_freed_pages = leak_balloon(vb, oom_pages);
-> -	update_balloon_size(vb);
-> -	*freed += num_freed_pages;
-> -
-> -	return NOTIFY_OK;
+> -	int i = 0;
+> -	for (i = 0; i < d->nvqs; ++i)
+> -		mutex_lock_nested(&d->vqs[i]->mutex, i);
 > -}
 > -
->  static void update_balloon_stats_func(struct work_struct *work)
->  {
->  	struct virtio_balloon *vb;
-> @@ -548,6 +515,61 @@ static struct file_system_type balloon_fs = {
->  
->  #endif /* CONFIG_BALLOON_COMPACTION */
->  
-> +static unsigned long virtio_balloon_shrinker_scan(struct shrinker *shrinker,
-> +						  struct shrink_control *sc)
-> +{
-> +	unsigned long pages_to_free = balloon_pages_to_shrink,
-> +		      pages_freed = 0;
-> +	struct virtio_balloon *vb = container_of(shrinker,
-> +					struct virtio_balloon, shrinker);
-> +
-> +	/*
-> +	 * One invocation of leak_balloon can deflate at most
-> +	 * VIRTIO_BALLOON_ARRAY_PFNS_MAX balloon pages, so we call it
-> +	 * multiple times to deflate pages till reaching
-> +	 * balloon_pages_to_shrink pages.
-> +	 */
-> +	while (vb->num_pages && pages_to_free) {
-> +		pages_to_free = balloon_pages_to_shrink - pages_freed;
-> +		pages_freed += leak_balloon(vb, pages_to_free);
-> +	}
-> +	update_balloon_size(vb);
-
-Are you sure that this is never called if count returned 0?
-
-
-> +
-> +	return pages_freed / VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +}
-> +
-> +static unsigned long virtio_balloon_shrinker_count(struct shrinker *shrinker,
-> +						   struct shrink_control *sc)
-> +{
-> +	struct virtio_balloon *vb = container_of(shrinker,
-> +					struct virtio_balloon, shrinker);
-> +
-> +	/*
-> +	 * We continue to use VIRTIO_BALLOON_F_DEFLATE_ON_OOM to handle the
-> +	 * case when shrinker needs to be invoked to relieve memory pressure.
-> +	 */
-> +	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> +		return 0;
-
-So why not skip notifier registration when deflate on oom
-is clear?
-
-> +
-> +	return min_t(unsigned long, vb->num_pages, balloon_pages_to_shrink) /
-> +	       VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +}
-> +
-> +static void virtio_balloon_unregister_shrinker(struct virtio_balloon *vb)
-> +{
-> +	unregister_shrinker(&vb->shrinker);
-> +}
-> +
-> +static int virtio_balloon_register_shrinker(struct virtio_balloon *vb)
-> +{
-> +	vb->shrinker.scan_objects = virtio_balloon_shrinker_scan;
-> +	vb->shrinker.count_objects = virtio_balloon_shrinker_count;
-> +	vb->shrinker.batch = 0;
-> +	vb->shrinker.seeks = DEFAULT_SEEKS;
-> +
-> +	return register_shrinker(&vb->shrinker);
-> +}
-> +
->  static int virtballoon_probe(struct virtio_device *vdev)
->  {
->  	struct virtio_balloon *vb;
-> @@ -580,17 +602,10 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  	if (err)
->  		goto out_free_vb;
->  
-> -	vb->nb.notifier_call = virtballoon_oom_notify;
-> -	vb->nb.priority = VIRTBALLOON_OOM_NOTIFY_PRIORITY;
-> -	err = register_oom_notifier(&vb->nb);
-> -	if (err < 0)
-> -		goto out_del_vqs;
+> -static void vhost_dev_unlock_vqs(struct vhost_dev *d)
+> -{
+> -	int i = 0;
+> -	for (i = 0; i < d->nvqs; ++i)
+> -		mutex_unlock(&d->vqs[i]->mutex);
+> -}
 > -
->  #ifdef CONFIG_BALLOON_COMPACTION
->  	balloon_mnt = kern_mount(&balloon_fs);
->  	if (IS_ERR(balloon_mnt)) {
->  		err = PTR_ERR(balloon_mnt);
-> -		unregister_oom_notifier(&vb->nb);
->  		goto out_del_vqs;
+>  static int vhost_new_umem_range(struct vhost_umem *umem,
+>  				u64 start, u64 size, u64 end,
+>  				u64 userspace_addr, int perm)
+> @@ -953,7 +942,10 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
+>  		if (msg->iova <= vq_msg->iova &&
+>  		    msg->iova + msg->size - 1 > vq_msg->iova &&
+>  		    vq_msg->type == VHOST_IOTLB_MISS) {
+> +			mutex_lock(&node->vq->mutex);
+>  			vhost_poll_queue(&node->vq->poll);
+> +			mutex_unlock(&node->vq->mutex);
+> +
+>  			list_del(&node->node);
+>  			kfree(node);
+>  		}
+> @@ -985,7 +977,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+>  	int ret = 0;
+>  
+>  	mutex_lock(&dev->mutex);
+> -	vhost_dev_lock_vqs(dev);
+>  	switch (msg->type) {
+>  	case VHOST_IOTLB_UPDATE:
+>  		if (!dev->iotlb) {
+> @@ -1019,7 +1010,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+>  		break;
 >  	}
 >  
-> @@ -599,12 +614,14 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  	if (IS_ERR(vb->vb_dev_info.inode)) {
->  		err = PTR_ERR(vb->vb_dev_info.inode);
->  		kern_unmount(balloon_mnt);
-> -		unregister_oom_notifier(&vb->nb);
->  		vb->vb_dev_info.inode = NULL;
->  		goto out_del_vqs;
->  	}
->  	vb->vb_dev_info.inode->i_mapping->a_ops = &balloon_aops;
->  #endif
-> +	err = virtio_balloon_register_shrinker(vb);
-> +	if (err)
-> +		goto out_del_vqs;
+> -	vhost_dev_unlock_vqs(dev);
+>  	mutex_unlock(&dev->mutex);
 >  
+>  	return ret;
 
-So we can get scans before device is ready. Leak will fail
-then. Why not register later after device is ready?
+I do prefer the finer-grained locking but I remember we
+discussed something like this in the past and Jason saw issues
+with such a locking.
 
->  	virtio_device_ready(vdev);
->  
-> @@ -637,7 +654,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
->  {
->  	struct virtio_balloon *vb = vdev->priv;
->  
-> -	unregister_oom_notifier(&vb->nb);
-> +	virtio_balloon_unregister_shrinker(vb);
->  
->  	spin_lock_irq(&vb->stop_update_lock);
->  	vb->stop_update = true;
+Jason?
+
 > -- 
-> 2.7.4
+> 1.8.3.1
