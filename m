@@ -1,14 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v36 0/5] Virtio-balloon: support free page reporting
-Date: Mon, 23 Jul 2018 17:07:23 +0300
-Message-ID: <20180723122342-mutt-send-email-mst__4388.94497133351$1532354738$gmane$org@kernel.org>
+Subject: Re: [PATCH v36 2/5] virtio_balloon: replace oom notifier with shrinker
+Date: Mon, 23 Jul 2018 17:13:11 +0300
+Message-ID: <20180723170826-mutt-send-email-mst__3188.43444479189$1532355078$gmane$org@kernel.org>
 References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
+	<1532075585-39067-3-git-send-email-wei.w.wang@intel.com>
+	<20180722174125-mutt-send-email-mst@kernel.org>
+	<5B55AE56.5030404@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <5B55AE56.5030404@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,83 +22,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org, dgilbert@redhat.com
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 20, 2018 at 04:33:00PM +0800, Wei Wang wrote:
-> This patch series is separated from the previous "Virtio-balloon
-> Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,  
-> implemented by this series enables the virtio-balloon driver to report
-> hints of guest free pages to the host. It can be used to accelerate live
-> migration of VMs. Here is an introduction of this usage:
+On Mon, Jul 23, 2018 at 06:30:46PM +0800, Wei Wang wrote:
+> On 07/22/2018 10:48 PM, Michael S. Tsirkin wrote:
+> > On Fri, Jul 20, 2018 at 04:33:02PM +0800, Wei Wang wrote:
+> > > +static unsigned long virtio_balloon_shrinker_scan(struct shrinker *shrinker,
+> > > +						  struct shrink_control *sc)
+> > > +{
+> > > +	unsigned long pages_to_free = balloon_pages_to_shrink,
+> > > +		      pages_freed = 0;
+> > > +	struct virtio_balloon *vb = container_of(shrinker,
+> > > +					struct virtio_balloon, shrinker);
+> > > +
+> > > +	/*
+> > > +	 * One invocation of leak_balloon can deflate at most
+> > > +	 * VIRTIO_BALLOON_ARRAY_PFNS_MAX balloon pages, so we call it
+> > > +	 * multiple times to deflate pages till reaching
+> > > +	 * balloon_pages_to_shrink pages.
+> > > +	 */
+> > > +	while (vb->num_pages && pages_to_free) {
+> > > +		pages_to_free = balloon_pages_to_shrink - pages_freed;
+> > > +		pages_freed += leak_balloon(vb, pages_to_free);
+> > > +	}
+> > > +	update_balloon_size(vb);
+> > Are you sure that this is never called if count returned 0?
 > 
-> Live migration needs to transfer the VM's memory from the source machine
-> to the destination round by round. For the 1st round, all the VM's memory
-> is transferred. From the 2nd round, only the pieces of memory that were
-> written by the guest (after the 1st round) are transferred. One method
-> that is popularly used by the hypervisor to track which part of memory is
-> written is to write-protect all the guest memory.
+> Yes. Please see do_shrink_slab, it just returns if count is 0.
 > 
-> This feature enables the optimization by skipping the transfer of guest
-> free pages during VM live migration. It is not concerned that the memory
-> pages are used after they are given to the hypervisor as a hint of the
-> free pages, because they will be tracked by the hypervisor and transferred
-> in the subsequent round if they are used and written.
+> > 
+> > > +
+> > > +	return pages_freed / VIRTIO_BALLOON_PAGES_PER_PAGE;
+> > > +}
+> > > +
+> > > +static unsigned long virtio_balloon_shrinker_count(struct shrinker *shrinker,
+> > > +						   struct shrink_control *sc)
+> > > +{
+> > > +	struct virtio_balloon *vb = container_of(shrinker,
+> > > +					struct virtio_balloon, shrinker);
+> > > +
+> > > +	/*
+> > > +	 * We continue to use VIRTIO_BALLOON_F_DEFLATE_ON_OOM to handle the
+> > > +	 * case when shrinker needs to be invoked to relieve memory pressure.
+> > > +	 */
+> > > +	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+> > > +		return 0;
+> > So why not skip notifier registration when deflate on oom
+> > is clear?
 > 
-> * Tests
-> - Test Environment
->     Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
->     Guest: 8G RAM, 4 vCPU
->     Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
+> Sounds good, thanks.
 > 
-> - Test Results
->     - Idle Guest Live Migration Time (results are averaged over 10 runs):
->         - Optimization v.s. Legacy = 409ms vs 1757ms --> ~77% reduction
-> 	(setting page poisoning zero and enabling ksm don't affect the
->          comparison result)
->     - Guest with Linux Compilation Workload (make bzImage -j4):
->         - Live Migration Time (average)
->           Optimization v.s. Legacy = 1407ms v.s. 2528ms --> ~44% reduction
->         - Linux Compilation Time
->           Optimization v.s. Legacy = 5min4s v.s. 5min12s
->           --> no obvious difference
+> 
+> >   	vb->vb_dev_info.inode->i_mapping->a_ops = &balloon_aops;
+> >   #endif
+> > +	err = virtio_balloon_register_shrinker(vb);
+> > +	if (err)
+> > +		goto out_del_vqs;
+> > So we can get scans before device is ready. Leak will fail
+> > then. Why not register later after device is ready?
+> 
+> Probably no.
+> 
+> - it would be better not to set device ready when register_shrinker failed.
 
-I'd like to see dgilbert's take on whether this kind of gain
-justifies adding a PV interfaces, and what kind of guest workload
-is appropriate.
+That's very rare so I won't be too worried.
 
-Cc'd.
-
-
-> ChangeLog:
-> v35->v36:
->     - remove the mm patch, as Linus has a suggestion to get free page
->       addresses via allocation, instead of reading from the free page
->       list.
->     - virtio-balloon:
->         - replace oom notifier with shrinker;
->         - the guest to host communication interface remains the same as
->           v32.
-> 	- allocate free page blocks and send to host one by one, and free
->           them after sending all the pages.
+> - When the device isn't ready, ballooning won't happen, that is,
+> vb->num_pages will be 0, which results in shrinker_count=0 and shrinker_scan
+> won't be called.
 > 
-> For ChangeLogs from v22 to v35, please reference
-> https://lwn.net/Articles/759413/
+> So I think it would be better to have shrinker registered before
+> device_ready.
 > 
-> For ChangeLogs before v21, please reference
-> https://lwn.net/Articles/743660/
-> 
-> Wei Wang (5):
->   virtio-balloon: remove BUG() in init_vqs
->   virtio_balloon: replace oom notifier with shrinker
->   virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
->   mm/page_poison: expose page_poisoning_enabled to kernel modules
->   virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
-> 
->  drivers/virtio/virtio_balloon.c     | 456 ++++++++++++++++++++++++++++++------
->  include/uapi/linux/virtio_balloon.h |   7 +
->  mm/page_poison.c                    |   6 +
->  3 files changed, 394 insertions(+), 75 deletions(-)
-> 
-> -- 
-> 2.7.4
+> Best,
+> Wei
