@@ -1,14 +1,12 @@
-From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Mon, 23 Jul 2018 11:58:23 +0530
-Message-ID: <8f51d2c6-cc0c-9e42-f0fd-a8a33acc8b83__6056.92903413928$1532327494$gmane$org@linux.vnet.ibm.com>
-References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
-	<20180720161541-mutt-send-email-mst@kernel.org>
+From: <gregkh@linuxfoundation.org>
+Subject: Patch "x86/paravirt: Make native_save_fl() extern inline" has been
+	added to the 4.4-stable tree
+Date: Mon, 23 Jul 2018 09:58:44 +0200
+Message-ID: <153233272488205@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180720161541-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,138 +16,184 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
+To: 20180621162324.36656-4-ndesaulniers@google.com, acme@redhat.com, akataria@vmware.com, akpm@linux-foundation.org, andrea.parri@amarulasolutions.com, ard.biesheuvel@linaro.org, arnd@arndb.de, aryabinin@virtuozzo.com, astrachan@google.com, boris.ostrovsky@oracle.com, brijesh.singh@amd.com, caoj.fnst@cn.fujitsu.com, geert@linux-m68k.org, ghackmann@google.com, gregkh@linuxfoundation.org, hpa@zytor.com, jan.kiszka@siemens.com, jarkko.sakkinen@linux.intel.com, jgross@suse.com, joe@perches.com, jpoimboe@redhat.com, keescook@google.com, kirill.shutemov@linux.intel.com, kstewart@linuxfoundation.org, manojgupta@google.com, mawilcox@microsoft.com, michal.lkml@markovi.net, mingo@kernel.org, mjg59@google.com, mka@chromium.orgndesaulniers@google.com, peterz@infradead.org, pombredanne@nexb.com, rientjes@google.com, rostedt@goodmis.org, sedat.dilek@gmail.com, tglx@linutronix.de, tho
+Cc: stable-commits@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/20/2018 06:46 PM, Michael S. Tsirkin wrote:
-> On Fri, Jul 20, 2018 at 09:29:37AM +0530, Anshuman Khandual wrote:
->> This patch series is the follow up on the discussions we had before about
->> the RFC titled [RFC,V2] virtio: Add platform specific DMA API translation
->> for virito devices (https://patchwork.kernel.org/patch/10417371/). There
->> were suggestions about doing away with two different paths of transactions
->> with the host/QEMU, first being the direct GPA and the other being the DMA
->> API based translations.
->>
->> First patch attempts to create a direct GPA mapping based DMA operations
->> structure called 'virtio_direct_dma_ops' with exact same implementation
->> of the direct GPA path which virtio core currently has but just wrapped in
->> a DMA API format. Virtio core must use 'virtio_direct_dma_ops' instead of
->> the arch default in absence of VIRTIO_F_IOMMU_PLATFORM flag to preserve the
->> existing semantics. The second patch does exactly that inside the function
->> virtio_finalize_features(). The third patch removes the default direct GPA
->> path from virtio core forcing it to use DMA API callbacks for all devices.
->> Now with that change, every device must have a DMA operations structure
->> associated with it. The fourth patch adds an additional hook which gives
->> the platform an opportunity to do yet another override if required. This
->> platform hook can be used on POWER Ultravisor based protected guests to
->> load up SWIOTLB DMA callbacks to do the required (as discussed previously
->> in the above mentioned thread how host is allowed to access only parts of
->> the guest GPA range) bounce buffering into the shared memory for all I/O
->> scatter gather buffers to be consumed on the host side.
->>
->> Please go through these patches and review whether this approach broadly
->> makes sense. I will appreciate suggestions, inputs, comments regarding
->> the patches or the approach in general. Thank you.
-> I like how patches 1-3 look. Could you test performance
-> with/without to see whether the extra indirection through
-> use of DMA ops causes a measurable slow-down?
 
-I ran this simple DD command 10 times where /dev/vda is a virtio block
-device of 10GB size.
+This is a note to let you know that I've just added the patch titled
 
-dd if=/dev/zero of=/dev/vda bs=8M count=1024 oflag=direct
+    x86/paravirt: Make native_save_fl() extern inline
 
-With and without patches bandwidth which has a bit wide range does not
-look that different from each other.
+to the 4.4-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
-Without patches
-===============
+The filename of the patch is:
+     x86-paravirt-make-native_save_fl-extern-inline.patch
+and it can be found in the queue-4.4 subdirectory.
 
----------- 1 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 1.95557 s, 4.4 GB/s
----------- 2 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 2.05176 s, 4.2 GB/s
----------- 3 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 1.88314 s, 4.6 GB/s
----------- 4 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 1.84899 s, 4.6 GB/s
----------- 5 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 5.37184 s, 1.6 GB/s
----------- 6 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 1.9205 s, 4.5 GB/s
----------- 7 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 6.85166 s, 1.3 GB/s
----------- 8 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 1.74049 s, 4.9 GB/s
----------- 9 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 6.31699 s, 1.4 GB/s
----------- 10 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 2.47057 s, 3.5 GB/s
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
 
 
-With patches
-============
+From d0a8d9378d16eb3c69bd8e6d23779fbdbee3a8c7 Mon Sep 17 00:00:00 2001
+From: Nick Desaulniers <ndesaulniers@google.com>
+Date: Thu, 21 Jun 2018 09:23:24 -0700
+Subject: x86/paravirt: Make native_save_fl() extern inline
 
----------- 1 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 2.25993 s, 3.8 GB/s
----------- 2 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 1.82438 s, 4.7 GB/s
----------- 3 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 1.93856 s, 4.4 GB/s
----------- 4 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 1.83405 s, 4.7 GB/s
----------- 5 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 7.50199 s, 1.1 GB/s
----------- 6 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 2.28742 s, 3.8 GB/s
----------- 7 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 5.74958 s, 1.5 GB/s
----------- 8 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 1.99149 s, 4.3 GB/s
----------- 9 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 5.67647 s, 1.5 GB/s
----------- 10 ---------
-1024+0 records in
-1024+0 records out
-8589934592 bytes (8.6 GB, 8.0 GiB) copied, 2.93957 s, 2.9 GB/s
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-Does this look okay ?
+commit d0a8d9378d16eb3c69bd8e6d23779fbdbee3a8c7 upstream.
+
+native_save_fl() is marked static inline, but by using it as
+a function pointer in arch/x86/kernel/paravirt.c, it MUST be outlined.
+
+paravirt's use of native_save_fl() also requires that no GPRs other than
+%rax are clobbered.
+
+Compilers have different heuristics which they use to emit stack guard
+code, the emittance of which can break paravirt's callee saved assumption
+by clobbering %rcx.
+
+Marking a function definition extern inline means that if this version
+cannot be inlined, then the out-of-line version will be preferred. By
+having the out-of-line version be implemented in assembly, it cannot be
+instrumented with a stack protector, which might violate custom calling
+conventions that code like paravirt rely on.
+
+The semantics of extern inline has changed since gnu89. This means that
+folks using GCC versions >= 5.1 may see symbol redefinition errors at
+link time for subdirs that override KBUILD_CFLAGS (making the C standard
+used implicit) regardless of this patch. This has been cleaned up
+earlier in the patch set, but is left as a note in the commit message
+for future travelers.
+
+Reports:
+ https://lkml.org/lkml/2018/5/7/534
+ https://github.com/ClangBuiltLinux/linux/issues/16
+
+Discussion:
+ https://bugs.llvm.org/show_bug.cgi?id=37512
+ https://lkml.org/lkml/2018/5/24/1371
+
+Thanks to the many folks that participated in the discussion.
+
+[Backport for 4.4. 4.4 is missing commit 784d5699eddc "x86: move exports to
+actual definitions" which doesn't apply cleanly, and not really worth
+backporting IMO. It's simpler to change this patch from upstream:
+  + #include <asm-generic/export.h>
+rather than
+  + #include <asm/export.h>]
+
+Debugged-by: Alistair Strachan <astrachan@google.com>
+Debugged-by: Matthias Kaehlcke <mka@chromium.org>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Suggested-by: H. Peter Anvin <hpa@zytor.com>
+Suggested-by: Tom Stellar <tstellar@redhat.com>
+Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Juergen Gross <jgross@suse.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: acme@redhat.com
+Cc: akataria@vmware.com
+Cc: akpm@linux-foundation.org
+Cc: andrea.parri@amarulasolutions.com
+Cc: ard.biesheuvel@linaro.org
+Cc: aryabinin@virtuozzo.com
+Cc: astrachan@google.com
+Cc: boris.ostrovsky@oracle.com
+Cc: brijesh.singh@amd.com
+Cc: caoj.fnst@cn.fujitsu.com
+Cc: geert@linux-m68k.org
+Cc: ghackmann@google.com
+Cc: gregkh@linuxfoundation.org
+Cc: jan.kiszka@siemens.com
+Cc: jarkko.sakkinen@linux.intel.com
+Cc: joe@perches.com
+Cc: jpoimboe@redhat.com
+Cc: keescook@google.com
+Cc: kirill.shutemov@linux.intel.com
+Cc: kstewart@linuxfoundation.org
+Cc: linux-efi@vger.kernel.org
+Cc: linux-kbuild@vger.kernel.org
+Cc: manojgupta@google.com
+Cc: mawilcox@microsoft.com
+Cc: michal.lkml@markovi.net
+Cc: mjg59@google.com
+Cc: mka@chromium.org
+Cc: pombredanne@nexb.com
+Cc: rientjes@google.com
+Cc: rostedt@goodmis.org
+Cc: thomas.lendacky@amd.com
+Cc: tweek@google.com
+Cc: virtualization@lists.linux-foundation.org
+Cc: will.deacon@arm.com
+Cc: yamada.masahiro@socionext.com
+Link: http://lkml.kernel.org/r/20180621162324.36656-4-ndesaulniers@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/include/asm/irqflags.h |    2 +-
+ arch/x86/kernel/Makefile        |    1 +
+ arch/x86/kernel/irqflags.S      |   26 ++++++++++++++++++++++++++
+ 3 files changed, 28 insertions(+), 1 deletion(-)
+
+--- a/arch/x86/include/asm/irqflags.h
++++ b/arch/x86/include/asm/irqflags.h
+@@ -8,7 +8,7 @@
+  * Interrupt control:
+  */
+ 
+-static inline unsigned long native_save_fl(void)
++extern inline unsigned long native_save_fl(void)
+ {
+ 	unsigned long flags;
+ 
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -41,6 +41,7 @@ obj-y			+= alternative.o i8253.o pci-nom
+ obj-y			+= tsc.o tsc_msr.o io_delay.o rtc.o
+ obj-y			+= pci-iommu_table.o
+ obj-y			+= resource.o
++obj-y			+= irqflags.o
+ 
+ obj-y				+= process.o
+ obj-y				+= fpu/
+--- /dev/null
++++ b/arch/x86/kernel/irqflags.S
+@@ -0,0 +1,26 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#include <asm/asm.h>
++#include <asm-generic/export.h>
++#include <linux/linkage.h>
++
++/*
++ * unsigned long native_save_fl(void)
++ */
++ENTRY(native_save_fl)
++	pushf
++	pop %_ASM_AX
++	ret
++ENDPROC(native_save_fl)
++EXPORT_SYMBOL(native_save_fl)
++
++/*
++ * void native_restore_fl(unsigned long flags)
++ * %eax/%rdi: flags
++ */
++ENTRY(native_restore_fl)
++	push %_ASM_ARG1
++	popf
++	ret
++ENDPROC(native_restore_fl)
++EXPORT_SYMBOL(native_restore_fl)
+
+
+Patches currently in stable-queue which might be from ndesaulniers@google.com are
+
+queue-4.4/x86-paravirt-make-native_save_fl-extern-inline.patch
