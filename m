@@ -1,15 +1,18 @@
-From: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
-Subject: Re: [PATCH v36 0/5] Virtio-balloon: support free page reporting
-Date: Mon, 23 Jul 2018 15:36:05 +0100
-Message-ID: <20180723143604.GB2457@work-vm>
-References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
-	<20180723122342-mutt-send-email-mst@kernel.org>
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Subject: Re: [PATCH net-next v6 3/4] net: vhost: factor out busy polling logic
+	to vhost_net_busy_poll()
+Date: Tue, 24 Jul 2018 01:31:10 +0800
+Message-ID: <CAMDZJNXWs+yqAcZ-7gW6RQjen0-mzfJ-Ar-O0_wttse2A-3-HQ__12607.9477988698$1532366959$gmane$org@mail.gmail.com>
+References: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<1532196242-2998-4-git-send-email-xiangxia.m.yue@gmail.com>
+	<c520c142-ef36-7918-7135-51258c17bd83@lab.ntt.co.jp>
+	<CAMDZJNVPi8DMScyF2KW0mLAYe0p8uUVVY55Oo9Hk6SJJTMZYKg@mail.gmail.com>
+	<2b0efbf4-09e2-0ee9-091f-e2d9e10483a1@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180723122342-mutt-send-email-mst@kernel.org>
+In-Reply-To: <2b0efbf4-09e2-0ee9-091f-e2d9e10483a1@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,104 +22,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, torvalds@linux-foundation.org
+To: toshiaki.makita1@gmail.com
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, mst@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Michael S. Tsirkin (mst@redhat.com) wrote:
-> On Fri, Jul 20, 2018 at 04:33:00PM +0800, Wei Wang wrote:
-> > This patch series is separated from the previous "Virtio-balloon
-> > Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,  
-> > implemented by this series enables the virtio-balloon driver to report
-> > hints of guest free pages to the host. It can be used to accelerate live
-> > migration of VMs. Here is an introduction of this usage:
-> > 
-> > Live migration needs to transfer the VM's memory from the source machine
-> > to the destination round by round. For the 1st round, all the VM's memory
-> > is transferred. From the 2nd round, only the pieces of memory that were
-> > written by the guest (after the 1st round) are transferred. One method
-> > that is popularly used by the hypervisor to track which part of memory is
-> > written is to write-protect all the guest memory.
-> > 
-> > This feature enables the optimization by skipping the transfer of guest
-> > free pages during VM live migration. It is not concerned that the memory
-> > pages are used after they are given to the hypervisor as a hint of the
-> > free pages, because they will be tracked by the hypervisor and transferred
-> > in the subsequent round if they are used and written.
-> > 
-> > * Tests
-> > - Test Environment
-> >     Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
-> >     Guest: 8G RAM, 4 vCPU
-> >     Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
-> > 
-> > - Test Results
-> >     - Idle Guest Live Migration Time (results are averaged over 10 runs):
-> >         - Optimization v.s. Legacy = 409ms vs 1757ms --> ~77% reduction
-> > 	(setting page poisoning zero and enabling ksm don't affect the
-> >          comparison result)
-> >     - Guest with Linux Compilation Workload (make bzImage -j4):
-> >         - Live Migration Time (average)
-> >           Optimization v.s. Legacy = 1407ms v.s. 2528ms --> ~44% reduction
-> >         - Linux Compilation Time
-> >           Optimization v.s. Legacy = 5min4s v.s. 5min12s
-> >           --> no obvious difference
-> 
-> I'd like to see dgilbert's take on whether this kind of gain
-> justifies adding a PV interfaces, and what kind of guest workload
-> is appropriate.
-> 
-> Cc'd.
-
-Well, 44% is great ... although the measurement is a bit weird.
-
-a) A 2 second downtime is very large; 300-500ms is more normal
-b) I'm not sure what the 'average' is  - is that just between a bunch of
-repeated migrations?
-c) What load was running in the guest during the live migration?
-
-An interesting measurement to add would be to do the same test but
-with a VM with a lot more RAM but the same load;  you'd hope the gain
-would be even better.
-It would be interesting, especially because the users who are interested
-are people creating VMs allocated with lots of extra memory (for the
-worst case) but most of the time migrating when it's fairly idle.
-
-Dave
-
-> 
-> 
-> > ChangeLog:
-> > v35->v36:
-> >     - remove the mm patch, as Linus has a suggestion to get free page
-> >       addresses via allocation, instead of reading from the free page
-> >       list.
-> >     - virtio-balloon:
-> >         - replace oom notifier with shrinker;
-> >         - the guest to host communication interface remains the same as
-> >           v32.
-> > 	- allocate free page blocks and send to host one by one, and free
-> >           them after sending all the pages.
-> > 
-> > For ChangeLogs from v22 to v35, please reference
-> > https://lwn.net/Articles/759413/
-> > 
-> > For ChangeLogs before v21, please reference
-> > https://lwn.net/Articles/743660/
-> > 
-> > Wei Wang (5):
-> >   virtio-balloon: remove BUG() in init_vqs
-> >   virtio_balloon: replace oom notifier with shrinker
-> >   virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
-> >   mm/page_poison: expose page_poisoning_enabled to kernel modules
-> >   virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
-> > 
-> >  drivers/virtio/virtio_balloon.c     | 456 ++++++++++++++++++++++++++++++------
-> >  include/uapi/linux/virtio_balloon.h |   7 +
-> >  mm/page_poison.c                    |   6 +
-> >  3 files changed, 394 insertions(+), 75 deletions(-)
-> > 
-> > -- 
-> > 2.7.4
---
-Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
+T24gTW9uLCBKdWwgMjMsIDIwMTggYXQgMTA6MjAgUE0gVG9zaGlha2kgTWFraXRhCjx0b3NoaWFr
+aS5tYWtpdGExQGdtYWlsLmNvbT4gd3JvdGU6Cj4KPiBPbiAxOC8wNy8yMyAo5pyIKSAyMTo0Mywg
+VG9uZ2hhbyBaaGFuZyB3cm90ZToKPiA+IE9uIE1vbiwgSnVsIDIzLCAyMDE4IGF0IDU6NTggUE0g
+VG9zaGlha2kgTWFraXRhCj4gPiA8bWFraXRhLnRvc2hpYWtpQGxhYi5udHQuY28uanA+IHdyb3Rl
+Ogo+ID4+Cj4gPj4gT24gMjAxOC8wNy8yMiAzOjA0LCB4aWFuZ3hpYS5tLnl1ZUBnbWFpbC5jb20g
+d3JvdGU6Cj4gPj4+IEZyb206IFRvbmdoYW8gWmhhbmcgPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNv
+bT4KPiA+Pj4KPiA+Pj4gRmFjdG9yIG91dCBnZW5lcmljIGJ1c3kgcG9sbGluZyBsb2dpYyBhbmQg
+d2lsbCBiZQo+ID4+PiB1c2VkIGZvciBpbiB0eCBwYXRoIGluIHRoZSBuZXh0IHBhdGNoLiBBbmQg
+d2l0aCB0aGUgcGF0Y2gsCj4gPj4+IHFlbXUgY2FuIHNldCBkaWZmZXJlbnRseSB0aGUgYnVzeWxv
+b3BfdGltZW91dCBmb3IgcnggcXVldWUuCj4gPj4+Cj4gPj4+IFNpZ25lZC1vZmYtYnk6IFRvbmdo
+YW8gWmhhbmcgPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbT4KPiA+Pj4gLS0tCj4gPj4gLi4uCj4g
+Pj4+ICtzdGF0aWMgdm9pZCB2aG9zdF9uZXRfYnVzeV9wb2xsX3ZxX2NoZWNrKHN0cnVjdCB2aG9z
+dF9uZXQgKm5ldCwKPiA+Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+c3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqcnZxLAo+ID4+PiArICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp0dnEsCj4gPj4+ICsgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGJvb2wgcngpCj4gPj4+ICt7Cj4gPj4+
+ICsgICAgIHN0cnVjdCBzb2NrZXQgKnNvY2sgPSBydnEtPnByaXZhdGVfZGF0YTsKPiA+Pj4gKwo+
+ID4+PiArICAgICBpZiAocngpIHsKPiA+Pj4gKyAgICAgICAgICAgICBpZiAoIXZob3N0X3ZxX2F2
+YWlsX2VtcHR5KCZuZXQtPmRldiwgdHZxKSkgewo+ID4+PiArICAgICAgICAgICAgICAgICAgICAg
+dmhvc3RfcG9sbF9xdWV1ZSgmdHZxLT5wb2xsKTsKPiA+Pj4gKyAgICAgICAgICAgICB9IGVsc2Ug
+aWYgKHVubGlrZWx5KHZob3N0X2VuYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB0dnEpKSkgewo+ID4+
+PiArICAgICAgICAgICAgICAgICAgICAgdmhvc3RfZGlzYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB0
+dnEpOwo+ID4+PiArICAgICAgICAgICAgICAgICAgICAgdmhvc3RfcG9sbF9xdWV1ZSgmdHZxLT5w
+b2xsKTsKPiA+Pj4gKyAgICAgICAgICAgICB9Cj4gPj4+ICsgICAgIH0gZWxzZSBpZiAoKHNvY2sg
+JiYgc2tfaGFzX3J4X2RhdGEoc29jay0+c2spKSAmJgo+ID4+PiArICAgICAgICAgICAgICAgICAh
+dmhvc3RfdnFfYXZhaWxfZW1wdHkoJm5ldC0+ZGV2LCBydnEpKSB7Cj4gPj4+ICsgICAgICAgICAg
+ICAgdmhvc3RfcG9sbF9xdWV1ZSgmcnZxLT5wb2xsKTsKPiA+Pgo+ID4+IE5vdyB3ZSB3YWl0IGZv
+ciB2cV9hdmFpbCBmb3IgcnggYXMgd2VsbCwgSSB0aGluayB5b3UgY2Fubm90IHNraXAKPiA+PiB2
+aG9zdF9lbmFibGVfbm90aWZ5KCkgb24gdHguIFByb2JhYmx5IHlvdSBtaWdodCB3YW50IHRvIGRv
+Ogo+ID4gSSB0aGluayB2aG9zdF9lbmFibGVfbm90aWZ5IGlzIG5lZWRlZC4KPiA+Cj4gPj4gfSBl
+bHNlIGlmIChzb2NrICYmIHNrX2hhc19yeF9kYXRhKHNvY2stPnNrKSkgewo+ID4+ICAgICAgICAg
+IGlmICghdmhvc3RfdnFfYXZhaWxfZW1wdHkoJm5ldC0+ZGV2LCBydnEpKSB7Cj4gPj4gICAgICAg
+ICAgICAgICAgICB2aG9zdF9wb2xsX3F1ZXVlKCZydnEtPnBvbGwpOwo+ID4+ICAgICAgICAgIH0g
+ZWxzZSBpZiAodW5saWtlbHkodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHJ2cSkpKSB7
+Cj4gPj4gICAgICAgICAgICAgICAgICB2aG9zdF9kaXNhYmxlX25vdGlmeSgmbmV0LT5kZXYsIHJ2
+cSk7Cj4gPj4gICAgICAgICAgICAgICAgICB2aG9zdF9wb2xsX3F1ZXVlKCZydnEtPnBvbGwpOwo+
+ID4+ICAgICAgICAgIH0KPiA+PiB9Cj4gPiBBcyBKYXNvbiByZXZpZXcgYXMgYmVmb3JlLCB3ZSBv
+bmx5IHdhbnQgcngga2ljayB3aGVuIHBhY2tldCBpcyBwZW5kaW5nIGF0Cj4gPiBzb2NrZXQgYnV0
+IHdlJ3JlIG91dCBvZiBhdmFpbGFibGUgYnVmZmVycy4gU28gd2UganVzdCBlbmFibGUgbm90aWZ5
+LAo+ID4gYnV0IG5vdCBwb2xsIGl0ID8KPiA+Cj4gPiAgICAgICAgICB9IGVsc2UgaWYgKChzb2Nr
+ICYmIHNrX2hhc19yeF9kYXRhKHNvY2stPnNrKSkgJiYKPiA+ICAgICAgICAgICAgICAgICAgICAg
+ICF2aG9zdF92cV9hdmFpbF9lbXB0eSgmbmV0LT5kZXYsIHJ2cSkpIHsKPiA+ICAgICAgICAgICAg
+ICAgICAgdmhvc3RfcG9sbF9xdWV1ZSgmcnZxLT5wb2xsKTsKPiA+ICAgICAgICAgIGVsc2Ugewo+
+ID4gICAgICAgICAgICAgICAgICB2aG9zdF9lbmFibGVfbm90aWZ5KCZuZXQtPmRldiwgcnZxKTsK
+PiA+ICAgICAgICAgIH0KPgo+IFdoZW4gdmhvc3RfZW5hYmxlX25vdGlmeSgpIHJldHVybnMgdHJ1
+ZSB0aGUgYXZhaWwgYmVjb21lcyBub24tZW1wdHkKPiB3aGlsZSB3ZSBhcmUgZW5hYmxpbmcgbm90
+aWZ5LiBXZSBtYXkgZGVsYXkgdGhlIHJ4IHByb2Nlc3MgaWYgd2UgZG9uJ3QKPiBjaGVjayB0aGUg
+cmV0dXJuIHZhbHVlIG9mIHZob3N0X2VuYWJsZV9ub3RpZnkoKS4KSSBnb3QgaXQgdGhhbmtzLgo+
+ID4+IEFsc28gaXQncyBiZXR0ZXIgdG8gY2FyZSB2aG9zdF9uZXRfZGlzYWJsZV92cSgpL3Zob3N0
+X25ldF9lbmFibGVfdnEoKSBvbiB0eD8KPiA+IEkgY2FudCBmaW5kIHdoeSBpdCBpcyBiZXR0ZXIs
+IGlmIG5lY2Vzc2FyeSwgd2UgY2FuIGRvIGl0Lgo+Cj4gVGhlIHJlYXNvbiBpcyBwcmV0dHkgc2lt
+cGxlLi4uIHdlIGFyZSBidXN5cG9sbGluZyB0aGUgc29ja2V0IHNvIHdlIGRvbid0Cj4gbmVlZCBy
+eCB3YWtldXBzIGR1cmluZyBpdD8KT0ssIGJ1dCBvbmUgcXVlc3Rpb24sIGhvdyBhYm91dCByeD8g
+ZG8gd2UgdXNlIHRoZQp2aG9zdF9uZXRfZGlzYWJsZV92cS92aG9zdF9uZXRfZW5zYWJsZV92cSBv
+biByeCA/Cj4gLS0KPiBUb3NoaWFraSBNYWtpdGEKX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
+emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
+ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
