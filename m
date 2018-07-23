@@ -1,16 +1,14 @@
-From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Subject: Re: [PATCH net-next v6 3/4] net: vhost: factor out busy polling logic
-	to vhost_net_busy_poll()
-Date: Mon, 23 Jul 2018 20:43:03 +0800
-Message-ID: <CAMDZJNVPi8DMScyF2KW0mLAYe0p8uUVVY55Oo9Hk6SJJTMZYKg__19864.4877913923$1532349716$gmane$org@mail.gmail.com>
-References: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<1532196242-2998-4-git-send-email-xiangxia.m.yue@gmail.com>
-	<c520c142-ef36-7918-7135-51258c17bd83@lab.ntt.co.jp>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v36 0/5] Virtio-balloon: support free page reporting
+Date: Mon, 23 Jul 2018 17:07:23 +0300
+Message-ID: <20180723122342-mutt-send-email-mst__4388.94497133351$1532354738$gmane$org@kernel.org>
+References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c520c142-ef36-7918-7135-51258c17bd83@lab.ntt.co.jp>
+Content-Disposition: inline
+In-Reply-To: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,65 +18,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: makita.toshiaki@lab.ntt.co.jp
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 23, 2018 at 5:58 PM Toshiaki Makita
-<makita.toshiaki@lab.ntt.co.jp> wrote:
->
-> On 2018/07/22 3:04, xiangxia.m.yue@gmail.com wrote:
-> > From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-> >
-> > Factor out generic busy polling logic and will be
-> > used for in tx path in the next patch. And with the patch,
-> > qemu can set differently the busyloop_timeout for rx queue.
-> >
-> > Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-> > ---
-> ...
-> > +static void vhost_net_busy_poll_vq_check(struct vhost_net *net,
-> > +                                      struct vhost_virtqueue *rvq,
-> > +                                      struct vhost_virtqueue *tvq,
-> > +                                      bool rx)
-> > +{
-> > +     struct socket *sock = rvq->private_data;
-> > +
-> > +     if (rx) {
-> > +             if (!vhost_vq_avail_empty(&net->dev, tvq)) {
-> > +                     vhost_poll_queue(&tvq->poll);
-> > +             } else if (unlikely(vhost_enable_notify(&net->dev, tvq))) {
-> > +                     vhost_disable_notify(&net->dev, tvq);
-> > +                     vhost_poll_queue(&tvq->poll);
-> > +             }
-> > +     } else if ((sock && sk_has_rx_data(sock->sk)) &&
-> > +                 !vhost_vq_avail_empty(&net->dev, rvq)) {
-> > +             vhost_poll_queue(&rvq->poll);
->
-> Now we wait for vq_avail for rx as well, I think you cannot skip
-> vhost_enable_notify() on tx. Probably you might want to do:
-I think vhost_enable_notify is needed.
+On Fri, Jul 20, 2018 at 04:33:00PM +0800, Wei Wang wrote:
+> This patch series is separated from the previous "Virtio-balloon
+> Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,  
+> implemented by this series enables the virtio-balloon driver to report
+> hints of guest free pages to the host. It can be used to accelerate live
+> migration of VMs. Here is an introduction of this usage:
+> 
+> Live migration needs to transfer the VM's memory from the source machine
+> to the destination round by round. For the 1st round, all the VM's memory
+> is transferred. From the 2nd round, only the pieces of memory that were
+> written by the guest (after the 1st round) are transferred. One method
+> that is popularly used by the hypervisor to track which part of memory is
+> written is to write-protect all the guest memory.
+> 
+> This feature enables the optimization by skipping the transfer of guest
+> free pages during VM live migration. It is not concerned that the memory
+> pages are used after they are given to the hypervisor as a hint of the
+> free pages, because they will be tracked by the hypervisor and transferred
+> in the subsequent round if they are used and written.
+> 
+> * Tests
+> - Test Environment
+>     Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
+>     Guest: 8G RAM, 4 vCPU
+>     Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
+> 
+> - Test Results
+>     - Idle Guest Live Migration Time (results are averaged over 10 runs):
+>         - Optimization v.s. Legacy = 409ms vs 1757ms --> ~77% reduction
+> 	(setting page poisoning zero and enabling ksm don't affect the
+>          comparison result)
+>     - Guest with Linux Compilation Workload (make bzImage -j4):
+>         - Live Migration Time (average)
+>           Optimization v.s. Legacy = 1407ms v.s. 2528ms --> ~44% reduction
+>         - Linux Compilation Time
+>           Optimization v.s. Legacy = 5min4s v.s. 5min12s
+>           --> no obvious difference
 
-> } else if (sock && sk_has_rx_data(sock->sk)) {
->         if (!vhost_vq_avail_empty(&net->dev, rvq)) {
->                 vhost_poll_queue(&rvq->poll);
->         } else if (unlikely(vhost_enable_notify(&net->dev, rvq))) {
->                 vhost_disable_notify(&net->dev, rvq);
->                 vhost_poll_queue(&rvq->poll);
->         }
-> }
-As Jason review as before, we only want rx kick when packet is pending at
-socket but we're out of available buffers. So we just enable notify,
-but not poll it ?
+I'd like to see dgilbert's take on whether this kind of gain
+justifies adding a PV interfaces, and what kind of guest workload
+is appropriate.
 
-        } else if ((sock && sk_has_rx_data(sock->sk)) &&
-                    !vhost_vq_avail_empty(&net->dev, rvq)) {
-                vhost_poll_queue(&rvq->poll);
-        else {
-                vhost_enable_notify(&net->dev, rvq);
-        }
-> Also it's better to care vhost_net_disable_vq()/vhost_net_enable_vq() on tx?
-I cant find why it is better, if necessary, we can do it.
-> --
-> Toshiaki Makita
->
+Cc'd.
+
+
+> ChangeLog:
+> v35->v36:
+>     - remove the mm patch, as Linus has a suggestion to get free page
+>       addresses via allocation, instead of reading from the free page
+>       list.
+>     - virtio-balloon:
+>         - replace oom notifier with shrinker;
+>         - the guest to host communication interface remains the same as
+>           v32.
+> 	- allocate free page blocks and send to host one by one, and free
+>           them after sending all the pages.
+> 
+> For ChangeLogs from v22 to v35, please reference
+> https://lwn.net/Articles/759413/
+> 
+> For ChangeLogs before v21, please reference
+> https://lwn.net/Articles/743660/
+> 
+> Wei Wang (5):
+>   virtio-balloon: remove BUG() in init_vqs
+>   virtio_balloon: replace oom notifier with shrinker
+>   virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+>   mm/page_poison: expose page_poisoning_enabled to kernel modules
+>   virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
+> 
+>  drivers/virtio/virtio_balloon.c     | 456 ++++++++++++++++++++++++++++++------
+>  include/uapi/linux/virtio_balloon.h |   7 +
+>  mm/page_poison.c                    |   6 +
+>  3 files changed, 394 insertions(+), 75 deletions(-)
+> 
+> -- 
+> 2.7.4
