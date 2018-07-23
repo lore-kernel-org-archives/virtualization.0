@@ -1,13 +1,16 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 018/107] x86/paravirt: Make native_save_fl() extern inline
-Date: Mon, 23 Jul 2018 14:41:12 +0200
-Message-ID: <20180723122413.797031305@linuxfoundation.org>
-References: <20180723122413.003644357@linuxfoundation.org>
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Subject: Re: [PATCH net-next v6 3/4] net: vhost: factor out busy polling logic
+	to vhost_net_busy_poll()
+Date: Mon, 23 Jul 2018 20:43:03 +0800
+Message-ID: <CAMDZJNVPi8DMScyF2KW0mLAYe0p8uUVVY55Oo9Hk6SJJTMZYKg__19864.4877913923$1532349716$gmane$org@mail.gmail.com>
+References: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<1532196242-2998-4-git-send-email-xiangxia.m.yue@gmail.com>
+	<c520c142-ef36-7918-7135-51258c17bd83@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180723122413.003644357@linuxfoundation.org>
+In-Reply-To: <c520c142-ef36-7918-7135-51258c17bd83@lab.ntt.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,162 +20,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: andrea.parri@amarulasolutions.com, kstewart@linuxfoundation.org, linux-efi@vger.kernel.org, brijesh.singh@amd.com, Peter Zijlstra <peterz@infradead.org>, jan.kiszka@siemens.com, will.deacon@arm.com, jarkko.sakkinen@linux.intel.com, virtualization@lists.linux-foundation.org, yamada.masahiro@socionext.com, manojgupta@google.com, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, tweek@google.com, mawilcox@microsoft.com, akataria@vmware.com, ghackmann@google.com, Ingo Molnar <mingo@kernel.org>, mjg59@google.com, mka@chromium.org, geert@linux-m68k.org, rientjes@google.com, aryabinin@virtuozzo.com, thomas.lendacky@amd.com, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, pombredanne@nexb.com, rostedt@goodmis.org, acme@redhat.com, caoj.fnst@cn.fujitsu.com, jpoimboe@redhat.com, Sedat Dilek <sedat.dilek@gmail.com>, boris.ostrovsky@oracle.com
+To: makita.toshiaki@lab.ntt.co.jp
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-4.4-stable review patch.  If anyone has any objections, please let me know.
+On Mon, Jul 23, 2018 at 5:58 PM Toshiaki Makita
+<makita.toshiaki@lab.ntt.co.jp> wrote:
+>
+> On 2018/07/22 3:04, xiangxia.m.yue@gmail.com wrote:
+> > From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+> >
+> > Factor out generic busy polling logic and will be
+> > used for in tx path in the next patch. And with the patch,
+> > qemu can set differently the busyloop_timeout for rx queue.
+> >
+> > Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+> > ---
+> ...
+> > +static void vhost_net_busy_poll_vq_check(struct vhost_net *net,
+> > +                                      struct vhost_virtqueue *rvq,
+> > +                                      struct vhost_virtqueue *tvq,
+> > +                                      bool rx)
+> > +{
+> > +     struct socket *sock = rvq->private_data;
+> > +
+> > +     if (rx) {
+> > +             if (!vhost_vq_avail_empty(&net->dev, tvq)) {
+> > +                     vhost_poll_queue(&tvq->poll);
+> > +             } else if (unlikely(vhost_enable_notify(&net->dev, tvq))) {
+> > +                     vhost_disable_notify(&net->dev, tvq);
+> > +                     vhost_poll_queue(&tvq->poll);
+> > +             }
+> > +     } else if ((sock && sk_has_rx_data(sock->sk)) &&
+> > +                 !vhost_vq_avail_empty(&net->dev, rvq)) {
+> > +             vhost_poll_queue(&rvq->poll);
+>
+> Now we wait for vq_avail for rx as well, I think you cannot skip
+> vhost_enable_notify() on tx. Probably you might want to do:
+I think vhost_enable_notify is needed.
 
-------------------
+> } else if (sock && sk_has_rx_data(sock->sk)) {
+>         if (!vhost_vq_avail_empty(&net->dev, rvq)) {
+>                 vhost_poll_queue(&rvq->poll);
+>         } else if (unlikely(vhost_enable_notify(&net->dev, rvq))) {
+>                 vhost_disable_notify(&net->dev, rvq);
+>                 vhost_poll_queue(&rvq->poll);
+>         }
+> }
+As Jason review as before, we only want rx kick when packet is pending at
+socket but we're out of available buffers. So we just enable notify,
+but not poll it ?
 
-From: Nick Desaulniers <ndesaulniers@google.com>
-
-commit d0a8d9378d16eb3c69bd8e6d23779fbdbee3a8c7 upstream.
-
-native_save_fl() is marked static inline, but by using it as
-a function pointer in arch/x86/kernel/paravirt.c, it MUST be outlined.
-
-paravirt's use of native_save_fl() also requires that no GPRs other than
-%rax are clobbered.
-
-Compilers have different heuristics which they use to emit stack guard
-code, the emittance of which can break paravirt's callee saved assumption
-by clobbering %rcx.
-
-Marking a function definition extern inline means that if this version
-cannot be inlined, then the out-of-line version will be preferred. By
-having the out-of-line version be implemented in assembly, it cannot be
-instrumented with a stack protector, which might violate custom calling
-conventions that code like paravirt rely on.
-
-The semantics of extern inline has changed since gnu89. This means that
-folks using GCC versions >= 5.1 may see symbol redefinition errors at
-link time for subdirs that override KBUILD_CFLAGS (making the C standard
-used implicit) regardless of this patch. This has been cleaned up
-earlier in the patch set, but is left as a note in the commit message
-for future travelers.
-
-Reports:
- https://lkml.org/lkml/2018/5/7/534
- https://github.com/ClangBuiltLinux/linux/issues/16
-
-Discussion:
- https://bugs.llvm.org/show_bug.cgi?id=37512
- https://lkml.org/lkml/2018/5/24/1371
-
-Thanks to the many folks that participated in the discussion.
-
-[Backport for 4.4. 4.4 is missing commit 784d5699eddc "x86: move exports to
-actual definitions" which doesn't apply cleanly, and not really worth
-backporting IMO. It's simpler to change this patch from upstream:
-  + #include <asm-generic/export.h>
-rather than
-  + #include <asm/export.h>]
-
-Debugged-by: Alistair Strachan <astrachan@google.com>
-Debugged-by: Matthias Kaehlcke <mka@chromium.org>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: H. Peter Anvin <hpa@zytor.com>
-Suggested-by: Tom Stellar <tstellar@redhat.com>
-Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Juergen Gross <jgross@suse.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: acme@redhat.com
-Cc: akataria@vmware.com
-Cc: akpm@linux-foundation.org
-Cc: andrea.parri@amarulasolutions.com
-Cc: ard.biesheuvel@linaro.org
-Cc: aryabinin@virtuozzo.com
-Cc: astrachan@google.com
-Cc: boris.ostrovsky@oracle.com
-Cc: brijesh.singh@amd.com
-Cc: caoj.fnst@cn.fujitsu.com
-Cc: geert@linux-m68k.org
-Cc: ghackmann@google.com
-Cc: gregkh@linuxfoundation.org
-Cc: jan.kiszka@siemens.com
-Cc: jarkko.sakkinen@linux.intel.com
-Cc: joe@perches.com
-Cc: jpoimboe@redhat.com
-Cc: keescook@google.com
-Cc: kirill.shutemov@linux.intel.com
-Cc: kstewart@linuxfoundation.org
-Cc: linux-efi@vger.kernel.org
-Cc: linux-kbuild@vger.kernel.org
-Cc: manojgupta@google.com
-Cc: mawilcox@microsoft.com
-Cc: michal.lkml@markovi.net
-Cc: mjg59@google.com
-Cc: mka@chromium.org
-Cc: pombredanne@nexb.com
-Cc: rientjes@google.com
-Cc: rostedt@goodmis.org
-Cc: thomas.lendacky@amd.com
-Cc: tweek@google.com
-Cc: virtualization@lists.linux-foundation.org
-Cc: will.deacon@arm.com
-Cc: yamada.masahiro@socionext.com
-Link: http://lkml.kernel.org/r/20180621162324.36656-4-ndesaulniers@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- arch/x86/include/asm/irqflags.h |    2 +-
- arch/x86/kernel/Makefile        |    1 +
- arch/x86/kernel/irqflags.S      |   26 ++++++++++++++++++++++++++
- 3 files changed, 28 insertions(+), 1 deletion(-)
-
---- a/arch/x86/include/asm/irqflags.h
-+++ b/arch/x86/include/asm/irqflags.h
-@@ -8,7 +8,7 @@
-  * Interrupt control:
-  */
- 
--static inline unsigned long native_save_fl(void)
-+extern inline unsigned long native_save_fl(void)
- {
- 	unsigned long flags;
- 
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -41,6 +41,7 @@ obj-y			+= alternative.o i8253.o pci-nom
- obj-y			+= tsc.o tsc_msr.o io_delay.o rtc.o
- obj-y			+= pci-iommu_table.o
- obj-y			+= resource.o
-+obj-y			+= irqflags.o
- 
- obj-y				+= process.o
- obj-y				+= fpu/
---- /dev/null
-+++ b/arch/x86/kernel/irqflags.S
-@@ -0,0 +1,26 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#include <asm/asm.h>
-+#include <asm-generic/export.h>
-+#include <linux/linkage.h>
-+
-+/*
-+ * unsigned long native_save_fl(void)
-+ */
-+ENTRY(native_save_fl)
-+	pushf
-+	pop %_ASM_AX
-+	ret
-+ENDPROC(native_save_fl)
-+EXPORT_SYMBOL(native_save_fl)
-+
-+/*
-+ * void native_restore_fl(unsigned long flags)
-+ * %eax/%rdi: flags
-+ */
-+ENTRY(native_restore_fl)
-+	push %_ASM_ARG1
-+	popf
-+	ret
-+ENDPROC(native_restore_fl)
-+EXPORT_SYMBOL(native_restore_fl)
+        } else if ((sock && sk_has_rx_data(sock->sk)) &&
+                    !vhost_vq_avail_empty(&net->dev, rvq)) {
+                vhost_poll_queue(&rvq->poll);
+        else {
+                vhost_enable_notify(&net->dev, rvq);
+        }
+> Also it's better to care vhost_net_disable_vq()/vhost_net_enable_vq() on tx?
+I cant find why it is better, if necessary, we can do it.
+> --
+> Toshiaki Makita
+>
