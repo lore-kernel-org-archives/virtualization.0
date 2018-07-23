@@ -1,15 +1,13 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v36 2/5] virtio_balloon: replace oom notifier with shrinker
-Date: Mon, 23 Jul 2018 18:30:46 +0800
-Message-ID: <5B55AE56.5030404__8134.27011385119$1532341474$gmane$org@intel.com>
-References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
-	<1532075585-39067-3-git-send-email-wei.w.wang@intel.com>
-	<20180722174125-mutt-send-email-mst@kernel.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.4 018/107] x86/paravirt: Make native_save_fl() extern inline
+Date: Mon, 23 Jul 2018 14:41:12 +0200
+Message-ID: <20180723122413.797031305@linuxfoundation.org>
+References: <20180723122413.003644357@linuxfoundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180722174125-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180723122413.003644357@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,77 +17,162 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: andrea.parri@amarulasolutions.com, kstewart@linuxfoundation.org, linux-efi@vger.kernel.org, brijesh.singh@amd.com, Peter Zijlstra <peterz@infradead.org>, jan.kiszka@siemens.com, will.deacon@arm.com, jarkko.sakkinen@linux.intel.com, virtualization@lists.linux-foundation.org, yamada.masahiro@socionext.com, manojgupta@google.com, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, tweek@google.com, mawilcox@microsoft.com, akataria@vmware.com, ghackmann@google.com, Ingo Molnar <mingo@kernel.org>, mjg59@google.com, mka@chromium.org, geert@linux-m68k.org, rientjes@google.com, aryabinin@virtuozzo.com, thomas.lendacky@amd.com, Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org, pombredanne@nexb.com, rostedt@goodmis.org, acme@redhat.com, caoj.fnst@cn.fujitsu.com, jpoimboe@redhat.com, Sedat Dilek <sedat.dilek@gmail.com>, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/22/2018 10:48 PM, Michael S. Tsirkin wrote:
-> On Fri, Jul 20, 2018 at 04:33:02PM +0800, Wei Wang wrote:
->>   
->> +static unsigned long virtio_balloon_shrinker_scan(struct shrinker *shrinker,
->> +						  struct shrink_control *sc)
->> +{
->> +	unsigned long pages_to_free = balloon_pages_to_shrink,
->> +		      pages_freed = 0;
->> +	struct virtio_balloon *vb = container_of(shrinker,
->> +					struct virtio_balloon, shrinker);
->> +
->> +	/*
->> +	 * One invocation of leak_balloon can deflate at most
->> +	 * VIRTIO_BALLOON_ARRAY_PFNS_MAX balloon pages, so we call it
->> +	 * multiple times to deflate pages till reaching
->> +	 * balloon_pages_to_shrink pages.
->> +	 */
->> +	while (vb->num_pages && pages_to_free) {
->> +		pages_to_free = balloon_pages_to_shrink - pages_freed;
->> +		pages_freed += leak_balloon(vb, pages_to_free);
->> +	}
->> +	update_balloon_size(vb);
-> Are you sure that this is never called if count returned 0?
+4.4-stable review patch.  If anyone has any objections, please let me know.
 
-Yes. Please see do_shrink_slab, it just returns if count is 0.
+------------------
 
->
->> +
->> +	return pages_freed / VIRTIO_BALLOON_PAGES_PER_PAGE;
->> +}
->> +
->> +static unsigned long virtio_balloon_shrinker_count(struct shrinker *shrinker,
->> +						   struct shrink_control *sc)
->> +{
->> +	struct virtio_balloon *vb = container_of(shrinker,
->> +					struct virtio_balloon, shrinker);
->> +
->> +	/*
->> +	 * We continue to use VIRTIO_BALLOON_F_DEFLATE_ON_OOM to handle the
->> +	 * case when shrinker needs to be invoked to relieve memory pressure.
->> +	 */
->> +	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
->> +		return 0;
-> So why not skip notifier registration when deflate on oom
-> is clear?
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-Sounds good, thanks.
+commit d0a8d9378d16eb3c69bd8e6d23779fbdbee3a8c7 upstream.
 
+native_save_fl() is marked static inline, but by using it as
+a function pointer in arch/x86/kernel/paravirt.c, it MUST be outlined.
 
->   	vb->vb_dev_info.inode->i_mapping->a_ops = &balloon_aops;
->   #endif
-> +	err = virtio_balloon_register_shrinker(vb);
-> +	if (err)
-> +		goto out_del_vqs;
->   
-> So we can get scans before device is ready. Leak will fail
-> then. Why not register later after device is ready?
+paravirt's use of native_save_fl() also requires that no GPRs other than
+%rax are clobbered.
 
-Probably no.
+Compilers have different heuristics which they use to emit stack guard
+code, the emittance of which can break paravirt's callee saved assumption
+by clobbering %rcx.
 
-- it would be better not to set device ready when register_shrinker failed.
-- When the device isn't ready, ballooning won't happen, that is, 
-vb->num_pages will be 0, which results in shrinker_count=0 and 
-shrinker_scan won't be called.
+Marking a function definition extern inline means that if this version
+cannot be inlined, then the out-of-line version will be preferred. By
+having the out-of-line version be implemented in assembly, it cannot be
+instrumented with a stack protector, which might violate custom calling
+conventions that code like paravirt rely on.
 
-So I think it would be better to have shrinker registered before 
-device_ready.
+The semantics of extern inline has changed since gnu89. This means that
+folks using GCC versions >= 5.1 may see symbol redefinition errors at
+link time for subdirs that override KBUILD_CFLAGS (making the C standard
+used implicit) regardless of this patch. This has been cleaned up
+earlier in the patch set, but is left as a note in the commit message
+for future travelers.
 
-Best,
-Wei
+Reports:
+ https://lkml.org/lkml/2018/5/7/534
+ https://github.com/ClangBuiltLinux/linux/issues/16
+
+Discussion:
+ https://bugs.llvm.org/show_bug.cgi?id=37512
+ https://lkml.org/lkml/2018/5/24/1371
+
+Thanks to the many folks that participated in the discussion.
+
+[Backport for 4.4. 4.4 is missing commit 784d5699eddc "x86: move exports to
+actual definitions" which doesn't apply cleanly, and not really worth
+backporting IMO. It's simpler to change this patch from upstream:
+  + #include <asm-generic/export.h>
+rather than
+  + #include <asm/export.h>]
+
+Debugged-by: Alistair Strachan <astrachan@google.com>
+Debugged-by: Matthias Kaehlcke <mka@chromium.org>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Suggested-by: H. Peter Anvin <hpa@zytor.com>
+Suggested-by: Tom Stellar <tstellar@redhat.com>
+Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Juergen Gross <jgross@suse.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: acme@redhat.com
+Cc: akataria@vmware.com
+Cc: akpm@linux-foundation.org
+Cc: andrea.parri@amarulasolutions.com
+Cc: ard.biesheuvel@linaro.org
+Cc: aryabinin@virtuozzo.com
+Cc: astrachan@google.com
+Cc: boris.ostrovsky@oracle.com
+Cc: brijesh.singh@amd.com
+Cc: caoj.fnst@cn.fujitsu.com
+Cc: geert@linux-m68k.org
+Cc: ghackmann@google.com
+Cc: gregkh@linuxfoundation.org
+Cc: jan.kiszka@siemens.com
+Cc: jarkko.sakkinen@linux.intel.com
+Cc: joe@perches.com
+Cc: jpoimboe@redhat.com
+Cc: keescook@google.com
+Cc: kirill.shutemov@linux.intel.com
+Cc: kstewart@linuxfoundation.org
+Cc: linux-efi@vger.kernel.org
+Cc: linux-kbuild@vger.kernel.org
+Cc: manojgupta@google.com
+Cc: mawilcox@microsoft.com
+Cc: michal.lkml@markovi.net
+Cc: mjg59@google.com
+Cc: mka@chromium.org
+Cc: pombredanne@nexb.com
+Cc: rientjes@google.com
+Cc: rostedt@goodmis.org
+Cc: thomas.lendacky@amd.com
+Cc: tweek@google.com
+Cc: virtualization@lists.linux-foundation.org
+Cc: will.deacon@arm.com
+Cc: yamada.masahiro@socionext.com
+Link: http://lkml.kernel.org/r/20180621162324.36656-4-ndesaulniers@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/include/asm/irqflags.h |    2 +-
+ arch/x86/kernel/Makefile        |    1 +
+ arch/x86/kernel/irqflags.S      |   26 ++++++++++++++++++++++++++
+ 3 files changed, 28 insertions(+), 1 deletion(-)
+
+--- a/arch/x86/include/asm/irqflags.h
++++ b/arch/x86/include/asm/irqflags.h
+@@ -8,7 +8,7 @@
+  * Interrupt control:
+  */
+ 
+-static inline unsigned long native_save_fl(void)
++extern inline unsigned long native_save_fl(void)
+ {
+ 	unsigned long flags;
+ 
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -41,6 +41,7 @@ obj-y			+= alternative.o i8253.o pci-nom
+ obj-y			+= tsc.o tsc_msr.o io_delay.o rtc.o
+ obj-y			+= pci-iommu_table.o
+ obj-y			+= resource.o
++obj-y			+= irqflags.o
+ 
+ obj-y				+= process.o
+ obj-y				+= fpu/
+--- /dev/null
++++ b/arch/x86/kernel/irqflags.S
+@@ -0,0 +1,26 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#include <asm/asm.h>
++#include <asm-generic/export.h>
++#include <linux/linkage.h>
++
++/*
++ * unsigned long native_save_fl(void)
++ */
++ENTRY(native_save_fl)
++	pushf
++	pop %_ASM_AX
++	ret
++ENDPROC(native_save_fl)
++EXPORT_SYMBOL(native_save_fl)
++
++/*
++ * void native_restore_fl(unsigned long flags)
++ * %eax/%rdi: flags
++ */
++ENTRY(native_restore_fl)
++	push %_ASM_ARG1
++	popf
++	ret
++ENDPROC(native_restore_fl)
++EXPORT_SYMBOL(native_restore_fl)
