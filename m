@@ -1,16 +1,15 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [PATCH net-next v6 3/4] net: vhost: factor out busy polling logic
-	to vhost_net_busy_poll()
-Date: Mon, 23 Jul 2018 18:57:53 +0900
-Message-ID: <c520c142-ef36-7918-7135-51258c17bd83@lab.ntt.co.jp>
-References: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<1532196242-2998-4-git-send-email-xiangxia.m.yue@gmail.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v36 2/5] virtio_balloon: replace oom notifier with shrinker
+Date: Mon, 23 Jul 2018 18:30:46 +0800
+Message-ID: <5B55AE56.5030404__8134.27011385119$1532341474$gmane$org@intel.com>
+References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
+	<1532075585-39067-3-git-send-email-wei.w.wang@intel.com>
+	<20180722174125-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1532196242-2998-4-git-send-email-xiangxia.m.yue@gmail.com>
-Content-Language: en-US
+In-Reply-To: <20180722174125-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,51 +19,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xiangxia.m.yue@gmail.com, jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2018/07/22 3:04, xiangxia.m.yue@gmail.com wrote:
-> From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-> 
-> Factor out generic busy polling logic and will be
-> used for in tx path in the next patch. And with the patch,
-> qemu can set differently the busyloop_timeout for rx queue.
-> 
-> Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-> ---
-...
-> +static void vhost_net_busy_poll_vq_check(struct vhost_net *net,
-> +					 struct vhost_virtqueue *rvq,
-> +					 struct vhost_virtqueue *tvq,
-> +					 bool rx)
-> +{
-> +	struct socket *sock = rvq->private_data;
-> +
-> +	if (rx) {
-> +		if (!vhost_vq_avail_empty(&net->dev, tvq)) {
-> +			vhost_poll_queue(&tvq->poll);
-> +		} else if (unlikely(vhost_enable_notify(&net->dev, tvq))) {
-> +			vhost_disable_notify(&net->dev, tvq);
-> +			vhost_poll_queue(&tvq->poll);
-> +		}
-> +	} else if ((sock && sk_has_rx_data(sock->sk)) &&
-> +		    !vhost_vq_avail_empty(&net->dev, rvq)) {
-> +		vhost_poll_queue(&rvq->poll);
+On 07/22/2018 10:48 PM, Michael S. Tsirkin wrote:
+> On Fri, Jul 20, 2018 at 04:33:02PM +0800, Wei Wang wrote:
+>>   
+>> +static unsigned long virtio_balloon_shrinker_scan(struct shrinker *shrinker,
+>> +						  struct shrink_control *sc)
+>> +{
+>> +	unsigned long pages_to_free = balloon_pages_to_shrink,
+>> +		      pages_freed = 0;
+>> +	struct virtio_balloon *vb = container_of(shrinker,
+>> +					struct virtio_balloon, shrinker);
+>> +
+>> +	/*
+>> +	 * One invocation of leak_balloon can deflate at most
+>> +	 * VIRTIO_BALLOON_ARRAY_PFNS_MAX balloon pages, so we call it
+>> +	 * multiple times to deflate pages till reaching
+>> +	 * balloon_pages_to_shrink pages.
+>> +	 */
+>> +	while (vb->num_pages && pages_to_free) {
+>> +		pages_to_free = balloon_pages_to_shrink - pages_freed;
+>> +		pages_freed += leak_balloon(vb, pages_to_free);
+>> +	}
+>> +	update_balloon_size(vb);
+> Are you sure that this is never called if count returned 0?
 
-Now we wait for vq_avail for rx as well, I think you cannot skip
-vhost_enable_notify() on tx. Probably you might want to do:
+Yes. Please see do_shrink_slab, it just returns if count is 0.
 
-} else if (sock && sk_has_rx_data(sock->sk)) {
-	if (!vhost_vq_avail_empty(&net->dev, rvq)) {
-		vhost_poll_queue(&rvq->poll);
-	} else if (unlikely(vhost_enable_notify(&net->dev, rvq))) {
-		vhost_disable_notify(&net->dev, rvq);
-		vhost_poll_queue(&rvq->poll);
-	}
-}
+>
+>> +
+>> +	return pages_freed / VIRTIO_BALLOON_PAGES_PER_PAGE;
+>> +}
+>> +
+>> +static unsigned long virtio_balloon_shrinker_count(struct shrinker *shrinker,
+>> +						   struct shrink_control *sc)
+>> +{
+>> +	struct virtio_balloon *vb = container_of(shrinker,
+>> +					struct virtio_balloon, shrinker);
+>> +
+>> +	/*
+>> +	 * We continue to use VIRTIO_BALLOON_F_DEFLATE_ON_OOM to handle the
+>> +	 * case when shrinker needs to be invoked to relieve memory pressure.
+>> +	 */
+>> +	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+>> +		return 0;
+> So why not skip notifier registration when deflate on oom
+> is clear?
 
-Also it's better to care vhost_net_disable_vq()/vhost_net_enable_vq() on tx?
+Sounds good, thanks.
 
--- 
-Toshiaki Makita
+
+>   	vb->vb_dev_info.inode->i_mapping->a_ops = &balloon_aops;
+>   #endif
+> +	err = virtio_balloon_register_shrinker(vb);
+> +	if (err)
+> +		goto out_del_vqs;
+>   
+> So we can get scans before device is ready. Leak will fail
+> then. Why not register later after device is ready?
+
+Probably no.
+
+- it would be better not to set device ready when register_shrinker failed.
+- When the device isn't ready, ballooning won't happen, that is, 
+vb->num_pages will be 0, which results in shrinker_count=0 and 
+shrinker_scan won't be called.
+
+So I think it would be better to have shrinker registered before 
+device_ready.
+
+Best,
+Wei
