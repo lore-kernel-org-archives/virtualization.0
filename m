@@ -1,22 +1,15 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [PATCH net-next v6 3/4] net: vhost: factor out busy polling logic
-	to vhost_net_busy_poll()
-Date: Tue, 24 Jul 2018 12:41:15 +0900
-Message-ID: <b89a6f43-0ff0-430d-d280-66e0b224e06a@lab.ntt.co.jp>
-References: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<1532196242-2998-4-git-send-email-xiangxia.m.yue@gmail.com>
-	<c520c142-ef36-7918-7135-51258c17bd83@lab.ntt.co.jp>
-	<CAMDZJNVPi8DMScyF2KW0mLAYe0p8uUVVY55Oo9Hk6SJJTMZYKg@mail.gmail.com>
-	<2b0efbf4-09e2-0ee9-091f-e2d9e10483a1@gmail.com>
-	<CAMDZJNXWs+yqAcZ-7gW6RQjen0-mzfJ-Ar-O0_wttse2A-3-HQ@mail.gmail.com>
-	<14d01d2d-0eb8-172b-1c53-7dadc5fffbac@lab.ntt.co.jp>
-	<CAMDZJNVVJs35kuvktTxn+mmDz7db+1K-kfuOoMUn9Z=WoayUVw@mail.gmail.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v36 0/5] Virtio-balloon: support free page reporting
+Date: Tue, 24 Jul 2018 16:12:49 +0800
+Message-ID: <5B56DF81.4030606__47765.9894190312$1532419615$gmane$org@intel.com>
+References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
+	<20180723122342-mutt-send-email-mst@kernel.org>
+	<20180723143604.GB2457@work-vm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAMDZJNVVJs35kuvktTxn+mmDz7db+1K-kfuOoMUn9Z=WoayUVw@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <20180723143604.GB2457@work-vm>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,82 +19,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, toshiaki.makita1@gmail.com, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxOC8wNy8yNCAxMjoyOCwgVG9uZ2hhbyBaaGFuZyB3cm90ZToKPiBPbiBUdWUsIEp1bCAy
-NCwgMjAxOCBhdCAxMDo1MyBBTSBUb3NoaWFraSBNYWtpdGEKPiA8bWFraXRhLnRvc2hpYWtpQGxh
-Yi5udHQuY28uanA+IHdyb3RlOgo+Pgo+PiBPbiAyMDE4LzA3LzI0IDI6MzEsIFRvbmdoYW8gWmhh
-bmcgd3JvdGU6Cj4+PiBPbiBNb24sIEp1bCAyMywgMjAxOCBhdCAxMDoyMCBQTSBUb3NoaWFraSBN
-YWtpdGEKPj4+IDx0b3NoaWFraS5tYWtpdGExQGdtYWlsLmNvbT4gd3JvdGU6Cj4+Pj4KPj4+PiBP
-biAxOC8wNy8yMyAo5pyIKSAyMTo0MywgVG9uZ2hhbyBaaGFuZyB3cm90ZToKPj4+Pj4gT24gTW9u
-LCBKdWwgMjMsIDIwMTggYXQgNTo1OCBQTSBUb3NoaWFraSBNYWtpdGEKPj4+Pj4gPG1ha2l0YS50
-b3NoaWFraUBsYWIubnR0LmNvLmpwPiB3cm90ZToKPj4+Pj4+Cj4+Pj4+PiBPbiAyMDE4LzA3LzIy
-IDM6MDQsIHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbSB3cm90ZToKPj4+Pj4+PiBGcm9tOiBUb25n
-aGFvIFpoYW5nIDx4aWFuZ3hpYS5tLnl1ZUBnbWFpbC5jb20+Cj4+Pj4+Pj4KPj4+Pj4+PiBGYWN0
-b3Igb3V0IGdlbmVyaWMgYnVzeSBwb2xsaW5nIGxvZ2ljIGFuZCB3aWxsIGJlCj4+Pj4+Pj4gdXNl
-ZCBmb3IgaW4gdHggcGF0aCBpbiB0aGUgbmV4dCBwYXRjaC4gQW5kIHdpdGggdGhlIHBhdGNoLAo+
-Pj4+Pj4+IHFlbXUgY2FuIHNldCBkaWZmZXJlbnRseSB0aGUgYnVzeWxvb3BfdGltZW91dCBmb3Ig
-cnggcXVldWUuCj4+Pj4+Pj4KPj4+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBUb25naGFvIFpoYW5nIDx4
-aWFuZ3hpYS5tLnl1ZUBnbWFpbC5jb20+Cj4+Pj4+Pj4gLS0tCj4+Pj4+PiAuLi4KPj4+Pj4+PiAr
-c3RhdGljIHZvaWQgdmhvc3RfbmV0X2J1c3lfcG9sbF92cV9jaGVjayhzdHJ1Y3Qgdmhvc3RfbmV0
-ICpuZXQsCj4+Pj4+Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3Ry
-dWN0IHZob3N0X3ZpcnRxdWV1ZSAqcnZxLAo+Pj4+Pj4+ICsgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnR2cSwKPj4+Pj4+PiArICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBib29sIHJ4KQo+Pj4+Pj4+ICt7Cj4+
-Pj4+Pj4gKyAgICAgc3RydWN0IHNvY2tldCAqc29jayA9IHJ2cS0+cHJpdmF0ZV9kYXRhOwo+Pj4+
-Pj4+ICsKPj4+Pj4+PiArICAgICBpZiAocngpIHsKPj4+Pj4+PiArICAgICAgICAgICAgIGlmICgh
-dmhvc3RfdnFfYXZhaWxfZW1wdHkoJm5ldC0+ZGV2LCB0dnEpKSB7Cj4+Pj4+Pj4gKyAgICAgICAg
-ICAgICAgICAgICAgIHZob3N0X3BvbGxfcXVldWUoJnR2cS0+cG9sbCk7Cj4+Pj4+Pj4gKyAgICAg
-ICAgICAgICB9IGVsc2UgaWYgKHVubGlrZWx5KHZob3N0X2VuYWJsZV9ub3RpZnkoJm5ldC0+ZGV2
-LCB0dnEpKSkgewo+Pj4+Pj4+ICsgICAgICAgICAgICAgICAgICAgICB2aG9zdF9kaXNhYmxlX25v
-dGlmeSgmbmV0LT5kZXYsIHR2cSk7Cj4+Pj4+Pj4gKyAgICAgICAgICAgICAgICAgICAgIHZob3N0
-X3BvbGxfcXVldWUoJnR2cS0+cG9sbCk7Cj4+Pj4+Pj4gKyAgICAgICAgICAgICB9Cj4+Pj4+Pj4g
-KyAgICAgfSBlbHNlIGlmICgoc29jayAmJiBza19oYXNfcnhfZGF0YShzb2NrLT5zaykpICYmCj4+
-Pj4+Pj4gKyAgICAgICAgICAgICAgICAgIXZob3N0X3ZxX2F2YWlsX2VtcHR5KCZuZXQtPmRldiwg
-cnZxKSkgewo+Pj4+Pj4+ICsgICAgICAgICAgICAgdmhvc3RfcG9sbF9xdWV1ZSgmcnZxLT5wb2xs
-KTsKPj4+Pj4+Cj4+Pj4+PiBOb3cgd2Ugd2FpdCBmb3IgdnFfYXZhaWwgZm9yIHJ4IGFzIHdlbGws
-IEkgdGhpbmsgeW91IGNhbm5vdCBza2lwCj4+Pj4+PiB2aG9zdF9lbmFibGVfbm90aWZ5KCkgb24g
-dHguIFByb2JhYmx5IHlvdSBtaWdodCB3YW50IHRvIGRvOgo+Pj4+PiBJIHRoaW5rIHZob3N0X2Vu
-YWJsZV9ub3RpZnkgaXMgbmVlZGVkLgo+Pj4+Pgo+Pj4+Pj4gfSBlbHNlIGlmIChzb2NrICYmIHNr
-X2hhc19yeF9kYXRhKHNvY2stPnNrKSkgewo+Pj4+Pj4gICAgICAgICAgaWYgKCF2aG9zdF92cV9h
-dmFpbF9lbXB0eSgmbmV0LT5kZXYsIHJ2cSkpIHsKPj4+Pj4+ICAgICAgICAgICAgICAgICAgdmhv
-c3RfcG9sbF9xdWV1ZSgmcnZxLT5wb2xsKTsKPj4+Pj4+ICAgICAgICAgIH0gZWxzZSBpZiAodW5s
-aWtlbHkodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHJ2cSkpKSB7Cj4+Pj4+PiAgICAg
-ICAgICAgICAgICAgIHZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwgcnZxKTsKPj4+Pj4+
-ICAgICAgICAgICAgICAgICAgdmhvc3RfcG9sbF9xdWV1ZSgmcnZxLT5wb2xsKTsKPj4+Pj4+ICAg
-ICAgICAgIH0KPj4+Pj4+IH0KPj4+Pj4gQXMgSmFzb24gcmV2aWV3IGFzIGJlZm9yZSwgd2Ugb25s
-eSB3YW50IHJ4IGtpY2sgd2hlbiBwYWNrZXQgaXMgcGVuZGluZyBhdAo+Pj4+PiBzb2NrZXQgYnV0
-IHdlJ3JlIG91dCBvZiBhdmFpbGFibGUgYnVmZmVycy4gU28gd2UganVzdCBlbmFibGUgbm90aWZ5
-LAo+Pj4+PiBidXQgbm90IHBvbGwgaXQgPwo+Pj4+Pgo+Pj4+PiAgICAgICAgICB9IGVsc2UgaWYg
-KChzb2NrICYmIHNrX2hhc19yeF9kYXRhKHNvY2stPnNrKSkgJiYKPj4+Pj4gICAgICAgICAgICAg
-ICAgICAgICAgIXZob3N0X3ZxX2F2YWlsX2VtcHR5KCZuZXQtPmRldiwgcnZxKSkgewo+Pj4+PiAg
-ICAgICAgICAgICAgICAgIHZob3N0X3BvbGxfcXVldWUoJnJ2cS0+cG9sbCk7Cj4+Pj4+ICAgICAg
-ICAgIGVsc2Ugewo+Pj4+PiAgICAgICAgICAgICAgICAgIHZob3N0X2VuYWJsZV9ub3RpZnkoJm5l
-dC0+ZGV2LCBydnEpOwo+Pj4+PiAgICAgICAgICB9Cj4+Pj4KPj4+PiBXaGVuIHZob3N0X2VuYWJs
-ZV9ub3RpZnkoKSByZXR1cm5zIHRydWUgdGhlIGF2YWlsIGJlY29tZXMgbm9uLWVtcHR5Cj4+Pj4g
-d2hpbGUgd2UgYXJlIGVuYWJsaW5nIG5vdGlmeS4gV2UgbWF5IGRlbGF5IHRoZSByeCBwcm9jZXNz
-IGlmIHdlIGRvbid0Cj4+Pj4gY2hlY2sgdGhlIHJldHVybiB2YWx1ZSBvZiB2aG9zdF9lbmFibGVf
-bm90aWZ5KCkuCj4+PiBJIGdvdCBpdCB0aGFua3MuCj4+Pj4+PiBBbHNvIGl0J3MgYmV0dGVyIHRv
-IGNhcmUgdmhvc3RfbmV0X2Rpc2FibGVfdnEoKS92aG9zdF9uZXRfZW5hYmxlX3ZxKCkgb24gdHg/
-Cj4+Pj4+IEkgY2FudCBmaW5kIHdoeSBpdCBpcyBiZXR0ZXIsIGlmIG5lY2Vzc2FyeSwgd2UgY2Fu
-IGRvIGl0Lgo+Pj4+Cj4+Pj4gVGhlIHJlYXNvbiBpcyBwcmV0dHkgc2ltcGxlLi4uIHdlIGFyZSBi
-dXN5cG9sbGluZyB0aGUgc29ja2V0IHNvIHdlIGRvbid0Cj4+Pj4gbmVlZCByeCB3YWtldXBzIGR1
-cmluZyBpdD8KPj4+IE9LLCBidXQgb25lIHF1ZXN0aW9uLCBob3cgYWJvdXQgcng/IGRvIHdlIHVz
-ZSB0aGUKPj4+IHZob3N0X25ldF9kaXNhYmxlX3ZxL3Zob3N0X25ldF9lbnNhYmxlX3ZxIG9uIHJ4
-ID8KPj4KPj4gSWYgd2UgYXJlIGJ1c3lwb2xsaW5nIHRoZSBzb2NrIHR4IGJ1Zj8gSSdtIG5vdCBz
-dXJlIGlmIHBvbGxpbmcgaXQKPj4gaW1wcm92ZXMgdGhlIHBlcmZvcm1hbmNlLgo+IE5vdCB0aGUg
-c29jayB0eCBidWZmLCB3aGVuIHdlIGFyZSBidXN5cG9sbGluZyBpbiBoYW5kbGVfcngsIHdlIHdp
-bGwKPiBjaGVjayB0aGUgdHggdnJpbmcgdmlhICB2aG9zdF92cV9hdmFpbF9lbXB0eS4KPiBTbywg
-c2hvdWxkIHdlIHRoZSBkaXNhYmxlIHR2cSwgZS5nLiB2aG9zdF9uZXRfZGlzYWJsZV92cShuZXQs
-IHR2cSk/PiAtLQoKV2hlbiB5b3Ugd2FudCB0byBzdG9wIHZxIGtpY2tzIGZyb20gdGhlIGd1ZXN0
-IHlvdSBzaG91bGQgY2FsbAp2aG9zdF9kaXNhYmxlX25vdGlmeSgpIGFuZCB3aGVuIHlvdSB3YW50
-IHRvIHN0b3AgdnEgd2FrZXVwcyBmcm9tIHRoZQpzb2NrZXQgeW91IHNob3VsZCBjYWxsIHZob3N0
-X25ldF9kaXNhYmxlX3ZxKCkuCgpZb3UgYXJlIHBvbGxpbmcgdnFfYXZhaWwgc28geW91IHdhbnQg
-dG8gc3RvcCB2cSBraWNrcyB0aHVzCnZob3N0X2Rpc2FibGVfbm90aWZ5KCkgaXMgbmVlZGVkIGFu
-ZCBpdCBpcyBhbHJlYWR5IGNhbGxlZC4KCi0tIApUb3NoaWFraSBNYWtpdGEKCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
-bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
-L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
-bg==
+On 07/23/2018 10:36 PM, Dr. David Alan Gilbert wrote:
+> * Michael S. Tsirkin (mst@redhat.com) wrote:
+>> On Fri, Jul 20, 2018 at 04:33:00PM +0800, Wei Wang wrote:
+>>> This patch series is separated from the previous "Virtio-balloon
+>>> Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,
+>>> implemented by this series enables the virtio-balloon driver to report
+>>> hints of guest free pages to the host. It can be used to accelerate live
+>>> migration of VMs. Here is an introduction of this usage:
+>>>
+>>> Live migration needs to transfer the VM's memory from the source machine
+>>> to the destination round by round. For the 1st round, all the VM's memory
+>>> is transferred. From the 2nd round, only the pieces of memory that were
+>>> written by the guest (after the 1st round) are transferred. One method
+>>> that is popularly used by the hypervisor to track which part of memory is
+>>> written is to write-protect all the guest memory.
+>>>
+>>> This feature enables the optimization by skipping the transfer of guest
+>>> free pages during VM live migration. It is not concerned that the memory
+>>> pages are used after they are given to the hypervisor as a hint of the
+>>> free pages, because they will be tracked by the hypervisor and transferred
+>>> in the subsequent round if they are used and written.
+>>>
+>>> * Tests
+>>> - Test Environment
+>>>      Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
+>>>      Guest: 8G RAM, 4 vCPU
+>>>      Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
+>>>
+>>> - Test Results
+>>>      - Idle Guest Live Migration Time (results are averaged over 10 runs):
+>>>          - Optimization v.s. Legacy = 409ms vs 1757ms --> ~77% reduction
+>>> 	(setting page poisoning zero and enabling ksm don't affect the
+>>>           comparison result)
+>>>      - Guest with Linux Compilation Workload (make bzImage -j4):
+>>>          - Live Migration Time (average)
+>>>            Optimization v.s. Legacy = 1407ms v.s. 2528ms --> ~44% reduction
+>>>          - Linux Compilation Time
+>>>            Optimization v.s. Legacy = 5min4s v.s. 5min12s
+>>>            --> no obvious difference
+>> I'd like to see dgilbert's take on whether this kind of gain
+>> justifies adding a PV interfaces, and what kind of guest workload
+>> is appropriate.
+>>
+>> Cc'd.
+> Well, 44% is great ... although the measurement is a bit weird.
+>
+> a) A 2 second downtime is very large; 300-500ms is more normal
+
+No problem, I will set downtime to 400ms for the tests.
+
+> b) I'm not sure what the 'average' is  - is that just between a bunch of
+> repeated migrations?
+
+Yes, just repeatedly ("source<---->destination" migration) do the tests 
+and get an averaged result.
+
+
+> c) What load was running in the guest during the live migration?
+
+The first one above just uses a guest without running any specific 
+workload (named idle guests).
+The second one uses a guest with the Linux compilation workload running.
+
+>
+> An interesting measurement to add would be to do the same test but
+> with a VM with a lot more RAM but the same load;  you'd hope the gain
+> would be even better.
+> It would be interesting, especially because the users who are interested
+> are people creating VMs allocated with lots of extra memory (for the
+> worst case) but most of the time migrating when it's fairly idle.
+
+OK. I will add tests of a guest with larger memory.
+
+Best,
+Wei
