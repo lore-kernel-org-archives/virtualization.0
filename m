@@ -1,17 +1,20 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v36 2/5] virtio_balloon: replace oom notifier with shrinker
-Date: Tue, 24 Jul 2018 09:49:20 +0800
-Message-ID: <5B5685A0.9040005__1011.51360800049$1532396587$gmane$org@intel.com>
-References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
-	<1532075585-39067-3-git-send-email-wei.w.wang@intel.com>
-	<20180722174125-mutt-send-email-mst@kernel.org>
-	<5B55AE56.5030404@intel.com>
-	<20180723170826-mutt-send-email-mst@kernel.org>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Subject: Re: [PATCH net-next v6 3/4] net: vhost: factor out busy polling logic
+	to vhost_net_busy_poll()
+Date: Tue, 24 Jul 2018 11:53:08 +0900
+Message-ID: <14d01d2d-0eb8-172b-1c53-7dadc5fffbac@lab.ntt.co.jp>
+References: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<1532196242-2998-4-git-send-email-xiangxia.m.yue@gmail.com>
+	<c520c142-ef36-7918-7135-51258c17bd83@lab.ntt.co.jp>
+	<CAMDZJNVPi8DMScyF2KW0mLAYe0p8uUVVY55Oo9Hk6SJJTMZYKg@mail.gmail.com>
+	<2b0efbf4-09e2-0ee9-091f-e2d9e10483a1@gmail.com>
+	<CAMDZJNXWs+yqAcZ-7gW6RQjen0-mzfJ-Ar-O0_wttse2A-3-HQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180723170826-mutt-send-email-mst@kernel.org>
+In-Reply-To: <CAMDZJNXWs+yqAcZ-7gW6RQjen0-mzfJ-Ar-O0_wttse2A-3-HQ@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,37 +24,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
+To: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, toshiaki.makita1@gmail.com, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/23/2018 10:13 PM, Michael S. Tsirkin wrote:
->>>    	vb->vb_dev_info.inode->i_mapping->a_ops = &balloon_aops;
->>>    #endif
->>> +	err = virtio_balloon_register_shrinker(vb);
->>> +	if (err)
->>> +		goto out_del_vqs;
->>> So we can get scans before device is ready. Leak will fail
->>> then. Why not register later after device is ready?
->> Probably no.
->>
->> - it would be better not to set device ready when register_shrinker failed.
-> That's very rare so I won't be too worried.
-
-Just a little confused with the point here. "very rare" means it still 
-could happen (even it's a corner case), and if that happens, we got 
-something wrong functionally. So it will be a bug if we change like 
-that, right?
-
-Still couldn't understand the reason of changing shrinker_register after 
-device_ready (the original oom notifier was registered before setting 
-device ready too)?
-(I think the driver won't get shrinker_scan called if device isn't ready 
-because of the reasons below)
-
->> - When the device isn't ready, ballooning won't happen, that is,
->> vb->num_pages will be 0, which results in shrinker_count=0 and shrinker_scan
->> won't be called.
-
-Best,
-Wei
+T24gMjAxOC8wNy8yNCAyOjMxLCBUb25naGFvIFpoYW5nIHdyb3RlOgo+IE9uIE1vbiwgSnVsIDIz
+LCAyMDE4IGF0IDEwOjIwIFBNIFRvc2hpYWtpIE1ha2l0YQo+IDx0b3NoaWFraS5tYWtpdGExQGdt
+YWlsLmNvbT4gd3JvdGU6Cj4+Cj4+IE9uIDE4LzA3LzIzICjmnIgpIDIxOjQzLCBUb25naGFvIFpo
+YW5nIHdyb3RlOgo+Pj4gT24gTW9uLCBKdWwgMjMsIDIwMTggYXQgNTo1OCBQTSBUb3NoaWFraSBN
+YWtpdGEKPj4+IDxtYWtpdGEudG9zaGlha2lAbGFiLm50dC5jby5qcD4gd3JvdGU6Cj4+Pj4KPj4+
+PiBPbiAyMDE4LzA3LzIyIDM6MDQsIHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbSB3cm90ZToKPj4+
+Pj4gRnJvbTogVG9uZ2hhbyBaaGFuZyA8eGlhbmd4aWEubS55dWVAZ21haWwuY29tPgo+Pj4+Pgo+
+Pj4+PiBGYWN0b3Igb3V0IGdlbmVyaWMgYnVzeSBwb2xsaW5nIGxvZ2ljIGFuZCB3aWxsIGJlCj4+
+Pj4+IHVzZWQgZm9yIGluIHR4IHBhdGggaW4gdGhlIG5leHQgcGF0Y2guIEFuZCB3aXRoIHRoZSBw
+YXRjaCwKPj4+Pj4gcWVtdSBjYW4gc2V0IGRpZmZlcmVudGx5IHRoZSBidXN5bG9vcF90aW1lb3V0
+IGZvciByeCBxdWV1ZS4KPj4+Pj4KPj4+Pj4gU2lnbmVkLW9mZi1ieTogVG9uZ2hhbyBaaGFuZyA8
+eGlhbmd4aWEubS55dWVAZ21haWwuY29tPgo+Pj4+PiAtLS0KPj4+PiAuLi4KPj4+Pj4gK3N0YXRp
+YyB2b2lkIHZob3N0X25ldF9idXN5X3BvbGxfdnFfY2hlY2soc3RydWN0IHZob3N0X25ldCAqbmV0
+LAo+Pj4+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3Qgdmhv
+c3RfdmlydHF1ZXVlICpydnEsCj4+Pj4+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnR2cSwKPj4+Pj4gKyAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgYm9vbCByeCkKPj4+Pj4gK3sKPj4+Pj4gKyAgICAgc3Ry
+dWN0IHNvY2tldCAqc29jayA9IHJ2cS0+cHJpdmF0ZV9kYXRhOwo+Pj4+PiArCj4+Pj4+ICsgICAg
+IGlmIChyeCkgewo+Pj4+PiArICAgICAgICAgICAgIGlmICghdmhvc3RfdnFfYXZhaWxfZW1wdHko
+Jm5ldC0+ZGV2LCB0dnEpKSB7Cj4+Pj4+ICsgICAgICAgICAgICAgICAgICAgICB2aG9zdF9wb2xs
+X3F1ZXVlKCZ0dnEtPnBvbGwpOwo+Pj4+PiArICAgICAgICAgICAgIH0gZWxzZSBpZiAodW5saWtl
+bHkodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHR2cSkpKSB7Cj4+Pj4+ICsgICAgICAg
+ICAgICAgICAgICAgICB2aG9zdF9kaXNhYmxlX25vdGlmeSgmbmV0LT5kZXYsIHR2cSk7Cj4+Pj4+
+ICsgICAgICAgICAgICAgICAgICAgICB2aG9zdF9wb2xsX3F1ZXVlKCZ0dnEtPnBvbGwpOwo+Pj4+
+PiArICAgICAgICAgICAgIH0KPj4+Pj4gKyAgICAgfSBlbHNlIGlmICgoc29jayAmJiBza19oYXNf
+cnhfZGF0YShzb2NrLT5zaykpICYmCj4+Pj4+ICsgICAgICAgICAgICAgICAgICF2aG9zdF92cV9h
+dmFpbF9lbXB0eSgmbmV0LT5kZXYsIHJ2cSkpIHsKPj4+Pj4gKyAgICAgICAgICAgICB2aG9zdF9w
+b2xsX3F1ZXVlKCZydnEtPnBvbGwpOwo+Pj4+Cj4+Pj4gTm93IHdlIHdhaXQgZm9yIHZxX2F2YWls
+IGZvciByeCBhcyB3ZWxsLCBJIHRoaW5rIHlvdSBjYW5ub3Qgc2tpcAo+Pj4+IHZob3N0X2VuYWJs
+ZV9ub3RpZnkoKSBvbiB0eC4gUHJvYmFibHkgeW91IG1pZ2h0IHdhbnQgdG8gZG86Cj4+PiBJIHRo
+aW5rIHZob3N0X2VuYWJsZV9ub3RpZnkgaXMgbmVlZGVkLgo+Pj4KPj4+PiB9IGVsc2UgaWYgKHNv
+Y2sgJiYgc2tfaGFzX3J4X2RhdGEoc29jay0+c2spKSB7Cj4+Pj4gICAgICAgICAgaWYgKCF2aG9z
+dF92cV9hdmFpbF9lbXB0eSgmbmV0LT5kZXYsIHJ2cSkpIHsKPj4+PiAgICAgICAgICAgICAgICAg
+IHZob3N0X3BvbGxfcXVldWUoJnJ2cS0+cG9sbCk7Cj4+Pj4gICAgICAgICAgfSBlbHNlIGlmICh1
+bmxpa2VseSh2aG9zdF9lbmFibGVfbm90aWZ5KCZuZXQtPmRldiwgcnZxKSkpIHsKPj4+PiAgICAg
+ICAgICAgICAgICAgIHZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwgcnZxKTsKPj4+PiAg
+ICAgICAgICAgICAgICAgIHZob3N0X3BvbGxfcXVldWUoJnJ2cS0+cG9sbCk7Cj4+Pj4gICAgICAg
+ICAgfQo+Pj4+IH0KPj4+IEFzIEphc29uIHJldmlldyBhcyBiZWZvcmUsIHdlIG9ubHkgd2FudCBy
+eCBraWNrIHdoZW4gcGFja2V0IGlzIHBlbmRpbmcgYXQKPj4+IHNvY2tldCBidXQgd2UncmUgb3V0
+IG9mIGF2YWlsYWJsZSBidWZmZXJzLiBTbyB3ZSBqdXN0IGVuYWJsZSBub3RpZnksCj4+PiBidXQg
+bm90IHBvbGwgaXQgPwo+Pj4KPj4+ICAgICAgICAgIH0gZWxzZSBpZiAoKHNvY2sgJiYgc2tfaGFz
+X3J4X2RhdGEoc29jay0+c2spKSAmJgo+Pj4gICAgICAgICAgICAgICAgICAgICAgIXZob3N0X3Zx
+X2F2YWlsX2VtcHR5KCZuZXQtPmRldiwgcnZxKSkgewo+Pj4gICAgICAgICAgICAgICAgICB2aG9z
+dF9wb2xsX3F1ZXVlKCZydnEtPnBvbGwpOwo+Pj4gICAgICAgICAgZWxzZSB7Cj4+PiAgICAgICAg
+ICAgICAgICAgIHZob3N0X2VuYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCBydnEpOwo+Pj4gICAgICAg
+ICAgfQo+Pgo+PiBXaGVuIHZob3N0X2VuYWJsZV9ub3RpZnkoKSByZXR1cm5zIHRydWUgdGhlIGF2
+YWlsIGJlY29tZXMgbm9uLWVtcHR5Cj4+IHdoaWxlIHdlIGFyZSBlbmFibGluZyBub3RpZnkuIFdl
+IG1heSBkZWxheSB0aGUgcnggcHJvY2VzcyBpZiB3ZSBkb24ndAo+PiBjaGVjayB0aGUgcmV0dXJu
+IHZhbHVlIG9mIHZob3N0X2VuYWJsZV9ub3RpZnkoKS4KPiBJIGdvdCBpdCB0aGFua3MuCj4+Pj4g
+QWxzbyBpdCdzIGJldHRlciB0byBjYXJlIHZob3N0X25ldF9kaXNhYmxlX3ZxKCkvdmhvc3RfbmV0
+X2VuYWJsZV92cSgpIG9uIHR4Pwo+Pj4gSSBjYW50IGZpbmQgd2h5IGl0IGlzIGJldHRlciwgaWYg
+bmVjZXNzYXJ5LCB3ZSBjYW4gZG8gaXQuCj4+Cj4+IFRoZSByZWFzb24gaXMgcHJldHR5IHNpbXBs
+ZS4uLiB3ZSBhcmUgYnVzeXBvbGxpbmcgdGhlIHNvY2tldCBzbyB3ZSBkb24ndAo+PiBuZWVkIHJ4
+IHdha2V1cHMgZHVyaW5nIGl0Pwo+IE9LLCBidXQgb25lIHF1ZXN0aW9uLCBob3cgYWJvdXQgcng/
+IGRvIHdlIHVzZSB0aGUKPiB2aG9zdF9uZXRfZGlzYWJsZV92cS92aG9zdF9uZXRfZW5zYWJsZV92
+cSBvbiByeCA/CgpJZiB3ZSBhcmUgYnVzeXBvbGxpbmcgdGhlIHNvY2sgdHggYnVmPyBJJ20gbm90
+IHN1cmUgaWYgcG9sbGluZyBpdAppbXByb3ZlcyB0aGUgcGVyZm9ybWFuY2UuCgotLSAKVG9zaGlh
+a2kgTWFraXRhCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
+Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
+bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
