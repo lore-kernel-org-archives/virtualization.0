@@ -1,15 +1,14 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH RFC V4 3/3] KVM: X86: Adding skeleton for Memory ROE
-Date: Wed, 25 Jul 2018 11:36:23 +0200
-Message-ID: <61b16167-33cf-f435-6a9b-c20ab299e8d2@redhat.com>
-References: <20180720233130.14129-1-ahmedsoliman0x666@gmail.com>
-	<20180720233130.14129-4-ahmedsoliman0x666@gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next 0/6] virtio_net: Add ethtool stat items
+Date: Wed, 25 Jul 2018 12:40:12 +0300
+Message-ID: <20180725123908-mutt-send-email-mst__40165.1287837469$1532511497$gmane$org@kernel.org>
+References: <20180723143609.2242-1-toshiaki.makita1@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180720233130.14129-4-ahmedsoliman0x666@gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180723143609.2242-1-toshiaki.makita1@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,31 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ahmed Abd El Mawgood <ahmedsoliman0x666@gmail.com>, kvm@vger.kernel.org, Kernel Hardening <kernel-hardening@lists.openwall.com>, virtualization@lists.linux-foundation.org, linux-doc@vger.kernel.org, x86@kernel.org, xen-devel@lists.xensource.com
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Kees Cook <keescook@chromium.org>, nathan Corbet <corbet@lwn.net>, rkrcmar@redhat.com, David Vrabel <david.vrabel@nutanix.com>, Boris Lukashev <blukashev@sempervictus.com>, Ingo Molnar <mingo@redhat.com>, nigel.edwards@hpe.com, hpa@zytor.com, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Rik van Riel <riel@surriel.com>
+To: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Mon, Jul 23, 2018 at 11:36:03PM +0900, Toshiaki Makita wrote:
+> From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> 
+> Add some ethtool stat items useful for performance analysis.
+> 
+> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
 
->  		if (kvm_x86_ops->slot_disable_log_dirty)
->  			kvm_x86_ops->slot_disable_log_dirty(kvm, new);
-> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-> index 4ee7bc548a83..82c5780e11d9 100644
-> --- a/include/linux/kvm_host.h
-> +++ b/include/linux/kvm_host.h
-> @@ -297,6 +297,9 @@ static inline int kvm_vcpu_exiting_guest_mode(struct kvm_vcpu *vcpu)
->  struct kvm_memory_slot {
->  	gfn_t base_gfn;
->  	unsigned long npages;
-> +#ifdef CONFIG_KVM_MROE
-> +	unsigned long *mroe_bitmap;
-> +#endif
+Series:
 
-Yet another problematic bitmap when it comes to splitting/resizing
-memory slots atomically :(
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
+Patch 1 seems appropriate for stable, even though it's minor.
 
--- 
-
-Thanks,
-
-David / dhildenb
+> Toshiaki Makita (6):
+>   virtio_net: Fix incosistent received bytes counter
+>   virtio_net: Use temporary storage for accounting rx stats
+>   virtio_net: Make drop counter per-queue
+>   virtio_net: Factor out the logic to determine xdp sq
+>   virtio_net: Add XDP related stats
+>   virtio_net: Add kick stats
+> 
+>  drivers/net/virtio_net.c | 221 +++++++++++++++++++++++++++++++++--------------
+>  1 file changed, 158 insertions(+), 63 deletions(-)
+> 
+> -- 
+> 2.14.3
