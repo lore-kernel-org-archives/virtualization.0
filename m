@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 0/6] virtio_net: Add ethtool stat items
-Date: Wed, 25 Jul 2018 12:40:12 +0300
-Message-ID: <20180725123908-mutt-send-email-mst__40165.1287837469$1532511497$gmane$org@kernel.org>
-References: <20180723143609.2242-1-toshiaki.makita1@gmail.com>
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Subject: Re: [PATCH net-next v6 1/4] net: vhost: lock the vqs one by one
+Date: Wed, 25 Jul 2018 20:05:56 +0800
+Message-ID: <CAMDZJNX41vtdNNEAxHYwC+WcrJFkON70hVumVE9rbFDBC5QUOQ__49184.1434072287$1532520246$gmane$org@mail.gmail.com>
+References: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<1532196242-2998-2-git-send-email-xiangxia.m.yue@gmail.com>
+	<20180722182448-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180723143609.2242-1-toshiaki.makita1@gmail.com>
+In-Reply-To: <20180722182448-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +19,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: mst@redhat.com
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 23, 2018 at 11:36:03PM +0900, Toshiaki Makita wrote:
-> From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> 
-> Add some ethtool stat items useful for performance analysis.
-> 
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+On Sun, Jul 22, 2018 at 11:26 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Sat, Jul 21, 2018 at 11:03:59AM -0700, xiangxia.m.yue@gmail.com wrote:
+> > From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+> >
+> > This patch changes the way that lock all vqs
+> > at the same, to lock them one by one. It will
+> > be used for next patch to avoid the deadlock.
+> >
+> > Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+> > Acked-by: Jason Wang <jasowang@redhat.com>
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  drivers/vhost/vhost.c | 24 +++++++-----------------
+> >  1 file changed, 7 insertions(+), 17 deletions(-)
+> >
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index a502f1a..a1c06e7 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -294,8 +294,11 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
+> >  {
+> >       int i;
+> >
+> > -     for (i = 0; i < d->nvqs; ++i)
+> > +     for (i = 0; i < d->nvqs; ++i) {
+> > +             mutex_lock(&d->vqs[i]->mutex);
+> >               __vhost_vq_meta_reset(d->vqs[i]);
+> > +             mutex_unlock(&d->vqs[i]->mutex);
+> > +     }
+> >  }
+> >
+> >  static void vhost_vq_reset(struct vhost_dev *dev,
+> > @@ -890,20 +893,6 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
+> >  #define vhost_get_used(vq, x, ptr) \
+> >       vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
+> >
+> > -static void vhost_dev_lock_vqs(struct vhost_dev *d)
+> > -{
+> > -     int i = 0;
+> > -     for (i = 0; i < d->nvqs; ++i)
+> > -             mutex_lock_nested(&d->vqs[i]->mutex, i);
+> > -}
+> > -
+> > -static void vhost_dev_unlock_vqs(struct vhost_dev *d)
+> > -{
+> > -     int i = 0;
+> > -     for (i = 0; i < d->nvqs; ++i)
+> > -             mutex_unlock(&d->vqs[i]->mutex);
+> > -}
+> > -
+> >  static int vhost_new_umem_range(struct vhost_umem *umem,
+> >                               u64 start, u64 size, u64 end,
+> >                               u64 userspace_addr, int perm)
+> > @@ -953,7 +942,10 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
+> >               if (msg->iova <= vq_msg->iova &&
+> >                   msg->iova + msg->size - 1 > vq_msg->iova &&
+> >                   vq_msg->type == VHOST_IOTLB_MISS) {
+> > +                     mutex_lock(&node->vq->mutex);
+> >                       vhost_poll_queue(&node->vq->poll);
+> > +                     mutex_unlock(&node->vq->mutex);
+> > +
+> >                       list_del(&node->node);
+> >                       kfree(node);
+> >               }
+> > @@ -985,7 +977,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+> >       int ret = 0;
+> >
+> >       mutex_lock(&dev->mutex);
+> > -     vhost_dev_lock_vqs(dev);
+> >       switch (msg->type) {
+> >       case VHOST_IOTLB_UPDATE:
+> >               if (!dev->iotlb) {
+> > @@ -1019,7 +1010,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+> >               break;
+> >       }
+> >
+> > -     vhost_dev_unlock_vqs(dev);
+> >       mutex_unlock(&dev->mutex);
+> >
+> >       return ret;
+>
+> I do prefer the finer-grained locking but I remember we
+> discussed something like this in the past and Jason saw issues
+> with such a locking.
+This change is suggested by Jason. Should I send new version because
+the patch 3 is changed.
 
-Series:
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-Patch 1 seems appropriate for stable, even though it's minor.
-
-> Toshiaki Makita (6):
->   virtio_net: Fix incosistent received bytes counter
->   virtio_net: Use temporary storage for accounting rx stats
->   virtio_net: Make drop counter per-queue
->   virtio_net: Factor out the logic to determine xdp sq
->   virtio_net: Add XDP related stats
->   virtio_net: Add kick stats
-> 
->  drivers/net/virtio_net.c | 221 +++++++++++++++++++++++++++++++++--------------
->  1 file changed, 158 insertions(+), 63 deletions(-)
-> 
-> -- 
-> 2.14.3
+> Jason?
+>
+> > --
+> > 1.8.3.1
