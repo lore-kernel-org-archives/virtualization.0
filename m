@@ -1,14 +1,14 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next 0/6] virtio_net: Add ethtool stat items
-Date: Wed, 25 Jul 2018 12:59:09 -0700 (PDT)
-Message-ID: <20180725.125909.840615930497803596.davem__20823.8874249675$1532548643$gmane$org@davemloft.net>
-References: <20180723143609.2242-1-toshiaki.makita1@gmail.com>
-	<20180725123908-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH net-next v6 0/4] net: vhost: improve performance when
+	enable busyloop
+Date: Wed, 25 Jul 2018 13:01:20 -0700 (PDT)
+Message-ID: <20180725.130120.72727841763093651.davem__18853.0835127041$1532548761$gmane$org@davemloft.net>
+References: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180725123908-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,28 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: netdev@vger.kernel.org, toshiaki.makita1@gmail.com, virtualization@lists.linux-foundation.org
+To: xiangxia.m.yue@gmail.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Wed, 25 Jul 2018 12:40:12 +0300
+From: xiangxia.m.yue@gmail.com
+Date: Sat, 21 Jul 2018 11:03:58 -0700
 
-> On Mon, Jul 23, 2018 at 11:36:03PM +0900, Toshiaki Makita wrote:
->> From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
->> 
->> Add some ethtool stat items useful for performance analysis.
->> 
->> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 > 
-> Series:
+> This patches improve the guest receive performance.
+> On the handle_tx side, we poll the sock receive queue
+> at the same time. handle_rx do that in the same way.
 > 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> For more performance report, see patch 4.
+> 
+> v5->v6:
+> rebase the codes.
 
-Series applied.
+It looks like there is still some dangling discussions about this
+patch set.
 
-> Patch 1 seems appropriate for stable, even though it's minor.
+Please repost this series when those discussions have completed.
 
-Ok, I'll put patch #1 also into 'net' and queue it up for -stable.
-
-Thanks.
+Thank you.
