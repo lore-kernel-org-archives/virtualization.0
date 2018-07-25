@@ -1,18 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 4/4] virtio: Add platform specific DMA API translation for
-	virito devices
-Date: Wed, 25 Jul 2018 16:31:08 +0300
-Message-ID: <20180725162951-mutt-send-email-mst__3844.79661374844$1532525366$gmane$org@kernel.org>
-References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
-	<20180720035941.6844-5-khandual@linux.vnet.ibm.com>
-	<20180720160550-mutt-send-email-mst@kernel.org>
-	<3dd36d8e-3bc8-91ba-cf6d-939495439d2c@linux.vnet.ibm.com>
+Subject: [PATCH 1/2] tools/virtio: add dma barrier stubs
+Date: Wed, 25 Jul 2018 16:45:22 +0300
+Message-ID: <20180725134057.113423-1-mst__34672.1629416153$1532526206$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <3dd36d8e-3bc8-91ba-cf6d-939495439d2c@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,20 +16,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, benh@kernel.crashing.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, mpe@ellerman.id.au, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, khandual@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 23, 2018 at 07:46:09AM +0530, Anshuman Khandual wrote:
-> There is a redundant definition of virtio_has_iommu_quirk in the tools
-> directory (tools/virtio/linux/virtio_config.h) which does not seem to
-> be used any where. I guess that can be removed without problem.
+Fixes: 55e49dc43a8 ("virtio_ring: switch to dma_XX barriers for rpmsg")
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ tools/virtio/asm/barrier.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-It's there just to make tools/virtio build.
-Try
-	make -C tools/virtio/
-In fact I see there's a missing definition for
-dma_rmb/dma_wmb there, I'll post a patch.
-
+diff --git a/tools/virtio/asm/barrier.h b/tools/virtio/asm/barrier.h
+index 0ac3caf90877..d0351f83aebe 100644
+--- a/tools/virtio/asm/barrier.h
++++ b/tools/virtio/asm/barrier.h
+@@ -13,8 +13,8 @@
+ } while (0);
+ /* Weak barriers should be used. If not - it's a bug */
+ # define mb() abort()
+-# define rmb() abort()
+-# define wmb() abort()
++# define dma_rmb() abort()
++# define dma_wmb() abort()
+ #else
+ #error Please fill in barrier macros
+ #endif
 -- 
 MST
