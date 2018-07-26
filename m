@@ -1,14 +1,11 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next v6 0/4] net: vhost: improve performance when
-	enable busyloop
-Date: Wed, 25 Jul 2018 13:01:20 -0700 (PDT)
-Message-ID: <20180725.130120.72727841763093651.davem__18853.0835127041$1532548761$gmane$org@davemloft.net>
-References: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
+From: "Dr. S K Niranjan Aradhya" <dr.niranjan.sk@gmail.com>
+Subject: IEEE Record # 44854: iCATccT 2018, Alva's Institute Of Engineering &
+	Technology (AIET)-CFP
+Date: Thu, 26 Jul 2018 10:11:32 +0530
+Message-ID: <CA+VLO2FZXgWS_v4hZHkra3-TF2X+J3OQNA6_7n1vhzx9KxUoGw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3974394562441907054=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +15,140 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xiangxia.m.yue@gmail.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: xiangxia.m.yue@gmail.com
-Date: Sat, 21 Jul 2018 11:03:58 -0700
+--===============3974394562441907054==
+Content-Type: multipart/alternative; boundary="000000000000067deb0571df9cbe"
 
-> From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-> 
-> This patches improve the guest receive performance.
-> On the handle_tx side, we poll the sock receive queue
-> at the same time. handle_rx do that in the same way.
-> 
-> For more performance report, see patch 4.
-> 
-> v5->v6:
-> rebase the codes.
+--000000000000067deb0571df9cbe
+Content-Type: text/plain; charset="UTF-8"
 
-It looks like there is still some dangling discussions about this
-patch set.
+<< Apologies for cross-postings >>
+<<< Please circulate among your friends, peers and researchers >>>
 
-Please repost this series when those discussions have completed.
+IEEE Conference Record No.: # 44854;
 
-Thank you.
+4th International Conference on Applied and Theoretical Computing and
+Communication Technology (iCATccT - 2018)
+ Alva's Institute Of Engineering & Technology (AIET)
+
+Conference Date : 6-8 Sept 2018
+Submission Deadline: 10 August 2018
+
+Submission Link: http://itekcmsonline.com/icatcct18/index.php/icatcct18/
+icatcct18/login
+
+Review is underway for submitted papers.
+
+IEEE ISBN : 978-1-5386-7706-3
+IEEE Part No. : CFP18D66-ART
+Selected, accepted and extended paper will be published in Scopus Indexed
+International Journal of Forensic Software Engineering published by
+InderScience
+All accepted and presented papers will be submitted to the IEEE for
+possible publication in IEEE Xplore Digital Library. Previous edition
+indexed in: SCOPUS, ISI Web of Science, Engineering Index, Google, etc.
+
+If you like to join the TPC or propose a special session or symposiums
+please write to: secretariat@icatcct.org
+
+General Chair(s)
+iCATccT 2018 Conference
+
+----------------------
+Disclaimer: We have clearly mentioned the subject lines and your email
+address won't be misleading in any form. We have found your mail address
+through our own efforts on the web search and not through any illegal way.
+If you wish to remove your information from our mailing list or no longer
+receive future announcements, please email with REMOVE in subject. Your
+request to opt-out will be effective within a reasonable amount of time.
+ icatcct-cfp.pdf
+<https://drive.google.com/file/d/1OWXPZVS1IRZlNoWTjfVyxl-yIL2CsByg/view?usp=drive_web>
+
+--000000000000067deb0571df9cbe
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div dir=3D"ltr">
+<p><font size=3D"+2" color=3D"#cc0000">&lt;&lt; Apologies for
+        cross-postings &gt;&gt;<br>
+        &lt;&lt;&lt; Please circulate among your friends, peers and
+        researchers &gt;&gt;&gt;</font><br>
+      <br>
+      IEEE Conference Record No.: # 44854;<br>
+      <font color=3D"#009900"><br>
+        4th International Conference on Applied and Theoretical
+        Computing and Communication Technology (iCATccT - 2018)<br>
+        <font color=3D"#000000">=C2=A0Alva&#39;s Institute Of Engineering &=
+amp;
+          Technology (AIET)</font></font><br>
+      <br>
+      Conference Date : 6-8 Sept 2018<br>
+      Submission Deadline: 10 August 2018 <br>
+      <br>
+      Submission Link: <a href=3D"http://itekcmsonline.com/icatcct18/index.=
+php/icatcct18/icatcct18/login" target=3D"_blank">http://itekcmsonline.com/<=
+wbr>icatcct18/index.php/icatcct18/<wbr>icatcct18/login</a><br>
+      <br>
+      Review is underway for submitted papers.<br>
+      <br>
+      IEEE ISBN : 978-1-5386-7706-3<br>
+      IEEE Part No. : CFP18D66-ART<br>
+    </p>
+    Selected, accepted and extended paper will be published in Scopus
+    Indexed International Journal of Forensic Software Engineering
+    published by InderScience<br>
+    All accepted and presented papers will be submitted to the IEEE for
+    possible publication in IEEE Xplore Digital Library. Previous
+    edition indexed in: SCOPUS, ISI Web of Science, Engineering Index,
+    Google, etc.<br>
+    <br>
+    If you like to join the TPC or propose a special session or
+    symposiums please write to: <a class=3D"m_-4187309670900591225gmail-moz=
+-txt-link-abbreviated" href=3D"http://secretariat@icatcct.org" target=3D"_b=
+lank">secretariat@icatcct.org</a><br>
+    <br>
+    General Chair(s)<br>
+    iCATccT 2018 Conference<br>
+    <br>
+    ----------------------<br><div>
+    Disclaimer: We have clearly mentioned the subject lines and your
+    email address won&#39;t be misleading in any form. We have found your
+    mail address through our own efforts on the web search and not
+    through any illegal way. If you wish to remove your information from
+    our mailing list or no longer receive future announcements, please
+    email with REMOVE in subject. Your request to opt-out will be
+    effective within a reasonable amount of time.
+ =20
+
+
+
+<br></div><div><div class=3D"gmail_chip gmail_drive_chip" style=3D"width:39=
+6px;height:18px;max-height:18px;background-color:rgb(245,245,245);padding:5=
+px;font-family:arial;font-weight:bold;border:1px solid rgb(221,221,221);lin=
+e-height:1"><a href=3D"https://drive.google.com/file/d/1OWXPZVS1IRZlNoWTjfV=
+yxl-yIL2CsByg/view?usp=3Ddrive_web" style=3D"display:inline-block;max-width=
+:366px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decor=
+ation:none;padding:1px 0px;border:medium none" target=3D"_blank"><img style=
+=3D"vertical-align:bottom;border:medium none" src=3D"https://ssl.gstatic.co=
+m/docs/doclist/images/icon_10_generic_list.png">=C2=A0<span dir=3D"ltr" sty=
+le=3D"color:rgb(17,85,204);text-decoration:none;vertical-align:bottom">icat=
+cct-cfp.pdf</span></a><img src=3D"//ssl.gstatic.com/ui/v1/icons/common/x_8p=
+x.png" style=3D"display:none;opacity:0.55;float:right"></div></div><br></di=
+v>
+<br></div>
+
+--000000000000067deb0571df9cbe--
+
+--===============3974394562441907054==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3974394562441907054==--
