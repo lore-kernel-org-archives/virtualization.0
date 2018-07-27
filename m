@@ -1,14 +1,14 @@
-From: Will Deacon <will.deacon@arm.com>
+From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Fri, 27 Jul 2018 10:58:05 +0100
-Message-ID: <20180727095804.GA25592@arm.com>
+Date: Fri, 27 Jul 2018 16:28:33 +0530
+Message-ID: <0f123b95-7ac2-d1a2-80c9-732c7113d9c0__4357.71908746592$1532689100$gmane$org@linux.vnet.ibm.com>
 References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
+	<20180727095804.GA25592@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
+In-Reply-To: <20180727095804.GA25592@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,116 +18,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mst@redhat.com, benh@kernel.crashing.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, marc.zyngier@arm.com, mpe@ellerman.id.au, joe@perches.com, robin.murphy@arm.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
+To: Will Deacon <will.deacon@arm.com>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mst@redhat.com, linuxppc-dev@lists.ozlabs.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Anshuman,
-
-On Fri, Jul 20, 2018 at 09:29:37AM +0530, Anshuman Khandual wrote:
-> This patch series is the follow up on the discussions we had before about
-> the RFC titled [RFC,V2] virtio: Add platform specific DMA API translation
-> for virito devices (https://patchwork.kernel.org/patch/10417371/). There
-> were suggestions about doing away with two different paths of transactions
-> with the host/QEMU, first being the direct GPA and the other being the DMA
-> API based translations.
+On 07/27/2018 03:28 PM, Will Deacon wrote:
+> Hi Anshuman,
 > 
-> First patch attempts to create a direct GPA mapping based DMA operations
-> structure called 'virtio_direct_dma_ops' with exact same implementation
-> of the direct GPA path which virtio core currently has but just wrapped in
-> a DMA API format. Virtio core must use 'virtio_direct_dma_ops' instead of
-> the arch default in absence of VIRTIO_F_IOMMU_PLATFORM flag to preserve the
-> existing semantics. The second patch does exactly that inside the function
-> virtio_finalize_features(). The third patch removes the default direct GPA
-> path from virtio core forcing it to use DMA API callbacks for all devices.
-> Now with that change, every device must have a DMA operations structure
-> associated with it. The fourth patch adds an additional hook which gives
-> the platform an opportunity to do yet another override if required. This
-> platform hook can be used on POWER Ultravisor based protected guests to
-> load up SWIOTLB DMA callbacks to do the required (as discussed previously
-> in the above mentioned thread how host is allowed to access only parts of
-> the guest GPA range) bounce buffering into the shared memory for all I/O
-> scatter gather buffers to be consumed on the host side.
+> On Fri, Jul 20, 2018 at 09:29:37AM +0530, Anshuman Khandual wrote:
+>> This patch series is the follow up on the discussions we had before about
+>> the RFC titled [RFC,V2] virtio: Add platform specific DMA API translation
+>> for virito devices (https://patchwork.kernel.org/patch/10417371/). There
+>> were suggestions about doing away with two different paths of transactions
+>> with the host/QEMU, first being the direct GPA and the other being the DMA
+>> API based translations.
+>>
+>> First patch attempts to create a direct GPA mapping based DMA operations
+>> structure called 'virtio_direct_dma_ops' with exact same implementation
+>> of the direct GPA path which virtio core currently has but just wrapped in
+>> a DMA API format. Virtio core must use 'virtio_direct_dma_ops' instead of
+>> the arch default in absence of VIRTIO_F_IOMMU_PLATFORM flag to preserve the
+>> existing semantics. The second patch does exactly that inside the function
+>> virtio_finalize_features(). The third patch removes the default direct GPA
+>> path from virtio core forcing it to use DMA API callbacks for all devices.
+>> Now with that change, every device must have a DMA operations structure
+>> associated with it. The fourth patch adds an additional hook which gives
+>> the platform an opportunity to do yet another override if required. This
+>> platform hook can be used on POWER Ultravisor based protected guests to
+>> load up SWIOTLB DMA callbacks to do the required (as discussed previously
+>> in the above mentioned thread how host is allowed to access only parts of
+>> the guest GPA range) bounce buffering into the shared memory for all I/O
+>> scatter gather buffers to be consumed on the host side.
+>>
+>> Please go through these patches and review whether this approach broadly
+>> makes sense. I will appreciate suggestions, inputs, comments regarding
+>> the patches or the approach in general. Thank you.
+> I just wanted to say that this patch series provides a means for us to
+> force the coherent DMA ops for legacy virtio devices on arm64, which in turn
+> means that we can enable the SMMU with legacy devices in our fastmodel
+> emulation platform (which is slowly being upgraded to virtio 1.0) without
+> hanging during boot. Patch below.
 > 
-> Please go through these patches and review whether this approach broadly
-> makes sense. I will appreciate suggestions, inputs, comments regarding
-> the patches or the approach in general. Thank you.
+> So:
+> 
+> Acked-by: Will Deacon <will.deacon@arm.com>
+> Tested-by: Will Deacon <will.deacon@arm.com>
 
-I just wanted to say that this patch series provides a means for us to
-force the coherent DMA ops for legacy virtio devices on arm64, which in turn
-means that we can enable the SMMU with legacy devices in our fastmodel
-emulation platform (which is slowly being upgraded to virtio 1.0) without
-hanging during boot. Patch below.
-
-So:
-
-Acked-by: Will Deacon <will.deacon@arm.com>
-Tested-by: Will Deacon <will.deacon@arm.com>
-
-Thanks!
-
-Will
-
---->8
-
-From 4ef39e9de2c87c97bf046816ca762832f92e39b5 Mon Sep 17 00:00:00 2001
-From: Will Deacon <will.deacon@arm.com>
-Date: Fri, 27 Jul 2018 10:49:25 +0100
-Subject: [PATCH] arm64: dma: Override DMA ops for legacy virtio devices
-
-Virtio devices are always cache-coherent, so force use of the coherent
-DMA ops for legacy virtio devices where the dma-coherent is known to
-be omitted by QEMU for the MMIO transport.
-
-Signed-off-by: Will Deacon <will.deacon@arm.com>
----
- arch/arm64/include/asm/dma-mapping.h |  6 ++++++
- arch/arm64/mm/dma-mapping.c          | 19 +++++++++++++++++++
- 2 files changed, 25 insertions(+)
-
-diff --git a/arch/arm64/include/asm/dma-mapping.h b/arch/arm64/include/asm/dma-mapping.h
-index b7847eb8a7bb..30aa8fb62dc3 100644
---- a/arch/arm64/include/asm/dma-mapping.h
-+++ b/arch/arm64/include/asm/dma-mapping.h
-@@ -44,6 +44,12 @@ void arch_teardown_dma_ops(struct device *dev);
- #define arch_teardown_dma_ops	arch_teardown_dma_ops
- #endif
- 
-+#ifdef CONFIG_VIRTIO
-+struct virtio_device;
-+void platform_override_dma_ops(struct virtio_device *vdev);
-+#define platform_override_dma_ops	platform_override_dma_ops
-+#endif
-+
- /* do not use this function in a driver */
- static inline bool is_device_dma_coherent(struct device *dev)
- {
-diff --git a/arch/arm64/mm/dma-mapping.c b/arch/arm64/mm/dma-mapping.c
-index 61e93f0b5482..f9ca61b1b34d 100644
---- a/arch/arm64/mm/dma-mapping.c
-+++ b/arch/arm64/mm/dma-mapping.c
-@@ -891,3 +891,22 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
- 	}
- #endif
- }
-+
-+#ifdef CONFIG_VIRTIO
-+#include <linux/virtio_config.h>
-+
-+void platform_override_dma_ops(struct virtio_device *vdev)
-+{
-+	struct device *dev = vdev->dev.parent;
-+	const struct dma_map_ops *dma_ops = &arm64_swiotlb_dma_ops;
-+
-+	if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
-+		return;
-+
-+	dev->archdata.dma_coherent = true;
-+	if (iommu_get_domain_for_dev(dev))
-+		dma_ops = &iommu_dma_ops;
-+
-+	set_dma_ops(dev, dma_ops);
-+}
-+#endif	/* CONFIG_VIRTIO */
--- 
-2.1.4
+Thanks Will.
