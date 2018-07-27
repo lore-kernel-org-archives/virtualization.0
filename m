@@ -1,11 +1,13 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v2 0/2] virtio-balloon: some improvements
-Date: Fri, 27 Jul 2018 17:24:53 +0800
-Message-ID: <1532683495-31974-1-git-send-email-wei.w.wang@intel.com>
+Subject: [PATCH v2 1/2] virtio-balloon: remove BUG() in init_vqs
+Date: Fri, 27 Jul 2018 17:24:54 +0800
+Message-ID: <1532683495-31974-2-git-send-email-wei.w.wang__6567.83616072989$1532685063$gmane$org@intel.com>
+References: <1532683495-31974-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1532683495-31974-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,18 +20,36 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This series is split from the "Virtio-balloon: support free page
-reporting" series to make some improvements.
+It's a bit overkill to use BUG when failing to add an entry to the
+stats_vq in init_vqs. So remove it and just return the error to the
+caller to bail out nicely.
 
-v1->v2 ChangeLog:
-- register the shrinker when VIRTIO_BALLOON_F_DEFLATE_ON_OOM is negotiated.
+Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_balloon.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-Wei Wang (2):
-  virtio-balloon: remove BUG() in init_vqs
-  virtio_balloon: replace oom notifier with shrinker
-
- drivers/virtio/virtio_balloon.c | 125 +++++++++++++++++++++++-----------------
- 1 file changed, 72 insertions(+), 53 deletions(-)
-
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 6b237e3..9356a1a 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -455,9 +455,13 @@ static int init_vqs(struct virtio_balloon *vb)
+ 		num_stats = update_balloon_stats(vb);
+ 
+ 		sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
+-		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
+-		    < 0)
+-			BUG();
++		err = virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb,
++					   GFP_KERNEL);
++		if (err) {
++			dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
++				 __func__);
++			return err;
++		}
+ 		virtqueue_kick(vb->stats_vq);
+ 	}
+ 	return 0;
 -- 
 2.7.4
