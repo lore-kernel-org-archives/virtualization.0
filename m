@@ -1,13 +1,14 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v2 2/2] virtio_balloon: replace oom notifier with shrinker
-Date: Fri, 27 Jul 2018 17:24:55 +0800
-Message-ID: <1532683495-31974-3-git-send-email-wei.w.wang__31963.0281221636$1532685105$gmane$org@intel.com>
-References: <1532683495-31974-1-git-send-email-wei.w.wang@intel.com>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
+Date: Fri, 27 Jul 2018 10:58:05 +0100
+Message-ID: <20180727095804.GA25592@arm.com>
+References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1532683495-31974-1-git-send-email-wei.w.wang@intel.com>
+Content-Disposition: inline
+In-Reply-To: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,213 +18,116 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org
+To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mst@redhat.com, benh@kernel.crashing.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, marc.zyngier@arm.com, mpe@ellerman.id.au, joe@perches.com, robin.murphy@arm.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-The OOM notifier is getting deprecated to use for the reasons mentioned
-here by Michal Hocko: https://lkml.org/lkml/2018/7/12/314
+Hi Anshuman,
 
-This patch replaces the virtio-balloon oom notifier with a shrinker
-to release balloon pages on memory pressure.
+On Fri, Jul 20, 2018 at 09:29:37AM +0530, Anshuman Khandual wrote:
+> This patch series is the follow up on the discussions we had before about
+> the RFC titled [RFC,V2] virtio: Add platform specific DMA API translation
+> for virito devices (https://patchwork.kernel.org/patch/10417371/). There
+> were suggestions about doing away with two different paths of transactions
+> with the host/QEMU, first being the direct GPA and the other being the DMA
+> API based translations.
+> 
+> First patch attempts to create a direct GPA mapping based DMA operations
+> structure called 'virtio_direct_dma_ops' with exact same implementation
+> of the direct GPA path which virtio core currently has but just wrapped in
+> a DMA API format. Virtio core must use 'virtio_direct_dma_ops' instead of
+> the arch default in absence of VIRTIO_F_IOMMU_PLATFORM flag to preserve the
+> existing semantics. The second patch does exactly that inside the function
+> virtio_finalize_features(). The third patch removes the default direct GPA
+> path from virtio core forcing it to use DMA API callbacks for all devices.
+> Now with that change, every device must have a DMA operations structure
+> associated with it. The fourth patch adds an additional hook which gives
+> the platform an opportunity to do yet another override if required. This
+> platform hook can be used on POWER Ultravisor based protected guests to
+> load up SWIOTLB DMA callbacks to do the required (as discussed previously
+> in the above mentioned thread how host is allowed to access only parts of
+> the guest GPA range) bounce buffering into the shared memory for all I/O
+> scatter gather buffers to be consumed on the host side.
+> 
+> Please go through these patches and review whether this approach broadly
+> makes sense. I will appreciate suggestions, inputs, comments regarding
+> the patches or the approach in general. Thank you.
 
-In addition, the bug in the replaced virtballoon_oom_notify that only
-VIRTIO_BALLOON_ARRAY_PFNS_MAX (i.e 256) balloon pages can be freed
-though the user has specified more than that number is fixed in the
-shrinker_scan function.
+I just wanted to say that this patch series provides a means for us to
+force the coherent DMA ops for legacy virtio devices on arm64, which in turn
+means that we can enable the SMMU with legacy devices in our fastmodel
+emulation platform (which is slowly being upgraded to virtio 1.0) without
+hanging during boot. Patch below.
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
+So:
+
+Acked-by: Will Deacon <will.deacon@arm.com>
+Tested-by: Will Deacon <will.deacon@arm.com>
+
+Thanks!
+
+Will
+
+--->8
+
+From 4ef39e9de2c87c97bf046816ca762832f92e39b5 Mon Sep 17 00:00:00 2001
+From: Will Deacon <will.deacon@arm.com>
+Date: Fri, 27 Jul 2018 10:49:25 +0100
+Subject: [PATCH] arm64: dma: Override DMA ops for legacy virtio devices
+
+Virtio devices are always cache-coherent, so force use of the coherent
+DMA ops for legacy virtio devices where the dma-coherent is known to
+be omitted by QEMU for the MMIO transport.
+
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 ---
- drivers/virtio/virtio_balloon.c | 115 +++++++++++++++++++++++-----------------
- 1 file changed, 65 insertions(+), 50 deletions(-)
+ arch/arm64/include/asm/dma-mapping.h |  6 ++++++
+ arch/arm64/mm/dma-mapping.c          | 19 +++++++++++++++++++
+ 2 files changed, 25 insertions(+)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 9356a1a..6b2229b 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -27,7 +27,6 @@
- #include <linux/slab.h>
- #include <linux/module.h>
- #include <linux/balloon_compaction.h>
--#include <linux/oom.h>
- #include <linux/wait.h>
- #include <linux/mm.h>
- #include <linux/mount.h>
-@@ -40,12 +39,12 @@
-  */
- #define VIRTIO_BALLOON_PAGES_PER_PAGE (unsigned)(PAGE_SIZE >> VIRTIO_BALLOON_PFN_SHIFT)
- #define VIRTIO_BALLOON_ARRAY_PFNS_MAX 256
--#define OOM_VBALLOON_DEFAULT_PAGES 256
-+#define DEFAULT_BALLOON_PAGES_TO_SHRINK 256
- #define VIRTBALLOON_OOM_NOTIFY_PRIORITY 80
- 
--static int oom_pages = OOM_VBALLOON_DEFAULT_PAGES;
--module_param(oom_pages, int, S_IRUSR | S_IWUSR);
--MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
-+static unsigned long balloon_pages_to_shrink = DEFAULT_BALLOON_PAGES_TO_SHRINK;
-+module_param(balloon_pages_to_shrink, ulong, 0600);
-+MODULE_PARM_DESC(balloon_pages_to_shrink, "pages to free on memory presure");
- 
- #ifdef CONFIG_BALLOON_COMPACTION
- static struct vfsmount *balloon_mnt;
-@@ -86,8 +85,8 @@ struct virtio_balloon {
- 	/* Memory statistics */
- 	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
- 
--	/* To register callback in oom notifier call chain */
--	struct notifier_block nb;
-+	/* To register a shrinker to shrink memory upon memory pressure */
-+	struct shrinker shrinker;
- };
- 
- static struct virtio_device_id id_table[] = {
-@@ -365,38 +364,6 @@ static void update_balloon_size(struct virtio_balloon *vb)
- 		      &actual);
- }
- 
--/*
-- * virtballoon_oom_notify - release pages when system is under severe
-- *			    memory pressure (called from out_of_memory())
-- * @self : notifier block struct
-- * @dummy: not used
-- * @parm : returned - number of freed pages
-- *
-- * The balancing of memory by use of the virtio balloon should not cause
-- * the termination of processes while there are pages in the balloon.
-- * If virtio balloon manages to release some memory, it will make the
-- * system return and retry the allocation that forced the OOM killer
-- * to run.
-- */
--static int virtballoon_oom_notify(struct notifier_block *self,
--				  unsigned long dummy, void *parm)
--{
--	struct virtio_balloon *vb;
--	unsigned long *freed;
--	unsigned num_freed_pages;
--
--	vb = container_of(self, struct virtio_balloon, nb);
--	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
--		return NOTIFY_OK;
--
--	freed = parm;
--	num_freed_pages = leak_balloon(vb, oom_pages);
--	update_balloon_size(vb);
--	*freed += num_freed_pages;
--
--	return NOTIFY_OK;
--}
--
- static void update_balloon_stats_func(struct work_struct *work)
- {
- 	struct virtio_balloon *vb;
-@@ -548,6 +515,54 @@ static struct file_system_type balloon_fs = {
- 
- #endif /* CONFIG_BALLOON_COMPACTION */
- 
-+static unsigned long virtio_balloon_shrinker_scan(struct shrinker *shrinker,
-+						  struct shrink_control *sc)
-+{
-+	unsigned long pages_to_free = balloon_pages_to_shrink,
-+		      pages_freed = 0;
-+	struct virtio_balloon *vb = container_of(shrinker,
-+					struct virtio_balloon, shrinker);
-+
-+	/*
-+	 * One invocation of leak_balloon can deflate at most
-+	 * VIRTIO_BALLOON_ARRAY_PFNS_MAX balloon pages, so we call it
-+	 * multiple times to deflate pages till reaching
-+	 * balloon_pages_to_shrink pages.
-+	 */
-+	while (vb->num_pages && pages_to_free) {
-+		pages_to_free = balloon_pages_to_shrink - pages_freed;
-+		pages_freed += leak_balloon(vb, pages_to_free);
-+	}
-+	update_balloon_size(vb);
-+
-+	return pages_freed / VIRTIO_BALLOON_PAGES_PER_PAGE;
-+}
-+
-+static unsigned long virtio_balloon_shrinker_count(struct shrinker *shrinker,
-+						   struct shrink_control *sc)
-+{
-+	struct virtio_balloon *vb = container_of(shrinker,
-+					struct virtio_balloon, shrinker);
-+
-+	return min_t(unsigned long, vb->num_pages, balloon_pages_to_shrink) /
-+	       VIRTIO_BALLOON_PAGES_PER_PAGE;
-+}
-+
-+static void virtio_balloon_unregister_shrinker(struct virtio_balloon *vb)
-+{
-+	unregister_shrinker(&vb->shrinker);
-+}
-+
-+static int virtio_balloon_register_shrinker(struct virtio_balloon *vb)
-+{
-+	vb->shrinker.scan_objects = virtio_balloon_shrinker_scan;
-+	vb->shrinker.count_objects = virtio_balloon_shrinker_count;
-+	vb->shrinker.batch = 0;
-+	vb->shrinker.seeks = DEFAULT_SEEKS;
-+
-+	return register_shrinker(&vb->shrinker);
-+}
-+
- static int virtballoon_probe(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb;
-@@ -580,17 +595,10 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	if (err)
- 		goto out_free_vb;
- 
--	vb->nb.notifier_call = virtballoon_oom_notify;
--	vb->nb.priority = VIRTBALLOON_OOM_NOTIFY_PRIORITY;
--	err = register_oom_notifier(&vb->nb);
--	if (err < 0)
--		goto out_del_vqs;
--
- #ifdef CONFIG_BALLOON_COMPACTION
- 	balloon_mnt = kern_mount(&balloon_fs);
- 	if (IS_ERR(balloon_mnt)) {
- 		err = PTR_ERR(balloon_mnt);
--		unregister_oom_notifier(&vb->nb);
- 		goto out_del_vqs;
- 	}
- 
-@@ -599,13 +607,20 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	if (IS_ERR(vb->vb_dev_info.inode)) {
- 		err = PTR_ERR(vb->vb_dev_info.inode);
- 		kern_unmount(balloon_mnt);
--		unregister_oom_notifier(&vb->nb);
- 		vb->vb_dev_info.inode = NULL;
- 		goto out_del_vqs;
- 	}
- 	vb->vb_dev_info.inode->i_mapping->a_ops = &balloon_aops;
+diff --git a/arch/arm64/include/asm/dma-mapping.h b/arch/arm64/include/asm/dma-mapping.h
+index b7847eb8a7bb..30aa8fb62dc3 100644
+--- a/arch/arm64/include/asm/dma-mapping.h
++++ b/arch/arm64/include/asm/dma-mapping.h
+@@ -44,6 +44,12 @@ void arch_teardown_dma_ops(struct device *dev);
+ #define arch_teardown_dma_ops	arch_teardown_dma_ops
  #endif
--
-+	/*
-+	 * We continue to use VIRTIO_BALLOON_F_DEFLATE_ON_OOM to decide if a
-+	 * shrinker needs to be registered to relieve memory pressure.
-+	 */
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM)) {
-+		err = virtio_balloon_register_shrinker(vb);
-+		if (err)
-+			goto out_del_vqs;
-+	}
- 	virtio_device_ready(vdev);
  
- 	if (towards_target(vb))
-@@ -637,8 +652,8 @@ static void virtballoon_remove(struct virtio_device *vdev)
++#ifdef CONFIG_VIRTIO
++struct virtio_device;
++void platform_override_dma_ops(struct virtio_device *vdev);
++#define platform_override_dma_ops	platform_override_dma_ops
++#endif
++
+ /* do not use this function in a driver */
+ static inline bool is_device_dma_coherent(struct device *dev)
  {
- 	struct virtio_balloon *vb = vdev->priv;
- 
--	unregister_oom_notifier(&vb->nb);
--
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-+		virtio_balloon_unregister_shrinker(vb);
- 	spin_lock_irq(&vb->stop_update_lock);
- 	vb->stop_update = true;
- 	spin_unlock_irq(&vb->stop_update_lock);
+diff --git a/arch/arm64/mm/dma-mapping.c b/arch/arm64/mm/dma-mapping.c
+index 61e93f0b5482..f9ca61b1b34d 100644
+--- a/arch/arm64/mm/dma-mapping.c
++++ b/arch/arm64/mm/dma-mapping.c
+@@ -891,3 +891,22 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
+ 	}
+ #endif
+ }
++
++#ifdef CONFIG_VIRTIO
++#include <linux/virtio_config.h>
++
++void platform_override_dma_ops(struct virtio_device *vdev)
++{
++	struct device *dev = vdev->dev.parent;
++	const struct dma_map_ops *dma_ops = &arm64_swiotlb_dma_ops;
++
++	if (virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
++		return;
++
++	dev->archdata.dma_coherent = true;
++	if (iommu_get_domain_for_dev(dev))
++		dma_ops = &iommu_dma_ops;
++
++	set_dma_ops(dev, dma_ops);
++}
++#endif	/* CONFIG_VIRTIO */
 -- 
-2.7.4
+2.1.4
