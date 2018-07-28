@@ -1,11 +1,17 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: Call for Workshops Proposals - WorldCIST'19, La Toja Island, Spain
-Date: Sat, 28 Jul 2018 14:12:28 +0100
-Message-ID: <109961437728015@gmail-com>
-Reply-To: worldcist@gmail.com
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC 2/4] virtio: Override device's DMA OPS with
+	virtio_direct_dma_ops selectively
+Date: Sun, 29 Jul 2018 00:16:19 +0300
+Message-ID: <20180729001344-mutt-send-email-mst__40293.9824307852$1532812466$gmane$org@kernel.org>
+References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
+	<20180720035941.6844-3-khandual@linux.vnet.ibm.com>
+	<c443ad8c-fb81-302d-edb2-5521831d38da@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0614375634849542443=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <c443ad8c-fb81-302d-edb2-5521831d38da@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,252 +21,107 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, benh@kernel.crashing.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, mpe@ellerman.id.au, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format
+On Sat, Jul 28, 2018 at 02:26:24PM +0530, Anshuman Khandual wrote:
+> On 07/20/2018 09:29 AM, Anshuman Khandual wrote:
+> > Now that virtio core always needs all virtio devices to have DMA OPS, we
+> > need to make sure that the structure it points is the right one. In the
+> > absence of VIRTIO_F_IOMMU_PLATFORM flag QEMU expects GPA from guest kernel.
+> > In such case, virtio device must use default virtio_direct_dma_ops DMA OPS
+> > structure which transforms scatter gather buffer addresses as GPA. This
+> > DMA OPS override must happen as early as possible during virtio device
+> > initializatin sequence before virtio core starts using given device's DMA
+> > OPS callbacks for I/O transactions. This change detects device's IOMMU flag
+> > and does the override in case the flag is cleared.
+> > 
+> > Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+> > ---
+> >  drivers/virtio/virtio.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> > 
+> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > index 7907ad3..6b13987 100644
+> > --- a/drivers/virtio/virtio.c
+> > +++ b/drivers/virtio/virtio.c
+> > @@ -166,6 +166,8 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+> >  }
+> >  EXPORT_SYMBOL_GPL(virtio_add_status);
+> > 
+> > +const struct dma_map_ops virtio_direct_dma_ops;
+> > +
+> >  int virtio_finalize_features(struct virtio_device *dev)
+> >  {
+> >  	int ret = dev->config->finalize_features(dev);
+> > @@ -174,6 +176,9 @@ int virtio_finalize_features(struct virtio_device *dev)
+> >  	if (ret)
+> >  		return ret;
+> 
+> 
+> The previous patch removed the code block for XEN guests which forced
+> the use of DMA API all the time irrespective of VIRTIO_F_IOMMU_PLATFORM
+> flag on the device. Here is what I have removed with patch 2/4 which
+> breaks the existing semantics on XEN guests.
+> 
+> -static bool vring_use_dma_api(struct virtio_device *vdev)
+> -{
+> -	if (!virtio_has_iommu_quirk(vdev))
+> -		return true;
+> -
+> -	/* Otherwise, we are left to guess. */
+> -	/*
+> -	 * In theory, it's possible to have a buggy QEMU-supposed
+> -	 * emulated Q35 IOMMU and Xen enabled at the same time.  On
+> -	 * such a configuration, virtio has never worked and will
+> -	 * not work without an even larger kludge.  Instead, enable
+> -	 * the DMA API if we're a Xen guest, which at least allows
+> -	 * all of the sensible Xen configurations to work correctly.
+> -	 */
+> -	if (xen_domain())
+> -		return true;
+> -
+> -	return false;
+> -}
+> 
+> XEN guests would not like override with virtio_direct_dma_ops in any
+> case irrespective of the flag VIRTIO_F_IOMMU_PLATFORM. So the existing
+> semantics can be preserved with something like this. It just assumes
+> that dev->dma_ops is non-NULL and a valid one set by the architecture.
+> If required we can add those tests here before skipping the override.
+> 
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index 7907ad3..6b13987 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -166,6 +166,8 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_add_status);
+> 
+> +const struct dma_map_ops virtio_direct_dma_ops;
+> +
+>  int virtio_finalize_features(struct virtio_device *dev)
+>  {
+>  	int ret = dev->config->finalize_features(dev);
+> @@ -174,6 +176,9 @@ int virtio_finalize_features(struct virtio_device *dev)
+>  	if (ret)
+>  		return ret;
+> +
+> +	if (xen_domain())
+> +		goto skip_override;
+> +
+> +	if (virtio_has_iommu_quirk(dev))
+> +		set_dma_ops(dev->dev.parent, &virtio_direct_dma_ops);
+> +
+> + skip_override:
+> +
 
---===============0614375634849542443==
-Content-Type: multipart/alternative; charset=utf-8; boundary="jBeQ4IOAiUP9nePXj=_CxfjyK6yCo5V8Qr"
+I prefer normal if scoping as opposed to goto spaghetti pls.
+Better yet move vring_use_dma_api here and use it.
+Less of a chance something will break.
 
-This is a multi-part message in MIME format
-
---jBeQ4IOAiUP9nePXj=_CxfjyK6yCo5V8Qr
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
------------------ CALL FOR WORKSHOPS PROPOSALS --------------------
-WorldCIST'19 - 7th World Conference on Information Systems and Technologies=
- 
-                  16th-19th of April 2019, La Toja Island, Galicia, Spain 
-                                       http://www.worldcist.org/ <http://ww=
-w.worldcist.org/>
----------------------------------------------------------------------------=
---------
-
-
-The Information Systems and Technologies research and industrial community =
-is invited to submit proposals for the organization of Workshops at WorldCi=
-st'19 - 7th World Conference on Information Systems and Technologies, to be=
- held at La Toja Island, Galicia, Spain, 16 - 19 April 2019. WorldCist is a=
- global forum for researchers and practitioners to present and discuss the =
-most recent innovations, trends, results, experiences and concerns in the s=
-everal perspectives of Information Systems and Technologies. 
-
-
-###############
-WORKSHOP FORMAT
-###############
-
-Workshops should focus on a specific scientific subject on the scope of Wor=
-ldCist'19 but not directly included on the main conference areas. Each work=
-shop will be coordinated by an Organizing Committee composed of, at least, =
-two researchers in the field, preferably from different institutions and di=
-fferent countries. The organizers should create an international Program Co=
-mmittee for the Workshop, with recognized researchers within the specific W=
-orkshop scientific area. Each workshop should have at least ten submissions=
- and five accepted papers in order to be conducted at WorldCist'19.
-
-The selection of Workshops will be performed by WorldCist'19 Conference/Wor=
-kshop Chairs. Workshops full and short papers will be published in the conf=
-erence main proceedings in specific Workshop chapters published by Springer=
- in a book of the AISC series. Proceedings will be submitted for indexation=
- by ISI Thomson, SCOPUS, DBLP, EI-Compendex among several other scientific =
-databases. Extended versions of best selected papers will be published in j=
-ournals indexed by ISI/SCI, SCOPUS and DBLP. Detailed and up-to-date inform=
-ation may be found at WorldCist'19 website: http://www.worldcist.org/ <http=
-://www.worldcist.org/>
-
-
-#####################
-WORKSHOP ORGANIZATION
-#####################
-
-The Organizing Committee of each Workshop will be responsible for:
-
-- Producing and distributing the Workshop Call for Papers (CFP);
-- Coordinating the review and selection process for the papers submitted to=
- the Workshop, as Workshop chairs (on the paper submission system to be ins=
-talled);
-- Delivering the final versions of the papers accepted for the Workshop in =
-accordance with the guidelines and deadlines defined by WorldCist'19 organi=
-zers;
-- Coordinating and chairing the Workshop sessions at the conference.
-
-WorldCist'19 organizers reserve the right to cancel any Workshop if deadlin=
-es are missed or if the number of registered attendees is too low to suppor=
-t the costs associated with the Workshop.
-
-
-################
-PROPOSAL CONTENT
-################
-
-Workshop proposals should contain the following information:
-
-- Workshop title;
-- Brief description of the specific scientific scope of the Workshop;
-- List of topics of interest (max 15 topics);
-- Reasons the Workshop should be held within WorldCist=E2=80=9919;
-- Name, postal address, phone and email of all the members of the Workshop =
-Organizing Committee;
-- Preliminary proposal for the Workshop Program Committee (Names and affili=
-ations).
-
-Proposals should be submitted at https://easychair.org/conferences/?conf=3D=
-worldcist-workshops2019 <https://easychair.org/conferences/?conf=3Dworldcis=
-t-workshops2019> in PDF (in English), by September 10, 2018.
-
-
-###############
-IMPORTANT DATES
-###############
-
-- Deadline for Workshop proposals: September 10, 2018
-- Notification of Workshop acceptance: September 20, 2018
-- Workshop Final Information and Program Committee: October 10, 2018
-- Deadline for paper submission: November 30, 2018
-- Notification of paper acceptance: January 6, 2019
-- Deadline for final versions and conference registration: January 20, 2019=
-
-- Conference dates: April 16-19, 2019
-
-
-#####
-CHAIR
-#####
-
-Luis Paulo Reis, AISTI, IEEE & University of Porto, Portugal
-
-
-WorldCIST'19 Website: http://www.worldcist.org/ <http://www.worldcist.org/>=
-
-
-
----
-This email has been checked for viruses by AVG.
-https://www.avg.com
-
---jBeQ4IOAiUP9nePXj=_CxfjyK6yCo5V8Qr
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <p>----------------- CALL FOR WORKSHOPS PROPOSALS --------------------<=
-br />WorldCIST'19 - 7th World Conference on Information Systems and Technol=
-ogies <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 16th-19th of April 2019, La Toja Is=
-land, Galicia, Spain <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp; &nbsp;&nbsp;&nbsp; <a href=3D"http://www.worldcist.org/">http://www.=
-worldcist.org/</a><br />---------------------------------------------------=
---------------------------------</p>
-    <p><br />The Information Systems and Technologies research and industri=
-al community is invited to submit proposals for the organization of Worksho=
-ps at WorldCist'19 - 7th World Conference on Information Systems and Techno=
-logies, to be held at La Toja Island, Galicia, Spain, 16 - 19 April 2019. W=
-orldCist is a global forum for researchers and practitioners to present and=
- discuss the most recent innovations, trends, results, experiences and conc=
-erns in the several perspectives of Information Systems and Technologies. <=
-/p>
-    <p><br />###############<br />WORKSHOP FORMAT<br />###############</p>
-    <p>Workshops should focus on a specific scientific subject on the scope=
- of WorldCist'19 but not directly included on the main conference areas. Ea=
-ch workshop will be coordinated by an Organizing Committee composed of, at =
-least, two researchers in the field, preferably from different institutions=
- and different countries. The organizers should create an international Pro=
-gram Committee for the Workshop, with recognized researchers within the spe=
-cific Workshop scientific area. Each workshop should have at least ten subm=
-issions and five accepted papers in order to be conducted at WorldCist'19.<=
-/p>
-    <p>The selection of Workshops will be performed by WorldCist'19 Confere=
-nce/Workshop Chairs. Workshops full and short papers will be published in t=
-he conference main proceedings in specific Workshop chapters published by S=
-pringer in a book of the AISC series. Proceedings will be submitted for ind=
-exation by ISI Thomson, SCOPUS, DBLP, EI-Compendex among several other scie=
-ntific databases. Extended versions of best selected papers will be publish=
-ed in journals indexed by ISI/SCI, SCOPUS and DBLP. Detailed and up-to-date=
- information may be found at WorldCist'19 website: <a href=3D"http://www.wo=
-rldcist.org/">http://www.worldcist.org/</a></p>
-    <p><br />#####################<br />WORKSHOP ORGANIZATION<br />########=
-#############</p>
-    <p>The Organizing Committee of each Workshop will be responsible for:</=
-p>
-    <p>- Producing and distributing the Workshop Call for Papers (CFP);<br =
-/>- Coordinating the review and selection process for the papers submitted =
-to the Workshop, as Workshop chairs (on the paper submission system to be i=
-nstalled);<br />- Delivering the final versions of the papers accepted for =
-the Workshop in accordance with the guidelines and deadlines defined by Wor=
-ldCist'19 organizers;<br />- Coordinating and chairing the Workshop session=
-s at the conference.</p>
-    <p>WorldCist'19 organizers reserve the right to cancel any Workshop if =
-deadlines are missed or if the number of registered attendees is too low to=
- support the costs associated with the Workshop.</p>
-    <p><br />################<br />PROPOSAL CONTENT<br />################</=
-p>
-    <p>Workshop proposals should contain the following information:</p>
-    <p>- Workshop title;<br />- Brief description of the specific scientifi=
-c scope of the Workshop;<br />- List of topics of interest (max 15 topics);=
-<br />- Reasons the Workshop should be held within WorldCist&rsquo;19;<br /=
->- Name, postal address, phone and email of all the members of the Workshop=
- Organizing Committee;<br />- Preliminary proposal for the Workshop Program=
- Committee (Names and affiliations).</p>
-    <p>Proposals should be submitted at <a href=3D"https://easychair.org/co=
-nferences/?conf=3Dworldcist-workshops2019">https://easychair.org/conference=
-s/?conf=3Dworldcist-workshops2019</a> in PDF (in English), by September 10,=
- 2018.</p>
-    <p><br />###############<br />IMPORTANT DATES<br />###############</p>
-    <p>- Deadline for Workshop proposals: September 10, 2018<br />- Notific=
-ation of Workshop acceptance: September 20, 2018<br />- Workshop Final Info=
-rmation and Program Committee: October 10, 2018<br />- Deadline for paper s=
-ubmission: November 30, 2018<br />- Notification of paper acceptance: Janua=
-ry 6, 2019<br />- Deadline for final versions and conference registration: =
-January 20, 2019<br />- Conference dates: April 16-19, 2019</p>
-    <p><br />#####<br />CHAIR<br />#####</p>
-    <p>Luis Paulo Reis, AISTI, IEEE &amp; University of Porto, Portugal</p>=
-
-    <p><br />WorldCIST'19 Website: <a href=3D"http://www.worldcist.org/">ht=
-tp://www.worldcist.org/</a><br /></p>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
-
---jBeQ4IOAiUP9nePXj=_CxfjyK6yCo5V8Qr--
-
-
---===============0614375634849542443==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0614375634849542443==--
+>  	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+>  		return 0
+> 
+> Will incorporate these changes in the next version.
