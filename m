@@ -1,18 +1,15 @@
 From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Sat, 28 Jul 2018 14:07:20 +0530
-Message-ID: <986656ee-37e9-0d99-3d1f-a48466ffe0ed@linux.vnet.ibm.com>
+Subject: Re: [RFC 2/4] virtio: Override device's DMA OPS with
+	virtio_direct_dma_ops selectively
+Date: Sat, 28 Jul 2018 14:26:24 +0530
+Message-ID: <c443ad8c-fb81-302d-edb2-5521831d38da@linux.vnet.ibm.com>
 References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
-	<20180720161541-mutt-send-email-mst@kernel.org>
-	<8f51d2c6-cc0c-9e42-f0fd-a8a33acc8b83@linux.vnet.ibm.com>
-	<20180723120511-mutt-send-email-mst@kernel.org>
-	<4062dd48-2b5b-e454-e860-c6bfe321ebdc@linux.vnet.ibm.com>
-	<20180727143008-mutt-send-email-mst@kernel.org>
+	<20180720035941.6844-3-khandual@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180727143008-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180720035941.6844-3-khandual@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,31 +19,101 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
+To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mst@redhat.com, benh@kernel.crashing.org, linuxram@us.ibm.com, hch@infradead.org, paulus@samba.org, mpe@ellerman.id.au, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/27/2018 05:01 PM, Michael S. Tsirkin wrote:
-> On Wed, Jul 25, 2018 at 08:56:23AM +0530, Anshuman Khandual wrote:
->> Results with and without the patches are similar.
+On 07/20/2018 09:29 AM, Anshuman Khandual wrote:
+> Now that virtio core always needs all virtio devices to have DMA OPS, we
+> need to make sure that the structure it points is the right one. In the
+> absence of VIRTIO_F_IOMMU_PLATFORM flag QEMU expects GPA from guest kernel.
+> In such case, virtio device must use default virtio_direct_dma_ops DMA OPS
+> structure which transforms scatter gather buffer addresses as GPA. This
+> DMA OPS override must happen as early as possible during virtio device
+> initializatin sequence before virtio core starts using given device's DMA
+> OPS callbacks for I/O transactions. This change detects device's IOMMU flag
+> and does the override in case the flag is cleared.
 > 
-> Thanks! And another thing to try is virtio-net with
-> a fast NIC backend (40G and up). Unfortunately
-> at this point loopback tests stress the host
-> scheduler too much.
+> Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+> ---
+>  drivers/virtio/virtio.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 > 
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index 7907ad3..6b13987 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -166,6 +166,8 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_add_status);
+> 
+> +const struct dma_map_ops virtio_direct_dma_ops;
+> +
+>  int virtio_finalize_features(struct virtio_device *dev)
+>  {
+>  	int ret = dev->config->finalize_features(dev);
+> @@ -174,6 +176,9 @@ int virtio_finalize_features(struct virtio_device *dev)
+>  	if (ret)
+>  		return ret;
 
-Sure. Will look around for a 40G NIC system. BTW I have been testing
-virtio-net with a TAP device as back end.
 
-ip tuntap add dev tap0 mode tap user $(whoami)
-ip link set tap0 master virbr0
-ip link set dev virbr0 up
-ip link set dev tap0 up
+The previous patch removed the code block for XEN guests which forced
+the use of DMA API all the time irrespective of VIRTIO_F_IOMMU_PLATFORM
+flag on the device. Here is what I have removed with patch 2/4 which
+breaks the existing semantics on XEN guests.
 
-which is exported into the guest as follows
+-static bool vring_use_dma_api(struct virtio_device *vdev)
+-{
+-	if (!virtio_has_iommu_quirk(vdev))
+-		return true;
+-
+-	/* Otherwise, we are left to guess. */
+-	/*
+-	 * In theory, it's possible to have a buggy QEMU-supposed
+-	 * emulated Q35 IOMMU and Xen enabled at the same time.  On
+-	 * such a configuration, virtio has never worked and will
+-	 * not work without an even larger kludge.  Instead, enable
+-	 * the DMA API if we're a Xen guest, which at least allows
+-	 * all of the sensible Xen configurations to work correctly.
+-	 */
+-	if (xen_domain())
+-		return true;
+-
+-	return false;
+-}
 
--device virtio-net,netdev=network0,mac=52:55:00:d1:55:01 \
--netdev tap,id=network0,ifname=tap0,script=no,downscript=no \
+XEN guests would not like override with virtio_direct_dma_ops in any
+case irrespective of the flag VIRTIO_F_IOMMU_PLATFORM. So the existing
+semantics can be preserved with something like this. It just assumes
+that dev->dma_ops is non-NULL and a valid one set by the architecture.
+If required we can add those tests here before skipping the override.
 
-But I have not run any network benchmarks on it though.
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 7907ad3..6b13987 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -166,6 +166,8 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+ }
+ EXPORT_SYMBOL_GPL(virtio_add_status);
+
++const struct dma_map_ops virtio_direct_dma_ops;
++
+ int virtio_finalize_features(struct virtio_device *dev)
+ {
+ 	int ret = dev->config->finalize_features(dev);
+@@ -174,6 +176,9 @@ int virtio_finalize_features(struct virtio_device *dev)
+ 	if (ret)
+ 		return ret;
++
++	if (xen_domain())
++		goto skip_override;
++
++	if (virtio_has_iommu_quirk(dev))
++		set_dma_ops(dev->dev.parent, &virtio_direct_dma_ops);
++
++ skip_override:
++
+ 	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+ 		return 0
+
+Will incorporate these changes in the next version.
