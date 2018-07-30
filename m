@@ -1,15 +1,16 @@
 From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC 1/4] virtio: Define virtio_direct_dma_ops structure
-Date: Mon, 30 Jul 2018 02:24:19 -0700
-Message-ID: <20180730092419.GA26245@infradead.org>
+Subject: Re: [RFC 2/4] virtio: Override device's DMA OPS with
+	virtio_direct_dma_ops selectively
+Date: Mon, 30 Jul 2018 02:25:51 -0700
+Message-ID: <20180730092551.GB26245__12926.3251358227$1532942638$gmane$org@infradead.org>
 References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
-	<20180720035941.6844-2-khandual@linux.vnet.ibm.com>
+	<20180720035941.6844-3-khandual@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180720035941.6844-2-khandual@linux.vnet.ibm.com>
+In-Reply-To: <20180720035941.6844-3-khandual@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,73 +24,25 @@ To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
 Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mst@redhat.com, benh@kernel.crashing.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, mpe@ellerman.id.au, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-> +/*
-> + * Virtio direct mapping DMA API operations structure
-> + *
-> + * This defines DMA API structure for all virtio devices which would not
-> + * either bring in their own DMA OPS from architecture or they would not
-> + * like to use architecture specific IOMMU based DMA OPS because QEMU
-> + * expects GPA instead of an IOVA in absence of VIRTIO_F_IOMMU_PLATFORM.
-> + */
-> +dma_addr_t virtio_direct_map_page(struct device *dev, struct page *page,
-> +			    unsigned long offset, size_t size,
-> +			    enum dma_data_direction dir,
-> +			    unsigned long attrs)
+> +const struct dma_map_ops virtio_direct_dma_ops;
 
-All these functions should probably be marked static.
-
-> +void virtio_direct_unmap_page(struct device *hwdev, dma_addr_t dev_addr,
-> +			size_t size, enum dma_data_direction dir,
-> +			unsigned long attrs)
-> +{
-> +}
-
-No need to implement no-op callbacks in struct dma_map_ops.
+This belongs into a header if it is non-static.  If you only
+use it in this file anyway please mark it static and avoid a forward
+declaration.
 
 > +
-> +int virtio_direct_mapping_error(struct device *hwdev, dma_addr_t dma_addr)
-> +{
-> +	return 0;
-> +}
+>  int virtio_finalize_features(struct virtio_device *dev)
+>  {
+>  	int ret = dev->config->finalize_features(dev);
+> @@ -174,6 +176,9 @@ int virtio_finalize_features(struct virtio_device *dev)
+>  	if (ret)
+>  		return ret;
+>  
+> +	if (virtio_has_iommu_quirk(dev))
+> +		set_dma_ops(dev->dev.parent, &virtio_direct_dma_ops);
 
-Including this one.
+This needs a big fat comment explaining what is going on here.
 
-> +void *virtio_direct_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
-> +		gfp_t gfp, unsigned long attrs)
-> +{
-> +	void *queue = alloc_pages_exact(PAGE_ALIGN(size), gfp);
-> +
-> +	if (queue) {
-> +		phys_addr_t phys_addr = virt_to_phys(queue);
-> +		*dma_handle = (dma_addr_t)phys_addr;
-> +
-> +		if (WARN_ON_ONCE(*dma_handle != phys_addr)) {
-> +			free_pages_exact(queue, PAGE_ALIGN(size));
-> +			return NULL;
-> +		}
-> +	}
-> +	return queue;
-
-queue is a very odd name in a generic memory allocator.
-
-> +void virtio_direct_free(struct device *dev, size_t size, void *vaddr,
-> +		dma_addr_t dma_addr, unsigned long attrs)
-> +{
-> +	free_pages_exact(vaddr, PAGE_ALIGN(size));
-> +}
-> +
-> +const struct dma_map_ops virtio_direct_dma_ops = {
-> +	.alloc			= virtio_direct_alloc,
-> +	.free			= virtio_direct_free,
-> +	.map_page		= virtio_direct_map_page,
-> +	.unmap_page		= virtio_direct_unmap_page,
-> +	.mapping_error		= virtio_direct_mapping_error,
-> +};
-
-This is missing a dma_map_sg implementation.  In general this is
-mandatory for dma_ops.  So either you implement it or explain in
-a common why you think you can skip it.
-
-> +EXPORT_SYMBOL(virtio_direct_dma_ops);
-
-EXPORT_SYMBOL_GPL like all virtio symbols, please.
+Also not new, but I find the existance of virtio_has_iommu_quirk and its
+name horribly confusing.  It might be better to open code it here once
+only a single caller is left.
