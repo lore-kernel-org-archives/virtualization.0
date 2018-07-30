@@ -1,17 +1,14 @@
-From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Subject: Re: [RFC 2/4] virtio: Override device's DMA OPS with
-	virtio_direct_dma_ops selectively
-Date: Mon, 30 Jul 2018 09:45:11 +0530
-Message-ID: <1932ff74-dab8-853d-256c-40045e7ad2d9@linux.vnet.ibm.com>
-References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
-	<20180720035941.6844-3-khandual@linux.vnet.ibm.com>
-	<c443ad8c-fb81-302d-edb2-5521831d38da@linux.vnet.ibm.com>
-	<20180729001344-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 1/2] tools/virtio: add dma barrier stubs
+Date: Mon, 30 Jul 2018 15:28:01 +0800
+Message-ID: <066294db-82d6-9b7c-14ac-d64428b3a15a@redhat.com>
+References: <20180725134057.113423-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180729001344-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180725134057.113423-1-mst@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,105 +18,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, benh@kernel.crashing.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, mpe@ellerman.id.au, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, khandual@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/29/2018 02:46 AM, Michael S. Tsirkin wrote:
-> On Sat, Jul 28, 2018 at 02:26:24PM +0530, Anshuman Khandual wrote:
->> On 07/20/2018 09:29 AM, Anshuman Khandual wrote:
->>> Now that virtio core always needs all virtio devices to have DMA OPS, we
->>> need to make sure that the structure it points is the right one. In the
->>> absence of VIRTIO_F_IOMMU_PLATFORM flag QEMU expects GPA from guest kernel.
->>> In such case, virtio device must use default virtio_direct_dma_ops DMA OPS
->>> structure which transforms scatter gather buffer addresses as GPA. This
->>> DMA OPS override must happen as early as possible during virtio device
->>> initializatin sequence before virtio core starts using given device's DMA
->>> OPS callbacks for I/O transactions. This change detects device's IOMMU flag
->>> and does the override in case the flag is cleared.
->>>
->>> Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
->>> ---
->>>  drivers/virtio/virtio.c | 5 +++++
->>>  1 file changed, 5 insertions(+)
->>>
->>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
->>> index 7907ad3..6b13987 100644
->>> --- a/drivers/virtio/virtio.c
->>> +++ b/drivers/virtio/virtio.c
->>> @@ -166,6 +166,8 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
->>>  }
->>>  EXPORT_SYMBOL_GPL(virtio_add_status);
->>>
->>> +const struct dma_map_ops virtio_direct_dma_ops;
->>> +
->>>  int virtio_finalize_features(struct virtio_device *dev)
->>>  {
->>>  	int ret = dev->config->finalize_features(dev);
->>> @@ -174,6 +176,9 @@ int virtio_finalize_features(struct virtio_device *dev)
->>>  	if (ret)
->>>  		return ret;
->>
->>
->> The previous patch removed the code block for XEN guests which forced
->> the use of DMA API all the time irrespective of VIRTIO_F_IOMMU_PLATFORM
->> flag on the device. Here is what I have removed with patch 2/4 which
->> breaks the existing semantics on XEN guests.
->>
->> -static bool vring_use_dma_api(struct virtio_device *vdev)
->> -{
->> -	if (!virtio_has_iommu_quirk(vdev))
->> -		return true;
->> -
->> -	/* Otherwise, we are left to guess. */
->> -	/*
->> -	 * In theory, it's possible to have a buggy QEMU-supposed
->> -	 * emulated Q35 IOMMU and Xen enabled at the same time.  On
->> -	 * such a configuration, virtio has never worked and will
->> -	 * not work without an even larger kludge.  Instead, enable
->> -	 * the DMA API if we're a Xen guest, which at least allows
->> -	 * all of the sensible Xen configurations to work correctly.
->> -	 */
->> -	if (xen_domain())
->> -		return true;
->> -
->> -	return false;
->> -}
->>
->> XEN guests would not like override with virtio_direct_dma_ops in any
->> case irrespective of the flag VIRTIO_F_IOMMU_PLATFORM. So the existing
->> semantics can be preserved with something like this. It just assumes
->> that dev->dma_ops is non-NULL and a valid one set by the architecture.
->> If required we can add those tests here before skipping the override.
->>
->> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
->> index 7907ad3..6b13987 100644
->> --- a/drivers/virtio/virtio.c
->> +++ b/drivers/virtio/virtio.c
->> @@ -166,6 +166,8 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
->>  }
->>  EXPORT_SYMBOL_GPL(virtio_add_status);
->>
->> +const struct dma_map_ops virtio_direct_dma_ops;
->> +
->>  int virtio_finalize_features(struct virtio_device *dev)
->>  {
->>  	int ret = dev->config->finalize_features(dev);
->> @@ -174,6 +176,9 @@ int virtio_finalize_features(struct virtio_device *dev)
->>  	if (ret)
->>  		return ret;
->> +
->> +	if (xen_domain())
->> +		goto skip_override;
->> +
->> +	if (virtio_has_iommu_quirk(dev))
->> +		set_dma_ops(dev->dev.parent, &virtio_direct_dma_ops);
->> +
->> + skip_override:
->> +
-> 
-> I prefer normal if scoping as opposed to goto spaghetti pls.
-> Better yet move vring_use_dma_api here and use it.
-> Less of a chance something will break.
-
-Sure, will move vring_use_dma_api() function in here.
+CgpPbiAyMDE45bm0MDfmnIgyNeaXpSAyMTo0NSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IEZpeGVzOiA1NWU0OWRjNDNhOCAoInZpcnRpb19yaW5nOiBzd2l0Y2ggdG8gZG1hX1hYIGJhcnJp
+ZXJzIGZvciBycG1zZyIpCj4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RA
+cmVkaGF0LmNvbT4KPiAtLS0KPiAgIHRvb2xzL3ZpcnRpby9hc20vYmFycmllci5oIHwgNCArKy0t
+Cj4gICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+Cj4g
+ZGlmZiAtLWdpdCBhL3Rvb2xzL3ZpcnRpby9hc20vYmFycmllci5oIGIvdG9vbHMvdmlydGlvL2Fz
+bS9iYXJyaWVyLmgKPiBpbmRleCAwYWMzY2FmOTA4NzcuLmQwMzUxZjgzYWViZSAxMDA2NDQKPiAt
+LS0gYS90b29scy92aXJ0aW8vYXNtL2JhcnJpZXIuaAo+ICsrKyBiL3Rvb2xzL3ZpcnRpby9hc20v
+YmFycmllci5oCj4gQEAgLTEzLDggKzEzLDggQEAKPiAgIH0gd2hpbGUgKDApOwo+ICAgLyogV2Vh
+ayBiYXJyaWVycyBzaG91bGQgYmUgdXNlZC4gSWYgbm90IC0gaXQncyBhIGJ1ZyAqLwo+ICAgIyBk
+ZWZpbmUgbWIoKSBhYm9ydCgpCj4gLSMgZGVmaW5lIHJtYigpIGFib3J0KCkKPiAtIyBkZWZpbmUg
+d21iKCkgYWJvcnQoKQo+ICsjIGRlZmluZSBkbWFfcm1iKCkgYWJvcnQoKQo+ICsjIGRlZmluZSBk
+bWFfd21iKCkgYWJvcnQoKQo+ICAgI2Vsc2UKPiAgICNlcnJvciBQbGVhc2UgZmlsbCBpbiBiYXJy
+aWVyIG1hY3Jvcwo+ICAgI2VuZGlmCgpSZXZpZXdlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdA
+cmVkaGF0LmNvbT4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
