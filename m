@@ -1,17 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 2/4] virtio: Override device's DMA OPS with
-	virtio_direct_dma_ops selectively
-Date: Sun, 29 Jul 2018 00:16:19 +0300
-Message-ID: <20180729001344-mutt-send-email-mst__40293.9824307852$1532812466$gmane$org@kernel.org>
-References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
-	<20180720035941.6844-3-khandual@linux.vnet.ibm.com>
-	<c443ad8c-fb81-302d-edb2-5521831d38da@linux.vnet.ibm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next v6 1/4] net: vhost: lock the vqs one by one
+Date: Mon, 30 Jul 2018 10:54:28 +0800
+Message-ID: <6fbca50c-8cf1-1853-4fd6-47fc0db6354b@redhat.com>
+References: <1532196242-2998-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<1532196242-2998-2-git-send-email-xiangxia.m.yue@gmail.com>
+	<20180722182448-mutt-send-email-mst@kernel.org>
+	<CAMDZJNX41vtdNNEAxHYwC+WcrJFkON70hVumVE9rbFDBC5QUOQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <c443ad8c-fb81-302d-edb2-5521831d38da@linux.vnet.ibm.com>
+In-Reply-To: <CAMDZJNX41vtdNNEAxHYwC+WcrJFkON70hVumVE9rbFDBC5QUOQ@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,107 +21,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, benh@kernel.crashing.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, mpe@ellerman.id.au, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
+To: Tonghao Zhang <xiangxia.m.yue@gmail.com>, mst@redhat.com
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Jul 28, 2018 at 02:26:24PM +0530, Anshuman Khandual wrote:
-> On 07/20/2018 09:29 AM, Anshuman Khandual wrote:
-> > Now that virtio core always needs all virtio devices to have DMA OPS, we
-> > need to make sure that the structure it points is the right one. In the
-> > absence of VIRTIO_F_IOMMU_PLATFORM flag QEMU expects GPA from guest kernel.
-> > In such case, virtio device must use default virtio_direct_dma_ops DMA OPS
-> > structure which transforms scatter gather buffer addresses as GPA. This
-> > DMA OPS override must happen as early as possible during virtio device
-> > initializatin sequence before virtio core starts using given device's DMA
-> > OPS callbacks for I/O transactions. This change detects device's IOMMU flag
-> > and does the override in case the flag is cleared.
-> > 
-> > Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-> > ---
-> >  drivers/virtio/virtio.c | 5 +++++
-> >  1 file changed, 5 insertions(+)
-> > 
-> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > index 7907ad3..6b13987 100644
-> > --- a/drivers/virtio/virtio.c
-> > +++ b/drivers/virtio/virtio.c
-> > @@ -166,6 +166,8 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtio_add_status);
-> > 
-> > +const struct dma_map_ops virtio_direct_dma_ops;
-> > +
-> >  int virtio_finalize_features(struct virtio_device *dev)
-> >  {
-> >  	int ret = dev->config->finalize_features(dev);
-> > @@ -174,6 +176,9 @@ int virtio_finalize_features(struct virtio_device *dev)
-> >  	if (ret)
-> >  		return ret;
-> 
-> 
-> The previous patch removed the code block for XEN guests which forced
-> the use of DMA API all the time irrespective of VIRTIO_F_IOMMU_PLATFORM
-> flag on the device. Here is what I have removed with patch 2/4 which
-> breaks the existing semantics on XEN guests.
-> 
-> -static bool vring_use_dma_api(struct virtio_device *vdev)
-> -{
-> -	if (!virtio_has_iommu_quirk(vdev))
-> -		return true;
-> -
-> -	/* Otherwise, we are left to guess. */
-> -	/*
-> -	 * In theory, it's possible to have a buggy QEMU-supposed
-> -	 * emulated Q35 IOMMU and Xen enabled at the same time.  On
-> -	 * such a configuration, virtio has never worked and will
-> -	 * not work without an even larger kludge.  Instead, enable
-> -	 * the DMA API if we're a Xen guest, which at least allows
-> -	 * all of the sensible Xen configurations to work correctly.
-> -	 */
-> -	if (xen_domain())
-> -		return true;
-> -
-> -	return false;
-> -}
-> 
-> XEN guests would not like override with virtio_direct_dma_ops in any
-> case irrespective of the flag VIRTIO_F_IOMMU_PLATFORM. So the existing
-> semantics can be preserved with something like this. It just assumes
-> that dev->dma_ops is non-NULL and a valid one set by the architecture.
-> If required we can add those tests here before skipping the override.
-> 
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 7907ad3..6b13987 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -166,6 +166,8 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
->  }
->  EXPORT_SYMBOL_GPL(virtio_add_status);
-> 
-> +const struct dma_map_ops virtio_direct_dma_ops;
-> +
->  int virtio_finalize_features(struct virtio_device *dev)
->  {
->  	int ret = dev->config->finalize_features(dev);
-> @@ -174,6 +176,9 @@ int virtio_finalize_features(struct virtio_device *dev)
->  	if (ret)
->  		return ret;
-> +
-> +	if (xen_domain())
-> +		goto skip_override;
-> +
-> +	if (virtio_has_iommu_quirk(dev))
-> +		set_dma_ops(dev->dev.parent, &virtio_direct_dma_ops);
-> +
-> + skip_override:
-> +
-
-I prefer normal if scoping as opposed to goto spaghetti pls.
-Better yet move vring_use_dma_api here and use it.
-Less of a chance something will break.
-
->  	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
->  		return 0
-> 
-> Will incorporate these changes in the next version.
+CgpPbiAyMDE45bm0MDfmnIgyNeaXpSAyMDowNSwgVG9uZ2hhbyBaaGFuZyB3cm90ZToKPiBPbiBT
+dW4sIEp1bCAyMiwgMjAxOCBhdCAxMToyNiBQTSBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRo
+YXQuY29tPiB3cm90ZToKPj4gT24gU2F0LCBKdWwgMjEsIDIwMTggYXQgMTE6MDM6NTlBTSAtMDcw
+MCwgeGlhbmd4aWEubS55dWVAZ21haWwuY29tIHdyb3RlOgo+Pj4gRnJvbTogVG9uZ2hhbyBaaGFu
+ZyA8eGlhbmd4aWEubS55dWVAZ21haWwuY29tPgo+Pj4KPj4+IFRoaXMgcGF0Y2ggY2hhbmdlcyB0
+aGUgd2F5IHRoYXQgbG9jayBhbGwgdnFzCj4+PiBhdCB0aGUgc2FtZSwgdG8gbG9jayB0aGVtIG9u
+ZSBieSBvbmUuIEl0IHdpbGwKPj4+IGJlIHVzZWQgZm9yIG5leHQgcGF0Y2ggdG8gYXZvaWQgdGhl
+IGRlYWRsb2NrLgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6IFRvbmdoYW8gWmhhbmcgPHhpYW5neGlh
+Lm0ueXVlQGdtYWlsLmNvbT4KPj4+IEFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPgo+Pj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNv
+bT4KPj4+IC0tLQo+Pj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAyNCArKysrKysrLS0tLS0t
+LS0tLS0tLS0tLS0KPj4+ICAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgMTcgZGVs
+ZXRpb25zKC0pCj4+Pgo+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBiL2Ry
+aXZlcnMvdmhvc3Qvdmhvc3QuYwo+Pj4gaW5kZXggYTUwMmYxYS4uYTFjMDZlNyAxMDA2NDQKPj4+
+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+Pj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9z
+dC5jCj4+PiBAQCAtMjk0LDggKzI5NCwxMSBAQCBzdGF0aWMgdm9pZCB2aG9zdF92cV9tZXRhX3Jl
+c2V0KHN0cnVjdCB2aG9zdF9kZXYgKmQpCj4+PiAgIHsKPj4+ICAgICAgICBpbnQgaTsKPj4+Cj4+
+PiAtICAgICBmb3IgKGkgPSAwOyBpIDwgZC0+bnZxczsgKytpKQo+Pj4gKyAgICAgZm9yIChpID0g
+MDsgaSA8IGQtPm52cXM7ICsraSkgewo+Pj4gKyAgICAgICAgICAgICBtdXRleF9sb2NrKCZkLT52
+cXNbaV0tPm11dGV4KTsKPj4+ICAgICAgICAgICAgICAgIF9fdmhvc3RfdnFfbWV0YV9yZXNldChk
+LT52cXNbaV0pOwo+Pj4gKyAgICAgICAgICAgICBtdXRleF91bmxvY2soJmQtPnZxc1tpXS0+bXV0
+ZXgpOwo+Pj4gKyAgICAgfQo+Pj4gICB9Cj4+Pgo+Pj4gICBzdGF0aWMgdm9pZCB2aG9zdF92cV9y
+ZXNldChzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsCj4+PiBAQCAtODkwLDIwICs4OTMsNiBAQCBzdGF0
+aWMgaW5saW5lIHZvaWQgX191c2VyICpfX3Zob3N0X2dldF91c2VyKHN0cnVjdCB2aG9zdF92aXJ0
+cXVldWUgKnZxLAo+Pj4gICAjZGVmaW5lIHZob3N0X2dldF91c2VkKHZxLCB4LCBwdHIpIFwKPj4+
+ICAgICAgICB2aG9zdF9nZXRfdXNlcih2cSwgeCwgcHRyLCBWSE9TVF9BRERSX1VTRUQpCj4+Pgo+
+Pj4gLXN0YXRpYyB2b2lkIHZob3N0X2Rldl9sb2NrX3ZxcyhzdHJ1Y3Qgdmhvc3RfZGV2ICpkKQo+
+Pj4gLXsKPj4+IC0gICAgIGludCBpID0gMDsKPj4+IC0gICAgIGZvciAoaSA9IDA7IGkgPCBkLT5u
+dnFzOyArK2kpCj4+PiAtICAgICAgICAgICAgIG11dGV4X2xvY2tfbmVzdGVkKCZkLT52cXNbaV0t
+Pm11dGV4LCBpKTsKPj4+IC19Cj4+PiAtCj4+PiAtc3RhdGljIHZvaWQgdmhvc3RfZGV2X3VubG9j
+a192cXMoc3RydWN0IHZob3N0X2RldiAqZCkKPj4+IC17Cj4+PiAtICAgICBpbnQgaSA9IDA7Cj4+
+PiAtICAgICBmb3IgKGkgPSAwOyBpIDwgZC0+bnZxczsgKytpKQo+Pj4gLSAgICAgICAgICAgICBt
+dXRleF91bmxvY2soJmQtPnZxc1tpXS0+bXV0ZXgpOwo+Pj4gLX0KPj4+IC0KPj4+ICAgc3RhdGlj
+IGludCB2aG9zdF9uZXdfdW1lbV9yYW5nZShzdHJ1Y3Qgdmhvc3RfdW1lbSAqdW1lbSwKPj4+ICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1NjQgc3RhcnQsIHU2NCBzaXplLCB1NjQgZW5k
+LAo+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHU2NCB1c2Vyc3BhY2VfYWRkciwg
+aW50IHBlcm0pCj4+PiBAQCAtOTUzLDcgKzk0MiwxMCBAQCBzdGF0aWMgdm9pZCB2aG9zdF9pb3Rs
+Yl9ub3RpZnlfdnEoc3RydWN0IHZob3N0X2RldiAqZCwKPj4+ICAgICAgICAgICAgICAgIGlmICht
+c2ctPmlvdmEgPD0gdnFfbXNnLT5pb3ZhICYmCj4+PiAgICAgICAgICAgICAgICAgICAgbXNnLT5p
+b3ZhICsgbXNnLT5zaXplIC0gMSA+IHZxX21zZy0+aW92YSAmJgo+Pj4gICAgICAgICAgICAgICAg
+ICAgIHZxX21zZy0+dHlwZSA9PSBWSE9TVF9JT1RMQl9NSVNTKSB7Cj4+PiArICAgICAgICAgICAg
+ICAgICAgICAgbXV0ZXhfbG9jaygmbm9kZS0+dnEtPm11dGV4KTsKPj4+ICAgICAgICAgICAgICAg
+ICAgICAgICAgdmhvc3RfcG9sbF9xdWV1ZSgmbm9kZS0+dnEtPnBvbGwpOwo+Pj4gKyAgICAgICAg
+ICAgICAgICAgICAgIG11dGV4X3VubG9jaygmbm9kZS0+dnEtPm11dGV4KTsKPj4+ICsKPj4+ICAg
+ICAgICAgICAgICAgICAgICAgICAgbGlzdF9kZWwoJm5vZGUtPm5vZGUpOwo+Pj4gICAgICAgICAg
+ICAgICAgICAgICAgICBrZnJlZShub2RlKTsKPj4+ICAgICAgICAgICAgICAgIH0KPj4+IEBAIC05
+ODUsNyArOTc3LDYgQEAgc3RhdGljIGludCB2aG9zdF9wcm9jZXNzX2lvdGxiX21zZyhzdHJ1Y3Qg
+dmhvc3RfZGV2ICpkZXYsCj4+PiAgICAgICAgaW50IHJldCA9IDA7Cj4+Pgo+Pj4gICAgICAgIG11
+dGV4X2xvY2soJmRldi0+bXV0ZXgpOwo+Pj4gLSAgICAgdmhvc3RfZGV2X2xvY2tfdnFzKGRldik7
+Cj4+PiAgICAgICAgc3dpdGNoIChtc2ctPnR5cGUpIHsKPj4+ICAgICAgICBjYXNlIFZIT1NUX0lP
+VExCX1VQREFURToKPj4+ICAgICAgICAgICAgICAgIGlmICghZGV2LT5pb3RsYikgewo+Pj4gQEAg
+LTEwMTksNyArMTAxMCw2IEBAIHN0YXRpYyBpbnQgdmhvc3RfcHJvY2Vzc19pb3RsYl9tc2coc3Ry
+dWN0IHZob3N0X2RldiAqZGV2LAo+Pj4gICAgICAgICAgICAgICAgYnJlYWs7Cj4+PiAgICAgICAg
+fQo+Pj4KPj4+IC0gICAgIHZob3N0X2Rldl91bmxvY2tfdnFzKGRldik7Cj4+PiAgICAgICAgbXV0
+ZXhfdW5sb2NrKCZkZXYtPm11dGV4KTsKPj4+Cj4+PiAgICAgICAgcmV0dXJuIHJldDsKPj4gSSBk
+byBwcmVmZXIgdGhlIGZpbmVyLWdyYWluZWQgbG9ja2luZyBidXQgSSByZW1lbWJlciB3ZQo+PiBk
+aXNjdXNzZWQgc29tZXRoaW5nIGxpa2UgdGhpcyBpbiB0aGUgcGFzdCBhbmQgSmFzb24gc2F3IGlz
+c3Vlcwo+PiB3aXRoIHN1Y2ggYSBsb2NraW5nLgo+IFRoaXMgY2hhbmdlIGlzIHN1Z2dlc3RlZCBi
+eSBKYXNvbi4gU2hvdWxkIEkgc2VuZCBuZXcgdmVyc2lvbiBiZWNhdXNlCj4gdGhlIHBhdGNoIDMg
+aXMgY2hhbmdlZC4KPgo+PiBKYXNvbj8KCkFjdHVhbGx5LCB0aGUgY29kZSB3YXMgYSBsaXR0bGUg
+Yml0IHRyaWNreSBoZXJlLiBTaW5jZSBpdCBhc3N1bWVzIApoYW5kbGVfdHgoKSBhbmQgaGFuZGxl
+X3J4KCkgcnVuIG9uIGEgc2luZ2xlIHRocmVhZC4gVGhvdWdoIHRoZSBsb2NrIApvcmRlcmluZyBp
+cyBkaWZmZXJlbnQsIGl0IHdhcyBzdGlsbCBzYWZlLgoKTWF5YmUgd2UgY2FuIGFkZCBzb21lIGNv
+bW1lbnRzIHRvIGV4cGxhaW4gdGhpcy4KClRoYW5rcwoKPj4KPj4+IC0tCj4+PiAxLjguMy4xCgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
