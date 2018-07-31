@@ -1,18 +1,16 @@
 From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
 Subject: Re: [RFC 2/4] virtio: Override device's DMA OPS with
 	virtio_direct_dma_ops selectively
-Date: Tue, 31 Jul 2018 12:09:45 +0530
-Message-ID: <52dcdcf5-971f-a53d-6cee-603668033596__25055.7953179397$1533019077$gmane$org@linux.vnet.ibm.com>
+Date: Tue, 31 Jul 2018 12:30:19 +0530
+Message-ID: <1e197586-4e11-48e1-a0dd-c2c440c64f9e__2256.28550765595$1533020319$gmane$org@linux.vnet.ibm.com>
 References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
 	<20180720035941.6844-3-khandual@linux.vnet.ibm.com>
-	<c443ad8c-fb81-302d-edb2-5521831d38da@linux.vnet.ibm.com>
-	<20180729001344-mutt-send-email-mst@kernel.org>
-	<20180730093027.GC26245@infradead.org>
+	<20180730092551.GB26245@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180730093027.GC26245@infradead.org>
+In-Reply-To: <20180730092551.GB26245@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,68 +20,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, benh@kernel.crashing.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, paulus@samba.org, mpe@ellerman.id.au, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
+To: Christoph Hellwig <hch@infradead.org>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mst@redhat.com, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, paulus@samba.org, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/30/2018 03:00 PM, Christoph Hellwig wrote:
->>> +
->>> +	if (xen_domain())
->>> +		goto skip_override;
->>> +
->>> +	if (virtio_has_iommu_quirk(dev))
->>> +		set_dma_ops(dev->dev.parent, &virtio_direct_dma_ops);
->>> +
->>> + skip_override:
->>> +
->>
->> I prefer normal if scoping as opposed to goto spaghetti pls.
->> Better yet move vring_use_dma_api here and use it.
->> Less of a chance something will break.
+On 07/30/2018 02:55 PM, Christoph Hellwig wrote:
+>> +const struct dma_map_ops virtio_direct_dma_ops;
 > 
-> I agree about avoid pointless gotos here, but we can do things
-> perfectly well without either gotos or a confusing helper here
-> if we structure it right. E.g.:
+> This belongs into a header if it is non-static.  If you only
+> use it in this file anyway please mark it static and avoid a forward
+> declaration.
+
+Sure, will make it static, move the definition up in the file to avoid
+forward declaration.
+ 
 > 
-> 	// suitably detailed comment here
-> 	if (!xen_domain() &&
-> 	    !virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM))
-> 		set_dma_ops(dev->dev.parent, &virtio_direct_dma_ops);
+>> +
+>>  int virtio_finalize_features(struct virtio_device *dev)
+>>  {
+>>  	int ret = dev->config->finalize_features(dev);
+>> @@ -174,6 +176,9 @@ int virtio_finalize_features(struct virtio_device *dev)
+>>  	if (ret)
+>>  		return ret;
+>>  
+>> +	if (virtio_has_iommu_quirk(dev))
+>> +		set_dma_ops(dev->dev.parent, &virtio_direct_dma_ops);
+> 
+> This needs a big fat comment explaining what is going on here.
 
-I had updated this patch calling vring_use_dma_api() as a helper
-as suggested by Michael but yes we can have the above condition
-with a comment block. I will change this patch accordingly.
+Sure, will do. Also talk about the XEN domain exception as well once
+that goes into this conditional statement.
 
 > 
-> and while we're at it - modifying dma ops for the parent looks very
-> dangerous.  I don't think we can do that, as it could break iommu
-> setup interactions.  IFF we set a specific dma map ops it has to be
-> on the virtio device itself, of which we have full control.
+> Also not new, but I find the existance of virtio_has_iommu_quirk and its
+> name horribly confusing.  It might be better to open code it here once
+> only a single caller is left.
 
-I understand your concern. At present virtio core calls parent's DMA
-ops callbacks when device has VIRTIO_F_IOMMU_PLATFORM flag set. Most
-likely those DMA OPS are architecture specific ones which can really
-configure IOMMU. Most probably all devices and their parents share
-the same DMA ops callback. IIUC as long as the entire system has a
-single DMA ops structure, it should be okay. But I may be missing
-other implications. I tried changing virtio core so that it always
-calls device's DMA ops instead of it's parent DMA ops, it hit the
-following WARN_ON for devices without IOMMU flag and hit both the
-WARN_ON and BUG_ON for devices with the IOMMU flag.
-
-static inline void *dma_alloc_attrs(struct device *dev, size_t size,
-                                       dma_addr_t *dma_handle, gfp_t flag,
-                                       unsigned long attrs)
-{
-        const struct dma_map_ops *ops = get_dma_ops(dev);
-        void *cpu_addr;
-
-        BUG_ON(!ops);
-        WARN_ON_ONCE(dev && !dev->coherent_dma_mask);
-
---------
-
-Seems like virtio device's DMA ops and coherent_dma_mask was never
-set correctly assuming that virtio core always called parent's DMA
-OPS all the time. We may have to change virtio device init to fix
-this. Any thoughts ?
+Sure will do. There is one definition in the tools directory which can
+be removed and then this will be the only one left.
