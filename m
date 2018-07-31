@@ -1,11 +1,18 @@
-From: "Dr. S K Niranjan Aradhya" <dr.niranjan.sk@gmail.com>
-Subject: IEEE Record # 44854: iCATccT 2018, Alva's Institute Of Engineering &
-	Technology (AIET)-CFP
-Date: Tue, 31 Jul 2018 11:27:49 +0530
-Message-ID: <CA+VLO2H9VbuhtD6n_526p6dtH+h3Z=J1EcLdh4SkNs+S4y04YQ@mail.gmail.com>
+From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Subject: Re: [RFC 2/4] virtio: Override device's DMA OPS with
+	virtio_direct_dma_ops selectively
+Date: Tue, 31 Jul 2018 12:09:45 +0530
+Message-ID: <52dcdcf5-971f-a53d-6cee-603668033596__25055.7953179397$1533019077$gmane$org@linux.vnet.ibm.com>
+References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
+	<20180720035941.6844-3-khandual@linux.vnet.ibm.com>
+	<c443ad8c-fb81-302d-edb2-5521831d38da@linux.vnet.ibm.com>
+	<20180729001344-mutt-send-email-mst@kernel.org>
+	<20180730093027.GC26245@infradead.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7362803321560281832=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180730093027.GC26245@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,140 +22,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Christoph Hellwig <hch@infradead.org>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, benh@kernel.crashing.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, paulus@samba.org, mpe@ellerman.id.au, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============7362803321560281832==
-Content-Type: multipart/alternative; boundary="0000000000001102f4057245425e"
+On 07/30/2018 03:00 PM, Christoph Hellwig wrote:
+>>> +
+>>> +	if (xen_domain())
+>>> +		goto skip_override;
+>>> +
+>>> +	if (virtio_has_iommu_quirk(dev))
+>>> +		set_dma_ops(dev->dev.parent, &virtio_direct_dma_ops);
+>>> +
+>>> + skip_override:
+>>> +
+>>
+>> I prefer normal if scoping as opposed to goto spaghetti pls.
+>> Better yet move vring_use_dma_api here and use it.
+>> Less of a chance something will break.
+> 
+> I agree about avoid pointless gotos here, but we can do things
+> perfectly well without either gotos or a confusing helper here
+> if we structure it right. E.g.:
+> 
+> 	// suitably detailed comment here
+> 	if (!xen_domain() &&
+> 	    !virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM))
+> 		set_dma_ops(dev->dev.parent, &virtio_direct_dma_ops);
 
---0000000000001102f4057245425e
-Content-Type: text/plain; charset="UTF-8"
+I had updated this patch calling vring_use_dma_api() as a helper
+as suggested by Michael but yes we can have the above condition
+with a comment block. I will change this patch accordingly.
 
-<< Apologies for cross-postings >>
-<<< Please circulate among your friends, peers and researchers >>>
+> 
+> and while we're at it - modifying dma ops for the parent looks very
+> dangerous.  I don't think we can do that, as it could break iommu
+> setup interactions.  IFF we set a specific dma map ops it has to be
+> on the virtio device itself, of which we have full control.
 
-IEEE Conference Record No.: # 44854;
+I understand your concern. At present virtio core calls parent's DMA
+ops callbacks when device has VIRTIO_F_IOMMU_PLATFORM flag set. Most
+likely those DMA OPS are architecture specific ones which can really
+configure IOMMU. Most probably all devices and their parents share
+the same DMA ops callback. IIUC as long as the entire system has a
+single DMA ops structure, it should be okay. But I may be missing
+other implications. I tried changing virtio core so that it always
+calls device's DMA ops instead of it's parent DMA ops, it hit the
+following WARN_ON for devices without IOMMU flag and hit both the
+WARN_ON and BUG_ON for devices with the IOMMU flag.
 
-4th International Conference on Applied and Theoretical Computing and
-Communication Technology (iCATccT - 2018)
- Alva's Institute Of Engineering & Technology (AIET)
+static inline void *dma_alloc_attrs(struct device *dev, size_t size,
+                                       dma_addr_t *dma_handle, gfp_t flag,
+                                       unsigned long attrs)
+{
+        const struct dma_map_ops *ops = get_dma_ops(dev);
+        void *cpu_addr;
 
-Conference Date : 6-8 Sept 2018
-Submission Deadline: 10 August 2018
+        BUG_ON(!ops);
+        WARN_ON_ONCE(dev && !dev->coherent_dma_mask);
 
-Submission Link: http://itekcmsonline.com/icatcct18/index.php/icatcct18/
-icatcct18/login
+--------
 
-Review is underway for submitted papers.
-
-IEEE ISBN : 978-1-5386-7706-3
-IEEE Part No. : CFP18D66-ART
-Selected, accepted and extended paper will be published in Scopus Indexed
-International Journal of Forensic Software Engineering published by
-InderScience
-All accepted and presented papers will be submitted to the IEEE for
-possible publication in IEEE Xplore Digital Library. Previous edition
-indexed in: SCOPUS, ISI Web of Science, Engineering Index, Google, etc.
-
-If you like to join the TPC or propose a special session or symposiums
-please write to: secretariat@icatcct.org
-
-General Chair(s)
-iCATccT 2018 Conference
-
-----------------------
-Disclaimer: We have clearly mentioned the subject lines and your email
-address won't be misleading in any form. We have found your mail address
-through our own efforts on the web search and not through any illegal way.
-If you wish to remove your information from our mailing list or no longer
-receive future announcements, please email with REMOVE in subject. Your
-request to opt-out will be effective within a reasonable amount of time.
- icatcct-cfp.pdf
-<https://drive.google.com/file/d/1OWXPZVS1IRZlNoWTjfVyxl-yIL2CsByg/view?usp=drive_web>
-
---0000000000001102f4057245425e
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div dir=3D"ltr">
-<p><font size=3D"+2" color=3D"#cc0000">&lt;&lt; Apologies for
-        cross-postings &gt;&gt;<br>
-        &lt;&lt;&lt; Please circulate among your friends, peers and
-        researchers &gt;&gt;&gt;</font><br>
-      <br>
-      IEEE Conference Record No.: # 44854;<br>
-      <font color=3D"#009900"><br>
-        4th International Conference on Applied and Theoretical
-        Computing and Communication Technology (iCATccT - 2018)<br>
-        <font color=3D"#000000">=C2=A0Alva&#39;s Institute Of Engineering &=
-amp;
-          Technology (AIET)</font></font><br>
-      <br>
-      Conference Date : 6-8 Sept 2018<br>
-      Submission Deadline: 10 August 2018 <br>
-      <br>
-      Submission Link: <a href=3D"http://itekcmsonline.com/icatcct18/index.=
-php/icatcct18/icatcct18/login" target=3D"_blank">http://itekcmsonline.com/<=
-wbr>icatcct18/index.php/icatcct18/<wbr>icatcct18/login</a><br>
-      <br>
-      Review is underway for submitted papers.<br>
-      <br>
-      IEEE ISBN : 978-1-5386-7706-3<br>
-      IEEE Part No. : CFP18D66-ART<br>
-    </p>
-    Selected, accepted and extended paper will be published in Scopus
-    Indexed International Journal of Forensic Software Engineering
-    published by InderScience<br>
-    All accepted and presented papers will be submitted to the IEEE for
-    possible publication in IEEE Xplore Digital Library. Previous
-    edition indexed in: SCOPUS, ISI Web of Science, Engineering Index,
-    Google, etc.<br>
-    <br>
-    If you like to join the TPC or propose a special session or
-    symposiums please write to: <a class=3D"m_1266897280592093035gmail-moz-=
-txt-link-abbreviated" href=3D"http://secretariat@icatcct.org" target=3D"_bl=
-ank">secretariat@icatcct.org</a><br>
-    <br>
-    General Chair(s)<br>
-    iCATccT 2018 Conference<br>
-    <br>
-    ----------------------<br><div>
-    Disclaimer: We have clearly mentioned the subject lines and your
-    email address won&#39;t be misleading in any form. We have found your
-    mail address through our own efforts on the web search and not
-    through any illegal way. If you wish to remove your information from
-    our mailing list or no longer receive future announcements, please
-    email with REMOVE in subject. Your request to opt-out will be
-    effective within a reasonable amount of time.
- =20
-
-
-
-<br></div><div><div class=3D"gmail_chip gmail_drive_chip" style=3D"width:39=
-6px;height:18px;max-height:18px;background-color:rgb(245,245,245);padding:5=
-px;font-family:arial;font-weight:bold;border:1px solid rgb(221,221,221);lin=
-e-height:1"><a href=3D"https://drive.google.com/file/d/1OWXPZVS1IRZlNoWTjfV=
-yxl-yIL2CsByg/view?usp=3Ddrive_web" style=3D"display:inline-block;max-width=
-:366px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decor=
-ation:none;padding:1px 0px;border:medium none" target=3D"_blank"><img style=
-=3D"vertical-align:bottom;border:medium none" src=3D"https://ssl.gstatic.co=
-m/docs/doclist/images/icon_10_generic_list.png">=C2=A0<span dir=3D"ltr" sty=
-le=3D"color:rgb(17,85,204);text-decoration:none;vertical-align:bottom">icat=
-cct-cfp.pdf</span></a><img src=3D"//ssl.gstatic.com/ui/v1/icons/common/x_8p=
-x.png" style=3D"display:none;opacity:0.55;float:right"></div></div><br></di=
-v>
-<br></div>
-
---0000000000001102f4057245425e--
-
---===============7362803321560281832==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7362803321560281832==--
+Seems like virtio device's DMA ops and coherent_dma_mask was never
+set correctly assuming that virtio core always called parent's DMA
+OPS all the time. We may have to change virtio device init to fix
+this. Any thoughts ?
