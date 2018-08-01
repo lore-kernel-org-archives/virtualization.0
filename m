@@ -1,16 +1,21 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next v7 3/4] net: vhost: factor out busy polling logic
-	to vhost_net_busy_poll()
-Date: Wed, 1 Aug 2018 14:01:23 +0800
-Message-ID: <30e62749-3cbd-ae88-6582-c20087884b20@redhat.com>
-References: <1533092454-37196-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<1533092454-37196-4-git-send-email-xiangxia.m.yue@gmail.com>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
+Date: Wed, 1 Aug 2018 09:16:38 +0100
+Message-ID: <20180801081637.GA14438__9678.07798083431$1533111276$gmane$org@arm.com>
+References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
+	<20180727095804.GA25592@arm.com>
+	<20180730093414.GD26245@infradead.org>
+	<20180730125100-mutt-send-email-mst@kernel.org>
+	<20180730111802.GA9830@infradead.org>
+	<20180730155633-mutt-send-email-mst@kernel.org>
+	<20180731173052.GA17153@infradead.org>
+	<3d6e81511571260de1c8047aaffa8ac4df093d2e.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1533092454-37196-4-git-send-email-xiangxia.m.yue@gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <3d6e81511571260de1c8047aaffa8ac4df093d2e.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,117 +25,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xiangxia.m.yue@gmail.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDjmnIgwMeaXpSAxMTowMCwgeGlhbmd4aWEubS55dWVAZ21haWwuY29tIHdy
-b3RlOgo+IEZyb206IFRvbmdoYW8gWmhhbmcgPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbT4KPgo+
-IEZhY3RvciBvdXQgZ2VuZXJpYyBidXN5IHBvbGxpbmcgbG9naWMgYW5kIHdpbGwgYmUKPiB1c2Vk
-IGZvciBpbiB0eCBwYXRoIGluIHRoZSBuZXh0IHBhdGNoLiBBbmQgd2l0aCB0aGUgcGF0Y2gsCj4g
-cWVtdSBjYW4gc2V0IGRpZmZlcmVudGx5IHRoZSBidXN5bG9vcF90aW1lb3V0IGZvciByeCBxdWV1
-ZS4KPgo+IEluIHRoZSBoYW5kbGVfdHgsIHRoZSBidXN5cG9sbCB3aWxsIHZob3N0X25ldF9kaXNh
-YmxlL2VuYWJsZV92cQo+IGJlY2F1c2Ugd2UgaGF2ZSBwb2xsIHRoZSBzb2NrLiBUaGlzIGNhbiBp
-bXByb3ZlIHBlcmZvcm1hbmNlLgo+IFtUaGlzIGlzIHN1Z2dlc3RlZCBieSBUb3NoaWFraSBNYWtp
-dGEgPG1ha2l0YS50b3NoaWFraUBsYWIubnR0LmNvLmpwPl0KPgo+IEFuZCB3aGVuIHRoZSBzb2Nr
-IHJlY2VpdmUgc2tiLCB3ZSBzaG91bGQgcXVldWUgdGhlIHBvbGwgaWYgbmVjZXNzYXJ5Lgo+Cj4g
-U2lnbmVkLW9mZi1ieTogVG9uZ2hhbyBaaGFuZyA8eGlhbmd4aWEubS55dWVAZ21haWwuY29tPgo+
-IC0tLQo+ICAgZHJpdmVycy92aG9zdC9uZXQuYyB8IDEzMSArKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tCj4gICAxIGZpbGUgY2hhbmdlZCwgOTEgaW5z
-ZXJ0aW9ucygrKSwgNDAgZGVsZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9z
-dC9uZXQuYyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiBpbmRleCAzMmMxYjUyLi41YjQ1NDYzIDEw
-MDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiArKysgYi9kcml2ZXJzL3Zob3N0L25l
-dC5jCj4gQEAgLTQ0MCw2ICs0NDAsOTUgQEAgc3RhdGljIHZvaWQgdmhvc3RfbmV0X3NpZ25hbF91
-c2VkKHN0cnVjdCB2aG9zdF9uZXRfdmlydHF1ZXVlICpudnEpCj4gICAJbnZxLT5kb25lX2lkeCA9
-IDA7Cj4gICB9Cj4gICAKPiArc3RhdGljIGludCBza19oYXNfcnhfZGF0YShzdHJ1Y3Qgc29jayAq
-c2spCj4gK3sKPiArCXN0cnVjdCBzb2NrZXQgKnNvY2sgPSBzay0+c2tfc29ja2V0Owo+ICsKPiAr
-CWlmIChzb2NrLT5vcHMtPnBlZWtfbGVuKQo+ICsJCXJldHVybiBzb2NrLT5vcHMtPnBlZWtfbGVu
-KHNvY2spOwo+ICsKPiArCXJldHVybiBza2JfcXVldWVfZW1wdHkoJnNrLT5za19yZWNlaXZlX3F1
-ZXVlKTsKPiArfQo+ICsKPiArc3RhdGljIHZvaWQgdmhvc3RfbmV0X2J1c3lfcG9sbF90cnlfcXVl
-dWUoc3RydWN0IHZob3N0X25ldCAqbmV0LAo+ICsJCQkJCSAgc3RydWN0IHZob3N0X3ZpcnRxdWV1
-ZSAqdnEpCj4gK3sKPiArCWlmICghdmhvc3RfdnFfYXZhaWxfZW1wdHkoJm5ldC0+ZGV2LCB2cSkp
-IHsKPiArCQl2aG9zdF9wb2xsX3F1ZXVlKCZ2cS0+cG9sbCk7Cj4gKwl9IGVsc2UgaWYgKHVubGlr
-ZWx5KHZob3N0X2VuYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB2cSkpKSB7Cj4gKwkJdmhvc3RfZGlz
-YWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB2cSk7Cj4gKwkJdmhvc3RfcG9sbF9xdWV1ZSgmdnEtPnBv
-bGwpOwo+ICsJfQo+ICt9Cj4gKwo+ICtzdGF0aWMgdm9pZCB2aG9zdF9uZXRfYnVzeV9wb2xsX2No
-ZWNrKHN0cnVjdCB2aG9zdF9uZXQgKm5ldCwKPiArCQkJCSAgICAgIHN0cnVjdCB2aG9zdF92aXJ0
-cXVldWUgKnJ2cSwKPiArCQkJCSAgICAgIHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnR2cSwKPiAr
-CQkJCSAgICAgIGJvb2wgcngpCj4gK3sKPiArCXN0cnVjdCBzb2NrZXQgKnNvY2sgPSBydnEtPnBy
-aXZhdGVfZGF0YTsKPiArCj4gKwlpZiAocngpCj4gKwkJdmhvc3RfbmV0X2J1c3lfcG9sbF90cnlf
-cXVldWUobmV0LCB0dnEpOwo+ICsJZWxzZSBpZiAoc29jayAmJiBza19oYXNfcnhfZGF0YShzb2Nr
-LT5zaykpCj4gKwkJdmhvc3RfbmV0X2J1c3lfcG9sbF90cnlfcXVldWUobmV0LCBydnEpOwo+ICsJ
-ZWxzZSB7Cj4gKwkJLyogT24gdHggaGVyZSwgc29jayBoYXMgbm8gcnggZGF0YSwgc28gd2UKPiAr
-CQkgKiB3aWxsIHdhaXQgZm9yIHNvY2sgd2FrZXVwIGZvciByeCwgYW5kCj4gKwkJICogdmhvc3Rf
-ZW5hYmxlX25vdGlmeSgpIGlzIG5vdCBuZWVkZWQuICovCgpBIHBvc3NpYmxlIGNhc2UgaXMgd2Ug
-ZG8gaGF2ZSByeCBkYXRhIGJ1dCBndWVzdCBkb2VzIG5vdCByZWZpbGwgdGhlIHJ4IApxdWV1ZS4g
-SW4gdGhpcyBjYXNlIHdlIG1heSBsb3NlIG5vdGlmaWNhdGlvbnMgZnJvbSBndWVzdC4KCj4gKwl9
-Cj4gK30KPiArCj4gK3N0YXRpYyB2b2lkIHZob3N0X25ldF9idXN5X3BvbGwoc3RydWN0IHZob3N0
-X25ldCAqbmV0LAo+ICsJCQkJc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqcnZxLAo+ICsJCQkJc3Ry
-dWN0IHZob3N0X3ZpcnRxdWV1ZSAqdHZxLAo+ICsJCQkJYm9vbCAqYnVzeWxvb3BfaW50ciwKPiAr
-CQkJCWJvb2wgcngpCj4gK3sKPiArCXVuc2lnbmVkIGxvbmcgYnVzeWxvb3BfdGltZW91dDsKPiAr
-CXVuc2lnbmVkIGxvbmcgZW5kdGltZTsKPiArCXN0cnVjdCBzb2NrZXQgKnNvY2s7Cj4gKwlzdHJ1
-Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSA9IHJ4ID8gdHZxIDogcnZxOwo+ICsKPiArCW11dGV4X2xv
-Y2tfbmVzdGVkKCZ2cS0+bXV0ZXgsIHJ4ID8gVkhPU1RfTkVUX1ZRX1RYOiBWSE9TVF9ORVRfVlFf
-UlgpOwo+ICsJdmhvc3RfZGlzYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB2cSk7Cj4gKwlzb2NrID0g
-cnZxLT5wcml2YXRlX2RhdGE7Cj4gKwo+ICsJYnVzeWxvb3BfdGltZW91dCA9IHJ4ID8gcnZxLT5i
-dXN5bG9vcF90aW1lb3V0Ogo+ICsJCQkJdHZxLT5idXN5bG9vcF90aW1lb3V0Owo+ICsKPiArCj4g
-KwkvKiBCdXN5cG9sbCB0aGUgc29jaywgc28gZG9uJ3QgbmVlZCByeCB3YWtldXBzIGR1cmluZyBp
-dC4gKi8KPiArCWlmICghcngpCj4gKwkJdmhvc3RfbmV0X2Rpc2FibGVfdnEobmV0LCB2cSk7CgpB
-Y3R1YWxseSB0aGlzIHBpZWNlIG9mIGNvZGUgaXMgbm90IGEgZmFjdG9yaW5nIG91dC4gSSB3b3Vs
-ZCBzdWdnZXN0IHRvIAphZGQgdGhpcyBpbiBhbm90aGVyIHBhdGNoLCBvciBvbiB0b3Agb2YgdGhp
-cyBzZXJpZXMuCgo+ICsKPiArCXByZWVtcHRfZGlzYWJsZSgpOwo+ICsJZW5kdGltZSA9IGJ1c3lf
-Y2xvY2soKSArIGJ1c3lsb29wX3RpbWVvdXQ7Cj4gKwo+ICsJd2hpbGUgKHZob3N0X2Nhbl9idXN5
-X3BvbGwoZW5kdGltZSkpIHsKPiArCQlpZiAodmhvc3RfaGFzX3dvcmsoJm5ldC0+ZGV2KSkgewo+
-ICsJCQkqYnVzeWxvb3BfaW50ciA9IHRydWU7Cj4gKwkJCWJyZWFrOwo+ICsJCX0KPiArCj4gKwkJ
-aWYgKChzb2NrICYmIHNrX2hhc19yeF9kYXRhKHNvY2stPnNrKSAmJgo+ICsJCSAgICAgIXZob3N0
-X3ZxX2F2YWlsX2VtcHR5KCZuZXQtPmRldiwgcnZxKSkgfHwKPiArCQkgICAgIXZob3N0X3ZxX2F2
-YWlsX2VtcHR5KCZuZXQtPmRldiwgdHZxKSkKPiArCQkJYnJlYWs7CgpTb21lIGNoZWNrcyB3ZXJl
-IGR1cGxpY2F0ZWQgaW4gdmhvc3RfbmV0X2J1c3lfcG9sbF9jaGVjaygpLiBOZWVkIApjb25zaWRl
-ciB0byB1bmlmeSB0aGVtLgoKPiArCj4gKwkJY3B1X3JlbGF4KCk7Cj4gKwl9Cj4gKwo+ICsJcHJl
-ZW1wdF9lbmFibGUoKTsKPiArCj4gKwlpZiAoIXJ4KQo+ICsJCXZob3N0X25ldF9lbmFibGVfdnEo
-bmV0LCB2cSk7CgpObyBuZWVkIHRvIGVuYWJsZSByeCB2aXJ0cXVldWUsIGlmIHdlIGFyZSBzdXJl
-IGhhbmRsZV9yeCgpIHdpbGwgYmUgCmNhbGxlZCBzb29uLgoKPiArCj4gKwl2aG9zdF9uZXRfYnVz
-eV9wb2xsX2NoZWNrKG5ldCwgcnZxLCB0dnEsIHJ4KTsKCkl0IGxvb2tzIHRvIG1lIGp1c3Qgb3Bl
-biBjb2RlIGFsbCBjaGVjayBoZXJlIGlzIGJldHRlciBhbmQgZWFzaWVyIHRvIGJlIApyZXZpZXdl
-ZC4KClRoYW5rcwoKPiArCj4gKwltdXRleF91bmxvY2soJnZxLT5tdXRleCk7Cj4gK30KPiArCj4g
-ICBzdGF0aWMgaW50IHZob3N0X25ldF90eF9nZXRfdnFfZGVzYyhzdHJ1Y3Qgdmhvc3RfbmV0ICpu
-ZXQsCj4gICAJCQkJICAgIHN0cnVjdCB2aG9zdF9uZXRfdmlydHF1ZXVlICpudnEsCj4gICAJCQkJ
-ICAgIHVuc2lnbmVkIGludCAqb3V0X251bSwgdW5zaWduZWQgaW50ICppbl9udW0sCj4gQEAgLTc1
-MywxNiArODQyLDYgQEAgc3RhdGljIGludCBwZWVrX2hlYWRfbGVuKHN0cnVjdCB2aG9zdF9uZXRf
-dmlydHF1ZXVlICpydnEsIHN0cnVjdCBzb2NrICpzaykKPiAgIAlyZXR1cm4gbGVuOwo+ICAgfQo+
-ICAgCj4gLXN0YXRpYyBpbnQgc2tfaGFzX3J4X2RhdGEoc3RydWN0IHNvY2sgKnNrKQo+IC17Cj4g
-LQlzdHJ1Y3Qgc29ja2V0ICpzb2NrID0gc2stPnNrX3NvY2tldDsKPiAtCj4gLQlpZiAoc29jay0+
-b3BzLT5wZWVrX2xlbikKPiAtCQlyZXR1cm4gc29jay0+b3BzLT5wZWVrX2xlbihzb2NrKTsKPiAt
-Cj4gLQlyZXR1cm4gc2tiX3F1ZXVlX2VtcHR5KCZzay0+c2tfcmVjZWl2ZV9xdWV1ZSk7Cj4gLX0K
-PiAtCj4gICBzdGF0aWMgaW50IHZob3N0X25ldF9yeF9wZWVrX2hlYWRfbGVuKHN0cnVjdCB2aG9z
-dF9uZXQgKm5ldCwgc3RydWN0IHNvY2sgKnNrLAo+ICAgCQkJCSAgICAgIGJvb2wgKmJ1c3lsb29w
-X2ludHIpCj4gICB7Cj4gQEAgLTc3MCw0MSArODQ5LDEzIEBAIHN0YXRpYyBpbnQgdmhvc3RfbmV0
-X3J4X3BlZWtfaGVhZF9sZW4oc3RydWN0IHZob3N0X25ldCAqbmV0LCBzdHJ1Y3Qgc29jayAqc2ss
-Cj4gICAJc3RydWN0IHZob3N0X25ldF92aXJ0cXVldWUgKnRudnEgPSAmbmV0LT52cXNbVkhPU1Rf
-TkVUX1ZRX1RYXTsKPiAgIAlzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICpydnEgPSAmcm52cS0+dnE7
-Cj4gICAJc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdHZxID0gJnRudnEtPnZxOwo+IC0JdW5zaWdu
-ZWQgbG9uZyB1bmluaXRpYWxpemVkX3ZhcihlbmR0aW1lKTsKPiAgIAlpbnQgbGVuID0gcGVla19o
-ZWFkX2xlbihybnZxLCBzayk7Cj4gICAKPiAtCWlmICghbGVuICYmIHR2cS0+YnVzeWxvb3BfdGlt
-ZW91dCkgewo+ICsJaWYgKCFsZW4gJiYgcnZxLT5idXN5bG9vcF90aW1lb3V0KSB7Cj4gICAJCS8q
-IEZsdXNoIGJhdGNoZWQgaGVhZHMgZmlyc3QgKi8KPiAgIAkJdmhvc3RfbmV0X3NpZ25hbF91c2Vk
-KHJudnEpOwo+ICAgCQkvKiBCb3RoIHR4IHZxIGFuZCByeCBzb2NrZXQgd2VyZSBwb2xsZWQgaGVy
-ZSAqLwo+IC0JCW11dGV4X2xvY2tfbmVzdGVkKCZ0dnEtPm11dGV4LCBWSE9TVF9ORVRfVlFfVFgp
-Owo+IC0JCXZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwgdHZxKTsKPiAtCj4gLQkJcHJl
-ZW1wdF9kaXNhYmxlKCk7Cj4gLQkJZW5kdGltZSA9IGJ1c3lfY2xvY2soKSArIHR2cS0+YnVzeWxv
-b3BfdGltZW91dDsKPiAtCj4gLQkJd2hpbGUgKHZob3N0X2Nhbl9idXN5X3BvbGwoZW5kdGltZSkp
-IHsKPiAtCQkJaWYgKHZob3N0X2hhc193b3JrKCZuZXQtPmRldikpIHsKPiAtCQkJCSpidXN5bG9v
-cF9pbnRyID0gdHJ1ZTsKPiAtCQkJCWJyZWFrOwo+IC0JCQl9Cj4gLQkJCWlmICgoc2tfaGFzX3J4
-X2RhdGEoc2spICYmCj4gLQkJCSAgICAgIXZob3N0X3ZxX2F2YWlsX2VtcHR5KCZuZXQtPmRldiwg
-cnZxKSkgfHwKPiAtCQkJICAgICF2aG9zdF92cV9hdmFpbF9lbXB0eSgmbmV0LT5kZXYsIHR2cSkp
-Cj4gLQkJCQlicmVhazsKPiAtCQkJY3B1X3JlbGF4KCk7Cj4gLQkJfQo+IC0KPiAtCQlwcmVlbXB0
-X2VuYWJsZSgpOwo+IC0KPiAtCQlpZiAoIXZob3N0X3ZxX2F2YWlsX2VtcHR5KCZuZXQtPmRldiwg
-dHZxKSkgewo+IC0JCQl2aG9zdF9wb2xsX3F1ZXVlKCZ0dnEtPnBvbGwpOwo+IC0JCX0gZWxzZSBp
-ZiAodW5saWtlbHkodmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHR2cSkpKSB7Cj4gLQkJ
-CXZob3N0X2Rpc2FibGVfbm90aWZ5KCZuZXQtPmRldiwgdHZxKTsKPiAtCQkJdmhvc3RfcG9sbF9x
-dWV1ZSgmdHZxLT5wb2xsKTsKPiAtCQl9Cj4gLQo+IC0JCW11dGV4X3VubG9jaygmdHZxLT5tdXRl
-eCk7Cj4gKwkJdmhvc3RfbmV0X2J1c3lfcG9sbChuZXQsIHJ2cSwgdHZxLCBidXN5bG9vcF9pbnRy
-LCB0cnVlKTsKPiAgIAo+ICAgCQlsZW4gPSBwZWVrX2hlYWRfbGVuKHJudnEsIHNrKTsKPiAgIAl9
-CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+On Tue, Jul 31, 2018 at 03:36:22PM -0500, Benjamin Herrenschmidt wrote:
+> On Tue, 2018-07-31 at 10:30 -0700, Christoph Hellwig wrote:
+> > > However the question people raise is that DMA API is already full of
+> > > arch-specific tricks the likes of which are outlined in your post linked
+> > > above. How is this one much worse?
+> > 
+> > None of these warts is visible to the driver, they are all handled in
+> > the architecture (possibly on a per-bus basis).
+> > 
+> > So for virtio we really need to decide if it has one set of behavior
+> > as specified in the virtio spec, or if it behaves exactly as if it
+> > was on a PCI bus, or in fact probably both as you lined up.  But no
+> > magic arch specific behavior inbetween.
+> 
+> The only arch specific behaviour is needed in the case where it doesn't
+> behave like PCI. In this case, the PCI DMA ops are not suitable, but in
+> our secure VMs, we still need to make it use swiotlb in order to bounce
+> through non-secure pages.
+
+On arm/arm64, the problem we have is that legacy virtio devices on the MMIO
+transport (so definitely not PCI) have historically been advertised by qemu
+as not being cache coherent, but because the virtio core has bypassed DMA
+ops then everything has happened to work. If we blindly enable the arch DMA
+ops, we'll plumb in the non-coherent ops and start getting data corruption,
+so we do need a way to quirk virtio as being "always coherent" if we want to
+use the DMA ops (which we do, because our emulation platforms have an IOMMU
+for all virtio devices).
+
+Will
