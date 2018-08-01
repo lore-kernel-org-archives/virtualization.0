@@ -1,18 +1,12 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [PATCH net-next 2/2] virtio-net: get rid of unnecessary container
-	of rq stats
-Date: Wed, 1 Aug 2018 10:46:53 +0900
-Message-ID: <840e6834-f64f-56b4-a889-d73e204eacbd@lab.ntt.co.jp>
-References: <1533030219-9904-1-git-send-email-jasowang@redhat.com>
-	<1533030219-9904-2-git-send-email-jasowang@redhat.com>
-	<da012c13-e438-f45e-5c41-2f159e791f00@lab.ntt.co.jp>
-	<d11c65d8-20be-1a85-c687-c6f182264e41@redhat.com>
+From: xiangxia.m.yue@gmail.com
+Subject: [PATCH net-next v7 0/4] net: vhost: improve performance when enable
+	busyloop
+Date: Tue, 31 Jul 2018 20:00:50 -0700
+Message-ID: <1533092454-37196-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <d11c65d8-20be-1a85-c687-c6f182264e41@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,41 +16,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxOC8wOC8wMSAxMDozOSwgSmFzb24gV2FuZyB3cm90ZToKPiBPbiAyMDE45bm0MDfmnIgz
-MeaXpSAxODowMiwgVG9zaGlha2kgTWFraXRhIHdyb3RlOgo+PiBPbiAyMDE4LzA3LzMxIDE4OjQz
-LCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4gV2UgZG9uJ3QgbWFpbnRhaW4gdHggY291bnRlcnMgaW4g
-cnggc3RhdHMgYW55IG1vcmUuIFRoZXJlJ3Mgbm8gbmVlZAo+Pj4gZm9yIGFuIGV4dHJhIGNvbnRh
-aW5lciBvZiBycSBzdGF0cy4KPj4+Cj4+PiBDYzogVG9zaGlha2kgTWFraXRhIDxtYWtpdGEudG9z
-aGlha2lAbGFiLm50dC5jby5qcD4KPj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293
-YW5nQHJlZGhhdC5jb20+Cj4+PiAtLS0KPj4+IMKgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8
-IDgwCj4+PiArKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0K
-Pj4+IMKgIDEgZmlsZSBjaGFuZ2VkLCAzNiBpbnNlcnRpb25zKCspLCA0NCBkZWxldGlvbnMoLSkK
-Pj4+Cj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9u
-ZXQvdmlydGlvX25ldC5jCj4+PiBpbmRleCA3MmQzZjY4Li4xNGY2NjFjIDEwMDY0NAo+Pj4gLS0t
-IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4+PiArKysgYi9kcml2ZXJzL25ldC92aXJ0aW9f
-bmV0LmMKPj4+IEBAIC04Nyw3ICs4Nyw4IEBAIHN0cnVjdCB2aXJ0bmV0X3NxX3N0YXRzIHsKPj4+
-IMKgwqDCoMKgwqAgdTY0IGtpY2tzOwo+Pj4gwqAgfTsKPj4+IMKgIC1zdHJ1Y3QgdmlydG5ldF9y
-cV9zdGF0X2l0ZW1zIHsKPj4+ICtzdHJ1Y3QgdmlydG5ldF9ycV9zdGF0cyB7Cj4+PiArwqDCoMKg
-IHN0cnVjdCB1NjRfc3RhdHNfc3luYyBzeW5jcDsKPj4+IMKgwqDCoMKgwqAgdTY0IHBhY2tldHM7
-Cj4+PiDCoMKgwqDCoMKgIHU2NCBieXRlczsKPj4+IMKgwqDCoMKgwqAgdTY0IGRyb3BzOwo+Pj4g
-QEAgLTk4LDE3ICs5OSw4IEBAIHN0cnVjdCB2aXJ0bmV0X3JxX3N0YXRfaXRlbXMgewo+Pj4gwqDC
-oMKgwqDCoCB1NjQga2lja3M7Cj4+PiDCoCB9Owo+Pj4gwqAgLXN0cnVjdCB2aXJ0bmV0X3JxX3N0
-YXRzIHsKPj4+IC3CoMKgwqAgc3RydWN0IHU2NF9zdGF0c19zeW5jIHN5bmNwOwo+Pj4gLcKgwqDC
-oCBzdHJ1Y3QgdmlydG5ldF9ycV9zdGF0X2l0ZW1zIGl0ZW1zOwo+Pj4gLX07Cj4+IEknbSBub3Qg
-dGhpbmtpbmcgcmVtb3Zpbmcgc3Egc3RhdCBpcyBuZWVkZWQgYnV0IGV2ZW4gaWYgaXQgaXMgSSB3
-YW50IHRvCj4+IGtlZXAgdmlydG5ldF9ycV9zdGF0cyB0byBhdm9pZCBhbGxvY2F0aW5nIHVubmVj
-ZXNzYXJ5IHU2NF9zdGF0c19zeW5jcCBvbgo+PiBzdGFjayBpbiB2aXJ0bmV0X3JlY2VpdmUuIEkg
-d291bGQganVzdCByZW1vdmUgdmlydG5ldF9yeF9zdGF0cyBpZgo+PiBuZWNlc3NhcnkuCj4gCj4g
-SXQncyBhIG5vcCBvbiA2NGJpdCBtYWNoaW5lcy4gQW5kIGFuIHVuc2lnbmVkIG9uIDMyYml0LiBT
-byBpdCdzIG92ZXJoZWFkCj4gY291bGQgYmUgaWdub3JlZCBJIHRoaW5rLgoKSXQncyBub3QgYSBi
-aWcgcHJvYmxlbSBzbyB0aGF0J3MgT0suIEkganVzdCBmZWx0IGxpa2UgeW91IHJldmVydGVkCnVu
-bmVjZXNzYXJpbHkgdG9vIG11Y2guIEFueXdheSBpdCBpcyBhbHJlYWR5IGFwcGxpZWQgYW5kIEkn
-bSBub3QKdGhpbmtpbmcgb2YgY2hhbmdpbmcgdGhpcyBhbnkgbW9yZS4KCi0tIApUb3NoaWFraSBN
-YWtpdGEKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
-cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
-aW5mby92aXJ0dWFsaXphdGlvbg==
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+
+This patches improve the guest receive performance.
+On the handle_tx side, we poll the sock receive queue
+at the same time. handle_rx do that in the same way.
+
+For more performance report, see patch 4.
+
+v6->v7:
+fix issue and rebase codes:
+1. on tx, busypoll will vhost_net_disable/enable_vq rx vq.
+[This is suggested by Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>]
+
+2. introduce common helper vhost_net_busy_poll_try_queue().
+
+v5->v6:
+rebase the codes.
+
+Tonghao Zhang (4):
+  net: vhost: lock the vqs one by one
+  net: vhost: replace magic number of lock annotation
+  net: vhost: factor out busy polling logic to vhost_net_busy_poll()
+  net: vhost: add rx busy polling in tx path
+
+ drivers/vhost/net.c   | 168 +++++++++++++++++++++++++++++++-------------------
+ drivers/vhost/vhost.c |  24 +++-----
+ 2 files changed, 113 insertions(+), 79 deletions(-)
+
+-- 
+1.8.3.1
