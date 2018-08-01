@@ -1,8 +1,7 @@
 From: xiangxia.m.yue@gmail.com
-Subject: [PATCH net-next v7 3/4] net: vhost: factor out busy polling logic to
-	vhost_net_busy_poll()
-Date: Tue, 31 Jul 2018 20:00:53 -0700
-Message-ID: <1533092454-37196-4-git-send-email-xiangxia.m.yue__34481.3433745459$1533092481$gmane$org@gmail.com>
+Subject: [PATCH net-next v7 4/4] net: vhost: add rx busy polling in tx path
+Date: Tue, 31 Jul 2018 20:00:54 -0700
+Message-ID: <1533092454-37196-5-git-send-email-xiangxia.m.yue__40094.6092828692$1533092544$gmane$org@gmail.com>
 References: <1533092454-37196-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,181 +23,80 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 
-Factor out generic busy polling logic and will be
-used for in tx path in the next patch. And with the patch,
-qemu can set differently the busyloop_timeout for rx queue.
+This patch improves the guest receive performance.
+On the handle_tx side, we poll the sock receive queue at the
+same time. handle_rx do that in the same way.
 
-In the handle_tx, the busypoll will vhost_net_disable/enable_vq
-because we have poll the sock. This can improve performance.
-[This is suggested by Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>]
+We set the poll-us=100us and use the netperf to test throughput
+and mean latency. When running the tests, the vhost-net kthread
+of that VM, is alway 100% CPU. The commands are shown as below.
 
-And when the sock receive skb, we should queue the poll if necessary.
+Rx performance is greatly improved by this patch. There is not
+notable performance change on tx with this series though. This
+patch is useful for bi-directional traffic.
+
+netperf -H IP -t TCP_STREAM -l 20 -- -O "THROUGHPUT, THROUGHPUT_UNITS, MEAN_LATENCY"
+
+Topology:
+[Host] ->linux bridge -> tap vhost-net ->[Guest]
+
+TCP_STREAM:
+* Without the patch:  19842.95 Mbps, 6.50 us mean latency
+* With the patch:     38570.00 Mbps, 3.43 us mean latency
 
 Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 ---
- drivers/vhost/net.c | 131 ++++++++++++++++++++++++++++++++++++----------------
- 1 file changed, 91 insertions(+), 40 deletions(-)
+ drivers/vhost/net.c | 33 +++++++++++++--------------------
+ 1 file changed, 13 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 32c1b52..5b45463 100644
+index 5b45463..b56db65 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -440,6 +440,95 @@ static void vhost_net_signal_used(struct vhost_net_virtqueue *nvq)
- 	nvq->done_idx = 0;
+@@ -530,31 +530,24 @@ static void vhost_net_busy_poll(struct vhost_net *net,
  }
  
-+static int sk_has_rx_data(struct sock *sk)
-+{
-+	struct socket *sock = sk->sk_socket;
-+
-+	if (sock->ops->peek_len)
-+		return sock->ops->peek_len(sock);
-+
-+	return skb_queue_empty(&sk->sk_receive_queue);
-+}
-+
-+static void vhost_net_busy_poll_try_queue(struct vhost_net *net,
-+					  struct vhost_virtqueue *vq)
-+{
-+	if (!vhost_vq_avail_empty(&net->dev, vq)) {
-+		vhost_poll_queue(&vq->poll);
-+	} else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
-+		vhost_disable_notify(&net->dev, vq);
-+		vhost_poll_queue(&vq->poll);
-+	}
-+}
-+
-+static void vhost_net_busy_poll_check(struct vhost_net *net,
-+				      struct vhost_virtqueue *rvq,
-+				      struct vhost_virtqueue *tvq,
-+				      bool rx)
-+{
-+	struct socket *sock = rvq->private_data;
-+
-+	if (rx)
-+		vhost_net_busy_poll_try_queue(net, tvq);
-+	else if (sock && sk_has_rx_data(sock->sk))
-+		vhost_net_busy_poll_try_queue(net, rvq);
-+	else {
-+		/* On tx here, sock has no rx data, so we
-+		 * will wait for sock wakeup for rx, and
-+		 * vhost_enable_notify() is not needed. */
-+	}
-+}
-+
-+static void vhost_net_busy_poll(struct vhost_net *net,
-+				struct vhost_virtqueue *rvq,
-+				struct vhost_virtqueue *tvq,
-+				bool *busyloop_intr,
-+				bool rx)
-+{
-+	unsigned long busyloop_timeout;
-+	unsigned long endtime;
-+	struct socket *sock;
-+	struct vhost_virtqueue *vq = rx ? tvq : rvq;
-+
-+	mutex_lock_nested(&vq->mutex, rx ? VHOST_NET_VQ_TX: VHOST_NET_VQ_RX);
-+	vhost_disable_notify(&net->dev, vq);
-+	sock = rvq->private_data;
-+
-+	busyloop_timeout = rx ? rvq->busyloop_timeout:
-+				tvq->busyloop_timeout;
-+
-+
-+	/* Busypoll the sock, so don't need rx wakeups during it. */
-+	if (!rx)
-+		vhost_net_disable_vq(net, vq);
-+
-+	preempt_disable();
-+	endtime = busy_clock() + busyloop_timeout;
-+
-+	while (vhost_can_busy_poll(endtime)) {
-+		if (vhost_has_work(&net->dev)) {
-+			*busyloop_intr = true;
-+			break;
-+		}
-+
-+		if ((sock && sk_has_rx_data(sock->sk) &&
-+		     !vhost_vq_avail_empty(&net->dev, rvq)) ||
-+		    !vhost_vq_avail_empty(&net->dev, tvq))
-+			break;
-+
-+		cpu_relax();
-+	}
-+
-+	preempt_enable();
-+
-+	if (!rx)
-+		vhost_net_enable_vq(net, vq);
-+
-+	vhost_net_busy_poll_check(net, rvq, tvq, rx);
-+
-+	mutex_unlock(&vq->mutex);
-+}
-+
  static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
- 				    struct vhost_net_virtqueue *nvq,
+-				    struct vhost_net_virtqueue *nvq,
++				    struct vhost_net_virtqueue *tnvq,
  				    unsigned int *out_num, unsigned int *in_num,
-@@ -753,16 +842,6 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
- 	return len;
- }
- 
--static int sk_has_rx_data(struct sock *sk)
--{
--	struct socket *sock = sk->sk_socket;
--
--	if (sock->ops->peek_len)
--		return sock->ops->peek_len(sock);
--
--	return skb_queue_empty(&sk->sk_receive_queue);
--}
--
- static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
- 				      bool *busyloop_intr)
+ 				    bool *busyloop_intr)
  {
-@@ -770,41 +849,13 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
- 	struct vhost_net_virtqueue *tnvq = &net->vqs[VHOST_NET_VQ_TX];
- 	struct vhost_virtqueue *rvq = &rnvq->vq;
- 	struct vhost_virtqueue *tvq = &tnvq->vq;
+-	struct vhost_virtqueue *vq = &nvq->vq;
 -	unsigned long uninitialized_var(endtime);
- 	int len = peek_head_len(rnvq, sk);
+-	int r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
++	struct vhost_net_virtqueue *rnvq = &net->vqs[VHOST_NET_VQ_RX];
++	struct vhost_virtqueue *rvq = &rnvq->vq;
++	struct vhost_virtqueue *tvq = &tnvq->vq;
++
++	int r = vhost_get_vq_desc(tvq, tvq->iov, ARRAY_SIZE(tvq->iov),
+ 				  out_num, in_num, NULL, NULL);
  
--	if (!len && tvq->busyloop_timeout) {
-+	if (!len && rvq->busyloop_timeout) {
- 		/* Flush batched heads first */
- 		vhost_net_signal_used(rnvq);
- 		/* Both tx vq and rx socket were polled here */
--		mutex_lock_nested(&tvq->mutex, VHOST_NET_VQ_TX);
--		vhost_disable_notify(&net->dev, tvq);
--
+-	if (r == vq->num && vq->busyloop_timeout) {
+-		if (!vhost_sock_zcopy(vq->private_data))
+-			vhost_net_signal_used(nvq);
 -		preempt_disable();
--		endtime = busy_clock() + tvq->busyloop_timeout;
--
+-		endtime = busy_clock() + vq->busyloop_timeout;
 -		while (vhost_can_busy_poll(endtime)) {
--			if (vhost_has_work(&net->dev)) {
+-			if (vhost_has_work(vq->dev)) {
 -				*busyloop_intr = true;
 -				break;
 -			}
--			if ((sk_has_rx_data(sk) &&
--			     !vhost_vq_avail_empty(&net->dev, rvq)) ||
--			    !vhost_vq_avail_empty(&net->dev, tvq))
+-			if (!vhost_vq_avail_empty(vq->dev, vq))
 -				break;
 -			cpu_relax();
 -		}
--
 -		preempt_enable();
--
--		if (!vhost_vq_avail_empty(&net->dev, tvq)) {
--			vhost_poll_queue(&tvq->poll);
--		} else if (unlikely(vhost_enable_notify(&net->dev, tvq))) {
--			vhost_disable_notify(&net->dev, tvq);
--			vhost_poll_queue(&tvq->poll);
--		}
--
--		mutex_unlock(&tvq->mutex);
-+		vhost_net_busy_poll(net, rvq, tvq, busyloop_intr, true);
- 
- 		len = peek_head_len(rnvq, sk);
+-		r = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
++	if (r == tvq->num && tvq->busyloop_timeout) {
++		if (!vhost_sock_zcopy(tvq->private_data))
++			vhost_net_signal_used(tnvq);
++
++		vhost_net_busy_poll(net, rvq, tvq, busyloop_intr, false);
++
++		r = vhost_get_vq_desc(tvq, tvq->iov, ARRAY_SIZE(tvq->iov),
+ 				      out_num, in_num, NULL, NULL);
  	}
+ 
 -- 
 1.8.3.1
