@@ -1,7 +1,7 @@
-From: Michal Hocko <mhocko@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v2 2/2] virtio_balloon: replace oom notifier with shrinker
-Date: Thu, 2 Aug 2018 13:47:55 +0200
-Message-ID: <20180802114755.GI10808__36512.9674472429$1533210354$gmane$org@dhcp22.suse.cz>
+Date: Thu, 2 Aug 2018 18:18:49 +0300
+Message-ID: <20180802181309-mutt-send-email-mst__10983.6444994018$1533223011$gmane$org@kernel.org>
 References: <1532683495-31974-1-git-send-email-wei.w.wang@intel.com>
 	<1532683495-31974-3-git-send-email-wei.w.wang@intel.com>
 	<20180730090041.GC24267@dhcp22.suse.cz>
@@ -24,10 +24,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Wei Wang <wei.w.wang@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu 02-08-18 18:32:44, Wei Wang wrote:
+On Thu, Aug 02, 2018 at 06:32:44PM +0800, Wei Wang wrote:
 > On 08/01/2018 07:34 PM, Michal Hocko wrote:
 > > On Wed 01-08-18 19:12:25, Wei Wang wrote:
 > > > On 07/30/2018 05:00 PM, Michal Hocko wrote:
@@ -68,28 +68,17 @@ On Thu 02-08-18 18:32:44, Wei Wang wrote:
 > 
 > When the shrinker scan is called the second time, another 1GB will be given
 > back to mm. So the ballooned pages are given back to mm gradually.
-> 
-> > Let's say
-> > you have a medium page cache workload which triggers kswapd to do a
-> > light reclaim? Hardcoded shrinking sounds quite dubious to me but I have
-> > no idea how people expect this to work. Shouldn't this be more
-> > adaptive? How precious are those pages anyway?
-> 
-> Those pages are given to host to use usually because the guest has enough
-> free memory, and host doesn't want to waste those pieces of memory as they
-> are not used by this guest. When the guest needs them, it is reasonable that
-> the guest has higher priority to take them back.
-> But I'm not sure if there would be a more adaptive approach than "gradually
-> giving back as the guest wants more".
 
-I am not sure I follow. Let me be more specific. Say you have a trivial
-stream IO triggering reclaim to recycle clean page cache. This will
-invoke slab shrinkers as well. Do you really want to drop your batch of
-pages on each invocation? Doesn't that remove them very quickly? Just
-try to dd if=large_file of=/dev/null and see how your pages are
-disappearing. Shrinkers usually scale the number of objects they are
-going to reclaim based on the memory pressure (aka targer to be
-reclaimed).
+I think what's being asked here is a description of tests that
+were run. Which workloads see improved behaviour?
+
+Our behaviour under memory pressure isn't great, in particular it is not
+clear when it's safe to re-inflate the balloon, if host attempts to
+re-inflate it too soon then we still get OOM. It would be better
+if VIRTIO_BALLOON_F_DEFLATE_ON_OOM would somehow mean
+"it's ok to ask for almost all of memory, if guest needs memory from
+balloon for apps to function it can take it from the balloon".
+
+
 -- 
-Michal Hocko
-SUSE Labs
+MST
