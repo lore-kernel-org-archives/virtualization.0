@@ -1,12 +1,17 @@
-From: "iceis@insticc.info" <iceis@insticc.info>
-Subject: CFP ICEIS 2019 - 21st Int.l Conf. on Enterprise Information Systems
-	(Heraklion, Crete/Greece)
-Date: 2 Aug 2018 12:31:22 +0100
-Message-ID: <20180802113123.1.96B13BC11BE5672A@insticc.info>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: Re: [PATCH v2 2/2] virtio_balloon: replace oom notifier with shrinker
+Date: Thu, 2 Aug 2018 20:00:32 +0900
+Message-ID: <87d7ae45-79cb-e294-7397-0e45e2af49cd__11941.8864058845$1533209922$gmane$org@I-love.SAKURA.ne.jp>
+References: <1532683495-31974-1-git-send-email-wei.w.wang@intel.com>
+	<1532683495-31974-3-git-send-email-wei.w.wang@intel.com>
+	<20180730090041.GC24267@dhcp22.suse.cz> <5B619599.1000307@intel.com>
+	<20180801113444.GK16767@dhcp22.suse.cz> <5B62DDCC.3030100@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <5B62DDCC.3030100@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,30 +21,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Wei Wang <wei.w.wang@intel.com>, Michal Hocko <mhocko@kernel.org>
+Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U1VCTUlTU0lPTiBERUFETElORSAKCjIxc3QgSW50ZXJuYXRpb25hbCBDb25mZXJlbmNlIG9uIEVu
-dGVycHJpc2UgSW5mb3JtYXRpb24gU3lzdGVtcwoKU3VibWlzc2lvbiBEZWFkbGluZTogRGVjZW1i
-ZXIgMTAsIDIwMTgKCmh0dHA6Ly93d3cuaWNlaXMub3JnLwoKTWF5IDMgLSA1LCAyMDE5CkhlcmFr
-bGlvbiwgQ3JldGUsIEdyZWVjZS4KCiBJQ0VJUyBpcyBvcmdhbml6ZWQgaW4gNiBtYWpvciB0cmFj
-a3M6CgogLSBEYXRhYmFzZXMgYW5kIEluZm9ybWF0aW9uIFN5c3RlbXMgSW50ZWdyYXRpb24KIC0g
-QXJ0aWZpY2lhbCBJbnRlbGxpZ2VuY2UgYW5kIERlY2lzaW9uIFN1cHBvcnQgU3lzdGVtcwogLSBJ
-bmZvcm1hdGlvbiBTeXN0ZW1zIEFuYWx5c2lzIGFuZCBTcGVjaWZpY2F0aW9uCiAtIFNvZnR3YXJl
-IEFnZW50cyBhbmQgSW50ZXJuZXQgQ29tcHV0aW5nCiAtIEh1bWFuLUNvbXB1dGVyIEludGVyYWN0
-aW9uCiAtIEVudGVycHJpc2UgQXJjaGl0ZWN0dXJlCgoNClByb2NlZWRpbmdzIHdpbGwgYmUgc3Vi
-bWl0dGVkIGZvciBpbmRleGF0aW9uIGJ5OiBEQkxQLCBUaG9tc29uIFJldXRlcnMsIEVJLCBTQ09Q
-VVMgYW5kIFNlbWFudGljIFNjaG9sYXIuIDxici8+CiAKQSBzaG9ydCBsaXN0IG9mIHByZXNlbnRl
-ZCBwYXBlcnMgd2lsbCBiZSBzZWxlY3RlZCBzbyB0aGF0IHJldmlzZWQgYW5kIGV4dGVuZGVkIHZl
-cnNpb25zIG9mIHRoZXNlIHBhcGVycyB3aWxsIGJlIHB1Ymxpc2hlZCBieSBTcHJpbmdlci4KIApB
-bGwgcGFwZXJzIHByZXNlbnRlZCBhdCB0aGUgY29uZ3Jlc3MgdmVudWUgd2lsbCBhbHNvIGJlIGF2
-YWlsYWJsZSBhdCB0aGUgU0NJVEVQUkVTUyBEaWdpdGFsIExpYnJhcnkgKGh0dHA6Ly93d3cuc2Np
-dGVwcmVzcy5vcmcvRGlnaXRhbExpYnJhcnkvKS4KICAKU2hvdWxkIHlvdSBoYXZlIGFueSBxdWVz
-dGlvbiBwbGVhc2UgZG9u4oCZdCBoZXNpdGF0ZSBjb250YWN0aW5nIG1lLgogCgpLaW5kIHJlZ2Fy
-ZHMsCklDRUlTIFNlY3JldGFyaWF0CgpBZGRyZXNzOiBBdi4gRC4gTWFudWVsIEksIDI3QSwgMsK6
-IGVzcS4KMjkxMC01OTUgU2V0dWJhbCwgUG9ydHVnYWwKVGVsOiArMzUxIDI2NSA1MjAgMTg0CkZh
-eDogKzM1MSAyNjUgNTIwIDE4NgpXZWI6IGh0dHA6Ly93d3cuaWNlaXMub3JnLwplLW1haWw6IGlj
-ZWlzLnNlY3JldGFyaWF0QGluc3RpY2Mub3JnCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
-YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
-YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On 2018/08/02 19:32, Wei Wang wrote:
+> On 08/01/2018 07:34 PM, Michal Hocko wrote:
+>> Do you have any numbers for how does this work in practice?
+> 
+> It works in this way: for example, we can set the parameter, balloon_pages_to_shrink,
+> to shrink 1GB memory once shrink scan is called. Now, we have a 8GB guest, and we balloon
+> out 7GB. When shrink scan is called, the balloon driver will get back 1GB memory and give
+> them back to mm, then the ballooned memory becomes 6GB.
+
+Since shrinker might be called concurrently (am I correct?), the balloon might deflate
+far more than needed if it releases such much memory. If shrinker is used, releasing 256
+pages might be sufficient.
