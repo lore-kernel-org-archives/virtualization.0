@@ -1,21 +1,12 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v2 2/2] virtio_balloon: replace oom notifier with shrinker
-Date: Thu, 2 Aug 2018 13:29:01 +0200
-Message-ID: <20180802112901.GH10808__49216.9146695689$1533209225$gmane$org@dhcp22.suse.cz>
-References: <1532683495-31974-1-git-send-email-wei.w.wang@intel.com>
-	<1532683495-31974-3-git-send-email-wei.w.wang@intel.com>
-	<20180730090041.GC24267@dhcp22.suse.cz>
-	<5B619599.1000307@intel.com>
-	<20180801113444.GK16767@dhcp22.suse.cz>
-	<5B62DDCC.3030100@intel.com>
-	<87d7ae45-79cb-e294-7397-0e45e2af49cd@I-love.SAKURA.ne.jp>
-	<5B62EAAC.8000505@intel.com>
+From: "sensornets@insticc.info" <sensornets@insticc.info>
+Subject: CFP SENSORNETS 2019 - 8th Int.l Conf. on Sensor Networks
+	(Prague/Czech Republic)
+Date: 2 Aug 2018 12:30:04 +0100
+Message-ID: <20180802113005.1.ABEF1E5C7B2E6BF4@insticc.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5B62EAAC.8000505@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,25 +16,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu 02-08-18 19:27:40, Wei Wang wrote:
-> On 08/02/2018 07:00 PM, Tetsuo Handa wrote:
-> > On 2018/08/02 19:32, Wei Wang wrote:
-> > > On 08/01/2018 07:34 PM, Michal Hocko wrote:
-> > > > Do you have any numbers for how does this work in practice?
-> > > It works in this way: for example, we can set the parameter, balloon_pages_to_shrink,
-> > > to shrink 1GB memory once shrink scan is called. Now, we have a 8GB guest, and we balloon
-> > > out 7GB. When shrink scan is called, the balloon driver will get back 1GB memory and give
-> > > them back to mm, then the ballooned memory becomes 6GB.
-> > Since shrinker might be called concurrently (am I correct?),
-> 
-> Not sure about it being concurrently, but I think it would be called
-> repeatedly as should_continue_reclaim() returns true.
-
-Multiple direct reclaimers might indeed invoke it concurrently.
--- 
-Michal Hocko
-SUSE Labs
+U1VCTUlTU0lPTiBERUFETElORSAKCjh0aCBJbnRlcm5hdGlvbmFsIENvbmZlcmVuY2Ugb24gU2Vu
+c29yIE5ldHdvcmtzCgpTdWJtaXNzaW9uIERlYWRsaW5lOiBPY3RvYmVyIDEsIDIwMTgKCmh0dHA6
+Ly93d3cuc2Vuc29ybmV0cy5vcmcvCgpGZWJydWFyeSAyNiAtIDI3LCAyMDE5ClByYWd1ZSwgQ3pl
+Y2ggUmVwdWJsaWMuCgogU0VOU09STkVUUyBpcyBvcmdhbml6ZWQgaW4gNSBtYWpvciB0cmFja3M6
+CgogLSBTZW5zb3IgTmV0d29ya3MgU29mdHdhcmUsIEFyY2hpdGVjdHVyZXMgYW5kIEFwcGxpY2F0
+aW9ucwogLSBXaXJlbGVzcyBTZW5zb3IgTmV0d29ya3MKIC0gRW5lcmd5IGFuZCBFbnZpcm9ubWVu
+dAogLSBJbnRlbGxpZ2VudCBEYXRhIEFuYWx5c2lzIGFuZCBQcm9jZXNzaW5nCiAtIFNlY3VyaXR5
+IGFuZCBQcml2YWN5IGluIFNlbnNvciBOZXR3b3JrcwoKDQpQcm9jZWVkaW5ncyB3aWxsIGJlIHN1
+Ym1pdHRlZCBmb3IgaW5kZXhhdGlvbiBieTogREJMUCwgVGhvbXNvbiBSZXV0ZXJzLCBFSSwgU0NP
+UFVTIGFuZCBTZW1hbnRpYyBTY2hvbGFyLiA8YnIvPgogCkEgc2hvcnQgbGlzdCBvZiBwcmVzZW50
+ZWQgcGFwZXJzIHdpbGwgYmUgc2VsZWN0ZWQgc28gdGhhdCByZXZpc2VkIGFuZCBleHRlbmRlZCB2
+ZXJzaW9ucyBvZiB0aGVzZSBwYXBlcnMgd2lsbCBiZSBwdWJsaXNoZWQgYnkgU3ByaW5nZXIuCiAK
+QWxsIHBhcGVycyBwcmVzZW50ZWQgYXQgdGhlIGNvbmdyZXNzIHZlbnVlIHdpbGwgYWxzbyBiZSBh
+dmFpbGFibGUgYXQgdGhlIFNDSVRFUFJFU1MgRGlnaXRhbCBMaWJyYXJ5IChodHRwOi8vd3d3LnNj
+aXRlcHJlc3Mub3JnL0RpZ2l0YWxMaWJyYXJ5LykuCiAgClNob3VsZCB5b3UgaGF2ZSBhbnkgcXVl
+c3Rpb24gcGxlYXNlIGRvbuKAmXQgaGVzaXRhdGUgY29udGFjdGluZyBtZS4KIAoKS2luZCByZWdh
+cmRzLApTRU5TT1JORVRTIFNlY3JldGFyaWF0CgpBZGRyZXNzOiBBdi4gRC4gTWFudWVsIEksIDI3
+QSwgMsK6IGVzcS4KMjkxMC01OTUgU2V0dWJhbCwgUG9ydHVnYWwKVGVsOiArMzUxIDI2NSAxMDAg
+MDMzCkZheDogKzM1MSAyNjUgNTIwIDE4NgpXZWI6IGh0dHA6Ly93d3cuc2Vuc29ybmV0cy5vcmcv
+CmUtbWFpbDogc2Vuc29ybmV0cy5zZWNyZXRhcmlhdEBpbnN0aWNjLm9yZwoKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
