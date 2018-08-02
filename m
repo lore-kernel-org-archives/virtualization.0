@@ -1,19 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 2/2] virtio_balloon: replace oom notifier with shrinker
-Date: Thu, 2 Aug 2018 18:18:49 +0300
-Message-ID: <20180802181309-mutt-send-email-mst__10983.6444994018$1533223011$gmane$org@kernel.org>
-References: <1532683495-31974-1-git-send-email-wei.w.wang@intel.com>
-	<1532683495-31974-3-git-send-email-wei.w.wang@intel.com>
-	<20180730090041.GC24267@dhcp22.suse.cz>
-	<5B619599.1000307@intel.com>
-	<20180801113444.GK16767@dhcp22.suse.cz>
-	<5B62DDCC.3030100@intel.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
+Date: Thu, 02 Aug 2018 10:24:57 -0500
+Message-ID: <26c1d3d50d8e081eed44fe9940fbefed34598cbd.camel@kernel.crashing.org>
+References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
+	<20180727095804.GA25592@arm.com> <20180730093414.GD26245@infradead.org>
+	<20180730125100-mutt-send-email-mst@kernel.org>
+	<20180730111802.GA9830@infradead.org>
+	<20180730155633-mutt-send-email-mst@kernel.org>
+	<20180731173052.GA17153@infradead.org>
+	<3d6e81511571260de1c8047aaffa8ac4df093d2e.camel@kernel.crashing.org>
+	<20180801081637.GA14438@arm.com> <20180801083639.GF26378@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5B62DDCC.3030100@intel.com>
+In-Reply-To: <20180801083639.GF26378@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,62 +24,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org, Michal Hocko <mhocko@kernel.org>
+To: Christoph Hellwig <hch@infradead.org>, Will Deacon <will.deacon@arm.com>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 02, 2018 at 06:32:44PM +0800, Wei Wang wrote:
-> On 08/01/2018 07:34 PM, Michal Hocko wrote:
-> > On Wed 01-08-18 19:12:25, Wei Wang wrote:
-> > > On 07/30/2018 05:00 PM, Michal Hocko wrote:
-> > > > On Fri 27-07-18 17:24:55, Wei Wang wrote:
-> > > > > The OOM notifier is getting deprecated to use for the reasons mentioned
-> > > > > here by Michal Hocko: https://lkml.org/lkml/2018/7/12/314
-> > > > > 
-> > > > > This patch replaces the virtio-balloon oom notifier with a shrinker
-> > > > > to release balloon pages on memory pressure.
-> > > > It would be great to document the replacement. This is not a small
-> > > > change...
-> > > OK. I plan to document the following to the commit log:
-> > > 
-> > >    The OOM notifier is getting deprecated to use for the reasons:
-> > >      - As a callout from the oom context, it is too subtle and easy to
-> > >        generate bugs and corner cases which are hard to track;
-> > >      - It is called too late (after the reclaiming has been performed).
-> > >        Drivers with large amuont of reclaimable memory is expected to be
-> > >        released them at an early age of memory pressure;
-> > >      - The notifier callback isn't aware of the oom contrains;
-> > >      Link: https://lkml.org/lkml/2018/7/12/314
-> > > 
-> > >      This patch replaces the virtio-balloon oom notifier with a shrinker
-> > >      to release balloon pages on memory pressure. Users can set the amount of
-> > >      memory pages to release each time a shrinker_scan is called via the
-> > >      module parameter balloon_pages_to_shrink, and the default amount is 256
-> > >      pages. Historically, the feature VIRTIO_BALLOON_F_DEFLATE_ON_OOM has
-> > >      been used to release balloon pages on OOM. We continue to use this
-> > >      feature bit for the shrinker, so the shrinker is only registered when
-> > >      this feature bit has been negotiated with host.
-> > Do you have any numbers for how does this work in practice?
-> 
-> It works in this way: for example, we can set the parameter,
-> balloon_pages_to_shrink, to shrink 1GB memory once shrink scan is called.
-> Now, we have a 8GB guest, and we balloon out 7GB. When shrink scan is
-> called, the balloon driver will get back 1GB memory and give them back to
-> mm, then the ballooned memory becomes 6GB.
-> 
-> When the shrinker scan is called the second time, another 1GB will be given
-> back to mm. So the ballooned pages are given back to mm gradually.
+On Wed, 2018-08-01 at 01:36 -0700, Christoph Hellwig wrote:
+> We just need to figure out how to deal with devices that deviate
+> from the default.  One things is that VIRTIO_F_IOMMU_PLATFORM really
+> should become VIRTIO_F_PLATFORM_DMA to cover the cases of non-iommu
+> dma tweaks (offsets, cache flushing), which seems well in spirit of
+> the original design. 
 
-I think what's being asked here is a description of tests that
-were run. Which workloads see improved behaviour?
+I don't completely agree:
 
-Our behaviour under memory pressure isn't great, in particular it is not
-clear when it's safe to re-inflate the balloon, if host attempts to
-re-inflate it too soon then we still get OOM. It would be better
-if VIRTIO_BALLOON_F_DEFLATE_ON_OOM would somehow mean
-"it's ok to ask for almost all of memory, if guest needs memory from
-balloon for apps to function it can take it from the balloon".
+1 - VIRTIO_F_IOMMU_PLATFORM is a property of the "other side", ie qemu
+for example. It indicates that the peer bypasses the normal platform
+iommu. The platform code in the guest has no real way to know that this
+is the case, this is a specific "feature" of the qemu implementation.
 
+2 - VIRTIO_F_PLATFORM_DMA (or whatever you want to call it), is a
+property of the guest platform itself (not qemu), there's no way the
+"peer" can advertize it via the virtio negociated flags. At least for
+us. I don't know for sure whether that would be workable for the ARM
+case. In our case, qemu has no idea at VM creation time that the VM
+will turn itself into a secure VM and thus will require bounce
+buffering for IOs (including virtio).
 
--- 
-MST
+So unless we have another hook for the arch code to set
+VIRTIO_F_PLATFORM_DMA on selected (or all) virtio devices from the
+guest itself, I don't see that as a way to deal with it.
+
+>  The other issue is VIRTIO_F_IO_BARRIER
+> which is very vaguely defined, and which needs a better definition.
+> And last but not least we'll need some text explaining the challenges
+> of hardware devices - I think VIRTIO_F_PLATFORM_DMA + VIRTIO_F_IO_BARRIER
+> is what would basically cover them, but a good description including
+> an explanation of why these matter.
+
+Ben.
