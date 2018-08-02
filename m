@@ -1,14 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Thu, 2 Aug 2018 23:55:39 +0300
-Message-ID: <20180802235332-mutt-send-email-mst__11800.679137423$1533243223$gmane$org@kernel.org>
-References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
+Subject: Re: [net-next, v6, 6/7] net-sysfs: Add interface for Rx queue(s) map
+	per Tx queue
+Date: Fri, 3 Aug 2018 00:08:05 +0300
+Message-ID: <20180803000725-mutt-send-email-mst__1057.36932387135$1533243969$gmane$org@kernel.org>
+References: <153033282719.8297.790755582693609184.stgit@anamhost.jf.intel.com>
+	<20180704072048.GA29107@outlook.office365.com>
+	<4b7f5d42-1b81-f095-f313-f43e41cf8601@intel.com>
+	<20180802001157.GA29171@outlook.office365.com>
+	<c3fbd7f6-054b-a9a3-ea21-4169b26a0a41@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
+In-Reply-To: <c3fbd7f6-054b-a9a3-ea21-4169b26a0a41@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,59 +23,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anshuman Khandual <khandual@linux.vnet.ibm.com>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, benh@kernel.crashing.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, mpe@ellerman.id.au, joe@perches.com, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, david@gibson.dropbear.id.au
+To: "Nambiar, Amritha" <amritha.nambiar@intel.com>
+Cc: alexander.h.duyck@intel.com, willemdebruijn.kernel@gmail.com, Andrei Vagin <avagin@virtuozzo.com>, tom@herbertland.com, netdev@vger.kernel.org, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, edumazet@google.com, rostedt@goodmis.org, hannes@stressinduktion.org, sridhar.samudrala@intel.com, tom@quantonium.net, davem@davemloft.net, gaowanlong@cn.fujitsu.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 20, 2018 at 09:29:37AM +0530, Anshuman Khandual wrote:
-> This patch series is the follow up on the discussions we had before about
-> the RFC titled [RFC,V2] virtio: Add platform specific DMA API translation
-> for virito devices (https://patchwork.kernel.org/patch/10417371/). There
-> were suggestions about doing away with two different paths of transactions
-> with the host/QEMU, first being the direct GPA and the other being the DMA
-> API based translations.
+On Thu, Aug 02, 2018 at 02:04:12PM -0700, Nambiar, Amritha wrote:
+> On 8/1/2018 5:11 PM, Andrei Vagin wrote:
+> > On Tue, Jul 10, 2018 at 07:28:49PM -0700, Nambiar, Amritha wrote:
+> >> With this patch series, I introduced static_key for XPS maps
+> >> (xps_needed), so static_key_slow_inc() is used to switch branches. The
+> >> definition of static_key_slow_inc() has cpus_read_lock in place. In the
+> >> virtio_net driver, XPS queues are initialized after setting the
+> >> queue:cpu affinity in virtnet_set_affinity() which is already protected
+> >> within cpus_read_lock. Hence, the warning here trying to acquire
+> >> cpus_read_lock when it is already held.
+> >>
+> >> A quick fix for this would be to just extract netif_set_xps_queue() out
+> >> of the lock by simply wrapping it with another put/get_online_cpus
+> >> (unlock right before and hold lock right after).
+> > 
+> > virtnet_set_affinity() is called from virtnet_cpu_online(), which is
+> > called under cpus_read_lock too.
+> > 
+> > It looks like now we can't call netif_set_xps_queue() from cpu hotplug
+> > callbacks.
+> > 
+> > I can suggest a very straightforward fix for this problem. The patch is
+> > attached.
+> > 
 > 
-> First patch attempts to create a direct GPA mapping based DMA operations
-> structure called 'virtio_direct_dma_ops' with exact same implementation
-> of the direct GPA path which virtio core currently has but just wrapped in
-> a DMA API format. Virtio core must use 'virtio_direct_dma_ops' instead of
-> the arch default in absence of VIRTIO_F_IOMMU_PLATFORM flag to preserve the
-> existing semantics. The second patch does exactly that inside the function
-> virtio_finalize_features(). The third patch removes the default direct GPA
-> path from virtio core forcing it to use DMA API callbacks for all devices.
-> Now with that change, every device must have a DMA operations structure
-> associated with it. The fourth patch adds an additional hook which gives
-> the platform an opportunity to do yet another override if required. This
-> platform hook can be used on POWER Ultravisor based protected guests to
-> load up SWIOTLB DMA callbacks to do the required (as discussed previously
-> in the above mentioned thread how host is allowed to access only parts of
-> the guest GPA range) bounce buffering into the shared memory for all I/O
-> scatter gather buffers to be consumed on the host side.
-> 
-> Please go through these patches and review whether this approach broadly
-> makes sense. I will appreciate suggestions, inputs, comments regarding
-> the patches or the approach in general. Thank you.
-
-Jason did some work on profiling this. Unfortunately he reports
-about 4% extra overhead from this switch on x86 with no vIOMMU.
-
-I expect he's writing up the data in more detail, but
-just wanted to let you know this would be one more
-thing to debug before we can just switch to DMA APIs.
+> Thanks for looking into this. I was thinking of fixing this in the
+> virtio_net driver by moving the XPS initialization (and have a new
+> get_affinity utility) in the ndo_open (so it is together with other tx
+> preparation) instead of probe. Your patch solves this in general for
+> setting up cpu hotplug callbacks which is under cpus_read_lock.
 
 
-> Anshuman Khandual (4):
->   virtio: Define virtio_direct_dma_ops structure
->   virtio: Override device's DMA OPS with virtio_direct_dma_ops selectively
->   virtio: Force virtio core to use DMA API callbacks for all virtio devices
->   virtio: Add platform specific DMA API translation for virito devices
-> 
->  arch/powerpc/include/asm/dma-mapping.h |  6 +++
->  arch/powerpc/platforms/pseries/iommu.c |  6 +++
->  drivers/virtio/virtio.c                | 72 ++++++++++++++++++++++++++++++++++
->  drivers/virtio/virtio_pci_common.h     |  3 ++
->  drivers/virtio/virtio_ring.c           | 65 +-----------------------------
->  5 files changed, 89 insertions(+), 63 deletions(-)
-> 
-> -- 
-> 2.9.3
+I like this too. Could you repost in a standard way
+(inline, with your signoff etc) so we can ack this for
+net-next?
+
+> >> But this may not a
+> >> clean solution. It'd help if I can get suggestions on what would be a
+> >> clean option to fix this without extensively changing the code in
+> >> virtio_net. Is it mandatory to protect the affinitization with
+> >> read_lock? I don't see similar lock in other drivers while setting the
+> >> affinity. I understand this warning should go away, but isn't it safe to
+> >> have multiple readers.
+> >>
+> >>> On Fri, Jun 29, 2018 at 09:27:07PM -0700, Amritha Nambiar wrote:
