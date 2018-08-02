@@ -1,21 +1,17 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [PATCH net-next v7 3/4] net: vhost: factor out busy polling logic
-	to vhost_net_busy_poll()
-Date: Thu, 2 Aug 2018 18:57:46 +0900
-Message-ID: <e2917cb0-f8dd-90c7-5a44-5333ad1d1ee8@lab.ntt.co.jp>
-References: <1533092454-37196-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<1533092454-37196-4-git-send-email-xiangxia.m.yue@gmail.com>
-	<30e62749-3cbd-ae88-6582-c20087884b20@redhat.com>
-	<CAMDZJNWX7L4P0yO+-PeDFu_tmtLSntihO7rcLPB2GK4eN9zbwQ@mail.gmail.com>
-	<b4ffd376-6fa8-4d0c-5c3a-82d1b6e924d6@redhat.com>
-	<ca040549-5eda-4a03-4295-17e6d7d44dd5@lab.ntt.co.jp>
-	<3272c3b4-a44c-8554-329e-8a5e1a59aafd@redhat.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v2 2/2] virtio_balloon: replace oom notifier with shrinker
+Date: Thu, 02 Aug 2018 18:32:44 +0800
+Message-ID: <5B62DDCC.3030100__39019.0440150493$1533205581$gmane$org@intel.com>
+References: <1532683495-31974-1-git-send-email-wei.w.wang@intel.com>
+	<1532683495-31974-3-git-send-email-wei.w.wang@intel.com>
+	<20180730090041.GC24267@dhcp22.suse.cz>
+	<5B619599.1000307@intel.com>
+	<20180801113444.GK16767@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <3272c3b4-a44c-8554-329e-8a5e1a59aafd@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20180801113444.GK16767@dhcp22.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,39 +21,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Michal Hocko <mhocko@kernel.org>
+Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxOC8wOC8wMiAxODoyMywgSmFzb24gV2FuZyB3cm90ZToKPiBPbiAyMDE45bm0MDjmnIgw
-MuaXpSAxNjo0MSwgVG9zaGlha2kgTWFraXRhIHdyb3RlOgo+PiBPbiAyMDE4LzA4LzAyIDE3OjE4
-LCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4gT24gMjAxOOW5tDA45pyIMDHml6UgMTc6NTIsIFRvbmdo
-YW8gWmhhbmcgd3JvdGU6Cj4+Pj4+ICtzdGF0aWMgdm9pZCB2aG9zdF9uZXRfYnVzeV9wb2xsX2No
-ZWNrKHN0cnVjdCB2aG9zdF9uZXQgKm5ldCwKPj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHN0cnVjdCB2aG9z
-dF92aXJ0cXVldWUgKnJ2cSwKPj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHN0cnVjdCB2aG9zdF92aXJ0cXVl
-dWUgKnR2cSwKPj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGJvb2wgcngpCj4+Pj4+ICt7Cj4+Pj4+ICvCoMKg
-wqDCoCBzdHJ1Y3Qgc29ja2V0ICpzb2NrID0gcnZxLT5wcml2YXRlX2RhdGE7Cj4+Pj4+ICsKPj4+
-Pj4gK8KgwqDCoMKgIGlmIChyeCkKPj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB2aG9z
-dF9uZXRfYnVzeV9wb2xsX3RyeV9xdWV1ZShuZXQsIHR2cSk7Cj4+Pj4+ICvCoMKgwqDCoCBlbHNl
-IGlmIChzb2NrICYmIHNrX2hhc19yeF9kYXRhKHNvY2stPnNrKSkKPj4+Pj4gK8KgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCB2aG9zdF9uZXRfYnVzeV9wb2xsX3RyeV9xdWV1ZShuZXQsIHJ2cSk7Cj4+
-Pj4+ICvCoMKgwqDCoCBlbHNlIHsKPj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAvKiBP
-biB0eCBoZXJlLCBzb2NrIGhhcyBubyByeCBkYXRhLCBzbyB3ZQo+Pj4+PiArwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqAgKiB3aWxsIHdhaXQgZm9yIHNvY2sgd2FrZXVwIGZvciByeCwgYW5kCj4+
-Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAqIHZob3N0X2VuYWJsZV9ub3RpZnkoKSBp
-cyBub3QgbmVlZGVkLiAqLwo+Pj4+IEEgcG9zc2libGUgY2FzZSBpcyB3ZSBkbyBoYXZlIHJ4IGRh
-dGEgYnV0IGd1ZXN0IGRvZXMgbm90IHJlZmlsbCB0aGUgcngKPj4+PiBxdWV1ZS4gSW4gdGhpcyBj
-YXNlIHdlIG1heSBsb3NlIG5vdGlmaWNhdGlvbnMgZnJvbSBndWVzdC4KPj4+IFllcywgc2hvdWxk
-IGNvbnNpZGVyIHRoaXMgY2FzZS4gdGhhbmtzLgo+PiBJJ20gYSBiaXQgY29uZnVzZWQuIElzbid0
-IHRoaXMgY292ZXJlZCBieSB0aGUgcHJldmlvdXMKPj4gImVsc2UgaWYgKHNvY2sgJiYgc2tfaGFz
-X3J4X2RhdGEoLi4uKSkiIGJsb2NrPwo+IAo+IFRoZSBwcm9ibGVtIGlzIGl0IGRvZXMgbm90aGlu
-ZyBpZiB2aG9zdF92cV9hdmFpbF9lbXB0eSgpIGlzIHRydWUgYW5kCj4gdmhvc3RfZW5ibGVfbm90
-aWZ5KCkgaXMgZmFsc2UuCgpJZiB2aG9zdF9lbmFibGVfbm90aWZ5KCkgaXMgZmFsc2UsIGd1ZXN0
-IHdpbGwgZXZlbnR1YWxseSBraWNrcyB2cSwgbm8/CgotLSAKVG9zaGlha2kgTWFraXRhCgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+On 08/01/2018 07:34 PM, Michal Hocko wrote:
+> On Wed 01-08-18 19:12:25, Wei Wang wrote:
+>> On 07/30/2018 05:00 PM, Michal Hocko wrote:
+>>> On Fri 27-07-18 17:24:55, Wei Wang wrote:
+>>>> The OOM notifier is getting deprecated to use for the reasons mentioned
+>>>> here by Michal Hocko: https://lkml.org/lkml/2018/7/12/314
+>>>>
+>>>> This patch replaces the virtio-balloon oom notifier with a shrinker
+>>>> to release balloon pages on memory pressure.
+>>> It would be great to document the replacement. This is not a small
+>>> change...
+>> OK. I plan to document the following to the commit log:
+>>
+>>    The OOM notifier is getting deprecated to use for the reasons:
+>>      - As a callout from the oom context, it is too subtle and easy to
+>>        generate bugs and corner cases which are hard to track;
+>>      - It is called too late (after the reclaiming has been performed).
+>>        Drivers with large amuont of reclaimable memory is expected to be
+>>        released them at an early age of memory pressure;
+>>      - The notifier callback isn't aware of the oom contrains;
+>>      Link: https://lkml.org/lkml/2018/7/12/314
+>>
+>>      This patch replaces the virtio-balloon oom notifier with a shrinker
+>>      to release balloon pages on memory pressure. Users can set the amount of
+>>      memory pages to release each time a shrinker_scan is called via the
+>>      module parameter balloon_pages_to_shrink, and the default amount is 256
+>>      pages. Historically, the feature VIRTIO_BALLOON_F_DEFLATE_ON_OOM has
+>>      been used to release balloon pages on OOM. We continue to use this
+>>      feature bit for the shrinker, so the shrinker is only registered when
+>>      this feature bit has been negotiated with host.
+> Do you have any numbers for how does this work in practice?
+
+It works in this way: for example, we can set the parameter, 
+balloon_pages_to_shrink, to shrink 1GB memory once shrink scan is 
+called. Now, we have a 8GB guest, and we balloon out 7GB. When shrink 
+scan is called, the balloon driver will get back 1GB memory and give 
+them back to mm, then the ballooned memory becomes 6GB.
+
+When the shrinker scan is called the second time, another 1GB will be 
+given back to mm. So the ballooned pages are given back to mm gradually.
+
+> Let's say
+> you have a medium page cache workload which triggers kswapd to do a
+> light reclaim? Hardcoded shrinking sounds quite dubious to me but I have
+> no idea how people expect this to work. Shouldn't this be more
+> adaptive? How precious are those pages anyway?
+
+Those pages are given to host to use usually because the guest has 
+enough free memory, and host doesn't want to waste those pieces of 
+memory as they are not used by this guest. When the guest needs them, it 
+is reasonable that the guest has higher priority to take them back.
+But I'm not sure if there would be a more adaptive approach than 
+"gradually giving back as the guest wants more".
+
+Best,
+Wei
