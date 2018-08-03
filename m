@@ -1,27 +1,19 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [PATCH net-next v7 3/4] net: vhost: factor out busy polling logic
-	to vhost_net_busy_poll()
-Date: Fri, 3 Aug 2018 14:25:56 +0900
-Message-ID: <92e76585-4fa8-98bd-12b5-d799d452520f@lab.ntt.co.jp>
-References: <1533092454-37196-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<1533092454-37196-4-git-send-email-xiangxia.m.yue@gmail.com>
-	<30e62749-3cbd-ae88-6582-c20087884b20@redhat.com>
-	<CAMDZJNWX7L4P0yO+-PeDFu_tmtLSntihO7rcLPB2GK4eN9zbwQ@mail.gmail.com>
-	<b4ffd376-6fa8-4d0c-5c3a-82d1b6e924d6@redhat.com>
-	<ca040549-5eda-4a03-4295-17e6d7d44dd5@lab.ntt.co.jp>
-	<3272c3b4-a44c-8554-329e-8a5e1a59aafd@redhat.com>
-	<CAMDZJNUMBYOVh+pzaykRq23ePqNR7BOA8wP_=i85-PXvwaxuBA@mail.gmail.com>
-	<fc4dc137-98de-2cee-4f41-e23ab4eb2492@redhat.com>
-	<CAMDZJNWZ+WH3JhCy81h1VSka7-z2zF1Tw-EnLTr26J_5SkQZTg@mail.gmail.com>
-	<a900e9f3-3aad-2cfa-da4c-226bf8981059@redhat.com>
-	<CAMDZJNVhmWVEeHbZDa3ooFsFXNTtKSH=ey6izfs8CeakbQLjZQ@mail.gmail.com>
-	<155c4d23-ca90-b8f7-5a1f-bc54a92e922e@redhat.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v2 2/2] virtio_balloon: replace oom notifier with shrinker
+Date: Fri, 03 Aug 2018 13:35:25 +0800
+Message-ID: <5B63E99D.9070003@intel.com>
+References: <1532683495-31974-1-git-send-email-wei.w.wang@intel.com>
+	<1532683495-31974-3-git-send-email-wei.w.wang@intel.com>
+	<20180730090041.GC24267@dhcp22.suse.cz>
+	<5B619599.1000307@intel.com>
+	<20180801113444.GK16767@dhcp22.suse.cz>
+	<5B62DDCC.3030100@intel.com>
+	<20180802114755.GI10808@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <155c4d23-ca90-b8f7-5a1f-bc54a92e922e@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20180802114755.GI10808@dhcp22.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -31,91 +23,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Michal Hocko <mhocko@kernel.org>
+Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxOC8wOC8wMyAxNDowNywgSmFzb24gV2FuZyB3cm90ZToKPiBPbiAyMDE45bm0MDjmnIgw
-M+aXpSAxMjowNCwgVG9uZ2hhbyBaaGFuZyB3cm90ZToKPj4gT24gRnJpLCBBdWcgMywgMjAxOCBh
-dCAxMTo0MyBBTSBKYXNvbiBXYW5nPGphc293YW5nQHJlZGhhdC5jb20+wqAgd3JvdGU6Cj4+Pgo+
-Pj4gT24gMjAxOOW5tDA45pyIMDPml6UgMTE6MjQsIFRvbmdoYW8gWmhhbmcgd3JvdGU6Cj4+Pj4g
-T24gRnJpLCBBdWcgMywgMjAxOCBhdCAxMTowNyBBTSBKYXNvbiBXYW5nPGphc293YW5nQHJlZGhh
-dC5jb20+wqAgd3JvdGU6Cj4+Pj4+IE9uIDIwMTjlubQwOOaciDAz5pelIDEwOjUxLCBUb25naGFv
-IFpoYW5nIHdyb3RlOgo+Pj4+Pj4gT24gVGh1LCBBdWcgMiwgMjAxOCBhdCA1OjIzIFBNIEphc29u
-IFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT7CoAo+Pj4+Pj4gd3JvdGU6Cj4+Pj4+Pj4gT24gMjAx
-OOW5tDA45pyIMDLml6UgMTY6NDEsIFRvc2hpYWtpIE1ha2l0YSB3cm90ZToKPj4+Pj4+Pj4gT24g
-MjAxOC8wOC8wMiAxNzoxOCwgSmFzb24gV2FuZyB3cm90ZToKPj4+Pj4+Pj4+IE9uIDIwMTjlubQw
-OOaciDAx5pelIDE3OjUyLCBUb25naGFvIFpoYW5nIHdyb3RlOgo+Pj4+Pj4+Pj4+PiArc3RhdGlj
-IHZvaWQgdmhvc3RfbmV0X2J1c3lfcG9sbF9jaGVjayhzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQsCj4+
-Pj4+Pj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICpydnEsCj4+Pj4+
-Pj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoCBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp0dnEsCj4+Pj4+Pj4+
-Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoCBib29sIHJ4KQo+Pj4+Pj4+Pj4+PiArewo+Pj4+Pj4+Pj4+PiArwqDC
-oMKgwqAgc3RydWN0IHNvY2tldCAqc29jayA9IHJ2cS0+cHJpdmF0ZV9kYXRhOwo+Pj4+Pj4+Pj4+
-PiArCj4+Pj4+Pj4+Pj4+ICvCoMKgwqDCoCBpZiAocngpCj4+Pj4+Pj4+Pj4+ICvCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqAgdmhvc3RfbmV0X2J1c3lfcG9sbF90cnlfcXVldWUobmV0LCB0dnEpOwo+
-Pj4+Pj4+Pj4+PiArwqDCoMKgwqAgZWxzZSBpZiAoc29jayAmJiBza19oYXNfcnhfZGF0YShzb2Nr
-LT5zaykpCj4+Pj4+Pj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdmhvc3RfbmV0X2J1
-c3lfcG9sbF90cnlfcXVldWUobmV0LCBydnEpOwo+Pj4+Pj4+Pj4+PiArwqDCoMKgwqAgZWxzZSB7
-Cj4+Pj4+Pj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgLyogT24gdHggaGVyZSwgc29j
-ayBoYXMgbm8gcnggZGF0YSwgc28gd2UKPj4+Pj4+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgICogd2lsbCB3YWl0IGZvciBzb2NrIHdha2V1cCBmb3IgcngsIGFuZAo+Pj4+Pj4+Pj4+
-PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKiB2aG9zdF9lbmFibGVfbm90aWZ5KCkgaXMg
-bm90IG5lZWRlZC4gKi8KPj4+Pj4+Pj4+PiBBIHBvc3NpYmxlIGNhc2UgaXMgd2UgZG8gaGF2ZSBy
-eCBkYXRhIGJ1dCBndWVzdCBkb2VzIG5vdAo+Pj4+Pj4+Pj4+IHJlZmlsbCB0aGUgcngKPj4+Pj4+
-Pj4+PiBxdWV1ZS4gSW4gdGhpcyBjYXNlIHdlIG1heSBsb3NlIG5vdGlmaWNhdGlvbnMgZnJvbSBn
-dWVzdC4KPj4+Pj4+Pj4+IFllcywgc2hvdWxkIGNvbnNpZGVyIHRoaXMgY2FzZS4gdGhhbmtzLgo+
-Pj4+Pj4+PiBJJ20gYSBiaXQgY29uZnVzZWQuIElzbid0IHRoaXMgY292ZXJlZCBieSB0aGUgcHJl
-dmlvdXMKPj4+Pj4+Pj4gImVsc2UgaWYgKHNvY2sgJiYgc2tfaGFzX3J4X2RhdGEoLi4uKSkiIGJs
-b2NrPwo+Pj4+Pj4+IFRoZSBwcm9ibGVtIGlzIGl0IGRvZXMgbm90aGluZyBpZiB2aG9zdF92cV9h
-dmFpbF9lbXB0eSgpIGlzIHRydWUgYW5kCj4+Pj4+Pj4gdmhvc3RfZW5ibGVfbm90aWZ5KCkgaXMg
-ZmFsc2UuCj4+Pj4+Pj4KPj4+Pj4+Pj4+Pj4+ICsKPj4+Pj4+Pj4+Pj4+ICvCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqAgY3B1X3JlbGF4KCk7Cj4+Pj4+Pj4+Pj4+PiArwqDCoMKgwqAgfQo+Pj4+Pj4+
-Pj4+Pj4gKwo+Pj4+Pj4+Pj4+Pj4gK8KgwqDCoMKgIHByZWVtcHRfZW5hYmxlKCk7Cj4+Pj4+Pj4+
-Pj4+PiArCj4+Pj4+Pj4+Pj4+PiArwqDCoMKgwqAgaWYgKCFyeCkKPj4+Pj4+Pj4+Pj4+ICvCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgdmhvc3RfbmV0X2VuYWJsZV92cShuZXQsIHZxKTsKPj4+Pj4+
-Pj4+Pj4gTm8gbmVlZCB0byBlbmFibGUgcnggdmlydHF1ZXVlLCBpZiB3ZSBhcmUgc3VyZSBoYW5k
-bGVfcngoKQo+Pj4+Pj4+Pj4+PiB3aWxsIGJlCj4+Pj4+Pj4+Pj4+IGNhbGxlZCBzb29uLgo+Pj4+
-Pj4+Pj4+IElmIHdlIGRpc2FibGUgcnggdmlydHF1ZXVlIGluIGhhbmRsZV90eCBhbmQgZG9uJ3Qg
-c2VuZCBwYWNrZXRzCj4+Pj4+Pj4+Pj4gZnJvbQo+Pj4+Pj4+Pj4+IGd1ZXN0IGFueW1vcmUoaGFu
-ZGxlX3R4IGlzIG5vdCBjYWxsZWQpLCBzbyB3ZSBjYW4gd2FrZSB1cCBmb3IKPj4+Pj4+Pj4+PiBz
-b2NrIHJ4Lgo+Pj4+Pj4+Pj4+IHNvIHRoZSBuZXR3b3JrIGlzIGJyb2tlbi4KPj4+Pj4+Pj4+IE5v
-dCBzdXJlIEkgdW5kZXJzdGFuZCBoZXJlLiBJIG1lYW4gaXMgd2Ugc2NoZWR1bGUgd29yayBmb3IK
-Pj4+Pj4+Pj4+IGhhbmRsZV9yeCgpLAo+Pj4+Pj4+Pj4gdGhlcmUncyBubyBuZWVkIHRvIGVuYWJs
-ZSBpdCBzaW5jZSBoYW5kbGVfcngoKSB3aWxsIGRvIHRoaXMgZm9yCj4+Pj4+Pj4+PiB1cy4KPj4+
-Pj4+Pj4gTG9va3MgbGlrZSBpbiB0aGUgbGFzdCAiZWxzZSIgYmxvY2sgaW4KPj4+Pj4+Pj4gdmhv
-c3RfbmV0X2J1c3lfcG9sbF9jaGVjaygpIHdlCj4+Pj4+Pj4+IG5lZWQgdG8gZW5hYmxlIHZxIHNp
-bmNlIGluIHRoYXQgY2FzZSB3ZSBoYXZlIG5vIHJ4IGRhdGEgYW5kCj4+Pj4+Pj4+IGhhbmRsZV9y
-eCgpCj4+Pj4+Pj4+IGlzIG5vdCBzY2hlZHVsZWQuCj4+Pj4+Pj4+Cj4+Pj4+Pj4gWWVzLgo+Pj4+
-Pj4gU28gd2Ugd2lsbCB1c2UgdGhlIHZob3N0X2hhc193b3JrKCkgdG8gY2hlY2sgd2hldGhlciBv
-ciBub3QgdGhlCj4+Pj4+PiBoYW5kbGVfcnggaXMgc2NoZWR1bGVkID8KPj4+Pj4+IElmIHdlIHVz
-ZSB0aGUgdmhvc3RfaGFzX3dvcmsoKSwgdGhlIHdvcmsgaW4gdGhlIGRldiB3b3JrX2xpc3QgbWF5
-IGJlCj4+Pj4+PiByeCB3b3JrLCBvciB0eCB3b3JrLCByaWdodCA/Cj4+Pj4+IFllcy4gV2UgY2Fu
-IGFkZCBhIGJvb2xlYW4gdG8gcmVjb3JkIHdoZXRoZXIgb3Igbm90IHdlJ3ZlIGNhbGxlZAo+Pj4+
-PiB2aG9zdF9wb2xsX3F1ZXVlKCkgZm9yIHJ2cS4gQW5kIGF2b2lkIGNhbGxpbmcgdmhvc3RfbmV0
-X2VuYWJsZV92cSgpIGlmCj4+Pj4+IGl0IHdhcyB0cnVlLgo+Pj4+IHNvLCB0aGUgY29tbWl0IGJl
-Mjk0YTUxYSAidmhvc3RfbmV0OiBBdm9pZCByeCBxdWV1ZSB3YWtlLXVwcyBkdXJpbmcKPj4+PiBi
-dXN5cG9sbCIKPj4+PiBtYXkgbm90IGNvbnNpZGVyIHRoZSBjYXNlOiB3b3JrIGlzIHR4IHdvcmsg
-aW4gdGhlIGRldiB3b3JrIGxpc3QuCj4+PiBTbyB0d28ga2luZHMgb2Ygd29yaywgdHgga2ljayBv
-ciB0eCB3YWtldXAuCj4+Pgo+Pj4gRm9yIHR4IGtpY2ssIHdlIGNoZWNrIHZob3N0X3ZxX2F2YWls
-X2VtcHR5KCkgYW5kIGF2b2lkIHVubmVjZXNzYXJ5IGtpY2tzCj4+PiBieSBub3QgZW5hYmxpbmcg
-a2ljayBpZiB3ZSBmb3VuZCBzb21ldGhpbmcgaXMgcGVuZGluZyBvbiB0eHEuIEZvciB0eAo+Pj4g
-d2FrZXVwLCB5ZXMsIHRoZSBjb21taXQgZG9lcyBub3QgY29uc2lkZXIgaXQuIEFuZCB0aGF0J3Mg
-d2h5IHdlIHdhbnQgdG8KPj4+IGRpc2FibGUgdHggd2FrZXVwcyBkdXJpbmcgYnVzeSBwb2xsaW5n
-Lgo+PiBBbmQgaW4gdGhlIGhhbmRsZV9yeCBidXQgbm90IGJ1c3kgcG9sbGluZywgdGhlIHR4IGNh
-biB3YWtldXAgYW55dGltZQo+PiBhbmQgdGhlIHR4IHdvcmsgd2lsbCBiZSBhZGRlZCB0byBkZXYg
-d29yayBsaXN0LiBJbiB0aGF0IGNhc2UsIGlmIHdlCj4+IGFkZAo+PiB0aGUgcnggcG9sbCB0byB0
-aGUgcXVldWUsIGl0IGlzIG5lY2Vzc2FyeSDvvJ8gdGhlIGNvbW1pdCBiZTI5NGE1MWEgbWF5Cj4+
-IGNoZWNrIHdoZXRoZXIgdGhlIHJ4IHdvcmsgaXMgaW4gdGhlIGRldiB3b3JrIGxpc3QuCj4gCj4g
-SSB0aGluayB0aGUgcG9pbnQgdGhpcyB3ZSBkb24ndCBwb2xsIHJ4IGR1cmluZyB0eCBhdCB0aGF0
-IHRpbWUuIFNvIGlmIHJ4Cj4gcG9sbCBpcyBpbnRlcnJ1cHRlZCwgd2Ugc2hvdWxkIHJlc2NoZWR1
-bGUgaGFuZGxlX3J4KCkuIEFmdGVyIHdlIHBvbGwgcngKPiBvbiBoYW5kbGVfdHgoKSwgd2UgY2Fu
-IHRyeSB0byBvcHRpbWl6ZSB0aGlzIG9uIHRvcC4KClRoYXQncyB0cnVlLiBXZSBtYXkgYmUgYWJs
-ZSB0byBza2lwIHBvbGxfcXVldWUgaW4gaGFuZGxlX3J4L3R4IGFmdGVyCnJ4L3R4IGJ1c3lwb2xs
-aW5nIGlzIHVuaWZpZWQgYnkgdGhpcyBwYXRjaCBzZXQuCgotLSAKVG9zaGlha2kgTWFraXRhCgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+On 08/02/2018 07:47 PM, Michal Hocko wrote:
+> On Thu 02-08-18 18:32:44, Wei Wang wrote:
+>> On 08/01/2018 07:34 PM, Michal Hocko wrote:
+>>> On Wed 01-08-18 19:12:25, Wei Wang wrote:
+>>>> On 07/30/2018 05:00 PM, Michal Hocko wrote:
+>>>>> On Fri 27-07-18 17:24:55, Wei Wang wrote:
+>>>>>> The OOM notifier is getting deprecated to use for the reasons mentioned
+>>>>>> here by Michal Hocko: https://lkml.org/lkml/2018/7/12/314
+>>>>>>
+>>>>>> This patch replaces the virtio-balloon oom notifier with a shrinker
+>>>>>> to release balloon pages on memory pressure.
+>>>>> It would be great to document the replacement. This is not a small
+>>>>> change...
+>>>> OK. I plan to document the following to the commit log:
+>>>>
+>>>>     The OOM notifier is getting deprecated to use for the reasons:
+>>>>       - As a callout from the oom context, it is too subtle and easy to
+>>>>         generate bugs and corner cases which are hard to track;
+>>>>       - It is called too late (after the reclaiming has been performed).
+>>>>         Drivers with large amuont of reclaimable memory is expected to be
+>>>>         released them at an early age of memory pressure;
+>>>>       - The notifier callback isn't aware of the oom contrains;
+>>>>       Link: https://lkml.org/lkml/2018/7/12/314
+>>>>
+>>>>       This patch replaces the virtio-balloon oom notifier with a shrinker
+>>>>       to release balloon pages on memory pressure. Users can set the amount of
+>>>>       memory pages to release each time a shrinker_scan is called via the
+>>>>       module parameter balloon_pages_to_shrink, and the default amount is 256
+>>>>       pages. Historically, the feature VIRTIO_BALLOON_F_DEFLATE_ON_OOM has
+>>>>       been used to release balloon pages on OOM. We continue to use this
+>>>>       feature bit for the shrinker, so the shrinker is only registered when
+>>>>       this feature bit has been negotiated with host.
+>>> Do you have any numbers for how does this work in practice?
+>> It works in this way: for example, we can set the parameter,
+>> balloon_pages_to_shrink, to shrink 1GB memory once shrink scan is called.
+>> Now, we have a 8GB guest, and we balloon out 7GB. When shrink scan is
+>> called, the balloon driver will get back 1GB memory and give them back to
+>> mm, then the ballooned memory becomes 6GB.
+>>
+>> When the shrinker scan is called the second time, another 1GB will be given
+>> back to mm. So the ballooned pages are given back to mm gradually.
+>>
+>>> Let's say
+>>> you have a medium page cache workload which triggers kswapd to do a
+>>> light reclaim? Hardcoded shrinking sounds quite dubious to me but I have
+>>> no idea how people expect this to work. Shouldn't this be more
+>>> adaptive? How precious are those pages anyway?
+>> Those pages are given to host to use usually because the guest has enough
+>> free memory, and host doesn't want to waste those pieces of memory as they
+>> are not used by this guest. When the guest needs them, it is reasonable that
+>> the guest has higher priority to take them back.
+>> But I'm not sure if there would be a more adaptive approach than "gradually
+>> giving back as the guest wants more".
+> I am not sure I follow. Let me be more specific. Say you have a trivial
+> stream IO triggering reclaim to recycle clean page cache. This will
+> invoke slab shrinkers as well. Do you really want to drop your batch of
+> pages on each invocation? Doesn't that remove them very quickly? Just
+> try to dd if=large_file of=/dev/null and see how your pages are
+> disappearing. Shrinkers usually scale the number of objects they are
+> going to reclaim based on the memory pressure (aka targer to be
+> reclaimed).
+
+Thanks, I think it looks better to make it more adaptive. I'll send out 
+a new version for review.
+
+Best,
+Wei
