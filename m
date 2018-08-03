@@ -1,7 +1,7 @@
-From: Christoph Hellwig <hch@infradead.org>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Fri, 3 Aug 2018 09:02:46 -0700
-Message-ID: <20180803160246.GA13794@infradead.org>
+Date: Fri, 03 Aug 2018 13:58:46 -0500
+Message-ID: <22310f58605169fe9de83abf78b59f593ff7fbb7.camel@kernel.crashing.org>
 References: <20180801083639.GF26378@infradead.org>
 	<26c1d3d50d8e081eed44fe9940fbefed34598cbd.camel@kernel.crashing.org>
 	<20180802182959-mutt-send-email-mst@kernel.org>
@@ -12,12 +12,12 @@ References: <20180801083639.GF26378@infradead.org>
 	<de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
 	<20180803070507.GA1344@infradead.org>
 	<eb1750e90e4bd45da297fa6f78f8ef93671b7c2f.camel@kernel.crashing.org>
+	<20180803160246.GA13794@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <eb1750e90e4bd45da297fa6f78f8ef93671b7c2f.camel@kernel.crashing.org>
+In-Reply-To: <20180803160246.GA13794@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,25 +27,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Aug 03, 2018 at 10:58:36AM -0500, Benjamin Herrenschmidt wrote:
-> On Fri, 2018-08-03 at 00:05 -0700, Christoph Hellwig wrote:
-> > >   2- Make virtio use the DMA API with our custom platform-provided
-> > > swiotlb callbacks when needed, that is when not using IOMMU *and*
-> > > running on a secure VM in our case.
+On Fri, 2018-08-03 at 09:02 -0700, Christoph Hellwig wrote:
+> On Fri, Aug 03, 2018 at 10:58:36AM -0500, Benjamin Herrenschmidt wrote:
+> > On Fri, 2018-08-03 at 00:05 -0700, Christoph Hellwig wrote:
+> > > >   2- Make virtio use the DMA API with our custom platform-provided
+> > > > swiotlb callbacks when needed, that is when not using IOMMU *and*
+> > > > running on a secure VM in our case.
+> > > 
+> > > And total NAK the customer platform-provided part of this.  We need
+> > > a flag passed in from the hypervisor that the device needs all bus
+> > > specific dma api treatment, and then just use the normal plaform
+> > > dma mapping setup. 
 > > 
-> > And total NAK the customer platform-provided part of this.  We need
-> > a flag passed in from the hypervisor that the device needs all bus
-> > specific dma api treatment, and then just use the normal plaform
-> > dma mapping setup. 
+> > Christoph, as I have explained already, we do NOT have a way to provide
+> > such a flag as neither the hypervisor nor qemu knows anything about
+> > this when the VM is created.
 > 
-> Christoph, as I have explained already, we do NOT have a way to provide
-> such a flag as neither the hypervisor nor qemu knows anything about
-> this when the VM is created.
+> Well, if your setup is so fucked up I see no way to support it in Linux.
+> 
+> Let's end the discussion right now then.
 
-Well, if your setup is so fucked up I see no way to support it in Linux.
+You are saying something along the lines of "I don't like an
+instruction in your ISA, let's not support your entire CPU architecture
+in Linux".
 
-Let's end the discussion right now then.
+Our setup is not fucked. It makes a LOT of sense and it's a very
+sensible design. It's hitting a problem due to a corner case oddity in
+virtio bypassing the MMU, we've worked around such corner cases many
+times in the past without any problem, I fail to see what the problem
+is here.
+
+We aren't going to cancel years of HW and SW development for our
+security infrastructure bcs you don't like a 2 lines hook into virtio
+to make things work and aren't willing to even consider the options.
+
+Ben.
