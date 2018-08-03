@@ -1,23 +1,22 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Fri, 3 Aug 2018 00:51:34 +0300
-Message-ID: <20180803001818-mutt-send-email-mst@kernel.org>
-References: <3d6e81511571260de1c8047aaffa8ac4df093d2e.camel@kernel.crashing.org>
-	<20180801081637.GA14438@arm.com>
-	<20180801083639.GF26378@infradead.org>
-	<26c1d3d50d8e081eed44fe9940fbefed34598cbd.camel@kernel.crashing.org>
-	<20180802182959-mutt-send-email-mst@kernel.org>
-	<82ccef6ec3d95ee43f3990a4a2d0aea87eb45e89.camel@kernel.crashing.org>
-	<20180802200646-mutt-send-email-mst@kernel.org>
-	<e9beb6bba5a7d05741e27e85b24a3b23ba7c2762.camel@kernel.crashing.org>
-	<20180802225738-mutt-send-email-mst@kernel.org>
-	<de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next v7 3/4] net: vhost: factor out busy polling logic
+	to vhost_net_busy_poll()
+Date: Fri, 3 Aug 2018 10:38:36 +0800
+Message-ID: <f61c8cde-ff31-2386-ad64-780588587301__1990.99602546102$1533263805$gmane$org@redhat.com>
+References: <1533092454-37196-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<1533092454-37196-4-git-send-email-xiangxia.m.yue@gmail.com>
+	<30e62749-3cbd-ae88-6582-c20087884b20@redhat.com>
+	<CAMDZJNWX7L4P0yO+-PeDFu_tmtLSntihO7rcLPB2GK4eN9zbwQ@mail.gmail.com>
+	<b4ffd376-6fa8-4d0c-5c3a-82d1b6e924d6@redhat.com>
+	<ca040549-5eda-4a03-4295-17e6d7d44dd5@lab.ntt.co.jp>
+	<3272c3b4-a44c-8554-329e-8a5e1a59aafd@redhat.com>
+	<e2917cb0-f8dd-90c7-5a44-5333ad1d1ee8@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
+In-Reply-To: <e2917cb0-f8dd-90c7-5a44-5333ad1d1ee8@lab.ntt.co.jp>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,135 +26,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 02, 2018 at 04:13:09PM -0500, Benjamin Herrenschmidt wrote:
-> On Thu, 2018-08-02 at 23:52 +0300, Michael S. Tsirkin wrote:
-> > > Yes, this is the purpose of Anshuman original patch (I haven't looked
-> > > at the details of the patch in a while but that's what I told him to
-> > > implement ;-) :
-> > > 
-> > >   - Make virtio always use DMA ops to simplify the code path (with a set
-> > > of "transparent" ops for legacy)
-> > > 
-> > >   and
-> > > 
-> > >   -  Provide an arch hook allowing us to "override" those "transparent"
-> > > DMA ops with some custom ones that do the appropriate swiotlb gunk.
-> > > 
-> > > Cheers,
-> > > Ben.
-> > > 
-> > 
-> > Right but as I tried to say doing that brings us to a bunch of issues
-> > with using DMA APIs in virtio. Put simply DMA APIs weren't designed for
-> > guest to hypervisor communication.
-> 
-> I'm not sure I see the problem, see below
-> 
-> > When we do (as is the case with PLATFORM_IOMMU right now) this adds a
-> > bunch of overhead which we need to get rid of if we are to switch to
-> > PLATFORM_IOMMU by default.  We need to fix that.
-> 
-> So let's differenciate the two problems of having an IOMMU (real or
-> emulated) which indeeds adds overhead etc... and using the DMA API.
-
-Well actually it's the other way around. An iommu in theory doesn't need
-to bring overhead if you set it in bypass mode.  Which does imply the
-iommu supports bypass mode. Is that universally the case?  DMA API does
-see Christoph's list of things it does some of which add overhead.
-
-> At the moment, virtio does this all over the place:
-> 
-> 	if (use_dma_api)
-> 		dma_map/alloc_something(...)
-> 	else
-> 		use_pa
-> 
-> The idea of the patch set is to do two, somewhat orthogonal, changes
-> that together achieve what we want. Let me know where you think there
-> is "a bunch of issues" because I'm missing it:
-> 
->  1- Replace the above if/else constructs with just calling the DMA API,
-> and have virtio, at initialization, hookup its own dma_ops that just
-> "return pa" (roughly) when the IOMMU stuff isn't used.
-> 
-> This adds an indirect function call to the path that previously didn't
-> have one (the else case above). Is that a significant/measurable
-> overhead ?
-
-Seems to be :( Jason reports about 4%. I wonder whether we can support
-map_sg and friends being NULL, then use that when mapping is an
-identity. A conditional branch there is likely very cheap.
-
-Would this cover all platforms with kvm (which is where we care
-most about performance)?
-
-> This change stands alone, and imho "cleans" up virtio by avoiding all
-> that if/else "2 path" and unless it adds a measurable overhead, should
-> probably be done.
-> 
->  2- Make virtio use the DMA API with our custom platform-provided
-> swiotlb callbacks when needed, that is when not using IOMMU *and*
-> running on a secure VM in our case.
-> 
-> This benefits from -1- by making us just plumb in a different set of
-> DMA ops we would have cooked up specifically for virtio in our arch
-> code (or in virtio itself but build arch-conditionally in a separate
-> file). But it doesn't strictly need it -1-:
-> 
-> Now, -2- doesn't strictly needs -1-. We could have just done another
-> xen-like hack that forces the DMA API "ON" for virtio when running in a
-> secure VM.
-> 
-> The problem if we do that however is that we also then need the arch
-> PCI code to make sure it hooks up the virtio PCI devices with the
-> special "magic" DMA ops that avoid the iommu but still do swiotlb, ie,
-> not the same as other PCI devices. So it will have to play games such
-> as checking vendor/device IDs for virtio, checking the IOMMU flag,
-> etc... from the arch code which really bloody sucks when assigning PCI
-> DMA ops.
-> 
-> However, if we do it the way we plan here, on top of -1-, with a hook
-> called from virtio into the arch to "override" the virtio DMA ops, then
-> we avoid the problem completely: The arch hook would only be called by
-> virtio if the IOMMU flag is *not* set. IE only when using that special
-> "hypervisor" iommu bypass. If the IOMMU flag is set, virtio uses normal
-> PCI dma ops as usual.
-> 
-> That way, we have a very clear semantic: This hook is purely about
-> replacing those "null" DMA ops that just return PA introduced in -1-
-> with some arch provided specially cooked up DMA ops for non-IOMMU
-> virtio that know about the arch special requirements. For us bounce
-> buffering.
-> 
-> Is there something I'm missing ?
-> 
-> Cheers,
-> Ben.
-
-Right so I was trying to write it up in a systematic way, but just to
-give you one example, if there is a system where DMA API handles
-coherency issues, or flushing of some buffers, then our PLATFORM_IOMMU
-flag causes that to happen.
-
-And we kinda worked around this without the IOMMU by basically saying
-"ok we do not really need DMA API so let's just bypass it" and
-it was kind of ok except now everyone is switching to vIOMMU
-just in case. So now people do want some parts of what DMA API does,
-such as the bounce buffer use, or IOMMU mappings.
-
-And maybe in the end the solution is going to be to do something similar
-to virt_Xmb except for DMA APIs: add APIs that handle just the
-addressing bits but without the overhead. See
-commit 6a65d26385bf487926a0616650927303058551e3
-    asm-generic: implement virt_xxx memory barriers
-for reference, it's a similar set of issues.
-
-So it's not a problem with your patches as such, it's just that
-they don't solve that harder problem.
-
--- 
-MST
+CgpPbiAyMDE45bm0MDjmnIgwMuaXpSAxNzo1NywgVG9zaGlha2kgTWFraXRhIHdyb3RlOgo+IE9u
+IDIwMTgvMDgvMDIgMTg6MjMsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9uIDIwMTjlubQwOOaciDAy
+5pelIDE2OjQxLCBUb3NoaWFraSBNYWtpdGEgd3JvdGU6Cj4+PiBPbiAyMDE4LzA4LzAyIDE3OjE4
+LCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+IE9uIDIwMTjlubQwOOaciDAx5pelIDE3OjUyLCBUb25n
+aGFvIFpoYW5nIHdyb3RlOgo+Pj4+Pj4gK3N0YXRpYyB2b2lkIHZob3N0X25ldF9idXN5X3BvbGxf
+Y2hlY2soc3RydWN0IHZob3N0X25ldCAqbmV0LAo+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHN0cnVjdCB2
+aG9zdF92aXJ0cXVldWUgKnJ2cSwKPj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBzdHJ1Y3Qgdmhvc3Rfdmly
+dHF1ZXVlICp0dnEsCj4+Pj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgYm9vbCByeCkKPj4+Pj4+ICt7Cj4+Pj4+
+PiArwqDCoMKgwqAgc3RydWN0IHNvY2tldCAqc29jayA9IHJ2cS0+cHJpdmF0ZV9kYXRhOwo+Pj4+
+Pj4gKwo+Pj4+Pj4gK8KgwqDCoMKgIGlmIChyeCkKPj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqAgdmhvc3RfbmV0X2J1c3lfcG9sbF90cnlfcXVldWUobmV0LCB0dnEpOwo+Pj4+Pj4gK8Kg
+wqDCoMKgIGVsc2UgaWYgKHNvY2sgJiYgc2tfaGFzX3J4X2RhdGEoc29jay0+c2spKQo+Pj4+Pj4g
+K8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB2aG9zdF9uZXRfYnVzeV9wb2xsX3RyeV9xdWV1ZShu
+ZXQsIHJ2cSk7Cj4+Pj4+PiArwqDCoMKgwqAgZWxzZSB7Cj4+Pj4+PiArwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgIC8qIE9uIHR4IGhlcmUsIHNvY2sgaGFzIG5vIHJ4IGRhdGEsIHNvIHdlCj4+Pj4+
+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKiB3aWxsIHdhaXQgZm9yIHNvY2sgd2FrZXVw
+IGZvciByeCwgYW5kCj4+Pj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKiB2aG9zdF9l
+bmFibGVfbm90aWZ5KCkgaXMgbm90IG5lZWRlZC4gKi8KPj4+Pj4gQSBwb3NzaWJsZSBjYXNlIGlz
+IHdlIGRvIGhhdmUgcnggZGF0YSBidXQgZ3Vlc3QgZG9lcyBub3QgcmVmaWxsIHRoZSByeAo+Pj4+
+PiBxdWV1ZS4gSW4gdGhpcyBjYXNlIHdlIG1heSBsb3NlIG5vdGlmaWNhdGlvbnMgZnJvbSBndWVz
+dC4KPj4+PiBZZXMsIHNob3VsZCBjb25zaWRlciB0aGlzIGNhc2UuIHRoYW5rcy4KPj4+IEknbSBh
+IGJpdCBjb25mdXNlZC4gSXNuJ3QgdGhpcyBjb3ZlcmVkIGJ5IHRoZSBwcmV2aW91cwo+Pj4gImVs
+c2UgaWYgKHNvY2sgJiYgc2tfaGFzX3J4X2RhdGEoLi4uKSkiIGJsb2NrPwo+PiBUaGUgcHJvYmxl
+bSBpcyBpdCBkb2VzIG5vdGhpbmcgaWYgdmhvc3RfdnFfYXZhaWxfZW1wdHkoKSBpcyB0cnVlIGFu
+ZAo+PiB2aG9zdF9lbmJsZV9ub3RpZnkoKSBpcyBmYWxzZS4KPiBJZiB2aG9zdF9lbmFibGVfbm90
+aWZ5KCkgaXMgZmFsc2UsIGd1ZXN0IHdpbGwgZXZlbnR1YWxseSBraWNrcyB2cSwgbm8/Cj4KClll
+cywgeW91IGFyZSByaWdodC4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
