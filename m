@@ -1,11 +1,23 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next] vhost: switch to use new message format
-Date: Fri,  3 Aug 2018 15:04:51 +0800
-Message-ID: <1533279891-12249-1-git-send-email-jasowang@redhat.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
+Date: Fri, 3 Aug 2018 00:05:07 -0700
+Message-ID: <20180803070507.GA1344__32269.197368487$1533279805$gmane$org@infradead.org>
+References: <3d6e81511571260de1c8047aaffa8ac4df093d2e.camel@kernel.crashing.org>
+	<20180801081637.GA14438@arm.com>
+	<20180801083639.GF26378@infradead.org>
+	<26c1d3d50d8e081eed44fe9940fbefed34598cbd.camel@kernel.crashing.org>
+	<20180802182959-mutt-send-email-mst@kernel.org>
+	<82ccef6ec3d95ee43f3990a4a2d0aea87eb45e89.camel@kernel.crashing.org>
+	<20180802200646-mutt-send-email-mst@kernel.org>
+	<e9beb6bba5a7d05741e27e85b24a3b23ba7c2762.camel@kernel.crashing.org>
+	<20180802225738-mutt-send-email-mst@kernel.org>
+	<de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,303 +27,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We use to have message like:
+On Thu, Aug 02, 2018 at 04:13:09PM -0500, Benjamin Herrenschmidt wrote:
+> So let's differenciate the two problems of having an IOMMU (real or
+> emulated) which indeeds adds overhead etc... and using the DMA API.
+> 
+> At the moment, virtio does this all over the place:
+> 
+> 	if (use_dma_api)
+> 		dma_map/alloc_something(...)
+> 	else
+> 		use_pa
+> 
+> The idea of the patch set is to do two, somewhat orthogonal, changes
+> that together achieve what we want. Let me know where you think there
+> is "a bunch of issues" because I'm missing it:
+> 
+>  1- Replace the above if/else constructs with just calling the DMA API,
+> and have virtio, at initialization, hookup its own dma_ops that just
+> "return pa" (roughly) when the IOMMU stuff isn't used.
+> 
+> This adds an indirect function call to the path that previously didn't
+> have one (the else case above). Is that a significant/measurable
+> overhead ?
 
-struct vhost_msg {
-	int type;
-	union {
-		struct vhost_iotlb_msg iotlb;
-		__u8 padding[64];
-	};
-};
+If you call it often enough it does:
 
-Unfortunately, there will be a hole of 32bit in 64bit machine because
-of the alignment. This leads a different formats between 32bit API and
-64bit API. What's more it will break 32bit program running on 64bit
-machine.
+https://www.spinics.net/lists/netdev/msg495413.html
 
-So fixing this by introducing a new message type with an explicit
-32bit reserved field after type like:
+>  2- Make virtio use the DMA API with our custom platform-provided
+> swiotlb callbacks when needed, that is when not using IOMMU *and*
+> running on a secure VM in our case.
 
-struct vhost_msg_v2 {
-	int type;
-	__u32 reserved;
-	union {
-		struct vhost_iotlb_msg iotlb;
-		__u8 padding[64];
-	};
-};
-
-We will have a consistent ABI after switching to use this. To enable
-this capability, introduce a new ioctl (VHOST_SET_BAKCEND_FEATURE) for
-userspace to enable this feature (VHOST_BACKEND_F_IOTLB_V2).
-
-Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c        | 30 ++++++++++++++++++++
- drivers/vhost/vhost.c      | 71 ++++++++++++++++++++++++++++++++++------------
- drivers/vhost/vhost.h      | 11 ++++++-
- include/uapi/linux/vhost.h | 18 ++++++++++++
- 4 files changed, 111 insertions(+), 19 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 367d802..4e656f8 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -78,6 +78,10 @@ enum {
- };
- 
- enum {
-+	VHOST_NET_BACKEND_FEATURES = (1ULL << VHOST_BACKEND_F_IOTLB_MSG_V2)
-+};
-+
-+enum {
- 	VHOST_NET_VQ_RX = 0,
- 	VHOST_NET_VQ_TX = 1,
- 	VHOST_NET_VQ_MAX = 2,
-@@ -1399,6 +1403,21 @@ static long vhost_net_reset_owner(struct vhost_net *n)
- 	return err;
- }
- 
-+static int vhost_net_set_backend_features(struct vhost_net *n, u64 features)
-+{
-+	int i;
-+
-+	mutex_lock(&n->dev.mutex);
-+	for (i = 0; i < VHOST_NET_VQ_MAX; ++i) {
-+		mutex_lock(&n->vqs[i].vq.mutex);
-+		n->vqs[i].vq.acked_backend_features = features;
-+		mutex_unlock(&n->vqs[i].vq.mutex);
-+	}
-+	mutex_unlock(&n->dev.mutex);
-+
-+	return 0;
-+}
-+
- static int vhost_net_set_features(struct vhost_net *n, u64 features)
- {
- 	size_t vhost_hlen, sock_hlen, hdr_len;
-@@ -1489,6 +1508,17 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 		if (features & ~VHOST_NET_FEATURES)
- 			return -EOPNOTSUPP;
- 		return vhost_net_set_features(n, features);
-+	case VHOST_GET_BACKEND_FEATURES:
-+		features = VHOST_NET_BACKEND_FEATURES;
-+		if (copy_to_user(featurep, &features, sizeof(features)))
-+			return -EFAULT;
-+		return 0;
-+	case VHOST_SET_BACKEND_FEATURES:
-+		if (copy_from_user(&features, featurep, sizeof(features)))
-+			return -EFAULT;
-+		if (features & ~VHOST_NET_BACKEND_FEATURES)
-+			return -EOPNOTSUPP;
-+		return vhost_net_set_backend_features(n, features);
- 	case VHOST_RESET_OWNER:
- 		return vhost_net_reset_owner(n);
- 	case VHOST_SET_OWNER:
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index a502f1a..6f6c42d 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -315,6 +315,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->log_addr = -1ull;
- 	vq->private_data = NULL;
- 	vq->acked_features = 0;
-+	vq->acked_backend_features = 0;
- 	vq->log_base = NULL;
- 	vq->error_ctx = NULL;
- 	vq->kick = NULL;
-@@ -1027,28 +1028,40 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
- 			     struct iov_iter *from)
- {
--	struct vhost_msg_node node;
--	unsigned size = sizeof(struct vhost_msg);
--	size_t ret;
--	int err;
-+	struct vhost_iotlb_msg msg;
-+	size_t offset;
-+	int type, ret;
- 
--	if (iov_iter_count(from) < size)
--		return 0;
--	ret = copy_from_iter(&node.msg, size, from);
--	if (ret != size)
-+	ret = copy_from_iter(&type, sizeof(type), from);
-+	if (ret != sizeof(type))
- 		goto done;
- 
--	switch (node.msg.type) {
-+	switch (type) {
- 	case VHOST_IOTLB_MSG:
--		err = vhost_process_iotlb_msg(dev, &node.msg.iotlb);
--		if (err)
--			ret = err;
-+		/* There maybe a hole after type for V1 message type,
-+		 * so skip it here.
-+		 */
-+		offset = offsetof(struct vhost_msg, iotlb) - sizeof(int);
-+		break;
-+	case VHOST_IOTLB_MSG_V2:
-+		offset = sizeof(__u32);
- 		break;
- 	default:
- 		ret = -EINVAL;
--		break;
-+		goto done;
-+	}
-+
-+	iov_iter_advance(from, offset);
-+	ret = copy_from_iter(&msg, sizeof(msg), from);
-+	if (ret != sizeof(msg))
-+		goto done;
-+	if (vhost_process_iotlb_msg(dev, &msg)) {
-+		ret = -EFAULT;
-+		goto done;
- 	}
- 
-+	ret = (type == VHOST_IOTLB_MSG) ? sizeof(struct vhost_msg) :
-+	      sizeof(struct vhost_msg_v2);
- done:
- 	return ret;
- }
-@@ -1107,13 +1120,28 @@ ssize_t vhost_chr_read_iter(struct vhost_dev *dev, struct iov_iter *to,
- 		finish_wait(&dev->wait, &wait);
- 
- 	if (node) {
--		ret = copy_to_iter(&node->msg, size, to);
-+		struct vhost_iotlb_msg *msg;
-+		void *start = &node->msg;
-+
-+		switch (node->msg.type) {
-+		case VHOST_IOTLB_MSG:
-+			size = sizeof(node->msg);
-+			msg = &node->msg.iotlb;
-+			break;
-+		case VHOST_IOTLB_MSG_V2:
-+			size = sizeof(node->msg_v2);
-+			msg = &node->msg_v2.iotlb;
-+			break;
-+		default:
-+			BUG();
-+			break;
-+		}
- 
--		if (ret != size || node->msg.type != VHOST_IOTLB_MISS) {
-+		ret = copy_to_iter(start, size, to);
-+		if (ret != size || msg->type != VHOST_IOTLB_MISS) {
- 			kfree(node);
- 			return ret;
- 		}
--
- 		vhost_enqueue_msg(dev, &dev->pending_list, node);
- 	}
- 
-@@ -1126,12 +1154,19 @@ static int vhost_iotlb_miss(struct vhost_virtqueue *vq, u64 iova, int access)
- 	struct vhost_dev *dev = vq->dev;
- 	struct vhost_msg_node *node;
- 	struct vhost_iotlb_msg *msg;
-+	bool v2 = vhost_backend_has_feature(vq, VHOST_BACKEND_F_IOTLB_MSG_V2);
- 
--	node = vhost_new_msg(vq, VHOST_IOTLB_MISS);
-+	node = vhost_new_msg(vq, v2 ? VHOST_IOTLB_MSG_V2 : VHOST_IOTLB_MSG);
- 	if (!node)
- 		return -ENOMEM;
- 
--	msg = &node->msg.iotlb;
-+	if (v2) {
-+		node->msg_v2.type = VHOST_IOTLB_MSG_V2;
-+		msg = &node->msg_v2.iotlb;
-+	} else {
-+		msg = &node->msg.iotlb;
-+	}
-+
- 	msg->type = VHOST_IOTLB_MISS;
- 	msg->iova = iova;
- 	msg->perm = access;
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 6c844b9..466ef75 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -132,6 +132,7 @@ struct vhost_virtqueue {
- 	struct vhost_umem *iotlb;
- 	void *private_data;
- 	u64 acked_features;
-+	u64 acked_backend_features;
- 	/* Log write descriptors */
- 	void __user *log_base;
- 	struct vhost_log *log;
-@@ -147,7 +148,10 @@ struct vhost_virtqueue {
- };
- 
- struct vhost_msg_node {
--  struct vhost_msg msg;
-+  union {
-+	  struct vhost_msg msg;
-+	  struct vhost_msg_v2 msg_v2;
-+  };
-   struct vhost_virtqueue *vq;
-   struct list_head node;
- };
-@@ -238,6 +242,11 @@ static inline bool vhost_has_feature(struct vhost_virtqueue *vq, int bit)
- 	return vq->acked_features & (1ULL << bit);
- }
- 
-+static inline bool vhost_backend_has_feature(struct vhost_virtqueue *vq, int bit)
-+{
-+	return vq->acked_backend_features & (1ULL << bit);
-+}
-+
- #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
- static inline bool vhost_is_little_endian(struct vhost_virtqueue *vq)
- {
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index c51f8e5..c176e9d 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -65,6 +65,7 @@ struct vhost_iotlb_msg {
- };
- 
- #define VHOST_IOTLB_MSG 0x1
-+#define VHOST_IOTLB_MSG_V2 0x2
- 
- struct vhost_msg {
- 	int type;
-@@ -74,6 +75,15 @@ struct vhost_msg {
- 	};
- };
- 
-+struct vhost_msg_v2 {
-+	int type;
-+	__u32 reserved;
-+	union {
-+		struct vhost_iotlb_msg iotlb;
-+		__u8 padding[64];
-+	};
-+};
-+
- struct vhost_memory_region {
- 	__u64 guest_phys_addr;
- 	__u64 memory_size; /* bytes */
-@@ -160,6 +170,14 @@ struct vhost_memory {
- #define VHOST_GET_VRING_BUSYLOOP_TIMEOUT _IOW(VHOST_VIRTIO, 0x24,	\
- 					 struct vhost_vring_state)
- 
-+/* Set or get vhost backend capability */
-+
-+/* Use message type V2 */
-+#define VHOST_BACKEND_F_IOTLB_MSG_V2 0x1
-+
-+#define VHOST_SET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x25, __u64)
-+#define VHOST_GET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x26, __u64)
-+
- /* VHOST_NET specific defines */
- 
- /* Attach virtio net ring to a raw socket, or tap device.
--- 
-2.7.4
+And total NAK the customer platform-provided part of this.  We need
+a flag passed in from the hypervisor that the device needs all bus
+specific dma api treatment, and then just use the normal plaform
+dma mapping setup.  To get swiotlb you'll need to then use the DT/ACPI
+dma-range property to limit the addressable range, and a swiotlb
+capable plaform will use swiotlb automatically.
