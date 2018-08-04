@@ -1,9 +1,8 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Fri, 3 Aug 2018 22:17:32 +0300
-Message-ID: <20180803221634-mutt-send-email-mst@kernel.org>
-References: <20180801081637.GA14438@arm.com>
-	<20180801083639.GF26378@infradead.org>
+Date: Fri, 03 Aug 2018 20:11:16 -0500
+Message-ID: <ba086ad15679fd59758fb74096c46fcce42dc974.camel@kernel.crashing.org>
+References: <20180801083639.GF26378@infradead.org>
 	<26c1d3d50d8e081eed44fe9940fbefed34598cbd.camel@kernel.crashing.org>
 	<20180802182959-mutt-send-email-mst@kernel.org>
 	<82ccef6ec3d95ee43f3990a4a2d0aea87eb45e89.camel@kernel.crashing.org>
@@ -12,12 +11,13 @@ References: <20180801081637.GA14438@arm.com>
 	<20180802225738-mutt-send-email-mst@kernel.org>
 	<de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
 	<20180803070507.GA1344@infradead.org>
+	<eb1750e90e4bd45da297fa6f78f8ef93671b7c2f.camel@kernel.crashing.org>
+	<20180803220443-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180803070507.GA1344@infradead.org>
+In-Reply-To: <20180803220443-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,51 +27,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, paulus@samba.org, marc.zyngier@arm.com, mpe@ellerman.id.au, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Aug 03, 2018 at 12:05:07AM -0700, Christoph Hellwig wrote:
-> On Thu, Aug 02, 2018 at 04:13:09PM -0500, Benjamin Herrenschmidt wrote:
-> > So let's differenciate the two problems of having an IOMMU (real or
-> > emulated) which indeeds adds overhead etc... and using the DMA API.
+On Fri, 2018-08-03 at 22:07 +0300, Michael S. Tsirkin wrote:
+> On Fri, Aug 03, 2018 at 10:58:36AM -0500, Benjamin Herrenschmidt wrote:
+> > On Fri, 2018-08-03 at 00:05 -0700, Christoph Hellwig wrote:
+> > > >   2- Make virtio use the DMA API with our custom platform-provided
+> > > > swiotlb callbacks when needed, that is when not using IOMMU *and*
+> > > > running on a secure VM in our case.
+> > > 
+> > > And total NAK the customer platform-provided part of this.  We need
+> > > a flag passed in from the hypervisor that the device needs all bus
+> > > specific dma api treatment, and then just use the normal plaform
+> > > dma mapping setup. 
 > > 
-> > At the moment, virtio does this all over the place:
-> > 
-> > 	if (use_dma_api)
-> > 		dma_map/alloc_something(...)
-> > 	else
-> > 		use_pa
-> > 
-> > The idea of the patch set is to do two, somewhat orthogonal, changes
-> > that together achieve what we want. Let me know where you think there
-> > is "a bunch of issues" because I'm missing it:
-> > 
-> >  1- Replace the above if/else constructs with just calling the DMA API,
-> > and have virtio, at initialization, hookup its own dma_ops that just
-> > "return pa" (roughly) when the IOMMU stuff isn't used.
-> > 
-> > This adds an indirect function call to the path that previously didn't
-> > have one (the else case above). Is that a significant/measurable
-> > overhead ?
+> > Christoph, as I have explained already, we do NOT have a way to provide
+> > such a flag as neither the hypervisor nor qemu knows anything about
+> > this when the VM is created.
 > 
-> If you call it often enough it does:
-> 
-> https://www.spinics.net/lists/netdev/msg495413.html
-> 
-> >  2- Make virtio use the DMA API with our custom platform-provided
-> > swiotlb callbacks when needed, that is when not using IOMMU *and*
-> > running on a secure VM in our case.
-> 
-> And total NAK the customer platform-provided part of this.  We need
-> a flag passed in from the hypervisor that the device needs all bus
-> specific dma api treatment, and then just use the normal plaform
-> dma mapping setup.  To get swiotlb you'll need to then use the DT/ACPI
-> dma-range property to limit the addressable range, and a swiotlb
-> capable plaform will use swiotlb automatically.
+> I think the fact you can't add flags from the hypervisor is
+> a sign of a problematic architecture, you should look at
+> adding that down the road - you will likely need it at some point.
 
-It seems reasonable to teach a platform to override dma-range
-for a specific device e.g. in case it knows about bugs in ACPI.
+Well, we can later in the boot process. At VM creation time, it's just
+a normal VM. The VM firmware, bootloader etc... are just operating
+normally etc...
 
--- 
-MST
+Later on, (we may have even already run Linux at that point,
+unsecurely, as we can use Linux as a bootloader under some
+circumstances), we start a "secure image".
+
+This is a kernel zImage that includes a "ticket" that has the
+appropriate signature etc... so that when that kernel starts, it can
+authenticate with the ultravisor, be verified (along with its ramdisk)
+etc... and copied (by the UV) into secure memory & run from there.
+
+At that point, the hypervisor is informed that the VM has become
+secure.
+
+So at that point, we could exit to qemu to inform it of the change, and
+have it walk the qtree and "Switch" all the virtio devices to use the
+IOMMU I suppose, but it feels a lot grosser to me.
+
+That's the only other option I can think of.
+
+> However in this specific case, the flag does not need to come from the
+> hypervisor, it can be set by arch boot code I think.
+> Christoph do you see a problem with that?
+
+The above could do that yes. Another approach would be to do it from a
+small virtio "quirk" that pokes a bit in the device to force it to
+iommu mode when it detects that we are running in a secure VM. That's a
+bit warty on the virito side but probably not as much as having a qemu
+one that walks of the virtio devices to change how they behave.
+
+What do you reckon ?
+
+Cheers,
+Ben.
+
+> > >  To get swiotlb you'll need to then use the DT/ACPI
+> > > dma-range property to limit the addressable range, and a swiotlb
+> > > capable plaform will use swiotlb automatically.
+> > 
+> > This cannot be done as you describe it.
+> > 
+> > The VM is created as a *normal* VM. The DT stuff is generated by qemu
+> > at a point where it has *no idea* that the VM will later become secure
+> > and thus will have to restrict which pages can be used for "DMA".
+> > 
+> > The VM will *at runtime* turn itself into a secure VM via interactions
+> > with the security HW and the Ultravisor layer (which sits below the
+> > HV). This happens way after the DT has been created and consumed, the
+> > qemu devices instanciated etc...
+> > 
+> > Only the guest kernel knows because it initates the transition. When
+> > that happens, the virtio devices have already been used by the guest
+> > firmware, bootloader, possibly another kernel that kexeced the "secure"
+> > one, etc... 
+> > 
+> > So instead of running around saying NAK NAK NAK, please explain how we
+> > can solve that differently.
+> > 
+> > Ben.
+> > 
