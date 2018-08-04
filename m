@@ -1,7 +1,7 @@
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Fri, 03 Aug 2018 20:11:16 -0500
-Message-ID: <ba086ad15679fd59758fb74096c46fcce42dc974.camel@kernel.crashing.org>
+Date: Fri, 03 Aug 2018 20:22:11 -0500
+Message-ID: <398d498048a5b288cce06003c0808bfefa1e9b1f.camel@kernel.crashing.org>
 References: <20180801083639.GF26378@infradead.org>
 	<26c1d3d50d8e081eed44fe9940fbefed34598cbd.camel@kernel.crashing.org>
 	<20180802182959-mutt-send-email-mst@kernel.org>
@@ -51,6 +51,9 @@ On Fri, 2018-08-03 at 22:07 +0300, Michael S. Tsirkin wrote:
 > a sign of a problematic architecture, you should look at
 > adding that down the road - you will likely need it at some point.
 
+(Appologies if you got this twice, my mailer had a brain fart and I don't
+know if the first one got through & am about to disappear in a plane for 17h)
+
 Well, we can later in the boot process. At VM creation time, it's just
 a normal VM. The VM firmware, bootloader etc... are just operating
 normally etc...
@@ -84,6 +87,15 @@ bit warty on the virito side but probably not as much as having a qemu
 one that walks of the virtio devices to change how they behave.
 
 What do you reckon ?
+
+What we want to avoid is to expose any of this to the *end user* or
+libvirt or any other higher level of the management stack. We really
+want that stuff to remain contained between the VM itself, KVM and
+maybe qemu.
+
+We will need some other qemu changes for migration so that's ok. But
+the minute you start touching libvirt and the higher levels it becomes
+a nightmare.
 
 Cheers,
 Ben.
