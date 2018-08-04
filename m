@@ -1,7 +1,7 @@
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Fri, 03 Aug 2018 20:22:11 -0500
-Message-ID: <398d498048a5b288cce06003c0808bfefa1e9b1f.camel@kernel.crashing.org>
+Date: Fri, 03 Aug 2018 20:18:34 -0500
+Message-ID: <d103acae2ab677eba761c4aa4c5c84a5e1f32127.camel__15517.5673230135$1533346649$gmane$org@kernel.crashing.org>
 References: <20180801083639.GF26378@infradead.org>
 	<26c1d3d50d8e081eed44fe9940fbefed34598cbd.camel@kernel.crashing.org>
 	<20180802182959-mutt-send-email-mst@kernel.org>
@@ -50,9 +50,6 @@ On Fri, 2018-08-03 at 22:07 +0300, Michael S. Tsirkin wrote:
 > I think the fact you can't add flags from the hypervisor is
 > a sign of a problematic architecture, you should look at
 > adding that down the road - you will likely need it at some point.
-
-(Appologies if you got this twice, my mailer had a brain fart and I don't
-know if the first one got through & am about to disappear in a plane for 17h)
 
 Well, we can later in the boot process. At VM creation time, it's just
 a normal VM. The VM firmware, bootloader etc... are just operating
