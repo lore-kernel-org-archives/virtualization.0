@@ -1,16 +1,23 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Christoph Hellwig <hch@infradead.org>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Fri, 03 Aug 2018 20:21:26 -0500
-Message-ID: <01c74680c4b3aa25d9b4375a9ab5e10046b7c71b.camel@kernel.crashing.org>
-References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
-	<20180802235332-mutt-send-email-mst@kernel.org>
-	<b31d2162-884c-0ed4-00df-e7debe0cc0e7@redhat.com>
-	<20180803220812-mutt-send-email-mst@kernel.org>
+Date: Sat, 4 Aug 2018 01:15:00 -0700
+Message-ID: <20180804081500.GA1455@infradead.org>
+References: <20180801083639.GF26378@infradead.org>
+	<26c1d3d50d8e081eed44fe9940fbefed34598cbd.camel@kernel.crashing.org>
+	<20180802182959-mutt-send-email-mst@kernel.org>
+	<82ccef6ec3d95ee43f3990a4a2d0aea87eb45e89.camel@kernel.crashing.org>
+	<20180802200646-mutt-send-email-mst@kernel.org>
+	<e9beb6bba5a7d05741e27e85b24a3b23ba7c2762.camel@kernel.crashing.org>
+	<20180802225738-mutt-send-email-mst@kernel.org>
+	<de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
+	<20180803070507.GA1344@infradead.org>
+	<20180803221634-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180803220812-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180803221634-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,27 +27,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mpe@ellerman.id.au, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, paulus@samba.org, marc.zyngier@arm.com, mpe@ellerman.id.au, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2018-08-03 at 22:08 +0300, Michael S. Tsirkin wrote:
-> > > > Please go through these patches and review whether this approach broadly
-> > > > makes sense. I will appreciate suggestions, inputs, comments regarding
-> > > > the patches or the approach in general. Thank you.
-> > > 
-> > > Jason did some work on profiling this. Unfortunately he reports
-> > > about 4% extra overhead from this switch on x86 with no vIOMMU.
-> > 
-> > The test is rather simple, just run pktgen (pktgen_sample01_simple.sh) in
-> > guest and measure PPS on tap on host.
-> > 
-> > Thanks
-> 
-> Could you supply host configuration involved please?
+On Fri, Aug 03, 2018 at 10:17:32PM +0300, Michael S. Tsirkin wrote:
+> It seems reasonable to teach a platform to override dma-range
+> for a specific device e.g. in case it knows about bugs in ACPI.
 
-I wonder how much of that could be caused by Spectre mitigations
-blowing up indirect function calls...
+A platform will be able override dma-range using the dev->bus_dma_mask
+field starting in 4.19.  But we'll still need a way how to
 
-Cheers,
-Ben.
+  a) document in the virtio spec that all bus dma quirks are to be
+     applied
+  b) a way to document in a virtio-related spec how the bus handles
+     dma for Ben's totally fucked up hypervisor.  Without that there
+     is not way we'll get interoperable implementations.
