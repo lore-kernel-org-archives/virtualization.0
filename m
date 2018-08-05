@@ -1,7 +1,7 @@
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Sun, 05 Aug 2018 11:10:15 +1000
-Message-ID: <a3ec0a454928e880dabc3782ea906e318634abf9.camel@kernel.crashing.org>
+Date: Sun, 05 Aug 2018 14:52:54 +1000
+Message-ID: <fd8fee94cf42e436878f179c7895de3a4dab3355.camel@kernel.crashing.org>
 References: <20180802182959-mutt-send-email-mst@kernel.org>
 	<82ccef6ec3d95ee43f3990a4a2d0aea87eb45e89.camel@kernel.crashing.org>
 	<20180802200646-mutt-send-email-mst@kernel.org>
@@ -10,14 +10,14 @@ References: <20180802182959-mutt-send-email-mst@kernel.org>
 	<de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
 	<20180803070507.GA1344@infradead.org>
 	<eb1750e90e4bd45da297fa6f78f8ef93671b7c2f.camel@kernel.crashing.org>
-	<20180803160246.GA13794@infradead.org>
-	<22310f58605169fe9de83abf78b59f593ff7fbb7.camel@kernel.crashing.org>
-	<20180804082120.GB4421@infradead.org>
+	<20180803220443-mutt-send-email-mst@kernel.org>
+	<051fd78e15595b414839fa8f9d445b9f4d7576c6.camel@kernel.crashing.org>
+	<20180805031046-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180804082120.GB4421@infradead.org>
+In-Reply-To: <20180805031046-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,110 +27,140 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2018-08-04 at 01:21 -0700, Christoph Hellwig wrote:
-> No matter if you like it or not (I don't!) virtio is defined to bypass
-> dma translations, it is very clearly stated in the spec.  It has some
-> ill-defined bits to bypass it, so if you want the dma mapping API
-> to be used you'll have to set that bit (in its original form, a refined
-> form, or an entirely newly defined sane form) and make sure your
-> hypersivors always sets it.  It's not rocket science, just a little bit
-> for work to make sure your setup is actually going to work reliably
-> and portably.
-
-I think you are conflating completely different things, let me try to
-clarify, we might actually be talking past each other.
-
-> > We aren't going to cancel years of HW and SW development for our
+On Sun, 2018-08-05 at 03:22 +0300, Michael S. Tsirkin wrote:
+> I see the allure of this, but I think down the road you will
+> discover passing a flag in libvirt XML saying
+> "please use a secure mode" or whatever is a good idea.
 > 
-> Maybe you should have actually read the specs you are claiming to
-> implemented before spending all that effort.
+> Even thought it is probably not required to address this
+> specific issue.
+> 
+> For example, I don't think ballooning works in secure mode,
+> you will be able to teach libvirt not to try to add a
+> balloon to the guest.
 
-Anyway, let's cool our respective jets and sort that out, there are
-indeed other approaches than overriding the DMA ops with special ones,
-though I find them less tasty ... but here's my attempt at a (simpler)
-description.
+Right, we'll need some quirk to disable balloons  in the guest I
+suppose.
 
-Bear with me for the long-ish email, this tries to describe the system
-so you get an idea where we come from, and options we can use to get
-out of this.
+Passing something from libvirt is cumbersome because the end user may
+not even need to know about secure VMs. There are use cases where the
+security is a contract down to some special application running inside
+the secure VM, the sysadmin knows nothing about.
 
-So we *are* implementing the spec, since qemu is currently unmodified:
+Also there's repercussions all the way to admin tools, web UIs etc...
+so it's fairly wide ranging.
 
-Default virtio will bypass the iommu emulated by qemu as per spec etc..
+So as long as we only need to quirk a couple of devices, it's much
+better contained that way.
 
-On the Linux side, thus, virtio "sees" a normal iommu-bypassing device
-and will treat it as such.
+> > Later on, (we may have even already run Linux at that point,
+> > unsecurely, as we can use Linux as a bootloader under some
+> > circumstances), we start a "secure image".
+> > 
+> > This is a kernel zImage that includes a "ticket" that has the
+> > appropriate signature etc... so that when that kernel starts, it can
+> > authenticate with the ultravisor, be verified (along with its ramdisk)
+> > etc... and copied (by the UV) into secure memory & run from there.
+> > 
+> > At that point, the hypervisor is informed that the VM has become
+> > secure.
+> > 
+> > So at that point, we could exit to qemu to inform it of the change,
+> 
+> That's probably a good idea too.
 
-The problem is the assumption in the middle that qemu can access all
-guest pages directly, which holds true for traditional VMs, but breaks
-when the VM in our case turns itself into a secure VM. This isn't under
-the action (or due to changes in) the hypervisor. KVM operates (almost)
-normally here.
+We probably will have to tell qemu eventually for migration, as we'll
+need some kind of key exchange phase etc... to deal with the crypto
+aspects (the actual page copy is sorted via encrypting the secure pages
+back to normal pages in qemu, but we'll need extra metadata).
 
-But there's this (very thin and open source btw) layer underneath
-called ultravisor, which exploits some HW facilities to maintain a
-separate pool of "secure" memory, which cannot be physically accessed
-by a non-secure entity.
+> > and
+> > have it walk the qtree and "Switch" all the virtio devices to use the
+> > IOMMU I suppose, but it feels a lot grosser to me.
+> 
+> That part feels gross, yes.
+> 
+> > That's the only other option I can think of.
+> > 
+> > > However in this specific case, the flag does not need to come from the
+> > > hypervisor, it can be set by arch boot code I think.
+> > > Christoph do you see a problem with that?
+> > 
+> > The above could do that yes. Another approach would be to do it from a
+> > small virtio "quirk" that pokes a bit in the device to force it to
+> > iommu mode when it detects that we are running in a secure VM. That's a
+> > bit warty on the virito side but probably not as much as having a qemu
+> > one that walks of the virtio devices to change how they behave.
+> > 
+> > What do you reckon ?
+> 
+> I think you are right that for the dma limit the hypervisor doesn't seem
+> to need to know.
 
-So in our scenario, qemu and KVM create a VM totally normally, there is
-no changes required to the VM firmware, bootloader(s), etc... in fact
-we support Linux based bootloaders, and those will work as normal linux
-would in a VM, virtio works normally, etc...
+It's not just a limit mind you. It's a range, at least if we allocate
+just a single pool of insecure pages. swiotlb feels like a better
+option for us.
 
-Until that VM (via grub or kexec for example) loads a "secure image".
+> > What we want to avoid is to expose any of this to the *end user* or
+> > libvirt or any other higher level of the management stack. We really
+> > want that stuff to remain contained between the VM itself, KVM and
+> > maybe qemu.
+> > 
+> > We will need some other qemu changes for migration so that's ok. But
+> > the minute you start touching libvirt and the higher levels it becomes
+> > a nightmare.
+> > 
+> > Cheers,
+> > Ben.
+> 
+> I don't believe you'll be able to avoid that entirely. The split between
+> libvirt and qemu is more about community than about code, random bits of
+> functionality tend to land on random sides of that fence.  Better add a
+> tag in domain XML early is my advice. Having said that, it's your
+> hypervisor. I'm just suggesting that when hypervisor does somehow need
+> to care then I suspect most people won't be receptive to the argument
+> that changing libvirt is a nightmare.
 
-That secure image is a Linux kernel which has been "wrapped" (to simply
-imagine a modified zImage wrapper though that's not entirely exact).
+It only needs to care at runtime. The problem isn't changing libvirt
+per-se, I don't have a problem with that. The problem is that it means
+creating two categories of machines "secure" and "non-secure", which is
+end-user visible, and thus has to be escalated to all the various
+management stacks, UIs, etc... out there.
 
-When that is run, before it modifies it's .data, it will interact with
-the ultravisor using a specific HW facility to make itself secure. What
-happens then is that the UV cryptographically verifies the kernel and
-ramdisk, and copies them to the secure memory where execution returns.
+In addition, there are some cases where the individual creating the VMs
+may not have any idea that they are secure.
 
-The Ultravisor is then involved as a small shim for hypercalls between
-the secure VM and KVM to prevent leakage of information (sanitize
-registers etc...).
-
-Now at this point, qemu can no longer access the secure VM pages
-(there's more to this, such as using HMM to allow migration/encryption
-accross etc... but let's not get bogged down).
-
-So virtio can no longer access any page in the VM.
-
-Now the VM *can* request from the Ultravisor some selected pages to be
-made "insecure" and thus shared with qemu. This is how we handle some
-of the pages used in our paravirt stuff, and that's how we want to deal
-with virtio, by creating an insecure swiotlb pool.
-
-At this point, thus, there are two options.
-
- - One you have rejected, which is to have a way for "no-iommu" virtio
-(which still doesn't use an iommu on the qemu side and doesn't need
-to), to be forced to use some custom DMA ops on the VM side.
-
- - One, which sadly has more overhead and will require modifying more
-pieces of the puzzle, which is to make qemu uses an emulated iommu.
-Once we make qemu do that, we can then layer swiotlb on top of the
-emulated iommu on the guest side, and pass that as dma_ops to virtio.
-
-Now, assuming you still absolutely want us to go down the second
-option, there are several ways to get there. We would prefer to avoid
-requiring the user to pass some special option to qemu. That has an
-impact up the food chain (libvirt, management tools etc...) and users
-probably won't understand what it's about. In fact the *end user* might
-not even need to know a VM is secure, though applications inside might.
-
-There's the additional annoyance that currently our guest FW (SLOF)
-cannot deal with virtio in IOMMU mode, but that's fixable.
-
-From there, refer to the email chain between Michael and I where we are
-discussing options to "switch" virtio at runtime on the qemu side.
-
-Any comment or suggestion ?
+But yes, if we have to, we'll do it. However, so far, we don't think
+it's a great idea.
 
 Cheers,
 Ben.
+
+> > > > >   To get swiotlb you'll need to then use the DT/ACPI
+> > > > > dma-range property to limit the addressable range, and a swiotlb
+> > > > > capable plaform will use swiotlb automatically.
+> > > > 
+> > > > This cannot be done as you describe it.
+> > > > 
+> > > > The VM is created as a *normal* VM. The DT stuff is generated by qemu
+> > > > at a point where it has *no idea* that the VM will later become secure
+> > > > and thus will have to restrict which pages can be used for "DMA".
+> > > > 
+> > > > The VM will *at runtime* turn itself into a secure VM via interactions
+> > > > with the security HW and the Ultravisor layer (which sits below the
+> > > > HV). This happens way after the DT has been created and consumed, the
+> > > > qemu devices instanciated etc...
+> > > > 
+> > > > Only the guest kernel knows because it initates the transition. When
+> > > > that happens, the virtio devices have already been used by the guest
+> > > > firmware, bootloader, possibly another kernel that kexeced the "secure"
+> > > > one, etc... 
+> > > > 
+> > > > So instead of running around saying NAK NAK NAK, please explain how we
+> > > > can solve that differently.
+> > > > 
+> > > > Ben.
