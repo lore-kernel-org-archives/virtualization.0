@@ -1,9 +1,8 @@
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Sun, 05 Aug 2018 10:53:33 +1000
-Message-ID: <7fdcb1cb2900755a6534199a675483f60beb47fc.camel@kernel.crashing.org>
-References: <20180801083639.GF26378@infradead.org>
-	<26c1d3d50d8e081eed44fe9940fbefed34598cbd.camel@kernel.crashing.org>
+Date: Sun, 05 Aug 2018 11:11:32 +1000
+Message-ID: <76fdb044011f501834010694e79c369226bf0503.camel@kernel.crashing.org>
+References: <26c1d3d50d8e081eed44fe9940fbefed34598cbd.camel@kernel.crashing.org>
 	<20180802182959-mutt-send-email-mst@kernel.org>
 	<82ccef6ec3d95ee43f3990a4a2d0aea87eb45e89.camel@kernel.crashing.org>
 	<20180802200646-mutt-send-email-mst@kernel.org>
@@ -13,11 +12,12 @@ References: <20180801083639.GF26378@infradead.org>
 	<20180803070507.GA1344@infradead.org>
 	<20180803221634-mutt-send-email-mst@kernel.org>
 	<20180804081500.GA1455@infradead.org>
+	<20180805030326-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180804081500.GA1455@infradead.org>
+In-Reply-To: <20180805030326-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,23 +27,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>
 Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2018-08-04 at 01:15 -0700, Christoph Hellwig wrote:
->   b) a way to document in a virtio-related spec how the bus handles
->      dma for Ben's totally fucked up hypervisor.  Without that there
->      is not way we'll get interoperable implementations.
+On Sun, 2018-08-05 at 03:09 +0300, Michael S. Tsirkin wrote:
+> It seems that the fact that within guest it's implemented using a bounce
+> buffer and that it's easiest to do by switching virtio to use the DMA API
+> isn't something virtio spec concerns itself with.
 
-Christoph, this isn't a totally fucked up hypervisor. It's not even
-about the hypervisor itself, I mean seriously, man, can you at least
-bother reading what I described is going on with the security
-architecture ?
+Right, this is my reasoning as well. See this other (long) email I just
+sent to Christoph to explain the whole flow.
 
-Anyway, Michael is onto what could possibly be an alternative approach,
-by having us tell qemu to flip to iommu mode at secure VM boot time.
-Let's see where that leads.
+> I'm open to suggestions.
 
 Cheers,
 Ben.
