@@ -1,18 +1,23 @@
-From: Tariq Toukan <tariqt@mellanox.com>
-Subject: Re: [PATCH net-next 0/6] virtio_net: Add ethtool stat items
-Date: Sun, 5 Aug 2018 17:22:57 +0300
-Message-ID: <1873b07d-95e7-8b67-0371-f2f4b4bdd55f@mellanox.com>
-References: <20180723143609.2242-1-toshiaki.makita1@gmail.com>
-	<20180725123908-mutt-send-email-mst@kernel.org>
-	<20180725.125909.840615930497803596.davem@davemloft.net>
-	<eacdf80a-87cd-ce8d-b56a-c49432948773@mellanox.com>
-	<8a21b956-af42-3598-b752-d1e3fa9e63d3@mellanox.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
+Date: Mon, 06 Aug 2018 07:16:47 +1000
+Message-ID: <b7e8294e3e70d24072883a7e8e5375719d5af870.camel@kernel.crashing.org>
+References: <20180802200646-mutt-send-email-mst@kernel.org>
+	<e9beb6bba5a7d05741e27e85b24a3b23ba7c2762.camel@kernel.crashing.org>
+	<20180802225738-mutt-send-email-mst@kernel.org>
+	<de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
+	<20180803070507.GA1344@infradead.org>
+	<eb1750e90e4bd45da297fa6f78f8ef93671b7c2f.camel@kernel.crashing.org>
+	<20180803160246.GA13794@infradead.org>
+	<22310f58605169fe9de83abf78b59f593ff7fbb7.camel@kernel.crashing.org>
+	<20180804082120.GB4421@infradead.org>
+	<a3ec0a454928e880dabc3782ea906e318634abf9.camel@kernel.crashing.org>
+	<20180805072930.GB23288@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8a21b956-af42-3598-b752-d1e3fa9e63d3@mellanox.com>
-Content-Language: en-US
+In-Reply-To: <20180805072930.GB23288@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,60 +27,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>, mst@redhat.com, toshiaki.makita1@gmail.com, makita.toshiaki@lab.ntt.co.jp
-Cc: ranro@mellanox.com, netdev@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>, virtualization@lists.linux-foundation.org, Maor Gottlieb <maorg@mellanox.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Sun, 2018-08-05 at 00:29 -0700, Christoph Hellwig wrote:
+> On Sun, Aug 05, 2018 at 11:10:15AM +1000, Benjamin Herrenschmidt wrote:
+> >  - One you have rejected, which is to have a way for "no-iommu" virtio
+> > (which still doesn't use an iommu on the qemu side and doesn't need
+> > to), to be forced to use some custom DMA ops on the VM side.
+> > 
+> >  - One, which sadly has more overhead and will require modifying more
+> > pieces of the puzzle, which is to make qemu uses an emulated iommu.
+> > Once we make qemu do that, we can then layer swiotlb on top of the
+> > emulated iommu on the guest side, and pass that as dma_ops to virtio.
+> 
+> Or number three:  have a a virtio feature bit that tells the VM
+> to use whatever dma ops the platform thinks are appropinquate for
+> the bus it pretends to be on.  Then set a dma-range that is limited
+> to your secure memory range (if you really need it to be runtime
+> enabled only after a device reset that rescans) and use the normal
+> dma mapping code to bounce buffer.
 
+Who would set this bit ? qemu ? Under what circumstances ?
 
-On 05/08/2018 4:45 PM, Tariq Toukan wrote:
-> 
-> 
-> On 05/08/2018 4:15 PM, Tariq Toukan wrote:
->>
->>
->> On 25/07/2018 10:59 PM, David Miller wrote:
->>> From: "Michael S. Tsirkin" <mst@redhat.com>
->>> Date: Wed, 25 Jul 2018 12:40:12 +0300
->>>
->>>> On Mon, Jul 23, 2018 at 11:36:03PM +0900, Toshiaki Makita wrote:
->>>>> From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
->>>>>
->>>>> Add some ethtool stat items useful for performance analysis.
->>>>>
->>>>> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
->>>>
->>>> Series:
->>>>
->>>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
->>>
->>> Series applied.
->>>
->>>> Patch 1 seems appropriate for stable, even though it's minor.
->>>
->>> Ok, I'll put patch #1 also into 'net' and queue it up for -stable.
->>>
->>> Thanks.
->>>
->>
->> Hi,
->> Our verification team encountered the following degradation, 
->> introduced by this series. Please check KASAN bug report below.
->>
->> We tested before and after the series, but didn't bisect within it. We 
->> can do if necessary.
->>
->> Thanks,
->> Tariq
->>
-> 
-> I see this might already be fixed, here:
-> https://marc.info/?l=linux-netdev&m=153335713407532&w=2
-> 
-> Verifying...
-> 
+What would be the effect of this bit while VIRTIO_F_IOMMU is NOT set,
+ie, what would qemu do and what would Linux do ? I'm not sure I fully
+understand your idea.
 
-No repro when applying this fix.
+I'm trying to understand because the limitation is not a device side
+limitation, it's not a qemu limitation, it's actually more of a VM
+limitation. It has most of its memory pages made inaccessible for
+security reasons. The platform from a qemu/KVM perspective is almost
+entirely normal.
 
-Thanks,
-Tariq
+So I don't understand when would qemu set this bit, or should it be set
+by the VM at runtime ?
+
+Cheers,
+Ben.
