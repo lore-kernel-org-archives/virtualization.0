@@ -1,20 +1,23 @@
-From: "Wang, Wei W" <wei.w.wang@intel.com>
-Subject: RE: [PATCH v3 2/2] virtio_balloon: replace oom notifier with shrinker
-Date: Mon, 6 Aug 2018 14:02:05 +0000
-Message-ID: <286AC319A985734F985F78AFA26841F739722502@SHSMSX101.ccr.corp.intel.com>
-References: <1533285146-25212-1-git-send-email-wei.w.wang@intel.com>
-	<1533285146-25212-3-git-send-email-wei.w.wang@intel.com>
-	<16c56ee5-eef7-dd5f-f2b6-e3c11df2765c@i-love.sakura.ne.jp>
-	<5B681B41.6070205@intel.com>
-	<c8d25019-1990-f0dd-c83d-e4def5b5f7fe@i-love.sakura.ne.jp>
-	<286AC319A985734F985F78AFA26841F7397222E8@SHSMSX101.ccr.corp.intel.com>
-	<109ff5ec-692d-67fe-4c5a-2de8b48e8300@i-love.sakura.ne.jp>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
+Date: Mon, 6 Aug 2018 15:05:08 +0100
+Message-ID: <20180806140507.GB15078__22432.1986236193$1533564282$gmane$org@arm.com>
+References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
+	<20180727095804.GA25592@arm.com>
+	<20180730093414.GD26245@infradead.org>
+	<20180730125100-mutt-send-email-mst@kernel.org>
+	<20180730111802.GA9830@infradead.org>
+	<20180730155633-mutt-send-email-mst@kernel.org>
+	<20180731173052.GA17153@infradead.org>
+	<3d6e81511571260de1c8047aaffa8ac4df093d2e.camel@kernel.crashing.org>
+	<20180801081637.GA14438@arm.com>
+	<20180805032504-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <109ff5ec-692d-67fe-4c5a-2de8b48e8300@i-love.sakura.ne.jp>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180805032504-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,41 +27,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, mpe@ellerman.id.au, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uZGF5LCBBdWd1c3QgNiwgMjAxOCA5OjI5IFBNLCBUZXRzdW8gSGFuZGEgd3JvdGU6DQo+
-IE9uIDIwMTgvMDgvMDYgMjE6NDQsIFdhbmcsIFdlaSBXIHdyb3RlOg0KPiA+IE9uIE1vbmRheSwg
-QXVndXN0IDYsIDIwMTggNjoyOSBQTSwgVGV0c3VvIEhhbmRhIHdyb3RlOg0KPiA+PiBPbiAyMDE4
-LzA4LzA2IDE4OjU2LCBXZWkgV2FuZyB3cm90ZToNCj4gPj4+IE9uIDA4LzAzLzIwMTggMDg6MTEg
-UE0sIFRldHN1byBIYW5kYSB3cm90ZToNCj4gPj4+PiBPbiAyMDE4LzA4LzAzIDE3OjMyLCBXZWkg
-V2FuZyB3cm90ZToNCj4gPj4+Pj4gK3N0YXRpYyBpbnQgdmlydGlvX2JhbGxvb25fcmVnaXN0ZXJf
-c2hyaW5rZXIoc3RydWN0IHZpcnRpb19iYWxsb29uDQo+ID4+Pj4+ICsqdmIpIHsNCj4gPj4+Pj4g
-K8KgwqDCoCB2Yi0+c2hyaW5rZXIuc2Nhbl9vYmplY3RzID0gdmlydGlvX2JhbGxvb25fc2hyaW5r
-ZXJfc2NhbjsNCj4gPj4+Pj4gK8KgwqDCoCB2Yi0+c2hyaW5rZXIuY291bnRfb2JqZWN0cyA9IHZp
-cnRpb19iYWxsb29uX3Nocmlua2VyX2NvdW50Ow0KPiA+Pj4+PiArwqDCoMKgIHZiLT5zaHJpbmtl
-ci5iYXRjaCA9IDA7DQo+ID4+Pj4+ICvCoMKgwqAgdmItPnNocmlua2VyLnNlZWtzID0gREVGQVVM
-VF9TRUVLUzsNCj4gPj4+PiBXaHkgZmxhZ3MgZmllbGQgaXMgbm90IHNldD8gSWYgdmIgaXMgYWxs
-b2NhdGVkIGJ5DQo+ID4+Pj4ga21hbGxvYyhHRlBfS0VSTkVMKSBhbmQgaXMgbm93aGVyZSB6ZXJv
-LWNsZWFyZWQsIEtBU0FOIHdvdWxkDQo+IGNvbXBsYWluIGl0Lg0KPiA+Pj4NCj4gPj4+IENvdWxk
-IHlvdSBwb2ludCB3aGVyZSBpbiB0aGUgY29kZSB0aGF0IHdvdWxkIGNvbXBsYWluIGl0Pw0KPiA+
-Pj4gSSBvbmx5IHNlZSB0d28gc2hyaW5rZXIgZmxhZ3MgKE5VTUFfQVdBUkUgYW5kIE1FTUNHX0FX
-QVJFKSwgYW5kDQo+ID4+IHRoZXkgc2VlbSBub3QgcmVsYXRlZCB0byB0aGF0Lg0KPiA+Pg0KPiA+
-PiBXaGVyZSBpcyB2Yi0+c2hyaW5rZXIuZmxhZ3MgaW5pdGlhbGl6ZWQ/DQo+ID4NCj4gPiBJcyB0
-aGF0IG1hbmRhdG9yeSB0byBiZSBpbml0aWFsaXplZD8NCj4gDQo+IE9mIGNvdXJzZS4gOy0pDQo+
-IA0KPiA+IEkgZmluZCBpdCdzIG5vdCBpbml0aWFsaXplZCBpbiBtb3N0IHNocmlua2VycyAoZS5n
-LiB6c19yZWdpc3Rlcl9zaHJpbmtlciwNCj4gaHVnZV96ZXJvX3BhZ2Vfc2hyaW5rZXIpLg0KPiAN
-Cj4gQmVjYXVzZSBtb3N0IHNocmlua2VycyBhcmUgInN0YXRpY2FsbHkgaW5pdGlhbGl6ZWQgKHdo
-aWNoIG1lYW5zIHRoYXQNCj4gdW5zcGVjaWZpZWQgZmllbGRzIGFyZSBpbXBsaWNpdGx5IHplcm8t
-Y2xlYXJlZCkiIG9yICJkeW5hbWljYWxseSBhbGxvY2F0ZWQgd2l0aA0KPiBfX0dGUF9aRVJPIG9y
-IHplcm8tY2xlYXJlZCB1c2luZw0KPiBtZW1zZXQoKSAod2hpY2ggbWVhbnMgdGhhdCBhbGwgZmll
-bGRzIGFyZSBvbmNlIHplcm8tY2xlYXJlZCkiLg0KPiANCj4gQW5kIGlmIHlvdSBvbmNlIHplcm8t
-Y2xlYXIgdmIgYXQgYWxsb2NhdGlvbiB0aW1lLCB5b3Ugd2lsbCBnZXQgYSBib251cyB0aGF0DQo+
-IGNhbGxpbmcgdW5yZWdpc3Rlcl9zaHJpbmtlcigpIHdpdGhvdXQgY29ycmVzcG9uZGluZyByZWdp
-c3Rlcl9zaHJpbmtlcigpIGlzIHNhZmUNCj4gKHdoaWNoIHdpbGwgc2ltcGxpZnkgaW5pdGlhbGl6
-YXRpb24gZmFpbHVyZSBwYXRoKS4NCg0KT2gsIEkgc2VlLCB0aGFua3MuIFNvIGl0IHNvdW5kcyBi
-ZXR0ZXIgdG8gZGlyZWN0bHkga3phbGxvYyB2Yi4NCg0KQmVzdCwNCldlaQ0KX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
-ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
-bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi Michael,
+
+On Sun, Aug 05, 2018 at 03:27:42AM +0300, Michael S. Tsirkin wrote:
+> On Wed, Aug 01, 2018 at 09:16:38AM +0100, Will Deacon wrote:
+> > On Tue, Jul 31, 2018 at 03:36:22PM -0500, Benjamin Herrenschmidt wrote:
+> > > On Tue, 2018-07-31 at 10:30 -0700, Christoph Hellwig wrote:
+> > > > > However the question people raise is that DMA API is already full of
+> > > > > arch-specific tricks the likes of which are outlined in your post linked
+> > > > > above. How is this one much worse?
+> > > > 
+> > > > None of these warts is visible to the driver, they are all handled in
+> > > > the architecture (possibly on a per-bus basis).
+> > > > 
+> > > > So for virtio we really need to decide if it has one set of behavior
+> > > > as specified in the virtio spec, or if it behaves exactly as if it
+> > > > was on a PCI bus, or in fact probably both as you lined up.  But no
+> > > > magic arch specific behavior inbetween.
+> > > 
+> > > The only arch specific behaviour is needed in the case where it doesn't
+> > > behave like PCI. In this case, the PCI DMA ops are not suitable, but in
+> > > our secure VMs, we still need to make it use swiotlb in order to bounce
+> > > through non-secure pages.
+> > 
+> > On arm/arm64, the problem we have is that legacy virtio devices on the MMIO
+> > transport (so definitely not PCI) have historically been advertised by qemu
+> > as not being cache coherent, but because the virtio core has bypassed DMA
+> > ops then everything has happened to work. If we blindly enable the arch DMA
+> > ops, we'll plumb in the non-coherent ops and start getting data corruption,
+> > so we do need a way to quirk virtio as being "always coherent" if we want to
+> > use the DMA ops (which we do, because our emulation platforms have an IOMMU
+> > for all virtio devices).
+> > 
+> > Will
+> 
+> Right that's not very different from placing the device within the IOMMU
+> domain but in fact bypassing the IOMMU
+
+Hmm, I'm not sure I follow you here -- the IOMMU bypassing is handled
+inside the IOMMU driver, so we'd still end up with non-coherent DMA ops
+for the guest accesses. The presence of an IOMMU doesn't imply coherency for
+us. Or am I missing your point here?
+
+> I wonder whether anyone ever needs a non coherent virtio-mmio. If yes we
+> can extend PLATFORM_IOMMU to cover that or add another bit.
+
+I think that's probably the right way around: assume that legacy virtio-mmio
+devices are coherent by default.
+
+> What exactly do the non-coherent ops do that causes the corruption?
+
+The non-coherent ops mean that the guest ends up allocating the vring queues
+using non-cacheable mappings, whereas qemu/hypervisor uses a cacheable
+mapping despite not advertising the devices as being cache-coherent.
+
+This hits something in the architecture known as "mismatched aliases", which
+means that coherency is lost between the guest and the hypervisor,
+consequently resulting in data not being visible and ordering not being
+guaranteed. The usual symptom is that the device appears to lock up iirc,
+because the guest and the hypervisor are unable to communicate with each
+other.
+
+Does that help to clarify things?
+
+Thanks,
+
+Will
