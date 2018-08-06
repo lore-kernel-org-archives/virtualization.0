@@ -1,23 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Mon, 6 Aug 2018 16:46:40 +0300
-Message-ID: <20180806164106-mutt-send-email-mst__30771.5378971354$1533563086$gmane$org@kernel.org>
-References: <20180802200646-mutt-send-email-mst@kernel.org>
-	<e9beb6bba5a7d05741e27e85b24a3b23ba7c2762.camel@kernel.crashing.org>
-	<20180802225738-mutt-send-email-mst@kernel.org>
-	<de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
-	<20180803070507.GA1344@infradead.org>
-	<eb1750e90e4bd45da297fa6f78f8ef93671b7c2f.camel@kernel.crashing.org>
-	<20180803220443-mutt-send-email-mst@kernel.org>
-	<051fd78e15595b414839fa8f9d445b9f4d7576c6.camel@kernel.crashing.org>
-	<20180805031046-mutt-send-email-mst@kernel.org>
-	<fd8fee94cf42e436878f179c7895de3a4dab3355.camel@kernel.crashing.org>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v3 2/2] virtio_balloon: replace oom notifier with shrinker
+Date: Mon, 6 Aug 2018 14:02:05 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F739722502@SHSMSX101.ccr.corp.intel.com>
+References: <1533285146-25212-1-git-send-email-wei.w.wang@intel.com>
+	<1533285146-25212-3-git-send-email-wei.w.wang@intel.com>
+	<16c56ee5-eef7-dd5f-f2b6-e3c11df2765c@i-love.sakura.ne.jp>
+	<5B681B41.6070205@intel.com>
+	<c8d25019-1990-f0dd-c83d-e4def5b5f7fe@i-love.sakura.ne.jp>
+	<286AC319A985734F985F78AFA26841F7397222E8@SHSMSX101.ccr.corp.intel.com>
+	<109ff5ec-692d-67fe-4c5a-2de8b48e8300@i-love.sakura.ne.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <fd8fee94cf42e436878f179c7895de3a4dab3355.camel@kernel.crashing.org>
+In-Reply-To: <109ff5ec-692d-67fe-4c5a-2de8b48e8300@i-love.sakura.ne.jp>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,149 +24,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mhocko@kernel.org" <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Aug 05, 2018 at 02:52:54PM +1000, Benjamin Herrenschmidt wrote:
-> On Sun, 2018-08-05 at 03:22 +0300, Michael S. Tsirkin wrote:
-> > I see the allure of this, but I think down the road you will
-> > discover passing a flag in libvirt XML saying
-> > "please use a secure mode" or whatever is a good idea.
-> > 
-> > Even thought it is probably not required to address this
-> > specific issue.
-> > 
-> > For example, I don't think ballooning works in secure mode,
-> > you will be able to teach libvirt not to try to add a
-> > balloon to the guest.
-> 
-> Right, we'll need some quirk to disable balloons  in the guest I
-> suppose.
-> 
-> Passing something from libvirt is cumbersome because the end user may
-> not even need to know about secure VMs. There are use cases where the
-> security is a contract down to some special application running inside
-> the secure VM, the sysadmin knows nothing about.
-> 
-> Also there's repercussions all the way to admin tools, web UIs etc...
-> so it's fairly wide ranging.
-> 
-> So as long as we only need to quirk a couple of devices, it's much
-> better contained that way.
-
-So just the balloon thing already means that yes management and all the
-way to the user tools must know this is going on. Otherwise
-user will try to inflate the balloon and wonder why this does not work.
-
-> > > Later on, (we may have even already run Linux at that point,
-> > > unsecurely, as we can use Linux as a bootloader under some
-> > > circumstances), we start a "secure image".
-> > > 
-> > > This is a kernel zImage that includes a "ticket" that has the
-> > > appropriate signature etc... so that when that kernel starts, it can
-> > > authenticate with the ultravisor, be verified (along with its ramdisk)
-> > > etc... and copied (by the UV) into secure memory & run from there.
-> > > 
-> > > At that point, the hypervisor is informed that the VM has become
-> > > secure.
-> > > 
-> > > So at that point, we could exit to qemu to inform it of the change,
-> > 
-> > That's probably a good idea too.
-> 
-> We probably will have to tell qemu eventually for migration, as we'll
-> need some kind of key exchange phase etc... to deal with the crypto
-> aspects (the actual page copy is sorted via encrypting the secure pages
-> back to normal pages in qemu, but we'll need extra metadata).
-> 
-> > > and
-> > > have it walk the qtree and "Switch" all the virtio devices to use the
-> > > IOMMU I suppose, but it feels a lot grosser to me.
-> > 
-> > That part feels gross, yes.
-> > 
-> > > That's the only other option I can think of.
-> > > 
-> > > > However in this specific case, the flag does not need to come from the
-> > > > hypervisor, it can be set by arch boot code I think.
-> > > > Christoph do you see a problem with that?
-> > > 
-> > > The above could do that yes. Another approach would be to do it from a
-> > > small virtio "quirk" that pokes a bit in the device to force it to
-> > > iommu mode when it detects that we are running in a secure VM. That's a
-> > > bit warty on the virito side but probably not as much as having a qemu
-> > > one that walks of the virtio devices to change how they behave.
-> > > 
-> > > What do you reckon ?
-> > 
-> > I think you are right that for the dma limit the hypervisor doesn't seem
-> > to need to know.
-> 
-> It's not just a limit mind you. It's a range, at least if we allocate
-> just a single pool of insecure pages. swiotlb feels like a better
-> option for us.
-> 
-> > > What we want to avoid is to expose any of this to the *end user* or
-> > > libvirt or any other higher level of the management stack. We really
-> > > want that stuff to remain contained between the VM itself, KVM and
-> > > maybe qemu.
-> > > 
-> > > We will need some other qemu changes for migration so that's ok. But
-> > > the minute you start touching libvirt and the higher levels it becomes
-> > > a nightmare.
-> > > 
-> > > Cheers,
-> > > Ben.
-> > 
-> > I don't believe you'll be able to avoid that entirely. The split between
-> > libvirt and qemu is more about community than about code, random bits of
-> > functionality tend to land on random sides of that fence.  Better add a
-> > tag in domain XML early is my advice. Having said that, it's your
-> > hypervisor. I'm just suggesting that when hypervisor does somehow need
-> > to care then I suspect most people won't be receptive to the argument
-> > that changing libvirt is a nightmare.
-> 
-> It only needs to care at runtime. The problem isn't changing libvirt
-> per-se, I don't have a problem with that. The problem is that it means
-> creating two categories of machines "secure" and "non-secure", which is
-> end-user visible, and thus has to be escalated to all the various
-> management stacks, UIs, etc... out there.
-> 
-> In addition, there are some cases where the individual creating the VMs
-> may not have any idea that they are secure.
-> 
-> But yes, if we have to, we'll do it. However, so far, we don't think
-> it's a great idea.
-> 
-> Cheers,
-> Ben.
-
-Here's another example: you can't migrate a secure vm to hypervisor
-which doesn't support this feature. Again management tools above libvirt
-need to know otherwise they will try.
-
-> > > > > >   To get swiotlb you'll need to then use the DT/ACPI
-> > > > > > dma-range property to limit the addressable range, and a swiotlb
-> > > > > > capable plaform will use swiotlb automatically.
-> > > > > 
-> > > > > This cannot be done as you describe it.
-> > > > > 
-> > > > > The VM is created as a *normal* VM. The DT stuff is generated by qemu
-> > > > > at a point where it has *no idea* that the VM will later become secure
-> > > > > and thus will have to restrict which pages can be used for "DMA".
-> > > > > 
-> > > > > The VM will *at runtime* turn itself into a secure VM via interactions
-> > > > > with the security HW and the Ultravisor layer (which sits below the
-> > > > > HV). This happens way after the DT has been created and consumed, the
-> > > > > qemu devices instanciated etc...
-> > > > > 
-> > > > > Only the guest kernel knows because it initates the transition. When
-> > > > > that happens, the virtio devices have already been used by the guest
-> > > > > firmware, bootloader, possibly another kernel that kexeced the "secure"
-> > > > > one, etc... 
-> > > > > 
-> > > > > So instead of running around saying NAK NAK NAK, please explain how we
-> > > > > can solve that differently.
-> > > > > 
-> > > > > Ben.
+T24gTW9uZGF5LCBBdWd1c3QgNiwgMjAxOCA5OjI5IFBNLCBUZXRzdW8gSGFuZGEgd3JvdGU6DQo+
+IE9uIDIwMTgvMDgvMDYgMjE6NDQsIFdhbmcsIFdlaSBXIHdyb3RlOg0KPiA+IE9uIE1vbmRheSwg
+QXVndXN0IDYsIDIwMTggNjoyOSBQTSwgVGV0c3VvIEhhbmRhIHdyb3RlOg0KPiA+PiBPbiAyMDE4
+LzA4LzA2IDE4OjU2LCBXZWkgV2FuZyB3cm90ZToNCj4gPj4+IE9uIDA4LzAzLzIwMTggMDg6MTEg
+UE0sIFRldHN1byBIYW5kYSB3cm90ZToNCj4gPj4+PiBPbiAyMDE4LzA4LzAzIDE3OjMyLCBXZWkg
+V2FuZyB3cm90ZToNCj4gPj4+Pj4gK3N0YXRpYyBpbnQgdmlydGlvX2JhbGxvb25fcmVnaXN0ZXJf
+c2hyaW5rZXIoc3RydWN0IHZpcnRpb19iYWxsb29uDQo+ID4+Pj4+ICsqdmIpIHsNCj4gPj4+Pj4g
+K8KgwqDCoCB2Yi0+c2hyaW5rZXIuc2Nhbl9vYmplY3RzID0gdmlydGlvX2JhbGxvb25fc2hyaW5r
+ZXJfc2NhbjsNCj4gPj4+Pj4gK8KgwqDCoCB2Yi0+c2hyaW5rZXIuY291bnRfb2JqZWN0cyA9IHZp
+cnRpb19iYWxsb29uX3Nocmlua2VyX2NvdW50Ow0KPiA+Pj4+PiArwqDCoMKgIHZiLT5zaHJpbmtl
+ci5iYXRjaCA9IDA7DQo+ID4+Pj4+ICvCoMKgwqAgdmItPnNocmlua2VyLnNlZWtzID0gREVGQVVM
+VF9TRUVLUzsNCj4gPj4+PiBXaHkgZmxhZ3MgZmllbGQgaXMgbm90IHNldD8gSWYgdmIgaXMgYWxs
+b2NhdGVkIGJ5DQo+ID4+Pj4ga21hbGxvYyhHRlBfS0VSTkVMKSBhbmQgaXMgbm93aGVyZSB6ZXJv
+LWNsZWFyZWQsIEtBU0FOIHdvdWxkDQo+IGNvbXBsYWluIGl0Lg0KPiA+Pj4NCj4gPj4+IENvdWxk
+IHlvdSBwb2ludCB3aGVyZSBpbiB0aGUgY29kZSB0aGF0IHdvdWxkIGNvbXBsYWluIGl0Pw0KPiA+
+Pj4gSSBvbmx5IHNlZSB0d28gc2hyaW5rZXIgZmxhZ3MgKE5VTUFfQVdBUkUgYW5kIE1FTUNHX0FX
+QVJFKSwgYW5kDQo+ID4+IHRoZXkgc2VlbSBub3QgcmVsYXRlZCB0byB0aGF0Lg0KPiA+Pg0KPiA+
+PiBXaGVyZSBpcyB2Yi0+c2hyaW5rZXIuZmxhZ3MgaW5pdGlhbGl6ZWQ/DQo+ID4NCj4gPiBJcyB0
+aGF0IG1hbmRhdG9yeSB0byBiZSBpbml0aWFsaXplZD8NCj4gDQo+IE9mIGNvdXJzZS4gOy0pDQo+
+IA0KPiA+IEkgZmluZCBpdCdzIG5vdCBpbml0aWFsaXplZCBpbiBtb3N0IHNocmlua2VycyAoZS5n
+LiB6c19yZWdpc3Rlcl9zaHJpbmtlciwNCj4gaHVnZV96ZXJvX3BhZ2Vfc2hyaW5rZXIpLg0KPiAN
+Cj4gQmVjYXVzZSBtb3N0IHNocmlua2VycyBhcmUgInN0YXRpY2FsbHkgaW5pdGlhbGl6ZWQgKHdo
+aWNoIG1lYW5zIHRoYXQNCj4gdW5zcGVjaWZpZWQgZmllbGRzIGFyZSBpbXBsaWNpdGx5IHplcm8t
+Y2xlYXJlZCkiIG9yICJkeW5hbWljYWxseSBhbGxvY2F0ZWQgd2l0aA0KPiBfX0dGUF9aRVJPIG9y
+IHplcm8tY2xlYXJlZCB1c2luZw0KPiBtZW1zZXQoKSAod2hpY2ggbWVhbnMgdGhhdCBhbGwgZmll
+bGRzIGFyZSBvbmNlIHplcm8tY2xlYXJlZCkiLg0KPiANCj4gQW5kIGlmIHlvdSBvbmNlIHplcm8t
+Y2xlYXIgdmIgYXQgYWxsb2NhdGlvbiB0aW1lLCB5b3Ugd2lsbCBnZXQgYSBib251cyB0aGF0DQo+
+IGNhbGxpbmcgdW5yZWdpc3Rlcl9zaHJpbmtlcigpIHdpdGhvdXQgY29ycmVzcG9uZGluZyByZWdp
+c3Rlcl9zaHJpbmtlcigpIGlzIHNhZmUNCj4gKHdoaWNoIHdpbGwgc2ltcGxpZnkgaW5pdGlhbGl6
+YXRpb24gZmFpbHVyZSBwYXRoKS4NCg0KT2gsIEkgc2VlLCB0aGFua3MuIFNvIGl0IHNvdW5kcyBi
+ZXR0ZXIgdG8gZGlyZWN0bHkga3phbGxvYyB2Yi4NCg0KQmVzdCwNCldlaQ0KX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
