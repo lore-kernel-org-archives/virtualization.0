@@ -1,10 +1,8 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Tue, 07 Aug 2018 07:26:35 +1000
-Message-ID: <0967fc30001323e6e38ed12c8dba8ee3d1aa13f5.camel@kernel.crashing.org>
-References: <20180802225738-mutt-send-email-mst@kernel.org>
-	<de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
-	<20180803070507.GA1344@infradead.org>
+Date: Tue, 7 Aug 2018 00:46:34 +0300
+Message-ID: <20180807002857-mutt-send-email-mst__4212.43893583796$1533591946$gmane$org@kernel.org>
+References: <20180803070507.GA1344@infradead.org>
 	<eb1750e90e4bd45da297fa6f78f8ef93671b7c2f.camel@kernel.crashing.org>
 	<20180803220443-mutt-send-email-mst@kernel.org>
 	<051fd78e15595b414839fa8f9d445b9f4d7576c6.camel@kernel.crashing.org>
@@ -13,11 +11,13 @@ References: <20180802225738-mutt-send-email-mst@kernel.org>
 	<20180806164106-mutt-send-email-mst@kernel.org>
 	<ef6d5d7c7b812bd797a1c3fd6bc7a26d0074020f.camel@kernel.crashing.org>
 	<20180806233024-mutt-send-email-mst@kernel.org>
+	<0967fc30001323e6e38ed12c8dba8ee3d1aa13f5.camel@kernel.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180806233024-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <0967fc30001323e6e38ed12c8dba8ee3d1aa13f5.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,74 +27,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2018-08-06 at 23:35 +0300, Michael S. Tsirkin wrote:
-> > As I said replying to Christoph, we are "leaking" into the interface
-> > something here that is really what's the VM is doing to itself, which
-> > is to stash its memory away in an inaccessible place.
+On Tue, Aug 07, 2018 at 07:26:35AM +1000, Benjamin Herrenschmidt wrote:
+> On Mon, 2018-08-06 at 23:35 +0300, Michael S. Tsirkin wrote:
+> > > As I said replying to Christoph, we are "leaking" into the interface
+> > > something here that is really what's the VM is doing to itself, which
+> > > is to stash its memory away in an inaccessible place.
+> > > 
+> > > Cheers,
+> > > Ben.
 > > 
-> > Cheers,
-> > Ben.
+> > I think Christoph merely objects to the specific implementation.  If
+> > instead you do something like tweak dev->bus_dma_mask for the virtio
+> > device I think he won't object.
 > 
-> I think Christoph merely objects to the specific implementation.  If
-> instead you do something like tweak dev->bus_dma_mask for the virtio
-> device I think he won't object.
+> Well, we don't have "bus_dma_mask" yet ..or you mean dma_mask ?
+> 
+> So, something like that would be a possibility, but the problem is that
+> the current virtio (guest side) implementation doesn't honor this when
+> not using dma ops and will not use dma ops if not using iommu, so back
+> to square one.
 
-Well, we don't have "bus_dma_mask" yet ..or you mean dma_mask ?
+Well we have the RFC for that - the switch to using DMA ops unconditionally isn't
+problematic itself IMHO, for now that RFC is blocked
+by its perfromance overhead for now but Christoph says
+he's trying to remove that for direct mappings,
+so we should hopefully be able to get there in X weeks.
 
-So, something like that would be a possibility, but the problem is that
-the current virtio (guest side) implementation doesn't honor this when
-not using dma ops and will not use dma ops if not using iommu, so back
-to square one.
+> Christoph seems to be wanting to use a flag in the interface to make
+> the guest use dma_ops which is what I don't understand.
+> 
+> What would be needed then would be something along the lines of virtio
+> noticing that dma_mask isn't big enough to cover all of memory (which
+> isn't something generic code can easily do here for various reasons I
+> can elaborate if you want, but that specific test more/less has to be
+> arch specific), and in that case, force itself to use DMA ops routed to
+> swiotlb.
+> 
+> I'd rather have arch code do the bulk of that work, don't you think ?
+> 
+> Which brings me back to this option, which may be the simplest and
+> avoids the overhead of the proposed series (I found the series to be a
+> nice cleanup but retpoline does kick us in the nuts here).
+> 
+> So what about this ?
+> 
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -155,7 +155,7 @@ static bool vring_use_dma_api(struct virtio_device
+> *vdev)
+>          * the DMA API if we're a Xen guest, which at least allows
+>          * all of the sensible Xen configurations to work correctly.
+>          */
+> -       if (xen_domain())
+> +       if (xen_domain() || arch_virtio_direct_dma_ops(&vdev->dev))
+>                 return true;
+>  
+>         return false;
 
-Christoph seems to be wanting to use a flag in the interface to make
-the guest use dma_ops which is what I don't understand.
+Right but can't we fix the retpoline overhead such that
+vring_use_dma_api will not be called on data path any longer, making
+this a setup time check?
 
-What would be needed then would be something along the lines of virtio
-noticing that dma_mask isn't big enough to cover all of memory (which
-isn't something generic code can easily do here for various reasons I
-can elaborate if you want, but that specific test more/less has to be
-arch specific), and in that case, force itself to use DMA ops routed to
-swiotlb.
 
-I'd rather have arch code do the bulk of that work, don't you think ?
+> (Passing the dev allows the arch to know this is a virtio device in
+> "direct" mode or whatever we want to call the !iommu case, and
+> construct appropriate DMA ops for it, which aren't the same as the DMA
+> ops of any other PCI device who *do* use the iommu).
 
-Which brings me back to this option, which may be the simplest and
-avoids the overhead of the proposed series (I found the series to be a
-nice cleanup but retpoline does kick us in the nuts here).
+I think that's where Christoph might have specific ideas about it.
 
-So what about this ?
+> Otherwise, the harder option would be for us to hack so that
+> xen_domain() returns true in our setup (gross), and have the arch code,
+> when it sets up PCI device DMA ops, have a gross hack to identify
+> virtio PCI devices, checks their F_IOMMU flag itself, and sets up the
+> different ops at that point.
+> 
+> As for those "special" ops, they are of course just normal swiotlb ops,
+> there's nothing "special" other that they aren't the ops that other PCI
+> device on that bus use.
+> 
+> Cheers,
+> Ben.
 
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -155,7 +155,7 @@ static bool vring_use_dma_api(struct virtio_device
-*vdev)
-         * the DMA API if we're a Xen guest, which at least allows
-         * all of the sensible Xen configurations to work correctly.
-         */
--       if (xen_domain())
-+       if (xen_domain() || arch_virtio_direct_dma_ops(&vdev->dev))
-                return true;
- 
-        return false;
-
-(Passing the dev allows the arch to know this is a virtio device in
-"direct" mode or whatever we want to call the !iommu case, and
-construct appropriate DMA ops for it, which aren't the same as the DMA
-ops of any other PCI device who *do* use the iommu).
-
-Otherwise, the harder option would be for us to hack so that
-xen_domain() returns true in our setup (gross), and have the arch code,
-when it sets up PCI device DMA ops, have a gross hack to identify
-virtio PCI devices, checks their F_IOMMU flag itself, and sets up the
-different ops at that point.
-
-As for those "special" ops, they are of course just normal swiotlb ops,
-there's nothing "special" other that they aren't the ops that other PCI
-device on that bus use.
-
-Cheers,
-Ben.
+-- 
+MST
