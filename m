@@ -1,7 +1,7 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Mon, 6 Aug 2018 23:35:39 +0300
-Message-ID: <20180806233024-mutt-send-email-mst__754.742386243556$1533587636$gmane$org@kernel.org>
+Date: Tue, 07 Aug 2018 07:26:35 +1000
+Message-ID: <0967fc30001323e6e38ed12c8dba8ee3d1aa13f5.camel@kernel.crashing.org>
 References: <20180802225738-mutt-send-email-mst@kernel.org>
 	<de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
 	<20180803070507.GA1344@infradead.org>
@@ -12,12 +12,12 @@ References: <20180802225738-mutt-send-email-mst@kernel.org>
 	<fd8fee94cf42e436878f179c7895de3a4dab3355.camel@kernel.crashing.org>
 	<20180806164106-mutt-send-email-mst@kernel.org>
 	<ef6d5d7c7b812bd797a1c3fd6bc7a26d0074020f.camel@kernel.crashing.org>
+	<20180806233024-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <ef6d5d7c7b812bd797a1c3fd6bc7a26d0074020f.camel@kernel.crashing.org>
+In-Reply-To: <20180806233024-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,73 +27,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 07, 2018 at 05:56:59AM +1000, Benjamin Herrenschmidt wrote:
-> On Mon, 2018-08-06 at 16:46 +0300, Michael S. Tsirkin wrote:
+On Mon, 2018-08-06 at 23:35 +0300, Michael S. Tsirkin wrote:
+> > As I said replying to Christoph, we are "leaking" into the interface
+> > something here that is really what's the VM is doing to itself, which
+> > is to stash its memory away in an inaccessible place.
 > > 
-> > > Right, we'll need some quirk to disable balloons  in the guest I
-> > > suppose.
-> > > 
-> > > Passing something from libvirt is cumbersome because the end user may
-> > > not even need to know about secure VMs. There are use cases where the
-> > > security is a contract down to some special application running inside
-> > > the secure VM, the sysadmin knows nothing about.
-> > > 
-> > > Also there's repercussions all the way to admin tools, web UIs etc...
-> > > so it's fairly wide ranging.
-> > > 
-> > > So as long as we only need to quirk a couple of devices, it's much
-> > > better contained that way.
-> > 
-> > So just the balloon thing already means that yes management and all the
-> > way to the user tools must know this is going on. Otherwise
-> > user will try to inflate the balloon and wonder why this does not work.
+> > Cheers,
+> > Ben.
 > 
-> There is *dozens* of management systems out there, not even all open
-> source, we won't ever be able to see the end of the tunnel if we need
-> to teach every single of them, including end users, about platform
-> specific new VM flags like that.
-> 
-> .../...
+> I think Christoph merely objects to the specific implementation.  If
+> instead you do something like tweak dev->bus_dma_mask for the virtio
+> device I think he won't object.
 
-In the end I suspect you will find you have to.
+Well, we don't have "bus_dma_mask" yet ..or you mean dma_mask ?
 
-> > Here's another example: you can't migrate a secure vm to hypervisor
-> > which doesn't support this feature. Again management tools above libvirt
-> > need to know otherwise they will try.
-> 
-> There will have to be a new machine type for that I suppose, yes,
-> though it's not just the hypervisor that needs to know about the
-> modified migration stream, it's also the need to have a compatible
-> ultravisor with the right keys on the other side.
-> 
-> So migration is going to be special and require extra admin work in all
-> cases yes. But not all secure VMs are meant to be migratable.
-> 
-> In any case, back to the problem at hand. What a qemu flag gives us is
-> just a way to force iommu at VM creation time.
+So, something like that would be a possibility, but the problem is that
+the current virtio (guest side) implementation doesn't honor this when
+not using dma ops and will not use dma ops if not using iommu, so back
+to square one.
 
-I don't think a qemu flag is strictly required for a problem at hand.
+Christoph seems to be wanting to use a flag in the interface to make
+the guest use dma_ops which is what I don't understand.
 
-> This is rather sub-optimal, we don't really want the iommu in the way,
-> so it's at best a "workaround", and it's not really solving the real
-> problem.
+What would be needed then would be something along the lines of virtio
+noticing that dma_mask isn't big enough to cover all of memory (which
+isn't something generic code can easily do here for various reasons I
+can elaborate if you want, but that specific test more/less has to be
+arch specific), and in that case, force itself to use DMA ops routed to
+swiotlb.
 
-This specific problem, I think I agree.
+I'd rather have arch code do the bulk of that work, don't you think ?
 
-> As I said replying to Christoph, we are "leaking" into the interface
-> something here that is really what's the VM is doing to itself, which
-> is to stash its memory away in an inaccessible place.
-> 
-> Cheers,
-> Ben.
+Which brings me back to this option, which may be the simplest and
+avoids the overhead of the proposed series (I found the series to be a
+nice cleanup but retpoline does kick us in the nuts here).
 
-I think Christoph merely objects to the specific implementation.  If
-instead you do something like tweak dev->bus_dma_mask for the virtio
-device I think he won't object.
+So what about this ?
 
--- 
-MST
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -155,7 +155,7 @@ static bool vring_use_dma_api(struct virtio_device
+*vdev)
+         * the DMA API if we're a Xen guest, which at least allows
+         * all of the sensible Xen configurations to work correctly.
+         */
+-       if (xen_domain())
++       if (xen_domain() || arch_virtio_direct_dma_ops(&vdev->dev))
+                return true;
+ 
+        return false;
+
+(Passing the dev allows the arch to know this is a virtio device in
+"direct" mode or whatever we want to call the !iommu case, and
+construct appropriate DMA ops for it, which aren't the same as the DMA
+ops of any other PCI device who *do* use the iommu).
+
+Otherwise, the harder option would be for us to hack so that
+xen_domain() returns true in our setup (gross), and have the arch code,
+when it sets up PCI device DMA ops, have a gross hack to identify
+virtio PCI devices, checks their F_IOMMU flag itself, and sets up the
+different ops at that point.
+
+As for those "special" ops, they are of course just normal swiotlb ops,
+there's nothing "special" other that they aren't the ops that other PCI
+device on that bus use.
+
+Cheers,
+Ben.
