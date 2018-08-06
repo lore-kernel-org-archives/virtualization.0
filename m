@@ -1,23 +1,21 @@
-From: Will Deacon <will.deacon@arm.com>
+From: Christoph Hellwig <hch@infradead.org>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Mon, 6 Aug 2018 15:05:08 +0100
-Message-ID: <20180806140507.GB15078__22432.1986236193$1533564282$gmane$org@arm.com>
+Date: Mon, 6 Aug 2018 08:24:06 -0700
+Message-ID: <20180806152406.GA29020__20968.0298380137$1533568931$gmane$org@infradead.org>
 References: <20180720035941.6844-1-khandual@linux.vnet.ibm.com>
-	<20180727095804.GA25592@arm.com>
-	<20180730093414.GD26245@infradead.org>
-	<20180730125100-mutt-send-email-mst@kernel.org>
-	<20180730111802.GA9830@infradead.org>
-	<20180730155633-mutt-send-email-mst@kernel.org>
-	<20180731173052.GA17153@infradead.org>
-	<3d6e81511571260de1c8047aaffa8ac4df093d2e.camel@kernel.crashing.org>
-	<20180801081637.GA14438@arm.com>
-	<20180805032504-mutt-send-email-mst@kernel.org>
+	<20180802235332-mutt-send-email-mst@kernel.org>
+	<b31d2162-884c-0ed4-00df-e7debe0cc0e7@redhat.com>
+	<20180803220812-mutt-send-email-mst@kernel.org>
+	<01c74680c4b3aa25d9b4375a9ab5e10046b7c71b.camel@kernel.crashing.org>
+	<20180805032355-mutt-send-email-mst@kernel.org>
+	<74a1e1b8-81e0-84db-6d0d-d8bd9caebb4a@linux.vnet.ibm.com>
+	<20180806163440-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180805032504-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180806163440-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,72 +26,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, mpe@ellerman.id.au, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, paulus@samba.org, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
-
-On Sun, Aug 05, 2018 at 03:27:42AM +0300, Michael S. Tsirkin wrote:
-> On Wed, Aug 01, 2018 at 09:16:38AM +0100, Will Deacon wrote:
-> > On Tue, Jul 31, 2018 at 03:36:22PM -0500, Benjamin Herrenschmidt wrote:
-> > > On Tue, 2018-07-31 at 10:30 -0700, Christoph Hellwig wrote:
-> > > > > However the question people raise is that DMA API is already full of
-> > > > > arch-specific tricks the likes of which are outlined in your post linked
-> > > > > above. How is this one much worse?
-> > > > 
-> > > > None of these warts is visible to the driver, they are all handled in
-> > > > the architecture (possibly on a per-bus basis).
-> > > > 
-> > > > So for virtio we really need to decide if it has one set of behavior
-> > > > as specified in the virtio spec, or if it behaves exactly as if it
-> > > > was on a PCI bus, or in fact probably both as you lined up.  But no
-> > > > magic arch specific behavior inbetween.
+On Mon, Aug 06, 2018 at 04:36:43PM +0300, Michael S. Tsirkin wrote:
+> On Mon, Aug 06, 2018 at 02:32:28PM +0530, Anshuman Khandual wrote:
+> > On 08/05/2018 05:54 AM, Michael S. Tsirkin wrote:
+> > > On Fri, Aug 03, 2018 at 08:21:26PM -0500, Benjamin Herrenschmidt wrote:
+> > >> On Fri, 2018-08-03 at 22:08 +0300, Michael S. Tsirkin wrote:
+> > >>>>>> Please go through these patches and review whether this approach broadly
+> > >>>>>> makes sense. I will appreciate suggestions, inputs, comments regarding
+> > >>>>>> the patches or the approach in general. Thank you.
+> > >>>>>
+> > >>>>> Jason did some work on profiling this. Unfortunately he reports
+> > >>>>> about 4% extra overhead from this switch on x86 with no vIOMMU.
+> > >>>>
+> > >>>> The test is rather simple, just run pktgen (pktgen_sample01_simple.sh) in
+> > >>>> guest and measure PPS on tap on host.
+> > >>>>
+> > >>>> Thanks
+> > >>>
+> > >>> Could you supply host configuration involved please?
+> > >>
+> > >> I wonder how much of that could be caused by Spectre mitigations
+> > >> blowing up indirect function calls...
+> > >>
+> > >> Cheers,
+> > >> Ben.
 > > > 
-> > > The only arch specific behaviour is needed in the case where it doesn't
-> > > behave like PCI. In this case, the PCI DMA ops are not suitable, but in
-> > > our secure VMs, we still need to make it use swiotlb in order to bounce
-> > > through non-secure pages.
+> > > I won't be surprised. If yes I suggested a way to mitigate the overhead.
 > > 
-> > On arm/arm64, the problem we have is that legacy virtio devices on the MMIO
-> > transport (so definitely not PCI) have historically been advertised by qemu
-> > as not being cache coherent, but because the virtio core has bypassed DMA
-> > ops then everything has happened to work. If we blindly enable the arch DMA
-> > ops, we'll plumb in the non-coherent ops and start getting data corruption,
-> > so we do need a way to quirk virtio as being "always coherent" if we want to
-> > use the DMA ops (which we do, because our emulation platforms have an IOMMU
-> > for all virtio devices).
-> > 
-> > Will
+> > Did we get better results (lower regression due to indirect calls) with
+> > the suggested mitigation ? Just curious.
 > 
-> Right that's not very different from placing the device within the IOMMU
-> domain but in fact bypassing the IOMMU
+> I'm referring to this:
+> 	I wonder whether we can support map_sg and friends being NULL, then use
+> 	that when mapping is an identity. A conditional branch there is likely
+> 	very cheap.
+> 
+> I don't think anyone tried implementing this yes.
 
-Hmm, I'm not sure I follow you here -- the IOMMU bypassing is handled
-inside the IOMMU driver, so we'd still end up with non-coherent DMA ops
-for the guest accesses. The presence of an IOMMU doesn't imply coherency for
-us. Or am I missing your point here?
-
-> I wonder whether anyone ever needs a non coherent virtio-mmio. If yes we
-> can extend PLATFORM_IOMMU to cover that or add another bit.
-
-I think that's probably the right way around: assume that legacy virtio-mmio
-devices are coherent by default.
-
-> What exactly do the non-coherent ops do that causes the corruption?
-
-The non-coherent ops mean that the guest ends up allocating the vring queues
-using non-cacheable mappings, whereas qemu/hypervisor uses a cacheable
-mapping despite not advertising the devices as being cache-coherent.
-
-This hits something in the architecture known as "mismatched aliases", which
-means that coherency is lost between the guest and the hypervisor,
-consequently resulting in data not being visible and ordering not being
-guaranteed. The usual symptom is that the device appears to lock up iirc,
-because the guest and the hypervisor are unable to communicate with each
-other.
-
-Does that help to clarify things?
-
-Thanks,
-
-Will
+I've done something very similar in the thread I posted a few years
+ago. I plan to get a version of that upstream for 4.20, but it won't
+cover the virtio case, just the real direct mapping.
