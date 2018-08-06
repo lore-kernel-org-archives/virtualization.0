@@ -1,13 +1,23 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next V2] vhost: switch to use new message format
-Date: Mon, 06 Aug 2018 10:41:48 -0700 (PDT)
-Message-ID: <20180806.104148.1576759632957723909.davem__14291.9295737103$1533577190$gmane$org@davemloft.net>
-References: <1533525467-17787-1-git-send-email-jasowang@redhat.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
+Date: Tue, 07 Aug 2018 05:52:12 +1000
+Message-ID: <6c707d6d33ac25a42265c2e9b521c2416d72c739.camel@kernel.crashing.org>
+References: <20180802225738-mutt-send-email-mst@kernel.org>
+	<de4888b6457e220776e16a9c8958ff0886ffc66c.camel@kernel.crashing.org>
+	<20180803070507.GA1344@infradead.org>
+	<eb1750e90e4bd45da297fa6f78f8ef93671b7c2f.camel@kernel.crashing.org>
+	<20180803160246.GA13794@infradead.org>
+	<22310f58605169fe9de83abf78b59f593ff7fbb7.camel@kernel.crashing.org>
+	<20180804082120.GB4421@infradead.org>
+	<a3ec0a454928e880dabc3782ea906e318634abf9.camel@kernel.crashing.org>
+	<20180805072930.GB23288@infradead.org>
+	<b7e8294e3e70d24072883a7e8e5375719d5af870.camel@kernel.crashing.org>
+	<20180806094243.GA16032@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1533525467-17787-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20180806094243.GA16032@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,48 +27,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Christoph Hellwig <hch@infradead.org>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon,  6 Aug 2018 11:17:47 +0800
+On Mon, 2018-08-06 at 02:42 -0700, Christoph Hellwig wrote:
+> On Mon, Aug 06, 2018 at 07:16:47AM +1000, Benjamin Herrenschmidt wrote:
+> > Who would set this bit ? qemu ? Under what circumstances ?
+> 
+> I don't really care who sets what.  The implementation might not even
+> involved qemu.
+> 
+> It is your job to write a coherent interface specification that does
+> not depend on the used components.  The hypervisor might be PAPR,
+> Linux + qemu, VMware, Hyperv or something so secret that you'd have
+> to shoot me if you had to tell me.  The guest might be Linux, FreeBSD,
+> AIX, OS400 or a Hipster project of the day in Rust.  As long as we
+> properly specify the interface it simplify does not matter.
 
-> We use to have message like:
-> 
-> struct vhost_msg {
-> 	int type;
-> 	union {
-> 		struct vhost_iotlb_msg iotlb;
-> 		__u8 padding[64];
-> 	};
-> };
-> 
-> Unfortunately, there will be a hole of 32bit in 64bit machine because
-> of the alignment. This leads a different formats between 32bit API and
-> 64bit API. What's more it will break 32bit program running on 64bit
-> machine.
-> 
-> So fixing this by introducing a new message type with an explicit
-> 32bit reserved field after type like:
-> 
-> struct vhost_msg_v2 {
-> 	__u32 type;
-> 	__u32 reserved;
-> 	union {
-> 		struct vhost_iotlb_msg iotlb;
-> 		__u8 padding[64];
-> 	};
-> };
-> 
-> We will have a consistent ABI after switching to use this. To enable
-> this capability, introduce a new ioctl (VHOST_SET_BAKCEND_FEATURE) for
-> userspace to enable this feature (VHOST_BACKEND_F_IOTLB_V2).
-> 
-> Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-> Changes from V1:
-> - use __u32 instead of int for type
+That's the point Christoph. The interface is today's interface. It does
+NOT change. That information is not part of the interface.
 
-Applied, thanks Jason.
+It's the VM itself that is stashing away its memory in a secret place,
+and thus needs to do bounce buffering. There is no change to the virtio
+interface per-se.
+
+> > What would be the effect of this bit while VIRTIO_F_IOMMU is NOT set,
+> > ie, what would qemu do and what would Linux do ? I'm not sure I fully
+> > understand your idea.
+> 
+> In a perfect would we'd just reuse VIRTIO_F_IOMMU and clarify the
+> description which currently is rather vague but basically captures
+> the use case.  Currently is is:
+> 
+> VIRTIO_F_IOMMU_PLATFORM(33)
+>     This feature indicates that the device is behind an IOMMU that
+>     translates bus addresses from the device into physical addresses in
+>     memory. If this feature bit is set to 0, then the device emits
+>     physical addresses which are not translated further, even though an
+>     IOMMU may be present.
+> 
+> And I'd change it to something like:
+> 
+> VIRTIO_F_PLATFORM_DMA(33)
+>     This feature indicates that the device emits platform specific
+>     bus addresses that might not be identical to physical address.
+>     The translation of physical to bus address is platform speific
+>     and defined by the plaform specification for the bus that the virtio
+>     device is attached to.
+>     If this feature bit is set to 0, then the device emits
+>     physical addresses which are not translated further, even if
+>     the platform would normally require translations for the bus that
+>     the virtio device is attached to.
+> 
+> If we can't change the defintion any more we should deprecate the
+> old VIRTIO_F_IOMMU_PLATFORM bit, and require the VIRTIO_F_IOMMU_PLATFORM
+> and VIRTIO_F_PLATFORM_DMA to be not set at the same time.
+
+But this doesn't really change our problem does it ?
+
+None of what happens in our case is part of the "interface". The
+suggestion to force the iommu ON was simply that it was a "workaround"
+as by doing so, we get to override the DMA ops, but that's just a
+trick.
+
+Fundamentally, what we need to solve is pretty much entirely a guest
+problem.
+
+> > I'm trying to understand because the limitation is not a device side
+> > limitation, it's not a qemu limitation, it's actually more of a VM
+> > limitation. It has most of its memory pages made inaccessible for
+> > security reasons. The platform from a qemu/KVM perspective is almost
+> > entirely normal.
+> 
+> Well, find a way to describe this either in the qemu specification using
+> new feature bits, or by using something like the above.
+
+But again, why do you want to involve the interface, and thus the
+hypervisor for something that is essentially what the guest is doign to
+itself ?
+
+It really is something we need to solve locally to the guest, it's not
+part of the interface.
+
+Cheers,
+Ben.
