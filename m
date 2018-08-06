@@ -1,23 +1,13 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Mon, 6 Aug 2018 09:34:21 -0700
-Message-ID: <20180806163421.GA13077@infradead.org>
-References: <b31d2162-884c-0ed4-00df-e7debe0cc0e7@redhat.com>
-	<20180803220812-mutt-send-email-mst@kernel.org>
-	<01c74680c4b3aa25d9b4375a9ab5e10046b7c71b.camel@kernel.crashing.org>
-	<20180805032355-mutt-send-email-mst@kernel.org>
-	<74a1e1b8-81e0-84db-6d0d-d8bd9caebb4a@linux.vnet.ibm.com>
-	<20180806163440-mutt-send-email-mst@kernel.org>
-	<20180806152406.GA29020@infradead.org>
-	<20180806190321-mutt-send-email-mst@kernel.org>
-	<20180806161040.GA4675@infradead.org>
-	<20180806191111-mutt-send-email-mst@kernel.org>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next V2] vhost: switch to use new message format
+Date: Mon, 06 Aug 2018 10:41:48 -0700 (PDT)
+Message-ID: <20180806.104148.1576759632957723909.davem__14291.9295737103$1533577190$gmane$org@davemloft.net>
+References: <1533525467-17787-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180806191111-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1533525467-17787-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,16 +17,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, paulus@samba.org, joe@perches.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 06, 2018 at 07:13:32PM +0300, Michael S. Tsirkin wrote:
-> Oh that makes sense then. Could you post a pointer pls so
-> this patchset is rebased on top (there are things to
-> change about 4/4 but 1-3 could go in if they don't add
-> overhead)?
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon,  6 Aug 2018 11:17:47 +0800
 
-The dma mapping direct calls will need a major work vs what I posted.
-I plan to start that work in about two weeks once returning from my
-vacation.
+> We use to have message like:
+> 
+> struct vhost_msg {
+> 	int type;
+> 	union {
+> 		struct vhost_iotlb_msg iotlb;
+> 		__u8 padding[64];
+> 	};
+> };
+> 
+> Unfortunately, there will be a hole of 32bit in 64bit machine because
+> of the alignment. This leads a different formats between 32bit API and
+> 64bit API. What's more it will break 32bit program running on 64bit
+> machine.
+> 
+> So fixing this by introducing a new message type with an explicit
+> 32bit reserved field after type like:
+> 
+> struct vhost_msg_v2 {
+> 	__u32 type;
+> 	__u32 reserved;
+> 	union {
+> 		struct vhost_iotlb_msg iotlb;
+> 		__u8 padding[64];
+> 	};
+> };
+> 
+> We will have a consistent ABI after switching to use this. To enable
+> this capability, introduce a new ioctl (VHOST_SET_BAKCEND_FEATURE) for
+> userspace to enable this feature (VHOST_BACKEND_F_IOTLB_V2).
+> 
+> Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> Changes from V1:
+> - use __u32 instead of int for type
+
+Applied, thanks Jason.
