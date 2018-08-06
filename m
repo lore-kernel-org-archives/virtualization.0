@@ -1,11 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next V2] vhost: switch to use new message format
-Date: Mon,  6 Aug 2018 11:17:47 +0800
-Message-ID: <1533525467-17787-1-git-send-email-jasowang@redhat.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v3 2/2] virtio_balloon: replace oom notifier with shrinker
+Date: Mon, 06 Aug 2018 11:29:54 +0800
+Message-ID: <5B67C0B2.3040407__33641.5547099479$1533525810$gmane$org@intel.com>
+References: <1533285146-25212-1-git-send-email-wei.w.wang@intel.com>
+	<1533285146-25212-3-git-send-email-wei.w.wang@intel.com>
+	<20180803221423-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180803221423-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,306 +19,123 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, penguin-kernel@i-love.sakura.ne.jp, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We use to have message like:
+On 08/04/2018 03:15 AM, Michael S. Tsirkin wrote:
+> On Fri, Aug 03, 2018 at 04:32:26PM +0800, Wei Wang wrote:
+>> The OOM notifier is getting deprecated to use for the reasons:
+>> - As a callout from the oom context, it is too subtle and easy to
+>>    generate bugs and corner cases which are hard to track;
+>> - It is called too late (after the reclaiming has been performed).
+>>    Drivers with large amuont of reclaimable memory is expected to
+>>    release them at an early stage of memory pressure;
+>> - The notifier callback isn't aware of oom contrains;
+>> Link: https://lkml.org/lkml/2018/7/12/314
+>>
+>> This patch replaces the virtio-balloon oom notifier with a shrinker
+>> to release balloon pages on memory pressure. The balloon pages are
+>> given back to mm adaptively by returning the number of pages that the
+>> reclaimer is asking for (i.e. sc->nr_to_scan).
+>>
+>> Currently the max possible value of sc->nr_to_scan passed to the balloon
+>> shrinker is SHRINK_BATCH, which is 128. This is smaller than the
+>> limitation that only VIRTIO_BALLOON_ARRAY_PFNS_MAX (256) pages can be
+>> returned via one invocation of leak_balloon. But this patch still
+>> considers the case that SHRINK_BATCH or shrinker->batch could be changed
+>> to a value larger than VIRTIO_BALLOON_ARRAY_PFNS_MAX, which will need to
+>> do multiple invocations of leak_balloon.
+>>
+>> Historically, the feature VIRTIO_BALLOON_F_DEFLATE_ON_OOM has been used
+>> to release balloon pages on OOM. We continue to use this feature bit for
+>> the shrinker, so the shrinker is only registered when this feature bit
+>> has been negotiated with host.
+>>
+>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+>> Cc: Michael S. Tsirkin <mst@redhat.com>
+>> Cc: Michal Hocko <mhocko@kernel.org>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>
+> Could you add data at how was this tested and how did guest
+> behaviour change. Which configurations see an improvement?
+>
 
-struct vhost_msg {
-	int type;
-	union {
-		struct vhost_iotlb_msg iotlb;
-		__u8 padding[64];
-	};
-};
+Yes. Please see the differences from the "*1" and "*2" cases below.
 
-Unfortunately, there will be a hole of 32bit in 64bit machine because
-of the alignment. This leads a different formats between 32bit API and
-64bit API. What's more it will break 32bit program running on 64bit
-machine.
+Taking this chance, I use "*2" and "*3" to show Michal etc the 
+differences of applying and not applying the shrinker fix patch here: 
+https://lkml.org/lkml/2018/8/3/384
 
-So fixing this by introducing a new message type with an explicit
-32bit reserved field after type like:
 
-struct vhost_msg_v2 {
-	__u32 type;
-	__u32 reserved;
-	union {
-		struct vhost_iotlb_msg iotlb;
-		__u8 padding[64];
-	};
-};
+*1. V3 patches
+1)After inflating some amount of memory, actual=1000001536 Bytes
+free -m
+               total        used        free      shared buff/cache   
+available
+Mem:           7975        7289         514          10 171         447
+Swap:         10236           0       10236
 
-We will have a consistent ABI after switching to use this. To enable
-this capability, introduce a new ioctl (VHOST_SET_BAKCEND_FEATURE) for
-userspace to enable this feature (VHOST_BACKEND_F_IOTLB_V2).
+2) dd if=478MB_file of=/dev/null, actual=1058721792 Bytes
+free -m
+               total        used        free      shared buff/cache   
+available
+Mem:           7975        7233         102          10 639         475
+Swap:         10236           0       10236
 
-Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
-Changes from V1:
-- use __u32 instead of int for type
----
- drivers/vhost/net.c        | 30 ++++++++++++++++++++
- drivers/vhost/vhost.c      | 71 ++++++++++++++++++++++++++++++++++------------
- drivers/vhost/vhost.h      | 11 ++++++-
- include/uapi/linux/vhost.h | 18 ++++++++++++
- 4 files changed, 111 insertions(+), 19 deletions(-)
+The advantage is that the inflated pages are given back to mm based on 
+the number, i.e. ~56MB(diff "actual" above) of the reclaimer is asking 
+for. This is more adaptive.
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 367d802..4e656f8 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -78,6 +78,10 @@ enum {
- };
- 
- enum {
-+	VHOST_NET_BACKEND_FEATURES = (1ULL << VHOST_BACKEND_F_IOTLB_MSG_V2)
-+};
-+
-+enum {
- 	VHOST_NET_VQ_RX = 0,
- 	VHOST_NET_VQ_TX = 1,
- 	VHOST_NET_VQ_MAX = 2,
-@@ -1399,6 +1403,21 @@ static long vhost_net_reset_owner(struct vhost_net *n)
- 	return err;
- }
- 
-+static int vhost_net_set_backend_features(struct vhost_net *n, u64 features)
-+{
-+	int i;
-+
-+	mutex_lock(&n->dev.mutex);
-+	for (i = 0; i < VHOST_NET_VQ_MAX; ++i) {
-+		mutex_lock(&n->vqs[i].vq.mutex);
-+		n->vqs[i].vq.acked_backend_features = features;
-+		mutex_unlock(&n->vqs[i].vq.mutex);
-+	}
-+	mutex_unlock(&n->dev.mutex);
-+
-+	return 0;
-+}
-+
- static int vhost_net_set_features(struct vhost_net *n, u64 features)
- {
- 	size_t vhost_hlen, sock_hlen, hdr_len;
-@@ -1489,6 +1508,17 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 		if (features & ~VHOST_NET_FEATURES)
- 			return -EOPNOTSUPP;
- 		return vhost_net_set_features(n, features);
-+	case VHOST_GET_BACKEND_FEATURES:
-+		features = VHOST_NET_BACKEND_FEATURES;
-+		if (copy_to_user(featurep, &features, sizeof(features)))
-+			return -EFAULT;
-+		return 0;
-+	case VHOST_SET_BACKEND_FEATURES:
-+		if (copy_from_user(&features, featurep, sizeof(features)))
-+			return -EFAULT;
-+		if (features & ~VHOST_NET_BACKEND_FEATURES)
-+			return -EOPNOTSUPP;
-+		return vhost_net_set_backend_features(n, features);
- 	case VHOST_RESET_OWNER:
- 		return vhost_net_reset_owner(n);
- 	case VHOST_SET_OWNER:
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index a502f1a..6f6c42d 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -315,6 +315,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->log_addr = -1ull;
- 	vq->private_data = NULL;
- 	vq->acked_features = 0;
-+	vq->acked_backend_features = 0;
- 	vq->log_base = NULL;
- 	vq->error_ctx = NULL;
- 	vq->kick = NULL;
-@@ -1027,28 +1028,40 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
- 			     struct iov_iter *from)
- {
--	struct vhost_msg_node node;
--	unsigned size = sizeof(struct vhost_msg);
--	size_t ret;
--	int err;
-+	struct vhost_iotlb_msg msg;
-+	size_t offset;
-+	int type, ret;
- 
--	if (iov_iter_count(from) < size)
--		return 0;
--	ret = copy_from_iter(&node.msg, size, from);
--	if (ret != size)
-+	ret = copy_from_iter(&type, sizeof(type), from);
-+	if (ret != sizeof(type))
- 		goto done;
- 
--	switch (node.msg.type) {
-+	switch (type) {
- 	case VHOST_IOTLB_MSG:
--		err = vhost_process_iotlb_msg(dev, &node.msg.iotlb);
--		if (err)
--			ret = err;
-+		/* There maybe a hole after type for V1 message type,
-+		 * so skip it here.
-+		 */
-+		offset = offsetof(struct vhost_msg, iotlb) - sizeof(int);
-+		break;
-+	case VHOST_IOTLB_MSG_V2:
-+		offset = sizeof(__u32);
- 		break;
- 	default:
- 		ret = -EINVAL;
--		break;
-+		goto done;
-+	}
-+
-+	iov_iter_advance(from, offset);
-+	ret = copy_from_iter(&msg, sizeof(msg), from);
-+	if (ret != sizeof(msg))
-+		goto done;
-+	if (vhost_process_iotlb_msg(dev, &msg)) {
-+		ret = -EFAULT;
-+		goto done;
- 	}
- 
-+	ret = (type == VHOST_IOTLB_MSG) ? sizeof(struct vhost_msg) :
-+	      sizeof(struct vhost_msg_v2);
- done:
- 	return ret;
- }
-@@ -1107,13 +1120,28 @@ ssize_t vhost_chr_read_iter(struct vhost_dev *dev, struct iov_iter *to,
- 		finish_wait(&dev->wait, &wait);
- 
- 	if (node) {
--		ret = copy_to_iter(&node->msg, size, to);
-+		struct vhost_iotlb_msg *msg;
-+		void *start = &node->msg;
-+
-+		switch (node->msg.type) {
-+		case VHOST_IOTLB_MSG:
-+			size = sizeof(node->msg);
-+			msg = &node->msg.iotlb;
-+			break;
-+		case VHOST_IOTLB_MSG_V2:
-+			size = sizeof(node->msg_v2);
-+			msg = &node->msg_v2.iotlb;
-+			break;
-+		default:
-+			BUG();
-+			break;
-+		}
- 
--		if (ret != size || node->msg.type != VHOST_IOTLB_MISS) {
-+		ret = copy_to_iter(start, size, to);
-+		if (ret != size || msg->type != VHOST_IOTLB_MISS) {
- 			kfree(node);
- 			return ret;
- 		}
--
- 		vhost_enqueue_msg(dev, &dev->pending_list, node);
- 	}
- 
-@@ -1126,12 +1154,19 @@ static int vhost_iotlb_miss(struct vhost_virtqueue *vq, u64 iova, int access)
- 	struct vhost_dev *dev = vq->dev;
- 	struct vhost_msg_node *node;
- 	struct vhost_iotlb_msg *msg;
-+	bool v2 = vhost_backend_has_feature(vq, VHOST_BACKEND_F_IOTLB_MSG_V2);
- 
--	node = vhost_new_msg(vq, VHOST_IOTLB_MISS);
-+	node = vhost_new_msg(vq, v2 ? VHOST_IOTLB_MSG_V2 : VHOST_IOTLB_MSG);
- 	if (!node)
- 		return -ENOMEM;
- 
--	msg = &node->msg.iotlb;
-+	if (v2) {
-+		node->msg_v2.type = VHOST_IOTLB_MSG_V2;
-+		msg = &node->msg_v2.iotlb;
-+	} else {
-+		msg = &node->msg.iotlb;
-+	}
-+
- 	msg->type = VHOST_IOTLB_MISS;
- 	msg->iova = iova;
- 	msg->perm = access;
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 6c844b9..466ef75 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -132,6 +132,7 @@ struct vhost_virtqueue {
- 	struct vhost_umem *iotlb;
- 	void *private_data;
- 	u64 acked_features;
-+	u64 acked_backend_features;
- 	/* Log write descriptors */
- 	void __user *log_base;
- 	struct vhost_log *log;
-@@ -147,7 +148,10 @@ struct vhost_virtqueue {
- };
- 
- struct vhost_msg_node {
--  struct vhost_msg msg;
-+  union {
-+	  struct vhost_msg msg;
-+	  struct vhost_msg_v2 msg_v2;
-+  };
-   struct vhost_virtqueue *vq;
-   struct list_head node;
- };
-@@ -238,6 +242,11 @@ static inline bool vhost_has_feature(struct vhost_virtqueue *vq, int bit)
- 	return vq->acked_features & (1ULL << bit);
- }
- 
-+static inline bool vhost_backend_has_feature(struct vhost_virtqueue *vq, int bit)
-+{
-+	return vq->acked_backend_features & (1ULL << bit);
-+}
-+
- #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
- static inline bool vhost_is_little_endian(struct vhost_virtqueue *vq)
- {
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index c51f8e5..b1e22c4 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -65,6 +65,7 @@ struct vhost_iotlb_msg {
- };
- 
- #define VHOST_IOTLB_MSG 0x1
-+#define VHOST_IOTLB_MSG_V2 0x2
- 
- struct vhost_msg {
- 	int type;
-@@ -74,6 +75,15 @@ struct vhost_msg {
- 	};
- };
- 
-+struct vhost_msg_v2 {
-+	__u32 type;
-+	__u32 reserved;
-+	union {
-+		struct vhost_iotlb_msg iotlb;
-+		__u8 padding[64];
-+	};
-+};
-+
- struct vhost_memory_region {
- 	__u64 guest_phys_addr;
- 	__u64 memory_size; /* bytes */
-@@ -160,6 +170,14 @@ struct vhost_memory {
- #define VHOST_GET_VRING_BUSYLOOP_TIMEOUT _IOW(VHOST_VIRTIO, 0x24,	\
- 					 struct vhost_vring_state)
- 
-+/* Set or get vhost backend capability */
-+
-+/* Use message type V2 */
-+#define VHOST_BACKEND_F_IOTLB_MSG_V2 0x1
-+
-+#define VHOST_SET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x25, __u64)
-+#define VHOST_GET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x26, __u64)
-+
- /* VHOST_NET specific defines */
- 
- /* Attach virtio net ring to a raw socket, or tap device.
--- 
-2.7.4
+
+
+*2. V2 paches, balloon_pages_to_shrink=1000000 pages (around 4GB), with 
+the shrinker fix patches applied.
+1)After inflating some amount of memory, actual=1000001536 Bytes
+free -m
+               total        used        free      shared buff/cache   
+available
+Mem:           7975        7288         530          10 157         455
+Swap:         10236           0       10236
+
+2)dd if=478MB_file of=/dev/null, actual=5096001536 Bytes
+free -m
+               total        used        free      shared buff/cache   
+available
+Mem:           7975        3381        3953          10 640        4327
+Swap:         10236           0       10236
+
+In the above example, we set 4GB to shrink to make the difference 
+obvious. Though the claimer only needs to reclaim ~56MB memory, 4GB 
+inflated pages are given back to mm, which is unnecessary. From the 
+user's perspective, it has no idea of how many pages to given back at 
+the time of setting the module parameter (balloon_pages_to_shrink). So I 
+think the above "*1" is better.
+
+
+
+*3.  V2 paches, balloon_pages_to_shrink=1000000 pages (around 4GB), 
+without the shrinker fix patches applied.
+1) After inflating some amount of memory, actual=1000001536 Bytes
+free -m
+                total        used        free      shared buff/cache   
+available
+Mem:           7975        7292         524          10 158         450
+Swap:         10236           0       10236
+
+2) dd if=478MB_file of=/dev/null, actual=8589934592 Bytes
+free -m
+              total        used        free      shared  buff/cache 
+available
+Mem:           7975          53        7281          10 640        7656
+Swap:         10236           0       10236
+
+Compared to *2, all the balloon pages are shrunk, but users expect 4GB 
+to shrink. The reason is that do_slab_shrink has a mistake in 
+calculating schrinkctl->nr_scanned, which should be the actual number of 
+pages that the shrinker has freed, but do slab_shrink still treat that 
+value as 128 (but 4GB has actually been freed).
+
+
+Best,
+Wei
