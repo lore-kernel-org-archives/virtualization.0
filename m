@@ -1,23 +1,23 @@
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Tue, 07 Aug 2018 16:42:44 +1000
-Message-ID: <aa59c7f8556bd4b332394a1dcf2d4a8faf3dc4a2.camel@kernel.crashing.org>
-References: <20180803070507.GA1344@infradead.org>
-	<eb1750e90e4bd45da297fa6f78f8ef93671b7c2f.camel@kernel.crashing.org>
-	<20180803160246.GA13794@infradead.org>
-	<22310f58605169fe9de83abf78b59f593ff7fbb7.camel@kernel.crashing.org>
-	<20180804082120.GB4421@infradead.org>
-	<a3ec0a454928e880dabc3782ea906e318634abf9.camel@kernel.crashing.org>
-	<20180805072930.GB23288@infradead.org>
-	<b7e8294e3e70d24072883a7e8e5375719d5af870.camel@kernel.crashing.org>
-	<20180806094243.GA16032@infradead.org>
-	<6c707d6d33ac25a42265c2e9b521c2416d72c739.camel@kernel.crashing.org>
-	<20180807062117.GD32709@infradead.org>
+Date: Tue, 07 Aug 2018 16:44:01 +1000
+Message-ID: <7622efcbb499919616f165266968565b1d329a91.camel@kernel.crashing.org>
+References: <20180803220443-mutt-send-email-mst@kernel.org>
+	<051fd78e15595b414839fa8f9d445b9f4d7576c6.camel@kernel.crashing.org>
+	<20180805031046-mutt-send-email-mst@kernel.org>
+	<fd8fee94cf42e436878f179c7895de3a4dab3355.camel@kernel.crashing.org>
+	<20180806164106-mutt-send-email-mst@kernel.org>
+	<ef6d5d7c7b812bd797a1c3fd6bc7a26d0074020f.camel@kernel.crashing.org>
+	<20180806233024-mutt-send-email-mst@kernel.org>
+	<0967fc30001323e6e38ed12c8dba8ee3d1aa13f5.camel@kernel.crashing.org>
+	<20180807002857-mutt-send-email-mst@kernel.org>
+	<93518075238a07e9f011774d89bdc652c083f1ba.camel@kernel.crashing.org>
+	<20180807062731.GA23159@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180807062117.GD32709@infradead.org>
+In-Reply-To: <20180807062731.GA23159@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -31,51 +31,30 @@ To: Christoph Hellwig <hch@infradead.org>
 Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2018-08-06 at 23:21 -0700, Christoph Hellwig wrote:
-> On Tue, Aug 07, 2018 at 05:52:12AM +1000, Benjamin Herrenschmidt wrote:
-> > > It is your job to write a coherent interface specification that does
-> > > not depend on the used components.  The hypervisor might be PAPR,
-> > > Linux + qemu, VMware, Hyperv or something so secret that you'd have
-> > > to shoot me if you had to tell me.  The guest might be Linux, FreeBSD,
-> > > AIX, OS400 or a Hipster project of the day in Rust.  As long as we
-> > > properly specify the interface it simplify does not matter.
-> > 
-> > That's the point Christoph. The interface is today's interface. It does
-> > NOT change. That information is not part of the interface.
-> > 
-> > It's the VM itself that is stashing away its memory in a secret place,
-> > and thus needs to do bounce buffering. There is no change to the virtio
-> > interface per-se.
+On Mon, 2018-08-06 at 23:27 -0700, Christoph Hellwig wrote:
+> On Tue, Aug 07, 2018 at 08:13:56AM +1000, Benjamin Herrenschmidt wrote:
+> > It would be indeed ideal if all we had to do was setup some kind of
+> > bus_dma_mask on all PCI devices and have virtio automagically insert
+> > swiotlb when necessary.
 > 
-> Any guest that doesn't know about your magic limited adressing is simply
-> not going to work, so we need to communicate that fact.
+> For 4.20 I plan to remove the swiotlb ops and instead do the bounce
+> buffering in the common code, including a direct call to the direct
+> ops to avoid retpoline overhead.  For that you still need a flag
+> in virtio that instead of blindly working physical addresses it needs
+> to be treated like a real device in terms of DMA.
 
-The guest does. It's the guest itself that initiates it. That's my
-point, it's not a factor of the hypervisor, which is unchanged in that
-area.
+But you will still call the swiotlb infrastructure, right ? IE, I sitll
+need to control where/how the swiotlb "pool" is allocated.
+> 
+> And for powerpc to make use of that I need to get the dma series I
+> posted last week reviewed and included, otherwise powerpc will have
+> to be excepted (like arm, where rmk didn't like the way the code
+> was factored, everything else has already been taken care of).
+> 
+> https://lists.linuxfoundation.org/pipermail/iommu/2018-July/028989.html
 
-It's the guest itself, that makes the decision early on, to stash it's
-memory away in a secure place, and thus needs to establish some kind of
-bouce buffering via a few left over "insecure" pages.
-
-It's all done by the guest: initiated by the guest and controlled by
-the guest.
-
-That's why I don't see why this specifically needs to involve the
-hypervisor side, and thus a VIRTIO feature bit.
-
-Note that I can make it so that the same DMA ops (basically standard
-swiotlb ops without arch hacks) work for both "direct virtio" and
-"normal PCI" devices.
-
-The trick is simply in the arch to setup the iommu to map the swiotlb
-bounce buffer pool 1:1 in the iommu, so the iommu essentially can be
-ignored without affecting the physical addresses.
-
-If I do that, *all* I need is a way, from the guest itself (again, the
-other side dosn't know anything about it), to force virtio to use the
-DMA ops as if there was an iommu, that is, use whatever dma ops were
-setup by the platform for the pci device.
+Yes, I saw your series. I'm just back from a week of travel, I plan to
+start reviewing it this week if Michael doesn't beat me to it.
 
 Cheers,
 Ben.
