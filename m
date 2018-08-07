@@ -1,23 +1,23 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Christoph Hellwig <hch@infradead.org>
 Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Tue, 07 Aug 2018 16:44:01 +1000
-Message-ID: <7622efcbb499919616f165266968565b1d329a91.camel@kernel.crashing.org>
-References: <20180803220443-mutt-send-email-mst@kernel.org>
-	<051fd78e15595b414839fa8f9d445b9f4d7576c6.camel@kernel.crashing.org>
-	<20180805031046-mutt-send-email-mst@kernel.org>
-	<fd8fee94cf42e436878f179c7895de3a4dab3355.camel@kernel.crashing.org>
-	<20180806164106-mutt-send-email-mst@kernel.org>
-	<ef6d5d7c7b812bd797a1c3fd6bc7a26d0074020f.camel@kernel.crashing.org>
-	<20180806233024-mutt-send-email-mst@kernel.org>
-	<0967fc30001323e6e38ed12c8dba8ee3d1aa13f5.camel@kernel.crashing.org>
-	<20180807002857-mutt-send-email-mst@kernel.org>
-	<93518075238a07e9f011774d89bdc652c083f1ba.camel@kernel.crashing.org>
-	<20180807062731.GA23159@infradead.org>
+Date: Tue, 7 Aug 2018 06:55:05 -0700
+Message-ID: <20180807135505.GA29034__39548.3426088051$1533649995$gmane$org@infradead.org>
+References: <20180803160246.GA13794@infradead.org>
+	<22310f58605169fe9de83abf78b59f593ff7fbb7.camel@kernel.crashing.org>
+	<20180804082120.GB4421@infradead.org>
+	<a3ec0a454928e880dabc3782ea906e318634abf9.camel@kernel.crashing.org>
+	<20180805072930.GB23288@infradead.org>
+	<b7e8294e3e70d24072883a7e8e5375719d5af870.camel@kernel.crashing.org>
+	<20180806094243.GA16032@infradead.org>
+	<6c707d6d33ac25a42265c2e9b521c2416d72c739.camel@kernel.crashing.org>
+	<20180807062117.GD32709@infradead.org>
+	<aa59c7f8556bd4b332394a1dcf2d4a8faf3dc4a2.camel@kernel.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180807062731.GA23159@infradead.org>
+Content-Disposition: inline
+In-Reply-To: <aa59c7f8556bd4b332394a1dcf2d4a8faf3dc4a2.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,34 +27,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2018-08-06 at 23:27 -0700, Christoph Hellwig wrote:
-> On Tue, Aug 07, 2018 at 08:13:56AM +1000, Benjamin Herrenschmidt wrote:
-> > It would be indeed ideal if all we had to do was setup some kind of
-> > bus_dma_mask on all PCI devices and have virtio automagically insert
-> > swiotlb when necessary.
+On Tue, Aug 07, 2018 at 04:42:44PM +1000, Benjamin Herrenschmidt wrote:
+> Note that I can make it so that the same DMA ops (basically standard
+> swiotlb ops without arch hacks) work for both "direct virtio" and
+> "normal PCI" devices.
 > 
-> For 4.20 I plan to remove the swiotlb ops and instead do the bounce
-> buffering in the common code, including a direct call to the direct
-> ops to avoid retpoline overhead.  For that you still need a flag
-> in virtio that instead of blindly working physical addresses it needs
-> to be treated like a real device in terms of DMA.
-
-But you will still call the swiotlb infrastructure, right ? IE, I sitll
-need to control where/how the swiotlb "pool" is allocated.
+> The trick is simply in the arch to setup the iommu to map the swiotlb
+> bounce buffer pool 1:1 in the iommu, so the iommu essentially can be
+> ignored without affecting the physical addresses.
 > 
-> And for powerpc to make use of that I need to get the dma series I
-> posted last week reviewed and included, otherwise powerpc will have
-> to be excepted (like arm, where rmk didn't like the way the code
-> was factored, everything else has already been taken care of).
-> 
-> https://lists.linuxfoundation.org/pipermail/iommu/2018-July/028989.html
+> If I do that, *all* I need is a way, from the guest itself (again, the
+> other side dosn't know anything about it), to force virtio to use the
+> DMA ops as if there was an iommu, that is, use whatever dma ops were
+> setup by the platform for the pci device.
 
-Yes, I saw your series. I'm just back from a week of travel, I plan to
-start reviewing it this week if Michael doesn't beat me to it.
-
-Cheers,
-Ben.
+In that case just setting VIRTIO_F_IOMMU_PLATFORM in the flags should
+do the work (even if that isn't strictly what the current definition
+of the flag actually means).  On the qemu side you'll need to make
+sure you have a way to set VIRTIO_F_IOMMU_PLATFORM without emulating
+an iommu, but with code to take dma offsets into account if your
+plaform has any (various power plaforms seem to have them, not sure
+if it affects your config).
