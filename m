@@ -1,23 +1,11 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Wed, 08 Aug 2018 20:07:49 +1000
-Message-ID: <4b596883892b5cb5560bef26fcd249e7107173ac.camel@kernel.crashing.org>
-References: <20180804082120.GB4421@infradead.org>
-	<a3ec0a454928e880dabc3782ea906e318634abf9.camel@kernel.crashing.org>
-	<20180805072930.GB23288@infradead.org>
-	<b7e8294e3e70d24072883a7e8e5375719d5af870.camel@kernel.crashing.org>
-	<20180806094243.GA16032@infradead.org>
-	<6c707d6d33ac25a42265c2e9b521c2416d72c739.camel@kernel.crashing.org>
-	<20180807062117.GD32709@infradead.org>
-	<aa59c7f8556bd4b332394a1dcf2d4a8faf3dc4a2.camel@kernel.crashing.org>
-	<20180807135505.GA29034@infradead.org>
-	<2103ecfe52d23cec03f185d08a87bfad9c9d82b5.camel@kernel.crashing.org>
-	<20180808063158.GA2474@infradead.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v3] drm/cirrus: flip default from 24bpp to 16bpp
+Date: Wed,  8 Aug 2018 13:13:11 +0200
+Message-ID: <20180808111311.30311-1-kraxel__24808.67772033$1533726680$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180808063158.GA2474@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,84 +15,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2018-08-07 at 23:31 -0700, Christoph Hellwig wrote:
-> 
-> You don't need to set them the time you go secure.  You just need to
-> set the flag from the beginning on any VM you might want to go secure.
-> Or for simplicity just any VM - if the DT/ACPI tables exposed by
-> qemu are good enough that will always exclude a iommu and not set a
-> DMA offset, so nothing will change on the qemu side of he processing,
-> and with the new direct calls for the direct dma ops performance in
-> the guest won't change either.
+The problem with 24bpp is that it is a rather unusual depth these days,
+cirrus is pretty much the only relevant device still using that, and it
+is a endless source of issues.  Wayland doesn't support it at all.  Bugs
+in Xorg keep showing up.
 
-So that's where I'm not sure things are "good enough" due to how
-pseries works. (remember it's paravirtualized).
+Typically either 32bpp or 16bpp are used.  Using 32bpp would limit the
+resolution to 800x600 due to hardware constrains.  So lets go with 16bpp.
 
-A pseries system starts with a default iommu on all devices, that uses
-translation using 4k entires with a "pinhole" window (usually 2G with
-qemu iirc). There's no "pass through" by default.
+Also use the default depth for the framebuffer console and
+mode_info->preferred_depth.
 
-Qemu virtio bypasses that iommu when the VIRTIO_F_IOMMU_PLATFORM flag
-is not set (default) but there's nothing in the device-tree to tell the
-guest about this since it's a violation of our pseries architecture, so
-we just rely on Linux virtio "knowing" that it happens. It's a bit
-yucky but that's now history...
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/cirrus/cirrus_drv.c   | 4 ++--
+ drivers/gpu/drm/cirrus/cirrus_fbdev.c | 3 +--
+ drivers/gpu/drm/cirrus/cirrus_mode.c  | 2 +-
+ 3 files changed, 4 insertions(+), 5 deletions(-)
 
-Essentially pseries "architecturally" does not have the concept of not
-having an iommu in the way and qemu violates that architecture today.
-
-(Remember it comes from pHyp, our priorietary HV, which we are somewhat
-mimmicing here).
-
-So if we always set VIRTIO_F_IOMMU_PLATFORM, it *will* force all virtio
-through that iommu and performance will suffer (esp vhost I suspect),
-especially since adding/removing translations in the iommu is a
-hypercall.
-
-Now, we do have HV APIs to create a second window that's "permanently
-mapped" to the guest memory, thus avoiding dynamic map/unmaps, and
-Linux can make use of this but I don't know if that works with qemu and
-the performance impact with vhost.
-
-So the situation isn't that great.... On the other hand, I think the
-other approach works for us:
-
-> > It's nicer if we have a way in the guest virtio driver to do something
-> > along the lines of
-> > 
-> > 	if ((flags & VIRTIO_F_IOMMU_PLATFORM) || arch_virtio_wants_dma_ops())
-> > 
-> > Which would have the same effect and means the issue is entirely
-> > contained in the guest.
-> 
-> It would not be the same effect.  The problem with that is that you must
-> now assumes that your qemu knows that for example you might be passing
-> a dma offset if the bus otherwise requires it. 
-
-I would assume that arch_virtio_wants_dma_ops() only returns true when
-no such offsets are involved, at least in our case that would be what
-happens.
-
->  Or in other words:
-> you potentially break the contract between qemu and the guest of always
-> passing down physical addresses.  If we explicitly change that contract
-> through using a flag that says you pass bus address everything is fine.
-
-For us a "bus address" is behind the iommu so that's what
-VIRTIO_F_IOMMU_PLATFORM does already. We don't have the concept of a
-bus address that is different. I suppose it's an ARMism to have DMA
-offsets that are separate from iommus ? 
-
-> Note that in practice your scheme will probably just work for your
-> initial prototype, but chances are it will get us in trouble later on.
-
-Not on pseries, at least not in any way I can think of mind you... but
-maybe other architectures would abuse it... We could add a WARN_ON if
-that calls returns true on a bus with an offset I suppose.
-
-Cheers,
-Ben.
+diff --git a/drivers/gpu/drm/cirrus/cirrus_drv.c b/drivers/gpu/drm/cirrus/cirrus_drv.c
+index 69c4e352dd..b4f7be056c 100644
+--- a/drivers/gpu/drm/cirrus/cirrus_drv.c
++++ b/drivers/gpu/drm/cirrus/cirrus_drv.c
+@@ -16,11 +16,11 @@
+ #include "cirrus_drv.h"
+ 
+ int cirrus_modeset = -1;
+-int cirrus_bpp = 24;
++int cirrus_bpp = 16;
+ 
+ MODULE_PARM_DESC(modeset, "Disable/Enable modesetting");
+ module_param_named(modeset, cirrus_modeset, int, 0400);
+-MODULE_PARM_DESC(bpp, "Max bits-per-pixel (default:24)");
++MODULE_PARM_DESC(bpp, "Max bits-per-pixel (default:16)");
+ module_param_named(bpp, cirrus_bpp, int, 0400);
+ 
+ /*
+diff --git a/drivers/gpu/drm/cirrus/cirrus_fbdev.c b/drivers/gpu/drm/cirrus/cirrus_fbdev.c
+index 32fbfba2c6..b329a54290 100644
+--- a/drivers/gpu/drm/cirrus/cirrus_fbdev.c
++++ b/drivers/gpu/drm/cirrus/cirrus_fbdev.c
+@@ -271,7 +271,6 @@ int cirrus_fbdev_init(struct cirrus_device *cdev)
+ {
+ 	struct cirrus_fbdev *gfbdev;
+ 	int ret;
+-	int bpp_sel = 24;
+ 
+ 	/*bpp_sel = 8;*/
+ 	gfbdev = kzalloc(sizeof(struct cirrus_fbdev), GFP_KERNEL);
+@@ -296,7 +295,7 @@ int cirrus_fbdev_init(struct cirrus_device *cdev)
+ 	/* disable all the possible outputs/crtcs before entering KMS mode */
+ 	drm_helper_disable_unused_functions(cdev->dev);
+ 
+-	return drm_fb_helper_initial_config(&gfbdev->helper, bpp_sel);
++	return drm_fb_helper_initial_config(&gfbdev->helper, cirrus_bpp);
+ }
+ 
+ void cirrus_fbdev_fini(struct cirrus_device *cdev)
+diff --git a/drivers/gpu/drm/cirrus/cirrus_mode.c b/drivers/gpu/drm/cirrus/cirrus_mode.c
+index c91b9b054e..91128b1d8d 100644
+--- a/drivers/gpu/drm/cirrus/cirrus_mode.c
++++ b/drivers/gpu/drm/cirrus/cirrus_mode.c
+@@ -518,7 +518,7 @@ int cirrus_modeset_init(struct cirrus_device *cdev)
+ 	cdev->dev->mode_config.max_height = CIRRUS_MAX_FB_HEIGHT;
+ 
+ 	cdev->dev->mode_config.fb_base = cdev->mc.vram_base;
+-	cdev->dev->mode_config.preferred_depth = 24;
++	cdev->dev->mode_config.preferred_depth = cirrus_bpp;
+ 	/* don't prefer a shadow on virt GPU */
+ 	cdev->dev->mode_config.prefer_shadow = 0;
+ 
+-- 
+2.9.3
