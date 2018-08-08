@@ -1,11 +1,23 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3] drm/cirrus: flip default from 24bpp to 16bpp
-Date: Wed,  8 Aug 2018 13:13:11 +0200
-Message-ID: <20180808111311.30311-1-kraxel__24808.67772033$1533726680$gmane$org@redhat.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
+Date: Wed, 8 Aug 2018 05:30:36 -0700
+Message-ID: <20180808123036.GA2525__29992.275828454$1533731322$gmane$org@infradead.org>
+References: <20180805072930.GB23288@infradead.org>
+	<b7e8294e3e70d24072883a7e8e5375719d5af870.camel@kernel.crashing.org>
+	<20180806094243.GA16032@infradead.org>
+	<6c707d6d33ac25a42265c2e9b521c2416d72c739.camel@kernel.crashing.org>
+	<20180807062117.GD32709@infradead.org>
+	<aa59c7f8556bd4b332394a1dcf2d4a8faf3dc4a2.camel@kernel.crashing.org>
+	<20180807135505.GA29034@infradead.org>
+	<2103ecfe52d23cec03f185d08a87bfad9c9d82b5.camel@kernel.crashing.org>
+	<20180808063158.GA2474@infradead.org>
+	<4b596883892b5cb5560bef26fcd249e7107173ac.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <4b596883892b5cb5560bef26fcd249e7107173ac.camel@kernel.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,79 +27,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The problem with 24bpp is that it is a rather unusual depth these days,
-cirrus is pretty much the only relevant device still using that, and it
-is a endless source of issues.  Wayland doesn't support it at all.  Bugs
-in Xorg keep showing up.
-
-Typically either 32bpp or 16bpp are used.  Using 32bpp would limit the
-resolution to 800x600 due to hardware constrains.  So lets go with 16bpp.
-
-Also use the default depth for the framebuffer console and
-mode_info->preferred_depth.
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/cirrus/cirrus_drv.c   | 4 ++--
- drivers/gpu/drm/cirrus/cirrus_fbdev.c | 3 +--
- drivers/gpu/drm/cirrus/cirrus_mode.c  | 2 +-
- 3 files changed, 4 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/gpu/drm/cirrus/cirrus_drv.c b/drivers/gpu/drm/cirrus/cirrus_drv.c
-index 69c4e352dd..b4f7be056c 100644
---- a/drivers/gpu/drm/cirrus/cirrus_drv.c
-+++ b/drivers/gpu/drm/cirrus/cirrus_drv.c
-@@ -16,11 +16,11 @@
- #include "cirrus_drv.h"
- 
- int cirrus_modeset = -1;
--int cirrus_bpp = 24;
-+int cirrus_bpp = 16;
- 
- MODULE_PARM_DESC(modeset, "Disable/Enable modesetting");
- module_param_named(modeset, cirrus_modeset, int, 0400);
--MODULE_PARM_DESC(bpp, "Max bits-per-pixel (default:24)");
-+MODULE_PARM_DESC(bpp, "Max bits-per-pixel (default:16)");
- module_param_named(bpp, cirrus_bpp, int, 0400);
- 
- /*
-diff --git a/drivers/gpu/drm/cirrus/cirrus_fbdev.c b/drivers/gpu/drm/cirrus/cirrus_fbdev.c
-index 32fbfba2c6..b329a54290 100644
---- a/drivers/gpu/drm/cirrus/cirrus_fbdev.c
-+++ b/drivers/gpu/drm/cirrus/cirrus_fbdev.c
-@@ -271,7 +271,6 @@ int cirrus_fbdev_init(struct cirrus_device *cdev)
- {
- 	struct cirrus_fbdev *gfbdev;
- 	int ret;
--	int bpp_sel = 24;
- 
- 	/*bpp_sel = 8;*/
- 	gfbdev = kzalloc(sizeof(struct cirrus_fbdev), GFP_KERNEL);
-@@ -296,7 +295,7 @@ int cirrus_fbdev_init(struct cirrus_device *cdev)
- 	/* disable all the possible outputs/crtcs before entering KMS mode */
- 	drm_helper_disable_unused_functions(cdev->dev);
- 
--	return drm_fb_helper_initial_config(&gfbdev->helper, bpp_sel);
-+	return drm_fb_helper_initial_config(&gfbdev->helper, cirrus_bpp);
- }
- 
- void cirrus_fbdev_fini(struct cirrus_device *cdev)
-diff --git a/drivers/gpu/drm/cirrus/cirrus_mode.c b/drivers/gpu/drm/cirrus/cirrus_mode.c
-index c91b9b054e..91128b1d8d 100644
---- a/drivers/gpu/drm/cirrus/cirrus_mode.c
-+++ b/drivers/gpu/drm/cirrus/cirrus_mode.c
-@@ -518,7 +518,7 @@ int cirrus_modeset_init(struct cirrus_device *cdev)
- 	cdev->dev->mode_config.max_height = CIRRUS_MAX_FB_HEIGHT;
- 
- 	cdev->dev->mode_config.fb_base = cdev->mc.vram_base;
--	cdev->dev->mode_config.preferred_depth = 24;
-+	cdev->dev->mode_config.preferred_depth = cirrus_bpp;
- 	/* don't prefer a shadow on virt GPU */
- 	cdev->dev->mode_config.prefer_shadow = 0;
- 
--- 
-2.9.3
+T24gV2VkLCBBdWcgMDgsIDIwMTggYXQgMDg6MDc6NDlQTSArMTAwMCwgQmVuamFtaW4gSGVycmVu
+c2NobWlkdCB3cm90ZToKPiBRZW11IHZpcnRpbyBieXBhc3NlcyB0aGF0IGlvbW11IHdoZW4gdGhl
+IFZJUlRJT19GX0lPTU1VX1BMQVRGT1JNIGZsYWcKPiBpcyBub3Qgc2V0IChkZWZhdWx0KSBidXQg
+dGhlcmUncyBub3RoaW5nIGluIHRoZSBkZXZpY2UtdHJlZSB0byB0ZWxsIHRoZQo+IGd1ZXN0IGFi
+b3V0IHRoaXMgc2luY2UgaXQncyBhIHZpb2xhdGlvbiBvZiBvdXIgcHNlcmllcyBhcmNoaXRlY3R1
+cmUsIHNvCj4gd2UganVzdCByZWx5IG9uIExpbnV4IHZpcnRpbyAia25vd2luZyIgdGhhdCBpdCBo
+YXBwZW5zLiBJdCdzIGEgYml0Cj4geXVja3kgYnV0IHRoYXQncyBub3cgaGlzdG9yeS4uLgoKVGhh
+dCBpcyB1Z2x5IGFzIGhlbGwsIGJ1dCBpdCBpcyBob3cgdmlydGlvIHdvcmtzIGV2ZXJ5d2hlcmUs
+IHNvIG5vdGhpbmcKc3BlY2lhbCBzbyBmYXIuCgo+IEVzc2VudGlhbGx5IHBzZXJpZXMgImFyY2hp
+dGVjdHVyYWxseSIgZG9lcyBub3QgaGF2ZSB0aGUgY29uY2VwdCBvZiBub3QKPiBoYXZpbmcgYW4g
+aW9tbXUgaW4gdGhlIHdheSBhbmQgcWVtdSB2aW9sYXRlcyB0aGF0IGFyY2hpdGVjdHVyZSB0b2Rh
+eS4KPiAKPiAoUmVtZW1iZXIgaXQgY29tZXMgZnJvbSBwSHlwLCBvdXIgcHJpb3JpZXRhcnkgSFYs
+IHdoaWNoIHdlIGFyZSBzb21ld2hhdAo+IG1pbW1pY2luZyBoZXJlKS4KCkl0IHNob3VsZG50IGJl
+IHRvbyBoYXJkIHRvIGhhdmUgYSBkdCBwcm9wZXJ0eSB0aGF0IGNvbW11bmljYXRlcyB0aGlzLApz
+aG91bGQgaXQ/Cgo+IFNvIGlmIHdlIGFsd2F5cyBzZXQgVklSVElPX0ZfSU9NTVVfUExBVEZPUk0s
+IGl0ICp3aWxsKiBmb3JjZSBhbGwgdmlydGlvCj4gdGhyb3VnaCB0aGF0IGlvbW11IGFuZCBwZXJm
+b3JtYW5jZSB3aWxsIHN1ZmZlciAoZXNwIHZob3N0IEkgc3VzcGVjdCksCj4gZXNwZWNpYWxseSBz
+aW5jZSBhZGRpbmcvcmVtb3ZpbmcgdHJhbnNsYXRpb25zIGluIHRoZSBpb21tdSBpcyBhCj4gaHlw
+ZXJjYWxsLgoKV2VsbCwgd2UnZCBuZWUgdG8gbWFrZSBzdXJlIHRoYXQgZm9yIHRoaXMgcGFydGlj
+dWxhciBidXMgd2Ugc2tpcCB0aGUKYWN0dWFseSBpb21tdS4KCj4gPiBJdCB3b3VsZCBub3QgYmUg
+dGhlIHNhbWUgZWZmZWN0LiAgVGhlIHByb2JsZW0gd2l0aCB0aGF0IGlzIHRoYXQgeW91IG11c3QK
+PiA+IG5vdyBhc3N1bWVzIHRoYXQgeW91ciBxZW11IGtub3dzIHRoYXQgZm9yIGV4YW1wbGUgeW91
+IG1pZ2h0IGJlIHBhc3NpbmcKPiA+IGEgZG1hIG9mZnNldCBpZiB0aGUgYnVzIG90aGVyd2lzZSBy
+ZXF1aXJlcyBpdC4gCj4gCj4gSSB3b3VsZCBhc3N1bWUgdGhhdCBhcmNoX3ZpcnRpb193YW50c19k
+bWFfb3BzKCkgb25seSByZXR1cm5zIHRydWUgd2hlbgo+IG5vIHN1Y2ggb2Zmc2V0cyBhcmUgaW52
+b2x2ZWQsIGF0IGxlYXN0IGluIG91ciBjYXNlIHRoYXQgd291bGQgYmUgd2hhdAo+IGhhcHBlbnMu
+CgpUaGF0IHdvdWxkIHdvcmssIGJ1dCB3ZSdyZSByZWFsbHkgcGlsaW5nIGhhY8S4cyBvbnRvcCBv
+ZiBoYWNrcyBoZXJlLgoKPiA+ICBPciBpbiBvdGhlciB3b3JkczoKPiA+IHlvdSBwb3RlbnRpYWxs
+eSBicmVhayB0aGUgY29udHJhY3QgYmV0d2VlbiBxZW11IGFuZCB0aGUgZ3Vlc3Qgb2YgYWx3YXlz
+Cj4gPiBwYXNzaW5nIGRvd24gcGh5c2ljYWwgYWRkcmVzc2VzLiAgSWYgd2UgZXhwbGljaXRseSBj
+aGFuZ2UgdGhhdCBjb250cmFjdAo+ID4gdGhyb3VnaCB1c2luZyBhIGZsYWcgdGhhdCBzYXlzIHlv
+dSBwYXNzIGJ1cyBhZGRyZXNzIGV2ZXJ5dGhpbmcgaXMgZmluZS4KPiAKPiBGb3IgdXMgYSAiYnVz
+IGFkZHJlc3MiIGlzIGJlaGluZCB0aGUgaW9tbXUgc28gdGhhdCdzIHdoYXQKPiBWSVJUSU9fRl9J
+T01NVV9QTEFURk9STSBkb2VzIGFscmVhZHkuIFdlIGRvbid0IGhhdmUgdGhlIGNvbmNlcHQgb2Yg
+YQo+IGJ1cyBhZGRyZXNzIHRoYXQgaXMgZGlmZmVyZW50LiBJIHN1cHBvc2UgaXQncyBhbiBBUk1p
+c20gdG8gaGF2ZSBETUEKPiBvZmZzZXRzIHRoYXQgYXJlIHNlcGFyYXRlIGZyb20gaW9tbXVzID8g
+CgpObywgYSBsb3Qgb2YgcGxhdGZvcm1zIHN1cHBvcnQgYSBidXMgYWRkcmVzcyB0aGF0IGhhcyBh
+biBvZmZzZXQgZnJvbQp0aGUgcGh5c2ljYWwgYWRkcmVzcy4gaW5jbHVkaW5nIGEgbG90IG9mIHBv
+d2VyIHBsYXRmb3JtczoKCmFyY2gvcG93ZXJwYy9rZXJuZWwvcGNpLWNvbW1vbi5jOiAgICAgICBz
+ZXRfZG1hX29mZnNldCgmZGV2LT5kZXYsIFBDSV9EUkFNX09GRlNFVCk7CmFyY2gvcG93ZXJwYy9w
+bGF0Zm9ybXMvY2VsbC9pb21tdS5jOiAgICAgICAgICAgIHNldF9kbWFfb2Zmc2V0KGRldiwgY2Vs
+bF9kbWFfbm9tbXVfb2Zmc2V0KTsKYXJjaC9wb3dlcnBjL3BsYXRmb3Jtcy9jZWxsL2lvbW11LmM6
+ICAgICAgICAgICAgc2V0X2RtYV9vZmZzZXQoZGV2LCBhZGRyKTsKYXJjaC9wb3dlcnBjL3BsYXRm
+b3Jtcy9wb3dlcm52L3BjaS1pb2RhLmM6ICAgICAgc2V0X2RtYV9vZmZzZXQoJnBkZXYtPmRldiwg
+cGUtPnRjZV9ieXBhc3NfYmFzZSk7CmFyY2gvcG93ZXJwYy9wbGF0Zm9ybXMvcG93ZXJudi9wY2kt
+aW9kYS5jOiAgICAgICAgICAgICAgICAgICAgICBzZXRfZG1hX29mZnNldCgmcGRldi0+ZGV2LCAo
+MVVMTCA8PCAzMikpOwphcmNoL3Bvd2VycGMvcGxhdGZvcm1zL3Bvd2VybnYvcGNpLWlvZGEuYzog
+ICAgICAgICAgICAgIHNldF9kbWFfb2Zmc2V0KCZkZXYtPmRldiwgcGUtPnRjZV9ieXBhc3NfYmFz
+ZSk7CmFyY2gvcG93ZXJwYy9wbGF0Zm9ybXMvcHNlcmllcy9pb21tdS5jOiAgICAgICAgICAgICAg
+ICAgICAgICAgICBzZXRfZG1hX29mZnNldChkZXYsIGRtYV9vZmZzZXQpOwphcmNoL3Bvd2VycGMv
+c3lzZGV2L2RhcnRfaW9tbXUuYzogICAgICAgICAgICAgICBzZXRfZG1hX29mZnNldCgmZGV2LT5k
+ZXYsIERBUlRfVTRfQllQQVNTX0JBU0UpOwphcmNoL3Bvd2VycGMvc3lzZGV2L2ZzbF9wY2kuYzog
+ICAgICAgICAgc2V0X2RtYV9vZmZzZXQoZGV2LCBwY2k2NF9kbWFfb2Zmc2V0KTsKCnRvIG1ha2Ug
+dGhpbmdzIHdvcnNlIHNvbWUgcGxhdGZvcm1zIChhdCBsZWFzdCBvbiBhcm0vYXJtNjQvbWlwcy94
+ODYpIGNhbgphbHNvIHJlcXVpcmUgYWRkaXRpb25hbCBiYW5raW5nIHdoZXJlIGl0IGlzbid0IGV2
+ZW4gYSBzaW5nbGUgbGluZWFyIG1hcApidXQgbXVsdGlwbGVzIHdpbmRvd3MuCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
