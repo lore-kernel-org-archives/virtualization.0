@@ -1,23 +1,14 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Wed, 08 Aug 2018 06:32:45 +1000
-Message-ID: <2103ecfe52d23cec03f185d08a87bfad9c9d82b5.camel@kernel.crashing.org>
-References: <20180803160246.GA13794@infradead.org>
-	<22310f58605169fe9de83abf78b59f593ff7fbb7.camel@kernel.crashing.org>
-	<20180804082120.GB4421@infradead.org>
-	<a3ec0a454928e880dabc3782ea906e318634abf9.camel@kernel.crashing.org>
-	<20180805072930.GB23288@infradead.org>
-	<b7e8294e3e70d24072883a7e8e5375719d5af870.camel@kernel.crashing.org>
-	<20180806094243.GA16032@infradead.org>
-	<6c707d6d33ac25a42265c2e9b521c2416d72c739.camel@kernel.crashing.org>
-	<20180807062117.GD32709@infradead.org>
-	<aa59c7f8556bd4b332394a1dcf2d4a8faf3dc4a2.camel@kernel.crashing.org>
-	<20180807135505.GA29034@infradead.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: KASAN: use-after-free Read in iotlb_access_ok
+Date: Wed, 8 Aug 2018 10:52:57 +0800
+Message-ID: <e28c5785-1dd7-b82e-c054-dd821f934a1a@redhat.com>
+References: <000000000000eb92240572d68452@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180807135505.GA29034@infradead.org>
+In-Reply-To: <000000000000eb92240572d68452@google.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,57 +18,107 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: syzbot <syzbot+c51e6736a1bf614b3272@syzkaller.appspotmail.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2018-08-07 at 06:55 -0700, Christoph Hellwig wrote:
-> On Tue, Aug 07, 2018 at 04:42:44PM +1000, Benjamin Herrenschmidt wrote:
-> > Note that I can make it so that the same DMA ops (basically standard
-> > swiotlb ops without arch hacks) work for both "direct virtio" and
-> > "normal PCI" devices.
-> > 
-> > The trick is simply in the arch to setup the iommu to map the swiotlb
-> > bounce buffer pool 1:1 in the iommu, so the iommu essentially can be
-> > ignored without affecting the physical addresses.
-> > 
-> > If I do that, *all* I need is a way, from the guest itself (again, the
-> > other side dosn't know anything about it), to force virtio to use the
-> > DMA ops as if there was an iommu, that is, use whatever dma ops were
-> > setup by the platform for the pci device.
-> 
-> In that case just setting VIRTIO_F_IOMMU_PLATFORM in the flags should
-> do the work (even if that isn't strictly what the current definition
-> of the flag actually means).  On the qemu side you'll need to make
-> sure you have a way to set VIRTIO_F_IOMMU_PLATFORM without emulating
-> an iommu, but with code to take dma offsets into account if your
-> plaform has any (various power plaforms seem to have them, not sure
-> if it affects your config).
-
-Something like that yes. I prefer a slightly different way, see below,
-any but in both cases, it should alleviate your concerns since it means
-there would be no particular mucking around with DMA ops at all, virtio
-would just use whatever "normal" ops we establish for all PCI devices
-on that platform, which will be standard ones.
-
-(swiotlb ones today and the new "integrates" ones you're cooking
-tomorrow).
-
-As for the flag itself, while we could set it from qemu when we get
-notified that the guest is going secure, both Michael and I think it's
-rather gross, it requires qemu to go iterate all virtio devices and
-"poke" something into them.
-
-It also means qemu will need some other internal nasty flag that says
-"set that bit but don't do iommu".
-
-It's nicer if we have a way in the guest virtio driver to do something
-along the lines of
-
-	if ((flags & VIRTIO_F_IOMMU_PLATFORM) || arch_virtio_wants_dma_ops())
-
-Which would have the same effect and means the issue is entirely
-contained in the guest.
-
-Cheers,
-Ben.
+CgpPbiAyMDE45bm0MDjmnIgwN+aXpSAxOToxNiwgc3l6Ym90IHdyb3RlOgo+IEhlbGxvLAo+Cj4g
+c3l6Ym90IGZvdW5kIHRoZSBmb2xsb3dpbmcgY3Jhc2ggb246Cj4KPiBIRUFEIGNvbW1pdDrCoMKg
+wqAgZTMwY2IxM2M1YTA5IE1lcmdlIAo+IGdpdDovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGlu
+dXgva2Vybi4uCj4gZ2l0IHRyZWU6wqDCoMKgwqDCoMKgIHVwc3RyZWFtCj4gY29uc29sZSBvdXRw
+dXQ6IGh0dHBzOi8vc3l6a2FsbGVyLmFwcHNwb3QuY29tL3gvbG9nLnR4dD94PTEwYTE1M2UwNDAw
+MDAwCj4ga2VybmVsIGNvbmZpZzogaHR0cHM6Ly9zeXprYWxsZXIuYXBwc3BvdC5jb20veC8uY29u
+ZmlnP3g9MmRjMGNkN2MyZWVmYjQ2Zgo+IGRhc2hib2FyZCBsaW5rOiAKPiBodHRwczovL3N5emth
+bGxlci5hcHBzcG90LmNvbS9idWc/ZXh0aWQ9YzUxZTY3MzZhMWJmNjE0YjMyNzIKPiBjb21waWxl
+cjrCoMKgwqDCoMKgwqAgZ2NjIChHQ0MpIDguMC4xIDIwMTgwNDEzIChleHBlcmltZW50YWwpCj4K
+PiBVbmZvcnR1bmF0ZWx5LCBJIGRvbid0IGhhdmUgYW55IHJlcHJvZHVjZXIgZm9yIHRoaXMgY3Jh
+c2ggeWV0Lgo+Cj4gSU1QT1JUQU5UOiBpZiB5b3UgZml4IHRoZSBidWcsIHBsZWFzZSBhZGQgdGhl
+IGZvbGxvd2luZyB0YWcgdG8gdGhlIAo+IGNvbW1pdDoKPiBSZXBvcnRlZC1ieTogc3l6Ym90K2M1
+MWU2NzM2YTFiZjYxNGIzMjcyQHN5emthbGxlci5hcHBzcG90bWFpbC5jb20KPgo+ID09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PQo+IEJVRzogS0FTQU46IHVzZS1hZnRlci1mcmVlIGluIHZob3N0X3ZxX21ldGFfZmV0Y2ggCj4g
+ZHJpdmVycy92aG9zdC92aG9zdC5jOjcwMiBbaW5saW5lXQo+IEJVRzogS0FTQU46IHVzZS1hZnRl
+ci1mcmVlIGluIGlvdGxiX2FjY2Vzc19vaysweDVjOS8weDYwMCAKPiBkcml2ZXJzL3Zob3N0L3Zo
+b3N0LmM6MTE3Nwo+IFJlYWQgb2Ygc2l6ZSA4IGF0IGFkZHIgZmZmZjg4MDE5N2RmMmZjMCBieSB0
+YXNrIHZob3N0LTg5MzgvODk0MQo+Cj4gQ1BVOiAwIFBJRDogODk0MSBDb21tOiB2aG9zdC04OTM4
+IE5vdCB0YWludGVkIDQuMTguMC1yYzcrICMxNzQKPiBIYXJkd2FyZSBuYW1lOiBHb29nbGUgR29v
+Z2xlIENvbXB1dGUgRW5naW5lL0dvb2dsZSBDb21wdXRlIEVuZ2luZSwgCj4gQklPUyBHb29nbGUg
+MDEvMDEvMjAxMQo+IENhbGwgVHJhY2U6Cj4gwqBfX2R1bXBfc3RhY2sgbGliL2R1bXBfc3RhY2su
+Yzo3NyBbaW5saW5lXQo+IMKgZHVtcF9zdGFjaysweDFjOS8weDJiNCBsaWIvZHVtcF9zdGFjay5j
+OjExMwo+IMKgcHJpbnRfYWRkcmVzc19kZXNjcmlwdGlvbisweDZjLzB4MjBiIG1tL2thc2FuL3Jl
+cG9ydC5jOjI1Ngo+IMKga2FzYW5fcmVwb3J0X2Vycm9yIG1tL2thc2FuL3JlcG9ydC5jOjM1NCBb
+aW5saW5lXQo+IMKga2FzYW5fcmVwb3J0LmNvbGQuNysweDI0Mi8weDJmZSBtbS9rYXNhbi9yZXBv
+cnQuYzo0MTIKPiDCoF9fYXNhbl9yZXBvcnRfbG9hZDhfbm9hYm9ydCsweDE0LzB4MjAgbW0va2Fz
+YW4vcmVwb3J0LmM6NDMzCj4gwqB2aG9zdF92cV9tZXRhX2ZldGNoIGRyaXZlcnMvdmhvc3Qvdmhv
+c3QuYzo3MDIgW2lubGluZV0KPiDCoGlvdGxiX2FjY2Vzc19vaysweDVjOS8weDYwMCBkcml2ZXJz
+L3Zob3N0L3Zob3N0LmM6MTE3Nwo+IMKgdnFfaW90bGJfcHJlZmV0Y2grMHgxMGUvMHgyMzAgZHJp
+dmVycy92aG9zdC92aG9zdC5jOjEyMTQKPiDCoGhhbmRsZV9yeCsweDI0Ny8weDFmODAgZHJpdmVy
+cy92aG9zdC9uZXQuYzo3OTkKPiDCoGhhbmRsZV9yeF9uZXQrMHgxOS8weDIwIGRyaXZlcnMvdmhv
+c3QvbmV0LmM6OTM0Cj4gwqB2aG9zdF93b3JrZXIrMHgyODMvMHg0OTAgZHJpdmVycy92aG9zdC92
+aG9zdC5jOjM2MAo+IMKga3RocmVhZCsweDM0NS8weDQxMCBrZXJuZWwva3RocmVhZC5jOjI0Ngo+
+IMKgcmV0X2Zyb21fZm9yaysweDNhLzB4NTAgYXJjaC94ODYvZW50cnkvZW50cnlfNjQuUzo0MTIK
+Pgo+IEFsbG9jYXRlZCBieSB0YXNrIDg5Mzg6Cj4gwqBzYXZlX3N0YWNrKzB4NDMvMHhkMCBtbS9r
+YXNhbi9rYXNhbi5jOjQ0OAo+IMKgc2V0X3RyYWNrIG1tL2thc2FuL2thc2FuLmM6NDYwIFtpbmxp
+bmVdCj4gwqBrYXNhbl9rbWFsbG9jKzB4YzQvMHhlMCBtbS9rYXNhbi9rYXNhbi5jOjU1Mwo+IMKg
+a21lbV9jYWNoZV9hbGxvY190cmFjZSsweDE1Mi8weDc4MCBtbS9zbGFiLmM6MzYyMAo+IMKga21h
+bGxvYyBpbmNsdWRlL2xpbnV4L3NsYWIuaDo1MTMgW2lubGluZV0KPiDCoHZob3N0X25ld191bWVt
+X3JhbmdlKzB4Y2IvMHg3YzAgZHJpdmVycy92aG9zdC92aG9zdC5jOjkxMQo+IMKgdmhvc3RfcHJv
+Y2Vzc19pb3RsYl9tc2cgZHJpdmVycy92aG9zdC92aG9zdC5jOjEwMDAgW2lubGluZV0KPiDCoHZo
+b3N0X2Nocl93cml0ZV9pdGVyKzB4ZTUzLzB4MWEwMCBkcml2ZXJzL3Zob3N0L3Zob3N0LmM6MTA0
+Mwo+IMKgdmhvc3RfbmV0X2Nocl93cml0ZV9pdGVyKzB4NTkvMHg3MCBkcml2ZXJzL3Zob3N0L25l
+dC5jOjEzOTkKPiDCoGNhbGxfd3JpdGVfaXRlciBpbmNsdWRlL2xpbnV4L2ZzLmg6MTc5MyBbaW5s
+aW5lXQo+IMKgbmV3X3N5bmNfd3JpdGUgZnMvcmVhZF93cml0ZS5jOjQ3NCBbaW5saW5lXQo+IMKg
+X192ZnNfd3JpdGUrMHg2YzYvMHg5ZjAgZnMvcmVhZF93cml0ZS5jOjQ4Nwo+IMKgdmZzX3dyaXRl
+KzB4MWY4LzB4NTYwIGZzL3JlYWRfd3JpdGUuYzo1NDkKPiDCoGtzeXNfd3JpdGUrMHgxMDEvMHgy
+NjAgZnMvcmVhZF93cml0ZS5jOjU5OAo+IMKgX19kb19zeXNfd3JpdGUgZnMvcmVhZF93cml0ZS5j
+OjYxMCBbaW5saW5lXQo+IMKgX19zZV9zeXNfd3JpdGUgZnMvcmVhZF93cml0ZS5jOjYwNyBbaW5s
+aW5lXQo+IMKgX194NjRfc3lzX3dyaXRlKzB4NzMvMHhiMCBmcy9yZWFkX3dyaXRlLmM6NjA3Cj4g
+wqBkb19zeXNjYWxsXzY0KzB4MWI5LzB4ODIwIGFyY2gveDg2L2VudHJ5L2NvbW1vbi5jOjI5MAo+
+IMKgZW50cnlfU1lTQ0FMTF82NF9hZnRlcl9od2ZyYW1lKzB4NDkvMHhiZQo+Cj4gRnJlZWQgYnkg
+dGFzayA4OTUwOgo+IMKgc2F2ZV9zdGFjaysweDQzLzB4ZDAgbW0va2FzYW4va2FzYW4uYzo0NDgK
+PiDCoHNldF90cmFjayBtbS9rYXNhbi9rYXNhbi5jOjQ2MCBbaW5saW5lXQo+IMKgX19rYXNhbl9z
+bGFiX2ZyZWUrMHgxMWEvMHgxNzAgbW0va2FzYW4va2FzYW4uYzo1MjEKPiDCoGthc2FuX3NsYWJf
+ZnJlZSsweGUvMHgxMCBtbS9rYXNhbi9rYXNhbi5jOjUyOAo+IMKgX19jYWNoZV9mcmVlIG1tL3Ns
+YWIuYzozNDk4IFtpbmxpbmVdCj4gwqBrZnJlZSsweGQ5LzB4MjYwIG1tL3NsYWIuYzozODEzCj4g
+wqB2aG9zdF91bWVtX2ZyZWUrMHg5NDQvMHgxNGQwIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYzo1NzYK
+PiDCoHZob3N0X3VtZW1fY2xlYW4rMHg4My8weGYwIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYzo1ODgK
+PiDCoHZob3N0X2luaXRfZGV2aWNlX2lvdGxiKzB4MWQ3LzB4MjkwIGRyaXZlcnMvdmhvc3Qvdmhv
+c3QuYzoxNTY4Cj4gwqB2aG9zdF9uZXRfc2V0X2ZlYXR1cmVzIGRyaXZlcnMvdmhvc3QvbmV0LmM6
+MTI5MiBbaW5saW5lXQo+IMKgdmhvc3RfbmV0X2lvY3RsKzB4ZmYzLzB4MWE4MCBkcml2ZXJzL3Zo
+b3N0L25ldC5jOjEzNTcKPiDCoHZmc19pb2N0bCBmcy9pb2N0bC5jOjQ2IFtpbmxpbmVdCj4gwqBm
+aWxlX2lvY3RsIGZzL2lvY3RsLmM6NTAwIFtpbmxpbmVdCj4gwqBkb192ZnNfaW9jdGwrMHgxZGUv
+MHgxNzIwIGZzL2lvY3RsLmM6Njg0Cj4gwqBrc3lzX2lvY3RsKzB4YTkvMHhkMCBmcy9pb2N0bC5j
+OjcwMQo+IMKgX19kb19zeXNfaW9jdGwgZnMvaW9jdGwuYzo3MDggW2lubGluZV0KPiDCoF9fc2Vf
+c3lzX2lvY3RsIGZzL2lvY3RsLmM6NzA2IFtpbmxpbmVdCj4gwqBfX3g2NF9zeXNfaW9jdGwrMHg3
+My8weGIwIGZzL2lvY3RsLmM6NzA2Cj4gwqBkb19zeXNjYWxsXzY0KzB4MWI5LzB4ODIwIGFyY2gv
+eDg2L2VudHJ5L2NvbW1vbi5jOjI5MAo+IMKgZW50cnlfU1lTQ0FMTF82NF9hZnRlcl9od2ZyYW1l
+KzB4NDkvMHhiZQo+Cj4gVGhlIGJ1Z2d5IGFkZHJlc3MgYmVsb25ncyB0byB0aGUgb2JqZWN0IGF0
+IGZmZmY4ODAxOTdkZjJmODAKPiDCoHdoaWNoIGJlbG9uZ3MgdG8gdGhlIGNhY2hlIGttYWxsb2Mt
+OTYgb2Ygc2l6ZSA5Ngo+IFRoZSBidWdneSBhZGRyZXNzIGlzIGxvY2F0ZWQgNjQgYnl0ZXMgaW5z
+aWRlIG9mCj4gwqA5Ni1ieXRlIHJlZ2lvbiBbZmZmZjg4MDE5N2RmMmY4MCwgZmZmZjg4MDE5N2Rm
+MmZlMCkKPiBUaGUgYnVnZ3kgYWRkcmVzcyBiZWxvbmdzIHRvIHRoZSBwYWdlOgo+IHBhZ2U6ZmZm
+ZmVhMDAwNjVmN2M4MCBjb3VudDoxIG1hcGNvdW50OjAgbWFwcGluZzpmZmZmODgwMWRhYzAwNGMw
+IAo+IGluZGV4OjB4MAo+IGZsYWdzOiAweDJmZmZjMDAwMDAwMDEwMChzbGFiKQo+IHJhdzogMDJm
+ZmZjMDAwMDAwMDEwMCBmZmZmZWEwMDA3NTMwMTQ4IGZmZmZlYTAwMDY2M2I4ODggZmZmZjg4MDFk
+YWMwMDRjMAo+IHJhdzogMDAwMDAwMDAwMDAwMDAwMCBmZmZmODgwMTk3ZGYyMDAwIDAwMDAwMDAx
+MDAwMDAwMjAgMDAwMDAwMDAwMDAwMDAwMAo+IHBhZ2UgZHVtcGVkIGJlY2F1c2U6IGthc2FuOiBi
+YWQgYWNjZXNzIGRldGVjdGVkCj4KPiBNZW1vcnkgc3RhdGUgYXJvdW5kIHRoZSBidWdneSBhZGRy
+ZXNzOgo+IMKgZmZmZjg4MDE5N2RmMmU4MDogZmIgZmIgZmIgZmIgZmIgZmIgZmIgZmIgZmIgZmIg
+ZmIgZmIgZmMgZmMgZmMgZmMKPiDCoGZmZmY4ODAxOTdkZjJmMDA6IGZiIGZiIGZiIGZiIGZiIGZi
+IGZiIGZiIGZiIGZiIGZiIGZiIGZjIGZjIGZjIGZjCj4+IGZmZmY4ODAxOTdkZjJmODA6IGZiIGZi
+IGZiIGZiIGZiIGZiIGZiIGZiIGZiIGZiIGZiIGZiIGZjIGZjIGZjIGZjCj4gwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgIF4KPiDCoGZmZmY4ODAxOTdkZjMwMDA6IGZmIGZmIGZmIGZmIGZmIGZm
+IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmCj4gwqBmZmZmODgwMTk3ZGYzMDgwOiBmZiBm
+ZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZgo+ID09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQo+
+Cj4KPiAtLS0KPiBUaGlzIGJ1ZyBpcyBnZW5lcmF0ZWQgYnkgYSBib3QuIEl0IG1heSBjb250YWlu
+IGVycm9ycy4KPiBTZWUgaHR0cHM6Ly9nb28uZ2wvdHBzbUVKIGZvciBtb3JlIGluZm9ybWF0aW9u
+IGFib3V0IHN5emJvdC4KPiBzeXpib3QgZW5naW5lZXJzIGNhbiBiZSByZWFjaGVkIGF0IHN5emth
+bGxlckBnb29nbGVncm91cHMuY29tLgo+Cj4gc3l6Ym90IHdpbGwga2VlcCB0cmFjayBvZiB0aGlz
+IGJ1ZyByZXBvcnQuIFNlZToKPiBodHRwczovL2dvby5nbC90cHNtRUojYnVnLXN0YXR1cy10cmFj
+a2luZyBmb3IgaG93IHRvIGNvbW11bmljYXRlIHdpdGggCj4gc3l6Ym90LgoKTG9va3MgbGlrZSB0
+aGUgbWV0YWRhdGEgSU9UTEIgbmVlZHMgdG8gYmUgcmVzZXQgZHVyaW5nIHNldF9mZWF0dXJlcy4K
+CldpbGwgcG9zdCBhIGZpeC4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
