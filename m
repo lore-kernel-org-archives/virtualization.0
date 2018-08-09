@@ -1,23 +1,14 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Wed, 8 Aug 2018 22:40:13 -0700
-Message-ID: <20180809054013.GA20507@infradead.org>
-References: <20180807062117.GD32709@infradead.org>
-	<aa59c7f8556bd4b332394a1dcf2d4a8faf3dc4a2.camel@kernel.crashing.org>
-	<20180807135505.GA29034@infradead.org>
-	<2103ecfe52d23cec03f185d08a87bfad9c9d82b5.camel@kernel.crashing.org>
-	<20180808063158.GA2474@infradead.org>
-	<4b596883892b5cb5560bef26fcd249e7107173ac.camel@kernel.crashing.org>
-	<20180808123036.GA2525@infradead.org>
-	<b8b9150a747453c070ad3b0e4c92d2b1b052ad06.camel@kernel.crashing.org>
-	<20180808232210-mutt-send-email-mst@kernel.org>
-	<98eb367ce322ad84baa31e3c7beffc4a42be8458.camel@kernel.crashing.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH] drm/bochs: Replace ttm_bo_unref with ttm_bo_put
+Date: Thu, 9 Aug 2018 17:27:50 +0200
+Message-ID: <20180809152750.w6pirxqqwdajfhwz@sirius.home.kraxel.org>
+References: <20180731062851.10812-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <98eb367ce322ad84baa31e3c7beffc4a42be8458.camel@kernel.crashing.org>
+In-Reply-To: <20180731062851.10812-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,25 +18,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: robh@kernel.org, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, mpe@ellerman.id.au, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, jean-philippe.brucker@arm.com, paulus@samba.org, marc.zyngier@arm.com, joe@perches.com, robin.murphy@arm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, elfring@users.sourceforge.net, haren@linux.vnet.ibm.com, Anshuman Khandual <khandual@linux.vnet.ibm.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 09, 2018 at 08:13:32AM +1000, Benjamin Herrenschmidt wrote:
-> > > -	if (xen_domain())
-> > > +	if (xen_domain() || pseries_secure_vm())
-> > > 		return true;
-> > 
-> > I don't think it's pseries specific actually. E.g. I suspect AMD SEV
-> > might benefit from the same kind of hack.
-> 
-> As long as they can provide the same guarantee that the DMA ops are
-> completely equivalent between virtio and other PCI devices, at least on
-> the same bus, ie, we don't have to go hack special DMA ops.
-> 
-> I think the latter is really what Christoph wants to avoid for good
-> reasons.
-
-Yes.  I also generally want to avoid too much arch specific magic.
-
-FYI, I'm off to a week-long vacation today, don't expect quick replies.
+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2JvY2hzL2JvY2hzX21tLmMgYi9kcml2ZXJz
+L2dwdS9kcm0vYm9jaHMvYm9jaHNfbW0uYwo+IGluZGV4IDM5Y2QwODQxNjc3My4uYzljNzA5NzAz
+MGNhIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9ib2Nocy9ib2Noc19tbS5jCj4gKysr
+IGIvZHJpdmVycy9ncHUvZHJtL2JvY2hzL2JvY2hzX21tLmMKPiBAQCAtNDMwLDcgKzQzMCw3IEBA
+IHN0YXRpYyB2b2lkIGJvY2hzX2JvX3VucmVmKHN0cnVjdCBib2Noc19ibyAqKmJvKQo+ICAJCXJl
+dHVybjsKPiAgCj4gIAl0Ym8gPSAmKCgqYm8pLT5ibyk7Cj4gLQl0dG1fYm9fdW5yZWYoJnRibyk7
+Cj4gKwl0dG1fYm9fcHV0KHRibyk7CgpmYWlscyB0byBidWlsZDoKCiAgQ0MgW01dICBkcml2ZXJz
+L2dwdS9kcm0vYm9jaHMvYm9jaHNfbW0ubwovaG9tZS9rcmF4ZWwvcHJvamVjdHMvbGludXgvZHJp
+dmVycy9ncHUvZHJtL2JvY2hzL2JvY2hzX21tLmM6IEluIGZ1bmN0aW9uIOKAmGJvY2hzX2JvX3Vu
+cmVm4oCZOgovaG9tZS9rcmF4ZWwvcHJvamVjdHMvbGludXgvZHJpdmVycy9ncHUvZHJtL2JvY2hz
+L2JvY2hzX21tLmM6NDMzOjI6IGVycm9yOiBpbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlv
+biDigJh0dG1fYm9fcHV04oCZIFstV2Vycm9yPWltcGxpY2l0LWZ1bmN0aW9uLWRlY2xhcmF0aW9u
+XQogIHR0bV9ib19wdXQodGJvKTsKICBeCmNjMTogc29tZSB3YXJuaW5ncyBiZWluZyB0cmVhdGVk
+IGFzIGVycm9ycwoKY2hlZXJzLAogIEdlcmQKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
+dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
+dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
