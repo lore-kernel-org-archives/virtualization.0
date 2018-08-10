@@ -1,14 +1,15 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/qxl: Replace ttm_bo_unref with ttm_bo_put
-Date: Thu, 9 Aug 2018 17:30:51 +0200
-Message-ID: <20180809153051.vj3kqtey7qhe3mqz__32414.0745135539$1533828530$gmane$org@sirius.home.kraxel.org>
-References: <20180731063559.11629-1-tzimmermann@suse.de>
+Subject: Re: [PATCH] drm/cirrus: Use drm_framebuffer_put to avoid kernel oops
+	in clean-up
+Date: Fri, 10 Aug 2018 08:03:05 +0200
+Message-ID: <20180810060305.q2wse7tdkx46pzyy__1136.89260692826$1533880864$gmane$org@sirius.home.kraxel.org>
+References: <20180720112743.27159-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180731063559.11629-1-tzimmermann@suse.de>
+In-Reply-To: <20180720112743.27159-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,18 +23,23 @@ To: Thomas Zimmermann <tzimmermann@suse.de>
 Cc: airlied@redhat.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> diff --git a/drivers/gpu/drm/qxl/qxl_gem.c b/drivers/gpu/drm/qxl/qxl_gem.c
-> index f5c1e7872e92..89606c819d82 100644
-> --- a/drivers/gpu/drm/qxl/qxl_gem.c
-> +++ b/drivers/gpu/drm/qxl/qxl_gem.c
-> @@ -40,7 +40,7 @@ void qxl_gem_object_free(struct drm_gem_object *gobj)
->  	qxl_surface_evict(qdev, qobj, false);
->  
->  	tbo = &qobj->tbo;
-> -	ttm_bo_unref(&tbo);
-> +	ttm_bo_put(tbo);
+On Fri, Jul 20, 2018 at 01:27:43PM +0200, Thomas Zimmermann wrote:
+> In the Cirrus driver, the regular clean-up code also performs the clean-up
+> of a failed initialization. If the fbdev's framebuffer was not initialized,
+> the clean-up will fail within drm_framebuffer_unregister_private. Booting
+> with cirrus.bpp=16 triggers this bug.
+> 
+> The framebuffer is currently stored directly within struct cirrus_fbdev. To
+> fix the bug, we turn it into a pointer that is only set for initialized
+> framebuffers. The fbdev's clean-up code skips uninitialized framebuffers.
+> 
+> The memory for struct drm_framebuffer is allocated dynamically. This requires
+> additional error handling within cirrusfb_create. The framebuffer clean-up is
+> now performed by drm_framebuffer_put, which also frees the data strcuture's
+> memory.
 
-Same here (using drm-misc-next btw).
+pushed to drm-misc-next (also the other ones, except the failing ttm_put
+patches).
 
-cheers,
+thanks,
   Gerd
