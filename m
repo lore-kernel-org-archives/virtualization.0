@@ -1,14 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm: qxl: Fix error handling at qxl_device_init
-Date: Fri, 10 Aug 2018 08:03:29 +0200
-Message-ID: <20180810060329.gipwvnw56v4gaela__13510.5295958512$1533880889$gmane$org@sirius.home.kraxel.org>
-References: <20180727115440.11112-1-vasilyev@ispras.ru>
+From: Juergen Gross <jgross@suse.com>
+Subject: [PATCH 01/10] x86/paravirt: make paravirt_patch_call() and
+	paravirt_patch_jmp() static
+Date: Fri, 10 Aug 2018 13:52:43 +0200
+Message-ID: <20180810115252.18213-2-jgross@suse.com>
+References: <20180810115252.18213-1-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180727115440.11112-1-vasilyev@ispras.ru>
+In-Reply-To: <20180810115252.18213-1-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,20 +18,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anton Vasilyev <vasilyev@ispras.ru>
-Cc: ldv-project@linuxtesting.org, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Dave Airlie <airlied@redhat.com>
+To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, boris.ostrovsky@oracle.com, rusty@rustcorp.com.au, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 27, 2018 at 02:54:40PM +0300, Anton Vasilyev wrote:
-> If qxl_device_init fails on creating resources and does not report it,
-> then qxl module will catch null pointer exception on remove, or on
-> probe's error path.
-> 
-> The patch adds error path with resources release into qxl_device_init.
-> 
-> Found by Linux Driver Verification project (linuxtesting.org).
+paravirt_patch_call() and paravirt_patch_jmp() are used in paravirt.c
+only. Convert them to static.
 
-Pushed to drm-misc-next.
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ arch/x86/include/asm/paravirt_types.h |  6 ------
+ arch/x86/kernel/paravirt.c            | 12 ++++++------
+ 2 files changed, 6 insertions(+), 12 deletions(-)
 
-thanks,
-  Gerd
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 180bc0bff0fb..036b2f88f105 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -370,12 +370,6 @@ extern struct pv_lock_ops pv_lock_ops;
+ 
+ unsigned paravirt_patch_ident_32(void *insnbuf, unsigned len);
+ unsigned paravirt_patch_ident_64(void *insnbuf, unsigned len);
+-unsigned paravirt_patch_call(void *insnbuf,
+-			     const void *target, u16 tgt_clobbers,
+-			     unsigned long addr, u16 site_clobbers,
+-			     unsigned len);
+-unsigned paravirt_patch_jmp(void *insnbuf, const void *target,
+-			    unsigned long addr, unsigned len);
+ unsigned paravirt_patch_default(u8 type, u16 clobbers, void *insnbuf,
+ 				unsigned long addr, unsigned len);
+ 
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 930c88341e4e..ce560b916b1f 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -80,10 +80,10 @@ struct branch {
+ 	u32 delta;
+ } __attribute__((packed));
+ 
+-unsigned paravirt_patch_call(void *insnbuf,
+-			     const void *target, u16 tgt_clobbers,
+-			     unsigned long addr, u16 site_clobbers,
+-			     unsigned len)
++static unsigned paravirt_patch_call(void *insnbuf,
++				    const void *target, u16 tgt_clobbers,
++				    unsigned long addr, u16 site_clobbers,
++				    unsigned len)
+ {
+ 	struct branch *b = insnbuf;
+ 	unsigned long delta = (unsigned long)target - (addr+5);
+@@ -102,8 +102,8 @@ unsigned paravirt_patch_call(void *insnbuf,
+ 	return 5;
+ }
+ 
+-unsigned paravirt_patch_jmp(void *insnbuf, const void *target,
+-			    unsigned long addr, unsigned len)
++static unsigned paravirt_patch_jmp(void *insnbuf, const void *target,
++				   unsigned long addr, unsigned len)
+ {
+ 	struct branch *b = insnbuf;
+ 	unsigned long delta = (unsigned long)target - (addr+5);
+-- 
+2.13.7
