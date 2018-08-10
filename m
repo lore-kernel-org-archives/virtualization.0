@@ -1,7 +1,7 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH 06/10] x86/paravirt: introduce new config option PARAVIRT_XXL
-Date: Fri, 10 Aug 2018 13:52:48 +0200
-Message-ID: <20180810115252.18213-7-jgross__10109.6785780557$1533902101$gmane$org@suse.com>
+Subject: [PATCH 05/10] x86/paravirt: remove unused paravirt bits
+Date: Fri, 10 Aug 2018 13:52:47 +0200
+Message-ID: <20180810115252.18213-6-jgross__5135.02924372933$1533902175$gmane$org@suse.com>
 References: <20180810115252.18213-1-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,41 +21,70 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
 Cc: Juergen Gross <jgross@suse.com>, boris.ostrovsky@oracle.com, rusty@rustcorp.com.au, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-A large amount of paravirt ops is used by Xen PV guests only. Add a new
-config option PARAVIRT_XXL which is selected by XEN_PV. Later we can
-put the Xen PV only paravirt ops under the PARACVIRT_XXL umbrella.
+The macros ENABLE_INTERRUPTS_SYSEXIT, GET_CR0_INTO_EAX and
+PARAVIRT_ADJUST_EXCEPTION_FRAME are used nowhere. Remove their
+definitions.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/x86/Kconfig     | 3 +++
- arch/x86/xen/Kconfig | 1 +
- 2 files changed, 4 insertions(+)
+ arch/x86/include/asm/irqflags.h | 4 ----
+ arch/x86/include/asm/paravirt.h | 9 +--------
+ arch/x86/kernel/asm-offsets.c   | 1 -
+ 3 files changed, 1 insertion(+), 13 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 887d3a7bb646..3c967b803c21 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -754,6 +754,9 @@ config PARAVIRT
- 	  over full virtualization.  However, when run without a hypervisor
- 	  the kernel is theoretically slower and slightly larger.
+diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
+index c4fc17220df9..b7a790d03229 100644
+--- a/arch/x86/include/asm/irqflags.h
++++ b/arch/x86/include/asm/irqflags.h
+@@ -132,8 +132,6 @@ static inline notrace unsigned long arch_local_irq_save(void)
+  */
+ #define SWAPGS_UNSAFE_STACK	swapgs
  
-+config PARAVIRT_XXL
-+	bool
-+
- config PARAVIRT_DEBUG
- 	bool "paravirt-ops debugging"
- 	depends on PARAVIRT && DEBUG_KERNEL
-diff --git a/arch/x86/xen/Kconfig b/arch/x86/xen/Kconfig
-index c1f98f32c45f..dd92d7bd3613 100644
---- a/arch/x86/xen/Kconfig
-+++ b/arch/x86/xen/Kconfig
-@@ -18,6 +18,7 @@ config XEN_PV
- 	bool "Xen PV guest support"
- 	default y
- 	depends on XEN
-+	select PARAVIRT_XXL
- 	select XEN_HAVE_PVMMU
- 	select XEN_HAVE_VPMU
- 	help
+-#define PARAVIRT_ADJUST_EXCEPTION_FRAME	/*  */
+-
+ #define INTERRUPT_RETURN	jmp native_iret
+ #define USERGS_SYSRET64				\
+ 	swapgs;					\
+@@ -147,8 +145,6 @@ static inline notrace unsigned long arch_local_irq_save(void)
+ #endif
+ #else
+ #define INTERRUPT_RETURN		iret
+-#define ENABLE_INTERRUPTS_SYSEXIT	sti; sysexit
+-#define GET_CR0_INTO_EAX		movl %cr0, %eax
+ #endif
+ 
+ 
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index 1b86bb319393..436d270e622b 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -904,14 +904,7 @@ extern void default_banner(void);
+ 		  call PARA_INDIRECT(pv_ops+PV_IRQ_irq_enable);		\
+ 		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
+ 
+-#ifdef CONFIG_X86_32
+-#define GET_CR0_INTO_EAX				\
+-	push %ecx; push %edx;				\
+-	ANNOTATE_RETPOLINE_SAFE;				\
+-	call PARA_INDIRECT(pv_ops+PV_CPU_read_cr0);	\
+-	pop %edx; pop %ecx
+-#else	/* !CONFIG_X86_32 */
+-
++#ifdef CONFIG_X86_64
+ /*
+  * If swapgs is used while the userspace stack is still current,
+  * there's no way to call a pvop.  The PV replacement *must* be
+diff --git a/arch/x86/kernel/asm-offsets.c b/arch/x86/kernel/asm-offsets.c
+index bec9fc3498f8..d0f0348209cb 100644
+--- a/arch/x86/kernel/asm-offsets.c
++++ b/arch/x86/kernel/asm-offsets.c
+@@ -71,7 +71,6 @@ void common(void) {
+ 	OFFSET(PV_IRQ_irq_enable, paravirt_patch_template,
+ 	       pv_irq_ops.irq_enable);
+ 	OFFSET(PV_CPU_iret, paravirt_patch_template, pv_cpu_ops.iret);
+-	OFFSET(PV_CPU_read_cr0, paravirt_patch_template, pv_cpu_ops.read_cr0);
+ 	OFFSET(PV_MMU_read_cr2, paravirt_patch_template, pv_mmu_ops.read_cr2);
+ #endif
+ 
 -- 
 2.13.7
