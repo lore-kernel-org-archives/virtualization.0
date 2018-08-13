@@ -1,8 +1,8 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v2 09/11] x86/paravirt: move the Xen-only pv_irq_ops under the
-	PARAVIRT_XXL umbrella
-Date: Mon, 13 Aug 2018 09:37:37 +0200
-Message-ID: <20180813073739.26108-10-jgross__17971.1199285977$1534146965$gmane$org@suse.com>
+Subject: [PATCH v2 11/11] x86/paravirt: remove unneeded mmu related paravirt
+	ops bits
+Date: Mon, 13 Aug 2018 09:37:39 +0200
+Message-ID: <20180813073739.26108-12-jgross__15110.8146681965$1534147036$gmane$org@suse.com>
 References: <20180813073739.26108-1-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,122 +22,57 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
 Cc: Juergen Gross <jgross@suse.com>, boris.ostrovsky@oracle.com, rusty@rustcorp.com.au, peterz@infradead.org, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Some of the paravirt ops defined in pv_irq_ops are for Xen PV guests
-only. Define them only if CONFIG_PARAVIRT_XXL is set.
+There is no need to have 32-bit code for CONFIG_PGTABLE_LEVELS >= 4.
+Remove it.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/x86/include/asm/irqflags.h       | 38 ++++++++++++++++++-----------------
- arch/x86/include/asm/paravirt.h       |  2 --
- arch/x86/include/asm/paravirt_types.h |  2 ++
- arch/x86/kernel/paravirt.c            |  2 ++
- 4 files changed, 24 insertions(+), 20 deletions(-)
+ arch/x86/include/asm/paravirt.h | 20 +++-----------------
+ 1 file changed, 3 insertions(+), 17 deletions(-)
 
-diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
-index 03bb451e4e6b..205e43e55144 100644
---- a/arch/x86/include/asm/irqflags.h
-+++ b/arch/x86/include/asm/irqflags.h
-@@ -88,24 +88,6 @@ static inline notrace void arch_local_irq_enable(void)
- }
- 
- /*
-- * Used in the idle loop; sti takes one instruction cycle
-- * to complete:
-- */
--static inline __cpuidle void arch_safe_halt(void)
--{
--	native_safe_halt();
--}
--
--/*
-- * Used when interrupts are already enabled or to
-- * shutdown the processor:
-- */
--static inline __cpuidle void halt(void)
--{
--	native_halt();
--}
--
--/*
-  * For spinlocks, etc:
-  */
- static inline notrace unsigned long arch_local_irq_save(void)
-@@ -154,6 +136,26 @@ static inline notrace unsigned long arch_local_irq_save(void)
- #define INTERRUPT_RETURN		iret
- #endif
- 
-+#else
-+
-+/*
-+ * Used in the idle loop; sti takes one instruction cycle
-+ * to complete:
-+ */
-+static inline __cpuidle void arch_safe_halt(void)
-+{
-+	native_safe_halt();
-+}
-+
-+/*
-+ * Used when interrupts are already enabled or to
-+ * shutdown the processor:
-+ */
-+static inline __cpuidle void halt(void)
-+{
-+	native_halt();
-+}
-+
- #endif /* __ASSEMBLY__ */
- #endif /* CONFIG_PARAVIRT_XXL */
- 
 diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 7ce17f361503..334bc2e7cd78 100644
+index 4ceb3708fe06..0499f17ca480 100644
 --- a/arch/x86/include/asm/paravirt.h
 +++ b/arch/x86/include/asm/paravirt.h
-@@ -91,7 +91,6 @@ static inline void write_cr8(unsigned long x)
- 	PVOP_VCALL1(cpu.write_cr8, x);
- }
- #endif
--#endif
- 
- static inline void arch_safe_halt(void)
+@@ -501,25 +501,14 @@ static inline pud_t __pud(pudval_t val)
  {
-@@ -103,7 +102,6 @@ static inline void halt(void)
- 	PVOP_VCALL0(irq.halt);
+ 	pudval_t ret;
+ 
+-	if (sizeof(pudval_t) > sizeof(long))
+-		ret = PVOP_CALLEE2(pudval_t, mmu.make_pud, val, (u64)val >> 32);
+-	else
+-		ret = PVOP_CALLEE1(pudval_t, mmu.make_pud, val);
++	ret = PVOP_CALLEE1(pudval_t, mmu.make_pud, val);
+ 
+ 	return (pud_t) { ret };
  }
  
--#ifdef CONFIG_PARAVIRT_XXL
- static inline void wbinvd(void)
+ static inline pudval_t pud_val(pud_t pud)
  {
- 	PVOP_VCALL0(cpu.wbinvd);
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index e652ec27d945..ae53ee36d8fb 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -197,8 +197,10 @@ struct pv_irq_ops {
- 	struct paravirt_callee_save irq_disable;
- 	struct paravirt_callee_save irq_enable;
+-	pudval_t ret;
+-
+-	if (sizeof(pudval_t) > sizeof(long))
+-		ret =  PVOP_CALLEE2(pudval_t, mmu.pud_val,
+-				    pud.pud, (u64)pud.pud >> 32);
+-	else
+-		ret =  PVOP_CALLEE1(pudval_t, mmu.pud_val, pud.pud);
+-
+-	return ret;
++	return PVOP_CALLEE1(pudval_t, mmu.pud_val, pud.pud);
+ }
  
-+#ifdef CONFIG_PARAVIRT_XXL
- 	void (*safe_halt)(void);
- 	void (*halt)(void);
-+#endif
+ static inline void pud_clear(pud_t *pudp)
+@@ -531,10 +520,7 @@ static inline void set_p4d(p4d_t *p4dp, p4d_t p4d)
+ {
+ 	p4dval_t val = native_p4d_val(p4d);
  
- } __no_randomize_layout;
+-	if (sizeof(p4dval_t) > sizeof(long))
+-		PVOP_VCALL3(mmu.set_p4d, p4dp, val, (u64)val >> 32);
+-	else
+-		PVOP_VCALL2(mmu.set_p4d, p4dp, val);
++	PVOP_VCALL2(mmu.set_p4d, p4dp, val);
+ }
  
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index e4899f3252f1..4dd12cc15daa 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -379,8 +379,10 @@ struct paravirt_patch_template pv_ops = {
- 	.irq.restore_fl = __PV_IS_CALLEE_SAVE(native_restore_fl),
- 	.irq.irq_disable = __PV_IS_CALLEE_SAVE(native_irq_disable),
- 	.irq.irq_enable = __PV_IS_CALLEE_SAVE(native_irq_enable),
-+#ifdef CONFIG_PARAVIRT_XXL
- 	.irq.safe_halt = native_safe_halt,
- 	.irq.halt = native_halt,
-+#endif
- 
- 	/* Mmu ops. */
- 	.mmu.read_cr2 = native_read_cr2,
+ #if CONFIG_PGTABLE_LEVELS >= 5
 -- 
 2.13.7
