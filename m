@@ -1,14 +1,11 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v2 03/11] x86/paravirt: remove clobbers from struct
-	paravirt_patch_site
-Date: Mon, 13 Aug 2018 09:37:31 +0200
-Message-ID: <20180813073739.26108-4-jgross__49293.0248183713$1534146459$gmane$org@suse.com>
-References: <20180813073739.26108-1-jgross@suse.com>
+Subject: [PATCH v2 00/11] x86/paravirt: several cleanups
+Date: Mon, 13 Aug 2018 09:37:28 +0200
+Message-ID: <20180813073739.26108-1-jgross__24470.9291532219$1534146532$gmane$org@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180813073739.26108-1-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,133 +19,82 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
 Cc: Juergen Gross <jgross@suse.com>, boris.ostrovsky@oracle.com, rusty@rustcorp.com.au, peterz@infradead.org, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-There is no need any longer to store the clobbers in struct
-paravirt_patch_site. Remove clobbers from the struct and from the
-related macros.
+This series removes some no longer needed stuff from paravirt
+infrastructure and puts large quantities of paravirt ops under a new
+config option PARAVIRT_XXL which is selected by XEN_PV only.
 
-While at it fix some lines longer than 80 characters.
+A pvops kernel without XEN_PV being configured is about 2.5% smaller
+with this series applied.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- arch/x86/include/asm/paravirt.h       | 33 +++++++++++++++------------------
- arch/x86/include/asm/paravirt_types.h |  1 -
- 2 files changed, 15 insertions(+), 19 deletions(-)
+tip commit 5800dc5c19f34e6e03b5adab1282535cb102fafd ("x86/paravirt:
+Fix spectre-v2 mitigations for paravirt guests") is a prerequisite
+for this series.
 
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index d49bbf4bb5c8..76b4b5c056f3 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -822,7 +822,7 @@ extern void default_banner(void);
- 
- #else  /* __ASSEMBLY__ */
- 
--#define _PVSITE(ptype, clobbers, ops, word, algn)	\
-+#define _PVSITE(ptype, ops, word, algn)		\
- 771:;						\
- 	ops;					\
- 772:;						\
-@@ -831,7 +831,6 @@ extern void default_banner(void);
- 	 word 771b;				\
- 	 .byte ptype;				\
- 	 .byte 772b-771b;			\
--	 .short clobbers;			\
- 	.popsection
- 
- 
-@@ -864,7 +863,7 @@ extern void default_banner(void);
- 	COND_POP(set, CLBR_RAX, rax)
- 
- #define PARA_PATCH(struct, off)        ((PARAVIRT_PATCH_##struct + (off)) / 8)
--#define PARA_SITE(ptype, clobbers, ops) _PVSITE(ptype, clobbers, ops, .quad, 8)
-+#define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops, .quad, 8)
- #define PARA_INDIRECT(addr)	*addr(%rip)
- #else
- #define PV_SAVE_REGS(set)			\
-@@ -879,26 +878,26 @@ extern void default_banner(void);
- 	COND_POP(set, CLBR_EAX, eax)
- 
- #define PARA_PATCH(struct, off)        ((PARAVIRT_PATCH_##struct + (off)) / 4)
--#define PARA_SITE(ptype, clobbers, ops) _PVSITE(ptype, clobbers, ops, .long, 4)
-+#define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops, .long, 4)
- #define PARA_INDIRECT(addr)	*%cs:addr
- #endif
- 
- #define INTERRUPT_RETURN						\
--	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_iret), CLBR_NONE,	\
--		  ANNOTATE_RETPOLINE_SAFE;					\
-+	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_iret),			\
-+		  ANNOTATE_RETPOLINE_SAFE;				\
- 		  jmp PARA_INDIRECT(pv_cpu_ops+PV_CPU_iret);)
- 
- #define DISABLE_INTERRUPTS(clobbers)					\
--	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_irq_disable), clobbers, \
-+	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_irq_disable),		\
- 		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);		\
--		  ANNOTATE_RETPOLINE_SAFE;					\
-+		  ANNOTATE_RETPOLINE_SAFE;				\
- 		  call PARA_INDIRECT(pv_irq_ops+PV_IRQ_irq_disable);	\
- 		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
- 
- #define ENABLE_INTERRUPTS(clobbers)					\
--	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_irq_enable), clobbers,	\
-+	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_irq_enable),		\
- 		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);		\
--		  ANNOTATE_RETPOLINE_SAFE;					\
-+		  ANNOTATE_RETPOLINE_SAFE;				\
- 		  call PARA_INDIRECT(pv_irq_ops+PV_IRQ_irq_enable);	\
- 		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
- 
-@@ -916,8 +915,7 @@ extern void default_banner(void);
-  * inlined, or the swapgs instruction must be trapped and emulated.
-  */
- #define SWAPGS_UNSAFE_STACK						\
--	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_swapgs), CLBR_NONE,	\
--		  swapgs)
-+	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_swapgs), swapgs)
- 
- /*
-  * Note: swapgs is very special, and in practise is either going to be
-@@ -926,8 +924,8 @@ extern void default_banner(void);
-  * it.
-  */
- #define SWAPGS								\
--	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_swapgs), CLBR_NONE,	\
--		  ANNOTATE_RETPOLINE_SAFE;					\
-+	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_swapgs),		\
-+		  ANNOTATE_RETPOLINE_SAFE;				\
- 		  call PARA_INDIRECT(pv_cpu_ops+PV_CPU_swapgs);		\
- 		 )
- 
-@@ -937,15 +935,14 @@ extern void default_banner(void);
- 
- #define USERGS_SYSRET64							\
- 	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_usergs_sysret64),	\
--		  CLBR_NONE,						\
--		  ANNOTATE_RETPOLINE_SAFE;					\
-+		  ANNOTATE_RETPOLINE_SAFE;				\
- 		  jmp PARA_INDIRECT(pv_cpu_ops+PV_CPU_usergs_sysret64);)
- 
- #ifdef CONFIG_DEBUG_ENTRY
- #define SAVE_FLAGS(clobbers)                                        \
--	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_save_fl), clobbers, \
-+	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_save_fl),	    \
- 		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);        \
--		  ANNOTATE_RETPOLINE_SAFE;				    \
-+		  ANNOTATE_RETPOLINE_SAFE;			    \
- 		  call PARA_INDIRECT(pv_irq_ops+PV_IRQ_save_fl);    \
- 		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
- #endif
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index f6e24e78633b..b900088cd244 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -678,7 +678,6 @@ struct paravirt_patch_site {
- 	u8 *instr; 		/* original instructions */
- 	u8 instrtype;		/* type of this instruction */
- 	u8 len;			/* length of original instruction */
--	u16 clobbers;		/* what registers you may clobber */
- };
- 
- extern struct paravirt_patch_site __parainstructions[],
+The last 4 patches of this series require my Xen cleanup series
+https://lore.kernel.org/lkml/20180717120113.12756-1-jgross@suse.com/
+which hides more Xen PV-only code behind CONFIG_XEN_PV.
+
+Changes in V2:
+- patch 4: shorten pv_ops sub-structure names (Jan Beulich)
+- patch 11: new patch
+
+Juergen Gross (11):
+  x86/paravirt: make paravirt_patch_call() and paravirt_patch_jmp()
+    static
+  x86/paravirt: remove clobbers parameter from paravirt patch functions
+  x86/paravirt: remove clobbers from struct paravirt_patch_site
+  x86/paravirt: use a single ops structure
+  x86/paravirt: remove unused paravirt bits
+  x86/paravirt: introduce new config option PARAVIRT_XXL
+  x86/paravirt: move items in pv_info under PARAVIRT_XXL umbrella
+  x86/paravirt: move the Xen-only pv_cpu_ops under the PARAVIRT_XXL
+    umbrella
+  x86/paravirt: move the Xen-only pv_irq_ops under the PARAVIRT_XXL
+    umbrella
+  x86/paravirt: move the Xen-only pv_mmu_ops under the PARAVIRT_XXL
+    umbrella
+  x86/paravirt: remove unneeded mmu related paravirt ops bits
+
+ arch/x86/Kconfig                            |   3 +
+ arch/x86/hyperv/mmu.c                       |   4 +-
+ arch/x86/include/asm/debugreg.h             |   2 +-
+ arch/x86/include/asm/desc.h                 |   4 +-
+ arch/x86/include/asm/fixmap.h               |   2 +-
+ arch/x86/include/asm/irqflags.h             |  56 ++--
+ arch/x86/include/asm/mmu_context.h          |   4 +-
+ arch/x86/include/asm/msr.h                  |   4 +-
+ arch/x86/include/asm/paravirt.h             | 399 +++++++++++++---------------
+ arch/x86/include/asm/paravirt_types.h       |  77 +++---
+ arch/x86/include/asm/pgalloc.h              |   2 +-
+ arch/x86/include/asm/pgtable-3level_types.h |   2 +-
+ arch/x86/include/asm/pgtable.h              |   7 +-
+ arch/x86/include/asm/processor.h            |   4 +-
+ arch/x86/include/asm/ptrace.h               |   3 +-
+ arch/x86/include/asm/segment.h              |   2 +-
+ arch/x86/include/asm/special_insns.h        |   4 +-
+ arch/x86/kernel/alternative.c               |   2 +-
+ arch/x86/kernel/asm-offsets.c               |  13 +-
+ arch/x86/kernel/asm-offsets_64.c            |   9 +-
+ arch/x86/kernel/cpu/common.c                |   4 +-
+ arch/x86/kernel/cpu/vmware.c                |   4 +-
+ arch/x86/kernel/head_64.S                   |   2 +-
+ arch/x86/kernel/kvm.c                       |  17 +-
+ arch/x86/kernel/kvmclock.c                  |   4 +-
+ arch/x86/kernel/paravirt-spinlocks.c        |  15 +-
+ arch/x86/kernel/paravirt.c                  | 292 ++++++++++----------
+ arch/x86/kernel/paravirt_patch_32.c         |  57 ++--
+ arch/x86/kernel/paravirt_patch_64.c         |  65 ++---
+ arch/x86/kernel/tsc.c                       |   2 +-
+ arch/x86/kernel/vsmp_64.c                   |  24 +-
+ arch/x86/xen/Kconfig                        |   1 +
+ arch/x86/xen/enlighten_pv.c                 |  31 ++-
+ arch/x86/xen/irq.c                          |   2 +-
+ arch/x86/xen/mmu_hvm.c                      |   2 +-
+ arch/x86/xen/mmu_pv.c                       |  28 +-
+ arch/x86/xen/spinlock.c                     |  11 +-
+ arch/x86/xen/time.c                         |   4 +-
+ drivers/xen/time.c                          |   2 +-
+ 39 files changed, 575 insertions(+), 595 deletions(-)
+
 -- 
 2.13.7
