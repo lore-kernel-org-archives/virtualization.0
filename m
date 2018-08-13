@@ -1,11 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/virtio: track virtual output state
-Date: Mon, 13 Aug 2018 17:28:55 +0200
-Message-ID: <20180813152855.12863-1-kraxel__12803.677263628$1534174020$gmane$org@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next] virtio_net: remove duplicated include from
+	virtio_net.c
+Date: Mon, 13 Aug 2018 09:46:51 -0700 (PDT)
+Message-ID: <20180813.094651.309825941573225540.davem__39026.3575864539$1534178696$gmane$org@davemloft.net>
+References: <20180813061315.9084-1-yuehaibing@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180813061315.9084-1-yuehaibing@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,68 +18,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: yuehaibing@huawei.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Track whenever an virtual output (crtc) is enabled or disabled.
+From: YueHaibing <yuehaibing@huawei.com>
+Date: Mon, 13 Aug 2018 14:13:15 +0800
 
-On atomic updates check for both framebuffer being present and crtc
-being enabled to figure whenever the output is active or not.
+> Remove duplicated include linux/netdevice.h
+> 
+> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h     | 1 +
- drivers/gpu/drm/virtio/virtgpu_display.c | 4 ++++
- drivers/gpu/drm/virtio/virtgpu_plane.c   | 2 +-
- 3 files changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 65605e207b..d46f10e656 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -114,6 +114,7 @@ struct virtio_gpu_output {
- 	struct virtio_gpu_update_cursor cursor;
- 	int cur_x;
- 	int cur_y;
-+	bool enabled;
- };
- #define drm_crtc_to_virtio_gpu_output(x) \
- 	container_of(x, struct virtio_gpu_output, crtc)
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 25503b9335..9f1e0a669d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -109,6 +109,9 @@ static void virtio_gpu_crtc_mode_set_nofb(struct drm_crtc *crtc)
- static void virtio_gpu_crtc_atomic_enable(struct drm_crtc *crtc,
- 					  struct drm_crtc_state *old_state)
- {
-+	struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
-+
-+	output->enabled = true;
- }
- 
- static void virtio_gpu_crtc_atomic_disable(struct drm_crtc *crtc,
-@@ -119,6 +122,7 @@ static void virtio_gpu_crtc_atomic_disable(struct drm_crtc *crtc,
- 	struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
- 
- 	virtio_gpu_cmd_set_scanout(vgdev, output->index, 0, 0, 0, 0, 0);
-+	output->enabled = false;
- }
- 
- static int virtio_gpu_crtc_atomic_check(struct drm_crtc *crtc,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index dc5b5b2b7a..88f2fb8c61 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -152,7 +152,7 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
- 	if (WARN_ON(!output))
- 		return;
- 
--	if (plane->state->fb) {
-+	if (plane->state->fb && output->enabled) {
- 		vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
- 		bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
- 		handle = bo->hw_res_handle;
--- 
-2.9.3
+Applied.
