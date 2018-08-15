@@ -1,14 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 1/1] vhost: change the signature of __vhost_get_user_slow()
-Date: Wed, 15 Aug 2018 11:22:50 +0800
-Message-ID: <12b14053-b3ef-0616-6057-0406e7fd01bf@redhat.com>
-References: <1534297600-2577-1-git-send-email-dongli.zhang@oracle.com>
+From: "Jan Beulich" <JBeulich@suse.com>
+Subject: [PATCH RESEND] x86-64: use RIP-relative calls for paravirt
+	indirect ones
+Date: Wed, 15 Aug 2018 02:09:26 -0600
+Message-ID: <5B73DFB602000078001DE35E__38262.8255094916$1534320448$gmane$org@prv1-mh.provo.novell.com>
+References: <5B30C3F102000078001CD6F1@prv1-mh.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1534297600-2577-1-git-send-email-dongli.zhang@oracle.com>
-Content-Language: en-US
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dongli Zhang <dongli.zhang@oracle.com>, kvm@vger.kernel.org, netdev@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: the arch/x86 maintainers <x86@kernel.org>, Juergen Gross <jgross@suse.com>, Alok Kataria <akataria@vmware.com>
+Cc: hpa@zytor.com, linux-kernel@vger.kernel.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDjmnIgxNeaXpSAwOTo0NiwgRG9uZ2xpIFpoYW5nIHdyb3RlOgo+IFJlbW92
-ZSAndHlwZScgZnJvbSB0aGUgc2lnbmF0dXJlIG9mIF9fdmhvc3RfZ2V0X3VzZXJfc2xvdygpIGFz
-IGl0IGlzIG5vdAo+IHVzZWQuCj4KPiBTaWduZWQtb2ZmLWJ5OiBEb25nbGkgWmhhbmcgPGRvbmds
-aS56aGFuZ0BvcmFjbGUuY29tPgo+IC0tLQo+ICAgZHJpdmVycy92aG9zdC92aG9zdC5jIHwgNSAr
-Ky0tLQo+ICAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkK
-Pgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJzL3Zob3N0L3Zo
-b3N0LmMKPiBpbmRleCBlZDMxMTQ1Li5mNzhkM2JjIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhv
-c3Qvdmhvc3QuYwo+ICsrKyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+IEBAIC04MDcsOCArODA3
-LDcgQEAgc3RhdGljIGludCB2aG9zdF9jb3B5X2Zyb21fdXNlcihzdHJ1Y3Qgdmhvc3RfdmlydHF1
-ZXVlICp2cSwgdm9pZCAqdG8sCj4gICB9Cj4gICAKPiAgIHN0YXRpYyB2b2lkIF9fdXNlciAqX192
-aG9zdF9nZXRfdXNlcl9zbG93KHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLAo+IC0JCQkJCSAg
-dm9pZCBfX3VzZXIgKmFkZHIsIHVuc2lnbmVkIGludCBzaXplLAo+IC0JCQkJCSAgaW50IHR5cGUp
-Cj4gKwkJCQkJICB2b2lkIF9fdXNlciAqYWRkciwgdW5zaWduZWQgaW50IHNpemUpCj4gICB7Cj4g
-ICAJaW50IHJldDsKPiAgIAo+IEBAIC04NDYsNyArODQ1LDcgQEAgc3RhdGljIGlubGluZSB2b2lk
-IF9fdXNlciAqX192aG9zdF9nZXRfdXNlcihzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPiAg
-IAlpZiAodWFkZHIpCj4gICAJCXJldHVybiB1YWRkcjsKPiAgIAo+IC0JcmV0dXJuIF9fdmhvc3Rf
-Z2V0X3VzZXJfc2xvdyh2cSwgYWRkciwgc2l6ZSwgdHlwZSk7Cj4gKwlyZXR1cm4gX192aG9zdF9n
-ZXRfdXNlcl9zbG93KHZxLCBhZGRyLCBzaXplKTsKPiAgIH0KPiAgIAo+ICAgI2RlZmluZSB2aG9z
-dF9wdXRfdXNlcih2cSwgeCwgcHRyKQkJXAoKUGxlYXNlIGtlZXAgdGhpcyBhcyBpcy4KCkl0IHdp
-bGwgYmUgdXNlZCBieSBpbmNvbWluZyBwYWNrZWQgdmlydHF1ZXVlLgoKVGhhbmtzCgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+This saves one insn byte per instance, summing up to a savings of over
+4k in my (stripped down) configuration. No variant of to be patched in
+replacement code relies on the one byte larger size.
+
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+---
+Resend to include x86 maintainers, who aren't listed explicitly for the
+file changed.
+---
+ arch/x86/include/asm/paravirt_types.h |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+--- 4.18/arch/x86/include/asm/paravirt_types.h
++++ 4.18-x86_64-pvops-call-RIPrel/arch/x86/include/asm/paravirt_types.h
+@@ -393,9 +393,15 @@ int paravirt_disable_iospace(void);
+  * offset into the paravirt_patch_template structure, and can therefore be
+  * freely converted back into a structure offset.
+  */
++#ifdef CONFIG_X86_32
+ #define PARAVIRT_CALL					\
+ 	ANNOTATE_RETPOLINE_SAFE				\
+ 	"call *%c[paravirt_opptr];"
++#else
++#define PARAVIRT_CALL					\
++	ANNOTATE_RETPOLINE_SAFE				\
++	"call *%c[paravirt_opptr](%%rip);"
++#endif
+ 
+ /*
+  * These macros are intended to wrap calls through one of the paravirt
