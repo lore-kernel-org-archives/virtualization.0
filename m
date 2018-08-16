@@ -1,14 +1,11 @@
-From: "Jan Beulich" <JBeulich@suse.com>
-Subject: [PATCH RESEND] x86-64: use RIP-relative calls for paravirt
-	indirect ones
-Date: Wed, 15 Aug 2018 02:09:26 -0600
-Message-ID: <5B73DFB602000078001DE35E__38262.8255094916$1534320448$gmane$org@prv1-mh.provo.novell.com>
-References: <5B30C3F102000078001CD6F1@prv1-mh.provo.novell.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: [PATCH v4 0/3] virtio-balloon: some improvements
+Date: Thu, 16 Aug 2018 15:50:55 +0800
+Message-ID: <1534405858-27085-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +15,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: the arch/x86 maintainers <x86@kernel.org>, Juergen Gross <jgross@suse.com>, Alok Kataria <akataria@vmware.com>
-Cc: hpa@zytor.com, linux-kernel@vger.kernel.org, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, penguin-kernel@I-love.SAKURA.ne.jp
 List-Id: virtualization@lists.linuxfoundation.org
 
-This saves one insn byte per instance, summing up to a savings of over
-4k in my (stripped down) configuration. No variant of to be patched in
-replacement code relies on the one byte larger size.
+This series is split from the "Virtio-balloon: support free page
+reporting" series to make some improvements.
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
----
-Resend to include x86 maintainers, who aren't listed explicitly for the
-file changed.
----
- arch/x86/include/asm/paravirt_types.h |    6 ++++++
- 1 file changed, 6 insertions(+)
+ChangeLog:
+v3->v4:
+- use kzalloc to allocate the vb struct so that we don't need to zero
+  initialize each field one by one later;
+- also remove vb->shrinker.batch = 0, which is not needed now.
+v2->v3:
+- shrink the balloon pages according to the amount requested by the
+  claimer, instead of using a user specified number;
+v1->v2:
+- register the shrinker when VIRTIO_BALLOON_F_DEFLATE_ON_OOM is
+  negotiated.
 
---- 4.18/arch/x86/include/asm/paravirt_types.h
-+++ 4.18-x86_64-pvops-call-RIPrel/arch/x86/include/asm/paravirt_types.h
-@@ -393,9 +393,15 @@ int paravirt_disable_iospace(void);
-  * offset into the paravirt_patch_template structure, and can therefore be
-  * freely converted back into a structure offset.
-  */
-+#ifdef CONFIG_X86_32
- #define PARAVIRT_CALL					\
- 	ANNOTATE_RETPOLINE_SAFE				\
- 	"call *%c[paravirt_opptr];"
-+#else
-+#define PARAVIRT_CALL					\
-+	ANNOTATE_RETPOLINE_SAFE				\
-+	"call *%c[paravirt_opptr](%%rip);"
-+#endif
- 
- /*
-  * These macros are intended to wrap calls through one of the paravirt
+Wei Wang (3):
+  virtio-balloon: remove BUG() in init_vqs
+  virtio-balloon: kzalloc the vb struct
+  virtio_balloon: replace oom notifier with shrinker
+
+ drivers/virtio/virtio_balloon.c | 125 +++++++++++++++++++++-------------------
+ 1 file changed, 67 insertions(+), 58 deletions(-)
+
+-- 
+2.7.4
