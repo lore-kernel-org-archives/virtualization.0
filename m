@@ -1,7 +1,7 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v4 1/3] virtio-balloon: remove BUG() in init_vqs
-Date: Thu, 16 Aug 2018 15:50:56 +0800
-Message-ID: <1534405858-27085-2-git-send-email-wei.w.wang__19459.1485233561$1534407454$gmane$org@intel.com>
+Subject: [PATCH v4 2/3] virtio-balloon: kzalloc the vb struct
+Date: Thu, 16 Aug 2018 15:50:57 +0800
+Message-ID: <1534405858-27085-3-git-send-email-wei.w.wang__44013.1595977165$1534407527$gmane$org@intel.com>
 References: <1534405858-27085-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,36 +20,45 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, penguin-kernel@I-love.SAKURA.ne.jp
 List-Id: virtualization@lists.linuxfoundation.org
 
-It's a bit overkill to use BUG when failing to add an entry to the
-stats_vq in init_vqs. So remove it and just return the error to the
-caller to bail out nicely.
+Zero all the vb fields at alloaction, so that we don't need to
+zero-initialize each field one by one later.
 
 Signed-off-by: Wei Wang <wei.w.wang@intel.com>
 Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 ---
- drivers/virtio/virtio_balloon.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/virtio/virtio_balloon.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 3988c09..8100e77 100644
+index 8100e77..d97d73c 100644
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -455,9 +455,13 @@ static int init_vqs(struct virtio_balloon *vb)
- 		num_stats = update_balloon_stats(vb);
- 
- 		sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
--		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
--		    < 0)
--			BUG();
-+		err = virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb,
-+					   GFP_KERNEL);
-+		if (err) {
-+			dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
-+				 __func__);
-+			return err;
-+		}
- 		virtqueue_kick(vb->stats_vq);
+@@ -561,7 +561,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 		return -EINVAL;
  	}
- 	return 0;
+ 
+-	vdev->priv = vb = kmalloc(sizeof(*vb), GFP_KERNEL);
++	vdev->priv = vb = kzalloc(sizeof(*vb), GFP_KERNEL);
+ 	if (!vb) {
+ 		err = -ENOMEM;
+ 		goto out;
+@@ -570,8 +570,6 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	INIT_WORK(&vb->update_balloon_stats_work, update_balloon_stats_func);
+ 	INIT_WORK(&vb->update_balloon_size_work, update_balloon_size_func);
+ 	spin_lock_init(&vb->stop_update_lock);
+-	vb->stop_update = false;
+-	vb->num_pages = 0;
+ 	mutex_init(&vb->balloon_lock);
+ 	init_waitqueue_head(&vb->acked);
+ 	vb->vdev = vdev;
+@@ -602,7 +600,6 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 		err = PTR_ERR(vb->vb_dev_info.inode);
+ 		kern_unmount(balloon_mnt);
+ 		unregister_oom_notifier(&vb->nb);
+-		vb->vb_dev_info.inode = NULL;
+ 		goto out_del_vqs;
+ 	}
+ 	vb->vb_dev_info.inode->i_mapping->a_ops = &balloon_aops;
 -- 
 2.7.4
