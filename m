@@ -1,13 +1,11 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v4 3/3] virtio_balloon: replace oom notifier with shrinker
-Date: Thu, 16 Aug 2018 15:50:58 +0800
-Message-ID: <1534405858-27085-4-git-send-email-wei.w.wang__41905.7270548821$1534407604$gmane$org@intel.com>
-References: <1534405858-27085-1-git-send-email-wei.w.wang@intel.com>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: Call for Papers - ICITS'19 - Quito, Ecuador
+Date: Sat, 18 Aug 2018 12:02:46 +0100
+Message-ID: <146477530078@gmail-com>
+Reply-To: worldcist@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6535465863676001553=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1534405858-27085-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,224 +15,385 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, penguin-kernel@I-love.SAKURA.ne.jp
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The OOM notifier is getting deprecated to use for the reasons:
-- As a callout from the oom context, it is too subtle and easy to
-  generate bugs and corner cases which are hard to track;
-- It is called too late (after the reclaiming has been performed).
-  Drivers with large amuont of reclaimable memory is expected to
-  release them at an early stage of memory pressure;
-- The notifier callback isn't aware of oom contrains;
-Link: https://lkml.org/lkml/2018/7/12/314
+This is a multi-part message in MIME format
 
-This patch replaces the virtio-balloon oom notifier with a shrinker
-to release balloon pages on memory pressure. The balloon pages are
-given back to mm adaptively by returning the number of pages that the
-reclaimer is asking for (i.e. sc->nr_to_scan).
+--===============6535465863676001553==
+Content-Type: multipart/alternative; charset=utf-8; boundary="ykL5PfU1fwQtF6wkvTdhfa2ibJx7kog=_K"
 
-Currently the max possible value of sc->nr_to_scan passed to the balloon
-shrinker is SHRINK_BATCH, which is 128. This is smaller than the
-limitation that only VIRTIO_BALLOON_ARRAY_PFNS_MAX (256) pages can be
-returned via one invocation of leak_balloon. But this patch still
-considers the case that SHRINK_BATCH or shrinker->batch could be changed
-to a value larger than VIRTIO_BALLOON_ARRAY_PFNS_MAX, which will need to
-do multiple invocations of leak_balloon.
+This is a multi-part message in MIME format
 
-Historically, the feature VIRTIO_BALLOON_F_DEFLATE_ON_OOM has been used
-to release balloon pages on OOM. We continue to use this feature bit for
-the shrinker, so the shrinker is only registered when this feature bit
-has been negotiated with host.
+--ykL5PfU1fwQtF6wkvTdhfa2ibJx7kog=_K
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+***** Proceedings by Springer. Indexed by Scopus, ISI, etc.
+
+ 
+
+------------
+
+ICITS'19 - The 2019 International Conference on Information Technology & Sy=
+stems
+
+6 - 8 February 2019, Quito, Ecuador
+
+http://www.icits.me/ <http://www.icits.me/>
+
+------------------------------      ------------------------------      ---=
+---------------------------      ------------------------ 
+ 
+
+ICITS'19 - The 2019 International Conference on Information Technology & Sy=
+stems, to be held at Quito, Ecuador, 6 - 8 February 2019, is an internation=
+al forum for researchers and practitioners to present and discuss the most =
+recent innovations, trends, results, experiences and concerns in the severa=
+l perspectives of Information Technology & Systems.
+
+We are pleased to invite you to submit your papers to ICITS'19. They can be=
+ written in English, Spanish or Portuguese. All submissions will be reviewe=
+d on the basis of relevance, originality, importance and clarity.
+
+ 
+
+Topics
+
+Submitted papers should be related with one or more of the main themes prop=
+osed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Software and Systems Modeling (SSM);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Multimedia Systems and Applications (MSA);
+
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+G) Intelligent and Decision Support Systems (IDSS);
+
+H) Big Data Analytics and Applications (BDAA);
+
+I) Human-Computer Interaction (HCI);
+
+J) Ethics, Computers and Security (ECS)
+
+K) Health Informatics (HIS);
+
+L) Information Technologies in Education (ITE);
+
+M) Cybersecurity and Cyber-defense;
+
+N) Electromagnetics, Sensors and Antennas for Security.
+
+ 
+
+Submission and Decision
+
+Submitted papers written in English (until 10-page limit) must comply with =
+the format of Advances in Intelligent Systems and Computing series (see Ins=
+tructions for Authors at Springer Website <http://www.springer.com/series/1=
+1156> or download a DOC example <http://www.icits.me/springerformat.doc>), =
+must not have been published before, not be under review for any other conf=
+erence or publication and not include any information leading to the author=
+s=E2=80=99 identification. Therefore, the authors=E2=80=99 names, affiliati=
+ons and bibliographic references should not be included in the version for =
+evaluation by the Scientific Committee. This information should only be inc=
+luded in the camera-ready version, saved in Word or Latex format and also i=
+n PDF format. These files must be accompanied by the Consent to Publish for=
+m <http://www.icits.me/copyright.pdf> filled out, in a ZIP file, and upload=
+ed at the conference management system.
+
+Submitted papers written in Spanish or Portuguese (until 15-page limit) mus=
+t comply with the format of RISTI <http://www.risti.xyz/> - Revista Ib=C3=
+=A9rica de Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (download instruc=
+tions/template for authors in Spanish <http://www.risti.xyz/formato-es.doc>=
+ or Portuguese <http://www.risti.xyz/formato-pt.doc>), must not have been p=
+ublished before, not be under review for any other conference or publicatio=
+n and not include any information leading to the authors=E2=80=99 identific=
+ation. Therefore, the authors=E2=80=99 names, affiliations and bibliographi=
+c references should not be included in the version for evaluation by the Sc=
+ientific Committee. This information should only be included in the camera-=
+ready version, saved in Word. These file must be uploaded at the conference=
+ management system in a ZIP file.
+
+All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
+at least two members of the Scientific Committee.
+
+Based on Scientific Committee evaluation, a paper can be rejected or accept=
+ed by the Conference Chairs. In the later case, it can be accepted as paper=
+ or poster.
+
+The authors of papers accepted as posters must build and print a poster to =
+be exhibited during the Conference. This poster must follow an A1 or A2 ver=
+tical format. The Conference can includes Work Sessions where these posters=
+ are presented and orally discussed, with a 7 minute limit per poster.
+
+The authors of accepted papers will have 15 minutes to present their work i=
+n a Conference Work Session; approximately 5 minutes of discussion will fol=
+low each presentation.
+
+ 
+
+Publication and Indexing
+
+To ensure that an accepted paper is published, at least one of the authors =
+must be fully registered by the 9th of October 2018, and the paper must com=
+ply with the suggested layout and page-limit. Additionally, all recommended=
+ changes must be addressed by the authors before they submit the camera-rea=
+dy version.
+
+No more than one paper per registration will be published. An extra fee mus=
+t be paid for publication of additional papers, with a maximum of one addit=
+ional paper per registration. One registration permits only the participati=
+on of one author in the conference.
+
+Papers written in English and accepted and registered will be published in =
+Proceedings by Springer, in a book of the Advances in Intelligent Systems a=
+nd Computing <http://www.springer.com/series/11156>series, will  be submitt=
+ed for indexation by ISI, EI-Compendex, SCOPUS and DBLP, among others, and =
+will be available in the SpringerLink Digital Library <http://link.springer=
+=2Ecom/>.
+
+Papers written in Spanish or Portuguese and accepted and registered will be=
+ published in a Special Issue of RISTI <http://www.risti.xyz/index.php?opti=
+on=3Dcom_content&view=3Darticle&id=3D3&Itemid=3D104&lang=3Des> and will be =
+submitted for indexation by SCOPUS, among others.
+
+ 
+
+Important Dates
+
+Paper Submission: September 16, 2018
+
+Notification of Acceptance: October 28, 2018
+
+Payment of Registration, to ensure the inclusion of an accepted paper in th=
+e conference proceedings: November 9, 2018.
+
+Camera-ready Submission: November 9, 2018
+
+ 
+
+Website of ICITS'19: http://www.icits.me/ <http://www.icits.me/>
+
+ 
+
+ 
+
+
 ---
- drivers/virtio/virtio_balloon.c | 110 +++++++++++++++++++++-------------------
- 1 file changed, 59 insertions(+), 51 deletions(-)
+This email has been checked for viruses by AVG.
+https://www.avg.com
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index d97d73c..d1c1f62 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -27,7 +27,6 @@
- #include <linux/slab.h>
- #include <linux/module.h>
- #include <linux/balloon_compaction.h>
--#include <linux/oom.h>
- #include <linux/wait.h>
- #include <linux/mm.h>
- #include <linux/mount.h>
-@@ -40,13 +39,8 @@
-  */
- #define VIRTIO_BALLOON_PAGES_PER_PAGE (unsigned)(PAGE_SIZE >> VIRTIO_BALLOON_PFN_SHIFT)
- #define VIRTIO_BALLOON_ARRAY_PFNS_MAX 256
--#define OOM_VBALLOON_DEFAULT_PAGES 256
- #define VIRTBALLOON_OOM_NOTIFY_PRIORITY 80
- 
--static int oom_pages = OOM_VBALLOON_DEFAULT_PAGES;
--module_param(oom_pages, int, S_IRUSR | S_IWUSR);
--MODULE_PARM_DESC(oom_pages, "pages to free on OOM");
--
- #ifdef CONFIG_BALLOON_COMPACTION
- static struct vfsmount *balloon_mnt;
- #endif
-@@ -86,8 +80,8 @@ struct virtio_balloon {
- 	/* Memory statistics */
- 	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
- 
--	/* To register callback in oom notifier call chain */
--	struct notifier_block nb;
-+	/* To register a shrinker to shrink memory upon memory pressure */
-+	struct shrinker shrinker;
- };
- 
- static struct virtio_device_id id_table[] = {
-@@ -365,38 +359,6 @@ static void update_balloon_size(struct virtio_balloon *vb)
- 		      &actual);
- }
- 
--/*
-- * virtballoon_oom_notify - release pages when system is under severe
-- *			    memory pressure (called from out_of_memory())
-- * @self : notifier block struct
-- * @dummy: not used
-- * @parm : returned - number of freed pages
-- *
-- * The balancing of memory by use of the virtio balloon should not cause
-- * the termination of processes while there are pages in the balloon.
-- * If virtio balloon manages to release some memory, it will make the
-- * system return and retry the allocation that forced the OOM killer
-- * to run.
-- */
--static int virtballoon_oom_notify(struct notifier_block *self,
--				  unsigned long dummy, void *parm)
--{
--	struct virtio_balloon *vb;
--	unsigned long *freed;
--	unsigned num_freed_pages;
--
--	vb = container_of(self, struct virtio_balloon, nb);
--	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
--		return NOTIFY_OK;
--
--	freed = parm;
--	num_freed_pages = leak_balloon(vb, oom_pages);
--	update_balloon_size(vb);
--	*freed += num_freed_pages;
--
--	return NOTIFY_OK;
--}
--
- static void update_balloon_stats_func(struct work_struct *work)
- {
- 	struct virtio_balloon *vb;
-@@ -550,6 +512,52 @@ static struct file_system_type balloon_fs = {
- 
- #endif /* CONFIG_BALLOON_COMPACTION */
- 
-+static unsigned long virtio_balloon_shrinker_scan(struct shrinker *shrinker,
-+						  struct shrink_control *sc)
-+{
-+	unsigned long pages_to_free, pages_freed = 0;
-+	struct virtio_balloon *vb = container_of(shrinker,
-+					struct virtio_balloon, shrinker);
-+
-+	pages_to_free = sc->nr_to_scan * VIRTIO_BALLOON_PAGES_PER_PAGE;
-+
-+	/*
-+	 * One invocation of leak_balloon can deflate at most
-+	 * VIRTIO_BALLOON_ARRAY_PFNS_MAX balloon pages, so we call it
-+	 * multiple times to deflate pages till reaching pages_to_free.
-+	 */
-+	while (vb->num_pages && pages_to_free) {
-+		pages_to_free -= pages_freed;
-+		pages_freed += leak_balloon(vb, pages_to_free);
-+	}
-+	update_balloon_size(vb);
-+
-+	return pages_freed / VIRTIO_BALLOON_PAGES_PER_PAGE;
-+}
-+
-+static unsigned long virtio_balloon_shrinker_count(struct shrinker *shrinker,
-+						   struct shrink_control *sc)
-+{
-+	struct virtio_balloon *vb = container_of(shrinker,
-+					struct virtio_balloon, shrinker);
-+
-+	return vb->num_pages / VIRTIO_BALLOON_PAGES_PER_PAGE;
-+}
-+
-+static void virtio_balloon_unregister_shrinker(struct virtio_balloon *vb)
-+{
-+	unregister_shrinker(&vb->shrinker);
-+}
-+
-+static int virtio_balloon_register_shrinker(struct virtio_balloon *vb)
-+{
-+	vb->shrinker.scan_objects = virtio_balloon_shrinker_scan;
-+	vb->shrinker.count_objects = virtio_balloon_shrinker_count;
-+	vb->shrinker.seeks = DEFAULT_SEEKS;
-+
-+	return register_shrinker(&vb->shrinker);
-+}
-+
- static int virtballoon_probe(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb;
-@@ -580,17 +588,10 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	if (err)
- 		goto out_free_vb;
- 
--	vb->nb.notifier_call = virtballoon_oom_notify;
--	vb->nb.priority = VIRTBALLOON_OOM_NOTIFY_PRIORITY;
--	err = register_oom_notifier(&vb->nb);
--	if (err < 0)
--		goto out_del_vqs;
--
- #ifdef CONFIG_BALLOON_COMPACTION
- 	balloon_mnt = kern_mount(&balloon_fs);
- 	if (IS_ERR(balloon_mnt)) {
- 		err = PTR_ERR(balloon_mnt);
--		unregister_oom_notifier(&vb->nb);
- 		goto out_del_vqs;
- 	}
- 
-@@ -599,12 +600,19 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	if (IS_ERR(vb->vb_dev_info.inode)) {
- 		err = PTR_ERR(vb->vb_dev_info.inode);
- 		kern_unmount(balloon_mnt);
--		unregister_oom_notifier(&vb->nb);
- 		goto out_del_vqs;
- 	}
- 	vb->vb_dev_info.inode->i_mapping->a_ops = &balloon_aops;
- #endif
--
-+	/*
-+	 * We continue to use VIRTIO_BALLOON_F_DEFLATE_ON_OOM to decide if a
-+	 * shrinker needs to be registered to relieve memory pressure.
-+	 */
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM)) {
-+		err = virtio_balloon_register_shrinker(vb);
-+		if (err)
-+			goto out_del_vqs;
-+	}
- 	virtio_device_ready(vdev);
- 
- 	if (towards_target(vb))
-@@ -636,8 +644,8 @@ static void virtballoon_remove(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb = vdev->priv;
- 
--	unregister_oom_notifier(&vb->nb);
--
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-+		virtio_balloon_unregister_shrinker(vb);
- 	spin_lock_irq(&vb->stop_update_lock);
- 	vb->stop_update = true;
- 	spin_unlock_irq(&vb->stop_update_lock);
--- 
-2.7.4
+--ykL5PfU1fwQtF6wkvTdhfa2ibJx7kog=_K
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
+" />
+  </head>
+  <body>
+    <p>***** Proceedings by Springer. Indexed&nbsp;by Scopus, ISI, etc.</p>=
+
+    <p><strong>&nbsp;</strong></p>
+    <p><strong>------------</strong></p>
+    <p><strong><span class=3D"il">ICITS</span>'<span class=3D"il">19</span>=
+ - The 2019 International Conference on Information Technology &amp; System=
+s</strong></p>
+    <p>6 - 8 February 2019, Quito, Ecuador</p>
+    <p><a href=3D"http://www.icits.me/" target=3D"_blank" data-saferedirect=
+url=3D"https://www.google.com/url?hl=3Den-GB&q=3Dhttp://www.icits.me/&sourc=
+e=3Dgmail&ust=3D1532281850705000&usg=3DAFQjCNE_M8Yt3nNeixViTzmzdqRcacKMgQ">=
+http://www.<span class=3D"il">icits</span>.me/</a></p>
+    <p><strong>------------------------------ 
+        <wbr>&nbsp;</wbr>&nbsp;&nbsp;&nbsp;&nbsp;--------------------------=
+---- 
+        <wbr>&nbsp;</wbr>&nbsp;&nbsp;&nbsp;&nbsp;--------------------------=
+---- 
+        <wbr>&nbsp;</wbr>&nbsp;&nbsp;&nbsp;&nbsp;------------------------</=
+strong> 
+    </p>
+    <p>&nbsp;</p>
+    <p><span class=3D"il">ICITS</span>'<span class=3D"il">19</span> - The 2=
+019 International Conference on Information Technology &amp; Systems, to be=
+ held at Quito, Ecuador, 6 - 8 February 2019, is an international forum for=
+ researchers and practitioners to present and discuss the most recent innov=
+ations, trends, results, experiences and concerns in the several perspectiv=
+es of Information Technology &amp; Systems.</p>
+    <p>We are pleased to invite you to submit your papers to <span class=3D=
+"il">ICITS</span>'<span class=3D"il">19</span>. They can be written in Engl=
+ish, Spanish or Portuguese. All submissions will be reviewed on the basis o=
+f relevance, originality, importance and clarity.</p>
+    <p>&nbsp;</p>
+    <p><strong>Topics</strong></p>
+    <p>Submitted papers should be related with one or more of the main them=
+es proposed for the Conference:</p>
+    <p>A) Information and Knowledge Management (IKM);</p>
+    <p>B) Organizational Models and Information Systems (OMIS);</p>
+    <p>C) Software and Systems Modeling (SSM);</p>
+    <p>D) Software Systems, Architectures, Applications and Tools (SSAAT);<=
+/p>
+    <p>E) Multimedia Systems and Applications (MSA);</p>
+    <p>F) Computer Networks, Mobility and Pervasive Systems (CNMPS);</p>
+    <p>G) Intelligent and Decision Support Systems (IDSS);</p>
+    <p>H) Big Data Analytics and Applications (BDAA);</p>
+    <p>I) Human-Computer Interaction (HCI);</p>
+    <p>J) Ethics, Computers and Security (ECS)</p>
+    <p>K) Health Informatics (HIS);</p>
+    <p>L) Information Technologies in Education (ITE);</p>
+    <p>M) Cybersecurity and Cyber-defense;</p>
+    <p>N) Electromagnetics, Sensors and Antennas for Security.</p>
+    <p>&nbsp;</p>
+    <p><strong>Submission and Decision</strong></p>
+    <p>Submitted papers written in English (until 10-page limit) must compl=
+y with the format of Advances in Intelligent Systems and Computing series (=
+see&nbsp;<a href=3D"http://www.springer.com/series/11156" target=3D"_blank"=
+ data-saferedirecturl=3D"https://www.google.com/url?hl=3Den-GB&q=3Dhttp://w=
+ww.springer.com/series/11156&source=3Dgmail&ust=3D1532281850705000&usg=3DAF=
+QjCNFtQSFFjhkOxAztInx4y8-iRWVyLw">Instructions for Authors at Springer Webs=
+ite</a>&nbsp;or download a&nbsp;<a href=3D"http://www.icits.me/springerform=
+at.doc" target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/ur=
+l?hl=3Den-GB&q=3Dhttp://www.icits.me/springerformat.doc&source=3Dgmail&ust=
+=3D1532281850705000&usg=3DAFQjCNHiCgLlR_N_n2SYRqcwPoDIhPkXwA">DOC example</=
+a>), must not have been published before, not be under review for any other=
+ conference or publication and not include any information leading to the a=
+uthors&rsquo; identification. Therefore, the authors&rsquo; names, affiliat=
+ions and bibliographic references should not be included in the version for=
+ evaluation by the Scientific Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and also =
+in PDF format.&nbsp;<span lang=3D"en" id=3D"m_5813859953673155489result_box=
+">These files&nbsp;must&nbsp;be accompanied by the&nbsp;<a href=3D"http://w=
+ww.icits.me/copyright.pdf" target=3D"_blank" data-saferedirecturl=3D"https:=
+//www.google.com/url?hl=3Den-GB&q=3Dhttp://www.icits.me/copyright.pdf&sourc=
+e=3Dgmail&ust=3D1532281850705000&usg=3DAFQjCNGw9S4DgggKFvU95aXZFJ76-tWFLw">=
+Consent to Publish form</a>&nbsp;filled out,&nbsp;</span><span lang=3D"en" =
+id=3D"m_5813859953673155489result_box"><span lang=3D"en" id=3D"m_5813859953=
+673155489result_box">in a ZIP file, and uploaded at the conference manageme=
+nt system.</span></span></p>
+    <p><span lang=3D"en"><span lang=3D"en">Submitted papers written in Span=
+ish or Portuguese (until 15-page limit) must comply with the format of <a h=
+ref=3D"http://www.risti.xyz/" target=3D"_blank" data-saferedirecturl=3D"htt=
+ps://www.google.com/url?hl=3Den-GB&q=3Dhttp://www.risti.xyz/&source=3Dgmail=
+&ust=3D1532281850705000&usg=3DAFQjCNFAcfG03PQ3F74CMb6xsz3fqUZ9Ow">RISTI</a>=
+ - Revista Ib&eacute;rica de Sistemas e Tecnologias de Informa&ccedil;&atil=
+de;o (download instructions/template for authors in <a href=3D"http://www.r=
+isti.xyz/formato-es.doc" target=3D"_blank" data-saferedirecturl=3D"https://=
+www.google.com/url?hl=3Den-GB&q=3Dhttp://www.risti.xyz/formato-es.doc&sourc=
+e=3Dgmail&ust=3D1532281850705000&usg=3DAFQjCNFU3U5u3jqxpxtMe0grhXz41F1ZRw">=
+Spanish</a> or <a href=3D"http://www.risti.xyz/formato-pt.doc" target=3D"_b=
+lank" data-saferedirecturl=3D"https://www.google.com/url?hl=3Den-GB&q=3Dhtt=
+p://www.risti.xyz/formato-pt.doc&source=3Dgmail&ust=3D1532281850705000&usg=
+=3DAFQjCNFeW1TVkdTeJjgy_H8Q781J3fkhhw">Portuguese</a>), must not have been =
+published before, not be under review for any other conference or publicati=
+on and not include any information leading to the authors&rsquo; identifica=
+tion. Therefore, the authors&rsquo; names, affiliations and bibliographic r=
+eferences should not be included in the version for evaluation by the Scien=
+tific Committee. This information should only be included in the camera-rea=
+dy version, saved in Word.&nbsp;<span lang=3D"en" id=3D"m_58138599536731554=
+89result_box">These file must&nbsp;be </span><span lang=3D"en" id=3D"m_5813=
+859953673155489result_box"><span lang=3D"en" id=3D"m_5813859953673155489res=
+ult_box">uploaded at the conference management system in a ZIP file.</span>=
+</span></span></span></p>
+    <p>All papers will be subjected to a &ldquo;double-blind review&rdquo; =
+by at least two members of the Scientific Committee.</p>
+    <p>Based on Scientific Committee evaluation, a paper can be rejected or=
+ accepted by the Conference Chairs. In the later case, it can be accepted a=
+s paper or poster.</p>
+    <p>The authors of papers accepted as posters must build and print a pos=
+ter to be exhibited during the Conference. This poster must follow an A1 or=
+ A2 vertical format. The Conference can includes Work Sessions where these =
+posters are presented and orally discussed, with a 7 minute limit per poste=
+r.</p>
+    <p>The authors of accepted papers will have 15 minutes to present their=
+ work in a Conference Work Session; approximately 5 minutes of discussion w=
+ill follow each presentation.</p>
+    <p>&nbsp;</p>
+    <p><strong>Publication and Indexing</strong></p>
+    <p>To ensure that an accepted paper is published, at least one of the a=
+uthors must be fully registered by the 9th of October 2018, and the paper m=
+ust comply with the suggested layout and page-limit. Additionally, all reco=
+mmended changes must be addressed by the authors before they submit the cam=
+era-ready version.</p>
+    <p>No more than one paper per registration will be published. An extra =
+fee must be paid for publication of additional papers, with a maximum of on=
+e additional paper per registration. One registration permits only the part=
+icipation of one author in the conference.</p>
+    <p>Papers written in English and accepted and registered will be publis=
+hed in Proceedings by Springer, in a book of the <a href=3D"http://www.spri=
+nger.com/series/11156" target=3D"_blank" data-saferedirecturl=3D"https://ww=
+w.google.com/url?hl=3Den-GB&q=3Dhttp://www.springer.com/series/11156&source=
+=3Dgmail&ust=3D1532281850705000&usg=3DAFQjCNFtQSFFjhkOxAztInx4y8-iRWVyLw">A=
+dvances in Intelligent Systems and Computing </a>series, will&nbsp; be subm=
+itted for indexation by ISI, EI-Compendex, SCOPUS and DBLP, among others, a=
+nd will be available in the <a href=3D"http://link.springer.com/" target=3D=
+"_blank" data-saferedirecturl=3D"https://www.google.com/url?hl=3Den-GB&q=3D=
+http://link.springer.com/&source=3Dgmail&ust=3D1532281850705000&usg=3DAFQjC=
+NGaaJTtB6dKyHOMZIGNfD7l8P-JZw">SpringerLink Digital Library</a>.</p>
+    <p>Papers written in Spanish or Portuguese and accepted and registered =
+will be published in a Special Issue of <a href=3D"http://www.risti.xyz/ind=
+ex.php?option=3Dcom_content&view=3Darticle&id=3D3&Itemid=3D104&lang=3Des" t=
+arget=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?hl=3Den=
+-GB&q=3Dhttp://www.risti.xyz/index.php?option%3Dcom_content%26view%3Darticl=
+e%26id%3D3%26Itemid%3D104%26lang%3Des&source=3Dgmail&ust=3D1532281850705000=
+&usg=3DAFQjCNFf00V9cANdhXOyndFMlpDIWygN1g">RISTI</a> and will be submitted =
+for indexation by SCOPUS, among others.</p>
+    <p>&nbsp;</p>
+    <p><strong>Important Dates</strong></p>
+    <p>Paper Submission: September 16, 2018</p>
+    <p>Notification of Acceptance: October 28, 2018</p>
+    <p>Payment of Registration,&nbsp;to ensure the inclusion of an accepted=
+ paper in the conference proceedings: November 9, 2018.</p>
+    <p>Camera-ready Submission: November 9, 2018</p>
+    <p>&nbsp;</p>
+    <p><strong>Website of <span class=3D"il">ICITS</span>'<span class=3D"il=
+">19</span></strong>: <a href=3D"http://www.icits.me/" target=3D"_blank" da=
+ta-saferedirecturl=3D"https://www.google.com/url?hl=3Den-GB&q=3Dhttp://www.=
+icits.me/&source=3Dgmail&ust=3D1532281850705000&usg=3DAFQjCNE_M8Yt3nNeixViT=
+zmzdqRcacKMgQ">http://www.<span class=3D"il">icits</span>.me/</a></p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
+<table style=3D"border-top: 1px solid #D3D4DE;">
+	<tr>
+        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
+=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
+n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
+s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
+=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
+a></td>
+		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
+13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
+free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
+source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
+"_blank" style=3D"color: #4453ea;">www.avg.com</a>
+		</td>
+	</tr>
+</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
+t=3D"1"> </a></div></body>
+</html>
+
+--ykL5PfU1fwQtF6wkvTdhfa2ibJx7kog=_K--
+
+
+--===============6535465863676001553==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6535465863676001553==--
