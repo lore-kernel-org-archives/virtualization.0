@@ -1,7 +1,8 @@
 From: xiangxia.m.yue@gmail.com
-Subject: [PATCH net-next v8 5/7] net: vhost: introduce bitmap for vhost_poll
-Date: Sun, 19 Aug 2018 05:11:24 -0700
-Message-ID: <1534680686-3108-6-git-send-email-xiangxia.m.yue__42855.8940337554$1534680899$gmane$org@gmail.com>
+Subject: [PATCH net-next v8 6/7] net: vhost: disable rx wakeup during tx
+	busypoll
+Date: Sun, 19 Aug 2018 05:11:25 -0700
+Message-ID: <1534680686-3108-7-git-send-email-xiangxia.m.yue__4214.49628561295$1534680981$gmane$org@gmail.com>
 References: <1534680686-3108-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,151 +24,54 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 
-The bitmap of vhost_dev can help us to check if the
-specified poll is scheduled. This patch will be used
-for next two patches.
+In the handle_tx, the busypoll will vhost_net_disable/enable_vq
+because we have poll the sock. This can improve performance.
+
+This is suggested by Toshiaki Makita and Jason Wang.
+
+If the rx handle is scheduled, we will not enable vq, because it's
+not necessary. We do it not in last 'else' because if we receive
+the data, but can't queue the rx handle(rx vring is full), then we
+enable the vq to avoid case: guest receives the data, vring is not
+full then guest can get more data, but vq is disabled, rx vq can't
+be wakeup to receive more data.
+
+Topology:
+[Host] ->linux bridge -> tap vhost-net ->[Guest]
+
+TCP_STREAM (netperf):
+* Without the patch:  37598.20 Mbps, 3.43 us mean latency
+* With the patch:     38035.39 Mbps, 3.37 us mean latency
 
 Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 ---
- drivers/vhost/net.c   | 11 +++++++++--
- drivers/vhost/vhost.c | 17 +++++++++++++++--
- drivers/vhost/vhost.h |  7 ++++++-
- 3 files changed, 30 insertions(+), 5 deletions(-)
+ drivers/vhost/net.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 1eff72d..23d7ffc 100644
+index 23d7ffc..db63ae2 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -1135,8 +1135,15 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 	}
- 	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX);
+@@ -480,6 +480,9 @@ static void vhost_net_busy_poll(struct vhost_net *net,
+ 	busyloop_timeout = poll_rx ? rvq->busyloop_timeout:
+ 				     tvq->busyloop_timeout;
  
--	vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, EPOLLOUT, dev);
--	vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, EPOLLIN, dev);
-+	vhost_poll_init(n->poll + VHOST_NET_VQ_TX,
-+			handle_tx_net,
-+			VHOST_NET_VQ_TX,
-+			EPOLLOUT, dev);
++	if (!poll_rx)
++		vhost_net_disable_vq(net, rvq);
 +
-+	vhost_poll_init(n->poll + VHOST_NET_VQ_RX,
-+			handle_rx_net,
-+			VHOST_NET_VQ_RX,
-+			EPOLLIN, dev);
+ 	preempt_disable();
+ 	endtime = busy_clock() + busyloop_timeout;
  
- 	f->private_data = n;
+@@ -506,6 +509,10 @@ static void vhost_net_busy_poll(struct vhost_net *net,
+ 	else /* On tx here, sock has no rx data. */
+ 		vhost_enable_notify(&net->dev, rvq);
  
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index a1c06e7..dc88a60 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -186,7 +186,7 @@ void vhost_work_init(struct vhost_work *work, vhost_work_fn_t fn)
- 
- /* Init poll structure */
- void vhost_poll_init(struct vhost_poll *poll, vhost_work_fn_t fn,
--		     __poll_t mask, struct vhost_dev *dev)
-+		     __u8 poll_id, __poll_t mask, struct vhost_dev *dev)
- {
- 	init_waitqueue_func_entry(&poll->wait, vhost_poll_wakeup);
- 	init_poll_funcptr(&poll->table, vhost_poll_func);
-@@ -194,6 +194,7 @@ void vhost_poll_init(struct vhost_poll *poll, vhost_work_fn_t fn,
- 	poll->dev = dev;
- 	poll->wqh = NULL;
- 
-+	poll->poll_id = poll_id;
- 	vhost_work_init(&poll->work, fn);
- }
- EXPORT_SYMBOL_GPL(vhost_poll_init);
-@@ -276,8 +277,16 @@ bool vhost_has_work(struct vhost_dev *dev)
- }
- EXPORT_SYMBOL_GPL(vhost_has_work);
- 
-+bool vhost_has_work_pending(struct vhost_dev *dev, int poll_id)
-+{
-+	return !llist_empty(&dev->work_list) &&
-+		test_bit(poll_id, dev->work_pending);
-+}
-+EXPORT_SYMBOL_GPL(vhost_has_work_pending);
++	if (!poll_rx &&
++	    !vhost_has_work_pending(&net->dev, VHOST_NET_VQ_RX))
++		vhost_net_enable_vq(net, rvq);
 +
- void vhost_poll_queue(struct vhost_poll *poll)
- {
-+	set_bit(poll->poll_id, poll->dev->work_pending);
- 	vhost_work_queue(poll->dev, &poll->work);
+ 	mutex_unlock(&vq->mutex);
  }
- EXPORT_SYMBOL_GPL(vhost_poll_queue);
-@@ -354,6 +363,7 @@ static int vhost_worker(void *data)
- 		if (!node)
- 			schedule();
  
-+		bitmap_zero(dev->work_pending, VHOST_DEV_MAX_VQ);
- 		node = llist_reverse_order(node);
- 		/* make sure flag is seen after deletion */
- 		smp_wmb();
-@@ -420,6 +430,8 @@ void vhost_dev_init(struct vhost_dev *dev,
- 	struct vhost_virtqueue *vq;
- 	int i;
- 
-+	BUG_ON(nvqs > VHOST_DEV_MAX_VQ);
-+
- 	dev->vqs = vqs;
- 	dev->nvqs = nvqs;
- 	mutex_init(&dev->mutex);
-@@ -428,6 +440,7 @@ void vhost_dev_init(struct vhost_dev *dev,
- 	dev->iotlb = NULL;
- 	dev->mm = NULL;
- 	dev->worker = NULL;
-+	bitmap_zero(dev->work_pending, VHOST_DEV_MAX_VQ);
- 	init_llist_head(&dev->work_list);
- 	init_waitqueue_head(&dev->wait);
- 	INIT_LIST_HEAD(&dev->read_list);
-@@ -445,7 +458,7 @@ void vhost_dev_init(struct vhost_dev *dev,
- 		vhost_vq_reset(dev, vq);
- 		if (vq->handle_kick)
- 			vhost_poll_init(&vq->poll, vq->handle_kick,
--					EPOLLIN, dev);
-+					i, EPOLLIN, dev);
- 	}
- }
- EXPORT_SYMBOL_GPL(vhost_dev_init);
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 6c844b9..60b6f6d 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -30,6 +30,7 @@ struct vhost_poll {
- 	wait_queue_head_t        *wqh;
- 	wait_queue_entry_t              wait;
- 	struct vhost_work	  work;
-+	__u8			  poll_id;
- 	__poll_t		  mask;
- 	struct vhost_dev	 *dev;
- };
-@@ -37,9 +38,10 @@ struct vhost_poll {
- void vhost_work_init(struct vhost_work *work, vhost_work_fn_t fn);
- void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work);
- bool vhost_has_work(struct vhost_dev *dev);
-+bool vhost_has_work_pending(struct vhost_dev *dev, int poll_id);
- 
- void vhost_poll_init(struct vhost_poll *poll, vhost_work_fn_t fn,
--		     __poll_t mask, struct vhost_dev *dev);
-+		     __u8 id, __poll_t mask, struct vhost_dev *dev);
- int vhost_poll_start(struct vhost_poll *poll, struct file *file);
- void vhost_poll_stop(struct vhost_poll *poll);
- void vhost_poll_flush(struct vhost_poll *poll);
-@@ -152,6 +154,8 @@ struct vhost_msg_node {
-   struct list_head node;
- };
- 
-+#define VHOST_DEV_MAX_VQ	128
-+
- struct vhost_dev {
- 	struct mm_struct *mm;
- 	struct mutex mutex;
-@@ -159,6 +163,7 @@ struct vhost_dev {
- 	int nvqs;
- 	struct eventfd_ctx *log_ctx;
- 	struct llist_head work_list;
-+	DECLARE_BITMAP(work_pending, VHOST_DEV_MAX_VQ);
- 	struct task_struct *worker;
- 	struct vhost_umem *umem;
- 	struct vhost_umem *iotlb;
 -- 
 1.8.3.1
