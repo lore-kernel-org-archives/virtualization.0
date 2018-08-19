@@ -1,8 +1,7 @@
 From: xiangxia.m.yue@gmail.com
-Subject: [PATCH net-next v8 6/7] net: vhost: disable rx wakeup during tx
-	busypoll
-Date: Sun, 19 Aug 2018 05:11:25 -0700
-Message-ID: <1534680686-3108-7-git-send-email-xiangxia.m.yue__4214.49628561295$1534680981$gmane$org@gmail.com>
+Subject: [PATCH net-next v8 7/7] net: vhost: make busyloop_intr more accurate
+Date: Sun, 19 Aug 2018 05:11:26 -0700
+Message-ID: <1534680686-3108-8-git-send-email-xiangxia.m.yue__20595.1114920483$1534681053$gmane$org@gmail.com>
 References: <1534680686-3108-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,51 +23,48 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 
-In the handle_tx, the busypoll will vhost_net_disable/enable_vq
-because we have poll the sock. This can improve performance.
-
-This is suggested by Toshiaki Makita and Jason Wang.
-
-If the rx handle is scheduled, we will not enable vq, because it's
-not necessary. We do it not in last 'else' because if we receive
-the data, but can't queue the rx handle(rx vring is full), then we
-enable the vq to avoid case: guest receives the data, vring is not
-full then guest can get more data, but vq is disabled, rx vq can't
-be wakeup to receive more data.
+The patch uses vhost_has_work_pending() to check if
+the specified handler is scheduled, because in the most case,
+vhost_has_work() return true when other side handler is added
+to worker list. Use the vhost_has_work_pending() insead of
+vhost_has_work().
 
 Topology:
 [Host] ->linux bridge -> tap vhost-net ->[Guest]
 
 TCP_STREAM (netperf):
-* Without the patch:  37598.20 Mbps, 3.43 us mean latency
-* With the patch:     38035.39 Mbps, 3.37 us mean latency
+* Without the patch:  38035.39 Mbps, 3.37 us mean latency
+* With the patch:     38409.44 Mbps, 3.34 us mean latency
 
 Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 ---
- drivers/vhost/net.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/vhost/net.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 23d7ffc..db63ae2 100644
+index db63ae2..b6939ef 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -480,6 +480,9 @@ static void vhost_net_busy_poll(struct vhost_net *net,
- 	busyloop_timeout = poll_rx ? rvq->busyloop_timeout:
- 				     tvq->busyloop_timeout;
- 
-+	if (!poll_rx)
-+		vhost_net_disable_vq(net, rvq);
-+
- 	preempt_disable();
+@@ -487,10 +487,8 @@ static void vhost_net_busy_poll(struct vhost_net *net,
  	endtime = busy_clock() + busyloop_timeout;
  
-@@ -506,6 +509,10 @@ static void vhost_net_busy_poll(struct vhost_net *net,
- 	else /* On tx here, sock has no rx data. */
- 		vhost_enable_notify(&net->dev, rvq);
+ 	while (vhost_can_busy_poll(endtime)) {
+-		if (vhost_has_work(&net->dev)) {
+-			*busyloop_intr = true;
++		if (vhost_has_work(&net->dev))
+ 			break;
+-		}
  
-+	if (!poll_rx &&
-+	    !vhost_has_work_pending(&net->dev, VHOST_NET_VQ_RX))
-+		vhost_net_enable_vq(net, rvq);
+ 		if ((sock_has_rx_data(sock) &&
+ 		     !vhost_vq_avail_empty(&net->dev, rvq)) ||
+@@ -513,6 +511,11 @@ static void vhost_net_busy_poll(struct vhost_net *net,
+ 	    !vhost_has_work_pending(&net->dev, VHOST_NET_VQ_RX))
+ 		vhost_net_enable_vq(net, rvq);
+ 
++	if (vhost_has_work_pending(&net->dev,
++				   poll_rx ?
++				   VHOST_NET_VQ_RX: VHOST_NET_VQ_TX))
++		*busyloop_intr = true;
 +
  	mutex_unlock(&vq->mutex);
  }
