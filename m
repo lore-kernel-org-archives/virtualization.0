@@ -1,12 +1,13 @@
 From: xiangxia.m.yue@gmail.com
-Subject: [PATCH net-next v8 0/7] net: vhost: improve performance when enable
-	busyloop
-Date: Sun, 19 Aug 2018 05:11:19 -0700
-Message-ID: <1534680686-3108-1-git-send-email-xiangxia.m.yue@gmail.com>
+Subject: [PATCH net-next v8 1/7] net: vhost: lock the vqs one by one
+Date: Sun, 19 Aug 2018 05:11:20 -0700
+Message-ID: <1534680686-3108-2-git-send-email-xiangxia.m.yue__21181.7023381174$1534680597$gmane$org@gmail.com>
+References: <1534680686-3108-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1534680686-3108-1-git-send-email-xiangxia.m.yue@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,25 +23,81 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 
-This patches improve the guest receive performance.
-On the handle_tx side, we poll the sock receive queue
-at the same time. handle_rx do that in the same way.
+This patch changes the way that lock all vqs
+at the same, to lock them one by one. It will
+be used for next patch to avoid the deadlock.
 
-For more performance report, see patch 4, 6, 7
+Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/vhost.c | 24 +++++++-----------------
+ 1 file changed, 7 insertions(+), 17 deletions(-)
 
-Tonghao Zhang (7):
-  net: vhost: lock the vqs one by one
-  net: vhost: replace magic number of lock annotation
-  net: vhost: factor out busy polling logic to vhost_net_busy_poll()
-  net: vhost: add rx busy polling in tx path
-  net: vhost: introduce bitmap for vhost_poll
-  net: vhost: disable rx wakeup during tx busypoll
-  net: vhost: make busyloop_intr more accurate
-
- drivers/vhost/net.c   | 169 +++++++++++++++++++++++++++++++-------------------
- drivers/vhost/vhost.c |  41 ++++++------
- drivers/vhost/vhost.h |   7 ++-
- 3 files changed, 133 insertions(+), 84 deletions(-)
-
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index a502f1a..a1c06e7 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -294,8 +294,11 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < d->nvqs; ++i)
++	for (i = 0; i < d->nvqs; ++i) {
++		mutex_lock(&d->vqs[i]->mutex);
+ 		__vhost_vq_meta_reset(d->vqs[i]);
++		mutex_unlock(&d->vqs[i]->mutex);
++	}
+ }
+ 
+ static void vhost_vq_reset(struct vhost_dev *dev,
+@@ -890,20 +893,6 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
+ #define vhost_get_used(vq, x, ptr) \
+ 	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
+ 
+-static void vhost_dev_lock_vqs(struct vhost_dev *d)
+-{
+-	int i = 0;
+-	for (i = 0; i < d->nvqs; ++i)
+-		mutex_lock_nested(&d->vqs[i]->mutex, i);
+-}
+-
+-static void vhost_dev_unlock_vqs(struct vhost_dev *d)
+-{
+-	int i = 0;
+-	for (i = 0; i < d->nvqs; ++i)
+-		mutex_unlock(&d->vqs[i]->mutex);
+-}
+-
+ static int vhost_new_umem_range(struct vhost_umem *umem,
+ 				u64 start, u64 size, u64 end,
+ 				u64 userspace_addr, int perm)
+@@ -953,7 +942,10 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
+ 		if (msg->iova <= vq_msg->iova &&
+ 		    msg->iova + msg->size - 1 > vq_msg->iova &&
+ 		    vq_msg->type == VHOST_IOTLB_MISS) {
++			mutex_lock(&node->vq->mutex);
+ 			vhost_poll_queue(&node->vq->poll);
++			mutex_unlock(&node->vq->mutex);
++
+ 			list_del(&node->node);
+ 			kfree(node);
+ 		}
+@@ -985,7 +977,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ 	int ret = 0;
+ 
+ 	mutex_lock(&dev->mutex);
+-	vhost_dev_lock_vqs(dev);
+ 	switch (msg->type) {
+ 	case VHOST_IOTLB_UPDATE:
+ 		if (!dev->iotlb) {
+@@ -1019,7 +1010,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ 		break;
+ 	}
+ 
+-	vhost_dev_unlock_vqs(dev);
+ 	mutex_unlock(&dev->mutex);
+ 
+ 	return ret;
 -- 
 1.8.3.1
