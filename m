@@ -1,15 +1,18 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH RESEND] x86-64: use RIP-relative calls for paravirt
-	indirect ones
-Date: Mon, 20 Aug 2018 16:54:54 +0200 (CEST)
-Message-ID: <alpine.DEB.2.21.1808201654230.1551@nanos.tec.linutronix.de>
-References: <5B30C3F102000078001CD6F1@prv1-mh.provo.novell.com>
-	<5B73DFB602000078001DE35E@prv1-mh.provo.novell.com>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH V2 net-next 2/6] sctp: Handle sctp packets with
+	CHECKSUM_PARTIAL
+Date: Mon, 20 Aug 2018 15:39:32 +0000
+Message-ID: <a9c9c7f8bb89475c84d665bfdc182f57__9393.92440855063$1534779431$gmane$org@AcuMS.aculab.com>
+References: <20180502020739.19239-1-vyasevic@redhat.com>
+	<20180502020739.19239-3-vyasevic@redhat.com>
+	<20180502143824.GF5105@localhost.localdomain>
+	<20180820145415.GA5310@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5B73DFB602000078001DE35E@prv1-mh.provo.novell.com>
+In-Reply-To: <20180820145415.GA5310@localhost.localdomain>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,17 +22,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Beulich <JBeulich@suse.com>
-Cc: Juergen Gross <jgross@suse.com>, the arch/x86 maintainers <x86@kernel.org>, linux-kernel@vger.kernel.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, hpa@zytor.com, Alok Kataria <akataria@vmware.com>
+To: 'Marcelo Ricardo Leitner' <marcelo.leitner@gmail.com>, Vladislav Yasevich <vyasevich@gmail.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "nhorman@tuxdriver.com" <nhorman@tuxdriver.com>, "mst@redhat.com" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-sctp@vger.kernel.org" <linux-sctp@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 15 Aug 2018, Jan Beulich wrote:
+From: Marcelo Ricardo Leitner
+> Sent: 20 August 2018 15:54
+> On Wed, May 02, 2018 at 11:38:24AM -0300, Marcelo Ricardo Leitner wrote:
+> > On Tue, May 01, 2018 at 10:07:35PM -0400, Vladislav Yasevich wrote:
+> > > With SCTP checksum offload available in virtio, it is now
+> > > possible for virtio to receive a sctp packet with CHECKSUM_PARTIAL
+> > > set (guest-to-guest traffic).  SCTP doesn't really have a
+> > > partial checksum like TCP does, because CRC32c can't do partial
+> > > additive checksumming.
+...
 
-> This saves one insn byte per instance, summing up to a savings of over
-> 4k in my (stripped down) configuration. No variant of to be patched in
-> replacement code relies on the one byte larger size.
-> 
-> Signed-off-by: Jan Beulich <jbeulich@suse.com>
-> Reviewed-by: Juergen Gross <jgross@suse.com>
+Actually that isn't entirely true.
+For all crc, crc(a) ^ crc(b) == crc(a^b).
+Since crc(0) == 0 you can xor together two separately calculated crc
+provided they both end at the same point.
+The slight problem is that you are more likely to be appending
+one buffer to another - which requires appending lots of zero
+bytes to one of the crcs.
+This could be speeded up by using lookup tables that add moderate
+sized blocks of zero bytes to a crc instead of adding the zero
+bytes one at a time.
+Doing it without large const data and/or data cache trashing
+is left as an exercise to the implementer.
 
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
