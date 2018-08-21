@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v8 0/7] net: vhost: improve performance when
-	enable busyloop
-Date: Mon, 20 Aug 2018 23:34:10 +0300
-Message-ID: <20180820233340-mutt-send-email-mst__10029.6818688095$1534797132$gmane$org@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next v8 7/7] net: vhost: make busyloop_intr more
+	accurate
+Date: Tue, 21 Aug 2018 08:33:00 +0800
+Message-ID: <f85bfa97-ab9c-2d51-2053-1fe6bb3d45bc__18644.0514088192$1534811467$gmane$org@redhat.com>
 References: <1534680686-3108-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<1534680686-3108-8-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1534680686-3108-1-git-send-email-xiangxia.m.yue@gmail.com>
+In-Reply-To: <1534680686-3108-8-git-send-email-xiangxia.m.yue@gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,36 +20,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xiangxia.m.yue@gmail.com
+To: xiangxia.m.yue@gmail.com, mst@redhat.com, makita.toshiaki@lab.ntt.co.jp
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Aug 19, 2018 at 05:11:19AM -0700, xiangxia.m.yue@gmail.com wrote:
-> From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-> 
-> This patches improve the guest receive performance.
-> On the handle_tx side, we poll the sock receive queue
-> at the same time. handle_rx do that in the same way.
-> 
-> For more performance report, see patch 4, 6, 7
-
-
-Thanks for the patches. I'm traveling this week,
-will do my best to review next week.
-
-> Tonghao Zhang (7):
->   net: vhost: lock the vqs one by one
->   net: vhost: replace magic number of lock annotation
->   net: vhost: factor out busy polling logic to vhost_net_busy_poll()
->   net: vhost: add rx busy polling in tx path
->   net: vhost: introduce bitmap for vhost_poll
->   net: vhost: disable rx wakeup during tx busypoll
->   net: vhost: make busyloop_intr more accurate
-> 
->  drivers/vhost/net.c   | 169 +++++++++++++++++++++++++++++++-------------------
->  drivers/vhost/vhost.c |  41 ++++++------
->  drivers/vhost/vhost.h |   7 ++-
->  3 files changed, 133 insertions(+), 84 deletions(-)
-> 
-> -- 
-> 1.8.3.1
+CgpPbiAyMDE45bm0MDjmnIgxOeaXpSAyMDoxMSwgeGlhbmd4aWEubS55dWVAZ21haWwuY29tIHdy
+b3RlOgo+IEZyb206IFRvbmdoYW8gWmhhbmcgPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbT4KPgo+
+IFRoZSBwYXRjaCB1c2VzIHZob3N0X2hhc193b3JrX3BlbmRpbmcoKSB0byBjaGVjayBpZgo+IHRo
+ZSBzcGVjaWZpZWQgaGFuZGxlciBpcyBzY2hlZHVsZWQsIGJlY2F1c2UgaW4gdGhlIG1vc3QgY2Fz
+ZSwKPiB2aG9zdF9oYXNfd29yaygpIHJldHVybiB0cnVlIHdoZW4gb3RoZXIgc2lkZSBoYW5kbGVy
+IGlzIGFkZGVkCj4gdG8gd29ya2VyIGxpc3QuIFVzZSB0aGUgdmhvc3RfaGFzX3dvcmtfcGVuZGlu
+ZygpIGluc2VhZCBvZgo+IHZob3N0X2hhc193b3JrKCkuCj4KPiBUb3BvbG9neToKPiBbSG9zdF0g
+LT5saW51eCBicmlkZ2UgLT4gdGFwIHZob3N0LW5ldCAtPltHdWVzdF0KPgo+IFRDUF9TVFJFQU0g
+KG5ldHBlcmYpOgo+ICogV2l0aG91dCB0aGUgcGF0Y2g6ICAzODAzNS4zOSBNYnBzLCAzLjM3IHVz
+IG1lYW4gbGF0ZW5jeQo+ICogV2l0aCB0aGUgcGF0Y2g6ICAgICAzODQwOS40NCBNYnBzLCAzLjM0
+IHVzIG1lYW4gbGF0ZW5jeQoKVGhlIGltcHJvdmVtZW50IGlzIG5vdCBvYnZpb3VzIGFzIGxhc3Qg
+dmVyc2lvbi4gRG8geW91IGltcGx5IHRoZXJlJ3MgCnNvbWUgcmVjZW50IGNoYW5nZXMgb2Ygdmhv
+c3QgdGhhdCBtYWtlIGl0IGZhc3Rlcj8KClRoYW5rcwoKPgo+IFNpZ25lZC1vZmYtYnk6IFRvbmdo
+YW8gWmhhbmcgPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbT4KPiAtLS0KPiAgIGRyaXZlcnMvdmhv
+c3QvbmV0LmMgfCA5ICsrKysrKy0tLQo+ICAgMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygr
+KSwgMyBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L25ldC5jIGIv
+ZHJpdmVycy92aG9zdC9uZXQuYwo+IGluZGV4IGRiNjNhZTIuLmI2OTM5ZWYgMTAwNjQ0Cj4gLS0t
+IGEvZHJpdmVycy92aG9zdC9uZXQuYwo+ICsrKyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiBAQCAt
+NDg3LDEwICs0ODcsOCBAQCBzdGF0aWMgdm9pZCB2aG9zdF9uZXRfYnVzeV9wb2xsKHN0cnVjdCB2
+aG9zdF9uZXQgKm5ldCwKPiAgIAllbmR0aW1lID0gYnVzeV9jbG9jaygpICsgYnVzeWxvb3BfdGlt
+ZW91dDsKPiAgIAo+ICAgCXdoaWxlICh2aG9zdF9jYW5fYnVzeV9wb2xsKGVuZHRpbWUpKSB7Cj4g
+LQkJaWYgKHZob3N0X2hhc193b3JrKCZuZXQtPmRldikpIHsKPiAtCQkJKmJ1c3lsb29wX2ludHIg
+PSB0cnVlOwo+ICsJCWlmICh2aG9zdF9oYXNfd29yaygmbmV0LT5kZXYpKQo+ICAgCQkJYnJlYWs7
+Cj4gLQkJfQo+ICAgCj4gICAJCWlmICgoc29ja19oYXNfcnhfZGF0YShzb2NrKSAmJgo+ICAgCQkg
+ICAgICF2aG9zdF92cV9hdmFpbF9lbXB0eSgmbmV0LT5kZXYsIHJ2cSkpIHx8Cj4gQEAgLTUxMyw2
+ICs1MTEsMTEgQEAgc3RhdGljIHZvaWQgdmhvc3RfbmV0X2J1c3lfcG9sbChzdHJ1Y3Qgdmhvc3Rf
+bmV0ICpuZXQsCj4gICAJICAgICF2aG9zdF9oYXNfd29ya19wZW5kaW5nKCZuZXQtPmRldiwgVkhP
+U1RfTkVUX1ZRX1JYKSkKPiAgIAkJdmhvc3RfbmV0X2VuYWJsZV92cShuZXQsIHJ2cSk7Cj4gICAK
+PiArCWlmICh2aG9zdF9oYXNfd29ya19wZW5kaW5nKCZuZXQtPmRldiwKPiArCQkJCSAgIHBvbGxf
+cnggPwo+ICsJCQkJICAgVkhPU1RfTkVUX1ZRX1JYOiBWSE9TVF9ORVRfVlFfVFgpKQo+ICsJCSpi
+dXN5bG9vcF9pbnRyID0gdHJ1ZTsKPiArCj4gICAJbXV0ZXhfdW5sb2NrKCZ2cS0+bXV0ZXgpOwo+
+ICAgfQo+ICAgCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
+Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
+bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
