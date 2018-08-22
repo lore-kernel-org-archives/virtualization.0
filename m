@@ -1,11 +1,15 @@
-From: "Dr. S K Niranjan Aradhya" <dr.niranjan.sk@gmail.com>
-Subject: IEEE Record # 41985: 2018 3rd International Conference on
-	Contemporary Computing and Informatics (IC3I).
-Date: Wed, 22 Aug 2018 10:04:32 +0530
-Message-ID: <CA+VLO2GOMeBDPodRn7F9tBgaq9yiqf7jWXPSMMGg7u3cdq4EfA@mail.gmail.com>
+From: Greg Edwards <gedwards@ddn.com>
+Subject: Re: [PATCH] vhost/scsi: increase VHOST_SCSI_PREALLOC_PROT_SGLS to 2048
+Date: Wed, 22 Aug 2018 11:25:06 -0600
+Message-ID: <20180822172506.GA992@psuche>
+References: <20180808192955.1115-1-gedwards@ddn.com>
+	<20180808233807-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2349508165390580103=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20180808233807-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,109 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: pbonzini@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============2349508165390580103==
-Content-Type: multipart/alternative; boundary="000000000000aeffe10573fea87c"
+On Wed, Aug 08, 2018 at 11:42:22PM +0300, Michael S. Tsirkin wrote:
+> On Wed, Aug 08, 2018 at 01:29:55PM -0600, Greg Edwards wrote:
+>> The current value of VHOST_SCSI_PREALLOC_PROT_SGLS is too small to
+>> accommodate larger I/Os, e.g. 16-32 MiB, when the VIRTIO_SCSI_F_T10_PI
+>> feature bit is negotiated and the backing store supports T10 PI.
+>>
+>> vhost-scsi rejects the command with errors like:
+>>
+>> [   59.581317] vhost_scsi_calc_sgls: requested sgl_count: 1820 exceeds pre-allocated max_sgls: 512
+>>
+>> Signed-off-by: Greg Edwards <gedwards@ddn.com>
+>> ---
+>>  drivers/vhost/scsi.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+>> index 17fcd3b2e686..8c32cf58d6fa 100644
+>> --- a/drivers/vhost/scsi.c
+>> +++ b/drivers/vhost/scsi.c
+>> @@ -56,7 +56,7 @@
+>>  #define VHOST_SCSI_DEFAULT_TAGS 256
+>>  #define VHOST_SCSI_PREALLOC_SGLS 2048
+>>  #define VHOST_SCSI_PREALLOC_UPAGES 2048
+>> -#define VHOST_SCSI_PREALLOC_PROT_SGLS 512
+>> +#define VHOST_SCSI_PREALLOC_PROT_SGLS 2048
+>>
+>>  struct vhost_scsi_inflight {
+>>  	/* Wait for the flush operation to finish */
+>
+> I guess it's ok since PREALLOC_SGLS is already 2K ... or
+> am I missing something. Paolo, any input on this?
 
---000000000000aeffe10573fea87c
-Content-Type: text/plain; charset="UTF-8"
+Ignore this patch.  I believe I've identified the root cause [1], and
+will send out a new patch once I've done some more testing.
 
-*<< Apologies for cross-postings >><<< Please circulate among your friends,
-peers and researchers >>>*
+Greg
 
-IEEE Conference Record No.: #41985;
-
-2018 3rd International Conference on Contemporary Computing and Informatics
-(IC3I).
-
-Conference Date : 10 - 12 October 2018
-Submission Deadline: 1 September 2018
-
-*Submission Link:http://cmsweb.com.sg/ic3i18/index.php/ic3i18/ic3i18/login
-<http://cmsweb.com.sg/ic3i18/index.php/ic3i18/ic3i18/login>*
-
-IEEE ISBN : 978-1-5386-6894-8
-IEEE Part No. : CFP18AWQ-ART
-
-Selected, accepted and extended paper will be published in Scopus Indexed
-International Journal of Forensic Software Engineering published by
-InderScience
-
-All accepted and presented papers will be submitted to the IEEE for
-possible publication in IEEE Xplore Digital Library. Previous edition
-indexed in: SCOPUS, ISI Web of Science, Engineering Index, Google, etc.
-
-If you like to join the TPC or propose a special session or symposiums
-please write to: secretariat@ic3i.org
-
-General Chair(s)
-IC3I  2018 Conference
-
-----------------------
-Disclaimer: We have clearly mentioned the subject lines and your email
-address won't be misleading in any form. We have found your mail address
-through our own efforts on the web search and not through any illegal way.
-If you wish to remove your information from our mailing list or no longer
-receive future announcements, please email with REMOVE in subject. Your
-request to opt-out will be effective within a reasonable amount of time.
-
- ic3i-cfp.pdf
-<https://drive.google.com/file/d/1Tg7HlYL-7wwm0RB6BHrU0RqBaU_ol34F/view?usp=drive_web>
-
---000000000000aeffe10573fea87c
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><font size=3D"4"><b>&lt;=
-&lt; Apologies for cross-postings &gt;&gt;<br>&lt;&lt;&lt; Please circulate=
- among your friends, peers and researchers &gt;&gt;&gt;</b></font><br><br>I=
-EEE Conference Record No.: #41985;<br><br>2018 3rd International Conference=
- on Contemporary Computing and Informatics (IC3I).<br><br>Conference Date :=
- 10 - 12 October 2018<br>Submission Deadline: 1 September 2018<br><br><b>Su=
-bmission Link:<a href=3D"http://cmsweb.com.sg/ic3i18/index.php/ic3i18/ic3i1=
-8/login" target=3D"_blank">http://cmsweb.com.sg/ic3i<wbr>18/index.php/ic3i1=
-8/ic3i18/<wbr>login</a></b><br><br>IEEE ISBN : 978-1-5386-6894-8<br>IEEE Pa=
-rt No. : CFP18AWQ-ART<br><br>Selected, accepted and extended paper will be =
-published in Scopus Indexed International Journal of Forensic Software Engi=
-neering published by InderScience<br><br>All accepted and presented papers =
-will be submitted to the IEEE for possible publication in IEEE Xplore Digit=
-al Library. Previous edition indexed in: SCOPUS, ISI Web of Science, Engine=
-ering Index, Google, etc.<br><br>If you like to join the TPC or propose a s=
-pecial session or symposiums please write to: <a href=3D"mailto:secretariat=
-@ic3i.org" target=3D"_blank">secretariat@ic3i.org</a><br><br>General Chair(=
-s)<br>IC3I=C2=A0 2018 Conference<br><br>----------------------<br><div>Disc=
-laimer: We have clearly mentioned the subject lines and your email address =
-won&#39;t be misleading in any form. We have found your mail address throug=
-h our own efforts on the web search and not through any illegal way. If you=
- wish to remove your information from our mailing list or no longer receive=
- future announcements, please email with REMOVE in subject. Your request to=
- opt-out will be effective within a reasonable amount of time.=C2=A0</div><=
-div><br></div><div><div class=3D"gmail_chip gmail_drive_chip" style=3D"widt=
-h:396px;height:18px;max-height:18px;background-color:rgb(245,245,245);paddi=
-ng:5px;font-family:arial;font-weight:bold;border:1px solid rgb(221,221,221)=
-;line-height:1"><a href=3D"https://drive.google.com/file/d/1Tg7HlYL-7wwm0RB=
-6BHrU0RqBaU_ol34F/view?usp=3Ddrive_web" style=3D"display:inline-block;max-w=
-idth:366px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-d=
-ecoration:none;padding:1px 0px;border:none" target=3D"_blank"><img style=3D=
-"vertical-align:bottom;border:none" src=3D"https://ssl.gstatic.com/docs/doc=
-list/images/icon_10_generic_list.png">=C2=A0<span dir=3D"ltr" style=3D"colo=
-r:rgb(17,85,204);text-decoration:none;vertical-align:bottom">ic3i-cfp.pdf</=
-span></a><img style=3D"display:none;opacity:0.55;float:right"></div><br></d=
-iv></div></div>
-<br></div>
-
---000000000000aeffe10573fea87c--
-
---===============2349508165390580103==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2349508165390580103==--
+  [1] https://www.spinics.net/lists/linux-scsi/msg122825.html
