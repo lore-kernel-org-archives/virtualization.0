@@ -1,15 +1,11 @@
 From: Greg Edwards <gedwards@ddn.com>
-Subject: Re: [PATCH] vhost/scsi: increase VHOST_SCSI_PREALLOC_PROT_SGLS to 2048
-Date: Wed, 22 Aug 2018 11:25:06 -0600
-Message-ID: <20180822172506.GA992@psuche>
-References: <20180808192955.1115-1-gedwards@ddn.com>
-	<20180808233807-mutt-send-email-mst@kernel.org>
+Subject: [PATCH] vhost/scsi: truncate T10 PI iov_iter to prot_bytes
+Date: Wed, 22 Aug 2018 13:21:53 -0600
+Message-ID: <20180822192153.24217-1-gedwards@ddn.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180808233807-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,45 +15,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: pbonzini@redhat.com, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Mike Christie <mchristi@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 08, 2018 at 11:42:22PM +0300, Michael S. Tsirkin wrote:
-> On Wed, Aug 08, 2018 at 01:29:55PM -0600, Greg Edwards wrote:
->> The current value of VHOST_SCSI_PREALLOC_PROT_SGLS is too small to
->> accommodate larger I/Os, e.g. 16-32 MiB, when the VIRTIO_SCSI_F_T10_PI
->> feature bit is negotiated and the backing store supports T10 PI.
->>
->> vhost-scsi rejects the command with errors like:
->>
->> [   59.581317] vhost_scsi_calc_sgls: requested sgl_count: 1820 exceeds pre-allocated max_sgls: 512
->>
->> Signed-off-by: Greg Edwards <gedwards@ddn.com>
->> ---
->>  drivers/vhost/scsi.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
->> index 17fcd3b2e686..8c32cf58d6fa 100644
->> --- a/drivers/vhost/scsi.c
->> +++ b/drivers/vhost/scsi.c
->> @@ -56,7 +56,7 @@
->>  #define VHOST_SCSI_DEFAULT_TAGS 256
->>  #define VHOST_SCSI_PREALLOC_SGLS 2048
->>  #define VHOST_SCSI_PREALLOC_UPAGES 2048
->> -#define VHOST_SCSI_PREALLOC_PROT_SGLS 512
->> +#define VHOST_SCSI_PREALLOC_PROT_SGLS 2048
->>
->>  struct vhost_scsi_inflight {
->>  	/* Wait for the flush operation to finish */
->
-> I guess it's ok since PREALLOC_SGLS is already 2K ... or
-> am I missing something. Paolo, any input on this?
+Commands with protection information included were not truncating the
+protection iov_iter to the number of protection bytes in the command.
+This resulted in vhost_scsi mis-calculating the size of the protection
+SGL in vhost_scsi_calc_sgls(), and including both the protection and
+data SG entries in the protection SGL.
 
-Ignore this patch.  I believe I've identified the root cause [1], and
-will send out a new patch once I've done some more testing.
+Fixes: 09b13fa8c1a1 ("vhost/scsi: Add ANY_LAYOUT support in vhost_scsi_handle_vq")
+Signed-off-by: Greg Edwards <gedwards@ddn.com>
+---
+ drivers/vhost/scsi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Greg
-
-  [1] https://www.spinics.net/lists/linux-scsi/msg122825.html
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 76f8d649147b..cbe0ea26c1ff 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -964,7 +964,8 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 				prot_bytes = vhost32_to_cpu(vq, v_req_pi.pi_bytesin);
+ 			}
+ 			/*
+-			 * Set prot_iter to data_iter, and advance past any
++			 * Set prot_iter to data_iter and truncate it to
++			 * prot_bytes, and advance data_iter past any
+ 			 * preceeding prot_bytes that may be present.
+ 			 *
+ 			 * Also fix up the exp_data_len to reflect only the
+@@ -973,6 +974,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 			if (prot_bytes) {
+ 				exp_data_len -= prot_bytes;
+ 				prot_iter = data_iter;
++				iov_iter_truncate(&prot_iter, prot_bytes);
+ 				iov_iter_advance(&data_iter, prot_bytes);
+ 			}
+ 			tag = vhost64_to_cpu(vq, v_req_pi.tag);
+-- 
+2.17.1
