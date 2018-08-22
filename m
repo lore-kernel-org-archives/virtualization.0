@@ -1,16 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next v8 3/7] net: vhost: factor out busy polling logic
-	to vhost_net_busy_poll()
-Date: Tue, 21 Aug 2018 11:15:44 +0800
-Message-ID: <179340e9-f1cd-8378-1a01-61307546003c@redhat.com>
-References: <1534680686-3108-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<1534680686-3108-4-git-send-email-xiangxia.m.yue@gmail.com>
+From: "Dr. S K Niranjan Aradhya" <dr.niranjan.sk@gmail.com>
+Subject: IEEE Record # 41985: 2018 3rd International Conference on
+	Contemporary Computing and Informatics (IC3I).
+Date: Wed, 22 Aug 2018 10:04:32 +0530
+Message-ID: <CA+VLO2GOMeBDPodRn7F9tBgaq9yiqf7jWXPSMMGg7u3cdq4EfA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============2349508165390580103=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1534680686-3108-4-git-send-email-xiangxia.m.yue@gmail.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,99 +15,109 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xiangxia.m.yue@gmail.com, mst@redhat.com, makita.toshiaki@lab.ntt.co.jp
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDjmnIgxOeaXpSAyMDoxMSwgeGlhbmd4aWEubS55dWVAZ21haWwuY29tIHdy
-b3RlOgo+IEZyb206IFRvbmdoYW8gWmhhbmcgPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbT4KPgo+
-IEZhY3RvciBvdXQgZ2VuZXJpYyBidXN5IHBvbGxpbmcgbG9naWMgYW5kIHdpbGwgYmUKPiB1c2Vk
-IGZvciBpbiB0eCBwYXRoIGluIHRoZSBuZXh0IHBhdGNoLiBBbmQgd2l0aCB0aGUgcGF0Y2gsCj4g
-cWVtdSBjYW4gc2V0IGRpZmZlcmVudGx5IHRoZSBidXN5bG9vcF90aW1lb3V0IGZvciByeCBxdWV1
-ZS4KPgo+IFRvIGF2b2lkIGR1cGxpY2F0ZSBjb2RlcywgaW50cm9kdWNlIHRoZSBoZWxwZXIgZnVu
-Y3Rpb25zOgo+ICogc29ja19oYXNfcnhfZGF0YShjaGFuZ2VkIGZyb20gc2tfaGFzX3J4X2RhdGEp
-Cj4gKiB2aG9zdF9uZXRfYnVzeV9wb2xsX3RyeV9xdWV1ZQo+Cj4gU2lnbmVkLW9mZi1ieTogVG9u
-Z2hhbyBaaGFuZyA8eGlhbmd4aWEubS55dWVAZ21haWwuY29tPgo+IC0tLQo+ICAgZHJpdmVycy92
-aG9zdC9uZXQuYyB8IDExMSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0t
-LS0tLS0tLS0tLS0tCj4gICAxIGZpbGUgY2hhbmdlZCwgNzEgaW5zZXJ0aW9ucygrKSwgNDAgZGVs
-ZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC9uZXQuYyBiL2RyaXZlcnMv
-dmhvc3QvbmV0LmMKPiBpbmRleCAzMmMxYjUyLi40NTNjMDYxIDEwMDY0NAo+IC0tLSBhL2RyaXZl
-cnMvdmhvc3QvbmV0LmMKPiArKysgYi9kcml2ZXJzL3Zob3N0L25ldC5jCj4gQEAgLTQ0MCw2ICs0
-NDAsNzUgQEAgc3RhdGljIHZvaWQgdmhvc3RfbmV0X3NpZ25hbF91c2VkKHN0cnVjdCB2aG9zdF9u
-ZXRfdmlydHF1ZXVlICpudnEpCj4gICAJbnZxLT5kb25lX2lkeCA9IDA7Cj4gICB9Cj4gICAKPiAr
-c3RhdGljIGludCBzb2NrX2hhc19yeF9kYXRhKHN0cnVjdCBzb2NrZXQgKnNvY2spCj4gK3sKPiAr
-CWlmICh1bmxpa2VseSghc29jaykpCj4gKwkJcmV0dXJuIDA7Cj4gKwo+ICsJaWYgKHNvY2stPm9w
-cy0+cGVla19sZW4pCj4gKwkJcmV0dXJuIHNvY2stPm9wcy0+cGVla19sZW4oc29jayk7Cj4gKwo+
-ICsJcmV0dXJuIHNrYl9xdWV1ZV9lbXB0eSgmc29jay0+c2stPnNrX3JlY2VpdmVfcXVldWUpOwo+
-ICt9Cj4gKwo+ICtzdGF0aWMgdm9pZCB2aG9zdF9uZXRfYnVzeV9wb2xsX3RyeV9xdWV1ZShzdHJ1
-Y3Qgdmhvc3RfbmV0ICpuZXQsCj4gKwkJCQkJICBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkK
-PiArewo+ICsJaWYgKCF2aG9zdF92cV9hdmFpbF9lbXB0eSgmbmV0LT5kZXYsIHZxKSkgewo+ICsJ
-CXZob3N0X3BvbGxfcXVldWUoJnZxLT5wb2xsKTsKPiArCX0gZWxzZSBpZiAodW5saWtlbHkodmhv
-c3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKSkpIHsKPiArCQl2aG9zdF9kaXNhYmxlX25v
-dGlmeSgmbmV0LT5kZXYsIHZxKTsKPiArCQl2aG9zdF9wb2xsX3F1ZXVlKCZ2cS0+cG9sbCk7Cj4g
-Kwl9Cj4gK30KPiArCj4gK3N0YXRpYyB2b2lkIHZob3N0X25ldF9idXN5X3BvbGwoc3RydWN0IHZo
-b3N0X25ldCAqbmV0LAo+ICsJCQkJc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqcnZxLAo+ICsJCQkJ
-c3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdHZxLAo+ICsJCQkJYm9vbCAqYnVzeWxvb3BfaW50ciwK
-PiArCQkJCWJvb2wgcG9sbF9yeCkKPiArewo+ICsJdW5zaWduZWQgbG9uZyBidXN5bG9vcF90aW1l
-b3V0Owo+ICsJdW5zaWduZWQgbG9uZyBlbmR0aW1lOwo+ICsJc3RydWN0IHNvY2tldCAqc29jazsK
-PiArCXN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxID0gcG9sbF9yeCA/IHR2cSA6IHJ2cTsKPiAr
-Cj4gKwltdXRleF9sb2NrX25lc3RlZCgmdnEtPm11dGV4LCBwb2xsX3J4ID8gVkhPU1RfTkVUX1ZR
-X1RYOiBWSE9TVF9ORVRfVlFfUlgpOwo+ICsJdmhvc3RfZGlzYWJsZV9ub3RpZnkoJm5ldC0+ZGV2
-LCB2cSk7Cj4gKwlzb2NrID0gcnZxLT5wcml2YXRlX2RhdGE7Cj4gKwo+ICsJYnVzeWxvb3BfdGlt
-ZW91dCA9IHBvbGxfcnggPyBydnEtPmJ1c3lsb29wX3RpbWVvdXQ6Cj4gKwkJCQkgICAgIHR2cS0+
-YnVzeWxvb3BfdGltZW91dDsKPiArCj4gKwlwcmVlbXB0X2Rpc2FibGUoKTsKPiArCWVuZHRpbWUg
-PSBidXN5X2Nsb2NrKCkgKyBidXN5bG9vcF90aW1lb3V0Owo+ICsKPiArCXdoaWxlICh2aG9zdF9j
-YW5fYnVzeV9wb2xsKGVuZHRpbWUpKSB7Cj4gKwkJaWYgKHZob3N0X2hhc193b3JrKCZuZXQtPmRl
-dikpIHsKPiArCQkJKmJ1c3lsb29wX2ludHIgPSB0cnVlOwo+ICsJCQlicmVhazsKPiArCQl9Cj4g
-Kwo+ICsJCWlmICgoc29ja19oYXNfcnhfZGF0YShzb2NrKSAmJgo+ICsJCSAgICAgIXZob3N0X3Zx
-X2F2YWlsX2VtcHR5KCZuZXQtPmRldiwgcnZxKSkgfHwKPiArCQkgICAgIXZob3N0X3ZxX2F2YWls
-X2VtcHR5KCZuZXQtPmRldiwgdHZxKSkKPiArCQkJYnJlYWs7Cj4gKwo+ICsJCWNwdV9yZWxheCgp
-Owo+ICsJfQo+ICsKPiArCXByZWVtcHRfZW5hYmxlKCk7Cj4gKwo+ICsJaWYgKHBvbGxfcngpCj4g
-KwkJdmhvc3RfbmV0X2J1c3lfcG9sbF90cnlfcXVldWUobmV0LCB0dnEpOwo+ICsJZWxzZSBpZiAo
-c29ja19oYXNfcnhfZGF0YShzb2NrKSkKPiArCQl2aG9zdF9uZXRfYnVzeV9wb2xsX3RyeV9xdWV1
-ZShuZXQsIHJ2cSk7CgpUaGlzIGNvdWxkIGJlIHNpbXBsaWZpZWQgbGlrZToKCmlmIChwb2xsX3J4
-IHx8IHNvY2tfaGFzX3J4X2RhdGEoc29jaykpCiDCoMKgwqAgdmhvc3RfbmV0X2J1c3lfcG9sbF90
-cnlfcXVldWUobmV0LCB2cSk7CgpUaGFua3MKCj4gKwllbHNlIC8qIE9uIHR4IGhlcmUsIHNvY2sg
-aGFzIG5vIHJ4IGRhdGEuICovCj4gKwkJdmhvc3RfZW5hYmxlX25vdGlmeSgmbmV0LT5kZXYsIHJ2
-cSk7Cj4gKwo+ICsJbXV0ZXhfdW5sb2NrKCZ2cS0+bXV0ZXgpOwo+ICt9Cj4gKwo+ICAgc3RhdGlj
-IGludCB2aG9zdF9uZXRfdHhfZ2V0X3ZxX2Rlc2Moc3RydWN0IHZob3N0X25ldCAqbmV0LAo+ICAg
-CQkJCSAgICBzdHJ1Y3Qgdmhvc3RfbmV0X3ZpcnRxdWV1ZSAqbnZxLAo+ICAgCQkJCSAgICB1bnNp
-Z25lZCBpbnQgKm91dF9udW0sIHVuc2lnbmVkIGludCAqaW5fbnVtLAo+IEBAIC03NTMsMTYgKzgy
-Miw2IEBAIHN0YXRpYyBpbnQgcGVla19oZWFkX2xlbihzdHJ1Y3Qgdmhvc3RfbmV0X3ZpcnRxdWV1
-ZSAqcnZxLCBzdHJ1Y3Qgc29jayAqc2spCj4gICAJcmV0dXJuIGxlbjsKPiAgIH0KPiAgIAo+IC1z
-dGF0aWMgaW50IHNrX2hhc19yeF9kYXRhKHN0cnVjdCBzb2NrICpzaykKPiAtewo+IC0Jc3RydWN0
-IHNvY2tldCAqc29jayA9IHNrLT5za19zb2NrZXQ7Cj4gLQo+IC0JaWYgKHNvY2stPm9wcy0+cGVl
-a19sZW4pCj4gLQkJcmV0dXJuIHNvY2stPm9wcy0+cGVla19sZW4oc29jayk7Cj4gLQo+IC0JcmV0
-dXJuIHNrYl9xdWV1ZV9lbXB0eSgmc2stPnNrX3JlY2VpdmVfcXVldWUpOwo+IC19Cj4gLQo+ICAg
-c3RhdGljIGludCB2aG9zdF9uZXRfcnhfcGVla19oZWFkX2xlbihzdHJ1Y3Qgdmhvc3RfbmV0ICpu
-ZXQsIHN0cnVjdCBzb2NrICpzaywKPiAgIAkJCQkgICAgICBib29sICpidXN5bG9vcF9pbnRyKQo+
-ICAgewo+IEBAIC03NzAsNDEgKzgyOSwxMyBAQCBzdGF0aWMgaW50IHZob3N0X25ldF9yeF9wZWVr
-X2hlYWRfbGVuKHN0cnVjdCB2aG9zdF9uZXQgKm5ldCwgc3RydWN0IHNvY2sgKnNrLAo+ICAgCXN0
-cnVjdCB2aG9zdF9uZXRfdmlydHF1ZXVlICp0bnZxID0gJm5ldC0+dnFzW1ZIT1NUX05FVF9WUV9U
-WF07Cj4gICAJc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqcnZxID0gJnJudnEtPnZxOwo+ICAgCXN0
-cnVjdCB2aG9zdF92aXJ0cXVldWUgKnR2cSA9ICZ0bnZxLT52cTsKPiAtCXVuc2lnbmVkIGxvbmcg
-dW5pbml0aWFsaXplZF92YXIoZW5kdGltZSk7Cj4gICAJaW50IGxlbiA9IHBlZWtfaGVhZF9sZW4o
-cm52cSwgc2spOwo+ICAgCj4gLQlpZiAoIWxlbiAmJiB0dnEtPmJ1c3lsb29wX3RpbWVvdXQpIHsK
-PiArCWlmICghbGVuICYmIHJ2cS0+YnVzeWxvb3BfdGltZW91dCkgewo+ICAgCQkvKiBGbHVzaCBi
-YXRjaGVkIGhlYWRzIGZpcnN0ICovCj4gICAJCXZob3N0X25ldF9zaWduYWxfdXNlZChybnZxKTsK
-PiAgIAkJLyogQm90aCB0eCB2cSBhbmQgcnggc29ja2V0IHdlcmUgcG9sbGVkIGhlcmUgKi8KPiAt
-CQltdXRleF9sb2NrX25lc3RlZCgmdHZxLT5tdXRleCwgVkhPU1RfTkVUX1ZRX1RYKTsKPiAtCQl2
-aG9zdF9kaXNhYmxlX25vdGlmeSgmbmV0LT5kZXYsIHR2cSk7Cj4gLQo+IC0JCXByZWVtcHRfZGlz
-YWJsZSgpOwo+IC0JCWVuZHRpbWUgPSBidXN5X2Nsb2NrKCkgKyB0dnEtPmJ1c3lsb29wX3RpbWVv
-dXQ7Cj4gLQo+IC0JCXdoaWxlICh2aG9zdF9jYW5fYnVzeV9wb2xsKGVuZHRpbWUpKSB7Cj4gLQkJ
-CWlmICh2aG9zdF9oYXNfd29yaygmbmV0LT5kZXYpKSB7Cj4gLQkJCQkqYnVzeWxvb3BfaW50ciA9
-IHRydWU7Cj4gLQkJCQlicmVhazsKPiAtCQkJfQo+IC0JCQlpZiAoKHNrX2hhc19yeF9kYXRhKHNr
-KSAmJgo+IC0JCQkgICAgICF2aG9zdF92cV9hdmFpbF9lbXB0eSgmbmV0LT5kZXYsIHJ2cSkpIHx8
-Cj4gLQkJCSAgICAhdmhvc3RfdnFfYXZhaWxfZW1wdHkoJm5ldC0+ZGV2LCB0dnEpKQo+IC0JCQkJ
-YnJlYWs7Cj4gLQkJCWNwdV9yZWxheCgpOwo+IC0JCX0KPiAtCj4gLQkJcHJlZW1wdF9lbmFibGUo
-KTsKPiAtCj4gLQkJaWYgKCF2aG9zdF92cV9hdmFpbF9lbXB0eSgmbmV0LT5kZXYsIHR2cSkpIHsK
-PiAtCQkJdmhvc3RfcG9sbF9xdWV1ZSgmdHZxLT5wb2xsKTsKPiAtCQl9IGVsc2UgaWYgKHVubGlr
-ZWx5KHZob3N0X2VuYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB0dnEpKSkgewo+IC0JCQl2aG9zdF9k
-aXNhYmxlX25vdGlmeSgmbmV0LT5kZXYsIHR2cSk7Cj4gLQkJCXZob3N0X3BvbGxfcXVldWUoJnR2
-cS0+cG9sbCk7Cj4gLQkJfQo+IC0KPiAtCQltdXRleF91bmxvY2soJnR2cS0+bXV0ZXgpOwo+ICsJ
-CXZob3N0X25ldF9idXN5X3BvbGwobmV0LCBydnEsIHR2cSwgYnVzeWxvb3BfaW50ciwgdHJ1ZSk7
-Cj4gICAKPiAgIAkJbGVuID0gcGVla19oZWFkX2xlbihybnZxLCBzayk7Cj4gICAJfQoKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+--===============2349508165390580103==
+Content-Type: multipart/alternative; boundary="000000000000aeffe10573fea87c"
+
+--000000000000aeffe10573fea87c
+Content-Type: text/plain; charset="UTF-8"
+
+*<< Apologies for cross-postings >><<< Please circulate among your friends,
+peers and researchers >>>*
+
+IEEE Conference Record No.: #41985;
+
+2018 3rd International Conference on Contemporary Computing and Informatics
+(IC3I).
+
+Conference Date : 10 - 12 October 2018
+Submission Deadline: 1 September 2018
+
+*Submission Link:http://cmsweb.com.sg/ic3i18/index.php/ic3i18/ic3i18/login
+<http://cmsweb.com.sg/ic3i18/index.php/ic3i18/ic3i18/login>*
+
+IEEE ISBN : 978-1-5386-6894-8
+IEEE Part No. : CFP18AWQ-ART
+
+Selected, accepted and extended paper will be published in Scopus Indexed
+International Journal of Forensic Software Engineering published by
+InderScience
+
+All accepted and presented papers will be submitted to the IEEE for
+possible publication in IEEE Xplore Digital Library. Previous edition
+indexed in: SCOPUS, ISI Web of Science, Engineering Index, Google, etc.
+
+If you like to join the TPC or propose a special session or symposiums
+please write to: secretariat@ic3i.org
+
+General Chair(s)
+IC3I  2018 Conference
+
+----------------------
+Disclaimer: We have clearly mentioned the subject lines and your email
+address won't be misleading in any form. We have found your mail address
+through our own efforts on the web search and not through any illegal way.
+If you wish to remove your information from our mailing list or no longer
+receive future announcements, please email with REMOVE in subject. Your
+request to opt-out will be effective within a reasonable amount of time.
+
+ ic3i-cfp.pdf
+<https://drive.google.com/file/d/1Tg7HlYL-7wwm0RB6BHrU0RqBaU_ol34F/view?usp=drive_web>
+
+--000000000000aeffe10573fea87c
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><font size=3D"4"><b>&lt;=
+&lt; Apologies for cross-postings &gt;&gt;<br>&lt;&lt;&lt; Please circulate=
+ among your friends, peers and researchers &gt;&gt;&gt;</b></font><br><br>I=
+EEE Conference Record No.: #41985;<br><br>2018 3rd International Conference=
+ on Contemporary Computing and Informatics (IC3I).<br><br>Conference Date :=
+ 10 - 12 October 2018<br>Submission Deadline: 1 September 2018<br><br><b>Su=
+bmission Link:<a href=3D"http://cmsweb.com.sg/ic3i18/index.php/ic3i18/ic3i1=
+8/login" target=3D"_blank">http://cmsweb.com.sg/ic3i<wbr>18/index.php/ic3i1=
+8/ic3i18/<wbr>login</a></b><br><br>IEEE ISBN : 978-1-5386-6894-8<br>IEEE Pa=
+rt No. : CFP18AWQ-ART<br><br>Selected, accepted and extended paper will be =
+published in Scopus Indexed International Journal of Forensic Software Engi=
+neering published by InderScience<br><br>All accepted and presented papers =
+will be submitted to the IEEE for possible publication in IEEE Xplore Digit=
+al Library. Previous edition indexed in: SCOPUS, ISI Web of Science, Engine=
+ering Index, Google, etc.<br><br>If you like to join the TPC or propose a s=
+pecial session or symposiums please write to: <a href=3D"mailto:secretariat=
+@ic3i.org" target=3D"_blank">secretariat@ic3i.org</a><br><br>General Chair(=
+s)<br>IC3I=C2=A0 2018 Conference<br><br>----------------------<br><div>Disc=
+laimer: We have clearly mentioned the subject lines and your email address =
+won&#39;t be misleading in any form. We have found your mail address throug=
+h our own efforts on the web search and not through any illegal way. If you=
+ wish to remove your information from our mailing list or no longer receive=
+ future announcements, please email with REMOVE in subject. Your request to=
+ opt-out will be effective within a reasonable amount of time.=C2=A0</div><=
+div><br></div><div><div class=3D"gmail_chip gmail_drive_chip" style=3D"widt=
+h:396px;height:18px;max-height:18px;background-color:rgb(245,245,245);paddi=
+ng:5px;font-family:arial;font-weight:bold;border:1px solid rgb(221,221,221)=
+;line-height:1"><a href=3D"https://drive.google.com/file/d/1Tg7HlYL-7wwm0RB=
+6BHrU0RqBaU_ol34F/view?usp=3Ddrive_web" style=3D"display:inline-block;max-w=
+idth:366px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-d=
+ecoration:none;padding:1px 0px;border:none" target=3D"_blank"><img style=3D=
+"vertical-align:bottom;border:none" src=3D"https://ssl.gstatic.com/docs/doc=
+list/images/icon_10_generic_list.png">=C2=A0<span dir=3D"ltr" style=3D"colo=
+r:rgb(17,85,204);text-decoration:none;vertical-align:bottom">ic3i-cfp.pdf</=
+span></a><img style=3D"display:none;opacity:0.55;float:right"></div><br></d=
+iv></div></div>
+<br></div>
+
+--000000000000aeffe10573fea87c--
+
+--===============2349508165390580103==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2349508165390580103==--
