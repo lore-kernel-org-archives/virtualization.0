@@ -1,11 +1,12 @@
-From: Greg Edwards <gedwards@ddn.com>
-Subject: [PATCH] vhost/scsi: truncate T10 PI iov_iter to prot_bytes
-Date: Wed, 22 Aug 2018 13:21:53 -0600
-Message-ID: <20180822192153.24217-1-gedwards@ddn.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] virtio,vhost: fixes, tweaks
+Date: Thu, 23 Aug 2018 20:42:24 +0300
+Message-ID: <20180823204224-mutt-send-email-mst__10483.2037156031$1535046031$gmane$org@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,43 +16,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Mike Christie <mchristi@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: peter.maydell@linaro.org, cdall@kernel.org, kvm@vger.kernel.org, mst@redhat.com, jean-philippe.brucker@arm.com, netdev@vger.kernel.org, penguin-kernel@i-love.sakura.ne.jp, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, marc.zyngier@arm.com, akpm@linux-foundation.org, mhocko@kernel.org, suzuki.poulose@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Commands with protection information included were not truncating the
-protection iov_iter to the number of protection bytes in the command.
-This resulted in vhost_scsi mis-calculating the size of the protection
-SGL in vhost_scsi_calc_sgls(), and including both the protection and
-data SG entries in the protection SGL.
+The following changes since commit 94710cac0ef4ee177a63b5227664b38c95bbf703:
 
-Fixes: 09b13fa8c1a1 ("vhost/scsi: Add ANY_LAYOUT support in vhost_scsi_handle_vq")
-Signed-off-by: Greg Edwards <gedwards@ddn.com>
----
- drivers/vhost/scsi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+  Linux 4.18 (2018-08-12 13:41:04 -0700)
 
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 76f8d649147b..cbe0ea26c1ff 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -964,7 +964,8 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 				prot_bytes = vhost32_to_cpu(vq, v_req_pi.pi_bytesin);
- 			}
- 			/*
--			 * Set prot_iter to data_iter, and advance past any
-+			 * Set prot_iter to data_iter and truncate it to
-+			 * prot_bytes, and advance data_iter past any
- 			 * preceeding prot_bytes that may be present.
- 			 *
- 			 * Also fix up the exp_data_len to reflect only the
-@@ -973,6 +974,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 			if (prot_bytes) {
- 				exp_data_len -= prot_bytes;
- 				prot_iter = data_iter;
-+				iov_iter_truncate(&prot_iter, prot_bytes);
- 				iov_iter_advance(&data_iter, prot_bytes);
- 			}
- 			tag = vhost64_to_cpu(vq, v_req_pi.tag);
--- 
-2.17.1
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 864d39df09b43f9d09d80bc29d8e8888294b3c4b:
+
+  vhost/scsi: increase VHOST_SCSI_PREALLOC_PROT_SGLS to 2048 (2018-08-22 01:01:47 +0300)
+
+----------------------------------------------------------------
+virtio, vhost: fixes, tweaks
+
+No new features but a bunch of tweaks such as
+switching balloon from oom notifier to shrinker.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Greg Edwards (2):
+      vhost: allow vhost-scsi driver to be built-in
+      vhost/scsi: increase VHOST_SCSI_PREALLOC_PROT_SGLS to 2048
+
+Suzuki K Poulose (2):
+      virtio: mmio-v1: Validate queue PFN
+      virtio: pci-legacy: Validate queue pfn
+
+Wei Wang (3):
+      virtio-balloon: remove BUG() in init_vqs
+      virtio-balloon: kzalloc the vb struct
+      virtio_balloon: replace oom notifier with shrinker
+
+ drivers/vhost/Kconfig              |   2 +-
+ drivers/vhost/scsi.c               |   2 +-
+ drivers/virtio/virtio_balloon.c    | 125 ++++++++++++++++++++-----------------
+ drivers/virtio/virtio_mmio.c       |  20 +++++-
+ drivers/virtio/virtio_pci_legacy.c |  14 ++++-
+ 5 files changed, 99 insertions(+), 64 deletions(-)
