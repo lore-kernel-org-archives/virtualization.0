@@ -1,15 +1,15 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH v2 02/11] x86/paravirt: remove clobbers parameter from
-	paravirt patch functions
-Date: Fri, 24 Aug 2018 16:01:44 +0200 (CEST)
-Message-ID: <alpine.DEB.2.21.1808241601270.1550__34717.3215974637$1535119190$gmane$org@nanos.tec.linutronix.de>
+Subject: Re: [PATCH v2 03/11] x86/paravirt: remove clobbers from struct
+	paravirt_patch_site
+Date: Fri, 24 Aug 2018 16:03:22 +0200 (CEST)
+Message-ID: <alpine.DEB.2.21.1808241602140.1550__6682.435287121$1535119294$gmane$org@nanos.tec.linutronix.de>
 References: <20180813073739.26108-1-jgross@suse.com>
-	<20180813073739.26108-3-jgross@suse.com>
+	<20180813073739.26108-4-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180813073739.26108-3-jgross@suse.com>
+In-Reply-To: <20180813073739.26108-4-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,8 +25,11 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 On Mon, 13 Aug 2018, Juergen Gross wrote:
 
-> The clobbers parameter from paravirt_patch_default() et al isn't used
-> any longer. Remove it.
+> There is no need any longer to store the clobbers in struct
+> paravirt_patch_site. Remove clobbers from the struct and from the
+> related macros.
+> 
+> While at it fix some lines longer than 80 characters.
 > 
 > Signed-off-by: Juergen Gross <jgross@suse.com>
 
