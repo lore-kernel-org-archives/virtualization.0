@@ -1,14 +1,15 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v2 00/11] x86/paravirt: several cleanups
-Date: Fri, 24 Aug 2018 15:52:55 +0200
-Message-ID: <45bfe8ab-683f-ab79-e3c6-c0a707b667c2__226.659273221408$1535118663$gmane$org@suse.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH v2 01/11] x86/paravirt: make paravirt_patch_call() and
+	paravirt_patch_jmp() static
+Date: Fri, 24 Aug 2018 16:00:40 +0200 (CEST)
+Message-ID: <alpine.DEB.2.21.1808241600250.1550__20796.5796617374$1535119127$gmane$org@nanos.tec.linutronix.de>
 References: <20180813073739.26108-1-jgross@suse.com>
+	<20180813073739.26108-2-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180813073739.26108-1-jgross@suse.com>
-Content-Language: de-DE
+In-Reply-To: <20180813073739.26108-2-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,90 +19,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org, virtualization@lists.linux-foundation.org
-Cc: boris.ostrovsky@oracle.com, rusty@rustcorp.com.au, peterz@infradead.org, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com, tglx@linutronix.de
+To: Juergen Gross <jgross@suse.com>
+Cc: rusty@rustcorp.com.au, peterz@infradead.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, hpa@zytor.com, xen-devel@lists.xenproject.org, akataria@vmware.com, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 13/08/18 09:37, Juergen Gross wrote:
-> This series removes some no longer needed stuff from paravirt
-> infrastructure and puts large quantities of paravirt ops under a new
-> config option PARAVIRT_XXL which is selected by XEN_PV only.
-> 
-> A pvops kernel without XEN_PV being configured is about 2.5% smaller
-> with this series applied.
-> 
-> tip commit 5800dc5c19f34e6e03b5adab1282535cb102fafd ("x86/paravirt:
-> Fix spectre-v2 mitigations for paravirt guests") is a prerequisite
-> for this series.
-> 
-> The last 4 patches of this series require my Xen cleanup series
-> https://lore.kernel.org/lkml/20180717120113.12756-1-jgross@suse.com/
-> which hides more Xen PV-only code behind CONFIG_XEN_PV.
-> 
-> Changes in V2:
-> - patch 4: shorten pv_ops sub-structure names (Jan Beulich)
-> - patch 11: new patch
-> 
-> Juergen Gross (11):
->   x86/paravirt: make paravirt_patch_call() and paravirt_patch_jmp()
->     static
->   x86/paravirt: remove clobbers parameter from paravirt patch functions
->   x86/paravirt: remove clobbers from struct paravirt_patch_site
->   x86/paravirt: use a single ops structure
->   x86/paravirt: remove unused paravirt bits
->   x86/paravirt: introduce new config option PARAVIRT_XXL
->   x86/paravirt: move items in pv_info under PARAVIRT_XXL umbrella
->   x86/paravirt: move the Xen-only pv_cpu_ops under the PARAVIRT_XXL
->     umbrella
->   x86/paravirt: move the Xen-only pv_irq_ops under the PARAVIRT_XXL
->     umbrella
->   x86/paravirt: move the Xen-only pv_mmu_ops under the PARAVIRT_XXL
->     umbrella
->   x86/paravirt: remove unneeded mmu related paravirt ops bits
-> 
->  arch/x86/Kconfig                            |   3 +
->  arch/x86/hyperv/mmu.c                       |   4 +-
->  arch/x86/include/asm/debugreg.h             |   2 +-
->  arch/x86/include/asm/desc.h                 |   4 +-
->  arch/x86/include/asm/fixmap.h               |   2 +-
->  arch/x86/include/asm/irqflags.h             |  56 ++--
->  arch/x86/include/asm/mmu_context.h          |   4 +-
->  arch/x86/include/asm/msr.h                  |   4 +-
->  arch/x86/include/asm/paravirt.h             | 399 +++++++++++++---------------
->  arch/x86/include/asm/paravirt_types.h       |  77 +++---
->  arch/x86/include/asm/pgalloc.h              |   2 +-
->  arch/x86/include/asm/pgtable-3level_types.h |   2 +-
->  arch/x86/include/asm/pgtable.h              |   7 +-
->  arch/x86/include/asm/processor.h            |   4 +-
->  arch/x86/include/asm/ptrace.h               |   3 +-
->  arch/x86/include/asm/segment.h              |   2 +-
->  arch/x86/include/asm/special_insns.h        |   4 +-
->  arch/x86/kernel/alternative.c               |   2 +-
->  arch/x86/kernel/asm-offsets.c               |  13 +-
->  arch/x86/kernel/asm-offsets_64.c            |   9 +-
->  arch/x86/kernel/cpu/common.c                |   4 +-
->  arch/x86/kernel/cpu/vmware.c                |   4 +-
->  arch/x86/kernel/head_64.S                   |   2 +-
->  arch/x86/kernel/kvm.c                       |  17 +-
->  arch/x86/kernel/kvmclock.c                  |   4 +-
->  arch/x86/kernel/paravirt-spinlocks.c        |  15 +-
->  arch/x86/kernel/paravirt.c                  | 292 ++++++++++----------
->  arch/x86/kernel/paravirt_patch_32.c         |  57 ++--
->  arch/x86/kernel/paravirt_patch_64.c         |  65 ++---
->  arch/x86/kernel/tsc.c                       |   2 +-
->  arch/x86/kernel/vsmp_64.c                   |  24 +-
->  arch/x86/xen/Kconfig                        |   1 +
->  arch/x86/xen/enlighten_pv.c                 |  31 ++-
->  arch/x86/xen/irq.c                          |   2 +-
->  arch/x86/xen/mmu_hvm.c                      |   2 +-
->  arch/x86/xen/mmu_pv.c                       |  28 +-
->  arch/x86/xen/spinlock.c                     |  11 +-
->  arch/x86/xen/time.c                         |   4 +-
->  drivers/xen/time.c                          |   2 +-
->  39 files changed, 575 insertions(+), 595 deletions(-)
-> 
+On Mon, 13 Aug 2018, Juergen Gross wrote:
 
-Ping?
+> paravirt_patch_call() and paravirt_patch_jmp() are used in paravirt.c
+> only. Convert them to static.
+> 
+> Signed-off-by: Juergen Gross <jgross@suse.com>
 
-
-Juergen
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
