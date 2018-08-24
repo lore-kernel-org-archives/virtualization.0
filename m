@@ -1,12 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio,vhost: fixes, tweaks
-Date: Thu, 23 Aug 2018 20:42:24 +0300
-Message-ID: <20180823204224-mutt-send-email-mst__10483.2037156031$1535046031$gmane$org@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] vhost: correctly check the iova range when waking
+	virtqueue
+Date: Fri, 24 Aug 2018 16:53:13 +0800
+Message-ID: <20180824085313.21798-1-jasowang__31807.6466247023$1535100693$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,47 +16,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: peter.maydell@linaro.org, cdall@kernel.org, kvm@vger.kernel.org, mst@redhat.com, jean-philippe.brucker@arm.com, netdev@vger.kernel.org, penguin-kernel@i-love.sakura.ne.jp, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, marc.zyngier@arm.com, akpm@linux-foundation.org, mhocko@kernel.org, suzuki.poulose@arm.com
+To: mst@redhat.com, jasowang@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 94710cac0ef4ee177a63b5227664b38c95bbf703:
+We don't wakeup the virtqueue if the first byte of pending iova range
+is the last byte of the range we just got updated. This will lead a
+virtqueue to wait for IOTLB updating forever. Fixing by correct the
+check and wake up the virtqueue in this case.
 
-  Linux 4.18 (2018-08-12 13:41:04 -0700)
+Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
+Reported-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+The patch is needed for -stable.
+---
+ drivers/vhost/vhost.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to 864d39df09b43f9d09d80bc29d8e8888294b3c4b:
-
-  vhost/scsi: increase VHOST_SCSI_PREALLOC_PROT_SGLS to 2048 (2018-08-22 01:01:47 +0300)
-
-----------------------------------------------------------------
-virtio, vhost: fixes, tweaks
-
-No new features but a bunch of tweaks such as
-switching balloon from oom notifier to shrinker.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Greg Edwards (2):
-      vhost: allow vhost-scsi driver to be built-in
-      vhost/scsi: increase VHOST_SCSI_PREALLOC_PROT_SGLS to 2048
-
-Suzuki K Poulose (2):
-      virtio: mmio-v1: Validate queue PFN
-      virtio: pci-legacy: Validate queue pfn
-
-Wei Wang (3):
-      virtio-balloon: remove BUG() in init_vqs
-      virtio-balloon: kzalloc the vb struct
-      virtio_balloon: replace oom notifier with shrinker
-
- drivers/vhost/Kconfig              |   2 +-
- drivers/vhost/scsi.c               |   2 +-
- drivers/virtio/virtio_balloon.c    | 125 ++++++++++++++++++++-----------------
- drivers/virtio/virtio_mmio.c       |  20 +++++-
- drivers/virtio/virtio_pci_legacy.c |  14 ++++-
- 5 files changed, 99 insertions(+), 64 deletions(-)
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 96c1d8400822..b13c6b4b2c66 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -952,7 +952,7 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
+ 	list_for_each_entry_safe(node, n, &d->pending_list, node) {
+ 		struct vhost_iotlb_msg *vq_msg = &node->msg.iotlb;
+ 		if (msg->iova <= vq_msg->iova &&
+-		    msg->iova + msg->size - 1 > vq_msg->iova &&
++		    msg->iova + msg->size - 1 >= vq_msg->iova &&
+ 		    vq_msg->type == VHOST_IOTLB_MISS) {
+ 			vhost_poll_queue(&node->vq->poll);
+ 			list_del(&node->node);
+-- 
+2.17.1
