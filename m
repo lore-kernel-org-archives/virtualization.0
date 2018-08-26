@@ -1,15 +1,14 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2 00/11] x86/paravirt: several cleanups
-Date: Fri, 24 Aug 2018 16:13:14 +0200
-Message-ID: <20180824141314.GQ24124@hirez.programming.kicks-ass.net>
-References: <20180813073739.26108-1-jgross@suse.com>
-	<45bfe8ab-683f-ab79-e3c6-c0a707b667c2@suse.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net] vhost: correctly check the iova range when waking
+	virtqueue
+Date: Sat, 25 Aug 2018 17:40:21 -0700 (PDT)
+Message-ID: <20180825.174021.1633894476704616364.davem__15237.3490542688$1535243902$gmane$org@davemloft.net>
+References: <20180824085313.21798-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <45bfe8ab-683f-ab79-e3c6-c0a707b667c2@suse.com>
+In-Reply-To: <20180824085313.21798-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,14 +18,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: rusty@rustcorp.com.au, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, tglx@linutronix.de, hpa@zytor.com, xen-devel@lists.xenproject.org, akataria@vmware.com, boris.ostrovsky@oracle.com
+To: jasowang@redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Aug 24, 2018 at 03:52:55PM +0200, Juergen Gross wrote:
-> Ping?
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 24 Aug 2018 16:53:13 +0800
 
-Looking good; although I messed it up a little bit by adding a new
-paravirt function.
+> We don't wakeup the virtqueue if the first byte of pending iova range
+> is the last byte of the range we just got updated. This will lead a
+> virtqueue to wait for IOTLB updating forever. Fixing by correct the
+> check and wake up the virtqueue in this case.
+> 
+> Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
+> Reported-by: Peter Xu <peterx@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> The patch is needed for -stable.
 
-Thanks for doing this!
+Applied and queued up for -stable, thanks Jason.
