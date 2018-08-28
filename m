@@ -1,8 +1,8 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v3 07/15] x86/paravirt: remove clobbers from struct
-	paravirt_patch_site
-Date: Tue, 28 Aug 2018 09:40:18 +0200
-Message-ID: <20180828074026.820-8-jgross__598.51825139976$1535442610$gmane$org@suse.com>
+Subject: [PATCH v3 10/15] x86/paravirt: introduce new config option
+	PARAVIRT_XXL
+Date: Tue, 28 Aug 2018 09:40:21 +0200
+Message-ID: <20180828074026.820-11-jgross__31142.4072985121$1535442683$gmane$org@suse.com>
 References: <20180828074026.820-1-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,134 +22,82 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
 Cc: Juergen Gross <jgross@suse.com>, boris.ostrovsky@oracle.com, rusty@rustcorp.com.au, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-There is no need any longer to store the clobbers in struct
-paravirt_patch_site. Remove clobbers from the struct and from the
-related macros.
+A large amount of paravirt ops is used by Xen PV guests only. Add a new
+config option PARAVIRT_XXL which is selected by XEN_PV. Later we can
+put the Xen PV only paravirt ops under the PARAVIRT_XXL umbrella.
 
-While at it fix some lines longer than 80 characters.
+Since irq related paravirt ops are used only by VSMP and Xen PV, let
+VSMP select PARAVIRT_XXL, too, in order to enable moving the irq ops
+under PARAVIRT_XXL.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/include/asm/paravirt.h       | 33 +++++++++++++++------------------
- arch/x86/include/asm/paravirt_types.h |  1 -
- 2 files changed, 15 insertions(+), 19 deletions(-)
+V3:
+- let VSMP select PARAVIRT_XXL (Peter Zijlstra)
+---
+ arch/x86/Kconfig                   | 4 ++++
+ arch/x86/boot/compressed/misc.h    | 1 +
+ arch/x86/mm/mem_encrypt_identity.c | 1 +
+ arch/x86/xen/Kconfig               | 1 +
+ 4 files changed, 7 insertions(+)
 
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index e375d4266b53..e1364cb40ce5 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -827,7 +827,7 @@ extern void default_banner(void);
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index c5ff296bc5d1..61dfdb694483 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -523,6 +523,7 @@ config X86_VSMP
+ 	bool "ScaleMP vSMP"
+ 	select HYPERVISOR_GUEST
+ 	select PARAVIRT
++	select PARAVIRT_XXL
+ 	depends on X86_64 && PCI
+ 	depends on X86_EXTENDED_PLATFORM
+ 	depends on SMP
+@@ -754,6 +755,9 @@ config PARAVIRT
+ 	  over full virtualization.  However, when run without a hypervisor
+ 	  the kernel is theoretically slower and slightly larger.
  
- #else  /* __ASSEMBLY__ */
- 
--#define _PVSITE(ptype, clobbers, ops, word, algn)	\
-+#define _PVSITE(ptype, ops, word, algn)		\
- 771:;						\
- 	ops;					\
- 772:;						\
-@@ -836,7 +836,6 @@ extern void default_banner(void);
- 	 word 771b;				\
- 	 .byte ptype;				\
- 	 .byte 772b-771b;			\
--	 .short clobbers;			\
- 	.popsection
- 
- 
-@@ -869,7 +868,7 @@ extern void default_banner(void);
- 	COND_POP(set, CLBR_RAX, rax)
- 
- #define PARA_PATCH(struct, off)        ((PARAVIRT_PATCH_##struct + (off)) / 8)
--#define PARA_SITE(ptype, clobbers, ops) _PVSITE(ptype, clobbers, ops, .quad, 8)
-+#define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops, .quad, 8)
- #define PARA_INDIRECT(addr)	*addr(%rip)
- #else
- #define PV_SAVE_REGS(set)			\
-@@ -884,26 +883,26 @@ extern void default_banner(void);
- 	COND_POP(set, CLBR_EAX, eax)
- 
- #define PARA_PATCH(struct, off)        ((PARAVIRT_PATCH_##struct + (off)) / 4)
--#define PARA_SITE(ptype, clobbers, ops) _PVSITE(ptype, clobbers, ops, .long, 4)
-+#define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops, .long, 4)
- #define PARA_INDIRECT(addr)	*%cs:addr
- #endif
- 
- #define INTERRUPT_RETURN						\
--	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_iret), CLBR_NONE,	\
--		  ANNOTATE_RETPOLINE_SAFE;					\
-+	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_iret),			\
-+		  ANNOTATE_RETPOLINE_SAFE;				\
- 		  jmp PARA_INDIRECT(pv_cpu_ops+PV_CPU_iret);)
- 
- #define DISABLE_INTERRUPTS(clobbers)					\
--	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_irq_disable), clobbers, \
-+	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_irq_disable),		\
- 		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);		\
--		  ANNOTATE_RETPOLINE_SAFE;					\
-+		  ANNOTATE_RETPOLINE_SAFE;				\
- 		  call PARA_INDIRECT(pv_irq_ops+PV_IRQ_irq_disable);	\
- 		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
- 
- #define ENABLE_INTERRUPTS(clobbers)					\
--	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_irq_enable), clobbers,	\
-+	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_irq_enable),		\
- 		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);		\
--		  ANNOTATE_RETPOLINE_SAFE;					\
-+		  ANNOTATE_RETPOLINE_SAFE;				\
- 		  call PARA_INDIRECT(pv_irq_ops+PV_IRQ_irq_enable);	\
- 		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
- 
-@@ -921,8 +920,7 @@ extern void default_banner(void);
-  * inlined, or the swapgs instruction must be trapped and emulated.
++config PARAVIRT_XXL
++	bool
++
+ config PARAVIRT_DEBUG
+ 	bool "paravirt-ops debugging"
+ 	depends on PARAVIRT && DEBUG_KERNEL
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index a423bdb42686..a1d5918765f3 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -9,6 +9,7 @@
+  * paravirt and debugging variants are added.)
   */
- #define SWAPGS_UNSAFE_STACK						\
--	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_swapgs), CLBR_NONE,	\
--		  swapgs)
-+	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_swapgs), swapgs)
+ #undef CONFIG_PARAVIRT
++#undef CONFIG_PARAVIRT_XXL
+ #undef CONFIG_PARAVIRT_SPINLOCKS
+ #undef CONFIG_KASAN
  
- /*
-  * Note: swapgs is very special, and in practise is either going to be
-@@ -931,8 +929,8 @@ extern void default_banner(void);
-  * it.
+diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
+index 7ae36868aed2..a19ef1a416ff 100644
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -27,6 +27,7 @@
+  * be extended when new paravirt and debugging variants are added.)
   */
- #define SWAPGS								\
--	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_swapgs), CLBR_NONE,	\
--		  ANNOTATE_RETPOLINE_SAFE;					\
-+	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_swapgs),		\
-+		  ANNOTATE_RETPOLINE_SAFE;				\
- 		  call PARA_INDIRECT(pv_cpu_ops+PV_CPU_swapgs);		\
- 		 )
+ #undef CONFIG_PARAVIRT
++#undef CONFIG_PARAVIRT_XXL
+ #undef CONFIG_PARAVIRT_SPINLOCKS
  
-@@ -942,15 +940,14 @@ extern void default_banner(void);
- 
- #define USERGS_SYSRET64							\
- 	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_usergs_sysret64),	\
--		  CLBR_NONE,						\
--		  ANNOTATE_RETPOLINE_SAFE;					\
-+		  ANNOTATE_RETPOLINE_SAFE;				\
- 		  jmp PARA_INDIRECT(pv_cpu_ops+PV_CPU_usergs_sysret64);)
- 
- #ifdef CONFIG_DEBUG_ENTRY
- #define SAVE_FLAGS(clobbers)                                        \
--	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_save_fl), clobbers, \
-+	PARA_SITE(PARA_PATCH(pv_irq_ops, PV_IRQ_save_fl),	    \
- 		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);        \
--		  ANNOTATE_RETPOLINE_SAFE;				    \
-+		  ANNOTATE_RETPOLINE_SAFE;			    \
- 		  call PARA_INDIRECT(pv_irq_ops+PV_IRQ_save_fl);    \
- 		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
- #endif
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 225d871373ed..b2220536a7d4 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -681,7 +681,6 @@ struct paravirt_patch_site {
- 	u8 *instr; 		/* original instructions */
- 	u8 instrtype;		/* type of this instruction */
- 	u8 len;			/* length of original instruction */
--	u16 clobbers;		/* what registers you may clobber */
- };
- 
- extern struct paravirt_patch_site __parainstructions[],
+ #include <linux/kernel.h>
+diff --git a/arch/x86/xen/Kconfig b/arch/x86/xen/Kconfig
+index c1f98f32c45f..dd92d7bd3613 100644
+--- a/arch/x86/xen/Kconfig
++++ b/arch/x86/xen/Kconfig
+@@ -18,6 +18,7 @@ config XEN_PV
+ 	bool "Xen PV guest support"
+ 	default y
+ 	depends on XEN
++	select PARAVIRT_XXL
+ 	select XEN_HAVE_PVMMU
+ 	select XEN_HAVE_VPMU
+ 	help
 -- 
 2.16.4
