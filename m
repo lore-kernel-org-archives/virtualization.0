@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: KASAN: use-after-free Read in vhost_work_queue
-Date: Tue, 28 Aug 2018 11:11:21 -0400
-Message-ID: <20180828111055-mutt-send-email-mst__48844.1880596385$1535468967$gmane$org@kernel.org>
-References: <000000000000863e0205747fdfef@google.com>
+From: Daniel Verkamp <dverkamp@chromium.org>
+Subject: [PATCH v7] virtio_blk: add discard and write zeroes support
+Date: Tue, 28 Aug 2018 15:25:59 -0700
+Message-ID: <20180828222558.6450-1-dverkamp@chromium.org>
+References: <1528258740-6581-1-git-send-email-changpeng.liu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <000000000000863e0205747fdfef@google.com>
+In-Reply-To: <1528258740-6581-1-git-send-email-changpeng.liu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,144 +17,295 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: syzbot <syzbot+d5a0a170c5069658b141@syzkaller.appspotmail.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
+To: virtualization@lists.linux-foundation.org
+Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Changpeng Liu <changpeng.liu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 28, 2018 at 07:44:03AM -0700, syzbot wrote:
-> Hello,
-> 
-> syzbot found the following crash on:
-> 
-> HEAD commit:    33e17876ea4e Merge branch 'akpm' (patches from Andrew)
-> git tree:       upstream
-> console output: https://syzkaller.appspot.com/x/log.txt?x=12d8a20a400000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=40e5d6b26b73cd5b
-> dashboard link: https://syzkaller.appspot.com/bug?extid=d5a0a170c5069658b141
-> compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
-> userspace arch: i386
-> 
-> Unfortunately, I don't have any reproducer for this crash yet.
-> 
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+d5a0a170c5069658b141@syzkaller.appspotmail.com
-> 
-> ==================================================================
-> BUG: KASAN: use-after-free in vhost_work_queue+0xc3/0xe0
-> drivers/vhost/vhost.c:258
-> Read of size 8 at addr ffff880193862068 by task syz-executor7/22100
-> 
-> CPU: 0 PID: 22100 Comm: syz-executor7 Not tainted 4.18.0+ #108
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-> Google 01/01/2011
-> Call Trace:
->  __dump_stack lib/dump_stack.c:77 [inline]
->  dump_stack+0x1c9/0x2b4 lib/dump_stack.c:113
->  print_address_description+0x6c/0x20b mm/kasan/report.c:256
->  kasan_report_error mm/kasan/report.c:354 [inline]
->  kasan_report.cold.7+0x242/0x30d mm/kasan/report.c:412
->  __asan_report_load8_noabort+0x14/0x20 mm/kasan/report.c:433
->  vhost_work_queue+0xc3/0xe0 drivers/vhost/vhost.c:258
->  vhost_transport_send_pkt+0x28a/0x380 drivers/vhost/vsock.c:227
->  virtio_transport_send_pkt_info+0x31d/0x460
-> net/vmw_vsock/virtio_transport_common.c:190
->  virtio_transport_shutdown+0x1b1/0x270
-> net/vmw_vsock/virtio_transport_common.c:604
->  vsock_send_shutdown net/vmw_vsock/af_vsock.c:451 [inline]
->  vsock_shutdown+0x229/0x290 net/vmw_vsock/af_vsock.c:849
->  __sys_shutdown+0x15c/0x2c0 net/socket.c:1964
->  __do_sys_shutdown net/socket.c:1972 [inline]
->  __se_sys_shutdown net/socket.c:1970 [inline]
->  __ia32_sys_shutdown+0x54/0x80 net/socket.c:1970
->  do_syscall_32_irqs_on arch/x86/entry/common.c:326 [inline]
->  do_fast_syscall_32+0x34d/0xfb2 arch/x86/entry/common.c:397
->  entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
-> RIP: 0023:0xf7fa4ca9
-> Code: 55 08 8b 88 64 cd ff ff 8b 98 68 cd ff ff 89 c8 85 d2 74 02 89 0a 5b
-> 5d c3 8b 04 24 c3 8b 1c 24 c3 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90
-> 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
-> RSP: 002b:00000000f5f7f0cc EFLAGS: 00000296 ORIG_RAX: 0000000000000175
-> RAX: ffffffffffffffda RBX: 0000000000000009 RCX: 0000000000000000
-> RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-> RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-> R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-> 
-> Allocated by task 22094:
->  save_stack+0x43/0xd0 mm/kasan/kasan.c:448
->  set_track mm/kasan/kasan.c:460 [inline]
->  kasan_kmalloc+0xc4/0xe0 mm/kasan/kasan.c:553
->  __do_kmalloc_node mm/slab.c:3682 [inline]
->  __kmalloc_node+0x47/0x70 mm/slab.c:3689
->  kmalloc_node include/linux/slab.h:555 [inline]
->  kvmalloc_node+0xb9/0xf0 mm/util.c:423
->  kvmalloc include/linux/mm.h:577 [inline]
->  vhost_vsock_dev_open+0xa2/0x5a0 drivers/vhost/vsock.c:511
->  misc_open+0x3ca/0x560 drivers/char/misc.c:141
->  chrdev_open+0x25a/0x770 fs/char_dev.c:417
->  do_dentry_open+0x49c/0x1140 fs/open.c:771
->  vfs_open+0xa0/0xd0 fs/open.c:880
->  do_last fs/namei.c:3418 [inline]
->  path_openat+0x12fb/0x5300 fs/namei.c:3534
->  do_filp_open+0x255/0x380 fs/namei.c:3564
->  do_sys_open+0x584/0x720 fs/open.c:1063
->  __do_compat_sys_openat fs/open.c:1109 [inline]
->  __se_compat_sys_openat fs/open.c:1107 [inline]
->  __ia32_compat_sys_openat+0x98/0xf0 fs/open.c:1107
->  do_syscall_32_irqs_on arch/x86/entry/common.c:326 [inline]
->  do_fast_syscall_32+0x34d/0xfb2 arch/x86/entry/common.c:397
->  entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
-> 
-> Freed by task 22093:
->  save_stack+0x43/0xd0 mm/kasan/kasan.c:448
->  set_track mm/kasan/kasan.c:460 [inline]
->  __kasan_slab_free+0x11a/0x170 mm/kasan/kasan.c:521
->  kasan_slab_free+0xe/0x10 mm/kasan/kasan.c:528
->  __cache_free mm/slab.c:3498 [inline]
->  kfree+0xd9/0x210 mm/slab.c:3813
->  kvfree+0x61/0x70 mm/util.c:449
->  vhost_vsock_free drivers/vhost/vsock.c:499 [inline]
->  vhost_vsock_dev_release+0x4fd/0x750 drivers/vhost/vsock.c:604
->  __fput+0x36e/0x8c0 fs/file_table.c:278
->  ____fput+0x15/0x20 fs/file_table.c:309
->  task_work_run+0x1e8/0x2a0 kernel/task_work.c:113
->  tracehook_notify_resume include/linux/tracehook.h:193 [inline]
->  exit_to_usermode_loop+0x318/0x380 arch/x86/entry/common.c:166
->  prepare_exit_to_usermode arch/x86/entry/common.c:197 [inline]
->  syscall_return_slowpath arch/x86/entry/common.c:268 [inline]
->  do_syscall_32_irqs_on arch/x86/entry/common.c:341 [inline]
->  do_fast_syscall_32+0xcd5/0xfb2 arch/x86/entry/common.c:397
->  entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
-> 
-> The buggy address belongs to the object at ffff880193861fc0
->  which belongs to the cache kmalloc-65536 of size 65536
-> The buggy address is located 168 bytes inside of
->  65536-byte region [ffff880193861fc0, ffff880193871fc0)
-> The buggy address belongs to the page:
-> page:ffffea00064e1800 count:1 mapcount:0 mapping:ffff8801dac02500 index:0x0
-> compound_mapcount: 0
-> flags: 0x2fffc0000008100(slab|head)
-> raw: 02fffc0000008100 ffffea00064c7008 ffffea00064e5008 ffff8801dac02500
-> raw: 0000000000000000 ffff880193861fc0 0000000100000001 0000000000000000
-> page dumped because: kasan: bad access detected
-> 
-> Memory state around the buggy address:
->  ffff880193861f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->  ffff880193861f80: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
-> > ffff880193862000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
->                                                           ^
->  ffff880193862080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
->  ffff880193862100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> ==================================================================
+From: Changpeng Liu <changpeng.liu@intel.com>
 
-Seems like a duplicate of the bug Stefan's working on now.
+In commit 88c85538, "virtio-blk: add discard and write zeroes features
+to specification" (https://github.com/oasis-tcs/virtio-spec), the virtio
+block specification has been extended to add VIRTIO_BLK_T_DISCARD and
+VIRTIO_BLK_T_WRITE_ZEROES commands.  This patch enables support for
+discard and write zeroes in the virtio-blk driver when the device
+advertises the corresponding features, VIRTIO_BLK_F_DISCARD and
+VIRTIO_BLK_F_WRITE_ZEROES.
 
-> 
-> ---
-> This bug is generated by a bot. It may contain errors.
-> See https://goo.gl/tpsmEJ for more information about syzbot.
-> syzbot engineers can be reached at syzkaller@googlegroups.com.
-> 
-> syzbot will keep track of this bug report. See:
-> https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with
-> syzbot.
+Signed-off-by: Changpeng Liu <changpeng.liu@intel.com>
+Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
+---
+dverkamp: I've picked up this patch and made a few minor changes (as
+listed below); most notably, I changed the kmalloc back to GFP_ATOMIC,
+since it can be called from a context where sleeping is not allowed.
+To prevent large allocations, I've also clamped the maximum number of
+discard segments to 256; this results in a 4K allocation and should be
+plenty of descriptors for most use cases.
+
+I also removed most of the description from the commit message, since it
+was duplicating the comments from virtio_blk.h and quoting parts of the
+spec without adding any extra information.  I have tested this iteration
+of the patch using crosvm with modifications to enable the new features:
+https://chromium.googlesource.com/chromiumos/platform/crosvm/
+
+CHANGELOG:
+v7: [dverkamp] use GFP_ATOMIC for allocation that may not sleep; clarify
+descriptor flags field; comment wording cleanups.
+v6: don't set T_OUT bit to discard and write zeroes commands.
+v5: use new block layer API: blk_queue_flag_set.
+v4: several optimizations based on MST's comments, remove bit field
+usage for command descriptor.
+v3: define the virtio-blk protocol to add discard and write zeroes
+support, first version implementation based on proposed specification.
+v2: add write zeroes command support.
+v1: initial proposal implementation for discard command.
+---
+ drivers/block/virtio_blk.c      | 95 ++++++++++++++++++++++++++++++++-
+ include/uapi/linux/virtio_blk.h | 54 +++++++++++++++++++
+ 2 files changed, 147 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 23752dc99b00..c033e718a36a 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -18,6 +18,7 @@
+ 
+ #define PART_BITS 4
+ #define VQ_NAME_LEN 16
++#define DISCARD_MAX_SEGMENTS 256
+ 
+ static int major;
+ static DEFINE_IDA(vd_index_ida);
+@@ -172,10 +173,50 @@ static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr,
+ 	return virtqueue_add_sgs(vq, sgs, num_out, num_in, vbr, GFP_ATOMIC);
+ }
+ 
++
++static inline int virtblk_setup_discard_write_zeroes(struct request *req,
++						bool unmap)
++{
++	unsigned short segments = blk_rq_nr_discard_segments(req);
++	unsigned short n = 0;
++	struct virtio_blk_discard_write_zeroes *range;
++	struct bio *bio;
++	u32 flags = 0;
++
++	if (unmap)
++		flags |= VIRTIO_BLK_WRITE_ZEROES_FLAG_UNMAP;
++
++	range = kmalloc_array(segments, sizeof(*range), GFP_ATOMIC);
++	if (!range)
++		return -ENOMEM;
++
++	__rq_for_each_bio(bio, req) {
++		u64 sector = bio->bi_iter.bi_sector;
++		u32 num_sectors = bio->bi_iter.bi_size >> 9;
++
++		range[n].flags = cpu_to_le32(flags);
++		range[n].num_sectors = cpu_to_le32(num_sectors);
++		range[n].sector = cpu_to_le64(sector);
++		n++;
++	}
++
++	req->special_vec.bv_page = virt_to_page(range);
++	req->special_vec.bv_offset = offset_in_page(range);
++	req->special_vec.bv_len = sizeof(*range) * segments;
++	req->rq_flags |= RQF_SPECIAL_PAYLOAD;
++
++	return 0;
++}
++
+ static inline void virtblk_request_done(struct request *req)
+ {
+ 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+ 
++	if (req->rq_flags & RQF_SPECIAL_PAYLOAD) {
++		kfree(page_address(req->special_vec.bv_page) +
++		      req->special_vec.bv_offset);
++	}
++
+ 	switch (req_op(req)) {
+ 	case REQ_OP_SCSI_IN:
+ 	case REQ_OP_SCSI_OUT:
+@@ -225,6 +266,7 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	int qid = hctx->queue_num;
+ 	int err;
+ 	bool notify = false;
++	bool unmap = false;
+ 	u32 type;
+ 
+ 	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
+@@ -237,6 +279,13 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	case REQ_OP_FLUSH:
+ 		type = VIRTIO_BLK_T_FLUSH;
+ 		break;
++	case REQ_OP_DISCARD:
++		type = VIRTIO_BLK_T_DISCARD;
++		break;
++	case REQ_OP_WRITE_ZEROES:
++		type = VIRTIO_BLK_T_WRITE_ZEROES;
++		unmap = !(req->cmd_flags & REQ_NOUNMAP);
++		break;
+ 	case REQ_OP_SCSI_IN:
+ 	case REQ_OP_SCSI_OUT:
+ 		type = VIRTIO_BLK_T_SCSI_CMD;
+@@ -256,6 +305,12 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 
+ 	blk_mq_start_request(req);
+ 
++	if (type == VIRTIO_BLK_T_DISCARD || type == VIRTIO_BLK_T_WRITE_ZEROES) {
++		err = virtblk_setup_discard_write_zeroes(req, unmap);
++		if (err)
++			return BLK_STS_RESOURCE;
++	}
++
+ 	num = blk_rq_map_sg(hctx->queue, req, vbr->sg);
+ 	if (num) {
+ 		if (rq_data_dir(req) == WRITE)
+@@ -777,6 +832,42 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	if (!err && opt_io_size)
+ 		blk_queue_io_opt(q, blk_size * opt_io_size);
+ 
++	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
++		q->limits.discard_granularity = blk_size;
++
++		virtio_cread(vdev, struct virtio_blk_config,
++				discard_sector_alignment, &v);
++		if (v)
++			q->limits.discard_alignment = v << 9;
++		else
++			q->limits.discard_alignment = 0;
++
++		virtio_cread(vdev, struct virtio_blk_config,
++				max_discard_sectors, &v);
++		if (v)
++			blk_queue_max_discard_sectors(q, v);
++		else
++			blk_queue_max_discard_sectors(q, UINT_MAX);
++
++		virtio_cread(vdev, struct virtio_blk_config, max_discard_seg,
++				&v);
++		if (v && v <= DISCARD_MAX_SEGMENTS)
++			blk_queue_max_discard_segments(q, v);
++		else
++			blk_queue_max_discard_segments(q, DISCARD_MAX_SEGMENTS);
++
++		blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
++	}
++
++	if (virtio_has_feature(vdev, VIRTIO_BLK_F_WRITE_ZEROES)) {
++		virtio_cread(vdev, struct virtio_blk_config,
++				max_write_zeroes_sectors, &v);
++		if (v)
++			blk_queue_max_write_zeroes_sectors(q, v);
++		else
++			blk_queue_max_write_zeroes_sectors(q, UINT_MAX);
++	}
++
+ 	virtblk_update_capacity(vblk, false);
+ 	virtio_device_ready(vdev);
+ 
+@@ -885,14 +976,14 @@ static unsigned int features_legacy[] = {
+ 	VIRTIO_BLK_F_SCSI,
+ #endif
+ 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+-	VIRTIO_BLK_F_MQ,
++	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+ }
+ ;
+ static unsigned int features[] = {
+ 	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
+ 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+ 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+-	VIRTIO_BLK_F_MQ,
++	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+ };
+ 
+ static struct virtio_driver virtio_blk = {
+diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+index 9ebe4d968dd5..682afbfe3aa4 100644
+--- a/include/uapi/linux/virtio_blk.h
++++ b/include/uapi/linux/virtio_blk.h
+@@ -38,6 +38,8 @@
+ #define VIRTIO_BLK_F_BLK_SIZE	6	/* Block size of disk is available*/
+ #define VIRTIO_BLK_F_TOPOLOGY	10	/* Topology information is available */
+ #define VIRTIO_BLK_F_MQ		12	/* support more than one vq */
++#define VIRTIO_BLK_F_DISCARD	13	/* DISCARD is supported */
++#define VIRTIO_BLK_F_WRITE_ZEROES	14	/* WRITE ZEROES is supported */
+ 
+ /* Legacy feature bits */
+ #ifndef VIRTIO_BLK_NO_LEGACY
+@@ -86,6 +88,39 @@ struct virtio_blk_config {
+ 
+ 	/* number of vqs, only available when VIRTIO_BLK_F_MQ is set */
+ 	__u16 num_queues;
++
++	/* the next 3 entries are guarded by VIRTIO_BLK_F_DISCARD */
++	/*
++	 * The maximum discard sectors (in 512-byte sectors) for
++	 * one segment.
++	 */
++	__u32 max_discard_sectors;
++	/*
++	 * The maximum number of discard segments in a
++	 * discard command.
++	 */
++	__u32 max_discard_seg;
++	/* Discard commands must be aligned to this number of sectors. */
++	__u32 discard_sector_alignment;
++
++	/* the next 3 entries are guarded by VIRTIO_BLK_F_WRITE_ZEROES */
++	/*
++	 * The maximum number of write zeroes sectors (in 512-byte sectors) in
++	 * one segment.
++	 */
++	__u32 max_write_zeroes_sectors;
++	/*
++	 * The maximum number of segments in a write zeroes
++	 * command.
++	 */
++	__u32 max_write_zeroes_seg;
++	/*
++	 * Set if a VIRTIO_BLK_T_WRITE_ZEROES request may result in the
++	 * deallocation of one or more of the sectors.
++	 */
++	__u8 write_zeroes_may_unmap;
++
++	__u8 unused1[3];
+ } __attribute__((packed));
+ 
+ /*
+@@ -114,6 +149,12 @@ struct virtio_blk_config {
+ /* Get device ID command */
+ #define VIRTIO_BLK_T_GET_ID    8
+ 
++/* Discard command */
++#define VIRTIO_BLK_T_DISCARD	11
++
++/* Write zeroes command */
++#define VIRTIO_BLK_T_WRITE_ZEROES	13
++
+ #ifndef VIRTIO_BLK_NO_LEGACY
+ /* Barrier before this op. */
+ #define VIRTIO_BLK_T_BARRIER	0x80000000
+@@ -133,6 +174,19 @@ struct virtio_blk_outhdr {
+ 	__virtio64 sector;
+ };
+ 
++/* Unmap this range (only valid for write zeroes command) */
++#define VIRTIO_BLK_WRITE_ZEROES_FLAG_UNMAP	0x00000001
++
++/* Discard/write zeroes range for each request. */
++struct virtio_blk_discard_write_zeroes {
++	/* discard/write zeroes start sector */
++	__virtio64 sector;
++	/* number of discard/write zeroes sectors */
++	__virtio32 num_sectors;
++	/* flags for this range */
++	__virtio32 flags;
++};
++
+ #ifndef VIRTIO_BLK_NO_LEGACY
+ struct virtio_scsi_inhdr {
+ 	__virtio32 errors;
+-- 
+2.19.0.rc0.228.g281dcd1b4d0-goog
