@@ -1,8 +1,7 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v3 01/15] xen: move pv irq related functions under
-	CONFIG_XEN_PV umbrella
-Date: Tue, 28 Aug 2018 09:40:12 +0200
-Message-ID: <20180828074026.820-2-jgross__12091.0853533589$1535441946$gmane$org@suse.com>
+Subject: [PATCH v3 04/15] xen: add SPDX identifier in arch/x86/xen files
+Date: Tue, 28 Aug 2018 09:40:15 +0200
+Message-ID: <20180828074026.820-5-jgross__36769.3938002505$1535442055$gmane$org@suse.com>
 References: <20180828074026.820-1-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,179 +21,209 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
 Cc: Juergen Gross <jgross@suse.com>, boris.ostrovsky@oracle.com, rusty@rustcorp.com.au, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-All functions in arch/x86/xen/irq.c and arch/x86/xen/xen-asm*.S are
-specific to PV guests. Include them in the kernel with
-CONFIG_XEN_PV only.
-
-Make the PV specific code in arch/x86/entry/entry_*.S dependent on
-CONFIG_XEN_PV instead of CONFIG_XEN.
-
-The HVM specific code should depend on CONFIG_XEN_PVHVM.
-
-While at it reformat the Makefile to make it more readable.
-
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/entry/entry_32.S |  8 +++++---
- arch/x86/entry/entry_64.S |  8 +++++---
- arch/x86/xen/Makefile     | 41 +++++++++++++++++++++++++++++++----------
- include/xen/events.h      |  2 ++
- 4 files changed, 43 insertions(+), 16 deletions(-)
+ arch/x86/xen/efi.c                 | 14 +-------------
+ arch/x86/xen/enlighten.c           |  2 ++
+ arch/x86/xen/enlighten_hvm.c       |  2 ++
+ arch/x86/xen/grant-table.c         | 25 +------------------------
+ arch/x86/xen/mmu.c                 |  2 ++
+ arch/x86/xen/mmu_pv.c              |  2 ++
+ arch/x86/xen/p2m.c                 |  2 ++
+ arch/x86/xen/pci-swiotlb-xen.c     |  2 ++
+ arch/x86/xen/platform-pci-unplug.c | 16 ++--------------
+ arch/x86/xen/vdso.h                |  2 ++
+ arch/x86/xen/xen-pvh.S             | 15 ++-------------
+ 11 files changed, 20 insertions(+), 64 deletions(-)
 
-diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
-index 2767c625a52c..9cc4c3064ce0 100644
---- a/arch/x86/entry/entry_32.S
-+++ b/arch/x86/entry/entry_32.S
-@@ -782,7 +782,7 @@ GLOBAL(__begin_SYSENTER_singlestep_region)
-  * will ignore all of the single-step traps generated in this range.
+diff --git a/arch/x86/xen/efi.c b/arch/x86/xen/efi.c
+index 1804b27f9632..1fbb629a9d78 100644
+--- a/arch/x86/xen/efi.c
++++ b/arch/x86/xen/efi.c
+@@ -1,18 +1,6 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * Copyright (c) 2014 Oracle Co., Daniel Kiper
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License along
+- * with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
  
--#ifdef CONFIG_XEN
-+#ifdef CONFIG_XEN_PV
- /*
-  * Xen doesn't set %esp to be precisely what the normal SYSENTER
-  * entry point expects, so fix it up before using the normal path.
-@@ -1240,7 +1240,7 @@ ENTRY(spurious_interrupt_bug)
- 	jmp	common_exception
- END(spurious_interrupt_bug)
- 
--#ifdef CONFIG_XEN
-+#ifdef CONFIG_XEN_PV
- ENTRY(xen_hypervisor_callback)
- 	pushl	$-1				/* orig_ax = -1 => not a system call */
- 	SAVE_ALL
-@@ -1321,11 +1321,13 @@ ENTRY(xen_failsafe_callback)
- 	_ASM_EXTABLE(3b, 8b)
- 	_ASM_EXTABLE(4b, 9b)
- ENDPROC(xen_failsafe_callback)
-+#endif /* CONFIG_XEN_PV */
- 
-+#ifdef CONFIG_XEN_PVHVM
- BUILD_INTERRUPT3(xen_hvm_callback_vector, HYPERVISOR_CALLBACK_VECTOR,
- 		 xen_evtchn_do_upcall)
-+#endif
- 
--#endif /* CONFIG_XEN */
- 
- #if IS_ENABLED(CONFIG_HYPERV)
- 
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index 957dfb693ecc..a9ec5d3c6e67 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -1050,7 +1050,7 @@ ENTRY(do_softirq_own_stack)
- 	ret
- ENDPROC(do_softirq_own_stack)
- 
--#ifdef CONFIG_XEN
-+#ifdef CONFIG_XEN_PV
- idtentry hypervisor_callback xen_do_hypervisor_callback has_error_code=0
- 
- /*
-@@ -1130,11 +1130,13 @@ ENTRY(xen_failsafe_callback)
- 	ENCODE_FRAME_POINTER
- 	jmp	error_exit
- END(xen_failsafe_callback)
-+#endif /* CONFIG_XEN_PV */
- 
-+#ifdef CONFIG_XEN_PVHVM
- apicinterrupt3 HYPERVISOR_CALLBACK_VECTOR \
- 	xen_hvm_callback_vector xen_evtchn_do_upcall
-+#endif
- 
--#endif /* CONFIG_XEN */
- 
- #if IS_ENABLED(CONFIG_HYPERV)
- apicinterrupt3 HYPERVISOR_CALLBACK_VECTOR \
-@@ -1151,7 +1153,7 @@ idtentry debug			do_debug		has_error_code=0	paranoid=1 shift_ist=DEBUG_STACK
- idtentry int3			do_int3			has_error_code=0
- idtentry stack_segment		do_stack_segment	has_error_code=1
- 
--#ifdef CONFIG_XEN
-+#ifdef CONFIG_XEN_PV
- idtentry xennmi			do_nmi			has_error_code=0
- idtentry xendebug		do_debug		has_error_code=0
- idtentry xenint3		do_int3			has_error_code=0
-diff --git a/arch/x86/xen/Makefile b/arch/x86/xen/Makefile
-index d83cb5478f54..f723b5aa8f74 100644
---- a/arch/x86/xen/Makefile
-+++ b/arch/x86/xen/Makefile
-@@ -12,25 +12,46 @@ endif
- # Make sure early boot has no stackprotector
- nostackp := $(call cc-option, -fno-stack-protector)
- CFLAGS_enlighten_pv.o		:= $(nostackp)
--CFLAGS_mmu_pv.o		:= $(nostackp)
-+CFLAGS_mmu_pv.o			:= $(nostackp)
- 
--obj-y		:= enlighten.o multicalls.o mmu.o irq.o \
--			time.o xen-asm.o xen-asm_$(BITS).o \
--			grant-table.o suspend.o platform-pci-unplug.o
-+obj-y				+= enlighten.o
-+obj-y				+= multicalls.o
-+obj-y				+= mmu.o
-+obj-y				+= time.o
-+obj-y				+= grant-table.o
-+obj-y				+= suspend.o
-+obj-y				+= platform-pci-unplug.o
- 
--obj-$(CONFIG_XEN_PVHVM)		+= enlighten_hvm.o mmu_hvm.o suspend_hvm.o
--obj-$(CONFIG_XEN_PV)			+= setup.o apic.o pmu.o suspend_pv.o \
--						p2m.o enlighten_pv.o mmu_pv.o
--obj-$(CONFIG_XEN_PVH)			+= enlighten_pvh.o
-+obj-$(CONFIG_XEN_PVHVM)		+= enlighten_hvm.o
-+obj-$(CONFIG_XEN_PVHVM)		+= mmu_hvm.o
-+obj-$(CONFIG_XEN_PVHVM)		+= suspend_hvm.o
- 
--obj-$(CONFIG_EVENT_TRACING) += trace.o
-+obj-$(CONFIG_XEN_PV)		+= setup.o
-+obj-$(CONFIG_XEN_PV)		+= apic.o
-+obj-$(CONFIG_XEN_PV)		+= pmu.o
-+obj-$(CONFIG_XEN_PV)		+= suspend_pv.o
-+obj-$(CONFIG_XEN_PV)		+= p2m.o
-+obj-$(CONFIG_XEN_PV)		+= enlighten_pv.o
-+obj-$(CONFIG_XEN_PV)		+= mmu_pv.o
-+obj-$(CONFIG_XEN_PV)		+= irq.o
-+obj-$(CONFIG_XEN_PV)		+= xen-asm.o
-+obj-$(CONFIG_XEN_PV)		+= xen-asm_$(BITS).o
+ #include <linux/bitops.h>
+diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
+index 2eeddd814653..749fb4b73eda 100644
+--- a/arch/x86/xen/enlighten.c
++++ b/arch/x86/xen/enlighten.c
+@@ -1,3 +1,5 @@
++// SPDX-License-Identifier: GPL-2.0
 +
-+obj-$(CONFIG_XEN_PVH)		+= enlighten_pvh.o
-+obj-$(CONFIG_XEN_PVH)	 	+= xen-pvh.o
-+
-+obj-$(CONFIG_EVENT_TRACING)	+= trace.o
- 
- obj-$(CONFIG_SMP)		+= smp.o
- obj-$(CONFIG_XEN_PV_SMP)  	+= smp_pv.o
- obj-$(CONFIG_XEN_PVHVM_SMP)  	+= smp_hvm.o
-+
- obj-$(CONFIG_PARAVIRT_SPINLOCKS)+= spinlock.o
-+
- obj-$(CONFIG_XEN_DEBUG_FS)	+= debugfs.o
-+
- obj-$(CONFIG_XEN_DOM0)		+= vga.o
-+
- obj-$(CONFIG_SWIOTLB_XEN)	+= pci-swiotlb-xen.o
-+
- obj-$(CONFIG_XEN_EFI)		+= efi.o
--obj-$(CONFIG_XEN_PVH)	 	+= xen-pvh.o
-diff --git a/include/xen/events.h b/include/xen/events.h
-index c3e6bc643a7b..a48897199975 100644
---- a/include/xen/events.h
-+++ b/include/xen/events.h
-@@ -89,11 +89,13 @@ unsigned irq_from_evtchn(unsigned int evtchn);
- int irq_from_virq(unsigned int cpu, unsigned int virq);
- unsigned int evtchn_from_irq(unsigned irq);
- 
-+#ifdef CONFIG_XEN_PVHVM
- /* Xen HVM evtchn vector callback */
- void xen_hvm_callback_vector(void);
- #ifdef CONFIG_TRACING
- #define trace_xen_hvm_callback_vector xen_hvm_callback_vector
+ #ifdef CONFIG_XEN_BALLOON_MEMORY_HOTPLUG
+ #include <linux/bootmem.h>
  #endif
-+#endif
- int xen_set_callback_via(uint64_t via);
- void xen_evtchn_do_upcall(struct pt_regs *regs);
- void xen_hvm_evtchn_do_upcall(void);
+diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
+index 19c1ff542387..0e75642d42a3 100644
+--- a/arch/x86/xen/enlighten_hvm.c
++++ b/arch/x86/xen/enlighten_hvm.c
+@@ -1,3 +1,5 @@
++// SPDX-License-Identifier: GPL-2.0
++
+ #include <linux/acpi.h>
+ #include <linux/cpu.h>
+ #include <linux/kexec.h>
+diff --git a/arch/x86/xen/grant-table.c b/arch/x86/xen/grant-table.c
+index 92ccc718152d..ecb0d5450334 100644
+--- a/arch/x86/xen/grant-table.c
++++ b/arch/x86/xen/grant-table.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0 OR MIT
+ /******************************************************************************
+  * grant_table.c
+  * x86 specific part
+@@ -8,30 +9,6 @@
+  * Copyright (c) 2004-2005, K A Fraser
+  * Copyright (c) 2008 Isaku Yamahata <yamahata at valinux co jp>
+  *                    VA Linux Systems Japan. Split out x86 specific part.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License version 2
+- * as published by the Free Software Foundation; or, when distributed
+- * separately from the Linux kernel or incorporated into other
+- * software packages, subject to the following license:
+- *
+- * Permission is hereby granted, free of charge, to any person obtaining a copy
+- * of this source file (the "Software"), to deal in the Software without
+- * restriction, including without limitation the rights to use, copy, modify,
+- * merge, publish, distribute, sublicense, and/or sell copies of the Software,
+- * and to permit persons to whom the Software is furnished to do so, subject to
+- * the following conditions:
+- *
+- * The above copyright notice and this permission notice shall be included in
+- * all copies or substantial portions of the Software.
+- *
+- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+- * IN THE SOFTWARE.
+  */
+ 
+ #include <linux/sched.h>
+diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+index e0e13fe16d37..60e9c37fd79f 100644
+--- a/arch/x86/xen/mmu.c
++++ b/arch/x86/xen/mmu.c
+@@ -1,3 +1,5 @@
++// SPDX-License-Identifier: GPL-2.0
++
+ #include <linux/pfn.h>
+ #include <asm/xen/page.h>
+ #include <asm/xen/hypercall.h>
+diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
+index bdfac00b1ec8..1e9098f53967 100644
+--- a/arch/x86/xen/mmu_pv.c
++++ b/arch/x86/xen/mmu_pv.c
+@@ -1,3 +1,5 @@
++// SPDX-License-Identifier: GPL-2.0
++
+ /*
+  * Xen mmu operations
+  *
+diff --git a/arch/x86/xen/p2m.c b/arch/x86/xen/p2m.c
+index 159a897151d6..d6d74efd8912 100644
+--- a/arch/x86/xen/p2m.c
++++ b/arch/x86/xen/p2m.c
+@@ -1,3 +1,5 @@
++// SPDX-License-Identifier: GPL-2.0
++
+ /*
+  * Xen leaves the responsibility for maintaining p2m mappings to the
+  * guests themselves, but it must also access and update the p2m array
+diff --git a/arch/x86/xen/pci-swiotlb-xen.c b/arch/x86/xen/pci-swiotlb-xen.c
+index 37c6056a7bba..33293ce01d8d 100644
+--- a/arch/x86/xen/pci-swiotlb-xen.c
++++ b/arch/x86/xen/pci-swiotlb-xen.c
+@@ -1,3 +1,5 @@
++// SPDX-License-Identifier: GPL-2.0
++
+ /* Glue code to lib/swiotlb-xen.c */
+ 
+ #include <linux/dma-mapping.h>
+diff --git a/arch/x86/xen/platform-pci-unplug.c b/arch/x86/xen/platform-pci-unplug.c
+index 3957946a6cfe..2e794ac9d8e8 100644
+--- a/arch/x86/xen/platform-pci-unplug.c
++++ b/arch/x86/xen/platform-pci-unplug.c
+@@ -1,22 +1,10 @@
++// SPDX-License-Identifier: GPL-2.0
++
+ /******************************************************************************
+  * platform-pci-unplug.c
+  *
+  * Xen platform PCI device driver
+  * Copyright (c) 2010, Citrix
+- *
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms and conditions of the GNU General Public License,
+- * version 2, as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope it will be useful, but WITHOUT
+- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+- * more details.
+- *
+- * You should have received a copy of the GNU General Public License along with
+- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+- * Place - Suite 330, Boston, MA 02111-1307 USA.
+- *
+  */
+ 
+ #include <linux/init.h>
+diff --git a/arch/x86/xen/vdso.h b/arch/x86/xen/vdso.h
+index 861fedfe5230..873c54c488fe 100644
+--- a/arch/x86/xen/vdso.h
++++ b/arch/x86/xen/vdso.h
+@@ -1,3 +1,5 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
+ /* Bit used for the pseudo-hwcap for non-negative segments.  We use
+    bit 1 to avoid bugs in some versions of glibc when bit 0 is
+    used; the choice is otherwise arbitrary. */
+diff --git a/arch/x86/xen/xen-pvh.S b/arch/x86/xen/xen-pvh.S
+index ca2d3b2bf2af..b0e471506cd8 100644
+--- a/arch/x86/xen/xen-pvh.S
++++ b/arch/x86/xen/xen-pvh.S
+@@ -1,18 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
+ /*
+  * Copyright C 2016, Oracle and/or its affiliates. All rights reserved.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License along
+- * with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
+ 	.code32
 -- 
 2.16.4
