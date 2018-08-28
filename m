@@ -1,14 +1,11 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v3 02/15] xen: move pv specific parts of arch/x86/xen/mmu.c to
-	mmu_pv.c
-Date: Tue, 28 Aug 2018 09:40:13 +0200
-Message-ID: <20180828074026.820-3-jgross__2024.90734304792$1535442208$gmane$org@suse.com>
-References: <20180828074026.820-1-jgross@suse.com>
+Subject: [PATCH v3 00/15] x86/paravirt, xen: several cleanups
+Date: Tue, 28 Aug 2018 09:40:11 +0200
+Message-ID: <20180828074026.820-1-jgross__15509.5933856957$1535442285$gmane$org@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180828074026.820-1-jgross@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,658 +19,111 @@ To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org
 Cc: Juergen Gross <jgross@suse.com>, boris.ostrovsky@oracle.com, rusty@rustcorp.com.au, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-There are some PV specific functions in arch/x86/xen/mmu.c which can
-be moved to mmu_pv.c. This in turn enables us to make multicalls.c
-dependent on CONFIG_XEN_PV.
+This series removes some no longer needed stuff from paravirt
+infrastructure and puts large quantities of paravirt ops under a new
+config option PARAVIRT_XXL which is selected by XEN_PV only.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
----
-V3:
-- fix build failure on ARM (Boris Ostrovsky)
----
- arch/arm/xen/enlighten.c       |  34 --------
- arch/x86/xen/Makefile          |   2 +-
- arch/x86/xen/mmu.c             | 186 -----------------------------------------
- arch/x86/xen/mmu_pv.c          | 138 ++++++++++++++++++++++++++++++
- include/xen/interface/memory.h |   6 --
- include/xen/xen-ops.h          | 133 +++++++++++++++++++----------
- 6 files changed, 227 insertions(+), 272 deletions(-)
+Some Xen related cleanups:
+- move some pv-only code from CONFIG_XEN to CONFIG_XEN_PV
+- use CONFIG_XEN_PVHVM in Makefile instead of #ifdef around a complete source
+- add SPDX identifier where missing
 
-diff --git a/arch/arm/xen/enlighten.c b/arch/arm/xen/enlighten.c
-index 07060e5b5864..17e478928276 100644
---- a/arch/arm/xen/enlighten.c
-+++ b/arch/arm/xen/enlighten.c
-@@ -62,29 +62,6 @@ static __read_mostly unsigned int xen_events_irq;
- uint32_t xen_start_flags;
- EXPORT_SYMBOL(xen_start_flags);
- 
--int xen_remap_domain_gfn_array(struct vm_area_struct *vma,
--			       unsigned long addr,
--			       xen_pfn_t *gfn, int nr,
--			       int *err_ptr, pgprot_t prot,
--			       unsigned domid,
--			       struct page **pages)
--{
--	return xen_xlate_remap_gfn_array(vma, addr, gfn, nr, err_ptr,
--					 prot, domid, pages);
--}
--EXPORT_SYMBOL_GPL(xen_remap_domain_gfn_array);
--
--/* Not used by XENFEAT_auto_translated guests. */
--int xen_remap_domain_gfn_range(struct vm_area_struct *vma,
--                              unsigned long addr,
--                              xen_pfn_t gfn, int nr,
--                              pgprot_t prot, unsigned domid,
--                              struct page **pages)
--{
--	return -ENOSYS;
--}
--EXPORT_SYMBOL_GPL(xen_remap_domain_gfn_range);
--
- int xen_unmap_domain_gfn_range(struct vm_area_struct *vma,
- 			       int nr, struct page **pages)
- {
-@@ -92,17 +69,6 @@ int xen_unmap_domain_gfn_range(struct vm_area_struct *vma,
- }
- EXPORT_SYMBOL_GPL(xen_unmap_domain_gfn_range);
- 
--/* Not used by XENFEAT_auto_translated guests. */
--int xen_remap_domain_mfn_array(struct vm_area_struct *vma,
--			       unsigned long addr,
--			       xen_pfn_t *mfn, int nr,
--			       int *err_ptr, pgprot_t prot,
--			       unsigned int domid, struct page **pages)
--{
--	return -ENOSYS;
--}
--EXPORT_SYMBOL_GPL(xen_remap_domain_mfn_array);
--
- static void xen_read_wallclock(struct timespec64 *ts)
- {
- 	u32 version;
-diff --git a/arch/x86/xen/Makefile b/arch/x86/xen/Makefile
-index f723b5aa8f74..a964f307a266 100644
---- a/arch/x86/xen/Makefile
-+++ b/arch/x86/xen/Makefile
-@@ -15,7 +15,6 @@ CFLAGS_enlighten_pv.o		:= $(nostackp)
- CFLAGS_mmu_pv.o			:= $(nostackp)
- 
- obj-y				+= enlighten.o
--obj-y				+= multicalls.o
- obj-y				+= mmu.o
- obj-y				+= time.o
- obj-y				+= grant-table.o
-@@ -34,6 +33,7 @@ obj-$(CONFIG_XEN_PV)		+= p2m.o
- obj-$(CONFIG_XEN_PV)		+= enlighten_pv.o
- obj-$(CONFIG_XEN_PV)		+= mmu_pv.o
- obj-$(CONFIG_XEN_PV)		+= irq.o
-+obj-$(CONFIG_XEN_PV)		+= multicalls.o
- obj-$(CONFIG_XEN_PV)		+= xen-asm.o
- obj-$(CONFIG_XEN_PV)		+= xen-asm_$(BITS).o
- 
-diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
-index 96fc2f0fdbfe..e0e13fe16d37 100644
---- a/arch/x86/xen/mmu.c
-+++ b/arch/x86/xen/mmu.c
-@@ -6,12 +6,6 @@
- #include "multicalls.h"
- #include "mmu.h"
- 
--/*
-- * Protects atomic reservation decrease/increase against concurrent increases.
-- * Also protects non-atomic updates of current_pages and balloon lists.
-- */
--DEFINE_SPINLOCK(xen_reservation_lock);
--
- unsigned long arbitrary_virt_to_mfn(void *vaddr)
- {
- 	xmaddr_t maddr = arbitrary_virt_to_machine(vaddr);
-@@ -42,186 +36,6 @@ xmaddr_t arbitrary_virt_to_machine(void *vaddr)
- }
- EXPORT_SYMBOL_GPL(arbitrary_virt_to_machine);
- 
--static noinline void xen_flush_tlb_all(void)
--{
--	struct mmuext_op *op;
--	struct multicall_space mcs;
--
--	preempt_disable();
--
--	mcs = xen_mc_entry(sizeof(*op));
--
--	op = mcs.args;
--	op->cmd = MMUEXT_TLB_FLUSH_ALL;
--	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
--
--	xen_mc_issue(PARAVIRT_LAZY_MMU);
--
--	preempt_enable();
--}
--
--#define REMAP_BATCH_SIZE 16
--
--struct remap_data {
--	xen_pfn_t *pfn;
--	bool contiguous;
--	bool no_translate;
--	pgprot_t prot;
--	struct mmu_update *mmu_update;
--};
--
--static int remap_area_pfn_pte_fn(pte_t *ptep, pgtable_t token,
--				 unsigned long addr, void *data)
--{
--	struct remap_data *rmd = data;
--	pte_t pte = pte_mkspecial(mfn_pte(*rmd->pfn, rmd->prot));
--
--	/*
--	 * If we have a contiguous range, just update the pfn itself,
--	 * else update pointer to be "next pfn".
--	 */
--	if (rmd->contiguous)
--		(*rmd->pfn)++;
--	else
--		rmd->pfn++;
--
--	rmd->mmu_update->ptr = virt_to_machine(ptep).maddr;
--	rmd->mmu_update->ptr |= rmd->no_translate ?
--		MMU_PT_UPDATE_NO_TRANSLATE :
--		MMU_NORMAL_PT_UPDATE;
--	rmd->mmu_update->val = pte_val_ma(pte);
--	rmd->mmu_update++;
--
--	return 0;
--}
--
--static int do_remap_pfn(struct vm_area_struct *vma,
--			unsigned long addr,
--			xen_pfn_t *pfn, int nr,
--			int *err_ptr, pgprot_t prot,
--			unsigned int domid,
--			bool no_translate,
--			struct page **pages)
--{
--	int err = 0;
--	struct remap_data rmd;
--	struct mmu_update mmu_update[REMAP_BATCH_SIZE];
--	unsigned long range;
--	int mapped = 0;
--
--	BUG_ON(!((vma->vm_flags & (VM_PFNMAP | VM_IO)) == (VM_PFNMAP | VM_IO)));
--
--	rmd.pfn = pfn;
--	rmd.prot = prot;
--	/*
--	 * We use the err_ptr to indicate if there we are doing a contiguous
--	 * mapping or a discontigious mapping.
--	 */
--	rmd.contiguous = !err_ptr;
--	rmd.no_translate = no_translate;
--
--	while (nr) {
--		int index = 0;
--		int done = 0;
--		int batch = min(REMAP_BATCH_SIZE, nr);
--		int batch_left = batch;
--		range = (unsigned long)batch << PAGE_SHIFT;
--
--		rmd.mmu_update = mmu_update;
--		err = apply_to_page_range(vma->vm_mm, addr, range,
--					  remap_area_pfn_pte_fn, &rmd);
--		if (err)
--			goto out;
--
--		/* We record the error for each page that gives an error, but
--		 * continue mapping until the whole set is done */
--		do {
--			int i;
--
--			err = HYPERVISOR_mmu_update(&mmu_update[index],
--						    batch_left, &done, domid);
--
--			/*
--			 * @err_ptr may be the same buffer as @gfn, so
--			 * only clear it after each chunk of @gfn is
--			 * used.
--			 */
--			if (err_ptr) {
--				for (i = index; i < index + done; i++)
--					err_ptr[i] = 0;
--			}
--			if (err < 0) {
--				if (!err_ptr)
--					goto out;
--				err_ptr[i] = err;
--				done++; /* Skip failed frame. */
--			} else
--				mapped += done;
--			batch_left -= done;
--			index += done;
--		} while (batch_left);
--
--		nr -= batch;
--		addr += range;
--		if (err_ptr)
--			err_ptr += batch;
--		cond_resched();
--	}
--out:
--
--	xen_flush_tlb_all();
--
--	return err < 0 ? err : mapped;
--}
--
--int xen_remap_domain_gfn_range(struct vm_area_struct *vma,
--			       unsigned long addr,
--			       xen_pfn_t gfn, int nr,
--			       pgprot_t prot, unsigned domid,
--			       struct page **pages)
--{
--	if (xen_feature(XENFEAT_auto_translated_physmap))
--		return -EOPNOTSUPP;
--
--	return do_remap_pfn(vma, addr, &gfn, nr, NULL, prot, domid, false,
--			    pages);
--}
--EXPORT_SYMBOL_GPL(xen_remap_domain_gfn_range);
--
--int xen_remap_domain_gfn_array(struct vm_area_struct *vma,
--			       unsigned long addr,
--			       xen_pfn_t *gfn, int nr,
--			       int *err_ptr, pgprot_t prot,
--			       unsigned domid, struct page **pages)
--{
--	if (xen_feature(XENFEAT_auto_translated_physmap))
--		return xen_xlate_remap_gfn_array(vma, addr, gfn, nr, err_ptr,
--						 prot, domid, pages);
--
--	/* We BUG_ON because it's a programmer error to pass a NULL err_ptr,
--	 * and the consequences later is quite hard to detect what the actual
--	 * cause of "wrong memory was mapped in".
--	 */
--	BUG_ON(err_ptr == NULL);
--	return do_remap_pfn(vma, addr, gfn, nr, err_ptr, prot, domid,
--			    false, pages);
--}
--EXPORT_SYMBOL_GPL(xen_remap_domain_gfn_array);
--
--int xen_remap_domain_mfn_array(struct vm_area_struct *vma,
--			       unsigned long addr,
--			       xen_pfn_t *mfn, int nr,
--			       int *err_ptr, pgprot_t prot,
--			       unsigned int domid, struct page **pages)
--{
--	if (xen_feature(XENFEAT_auto_translated_physmap))
--		return -EOPNOTSUPP;
--
--	return do_remap_pfn(vma, addr, mfn, nr, err_ptr, prot, domid,
--			    true, pages);
--}
--EXPORT_SYMBOL_GPL(xen_remap_domain_mfn_array);
--
- /* Returns: 0 success */
- int xen_unmap_domain_gfn_range(struct vm_area_struct *vma,
- 			       int nr, struct page **pages)
-diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
-index 45b700ac5fe7..bdfac00b1ec8 100644
---- a/arch/x86/xen/mmu_pv.c
-+++ b/arch/x86/xen/mmu_pv.c
-@@ -98,6 +98,12 @@ static RESERVE_BRK_ARRAY(pte_t, level1_ident_pgt, LEVEL1_IDENT_ENTRIES);
- static pud_t level3_user_vsyscall[PTRS_PER_PUD] __page_aligned_bss;
- #endif /* CONFIG_X86_64 */
- 
-+/*
-+ * Protects atomic reservation decrease/increase against concurrent increases.
-+ * Also protects non-atomic updates of current_pages and balloon lists.
-+ */
-+DEFINE_SPINLOCK(xen_reservation_lock);
-+
- /*
-  * Note about cr3 (pagetable base) values:
-  *
-@@ -2665,6 +2671,138 @@ void xen_destroy_contiguous_region(phys_addr_t pstart, unsigned int order)
- }
- EXPORT_SYMBOL_GPL(xen_destroy_contiguous_region);
- 
-+static noinline void xen_flush_tlb_all(void)
-+{
-+	struct mmuext_op *op;
-+	struct multicall_space mcs;
-+
-+	preempt_disable();
-+
-+	mcs = xen_mc_entry(sizeof(*op));
-+
-+	op = mcs.args;
-+	op->cmd = MMUEXT_TLB_FLUSH_ALL;
-+	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
-+
-+	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+
-+	preempt_enable();
-+}
-+
-+#define REMAP_BATCH_SIZE 16
-+
-+struct remap_data {
-+	xen_pfn_t *pfn;
-+	bool contiguous;
-+	bool no_translate;
-+	pgprot_t prot;
-+	struct mmu_update *mmu_update;
-+};
-+
-+static int remap_area_pfn_pte_fn(pte_t *ptep, pgtable_t token,
-+				 unsigned long addr, void *data)
-+{
-+	struct remap_data *rmd = data;
-+	pte_t pte = pte_mkspecial(mfn_pte(*rmd->pfn, rmd->prot));
-+
-+	/*
-+	 * If we have a contiguous range, just update the pfn itself,
-+	 * else update pointer to be "next pfn".
-+	 */
-+	if (rmd->contiguous)
-+		(*rmd->pfn)++;
-+	else
-+		rmd->pfn++;
-+
-+	rmd->mmu_update->ptr = virt_to_machine(ptep).maddr;
-+	rmd->mmu_update->ptr |= rmd->no_translate ?
-+		MMU_PT_UPDATE_NO_TRANSLATE :
-+		MMU_NORMAL_PT_UPDATE;
-+	rmd->mmu_update->val = pte_val_ma(pte);
-+	rmd->mmu_update++;
-+
-+	return 0;
-+}
-+
-+int xen_remap_pfn(struct vm_area_struct *vma, unsigned long addr,
-+		  xen_pfn_t *pfn, int nr, int *err_ptr, pgprot_t prot,
-+		  unsigned int domid, bool no_translate, struct page **pages)
-+{
-+	int err = 0;
-+	struct remap_data rmd;
-+	struct mmu_update mmu_update[REMAP_BATCH_SIZE];
-+	unsigned long range;
-+	int mapped = 0;
-+
-+	BUG_ON(!((vma->vm_flags & (VM_PFNMAP | VM_IO)) == (VM_PFNMAP | VM_IO)));
-+
-+	rmd.pfn = pfn;
-+	rmd.prot = prot;
-+	/*
-+	 * We use the err_ptr to indicate if there we are doing a contiguous
-+	 * mapping or a discontigious mapping.
-+	 */
-+	rmd.contiguous = !err_ptr;
-+	rmd.no_translate = no_translate;
-+
-+	while (nr) {
-+		int index = 0;
-+		int done = 0;
-+		int batch = min(REMAP_BATCH_SIZE, nr);
-+		int batch_left = batch;
-+
-+		range = (unsigned long)batch << PAGE_SHIFT;
-+
-+		rmd.mmu_update = mmu_update;
-+		err = apply_to_page_range(vma->vm_mm, addr, range,
-+					  remap_area_pfn_pte_fn, &rmd);
-+		if (err)
-+			goto out;
-+
-+		/*
-+		 * We record the error for each page that gives an error, but
-+		 * continue mapping until the whole set is done
-+		 */
-+		do {
-+			int i;
-+
-+			err = HYPERVISOR_mmu_update(&mmu_update[index],
-+						    batch_left, &done, domid);
-+
-+			/*
-+			 * @err_ptr may be the same buffer as @gfn, so
-+			 * only clear it after each chunk of @gfn is
-+			 * used.
-+			 */
-+			if (err_ptr) {
-+				for (i = index; i < index + done; i++)
-+					err_ptr[i] = 0;
-+			}
-+			if (err < 0) {
-+				if (!err_ptr)
-+					goto out;
-+				err_ptr[i] = err;
-+				done++; /* Skip failed frame. */
-+			} else
-+				mapped += done;
-+			batch_left -= done;
-+			index += done;
-+		} while (batch_left);
-+
-+		nr -= batch;
-+		addr += range;
-+		if (err_ptr)
-+			err_ptr += batch;
-+		cond_resched();
-+	}
-+out:
-+
-+	xen_flush_tlb_all();
-+
-+	return err < 0 ? err : mapped;
-+}
-+EXPORT_SYMBOL_GPL(xen_remap_pfn);
-+
- #ifdef CONFIG_KEXEC_CORE
- phys_addr_t paddr_vmcoreinfo_note(void)
- {
-diff --git a/include/xen/interface/memory.h b/include/xen/interface/memory.h
-index 4c5751c26f87..447004861f00 100644
---- a/include/xen/interface/memory.h
-+++ b/include/xen/interface/memory.h
-@@ -244,12 +244,6 @@ DEFINE_GUEST_HANDLE_STRUCT(xen_memory_map);
- #define XENMEM_machine_memory_map   10
- 
- 
--/*
-- * Prevent the balloon driver from changing the memory reservation
-- * during a driver critical region.
-- */
--extern spinlock_t xen_reservation_lock;
--
- /*
-  * Unmaps the page appearing at a particular GPFN from the specified guest's
-  * pseudophysical address space.
-diff --git a/include/xen/xen-ops.h b/include/xen/xen-ops.h
-index fd18c974a619..18803ff76e27 100644
---- a/include/xen/xen-ops.h
-+++ b/include/xen/xen-ops.h
-@@ -5,6 +5,7 @@
- #include <linux/percpu.h>
- #include <linux/notifier.h>
- #include <linux/efi.h>
-+#include <xen/features.h>
- #include <asm/xen/interface.h>
- #include <xen/interface/vcpu.h>
- 
-@@ -47,6 +48,10 @@ int xen_create_contiguous_region(phys_addr_t pstart, unsigned int order,
- 				dma_addr_t *dma_handle);
- 
- void xen_destroy_contiguous_region(phys_addr_t pstart, unsigned int order);
-+
-+int xen_remap_pfn(struct vm_area_struct *vma, unsigned long addr,
-+		  xen_pfn_t *pfn, int nr, int *err_ptr, pgprot_t prot,
-+		  unsigned int domid, bool no_translate, struct page **pages);
- #else
- static inline int xen_create_contiguous_region(phys_addr_t pstart,
- 					       unsigned int order,
-@@ -58,10 +63,50 @@ static inline int xen_create_contiguous_region(phys_addr_t pstart,
- 
- static inline void xen_destroy_contiguous_region(phys_addr_t pstart,
- 						 unsigned int order) { }
-+
-+static inline int xen_remap_pfn(struct vm_area_struct *vma, unsigned long addr,
-+				xen_pfn_t *pfn, int nr, int *err_ptr,
-+				pgprot_t prot,  unsigned int domid,
-+				bool no_translate, struct page **pages)
-+{
-+	BUG();
-+	return 0;
-+}
- #endif
- 
- struct vm_area_struct;
- 
-+#ifdef CONFIG_XEN_AUTO_XLATE
-+int xen_xlate_remap_gfn_array(struct vm_area_struct *vma,
-+			      unsigned long addr,
-+			      xen_pfn_t *gfn, int nr,
-+			      int *err_ptr, pgprot_t prot,
-+			      unsigned int domid,
-+			      struct page **pages);
-+int xen_xlate_unmap_gfn_range(struct vm_area_struct *vma,
-+			      int nr, struct page **pages);
-+#else
-+/*
-+ * These two functions are called from arch/x86/xen/mmu.c and so stubs
-+ * are needed for a configuration not specifying CONFIG_XEN_AUTO_XLATE.
-+ */
-+static inline int xen_xlate_remap_gfn_array(struct vm_area_struct *vma,
-+					    unsigned long addr,
-+					    xen_pfn_t *gfn, int nr,
-+					    int *err_ptr, pgprot_t prot,
-+					    unsigned int domid,
-+					    struct page **pages)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static inline int xen_xlate_unmap_gfn_range(struct vm_area_struct *vma,
-+					    int nr, struct page **pages)
-+{
-+	return -EOPNOTSUPP;
-+}
-+#endif
-+
- /*
-  * xen_remap_domain_gfn_array() - map an array of foreign frames by gfn
-  * @vma:     VMA to map the pages into
-@@ -79,12 +124,25 @@ struct vm_area_struct;
-  * Returns the number of successfully mapped frames, or a -ve error
-  * code.
-  */
--int xen_remap_domain_gfn_array(struct vm_area_struct *vma,
--			       unsigned long addr,
--			       xen_pfn_t *gfn, int nr,
--			       int *err_ptr, pgprot_t prot,
--			       unsigned domid,
--			       struct page **pages);
-+static inline int xen_remap_domain_gfn_array(struct vm_area_struct *vma,
-+					     unsigned long addr,
-+					     xen_pfn_t *gfn, int nr,
-+					     int *err_ptr, pgprot_t prot,
-+					     unsigned int domid,
-+					     struct page **pages)
-+{
-+	if (xen_feature(XENFEAT_auto_translated_physmap))
-+		return xen_xlate_remap_gfn_array(vma, addr, gfn, nr, err_ptr,
-+						 prot, domid, pages);
-+
-+	/* We BUG_ON because it's a programmer error to pass a NULL err_ptr,
-+	 * and the consequences later is quite hard to detect what the actual
-+	 * cause of "wrong memory was mapped in".
-+	 */
-+	BUG_ON(err_ptr == NULL);
-+	return xen_remap_pfn(vma, addr, gfn, nr, err_ptr, prot, domid,
-+			     false, pages);
-+}
- 
- /*
-  * xen_remap_domain_mfn_array() - map an array of foreign frames by mfn
-@@ -103,10 +161,18 @@ int xen_remap_domain_gfn_array(struct vm_area_struct *vma,
-  * Returns the number of successfully mapped frames, or a -ve error
-  * code.
-  */
--int xen_remap_domain_mfn_array(struct vm_area_struct *vma,
--			       unsigned long addr, xen_pfn_t *mfn, int nr,
--			       int *err_ptr, pgprot_t prot,
--			       unsigned int domid, struct page **pages);
-+static inline int xen_remap_domain_mfn_array(struct vm_area_struct *vma,
-+					     unsigned long addr, xen_pfn_t *mfn,
-+					     int nr, int *err_ptr,
-+					     pgprot_t prot, unsigned int domid,
-+					     struct page **pages)
-+{
-+	if (xen_feature(XENFEAT_auto_translated_physmap))
-+		return -EOPNOTSUPP;
-+
-+	return xen_remap_pfn(vma, addr, mfn, nr, err_ptr, prot, domid,
-+			     true, pages);
-+}
- 
- /* xen_remap_domain_gfn_range() - map a range of foreign frames
-  * @vma:     VMA to map the pages into
-@@ -120,44 +186,21 @@ int xen_remap_domain_mfn_array(struct vm_area_struct *vma,
-  * Returns the number of successfully mapped frames, or a -ve error
-  * code.
-  */
--int xen_remap_domain_gfn_range(struct vm_area_struct *vma,
--			       unsigned long addr,
--			       xen_pfn_t gfn, int nr,
--			       pgprot_t prot, unsigned domid,
--			       struct page **pages);
--int xen_unmap_domain_gfn_range(struct vm_area_struct *vma,
--			       int numpgs, struct page **pages);
--
--#ifdef CONFIG_XEN_AUTO_XLATE
--int xen_xlate_remap_gfn_array(struct vm_area_struct *vma,
--			      unsigned long addr,
--			      xen_pfn_t *gfn, int nr,
--			      int *err_ptr, pgprot_t prot,
--			      unsigned domid,
--			      struct page **pages);
--int xen_xlate_unmap_gfn_range(struct vm_area_struct *vma,
--			      int nr, struct page **pages);
--#else
--/*
-- * These two functions are called from arch/x86/xen/mmu.c and so stubs
-- * are needed for a configuration not specifying CONFIG_XEN_AUTO_XLATE.
-- */
--static inline int xen_xlate_remap_gfn_array(struct vm_area_struct *vma,
--					    unsigned long addr,
--					    xen_pfn_t *gfn, int nr,
--					    int *err_ptr, pgprot_t prot,
--					    unsigned int domid,
--					    struct page **pages)
-+static inline int xen_remap_domain_gfn_range(struct vm_area_struct *vma,
-+					     unsigned long addr,
-+					     xen_pfn_t gfn, int nr,
-+					     pgprot_t prot, unsigned int domid,
-+					     struct page **pages)
- {
--	return -EOPNOTSUPP;
--}
-+	if (xen_feature(XENFEAT_auto_translated_physmap))
-+		return -EOPNOTSUPP;
- 
--static inline int xen_xlate_unmap_gfn_range(struct vm_area_struct *vma,
--					    int nr, struct page **pages)
--{
--	return -EOPNOTSUPP;
-+	return xen_remap_pfn(vma, addr, &gfn, nr, NULL, prot, domid, false,
-+			     pages);
- }
--#endif
-+
-+int xen_unmap_domain_gfn_range(struct vm_area_struct *vma,
-+			       int numpgs, struct page **pages);
- 
- int xen_xlate_map_ballooned_pages(xen_pfn_t **pfns, void **vaddr,
- 				  unsigned long nr_grant_frames);
+A pvops kernel without XEN_PV being configured is about 2.5% smaller
+with this series applied.
+
+Changes in V3:
+- merged with the Xen cleanup series which is a prerequisite for the
+  pv cleanup
+- fix build errors on ARM
+- let VSMP select PARAVIRT_XXL, put all irq_ops under PARAVIRT_XXL
+
+Changes in V2:
+- patch 4: shorten pv_ops sub-structure names (Jan Beulich)
+- patch 11: new patch
+
+Juergen Gross (15):
+  xen: move pv irq related functions under CONFIG_XEN_PV umbrella
+  xen: move pv specific parts of arch/x86/xen/mmu.c to mmu_pv.c
+  xen: link platform-pci-unplug.o only if CONFIG_XEN_PVHVM
+  xen: add SPDX identifier in arch/x86/xen files
+  x86/paravirt: make paravirt_patch_call() and paravirt_patch_jmp()
+    static
+  x86/paravirt: remove clobbers parameter from paravirt patch functions
+  x86/paravirt: remove clobbers from struct paravirt_patch_site
+  x86/paravirt: use a single ops structure
+  x86/paravirt: remove unused paravirt bits
+  x86/paravirt: introduce new config option PARAVIRT_XXL
+  x86/paravirt: move items in pv_info under PARAVIRT_XXL umbrella
+  x86/paravirt: move the Xen-only pv_cpu_ops under the PARAVIRT_XXL
+    umbrella
+  x86/paravirt: move the pv_irq_ops under the PARAVIRT_XXL umbrella
+  x86/paravirt: move the Xen-only pv_mmu_ops under the PARAVIRT_XXL
+    umbrella
+  x86/paravirt: remove unneeded mmu related paravirt ops bits
+
+ arch/arm/include/asm/paravirt.h             |   9 +-
+ arch/arm/kernel/paravirt.c                  |   4 +-
+ arch/arm/xen/enlighten.c                    |  34 ---
+ arch/arm64/include/asm/paravirt.h           |   9 +-
+ arch/arm64/kernel/paravirt.c                |   4 +-
+ arch/x86/Kconfig                            |   4 +
+ arch/x86/boot/compressed/misc.h             |   1 +
+ arch/x86/entry/entry_32.S                   |   8 +-
+ arch/x86/entry/entry_64.S                   |   8 +-
+ arch/x86/hyperv/mmu.c                       |   4 +-
+ arch/x86/include/asm/debugreg.h             |   2 +-
+ arch/x86/include/asm/desc.h                 |   4 +-
+ arch/x86/include/asm/fixmap.h               |   2 +-
+ arch/x86/include/asm/irqflags.h             |  16 +-
+ arch/x86/include/asm/mmu_context.h          |   4 +-
+ arch/x86/include/asm/msr.h                  |   4 +-
+ arch/x86/include/asm/paravirt.h             | 415 +++++++++++++---------------
+ arch/x86/include/asm/paravirt_types.h       |  82 +++---
+ arch/x86/include/asm/pgalloc.h              |   2 +-
+ arch/x86/include/asm/pgtable-3level_types.h |   2 +-
+ arch/x86/include/asm/pgtable.h              |   7 +-
+ arch/x86/include/asm/processor.h            |   4 +-
+ arch/x86/include/asm/ptrace.h               |   2 +-
+ arch/x86/include/asm/segment.h              |   2 +-
+ arch/x86/include/asm/special_insns.h        |   4 +-
+ arch/x86/kernel/alternative.c               |   2 +-
+ arch/x86/kernel/asm-offsets.c               |  13 +-
+ arch/x86/kernel/asm-offsets_64.c            |   9 +-
+ arch/x86/kernel/cpu/common.c                |   4 +-
+ arch/x86/kernel/cpu/vmware.c                |   4 +-
+ arch/x86/kernel/head_64.S                   |   2 +-
+ arch/x86/kernel/kvm.c                       |  19 +-
+ arch/x86/kernel/kvmclock.c                  |   4 +-
+ arch/x86/kernel/paravirt-spinlocks.c        |  15 +-
+ arch/x86/kernel/paravirt.c                  | 305 ++++++++++----------
+ arch/x86/kernel/paravirt_patch_32.c         |  57 ++--
+ arch/x86/kernel/paravirt_patch_64.c         |  65 ++---
+ arch/x86/kernel/tsc.c                       |   2 +-
+ arch/x86/kernel/vsmp_64.c                   |  26 +-
+ arch/x86/mm/mem_encrypt_identity.c          |   1 +
+ arch/x86/xen/Kconfig                        |   1 +
+ arch/x86/xen/Makefile                       |  41 ++-
+ arch/x86/xen/efi.c                          |  14 +-
+ arch/x86/xen/enlighten.c                    |   2 +
+ arch/x86/xen/enlighten_hvm.c                |   2 +
+ arch/x86/xen/enlighten_pv.c                 |  31 ++-
+ arch/x86/xen/grant-table.c                  |  25 +-
+ arch/x86/xen/irq.c                          |   2 +-
+ arch/x86/xen/mmu.c                          | 188 +------------
+ arch/x86/xen/mmu_hvm.c                      |   2 +-
+ arch/x86/xen/mmu_pv.c                       | 168 ++++++++++-
+ arch/x86/xen/p2m.c                          |   2 +
+ arch/x86/xen/pci-swiotlb-xen.c              |   2 +
+ arch/x86/xen/platform-pci-unplug.c          |  18 +-
+ arch/x86/xen/spinlock.c                     |  11 +-
+ arch/x86/xen/time.c                         |   4 +-
+ arch/x86/xen/vdso.h                         |   2 +
+ arch/x86/xen/xen-pvh.S                      |  15 +-
+ drivers/xen/time.c                          |   2 +-
+ include/xen/events.h                        |   2 +
+ include/xen/interface/memory.h              |   6 -
+ include/xen/xen-ops.h                       | 133 ++++++---
+ 62 files changed, 880 insertions(+), 958 deletions(-)
+
 -- 
 2.16.4
