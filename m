@@ -1,13 +1,17 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 2/2] drm/virtio: add iommu support.
-Date: Wed, 29 Aug 2018 14:20:26 +0200
-Message-ID: <20180829122026.27012-3-kraxel__36734.026092063$1535545136$gmane$org@redhat.com>
-References: <20180829122026.27012-1-kraxel@redhat.com>
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+Subject: Re: [PATCH 0/2] Provide init/release functions for struct
+	ttm_bo_global
+Date: Thu, 30 Aug 2018 08:45:05 +0200
+Message-ID: <73eea61d-e913-4f62-69b5-c4f482724236__36454.9446305775$1535611405$gmane$org@amd.com>
+References: <20180813102443.12662-1-tzimmermann@suse.de>
+	<b77c649e-4c5d-a19d-8c46-d91c69859293@amd.com>
+	<5e815e50-d0be-5069-cf1d-aa881a18f094@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180829122026.27012-1-kraxel@redhat.com>
+In-Reply-To: <5e815e50-d0be-5069-cf1d-aa881a18f094@suse.de>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,129 +21,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org, virtio-dev@lists.oasis-open.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>, ray.huang@amd.com, Jerry.Zhang@amd.com, dri-devel@lists.freedesktop.org
+Cc: David1.Zhou@amd.com, thellstrom@vmware.com, nouveau@lists.freedesktop.org, syeh@vmware.com, airlied@linux.ie, puck.chen@hisilicon.com, amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org, z.liuxinliang@hisilicon.com, zourongrong@gmail.com, kong.kongxinwei@hisilicon.com, linux-graphics-maintainer@vmware.com, gregkh@linuxfoundation.org, alexander.deucher@amd.com, bskeggs@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use the dma mapping api and properly add iommu mappings for
-objects, unless virtio is in iommu quirk mode.
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
- drivers/gpu/drm/virtio/virtgpu_vq.c  | 46 +++++++++++++++++++++++++++++-------
- 2 files changed, 38 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index cbbff01077..ec9a38f995 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -57,6 +57,7 @@ struct virtio_gpu_object {
- 	uint32_t hw_res_handle;
- 
- 	struct sg_table *pages;
-+	uint32_t mapped;
- 	void *vmap;
- 	bool dumb;
- 	struct ttm_place                placement_code;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index af24e91267..bf631d32d4 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -424,7 +424,8 @@ void virtio_gpu_cmd_unref_resource(struct virtio_gpu_device *vgdev,
- }
- 
- static void virtio_gpu_cmd_resource_inval_backing(struct virtio_gpu_device *vgdev,
--						  uint32_t resource_id)
-+						  uint32_t resource_id,
-+						  struct virtio_gpu_fence **fence)
- {
- 	struct virtio_gpu_resource_detach_backing *cmd_p;
- 	struct virtio_gpu_vbuffer *vbuf;
-@@ -435,7 +436,7 @@ static void virtio_gpu_cmd_resource_inval_backing(struct virtio_gpu_device *vgde
- 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_RESOURCE_DETACH_BACKING);
- 	cmd_p->resource_id = cpu_to_le32(resource_id);
- 
--	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, &cmd_p->hdr, fence);
- }
- 
- void virtio_gpu_cmd_set_scanout(struct virtio_gpu_device *vgdev,
-@@ -848,9 +849,10 @@ int virtio_gpu_object_attach(struct virtio_gpu_device *vgdev,
- 			     uint32_t resource_id,
- 			     struct virtio_gpu_fence **fence)
- {
-+	bool use_dma_api = !virtio_has_iommu_quirk(vgdev->vdev);
- 	struct virtio_gpu_mem_entry *ents;
- 	struct scatterlist *sg;
--	int si;
-+	int si, nents;
- 
- 	if (!obj->pages) {
- 		int ret;
-@@ -860,23 +862,33 @@ int virtio_gpu_object_attach(struct virtio_gpu_device *vgdev,
- 			return ret;
- 	}
- 
-+	if (use_dma_api) {
-+		obj->mapped = dma_map_sg(vgdev->vdev->dev.parent,
-+					 obj->pages->sgl, obj->pages->nents,
-+					 DMA_TO_DEVICE);
-+		nents = obj->mapped;
-+	} else {
-+		nents = obj->pages->nents;
-+	}
-+
- 	/* gets freed when the ring has consumed it */
--	ents = kmalloc_array(obj->pages->nents,
--			     sizeof(struct virtio_gpu_mem_entry),
-+	ents = kmalloc_array(nents, sizeof(struct virtio_gpu_mem_entry),
- 			     GFP_KERNEL);
- 	if (!ents) {
- 		DRM_ERROR("failed to allocate ent list\n");
- 		return -ENOMEM;
- 	}
- 
--	for_each_sg(obj->pages->sgl, sg, obj->pages->nents, si) {
--		ents[si].addr = cpu_to_le64(sg_phys(sg));
-+	for_each_sg(obj->pages->sgl, sg, nents, si) {
-+		ents[si].addr = cpu_to_le64(use_dma_api
-+					    ? sg_dma_address(sg)
-+					    : sg_phys(sg));
- 		ents[si].length = cpu_to_le32(sg->length);
- 		ents[si].padding = 0;
- 	}
- 
- 	virtio_gpu_cmd_resource_attach_backing(vgdev, resource_id,
--					       ents, obj->pages->nents,
-+					       ents, nents,
- 					       fence);
- 	obj->hw_res_handle = resource_id;
- 	return 0;
-@@ -885,7 +897,23 @@ int virtio_gpu_object_attach(struct virtio_gpu_device *vgdev,
- void virtio_gpu_object_detach(struct virtio_gpu_device *vgdev,
- 			      struct virtio_gpu_object *obj)
- {
--	virtio_gpu_cmd_resource_inval_backing(vgdev, obj->hw_res_handle);
-+	bool use_dma_api = !virtio_has_iommu_quirk(vgdev->vdev);
-+	struct virtio_gpu_fence *fence;
-+
-+	if (use_dma_api && obj->mapped) {
-+		/* detach backing and wait for the host process it ... */
-+		virtio_gpu_cmd_resource_inval_backing(vgdev, obj->hw_res_handle, &fence);
-+		dma_fence_wait(&fence->f, true);
-+		dma_fence_put(&fence->f);
-+
-+		/* ... then tear down iommu mappings */
-+		dma_unmap_sg(vgdev->vdev->dev.parent,
-+			     obj->pages->sgl, obj->mapped,
-+			     DMA_TO_DEVICE);
-+		obj->mapped = 0;
-+	} else {
-+		virtio_gpu_cmd_resource_inval_backing(vgdev, obj->hw_res_handle, NULL);
-+	}
- }
- 
- void virtio_gpu_cursor_ping(struct virtio_gpu_device *vgdev,
--- 
-2.9.3
+SGkgVGhvbWFzLAoKQW0gMzAuMDguMjAxOCB1bSAwODozNCBzY2hyaWViIFRob21hcyBaaW1tZXJt
+YW5uOgo+IEhpIENocmlzdGlhbiwKPgo+IEkganVzdCB3YW50ZWQgdG8gYXNrIGlmIHRoZXJlJ3Mg
+c29tZXRoaW5nIGVsc2UgcmVxdWlyZWQgdG8gZ2V0IHRoaXMKPiBwYXRjaCBzZXQgcmV2aWV3ZWQg
+YW5kIGxhbmRlZC4KCkkganVzdCBuZWVkIHRvIGZpbmQgc29tZSB0aW1lIHRvIHJldmlldyB0aGVt
+LgoKPiBPbiB0b3Agb2YgdGhlc2UgdHdvIHBhdGNoZXMsIEkgaGF2ZSBhIHBhdGNoIHNldCB0aGF0
+IHJlcGxhY2VzIHRoZQo+IGRyaXZlci1zcGVjaWZpYyBnbG9iYWwtYm8tYW5kLW1lbSBjb21ib3Mg
+d2l0aCBhIHNpbmdsZSBzdHJ1Y3QgdHRtX2dsb2JhbAo+IHN0cnVjdHVyZS4gSXQgZnVydGhlciBt
+ZXJnZXMgc3RydWN0IGRybV9nbG9iYWwgaW50byBzdHJ1Y3QgdHRtX2dsb2JhbAo+IGFuZCBpbXBs
+ZW1lbnRzIGl0IHN1Y2ggdGhhdCBkcml2ZXJzIGNhbiBlaXRoZXIgc2hhcmUgdGhlIGdsb2JhbCBt
+ZW1vcnkKClRoYXQgc291bmRzIGdvb2QuCgo+IG9yIGNyZWF0ZSB0aGVpciBwcml2YXRlIGluc3Rh
+bmNlLgoKVGhhdCBkb2Vzbid0IHNvdW5kcyBnb29kLiBEcml2ZXJzIHNob3VsZCBub3QgYmUgYWxs
+b3dlZCB0byBjcmVhdGUgdGhlaXIgCm93biBwcml2YXRlIGluc3RhbmNlIG9mIHRoYXQuCgpUaGFu
+a3MgZm9yIGRvaW5nIHRoaXMsCkNocmlzdGlhbi4KCj4gICBJdCdzIGFsc28gYSBzdGVwIHRvd2Fy
+ZHMgZHJtIGRldmljZQo+IGhvdHBsdWcsIHdoaWNoIHNvbWVvbmUganVzdCBhc2tlZC4KPgo+IEJl
+c3QgcmVnYXJkcwo+IFRob21hcwo+Cj4KPiBBbSAxMy4wOC4yMDE4IHVtIDEyOjMzIHNjaHJpZWIg
+Q2hyaXN0aWFuIEvDtm5pZzoKPj4gWWVzLCBwbGVhc2UhIEkgaGFkIGl0IG9uIG15IFRPRE8gbGlz
+dCB0byBjbGVhbiB0aGF0IHVwIGZvciBhbiBldGVybml0eS4KPj4KPj4gQWN0dWFsbHkgSSBuZXZl
+ciB1bmRlcnN0b29kIHdoeSB0aGF0IHNob3VsZCBiZSBkcml2ZXIgd29yayB0byBzZXR1cCBUVE0/
+Cj4+Cj4+IEkgbWVhbiBjYW4ndCB3ZSBqdXN0IGhhdmUgYSBtb2R1bGVfaW5pdC9tb2R1bGVfZXhp
+dCBmb3IgVFRNPwo+Pgo+PiBUaGFua3MsCj4+IENocmlzdGlhbi4KPj4KPj4gQW0gMTMuMDguMjAx
+OCB1bSAxMjoyNCBzY2hyaWViIFRob21hcyBaaW1tZXJtYW5uOgo+Pj4gVFRNIHVzZXMgZ2xvYmFs
+IG1lbW9yeSBhbmQgQk8gZm9yIGJhY2tpbmcgZ3JhcGhpY3MgYnVmZmVycy4gVGhlc2UgYXJlCj4+
+PiByZXByZXNlbnRlZCBieSBzdHJ1Y3QgdHRtX21lbV9nbG9iYWwgYW5kIHN0cnVjdCB0dG1fYm9f
+Z2xvYmFsLgo+Pj4KPj4+IEN1cnJlbnRseSwgc3RydWN0IHR0bV9ib19nbG9iYWwgY2FuIG9ubHkg
+YmUgaW5pdGlhbGl6ZWQgYW5kIHJlbGVhc2VkCj4+PiB0aHJvdWdoCj4+PiBzdHJ1Y3QgdHRtX2Jv
+X2dsb2JhbF9yZWYuIFRoaXMgaXMgYSB3b3JrYXJvdW5kIGZvciBwYXNzaW5nIGFuIGluc3RhbmNl
+IG9mCj4+PiB0dG1fbWVtX2dsb2JhbCB0byB0aGUgQk8gZ2xvYmFsIGluaXRpYWxpemF0aW9uIGNv
+ZGUuCj4+Pgo+Pj4gVGhlIHVzZSBvZiBzdHJ1Y3QgdHRtX2JvX2dsb2JhbF9yZWYgbWFrZXMgZHJp
+dmVyIGNvZGUgdW5uZWNlc3NhcnkgaGFyZCB0bwo+Pj4gdW5kZXJzdGFuZC4gQXQgdGhlIHNhbWUg
+dGltZSBkcml2ZXJzIGNhbiB1c2UgYW55IGNvbWJpbmF0aW9uIG9mIG1lbW9yeQo+Pj4gYW5kCj4+
+PiBCTyBmb3IgaW5pdGlhbGl6aW5nIHRoZSBnbG9iYWwgaW5zdGFuY2VzLiBUaGlzIGNhbiByZXN1
+bHQgaW4gc3VidGxlIGJ1Z3MKPj4+IHdoZW4gdGhlIG9yZGVyIG9mIGluaXRpYWxpemluZyBhbmQg
+cmVsZWFzaW5nIGRyaXZlcnMgY2hhbmdlcy4KPj4+Cj4+PiBBcyBhIGZpcnN0IHN0ZXAgZm9yIHJl
+c29sdmluZyB0aGVzZSBwcm9ibGVtcywgdGhlIHByb3ZpZGVkIHBhdGNoIHNldAo+Pj4gc2VwYXJh
+dGVzIGluaXRpYWxpemF0aW9uIGFuZCByZWxlYXNlIG9mIHN0cnVjdCB0dG1fYm9fZ2xvYmFsIGZy
+b20KPj4+IHN0cnVjdCB0dG1fYm9fZ2xvYmFsX3JlZi4KPj4+Cj4+PiBUaGUgZmlyc3QgcGF0Y2gg
+b25seSByZW5hbWVzIHR0bV9ib19nbG9iYWxfe2luaXQvcmVsZWFzZX0uIEhvcGVmdWxseSB0aGlz
+Cj4+PiBjaGFuZ2UgY2FuIGJlIGFwcGxpZWQgYXQgb25jZSBmb3IgYWxsIGRyaXZlcnMuCj4+Pgo+
+Pj4gRnV0dXJlIGRpcmVjdGlvbnM6IEFsbCBUVE0tYmFzZWQgZHJpdmVycyBmb2xsb3cgdGhlIHNh
+bWUgcGF0dGVybiBmb3IKPj4+IHNldHRpbmcKPj4+IHVwIHRoZSBUVE0uIEluIGEgZm9sbG93LXVw
+IHBhdGNoLCB0aGlzIGNvZGUgY2FuIGJlIG1vdmVkIGludG8gYSBzaW5nbGUKPj4+IHBsYWNlCj4+
+PiBhbmQgc2hhcmVkIGFtb25nIGRyaXZlcnMuCj4+Pgo+Pj4gVGhvbWFzIFppbW1lcm1hbm4gKDIp
+Ogo+Pj4gIMKgwqAgZHJtL3R0bTogUmVuYW1lIHR0bV9ib19nbG9iYWxfe2luaXQscmVsZWFzZX0o
+KSB0bwo+Pj4gIMKgwqDCoMKgIHR0bV9ib19nbG9iYWxfcmVmXyooKQo+Pj4gIMKgwqAgZHJtL3R0
+bTogUHJvdmlkZSB0dG1fYm9fZ2xvYmFsX3tpbml0L3JlbGVhc2V9KCkgZm9yIHN0cnVjdAo+Pj4g
+IMKgwqDCoMKgIHR0bV9ib19nbG9iYWwKPj4+Cj4+PiAgwqAgZHJpdmVycy9ncHUvZHJtL2FtZC9h
+bWRncHUvYW1kZ3B1X3R0bS5jwqDCoMKgwqAgfMKgIDQgKy0KPj4+ICDCoCBkcml2ZXJzL2dwdS9k
+cm0vYXN0L2FzdF90dG0uY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDQgKy0KPj4+
+ICDCoCBkcml2ZXJzL2dwdS9kcm0vYm9jaHMvYm9jaHNfbW0uY8KgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgfMKgIDQgKy0KPj4+ICDCoCBkcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1c190dG0uY8Kg
+wqDCoMKgwqDCoMKgwqAgfMKgIDQgKy0KPj4+ICDCoCBkcml2ZXJzL2dwdS9kcm0vaGlzaWxpY29u
+L2hpYm1jL2hpYm1jX3R0bS5jIHzCoCA0ICstCj4+PiAgwqAgZHJpdmVycy9ncHUvZHJtL21nYWcy
+MDAvbWdhZzIwMF90dG0uY8KgwqDCoMKgwqDCoCB8wqAgNCArLQo+Pj4gIMKgIGRyaXZlcnMvZ3B1
+L2RybS9ub3V2ZWF1L25vdXZlYXVfdHRtLmPCoMKgwqDCoMKgwqAgfMKgIDQgKy0KPj4+ICDCoCBk
+cml2ZXJzL2dwdS9kcm0vcXhsL3F4bF90dG0uY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
+fMKgIDQgKy0KPj4+ICDCoCBkcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3JhZGVvbl90dG0uY8KgwqDC
+oMKgwqDCoMKgwqAgfMKgIDQgKy0KPj4+ICDCoCBkcml2ZXJzL2dwdS9kcm0vdHRtL3R0bV9iby5j
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwgMTIgKystLS0KPj4+ICDCoCBkcml2ZXJz
+L2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfdHRtLmPCoMKgwqDCoMKgwqDCoCB8wqAgNCArLQo+Pj4g
+IMKgIGRyaXZlcnMvZ3B1L2RybS92bXdnZngvdm13Z2Z4X3R0bV9nbHVlLmPCoMKgwqAgfMKgIDQg
+Ky0KPj4+ICDCoCBkcml2ZXJzL3N0YWdpbmcvdmJveHZpZGVvL3Zib3hfdHRtLmPCoMKgwqDCoMKg
+wqDCoCB8wqAgNCArLQo+Pj4gIMKgIGluY2x1ZGUvZHJtL3R0bS90dG1fYm9fZHJpdmVyLmjCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqAgfCA1MyArKysrKysrKysrKysrKysrLS0tLS0KPj4+ICDCoCAx
+NCBmaWxlcyBjaGFuZ2VkLCA3MCBpbnNlcnRpb25zKCspLCA0MyBkZWxldGlvbnMoLSkKPj4+Cj4+
+PiAtLSAKPj4+IDIuMTguMAo+Pj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
