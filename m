@@ -1,11 +1,17 @@
-From: "Marle" <marialemos72@gmail.com>
-Subject: ICITS'19 - Quito, Ecuador; Deadline: September 16
-Date: Fri, 31 Aug 2018 14:01:02 +0100
-Message-ID: <1070456904265@gmail-com>
-Reply-To: intercits@gmail.com
+From: =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
+Subject: Re: [PATCH v2 00/12] remove_conflicting_framebuffers() cleanup
+Date: Sat, 1 Sep 2018 15:45:31 +0200
+Message-ID: <20180901134531.GA23402@qmqm.qmqm.pl>
+References: <cover.1511544782.git.mirq-linux@rere.qmqm.pl>
+	<cover.1535656077.git.mirq-linux@rere.qmqm.pl>
+	<20180831090439.GT21634@phenom.ffwll.local>
+	<153570646209.15613.3061584574975657074@skylake-alporthouse-com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3002729008928975953=="
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <153570646209.15613.3061584574975657074@skylake-alporthouse-com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,349 +21,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: linux-fbdev@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, David Airlie <airlied@linux.ie>, amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-tegra@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, dri-devel@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>, Maxime Ripard <maxime.ripard@bootlin.com>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format
+On Fri, Aug 31, 2018 at 10:07:42AM +0100, Chris Wilson wrote:
+[...]
+> Ahah, someone is looking at remove_conflicting_framebuffers(). May I
+> interest you in a use-after-free?
 
---===============3002729008928975953==
-Content-Type: multipart/alternative; charset=utf-8; boundary="tff2XuNsvj0sKB=_H15uz8VPDhpXqLwZCF"
+> [  378.423513] stack segment: 0000 [#1] PREEMPT SMP PTI
+> [  378.423530] CPU: 1 PID: 4338 Comm: pm_rpm Tainted: G     U            =
+4.19.0-rc1-CI-CI_DRM_4746+ #1
+> [  378.423548] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.=
+M./J4205-ITX, BIOS P1.10 09/29/2016
+> [  378.423570] RIP: 0010:do_remove_conflicting_framebuffers+0x56/0x170
+> [  378.423587] Code: 49 8b 45 00 48 85 c0 74 50 f6 40 0a 08 74 4a 4d 85 e=
+4 48 8b a8 78 04 00 00 74 1f 48 85 ed 74 1a 41 8b 0c 24 31 db 85 c9 74 10 <=
+8b> 55 00 85 d2 75 42 83 c3 01 41 39 1c 24 77 f0 48 85 ed 74 1a 45
+> [  378.423620] RSP: 0018:ffffc900001dfa88 EFLAGS: 00010202
+> [  378.423632] RAX: ffff880274470008 RBX: 0000000000000000 RCX: 000000000=
+0000001
+> [  378.423646] RDX: 0000000000000001 RSI: ffffffffa025c634 RDI: ffff88025=
+cc3b428
+> [  378.423660] RBP: 6b6b6b6b6b6b6b6b R08: 000000001edaddfa R09: ffffffffa=
+025c634
+> [  378.423673] R10: ffffc900001dfae8 R11: ffffffff820de938 R12: ffff88025=
+cc3b428
+> [  378.423687] R13: ffffffff8234ca20 R14: ffffffff8234cb20 R15: 000000000=
+0000001
+> [  378.423701] FS:  00007fcf03d0a980(0000) GS:ffff880277e80000(0000) knlG=
+S:0000000000000000
+> [  378.423717] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [  378.423729] CR2: 00007fffece1fdb8 CR3: 00000001fe32e000 CR4: 000000000=
+03406e0
+> [  378.423742] Call Trace:
+> [  378.423756]  remove_conflicting_framebuffers+0x28/0x40
+> [  378.423856]  i915_driver_load+0x7f5/0x10c0 [i915]
+[...]
 
-This is a multi-part message in MIME format
+Looks like registered_fb[] entry is pointing to (partially?) freed or
+corrupted fb_info, but I can't see how this could be an effect of
+remove_conflicting_framebuffers().
 
---tff2XuNsvj0sKB=_H15uz8VPDhpXqLwZCF
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-* Proceedings by Springer, indexed in Scopus, ISI, etc.
-
- 
-
-***********************************************************
-
-ICITS'19 - The 2019 International Conference on Information Technology & Sy=
-stems
-
-Quito, Ecuador, 6 - 8 February 2019
-
-http://www.icits.me <http://www.icits.me/>
-
-***************************************************************************=
-*****
-
- 
-
-ICITS'19 - The 2019 International Conference on Information Technology & Sy=
-stems, to be held at Quito, Ecuador, 6 - 8 February 2019, is an internation=
-al forum for researchers and practitioners to present and discuss the most =
-recent innovations, trends, results, experiences and concerns in the severa=
-l perspectives of Information Technology & Systems.
-
-We are pleased to invite you to submit your papers to ICITS'19. They can be=
- written in English, Spanish or Portuguese. All submissions will be reviewe=
-d on the basis of relevance, originality, importance and clarity.
-
- 
-
-Topics
-
-Submitted papers should be related with one or more of the main themes prop=
-osed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-
-B) Organizational Models and Information Systems (OMIS);
-
-C) Software and Systems Modeling (SSM);
-
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-
-E) Multimedia Systems and Applications (MSA);
-
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-
-G) Intelligent and Decision Support Systems (IDSS);
-
-H) Big Data Analytics and Applications (BDAA);
-
-I) Human-Computer Interaction (HCI);
-
-J) Ethics, Computers and Security (ECS)
-
-K) Health Informatics (HIS);
-
-L) Information Technologies in Education (ITE);
-
-M) Cybersecurity and Cyber-defense;
-
-N) Electromagnetics, Sensors and Antennas for Security.
-
- 
-
-Submission and Decision
-
-Submitted papers written in English (until 10-page limit) must comply with =
-the format of Advances in Intelligent Systems and Computing series (see Ins=
-tructions for Authors at Springer Website <http://www.springer.com/series/1=
-1156> or download a DOC example <http://www.icits.me/springerformat.doc>), =
-must not have been published before, not be under review for any other conf=
-erence or publication and not include any information leading to the author=
-s=E2=80=99 identification. Therefore, the authors=E2=80=99 names, affiliati=
-ons and bibliographic references should not be included in the version for =
-evaluation by the Scientific Committee. This information should only be inc=
-luded in the camera-ready version, saved in Word or Latex format and also i=
-n PDF format. These files must be accompanied by the Consent to Publish for=
-m <http://www.icits.me/copyright.pdf> filled out, in a ZIP file, and upload=
-ed at the conference management system.
-
-Submitted papers written in Spanish or Portuguese (until 15-page limit) mus=
-t comply with the format of RISTI <http://www.risti.xyz/> - Revista Ib=C3=
-=A9rica de Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (download instruc=
-tions/template for authors in Spanish <http://www.risti.xyz/formato-es.doc>=
- or Portuguese <http://www.risti.xyz/formato-pt.doc>), must not have been p=
-ublished before, not be under review for any other conference or publicatio=
-n and not include any information leading to the authors=E2=80=99 identific=
-ation. Therefore, the authors=E2=80=99 names, affiliations and bibliographi=
-c references should not be included in the version for evaluation by the Sc=
-ientific Committee. This information should only be included in the camera-=
-ready version, saved in Word. These file must be uploaded at the conference=
- management system in a ZIP file.
-
-All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
-at least two members of the Scientific Committee.
-
-Based on Scientific Committee evaluation, a paper can be rejected or accept=
-ed by the Conference Chairs. In the later case, it can be accepted as paper=
- or poster.
-
-The authors of papers accepted as posters must build and print a poster to =
-be exhibited during the Conference. This poster must follow an A1 or A2 ver=
-tical format. The Conference can includes Work Sessions where these posters=
- are presented and orally discussed, with a 7 minute limit per poster.
-
-The authors of accepted papers will have 15 minutes to present their work i=
-n a Conference Work Session; approximately 5 minutes of discussion will fol=
-low each presentation.
-
- 
-
-Publication and Indexing
-
-To ensure that an accepted paper is published, at least one of the authors =
-must be fully registered by the 9th of November 2018, and the paper must co=
-mply with the suggested layout and page-limit. Additionally, all recommende=
-d changes must be addressed by the authors before they submit the camera-re=
-ady version.
-
-No more than one paper per registration will be published. An extra fee mus=
-t be paid for publication of additional papers, with a maximum of one addit=
-ional paper per registration. One registration permits only the participati=
-on of one author in the conference.
-
-Papers written in English and accepted and registered will be published in =
-Proceedings by Springer, in a book of the Advances in Intelligent Systems a=
-nd Computing <http://www.springer.com/series/11156>series, will  be submitt=
-ed for indexation by ISI, EI-Compendex, SCOPUS and DBLP, among others, and =
-will be available in the SpringerLink Digital Library <http://link.springer=
-=2Ecom/>.
-
-Papers written in Spanish or Portuguese and accepted and registered will be=
- published in a Special Issue of RISTI <http://www.risti.xyz/index.php?opti=
-on=3Dcom_content&view=3Darticle&id=3D3&Itemid=3D104&lang=3Des> and will be =
-submitted for indexation by SCOPUS, among others.
-
- 
-
-Important Dates
-
-Paper Submission: September 16, 2018
-
-Notification of Acceptance: October 21, 2018
-
-Payment of Registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: November 9, 2018.
-
-Camera-ready Submission: November 9, 2018
-
- 
-
-ICITS'19 website: http://www.icits.me <http://www.icits.me/>
-
- 
-
- 
-
-
----
-Este e-mail foi verificado em termos de v=C3=ADrus pelo AVG.
-http://www.avg.com
-
---tff2XuNsvj0sKB=_H15uz8VPDhpXqLwZCF
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <p>* Proceedings by Springer, indexed in Scopus, ISI, etc.</p>
-    <p>&nbsp;</p>
-    <p>***********************************************************</p>
-    <p><strong>ICITS'19 - The 2019 International Conference on Information =
-Technology &amp; Systems</strong></p>
-    <p><strong>Quito, Ecuador, 6 - 8 February 2019</strong></p>
-    <p><a href=3D"http://www.icits.me/"><strong>http://www.icits.me</strong=
-></a></p>
-    <p>********************************************************************=
-************</p>
-    <p>&nbsp;</p>
-    <p>ICITS'19 - The 2019 International Conference on Information Technolo=
-gy &amp; Systems, to be held at Quito, Ecuador, 6 - 8 February 2019, is an =
-international forum for researchers and practitioners to present and discus=
-s the most recent innovations, trends, results, experiences and concerns in=
- the several perspectives of Information Technology &amp; Systems.</p>
-    <p>We are pleased to invite you to submit your papers to ICITS'19. They=
- can be written in English, Spanish or Portuguese. All submissions will be =
-reviewed on the basis of relevance, originality, importance and clarity.</p=
->
-    <p>&nbsp;</p>
-    <p><strong>Topics</strong></p>
-    <p>Submitted papers should be related with one or more of the main them=
-es proposed for the Conference:</p>
-    <p>A) Information and Knowledge Management (IKM);</p>
-    <p>B) Organizational Models and Information Systems (OMIS);</p>
-    <p>C) Software and Systems Modeling (SSM);</p>
-    <p>D) Software Systems, Architectures, Applications and Tools (SSAAT);<=
-/p>
-    <p>E) Multimedia Systems and Applications (MSA);</p>
-    <p>F) Computer Networks, Mobility and Pervasive Systems (CNMPS);</p>
-    <p>G) Intelligent and Decision Support Systems (IDSS);</p>
-    <p>H) Big Data Analytics and Applications (BDAA);</p>
-    <p>I) Human-Computer Interaction (HCI);</p>
-    <p>J) Ethics, Computers and Security (ECS)</p>
-    <p>K) Health Informatics (HIS);</p>
-    <p>L) Information Technologies in Education (ITE);</p>
-    <p>M) Cybersecurity and Cyber-defense;</p>
-    <p>N) Electromagnetics, Sensors and Antennas for Security.</p>
-    <p>&nbsp;</p>
-    <p><strong>Submission and Decision</strong></p>
-    <p>Submitted papers written in English (until 10-page limit) must compl=
-y with the format of Advances in Intelligent Systems and Computing series (=
-see&nbsp;<a href=3D"http://www.springer.com/series/11156" target=3D"_blank"=
->Instructions for Authors at Springer Website</a>&nbsp;or download a&nbsp;<=
-a href=3D"http://www.icits.me/springerformat.doc" target=3D"_blank">DOC exa=
-mple</a>), must not have been published before, not be under review for any=
- other conference or publication and not include any information leading to=
- the authors&rsquo; identification. Therefore, the authors&rsquo; names, af=
-filiations and bibliographic references should not be included in the versi=
-on for evaluation by the Scientific Committee. This information should only=
- be included in the camera-ready version, saved in Word or Latex format and=
- also in PDF format.&nbsp;<span lang=3D"en" id=3D"result_box">These files&n=
-bsp;must&nbsp;be accompanied by the&nbsp;<a href=3D"http://www.icits.me/cop=
-yright.pdf" target=3D"_blank">Consent to Publish form</a>&nbsp;filled out,&=
-nbsp;</span><span lang=3D"en" id=3D"result_box"><span lang=3D"en" id=3D"res=
-ult_box">in a ZIP file, and uploaded at the conference management system.</=
-span></span></p>
-    <p><span lang=3D"en"><span lang=3D"en">Submitted papers written in Span=
-ish or Portuguese (until 15-page limit) must comply with the format of <a h=
-ref=3D"http://www.risti.xyz/" target=3D"_blank">RISTI</a> - Revista Ib&eacu=
-te;rica de Sistemas e Tecnologias de Informa&ccedil;&atilde;o (download ins=
-tructions/template for authors in <a href=3D"http://www.risti.xyz/formato-e=
-s.doc" target=3D"_blank">Spanish</a> or <a href=3D"http://www.risti.xyz/for=
-mato-pt.doc" target=3D"_blank">Portuguese</a>), must not have been publishe=
-d before, not be under review for any other conference or publication and n=
-ot include any information leading to the authors&rsquo; identification. Th=
-erefore, the authors&rsquo; names, affiliations and bibliographic reference=
-s should not be included in the version for evaluation by the Scientific Co=
-mmittee. This information should only be included in the camera-ready versi=
-on, saved in Word.&nbsp;<span lang=3D"en" id=3D"result_box">These file must=
-&nbsp;be </span><span lang=3D"en" id=3D"result_box"><span lang=3D"en" id=3D=
-"result_box">uploaded at the conference management system in a ZIP file.</s=
-pan></span></span></span></p>
-    <p>All papers will be subjected to a &ldquo;double-blind review&rdquo; =
-by at least two members of the Scientific Committee.</p>
-    <p>Based on Scientific Committee evaluation, a paper can be rejected or=
- accepted by the Conference Chairs. In the later case, it can be accepted a=
-s paper or poster.</p>
-    <p>The authors of papers accepted as posters must build and print a pos=
-ter to be exhibited during the Conference. This poster must follow an A1 or=
- A2 vertical format. The Conference can includes Work Sessions where these =
-posters are presented and orally discussed, with a 7 minute limit per poste=
-r.</p>
-    <p>The authors of accepted papers will have 15 minutes to present their=
- work in a Conference Work Session; approximately 5 minutes of discussion w=
-ill follow each presentation.</p>
-    <p>&nbsp;</p>
-    <p><strong>Publication and Indexing</strong></p>
-    <p>To ensure that an accepted paper is published, at least one of the a=
-uthors must be fully registered by the 9th of November 2018, and the paper =
-must comply with the suggested layout and page-limit. Additionally, all rec=
-ommended changes must be addressed by the authors before they submit the ca=
-mera-ready version.</p>
-    <p>No more than one paper per registration will be published. An extra =
-fee must be paid for publication of additional papers, with a maximum of on=
-e additional paper per registration. One registration permits only the part=
-icipation of one author in the conference.</p>
-    <p>Papers written in English and accepted and registered will be publis=
-hed in Proceedings by Springer, in a book of the <a href=3D"http://www.spri=
-nger.com/series/11156" target=3D"_blank">Advances in Intelligent Systems an=
-d Computing </a>series, will&nbsp; be submitted for indexation by ISI, EI-C=
-ompendex, SCOPUS and DBLP, among others, and will be available in the <a hr=
-ef=3D"http://link.springer.com/" target=3D"_blank">SpringerLink Digital Lib=
-rary</a>.</p>
-    <p>Papers written in Spanish or Portuguese and accepted and registered =
-will be published in a Special Issue of <a href=3D"http://www.risti.xyz/ind=
-ex.php?option=3Dcom_content&view=3Darticle&id=3D3&Itemid=3D104&lang=3Des" t=
-arget=3D"_blank">RISTI</a> and will be submitted for indexation by SCOPUS, =
-among others.</p>
-    <p>&nbsp;</p>
-    <p><strong>Important Dates</strong></p>
-    <p>Paper Submission: September 16, 2018</p>
-    <p>Notification of Acceptance: October 21, 2018</p>
-    <p>Payment of Registration,&nbsp;to ensure the inclusion of an accepted=
- paper in the conference proceedings: November 9, 2018.</p>
-    <p>Camera-ready Submission: November 9, 2018</p>
-    <p>&nbsp;</p>
-    <p><strong>ICITS'19 website: </strong><a href=3D"http://www.icits.me/">=
-<strong>http://www.icits.me</strong></a></p>
-    <p>&nbsp;</p>
-    <p>&nbsp;</p>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br /> <table style=3D"b=
-order-top: 1px solid #D3D4DE;">
-	<tr>
-      <td style=3D"width: 55px; padding-top: 18px;"><a href=3D"http://www.a=
-vg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaign=3D=
-sig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"https://=
-ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=3D""=
-  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></a></t=
-d>
-		<td style=3D"width: 470px; padding-top: 17px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Sem v=
-=C3=ADrus. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail=
-&utm_source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" targ=
-et=3D"_blank" style=3D"color: #4453ea;">www.avg.com</a> 		</td>
-	</tr>
-</table>
-<a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" height=3D"1">=
- </a></div></body>
-</html>
-
---tff2XuNsvj0sKB=_H15uz8VPDhpXqLwZCF--
-
-
---===============3002729008928975953==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3002729008928975953==--
+Best Regards,
+Micha=B3 Miros=B3aw
