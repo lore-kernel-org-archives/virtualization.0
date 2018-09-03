@@ -1,15 +1,14 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v3 00/13] remove_conflicting_framebuffers() cleanup
-Date: Mon, 3 Sep 2018 09:43:15 +0200
-Message-ID: <20180903074315.GB21634__1293.55272879383$1535960480$gmane$org@phenom.ffwll.local>
-References: <cover.1535656077.git.mirq-linux@rere.qmqm.pl>
-	<cover.1535810304.git.mirq-linux@rere.qmqm.pl>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 4/5] drm/bochs: fix DRM_FORMAT_* handling for big endian
+	machines.
+Date: Mon,  3 Sep 2018 12:57:55 +0200
+Message-ID: <20180903105756.24912-5-kraxel@redhat.com>
+References: <20180903105756.24912-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1535810304.git.mirq-linux@rere.qmqm.pl>
+In-Reply-To: <20180903105756.24912-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,64 +18,122 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
-Cc: linux-fbdev@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, David Airlie <airlied@linux.ie>, amd-gfx@lists.freedesktop.org, Jonathan Hunter <jonathanh@nvidia.com>, Alex Deucher <alexander.deucher@amd.com>, Thierry Reding <thierry.reding@gmail.com>, dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, Dave Airlie <airlied@redhat.com>, Maxime Ripard <maxime.ripard@bootlin.com>, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gU2F0LCBTZXAgMDEsIDIwMTggYXQgMDQ6MDg6NDFQTSArMDIwMCwgTWljaGHFgiBNaXJvc8WC
-YXcgd3JvdGU6Cj4gVGhpcyBzZXJpZXMgY2xlYW5zIHVwIGR1cGxpY2F0ZWQgY29kZSBmb3IgcmVw
-bGFjaW5nIGZpcm13YXJlIEZCCj4gZHJpdmVyIHdpdGggcHJvcGVyIERSSSBkcml2ZXIgYW5kIGFk
-ZHMgaGFuZG92ZXIgc3VwcG9ydCB0bwo+IFRlZ3JhIGRyaXZlci4KPiAKPiBUaGlzIGlzIGEgc2xp
-Z3RseSB1cGRhdGVkIHZlcnNpb24gb2YgYSBzZXJpZXMgc2VudCBvbiAyNCBOb3YgMjAxNy4KPiAK
-PiAtLS0KPiB2MjoKPiAgLSByZWJhc2VkIG9uIGN1cnJlbnQgZHJtLW5leHQKPiAgLSBkcm9wcGVk
-IHN0YWdpbmcvc203NTBmYiBjaGFuZ2VzCj4gIC0gYWRkZWQga2VybmVsIGRvY3MgZm9yIERSTSBo
-ZWxwZXJzCj4gdjM6Cj4gIC0gbW92ZSBrZXJuZWxkb2MgdG8gZmJkZXYsIHdoZXJlIGZ1bmN0aW9u
-cyBhcmUgaW1wbGVtZW50ZWQKPiAgLSBzcGxpdCBrZXJuZWxkb2MgZm9yIHJlbW92ZV9jb25mbGlj
-dGluZ19mcmFtZWJ1ZmZlcnMoKQoKQWgsIHRoYXQncyBub3QgcXVpdGUgd2hhdCBJIGhhZCBpbiBt
-aW5kLiBJIHRoaW5rIGhhdmluZyB0aGUgZG9jcyAoYWxzbykgaW4KdGhlIGRybSBoZWxwZXJzIHdv
-dWxkIGJlIGdvb2QsIHNpbmNlIHRoYXQncyB3aGVyZSBkcm0gcGVvcGxlIHdpbGwgbG9vaywKYW5k
-IHRoYXQncyB0aGUgZnVuY3Rpb24gdGhleSdsbCBjYWxsLiBJIGp1c3Qgd2FudGVkIHlvdSB0byBz
-cGxpdCB0aGUgZmJkZXYKYW5kIGRybSBwYXJ0cyBpbnRvIDIgcGF0Y2hlcyAoc2luY2UgdGhvc2Ug
-YXJlIHR3byBkaWZmZXJlbnQgbWFpbnRhaW5lcnMpLgoKQW55d2F5LCB0aGlzIGlzIG9rIHRvbywg
-c28gaW1vIHJlYWR5IGZvciBtZXJnaW5nLiBJZiB5b3UgY2FuIHJlc3VycmVjdCB0aGUKZHJtIGRv
-Y3MgKHdpdGggYSBwYXRjaCB0aXRsZSBvZiAiZHJtL2ZiLWhlbHBlcjogZG9jdW1lbnQgZmJkZXYg
-cmVtb3ZlCmZ1bmN0aW9ucyIgb3Igc2ltaWxhcikgdGhhdCB3b3VsZCBiZSBncmVhdC4KCk9ubHkg
-dGhpbmcgd2UgbmVlZCBmb3IgbWVyZ2luZyBub3cgaXMgdGhlIGFjayBmcm9tIEJhcnRsb21pZWou
-Ci1EYW5pZWwKCj4gIC0gcHJvcGFnYXRlIHJldHVybiB2YWx1ZSBpbiByZW1vdmVfY29uZmxpY3Rp
-bmdfcGNpX2ZyYW1lYnVmZmVycygpCj4gCj4gLS0tCj4gTWljaGHFgiBNaXJvc8WCYXcgKDEzKToK
-PiAgIGZiZGV2OiBzaG93IGZiZGV2IG51bWJlciBmb3IgZGVidWdnaW5nCj4gICBmYmRldjogYWxs
-b3cgYXBlcnR1cmVzID09IE5VTEwgaW4gcmVtb3ZlX2NvbmZsaWN0aW5nX2ZyYW1lYnVmZmVycygp
-Cj4gICBmYmRldjogYWRkIGtlcm5lbGRvYyBkbyByZW1vdmVfY29uZmxpY3RpbmdfZnJhbWVidWZm
-ZXJzKCkKPiAgIGZiZGV2OiBhZGQgcmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1ZmZlcnMo
-KQo+ICAgZHJtL2FtZGdwdTogdXNlIHNpbXBsZXIgcmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFt
-ZWJ1ZmZlcnMoKQo+ICAgZHJtL2JvY2hzOiB1c2Ugc2ltcGxlciByZW1vdmVfY29uZmxpY3Rpbmdf
-cGNpX2ZyYW1lYnVmZmVycygpCj4gICBkcm0vY2lycnVzOiB1c2Ugc2ltcGxlciByZW1vdmVfY29u
-ZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpCj4gICBkcm0vbWdhZzIwMDogdXNlIHNpbXBsZXIg
-cmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1ZmZlcnMoKQo+ICAgZHJtL3JhZGVvbjogdXNl
-IHNpbXBsZXIgcmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1ZmZlcnMoKQo+ICAgZHJtL3Zp
-cnRpbzogdXNlIHNpbXBsZXIgcmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1ZmZlcnMoKQo+
-ICAgZHJtL3ZjNDogdXNlIHNpbXBsZXIgcmVtb3ZlX2NvbmZsaWN0aW5nX2ZyYW1lYnVmZmVycyhO
-VUxMKQo+ICAgZHJtL3N1bjRpOiB1c2Ugc2ltcGxlciByZW1vdmVfY29uZmxpY3RpbmdfZnJhbWVi
-dWZmZXJzKE5VTEwpCj4gICBkcm0vdGVncmE6IGtpY2sgb3V0IHNpbXBsZWZiCj4gCj4gIGRyaXZl
-cnMvZ3B1L2RybS9hbWQvYW1kZ3B1L2FtZGdwdV9kcnYuYyAgfCAyNCArLS0tLS0tLS0KPiAgZHJp
-dmVycy9ncHUvZHJtL2JvY2hzL2JvY2hzX2Rydi5jICAgICAgICB8IDE4ICstLS0tLS0KPiAgZHJp
-dmVycy9ncHUvZHJtL2NpcnJ1cy9jaXJydXNfZHJ2LmMgICAgICB8IDIzICstLS0tLS0tLQo+ICBk
-cml2ZXJzL2dwdS9kcm0vbWdhZzIwMC9tZ2FnMjAwX2Rydi5jICAgIHwgMjEgKy0tLS0tLS0KPiAg
-ZHJpdmVycy9ncHUvZHJtL21nYWcyMDAvbWdhZzIwMF9tYWluLmMgICB8ICA5IC0tLS0KPiAgZHJp
-dmVycy9ncHUvZHJtL3JhZGVvbi9yYWRlb25fZHJ2LmMgICAgICB8IDIzICstLS0tLS0tLQo+ICBk
-cml2ZXJzL2dwdS9kcm0vc3VuNGkvc3VuNGlfZHJ2LmMgICAgICAgIHwgMTggKy0tLS0tLQo+ICBk
-cml2ZXJzL2dwdS9kcm0vdGVncmEvZHJtLmMgICAgICAgICAgICAgIHwgIDQgKysKPiAgZHJpdmVy
-cy9ncHUvZHJtL3ZjNC92YzRfZHJ2LmMgICAgICAgICAgICB8IDIwICstLS0tLS0tCj4gIGRyaXZl
-cnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kcm1fYnVzLmMgfCAyNCArKy0tLS0tLS0KPiAgZHJp
-dmVycy92aWRlby9mYmRldi9jb3JlL2ZibWVtLmMgICAgICAgICB8IDYzICsrKysrKysrKysrKysr
-KysrKysrKysrLQo+ICBpbmNsdWRlL2RybS9kcm1fZmJfaGVscGVyLmggICAgICAgICAgICAgIHwg
-MTIgKysrKysKPiAgaW5jbHVkZS9saW51eC9mYi5oICAgICAgICAgICAgICAgICAgICAgICB8ICAy
-ICsKPiAgMTMgZmlsZXMgY2hhbmdlZCwgODkgaW5zZXJ0aW9ucygrKSwgMTcyIGRlbGV0aW9ucygt
-KQo+IAo+IC0tIAo+IDIuMTguMAo+IAo+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fCj4gZHJpLWRldmVsIG1haWxpbmcgbGlzdAo+IGRyaS1kZXZlbEBsaXN0
-cy5mcmVlZGVza3RvcC5vcmcKPiBodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL2RyaS1kZXZlbAoKLS0gCkRhbmllbCBWZXR0ZXIKU29mdHdhcmUgRW5naW5lZXIs
-IEludGVsIENvcnBvcmF0aW9uCmh0dHA6Ly9ibG9nLmZmd2xsLmNoCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
-dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
-LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Use DRM_FORMAT_HOST_XRGB8888, so we are using the correct format code
+on bigendian machines.  Also add DRIVER_PREFER_HOST_BYTE_ORDER driver
+feature flag so drm_mode_addfb() asks for the correct format code.
+
+Create our own plane and use drm_crtc_init_with_planes() instead of
+depending on the default created by drm_crtc_init().  That way the plane
+format list is correct on bigendian machines.
+
+With this patch applied both ADDFB and ADDFB2 ioctls work correctly in
+the bochs-drm.ko driver on big endian machines.  Without the patch only
+ADDFB (which still seems to be used by the majority of userspace) works
+correctly.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/bochs/bochs_drv.c   |  3 ++-
+ drivers/gpu/drm/bochs/bochs_fbdev.c |  5 ++---
+ drivers/gpu/drm/bochs/bochs_kms.c   | 33 ++++++++++++++++++++++++++++++++-
+ drivers/gpu/drm/bochs/bochs_mm.c    |  2 +-
+ 4 files changed, 37 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index 7b20318483..fa84a3c841 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -81,7 +81,8 @@ static const struct file_operations bochs_fops = {
+ };
+ 
+ static struct drm_driver bochs_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET,
++	.driver_features	= (DRIVER_GEM | DRIVER_MODESET |
++				   DRIVER_PREFER_HOST_BYTE_ORDER),
+ 	.load			= bochs_load,
+ 	.unload			= bochs_unload,
+ 	.fops			= &bochs_fops,
+diff --git a/drivers/gpu/drm/bochs/bochs_fbdev.c b/drivers/gpu/drm/bochs/bochs_fbdev.c
+index 14eb8d0d5a..bf728790fa 100644
+--- a/drivers/gpu/drm/bochs/bochs_fbdev.c
++++ b/drivers/gpu/drm/bochs/bochs_fbdev.c
+@@ -64,9 +64,8 @@ static int bochsfb_create(struct drm_fb_helper *helper,
+ 
+ 	mode_cmd.width = sizes->surface_width;
+ 	mode_cmd.height = sizes->surface_height;
+-	mode_cmd.pitches[0] = mode_cmd.width * ((sizes->surface_bpp + 7) / 8);
+-	mode_cmd.pixel_format = drm_mode_legacy_fb_format(sizes->surface_bpp,
+-							  sizes->surface_depth);
++	mode_cmd.pitches[0] = sizes->surface_width * 4;
++	mode_cmd.pixel_format = DRM_FORMAT_HOST_XRGB8888;
+ 	size = mode_cmd.pitches[0] * mode_cmd.height;
+ 
+ 	/* alloc, pin & map bo */
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index ca5a9afdd5..2662cdcf2d 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -129,12 +129,43 @@ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
+ 	.commit = bochs_crtc_commit,
+ };
+ 
++static const uint32_t bochs_formats[] = {
++	DRM_FORMAT_HOST_XRGB8888,
++};
++
++static struct drm_plane *bochs_primary_plane(struct drm_device *dev)
++{
++	struct drm_plane *primary;
++	int ret;
++
++	primary = kzalloc(sizeof(*primary), GFP_KERNEL);
++	if (primary == NULL) {
++		DRM_DEBUG_KMS("Failed to allocate primary plane\n");
++		return NULL;
++	}
++
++	ret = drm_universal_plane_init(dev, primary, 0,
++				       &drm_primary_helper_funcs,
++				       bochs_formats,
++				       ARRAY_SIZE(bochs_formats),
++				       NULL,
++				       DRM_PLANE_TYPE_PRIMARY, NULL);
++	if (ret) {
++		kfree(primary);
++		primary = NULL;
++	}
++
++	return primary;
++}
++
+ static void bochs_crtc_init(struct drm_device *dev)
+ {
+ 	struct bochs_device *bochs = dev->dev_private;
+ 	struct drm_crtc *crtc = &bochs->crtc;
++	struct drm_plane *primary = bochs_primary_plane(dev);
+ 
+-	drm_crtc_init(dev, crtc, &bochs_crtc_funcs);
++	drm_crtc_init_with_planes(dev, crtc, primary, NULL,
++				  &bochs_crtc_funcs, NULL);
+ 	drm_crtc_helper_add(crtc, &bochs_helper_funcs);
+ }
+ 
+diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
+index c9c7097030..fdf151fbdb 100644
+--- a/drivers/gpu/drm/bochs/bochs_mm.c
++++ b/drivers/gpu/drm/bochs/bochs_mm.c
+@@ -506,7 +506,7 @@ bochs_user_framebuffer_create(struct drm_device *dev,
+ 	       (mode_cmd->pixel_format >> 16) & 0xff,
+ 	       (mode_cmd->pixel_format >> 24) & 0xff);
+ 
+-	if (mode_cmd->pixel_format != DRM_FORMAT_XRGB8888)
++	if (mode_cmd->pixel_format != DRM_FORMAT_HOST_XRGB8888)
+ 		return ERR_PTR(-ENOENT);
+ 
+ 	obj = drm_gem_object_lookup(filp, mode_cmd->handles[0]);
+-- 
+2.9.3
