@@ -1,17 +1,12 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v3 00/13] remove_conflicting_framebuffers() cleanup
-Date: Mon, 3 Sep 2018 18:26:52 +0200
-Message-ID: <20180903162652.GI21634__4350.70095486498$1535991898$gmane$org@phenom.ffwll.local>
-References: <cover.1535656077.git.mirq-linux@rere.qmqm.pl>
-	<CGME20180903074322epcas4p1ce56cf44f5b169b5e1c1e3831bd5c038@epcas4p1.samsung.com>
-	<20180903074315.GB21634@phenom.ffwll.local>
-	<1705932.lAR3QV8q47@amdc3058>
+From: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
+Subject: [PATCH] vhost: fix VHOST_GET_BACKEND_FEATURES ioctl request definition
+Date: Mon, 3 Sep 2018 20:59:13 +0300
+Message-ID: <20180903175906.GA11529__16221.5339871638$1535997919$gmane$org@glebfm.cloud.tilaa.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1705932.lAR3QV8q47@amdc3058>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,73 +16,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Cc: linux-fbdev@vger.kernel.org, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, Alex Deucher <alexander.deucher@amd.com>, Thierry Reding <thierry.reding@gmail.com>, amd-gfx@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>, linux-tegra@vger.kernel.org, Dave Airlie <airlied@redhat.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Jonathan Hunter <jonathanh@nvidia.com>, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBTZXAgMDMsIDIwMTggYXQgMDE6MzE6MzRQTSArMDIwMCwgQmFydGxvbWllaiBab2xu
-aWVya2lld2ljeiB3cm90ZToKPiBPbiBNb25kYXksIFNlcHRlbWJlciAwMywgMjAxOCAwOTo0Mzox
-NSBBTSBEYW5pZWwgVmV0dGVyIHdyb3RlOgo+ID4gT24gU2F0LCBTZXAgMDEsIDIwMTggYXQgMDQ6
-MDg6NDFQTSArMDIwMCwgTWljaGHFgiBNaXJvc8WCYXcgd3JvdGU6Cj4gPiA+IFRoaXMgc2VyaWVz
-IGNsZWFucyB1cCBkdXBsaWNhdGVkIGNvZGUgZm9yIHJlcGxhY2luZyBmaXJtd2FyZSBGQgo+ID4g
-PiBkcml2ZXIgd2l0aCBwcm9wZXIgRFJJIGRyaXZlciBhbmQgYWRkcyBoYW5kb3ZlciBzdXBwb3J0
-IHRvCj4gPiA+IFRlZ3JhIGRyaXZlci4KPiA+ID4gCj4gPiA+IFRoaXMgaXMgYSBzbGlndGx5IHVw
-ZGF0ZWQgdmVyc2lvbiBvZiBhIHNlcmllcyBzZW50IG9uIDI0IE5vdiAyMDE3Lgo+ID4gPiAKPiA+
-ID4gLS0tCj4gPiA+IHYyOgo+ID4gPiAgLSByZWJhc2VkIG9uIGN1cnJlbnQgZHJtLW5leHQKPiA+
-ID4gIC0gZHJvcHBlZCBzdGFnaW5nL3NtNzUwZmIgY2hhbmdlcwo+ID4gPiAgLSBhZGRlZCBrZXJu
-ZWwgZG9jcyBmb3IgRFJNIGhlbHBlcnMKPiA+ID4gdjM6Cj4gPiA+ICAtIG1vdmUga2VybmVsZG9j
-IHRvIGZiZGV2LCB3aGVyZSBmdW5jdGlvbnMgYXJlIGltcGxlbWVudGVkCj4gPiA+ICAtIHNwbGl0
-IGtlcm5lbGRvYyBmb3IgcmVtb3ZlX2NvbmZsaWN0aW5nX2ZyYW1lYnVmZmVycygpCj4gPiAKPiA+
-IEFoLCB0aGF0J3Mgbm90IHF1aXRlIHdoYXQgSSBoYWQgaW4gbWluZC4gSSB0aGluayBoYXZpbmcg
-dGhlIGRvY3MgKGFsc28pIGluCj4gPiB0aGUgZHJtIGhlbHBlcnMgd291bGQgYmUgZ29vZCwgc2lu
-Y2UgdGhhdCdzIHdoZXJlIGRybSBwZW9wbGUgd2lsbCBsb29rLAo+ID4gYW5kIHRoYXQncyB0aGUg
-ZnVuY3Rpb24gdGhleSdsbCBjYWxsLiBJIGp1c3Qgd2FudGVkIHlvdSB0byBzcGxpdCB0aGUgZmJk
-ZXYKPiA+IGFuZCBkcm0gcGFydHMgaW50byAyIHBhdGNoZXMgKHNpbmNlIHRob3NlIGFyZSB0d28g
-ZGlmZmVyZW50IG1haW50YWluZXJzKS4KPiA+IAo+ID4gQW55d2F5LCB0aGlzIGlzIG9rIHRvbywg
-c28gaW1vIHJlYWR5IGZvciBtZXJnaW5nLiBJZiB5b3UgY2FuIHJlc3VycmVjdCB0aGUKPiA+IGRy
-bSBkb2NzICh3aXRoIGEgcGF0Y2ggdGl0bGUgb2YgImRybS9mYi1oZWxwZXI6IGRvY3VtZW50IGZi
-ZGV2IHJlbW92ZQo+ID4gZnVuY3Rpb25zIiBvciBzaW1pbGFyKSB0aGF0IHdvdWxkIGJlIGdyZWF0
-Lgo+ID4gCj4gPiBPbmx5IHRoaW5nIHdlIG5lZWQgZm9yIG1lcmdpbmcgbm93IGlzIHRoZSBhY2sg
-ZnJvbSBCYXJ0bG9taWVqLgo+IAo+IEZvciB0aGUgd2hvbGUgcGF0Y2hzZXQ6Cj4gCj4gQWNrZWQt
-Ynk6IEJhcnRsb21pZWogWm9sbmllcmtpZXdpY3ogPGIuem9sbmllcmtpZUBzYW1zdW5nLmNvbT4K
-ClRoYW5rcywgZW50aXJlIHBhdGNoIHNldCBhcHBsaWVkIHRvIGRybS1taXNjLW5leHQgZm9yIDQu
-MjAuCi1EYW5pZWwKCj4gCj4gPiAtRGFuaWVsCj4gPiAKPiA+ID4gIC0gcHJvcGFnYXRlIHJldHVy
-biB2YWx1ZSBpbiByZW1vdmVfY29uZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpCj4gPiA+IAo+
-ID4gPiAtLS0KPiA+ID4gTWljaGHFgiBNaXJvc8WCYXcgKDEzKToKPiA+ID4gICBmYmRldjogc2hv
-dyBmYmRldiBudW1iZXIgZm9yIGRlYnVnZ2luZwo+ID4gPiAgIGZiZGV2OiBhbGxvdyBhcGVydHVy
-ZXMgPT0gTlVMTCBpbiByZW1vdmVfY29uZmxpY3RpbmdfZnJhbWVidWZmZXJzKCkKPiA+ID4gICBm
-YmRldjogYWRkIGtlcm5lbGRvYyBkbyByZW1vdmVfY29uZmxpY3RpbmdfZnJhbWVidWZmZXJzKCkK
-PiA+ID4gICBmYmRldjogYWRkIHJlbW92ZV9jb25mbGljdGluZ19wY2lfZnJhbWVidWZmZXJzKCkK
-PiA+ID4gICBkcm0vYW1kZ3B1OiB1c2Ugc2ltcGxlciByZW1vdmVfY29uZmxpY3RpbmdfcGNpX2Zy
-YW1lYnVmZmVycygpCj4gPiA+ICAgZHJtL2JvY2hzOiB1c2Ugc2ltcGxlciByZW1vdmVfY29uZmxp
-Y3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpCj4gPiA+ICAgZHJtL2NpcnJ1czogdXNlIHNpbXBsZXIg
-cmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1ZmZlcnMoKQo+ID4gPiAgIGRybS9tZ2FnMjAw
-OiB1c2Ugc2ltcGxlciByZW1vdmVfY29uZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpCj4gPiA+
-ICAgZHJtL3JhZGVvbjogdXNlIHNpbXBsZXIgcmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1
-ZmZlcnMoKQo+ID4gPiAgIGRybS92aXJ0aW86IHVzZSBzaW1wbGVyIHJlbW92ZV9jb25mbGljdGlu
-Z19wY2lfZnJhbWVidWZmZXJzKCkKPiA+ID4gICBkcm0vdmM0OiB1c2Ugc2ltcGxlciByZW1vdmVf
-Y29uZmxpY3RpbmdfZnJhbWVidWZmZXJzKE5VTEwpCj4gPiA+ICAgZHJtL3N1bjRpOiB1c2Ugc2lt
-cGxlciByZW1vdmVfY29uZmxpY3RpbmdfZnJhbWVidWZmZXJzKE5VTEwpCj4gPiA+ICAgZHJtL3Rl
-Z3JhOiBraWNrIG91dCBzaW1wbGVmYgo+ID4gPiAKPiA+ID4gIGRyaXZlcnMvZ3B1L2RybS9hbWQv
-YW1kZ3B1L2FtZGdwdV9kcnYuYyAgfCAyNCArLS0tLS0tLS0KPiA+ID4gIGRyaXZlcnMvZ3B1L2Ry
-bS9ib2Nocy9ib2Noc19kcnYuYyAgICAgICAgfCAxOCArLS0tLS0tCj4gPiA+ICBkcml2ZXJzL2dw
-dS9kcm0vY2lycnVzL2NpcnJ1c19kcnYuYyAgICAgIHwgMjMgKy0tLS0tLS0tCj4gPiA+ICBkcml2
-ZXJzL2dwdS9kcm0vbWdhZzIwMC9tZ2FnMjAwX2Rydi5jICAgIHwgMjEgKy0tLS0tLS0KPiA+ID4g
-IGRyaXZlcnMvZ3B1L2RybS9tZ2FnMjAwL21nYWcyMDBfbWFpbi5jICAgfCAgOSAtLS0tCj4gPiA+
-ICBkcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3JhZGVvbl9kcnYuYyAgICAgIHwgMjMgKy0tLS0tLS0t
-Cj4gPiA+ICBkcml2ZXJzL2dwdS9kcm0vc3VuNGkvc3VuNGlfZHJ2LmMgICAgICAgIHwgMTggKy0t
-LS0tLQo+ID4gPiAgZHJpdmVycy9ncHUvZHJtL3RlZ3JhL2RybS5jICAgICAgICAgICAgICB8ICA0
-ICsrCj4gPiA+ICBkcml2ZXJzL2dwdS9kcm0vdmM0L3ZjNF9kcnYuYyAgICAgICAgICAgIHwgMjAg
-Ky0tLS0tLS0KPiA+ID4gIGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kcm1fYnVzLmMg
-fCAyNCArKy0tLS0tLS0KPiA+ID4gIGRyaXZlcnMvdmlkZW8vZmJkZXYvY29yZS9mYm1lbS5jICAg
-ICAgICAgfCA2MyArKysrKysrKysrKysrKysrKysrKysrKy0KPiA+ID4gIGluY2x1ZGUvZHJtL2Ry
-bV9mYl9oZWxwZXIuaCAgICAgICAgICAgICAgfCAxMiArKysrKwo+ID4gPiAgaW5jbHVkZS9saW51
-eC9mYi5oICAgICAgICAgICAgICAgICAgICAgICB8ICAyICsKPiA+ID4gIDEzIGZpbGVzIGNoYW5n
-ZWQsIDg5IGluc2VydGlvbnMoKyksIDE3MiBkZWxldGlvbnMoLSkKPiAKPiBCZXN0IHJlZ2FyZHMs
-Cj4gLS0KPiBCYXJ0bG9taWVqIFpvbG5pZXJraWV3aWN6Cj4gU2Ftc3VuZyBSJkQgSW5zdGl0dXRl
-IFBvbGFuZAo+IFNhbXN1bmcgRWxlY3Ryb25pY3MKPiAKCi0tIApEYW5pZWwgVmV0dGVyClNvZnR3
-YXJlIEVuZ2luZWVyLCBJbnRlbCBDb3Jwb3JhdGlvbgpodHRwOi8vYmxvZy5mZndsbC5jaApfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+The _IOC_READ flag fits this ioctl request more because this request
+actually only writes to, but doesn't read from userspace.
+See NOTEs in include/uapi/asm-generic/ioctl.h for more information.
+
+Fixes: 429711aec282 ("vhost: switch to use new message format")
+Signed-off-by: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
+---
+ include/uapi/linux/vhost.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+index b1e22c40c4b6..84c3de89696a 100644
+--- a/include/uapi/linux/vhost.h
++++ b/include/uapi/linux/vhost.h
+@@ -176,7 +176,7 @@ struct vhost_memory {
+ #define VHOST_BACKEND_F_IOTLB_MSG_V2 0x1
+ 
+ #define VHOST_SET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x25, __u64)
+-#define VHOST_GET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x26, __u64)
++#define VHOST_GET_BACKEND_FEATURES _IOR(VHOST_VIRTIO, 0x26, __u64)
+ 
+ /* VHOST_NET specific defines */
+ 
+
+-- 
+glebfm
