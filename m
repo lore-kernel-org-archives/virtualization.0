@@ -1,13 +1,15 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 5/5] drm/virtio: fix DRM_FORMAT_* handling
-Date: Mon,  3 Sep 2018 12:57:56 +0200
-Message-ID: <20180903105756.24912-6-kraxel__3190.76573146067$1535972183$gmane$org@redhat.com>
-References: <20180903105756.24912-1-kraxel@redhat.com>
+From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: Re: [PATCH v3 00/13] remove_conflicting_framebuffers() cleanup
+Date: Mon, 03 Sep 2018 13:31:34 +0200
+Message-ID: <1705932.lAR3QV8q47__26756.6922739663$1535974180$gmane$org@amdc3058>
+References: <cover.1535656077.git.mirq-linux@rere.qmqm.pl>
+	<CGME20180903074322epcas4p1ce56cf44f5b169b5e1c1e3831bd5c038@epcas4p1.samsung.com>
+	<20180903074315.GB21634@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180903105756.24912-1-kraxel@redhat.com>
+In-reply-to: <20180903074315.GB21634@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,189 +19,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: linux-fbdev@vger.kernel.org, David Airlie <airlied@linux.ie>, amd-gfx@lists.freedesktop.org, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, Alex Deucher <alexander.deucher@amd.com>, Thierry Reding <thierry.reding@gmail.com>, dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, Dave Airlie <airlied@redhat.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Jonathan Hunter <jonathanh@nvidia.com>, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use DRM_FORMAT_HOST_XRGB8888, so we are using the correct format code
-on bigendian machines.  Also add DRIVER_PREFER_HOST_BYTE_ORDER driver
-feature flag so drm_mode_addfb() asks for the correct format code.
-
-Both DRM_FORMAT_* and VIRTIO_GPU_FORMAT_* are defined to be little
-endian, so using a different mapping on bigendian machines is wrong.
-It's there because of broken drm_mode_addfb() behavior.  So with
-drm_mode_addfb() being fixed we can fix this too.
-
-While wading through the code I've noticed we have a little issue in
-virtio:  We attach a format to the bo when it is created
-(DRM_IOCTL_MODE_CREATE_DUMB), not when we map it as framebuffer
-(DRM_IOCTL_MODE_ADDFB).  Easy way out:  Support a single format only.
-Pick DRM_FORMAT_HOST_XRGB8888, it is the only one actually used in
-practice.  Drop unused mappings in virtio_gpu_translate_format().
-
-With this patch applied both ADDFB and ADDFB2 ioctls work correctly in
-the virtio-gpu.ko driver on big endian machines.  Without the patch only
-ADDFB (which still seems to be used by the majority of userspace) works
-correctly.
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_display.c |  4 +++
- drivers/gpu/drm/virtio/virtgpu_drv.c     |  4 ++-
- drivers/gpu/drm/virtio/virtgpu_fb.c      |  2 +-
- drivers/gpu/drm/virtio/virtgpu_gem.c     |  7 +++--
- drivers/gpu/drm/virtio/virtgpu_plane.c   | 54 ++------------------------------
- 5 files changed, 15 insertions(+), 56 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 25503b9335..f6c4af1db4 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -306,6 +306,10 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
- 	struct virtio_gpu_framebuffer *virtio_gpu_fb;
- 	int ret;
- 
-+	if (mode_cmd->pixel_format != DRM_FORMAT_HOST_XRGB8888 &&
-+	    mode_cmd->pixel_format != DRM_FORMAT_HOST_ARGB8888)
-+		return ERR_PTR(-ENOENT);
-+
- 	/* lookup object associated with res handle */
- 	obj = drm_gem_object_lookup(file_priv, mode_cmd->handles[0]);
- 	if (!obj)
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index d9287c144f..4b28f41ac1 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -114,7 +114,9 @@ static const struct file_operations virtio_gpu_driver_fops = {
- };
- 
- static struct drm_driver driver = {
--	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME | DRIVER_RENDER | DRIVER_ATOMIC,
-+	.driver_features = (DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME |
-+			    DRIVER_RENDER | DRIVER_ATOMIC |
-+			    DRIVER_PREFER_HOST_BYTE_ORDER),
- 	.load = virtio_gpu_driver_load,
- 	.unload = virtio_gpu_driver_unload,
- 	.open = virtio_gpu_driver_open,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
-index a121b1c795..9d87ebd645 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fb.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
-@@ -233,7 +233,7 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
- 	mode_cmd.width = sizes->surface_width;
- 	mode_cmd.height = sizes->surface_height;
- 	mode_cmd.pitches[0] = mode_cmd.width * 4;
--	mode_cmd.pixel_format = drm_mode_legacy_fb_format(32, 24);
-+	mode_cmd.pixel_format = DRM_FORMAT_HOST_XRGB8888;
- 
- 	format = virtio_gpu_translate_format(mode_cmd.pixel_format);
- 	if (format == 0)
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 0f2768eaca..82c817f37c 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -90,7 +90,10 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 	uint32_t resid;
- 	uint32_t format;
- 
--	pitch = args->width * ((args->bpp + 1) / 8);
-+	if (args->bpp != 32)
-+		return -EINVAL;
-+
-+	pitch = args->width * 4;
- 	args->size = pitch * args->height;
- 	args->size = ALIGN(args->size, PAGE_SIZE);
- 
-@@ -99,7 +102,7 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 	if (ret)
- 		goto fail;
- 
--	format = virtio_gpu_translate_format(DRM_FORMAT_XRGB8888);
-+	format = virtio_gpu_translate_format(DRM_FORMAT_HOST_XRGB8888);
- 	virtio_gpu_resource_id_get(vgdev, &resid);
- 	virtio_gpu_cmd_create_resource(vgdev, resid, format,
- 				       args->width, args->height);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index dc5b5b2b7a..3221d50b9a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -28,22 +28,11 @@
- #include <drm/drm_atomic_helper.h>
- 
- static const uint32_t virtio_gpu_formats[] = {
--	DRM_FORMAT_XRGB8888,
--	DRM_FORMAT_ARGB8888,
--	DRM_FORMAT_BGRX8888,
--	DRM_FORMAT_BGRA8888,
--	DRM_FORMAT_RGBX8888,
--	DRM_FORMAT_RGBA8888,
--	DRM_FORMAT_XBGR8888,
--	DRM_FORMAT_ABGR8888,
-+	DRM_FORMAT_HOST_XRGB8888,
- };
- 
- static const uint32_t virtio_gpu_cursor_formats[] = {
--#ifdef __BIG_ENDIAN
--	DRM_FORMAT_BGRA8888,
--#else
--	DRM_FORMAT_ARGB8888,
--#endif
-+	DRM_FORMAT_HOST_ARGB8888,
- };
- 
- uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
-@@ -51,32 +40,6 @@ uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
- 	uint32_t format;
- 
- 	switch (drm_fourcc) {
--#ifdef __BIG_ENDIAN
--	case DRM_FORMAT_XRGB8888:
--		format = VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM;
--		break;
--	case DRM_FORMAT_ARGB8888:
--		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
--		break;
--	case DRM_FORMAT_BGRX8888:
--		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
--		break;
--	case DRM_FORMAT_BGRA8888:
--		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
--		break;
--	case DRM_FORMAT_RGBX8888:
--		format = VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM;
--		break;
--	case DRM_FORMAT_RGBA8888:
--		format = VIRTIO_GPU_FORMAT_R8G8B8A8_UNORM;
--		break;
--	case DRM_FORMAT_XBGR8888:
--		format = VIRTIO_GPU_FORMAT_X8B8G8R8_UNORM;
--		break;
--	case DRM_FORMAT_ABGR8888:
--		format = VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM;
--		break;
--#else
- 	case DRM_FORMAT_XRGB8888:
- 		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
- 		break;
-@@ -89,19 +52,6 @@ uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
- 	case DRM_FORMAT_BGRA8888:
- 		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
- 		break;
--	case DRM_FORMAT_RGBX8888:
--		format = VIRTIO_GPU_FORMAT_X8B8G8R8_UNORM;
--		break;
--	case DRM_FORMAT_RGBA8888:
--		format = VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM;
--		break;
--	case DRM_FORMAT_XBGR8888:
--		format = VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM;
--		break;
--	case DRM_FORMAT_ABGR8888:
--		format = VIRTIO_GPU_FORMAT_R8G8B8A8_UNORM;
--		break;
--#endif
- 	default:
- 		/*
- 		 * This should not happen, we handle everything listed
--- 
-2.9.3
+T24gTW9uZGF5LCBTZXB0ZW1iZXIgMDMsIDIwMTggMDk6NDM6MTUgQU0gRGFuaWVsIFZldHRlciB3
+cm90ZToKPiBPbiBTYXQsIFNlcCAwMSwgMjAxOCBhdCAwNDowODo0MVBNICswMjAwLCBNaWNoYcWC
+IE1pcm9zxYJhdyB3cm90ZToKPiA+IFRoaXMgc2VyaWVzIGNsZWFucyB1cCBkdXBsaWNhdGVkIGNv
+ZGUgZm9yIHJlcGxhY2luZyBmaXJtd2FyZSBGQgo+ID4gZHJpdmVyIHdpdGggcHJvcGVyIERSSSBk
+cml2ZXIgYW5kIGFkZHMgaGFuZG92ZXIgc3VwcG9ydCB0bwo+ID4gVGVncmEgZHJpdmVyLgo+ID4g
+Cj4gPiBUaGlzIGlzIGEgc2xpZ3RseSB1cGRhdGVkIHZlcnNpb24gb2YgYSBzZXJpZXMgc2VudCBv
+biAyNCBOb3YgMjAxNy4KPiA+IAo+ID4gLS0tCj4gPiB2MjoKPiA+ICAtIHJlYmFzZWQgb24gY3Vy
+cmVudCBkcm0tbmV4dAo+ID4gIC0gZHJvcHBlZCBzdGFnaW5nL3NtNzUwZmIgY2hhbmdlcwo+ID4g
+IC0gYWRkZWQga2VybmVsIGRvY3MgZm9yIERSTSBoZWxwZXJzCj4gPiB2MzoKPiA+ICAtIG1vdmUg
+a2VybmVsZG9jIHRvIGZiZGV2LCB3aGVyZSBmdW5jdGlvbnMgYXJlIGltcGxlbWVudGVkCj4gPiAg
+LSBzcGxpdCBrZXJuZWxkb2MgZm9yIHJlbW92ZV9jb25mbGljdGluZ19mcmFtZWJ1ZmZlcnMoKQo+
+IAo+IEFoLCB0aGF0J3Mgbm90IHF1aXRlIHdoYXQgSSBoYWQgaW4gbWluZC4gSSB0aGluayBoYXZp
+bmcgdGhlIGRvY3MgKGFsc28pIGluCj4gdGhlIGRybSBoZWxwZXJzIHdvdWxkIGJlIGdvb2QsIHNp
+bmNlIHRoYXQncyB3aGVyZSBkcm0gcGVvcGxlIHdpbGwgbG9vaywKPiBhbmQgdGhhdCdzIHRoZSBm
+dW5jdGlvbiB0aGV5J2xsIGNhbGwuIEkganVzdCB3YW50ZWQgeW91IHRvIHNwbGl0IHRoZSBmYmRl
+dgo+IGFuZCBkcm0gcGFydHMgaW50byAyIHBhdGNoZXMgKHNpbmNlIHRob3NlIGFyZSB0d28gZGlm
+ZmVyZW50IG1haW50YWluZXJzKS4KPiAKPiBBbnl3YXksIHRoaXMgaXMgb2sgdG9vLCBzbyBpbW8g
+cmVhZHkgZm9yIG1lcmdpbmcuIElmIHlvdSBjYW4gcmVzdXJyZWN0IHRoZQo+IGRybSBkb2NzICh3
+aXRoIGEgcGF0Y2ggdGl0bGUgb2YgImRybS9mYi1oZWxwZXI6IGRvY3VtZW50IGZiZGV2IHJlbW92
+ZQo+IGZ1bmN0aW9ucyIgb3Igc2ltaWxhcikgdGhhdCB3b3VsZCBiZSBncmVhdC4KPiAKPiBPbmx5
+IHRoaW5nIHdlIG5lZWQgZm9yIG1lcmdpbmcgbm93IGlzIHRoZSBhY2sgZnJvbSBCYXJ0bG9taWVq
+LgoKRm9yIHRoZSB3aG9sZSBwYXRjaHNldDoKCkFja2VkLWJ5OiBCYXJ0bG9taWVqIFpvbG5pZXJr
+aWV3aWN6IDxiLnpvbG5pZXJraWVAc2Ftc3VuZy5jb20+Cgo+IC1EYW5pZWwKPiAKPiA+ICAtIHBy
+b3BhZ2F0ZSByZXR1cm4gdmFsdWUgaW4gcmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1ZmZl
+cnMoKQo+ID4gCj4gPiAtLS0KPiA+IE1pY2hhxYIgTWlyb3PFgmF3ICgxMyk6Cj4gPiAgIGZiZGV2
+OiBzaG93IGZiZGV2IG51bWJlciBmb3IgZGVidWdnaW5nCj4gPiAgIGZiZGV2OiBhbGxvdyBhcGVy
+dHVyZXMgPT0gTlVMTCBpbiByZW1vdmVfY29uZmxpY3RpbmdfZnJhbWVidWZmZXJzKCkKPiA+ICAg
+ZmJkZXY6IGFkZCBrZXJuZWxkb2MgZG8gcmVtb3ZlX2NvbmZsaWN0aW5nX2ZyYW1lYnVmZmVycygp
+Cj4gPiAgIGZiZGV2OiBhZGQgcmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1ZmZlcnMoKQo+
+ID4gICBkcm0vYW1kZ3B1OiB1c2Ugc2ltcGxlciByZW1vdmVfY29uZmxpY3RpbmdfcGNpX2ZyYW1l
+YnVmZmVycygpCj4gPiAgIGRybS9ib2NoczogdXNlIHNpbXBsZXIgcmVtb3ZlX2NvbmZsaWN0aW5n
+X3BjaV9mcmFtZWJ1ZmZlcnMoKQo+ID4gICBkcm0vY2lycnVzOiB1c2Ugc2ltcGxlciByZW1vdmVf
+Y29uZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpCj4gPiAgIGRybS9tZ2FnMjAwOiB1c2Ugc2lt
+cGxlciByZW1vdmVfY29uZmxpY3RpbmdfcGNpX2ZyYW1lYnVmZmVycygpCj4gPiAgIGRybS9yYWRl
+b246IHVzZSBzaW1wbGVyIHJlbW92ZV9jb25mbGljdGluZ19wY2lfZnJhbWVidWZmZXJzKCkKPiA+
+ICAgZHJtL3ZpcnRpbzogdXNlIHNpbXBsZXIgcmVtb3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1
+ZmZlcnMoKQo+ID4gICBkcm0vdmM0OiB1c2Ugc2ltcGxlciByZW1vdmVfY29uZmxpY3RpbmdfZnJh
+bWVidWZmZXJzKE5VTEwpCj4gPiAgIGRybS9zdW40aTogdXNlIHNpbXBsZXIgcmVtb3ZlX2NvbmZs
+aWN0aW5nX2ZyYW1lYnVmZmVycyhOVUxMKQo+ID4gICBkcm0vdGVncmE6IGtpY2sgb3V0IHNpbXBs
+ZWZiCj4gPiAKPiA+ICBkcml2ZXJzL2dwdS9kcm0vYW1kL2FtZGdwdS9hbWRncHVfZHJ2LmMgIHwg
+MjQgKy0tLS0tLS0tCj4gPiAgZHJpdmVycy9ncHUvZHJtL2JvY2hzL2JvY2hzX2Rydi5jICAgICAg
+ICB8IDE4ICstLS0tLS0KPiA+ICBkcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1c19kcnYuYyAg
+ICAgIHwgMjMgKy0tLS0tLS0tCj4gPiAgZHJpdmVycy9ncHUvZHJtL21nYWcyMDAvbWdhZzIwMF9k
+cnYuYyAgICB8IDIxICstLS0tLS0tCj4gPiAgZHJpdmVycy9ncHUvZHJtL21nYWcyMDAvbWdhZzIw
+MF9tYWluLmMgICB8ICA5IC0tLS0KPiA+ICBkcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3JhZGVvbl9k
+cnYuYyAgICAgIHwgMjMgKy0tLS0tLS0tCj4gPiAgZHJpdmVycy9ncHUvZHJtL3N1bjRpL3N1bjRp
+X2Rydi5jICAgICAgICB8IDE4ICstLS0tLS0KPiA+ICBkcml2ZXJzL2dwdS9kcm0vdGVncmEvZHJt
+LmMgICAgICAgICAgICAgIHwgIDQgKysKPiA+ICBkcml2ZXJzL2dwdS9kcm0vdmM0L3ZjNF9kcnYu
+YyAgICAgICAgICAgIHwgMjAgKy0tLS0tLS0KPiA+ICBkcml2ZXJzL2dwdS9kcm0vdmlydGlvL3Zp
+cnRncHVfZHJtX2J1cy5jIHwgMjQgKystLS0tLS0tCj4gPiAgZHJpdmVycy92aWRlby9mYmRldi9j
+b3JlL2ZibWVtLmMgICAgICAgICB8IDYzICsrKysrKysrKysrKysrKysrKysrKysrLQo+ID4gIGlu
+Y2x1ZGUvZHJtL2RybV9mYl9oZWxwZXIuaCAgICAgICAgICAgICAgfCAxMiArKysrKwo+ID4gIGlu
+Y2x1ZGUvbGludXgvZmIuaCAgICAgICAgICAgICAgICAgICAgICAgfCAgMiArCj4gPiAgMTMgZmls
+ZXMgY2hhbmdlZCwgODkgaW5zZXJ0aW9ucygrKSwgMTcyIGRlbGV0aW9ucygtKQoKQmVzdCByZWdh
+cmRzLAotLQpCYXJ0bG9taWVqIFpvbG5pZXJraWV3aWN6ClNhbXN1bmcgUiZEIEluc3RpdHV0ZSBQ
+b2xhbmQKU2Ftc3VuZyBFbGVjdHJvbmljcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
