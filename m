@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH] vhost: fix VHOST_GET_BACKEND_FEATURES ioctl request
 	definition
-Date: Mon, 3 Sep 2018 22:22:37 -0400
-Message-ID: <20180903222127-mutt-send-email-mst@kernel.org>
+Date: Tue, 4 Sep 2018 11:08:40 +0800
+Message-ID: <a9ea89ac-4816-96a1-7de4-caf9884da876__40442.7716778175$1536030408$gmane$org@redhat.com>
 References: <20180903175906.GA11529@glebfm.cloud.tilaa.com>
+	<20180903222127-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180903175906.GA11529@glebfm.cloud.tilaa.com>
+In-Reply-To: <20180903222127-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,39 +20,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 03, 2018 at 08:59:13PM +0300, Gleb Fotengauer-Malinovskiy wrote:
-> The _IOC_READ flag fits this ioctl request more because this request
-> actually only writes to, but doesn't read from userspace.
-> See NOTEs in include/uapi/asm-generic/ioctl.h for more information.
-> 
-> Fixes: 429711aec282 ("vhost: switch to use new message format")
-> Signed-off-by: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
-
-Hmm it does make sense, and it's not too late to fix this up.
-Jason, what's your take on this? Was _IOW intentional?
-
-
-> ---
->  include/uapi/linux/vhost.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> index b1e22c40c4b6..84c3de89696a 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -176,7 +176,7 @@ struct vhost_memory {
->  #define VHOST_BACKEND_F_IOTLB_MSG_V2 0x1
->  
->  #define VHOST_SET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x25, __u64)
-> -#define VHOST_GET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x26, __u64)
-> +#define VHOST_GET_BACKEND_FEATURES _IOR(VHOST_VIRTIO, 0x26, __u64)
->  
->  /* VHOST_NET specific defines */
->  
-> 
-> -- 
-> glebfm
+CgpPbiAyMDE45bm0MDnmnIgwNOaXpSAxMDoyMiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIE1vbiwgU2VwIDAzLCAyMDE4IGF0IDA4OjU5OjEzUE0gKzAzMDAsIEdsZWIgRm90ZW5nYXVl
+ci1NYWxpbm92c2tpeSB3cm90ZToKPj4gVGhlIF9JT0NfUkVBRCBmbGFnIGZpdHMgdGhpcyBpb2N0
+bCByZXF1ZXN0IG1vcmUgYmVjYXVzZSB0aGlzIHJlcXVlc3QKPj4gYWN0dWFsbHkgb25seSB3cml0
+ZXMgdG8sIGJ1dCBkb2Vzbid0IHJlYWQgZnJvbSB1c2Vyc3BhY2UuCj4+IFNlZSBOT1RFcyBpbiBp
+bmNsdWRlL3VhcGkvYXNtLWdlbmVyaWMvaW9jdGwuaCBmb3IgbW9yZSBpbmZvcm1hdGlvbi4KPj4K
+Pj4gRml4ZXM6IDQyOTcxMWFlYzI4MiAoInZob3N0OiBzd2l0Y2ggdG8gdXNlIG5ldyBtZXNzYWdl
+IGZvcm1hdCIpCj4+IFNpZ25lZC1vZmYtYnk6IEdsZWIgRm90ZW5nYXVlci1NYWxpbm92c2tpeSA8
+Z2xlYmZtQGFsdGxpbnV4Lm9yZz4KPiBIbW0gaXQgZG9lcyBtYWtlIHNlbnNlLCBhbmQgaXQncyBu
+b3QgdG9vIGxhdGUgdG8gZml4IHRoaXMgdXAuCj4gSmFzb24sIHdoYXQncyB5b3VyIHRha2Ugb24g
+dGhpcz8gV2FzIF9JT1cgaW50ZW50aW9uYWw/CgpNeSBiYWQsIG5vdCBpbnRlbnRpb25hbC4gQW5k
+IEkgYWdyZWUgdGhhdCBmaXhpbmcgdGhpcyBpcyBub3QgdG9vIGxhdGUuCgpTbwoKQWNrZWQtYnk6
+IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cgo+Cj4+IC0tLQo+PiAgIGluY2x1ZGUv
+dWFwaS9saW51eC92aG9zdC5oIHwgMiArLQo+PiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlv
+bigrKSwgMSBkZWxldGlvbigtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4
+L3Zob3N0LmggYi9pbmNsdWRlL3VhcGkvbGludXgvdmhvc3QuaAo+PiBpbmRleCBiMWUyMmM0MGM0
+YjYuLjg0YzNkZTg5Njk2YSAxMDA2NDQKPj4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0
+LmgKPj4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0LmgKPj4gQEAgLTE3Niw3ICsxNzYs
+NyBAQCBzdHJ1Y3Qgdmhvc3RfbWVtb3J5IHsKPj4gICAjZGVmaW5lIFZIT1NUX0JBQ0tFTkRfRl9J
+T1RMQl9NU0dfVjIgMHgxCj4+ICAgCj4+ICAgI2RlZmluZSBWSE9TVF9TRVRfQkFDS0VORF9GRUFU
+VVJFUyBfSU9XKFZIT1NUX1ZJUlRJTywgMHgyNSwgX191NjQpCj4+IC0jZGVmaW5lIFZIT1NUX0dF
+VF9CQUNLRU5EX0ZFQVRVUkVTIF9JT1coVkhPU1RfVklSVElPLCAweDI2LCBfX3U2NCkKPj4gKyNk
+ZWZpbmUgVkhPU1RfR0VUX0JBQ0tFTkRfRkVBVFVSRVMgX0lPUihWSE9TVF9WSVJUSU8sIDB4MjYs
+IF9fdTY0KQo+PiAgIAo+PiAgIC8qIFZIT1NUX05FVCBzcGVjaWZpYyBkZWZpbmVzICovCj4+ICAg
+Cj4+Cj4+IC0tIAo+PiBnbGViZm0KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
