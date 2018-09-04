@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [PATCH] vhost: fix VHOST_GET_BACKEND_FEATURES ioctl request
 	definition
-Date: Mon, 3 Sep 2018 23:11:11 -0400
-Message-ID: <20180903231102-mutt-send-email-mst__20217.8128799007$1536030550$gmane$org@kernel.org>
-References: <20180903175906.GA11529@glebfm.cloud.tilaa.com>
-	<20180903222127-mutt-send-email-mst@kernel.org>
+Date: Mon, 03 Sep 2018 21:23:43 -0700 (PDT)
+Message-ID: <20180903.212343.355534384554181027.davem__36127.7248980061$1536034906$gmane$org@davemloft.net>
+References: <20180903222127-mutt-send-email-mst@kernel.org>
 	<a9ea89ac-4816-96a1-7de4-caf9884da876@redhat.com>
+	<20180903231102-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <a9ea89ac-4816-96a1-7de4-caf9884da876@redhat.com>
+In-Reply-To: <20180903231102-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,39 +20,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: mst@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, glebfm@altlinux.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBTZXAgMDQsIDIwMTggYXQgMTE6MDg6NDBBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDnmnIgwNOaXpSAxMDoyMiwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gT24gTW9uLCBTZXAgMDMsIDIwMTggYXQgMDg6NTk6MTNQTSArMDMwMCwgR2xl
-YiBGb3RlbmdhdWVyLU1hbGlub3Zza2l5IHdyb3RlOgo+ID4gPiBUaGUgX0lPQ19SRUFEIGZsYWcg
-Zml0cyB0aGlzIGlvY3RsIHJlcXVlc3QgbW9yZSBiZWNhdXNlIHRoaXMgcmVxdWVzdAo+ID4gPiBh
-Y3R1YWxseSBvbmx5IHdyaXRlcyB0bywgYnV0IGRvZXNuJ3QgcmVhZCBmcm9tIHVzZXJzcGFjZS4K
-PiA+ID4gU2VlIE5PVEVzIGluIGluY2x1ZGUvdWFwaS9hc20tZ2VuZXJpYy9pb2N0bC5oIGZvciBt
-b3JlIGluZm9ybWF0aW9uLgo+ID4gPiAKPiA+ID4gRml4ZXM6IDQyOTcxMWFlYzI4MiAoInZob3N0
-OiBzd2l0Y2ggdG8gdXNlIG5ldyBtZXNzYWdlIGZvcm1hdCIpCj4gPiA+IFNpZ25lZC1vZmYtYnk6
-IEdsZWIgRm90ZW5nYXVlci1NYWxpbm92c2tpeSA8Z2xlYmZtQGFsdGxpbnV4Lm9yZz4KPiA+IEht
-bSBpdCBkb2VzIG1ha2Ugc2Vuc2UsIGFuZCBpdCdzIG5vdCB0b28gbGF0ZSB0byBmaXggdGhpcyB1
-cC4KPiA+IEphc29uLCB3aGF0J3MgeW91ciB0YWtlIG9uIHRoaXM/IFdhcyBfSU9XIGludGVudGlv
-bmFsPwo+IAo+IE15IGJhZCwgbm90IGludGVudGlvbmFsLiBBbmQgSSBhZ3JlZSB0aGF0IGZpeGlu
-ZyB0aGlzIGlzIG5vdCB0b28gbGF0ZS4KPiAKPiBTbwo+IAo+IEFja2VkLWJ5OiBKYXNvbiBXYW5n
-IDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKCk9LIHRoZW4KCkFja2VkLWJ5OiBNaWNoYWVsIFMuIFRz
-aXJraW4gPG1zdEByZWRoYXQuY29tPgoKPiA+IAo+ID4gPiAtLS0KPiA+ID4gICBpbmNsdWRlL3Vh
-cGkvbGludXgvdmhvc3QuaCB8IDIgKy0KPiA+ID4gICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRp
-b24oKyksIDEgZGVsZXRpb24oLSkKPiA+ID4gCj4gPiA+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3Vh
-cGkvbGludXgvdmhvc3QuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aG9zdC5oCj4gPiA+IGluZGV4
-IGIxZTIyYzQwYzRiNi4uODRjM2RlODk2OTZhIDEwMDY0NAo+ID4gPiAtLS0gYS9pbmNsdWRlL3Vh
-cGkvbGludXgvdmhvc3QuaAo+ID4gPiArKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmhvc3QuaAo+
-ID4gPiBAQCAtMTc2LDcgKzE3Niw3IEBAIHN0cnVjdCB2aG9zdF9tZW1vcnkgewo+ID4gPiAgICNk
-ZWZpbmUgVkhPU1RfQkFDS0VORF9GX0lPVExCX01TR19WMiAweDEKPiA+ID4gICAjZGVmaW5lIFZI
-T1NUX1NFVF9CQUNLRU5EX0ZFQVRVUkVTIF9JT1coVkhPU1RfVklSVElPLCAweDI1LCBfX3U2NCkK
-PiA+ID4gLSNkZWZpbmUgVkhPU1RfR0VUX0JBQ0tFTkRfRkVBVFVSRVMgX0lPVyhWSE9TVF9WSVJU
-SU8sIDB4MjYsIF9fdTY0KQo+ID4gPiArI2RlZmluZSBWSE9TVF9HRVRfQkFDS0VORF9GRUFUVVJF
-UyBfSU9SKFZIT1NUX1ZJUlRJTywgMHgyNiwgX191NjQpCj4gPiA+ICAgLyogVkhPU1RfTkVUIHNw
-ZWNpZmljIGRlZmluZXMgKi8KPiA+ID4gCj4gPiA+IC0tIAo+ID4gPiBnbGViZm0KX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
-aW9u
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Mon, 3 Sep 2018 23:11:11 -0400
+
+> On Tue, Sep 04, 2018 at 11:08:40AM +0800, Jason Wang wrote:
+>> 
+>> 
+>> On 2018年09月04日 10:22, Michael S. Tsirkin wrote:
+>> > On Mon, Sep 03, 2018 at 08:59:13PM +0300, Gleb Fotengauer-Malinovskiy wrote:
+>> > > The _IOC_READ flag fits this ioctl request more because this request
+>> > > actually only writes to, but doesn't read from userspace.
+>> > > See NOTEs in include/uapi/asm-generic/ioctl.h for more information.
+>> > > 
+>> > > Fixes: 429711aec282 ("vhost: switch to use new message format")
+>> > > Signed-off-by: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
+>> > Hmm it does make sense, and it's not too late to fix this up.
+>> > Jason, what's your take on this? Was _IOW intentional?
+>> 
+>> My bad, not intentional. And I agree that fixing this is not too late.
+>> 
+>> So
+>> 
+>> Acked-by: Jason Wang <jasowang@redhat.com>
+> 
+> 
+> OK then
+> 
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+Applied, thanks everyone.
