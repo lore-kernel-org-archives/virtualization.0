@@ -1,14 +1,11 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] bochs: convert to drm_fb_helper_fbdev_setup/teardown
-Date: Wed, 5 Sep 2018 16:46:29 +0200
-Message-ID: <20180905144628.GG4929__34126.2844195173$1536158955$gmane$org@phenom.ffwll.local>
-References: <20180905144127.5690-1-peter@lekensteyn.nl>
+From: David Howells <dhowells@redhat.com>
+Subject: [RFC] UAPI: Check headers by compiling all together as C++
+Date: Wed, 05 Sep 2018 16:54:27 +0100
+Message-ID: <153616286704.23468.584491117180383924.stgit__33852.0844736651$1536162759$gmane$org@warthog.procyon.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180905144127.5690-1-peter@lekensteyn.nl>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,367 +15,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Wu <peter@lekensteyn.nl>
-Cc: David Airlie <airlied@linux.ie>, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+To: linux-api@vger.kernel.org, linux-kbuild@vger.kernel.org
+Cc: moderated for non-subscribers <alsa-devel@alsa-project.org>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, Mat Martineau <mathew.j.martineau@linux.intel.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, dhowells@redhat.com, Masahiro Yamada <yamada.masahiro@socionext.com>, keyrings@vger.kernel.org, Ryusuke Konishi <konishi.ryusuke@lab.ntt.co.jp>, linux-nilfs@vger.kernel.org, linux-nvdimm@lists.01.org, codalist@coda.cs.cmu.edu, coda@cs.cmu.edu, coreteam@netfilter.org, Kent Overstreet <kent.overstreet@gmail.com>, linux-arm-msm@vger.kernel.org, Coly Li <colyli@suse.de>, linux-bcache@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>, Jaroslav Kysela <perex@perex.cz>, Jan Harkes <jaharkes@cs.cmu.edu>, Michal Marek <michal.lkml@markovi.net>, Takashi Iwai <tiwai@suse.com>, linux-kernel@vger.kernel.org, Rob
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 05, 2018 at 04:41:27PM +0200, Peter Wu wrote:
-> Currently unloading bochs_drm (after unbinding the vtconsole) results in
-> a warning about a leaked connector:
-> 
->     [drm:drm_mode_config_cleanup] *ERROR* connector Virtual-3 leaked!
-> 
-> While investigating a potential fix I noticed that a lot of open-coded
-> functionality is already implemented elsewhere, so start converting it:
-> bochs_fbdev_init -> drm_fb_helper_fbdev_setup: trivial (similar impl).
-> bochs_fbdev_fini -> drm_fb_helper_fbdev_teardown: requires unembedding
-> "struct drm_framebuffer" from "struct bochs_framebuffer".
-> 
-> Unembedding drm_framebuffer is made easy using drm_gem_fbdev_fb_create
-> which can replace bochs_fbdev_destroy and custom routines in bochs_mm.c.
-> For this to work, the GEM object is moved into "drm_framebuffer". After
-> that, "bochs_framebuffer" is no longer needed and therefore removed.
-> 
-> Remove the unused "size" and "initialized" fields from fb, the latter is
-> not necessary as drm_fb_helper_fbdev_teardown can be called even if
-> bochsfb_create fails. This theory was tested by returning early and
-> late (just before drm_gem_fbdev_fb_create). Both scenarios fail
-> gracefully although the latter seems to leak the object from
-> bochsfb_create_object (not a regression).
-> 
-> Guess on the reason for the encoder leak: drm_framebuffer_cleanup was
-> previously used, but did not destroy much. drm_fb_helper_fbdev_teardown
-> is now used and calls drm_framebuffer_remove which does a bit more work.
-> 
-> Tested with 'echo 0 > /sys/class/vtconsole/vtcon1/bind; rmmod bochs_drm'
-> and also with Xorg + fbdev (startx -> xterm). The latter triggered a
-> warning in ttm_bo_vm_open that existed before, see
-> https://lkml.kernel.org/r/1464000533-13140-4-git-send-email-mstaudt@suse.de
 
-You can probably get rid of this one if you're refactoring even more. The
-generic fb_probe implementation (already merged) plus gem-shmem support
-for it (still in flight) from Noralf should be able to pull that off. That
-gives you the fb_mmap implementation, but with 100% generic code instead
-of a driver specific hack like Max did.
-> 
-> Signed-off-by: Peter Wu <peter@lekensteyn.nl>
+Here's a set of patches that inserts a step into the build process to make
+sure that the UAPI headers can all be built together with C++ (if the
+compiler being used supports C++).  All but the final patch perform fixups,
+including:
 
-lgtm. Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+ (1) Fix member names that conflict with C++ reserved words by providing
+     alternates that can be used anywhere.  An anonymous union is used so
+     that that the conflicting name is still available outside of C++.
 
-I'll leave merging to Gerd.
--Daniel
+ (2) Fix the use of flexible arrays in structs that get embedded (which is
+     illegal in C++).
 
-> ---
->  drivers/gpu/drm/bochs/bochs.h       | 19 ++-----
->  drivers/gpu/drm/bochs/bochs_fbdev.c | 79 +++++++----------------------
->  drivers/gpu/drm/bochs/bochs_kms.c   |  7 +--
->  drivers/gpu/drm/bochs/bochs_mm.c    | 74 ---------------------------
->  4 files changed, 22 insertions(+), 157 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-> index 375bf92cd04f..8514a84fbdbe 100644
-> --- a/drivers/gpu/drm/bochs/bochs.h
-> +++ b/drivers/gpu/drm/bochs/bochs.h
-> @@ -51,11 +51,6 @@ enum bochs_types {
->  	BOCHS_UNKNOWN,
->  };
->  
-> -struct bochs_framebuffer {
-> -	struct drm_framebuffer base;
-> -	struct drm_gem_object *obj;
-> -};
-> -
->  struct bochs_device {
->  	/* hw */
->  	void __iomem   *mmio;
-> @@ -88,15 +83,11 @@ struct bochs_device {
->  
->  	/* fbdev */
->  	struct {
-> -		struct bochs_framebuffer gfb;
-> +		struct drm_framebuffer *fb;
->  		struct drm_fb_helper helper;
-> -		int size;
-> -		bool initialized;
->  	} fb;
->  };
->  
-> -#define to_bochs_framebuffer(x) container_of(x, struct bochs_framebuffer, base)
-> -
->  struct bochs_bo {
->  	struct ttm_buffer_object bo;
->  	struct ttm_placement placement;
-> @@ -148,15 +139,9 @@ int bochs_dumb_create(struct drm_file *file, struct drm_device *dev,
->  int bochs_dumb_mmap_offset(struct drm_file *file, struct drm_device *dev,
->  			   uint32_t handle, uint64_t *offset);
->  
-> -int bochs_framebuffer_init(struct drm_device *dev,
-> -			   struct bochs_framebuffer *gfb,
-> -			   const struct drm_mode_fb_cmd2 *mode_cmd,
-> -			   struct drm_gem_object *obj);
->  int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag, u64 *gpu_addr);
->  int bochs_bo_unpin(struct bochs_bo *bo);
->  
-> -extern const struct drm_mode_config_funcs bochs_mode_funcs;
-> -
->  /* bochs_kms.c */
->  int bochs_kms_init(struct bochs_device *bochs);
->  void bochs_kms_fini(struct bochs_device *bochs);
-> @@ -164,3 +149,5 @@ void bochs_kms_fini(struct bochs_device *bochs);
->  /* bochs_fbdev.c */
->  int bochs_fbdev_init(struct bochs_device *bochs);
->  void bochs_fbdev_fini(struct bochs_device *bochs);
-> +
-> +extern const struct drm_mode_config_funcs bochs_mode_funcs;
-> diff --git a/drivers/gpu/drm/bochs/bochs_fbdev.c b/drivers/gpu/drm/bochs/bochs_fbdev.c
-> index 14eb8d0d5a00..8f4d6c052f7b 100644
-> --- a/drivers/gpu/drm/bochs/bochs_fbdev.c
-> +++ b/drivers/gpu/drm/bochs/bochs_fbdev.c
-> @@ -6,6 +6,7 @@
->   */
->  
->  #include "bochs.h"
-> +#include <drm/drm_gem_framebuffer_helper.h>
->  
->  /* ---------------------------------------------------------------------- */
->  
-> @@ -13,9 +14,7 @@ static int bochsfb_mmap(struct fb_info *info,
->  			struct vm_area_struct *vma)
->  {
->  	struct drm_fb_helper *fb_helper = info->par;
-> -	struct bochs_device *bochs =
-> -		container_of(fb_helper, struct bochs_device, fb.helper);
-> -	struct bochs_bo *bo = gem_to_bochs_bo(bochs->fb.gfb.obj);
-> +	struct bochs_bo *bo = gem_to_bochs_bo(fb_helper->fb->obj[0]);
->  
->  	return ttm_fbdev_mmap(vma, &bo->bo);
->  }
-> @@ -101,19 +100,20 @@ static int bochsfb_create(struct drm_fb_helper *helper,
->  
->  	/* init fb device */
->  	info = drm_fb_helper_alloc_fbi(helper);
-> -	if (IS_ERR(info))
-> +	if (IS_ERR(info)) {
-> +		DRM_ERROR("Failed to allocate fbi: %ld\n", PTR_ERR(info));
->  		return PTR_ERR(info);
-> +	}
->  
->  	info->par = &bochs->fb.helper;
->  
-> -	ret = bochs_framebuffer_init(bochs->dev, &bochs->fb.gfb, &mode_cmd, gobj);
-> -	if (ret)
-> -		return ret;
-> -
-> -	bochs->fb.size = size;
-> +	fb = drm_gem_fbdev_fb_create(bochs->dev, sizes, 0, gobj, NULL);
-> +	if (IS_ERR(fb)) {
-> +		DRM_ERROR("Failed to create framebuffer: %ld\n", PTR_ERR(fb));
-> +		return PTR_ERR(fb);
-> +	}
->  
->  	/* setup helper */
-> -	fb = &bochs->fb.gfb.base;
->  	bochs->fb.helper.fb = fb;
->  
->  	strcpy(info->fix.id, "bochsdrmfb");
-> @@ -130,27 +130,6 @@ static int bochsfb_create(struct drm_fb_helper *helper,
->  	drm_vma_offset_remove(&bo->bo.bdev->vma_manager, &bo->bo.vma_node);
->  	info->fix.smem_start = 0;
->  	info->fix.smem_len = size;
-> -
-> -	bochs->fb.initialized = true;
-> -	return 0;
-> -}
-> -
-> -static int bochs_fbdev_destroy(struct bochs_device *bochs)
-> -{
-> -	struct bochs_framebuffer *gfb = &bochs->fb.gfb;
-> -
-> -	DRM_DEBUG_DRIVER("\n");
-> -
-> -	drm_fb_helper_unregister_fbi(&bochs->fb.helper);
-> -
-> -	if (gfb->obj) {
-> -		drm_gem_object_unreference_unlocked(gfb->obj);
-> -		gfb->obj = NULL;
-> -	}
-> -
-> -	drm_framebuffer_unregister_private(&gfb->base);
-> -	drm_framebuffer_cleanup(&gfb->base);
-> -
->  	return 0;
->  }
->  
-> @@ -158,41 +137,17 @@ static const struct drm_fb_helper_funcs bochs_fb_helper_funcs = {
->  	.fb_probe = bochsfb_create,
->  };
->  
-> +const struct drm_mode_config_funcs bochs_mode_funcs = {
-> +	.fb_create = drm_gem_fb_create,
-> +};
-> +
->  int bochs_fbdev_init(struct bochs_device *bochs)
->  {
-> -	int ret;
-> -
-> -	drm_fb_helper_prepare(bochs->dev, &bochs->fb.helper,
-> -			      &bochs_fb_helper_funcs);
-> -
-> -	ret = drm_fb_helper_init(bochs->dev, &bochs->fb.helper, 1);
-> -	if (ret)
-> -		return ret;
-> -
-> -	ret = drm_fb_helper_single_add_all_connectors(&bochs->fb.helper);
-> -	if (ret)
-> -		goto fini;
-> -
-> -	drm_helper_disable_unused_functions(bochs->dev);
-> -
-> -	ret = drm_fb_helper_initial_config(&bochs->fb.helper, 32);
-> -	if (ret)
-> -		goto fini;
-> -
-> -	return 0;
-> -
-> -fini:
-> -	drm_fb_helper_fini(&bochs->fb.helper);
-> -	return ret;
-> +	return drm_fb_helper_fbdev_setup(bochs->dev, &bochs->fb.helper,
-> +					 &bochs_fb_helper_funcs, 32, 1);
->  }
->  
->  void bochs_fbdev_fini(struct bochs_device *bochs)
->  {
-> -	if (bochs->fb.initialized)
-> -		bochs_fbdev_destroy(bochs);
-> -
-> -	if (bochs->fb.helper.fbdev)
-> -		drm_fb_helper_fini(&bochs->fb.helper);
-> -
-> -	bochs->fb.initialized = false;
-> +	drm_fb_helper_fbdev_teardown(bochs->dev);
->  }
-> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-> index 233980a78591..c7e575511d2f 100644
-> --- a/drivers/gpu/drm/bochs/bochs_kms.c
-> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-> @@ -35,14 +35,12 @@ static int bochs_crtc_mode_set_base(struct drm_crtc *crtc, int x, int y,
->  {
->  	struct bochs_device *bochs =
->  		container_of(crtc, struct bochs_device, crtc);
-> -	struct bochs_framebuffer *bochs_fb;
->  	struct bochs_bo *bo;
->  	u64 gpu_addr = 0;
->  	int ret;
->  
->  	if (old_fb) {
-> -		bochs_fb = to_bochs_framebuffer(old_fb);
-> -		bo = gem_to_bochs_bo(bochs_fb->obj);
-> +		bo = gem_to_bochs_bo(old_fb->obj[0]);
->  		ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
->  		if (ret) {
->  			DRM_ERROR("failed to reserve old_fb bo\n");
-> @@ -55,8 +53,7 @@ static int bochs_crtc_mode_set_base(struct drm_crtc *crtc, int x, int y,
->  	if (WARN_ON(crtc->primary->fb == NULL))
->  		return -EINVAL;
->  
-> -	bochs_fb = to_bochs_framebuffer(crtc->primary->fb);
-> -	bo = gem_to_bochs_bo(bochs_fb->obj);
-> +	bo = gem_to_bochs_bo(crtc->primary->fb->obj[0]);
->  	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
->  	if (ret)
->  		return ret;
-> diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
-> index 39cd08416773..cdbc3ca3ec51 100644
-> --- a/drivers/gpu/drm/bochs/bochs_mm.c
-> +++ b/drivers/gpu/drm/bochs/bochs_mm.c
-> @@ -457,77 +457,3 @@ int bochs_dumb_mmap_offset(struct drm_file *file, struct drm_device *dev,
->  	drm_gem_object_unreference_unlocked(obj);
->  	return 0;
->  }
-> -
-> -/* ---------------------------------------------------------------------- */
-> -
-> -static void bochs_user_framebuffer_destroy(struct drm_framebuffer *fb)
-> -{
-> -	struct bochs_framebuffer *bochs_fb = to_bochs_framebuffer(fb);
-> -
-> -	drm_gem_object_unreference_unlocked(bochs_fb->obj);
-> -	drm_framebuffer_cleanup(fb);
-> -	kfree(fb);
-> -}
-> -
-> -static const struct drm_framebuffer_funcs bochs_fb_funcs = {
-> -	.destroy = bochs_user_framebuffer_destroy,
-> -};
-> -
-> -int bochs_framebuffer_init(struct drm_device *dev,
-> -			   struct bochs_framebuffer *gfb,
-> -			   const struct drm_mode_fb_cmd2 *mode_cmd,
-> -			   struct drm_gem_object *obj)
-> -{
-> -	int ret;
-> -
-> -	drm_helper_mode_fill_fb_struct(dev, &gfb->base, mode_cmd);
-> -	gfb->obj = obj;
-> -	ret = drm_framebuffer_init(dev, &gfb->base, &bochs_fb_funcs);
-> -	if (ret) {
-> -		DRM_ERROR("drm_framebuffer_init failed: %d\n", ret);
-> -		return ret;
-> -	}
-> -	return 0;
-> -}
-> -
-> -static struct drm_framebuffer *
-> -bochs_user_framebuffer_create(struct drm_device *dev,
-> -			      struct drm_file *filp,
-> -			      const struct drm_mode_fb_cmd2 *mode_cmd)
-> -{
-> -	struct drm_gem_object *obj;
-> -	struct bochs_framebuffer *bochs_fb;
-> -	int ret;
-> -
-> -	DRM_DEBUG_DRIVER("%dx%d, format %c%c%c%c\n",
-> -	       mode_cmd->width, mode_cmd->height,
-> -	       (mode_cmd->pixel_format)       & 0xff,
-> -	       (mode_cmd->pixel_format >> 8)  & 0xff,
-> -	       (mode_cmd->pixel_format >> 16) & 0xff,
-> -	       (mode_cmd->pixel_format >> 24) & 0xff);
-> -
-> -	if (mode_cmd->pixel_format != DRM_FORMAT_XRGB8888)
-> -		return ERR_PTR(-ENOENT);
-> -
-> -	obj = drm_gem_object_lookup(filp, mode_cmd->handles[0]);
-> -	if (obj == NULL)
-> -		return ERR_PTR(-ENOENT);
-> -
-> -	bochs_fb = kzalloc(sizeof(*bochs_fb), GFP_KERNEL);
-> -	if (!bochs_fb) {
-> -		drm_gem_object_unreference_unlocked(obj);
-> -		return ERR_PTR(-ENOMEM);
-> -	}
-> -
-> -	ret = bochs_framebuffer_init(dev, bochs_fb, mode_cmd, obj);
-> -	if (ret) {
-> -		drm_gem_object_unreference_unlocked(obj);
-> -		kfree(bochs_fb);
-> -		return ERR_PTR(ret);
-> -	}
-> -	return &bochs_fb->base;
-> -}
-> -
-> -const struct drm_mode_config_funcs bochs_mode_funcs = {
-> -	.fb_create = bochs_user_framebuffer_create,
-> -};
-> -- 
-> 2.18.0
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+ (3) Remove the use of internal kernel structs in UAPI structures.
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+ (4) Fix symbol collisions.
+
+ (5) Replace usage of u32 and co. with __u32 and co.
+
+ (6) Fix use of sparsely initialised arrays (which g++ doesn't implement).
+
+ (7) Remove some use of PAGE_SIZE since this isn't valid outside of the
+     kernel.
+
+And lastly:
+
+ (8) Compile all of the UAPI headers (with a few exceptions) together as
+     C++ to catch new errors occurring as part of the regular build
+     process.
+
+The patches can also be found here:
+
+	http://git.kernel.org/cgit/linux/kernel/git/dhowells/linux-fs.git/log/?h=uapi-check
+
+Thanks,
+David
+---
+David Howells (11):
+      UAPI: drm: Fix use of C++ keywords as structural members
+      UAPI: keys: Fix use of C++ keywords as structural members
+      UAPI: virtio_net: Fix use of C++ keywords as structural members
+      UAPI: bcache: Fix use of embedded flexible array
+      UAPI: coda: Don't use internal kernel structs in UAPI
+      UAPI: netfilter: Fix symbol collision issues
+      UAPI: nilfs2: Fix use of undefined byteswapping functions
+      UAPI: sound: Fix use of u32 and co. in UAPI headers
+      UAPI: ndctl: Fix g++-unsupported initialisation in headers
+      UAPI: ndctl: Remove use of PAGE_SIZE
+      UAPI: Check headers build for C++
+
+
+ Makefile                                          |    1 
+ include/linux/ndctl.h                             |   22 ++++
+ include/uapi/drm/i810_drm.h                       |    7 +
+ include/uapi/drm/msm_drm.h                        |    7 +
+ include/uapi/linux/bcache.h                       |    2 
+ include/uapi/linux/coda_psdev.h                   |    4 +
+ include/uapi/linux/keyctl.h                       |    7 +
+ include/uapi/linux/ndctl.h                        |   20 ++-
+ include/uapi/linux/netfilter/nfnetlink_cthelper.h |    2 
+ include/uapi/linux/netfilter_ipv4/ipt_ECN.h       |    9 --
+ include/uapi/linux/nilfs2_ondisk.h                |   21 ++--
+ include/uapi/linux/virtio_net.h                   |    7 +
+ include/uapi/sound/skl-tplg-interface.h           |  106 +++++++++---------
+ scripts/headers-c++.sh                            |  124 +++++++++++++++++++++
+ 14 files changed, 255 insertions(+), 84 deletions(-)
+ create mode 100644 include/linux/ndctl.h
+ create mode 100755 scripts/headers-c++.sh
