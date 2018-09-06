@@ -1,8 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 04/11] tuntap: simplify error handling in
+Subject: [PATCH net-next 05/11] tuntap: tweak on the path of non-xdp case in
 	tun_build_skb()
-Date: Thu,  6 Sep 2018 12:05:19 +0800
-Message-ID: <20180906040526.22518-5-jasowang__39251.8422719606$1536206813$gmane$org@redhat.com>
+Date: Thu,  6 Sep 2018 12:05:20 +0800
+Message-ID: <20180906040526.22518-6-jasowang__46403.632258489$1536206871$gmane$org@redhat.com>
 References: <20180906040526.22518-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,98 +22,41 @@ To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-There's no need to duplicate page get logic in each action. So this
-patch tries to get page and calculate the offset before processing XDP
-actions, and undo them when meet errors (we don't care the performance
-on errors). This will be used for factoring out XDP logic.
+If we're sure not to go native XDP, there's no need for several things
+like bh and rcu stuffs.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/tun.c | 37 ++++++++++++++++---------------------
- 1 file changed, 16 insertions(+), 21 deletions(-)
+ drivers/net/tun.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 372caf7d67d9..f8cdcfa392c3 100644
+index f8cdcfa392c3..389aa0727cc6 100644
 --- a/drivers/net/tun.c
 +++ b/drivers/net/tun.c
-@@ -1642,7 +1642,7 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
- 				     int len, int *skb_xdp)
- {
- 	struct page_frag *alloc_frag = &current->task_frag;
--	struct sk_buff *skb;
-+	struct sk_buff *skb = NULL;
- 	struct bpf_prog *xdp_prog;
- 	int buflen = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 	unsigned int delta = 0;
-@@ -1668,6 +1668,9 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
- 	if (copied != len)
- 		return ERR_PTR(-EFAULT);
- 
-+	get_page(alloc_frag->page);
-+	alloc_frag->offset += buflen;
-+
- 	/* There's a small window that XDP may be set after the check
+@@ -1675,10 +1675,12 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
  	 * of xdp_prog above, this should be rare and for simplicity
  	 * we do XDP on skb in case the headroom is not enough.
-@@ -1695,23 +1698,15 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
- 
- 		switch (act) {
- 		case XDP_REDIRECT:
--			get_page(alloc_frag->page);
--			alloc_frag->offset += buflen;
- 			err = xdp_do_redirect(tun->dev, &xdp, xdp_prog);
- 			xdp_do_flush_map();
- 			if (err)
--				goto err_redirect;
--			rcu_read_unlock();
--			local_bh_enable();
--			return NULL;
-+				goto err_xdp;
-+			goto out;
- 		case XDP_TX:
--			get_page(alloc_frag->page);
--			alloc_frag->offset += buflen;
- 			if (tun_xdp_tx(tun->dev, &xdp) < 0)
--				goto err_redirect;
--			rcu_read_unlock();
--			local_bh_enable();
--			return NULL;
-+				goto err_xdp;
-+			goto out;
- 		case XDP_PASS:
- 			delta = orig_data - xdp.data;
- 			len = xdp.data_end - xdp.data;
-@@ -1730,23 +1725,23 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
- 	local_bh_enable();
- 
- 	skb = build_skb(buf, buflen);
--	if (!skb)
--		return ERR_PTR(-ENOMEM);
-+	if (!skb) {
-+		skb = ERR_PTR(-ENOMEM);
-+		goto out;
+ 	 */
+-	if (hdr->gso_type || !xdp_prog)
++	if (hdr->gso_type || !xdp_prog) {
+ 		*skb_xdp = 1;
+-	else
+-		*skb_xdp = 0;
++		goto build;
 +	}
++
++	*skb_xdp = 0;
  
- 	skb_reserve(skb, pad - delta);
- 	skb_put(skb, len);
--	get_page(alloc_frag->page);
--	alloc_frag->offset += buflen;
- 
- 	return skb;
- 
--err_redirect:
--	put_page(alloc_frag->page);
- err_xdp:
-+	alloc_frag->offset -= buflen;
-+	put_page(alloc_frag->page);
-+out:
+ 	local_bh_disable();
+ 	rcu_read_lock();
+@@ -1724,6 +1726,7 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
  	rcu_read_unlock();
  	local_bh_enable();
--	this_cpu_inc(tun->pcpu_stats->rx_dropped);
--	return NULL;
-+	return skb;
- }
  
- /* Get packet from user space buffer */
++build:
+ 	skb = build_skb(buf, buflen);
+ 	if (!skb) {
+ 		skb = ERR_PTR(-ENOMEM);
 -- 
 2.17.1
