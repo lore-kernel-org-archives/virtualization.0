@@ -1,15 +1,18 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v36 0/5] Virtio-balloon: support free page reporting
-Date: Thu, 06 Sep 2018 20:18:11 +0800
-Message-ID: <5B911B03.2060602__40969.116430688$1536235894$gmane$org@intel.com>
-References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
-	<20180723122342-mutt-send-email-mst@kernel.org>
-	<20180723143604.GB2457@work-vm>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 03/11] UAPI: virtio_net: Fix use of C++ keywords as
+	structural members
+Date: Thu, 6 Sep 2018 10:36:59 -0400
+Message-ID: <20180906101318-mutt-send-email-mst__37630.881885025$1536244500$gmane$org@kernel.org>
+References: <20180905125636-mutt-send-email-mst@kernel.org>
+	<153616286704.23468.584491117180383924.stgit@warthog.procyon.org.uk>
+	<153616289529.23468.7498785670556620808.stgit@warthog.procyon.org.uk>
+	<9357.1536217759@warthog.procyon.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180723143604.GB2457@work-vm>
+Content-Disposition: inline
+In-Reply-To: <9357.1536217759@warthog.procyon.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,76 +22,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Dr. David Alan Gilbert" <dgilbert@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
+To: David Howells <dhowells@redhat.com>
+Cc: linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/23/2018 10:36 PM, Dr. David Alan Gilbert wrote:
-> * Michael S. Tsirkin (mst@redhat.com) wrote:
->> On Fri, Jul 20, 2018 at 04:33:00PM +0800, Wei Wang wrote:
->>> This patch series is separated from the previous "Virtio-balloon
->>> Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,
->>> implemented by this series enables the virtio-balloon driver to report
->>> hints of guest free pages to the host. It can be used to accelerate live
->>> migration of VMs. Here is an introduction of this usage:
->>>
->>> Live migration needs to transfer the VM's memory from the source machine
->>> to the destination round by round. For the 1st round, all the VM's memory
->>> is transferred. From the 2nd round, only the pieces of memory that were
->>> written by the guest (after the 1st round) are transferred. One method
->>> that is popularly used by the hypervisor to track which part of memory is
->>> written is to write-protect all the guest memory.
->>>
->>> This feature enables the optimization by skipping the transfer of guest
->>> free pages during VM live migration. It is not concerned that the memory
->>> pages are used after they are given to the hypervisor as a hint of the
->>> free pages, because they will be tracked by the hypervisor and transferred
->>> in the subsequent round if they are used and written.
->>>
->>> * Tests
->>> - Test Environment
->>>      Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
->>>      Guest: 8G RAM, 4 vCPU
->>>      Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
->>>
->>> - Test Results
->>>      - Idle Guest Live Migration Time (results are averaged over 10 runs):
->>>          - Optimization v.s. Legacy = 409ms vs 1757ms --> ~77% reduction
->>> 	(setting page poisoning zero and enabling ksm don't affect the
->>>           comparison result)
->>>      - Guest with Linux Compilation Workload (make bzImage -j4):
->>>          - Live Migration Time (average)
->>>            Optimization v.s. Legacy = 1407ms v.s. 2528ms --> ~44% reduction
->>>          - Linux Compilation Time
->>>            Optimization v.s. Legacy = 5min4s v.s. 5min12s
->>>            --> no obvious difference
->> I'd like to see dgilbert's take on whether this kind of gain
->> justifies adding a PV interfaces, and what kind of guest workload
->> is appropriate.
->>
->> Cc'd.
-> Well, 44% is great ... although the measurement is a bit weird.
->
-> a) A 2 second downtime is very large; 300-500ms is more normal
-> b) I'm not sure what the 'average' is  - is that just between a bunch of
-> repeated migrations?
-> c) What load was running in the guest during the live migration?
->
-> An interesting measurement to add would be to do the same test but
-> with a VM with a lot more RAM but the same load;  you'd hope the gain
-> would be even better.
-> It would be interesting, especially because the users who are interested
-> are people creating VMs allocated with lots of extra memory (for the
-> worst case) but most of the time migrating when it's fairly idle.
->
-> Dave
->
+On Thu, Sep 06, 2018 at 08:09:19AM +0100, David Howells wrote:
+> Michael S. Tsirkin <mst@redhat.com> wrote:
+> 
+> > As long as you do not intend to use any classes, how about
+> > simply adding
+> > 
+> > -Dclass=_class
+> > 
+> > to your command line?
+> 
+> That kind of misses the point;-).  It's not reasonable to expect all userspace
+> C++ users to do this.
+> 
+> David
 
-Hi Dave,
+I thought one of the points was that building kernel with c++ catches
+some bugs, no?  If the point is to make life easier for c++ userspace
+I'm not sure what we can do to be frank. C++ seems to be adding new
+keywords with no restraint (C99 did it with inline and restrict too, but
+it seems this stopped) so no good way to future-proof code for all
+language dialects.
 
-The results of the added experiments have been shown in the v37 cover 
-letter.
-Could you have a look at https://lkml.org/lkml/2018/8/27/29 . Thanks.
+So I'd like to know which are the actual c++ users asking for this - we
+can then accomodate the specific version they need.
+Meanwhile people can get by with a wrapper along the lines of
+#define class _class
+#include <linux/virtio_net.h>
+#undef class
 
-Best,
-Wei
+-- 
+MST
