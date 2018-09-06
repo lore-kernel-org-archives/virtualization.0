@@ -1,7 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 01/11] net: sock: introduce SOCK_XDP
-Date: Thu,  6 Sep 2018 12:05:16 +0800
-Message-ID: <20180906040526.22518-2-jasowang__42324.6569269851$1536206632$gmane$org@redhat.com>
+Subject: [PATCH net-next 02/11] tuntap: switch to use XDP_PACKET_HEADROOM
+Date: Thu,  6 Sep 2018 12:05:17 +0800
+Message-ID: <20180906040526.22518-3-jasowang__24405.3142531358$1536206650$gmane$org@redhat.com>
 References: <20180906040526.22518-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,73 +21,31 @@ To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch introduces a new sock flag - SOCK_XDP. This will be used
-for notifying the upper layer that XDP program is attached on the
-lower socket, and requires for extra headroom.
-
-TUN will be the first user.
-
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/tun.c  | 19 +++++++++++++++++++
- include/net/sock.h |  1 +
- 2 files changed, 20 insertions(+)
+ drivers/net/tun.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index ebd07ad82431..2c548bd20393 100644
+index 2c548bd20393..d3677a544b56 100644
 --- a/drivers/net/tun.c
 +++ b/drivers/net/tun.c
-@@ -869,6 +869,9 @@ static int tun_attach(struct tun_struct *tun, struct file *file,
- 		tun_napi_init(tun, tfile, napi);
- 	}
+@@ -113,7 +113,6 @@ do {								\
+ } while (0)
+ #endif
  
-+	if (rtnl_dereference(tun->xdp_prog))
-+		sock_set_flag(&tfile->sk, SOCK_XDP);
-+
- 	tun_set_real_num_queues(tun);
+-#define TUN_HEADROOM 256
+ #define TUN_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
  
- 	/* device is allowed to go away first, so no need to hold extra
-@@ -1241,13 +1244,29 @@ static int tun_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 		       struct netlink_ext_ack *extack)
- {
- 	struct tun_struct *tun = netdev_priv(dev);
-+	struct tun_file *tfile;
- 	struct bpf_prog *old_prog;
-+	int i;
+ /* TUN device flags */
+@@ -1654,7 +1653,7 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
+ 	rcu_read_lock();
+ 	xdp_prog = rcu_dereference(tun->xdp_prog);
+ 	if (xdp_prog)
+-		pad += TUN_HEADROOM;
++		pad += XDP_PACKET_HEADROOM;
+ 	buflen += SKB_DATA_ALIGN(len + pad);
+ 	rcu_read_unlock();
  
- 	old_prog = rtnl_dereference(tun->xdp_prog);
- 	rcu_assign_pointer(tun->xdp_prog, prog);
- 	if (old_prog)
- 		bpf_prog_put(old_prog);
- 
-+	for (i = 0; i < tun->numqueues; i++) {
-+		tfile = rtnl_dereference(tun->tfiles[i]);
-+		if (prog)
-+			sock_set_flag(&tfile->sk, SOCK_XDP);
-+		else
-+			sock_reset_flag(&tfile->sk, SOCK_XDP);
-+	}
-+	list_for_each_entry(tfile, &tun->disabled, next) {
-+		if (prog)
-+			sock_set_flag(&tfile->sk, SOCK_XDP);
-+		else
-+			sock_reset_flag(&tfile->sk, SOCK_XDP);
-+	}
-+
- 	return 0;
- }
- 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 433f45fc2d68..38cae35f6e16 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -800,6 +800,7 @@ enum sock_flags {
- 	SOCK_SELECT_ERR_QUEUE, /* Wake select on error queue */
- 	SOCK_RCU_FREE, /* wait rcu grace period in sk_destruct() */
- 	SOCK_TXTIME,
-+	SOCK_XDP, /* XDP is attached */
- };
- 
- #define SK_FLAGS_TIMESTAMP ((1UL << SOCK_TIMESTAMP) | (1UL << SOCK_TIMESTAMPING_RX_SOFTWARE))
 -- 
 2.17.1
