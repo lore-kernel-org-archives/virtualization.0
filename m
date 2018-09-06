@@ -1,15 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 02/11] tuntap: switch to use XDP_PACKET_HEADROOM
-Date: Thu, 6 Sep 2018 12:57:39 -0400
-Message-ID: <20180906125718-mutt-send-email-mst__2908.50234819136$1536252999$gmane$org@kernel.org>
+Subject: Re: [PATCH net-next 03/11] tuntap: enable bh early during processing
+	XDP
+Date: Thu, 6 Sep 2018 13:02:51 -0400
+Message-ID: <20180906130224-mutt-send-email-mst__38023.5052355149$1536253252$gmane$org@kernel.org>
 References: <20180906040526.22518-1-jasowang@redhat.com>
-	<20180906040526.22518-3-jasowang@redhat.com>
+	<20180906040526.22518-4-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180906040526.22518-3-jasowang@redhat.com>
+In-Reply-To: <20180906040526.22518-4-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,37 +24,49 @@ To: Jason Wang <jasowang@redhat.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 06, 2018 at 12:05:17PM +0800, Jason Wang wrote:
+On Thu, Sep 06, 2018 at 12:05:18PM +0800, Jason Wang wrote:
+> This patch move the bh enabling a little bit earlier, this will be
+> used for factoring out the core XDP logic of tuntap.
+> 
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
 Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-any idea why didn't we do this straight away?
+no reason to disable bh for non-xdp things.
 
 > ---
->  drivers/net/tun.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+>  drivers/net/tun.c | 10 +++-------
+>  1 file changed, 3 insertions(+), 7 deletions(-)
 > 
 > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index 2c548bd20393..d3677a544b56 100644
+> index d3677a544b56..372caf7d67d9 100644
 > --- a/drivers/net/tun.c
 > +++ b/drivers/net/tun.c
-> @@ -113,7 +113,6 @@ do {								\
->  } while (0)
->  #endif
+> @@ -1726,22 +1726,18 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
+>  			goto err_xdp;
+>  		}
+>  	}
+> +	rcu_read_unlock();
+> +	local_bh_enable();
 >  
-> -#define TUN_HEADROOM 256
->  #define TUN_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
+>  	skb = build_skb(buf, buflen);
+> -	if (!skb) {
+> -		rcu_read_unlock();
+> -		local_bh_enable();
+> +	if (!skb)
+>  		return ERR_PTR(-ENOMEM);
+> -	}
 >  
->  /* TUN device flags */
-> @@ -1654,7 +1653,7 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
->  	rcu_read_lock();
->  	xdp_prog = rcu_dereference(tun->xdp_prog);
->  	if (xdp_prog)
-> -		pad += TUN_HEADROOM;
-> +		pad += XDP_PACKET_HEADROOM;
->  	buflen += SKB_DATA_ALIGN(len + pad);
->  	rcu_read_unlock();
+>  	skb_reserve(skb, pad - delta);
+>  	skb_put(skb, len);
+>  	get_page(alloc_frag->page);
+>  	alloc_frag->offset += buflen;
 >  
+> -	rcu_read_unlock();
+> -	local_bh_enable();
+> -
+>  	return skb;
+>  
+>  err_redirect:
 > -- 
 > 2.17.1
