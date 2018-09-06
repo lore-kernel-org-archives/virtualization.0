@@ -1,18 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 03/11] UAPI: virtio_net: Fix use of C++ keywords as
-	structural members
-Date: Thu, 6 Sep 2018 10:36:59 -0400
-Message-ID: <20180906101318-mutt-send-email-mst__37630.881885025$1536244500$gmane$org@kernel.org>
-References: <20180905125636-mutt-send-email-mst@kernel.org>
-	<153616286704.23468.584491117180383924.stgit@warthog.procyon.org.uk>
-	<153616289529.23468.7498785670556620808.stgit@warthog.procyon.org.uk>
-	<9357.1536217759@warthog.procyon.org.uk>
+	structural members [ver #2]
+Date: Thu, 6 Sep 2018 11:02:04 -0400
+Message-ID: <20180906104208-mutt-send-email-mst__27537.3450866484$1536246004$gmane$org@kernel.org>
+References: <153622549721.14298.8116794954073122489.stgit@warthog.procyon.org.uk>
+	<153622552270.14298.14568295161017777604.stgit@warthog.procyon.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <9357.1536217759@warthog.procyon.org.uk>
+In-Reply-To: <153622552270.14298.14568295161017777604.stgit@warthog.procyon.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,34 +24,56 @@ To: David Howells <dhowells@redhat.com>
 Cc: linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 06, 2018 at 08:09:19AM +0100, David Howells wrote:
-> Michael S. Tsirkin <mst@redhat.com> wrote:
+On Thu, Sep 06, 2018 at 10:18:42AM +0100, David Howells wrote:
+> The virtio_net_ctrl_hdr struct uses a C++ keyword as structural members.  Fix
+> this by inserting an anonymous union that provides an alternative name and
+> then hide the reserved name in C++.
 > 
-> > As long as you do not intend to use any classes, how about
-> > simply adding
-> > 
-> > -Dclass=_class
-> > 
-> > to your command line?
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> cc: "Michael S. Tsirkin" <mst@redhat.com>
+> cc: Jason Wang <jasowang@redhat.com>
+> cc: virtualization@lists.linux-foundation.org
+> ---
 > 
-> That kind of misses the point;-).  It's not reasonable to expect all userspace
-> C++ users to do this.
+>  include/uapi/linux/virtio_net.h |    7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
 > 
-> David
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index a3715a3224c1..967142bc0e05 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -150,7 +150,12 @@ struct virtio_net_hdr_mrg_rxbuf {
+>   * command goes in between.
+>   */
+>  struct virtio_net_ctrl_hdr {
+> -	__u8 class;
+> +	union {
+> +#ifndef __cplusplus
+> +		__u8 class;
+> +#endif
+> +		__u8 _class;
+> +	};
+>  	__u8 cmd;
+>  } __attribute__((packed));
+>  
 
-I thought one of the points was that building kernel with c++ catches
-some bugs, no?  If the point is to make life easier for c++ userspace
-I'm not sure what we can do to be frank. C++ seems to be adding new
-keywords with no restraint (C99 did it with inline and restrict too, but
-it seems this stopped) so no good way to future-proof code for all
-language dialects.
+So if we are going to do this, I think I'd prefer something like:
 
-So I'd like to know which are the actual c++ users asking for this - we
-can then accomodate the specific version they need.
-Meanwhile people can get by with a wrapper along the lines of
-#define class _class
-#include <linux/virtio_net.h>
-#undef class
+struct virtio_net_ctrl_hdr_v2 {
+	__u8 cmd_class;
+  	__u8 cmd;
+};
+
+And then hide the whole old structure. This also gets rid of the packed
+keyword which we don't really need here.
+
+Only issue is virtio_net_ctrl_hdr_v2 is ugly. But oh well.
+
+And then rework at least QEMU to use the v2 of the header.
+
+Quite a bit of churn, so I don't think it makes sense to apply just this
+one in isolation - only if rest of the changes go in.
+
 
 -- 
 MST
