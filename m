@@ -1,17 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [PATCH net-next v2 0/5] virtio: support packed
-	ring
-Date: Fri, 7 Sep 2018 09:00:49 -0400
-Message-ID: <20180907084509-mutt-send-email-mst__16761.3721373074$1536325132$gmane$org@kernel.org>
+Subject: Re: [PATCH net-next v2 3/5] virtio_ring: add packed ring support
+Date: Fri, 7 Sep 2018 09:49:14 -0400
+Message-ID: <20180907083500-mutt-send-email-mst__39224.7692369439$1536329223$gmane$org@kernel.org>
 References: <20180711022711.7090-1-tiwei.bie@intel.com>
-	<20180827170005-mutt-send-email-mst@kernel.org>
-	<20180907012225.GA32677@debian>
+	<20180711022711.7090-4-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180907012225.GA32677@debian>
+In-Reply-To: <20180711022711.7090-4-tiwei.bie@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,135 +23,739 @@ To: Tiwei Bie <tiwei.bie@intel.com>
 Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 07, 2018 at 09:22:25AM +0800, Tiwei Bie wrote:
-> On Mon, Aug 27, 2018 at 05:00:40PM +0300, Michael S. Tsirkin wrote:
-> > Are there still plans to test the performance with vost pmd?
-> > vhost doesn't seem to show a performance gain ...
-> > 
+On Wed, Jul 11, 2018 at 10:27:09AM +0800, Tiwei Bie wrote:
+> This commit introduces the support (without EVENT_IDX) for
+> packed ring.
 > 
-> I tried some performance tests with vhost PMD. In guest, the
-> XDP program will return XDP_DROP directly. And in host, testpmd
-> will do txonly fwd.
+> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+> ---
+>  drivers/virtio/virtio_ring.c | 495 ++++++++++++++++++++++++++++++++++-
+>  1 file changed, 487 insertions(+), 8 deletions(-)
 > 
-> When burst size is 1 and packet size is 64 in testpmd and
-> testpmd needs to iterate 5 Tx queues (but only the first two
-> queues are enabled) to prepare and inject packets, I got ~12%
-> performance boost (5.7Mpps -> 6.4Mpps). And if the vhost PMD
-> is faster (e.g. just need to iterate the first two queues to
-> prepare and inject packets), then I got similar performance
-> for both rings (~9.9Mpps) (packed ring's performance can be
-> lower, because it's more complicated in driver.)
-> 
-> I think packed ring makes vhost PMD faster, but it doesn't make
-> the driver faster. In packed ring, the ring is simplified, and
-> the handling of the ring in vhost (device) is also simplified,
-> but things are not simplified in driver, e.g. although there is
-> no desc table in the virtqueue anymore, driver still needs to
-> maintain a private desc state table (which is still managed as
-> a list in this patch set) to support the out-of-order desc
-> processing in vhost (device).
-> 
-> I think this patch set is mainly to make the driver have a full
-> functional support for the packed ring, which makes it possible
-> to leverage the packed ring feature in vhost (device). But I'm
-> not sure whether there is any other better idea, I'd like to
-> hear your thoughts. Thanks!
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index c4f8abc7445a..f317b485ba54 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -55,12 +55,21 @@
+>  #define END_USE(vq)
+>  #endif
+>  
+> +#define _VRING_DESC_F_AVAIL(b)	((__u16)(b) << 7)
+> +#define _VRING_DESC_F_USED(b)	((__u16)(b) << 15)
 
-Just this: Jens seems to report a nice gain with virtio and
-vhost pmd across the board. Try to compare virtio and
-virtio pmd to see what does pmd do better?
+Underscore followed by an upper case letter isn't a good idea
+for a symbol. And it's not nice that this does not
+use the VRING_DESC_F_USED from the header.
+How about ((b) ? VRING_DESC_F_USED : 0) instead?
+Is produced code worse then?
+
+> +
+>  struct vring_desc_state {
+>  	void *data;			/* Data for callback. */
+>  	struct vring_desc *indir_desc;	/* Indirect descriptor, if any. */
+>  };
+>  
+>  struct vring_desc_state_packed {
+> +	void *data;			/* Data for callback. */
+> +	struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
+
+Include vring_desc_state for these?
+
+> +	int num;			/* Descriptor list length. */
+> +	dma_addr_t addr;		/* Buffer DMA addr. */
+> +	u32 len;			/* Buffer length. */
+> +	u16 flags;			/* Descriptor flags. */
+
+This seems only to be used for indirect. Check indirect field above
+instead and drop this.
+
+>  	int next;			/* The next desc state. */
+
+Packing things into 16 bit integers will help reduce
+cache pressure here.
+
+Also, this is only used for unmap, so when dma API is not used,
+maintaining addr and len list management is unnecessary. How about we
+maintain addr/len in a separate array, avoiding accesses on unmap in that case?
+
+Also, lots of architectures have a nop unmap in the DMA API.
+See a proposed patch at the end for optimizing that case.
+
+>  };
+>  
+> @@ -660,7 +669,6 @@ static bool virtqueue_poll_split(struct virtqueue *_vq, unsigned last_used_idx)
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> -	virtio_mb(vq->weak_barriers);
+>  	return (u16)last_used_idx != virtio16_to_cpu(_vq->vdev, vq->vring.used->idx);
+>  }
+
+why is this changing the split queue implementation?
 
 
-> 
-> > 
-> > On Wed, Jul 11, 2018 at 10:27:06AM +0800, Tiwei Bie wrote:
-> > > Hello everyone,
-> > > 
-> > > This patch set implements packed ring support in virtio driver.
-> > > 
-> > > Some functional tests have been done with Jason's
-> > > packed ring implementation in vhost:
-> > > 
-> > > https://lkml.org/lkml/2018/7/3/33
-> > > 
-> > > Both of ping and netperf worked as expected.
-> > > 
-> > > v1 -> v2:
-> > > - Use READ_ONCE() to read event off_wrap and flags together (Jason);
-> > > - Add comments related to ccw (Jason);
-> > > 
-> > > RFC (v6) -> v1:
-> > > - Avoid extra virtio_wmb() in virtqueue_enable_cb_delayed_packed()
-> > >   when event idx is off (Jason);
-> > > - Fix bufs calculation in virtqueue_enable_cb_delayed_packed() (Jason);
-> > > - Test the state of the desc at used_idx instead of last_used_idx
-> > >   in virtqueue_enable_cb_delayed_packed() (Jason);
-> > > - Save wrap counter (as part of queue state) in the return value
-> > >   of virtqueue_enable_cb_prepare_packed();
-> > > - Refine the packed ring definitions in uapi;
-> > > - Rebase on the net-next tree;
-> > > 
-> > > RFC v5 -> RFC v6:
-> > > - Avoid tracking addr/len/flags when DMA API isn't used (MST/Jason);
-> > > - Define wrap counter as bool (Jason);
-> > > - Use ALIGN() in vring_init_packed() (Jason);
-> > > - Avoid using pointer to track `next` in detach_buf_packed() (Jason);
-> > > - Add comments for barriers (Jason);
-> > > - Don't enable RING_PACKED on ccw for now (noticed by Jason);
-> > > - Refine the memory barrier in virtqueue_poll();
-> > > - Add a missing memory barrier in virtqueue_enable_cb_delayed_packed();
-> > > - Remove the hacks in virtqueue_enable_cb_prepare_packed();
-> > > 
-> > > RFC v4 -> RFC v5:
-> > > - Save DMA addr, etc in desc state (Jason);
-> > > - Track used wrap counter;
-> > > 
-> > > RFC v3 -> RFC v4:
-> > > - Make ID allocation support out-of-order (Jason);
-> > > - Various fixes for EVENT_IDX support;
-> > > 
-> > > RFC v2 -> RFC v3:
-> > > - Split into small patches (Jason);
-> > > - Add helper virtqueue_use_indirect() (Jason);
-> > > - Just set id for the last descriptor of a list (Jason);
-> > > - Calculate the prev in virtqueue_add_packed() (Jason);
-> > > - Fix/improve desc suppression code (Jason/MST);
-> > > - Refine the code layout for XXX_split/packed and wrappers (MST);
-> > > - Fix the comments and API in uapi (MST);
-> > > - Remove the BUG_ON() for indirect (Jason);
-> > > - Some other refinements and bug fixes;
-> > > 
-> > > RFC v1 -> RFC v2:
-> > > - Add indirect descriptor support - compile test only;
-> > > - Add event suppression supprt - compile test only;
-> > > - Move vring_packed_init() out of uapi (Jason, MST);
-> > > - Merge two loops into one in virtqueue_add_packed() (Jason);
-> > > - Split vring_unmap_one() for packed ring and split ring (Jason);
-> > > - Avoid using '%' operator (Jason);
-> > > - Rename free_head -> next_avail_idx (Jason);
-> > > - Add comments for virtio_wmb() in virtqueue_add_packed() (Jason);
-> > > - Some other refinements and bug fixes;
-> > > 
-> > > Thanks!
-> > > 
-> > > Tiwei Bie (5):
-> > >   virtio: add packed ring definitions
-> > >   virtio_ring: support creating packed ring
-> > >   virtio_ring: add packed ring support
-> > >   virtio_ring: add event idx support in packed ring
-> > >   virtio_ring: enable packed ring
-> > > 
-> > >  drivers/s390/virtio/virtio_ccw.c   |   14 +
-> > >  drivers/virtio/virtio_ring.c       | 1365 ++++++++++++++++++++++------
-> > >  include/linux/virtio_ring.h        |    8 +-
-> > >  include/uapi/linux/virtio_config.h |    3 +
-> > >  include/uapi/linux/virtio_ring.h   |   43 +
-> > >  5 files changed, 1157 insertions(+), 276 deletions(-)
-> > > 
-> > > -- 
-> > > 2.18.0
-> > 
-> > ---------------------------------------------------------------------
-> > To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> > For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
-> > 
+>  
+> @@ -757,6 +765,72 @@ static inline unsigned vring_size_packed(unsigned int num, unsigned long align)
+>  		& ~(align - 1)) + sizeof(struct vring_packed_desc_event) * 2;
+>  }
+>  
+> +static void vring_unmap_state_packed(const struct vring_virtqueue *vq,
+> +				     struct vring_desc_state_packed *state)
+> +{
+> +	u16 flags;
+> +
+> +	if (!vring_use_dma_api(vq->vq.vdev))
+> +		return;
+> +
+> +	flags = state->flags;
+> +
+> +	if (flags & VRING_DESC_F_INDIRECT) {
+> +		dma_unmap_single(vring_dma_dev(vq),
+> +				 state->addr, state->len,
+> +				 (flags & VRING_DESC_F_WRITE) ?
+> +				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
+> +	} else {
+> +		dma_unmap_page(vring_dma_dev(vq),
+> +			       state->addr, state->len,
+> +			       (flags & VRING_DESC_F_WRITE) ?
+> +			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+> +	}
+> +}
+> +
+> +static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
+> +				   struct vring_packed_desc *desc)
+> +{
+> +	u16 flags;
+> +
+> +	if (!vring_use_dma_api(vq->vq.vdev))
+> +		return;
+> +
+> +	flags = virtio16_to_cpu(vq->vq.vdev, desc->flags);
+
+I see no reason to use virtioXX wrappers for the packed ring.
+That's there to support legacy devices. Just use leXX.
+
+> +
+> +	if (flags & VRING_DESC_F_INDIRECT) {
+> +		dma_unmap_single(vring_dma_dev(vq),
+> +				 virtio64_to_cpu(vq->vq.vdev, desc->addr),
+> +				 virtio32_to_cpu(vq->vq.vdev, desc->len),
+> +				 (flags & VRING_DESC_F_WRITE) ?
+> +				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
+> +	} else {
+> +		dma_unmap_page(vring_dma_dev(vq),
+> +			       virtio64_to_cpu(vq->vq.vdev, desc->addr),
+> +			       virtio32_to_cpu(vq->vq.vdev, desc->len),
+> +			       (flags & VRING_DESC_F_WRITE) ?
+> +			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
+> +	}
+> +}
+> +
+> +static struct vring_packed_desc *alloc_indirect_packed(struct virtqueue *_vq,
+> +						       unsigned int total_sg,
+> +						       gfp_t gfp)
+> +{
+> +	struct vring_packed_desc *desc;
+> +
+> +	/*
+> +	 * We require lowmem mappings for the descriptors because
+> +	 * otherwise virt_to_phys will give us bogus addresses in the
+> +	 * virtqueue.
+
+Where is virt_to_phys used? I don't see it in this patch.
+
+> +	 */
+> +	gfp &= ~__GFP_HIGHMEM;
+> +
+> +	desc = kmalloc(total_sg * sizeof(struct vring_packed_desc), gfp);
+> +
+> +	return desc;
+> +}
+> +
+>  static inline int virtqueue_add_packed(struct virtqueue *_vq,
+>  				       struct scatterlist *sgs[],
+>  				       unsigned int total_sg,
+> @@ -766,47 +840,449 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+>  				       void *ctx,
+>  				       gfp_t gfp)
+>  {
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	struct vring_packed_desc *desc;
+> +	struct scatterlist *sg;
+> +	unsigned int i, n, descs_used, uninitialized_var(prev), err_idx;
+> +	__virtio16 uninitialized_var(head_flags), flags;
+> +	u16 head, avail_wrap_counter, id, curr;
+> +	bool indirect;
+> +
+> +	START_USE(vq);
+> +
+> +	BUG_ON(data == NULL);
+> +	BUG_ON(ctx && vq->indirect);
+> +
+> +	if (unlikely(vq->broken)) {
+> +		END_USE(vq);
+> +		return -EIO;
+> +	}
+> +
+> +#ifdef DEBUG
+> +	{
+> +		ktime_t now = ktime_get();
+> +
+> +		/* No kick or get, with .1 second between?  Warn. */
+> +		if (vq->last_add_time_valid)
+> +			WARN_ON(ktime_to_ms(ktime_sub(now, vq->last_add_time))
+> +					    > 100);
+> +		vq->last_add_time = now;
+> +		vq->last_add_time_valid = true;
+> +	}
+> +#endif
+
+Add incline helpers for this debug stuff rather than
+duplicate it from split ring?
+
+
+> +
+> +	BUG_ON(total_sg == 0);
+> +
+> +	head = vq->next_avail_idx;
+> +	avail_wrap_counter = vq->avail_wrap_counter;
+> +
+> +	if (virtqueue_use_indirect(_vq, total_sg))
+> +		desc = alloc_indirect_packed(_vq, total_sg, gfp);
+> +	else {
+> +		desc = NULL;
+> +		WARN_ON_ONCE(total_sg > vq->vring_packed.num && !vq->indirect);
+> +	}
+
+
+Apparently this attempts to treat indirect descriptors same as
+direct ones. This is how it is in the split ring, but not in
+the packed one. I think you want two separate functions, for
+direct and indirect.
+
+> +
+> +	if (desc) {
+> +		/* Use a single buffer which doesn't continue */
+> +		indirect = true;
+> +		/* Set up rest to use this indirect table. */
+> +		i = 0;
+> +		descs_used = 1;
+> +	} else {
+> +		indirect = false;
+> +		desc = vq->vring_packed.desc;
+> +		i = head;
+> +		descs_used = total_sg;
+> +	}
+> +
+> +	if (vq->vq.num_free < descs_used) {
+> +		pr_debug("Can't add buf len %i - avail = %i\n",
+> +			 descs_used, vq->vq.num_free);
+> +		/* FIXME: for historical reasons, we force a notify here if
+> +		 * there are outgoing parts to the buffer.  Presumably the
+> +		 * host should service the ring ASAP. */
+> +		if (out_sgs)
+> +			vq->notify(&vq->vq);
+> +		if (indirect)
+> +			kfree(desc);
+> +		END_USE(vq);
+> +		return -ENOSPC;
+> +	}
+> +
+> +	id = vq->free_head;
+> +	BUG_ON(id == vq->vring_packed.num);
+> +
+> +	curr = id;
+> +	for (n = 0; n < out_sgs + in_sgs; n++) {
+> +		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
+> +			dma_addr_t addr = vring_map_one_sg(vq, sg, n < out_sgs ?
+> +					       DMA_TO_DEVICE : DMA_FROM_DEVICE);
+> +			if (vring_mapping_error(vq, addr))
+> +				goto unmap_release;
+> +
+> +			flags = cpu_to_virtio16(_vq->vdev, VRING_DESC_F_NEXT |
+> +				  (n < out_sgs ? 0 : VRING_DESC_F_WRITE) |
+> +				  _VRING_DESC_F_AVAIL(vq->avail_wrap_counter) |
+> +				  _VRING_DESC_F_USED(!vq->avail_wrap_counter));
+
+Spec says:
+	The VIRTQ_DESC_F_WRITE flags bit is the only valid flag for descriptors in the
+	indirect table.
+
+All this logic isn't needed for indirect.
+
+Also, why re-calculate avail/used flags every time? They only change
+when you wrap around.
+
+
+> +			if (!indirect && i == head)
+> +				head_flags = flags;
+> +			else
+> +				desc[i].flags = flags;
+> +
+> +			desc[i].addr = cpu_to_virtio64(_vq->vdev, addr);
+> +			desc[i].len = cpu_to_virtio32(_vq->vdev, sg->length);
+> +			i++;
+> +			if (!indirect) {
+> +				if (vring_use_dma_api(_vq->vdev)) {
+> +					vq->desc_state_packed[curr].addr = addr;
+> +					vq->desc_state_packed[curr].len =
+> +						sg->length;
+> +					vq->desc_state_packed[curr].flags =
+> +						virtio16_to_cpu(_vq->vdev,
+> +								flags);
+> +				}
+> +				curr = vq->desc_state_packed[curr].next;
+> +
+> +				if (i >= vq->vring_packed.num) {
+> +					i = 0;
+> +					vq->avail_wrap_counter ^= 1;
+> +				}
+> +			}
+> +		}
+> +	}
+> +
+> +	prev = (i > 0 ? i : vq->vring_packed.num) - 1;
+> +	desc[prev].id = cpu_to_virtio16(_vq->vdev, id);
+
+Is it easier to write this out in all descriptors, to avoid the need to
+calculate prev?
+
+> +
+> +	/* Last one doesn't continue. */
+> +	if (total_sg == 1)
+> +		head_flags &= cpu_to_virtio16(_vq->vdev, ~VRING_DESC_F_NEXT);
+> +	else
+> +		desc[prev].flags &= cpu_to_virtio16(_vq->vdev,
+> +						~VRING_DESC_F_NEXT);
+
+Wouldn't it be easier to avoid setting VRING_DESC_F_NEXT
+in the first place?
+	 if (n != in_sgs - 1 && n != out_sgs - 1)
+
+must be better than writing descriptor an extra time.
+
+> +
+> +	if (indirect) {
+> +		/* Now that the indirect table is filled in, map it. */
+> +		dma_addr_t addr = vring_map_single(
+> +			vq, desc, total_sg * sizeof(struct vring_packed_desc),
+> +			DMA_TO_DEVICE);
+> +		if (vring_mapping_error(vq, addr))
+> +			goto unmap_release;
+> +
+> +		head_flags = cpu_to_virtio16(_vq->vdev, VRING_DESC_F_INDIRECT |
+> +				      _VRING_DESC_F_AVAIL(avail_wrap_counter) |
+> +				      _VRING_DESC_F_USED(!avail_wrap_counter));
+> +		vq->vring_packed.desc[head].addr = cpu_to_virtio64(_vq->vdev,
+> +								   addr);
+> +		vq->vring_packed.desc[head].len = cpu_to_virtio32(_vq->vdev,
+> +				total_sg * sizeof(struct vring_packed_desc));
+> +		vq->vring_packed.desc[head].id = cpu_to_virtio16(_vq->vdev, id);
+> +
+> +		if (vring_use_dma_api(_vq->vdev)) {
+> +			vq->desc_state_packed[id].addr = addr;
+> +			vq->desc_state_packed[id].len = total_sg *
+> +					sizeof(struct vring_packed_desc);
+> +			vq->desc_state_packed[id].flags =
+> +					virtio16_to_cpu(_vq->vdev, head_flags);
+> +		}
+> +	}
+> +
+> +	/* We're using some buffers from the free list. */
+> +	vq->vq.num_free -= descs_used;
+> +
+> +	/* Update free pointer */
+> +	if (indirect) {
+> +		n = head + 1;
+> +		if (n >= vq->vring_packed.num) {
+> +			n = 0;
+> +			vq->avail_wrap_counter ^= 1;
+> +		}
+> +		vq->next_avail_idx = n;
+> +		vq->free_head = vq->desc_state_packed[id].next;
+> +	} else {
+> +		vq->next_avail_idx = i;
+> +		vq->free_head = curr;
+> +	}
+> +
+> +	/* Store token and indirect buffer state. */
+> +	vq->desc_state_packed[id].num = descs_used;
+> +	vq->desc_state_packed[id].data = data;
+> +	if (indirect)
+> +		vq->desc_state_packed[id].indir_desc = desc;
+> +	else
+> +		vq->desc_state_packed[id].indir_desc = ctx;
+> +
+> +	/* A driver MUST NOT make the first descriptor in the list
+> +	 * available before all subsequent descriptors comprising
+> +	 * the list are made available. */
+> +	virtio_wmb(vq->weak_barriers);
+> +	vq->vring_packed.desc[head].flags = head_flags;
+> +	vq->num_added += descs_used;
+> +
+> +	pr_debug("Added buffer head %i to %p\n", head, vq);
+> +	END_USE(vq);
+> +
+> +	return 0;
+> +
+> +unmap_release:
+> +	err_idx = i;
+> +	i = head;
+> +
+> +	for (n = 0; n < total_sg; n++) {
+> +		if (i == err_idx)
+> +			break;
+> +		vring_unmap_desc_packed(vq, &desc[i]);
+> +		i++;
+> +		if (!indirect && i >= vq->vring_packed.num)
+> +			i = 0;
+> +	}
+> +
+> +	vq->avail_wrap_counter = avail_wrap_counter;
+> +
+> +	if (indirect)
+> +		kfree(desc);
+> +
+> +	END_USE(vq);
+>  	return -EIO;
+>  }
+>  
+>  static bool virtqueue_kick_prepare_packed(struct virtqueue *_vq)
+>  {
+> -	return false;
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	u16 flags;
+> +	bool needs_kick;
+> +	u32 snapshot;
+> +
+> +	START_USE(vq);
+> +	/* We need to expose the new flags value before checking notification
+> +	 * suppressions. */
+> +	virtio_mb(vq->weak_barriers);
+> +
+> +	snapshot = READ_ONCE(*(u32 *)vq->vring_packed.device);
+> +	flags = virtio16_to_cpu(_vq->vdev, (__virtio16)(snapshot >> 16)) & 0x3;
+
+What are all these hard-coded things? Also either we do READ_ONCE
+everywhere or nowhere. Why is this place special? Any why read 32 bit
+if you only want the 16?
+
+And doesn't sparse complain about cast to __virtio16?
+
+> +
+> +#ifdef DEBUG
+> +	if (vq->last_add_time_valid) {
+> +		WARN_ON(ktime_to_ms(ktime_sub(ktime_get(),
+> +					      vq->last_add_time)) > 100);
+> +	}
+> +	vq->last_add_time_valid = false;
+> +#endif
+> +
+> +	needs_kick = (flags != VRING_EVENT_F_DISABLE);
+> +	END_USE(vq);
+> +	return needs_kick;
+> +}
+> +
+> +static void detach_buf_packed(struct vring_virtqueue *vq,
+> +			      unsigned int id, void **ctx)
+> +{
+> +	struct vring_desc_state_packed *state = NULL;
+> +	struct vring_packed_desc *desc;
+> +	unsigned int curr, i;
+> +
+> +	/* Clear data ptr. */
+> +	vq->desc_state_packed[id].data = NULL;
+> +
+> +	curr = id;
+> +	for (i = 0; i < vq->desc_state_packed[id].num; i++) {
+> +		state = &vq->desc_state_packed[curr];
+> +		vring_unmap_state_packed(vq, state);
+> +		curr = state->next;
+> +	}
+> +
+> +	BUG_ON(state == NULL);
+> +	vq->vq.num_free += vq->desc_state_packed[id].num;
+> +	state->next = vq->free_head;
+> +	vq->free_head = id;
+> +
+> +	if (vq->indirect) {
+> +		u32 len;
+> +
+> +		/* Free the indirect table, if any, now that it's unmapped. */
+> +		desc = vq->desc_state_packed[id].indir_desc;
+> +		if (!desc)
+> +			return;
+> +
+> +		if (vring_use_dma_api(vq->vq.vdev)) {
+> +			len = vq->desc_state_packed[id].len;
+> +			for (i = 0; i < len / sizeof(struct vring_packed_desc);
+> +					i++)
+> +				vring_unmap_desc_packed(vq, &desc[i]);
+> +		}
+> +		kfree(desc);
+> +		vq->desc_state_packed[id].indir_desc = NULL;
+> +	} else if (ctx) {
+> +		*ctx = vq->desc_state_packed[id].indir_desc;
+> +	}
+> +}
+> +
+> +static inline bool is_used_desc_packed(const struct vring_virtqueue *vq,
+> +				       u16 idx, bool used_wrap_counter)
+> +{
+> +	u16 flags;
+> +	bool avail, used;
+> +
+> +	flags = virtio16_to_cpu(vq->vq.vdev,
+> +				vq->vring_packed.desc[idx].flags);
+> +	avail = !!(flags & VRING_DESC_F_AVAIL);
+> +	used = !!(flags & VRING_DESC_F_USED);
+> +
+> +	return avail == used && used == used_wrap_counter;
+
+I think that you don't need to look at avail flag to detect a used
+descriptor. The reason device writes it is to avoid confusing
+*device* next time descriptor wraps.
+
+>  }
+>  
+>  static inline bool more_used_packed(const struct vring_virtqueue *vq)
+>  {
+> -	return false;
+> +	return is_used_desc_packed(vq, vq->last_used_idx,
+> +			vq->used_wrap_counter);
+>  }
+>  
+>  static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
+>  					  unsigned int *len,
+>  					  void **ctx)
+>  {
+> -	return NULL;
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	u16 last_used, id;
+> +	void *ret;
+> +
+> +	START_USE(vq);
+> +
+> +	if (unlikely(vq->broken)) {
+> +		END_USE(vq);
+> +		return NULL;
+> +	}
+> +
+> +	if (!more_used_packed(vq)) {
+> +		pr_debug("No more buffers in queue\n");
+> +		END_USE(vq);
+> +		return NULL;
+> +	}
+> +
+> +	/* Only get used elements after they have been exposed by host. */
+> +	virtio_rmb(vq->weak_barriers);
+> +
+> +	last_used = vq->last_used_idx;
+> +	id = virtio16_to_cpu(_vq->vdev, vq->vring_packed.desc[last_used].id);
+> +	*len = virtio32_to_cpu(_vq->vdev, vq->vring_packed.desc[last_used].len);
+> +
+> +	if (unlikely(id >= vq->vring_packed.num)) {
+> +		BAD_RING(vq, "id %u out of range\n", id);
+> +		return NULL;
+> +	}
+> +	if (unlikely(!vq->desc_state_packed[id].data)) {
+> +		BAD_RING(vq, "id %u is not a head!\n", id);
+> +		return NULL;
+> +	}
+> +
+> +	vq->last_used_idx += vq->desc_state_packed[id].num;
+> +	if (vq->last_used_idx >= vq->vring_packed.num) {
+> +		vq->last_used_idx -= vq->vring_packed.num;
+> +		vq->used_wrap_counter ^= 1;
+> +	}
+> +
+> +	/* detach_buf_packed clears data, so grab it now. */
+> +	ret = vq->desc_state_packed[id].data;
+> +	detach_buf_packed(vq, id, ctx);
+> +
+> +#ifdef DEBUG
+> +	vq->last_add_time_valid = false;
+> +#endif
+> +
+> +	END_USE(vq);
+> +	return ret;
+>  }
+>  
+>  static void virtqueue_disable_cb_packed(struct virtqueue *_vq)
+>  {
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +
+> +	if (vq->event_flags_shadow != VRING_EVENT_F_DISABLE) {
+> +		vq->event_flags_shadow = VRING_EVENT_F_DISABLE;
+> +		vq->vring_packed.driver->flags = cpu_to_virtio16(_vq->vdev,
+> +							vq->event_flags_shadow);
+> +	}
+>  }
+>  
+>  static unsigned virtqueue_enable_cb_prepare_packed(struct virtqueue *_vq)
+>  {
+> -	return 0;
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +
+> +	START_USE(vq);
+> +
+> +	/* We optimistically turn back on interrupts, then check if there was
+> +	 * more to do. */
+> +
+> +	if (vq->event_flags_shadow == VRING_EVENT_F_DISABLE) {
+> +		vq->event_flags_shadow = VRING_EVENT_F_ENABLE;
+> +		vq->vring_packed.driver->flags = cpu_to_virtio16(_vq->vdev,
+> +							vq->event_flags_shadow);
+> +	}
+> +
+> +	END_USE(vq);
+> +	return vq->last_used_idx | ((u16)vq->used_wrap_counter << 15);
+>  }
+>  
+> -static bool virtqueue_poll_packed(struct virtqueue *_vq, unsigned last_used_idx)
+> +static bool virtqueue_poll_packed(struct virtqueue *_vq, unsigned off_wrap)
+>  {
+> -	return false;
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	bool wrap_counter;
+> +	u16 used_idx;
+> +
+> +	wrap_counter = off_wrap >> 15;
+> +	used_idx = off_wrap & ~(1 << 15);
+> +
+> +	return is_used_desc_packed(vq, used_idx, wrap_counter);
+
+These >> 15 << 15 all over the place duplicate info.
+Pls put 15 in the header.
+
+Also can you maintain the counters properly shifted?
+Then just use them.
+
+
+>  }
+>  
+>  static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
+>  {
+> -	return false;
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +
+> +	START_USE(vq);
+> +
+> +	/* We optimistically turn back on interrupts, then check if there was
+> +	 * more to do. */
+> +
+> +	if (vq->event_flags_shadow == VRING_EVENT_F_DISABLE) {
+> +		vq->event_flags_shadow = VRING_EVENT_F_ENABLE;
+> +		vq->vring_packed.driver->flags = cpu_to_virtio16(_vq->vdev,
+> +							vq->event_flags_shadow);
+> +		/* We need to enable interrupts first before re-checking
+> +		 * for more used buffers. */
+> +		virtio_mb(vq->weak_barriers);
+> +	}
+> +
+> +	if (more_used_packed(vq)) {
+> +		END_USE(vq);
+> +		return false;
+> +	}
+> +
+> +	END_USE(vq);
+> +	return true;
+>  }
+>  
+>  static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
+>  {
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	unsigned int i;
+> +	void *buf;
+> +
+> +	START_USE(vq);
+> +
+> +	for (i = 0; i < vq->vring_packed.num; i++) {
+> +		if (!vq->desc_state_packed[i].data)
+> +			continue;
+> +		/* detach_buf clears data, so grab it now. */
+> +		buf = vq->desc_state_packed[i].data;
+> +		detach_buf_packed(vq, i, NULL);
+> +		END_USE(vq);
+> +		return buf;
+> +	}
+> +	/* That should have freed everything. */
+> +	BUG_ON(vq->vq.num_free != vq->vring_packed.num);
+> +
+> +	END_USE(vq);
+>  	return NULL;
+>  }
+>  
+> @@ -1083,6 +1559,9 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigned last_used_idx)
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> +	/* We need to enable interrupts first before re-checking
+> +	 * for more used buffers. */
+> +	virtio_mb(vq->weak_barriers);
+>  	return vq->packed ? virtqueue_poll_packed(_vq, last_used_idx) :
+>  			    virtqueue_poll_split(_vq, last_used_idx);
+>  }
+
+Possible optimization for when dma API is in use:
+
+--->
+
+dma: detecting nop unmap
+
+drivers need to maintain the dma address for unmap purposes,
+but these cycles are wasted when unmap callback is not
+defined. Add an API for drivers to check that and avoid
+unmap completely. Debug builds still have unmap.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----
+
+diff --git a/include/linux/dma-debug.h b/include/linux/dma-debug.h
+index a785f2507159..38b2c27c8449 100644
+--- a/include/linux/dma-debug.h
++++ b/include/linux/dma-debug.h
+@@ -42,6 +42,11 @@ extern void debug_dma_mapping_error(struct device *dev, dma_addr_t dma_addr);
+ extern void debug_dma_unmap_page(struct device *dev, dma_addr_t addr,
+ 				 size_t size, int direction, bool map_single);
+ 
++static inline bool has_debug_dma_unmap(struct device *dev)
++{
++	return true;
++}
++
+ extern void debug_dma_map_sg(struct device *dev, struct scatterlist *sg,
+ 			     int nents, int mapped_ents, int direction);
+ 
+@@ -121,6 +126,11 @@ static inline void debug_dma_unmap_page(struct device *dev, dma_addr_t addr,
+ {
+ }
+ 
++static inline bool has_debug_dma_unmap(struct device *dev)
++{
++	return false;
++}
++
+ static inline void debug_dma_map_sg(struct device *dev, struct scatterlist *sg,
+ 				    int nents, int mapped_ents, int direction)
+ {
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index 1db6a6b46d0d..656f3e518166 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -241,6 +241,14 @@ static inline dma_addr_t dma_map_single_attrs(struct device *dev, void *ptr,
+ 	return addr;
+ }
+ 
++static inline bool has_dma_unmap(struct device *dev)
++{
++	const struct dma_map_ops *ops = get_dma_ops(dev);
++
++	return ops->unmap_page || ops->unmap_sg || ops->unmap_resource ||
++		has_dma_unmap(dev);
++}
++
+ static inline void dma_unmap_single_attrs(struct device *dev, dma_addr_t addr,
+ 					  size_t size,
+ 					  enum dma_data_direction dir,
