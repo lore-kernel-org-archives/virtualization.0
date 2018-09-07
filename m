@@ -1,16 +1,16 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [virtio-dev] Re: [PATCH net-next v2 0/5] virtio: support packed
-	ring
-Date: Fri, 7 Sep 2018 09:22:25 +0800
-Message-ID: <20180907012225.GA32677__3855.64993271164$1536283279$gmane$org@debian>
-References: <20180711022711.7090-1-tiwei.bie@intel.com>
-	<20180827170005-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 01/11] net: sock: introduce SOCK_XDP
+Date: Fri, 7 Sep 2018 11:07:30 +0800
+Message-ID: <c176da90-9b03-e0ff-9e9f-570493530150__44596.8032152907$1536289540$gmane$org@redhat.com>
+References: <20180906040526.22518-1-jasowang@redhat.com>
+	<20180906040526.22518-2-jasowang@redhat.com>
+	<20180906125615-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180827170005-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180906125615-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,132 +21,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 27, 2018 at 05:00:40PM +0300, Michael S. Tsirkin wrote:
-> Are there still plans to test the performance with vost pmd?
-> vhost doesn't seem to show a performance gain ...
-> 
-
-I tried some performance tests with vhost PMD. In guest, the
-XDP program will return XDP_DROP directly. And in host, testpmd
-will do txonly fwd.
-
-When burst size is 1 and packet size is 64 in testpmd and
-testpmd needs to iterate 5 Tx queues (but only the first two
-queues are enabled) to prepare and inject packets, I got ~12%
-performance boost (5.7Mpps -> 6.4Mpps). And if the vhost PMD
-is faster (e.g. just need to iterate the first two queues to
-prepare and inject packets), then I got similar performance
-for both rings (~9.9Mpps) (packed ring's performance can be
-lower, because it's more complicated in driver.)
-
-I think packed ring makes vhost PMD faster, but it doesn't make
-the driver faster. In packed ring, the ring is simplified, and
-the handling of the ring in vhost (device) is also simplified,
-but things are not simplified in driver, e.g. although there is
-no desc table in the virtqueue anymore, driver still needs to
-maintain a private desc state table (which is still managed as
-a list in this patch set) to support the out-of-order desc
-processing in vhost (device).
-
-I think this patch set is mainly to make the driver have a full
-functional support for the packed ring, which makes it possible
-to leverage the packed ring feature in vhost (device). But I'm
-not sure whether there is any other better idea, I'd like to
-hear your thoughts. Thanks!
-
-
-> 
-> On Wed, Jul 11, 2018 at 10:27:06AM +0800, Tiwei Bie wrote:
-> > Hello everyone,
-> > 
-> > This patch set implements packed ring support in virtio driver.
-> > 
-> > Some functional tests have been done with Jason's
-> > packed ring implementation in vhost:
-> > 
-> > https://lkml.org/lkml/2018/7/3/33
-> > 
-> > Both of ping and netperf worked as expected.
-> > 
-> > v1 -> v2:
-> > - Use READ_ONCE() to read event off_wrap and flags together (Jason);
-> > - Add comments related to ccw (Jason);
-> > 
-> > RFC (v6) -> v1:
-> > - Avoid extra virtio_wmb() in virtqueue_enable_cb_delayed_packed()
-> >   when event idx is off (Jason);
-> > - Fix bufs calculation in virtqueue_enable_cb_delayed_packed() (Jason);
-> > - Test the state of the desc at used_idx instead of last_used_idx
-> >   in virtqueue_enable_cb_delayed_packed() (Jason);
-> > - Save wrap counter (as part of queue state) in the return value
-> >   of virtqueue_enable_cb_prepare_packed();
-> > - Refine the packed ring definitions in uapi;
-> > - Rebase on the net-next tree;
-> > 
-> > RFC v5 -> RFC v6:
-> > - Avoid tracking addr/len/flags when DMA API isn't used (MST/Jason);
-> > - Define wrap counter as bool (Jason);
-> > - Use ALIGN() in vring_init_packed() (Jason);
-> > - Avoid using pointer to track `next` in detach_buf_packed() (Jason);
-> > - Add comments for barriers (Jason);
-> > - Don't enable RING_PACKED on ccw for now (noticed by Jason);
-> > - Refine the memory barrier in virtqueue_poll();
-> > - Add a missing memory barrier in virtqueue_enable_cb_delayed_packed();
-> > - Remove the hacks in virtqueue_enable_cb_prepare_packed();
-> > 
-> > RFC v4 -> RFC v5:
-> > - Save DMA addr, etc in desc state (Jason);
-> > - Track used wrap counter;
-> > 
-> > RFC v3 -> RFC v4:
-> > - Make ID allocation support out-of-order (Jason);
-> > - Various fixes for EVENT_IDX support;
-> > 
-> > RFC v2 -> RFC v3:
-> > - Split into small patches (Jason);
-> > - Add helper virtqueue_use_indirect() (Jason);
-> > - Just set id for the last descriptor of a list (Jason);
-> > - Calculate the prev in virtqueue_add_packed() (Jason);
-> > - Fix/improve desc suppression code (Jason/MST);
-> > - Refine the code layout for XXX_split/packed and wrappers (MST);
-> > - Fix the comments and API in uapi (MST);
-> > - Remove the BUG_ON() for indirect (Jason);
-> > - Some other refinements and bug fixes;
-> > 
-> > RFC v1 -> RFC v2:
-> > - Add indirect descriptor support - compile test only;
-> > - Add event suppression supprt - compile test only;
-> > - Move vring_packed_init() out of uapi (Jason, MST);
-> > - Merge two loops into one in virtqueue_add_packed() (Jason);
-> > - Split vring_unmap_one() for packed ring and split ring (Jason);
-> > - Avoid using '%' operator (Jason);
-> > - Rename free_head -> next_avail_idx (Jason);
-> > - Add comments for virtio_wmb() in virtqueue_add_packed() (Jason);
-> > - Some other refinements and bug fixes;
-> > 
-> > Thanks!
-> > 
-> > Tiwei Bie (5):
-> >   virtio: add packed ring definitions
-> >   virtio_ring: support creating packed ring
-> >   virtio_ring: add packed ring support
-> >   virtio_ring: add event idx support in packed ring
-> >   virtio_ring: enable packed ring
-> > 
-> >  drivers/s390/virtio/virtio_ccw.c   |   14 +
-> >  drivers/virtio/virtio_ring.c       | 1365 ++++++++++++++++++++++------
-> >  include/linux/virtio_ring.h        |    8 +-
-> >  include/uapi/linux/virtio_config.h |    3 +
-> >  include/uapi/linux/virtio_ring.h   |   43 +
-> >  5 files changed, 1157 insertions(+), 276 deletions(-)
-> > 
-> > -- 
-> > 2.18.0
-> 
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
-> 
+CgpPbiAyMDE45bm0MDnmnIgwN+aXpSAwMDo1NiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIFRodSwgU2VwIDA2LCAyMDE4IGF0IDEyOjA1OjE2UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+IFRoaXMgcGF0Y2ggaW50cm9kdWNlcyBhIG5ldyBzb2NrIGZsYWcgLSBTT0NLX1hEUC4g
+VGhpcyB3aWxsIGJlIHVzZWQKPj4gZm9yIG5vdGlmeWluZyB0aGUgdXBwZXIgbGF5ZXIgdGhhdCBY
+RFAgcHJvZ3JhbSBpcyBhdHRhY2hlZCBvbiB0aGUKPj4gbG93ZXIgc29ja2V0LCBhbmQgcmVxdWly
+ZXMgZm9yIGV4dHJhIGhlYWRyb29tLgo+Pgo+PiBUVU4gd2lsbCBiZSB0aGUgZmlyc3QgdXNlci4K
+Pj4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiBJ
+biBmYWN0IHZob3N0IGlzIHRoZSAxc3QgdXNlciwgcmlnaHQ/IFNvIHRoaXMgY2FuIGJlCj4gcHVz
+aGVkIG91dCB0byBiZWNvbWUgcGF0Y2ggMTAvMTEuCgpCZXR0ZXIgd2l0aCBhbiBpbmRlcGVuZGVu
+dCBwYXRjaCwgc2luY2UgcGF0Y2ggMTAvMTEgY2FuIHdvcmsgd2l0aG91dCBYRFAuCgpUaGFua3MK
+Cj4KPj4gLS0tCj4+ICAgZHJpdmVycy9uZXQvdHVuLmMgIHwgMTkgKysrKysrKysrKysrKysrKysr
+Kwo+PiAgIGluY2x1ZGUvbmV0L3NvY2suaCB8ICAxICsKPj4gICAyIGZpbGVzIGNoYW5nZWQsIDIw
+IGluc2VydGlvbnMoKykKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3R1bi5jIGIvZHJp
+dmVycy9uZXQvdHVuLmMKPj4gaW5kZXggZWJkMDdhZDgyNDMxLi4yYzU0OGJkMjAzOTMgMTAwNjQ0
+Cj4+IC0tLSBhL2RyaXZlcnMvbmV0L3R1bi5jCj4+ICsrKyBiL2RyaXZlcnMvbmV0L3R1bi5jCj4+
+IEBAIC04NjksNiArODY5LDkgQEAgc3RhdGljIGludCB0dW5fYXR0YWNoKHN0cnVjdCB0dW5fc3Ry
+dWN0ICp0dW4sIHN0cnVjdCBmaWxlICpmaWxlLAo+PiAgIAkJdHVuX25hcGlfaW5pdCh0dW4sIHRm
+aWxlLCBuYXBpKTsKPj4gICAJfQo+PiAgIAo+PiArCWlmIChydG5sX2RlcmVmZXJlbmNlKHR1bi0+
+eGRwX3Byb2cpKQo+PiArCQlzb2NrX3NldF9mbGFnKCZ0ZmlsZS0+c2ssIFNPQ0tfWERQKTsKPj4g
+Kwo+PiAgIAl0dW5fc2V0X3JlYWxfbnVtX3F1ZXVlcyh0dW4pOwo+PiAgIAo+PiAgIAkvKiBkZXZp
+Y2UgaXMgYWxsb3dlZCB0byBnbyBhd2F5IGZpcnN0LCBzbyBubyBuZWVkIHRvIGhvbGQgZXh0cmEK
+Pj4gQEAgLTEyNDEsMTMgKzEyNDQsMjkgQEAgc3RhdGljIGludCB0dW5feGRwX3NldChzdHJ1Y3Qg
+bmV0X2RldmljZSAqZGV2LCBzdHJ1Y3QgYnBmX3Byb2cgKnByb2csCj4+ICAgCQkgICAgICAgc3Ry
+dWN0IG5ldGxpbmtfZXh0X2FjayAqZXh0YWNrKQo+PiAgIHsKPj4gICAJc3RydWN0IHR1bl9zdHJ1
+Y3QgKnR1biA9IG5ldGRldl9wcml2KGRldik7Cj4+ICsJc3RydWN0IHR1bl9maWxlICp0ZmlsZTsK
+Pj4gICAJc3RydWN0IGJwZl9wcm9nICpvbGRfcHJvZzsKPj4gKwlpbnQgaTsKPj4gICAKPj4gICAJ
+b2xkX3Byb2cgPSBydG5sX2RlcmVmZXJlbmNlKHR1bi0+eGRwX3Byb2cpOwo+PiAgIAlyY3VfYXNz
+aWduX3BvaW50ZXIodHVuLT54ZHBfcHJvZywgcHJvZyk7Cj4+ICAgCWlmIChvbGRfcHJvZykKPj4g
+ICAJCWJwZl9wcm9nX3B1dChvbGRfcHJvZyk7Cj4+ICAgCj4+ICsJZm9yIChpID0gMDsgaSA8IHR1
+bi0+bnVtcXVldWVzOyBpKyspIHsKPj4gKwkJdGZpbGUgPSBydG5sX2RlcmVmZXJlbmNlKHR1bi0+
+dGZpbGVzW2ldKTsKPj4gKwkJaWYgKHByb2cpCj4+ICsJCQlzb2NrX3NldF9mbGFnKCZ0ZmlsZS0+
+c2ssIFNPQ0tfWERQKTsKPj4gKwkJZWxzZQo+PiArCQkJc29ja19yZXNldF9mbGFnKCZ0ZmlsZS0+
+c2ssIFNPQ0tfWERQKTsKPj4gKwl9Cj4+ICsJbGlzdF9mb3JfZWFjaF9lbnRyeSh0ZmlsZSwgJnR1
+bi0+ZGlzYWJsZWQsIG5leHQpIHsKPj4gKwkJaWYgKHByb2cpCj4+ICsJCQlzb2NrX3NldF9mbGFn
+KCZ0ZmlsZS0+c2ssIFNPQ0tfWERQKTsKPj4gKwkJZWxzZQo+PiArCQkJc29ja19yZXNldF9mbGFn
+KCZ0ZmlsZS0+c2ssIFNPQ0tfWERQKTsKPj4gKwl9Cj4+ICsKPj4gICAJcmV0dXJuIDA7Cj4+ICAg
+fQo+PiAgIAo+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9uZXQvc29jay5oIGIvaW5jbHVkZS9uZXQv
+c29jay5oCj4+IGluZGV4IDQzM2Y0NWZjMmQ2OC4uMzhjYWUzNWY2ZTE2IDEwMDY0NAo+PiAtLS0g
+YS9pbmNsdWRlL25ldC9zb2NrLmgKPj4gKysrIGIvaW5jbHVkZS9uZXQvc29jay5oCj4+IEBAIC04
+MDAsNiArODAwLDcgQEAgZW51bSBzb2NrX2ZsYWdzIHsKPj4gICAJU09DS19TRUxFQ1RfRVJSX1FV
+RVVFLCAvKiBXYWtlIHNlbGVjdCBvbiBlcnJvciBxdWV1ZSAqLwo+PiAgIAlTT0NLX1JDVV9GUkVF
+LCAvKiB3YWl0IHJjdSBncmFjZSBwZXJpb2QgaW4gc2tfZGVzdHJ1Y3QoKSAqLwo+PiAgIAlTT0NL
+X1RYVElNRSwKPj4gKwlTT0NLX1hEUCwgLyogWERQIGlzIGF0dGFjaGVkICovCj4+ICAgfTsKPj4g
+ICAKPj4gICAjZGVmaW5lIFNLX0ZMQUdTX1RJTUVTVEFNUCAoKDFVTCA8PCBTT0NLX1RJTUVTVEFN
+UCkgfCAoMVVMIDw8IFNPQ0tfVElNRVNUQU1QSU5HX1JYX1NPRlRXQVJFKSkKPj4gLS0gCj4+IDIu
+MTcuMQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
