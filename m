@@ -1,14 +1,16 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH] x86/paravirt: Get rid of patch_site label
-Date: Fri, 7 Sep 2018 12:51:12 +0200
-Message-ID: <20180907105112.GD12849__1419.50566689975$1536317353$gmane$org@zn.tnic>
-References: <20180907104917.12502-1-bp@alien8.de>
+From: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+Subject: Re: [PATCH v36 0/5] Virtio-balloon: support free page reporting
+Date: Fri, 7 Sep 2018 13:29:56 +0100
+Message-ID: <20180907122955.GD2544__44821.3274278261$1536323291$gmane$org@work-vm>
+References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
+	<20180723122342-mutt-send-email-mst@kernel.org>
+	<20180723143604.GB2457@work-vm> <5B911B03.2060602@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180907104917.12502-1-bp@alien8.de>
+In-Reply-To: <5B911B03.2060602@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,22 +20,94 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Juergen Gross <jgross@suse.com>, x86@kernel.org, virtualization@lists.linux-foundation.org
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBTZXAgMDcsIDIwMTggYXQgMTI6NDk6MTdQTSArMDIwMCwgQm9yaXNsYXYgUGV0a292
-IHdyb3RlOgo+IEZyb206IEJvcmlzbGF2IFBldGtvdiA8YnBAc3VzZS5kZT4KPiAKPiBXaGVuIENP
-TkZJR19QQVJBVklSVF9TUElOTE9DS1M9biwgaXQgZmlyZXMKPiAKPiAgIGFyY2gveDg2L2tlcm5l
-bC9wYXJhdmlydF9wYXRjaF82NC5jOiBJbiBmdW5jdGlvbiDigJhuYXRpdmVfcGF0Y2jigJk6Cj4g
-ICBhcmNoL3g4Ni9rZXJuZWwvcGFyYXZpcnRfcGF0Y2hfNjQuYzo4OToxOiB3YXJuaW5nOiBsYWJl
-bCDigJhwYXRjaF9zaXRl4oCZIGRlZmluZWQgYnV0IG5vdCB1c2VkIFstV3VudXNlZC1sYWJlbF0K
-PiAgICBwYXRjaF9zaXRlOgo+IAo+IGJ1dCB0aGF0IGxhYmVsIGNhbiBzaW1wbHkgYmUgcmVtb3Zl
-ZCBieSBkaXJlY3RseSBjYWxsaW5nCj4gcGFyYXZpcnRfcGF0Y2hfaW5zbnMoKSB0aGVyZS4KCldo
-b29wcywgbm8sIGl0IGlzIHN0aWxsIGJlaW5nIHVzZWQuIExlbW1lIHNlZSBpZiBJIGNhbiByZW1v
-dmUgYWxsIHRoZQpsYWJlbHMgaW4gdGhhdCBmdW5jdGlvbi4KCi0tIApSZWdhcmRzL0dydXNzLAog
-ICAgQm9yaXMuCgpHb29kIG1haWxpbmcgcHJhY3RpY2VzIGZvciA0MDA6IGF2b2lkIHRvcC1wb3N0
-aW5nIGFuZCB0cmltIHRoZSByZXBseS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+* Wei Wang (wei.w.wang@intel.com) wrote:
+> On 07/23/2018 10:36 PM, Dr. David Alan Gilbert wrote:
+> > * Michael S. Tsirkin (mst@redhat.com) wrote:
+> > > On Fri, Jul 20, 2018 at 04:33:00PM +0800, Wei Wang wrote:
+> > > > This patch series is separated from the previous "Virtio-balloon
+> > > > Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,
+> > > > implemented by this series enables the virtio-balloon driver to report
+> > > > hints of guest free pages to the host. It can be used to accelerate live
+> > > > migration of VMs. Here is an introduction of this usage:
+> > > > 
+> > > > Live migration needs to transfer the VM's memory from the source machine
+> > > > to the destination round by round. For the 1st round, all the VM's memory
+> > > > is transferred. From the 2nd round, only the pieces of memory that were
+> > > > written by the guest (after the 1st round) are transferred. One method
+> > > > that is popularly used by the hypervisor to track which part of memory is
+> > > > written is to write-protect all the guest memory.
+> > > > 
+> > > > This feature enables the optimization by skipping the transfer of guest
+> > > > free pages during VM live migration. It is not concerned that the memory
+> > > > pages are used after they are given to the hypervisor as a hint of the
+> > > > free pages, because they will be tracked by the hypervisor and transferred
+> > > > in the subsequent round if they are used and written.
+> > > > 
+> > > > * Tests
+> > > > - Test Environment
+> > > >      Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
+> > > >      Guest: 8G RAM, 4 vCPU
+> > > >      Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
+> > > > 
+> > > > - Test Results
+> > > >      - Idle Guest Live Migration Time (results are averaged over 10 runs):
+> > > >          - Optimization v.s. Legacy = 409ms vs 1757ms --> ~77% reduction
+> > > > 	(setting page poisoning zero and enabling ksm don't affect the
+> > > >           comparison result)
+> > > >      - Guest with Linux Compilation Workload (make bzImage -j4):
+> > > >          - Live Migration Time (average)
+> > > >            Optimization v.s. Legacy = 1407ms v.s. 2528ms --> ~44% reduction
+> > > >          - Linux Compilation Time
+> > > >            Optimization v.s. Legacy = 5min4s v.s. 5min12s
+> > > >            --> no obvious difference
+> > > I'd like to see dgilbert's take on whether this kind of gain
+> > > justifies adding a PV interfaces, and what kind of guest workload
+> > > is appropriate.
+> > > 
+> > > Cc'd.
+> > Well, 44% is great ... although the measurement is a bit weird.
+> > 
+> > a) A 2 second downtime is very large; 300-500ms is more normal
+> > b) I'm not sure what the 'average' is  - is that just between a bunch of
+> > repeated migrations?
+> > c) What load was running in the guest during the live migration?
+> > 
+> > An interesting measurement to add would be to do the same test but
+> > with a VM with a lot more RAM but the same load;  you'd hope the gain
+> > would be even better.
+> > It would be interesting, especially because the users who are interested
+> > are people creating VMs allocated with lots of extra memory (for the
+> > worst case) but most of the time migrating when it's fairly idle.
+> > 
+> > Dave
+> > 
+> 
+> Hi Dave,
+> 
+> The results of the added experiments have been shown in the v37 cover
+> letter.
+> Could you have a look at https://lkml.org/lkml/2018/8/27/29 . Thanks.
+
+OK, that's much better.
+The ~50% reducton with a 8G VM and a real workload is great,
+and it does what you expect when you put a lot more RAM in and see the
+84% reduction on a guest with 128G RAM - 54s vs ~9s is a big win!
+
+(The migrate_set_speed is a bit high, since that's in bytes/s - but it's
+not important).
+
+That looks good,
+
+Thanks!
+
+Dave
+
+> Best,
+> Wei
+> 
+--
+Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
