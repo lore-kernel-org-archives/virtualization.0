@@ -1,16 +1,17 @@
-From: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
-Subject: Re: [PATCH v36 0/5] Virtio-balloon: support free page reporting
-Date: Fri, 7 Sep 2018 13:29:56 +0100
-Message-ID: <20180907122955.GD2544__44821.3274278261$1536323291$gmane$org@work-vm>
-References: <1532075585-39067-1-git-send-email-wei.w.wang@intel.com>
-	<20180723122342-mutt-send-email-mst@kernel.org>
-	<20180723143604.GB2457@work-vm> <5B911B03.2060602@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH net-next v2 0/5] virtio: support packed
+	ring
+Date: Fri, 7 Sep 2018 09:00:49 -0400
+Message-ID: <20180907084509-mutt-send-email-mst__16761.3721373074$1536325132$gmane$org@kernel.org>
+References: <20180711022711.7090-1-tiwei.bie@intel.com>
+	<20180827170005-mutt-send-email-mst@kernel.org>
+	<20180907012225.GA32677@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5B911B03.2060602@intel.com>
+In-Reply-To: <20180907012225.GA32677@debian>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,94 +21,139 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, mhocko@kernel.org, torvalds@linux-foundation.org
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Wei Wang (wei.w.wang@intel.com) wrote:
-> On 07/23/2018 10:36 PM, Dr. David Alan Gilbert wrote:
-> > * Michael S. Tsirkin (mst@redhat.com) wrote:
-> > > On Fri, Jul 20, 2018 at 04:33:00PM +0800, Wei Wang wrote:
-> > > > This patch series is separated from the previous "Virtio-balloon
-> > > > Enhancement" series. The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT,
-> > > > implemented by this series enables the virtio-balloon driver to report
-> > > > hints of guest free pages to the host. It can be used to accelerate live
-> > > > migration of VMs. Here is an introduction of this usage:
-> > > > 
-> > > > Live migration needs to transfer the VM's memory from the source machine
-> > > > to the destination round by round. For the 1st round, all the VM's memory
-> > > > is transferred. From the 2nd round, only the pieces of memory that were
-> > > > written by the guest (after the 1st round) are transferred. One method
-> > > > that is popularly used by the hypervisor to track which part of memory is
-> > > > written is to write-protect all the guest memory.
-> > > > 
-> > > > This feature enables the optimization by skipping the transfer of guest
-> > > > free pages during VM live migration. It is not concerned that the memory
-> > > > pages are used after they are given to the hypervisor as a hint of the
-> > > > free pages, because they will be tracked by the hypervisor and transferred
-> > > > in the subsequent round if they are used and written.
-> > > > 
-> > > > * Tests
-> > > > - Test Environment
-> > > >      Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
-> > > >      Guest: 8G RAM, 4 vCPU
-> > > >      Migration setup: migrate_set_speed 100G, migrate_set_downtime 2 second
-> > > > 
-> > > > - Test Results
-> > > >      - Idle Guest Live Migration Time (results are averaged over 10 runs):
-> > > >          - Optimization v.s. Legacy = 409ms vs 1757ms --> ~77% reduction
-> > > > 	(setting page poisoning zero and enabling ksm don't affect the
-> > > >           comparison result)
-> > > >      - Guest with Linux Compilation Workload (make bzImage -j4):
-> > > >          - Live Migration Time (average)
-> > > >            Optimization v.s. Legacy = 1407ms v.s. 2528ms --> ~44% reduction
-> > > >          - Linux Compilation Time
-> > > >            Optimization v.s. Legacy = 5min4s v.s. 5min12s
-> > > >            --> no obvious difference
-> > > I'd like to see dgilbert's take on whether this kind of gain
-> > > justifies adding a PV interfaces, and what kind of guest workload
-> > > is appropriate.
+On Fri, Sep 07, 2018 at 09:22:25AM +0800, Tiwei Bie wrote:
+> On Mon, Aug 27, 2018 at 05:00:40PM +0300, Michael S. Tsirkin wrote:
+> > Are there still plans to test the performance with vost pmd?
+> > vhost doesn't seem to show a performance gain ...
+> > 
+> 
+> I tried some performance tests with vhost PMD. In guest, the
+> XDP program will return XDP_DROP directly. And in host, testpmd
+> will do txonly fwd.
+> 
+> When burst size is 1 and packet size is 64 in testpmd and
+> testpmd needs to iterate 5 Tx queues (but only the first two
+> queues are enabled) to prepare and inject packets, I got ~12%
+> performance boost (5.7Mpps -> 6.4Mpps). And if the vhost PMD
+> is faster (e.g. just need to iterate the first two queues to
+> prepare and inject packets), then I got similar performance
+> for both rings (~9.9Mpps) (packed ring's performance can be
+> lower, because it's more complicated in driver.)
+> 
+> I think packed ring makes vhost PMD faster, but it doesn't make
+> the driver faster. In packed ring, the ring is simplified, and
+> the handling of the ring in vhost (device) is also simplified,
+> but things are not simplified in driver, e.g. although there is
+> no desc table in the virtqueue anymore, driver still needs to
+> maintain a private desc state table (which is still managed as
+> a list in this patch set) to support the out-of-order desc
+> processing in vhost (device).
+> 
+> I think this patch set is mainly to make the driver have a full
+> functional support for the packed ring, which makes it possible
+> to leverage the packed ring feature in vhost (device). But I'm
+> not sure whether there is any other better idea, I'd like to
+> hear your thoughts. Thanks!
+
+Just this: Jens seems to report a nice gain with virtio and
+vhost pmd across the board. Try to compare virtio and
+virtio pmd to see what does pmd do better?
+
+
+> 
+> > 
+> > On Wed, Jul 11, 2018 at 10:27:06AM +0800, Tiwei Bie wrote:
+> > > Hello everyone,
 > > > 
-> > > Cc'd.
-> > Well, 44% is great ... although the measurement is a bit weird.
+> > > This patch set implements packed ring support in virtio driver.
+> > > 
+> > > Some functional tests have been done with Jason's
+> > > packed ring implementation in vhost:
+> > > 
+> > > https://lkml.org/lkml/2018/7/3/33
+> > > 
+> > > Both of ping and netperf worked as expected.
+> > > 
+> > > v1 -> v2:
+> > > - Use READ_ONCE() to read event off_wrap and flags together (Jason);
+> > > - Add comments related to ccw (Jason);
+> > > 
+> > > RFC (v6) -> v1:
+> > > - Avoid extra virtio_wmb() in virtqueue_enable_cb_delayed_packed()
+> > >   when event idx is off (Jason);
+> > > - Fix bufs calculation in virtqueue_enable_cb_delayed_packed() (Jason);
+> > > - Test the state of the desc at used_idx instead of last_used_idx
+> > >   in virtqueue_enable_cb_delayed_packed() (Jason);
+> > > - Save wrap counter (as part of queue state) in the return value
+> > >   of virtqueue_enable_cb_prepare_packed();
+> > > - Refine the packed ring definitions in uapi;
+> > > - Rebase on the net-next tree;
+> > > 
+> > > RFC v5 -> RFC v6:
+> > > - Avoid tracking addr/len/flags when DMA API isn't used (MST/Jason);
+> > > - Define wrap counter as bool (Jason);
+> > > - Use ALIGN() in vring_init_packed() (Jason);
+> > > - Avoid using pointer to track `next` in detach_buf_packed() (Jason);
+> > > - Add comments for barriers (Jason);
+> > > - Don't enable RING_PACKED on ccw for now (noticed by Jason);
+> > > - Refine the memory barrier in virtqueue_poll();
+> > > - Add a missing memory barrier in virtqueue_enable_cb_delayed_packed();
+> > > - Remove the hacks in virtqueue_enable_cb_prepare_packed();
+> > > 
+> > > RFC v4 -> RFC v5:
+> > > - Save DMA addr, etc in desc state (Jason);
+> > > - Track used wrap counter;
+> > > 
+> > > RFC v3 -> RFC v4:
+> > > - Make ID allocation support out-of-order (Jason);
+> > > - Various fixes for EVENT_IDX support;
+> > > 
+> > > RFC v2 -> RFC v3:
+> > > - Split into small patches (Jason);
+> > > - Add helper virtqueue_use_indirect() (Jason);
+> > > - Just set id for the last descriptor of a list (Jason);
+> > > - Calculate the prev in virtqueue_add_packed() (Jason);
+> > > - Fix/improve desc suppression code (Jason/MST);
+> > > - Refine the code layout for XXX_split/packed and wrappers (MST);
+> > > - Fix the comments and API in uapi (MST);
+> > > - Remove the BUG_ON() for indirect (Jason);
+> > > - Some other refinements and bug fixes;
+> > > 
+> > > RFC v1 -> RFC v2:
+> > > - Add indirect descriptor support - compile test only;
+> > > - Add event suppression supprt - compile test only;
+> > > - Move vring_packed_init() out of uapi (Jason, MST);
+> > > - Merge two loops into one in virtqueue_add_packed() (Jason);
+> > > - Split vring_unmap_one() for packed ring and split ring (Jason);
+> > > - Avoid using '%' operator (Jason);
+> > > - Rename free_head -> next_avail_idx (Jason);
+> > > - Add comments for virtio_wmb() in virtqueue_add_packed() (Jason);
+> > > - Some other refinements and bug fixes;
+> > > 
+> > > Thanks!
+> > > 
+> > > Tiwei Bie (5):
+> > >   virtio: add packed ring definitions
+> > >   virtio_ring: support creating packed ring
+> > >   virtio_ring: add packed ring support
+> > >   virtio_ring: add event idx support in packed ring
+> > >   virtio_ring: enable packed ring
+> > > 
+> > >  drivers/s390/virtio/virtio_ccw.c   |   14 +
+> > >  drivers/virtio/virtio_ring.c       | 1365 ++++++++++++++++++++++------
+> > >  include/linux/virtio_ring.h        |    8 +-
+> > >  include/uapi/linux/virtio_config.h |    3 +
+> > >  include/uapi/linux/virtio_ring.h   |   43 +
+> > >  5 files changed, 1157 insertions(+), 276 deletions(-)
+> > > 
+> > > -- 
+> > > 2.18.0
 > > 
-> > a) A 2 second downtime is very large; 300-500ms is more normal
-> > b) I'm not sure what the 'average' is  - is that just between a bunch of
-> > repeated migrations?
-> > c) What load was running in the guest during the live migration?
+> > ---------------------------------------------------------------------
+> > To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+> > For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
 > > 
-> > An interesting measurement to add would be to do the same test but
-> > with a VM with a lot more RAM but the same load;  you'd hope the gain
-> > would be even better.
-> > It would be interesting, especially because the users who are interested
-> > are people creating VMs allocated with lots of extra memory (for the
-> > worst case) but most of the time migrating when it's fairly idle.
-> > 
-> > Dave
-> > 
-> 
-> Hi Dave,
-> 
-> The results of the added experiments have been shown in the v37 cover
-> letter.
-> Could you have a look at https://lkml.org/lkml/2018/8/27/29 . Thanks.
-
-OK, that's much better.
-The ~50% reducton with a 8G VM and a real workload is great,
-and it does what you expect when you put a lot more RAM in and see the
-84% reduction on a guest with 128G RAM - 54s vs ~9s is a big win!
-
-(The migrate_set_speed is a bit high, since that's in bytes/s - but it's
-not important).
-
-That looks good,
-
-Thanks!
-
-Dave
-
-> Best,
-> Wei
-> 
---
-Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
