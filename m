@@ -1,16 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 10/11] tap: accept an array of XDP buffs through
-	sendmsg()
-Date: Thu, 6 Sep 2018 14:00:56 -0400
-Message-ID: <20180906135450-mutt-send-email-mst__35917.0002201155$1536256742$gmane$org@kernel.org>
-References: <20180906040526.22518-1-jasowang@redhat.com>
-	<20180906040526.22518-11-jasowang@redhat.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [virtio-dev] Re: [PATCH net-next v2 0/5] virtio: support packed
+	ring
+Date: Fri, 7 Sep 2018 09:22:25 +0800
+Message-ID: <20180907012225.GA32677__3855.64993271164$1536283279$gmane$org@debian>
+References: <20180711022711.7090-1-tiwei.bie@intel.com>
+	<20180827170005-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180906040526.22518-11-jasowang@redhat.com>
+In-Reply-To: <20180827170005-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,117 +20,133 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 06, 2018 at 12:05:25PM +0800, Jason Wang wrote:
-> This patch implement TUN_MSG_PTR msg_control type. This type allows
-> the caller to pass an array of XDP buffs to tuntap through ptr field
-> of the tun_msg_control. Tap will build skb through those XDP buffers.
+On Mon, Aug 27, 2018 at 05:00:40PM +0300, Michael S. Tsirkin wrote:
+> Are there still plans to test the performance with vost pmd?
+> vhost doesn't seem to show a performance gain ...
 > 
-> This will avoid lots of indirect calls thus improves the icache
-> utilization and allows to do XDP batched flushing when doing XDP
-> redirection.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/net/tap.c | 73 +++++++++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 71 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-> index 7996ed7cbf18..50eb7bf22225 100644
-> --- a/drivers/net/tap.c
-> +++ b/drivers/net/tap.c
-> @@ -1146,14 +1146,83 @@ static const struct file_operations tap_fops = {
->  #endif
->  };
->  
-> +static int tap_get_user_xdp(struct tap_queue *q, struct xdp_buff *xdp)
-> +{
-> +	struct virtio_net_hdr *gso = xdp->data_hard_start + sizeof(int);
-> +	int buflen = *(int *)xdp->data_hard_start;
-> +	int vnet_hdr_len = 0;
-> +	struct tap_dev *tap;
-> +	struct sk_buff *skb;
-> +	int err, depth;
-> +
-> +	if (q->flags & IFF_VNET_HDR)
-> +		vnet_hdr_len = READ_ONCE(q->vnet_hdr_sz);
-> +
-> +	skb = build_skb(xdp->data_hard_start, buflen);
-> +	if (!skb) {
-> +		err = -ENOMEM;
-> +		goto err;
-> +	}
 
-So fundamentally why is it called XDP?
-We just build and skb, don't we?
+I tried some performance tests with vhost PMD. In guest, the
+XDP program will return XDP_DROP directly. And in host, testpmd
+will do txonly fwd.
 
-> +
-> +	skb_reserve(skb, xdp->data - xdp->data_hard_start);
-> +	skb_put(skb, xdp->data_end - xdp->data);
-> +
-> +	skb_set_network_header(skb, ETH_HLEN);
-> +	skb_reset_mac_header(skb);
-> +	skb->protocol = eth_hdr(skb)->h_proto;
-> +
-> +	if (vnet_hdr_len) {
-> +		err = virtio_net_hdr_to_skb(skb, gso, tap_is_little_endian(q));
-> +		if (err)
-> +			goto err_kfree;
-> +	}
-> +
-> +	skb_probe_transport_header(skb, ETH_HLEN);
-> +
-> +	/* Move network header to the right position for VLAN tagged packets */
-> +	if ((skb->protocol == htons(ETH_P_8021Q) ||
-> +	     skb->protocol == htons(ETH_P_8021AD)) &&
-> +	    __vlan_get_protocol(skb, skb->protocol, &depth) != 0)
-> +		skb_set_network_header(skb, depth);
-> +
-> +	rcu_read_lock();
-> +	tap = rcu_dereference(q->tap);
-> +	if (tap) {
-> +		skb->dev = tap->dev;
-> +		dev_queue_xmit(skb);
-> +	} else {
-> +		kfree_skb(skb);
-> +	}
-> +	rcu_read_unlock();
-> +
-> +	return 0;
-> +
-> +err_kfree:
-> +	kfree_skb(skb);
-> +err:
-> +	rcu_read_lock();
-> +		tap = rcu_dereference(q->tap);
-> +	if (tap && tap->count_tx_dropped)
-> +		tap->count_tx_dropped(tap);
-> +	rcu_read_unlock();
-> +	return err;
-> +}
-> +
->  static int tap_sendmsg(struct socket *sock, struct msghdr *m,
->  		       size_t total_len)
->  {
->  	struct tap_queue *q = container_of(sock, struct tap_queue, sock);
->  	struct tun_msg_ctl *ctl = m->msg_control;
-> +	struct xdp_buff *xdp;
-> +	int i;
->  
-> -	if (ctl && ctl->type != TUN_MSG_UBUF)
-> -		return -EINVAL;
-> +	if (ctl && ((ctl->type & 0xF) == TUN_MSG_PTR)) {
-> +		for (i = 0; i < ctl->type >> 16; i++) {
-> +			xdp = &((struct xdp_buff *)ctl->ptr)[i];
-> +			tap_get_user_xdp(q, xdp);
-> +		}
-> +		return 0;
-> +	}
->  
->  	return tap_get_user(q, ctl ? ctl->ptr : NULL, &m->msg_iter,
->  			    m->msg_flags & MSG_DONTWAIT);
-> -- 
-> 2.17.1
+When burst size is 1 and packet size is 64 in testpmd and
+testpmd needs to iterate 5 Tx queues (but only the first two
+queues are enabled) to prepare and inject packets, I got ~12%
+performance boost (5.7Mpps -> 6.4Mpps). And if the vhost PMD
+is faster (e.g. just need to iterate the first two queues to
+prepare and inject packets), then I got similar performance
+for both rings (~9.9Mpps) (packed ring's performance can be
+lower, because it's more complicated in driver.)
+
+I think packed ring makes vhost PMD faster, but it doesn't make
+the driver faster. In packed ring, the ring is simplified, and
+the handling of the ring in vhost (device) is also simplified,
+but things are not simplified in driver, e.g. although there is
+no desc table in the virtqueue anymore, driver still needs to
+maintain a private desc state table (which is still managed as
+a list in this patch set) to support the out-of-order desc
+processing in vhost (device).
+
+I think this patch set is mainly to make the driver have a full
+functional support for the packed ring, which makes it possible
+to leverage the packed ring feature in vhost (device). But I'm
+not sure whether there is any other better idea, I'd like to
+hear your thoughts. Thanks!
+
+
+> 
+> On Wed, Jul 11, 2018 at 10:27:06AM +0800, Tiwei Bie wrote:
+> > Hello everyone,
+> > 
+> > This patch set implements packed ring support in virtio driver.
+> > 
+> > Some functional tests have been done with Jason's
+> > packed ring implementation in vhost:
+> > 
+> > https://lkml.org/lkml/2018/7/3/33
+> > 
+> > Both of ping and netperf worked as expected.
+> > 
+> > v1 -> v2:
+> > - Use READ_ONCE() to read event off_wrap and flags together (Jason);
+> > - Add comments related to ccw (Jason);
+> > 
+> > RFC (v6) -> v1:
+> > - Avoid extra virtio_wmb() in virtqueue_enable_cb_delayed_packed()
+> >   when event idx is off (Jason);
+> > - Fix bufs calculation in virtqueue_enable_cb_delayed_packed() (Jason);
+> > - Test the state of the desc at used_idx instead of last_used_idx
+> >   in virtqueue_enable_cb_delayed_packed() (Jason);
+> > - Save wrap counter (as part of queue state) in the return value
+> >   of virtqueue_enable_cb_prepare_packed();
+> > - Refine the packed ring definitions in uapi;
+> > - Rebase on the net-next tree;
+> > 
+> > RFC v5 -> RFC v6:
+> > - Avoid tracking addr/len/flags when DMA API isn't used (MST/Jason);
+> > - Define wrap counter as bool (Jason);
+> > - Use ALIGN() in vring_init_packed() (Jason);
+> > - Avoid using pointer to track `next` in detach_buf_packed() (Jason);
+> > - Add comments for barriers (Jason);
+> > - Don't enable RING_PACKED on ccw for now (noticed by Jason);
+> > - Refine the memory barrier in virtqueue_poll();
+> > - Add a missing memory barrier in virtqueue_enable_cb_delayed_packed();
+> > - Remove the hacks in virtqueue_enable_cb_prepare_packed();
+> > 
+> > RFC v4 -> RFC v5:
+> > - Save DMA addr, etc in desc state (Jason);
+> > - Track used wrap counter;
+> > 
+> > RFC v3 -> RFC v4:
+> > - Make ID allocation support out-of-order (Jason);
+> > - Various fixes for EVENT_IDX support;
+> > 
+> > RFC v2 -> RFC v3:
+> > - Split into small patches (Jason);
+> > - Add helper virtqueue_use_indirect() (Jason);
+> > - Just set id for the last descriptor of a list (Jason);
+> > - Calculate the prev in virtqueue_add_packed() (Jason);
+> > - Fix/improve desc suppression code (Jason/MST);
+> > - Refine the code layout for XXX_split/packed and wrappers (MST);
+> > - Fix the comments and API in uapi (MST);
+> > - Remove the BUG_ON() for indirect (Jason);
+> > - Some other refinements and bug fixes;
+> > 
+> > RFC v1 -> RFC v2:
+> > - Add indirect descriptor support - compile test only;
+> > - Add event suppression supprt - compile test only;
+> > - Move vring_packed_init() out of uapi (Jason, MST);
+> > - Merge two loops into one in virtqueue_add_packed() (Jason);
+> > - Split vring_unmap_one() for packed ring and split ring (Jason);
+> > - Avoid using '%' operator (Jason);
+> > - Rename free_head -> next_avail_idx (Jason);
+> > - Add comments for virtio_wmb() in virtqueue_add_packed() (Jason);
+> > - Some other refinements and bug fixes;
+> > 
+> > Thanks!
+> > 
+> > Tiwei Bie (5):
+> >   virtio: add packed ring definitions
+> >   virtio_ring: support creating packed ring
+> >   virtio_ring: add packed ring support
+> >   virtio_ring: add event idx support in packed ring
+> >   virtio_ring: enable packed ring
+> > 
+> >  drivers/s390/virtio/virtio_ccw.c   |   14 +
+> >  drivers/virtio/virtio_ring.c       | 1365 ++++++++++++++++++++++------
+> >  include/linux/virtio_ring.h        |    8 +-
+> >  include/uapi/linux/virtio_config.h |    3 +
+> >  include/uapi/linux/virtio_ring.h   |   43 +
+> >  5 files changed, 1157 insertions(+), 276 deletions(-)
+> > 
+> > -- 
+> > 2.18.0
+> 
+> ---------------------------------------------------------------------
+> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+> 
