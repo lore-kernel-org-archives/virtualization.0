@@ -1,18 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 11/11] vhost_net: batch submitting XDP buffers
-	to underlayer sockets
-Date: Fri, 7 Sep 2018 12:13:06 -0400
-Message-ID: <20180907121148-mutt-send-email-mst__36157.0637244315$1536336667$gmane$org@kernel.org>
-References: <20180906040526.22518-1-jasowang@redhat.com>
-	<20180906040526.22518-12-jasowang@redhat.com>
-	<20180906122857-mutt-send-email-mst@kernel.org>
-	<ffb802e6-1505-e01e-f6d5-11cde8dace9b@redhat.com>
+From: Igor Stoppa <igor.stoppa@gmail.com>
+Subject: [PATCH] virtio: add unlikely() to WARN_ON_ONCE()
+Date: Fri,  7 Sep 2018 20:48:02 +0300
+Message-ID: <20180907174802.31900-1-igor.stoppa__49398.1474348859$1536342379$gmane$org@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <ffb802e6-1505-e01e-f6d5-11cde8dace9b@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,51 +15,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Igor Stoppa <igor.stoppa@huawei.com>, Virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 07, 2018 at 03:41:52PM +0800, Jason Wang wrote:
-> > > @@ -556,10 +667,14 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
-> > >   	size_t len, total_len = 0;
-> > >   	int err;
-> > >   	int sent_pkts = 0;
-> > > +	bool bulking = (sock->sk->sk_sndbuf == INT_MAX);
-> > What does bulking mean?
-> 
-> The name is misleading, it means whether we can do batching. For simplicity,
-> I disable batching is sndbuf is not INT_MAX.
+The condition to test is unlikely() to be true. Add the hint.
 
-But what does batching have to do with sndbuf?
+Signed-off-by: Igor Stoppa <igor.stoppa@huawei.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org
+---
+ tools/virtio/linux/kernel.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> > >   	for (;;) {
-> > >   		bool busyloop_intr = false;
-> > > +		if (nvq->done_idx == VHOST_NET_BATCH)
-> > > +			vhost_tx_batch(net, nvq, sock, &msg);
-> > > +
-> > >   		head = get_tx_bufs(net, nvq, &msg, &out, &in, &len,
-> > >   				   &busyloop_intr);
-> > >   		/* On error, stop handling until the next kick. */
-> > > @@ -577,14 +692,34 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
-> > >   			break;
-> > >   		}
-> > > -		vq->heads[nvq->done_idx].id = cpu_to_vhost32(vq, head);
-> > > -		vq->heads[nvq->done_idx].len = 0;
-> > > -
-> > >   		total_len += len;
-> > > -		if (tx_can_batch(vq, total_len))
-> > > -			msg.msg_flags |= MSG_MORE;
-> > > -		else
-> > > -			msg.msg_flags &= ~MSG_MORE;
-> > > +
-> > > +		/* For simplicity, TX batching is only enabled if
-> > > +		 * sndbuf is unlimited.
-> > What if sndbuf changes while this processing is going on?
-> 
-> We will get the correct sndbuf in the next run of handle_tx(). I think this
-> is safe.
-
-If it's safe why bother with special-casing INT_MAX?
-
+diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+index fb22bccfbc8a..2b5e417ea2f0 100644
+--- a/tools/virtio/linux/kernel.h
++++ b/tools/virtio/linux/kernel.h
+@@ -123,7 +123,7 @@ static inline void free_page(unsigned long addr)
+ #define dev_err(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
+ #define dev_warn(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
+ 
+-#define WARN_ON_ONCE(cond) ((cond) ? fprintf (stderr, "WARNING\n") : 0)
++#define WARN_ON_ONCE(cond) (unlikely(cond) ? fprintf (stderr, "WARNING\n") : 0)
+ 
+ #define min(x, y) ({				\
+ 	typeof(x) _min1 = (x);			\
 -- 
-MST
+2.17.1
