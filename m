@@ -1,17 +1,18 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next 06/11] tuntap: split out XDP logic
-Date: Mon, 10 Sep 2018 11:43:35 +0800
-Message-ID: <c2e48fa5-eeb7-12eb-335f-c4e1e9943bec@redhat.com>
+Subject: Re: [PATCH net-next 04/11] tuntap: simplify error handling in
+	tun_build_skb()
+Date: Mon, 10 Sep 2018 11:44:26 +0800
+Message-ID: <372ec320-83cf-add5-acf7-27d876c3d604__28227.3532044657$1536550953$gmane$org@redhat.com>
 References: <20180906040526.22518-1-jasowang@redhat.com>
-	<20180906040526.22518-7-jasowang@redhat.com>
-	<20180906131703-mutt-send-email-mst@kernel.org>
-	<84ae17c1-f34b-610d-a5a1-ba8dce1732f3@redhat.com>
-	<20180907101606-mutt-send-email-mst@kernel.org>
+	<20180906040526.22518-5-jasowang@redhat.com>
+	<20180906130425-mutt-send-email-mst@kernel.org>
+	<e1f17f51-5f99-df18-4185-6c6e4dfaba89@redhat.com>
+	<20180907101645-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180907101606-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180907101645-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,12 +27,20 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDnmnIgwN+aXpSAyMjoxNiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIEZyaSwgU2VwIDA3LCAyMDE4IGF0IDExOjI5OjM0QU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Pj4gKwkJaWYgKGFjdCAhPSBYRFBfUEFTUykKPj4+PiArCQkJZ290byBvdXQ7Cj4+PiBs
-aWtlbHk/Cj4+IEl0IGRlcGVuZHMgb24gdGhlIFhEUCBwcm9ncmFtLCBzbyBJIHRlbmQgbm90IHRv
-IHVzZSBpdC4KPiBQb2ludCBpcyBYRFBfUEFTUyBpcyBhbHJlYWR5IHNsb3cuCj4KCk9rLgoKVGhh
-bmtzCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+CgpPbiAyMDE45bm0MDnmnIgwN+aXpSAyMjoxNywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIEZyaSwgU2VwIDA3LCAyMDE4IGF0IDExOjIyOjAwQU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+Pj4gQEAgLTE2NjgsNiArMTY2OCw5IEBAIHN0YXRpYyBzdHJ1Y3Qgc2tfYnVmZiAqdHVu
+X2J1aWxkX3NrYihzdHJ1Y3QgdHVuX3N0cnVjdCAqdHVuLAo+Pj4+ICAgIAlpZiAoY29waWVkICE9
+IGxlbikKPj4+PiAgICAJCXJldHVybiBFUlJfUFRSKC1FRkFVTFQpOwo+Pj4+ICsJZ2V0X3BhZ2Uo
+YWxsb2NfZnJhZy0+cGFnZSk7Cj4+Pj4gKwlhbGxvY19mcmFnLT5vZmZzZXQgKz0gYnVmbGVuOwo+
+Pj4+ICsKPj4+IFRoaXMgYWRkcyBhbiBhdG9taWMgb3Agb24gWERQX0RST1Agd2hpY2ggaXMgYSBk
+YXRhIHBhdGgKPj4+IG9wZXJhdGlvbiBmb3Igc29tZSB3b3JrbG9hZHMuCj4+IFllcywgSSBoYXZl
+IHBhdGNoIG9uIHRvcCB0byBhbW9ydGl6ZSB0aGlzLCB0aGUgaWRlYSBpcyB0byBoYXZlIGEgdmVy
+eSBiaWcKPj4gcmVmY291bnQgb25jZSBhZnRlciB0aGUgZnJhZyB3YXMgYWxsb2NhdGVkIGFuZCBt
+YWludGFpbiBhIGJpYXMgYW5kIGRlY3JlYXNlCj4+IHRoZW0gYWxsIHdoZW4gYWxsb2NhdGluZyBu
+ZXcgZnJhZ3MuJwo+IFdoeSBib3RoZXIgd2l0aCByZWZjb3VudGluZyBmb3IgYSBkcm9wIHRob3Vn
+aD8gSXQgc2hvdWxkIGJlIHNpbXBsZS4KPgoKUmlnaHQsIGxldCBtZSBmaXggdGhpcy4KClRoYW5r
+cwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
