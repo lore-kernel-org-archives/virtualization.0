@@ -1,17 +1,18 @@
-From: Juergen Gross <jgross@suse.com>
+From: Borislav Petkov <bp@alien8.de>
 Subject: Re: [PATCH] x86/paravirt: Cleanup native_patch()
-Date: Mon, 10 Sep 2018 08:54:12 +0200
-Message-ID: <229941d4-c152-89fb-eb75-fcfa5f265ad4__26384.8247741864$1536562334$gmane$org@suse.com>
+Date: Mon, 10 Sep 2018 09:01:08 +0200
+Message-ID: <20180910070108.GA21406__12583.446983672$1536562756$gmane$org@zn.tnic>
 References: <20180907104917.12502-1-bp@alien8.de>
 	<20180907105112.GD12849@zn.tnic> <20180907201050.GF12849@zn.tnic>
 	<65bb69fa-855f-9efc-19ba-c0fab69f468c@suse.com>
 	<20180908152800.GA8286@zn.tnic>
+	<229941d4-c152-89fb-eb75-fcfa5f265ad4@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180908152800.GA8286@zn.tnic>
-Content-Language: de-DE
+Content-Disposition: inline
+In-Reply-To: <229941d4-c152-89fb-eb75-fcfa5f265ad4@suse.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,73 +22,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Borislav Petkov <bp@alien8.de>
+To: Juergen Gross <jgross@suse.com>
 Cc: x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDgvMDkvMTggMTc6MjgsIEJvcmlzbGF2IFBldGtvdiB3cm90ZToKPiBXaGVuIENPTkZJR19Q
-QVJBVklSVF9TUElOTE9DS1M9biwgaXQgZmlyZXMKPiAKPiAgIGFyY2gveDg2L2tlcm5lbC9wYXJh
-dmlydF9wYXRjaF82NC5jOiBJbiBmdW5jdGlvbiDigJhuYXRpdmVfcGF0Y2jigJk6Cj4gICBhcmNo
-L3g4Ni9rZXJuZWwvcGFyYXZpcnRfcGF0Y2hfNjQuYzo4OToxOiB3YXJuaW5nOiBsYWJlbCDigJhw
-YXRjaF9zaXRl4oCZIGRlZmluZWQgYnV0IG5vdCB1c2VkIFstV3VudXNlZC1sYWJlbF0KPiAgICBw
-YXRjaF9zaXRlOgo+IAo+IGJ1dCB0aG9zZSBsYWJlbHMgY2FuIHNpbXBseSBiZSByZW1vdmVkIGJ5
-IGRpcmVjdGx5IGNhbGxpbmcgdGhlCj4gcmVzcGVjdGl2ZSBmdW5jdGlvbnMgdGhlcmUuCj4gCj4g
-R2V0IHJpZCBvZiBsb2NhbCB2YXJpYWJsZXMgdG9vLCB3aGlsZSBhdCBpdC4KPiAKPiBTaWduZWQt
-b2ZmLWJ5OiBCb3Jpc2xhdiBQZXRrb3YgPGJwQHN1c2UuZGU+Cj4gQ2M6IEp1ZXJnZW4gR3Jvc3Mg
-PGpncm9zc0BzdXNlLmNvbT4KPiBDYzogeDg2QGtlcm5lbC5vcmcKPiBDYzogdmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKPiAtLS0KPiAKPiBJdCBsb29rcyBldmVuIG1v
-cmUgY2xlYW5lciBub3cuIDopCgpBbmQgdGhlcmUgaXMgc3RpbGwgc29tZSBtb3JlIGNsZWFuIHVw
-IHBvc3NpYmxlOgoKPiAKPiAgYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0X3BhdGNoXzMyLmMgfCA0
-OCArKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tCj4gIGFyY2gveDg2L2tlcm5lbC9wYXJhdmly
-dF9wYXRjaF82NC5jIHwgNDkgKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0KPiAgMiBmaWxl
-cyBjaGFuZ2VkLCAzOSBpbnNlcnRpb25zKCspLCA1OCBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0t
-Z2l0IGEvYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0X3BhdGNoXzMyLmMgYi9hcmNoL3g4Ni9rZXJu
-ZWwvcGFyYXZpcnRfcGF0Y2hfMzIuYwo+IGluZGV4IGQ0NjBjYmNhYmNmZS4uMDg2NTMyM2MyNzE2
-IDEwMDY0NAo+IC0tLSBhL2FyY2gveDg2L2tlcm5lbC9wYXJhdmlydF9wYXRjaF8zMi5jCj4gKysr
-IGIvYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0X3BhdGNoXzMyLmMKPiBAQCAtMzQsMTQgKzM0LDEw
-IEBAIGV4dGVybiBib29sIHB2X2lzX25hdGl2ZV92Y3B1X2lzX3ByZWVtcHRlZCh2b2lkKTsKPiAg
-Cj4gIHVuc2lnbmVkIG5hdGl2ZV9wYXRjaCh1OCB0eXBlLCB2b2lkICppYnVmLCB1bnNpZ25lZCBs
-b25nIGFkZHIsIHVuc2lnbmVkIGxlbikKPiAgewo+IC0JY29uc3QgdW5zaWduZWQgY2hhciAqc3Rh
-cnQsICplbmQ7Cj4gLQl1bnNpZ25lZCByZXQ7Cj4gLQo+ICAjZGVmaW5lIFBBVENIX1NJVEUob3Bz
-LCB4KQkJCQkJXAo+IC0JCWNhc2UgUEFSQVZJUlRfUEFUQ0gob3BzLngpOgkJCVwKPiAtCQkJc3Rh
-cnQgPSBzdGFydF8jI29wcyMjXyMjeDsJCVwKPiAtCQkJZW5kID0gZW5kXyMjb3BzIyNfIyN4OwkJ
-CVwKPiAtCQkJZ290byBwYXRjaF9zaXRlCj4gKwljYXNlIFBBUkFWSVJUX1BBVENIKG9wcy54KToJ
-CQkJXAo+ICsJCXJldHVybiBwYXJhdmlydF9wYXRjaF9pbnNucyhpYnVmLCBsZW4sIHN0YXJ0XyMj
-b3BzIyNfIyN4LCBlbmRfIyNvcHMjI18jI3gpCj4gKwo+ICAJc3dpdGNoICh0eXBlKSB7Cj4gICNp
-ZmRlZiBDT05GSUdfUEFSQVZJUlRfWFhMCj4gIAkJUEFUQ0hfU0lURShpcnEsIGlycV9kaXNhYmxl
-KTsKPiBAQCAtNTQsMzIgKzUwLDI2IEBAIHVuc2lnbmVkIG5hdGl2ZV9wYXRjaCh1OCB0eXBlLCB2
-b2lkICppYnVmLCB1bnNpZ25lZCBsb25nIGFkZHIsIHVuc2lnbmVkIGxlbikKPiAgCQlQQVRDSF9T
-SVRFKG1tdSwgd3JpdGVfY3IzKTsKPiAgI2VuZGlmCj4gICNpZiBkZWZpbmVkKENPTkZJR19QQVJB
-VklSVF9TUElOTE9DS1MpCj4gLQkJY2FzZSBQQVJBVklSVF9QQVRDSChsb2NrLnF1ZXVlZF9zcGlu
-X3VubG9jayk6Cj4gLQkJCWlmIChwdl9pc19uYXRpdmVfc3Bpbl91bmxvY2soKSkgewo+IC0JCQkJ
-c3RhcnQgPSBzdGFydF9sb2NrX3F1ZXVlZF9zcGluX3VubG9jazsKPiAtCQkJCWVuZCAgID0gZW5k
-X2xvY2tfcXVldWVkX3NwaW5fdW5sb2NrOwo+IC0JCQkJZ290byBwYXRjaF9zaXRlOwo+IC0JCQl9
-Cj4gLQkJCWdvdG8gcGF0Y2hfZGVmYXVsdDsKPiArCWNhc2UgUEFSQVZJUlRfUEFUQ0gobG9jay5x
-dWV1ZWRfc3Bpbl91bmxvY2spOgo+ICsJCWlmIChwdl9pc19uYXRpdmVfc3Bpbl91bmxvY2soKSkK
-PiArCQkJcmV0dXJuIHBhcmF2aXJ0X3BhdGNoX2luc25zKGlidWYsIGxlbiwKPiArCQkJCQkJICAg
-IHN0YXJ0X2xvY2tfcXVldWVkX3NwaW5fdW5sb2NrLAo+ICsJCQkJCQkgICAgZW5kX2xvY2tfcXVl
-dWVkX3NwaW5fdW5sb2NrKTsKPiArCQllbHNlCj4gKwkJCXJldHVybiBwYXJhdmlydF9wYXRjaF9k
-ZWZhdWx0KHR5cGUsIGlidWYsIGFkZHIsIGxlbik7CgpXaHkgbm90IHJlcGxhY2UgdGhlIGVsc2Ug
-Y2xhdXNlIGJ5IGEgImJyZWFrOyIgYW5kIC4uLgoKPiAgCj4gLQkJY2FzZSBQQVJBVklSVF9QQVRD
-SChsb2NrLnZjcHVfaXNfcHJlZW1wdGVkKToKPiAtCQkJaWYgKHB2X2lzX25hdGl2ZV92Y3B1X2lz
-X3ByZWVtcHRlZCgpKSB7Cj4gLQkJCQlzdGFydCA9IHN0YXJ0X2xvY2tfdmNwdV9pc19wcmVlbXB0
-ZWQ7Cj4gLQkJCQllbmQgICA9IGVuZF9sb2NrX3ZjcHVfaXNfcHJlZW1wdGVkOwo+IC0JCQkJZ290
-byBwYXRjaF9zaXRlOwo+IC0JCQl9Cj4gLQkJCWdvdG8gcGF0Y2hfZGVmYXVsdDsKPiArCWNhc2Ug
-UEFSQVZJUlRfUEFUQ0gobG9jay52Y3B1X2lzX3ByZWVtcHRlZCk6Cj4gKwkJaWYgKHB2X2lzX25h
-dGl2ZV92Y3B1X2lzX3ByZWVtcHRlZCgpKQo+ICsJCQlyZXR1cm4gcGFyYXZpcnRfcGF0Y2hfaW5z
-bnMoaWJ1ZiwgbGVuLAo+ICsJCQkJCQkgICAgc3RhcnRfbG9ja192Y3B1X2lzX3ByZWVtcHRlZCwK
-PiArCQkJCQkJICAgIGVuZF9sb2NrX3ZjcHVfaXNfcHJlZW1wdGVkKTsKPiArCQllbHNlCj4gKwkJ
-CXJldHVybiBwYXJhdmlydF9wYXRjaF9kZWZhdWx0KHR5cGUsIGlidWYsIGFkZHIsIGxlbik7Cgou
-Li4gdGhpcyBhcyB3ZWxsIGFuZCAuLi4KCj4gICNlbmRpZgo+ICAKPiAgCWRlZmF1bHQ6Cj4gLXBh
-dGNoX2RlZmF1bHQ6IF9fbWF5YmVfdW51c2VkCj4gLQkJcmV0ID0gcGFyYXZpcnRfcGF0Y2hfZGVm
-YXVsdCh0eXBlLCBpYnVmLCBhZGRyLCBsZW4pOwo+IC0JCWJyZWFrOwo+IC0KPiAtcGF0Y2hfc2l0
-ZToKPiAtCQlyZXQgPSBwYXJhdmlydF9wYXRjaF9pbnNucyhpYnVmLCBsZW4sIHN0YXJ0LCBlbmQp
-Owo+IC0JCWJyZWFrOwo+ICsJCXJldHVybiBwYXJhdmlydF9wYXRjaF9kZWZhdWx0KHR5cGUsIGli
-dWYsIGFkZHIsIGxlbik7CgouLi4gcmVtb3ZlIHRoaXMgcmV0dXJuIGFuZCAuLi4KCj4gIAl9Cj4g
-ICN1bmRlZiBQQVRDSF9TSVRFCj4gLQlyZXR1cm4gcmV0Owo+ICsJcmV0dXJuIDA7CgpSZXBsYWNl
-IHRoaXMgYnkKCXJldHVybiBwYXJhdmlydF9wYXRjaF9kZWZhdWx0KHR5cGUsIGlidWYsIGFkZHIs
-IGxlbik7CgoKU2FtZSBmb3IgcGFyYXZpcnRfcGF0Y2hfNjQuYywgb2YgY291cnNlLgoKCkp1ZXJn
-ZW4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+On Mon, Sep 10, 2018 at 08:54:12AM +0200, Juergen Gross wrote:
+> > +	case PARAVIRT_PATCH(lock.queued_spin_unlock):
+> > +		if (pv_is_native_spin_unlock())
+> > +			return paravirt_patch_insns(ibuf, len,
+> > +						    start_lock_queued_spin_unlock,
+> > +						    end_lock_queued_spin_unlock);
+> > +		else
+> > +			return paravirt_patch_default(type, ibuf, addr, len);
+> 
+> Why not replace the else clause by a "break;" and ...
+
+Because I think that exiting right then and there is much easier to
+follow than adding all those breaks and wading through ifdeffery
+to realize that this is the default path and we'll end up calling
+paravirt_patch_default() in the end.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+Good mailing practices for 400: avoid top-posting and trim the reply.
