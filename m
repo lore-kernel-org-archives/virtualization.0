@@ -1,19 +1,23 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next 11/11] vhost_net: batch submitting XDP buffers to
-	underlayer sockets
-Date: Mon, 10 Sep 2018 11:47:17 +0800
-Message-ID: <56dadae0-439c-5694-f2a4-1b4e20f19f62__45720.9257562228$1536551124$gmane$org@redhat.com>
-References: <20180906040526.22518-1-jasowang@redhat.com>
-	<20180906040526.22518-12-jasowang@redhat.com>
-	<20180906122857-mutt-send-email-mst@kernel.org>
-	<ffb802e6-1505-e01e-f6d5-11cde8dace9b@redhat.com>
-	<20180907121148-mutt-send-email-mst@kernel.org>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
+Date: Sun, 9 Sep 2018 23:19:47 -0700
+Message-ID: <20180910061947.GA30666__11688.4034862325$1536560277$gmane$org@infradead.org>
+References: <20180807135505.GA29034@infradead.org>
+	<2103ecfe52d23cec03f185d08a87bfad9c9d82b5.camel@kernel.crashing.org>
+	<20180808063158.GA2474@infradead.org>
+	<4b596883892b5cb5560bef26fcd249e7107173ac.camel@kernel.crashing.org>
+	<20180808123036.GA2525@infradead.org>
+	<b8b9150a747453c070ad3b0e4c92d2b1b052ad06.camel@kernel.crashing.org>
+	<20180808232210-mutt-send-email-mst@kernel.org>
+	<98eb367ce322ad84baa31e3c7beffc4a42be8458.camel@kernel.crashing.org>
+	<20180809054013.GA20507@infradead.org>
+	<f1eeb994-ea13-d0f1-dc55-7c5049e70670@amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180907121148-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <f1eeb994-ea13-d0f1-dc55-7c5049e70670@amd.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,45 +27,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jiandi An <jiandi@amd.com>
+Cc: brijesh.singh@amd.com, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, paulus@samba.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>, robh@kernel.org, jean-philippe.brucker@arm.com, mpe@ellerman.id.au, Christoph Hellwig <hch@infradead.org>, thomas.lendacky@amd.com, marc.zyngier@arm.com, linuxram@us.ibm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, joe@perches.com, jiandi.an@amd.com, robin.murphy@arm.com, haren@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDnmnIgwOOaXpSAwMDoxMywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIEZyaSwgU2VwIDA3LCAyMDE4IGF0IDAzOjQxOjUyUE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Pj4gQEAgLTU1NiwxMCArNjY3LDE0IEBAIHN0YXRpYyB2b2lkIGhhbmRsZV90eF9jb3B5
-KHN0cnVjdCB2aG9zdF9uZXQgKm5ldCwgc3RydWN0IHNvY2tldCAqc29jaykKPj4+PiAgICAJc2l6
-ZV90IGxlbiwgdG90YWxfbGVuID0gMDsKPj4+PiAgICAJaW50IGVycjsKPj4+PiAgICAJaW50IHNl
-bnRfcGt0cyA9IDA7Cj4+Pj4gKwlib29sIGJ1bGtpbmcgPSAoc29jay0+c2stPnNrX3NuZGJ1ZiA9
-PSBJTlRfTUFYKTsKPj4+IFdoYXQgZG9lcyBidWxraW5nIG1lYW4/Cj4+IFRoZSBuYW1lIGlzIG1p
-c2xlYWRpbmcsIGl0IG1lYW5zIHdoZXRoZXIgd2UgY2FuIGRvIGJhdGNoaW5nLiBGb3Igc2ltcGxp
-Y2l0eSwKPj4gSSBkaXNhYmxlIGJhdGNoaW5nIGlzIHNuZGJ1ZiBpcyBub3QgSU5UX01BWC4KPiBC
-dXQgd2hhdCBkb2VzIGJhdGNoaW5nIGhhdmUgdG8gZG8gd2l0aCBzbmRidWY/CgpJZiB3ZSB3YW50
-IHRvIGRvIGJhdGNoaW5nIHdpdGggc25kYnVmLCBzb2NrZXRzIG5lZWRzIHRvIHJldHVybiB0aGUg
-Cm51bWJlciBvZiBwYWNrZXRzIHRoYXQgd2FzIHN1Y2Nlc3NmdWxseSBzZW50LiBBbmQgdmhvc3Qg
-bmVlZCB0byBleGFtaW5lIAp0aGUgdmFsdWUuCgpDb25zaWRlciBwZXJmb3JtYW5jZSB3b24ndCBi
-ZSBnb29kIGlmIHNuZGJ1ZiBpcyBsaW1pdGVkLCBJIGRvbid0IAppbXBsZW1lbnQgdGhpcyBmb3Ig
-c2ltcGxpY2l0eS4KCj4KPj4+PiAgICAJZm9yICg7Oykgewo+Pj4+ICAgIAkJYm9vbCBidXN5bG9v
-cF9pbnRyID0gZmFsc2U7Cj4+Pj4gKwkJaWYgKG52cS0+ZG9uZV9pZHggPT0gVkhPU1RfTkVUX0JB
-VENIKQo+Pj4+ICsJCQl2aG9zdF90eF9iYXRjaChuZXQsIG52cSwgc29jaywgJm1zZyk7Cj4+Pj4g
-Kwo+Pj4+ICAgIAkJaGVhZCA9IGdldF90eF9idWZzKG5ldCwgbnZxLCAmbXNnLCAmb3V0LCAmaW4s
-ICZsZW4sCj4+Pj4gICAgCQkJCSAgICZidXN5bG9vcF9pbnRyKTsKPj4+PiAgICAJCS8qIE9uIGVy
-cm9yLCBzdG9wIGhhbmRsaW5nIHVudGlsIHRoZSBuZXh0IGtpY2suICovCj4+Pj4gQEAgLTU3Nywx
-NCArNjkyLDM0IEBAIHN0YXRpYyB2b2lkIGhhbmRsZV90eF9jb3B5KHN0cnVjdCB2aG9zdF9uZXQg
-Km5ldCwgc3RydWN0IHNvY2tldCAqc29jaykKPj4+PiAgICAJCQlicmVhazsKPj4+PiAgICAJCX0K
-Pj4+PiAtCQl2cS0+aGVhZHNbbnZxLT5kb25lX2lkeF0uaWQgPSBjcHVfdG9fdmhvc3QzMih2cSwg
-aGVhZCk7Cj4+Pj4gLQkJdnEtPmhlYWRzW252cS0+ZG9uZV9pZHhdLmxlbiA9IDA7Cj4+Pj4gLQo+
-Pj4+ICAgIAkJdG90YWxfbGVuICs9IGxlbjsKPj4+PiAtCQlpZiAodHhfY2FuX2JhdGNoKHZxLCB0
-b3RhbF9sZW4pKQo+Pj4+IC0JCQltc2cubXNnX2ZsYWdzIHw9IE1TR19NT1JFOwo+Pj4+IC0JCWVs
-c2UKPj4+PiAtCQkJbXNnLm1zZ19mbGFncyAmPSB+TVNHX01PUkU7Cj4+Pj4gKwo+Pj4+ICsJCS8q
-IEZvciBzaW1wbGljaXR5LCBUWCBiYXRjaGluZyBpcyBvbmx5IGVuYWJsZWQgaWYKPj4+PiArCQkg
-KiBzbmRidWYgaXMgdW5saW1pdGVkLgo+Pj4gV2hhdCBpZiBzbmRidWYgY2hhbmdlcyB3aGlsZSB0
-aGlzIHByb2Nlc3NpbmcgaXMgZ29pbmcgb24/Cj4+IFdlIHdpbGwgZ2V0IHRoZSBjb3JyZWN0IHNu
-ZGJ1ZiBpbiB0aGUgbmV4dCBydW4gb2YgaGFuZGxlX3R4KCkuIEkgdGhpbmsgdGhpcwo+PiBpcyBz
-YWZlLgo+IElmIGl0J3Mgc2FmZSB3aHkgYm90aGVyIHdpdGggc3BlY2lhbC1jYXNpbmcgSU5UX01B
-WD8KPgoKVGhlIGRpZmZlcmVuY2UgaXMgaGFuZGxlX3R4KCkgd29uJ3QgbG9vcCBmb3JldmVyIGFu
-ZCB3aWxsIHJlY29nbml6ZSB0aGUgCm5ldyB2YWx1ZSBuZXh0IHRpbWUsIHdlIGhhdmUgYSBxdW90
-YSB0byBsaW1pdCB0aGlzLgoKVGhhbmtzCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, Sep 06, 2018 at 07:09:09PM -0500, Jiandi An wrote:
+> For virtio device we have to pass in iommu_platform=true flag for
+> this to set the VIRTIO_F_IOMMU_PLATFORM flag. But for example
+> QEMU has the use of iommu_platform attribute disabled for virtio-gpu
+> device.  So would also like to move towards not having to specify
+> the VIRTIO_F_IOMMU_PLATFORM flag.
+
+Specifying VIRTIO_F_IOMMU_PLATFORM is the right thing for your 
+platform given that you can't directly use physical addresses.
+Please fix qemu so that virtio-gpu works with VIRTIO_F_IOMMU_PLATFORM.
+
+Also just as I said for the power folks: you should really work with
+the qemu folks that VIRTIO_F_IOMMU_PLATFORM (or whatever we call the
+properly documented flag) can be set by default, and no pointless
+performance overhead is implied by having a sane and simple
+implementation.
