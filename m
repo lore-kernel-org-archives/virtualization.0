@@ -1,23 +1,17 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
-Date: Sun, 9 Sep 2018 23:19:47 -0700
-Message-ID: <20180910061947.GA30666__11688.4034862325$1536560277$gmane$org@infradead.org>
-References: <20180807135505.GA29034@infradead.org>
-	<2103ecfe52d23cec03f185d08a87bfad9c9d82b5.camel@kernel.crashing.org>
-	<20180808063158.GA2474@infradead.org>
-	<4b596883892b5cb5560bef26fcd249e7107173ac.camel@kernel.crashing.org>
-	<20180808123036.GA2525@infradead.org>
-	<b8b9150a747453c070ad3b0e4c92d2b1b052ad06.camel@kernel.crashing.org>
-	<20180808232210-mutt-send-email-mst@kernel.org>
-	<98eb367ce322ad84baa31e3c7beffc4a42be8458.camel@kernel.crashing.org>
-	<20180809054013.GA20507@infradead.org>
-	<f1eeb994-ea13-d0f1-dc55-7c5049e70670@amd.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH] x86/paravirt: Cleanup native_patch()
+Date: Mon, 10 Sep 2018 08:54:12 +0200
+Message-ID: <229941d4-c152-89fb-eb75-fcfa5f265ad4__26384.8247741864$1536562334$gmane$org@suse.com>
+References: <20180907104917.12502-1-bp@alien8.de>
+	<20180907105112.GD12849@zn.tnic> <20180907201050.GF12849@zn.tnic>
+	<65bb69fa-855f-9efc-19ba-c0fab69f468c@suse.com>
+	<20180908152800.GA8286@zn.tnic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <f1eeb994-ea13-d0f1-dc55-7c5049e70670@amd.com>
+In-Reply-To: <20180908152800.GA8286@zn.tnic>
+Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,23 +21,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiandi An <jiandi@amd.com>
-Cc: brijesh.singh@amd.com, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, paulus@samba.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>, robh@kernel.org, jean-philippe.brucker@arm.com, mpe@ellerman.id.au, Christoph Hellwig <hch@infradead.org>, thomas.lendacky@amd.com, marc.zyngier@arm.com, linuxram@us.ibm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, joe@perches.com, jiandi.an@amd.com, robin.murphy@arm.com, haren@linux.vnet.ibm.com
+To: Borislav Petkov <bp@alien8.de>
+Cc: x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 06, 2018 at 07:09:09PM -0500, Jiandi An wrote:
-> For virtio device we have to pass in iommu_platform=true flag for
-> this to set the VIRTIO_F_IOMMU_PLATFORM flag. But for example
-> QEMU has the use of iommu_platform attribute disabled for virtio-gpu
-> device.  So would also like to move towards not having to specify
-> the VIRTIO_F_IOMMU_PLATFORM flag.
-
-Specifying VIRTIO_F_IOMMU_PLATFORM is the right thing for your 
-platform given that you can't directly use physical addresses.
-Please fix qemu so that virtio-gpu works with VIRTIO_F_IOMMU_PLATFORM.
-
-Also just as I said for the power folks: you should really work with
-the qemu folks that VIRTIO_F_IOMMU_PLATFORM (or whatever we call the
-properly documented flag) can be set by default, and no pointless
-performance overhead is implied by having a sane and simple
-implementation.
+T24gMDgvMDkvMTggMTc6MjgsIEJvcmlzbGF2IFBldGtvdiB3cm90ZToKPiBXaGVuIENPTkZJR19Q
+QVJBVklSVF9TUElOTE9DS1M9biwgaXQgZmlyZXMKPiAKPiAgIGFyY2gveDg2L2tlcm5lbC9wYXJh
+dmlydF9wYXRjaF82NC5jOiBJbiBmdW5jdGlvbiDigJhuYXRpdmVfcGF0Y2jigJk6Cj4gICBhcmNo
+L3g4Ni9rZXJuZWwvcGFyYXZpcnRfcGF0Y2hfNjQuYzo4OToxOiB3YXJuaW5nOiBsYWJlbCDigJhw
+YXRjaF9zaXRl4oCZIGRlZmluZWQgYnV0IG5vdCB1c2VkIFstV3VudXNlZC1sYWJlbF0KPiAgICBw
+YXRjaF9zaXRlOgo+IAo+IGJ1dCB0aG9zZSBsYWJlbHMgY2FuIHNpbXBseSBiZSByZW1vdmVkIGJ5
+IGRpcmVjdGx5IGNhbGxpbmcgdGhlCj4gcmVzcGVjdGl2ZSBmdW5jdGlvbnMgdGhlcmUuCj4gCj4g
+R2V0IHJpZCBvZiBsb2NhbCB2YXJpYWJsZXMgdG9vLCB3aGlsZSBhdCBpdC4KPiAKPiBTaWduZWQt
+b2ZmLWJ5OiBCb3Jpc2xhdiBQZXRrb3YgPGJwQHN1c2UuZGU+Cj4gQ2M6IEp1ZXJnZW4gR3Jvc3Mg
+PGpncm9zc0BzdXNlLmNvbT4KPiBDYzogeDg2QGtlcm5lbC5vcmcKPiBDYzogdmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKPiAtLS0KPiAKPiBJdCBsb29rcyBldmVuIG1v
+cmUgY2xlYW5lciBub3cuIDopCgpBbmQgdGhlcmUgaXMgc3RpbGwgc29tZSBtb3JlIGNsZWFuIHVw
+IHBvc3NpYmxlOgoKPiAKPiAgYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0X3BhdGNoXzMyLmMgfCA0
+OCArKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tCj4gIGFyY2gveDg2L2tlcm5lbC9wYXJhdmly
+dF9wYXRjaF82NC5jIHwgNDkgKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0KPiAgMiBmaWxl
+cyBjaGFuZ2VkLCAzOSBpbnNlcnRpb25zKCspLCA1OCBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0t
+Z2l0IGEvYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0X3BhdGNoXzMyLmMgYi9hcmNoL3g4Ni9rZXJu
+ZWwvcGFyYXZpcnRfcGF0Y2hfMzIuYwo+IGluZGV4IGQ0NjBjYmNhYmNmZS4uMDg2NTMyM2MyNzE2
+IDEwMDY0NAo+IC0tLSBhL2FyY2gveDg2L2tlcm5lbC9wYXJhdmlydF9wYXRjaF8zMi5jCj4gKysr
+IGIvYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0X3BhdGNoXzMyLmMKPiBAQCAtMzQsMTQgKzM0LDEw
+IEBAIGV4dGVybiBib29sIHB2X2lzX25hdGl2ZV92Y3B1X2lzX3ByZWVtcHRlZCh2b2lkKTsKPiAg
+Cj4gIHVuc2lnbmVkIG5hdGl2ZV9wYXRjaCh1OCB0eXBlLCB2b2lkICppYnVmLCB1bnNpZ25lZCBs
+b25nIGFkZHIsIHVuc2lnbmVkIGxlbikKPiAgewo+IC0JY29uc3QgdW5zaWduZWQgY2hhciAqc3Rh
+cnQsICplbmQ7Cj4gLQl1bnNpZ25lZCByZXQ7Cj4gLQo+ICAjZGVmaW5lIFBBVENIX1NJVEUob3Bz
+LCB4KQkJCQkJXAo+IC0JCWNhc2UgUEFSQVZJUlRfUEFUQ0gob3BzLngpOgkJCVwKPiAtCQkJc3Rh
+cnQgPSBzdGFydF8jI29wcyMjXyMjeDsJCVwKPiAtCQkJZW5kID0gZW5kXyMjb3BzIyNfIyN4OwkJ
+CVwKPiAtCQkJZ290byBwYXRjaF9zaXRlCj4gKwljYXNlIFBBUkFWSVJUX1BBVENIKG9wcy54KToJ
+CQkJXAo+ICsJCXJldHVybiBwYXJhdmlydF9wYXRjaF9pbnNucyhpYnVmLCBsZW4sIHN0YXJ0XyMj
+b3BzIyNfIyN4LCBlbmRfIyNvcHMjI18jI3gpCj4gKwo+ICAJc3dpdGNoICh0eXBlKSB7Cj4gICNp
+ZmRlZiBDT05GSUdfUEFSQVZJUlRfWFhMCj4gIAkJUEFUQ0hfU0lURShpcnEsIGlycV9kaXNhYmxl
+KTsKPiBAQCAtNTQsMzIgKzUwLDI2IEBAIHVuc2lnbmVkIG5hdGl2ZV9wYXRjaCh1OCB0eXBlLCB2
+b2lkICppYnVmLCB1bnNpZ25lZCBsb25nIGFkZHIsIHVuc2lnbmVkIGxlbikKPiAgCQlQQVRDSF9T
+SVRFKG1tdSwgd3JpdGVfY3IzKTsKPiAgI2VuZGlmCj4gICNpZiBkZWZpbmVkKENPTkZJR19QQVJB
+VklSVF9TUElOTE9DS1MpCj4gLQkJY2FzZSBQQVJBVklSVF9QQVRDSChsb2NrLnF1ZXVlZF9zcGlu
+X3VubG9jayk6Cj4gLQkJCWlmIChwdl9pc19uYXRpdmVfc3Bpbl91bmxvY2soKSkgewo+IC0JCQkJ
+c3RhcnQgPSBzdGFydF9sb2NrX3F1ZXVlZF9zcGluX3VubG9jazsKPiAtCQkJCWVuZCAgID0gZW5k
+X2xvY2tfcXVldWVkX3NwaW5fdW5sb2NrOwo+IC0JCQkJZ290byBwYXRjaF9zaXRlOwo+IC0JCQl9
+Cj4gLQkJCWdvdG8gcGF0Y2hfZGVmYXVsdDsKPiArCWNhc2UgUEFSQVZJUlRfUEFUQ0gobG9jay5x
+dWV1ZWRfc3Bpbl91bmxvY2spOgo+ICsJCWlmIChwdl9pc19uYXRpdmVfc3Bpbl91bmxvY2soKSkK
+PiArCQkJcmV0dXJuIHBhcmF2aXJ0X3BhdGNoX2luc25zKGlidWYsIGxlbiwKPiArCQkJCQkJICAg
+IHN0YXJ0X2xvY2tfcXVldWVkX3NwaW5fdW5sb2NrLAo+ICsJCQkJCQkgICAgZW5kX2xvY2tfcXVl
+dWVkX3NwaW5fdW5sb2NrKTsKPiArCQllbHNlCj4gKwkJCXJldHVybiBwYXJhdmlydF9wYXRjaF9k
+ZWZhdWx0KHR5cGUsIGlidWYsIGFkZHIsIGxlbik7CgpXaHkgbm90IHJlcGxhY2UgdGhlIGVsc2Ug
+Y2xhdXNlIGJ5IGEgImJyZWFrOyIgYW5kIC4uLgoKPiAgCj4gLQkJY2FzZSBQQVJBVklSVF9QQVRD
+SChsb2NrLnZjcHVfaXNfcHJlZW1wdGVkKToKPiAtCQkJaWYgKHB2X2lzX25hdGl2ZV92Y3B1X2lz
+X3ByZWVtcHRlZCgpKSB7Cj4gLQkJCQlzdGFydCA9IHN0YXJ0X2xvY2tfdmNwdV9pc19wcmVlbXB0
+ZWQ7Cj4gLQkJCQllbmQgICA9IGVuZF9sb2NrX3ZjcHVfaXNfcHJlZW1wdGVkOwo+IC0JCQkJZ290
+byBwYXRjaF9zaXRlOwo+IC0JCQl9Cj4gLQkJCWdvdG8gcGF0Y2hfZGVmYXVsdDsKPiArCWNhc2Ug
+UEFSQVZJUlRfUEFUQ0gobG9jay52Y3B1X2lzX3ByZWVtcHRlZCk6Cj4gKwkJaWYgKHB2X2lzX25h
+dGl2ZV92Y3B1X2lzX3ByZWVtcHRlZCgpKQo+ICsJCQlyZXR1cm4gcGFyYXZpcnRfcGF0Y2hfaW5z
+bnMoaWJ1ZiwgbGVuLAo+ICsJCQkJCQkgICAgc3RhcnRfbG9ja192Y3B1X2lzX3ByZWVtcHRlZCwK
+PiArCQkJCQkJICAgIGVuZF9sb2NrX3ZjcHVfaXNfcHJlZW1wdGVkKTsKPiArCQllbHNlCj4gKwkJ
+CXJldHVybiBwYXJhdmlydF9wYXRjaF9kZWZhdWx0KHR5cGUsIGlidWYsIGFkZHIsIGxlbik7Cgou
+Li4gdGhpcyBhcyB3ZWxsIGFuZCAuLi4KCj4gICNlbmRpZgo+ICAKPiAgCWRlZmF1bHQ6Cj4gLXBh
+dGNoX2RlZmF1bHQ6IF9fbWF5YmVfdW51c2VkCj4gLQkJcmV0ID0gcGFyYXZpcnRfcGF0Y2hfZGVm
+YXVsdCh0eXBlLCBpYnVmLCBhZGRyLCBsZW4pOwo+IC0JCWJyZWFrOwo+IC0KPiAtcGF0Y2hfc2l0
+ZToKPiAtCQlyZXQgPSBwYXJhdmlydF9wYXRjaF9pbnNucyhpYnVmLCBsZW4sIHN0YXJ0LCBlbmQp
+Owo+IC0JCWJyZWFrOwo+ICsJCXJldHVybiBwYXJhdmlydF9wYXRjaF9kZWZhdWx0KHR5cGUsIGli
+dWYsIGFkZHIsIGxlbik7CgouLi4gcmVtb3ZlIHRoaXMgcmV0dXJuIGFuZCAuLi4KCj4gIAl9Cj4g
+ICN1bmRlZiBQQVRDSF9TSVRFCj4gLQlyZXR1cm4gcmV0Owo+ICsJcmV0dXJuIDA7CgpSZXBsYWNl
+IHRoaXMgYnkKCXJldHVybiBwYXJhdmlydF9wYXRjaF9kZWZhdWx0KHR5cGUsIGlidWYsIGFkZHIs
+IGxlbik7CgoKU2FtZSBmb3IgcGFyYXZpcnRfcGF0Y2hfNjQuYywgb2YgY291cnNlLgoKCkp1ZXJn
+ZW4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
+bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
+b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
+L3ZpcnR1YWxpemF0aW9u
