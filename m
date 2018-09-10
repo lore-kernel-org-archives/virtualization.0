@@ -1,19 +1,23 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH] x86/paravirt: Cleanup native_patch()
-Date: Mon, 10 Sep 2018 10:33:16 +0200
-Message-ID: <dfe856d6-a4db-b406-ef18-dba3b6b8c342__32465.6905876056$1536568280$gmane$org@suse.com>
-References: <20180907104917.12502-1-bp@alien8.de>
-	<20180907105112.GD12849@zn.tnic> <20180907201050.GF12849@zn.tnic>
-	<65bb69fa-855f-9efc-19ba-c0fab69f468c@suse.com>
-	<20180908152800.GA8286@zn.tnic>
-	<229941d4-c152-89fb-eb75-fcfa5f265ad4@suse.com>
-	<20180910070108.GA21406@zn.tnic>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [RFC 0/4] Virtio uses DMA API for all devices
+Date: Mon, 10 Sep 2018 10:53:16 +0200
+Message-ID: <20180910085316.yzjbvoohqhdng2vb__40293.9055501067$1536569484$gmane$org@sirius.home.kraxel.org>
+References: <2103ecfe52d23cec03f185d08a87bfad9c9d82b5.camel@kernel.crashing.org>
+	<20180808063158.GA2474@infradead.org>
+	<4b596883892b5cb5560bef26fcd249e7107173ac.camel@kernel.crashing.org>
+	<20180808123036.GA2525@infradead.org>
+	<b8b9150a747453c070ad3b0e4c92d2b1b052ad06.camel@kernel.crashing.org>
+	<20180808232210-mutt-send-email-mst@kernel.org>
+	<98eb367ce322ad84baa31e3c7beffc4a42be8458.camel@kernel.crashing.org>
+	<20180809054013.GA20507@infradead.org>
+	<f1eeb994-ea13-d0f1-dc55-7c5049e70670@amd.com>
+	<20180910061947.GA30666@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180910070108.GA21406@zn.tnic>
-Content-Language: de-DE
+Content-Disposition: inline
+In-Reply-To: <20180910061947.GA30666@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,32 +27,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Borislav Petkov <bp@alien8.de>
-Cc: x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: brijesh.singh@amd.com, srikar@linux.vnet.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, paulus@samba.org, elfring@users.sourceforge.net, Anshuman Khandual <khandual@linux.vnet.ibm.com>, robh@kernel.org, Jiandi An <jiandi@amd.com>, jean-philippe.brucker@arm.com, mpe@ellerman.id.au, thomas.lendacky@amd.com, marc.zyngier@arm.com, linuxram@us.ibm.com, david@gibson.dropbear.id.au, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, joe@perches.com, jiandi.an@amd.com, robin.murphy@arm.com, haren@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/09/18 09:01, Borislav Petkov wrote:
-> On Mon, Sep 10, 2018 at 08:54:12AM +0200, Juergen Gross wrote:
->>> +	case PARAVIRT_PATCH(lock.queued_spin_unlock):
->>> +		if (pv_is_native_spin_unlock())
->>> +			return paravirt_patch_insns(ibuf, len,
->>> +						    start_lock_queued_spin_unlock,
->>> +						    end_lock_queued_spin_unlock);
->>> +		else
->>> +			return paravirt_patch_default(type, ibuf, addr, len);
->>
->> Why not replace the else clause by a "break;" and ...
+> > this to set the VIRTIO_F_IOMMU_PLATFORM flag. But for example
+> > QEMU has the use of iommu_platform attribute disabled for virtio-gpu
+> > device.  So would also like to move towards not having to specify
+> > the VIRTIO_F_IOMMU_PLATFORM flag.
 > 
-> Because I think that exiting right then and there is much easier to
-> follow than adding all those breaks and wading through ifdeffery
-> to realize that this is the default path and we'll end up calling
-> paravirt_patch_default() in the end.
-> 
+> Specifying VIRTIO_F_IOMMU_PLATFORM is the right thing for your 
+> platform given that you can't directly use physical addresses.
+> Please fix qemu so that virtio-gpu works with VIRTIO_F_IOMMU_PLATFORM.
 
-Really? All of the remaining coding would fit easily on one screen. No
-hidden breaks anywhere and no deep nesting involved. And the ifdefs
-hardly makes it more difficult to understand, as they are not even
-nested.
+This needs both host and guest side changes btw.
 
+Guest side patch is in drm-misc (a3b815f09bb8) and should land in the
+next merge window.
 
-Juergen
+Host side patches are here:
+  https://git.kraxel.org/cgit/qemu/log/?h=sirius/virtio-gpu-iommu
+
+Should also land in the next qemu version.
+
+cheers,
+  Gerd
