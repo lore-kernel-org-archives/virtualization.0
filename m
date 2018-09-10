@@ -1,18 +1,19 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [virtio-dev] Re: [PATCH net-next v2 0/5] virtio: support packed
 	ring
-Date: Mon, 10 Sep 2018 11:00:53 +0800
-Message-ID: <20180910030053.GA15645__41514.9418324747$1536548392$gmane$org@debian>
+Date: Mon, 10 Sep 2018 11:33:17 +0800
+Message-ID: <f5ef0393-cf02-0795-a51a-8783ee300037__17115.6619130217$1536550286$gmane$org@redhat.com>
 References: <20180711022711.7090-1-tiwei.bie@intel.com>
 	<20180827170005-mutt-send-email-mst@kernel.org>
 	<20180907012225.GA32677@debian>
 	<20180907084509-mutt-send-email-mst@kernel.org>
+	<20180910030053.GA15645@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180907084509-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20180910030053.GA15645@debian>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,166 +23,157 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Tiwei Bie <tiwei.bie@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 07, 2018 at 09:00:49AM -0400, Michael S. Tsirkin wrote:
-> On Fri, Sep 07, 2018 at 09:22:25AM +0800, Tiwei Bie wrote:
-> > On Mon, Aug 27, 2018 at 05:00:40PM +0300, Michael S. Tsirkin wrote:
-> > > Are there still plans to test the performance with vost pmd?
-> > > vhost doesn't seem to show a performance gain ...
-> > > 
-> > 
-> > I tried some performance tests with vhost PMD. In guest, the
-> > XDP program will return XDP_DROP directly. And in host, testpmd
-> > will do txonly fwd.
-> > 
-> > When burst size is 1 and packet size is 64 in testpmd and
-> > testpmd needs to iterate 5 Tx queues (but only the first two
-> > queues are enabled) to prepare and inject packets, I got ~12%
-> > performance boost (5.7Mpps -> 6.4Mpps). And if the vhost PMD
-> > is faster (e.g. just need to iterate the first two queues to
-> > prepare and inject packets), then I got similar performance
-> > for both rings (~9.9Mpps) (packed ring's performance can be
-> > lower, because it's more complicated in driver.)
-> > 
-> > I think packed ring makes vhost PMD faster, but it doesn't make
-> > the driver faster. In packed ring, the ring is simplified, and
-> > the handling of the ring in vhost (device) is also simplified,
-> > but things are not simplified in driver, e.g. although there is
-> > no desc table in the virtqueue anymore, driver still needs to
-> > maintain a private desc state table (which is still managed as
-> > a list in this patch set) to support the out-of-order desc
-> > processing in vhost (device).
-> > 
-> > I think this patch set is mainly to make the driver have a full
-> > functional support for the packed ring, which makes it possible
-> > to leverage the packed ring feature in vhost (device). But I'm
-> > not sure whether there is any other better idea, I'd like to
-> > hear your thoughts. Thanks!
-> 
-> Just this: Jens seems to report a nice gain with virtio and
-> vhost pmd across the board. Try to compare virtio and
-> virtio pmd to see what does pmd do better?
-
-The virtio PMD (drivers/net/virtio) in DPDK doesn't need to share
-the virtio ring operation code with other drivers and is highly
-optimized for network. E.g. in Rx, the Rx burst function won't
-chain descs. So the ID management for the Rx ring can be quite
-simple and straightforward, we just need to initialize these IDs
-when initializing the ring and don't need to change these IDs
-in data path anymore (the mergable Rx code in that patch set
-assumes the descs will be written back in order, which should be
-fixed. I.e., the ID in the desc should be used to index vq->descx[]).
-The Tx code in that patch set also assumes the descs will be
-written back by device in order, which should be fixed.
-
-But in kernel virtio driver, the virtio_ring.c is very generic.
-The enqueue (virtqueue_add()) and dequeue (virtqueue_get_buf_ctx())
-functions need to support all the virtio devices and should be
-able to handle all the possible cases that may happen. So although
-the packed ring can be very efficient in some cases, currently
-the room to optimize the performance in kernel's virtio_ring.c
-isn't that much. If we want to take the fully advantage of the
-packed ring's efficiency, we need some further e.g. API changes
-in virtio_ring.c, which shouldn't be part of this patch set. So
-I still think this patch set is mainly to make the kernel virtio
-driver to have a full functional support of the packed ring, and
-we can't expect impressive performance boost with it.
-
-> 
-> 
-> > 
-> > > 
-> > > On Wed, Jul 11, 2018 at 10:27:06AM +0800, Tiwei Bie wrote:
-> > > > Hello everyone,
-> > > > 
-> > > > This patch set implements packed ring support in virtio driver.
-> > > > 
-> > > > Some functional tests have been done with Jason's
-> > > > packed ring implementation in vhost:
-> > > > 
-> > > > https://lkml.org/lkml/2018/7/3/33
-> > > > 
-> > > > Both of ping and netperf worked as expected.
-> > > > 
-> > > > v1 -> v2:
-> > > > - Use READ_ONCE() to read event off_wrap and flags together (Jason);
-> > > > - Add comments related to ccw (Jason);
-> > > > 
-> > > > RFC (v6) -> v1:
-> > > > - Avoid extra virtio_wmb() in virtqueue_enable_cb_delayed_packed()
-> > > >   when event idx is off (Jason);
-> > > > - Fix bufs calculation in virtqueue_enable_cb_delayed_packed() (Jason);
-> > > > - Test the state of the desc at used_idx instead of last_used_idx
-> > > >   in virtqueue_enable_cb_delayed_packed() (Jason);
-> > > > - Save wrap counter (as part of queue state) in the return value
-> > > >   of virtqueue_enable_cb_prepare_packed();
-> > > > - Refine the packed ring definitions in uapi;
-> > > > - Rebase on the net-next tree;
-> > > > 
-> > > > RFC v5 -> RFC v6:
-> > > > - Avoid tracking addr/len/flags when DMA API isn't used (MST/Jason);
-> > > > - Define wrap counter as bool (Jason);
-> > > > - Use ALIGN() in vring_init_packed() (Jason);
-> > > > - Avoid using pointer to track `next` in detach_buf_packed() (Jason);
-> > > > - Add comments for barriers (Jason);
-> > > > - Don't enable RING_PACKED on ccw for now (noticed by Jason);
-> > > > - Refine the memory barrier in virtqueue_poll();
-> > > > - Add a missing memory barrier in virtqueue_enable_cb_delayed_packed();
-> > > > - Remove the hacks in virtqueue_enable_cb_prepare_packed();
-> > > > 
-> > > > RFC v4 -> RFC v5:
-> > > > - Save DMA addr, etc in desc state (Jason);
-> > > > - Track used wrap counter;
-> > > > 
-> > > > RFC v3 -> RFC v4:
-> > > > - Make ID allocation support out-of-order (Jason);
-> > > > - Various fixes for EVENT_IDX support;
-> > > > 
-> > > > RFC v2 -> RFC v3:
-> > > > - Split into small patches (Jason);
-> > > > - Add helper virtqueue_use_indirect() (Jason);
-> > > > - Just set id for the last descriptor of a list (Jason);
-> > > > - Calculate the prev in virtqueue_add_packed() (Jason);
-> > > > - Fix/improve desc suppression code (Jason/MST);
-> > > > - Refine the code layout for XXX_split/packed and wrappers (MST);
-> > > > - Fix the comments and API in uapi (MST);
-> > > > - Remove the BUG_ON() for indirect (Jason);
-> > > > - Some other refinements and bug fixes;
-> > > > 
-> > > > RFC v1 -> RFC v2:
-> > > > - Add indirect descriptor support - compile test only;
-> > > > - Add event suppression supprt - compile test only;
-> > > > - Move vring_packed_init() out of uapi (Jason, MST);
-> > > > - Merge two loops into one in virtqueue_add_packed() (Jason);
-> > > > - Split vring_unmap_one() for packed ring and split ring (Jason);
-> > > > - Avoid using '%' operator (Jason);
-> > > > - Rename free_head -> next_avail_idx (Jason);
-> > > > - Add comments for virtio_wmb() in virtqueue_add_packed() (Jason);
-> > > > - Some other refinements and bug fixes;
-> > > > 
-> > > > Thanks!
-> > > > 
-> > > > Tiwei Bie (5):
-> > > >   virtio: add packed ring definitions
-> > > >   virtio_ring: support creating packed ring
-> > > >   virtio_ring: add packed ring support
-> > > >   virtio_ring: add event idx support in packed ring
-> > > >   virtio_ring: enable packed ring
-> > > > 
-> > > >  drivers/s390/virtio/virtio_ccw.c   |   14 +
-> > > >  drivers/virtio/virtio_ring.c       | 1365 ++++++++++++++++++++++------
-> > > >  include/linux/virtio_ring.h        |    8 +-
-> > > >  include/uapi/linux/virtio_config.h |    3 +
-> > > >  include/uapi/linux/virtio_ring.h   |   43 +
-> > > >  5 files changed, 1157 insertions(+), 276 deletions(-)
-> > > > 
-> > > > -- 
-> > > > 2.18.0
-> > > 
-> > > ---------------------------------------------------------------------
-> > > To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> > > For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
-> > > 
+CgpPbiAyMDE45bm0MDnmnIgxMOaXpSAxMTowMCwgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIEZyaSwg
+U2VwIDA3LCAyMDE4IGF0IDA5OjAwOjQ5QU0gLTA0MDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90
+ZToKPj4gT24gRnJpLCBTZXAgMDcsIDIwMTggYXQgMDk6MjI6MjVBTSArMDgwMCwgVGl3ZWkgQmll
+IHdyb3RlOgo+Pj4gT24gTW9uLCBBdWcgMjcsIDIwMTggYXQgMDU6MDA6NDBQTSArMDMwMCwgTWlj
+aGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4+IEFyZSB0aGVyZSBzdGlsbCBwbGFucyB0byB0ZXN0
+IHRoZSBwZXJmb3JtYW5jZSB3aXRoIHZvc3QgcG1kPwo+Pj4+IHZob3N0IGRvZXNuJ3Qgc2VlbSB0
+byBzaG93IGEgcGVyZm9ybWFuY2UgZ2FpbiAuLi4KPj4+Pgo+Pj4gSSB0cmllZCBzb21lIHBlcmZv
+cm1hbmNlIHRlc3RzIHdpdGggdmhvc3QgUE1ELiBJbiBndWVzdCwgdGhlCj4+PiBYRFAgcHJvZ3Jh
+bSB3aWxsIHJldHVybiBYRFBfRFJPUCBkaXJlY3RseS4gQW5kIGluIGhvc3QsIHRlc3RwbWQKPj4+
+IHdpbGwgZG8gdHhvbmx5IGZ3ZC4KPj4+Cj4+PiBXaGVuIGJ1cnN0IHNpemUgaXMgMSBhbmQgcGFj
+a2V0IHNpemUgaXMgNjQgaW4gdGVzdHBtZCBhbmQKPj4+IHRlc3RwbWQgbmVlZHMgdG8gaXRlcmF0
+ZSA1IFR4IHF1ZXVlcyAoYnV0IG9ubHkgdGhlIGZpcnN0IHR3bwo+Pj4gcXVldWVzIGFyZSBlbmFi
+bGVkKSB0byBwcmVwYXJlIGFuZCBpbmplY3QgcGFja2V0cywgSSBnb3QgfjEyJQo+Pj4gcGVyZm9y
+bWFuY2UgYm9vc3QgKDUuN01wcHMgLT4gNi40TXBwcykuIEFuZCBpZiB0aGUgdmhvc3QgUE1ECj4+
+PiBpcyBmYXN0ZXIgKGUuZy4ganVzdCBuZWVkIHRvIGl0ZXJhdGUgdGhlIGZpcnN0IHR3byBxdWV1
+ZXMgdG8KPj4+IHByZXBhcmUgYW5kIGluamVjdCBwYWNrZXRzKSwgdGhlbiBJIGdvdCBzaW1pbGFy
+IHBlcmZvcm1hbmNlCj4+PiBmb3IgYm90aCByaW5ncyAofjkuOU1wcHMpIChwYWNrZWQgcmluZydz
+IHBlcmZvcm1hbmNlIGNhbiBiZQo+Pj4gbG93ZXIsIGJlY2F1c2UgaXQncyBtb3JlIGNvbXBsaWNh
+dGVkIGluIGRyaXZlci4pCj4+Pgo+Pj4gSSB0aGluayBwYWNrZWQgcmluZyBtYWtlcyB2aG9zdCBQ
+TUQgZmFzdGVyLCBidXQgaXQgZG9lc24ndCBtYWtlCj4+PiB0aGUgZHJpdmVyIGZhc3Rlci4gSW4g
+cGFja2VkIHJpbmcsIHRoZSByaW5nIGlzIHNpbXBsaWZpZWQsIGFuZAo+Pj4gdGhlIGhhbmRsaW5n
+IG9mIHRoZSByaW5nIGluIHZob3N0IChkZXZpY2UpIGlzIGFsc28gc2ltcGxpZmllZCwKPj4+IGJ1
+dCB0aGluZ3MgYXJlIG5vdCBzaW1wbGlmaWVkIGluIGRyaXZlciwgZS5nLiBhbHRob3VnaCB0aGVy
+ZSBpcwo+Pj4gbm8gZGVzYyB0YWJsZSBpbiB0aGUgdmlydHF1ZXVlIGFueW1vcmUsIGRyaXZlciBz
+dGlsbCBuZWVkcyB0bwo+Pj4gbWFpbnRhaW4gYSBwcml2YXRlIGRlc2Mgc3RhdGUgdGFibGUgKHdo
+aWNoIGlzIHN0aWxsIG1hbmFnZWQgYXMKPj4+IGEgbGlzdCBpbiB0aGlzIHBhdGNoIHNldCkgdG8g
+c3VwcG9ydCB0aGUgb3V0LW9mLW9yZGVyIGRlc2MKPj4+IHByb2Nlc3NpbmcgaW4gdmhvc3QgKGRl
+dmljZSkuCj4+Pgo+Pj4gSSB0aGluayB0aGlzIHBhdGNoIHNldCBpcyBtYWlubHkgdG8gbWFrZSB0
+aGUgZHJpdmVyIGhhdmUgYSBmdWxsCj4+PiBmdW5jdGlvbmFsIHN1cHBvcnQgZm9yIHRoZSBwYWNr
+ZWQgcmluZywgd2hpY2ggbWFrZXMgaXQgcG9zc2libGUKPj4+IHRvIGxldmVyYWdlIHRoZSBwYWNr
+ZWQgcmluZyBmZWF0dXJlIGluIHZob3N0IChkZXZpY2UpLiBCdXQgSSdtCj4+PiBub3Qgc3VyZSB3
+aGV0aGVyIHRoZXJlIGlzIGFueSBvdGhlciBiZXR0ZXIgaWRlYSwgSSdkIGxpa2UgdG8KPj4+IGhl
+YXIgeW91ciB0aG91Z2h0cy4gVGhhbmtzIQo+PiBKdXN0IHRoaXM6IEplbnMgc2VlbXMgdG8gcmVw
+b3J0IGEgbmljZSBnYWluIHdpdGggdmlydGlvIGFuZAo+PiB2aG9zdCBwbWQgYWNyb3NzIHRoZSBi
+b2FyZC4gVHJ5IHRvIGNvbXBhcmUgdmlydGlvIGFuZAo+PiB2aXJ0aW8gcG1kIHRvIHNlZSB3aGF0
+IGRvZXMgcG1kIGRvIGJldHRlcj8KPiBUaGUgdmlydGlvIFBNRCAoZHJpdmVycy9uZXQvdmlydGlv
+KSBpbiBEUERLIGRvZXNuJ3QgbmVlZCB0byBzaGFyZQo+IHRoZSB2aXJ0aW8gcmluZyBvcGVyYXRp
+b24gY29kZSB3aXRoIG90aGVyIGRyaXZlcnMgYW5kIGlzIGhpZ2hseQo+IG9wdGltaXplZCBmb3Ig
+bmV0d29yay4gRS5nLiBpbiBSeCwgdGhlIFJ4IGJ1cnN0IGZ1bmN0aW9uIHdvbid0Cj4gY2hhaW4g
+ZGVzY3MuIFNvIHRoZSBJRCBtYW5hZ2VtZW50IGZvciB0aGUgUnggcmluZyBjYW4gYmUgcXVpdGUK
+PiBzaW1wbGUgYW5kIHN0cmFpZ2h0Zm9yd2FyZCwgd2UganVzdCBuZWVkIHRvIGluaXRpYWxpemUg
+dGhlc2UgSURzCj4gd2hlbiBpbml0aWFsaXppbmcgdGhlIHJpbmcgYW5kIGRvbid0IG5lZWQgdG8g
+Y2hhbmdlIHRoZXNlIElEcwo+IGluIGRhdGEgcGF0aCBhbnltb3JlICh0aGUgbWVyZ2FibGUgUngg
+Y29kZSBpbiB0aGF0IHBhdGNoIHNldAo+IGFzc3VtZXMgdGhlIGRlc2NzIHdpbGwgYmUgd3JpdHRl
+biBiYWNrIGluIG9yZGVyLCB3aGljaCBzaG91bGQgYmUKPiBmaXhlZC4gSS5lLiwgdGhlIElEIGlu
+IHRoZSBkZXNjIHNob3VsZCBiZSB1c2VkIHRvIGluZGV4IHZxLT5kZXNjeFtdKS4KPiBUaGUgVHgg
+Y29kZSBpbiB0aGF0IHBhdGNoIHNldCBhbHNvIGFzc3VtZXMgdGhlIGRlc2NzIHdpbGwgYmUKPiB3
+cml0dGVuIGJhY2sgYnkgZGV2aWNlIGluIG9yZGVyLCB3aGljaCBzaG91bGQgYmUgZml4ZWQuCgpZ
+ZXMgaXQgaXMuIEkgdGhpbmsgSSd2ZSBwb2ludGVkIGl0IG91dCBpbiBzb21lIGVhcmx5IHZlcnNp
+b24gb2YgcG1kIApwYXRjaC4gU28gSSBzdXNwZWN0IHBhcnQgKG9yIGFsbCkgb2YgdGhlIGJvb3N0
+IG1heSBjb21lIGZyb20gaW4gb3JkZXIgCmZlYXR1cmUuCgo+Cj4gQnV0IGluIGtlcm5lbCB2aXJ0
+aW8gZHJpdmVyLCB0aGUgdmlydGlvX3JpbmcuYyBpcyB2ZXJ5IGdlbmVyaWMuCj4gVGhlIGVucXVl
+dWUgKHZpcnRxdWV1ZV9hZGQoKSkgYW5kIGRlcXVldWUgKHZpcnRxdWV1ZV9nZXRfYnVmX2N0eCgp
+KQo+IGZ1bmN0aW9ucyBuZWVkIHRvIHN1cHBvcnQgYWxsIHRoZSB2aXJ0aW8gZGV2aWNlcyBhbmQg
+c2hvdWxkIGJlCj4gYWJsZSB0byBoYW5kbGUgYWxsIHRoZSBwb3NzaWJsZSBjYXNlcyB0aGF0IG1h
+eSBoYXBwZW4uIFNvIGFsdGhvdWdoCj4gdGhlIHBhY2tlZCByaW5nIGNhbiBiZSB2ZXJ5IGVmZmlj
+aWVudCBpbiBzb21lIGNhc2VzLCBjdXJyZW50bHkKPiB0aGUgcm9vbSB0byBvcHRpbWl6ZSB0aGUg
+cGVyZm9ybWFuY2UgaW4ga2VybmVsJ3MgdmlydGlvX3JpbmcuYwo+IGlzbid0IHRoYXQgbXVjaC4g
+SWYgd2Ugd2FudCB0byB0YWtlIHRoZSBmdWxseSBhZHZhbnRhZ2Ugb2YgdGhlCj4gcGFja2VkIHJp
+bmcncyBlZmZpY2llbmN5LCB3ZSBuZWVkIHNvbWUgZnVydGhlciBlLmcuIEFQSSBjaGFuZ2VzCj4g
+aW4gdmlydGlvX3JpbmcuYywgd2hpY2ggc2hvdWxkbid0IGJlIHBhcnQgb2YgdGhpcyBwYXRjaCBz
+ZXQuCgpDb3VsZCB5b3UgcGxlYXNlIHNoYXJlIG1vcmUgdGhvdWdodHMgb24gdGhpcyBlLmcgaG93
+IHRvIGltcHJvdmUgdGhlIEFQST8gCk5vdGljZSBzaW5jZSB0aGUgQVBJIGlzIHNoYXJlZCBieSBi
+b3RoIHNwbGl0IHJpbmcgYW5kIHBhY2tlZCByaW5nLCBpdCAKbWF5IGltcHJvdmUgdGhlIHBlcmZv
+cm1hbmNlIG9mIHNwbGl0IHJpbmcgYXMgd2VsbC4gT25lIGNhbiBlYXNpbHkgCmltYWdpbmUgYSBi
+YXRjaGluZyBBUEksIGJ1dCBpdCBkb2VzIG5vdCBoYXZlIG1hbnkgcmVhbCB1c2VycyBub3csIHRo
+ZSAKb25seSBjYXNlIGlzIHRoZSBYRFAgdHJhbnNtaXNzaW9uIHdoaWNoIGNhbiBhY2NlcHQgYW4g
+YXJyYXkgb2YgWERQIGZyYW1lcy4KCj4gU28KPiBJIHN0aWxsIHRoaW5rIHRoaXMgcGF0Y2ggc2V0
+IGlzIG1haW5seSB0byBtYWtlIHRoZSBrZXJuZWwgdmlydGlvCj4gZHJpdmVyIHRvIGhhdmUgYSBm
+dWxsIGZ1bmN0aW9uYWwgc3VwcG9ydCBvZiB0aGUgcGFja2VkIHJpbmcsIGFuZAo+IHdlIGNhbid0
+IGV4cGVjdCBpbXByZXNzaXZlIHBlcmZvcm1hbmNlIGJvb3N0IHdpdGggaXQuCgpXZSBjYW4gb25s
+eSBnYWluIHdoZW4gdmlydGlvIHJpbmcgbGF5b3V0IGlzIHRoZSBib3R0bGVuZWNrLiBJZiB0aGVy
+ZSdyZSAKYm90dGxlbmVja3MgZWxzZXdoZXJlLCB3ZSBwcm9iYWJseSB3b24ndCBzZWUgYW55IGlu
+Y3JlYXNpbmcgaW4gdGhlIApudW1iZXJzLiBWaG9zdC1uZXQgaXMgYW4gZXhhbXBsZSwgYW5kIGxv
+dHMgb2Ygb3B0aW1pemF0aW9ucyBoYXZlIHByb3ZlZCAKdGhhdCB2aXJ0aW8gcmluZyBpcyBub3Qg
+dGhlIG1haW4gYm90dGxlbmVjayBmb3IgdGhlIGN1cnJlbnQgY29kZXMuIEkgCnN1c3BlY3QgaXQg
+YWxzbyB0aGUgY2FzZSBvZiB2aXJ0aW8gZHJpdmVyLiBEaWQgcGVyZiB0ZWxsIHVzIGFueSAKaW50
+ZXJlc3RpbmcgdGhpbmdzIGluIHZpcnRpbyBkcml2ZXI/CgpUaGFua3MKCj4KPj4KPj4+PiBPbiBX
+ZWQsIEp1bCAxMSwgMjAxOCBhdCAxMDoyNzowNkFNICswODAwLCBUaXdlaSBCaWUgd3JvdGU6Cj4+
+Pj4+IEhlbGxvIGV2ZXJ5b25lLAo+Pj4+Pgo+Pj4+PiBUaGlzIHBhdGNoIHNldCBpbXBsZW1lbnRz
+IHBhY2tlZCByaW5nIHN1cHBvcnQgaW4gdmlydGlvIGRyaXZlci4KPj4+Pj4KPj4+Pj4gU29tZSBm
+dW5jdGlvbmFsIHRlc3RzIGhhdmUgYmVlbiBkb25lIHdpdGggSmFzb24ncwo+Pj4+PiBwYWNrZWQg
+cmluZyBpbXBsZW1lbnRhdGlvbiBpbiB2aG9zdDoKPj4+Pj4KPj4+Pj4gaHR0cHM6Ly9sa21sLm9y
+Zy9sa21sLzIwMTgvNy8zLzMzCj4+Pj4+Cj4+Pj4+IEJvdGggb2YgcGluZyBhbmQgbmV0cGVyZiB3
+b3JrZWQgYXMgZXhwZWN0ZWQuCj4+Pj4+Cj4+Pj4+IHYxIC0+IHYyOgo+Pj4+PiAtIFVzZSBSRUFE
+X09OQ0UoKSB0byByZWFkIGV2ZW50IG9mZl93cmFwIGFuZCBmbGFncyB0b2dldGhlciAoSmFzb24p
+Owo+Pj4+PiAtIEFkZCBjb21tZW50cyByZWxhdGVkIHRvIGNjdyAoSmFzb24pOwo+Pj4+Pgo+Pj4+
+PiBSRkMgKHY2KSAtPiB2MToKPj4+Pj4gLSBBdm9pZCBleHRyYSB2aXJ0aW9fd21iKCkgaW4gdmly
+dHF1ZXVlX2VuYWJsZV9jYl9kZWxheWVkX3BhY2tlZCgpCj4+Pj4+ICAgIHdoZW4gZXZlbnQgaWR4
+IGlzIG9mZiAoSmFzb24pOwo+Pj4+PiAtIEZpeCBidWZzIGNhbGN1bGF0aW9uIGluIHZpcnRxdWV1
+ZV9lbmFibGVfY2JfZGVsYXllZF9wYWNrZWQoKSAoSmFzb24pOwo+Pj4+PiAtIFRlc3QgdGhlIHN0
+YXRlIG9mIHRoZSBkZXNjIGF0IHVzZWRfaWR4IGluc3RlYWQgb2YgbGFzdF91c2VkX2lkeAo+Pj4+
+PiAgICBpbiB2aXJ0cXVldWVfZW5hYmxlX2NiX2RlbGF5ZWRfcGFja2VkKCkgKEphc29uKTsKPj4+
+Pj4gLSBTYXZlIHdyYXAgY291bnRlciAoYXMgcGFydCBvZiBxdWV1ZSBzdGF0ZSkgaW4gdGhlIHJl
+dHVybiB2YWx1ZQo+Pj4+PiAgICBvZiB2aXJ0cXVldWVfZW5hYmxlX2NiX3ByZXBhcmVfcGFja2Vk
+KCk7Cj4+Pj4+IC0gUmVmaW5lIHRoZSBwYWNrZWQgcmluZyBkZWZpbml0aW9ucyBpbiB1YXBpOwo+
+Pj4+PiAtIFJlYmFzZSBvbiB0aGUgbmV0LW5leHQgdHJlZTsKPj4+Pj4KPj4+Pj4gUkZDIHY1IC0+
+IFJGQyB2NjoKPj4+Pj4gLSBBdm9pZCB0cmFja2luZyBhZGRyL2xlbi9mbGFncyB3aGVuIERNQSBB
+UEkgaXNuJ3QgdXNlZCAoTVNUL0phc29uKTsKPj4+Pj4gLSBEZWZpbmUgd3JhcCBjb3VudGVyIGFz
+IGJvb2wgKEphc29uKTsKPj4+Pj4gLSBVc2UgQUxJR04oKSBpbiB2cmluZ19pbml0X3BhY2tlZCgp
+IChKYXNvbik7Cj4+Pj4+IC0gQXZvaWQgdXNpbmcgcG9pbnRlciB0byB0cmFjayBgbmV4dGAgaW4g
+ZGV0YWNoX2J1Zl9wYWNrZWQoKSAoSmFzb24pOwo+Pj4+PiAtIEFkZCBjb21tZW50cyBmb3IgYmFy
+cmllcnMgKEphc29uKTsKPj4+Pj4gLSBEb24ndCBlbmFibGUgUklOR19QQUNLRUQgb24gY2N3IGZv
+ciBub3cgKG5vdGljZWQgYnkgSmFzb24pOwo+Pj4+PiAtIFJlZmluZSB0aGUgbWVtb3J5IGJhcnJp
+ZXIgaW4gdmlydHF1ZXVlX3BvbGwoKTsKPj4+Pj4gLSBBZGQgYSBtaXNzaW5nIG1lbW9yeSBiYXJy
+aWVyIGluIHZpcnRxdWV1ZV9lbmFibGVfY2JfZGVsYXllZF9wYWNrZWQoKTsKPj4+Pj4gLSBSZW1v
+dmUgdGhlIGhhY2tzIGluIHZpcnRxdWV1ZV9lbmFibGVfY2JfcHJlcGFyZV9wYWNrZWQoKTsKPj4+
+Pj4KPj4+Pj4gUkZDIHY0IC0+IFJGQyB2NToKPj4+Pj4gLSBTYXZlIERNQSBhZGRyLCBldGMgaW4g
+ZGVzYyBzdGF0ZSAoSmFzb24pOwo+Pj4+PiAtIFRyYWNrIHVzZWQgd3JhcCBjb3VudGVyOwo+Pj4+
+Pgo+Pj4+PiBSRkMgdjMgLT4gUkZDIHY0Ogo+Pj4+PiAtIE1ha2UgSUQgYWxsb2NhdGlvbiBzdXBw
+b3J0IG91dC1vZi1vcmRlciAoSmFzb24pOwo+Pj4+PiAtIFZhcmlvdXMgZml4ZXMgZm9yIEVWRU5U
+X0lEWCBzdXBwb3J0Owo+Pj4+Pgo+Pj4+PiBSRkMgdjIgLT4gUkZDIHYzOgo+Pj4+PiAtIFNwbGl0
+IGludG8gc21hbGwgcGF0Y2hlcyAoSmFzb24pOwo+Pj4+PiAtIEFkZCBoZWxwZXIgdmlydHF1ZXVl
+X3VzZV9pbmRpcmVjdCgpIChKYXNvbik7Cj4+Pj4+IC0gSnVzdCBzZXQgaWQgZm9yIHRoZSBsYXN0
+IGRlc2NyaXB0b3Igb2YgYSBsaXN0IChKYXNvbik7Cj4+Pj4+IC0gQ2FsY3VsYXRlIHRoZSBwcmV2
+IGluIHZpcnRxdWV1ZV9hZGRfcGFja2VkKCkgKEphc29uKTsKPj4+Pj4gLSBGaXgvaW1wcm92ZSBk
+ZXNjIHN1cHByZXNzaW9uIGNvZGUgKEphc29uL01TVCk7Cj4+Pj4+IC0gUmVmaW5lIHRoZSBjb2Rl
+IGxheW91dCBmb3IgWFhYX3NwbGl0L3BhY2tlZCBhbmQgd3JhcHBlcnMgKE1TVCk7Cj4+Pj4+IC0g
+Rml4IHRoZSBjb21tZW50cyBhbmQgQVBJIGluIHVhcGkgKE1TVCk7Cj4+Pj4+IC0gUmVtb3ZlIHRo
+ZSBCVUdfT04oKSBmb3IgaW5kaXJlY3QgKEphc29uKTsKPj4+Pj4gLSBTb21lIG90aGVyIHJlZmlu
+ZW1lbnRzIGFuZCBidWcgZml4ZXM7Cj4+Pj4+Cj4+Pj4+IFJGQyB2MSAtPiBSRkMgdjI6Cj4+Pj4+
+IC0gQWRkIGluZGlyZWN0IGRlc2NyaXB0b3Igc3VwcG9ydCAtIGNvbXBpbGUgdGVzdCBvbmx5Owo+
+Pj4+PiAtIEFkZCBldmVudCBzdXBwcmVzc2lvbiBzdXBwcnQgLSBjb21waWxlIHRlc3Qgb25seTsK
+Pj4+Pj4gLSBNb3ZlIHZyaW5nX3BhY2tlZF9pbml0KCkgb3V0IG9mIHVhcGkgKEphc29uLCBNU1Qp
+Owo+Pj4+PiAtIE1lcmdlIHR3byBsb29wcyBpbnRvIG9uZSBpbiB2aXJ0cXVldWVfYWRkX3BhY2tl
+ZCgpIChKYXNvbik7Cj4+Pj4+IC0gU3BsaXQgdnJpbmdfdW5tYXBfb25lKCkgZm9yIHBhY2tlZCBy
+aW5nIGFuZCBzcGxpdCByaW5nIChKYXNvbik7Cj4+Pj4+IC0gQXZvaWQgdXNpbmcgJyUnIG9wZXJh
+dG9yIChKYXNvbik7Cj4+Pj4+IC0gUmVuYW1lIGZyZWVfaGVhZCAtPiBuZXh0X2F2YWlsX2lkeCAo
+SmFzb24pOwo+Pj4+PiAtIEFkZCBjb21tZW50cyBmb3IgdmlydGlvX3dtYigpIGluIHZpcnRxdWV1
+ZV9hZGRfcGFja2VkKCkgKEphc29uKTsKPj4+Pj4gLSBTb21lIG90aGVyIHJlZmluZW1lbnRzIGFu
+ZCBidWcgZml4ZXM7Cj4+Pj4+Cj4+Pj4+IFRoYW5rcyEKPj4+Pj4KPj4+Pj4gVGl3ZWkgQmllICg1
+KToKPj4+Pj4gICAgdmlydGlvOiBhZGQgcGFja2VkIHJpbmcgZGVmaW5pdGlvbnMKPj4+Pj4gICAg
+dmlydGlvX3Jpbmc6IHN1cHBvcnQgY3JlYXRpbmcgcGFja2VkIHJpbmcKPj4+Pj4gICAgdmlydGlv
+X3Jpbmc6IGFkZCBwYWNrZWQgcmluZyBzdXBwb3J0Cj4+Pj4+ICAgIHZpcnRpb19yaW5nOiBhZGQg
+ZXZlbnQgaWR4IHN1cHBvcnQgaW4gcGFja2VkIHJpbmcKPj4+Pj4gICAgdmlydGlvX3Jpbmc6IGVu
+YWJsZSBwYWNrZWQgcmluZwo+Pj4+Pgo+Pj4+PiAgIGRyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlv
+X2Njdy5jICAgfCAgIDE0ICsKPj4+Pj4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jICAg
+ICAgIHwgMTM2NSArKysrKysrKysrKysrKysrKysrKysrLS0tLS0tCj4+Pj4+ICAgaW5jbHVkZS9s
+aW51eC92aXJ0aW9fcmluZy5oICAgICAgICB8ICAgIDggKy0KPj4+Pj4gICBpbmNsdWRlL3VhcGkv
+bGludXgvdmlydGlvX2NvbmZpZy5oIHwgICAgMyArCj4+Pj4+ICAgaW5jbHVkZS91YXBpL2xpbnV4
+L3ZpcnRpb19yaW5nLmggICB8ICAgNDMgKwo+Pj4+PiAgIDUgZmlsZXMgY2hhbmdlZCwgMTE1NyBp
+bnNlcnRpb25zKCspLCAyNzYgZGVsZXRpb25zKC0pCj4+Pj4+Cj4+Pj4+IC0tIAo+Pj4+PiAyLjE4
+LjAKPj4+PiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0KPj4+PiBUbyB1bnN1YnNjcmliZSwgZS1tYWlsOiB2aXJ0aW8t
+ZGV2LXVuc3Vic2NyaWJlQGxpc3RzLm9hc2lzLW9wZW4ub3JnCj4+Pj4gRm9yIGFkZGl0aW9uYWwg
+Y29tbWFuZHMsIGUtbWFpbDogdmlydGlvLWRldi1oZWxwQGxpc3RzLm9hc2lzLW9wZW4ub3JnCj4+
+Pj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
