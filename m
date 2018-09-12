@@ -1,7 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next V2 02/11] tuntap: switch to use XDP_PACKET_HEADROOM
-Date: Wed, 12 Sep 2018 11:17:00 +0800
-Message-ID: <20180912031709.14112-3-jasowang__27755.6228488267$1536722160$gmane$org@redhat.com>
+Subject: [PATCH net-next V2 03/11] tuntap: enable bh early during processing
+	XDP
+Date: Wed, 12 Sep 2018 11:17:01 +0800
+Message-ID: <20180912031709.14112-4-jasowang__16540.5287444175$1536722257$gmane$org@redhat.com>
 References: <20180912031709.14112-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,32 +22,44 @@ To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+This patch move the bh enabling a little bit earlier, this will be
+used for factoring out the core XDP logic of tuntap.
+
 Acked-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/tun.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/tun.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 2c548bd20393..d3677a544b56 100644
+index d3677a544b56..372caf7d67d9 100644
 --- a/drivers/net/tun.c
 +++ b/drivers/net/tun.c
-@@ -113,7 +113,6 @@ do {								\
- } while (0)
- #endif
+@@ -1726,22 +1726,18 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
+ 			goto err_xdp;
+ 		}
+ 	}
++	rcu_read_unlock();
++	local_bh_enable();
  
--#define TUN_HEADROOM 256
- #define TUN_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
+ 	skb = build_skb(buf, buflen);
+-	if (!skb) {
+-		rcu_read_unlock();
+-		local_bh_enable();
++	if (!skb)
+ 		return ERR_PTR(-ENOMEM);
+-	}
  
- /* TUN device flags */
-@@ -1654,7 +1653,7 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
- 	rcu_read_lock();
- 	xdp_prog = rcu_dereference(tun->xdp_prog);
- 	if (xdp_prog)
--		pad += TUN_HEADROOM;
-+		pad += XDP_PACKET_HEADROOM;
- 	buflen += SKB_DATA_ALIGN(len + pad);
- 	rcu_read_unlock();
+ 	skb_reserve(skb, pad - delta);
+ 	skb_put(skb, len);
+ 	get_page(alloc_frag->page);
+ 	alloc_frag->offset += buflen;
  
+-	rcu_read_unlock();
+-	local_bh_enable();
+-
+ 	return skb;
+ 
+ err_redirect:
 -- 
 2.17.1
