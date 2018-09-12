@@ -1,17 +1,21 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v2 2/5] virtio_ring: support creating packed ring
-Date: Wed, 12 Sep 2018 12:12:48 -0400
-Message-ID: <20180912120900-mutt-send-email-mst__17656.0535481714$1536768652$gmane$org@kernel.org>
+Subject: Re: [virtio-dev] Re: [PATCH net-next v2 0/5] virtio: support packed
+	ring
+Date: Wed, 12 Sep 2018 12:16:32 -0400
+Message-ID: <20180912121457-mutt-send-email-mst__27569.3865879022$1536768882$gmane$org@kernel.org>
 References: <20180711022711.7090-1-tiwei.bie@intel.com>
-	<20180711022711.7090-3-tiwei.bie@intel.com>
-	<20180907095208-mutt-send-email-mst@kernel.org>
-	<20180910022837.GA11822@debian> <20180912075140.GA22545@debian>
+	<20180827170005-mutt-send-email-mst@kernel.org>
+	<20180907012225.GA32677@debian>
+	<20180907084509-mutt-send-email-mst@kernel.org>
+	<20180910030053.GA15645@debian>
+	<f5ef0393-cf02-0795-a51a-8783ee300037@redhat.com>
+	<20180911053726.GA7472@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180912075140.GA22545@debian>
+In-Reply-To: <20180911053726.GA7472@debian>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,208 +29,182 @@ To: Tiwei Bie <tiwei.bie@intel.com>
 Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 12, 2018 at 03:51:40PM +0800, Tiwei Bie wrote:
-> On Mon, Sep 10, 2018 at 10:28:37AM +0800, Tiwei Bie wrote:
-> > On Fri, Sep 07, 2018 at 10:03:24AM -0400, Michael S. Tsirkin wrote:
-> > > On Wed, Jul 11, 2018 at 10:27:08AM +0800, Tiwei Bie wrote:
-> > > > This commit introduces the support for creating packed ring.
-> > > > All split ring specific functions are added _split suffix.
-> > > > Some necessary stubs for packed ring are also added.
-> > > > 
-> > > > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> > > 
-> [...]
-> > > > +
-> > > > +/*
-> > > > + * The layout for the packed ring is a continuous chunk of memory
-> > > > + * which looks like this.
-> > > > + *
-> > > > + * struct vring_packed {
-> > > > + *	// The actual descriptors (16 bytes each)
-> > > > + *	struct vring_packed_desc desc[num];
-> > > > + *
-> > > > + *	// Padding to the next align boundary.
-> > > > + *	char pad[];
-> > > > + *
-> > > > + *	// Driver Event Suppression
-> > > > + *	struct vring_packed_desc_event driver;
-> > > > + *
-> > > > + *	// Device Event Suppression
-> > > > + *	struct vring_packed_desc_event device;
-> > > > + * };
-> > > > + */
-> > > 
-> > > Why not just allocate event structures separately?
-> > > Is it a win to have them share a cache line for some reason?
-> 
-> Users may call vring_new_virtqueue() with preallocated
-> memory to setup the ring, e.g.:
-> 
-> https://github.com/torvalds/linux/blob/11da3a7f84f1/drivers/s390/virtio/virtio_ccw.c#L513-L522
-> https://github.com/torvalds/linux/blob/11da3a7f84f1/drivers/misc/mic/vop/vop_main.c#L306-L307
-> 
-> Below is the corresponding definition in split ring:
-> 
-> https://github.com/oasis-tcs/virtio-spec/blob/89dd55f5e606/split-ring.tex#L64-L78
-> 
-> If my understanding is correct, this is just for legacy
-> interfaces, and we won't define layout in packed ring
-> and don't need to support vring_new_virtqueue() in packed
-> ring. Is it correct? Thanks!
-
-mic doesn't support 1.0 yet but ccw does.
-
-It's probably best to look into converting ccw to
-virtio_create_virtqueue, then you can just fail
-vring_new_virtqueue for packed.
-
-Cornelia, are there any gotchas to look out for?
-
-> 
-> 
-> > 
-> > Will do that.
-> > 
-> > > 
-> > > > +static inline void vring_init_packed(struct vring_packed *vr, unsigned int num,
-> > > > +				     void *p, unsigned long align)
-> > > > +{
-> > > > +	vr->num = num;
-> > > > +	vr->desc = p;
-> > > > +	vr->driver = (void *)ALIGN(((uintptr_t)p +
-> > > > +		sizeof(struct vring_packed_desc) * num), align);
-> > > > +	vr->device = vr->driver + 1;
-> > > > +}
-> > > 
-> > > What's all this about alignment? Where does it come from?
-> > 
-> > It comes from the `vring_align` parameter of vring_create_virtqueue()
-> > and vring_new_virtqueue():
-> > 
-> > https://github.com/torvalds/linux/blob/a49a9dcce802/drivers/virtio/virtio_ring.c#L1061
-> > https://github.com/torvalds/linux/blob/a49a9dcce802/drivers/virtio/virtio_ring.c#L1123
-> > 
-> > Should I just ignore it in packed ring?
-> > 
-> > CCW defined this:
-> > 
-> > #define KVM_VIRTIO_CCW_RING_ALIGN 4096
-> > 
-> > I'm not familiar with CCW. Currently, in this patch set, packed ring
-> > isn't enabled on CCW dues to some legacy accessors are not implemented
-> > in packed ring yet.
-> > 
-> > > 
-> > > > +
-> > > > +static inline unsigned vring_size_packed(unsigned int num, unsigned long align)
-> > > > +{
-> > > > +	return ((sizeof(struct vring_packed_desc) * num + align - 1)
-> > > > +		& ~(align - 1)) + sizeof(struct vring_packed_desc_event) * 2;
-> > > > +}
-> > [...]
-> > > > @@ -1129,10 +1388,17 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
-> > > >  				      void (*callback)(struct virtqueue *vq),
-> > > >  				      const char *name)
-> > > >  {
-> > > > -	struct vring vring;
-> > > > -	vring_init(&vring, num, pages, vring_align);
-> > > > -	return __vring_new_virtqueue(index, vring, vdev, weak_barriers, context,
-> > > > -				     notify, callback, name);
-> > > > +	union vring_union vring;
-> > > > +	bool packed;
-> > > > +
-> > > > +	packed = virtio_has_feature(vdev, VIRTIO_F_RING_PACKED);
-> > > > +	if (packed)
-> > > > +		vring_init_packed(&vring.vring_packed, num, pages, vring_align);
-> > > > +	else
-> > > > +		vring_init(&vring.vring_split, num, pages, vring_align);
-> > > 
-> > > 
-> > > vring_init in the UAPI header is more or less a bug.
-> > > I'd just stop using it, keep it around for legacy userspace.
-> > 
-> > Got it. I'd like to do that. Thanks.
-> > 
-> > > 
-> > > > +
-> > > > +	return __vring_new_virtqueue(index, vring, packed, vdev, weak_barriers,
-> > > > +				     context, notify, callback, name);
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(vring_new_virtqueue);
-> > > >  
-> > > > @@ -1142,7 +1408,9 @@ void vring_del_virtqueue(struct virtqueue *_vq)
-> > > >  
-> > > >  	if (vq->we_own_ring) {
-> > > >  		vring_free_queue(vq->vq.vdev, vq->queue_size_in_bytes,
-> > > > -				 vq->vring.desc, vq->queue_dma_addr);
-> > > > +				 vq->packed ? (void *)vq->vring_packed.desc :
-> > > > +					      (void *)vq->vring.desc,
-> > > > +				 vq->queue_dma_addr);
-> > > >  	}
-> > > >  	list_del(&_vq->list);
-> > > >  	kfree(vq);
-> > > > @@ -1184,7 +1452,7 @@ unsigned int virtqueue_get_vring_size(struct virtqueue *_vq)
-> > > >  
-> > > >  	struct vring_virtqueue *vq = to_vvq(_vq);
-> > > >  
-> > > > -	return vq->vring.num;
-> > > > +	return vq->packed ? vq->vring_packed.num : vq->vring.num;
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(virtqueue_get_vring_size);
-> > > >  
-> > > > @@ -1227,6 +1495,10 @@ dma_addr_t virtqueue_get_avail_addr(struct virtqueue *_vq)
-> > > >  
-> > > >  	BUG_ON(!vq->we_own_ring);
-> > > >  
-> > > > +	if (vq->packed)
-> > > > +		return vq->queue_dma_addr + ((char *)vq->vring_packed.driver -
-> > > > +				(char *)vq->vring_packed.desc);
-> > > > +
-> > > >  	return vq->queue_dma_addr +
-> > > >  		((char *)vq->vring.avail - (char *)vq->vring.desc);
-> > > >  }
-> > > > @@ -1238,11 +1510,16 @@ dma_addr_t virtqueue_get_used_addr(struct virtqueue *_vq)
-> > > >  
-> > > >  	BUG_ON(!vq->we_own_ring);
-> > > >  
-> > > > +	if (vq->packed)
-> > > > +		return vq->queue_dma_addr + ((char *)vq->vring_packed.device -
-> > > > +				(char *)vq->vring_packed.desc);
-> > > > +
-> > > >  	return vq->queue_dma_addr +
-> > > >  		((char *)vq->vring.used - (char *)vq->vring.desc);
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(virtqueue_get_used_addr);
-> > > >  
-> > > > +/* Only available for split ring */
-> > > >  const struct vring *virtqueue_get_vring(struct virtqueue *vq)
-> > > >  {
-> > > >  	return &to_vvq(vq)->vring;
-> > > > diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-> > > > index fab02133a919..992142b35f55 100644
-> > > > --- a/include/linux/virtio_ring.h
-> > > > +++ b/include/linux/virtio_ring.h
-> > > > @@ -60,6 +60,11 @@ static inline void virtio_store_mb(bool weak_barriers,
-> > > >  struct virtio_device;
-> > > >  struct virtqueue;
-> > > >  
-> > > > +union vring_union {
-> > > > +	struct vring vring_split;
-> > > > +	struct vring_packed vring_packed;
-> > > > +};
-> > > > +
-> > > >  /*
-> > > >   * Creates a virtqueue and allocates the descriptor ring.  If
-> > > >   * may_reduce_num is set, then this may allocate a smaller ring than
-> > > > @@ -79,7 +84,8 @@ struct virtqueue *vring_create_virtqueue(unsigned int index,
-> > > >  
-> > > >  /* Creates a virtqueue with a custom layout. */
-> > > >  struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> > > > -					struct vring vring,
-> > > > +					union vring_union vring,
-> > > > +					bool packed,
-> > > >  					struct virtio_device *vdev,
-> > > >  					bool weak_barriers,
-> > > >  					bool ctx,
-> > > > -- 
-> > > > 2.18.0
+T24gVHVlLCBTZXAgMTEsIDIwMTggYXQgMDE6Mzc6MjZQTSArMDgwMCwgVGl3ZWkgQmllIHdyb3Rl
+Ogo+IE9uIE1vbiwgU2VwIDEwLCAyMDE4IGF0IDExOjMzOjE3QU0gKzA4MDAsIEphc29uIFdhbmcg
+d3JvdGU6Cj4gPiBPbiAyMDE45bm0MDnmnIgxMOaXpSAxMTowMCwgVGl3ZWkgQmllIHdyb3RlOgo+
+ID4gPiBPbiBGcmksIFNlcCAwNywgMjAxOCBhdCAwOTowMDo0OUFNIC0wNDAwLCBNaWNoYWVsIFMu
+IFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gT24gRnJpLCBTZXAgMDcsIDIwMTggYXQgMDk6MjI6MjVB
+TSArMDgwMCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+ID4gT24gTW9uLCBBdWcgMjcsIDIwMTgg
+YXQgMDU6MDA6NDBQTSArMDMwMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+ID4gPiA+ID4g
+PiBBcmUgdGhlcmUgc3RpbGwgcGxhbnMgdG8gdGVzdCB0aGUgcGVyZm9ybWFuY2Ugd2l0aCB2b3N0
+IHBtZD8KPiA+ID4gPiA+ID4gdmhvc3QgZG9lc24ndCBzZWVtIHRvIHNob3cgYSBwZXJmb3JtYW5j
+ZSBnYWluIC4uLgo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+IEkgdHJpZWQgc29tZSBwZXJmb3JtYW5j
+ZSB0ZXN0cyB3aXRoIHZob3N0IFBNRC4gSW4gZ3Vlc3QsIHRoZQo+ID4gPiA+ID4gWERQIHByb2dy
+YW0gd2lsbCByZXR1cm4gWERQX0RST1AgZGlyZWN0bHkuIEFuZCBpbiBob3N0LCB0ZXN0cG1kCj4g
+PiA+ID4gPiB3aWxsIGRvIHR4b25seSBmd2QuCj4gPiA+ID4gPiAKPiA+ID4gPiA+IFdoZW4gYnVy
+c3Qgc2l6ZSBpcyAxIGFuZCBwYWNrZXQgc2l6ZSBpcyA2NCBpbiB0ZXN0cG1kIGFuZAo+ID4gPiA+
+ID4gdGVzdHBtZCBuZWVkcyB0byBpdGVyYXRlIDUgVHggcXVldWVzIChidXQgb25seSB0aGUgZmly
+c3QgdHdvCj4gPiA+ID4gPiBxdWV1ZXMgYXJlIGVuYWJsZWQpIHRvIHByZXBhcmUgYW5kIGluamVj
+dCBwYWNrZXRzLCBJIGdvdCB+MTIlCj4gPiA+ID4gPiBwZXJmb3JtYW5jZSBib29zdCAoNS43TXBw
+cyAtPiA2LjRNcHBzKS4gQW5kIGlmIHRoZSB2aG9zdCBQTUQKPiA+ID4gPiA+IGlzIGZhc3RlciAo
+ZS5nLiBqdXN0IG5lZWQgdG8gaXRlcmF0ZSB0aGUgZmlyc3QgdHdvIHF1ZXVlcyB0bwo+ID4gPiA+
+ID4gcHJlcGFyZSBhbmQgaW5qZWN0IHBhY2tldHMpLCB0aGVuIEkgZ290IHNpbWlsYXIgcGVyZm9y
+bWFuY2UKPiA+ID4gPiA+IGZvciBib3RoIHJpbmdzICh+OS45TXBwcykgKHBhY2tlZCByaW5nJ3Mg
+cGVyZm9ybWFuY2UgY2FuIGJlCj4gPiA+ID4gPiBsb3dlciwgYmVjYXVzZSBpdCdzIG1vcmUgY29t
+cGxpY2F0ZWQgaW4gZHJpdmVyLikKPiA+ID4gPiA+IAo+ID4gPiA+ID4gSSB0aGluayBwYWNrZWQg
+cmluZyBtYWtlcyB2aG9zdCBQTUQgZmFzdGVyLCBidXQgaXQgZG9lc24ndCBtYWtlCj4gPiA+ID4g
+PiB0aGUgZHJpdmVyIGZhc3Rlci4gSW4gcGFja2VkIHJpbmcsIHRoZSByaW5nIGlzIHNpbXBsaWZp
+ZWQsIGFuZAo+ID4gPiA+ID4gdGhlIGhhbmRsaW5nIG9mIHRoZSByaW5nIGluIHZob3N0IChkZXZp
+Y2UpIGlzIGFsc28gc2ltcGxpZmllZCwKPiA+ID4gPiA+IGJ1dCB0aGluZ3MgYXJlIG5vdCBzaW1w
+bGlmaWVkIGluIGRyaXZlciwgZS5nLiBhbHRob3VnaCB0aGVyZSBpcwo+ID4gPiA+ID4gbm8gZGVz
+YyB0YWJsZSBpbiB0aGUgdmlydHF1ZXVlIGFueW1vcmUsIGRyaXZlciBzdGlsbCBuZWVkcyB0bwo+
+ID4gPiA+ID4gbWFpbnRhaW4gYSBwcml2YXRlIGRlc2Mgc3RhdGUgdGFibGUgKHdoaWNoIGlzIHN0
+aWxsIG1hbmFnZWQgYXMKPiA+ID4gPiA+IGEgbGlzdCBpbiB0aGlzIHBhdGNoIHNldCkgdG8gc3Vw
+cG9ydCB0aGUgb3V0LW9mLW9yZGVyIGRlc2MKPiA+ID4gPiA+IHByb2Nlc3NpbmcgaW4gdmhvc3Qg
+KGRldmljZSkuCj4gPiA+ID4gPiAKPiA+ID4gPiA+IEkgdGhpbmsgdGhpcyBwYXRjaCBzZXQgaXMg
+bWFpbmx5IHRvIG1ha2UgdGhlIGRyaXZlciBoYXZlIGEgZnVsbAo+ID4gPiA+ID4gZnVuY3Rpb25h
+bCBzdXBwb3J0IGZvciB0aGUgcGFja2VkIHJpbmcsIHdoaWNoIG1ha2VzIGl0IHBvc3NpYmxlCj4g
+PiA+ID4gPiB0byBsZXZlcmFnZSB0aGUgcGFja2VkIHJpbmcgZmVhdHVyZSBpbiB2aG9zdCAoZGV2
+aWNlKS4gQnV0IEknbQo+ID4gPiA+ID4gbm90IHN1cmUgd2hldGhlciB0aGVyZSBpcyBhbnkgb3Ro
+ZXIgYmV0dGVyIGlkZWEsIEknZCBsaWtlIHRvCj4gPiA+ID4gPiBoZWFyIHlvdXIgdGhvdWdodHMu
+IFRoYW5rcyEKPiA+ID4gPiBKdXN0IHRoaXM6IEplbnMgc2VlbXMgdG8gcmVwb3J0IGEgbmljZSBn
+YWluIHdpdGggdmlydGlvIGFuZAo+ID4gPiA+IHZob3N0IHBtZCBhY3Jvc3MgdGhlIGJvYXJkLiBU
+cnkgdG8gY29tcGFyZSB2aXJ0aW8gYW5kCj4gPiA+ID4gdmlydGlvIHBtZCB0byBzZWUgd2hhdCBk
+b2VzIHBtZCBkbyBiZXR0ZXI/Cj4gPiA+IFRoZSB2aXJ0aW8gUE1EIChkcml2ZXJzL25ldC92aXJ0
+aW8pIGluIERQREsgZG9lc24ndCBuZWVkIHRvIHNoYXJlCj4gPiA+IHRoZSB2aXJ0aW8gcmluZyBv
+cGVyYXRpb24gY29kZSB3aXRoIG90aGVyIGRyaXZlcnMgYW5kIGlzIGhpZ2hseQo+ID4gPiBvcHRp
+bWl6ZWQgZm9yIG5ldHdvcmsuIEUuZy4gaW4gUngsIHRoZSBSeCBidXJzdCBmdW5jdGlvbiB3b24n
+dAo+ID4gPiBjaGFpbiBkZXNjcy4gU28gdGhlIElEIG1hbmFnZW1lbnQgZm9yIHRoZSBSeCByaW5n
+IGNhbiBiZSBxdWl0ZQo+ID4gPiBzaW1wbGUgYW5kIHN0cmFpZ2h0Zm9yd2FyZCwgd2UganVzdCBu
+ZWVkIHRvIGluaXRpYWxpemUgdGhlc2UgSURzCj4gPiA+IHdoZW4gaW5pdGlhbGl6aW5nIHRoZSBy
+aW5nIGFuZCBkb24ndCBuZWVkIHRvIGNoYW5nZSB0aGVzZSBJRHMKPiA+ID4gaW4gZGF0YSBwYXRo
+IGFueW1vcmUgKHRoZSBtZXJnYWJsZSBSeCBjb2RlIGluIHRoYXQgcGF0Y2ggc2V0Cj4gPiA+IGFz
+c3VtZXMgdGhlIGRlc2NzIHdpbGwgYmUgd3JpdHRlbiBiYWNrIGluIG9yZGVyLCB3aGljaCBzaG91
+bGQgYmUKPiA+ID4gZml4ZWQuIEkuZS4sIHRoZSBJRCBpbiB0aGUgZGVzYyBzaG91bGQgYmUgdXNl
+ZCB0byBpbmRleCB2cS0+ZGVzY3hbXSkuCj4gPiA+IFRoZSBUeCBjb2RlIGluIHRoYXQgcGF0Y2gg
+c2V0IGFsc28gYXNzdW1lcyB0aGUgZGVzY3Mgd2lsbCBiZQo+ID4gPiB3cml0dGVuIGJhY2sgYnkg
+ZGV2aWNlIGluIG9yZGVyLCB3aGljaCBzaG91bGQgYmUgZml4ZWQuCj4gPiAKPiA+IFllcyBpdCBp
+cy4gSSB0aGluayBJJ3ZlIHBvaW50ZWQgaXQgb3V0IGluIHNvbWUgZWFybHkgdmVyc2lvbiBvZiBw
+bWQgcGF0Y2guCj4gPiBTbyBJIHN1c3BlY3QgcGFydCAob3IgYWxsKSBvZiB0aGUgYm9vc3QgbWF5
+IGNvbWUgZnJvbSBpbiBvcmRlciBmZWF0dXJlLgo+ID4gCj4gPiA+IAo+ID4gPiBCdXQgaW4ga2Vy
+bmVsIHZpcnRpbyBkcml2ZXIsIHRoZSB2aXJ0aW9fcmluZy5jIGlzIHZlcnkgZ2VuZXJpYy4KPiA+
+ID4gVGhlIGVucXVldWUgKHZpcnRxdWV1ZV9hZGQoKSkgYW5kIGRlcXVldWUgKHZpcnRxdWV1ZV9n
+ZXRfYnVmX2N0eCgpKQo+ID4gPiBmdW5jdGlvbnMgbmVlZCB0byBzdXBwb3J0IGFsbCB0aGUgdmly
+dGlvIGRldmljZXMgYW5kIHNob3VsZCBiZQo+ID4gPiBhYmxlIHRvIGhhbmRsZSBhbGwgdGhlIHBv
+c3NpYmxlIGNhc2VzIHRoYXQgbWF5IGhhcHBlbi4gU28gYWx0aG91Z2gKPiA+ID4gdGhlIHBhY2tl
+ZCByaW5nIGNhbiBiZSB2ZXJ5IGVmZmljaWVudCBpbiBzb21lIGNhc2VzLCBjdXJyZW50bHkKPiA+
+ID4gdGhlIHJvb20gdG8gb3B0aW1pemUgdGhlIHBlcmZvcm1hbmNlIGluIGtlcm5lbCdzIHZpcnRp
+b19yaW5nLmMKPiA+ID4gaXNuJ3QgdGhhdCBtdWNoLiBJZiB3ZSB3YW50IHRvIHRha2UgdGhlIGZ1
+bGx5IGFkdmFudGFnZSBvZiB0aGUKPiA+ID4gcGFja2VkIHJpbmcncyBlZmZpY2llbmN5LCB3ZSBu
+ZWVkIHNvbWUgZnVydGhlciBlLmcuIEFQSSBjaGFuZ2VzCj4gPiA+IGluIHZpcnRpb19yaW5nLmMs
+IHdoaWNoIHNob3VsZG4ndCBiZSBwYXJ0IG9mIHRoaXMgcGF0Y2ggc2V0Lgo+ID4gCj4gPiBDb3Vs
+ZCB5b3UgcGxlYXNlIHNoYXJlIG1vcmUgdGhvdWdodHMgb24gdGhpcyBlLmcgaG93IHRvIGltcHJv
+dmUgdGhlIEFQST8KPiA+IE5vdGljZSBzaW5jZSB0aGUgQVBJIGlzIHNoYXJlZCBieSBib3RoIHNw
+bGl0IHJpbmcgYW5kIHBhY2tlZCByaW5nLCBpdCBtYXkKPiA+IGltcHJvdmUgdGhlIHBlcmZvcm1h
+bmNlIG9mIHNwbGl0IHJpbmcgYXMgd2VsbC4gT25lIGNhbiBlYXNpbHkgaW1hZ2luZSBhCj4gPiBi
+YXRjaGluZyBBUEksIGJ1dCBpdCBkb2VzIG5vdCBoYXZlIG1hbnkgcmVhbCB1c2VycyBub3csIHRo
+ZSBvbmx5IGNhc2UgaXMgdGhlCj4gPiBYRFAgdHJhbnNtaXNzaW9uIHdoaWNoIGNhbiBhY2NlcHQg
+YW4gYXJyYXkgb2YgWERQIGZyYW1lcy4KPiAKPiBJIGRvbid0IGhhdmUgZGV0YWlsZWQgdGhvdWdo
+dHMgb24gdGhpcyB5ZXQuIEJ1dCBrZXJuZWwncwo+IHZpcnRpb19yaW5nLmMgaXMgcXVpdGUgZ2Vu
+ZXJpYyBjb21wYXJlZCB3aXRoIHdoYXQgd2UgZGlkCj4gaW4gdmlydGlvIFBNRC4KCkluIHdoYXQg
+d2F5PyBXaGF0IGFyZSBzb21lIHRoaW5ncyB0aGF0IGFyZW4ndCBpbXBsZW1lbnRlZCB0aGVyZT8K
+CklmIHdoYXQgeW91IHNheSBpcyB0cnVlIHRoZW4gd2Ugc2hvdWxkIHRha2UgYSBjYXJlZnVsIGxv
+b2sKYW5kIG5vdCBzdXBwb3J0aW5nIHRoZXNlIGdlbmVyaWMgdGhpbmdzIHdpdGggcGFja2VkIGxh
+eW91dC4KT25jZSB3ZSBkbyBzdXBwb3J0IHRoZW0gaXQgd2lsbCBiZSB0b28gbGF0ZSBhbmQgd2Ug
+d29uJ3QKYmUgYWJsZSB0byBnZXQgcGVyZm9ybWFuY2UgYmFjay4KCgoKPiA+IAo+ID4gPiBTbwo+
+ID4gPiBJIHN0aWxsIHRoaW5rIHRoaXMgcGF0Y2ggc2V0IGlzIG1haW5seSB0byBtYWtlIHRoZSBr
+ZXJuZWwgdmlydGlvCj4gPiA+IGRyaXZlciB0byBoYXZlIGEgZnVsbCBmdW5jdGlvbmFsIHN1cHBv
+cnQgb2YgdGhlIHBhY2tlZCByaW5nLCBhbmQKPiA+ID4gd2UgY2FuJ3QgZXhwZWN0IGltcHJlc3Np
+dmUgcGVyZm9ybWFuY2UgYm9vc3Qgd2l0aCBpdC4KPiA+IAo+ID4gV2UgY2FuIG9ubHkgZ2FpbiB3
+aGVuIHZpcnRpbyByaW5nIGxheW91dCBpcyB0aGUgYm90dGxlbmVjay4gSWYgdGhlcmUncmUKPiA+
+IGJvdHRsZW5lY2tzIGVsc2V3aGVyZSwgd2UgcHJvYmFibHkgd29uJ3Qgc2VlIGFueSBpbmNyZWFz
+aW5nIGluIHRoZSBudW1iZXJzLgo+ID4gVmhvc3QtbmV0IGlzIGFuIGV4YW1wbGUsIGFuZCBsb3Rz
+IG9mIG9wdGltaXphdGlvbnMgaGF2ZSBwcm92ZWQgdGhhdCB2aXJ0aW8KPiA+IHJpbmcgaXMgbm90
+IHRoZSBtYWluIGJvdHRsZW5lY2sgZm9yIHRoZSBjdXJyZW50IGNvZGVzLiBJIHN1c3BlY3QgaXQg
+YWxzbyB0aGUKPiA+IGNhc2Ugb2YgdmlydGlvIGRyaXZlci4gRGlkIHBlcmYgdGVsbCB1cyBhbnkg
+aW50ZXJlc3RpbmcgdGhpbmdzIGluIHZpcnRpbwo+ID4gZHJpdmVyPwo+ID4gCj4gPiBUaGFua3MK
+PiA+IAo+ID4gPiAKPiA+ID4gPiAKPiA+ID4gPiA+ID4gT24gV2VkLCBKdWwgMTEsIDIwMTggYXQg
+MTA6Mjc6MDZBTSArMDgwMCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+ID4gPiA+IEhlbGxvIGV2
+ZXJ5b25lLAo+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+IFRoaXMgcGF0Y2ggc2V0IGltcGxl
+bWVudHMgcGFja2VkIHJpbmcgc3VwcG9ydCBpbiB2aXJ0aW8gZHJpdmVyLgo+ID4gPiA+ID4gPiA+
+IAo+ID4gPiA+ID4gPiA+IFNvbWUgZnVuY3Rpb25hbCB0ZXN0cyBoYXZlIGJlZW4gZG9uZSB3aXRo
+IEphc29uJ3MKPiA+ID4gPiA+ID4gPiBwYWNrZWQgcmluZyBpbXBsZW1lbnRhdGlvbiBpbiB2aG9z
+dDoKPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiBodHRwczovL2xrbWwub3JnL2xrbWwvMjAx
+OC83LzMvMzMKPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiBCb3RoIG9mIHBpbmcgYW5kIG5l
+dHBlcmYgd29ya2VkIGFzIGV4cGVjdGVkLgo+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+IHYx
+IC0+IHYyOgo+ID4gPiA+ID4gPiA+IC0gVXNlIFJFQURfT05DRSgpIHRvIHJlYWQgZXZlbnQgb2Zm
+X3dyYXAgYW5kIGZsYWdzIHRvZ2V0aGVyIChKYXNvbik7Cj4gPiA+ID4gPiA+ID4gLSBBZGQgY29t
+bWVudHMgcmVsYXRlZCB0byBjY3cgKEphc29uKTsKPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4g
+PiBSRkMgKHY2KSAtPiB2MToKPiA+ID4gPiA+ID4gPiAtIEF2b2lkIGV4dHJhIHZpcnRpb193bWIo
+KSBpbiB2aXJ0cXVldWVfZW5hYmxlX2NiX2RlbGF5ZWRfcGFja2VkKCkKPiA+ID4gPiA+ID4gPiAg
+ICB3aGVuIGV2ZW50IGlkeCBpcyBvZmYgKEphc29uKTsKPiA+ID4gPiA+ID4gPiAtIEZpeCBidWZz
+IGNhbGN1bGF0aW9uIGluIHZpcnRxdWV1ZV9lbmFibGVfY2JfZGVsYXllZF9wYWNrZWQoKSAoSmFz
+b24pOwo+ID4gPiA+ID4gPiA+IC0gVGVzdCB0aGUgc3RhdGUgb2YgdGhlIGRlc2MgYXQgdXNlZF9p
+ZHggaW5zdGVhZCBvZiBsYXN0X3VzZWRfaWR4Cj4gPiA+ID4gPiA+ID4gICAgaW4gdmlydHF1ZXVl
+X2VuYWJsZV9jYl9kZWxheWVkX3BhY2tlZCgpIChKYXNvbik7Cj4gPiA+ID4gPiA+ID4gLSBTYXZl
+IHdyYXAgY291bnRlciAoYXMgcGFydCBvZiBxdWV1ZSBzdGF0ZSkgaW4gdGhlIHJldHVybiB2YWx1
+ZQo+ID4gPiA+ID4gPiA+ICAgIG9mIHZpcnRxdWV1ZV9lbmFibGVfY2JfcHJlcGFyZV9wYWNrZWQo
+KTsKPiA+ID4gPiA+ID4gPiAtIFJlZmluZSB0aGUgcGFja2VkIHJpbmcgZGVmaW5pdGlvbnMgaW4g
+dWFwaTsKPiA+ID4gPiA+ID4gPiAtIFJlYmFzZSBvbiB0aGUgbmV0LW5leHQgdHJlZTsKPiA+ID4g
+PiA+ID4gPiAKPiA+ID4gPiA+ID4gPiBSRkMgdjUgLT4gUkZDIHY2Ogo+ID4gPiA+ID4gPiA+IC0g
+QXZvaWQgdHJhY2tpbmcgYWRkci9sZW4vZmxhZ3Mgd2hlbiBETUEgQVBJIGlzbid0IHVzZWQgKE1T
+VC9KYXNvbik7Cj4gPiA+ID4gPiA+ID4gLSBEZWZpbmUgd3JhcCBjb3VudGVyIGFzIGJvb2wgKEph
+c29uKTsKPiA+ID4gPiA+ID4gPiAtIFVzZSBBTElHTigpIGluIHZyaW5nX2luaXRfcGFja2VkKCkg
+KEphc29uKTsKPiA+ID4gPiA+ID4gPiAtIEF2b2lkIHVzaW5nIHBvaW50ZXIgdG8gdHJhY2sgYG5l
+eHRgIGluIGRldGFjaF9idWZfcGFja2VkKCkgKEphc29uKTsKPiA+ID4gPiA+ID4gPiAtIEFkZCBj
+b21tZW50cyBmb3IgYmFycmllcnMgKEphc29uKTsKPiA+ID4gPiA+ID4gPiAtIERvbid0IGVuYWJs
+ZSBSSU5HX1BBQ0tFRCBvbiBjY3cgZm9yIG5vdyAobm90aWNlZCBieSBKYXNvbik7Cj4gPiA+ID4g
+PiA+ID4gLSBSZWZpbmUgdGhlIG1lbW9yeSBiYXJyaWVyIGluIHZpcnRxdWV1ZV9wb2xsKCk7Cj4g
+PiA+ID4gPiA+ID4gLSBBZGQgYSBtaXNzaW5nIG1lbW9yeSBiYXJyaWVyIGluIHZpcnRxdWV1ZV9l
+bmFibGVfY2JfZGVsYXllZF9wYWNrZWQoKTsKPiA+ID4gPiA+ID4gPiAtIFJlbW92ZSB0aGUgaGFj
+a3MgaW4gdmlydHF1ZXVlX2VuYWJsZV9jYl9wcmVwYXJlX3BhY2tlZCgpOwo+ID4gPiA+ID4gPiA+
+IAo+ID4gPiA+ID4gPiA+IFJGQyB2NCAtPiBSRkMgdjU6Cj4gPiA+ID4gPiA+ID4gLSBTYXZlIERN
+QSBhZGRyLCBldGMgaW4gZGVzYyBzdGF0ZSAoSmFzb24pOwo+ID4gPiA+ID4gPiA+IC0gVHJhY2sg
+dXNlZCB3cmFwIGNvdW50ZXI7Cj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gUkZDIHYzIC0+
+IFJGQyB2NDoKPiA+ID4gPiA+ID4gPiAtIE1ha2UgSUQgYWxsb2NhdGlvbiBzdXBwb3J0IG91dC1v
+Zi1vcmRlciAoSmFzb24pOwo+ID4gPiA+ID4gPiA+IC0gVmFyaW91cyBmaXhlcyBmb3IgRVZFTlRf
+SURYIHN1cHBvcnQ7Cj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gUkZDIHYyIC0+IFJGQyB2
+MzoKPiA+ID4gPiA+ID4gPiAtIFNwbGl0IGludG8gc21hbGwgcGF0Y2hlcyAoSmFzb24pOwo+ID4g
+PiA+ID4gPiA+IC0gQWRkIGhlbHBlciB2aXJ0cXVldWVfdXNlX2luZGlyZWN0KCkgKEphc29uKTsK
+PiA+ID4gPiA+ID4gPiAtIEp1c3Qgc2V0IGlkIGZvciB0aGUgbGFzdCBkZXNjcmlwdG9yIG9mIGEg
+bGlzdCAoSmFzb24pOwo+ID4gPiA+ID4gPiA+IC0gQ2FsY3VsYXRlIHRoZSBwcmV2IGluIHZpcnRx
+dWV1ZV9hZGRfcGFja2VkKCkgKEphc29uKTsKPiA+ID4gPiA+ID4gPiAtIEZpeC9pbXByb3ZlIGRl
+c2Mgc3VwcHJlc3Npb24gY29kZSAoSmFzb24vTVNUKTsKPiA+ID4gPiA+ID4gPiAtIFJlZmluZSB0
+aGUgY29kZSBsYXlvdXQgZm9yIFhYWF9zcGxpdC9wYWNrZWQgYW5kIHdyYXBwZXJzIChNU1QpOwo+
+ID4gPiA+ID4gPiA+IC0gRml4IHRoZSBjb21tZW50cyBhbmQgQVBJIGluIHVhcGkgKE1TVCk7Cj4g
+PiA+ID4gPiA+ID4gLSBSZW1vdmUgdGhlIEJVR19PTigpIGZvciBpbmRpcmVjdCAoSmFzb24pOwo+
+ID4gPiA+ID4gPiA+IC0gU29tZSBvdGhlciByZWZpbmVtZW50cyBhbmQgYnVnIGZpeGVzOwo+ID4g
+PiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+IFJGQyB2MSAtPiBSRkMgdjI6Cj4gPiA+ID4gPiA+ID4g
+LSBBZGQgaW5kaXJlY3QgZGVzY3JpcHRvciBzdXBwb3J0IC0gY29tcGlsZSB0ZXN0IG9ubHk7Cj4g
+PiA+ID4gPiA+ID4gLSBBZGQgZXZlbnQgc3VwcHJlc3Npb24gc3VwcHJ0IC0gY29tcGlsZSB0ZXN0
+IG9ubHk7Cj4gPiA+ID4gPiA+ID4gLSBNb3ZlIHZyaW5nX3BhY2tlZF9pbml0KCkgb3V0IG9mIHVh
+cGkgKEphc29uLCBNU1QpOwo+ID4gPiA+ID4gPiA+IC0gTWVyZ2UgdHdvIGxvb3BzIGludG8gb25l
+IGluIHZpcnRxdWV1ZV9hZGRfcGFja2VkKCkgKEphc29uKTsKPiA+ID4gPiA+ID4gPiAtIFNwbGl0
+IHZyaW5nX3VubWFwX29uZSgpIGZvciBwYWNrZWQgcmluZyBhbmQgc3BsaXQgcmluZyAoSmFzb24p
+Owo+ID4gPiA+ID4gPiA+IC0gQXZvaWQgdXNpbmcgJyUnIG9wZXJhdG9yIChKYXNvbik7Cj4gPiA+
+ID4gPiA+ID4gLSBSZW5hbWUgZnJlZV9oZWFkIC0+IG5leHRfYXZhaWxfaWR4IChKYXNvbik7Cj4g
+PiA+ID4gPiA+ID4gLSBBZGQgY29tbWVudHMgZm9yIHZpcnRpb193bWIoKSBpbiB2aXJ0cXVldWVf
+YWRkX3BhY2tlZCgpIChKYXNvbik7Cj4gPiA+ID4gPiA+ID4gLSBTb21lIG90aGVyIHJlZmluZW1l
+bnRzIGFuZCBidWcgZml4ZXM7Cj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gVGhhbmtzIQo+
+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+IFRpd2VpIEJpZSAoNSk6Cj4gPiA+ID4gPiA+ID4g
+ICAgdmlydGlvOiBhZGQgcGFja2VkIHJpbmcgZGVmaW5pdGlvbnMKPiA+ID4gPiA+ID4gPiAgICB2
+aXJ0aW9fcmluZzogc3VwcG9ydCBjcmVhdGluZyBwYWNrZWQgcmluZwo+ID4gPiA+ID4gPiA+ICAg
+IHZpcnRpb19yaW5nOiBhZGQgcGFja2VkIHJpbmcgc3VwcG9ydAo+ID4gPiA+ID4gPiA+ICAgIHZp
+cnRpb19yaW5nOiBhZGQgZXZlbnQgaWR4IHN1cHBvcnQgaW4gcGFja2VkIHJpbmcKPiA+ID4gPiA+
+ID4gPiAgICB2aXJ0aW9fcmluZzogZW5hYmxlIHBhY2tlZCByaW5nCj4gPiA+ID4gPiA+ID4gCj4g
+PiA+ID4gPiA+ID4gICBkcml2ZXJzL3MzOTAvdmlydGlvL3ZpcnRpb19jY3cuYyAgIHwgICAxNCAr
+Cj4gPiA+ID4gPiA+ID4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jICAgICAgIHwgMTM2
+NSArKysrKysrKysrKysrKysrKysrKysrLS0tLS0tCj4gPiA+ID4gPiA+ID4gICBpbmNsdWRlL2xp
+bnV4L3ZpcnRpb19yaW5nLmggICAgICAgIHwgICAgOCArLQo+ID4gPiA+ID4gPiA+ICAgaW5jbHVk
+ZS91YXBpL2xpbnV4L3ZpcnRpb19jb25maWcuaCB8ICAgIDMgKwo+ID4gPiA+ID4gPiA+ICAgaW5j
+bHVkZS91YXBpL2xpbnV4L3ZpcnRpb19yaW5nLmggICB8ICAgNDMgKwo+ID4gPiA+ID4gPiA+ICAg
+NSBmaWxlcyBjaGFuZ2VkLCAxMTU3IGluc2VydGlvbnMoKyksIDI3NiBkZWxldGlvbnMoLSkKPiA+
+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiAtLSAKPiA+ID4gPiA+ID4gPiAyLjE4LjAKPiA+ID4g
+PiA+ID4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tCj4gPiA+ID4gPiA+IFRvIHVuc3Vic2NyaWJlLCBlLW1haWw6IHZp
+cnRpby1kZXYtdW5zdWJzY3JpYmVAbGlzdHMub2FzaXMtb3Blbi5vcmcKPiA+ID4gPiA+ID4gRm9y
+IGFkZGl0aW9uYWwgY29tbWFuZHMsIGUtbWFpbDogdmlydGlvLWRldi1oZWxwQGxpc3RzLm9hc2lz
+LW9wZW4ub3JnCj4gPiA+ID4gPiA+IAo+ID4gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
+dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
+dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
