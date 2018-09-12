@@ -1,7 +1,7 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net-next v2 2/5] virtio_ring: support creating packed ring
-Date: Wed, 12 Sep 2018 15:51:40 +0800
-Message-ID: <20180912075140.GA22545__20402.8383865536$1536738642$gmane$org@debian>
+Date: Wed, 12 Sep 2018 08:45:19 -0400
+Message-ID: <20180912084118-mutt-send-email-mst__24617.0501028702$1536756203$gmane$org@kernel.org>
 References: <20180711022711.7090-1-tiwei.bie@intel.com>
 	<20180711022711.7090-3-tiwei.bie@intel.com>
 	<20180907095208-mutt-send-email-mst@kernel.org>
@@ -21,7 +21,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Tiwei Bie <tiwei.bie@intel.com>
 Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
@@ -34,7 +34,100 @@ On Mon, Sep 10, 2018 at 10:28:37AM +0800, Tiwei Bie wrote:
 > > > 
 > > > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
 > > 
-[...]
+> > I'd rather have a patch just renaming split functions, then
+> > add all packed stuff in as a separate patch on top.
+> 
+> Sure, I will do that.
+> 
+> > 
+> > 
+> > > ---
+> > >  drivers/virtio/virtio_ring.c | 801 +++++++++++++++++++++++------------
+> > >  include/linux/virtio_ring.h  |   8 +-
+> > >  2 files changed, 546 insertions(+), 263 deletions(-)
+> > > 
+> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > > index 814b395007b2..c4f8abc7445a 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -60,11 +60,15 @@ struct vring_desc_state {
+> > >  	struct vring_desc *indir_desc;	/* Indirect descriptor, if any. */
+> > >  };
+> > >  
+> > > +struct vring_desc_state_packed {
+> > > +	int next;			/* The next desc state. */
+> > 
+> > So this can go away with IN_ORDER?
+> 
+> Yes. If IN_ORDER is negotiated, next won't be needed anymore.
+> Currently, IN_ORDER isn't included in this patch set, because
+> some changes for split ring are needed to make sure that it
+> will use the descs in the expected order. After that,
+> optimizations can be done for both of split ring and packed
+> ring respectively.
+> 
+> > 
+> > > +};
+> > > +
+> > >  struct vring_virtqueue {
+> > >  	struct virtqueue vq;
+> > >  
+> > > -	/* Actual memory layout for this queue */
+> > > -	struct vring vring;
+> > > +	/* Is this a packed ring? */
+> > > +	bool packed;
+> > >  
+> > >  	/* Can we use weak barriers? */
+> > >  	bool weak_barriers;
+> > > @@ -86,11 +90,39 @@ struct vring_virtqueue {
+> > >  	/* Last used index we've seen. */
+> > >  	u16 last_used_idx;
+> > >  
+> > > -	/* Last written value to avail->flags */
+> > > -	u16 avail_flags_shadow;
+> > > +	union {
+> > > +		/* Available for split ring */
+> > > +		struct {
+> > > +			/* Actual memory layout for this queue. */
+> > > +			struct vring vring;
+> > >  
+> > > -	/* Last written value to avail->idx in guest byte order */
+> > > -	u16 avail_idx_shadow;
+> > > +			/* Last written value to avail->flags */
+> > > +			u16 avail_flags_shadow;
+> > > +
+> > > +			/* Last written value to avail->idx in
+> > > +			 * guest byte order. */
+> > > +			u16 avail_idx_shadow;
+> > > +		};
+> > 
+> > Name this field split so it's easier to detect misuse of e.g.
+> > packed fields in split code?
+> 
+> Good point, I'll do that.
+> 
+> > 
+> > > +
+> > > +		/* Available for packed ring */
+> > > +		struct {
+> > > +			/* Actual memory layout for this queue. */
+> > > +			struct vring_packed vring_packed;
+> > > +
+> > > +			/* Driver ring wrap counter. */
+> > > +			bool avail_wrap_counter;
+> > > +
+> > > +			/* Device ring wrap counter. */
+> > > +			bool used_wrap_counter;
+> > > +
+> > > +			/* Index of the next avail descriptor. */
+> > > +			u16 next_avail_idx;
+> > > +
+> > > +			/* Last written value to driver->flags in
+> > > +			 * guest byte order. */
+> > > +			u16 event_flags_shadow;
+> > > +		};
+> > > +	};
+> [...]
 > > > +
 > > > +/*
 > > > + * The layout for the packed ring is a continuous chunk of memory
@@ -57,24 +150,6 @@ On Mon, Sep 10, 2018 at 10:28:37AM +0800, Tiwei Bie wrote:
 > > 
 > > Why not just allocate event structures separately?
 > > Is it a win to have them share a cache line for some reason?
-
-Users may call vring_new_virtqueue() with preallocated
-memory to setup the ring, e.g.:
-
-https://github.com/torvalds/linux/blob/11da3a7f84f1/drivers/s390/virtio/virtio_ccw.c#L513-L522
-https://github.com/torvalds/linux/blob/11da3a7f84f1/drivers/misc/mic/vop/vop_main.c#L306-L307
-
-Below is the corresponding definition in split ring:
-
-https://github.com/oasis-tcs/virtio-spec/blob/89dd55f5e606/split-ring.tex#L64-L78
-
-If my understanding is correct, this is just for legacy
-interfaces, and we won't define layout in packed ring
-and don't need to support vring_new_virtqueue() in packed
-ring. Is it correct? Thanks!
-
-
-
 > 
 > Will do that.
 > 
@@ -96,7 +171,11 @@ ring. Is it correct? Thanks!
 > 
 > https://github.com/torvalds/linux/blob/a49a9dcce802/drivers/virtio/virtio_ring.c#L1061
 > https://github.com/torvalds/linux/blob/a49a9dcce802/drivers/virtio/virtio_ring.c#L1123
-> 
+
+Note the TODO - we just never got to fixing it. It would be great to fix
+this for virtio 1 rings, but if not - at least let's not add this
+stuff for packed rings.
+
 > Should I just ignore it in packed ring?
 > 
 > CCW defined this:
@@ -106,7 +185,11 @@ ring. Is it correct? Thanks!
 > I'm not familiar with CCW. Currently, in this patch set, packed ring
 > isn't enabled on CCW dues to some legacy accessors are not implemented
 > in packed ring yet.
-> 
+
+
+Then you need to take steps not to negotiate this feature bit for
+ccw drivers.
+
 > > 
 > > > +
 > > > +static inline unsigned vring_size_packed(unsigned int num, unsigned long align)
