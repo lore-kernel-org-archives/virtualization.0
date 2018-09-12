@@ -1,16 +1,15 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2 02/17] compat_ioctl: move drivers to
-	generic_compat_ioctl_ptrarg
-Date: Wed, 12 Sep 2018 18:20:34 +0200
-Message-ID: <CAK8P3a1RoYo0VHrDfxdmJt9ns0ErTeuctH9CPG5_mg7JTwZtEQ__33875.15448635$1536769133$gmane$org@mail.gmail.com>
-References: <20180912150142.157913-1-arnd@arndb.de>
-	<20180912150142.157913-2-arnd@arndb.de>
-	<20180912153300.GE5633@ziepe.ca>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next v2 3/5] virtio_ring: add packed ring support
+Date: Wed, 12 Sep 2018 12:22:22 -0400
+Message-ID: <20180912121650-mutt-send-email-mst__46347.5445322276$1536769258$gmane$org@kernel.org>
+References: <20180711022711.7090-1-tiwei.bie@intel.com>
+	<20180711022711.7090-4-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180912153300.GE5633@ziepe.ca>
+Content-Disposition: inline
+In-Reply-To: <20180711022711.7090-4-tiwei.bie@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,29 +19,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: kvm@vger.kernel.org, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, virtualization@lists.linux-foundation.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-mtd <linux-mtd@lists.infradead.org>, Peter Huewe <peterhuewe@gmx.de>, linux1394-devel@lists.sourceforge.net, driverdevel <devel@driverdev.osuosl.org>, Marek Vasut <marek.vasut@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "Winkler, Tomas" <tomas.winkler@intel.com>, Jiri Kosina <jikos@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, Artem Bityutskiy <dedekind1@gmail.com>, gregkh <gregkh@linuxfoundation.org>, USB list <linux-usb@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Stefan Richter <stefanr@s5r6.in-berlin.de>, Networking <netdev@vger.kernel>
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 12, 2018 at 5:33 PM Jason Gunthorpe <jgg@ziepe.ca> wrote:
->
-> On Wed, Sep 12, 2018 at 05:01:03PM +0200, Arnd Bergmann wrote:
-> > Each of these drivers has a copy of the same trivial helper function to
-> > convert the pointer argument and then call the native ioctl handler.
-> >
-> > We now have a generic implementation of that, so use it.
-> >
->
-> For vtpm:
->
-> Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
->
-> Arnd, would you consider including a patch as part of/after this
-> series to make compat_ioctl in drivers/infiniband/core/uverbs_main.c
-> use this as well?  Looks like a bug too?
+On Wed, Jul 11, 2018 at 10:27:09AM +0800, Tiwei Bie wrote:
+> This commit introduces the support (without EVENT_IDX) for
+> packed ring.
+> 
+> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+> ---
+>  drivers/virtio/virtio_ring.c | 495 ++++++++++++++++++++++++++++++++++-
+>  1 file changed, 487 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index c4f8abc7445a..f317b485ba54 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -55,12 +55,21 @@
+>  #define END_USE(vq)
+>  #endif
+>  
+> +#define _VRING_DESC_F_AVAIL(b)	((__u16)(b) << 7)
+> +#define _VRING_DESC_F_USED(b)	((__u16)(b) << 15)
+> +
+>  struct vring_desc_state {
+>  	void *data;			/* Data for callback. */
+>  	struct vring_desc *indir_desc;	/* Indirect descriptor, if any. */
+>  };
+>  
+>  struct vring_desc_state_packed {
+> +	void *data;			/* Data for callback. */
+> +	struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
+> +	int num;			/* Descriptor list length. */
+> +	dma_addr_t addr;		/* Buffer DMA addr. */
+> +	u32 len;			/* Buffer length. */
+> +	u16 flags;			/* Descriptor flags. */
+>  	int next;			/* The next desc state. */
+>  };
+>  
 
-That should be included in patch 5 in this series. I may have skipped
-some Cc there since it had too many recipients (sent only to the
-mailing lists instead).
+Idea: how about using data to chain these descriptors?
+You can validate it's pointing within an array to distinguish
+e.g. on detach.
 
-        Arnd
+-- 
+MST
