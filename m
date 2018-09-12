@@ -1,11 +1,13 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next V2 00/11] vhost_net TX batching
-Date: Wed, 12 Sep 2018 11:16:58 +0800
-Message-ID: <20180912031709.14112-1-jasowang__7986.53839524395$1536722126$gmane$org@redhat.com>
+Subject: [PATCH net-next V2 01/11] net: sock: introduce SOCK_XDP
+Date: Wed, 12 Sep 2018 11:16:59 +0800
+Message-ID: <20180912031709.14112-2-jasowang__4610.05908805436$1536722141$gmane$org@redhat.com>
+References: <20180912031709.14112-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180912031709.14112-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,107 +21,73 @@ To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all:
+This patch introduces a new sock flag - SOCK_XDP. This will be used
+for notifying the upper layer that XDP program is attached on the
+lower socket, and requires for extra headroom.
 
-This series tries to batch submitting packets to underlayer socket
-through msg_control during sendmsg(). This is done by:
+TUN will be the first user.
 
-1) Doing userspace copy inside vhost_net
-2) Build XDP buff
-3) Batch at most 64 (VHOST_NET_BATCH) XDP buffs and submit them once
-   through msg_control during sendmsg().
-4) Underlayer sockets can use XDP buffs directly when XDP is enalbed,
-   or build skb based on XDP buff.
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/tun.c  | 19 +++++++++++++++++++
+ include/net/sock.h |  1 +
+ 2 files changed, 20 insertions(+)
 
-For the packet that can not be built easily with XDP or for the case
-that batch submission is hard (e.g sndbuf is limited). We will go for
-the previous slow path, passing iov iterator to underlayer socket
-through sendmsg() once per packet.
-
-This can help to improve cache utilization and avoid lots of indirect
-calls with sendmsg(). It can also co-operate with the batching support
-of the underlayer sockets (e.g the case of XDP redirection through
-maps).
-
-Testpmd(txonly) in guest shows obvious improvements:
-
-Test                /+pps%
-XDP_DROP on TAP     /+44.8%
-XDP_REDIRECT on TAP /+29%
-macvtap (skb)       /+26%
-
-Netperf TCP_STREAM TX from guest shows obvious improvements on small
-packet:
-
-    size/session/+thu%/+normalize%
-       64/     1/   +2%/    0%
-       64/     2/   +3%/   +1%
-       64/     4/   +7%/   +5%
-       64/     8/   +8%/   +6%
-      256/     1/   +3%/    0%
-      256/     2/  +10%/   +7%
-      256/     4/  +26%/  +22%
-      256/     8/  +27%/  +23%
-      512/     1/   +3%/   +2%
-      512/     2/  +19%/  +14%
-      512/     4/  +43%/  +40%
-      512/     8/  +45%/  +41%
-     1024/     1/   +4%/    0%
-     1024/     2/  +27%/  +21%
-     1024/     4/  +38%/  +73%
-     1024/     8/  +15%/  +24%
-     2048/     1/  +10%/   +7%
-     2048/     2/  +16%/  +12%
-     2048/     4/    0%/   +2%
-     2048/     8/    0%/   +2%
-     4096/     1/  +36%/  +60%
-     4096/     2/  -11%/  -26%
-     4096/     4/    0%/  +14%
-     4096/     8/    0%/   +4%
-    16384/     1/   -1%/   +5%
-    16384/     2/    0%/   +2%
-    16384/     4/    0%/   -3%
-    16384/     8/    0%/   +4%
-    65535/     1/    0%/  +10%
-    65535/     2/    0%/   +8%
-    65535/     4/    0%/   +1%
-    65535/     8/    0%/   +3%
-
-Please review.
-
-Thanks
-
-Changes from V1:
-
-- don't hold page refcnt for XDP_DROP
-- release page if build_skb() fails
-- introduce a helper to build skb for the path of no batching mode
-- rename tun_do_xdp() as tun_xdp_act() and use negative for reporting
-  errors instead of a pointer to integer
-- introduce a num field in tun_msg_ctl
-- introduce a new structure for storing metadata in the head of XDP
-  packet
-- do not store batche XDP inside vhoet_net_virtqueue
-
-Jason Wang (11):
-  net: sock: introduce SOCK_XDP
-  tuntap: switch to use XDP_PACKET_HEADROOM
-  tuntap: enable bh early during processing XDP
-  tuntap: simplify error handling in tun_build_skb()
-  tuntap: tweak on the path of skb XDP case in tun_build_skb()
-  tuntap: split out XDP logic
-  tuntap: move XDP flushing out of tun_do_xdp()
-  tun: switch to new type of msg_control
-  tuntap: accept an array of XDP buffs through sendmsg()
-  tap: accept an array of XDP buffs through sendmsg()
-  vhost_net: batch submitting XDP buffers to underlayer sockets
-
- drivers/net/tap.c      |  88 +++++++++++++-
- drivers/net/tun.c      | 267 ++++++++++++++++++++++++++++++++---------
- drivers/vhost/net.c    | 181 +++++++++++++++++++++++++---
- include/linux/if_tun.h |  14 +++
- include/net/sock.h     |   1 +
- 5 files changed, 471 insertions(+), 80 deletions(-)
-
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index ebd07ad82431..2c548bd20393 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -869,6 +869,9 @@ static int tun_attach(struct tun_struct *tun, struct file *file,
+ 		tun_napi_init(tun, tfile, napi);
+ 	}
+ 
++	if (rtnl_dereference(tun->xdp_prog))
++		sock_set_flag(&tfile->sk, SOCK_XDP);
++
+ 	tun_set_real_num_queues(tun);
+ 
+ 	/* device is allowed to go away first, so no need to hold extra
+@@ -1241,13 +1244,29 @@ static int tun_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 		       struct netlink_ext_ack *extack)
+ {
+ 	struct tun_struct *tun = netdev_priv(dev);
++	struct tun_file *tfile;
+ 	struct bpf_prog *old_prog;
++	int i;
+ 
+ 	old_prog = rtnl_dereference(tun->xdp_prog);
+ 	rcu_assign_pointer(tun->xdp_prog, prog);
+ 	if (old_prog)
+ 		bpf_prog_put(old_prog);
+ 
++	for (i = 0; i < tun->numqueues; i++) {
++		tfile = rtnl_dereference(tun->tfiles[i]);
++		if (prog)
++			sock_set_flag(&tfile->sk, SOCK_XDP);
++		else
++			sock_reset_flag(&tfile->sk, SOCK_XDP);
++	}
++	list_for_each_entry(tfile, &tun->disabled, next) {
++		if (prog)
++			sock_set_flag(&tfile->sk, SOCK_XDP);
++		else
++			sock_reset_flag(&tfile->sk, SOCK_XDP);
++	}
++
+ 	return 0;
+ }
+ 
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 433f45fc2d68..38cae35f6e16 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -800,6 +800,7 @@ enum sock_flags {
+ 	SOCK_SELECT_ERR_QUEUE, /* Wake select on error queue */
+ 	SOCK_RCU_FREE, /* wait rcu grace period in sk_destruct() */
+ 	SOCK_TXTIME,
++	SOCK_XDP, /* XDP is attached */
+ };
+ 
+ #define SK_FLAGS_TIMESTAMP ((1UL << SOCK_TIMESTAMP) | (1UL << SOCK_TIMESTAMPING_RX_SOFTWARE))
 -- 
 2.17.1
