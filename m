@@ -1,21 +1,11 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v2] x86/paravirt: Cleanup native_patch()
-Date: Tue, 11 Sep 2018 11:44:26 +0200
-Message-ID: <eb3dd51b-1807-b5ea-58c6-714fdee7f173__30550.9267295294$1536658950$gmane$org@suse.com>
-References: <20180907104917.12502-1-bp@alien8.de>
-	<20180907105112.GD12849@zn.tnic> <20180907201050.GF12849@zn.tnic>
-	<65bb69fa-855f-9efc-19ba-c0fab69f468c@suse.com>
-	<20180908152800.GA8286@zn.tnic>
-	<229941d4-c152-89fb-eb75-fcfa5f265ad4@suse.com>
-	<20180910070108.GA21406@zn.tnic>
-	<dfe856d6-a4db-b406-ef18-dba3b6b8c342@suse.com>
-	<20180911091510.GA12094@zn.tnic>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next V2 00/11] vhost_net TX batching
+Date: Wed, 12 Sep 2018 11:16:58 +0800
+Message-ID: <20180912031709.14112-1-jasowang__7986.53839524395$1536722126$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180911091510.GA12094@zn.tnic>
-Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,23 +15,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Borislav Petkov <bp@alien8.de>
-Cc: x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTEvMDkvMTggMTE6MTUsIEJvcmlzbGF2IFBldGtvdiB3cm90ZToKPiBXaGVuIENPTkZJR19Q
-QVJBVklSVF9TUElOTE9DS1M9biwgaXQgZmlyZXMKPiAKPiAgIGFyY2gveDg2L2tlcm5lbC9wYXJh
-dmlydF9wYXRjaF82NC5jOiBJbiBmdW5jdGlvbiDigJhuYXRpdmVfcGF0Y2jigJk6Cj4gICBhcmNo
-L3g4Ni9rZXJuZWwvcGFyYXZpcnRfcGF0Y2hfNjQuYzo4OToxOiB3YXJuaW5nOiBsYWJlbCDigJhw
-YXRjaF9zaXRl4oCZIGRlZmluZWQgYnV0IG5vdCB1c2VkIFstV3VudXNlZC1sYWJlbF0KPiAgICBw
-YXRjaF9zaXRlOgo+IAo+IGJ1dCB0aG9zZSBsYWJlbHMgY2FuIHNpbXBseSBiZSByZW1vdmVkIGJ5
-IGRpcmVjdGx5IGNhbGxpbmcgdGhlCj4gcmVzcGVjdGl2ZSBmdW5jdGlvbnMgdGhlcmUuCj4gCj4g
-R2V0IHJpZCBvZiBsb2NhbCB2YXJpYWJsZXMgdG9vLCB3aGlsZSBhdCBpdC4gQWxzbywgc2ltcGxp
-ZnkgZnVuY3Rpb24KPiBmbG93IGZvciBiZXR0ZXIgcmVhZGFiaWxpdHkuCj4gCj4gU2lnbmVkLW9m
-Zi1ieTogQm9yaXNsYXYgUGV0a292IDxicEBzdXNlLmRlPgo+IENjOiBKdWVyZ2VuIEdyb3NzIDxq
-Z3Jvc3NAc3VzZS5jb20+Cj4gQ2M6IHg4NkBrZXJuZWwub3JnCj4gQ2M6IHZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCgpSZXZpZXdlZC1ieTogSnVlcmdlbiBHcm9zcyA8
-amdyb3NzQHN1c2UuY29tPgoKCkp1ZXJnZW4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi all:
+
+This series tries to batch submitting packets to underlayer socket
+through msg_control during sendmsg(). This is done by:
+
+1) Doing userspace copy inside vhost_net
+2) Build XDP buff
+3) Batch at most 64 (VHOST_NET_BATCH) XDP buffs and submit them once
+   through msg_control during sendmsg().
+4) Underlayer sockets can use XDP buffs directly when XDP is enalbed,
+   or build skb based on XDP buff.
+
+For the packet that can not be built easily with XDP or for the case
+that batch submission is hard (e.g sndbuf is limited). We will go for
+the previous slow path, passing iov iterator to underlayer socket
+through sendmsg() once per packet.
+
+This can help to improve cache utilization and avoid lots of indirect
+calls with sendmsg(). It can also co-operate with the batching support
+of the underlayer sockets (e.g the case of XDP redirection through
+maps).
+
+Testpmd(txonly) in guest shows obvious improvements:
+
+Test                /+pps%
+XDP_DROP on TAP     /+44.8%
+XDP_REDIRECT on TAP /+29%
+macvtap (skb)       /+26%
+
+Netperf TCP_STREAM TX from guest shows obvious improvements on small
+packet:
+
+    size/session/+thu%/+normalize%
+       64/     1/   +2%/    0%
+       64/     2/   +3%/   +1%
+       64/     4/   +7%/   +5%
+       64/     8/   +8%/   +6%
+      256/     1/   +3%/    0%
+      256/     2/  +10%/   +7%
+      256/     4/  +26%/  +22%
+      256/     8/  +27%/  +23%
+      512/     1/   +3%/   +2%
+      512/     2/  +19%/  +14%
+      512/     4/  +43%/  +40%
+      512/     8/  +45%/  +41%
+     1024/     1/   +4%/    0%
+     1024/     2/  +27%/  +21%
+     1024/     4/  +38%/  +73%
+     1024/     8/  +15%/  +24%
+     2048/     1/  +10%/   +7%
+     2048/     2/  +16%/  +12%
+     2048/     4/    0%/   +2%
+     2048/     8/    0%/   +2%
+     4096/     1/  +36%/  +60%
+     4096/     2/  -11%/  -26%
+     4096/     4/    0%/  +14%
+     4096/     8/    0%/   +4%
+    16384/     1/   -1%/   +5%
+    16384/     2/    0%/   +2%
+    16384/     4/    0%/   -3%
+    16384/     8/    0%/   +4%
+    65535/     1/    0%/  +10%
+    65535/     2/    0%/   +8%
+    65535/     4/    0%/   +1%
+    65535/     8/    0%/   +3%
+
+Please review.
+
+Thanks
+
+Changes from V1:
+
+- don't hold page refcnt for XDP_DROP
+- release page if build_skb() fails
+- introduce a helper to build skb for the path of no batching mode
+- rename tun_do_xdp() as tun_xdp_act() and use negative for reporting
+  errors instead of a pointer to integer
+- introduce a num field in tun_msg_ctl
+- introduce a new structure for storing metadata in the head of XDP
+  packet
+- do not store batche XDP inside vhoet_net_virtqueue
+
+Jason Wang (11):
+  net: sock: introduce SOCK_XDP
+  tuntap: switch to use XDP_PACKET_HEADROOM
+  tuntap: enable bh early during processing XDP
+  tuntap: simplify error handling in tun_build_skb()
+  tuntap: tweak on the path of skb XDP case in tun_build_skb()
+  tuntap: split out XDP logic
+  tuntap: move XDP flushing out of tun_do_xdp()
+  tun: switch to new type of msg_control
+  tuntap: accept an array of XDP buffs through sendmsg()
+  tap: accept an array of XDP buffs through sendmsg()
+  vhost_net: batch submitting XDP buffers to underlayer sockets
+
+ drivers/net/tap.c      |  88 +++++++++++++-
+ drivers/net/tun.c      | 267 ++++++++++++++++++++++++++++++++---------
+ drivers/vhost/net.c    | 181 +++++++++++++++++++++++++---
+ include/linux/if_tun.h |  14 +++
+ include/net/sock.h     |   1 +
+ 5 files changed, 471 insertions(+), 80 deletions(-)
+
+-- 
+2.17.1
