@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v2 3/5] virtio_ring: add packed ring support
-Date: Wed, 12 Sep 2018 12:22:22 -0400
-Message-ID: <20180912121650-mutt-send-email-mst__46347.5445322276$1536769258$gmane$org@kernel.org>
-References: <20180711022711.7090-1-tiwei.bie@intel.com>
-	<20180711022711.7090-4-tiwei.bie@intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v2 02/17] compat_ioctl: move drivers to
+	generic_compat_ioctl_ptrarg
+Date: Wed, 12 Sep 2018 20:13:38 +0200
+Message-ID: <20180912181338.GD15031@kroah.com>
+References: <20180912150142.157913-1-arnd@arndb.de>
+	<20180912150142.157913-2-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180711022711.7090-4-tiwei.bie@intel.com>
+In-Reply-To: <20180912150142.157913-2-arnd@arndb.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,49 +20,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: kvm@vger.kernel.org, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, virtualization@lists.linux-foundation.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-mtd@lists.infradead.org, Peter Huewe <peterhuewe@gmx.de>, linux1394-devel@lists.sourceforge.net, devel@driverdev.osuosl.org, Jason Gunthorpe <jgg@ziepe.ca>, Marek Vasut <marek.vasut@gmail.com>, linux-input@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>, Jiri Kosina <jikos@kernel.org>, viro@zeniv.linux.org.uk, Artem Bityutskiy <dedekind1@gmail.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-fsdevel@vger.kernel.org, linux-integrity@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 11, 2018 at 10:27:09AM +0800, Tiwei Bie wrote:
-> This commit introduces the support (without EVENT_IDX) for
-> packed ring.
+On Wed, Sep 12, 2018 at 05:01:03PM +0200, Arnd Bergmann wrote:
+> Each of these drivers has a copy of the same trivial helper function to
+> convert the pointer argument and then call the native ioctl handler.
 > 
-> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> ---
->  drivers/virtio/virtio_ring.c | 495 ++++++++++++++++++++++++++++++++++-
->  1 file changed, 487 insertions(+), 8 deletions(-)
+> We now have a generic implementation of that, so use it.
 > 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index c4f8abc7445a..f317b485ba54 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -55,12 +55,21 @@
->  #define END_USE(vq)
->  #endif
->  
-> +#define _VRING_DESC_F_AVAIL(b)	((__u16)(b) << 7)
-> +#define _VRING_DESC_F_USED(b)	((__u16)(b) << 15)
-> +
->  struct vring_desc_state {
->  	void *data;			/* Data for callback. */
->  	struct vring_desc *indir_desc;	/* Indirect descriptor, if any. */
->  };
->  
->  struct vring_desc_state_packed {
-> +	void *data;			/* Data for callback. */
-> +	struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
-> +	int num;			/* Descriptor list length. */
-> +	dma_addr_t addr;		/* Buffer DMA addr. */
-> +	u32 len;			/* Buffer length. */
-> +	u16 flags;			/* Descriptor flags. */
->  	int next;			/* The next desc state. */
->  };
->  
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Idea: how about using data to chain these descriptors?
-You can validate it's pointing within an array to distinguish
-e.g. on detach.
-
--- 
-MST
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
