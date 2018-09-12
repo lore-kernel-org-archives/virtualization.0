@@ -1,17 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v2 2/5] virtio_ring: support creating packed ring
-Date: Wed, 12 Sep 2018 08:45:19 -0400
-Message-ID: <20180912084118-mutt-send-email-mst__24617.0501028702$1536756203$gmane$org@kernel.org>
+Subject: Re: [PATCH net-next v2 1/5] virtio: add packed ring definitions
+Date: Wed, 12 Sep 2018 08:53:20 -0400
+Message-ID: <20180912084549-mutt-send-email-mst__36398.0012982667$1536756682$gmane$org@kernel.org>
 References: <20180711022711.7090-1-tiwei.bie@intel.com>
-	<20180711022711.7090-3-tiwei.bie@intel.com>
-	<20180907095208-mutt-send-email-mst@kernel.org>
-	<20180910022837.GA11822@debian>
+	<20180711022711.7090-2-tiwei.bie@intel.com>
+	<20180907094922-mutt-send-email-mst@kernel.org>
+	<20180910021322.GA10912@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20180910022837.GA11822@debian>
+In-Reply-To: <20180910021322.GA10912@debian>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,282 +25,141 @@ To: Tiwei Bie <tiwei.bie@intel.com>
 Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 10, 2018 at 10:28:37AM +0800, Tiwei Bie wrote:
-> On Fri, Sep 07, 2018 at 10:03:24AM -0400, Michael S. Tsirkin wrote:
-> > On Wed, Jul 11, 2018 at 10:27:08AM +0800, Tiwei Bie wrote:
-> > > This commit introduces the support for creating packed ring.
-> > > All split ring specific functions are added _split suffix.
-> > > Some necessary stubs for packed ring are also added.
-> > > 
+On Mon, Sep 10, 2018 at 10:13:22AM +0800, Tiwei Bie wrote:
+> On Fri, Sep 07, 2018 at 09:51:23AM -0400, Michael S. Tsirkin wrote:
+> > On Wed, Jul 11, 2018 at 10:27:07AM +0800, Tiwei Bie wrote:
 > > > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> > 
-> > I'd rather have a patch just renaming split functions, then
-> > add all packed stuff in as a separate patch on top.
-> 
-> Sure, I will do that.
-> 
-> > 
-> > 
 > > > ---
-> > >  drivers/virtio/virtio_ring.c | 801 +++++++++++++++++++++++------------
-> > >  include/linux/virtio_ring.h  |   8 +-
-> > >  2 files changed, 546 insertions(+), 263 deletions(-)
+> > >  include/uapi/linux/virtio_config.h |  3 +++
+> > >  include/uapi/linux/virtio_ring.h   | 43 ++++++++++++++++++++++++++++++
+> > >  2 files changed, 46 insertions(+)
 > > > 
-> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > index 814b395007b2..c4f8abc7445a 100644
-> > > --- a/drivers/virtio/virtio_ring.c
-> > > +++ b/drivers/virtio/virtio_ring.c
-> > > @@ -60,11 +60,15 @@ struct vring_desc_state {
-> > >  	struct vring_desc *indir_desc;	/* Indirect descriptor, if any. */
-> > >  };
+> > > diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+> > > index 449132c76b1c..1196e1c1d4f6 100644
+> > > --- a/include/uapi/linux/virtio_config.h
+> > > +++ b/include/uapi/linux/virtio_config.h
+> > > @@ -75,6 +75,9 @@
+> > >   */
+> > >  #define VIRTIO_F_IOMMU_PLATFORM		33
 > > >  
-> > > +struct vring_desc_state_packed {
-> > > +	int next;			/* The next desc state. */
-> > 
-> > So this can go away with IN_ORDER?
-> 
-> Yes. If IN_ORDER is negotiated, next won't be needed anymore.
-> Currently, IN_ORDER isn't included in this patch set, because
-> some changes for split ring are needed to make sure that it
-> will use the descs in the expected order. After that,
-> optimizations can be done for both of split ring and packed
-> ring respectively.
-> 
-> > 
-> > > +};
-> > > +
-> > >  struct vring_virtqueue {
-> > >  	struct virtqueue vq;
-> > >  
-> > > -	/* Actual memory layout for this queue */
-> > > -	struct vring vring;
-> > > +	/* Is this a packed ring? */
-> > > +	bool packed;
-> > >  
-> > >  	/* Can we use weak barriers? */
-> > >  	bool weak_barriers;
-> > > @@ -86,11 +90,39 @@ struct vring_virtqueue {
-> > >  	/* Last used index we've seen. */
-> > >  	u16 last_used_idx;
-> > >  
-> > > -	/* Last written value to avail->flags */
-> > > -	u16 avail_flags_shadow;
-> > > +	union {
-> > > +		/* Available for split ring */
-> > > +		struct {
-> > > +			/* Actual memory layout for this queue. */
-> > > +			struct vring vring;
-> > >  
-> > > -	/* Last written value to avail->idx in guest byte order */
-> > > -	u16 avail_idx_shadow;
-> > > +			/* Last written value to avail->flags */
-> > > +			u16 avail_flags_shadow;
-> > > +
-> > > +			/* Last written value to avail->idx in
-> > > +			 * guest byte order. */
-> > > +			u16 avail_idx_shadow;
-> > > +		};
-> > 
-> > Name this field split so it's easier to detect misuse of e.g.
-> > packed fields in split code?
-> 
-> Good point, I'll do that.
-> 
-> > 
-> > > +
-> > > +		/* Available for packed ring */
-> > > +		struct {
-> > > +			/* Actual memory layout for this queue. */
-> > > +			struct vring_packed vring_packed;
-> > > +
-> > > +			/* Driver ring wrap counter. */
-> > > +			bool avail_wrap_counter;
-> > > +
-> > > +			/* Device ring wrap counter. */
-> > > +			bool used_wrap_counter;
-> > > +
-> > > +			/* Index of the next avail descriptor. */
-> > > +			u16 next_avail_idx;
-> > > +
-> > > +			/* Last written value to driver->flags in
-> > > +			 * guest byte order. */
-> > > +			u16 event_flags_shadow;
-> > > +		};
-> > > +	};
-> [...]
-> > > +
-> > > +/*
-> > > + * The layout for the packed ring is a continuous chunk of memory
-> > > + * which looks like this.
-> > > + *
-> > > + * struct vring_packed {
-> > > + *	// The actual descriptors (16 bytes each)
-> > > + *	struct vring_packed_desc desc[num];
-> > > + *
-> > > + *	// Padding to the next align boundary.
-> > > + *	char pad[];
-> > > + *
-> > > + *	// Driver Event Suppression
-> > > + *	struct vring_packed_desc_event driver;
-> > > + *
-> > > + *	// Device Event Suppression
-> > > + *	struct vring_packed_desc_event device;
-> > > + * };
-> > > + */
-> > 
-> > Why not just allocate event structures separately?
-> > Is it a win to have them share a cache line for some reason?
-> 
-> Will do that.
-> 
-> > 
-> > > +static inline void vring_init_packed(struct vring_packed *vr, unsigned int num,
-> > > +				     void *p, unsigned long align)
-> > > +{
-> > > +	vr->num = num;
-> > > +	vr->desc = p;
-> > > +	vr->driver = (void *)ALIGN(((uintptr_t)p +
-> > > +		sizeof(struct vring_packed_desc) * num), align);
-> > > +	vr->device = vr->driver + 1;
-> > > +}
-> > 
-> > What's all this about alignment? Where does it come from?
-> 
-> It comes from the `vring_align` parameter of vring_create_virtqueue()
-> and vring_new_virtqueue():
-> 
-> https://github.com/torvalds/linux/blob/a49a9dcce802/drivers/virtio/virtio_ring.c#L1061
-> https://github.com/torvalds/linux/blob/a49a9dcce802/drivers/virtio/virtio_ring.c#L1123
-
-Note the TODO - we just never got to fixing it. It would be great to fix
-this for virtio 1 rings, but if not - at least let's not add this
-stuff for packed rings.
-
-> Should I just ignore it in packed ring?
-> 
-> CCW defined this:
-> 
-> #define KVM_VIRTIO_CCW_RING_ALIGN 4096
-> 
-> I'm not familiar with CCW. Currently, in this patch set, packed ring
-> isn't enabled on CCW dues to some legacy accessors are not implemented
-> in packed ring yet.
-
-
-Then you need to take steps not to negotiate this feature bit for
-ccw drivers.
-
-> > 
-> > > +
-> > > +static inline unsigned vring_size_packed(unsigned int num, unsigned long align)
-> > > +{
-> > > +	return ((sizeof(struct vring_packed_desc) * num + align - 1)
-> > > +		& ~(align - 1)) + sizeof(struct vring_packed_desc_event) * 2;
-> > > +}
-> [...]
-> > > @@ -1129,10 +1388,17 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
-> > >  				      void (*callback)(struct virtqueue *vq),
-> > >  				      const char *name)
-> > >  {
-> > > -	struct vring vring;
-> > > -	vring_init(&vring, num, pages, vring_align);
-> > > -	return __vring_new_virtqueue(index, vring, vdev, weak_barriers, context,
-> > > -				     notify, callback, name);
-> > > +	union vring_union vring;
-> > > +	bool packed;
-> > > +
-> > > +	packed = virtio_has_feature(vdev, VIRTIO_F_RING_PACKED);
-> > > +	if (packed)
-> > > +		vring_init_packed(&vring.vring_packed, num, pages, vring_align);
-> > > +	else
-> > > +		vring_init(&vring.vring_split, num, pages, vring_align);
-> > 
-> > 
-> > vring_init in the UAPI header is more or less a bug.
-> > I'd just stop using it, keep it around for legacy userspace.
-> 
-> Got it. I'd like to do that. Thanks.
-> 
-> > 
-> > > +
-> > > +	return __vring_new_virtqueue(index, vring, packed, vdev, weak_barriers,
-> > > +				     context, notify, callback, name);
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(vring_new_virtqueue);
-> > >  
-> > > @@ -1142,7 +1408,9 @@ void vring_del_virtqueue(struct virtqueue *_vq)
-> > >  
-> > >  	if (vq->we_own_ring) {
-> > >  		vring_free_queue(vq->vq.vdev, vq->queue_size_in_bytes,
-> > > -				 vq->vring.desc, vq->queue_dma_addr);
-> > > +				 vq->packed ? (void *)vq->vring_packed.desc :
-> > > +					      (void *)vq->vring.desc,
-> > > +				 vq->queue_dma_addr);
-> > >  	}
-> > >  	list_del(&_vq->list);
-> > >  	kfree(vq);
-> > > @@ -1184,7 +1452,7 @@ unsigned int virtqueue_get_vring_size(struct virtqueue *_vq)
-> > >  
-> > >  	struct vring_virtqueue *vq = to_vvq(_vq);
-> > >  
-> > > -	return vq->vring.num;
-> > > +	return vq->packed ? vq->vring_packed.num : vq->vring.num;
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(virtqueue_get_vring_size);
-> > >  
-> > > @@ -1227,6 +1495,10 @@ dma_addr_t virtqueue_get_avail_addr(struct virtqueue *_vq)
-> > >  
-> > >  	BUG_ON(!vq->we_own_ring);
-> > >  
-> > > +	if (vq->packed)
-> > > +		return vq->queue_dma_addr + ((char *)vq->vring_packed.driver -
-> > > +				(char *)vq->vring_packed.desc);
-> > > +
-> > >  	return vq->queue_dma_addr +
-> > >  		((char *)vq->vring.avail - (char *)vq->vring.desc);
-> > >  }
-> > > @@ -1238,11 +1510,16 @@ dma_addr_t virtqueue_get_used_addr(struct virtqueue *_vq)
-> > >  
-> > >  	BUG_ON(!vq->we_own_ring);
-> > >  
-> > > +	if (vq->packed)
-> > > +		return vq->queue_dma_addr + ((char *)vq->vring_packed.device -
-> > > +				(char *)vq->vring_packed.desc);
-> > > +
-> > >  	return vq->queue_dma_addr +
-> > >  		((char *)vq->vring.used - (char *)vq->vring.desc);
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(virtqueue_get_used_addr);
-> > >  
-> > > +/* Only available for split ring */
-> > >  const struct vring *virtqueue_get_vring(struct virtqueue *vq)
-> > >  {
-> > >  	return &to_vvq(vq)->vring;
-> > > diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-> > > index fab02133a919..992142b35f55 100644
-> > > --- a/include/linux/virtio_ring.h
-> > > +++ b/include/linux/virtio_ring.h
-> > > @@ -60,6 +60,11 @@ static inline void virtio_store_mb(bool weak_barriers,
-> > >  struct virtio_device;
-> > >  struct virtqueue;
-> > >  
-> > > +union vring_union {
-> > > +	struct vring vring_split;
-> > > +	struct vring_packed vring_packed;
-> > > +};
+> > > +/* This feature indicates support for the packed virtqueue layout. */
+> > > +#define VIRTIO_F_RING_PACKED		34
 > > > +
 > > >  /*
-> > >   * Creates a virtqueue and allocates the descriptor ring.  If
-> > >   * may_reduce_num is set, then this may allocate a smaller ring than
-> > > @@ -79,7 +84,8 @@ struct virtqueue *vring_create_virtqueue(unsigned int index,
+> > >   * Does the device support Single Root I/O Virtualization?
+> > >   */
+> > > diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+> > > index 6d5d5faa989b..0254a2ba29cf 100644
+> > > --- a/include/uapi/linux/virtio_ring.h
+> > > +++ b/include/uapi/linux/virtio_ring.h
+> > > @@ -44,6 +44,10 @@
+> > >  /* This means the buffer contains a list of buffer descriptors. */
+> > >  #define VRING_DESC_F_INDIRECT	4
 > > >  
-> > >  /* Creates a virtqueue with a custom layout. */
-> > >  struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> > > -					struct vring vring,
-> > > +					union vring_union vring,
-> > > +					bool packed,
-> > >  					struct virtio_device *vdev,
-> > >  					bool weak_barriers,
-> > >  					bool ctx,
+> > > +/* Mark a descriptor as available or used. */
+> > > +#define VRING_DESC_F_AVAIL	(1ul << 7)
+> > > +#define VRING_DESC_F_USED	(1ul << 15)
+> > > +
+> > >  /* The Host uses this in used->flags to advise the Guest: don't kick me when
+> > >   * you add a buffer.  It's unreliable, so it's simply an optimization.  Guest
+> > >   * will still kick if it's out of buffers. */
+> > > @@ -53,6 +57,17 @@
+> > >   * optimization.  */
+> > >  #define VRING_AVAIL_F_NO_INTERRUPT	1
+> > >  
+> > > +/* Enable events. */
+> > > +#define VRING_EVENT_F_ENABLE	0x0
+> > > +/* Disable events. */
+> > > +#define VRING_EVENT_F_DISABLE	0x1
+> > > +/*
+> > > + * Enable events for a specific descriptor
+> > > + * (as specified by Descriptor Ring Change Event Offset/Wrap Counter).
+> > > + * Only valid if VIRTIO_RING_F_EVENT_IDX has been negotiated.
+> > > + */
+> > > +#define VRING_EVENT_F_DESC	0x2
+> > > +
+> > >  /* We support indirect buffer descriptors */
+> > >  #define VIRTIO_RING_F_INDIRECT_DESC	28
+> > >  
+> > 
+> > These are for the packed ring, right? Pls prefix accordingly.
+> 
+> How about something like this:
+> 
+> #define VRING_PACKED_DESC_F_AVAIL	(1u << 7)
+> #define VRING_PACKED_DESC_F_USED	(1u << 15)
+
+_F_ should be a bit number, not a shifted value.
+Yes I know current virtio_ring.h is inconsistent in
+that respect. changes welcome though we need to
+maintain the old names for the sake of old apps.
+
+> 
+> #define VRING_PACKED_EVENT_F_ENABLE	0x0
+> #define VRING_PACKED_EVENT_F_DISABLE	0x1
+> #define VRING_PACKED_EVENT_F_DESC	0x2
+
+These are values, I think they should not have _F_.
+Yes I know current virtio_ring.h is inconsistent in
+that respect.
+
+
+> 
+> > Also, you likely need macros for the wrap counters.
+> 
+> How about something like this:
+> 
+> #define VRING_PACKED_EVENT_WRAP_COUNTER_SHIFT	15
+
+Given it's a single bit, maybe even
+VRING_PACKED_EVENT_F_WRAP_CTR
+
+> #define VRING_PACKED_EVENT_WRAP_COUNTER_MASK	\
+> 			(1u << VRING_PACKED_WRAP_COUNTER_SHIFT)
+> #define VRING_PACKED_EVENT_OFFSET_MASK	\
+> 			((1u << VRING_PACKED_WRAP_COUNTER_SHIFT) - 1)
+
+I'm not sure the mask is justified.
+
+> > 
+> > > @@ -171,4 +186,32 @@ static inline int vring_need_event(__u16 event_idx, __u16 new_idx, __u16 old)
+> > >  	return (__u16)(new_idx - event_idx - 1) < (__u16)(new_idx - old);
+> > >  }
+> > >  
+> > > +struct vring_packed_desc_event {
+> > > +	/* Descriptor Ring Change Event Offset/Wrap Counter. */
+> > > +	__virtio16 off_wrap;
+> > > +	/* Descriptor Ring Change Event Flags. */
+> > > +	__virtio16 flags;
+> > > +};
+> > > +
+> > > +struct vring_packed_desc {
+> > > +	/* Buffer Address. */
+> > > +	__virtio64 addr;
+> > > +	/* Buffer Length. */
+> > > +	__virtio32 len;
+> > > +	/* Buffer ID. */
+> > > +	__virtio16 id;
+> > > +	/* The flags depending on descriptor type. */
+> > > +	__virtio16 flags;
+> > > +};
+> > 
+> > Don't use __virtioXX types, just __leXX ones.
+> 
+> Got it, will do that.
+> 
+> > 
+> > > +
+> > > +struct vring_packed {
+> > > +	unsigned int num;
+> > > +
+> > > +	struct vring_packed_desc *desc;
+> > > +
+> > > +	struct vring_packed_desc_event *driver;
+> > > +
+> > > +	struct vring_packed_desc_event *device;
+> > > +};
+> > > +
+> > >  #endif /* _UAPI_LINUX_VIRTIO_RING_H */
 > > > -- 
 > > > 2.18.0
