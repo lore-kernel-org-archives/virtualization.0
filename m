@@ -1,8 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next V2 09/11] tuntap: accept an array of XDP buffs
-	through sendmsg()
-Date: Wed, 12 Sep 2018 11:17:07 +0800
-Message-ID: <20180912031709.14112-10-jasowang__3437.19008747048$1536722600$gmane$org@redhat.com>
+Subject: [PATCH net-next V2 10/11] tap: accept an array of XDP buffs through
+	sendmsg()
+Date: Wed, 12 Sep 2018 11:17:08 +0800
+Message-ID: <20180912031709.14112-11-jasowang__40426.8413702541$1536722655$gmane$org@redhat.com>
 References: <20180912031709.14112-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,9 +24,7 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 This patch implement TUN_MSG_PTR msg_control type. This type allows
 the caller to pass an array of XDP buffs to tuntap through ptr field
-of the tun_msg_control. If an XDP program is attached, tuntap can run
-XDP program directly. If not, tuntap will build skb and do a fast
-receiving since part of the work has been done by vhost_net.
+of the tun_msg_control. Tap will build skb through those XDP buffers.
 
 This will avoid lots of indirect calls thus improves the icache
 utilization and allows to do XDP batched flushing when doing XDP
@@ -34,149 +32,99 @@ redirection.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/tun.c | 117 ++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 114 insertions(+), 3 deletions(-)
+ drivers/net/tap.c | 74 +++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 72 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 89779b58c7ca..2a2cd35853b7 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -2426,22 +2426,133 @@ static void tun_sock_write_space(struct sock *sk)
- 	kill_fasync(&tfile->fasync, SIGIO, POLL_OUT);
- }
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index 7996ed7cbf18..a4ab4a791fe7 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -1146,14 +1146,84 @@ static const struct file_operations tap_fops = {
+ #endif
+ };
  
-+static int tun_xdp_one(struct tun_struct *tun,
-+		       struct tun_file *tfile,
-+		       struct xdp_buff *xdp, int *flush)
++static int tap_get_user_xdp(struct tap_queue *q, struct xdp_buff *xdp)
 +{
 +	struct tun_xdp_hdr *hdr = xdp->data_hard_start;
 +	struct virtio_net_hdr *gso = &hdr->gso;
-+	struct tun_pcpu_stats *stats;
-+	struct bpf_prog *xdp_prog;
-+	struct sk_buff *skb = NULL;
-+	u32 rxhash = 0, act;
 +	int buflen = hdr->buflen;
-+	int err = 0;
-+	bool skb_xdp = false;
++	int vnet_hdr_len = 0;
++	struct tap_dev *tap;
++	struct sk_buff *skb;
++	int err, depth;
 +
-+	xdp_prog = rcu_dereference(tun->xdp_prog);
-+	if (xdp_prog) {
-+		if (gso->gso_type) {
-+			skb_xdp = true;
-+			goto build;
-+		}
-+		xdp_set_data_meta_invalid(xdp);
-+		xdp->rxq = &tfile->xdp_rxq;
++	if (q->flags & IFF_VNET_HDR)
++		vnet_hdr_len = READ_ONCE(q->vnet_hdr_sz);
 +
-+		act = bpf_prog_run_xdp(xdp_prog, xdp);
-+		err = tun_xdp_act(tun, xdp_prog, xdp, act);
-+		if (err < 0) {
-+			put_page(virt_to_head_page(xdp->data));
-+			return err;
-+		}
-+
-+		switch (err) {
-+		case XDP_REDIRECT:
-+			*flush = true;
-+			/* fall through */
-+		case XDP_TX:
-+			return 0;
-+		case XDP_PASS:
-+			break;
-+		default:
-+			put_page(virt_to_head_page(xdp->data));
-+			return 0;
-+		}
-+	}
-+
-+build:
 +	skb = build_skb(xdp->data_hard_start, buflen);
 +	if (!skb) {
 +		err = -ENOMEM;
-+		goto out;
++		goto err;
 +	}
 +
 +	skb_reserve(skb, xdp->data - xdp->data_hard_start);
 +	skb_put(skb, xdp->data_end - xdp->data);
 +
-+	if (virtio_net_hdr_to_skb(skb, gso, tun_is_little_endian(tun))) {
-+		this_cpu_inc(tun->pcpu_stats->rx_frame_errors);
++	skb_set_network_header(skb, ETH_HLEN);
++	skb_reset_mac_header(skb);
++	skb->protocol = eth_hdr(skb)->h_proto;
++
++	if (vnet_hdr_len) {
++		err = virtio_net_hdr_to_skb(skb, gso, tap_is_little_endian(q));
++		if (err)
++			goto err_kfree;
++	}
++
++	skb_probe_transport_header(skb, ETH_HLEN);
++
++	/* Move network header to the right position for VLAN tagged packets */
++	if ((skb->protocol == htons(ETH_P_8021Q) ||
++	     skb->protocol == htons(ETH_P_8021AD)) &&
++	    __vlan_get_protocol(skb, skb->protocol, &depth) != 0)
++		skb_set_network_header(skb, depth);
++
++	rcu_read_lock();
++	tap = rcu_dereference(q->tap);
++	if (tap) {
++		skb->dev = tap->dev;
++		dev_queue_xmit(skb);
++	} else {
 +		kfree_skb(skb);
-+		err = -EINVAL;
-+		goto out;
 +	}
++	rcu_read_unlock();
 +
-+	skb->protocol = eth_type_trans(skb, tun->dev);
-+	skb_reset_network_header(skb);
-+	skb_probe_transport_header(skb, 0);
++	return 0;
 +
-+	if (skb_xdp) {
-+		err = do_xdp_generic(xdp_prog, skb);
-+		if (err != XDP_PASS)
-+			goto out;
-+	}
-+
-+	if (!rcu_dereference(tun->steering_prog))
-+		rxhash = __skb_get_hash_symmetric(skb);
-+
-+	netif_receive_skb(skb);
-+
-+	stats = get_cpu_ptr(tun->pcpu_stats);
-+	u64_stats_update_begin(&stats->syncp);
-+	stats->rx_packets++;
-+	stats->rx_bytes += skb->len;
-+	u64_stats_update_end(&stats->syncp);
-+	put_cpu_ptr(stats);
-+
-+	if (rxhash)
-+		tun_flow_update(tun, rxhash, tfile);
-+
-+out:
++err_kfree:
++	kfree_skb(skb);
++err:
++	rcu_read_lock();
++		tap = rcu_dereference(q->tap);
++	if (tap && tap->count_tx_dropped)
++		tap->count_tx_dropped(tap);
++	rcu_read_unlock();
 +	return err;
 +}
 +
- static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+ static int tap_sendmsg(struct socket *sock, struct msghdr *m,
+ 		       size_t total_len)
  {
--	int ret;
-+	int ret, i;
- 	struct tun_file *tfile = container_of(sock, struct tun_file, socket);
- 	struct tun_struct *tun = tun_get(tfile);
+ 	struct tap_queue *q = container_of(sock, struct tap_queue, sock);
  	struct tun_msg_ctl *ctl = m->msg_control;
 +	struct xdp_buff *xdp;
- 
- 	if (!tun)
- 		return -EBADFD;
++	int i;
  
 -	if (ctl && ctl->type != TUN_MSG_UBUF)
 -		return -EINVAL;
 +	if (ctl && (ctl->type == TUN_MSG_PTR)) {
-+		int n = ctl->num;
-+		int flush = 0;
-+
-+		local_bh_disable();
-+		rcu_read_lock();
-+
-+		for (i = 0; i < n; i++) {
++		for (i = 0; i < ctl->num; i++) {
 +			xdp = &((struct xdp_buff *)ctl->ptr)[i];
-+			tun_xdp_one(tun, tfile, xdp, &flush);
++			tap_get_user_xdp(q, xdp);
 +		}
-+
-+		if (flush)
-+			xdp_do_flush_map();
-+
-+		rcu_read_unlock();
-+		local_bh_enable();
-+
-+		ret = total_len;
-+		goto out;
++		return 0;
 +	}
  
- 	ret = tun_get_user(tun, tfile, ctl ? ctl->ptr : NULL, &m->msg_iter,
- 			   m->msg_flags & MSG_DONTWAIT,
- 			   m->msg_flags & MSG_MORE);
-+out:
- 	tun_put(tun);
- 	return ret;
- }
+ 	return tap_get_user(q, ctl ? ctl->ptr : NULL, &m->msg_iter,
+ 			    m->msg_flags & MSG_DONTWAIT);
 -- 
 2.17.1
