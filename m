@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 3/3] drm/virtio: add edid support
-Date: Thu, 13 Sep 2018 10:12:58 +0200
-Message-ID: <20180913081259.27457-4-kraxel@redhat.com>
+Subject: [PATCH 2/3] virtio-gpu: add VIRTIO_GPU_F_EDID feature
+Date: Thu, 13 Sep 2018 10:12:57 +0200
+Message-ID: <20180913081259.27457-3-kraxel__32038.8185130016$1536826280$gmane$org@redhat.com>
 References: <20180913081259.27457-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,186 +18,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtio-dev@lists.oasis-open.org, dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO CORE,
+	NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-linux guest driver implementation of the VIRTIO_GPU_F_EDID feature.
+The feature allows the guest request an EDID blob (describing monitor
+capabilities) for a given scanout (aka virtual monitor connector).
+
+It brings a new command message, which has just a scanout field (beside
+the standard virtio-gpu header) and a response message which carries the
+EDID data.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h     |  3 ++
- drivers/gpu/drm/virtio/virtgpu_display.c |  6 ++++
- drivers/gpu/drm/virtio/virtgpu_drv.c     |  1 +
- drivers/gpu/drm/virtio/virtgpu_kms.c     |  8 +++++
- drivers/gpu/drm/virtio/virtgpu_vq.c      | 59 ++++++++++++++++++++++++++++++++
- 5 files changed, 77 insertions(+)
+ include/uapi/linux/virtio_gpu.h | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 65605e207b..58358a48df 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -112,6 +112,7 @@ struct virtio_gpu_output {
- 	struct drm_encoder enc;
- 	struct virtio_gpu_display_one info;
- 	struct virtio_gpu_update_cursor cursor;
-+	struct edid *edid;
- 	int cur_x;
- 	int cur_y;
+diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
+index f43c3c6171..7267c3d2d6 100644
+--- a/include/uapi/linux/virtio_gpu.h
++++ b/include/uapi/linux/virtio_gpu.h
+@@ -41,6 +41,7 @@
+ #include <linux/types.h>
+ 
+ #define VIRTIO_GPU_F_VIRGL 0
++#define VIRTIO_GPU_F_EDID  1
+ 
+ enum virtio_gpu_ctrl_type {
+ 	VIRTIO_GPU_UNDEFINED = 0,
+@@ -56,6 +57,7 @@ enum virtio_gpu_ctrl_type {
+ 	VIRTIO_GPU_CMD_RESOURCE_DETACH_BACKING,
+ 	VIRTIO_GPU_CMD_GET_CAPSET_INFO,
+ 	VIRTIO_GPU_CMD_GET_CAPSET,
++	VIRTIO_GPU_CMD_GET_EDID,
+ 
+ 	/* 3d commands */
+ 	VIRTIO_GPU_CMD_CTX_CREATE = 0x0200,
+@@ -76,6 +78,7 @@ enum virtio_gpu_ctrl_type {
+ 	VIRTIO_GPU_RESP_OK_DISPLAY_INFO,
+ 	VIRTIO_GPU_RESP_OK_CAPSET_INFO,
+ 	VIRTIO_GPU_RESP_OK_CAPSET,
++	VIRTIO_GPU_RESP_OK_EDID,
+ 
+ 	/* error responses */
+ 	VIRTIO_GPU_RESP_ERR_UNSPEC = 0x1200,
+@@ -291,6 +294,20 @@ struct virtio_gpu_resp_capset {
+ 	__u8 capset_data[];
  };
-@@ -194,6 +195,7 @@ struct virtio_gpu_device {
- 	spinlock_t ctx_id_idr_lock;
  
- 	bool has_virgl_3d;
-+	bool has_edid;
++/* VIRTIO_GPU_CMD_GET_EDID */
++struct virtio_gpu_get_edid {
++	struct virtio_gpu_ctrl_hdr hdr;
++	__le32 scanout;
++};
++
++/* VIRTIO_GPU_RESP_OK_EDID */
++struct virtio_gpu_resp_edid {
++	struct virtio_gpu_ctrl_hdr hdr;
++	__le32 scanout;
++	__le32 size;
++	__u8 edid[512];
++};
++
+ #define VIRTIO_GPU_EVENT_DISPLAY (1 << 0)
  
- 	struct work_struct config_changed_work;
- 
-@@ -287,6 +289,7 @@ int virtio_gpu_cmd_get_capset_info(struct virtio_gpu_device *vgdev, int idx);
- int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
- 			      int idx, int version,
- 			      struct virtio_gpu_drv_cap_cache **cache_p);
-+int virtio_gpu_cmd_get_edids(struct virtio_gpu_device *vgdev);
- void virtio_gpu_cmd_context_create(struct virtio_gpu_device *vgdev, uint32_t id,
- 				   uint32_t nlen, const char *name);
- void virtio_gpu_cmd_context_destroy(struct virtio_gpu_device *vgdev,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 25503b9335..e573eab1f1 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -168,6 +168,12 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
- 	struct drm_display_mode *mode = NULL;
- 	int count, width, height;
- 
-+	if (output->edid) {
-+		count = drm_add_edid_modes(connector, output->edid);
-+		if (count)
-+			return count;
-+	}
-+
- 	width  = le32_to_cpu(output->info.r.width);
- 	height = le32_to_cpu(output->info.r.height);
- 	count = drm_add_modes_noedid(connector, XRES_MAX, YRES_MAX);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index d9287c144f..f7f32a885a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -80,6 +80,7 @@ static unsigned int features[] = {
- 	 */
- 	VIRTIO_GPU_F_VIRGL,
- #endif
-+	VIRTIO_GPU_F_EDID,
- };
- static struct virtio_driver virtio_gpu_driver = {
- 	.feature_table = features,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 65060c0852..f6cbbb27e4 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -44,6 +44,8 @@ static void virtio_gpu_config_changed_work_func(struct work_struct *work)
- 	virtio_cread(vgdev->vdev, struct virtio_gpu_config,
- 		     events_read, &events_read);
- 	if (events_read & VIRTIO_GPU_EVENT_DISPLAY) {
-+		if (vgdev->has_edid)
-+			virtio_gpu_cmd_get_edids(vgdev);
- 		virtio_gpu_cmd_get_display_info(vgdev);
- 		drm_helper_hpd_irq_event(vgdev->ddev);
- 		events_clear |= VIRTIO_GPU_EVENT_DISPLAY;
-@@ -174,6 +176,10 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
- #else
- 	DRM_INFO("virgl 3d acceleration not supported by guest\n");
- #endif
-+	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
-+		vgdev->has_edid = true;
-+		DRM_INFO("EDID support available.\n");
-+	}
- 
- 	ret = virtio_find_vqs(vgdev->vdev, 2, vqs, callbacks, names, NULL);
- 	if (ret) {
-@@ -219,6 +225,8 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
- 
- 	if (num_capsets)
- 		virtio_gpu_get_capsets(vgdev, num_capsets);
-+	if (vgdev->has_edid)
-+		virtio_gpu_cmd_get_edids(vgdev);
- 	virtio_gpu_cmd_get_display_info(vgdev);
- 	wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
- 			   5 * HZ);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 020070d483..7d79211d1f 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -596,6 +596,37 @@ static void virtio_gpu_cmd_capset_cb(struct virtio_gpu_device *vgdev,
- 	wake_up(&vgdev->resp_wq);
- }
- 
-+static void virtio_gpu_cmd_get_edid_cb(struct virtio_gpu_device *vgdev,
-+				       struct virtio_gpu_vbuffer *vbuf)
-+{
-+	struct virtio_gpu_resp_edid *resp =
-+		(struct virtio_gpu_resp_edid *)vbuf->resp_buf;
-+	uint32_t scanout = le32_to_cpu(resp->scanout);
-+	uint32_t size = le32_to_cpu(resp->size);
-+	struct virtio_gpu_output *output;
-+	struct edid *new_edid, *old_edid;
-+
-+	if (scanout >= vgdev->num_scanouts)
-+		return;
-+	output = vgdev->outputs + scanout;
-+
-+	if (drm_edid_is_valid((struct edid *)resp->edid)) {
-+		new_edid = kmalloc(size, GFP_KERNEL);
-+		memcpy(new_edid, resp->edid, size);
-+	} else {
-+		new_edid = NULL;
-+	}
-+
-+	spin_lock(&vgdev->display_info_lock);
-+	old_edid = output->edid;
-+	output->edid = new_edid;
-+	drm_connector_update_edid_property(&output->conn, output->edid);
-+	spin_unlock(&vgdev->display_info_lock);
-+
-+	kfree(old_edid);
-+	wake_up(&vgdev->resp_wq);
-+}
-+
- int virtio_gpu_cmd_get_display_info(struct virtio_gpu_device *vgdev)
- {
- 	struct virtio_gpu_ctrl_hdr *cmd_p;
-@@ -697,6 +728,34 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
- 	return 0;
- }
- 
-+int virtio_gpu_cmd_get_edids(struct virtio_gpu_device *vgdev)
-+{
-+	struct virtio_gpu_get_edid *cmd_p;
-+	struct virtio_gpu_vbuffer *vbuf;
-+	void *resp_buf;
-+	int scanout;
-+
-+	if (WARN_ON(!vgdev->has_edid))
-+		return -EINVAL;
-+
-+	for (scanout = 0; scanout < vgdev->num_scanouts; scanout++) {
-+		resp_buf = kzalloc(sizeof(struct virtio_gpu_resp_edid),
-+				   GFP_KERNEL);
-+		if (!resp_buf)
-+			return -ENOMEM;
-+
-+		cmd_p = virtio_gpu_alloc_cmd_resp
-+			(vgdev, &virtio_gpu_cmd_get_edid_cb, &vbuf,
-+			 sizeof(*cmd_p), sizeof(struct virtio_gpu_resp_edid),
-+			 resp_buf);
-+		cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_GET_EDID);
-+		cmd_p->scanout = cpu_to_le32(scanout);
-+		virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	}
-+
-+	return 0;
-+}
-+
- void virtio_gpu_cmd_context_create(struct virtio_gpu_device *vgdev, uint32_t id,
- 				   uint32_t nlen, const char *name)
- {
+ struct virtio_gpu_config {
 -- 
 2.9.3
