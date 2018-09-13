@@ -1,11 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next V2] virtio_net: ethtool tx napi configuration
-Date: Thu, 13 Sep 2018 13:35:45 +0800
-Message-ID: <20180913053545.18585-1-jasowang@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 3/3] drm/virtio: add edid support
+Date: Thu, 13 Sep 2018 10:12:58 +0200
+Message-ID: <20180913081259.27457-4-kraxel@redhat.com>
+References: <20180913081259.27457-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180913081259.27457-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,136 +17,187 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>, davem@davemloft.net, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtio-dev@lists.oasis-open.org, dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement ethtool .set_coalesce (-C) and .get_coalesce (-c) handlers.
-Interrupt moderation is currently not supported, so these accept and
-display the default settings of 0 usec and 1 frame.
+linux guest driver implementation of the VIRTIO_GPU_F_EDID feature.
 
-Toggle tx napi through a bit in tx-frames. So as to not interfere
-with possible future interrupt moderation, value 1 means tx napi while
-value 0 means not.
-
-To properly synchronize with the data path, tx napi is disabled and
-tx lock is held when changing the value of napi weight. And two more
-places that can access tx napi weight:
-
-- speculative tx polling in rx napi, we can leave it as is since it
-  not a must for correctness.
-- skb_xmit_done(), one more check of napi weight is added before
-  trying to enable tx to avoid tx to be disabled forever if napi is
-  disabled after skb_xmit_done() but before the napi
-
-Link: https://patchwork.ozlabs.org/patch/948149/
-Suggested-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
-Changes from V1:
-- try to synchronize with datapath to allow changing mode when
-  interface is up.
-- use tx-frames 0 as to disable tx napi while tx-frames 1 to enable tx napi
----
- drivers/net/virtio_net.c | 64 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 63 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h     |  3 ++
+ drivers/gpu/drm/virtio/virtgpu_display.c |  6 ++++
+ drivers/gpu/drm/virtio/virtgpu_drv.c     |  1 +
+ drivers/gpu/drm/virtio/virtgpu_kms.c     |  8 +++++
+ drivers/gpu/drm/virtio/virtgpu_vq.c      | 59 ++++++++++++++++++++++++++++++++
+ 5 files changed, 77 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 765920905226..6e70864f5899 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -66,6 +66,8 @@ DECLARE_EWMA(pkt_len, 0, 64)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 65605e207b..58358a48df 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -112,6 +112,7 @@ struct virtio_gpu_output {
+ 	struct drm_encoder enc;
+ 	struct virtio_gpu_display_one info;
+ 	struct virtio_gpu_update_cursor cursor;
++	struct edid *edid;
+ 	int cur_x;
+ 	int cur_y;
+ };
+@@ -194,6 +195,7 @@ struct virtio_gpu_device {
+ 	spinlock_t ctx_id_idr_lock;
  
- #define VIRTNET_DRIVER_VERSION "1.0.0"
+ 	bool has_virgl_3d;
++	bool has_edid;
  
-+static const u32 ethtool_coalesce_napi_mask = (1UL << 10);
+ 	struct work_struct config_changed_work;
+ 
+@@ -287,6 +289,7 @@ int virtio_gpu_cmd_get_capset_info(struct virtio_gpu_device *vgdev, int idx);
+ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
+ 			      int idx, int version,
+ 			      struct virtio_gpu_drv_cap_cache **cache_p);
++int virtio_gpu_cmd_get_edids(struct virtio_gpu_device *vgdev);
+ void virtio_gpu_cmd_context_create(struct virtio_gpu_device *vgdev, uint32_t id,
+ 				   uint32_t nlen, const char *name);
+ void virtio_gpu_cmd_context_destroy(struct virtio_gpu_device *vgdev,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 25503b9335..e573eab1f1 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -168,6 +168,12 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
+ 	struct drm_display_mode *mode = NULL;
+ 	int count, width, height;
+ 
++	if (output->edid) {
++		count = drm_add_edid_modes(connector, output->edid);
++		if (count)
++			return count;
++	}
 +
- static const unsigned long guest_offloads[] = {
- 	VIRTIO_NET_F_GUEST_TSO4,
- 	VIRTIO_NET_F_GUEST_TSO6,
-@@ -1444,7 +1446,10 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+ 	width  = le32_to_cpu(output->info.r.width);
+ 	height = le32_to_cpu(output->info.r.height);
+ 	count = drm_add_modes_noedid(connector, XRES_MAX, YRES_MAX);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index d9287c144f..f7f32a885a 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -80,6 +80,7 @@ static unsigned int features[] = {
+ 	 */
+ 	VIRTIO_GPU_F_VIRGL,
+ #endif
++	VIRTIO_GPU_F_EDID,
+ };
+ static struct virtio_driver virtio_gpu_driver = {
+ 	.feature_table = features,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 65060c0852..f6cbbb27e4 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -44,6 +44,8 @@ static void virtio_gpu_config_changed_work_func(struct work_struct *work)
+ 	virtio_cread(vgdev->vdev, struct virtio_gpu_config,
+ 		     events_read, &events_read);
+ 	if (events_read & VIRTIO_GPU_EVENT_DISPLAY) {
++		if (vgdev->has_edid)
++			virtio_gpu_cmd_get_edids(vgdev);
+ 		virtio_gpu_cmd_get_display_info(vgdev);
+ 		drm_helper_hpd_irq_event(vgdev->ddev);
+ 		events_clear |= VIRTIO_GPU_EVENT_DISPLAY;
+@@ -174,6 +176,10 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
+ #else
+ 	DRM_INFO("virgl 3d acceleration not supported by guest\n");
+ #endif
++	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
++		vgdev->has_edid = true;
++		DRM_INFO("EDID support available.\n");
++	}
  
- 	virtqueue_napi_complete(napi, sq->vq, 0);
+ 	ret = virtio_find_vqs(vgdev->vdev, 2, vqs, callbacks, names, NULL);
+ 	if (ret) {
+@@ -219,6 +225,8 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
  
--	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-+	/* Check napi.weight to avoid tx stall since it could be set
-+	 * to zero by ethtool after skb_xmit_done().
-+	 */
-+	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS || !sq->napi.weight)
- 		netif_tx_wake_queue(txq);
+ 	if (num_capsets)
+ 		virtio_gpu_get_capsets(vgdev, num_capsets);
++	if (vgdev->has_edid)
++		virtio_gpu_cmd_get_edids(vgdev);
+ 	virtio_gpu_cmd_get_display_info(vgdev);
+ 	wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
+ 			   5 * HZ);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 020070d483..7d79211d1f 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -596,6 +596,37 @@ static void virtio_gpu_cmd_capset_cb(struct virtio_gpu_device *vgdev,
+ 	wake_up(&vgdev->resp_wq);
+ }
  
- 	return 0;
-@@ -2181,6 +2186,61 @@ static int virtnet_get_link_ksettings(struct net_device *dev,
++static void virtio_gpu_cmd_get_edid_cb(struct virtio_gpu_device *vgdev,
++				       struct virtio_gpu_vbuffer *vbuf)
++{
++	struct virtio_gpu_resp_edid *resp =
++		(struct virtio_gpu_resp_edid *)vbuf->resp_buf;
++	uint32_t scanout = le32_to_cpu(resp->scanout);
++	uint32_t size = le32_to_cpu(resp->size);
++	struct virtio_gpu_output *output;
++	struct edid *new_edid, *old_edid;
++
++	if (scanout >= vgdev->num_scanouts)
++		return;
++	output = vgdev->outputs + scanout;
++
++	if (drm_edid_is_valid((struct edid *)resp->edid)) {
++		new_edid = kmalloc(size, GFP_KERNEL);
++		memcpy(new_edid, resp->edid, size);
++	} else {
++		new_edid = NULL;
++	}
++
++	spin_lock(&vgdev->display_info_lock);
++	old_edid = output->edid;
++	output->edid = new_edid;
++	drm_connector_update_edid_property(&output->conn, output->edid);
++	spin_unlock(&vgdev->display_info_lock);
++
++	kfree(old_edid);
++	wake_up(&vgdev->resp_wq);
++}
++
+ int virtio_gpu_cmd_get_display_info(struct virtio_gpu_device *vgdev)
+ {
+ 	struct virtio_gpu_ctrl_hdr *cmd_p;
+@@ -697,6 +728,34 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
  	return 0;
  }
  
-+static int virtnet_set_coalesce(struct net_device *dev,
-+				struct ethtool_coalesce *ec)
++int virtio_gpu_cmd_get_edids(struct virtio_gpu_device *vgdev)
 +{
-+	struct ethtool_coalesce ec_default = {
-+		.cmd = ETHTOOL_SCOALESCE,
-+		.rx_max_coalesced_frames = 1,
-+	};
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	int i, napi_weight;
++	struct virtio_gpu_get_edid *cmd_p;
++	struct virtio_gpu_vbuffer *vbuf;
++	void *resp_buf;
++	int scanout;
 +
-+	if (ec->tx_max_coalesced_frames > 1)
++	if (WARN_ON(!vgdev->has_edid))
 +		return -EINVAL;
 +
-+	ec_default.tx_max_coalesced_frames = ec->tx_max_coalesced_frames;
-+	napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
++	for (scanout = 0; scanout < vgdev->num_scanouts; scanout++) {
++		resp_buf = kzalloc(sizeof(struct virtio_gpu_resp_edid),
++				   GFP_KERNEL);
++		if (!resp_buf)
++			return -ENOMEM;
 +
-+	/* disallow changes to fields not explicitly tested above */
-+	if (memcmp(ec, &ec_default, sizeof(ec_default)))
-+		return -EINVAL;
-+
-+	if (napi_weight ^ vi->sq[0].napi.weight) {
-+		for (i = 0; i < vi->max_queue_pairs; i++) {
-+			struct netdev_queue *txq =
-+			       netdev_get_tx_queue(vi->dev, i);
-+
-+			virtnet_napi_tx_disable(&vi->sq[i].napi);
-+			__netif_tx_lock_bh(txq);
-+			vi->sq[i].napi.weight = napi_weight;
-+			__netif_tx_unlock_bh(txq);
-+			virtnet_napi_tx_enable(vi, vi->sq[i].vq,
-+					       &vi->sq[i].napi);
-+		}
++		cmd_p = virtio_gpu_alloc_cmd_resp
++			(vgdev, &virtio_gpu_cmd_get_edid_cb, &vbuf,
++			 sizeof(*cmd_p), sizeof(struct virtio_gpu_resp_edid),
++			 resp_buf);
++		cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_GET_EDID);
++		cmd_p->scanout = cpu_to_le32(scanout);
++		virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
 +	}
 +
 +	return 0;
 +}
 +
-+static int virtnet_get_coalesce(struct net_device *dev,
-+				struct ethtool_coalesce *ec)
-+{
-+	struct ethtool_coalesce ec_default = {
-+		.cmd = ETHTOOL_GCOALESCE,
-+		.rx_max_coalesced_frames = 1,
-+		.tx_max_coalesced_frames = 0,
-+	};
-+	struct virtnet_info *vi = netdev_priv(dev);
-+
-+	memcpy(ec, &ec_default, sizeof(ec_default));
-+
-+	if (vi->sq[0].napi.weight)
-+		ec->tx_max_coalesced_frames = 1;
-+
-+	return 0;
-+}
-+
- static void virtnet_init_settings(struct net_device *dev)
+ void virtio_gpu_cmd_context_create(struct virtio_gpu_device *vgdev, uint32_t id,
+ 				   uint32_t nlen, const char *name)
  {
- 	struct virtnet_info *vi = netdev_priv(dev);
-@@ -2219,6 +2279,8 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.get_ts_info = ethtool_op_get_ts_info,
- 	.get_link_ksettings = virtnet_get_link_ksettings,
- 	.set_link_ksettings = virtnet_set_link_ksettings,
-+	.set_coalesce = virtnet_set_coalesce,
-+	.get_coalesce = virtnet_get_coalesce,
- };
- 
- static void virtnet_freeze_down(struct virtio_device *vdev)
 -- 
-2.17.1
+2.9.3
