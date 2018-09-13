@@ -1,16 +1,11 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v2 02/17] compat_ioctl: move drivers to
-	generic_compat_ioctl_ptrarg
-Date: Wed, 12 Sep 2018 20:13:38 +0200
-Message-ID: <20180912181338.GD15031@kroah.com>
-References: <20180912150142.157913-1-arnd@arndb.de>
-	<20180912150142.157913-2-arnd@arndb.de>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next V2] virtio_net: ethtool tx napi configuration
+Date: Thu, 13 Sep 2018 13:35:45 +0800
+Message-ID: <20180913053545.18585-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180912150142.157913-2-arnd@arndb.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,16 +15,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: kvm@vger.kernel.org, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, virtualization@lists.linux-foundation.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-mtd@lists.infradead.org, Peter Huewe <peterhuewe@gmx.de>, linux1394-devel@lists.sourceforge.net, devel@driverdev.osuosl.org, Jason Gunthorpe <jgg@ziepe.ca>, Marek Vasut <marek.vasut@gmail.com>, linux-input@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>, Jiri Kosina <jikos@kernel.org>, viro@zeniv.linux.org.uk, Artem Bityutskiy <dedekind1@gmail.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-fsdevel@vger.kernel.org, linux-integrity@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: mst@redhat.com, jasowang@redhat.com
+Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>, davem@davemloft.net, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 12, 2018 at 05:01:03PM +0200, Arnd Bergmann wrote:
-> Each of these drivers has a copy of the same trivial helper function to
-> convert the pointer argument and then call the native ioctl handler.
-> 
-> We now have a generic implementation of that, so use it.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Implement ethtool .set_coalesce (-C) and .get_coalesce (-c) handlers.
+Interrupt moderation is currently not supported, so these accept and
+display the default settings of 0 usec and 1 frame.
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Toggle tx napi through a bit in tx-frames. So as to not interfere
+with possible future interrupt moderation, value 1 means tx napi while
+value 0 means not.
+
+To properly synchronize with the data path, tx napi is disabled and
+tx lock is held when changing the value of napi weight. And two more
+places that can access tx napi weight:
+
+- speculative tx polling in rx napi, we can leave it as is since it
+  not a must for correctness.
+- skb_xmit_done(), one more check of napi weight is added before
+  trying to enable tx to avoid tx to be disabled forever if napi is
+  disabled after skb_xmit_done() but before the napi
+
+Link: https://patchwork.ozlabs.org/patch/948149/
+Suggested-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+Changes from V1:
+- try to synchronize with datapath to allow changing mode when
+  interface is up.
+- use tx-frames 0 as to disable tx napi while tx-frames 1 to enable tx napi
+---
+ drivers/net/virtio_net.c | 64 +++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 63 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 765920905226..6e70864f5899 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -66,6 +66,8 @@ DECLARE_EWMA(pkt_len, 0, 64)
+ 
+ #define VIRTNET_DRIVER_VERSION "1.0.0"
+ 
++static const u32 ethtool_coalesce_napi_mask = (1UL << 10);
++
+ static const unsigned long guest_offloads[] = {
+ 	VIRTIO_NET_F_GUEST_TSO4,
+ 	VIRTIO_NET_F_GUEST_TSO6,
+@@ -1444,7 +1446,10 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+ 
+ 	virtqueue_napi_complete(napi, sq->vq, 0);
+ 
+-	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
++	/* Check napi.weight to avoid tx stall since it could be set
++	 * to zero by ethtool after skb_xmit_done().
++	 */
++	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS || !sq->napi.weight)
+ 		netif_tx_wake_queue(txq);
+ 
+ 	return 0;
+@@ -2181,6 +2186,61 @@ static int virtnet_get_link_ksettings(struct net_device *dev,
+ 	return 0;
+ }
+ 
++static int virtnet_set_coalesce(struct net_device *dev,
++				struct ethtool_coalesce *ec)
++{
++	struct ethtool_coalesce ec_default = {
++		.cmd = ETHTOOL_SCOALESCE,
++		.rx_max_coalesced_frames = 1,
++	};
++	struct virtnet_info *vi = netdev_priv(dev);
++	int i, napi_weight;
++
++	if (ec->tx_max_coalesced_frames > 1)
++		return -EINVAL;
++
++	ec_default.tx_max_coalesced_frames = ec->tx_max_coalesced_frames;
++	napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
++
++	/* disallow changes to fields not explicitly tested above */
++	if (memcmp(ec, &ec_default, sizeof(ec_default)))
++		return -EINVAL;
++
++	if (napi_weight ^ vi->sq[0].napi.weight) {
++		for (i = 0; i < vi->max_queue_pairs; i++) {
++			struct netdev_queue *txq =
++			       netdev_get_tx_queue(vi->dev, i);
++
++			virtnet_napi_tx_disable(&vi->sq[i].napi);
++			__netif_tx_lock_bh(txq);
++			vi->sq[i].napi.weight = napi_weight;
++			__netif_tx_unlock_bh(txq);
++			virtnet_napi_tx_enable(vi, vi->sq[i].vq,
++					       &vi->sq[i].napi);
++		}
++	}
++
++	return 0;
++}
++
++static int virtnet_get_coalesce(struct net_device *dev,
++				struct ethtool_coalesce *ec)
++{
++	struct ethtool_coalesce ec_default = {
++		.cmd = ETHTOOL_GCOALESCE,
++		.rx_max_coalesced_frames = 1,
++		.tx_max_coalesced_frames = 0,
++	};
++	struct virtnet_info *vi = netdev_priv(dev);
++
++	memcpy(ec, &ec_default, sizeof(ec_default));
++
++	if (vi->sq[0].napi.weight)
++		ec->tx_max_coalesced_frames = 1;
++
++	return 0;
++}
++
+ static void virtnet_init_settings(struct net_device *dev)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+@@ -2219,6 +2279,8 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+ 	.get_ts_info = ethtool_op_get_ts_info,
+ 	.get_link_ksettings = virtnet_get_link_ksettings,
+ 	.set_link_ksettings = virtnet_set_link_ksettings,
++	.set_coalesce = virtnet_set_coalesce,
++	.get_coalesce = virtnet_get_coalesce,
+ };
+ 
+ static void virtnet_freeze_down(struct virtio_device *vdev)
+-- 
+2.17.1
