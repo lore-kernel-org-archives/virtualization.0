@@ -1,17 +1,14 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch 00/11] x86/vdso: Cleanups, simmplifications and CLOCK_TAI
-	support
-Date: Fri, 14 Sep 2018 15:19:24 +0200 (CEST)
-Message-ID: <alpine.DEB.2.21.1809141514180.10480__41445.4454243698$1536931058$gmane$org@nanos.tec.linutronix.de>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [patch 11/11] x66/vdso: Add CLOCK_TAI support
+Date: Fri, 14 Sep 2018 07:04:02 -0700
+Message-ID: <ABB53D42-2A06-41B9-8A8C-40B39CD0289D__38241.3418883972$1536933726$gmane$org@amacapital.net>
 References: <20180914125006.349747096@linutronix.de>
-	<2f723b28-8f81-4b02-861c-42f756a8825a@redhat.com>
-	<alpine.DEB.2.21.1809141459530.10480@nanos.tec.linutronix.de>
-	<63a0f67d-fdb1-e2fc-5d4d-4f3cfbf86fd1@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	<20180914125119.081037164@linutronix.de>
+Mime-Version: 1.0 (1.0)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <63a0f67d-fdb1-e2fc-5d4d-4f3cfbf86fd1@redhat.com>
+In-Reply-To: <20180914125119.081037164@linutronix.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +18,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Florian Weimer <fweimer@redhat.com>
-Cc: Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 14 Sep 2018, Florian Weimer wrote:
-
-> On 09/14/2018 03:05 PM, Thomas Gleixner wrote:
-> > On Fri, 14 Sep 2018, Florian Weimer wrote:
-> > 
-> > > On 09/14/2018 02:50 PM, Thomas Gleixner wrote:
-> > > > Matt attempted to add CLOCK_TAI support to the VDSO clock_gettime()
-> > > > implementation, which extended the clockid switch case and added yet
-> > > > another slightly different copy of the same code.
-> > > > 
-> > > > Especially the extended switch case is problematic as the compiler tends
-> > > > to
-> > > > generate a jump table which then requires to use retpolines.
-> > > 
-> > > Does vDSO code really have to use retpolines?  It's in userspace, after
-> > > all.
-> > 
-> > Unless you have IBRS/STIPB enabled, you need user space ratpoutine as well.
-> 
-> I don't think this is a consensus position, and it obviously depends on the
-> (sub)architecture.
-
-It does, but we are not building kernels for specific micro architectures
-nor do distros AFAIK.
-
-But that aside, even with jump tables the generated code (ratpoutine
-disabled) is not any better than with the current approach. It's even worse
-and needs the same optimizations at the end and then the main difference is
-that you have 3 copies of one function and 2 of the other. Not a win at
-all.
-
-Thanks,
-
-	tglx
+Cgo+IE9uIFNlcCAxNCwgMjAxOCwgYXQgNTo1MCBBTSwgVGhvbWFzIEdsZWl4bmVyIDx0Z2x4QGxp
+bnV0cm9uaXguZGU+IHdyb3RlOgo+IAo+IFdpdGggdGhlIHN0b3JhZ2UgYXJyYXkgaW4gcGxhY2Ug
+aXQncyBub3cgdHJpdmlhbCB0byBzdXBwb3J0IENMT0NLX1RBSSBpbgo+IHRoZSB2ZHNvLiBJbnN0
+ZWFkIG9mIGV4dGVuZGluZyB0aGUgYXJyYXkgdG8gYWNjb21vZGF0ZSBDTE9DS19UQUksIG1ha2Ug
+dXNlCj4gb2YgdGhlIGZhY3QgdGhhdDoKPiAKPiAtIENMT0NLIGlkcyBhcmUgc2V0IGluIHN0b25l
+Cj4gLSBDTE9DS19USFJFQURfQ1BVVElNRSBpcyBuZXZlciBnb2luZyB0byBiZSBzdXBwb3J0ZWQg
+aW4gdGhlIFZEU08gc28KPiAgIHRoZSBhcnJheSBzbG90IDMgaXMgdW51c2VkCj4gLSBDTE9DS19U
+QUkgaXMgaWQgMTEgd2hpY2ggcmVzdWx0cyBpbiAzIHdoZW4gbWFza2VkIHdpdGggMHgzCj4gCj4g
+QWRkIHRoZSBtYXNrIHRvIHRoZSBiYXNldGltZSBhcnJheSBsb29rdXAgYW5kIHNldCB1cCB0aGUg
+Q0xPQ0tfVEFJIGJhc2UKPiB0aW1lIGluIHVwZGF0ZV92c3lzY2FsbCgpLgoKVGhhdOKAmXMuLi4g
+aG9ycmlibGUuIEluIGFuIGFtYXppbmcgd2F5LiBDYW4geW91IGFkZCBCVUlMRF9CVUdfT04gc29t
+ZXdoZXJlIHRvIGFzc2VydCB0aGF0IHRoaXMgYWN0dWFsbHkgd29ya3M/Cgo+IAo+IFRoZSBwZXJm
+b3JtYW5jZSBpbXBhY3Qgb2YgdGhlIG1hc2sgb3BlcmF0aW9uIGlzIHdpdGhpbiB0aGUgbm9pc2Uu
+Cj4gCj4gU2lnbmVkLW9mZi1ieTogVGhvbWFzIEdsZWl4bmVyIDx0Z2x4QGxpbnV0cm9uaXguZGU+
+Cj4gLS0tCj4gYXJjaC94ODYvZW50cnkvdmRzby92Y2xvY2tfZ2V0dGltZS5jICAgIHwgICAgMiAr
+LQo+IGFyY2gveDg2L2VudHJ5L3ZzeXNjYWxsL3ZzeXNjYWxsX2d0b2QuYyB8ICAgIDQgKysrKwo+
+IGFyY2gveDg2L2luY2x1ZGUvYXNtL3ZndG9kLmggICAgICAgICAgICB8ICAgIDYgKysrKystCj4g
+MyBmaWxlcyBjaGFuZ2VkLCAxMCBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+IAo+IC0t
+LSBhL2FyY2gveDg2L2VudHJ5L3Zkc28vdmNsb2NrX2dldHRpbWUuYwo+ICsrKyBiL2FyY2gveDg2
+L2VudHJ5L3Zkc28vdmNsb2NrX2dldHRpbWUuYwo+IEBAIC0xNDAsNyArMTQwLDcgQEAgbm90cmFj
+ZSBzdGF0aWMgaW5saW5lIHU2NCB2Z2V0Y3ljKGludCBtbwo+IAo+IG5vdHJhY2Ugc3RhdGljIGlu
+dCBkb19ocmVzKGNsb2NraWRfdCBjbGssIHN0cnVjdCB0aW1lc3BlYyAqdHMpCj4gewo+IC0gICAg
+c3RydWN0IHZndG9kX3RzICpiYXNlID0gJmd0b2QtPmJhc2V0aW1lW2Nsa107Cj4gKyAgICBzdHJ1
+Y3Qgdmd0b2RfdHMgKmJhc2UgPSAmZ3RvZC0+YmFzZXRpbWVbY2xrICYgVkdUT0RfSFJFU19NQVNL
+XTsKPiAgICB1NjQgY3ljbGVzLCBsYXN0LCBuczsKPiAgICB1bnNpZ25lZCBpbnQgc2VxOwo+IAo+
+IC0tLSBhL2FyY2gveDg2L2VudHJ5L3ZzeXNjYWxsL3ZzeXNjYWxsX2d0b2QuYwo+ICsrKyBiL2Fy
+Y2gveDg2L2VudHJ5L3ZzeXNjYWxsL3ZzeXNjYWxsX2d0b2QuYwo+IEBAIC01MSw2ICs1MSwxMCBA
+QCB2b2lkIHVwZGF0ZV92c3lzY2FsbChzdHJ1Y3QgdGltZWtlZXBlciAqCj4gICAgYmFzZS0+c2Vj
+ID0gdGstPnh0aW1lX3NlYzsKPiAgICBiYXNlLT5uc2VjID0gdGstPnRrcl9tb25vLnh0aW1lX25z
+ZWM7Cj4gCj4gKyAgICBiYXNlID0gJnZkYXRhLT5iYXNldGltZVtWR1RPRF9UQUldOwo+ICsgICAg
+YmFzZS0+c2VjID0gdGstPnh0aW1lX3NlYyArIChzNjQpdGstPnRhaV9vZmZzZXQ7Cj4gKyAgICBi
+YXNlLT5uc2VjID0gdGstPnRrcl9tb25vLnh0aW1lX25zZWM7Cj4gKwo+ICAgIGJhc2UgPSAmdmRh
+dGEtPmJhc2V0aW1lW0NMT0NLX01PTk9UT05JQ107Cj4gICAgYmFzZS0+c2VjID0gdGstPnh0aW1l
+X3NlYyArIHRrLT53YWxsX3RvX21vbm90b25pYy50dl9zZWM7Cj4gICAgbnNlYyA9IHRrLT50a3Jf
+bW9uby54dGltZV9uc2VjOwo+IC0tLSBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL3ZndG9kLmgKPiAr
+KysgYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS92Z3RvZC5oCj4gQEAgLTE5LDkgKzE5LDEzIEBAIHN0
+cnVjdCB2Z3RvZF90cyB7Cj4gfTsKPiAKPiAjZGVmaW5lIFZHVE9EX0JBU0VTICAgIChDTE9DS19N
+T05PVE9OSUNfQ09BUlNFICsgMSkKPiAtI2RlZmluZSBWR1RPRF9IUkVTICAgIChCSVQoQ0xPQ0tf
+UkVBTFRJTUUpIHwgQklUKENMT0NLX01PTk9UT05JQykpCj4gKyNkZWZpbmUgVkdUT0RfSFJFUyAg
+ICAoQklUKENMT0NLX1JFQUxUSU1FKSB8IEJJVChDTE9DS19NT05PVE9OSUMpIHwgQklUKENMT0NL
+X1RBSSkpCj4gI2RlZmluZSBWR1RPRF9DT0FSU0UgICAgKEJJVChDTE9DS19SRUFMVElNRV9DT0FS
+U0UpIHwgQklUKENMT0NLX01PTk9UT05JQ19DT0FSU0UpKQo+IAo+ICsvKiBBYnVzZSBDTE9DS19U
+SFJFQURfQ1BVVElNRV9JRCBmb3IgVkdUT0QgQ0xPQ0sgVEFJICovCj4gKyNkZWZpbmUgVkdUT0Rf
+SFJFU19NQVNLICAgIDB4Mwo+ICsjZGVmaW5lIFZHVE9EX1RBSSAgICAoQ0xPQ0tfVEFJICYgVkdU
+T0RfSFJFU19NQVNLKQo+ICsKPiAvKgo+ICAqIHZzeXNjYWxsX2d0b2RfZGF0YSB3aWxsIGJlIGFj
+Y2Vzc2VkIGJ5IDMyIGFuZCA2NCBiaXQgY29kZSBhdCB0aGUgc2FtZSB0aW1lCj4gICogc28gYmUg
+Y2FyZWZ1bGwgYnkgbW9kaWZ5aW5nIHRoaXMgc3RydWN0dXJlLgo+IAo+IApfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
+IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
+aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
