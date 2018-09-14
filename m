@@ -1,12 +1,14 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 00/11] x86/vdso: Cleanups,
-	simmplifications and CLOCK_TAI support
-Date: Fri, 14 Sep 2018 14:50:06 +0200
-Message-ID: <20180914125006.349747096__20863.3888433271$1536929452$gmane$org@linutronix.de>
+Subject: [patch 04/11] x86/vdso: Use unsigned int consistently for
+	vsyscall_gtod_data::seq
+Date: Fri, 14 Sep 2018 14:50:10 +0200
+Message-ID: <20180914125118.457665349__16121.8861271211$1536929571$gmane$org@linutronix.de>
+References: <20180914125006.349747096@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline; filename=x86-vdso--Mintor-cleanups.patch
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,35 +22,86 @@ To: LKML <linux-kernel@vger.kernel.org>
 Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Matt attempted to add CLOCK_TAI support to the VDSO clock_gettime()
-implementation, which extended the clockid switch case and added yet
-another slightly different copy of the same code.
+The sequence count in vgtod_data is unsigned int, but the call sites use
+unsigned long, which is a pointless exercise. Fix the call sites and
+replace 'unsigned' with unsinged 'int' while at it.
 
-Especially the extended switch case is problematic as the compiler tends to
-generate a jump table which then requires to use retpolines. If jump tables
-are disabled it adds yet another conditional to the existing maze.
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+---
+ arch/x86/entry/vdso/vclock_gettime.c |    8 ++++----
+ arch/x86/include/asm/vgtod.h         |   10 +++++-----
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-This series takes a different approach by consolidating the almost
-identical functions into one implementation for high resolution clocks and
-one for the coarse grained clock ids by storing the base data for each
-clock id in an array which is indexed by the clock id.
-
-This completely eliminates the switch case and allows further
-simplifications of the code base, which at the end all together gain a few
-cycles performance or at least stay on par with todays code. The resulting
-performance depends heavily on the micro architecture and the compiler.
-
-Thanks,
-
-	tglx
-
-8<-------------------
- arch/x86/Kconfig                        |    1 
- arch/x86/entry/vdso/vclock_gettime.c    |  199 ++++++++------------------------
- arch/x86/entry/vsyscall/vsyscall_gtod.c |   55 ++++----
- arch/x86/include/asm/vgtod.h            |   46 ++++---
- arch/x86/kernel/time.c                  |   22 +++
- include/linux/clocksource.h             |    5 
- kernel/time/Kconfig                     |    4 
- kernel/time/clocksource.c               |    2 
- 8 files changed, 144 insertions(+), 190 deletions(-)
+--- a/arch/x86/entry/vdso/vclock_gettime.c
++++ b/arch/x86/entry/vdso/vclock_gettime.c
+@@ -206,7 +206,7 @@ notrace static inline u64 vgetsns(int *m
+ /* Code size doesn't matter (vdso is 4k anyway) and this is faster. */
+ notrace static int __always_inline do_realtime(struct timespec *ts)
+ {
+-	unsigned long seq;
++	unsigned int seq;
+ 	u64 ns;
+ 	int mode;
+ 
+@@ -227,7 +227,7 @@ notrace static int __always_inline do_re
+ 
+ notrace static int __always_inline do_monotonic(struct timespec *ts)
+ {
+-	unsigned long seq;
++	unsigned int seq;
+ 	u64 ns;
+ 	int mode;
+ 
+@@ -248,7 +248,7 @@ notrace static int __always_inline do_mo
+ 
+ notrace static void do_realtime_coarse(struct timespec *ts)
+ {
+-	unsigned long seq;
++	unsigned int seq;
+ 	do {
+ 		seq = gtod_read_begin(gtod);
+ 		ts->tv_sec = gtod->wall_time_coarse_sec;
+@@ -258,7 +258,7 @@ notrace static void do_realtime_coarse(s
+ 
+ notrace static void do_monotonic_coarse(struct timespec *ts)
+ {
+-	unsigned long seq;
++	unsigned int seq;
+ 	do {
+ 		seq = gtod_read_begin(gtod);
+ 		ts->tv_sec = gtod->monotonic_time_coarse_sec;
+--- a/arch/x86/include/asm/vgtod.h
++++ b/arch/x86/include/asm/vgtod.h
+@@ -15,9 +15,9 @@ typedef unsigned long gtod_long_t;
+  * so be carefull by modifying this structure.
+  */
+ struct vsyscall_gtod_data {
+-	unsigned seq;
++	unsigned int seq;
+ 
+-	int vclock_mode;
++	int	vclock_mode;
+ 	u64	cycle_last;
+ 	u64	mask;
+ 	u32	mult;
+@@ -44,9 +44,9 @@ static inline bool vclock_was_used(int v
+ 	return READ_ONCE(vclocks_used) & (1 << vclock);
+ }
+ 
+-static inline unsigned gtod_read_begin(const struct vsyscall_gtod_data *s)
++static inline unsigned int gtod_read_begin(const struct vsyscall_gtod_data *s)
+ {
+-	unsigned ret;
++	unsigned int ret;
+ 
+ repeat:
+ 	ret = READ_ONCE(s->seq);
+@@ -59,7 +59,7 @@ static inline unsigned gtod_read_begin(c
+ }
+ 
+ static inline int gtod_read_retry(const struct vsyscall_gtod_data *s,
+-					unsigned start)
++				  unsigned int start)
+ {
+ 	smp_rmb();
+ 	return unlikely(s->seq != start);
