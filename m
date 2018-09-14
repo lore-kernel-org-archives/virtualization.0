@@ -1,15 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next V2] virtio_net: ethtool tx napi configuration
-Date: Fri, 14 Sep 2018 16:24:15 +0800
-Message-ID: <561c236e-9bd2-2762-2a1a-e2e4336692c7__33368.2384262376$1536913348$gmane$org@redhat.com>
-References: <20180913053545.18585-1-jasowang@redhat.com>
-	<CAF=yD-LSgCEnL_kTH44A8-FH3nut3y=bonf4Bgf75=jd=D64hw@mail.gmail.com>
+From: "Marle" <marialemos72@gmail.com>
+Subject: ICITS'19 - Quito, Ecuador | Extended deadline: September 23
+Date: Fri, 14 Sep 2018 12:13:42 +0100
+Message-ID: <765279413390@gmail-com>
+Reply-To: intercits@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============7335461448104970550=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAF=yD-LSgCEnL_kTH44A8-FH3nut3y=bonf4Bgf75=jd=D64hw@mail.gmail.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,119 +15,349 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Willem de Bruijn <willemb@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, Network Development <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDnmnIgxM+aXpSAyMzoyMCwgV2lsbGVtIGRlIEJydWlqbiB3cm90ZToKPiBP
-biBUaHUsIFNlcCAxMywgMjAxOCBhdCAxOjQwIEFNIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhh
-dC5jb20+IHdyb3RlOgo+PiBJbXBsZW1lbnQgZXRodG9vbCAuc2V0X2NvYWxlc2NlICgtQykgYW5k
-IC5nZXRfY29hbGVzY2UgKC1jKSBoYW5kbGVycy4KPj4gSW50ZXJydXB0IG1vZGVyYXRpb24gaXMg
-Y3VycmVudGx5IG5vdCBzdXBwb3J0ZWQsIHNvIHRoZXNlIGFjY2VwdCBhbmQKPj4gZGlzcGxheSB0
-aGUgZGVmYXVsdCBzZXR0aW5ncyBvZiAwIHVzZWMgYW5kIDEgZnJhbWUuCj4+Cj4+IFRvZ2dsZSB0
-eCBuYXBpIHRocm91Z2ggYSBiaXQgaW4gdHgtZnJhbWVzLiBTbyBhcyB0byBub3QgaW50ZXJmZXJl
-Cj4+IHdpdGggcG9zc2libGUgZnV0dXJlIGludGVycnVwdCBtb2RlcmF0aW9uLCB2YWx1ZSAxIG1l
-YW5zIHR4IG5hcGkgd2hpbGUKPj4gdmFsdWUgMCBtZWFucyBub3QuCj4+Cj4+IFRvIHByb3Blcmx5
-IHN5bmNocm9uaXplIHdpdGggdGhlIGRhdGEgcGF0aCwgdHggbmFwaSBpcyBkaXNhYmxlZCBhbmQK
-Pj4gdHggbG9jayBpcyBoZWxkIHdoZW4gY2hhbmdpbmcgdGhlIHZhbHVlIG9mIG5hcGkgd2VpZ2h0
-LiBBbmQgdHdvIG1vcmUKPj4gcGxhY2VzIHRoYXQgY2FuIGFjY2VzcyB0eCBuYXBpIHdlaWdodDoK
-Pj4KPj4gLSBzcGVjdWxhdGl2ZSB0eCBwb2xsaW5nIGluIHJ4IG5hcGksIHdlIGNhbiBsZWF2ZSBp
-dCBhcyBpcyBzaW5jZSBpdAo+PiAgICBub3QgYSBtdXN0IGZvciBjb3JyZWN0bmVzcy4KPj4gLSBz
-a2JfeG1pdF9kb25lKCksIG9uZSBtb3JlIGNoZWNrIG9mIG5hcGkgd2VpZ2h0IGlzIGFkZGVkIGJl
-Zm9yZQo+PiAgICB0cnlpbmcgdG8gZW5hYmxlIHR4IHRvIGF2b2lkIHR4IHRvIGJlIGRpc2FibGVk
-IGZvcmV2ZXIgaWYgbmFwaSBpcwo+PiAgICBkaXNhYmxlZCBhZnRlciBza2JfeG1pdF9kb25lKCkg
-YnV0IGJlZm9yZSB0aGUgbmFwaQo+Pgo+PiBMaW5rOiBodHRwczovL3BhdGNod29yay5vemxhYnMu
-b3JnL3BhdGNoLzk0ODE0OS8KPj4gU3VnZ2VzdGVkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
-ZWRoYXQuY29tPgo+PiBTaWduZWQtb2ZmLWJ5OiBXaWxsZW0gZGUgQnJ1aWpuIDx3aWxsZW1iQGdv
-b2dsZS5jb20+Cj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5j
-b20+Cj4+IC0tLQo+PiBDaGFuZ2VzIGZyb20gVjE6Cj4+IC0gdHJ5IHRvIHN5bmNocm9uaXplIHdp
-dGggZGF0YXBhdGggdG8gYWxsb3cgY2hhbmdpbmcgbW9kZSB3aGVuCj4+ICAgIGludGVyZmFjZSBp
-cyB1cC4KPj4gLSB1c2UgdHgtZnJhbWVzIDAgYXMgdG8gZGlzYWJsZSB0eCBuYXBpIHdoaWxlIHR4
-LWZyYW1lcyAxIHRvIGVuYWJsZSB0eCBuYXBpCj4+IC0tLQo+PiAgIGRyaXZlcnMvbmV0L3ZpcnRp
-b19uZXQuYyB8IDY0ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0KPj4g
-ICAxIGZpbGUgY2hhbmdlZCwgNjMgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+Pgo+PiBk
-aWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlv
-X25ldC5jCj4+IGluZGV4IDc2NTkyMDkwNTIyNi4uNmU3MDg2NGY1ODk5IDEwMDY0NAo+PiAtLS0g
-YS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPj4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25l
-dC5jCj4+IEBAIC02Niw2ICs2Niw4IEBAIERFQ0xBUkVfRVdNQShwa3RfbGVuLCAwLCA2NCkKPj4K
-Pj4gICAjZGVmaW5lIFZJUlRORVRfRFJJVkVSX1ZFUlNJT04gIjEuMC4wIgo+Pgo+PiArc3RhdGlj
-IGNvbnN0IHUzMiBldGh0b29sX2NvYWxlc2NlX25hcGlfbWFzayA9ICgxVUwgPDwgMTApOwo+PiAr
-Cj4gVGhpcyBpcyBubyBsb25nZXIgbmVlZGVkCgpZZXMsIHdpbGwgcmVtb3ZlIHRoaXMuCgo+Cj4+
-ICAgc3RhdGljIGNvbnN0IHVuc2lnbmVkIGxvbmcgZ3Vlc3Rfb2ZmbG9hZHNbXSA9IHsKPj4gICAg
-ICAgICAgVklSVElPX05FVF9GX0dVRVNUX1RTTzQsCj4+ICAgICAgICAgIFZJUlRJT19ORVRfRl9H
-VUVTVF9UU082LAo+PiBAQCAtMTQ0NCw3ICsxNDQ2LDEwIEBAIHN0YXRpYyBpbnQgdmlydG5ldF9w
-b2xsX3R4KHN0cnVjdCBuYXBpX3N0cnVjdCAqbmFwaSwgaW50IGJ1ZGdldCkKPj4KPj4gICAgICAg
-ICAgdmlydHF1ZXVlX25hcGlfY29tcGxldGUobmFwaSwgc3EtPnZxLCAwKTsKPj4KPj4gLSAgICAg
-ICBpZiAoc3EtPnZxLT5udW1fZnJlZSA+PSAyICsgTUFYX1NLQl9GUkFHUykKPj4gKyAgICAgICAv
-KiBDaGVjayBuYXBpLndlaWdodCB0byBhdm9pZCB0eCBzdGFsbCBzaW5jZSBpdCBjb3VsZCBiZSBz
-ZXQKPj4gKyAgICAgICAgKiB0byB6ZXJvIGJ5IGV0aHRvb2wgYWZ0ZXIgc2tiX3htaXRfZG9uZSgp
-Lgo+PiArICAgICAgICAqLwo+PiArICAgICAgIGlmIChzcS0+dnEtPm51bV9mcmVlID49IDIgKyBN
-QVhfU0tCX0ZSQUdTIHx8ICFzcS0+bmFwaS53ZWlnaHQpCj4+ICAgICAgICAgICAgICAgICAgbmV0
-aWZfdHhfd2FrZV9xdWV1ZSh0eHEpOwo+IEkgc2VlLiBUaGlzIGFzc3VtZXMgdGhhdCB0aGUgbmFw
-aSBoYW5kbGVyIHdpbGwgYWx3YXlzIGJlIGNhbGxlZCBvbgo+IGNvbnZlcnNpb24gZnJvbSBuYXBp
-IHRvIG5vLW5hcGkgbW9kZS4KPgo+IFRoYXQgaXMgc2FmZSB0byBhc3N1bWUgYmVjYXVzZSBpZiBp
-dCBpc24ndCBjYWxsZWQgKGFuZCB3aWxsIG5vdCBjYWxsCj4gbmV0aWZfdHhfd2FrZV9xdWV1ZSkg
-dGhhdCBpbXBsaWVzIHRoYXQgbmFwaSB3YXMgbm90IHNjaGVkdWxlZCwgYW5kCj4gdGh1cyB0aGUg
-dHggaW50ZXJydXB0IHdhcyBub3Qgc3VwcHJlc3NlZCBhbmQgdGh1cyB0aGVyZSB3YXMgbm8gdHgK
-PiBjb21wbGV0aW9uIHdvcmsgdG8gYmUgc2NoZWR1bGVkPwoKSWYgaXQgaXNuJ3QgY2FsbGVkIGl0
-IG1lYW5zIHNrYl94bWl0X2RvbmUoKSB3YWtldXAgdHggZGlyZWN0bHkgaW5zdGVhZCAKb2Ygc2No
-ZWR1bGUgdHguIFRoaXMgY291bGQgYmUgYSBsaXR0bGUgYml0IGVhcmx5IHNpbmNlIHRoZXJlIG1h
-eSBiZSAKc3RpbGwgbG90cyBvZiBwZW5kaW5nIHR4IHBhY2tldHMuIEJ1dCBpdCBkb2Vzbid0IGhh
-cm0sIHN0YXJ0X3htaXQoKSBjYW4gCmhhbmRsZSB0aGlzIGJ5IHJlIGVuYWJsZSBhIGRlbGF5ZWQg
-dHggaW50ZXJydXB0IGFuZCBkaXNhYmxlIFRYLgoKQnV0IHRoZXJlJ3MgYSBidWcsIGxvb2sgbGlr
-ZSBJIG5lZWQgcmVtb3ZlIHRoZSBjaGVjayBvZiAKKCFzcS0+bmFwaS53ZWlnaHQpIGluIHRoZSBi
-ZWdpbm5pbmcgb2YgdGhlIGZ1bmN0aW9uLgoKPgo+PiAgICAgICAgICByZXR1cm4gMDsKPj4gQEAg
-LTIxODEsNiArMjE4Niw2MSBAQCBzdGF0aWMgaW50IHZpcnRuZXRfZ2V0X2xpbmtfa3NldHRpbmdz
-KHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4+ICAgICAgICAgIHJldHVybiAwOwo+PiAgIH0KPj4K
-Pj4gK3N0YXRpYyBpbnQgdmlydG5ldF9zZXRfY29hbGVzY2Uoc3RydWN0IG5ldF9kZXZpY2UgKmRl
-diwKPj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3QgZXRodG9vbF9jb2Fs
-ZXNjZSAqZWMpCj4+ICt7Cj4+ICsgICAgICAgc3RydWN0IGV0aHRvb2xfY29hbGVzY2UgZWNfZGVm
-YXVsdCA9IHsKPj4gKyAgICAgICAgICAgICAgIC5jbWQgPSBFVEhUT09MX1NDT0FMRVNDRSwKPj4g
-KyAgICAgICAgICAgICAgIC5yeF9tYXhfY29hbGVzY2VkX2ZyYW1lcyA9IDEsCj4+ICsgICAgICAg
-fTsKPj4gKyAgICAgICBzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSA9IG5ldGRldl9wcml2KGRldik7
-Cj4+ICsgICAgICAgaW50IGksIG5hcGlfd2VpZ2h0Owo+PiArCj4+ICsgICAgICAgaWYgKGVjLT50
-eF9tYXhfY29hbGVzY2VkX2ZyYW1lcyA+IDEpCj4+ICsgICAgICAgICAgICAgICByZXR1cm4gLUVJ
-TlZBTDsKPj4gKwo+PiArICAgICAgIGVjX2RlZmF1bHQudHhfbWF4X2NvYWxlc2NlZF9mcmFtZXMg
-PSBlYy0+dHhfbWF4X2NvYWxlc2NlZF9mcmFtZXM7Cj4+ICsgICAgICAgbmFwaV93ZWlnaHQgPSBl
-Yy0+dHhfbWF4X2NvYWxlc2NlZF9mcmFtZXMgPyBOQVBJX1BPTExfV0VJR0hUIDogMDsKPj4gKwo+
-PiArICAgICAgIC8qIGRpc2FsbG93IGNoYW5nZXMgdG8gZmllbGRzIG5vdCBleHBsaWNpdGx5IHRl
-c3RlZCBhYm92ZSAqLwo+PiArICAgICAgIGlmIChtZW1jbXAoZWMsICZlY19kZWZhdWx0LCBzaXpl
-b2YoZWNfZGVmYXVsdCkpKQo+PiArICAgICAgICAgICAgICAgcmV0dXJuIC1FSU5WQUw7Cj4+ICsK
-Pj4gKyAgICAgICBpZiAobmFwaV93ZWlnaHQgXiB2aS0+c3FbMF0ubmFwaS53ZWlnaHQpIHsKPj4g
-KyAgICAgICAgICAgICAgIGZvciAoaSA9IDA7IGkgPCB2aS0+bWF4X3F1ZXVlX3BhaXJzOyBpKysp
-IHsKPj4gKyAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IG5ldGRldl9xdWV1ZSAqdHhxID0K
-Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG5ldGRldl9nZXRfdHhfcXVldWUodmkt
-PmRldiwgaSk7Cj4+ICsKPj4gKyAgICAgICAgICAgICAgICAgICAgICAgdmlydG5ldF9uYXBpX3R4
-X2Rpc2FibGUoJnZpLT5zcVtpXS5uYXBpKTsKPj4gKyAgICAgICAgICAgICAgICAgICAgICAgX19u
-ZXRpZl90eF9sb2NrX2JoKHR4cSk7Cj4+ICsgICAgICAgICAgICAgICAgICAgICAgIHZpLT5zcVtp
-XS5uYXBpLndlaWdodCA9IG5hcGlfd2VpZ2h0Owo+PiArICAgICAgICAgICAgICAgICAgICAgICBf
-X25ldGlmX3R4X3VubG9ja19iaCh0eHEpOwo+PiArICAgICAgICAgICAgICAgICAgICAgICB2aXJ0
-bmV0X25hcGlfdHhfZW5hYmxlKHZpLCB2aS0+c3FbaV0udnEsCj4+ICsgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJnZpLT5zcVtpXS5uYXBpKTsKPj4gKyAgICAg
-ICAgICAgICAgIH0KPj4gKyAgICAgICB9Cj4+ICsKPj4gKyAgICAgICByZXR1cm4gMDsKPj4gK30K
-Pj4gKwo+PiArc3RhdGljIGludCB2aXJ0bmV0X2dldF9jb2FsZXNjZShzdHJ1Y3QgbmV0X2Rldmlj
-ZSAqZGV2LAo+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCBldGh0b29s
-X2NvYWxlc2NlICplYykKPj4gK3sKPj4gKyAgICAgICBzdHJ1Y3QgZXRodG9vbF9jb2FsZXNjZSBl
-Y19kZWZhdWx0ID0gewo+PiArICAgICAgICAgICAgICAgLmNtZCA9IEVUSFRPT0xfR0NPQUxFU0NF
-LAo+PiArICAgICAgICAgICAgICAgLnJ4X21heF9jb2FsZXNjZWRfZnJhbWVzID0gMSwKPj4gKyAg
-ICAgICAgICAgICAgIC50eF9tYXhfY29hbGVzY2VkX2ZyYW1lcyA9IDAsCj4gbm8gbmVlZCB0byBl
-eHBsaWNpdGx5IGluaXRpYWxpemUgdG8gMCAodW5sZXNzIHlvdSBkaWQgdGhpcyBmb3IKPiBkb2N1
-bWVudGF0aW9uIHB1cnBvc2VzLCB3aGljaCBpcyBmaW5lKS4KClllcy4KClRoYW5rcwoKPj4gKyAg
-ICAgICB9Owo+PiArICAgICAgIHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpID0gbmV0ZGV2X3ByaXYo
-ZGV2KTsKPj4gKwo+PiArICAgICAgIG1lbWNweShlYywgJmVjX2RlZmF1bHQsIHNpemVvZihlY19k
-ZWZhdWx0KSk7Cj4+ICsKPj4gKyAgICAgICBpZiAodmktPnNxWzBdLm5hcGkud2VpZ2h0KQo+PiAr
-ICAgICAgICAgICAgICAgZWMtPnR4X21heF9jb2FsZXNjZWRfZnJhbWVzID0gMTsKPj4gKwo+PiAr
-ICAgICAgIHJldHVybiAwOwo+PiArfQo+PiArCj4+ICAgc3RhdGljIHZvaWQgdmlydG5ldF9pbml0
-X3NldHRpbmdzKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYpCj4+ICAgewo+PiAgICAgICAgICBzdHJ1
-Y3QgdmlydG5ldF9pbmZvICp2aSA9IG5ldGRldl9wcml2KGRldik7Cj4+IEBAIC0yMjE5LDYgKzIy
-NzksOCBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGV0aHRvb2xfb3BzIHZpcnRuZXRfZXRodG9vbF9v
-cHMgPSB7Cj4+ICAgICAgICAgIC5nZXRfdHNfaW5mbyA9IGV0aHRvb2xfb3BfZ2V0X3RzX2luZm8s
-Cj4+ICAgICAgICAgIC5nZXRfbGlua19rc2V0dGluZ3MgPSB2aXJ0bmV0X2dldF9saW5rX2tzZXR0
-aW5ncywKPj4gICAgICAgICAgLnNldF9saW5rX2tzZXR0aW5ncyA9IHZpcnRuZXRfc2V0X2xpbmtf
-a3NldHRpbmdzLAo+PiArICAgICAgIC5zZXRfY29hbGVzY2UgPSB2aXJ0bmV0X3NldF9jb2FsZXNj
-ZSwKPj4gKyAgICAgICAuZ2V0X2NvYWxlc2NlID0gdmlydG5ldF9nZXRfY29hbGVzY2UsCj4+ICAg
-fTsKPj4KPj4gICBzdGF0aWMgdm9pZCB2aXJ0bmV0X2ZyZWV6ZV9kb3duKHN0cnVjdCB2aXJ0aW9f
-ZGV2aWNlICp2ZGV2KQo+PiAtLQo+PiAyLjE3LjEKPj4KCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+This is a multi-part message in MIME format
+
+--===============7335461448104970550==
+Content-Type: multipart/alternative; charset=utf-8; boundary="6DQ6DOehQ2SElOGPXsoUBhF=_eLq7Q7mmg"
+
+This is a multi-part message in MIME format
+
+--6DQ6DOehQ2SElOGPXsoUBhF=_eLq7Q7mmg
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+* Proceedings by Springer, indexed in Scopus, ISI, etc.
+
+ 
+
+***********************************************************
+
+ICITS'19 - The 2019 International Conference on Information Technology & Sy=
+stems
+
+Quito, Ecuador, 6 - 8 February 2019
+
+http://www.icits.me <http://www.icits.me/>
+
+***************************************************************************=
+*****
+
+ 
+
+ICITS'19 - The 2019 International Conference on Information Technology & Sy=
+stems, to be held at Quito, Ecuador, 6 - 8 February 2019, is an internation=
+al forum for researchers and practitioners to present and discuss the most =
+recent innovations, trends, results, experiences and concerns in the severa=
+l perspectives of Information Technology & Systems.
+
+We are pleased to invite you to submit your papers to ICITS'19. They can be=
+ written in English, Spanish or Portuguese. All submissions will be reviewe=
+d on the basis of relevance, originality, importance and clarity.
+
+ 
+
+Topics
+
+Submitted papers should be related with one or more of the main themes prop=
+osed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Software and Systems Modeling (SSM);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Multimedia Systems and Applications (MSA);
+
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+G) Intelligent and Decision Support Systems (IDSS);
+
+H) Big Data Analytics and Applications (BDAA);
+
+I) Human-Computer Interaction (HCI);
+
+J) Ethics, Computers and Security (ECS)
+
+K) Health Informatics (HIS);
+
+L) Information Technologies in Education (ITE);
+
+M) Cybersecurity and Cyber-defense;
+
+N) Electromagnetics, Sensors and Antennas for Security.
+
+ 
+
+Submission and Decision
+
+Submitted papers written in English (until 10-page limit) must comply with =
+the format of Advances in Intelligent Systems and Computing series (see Ins=
+tructions for Authors at Springer Website <http://www.springer.com/series/1=
+1156> or download a DOC example <http://www.icits.me/springerformat.doc>), =
+must not have been published before, not be under review for any other conf=
+erence or publication and not include any information leading to the author=
+s=E2=80=99 identification. Therefore, the authors=E2=80=99 names, affiliati=
+ons and bibliographic references should not be included in the version for =
+evaluation by the Scientific Committee. This information should only be inc=
+luded in the camera-ready version, saved in Word or Latex format and also i=
+n PDF format. These files must be accompanied by the Consent to Publish for=
+m <http://www.icits.me/copyright.pdf> filled out, in a ZIP file, and upload=
+ed at the conference management system.
+
+Submitted papers written in Spanish or Portuguese (until 15-page limit) mus=
+t comply with the format of RISTI <http://www.risti.xyz/> - Revista Ib=C3=
+=A9rica de Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (download instruc=
+tions/template for authors in Spanish <http://www.risti.xyz/formato-es.doc>=
+ or Portuguese <http://www.risti.xyz/formato-pt.doc>), must not have been p=
+ublished before, not be under review for any other conference or publicatio=
+n and not include any information leading to the authors=E2=80=99 identific=
+ation. Therefore, the authors=E2=80=99 names, affiliations and bibliographi=
+c references should not be included in the version for evaluation by the Sc=
+ientific Committee. This information should only be included in the camera-=
+ready version, saved in Word. These file must be uploaded at the conference=
+ management system in a ZIP file.
+
+All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
+at least two members of the Scientific Committee.
+
+Based on Scientific Committee evaluation, a paper can be rejected or accept=
+ed by the Conference Chairs. In the later case, it can be accepted as paper=
+ or poster.
+
+The authors of papers accepted as posters must build and print a poster to =
+be exhibited during the Conference. This poster must follow an A1 or A2 ver=
+tical format. The Conference can includes Work Sessions where these posters=
+ are presented and orally discussed, with a 7 minute limit per poster.
+
+The authors of accepted papers will have 15 minutes to present their work i=
+n a Conference Work Session; approximately 5 minutes of discussion will fol=
+low each presentation.
+
+ 
+
+Publication and Indexing
+
+To ensure that an accepted paper is published, at least one of the authors =
+must be fully registered by the 9th of November 2018, and the paper must co=
+mply with the suggested layout and page-limit. Additionally, all recommende=
+d changes must be addressed by the authors before they submit the camera-re=
+ady version.
+
+No more than one paper per registration will be published. An extra fee mus=
+t be paid for publication of additional papers, with a maximum of one addit=
+ional paper per registration. One registration permits only the participati=
+on of one author in the conference.
+
+Papers written in English and accepted and registered will be published in =
+Proceedings by Springer, in a book of the Advances in Intelligent Systems a=
+nd Computing <http://www.springer.com/series/11156>series, will  be submitt=
+ed for indexation by ISI, EI-Compendex, SCOPUS and DBLP, among others, and =
+will be available in the SpringerLink Digital Library <http://link.springer=
+=2Ecom/>.
+
+Papers written in Spanish or Portuguese and accepted and registered will be=
+ published in a Special Issue of RISTI <http://www.risti.xyz/index.php?opti=
+on=3Dcom_content&view=3Darticle&id=3D3&Itemid=3D104&lang=3Des> and will be =
+submitted for indexation by SCOPUS, among others.
+
+ 
+
+Important Dates
+
+Paper Submission: September 16 23, 2018
+
+Notification of Acceptance: October 21, 2018
+
+Payment of Registration, to ensure the inclusion of an accepted paper in th=
+e conference proceedings: November 9, 2018.
+
+Camera-ready Submission: November 9, 2018
+
+ 
+
+ICITS'19 website: http://www.icits.me <http://www.icits.me/>
+
+ 
+
+ 
+
+
+---
+Este e-mail foi verificado em termos de v=C3=ADrus pelo AVG.
+http://www.avg.com
+
+--6DQ6DOehQ2SElOGPXsoUBhF=_eLq7Q7mmg
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
+" />
+  </head>
+  <body>
+    <p>* Proceedings by Springer, indexed in Scopus, ISI, etc.</p>
+    <p>&nbsp;</p>
+    <p>***********************************************************</p>
+    <p><strong>ICITS'19 - The 2019 International Conference on Information =
+Technology &amp; Systems</strong></p>
+    <p><strong>Quito, Ecuador, 6 - 8 February 2019</strong></p>
+    <p><a href=3D"http://www.icits.me/"><strong>http://www.icits.me</strong=
+></a></p>
+    <p>********************************************************************=
+************</p>
+    <p>&nbsp;</p>
+    <p>ICITS'19 - The 2019 International Conference on Information Technolo=
+gy &amp; Systems, to be held at Quito, Ecuador, 6 - 8 February 2019, is an =
+international forum for researchers and practitioners to present and discus=
+s the most recent innovations, trends, results, experiences and concerns in=
+ the several perspectives of Information Technology &amp; Systems.</p>
+    <p>We are pleased to invite you to submit your papers to ICITS'19. They=
+ can be written in English, Spanish or Portuguese. All submissions will be =
+reviewed on the basis of relevance, originality, importance and clarity.</p=
+>
+    <p>&nbsp;</p>
+    <p><strong>Topics</strong></p>
+    <p>Submitted papers should be related with one or more of the main them=
+es proposed for the Conference:</p>
+    <p>A) Information and Knowledge Management (IKM);</p>
+    <p>B) Organizational Models and Information Systems (OMIS);</p>
+    <p>C) Software and Systems Modeling (SSM);</p>
+    <p>D) Software Systems, Architectures, Applications and Tools (SSAAT);<=
+/p>
+    <p>E) Multimedia Systems and Applications (MSA);</p>
+    <p>F) Computer Networks, Mobility and Pervasive Systems (CNMPS);</p>
+    <p>G) Intelligent and Decision Support Systems (IDSS);</p>
+    <p>H) Big Data Analytics and Applications (BDAA);</p>
+    <p>I) Human-Computer Interaction (HCI);</p>
+    <p>J) Ethics, Computers and Security (ECS)</p>
+    <p>K) Health Informatics (HIS);</p>
+    <p>L) Information Technologies in Education (ITE);</p>
+    <p>M) Cybersecurity and Cyber-defense;</p>
+    <p>N) Electromagnetics, Sensors and Antennas for Security.</p>
+    <p>&nbsp;</p>
+    <p><strong>Submission and Decision</strong></p>
+    <p>Submitted papers written in English (until 10-page limit) must compl=
+y with the format of Advances in Intelligent Systems and Computing series (=
+see&nbsp;<a href=3D"http://www.springer.com/series/11156" target=3D"_blank"=
+>Instructions for Authors at Springer Website</a>&nbsp;or download a&nbsp;<=
+a href=3D"http://www.icits.me/springerformat.doc" target=3D"_blank">DOC exa=
+mple</a>), must not have been published before, not be under review for any=
+ other conference or publication and not include any information leading to=
+ the authors&rsquo; identification. Therefore, the authors&rsquo; names, af=
+filiations and bibliographic references should not be included in the versi=
+on for evaluation by the Scientific Committee. This information should only=
+ be included in the camera-ready version, saved in Word or Latex format and=
+ also in PDF format.&nbsp;<span lang=3D"en" id=3D"result_box">These files&n=
+bsp;must&nbsp;be accompanied by the&nbsp;<a href=3D"http://www.icits.me/cop=
+yright.pdf" target=3D"_blank">Consent to Publish form</a>&nbsp;filled out,&=
+nbsp;</span><span lang=3D"en" id=3D"result_box"><span lang=3D"en" id=3D"res=
+ult_box">in a ZIP file, and uploaded at the conference management system.</=
+span></span></p>
+    <p><span lang=3D"en"><span lang=3D"en">Submitted papers written in Span=
+ish or Portuguese (until 15-page limit) must comply with the format of <a h=
+ref=3D"http://www.risti.xyz/" target=3D"_blank">RISTI</a> - Revista Ib&eacu=
+te;rica de Sistemas e Tecnologias de Informa&ccedil;&atilde;o (download ins=
+tructions/template for authors in <a href=3D"http://www.risti.xyz/formato-e=
+s.doc" target=3D"_blank">Spanish</a> or <a href=3D"http://www.risti.xyz/for=
+mato-pt.doc" target=3D"_blank">Portuguese</a>), must not have been publishe=
+d before, not be under review for any other conference or publication and n=
+ot include any information leading to the authors&rsquo; identification. Th=
+erefore, the authors&rsquo; names, affiliations and bibliographic reference=
+s should not be included in the version for evaluation by the Scientific Co=
+mmittee. This information should only be included in the camera-ready versi=
+on, saved in Word.&nbsp;<span lang=3D"en" id=3D"result_box">These file must=
+&nbsp;be </span><span lang=3D"en" id=3D"result_box"><span lang=3D"en" id=3D=
+"result_box">uploaded at the conference management system in a ZIP file.</s=
+pan></span></span></span></p>
+    <p>All papers will be subjected to a &ldquo;double-blind review&rdquo; =
+by at least two members of the Scientific Committee.</p>
+    <p>Based on Scientific Committee evaluation, a paper can be rejected or=
+ accepted by the Conference Chairs. In the later case, it can be accepted a=
+s paper or poster.</p>
+    <p>The authors of papers accepted as posters must build and print a pos=
+ter to be exhibited during the Conference. This poster must follow an A1 or=
+ A2 vertical format. The Conference can includes Work Sessions where these =
+posters are presented and orally discussed, with a 7 minute limit per poste=
+r.</p>
+    <p>The authors of accepted papers will have 15 minutes to present their=
+ work in a Conference Work Session; approximately 5 minutes of discussion w=
+ill follow each presentation.</p>
+    <p>&nbsp;</p>
+    <p><strong>Publication and Indexing</strong></p>
+    <p>To ensure that an accepted paper is published, at least one of the a=
+uthors must be fully registered by the 9th of November 2018, and the paper =
+must comply with the suggested layout and page-limit. Additionally, all rec=
+ommended changes must be addressed by the authors before they submit the ca=
+mera-ready version.</p>
+    <p>No more than one paper per registration will be published. An extra =
+fee must be paid for publication of additional papers, with a maximum of on=
+e additional paper per registration. One registration permits only the part=
+icipation of one author in the conference.</p>
+    <p>Papers written in English and accepted and registered will be publis=
+hed in Proceedings by Springer, in a book of the <a href=3D"http://www.spri=
+nger.com/series/11156" target=3D"_blank">Advances in Intelligent Systems an=
+d Computing </a>series, will&nbsp; be submitted for indexation by ISI, EI-C=
+ompendex, SCOPUS and DBLP, among others, and will be available in the <a hr=
+ef=3D"http://link.springer.com/" target=3D"_blank">SpringerLink Digital Lib=
+rary</a>.</p>
+    <p>Papers written in Spanish or Portuguese and accepted and registered =
+will be published in a Special Issue of <a href=3D"http://www.risti.xyz/ind=
+ex.php?option=3Dcom_content&view=3Darticle&id=3D3&Itemid=3D104&lang=3Des" t=
+arget=3D"_blank">RISTI</a> and will be submitted for indexation by SCOPUS, =
+among others.</p>
+    <p>&nbsp;</p>
+    <p><strong>Important Dates</strong></p>
+    <p>Paper Submission: September <strike>16</strike> 23, 2018</p>
+    <p>Notification of Acceptance: October 21, 2018</p>
+    <p>Payment of Registration,&nbsp;to ensure the inclusion of an accepted=
+ paper in the conference proceedings: November 9, 2018.</p>
+    <p>Camera-ready Submission: November 9, 2018</p>
+    <p>&nbsp;</p>
+    <p><strong>ICITS'19 website: </strong><a href=3D"http://www.icits.me/">=
+<strong>http://www.icits.me</strong></a></p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br /> <table style=3D"b=
+order-top: 1px solid #D3D4DE;">
+	<tr>
+      <td style=3D"width: 55px; padding-top: 18px;"><a href=3D"http://www.a=
+vg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaign=3D=
+sig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"https://=
+ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=3D""=
+  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></a></t=
+d>
+		<td style=3D"width: 470px; padding-top: 17px; color: #41424e; font-size: =
+13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Sem v=
+=C3=ADrus. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail=
+&utm_source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" targ=
+et=3D"_blank" style=3D"color: #4453ea;">www.avg.com</a> 		</td>
+	</tr>
+</table>
+<a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" height=3D"1">=
+ </a></div></body>
+</html>
+
+--6DQ6DOehQ2SElOGPXsoUBhF=_eLq7Q7mmg--
+
+
+--===============7335461448104970550==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7335461448104970550==--
