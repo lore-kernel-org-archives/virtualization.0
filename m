@@ -1,14 +1,14 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [patch 11/11] x66/vdso: Add CLOCK_TAI support
-Date: Fri, 14 Sep 2018 07:04:02 -0700
-Message-ID: <ABB53D42-2A06-41B9-8A8C-40B39CD0289D__38241.3418883972$1536933726$gmane$org@amacapital.net>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [patch 00/11] x86/vdso: Cleanups,
+	simmplifications and CLOCK_TAI support
+Date: Fri, 14 Sep 2018 16:22:44 +0200
+Message-ID: <CAK8P3a1QfynDxkKBLXVa5Qj_z+7ct3QB5sDYuY5QV3ht-a0cTg__44352.0775567324$1536934862$gmane$org@mail.gmail.com>
 References: <20180914125006.349747096@linutronix.de>
-	<20180914125119.081037164@linutronix.de>
-Mime-Version: 1.0 (1.0)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180914125119.081037164@linutronix.de>
+In-Reply-To: <20180914125006.349747096@linutronix.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,56 +19,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
+Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Deepa Dinamani <deepa.kernel@gmail.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, matt@softrans.com.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cgo+IE9uIFNlcCAxNCwgMjAxOCwgYXQgNTo1MCBBTSwgVGhvbWFzIEdsZWl4bmVyIDx0Z2x4QGxp
-bnV0cm9uaXguZGU+IHdyb3RlOgo+IAo+IFdpdGggdGhlIHN0b3JhZ2UgYXJyYXkgaW4gcGxhY2Ug
-aXQncyBub3cgdHJpdmlhbCB0byBzdXBwb3J0IENMT0NLX1RBSSBpbgo+IHRoZSB2ZHNvLiBJbnN0
-ZWFkIG9mIGV4dGVuZGluZyB0aGUgYXJyYXkgdG8gYWNjb21vZGF0ZSBDTE9DS19UQUksIG1ha2Ug
-dXNlCj4gb2YgdGhlIGZhY3QgdGhhdDoKPiAKPiAtIENMT0NLIGlkcyBhcmUgc2V0IGluIHN0b25l
-Cj4gLSBDTE9DS19USFJFQURfQ1BVVElNRSBpcyBuZXZlciBnb2luZyB0byBiZSBzdXBwb3J0ZWQg
-aW4gdGhlIFZEU08gc28KPiAgIHRoZSBhcnJheSBzbG90IDMgaXMgdW51c2VkCj4gLSBDTE9DS19U
-QUkgaXMgaWQgMTEgd2hpY2ggcmVzdWx0cyBpbiAzIHdoZW4gbWFza2VkIHdpdGggMHgzCj4gCj4g
-QWRkIHRoZSBtYXNrIHRvIHRoZSBiYXNldGltZSBhcnJheSBsb29rdXAgYW5kIHNldCB1cCB0aGUg
-Q0xPQ0tfVEFJIGJhc2UKPiB0aW1lIGluIHVwZGF0ZV92c3lzY2FsbCgpLgoKVGhhdOKAmXMuLi4g
-aG9ycmlibGUuIEluIGFuIGFtYXppbmcgd2F5LiBDYW4geW91IGFkZCBCVUlMRF9CVUdfT04gc29t
-ZXdoZXJlIHRvIGFzc2VydCB0aGF0IHRoaXMgYWN0dWFsbHkgd29ya3M/Cgo+IAo+IFRoZSBwZXJm
-b3JtYW5jZSBpbXBhY3Qgb2YgdGhlIG1hc2sgb3BlcmF0aW9uIGlzIHdpdGhpbiB0aGUgbm9pc2Uu
-Cj4gCj4gU2lnbmVkLW9mZi1ieTogVGhvbWFzIEdsZWl4bmVyIDx0Z2x4QGxpbnV0cm9uaXguZGU+
-Cj4gLS0tCj4gYXJjaC94ODYvZW50cnkvdmRzby92Y2xvY2tfZ2V0dGltZS5jICAgIHwgICAgMiAr
-LQo+IGFyY2gveDg2L2VudHJ5L3ZzeXNjYWxsL3ZzeXNjYWxsX2d0b2QuYyB8ICAgIDQgKysrKwo+
-IGFyY2gveDg2L2luY2x1ZGUvYXNtL3ZndG9kLmggICAgICAgICAgICB8ICAgIDYgKysrKystCj4g
-MyBmaWxlcyBjaGFuZ2VkLCAxMCBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+IAo+IC0t
-LSBhL2FyY2gveDg2L2VudHJ5L3Zkc28vdmNsb2NrX2dldHRpbWUuYwo+ICsrKyBiL2FyY2gveDg2
-L2VudHJ5L3Zkc28vdmNsb2NrX2dldHRpbWUuYwo+IEBAIC0xNDAsNyArMTQwLDcgQEAgbm90cmFj
-ZSBzdGF0aWMgaW5saW5lIHU2NCB2Z2V0Y3ljKGludCBtbwo+IAo+IG5vdHJhY2Ugc3RhdGljIGlu
-dCBkb19ocmVzKGNsb2NraWRfdCBjbGssIHN0cnVjdCB0aW1lc3BlYyAqdHMpCj4gewo+IC0gICAg
-c3RydWN0IHZndG9kX3RzICpiYXNlID0gJmd0b2QtPmJhc2V0aW1lW2Nsa107Cj4gKyAgICBzdHJ1
-Y3Qgdmd0b2RfdHMgKmJhc2UgPSAmZ3RvZC0+YmFzZXRpbWVbY2xrICYgVkdUT0RfSFJFU19NQVNL
-XTsKPiAgICB1NjQgY3ljbGVzLCBsYXN0LCBuczsKPiAgICB1bnNpZ25lZCBpbnQgc2VxOwo+IAo+
-IC0tLSBhL2FyY2gveDg2L2VudHJ5L3ZzeXNjYWxsL3ZzeXNjYWxsX2d0b2QuYwo+ICsrKyBiL2Fy
-Y2gveDg2L2VudHJ5L3ZzeXNjYWxsL3ZzeXNjYWxsX2d0b2QuYwo+IEBAIC01MSw2ICs1MSwxMCBA
-QCB2b2lkIHVwZGF0ZV92c3lzY2FsbChzdHJ1Y3QgdGltZWtlZXBlciAqCj4gICAgYmFzZS0+c2Vj
-ID0gdGstPnh0aW1lX3NlYzsKPiAgICBiYXNlLT5uc2VjID0gdGstPnRrcl9tb25vLnh0aW1lX25z
-ZWM7Cj4gCj4gKyAgICBiYXNlID0gJnZkYXRhLT5iYXNldGltZVtWR1RPRF9UQUldOwo+ICsgICAg
-YmFzZS0+c2VjID0gdGstPnh0aW1lX3NlYyArIChzNjQpdGstPnRhaV9vZmZzZXQ7Cj4gKyAgICBi
-YXNlLT5uc2VjID0gdGstPnRrcl9tb25vLnh0aW1lX25zZWM7Cj4gKwo+ICAgIGJhc2UgPSAmdmRh
-dGEtPmJhc2V0aW1lW0NMT0NLX01PTk9UT05JQ107Cj4gICAgYmFzZS0+c2VjID0gdGstPnh0aW1l
-X3NlYyArIHRrLT53YWxsX3RvX21vbm90b25pYy50dl9zZWM7Cj4gICAgbnNlYyA9IHRrLT50a3Jf
-bW9uby54dGltZV9uc2VjOwo+IC0tLSBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL3ZndG9kLmgKPiAr
-KysgYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS92Z3RvZC5oCj4gQEAgLTE5LDkgKzE5LDEzIEBAIHN0
-cnVjdCB2Z3RvZF90cyB7Cj4gfTsKPiAKPiAjZGVmaW5lIFZHVE9EX0JBU0VTICAgIChDTE9DS19N
-T05PVE9OSUNfQ09BUlNFICsgMSkKPiAtI2RlZmluZSBWR1RPRF9IUkVTICAgIChCSVQoQ0xPQ0tf
-UkVBTFRJTUUpIHwgQklUKENMT0NLX01PTk9UT05JQykpCj4gKyNkZWZpbmUgVkdUT0RfSFJFUyAg
-ICAoQklUKENMT0NLX1JFQUxUSU1FKSB8IEJJVChDTE9DS19NT05PVE9OSUMpIHwgQklUKENMT0NL
-X1RBSSkpCj4gI2RlZmluZSBWR1RPRF9DT0FSU0UgICAgKEJJVChDTE9DS19SRUFMVElNRV9DT0FS
-U0UpIHwgQklUKENMT0NLX01PTk9UT05JQ19DT0FSU0UpKQo+IAo+ICsvKiBBYnVzZSBDTE9DS19U
-SFJFQURfQ1BVVElNRV9JRCBmb3IgVkdUT0QgQ0xPQ0sgVEFJICovCj4gKyNkZWZpbmUgVkdUT0Rf
-SFJFU19NQVNLICAgIDB4Mwo+ICsjZGVmaW5lIFZHVE9EX1RBSSAgICAoQ0xPQ0tfVEFJICYgVkdU
-T0RfSFJFU19NQVNLKQo+ICsKPiAvKgo+ICAqIHZzeXNjYWxsX2d0b2RfZGF0YSB3aWxsIGJlIGFj
-Y2Vzc2VkIGJ5IDMyIGFuZCA2NCBiaXQgY29kZSBhdCB0aGUgc2FtZSB0aW1lCj4gICogc28gYmUg
-Y2FyZWZ1bGwgYnkgbW9kaWZ5aW5nIHRoaXMgc3RydWN0dXJlLgo+IAo+IApfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, Sep 14, 2018 at 2:52 PM Thomas Gleixner <tglx@linutronix.de> wrote:
+>
+> Matt attempted to add CLOCK_TAI support to the VDSO clock_gettime()
+> implementation, which extended the clockid switch case and added yet
+> another slightly different copy of the same code.
+>
+> Especially the extended switch case is problematic as the compiler tends to
+> generate a jump table which then requires to use retpolines. If jump tables
+> are disabled it adds yet another conditional to the existing maze.
+>
+> This series takes a different approach by consolidating the almost
+> identical functions into one implementation for high resolution clocks and
+> one for the coarse grained clock ids by storing the base data for each
+> clock id in an array which is indexed by the clock id.
+>
+> This completely eliminates the switch case and allows further
+> simplifications of the code base, which at the end all together gain a few
+> cycles performance or at least stay on par with todays code. The resulting
+> performance depends heavily on the micro architecture and the compiler.
+
+No objections from my side, just a few general remarks: Deepa
+and I have discussed the vdso in the past for 2038. I have started
+a patch that I'll have to redo on top of yours, but that is fine, your
+cleanup is only going to help here.
+
+More generally speaking, Deepa said that she would like to see
+some generalization on the vdso before adding the time64_t
+based variants. Your series probably makes x86 diverge more
+from the others, which makes it harder to consolidate them again,
+but we might just as well use your new implementation to base the
+generic one on, and just move the other ones over to that.
+
+A couple of architectures (s390, ia64, riscv, powerpc, arm64)
+implement the vdso as assembler code at the moment, so they
+won't be as easy to consolidate (other than outright replacing all
+the code).
+
+The other five:
+arch/x86/entry/vdso/vclock_gettime.c
+arch/sparc/vdso/vclock_gettime.c
+arch/nds32/kernel/vdso/gettimeofday.c
+arch/mips/vdso/gettimeofday.c
+arch/arm/vdso/vgettimeofday.c
+
+are basically all minor variations of the same code base and could be
+consolidated to some degree.
+Any suggestions here? Should we plan to do that consolitdation based on
+your new version, or just add clock_gettime64 in arm32 and x86-32, and then
+be done with it? The other ones will obviously still be fast for 32-bit time_t
+and will have a working non-vdso sys_clock_getttime64().
+
+I also wonder about clock_getres(): half the architectures seem to implement
+it in vdso, but notably arm32 and x86 don't, and I had not expected it to be
+performance critical given that the result is easily cached in user space.
+
+         Arnd
