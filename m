@@ -1,14 +1,12 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 02/11] x86/time: Implement clocksource_arch_init()
-Date: Fri, 14 Sep 2018 14:50:08 +0200
-Message-ID: <20180914125118.293161327__11341.7649678469$1536929428$gmane$org@linutronix.de>
-References: <20180914125006.349747096@linutronix.de>
+Subject: [patch 00/11] x86/vdso: Cleanups,
+	simmplifications and CLOCK_TAI support
+Date: Fri, 14 Sep 2018 14:50:06 +0200
+Message-ID: <20180914125006.349747096__20863.3888433271$1536929452$gmane$org@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=x86-time--Implement-clocksource_arch_init--.patch
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,51 +20,35 @@ To: LKML <linux-kernel@vger.kernel.org>
 Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Runtime validate the VCLOCK_MODE in clocksource::archdata and disable
-VCLOCK if invalid, which disables the VDSO but keeps the system running.
+Matt attempted to add CLOCK_TAI support to the VDSO clock_gettime()
+implementation, which extended the clockid switch case and added yet
+another slightly different copy of the same code.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
----
- arch/x86/Kconfig       |    1 +
- arch/x86/kernel/time.c |   16 ++++++++++++++++
- 2 files changed, 17 insertions(+)
+Especially the extended switch case is problematic as the compiler tends to
+generate a jump table which then requires to use retpolines. If jump tables
+are disabled it adds yet another conditional to the existing maze.
 
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -48,6 +48,7 @@ config X86
- 	select ACPI_SYSTEM_POWER_STATES_SUPPORT	if ACPI
- 	select ANON_INODES
- 	select ARCH_CLOCKSOURCE_DATA
-+	select ARCH_CLOCKSOURCE_INIT
- 	select ARCH_DISCARD_MEMBLOCK
- 	select ARCH_HAS_ACPI_TABLE_UPGRADE	if ACPI
- 	select ARCH_HAS_DEBUG_VIRTUAL
---- a/arch/x86/kernel/time.c
-+++ b/arch/x86/kernel/time.c
-@@ -10,6 +10,7 @@
-  *
-  */
- 
-+#include <linux/clocksource.h>
- #include <linux/clockchips.h>
- #include <linux/interrupt.h>
- #include <linux/irq.h>
-@@ -105,3 +106,18 @@ void __init time_init(void)
- {
- 	late_time_init = x86_late_time_init;
- }
-+
-+/*
-+ * Sanity check the vdso related archdata content.
-+ */
-+void clocksource_arch_init(struct clocksource *cs)
-+{
-+	if (cs->archdata.vclock_mode == VCLOCK_NONE)
-+		return;
-+
-+	if (cs->archdata.vclock_mode >= VCLOCK_MAX) {
-+		pr_warn("clocksource %s registered with invalid vclock_mode %d. Disabling vclock.\n",
-+			cs->name, cs->archdata.vclock_mode);
-+		cs->archdata.vclock_mode = VCLOCK_NONE;
-+	}
-+}
+This series takes a different approach by consolidating the almost
+identical functions into one implementation for high resolution clocks and
+one for the coarse grained clock ids by storing the base data for each
+clock id in an array which is indexed by the clock id.
+
+This completely eliminates the switch case and allows further
+simplifications of the code base, which at the end all together gain a few
+cycles performance or at least stay on par with todays code. The resulting
+performance depends heavily on the micro architecture and the compiler.
+
+Thanks,
+
+	tglx
+
+8<-------------------
+ arch/x86/Kconfig                        |    1 
+ arch/x86/entry/vdso/vclock_gettime.c    |  199 ++++++++------------------------
+ arch/x86/entry/vsyscall/vsyscall_gtod.c |   55 ++++----
+ arch/x86/include/asm/vgtod.h            |   46 ++++---
+ arch/x86/kernel/time.c                  |   22 +++
+ include/linux/clocksource.h             |    5 
+ kernel/time/Kconfig                     |    4 
+ kernel/time/clocksource.c               |    2 
+ 8 files changed, 144 insertions(+), 190 deletions(-)
