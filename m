@@ -1,15 +1,14 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch 00/11] x86/vdso: Cleanups, simmplifications and CLOCK_TAI
-	support
-Date: Mon, 17 Sep 2018 15:00:39 +0200 (CEST)
-Message-ID: <alpine.DEB.2.21.1809171451380.16580__38770.0525847778$1537189147$gmane$org@nanos.tec.linutronix.de>
-References: <20180914125006.349747096@linutronix.de>
-	<CAK8P3a1QfynDxkKBLXVa5Qj_z+7ct3QB5sDYuY5QV3ht-a0cTg@mail.gmail.com>
+Subject: [patch V2 01/11] clocksource: Provide clocksource_arch_init()
+Date: Mon, 17 Sep 2018 14:45:34 +0200
+Message-ID: <20180917130706.973042587__34256.3107180924$1537189640$gmane$org@linutronix.de>
+References: <20180917124533.329334911@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAK8P3a1QfynDxkKBLXVa5Qj_z+7ct3QB5sDYuY5QV3ht-a0cTg@mail.gmail.com>
+Content-Disposition: inline;
+	filename=clocksource--Provide-clocksource_arch_init--.patch
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,42 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Deepa Dinamani <deepa.kernel@gmail.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, matt@softrans.com.au
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 14 Sep 2018, Arnd Bergmann wrote:
-> On Fri, Sep 14, 2018 at 2:52 PM Thomas Gleixner <tglx@linutronix.de> wrote:
-> A couple of architectures (s390, ia64, riscv, powerpc, arm64)
-> implement the vdso as assembler code at the moment, so they
-> won't be as easy to consolidate (other than outright replacing all
-> the code).
-> 
-> The other five:
-> arch/x86/entry/vdso/vclock_gettime.c
-> arch/sparc/vdso/vclock_gettime.c
-> arch/nds32/kernel/vdso/gettimeofday.c
-> arch/mips/vdso/gettimeofday.c
-> arch/arm/vdso/vgettimeofday.c
->
-> are basically all minor variations of the same code base and could be
-> consolidated to some degree.
-> Any suggestions here? Should we plan to do that consolitdation based on
-> your new version, or just add clock_gettime64 in arm32 and x86-32, and then
-> be done with it? The other ones will obviously still be fast for 32-bit time_t
-> and will have a working non-vdso sys_clock_getttime64().
+Architectures have extra archdata in the clocksource, e.g. for VDSO
+support. There are no sanity checks or general initializations for this
+available. Add support for that.
 
-In principle consolidating all those implementations should be possible to
-some extent and probably worthwhile. What's arch specific are the actual
-accessors to the hardware clocks.
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+---
+ include/linux/clocksource.h |    5 +++++
+ kernel/time/Kconfig         |    4 ++++
+ kernel/time/clocksource.c   |    2 ++
+ 3 files changed, 11 insertions(+)
 
-> I also wonder about clock_getres(): half the architectures seem to implement
-> it in vdso, but notably arm32 and x86 don't, and I had not expected it to be
-> performance critical given that the result is easily cached in user space.
-
-getres() is not really performance critical, but adding it does not create
-a huge problem either.
-
-Thanks,
-
-	tglx
+--- a/include/linux/clocksource.h
++++ b/include/linux/clocksource.h
+@@ -241,6 +241,11 @@ static inline void __clocksource_update_
+ 	__clocksource_update_freq_scale(cs, 1000, khz);
+ }
+ 
++#ifdef CONFIG_ARCH_CLOCKSOURCE_INIT
++extern void clocksource_arch_init(struct clocksource *cs);
++#else
++static inline void clocksource_arch_init(struct clocksource *cs) { }
++#endif
+ 
+ extern int timekeeping_notify(struct clocksource *clock);
+ 
+--- a/kernel/time/Kconfig
++++ b/kernel/time/Kconfig
+@@ -12,6 +12,10 @@ config CLOCKSOURCE_WATCHDOG
+ config ARCH_CLOCKSOURCE_DATA
+ 	bool
+ 
++# Architecture has extra clocksource init called from registration
++config ARCH_CLOCKSOURCE_INIT
++	bool
++
+ # Clocksources require validation of the clocksource against the last
+ # cycle update - x86/TSC misfeature
+ config CLOCKSOURCE_VALIDATE_LAST_CYCLE
+--- a/kernel/time/clocksource.c
++++ b/kernel/time/clocksource.c
+@@ -937,6 +937,8 @@ int __clocksource_register_scale(struct
+ {
+ 	unsigned long flags;
+ 
++	clocksource_arch_init(cs);
++
+ 	/* Initialize mult/shift and max_idle_ns */
+ 	__clocksource_update_freq_scale(cs, scale, freq);
