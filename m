@@ -1,14 +1,13 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch V2 04/11] x86/vdso: Use unsigned int consistently for
-	vsyscall_gtod_data::seq
-Date: Mon, 17 Sep 2018 14:45:37 +0200
-Message-ID: <20180917130707.236250416__6995.39409620247$1537189892$gmane$org@linutronix.de>
+Subject: [patch V2 07/11] x86/vdso: Collapse coarse functions
+Date: Mon, 17 Sep 2018 14:45:40 +0200
+Message-ID: <20180917130707.490733779__30797.0863338143$1537189973$gmane$org@linutronix.de>
 References: <20180917124533.329334911@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline; filename=x86-vdso--Mintor-cleanups.patch
+Content-Disposition: inline; filename=x86-vdso--Collapse-coarse-functions.patch
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,86 +21,51 @@ To: LKML <linux-kernel@vger.kernel.org>
 Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The sequence count in vgtod_data is unsigned int, but the call sites use
-unsigned long, which is a pointless exercise. Fix the call sites and
-replace 'unsigned' with unsinged 'int' while at it.
+do_realtime_coarse() and do_monotonic_coarse() are now the same except for
+the storage array index. Hand the index in as an argument and collapse the
+functions.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/entry/vdso/vclock_gettime.c |    8 ++++----
- arch/x86/include/asm/vgtod.h         |   10 +++++-----
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ arch/x86/entry/vdso/vclock_gettime.c |   20 ++++----------------
+ 1 file changed, 4 insertions(+), 16 deletions(-)
 
 --- a/arch/x86/entry/vdso/vclock_gettime.c
 +++ b/arch/x86/entry/vdso/vclock_gettime.c
-@@ -206,7 +206,7 @@ notrace static inline u64 vgetsns(int *m
- /* Code size doesn't matter (vdso is 4k anyway) and this is faster. */
- notrace static int __always_inline do_realtime(struct timespec *ts)
- {
--	unsigned long seq;
-+	unsigned int seq;
- 	u64 ns;
- 	int mode;
- 
-@@ -227,7 +227,7 @@ notrace static int __always_inline do_re
- 
- notrace static int __always_inline do_monotonic(struct timespec *ts)
- {
--	unsigned long seq;
-+	unsigned int seq;
- 	u64 ns;
- 	int mode;
- 
-@@ -248,7 +248,7 @@ notrace static int __always_inline do_mo
- 
- notrace static void do_realtime_coarse(struct timespec *ts)
- {
--	unsigned long seq;
-+	unsigned int seq;
- 	do {
- 		seq = gtod_read_begin(gtod);
- 		ts->tv_sec = gtod->wall_time_coarse_sec;
-@@ -258,7 +258,7 @@ notrace static void do_realtime_coarse(s
- 
- notrace static void do_monotonic_coarse(struct timespec *ts)
- {
--	unsigned long seq;
-+	unsigned int seq;
- 	do {
- 		seq = gtod_read_begin(gtod);
- 		ts->tv_sec = gtod->monotonic_time_coarse_sec;
---- a/arch/x86/include/asm/vgtod.h
-+++ b/arch/x86/include/asm/vgtod.h
-@@ -15,9 +15,9 @@ typedef unsigned long gtod_long_t;
-  * so be carefull by modifying this structure.
-  */
- struct vsyscall_gtod_data {
--	unsigned seq;
-+	unsigned int seq;
- 
--	int vclock_mode;
-+	int	vclock_mode;
- 	u64	cycle_last;
- 	u64	mask;
- 	u32	mult;
-@@ -44,9 +44,9 @@ static inline bool vclock_was_used(int v
- 	return READ_ONCE(vclocks_used) & (1 << vclock);
+@@ -225,21 +225,9 @@ notrace static int do_hres(clockid_t clk
+ 	return mode;
  }
  
--static inline unsigned gtod_read_begin(const struct vsyscall_gtod_data *s)
-+static inline unsigned int gtod_read_begin(const struct vsyscall_gtod_data *s)
+-notrace static void do_realtime_coarse(struct timespec *ts)
++notrace static void do_coarse(clockid_t clk, struct timespec *ts)
  {
--	unsigned ret;
-+	unsigned int ret;
+-	struct vgtod_ts *base = &gtod->basetime[CLOCK_REALTIME_COARSE];
+-	unsigned int seq;
+-
+-	do {
+-		seq = gtod_read_begin(gtod);
+-		ts->tv_sec = base->sec;
+-		ts->tv_nsec = base->nsec;
+-	} while (unlikely(gtod_read_retry(gtod, seq)));
+-}
+-
+-notrace static void do_monotonic_coarse(struct timespec *ts)
+-{
+-	struct vgtod_ts *base = &gtod->basetime[CLOCK_MONOTONIC_COARSE];
++	struct vgtod_ts *base = &gtod->basetime[clk];
+ 	unsigned int seq;
  
- repeat:
- 	ret = READ_ONCE(s->seq);
-@@ -59,7 +59,7 @@ static inline unsigned gtod_read_begin(c
- }
- 
- static inline int gtod_read_retry(const struct vsyscall_gtod_data *s,
--					unsigned start)
-+				  unsigned int start)
- {
- 	smp_rmb();
- 	return unlikely(s->seq != start);
+ 	do {
+@@ -261,10 +249,10 @@ notrace int __vdso_clock_gettime(clockid
+ 			goto fallback;
+ 		break;
+ 	case CLOCK_REALTIME_COARSE:
+-		do_realtime_coarse(ts);
++		do_coarse(CLOCK_REALTIME_COARSE, ts);
+ 		break;
+ 	case CLOCK_MONOTONIC_COARSE:
+-		do_monotonic_coarse(ts);
++		do_coarse(CLOCK_MONOTONIC_COARSE, ts);
+ 		break;
+ 	default:
+ 		goto fallback;
