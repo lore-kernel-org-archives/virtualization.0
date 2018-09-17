@@ -1,14 +1,14 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch V2 08/11] x86/vdso: Replace the clockid switch case
-Date: Mon, 17 Sep 2018 14:45:41 +0200
-Message-ID: <20180917130707.574315796__18329.8343945809$1537190312$gmane$org@linutronix.de>
+Subject: [patch V2 10/11] x86/vdso: Move cycle_last handling into the caller
+Date: Mon, 17 Sep 2018 14:45:43 +0200
+Message-ID: <20180917130707.741440803__45469.7224814028$1537190391$gmane$org@linutronix.de>
 References: <20180917124533.329334911@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline;
-	filename=x86-vdso--Replace-the-clockid-switch-case.patch
+	filename=x86-vdso--Move-cycle_last-handling-into-the-caller.patch
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,72 +22,97 @@ To: LKML <linux-kernel@vger.kernel.org>
 Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that the time getter functions use the clockid as index into the
-storage array for the base time access, the switch case can be replaced.
+Dereferencing gtod->cycle_last all over the place and foing the cycles <
+last comparison in the vclock read functions generates horrible code. Doing
+it at the call site is much better and gains a few cycles both for TSC and
+pvclock.
 
-- Check for clockid >= MAX_CLOCKS and for negative clockid (CPU/FD) first
-  and call the fallback function right away.
-
-- After establishing that clockid is < MAX_CLOCKS, convert the clockid to a
-  bitmask
-
-- Check for the supported high resolution and coarse functions by anding
-  the bitmask of supported clocks and check whether a bit is set.
-
-This completely avoids jump tables, reduces the number of conditionals and
-makes the VDSO extensible for other clock ids.
+Caveat: This adds the comparison to the hyperv vclock as well, but I have
+no way to test that.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/entry/vdso/vclock_gettime.c |   38 ++++++++++++++++-------------------
- 1 file changed, 18 insertions(+), 20 deletions(-)
+ arch/x86/entry/vdso/vclock_gettime.c |   39 ++++++-----------------------------
+ 1 file changed, 7 insertions(+), 32 deletions(-)
 
 --- a/arch/x86/entry/vdso/vclock_gettime.c
 +++ b/arch/x86/entry/vdso/vclock_gettime.c
-@@ -239,29 +239,27 @@ notrace static void do_coarse(clockid_t
- 
- notrace int __vdso_clock_gettime(clockid_t clock, struct timespec *ts)
+@@ -76,9 +76,8 @@ static notrace const struct pvclock_vsys
+ static notrace u64 vread_pvclock(void)
  {
--	switch (clock) {
--	case CLOCK_REALTIME:
--		if (do_hres(CLOCK_REALTIME, ts) == VCLOCK_NONE)
--			goto fallback;
--		break;
--	case CLOCK_MONOTONIC:
--		if (do_hres(CLOCK_MONOTONIC, ts) == VCLOCK_NONE)
--			goto fallback;
--		break;
--	case CLOCK_REALTIME_COARSE:
--		do_coarse(CLOCK_REALTIME_COARSE, ts);
--		break;
--	case CLOCK_MONOTONIC_COARSE:
--		do_coarse(CLOCK_MONOTONIC_COARSE, ts);
--		break;
--	default:
--		goto fallback;
--	}
-+	unsigned int msk;
-+
-+	/* Sort out negative (CPU/FD) and invalid clocks */
-+	if (unlikely((unsigned int) clock >= MAX_CLOCKS))
-+		return vdso_fallback_gettime(clock, ts);
+ 	const struct pvclock_vcpu_time_info *pvti = &get_pvti0()->pvti;
+-	u64 ret;
+-	u64 last;
+ 	u32 version;
++	u64 ret;
  
--	return 0;
--fallback:
-+	/*
-+	 * Convert the clockid to a bitmask and use it to check which
-+	 * clocks are handled in the VDSO directly.
-+	 */
-+	msk = 1U << clock;
-+	if (likely(msk & VGTOD_HRES)) {
-+		if (do_hres(clock, ts) != VCLOCK_NONE)
-+			return 0;
-+	} else if (msk & VGTOD_COARSE) {
-+		do_coarse(clock, ts);
-+		return 0;
-+	}
- 	return vdso_fallback_gettime(clock, ts);
+ 	/*
+ 	 * Note: The kernel and hypervisor must guarantee that cpu ID
+@@ -111,13 +110,7 @@ static notrace u64 vread_pvclock(void)
+ 		ret = __pvclock_read_cycles(pvti, rdtsc_ordered());
+ 	} while (pvclock_read_retry(pvti, version));
+ 
+-	/* refer to vread_tsc() comment for rationale */
+-	last = gtod->cycle_last;
+-
+-	if (likely(ret >= last))
+-		return ret;
+-
+-	return last;
++	return ret;
  }
-+
- int clock_gettime(clockid_t, struct timespec *)
- 	__attribute__((weak, alias("__vdso_clock_gettime")));
+ #endif
+ #ifdef CONFIG_HYPERV_TSCPAGE
+@@ -130,30 +123,10 @@ static notrace u64 vread_hvclock(void)
+ }
+ #endif
+ 
+-notrace static u64 vread_tsc(void)
+-{
+-	u64 ret = (u64)rdtsc_ordered();
+-	u64 last = gtod->cycle_last;
+-
+-	if (likely(ret >= last))
+-		return ret;
+-
+-	/*
+-	 * GCC likes to generate cmov here, but this branch is extremely
+-	 * predictable (it's just a function of time and the likely is
+-	 * very likely) and there's a data dependence, so force GCC
+-	 * to generate a branch instead.  I don't barrier() because
+-	 * we don't actually need a barrier, and if this function
+-	 * ever gets inlined it will generate worse code.
+-	 */
+-	asm volatile ("");
+-	return last;
+-}
+-
+ notrace static inline u64 vgetcyc(int mode)
+ {
+ 	if (mode == VCLOCK_TSC)
+-		return vread_tsc();
++		return (u64)rdtsc_ordered();
+ #ifdef CONFIG_PARAVIRT_CLOCK
+ 	else if (mode == VCLOCK_PVCLOCK)
+ 		return vread_pvclock();
+@@ -168,17 +141,19 @@ notrace static inline u64 vgetcyc(int mo
+ notrace static int do_hres(clockid_t clk, struct timespec *ts)
+ {
+ 	struct vgtod_ts *base = &gtod->basetime[clk];
++	u64 cycles, last, ns;
+ 	unsigned int seq;
+-	u64 cycles, ns;
+ 
+ 	do {
+ 		seq = gtod_read_begin(gtod);
+ 		ts->tv_sec = base->sec;
+ 		ns = base->nsec;
++		last = gtod->cycle_last;
+ 		cycles = vgetcyc(gtod->vclock_mode);
+ 		if (unlikely((s64)cycles < 0))
+ 			return vdso_fallback_gettime(clk, ts);
+-		ns += (cycles - gtod->cycle_last) * gtod->mult;
++		if (cycles > last)
++			ns += (cycles - last) * gtod->mult;
+ 		ns >>= gtod->shift;
+ 	} while (unlikely(gtod_read_retry(gtod, seq)));
