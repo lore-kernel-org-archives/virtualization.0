@@ -1,14 +1,13 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch V2 10/11] x86/vdso: Move cycle_last handling into the caller
-Date: Mon, 17 Sep 2018 14:45:43 +0200
-Message-ID: <20180917130707.741440803__45469.7224814028$1537190391$gmane$org@linutronix.de>
+Subject: [patch V2 11/11] x66/vdso: Add CLOCK_TAI support
+Date: Mon, 17 Sep 2018 14:45:44 +0200
+Message-ID: <20180917130707.823878601__43996.0384196185$1537190469$gmane$org@linutronix.de>
 References: <20180917124533.329334911@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline;
-	filename=x86-vdso--Move-cycle_last-handling-into-the-caller.patch
+Content-Disposition: inline; filename=x66-vdso--Add-CLOCK_TAI-support.patch
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,97 +21,41 @@ To: LKML <linux-kernel@vger.kernel.org>
 Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dereferencing gtod->cycle_last all over the place and foing the cycles <
-last comparison in the vclock read functions generates horrible code. Doing
-it at the call site is much better and gains a few cycles both for TSC and
-pvclock.
-
-Caveat: This adds the comparison to the hyperv vclock as well, but I have
-no way to test that.
+With the storage array in place it's now trivial to support CLOCK_TAI in
+the vdso. Extend the base time storage array and add the update code.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/entry/vdso/vclock_gettime.c |   39 ++++++-----------------------------
- 1 file changed, 7 insertions(+), 32 deletions(-)
 
---- a/arch/x86/entry/vdso/vclock_gettime.c
-+++ b/arch/x86/entry/vdso/vclock_gettime.c
-@@ -76,9 +76,8 @@ static notrace const struct pvclock_vsys
- static notrace u64 vread_pvclock(void)
- {
- 	const struct pvclock_vcpu_time_info *pvti = &get_pvti0()->pvti;
--	u64 ret;
--	u64 last;
- 	u32 version;
-+	u64 ret;
+V2: Remove the masking trick
+
+ arch/x86/entry/vsyscall/vsyscall_gtod.c |    4 ++++
+ arch/x86/include/asm/vgtod.h            |    4 ++--
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+--- a/arch/x86/entry/vsyscall/vsyscall_gtod.c
++++ b/arch/x86/entry/vsyscall/vsyscall_gtod.c
+@@ -51,6 +51,10 @@ void update_vsyscall(struct timekeeper *
+ 	base->sec = tk->xtime_sec;
+ 	base->nsec = tk->tkr_mono.xtime_nsec;
  
- 	/*
- 	 * Note: The kernel and hypervisor must guarantee that cpu ID
-@@ -111,13 +110,7 @@ static notrace u64 vread_pvclock(void)
- 		ret = __pvclock_read_cycles(pvti, rdtsc_ordered());
- 	} while (pvclock_read_retry(pvti, version));
++	base = &vdata->basetime[CLOCK_TAI];
++	base->sec = tk->xtime_sec + (s64)tk->tai_offset;
++	base->nsec = tk->tkr_mono.xtime_nsec;
++
+ 	base = &vdata->basetime[CLOCK_MONOTONIC];
+ 	base->sec = tk->xtime_sec + tk->wall_to_monotonic.tv_sec;
+ 	nsec = tk->tkr_mono.xtime_nsec;
+--- a/arch/x86/include/asm/vgtod.h
++++ b/arch/x86/include/asm/vgtod.h
+@@ -18,8 +18,8 @@ struct vgtod_ts {
+ 	u64		nsec;
+ };
  
--	/* refer to vread_tsc() comment for rationale */
--	last = gtod->cycle_last;
--
--	if (likely(ret >= last))
--		return ret;
--
--	return last;
-+	return ret;
- }
- #endif
- #ifdef CONFIG_HYPERV_TSCPAGE
-@@ -130,30 +123,10 @@ static notrace u64 vread_hvclock(void)
- }
- #endif
+-#define VGTOD_BASES	(CLOCK_MONOTONIC_COARSE + 1)
+-#define VGTOD_HRES	(BIT(CLOCK_REALTIME) | BIT(CLOCK_MONOTONIC))
++#define VGTOD_BASES	(CLOCK_TAI + 1)
++#define VGTOD_HRES	(BIT(CLOCK_REALTIME) | BIT(CLOCK_MONOTONIC) | BIT(CLOCK_TAI))
+ #define VGTOD_COARSE	(BIT(CLOCK_REALTIME_COARSE) | BIT(CLOCK_MONOTONIC_COARSE))
  
--notrace static u64 vread_tsc(void)
--{
--	u64 ret = (u64)rdtsc_ordered();
--	u64 last = gtod->cycle_last;
--
--	if (likely(ret >= last))
--		return ret;
--
--	/*
--	 * GCC likes to generate cmov here, but this branch is extremely
--	 * predictable (it's just a function of time and the likely is
--	 * very likely) and there's a data dependence, so force GCC
--	 * to generate a branch instead.  I don't barrier() because
--	 * we don't actually need a barrier, and if this function
--	 * ever gets inlined it will generate worse code.
--	 */
--	asm volatile ("");
--	return last;
--}
--
- notrace static inline u64 vgetcyc(int mode)
- {
- 	if (mode == VCLOCK_TSC)
--		return vread_tsc();
-+		return (u64)rdtsc_ordered();
- #ifdef CONFIG_PARAVIRT_CLOCK
- 	else if (mode == VCLOCK_PVCLOCK)
- 		return vread_pvclock();
-@@ -168,17 +141,19 @@ notrace static inline u64 vgetcyc(int mo
- notrace static int do_hres(clockid_t clk, struct timespec *ts)
- {
- 	struct vgtod_ts *base = &gtod->basetime[clk];
-+	u64 cycles, last, ns;
- 	unsigned int seq;
--	u64 cycles, ns;
- 
- 	do {
- 		seq = gtod_read_begin(gtod);
- 		ts->tv_sec = base->sec;
- 		ns = base->nsec;
-+		last = gtod->cycle_last;
- 		cycles = vgetcyc(gtod->vclock_mode);
- 		if (unlikely((s64)cycles < 0))
- 			return vdso_fallback_gettime(clk, ts);
--		ns += (cycles - gtod->cycle_last) * gtod->mult;
-+		if (cycles > last)
-+			ns += (cycles - last) * gtod->mult;
- 		ns >>= gtod->shift;
- 	} while (unlikely(gtod_read_retry(gtod, seq)));
+ /*
