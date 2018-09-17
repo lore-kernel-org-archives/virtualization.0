@@ -1,12 +1,13 @@
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch V2 00/11] x86/vdso: Cleanups,
-	simmplifications and CLOCK_TAI support
-Date: Mon, 17 Sep 2018 14:45:33 +0200
-Message-ID: <20180917124533.329334911__6229.36180229789$1537189681$gmane$org@linutronix.de>
+Subject: [patch V2 03/11] x86/vdso: Enforce 64bit clocksource
+Date: Mon, 17 Sep 2018 14:45:36 +0200
+Message-ID: <20180917130707.151963007__32138.882604386$1537189704$gmane$org@linutronix.de>
+References: <20180917124533.329334911@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline; filename=x86-vdso--Enforce-64bit-clocksource.patch
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,40 +21,37 @@ To: LKML <linux-kernel@vger.kernel.org>
 Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Matt attempted to add CLOCK_TAI support to the VDSO clock_gettime()
-implementation, which extended the clockid switch case and added yet
-another slightly different copy of the same code.
+All VDSO clock sources are TSC based and use CLOCKSOURCE_MASK(64). There is
+no point in masking with all FF. Get rid of it and enforce the mask in the
+sanity checker.
 
-Especially the extended switch case is problematic as the compiler tends to
-generate a jump table which then requires to use retpolines. If jump tables
-are disabled it adds yet another conditional to the existing maze.
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+---
+ arch/x86/entry/vdso/vclock_gettime.c |    2 +-
+ arch/x86/kernel/time.c               |    6 ++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-This series takes a different approach by consolidating the almost
-identical functions into one implementation for high resolution clocks and
-one for the coarse grained clock ids by storing the base data for each
-clock id in an array which is indexed by the clock id.
-
-This completely eliminates the switch case and allows further
-simplifications of the code base, which at the end all together gain a few
-cycles performance or at least stay on par with todays code. The resulting
-performance depends heavily on the micro architecture and the compiler.
-
-Changes vs. V1:
-
-  - Fix the VCLOCK_MAX sanity check
-  - Remove the magic clock masking and extend the storage array
-
-Thanks,
-
-        tglx
-
-8<-------------------
- arch/x86/Kconfig                        |    1 
- arch/x86/entry/vdso/vclock_gettime.c    |  199 ++++++++------------------------
- arch/x86/entry/vsyscall/vsyscall_gtod.c |   55 ++++----
- arch/x86/include/asm/vgtod.h            |   42 +++---
- arch/x86/kernel/time.c                  |   22 +++
- include/linux/clocksource.h             |    5 
- kernel/time/Kconfig                     |    4 
- kernel/time/clocksource.c               |    2 
- 8 files changed, 140 insertions(+), 190 deletions(-)
+--- a/arch/x86/entry/vdso/vclock_gettime.c
++++ b/arch/x86/entry/vdso/vclock_gettime.c
+@@ -199,7 +199,7 @@ notrace static inline u64 vgetsns(int *m
+ #endif
+ 	else
+ 		return 0;
+-	v = (cycles - gtod->cycle_last) & gtod->mask;
++	v = cycles - gtod->cycle_last;
+ 	return v * gtod->mult;
+ }
+ 
+--- a/arch/x86/kernel/time.c
++++ b/arch/x86/kernel/time.c
+@@ -120,4 +120,10 @@ void clocksource_arch_init(struct clocks
+ 			cs->name, cs->archdata.vclock_mode);
+ 		cs->archdata.vclock_mode = VCLOCK_NONE;
+ 	}
++
++	if (cs->mask != CLOCKSOURCE_MASK(64)) {
++		pr_warn("clocksource %s registered with invalid mask %016llx. Disabling vclock.\n",
++			cs->name, cs->mask);
++		cs->archdata.vclock_mode = VCLOCK_NONE;
++	}
+ }
