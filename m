@@ -1,20 +1,14 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch 09/11] x86/vdso: Simplify the invalid vclock case
-Date: Tue, 18 Sep 2018 12:41:57 +0200 (CEST)
-Message-ID: <alpine.DEB.2.21.1809181237140.4167__40912.769144825$1537267217$gmane$org@nanos.tec.linutronix.de>
-References: <20180914125006.349747096@linutronix.de>
-	<20180914125118.909646643@linutronix.de>
-	<CALCETrXh70oFHfT0Z-JXcnAumhAgLqSea5UiPY3WXu=v2GcKTg@mail.gmail.com>
-	<CALAqxLUv9Rd_eA7u9gZNFvTNrT1Z67RpHLozdeNC0W2yZm=Heg@mail.gmail.com>
-	<alpine.DEB.2.21.1809180948570.3558@nanos.tec.linutronix.de>
-	<20180918083055.GJ24106@hirez.programming.kicks-ass.net>
-	<alpine.DEB.2.21.1809181050020.4167@nanos.tec.linutronix.de>
-	<alpine.DEB.2.21.1809181204460.4167@nanos.tec.linutronix.de>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 00/19] vmw_balloon: compaction, shrinker, 64-bit, etc.
+Date: Tue, 18 Sep 2018 14:27:29 +0200
+Message-ID: <20180918122729.GA13598@kroah.com>
+References: <20180918063853.198332-1-namit@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.21.1809181204460.4167@nanos.tec.linutronix.de>
+Content-Disposition: inline
+In-Reply-To: <20180918063853.198332-1-namit@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,36 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Stephen Boyd <sboyd@kernel.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
+To: Nadav Amit <namit@vmware.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Xavier Deguillard <xdeguillard@vmware.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 18 Sep 2018, Thomas Gleixner wrote:
-> On Tue, 18 Sep 2018, Thomas Gleixner wrote:
-> > On Tue, 18 Sep 2018, Peter Zijlstra wrote:
-> > > > Your memory serves you right. That's indeed observable on CPUs which
-> > > > lack TSC_ADJUST.
-> > > 
-> > > But, if the gtod code can observe this, then why doesn't the code that
-> > > checks the sync?
-> > 
-> > Because it depends where the involved CPUs are in the topology. The sync
-> > code might just run on the same package an simply not see it. Yes, w/o
-> > TSC_ADJUST the TSC sync code can just fail to see the havoc.
+On Mon, Sep 17, 2018 at 11:38:34PM -0700, Nadav Amit wrote:
+> This patch-set adds the following enhancements to the VMware balloon
+> driver:
 > 
-> Even with TSC adjust the TSC can be slightly off by design on multi-socket
-> systems.
+> 1. Balloon compaction support.
+> 2. Report the number of inflated/deflated ballooned pages through vmstat.
+> 3. Memory shrinker to avoid balloon over-inflation (and OOM).
+> 4. Support VMs with memory limit that is greater than 16TB.
+> 5. Faster and more aggressive inflation.
+> 
+> To support compaction we wish to use the existing infrastructure.
+> However, we need to make slight adaptions for it. We add a new list
+> interface to balloon-compaction, which is more generic and efficient,
+> since it does not require as many IRQ save/restore operations. We leave
+> the old interface that is used by the virtio balloon.
+> 
+> Big parts of this patch-set are cleanup and documentation. Patches 1-13
+> simplify the balloon code, document its behavior and allow the balloon
+> code to run concurrently. The support for concurrency is required for
+> compaction and the shrinker interface.
+> 
+> For documentation we use the kernel-doc format. We are aware that the
+> balloon interface is not public, but following the kernel-doc format may
+> be useful one day.
 
-Here are the gory details:
+kbuild seems to not like this patch series, so I'm going to drop it from
+my queue and wait for a v2 respin before looking at it.
 
-   https://lore.kernel.org/lkml/3c1737210708230408i7a8049a9m5db49e6c4d89ab62@mail.gmail.com/
+thanks,
 
-The changelog has an explanation as well.
-
-    d8bb6f4c1670 ("x86: tsc prevent time going backwards")
-
-I still have one of the machines which is affected by this.
-
-Thanks,
-
-	tglx
+greg k-h
