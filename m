@@ -1,23 +1,17 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: [patch 09/11] x86/vdso: Simplify the invalid vclock case
-Date: Tue, 18 Sep 2018 15:38:52 +0200
-Message-ID: <20180918133852.GO24106@hirez.programming.kicks-ass.net>
-References: <20180914125118.909646643@linutronix.de>
+Date: Tue, 18 Sep 2018 07:01:12 -0700
+Message-ID: <863331ED-B04A-4B94-91A2-D34002C9CCDC__9823.56521203673$1537279156$gmane$org@amacapital.net>
+References: <20180914125006.349747096@linutronix.de>
+	<20180914125118.909646643@linutronix.de>
 	<CALCETrXh70oFHfT0Z-JXcnAumhAgLqSea5UiPY3WXu=v2GcKTg@mail.gmail.com>
 	<CALAqxLUv9Rd_eA7u9gZNFvTNrT1Z67RpHLozdeNC0W2yZm=Heg@mail.gmail.com>
 	<alpine.DEB.2.21.1809180948570.3558@nanos.tec.linutronix.de>
-	<20180918083055.GJ24106@hirez.programming.kicks-ass.net>
-	<alpine.DEB.2.21.1809181050020.4167@nanos.tec.linutronix.de>
-	<alpine.DEB.2.21.1809181204460.4167@nanos.tec.linutronix.de>
-	<alpine.DEB.2.21.1809181237140.4167@nanos.tec.linutronix.de>
-	<20180918124800.GL24106@hirez.programming.kicks-ass.net>
-	<alpine.DEB.2.21.1809181515170.6950@nanos.tec.linutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (1.0)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.21.1809181515170.6950@nanos.tec.linutronix.de>
+In-Reply-To: <alpine.DEB.2.21.1809180948570.3558@nanos.tec.linutronix.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,36 +22,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Stephen Boyd <sboyd@kernel.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
+Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 18, 2018 at 03:23:08PM +0200, Thomas Gleixner wrote:
-> On Tue, 18 Sep 2018, Peter Zijlstra wrote:
-> > On Tue, Sep 18, 2018 at 12:41:57PM +0200, Thomas Gleixner wrote:
-> > > I still have one of the machines which is affected by this.
-> > 
-> > Are we sure this isn't a load vs rdtsc reorder? Because if I look at the
-> > current code:
-> 
-> The load order of last vs. rdtsc does not matter at all.
-> 
-> CPU0					CPU1
-> 
-> ....
-> now0 = rdtsc_ordered();
-> ...
-> tk->cycle_last = now0;
-> 
-> gtod->seq++;
-> gtod->cycle_last = tk->cycle_last;
-> ...
-> gtod->seq++;
-> 					seq_begin(gtod->seq);
-> 					now1 = rdtsc_ordered();
-> 
-> So if the TSC on CPU1 is slightly behind the TSC on CPU0 then now1 can be
-> smaller than cycle_last. The TSC sync stuff does not catch the small delta
-> for unknown raisins. I'll go and find that machine and test that again.
-
-Yeah, somehow I forgot about rseq.. maybe I should go sleep or
-something.
+Cj4gT24gU2VwIDE4LCAyMDE4LCBhdCAxMjo1MiBBTSwgVGhvbWFzIEdsZWl4bmVyIDx0Z2x4QGxp
+bnV0cm9uaXguZGU+IHdyb3RlOgo+IAo+PiBPbiBNb24sIDE3IFNlcCAyMDE4LCBKb2huIFN0dWx0
+eiB3cm90ZToKPj4+IE9uIE1vbiwgU2VwIDE3LCAyMDE4IGF0IDEyOjI1IFBNLCBBbmR5IEx1dG9t
+aXJza2kgPGx1dG9Aa2VybmVsLm9yZz4gd3JvdGU6Cj4+PiBBbHNvLCBJJ20gbm90IGVudGlyZWx5
+IGNvbnZpbmNlZCB0aGF0IHRoaXMgImxhc3QiIHRoaW5nIGlzIG5lZWRlZCBhdAo+Pj4gYWxsLiAg
+Sm9obiwgd2hhdCdzIHRoZSBzY2VuYXJpbyB1bmRlciB3aGljaCB3ZSBuZWVkIGl0Pwo+PiAKPj4g
+U28gbXkgbWVtb3J5IGlzIHByb2JhYmx5IGEgYml0IGZvZ2d5LCBidXQgSSByZWNhbGwgdGhhdCBh
+cyB3ZQo+PiBhY2NlbGVyYXRlZCBnZXR0aW1lb2ZkYXksIHdlIGZvdW5kIHRoYXQgZXZlbiBvbiBz
+eXN0ZW1zIHRoYXQgY2xhaW1lZAo+PiB0byBoYXZlIHN5bmNlZCBUU0NzLCB0aGV5IHdlcmUgYWN0
+dWFsbHkganVzdCBzbGlnaHRseSBvdXQgb2Ygc3luYy4KPj4gRW5vdWdoIHRoYXQgcmlnaHQgYWZ0
+ZXIgY3ljbGVzX2xhc3QgaGFkIGJlZW4gdXBkYXRlZCwgYSByZWFkIG9uCj4+IGFub3RoZXIgY3B1
+IGNvdWxkIGNvbWUgaW4ganVzdCBiZWhpbmQgY3ljbGVzX2xhc3QsIHJlc3VsdGluZyBpbiBhCj4+
+IG5lZ2F0aXZlIGludGVydmFsIGNhdXNpbmcgbG90cyBvZiBoYXZvYy4KPj4gCj4+IFNvIHRoZSBz
+YW5pdHkgY2hlY2sgaXMgbmVlZGVkIHRvIGF2b2lkIHRoYXQgY2FzZS4KPiAKPiBZb3VyIG1lbW9y
+eSBzZXJ2ZXMgeW91IHJpZ2h0LiBUaGF0J3MgaW5kZWVkIG9ic2VydmFibGUgb24gQ1BVcyB3aGlj
+aAo+IGxhY2sgVFNDX0FESlVTVC4KPiAKPiBAQW5keTogV2VsY29tZSB0byB0aGUgd29uZGVyZnVs
+IHdvcmxkIG9mIFRTQy4KPiAKCkRvIHdlIGRvIGJldHRlciBpZiB3ZSB1c2Ugc2lnbmVkIGFyaXRo
+bWV0aWMgZm9yIHRoZSB3aG9sZSBjYWxjdWxhdGlvbj8gVGhlbiBhIHNtYWxsIGJhY2t3YXJkcyBt
+b3ZlbWVudCB3b3VsZCByZXN1bHQgaW4gYSBzbWFsbCBiYWNrd2FyZHMgcmVzdWx0LiAgT3Igd2Ug
+Y291bGQgb2Zmc2V0IGV2ZXJ5dGhpbmcgc28gdGhhdCB3ZeKAmWQgaGF2ZSB0byBnbyBiYWNrIHNl
+dmVyYWwgaHVuZHJlZCBtcyBiZWZvcmUgd2UgY3Jvc3MgemVyby4KX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
