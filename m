@@ -1,7 +1,7 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: [patch 09/11] x86/vdso: Simplify the invalid vclock case
-Date: Tue, 18 Sep 2018 14:48:00 +0200
-Message-ID: <20180918124800.GL24106@hirez.programming.kicks-ass.net>
+Date: Tue, 18 Sep 2018 15:23:08 +0200 (CEST)
+Message-ID: <alpine.DEB.2.21.1809181515170.6950__45233.2725203179$1537276896$gmane$org@nanos.tec.linutronix.de>
 References: <20180914125006.349747096@linutronix.de>
 	<20180914125118.909646643@linutronix.de>
 	<CALCETrXh70oFHfT0Z-JXcnAumhAgLqSea5UiPY3WXu=v2GcKTg@mail.gmail.com>
@@ -11,12 +11,12 @@ References: <20180914125006.349747096@linutronix.de>
 	<alpine.DEB.2.21.1809181050020.4167@nanos.tec.linutronix.de>
 	<alpine.DEB.2.21.1809181204460.4167@nanos.tec.linutronix.de>
 	<alpine.DEB.2.21.1809181237140.4167@nanos.tec.linutronix.de>
+	<20180918124800.GL24106@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.21.1809181237140.4167@nanos.tec.linutronix.de>
+In-Reply-To: <20180918124800.GL24106@hirez.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,83 +26,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>
+To: Peter Zijlstra <peterz@infradead.org>
 Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Stephen Boyd <sboyd@kernel.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 18, 2018 at 12:41:57PM +0200, Thomas Gleixner wrote:
-> On Tue, 18 Sep 2018, Thomas Gleixner wrote:
-> > On Tue, 18 Sep 2018, Thomas Gleixner wrote:
-> > > On Tue, 18 Sep 2018, Peter Zijlstra wrote:
-> > > > > Your memory serves you right. That's indeed observable on CPUs which
-> > > > > lack TSC_ADJUST.
-> > > > 
-> > > > But, if the gtod code can observe this, then why doesn't the code that
-> > > > checks the sync?
-> > > 
-> > > Because it depends where the involved CPUs are in the topology. The sync
-> > > code might just run on the same package an simply not see it. Yes, w/o
-> > > TSC_ADJUST the TSC sync code can just fail to see the havoc.
-> > 
-> > Even with TSC adjust the TSC can be slightly off by design on multi-socket
-> > systems.
+On Tue, 18 Sep 2018, Peter Zijlstra wrote:
+> On Tue, Sep 18, 2018 at 12:41:57PM +0200, Thomas Gleixner wrote:
+> > I still have one of the machines which is affected by this.
 > 
-> Here are the gory details:
-> 
->    https://lore.kernel.org/lkml/3c1737210708230408i7a8049a9m5db49e6c4d89ab62@mail.gmail.com/
-> 
-> The changelog has an explanation as well.
-> 
->     d8bb6f4c1670 ("x86: tsc prevent time going backwards")
-> 
-> I still have one of the machines which is affected by this.
+> Are we sure this isn't a load vs rdtsc reorder? Because if I look at the
+> current code:
 
-Are we sure this isn't a load vs rdtsc reorder? Because if I look at the
-current code:
+The load order of last vs. rdtsc does not matter at all.
 
-notrace static u64 vread_tsc(void)
-{
-	u64 ret = (u64)rdtsc_ordered();
-	u64 last = gtod->cycle_last;
+CPU0					CPU1
 
-	if (likely(ret >= last))
-		return ret;
+....
+now0 = rdtsc_ordered();
+...
+tk->cycle_last = now0;
 
-	/*
-	 * GCC likes to generate cmov here, but this branch is extremely
-	 * predictable (it's just a function of time and the likely is
-	 * very likely) and there's a data dependence, so force GCC
-	 * to generate a branch instead.  I don't barrier() because
-	 * we don't actually need a barrier, and if this function
-	 * ever gets inlined it will generate worse code.
-	 */
-	asm volatile ("");
-	return last;
-}
+gtod->seq++;
+gtod->cycle_last = tk->cycle_last;
+...
+gtod->seq++;
+					seq_begin(gtod->seq);
+					now1 = rdtsc_ordered();
 
-That does:
+So if the TSC on CPU1 is slightly behind the TSC on CPU0 then now1 can be
+smaller than cycle_last. The TSC sync stuff does not catch the small delta
+for unknown raisins. I'll go and find that machine and test that again.
 
-	lfence
-	rdtsc
-	load gtod->cycle_last
+Thanks,
 
-Which obviously allows us to observe a cycles_last that is later than
-the rdtsc itself, and thus time can trivially go backwards.
-
-The new code:
-
-		last = gtod->cycle_last;
-		cycles = vgetcyc(gtod->vclock_mode);
-		if (unlikely((s64)cycles < 0))
-			return vdso_fallback_gettime(clk, ts);
-		if (cycles > last)
-			ns += (cycles - last) * gtod->mult;
-
-looks like:
-
-	load gtod->cycle_last
-	lfence
-	rdtsc
-
-which avoids that possibility, the cycle_last load must have completed
-before the rdtsc.
+	tglx
