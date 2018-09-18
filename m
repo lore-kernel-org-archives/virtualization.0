@@ -1,14 +1,17 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 2/2] virtio/s390: fix race in ccw_io_helper()
-Date: Tue, 18 Sep 2018 20:45:47 +0200
-Message-ID: <20180918204547.2500c848.cohuck@redhat.com>
-References: <20180912140202.12292-1-pasic@linux.ibm.com>
-	<20180912140202.12292-3-pasic@linux.ibm.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [patch 09/11] x86/vdso: Simplify the invalid vclock case
+Date: Wed, 19 Sep 2018 00:46:54 +0200 (CEST)
+Message-ID: <alpine.DEB.2.21.1809190037570.1468__36898.4343055219$1537310728$gmane$org@nanos.tec.linutronix.de>
+References: <20180914125006.349747096@linutronix.de>
+	<20180914125118.909646643@linutronix.de>
+	<CALCETrXh70oFHfT0Z-JXcnAumhAgLqSea5UiPY3WXu=v2GcKTg@mail.gmail.com>
+	<CALAqxLUv9Rd_eA7u9gZNFvTNrT1Z67RpHLozdeNC0W2yZm=Heg@mail.gmail.com>
+	<alpine.DEB.2.21.1809180948570.3558@nanos.tec.linutronix.de>
+	<863331ED-B04A-4B94-91A2-D34002C9CCDC@amacapital.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="8323329-1153053927-1537310814=:1468"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180912140202.12292-3-pasic@linux.ibm.com>
+In-Reply-To: <863331ED-B04A-4B94-91A2-D34002C9CCDC@amacapital.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,93 +21,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Colin Ian King <colin.king@canonical.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 12 Sep 2018 16:02:02 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> While ccw_io_helper() seems like intended to be exclusive in a sense that
-> it is supposed to facilitate I/O for at most one thread at any given
-> time, there is actually nothing ensuring that threads won't pile up at
-> vcdev->wait_q. If they all threads get woken up and see the status that
-> belongs to some other request as their own. This can lead to bugs. For an
-> example see :
-> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1788432
+--8323329-1153053927-1537310814=:1468
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+
+On Tue, 18 Sep 2018, Andy Lutomirski wrote:
+> > On Sep 18, 2018, at 12:52 AM, Thomas Gleixner <tglx@linutronix.de> wrote:
+> > 
+> >> On Mon, 17 Sep 2018, John Stultz wrote:
+> >>> On Mon, Sep 17, 2018 at 12:25 PM, Andy Lutomirski <luto@kernel.org> wrote:
+> >>> Also, I'm not entirely convinced that this "last" thing is needed at
+> >>> all.  John, what's the scenario under which we need it?
+> >> 
+> >> So my memory is probably a bit foggy, but I recall that as we
+> >> accelerated gettimeofday, we found that even on systems that claimed
+> >> to have synced TSCs, they were actually just slightly out of sync.
+> >> Enough that right after cycles_last had been updated, a read on
+> >> another cpu could come in just behind cycles_last, resulting in a
+> >> negative interval causing lots of havoc.
+> >> 
+> >> So the sanity check is needed to avoid that case.
+> > 
+> > Your memory serves you right. That's indeed observable on CPUs which
+> > lack TSC_ADJUST.
+> > 
+> > @Andy: Welcome to the wonderful world of TSC.
+> > 
 > 
-> This normally does not cause problems, as these are usually infrequent
-> operations that happen in a well defined sequence and normally do not
-> fail. But occasionally sysfs attributes are directly dependent
-> on pieces of virio config and trigger a get on each read.  This gives us
-> at least one method to trigger races.
+> Do we do better if we use signed arithmetic for the whole calculation?
+> Then a small backwards movement would result in a small backwards result.
+> Or we could offset everything so that we’d have to go back several
+> hundred ms before we cross zero.
 
-Yes, the idea behind ccw_io_helper() was to provide a simple way to use
-the inherently asynchronous channel I/O operations in a synchronous
-way, as that's what the virtio callbacks expect. I did not consider
-multiple callbacks for a device running at the same time; but if the
-interface allows that, we obviously need to be able to handle it.
+That would be probably the better solution as signed math would be
+problematic when the resulting ns value becomes negative. As the delta is
+really small, otherwise the TSC sync check would have caught it, the caller
+should never be able to observe time going backwards.
 
-Has this only been observed for the config get/set commands? (The
-read-before-write thing?)
+I'll have a look into that. It needs some thought vs. the fractional part
+of the base time, but it should be not rocket science to get that
+correct. Famous last words...
 
-> 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> Reported-by: Colin Ian King <colin.king@canonical.com>
-> ---
-> 
-> This is a big hammer -- mutex on virtio_ccw device level would more than
-> suffice. But I don't think it hurts, and maybe there is a better way e.g.
-> one using some common ccw/cio mechanisms to address this. That's why this
-> is an RFC.
+Thanks,
 
-I'm for using more delicate tools, if possible :)
+	tglx
 
-We basically have two options:
-- Have a way to queue I/O operations and then handle them in sequence.
-  Creates complexity, and is likely overkill. (We already have a kind
-  of serialization because we re-submit the channel program until the
-  hypervisor accepts it; the problem comes from the wait queue usage.)
-- Add serialization around the submit/wait procedure (as you did), but
-  with a per-device mutex. That looks like the easiest solution.
 
-> ---
->  drivers/s390/virtio/virtio_ccw.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index a5e8530a3391..36252f344660 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -289,6 +289,8 @@ static int doing_io(struct virtio_ccw_device *vcdev, __u32 flag)
->  	return ret;
->  }
->  
-> +DEFINE_MUTEX(vcio_mtx);
-> +
->  static int ccw_io_helper(struct virtio_ccw_device *vcdev,
->  			 struct ccw1 *ccw, __u32 intparm)
->  {
-> @@ -296,6 +298,7 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
->  	unsigned long flags;
->  	int flag = intparm & VIRTIO_CCW_INTPARM_MASK;
->  
-> +	mutex_lock(&vcio_mtx);
->  	do {
->  		spin_lock_irqsave(get_ccwdev_lock(vcdev->cdev), flags);
->  		ret = ccw_device_start(vcdev->cdev, ccw, intparm, 0, 0);
-> @@ -308,7 +311,9 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
->  		cpu_relax();
->  	} while (ret == -EBUSY);
 
-We probably still want to keep this while loop to be on the safe side
-(unsolicited status from the hypervisor, for example.)
+--8323329-1153053927-1537310814=:1468
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
->  	wait_event(vcdev->wait_q, doing_io(vcdev, flag) == 0);
-> -	return ret ? ret : vcdev->err;
-> +	ret = ret ? ret : vcdev->err;
-> +	mutex_unlock(&vcio_mtx);
-> +	return ret;
->  }
->  
->  static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--8323329-1153053927-1537310814=:1468--
