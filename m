@@ -1,7 +1,7 @@
-From: Andy Lutomirski <luto@amacapital.net>
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: [patch 09/11] x86/vdso: Simplify the invalid vclock case
-Date: Tue, 18 Sep 2018 16:03:01 -0700
-Message-ID: <439A3E73-E4FF-4D66-800E-5BEE58EDE8F6__649.862961336289$1537311666$gmane$org@amacapital.net>
+Date: Wed, 19 Sep 2018 01:16:46 +0200 (CEST)
+Message-ID: <alpine.DEB.2.21.1809190112020.1468__45585.9009795406$1537312505$gmane$org@nanos.tec.linutronix.de>
 References: <20180914125006.349747096@linutronix.de>
 	<20180914125118.909646643@linutronix.de>
 	<CALCETrXh70oFHfT0Z-JXcnAumhAgLqSea5UiPY3WXu=v2GcKTg@mail.gmail.com>
@@ -9,11 +9,11 @@ References: <20180914125006.349747096@linutronix.de>
 	<alpine.DEB.2.21.1809180948570.3558@nanos.tec.linutronix.de>
 	<863331ED-B04A-4B94-91A2-D34002C9CCDC@amacapital.net>
 	<alpine.DEB.2.21.1809190037570.1468@nanos.tec.linutronix.de>
-Mime-Version: 1.0 (1.0)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	<439A3E73-E4FF-4D66-800E-5BEE58EDE8F6@amacapital.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="8323329-1986204183-1537312607=:1468"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.21.1809190037570.1468@nanos.tec.linutronix.de>
+In-Reply-To: <439A3E73-E4FF-4D66-800E-5BEE58EDE8F6@amacapital.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,45 +23,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>
+To: Andy Lutomirski <luto@amacapital.net>
 Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cgo+IE9uIFNlcCAxOCwgMjAxOCwgYXQgMzo0NiBQTSwgVGhvbWFzIEdsZWl4bmVyIDx0Z2x4QGxp
-bnV0cm9uaXguZGU+IHdyb3RlOgo+IAo+IE9uIFR1ZSwgMTggU2VwIDIwMTgsIEFuZHkgTHV0b21p
-cnNraSB3cm90ZToKPj4+IE9uIFNlcCAxOCwgMjAxOCwgYXQgMTI6NTIgQU0sIFRob21hcyBHbGVp
-eG5lciA8dGdseEBsaW51dHJvbml4LmRlPiB3cm90ZToKPj4+IAo+Pj4+PiBPbiBNb24sIDE3IFNl
-cCAyMDE4LCBKb2huIFN0dWx0eiB3cm90ZToKPj4+Pj4gT24gTW9uLCBTZXAgMTcsIDIwMTggYXQg
-MTI6MjUgUE0sIEFuZHkgTHV0b21pcnNraSA8bHV0b0BrZXJuZWwub3JnPiB3cm90ZToKPj4+Pj4g
-QWxzbywgSSdtIG5vdCBlbnRpcmVseSBjb252aW5jZWQgdGhhdCB0aGlzICJsYXN0IiB0aGluZyBp
-cyBuZWVkZWQgYXQKPj4+Pj4gYWxsLiAgSm9obiwgd2hhdCdzIHRoZSBzY2VuYXJpbyB1bmRlciB3
-aGljaCB3ZSBuZWVkIGl0Pwo+Pj4+IAo+Pj4+IFNvIG15IG1lbW9yeSBpcyBwcm9iYWJseSBhIGJp
-dCBmb2dneSwgYnV0IEkgcmVjYWxsIHRoYXQgYXMgd2UKPj4+PiBhY2NlbGVyYXRlZCBnZXR0aW1l
-b2ZkYXksIHdlIGZvdW5kIHRoYXQgZXZlbiBvbiBzeXN0ZW1zIHRoYXQgY2xhaW1lZAo+Pj4+IHRv
-IGhhdmUgc3luY2VkIFRTQ3MsIHRoZXkgd2VyZSBhY3R1YWxseSBqdXN0IHNsaWdodGx5IG91dCBv
-ZiBzeW5jLgo+Pj4+IEVub3VnaCB0aGF0IHJpZ2h0IGFmdGVyIGN5Y2xlc19sYXN0IGhhZCBiZWVu
-IHVwZGF0ZWQsIGEgcmVhZCBvbgo+Pj4+IGFub3RoZXIgY3B1IGNvdWxkIGNvbWUgaW4ganVzdCBi
-ZWhpbmQgY3ljbGVzX2xhc3QsIHJlc3VsdGluZyBpbiBhCj4+Pj4gbmVnYXRpdmUgaW50ZXJ2YWwg
-Y2F1c2luZyBsb3RzIG9mIGhhdm9jLgo+Pj4+IAo+Pj4+IFNvIHRoZSBzYW5pdHkgY2hlY2sgaXMg
-bmVlZGVkIHRvIGF2b2lkIHRoYXQgY2FzZS4KPj4+IAo+Pj4gWW91ciBtZW1vcnkgc2VydmVzIHlv
-dSByaWdodC4gVGhhdCdzIGluZGVlZCBvYnNlcnZhYmxlIG9uIENQVXMgd2hpY2gKPj4+IGxhY2sg
-VFNDX0FESlVTVC4KPj4+IAo+Pj4gQEFuZHk6IFdlbGNvbWUgdG8gdGhlIHdvbmRlcmZ1bCB3b3Js
-ZCBvZiBUU0MuCj4+PiAKPj4gCj4+IERvIHdlIGRvIGJldHRlciBpZiB3ZSB1c2Ugc2lnbmVkIGFy
-aXRobWV0aWMgZm9yIHRoZSB3aG9sZSBjYWxjdWxhdGlvbj8KPj4gVGhlbiBhIHNtYWxsIGJhY2t3
-YXJkcyBtb3ZlbWVudCB3b3VsZCByZXN1bHQgaW4gYSBzbWFsbCBiYWNrd2FyZHMgcmVzdWx0Lgo+
-PiBPciB3ZSBjb3VsZCBvZmZzZXQgZXZlcnl0aGluZyBzbyB0aGF0IHdl4oCZZCBoYXZlIHRvIGdv
-IGJhY2sgc2V2ZXJhbAo+PiBodW5kcmVkIG1zIGJlZm9yZSB3ZSBjcm9zcyB6ZXJvLgo+IAo+IFRo
-YXQgd291bGQgYmUgcHJvYmFibHkgdGhlIGJldHRlciBzb2x1dGlvbiBhcyBzaWduZWQgbWF0aCB3
-b3VsZCBiZQo+IHByb2JsZW1hdGljIHdoZW4gdGhlIHJlc3VsdGluZyBucyB2YWx1ZSBiZWNvbWVz
-IG5lZ2F0aXZlLiBBcyB0aGUgZGVsdGEgaXMKPiByZWFsbHkgc21hbGwsIG90aGVyd2lzZSB0aGUg
-VFNDIHN5bmMgY2hlY2sgd291bGQgaGF2ZSBjYXVnaHQgaXQsIHRoZSBjYWxsZXIKPiBzaG91bGQg
-bmV2ZXIgYmUgYWJsZSB0byBvYnNlcnZlIHRpbWUgZ29pbmcgYmFja3dhcmRzLgo+IAo+IEknbGwg
-aGF2ZSBhIGxvb2sgaW50byB0aGF0LiBJdCBuZWVkcyBzb21lIHRob3VnaHQgdnMuIHRoZSBmcmFj
-dGlvbmFsIHBhcnQKPiBvZiB0aGUgYmFzZSB0aW1lLCBidXQgaXQgc2hvdWxkIGJlIG5vdCByb2Nr
-ZXQgc2NpZW5jZSB0byBnZXQgdGhhdAo+IGNvcnJlY3QuIEZhbW91cyBsYXN0IHdvcmRzLi4uCj4g
-CgpJdOKAmXMgYWxzbyBmaWRkbHkgdG8gdHVuZS4gSWYgeW91IG9mZnNldCBpdCB0b28gbXVjaCwg
-dGhlbiB0aGUgZmFuY3kgZGl2aWRlLWJ5LXJlcGVhdGVkLXN1YnRyYWN0aW9uIGxvb3Agd2lsbCBo
-dXJ0IG1vcmUgdGhhbiB0aGUgY29tcGFyaXNvbiB0byBsYXN0LgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--8323329-1986204183-1537312607=:1468
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+
+On Tue, 18 Sep 2018, Andy Lutomirski wrote:
+> > On Sep 18, 2018, at 3:46 PM, Thomas Gleixner <tglx@linutronix.de> wrote:
+> > On Tue, 18 Sep 2018, Andy Lutomirski wrote:
+> >> Do we do better if we use signed arithmetic for the whole calculation?
+> >> Then a small backwards movement would result in a small backwards result.
+> >> Or we could offset everything so that we’d have to go back several
+> >> hundred ms before we cross zero.
+> > 
+> > That would be probably the better solution as signed math would be
+> > problematic when the resulting ns value becomes negative. As the delta is
+> > really small, otherwise the TSC sync check would have caught it, the caller
+> > should never be able to observe time going backwards.
+> > 
+> > I'll have a look into that. It needs some thought vs. the fractional part
+> > of the base time, but it should be not rocket science to get that
+> > correct. Famous last words...
+> > 
+> 
+> It’s also fiddly to tune. If you offset it too much, then the fancy
+> divide-by-repeated-subtraction loop will hurt more than the comparison to
+> last.
+
+Not really. It's sufficient to offset it by at max. 1000 cycles or so. That
+won't hurt the magic loop, but it will definitely cover that slight offset
+case.
+
+Thanks,
+
+	tglx
+
+
+--8323329-1986204183-1537312607=:1468
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--8323329-1986204183-1537312607=:1468--
