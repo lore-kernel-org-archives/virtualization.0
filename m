@@ -1,19 +1,16 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch 09/11] x86/vdso: Simplify the invalid vclock case
-Date: Wed, 19 Sep 2018 15:29:30 +0200 (CEST)
-Message-ID: <alpine.DEB.2.21.1809191523010.18945__44859.4117806808$1537363675$gmane$org@nanos.tec.linutronix.de>
-References: <20180914125006.349747096@linutronix.de>
-	<20180914125118.909646643@linutronix.de>
-	<CALCETrXh70oFHfT0Z-JXcnAumhAgLqSea5UiPY3WXu=v2GcKTg@mail.gmail.com>
-	<CALAqxLUv9Rd_eA7u9gZNFvTNrT1Z67RpHLozdeNC0W2yZm=Heg@mail.gmail.com>
-	<alpine.DEB.2.21.1809180948570.3558@nanos.tec.linutronix.de>
-	<863331ED-B04A-4B94-91A2-D34002C9CCDC@amacapital.net>
-	<alpine.DEB.2.21.1809190037570.1468@nanos.tec.linutronix.de>
-	<06e91c26-756f-f236-0af2-327e520c3065@rasmusvillemoes.dk>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC PATCH 2/2] virtio/s390: fix race in ccw_io_helper()
+Date: Wed, 19 Sep 2018 16:07:59 +0200
+Message-ID: <20180919160759.731cb561.cohuck@redhat.com>
+References: <20180912140202.12292-1-pasic@linux.ibm.com>
+	<20180912140202.12292-3-pasic@linux.ibm.com>
+	<20180918204547.2500c848.cohuck@redhat.com>
+	<c0148f86-b7a5-0c66-146d-f2dbcd678436@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="8323329-1406624157-1537363775=:18945"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <06e91c26-756f-f236-0af2-327e520c3065@rasmusvillemoes.dk>
+In-Reply-To: <c0148f86-b7a5-0c66-146d-f2dbcd678436@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,62 +20,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@amacapital.net>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, Matt Rickard <matt@softrans.com.au>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Colin Ian King <colin.king@canonical.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Wed, 19 Sep 2018 15:17:28 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
---8323329-1406624157-1537363775=:18945
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+> On 09/18/2018 08:45 PM, Cornelia Huck wrote:
 
-On Wed, 19 Sep 2018, Rasmus Villemoes wrote:
-> On 2018-09-19 00:46, Thomas Gleixner wrote:
-> > On Tue, 18 Sep 2018, Andy Lutomirski wrote:
-> >>>
-> >>
-> >> Do we do better if we use signed arithmetic for the whole calculation?
-> >> Then a small backwards movement would result in a small backwards result.
-> >> Or we could offset everything so that we’d have to go back several
-> >> hundred ms before we cross zero.
-> > 
-> > That would be probably the better solution as signed math would be
-> > problematic when the resulting ns value becomes negative. As the delta is
-> > really small, otherwise the TSC sync check would have caught it, the caller
-> > should never be able to observe time going backwards.
-> > 
-> > I'll have a look into that. It needs some thought vs. the fractional part
-> > of the base time, but it should be not rocket science to get that
-> > correct. Famous last words...
+> > We basically have two options:
+> > - Have a way to queue I/O operations and then handle them in sequence.
+> >   Creates complexity, and is likely overkill. (We already have a kind
+> >   of serialization because we re-submit the channel program until the
+> >   hypervisor accepts it; the problem comes from the wait queue usage.)  
 > 
-> Does the sentinel need to be U64_MAX? What if vgetcyc and its minions
-> returned gtod->cycle_last-1 (for some value of 1), and the caller just
-> does "if ((s64)cycles - (s64)last < 0) return fallback; ns +=
-> (cycles-last)* ...". That should just be a "sub ; js ; ". It's an extra
-> load of ->cycle_last, but only on the path where we're heading for the
-> fallback anyway. The value of 1 can be adjusted so that in the "js"
-> path, we could detect and accept an rdtsc_ordered() call that's just a
-> few 10s of cycles behind last and treat that as 0 and continue back on
-> the normal path. But maybe it's hard to get gcc to generate the expected
-> code.
+> I secretly hoped we already have something like this somewhere. Getting
+> some kind of requests processed and wanting to know if each of these worked
+> or not seemed like fairly common. I agree, implementing this just for
+> virtio-ccw would be an overkill, I agree.
 
-I played around with a lot of variants and GCC generates all kinds of
-interesting ASM. And at some point optimizing that math code is not buying
-anything because the LFENCE before RDTSC is dominating all of it.
+I've encountered that pattern so far mostly for driver-internal I/O
+(setting some stuff up via channel commands etc.) Other usages (like
+e.g. the dasd driver processing block layer requests) are asynchronous,
+and the common I/O layer uses a full-fledged fsm. Much of the trouble
+comes from implementing a synchronous interface via asynchronous
+commands, and I'd really like to keep that as simple as possible
+(especially as this is not the hot path).
 
-Thanks,
+> 
+> > - Add serialization around the submit/wait procedure (as you did), but
+> >   with a per-device mutex. That looks like the easiest solution.
+> >   
+> 
+> Yep, I'm for doing something like this first. We can think about doing
+> something more elaborate later. I will send a non-RFC with an extra
+> per-device mutex. Unless you object.
 
-	tglx
---8323329-1406624157-1537363775=:18945
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+No, that sounds good to me.
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---8323329-1406624157-1537363775=:18945--
+> 
+> Another thought that crossed my head was making the transport ops
+> mutex on each virtio-ccw device -- see our conversation on get/set
+> config. I don't think it would make a big difference, since the
+> ccw stuff is mutex already, so we only have parallelism for the
+> preparation and for post-processing the results of the ccw io.
+
+Do you spot any other places where we may need to care about concurrent
+processing (like for the ->config area in the previous patch)?
