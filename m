@@ -1,13 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 5/5] drm/virtio: fix DRM_FORMAT_* handling
-Date: Wed, 19 Sep 2018 13:12:52 +0200
-Message-ID: <20180919111252.7932-6-kraxel__31850.3524679274$1537355485$gmane$org@redhat.com>
-References: <20180919111252.7932-1-kraxel@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC PATCH 1/2] virtio/s390: avoid race on vcdev->config
+Date: Wed, 19 Sep 2018 13:28:44 +0200
+Message-ID: <20180919132844.6b85838b.cohuck@redhat.com>
+References: <20180912140202.12292-1-pasic@linux.ibm.com>
+	<20180912140202.12292-2-pasic@linux.ibm.com>
+	<20180918202923.31829b3e.cohuck@redhat.com>
+	<2f27c41d-4465-0fce-bbbb-b7b22a179eae@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180919111252.7932-1-kraxel@redhat.com>
+In-Reply-To: <2f27c41d-4465-0fce-bbbb-b7b22a179eae@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,181 +20,140 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, michel@daenzer.net, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, imirkin@alum.mit.edu
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Colin Ian King <colin.king@canonical.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use DRM_FORMAT_HOST_XRGB8888, so we are using the correct format code
-on bigendian machines.  Also set the quirk_addfb_prefer_host_byte_order
-mode_config bit so drm_mode_addfb() asks for the correct format code.
+On Wed, 19 Sep 2018 00:52:14 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Both DRM_FORMAT_* and VIRTIO_GPU_FORMAT_* are defined to be little
-endian, so using a different mapping on bigendian machines is wrong.
-It's there because of broken drm_mode_addfb() behavior.  So with
-drm_mode_addfb() being fixed we can fix this too.
+> On 09/18/2018 08:29 PM, Cornelia Huck wrote:
+> > On Wed, 12 Sep 2018 16:02:01 +0200
+> > Halil Pasic <pasic@linux.ibm.com> wrote:
+> >   
+> >> Currently we have a race on vcdev->config in virtio_ccw_get_config() and
+> >> in virtio_ccw_set_config().
+> >>
+> >> This normally does not cause problems, as these are usually infrequent
+> >> operations. But occasionally sysfs attributes are directly dependent on
+> >> pieces of virio config and trigger a get on each read. This gives us at
+> >> least one trigger.  
+> > 
+> > So, the problem is that you might get unexpected/inconsistent config
+> > information?
+> >   
+> >>
+> >> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> >> ---
+> >>  drivers/s390/virtio/virtio_ccw.c | 10 ++++++++--
+> >>  1 file changed, 8 insertions(+), 2 deletions(-)
+> >>
+> >> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> >> index 8f5c1d7f751a..a5e8530a3391 100644
+> >> --- a/drivers/s390/virtio/virtio_ccw.c
+> >> +++ b/drivers/s390/virtio/virtio_ccw.c
+> >> @@ -828,6 +828,7 @@ static void virtio_ccw_get_config(struct virtio_device *vdev,
+> >>  	int ret;
+> >>  	struct ccw1 *ccw;
+> >>  	void *config_area;
+> >> +	unsigned long flags;
+> >>  
+> >>  	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+> >>  	if (!ccw)
+> >> @@ -846,11 +847,13 @@ static void virtio_ccw_get_config(struct virtio_device *vdev,
+> >>  	if (ret)
+> >>  		goto out_free;
+> >>  
+> >> +	spin_lock_irqsave(&vcdev->lock, flags);  
+> > 
+> > I'm not sure that vcdev->lock is the right lock to use for this, but
+> > I'm a bit unsure about what you're guarding against here.>  
+> 
+> I'm guarding against multiple threads using the shared state that is
+> the config member of struct virtio_ccw_device so that at least one
+> writes. I will continue with an example below.
 
-While wading through the code I've noticed we have a little issue in
-virtio:  We attach a format to the bo when it is created
-(DRM_IOCTL_MODE_CREATE_DUMB), not when we map it as framebuffer
-(DRM_IOCTL_MODE_ADDFB).  Easy way out:  Support a single format only.
-Pick DRM_FORMAT_HOST_XRGB8888, it is the only one actually used in
-practice.  Drop unused mappings in virtio_gpu_translate_format().
+Ok.
 
-With this patch applied both ADDFB and ADDFB2 ioctls work correctly in
-the virtio-gpu.ko driver on big endian machines.  Without the patch only
-ADDFB (which still seems to be used by the majority of userspace) works
-correctly.
+>  
+> >>  	memcpy(vcdev->config, config_area, offset + len);
+> >> -	if (buf)
+> >> -		memcpy(buf, &vcdev->config[offset], len);
+> >>  	if (vcdev->config_ready < offset + len)
+> >>  		vcdev->config_ready = offset + len;
+> >> +	spin_unlock_irqrestore(&vcdev->lock, flags);
+> >> +	if (buf)
+> >> +		memcpy(buf, config_area + offset, len);
+> >>  
+> >>  out_free:
+> >>  	kfree(config_area);
+> >> @@ -864,6 +867,7 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
+> >>  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+> >>  	struct ccw1 *ccw;
+> >>  	void *config_area;
+> >> +	unsigned long flags;
+> >>  
+> >>  	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+> >>  	if (!ccw)
+> >> @@ -876,9 +880,11 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
+> >>  	/* Make sure we don't overwrite fields. */
+> >>  	if (vcdev->config_ready < offset)
+> >>  		virtio_ccw_get_config(vdev, 0, NULL, offset);
+> >> +	spin_lock_irqsave(&vcdev->lock, flags);
+> >>  	memcpy(&vcdev->config[offset], buf, len);
+> >>  	/* Write the config area to the host. */
+> >>  	memcpy(config_area, vcdev->config, sizeof(vcdev->config));  
+> 
+> While in this section which is critical now, we could have raced
+> with another thread that is writing the vcdev->config (critical section in get)
+> that we are reading. That could result in something that could never happen if the
+> operations are serialized.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_display.c |  5 +++
- drivers/gpu/drm/virtio/virtgpu_fb.c      |  2 +-
- drivers/gpu/drm/virtio/virtgpu_gem.c     |  7 +++--
- drivers/gpu/drm/virtio/virtgpu_plane.c   | 54 ++------------------------------
- 4 files changed, 13 insertions(+), 55 deletions(-)
+So, the race is basically on the memcpy?
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 0379d68976..8f8fed471e 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -307,6 +307,10 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
- 	struct virtio_gpu_framebuffer *virtio_gpu_fb;
- 	int ret;
- 
-+	if (mode_cmd->pixel_format != DRM_FORMAT_HOST_XRGB8888 &&
-+	    mode_cmd->pixel_format != DRM_FORMAT_HOST_ARGB8888)
-+		return ERR_PTR(-ENOENT);
-+
- 	/* lookup object associated with res handle */
- 	obj = drm_gem_object_lookup(file_priv, mode_cmd->handles[0]);
- 	if (!obj)
-@@ -355,6 +359,7 @@ int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev)
- 	int i;
- 
- 	drm_mode_config_init(vgdev->ddev);
-+	vgdev->ddev->mode_config.quirk_addfb_prefer_host_byte_order = true;
- 	vgdev->ddev->mode_config.funcs = &virtio_gpu_mode_funcs;
- 	vgdev->ddev->mode_config.helper_private = &virtio_mode_config_helpers;
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
-index b5cebc9a17..6c89974c7f 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fb.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
-@@ -233,7 +233,7 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
- 	mode_cmd.width = sizes->surface_width;
- 	mode_cmd.height = sizes->surface_height;
- 	mode_cmd.pitches[0] = mode_cmd.width * 4;
--	mode_cmd.pixel_format = drm_mode_legacy_fb_format(32, 24);
-+	mode_cmd.pixel_format = DRM_FORMAT_HOST_XRGB8888;
- 
- 	format = virtio_gpu_translate_format(mode_cmd.pixel_format);
- 	if (format == 0)
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 0f2768eaca..82c817f37c 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -90,7 +90,10 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 	uint32_t resid;
- 	uint32_t format;
- 
--	pitch = args->width * ((args->bpp + 1) / 8);
-+	if (args->bpp != 32)
-+		return -EINVAL;
-+
-+	pitch = args->width * 4;
- 	args->size = pitch * args->height;
- 	args->size = ALIGN(args->size, PAGE_SIZE);
- 
-@@ -99,7 +102,7 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 	if (ret)
- 		goto fail;
- 
--	format = virtio_gpu_translate_format(DRM_FORMAT_XRGB8888);
-+	format = virtio_gpu_translate_format(DRM_FORMAT_HOST_XRGB8888);
- 	virtio_gpu_resource_id_get(vgdev, &resid);
- 	virtio_gpu_cmd_create_resource(vgdev, resid, format,
- 				       args->width, args->height);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index 88f2fb8c61..a84ff56507 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -28,22 +28,11 @@
- #include <drm/drm_atomic_helper.h>
- 
- static const uint32_t virtio_gpu_formats[] = {
--	DRM_FORMAT_XRGB8888,
--	DRM_FORMAT_ARGB8888,
--	DRM_FORMAT_BGRX8888,
--	DRM_FORMAT_BGRA8888,
--	DRM_FORMAT_RGBX8888,
--	DRM_FORMAT_RGBA8888,
--	DRM_FORMAT_XBGR8888,
--	DRM_FORMAT_ABGR8888,
-+	DRM_FORMAT_HOST_XRGB8888,
- };
- 
- static const uint32_t virtio_gpu_cursor_formats[] = {
--#ifdef __BIG_ENDIAN
--	DRM_FORMAT_BGRA8888,
--#else
--	DRM_FORMAT_ARGB8888,
--#endif
-+	DRM_FORMAT_HOST_ARGB8888,
- };
- 
- uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
-@@ -51,32 +40,6 @@ uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
- 	uint32_t format;
- 
- 	switch (drm_fourcc) {
--#ifdef __BIG_ENDIAN
--	case DRM_FORMAT_XRGB8888:
--		format = VIRTIO_GPU_FORMAT_X8R8G8B8_UNORM;
--		break;
--	case DRM_FORMAT_ARGB8888:
--		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
--		break;
--	case DRM_FORMAT_BGRX8888:
--		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
--		break;
--	case DRM_FORMAT_BGRA8888:
--		format = VIRTIO_GPU_FORMAT_B8G8R8A8_UNORM;
--		break;
--	case DRM_FORMAT_RGBX8888:
--		format = VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM;
--		break;
--	case DRM_FORMAT_RGBA8888:
--		format = VIRTIO_GPU_FORMAT_R8G8B8A8_UNORM;
--		break;
--	case DRM_FORMAT_XBGR8888:
--		format = VIRTIO_GPU_FORMAT_X8B8G8R8_UNORM;
--		break;
--	case DRM_FORMAT_ABGR8888:
--		format = VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM;
--		break;
--#else
- 	case DRM_FORMAT_XRGB8888:
- 		format = VIRTIO_GPU_FORMAT_B8G8R8X8_UNORM;
- 		break;
-@@ -89,19 +52,6 @@ uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
- 	case DRM_FORMAT_BGRA8888:
- 		format = VIRTIO_GPU_FORMAT_A8R8G8B8_UNORM;
- 		break;
--	case DRM_FORMAT_RGBX8888:
--		format = VIRTIO_GPU_FORMAT_X8B8G8R8_UNORM;
--		break;
--	case DRM_FORMAT_RGBA8888:
--		format = VIRTIO_GPU_FORMAT_A8B8G8R8_UNORM;
--		break;
--	case DRM_FORMAT_XBGR8888:
--		format = VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM;
--		break;
--	case DRM_FORMAT_ABGR8888:
--		format = VIRTIO_GPU_FORMAT_R8G8B8A8_UNORM;
--		break;
--#endif
- 	default:
- 		/*
- 		 * This should not happen, we handle everything listed
--- 
-2.9.3
+> 
+> >> +	spin_unlock_irqrestore(&vcdev->lock, flags);
+> >>  	ccw->cmd_code = CCW_CMD_WRITE_CONF;
+> >>  	ccw->flags = 0;
+> >>  	ccw->count = offset + len;  
+> > 
+> > One thing that might be a problem here is how reading/writing the
+> > config stuff works for virtio-ccw: As channel devices don't have a
+> > config space like e.g. PCI devices, I had to come up with a way to
+> > implement something like that via dedicated channel commands. I did not
+> > want to go via a payload that would provide offset/length, but went
+> > with reading/writing everything before the value to be read/written as
+> > well. That means we need to call read before write to make sure we
+> > don't overwrite things (as the comment states), and how this is done
+> > might be problematic.
+> >   
+> 
+> Nod.
+> 
+> > I'm thinking what we may need is a way to make "read and then write" a
+> > single operation and make sure that it does not run concurrently with
+> > the simple read operation. Factor out the proper invocation of the read
+> > command and the status update, have get_config call this with a reader
+> > lock and have set_config call the read-then-write combo with a write
+> > lock, maybe?
+> >   
+> 
+> I'm inclined to say. The other tread doing the get may only get us more
+> recent results, and that should at least as good. Our get is guaranteed
+> to finish, so we won't write complete garbage.
+> 
+> AFAIR the config can change form the other side too. In that sense making
+> the read and the write one operation on the other side would help make us
+> completely sane. 
+
+Yes, config fields may be writeable both by the host and by the guest.
+
+> But at the moment I don't think that what you propose
+> here is giving us an edge over this patch.
+
+It is probably a bit cleaner concept wise, but I'm not wedded to it.
+
+Another thing that comes to mind is that 'config generation' thing,
+which is used on e.g. PCI to make sure that values longer than 32 bits
+are consistent. I wonder whether we should explore that direction as
+well.
