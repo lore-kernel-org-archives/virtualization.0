@@ -1,19 +1,12 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [virtio-dev] [PATCH 2/2] drm/virtio: add iommu support.
-Date: Wed, 19 Sep 2018 06:46:00 +0200
-Message-ID: <20180919044600.utvnu5l6fvvi2qi4__29895.8065723584$1537332243$gmane$org@sirius.home.kraxel.org>
-References: <20180829122026.27012-1-kraxel@redhat.com>
-	<20180829122026.27012-3-kraxel@redhat.com>
-	<CAPM=9tyXc41DAkgjCRojrqH28qkirxgrpgNmrwu4WAeLpg7tAw@mail.gmail.com>
-	<9bf20fa1-3752-edd1-588c-e38cd166c3af@amd.com>
-	<20180912072541.nagfrr2dgy34szcx@sirius.home.kraxel.org>
-	<5684a3fc-3605-7bb0-b0be-418c2ae702b5@amd.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH] x86/paravirt: fix some warning messages
+Date: Wed, 19 Sep 2018 13:35:53 +0300
+Message-ID: <20180919103553.GD9238@mwanda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5684a3fc-3605-7bb0-b0be-418c2ae702b5@amd.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,25 +16,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiandi An <jiandi@amd.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "Singh,
-	Brijesh" <brijesh.singh@amd.com>, "Lendacky,
-	Thomas" <Thomas.Lendacky@amd.com>, Dave Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@gmail.com>
+To: Juergen Gross <jgross@suse.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: x86@kernel.org, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+The first argument to WARN_ONCE() is a condition.
 
-> buffer.  I tried to put a dma_sync_sg_for_device() on virtio_gpu_object obj->pages-sgl
-> before VIRTIO_GPU_CMD_TRANSFER_TO_HOST_2D is sent.  This fixes the kernel console path.
+Fixes: 5800dc5c19f3 ("x86/paravirt: Fix spectre-v2 mitigations for paravirt guests")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-That should be the right place.
-
-> Once display manger is kicked off for example (sudo systemctl start lightdm.service) and
-> resource id 3 gets created from user space down, it still gives a blank black screen.
-
-Hmm.  I'd suspect there is simply a code path missing.  Can you send the
-patch you have?
-
-cheers,
-  Gerd
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index bbf006fe78d7..e4d4df37922a 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -89,7 +89,7 @@ static unsigned paravirt_patch_call(void *insnbuf, const void *target,
+ 
+ 	if (len < 5) {
+ #ifdef CONFIG_RETPOLINE
+-		WARN_ONCE("Failing to patch indirect CALL in %ps\n", (void *)addr);
++		WARN_ONCE(1, "Failing to patch indirect CALL in %ps\n", (void *)addr);
+ #endif
+ 		return len;	/* call too long for patch site */
+ 	}
+@@ -110,7 +110,7 @@ static unsigned paravirt_patch_jmp(void *insnbuf, const void *target,
+ 
+ 	if (len < 5) {
+ #ifdef CONFIG_RETPOLINE
+-		WARN_ONCE("Failing to patch indirect JMP in %ps\n", (void *)addr);
++		WARN_ONCE(1, "Failing to patch indirect JMP in %ps\n", (void *)addr);
+ #endif
+ 		return len;	/* call too long for patch site */
+ 	}
