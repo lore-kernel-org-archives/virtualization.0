@@ -1,12 +1,18 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH net-next] vhost_net: add a missing error return
-Date: Thu, 20 Sep 2018 13:01:59 +0300
-Message-ID: <20180920100158.GA9551@mwanda>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC PATCH 2/2] virtio/s390: fix race in ccw_io_helper()
+Date: Thu, 20 Sep 2018 12:15:23 +0200
+Message-ID: <20180920121523.4177db92.cohuck@redhat.com>
+References: <20180912140202.12292-1-pasic@linux.ibm.com>
+	<20180912140202.12292-3-pasic@linux.ibm.com>
+	<20180918204547.2500c848.cohuck@redhat.com>
+	<c0148f86-b7a5-0c66-146d-f2dbcd678436@linux.ibm.com>
+	<20180919160759.731cb561.cohuck@redhat.com>
+	<592b9fd1-0ab0-aa9f-31d7-a717610bd95c@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <592b9fd1-0ab0-aa9f-31d7-a717610bd95c@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,24 +22,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, kernel-janitors@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Colin Ian King <colin.king@canonical.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We accidentally left out this error return so it leads to some use after
-free bugs later on.
+On Wed, 19 Sep 2018 18:56:45 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Fixes: 0a0be13b8fe2 ("vhost_net: batch submitting XDP buffers to underlayer sockets")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> On 09/19/2018 04:07 PM, Cornelia Huck wrote:
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index dd4e0a301635..1bff6bc8161a 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1244,6 +1244,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 		kfree(vqs);
- 		kvfree(n);
- 		kfree(queue);
-+		return -ENOMEM;
- 	}
- 	n->vqs[VHOST_NET_VQ_TX].xdp = xdp;
+> > Do you spot any other places where we may need to care about concurrent
+> > processing (like for the ->config area in the previous patch)?
+> >   
+> 
+> It is hard to tell, because:
+> * Synchronization external to the transport could make things work
+> out just fine.
+> * virtio_config_ops does not document these requirements if any.
+> * So it's up to the devices to use the stuff without shooting
+>   themselves in the foot.
+> * virtio-pci does not seem to do more to avoid such problems that
+>   we do.
+> 
+> Back then when learning vritio-ccw I did ask myself such questions
+> and based on vrito-pci and I was like looks similar, should be
+> good enough.
+
+Yep, I agree. If there's nothing obvious, I think we should just leave
+it as it is now.
