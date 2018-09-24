@@ -1,19 +1,16 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 1/2] virtio/s390: avoid race on vcdev->config
-Date: Mon, 24 Sep 2018 16:50:30 +0200
-Message-ID: <20180924165030.2df3248a.cohuck@redhat.com>
-References: <20180921124621.43649-1-pasic@linux.ibm.com>
-	<20180921124621.43649-2-pasic@linux.ibm.com>
-	<20180921151433.519b6687.cohuck@redhat.com>
-	<d05aa6cb-d344-37dd-f1eb-55c28fcb9c62@linux.ibm.com>
-	<80a80dc6-ccb1-f245-b367-c2f9345ca151@linux.ibm.com>
-	<20180924145554.712f4cf4.cohuck@redhat.com>
-	<2b8982be-9066-cf08-657b-99ecf889e4a7@linux.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [patch 00/11] x86/vdso: Cleanups,
+	simmplifications and CLOCK_TAI support
+Date: Mon, 24 Sep 2018 23:08:42 +0200
+Message-ID: <CAK8P3a0rGy_8meAp2fKzH1SW8SjRX-vj2rnLjPab_Gr0fOK_gQ__37392.3196610578$1537823223$gmane$org@mail.gmail.com>
+References: <20180914125006.349747096@linutronix.de>
+	<CAK8P3a1QfynDxkKBLXVa5Qj_z+7ct3QB5sDYuY5QV3ht-a0cTg@mail.gmail.com>
+	<alpine.DEB.2.21.1809171451380.16580@nanos.tec.linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2b8982be-9066-cf08-657b-99ecf889e4a7@linux.ibm.com>
+In-Reply-To: <alpine.DEB.2.21.1809171451380.16580@nanos.tec.linutronix.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,37 +20,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, virtualization@lists.linux-foundation.org, Colin Ian King <colin.king@canonical.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Deepa Dinamani <deepa.kernel@gmail.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, matt@softrans.com.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 24 Sep 2018 16:27:30 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
+On Mon, Sep 17, 2018 at 3:00 PM Thomas Gleixner <tglx@linutronix.de> wrote:
+>
+> On Fri, 14 Sep 2018, Arnd Bergmann wrote:
+> > On Fri, Sep 14, 2018 at 2:52 PM Thomas Gleixner <tglx@linutronix.de> wrote:
+> > A couple of architectures (s390, ia64, riscv, powerpc, arm64)
+> > implement the vdso as assembler code at the moment, so they
+> > won't be as easy to consolidate (other than outright replacing all
+> > the code).
+> >
+> > The other five:
+> > arch/x86/entry/vdso/vclock_gettime.c
+> > arch/sparc/vdso/vclock_gettime.c
+> > arch/nds32/kernel/vdso/gettimeofday.c
+> > arch/mips/vdso/gettimeofday.c
+> > arch/arm/vdso/vgettimeofday.c
+> >
+> > are basically all minor variations of the same code base and could be
+> > consolidated to some degree.
+> > Any suggestions here? Should we plan to do that consolitdation based on
+> > your new version, or just add clock_gettime64 in arm32 and x86-32, and then
+> > be done with it? The other ones will obviously still be fast for 32-bit time_t
+> > and will have a working non-vdso sys_clock_getttime64().
+>
+> In principle consolidating all those implementations should be possible to
+> some extent and probably worthwhile. What's arch specific are the actual
+> accessors to the hardware clocks.
 
-> On 09/24/2018 02:55 PM, Cornelia Huck wrote:
-> > On Fri, 21 Sep 2018 17:47:47 -0400
-> > Farhan Ali <alifm@linux.ibm.com> wrote:
-> >   
-> >> On 09/21/2018 09:28 AM, Halil Pasic wrote:  
-> >   
-> >>> Anyway I'm fine with swapping the old out and your new version in,
-> >>> if you prefer it that way.
-> >>>
-> >>> If you do, would you like to have a respin?  
-> > 
-> > Just send me a respin with something that you find useful :) (maybe a
-> > mashup of our descriptions) (while at it, you could also add the
-> > cc:stable, which I agree make sense)
-> >   
-> 
-> Will do! I would like to go with.
-> 
-> 
-> """
-> This normally does not cause problems, as these are usually infrequent
-> operations. However, for some devices writing to/reading from the config space
-> can be triggered through sysfs attributes. For these userspace can force the
-> race by increasing the frequency.
-> """
+Ok.
 
-Sounds good.
+> > I also wonder about clock_getres(): half the architectures seem to implement
+> > it in vdso, but notably arm32 and x86 don't, and I had not expected it to be
+> > performance critical given that the result is easily cached in user space.
+>
+> getres() is not really performance critical, but adding it does not create
+> a huge problem either.
+
+Right, I'd just not add a getres_time64() to the vdso then.
+
+        Arnd
