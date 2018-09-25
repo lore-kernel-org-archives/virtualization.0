@@ -1,16 +1,12 @@
-From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Subject: Re: [PATCH net-next v9 0/6] net: vhost: improve performance when
+From: xiangxia.m.yue@gmail.com
+Subject: [REBASE PATCH net-next v9 0/4] net: vhost: improve performance when
 	enable busyloop
-Date: Tue, 25 Sep 2018 10:51:47 +0800
-Message-ID: <CAMDZJNWp2Q3kSregdsEn6uUaeV9mjnnmPBpWGSGon_v2iz_WMw__18678.8902305581$1537843825$gmane$org@mail.gmail.com>
-References: <1536493887-2637-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<CAMDZJNWk7UThRus4fZeznx4SvWjtj38ruC6Y_xPc1LV95EfLnA@mail.gmail.com>
-	<08f01199-ad0f-446c-0bcf-187dc31f2b42@redhat.com>
+Date: Tue, 25 Sep 2018 05:36:48 -0700
+Message-ID: <1537879012-20859-1-git-send-email-xiangxia.m.yue__41129.1467644789$1537878902$gmane$org@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <08f01199-ad0f-446c-0bcf-187dc31f2b42@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,32 +16,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: jasowang@redhat.com, mst@redhat.com, makita.toshiaki@lab.ntt.co.jp, davem@davemloft.net
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBTZXAgMjUsIDIwMTggYXQgMTA6MjEgQU0gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT4gd3JvdGU6Cj4KPgo+Cj4gT24gMjAxOOW5tDA55pyIMjPml6UgMjE6NDgsIFRvbmdo
-YW8gWmhhbmcgd3JvdGU6Cj4gPiBPbiBTdW4sIFNlcCA5LCAyMDE4IGF0IDc6NTIgUE0gPHhpYW5n
-eGlhLm0ueXVlQGdtYWlsLmNvbT4gd3JvdGU6Cj4gPj4gRnJvbTogVG9uZ2hhbyBaaGFuZyA8eGlh
-bmd4aWEubS55dWVAZ21haWwuY29tPgo+ID4+Cj4gPj4gVGhpcyBwYXRjaGVzIGltcHJvdmUgdGhl
-IGd1ZXN0IHJlY2VpdmUgcGVyZm9ybWFuY2UuCj4gPj4gT24gdGhlIGhhbmRsZV90eCBzaWRlLCB3
-ZSBwb2xsIHRoZSBzb2NrIHJlY2VpdmUgcXVldWUKPiA+PiBhdCB0aGUgc2FtZSB0aW1lLiBoYW5k
-bGVfcnggZG8gdGhhdCBpbiB0aGUgc2FtZSB3YXkuCj4gPj4KPiA+PiBGb3IgbW9yZSBwZXJmb3Jt
-YW5jZSByZXBvcnQsIHNlZSBwYXRjaCA0LCA1LCA2Cj4gPj4KPiA+PiBUb25naGFvIFpoYW5nICg2
-KToKPiA+PiAgICBuZXQ6IHZob3N0OiBsb2NrIHRoZSB2cXMgb25lIGJ5IG9uZQo+ID4+ICAgIG5l
-dDogdmhvc3Q6IHJlcGxhY2UgbWFnaWMgbnVtYmVyIG9mIGxvY2sgYW5ub3RhdGlvbgo+ID4+ICAg
-IG5ldDogdmhvc3Q6IGZhY3RvciBvdXQgYnVzeSBwb2xsaW5nIGxvZ2ljIHRvIHZob3N0X25ldF9i
-dXN5X3BvbGwoKQo+ID4+ICAgIG5ldDogdmhvc3Q6IGFkZCByeCBidXN5IHBvbGxpbmcgaW4gdHgg
-cGF0aAo+ID4+ICAgIG5ldDogdmhvc3Q6IGRpc2FibGUgcnggd2FrZXVwIGR1cmluZyB0eCBidXN5
-cG9sbAo+ID4+ICAgIG5ldDogdmhvc3Q6IG1ha2UgYnVzeWxvb3BfaW50ciBtb3JlIGFjY3VyYXRl
-Cj4gPj4KPiA+PiAgIGRyaXZlcnMvdmhvc3QvbmV0LmMgICB8IDE2MyArKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0tLQo+ID4+ICAgZHJpdmVycy92aG9zdC92
-aG9zdC5jIHwgIDI0ICsrKy0tLS0tCj4gPj4gICAyIGZpbGVzIGNoYW5nZWQsIDEwOCBpbnNlcnRp
-b25zKCspLCA3OSBkZWxldGlvbnMoLSkKPiA+Pgo+ID4+IC0tCj4gPj4gMS44LjMuMQo+ID4+Cj4g
-PiBwaW5nID8KPgo+IEhJIFRvbmdoYW86Cj4KPiBBcyBEYXZpZCBwb2ludGVkIG91dCwgd2Ugb25s
-eSByZWNlaXZlIGZpcnN0IDQgcGF0Y2hlcy4gWW91IHByb2JhYmx5IG5lZWQKPiB0byByZXNlbmQg
-dGhlIHNlcmllcy4KT0sKPiBUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+
+This patches improve the guest receive performance.
+On the handle_tx side, we poll the sock receive queue
+at the same time. handle_rx do that in the same way.
+
+For more performance report, see patch 4
+
+Tonghao Zhang (4):
+  net: vhost: lock the vqs one by one
+  net: vhost: replace magic number of lock annotation
+  net: vhost: factor out busy polling logic to vhost_net_busy_poll()
+  net: vhost: add rx busy polling in tx path
+
+ drivers/vhost/net.c   | 147 +++++++++++++++++++++++++++++---------------------
+ drivers/vhost/vhost.c |  24 +++------
+ 2 files changed, 92 insertions(+), 79 deletions(-)
+
+-- 
+1.8.3.1
