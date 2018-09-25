@@ -1,13 +1,14 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v2 0/2] virtio/s390: fix some races in virtio-ccw
-Date: Tue, 25 Sep 2018 17:09:07 +0200
-Message-ID: <20180925170907.60750f58.cohuck__862.420714884315$1537888030$gmane$org@redhat.com>
-References: <20180925121309.58524-1-pasic@linux.ibm.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v2 00/20] vmw_balloon: compaction, shrinker, 64-bit, etc.
+Date: Tue, 25 Sep 2018 20:15:48 +0200
+Message-ID: <20180925181548.GB25458@kroah.com>
+References: <20180920173026.141333-1-namit@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180925121309.58524-1-pasic@linux.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <20180920173026.141333-1-namit@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,28 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Colin Ian King <colin.king@canonical.com>
+To: Nadav Amit <namit@vmware.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Xavier Deguillard <xdeguillard@vmware.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 25 Sep 2018 14:13:07 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
+On Thu, Sep 20, 2018 at 10:30:06AM -0700, Nadav Amit wrote:
+> This patch-set adds the following enhancements to the VMware balloon
+> driver:
+> 
+> 1. Balloon compaction support.
+> 2. Report the number of inflated/deflated ballooned pages through vmstat.
+> 3. Memory shrinker to avoid balloon over-inflation (and OOM).
+> 4. Support VMs with memory limit that is greater than 16TB.
+> 5. Faster and more aggressive inflation.
+> 
+> To support compaction we wish to use the existing infrastructure.
+> However, we need to make slight adaptions for it. We add a new list
+> interface to balloon-compaction, which is more generic and efficient,
+> since it does not require as many IRQ save/restore operations. We leave
+> the old interface that is used by the virtio balloon.
+> 
+> Big parts of this patch-set are cleanup and documentation. Patches 1-13
+> simplify the balloon code, document its behavior and allow the balloon
+> code to run concurrently. The support for concurrency is required for
+> compaction and the shrinker interface.
+> 
+> For documentation we use the kernel-doc format. We are aware that the
+> balloon interface is not public, but following the kernel-doc format may
+> be useful one day.
 
-> The trigger for the series is this bug report:
-> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1788432
-> 
-> Changelog:
-> v1 -> v2:
-> * improve on commit messages, add cc:stable 
-> RFC -> v1:
-> * do mutual exclusion on a per device basis in ccw_io_helper() 
-> 
-> Halil Pasic (2):
->   virtio/s390: avoid race on vcdev->config
->   virtio/s390: fix race in ccw_io_helper()
-> 
->  drivers/s390/virtio/virtio_ccw.c | 17 ++++++++++++++---
->  1 file changed, 14 insertions(+), 3 deletions(-)
-> 
+I applied the first 16 patches.  Please fix up 17 and resend.
 
-Thanks, queued.
+thanks,
+
+greg k-h
