@@ -1,16 +1,16 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [patch 00/11] x86/vdso: Cleanups,
-	simmplifications and CLOCK_TAI support
-Date: Mon, 24 Sep 2018 23:08:42 +0200
-Message-ID: <CAK8P3a0rGy_8meAp2fKzH1SW8SjRX-vj2rnLjPab_Gr0fOK_gQ__37392.3196610578$1537823223$gmane$org@mail.gmail.com>
-References: <20180914125006.349747096@linutronix.de>
-	<CAK8P3a1QfynDxkKBLXVa5Qj_z+7ct3QB5sDYuY5QV3ht-a0cTg@mail.gmail.com>
-	<alpine.DEB.2.21.1809171451380.16580@nanos.tec.linutronix.de>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next v9 0/6] net: vhost: improve performance when
+	enable busyloop
+Date: Tue, 25 Sep 2018 10:21:03 +0800
+Message-ID: <08f01199-ad0f-446c-0bcf-187dc31f2b42__3424.3447859355$1537841954$gmane$org@redhat.com>
+References: <1536493887-2637-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<CAMDZJNWk7UThRus4fZeznx4SvWjtj38ruC6Y_xPc1LV95EfLnA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.21.1809171451380.16580@nanos.tec.linutronix.de>
+In-Reply-To: <CAMDZJNWk7UThRus4fZeznx4SvWjtj38ruC6Y_xPc1LV95EfLnA@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,46 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Deepa Dinamani <deepa.kernel@gmail.com>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, matt@softrans.com.au
+To: Tonghao Zhang <xiangxia.m.yue@gmail.com>, mst@redhat.com, makita.toshiaki@lab.ntt.co.jp
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 17, 2018 at 3:00 PM Thomas Gleixner <tglx@linutronix.de> wrote:
->
-> On Fri, 14 Sep 2018, Arnd Bergmann wrote:
-> > On Fri, Sep 14, 2018 at 2:52 PM Thomas Gleixner <tglx@linutronix.de> wrote:
-> > A couple of architectures (s390, ia64, riscv, powerpc, arm64)
-> > implement the vdso as assembler code at the moment, so they
-> > won't be as easy to consolidate (other than outright replacing all
-> > the code).
-> >
-> > The other five:
-> > arch/x86/entry/vdso/vclock_gettime.c
-> > arch/sparc/vdso/vclock_gettime.c
-> > arch/nds32/kernel/vdso/gettimeofday.c
-> > arch/mips/vdso/gettimeofday.c
-> > arch/arm/vdso/vgettimeofday.c
-> >
-> > are basically all minor variations of the same code base and could be
-> > consolidated to some degree.
-> > Any suggestions here? Should we plan to do that consolitdation based on
-> > your new version, or just add clock_gettime64 in arm32 and x86-32, and then
-> > be done with it? The other ones will obviously still be fast for 32-bit time_t
-> > and will have a working non-vdso sys_clock_getttime64().
->
-> In principle consolidating all those implementations should be possible to
-> some extent and probably worthwhile. What's arch specific are the actual
-> accessors to the hardware clocks.
-
-Ok.
-
-> > I also wonder about clock_getres(): half the architectures seem to implement
-> > it in vdso, but notably arm32 and x86 don't, and I had not expected it to be
-> > performance critical given that the result is easily cached in user space.
->
-> getres() is not really performance critical, but adding it does not create
-> a huge problem either.
-
-Right, I'd just not add a getres_time64() to the vdso then.
-
-        Arnd
+CgpPbiAyMDE45bm0MDnmnIgyM+aXpSAyMTo0OCwgVG9uZ2hhbyBaaGFuZyB3cm90ZToKPiBPbiBT
+dW4sIFNlcCA5LCAyMDE4IGF0IDc6NTIgUE0gPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbT4gd3Jv
+dGU6Cj4+IEZyb206IFRvbmdoYW8gWmhhbmcgPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbT4KPj4K
+Pj4gVGhpcyBwYXRjaGVzIGltcHJvdmUgdGhlIGd1ZXN0IHJlY2VpdmUgcGVyZm9ybWFuY2UuCj4+
+IE9uIHRoZSBoYW5kbGVfdHggc2lkZSwgd2UgcG9sbCB0aGUgc29jayByZWNlaXZlIHF1ZXVlCj4+
+IGF0IHRoZSBzYW1lIHRpbWUuIGhhbmRsZV9yeCBkbyB0aGF0IGluIHRoZSBzYW1lIHdheS4KPj4K
+Pj4gRm9yIG1vcmUgcGVyZm9ybWFuY2UgcmVwb3J0LCBzZWUgcGF0Y2ggNCwgNSwgNgo+Pgo+PiBU
+b25naGFvIFpoYW5nICg2KToKPj4gICAgbmV0OiB2aG9zdDogbG9jayB0aGUgdnFzIG9uZSBieSBv
+bmUKPj4gICAgbmV0OiB2aG9zdDogcmVwbGFjZSBtYWdpYyBudW1iZXIgb2YgbG9jayBhbm5vdGF0
+aW9uCj4+ICAgIG5ldDogdmhvc3Q6IGZhY3RvciBvdXQgYnVzeSBwb2xsaW5nIGxvZ2ljIHRvIHZo
+b3N0X25ldF9idXN5X3BvbGwoKQo+PiAgICBuZXQ6IHZob3N0OiBhZGQgcnggYnVzeSBwb2xsaW5n
+IGluIHR4IHBhdGgKPj4gICAgbmV0OiB2aG9zdDogZGlzYWJsZSByeCB3YWtldXAgZHVyaW5nIHR4
+IGJ1c3lwb2xsCj4+ICAgIG5ldDogdmhvc3Q6IG1ha2UgYnVzeWxvb3BfaW50ciBtb3JlIGFjY3Vy
+YXRlCj4+Cj4+ICAgZHJpdmVycy92aG9zdC9uZXQuYyAgIHwgMTYzICsrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0tCj4+ICAgZHJpdmVycy92aG9zdC92aG9z
+dC5jIHwgIDI0ICsrKy0tLS0tCj4+ICAgMiBmaWxlcyBjaGFuZ2VkLCAxMDggaW5zZXJ0aW9ucygr
+KSwgNzkgZGVsZXRpb25zKC0pCj4+Cj4+IC0tCj4+IDEuOC4zLjEKPj4KPiBwaW5nID8KCkhJIFRv
+bmdoYW86CgpBcyBEYXZpZCBwb2ludGVkIG91dCwgd2Ugb25seSByZWNlaXZlIGZpcnN0IDQgcGF0
+Y2hlcy4gWW91IHByb2JhYmx5IG5lZWQgCnRvIHJlc2VuZCB0aGUgc2VyaWVzLgoKVGhhbmtzCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
