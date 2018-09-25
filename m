@@ -1,7 +1,8 @@
 From: xiangxia.m.yue@gmail.com
-Subject: [REBASE PATCH net-next v9 1/4] net: vhost: lock the vqs one by one
-Date: Tue, 25 Sep 2018 05:36:49 -0700
-Message-ID: <1537879012-20859-2-git-send-email-xiangxia.m.yue__416.345874737267$1537878913$gmane$org@gmail.com>
+Subject: [REBASE PATCH net-next v9 2/4] net: vhost: replace magic number of
+	lock annotation
+Date: Tue, 25 Sep 2018 05:36:50 -0700
+Message-ID: <1537879012-20859-3-git-send-email-xiangxia.m.yue__4639.35184893689$1537878932$gmane$org@gmail.com>
 References: <1537879012-20859-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,81 +24,44 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 
-This patch changes the way that lock all vqs
-at the same, to lock them one by one. It will
-be used for next patch to avoid the deadlock.
+Use the VHOST_NET_VQ_XXX as a subclass for mutex_lock_nested.
 
 Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/vhost.c | 24 +++++++-----------------
- 1 file changed, 7 insertions(+), 17 deletions(-)
+ drivers/vhost/net.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index b13c6b4..f52008b 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -294,8 +294,11 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
- {
- 	int i;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 1bff6bc..5fe57ab 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -856,7 +856,7 @@ static void handle_tx(struct vhost_net *net)
+ 	struct vhost_virtqueue *vq = &nvq->vq;
+ 	struct socket *sock;
  
--	for (i = 0; i < d->nvqs; ++i)
-+	for (i = 0; i < d->nvqs; ++i) {
-+		mutex_lock(&d->vqs[i]->mutex);
- 		__vhost_vq_meta_reset(d->vqs[i]);
-+		mutex_unlock(&d->vqs[i]->mutex);
-+	}
- }
+-	mutex_lock(&vq->mutex);
++	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_TX);
+ 	sock = vq->private_data;
+ 	if (!sock)
+ 		goto out;
+@@ -921,7 +921,7 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
+ 		/* Flush batched heads first */
+ 		vhost_net_signal_used(rnvq);
+ 		/* Both tx vq and rx socket were polled here */
+-		mutex_lock_nested(&tvq->mutex, 1);
++		mutex_lock_nested(&tvq->mutex, VHOST_NET_VQ_TX);
+ 		vhost_disable_notify(&net->dev, tvq);
  
- static void vhost_vq_reset(struct vhost_dev *dev,
-@@ -891,20 +894,6 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
- #define vhost_get_used(vq, x, ptr) \
- 	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
+ 		preempt_disable();
+@@ -1063,7 +1063,7 @@ static void handle_rx(struct vhost_net *net)
+ 	__virtio16 num_buffers;
+ 	int recv_pkts = 0;
  
--static void vhost_dev_lock_vqs(struct vhost_dev *d)
--{
--	int i = 0;
--	for (i = 0; i < d->nvqs; ++i)
--		mutex_lock_nested(&d->vqs[i]->mutex, i);
--}
--
--static void vhost_dev_unlock_vqs(struct vhost_dev *d)
--{
--	int i = 0;
--	for (i = 0; i < d->nvqs; ++i)
--		mutex_unlock(&d->vqs[i]->mutex);
--}
--
- static int vhost_new_umem_range(struct vhost_umem *umem,
- 				u64 start, u64 size, u64 end,
- 				u64 userspace_addr, int perm)
-@@ -954,7 +943,10 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
- 		if (msg->iova <= vq_msg->iova &&
- 		    msg->iova + msg->size - 1 >= vq_msg->iova &&
- 		    vq_msg->type == VHOST_IOTLB_MISS) {
-+			mutex_lock(&node->vq->mutex);
- 			vhost_poll_queue(&node->vq->poll);
-+			mutex_unlock(&node->vq->mutex);
-+
- 			list_del(&node->node);
- 			kfree(node);
- 		}
-@@ -986,7 +978,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 	int ret = 0;
- 
- 	mutex_lock(&dev->mutex);
--	vhost_dev_lock_vqs(dev);
- 	switch (msg->type) {
- 	case VHOST_IOTLB_UPDATE:
- 		if (!dev->iotlb) {
-@@ -1020,7 +1011,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 		break;
- 	}
- 
--	vhost_dev_unlock_vqs(dev);
- 	mutex_unlock(&dev->mutex);
- 
- 	return ret;
+-	mutex_lock_nested(&vq->mutex, 0);
++	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_RX);
+ 	sock = vq->private_data;
+ 	if (!sock)
+ 		goto out;
 -- 
 1.8.3.1
