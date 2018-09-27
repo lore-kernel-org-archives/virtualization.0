@@ -1,11 +1,20 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net V2] vhost-vsock: fix use after free
-Date: Thu, 27 Sep 2018 20:22:04 +0800
-Message-ID: <20180927122204.4188-1-jasowang__11616.5016116158$1538050814$gmane$org@redhat.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [patch 09/11] x86/vdso: Simplify the invalid vclock case
+Date: Thu, 27 Sep 2018 16:36:45 +0200 (CEST)
+Message-ID: <alpine.DEB.2.21.1809271630470.8118__13893.2473063052$1538058906$gmane$org@nanos.tec.linutronix.de>
+References: <20180914125006.349747096@linutronix.de>
+	<20180914125118.909646643@linutronix.de>
+	<CALCETrXh70oFHfT0Z-JXcnAumhAgLqSea5UiPY3WXu=v2GcKTg@mail.gmail.com>
+	<CALAqxLUv9Rd_eA7u9gZNFvTNrT1Z67RpHLozdeNC0W2yZm=Heg@mail.gmail.com>
+	<alpine.DEB.2.21.1809180948570.3558@nanos.tec.linutronix.de>
+	<863331ED-B04A-4B94-91A2-D34002C9CCDC@amacapital.net>
+	<alpine.DEB.2.21.1809190037570.1468@nanos.tec.linutronix.de>
+	<439A3E73-E4FF-4D66-800E-5BEE58EDE8F6@amacapital.net>
+	<alpine.DEB.2.21.1809190112020.1468@nanos.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="8323329-882047337-1538059006=:8118"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <alpine.DEB.2.21.1809190112020.1468@nanos.tec.linutronix.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,98 +24,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: stefanha@redhat.com, mst@redhat.com
-Cc: kvm@vger.kernel.org, sergei.shtylyov@cogentembedded.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The access of vsock is not protected by vhost_vsock_lock. This may
-lead to use after free since vhost_vsock_dev_release() may free the
-pointer at the same time.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Fix this by holding the lock during the access.
+--8323329-882047337-1538059006=:8118
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 
-Reported-by: syzbot+e3e074963495f92a89ed@syzkaller.appspotmail.com
-Fixes: 16320f363ae1 ("vhost-vsock: add pkt cancel capability")
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
-- V2: fix typos
-- The patch is needed for -stable.
----
- drivers/vhost/vsock.c | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+On Wed, 19 Sep 2018, Thomas Gleixner wrote:
+> On Tue, 18 Sep 2018, Andy Lutomirski wrote:
+> > > On Sep 18, 2018, at 3:46 PM, Thomas Gleixner <tglx@linutronix.de> wrote:
+> > > On Tue, 18 Sep 2018, Andy Lutomirski wrote:
+> > >> Do we do better if we use signed arithmetic for the whole calculation?
+> > >> Then a small backwards movement would result in a small backwards result.
+> > >> Or we could offset everything so that we’d have to go back several
+> > >> hundred ms before we cross zero.
+> > > 
+> > > That would be probably the better solution as signed math would be
+> > > problematic when the resulting ns value becomes negative. As the delta is
+> > > really small, otherwise the TSC sync check would have caught it, the caller
+> > > should never be able to observe time going backwards.
+> > > 
+> > > I'll have a look into that. It needs some thought vs. the fractional part
+> > > of the base time, but it should be not rocket science to get that
+> > > correct. Famous last words...
+> > > 
+> > 
+> > It’s also fiddly to tune. If you offset it too much, then the fancy
+> > divide-by-repeated-subtraction loop will hurt more than the comparison to
+> > last.
+> 
+> Not really. It's sufficient to offset it by at max. 1000 cycles or so. That
+> won't hurt the magic loop, but it will definitely cover that slight offset
+> case.
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 34bc3ab40c6d..7d0b292867fd 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -210,21 +210,27 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
- 	struct vhost_vsock *vsock;
- 	int len = pkt->len;
- 
-+	spin_lock_bh(&vhost_vsock_lock);
-+
- 	/* Find the vhost_vsock according to guest context id  */
--	vsock = vhost_vsock_get(le64_to_cpu(pkt->hdr.dst_cid));
-+	vsock = __vhost_vsock_get(le64_to_cpu(pkt->hdr.dst_cid));
- 	if (!vsock) {
- 		virtio_transport_free_pkt(pkt);
-+		spin_unlock_bh(&vhost_vsock_lock);
- 		return -ENODEV;
- 	}
- 
- 	if (pkt->reply)
- 		atomic_inc(&vsock->queued_replies);
- 
--	spin_lock_bh(&vsock->send_pkt_list_lock);
-+	spin_lock(&vsock->send_pkt_list_lock);
- 	list_add_tail(&pkt->list, &vsock->send_pkt_list);
--	spin_unlock_bh(&vsock->send_pkt_list_lock);
-+	spin_unlock(&vsock->send_pkt_list_lock);
- 
- 	vhost_work_queue(&vsock->dev, &vsock->send_pkt_work);
-+
-+	spin_unlock_bh(&vhost_vsock_lock);
-+
- 	return len;
- }
- 
-@@ -236,18 +242,22 @@ vhost_transport_cancel_pkt(struct vsock_sock *vsk)
- 	int cnt = 0;
- 	LIST_HEAD(freeme);
- 
-+	spin_lock_bh(&vhost_vsock_lock);
-+
- 	/* Find the vhost_vsock according to guest context id  */
--	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid);
--	if (!vsock)
-+	vsock = __vhost_vsock_get(vsk->remote_addr.svm_cid);
-+	if (!vsock) {
-+		spin_unlock_bh(&vhost_vsock_lock);
- 		return -ENODEV;
-+	}
- 
--	spin_lock_bh(&vsock->send_pkt_list_lock);
-+	spin_lock(&vsock->send_pkt_list_lock);
- 	list_for_each_entry_safe(pkt, n, &vsock->send_pkt_list, list) {
- 		if (pkt->vsk != vsk)
- 			continue;
- 		list_move(&pkt->list, &freeme);
- 	}
--	spin_unlock_bh(&vsock->send_pkt_list_lock);
-+	spin_unlock(&vsock->send_pkt_list_lock);
- 
- 	list_for_each_entry_safe(pkt, n, &freeme, list) {
- 		if (pkt->reply)
-@@ -265,6 +275,8 @@ vhost_transport_cancel_pkt(struct vsock_sock *vsk)
- 			vhost_poll_queue(&tx_vq->poll);
- 	}
- 
-+	spin_unlock_bh(&vhost_vsock_lock);
-+
- 	return 0;
- }
- 
--- 
-2.17.1
+I got it working, but first of all the gain is close to 0.
+
+There is this other subtle issue that we've seen TSCs slowly drifting apart
+which is caught by the TSC watchdog eventually, but if it exeeds the offset
+_before_ the watchdog triggers, we're back to square one.
+
+So I rather stay on the safe side and just accept that we have to deal with
+that. Sigh.
+
+Thanks,
+
+	tglx
+--8323329-882047337-1538059006=:8118
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--8323329-882047337-1538059006=:8118--
