@@ -1,15 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] vhost-vsock: fix use after free
-Date: Thu, 27 Sep 2018 20:21:37 +0800
-Message-ID: <a05604fb-74c7-5a6b-2af1-702da68ffbec__10481.957512866$1538050786$gmane$org@redhat.com>
-References: <20180927084301.573-1-jasowang@redhat.com>
-	<a413a8b4-302d-7fbc-092d-95e8aa421c4c@cogentembedded.com>
+Subject: [PATCH net V2] vhost-vsock: fix use after free
+Date: Thu, 27 Sep 2018 20:22:04 +0800
+Message-ID: <20180927122204.4188-1-jasowang__11616.5016116158$1538050814$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <a413a8b4-302d-7fbc-092d-95e8aa421c4c@cogentembedded.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +15,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, stefanha@redhat.com, mst@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: stefanha@redhat.com, mst@redhat.com
+Cc: kvm@vger.kernel.org, sergei.shtylyov@cogentembedded.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDnmnIgyN+aXpSAxNzo1MiwgU2VyZ2VpIFNodHlseW92IHdyb3RlOgo+IEhl
-bGxvIQo+Cj4gT24gOS8yNy8yMDE4IDExOjQzIEFNLCBKYXNvbiBXYW5nIHdyb3RlOgo+Cj4gwqDC
-oCBKdXN0IGEgY291cGxlIG9mIHR5cG9zLi4uCj4KPj4gVGhlIGFjY2VzcyBvZiB2c29jayBpcyBu
-b3QgcHJvdGVjdGVkIGJ5IHZob3N0X3Zzb2NrX2xvY2suIFRoaXMgbWF5Cj4+IGxlYWQgdXNlIGFm
-dGVyIGZyZWUgc2luY2Ugdmhvc3RfdnNvY2tfZGV2X3JlbGVhc2UoKSBtYXkgZnJlZSB0aGUKPgo+
-IMKgIExlYWQgdG8gdXNlLgo+Cj4+IHBvaW50ZXIgYXQgdGhlIHNhbWUgdGltZS4KPj4KPj4gRml4
-IHRoaXMgYnkgaG9sZGluZyB0aGUgbG9jayBkdXJpbmcgdGhlIGFjZXNzLgo+Cj4gwqDCoCBBY2Nl
-c3MuCj4KPj4gUmVwb3J0ZWQtYnk6IHN5emJvdCtlM2UwNzQ5NjM0OTVmOTJhODllZEBzeXprYWxs
-ZXIuYXBwc3BvdG1haWwuY29tCj4+IEZpeGVzOiAxNjMyMGYzNjNhZTEgKCJ2aG9zdC12c29jazog
-YWRkIHBrdCBjYW5jZWwgY2FwYWJpbGl0eSIpCj4+IEZpeGVzOiA0MzNmYzU4ZTZiZjIgKCJWU09D
-SzogSW50cm9kdWNlIHZob3N0X3Zzb2NrLmtvIikKPj4gQ2M6IFN0ZWZhbiBIYWpub2N6aSA8c3Rl
-ZmFuaGFAcmVkaGF0LmNvbT4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdA
-cmVkaGF0LmNvbT4KPiBbLi4uXQo+Cj4gTUJSLCBTZXJnZWkKCkxldCBtZSBwb3N0IFYyLgoKVGhh
-bmtzCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+The access of vsock is not protected by vhost_vsock_lock. This may
+lead to use after free since vhost_vsock_dev_release() may free the
+pointer at the same time.
+
+Fix this by holding the lock during the access.
+
+Reported-by: syzbot+e3e074963495f92a89ed@syzkaller.appspotmail.com
+Fixes: 16320f363ae1 ("vhost-vsock: add pkt cancel capability")
+Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+- V2: fix typos
+- The patch is needed for -stable.
+---
+ drivers/vhost/vsock.c | 26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 34bc3ab40c6d..7d0b292867fd 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -210,21 +210,27 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
+ 	struct vhost_vsock *vsock;
+ 	int len = pkt->len;
+ 
++	spin_lock_bh(&vhost_vsock_lock);
++
+ 	/* Find the vhost_vsock according to guest context id  */
+-	vsock = vhost_vsock_get(le64_to_cpu(pkt->hdr.dst_cid));
++	vsock = __vhost_vsock_get(le64_to_cpu(pkt->hdr.dst_cid));
+ 	if (!vsock) {
+ 		virtio_transport_free_pkt(pkt);
++		spin_unlock_bh(&vhost_vsock_lock);
+ 		return -ENODEV;
+ 	}
+ 
+ 	if (pkt->reply)
+ 		atomic_inc(&vsock->queued_replies);
+ 
+-	spin_lock_bh(&vsock->send_pkt_list_lock);
++	spin_lock(&vsock->send_pkt_list_lock);
+ 	list_add_tail(&pkt->list, &vsock->send_pkt_list);
+-	spin_unlock_bh(&vsock->send_pkt_list_lock);
++	spin_unlock(&vsock->send_pkt_list_lock);
+ 
+ 	vhost_work_queue(&vsock->dev, &vsock->send_pkt_work);
++
++	spin_unlock_bh(&vhost_vsock_lock);
++
+ 	return len;
+ }
+ 
+@@ -236,18 +242,22 @@ vhost_transport_cancel_pkt(struct vsock_sock *vsk)
+ 	int cnt = 0;
+ 	LIST_HEAD(freeme);
+ 
++	spin_lock_bh(&vhost_vsock_lock);
++
+ 	/* Find the vhost_vsock according to guest context id  */
+-	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid);
+-	if (!vsock)
++	vsock = __vhost_vsock_get(vsk->remote_addr.svm_cid);
++	if (!vsock) {
++		spin_unlock_bh(&vhost_vsock_lock);
+ 		return -ENODEV;
++	}
+ 
+-	spin_lock_bh(&vsock->send_pkt_list_lock);
++	spin_lock(&vsock->send_pkt_list_lock);
+ 	list_for_each_entry_safe(pkt, n, &vsock->send_pkt_list, list) {
+ 		if (pkt->vsk != vsk)
+ 			continue;
+ 		list_move(&pkt->list, &freeme);
+ 	}
+-	spin_unlock_bh(&vsock->send_pkt_list_lock);
++	spin_unlock(&vsock->send_pkt_list_lock);
+ 
+ 	list_for_each_entry_safe(pkt, n, &freeme, list) {
+ 		if (pkt->reply)
+@@ -265,6 +275,8 @@ vhost_transport_cancel_pkt(struct vsock_sock *vsk)
+ 			vhost_poll_queue(&tx_vq->poll);
+ 	}
+ 
++	spin_unlock_bh(&vhost_vsock_lock);
++
+ 	return 0;
+ }
+ 
+-- 
+2.17.1
