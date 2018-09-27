@@ -1,7 +1,7 @@
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: [patch 09/11] x86/vdso: Simplify the invalid vclock case
-Date: Thu, 27 Sep 2018 16:36:45 +0200 (CEST)
-Message-ID: <alpine.DEB.2.21.1809271630470.8118__13893.2473063052$1538058906$gmane$org@nanos.tec.linutronix.de>
+Date: Thu, 27 Sep 2018 07:39:06 -0700
+Message-ID: <ABD3F880-C028-431B-A70D-E94D7F73154D__18395.0216895484$1538059028$gmane$org@amacapital.net>
 References: <20180914125006.349747096@linutronix.de>
 	<20180914125118.909646643@linutronix.de>
 	<CALCETrXh70oFHfT0Z-JXcnAumhAgLqSea5UiPY3WXu=v2GcKTg@mail.gmail.com>
@@ -11,10 +11,12 @@ References: <20180914125006.349747096@linutronix.de>
 	<alpine.DEB.2.21.1809190037570.1468@nanos.tec.linutronix.de>
 	<439A3E73-E4FF-4D66-800E-5BEE58EDE8F6@amacapital.net>
 	<alpine.DEB.2.21.1809190112020.1468@nanos.tec.linutronix.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="8323329-882047337-1538059006=:8118"
+	<alpine.DEB.2.21.1809271630470.8118@nanos.tec.linutronix.de>
+Mime-Version: 1.0 (1.0)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.21.1809190112020.1468@nanos.tec.linutronix.de>
+In-Reply-To: <alpine.DEB.2.21.1809271630470.8118@nanos.tec.linutronix.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,64 +26,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
+To: Thomas Gleixner <tglx@linutronix.de>
 Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---8323329-882047337-1538059006=:8118
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-
-On Wed, 19 Sep 2018, Thomas Gleixner wrote:
-> On Tue, 18 Sep 2018, Andy Lutomirski wrote:
-> > > On Sep 18, 2018, at 3:46 PM, Thomas Gleixner <tglx@linutronix.de> wrote:
-> > > On Tue, 18 Sep 2018, Andy Lutomirski wrote:
-> > >> Do we do better if we use signed arithmetic for the whole calculation?
-> > >> Then a small backwards movement would result in a small backwards result.
-> > >> Or we could offset everything so that we’d have to go back several
-> > >> hundred ms before we cross zero.
-> > > 
-> > > That would be probably the better solution as signed math would be
-> > > problematic when the resulting ns value becomes negative. As the delta is
-> > > really small, otherwise the TSC sync check would have caught it, the caller
-> > > should never be able to observe time going backwards.
-> > > 
-> > > I'll have a look into that. It needs some thought vs. the fractional part
-> > > of the base time, but it should be not rocket science to get that
-> > > correct. Famous last words...
-> > > 
-> > 
-> > It’s also fiddly to tune. If you offset it too much, then the fancy
-> > divide-by-repeated-subtraction loop will hurt more than the comparison to
-> > last.
-> 
-> Not really. It's sufficient to offset it by at max. 1000 cycles or so. That
-> won't hurt the magic loop, but it will definitely cover that slight offset
-> case.
-
-I got it working, but first of all the gain is close to 0.
-
-There is this other subtle issue that we've seen TSCs slowly drifting apart
-which is caught by the TSC watchdog eventually, but if it exeeds the offset
-_before_ the watchdog triggers, we're back to square one.
-
-So I rather stay on the safe side and just accept that we have to deal with
-that. Sigh.
-
-Thanks,
-
-	tglx
---8323329-882047337-1538059006=:8118
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---8323329-882047337-1538059006=:8118--
+Cgo+IE9uIFNlcCAyNywgMjAxOCwgYXQgNzozNiBBTSwgVGhvbWFzIEdsZWl4bmVyIDx0Z2x4QGxp
+bnV0cm9uaXguZGU+IHdyb3RlOgo+IAo+PiBPbiBXZWQsIDE5IFNlcCAyMDE4LCBUaG9tYXMgR2xl
+aXhuZXIgd3JvdGU6Cj4+IE9uIFR1ZSwgMTggU2VwIDIwMTgsIEFuZHkgTHV0b21pcnNraSB3cm90
+ZToKPj4+PiBPbiBTZXAgMTgsIDIwMTgsIGF0IDM6NDYgUE0sIFRob21hcyBHbGVpeG5lciA8dGds
+eEBsaW51dHJvbml4LmRlPiB3cm90ZToKPj4+Pj4gT24gVHVlLCAxOCBTZXAgMjAxOCwgQW5keSBM
+dXRvbWlyc2tpIHdyb3RlOgo+Pj4+PiBEbyB3ZSBkbyBiZXR0ZXIgaWYgd2UgdXNlIHNpZ25lZCBh
+cml0aG1ldGljIGZvciB0aGUgd2hvbGUgY2FsY3VsYXRpb24/Cj4+Pj4+IFRoZW4gYSBzbWFsbCBi
+YWNrd2FyZHMgbW92ZW1lbnQgd291bGQgcmVzdWx0IGluIGEgc21hbGwgYmFja3dhcmRzIHJlc3Vs
+dC4KPj4+Pj4gT3Igd2UgY291bGQgb2Zmc2V0IGV2ZXJ5dGhpbmcgc28gdGhhdCB3ZeKAmWQgaGF2
+ZSB0byBnbyBiYWNrIHNldmVyYWwKPj4+Pj4gaHVuZHJlZCBtcyBiZWZvcmUgd2UgY3Jvc3MgemVy
+by4KPj4+PiAKPj4+PiBUaGF0IHdvdWxkIGJlIHByb2JhYmx5IHRoZSBiZXR0ZXIgc29sdXRpb24g
+YXMgc2lnbmVkIG1hdGggd291bGQgYmUKPj4+PiBwcm9ibGVtYXRpYyB3aGVuIHRoZSByZXN1bHRp
+bmcgbnMgdmFsdWUgYmVjb21lcyBuZWdhdGl2ZS4gQXMgdGhlIGRlbHRhIGlzCj4+Pj4gcmVhbGx5
+IHNtYWxsLCBvdGhlcndpc2UgdGhlIFRTQyBzeW5jIGNoZWNrIHdvdWxkIGhhdmUgY2F1Z2h0IGl0
+LCB0aGUgY2FsbGVyCj4+Pj4gc2hvdWxkIG5ldmVyIGJlIGFibGUgdG8gb2JzZXJ2ZSB0aW1lIGdv
+aW5nIGJhY2t3YXJkcy4KPj4+PiAKPj4+PiBJJ2xsIGhhdmUgYSBsb29rIGludG8gdGhhdC4gSXQg
+bmVlZHMgc29tZSB0aG91Z2h0IHZzLiB0aGUgZnJhY3Rpb25hbCBwYXJ0Cj4+Pj4gb2YgdGhlIGJh
+c2UgdGltZSwgYnV0IGl0IHNob3VsZCBiZSBub3Qgcm9ja2V0IHNjaWVuY2UgdG8gZ2V0IHRoYXQK
+Pj4+PiBjb3JyZWN0LiBGYW1vdXMgbGFzdCB3b3Jkcy4uLgo+Pj4+IAo+Pj4gCj4+PiBJdOKAmXMg
+YWxzbyBmaWRkbHkgdG8gdHVuZS4gSWYgeW91IG9mZnNldCBpdCB0b28gbXVjaCwgdGhlbiB0aGUg
+ZmFuY3kKPj4+IGRpdmlkZS1ieS1yZXBlYXRlZC1zdWJ0cmFjdGlvbiBsb29wIHdpbGwgaHVydCBt
+b3JlIHRoYW4gdGhlIGNvbXBhcmlzb24gdG8KPj4+IGxhc3QuCj4+IAo+PiBOb3QgcmVhbGx5LiBJ
+dCdzIHN1ZmZpY2llbnQgdG8gb2Zmc2V0IGl0IGJ5IGF0IG1heC4gMTAwMCBjeWNsZXMgb3Igc28u
+IFRoYXQKPj4gd29uJ3QgaHVydCB0aGUgbWFnaWMgbG9vcCwgYnV0IGl0IHdpbGwgZGVmaW5pdGVs
+eSBjb3ZlciB0aGF0IHNsaWdodCBvZmZzZXQKPj4gY2FzZS4KPiAKPiBJIGdvdCBpdCB3b3JraW5n
+LCBidXQgZmlyc3Qgb2YgYWxsIHRoZSBnYWluIGlzIGNsb3NlIHRvIDAuCj4gCj4gVGhlcmUgaXMg
+dGhpcyBvdGhlciBzdWJ0bGUgaXNzdWUgdGhhdCB3ZSd2ZSBzZWVuIFRTQ3Mgc2xvd2x5IGRyaWZ0
+aW5nIGFwYXJ0Cj4gd2hpY2ggaXMgY2F1Z2h0IGJ5IHRoZSBUU0Mgd2F0Y2hkb2cgZXZlbnR1YWxs
+eSwgYnV0IGlmIGl0IGV4ZWVkcyB0aGUgb2Zmc2V0Cj4gX2JlZm9yZV8gdGhlIHdhdGNoZG9nIHRy
+aWdnZXJzLCB3ZSdyZSBiYWNrIHRvIHNxdWFyZSBvbmUuCj4gCj4gU28gSSByYXRoZXIgc3RheSBv
+biB0aGUgc2FmZSBzaWRlIGFuZCBqdXN0IGFjY2VwdCB0aGF0IHdlIGhhdmUgdG8gZGVhbCB3aXRo
+Cj4gdGhhdC4gU2lnaC4KPiAKPiAKClNlZW1zIG9rYXkgdG8gbWUuIE9oIHdlbGwuIApfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
