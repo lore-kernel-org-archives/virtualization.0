@@ -1,13 +1,14 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 2/2] virtio/s390: fix race in ccw_io_helper()
-Date: Wed, 26 Sep 2018 18:48:30 +0200
-Message-ID: <20180926164830.8435-3-cohuck__47995.0329442092$1537980417$gmane$org@redhat.com>
-References: <20180926164830.8435-1-cohuck@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [REBASE PATCH net-next v9 0/4] net: vhost: improve performance
+	when enable busyloop
+Date: Wed, 26 Sep 2018 20:26:08 -0700 (PDT)
+Message-ID: <20180926.202608.1905461560568201589.davem__35526.314439676$1538018650$gmane$org@davemloft.net>
+References: <1537879012-20859-1-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180926164830.8435-1-cohuck@redhat.com>
+In-Reply-To: <1537879012-20859-1-git-send-email-xiangxia.m.yue@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,80 +18,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>
+To: xiangxia.m.yue@gmail.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: xiangxia.m.yue@gmail.com
+Date: Tue, 25 Sep 2018 05:36:48 -0700
 
-While ccw_io_helper() seems like intended to be exclusive in a sense that
-it is supposed to facilitate I/O for at most one thread at any given
-time, there is actually nothing ensuring that threads won't pile up at
-vcdev->wait_q. If they do, all threads get woken up and see the status
-that belongs to some other request than their own. This can lead to bugs.
-For an example see:
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1788432
+> From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+> 
+> This patches improve the guest receive performance.
+> On the handle_tx side, we poll the sock receive queue
+> at the same time. handle_rx do that in the same way.
+> 
+> For more performance report, see patch 4
 
-This race normally does not cause any problems. The operations provided
-by struct virtio_config_ops are usually invoked in a well defined
-sequence, normally don't fail, and are normally used quite infrequent
-too.
-
-Yet, if some of the these operations are directly triggered via sysfs
-attributes, like in the case described by the referenced bug, userspace
-is given an opportunity to force races by increasing the frequency of the
-given operations.
-
-Let us fix the problem by ensuring, that for each device, we finish
-processing the previous request before starting with a new one.
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Cc: stable@vger.kernel.org
-Message-Id: <20180925121309.58524-3-pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/virtio/virtio_ccw.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index a5e8530a3391..b67dc4974f23 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -56,6 +56,7 @@ struct virtio_ccw_device {
- 	unsigned int revision; /* Transport revision */
- 	wait_queue_head_t wait_q;
- 	spinlock_t lock;
-+	struct mutex io_lock; /* Serializes I/O requests */
- 	struct list_head virtqueues;
- 	unsigned long indicators;
- 	unsigned long indicators2;
-@@ -296,6 +297,7 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
- 	unsigned long flags;
- 	int flag = intparm & VIRTIO_CCW_INTPARM_MASK;
- 
-+	mutex_lock(&vcdev->io_lock);
- 	do {
- 		spin_lock_irqsave(get_ccwdev_lock(vcdev->cdev), flags);
- 		ret = ccw_device_start(vcdev->cdev, ccw, intparm, 0, 0);
-@@ -308,7 +310,9 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
- 		cpu_relax();
- 	} while (ret == -EBUSY);
- 	wait_event(vcdev->wait_q, doing_io(vcdev, flag) == 0);
--	return ret ? ret : vcdev->err;
-+	ret = ret ? ret : vcdev->err;
-+	mutex_unlock(&vcdev->io_lock);
-+	return ret;
- }
- 
- static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
-@@ -1253,6 +1257,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
- 	init_waitqueue_head(&vcdev->wait_q);
- 	INIT_LIST_HEAD(&vcdev->virtqueues);
- 	spin_lock_init(&vcdev->lock);
-+	mutex_init(&vcdev->io_lock);
- 
- 	spin_lock_irqsave(get_ccwdev_lock(cdev), flags);
- 	dev_set_drvdata(&cdev->dev, vcdev);
--- 
-2.14.4
+Series applied, thank you.
