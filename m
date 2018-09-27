@@ -1,24 +1,12 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch 09/11] x86/vdso: Simplify the invalid vclock case
-Date: Thu, 27 Sep 2018 16:41:12 +0200 (CEST)
-Message-ID: <alpine.DEB.2.21.1809271638110.8118__6524.83699745989$1538059166$gmane$org@nanos.tec.linutronix.de>
-References: <20180914125006.349747096@linutronix.de>
-	<20180914125118.909646643@linutronix.de>
-	<CALCETrXh70oFHfT0Z-JXcnAumhAgLqSea5UiPY3WXu=v2GcKTg@mail.gmail.com>
-	<CALAqxLUv9Rd_eA7u9gZNFvTNrT1Z67RpHLozdeNC0W2yZm=Heg@mail.gmail.com>
-	<alpine.DEB.2.21.1809180948570.3558@nanos.tec.linutronix.de>
-	<20180918083055.GJ24106@hirez.programming.kicks-ass.net>
-	<alpine.DEB.2.21.1809181050020.4167@nanos.tec.linutronix.de>
-	<alpine.DEB.2.21.1809181204460.4167@nanos.tec.linutronix.de>
-	<alpine.DEB.2.21.1809181237140.4167@nanos.tec.linutronix.de>
-	<20180918124800.GL24106@hirez.programming.kicks-ass.net>
-	<alpine.DEB.2.21.1809181515170.6950@nanos.tec.linutronix.de>
-	<alpine.DEB.2.21.1809181731570.7302@nanos.tec.linutronix.de>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH net V2] vhost-vsock: fix use after free
+Date: Thu, 27 Sep 2018 16:33:21 +0100
+Message-ID: <20180927153321.GB10133@stefanha-x1.localdomain>
+References: <20180927122204.4188-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3382227332270914202=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.21.1809181731570.7302@nanos.tec.linutronix.de>
+In-Reply-To: <20180927122204.4188-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,26 +16,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Stephen Boyd <sboyd@kernel.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, sergei.shtylyov@cogentembedded.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 18 Sep 2018, Thomas Gleixner wrote:
-> On Tue, 18 Sep 2018, Thomas Gleixner wrote:
-> > So if the TSC on CPU1 is slightly behind the TSC on CPU0 then now1 can be
-> > smaller than cycle_last. The TSC sync stuff does not catch the small delta
-> > for unknown raisins. I'll go and find that machine and test that again.
-> 
-> Of course it does not trigger anymore. We accumulated code between the
-> point in timekeeping_advance() where the TSC is read and the update of the
-> VDSO data.
-> 
-> I'll might have to get an 2.6ish kernel booted on that machine and try with
-> that again. /me shudders
 
-Actually it does happen, because the TSC is very slowly drifting apart due
-to SMI wreckage trying to hide itself. It just takes a very long time.
+--===============3382227332270914202==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="O5XBE6gyVG5Rl6Rj"
+Content-Disposition: inline
 
-Thanks,
 
-	tglx
+--O5XBE6gyVG5Rl6Rj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Sep 27, 2018 at 08:22:04PM +0800, Jason Wang wrote:
+> The access of vsock is not protected by vhost_vsock_lock. This may
+> lead to use after free since vhost_vsock_dev_release() may free the
+> pointer at the same time.
+>=20
+> Fix this by holding the lock during the access.
+>=20
+> Reported-by: syzbot+e3e074963495f92a89ed@syzkaller.appspotmail.com
+> Fixes: 16320f363ae1 ("vhost-vsock: add pkt cancel capability")
+> Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+> Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> - V2: fix typos
+> - The patch is needed for -stable.
+> ---
+>  drivers/vhost/vsock.c | 26 +++++++++++++++++++-------
+>  1 file changed, 19 insertions(+), 7 deletions(-)
+
+Thank you, Jason!
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--O5XBE6gyVG5Rl6Rj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJbrPhBAAoJEJykq7OBq3PI4+YH/iTCwaaWk6eiQLX6SQFLM1S5
+dtkS+0+ja7FhmKnTwHQYN+tB025xfmFwtDhSEb+F582co7ggqflOhNUdh3t8Ehel
+SNkeDGEeolpB1IX5evuvbnZuFpAjPhMqBIUqnoxIoJNAyYo6fMbQkdfyBXnqDsnH
+c5oS9yz5OvUzu4IhR/KYqKtljwZNUcniitMKYNN1+LpH7g0QzLpeAs3FADVtoNUB
+HEAFFhvOa7k+7EFJfw7FgccC5zWsDSVyoVtdxtFK2BPujrW3JfFLRWKQgrUKhY2u
+TKVp0htYP4qG2YXbBPjbbC8OUrILllvtxENF2mgZZXvDE3lIZw9Vl8b5+WVVrlo=
+=wXAN
+-----END PGP SIGNATURE-----
+
+--O5XBE6gyVG5Rl6Rj--
+
+--===============3382227332270914202==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3382227332270914202==--
