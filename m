@@ -1,11 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net] vhost-vsock: fix use after free
-Date: Thu, 27 Sep 2018 16:43:01 +0800
-Message-ID: <20180927084301.573-1-jasowang__35068.374584853$1538037683$gmane$org@redhat.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH net] vhost-vsock: fix use after free
+Date: Thu, 27 Sep 2018 12:52:50 +0300
+Message-ID: <a413a8b4-302d-7fbc-092d-95e8aa421c4c__43588.4812068709$1538041852$gmane$org@cogentembedded.com>
+References: <20180927084301.573-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20180927084301.573-1-jasowang@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,97 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: stefanha@redhat.com, mst@redhat.com
+To: Jason Wang <jasowang@redhat.com>, stefanha@redhat.com, mst@redhat.com
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The access of vsock is not protected by vhost_vsock_lock. This may
-lead use after free since vhost_vsock_dev_release() may free the
-pointer at the same time.
+Hello!
 
-Fix this by holding the lock during the acess.
+On 9/27/2018 11:43 AM, Jason Wang wrote:
 
-Reported-by: syzbot+e3e074963495f92a89ed@syzkaller.appspotmail.com
-Fixes: 16320f363ae1 ("vhost-vsock: add pkt cancel capability")
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
-- The patch is needed for -stable.
----
- drivers/vhost/vsock.c | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+    Just a couple of typos...
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 34bc3ab40c6d..7d0b292867fd 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -210,21 +210,27 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
- 	struct vhost_vsock *vsock;
- 	int len = pkt->len;
- 
-+	spin_lock_bh(&vhost_vsock_lock);
-+
- 	/* Find the vhost_vsock according to guest context id  */
--	vsock = vhost_vsock_get(le64_to_cpu(pkt->hdr.dst_cid));
-+	vsock = __vhost_vsock_get(le64_to_cpu(pkt->hdr.dst_cid));
- 	if (!vsock) {
- 		virtio_transport_free_pkt(pkt);
-+		spin_unlock_bh(&vhost_vsock_lock);
- 		return -ENODEV;
- 	}
- 
- 	if (pkt->reply)
- 		atomic_inc(&vsock->queued_replies);
- 
--	spin_lock_bh(&vsock->send_pkt_list_lock);
-+	spin_lock(&vsock->send_pkt_list_lock);
- 	list_add_tail(&pkt->list, &vsock->send_pkt_list);
--	spin_unlock_bh(&vsock->send_pkt_list_lock);
-+	spin_unlock(&vsock->send_pkt_list_lock);
- 
- 	vhost_work_queue(&vsock->dev, &vsock->send_pkt_work);
-+
-+	spin_unlock_bh(&vhost_vsock_lock);
-+
- 	return len;
- }
- 
-@@ -236,18 +242,22 @@ vhost_transport_cancel_pkt(struct vsock_sock *vsk)
- 	int cnt = 0;
- 	LIST_HEAD(freeme);
- 
-+	spin_lock_bh(&vhost_vsock_lock);
-+
- 	/* Find the vhost_vsock according to guest context id  */
--	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid);
--	if (!vsock)
-+	vsock = __vhost_vsock_get(vsk->remote_addr.svm_cid);
-+	if (!vsock) {
-+		spin_unlock_bh(&vhost_vsock_lock);
- 		return -ENODEV;
-+	}
- 
--	spin_lock_bh(&vsock->send_pkt_list_lock);
-+	spin_lock(&vsock->send_pkt_list_lock);
- 	list_for_each_entry_safe(pkt, n, &vsock->send_pkt_list, list) {
- 		if (pkt->vsk != vsk)
- 			continue;
- 		list_move(&pkt->list, &freeme);
- 	}
--	spin_unlock_bh(&vsock->send_pkt_list_lock);
-+	spin_unlock(&vsock->send_pkt_list_lock);
- 
- 	list_for_each_entry_safe(pkt, n, &freeme, list) {
- 		if (pkt->reply)
-@@ -265,6 +275,8 @@ vhost_transport_cancel_pkt(struct vsock_sock *vsk)
- 			vhost_poll_queue(&tx_vq->poll);
- 	}
- 
-+	spin_unlock_bh(&vhost_vsock_lock);
-+
- 	return 0;
- }
- 
--- 
-2.17.1
+> The access of vsock is not protected by vhost_vsock_lock. This may
+> lead use after free since vhost_vsock_dev_release() may free the
+
+   Lead to use.
+
+> pointer at the same time.
+> 
+> Fix this by holding the lock during the acess.
+
+    Access.
+
+> Reported-by: syzbot+e3e074963495f92a89ed@syzkaller.appspotmail.com
+> Fixes: 16320f363ae1 ("vhost-vsock: add pkt cancel capability")
+> Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+> Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+[...]
+
+MBR, Sergei
