@@ -1,14 +1,13 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH] qxl: fix null-pointer crash during suspend
-Date: Tue, 02 Oct 2018 13:05:50 +0300
-Message-ID: <1688275.zophSNHJ2k__31913.3286284798$1538474617$gmane$org@avalon>
-References: <20180904202747.14968-1-peter@lekensteyn.nl>
-	<20181002081422.GH11082@phenom.ffwll.local>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v3 2/2] drm/bochs: add edid support.
+Date: Tue,  2 Oct 2018 13:10:41 +0200
+Message-ID: <20181002111041.17053-3-kraxel__42124.3972181857$1538478546$gmane$org@redhat.com>
+References: <20181002111041.17053-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181002081422.GH11082@phenom.ffwll.local>
+In-Reply-To: <20181002111041.17053-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,121 +17,127 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Alan Jenkins <alan.christopher.jenkins@gmail.com>, Peter Wu <peter@lekensteyn.nl>, Dave Airlie <airlied@redhat.com>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+Recent qemu (latest master branch, upcoming 3.1 release) got support
+for EDID data.  This patch adds guest driver support.
 
-On Tuesday, 2 October 2018 11:14:22 EEST Daniel Vetter wrote:
-> On Tue, Sep 04, 2018 at 10:27:47PM +0200, Peter Wu wrote:
-> > "crtc->helper_private" is not initialized by the QXL driver and thus the
-> 
-> This is still initialized, it's the ->disable that goes boom. At least the
-> call to drm_crtc_helper_add is still there. The ->disable was removed in:
-> 
-> commit 64581714b58bc3e16ede8dc37a025c3aa0e0eef1
-> Author: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-> Date:   Fri Jun 30 12:36:45 2017 +0300
-> 
->     drm: Convert atomic drivers from CRTC .disable() to .atomic_disable()
-> 
-> Fixes: 64581714b58b ("drm: Convert atomic drivers from CRTC .disable() to
-> .atomic_disable()") Cc: <stable@vger.kernel.org> # v4.14+
-> Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> 
-> I'll let Gerd pick this one up, after some testing. Also adding Laurent.
+EDID support in qemu is not (yet) enabled by default, so please use
+'qemu -device VGA,edid=on' for testing.
 
-Sorry for breaking it :-( Please let me know if there's something I can do to 
-help.
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/bochs/bochs.h     |  1 +
+ drivers/gpu/drm/bochs/bochs_hw.c  | 38 ++++++++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/bochs/bochs_kms.c | 18 +++++++++++++++---
+ 3 files changed, 54 insertions(+), 3 deletions(-)
 
-> > "crtc_funcs->disable" call would crash (resulting in suspend failure).
-> > Fix this by converting the suspend/resume functions to use the
-> > drm_mode_config_helper_* helpers.
-> > 
-> > Tested system sleep with QEMU 3.0 using "echo mem > /sys/power/state".
-> > 
-> > During suspend the following message is visible from QEMU:
-> >     spice/server/display-channel.c:2425:display_channel_validate_surface:
-> >     canvas address is 0x7fd05da68308 for 0 (and is NULL)
-> >     spice/server/display-channel.c:2426:display_channel_validate_surface:
-> >     failed on 0> 
-> > This seems to be triggered by QXL_IO_NOTIFY_CMD after
-> > QXL_IO_DESTROY_PRIMARY_ASYNC, but aside from the warning things still
-> > seem to work (tested with both the GTK and -spice options).
-> > 
-> > Signed-off-by: Peter Wu <peter@lekensteyn.nl>
-> > ---
-> > Hi,
-> > 
-> > I found this issue while trying to suspend a VM that uses QXL. In order to
-> > see the stack trace over serial, boot with no_console_suspend. Searching
-> > for "qxl_drm_freeze" showed one recent report from Alan:
-> > https://lkml.kernel.org/r/891e334c-cf19-032c-b996-59ac166fcde1@gmail.com
-> > 
-> > Kind regards,
-> > Peter
-> > ---
-> > 
-> >  drivers/gpu/drm/qxl/qxl_drv.c | 26 +++++---------------------
-> >  1 file changed, 5 insertions(+), 21 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-> > index 2445e75cf7ea..d00f45eed03c 100644
-> > --- a/drivers/gpu/drm/qxl/qxl_drv.c
-> > +++ b/drivers/gpu/drm/qxl/qxl_drv.c
-> > @@ -136,20 +136,11 @@ static int qxl_drm_freeze(struct drm_device *dev)
-> > 
-> >  {
-> >  
-> >  	struct pci_dev *pdev = dev->pdev;
-> >  	struct qxl_device *qdev = dev->dev_private;
-> > 
-> > -	struct drm_crtc *crtc;
-> > -
-> > -	drm_kms_helper_poll_disable(dev);
-> > -
-> > -	console_lock();
-> > -	qxl_fbdev_set_suspend(qdev, 1);
-> > -	console_unlock();
-> > +	int ret;
-> > 
-> > -	/* unpin the front buffers */
-> > -	list_for_each_entry(crtc, &dev->mode_config.crtc_list, head) {
-> > -		const struct drm_crtc_helper_funcs *crtc_funcs = crtc-
->helper_private;
-> > -		if (crtc->enabled)
-> > -			(*crtc_funcs->disable)(crtc);
-> > -	}
-> > +	ret = drm_mode_config_helper_suspend(dev);
-> > +	if (ret)
-> > +		return ret;
-> > 
-> >  	qxl_destroy_monitors_object(qdev);
-> >  	qxl_surf_evict(qdev);
-> > 
-> > @@ -175,14 +166,7 @@ static int qxl_drm_resume(struct drm_device *dev,
-> > bool thaw)> 
-> >  	}
-> >  	
-> >  	qxl_create_monitors_object(qdev);
-> > 
-> > -	drm_helper_resume_force_mode(dev);
-> > -
-> > -	console_lock();
-> > -	qxl_fbdev_set_suspend(qdev, 0);
-> > -	console_unlock();
-> > -
-> > -	drm_kms_helper_poll_enable(dev);
-> > -	return 0;
-> > +	return drm_mode_config_helper_resume(dev);
-> > 
-> >  }
-> >  
-> >  static int qxl_pm_suspend(struct device *dev)
-
-
+diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
+index 375bf92cd0..055d7b437a 100644
+--- a/drivers/gpu/drm/bochs/bochs.h
++++ b/drivers/gpu/drm/bochs/bochs.h
+@@ -70,6 +70,7 @@ struct bochs_device {
+ 	u16 yres_virtual;
+ 	u32 stride;
+ 	u32 bpp;
++	struct edid *edid;
+ 
+ 	/* drm */
+ 	struct drm_device  *dev;
+diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+index a39b0343c1..21a769e48c 100644
+--- a/drivers/gpu/drm/bochs/bochs_hw.c
++++ b/drivers/gpu/drm/bochs/bochs_hw.c
+@@ -47,6 +47,41 @@ static void bochs_dispi_write(struct bochs_device *bochs, u16 reg, u16 val)
+ 	}
+ }
+ 
++static int bochs_load_edid(struct bochs_device *bochs)
++{
++	uint8_t *blob;
++	size_t i, len;
++	uint8_t num_exts;
++
++	if (!bochs->mmio)
++		return -1;
++
++	if ((readb(bochs->mmio+0) != 0x00 ||
++	     readb(bochs->mmio+1) != 0xff))
++		return -1;
++
++	num_exts = readb(bochs->mmio + 126);
++	len = EDID_LENGTH * (1 + num_exts);
++	if (len > 0x400 /* vga register offset */)
++		return -1;
++
++	kfree(bochs->edid);
++	bochs->edid = kmalloc(len, GFP_KERNEL);
++	blob = (void *)bochs->edid;
++	for (i = 0; i < len; i++) {
++		blob[i] = readb(bochs->mmio+i);
++	}
++
++	if (!drm_edid_is_valid(bochs->edid)) {
++		DRM_ERROR("EDID is not valid, ignoring.\n");
++		kfree(bochs->edid);
++		bochs->edid = NULL;
++		return -1;
++	}
++
++	return 0;
++}
++
+ int bochs_hw_init(struct drm_device *dev, uint32_t flags)
+ {
+ 	struct bochs_device *bochs = dev->dev_private;
+@@ -133,6 +168,9 @@ int bochs_hw_init(struct drm_device *dev, uint32_t flags)
+ 	}
+ 
+ noext:
++	if (bochs_load_edid(bochs) == 0)
++		DRM_INFO("Found EDID data blob.\n");
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index ca5a9afdd5..5b3afe9364 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -181,10 +181,17 @@ static void bochs_encoder_init(struct drm_device *dev)
+ 
+ static int bochs_connector_get_modes(struct drm_connector *connector)
+ {
+-	int count;
++	struct bochs_device *bochs =
++		container_of(connector, struct bochs_device, connector);
++	int count = 0;
+ 
+-	count = drm_add_modes_noedid(connector, 8192, 8192);
+-	drm_set_preferred_mode(connector, defx, defy);
++	if (bochs->edid)
++		count = drm_add_edid_modes(connector, bochs->edid);
++
++	if (!count) {
++		count = drm_add_modes_noedid(connector, 8192, 8192);
++		drm_set_preferred_mode(connector, defx, defy);
++	}
+ 	return count;
+ }
+ 
+@@ -239,6 +246,11 @@ static void bochs_connector_init(struct drm_device *dev)
+ 	drm_connector_helper_add(connector,
+ 				 &bochs_connector_connector_helper_funcs);
+ 	drm_connector_register(connector);
++
++	if (bochs->edid) {
++		drm_connector_attach_edid_property(connector);
++		drm_connector_update_edid_property(connector, bochs->edid);
++	}
+ }
+ 
+ 
 -- 
-Regards,
-
-Laurent Pinchart
+2.9.3
