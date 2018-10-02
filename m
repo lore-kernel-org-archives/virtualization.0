@@ -1,17 +1,14 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH 4/4] drm/virtio: Use IDAs more efficiently
-Date: Tue, 2 Oct 2018 05:55:37 -0700
-Message-ID: <20181002125537.GA15740@bombadil.infradead.org>
-References: <20180926160031.15721-1-willy@infradead.org>
-	<20180926160031.15721-5-willy@infradead.org>
-	<20180926160455.GA20337@bombadil.infradead.org>
-	<20181002114328.kltyrjlojzrhzwgl@sirius.home.kraxel.org>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH] VMCI: Resource wildcard match fixed
+Date: Tue, 2 Oct 2018 15:35:02 -0700
+Message-ID: <20181002223502.GA31116__18713.0020036877$1538519581$gmane$org@kroah.com>
+References: <20180921073105.5758-1-jhansen@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20181002114328.kltyrjlojzrhzwgl@sirius.home.kraxel.org>
+In-Reply-To: <20180921073105.5758-1-jhansen@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,42 +18,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: Jorgen Hansen <jhansen@vmware.com>
+Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 02, 2018 at 01:43:28PM +0200, Gerd Hoffmann wrote:
-> On Wed, Sep 26, 2018 at 09:04:55AM -0700, Matthew Wilcox wrote:
-> > On Wed, Sep 26, 2018 at 09:00:31AM -0700, Matthew Wilcox wrote:
-> > > @@ -59,6 +59,7 @@ static int virtio_gpu_context_create(struct virtio_gpu_device *vgdev,
-> > >  
-> > >  	if (handle < 0)
-> > >  		return handle;
-> > > +	handle++;
-> > >  	virtio_gpu_cmd_context_create(vgdev, handle, nlen, name);
-> > >  	return handle;
-> > >  }
-> > 
-> > Uh.  This line is missing.
-> > 
-> > -       int handle = ida_alloc_min(&vgdev->ctx_id_ida, 1, GFP_KERNEL);
-> > +       int handle = ida_alloc(&vgdev->ctx_id_ida, GFP_KERNEL);
-> > 
-> > It'll be there in v2 ;-)
+On Fri, Sep 21, 2018 at 12:31:05AM -0700, Jorgen Hansen wrote:
+> When adding a VMCI resource, the check for an existing entry
+> would ignore that the new entry could be a wildcard. This could
+> result in multiple resource entries that would match a given
+> handle. One disastrous outcome of this is that the
+> refcounting used to ensure that delayed callbacks for VMCI
+> datagrams have run before the datagram is destroyed can be
+> wrong, since the refcount could be increased on the duplicate
+> entry. This in turn leads to a use after free bug. This issue
+> was discovered by Hangbin Liu using KASAN and syzkaller.
 > 
-> I've touched the resource/object id handling too, see my "drm/virtio:
-> rework ttm resource handling" patch series
-> (https://patchwork.freedesktop.org/series/50382/).  Which still needs a
-> review btw.
+> Fixes: bc63dedb7d46 ("VMCI: resource object implementation")
+> Reported-by: Hangbin Liu <liuhangbin@gmail.com>
+> Reviewed-by: Adit Ranadive <aditr@vmware.com>
+> Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+> Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
+> ---
+>  drivers/misc/vmw_vmci/vmci_driver.c   | 2 +-
+>  drivers/misc/vmw_vmci/vmci_resource.c | 3 ++-
+>  2 files changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/misc/vmw_vmci/vmci_driver.c b/drivers/misc/vmw_vmci/vmci_driver.c
+> index d7eaf1eb11e7..003bfba40758 100644
+> --- a/drivers/misc/vmw_vmci/vmci_driver.c
+> +++ b/drivers/misc/vmw_vmci/vmci_driver.c
+> @@ -113,5 +113,5 @@ module_exit(vmci_drv_exit);
+>  
+>  MODULE_AUTHOR("VMware, Inc.");
+>  MODULE_DESCRIPTION("VMware Virtual Machine Communication Interface.");
+> -MODULE_VERSION("1.1.5.0-k");
+> +MODULE_VERSION("1.1.6.0-k");
+>  MODULE_LICENSE("GPL v2");
 
-Um, according to patchwork, you only posted it yesterday.  Does DRM
-normally expect a review within 24 hours?
+You do know MODULE_VERSION means nothing, right?  Please just remove it.
 
-> I think that series obsoletes patch 3/4 (object id fixes) of your
-> series.  The other patches should rebase without too much trouble, you
-> could do that as well when preparing v2 ...
+thanks,
 
-It seems a little odd to me to expect a drive-by contributor (ie me) to
-rebase their patches on top of a patch series which wasn't even posted
-at the time they contributed their original patch.  If it was already
-in -next, that'd be a reasonable request.
+greg k-h
