@@ -1,16 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net V2] vhost-vsock: fix use after free
-Date: Thu, 27 Sep 2018 19:50:24 -0400
-Message-ID: <20180927194734-mutt-send-email-mst__42520.7535773099$1538092111$gmane$org@kernel.org>
-References: <20180927122204.4188-1-jasowang@redhat.com>
-	<20180927123539-mutt-send-email-mst@kernel.org>
-	<588ed28b-7e4b-9dc8-92ce-d75692836c9e@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v2 2/2] drm/bochs: add edid support.
+Date: Tue,  2 Oct 2018 08:19:05 +0200
+Message-ID: <20181002061905.10496-3-kraxel@redhat.com>
+References: <20181002061905.10496-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <588ed28b-7e4b-9dc8-92ce-d75692836c9e@redhat.com>
+In-Reply-To: <20181002061905.10496-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,37 +17,127 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, sergei.shtylyov@cogentembedded.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBTZXAgMjgsIDIwMTggYXQgMDc6Mzc6MzdBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDnmnIgyOOaXpSAwMTowNCwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gT24gVGh1LCBTZXAgMjcsIDIwMTggYXQgMDg6MjI6MDRQTSArMDgwMCwgSmFz
-b24gV2FuZyB3cm90ZToKPiA+ID4gVGhlIGFjY2VzcyBvZiB2c29jayBpcyBub3QgcHJvdGVjdGVk
-IGJ5IHZob3N0X3Zzb2NrX2xvY2suIFRoaXMgbWF5Cj4gPiA+IGxlYWQgdG8gdXNlIGFmdGVyIGZy
-ZWUgc2luY2Ugdmhvc3RfdnNvY2tfZGV2X3JlbGVhc2UoKSBtYXkgZnJlZSB0aGUKPiA+ID4gcG9p
-bnRlciBhdCB0aGUgc2FtZSB0aW1lLgo+ID4gPiAKPiA+ID4gRml4IHRoaXMgYnkgaG9sZGluZyB0
-aGUgbG9jayBkdXJpbmcgdGhlIGFjY2Vzcy4KPiA+ID4gCj4gPiA+IFJlcG9ydGVkLWJ5OnN5emJv
-dCtlM2UwNzQ5NjM0OTVmOTJhODllZEBzeXprYWxsZXIuYXBwc3BvdG1haWwuY29tCj4gPiA+IEZp
-eGVzOiAxNjMyMGYzNjNhZTEgKCJ2aG9zdC12c29jazogYWRkIHBrdCBjYW5jZWwgY2FwYWJpbGl0
-eSIpCj4gPiA+IEZpeGVzOiA0MzNmYzU4ZTZiZjIgKCJWU09DSzogSW50cm9kdWNlIHZob3N0X3Zz
-b2NrLmtvIikKPiA+ID4gQ2M6IFN0ZWZhbiBIYWpub2N6aTxzdGVmYW5oYUByZWRoYXQuY29tPgo+
-ID4gPiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nPGphc293YW5nQHJlZGhhdC5jb20+Cj4gPiBX
-b3cgaXMgdGhhdCByZWFsbHkgdGhlIGJlc3Qgd2UgY2FuIGRvPwo+IAo+IEZvciBuZXQvc3RhYmxl
-LCBwcm9iYWJseSB5ZXMuCj4gCj4gPiAgIEEgZ2xvYmFsIGxvY2sgb24gYSBkYXRhIHBhdGgKPiA+
-IG9wZXJhdGlvbj8KPiAKPiBJdCdzIGFscmVhZHkgdGhlcmUsCgomdmhvc3RfdnNvY2tfbG9jaz8g
-d2VyZSBpcyBpdCB0YWtlcyBvbiBkYXRhIHBhdGg/Cgo+IGFuZCB0aGUgcGF0Y2ggb25seSBpbmNy
-ZWFzZSB0aGUgY3JpdGljYWwgc2VjdGlvbi4KPiAKPiA+ICAgR3JhbnRlZCB1c2UgYWZ0ZXIgZnJl
-ZSBpcyBuYXN0eSBidXQgU3RlZmFuIHNhaWQgaGUgc2Vlcwo+ID4gYSB3YXkgdG8gZml4IGl0IHVz
-aW5nIGEgcGVyIHNvY2tldCByZWZjb3VudC4gSGUncyBvbiB2YWNhdGlvbgo+ID4gdW50aWwgT2N0
-IDQgdGhvdWdoIC4uLgo+ID4gCj4gCj4gU3RlZmFuIGhhcyBhY2tlZCB0aGUgcGFjdGgsIHNvIEkg
-dGhpbmsgaXQncyBvaz8gV2UgY2FuIGRvIG9wdGltaXphdGlvbiBmb3IKPiAtbmV4dCBvbiB0b3Au
-Cj4gCj4gVGhhbmtzCgoKV2VsbCBvbiBoaWdoIFNNUCBzZXJpYWxpemluZyBjYW4gZHJvcCBwZXJm
-b3JtYW5jZSBhcyBtdWNoIGFzIHgxMDAgc28gSSdtCm5vdCBzdXJlIGl0J3MgYXBwcm9wcmlhdGUg
-LSBzZWVtcyB0byBmaXggYSBidWcgYnV0IGNhbiBpbnRyb2R1Y2UgYQpyZWdyZXNzaW9uLiBMZXQn
-cyBzZWUgaG93IGRvZXMgYSBwcm9wZXIgZml4IGxvb2sgZmlyc3Q/CgotLSAKTVNUCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+Recent qemu (latest master branch, upcoming 3.1 release) got support
+for EDID data.  This patch adds guest driver support.
+
+EDID support in qemu is not (yet) enabled by default, so please use
+'qemu -device VGA,edid=on' for testing.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/bochs/bochs.h     |  1 +
+ drivers/gpu/drm/bochs/bochs_hw.c  | 38 ++++++++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/bochs/bochs_kms.c | 18 +++++++++++++++---
+ 3 files changed, 54 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
+index 375bf92cd0..055d7b437a 100644
+--- a/drivers/gpu/drm/bochs/bochs.h
++++ b/drivers/gpu/drm/bochs/bochs.h
+@@ -70,6 +70,7 @@ struct bochs_device {
+ 	u16 yres_virtual;
+ 	u32 stride;
+ 	u32 bpp;
++	struct edid *edid;
+ 
+ 	/* drm */
+ 	struct drm_device  *dev;
+diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+index a39b0343c1..21a769e48c 100644
+--- a/drivers/gpu/drm/bochs/bochs_hw.c
++++ b/drivers/gpu/drm/bochs/bochs_hw.c
+@@ -47,6 +47,41 @@ static void bochs_dispi_write(struct bochs_device *bochs, u16 reg, u16 val)
+ 	}
+ }
+ 
++static int bochs_load_edid(struct bochs_device *bochs)
++{
++	uint8_t *blob;
++	size_t i, len;
++	uint8_t num_exts;
++
++	if (!bochs->mmio)
++		return -1;
++
++	if ((readb(bochs->mmio+0) != 0x00 ||
++	     readb(bochs->mmio+1) != 0xff))
++		return -1;
++
++	num_exts = readb(bochs->mmio + 126);
++	len = EDID_LENGTH * (1 + num_exts);
++	if (len > 0x400 /* vga register offset */)
++		return -1;
++
++	kfree(bochs->edid);
++	bochs->edid = kmalloc(len, GFP_KERNEL);
++	blob = (void *)bochs->edid;
++	for (i = 0; i < len; i++) {
++		blob[i] = readb(bochs->mmio+i);
++	}
++
++	if (!drm_edid_is_valid(bochs->edid)) {
++		DRM_ERROR("EDID is not valid, ignoring.\n");
++		kfree(bochs->edid);
++		bochs->edid = NULL;
++		return -1;
++	}
++
++	return 0;
++}
++
+ int bochs_hw_init(struct drm_device *dev, uint32_t flags)
+ {
+ 	struct bochs_device *bochs = dev->dev_private;
+@@ -133,6 +168,9 @@ int bochs_hw_init(struct drm_device *dev, uint32_t flags)
+ 	}
+ 
+ noext:
++	if (bochs_load_edid(bochs) == 0)
++		DRM_INFO("Found EDID data blob.\n");
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index ca5a9afdd5..5b3afe9364 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -181,10 +181,17 @@ static void bochs_encoder_init(struct drm_device *dev)
+ 
+ static int bochs_connector_get_modes(struct drm_connector *connector)
+ {
+-	int count;
++	struct bochs_device *bochs =
++		container_of(connector, struct bochs_device, connector);
++	int count = 0;
+ 
+-	count = drm_add_modes_noedid(connector, 8192, 8192);
+-	drm_set_preferred_mode(connector, defx, defy);
++	if (bochs->edid)
++		count = drm_add_edid_modes(connector, bochs->edid);
++
++	if (!count) {
++		count = drm_add_modes_noedid(connector, 8192, 8192);
++		drm_set_preferred_mode(connector, defx, defy);
++	}
+ 	return count;
+ }
+ 
+@@ -239,6 +246,11 @@ static void bochs_connector_init(struct drm_device *dev)
+ 	drm_connector_helper_add(connector,
+ 				 &bochs_connector_connector_helper_funcs);
+ 	drm_connector_register(connector);
++
++	if (bochs->edid) {
++		drm_connector_attach_edid_property(connector);
++		drm_connector_update_edid_property(connector, bochs->edid);
++	}
+ }
+ 
+ 
+-- 
+2.9.3
