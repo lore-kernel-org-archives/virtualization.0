@@ -1,13 +1,16 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 2/2] drm/bochs: add edid support.
-Date: Tue,  2 Oct 2018 13:10:41 +0200
-Message-ID: <20181002111041.17053-3-kraxel__42124.3972181857$1538478546$gmane$org@redhat.com>
-References: <20181002111041.17053-1-kraxel@redhat.com>
+Subject: Re: [PATCH 4/4] drm/virtio: Use IDAs more efficiently
+Date: Tue, 2 Oct 2018 13:43:28 +0200
+Message-ID: <20181002114328.kltyrjlojzrhzwgl__25719.797894317$1538480518$gmane$org@sirius.home.kraxel.org>
+References: <20180926160031.15721-1-willy@infradead.org>
+	<20180926160031.15721-5-willy@infradead.org>
+	<20180926160455.GA20337@bombadil.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181002111041.17053-1-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20180926160455.GA20337@bombadil.infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,127 +20,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+To: Matthew Wilcox <willy@infradead.org>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Recent qemu (latest master branch, upcoming 3.1 release) got support
-for EDID data.  This patch adds guest driver support.
+On Wed, Sep 26, 2018 at 09:04:55AM -0700, Matthew Wilcox wrote:
+> On Wed, Sep 26, 2018 at 09:00:31AM -0700, Matthew Wilcox wrote:
+> > @@ -59,6 +59,7 @@ static int virtio_gpu_context_create(struct virtio_gpu_device *vgdev,
+> >  
+> >  	if (handle < 0)
+> >  		return handle;
+> > +	handle++;
+> >  	virtio_gpu_cmd_context_create(vgdev, handle, nlen, name);
+> >  	return handle;
+> >  }
+> 
+> Uh.  This line is missing.
+> 
+> -       int handle = ida_alloc_min(&vgdev->ctx_id_ida, 1, GFP_KERNEL);
+> +       int handle = ida_alloc(&vgdev->ctx_id_ida, GFP_KERNEL);
+> 
+> It'll be there in v2 ;-)
 
-EDID support in qemu is not (yet) enabled by default, so please use
-'qemu -device VGA,edid=on' for testing.
+I've touched the resource/object id handling too, see my "drm/virtio:
+rework ttm resource handling" patch series
+(https://patchwork.freedesktop.org/series/50382/).  Which still needs a
+review btw.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/bochs/bochs.h     |  1 +
- drivers/gpu/drm/bochs/bochs_hw.c  | 38 ++++++++++++++++++++++++++++++++++++++
- drivers/gpu/drm/bochs/bochs_kms.c | 18 +++++++++++++++---
- 3 files changed, 54 insertions(+), 3 deletions(-)
+I think that series obsoletes patch 3/4 (object id fixes) of your
+series.  The other patches should rebase without too much trouble, you
+could do that as well when preparing v2 ...
 
-diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-index 375bf92cd0..055d7b437a 100644
---- a/drivers/gpu/drm/bochs/bochs.h
-+++ b/drivers/gpu/drm/bochs/bochs.h
-@@ -70,6 +70,7 @@ struct bochs_device {
- 	u16 yres_virtual;
- 	u32 stride;
- 	u32 bpp;
-+	struct edid *edid;
- 
- 	/* drm */
- 	struct drm_device  *dev;
-diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-index a39b0343c1..21a769e48c 100644
---- a/drivers/gpu/drm/bochs/bochs_hw.c
-+++ b/drivers/gpu/drm/bochs/bochs_hw.c
-@@ -47,6 +47,41 @@ static void bochs_dispi_write(struct bochs_device *bochs, u16 reg, u16 val)
- 	}
- }
- 
-+static int bochs_load_edid(struct bochs_device *bochs)
-+{
-+	uint8_t *blob;
-+	size_t i, len;
-+	uint8_t num_exts;
-+
-+	if (!bochs->mmio)
-+		return -1;
-+
-+	if ((readb(bochs->mmio+0) != 0x00 ||
-+	     readb(bochs->mmio+1) != 0xff))
-+		return -1;
-+
-+	num_exts = readb(bochs->mmio + 126);
-+	len = EDID_LENGTH * (1 + num_exts);
-+	if (len > 0x400 /* vga register offset */)
-+		return -1;
-+
-+	kfree(bochs->edid);
-+	bochs->edid = kmalloc(len, GFP_KERNEL);
-+	blob = (void *)bochs->edid;
-+	for (i = 0; i < len; i++) {
-+		blob[i] = readb(bochs->mmio+i);
-+	}
-+
-+	if (!drm_edid_is_valid(bochs->edid)) {
-+		DRM_ERROR("EDID is not valid, ignoring.\n");
-+		kfree(bochs->edid);
-+		bochs->edid = NULL;
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
- int bochs_hw_init(struct drm_device *dev, uint32_t flags)
- {
- 	struct bochs_device *bochs = dev->dev_private;
-@@ -133,6 +168,9 @@ int bochs_hw_init(struct drm_device *dev, uint32_t flags)
- 	}
- 
- noext:
-+	if (bochs_load_edid(bochs) == 0)
-+		DRM_INFO("Found EDID data blob.\n");
-+
- 	return 0;
- }
- 
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index ca5a9afdd5..5b3afe9364 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -181,10 +181,17 @@ static void bochs_encoder_init(struct drm_device *dev)
- 
- static int bochs_connector_get_modes(struct drm_connector *connector)
- {
--	int count;
-+	struct bochs_device *bochs =
-+		container_of(connector, struct bochs_device, connector);
-+	int count = 0;
- 
--	count = drm_add_modes_noedid(connector, 8192, 8192);
--	drm_set_preferred_mode(connector, defx, defy);
-+	if (bochs->edid)
-+		count = drm_add_edid_modes(connector, bochs->edid);
-+
-+	if (!count) {
-+		count = drm_add_modes_noedid(connector, 8192, 8192);
-+		drm_set_preferred_mode(connector, defx, defy);
-+	}
- 	return count;
- }
- 
-@@ -239,6 +246,11 @@ static void bochs_connector_init(struct drm_device *dev)
- 	drm_connector_helper_add(connector,
- 				 &bochs_connector_connector_helper_funcs);
- 	drm_connector_register(connector);
-+
-+	if (bochs->edid) {
-+		drm_connector_attach_edid_property(connector);
-+		drm_connector_update_edid_property(connector, bochs->edid);
-+	}
- }
- 
- 
--- 
-2.9.3
+cheers,
+  Gerd
