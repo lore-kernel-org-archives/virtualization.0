@@ -1,18 +1,18 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [patch 00/11] x86/vdso: Cleanups,
-	simmplifications and CLOCK_TAI support
-Date: Wed, 3 Oct 2018 07:20:48 -0700
-Message-ID: <8C316427-8BEC-4979-8AB2-5E385066BB6F__26665.6221160249$1538576336$gmane$org@amacapital.net>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [patch 00/11] x86/vdso: Cleanups, simmplifications and CLOCK_TAI
+	support
+Date: Wed, 3 Oct 2018 17:10:08 +0200 (CEST)
+Message-ID: <alpine.DEB.2.21.1810031704480.23677__33606.0688518502$1538579308$gmane$org@nanos.tec.linutronix.de>
 References: <20180914125006.349747096@linutronix.de>
 	<CALCETrU+jP2hPLoJWTYJKTvr7-=YLwtk1=cZ_uizHYQZ1z4P-w@mail.gmail.com>
 	<87sh1ne64t.fsf@vitty.brq.redhat.com>
 	<4B6A97E1-17E6-40F2-A7A0-87731668A07C@amacapital.net>
 	<87murvdysd.fsf@vitty.brq.redhat.com>
-Mime-Version: 1.0 (1.0)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	<8C316427-8BEC-4979-8AB2-5E385066BB6F@amacapital.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="8323329-391363870-1538579410=:23677"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87murvdysd.fsf@vitty.brq.redhat.com>
+In-Reply-To: <8C316427-8BEC-4979-8AB2-5E385066BB6F@amacapital.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,45 +22,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, X86 ML <x86@kernel.org>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, X86 ML <x86@kernel.org>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cgo+IE9uIE9jdCAzLCAyMDE4LCBhdCA1OjAxIEFNLCBWaXRhbHkgS3V6bmV0c292IDx2a3V6bmV0
-c0ByZWRoYXQuY29tPiB3cm90ZToKPiAKPiBBbmR5IEx1dG9taXJza2kgPGx1dG9AYW1hY2FwaXRh
-bC5uZXQ+IHdyaXRlczoKPiAKPj4+IE9uIE9jdCAzLCAyMDE4LCBhdCAyOjIyIEFNLCBWaXRhbHkg
-S3V6bmV0c292IDx2a3V6bmV0c0ByZWRoYXQuY29tPiB3cm90ZToKPj4+IAo+Pj4gQW5keSBMdXRv
-bWlyc2tpIDxsdXRvQGtlcm5lbC5vcmc+IHdyaXRlczoKPj4+IAo+Pj4+IEhpIFZpdGFseSwgUGFv
-bG8sIFJhZGltLCBldGMuLAo+Pj4+IAo+Pj4gVGhlIG5vdGlmaWNhdGlvbiB5b3UncmUgdGFsa2lu
-ZyBhYm91dCBleGlzdHMsIGl0IGlzIGNhbGxlZAo+Pj4gUmVlbmxpZ250ZW5tZW50LCBzZWUgMDA5
-MmU0MzQ2ZjQ5ICJ4ODYva3ZtOiBTdXBwb3J0IEh5cGVyLVYKPj4+IHJlZW5saWdodGVubWVudCIp
-LiBXaGVuIFRTQyBwYWdlIGNoYW5nZXMgKGFuZCB0aGlzIG9ubHkgaGFwcGVucyB3aGVuIEwxCj4+
-PiBpcyBtaWdyYXRlZCB0byBhIGRpZmZlcmVudCBob3N0IHdpdGggYSBkaWZmZXJlbnQgVFNDIGZy
-ZXF1ZW5jeSBhbmQgVFNDCj4+PiBzY2FsaW5nIGlzIG5vdCBzdXBwb3J0ZWQgYnkgdGhlIENQVSkg
-d2UgcmVjZWl2ZSBhbiBpbnRlcnJ1cHQgaW4gTDEgKGF0Cj4+PiB0aGlzIG1vbWVudCBhbGwgVFND
-IGFjY2Vzc2VzIGFyZSBlbXVsYXRlZCB3aGljaCBndWFyYW50ZWVzIHRoZQo+Pj4gY29ycmVjdG5l
-c3Mgb2YgdGhlIHJlYWRpbmdzKSwgcGF1c2UgYWxsIEwyIGd1ZXN0cywgdXBkYXRlIHRoZWlyIGt2
-bWNsb2NrCj4+PiBzdHJ1Y3R1cmVzIHdpdGggbmV3IGRhdGEgKHdlIGFscmVhZHkga25vdyB0aGUg
-bmV3IFRTQyBmcmVxdWVuY3kpIGFuZAo+Pj4gdGhlbiB0ZWxsIEwwIHRoYXQgd2UncmUgZG9uZSBh
-bmQgaXQgY2FuIHN0b3AgZW11bGF0aW5nIFRTQyBhY2Nlc3Nlcy4KPj4gCj4+IFRoYXTigJlzIGRl
-bGlnaHRmdWwhICBEb2VzIHRoZSBlbXVsYXRpb24gbWFnaWMgYWxzbyB3b3JrIGZvciBMMSB1c2Vy
-Cj4+IG1vZGU/Cj4gCj4gQXMgZmFyIGFzIEkgdW5kZXJzdGFuZCAtIHllcywgYWxsIHJkdHNjKiBj
-YWxscyB3aWxsIHRyYXAgaW50byBMMC4KPiAKPj4gSWYgc28sIGNvdWxkbuKAmXQgd2UgZHJvcCB0
-aGUgSHlwZXJWIHZjbG9jayBlbnRpcmVseSBhbmQganVzdAo+PiBmb2xkIHRoZSBhZGp1c3RtZW50
-IGludG8gdGhlIGNvcmUgdGltZWtlZXBpbmcgZGF0YT8gIChQcmVmZXJhYmx5IHRoZQo+PiBhY3R1
-YWwgY29yZSBkYXRhLCB3aGljaCB3b3VsZCByZXF1aXJlIGNvcmUgY2hhbmdlcywgYnV0IGl0IGNv
-dWxkCj4+IHBsYXVzaWJseSBiZSBkb25lIGluIGFyY2ggY29kZSwgdG9vLikKPiAKPiBOb3QgYWxs
-IEh5cGVyLVYgaG9zdHMgc3VwcG9ydCByZWVubGlnaHRlbm1lbnQgbm90aWZpY2F0aW9ucyAoYW5k
-LCBpZiBJJ20KPiBub3QgbWlzdGFrZW4sIHlvdSBuZWVkIHRvIGVuYWJsZSBuZXN0aW5nIGZvciB0
-aGUgVk0gdG8gZ2V0IHRoZSBmZWF0dXJlIC0KPiBhbmQgbW9zdCBWTXMgZG9uJ3QgaGF2ZSB0aGlz
-KSBzbyBJIHRoaW5rIHdlJ2xsIGhhdmUgdG8ga2VlcCBIeXBlci1WCj4gdmNsb2NrIGZvciB0aGUg
-dGltZSBiZWluZy4KPiAKPiAKCkJ1dCB0aGlzIGRvZXMgc3VnZ2VzdCB0aGF0IHRoZSBjb3JyZWN0
-IHdheSB0byBwYXNzIGEgY2xvY2sgdGhyb3VnaCB0byBhbiBMMiBndWVzdCB3aGVyZSBMMCBpcyBI
-ViBpcyB0byBtYWtlIEwxIHVzZSB0aGUg4oCcdHNj4oCdIGNsb2NrIGFuZCBMMiB1c2Uga3ZtY2xv
-Y2sgKG9yIHNvbWV0aGluZyBuZXdlciBhbmQgYmV0dGVyKS4gIFRoaXMgd291bGQgcmVxdWlyZSBh
-ZGRpbmcgc3VwcG9ydCBmb3IgYXRvbWljIGZyZXF1ZW5jeSBjaGFuZ2VzIGFsbCB0aGUgd2F5IHRo
-cm91Z2ggdGhlIHRpbWVrZWVwaW5nIGFuZCBhcmNoIGNvZGUuCgpKb2huLCB0Z2x4LCB3b3VsZCB0
-aGF0IGJlIG9rYXkgb3IgY3Jhenk/Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--8323329-391363870-1538579410=:23677
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+
+On Wed, 3 Oct 2018, Andy Lutomirski wrote:
+> > On Oct 3, 2018, at 5:01 AM, Vitaly Kuznetsov <vkuznets@redhat.com> wrote:
+> > Not all Hyper-V hosts support reenlightenment notifications (and, if I'm
+> > not mistaken, you need to enable nesting for the VM to get the feature -
+> > and most VMs don't have this) so I think we'll have to keep Hyper-V
+> > vclock for the time being.
+> > 
+> But this does suggest that the correct way to pass a clock through to an
+> L2 guest where L0 is HV is to make L1 use the “tsc” clock and L2 use
+> kvmclock (or something newer and better).  This would require adding
+> support for atomic frequency changes all the way through the timekeeping
+> and arch code.
+>
+> John, tglx, would that be okay or crazy?
+
+Not sure what you mean. I think I lost you somewhere on the way.
+
+Thanks,
+
+	tglx
+--8323329-391363870-1538579410=:23677
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--8323329-391363870-1538579410=:23677--
