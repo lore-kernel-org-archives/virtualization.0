@@ -1,15 +1,16 @@
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: [patch 00/11] x86/vdso: Cleanups,
 	simmplifications and CLOCK_TAI support
-Date: Wed, 03 Oct 2018 11:22:58 +0200
-Message-ID: <87sh1ne64t.fsf__26100.2933410511$1538558466$gmane$org@vitty.brq.redhat.com>
+Date: Wed, 3 Oct 2018 03:20:31 -0700
+Message-ID: <4B6A97E1-17E6-40F2-A7A0-87731668A07C@amacapital.net>
 References: <20180914125006.349747096@linutronix.de>
 	<CALCETrU+jP2hPLoJWTYJKTvr7-=YLwtk1=cZ_uizHYQZ1z4P-w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	<87sh1ne64t.fsf@vitty.brq.redhat.com>
+Mime-Version: 1.0 (1.0)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrU+jP2hPLoJWTYJKTvr7-=YLwtk1=cZ_uizHYQZ1z4P-w@mail.gmail.com>
+In-Reply-To: <87sh1ne64t.fsf@vitty.brq.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,90 +20,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Marcelo Tosatti <mtosatti@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Radim Krcmar <rkrcmar@redhat.com>, Wanpeng Li <kernellwp@gmail.com>
-Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
+To: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, X86 ML <x86@kernel.org>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andy Lutomirski <luto@kernel.org> writes:
-
-> Hi Vitaly, Paolo, Radim, etc.,
->
-> On Fri, Sep 14, 2018 at 5:52 AM Thomas Gleixner <tglx@linutronix.de> wrote:
->>
->> Matt attempted to add CLOCK_TAI support to the VDSO clock_gettime()
->> implementation, which extended the clockid switch case and added yet
->> another slightly different copy of the same code.
->>
->> Especially the extended switch case is problematic as the compiler tends to
->> generate a jump table which then requires to use retpolines. If jump tables
->> are disabled it adds yet another conditional to the existing maze.
->>
->> This series takes a different approach by consolidating the almost
->> identical functions into one implementation for high resolution clocks and
->> one for the coarse grained clock ids by storing the base data for each
->> clock id in an array which is indexed by the clock id.
->>
->
-> I was trying to understand more of the implications of this patch
-> series, and I was again reminded that there is an entire extra copy of
-> the vclock reading code in arch/x86/kvm/x86.c.  And the purpose of
-> that code is very, very opaque.
->
-> Can one of you explain what the code is even doing?  From a couple of
-> attempts to read through it, it's a whole bunch of
-> probably-extremely-buggy code that, drumroll please, tries to
-> atomically read the TSC value and the time.  And decide whether the
-> result is "based on the TSC".  And then synthesizes a TSC-to-ns
-> multiplier and shift, based on *something other than the actual
-> multiply and shift used*.
->
-> IOW, unless I'm totally misunderstanding it, the code digs into the
-> private arch clocksource data intended for the vDSO, uses a poorly
-> maintained copy of the vDSO code to read the time (instead of doing
-> the sane thing and using the kernel interfaces for this), and
-> propagates a totally made up copy to the guest.  And gets it entirely
-> wrong when doing nested virt, since, unless there's some secret in
-> this maze, it doesn't acutlaly use the scaling factor from the host
-> when it tells the guest what to do.
->
-> I am really, seriously tempted to send a patch to simply delete all
-> this code.  The correct way to do it is to hook
-
-"I have discovered a truly marvelous proof of this, which this margin is
-too narrow to contain" :-)
-
-There is a very long history of different (hardware) issues Marcelo was
-fighting with and the current code is the survived Frankenstein. E.g. it
-is very, very unclear what "catchup", "always catchup" and
-masterclock-less mode in general are and if we still need them.
-
-That said I'm all for simplification. I'm not sure if we still need to
-care about buggy hardware though.
-
->
-> And I don't see how it's even possible to pass kvmclock correctly to
-> the L2 guest when L0 is hyperv.  KVM could pass *hyperv's* clock, but
-> L1 isn't notified when the data structure changes, so how the heck is
-> it supposed to update the kvmclock structure?
-
-Well, this kind of works in the the followin way:
-L1's clocksource is 'tsc_page' which is, basically, a compliment to TSC:
-two numbers provided by L0: offset and scale and KVM was tought to treat
-this clocksource as a good one (see b0c39dc68e3b "x86/kvm: Pass stable
-clocksource to guests when running nested on Hyper-V").
-
-The notification you're talking about exists, it is called
-Reenligntenment, see 0092e4346f49 "x86/kvm: Support Hyper-V
-reenlightenment"). When TSC page changes (and this only happens when L1
-is migrated to a different host with a different TSC frequency and TSC
-scaling is not supported by the CPU) we receive an interrupt in L1 (at
-this moment all TSC accesses are emulated which guarantees the
-correctness of the readings), pause all L2 guests, update their kvmclock
-structures with new data (we already know the new TSC frequency) and
-then tell L0 that we're done and it can stop emulating TSC accesses.
-
-(Nothing like this exists for KVM-on-KVM, by the way, when L1's
-clocksource is 'kvmclock' L2s won't get a stable kvmclock clocksource.)
-
--- 
-Vitaly
+Cgo+IE9uIE9jdCAzLCAyMDE4LCBhdCAyOjIyIEFNLCBWaXRhbHkgS3V6bmV0c292IDx2a3V6bmV0
+c0ByZWRoYXQuY29tPiB3cm90ZToKPiAKPiBBbmR5IEx1dG9taXJza2kgPGx1dG9Aa2VybmVsLm9y
+Zz4gd3JpdGVzOgo+IAo+PiBIaSBWaXRhbHksIFBhb2xvLCBSYWRpbSwgZXRjLiwKPj4gCj4+PiBP
+biBGcmksIFNlcCAxNCwgMjAxOCBhdCA1OjUyIEFNIFRob21hcyBHbGVpeG5lciA8dGdseEBsaW51
+dHJvbml4LmRlPiB3cm90ZToKPj4+IAo+Pj4gTWF0dCBhdHRlbXB0ZWQgdG8gYWRkIENMT0NLX1RB
+SSBzdXBwb3J0IHRvIHRoZSBWRFNPIGNsb2NrX2dldHRpbWUoKQo+Pj4gaW1wbGVtZW50YXRpb24s
+IHdoaWNoIGV4dGVuZGVkIHRoZSBjbG9ja2lkIHN3aXRjaCBjYXNlIGFuZCBhZGRlZCB5ZXQKPj4+
+IGFub3RoZXIgc2xpZ2h0bHkgZGlmZmVyZW50IGNvcHkgb2YgdGhlIHNhbWUgY29kZS4KPj4+IAo+
+Pj4gRXNwZWNpYWxseSB0aGUgZXh0ZW5kZWQgc3dpdGNoIGNhc2UgaXMgcHJvYmxlbWF0aWMgYXMg
+dGhlIGNvbXBpbGVyIHRlbmRzIHRvCj4+PiBnZW5lcmF0ZSBhIGp1bXAgdGFibGUgd2hpY2ggdGhl
+biByZXF1aXJlcyB0byB1c2UgcmV0cG9saW5lcy4gSWYganVtcCB0YWJsZXMKPj4+IGFyZSBkaXNh
+YmxlZCBpdCBhZGRzIHlldCBhbm90aGVyIGNvbmRpdGlvbmFsIHRvIHRoZSBleGlzdGluZyBtYXpl
+Lgo+Pj4gCj4+PiBUaGlzIHNlcmllcyB0YWtlcyBhIGRpZmZlcmVudCBhcHByb2FjaCBieSBjb25z
+b2xpZGF0aW5nIHRoZSBhbG1vc3QKPj4+IGlkZW50aWNhbCBmdW5jdGlvbnMgaW50byBvbmUgaW1w
+bGVtZW50YXRpb24gZm9yIGhpZ2ggcmVzb2x1dGlvbiBjbG9ja3MgYW5kCj4+PiBvbmUgZm9yIHRo
+ZSBjb2Fyc2UgZ3JhaW5lZCBjbG9jayBpZHMgYnkgc3RvcmluZyB0aGUgYmFzZSBkYXRhIGZvciBl
+YWNoCj4+PiBjbG9jayBpZCBpbiBhbiBhcnJheSB3aGljaCBpcyBpbmRleGVkIGJ5IHRoZSBjbG9j
+ayBpZC4KPj4+IAo+PiAKPj4gSSB3YXMgdHJ5aW5nIHRvIHVuZGVyc3RhbmQgbW9yZSBvZiB0aGUg
+aW1wbGljYXRpb25zIG9mIHRoaXMgcGF0Y2gKPj4gc2VyaWVzLCBhbmQgSSB3YXMgYWdhaW4gcmVt
+aW5kZWQgdGhhdCB0aGVyZSBpcyBhbiBlbnRpcmUgZXh0cmEgY29weSBvZgo+PiB0aGUgdmNsb2Nr
+IHJlYWRpbmcgY29kZSBpbiBhcmNoL3g4Ni9rdm0veDg2LmMuICBBbmQgdGhlIHB1cnBvc2Ugb2YK
+Pj4gdGhhdCBjb2RlIGlzIHZlcnksIHZlcnkgb3BhcXVlLgo+PiAKPj4gQ2FuIG9uZSBvZiB5b3Ug
+ZXhwbGFpbiB3aGF0IHRoZSBjb2RlIGlzIGV2ZW4gZG9pbmc/ICBGcm9tIGEgY291cGxlIG9mCj4+
+IGF0dGVtcHRzIHRvIHJlYWQgdGhyb3VnaCBpdCwgaXQncyBhIHdob2xlIGJ1bmNoIG9mCj4+IHBy
+b2JhYmx5LWV4dHJlbWVseS1idWdneSBjb2RlIHRoYXQsIGRydW1yb2xsIHBsZWFzZSwgdHJpZXMg
+dG8KPj4gYXRvbWljYWxseSByZWFkIHRoZSBUU0MgdmFsdWUgYW5kIHRoZSB0aW1lLiAgQW5kIGRl
+Y2lkZSB3aGV0aGVyIHRoZQo+PiByZXN1bHQgaXMgImJhc2VkIG9uIHRoZSBUU0MiLiAgQW5kIHRo
+ZW4gc3ludGhlc2l6ZXMgYSBUU0MtdG8tbnMKPj4gbXVsdGlwbGllciBhbmQgc2hpZnQsIGJhc2Vk
+IG9uICpzb21ldGhpbmcgb3RoZXIgdGhhbiB0aGUgYWN0dWFsCj4+IG11bHRpcGx5IGFuZCBzaGlm
+dCB1c2VkKi4KPj4gCj4+IElPVywgdW5sZXNzIEknbSB0b3RhbGx5IG1pc3VuZGVyc3RhbmRpbmcg
+aXQsIHRoZSBjb2RlIGRpZ3MgaW50byB0aGUKPj4gcHJpdmF0ZSBhcmNoIGNsb2Nrc291cmNlIGRh
+dGEgaW50ZW5kZWQgZm9yIHRoZSB2RFNPLCB1c2VzIGEgcG9vcmx5Cj4+IG1haW50YWluZWQgY29w
+eSBvZiB0aGUgdkRTTyBjb2RlIHRvIHJlYWQgdGhlIHRpbWUgKGluc3RlYWQgb2YgZG9pbmcKPj4g
+dGhlIHNhbmUgdGhpbmcgYW5kIHVzaW5nIHRoZSBrZXJuZWwgaW50ZXJmYWNlcyBmb3IgdGhpcyks
+IGFuZAo+PiBwcm9wYWdhdGVzIGEgdG90YWxseSBtYWRlIHVwIGNvcHkgdG8gdGhlIGd1ZXN0LiAg
+QW5kIGdldHMgaXQgZW50aXJlbHkKPj4gd3Jvbmcgd2hlbiBkb2luZyBuZXN0ZWQgdmlydCwgc2lu
+Y2UsIHVubGVzcyB0aGVyZSdzIHNvbWUgc2VjcmV0IGluCj4+IHRoaXMgbWF6ZSwgaXQgZG9lc24n
+dCBhY3V0bGFseSB1c2UgdGhlIHNjYWxpbmcgZmFjdG9yIGZyb20gdGhlIGhvc3QKPj4gd2hlbiBp
+dCB0ZWxscyB0aGUgZ3Vlc3Qgd2hhdCB0byBkby4KPj4gCj4+IEkgYW0gcmVhbGx5LCBzZXJpb3Vz
+bHkgdGVtcHRlZCB0byBzZW5kIGEgcGF0Y2ggdG8gc2ltcGx5IGRlbGV0ZSBhbGwKPj4gdGhpcyBj
+b2RlLiAgVGhlIGNvcnJlY3Qgd2F5IHRvIGRvIGl0IGlzIHRvIGhvb2sKPiAKPiAiSSBoYXZlIGRp
+c2NvdmVyZWQgYSB0cnVseSBtYXJ2ZWxvdXMgcHJvb2Ygb2YgdGhpcywgd2hpY2ggdGhpcyBtYXJn
+aW4gaXMKPiB0b28gbmFycm93IHRvIGNvbnRhaW4iIDotKQo+IAo+IFRoZXJlIGlzIGEgdmVyeSBs
+b25nIGhpc3Rvcnkgb2YgZGlmZmVyZW50IChoYXJkd2FyZSkgaXNzdWVzIE1hcmNlbG8gd2FzCj4g
+ZmlnaHRpbmcgd2l0aCBhbmQgdGhlIGN1cnJlbnQgY29kZSBpcyB0aGUgc3Vydml2ZWQgRnJhbmtl
+bnN0ZWluLiBFLmcuIGl0Cj4gaXMgdmVyeSwgdmVyeSB1bmNsZWFyIHdoYXQgImNhdGNodXAiLCAi
+YWx3YXlzIGNhdGNodXAiIGFuZAo+IG1hc3RlcmNsb2NrLWxlc3MgbW9kZSBpbiBnZW5lcmFsIGFy
+ZSBhbmQgaWYgd2Ugc3RpbGwgbmVlZCB0aGVtLgo+IAo+IFRoYXQgc2FpZCBJJ20gYWxsIGZvciBz
+aW1wbGlmaWNhdGlvbi4gSSdtIG5vdCBzdXJlIGlmIHdlIHN0aWxsIG5lZWQgdG8KPiBjYXJlIGFi
+b3V0IGJ1Z2d5IGhhcmR3YXJlIHRob3VnaC4KPiAKPj4gCj4+IEFuZCBJIGRvbid0IHNlZSBob3cg
+aXQncyBldmVuIHBvc3NpYmxlIHRvIHBhc3Mga3ZtY2xvY2sgY29ycmVjdGx5IHRvCj4+IHRoZSBM
+MiBndWVzdCB3aGVuIEwwIGlzIGh5cGVydi4gIEtWTSBjb3VsZCBwYXNzICpoeXBlcnYncyogY2xv
+Y2ssIGJ1dAo+PiBMMSBpc24ndCBub3RpZmllZCB3aGVuIHRoZSBkYXRhIHN0cnVjdHVyZSBjaGFu
+Z2VzLCBzbyBob3cgdGhlIGhlY2sgaXMKPj4gaXQgc3VwcG9zZWQgdG8gdXBkYXRlIHRoZSBrdm1j
+bG9jayBzdHJ1Y3R1cmU/Cj4gCj4gV2VsbCwgdGhpcyBraW5kIG9mIHdvcmtzIGluIHRoZSB0aGUg
+Zm9sbG93aW4gd2F5Ogo+IEwxJ3MgY2xvY2tzb3VyY2UgaXMgJ3RzY19wYWdlJyB3aGljaCBpcywg
+YmFzaWNhbGx5LCBhIGNvbXBsaW1lbnQgdG8gVFNDOgo+IHR3byBudW1iZXJzIHByb3ZpZGVkIGJ5
+IEwwOiBvZmZzZXQgYW5kIHNjYWxlIGFuZCBLVk0gd2FzIHRvdWdodCB0byB0cmVhdAo+IHRoaXMg
+Y2xvY2tzb3VyY2UgYXMgYSBnb29kIG9uZSAoc2VlIGIwYzM5ZGM2OGUzYiAieDg2L2t2bTogUGFz
+cyBzdGFibGUKPiBjbG9ja3NvdXJjZSB0byBndWVzdHMgd2hlbiBydW5uaW5nIG5lc3RlZCBvbiBI
+eXBlci1WIikuCj4gCj4gVGhlIG5vdGlmaWNhdGlvbiB5b3UncmUgdGFsa2luZyBhYm91dCBleGlz
+dHMsIGl0IGlzIGNhbGxlZAo+IFJlZW5saWdudGVubWVudCwgc2VlIDAwOTJlNDM0NmY0OSAieDg2
+L2t2bTogU3VwcG9ydCBIeXBlci1WCj4gcmVlbmxpZ2h0ZW5tZW50IikuIFdoZW4gVFNDIHBhZ2Ug
+Y2hhbmdlcyAoYW5kIHRoaXMgb25seSBoYXBwZW5zIHdoZW4gTDEKPiBpcyBtaWdyYXRlZCB0byBh
+IGRpZmZlcmVudCBob3N0IHdpdGggYSBkaWZmZXJlbnQgVFNDIGZyZXF1ZW5jeSBhbmQgVFNDCj4g
+c2NhbGluZyBpcyBub3Qgc3VwcG9ydGVkIGJ5IHRoZSBDUFUpIHdlIHJlY2VpdmUgYW4gaW50ZXJy
+dXB0IGluIEwxIChhdAo+IHRoaXMgbW9tZW50IGFsbCBUU0MgYWNjZXNzZXMgYXJlIGVtdWxhdGVk
+IHdoaWNoIGd1YXJhbnRlZXMgdGhlCj4gY29ycmVjdG5lc3Mgb2YgdGhlIHJlYWRpbmdzKSwgcGF1
+c2UgYWxsIEwyIGd1ZXN0cywgdXBkYXRlIHRoZWlyIGt2bWNsb2NrCj4gc3RydWN0dXJlcyB3aXRo
+IG5ldyBkYXRhICh3ZSBhbHJlYWR5IGtub3cgdGhlIG5ldyBUU0MgZnJlcXVlbmN5KSBhbmQKPiB0
+aGVuIHRlbGwgTDAgdGhhdCB3ZSdyZSBkb25lIGFuZCBpdCBjYW4gc3RvcCBlbXVsYXRpbmcgVFND
+IGFjY2Vzc2VzLgoKVGhhdOKAmXMgZGVsaWdodGZ1bCEgIERvZXMgdGhlIGVtdWxhdGlvbiBtYWdp
+YyBhbHNvIHdvcmsgZm9yIEwxIHVzZXIgbW9kZT8gIElmIHNvLCBjb3VsZG7igJl0IHdlIGRyb3Ag
+dGhlIEh5cGVyViB2Y2xvY2sgZW50aXJlbHkgYW5kIGp1c3QgZm9sZCB0aGUgYWRqdXN0bWVudCBp
+bnRvIHRoZSBjb3JlIHRpbWVrZWVwaW5nIGRhdGE/ICAoUHJlZmVyYWJseSB0aGUgYWN0dWFsIGNv
+cmUgZGF0YSwgd2hpY2ggd291bGQgcmVxdWlyZSBjb3JlIGNoYW5nZXMsIGJ1dCBpdCBjb3VsZCBw
+bGF1c2libHkgYmUgZG9uZSBpbiBhcmNoIGNvZGUsIHRvby4pCgo+IAo+IChOb3RoaW5nIGxpa2Ug
+dGhpcyBleGlzdHMgZm9yIEtWTS1vbi1LVk0sIGJ5IHRoZSB3YXksIHdoZW4gTDEncwo+IGNsb2Nr
+c291cmNlIGlzICdrdm1jbG9jaycgTDJzIHdvbid0IGdldCBhIHN0YWJsZSBrdm1jbG9jayBjbG9j
+a3NvdXJjZS4pCj4gCj4gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
+bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
