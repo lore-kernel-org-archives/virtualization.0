@@ -1,20 +1,16 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [patch 00/11] x86/vdso: Cleanups,
-	simmplifications and CLOCK_TAI support
-Date: Wed, 3 Oct 2018 09:18:23 -0700
-Message-ID: <CALCETrWHkrzADjRw=_SqC0Q0urJNppwT+pCSV0yMJ97ZFB20_w__43672.0932405025$1538583421$gmane$org@mail.gmail.com>
+From: Marcelo Tosatti <mtosatti@redhat.com>
+Subject: Re: [patch 00/11] x86/vdso: Cleanups, simmplifications and CLOCK_TAI
+	support
+Date: Wed, 3 Oct 2018 16:00:29 -0300
+Message-ID: <20181003190026.GB21381__19204.543476417$1538593147$gmane$org@amt.cnet>
 References: <20180914125006.349747096@linutronix.de>
 	<CALCETrU+jP2hPLoJWTYJKTvr7-=YLwtk1=cZ_uizHYQZ1z4P-w@mail.gmail.com>
-	<87sh1ne64t.fsf@vitty.brq.redhat.com>
-	<4B6A97E1-17E6-40F2-A7A0-87731668A07C@amacapital.net>
-	<87murvdysd.fsf@vitty.brq.redhat.com>
-	<8C316427-8BEC-4979-8AB2-5E385066BB6F@amacapital.net>
-	<alpine.DEB.2.21.1810031704480.23677@nanos.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.DEB.2.21.1810031704480.23677@nanos.tec.linutronix.de>
+Content-Disposition: inline
+In-Reply-To: <CALCETrU+jP2hPLoJWTYJKTvr7-=YLwtk1=cZ_uizHYQZ1z4P-w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,59 +20,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, X86 ML <x86@kernel.org>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andrew Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Matt Rickard <matt@softrans.com.au>
+To: Andy Lutomirski <luto@kernel.org>
+Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBPY3QgMywgMjAxOCBhdCA4OjEwIEFNIFRob21hcyBHbGVpeG5lciA8dGdseEBsaW51
-dHJvbml4LmRlPiB3cm90ZToKPgo+IE9uIFdlZCwgMyBPY3QgMjAxOCwgQW5keSBMdXRvbWlyc2tp
-IHdyb3RlOgo+ID4gPiBPbiBPY3QgMywgMjAxOCwgYXQgNTowMSBBTSwgVml0YWx5IEt1em5ldHNv
-diA8dmt1em5ldHNAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiA+IE5vdCBhbGwgSHlwZXItViBob3N0
-cyBzdXBwb3J0IHJlZW5saWdodGVubWVudCBub3RpZmljYXRpb25zIChhbmQsIGlmIEknbQo+ID4g
-PiBub3QgbWlzdGFrZW4sIHlvdSBuZWVkIHRvIGVuYWJsZSBuZXN0aW5nIGZvciB0aGUgVk0gdG8g
-Z2V0IHRoZSBmZWF0dXJlIC0KPiA+ID4gYW5kIG1vc3QgVk1zIGRvbid0IGhhdmUgdGhpcykgc28g
-SSB0aGluayB3ZSdsbCBoYXZlIHRvIGtlZXAgSHlwZXItVgo+ID4gPiB2Y2xvY2sgZm9yIHRoZSB0
-aW1lIGJlaW5nLgo+ID4gPgo+ID4gQnV0IHRoaXMgZG9lcyBzdWdnZXN0IHRoYXQgdGhlIGNvcnJl
-Y3Qgd2F5IHRvIHBhc3MgYSBjbG9jayB0aHJvdWdoIHRvIGFuCj4gPiBMMiBndWVzdCB3aGVyZSBM
-MCBpcyBIViBpcyB0byBtYWtlIEwxIHVzZSB0aGUg4oCcdHNj4oCdIGNsb2NrIGFuZCBMMiB1c2UK
-PiA+IGt2bWNsb2NrIChvciBzb21ldGhpbmcgbmV3ZXIgYW5kIGJldHRlcikuICBUaGlzIHdvdWxk
-IHJlcXVpcmUgYWRkaW5nCj4gPiBzdXBwb3J0IGZvciBhdG9taWMgZnJlcXVlbmN5IGNoYW5nZXMg
-YWxsIHRoZSB3YXkgdGhyb3VnaCB0aGUgdGltZWtlZXBpbmcKPiA+IGFuZCBhcmNoIGNvZGUuCj4g
-Pgo+ID4gSm9obiwgdGdseCwgd291bGQgdGhhdCBiZSBva2F5IG9yIGNyYXp5Pwo+Cj4gTm90IHN1
-cmUgd2hhdCB5b3UgbWVhbi4gSSB0aGluayBJIGxvc3QgeW91IHNvbWV3aGVyZSBvbiB0aGUgd2F5
-Lgo+CgpXaGF0IEkgbWVhbiBpczogY3VycmVudGx5IHdlIGhhdmUgYSBjbG9ja3NvdXJjZSBjYWxs
-ZWQKIiJoeXBlcnZfY2xvY2tzb3VyY2VfdHNjX3BhZ2UiLiAgUmVhZGluZyBpdCBkb2VzOgoKc3Rh
-dGljIHU2NCByZWFkX2h2X2Nsb2NrX3RzYyhzdHJ1Y3QgY2xvY2tzb3VyY2UgKmFyZykKewogICAg
-dTY0IGN1cnJlbnRfdGljayA9IGh2X3JlYWRfdHNjX3BhZ2UodHNjX3BnKTsKCiAgICBpZiAoY3Vy
-cmVudF90aWNrID09IFU2NF9NQVgpCiAgICAgICAgcmRtc3JsKEhWX1g2NF9NU1JfVElNRV9SRUZf
-Q09VTlQsIGN1cnJlbnRfdGljayk7CgogICAgcmV0dXJuIGN1cnJlbnRfdGljazsKfQoKRnJvbSBW
-aXRhbHkncyBlbWFpbCwgaXQgc291bmRzIGxpa2UsIG9uIG1vc3QgKGFsbD8pIGh5cGVydiBzeXN0
-ZW1zCndpdGggbmVzdGluZyBlbmFibGVkLCB0aGlzIGNsb2NrIGlzIGJldHRlciBiZWhhdmVkIHRo
-YW4gaXQgYXBwZWFycy4KSXQgc291bmRzIGxpa2UgdGhlIHJlYWQgYmVoYXZpb3IgaXMgdGhhdCBj
-dXJyZW50X3RpY2sgd2lsbCBuZXZlciBiZQpVNjRfTUFYIC0tIGluc3RlYWQsIHRoZSBjbG9jayBh
-bHdheXMgd29ya3MgYW5kLCBtb3JlIGltcG9ydGFudGx5LCB0aGUKYWN0dWFsIHNjYWxpbmcgZmFj
-dG9yIGFuZCBvZmZzZXQgb25seSBjaGFuZ2Ugb2JzZXJ2YWJseSBvbiAqZ3Vlc3QqCnJlcXVlc3Qu
-CgpTbyB3aHkgZG9uJ3Qgd2Ugd2UgaW1wcm92ZSB0aGUgYWN0dWFsICJ0c2MiIGNsb2Nrc291cmNl
-IHRvIHVuZGVyc3RhbmQKdGhpcz8gIElTVE0gdGhlIGJlc3QgbW9kZWwgd291bGQgYmUgd2hlcmUg
-dGhlCl9fY2xvY2tzb3VyY2VfdXBkYXRlX2ZyZXFfeHl6KCkgbWVjaGFuaXNtIGdldHMgY2FsbGVk
-IHNvIHdlIGNhbiB1c2UgaXQKbGlrZSB0aGlzOgoKY2xvY2tzb3VyY2VfYmVnaW5fdXBkYXRlKCk7
-CmNsb2Nrc291cmNlX3VwZGF0ZV9tdWx0X3NoaWZ0KCk7CnRlbGxfaHZfdGhhdF93ZV9yZWVubGln
-aHRlbmVkKCk7CmNsb2Nrc291cmNlX2VuZF91cGRhdGUoKTsKCldoZXJlIGNsb2Nrc291cmNlX2Jl
-Z2luX3VwZGF0ZSgpIGJ1bXBzIHRoZSBzZXFjb3VudCBmb3IgdGhlIHZEU08gYW5kCnRha2VzIGFs
-bCB0aGUgbG9ja3MsIGNsb2Nrc291cmNlX3VwZGF0ZV9tdWx0X3NoaWZ0KCkgdXBkYXRlcwpldmVy
-eXRoaW5nLCBhbmQgY2xvY2tzb3VyY2VfZW5kX3VwZGF0ZSgpIG1ha2VzIHRoZSB1cGRhdGVkIHBh
-cmFtZXRlcnMKdXNhYmxlLgoKKEFGQUlDVCB0aGVyZSBhcmUgY3VycmVudGx5IG5vIGNsb2Nrc291
-cmNlcyBhdCBhbGwgaW4gdGhlIGVudGlyZQprZXJuZWwgdGhhdCB1cGRhdGUgdGhlaXIgZnJlcXVl
-bmN5IG9uIHRoZSBmbHkgdXNpbmcKX19jbG9ja3NvdXJjZV91cGRhdGVfeHl6KCkuICBVbmxlc3Mg
-SSdtIG1pc3Npbmcgc29tZXRoaW5nLCB0aGUgeDg2IHRzYwpjcHVmcmVxIGhvb2tzIGRvbid0IGNh
-bGwgaW50byB0aGUgY29yZSB0aW1la2VlcGluZyBhdCBhbGwsIHNvIEknbQphc3N1bWluZyB0aGF0
-IHRoZSB0c2MgY2xvY2tzb3VyY2UgaXMganVzdCB1bnVzYWJsZSBhcyBhIGNsb2Nrc291cmNlIG9u
-CnN5c3RlbXMgdGhhdCBjaGFuZ2UgaXRzIGZyZXF1ZW5jeS4pCgpPciB3ZSBjb3VsZCBrZWVwIHRo
-ZSBoeXBlcnZfY2xvY2tzb3VyY2VfdHNjX3BhZ2UgY2xvY2tzb3VyY2UgYnV0IG1ha2UKaXQgdXNl
-IFZDTE9DS19UU0MgYW5kIGEgc2ltaWxhciB1cGRhdGUgbWVjaGFuaXNtLgoKSSBkb24ndCBwZXJz
-b25hbGx5IHdhbnQgdG8gZG8gdGhpcywgYmVjYXVzZSB0aGUgdGltZWtlZXBpbmcgY29kZSBpcwpz
-dWJ0bGUgYW5kIEknbSB1bmZhbWlsaWFyIHdpdGggaXQuICBBbmQgSSBkb24ndCBoYXZlICp0aGF0
-KiBtYW55IHNwYXJlCmN5Y2xlcyA6KQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Tue, Oct 02, 2018 at 10:15:49PM -0700, Andy Lutomirski wrote:
+> Hi Vitaly, Paolo, Radim, etc.,
+> 
+> On Fri, Sep 14, 2018 at 5:52 AM Thomas Gleixner <tglx@linutronix.de> wrote:
+> >
+> > Matt attempted to add CLOCK_TAI support to the VDSO clock_gettime()
+> > implementation, which extended the clockid switch case and added yet
+> > another slightly different copy of the same code.
+> >
+> > Especially the extended switch case is problematic as the compiler tends to
+> > generate a jump table which then requires to use retpolines. If jump tables
+> > are disabled it adds yet another conditional to the existing maze.
+> >
+> > This series takes a different approach by consolidating the almost
+> > identical functions into one implementation for high resolution clocks and
+> > one for the coarse grained clock ids by storing the base data for each
+> > clock id in an array which is indexed by the clock id.
+> >
+> 
+> I was trying to understand more of the implications of this patch
+> series, and I was again reminded that there is an entire extra copy of
+> the vclock reading code in arch/x86/kvm/x86.c.  And the purpose of
+> that code is very, very opaque.
+> 
+> Can one of you explain what the code is even doing?  From a couple of
+> attempts to read through it, it's a whole bunch of
+> probably-extremely-buggy code that, 
+
+Yes, probably.
+
+> drumroll please, tries to atomically read the TSC value and the time.  And decide whether the
+> result is "based on the TSC".  
+
+I think "based on the TSC" refers to whether TSC clocksource is being
+used.
+
+> And then synthesizes a TSC-to-ns
+> multiplier and shift, based on *something other than the actual
+> multiply and shift used*.
+> 
+> IOW, unless I'm totally misunderstanding it, the code digs into the
+> private arch clocksource data intended for the vDSO, uses a poorly
+> maintained copy of the vDSO code to read the time (instead of doing
+> the sane thing and using the kernel interfaces for this), and
+> propagates a totally made up copy to the guest.
+
+I posted kernel interfaces for this, and it was suggested to 
+instead write a "in-kernel user of pvclock data".
+
+If you can get kernel interfaces to replace that, go for it. I prefer
+kernel interfaces as well.
+
+>  And gets it entirely
+> wrong when doing nested virt, since, unless there's some secret in
+> this maze, it doesn't acutlaly use the scaling factor from the host
+> when it tells the guest what to do.
+> 
+> I am really, seriously tempted to send a patch to simply delete all
+> this code.  
+
+If your patch which deletes the code gets the necessary features right,
+sure, go for it.
+
+> The correct way to do it is to hook
+
+Can you expand on the correct way to do it?
+
+> And I don't see how it's even possible to pass kvmclock correctly to
+> the L2 guest when L0 is hyperv.  KVM could pass *hyperv's* clock, but
+> L1 isn't notified when the data structure changes, so how the heck is
+> it supposed to update the kvmclock structure?
+
+I don't parse your question.
+
+> 
+> --Andy
