@@ -1,18 +1,20 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch 00/11] x86/vdso: Cleanups, simmplifications and CLOCK_TAI
-	support
-Date: Wed, 3 Oct 2018 17:10:08 +0200 (CEST)
-Message-ID: <alpine.DEB.2.21.1810031704480.23677__33606.0688518502$1538579308$gmane$org@nanos.tec.linutronix.de>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [patch 00/11] x86/vdso: Cleanups,
+	simmplifications and CLOCK_TAI support
+Date: Wed, 3 Oct 2018 09:18:23 -0700
+Message-ID: <CALCETrWHkrzADjRw=_SqC0Q0urJNppwT+pCSV0yMJ97ZFB20_w__43672.0932405025$1538583421$gmane$org@mail.gmail.com>
 References: <20180914125006.349747096@linutronix.de>
 	<CALCETrU+jP2hPLoJWTYJKTvr7-=YLwtk1=cZ_uizHYQZ1z4P-w@mail.gmail.com>
 	<87sh1ne64t.fsf@vitty.brq.redhat.com>
 	<4B6A97E1-17E6-40F2-A7A0-87731668A07C@amacapital.net>
 	<87murvdysd.fsf@vitty.brq.redhat.com>
 	<8C316427-8BEC-4979-8AB2-5E385066BB6F@amacapital.net>
+	<alpine.DEB.2.21.1810031704480.23677@nanos.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="8323329-391363870-1538579410=:23677"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8C316427-8BEC-4979-8AB2-5E385066BB6F@amacapital.net>
+In-Reply-To: <alpine.DEB.2.21.1810031704480.23677@nanos.tec.linutronix.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,45 +24,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, X86 ML <x86@kernel.org>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Matt Rickard <matt@softrans.com.au>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, X86 ML <x86@kernel.org>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andrew Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---8323329-391363870-1538579410=:23677
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-
-On Wed, 3 Oct 2018, Andy Lutomirski wrote:
-> > On Oct 3, 2018, at 5:01 AM, Vitaly Kuznetsov <vkuznets@redhat.com> wrote:
-> > Not all Hyper-V hosts support reenlightenment notifications (and, if I'm
-> > not mistaken, you need to enable nesting for the VM to get the feature -
-> > and most VMs don't have this) so I think we'll have to keep Hyper-V
-> > vclock for the time being.
-> > 
-> But this does suggest that the correct way to pass a clock through to an
-> L2 guest where L0 is HV is to make L1 use the “tsc” clock and L2 use
-> kvmclock (or something newer and better).  This would require adding
-> support for atomic frequency changes all the way through the timekeeping
-> and arch code.
->
-> John, tglx, would that be okay or crazy?
-
-Not sure what you mean. I think I lost you somewhere on the way.
-
-Thanks,
-
-	tglx
---8323329-391363870-1538579410=:23677
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---8323329-391363870-1538579410=:23677--
+T24gV2VkLCBPY3QgMywgMjAxOCBhdCA4OjEwIEFNIFRob21hcyBHbGVpeG5lciA8dGdseEBsaW51
+dHJvbml4LmRlPiB3cm90ZToKPgo+IE9uIFdlZCwgMyBPY3QgMjAxOCwgQW5keSBMdXRvbWlyc2tp
+IHdyb3RlOgo+ID4gPiBPbiBPY3QgMywgMjAxOCwgYXQgNTowMSBBTSwgVml0YWx5IEt1em5ldHNv
+diA8dmt1em5ldHNAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiA+IE5vdCBhbGwgSHlwZXItViBob3N0
+cyBzdXBwb3J0IHJlZW5saWdodGVubWVudCBub3RpZmljYXRpb25zIChhbmQsIGlmIEknbQo+ID4g
+PiBub3QgbWlzdGFrZW4sIHlvdSBuZWVkIHRvIGVuYWJsZSBuZXN0aW5nIGZvciB0aGUgVk0gdG8g
+Z2V0IHRoZSBmZWF0dXJlIC0KPiA+ID4gYW5kIG1vc3QgVk1zIGRvbid0IGhhdmUgdGhpcykgc28g
+SSB0aGluayB3ZSdsbCBoYXZlIHRvIGtlZXAgSHlwZXItVgo+ID4gPiB2Y2xvY2sgZm9yIHRoZSB0
+aW1lIGJlaW5nLgo+ID4gPgo+ID4gQnV0IHRoaXMgZG9lcyBzdWdnZXN0IHRoYXQgdGhlIGNvcnJl
+Y3Qgd2F5IHRvIHBhc3MgYSBjbG9jayB0aHJvdWdoIHRvIGFuCj4gPiBMMiBndWVzdCB3aGVyZSBM
+MCBpcyBIViBpcyB0byBtYWtlIEwxIHVzZSB0aGUg4oCcdHNj4oCdIGNsb2NrIGFuZCBMMiB1c2UK
+PiA+IGt2bWNsb2NrIChvciBzb21ldGhpbmcgbmV3ZXIgYW5kIGJldHRlcikuICBUaGlzIHdvdWxk
+IHJlcXVpcmUgYWRkaW5nCj4gPiBzdXBwb3J0IGZvciBhdG9taWMgZnJlcXVlbmN5IGNoYW5nZXMg
+YWxsIHRoZSB3YXkgdGhyb3VnaCB0aGUgdGltZWtlZXBpbmcKPiA+IGFuZCBhcmNoIGNvZGUuCj4g
+Pgo+ID4gSm9obiwgdGdseCwgd291bGQgdGhhdCBiZSBva2F5IG9yIGNyYXp5Pwo+Cj4gTm90IHN1
+cmUgd2hhdCB5b3UgbWVhbi4gSSB0aGluayBJIGxvc3QgeW91IHNvbWV3aGVyZSBvbiB0aGUgd2F5
+Lgo+CgpXaGF0IEkgbWVhbiBpczogY3VycmVudGx5IHdlIGhhdmUgYSBjbG9ja3NvdXJjZSBjYWxs
+ZWQKIiJoeXBlcnZfY2xvY2tzb3VyY2VfdHNjX3BhZ2UiLiAgUmVhZGluZyBpdCBkb2VzOgoKc3Rh
+dGljIHU2NCByZWFkX2h2X2Nsb2NrX3RzYyhzdHJ1Y3QgY2xvY2tzb3VyY2UgKmFyZykKewogICAg
+dTY0IGN1cnJlbnRfdGljayA9IGh2X3JlYWRfdHNjX3BhZ2UodHNjX3BnKTsKCiAgICBpZiAoY3Vy
+cmVudF90aWNrID09IFU2NF9NQVgpCiAgICAgICAgcmRtc3JsKEhWX1g2NF9NU1JfVElNRV9SRUZf
+Q09VTlQsIGN1cnJlbnRfdGljayk7CgogICAgcmV0dXJuIGN1cnJlbnRfdGljazsKfQoKRnJvbSBW
+aXRhbHkncyBlbWFpbCwgaXQgc291bmRzIGxpa2UsIG9uIG1vc3QgKGFsbD8pIGh5cGVydiBzeXN0
+ZW1zCndpdGggbmVzdGluZyBlbmFibGVkLCB0aGlzIGNsb2NrIGlzIGJldHRlciBiZWhhdmVkIHRo
+YW4gaXQgYXBwZWFycy4KSXQgc291bmRzIGxpa2UgdGhlIHJlYWQgYmVoYXZpb3IgaXMgdGhhdCBj
+dXJyZW50X3RpY2sgd2lsbCBuZXZlciBiZQpVNjRfTUFYIC0tIGluc3RlYWQsIHRoZSBjbG9jayBh
+bHdheXMgd29ya3MgYW5kLCBtb3JlIGltcG9ydGFudGx5LCB0aGUKYWN0dWFsIHNjYWxpbmcgZmFj
+dG9yIGFuZCBvZmZzZXQgb25seSBjaGFuZ2Ugb2JzZXJ2YWJseSBvbiAqZ3Vlc3QqCnJlcXVlc3Qu
+CgpTbyB3aHkgZG9uJ3Qgd2Ugd2UgaW1wcm92ZSB0aGUgYWN0dWFsICJ0c2MiIGNsb2Nrc291cmNl
+IHRvIHVuZGVyc3RhbmQKdGhpcz8gIElTVE0gdGhlIGJlc3QgbW9kZWwgd291bGQgYmUgd2hlcmUg
+dGhlCl9fY2xvY2tzb3VyY2VfdXBkYXRlX2ZyZXFfeHl6KCkgbWVjaGFuaXNtIGdldHMgY2FsbGVk
+IHNvIHdlIGNhbiB1c2UgaXQKbGlrZSB0aGlzOgoKY2xvY2tzb3VyY2VfYmVnaW5fdXBkYXRlKCk7
+CmNsb2Nrc291cmNlX3VwZGF0ZV9tdWx0X3NoaWZ0KCk7CnRlbGxfaHZfdGhhdF93ZV9yZWVubGln
+aHRlbmVkKCk7CmNsb2Nrc291cmNlX2VuZF91cGRhdGUoKTsKCldoZXJlIGNsb2Nrc291cmNlX2Jl
+Z2luX3VwZGF0ZSgpIGJ1bXBzIHRoZSBzZXFjb3VudCBmb3IgdGhlIHZEU08gYW5kCnRha2VzIGFs
+bCB0aGUgbG9ja3MsIGNsb2Nrc291cmNlX3VwZGF0ZV9tdWx0X3NoaWZ0KCkgdXBkYXRlcwpldmVy
+eXRoaW5nLCBhbmQgY2xvY2tzb3VyY2VfZW5kX3VwZGF0ZSgpIG1ha2VzIHRoZSB1cGRhdGVkIHBh
+cmFtZXRlcnMKdXNhYmxlLgoKKEFGQUlDVCB0aGVyZSBhcmUgY3VycmVudGx5IG5vIGNsb2Nrc291
+cmNlcyBhdCBhbGwgaW4gdGhlIGVudGlyZQprZXJuZWwgdGhhdCB1cGRhdGUgdGhlaXIgZnJlcXVl
+bmN5IG9uIHRoZSBmbHkgdXNpbmcKX19jbG9ja3NvdXJjZV91cGRhdGVfeHl6KCkuICBVbmxlc3Mg
+SSdtIG1pc3Npbmcgc29tZXRoaW5nLCB0aGUgeDg2IHRzYwpjcHVmcmVxIGhvb2tzIGRvbid0IGNh
+bGwgaW50byB0aGUgY29yZSB0aW1la2VlcGluZyBhdCBhbGwsIHNvIEknbQphc3N1bWluZyB0aGF0
+IHRoZSB0c2MgY2xvY2tzb3VyY2UgaXMganVzdCB1bnVzYWJsZSBhcyBhIGNsb2Nrc291cmNlIG9u
+CnN5c3RlbXMgdGhhdCBjaGFuZ2UgaXRzIGZyZXF1ZW5jeS4pCgpPciB3ZSBjb3VsZCBrZWVwIHRo
+ZSBoeXBlcnZfY2xvY2tzb3VyY2VfdHNjX3BhZ2UgY2xvY2tzb3VyY2UgYnV0IG1ha2UKaXQgdXNl
+IFZDTE9DS19UU0MgYW5kIGEgc2ltaWxhciB1cGRhdGUgbWVjaGFuaXNtLgoKSSBkb24ndCBwZXJz
+b25hbGx5IHdhbnQgdG8gZG8gdGhpcywgYmVjYXVzZSB0aGUgdGltZWtlZXBpbmcgY29kZSBpcwpz
+dWJ0bGUgYW5kIEknbSB1bmZhbWlsaWFyIHdpdGggaXQuICBBbmQgSSBkb24ndCBoYXZlICp0aGF0
+KiBtYW55IHNwYXJlCmN5Y2xlcyA6KQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
