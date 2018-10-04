@@ -1,21 +1,14 @@
-From: Andy Lutomirski <luto@amacapital.net>
+From: Andy Lutomirski <luto@kernel.org>
 Subject: Re: [patch 00/11] x86/vdso: Cleanups,
 	simmplifications and CLOCK_TAI support
-Date: Thu, 4 Oct 2018 13:05:50 -0700
-Message-ID: <499807AB-E779-40C3-AA3F-E8C77A7770EC__41718.3428806767$1538683434$gmane$org@amacapital.net>
+Date: Thu, 4 Oct 2018 13:32:51 -0700
+Message-ID: <CALCETrUii1XGHhe7BN+LG0_jjyjOcHHnBgcOvh-wZXGxdMotPg@mail.gmail.com>
 References: <20180914125006.349747096@linutronix.de>
-	<CALCETrU+jP2hPLoJWTYJKTvr7-=YLwtk1=cZ_uizHYQZ1z4P-w@mail.gmail.com>
-	<87sh1ne64t.fsf@vitty.brq.redhat.com>
-	<20181003190617.GC21381@amt.cnet>
-	<87k1mycfju.fsf@vitty.brq.redhat.com>
-	<20181004081100.GI19272@hirez.programming.kicks-ass.net>
-	<B8C05946-43BB-40A4-A564-53904FAF8CC0@amacapital.net>
-	<20181004193150.GQ19272@hirez.programming.kicks-ass.net>
-Mime-Version: 1.0 (1.0)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181004193150.GQ19272@hirez.programming.kicks-ass.net>
+In-Reply-To: <20180914125006.349747096@linutronix.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,51 +18,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, X86 ML <x86@kernel.org>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Stephen Boyd <sboyd@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andrew Lutomirski <luto@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, devel@linuxdriverproject.org, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cgo+IE9uIE9jdCA0LCAyMDE4LCBhdCAxMjozMSBQTSwgUGV0ZXIgWmlqbHN0cmEgPHBldGVyekBp
-bmZyYWRlYWQub3JnPiB3cm90ZToKPiAKPiBPbiBUaHUsIE9jdCAwNCwgMjAxOCBhdCAwNzowMDo0
-NUFNIC0wNzAwLCBBbmR5IEx1dG9taXJza2kgd3JvdGU6Cj4+PiBPbiBPY3QgNCwgMjAxOCwgYXQg
-MToxMSBBTSwgUGV0ZXIgWmlqbHN0cmEgPHBldGVyekBpbmZyYWRlYWQub3JnPiB3cm90ZToKPj4+
-IAo+Pj4+IE9uIFRodSwgT2N0IDA0LCAyMDE4IGF0IDA5OjU0OjQ1QU0gKzAyMDAsIFZpdGFseSBL
-dXpuZXRzb3Ygd3JvdGU6Cj4+Pj4gSSB3YXMgaG9waW5nIHRvIGhlYXIgdGhpcyBmcm9tIHlvdSA6
-LSkgSWYgSSBhbSB0byBzdWdnZXN0IGhvdyB3ZSBjYW4KPj4+PiBtb3ZlIGZvcndhcmQgSSdkIHBy
-b3Bvc2U6Cj4+Pj4gLSBDaGVjayBpZiBwdXJlIFRTQyBjYW4gYmUgdXNlZCBvbiBTa3lMYWtlKyBz
-eXN0ZW1zICh3aGVyZSBUU0Mgc2NhbGluZwo+Pj4+IGlzIHN1cHBvcnRlZCkuCj4+Pj4gLSBDaGVj
-ayBpZiBub24tbWFzdGVyY2xvY2sgbW9kZSBpcyBzdGlsbCBuZWVkZWQuIEUuZy4gSHlwZXJWJ3Mg
-VFNDIHBhZ2UKPj4+PiBjbG9ja3NvdXJjZSBpcyBhIHNpbmdsZSBwYWdlIGZvciB0aGUgd2hvbGUg
-Vk0sIG5vdCBhIHBlci1jcHUgdGhpbmcuIENhbgo+Pj4+IHdlIHRoaW5rIHRoYXQgYWxsIHRoZSBi
-dWdneSBoYXJkd2FyZSBpcyBhbHJlYWR5IGdvbmU/Cj4+PiAKPj4+IE5vLCBhbmQgaXQgaXMgbm90
-IHRoZSBoYXJkd2FyZSB5b3UgaGF2ZSB0byB3b3JyeSBhYm91dCAobW9zdGx5KSwgaXQgaXMKPj4+
-IHRoZSBmcmlnZ2luZyBQb1MgZmlybXdhcmUgcGVvcGxlIHB1dCBvbiBpdC4KPj4+IAo+Pj4gRXZl
-ciBzaW5jZSBOZWhhbGVtIFRTQyBpcyBzdGFibGUgKHVubGVzcyB5b3UgZ2V0IHRvID40IHNvY2tl
-dCBzeXN0ZW1zLAo+Pj4gYWZ0ZXIgd2hpY2ggaXQgc3RpbGwgY2FuIGJlLCBidXQgYmV0cyBhcmUg
-b2ZmKS4gQnV0IGV2ZW4gcmVsYXRpdmVseQo+Pj4gcmVjZW50IHN5c3RlbXMgZmFpbCB0aGUgVFND
-IHN5bmMgdGVzdCBiZWNhdXNlIGZpcm13YXJlIG1lc3NlcyBpdCB1cCBieQo+Pj4gd3JpdGluZyB0
-byBlaXRoZXIgTVNSX1RTQyBvciBNU1JfVFNDX0FESlVTVC4KPj4+IAo+Pj4gQnV0IHRoZSB0aGlu
-ZyBpcywgaWYgdGhlIFRTQyBpcyBub3Qgc3luY2VkLCB5b3UgY2Fubm90IHVzZSBpdCBmb3IKPj4+
-IHRpbWVrZWVwaW5nLCBmdWxsIHN0b3AuIFNvIGhhdmluZyBhIHNpbmdsZSBwYWdlIGlzIGZpbmUs
-IGl0IGVpdGhlcgo+Pj4gY29udGFpbnMgYSBtdWx0L3NoaWZ0IHRoYXQgaXMgdmFsaWQsIG9yIGl0
-IGluZGljYXRlcyBUU0MgaXMgbWVzc2VkIHVwCj4+PiBhbmQgeW91IGZhbGwgYmFjayB0byBzb21l
-dGhpbmcgZWxzZS4KPj4+IAo+Pj4gVGhlcmUgaXMgbm8gaW5iZXR3ZWVuIHRoZXJlLgo+Pj4gCj4+
-PiBGb3Igc2NoZWRfY2xvY2sgd2UgY2FuIHN0aWxsIHVzZSB0aGUgZ2xvYmFsIHBhZ2UsIGJlY2F1
-c2UgdGhlIHJhdGUgd2lsbAo+Pj4gc3RpbGwgYmUgdGhlIHNhbWUgZm9yIGVhY2ggY3B1LCBpdCdz
-IGp1c3Qgb2Zmc2V0IGJldHdlZW4gQ1BVcyBhbmQgdGhlCj4+PiBjb2RlIGNvbXBlbnNhdGVzIGZv
-ciB0aGF0Lgo+PiAKPj4gQnV0IGlmIHdl4oCZcmUgaW4gYSBLVk0gZ3Vlc3QsIHRoZW4gdGhlIGNs
-b2NrIHdpbGwganVtcCBhcm91bmQgb24gdGhlCj4+IHNhbWUgKnZDUFUqIHdoZW4gdGhlIHZDUFUg
-bWlncmF0ZXMuCj4gCj4gVXJnaCB5ZXMuLgo+IAo+PiBCdXQgSSBkb27igJl0IHNlZSBob3cga3Zt
-Y2xvY2sgaGVscHMgaGVyZSwgc2luY2UgSSBkb27igJl0IHRoaW5rIGl04oCZcyB1c2VkCj4+IGZv
-ciBzY2hlZF9jbG9jay4KPiAKPiBJIGdldCBoaXRzIG9uIGt2bV9zY2hlZF9jbG9jaywgYnV0IGhh
-dmVuJ3QgbG9va2VkIGZ1cnRoZXIuCgpPaywgc28gS1ZNIGlzIHVzaW5nIHRoZSBwZXItdkNQVSBw
-dmNsb2NrIGRhdGEgZm9yIHNjaGVkX2Nsb2NrLiBXaGljaCBob3BlZnVsbHkgZG9lcyBzb21ldGhp
-bmcgaW50ZWxsaWdlbnQuCgpSZWdhcmRsZXNzIG9mIGFueSBUU0Mgc3luY2luZyBpc3N1ZXMsIGEg
-cGFyYXZpcnQgY2xvY2sgc2hvdWxkIHByZXN1bWFibHkgYmUgdXNlZCBmb3Igc2NoZWRfY2xvY2sg
-dG8gYWNjb3VudCBmb3IgdGltZSB0aGF0IHRoZSB2Q1BVIHdhcyBzdG9wcGVkLgoKSXQgd291bGQg
-YmUgZmFudGFzdGljIGlmIHRoaXMgc3R1ZmYgd2VyZSBkb2N1bWVudGVkIG11Y2ggYmV0dGVyLCBi
-b3RoIGluIHRlcm1zIG9mIHRoZSBkYXRhIHN0cnVjdHVyZXMgYW5kIHRoZSBMaW51eCBjb2RlLgoK
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
-YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
-b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
-cnR1YWxpemF0aW9u
+On Fri, Sep 14, 2018 at 5:52 AM Thomas Gleixner <tglx@linutronix.de> wrote:
+>
+> Matt attempted to add CLOCK_TAI support to the VDSO clock_gettime()
+> implementation, which extended the clockid switch case and added yet
+> another slightly different copy of the same code.
+>
+> Especially the extended switch case is problematic as the compiler tends to
+> generate a jump table which then requires to use retpolines. If jump tables
+> are disabled it adds yet another conditional to the existing maze.
+>
+> This series takes a different approach by consolidating the almost
+> identical functions into one implementation for high resolution clocks and
+> one for the coarse grained clock ids by storing the base data for each
+> clock id in an array which is indexed by the clock id.
+>
+> This completely eliminates the switch case and allows further
+> simplifications of the code base, which at the end all together gain a few
+> cycles performance or at least stay on par with todays code. The resulting
+> performance depends heavily on the micro architecture and the compiler.
+
+tglx, please consider this whole series Acked-by: Andy Lutomirski
+<luto@kernel.org>
+
+Please feel free to push it top tip:x86/vdso, as long as you pull in
+tip/x86/urgent first.  Once it lands, I'll email out a couple of
+follow-up patches.
+
+--Andy
