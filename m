@@ -1,19 +1,21 @@
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
-Subject: Re: [patch 00/11] x86/vdso: Cleanups,
-	simmplifications and CLOCK_TAI support
-Date: Thu, 04 Oct 2018 19:28:37 +0200
-Message-ID: <87bm89d3ju.fsf@vitty.brq.redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [patch 00/11] x86/vdso: Cleanups, simmplifications and CLOCK_TAI
+	support
+Date: Thu, 4 Oct 2018 21:31:50 +0200
+Message-ID: <20181004193150.GQ19272__17749.6966709898$1538682062$gmane$org@hirez.programming.kicks-ass.net>
 References: <20180914125006.349747096@linutronix.de>
 	<CALCETrU+jP2hPLoJWTYJKTvr7-=YLwtk1=cZ_uizHYQZ1z4P-w@mail.gmail.com>
-	<20181003190026.GB21381@amt.cnet>
-	<CALCETrXwEDGNry=9KKvWyc7Eot3eEDifkJ234igDLrea2mVfuA@mail.gmail.com>
-	<20181004163705.GA25129@amt.cnet>
-	<CALCETrWbWLM5Jjm7iJCE7S=BJ9OFw2QQGJ2Ao-qsuaN50z=y0A@mail.gmail.com>
+	<87sh1ne64t.fsf@vitty.brq.redhat.com>
+	<20181003190617.GC21381@amt.cnet>
+	<87k1mycfju.fsf@vitty.brq.redhat.com>
+	<20181004081100.GI19272@hirez.programming.kicks-ass.net>
+	<B8C05946-43BB-40A4-A564-53904FAF8CC0@amacapital.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrWbWLM5Jjm7iJCE7S=BJ9OFw2QQGJ2Ao-qsuaN50z=y0A@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <B8C05946-43BB-40A4-A564-53904FAF8CC0@amacapital.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,136 +25,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marcelo Tosatti <mtosatti@redhat.com>
-Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andrew Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, X86 ML <x86@kernel.org>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Stephen Boyd <sboyd@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andy Lutomirski <luto@kernel.org> writes:
-
-> On Thu, Oct 4, 2018 at 9:43 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
->>
->> On Wed, Oct 03, 2018 at 03:32:08PM -0700, Andy Lutomirski wrote:
->> > On Wed, Oct 3, 2018 at 12:01 PM Marcelo Tosatti <mtosatti@redhat.com> wrote:
->> > >
->> > > On Tue, Oct 02, 2018 at 10:15:49PM -0700, Andy Lutomirski wrote:
->> > > > Hi Vitaly, Paolo, Radim, etc.,
->> > > >
->> > > > On Fri, Sep 14, 2018 at 5:52 AM Thomas Gleixner <tglx@linutronix.de> wrote:
->> > > > >
->> > > > > Matt attempted to add CLOCK_TAI support to the VDSO clock_gettime()
->> > > > > implementation, which extended the clockid switch case and added yet
->> > > > > another slightly different copy of the same code.
->> > > > >
->> > > > > Especially the extended switch case is problematic as the compiler tends to
->> > > > > generate a jump table which then requires to use retpolines. If jump tables
->> > > > > are disabled it adds yet another conditional to the existing maze.
->> > > > >
->> > > > > This series takes a different approach by consolidating the almost
->> > > > > identical functions into one implementation for high resolution clocks and
->> > > > > one for the coarse grained clock ids by storing the base data for each
->> > > > > clock id in an array which is indexed by the clock id.
->> > > > >
->> > > >
->> > > > I was trying to understand more of the implications of this patch
->> > > > series, and I was again reminded that there is an entire extra copy of
->> > > > the vclock reading code in arch/x86/kvm/x86.c.  And the purpose of
->> > > > that code is very, very opaque.
->> > > >
->> > > > Can one of you explain what the code is even doing?  From a couple of
->> > > > attempts to read through it, it's a whole bunch of
->> > > > probably-extremely-buggy code that,
->> > >
->> > > Yes, probably.
->> > >
->> > > > drumroll please, tries to atomically read the TSC value and the time.  And decide whether the
->> > > > result is "based on the TSC".
->> > >
->> > > I think "based on the TSC" refers to whether TSC clocksource is being
->> > > used.
->> > >
->> > > > And then synthesizes a TSC-to-ns
->> > > > multiplier and shift, based on *something other than the actual
->> > > > multiply and shift used*.
->> > > >
->> > > > IOW, unless I'm totally misunderstanding it, the code digs into the
->> > > > private arch clocksource data intended for the vDSO, uses a poorly
->> > > > maintained copy of the vDSO code to read the time (instead of doing
->> > > > the sane thing and using the kernel interfaces for this), and
->> > > > propagates a totally made up copy to the guest.
->> > >
->> > > I posted kernel interfaces for this, and it was suggested to
->> > > instead write a "in-kernel user of pvclock data".
->> > >
->> > > If you can get kernel interfaces to replace that, go for it. I prefer
->> > > kernel interfaces as well.
->> > >
->> > > >  And gets it entirely
->> > > > wrong when doing nested virt, since, unless there's some secret in
->> > > > this maze, it doesn't acutlaly use the scaling factor from the host
->> > > > when it tells the guest what to do.
->> > > >
->> > > > I am really, seriously tempted to send a patch to simply delete all
->> > > > this code.
->> > >
->> > > If your patch which deletes the code gets the necessary features right,
->> > > sure, go for it.
->> > >
->> > > > The correct way to do it is to hook
->> > >
->> > > Can you expand on the correct way to do it?
->> > >
->> > > > And I don't see how it's even possible to pass kvmclock correctly to
->> > > > the L2 guest when L0 is hyperv.  KVM could pass *hyperv's* clock, but
->> > > > L1 isn't notified when the data structure changes, so how the heck is
->> > > > it supposed to update the kvmclock structure?
->> > >
->> > > I don't parse your question.
->> >
->> > Let me ask it more intelligently: when the "reenlightenment" IRQ
->> > happens, what tells KVM to do its own update for its guests?
->>
->> Update of what, and why it needs to update anything from IRQ?
->>
->> The update i can think of is from host kernel clocksource,
->> which there is a notifier for.
->>
->>
->
-> Unless I've missed some serious magic, L2 guests see kvmclock, not hv.
-> So we have the following sequence of events:
->
->  - L0 migrates the whole VM.  Starting now, RDTSC is emulated to match
-> the old host, which applies in L1 and L2.
->
->  - An IRQ is queued to L1.
->
->  - L1 acknowledges that it noticed the TSC change.
-
-Before the acknowledgement we actually pause all guests so they don't
-notice the change ....
-
->  RDTSC stops being emulated for L1 and L2.
-
-.... and right after that we update all kvmclocks for all L2s and
-unpause them so all their readings are still correct (see
-kvm_hyperv_tsc_notifier()).
-
->
->  - L2 reads the TSC.  It has no idea that anything changed, and it
-> gets the wrong answer.
-
-I have to admit I forgot what happens if L2 uses raw TSC. I *think* that
-we actually adjust TSC offset along with adjusting kvmclocks so the
-reading is still correct. I'll have to check this.
-
-All bets are off in case L2 was using TSC for time interval
-measurements: frequency, of course, changes.
-
->
->  - At some point, kvm clock updates.
->
-> What prevents this?  Vitaly, am I missing some subtlety of what
-> actually happens?
-
--- 
-Vitaly
+T24gVGh1LCBPY3QgMDQsIDIwMTggYXQgMDc6MDA6NDVBTSAtMDcwMCwgQW5keSBMdXRvbWlyc2tp
+IHdyb3RlOgo+ID4gT24gT2N0IDQsIDIwMTgsIGF0IDE6MTEgQU0sIFBldGVyIFppamxzdHJhIDxw
+ZXRlcnpAaW5mcmFkZWFkLm9yZz4gd3JvdGU6Cj4gPiAKPiA+PiBPbiBUaHUsIE9jdCAwNCwgMjAx
+OCBhdCAwOTo1NDo0NUFNICswMjAwLCBWaXRhbHkgS3V6bmV0c292IHdyb3RlOgo+ID4+IEkgd2Fz
+IGhvcGluZyB0byBoZWFyIHRoaXMgZnJvbSB5b3UgOi0pIElmIEkgYW0gdG8gc3VnZ2VzdCBob3cg
+d2UgY2FuCj4gPj4gbW92ZSBmb3J3YXJkIEknZCBwcm9wb3NlOgo+ID4+IC0gQ2hlY2sgaWYgcHVy
+ZSBUU0MgY2FuIGJlIHVzZWQgb24gU2t5TGFrZSsgc3lzdGVtcyAod2hlcmUgVFNDIHNjYWxpbmcK
+PiA+PiBpcyBzdXBwb3J0ZWQpLgo+ID4+IC0gQ2hlY2sgaWYgbm9uLW1hc3RlcmNsb2NrIG1vZGUg
+aXMgc3RpbGwgbmVlZGVkLiBFLmcuIEh5cGVyVidzIFRTQyBwYWdlCj4gPj4gY2xvY2tzb3VyY2Ug
+aXMgYSBzaW5nbGUgcGFnZSBmb3IgdGhlIHdob2xlIFZNLCBub3QgYSBwZXItY3B1IHRoaW5nLiBD
+YW4KPiA+PiB3ZSB0aGluayB0aGF0IGFsbCB0aGUgYnVnZ3kgaGFyZHdhcmUgaXMgYWxyZWFkeSBn
+b25lPwo+ID4gCj4gPiBObywgYW5kIGl0IGlzIG5vdCB0aGUgaGFyZHdhcmUgeW91IGhhdmUgdG8g
+d29ycnkgYWJvdXQgKG1vc3RseSksIGl0IGlzCj4gPiB0aGUgZnJpZ2dpbmcgUG9TIGZpcm13YXJl
+IHBlb3BsZSBwdXQgb24gaXQuCj4gPiAKPiA+IEV2ZXIgc2luY2UgTmVoYWxlbSBUU0MgaXMgc3Rh
+YmxlICh1bmxlc3MgeW91IGdldCB0byA+NCBzb2NrZXQgc3lzdGVtcywKPiA+IGFmdGVyIHdoaWNo
+IGl0IHN0aWxsIGNhbiBiZSwgYnV0IGJldHMgYXJlIG9mZikuIEJ1dCBldmVuIHJlbGF0aXZlbHkK
+PiA+IHJlY2VudCBzeXN0ZW1zIGZhaWwgdGhlIFRTQyBzeW5jIHRlc3QgYmVjYXVzZSBmaXJtd2Fy
+ZSBtZXNzZXMgaXQgdXAgYnkKPiA+IHdyaXRpbmcgdG8gZWl0aGVyIE1TUl9UU0Mgb3IgTVNSX1RT
+Q19BREpVU1QuCj4gPiAKPiA+IEJ1dCB0aGUgdGhpbmcgaXMsIGlmIHRoZSBUU0MgaXMgbm90IHN5
+bmNlZCwgeW91IGNhbm5vdCB1c2UgaXQgZm9yCj4gPiB0aW1la2VlcGluZywgZnVsbCBzdG9wLiBT
+byBoYXZpbmcgYSBzaW5nbGUgcGFnZSBpcyBmaW5lLCBpdCBlaXRoZXIKPiA+IGNvbnRhaW5zIGEg
+bXVsdC9zaGlmdCB0aGF0IGlzIHZhbGlkLCBvciBpdCBpbmRpY2F0ZXMgVFNDIGlzIG1lc3NlZCB1
+cAo+ID4gYW5kIHlvdSBmYWxsIGJhY2sgdG8gc29tZXRoaW5nIGVsc2UuCj4gPiAKPiA+IFRoZXJl
+IGlzIG5vIGluYmV0d2VlbiB0aGVyZS4KPiA+IAo+ID4gRm9yIHNjaGVkX2Nsb2NrIHdlIGNhbiBz
+dGlsbCB1c2UgdGhlIGdsb2JhbCBwYWdlLCBiZWNhdXNlIHRoZSByYXRlIHdpbGwKPiA+IHN0aWxs
+IGJlIHRoZSBzYW1lIGZvciBlYWNoIGNwdSwgaXQncyBqdXN0IG9mZnNldCBiZXR3ZWVuIENQVXMg
+YW5kIHRoZQo+ID4gY29kZSBjb21wZW5zYXRlcyBmb3IgdGhhdC4KPiAKPiBCdXQgaWYgd2XigJly
+ZSBpbiBhIEtWTSBndWVzdCwgdGhlbiB0aGUgY2xvY2sgd2lsbCBqdW1wIGFyb3VuZCBvbiB0aGUK
+PiBzYW1lICp2Q1BVKiB3aGVuIHRoZSB2Q1BVIG1pZ3JhdGVzLgoKVXJnaCB5ZXMuLgoKPiBCdXQg
+SSBkb27igJl0IHNlZSBob3cga3ZtY2xvY2sgaGVscHMgaGVyZSwgc2luY2UgSSBkb27igJl0IHRo
+aW5rIGl04oCZcyB1c2VkCj4gZm9yIHNjaGVkX2Nsb2NrLgoKSSBnZXQgaGl0cyBvbiBrdm1fc2No
+ZWRfY2xvY2ssIGJ1dCBoYXZlbid0IGxvb2tlZCBmdXJ0aGVyLgoKQW55d2F5LCBNb3N0IG9mIHRo
+ZSBhcmd1bWVudCBzdGlsbCBob2xkcywgZWl0aGVyIFRTQyBpcyBzeW5jZWQgb3IgaXQgaXMKbm90
+IGFuZCBpdCBfcmVhbGx5XyBzaG91bGQgbm90IGJlIHVzZWQuIE5vdCBtdWNoIG1pZGRsZSBncm91
+bmQgdGhlcmUuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
