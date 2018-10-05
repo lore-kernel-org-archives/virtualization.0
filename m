@@ -1,11 +1,15 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2] virtio-gpu: add VIRTIO_GPU_F_EDID feature
-Date: Fri,  5 Oct 2018 14:51:54 +0200
-Message-ID: <20181005125154.19824-1-kraxel__34317.4942107455$1538743831$gmane$org@redhat.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v2] virtio-gpu: add VIRTIO_GPU_F_EDID feature
+Date: Fri, 5 Oct 2018 16:41:27 +0200
+Message-ID: <20181005144127.GE31561__23898.4497068033$1538750371$gmane$org@phenom.ffwll.local>
+References: <20181005125154.19824-1-kraxel@redhat.com>
+	<1BA83F18-87E5-4B01-A2D9-01777078B637@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1BA83F18-87E5-4B01-A2D9-01777078B637@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,70 +19,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@redhat.com
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Christophe de Dinechin <cdupontd@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, virtio-dev@redhat.com, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The feature allows the guest request an EDID blob (describing monitor
-capabilities) for a given scanout (aka virtual monitor connector).
-
-It brings a new command message, which has just a scanout field (beside
-the standard virtio-gpu header) and a response message which carries the
-EDID data.
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- include/uapi/linux/virtio_gpu.h | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
-
-diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
-index f43c3c6171..1cef1ff339 100644
---- a/include/uapi/linux/virtio_gpu.h
-+++ b/include/uapi/linux/virtio_gpu.h
-@@ -41,6 +41,7 @@
- #include <linux/types.h>
- 
- #define VIRTIO_GPU_F_VIRGL 0
-+#define VIRTIO_GPU_F_EDID  1
- 
- enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_UNDEFINED = 0,
-@@ -56,6 +57,7 @@ enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_CMD_RESOURCE_DETACH_BACKING,
- 	VIRTIO_GPU_CMD_GET_CAPSET_INFO,
- 	VIRTIO_GPU_CMD_GET_CAPSET,
-+	VIRTIO_GPU_CMD_GET_EDID,
- 
- 	/* 3d commands */
- 	VIRTIO_GPU_CMD_CTX_CREATE = 0x0200,
-@@ -76,6 +78,7 @@ enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_RESP_OK_DISPLAY_INFO,
- 	VIRTIO_GPU_RESP_OK_CAPSET_INFO,
- 	VIRTIO_GPU_RESP_OK_CAPSET,
-+	VIRTIO_GPU_RESP_OK_EDID,
- 
- 	/* error responses */
- 	VIRTIO_GPU_RESP_ERR_UNSPEC = 0x1200,
-@@ -291,6 +294,20 @@ struct virtio_gpu_resp_capset {
- 	__u8 capset_data[];
- };
- 
-+/* VIRTIO_GPU_CMD_GET_EDID */
-+struct virtio_gpu_get_edid {
-+	struct virtio_gpu_ctrl_hdr hdr;
-+	__le32 scanout;
-+};
-+
-+/* VIRTIO_GPU_RESP_OK_EDID */
-+struct virtio_gpu_resp_edid {
-+	struct virtio_gpu_ctrl_hdr hdr;
-+	__le32 scanout;
-+	__le32 size;
-+	__u8 edid[1024];
-+};
-+
- #define VIRTIO_GPU_EVENT_DISPLAY (1 << 0)
- 
- struct virtio_gpu_config {
--- 
-2.9.3
+T24gRnJpLCBPY3QgMDUsIDIwMTggYXQgMDQ6Mzg6MTFQTSArMDIwMCwgQ2hyaXN0b3BoZSBkZSBE
+aW5lY2hpbiB3cm90ZToKPiAKPiAKPiA+IE9uIDUgT2N0IDIwMTgsIGF0IDE0OjUxLCBHZXJkIEhv
+ZmZtYW5uIDxrcmF4ZWxAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiAKPiA+IFRoZSBmZWF0dXJlIGFs
+bG93cyB0aGUgZ3Vlc3QgcmVxdWVzdCBhbiBFRElEIGJsb2IgKGRlc2NyaWJpbmcgbW9uaXRvcgo+
+ID4gY2FwYWJpbGl0aWVzKSBmb3IgYSBnaXZlbiBzY2Fub3V0IChha2EgdmlydHVhbCBtb25pdG9y
+IGNvbm5lY3RvcikuCj4gPiAKPiA+IEl0IGJyaW5ncyBhIG5ldyBjb21tYW5kIG1lc3NhZ2UsIHdo
+aWNoIGhhcyBqdXN0IGEgc2Nhbm91dCBmaWVsZCAoYmVzaWRlCj4gPiB0aGUgc3RhbmRhcmQgdmly
+dGlvLWdwdSBoZWFkZXIpIGFuZCBhIHJlc3BvbnNlIG1lc3NhZ2Ugd2hpY2ggY2FycmllcyB0aGUK
+PiA+IEVESUQgZGF0YS4KPiA+IAo+ID4gU2lnbmVkLW9mZi1ieTogR2VyZCBIb2ZmbWFubiA8a3Jh
+eGVsQHJlZGhhdC5jb20+Cj4gPiAtLS0KPiA+IGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fZ3B1
+LmggfCAxNyArKysrKysrKysrKysrKysrKwo+ID4gMSBmaWxlIGNoYW5nZWQsIDE3IGluc2VydGlv
+bnMoKykKPiA+IAo+ID4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fZ3B1
+LmggYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2dwdS5oCj4gPiBpbmRleCBmNDNjM2M2MTcx
+Li4xY2VmMWZmMzM5IDEwMDY0NAo+ID4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19n
+cHUuaAo+ID4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19ncHUuaAo+ID4gQEAgLTQx
+LDYgKzQxLDcgQEAKPiA+ICNpbmNsdWRlIDxsaW51eC90eXBlcy5oPgo+ID4gCj4gPiAjZGVmaW5l
+IFZJUlRJT19HUFVfRl9WSVJHTCAwCj4gPiArI2RlZmluZSBWSVJUSU9fR1BVX0ZfRURJRCAgMQo+
+ID4gCj4gPiBlbnVtIHZpcnRpb19ncHVfY3RybF90eXBlIHsKPiA+IAlWSVJUSU9fR1BVX1VOREVG
+SU5FRCA9IDAsCj4gPiBAQCAtNTYsNiArNTcsNyBAQCBlbnVtIHZpcnRpb19ncHVfY3RybF90eXBl
+IHsKPiA+IAlWSVJUSU9fR1BVX0NNRF9SRVNPVVJDRV9ERVRBQ0hfQkFDS0lORywKPiA+IAlWSVJU
+SU9fR1BVX0NNRF9HRVRfQ0FQU0VUX0lORk8sCj4gPiAJVklSVElPX0dQVV9DTURfR0VUX0NBUFNF
+VCwKPiA+ICsJVklSVElPX0dQVV9DTURfR0VUX0VESUQsCj4gPiAKPiA+IAkvKiAzZCBjb21tYW5k
+cyAqLwo+ID4gCVZJUlRJT19HUFVfQ01EX0NUWF9DUkVBVEUgPSAweDAyMDAsCj4gPiBAQCAtNzYs
+NiArNzgsNyBAQCBlbnVtIHZpcnRpb19ncHVfY3RybF90eXBlIHsKPiA+IAlWSVJUSU9fR1BVX1JF
+U1BfT0tfRElTUExBWV9JTkZPLAo+ID4gCVZJUlRJT19HUFVfUkVTUF9PS19DQVBTRVRfSU5GTywK
+PiA+IAlWSVJUSU9fR1BVX1JFU1BfT0tfQ0FQU0VULAo+ID4gKwlWSVJUSU9fR1BVX1JFU1BfT0tf
+RURJRCwKPiA+IAo+ID4gCS8qIGVycm9yIHJlc3BvbnNlcyAqLwo+ID4gCVZJUlRJT19HUFVfUkVT
+UF9FUlJfVU5TUEVDID0gMHgxMjAwLAo+ID4gQEAgLTI5MSw2ICsyOTQsMjAgQEAgc3RydWN0IHZp
+cnRpb19ncHVfcmVzcF9jYXBzZXQgewo+ID4gCV9fdTggY2Fwc2V0X2RhdGFbXTsKPiA+IH07Cj4g
+PiAKPiA+ICsvKiBWSVJUSU9fR1BVX0NNRF9HRVRfRURJRCAqLwo+ID4gK3N0cnVjdCB2aXJ0aW9f
+Z3B1X2dldF9lZGlkIHsKPiA+ICsJc3RydWN0IHZpcnRpb19ncHVfY3RybF9oZHIgaGRyOwo+ID4g
+KwlfX2xlMzIgc2Nhbm91dDsKPiA+ICt9Owo+ID4gKwo+ID4gKy8qIFZJUlRJT19HUFVfUkVTUF9P
+S19FRElEICovCj4gPiArc3RydWN0IHZpcnRpb19ncHVfcmVzcF9lZGlkIHsKPiA+ICsJc3RydWN0
+IHZpcnRpb19ncHVfY3RybF9oZHIgaGRyOwo+ID4gKwlfX2xlMzIgc2Nhbm91dDsKPiA+ICsJX19s
+ZTMyIHNpemU7Cj4gPiArCV9fdTggZWRpZFsxMDI0XTsKPiAKPiBXb3VsZG7igJl0IGl0IGJlIGVu
+b3VnaCB0byBzdGljayB0byBFRElEIDIuMCAoMjU2IGJ5dGVzKT8KPiAKPiBJZiBub3QsIG1heWJl
+IGFkZCBjb21tZW50IHRvIGV4cGxhaW4gd2h5IHlvdSBjaG9zZSAxMDI0LgoKRURJRCBpbiB0aGUg
+d2lsZCBjYW4gYmUgdXAgdG8gNTEyIGJ5dGVzLgotRGFuaWVsCgo+IAo+ID4gK307Cj4gPiArCj4g
+PiAjZGVmaW5lIFZJUlRJT19HUFVfRVZFTlRfRElTUExBWSAoMSA8PCAwKQo+ID4gCj4gPiBzdHJ1
+Y3QgdmlydGlvX2dwdV9jb25maWcgewo+ID4gLS0gCj4gPiAyLjkuMwo+ID4gCj4gCj4gX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KPiBkcmktZGV2ZWwgbWFp
+bGluZyBsaXN0Cj4gZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwo+IGh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCgotLSAKRGFuaWVs
+IFZldHRlcgpTb2Z0d2FyZSBFbmdpbmVlciwgSW50ZWwgQ29ycG9yYXRpb24KaHR0cDovL2Jsb2cu
+ZmZ3bGwuY2gKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
