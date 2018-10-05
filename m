@@ -1,17 +1,19 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v2] virtio-gpu: add VIRTIO_GPU_F_EDID feature
-Date: Fri, 5 Oct 2018 17:55:05 +0200
-Message-ID: <20181005155505.phmi65hvu2rkulkm__506.76326868615$1538754785$gmane$org@sirius.home.kraxel.org>
-References: <20181005125154.19824-1-kraxel@redhat.com>
-	<1BA83F18-87E5-4B01-A2D9-01777078B637@redhat.com>
-	<20181005144127.GE31561@phenom.ffwll.local>
-	<2CB183E2-B7ED-481C-9899-CA908558D39F@redhat.com>
+From: Marcelo Tosatti <mtosatti@redhat.com>
+Subject: Re: [patch 00/11] x86/vdso: Cleanups, simmplifications and CLOCK_TAI
+	support
+Date: Fri, 5 Oct 2018 18:18:41 -0300
+Message-ID: <20181005211838.GB7129__48842.421177733$1538774249$gmane$org@amt.cnet>
+References: <20180914125006.349747096@linutronix.de>
+	<CALCETrU+jP2hPLoJWTYJKTvr7-=YLwtk1=cZ_uizHYQZ1z4P-w@mail.gmail.com>
+	<87sh1ne64t.fsf@vitty.brq.redhat.com>
+	<20181003190617.GC21381@amt.cnet>
+	<87k1mycfju.fsf@vitty.brq.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <2CB183E2-B7ED-481C-9899-CA908558D39F@redhat.com>
+In-Reply-To: <87k1mycfju.fsf@vitty.brq.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,25 +23,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christophe de Dinechin <cdupontd@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, virtio-dev@redhat.com, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-ICBIaSwKCj4gPj4+ICsvKiBWSVJUSU9fR1BVX1JFU1BfT0tfRURJRCAqLwo+ID4+PiArc3RydWN0
-IHZpcnRpb19ncHVfcmVzcF9lZGlkIHsKPiA+Pj4gKwlzdHJ1Y3QgdmlydGlvX2dwdV9jdHJsX2hk
-ciBoZHI7Cj4gPj4+ICsJX19sZTMyIHNjYW5vdXQ7Cj4gPj4+ICsJX19sZTMyIHNpemU7Cj4gPj4+
-ICsJX191OCBlZGlkWzEwMjRdOwo+ID4+IAo+ID4+IFdvdWxkbuKAmXQgaXQgYmUgZW5vdWdoIHRv
-IHN0aWNrIHRvIEVESUQgMi4wICgyNTYgYnl0ZXMpPwo+ID4+IAo+ID4+IElmIG5vdCwgbWF5YmUg
-YWRkIGNvbW1lbnQgdG8gZXhwbGFpbiB3aHkgeW91IGNob3NlIDEwMjQuCj4gPiAKPiA+IEVESUQg
-aW4gdGhlIHdpbGQgY2FuIGJlIHVwIHRvIDUxMiBieXRlcy4KPiAKPiBEb2VzIHRoaXMgcmV0dXJu
-IGEgcGh5c2ljYWwgRURJRD8gSSB0aG91Z2h0IGl0IHdvdWxkIGJlIG1hZGUtdXAgYnkgdmlydGlv
-LWdwdS4KCldlbGwsIGVkaWQgaGFzIGV4dGVuc2lvbnMsIHNvIGl0IGNhbiBiZWNvbWUgcHJldHR5
-IGxhcmdlIGluIHRoZW9yeSwgYW5kCkkndmUgZmlndXJlZCBpdCB3b3VsZCBiZSBhIGdvb2QgaWRl
-YSB0byBsZWF2ZSBzb21lIHJvb20ganVzdCBpbiBjYXNlLgpJdCBzaG91bGQgYmUgYSByYXRoZXIg
-aW5mcmVxdWVudCBvcGVyYXRpb24sIHNvIHRoZSB1bnVzZWQgYnVmZmVyIHNwYWNlCnNob3VsZCBu
-b3QgaHVydCBtdWNoLgoKWWVzLCBpdCB3aWxsIGJlIGEgZWRpZCBnZW5lcmF0ZWQgYnkgcWVtdS4g
-IFRoZSBjdXJyZW50IGdlbmVyYXRvciBjb2RlIHdpbGwKdXNlIGF0IG1vc3QgMjU2IGJ5dGVzLgoK
-Y2hlZXJzLAogIEdlcmQKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
-aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
-bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Oct 04, 2018 at 09:54:45AM +0200, Vitaly Kuznetsov wrote:
+> Marcelo Tosatti <mtosatti@redhat.com> writes:
+> 
+> > On Wed, Oct 03, 2018 at 11:22:58AM +0200, Vitaly Kuznetsov wrote:
+> >> 
+> >> There is a very long history of different (hardware) issues Marcelo was
+> >> fighting with and the current code is the survived Frankenstein.
+> >
+> > Right, the code has to handle different TSC modes.
+> >
+> >>  E.g. it
+> >> is very, very unclear what "catchup", "always catchup" and
+> >> masterclock-less mode in general are and if we still need them.
+> >
+> > Catchup means handling exposed (to guest) TSC frequency smaller than
+> > HW TSC frequency.
+> >
+> > That is "frankenstein" code, could be removed.
+> >
+> >> That said I'm all for simplification. I'm not sure if we still need to
+> >> care about buggy hardware though.
+> >
+> > What simplification is that again? 
+> >
+> 
+> I was hoping to hear this from you :-) If I am to suggest how we can
+> move forward I'd propose:
+> - Check if pure TSC can be used on SkyLake+ systems (where TSC scaling
+> is supported).
+
+In that case just use TSC clocksource on the guest directly: i am
+writing code for that now (its faster than pvclock syscall).
+
+> - Check if non-masterclock mode is still needed. E.g. HyperV's TSC page
+> clocksource is a single page for the whole VM, not a per-cpu thing. Can
+> we think that all the buggy hardware is already gone?
+
+As Peter mentioned, non sync TSC hardware might exist in the future. 
+And older hardware must be supported.
