@@ -1,17 +1,24 @@
-From: David Laight <David.Laight@ACULAB.COM>
-Subject: RE: PROPOSAL: Extend inline asm syntax with size spec
-Date: Mon, 8 Oct 2018 16:24:12 +0000
-Message-ID: <14efacd19a76488c8771b9781dec34c0__15341.4541426629$1539015816$gmane$org@AcuMS.aculab.com>
-References: <20181003213100.189959-1-namit@vmware.com>
-	<20181007091805.GA30687@zn.tnic>
-	<20181007132228.GJ29268@gate.crashing.org>
-	<alpine.LSU.2.21.1810071534220.7867@wotan.suse.de>
+From: Andy Lutomirski <luto@kernel.org>
+Subject: Re: [patch 00/11] x86/vdso: Cleanups,
+	simmplifications and CLOCK_TAI support
+Date: Mon, 8 Oct 2018 10:38:22 -0700
+Message-ID: <CALCETrVY6VHPLs0GXZM4+VYraTa1+xs=iRJoRa++OHX9Wq+ieg__11660.6943229728$1539020197$gmane$org@mail.gmail.com>
+References: <87sh1ne64t.fsf@vitty.brq.redhat.com>
+	<20181003190617.GC21381@amt.cnet>
+	<87k1mycfju.fsf@vitty.brq.redhat.com>
+	<20181004081100.GI19272@hirez.programming.kicks-ass.net>
+	<B8C05946-43BB-40A4-A564-53904FAF8CC0@amacapital.net>
+	<20181004193150.GQ19272@hirez.programming.kicks-ass.net>
+	<499807AB-E779-40C3-AA3F-E8C77A7770EC@amacapital.net>
+	<CALCETrXNKCNZzUXj=2sp1vBd_o7HHzfW6RwyY5v3-wMfbVaZnQ@mail.gmail.com>
+	<20181006202731.GC7129@amt.cnet>
+	<CALCETrWqze2mifOdFc0GJYHtHGKiKX2Zdi5Kz87OyUogbqD15w@mail.gmail.com>
+	<20181008152650.GB27822@amt.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.LSU.2.21.1810071534220.7867@wotan.suse.de>
-Content-Language: en-US
+In-Reply-To: <20181008152650.GB27822@amt.cnet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,36 +28,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 'Michael Matz' <matz@suse.de>, Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Nadav Amit <namit@vmware.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, Sam Ravnborg <sam@ravnborg.org>, Thomas Gleixner <tglx@linutronix.de>, "x86@kernel.org" <x86@kernel.org>, "linux-sparse@vger.kernel.org" <linux-sparse@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>, Kees Cook <keescook@chromium.org>, Chris Zankel <chris@zankel.net>, Borislav Petkov <bp@alien8.de>, Josh Poimboeuf <jpoimboe@redhat.com>, Alok Kataria <akataria@vmware.com>, Juergen Gross <jgross@suse.com>, "gcc@gcc.gnu.org" <gcc@gcc.gnu.org>, Richard
+To: Marcelo Tosatti <mtosatti@redhat.com>
+Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andrew Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Michael Matz
-> Sent: 07 October 2018 16:53
-...
-> I think the examples I saw from Boris were all indirect inlines:
-> 
->   static inline void foo() { asm("large-looking-but-small-asm"); }
->   static void bar1() { ... foo() ... }
->   static void bar2() { ... foo() ... }
->   void goo (void) { bar1(); }  // bar1 should have been inlined
-> 
-> So, while the immediate asm user was marked as always inline that in turn
-> caused users of it to become non-inlined.  I'm assuming the kernel guys
-> did proper measurements that they _really_ get some non-trivial speed
-> benefit by inlining bar1/bar2, but for some reasons (I didn't inquire)
-> didn't want to mark them all as inline as well.
+On Mon, Oct 8, 2018 at 8:27 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
+>
+> On Sat, Oct 06, 2018 at 03:28:05PM -0700, Andy Lutomirski wrote:
+> > On Sat, Oct 6, 2018 at 1:29 PM Marcelo Tosatti <mtosatti@redhat.com> wrote:
+> > >
+> > > On Thu, Oct 04, 2018 at 03:15:32PM -0700, Andy Lutomirski wrote:
+> > > > For better or for worse, I'm trying to understand this code.  So far,
+> > > > I've come up with this patch:
+> > > >
+> > > > https://git.kernel.org/pub/scm/linux/kernel/git/luto/linux.git/commit/?h=x86/vdso-tglx&id=14fd71e12b1c4492a06f368f75041f263e6862bf
+> > > >
+> > > > Is it correct, or am I missing some subtlety?
+> > >
+> > > The master clock, when initialized, has a pair
+> > >
+> > > masterclockvalues=(TSC value, time-of-day data).
+> > >
+> > > When updating the guest clock, we only update relative to (TSC value)
+> > > that was read on masterclock initialization.
+> >
+> > I don't see the problem.  The masterclock data is updated here:
+> >
+> >     host_tsc_clocksource = kvm_get_time_and_clockread(
+> >                     &ka->master_kernel_ns,
+> >                     &ka->master_cycle_now);
+> >
+> > kvm_get_time_and_clockread() gets those values from
+> > do_monotonic_boot(), which, barring bugs, should cause
+> > get_kvmclock_ns() to return exactly the same thing as
+> > ktime_get_boot_ns() + ka->kvmclock_offset, albeit in a rather
+> > roundabout manner.
+> >
+> > So what am I missing?  Is there actually something wrong with my patch?
+>
+> For the bug mentioned in the comment not to happen, you must only read
+> TSC and add it as offset to (TSC value, time-of-day data).
+>
+> Its more than "a roundabout manner".
+>
+> Read the comment again.
+>
 
-Could you add a 'size' attribute to the 'always inlined' foo() above
-rather than trying to add one to the asm() statement itself.
-Then add a warning in the documentation that small size attributes
-might make the assembly fail due to limited branch offsets (etc).
+I read the comment three more times and even dug through the git
+history.  It seems like what you're saying is that, under certain
+conditions (which arguably would be bugs in the core Linux timing
+code), actually calling ktime_get_boot_ns() could be non-monotonic
+with respect to the kvmclock timing.  But get_kvmclock_ns() isn't used
+for VM timing as such -- it's used for the IOCTL interfaces for
+updating the time offset.  So can you explain how my patch is
+incorrect?
 
-Size '1' probably ought to be reserved for things that definitely
-fit in a delay slot.
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+--Andy
