@@ -1,17 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net V2] vhost-vsock: fix use after free
-Date: Mon, 8 Oct 2018 10:20:24 +0800
-Message-ID: <9ea5d616-8a78-b3c4-2a96-cbb6abb85c2c@redhat.com>
-References: <20180927122204.4188-1-jasowang@redhat.com>
-	<20180927123539-mutt-send-email-mst@kernel.org>
-	<588ed28b-7e4b-9dc8-92ce-d75692836c9e@redhat.com>
-	<20180927194734-mutt-send-email-mst@kernel.org>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: PROPOSAL: Extend inline asm syntax with size spec
+Date: Mon, 8 Oct 2018 07:58:38 +0200
+Message-ID: <20181008055838.GA66819__22923.9862449051$1538978204$gmane$org@gmail.com>
+References: <20181003213100.189959-1-namit@vmware.com>
+	<20181007091805.GA30687@zn.tnic>
+	<20181007132228.GJ29268@gate.crashing.org>
+	<20181007141349.GD30687@zn.tnic>
+	<20181007151427.GK29268@gate.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180927194734-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20181007151427.GK29268@gate.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +22,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, sergei.shtylyov@cogentembedded.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Nadav Amit <namit@vmware.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, Sam Ravnborg <sam@ravnborg.org>, Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-sparse@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Chris Zankel <chris@zankel.net>, Michael Matz <matz@suse.de>, Borislav Petkov <bp@alien8.de>, Josh Poimboeuf <jpoimboe@redhat.com>, Alok Kataria <akataria@vmware.com>, Juergen Gross <jgross@suse.com>, gcc@gcc.gnu.org, Richard Biener <rguenther@suse.de>, Max Filippov <jcmvbkbc@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MDnmnIgyOOaXpSAwNzo1MCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIEZyaSwgU2VwIDI4LCAyMDE4IGF0IDA3OjM3OjM3QU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Cj4+IE9uIDIwMTjlubQwOeaciDI45pelIDAxOjA0LCBNaWNoYWVsIFMuIFRzaXJraW4g
-d3JvdGU6Cj4+PiBPbiBUaHUsIFNlcCAyNywgMjAxOCBhdCAwODoyMjowNFBNICswODAwLCBKYXNv
-biBXYW5nIHdyb3RlOgo+Pj4+IFRoZSBhY2Nlc3Mgb2YgdnNvY2sgaXMgbm90IHByb3RlY3RlZCBi
-eSB2aG9zdF92c29ja19sb2NrLiBUaGlzIG1heQo+Pj4+IGxlYWQgdG8gdXNlIGFmdGVyIGZyZWUg
-c2luY2Ugdmhvc3RfdnNvY2tfZGV2X3JlbGVhc2UoKSBtYXkgZnJlZSB0aGUKPj4+PiBwb2ludGVy
-IGF0IHRoZSBzYW1lIHRpbWUuCj4+Pj4KPj4+PiBGaXggdGhpcyBieSBob2xkaW5nIHRoZSBsb2Nr
-IGR1cmluZyB0aGUgYWNjZXNzLgo+Pj4+Cj4+Pj4gUmVwb3J0ZWQtYnk6c3l6Ym90K2UzZTA3NDk2
-MzQ5NWY5MmE4OWVkQHN5emthbGxlci5hcHBzcG90bWFpbC5jb20KPj4+PiBGaXhlczogMTYzMjBm
-MzYzYWUxICgidmhvc3QtdnNvY2s6IGFkZCBwa3QgY2FuY2VsIGNhcGFiaWxpdHkiKQo+Pj4+IEZp
-eGVzOiA0MzNmYzU4ZTZiZjIgKCJWU09DSzogSW50cm9kdWNlIHZob3N0X3Zzb2NrLmtvIikKPj4+
-PiBDYzogU3RlZmFuIEhham5vY3ppPHN0ZWZhbmhhQHJlZGhhdC5jb20+Cj4+Pj4gU2lnbmVkLW9m
-Zi1ieTogSmFzb24gV2FuZzxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+Pj4gV293IGlzIHRoYXQgcmVh
-bGx5IHRoZSBiZXN0IHdlIGNhbiBkbz8KPj4gRm9yIG5ldC9zdGFibGUsIHByb2JhYmx5IHllcy4K
-Pj4KPj4+ICAgIEEgZ2xvYmFsIGxvY2sgb24gYSBkYXRhIHBhdGgKPj4+IG9wZXJhdGlvbj8KPj4g
-SXQncyBhbHJlYWR5IHRoZXJlLAo+ICZ2aG9zdF92c29ja19sb2NrPyB3ZXJlIGlzIGl0IHRha2Vz
-IG9uIGRhdGEgcGF0aD8KCk9rLCBidXQgdGhlIGN1cnJlbnQgY29kZSB1c2UgbGlzdCB3aGljaCBt
-ZWFucyBhIGdsb2JhbCBsb2NrIGlzIG5lZWRlZCAKYW55d2F5IGhlcmUuCgo+Cj4+IGFuZCB0aGUg
-cGF0Y2ggb25seSBpbmNyZWFzZSB0aGUgY3JpdGljYWwgc2VjdGlvbi4KPj4KPj4+ICAgIEdyYW50
-ZWQgdXNlIGFmdGVyIGZyZWUgaXMgbmFzdHkgYnV0IFN0ZWZhbiBzYWlkIGhlIHNlZXMKPj4+IGEg
-d2F5IHRvIGZpeCBpdCB1c2luZyBhIHBlciBzb2NrZXQgcmVmY291bnQuIEhlJ3Mgb24gdmFjYXRp
-b24KPj4+IHVudGlsIE9jdCA0IHRob3VnaCAuLi4KPj4+Cj4+IFN0ZWZhbiBoYXMgYWNrZWQgdGhl
-IHBhY3RoLCBzbyBJIHRoaW5rIGl0J3Mgb2s/IFdlIGNhbiBkbyBvcHRpbWl6YXRpb24gZm9yCj4+
-IC1uZXh0IG9uIHRvcC4KPj4KPj4gVGhhbmtzCj4KPiBXZWxsIG9uIGhpZ2ggU01QIHNlcmlhbGl6
-aW5nIGNhbiBkcm9wIHBlcmZvcm1hbmNlIGFzIG11Y2ggYXMgeDEwMCBzbyBJJ20KPiBub3Qgc3Vy
-ZSBpdCdzIGFwcHJvcHJpYXRlIC0gc2VlbXMgdG8gZml4IGEgYnVnIGJ1dCBjYW4gaW50cm9kdWNl
-IGEKPiByZWdyZXNzaW9uLiBMZXQncyBzZWUgaG93IGRvZXMgYSBwcm9wZXIgZml4IGxvb2sgZmly
-c3Q/Cj4KCkl0IGxvb2tzIHRvIG1lIGhsaXN0ICsgUkNVIGlzIGJldHRlci4gQnV0IEknbSBub3Qg
-c3VyZSBpdCdzIHN1aXRhYmxlIGZvciAKLW5ldC8tc3RhYmxlLgoKVGhhbmtzCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
-bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
-L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
-bg==
+
+* Segher Boessenkool <segher@kernel.crashing.org> wrote:
+
+> > > More precise *size* estimates, yes.  And if the user lies he should not
+> > > be surprised to get assembler errors, etc.
+> > 
+> > Yes.
+> > 
+> > Another option would be if gcc parses the inline asm directly and
+> > does a more precise size estimation. Which is a lot more involved and
+> > complicated solution so I guess we wanna look at the simpler ones first.
+> > 
+> > :-)
+> 
+> Which is *impossible* to do.  Inline assembler is free-form text.
+
+"Impossible" is false: only under GCC's model and semantics of inline
+asm that is, and only under the (false) assumption that the semantics
+of the asm statement (which is a GCC extension to begin with) cannot
+be changed like it has been changed multiple times in the past.
+
+"Difficult", "not worth our while", perhaps.
+
+Thanks,
+
+	Ingo
