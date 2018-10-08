@@ -1,16 +1,17 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: PROPOSAL: Extend inline asm syntax with size spec
-Date: Sun, 7 Oct 2018 16:13:49 +0200
-Message-ID: <20181007141349.GD30687__15755.0760348842$1538921662$gmane$org@zn.tnic>
-References: <20181003213100.189959-1-namit@vmware.com>
-	<20181007091805.GA30687@zn.tnic>
-	<20181007132228.GJ29268@gate.crashing.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net V2] vhost-vsock: fix use after free
+Date: Mon, 8 Oct 2018 10:20:24 +0800
+Message-ID: <9ea5d616-8a78-b3c4-2a96-cbb6abb85c2c@redhat.com>
+References: <20180927122204.4188-1-jasowang@redhat.com>
+	<20180927123539-mutt-send-email-mst@kernel.org>
+	<588ed28b-7e4b-9dc8-92ce-d75692836c9e@redhat.com>
+	<20180927194734-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181007132228.GJ29268@gate.crashing.org>
+In-Reply-To: <20180927194734-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,61 +21,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Nadav Amit <namit@vmware.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, Sam Ravnborg <sam@ravnborg.org>, Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-sparse@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Chris Zankel <chris@zankel.net>, Michael Matz <matz@suse.de>, Josh Poimboeuf <jpoimboe@redhat.com>, Alok Kataria <akataria@vmware.com>, Juergen Gross <jgross@suse.com>, gcc@gcc.gnu.org, Richard Biener <rguenther@suse.de>, Max Filippov <jcmvbkbc@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, Philippe
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, sergei.shtylyov@cogentembedded.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Oct 07, 2018 at 08:22:28AM -0500, Segher Boessenkool wrote:
-> GCC already estimates the *size* of inline asm, and this is required
-> *for correctness*.
-
-I didn't say it didn't - but the heuristic could use improving.
-
-> So I guess the real issue is that the inline asm size estimate for x86
-> isn't very good (since it has to be pessimistic, and x86 insns can be
-> huge)?
-
-Well, the size thing could be just a "parameter" or "hint" of sorts, to
-tell gcc to inline the function X which is inlining the asm statement
-into the function Y which is calling function X. If you look at the
-patchset, it is moving everything to asm macros where gcc is apparently
-able to do better inlining.
-
-> >  3) asm ("...") __attribute__((asm_size(<size-expr>)));
-> 
-> Eww.
-
-Why?
-
-> More precise *size* estimates, yes.  And if the user lies he should not
-> be surprised to get assembler errors, etc.
-
-Yes.
-
-Another option would be if gcc parses the inline asm directly and
-does a more precise size estimation. Which is a lot more involved and
-complicated solution so I guess we wanna look at the simpler ones first.
-
-:-)
-
-> I don't like 2) either.  But 1) looks interesting, depends what its
-> semantics would be?  "Don't count this insn's size for inlining decisions",
-> maybe?
-
-Or simply "this asm statement has a size of 1" to mean, inline it
-everywhere. Which has the same caveats as above.
-
-> Another option is to just force inlining for those few functions where
-> GCC currently makes an inlining decision you don't like.  Or are there
-> more than a few?
-
-I'm afraid they're more than a few and this should work automatically,
-if possible.
-
-Thx.
-
--- 
-Regards/Gruss,
-    Boris.
-
-Good mailing practices for 400: avoid top-posting and trim the reply.
+CgpPbiAyMDE45bm0MDnmnIgyOOaXpSAwNzo1MCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+IE9uIEZyaSwgU2VwIDI4LCAyMDE4IGF0IDA3OjM3OjM3QU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+Cj4+IE9uIDIwMTjlubQwOeaciDI45pelIDAxOjA0LCBNaWNoYWVsIFMuIFRzaXJraW4g
+d3JvdGU6Cj4+PiBPbiBUaHUsIFNlcCAyNywgMjAxOCBhdCAwODoyMjowNFBNICswODAwLCBKYXNv
+biBXYW5nIHdyb3RlOgo+Pj4+IFRoZSBhY2Nlc3Mgb2YgdnNvY2sgaXMgbm90IHByb3RlY3RlZCBi
+eSB2aG9zdF92c29ja19sb2NrLiBUaGlzIG1heQo+Pj4+IGxlYWQgdG8gdXNlIGFmdGVyIGZyZWUg
+c2luY2Ugdmhvc3RfdnNvY2tfZGV2X3JlbGVhc2UoKSBtYXkgZnJlZSB0aGUKPj4+PiBwb2ludGVy
+IGF0IHRoZSBzYW1lIHRpbWUuCj4+Pj4KPj4+PiBGaXggdGhpcyBieSBob2xkaW5nIHRoZSBsb2Nr
+IGR1cmluZyB0aGUgYWNjZXNzLgo+Pj4+Cj4+Pj4gUmVwb3J0ZWQtYnk6c3l6Ym90K2UzZTA3NDk2
+MzQ5NWY5MmE4OWVkQHN5emthbGxlci5hcHBzcG90bWFpbC5jb20KPj4+PiBGaXhlczogMTYzMjBm
+MzYzYWUxICgidmhvc3QtdnNvY2s6IGFkZCBwa3QgY2FuY2VsIGNhcGFiaWxpdHkiKQo+Pj4+IEZp
+eGVzOiA0MzNmYzU4ZTZiZjIgKCJWU09DSzogSW50cm9kdWNlIHZob3N0X3Zzb2NrLmtvIikKPj4+
+PiBDYzogU3RlZmFuIEhham5vY3ppPHN0ZWZhbmhhQHJlZGhhdC5jb20+Cj4+Pj4gU2lnbmVkLW9m
+Zi1ieTogSmFzb24gV2FuZzxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+Pj4gV293IGlzIHRoYXQgcmVh
+bGx5IHRoZSBiZXN0IHdlIGNhbiBkbz8KPj4gRm9yIG5ldC9zdGFibGUsIHByb2JhYmx5IHllcy4K
+Pj4KPj4+ICAgIEEgZ2xvYmFsIGxvY2sgb24gYSBkYXRhIHBhdGgKPj4+IG9wZXJhdGlvbj8KPj4g
+SXQncyBhbHJlYWR5IHRoZXJlLAo+ICZ2aG9zdF92c29ja19sb2NrPyB3ZXJlIGlzIGl0IHRha2Vz
+IG9uIGRhdGEgcGF0aD8KCk9rLCBidXQgdGhlIGN1cnJlbnQgY29kZSB1c2UgbGlzdCB3aGljaCBt
+ZWFucyBhIGdsb2JhbCBsb2NrIGlzIG5lZWRlZCAKYW55d2F5IGhlcmUuCgo+Cj4+IGFuZCB0aGUg
+cGF0Y2ggb25seSBpbmNyZWFzZSB0aGUgY3JpdGljYWwgc2VjdGlvbi4KPj4KPj4+ICAgIEdyYW50
+ZWQgdXNlIGFmdGVyIGZyZWUgaXMgbmFzdHkgYnV0IFN0ZWZhbiBzYWlkIGhlIHNlZXMKPj4+IGEg
+d2F5IHRvIGZpeCBpdCB1c2luZyBhIHBlciBzb2NrZXQgcmVmY291bnQuIEhlJ3Mgb24gdmFjYXRp
+b24KPj4+IHVudGlsIE9jdCA0IHRob3VnaCAuLi4KPj4+Cj4+IFN0ZWZhbiBoYXMgYWNrZWQgdGhl
+IHBhY3RoLCBzbyBJIHRoaW5rIGl0J3Mgb2s/IFdlIGNhbiBkbyBvcHRpbWl6YXRpb24gZm9yCj4+
+IC1uZXh0IG9uIHRvcC4KPj4KPj4gVGhhbmtzCj4KPiBXZWxsIG9uIGhpZ2ggU01QIHNlcmlhbGl6
+aW5nIGNhbiBkcm9wIHBlcmZvcm1hbmNlIGFzIG11Y2ggYXMgeDEwMCBzbyBJJ20KPiBub3Qgc3Vy
+ZSBpdCdzIGFwcHJvcHJpYXRlIC0gc2VlbXMgdG8gZml4IGEgYnVnIGJ1dCBjYW4gaW50cm9kdWNl
+IGEKPiByZWdyZXNzaW9uLiBMZXQncyBzZWUgaG93IGRvZXMgYSBwcm9wZXIgZml4IGxvb2sgZmly
+c3Q/Cj4KCkl0IGxvb2tzIHRvIG1lIGhsaXN0ICsgUkNVIGlzIGJldHRlci4gQnV0IEknbSBub3Qg
+c3VyZSBpdCdzIHN1aXRhYmxlIGZvciAKLW5ldC8tc3RhYmxlLgoKVGhhbmtzCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
