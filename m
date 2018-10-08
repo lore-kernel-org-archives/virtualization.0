@@ -1,11 +1,24 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: Call for Workshops - CISTI'2019 - Coimbra, Portugal
-Date: Tue, 9 Oct 2018 12:21:16 +0100
-Message-ID: <14080405373984@gmail-com>
-Reply-To: worldcist@gmail.com
+From: Marcelo Tosatti <mtosatti@redhat.com>
+Subject: Re: [patch 00/11] x86/vdso: Cleanups, simmplifications and CLOCK_TAI
+	support
+Date: Mon, 8 Oct 2018 16:36:36 -0300
+Message-ID: <20181008193632.GA31729__5588.22182142666$1539098820$gmane$org@amt.cnet>
+References: <87k1mycfju.fsf@vitty.brq.redhat.com>
+	<20181004081100.GI19272@hirez.programming.kicks-ass.net>
+	<B8C05946-43BB-40A4-A564-53904FAF8CC0@amacapital.net>
+	<20181004193150.GQ19272@hirez.programming.kicks-ass.net>
+	<499807AB-E779-40C3-AA3F-E8C77A7770EC@amacapital.net>
+	<CALCETrXNKCNZzUXj=2sp1vBd_o7HHzfW6RwyY5v3-wMfbVaZnQ@mail.gmail.com>
+	<20181006202731.GC7129@amt.cnet>
+	<CALCETrWqze2mifOdFc0GJYHtHGKiKX2Zdi5Kz87OyUogbqD15w@mail.gmail.com>
+	<20181008152650.GB27822@amt.cnet>
+	<CALCETrVY6VHPLs0GXZM4+VYraTa1+xs=iRJoRa++OHX9Wq+ieg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1494091575696002271=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <CALCETrVY6VHPLs0GXZM4+VYraTa1+xs=iRJoRa++OHX9Wq+ieg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,321 +28,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Andy Lutomirski <luto@kernel.org>
+Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format
+On Mon, Oct 08, 2018 at 10:38:22AM -0700, Andy Lutomirski wrote:
+> On Mon, Oct 8, 2018 at 8:27 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
+> >
+> > On Sat, Oct 06, 2018 at 03:28:05PM -0700, Andy Lutomirski wrote:
+> > > On Sat, Oct 6, 2018 at 1:29 PM Marcelo Tosatti <mtosatti@redhat.com> wrote:
+> > > >
+> > > > On Thu, Oct 04, 2018 at 03:15:32PM -0700, Andy Lutomirski wrote:
+> > > > > For better or for worse, I'm trying to understand this code.  So far,
+> > > > > I've come up with this patch:
+> > > > >
+> > > > > https://git.kernel.org/pub/scm/linux/kernel/git/luto/linux.git/commit/?h=x86/vdso-tglx&id=14fd71e12b1c4492a06f368f75041f263e6862bf
+> > > > >
+> > > > > Is it correct, or am I missing some subtlety?
+> > > >
+> > > > The master clock, when initialized, has a pair
+> > > >
+> > > > masterclockvalues=(TSC value, time-of-day data).
+> > > >
+> > > > When updating the guest clock, we only update relative to (TSC value)
+> > > > that was read on masterclock initialization.
+> > >
+> > > I don't see the problem.  The masterclock data is updated here:
+> > >
+> > >     host_tsc_clocksource = kvm_get_time_and_clockread(
+> > >                     &ka->master_kernel_ns,
+> > >                     &ka->master_cycle_now);
+> > >
+> > > kvm_get_time_and_clockread() gets those values from
+> > > do_monotonic_boot(), which, barring bugs, should cause
+> > > get_kvmclock_ns() to return exactly the same thing as
+> > > ktime_get_boot_ns() + ka->kvmclock_offset, albeit in a rather
+> > > roundabout manner.
+> > >
+> > > So what am I missing?  Is there actually something wrong with my patch?
+> >
+> > For the bug mentioned in the comment not to happen, you must only read
+> > TSC and add it as offset to (TSC value, time-of-day data).
+> >
+> > Its more than "a roundabout manner".
+> >
+> > Read the comment again.
+> >
+> 
+> I read the comment three more times and even dug through the git
+> history.  It seems like what you're saying is that, under certain
+> conditions (which arguably would be bugs in the core Linux timing
+> code), 
 
---===============1494091575696002271==
-Content-Type: multipart/alternative; charset=utf-8; boundary="gQsVmrvGUQ10yZvXLDdYMK9LalhrmnC=_v"
+I don't see that as a bug. Its just a side effect of reading two
+different clocks (one is CLOCK_MONOTONIC and the other is TSC),
+and using those two clocks to as a "base + offset".
 
-This is a multi-part message in MIME format
+As the comment explains, if you do that, can't guarantee monotonicity.
 
---gQsVmrvGUQ10yZvXLDdYMK9LalhrmnC=_v
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> actually calling ktime_get_boot_ns() could be non-monotonic
+> with respect to the kvmclock timing.  But get_kvmclock_ns() isn't used
+> for VM timing as such -- it's used for the IOCTL interfaces for
+> updating the time offset.  So can you explain how my patch is
+> incorrect?
 
-*** Articles indexed by ISI, Scopus, IEEE, etc.
+ktime_get_boot_ns() has frequency correction applied, while 
+reading masterclock + TSC offset does not.
 
- 
-
-----------------------------------------------------
-
-Call for Workshops: 
-
-CISTI'2019 - 14th Iberian Conference on Information Systems and Technologie=
-s,
-
-19th and 22th of June 2019, Coimbra, Portugal
-
-http://www.cisti.eu/ <http://www.cisti.eu/>
-
----------------------------------------------------------------------------=
--------------------------------------
-
- 
-
-Workshop Format
-
-The Information Systems and Technologies research and industrial community =
-is invited to submit proposals of Workshops for CISTI 2019 =E2=80=93 14th I=
-berian Conference on Information Systems and Technologies to be held at Coi=
-mbra, Portugal, June 19=E2=80=9322, 2019. Two types of Workshops may be pro=
-posed: Regular Workshops and Project Workshops.
-
-Regular Workshops should focus on a specific scientific subject on the scop=
-e of CISTI 2019 but not directly included on the main conference areas. Eac=
-h regular workshop will be coordinated by an Organizing Committee composed =
-of, at least, two researchers in the field, preferably from different insti=
-tutions and different countries. The organizers should create an internatio=
-nal Program Committee for the Workshop, with recognized researchers within =
-the specific Workshop scientific area. Each workshop should have at least 1=
-0 submissions and 5 accepted papers in order to be conducted at CISTI.
-
-Project Workshops are intended to promote the dissemination and facilitate =
-the future exploitation of EU Latin-American and national project results s=
-uch as EU/FP7, EU/Horizon2020, CSIC, FCT, QREN, Portugal 2020, Fund. Gulben=
-kian, CYTED, CAPES, CNPq, FINEP and other Projects/funding sources. The res=
-ults to be disseminated may be preliminary project results (for unfinished =
-projects) or the project final results (for already finished projects). Eac=
-h project workshop should be directly related to a Project funded in a comp=
-etitive manner by a National/International Science Organization. The Worksh=
-op should be coordinated by an Organizing Committee composed by at least tw=
-o researchers including the Principal Investigator of the project. Each Wor=
-kshop will have 1 article offered for 5 articles with paid subscription, 2 =
-articles offered for 15 articles with paid subscription, and 3 articles off=
-ered for 30 articles with paid subscription. The selection of Workshops wil=
-l be performed by CISTI 2019 Conference Chairs. Workshops full papers will =
-be published in the conference main proceedings in specific Workshop chapte=
-rs. Proceedings will be submitted for indexation by ISI, SCOPUS, EI-Conpend=
-ex, INSPEC and Google Scholar. Detailed and up-to-date information may be f=
-ound at CISTI 2019 website: http://www.cisti.eu/ <http://www.cisti.eu/>.
-
- 
-
-Workshop Organization 
-
-The Organizing Committee of each Workshop will be responsible for:
-
-* Producing and distributing the Workshop Call for Papers (CFP); 
-* Coordinating the review and selection process for the papers submitted to=
- the Workshop, as Workshop chairs (on the paper submission system installed=
- for all the Workshops); 
-* Delivering the final versions of the papers accepted for the Workshop in =
-accordance with the guidelines and deadlines defined by CISTI 2019 organize=
-rs; 
-* Coordinating and chairing the Workshop sessions at the conference. 
-
-
-CISTI 2019 organizers reserve the right to cancel any Workshop if deadlines=
- are missed or if the number of registered attendees is too low to support =
-the costs associated with the Workshop.
-
- 
-
-Proposal Contents
-
-Regular Workshop proposals should contain the following information:
-
-* Workshop title; 
-* Brief description of the specific scientific scope of the Workshop; 
-* List of topics of interest (max 15 topics); 
-* Reasons the Workshop should be held within CISTI=E2=80=992019; 
-* Name, postal address, phone and email of all the members of the Workshop =
-Organizing Committee; 
-* Proposal for the Workshop Program Committee (Names and affiliations). 
-
-
-Project Workshop proposals should contain the following information:
-
-* Workshop title; 
-* Project Title, Reference, Principal Investigator, Funding Organization, T=
-otal Funding, Consortium, Abstract and Objectives; 
-* Reasons the Workshop should be held within CISTI=E2=80=992019; 
-* Name, postal address, phone and email of all the members of the Workshop =
-Organizing Committee. 
-
-
-Proposals should be submitted electronically (in Word or compatible format)=
- at https://easychair.org/conferences/?conf=3Dcisti2019workshops <https://e=
-asychair.org/conferences/?conf=3Dcisti2019workshops>, in English, Portugues=
-e and/or Spanish, by November 26, 2017.
-
- 
-
-Important Dates
-
-* Deadline for Workshop proposals: November 11, 2018 
-* Notification of Workshop acceptance: November 18, 2018 
-* Deadline for paper submission: February 24, 2019 
-* Notification of paper acceptance: March 26, 2019 
-* Deadline for final versions and conference registration: April 1, 2019 
-* Deadline for Workshop final papers delivery to CISTI organizers: April 8,=
- 2019 
-* Conference dates: June 19-22, 2019 
-
-
- 
-
-Website of CISTI'2019: http://www.cisti.eu/ <http://www.cisti.eu/>
-
- 
-
-Kind regards,
-
-AISTI
-
-http://www.aisti.eu/ <http://www.aisti.eu/>
-
-
----
-This email has been checked for viruses by AVG.
-https://www.avg.com
-
---gQsVmrvGUQ10yZvXLDdYMK9LalhrmnC=_v
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <p>*** Articles&nbsp;indexed by ISI, Scopus, IEEE, etc.</p>
-    <p>&nbsp;</p>
-    <p>----------------------------------------------------</p>
-    <p><strong>Call for Workshops: </strong></p>
-    <p><strong>CISTI'2019 - 14th Iberian Conference on Information Systems =
-and Technologies,</strong></p>
-    <p><strong>19th and 22th of June 2019, Coimbra, Portugal</strong></p>
-    <p><a href=3D"http://www.cisti.eu/"><strong>http://www.cisti.eu/</stron=
-g></a></p>
-    <p>--------------------------------------------------------------------=
---------------------------------------------</p>
-    <p itemprop=3D"articleBody"><strong>&nbsp;</strong></p>
-    <p itemprop=3D"articleBody"><strong>Workshop Format</strong></p>
-    <p itemprop=3D"articleBody">The Information Systems and Technologies re=
-search and industrial community is invited to submit proposals of Workshops=
- for CISTI 2019 &ndash; 14th Iberian Conference on Information Systems and =
-Technologies to be held at Coimbra, Portugal, June 19&ndash;22, 2019. Two t=
-ypes of Workshops may be proposed: Regular Workshops and Project Workshops.=
-</p>
-    <p itemprop=3D"articleBody">Regular Workshops should focus on a specifi=
-c scientific subject on the scope of CISTI 2019 but not directly included o=
-n the main conference areas. Each regular workshop will be coordinated by a=
-n Organizing Committee composed of, at least, two researchers in the field,=
- preferably from different institutions and different countries. The organi=
-zers should create an international Program Committee for the Workshop, wit=
-h recognized researchers within the specific Workshop scientific area. Each=
- workshop should have at least 10 submissions and 5 accepted papers in orde=
-r to be conducted at CISTI.</p>
-    <p itemprop=3D"articleBody">Project Workshops are intended to promote t=
-he dissemination and facilitate the future exploitation of EU Latin-America=
-n and national project results such as EU/FP7, EU/Horizon2020, CSIC, FCT, Q=
-REN, Portugal 2020, Fund. Gulbenkian, CYTED, CAPES, CNPq, FINEP and other P=
-rojects/funding sources. The results to be disseminated may be preliminary =
-project results (for unfinished projects) or the project final results (for=
- already finished projects). Each project workshop should be directly relat=
-ed to a Project funded in a competitive manner by a National/International =
-Science Organization. The Workshop should be coordinated by an Organizing C=
-ommittee composed by at least two researchers including the Principal Inves=
-tigator of the project. Each Workshop will have 1 article offered for 5 art=
-icles with paid subscription, 2 articles offered for 15 articles with paid =
-subscription, and 3 articles offered for 30 articles with paid subscription=
-=2E The selection of Workshops will be performed by CISTI 2019 Conference C=
-hairs. Workshops full papers will be published in the conference main proce=
-edings in specific Workshop chapters. Proceedings will be submitted for ind=
-exation by ISI, SCOPUS, EI-Conpendex, INSPEC and Google Scholar. Detailed a=
-nd up-to-date information may be found at CISTI 2019 website: <a href=3D"ht=
-tp://www.cisti.eu/">http://www.cisti.eu/</a>.</p>
-    <p itemprop=3D"articleBody"><strong>&nbsp;</strong></p>
-    <p itemprop=3D"articleBody"><strong>Workshop Organization </strong></p>=
-
-    <p itemprop=3D"articleBody">The Organizing Committee of each Workshop w=
-ill be responsible for:</p>
-    <div itemprop=3D"articleBody">
-      <ul>
-        <li>Producing and distributing the Workshop Call for Papers (CFP); =
-</li>
-        <li>Coordinating the review and selection process for the papers su=
-bmitted to the Workshop, as Workshop chairs (on the paper submission system=
- installed for all the Workshops); </li>
-        <li>Delivering the final versions of the papers accepted for the Wo=
-rkshop in accordance with the guidelines and deadlines defined by CISTI 201=
-9 organizers; </li>
-        <li>Coordinating and chairing the Workshop sessions at the conferen=
-ce. </li>
-      </ul>
-    </div>
-    <p>CISTI 2019 organizers reserve the right to cancel any Workshop if de=
-adlines are missed or if the number of registered attendees is too low to s=
-upport the costs associated with the Workshop.</p>
-    <p>&nbsp;</p>
-    <p><strong>Proposal Contents</strong></p>
-    <p>Regular Workshop proposals should contain the following information:=
-</p>
-    <ul>
-      <li>Workshop title; </li>
-      <li>Brief description of the specific scientific scope of the Worksho=
-p; </li>
-      <li>List of topics of interest (max 15 topics); </li>
-      <li>Reasons the Workshop should be held within CISTI&rsquo;2019; </li=
->
-      <li>Name, postal address, phone and email of all the members of the W=
-orkshop Organizing Committee; </li>
-      <li>Proposal for the Workshop Program Committee (Names and affiliatio=
-ns). </li>
-    </ul>
-    <p>Project Workshop proposals should contain the following information:=
-</p>
-    <ul>
-      <li>Workshop title; </li>
-      <li>Project Title, Reference, Principal Investigator, Funding Organiz=
-ation, Total Funding, Consortium, Abstract and Objectives; </li>
-      <li>Reasons the Workshop should be held within CISTI&rsquo;2019; </li=
->
-      <li>Name, postal address, phone and email of all the members of the W=
-orkshop Organizing Committee. </li>
-    </ul>
-    <p>Proposals should be submitted electronically (in Word or compatible =
-format) at <a href=3D"https://easychair.org/conferences/?conf=3Dcisti2019wo=
-rkshops">https://easychair.org/conferences/?conf=3Dcisti2019workshops</a>, =
-in English, Portuguese and/or Spanish, by November 26, 2017.</p>
-    <p>&nbsp;</p>
-    <p><strong>Important Dates</strong></p>
-    <ul>
-      <li>Deadline for Workshop proposals: November 11, 2018 </li>
-      <li>Notification of Workshop acceptance: November 18, 2018 </li>
-      <li>Deadline for paper submission: February 24, 2019 </li>
-      <li>Notification of paper acceptance: March 26, 2019 </li>
-      <li>Deadline for final versions and conference registration: April 1,=
- 2019 </li>
-      <li>Deadline for Workshop final papers delivery to CISTI organizers: =
-April 8, 2019 </li>
-      <li>Conference dates: June 19-22, 2019 </li>
-    </ul>
-    <p>&nbsp;</p>
-    <p><strong>Website of CISTI'2019: </strong><a href=3D"http://www.cisti.=
-eu/"><strong>http://www.cisti.eu/</strong></a></p>
-    <p>&nbsp;</p>
-    <p>Kind regards,</p>
-    <p>AISTI</p>
-    <p><a href=3D"http://www.aisti.eu/">http://www.aisti.eu/</a></p>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
-
---gQsVmrvGUQ10yZvXLDdYMK9LalhrmnC=_v--
-
-
---===============1494091575696002271==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1494091575696002271==--
+So the clock reads differ.
