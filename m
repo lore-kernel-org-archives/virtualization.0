@@ -1,24 +1,11 @@
-From: Andy Lutomirski <luto@kernel.org>
-Subject: Re: [patch 00/11] x86/vdso: Cleanups,
-	simmplifications and CLOCK_TAI support
-Date: Mon, 8 Oct 2018 10:38:22 -0700
-Message-ID: <CALCETrVY6VHPLs0GXZM4+VYraTa1+xs=iRJoRa++OHX9Wq+ieg__11660.6943229728$1539020197$gmane$org@mail.gmail.com>
-References: <87sh1ne64t.fsf@vitty.brq.redhat.com>
-	<20181003190617.GC21381@amt.cnet>
-	<87k1mycfju.fsf@vitty.brq.redhat.com>
-	<20181004081100.GI19272@hirez.programming.kicks-ass.net>
-	<B8C05946-43BB-40A4-A564-53904FAF8CC0@amacapital.net>
-	<20181004193150.GQ19272@hirez.programming.kicks-ass.net>
-	<499807AB-E779-40C3-AA3F-E8C77A7770EC@amacapital.net>
-	<CALCETrXNKCNZzUXj=2sp1vBd_o7HHzfW6RwyY5v3-wMfbVaZnQ@mail.gmail.com>
-	<20181006202731.GC7129@amt.cnet>
-	<CALCETrWqze2mifOdFc0GJYHtHGKiKX2Zdi5Kz87OyUogbqD15w@mail.gmail.com>
-	<20181008152650.GB27822@amt.cnet>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next V3] virtio_net: ethtool tx napi configuration
+Date: Tue,  9 Oct 2018 10:06:26 +0800
+Message-ID: <20181009020626.31723-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181008152650.GB27822@amt.cnet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,59 +15,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marcelo Tosatti <mtosatti@redhat.com>
-Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andrew Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
+To: mst@redhat.com, jasowang@redhat.com, davem@davemloft.net
+Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 8, 2018 at 8:27 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
->
-> On Sat, Oct 06, 2018 at 03:28:05PM -0700, Andy Lutomirski wrote:
-> > On Sat, Oct 6, 2018 at 1:29 PM Marcelo Tosatti <mtosatti@redhat.com> wrote:
-> > >
-> > > On Thu, Oct 04, 2018 at 03:15:32PM -0700, Andy Lutomirski wrote:
-> > > > For better or for worse, I'm trying to understand this code.  So far,
-> > > > I've come up with this patch:
-> > > >
-> > > > https://git.kernel.org/pub/scm/linux/kernel/git/luto/linux.git/commit/?h=x86/vdso-tglx&id=14fd71e12b1c4492a06f368f75041f263e6862bf
-> > > >
-> > > > Is it correct, or am I missing some subtlety?
-> > >
-> > > The master clock, when initialized, has a pair
-> > >
-> > > masterclockvalues=(TSC value, time-of-day data).
-> > >
-> > > When updating the guest clock, we only update relative to (TSC value)
-> > > that was read on masterclock initialization.
-> >
-> > I don't see the problem.  The masterclock data is updated here:
-> >
-> >     host_tsc_clocksource = kvm_get_time_and_clockread(
-> >                     &ka->master_kernel_ns,
-> >                     &ka->master_cycle_now);
-> >
-> > kvm_get_time_and_clockread() gets those values from
-> > do_monotonic_boot(), which, barring bugs, should cause
-> > get_kvmclock_ns() to return exactly the same thing as
-> > ktime_get_boot_ns() + ka->kvmclock_offset, albeit in a rather
-> > roundabout manner.
-> >
-> > So what am I missing?  Is there actually something wrong with my patch?
->
-> For the bug mentioned in the comment not to happen, you must only read
-> TSC and add it as offset to (TSC value, time-of-day data).
->
-> Its more than "a roundabout manner".
->
-> Read the comment again.
->
+Implement ethtool .set_coalesce (-C) and .get_coalesce (-c) handlers.
+Interrupt moderation is currently not supported, so these accept and
+display the default settings of 0 usec and 1 frame.
 
-I read the comment three more times and even dug through the git
-history.  It seems like what you're saying is that, under certain
-conditions (which arguably would be bugs in the core Linux timing
-code), actually calling ktime_get_boot_ns() could be non-monotonic
-with respect to the kvmclock timing.  But get_kvmclock_ns() isn't used
-for VM timing as such -- it's used for the IOCTL interfaces for
-updating the time offset.  So can you explain how my patch is
-incorrect?
+Toggle tx napi through setting tx-frames. So as to not interfere
+with possible future interrupt moderation, value 1 means tx napi while
+value 0 means not.
 
---Andy
+Only allow the switching when device is down for simplicity.
+
+Link: https://patchwork.ozlabs.org/patch/948149/
+Suggested-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+Changes from V2:
+- only allow the switching when device is done
+- remove unnecessary global variable and initialization
+Changes from V1:
+- try to synchronize with datapath to allow changing mode when
+  interface is up.
+- use tx-frames 0 as to disable tx napi while tx-frames 1 to enable tx napi
+---
+ drivers/net/virtio_net.c | 50 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 765920905226..751f385f4e0a 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2181,6 +2181,54 @@ static int virtnet_get_link_ksettings(struct net_device *dev,
+ 	return 0;
+ }
+ 
++static int virtnet_set_coalesce(struct net_device *dev,
++				struct ethtool_coalesce *ec)
++{
++	struct ethtool_coalesce ec_default = {
++		.cmd = ETHTOOL_SCOALESCE,
++		.rx_max_coalesced_frames = 1,
++	};
++	struct virtnet_info *vi = netdev_priv(dev);
++	int i, napi_weight;
++	bool running = netif_running(dev);
++
++	if (ec->tx_max_coalesced_frames > 1)
++		return -EINVAL;
++
++	ec_default.tx_max_coalesced_frames = ec->tx_max_coalesced_frames;
++	napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
++
++	/* disallow changes to fields not explicitly tested above */
++	if (memcmp(ec, &ec_default, sizeof(ec_default)))
++		return -EINVAL;
++
++	if (napi_weight ^ vi->sq[0].napi.weight) {
++		if (dev->flags & IFF_UP)
++			return -EBUSY;
++		for (i = 0; i < vi->max_queue_pairs; i++)
++			vi->sq[i].napi.weight = napi_weight;
++	}
++
++	return 0;
++}
++
++static int virtnet_get_coalesce(struct net_device *dev,
++				struct ethtool_coalesce *ec)
++{
++	struct ethtool_coalesce ec_default = {
++		.cmd = ETHTOOL_GCOALESCE,
++		.rx_max_coalesced_frames = 1,
++	};
++	struct virtnet_info *vi = netdev_priv(dev);
++
++	memcpy(ec, &ec_default, sizeof(ec_default));
++
++	if (vi->sq[0].napi.weight)
++		ec->tx_max_coalesced_frames = 1;
++
++	return 0;
++}
++
+ static void virtnet_init_settings(struct net_device *dev)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+@@ -2219,6 +2267,8 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+ 	.get_ts_info = ethtool_op_get_ts_info,
+ 	.get_link_ksettings = virtnet_get_link_ksettings,
+ 	.set_link_ksettings = virtnet_set_link_ksettings,
++	.set_coalesce = virtnet_set_coalesce,
++	.get_coalesce = virtnet_get_coalesce,
+ };
+ 
+ static void virtnet_freeze_down(struct virtio_device *vdev)
+-- 
+2.17.1
