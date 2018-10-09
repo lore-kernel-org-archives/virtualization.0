@@ -1,8 +1,8 @@
-From: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: [patch 00/11] x86/vdso: Cleanups, simmplifications and CLOCK_TAI
-	support
-Date: Mon, 8 Oct 2018 16:36:36 -0300
-Message-ID: <20181008193632.GA31729__5588.22182142666$1539098820$gmane$org@amt.cnet>
+From: Andy Lutomirski <luto@kernel.org>
+Subject: Re: [patch 00/11] x86/vdso: Cleanups,
+	simmplifications and CLOCK_TAI support
+Date: Tue, 9 Oct 2018 13:09:42 -0700
+Message-ID: <CALCETrW6b8=dU6vkXNS-rW1GPzJTbVxuVNsU4aoD_NwwobVQcg__1209.07755704156$1539115678$gmane$org@mail.gmail.com>
 References: <87k1mycfju.fsf@vitty.brq.redhat.com>
 	<20181004081100.GI19272@hirez.programming.kicks-ass.net>
 	<B8C05946-43BB-40A4-A564-53904FAF8CC0@amacapital.net>
@@ -13,12 +13,12 @@ References: <87k1mycfju.fsf@vitty.brq.redhat.com>
 	<CALCETrWqze2mifOdFc0GJYHtHGKiKX2Zdi5Kz87OyUogbqD15w@mail.gmail.com>
 	<20181008152650.GB27822@amt.cnet>
 	<CALCETrVY6VHPLs0GXZM4+VYraTa1+xs=iRJoRa++OHX9Wq+ieg@mail.gmail.com>
+	<20181008193632.GA31729@amt.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CALCETrVY6VHPLs0GXZM4+VYraTa1+xs=iRJoRa++OHX9Wq+ieg@mail.gmail.com>
+In-Reply-To: <20181008193632.GA31729@amt.cnet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,71 +28,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@kernel.org>
-Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
+To: Marcelo Tosatti <mtosatti@redhat.com>
+Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andrew Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 08, 2018 at 10:38:22AM -0700, Andy Lutomirski wrote:
-> On Mon, Oct 8, 2018 at 8:27 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
-> >
-> > On Sat, Oct 06, 2018 at 03:28:05PM -0700, Andy Lutomirski wrote:
-> > > On Sat, Oct 6, 2018 at 1:29 PM Marcelo Tosatti <mtosatti@redhat.com> wrote:
-> > > >
-> > > > On Thu, Oct 04, 2018 at 03:15:32PM -0700, Andy Lutomirski wrote:
-> > > > > For better or for worse, I'm trying to understand this code.  So far,
-> > > > > I've come up with this patch:
-> > > > >
-> > > > > https://git.kernel.org/pub/scm/linux/kernel/git/luto/linux.git/commit/?h=x86/vdso-tglx&id=14fd71e12b1c4492a06f368f75041f263e6862bf
-> > > > >
-> > > > > Is it correct, or am I missing some subtlety?
-> > > >
-> > > > The master clock, when initialized, has a pair
-> > > >
-> > > > masterclockvalues=(TSC value, time-of-day data).
-> > > >
-> > > > When updating the guest clock, we only update relative to (TSC value)
-> > > > that was read on masterclock initialization.
-> > >
-> > > I don't see the problem.  The masterclock data is updated here:
-> > >
-> > >     host_tsc_clocksource = kvm_get_time_and_clockread(
-> > >                     &ka->master_kernel_ns,
-> > >                     &ka->master_cycle_now);
-> > >
-> > > kvm_get_time_and_clockread() gets those values from
-> > > do_monotonic_boot(), which, barring bugs, should cause
-> > > get_kvmclock_ns() to return exactly the same thing as
-> > > ktime_get_boot_ns() + ka->kvmclock_offset, albeit in a rather
-> > > roundabout manner.
-> > >
-> > > So what am I missing?  Is there actually something wrong with my patch?
-> >
-> > For the bug mentioned in the comment not to happen, you must only read
-> > TSC and add it as offset to (TSC value, time-of-day data).
-> >
-> > Its more than "a roundabout manner".
-> >
-> > Read the comment again.
-> >
-> 
-> I read the comment three more times and even dug through the git
-> history.  It seems like what you're saying is that, under certain
-> conditions (which arguably would be bugs in the core Linux timing
-> code), 
+On Tue, Oct 9, 2018 at 8:28 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
+>
+> On Mon, Oct 08, 2018 at 10:38:22AM -0700, Andy Lutomirski wrote:
+> > On Mon, Oct 8, 2018 at 8:27 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
 
-I don't see that as a bug. Its just a side effect of reading two
-different clocks (one is CLOCK_MONOTONIC and the other is TSC),
-and using those two clocks to as a "base + offset".
+> > I read the comment three more times and even dug through the git
+> > history.  It seems like what you're saying is that, under certain
+> > conditions (which arguably would be bugs in the core Linux timing
+> > code),
+>
+> I don't see that as a bug. Its just a side effect of reading two
+> different clocks (one is CLOCK_MONOTONIC and the other is TSC),
+> and using those two clocks to as a "base + offset".
+>
+> As the comment explains, if you do that, can't guarantee monotonicity.
+>
+> > actually calling ktime_get_boot_ns() could be non-monotonic
+> > with respect to the kvmclock timing.  But get_kvmclock_ns() isn't used
+> > for VM timing as such -- it's used for the IOCTL interfaces for
+> > updating the time offset.  So can you explain how my patch is
+> > incorrect?
+>
+> ktime_get_boot_ns() has frequency correction applied, while
+> reading masterclock + TSC offset does not.
+>
+> So the clock reads differ.
+>
 
-As the comment explains, if you do that, can't guarantee monotonicity.
+Ah, okay, I finally think I see what's going on.  In the kvmclock data
+exposed to the guest, tsc_shift and tsc_to_system_mul come from
+tgt_tsc_khz, whereas master_kernel_ns and master_cycle_now come from
+CLOCK_BOOTTIME.  So the kvmclock and kernel clock drift apart at a
+rate given by the frequency shift and then suddenly agree again every
+time the pvclock data is updated.
 
-> actually calling ktime_get_boot_ns() could be non-monotonic
-> with respect to the kvmclock timing.  But get_kvmclock_ns() isn't used
-> for VM timing as such -- it's used for the IOCTL interfaces for
-> updating the time offset.  So can you explain how my patch is
-> incorrect?
-
-ktime_get_boot_ns() has frequency correction applied, while 
-reading masterclock + TSC offset does not.
-
-So the clock reads differ.
+Is there a reason to do it this way?
