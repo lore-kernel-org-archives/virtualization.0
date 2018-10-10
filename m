@@ -1,24 +1,20 @@
-From: Andy Lutomirski <luto@kernel.org>
-Subject: Re: [patch 00/11] x86/vdso: Cleanups,
-	simmplifications and CLOCK_TAI support
-Date: Tue, 9 Oct 2018 13:09:42 -0700
-Message-ID: <CALCETrW6b8=dU6vkXNS-rW1GPzJTbVxuVNsU4aoD_NwwobVQcg__1209.07755704156$1539115678$gmane$org@mail.gmail.com>
-References: <87k1mycfju.fsf@vitty.brq.redhat.com>
-	<20181004081100.GI19272@hirez.programming.kicks-ass.net>
-	<B8C05946-43BB-40A4-A564-53904FAF8CC0@amacapital.net>
-	<20181004193150.GQ19272@hirez.programming.kicks-ass.net>
-	<499807AB-E779-40C3-AA3F-E8C77A7770EC@amacapital.net>
-	<CALCETrXNKCNZzUXj=2sp1vBd_o7HHzfW6RwyY5v3-wMfbVaZnQ@mail.gmail.com>
-	<20181006202731.GC7129@amt.cnet>
-	<CALCETrWqze2mifOdFc0GJYHtHGKiKX2Zdi5Kz87OyUogbqD15w@mail.gmail.com>
-	<20181008152650.GB27822@amt.cnet>
-	<CALCETrVY6VHPLs0GXZM4+VYraTa1+xs=iRJoRa++OHX9Wq+ieg@mail.gmail.com>
-	<20181008193632.GA31729@amt.cnet>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: PROPOSAL: Extend inline asm syntax with size spec
+Date: Wed, 10 Oct 2018 08:35:36 +0200
+Message-ID: <20181010063536.GA124923@gmail.com>
+References: <20181003213100.189959-1-namit@vmware.com>
+	<20181007091805.GA30687@zn.tnic>
+	<20181007132228.GJ29268@gate.crashing.org>
+	<alpine.LSU.2.21.1810071534220.7867@wotan.suse.de>
+	<20181008073128.GL29268@gate.crashing.org>
+	<alpine.LSU.2.20.1810081105350.16707@zhemvz.fhfr.qr>
+	<20181009145330.GT29268@gate.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181008193632.GA31729@amt.cnet>
+Content-Disposition: inline
+In-Reply-To: <20181009145330.GT29268@gate.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,43 +24,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marcelo Tosatti <mtosatti@redhat.com>
-Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, Andrew Lutomirski <luto@kernel.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Nadav Amit <namit@vmware.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, Sam Ravnborg <sam@ravnborg.org>, Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-sparse@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Chris Zankel <chris@zankel.net>, Michael Matz <matz@suse.de>, Borislav Petkov <bp@alien8.de>, Josh Poimboeuf <jpoimboe@redhat.com>, Alok Kataria <akataria@vmware.com>, Juergen Gross <jgross@suse.com>, gcc@gcc.gnu.org, Richard Biener <rguenther@suse.de>, Max Filippov <jcmvbkbc@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 9, 2018 at 8:28 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
->
-> On Mon, Oct 08, 2018 at 10:38:22AM -0700, Andy Lutomirski wrote:
-> > On Mon, Oct 8, 2018 at 8:27 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
 
-> > I read the comment three more times and even dug through the git
-> > history.  It seems like what you're saying is that, under certain
-> > conditions (which arguably would be bugs in the core Linux timing
-> > code),
->
-> I don't see that as a bug. Its just a side effect of reading two
-> different clocks (one is CLOCK_MONOTONIC and the other is TSC),
-> and using those two clocks to as a "base + offset".
->
-> As the comment explains, if you do that, can't guarantee monotonicity.
->
-> > actually calling ktime_get_boot_ns() could be non-monotonic
-> > with respect to the kvmclock timing.  But get_kvmclock_ns() isn't used
-> > for VM timing as such -- it's used for the IOCTL interfaces for
-> > updating the time offset.  So can you explain how my patch is
-> > incorrect?
->
-> ktime_get_boot_ns() has frequency correction applied, while
-> reading masterclock + TSC offset does not.
->
-> So the clock reads differ.
->
+* Segher Boessenkool <segher@kernel.crashing.org> wrote:
 
-Ah, okay, I finally think I see what's going on.  In the kvmclock data
-exposed to the guest, tsc_shift and tsc_to_system_mul come from
-tgt_tsc_khz, whereas master_kernel_ns and master_cycle_now come from
-CLOCK_BOOTTIME.  So the kvmclock and kernel clock drift apart at a
-rate given by the frequency shift and then suddenly agree again every
-time the pvclock data is updated.
+> On Mon, Oct 08, 2018 at 11:07:46AM +0200, Richard Biener wrote:
+> > On Mon, 8 Oct 2018, Segher Boessenkool wrote:
+> > > On Sun, Oct 07, 2018 at 03:53:26PM +0000, Michael Matz wrote:
+> > > > On Sun, 7 Oct 2018, Segher Boessenkool wrote:
+> > > > > On Sun, Oct 07, 2018 at 11:18:06AM +0200, Borislav Petkov wrote:
+> > > > > > Now, Richard suggested doing something like:
+> > > > > > 
+> > > > > >  1) inline asm ("...")
+> > > > > 
+> > > > > What would the semantics of this be?
+> > > > 
+> > > > The size of the inline asm wouldn't be counted towards the inliner size 
+> > > > limits (or be counted as "1").
+> > > 
+> > > That sounds like a good option.
+> > 
+> > Yes, I also like it for simplicity.  It also avoids the requirement
+> > of translating the number (in bytes?) given by the user to
+> > "number of GIMPLE instructions" as needed by the inliner.
+> 
+> This patch implements this, for C only so far.  And the syntax is
+> "asm inline", which is more in line with other syntax.
+> 
+> How does this look?
 
-Is there a reason to do it this way?
+Cool, thanks for implementing this!
+
+In the kernel we'd likely wrap this in some "asm_inline()" type of construct to be
+compatible with older toolchains and other compilers.
+
+Thanks,
+
+	Ingo
