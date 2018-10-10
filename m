@@ -1,24 +1,23 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [PATCH net-next v2 0/5] virtio: support packed
-	ring
-Date: Wed, 10 Oct 2018 10:36:26 -0400
-Message-ID: <20181010103335-mutt-send-email-mst__45504.4186478064$1539182072$gmane$org@kernel.org>
-References: <20180711022711.7090-1-tiwei.bie@intel.com>
-	<20180827170005-mutt-send-email-mst@kernel.org>
-	<20180907012225.GA32677@debian>
-	<20180907084509-mutt-send-email-mst@kernel.org>
-	<20180910030053.GA15645@debian>
-	<f5ef0393-cf02-0795-a51a-8783ee300037@redhat.com>
-	<20180911053726.GA7472@debian>
-	<20180912121457-mutt-send-email-mst@kernel.org>
-	<20180913085919.GA42049@fbsd1.sh.intel.com>
-	<98d6bd4d-45e2-4207-e961-782f649e0139@redhat.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: PROPOSAL: Extend inline asm syntax with size spec
+Date: Wed, 10 Oct 2018 21:14:27 +0200
+Message-ID: <20181010191427.GF5533__33015.9196317711$1539198762$gmane$org@zn.tnic>
+References: <20181007132228.GJ29268@gate.crashing.org>
+	<alpine.LSU.2.21.1810071534220.7867@wotan.suse.de>
+	<20181008073128.GL29268@gate.crashing.org>
+	<alpine.LSU.2.20.1810081105350.16707@zhemvz.fhfr.qr>
+	<20181009145330.GT29268@gate.crashing.org>
+	<alpine.LSU.2.20.1810100909140.16707@zhemvz.fhfr.qr>
+	<20181010072240.GB103159@gmail.com>
+	<20181010080324.GV29268@gate.crashing.org>
+	<20181010081906.GA5533@zn.tnic>
+	<20181010185432.GB29268@gate.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <98d6bd4d-45e2-4207-e961-782f649e0139@redhat.com>
+In-Reply-To: <20181010185432.GB29268@gate.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,41 +27,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>, Peter Zijlstra <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Nadav Amit <namit@vmware.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, Sam Ravnborg <sam@ravnborg.org>, Ingo Molnar <mingo@kernel.org>, x86@kernel.org, linux-sparse@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Chris Zankel <chris@zankel.net>, Michael Matz <matz@suse.de>, Josh Poimboeuf <jpoimboe@redhat.com>, Alok Kataria <akataria@vmware.com>, Juergen Gross <jgross@suse.com>, gcc@gcc.gnu.org, Richard Biener <rguenther@suse.de>, Max Filippov <jcmvbkbc@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@lin>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBTZXAgMTMsIDIwMTggYXQgMDU6NDc6MjlQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MDnmnIgxM+aXpSAxNjo1OSwgVGl3ZWkgQmllIHdyb3RlOgo+
-ID4gPiBJZiB3aGF0IHlvdSBzYXkgaXMgdHJ1ZSB0aGVuIHdlIHNob3VsZCB0YWtlIGEgY2FyZWZ1
-bCBsb29rCj4gPiA+IGFuZCBub3Qgc3VwcG9ydGluZyB0aGVzZSBnZW5lcmljIHRoaW5ncyB3aXRo
-IHBhY2tlZCBsYXlvdXQuCj4gPiA+IE9uY2Ugd2UgZG8gc3VwcG9ydCB0aGVtIGl0IHdpbGwgYmUg
-dG9vIGxhdGUgYW5kIHdlIHdvbid0Cj4gPiA+IGJlIGFibGUgdG8gZ2V0IHBlcmZvcm1hbmNlIGJh
-Y2suCj4gPiBJIHRoaW5rIGl0J3MgYSBnb29kIHBvaW50IHRoYXQgd2UgZG9uJ3QgbmVlZCB0byBz
-dXBwb3J0Cj4gPiBldmVyeXRoaW5nIGluIHBhY2tlZCByaW5nIChlc3BlY2lhbGx5IHRoZXNlIHdo
-aWNoIHdvdWxkCj4gPiBodXJ0IHRoZSBwZXJmb3JtYW5jZSksIGFzIHRoZSBwYWNrZWQgcmluZyBh
-aW1zIGF0IGhpZ2gKPiA+IHBlcmZvcm1hbmNlLiBJJ20gYWxzbyB3b25kZXJpbmcgYWJvdXQgdGhl
-IGZlYXR1cmVzLiBJcwo+ID4gdGhlcmUgYW55IHBvc3NpYmlsaXR5IHRoYXQgd2Ugd29uJ3Qgc3Vw
-cG9ydCB0aGUgb3V0IG9mCj4gPiBvcmRlciBwcm9jZXNzaW5nIChhdCBsZWFzdCBub3QgYnkgZGVm
-YXVsdCkgaW4gcGFja2VkIHJpbmc/Cj4gPiBJZiBJIGRpZG4ndCBtaXNzIGFueXRoaW5nLCB0aGUg
-bmVlZCB0byBzdXBwb3J0IG91dCBvZiBvcmRlcgo+ID4gcHJvY2Vzc2luZyBpbiBwYWNrZWQgcmlu
-ZyB3aWxsIG1ha2UgdGhlIGRhdGEgc3RydWN0dXJlCj4gPiBpbnNpZGUgdGhlIGRyaXZlciBub3Qg
-Y2FjaGUgZnJpZW5kbHkgd2hpY2ggaXMgc2ltaWxhciB0bwo+ID4gdGhlIGNhc2Ugb2YgdGhlIGRl
-c2NyaXB0b3IgdGFibGUgaW4gdGhlIHNwbGl0IHJpbmcgKHRoZQo+ID4gZGlmZmVyZW5jZSBpcyB0
-aGF0LCBpdCBvbmx5IGhhcHBlbnMgaW4gZHJpdmVyIG5vdykuCj4gCj4gT3V0IG9mIG9yZGVyIGlz
-IG5vdCB0aGUgb25seSB1c2VyLCBETUEgaXMgYW5vdGhlciBvbmUuIFdlIGRvbid0IGhhdmUgdXNl
-ZAo+IHJpbmcobGVuKSwgc28gd2UgbmVlZCB0byBtYWludGFpbiBidWZmZXIgbGVuZ3RoIHNvbWV3
-aGVyZSBldmVuIGZvciBpbiBvcmRlcgo+IGRldmljZS4KCkZvciBhIGJ1bmNoIG9mIHN5c3RlbXMg
-ZG1hIHVubWFwIGlzIGEgbm9wIHNvIHdlIGRvIG5vdCByZWFsbHkKbmVlZCB0byBtYWludGFpbiBp
-dC4gSXQncyBhIHF1ZXN0aW9uIG9mIGFuIEFQSSB0byBkZXRlY3QgdGhhdAphbmQgb3B0aW1pemUg
-Zm9yIGl0LiBJIHBvc3RlZCBhIHByb3Bvc2VkIHBhdGNoIGZvciB0aGF0IC0Kd2FudCB0byB0cnkg
-dXNpbmcgdGhhdD8KCj4gQnV0IGlmIGl0J3Mgbm90IHRvbyBsYXRlLCBJIHNlY29uZCBmb3IgYSBP
-VVRfT0ZfT1JERVIgZmVhdHVyZS4KPiBTdGFydGluZyBmcm9tIGluIG9yZGVyIGNhbiBoYXZlIG11
-Y2ggc2ltcGxlciBjb2RlIGluIGRyaXZlci4KPiAKPiBUaGFua3MKCkl0J3MgdHJpY2t5IHRvIGNo
-YW5nZSB0aGUgZmxhZyBwb2xhcml0eSBiZWNhdXNlIG9mIGNvbXBhdGliaWxpdHkKd2l0aCBsZWdh
-Y3kgaW50ZXJmYWNlcy4gV2h5IGlzIHRoaXMgc3VjaCBhIGJpZyBkZWFsPwoKTGV0J3MgdGVhY2gg
-ZHJpdmVycyBhYm91dCBJTl9PUkRFUiwgdGhlbiBpZiBkZXZpY2VzCmFyZSBpbiBvcmRlciBpdCB3
-aWxsIGdldCBlbmFibGVkIGJ5IGRlZmF1bHQuCgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, Oct 10, 2018 at 01:54:33PM -0500, Segher Boessenkool wrote:
+> It would be great to hear from kernel people if it works adequately for
+> what you guys want it for :-)
+
+Sure, ping me when you have the final version and I'll try to build gcc
+with it and do some size comparisons.
+
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+Good mailing practices for 400: avoid top-posting and trim the reply.
