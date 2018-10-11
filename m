@@ -1,24 +1,17 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [virtio-dev] Re: [PATCH net-next v2 0/5] virtio: support packed
-	ring
-Date: Thu, 11 Oct 2018 22:34:43 +0800
-Message-ID: <20181011143443.GA18183__17929.7478789978$1539268651$gmane$org@debian>
-References: <f5ef0393-cf02-0795-a51a-8783ee300037@redhat.com>
-	<20180911053726.GA7472@debian>
-	<20180912121457-mutt-send-email-mst@kernel.org>
-	<20180913085919.GA42049@fbsd1.sh.intel.com>
-	<98d6bd4d-45e2-4207-e961-782f649e0139@redhat.com>
-	<20181010103335-mutt-send-email-mst@kernel.org>
-	<20181011121221.GA27106@debian>
-	<20181011094705-mutt-send-email-mst@kernel.org>
-	<20181011141331.GA11650@debian>
-	<20181011101656-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 0/3] x86: faster mb()+other barrier.h tweaks
+Date: Thu, 11 Oct 2018 14:11:42 -0400
+Message-ID: <20181011140837-mutt-send-email-mst__19618.8864567832$1539281388$gmane$org@kernel.org>
+References: <1452635935-5439-1-git-send-email-mst@redhat.com>
+	<56957D54.5000602@zytor.com>
+	<20160126101921-mutt-send-email-mst@redhat.com>
+	<20181011173707.26pekp65tlipvhdx@alap3.anarazel.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20181011101656-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20181011173707.26pekp65tlipvhdx@alap3.anarazel.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,42 +21,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com, zhihong.wang@intel.com
+To: Andres Freund <andres@anarazel.de>
+Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 11, 2018 at 10:17:15AM -0400, Michael S. Tsirkin wrote:
-> On Thu, Oct 11, 2018 at 10:13:31PM +0800, Tiwei Bie wrote:
-> > On Thu, Oct 11, 2018 at 09:48:48AM -0400, Michael S. Tsirkin wrote:
-> > > On Thu, Oct 11, 2018 at 08:12:21PM +0800, Tiwei Bie wrote:
-> > > > > > But if it's not too late, I second for a OUT_OF_ORDER feature.
-> > > > > > Starting from in order can have much simpler code in driver.
-> > > > > > 
-> > > > > > Thanks
-> > > > > 
-> > > > > It's tricky to change the flag polarity because of compatibility
-> > > > > with legacy interfaces. Why is this such a big deal?
-> > > > > 
-> > > > > Let's teach drivers about IN_ORDER, then if devices
-> > > > > are in order it will get enabled by default.
+On Thu, Oct 11, 2018 at 10:37:07AM -0700, Andres Freund wrote:
+> Hi,
+> 
+> On 2016-01-26 10:20:14 +0200, Michael S. Tsirkin wrote:
+> > On Tue, Jan 12, 2016 at 02:25:24PM -0800, H. Peter Anvin wrote:
+> > > On 01/12/16 14:10, Michael S. Tsirkin wrote:
+> > > > mb() typically uses mfence on modern x86, but a micro-benchmark shows that it's
+> > > > 2 to 3 times slower than lock; addl $0,(%%e/rsp) that we use on older CPUs.
 > > > > 
-> > > > Yeah, make sense.
+> > > > So let's use the locked variant everywhere - helps keep the code simple as
+> > > > well.
 > > > > 
-> > > > Besides, I have done some further profiling and debugging
-> > > > both in kernel driver and DPDK vhost. Previously I was mislead
-> > > > by a bug in vhost code. I will send a patch to fix that bug.
-> > > > With that bug fixed, the performance of packed ring in the
-> > > > test between kernel driver and DPDK vhost is better now.
+> > > > While I was at it, I found some inconsistencies in comments in
+> > > > arch/x86/include/asm/barrier.h
+> > > > 
+> > > > I hope I'm not splitting this up too much - the reason is I wanted to isolate
+> > > > the code changes (that people might want to test for performance) from comment
+> > > > changes approved by Linus, from (so far unreviewed) comment change I came up
+> > > > with myself.
+> > > > 
+> > > > Lightly tested on my system.
+> > > > 
+> > > > Michael S. Tsirkin (3):
+> > > >   x86: drop mfence in favor of lock+addl
+> > > >   x86: drop a comment left over from X86_OOSTORE
+> > > >   x86: tweak the comment about use of wmb for IO
+> > > > 
 > > > 
-> > > OK, if we get a performance gain on the virtio side, we can finally
-> > > upstream it. If you see that please re-post ASAP so we can
-> > > put it in the next kernel release.
-> > 
-> > Got it, I will re-post ASAP.
-> > 
-> > Thanks!
+> > > I would like to get feedback from the hardware team about the
+> > > implications of this change, first.
 > 
+> > Any luck getting some feedback on this one?
 > 
-> Pls remember to include data on performance gain in the cover letter.
+> Ping?  I just saw a bunch of kernel fences in a benchmark, making me
+> wonder why linux uses mfence rather than lock addl. Leading me to this
+> thread.
+> 
+> Greetings,
+> 
+> Andres Freund
 
-Sure. I'll try to include some performance analyses.
+It doesn't do it for smp_mb any longer:
+
+commit 450cbdd0125cfa5d7bbf9e2a6b6961cc48d29730
+Author: Michael S. Tsirkin <mst@redhat.com>
+Date:   Fri Oct 27 19:14:31 2017 +0300
+
+    locking/x86: Use LOCK ADD for smp_mb() instead of MFENCE
+
+
+I didn't bother with mb() since I didn't think it's performance
+critical, and one needs to worry about drivers possibly doing
+non-temporals etc which do need mfence.
+
+Do you see mb() in a benchmark then?
+
+-- 
+MST
