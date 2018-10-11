@@ -1,17 +1,24 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 0/3] x86: faster mb()+other barrier.h tweaks
-Date: Thu, 11 Oct 2018 14:11:42 -0400
-Message-ID: <20181011140837-mutt-send-email-mst__19618.8864567832$1539281388$gmane$org@kernel.org>
-References: <1452635935-5439-1-git-send-email-mst@redhat.com>
-	<56957D54.5000602@zytor.com>
-	<20160126101921-mutt-send-email-mst@redhat.com>
-	<20181011173707.26pekp65tlipvhdx@alap3.anarazel.de>
+From: Marcelo Tosatti <mtosatti@redhat.com>
+Subject: Re: [patch 00/11] x86/vdso: Cleanups, simmplifications and CLOCK_TAI
+	support
+Date: Thu, 11 Oct 2018 19:27:44 -0300
+Message-ID: <20181011222744.GA17955@amt.cnet>
+References: <B8C05946-43BB-40A4-A564-53904FAF8CC0@amacapital.net>
+	<20181004193150.GQ19272@hirez.programming.kicks-ass.net>
+	<499807AB-E779-40C3-AA3F-E8C77A7770EC@amacapital.net>
+	<CALCETrXNKCNZzUXj=2sp1vBd_o7HHzfW6RwyY5v3-wMfbVaZnQ@mail.gmail.com>
+	<20181006202731.GC7129@amt.cnet>
+	<CALCETrWqze2mifOdFc0GJYHtHGKiKX2Zdi5Kz87OyUogbqD15w@mail.gmail.com>
+	<20181008152650.GB27822@amt.cnet>
+	<CALCETrVY6VHPLs0GXZM4+VYraTa1+xs=iRJoRa++OHX9Wq+ieg@mail.gmail.com>
+	<20181008193632.GA31729@amt.cnet>
+	<CALCETrW6b8=dU6vkXNS-rW1GPzJTbVxuVNsU4aoD_NwwobVQcg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20181011173707.26pekp65tlipvhdx@alap3.anarazel.de>
+In-Reply-To: <CALCETrW6b8=dU6vkXNS-rW1GPzJTbVxuVNsU4aoD_NwwobVQcg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,65 +28,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andres Freund <andres@anarazel.de>
-Cc: Davidlohr Bueso <dave@stgolabs.net>, Davidlohr Bueso <dbueso@suse.de>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, linux-kernel@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>
+To: Andy Lutomirski <luto@kernel.org>
+Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 11, 2018 at 10:37:07AM -0700, Andres Freund wrote:
-> Hi,
+On Tue, Oct 09, 2018 at 01:09:42PM -0700, Andy Lutomirski wrote:
+> On Tue, Oct 9, 2018 at 8:28 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
+> >
+> > On Mon, Oct 08, 2018 at 10:38:22AM -0700, Andy Lutomirski wrote:
+> > > On Mon, Oct 8, 2018 at 8:27 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
 > 
-> On 2016-01-26 10:20:14 +0200, Michael S. Tsirkin wrote:
-> > On Tue, Jan 12, 2016 at 02:25:24PM -0800, H. Peter Anvin wrote:
-> > > On 01/12/16 14:10, Michael S. Tsirkin wrote:
-> > > > mb() typically uses mfence on modern x86, but a micro-benchmark shows that it's
-> > > > 2 to 3 times slower than lock; addl $0,(%%e/rsp) that we use on older CPUs.
-> > > > 
-> > > > So let's use the locked variant everywhere - helps keep the code simple as
-> > > > well.
-> > > > 
-> > > > While I was at it, I found some inconsistencies in comments in
-> > > > arch/x86/include/asm/barrier.h
-> > > > 
-> > > > I hope I'm not splitting this up too much - the reason is I wanted to isolate
-> > > > the code changes (that people might want to test for performance) from comment
-> > > > changes approved by Linus, from (so far unreviewed) comment change I came up
-> > > > with myself.
-> > > > 
-> > > > Lightly tested on my system.
-> > > > 
-> > > > Michael S. Tsirkin (3):
-> > > >   x86: drop mfence in favor of lock+addl
-> > > >   x86: drop a comment left over from X86_OOSTORE
-> > > >   x86: tweak the comment about use of wmb for IO
-> > > > 
-> > > 
-> > > I would like to get feedback from the hardware team about the
-> > > implications of this change, first.
+> > > I read the comment three more times and even dug through the git
+> > > history.  It seems like what you're saying is that, under certain
+> > > conditions (which arguably would be bugs in the core Linux timing
+> > > code),
+> >
+> > I don't see that as a bug. Its just a side effect of reading two
+> > different clocks (one is CLOCK_MONOTONIC and the other is TSC),
+> > and using those two clocks to as a "base + offset".
+> >
+> > As the comment explains, if you do that, can't guarantee monotonicity.
+> >
+> > > actually calling ktime_get_boot_ns() could be non-monotonic
+> > > with respect to the kvmclock timing.  But get_kvmclock_ns() isn't used
+> > > for VM timing as such -- it's used for the IOCTL interfaces for
+> > > updating the time offset.  So can you explain how my patch is
+> > > incorrect?
+> >
+> > ktime_get_boot_ns() has frequency correction applied, while
+> > reading masterclock + TSC offset does not.
+> >
+> > So the clock reads differ.
+> >
 > 
-> > Any luck getting some feedback on this one?
-> 
-> Ping?  I just saw a bunch of kernel fences in a benchmark, making me
-> wonder why linux uses mfence rather than lock addl. Leading me to this
-> thread.
-> 
-> Greetings,
-> 
-> Andres Freund
+> Ah, okay, I finally think I see what's going on.  In the kvmclock data
+> exposed to the guest, tsc_shift and tsc_to_system_mul come from
+> tgt_tsc_khz, whereas master_kernel_ns and master_cycle_now come from
+> CLOCK_BOOTTIME.  So the kvmclock and kernel clock drift apart at a
+> rate given by the frequency shift and then suddenly agree again every
+> time the pvclock data is updated.
 
-It doesn't do it for smp_mb any longer:
+Yes.
 
-commit 450cbdd0125cfa5d7bbf9e2a6b6961cc48d29730
-Author: Michael S. Tsirkin <mst@redhat.com>
-Date:   Fri Oct 27 19:14:31 2017 +0300
+> Is there a reason to do it this way?
 
-    locking/x86: Use LOCK ADD for smp_mb() instead of MFENCE
+Since pvclock updates which update system_timestamp are expensive (must stop all vcpus), 
+they should be avoided. 
 
-
-I didn't bother with mb() since I didn't think it's performance
-critical, and one needs to worry about drivers possibly doing
-non-temporals etc which do need mfence.
-
-Do you see mb() in a benchmark then?
-
--- 
-MST
+So only HW TSC counts, and used as offset against vcpu's tsc_timestamp.
