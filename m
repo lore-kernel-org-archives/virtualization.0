@@ -1,16 +1,24 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio_net: enable tx after resuming from suspend
-Date: Thu, 11 Oct 2018 21:06:18 +0800
-Message-ID: <a156fd7e-e36e-e4e9-c240-3117ecc5b1b4@redhat.com>
-References: <20181011075127.2608-1-ake@igel.co.jp>
-	<dd530053-efab-b661-3423-1faaab8fb12f@redhat.com>
-	<7e87b140-79ae-c79e-40ed-dc76b38eeae4@igel.co.jp>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH net-next v2 0/5] virtio: support packed
+	ring
+Date: Thu, 11 Oct 2018 09:48:48 -0400
+Message-ID: <20181011094705-mutt-send-email-mst__48444.5030488589$1539265607$gmane$org@kernel.org>
+References: <20180907012225.GA32677@debian>
+	<20180907084509-mutt-send-email-mst@kernel.org>
+	<20180910030053.GA15645@debian>
+	<f5ef0393-cf02-0795-a51a-8783ee300037@redhat.com>
+	<20180911053726.GA7472@debian>
+	<20180912121457-mutt-send-email-mst@kernel.org>
+	<20180913085919.GA42049@fbsd1.sh.intel.com>
+	<98d6bd4d-45e2-4207-e961-782f649e0139@redhat.com>
+	<20181010103335-mutt-send-email-mst@kernel.org>
+	<20181011121221.GA27106@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <7e87b140-79ae-c79e-40ed-dc76b38eeae4@igel.co.jp>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20181011121221.GA27106@debian>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,48 +28,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: ake <ake@igel.co.jp>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MTDmnIgxMeaXpSAxODoyMiwgYWtlIHdyb3RlOgo+Cj4gT24gMjAxOOW5tDEw
-5pyIMTHml6UgMTg6NDQsIEphc29uIFdhbmcgd3JvdGU6Cj4+Cj4+IE9uIDIwMTjlubQxMOaciDEx
-5pelIDE1OjUxLCBBa2UgS29vbXNpbiB3cm90ZToKPj4+IGNvbW1pdCA3MTNhOThkOTBjNWUgKCJ2
-aXJ0aW8tbmV0OiBzZXJpYWxpemUgdHggcm91dGluZSBkdXJpbmcgcmVzZXQiKQo+Pj4gZGlzYWJs
-ZWQgdGhlIHZpcnRpbyB0eCBiZWZvcmUgZ29pbmcgdG8gc3VzcGVuZCB0byBhdm9pZCBhIHVzZSBh
-ZnRlciBmcmVlLgo+Pj4gSG93ZXZlciwgYWZ0ZXIgcmVzdW1pbmcsIGl0IGNhdXNlcyB0aGUgdmly
-dGlvX25ldCBkZXZpY2UgdG8gbG9zZSBpdHMKPj4+IG5ldHdvcmsgY29ubmVjdGl2aXR5Lgo+Pj4K
-Pj4+IFRvIHNvbHZlIHRoZSBpc3N1ZSwgd2UgbmVlZCB0byBlbmFibGUgdHggYWZ0ZXIgcmVzdW1p
-bmcuCj4+Pgo+Pj4gRml4ZXMgY29tbWl0IDcxM2E5OGQ5MGM1ZSAoInZpcnRpby1uZXQ6IHNlcmlh
-bGl6ZSB0eCByb3V0aW5lIGR1cmluZwo+Pj4gcmVzZXQiKQo+Pj4gU2lnbmVkLW9mZi1ieTogQWtl
-IEtvb21zaW4gPGFrZUBpZ2VsLmNvLmpwPgo+Pj4gLS0tCj4+PiAgwqAgZHJpdmVycy9uZXQvdmly
-dGlvX25ldC5jIHwgMSArCj4+PiAgwqAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspCj4+
-Pgo+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0
-L3ZpcnRpb19uZXQuYwo+Pj4gaW5kZXggZGFiNTA0ZWM1ZTUwLi4zNDUzZDgwZjVmODEgMTAwNjQ0
-Cj4+PiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPj4+ICsrKyBiL2RyaXZlcnMvbmV0
-L3ZpcnRpb19uZXQuYwo+Pj4gQEAgLTIyNTYsNiArMjI1Niw3IEBAIHN0YXRpYyBpbnQgdmlydG5l
-dF9yZXN0b3JlX3VwKHN0cnVjdAo+Pj4gdmlydGlvX2RldmljZSAqdmRldikKPj4+ICDCoMKgwqDC
-oMKgIH0KPj4+ICDCoCDCoMKgwqDCoMKgIG5ldGlmX2RldmljZV9hdHRhY2godmktPmRldik7Cj4+
-PiArwqDCoMKgIG5ldGlmX3N0YXJ0X3F1ZXVlKHZpLT5kZXYpOwo+PiBJIGJlbGlldmUgdGhpcyBp
-cyBkdXBsaWNhdGVkIHdpdGggbmV0aWZfdHhfd2FrZV9hbGxfcXVldWVzKCkgaW4KPj4gbmV0aWZf
-ZGV2aWNlX2F0dGFjaCgpIGFib3ZlPwo+IFRoYW5rIHlvdSBmb3IgeW91ciByZXZpZXcuCj4KPiBJ
-ZiBib3RoIG5ldGlmX3R4X3dha2VfYWxsX3F1ZXVlcygpIGFuZCBuZXRpZl9zdGFydF9xdWV1ZSgp
-IHJlc3VsdCBpbgo+IGNsZWFyaW5nIF9fUVVFVUVfU1RBVEVfRFJWX1hPRkYsIHRoZW4gaXMgaXQg
-cG9zc2libGUgdGhhdCBzb21lCj4gY29uZGl0aW9ucyBpbiBuZXRpZl9kZXZpY2VfYXR0YWNoKCkg
-aXMgbm90IHNhdGlzZmllZD8KClllcywgbWF5YmUuIE9uZSBjYXNlIEkgY2FuIHNlZSBub3cgaXMg
-d2hlbiB0aGUgZGV2aWNlIGlzIGRvd24sIGluIHRoaXMgCmNhc2UgbmV0aWZfZGV2aWNlX2F0dGFj
-aCgpIHdvbid0IHRyeSB0byB3YWtldXAgdGhlIHF1ZXVlLgoKPiAgIFdpdGhvdXQKPiBuZXRpZl9z
-dGFydF9xdWV1ZSgpLCB0aGUgdmlydGlvX25ldCBkZXZpY2UgZG9lcyBub3QgcmVzdW1lIHByb3Bl
-cmx5Cj4gYWZ0ZXIgd2FraW5nIHVwLgoKSG93IGRvIHlvdSB0cmlnZ2VyIHRoZSBpc3N1ZT8gSnVz
-dCBkbyBzdXNwZW5kL3Jlc3VtZT8KCj4KPiBJcyBpdCBiZXR0ZXIgdG8gcmVwb3J0IHRoaXMgYXMg
-YSBidWcgZmlyc3Q/CgpOb3BlLCB5b3UncmUgdmVyeSB3ZWxjb21lIHRvIHBvc3QgcGF0Y2ggZGly
-ZWN0bHkuCgo+IElmIEkgYW0gdG8gZG8gbW9yZQo+IGludmVzdGlnYXRpb24sIHdoYXQgYXJlYXMg
-c2hvdWxkIEkgbG9vayBpbnRvPwoKQXMgeW91J3ZlIGZpZ3VyZWQgb3V0LCB5b3UgY2FuIHN0YXJ0
-IHdpdGggd2h5IG5ldGlmX3R4X3dha2VfYWxsX3F1ZXVlcygpIAp3ZXJlIG5vdCBleGVjdXRlZD8K
-CihCdHcsIGRvZXMgdGhlIGlzc3VlIGRpc2FwcGVhciBpZiB5b3UgbW92ZSBuZXRpZl90eF9kaXNh
-YmxlKCkgdW5kZXIgdGhlIApjaGVjayBvZiBuZXRpZl9ydW5uaW5nKCkgaW4gdmlydG5ldF9mcmVl
-emVfZG93bigpPykKClRoYW5rcwoKPgo+IEJlc3QgUmVnYXJkcwo+IEFrZSBLb29tc2luCj4KCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On Thu, Oct 11, 2018 at 08:12:21PM +0800, Tiwei Bie wrote:
+> > > But if it's not too late, I second for a OUT_OF_ORDER feature.
+> > > Starting from in order can have much simpler code in driver.
+> > > 
+> > > Thanks
+> > 
+> > It's tricky to change the flag polarity because of compatibility
+> > with legacy interfaces. Why is this such a big deal?
+> > 
+> > Let's teach drivers about IN_ORDER, then if devices
+> > are in order it will get enabled by default.
+> 
+> Yeah, make sense.
+> 
+> Besides, I have done some further profiling and debugging
+> both in kernel driver and DPDK vhost. Previously I was mislead
+> by a bug in vhost code. I will send a patch to fix that bug.
+> With that bug fixed, the performance of packed ring in the
+> test between kernel driver and DPDK vhost is better now.
+
+OK, if we get a performance gain on the virtio side, we can finally
+upstream it. If you see that please re-post ASAP so we can
+put it in the next kernel release.
+
+-- 
+MST
