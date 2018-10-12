@@ -1,7 +1,7 @@
 From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: [PATCH v3 3/7] PCI: OF: Allow endpoints to bypass the iommu
-Date: Fri, 12 Oct 2018 15:59:13 +0100
-Message-ID: <20181012145917.6840-4-jean-philippe.brucker__48423.4247393489$1539356403$gmane$org@arm.com>
+Subject: [PATCH v3 4/7] PCI: OF: Initialize dev->fwnode appropriately
+Date: Fri, 12 Oct 2018 15:59:14 +0100
+Message-ID: <20181012145917.6840-5-jean-philippe.brucker__9141.19306621632$1539356419$gmane$org@arm.com>
 References: <20181012145917.6840-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,41 +21,51 @@ To: iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org,
 Cc: mark.rutland@arm.com, peter.maydell@linaro.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, mst@redhat.com, marc.zyngier@arm.com, linux-pci@vger.kernel.org, will.deacon@arm.com, kvmarm@lists.cs.columbia.edu, eric.auger@redhat.com, robh+dt@kernel.org, robin.murphy@arm.com, joro@8bytes.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Using the iommu-map binding, endpoints in a given PCI domain can be
-managed by different IOMMUs. Some virtual machines may allow a subset of
-endpoints to bypass the IOMMU. In some case the IOMMU itself is presented
-as a PCI endpoint (e.g. AMD IOMMU and virtio-iommu). Currently, when a
-PCI root complex has an iommu-map property, the driver requires all
-endpoints to be described by the property. Allow the iommu-map property to
-have gaps.
-
-Relaxing of_pci_map_rid also allows the msi-map property to have gaps,
-which is invalid since MSIs always reach an MSI controller. Thankfully
-Linux will error out later, when attempting to find an MSI domain for the
-device.
+For PCI devices that have an OF node, set the fwnode as well. This way
+drivers that rely on fwnode don't need the special case described by
+commit f94277af03ea ("of/platform: Initialise dev->fwnode appropriately").
 
 Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 ---
- drivers/pci/of.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/pci/of.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/pci/of.c b/drivers/pci/of.c
-index 1836b8ddf292..2f5015bdb256 100644
+index 2f5015bdb256..8026417fab38 100644
 --- a/drivers/pci/of.c
 +++ b/drivers/pci/of.c
-@@ -451,9 +451,10 @@ int of_pci_map_rid(struct device_node *np, u32 rid,
- 		return 0;
- 	}
- 
--	pr_err("%pOF: Invalid %s translation - no match for rid 0x%x on %pOF\n",
--		np, map_name, rid, target && *target ? *target : NULL);
--	return -EFAULT;
-+	/* Bypasses translation */
-+	if (id_out)
-+		*id_out = rid;
-+	return 0;
+@@ -21,12 +21,15 @@ void pci_set_of_node(struct pci_dev *dev)
+ 		return;
+ 	dev->dev.of_node = of_pci_find_child_device(dev->bus->dev.of_node,
+ 						    dev->devfn);
++	if (dev->dev.of_node)
++		dev->dev.fwnode = &dev->dev.of_node->fwnode;
  }
  
- #if IS_ENABLED(CONFIG_OF_IRQ)
+ void pci_release_of_node(struct pci_dev *dev)
+ {
+ 	of_node_put(dev->dev.of_node);
+ 	dev->dev.of_node = NULL;
++	dev->dev.fwnode = NULL;
+ }
+ 
+ void pci_set_bus_of_node(struct pci_bus *bus)
+@@ -35,12 +38,16 @@ void pci_set_bus_of_node(struct pci_bus *bus)
+ 		bus->dev.of_node = pcibios_get_phb_of_node(bus);
+ 	else
+ 		bus->dev.of_node = of_node_get(bus->self->dev.of_node);
++
++	if (bus->dev.of_node)
++		bus->dev.fwnode = &bus->dev.of_node->fwnode;
+ }
+ 
+ void pci_release_bus_of_node(struct pci_bus *bus)
+ {
+ 	of_node_put(bus->dev.of_node);
+ 	bus->dev.of_node = NULL;
++	bus->dev.fwnode = NULL;
+ }
+ 
+ struct device_node * __weak pcibios_get_phb_of_node(struct pci_bus *bus)
 -- 
 2.19.1
