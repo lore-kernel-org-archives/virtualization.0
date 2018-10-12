@@ -1,16 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next V2 6/8] vhost: packed ring support
-Date: Fri, 12 Oct 2018 13:23:46 -0400
-Message-ID: <20181012131812-mutt-send-email-mst__18506.3290795826$1539364913$gmane$org@kernel.org>
-References: <1531711691-6769-1-git-send-email-jasowang@redhat.com>
-	<1531711691-6769-7-git-send-email-jasowang@redhat.com>
-	<20181012143244.GA28400@debian>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH v3 5/7] iommu: Add virtio-iommu driver
+Date: Fri, 12 Oct 2018 19:54:53 +0100
+Message-ID: <ba8d7b94-a806-276b-e64c-9e6c5c9e107b__29289.3283222385$1539370391$gmane$org@arm.com>
+References: <20181012145917.6840-1-jean-philippe.brucker@arm.com>
+	<20181012145917.6840-6-jean-philippe.brucker@arm.com>
+	<20181012120953-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181012143244.GA28400@debian>
+In-Reply-To: <20181012120953-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,83 +20,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: mark.rutland@arm.com, peter.maydell@linaro.org, tnowicki@caviumnetworks.com, devicetree@vger.kernel.org, marc.zyngier@arm.com, linux-pci@vger.kernel.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, robh+dt@kernel.org, robin.murphy@arm.com, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 12, 2018 at 10:32:44PM +0800, Tiwei Bie wrote:
-> On Mon, Jul 16, 2018 at 11:28:09AM +0800, Jason Wang wrote:
-> [...]
-> > @@ -1367,10 +1397,48 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
-> >  		vq->last_avail_idx = s.num;
-> >  		/* Forget the cached index value. */
-> >  		vq->avail_idx = vq->last_avail_idx;
-> > +		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED)) {
-> > +			vq->last_avail_wrap_counter = wrap_counter;
-> > +			vq->avail_wrap_counter = vq->last_avail_wrap_counter;
-> > +		}
-> >  		break;
-> >  	case VHOST_GET_VRING_BASE:
-> >  		s.index = idx;
-> >  		s.num = vq->last_avail_idx;
-> > +		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
-> > +			s.num |= vq->last_avail_wrap_counter << 31;
-> > +		if (copy_to_user(argp, &s, sizeof(s)))
-> > +			r = -EFAULT;
-> > +		break;
-> > +	case VHOST_SET_VRING_USED_BASE:
-> > +		/* Moving base with an active backend?
-> > +		 * You don't want to do that.
-> > +		 */
-> > +		if (vq->private_data) {
-> > +			r = -EBUSY;
-> > +			break;
-> > +		}
-> > +		if (copy_from_user(&s, argp, sizeof(s))) {
-> > +			r = -EFAULT;
-> > +			break;
-> > +		}
-> > +		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED)) {
-> > +			wrap_counter = s.num >> 31;
-> > +			s.num &= ~(1 << 31);
-> > +		}
-> > +		if (s.num > 0xffff) {
-> > +			r = -EINVAL;
-> > +			break;
-> > +		}
+On 12/10/2018 17:35, Michael S. Tsirkin wrote:
+>> +		list_del(&req->list);
+>> +		kfree(req);
 > 
-> Do we want to put wrap_counter at bit 15?
+> So with DEBUG set, this will actually free memory that device still
+> DMA's into. Hardly pretty. I think you want to mark device broken,
+> queue the request and then wait for device to be reset.
 
-I think I second that - seems to be consistent with
-e.g. event suppression structure and the proposed
-extension to driver notifications.
+Ok, let's remove DEBUG for the moment
 
+>> +static int viommu_probe(struct virtio_device *vdev)
+>> +{
+>> +	struct device *parent_dev = vdev->dev.parent;
+>> +	struct viommu_dev *viommu = NULL;
+>> +	struct device *dev = &vdev->dev;
+>> +	u64 input_start = 0;
+>> +	u64 input_end = -1UL;
+>> +	int ret;
+>> +
+>> +	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+>> +		return -ENODEV;
+> 
+> I'm a bit confused about what will happen if this device
+> happens to be behind an iommu itself.
+>
+> If we can't handle that, should we clear PLATFORM_IOMMU
+> e.g. like the balloon does?
 
-> If put wrap_counter at bit 31, the check (s.num > 0xffff)
-> won't be able to catch the illegal index 0x8000~0xffff for
-> packed ring.
+I think the DMA API can handle this device doing DMA through another
+IOMMU. I haven't tested this case because it is very unusual (IOMMUs
+themselves generally access the physical address space) but I don't see
+anything preventing it.
+
+What we can't handle is a device performing DMA through two
+daisy-chained IOMMUs, but clearing PLATFORM_IOMMU on the first one
+wouldn't make things work in that case, we'd need some core changes.
+
+>> +struct virtio_iommu_config {
+>> +	/* Supported page sizes */
+>> +	__u64					page_size_mask;
+>> +	/* Supported IOVA range */
+>> +	struct virtio_iommu_range {
 > 
-> > +		vq->last_used_idx = s.num;
-> > +		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
-> > +			vq->last_used_wrap_counter = wrap_counter;
-> > +		break;
-> > +	case VHOST_GET_VRING_USED_BASE:
+> I'd rather we moved the definition outside even though gcc allows it -
+> some old userspace compilers might not.
 > 
-> Do we need the new VHOST_GET_VRING_USED_BASE and
-> VHOST_SET_VRING_USED_BASE ops?
+>> +		__u64				start;
+>> +		__u64				end;
+>> +	} input_range;
+>> +	/* Max domain ID size */
+>> +	__u8					domain_bits;
 > 
-> We are going to merge below series in DPDK:
-> 
-> http://patches.dpdk.org/patch/45874/
-> 
-> We may need to reach an agreement first.
-> 
-> 
-> > +		s.index = idx;
-> > +		s.num = vq->last_used_idx;
-> > +		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
-> > +			s.num |= vq->last_used_wrap_counter << 31;
-> >  		if (copy_to_user(argp, &s, sizeof s))
-> >  			r = -EFAULT;
-> >  		break;
-> [...]
+> Let's add explicit padding here as well?
+
+Ok
+
+Thanks,
+Jean
