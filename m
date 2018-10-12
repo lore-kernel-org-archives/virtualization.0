@@ -1,18 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio_net: enable tx after resuming from suspend
-Date: Fri, 12 Oct 2018 16:23:48 +0800
-Message-ID: <4918ed7c-4c63-6f19-530b-8e16b0c496d4__23836.9153383703$1539332521$gmane$org@redhat.com>
-References: <20181011075127.2608-1-ake@igel.co.jp>
-	<dd530053-efab-b661-3423-1faaab8fb12f@redhat.com>
-	<7e87b140-79ae-c79e-40ed-dc76b38eeae4@igel.co.jp>
-	<a156fd7e-e36e-e4e9-c240-3117ecc5b1b4@redhat.com>
-	<b294cbba-24a0-939d-98e8-d1483e3688a1@igel.co.jp>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [PATCH net-next V2 6/8] vhost: packed ring support
+Date: Fri, 12 Oct 2018 22:32:44 +0800
+Message-ID: <20181012143244.GA28400__32706.3073557385$1539354723$gmane$org@debian>
+References: <1531711691-6769-1-git-send-email-jasowang@redhat.com>
+	<1531711691-6769-7-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <b294cbba-24a0-939d-98e8-d1483e3688a1@igel.co.jp>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1531711691-6769-7-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,82 +19,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: ake <ake@igel.co.jp>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAyMDE45bm0MTDmnIgxMuaXpSAxMjozMCwgYWtlIHdyb3RlOgo+Cj4gT24gMjAxOOW5tDEw
-5pyIMTHml6UgMjI6MDYsIEphc29uIFdhbmcgd3JvdGU6Cj4+Cj4+IE9uIDIwMTjlubQxMOaciDEx
-5pelIDE4OjIyLCBha2Ugd3JvdGU6Cj4+PiBPbiAyMDE45bm0MTDmnIgxMeaXpSAxODo0NCwgSmFz
-b24gV2FuZyB3cm90ZToKPj4+PiBPbiAyMDE45bm0MTDmnIgxMeaXpSAxNTo1MSwgQWtlIEtvb21z
-aW4gd3JvdGU6Cj4+Pj4+IGNvbW1pdCA3MTNhOThkOTBjNWUgKCJ2aXJ0aW8tbmV0OiBzZXJpYWxp
-emUgdHggcm91dGluZSBkdXJpbmcgcmVzZXQiKQo+Pj4+PiBkaXNhYmxlZCB0aGUgdmlydGlvIHR4
-IGJlZm9yZSBnb2luZyB0byBzdXNwZW5kIHRvIGF2b2lkIGEgdXNlIGFmdGVyCj4+Pj4+IGZyZWUu
-Cj4+Pj4+IEhvd2V2ZXIsIGFmdGVyIHJlc3VtaW5nLCBpdCBjYXVzZXMgdGhlIHZpcnRpb19uZXQg
-ZGV2aWNlIHRvIGxvc2UgaXRzCj4+Pj4+IG5ldHdvcmsgY29ubmVjdGl2aXR5Lgo+Pj4+Pgo+Pj4+
-PiBUbyBzb2x2ZSB0aGUgaXNzdWUsIHdlIG5lZWQgdG8gZW5hYmxlIHR4IGFmdGVyIHJlc3VtaW5n
-Lgo+Pj4+Pgo+Pj4+PiBGaXhlcyBjb21taXQgNzEzYTk4ZDkwYzVlICgidmlydGlvLW5ldDogc2Vy
-aWFsaXplIHR4IHJvdXRpbmUgZHVyaW5nCj4+Pj4+IHJlc2V0IikKPj4+Pj4gU2lnbmVkLW9mZi1i
-eTogQWtlIEtvb21zaW4gPGFrZUBpZ2VsLmNvLmpwPgo+Pj4+PiAtLS0KPj4+Pj4gIMKgwqAgZHJp
-dmVycy9uZXQvdmlydGlvX25ldC5jIHwgMSArCj4+Pj4+ICDCoMKgIDEgZmlsZSBjaGFuZ2VkLCAx
-IGluc2VydGlvbigrKQo+Pj4+Pgo+Pj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlv
-X25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4+Pj4+IGluZGV4IGRhYjUwNGVjNWU1
-MC4uMzQ1M2Q4MGY1ZjgxIDEwMDY0NAo+Pj4+PiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0
-LmMKPj4+Pj4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4+Pj4+IEBAIC0yMjU2LDYg
-KzIyNTYsNyBAQCBzdGF0aWMgaW50IHZpcnRuZXRfcmVzdG9yZV91cChzdHJ1Y3QKPj4+Pj4gdmly
-dGlvX2RldmljZSAqdmRldikKPj4+Pj4gIMKgwqDCoMKgwqDCoCB9Cj4+Pj4+ICDCoMKgIMKgwqDC
-oMKgwqAgbmV0aWZfZGV2aWNlX2F0dGFjaCh2aS0+ZGV2KTsKPj4+Pj4gK8KgwqDCoCBuZXRpZl9z
-dGFydF9xdWV1ZSh2aS0+ZGV2KTsKPj4+PiBJIGJlbGlldmUgdGhpcyBpcyBkdXBsaWNhdGVkIHdp
-dGggbmV0aWZfdHhfd2FrZV9hbGxfcXVldWVzKCkgaW4KPj4+PiBuZXRpZl9kZXZpY2VfYXR0YWNo
-KCkgYWJvdmU/Cj4+PiBUaGFuayB5b3UgZm9yIHlvdXIgcmV2aWV3Lgo+Pj4KPj4+IElmIGJvdGgg
-bmV0aWZfdHhfd2FrZV9hbGxfcXVldWVzKCkgYW5kIG5ldGlmX3N0YXJ0X3F1ZXVlKCkgcmVzdWx0
-IGluCj4+PiBjbGVhcmluZyBfX1FVRVVFX1NUQVRFX0RSVl9YT0ZGLCB0aGVuIGlzIGl0IHBvc3Np
-YmxlIHRoYXQgc29tZQo+Pj4gY29uZGl0aW9ucyBpbiBuZXRpZl9kZXZpY2VfYXR0YWNoKCkgaXMg
-bm90IHNhdGlzZmllZD8KPj4gWWVzLCBtYXliZS4gT25lIGNhc2UgSSBjYW4gc2VlIG5vdyBpcyB3
-aGVuIHRoZSBkZXZpY2UgaXMgZG93biwgaW4gdGhpcwo+PiBjYXNlIG5ldGlmX2RldmljZV9hdHRh
-Y2goKSB3b24ndCB0cnkgdG8gd2FrZXVwIHRoZSBxdWV1ZS4KPj4KPj4+ICDCoCBXaXRob3V0Cj4+
-PiBuZXRpZl9zdGFydF9xdWV1ZSgpLCB0aGUgdmlydGlvX25ldCBkZXZpY2UgZG9lcyBub3QgcmVz
-dW1lIHByb3Blcmx5Cj4+PiBhZnRlciB3YWtpbmcgdXAuCj4+IEhvdyBkbyB5b3UgdHJpZ2dlciB0
-aGUgaXNzdWU/IEp1c3QgZG8gc3VzcGVuZC9yZXN1bWU/Cj4gWWVzLCBzaW1wbHkgc3VzcGVuZCBh
-bmQgcmVzdW1lLgo+Cj4gSGVyZSBpcyBob3cgSSB0cmlnZ2VyIHRoZSBpc3N1ZToKPgo+IDEpIFN0
-YXJ0IHRoZSBWaXJ0dWFsIE1hY2hpbmUgTWFuYWdlciBHVUkgcHJvZ3JhbS4KPiAyKSBDcmVhdGUg
-YSBndWVzdCBMaW51eCBPUy4gTWFrZSBzdXJlIHRoYXQgdGhlIGd1ZXN0IE9TIGtlcm5lbCBpcwo+
-ICAgICA+PSA0LjEyLiBNYWtlIHN1cmUgdGhhdCBpdCB1c2VzIHZpcnRpb19uZXQgYXMgaXRzIG5l
-dHdvcmsgZGV2aWNlLgo+ICAgICBJbiBhZGRpdGlvbiwgbWFrZSBzdXJlIHRoYXQgdGhlIHZpZGVv
-IGFkYXB0ZXIgaXMgVkdBLiBPdGhlcndpc2UsCj4gICAgIHdha2luZyB1cCB3aXRoIHRoZSB2aXJ0
-dWFsIHBvd2VyIGJ1dHRvbiBkb2VzIG5vdCB3b3JrLgo+IDMpIEFmdGVyIGluc3RhbGxpbmcgdGhl
-IGd1ZXN0IE9TLCBsb2cgaW4sIGFuZCB0ZXN0IHRoZSBuZXR3b3JrCj4gICAgIGNvbm5lY3Rpdml0
-eSBieSBwaW5nIHRoZSBob3N0IG1hY2hpbmUuCj4gNCkgU3VzcGVuZC4gQWZ0ZXIgdGhpcywgdGhl
-IHNjcmVlbiBpcyBibGFuay4KPiA1KSBSZXN1bWUgYnkgaGl0dGluZyB0aGUgdmlydHVhbCBwb3dl
-ciBidXR0b24uIFRoZSBsb2dpbiBzY3JlZW4KPiAgICAgYXBwZWFycyBhZ2Fpbi4KPiA2KSBMb2cg
-aW4gYWdhaW4uIFRoZSBndWVzdCBsb3NlcyBpdHMgbmV0d29yayBjb25uZWN0aW9uLgo+Cj4gSW4g
-bXkgdGVzdDoKPiBHdWVzdDogVWJ1bnR1IDE2LjA0LzE4LjA0IHdpdGgga2VybmVsIDQuMTUuMC0z
-Ni1nZW5lcmljCj4gSG9zdDogVWJ1bnR1IDE2LjA0IHdpdGgga2VybmVsIDQuMTUuMC0zNi1nZW5l
-cmljLzQuNC4wLTEzNy1nZW5lcmljCgpJIGNhbiBub3QgcmVwcm9kdWNlIHRoaXMgaXNzdWUgaWYg
-dmlydGlvLW5ldCBpbnRlcmZhY2UgaXMgdXAgaW4gZ3Vlc3QgCmJlZm9yZSB0aGUgc3VzcGVuZC4g
-SSdtIHVzaW5nIG5ldC1uZXh0LmdpdCBhbmQgcWVtdSBtYXN0ZXIuIEJ1dCBJIGRvIApyZXByb2R1
-Y2Ugd2hlbiB2aXJ0aW8tbmV0IGludGVyZmFjZSBpcyBkb3duIGluIGd1ZXN0IGJlZm9yZSBzdXNw
-ZW5kLCAKYWZ0ZXIgcmVzdW1lLCBldmVuIGlmIEkgbWFrZSBpdCB1cCwgdGhlIG5ldHdvcmsgaXMg
-c3RpbGwgbG9zdC4KCkkgdGhpbmsgdGhlIGludGVyZmFjZSBpcyB1cCBpbiB5b3VyIGNhc2UsIGJ1
-dCBwbGVhc2UgY29uZmlybSB0aGlzLgoKPgo+Pj4gSXMgaXQgYmV0dGVyIHRvIHJlcG9ydCB0aGlz
-IGFzIGEgYnVnIGZpcnN0Pwo+PiBOb3BlLCB5b3UncmUgdmVyeSB3ZWxjb21lIHRvIHBvc3QgcGF0
-Y2ggZGlyZWN0bHkuCj4+Cj4+PiBJZiBJIGFtIHRvIGRvIG1vcmUKPj4+IGludmVzdGlnYXRpb24s
-IHdoYXQgYXJlYXMgc2hvdWxkIEkgbG9vayBpbnRvPwo+PiBBcyB5b3UndmUgZmlndXJlZCBvdXQs
-IHlvdSBjYW4gc3RhcnQgd2l0aCB3aHkgbmV0aWZfdHhfd2FrZV9hbGxfcXVldWVzKCkKPj4gd2Vy
-ZSBub3QgZXhlY3V0ZWQ/Cj4+Cj4+IChCdHcsIGRvZXMgdGhlIGlzc3VlIGRpc2FwcGVhciBpZiB5
-b3UgbW92ZSBuZXRpZl90eF9kaXNhYmxlKCkgdW5kZXIgdGhlCj4+IGNoZWNrIG9mIG5ldGlmX3J1
-bm5pbmcoKSBpbiB2aXJ0bmV0X2ZyZWV6ZV9kb3duKCk/KQo+IFRoZSBpc3N1ZSBkaXNhcHBlYXJz
-IGlmIEkgbW92ZSBuZXRpZl90eF9kaXNhYmxlKCkgdW5kZXIgdGhlIGNoZWNrIG9mCj4gbmV0aWZf
-cnVubmluZygpIGluIHZpcnRuZXRfZnJlZXplX2Rvd24oKS4gTW92aW5nIG5ldGlmX3R4X2Rpc2Fi
-bGUoKQo+IGlzIHByb2JhYmx5IGJldHRlciBhcyBpdHMgbG9naWMgaXMgY29uc2lzdGVudCB3aXRo
-Cj4gbmV0aWZfZGV2aWNlX2F0dGFjaCgpIGltcGxlbWVudGF0aW9uLiBJZiB5b3UgYXJlIE9LIHdp
-dGggdGhpcyBpZGVhLAo+IEkgd2lsbCBzdWJtaXQgYW5vdGhlciBwYXRjaC4KCkkgdGhpbmsgdGhl
-IGl0IGhlbHBzIGZvciB0aGUgY2FzZSB3aGVuIGludGVyZmFjZSBpcyBkb3duIGJlZm9yZSBzdXNw
-ZW5kLiAKQnV0IGl0J3Mgc3RpbGwgdW5jbGVhciB3aHkgaXQgaGVscCBldmVuIGlmIHRoZSBpbnRl
-cmZhY2UgaXMgdXAgCihuZXRpZl9ydW5uaW5nKCkgaXMgdHJ1ZSkuCgpQbGVhc2Ugc3VibWl0IGEg
-cGF0Y2ggYnV0IHdlIHNob3VsZCBmaWd1cmUgb3V0IHdoeSBpdCBoZWxwIGZvciBhIHVwIAppbnRl
-cmZhY2UgYXMgd2VsbC4KClRoYW5rcwoKPgo+PiBUaGFua3MKPj4KPj4+IEJlc3QgUmVnYXJkcwo+
-Pj4gQWtlIEtvb21zaW4KPj4+Cj4gQmVzdCBSZWdhcmRzCgpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
-eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, Jul 16, 2018 at 11:28:09AM +0800, Jason Wang wrote:
+[...]
+> @@ -1367,10 +1397,48 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
+>  		vq->last_avail_idx = s.num;
+>  		/* Forget the cached index value. */
+>  		vq->avail_idx = vq->last_avail_idx;
+> +		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED)) {
+> +			vq->last_avail_wrap_counter = wrap_counter;
+> +			vq->avail_wrap_counter = vq->last_avail_wrap_counter;
+> +		}
+>  		break;
+>  	case VHOST_GET_VRING_BASE:
+>  		s.index = idx;
+>  		s.num = vq->last_avail_idx;
+> +		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
+> +			s.num |= vq->last_avail_wrap_counter << 31;
+> +		if (copy_to_user(argp, &s, sizeof(s)))
+> +			r = -EFAULT;
+> +		break;
+> +	case VHOST_SET_VRING_USED_BASE:
+> +		/* Moving base with an active backend?
+> +		 * You don't want to do that.
+> +		 */
+> +		if (vq->private_data) {
+> +			r = -EBUSY;
+> +			break;
+> +		}
+> +		if (copy_from_user(&s, argp, sizeof(s))) {
+> +			r = -EFAULT;
+> +			break;
+> +		}
+> +		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED)) {
+> +			wrap_counter = s.num >> 31;
+> +			s.num &= ~(1 << 31);
+> +		}
+> +		if (s.num > 0xffff) {
+> +			r = -EINVAL;
+> +			break;
+> +		}
+
+Do we want to put wrap_counter at bit 15?
+
+If put wrap_counter at bit 31, the check (s.num > 0xffff)
+won't be able to catch the illegal index 0x8000~0xffff for
+packed ring.
+
+> +		vq->last_used_idx = s.num;
+> +		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
+> +			vq->last_used_wrap_counter = wrap_counter;
+> +		break;
+> +	case VHOST_GET_VRING_USED_BASE:
+
+Do we need the new VHOST_GET_VRING_USED_BASE and
+VHOST_SET_VRING_USED_BASE ops?
+
+We are going to merge below series in DPDK:
+
+http://patches.dpdk.org/patch/45874/
+
+We may need to reach an agreement first.
+
+
+> +		s.index = idx;
+> +		s.num = vq->last_used_idx;
+> +		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
+> +			s.num |= vq->last_used_wrap_counter << 31;
+>  		if (copy_to_user(argp, &s, sizeof s))
+>  			r = -EFAULT;
+>  		break;
+[...]
