@@ -1,24 +1,18 @@
-From: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: [patch 00/11] x86/vdso: Cleanups, simmplifications and CLOCK_TAI
-	support
-Date: Mon, 15 Oct 2018 10:39:56 -0300
-Message-ID: <20181015133952.GA2932__15698.6105874696$1539614448$gmane$org@amt.cnet>
-References: <499807AB-E779-40C3-AA3F-E8C77A7770EC@amacapital.net>
-	<CALCETrXNKCNZzUXj=2sp1vBd_o7HHzfW6RwyY5v3-wMfbVaZnQ@mail.gmail.com>
-	<20181006202731.GC7129@amt.cnet>
-	<CALCETrWqze2mifOdFc0GJYHtHGKiKX2Zdi5Kz87OyUogbqD15w@mail.gmail.com>
-	<20181008152650.GB27822@amt.cnet>
-	<CALCETrVY6VHPLs0GXZM4+VYraTa1+xs=iRJoRa++OHX9Wq+ieg@mail.gmail.com>
-	<20181008193632.GA31729@amt.cnet>
-	<CALCETrW6b8=dU6vkXNS-rW1GPzJTbVxuVNsU4aoD_NwwobVQcg@mail.gmail.com>
-	<20181011222744.GA17955@amt.cnet>
-	<CALCETrXMEqHOa-8s51gGE_gxWVzTWY5eLiZrGLhMUkWKZkfmDw@mail.gmail.com>
+From: Amit Shah <amit@kernel.org>
+Subject: Re: [Qemu-devel] virtio-console downgrade the virtio-pci-blk
+	performance
+Date: Mon, 15 Oct 2018 20:51:15 +0200
+Message-ID: <20181015185115.GA3247__42977.8900383555$1539632287$gmane$org@grmbl.mre>
+References: <CAEK8JBDPNqTap-LnoBxUZh4Bj9b+VgrsPm53QAivfOsLG7wuGw@mail.gmail.com>
+	<20181001114146.GA2508@work-vm>
+	<CAEK8JBBDPxTe0k8Nf=7PQ6gjYv4xyqQu=bef5VXmgaLVGw3JUg@mail.gmail.com>
+	<CAEK8JBC-HKGb43UynWx69Lj-y48Em038eNMpOb7G72XfLF_mDg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CALCETrXMEqHOa-8s51gGE_gxWVzTWY5eLiZrGLhMUkWKZkfmDw@mail.gmail.com>
+In-Reply-To: <CAEK8JBC-HKGb43UynWx69Lj-y48Em038eNMpOb7G72XfLF_mDg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,69 +22,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@kernel.org>
-Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
+To: Feng Li <lifeng1519@gmail.com>
+Cc: "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, amit@kernel.org, qemu-devel@nongnu.org, linux-kernel <linux-kernel@vger.kernel.org>, qemu-discuss@nongnu.org, virtualization@lists.linux-foundation.org, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 11, 2018 at 04:00:29PM -0700, Andy Lutomirski wrote:
-> On Thu, Oct 11, 2018 at 3:28 PM Marcelo Tosatti <mtosatti@redhat.com> wrote:
-> >
-> > On Tue, Oct 09, 2018 at 01:09:42PM -0700, Andy Lutomirski wrote:
-> > > On Tue, Oct 9, 2018 at 8:28 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
-> > > >
-> > > > On Mon, Oct 08, 2018 at 10:38:22AM -0700, Andy Lutomirski wrote:
-> > > > > On Mon, Oct 8, 2018 at 8:27 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
-> > >
-> > > > > I read the comment three more times and even dug through the git
-> > > > > history.  It seems like what you're saying is that, under certain
-> > > > > conditions (which arguably would be bugs in the core Linux timing
-> > > > > code),
-> > > >
-> > > > I don't see that as a bug. Its just a side effect of reading two
-> > > > different clocks (one is CLOCK_MONOTONIC and the other is TSC),
-> > > > and using those two clocks to as a "base + offset".
-> > > >
-> > > > As the comment explains, if you do that, can't guarantee monotonicity.
-> > > >
-> > > > > actually calling ktime_get_boot_ns() could be non-monotonic
-> > > > > with respect to the kvmclock timing.  But get_kvmclock_ns() isn't used
-> > > > > for VM timing as such -- it's used for the IOCTL interfaces for
-> > > > > updating the time offset.  So can you explain how my patch is
-> > > > > incorrect?
-> > > >
-> > > > ktime_get_boot_ns() has frequency correction applied, while
-> > > > reading masterclock + TSC offset does not.
-> > > >
-> > > > So the clock reads differ.
-> > > >
-> > >
-> > > Ah, okay, I finally think I see what's going on.  In the kvmclock data
-> > > exposed to the guest, tsc_shift and tsc_to_system_mul come from
-> > > tgt_tsc_khz, whereas master_kernel_ns and master_cycle_now come from
-> > > CLOCK_BOOTTIME.  So the kvmclock and kernel clock drift apart at a
-> > > rate given by the frequency shift and then suddenly agree again every
-> > > time the pvclock data is updated.
-> >
-> > Yes.
-> >
-> > > Is there a reason to do it this way?
-> >
-> > Since pvclock updates which update system_timestamp are expensive (must stop all vcpus),
-> > they should be avoided.
-> >
-> 
-> Fair enough.
-> 
-> > So only HW TSC counts
-> 
-> makes sense.
-> 
-> >, and used as offset against vcpu's tsc_timestamp.
-> >
-> 
-> Why don't you just expose CLOCK_MONTONIC_RAW or CLOCK_MONOTONIC_RAW
-> plus suspend time, though?  Then you would actually be tracking a real
-> kernel timekeeping mode, and you wouldn't need all this complicated
-> offsetting work to avoid accidentally going backwards.
-
-Can you outline how that would work ? 
+T24gKFRodSkgMTEgT2N0IDIwMTggWzE4OjE1OjQxXSwgRmVuZyBMaSB3cm90ZToKPiBBZGQgQW1p
+dCBTaGFoLgo+IAo+IEFmdGVyIHNvbWUgdGVzdHMsIHdlIGZvdW5kOgo+IC0gdGhlIHZpcnRpbyBz
+ZXJpYWwgcG9ydCBudW1iZXIgaXMgaW52ZXJzZWx5IHByb3BvcnRpb25hbCB0byB0aGUgaVNDU0kK
+PiB2aXJ0aW8tYmxrLXBjaSBwZXJmb3JtYW5jZS4KPiBJZiB3ZSBzZXQgdGhlIHZpcmlvLXNlcmlh
+bCBwb3J0cyB0byAyKCI8Y29udHJvbGxlcgo+IHR5cGU9J3ZpcnRpby1zZXJpYWwnIGluZGV4PScw
+JyBwb3J0cz0nMicvPiksIHRoZSBwZXJmb3JtYW5jZSBkb3duZ3JhZGUKPiBpcyBtaW5pbWFsLgoK
+SWYgeW91IHVzZSBtdWx0aXBsZSB2aXJ0aW8tbmV0IChvciBibGspIGRldmljZXMgLS0ganVzdCBy
+ZWdpc3Rlciwgbm90Cm5lY2Vzc2FyaWx5IHVzZSAtLSBkb2VzIHRoYXQgYWxzbyBicmluZyB0aGUg
+cGVyZm9ybWFuY2UgZG93bj8gIEkKc3VzcGVjdCBpdCdzIHRoZSBudW1iZXIgb2YgaW50ZXJydXB0
+cyB0aGF0IGdldCBhbGxvY2F0ZWQgZm9yIHRoZQpwb3J0cy4gIEFsc28sIGNvdWxkIHlvdSBjaGVj
+ayBpZiBNU0kgaXMgZW5hYmxlZD8gIENhbiB5b3UgdHJ5IHdpdGggYW5kCndpdGhvdXQ/ICBDYW4g
+eW91IGFsc28gcmVwcm9kdWNlIGlmIHlvdSBoYXZlIG11bHRpcGxlIHZpcnRpby1zZXJpYWwKY29u
+dHJvbGxlcnMgd2l0aCAyIHBvcnRzIGVhY2ggKHRvdGFsbGluZyB1cCB0byB3aGF0ZXZlciBudW1i
+ZXIgdGhhdApyZXByb2R1Y2VzIHRoZSBpc3N1ZSkuCgoJCUFtaXQKCj4gCj4gLSB1c2UgbG9jYWwg
+ZGlzay9yYW0gZGlzayBhcyB2aXJ0aW8tYmxrLXBjaSBkaXNrLCB0aGUgcGVyZm9ybWFuY2UKPiBk
+b3duZ3JhZGUgaXMgc3RpbGwgb2J2aW91cy4KPiAKPiAKPiBDb3VsZCBhbnlvbmUgZ2l2ZSBzb21l
+IGhlbHAgYWJvdXQgdGhpcyBpc3N1ZT8KPiAKPiBGZW5nIExpIDxsaWZlbmcxNTE5QGdtYWlsLmNv
+bT4g5LqOMjAxOOW5tDEw5pyIMeaXpeWRqOS4gCDkuIvljYgxMDo1OOWGmemBk++8mgo+ID4KPiA+
+IEhpIERhdmUsCj4gPiBNeSBjb21tZW50cyBhcmUgaW4tbGluZS4KPiA+Cj4gPiBEci4gRGF2aWQg
+QWxhbiBHaWxiZXJ0IDxkZ2lsYmVydEByZWRoYXQuY29tPiDkuo4yMDE45bm0MTDmnIgx5pel5ZGo
+5LiAIOS4i+WNiDc6NDHlhpnpgZPvvJoKPiA+ID4KPiA+ID4gKiBGZW5nIExpIChsaWZlbmcxNTE5
+QGdtYWlsLmNvbSkgd3JvdGU6Cj4gPiA+ID4gSGksCj4gPiA+ID4gSSBmb3VuZCBhbiBvYnZpb3Vz
+IHBlcmZvcm1hbmNlIGRvd25ncmFkZSB3aGVuIHZpcnRpby1jb25zb2xlIGNvbWJpbmVkCj4gPiA+
+ID4gd2l0aCB2aXJ0aW8tcGNpLWJsay4KPiA+ID4gPgo+ID4gPiA+IFRoaXMgcGhlbm9tZW5vbiBl
+eGlzdHMgaW4gbmVhcmx5IGFsbCBRZW11IHZlcnNpb25zIGFuZCBhbGwgTGludXgKPiA+ID4gPiAo
+Q2VudE9TNywgRmVkb3JhIDI4LCBVYnVudHUgMTguMDQpIGRpc3Ryb3MuCj4gPiA+ID4KPiA+ID4g
+PiBUaGlzIGlzIGEgZGlzayBjbWQ6Cj4gPiA+ID4gLWRyaXZlIGZpbGU9aXNjc2k6Ly8xMjcuMC4w
+LjE6MzI2MC9pcW4uMjAxNi0wMi5jb20udGVzdDpzeXN0ZW06ZmwtaXNjc2kvMSxmb3JtYXQ9cmF3
+LGlmPW5vbmUsaWQ9ZHJpdmUtdmlydGlvLWRpc2swLGNhY2hlPW5vbmUsYWlvPW5hdGl2ZQo+ID4g
+PiA+IC1kZXZpY2UgdmlydGlvLWJsay1wY2ksc2NzaT1vZmYsYnVzPXBjaS4wLGFkZHI9MHg2LGRy
+aXZlPWRyaXZlLXZpcnRpby1kaXNrMCxpZD12aXJ0aW8tZGlzazAsYm9vdGluZGV4PTEsd3JpdGUt
+Y2FjaGU9b24KPiA+ID4gPgo+ID4gPiA+IElmIEkgYWRkICItZGV2aWNlCj4gPiA+ID4gdmlydGlv
+LXNlcmlhbC1wY2ksaWQ9dmlydGlvLXNlcmlhbDAsYnVzPXBjaS4wLGFkZHI9MHg1ICAiLCB0aGUg
+dmlydGlvCj4gPiA+ID4gZGlzayA0ayBpb3BzIChyYW5kcmVhZC9yYW5kd3JpdGUpIHdvdWxkIGRv
+d25ncmFkZSBmcm9tIDYwayB0byA0MGsuCj4gPiA+ID4KPiA+ID4gPiBJbiBWTSwgaWYgSSBybW1v
+ZCB2aXJ0aW8tY29uc29sZSwgdGhlIHBlcmZvcm1hbmNlIHdpbGwgYmFjayB0byBub3JtYWwuCj4g
+PiA+ID4KPiA+ID4gPiBBbnkgaWRlYSBhYm91dCB0aGlzIGlzc3VlPwo+ID4gPiA+Cj4gPiA+ID4g
+SSBkb24ndCBrbm93IHRoaXMgaXMgYSBxZW11IGlzc3VlIG9yIGtlcm5lbCBpc3N1ZS4KPiA+ID4K
+PiA+ID4gSXQgc291bmRzIG9kZDsgIGNhbiB5b3UgcHJvdmlkZSBtb3JlIGRldGFpbHMgb246Cj4g
+PiA+ICAgYSkgVGhlIGJlbmNobWFyayB5b3UncmUgdXNpbmcuCj4gPiBJJ20gdXNpbmcgZmlvLCB0
+aGUgY29uZmlnIGlzOgo+ID4gW2dsb2JhbF0KPiA+IGlvZW5naW5lPWxpYmFpbwo+ID4gaW9kZXB0
+aD0xMjgKPiA+IHJ1bnRpbWU9MTIwCj4gPiB0aW1lX2Jhc2VkCj4gPiBkaXJlY3Q9MQo+ID4KPiA+
+IFtyYW5kcmVhZF0KPiA+IHN0b25ld2FsbAo+ID4gYnM9NGsKPiA+IGZpbGVuYW1lPS9kZXYvdmRi
+Cj4gPiBydz1yYW5kcmVhZAo+ID4KPiA+ID4gICBiKSB0aGUgaG9zdCBhbmQgdGhlIGd1ZXN0IGNv
+bmZpZyAobnVtYmVyIG9mIGNwdXMgZXRjKQo+ID4gVGhlIHFlbXUgY21kIGlzIDogL3Vzci9saWJl
+eGVjL3FlbXUta3ZtIC0tZGV2aWNlIHZpcnRpby1iYWxsb29uIC1tIDE2Rwo+ID4gLS1lbmFibGUt
+a3ZtIC1jcHUgaG9zdCAtc21wIDgKPiA+IG9yIHFlbXUtc3lzdGVtLXg4Nl82NCAtLWRldmljZSB2
+aXJ0aW8tYmFsbG9vbiAtbSAxNkcgLS1lbmFibGUta3ZtIC1jcHUKPiA+IGhvc3QgLXNtcCA4Cj4g
+Pgo+ID4gVGhlIHJlc3VsdCBpcyB0aGUgc2FtZS4KPiA+Cj4gPiA+ICAgYykgV2h5IGFyZSB5b3Ug
+cnVubmluZyBpdCB3aXRoIGlzY3NpIGJhY2sgdG8gdGhlIHNhbWUgaG9zdCAtIHdoeSBub3QKPiA+
+ID4gICAgICBqdXN0IHNpbXBsaWZ5IHRoZSB0ZXN0IGJhY2sgdG8gYSBzaW1wbGUgZmlsZT8KPiA+
+ID4KPiA+Cj4gPiBCZWNhdXNlIG15IElTQ1NJIHRhcmdldCBjb3VsZCBzdXBwbHkgYSBoaWdoIElP
+UFMgcGVyZm9ybWFuY2UuCj4gPiBJZiB1c2luZyBhIHNsb3cgZGlzaywgdGhlIHBlcmZvcm1hbmNl
+IGRvd25ncmFkZSB3b3VsZCBiZSBub3Qgc28gb2J2aW91cy4KPiA+IEl0J3MgZWFzeSB0byBiZSBz
+ZWVuLCB5b3UgY291bGQgdHJ5IGl0Lgo+ID4KPiA+Cj4gPiA+IERhdmUKPiA+ID4KPiA+ID4gPgo+
+ID4gPiA+IFRoYW5rcyBpbiBhZHZhbmNlLgo+ID4gPiA+IC0tCj4gPiA+ID4gVGhhbmtzIGFuZCBC
+ZXN0IFJlZ2FyZHMsCj4gPiA+ID4gQWxleAo+ID4gPiA+Cj4gPiA+IC0tCj4gPiA+IERyLiBEYXZp
+ZCBBbGFuIEdpbGJlcnQgLyBkZ2lsYmVydEByZWRoYXQuY29tIC8gTWFuY2hlc3RlciwgVUsKPiA+
+Cj4gPgo+ID4KPiA+IC0tCj4gPiBUaGFua3MgYW5kIEJlc3QgUmVnYXJkcywKPiA+IEZlbmcgTGko
+QWxleCkKPiAKPiAKPiAKPiAtLQo+IFRoYW5rcyBhbmQgQmVzdCBSZWdhcmRzLAo+IEZlbmcgTGko
+QWxleCkKCgkJQW1pdAotLSAKaHR0cDovL2FtaXRzaGFoLm5ldC8KX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
