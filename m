@@ -1,16 +1,24 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [PATCH v3 3/7] PCI: OF: Allow endpoints to bypass the iommu
-Date: Mon, 15 Oct 2018 12:32:51 +0100
-Message-ID: <33bd48e9-a061-e97d-ff00-daf5097b8e1f__14355.394364293$1539603060$gmane$org@arm.com>
-References: <20181012145917.6840-1-jean-philippe.brucker@arm.com>
-	<20181012145917.6840-4-jean-philippe.brucker@arm.com>
-	<20181012194158.GX5906@bhelgaas-glaptop.roam.corp.google.com>
+From: Marcelo Tosatti <mtosatti@redhat.com>
+Subject: Re: [patch 00/11] x86/vdso: Cleanups, simmplifications and CLOCK_TAI
+	support
+Date: Mon, 15 Oct 2018 10:39:56 -0300
+Message-ID: <20181015133952.GA2932__15698.6105874696$1539614448$gmane$org@amt.cnet>
+References: <499807AB-E779-40C3-AA3F-E8C77A7770EC@amacapital.net>
+	<CALCETrXNKCNZzUXj=2sp1vBd_o7HHzfW6RwyY5v3-wMfbVaZnQ@mail.gmail.com>
+	<20181006202731.GC7129@amt.cnet>
+	<CALCETrWqze2mifOdFc0GJYHtHGKiKX2Zdi5Kz87OyUogbqD15w@mail.gmail.com>
+	<20181008152650.GB27822@amt.cnet>
+	<CALCETrVY6VHPLs0GXZM4+VYraTa1+xs=iRJoRa++OHX9Wq+ieg@mail.gmail.com>
+	<20181008193632.GA31729@amt.cnet>
+	<CALCETrW6b8=dU6vkXNS-rW1GPzJTbVxuVNsU4aoD_NwwobVQcg@mail.gmail.com>
+	<20181011222744.GA17955@amt.cnet>
+	<CALCETrXMEqHOa-8s51gGE_gxWVzTWY5eLiZrGLhMUkWKZkfmDw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181012194158.GX5906@bhelgaas-glaptop.roam.corp.google.com>
-Content-Language: en-GB
+Content-Disposition: inline
+In-Reply-To: <CALCETrXMEqHOa-8s51gGE_gxWVzTWY5eLiZrGLhMUkWKZkfmDw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,90 +28,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bjorn Helgaas <helgaas@kernel.org>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: mark.rutland@arm.com, peter.maydell@linaro.org, tnowicki@caviumnetworks.com, devicetree@vger.kernel.org, marc.zyngier@arm.com, linux-pci@vger.kernel.org, mst@redhat.com, will.deacon@arm.com, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, robh+dt@kernel.orgnd@arm.com, kvmarm@lists.cs.columbia.edu
+To: Andy Lutomirski <luto@kernel.org>
+Cc: Wanpeng Li <kernellwp@gmail.com>, Florian Weimer <fweimer@redhat.com>, Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>, Radim Krcmar <rkrcmar@redhat.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stephen Boyd <sboyd@kernel.org>, John Stultz <john.stultz@linaro.org>, devel@linuxdriverproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Matt Rickard <matt@softrans.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/10/18 20:41, Bjorn Helgaas wrote:
-> s/iommu/IOMMU/ in subject
+On Thu, Oct 11, 2018 at 04:00:29PM -0700, Andy Lutomirski wrote:
+> On Thu, Oct 11, 2018 at 3:28 PM Marcelo Tosatti <mtosatti@redhat.com> wrote:
+> >
+> > On Tue, Oct 09, 2018 at 01:09:42PM -0700, Andy Lutomirski wrote:
+> > > On Tue, Oct 9, 2018 at 8:28 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
+> > > >
+> > > > On Mon, Oct 08, 2018 at 10:38:22AM -0700, Andy Lutomirski wrote:
+> > > > > On Mon, Oct 8, 2018 at 8:27 AM Marcelo Tosatti <mtosatti@redhat.com> wrote:
+> > >
+> > > > > I read the comment three more times and even dug through the git
+> > > > > history.  It seems like what you're saying is that, under certain
+> > > > > conditions (which arguably would be bugs in the core Linux timing
+> > > > > code),
+> > > >
+> > > > I don't see that as a bug. Its just a side effect of reading two
+> > > > different clocks (one is CLOCK_MONOTONIC and the other is TSC),
+> > > > and using those two clocks to as a "base + offset".
+> > > >
+> > > > As the comment explains, if you do that, can't guarantee monotonicity.
+> > > >
+> > > > > actually calling ktime_get_boot_ns() could be non-monotonic
+> > > > > with respect to the kvmclock timing.  But get_kvmclock_ns() isn't used
+> > > > > for VM timing as such -- it's used for the IOCTL interfaces for
+> > > > > updating the time offset.  So can you explain how my patch is
+> > > > > incorrect?
+> > > >
+> > > > ktime_get_boot_ns() has frequency correction applied, while
+> > > > reading masterclock + TSC offset does not.
+> > > >
+> > > > So the clock reads differ.
+> > > >
+> > >
+> > > Ah, okay, I finally think I see what's going on.  In the kvmclock data
+> > > exposed to the guest, tsc_shift and tsc_to_system_mul come from
+> > > tgt_tsc_khz, whereas master_kernel_ns and master_cycle_now come from
+> > > CLOCK_BOOTTIME.  So the kvmclock and kernel clock drift apart at a
+> > > rate given by the frequency shift and then suddenly agree again every
+> > > time the pvclock data is updated.
+> >
+> > Yes.
+> >
+> > > Is there a reason to do it this way?
+> >
+> > Since pvclock updates which update system_timestamp are expensive (must stop all vcpus),
+> > they should be avoided.
+> >
 > 
-> On Fri, Oct 12, 2018 at 03:59:13PM +0100, Jean-Philippe Brucker wrote:
->> Using the iommu-map binding, endpoints in a given PCI domain can be
->> managed by different IOMMUs. Some virtual machines may allow a subset of
->> endpoints to bypass the IOMMU. In some case the IOMMU itself is presented
+> Fair enough.
 > 
-> s/case/cases/
+> > So only HW TSC counts
 > 
->> as a PCI endpoint (e.g. AMD IOMMU and virtio-iommu). Currently, when a
->> PCI root complex has an iommu-map property, the driver requires all
->> endpoints to be described by the property. Allow the iommu-map property to
->> have gaps.
+> makes sense.
 > 
-> I'm not an IOMMU or virtio expert, so it's not obvious to me why it is
-> safe to allow devices to bypass the IOMMU.  Does this mean a typo in
-> iommu-map could inadvertently allow devices to bypass it?  Should we
-> indicate something in dmesg (and/or sysfs) about devices that bypass
-> it?
+> >, and used as offset against vcpu's tsc_timestamp.
+> >
+> 
+> Why don't you just expose CLOCK_MONTONIC_RAW or CLOCK_MONOTONIC_RAW
+> plus suspend time, though?  Then you would actually be tracking a real
+> kernel timekeeping mode, and you wouldn't need all this complicated
+> offsetting work to avoid accidentally going backwards.
 
-It's not really "allow devices to bypass the IOMMU" so much as "allow DT 
-to describe devices which the IOMMU doesn't translate". It's a bit of an 
-edge case for not-really-PCI devices, but FWIW I can certainly think of 
-several ways to build real hardware like that. As for inadvertent errors 
-leaving out IDs which *should* be in the map, that really depends on the 
-IOMMU/driver implementation - e.g. SMMUv2 with arm-smmu.disable_bypass=0 
-would treat the device as untranslated, whereas SMMUv3 would always 
-generate a fault upon any transaction due to no valid stream table entry 
-being programmed (not even a bypass one).
-
-I reckon it's a sufficiently unusual case that keeping some sort of 
-message probably is worthwhile (at pr_info rather than pr_err) in case 
-someone does hit it by mistake.
-
->> Relaxing of_pci_map_rid also allows the msi-map property to have gaps,
-
-At worst, I suppose we could always add yet another parameter for each 
-caller to choose whether a missing entry is considered an error or not.
-
-Robin.
-
-> s/of_pci_map_rid/of_pci_map_rid()/
-> 
->> which is invalid since MSIs always reach an MSI controller. Thankfully
->> Linux will error out later, when attempting to find an MSI domain for the
->> device.
-> 
-> Not clear to me what "error out" means here.  In a userspace program,
-> I would infer that the program exits with an error message, but I
-> doubt you mean that Linux exits.
-> 
->> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
->> ---
->>   drivers/pci/of.c | 7 ++++---
->>   1 file changed, 4 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/pci/of.c b/drivers/pci/of.c
->> index 1836b8ddf292..2f5015bdb256 100644
->> --- a/drivers/pci/of.c
->> +++ b/drivers/pci/of.c
->> @@ -451,9 +451,10 @@ int of_pci_map_rid(struct device_node *np, u32 rid,
->>   		return 0;
->>   	}
->>   
->> -	pr_err("%pOF: Invalid %s translation - no match for rid 0x%x on %pOF\n",
->> -		np, map_name, rid, target && *target ? *target : NULL);
->> -	return -EFAULT;
->> +	/* Bypasses translation */
->> +	if (id_out)
->> +		*id_out = rid;
->> +	return 0;
->>   }
->>   
->>   #if IS_ENABLED(CONFIG_OF_IRQ)
->> -- 
->> 2.19.1
->>
-> _______________________________________________
-> iommu mailing list
-> iommu@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/iommu
-> 
+Can you outline how that would work ? 
