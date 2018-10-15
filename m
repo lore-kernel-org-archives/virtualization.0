@@ -1,20 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next V2 6/8] vhost: packed ring support
-Date: Mon, 15 Oct 2018 06:25:08 -0400
-Message-ID: <20181015062241-mutt-send-email-mst__8625.20626183159$1539598996$gmane$org@kernel.org>
-References: <1531711691-6769-1-git-send-email-jasowang@redhat.com>
-	<1531711691-6769-7-git-send-email-jasowang@redhat.com>
-	<20181012143244.GA28400@debian>
-	<20181012131812-mutt-send-email-mst@kernel.org>
-	<447f47fa-32dd-a408-dd81-13a9839e0748@redhat.com>
-	<20181014224208-mutt-send-email-mst@kernel.org>
-	<ee3785be-b309-c4ae-e959-737018c21464@redhat.com>
+Subject: Re: [PATCH v3 3/7] PCI: OF: Allow endpoints to bypass the iommu
+Date: Mon, 15 Oct 2018 06:52:10 -0400
+Message-ID: <20181015065024-mutt-send-email-mst__28201.3083030053$1539600625$gmane$org@kernel.org>
+References: <20181012145917.6840-1-jean-philippe.brucker@arm.com>
+	<20181012145917.6840-4-jean-philippe.brucker@arm.com>
+	<20181012194158.GX5906@bhelgaas-glaptop.roam.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <ee3785be-b309-c4ae-e959-737018c21464@redhat.com>
+In-Reply-To: <20181012194158.GX5906@bhelgaas-glaptop.roam.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,83 +20,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
+To: Bjorn Helgaas <helgaas@kernel.org>
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, peter.maydell@linaro.org, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, linux-pci@vger.kernel.org, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, marc.zyngier@arm.com, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBPY3QgMTUsIDIwMTggYXQgMTA6NTE6MDZBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiBPbiAyMDE45bm0MTDmnIgxNeaXpSAxMDo0MywgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+ID4gT24gTW9uLCBPY3QgMTUsIDIwMTggYXQgMTA6MjI6MzNBTSArMDgwMCwgSmFz
-b24gV2FuZyB3cm90ZToKPiA+ID4gCj4gPiA+IE9uIDIwMTjlubQxMOaciDEz5pelIDAxOjIzLCBN
-aWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gT24gRnJpLCBPY3QgMTIsIDIwMTggYXQg
-MTA6MzI6NDRQTSArMDgwMCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+ID4gT24gTW9uLCBKdWwg
-MTYsIDIwMTggYXQgMTE6Mjg6MDlBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+
-IFsuLi5dCj4gPiA+ID4gPiA+IEBAIC0xMzY3LDEwICsxMzk3LDQ4IEBAIGxvbmcgdmhvc3RfdnJp
-bmdfaW9jdGwoc3RydWN0IHZob3N0X2RldiAqZCwgdW5zaWduZWQgaW50IGlvY3RsLCB2b2lkIF9f
-dXNlciAqYXJnCj4gPiA+ID4gPiA+ICAgIAkJdnEtPmxhc3RfYXZhaWxfaWR4ID0gcy5udW07Cj4g
-PiA+ID4gPiA+ICAgIAkJLyogRm9yZ2V0IHRoZSBjYWNoZWQgaW5kZXggdmFsdWUuICovCj4gPiA+
-ID4gPiA+ICAgIAkJdnEtPmF2YWlsX2lkeCA9IHZxLT5sYXN0X2F2YWlsX2lkeDsKPiA+ID4gPiA+
-ID4gKwkJaWYgKHZob3N0X2hhc19mZWF0dXJlKHZxLCBWSVJUSU9fRl9SSU5HX1BBQ0tFRCkpIHsK
-PiA+ID4gPiA+ID4gKwkJCXZxLT5sYXN0X2F2YWlsX3dyYXBfY291bnRlciA9IHdyYXBfY291bnRl
-cjsKPiA+ID4gPiA+ID4gKwkJCXZxLT5hdmFpbF93cmFwX2NvdW50ZXIgPSB2cS0+bGFzdF9hdmFp
-bF93cmFwX2NvdW50ZXI7Cj4gPiA+ID4gPiA+ICsJCX0KPiA+ID4gPiA+ID4gICAgCQlicmVhazsK
-PiA+ID4gPiA+ID4gICAgCWNhc2UgVkhPU1RfR0VUX1ZSSU5HX0JBU0U6Cj4gPiA+ID4gPiA+ICAg
-IAkJcy5pbmRleCA9IGlkeDsKPiA+ID4gPiA+ID4gICAgCQlzLm51bSA9IHZxLT5sYXN0X2F2YWls
-X2lkeDsKPiA+ID4gPiA+ID4gKwkJaWYgKHZob3N0X2hhc19mZWF0dXJlKHZxLCBWSVJUSU9fRl9S
-SU5HX1BBQ0tFRCkpCj4gPiA+ID4gPiA+ICsJCQlzLm51bSB8PSB2cS0+bGFzdF9hdmFpbF93cmFw
-X2NvdW50ZXIgPDwgMzE7Cj4gPiA+ID4gPiA+ICsJCWlmIChjb3B5X3RvX3VzZXIoYXJncCwgJnMs
-IHNpemVvZihzKSkpCj4gPiA+ID4gPiA+ICsJCQlyID0gLUVGQVVMVDsKPiA+ID4gPiA+ID4gKwkJ
-YnJlYWs7Cj4gPiA+ID4gPiA+ICsJY2FzZSBWSE9TVF9TRVRfVlJJTkdfVVNFRF9CQVNFOgo+ID4g
-PiA+ID4gPiArCQkvKiBNb3ZpbmcgYmFzZSB3aXRoIGFuIGFjdGl2ZSBiYWNrZW5kPwo+ID4gPiA+
-ID4gPiArCQkgKiBZb3UgZG9uJ3Qgd2FudCB0byBkbyB0aGF0Lgo+ID4gPiA+ID4gPiArCQkgKi8K
-PiA+ID4gPiA+ID4gKwkJaWYgKHZxLT5wcml2YXRlX2RhdGEpIHsKPiA+ID4gPiA+ID4gKwkJCXIg
-PSAtRUJVU1k7Cj4gPiA+ID4gPiA+ICsJCQlicmVhazsKPiA+ID4gPiA+ID4gKwkJfQo+ID4gPiA+
-ID4gPiArCQlpZiAoY29weV9mcm9tX3VzZXIoJnMsIGFyZ3AsIHNpemVvZihzKSkpIHsKPiA+ID4g
-PiA+ID4gKwkJCXIgPSAtRUZBVUxUOwo+ID4gPiA+ID4gPiArCQkJYnJlYWs7Cj4gPiA+ID4gPiA+
-ICsJCX0KPiA+ID4gPiA+ID4gKwkJaWYgKHZob3N0X2hhc19mZWF0dXJlKHZxLCBWSVJUSU9fRl9S
-SU5HX1BBQ0tFRCkpIHsKPiA+ID4gPiA+ID4gKwkJCXdyYXBfY291bnRlciA9IHMubnVtID4+IDMx
-Owo+ID4gPiA+ID4gPiArCQkJcy5udW0gJj0gfigxIDw8IDMxKTsKPiA+ID4gPiA+ID4gKwkJfQo+
-ID4gPiA+ID4gPiArCQlpZiAocy5udW0gPiAweGZmZmYpIHsKPiA+ID4gPiA+ID4gKwkJCXIgPSAt
-RUlOVkFMOwo+ID4gPiA+ID4gPiArCQkJYnJlYWs7Cj4gPiA+ID4gPiA+ICsJCX0KPiA+ID4gPiA+
-IERvIHdlIHdhbnQgdG8gcHV0IHdyYXBfY291bnRlciBhdCBiaXQgMTU/Cj4gPiA+ID4gSSB0aGlu
-ayBJIHNlY29uZCB0aGF0IC0gc2VlbXMgdG8gYmUgY29uc2lzdGVudCB3aXRoCj4gPiA+ID4gZS5n
-LiBldmVudCBzdXBwcmVzc2lvbiBzdHJ1Y3R1cmUgYW5kIHRoZSBwcm9wb3NlZAo+ID4gPiA+IGV4
-dGVuc2lvbiB0byBkcml2ZXIgbm90aWZpY2F0aW9ucy4KPiA+ID4gT2ssIEkgYXNzdW1lcyBwYWNr
-ZWQgdmlydHF1ZXVlIHN1cHBvcnQgNjRLIGJ1dCBsb29rcyBub3QuIEkgY2FuIGNoYW5nZSBpdCB0
-bwo+ID4gPiBiaXQgMTUgYW5kIEdFVF9WUklOR19CQVNFIG5lZWQgdG8gYmUgY2hhbmdlZCBhcyB3
-ZWxsLgo+ID4gPiAKPiA+ID4gPiAKPiA+ID4gPiA+IElmIHB1dCB3cmFwX2NvdW50ZXIgYXQgYml0
-IDMxLCB0aGUgY2hlY2sgKHMubnVtID4gMHhmZmZmKQo+ID4gPiA+ID4gd29uJ3QgYmUgYWJsZSB0
-byBjYXRjaCB0aGUgaWxsZWdhbCBpbmRleCAweDgwMDB+MHhmZmZmIGZvcgo+ID4gPiA+ID4gcGFj
-a2VkIHJpbmcuCj4gPiA+ID4gPiAKPiA+ID4gRG8gd2UgbmVlZCB0byBjbGFyaWZ5IHRoaXMgaW4g
-dGhlIHNwZWM/Cj4gPiBJc24ndCB0aGlzIGFsbCBpbnRlcm5hbCB2aG9zdCBzdHVmZj8KPiAKPiBJ
-IG1lYW50IHRoZSBpbGxlZ2FsIGluZGV4IDB4ODAwMC0weGZmZmYuCgpJdCBkb2VzIHNheSBwYWNr
-ZWQgdmlydHF1ZXVlcyBzdXBwb3J0IHVwIHRvIDIgMTUgZW50cmllcyBlYWNoLgoKQnV0IHllcyB3
-ZSBjYW4gYWRkIGEgcmVxdWlyZW1lbnQgdGhhdCBkZXZpY2VzIGRvIG5vdCBleHBvc2UKbGFyZ2Vy
-IHJpbmdzLiBTcGxpdCBkb2VzIG5vdCBzdXBwb3J0IDIqKjE2IGVpdGhlciwgcmlnaHQ/CldpdGgg
-MioqMTYgZW50aWVzIGF2YWlsIGluZGV4IGJlY29tZXMgMCBhbmQgcmluZyBsb29rcyBlbXB0eS4K
-Cj4gCj4gPiAKPiA+ID4gPiA+ID4gKwkJdnEtPmxhc3RfdXNlZF9pZHggPSBzLm51bTsKPiA+ID4g
-PiA+ID4gKwkJaWYgKHZob3N0X2hhc19mZWF0dXJlKHZxLCBWSVJUSU9fRl9SSU5HX1BBQ0tFRCkp
-Cj4gPiA+ID4gPiA+ICsJCQl2cS0+bGFzdF91c2VkX3dyYXBfY291bnRlciA9IHdyYXBfY291bnRl
-cjsKPiA+ID4gPiA+ID4gKwkJYnJlYWs7Cj4gPiA+ID4gPiA+ICsJY2FzZSBWSE9TVF9HRVRfVlJJ
-TkdfVVNFRF9CQVNFOgo+ID4gPiA+ID4gRG8gd2UgbmVlZCB0aGUgbmV3IFZIT1NUX0dFVF9WUklO
-R19VU0VEX0JBU0UgYW5kCj4gPiA+ID4gPiBWSE9TVF9TRVRfVlJJTkdfVVNFRF9CQVNFIG9wcz8K
-PiA+ID4gPiA+IAo+ID4gPiA+ID4gV2UgYXJlIGdvaW5nIHRvIG1lcmdlIGJlbG93IHNlcmllcyBp
-biBEUERLOgo+ID4gPiA+ID4gCj4gPiA+ID4gPiBodHRwOi8vcGF0Y2hlcy5kcGRrLm9yZy9wYXRj
-aC80NTg3NC8KPiA+ID4gPiA+IAo+ID4gPiA+ID4gV2UgbWF5IG5lZWQgdG8gcmVhY2ggYW4gYWdy
-ZWVtZW50IGZpcnN0Lgo+ID4gPiBJZiB3ZSBhZ3JlZSB0aGF0IDY0SyB2aXJ0cXVldWUgd29uJ3Qg
-YmUgc3VwcG9ydGVkLCBJJ20gb2sgd2l0aCBlaXRoZXIuCj4gPiBXZWxsIHRoZSBzcGVjIHNheXMg
-cmlnaHQgYXQgdGhlIGJlZ2lubmluZzoKPiA+IAo+ID4gUGFja2VkIHZpcnRxdWV1ZXMgc3VwcG9y
-dCB1cCB0byAyIDE1IGVudHJpZXMgZWFjaC4KPiAKPiBPay4gSSBnZXQgaXQuCj4gCj4gVGhlbiBJ
-IGNhbiBjaGFuZ2Ugdmhvc3QgdG8gbWF0Y2ggd2hhdCBkcGRrIGRpZC4KPiAKPiBUaGFua3MKPiAK
-PiA+IAo+ID4gCj4gPiA+IEJ0dyB0aGUgY29kZSBhc3N1bWVzIHVzZWRfd3JhcF9jb3VudGVyIGlz
-IGVxdWFsIHRvIGF2YWlsX3dyYXBfY291bnRlciB3aGljaAo+ID4gPiBsb29rcyB3cm9uZz8KPiA+
-ID4gCj4gPiA+IFRoYW5rcwo+ID4gPiAKPiA+ID4gPiA+ID4gKwkJcy5pbmRleCA9IGlkeDsKPiA+
-ID4gPiA+ID4gKwkJcy5udW0gPSB2cS0+bGFzdF91c2VkX2lkeDsKPiA+ID4gPiA+ID4gKwkJaWYg
-KHZob3N0X2hhc19mZWF0dXJlKHZxLCBWSVJUSU9fRl9SSU5HX1BBQ0tFRCkpCj4gPiA+ID4gPiA+
-ICsJCQlzLm51bSB8PSB2cS0+bGFzdF91c2VkX3dyYXBfY291bnRlciA8PCAzMTsKPiA+ID4gPiA+
-ID4gICAgCQlpZiAoY29weV90b191c2VyKGFyZ3AsICZzLCBzaXplb2YgcykpCj4gPiA+ID4gPiA+
-ICAgIAkJCXIgPSAtRUZBVUxUOwo+ID4gPiA+ID4gPiAgICAJCWJyZWFrOwo+ID4gPiA+ID4gWy4u
-Ll0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+On Fri, Oct 12, 2018 at 02:41:59PM -0500, Bjorn Helgaas wrote:
+> s/iommu/IOMMU/ in subject
+> 
+> On Fri, Oct 12, 2018 at 03:59:13PM +0100, Jean-Philippe Brucker wrote:
+> > Using the iommu-map binding, endpoints in a given PCI domain can be
+> > managed by different IOMMUs. Some virtual machines may allow a subset of
+> > endpoints to bypass the IOMMU. In some case the IOMMU itself is presented
+> 
+> s/case/cases/
+> 
+> > as a PCI endpoint (e.g. AMD IOMMU and virtio-iommu). Currently, when a
+> > PCI root complex has an iommu-map property, the driver requires all
+> > endpoints to be described by the property. Allow the iommu-map property to
+> > have gaps.
+> 
+> I'm not an IOMMU or virtio expert, so it's not obvious to me why it is
+> safe to allow devices to bypass the IOMMU.  Does this mean a typo in
+> iommu-map could inadvertently allow devices to bypass it?
+
+
+Thinking about this comment, I would like to ask: can't the
+virtio device indicate the ranges in a portable way?
+This would minimize the dependency on dt bindings and ACPI,
+enabling support for systems that have neither but do
+have virtio e.g. through pci.
+
+>  Should we
+> indicate something in dmesg (and/or sysfs) about devices that bypass
+> it?
+> 
+> > Relaxing of_pci_map_rid also allows the msi-map property to have gaps,
+> 
+> s/of_pci_map_rid/of_pci_map_rid()/
+> 
+> > which is invalid since MSIs always reach an MSI controller. Thankfully
+> > Linux will error out later, when attempting to find an MSI domain for the
+> > device.
+> 
+> Not clear to me what "error out" means here.  In a userspace program,
+> I would infer that the program exits with an error message, but I
+> doubt you mean that Linux exits.
+> 
+> > Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+> > ---
+> >  drivers/pci/of.c | 7 ++++---
+> >  1 file changed, 4 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/drivers/pci/of.c b/drivers/pci/of.c
+> > index 1836b8ddf292..2f5015bdb256 100644
+> > --- a/drivers/pci/of.c
+> > +++ b/drivers/pci/of.c
+> > @@ -451,9 +451,10 @@ int of_pci_map_rid(struct device_node *np, u32 rid,
+> >  		return 0;
+> >  	}
+> >  
+> > -	pr_err("%pOF: Invalid %s translation - no match for rid 0x%x on %pOF\n",
+> > -		np, map_name, rid, target && *target ? *target : NULL);
+> > -	return -EFAULT;
+> > +	/* Bypasses translation */
+> > +	if (id_out)
+> > +		*id_out = rid;
+> > +	return 0;
+> >  }
+> >  
+> >  #if IS_ENABLED(CONFIG_OF_IRQ)
+> > -- 
+> > 2.19.1
+> > 
